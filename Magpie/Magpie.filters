@@ -1,0 +1,187 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="源文件">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="头文件">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="资源文件">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="着色器">
+      <UniqueIdentifier>{1ad00fe3-0817-4508-8c5c-4816e84869b5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\Effects">
+      <UniqueIdentifier>{0a625bb5-a802-482c-91b7-e870a4950e57}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Third Party">
+      <UniqueIdentifier>{a256bc0e-97b9-48f5-a607-f48bd44c7fc1}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="framework.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Debug.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="pch.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="KeyBoardHook.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="EffectRenderer.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="MagWindow.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="WndProcThunk.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="AdaptiveSharpenEffect.h">
+      <Filter>头文件\Effects</Filter>
+    </ClInclude>
+    <ClInclude Include="Anime4KUpscaleEffect.h">
+      <Filter>头文件\Effects</Filter>
+    </ClInclude>
+    <ClInclude Include="ScaleEffect.h">
+      <Filter>头文件\Effects</Filter>
+    </ClInclude>
+    <ClInclude Include="Anime4KUpscaleConvReduceTransform.h">
+      <Filter>头文件\Effects</Filter>
+    </ClInclude>
+    <ClInclude Include="DrawTransformBase.h">
+      <Filter>头文件\Effects</Filter>
+    </ClInclude>
+    <ClInclude Include="EffectBase.h">
+      <Filter>头文件\Effects</Filter>
+    </ClInclude>
+    <ClInclude Include="Jinc2Transform.h">
+      <Filter>头文件\Effects</Filter>
+    </ClInclude>
+    <ClInclude Include="Shaders.h">
+      <Filter>头文件\Effects</Filter>
+    </ClInclude>
+    <ClInclude Include="GUIDs.h">
+      <Filter>头文件\Effects</Filter>
+    </ClInclude>
+    <ClInclude Include="EffectManager.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="SimpleScaleTransform.h">
+      <Filter>头文件\Effects</Filter>
+    </ClInclude>
+    <ClInclude Include="json.hpp">
+      <Filter>Third Party</Filter>
+    </ClInclude>
+    <ClInclude Include="Anime4KUpscaleOutputTransform.h">
+      <Filter>头文件\Effects</Filter>
+    </ClInclude>
+    <ClInclude Include="Anime4KUpscaleDeblurOutputTransform.h">
+      <Filter>头文件\Effects</Filter>
+    </ClInclude>
+    <ClInclude Include="Anime4KUpscaleDeblurEffect.h">
+      <Filter>头文件\Effects</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Magpie.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="pch.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="KeyBoardHook.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="GUIDs.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="SimpleDrawTransform.h">
+      <Filter>头文件\Effects</Filter>
+    </ClCompile>
+    <ClCompile Include="MagWindow.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="cpp.hint" />
+    <None Include="Anime4K.hlsli">
+      <Filter>着色器</Filter>
+    </None>
+    <None Include="common.hlsli">
+      <Filter>着色器</Filter>
+    </None>
+    <None Include="AdaptiveSharpen.hlsli">
+      <Filter>着色器</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="Anime4KUpscaleConv4x3x3x1Shader.hlsl">
+      <Filter>着色器</Filter>
+    </FxCompile>
+    <FxCompile Include="Anime4KUpscaleConv4x3x3x8Shader1.hlsl">
+      <Filter>着色器</Filter>
+    </FxCompile>
+    <FxCompile Include="Anime4KUpscaleConv4x3x3x8Shader2.hlsl">
+      <Filter>着色器</Filter>
+    </FxCompile>
+    <FxCompile Include="Anime4KUpscaleConv4x3x3x8Shader3.hlsl">
+      <Filter>着色器</Filter>
+    </FxCompile>
+    <FxCompile Include="Anime4KUpscaleConv4x3x3x8Shader4.hlsl">
+      <Filter>着色器</Filter>
+    </FxCompile>
+    <FxCompile Include="Anime4KUpscaleConv4x3x3x8Shader5.hlsl">
+      <Filter>着色器</Filter>
+    </FxCompile>
+    <FxCompile Include="Anime4KUpscaleConvReduceShader.hlsl">
+      <Filter>着色器</Filter>
+    </FxCompile>
+    <FxCompile Include="AdaptiveSharpenPass1Shader.hlsl">
+      <Filter>着色器</Filter>
+    </FxCompile>
+    <FxCompile Include="AdaptiveSharpenPass2Shader.hlsl">
+      <Filter>着色器</Filter>
+    </FxCompile>
+    <FxCompile Include="MitchellNetravaliScaleShader.hlsl">
+      <Filter>着色器</Filter>
+    </FxCompile>
+    <FxCompile Include="Jinc2ScaleShader.hlsl">
+      <Filter>着色器</Filter>
+    </FxCompile>
+    <FxCompile Include="Lanczos6ScaleShader.hlsl">
+      <Filter>着色器</Filter>
+    </FxCompile>
+    <FxCompile Include="Anime4KUpscaleDeblurOutputShader.hlsl">
+      <Filter>着色器</Filter>
+    </FxCompile>
+    <FxCompile Include="Anime4KUpscaleOutputShader.hlsl">
+      <Filter>着色器</Filter>
+    </FxCompile>
+    <FxCompile Include="Anime4KDeblurKernelXShader.hlsl">
+      <Filter>着色器</Filter>
+    </FxCompile>
+    <FxCompile Include="Anime4KDeblurKernelYShader.hlsl">
+      <Filter>着色器</Filter>
+    </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="test.json">
+      <Filter>资源文件</Filter>
+    </Text>
+  </ItemGroup>
+</Project>

@@ -1,0 +1,18 @@
+﻿[
+  {
+    "effect": "scale",
+    "type": "jinc2",
+    "props": {
+      "scaleX": 1.5,
+      "scaleY": 1.5
+    }
+  },
+  {
+    "effect": "scale",
+    "type": "anime4K"
+  },
+  {
+    "effect": "sharpen",
+    "type": "adaptive"
+  }
+]
