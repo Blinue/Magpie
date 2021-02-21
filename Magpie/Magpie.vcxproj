@@ -206,6 +206,7 @@
     <ClInclude Include="KeyBoardHook.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Shaders.h" />
+    <ClInclude Include="SimpleDrawTransform.h" />
     <ClInclude Include="SimpleScaleTransform.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="Utils.h" />
@@ -216,7 +217,6 @@
     <ClCompile Include="KeyBoardHook.cpp" />
     <ClCompile Include="MagWindow.cpp" />
     <ClCompile Include="pch.cpp" />
-    <ClCompile Include="SimpleDrawTransform.h" />
     <ClCompile Include="Magpie.cpp" />
   </ItemGroup>
   <ItemGroup>

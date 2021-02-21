@@ -66,9 +66,6 @@
     <ClCompile Include="pch.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="SimpleDrawTransform.h">
-      <Filter>头文件</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AdaptiveSharpenEffect.h">
@@ -142,6 +139,9 @@
     </ClInclude>
     <ClInclude Include="json.hpp">
       <Filter>第三方库</Filter>
+    </ClInclude>
+    <ClInclude Include="SimpleDrawTransform.h">
+      <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
