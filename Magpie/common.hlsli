@@ -16,13 +16,17 @@
 
 /*
 * 包含边界检查的 SampleInput
+* 欲使用下面的宏需要在包含此文件前定义 MAGPIE_USE_SAMPLE_INPUT，然后在 main 函数的开头调用 InitMagpieSampleInput
 */
 
 static float4 coord = 0;
 
 #define SampleInputNoCheck(index, pos) (D2DSampleInput(index, pos).rgb)
+#define SampleInputRGBANoCheck(index, pos) (D2DSampleInput(index, pos))
 #define SampleInputOffNoCheck(index, pos) (D2DSampleInputAtOffset(index, pos).rgb)
+#define SampleInputRGBAOffNoCheck(index, pos) (D2DSampleInputAtOffset(index, pos))
 #define SampleInputCur(index) (D2DSampleInput(index, coord.xy).rgb)
+#define SampleInputRGBACur(index) (D2DSampleInput(index, coord.xy))
 
 static float2 _maxCoord = 0;
 
@@ -32,6 +36,7 @@ static float2 _maxCoord = 0;
 #define _checkTop(y) (max(0, y))
 #define _checkBottom(y) (min(_maxCoord.g, y))
 
+// 检查边界的 D2DSampleInput
 #define SampleInputCheckLeft(index, x, y) (SampleInputNoCheck(index, float2(_checkLeft(x), y)))
 #define SampleInputCheckRight(index, x, y) (SampleInputNoCheck(index, float2(_checkRight(x), y)))
 #define SampleInputCheckTop(index, x, y) (SampleInputNoCheck(index, float2(x, _checkTop(y))))
@@ -41,6 +46,7 @@ static float2 _maxCoord = 0;
 #define SampleInputCheckRightTop(index, x, y) (SampleInputNoCheck(index, float2(_checkRight(x), _checkTop(y))))
 #define SampleInputCheckRightBottom(index, x, y) (SampleInputNoCheck(index, float2(_checkRight(x), _checkBottom(y))))
 
+// 检查边界的 D2DSampleInputAtOffset
 // 使用 rg 而不是 xy
 #define SampleInputOffCheckLeft(index, x, y) SampleInputCheckLeft(index, x * coord.z + coord.r, y * coord.w + coord.g)
 #define SampleInputOffCheckRight(index, x, y) SampleInputCheckRight(index, x * coord.z + coord.r, y * coord.w + coord.g)
@@ -50,6 +56,13 @@ static float2 _maxCoord = 0;
 #define SampleInputOffCheckLeftBottom(index, x, y) SampleInputCheckLeftBottom(index, x * coord.z + coord.r, y * coord.w + coord.g)
 #define SampleInputOffCheckRightTop(index, x, y) SampleInputCheckRightTop(index, x * coord.z + coord.r, y * coord.w + coord.g)
 #define SampleInputOffCheckRightBottom(index, x, y) SampleInputCheckRightBottom(index, x * coord.z + coord.r, y * coord.w + coord.g)
+
+// 限制坐标在边界内
+// n 为 offset
+#define GetCheckedLeft(index, n) _checkLeft(coord.x - n * coord.z)
+#define GetCheckedRight(index, n) _checkRight(coord.x + n * coord.w)
+#define GetCheckedTop(index, n) _checkTop(coord.y - n * coord.z)
+#define GetCheckedBottom(index, n) _checkBottom(coord.y + n * coord.w)
 
 
 // 需要 main 函数的开头调用
@@ -65,6 +78,7 @@ void InitMagpieSampleInput() {
 
 /*
 * RGB 和 YUV 互转
+* 需在包含此文件前定义 MAGPIE_USE_YUV
 */
 
 const static float3x3 _rgb2yuv = {

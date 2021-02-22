@@ -79,7 +79,7 @@ private:
 				const auto& subType = effect.value("type", "");
 
 				if (subType == "adaptive") {
-					_AddAdaptiveSharpenEffect();
+					_AddAdaptiveSharpenEffect(effect);
 					_AddBuiltInSharpenEffect();
 				}
 			} else {
@@ -89,12 +89,30 @@ private:
 
 	}
 
-	void _AddAdaptiveSharpenEffect() {
+	void _AddAdaptiveSharpenEffect(const nlohmann::json& props) {
 		ComPtr<ID2D1Effect> adaptiveSharpenEffect = nullptr;
 		Debug::ThrowIfFailed(
 			_d2dDC->CreateEffect(CLSID_MAGPIE_ADAPTIVE_SHARPEN_EFFECT, &adaptiveSharpenEffect),
 			L"创建 Adaptive sharpen effect 失败"
 		);
+
+		// strength 属性
+		const auto& it = props.find("strength");
+		if (it != props.end()) {
+			const auto& value = *it;
+			Debug::ThrowIfFalse(value.is_number(), L"非法的 strength 属性值");
+
+			float strength = value.get<float>();
+			Debug::ThrowIfFalse(
+				strength >= 0 && strength <= 1,
+				L"非法的 strength 属性值"
+			);
+
+			Debug::ThrowIfFailed(
+				adaptiveSharpenEffect->SetValue(AdaptiveSharpenEffect::PROP_STRENGTH, strength),
+				L"设置 strength 属性失败"
+			);
+		}
 
 		// 替换 output effect
 		adaptiveSharpenEffect->SetInputEffect(0, _outputEffect.Get());
@@ -166,6 +184,10 @@ private:
 			);
 
 			D2D1_VECTOR_2F scale{ scaleValues[0], scaleValues[1]};
+			Debug::ThrowIfFalse(
+				scale.x >= 0 && scale.y >= 0,
+				L"scale 属性的值非法"
+			);
 
 			if (scale.x == 0 || scale.y == 0) {
 				// 输出图像充满屏幕
@@ -175,7 +197,7 @@ private:
 			
 			Debug::ThrowIfFailed(
 				jinc2Effect->SetValue(ScaleEffect::PROP_SCALE, scale),
-				L"获取 scale 失败"
+				L"设置 scale 属性失败"
 			);
 
 			// 存在 scale 则输出图像尺寸改变

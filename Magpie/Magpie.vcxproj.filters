@@ -143,6 +143,9 @@
     <ClInclude Include="ScaleEffect.h">
       <Filter>头文件\Effect</Filter>
     </ClInclude>
+    <ClInclude Include="AdaptiveSharpenPass2Transform.h">
+      <Filter>头文件\Effect</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />

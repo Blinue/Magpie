@@ -13,7 +13,7 @@ public:
 
         HRESULT hr = DrawTransformBase::LoadShader(
             d2dEC,
-            ANIME4K_UPSCALE_CONV_REDUCE_SHADER,
+            MAGPIE_ANIME4K_UPSCALE_CONV_REDUCE_SHADER,
             GUID_MAGPIE_ANIME4K_UPSCALE_CONV_REDUCE_SHADER
         );
         if (FAILED(hr)) {

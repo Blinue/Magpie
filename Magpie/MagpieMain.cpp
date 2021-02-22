@@ -48,7 +48,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
   },
   {
     "effect": "sharpen",
-    "type": "adaptive"
+    "type": "adaptive",
+    "strength": 0.6
   }
 ])"));
             } else {

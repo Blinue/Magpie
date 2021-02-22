@@ -187,6 +187,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="AdaptiveSharpenEffect.h" />
+    <ClInclude Include="AdaptiveSharpenPass2Transform.h" />
     <ClInclude Include="Anime4KUpscaleDeblurEffect.h" />
     <ClInclude Include="Anime4KUpscaleDeblurOutputTransform.h" />
     <ClInclude Include="Anime4KUpscaleOutputTransform.h" />

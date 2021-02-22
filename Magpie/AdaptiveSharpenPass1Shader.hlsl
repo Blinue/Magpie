@@ -31,12 +31,45 @@ D2D_PS_ENTRY(main) {
 	// [      c20, c6,  c7,  c8, c17      ]
 	// [           c15, c12, c14          ]
 	// [                c13               ]
-	float3 c[25] = { 
-		SampleInputCur(0), SampleInputOffCheckLeftTop(0, -1, -1),  SampleInputOffCheckTop(0, 0, -1), SampleInputOffCheckRightTop(0, 1, -1), SampleInputOffCheckLeft(0, -1, 0), 
-		SampleInputOffCheckRight(0, 1, 0), SampleInputOffCheckLeftBottom(0, -1, 1), SampleInputOffCheckBottom(0, 0, 1), SampleInputOffCheckRightBottom(0, 1, 1), SampleInputOffCheckTop(0, 0, -2), 
-		SampleInputOffCheckLeft(0, -2, 0), SampleInputOffCheckRight(0, 2, 0), SampleInputOffCheckBottom(0, 0, 2), SampleInputOffCheckBottom(0, 0, 3), SampleInputOffCheckRightBottom(0, 1, 2),
-		SampleInputOffCheckLeftBottom(0, -1, 2), SampleInputOffCheckRight(0, 3, 0), SampleInputOffCheckRightBottom(0, 2, 1), SampleInputOffCheckRightTop(0, 2,-1), SampleInputOffCheckLeft(0, -3, 0), 
-		SampleInputOffCheckLeftBottom(0, -2, 1), SampleInputOffCheckLeftTop(0, -2, -1), SampleInputOffCheckTop(0, 0, -3), SampleInputOffCheckRightTop(0, 1, -2), SampleInputOffCheckLeftTop(0, -1, -2) 
+	float left1X = GetCheckedLeft(0, 1);
+	float left2X = GetCheckedLeft(0, 2);
+	float left3X = GetCheckedLeft(0, 3);
+	float right1X = GetCheckedRight(0, 1);
+	float right2X = GetCheckedRight(0, 2);
+	float right3X = GetCheckedRight(0, 3);
+	float top1Y = GetCheckedTop(0, 1);
+	float top2Y = GetCheckedTop(0, 2);
+	float top3Y = GetCheckedTop(0, 3);
+	float bottom1Y = GetCheckedBottom(0, 1);
+	float bottom2Y = GetCheckedBottom(0, 2);
+	float bottom3Y = GetCheckedBottom(0, 3);
+	
+	float3 c[25] = {
+		SampleInputCur(0),									// c0
+		SampleInputNoCheck(0, float2(left1X, top1Y)),		// c1
+		SampleInputNoCheck(0, float2(coord.x, top1Y)),		// c2
+		SampleInputNoCheck(0, float2(right1X, top1Y)),		// c3
+		SampleInputNoCheck(0, float2(left1X, coord.y)),		// c4
+		SampleInputNoCheck(0, float2(right1X, coord.y)),	// c5
+		SampleInputNoCheck(0, float2(left1X, bottom1Y)),	// c6
+		SampleInputNoCheck(0, float2(coord.x, bottom1Y)),	// c7
+		SampleInputNoCheck(0, float2(right1X, bottom1Y)),	// c8
+		SampleInputNoCheck(0, float2(coord.x, top2Y)),		// c9
+		SampleInputNoCheck(0, float2(left2X, coord.y)),		// c10
+		SampleInputNoCheck(0, float2(right2X, coord.y)),	// c11
+		SampleInputNoCheck(0, float2(coord.x, bottom2Y)),	// c12
+		SampleInputNoCheck(0, float2(coord.x, bottom3Y)),	// c13
+		SampleInputNoCheck(0, float2(right1X, bottom2Y)),	// c14
+		SampleInputNoCheck(0, float2(left1X, bottom2Y)),	// c15
+		SampleInputNoCheck(0, float2(right3X, coord.y)),	// c16
+		SampleInputNoCheck(0, float2(right2X, bottom1Y)),	// c17
+		SampleInputNoCheck(0, float2(right2X, top1Y)),		// c18
+		SampleInputNoCheck(0, float2(left3X, coord.y)),		// c19
+		SampleInputNoCheck(0, float2(left2X, bottom1Y)),	// c20
+		SampleInputNoCheck(0, float2(left2X, top1Y)),		// c21
+		SampleInputNoCheck(0, float2(coord.x, top3Y)),		// c22
+		SampleInputNoCheck(0, float2(right1X, top2Y)),		// c23
+		SampleInputNoCheck(0, float2(left1X, top2Y))		// c24
 	};
 	
 	// Blur, gauss 3x3
@@ -57,5 +90,5 @@ D2D_PS_ENTRY(main) {
 		+ b_diff(4) + b_diff(5) + b_diff(6) + b_diff(7) + b_diff(8)
 		+ 0.25 * (b_diff(9) + b_diff(10) + b_diff(11) + b_diff(12)));
 
-	return float4(D2DSampleInput(0, coord.xy).rgb, Compress(edge * c_comp));
+	return float4(c[0].rgb, Compress(edge * c_comp));
 }

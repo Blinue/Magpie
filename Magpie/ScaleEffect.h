@@ -12,7 +12,7 @@ public:
         _In_ ID2D1EffectContext* pEffectContext,
         _In_ ID2D1TransformGraph* pTransformGraph
     ) {
-        HRESULT hr = SimpleScaleTransform::Create(pEffectContext, &_jinc2SharpTransform, MITCHELL_NETRAVALI_SCALE_SHADER, GUID_MAGPIE_MITCHELL_NETRAVALI_SCALE_SHADER);
+        HRESULT hr = SimpleScaleTransform::Create(pEffectContext, &_jinc2SharpTransform, MAGPIE_MITCHELL_NETRAVALI_SCALE_SHADER, GUID_MAGPIE_MITCHELL_NETRAVALI_SCALE_SHADER);
         if (FAILED(hr)) {
             return hr;
         }

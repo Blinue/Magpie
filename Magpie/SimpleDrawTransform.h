@@ -9,7 +9,7 @@
 //  * 只是简单地对输入应用了一个像素着色器
 //  * 无状态
 class SimpleDrawTransform : public DrawTransformBase {
-private:
+protected:
     SimpleDrawTransform(const GUID &shaderID): _shaderID(shaderID) {}
 
 public:
@@ -50,11 +50,10 @@ public:
             return hr;
         }
 
-        _shaderConstants = {
-            pInputRects[0].right - pInputRects[0].left,
-            pInputRects[0].bottom - pInputRects[0].top,
-        };
-        _drawInfo->SetPixelShaderConstantBuffer((BYTE*)&_shaderConstants, sizeof(_shaderConstants));
+        SetShaderContantBuffer(SIZE {
+            pInputRects->right - pInputRects->left,
+            pInputRects->bottom - pInputRects->top
+        });
 
         return S_OK;
     }
@@ -64,16 +63,22 @@ public:
         return pDrawInfo->SetPixelShader(_shaderID);
     }
 
-private:
+protected:
+    // 继承的类可以覆盖此方法向着色器传递参数
+    virtual void SetShaderContantBuffer(const SIZE& srcSize) {
+        struct {
+            INT32 srcWidth;
+            INT32 srcHeight;
+        } shaderConstants{
+            srcSize.cx,
+            srcSize.cy
+        };
+
+        _drawInfo->SetPixelShaderConstantBuffer((BYTE*)&shaderConstants, sizeof(shaderConstants));
+    }
+
     ComPtr<ID2D1DrawInfo> _drawInfo = nullptr;
 
-    // 输出图像的尺寸
-    D2D1_SIZE_U _destSize{};
-
-    struct {
-        INT32 width;
-        INT32 height;
-    } _shaderConstants{};
-
+private:
     const GUID& _shaderID;
 };

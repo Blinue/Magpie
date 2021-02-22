@@ -35,7 +35,7 @@ public:
         HRESULT hr = SimpleDrawTransform::Create(
             pEffectContext,
             &_conv4x3x3x1Transform,
-            ANIME4K_UPSCALE_CONV_4x3x3x1_SHADER,
+            MAGPIE_ANIME4K_UPSCALE_CONV_4x3x3x1_SHADER,
             GUID_MAGPIE_ANIME4K_UPSCALE_CONV_4x3x3x1_SHADER);
         if (FAILED(hr)) {
             return hr;
@@ -43,7 +43,7 @@ public:
         hr = SimpleDrawTransform::Create(
             pEffectContext,
             &_conv4x3x3x8Transform1,
-            ANIME4K_UPSCALE_CONV_4x3x3x8_SHADER1,
+            MAGPIE_ANIME4K_UPSCALE_CONV_4x3x3x8_SHADER1,
             GUID_MAGPIE_ANIME4K_UPSCALE_CONV_4x3x3x8_SHADER_1);
         if (FAILED(hr)) {
             return hr;
@@ -51,7 +51,7 @@ public:
         hr = SimpleDrawTransform::Create(
             pEffectContext,
             &_conv4x3x3x8Transform2,
-            ANIME4K_UPSCALE_CONV_4x3x3x8_SHADER2,
+            MAGPIE_ANIME4K_UPSCALE_CONV_4x3x3x8_SHADER2,
             GUID_MAGPIE_ANIME4K_UPSCALE_CONV_4x3x3x8_SHADER_2
         );
         if (FAILED(hr)) {
@@ -60,7 +60,7 @@ public:
         hr = SimpleDrawTransform::Create(
             pEffectContext,
             &_conv4x3x3x8Transform3,
-            ANIME4K_UPSCALE_CONV_4x3x3x8_SHADER3,
+            MAGPIE_ANIME4K_UPSCALE_CONV_4x3x3x8_SHADER3,
             GUID_MAGPIE_ANIME4K_UPSCALE_CONV_4x3x3x8_SHADER_3
         );
         if (FAILED(hr)) {
@@ -69,7 +69,7 @@ public:
         hr = SimpleDrawTransform::Create(
             pEffectContext,
             &_conv4x3x3x8Transform4,
-            ANIME4K_UPSCALE_CONV_4x3x3x8_SHADER4,
+            MAGPIE_ANIME4K_UPSCALE_CONV_4x3x3x8_SHADER4,
             GUID_MAGPIE_ANIME4K_UPSCALE_CONV_4x3x3x8_SHADER_4
         );
         if (FAILED(hr)) {
@@ -78,7 +78,7 @@ public:
         hr = SimpleDrawTransform::Create(
             pEffectContext,
             &_conv4x3x3x8Transform5,
-            ANIME4K_UPSCALE_CONV_4x3x3x8_SHADER5,
+            MAGPIE_ANIME4K_UPSCALE_CONV_4x3x3x8_SHADER5,
             GUID_MAGPIE_ANIME4K_UPSCALE_CONV_4x3x3x8_SHADER_5
         );
         if (FAILED(hr)) {
@@ -91,7 +91,7 @@ public:
         hr = SimpleDrawTransform::Create(
             pEffectContext,
             &_deblurKernelXTransform,
-            ANIME4K_DEBLUR_KERNEL_X_SHADER,
+            MAGPIE_ANIME4K_DEBLUR_KERNEL_X_SHADER,
             GUID_MAGPIE_ANIME4K_DEBLUR_KERNEL_X_SHADER
         );
         if (FAILED(hr)) {
@@ -100,7 +100,7 @@ public:
         hr = SimpleDrawTransform::Create(
             pEffectContext,
             &_deblurKernelYTransform,
-            ANIME4K_DEBLUR_KERNEL_Y_SHADER,
+            MAGPIE_ANIME4K_DEBLUR_KERNEL_Y_SHADER,
             GUID_MAGPIE_ANIME4K_DEBLUR_KERNEL_Y_SHADER
         );
         if (FAILED(hr)) {

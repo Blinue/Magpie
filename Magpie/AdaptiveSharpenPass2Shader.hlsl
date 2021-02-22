@@ -1,24 +1,25 @@
-
-
+// 自适应锐化算法 Pass2
+// 移植自 https://github.com/libretro/common-shaders/blob/master/sharpen/shaders/adaptive-sharpen-pass2.cg
+//
+// Adaptive sharpen
+// Tuned for use post resize, EXPECTS FULL RANGE GAMMA LIGHT
 
 cbuffer constants : register(b0) {
 	int2 srcSize : packoffset(c0.x);
-	//float curve_height : packoffset(c0.z);	// 锐化强度，必须为正值。一般在 0.3~2.0 之间
+	float curveHeight : packoffset(c0.z);	// 锐化强度，必须为正值。一般在 0.3~2.0 之间
 };
-#define curve_height 1
+
 
 #define D2D_INPUT_COUNT 1
 #define D2D_INPUT0_COMPLEX
+#define MAGPIE_USE_SAMPLE_INPUT
 #include "AdaptiveSharpen.hlsli"
-
-// Adaptive sharpen
-// Tuned for use post resize, EXPECTS FULL RANGE GAMMA LIGHT
 
 
 //-------------------------------------------------------------------------------------------------
 // Defined values under this row are "optimal" DO NOT CHANGE IF YOU DO NOT KNOW WHAT YOU ARE DOING!
 
-#define curveslope      (curve_height*0.7)   // Sharpening curve slope, high edge values
+#define curveslope      (curveHeight*0.7)   // Sharpening curve slope, high edge values
 
 #define D_overshoot     0.009                // Max dark overshoot before max compression, >0!
 #define D_compr_low     0.250                // Max compression ratio, dark overshoot (1/0.250=4x)
@@ -40,8 +41,6 @@ cbuffer constants : register(b0) {
 // Soft limit
 #define soft_lim(v,s)  (((exp(2*min(abs(v),s*16)/s)-1)/(exp(2*min(abs(v),s*16)/s)+1))*s)
 
-#define sat(input)     (float4(saturate((input).xyz),(input).w))
-
 // Colour to luma, fast approx gamma
 #define CtL(RGB)       (sqrt(dot(float3(0.256,0.651,0.093),saturate((RGB).rgb*abs(RGB).rgb))))
 
@@ -49,30 +48,20 @@ cbuffer constants : register(b0) {
 #define mdiff(a,b,c,d,e,f,g) (abs(luma[g]-luma[a])+abs(luma[g]-luma[b])+abs(luma[g]-luma[c])+abs(luma[g]-luma[d])+0.5*(abs(luma[g]-luma[e])+abs(luma[g]-luma[f])))
 
 
-float4 sample0(float2 pos) {
-	float4 coord = D2DGetInputCoordinate(0);
-
-	pos.x = max(0, pos.x);
-	pos.x = min((srcSize.x - 1) * coord.z, pos.x);
-	pos.y = max(0, pos.y);
-	pos.y = min((srcSize.y - 1) * coord.w, pos.y);
-
-	return D2DSampleInput(0, pos);
-}
 
 float4 get(float x, float y) {
-	float4 coord = D2DGetInputCoordinate(0);
-	float4 s = sample0(coord.xy + float2(x, y) * coord.zw);
+	float4 s = SampleInputRGBANoCheck(0, float2(x, y));
 	return float4(s.xyz, Uncompress(s.w));
 }
 
-D2D_PS_ENTRY(main) {
-	float4 coord = D2DGetInputCoordinate(0);
 
-	float4 orig0 = get(0,0);
+D2D_PS_ENTRY(main) {
+	InitMagpieSampleInput();
+
+	float4 orig0 = get(coord.x, coord.y);
 	float c_edge = orig0.w;
 
-	// Displays a green screen if the edge data is not inside a valid range in the .w channel
+	// Displays the origin image if the edge data is not inside a valid range in the .w channel
 	if (c_edge > 32 || c_edge < -0.5) { return float4(orig0.xyz, 1); }
 
 	// Get points, saturate colour data in c[0]
@@ -83,11 +72,46 @@ D2D_PS_ENTRY(main) {
 	// [      c20, c6,  c7,  c8, c17      ]
 	// [           c15, c12, c14          ]
 	// [                c13               ]
-	float4 c[25] = { orig0, get(-1,-1), get(0,-1), get(1,-1), get(-1, 0),
-					 get(1, 0), get(-1, 1), get(0, 1), get(1, 1), get(0,-2),
-					 get(-2, 0), get(2, 0), get(0, 2), get(0, 3), get(1, 2),
-					 get(-1, 2), get(3, 0), get(2, 1), get(2,-1), get(-3, 0),
-					 get(-2, 1), get(-2,-1), get(0,-3), get(1,-2), get(-1,-2) };
+	float left1X = GetCheckedLeft(0, 1);
+	float left2X = GetCheckedLeft(0, 2);
+	float left3X = GetCheckedLeft(0, 3);
+	float right1X = GetCheckedRight(0, 1);
+	float right2X = GetCheckedRight(0, 2);
+	float right3X = GetCheckedRight(0, 3);
+	float top1Y = GetCheckedTop(0, 1);
+	float top2Y = GetCheckedTop(0, 2);
+	float top3Y = GetCheckedTop(0, 3);
+	float bottom1Y = GetCheckedBottom(0, 1);
+	float bottom2Y = GetCheckedBottom(0, 2);
+	float bottom3Y = GetCheckedBottom(0, 3);
+
+	float4 c[25] = {
+		orig0,					// c0
+		get(left1X, top1Y),		// c1
+		get(coord.x, top1Y),	// c2
+		get(right1X, top1Y),	// c3
+		get(left1X, coord.y),	// c4
+		get(right1X, coord.y),	// c5
+		get(left1X, bottom1Y),	// c6
+		get(coord.x, bottom1Y),	// c7
+		get(right1X, bottom1Y),	// c8
+		get(coord.x, top2Y),	// c9
+		get(left2X, coord.y),	// c10
+		get(right2X, coord.y),	// c11
+		get(coord.x, bottom2Y),	// c12
+		get(coord.x, bottom3Y),	// c13
+		get(right1X, bottom2Y),	// c14
+		get(left1X, bottom2Y),	// c15
+		get(right3X, coord.y),	// c16
+		get(right2X, bottom1Y),	// c17
+		get(right2X, top1Y),	// c18
+		get(left3X, coord.y),	// c19
+		get(left2X, bottom1Y),	// c20
+		get(left2X, top1Y),		// c21
+		get(coord.x, top3Y),	// c22
+		get(right1X, top2Y),	// c23
+		get(left1X, top2Y)		// c24
+	};
 
 	// Allow for higher overshoot if the current edge pixel is surrounded by similar edge pixels
 	float maxedge = (max4(max4(c[1].w, c[2].w, c[3].w, c[4].w), max4(c[5].w, c[6].w, c[7].w, c[8].w),
@@ -163,7 +187,7 @@ D2D_PS_ENTRY(main) {
 	neg_laplace = pow((neg_laplace / weightsum), (1.0 / 2.4)) - 0.064;
 
 	// Compute sharpening magnitude function
-	float sharpen_val = (lowthsum / 12) * (curve_height / (curveslope * pow(abs(c_edge), 3.5) + 0.5));
+	float sharpen_val = (lowthsum / 12) * (curveHeight / (curveslope * pow(abs(c_edge), 3.5) + 0.5));
 
 	// Calculate sharpening diff and scale
 	float sharpdiff = (c0_Y - neg_laplace) * (sharpen_val * 0.8 + 0.01);
@@ -197,5 +221,5 @@ D2D_PS_ENTRY(main) {
 	// Normal path
 	if (sharpdiff > 0) { return float4(minim_satloss, 1); }
 
-	else { return float4((c[0].rgb + sharpdiff), 1); }
+	else { return float4((orig0.rgb + sharpdiff), 1); }
 }

@@ -1,15 +1,15 @@
 #pragma once
 #include "pch.h"
 #include "GUIDs.h"
-#include "DrawTransformBase.h"
+#include "SimpleDrawTransform.h"
 #include "Utils.h"
 
 
 // 通用的 scale transform
-// 只支持 scale 属性
-class SimpleScaleTransform : public DrawTransformBase {
+// 只支持 scale 属性，默认值为 1.0
+class SimpleScaleTransform : public SimpleDrawTransform {
 protected:
-    SimpleScaleTransform(const GUID& shaderID) : _shaderID(shaderID) {}
+    SimpleScaleTransform(const GUID& shaderID) : SimpleDrawTransform(shaderID) {}
 
 public:
     static HRESULT Create(
@@ -40,10 +40,6 @@ public:
         return _scale;
     }
 
-    IFACEMETHODIMP_(UINT32) GetInputCount() const override {
-        return 1;
-    }
-
     IFACEMETHODIMP MapInputRectsToOutputRect(
         _In_reads_(inputRectCount) const D2D1_RECT_L* pInputRects,
         _In_reads_(inputRectCount) const D2D1_RECT_L* pInputOpaqueSubRects,
@@ -71,25 +67,9 @@ public:
         };
         *pOutputOpaqueSubRect = { 0,0,0,0 };
 
-        SetShaderContantBuffer(srcSize, destSize);
+        _SetShaderContantBuffer(srcSize, destSize);
 
         return S_OK;
-    }
-
-    virtual void SetShaderContantBuffer(const SIZE& srcSize, const SIZE& destSize) {
-        struct {
-            INT32 srcWidth;
-            INT32 srcHeight;
-            INT32 destWidth;
-            INT32 destHeight;
-        } shaderConstants {
-            _inputRect.right - _inputRect.left,
-            _inputRect.bottom - _inputRect.top,
-            destSize.cx,
-            destSize.cy
-        };
-
-        _drawInfo->SetPixelShaderConstantBuffer((BYTE*)&shaderConstants, sizeof(shaderConstants));
     }
 
     IFACEMETHODIMP MapOutputRectToInputRects(
@@ -105,26 +85,25 @@ public:
 
         return S_OK;
     }
-
-    IFACEMETHODIMP MapInvalidRect(
-        UINT32 inputIndex,
-        D2D1_RECT_L invalidInputRect,
-        _Out_ D2D1_RECT_L* pInvalidOutputRect
-    ) const override {
-        return DrawTransformBase::MapInvalidRect(inputIndex, invalidInputRect, pInvalidOutputRect);
-    }
-
-    IFACEMETHODIMP SetDrawInfo(ID2D1DrawInfo* pDrawInfo) override {
-        _drawInfo = pDrawInfo;
-        return pDrawInfo->SetPixelShader(_shaderID);
-    }
-
 protected:
-    ComPtr<ID2D1DrawInfo> _drawInfo = nullptr;
+    // 继承的类可以覆盖此方法向着色器传递参数
+    virtual void _SetShaderContantBuffer(const SIZE& srcSize, const SIZE& destSize) {
+        struct {
+            INT32 srcWidth;
+            INT32 srcHeight;
+            INT32 destWidth;
+            INT32 destHeight;
+        } shaderConstants{
+            srcSize.cx,
+            srcSize.cy,
+            destSize.cx,
+            destSize.cy
+        };
+
+        _drawInfo->SetPixelShaderConstantBuffer((BYTE*)&shaderConstants, sizeof(shaderConstants));
+    }
 
 private:
-    const GUID& _shaderID;
-
     // 保存输入图像的尺寸
     D2D1_RECT_L _inputRect{};
 
