@@ -2,7 +2,7 @@
 #define D2D_INPUT0_COMPLEX
 #define D2D_INPUT1_COMPLEX
 #define D2D_INPUT2_COMPLEX
-#include "d2d1effecthelpers.hlsli"
+#define MAGPIE_USE_YUV
 #include "Anime4K.hlsli"
 
 #define STRENGTH 1 //De-blur proportional strength, higher is sharper. However, it is better to tweak BLUR_CURVE instead to avoid ringing.
@@ -46,5 +46,5 @@ D2D_PS_ENTRY(main) {
 		yuv.x += c;
 	}
 	
-	return float4(YUV2RGB(yuv).xyz, 1);
+	return float4(YUV2RGB(yuv.x, yuv.y, yuv.z).xyz, 1);
 }

@@ -1,6 +1,5 @@
 #define D2D_INPUT_COUNT 1
 #define D2D_INPUT0_COMPLEX
-#include "d2d1effecthelpers.hlsli"
 #include "common.hlsli"
 
 #define FIX(c) max(abs(c), 1e-5)
@@ -10,7 +9,6 @@ cbuffer constants : register(b0) {
     int2 srcSize : packoffset(c0.x);
     int2 destSize : packoffset(c0.z);
 };
-
 
 
 float3 weight3(float x) {

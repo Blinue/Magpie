@@ -1,11 +1,20 @@
+// Jinc2 ²åÖµËã·¨
+// ÒÆÖ²×Ô https://github.com/libretro/common-shaders/blob/master/windowed/shaders/jinc2.cg
+//
+// This is an approximation of Jinc(x)*Jinc(x*r1/r2) for x < 2.5,
+// where r1 and r2 are the first two zeros of jinc function.
+// For a jinc 2-lobe best approximation, use A=0.5 and B=0.825.
+
+
+cbuffer constants : register(b0) {
+	int2 srcSize : packoffset(c0.x);
+	int2 destSize : packoffset(c0.z);
+};
+
+
 #define D2D_INPUT_COUNT 1
 #define D2D_INPUT0_COMPLEX
-#include "d2d1effecthelpers.hlsli"
 #include "common.hlsli"
-
-//This is an approximation of Jinc(x)*Jinc(x*r1/r2) for x < 2.5,
-//where r1 and r2 are the first two zeros of jinc function.
-//For a jinc 2-lobe best approximation, use A=0.5 and B=0.825.
 
 
 // A=0.5, B=0.825 is the best jinc approximation for x<2.5. if B=1.0, it's a lanczos filter.
@@ -15,15 +24,8 @@
 #define JINC2_WINDOW_SINC 0.44
 #define JINC2_SINC 0.825		// B
 #define JINC2_AR_STRENGTH 0.5	// A
-#define wa    (JINC2_WINDOW_SINC*PI)
-#define wb    (JINC2_SINC*PI)
-
-
-
-cbuffer constants : register(b0) {
-	int2 srcSize : packoffset(c0.x);
-	int2 destSize : packoffset(c0.z);
-};
+#define wa    (JINC2_WINDOW_SINC * PI)
+#define wb    (JINC2_SINC * PI)
 
 
 float d(float2 pt1, float2 pt2) {

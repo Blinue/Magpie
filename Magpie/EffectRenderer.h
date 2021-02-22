@@ -16,10 +16,10 @@ public:
 
         _effectManager.reset(new EffectManager(_d2dFactory, _d2dDC, effectsJson, srcSize, _hostWndClientSize));
 	}
-
+ 
+public:
     void Render(ComPtr<IWICBitmapSource> srcBmp) const {
         ComPtr<ID2D1Image> outputImg = _effectManager->Apply(srcBmp);
-        
 
         // »ñÈ¡Êä³öÍ¼Ïñ³ß´ç
         D2D1_RECT_F outputRect{};
@@ -40,7 +40,6 @@ public:
             }
         );
 
-        
         Debug::ThrowIfFailed(
             _d2dDC->EndDraw(),
             L"EndDraw Ê§°Ü"
@@ -50,8 +49,6 @@ public:
             _d2dSwapChain->Present(0, 0),
             L"Present Ê§°Ü"
         );
-        
-        
     }
 private:
     void _InitD2D(HWND hwndHost) {
@@ -101,15 +98,15 @@ private:
         );
 
         // Obtain the Direct2D device for 2-D rendering.
-        ComPtr<ID2D1Device> d2dDevice = nullptr;
+        
         Debug::ThrowIfFailed(
-            _d2dFactory->CreateDevice(dxgiDevice.Get(), &d2dDevice),
+            _d2dFactory->CreateDevice(dxgiDevice.Get(), &_d2dDevice),
             L""
         );
-
+        
         // Get Direct2D device's corresponding device context object.
         Debug::ThrowIfFailed(
-            d2dDevice->CreateDeviceContext(D2D1_DEVICE_CONTEXT_OPTIONS_NONE, &_d2dDC),
+            _d2dDevice->CreateDeviceContext(D2D1_DEVICE_CONTEXT_OPTIONS_NONE, &_d2dDC),
             L""
         );
 
@@ -126,7 +123,7 @@ private:
             dxgiAdapter->GetParent(IID_PPV_ARGS(&dxgiFactory)),
             L""
         );
-
+        
         // Allocate a descriptor.
         DXGI_SWAP_CHAIN_DESC1 swapChainDesc{};
         swapChainDesc.Width = _hostWndClientSize.cx,
@@ -137,7 +134,7 @@ private:
         swapChainDesc.SampleDesc.Quality = 0;
         swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
         swapChainDesc.BufferCount = 2;                     // use double buffering to enable flip
-        swapChainDesc.Scaling = DXGI_SCALING_STRETCH;
+        swapChainDesc.Scaling = DXGI_SCALING_NONE;
         swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;
         swapChainDesc.AlphaMode = DXGI_ALPHA_MODE_IGNORE;
 
@@ -154,7 +151,7 @@ private:
             ),
             L""
         );
-
+        
         // Ensure that DXGI doesn't queue more than one frame at a time.
         Debug::ThrowIfFailed(
             dxgiDevice->SetMaximumFrameLatency(1),
@@ -197,13 +194,13 @@ private:
         rc.tileSize.width = _hostWndClientSize.cx * 2;
         rc.tileSize.height = _hostWndClientSize.cy * 2;
         _d2dDC->SetRenderingControls(rc);
-
     }
 
 
     SIZE _hostWndClientSize{};
 
     ComPtr<ID2D1Factory1> _d2dFactory = nullptr;
+    ComPtr<ID2D1Device> _d2dDevice = nullptr;
     ComPtr<ID2D1DeviceContext> _d2dDC = nullptr;
     ComPtr<IDXGISwapChain1> _d2dSwapChain = nullptr;
 

@@ -139,7 +139,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>Magnification.lib;d2d1.lib;Windowscodecs.lib;d3d11.lib;dxguid.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Magnification.lib;d2d1.lib;Windowscodecs.lib;d3d11.lib;dxguid.lib;shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <FxCompile>
       <AdditionalIncludeDirectories>$(WindowsSDK_IncludePath);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -217,7 +217,7 @@
     <ClCompile Include="KeyBoardHook.cpp" />
     <ClCompile Include="MagWindow.cpp" />
     <ClCompile Include="pch.cpp" />
-    <ClCompile Include="Magpie.cpp" />
+    <ClCompile Include="MagpieMain.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="AdaptiveSharpen.hlsli" />

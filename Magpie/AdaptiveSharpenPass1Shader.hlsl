@@ -1,38 +1,27 @@
-#define D2D_INPUT_COUNT 1
-#define D2D_INPUT0_COMPLEX
-#include "d2d1effecthelpers.hlsli"
-#include "AdaptiveSharpen.hlsli"
-
+// 自适应锐化算法 Pass1
+// 移植自 https://github.com/libretro/common-shaders/blob/master/sharpen/shaders/adaptive-sharpen-pass1.cg
+// 
 // Adaptive sharpen
 // Tuned for use post resize, EXPECTS FULL RANGE GAMMA LIGHT
 
-
-// Get destination pixel values
-#define get(x,y)  (saturate(sample0(coord.xy + float2(x,y) * coord.zw)))
-
-// Compute diff
-#define b_diff(z) (abs(blur-c[z]))
 
 cbuffer constants : register(b0) {
 	int2 srcSize : packoffset(c0.x);
 };
 
 
-float3 sample0(float2 pos) {
-	float4 coord = D2DGetInputCoordinate(0);
+#define D2D_INPUT_COUNT 1
+#define D2D_INPUT0_COMPLEX
+#define MAGPIE_USE_SAMPLE_INPUT
+#include "AdaptiveSharpen.hlsli"
 
-	pos.x = max(0, pos.x);
-	pos.x = min((srcSize.x - 1) * coord.z, pos.x);
-	pos.y = max(0, pos.y);
-	pos.y = min((srcSize.y - 1) * coord.w, pos.y);
 
-	return D2DSampleInput(0, pos).rgb;
-}
+// Compute diff
+#define b_diff(z) (abs(blur-c[z]))
 
 
 D2D_PS_ENTRY(main) {
-	float4 coord = D2DGetInputCoordinate(0);
-
+	InitMagpieSampleInput();
 
 	// Get points and saturate out of range values (BTB & WTW)
 	// [                c22               ]
@@ -42,11 +31,13 @@ D2D_PS_ENTRY(main) {
 	// [      c20, c6,  c7,  c8, c17      ]
 	// [           c15, c12, c14          ]
 	// [                c13               ]
-	float3 c[25] = { get(0, 0), get(-1,-1), get(0,-1), get(1,-1), get(-1, 0),
-					 get(1, 0), get(-1, 1), get(0, 1), get(1, 1), get(0,-2),
-					 get(-2, 0), get(2, 0), get(0, 2), get(0, 3), get(1, 2),
-					 get(-1, 2), get(3, 0), get(2, 1), get(2,-1), get(-3, 0),
-					 get(-2, 1), get(-2,-1), get(0,-3), get(1,-2), get(-1,-2) };
+	float3 c[25] = { 
+		SampleInputCur(0), SampleInputOffCheckLeftTop(0, -1, -1),  SampleInputOffCheckTop(0, 0, -1), SampleInputOffCheckRightTop(0, 1, -1), SampleInputOffCheckLeft(0, -1, 0), 
+		SampleInputOffCheckRight(0, 1, 0), SampleInputOffCheckLeftBottom(0, -1, 1), SampleInputOffCheckBottom(0, 0, 1), SampleInputOffCheckRightBottom(0, 1, 1), SampleInputOffCheckTop(0, 0, -2), 
+		SampleInputOffCheckLeft(0, -2, 0), SampleInputOffCheckRight(0, 2, 0), SampleInputOffCheckBottom(0, 0, 2), SampleInputOffCheckBottom(0, 0, 3), SampleInputOffCheckRightBottom(0, 1, 2),
+		SampleInputOffCheckLeftBottom(0, -1, 2), SampleInputOffCheckRight(0, 3, 0), SampleInputOffCheckRightBottom(0, 2, 1), SampleInputOffCheckRightTop(0, 2,-1), SampleInputOffCheckLeft(0, -3, 0), 
+		SampleInputOffCheckLeftBottom(0, -2, 1), SampleInputOffCheckLeftTop(0, -2, -1), SampleInputOffCheckTop(0, 0, -3), SampleInputOffCheckRightTop(0, 1, -2), SampleInputOffCheckLeftTop(0, -1, -2) 
+	};
 	
 	// Blur, gauss 3x3
 	float3 blur = (2 * (c[2] + c[4] + c[5] + c[7]) + (c[1] + c[3] + c[6] + c[8]) + 4 * c[0]) / 16;

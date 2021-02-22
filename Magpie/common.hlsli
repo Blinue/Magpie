@@ -1,7 +1,9 @@
+#include "d2d1effecthelpers.hlsli"
+
 #define PI 3.1415926535897932384626433832795
 #define HALF_PI  1.5707963267948966192313216916398
 
-#define ZEROS4 float4(0,0,0,0)
+#define ZEROS4 (float4(0,0,0,0))
 
 #define min4(a, b, c, d) min(min(a, b), min(c, d))
 #define max4(a, b, c, d) max(max(a, b), max(c, d))
@@ -10,23 +12,73 @@
 #define max3(a, b, c) max(a, max(b, c))
 
 
-float3 RGB2YUV(float3 rgb) {
-	float3x3 rgb2yuv = {
+#ifdef MAGPIE_USE_SAMPLE_INPUT
+
+/*
+* 包含边界检查的 SampleInput
+*/
+
+static float4 coord = 0;
+
+#define SampleInputNoCheck(index, pos) (D2DSampleInput(index, pos).rgb)
+#define SampleInputOffNoCheck(index, pos) (D2DSampleInputAtOffset(index, pos).rgb)
+#define SampleInputCur(index) (D2DSampleInput(index, coord.xy).rgb)
+
+static float2 _maxCoord = 0;
+
+// 使用 rg 而不是 xy
+#define _checkLeft(x) (max(0, x))
+#define _checkRight(x) (min(_maxCoord.r, x))
+#define _checkTop(y) (max(0, y))
+#define _checkBottom(y) (min(_maxCoord.g, y))
+
+#define SampleInputCheckLeft(index, x, y) (SampleInputNoCheck(index, float2(_checkLeft(x), y)))
+#define SampleInputCheckRight(index, x, y) (SampleInputNoCheck(index, float2(_checkRight(x), y)))
+#define SampleInputCheckTop(index, x, y) (SampleInputNoCheck(index, float2(x, _checkTop(y))))
+#define SampleInputCheckBottom(index, x, y) (SampleInputNoCheck(index, float2(x, _checkBottom(y))))
+#define SampleInputCheckLeftTop(index, x, y) (SampleInputNoCheck(index, float2(_checkLeft(x), _checkTop(y))))
+#define SampleInputCheckLeftBottom(index, x, y) (SampleInputNoCheck(index, float2(_checkLeft(x), _checkBottom(y))))
+#define SampleInputCheckRightTop(index, x, y) (SampleInputNoCheck(index, float2(_checkRight(x), _checkTop(y))))
+#define SampleInputCheckRightBottom(index, x, y) (SampleInputNoCheck(index, float2(_checkRight(x), _checkBottom(y))))
+
+// 使用 rg 而不是 xy
+#define SampleInputOffCheckLeft(index, x, y) SampleInputCheckLeft(index, x * coord.z + coord.r, y * coord.w + coord.g)
+#define SampleInputOffCheckRight(index, x, y) SampleInputCheckRight(index, x * coord.z + coord.r, y * coord.w + coord.g)
+#define SampleInputOffCheckTop(index, x, y) SampleInputCheckTop(index, x * coord.z + coord.r, y * coord.w + coord.g)
+#define SampleInputOffCheckBottom(index, x, y) SampleInputCheckBottom(index, x * coord.z + coord.r, y * coord.w + coord.g)
+#define SampleInputOffCheckLeftTop(index, x, y) SampleInputCheckLeftTop(index, x * coord.z + coord.r, y * coord.w + coord.g)
+#define SampleInputOffCheckLeftBottom(index, x, y) SampleInputCheckLeftBottom(index, x * coord.z + coord.r, y * coord.w + coord.g)
+#define SampleInputOffCheckRightTop(index, x, y) SampleInputCheckRightTop(index, x * coord.z + coord.r, y * coord.w + coord.g)
+#define SampleInputOffCheckRightBottom(index, x, y) SampleInputCheckRightBottom(index, x * coord.z + coord.r, y * coord.w + coord.g)
+
+
+// 需要 main 函数的开头调用
+void InitMagpieSampleInput() {
+	coord = D2DGetInputCoordinate(0);
+	_maxCoord = float2((srcSize.x - 1) * coord.z, (srcSize.y - 1) * coord.w);
+}
+
+#endif
+
+
+#ifdef MAGPIE_USE_YUV
+
+/*
+* RGB 和 YUV 互转
+*/
+
+const static float3x3 _rgb2yuv = {
 		0.299, 0.587, 0.114,
 		-0.169, -0.331, 0.5,
 		0.5, -0.419, -0.081
-	};
-
-	return mul(rgb2yuv, rgb) + float3(0, 0.5, 0.5);
-}
-
-float3 YUV2RGB(float3 yuv) {
-	float3x3 yuv2rgb = {
+};
+const static float3x3 _yuv2rgb = {
 		1, -0.00093, 1.401687,
 		1, -0.3437, -0.71417,
 		1, 1.77216, 0.00099
-	};
+};
 
-	return mul(yuv2rgb, float3(yuv.x, yuv.y - 0.5, yuv.z - 0.5));
-}
+#define RGB2YUV(rgb) (mul(_rgb2yuv, rgb) + float3(0, 0.5, 0.5))
+#define YUV2RGB(y, u, v) (mul(_yuv2rgb, float3(y, u - 0.5, v - 0.5)))
 
+#endif

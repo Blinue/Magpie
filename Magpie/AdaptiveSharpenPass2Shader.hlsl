@@ -1,15 +1,19 @@
+
+
+
+cbuffer constants : register(b0) {
+	int2 srcSize : packoffset(c0.x);
+	//float curve_height : packoffset(c0.z);	// 锐化强度，必须为正值。一般在 0.3~2.0 之间
+};
+#define curve_height 1
+
 #define D2D_INPUT_COUNT 1
 #define D2D_INPUT0_COMPLEX
-#include "d2d1effecthelpers.hlsli"
 #include "AdaptiveSharpen.hlsli"
 
 // Adaptive sharpen
 // Tuned for use post resize, EXPECTS FULL RANGE GAMMA LIGHT
 
-//--------------------------------------- Settings ------------------------------------------------
-
-#define curve_height    1.0         // Main sharpening strength, POSITIVE VALUES ONLY!
-											 // 0.3 <-> 2.0 is a reasonable range of values
 
 //-------------------------------------------------------------------------------------------------
 // Defined values under this row are "optimal" DO NOT CHANGE IF YOU DO NOT KNOW WHAT YOU ARE DOING!
@@ -25,8 +29,6 @@
 #define L_compr_high    0.334                // -||- pixel surrounded by edges (1/0.334=3x)
 
 #define max_scale_lim   0.1                  // Abs change before max compression (0.1 = +-10%)
-
-#define alpha_out       1.0                  // MPDN requires the alpha channel output to be 1
 
 
 // Saturation loss reduction
@@ -45,12 +47,6 @@
 
 // Center pixel diff
 #define mdiff(a,b,c,d,e,f,g) (abs(luma[g]-luma[a])+abs(luma[g]-luma[b])+abs(luma[g]-luma[c])+abs(luma[g]-luma[d])+0.5*(abs(luma[g]-luma[e])+abs(luma[g]-luma[f])))
-
-
-cbuffer constants : register(b0) {
-	int2 srcSize : packoffset(c0.x);
-};
-
 
 
 float4 sample0(float2 pos) {
@@ -199,7 +195,7 @@ D2D_PS_ENTRY(main) {
 		+ lerp(-(soft_lim(min(sharpdiff, 0), nmin_scale)), min(sharpdiff, 0), s[1]);
 
 	// Normal path
-	if (sharpdiff > 0) { return float4(minim_satloss, alpha_out); }
+	if (sharpdiff > 0) { return float4(minim_satloss, 1); }
 
-	else { return float4((c[0].rgb + sharpdiff), alpha_out); }
+	else { return float4((c[0].rgb + sharpdiff), 1); }
 }

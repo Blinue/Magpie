@@ -1,6 +1,5 @@
 #define D2D_INPUT_COUNT 1
 #define D2D_INPUT0_COMPLEX
-#include "d2d1effecthelpers.hlsli"
 #include "Anime4K.hlsli"
 
 /*

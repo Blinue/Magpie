@@ -80,7 +80,7 @@ private:
 
 				if (subType == "adaptive") {
 					_AddAdaptiveSharpenEffect();
-					
+					_AddBuiltInSharpenEffect();
 				}
 			} else {
 				Debug::ThrowIfFalse(false, L"json 格式错误");
@@ -108,7 +108,7 @@ private:
 			L"创建 sharpen effect 失败"
 		);
 
-		d2dSharpenEffect->SetValue(D2D1_SHARPEN_PROP_SHARPNESS, 10.0f);
+		d2dSharpenEffect->SetValue(D2D1_SHARPEN_PROP_SHARPNESS, 6.0f);
 		d2dSharpenEffect->SetValue(D2D1_SHARPEN_PROP_THRESHOLD, 0.8f);
 
 		// 替换 output effect

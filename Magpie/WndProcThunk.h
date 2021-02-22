@@ -1,5 +1,6 @@
 // 向 WndProc 传递 this 指针的 thunk
 // 参考自 https://www.codeproject.com/Articles/1121696/Cplusplus-WinAPI-Wrapper-Object-using-thunks-x-and
+//
 // 注意 32 位和 64 位使用的方法不同
 // 参考如下代码：
 // #if defined(_M_IX86)
@@ -73,6 +74,7 @@ private:
     };
 #pragma pack(pop)
 #else
+    // vs 似乎不支持 static_assert 中使用中文
     static_assert(false, "Unsupported processor architecture!");
 #endif
 

@@ -4,7 +4,6 @@
 #define D2D_INPUT2_SIMPLE
 #define D2D_INPUT3_SIMPLE
 #define D2D_INPUT4_SIMPLE
-#include "d2d1effecthelpers.hlsli"
 #include "Anime4K.hlsli"
 
 /*

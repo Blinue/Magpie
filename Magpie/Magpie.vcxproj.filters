@@ -57,42 +57,18 @@
     <ClCompile Include="KeyBoardHook.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="Magpie.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="MagWindow.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="pch.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="MagpieMain.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="AdaptiveSharpenEffect.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="Anime4KUpscaleConvReduceTransform.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="Anime4KUpscaleDeblurEffect.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="Anime4KUpscaleDeblurOutputTransform.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="Anime4KUpscaleEffect.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="Anime4KUpscaleOutputTransform.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="Debug.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="DrawTransformBase.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="EffectBase.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="EffectManager.h">
@@ -107,9 +83,6 @@
     <ClInclude Include="GUIDs.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Jinc2Transform.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="KeyBoardHook.h">
       <Filter>头文件</Filter>
     </ClInclude>
@@ -119,13 +92,7 @@
     <ClInclude Include="pch.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="ScaleEffect.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="Shaders.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="SimpleScaleTransform.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="targetver.h">
@@ -140,8 +107,41 @@
     <ClInclude Include="json.hpp">
       <Filter>第三方库</Filter>
     </ClInclude>
+    <ClInclude Include="AdaptiveSharpenEffect.h">
+      <Filter>头文件\Effect</Filter>
+    </ClInclude>
+    <ClInclude Include="Anime4KUpscaleConvReduceTransform.h">
+      <Filter>头文件\Effect</Filter>
+    </ClInclude>
+    <ClInclude Include="Anime4KUpscaleDeblurEffect.h">
+      <Filter>头文件\Effect</Filter>
+    </ClInclude>
+    <ClInclude Include="Anime4KUpscaleDeblurOutputTransform.h">
+      <Filter>头文件\Effect</Filter>
+    </ClInclude>
+    <ClInclude Include="Anime4KUpscaleEffect.h">
+      <Filter>头文件\Effect</Filter>
+    </ClInclude>
+    <ClInclude Include="Anime4KUpscaleOutputTransform.h">
+      <Filter>头文件\Effect</Filter>
+    </ClInclude>
+    <ClInclude Include="DrawTransformBase.h">
+      <Filter>头文件\Effect</Filter>
+    </ClInclude>
+    <ClInclude Include="EffectBase.h">
+      <Filter>头文件\Effect</Filter>
+    </ClInclude>
+    <ClInclude Include="Jinc2Transform.h">
+      <Filter>头文件\Effect</Filter>
+    </ClInclude>
     <ClInclude Include="SimpleDrawTransform.h">
-      <Filter>头文件</Filter>
+      <Filter>头文件\Effect</Filter>
+    </ClInclude>
+    <ClInclude Include="SimpleScaleTransform.h">
+      <Filter>头文件\Effect</Filter>
+    </ClInclude>
+    <ClInclude Include="ScaleEffect.h">
+      <Filter>头文件\Effect</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -171,6 +171,9 @@
     </Filter>
     <Filter Include="资源文件">
       <UniqueIdentifier>{9d8d4871-1f32-4acc-ac9c-d95088cd1ffc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\Effect">
+      <UniqueIdentifier>{7aeace38-38c9-4406-9075-effd6b4c0381}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

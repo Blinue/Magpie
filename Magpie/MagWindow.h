@@ -175,6 +175,7 @@ private:
         return TRUE;
     }
 
+
     void _InitWICImgFactory() {
         Debug::ThrowIfFailed(
             CoInitialize(NULL), 
@@ -206,7 +207,7 @@ private:
     HWND _hwndSrc;
     RECT _srcClient{};
     UINT _frameRate;
-    ComPtr<IWICImagingFactory> _wicImgFactory = nullptr;
+    ComPtr<IWICImagingFactory2> _wicImgFactory = nullptr;
     std::unique_ptr<EffectRenderer> _effectRenderer = nullptr;
 
     // 存储所有实例，可通过窗口句柄查找

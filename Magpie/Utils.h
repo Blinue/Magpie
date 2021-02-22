@@ -1,5 +1,6 @@
 #pragma once
 #include "pch.h"
+#include "Shlwapi.h"
 
 class Utils {
 public:
@@ -84,5 +85,60 @@ public:
             guid.Data4[2], guid.Data4[3], guid.Data4[4], guid.Data4[5], guid.Data4[6], guid.Data4[7]
         );
         return { buf };
+    }
+
+    static void SaveD2DImage(
+        ComPtr<ID2D1Device> d2dDevice,
+        ComPtr<ID2D1Image> img,
+        const std::wstring_view& fileName
+    ) {
+        ComPtr<IWICImagingFactory2> wicImgFactory;
+
+        Debug::ThrowIfFailed(
+            CoCreateInstance(
+                CLSID_WICImagingFactory,
+                nullptr,
+                CLSCTX_INPROC_SERVER,
+                IID_PPV_ARGS(&wicImgFactory)
+            ),
+            L""
+        );
+
+        ComPtr<IStream> stream;
+        Debug::ThrowIfFailed(
+            SHCreateStreamOnFileEx(fileName.data(), STGM_WRITE | STGM_CREATE, 0, TRUE, nullptr, &stream),
+            L""
+        );
+
+        ComPtr<IWICBitmapEncoder> bmpEncoder;
+        Debug::ThrowIfFailed(
+            wicImgFactory->CreateEncoder(GUID_ContainerFormatPng, nullptr, &bmpEncoder),
+            L""
+        );
+        Debug::ThrowIfFailed(
+            bmpEncoder->Initialize(stream.Get(), WICBitmapEncoderNoCache),
+            L""
+        );
+
+        ComPtr<IWICBitmapFrameEncode> frameEncoder;
+        Debug::ThrowIfFailed(
+            bmpEncoder->CreateNewFrame(&frameEncoder, nullptr),
+            L""
+        );
+        Debug::ThrowIfFailed(
+            frameEncoder->Initialize(nullptr),
+            L""
+        );
+
+        ComPtr<IWICImageEncoder> d2dImgEncoder;
+        Debug::ThrowIfFailed(
+            wicImgFactory->CreateImageEncoder(d2dDevice.Get(), &d2dImgEncoder),
+            L""
+        );
+        d2dImgEncoder->WriteFrame(img.Get(), frameEncoder.Get(), nullptr);
+        
+        Debug::ThrowIfFailed(frameEncoder->Commit(), L"");
+        Debug::ThrowIfFailed(bmpEncoder->Commit(), L"");
+        stream->Commit(STGC_DEFAULT);
     }
 };

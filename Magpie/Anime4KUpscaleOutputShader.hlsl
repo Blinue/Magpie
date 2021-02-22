@@ -1,7 +1,7 @@
 #define D2D_INPUT_COUNT 2
 #define D2D_INPUT0_COMPLEX
 #define D2D_INPUT1_COMPLEX
-#include "d2d1effecthelpers.hlsli"
+#define MAGPIE_USE_YUV
 #include "Anime4K.hlsli"
 
 
@@ -22,5 +22,5 @@ D2D_PS_ENTRY(main) {
 
 	yuv += c;
 
-	return float4(YUV2RGB(yuv).xyz, 1);
+	return float4(YUV2RGB(yuv.x, yuv.y, yuv.z).xyz, 1);
 }
