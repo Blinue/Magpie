@@ -1,3 +1,10 @@
+
+
+cbuffer constants : register(b0) {
+	int2 srcSize : packoffset(c0);
+};
+
+
 #define D2D_INPUT_COUNT 3
 #define D2D_INPUT0_COMPLEX
 #define D2D_INPUT1_COMPLEX
@@ -11,11 +18,6 @@
 #define NOISE_THRESHOLD 0.001 //Value where curve stops, used to not sharpen noise. Only de-blur values that fall above this threshold.
 
 
-cbuffer constants : register(b0) {
-	int2 srcSize : packoffset(c0);
-};
-
-
 D2D_PS_ENTRY(main) {
 	float4 coord = D2DGetInputCoordinate(0);
 	float2 srcPos = coord.xy / 2;
@@ -23,7 +25,8 @@ D2D_PS_ENTRY(main) {
 	float2 f = frac(round(coord.xy / coord.zw) / 2);
 	int2 i = f * 2;
 	float c0 = Uncompress(D2DSampleInput(1, srcPos + (float2(0.5, 0.5) - f) * coord.zw))[i.y * 2 + i.x];
-	if (c0 < 0.001) {
+	if (c0 < 0.0001) {
+		// Ïû³ýÔëÉù
 		return D2DSampleInput(0, srcPos);
 	}
 

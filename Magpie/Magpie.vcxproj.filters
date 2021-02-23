@@ -7,12 +7,6 @@
     <FxCompile Include="AdaptiveSharpenPass2Shader.hlsl">
       <Filter>着色器</Filter>
     </FxCompile>
-    <FxCompile Include="Anime4KDeblurKernelXShader.hlsl">
-      <Filter>着色器</Filter>
-    </FxCompile>
-    <FxCompile Include="Anime4KDeblurKernelYShader.hlsl">
-      <Filter>着色器</Filter>
-    </FxCompile>
     <FxCompile Include="Anime4KUpscaleConv4x3x3x1Shader.hlsl">
       <Filter>着色器</Filter>
     </FxCompile>
@@ -47,6 +41,9 @@
       <Filter>着色器</Filter>
     </FxCompile>
     <FxCompile Include="MitchellNetravaliScaleShader.hlsl">
+      <Filter>着色器</Filter>
+    </FxCompile>
+    <FxCompile Include="Anime4KDeblurKernelShader.hlsl">
       <Filter>着色器</Filter>
     </FxCompile>
   </ItemGroup>
@@ -140,10 +137,16 @@
     <ClInclude Include="SimpleScaleTransform.h">
       <Filter>头文件\Effect</Filter>
     </ClInclude>
-    <ClInclude Include="ScaleEffect.h">
+    <ClInclude Include="AdaptiveSharpenPass2Transform.h">
       <Filter>头文件\Effect</Filter>
     </ClInclude>
-    <ClInclude Include="AdaptiveSharpenPass2Transform.h">
+    <ClInclude Include="MitchellNetravaliScaleTransform.h">
+      <Filter>头文件\Effect</Filter>
+    </ClInclude>
+    <ClInclude Include="MitchellNetravaliScaleEffect.h">
+      <Filter>头文件\Effect</Filter>
+    </ClInclude>
+    <ClInclude Include="Jinc2ScaleEffect.h">
       <Filter>头文件\Effect</Filter>
     </ClInclude>
   </ItemGroup>

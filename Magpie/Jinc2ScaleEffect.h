@@ -6,18 +6,21 @@
 #include <d2d1effecthelpers.h>
 
 
-class ScaleEffect : public EffectBase {
+class Jinc2ScaleEffect : public EffectBase {
 public:
     IFACEMETHODIMP Initialize(
         _In_ ID2D1EffectContext* pEffectContext,
         _In_ ID2D1TransformGraph* pTransformGraph
     ) {
-        HRESULT hr = SimpleScaleTransform::Create(pEffectContext, &_jinc2SharpTransform, MAGPIE_MITCHELL_NETRAVALI_SCALE_SHADER, GUID_MAGPIE_MITCHELL_NETRAVALI_SCALE_SHADER);
+        HRESULT hr = SimpleScaleTransform::Create(
+            pEffectContext, &_transform, 
+            MAGPIE_JINC2_SCALE_SHADER, 
+            GUID_MAGPIE_JINC2_SCALE_SHADER);
         if (FAILED(hr)) {
             return hr;
         }
 
-        hr = pTransformGraph->SetSingleTransformNode(_jinc2SharpTransform.Get());
+        hr = pTransformGraph->SetSingleTransformNode(_transform.Get());
         if (FAILED(hr)) {
             return hr;
         }
@@ -30,12 +33,12 @@ public:
             return E_INVALIDARG;
         }
 
-        _jinc2SharpTransform->SetScale(value);
+        _transform->SetScale(value);
         return S_OK;
     }
 
     D2D_VECTOR_2F GetScale() const {
-        return _jinc2SharpTransform->GetScale();
+        return _transform->GetScale();
     }
 
     enum PROPS {
@@ -48,7 +51,7 @@ public:
             D2D1_VALUE_TYPE_BINDING(L"Scale", &SetScale, &GetScale),
         };
 
-        HRESULT hr = pFactory->RegisterEffectFromString(CLSID_MAGPIE_SCALE_EFFECT, XML(
+        HRESULT hr = pFactory->RegisterEffectFromString(CLSID_MAGPIE_JINC2_SCALE_EFFECT, XML(
             <?xml version='1.0'?>
             <Effect>
                 <!--System Properties-->
@@ -70,7 +73,7 @@ public:
     }
 
     static HRESULT CALLBACK CreateEffect(_Outptr_ IUnknown** ppEffectImpl) {
-        *ppEffectImpl = static_cast<ID2D1EffectImpl*>(new ScaleEffect());
+        *ppEffectImpl = static_cast<ID2D1EffectImpl*>(new Jinc2ScaleEffect());
 
         if (*ppEffectImpl == nullptr) {
             return E_OUTOFMEMORY;
@@ -80,7 +83,7 @@ public:
     }
 
 private:
-    ScaleEffect() {}
+    Jinc2ScaleEffect() {}
 
-    ComPtr<SimpleScaleTransform> _jinc2SharpTransform = nullptr;
+    ComPtr<SimpleScaleTransform> _transform = nullptr;
 };

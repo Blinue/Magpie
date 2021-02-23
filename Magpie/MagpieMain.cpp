@@ -39,7 +39,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 [
   {
     "effect": "scale",
-    "type": "anime4K"
+    "type": "anime4KxDeblur"
   },
   {
     "effect": "scale",
@@ -49,7 +49,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
   {
     "effect": "sharpen",
     "type": "adaptive",
-    "strength": 0.6
+    "strength": 0.3
   }
 ])"));
             } else {

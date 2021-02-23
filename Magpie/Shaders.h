@@ -19,8 +19,7 @@ constexpr auto MAGPIE_ANIME4K_UPSCALE_CONV_4x3x3x8_SHADER4 = L"shaders/Anime4KUp
 constexpr auto MAGPIE_ANIME4K_UPSCALE_CONV_4x3x3x8_SHADER5 = L"shaders/Anime4KUpscaleConv4x3x3x8Shader5.cso";
 constexpr auto MAGPIE_ANIME4K_UPSCALE_CONV_REDUCE_SHADER = L"shaders/Anime4KUpscaleConvReduceShader.cso";
 constexpr auto MAGPIE_ANIME4K_UPSCALE_OUTPUT_SHADER = L"shaders/Anime4KUpscaleOutputShader.cso";
-constexpr auto MAGPIE_ANIME4K_DEBLUR_KERNEL_X_SHADER = L"shaders/Anime4KDeblurKernelXShader.cso";
-constexpr auto MAGPIE_ANIME4K_DEBLUR_KERNEL_Y_SHADER = L"shaders/Anime4KDeblurKernelYShader.cso";
+constexpr auto MAGPIE_ANIME4K_DEBLUR_KERNEL_SHADER = L"shaders/Anime4KDeblurKernelShader.cso";
 constexpr auto MAGPIE_ANIME4K_UPSCALE_DEBLUR_OUTPUT_SHADER = L"shaders/Anime4KUpscaleDeblurOutputShader.cso";
 
 /*

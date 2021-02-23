@@ -21,12 +21,12 @@ public:
         //   |           |     |     |     |     |
         //   |           v-----v-----v---+-v-----v
         //   |                           |
-        //   |                       +---v--+
-        //   +--------------->+<-----+reduce|
-        //                    |      +------+
-        //                 +--v---+
-        //                 |output|
-        //                 +--+---+
+        //   +----------------+      +---v--+
+        //   |                |      |reduce|
+        //   |                |      +--+---+
+        // +-v----+        +--v---+     |
+        // |kernel+-------->output<-----+
+        // +------+        +--+---+
         //                    |
         //                  +-v-+
         //                  |out|
@@ -90,18 +90,9 @@ public:
         }
         hr = SimpleDrawTransform::Create(
             pEffectContext,
-            &_deblurKernelXTransform,
-            MAGPIE_ANIME4K_DEBLUR_KERNEL_X_SHADER,
-            GUID_MAGPIE_ANIME4K_DEBLUR_KERNEL_X_SHADER
-        );
-        if (FAILED(hr)) {
-            return hr;
-        }
-        hr = SimpleDrawTransform::Create(
-            pEffectContext,
-            &_deblurKernelYTransform,
-            MAGPIE_ANIME4K_DEBLUR_KERNEL_Y_SHADER,
-            GUID_MAGPIE_ANIME4K_DEBLUR_KERNEL_Y_SHADER
+            &_deblurKernelTransform,
+            MAGPIE_ANIME4K_DEBLUR_KERNEL_SHADER,
+            GUID_MAGPIE_ANIME4K_DEBLUR_KERNEL_SHADER
         );
         if (FAILED(hr)) {
             return hr;
@@ -139,11 +130,7 @@ public:
         if (FAILED(hr)) {
             return hr;
         }
-        hr = pTransformGraph->AddNode(_deblurKernelXTransform.Get());
-        if (FAILED(hr)) {
-            return hr;
-        }
-        hr = pTransformGraph->AddNode(_deblurKernelYTransform.Get());
+        hr = pTransformGraph->AddNode(_deblurKernelTransform.Get());
         if (FAILED(hr)) {
             return hr;
         }
@@ -198,11 +185,7 @@ public:
             return hr;
         }
 
-        hr = pTransformGraph->ConnectToEffectInput(0, _deblurKernelXTransform.Get(), 0);
-        if (FAILED(hr)) {
-            return hr;
-        }
-        hr = pTransformGraph->ConnectNode(_deblurKernelXTransform.Get(), _deblurKernelYTransform.Get(), 0);
+        hr = pTransformGraph->ConnectToEffectInput(0, _deblurKernelTransform.Get(), 0);
         if (FAILED(hr)) {
             return hr;
         }
@@ -215,7 +198,7 @@ public:
         if (FAILED(hr)) {
             return hr;
         }
-        hr = pTransformGraph->ConnectNode(_deblurKernelYTransform.Get(), _outputTransform.Get(), 2);
+        hr = pTransformGraph->ConnectNode(_deblurKernelTransform.Get(), _outputTransform.Get(), 2);
         if (FAILED(hr)) {
             return hr;
         }
@@ -269,7 +252,6 @@ private:
     ComPtr<SimpleDrawTransform> _conv4x3x3x8Transform4 = nullptr;
     ComPtr<SimpleDrawTransform> _conv4x3x3x8Transform5 = nullptr;
     ComPtr<Anime4KUpscaleConvReduceTransform> _convReduceTransform = nullptr;
-    ComPtr<SimpleDrawTransform> _deblurKernelXTransform = nullptr;
-    ComPtr<SimpleDrawTransform> _deblurKernelYTransform = nullptr;
+    ComPtr<SimpleDrawTransform> _deblurKernelTransform = nullptr;
     ComPtr<Anime4KUpscaleDeblurOutputTransform> _outputTransform = nullptr;
 };

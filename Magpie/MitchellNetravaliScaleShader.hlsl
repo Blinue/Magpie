@@ -5,19 +5,25 @@
 cbuffer constants : register(b0) {
     int2 srcSize : packoffset(c0.x);
     int2 destSize : packoffset(c0.z);
+	int useSharperVersion : packoffset(c1.x);
 };
 
 float weight(float x) {
 	float ax = abs(x);
-	// Mitchel-Netravali coefficients.
-	// Best psychovisual result.
-	const float B = 1.0 / 3.0;
-	const float C = 1.0 / 3.0;
 
-	// Sharper version.
-	// May look better in some cases.
-	//const float B = 0.0;
-	//const float C = 0.75;
+	float B = 0.0;
+	float C = 0.0;
+	if (useSharperVersion == 0) {
+		// Mitchel-Netravali coefficients.
+		// Best psychovisual result.
+		B = 1.0 / 3.0;
+		C = 1.0 / 3.0;
+	} else {
+		// Sharper version.
+		// May look better in some cases.
+		B = 0.0;
+		C = 0.75;
+	}
 
 	if (ax < 1.0) {
 		return

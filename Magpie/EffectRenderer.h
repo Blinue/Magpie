@@ -31,7 +31,7 @@ public:
 
         // 将输出图像显示在窗口中央
         _d2dDC->BeginDraw();
-        _d2dDC->Clear(D2D1_COLOR_F{ 0,1,0,1 });
+        _d2dDC->Clear();
         _d2dDC->DrawImage(
             outputImg.Get(),
             D2D1_POINT_2F{
@@ -187,13 +187,6 @@ private:
         // Now we can set the Direct2D render target.
         _d2dDC->SetTarget(d2dTargetBitmap.Get());
         _d2dDC->SetUnitMode(D2D1_UNIT_MODE_PIXELS);
-
-        D2D1_RENDERING_CONTROLS rc{};
-        _d2dDC->GetRenderingControls(&rc);
-        rc.bufferPrecision = D2D1_BUFFER_PRECISION_32BPC_FLOAT;
-        rc.tileSize.width = _hostWndClientSize.cx * 2;
-        rc.tileSize.height = _hostWndClientSize.cy * 2;
-        _d2dDC->SetRenderingControls(rc);
     }
 
 

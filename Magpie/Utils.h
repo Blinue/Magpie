@@ -1,6 +1,7 @@
 #pragma once
 #include "pch.h"
 #include "Shlwapi.h"
+#include <utility>
 
 class Utils {
 public:
@@ -142,3 +143,21 @@ public:
         stream->Commit(STGC_DEFAULT);
     }
 };
+
+namespace std {
+    // std::hash µÄ GUID ÌØ»¯
+    template<>
+    struct hash<GUID> {
+        size_t operator()(const GUID& value) const {
+            size_t result = hash<unsigned long>()(value.Data1);
+            result ^= hash<unsigned short>()(value.Data2) << 1;
+            result ^= hash<unsigned short>()(value.Data3) << 2;
+            
+            for (int i = 0; i < 8; ++i) {
+                result ^= hash<unsigned short>()(value.Data4[i]) << i;
+            }
+
+            return result;
+        }
+    };
+}

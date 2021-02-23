@@ -72,18 +72,18 @@ D2D_PS_ENTRY(main) {
 	// [      c20, c6,  c7,  c8, c17      ]
 	// [           c15, c12, c14          ]
 	// [                c13               ]
-	float left1X = GetCheckedLeft(0, 1);
-	float left2X = GetCheckedLeft(0, 2);
-	float left3X = GetCheckedLeft(0, 3);
-	float right1X = GetCheckedRight(0, 1);
-	float right2X = GetCheckedRight(0, 2);
-	float right3X = GetCheckedRight(0, 3);
-	float top1Y = GetCheckedTop(0, 1);
-	float top2Y = GetCheckedTop(0, 2);
-	float top3Y = GetCheckedTop(0, 3);
-	float bottom1Y = GetCheckedBottom(0, 1);
-	float bottom2Y = GetCheckedBottom(0, 2);
-	float bottom3Y = GetCheckedBottom(0, 3);
+	float left1X = GetCheckedLeft(1);
+	float left2X = GetCheckedLeft(2);
+	float left3X = GetCheckedLeft(3);
+	float right1X = GetCheckedRight(1);
+	float right2X = GetCheckedRight(2);
+	float right3X = GetCheckedRight(3);
+	float top1Y = GetCheckedTop(1);
+	float top2Y = GetCheckedTop(2);
+	float top3Y = GetCheckedTop(3);
+	float bottom1Y = GetCheckedBottom(1);
+	float bottom2Y = GetCheckedBottom(2);
+	float bottom3Y = GetCheckedBottom(3);
 
 	float4 c[25] = {
 		orig0,					// c0

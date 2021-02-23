@@ -59,10 +59,10 @@ static float2 _maxCoord = 0;
 
 // 限制坐标在边界内
 // n 为 offset
-#define GetCheckedLeft(index, n) _checkLeft(coord.x - n * coord.z)
-#define GetCheckedRight(index, n) _checkRight(coord.x + n * coord.w)
-#define GetCheckedTop(index, n) _checkTop(coord.y - n * coord.z)
-#define GetCheckedBottom(index, n) _checkBottom(coord.y + n * coord.w)
+#define GetCheckedLeft(n) _checkLeft(coord.x - n * coord.z)
+#define GetCheckedRight(n) _checkRight(coord.x + n * coord.w)
+#define GetCheckedTop(n) _checkTop(coord.y - n * coord.z)
+#define GetCheckedBottom(n) _checkBottom(coord.y + n * coord.w)
 
 
 // 需要 main 函数的开头调用
