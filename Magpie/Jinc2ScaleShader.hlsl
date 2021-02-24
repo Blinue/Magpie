@@ -40,13 +40,6 @@ float4 resampler(float4 x) {
 }
 
 float3 sample0(float2 pos) {
-	float4 coord = D2DGetInputCoordinate(0);
-
-	pos.x = max(0, pos.x);
-	pos.x = min((srcSize.x - 1) * coord.z, pos.x);
-	pos.y = max(0, pos.y);
-	pos.y = min((srcSize.y - 1) * coord.w, pos.y);
-
 	return D2DSampleInput(0, pos).rgb;
 }
 

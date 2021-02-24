@@ -43,13 +43,15 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
   },
   {
     "effect": "scale",
-    "type": "jinc2",
-    "scale": [0,0]
+    "type": "highQualityCubic",
+    "scale": [0,0],
+    "sharpness": 1
   },
   {
     "effect": "sharpen",
-    "type": "adaptive",
-    "strength": 0.3
+    "type": "builtIn",
+    "sharpness": 5,
+    "threshold": 0.8
   }
 ])"));
             } else {

@@ -73,6 +73,10 @@ private:
 					_AddJinc2ScaleEffect(effect);
 				} else if (subType == "mitchell") {
 					_AddMitchellNetravaliScaleEffect(effect);
+				} else if (subType == "highQualityCubic") {
+					_AddHighQualityCubicScaleEffect(effect);
+				} else {
+					Debug::ThrowIfFalse(false, L"未知的 scale effect");
 				}
 			} else if (effectType == "sharpen") {
 				const auto& subType = effect.value("type", "");
@@ -81,9 +85,11 @@ private:
 					_AddAdaptiveSharpenEffect(effect);
 				} else if (subType == "builtIn") {
 					_AddBuiltInSharpenEffect(effect);
+				} else {
+					Debug::ThrowIfFalse(false, L"未知的 sharpen effect");
 				}
 			} else {
-				Debug::ThrowIfFalse(false, L"json 格式错误");
+				Debug::ThrowIfFalse(false, L"未知的 effect");
 			}
 		}
 
@@ -131,7 +137,7 @@ private:
 		);
 
 		// sharpness 属性
-		auto it = props.find("strength");
+		auto it = props.find("sharpness");
 		if (it != props.end()) {
 			const auto& value = *it;
 			Debug::ThrowIfFalse(value.is_number(), L"非法的 sharpness 属性值");
@@ -139,12 +145,12 @@ private:
 			float sharpness = value.get<float>();
 			Debug::ThrowIfFalse(
 				sharpness >= 0 && sharpness <= 10,
-				L"非法的 strength 属性值"
+				L"非法的 sharpness 属性值"
 			);
 
 			Debug::ThrowIfFailed(
 				d2dSharpenEffect->SetValue(D2D1_SHARPEN_PROP_SHARPNESS, sharpness),
-				L"设置 strength 属性失败"
+				L"设置 sharpness 属性失败"
 			);
 		}
 
@@ -165,9 +171,6 @@ private:
 				L"设置 threshold 属性失败"
 			);
 		}
-
-		d2dSharpenEffect->SetValue(D2D1_SHARPEN_PROP_SHARPNESS, 3.0f);
-		d2dSharpenEffect->SetValue(D2D1_SHARPEN_PROP_THRESHOLD, 0.5f);
 
 		// 替换 output effect
 		_PushAsOutputEffect(d2dSharpenEffect);
@@ -282,20 +285,49 @@ private:
 		_PushAsOutputEffect(effect);
 	}
 
-	void _AddCubicScaleEffect() {
-		ComPtr<ID2D1Effect> cubicEffect = nullptr;
+	void _AddHighQualityCubicScaleEffect(const nlohmann::json& props) {
+		ComPtr<ID2D1Effect> effect = nullptr;
 		Debug::ThrowIfFailed(
-			_d2dDC->CreateEffect(CLSID_D2D1Scale, &cubicEffect),
+			_d2dDC->CreateEffect(CLSID_D2D1Scale, &effect),
 			L"创建 Anime4K Effect 失败"
 		);
 
-		cubicEffect->SetValue(D2D1_SCALE_PROP_INTERPOLATION_MODE, D2D1_SCALE_INTERPOLATION_MODE_ANISOTROPIC);
-		cubicEffect->SetValue(D2D1_SCALE_PROP_BORDER_MODE, D2D1_BORDER_MODE_HARD);
+		effect->SetValue(D2D1_SCALE_PROP_INTERPOLATION_MODE, D2D1_SCALE_INTERPOLATION_MODE_HIGH_QUALITY_CUBIC);
+		effect->SetValue(D2D1_SCALE_PROP_BORDER_MODE, D2D1_BORDER_MODE_HARD);
 
-		float scale = min((FLOAT)_maxSize.cx / _destSize.cx, (FLOAT)_maxSize.cy / _destSize.cy);
-		cubicEffect->SetValue(D2D1_SCALE_PROP_SCALE, D2D1_VECTOR_2F{ scale, scale });
+		// scale 属性
+		auto it = props.find("scale");
+		if (it != props.end()) {
+			const auto& scale = _ReadScaleProp(*it);
 
-		_PushAsOutputEffect(cubicEffect);
+			Debug::ThrowIfFailed(
+				effect->SetValue(D2D1_SCALE_PROP_SCALE, scale),
+				L"设置 scale 属性失败"
+			);
+
+			// 存在 scale 则输出图像尺寸改变
+			_SetDestSize(SIZE{ lroundf(_destSize.cx * scale.x), lroundf(_destSize.cy * scale.y) });
+		}
+
+		// sharpness 属性
+		it = props.find("sharpness");
+		if (it != props.end()) {
+			const auto& value = *it;
+			Debug::ThrowIfFalse(value.is_number(), L"非法的 sharpness 属性值");
+
+			float sharpness = value.get<float>();
+			Debug::ThrowIfFalse(
+				sharpness >= 0 && sharpness <= 1,
+				L"非法的 sharpness 属性值"
+			);
+
+			Debug::ThrowIfFailed(
+				effect->SetValue(D2D1_SCALE_PROP_SHARPNESS, sharpness),
+				L"设置 sharpness 属性失败"
+			);
+		}
+
+		_PushAsOutputEffect(effect);
 	}
 
 	D2D1_VECTOR_2F _ReadScaleProp(const nlohmann::json& prop) {

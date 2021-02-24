@@ -68,10 +68,10 @@ D2D_PS_ENTRY(main) {
 
     float2 texCoord = coord.xy / coord.zw / destSize;
 
-    float2 stepxy = 1.0 / destSize;
+    float2 stepxy = 1.0 / srcSize;
     float2 pos = texCoord + stepxy * 0.5;
     float2 f = frac(pos / stepxy);
-
+	
 	float4 linetaps = weight4(1.0 - f.x);
 	float4 columntaps = weight4(1.0 - f.y);
 

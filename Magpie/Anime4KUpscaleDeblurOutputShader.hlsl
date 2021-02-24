@@ -25,10 +25,6 @@ D2D_PS_ENTRY(main) {
 	float2 f = frac(round(coord.xy / coord.zw) / 2);
 	int2 i = f * 2;
 	float c0 = Uncompress(D2DSampleInput(1, srcPos + (float2(0.5, 0.5) - f) * coord.zw))[i.y * 2 + i.x];
-	if (c0 < 0.0001) {
-		// Ïû³ýÔëÉù
-		return D2DSampleInput(0, srcPos);
-	}
 
 	float c = c0 * STRENGTH;
 
