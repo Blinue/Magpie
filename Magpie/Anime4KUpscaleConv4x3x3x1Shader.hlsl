@@ -1,5 +1,5 @@
 // Conv-4x3x3x1 (0)
-// ÒÆÖ²×Ô https://github.com/bloc97/Anime4K/blob/master/glsl/Upscale%2BDeblur/Anime4K_Upscale_CNN_M_x2_Deblur.glsl
+// ÒÆÖ²×Ô https://github.com/bloc97/Anime4K/blob/master/glsl/Upscale/Anime4K_Upscale_CNN_M_x2.glsl
 //
 // Anime4K-v3.1-Upscale(x2)-CNN(M)-Conv-4x3x3x1
 
@@ -26,15 +26,15 @@ D2D_PS_ENTRY(main) {
 	// [ a, d, g ]
 	// [ b, e, h ]
 	// [ c, f, i ]
-	float a = GetYOfYUV(SampleInputNoCheck(0, float2(left1X, top1Y)));
-	float b = GetYOfYUV(SampleInputNoCheck(0, float2(left1X, coord.y)));
-	float c = GetYOfYUV(SampleInputNoCheck(0, float2(left1X, bottom1Y)));
-	float d = GetYOfYUV(SampleInputNoCheck(0, float2(coord.x, top1Y)));
-	float e = GetYOfYUV(SampleInputCur(0));
-	float f = GetYOfYUV(SampleInputNoCheck(0, float2(coord.x, bottom1Y)));
-	float g = GetYOfYUV(SampleInputNoCheck(0, float2(right1X, top1Y)));
-	float h = GetYOfYUV(SampleInputNoCheck(0, float2(right1X, coord.y)));
-	float i = GetYOfYUV(SampleInputNoCheck(0, float2(right1X, bottom1Y)));
+	float a = GetLuma(SampleInputNoCheck(0, float2(left1X, top1Y)));
+	float b = GetLuma(SampleInputNoCheck(0, float2(left1X, coord.y)));
+	float c = GetLuma(SampleInputNoCheck(0, float2(left1X, bottom1Y)));
+	float d = GetLuma(SampleInputNoCheck(0, float2(coord.x, top1Y)));
+	float e = GetLuma(SampleInputCur(0));
+	float f = GetLuma(SampleInputNoCheck(0, float2(coord.x, bottom1Y)));
+	float g = GetLuma(SampleInputNoCheck(0, float2(right1X, top1Y)));
+	float h = GetLuma(SampleInputNoCheck(0, float2(right1X, coord.y)));
+	float i = GetLuma(SampleInputNoCheck(0, float2(right1X, bottom1Y)));
 
 	float s = -0.09440448 * a + 0.49120164 * b + -0.022703001 * c + -0.016553257 * d + 0.6272513 * e + -0.97632706 * f + 0.10815585 * g + -0.21898738 * h + 0.09604159 * i;
 	float o = s + 0.00028890301;

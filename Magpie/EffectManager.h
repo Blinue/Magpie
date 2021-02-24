@@ -76,8 +76,8 @@ private:
 					_AddJinc2ScaleEffect(effect);
 				} else if (subType == "mitchell") {
 					_AddMitchellNetravaliScaleEffect(effect);
-				} else if (subType == "highQualityCubic") {
-					_AddHighQualityCubicScaleEffect(effect);
+				} else if (subType == "hqBicubic") {
+					_AddHQBicubicScaleEffect(effect);
 				} else {
 					Debug::ThrowIfFalse(false, L"未知的 scale effect");
 				}
@@ -306,7 +306,7 @@ private:
 		_PushAsOutputEffect(effect);
 	}
 
-	void _AddHighQualityCubicScaleEffect(const nlohmann::json& props) {
+	void _AddHQBicubicScaleEffect(const nlohmann::json& props) {
 		ComPtr<ID2D1Effect> effect = nullptr;
 		Debug::ThrowIfFailed(
 			_d2dDC->CreateEffect(CLSID_D2D1Scale, &effect),
@@ -419,7 +419,7 @@ private:
 	// 存储已注册的 effect 的 GUID
 	std::unordered_set<GUID> _registeredEffects;
 
-	// 用于确定 tile 的大小
+	// tile 的大小
 	SIZE _maxDestSize{};
 
 	D2D1_RENDERING_CONTROLS rc{

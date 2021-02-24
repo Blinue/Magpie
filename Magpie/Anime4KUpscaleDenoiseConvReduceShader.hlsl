@@ -1,7 +1,7 @@
-// Conv-Reduce
-// 移植自 https://github.com/bloc97/Anime4K/blob/master/glsl/Upscale%2BDeblur/Anime4K_Upscale_CNN_M_x2_Deblur.glsl
+// Denoise 版本的 Conv-Reduce
+// 移植自 https://github.com/bloc97/Anime4K/blob/master/glsl/Upscale%2BDenoise/Anime4K_Upscale_CNN_M_x2_Denoise.glsl
 //
-// Anime4K-v3.1-Upscale(x2)-CNN(M)-Conv-Reduce
+// Anime4K-v3.1-Upscale(x2)+Denoise-CNN(M)-Conv-Reduce
 
 
 #define D2D_INPUT_COUNT 5

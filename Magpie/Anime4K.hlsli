@@ -8,4 +8,4 @@
 #define Uncompress(value) (value * 4 - 2)	// tan((value - 0.5) * PI)
 
 // Anime4K 中使用的是亮度分量
-#define GetYOfYUV(rgb) (0.299 * rgb.r + 0.587 * rgb.g + 0.114 * rgb.b)
+#define GetLuma(rgb) (0.299 * rgb.r + 0.587 * rgb.g + 0.114 * rgb.b)

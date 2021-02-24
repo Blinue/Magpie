@@ -1,4 +1,4 @@
-// Anime4K 中用于计算去模糊所用的核
+// Anime4K Deblur 版本中去模糊所用的核
 // 移植自 https://github.com/bloc97/Anime4K/blob/master/glsl/Upscale%2BDeblur/Anime4K_Upscale_CNN_M_x2_Deblur.glsl
 // 考虑到 transform 间传递纹理造成的性能损失，将 Kernel(X) 和 Kernel(Y) 合并
 // 
@@ -30,15 +30,15 @@ D2D_PS_ENTRY(main) {
 	// [ a, d, g ]
 	// [ b, e, h ]
 	// [ c, f, i ]
-	float a = GetYOfYUV(SampleInputNoCheck(0, float2(left1X, top1Y)));
-	float b = GetYOfYUV(SampleInputNoCheck(0, float2(left1X, coord.y)));
-	float c = GetYOfYUV(SampleInputNoCheck(0, float2(left1X, bottom1Y)));
-	float d = GetYOfYUV(SampleInputNoCheck(0, float2(coord.x, top1Y)));
-	float e = GetYOfYUV(SampleInputCur(0));
-	float f = GetYOfYUV(SampleInputNoCheck(0, float2(coord.x, bottom1Y)));
-	float g = GetYOfYUV(SampleInputNoCheck(0, float2(right1X, top1Y)));
-	float h = GetYOfYUV(SampleInputNoCheck(0, float2(right1X, coord.y)));
-	float i = GetYOfYUV(SampleInputNoCheck(0, float2(right1X, bottom1Y)));
+	float a = GetLuma(SampleInputNoCheck(0, float2(left1X, top1Y)));
+	float b = GetLuma(SampleInputNoCheck(0, float2(left1X, coord.y)));
+	float c = GetLuma(SampleInputNoCheck(0, float2(left1X, bottom1Y)));
+	float d = GetLuma(SampleInputNoCheck(0, float2(coord.x, top1Y)));
+	float e = GetLuma(SampleInputCur(0));
+	float f = GetLuma(SampleInputNoCheck(0, float2(coord.x, bottom1Y)));
+	float g = GetLuma(SampleInputNoCheck(0, float2(right1X, top1Y)));
+	float h = GetLuma(SampleInputNoCheck(0, float2(right1X, coord.y)));
+	float i = GetLuma(SampleInputNoCheck(0, float2(right1X, bottom1Y)));
 
 	return float4(min9(a, b, c, d, e, f, g, h, i), max9(a, b, c, d, e, f, g, h, i), 0, 0);
 }

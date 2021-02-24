@@ -24,8 +24,7 @@ cbuffer constants : register(b0) {
 
 
 D2D_PS_ENTRY(main) {
-	InitMagpieSampleInput();
-	coord.xy /= 2;	// 将 dest 坐标映射为 src 坐标
+	InitMagpieSampleInputWithScale(float2(2, 2));
 
 	float2 f = frac(coord.xy / coord.zw);
 	int2 i = round(f * 2);

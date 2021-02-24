@@ -16,7 +16,8 @@
 
 /*
 * 包含边界检查的 SampleInput
-* 欲使用下面的宏需要在包含此文件前定义 MAGPIE_USE_SAMPLE_INPUT，然后在 main 函数的开头调用 InitMagpieSampleInput
+* 欲使用下面的宏需要在包含此文件前定义 MAGPIE_USE_SAMPLE_INPUT，
+* 然后在 main 函数的开头调用 InitMagpieSampleInput 或 InitMagpieSampleInputWithScale
 */
 
 static float4 coord = 0;
@@ -66,8 +67,15 @@ static float2 _maxCoord = 0;
 
 
 // 需要 main 函数的开头调用
+
 void InitMagpieSampleInput() {
 	coord = D2DGetInputCoordinate(0);
+	_maxCoord = float2((srcSize.x - 1) * coord.z, (srcSize.y - 1) * coord.w);
+}
+
+void InitMagpieSampleInputWithScale(float2 scale) {
+	coord = D2DGetInputCoordinate(0);
+	coord.xy /= scale;	// 将 dest 坐标映射为 src 坐标
 	_maxCoord = float2((srcSize.x - 1) * coord.z, (srcSize.y - 1) * coord.w);
 }
 

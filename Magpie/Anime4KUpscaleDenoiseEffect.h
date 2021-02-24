@@ -6,8 +6,8 @@
 #include "SimpleDrawTransform.h"
 #include "EffectBase.h"
 
-// Anime4K 超采样算法，可将动漫图像放大至两倍
-// https://github.com/bloc97/Anime4K
+// Anime4K-Denoise，放大图像的同时去噪，经测试效果良好
+// 移植自 https://github.com/bloc97/Anime4K/blob/master/glsl/Upscale%2BDenoise/Anime4K_Upscale_CNN_M_x2_Denoise.glsl
 class Anime4KUpscaleDenoiseEffect : public EffectBase {
 public:
     IFACEMETHODIMP Initialize(

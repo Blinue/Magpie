@@ -6,8 +6,9 @@
 #include "SimpleDrawTransform.h"
 #include "EffectBase.h"
 
-// Anime4K 超采样算法，可将动漫图像放大至两倍
-// https://github.com/bloc97/Anime4K
+// Anime4K-Deblur，相当于执行原版后进行锐化
+// 移植自 https://github.com/bloc97/Anime4K/blob/master/glsl/Upscale%2BDeblur/Anime4K_Upscale_CNN_M_x2_Deblur.glsl
+// 原版已经有很好的效果，锐化后观感会变差
 class Anime4KUpscaleDeblurEffect : public EffectBase {
 public:
     IFACEMETHODIMP Initialize(

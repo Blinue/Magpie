@@ -1,7 +1,7 @@
-// Conv-4x3x3x1 (0)
-// 移植自 https://github.com/bloc97/Anime4K/blob/master/glsl/Upscale%2BDeblur/Anime4K_Upscale_CNN_M_x2_Deblur.glsl
+// Denoise 版本的 Conv-4x3x3x1 (0)
+// 移植自 https://github.com/bloc97/Anime4K/blob/master/glsl/Upscale%2BDenoise/Anime4K_Upscale_CNN_M_x2_Denoise.glsl
 //
-// Anime4K-v3.1-Upscale(x2)-CNN(M)-Conv-4x3x3x1
+// Anime4K-v3.1-Upscale(x2)+Denoise-CNN(M)-Conv-4x3x3x1
 
 
 cbuffer constants : register(b0) {
@@ -26,15 +26,15 @@ D2D_PS_ENTRY(main) {
 	// [ a, d, g ]
 	// [ b, e, h ]
 	// [ c, f, i ]
-	float a = GetYOfYUV(SampleInputNoCheck(0, float2(left1X, top1Y)));
-	float b = GetYOfYUV(SampleInputNoCheck(0, float2(left1X, coord.y)));
-	float c = GetYOfYUV(SampleInputNoCheck(0, float2(left1X, bottom1Y)));
-	float d = GetYOfYUV(SampleInputNoCheck(0, float2(coord.x, top1Y)));
-	float e = GetYOfYUV(SampleInputCur(0));
-	float f = GetYOfYUV(SampleInputNoCheck(0, float2(coord.x, bottom1Y)));
-	float g = GetYOfYUV(SampleInputNoCheck(0, float2(right1X, top1Y)));
-	float h = GetYOfYUV(SampleInputNoCheck(0, float2(right1X, coord.y)));
-	float i = GetYOfYUV(SampleInputNoCheck(0, float2(right1X, bottom1Y)));
+	float a = GetLuma(SampleInputNoCheck(0, float2(left1X, top1Y)));
+	float b = GetLuma(SampleInputNoCheck(0, float2(left1X, coord.y)));
+	float c = GetLuma(SampleInputNoCheck(0, float2(left1X, bottom1Y)));
+	float d = GetLuma(SampleInputNoCheck(0, float2(coord.x, top1Y)));
+	float e = GetLuma(SampleInputCur(0));
+	float f = GetLuma(SampleInputNoCheck(0, float2(coord.x, bottom1Y)));
+	float g = GetLuma(SampleInputNoCheck(0, float2(right1X, top1Y)));
+	float h = GetLuma(SampleInputNoCheck(0, float2(right1X, coord.y)));
+	float i = GetLuma(SampleInputNoCheck(0, float2(right1X, bottom1Y)));
 
 	float s = -0.096334584 * a + 0.4884673 * b + -0.03821645 * c + 0.025493674 * d + 0.6071791 * e + -0.97234 * f + 0.099867396 * g + -0.20816612 * h + 0.08195157 * i;
 	float o = s + -0.008229233;

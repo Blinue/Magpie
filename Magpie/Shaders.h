@@ -33,8 +33,8 @@ constexpr auto MAGPIE_ANIME4K_UPSCALE_DENOISE_CONV_REDUCE_SHADER = L"shaders/Ani
 /*
 * Àı∑≈œ‡πÿ
 */
-// Lanczos6
-constexpr auto MAGPIE_LANCZOS6_SCALE_SHADER = L"shaders/Lanczos6ScaleShader.cso";
+// Lanczos3
+constexpr auto MAGPIE_LANCZOS3_SCALE_SHADER = L"shaders/Lanczos3ScaleShader.cso";
 // Jinc2
 constexpr auto MAGPIE_JINC2_SCALE_SHADER = L"shaders/Jinc2ScaleShader.cso";
 // Mitchell-Netravali

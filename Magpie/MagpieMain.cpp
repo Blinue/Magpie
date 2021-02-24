@@ -43,7 +43,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
   },
   {
     "effect": "scale",
-    "type": "highQualityCubic",
+    "type": "hqBicubic",
     "scale": [0,0],
     "sharpness": 1
   }

@@ -55,9 +55,6 @@
     <FxCompile Include="Jinc2ScaleShader.hlsl">
       <Filter>着色器\缩放</Filter>
     </FxCompile>
-    <FxCompile Include="Lanczos6ScaleShader.hlsl">
-      <Filter>着色器\缩放</Filter>
-    </FxCompile>
     <FxCompile Include="MitchellNetravaliScaleShader.hlsl">
       <Filter>着色器\缩放</Filter>
     </FxCompile>
@@ -66,6 +63,9 @@
     </FxCompile>
     <FxCompile Include="AdaptiveSharpenPass2Shader.hlsl">
       <Filter>着色器\锐化</Filter>
+    </FxCompile>
+    <FxCompile Include="Lanczos3ScaleShader.hlsl">
+      <Filter>着色器\缩放</Filter>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
@@ -226,10 +226,5 @@
     <Filter Include="头文件\Effect\缩放\Anime4K">
       <UniqueIdentifier>{827f48dd-9825-49ee-bde7-0ba8e779235c}</UniqueIdentifier>
     </Filter>
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="test.json">
-      <Filter>资源文件</Filter>
-    </Text>
   </ItemGroup>
 </Project>

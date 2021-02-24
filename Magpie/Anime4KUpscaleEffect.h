@@ -7,7 +7,7 @@
 #include "EffectBase.h"
 
 // Anime4K 超采样算法，可将动漫图像放大至两倍
-// https://github.com/bloc97/Anime4K
+// 移植自 https://github.com/bloc97/Anime4K/blob/master/glsl/Upscale/Anime4K_Upscale_CNN_M_x2.glsl
 class Anime4KUpscaleEffect : public EffectBase {
 public:
     IFACEMETHODIMP Initialize(

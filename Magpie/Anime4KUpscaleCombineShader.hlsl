@@ -1,4 +1,4 @@
-// 非 Deblur 版本的 combine 着色器
+// 普通和 Denoise 版本的 combine 着色器
 // 移植自 https://github.com/bloc97/Anime4K/blob/master/glsl/Upscale/Anime4K_Upscale_CNN_M_x2.glsl
 
 
@@ -16,8 +16,7 @@ cbuffer constants : register(b0) {
 
 
 D2D_PS_ENTRY(main) {
-	InitMagpieSampleInput();
-	coord.xy /= 2;	// 将 dest 坐标映射为 src 坐标
+	InitMagpieSampleInputWithScale(float2(2, 2));
 
 	float2 f = frac(coord.xy / coord.zw);
 	int2 i = round(f * 2);

@@ -14,6 +14,7 @@ cbuffer constants : register(b0) {
 
 #define D2D_INPUT_COUNT 1
 #define D2D_INPUT0_COMPLEX
+#define MAGPIE_USE_SAMPLE_INPUT
 #include "common.hlsli"
 
 
@@ -43,18 +44,15 @@ float3 sample0(float2 pos) {
 	return D2DSampleInput(0, pos).rgb;
 }
 
-
 D2D_PS_ENTRY(main) {
-	float4 coord = D2DGetInputCoordinate(0);
-
-	float2 texCoord = coord.xy / coord.zw / destSize;
+	InitMagpieSampleInputWithScale(float2(destSize) / srcSize);
 
 	float2 dx = float2(1.0, 0.0);
 	float2 dy = float2(0.0, 1.0);
 
-	float2 pc = texCoord * srcSize;
+	float2 pc = coord.xy / coord.zw;
 
-	float2 tc = (floor(pc - float2(0.5, 0.5)) + float2(0.5, 0.5));
+	float2 tc = floor(pc - float2(0.5, 0.5)) + float2(0.5, 0.5);
 
 	float4x4 weights = {
 		resampler(float4(d(pc, tc - dx - dy), d(pc, tc - dy), d(pc, tc + dx - dy), d(pc, tc + 2.0 * dx - dy))),
@@ -63,28 +61,38 @@ D2D_PS_ENTRY(main) {
 		resampler(float4(d(pc, tc - dx + 2.0 * dy), d(pc, tc + 2.0 * dy), d(pc, tc + dx + 2.0 * dy), d(pc, tc + 2.0 * dx + 2.0 * dy)))
 	};
 
-	dx = float2(coord.z, 0);
-	dy = float2(0, coord.w);
-	tc = tc * coord.zw;
+	// !!!改变当前坐标
+	coord.xy = tc * coord.zw;
+
+	float left1X = GetCheckedLeft(1);
+	float right1X = GetCheckedRight(1);
+	float right2X = GetCheckedRight(2);
+	float top1Y = GetCheckedTop(1);
+	float bottom1Y = GetCheckedBottom(1);
+	float bottom2Y = GetCheckedBottom(2);
 
 	// reading the texels
-
-	float3 c00 = sample0(tc - dx - dy);
-	float3 c10 = sample0(tc - dy);
-	float3 c20 = sample0(tc + dx - dy);
-	float3 c30 = sample0(tc + 2.0 * dx - dy);
-	float3 c01 = sample0(tc - dx);
-	float3 c11 = sample0(tc);
-	float3 c21 = sample0(tc + dx);
-	float3 c31 = sample0(tc + 2.0 * dx);
-	float3 c02 = sample0(tc - dx + dy);
-	float3 c12 = sample0(tc + dy);
-	float3 c22 = sample0(tc + dx + dy);
-	float3 c32 = sample0(tc + 2.0 * dx + dy);
-	float3 c03 = sample0(tc - dx + 2.0 * dy);
-	float3 c13 = sample0(tc + 2.0 * dy);
-	float3 c23 = sample0(tc + dx + 2.0 * dy);
-	float3 c33 = sample0(tc + 2.0 * dx + 2.0 * dy);
+	// [ c00, c10, c20, c30 ]
+	// [ c01, c11, c21, c31 ]
+	// [ c02, c12, c22, c32 ]
+	// [ c03, c13, c23, c33 ]
+	float3 c00 = SampleInputNoCheck(0, float2(left1X, top1Y));
+	float3 c10 = SampleInputNoCheck(0, float2(coord.x, top1Y));
+	float3 c20 = SampleInputNoCheck(0, float2(right1X, top1Y));
+	float3 c30 = SampleInputNoCheck(0, float2(right2X, top1Y));
+	float3 c01 = SampleInputNoCheck(0, float2(left1X, coord.y));
+	float3 c11 = SampleInputNoCheck(0, float2(coord.x, coord.y));
+	float3 c21 = SampleInputNoCheck(0, float2(right1X, coord.y));
+	float3 c31 = SampleInputNoCheck(0, float2(right2X, coord.y));
+	float3 c02 = SampleInputNoCheck(0, float2(left1X, bottom1Y));
+	float3 c12 = SampleInputNoCheck(0, float2(coord.x, bottom1Y));
+	float3 c22 = SampleInputNoCheck(0, float2(right1X, bottom1Y));
+	float3 c32 = SampleInputNoCheck(0, float2(right2X, bottom1Y));
+	float3 c03 = SampleInputNoCheck(0, float2(left1X, bottom2Y));
+	float3 c13 = SampleInputNoCheck(0, float2(coord.x, bottom2Y));
+	float3 c23 = SampleInputNoCheck(0, float2(right1X, bottom2Y));
+	float3 c33 = SampleInputNoCheck(0, float2(right2X, bottom2Y));
+	
 
 	//  Get min/max samples
 	float3 min_sample = min4(c11, c21, c12, c22);
