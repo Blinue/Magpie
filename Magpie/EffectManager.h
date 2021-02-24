@@ -3,6 +3,7 @@
 #include "AdaptiveSharpenEffect.h"
 #include "Anime4KUpscaleEffect.h"
 #include "Anime4KUpscaleDeblurEffect.h"
+#include "Anime4KUpscaleDenoiseEffect.h"
 #include "Jinc2ScaleEffect.h"
 #include "MitchellNetravaliScaleEffect.h"
 #include "json.hpp"
@@ -69,6 +70,8 @@ private:
 					_AddAnime4KEffect();
 				} else if (subType == "anime4KxDeblur") {
 					_AddAnime4KxDeblurEffect();
+				} else if (subType == "anime4KxDenoise") {
+					_AddAnime4KxDenoiseEffect();
 				} else if (subType == "jinc2") {
 					_AddJinc2ScaleEffect(effect);
 				} else if (subType == "mitchell") {
@@ -210,6 +213,24 @@ private:
 		_SetDestSize(SIZE{ _destSize.cx * 2, _destSize.cy * 2 });
 
 		_PushAsOutputEffect(anime4KxDeblurEffect);
+	}
+
+	void _AddAnime4KxDenoiseEffect() {
+		_CheckAndRegisterEffect(
+			CLSID_MAGIPE_ANIME4K_UPSCALE_DENOISE_EFFECT,
+			&Anime4KUpscaleDenoiseEffect::Register
+		);
+
+		ComPtr<ID2D1Effect> effect = nullptr;
+		Debug::ThrowIfFailed(
+			_d2dDC->CreateEffect(CLSID_MAGIPE_ANIME4K_UPSCALE_DENOISE_EFFECT, &effect),
+			L"创建 Anime4K Effect 失败"
+		);
+
+		// 输出图像的长和宽变为 2 倍
+		_SetDestSize(SIZE{ _destSize.cx * 2, _destSize.cy * 2 });
+
+		_PushAsOutputEffect(effect);
 	}
 
 	void _AddJinc2ScaleEffect(const nlohmann::json& props) {

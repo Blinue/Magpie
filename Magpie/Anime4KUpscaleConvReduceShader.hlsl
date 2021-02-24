@@ -1,3 +1,9 @@
+// Conv-Reduce
+// ÒÆÖ²×Ô https://github.com/bloc97/Anime4K/blob/master/glsl/Upscale%2BDeblur/Anime4K_Upscale_CNN_M_x2_Deblur.glsl
+//
+// Anime4K-v3.1-Upscale(x2)-CNN(M)-Conv-Reduce
+
+
 #define D2D_INPUT_COUNT 5
 #define D2D_INPUT0_SIMPLE
 #define D2D_INPUT1_SIMPLE
@@ -5,10 +11,6 @@
 #define D2D_INPUT3_SIMPLE
 #define D2D_INPUT4_SIMPLE
 #include "Anime4K.hlsli"
-
-/*
-* Anime4K-v3.1-Upscale(x2)-CNN(M)-Conv-Reduce
-*/
 
 
 D2D_PS_ENTRY(main) {

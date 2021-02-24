@@ -1,3 +1,5 @@
+// Deblur 版本的 combine 着色器
+// 移植自 https://github.com/bloc97/Anime4K/blob/master/glsl/Upscale%2BDeblur/Anime4K_Upscale_CNN_M_x2_Deblur.glsl
 
 
 cbuffer constants : register(b0) {
@@ -10,7 +12,9 @@ cbuffer constants : register(b0) {
 #define D2D_INPUT1_COMPLEX
 #define D2D_INPUT2_COMPLEX
 #define MAGPIE_USE_YUV
+#define MAGPIE_USE_SAMPLE_INPUT
 #include "Anime4K.hlsli"
+
 
 #define STRENGTH 1 //De-blur proportional strength, higher is sharper. However, it is better to tweak BLUR_CURVE instead to avoid ringing.
 #define BLUR_CURVE 0.6 //De-blur power curve, lower is sharper. Good values are between 0.3 - 1. Values greater than 1 softens the image;
@@ -18,18 +22,19 @@ cbuffer constants : register(b0) {
 #define NOISE_THRESHOLD 0.001 //Value where curve stops, used to not sharpen noise. Only de-blur values that fall above this threshold.
 
 
-D2D_PS_ENTRY(main) {
-	float4 coord = D2DGetInputCoordinate(0);
-	float2 srcPos = coord.xy / 2;
 
-	float2 f = frac(round(coord.xy / coord.zw) / 2);
-	int2 i = f * 2;
-	float c0 = Uncompress(D2DSampleInput(1, srcPos + (float2(0.5, 0.5) - f) * coord.zw))[i.y * 2 + i.x];
+D2D_PS_ENTRY(main) {
+	InitMagpieSampleInput();
+	coord.xy /= 2;	// 将 dest 坐标映射为 src 坐标
+
+	float2 f = frac(coord.xy / coord.zw);
+	int2 i = round(f * 2);
+	float c0 = Uncompress(SampleInputRGBAOffNoCheck(1, (float2(0.5, 0.5) - f)))[i.y * 2 + i.x];
 
 	float c = c0 * STRENGTH;
 
-	float3 yuv = RGB2YUV(D2DSampleInput(0, srcPos).rgb);
-	float2 mm = D2DSampleInput(2, srcPos).xy;
+	float3 yuv = RGB2YUV(SampleInputCur(0));
+	float2 mm = SampleInputRGBACur(2).xy;
 
 	float c_t = abs(c);
 	if (c_t > NOISE_THRESHOLD && c_t < BLUR_THRESHOLD) {
@@ -44,6 +49,6 @@ D2D_PS_ENTRY(main) {
 	} else {
 		yuv.x += c;
 	}
-	
+	yuv.x += c;
 	return float4(YUV2RGB(yuv.x, yuv.y, yuv.z).xyz, 1);
 }

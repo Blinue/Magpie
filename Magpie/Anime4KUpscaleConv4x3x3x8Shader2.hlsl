@@ -1,33 +1,40 @@
-#define D2D_INPUT_COUNT 1
-#define D2D_INPUT0_COMPLEX
-#include "Anime4K.hlsli"
+// Conv-4x3x3x8 (2)
+// ÒÆÖ²×Ô https://github.com/bloc97/Anime4K/blob/master/glsl/Upscale%2BDeblur/Anime4K_Upscale_CNN_M_x2_Deblur.glsl
+//
+// Anime4K-v3.1-Upscale(x2)-CNN(M)-Conv-4x3x3x8
 
-/*
-* Anime4K-v3.1-Upscale(x2)-CNN(M)-Conv-4x3x3x8
-*/
 
 cbuffer constants : register(b0) {
 	int2 srcSize : packoffset(c0);
 };
 
 
+#define D2D_INPUT_COUNT 1
+#define D2D_INPUT0_COMPLEX
+#define MAGPIE_USE_SAMPLE_INPUT
+#include "Anime4K.hlsli"
+
+
 D2D_PS_ENTRY(main) {
-	float4 coord = D2DGetInputCoordinate(0);
+	InitMagpieSampleInput();
 
-	float leftPos = max(0, coord.x - coord.z);
-	float topPos = max(0, coord.y - coord.w);
-	float rightPos = min((srcSize.x - 1) * coord.z, coord.x + coord.z);
-	float bottomPos = min((srcSize.y - 1) * coord.w, coord.y + coord.w);
+	float left1X = GetCheckedLeft(1);
+	float right1X = GetCheckedRight(1);
+	float top1Y = GetCheckedTop(1);
+	float bottom1Y = GetCheckedBottom(1);
 
-	float4 a = Uncompress(D2DSampleInput(0, float2(leftPos, topPos)));
-	float4 b = Uncompress(D2DSampleInput(0, float2(leftPos, coord.y)));
-	float4 c = Uncompress(D2DSampleInput(0, float2(leftPos, bottomPos)));
-	float4 d = Uncompress(D2DSampleInput(0, float2(coord.x, topPos)));
-	float4 e = Uncompress(D2DSampleInput(0, float2(coord.x, coord.y)));
-	float4 f = Uncompress(D2DSampleInput(0, float2(coord.x, bottomPos)));
-	float4 g = Uncompress(D2DSampleInput(0, float2(rightPos, topPos)));
-	float4 h = Uncompress(D2DSampleInput(0, float2(rightPos, coord.y)));
-	float4 i = Uncompress(D2DSampleInput(0, float2(rightPos, bottomPos)));
+	// [ a, d, g ]
+	// [ b, e, h ]
+	// [ c, f, i ]
+	float4 a = Uncompress(SampleInputRGBANoCheck(0, float2(left1X, top1Y)));
+	float4 b = Uncompress(SampleInputRGBANoCheck(0, float2(left1X, coord.y)));
+	float4 c = Uncompress(SampleInputRGBANoCheck(0, float2(left1X, bottom1Y)));
+	float4 d = Uncompress(SampleInputRGBANoCheck(0, float2(coord.x, top1Y)));
+	float4 e = Uncompress(SampleInputRGBACur(0));
+	float4 f = Uncompress(SampleInputRGBANoCheck(0, float2(coord.x, bottom1Y)));
+	float4 g = Uncompress(SampleInputRGBANoCheck(0, float2(right1X, top1Y)));
+	float4 h = Uncompress(SampleInputRGBANoCheck(0, float2(right1X, coord.y)));
+	float4 i = Uncompress(SampleInputRGBANoCheck(0, float2(right1X, bottom1Y)));
 
 	float4 na = -min(a, ZEROS4);
 	float4 nb = -min(b, ZEROS4);

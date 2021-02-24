@@ -1,50 +1,71 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <FxCompile Include="AdaptiveSharpenPass1Shader.hlsl">
-      <Filter>着色器</Filter>
-    </FxCompile>
-    <FxCompile Include="AdaptiveSharpenPass2Shader.hlsl">
-      <Filter>着色器</Filter>
+    <FxCompile Include="Anime4KDeblurKernelShader.hlsl">
+      <Filter>着色器\缩放\Anime4K</Filter>
     </FxCompile>
     <FxCompile Include="Anime4KUpscaleConv4x3x3x1Shader.hlsl">
-      <Filter>着色器</Filter>
+      <Filter>着色器\缩放\Anime4K</Filter>
     </FxCompile>
     <FxCompile Include="Anime4KUpscaleConv4x3x3x8Shader1.hlsl">
-      <Filter>着色器</Filter>
+      <Filter>着色器\缩放\Anime4K</Filter>
     </FxCompile>
     <FxCompile Include="Anime4KUpscaleConv4x3x3x8Shader2.hlsl">
-      <Filter>着色器</Filter>
+      <Filter>着色器\缩放\Anime4K</Filter>
     </FxCompile>
     <FxCompile Include="Anime4KUpscaleConv4x3x3x8Shader3.hlsl">
-      <Filter>着色器</Filter>
+      <Filter>着色器\缩放\Anime4K</Filter>
     </FxCompile>
     <FxCompile Include="Anime4KUpscaleConv4x3x3x8Shader4.hlsl">
-      <Filter>着色器</Filter>
+      <Filter>着色器\缩放\Anime4K</Filter>
     </FxCompile>
     <FxCompile Include="Anime4KUpscaleConv4x3x3x8Shader5.hlsl">
-      <Filter>着色器</Filter>
+      <Filter>着色器\缩放\Anime4K</Filter>
     </FxCompile>
     <FxCompile Include="Anime4KUpscaleConvReduceShader.hlsl">
-      <Filter>着色器</Filter>
+      <Filter>着色器\缩放\Anime4K</Filter>
     </FxCompile>
-    <FxCompile Include="Anime4KUpscaleDeblurOutputShader.hlsl">
-      <Filter>着色器</Filter>
+    <FxCompile Include="Anime4KUpscaleDeblurCombineShader.hlsl">
+      <Filter>着色器\缩放\Anime4K</Filter>
     </FxCompile>
-    <FxCompile Include="Anime4KUpscaleOutputShader.hlsl">
-      <Filter>着色器</Filter>
+    <FxCompile Include="Anime4KUpscaleCombineShader.hlsl">
+      <Filter>着色器\缩放\Anime4K</Filter>
+    </FxCompile>
+    <FxCompile Include="Anime4KUpscaleDenoiseConv4x3x3x1Shader.hlsl">
+      <Filter>着色器\缩放\Anime4K</Filter>
+    </FxCompile>
+    <FxCompile Include="Anime4KUpscaleDenoiseConv4x3x3x8Shader1.hlsl">
+      <Filter>着色器\缩放\Anime4K</Filter>
+    </FxCompile>
+    <FxCompile Include="Anime4KUpscaleDenoiseConv4x3x3x8Shader2.hlsl">
+      <Filter>着色器\缩放\Anime4K</Filter>
+    </FxCompile>
+    <FxCompile Include="Anime4KUpscaleDenoiseConv4x3x3x8Shader3.hlsl">
+      <Filter>着色器\缩放\Anime4K</Filter>
+    </FxCompile>
+    <FxCompile Include="Anime4KUpscaleDenoiseConv4x3x3x8Shader4.hlsl">
+      <Filter>着色器\缩放\Anime4K</Filter>
+    </FxCompile>
+    <FxCompile Include="Anime4KUpscaleDenoiseConv4x3x3x8Shader5.hlsl">
+      <Filter>着色器\缩放\Anime4K</Filter>
+    </FxCompile>
+    <FxCompile Include="Anime4KUpscaleDenoiseConvReduceShader.hlsl">
+      <Filter>着色器\缩放\Anime4K</Filter>
     </FxCompile>
     <FxCompile Include="Jinc2ScaleShader.hlsl">
-      <Filter>着色器</Filter>
+      <Filter>着色器\缩放</Filter>
     </FxCompile>
     <FxCompile Include="Lanczos6ScaleShader.hlsl">
-      <Filter>着色器</Filter>
+      <Filter>着色器\缩放</Filter>
     </FxCompile>
     <FxCompile Include="MitchellNetravaliScaleShader.hlsl">
-      <Filter>着色器</Filter>
+      <Filter>着色器\缩放</Filter>
     </FxCompile>
-    <FxCompile Include="Anime4KDeblurKernelShader.hlsl">
-      <Filter>着色器</Filter>
+    <FxCompile Include="AdaptiveSharpenPass1Shader.hlsl">
+      <Filter>着色器\锐化</Filter>
+    </FxCompile>
+    <FxCompile Include="AdaptiveSharpenPass2Shader.hlsl">
+      <Filter>着色器\锐化</Filter>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
@@ -77,9 +98,6 @@
     <ClInclude Include="framework.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="GUIDs.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="KeyBoardHook.h">
       <Filter>头文件</Filter>
     </ClInclude>
@@ -87,9 +105,6 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="pch.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="Shaders.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="targetver.h">
@@ -104,31 +119,10 @@
     <ClInclude Include="json.hpp">
       <Filter>第三方库</Filter>
     </ClInclude>
-    <ClInclude Include="AdaptiveSharpenEffect.h">
-      <Filter>头文件\Effect</Filter>
-    </ClInclude>
-    <ClInclude Include="Anime4KUpscaleConvReduceTransform.h">
-      <Filter>头文件\Effect</Filter>
-    </ClInclude>
-    <ClInclude Include="Anime4KUpscaleDeblurEffect.h">
-      <Filter>头文件\Effect</Filter>
-    </ClInclude>
-    <ClInclude Include="Anime4KUpscaleDeblurOutputTransform.h">
-      <Filter>头文件\Effect</Filter>
-    </ClInclude>
-    <ClInclude Include="Anime4KUpscaleEffect.h">
-      <Filter>头文件\Effect</Filter>
-    </ClInclude>
-    <ClInclude Include="Anime4KUpscaleOutputTransform.h">
-      <Filter>头文件\Effect</Filter>
-    </ClInclude>
     <ClInclude Include="DrawTransformBase.h">
       <Filter>头文件\Effect</Filter>
     </ClInclude>
     <ClInclude Include="EffectBase.h">
-      <Filter>头文件\Effect</Filter>
-    </ClInclude>
-    <ClInclude Include="Jinc2Transform.h">
       <Filter>头文件\Effect</Filter>
     </ClInclude>
     <ClInclude Include="SimpleDrawTransform.h">
@@ -137,29 +131,62 @@
     <ClInclude Include="SimpleScaleTransform.h">
       <Filter>头文件\Effect</Filter>
     </ClInclude>
+    <ClInclude Include="GUIDs.h">
+      <Filter>头文件\Effect</Filter>
+    </ClInclude>
+    <ClInclude Include="Shaders.h">
+      <Filter>头文件\Effect</Filter>
+    </ClInclude>
+    <ClInclude Include="AdaptiveSharpenEffect.h">
+      <Filter>头文件\Effect\锐化</Filter>
+    </ClInclude>
     <ClInclude Include="AdaptiveSharpenPass2Transform.h">
-      <Filter>头文件\Effect</Filter>
-    </ClInclude>
-    <ClInclude Include="MitchellNetravaliScaleTransform.h">
-      <Filter>头文件\Effect</Filter>
-    </ClInclude>
-    <ClInclude Include="MitchellNetravaliScaleEffect.h">
-      <Filter>头文件\Effect</Filter>
+      <Filter>头文件\Effect\锐化</Filter>
     </ClInclude>
     <ClInclude Include="Jinc2ScaleEffect.h">
-      <Filter>头文件\Effect</Filter>
+      <Filter>头文件\Effect\缩放</Filter>
+    </ClInclude>
+    <ClInclude Include="Jinc2Transform.h">
+      <Filter>头文件\Effect\缩放</Filter>
+    </ClInclude>
+    <ClInclude Include="MitchellNetravaliScaleEffect.h">
+      <Filter>头文件\Effect\缩放</Filter>
+    </ClInclude>
+    <ClInclude Include="MitchellNetravaliScaleTransform.h">
+      <Filter>头文件\Effect\缩放</Filter>
+    </ClInclude>
+    <ClInclude Include="Anime4KUpscaleConvReduceTransform.h">
+      <Filter>头文件\Effect\缩放\Anime4K</Filter>
+    </ClInclude>
+    <ClInclude Include="Anime4KUpscaleDeblurEffect.h">
+      <Filter>头文件\Effect\缩放\Anime4K</Filter>
+    </ClInclude>
+    <ClInclude Include="Anime4KUpscaleDeblurCombineTransform.h">
+      <Filter>头文件\Effect\缩放\Anime4K</Filter>
+    </ClInclude>
+    <ClInclude Include="Anime4KUpscaleDenoiseConvReduceTransform.h">
+      <Filter>头文件\Effect\缩放\Anime4K</Filter>
+    </ClInclude>
+    <ClInclude Include="Anime4KUpscaleDenoiseEffect.h">
+      <Filter>头文件\Effect\缩放\Anime4K</Filter>
+    </ClInclude>
+    <ClInclude Include="Anime4KUpscaleEffect.h">
+      <Filter>头文件\Effect\缩放\Anime4K</Filter>
+    </ClInclude>
+    <ClInclude Include="Anime4KUpscaleCombineTransform.h">
+      <Filter>头文件\Effect\缩放\Anime4K</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />
-    <None Include="AdaptiveSharpen.hlsli">
+    <None Include="common.hlsli">
       <Filter>着色器</Filter>
     </None>
     <None Include="Anime4K.hlsli">
-      <Filter>着色器</Filter>
+      <Filter>着色器\缩放\Anime4K</Filter>
     </None>
-    <None Include="common.hlsli">
-      <Filter>着色器</Filter>
+    <None Include="AdaptiveSharpen.hlsli">
+      <Filter>着色器\锐化</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
@@ -180,6 +207,24 @@
     </Filter>
     <Filter Include="头文件\Effect">
       <UniqueIdentifier>{7aeace38-38c9-4406-9075-effd6b4c0381}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="着色器\缩放">
+      <UniqueIdentifier>{e928574b-2716-4963-968f-78095f3d185a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="着色器\缩放\Anime4K">
+      <UniqueIdentifier>{9a9496cb-bf27-498d-9170-32d6ba869ae3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="着色器\锐化">
+      <UniqueIdentifier>{f509bffd-924b-4886-b25a-3704015ad9c4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\Effect\锐化">
+      <UniqueIdentifier>{dc400ea1-bb3d-4010-841f-31adb019357e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\Effect\缩放">
+      <UniqueIdentifier>{fc2c2b52-5f93-4962-8c0c-ebb5d28a4d27}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\Effect\缩放\Anime4K">
+      <UniqueIdentifier>{827f48dd-9825-49ee-bde7-0ba8e779235c}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

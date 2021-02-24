@@ -4,30 +4,30 @@
 #include "DrawTransformBase.h"
 
 
-class Anime4KUpscaleOutputTransform : public DrawTransformBase {
+class Anime4KUpscaleDeblurCombineTransform : public DrawTransformBase {
 private:
-    Anime4KUpscaleOutputTransform() {}
+    Anime4KUpscaleDeblurCombineTransform() {}
 public:
-    static HRESULT Create(_In_ ID2D1EffectContext* d2dEC, _Outptr_ Anime4KUpscaleOutputTransform** ppOutput) {
+    static HRESULT Create(_In_ ID2D1EffectContext* d2dEC, _Outptr_ Anime4KUpscaleDeblurCombineTransform** ppOutput) {
         *ppOutput = nullptr;
 
         HRESULT hr = DrawTransformBase::LoadShader(
-            d2dEC, 
-            MAGPIE_ANIME4K_UPSCALE_OUTPUT_SHADER, 
-            GUID_MAGPIE_ANIME4K_UPSCALE_OUTPUT_SHADER
+            d2dEC,
+            MAGPIE_ANIME4K_UPSCALE_DEBLUR_COMBINE_SHADER,
+            GUID_MAGPIE_ANIME4K_UPSCALE_DEBLUR_COMBINE_SHADER
         );
         if (FAILED(hr)) {
             return hr;
         }
 
-        *ppOutput = new Anime4KUpscaleOutputTransform();
+        *ppOutput = new Anime4KUpscaleDeblurCombineTransform();
 
         return S_OK;
     }
 
     // ID2D1TransformNode Methods:
     IFACEMETHODIMP_(UINT32) GetInputCount() const {
-        return 2;
+        return 3;
     }
 
     IFACEMETHODIMP MapInputRectsToOutputRect(
@@ -37,7 +37,7 @@ public:
         _Out_ D2D1_RECT_L* pOutputRect,
         _Out_ D2D1_RECT_L* pOutputOpaqueSubRect
     ) {
-        if (inputRectCount != 2) {
+        if (inputRectCount != 3) {
             return E_INVALIDARG;
         }
         if (pInputRects[0].right - pInputRects[0].left != pInputRects[1].right - pInputRects[1].left
@@ -47,7 +47,7 @@ public:
         }
 
         _inputRect = *pInputRects;
-        *pOutputRect = { 
+        *pOutputRect = {
             pInputRects[0].left,
             pInputRects[0].top,
             2 * pInputRects[0].right - pInputRects[0].left,
@@ -69,13 +69,14 @@ public:
         _Out_writes_(inputRectCount) D2D1_RECT_L* pInputRects,
         UINT32 inputRectCount
     ) const {
-        if (inputRectCount != 2) {
+        if (inputRectCount != 3) {
             return E_INVALIDARG;
         }
 
         // The input needed for the transform is the same as the visible output.
         pInputRects[0] = _inputRect;
         pInputRects[1] = _inputRect;
+        pInputRects[2] = _inputRect;
 
         return S_OK;
     }
@@ -86,7 +87,7 @@ public:
         _Out_ D2D1_RECT_L* pInvalidOutputRect
     ) const {
         // This transform is designed to only accept one input.
-        if (inputIndex >= 2) {
+        if (inputIndex >= 3) {
             return E_INVALIDARG;
         }
 
@@ -99,7 +100,7 @@ public:
 
     IFACEMETHODIMP SetDrawInfo(ID2D1DrawInfo* pDrawInfo) {
         _drawInfo = pDrawInfo;
-        return pDrawInfo->SetPixelShader(GUID_MAGPIE_ANIME4K_UPSCALE_OUTPUT_SHADER);
+        return pDrawInfo->SetPixelShader(GUID_MAGPIE_ANIME4K_UPSCALE_DEBLUR_COMBINE_SHADER);
     }
 
 private:

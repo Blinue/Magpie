@@ -2,7 +2,7 @@
 #include "pch.h"
 #include "GUIDs.h"
 #include "Anime4KUpscaleConvReduceTransform.h"
-#include "Anime4KUpscaleDeblurOutputTransform.h"
+#include "Anime4KUpscaleDeblurCombineTransform.h"
 #include "SimpleDrawTransform.h"
 #include "EffectBase.h"
 
@@ -24,9 +24,9 @@ public:
         //   +----------------+      +---v--+
         //   |                |      |reduce|
         //   |                |      +--+---+
-        // +-v----+        +--v---+     |
-        // |kernel+-------->output<-----+
-        // +------+        +--+---+
+        // +-v----+       +---v---+     |
+        // |kernel+------->combine<-----+
+        // +------+       +---+---+
         //                    |
         //                  +-v-+
         //                  |out|
@@ -97,7 +97,7 @@ public:
         if (FAILED(hr)) {
             return hr;
         }
-        hr = Anime4KUpscaleDeblurOutputTransform::Create(pEffectContext, &_outputTransform);
+        hr = Anime4KUpscaleDeblurCombineTransform::Create(pEffectContext, &_combineTransform);
         if (FAILED(hr)) {
             return hr;
         }
@@ -134,7 +134,7 @@ public:
         if (FAILED(hr)) {
             return hr;
         }
-        hr = pTransformGraph->AddNode(_outputTransform.Get());
+        hr = pTransformGraph->AddNode(_combineTransform.Get());
         if (FAILED(hr)) {
             return hr;
         }
@@ -190,20 +190,20 @@ public:
             return hr;
         }
 
-        hr = pTransformGraph->ConnectToEffectInput(0, _outputTransform.Get(), 0);
+        hr = pTransformGraph->ConnectToEffectInput(0, _combineTransform.Get(), 0);
         if (FAILED(hr)) {
             return hr;
         }
-        hr = pTransformGraph->ConnectNode(_convReduceTransform.Get(), _outputTransform.Get(), 1);
+        hr = pTransformGraph->ConnectNode(_convReduceTransform.Get(), _combineTransform.Get(), 1);
         if (FAILED(hr)) {
             return hr;
         }
-        hr = pTransformGraph->ConnectNode(_deblurKernelTransform.Get(), _outputTransform.Get(), 2);
+        hr = pTransformGraph->ConnectNode(_deblurKernelTransform.Get(), _combineTransform.Get(), 2);
         if (FAILED(hr)) {
             return hr;
         }
 
-        hr = pTransformGraph->SetOutputNode(_outputTransform.Get());
+        hr = pTransformGraph->SetOutputNode(_combineTransform.Get());
         if (FAILED(hr)) {
             return hr;
         }
@@ -253,5 +253,5 @@ private:
     ComPtr<SimpleDrawTransform> _conv4x3x3x8Transform5 = nullptr;
     ComPtr<Anime4KUpscaleConvReduceTransform> _convReduceTransform = nullptr;
     ComPtr<SimpleDrawTransform> _deblurKernelTransform = nullptr;
-    ComPtr<Anime4KUpscaleDeblurOutputTransform> _outputTransform = nullptr;
+    ComPtr<Anime4KUpscaleDeblurCombineTransform> _combineTransform = nullptr;
 };

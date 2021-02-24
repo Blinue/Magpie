@@ -23,8 +23,8 @@ static float4 coord = 0;
 
 #define SampleInputNoCheck(index, pos) (D2DSampleInput(index, pos).rgb)
 #define SampleInputRGBANoCheck(index, pos) (D2DSampleInput(index, pos))
-#define SampleInputOffNoCheck(index, pos) (D2DSampleInputAtOffset(index, pos).rgb)
-#define SampleInputRGBAOffNoCheck(index, pos) (D2DSampleInputAtOffset(index, pos))
+#define SampleInputOffNoCheck(index, pos) (SampleInputNoCheck(index, coord.xy + pos * coord.zw))
+#define SampleInputRGBAOffNoCheck(index, pos) (SampleInputRGBANoCheck(index, coord.xy + pos * coord.zw))
 #define SampleInputCur(index) (D2DSampleInput(index, coord.xy).rgb)
 #define SampleInputRGBACur(index) (D2DSampleInput(index, coord.xy))
 

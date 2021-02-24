@@ -23,14 +23,6 @@ cbuffer constants : register(b0) {
 D2D_PS_ENTRY(main) {
 	InitMagpieSampleInput();
 
-	// Get points and saturate out of range values (BTB & WTW)
-	// [                c22               ]
-	// [           c24, c9,  c23          ]
-	// [      c21, c1,  c2,  c3, c18      ]
-	// [ c19, c10, c4,  c0,  c5, c11, c16 ]
-	// [      c20, c6,  c7,  c8, c17      ]
-	// [           c15, c12, c14          ]
-	// [                c13               ]
 	float left1X = GetCheckedLeft(1);
 	float left2X = GetCheckedLeft(2);
 	float left3X = GetCheckedLeft(3);
@@ -44,6 +36,14 @@ D2D_PS_ENTRY(main) {
 	float bottom2Y = GetCheckedBottom(2);
 	float bottom3Y = GetCheckedBottom(3);
 	
+	// Get points and saturate out of range values (BTB & WTW)
+	// [                c22               ]
+	// [           c24, c9,  c23          ]
+	// [      c21, c1,  c2,  c3, c18      ]
+	// [ c19, c10, c4,  c0,  c5, c11, c16 ]
+	// [      c20, c6,  c7,  c8, c17      ]
+	// [           c15, c12, c14          ]
+	// [                c13               ]
 	float3 c[25] = {
 		SampleInputCur(0),									// c0
 		SampleInputNoCheck(0, float2(left1X, top1Y)),		// c1

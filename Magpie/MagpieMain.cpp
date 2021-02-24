@@ -39,19 +39,13 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 [
   {
     "effect": "scale",
-    "type": "anime4KxDeblur"
+    "type": "anime4K"
   },
   {
     "effect": "scale",
     "type": "highQualityCubic",
     "scale": [0,0],
     "sharpness": 1
-  },
-  {
-    "effect": "sharpen",
-    "type": "builtIn",
-    "sharpness": 5,
-    "threshold": 0.8
   }
 ])"));
             } else {

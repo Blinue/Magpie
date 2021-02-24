@@ -1,33 +1,40 @@
-#define D2D_INPUT_COUNT 1
-#define D2D_INPUT0_COMPLEX
-#include "Anime4K.hlsli"
+// Conv-4x3x3x1 (0)
+// ÒÆÖ²×Ô https://github.com/bloc97/Anime4K/blob/master/glsl/Upscale%2BDeblur/Anime4K_Upscale_CNN_M_x2_Deblur.glsl
+//
+// Anime4K-v3.1-Upscale(x2)-CNN(M)-Conv-4x3x3x1
 
-/*
-* Anime4K-v3.1-Upscale(x2)-CNN(M)-Conv-4x3x3x1
-*/
 
 cbuffer constants : register(b0) {
-    int2 srcSize : packoffset(c0);
+	int2 srcSize : packoffset(c0);
 };
 
 
+#define D2D_INPUT_COUNT 1
+#define D2D_INPUT0_COMPLEX
+#define MAGPIE_USE_SAMPLE_INPUT
+#include "Anime4K.hlsli"
+
+
 D2D_PS_ENTRY(main) {
-	float4 coord = D2DGetInputCoordinate(0);
+	InitMagpieSampleInput();
 
-	float leftPos = max(0, coord.x - coord.z);
-	float topPos = max(0, coord.y - coord.w);
-	float rightPos = min((srcSize.x - 1) * coord.z, coord.x + coord.z);
-	float bottomPos = min((srcSize.y - 1) * coord.w, coord.y + coord.w);
+	float left1X = GetCheckedLeft(1);
+	float right1X = GetCheckedRight(1);
+	float top1Y = GetCheckedTop(1);
+	float bottom1Y = GetCheckedBottom(1);
 
-	float a = GetYOfYUV(D2DSampleInput(0, float2(leftPos, topPos)).rgb);
-	float b = GetYOfYUV(D2DSampleInput(0, float2(leftPos, coord.y)).rgb);
-	float c = GetYOfYUV(D2DSampleInput(0, float2(leftPos, bottomPos)).rgb);
-	float d = GetYOfYUV(D2DSampleInput(0, float2(coord.x, topPos)).rgb);
-	float e = GetYOfYUV(D2DSampleInput(0, coord.xy).rgb);
-	float f = GetYOfYUV(D2DSampleInput(0, float2(coord.x, bottomPos)).rgb);
-	float g = GetYOfYUV(D2DSampleInput(0, float2(rightPos, topPos)).rgb);
-	float h = GetYOfYUV(D2DSampleInput(0, float2(rightPos, coord.y)).rgb);
-	float i = GetYOfYUV(D2DSampleInput(0, float2(rightPos, bottomPos)).rgb);
+	// [ a, d, g ]
+	// [ b, e, h ]
+	// [ c, f, i ]
+	float a = GetYOfYUV(SampleInputNoCheck(0, float2(left1X, top1Y)));
+	float b = GetYOfYUV(SampleInputNoCheck(0, float2(left1X, coord.y)));
+	float c = GetYOfYUV(SampleInputNoCheck(0, float2(left1X, bottom1Y)));
+	float d = GetYOfYUV(SampleInputNoCheck(0, float2(coord.x, top1Y)));
+	float e = GetYOfYUV(SampleInputCur(0));
+	float f = GetYOfYUV(SampleInputNoCheck(0, float2(coord.x, bottom1Y)));
+	float g = GetYOfYUV(SampleInputNoCheck(0, float2(right1X, top1Y)));
+	float h = GetYOfYUV(SampleInputNoCheck(0, float2(right1X, coord.y)));
+	float i = GetYOfYUV(SampleInputNoCheck(0, float2(right1X, bottom1Y)));
 
 	float s = -0.09440448 * a + 0.49120164 * b + -0.022703001 * c + -0.016553257 * d + 0.6272513 * e + -0.97632706 * f + 0.10815585 * g + -0.21898738 * h + 0.09604159 * i;
 	float o = s + 0.00028890301;
