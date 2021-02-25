@@ -6,6 +6,7 @@
 #include "Anime4KUpscaleDenoiseEffect.h"
 #include "Jinc2ScaleEffect.h"
 #include "MitchellNetravaliScaleEffect.h"
+#include "Lanczos6ScaleEffect.h"
 #include "json.hpp"
 #include <unordered_set>
 
@@ -78,6 +79,8 @@ private:
 					_AddMitchellNetravaliScaleEffect(effect);
 				} else if (subType == "HQBicubic") {
 					_AddHQBicubicScaleEffect(effect);
+				} else if (subType == "lanczos6") {
+					_AddLanczos6ScaleEffect(effect);
 				} else {
 					Debug::ThrowIfFalse(false, L"未知的 scale effect");
 				}
@@ -110,21 +113,21 @@ private:
 			L"创建 Adaptive sharpen effect 失败"
 		);
 
-		// strength 属性
-		auto it = props.find("strength");
+		// curveHeight 属性
+		auto it = props.find("curveHeight");
 		if (it != props.end()) {
 			const auto& value = *it;
-			Debug::ThrowIfFalse(value.is_number(), L"非法的 strength 属性值");
+			Debug::ThrowIfFalse(value.is_number(), L"非法的 curveHeight 属性值");
 
-			float strength = value.get<float>();
+			float curveHeight = value.get<float>();
 			Debug::ThrowIfFalse(
-				strength >= 0 && strength <= 1,
-				L"非法的 strength 属性值"
+				curveHeight >= 0 && curveHeight <= 1,
+				L"非法的 curveHeight 属性值"
 			);
 
 			Debug::ThrowIfFailed(
-				adaptiveSharpenEffect->SetValue(AdaptiveSharpenEffect::PROP_STRENGTH, strength),
-				L"设置 strength 属性失败"
+				adaptiveSharpenEffect->SetValue(AdaptiveSharpenEffect::PROP_CURVE_HEIGHT, curveHeight),
+				L"设置 curveHeight 属性失败"
 			);
 		}
 
@@ -267,10 +270,10 @@ private:
 			Debug::ThrowIfFalse(value.is_number(), L"非法的 windowSinc 属性值");
 
 			float windowSinc = value.get<float>();
-			/*Debug::ThrowIfFalse(
+			Debug::ThrowIfFalse(
 				windowSinc > 0,
 				L"非法的 windowSinc 属性值"
-			);*/
+			);
 
 			Debug::ThrowIfFailed(
 				effect->SetValue(Jinc2ScaleEffect::PROP_WINDOW_SINC, windowSinc),
@@ -285,10 +288,10 @@ private:
 			Debug::ThrowIfFalse(value.is_number(), L"非法的 sinc 属性值");
 
 			float sinc = value.get<float>();
-			/*Debug::ThrowIfFalse(
-				windowSinc > 0,
+			Debug::ThrowIfFalse(
+				sinc > 0,
 				L"非法的 sinc 属性值"
-			);*/
+			);
 
 			Debug::ThrowIfFailed(
 				effect->SetValue(Jinc2ScaleEffect::PROP_SINC, sinc),
@@ -303,14 +306,14 @@ private:
 			Debug::ThrowIfFalse(value.is_number(), L"非法的 ARStrength 属性值");
 
 			float ARStrength = value.get<float>();
-			/*Debug::ThrowIfFalse(
-				windowSinc > 0,
+			Debug::ThrowIfFalse(
+				ARStrength >= 0 && ARStrength <= 1,
 				L"非法的 ARStrength 属性值"
-			);*/
+			);
 
 			Debug::ThrowIfFailed(
 				effect->SetValue(Jinc2ScaleEffect::PROP_AR_STRENGTH, ARStrength),
-				L"设置 ARStrengthc 属性失败"
+				L"设置 ARStrength 属性失败"
 			);
 		}
 		
@@ -405,6 +408,55 @@ private:
 
 		_PushAsOutputEffect(effect);
 	}
+
+	void _AddLanczos6ScaleEffect(const nlohmann::json& props) {
+		_CheckAndRegisterEffect(
+			CLSID_MAGPIE_LANCZOS6_SCALE_EFFECT,
+			&Lanczos6ScaleEffect::Register
+		);
+
+		ComPtr<ID2D1Effect> effect = nullptr;
+		Debug::ThrowIfFailed(
+			_d2dDC->CreateEffect(CLSID_MAGPIE_LANCZOS6_SCALE_EFFECT, &effect),
+			L"创建 Lanczos6 Effect 失败"
+		);
+
+		// scale 属性
+		auto it = props.find("scale");
+		if (it != props.end()) {
+			const auto& scale = _ReadScaleProp(*it);
+
+			Debug::ThrowIfFailed(
+				effect->SetValue(Lanczos6ScaleEffect::PROP_SCALE, scale),
+				L"设置 scale 属性失败"
+			);
+
+			// 存在 scale 则输出图像尺寸改变
+			_SetDestSize(SIZE{ lroundf(_destSize.cx * scale.x), lroundf(_destSize.cy * scale.y) });
+		}
+
+		// ARStrength 属性
+		it = props.find("ARStrength");
+		if (it != props.end()) {
+			const auto& value = *it;
+			Debug::ThrowIfFalse(value.is_number(), L"非法的 ARStrength 属性值");
+
+			float ARStrength = value.get<float>();
+			Debug::ThrowIfFalse(
+				ARStrength >= 0 && ARStrength <= 1,
+				L"非法的 ARStrength 属性值"
+			);
+
+			Debug::ThrowIfFailed(
+				effect->SetValue(Lanczos6ScaleEffect::PROP_AR_STRENGTH, ARStrength),
+				L"设置 ARStrengthc 属性失败"
+			);
+		}
+
+		// 替换 output effect
+		_PushAsOutputEffect(effect);
+	}
+
 
 	D2D1_VECTOR_2F _ReadScaleProp(const nlohmann::json& prop) {
 		Debug::ThrowIfFalse(

@@ -64,7 +64,7 @@
     <FxCompile Include="AdaptiveSharpenPass2Shader.hlsl">
       <Filter>着色器\锐化</Filter>
     </FxCompile>
-    <FxCompile Include="Lanczos3ScaleShader.hlsl">
+    <FxCompile Include="Lanczos6ScaleShader.hlsl">
       <Filter>着色器\缩放</Filter>
     </FxCompile>
   </ItemGroup>
@@ -128,9 +128,6 @@
     <ClInclude Include="SimpleDrawTransform.h">
       <Filter>头文件\Effect</Filter>
     </ClInclude>
-    <ClInclude Include="SimpleScaleTransform.h">
-      <Filter>头文件\Effect</Filter>
-    </ClInclude>
     <ClInclude Include="GUIDs.h">
       <Filter>头文件\Effect</Filter>
     </ClInclude>
@@ -174,6 +171,15 @@
       <Filter>头文件\Effect\缩放\Anime4K</Filter>
     </ClInclude>
     <ClInclude Include="Jinc2ScaleTransform.h">
+      <Filter>头文件\Effect\缩放</Filter>
+    </ClInclude>
+    <ClInclude Include="SimpleScaleTransform.h">
+      <Filter>头文件\Effect\缩放</Filter>
+    </ClInclude>
+    <ClInclude Include="Lanczos6ScaleEffect.h">
+      <Filter>头文件\Effect\缩放</Filter>
+    </ClInclude>
+    <ClInclude Include="Lanczos6ScaleTransform.h">
       <Filter>头文件\Effect\缩放</Filter>
     </ClInclude>
   </ItemGroup>

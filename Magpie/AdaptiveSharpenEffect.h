@@ -57,7 +57,7 @@ public:
         return S_OK;
     }
 
-    HRESULT SetStrength(FLOAT value) {
+    HRESULT SetCurveHeight(FLOAT value) {
         if (value <= 0) {
             return E_INVALIDARG;
         }
@@ -66,19 +66,19 @@ public:
         return S_OK;
     }
 
-    FLOAT GetStrength() const {
+    FLOAT GetCurveHeight() const {
         return _pass2Transform->GetCurveHeight();
     }
 
     enum PROPS {
         // FLOAT 类型。指示锐化强度，必须大于0，一般在 0.3~2.0 之间。默认值为 0.3
-        PROP_STRENGTH = 0
+        PROP_CURVE_HEIGHT = 0
     };
 
     static HRESULT Register(_In_ ID2D1Factory1* pFactory) {
         const D2D1_PROPERTY_BINDING bindings[] =
         {
-            D2D1_VALUE_TYPE_BINDING(L"Strength", &SetStrength, &GetStrength),
+            D2D1_VALUE_TYPE_BINDING(L"CurveHeight", &SetCurveHeight, &GetCurveHeight),
         };
 
         HRESULT hr = pFactory->RegisterEffectFromString(CLSID_MAGPIE_ADAPTIVE_SHARPEN_EFFECT, XML(
@@ -92,8 +92,8 @@ public:
                 <Inputs>
                     <Input name='Source' />
                 </Inputs>
-                <Property name='Strength' type='float'>
-                    <Property name='DisplayName' type='string' value='Strength' />
+                <Property name='CurveHeight' type='float'>
+                    <Property name='DisplayName' type='string' value='CurveHeight' />
                     <Property name='Default' type='float' value='0.3' />
                 </Property>
             </Effect>

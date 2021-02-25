@@ -45,7 +45,6 @@ D2D_PS_ENTRY(main) {
 	float2 dy = float2(0.0, 1.0);
 
 	float2 pc = coord.xy / coord.zw;
-
 	float2 tc = floor(pc - float2(0.5, 0.5)) + float2(0.5, 0.5);
 
 	float wa = windowSinc * PI;

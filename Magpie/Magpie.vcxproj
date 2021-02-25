@@ -204,6 +204,8 @@
     <ClInclude Include="GUIDs.h" />
     <ClInclude Include="Jinc2ScaleTransform.h" />
     <ClInclude Include="json.hpp" />
+    <ClInclude Include="Lanczos6ScaleEffect.h" />
+    <ClInclude Include="Lanczos6ScaleTransform.h" />
     <ClInclude Include="MagWindow.h" />
     <ClInclude Include="MitchellNetravaliScaleEffect.h" />
     <ClInclude Include="MitchellNetravaliScaleTransform.h" />
@@ -362,7 +364,7 @@
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </FxCompile>
-    <FxCompile Include="Lanczos3ScaleShader.hlsl">
+    <FxCompile Include="Lanczos6ScaleShader.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>

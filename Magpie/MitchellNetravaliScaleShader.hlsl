@@ -8,22 +8,8 @@ cbuffer constants : register(b0) {
 	int useSharperVersion : packoffset(c1.x);
 };
 
-float weight(float x) {
+float weight(float x, float B, float C) {
 	float ax = abs(x);
-
-	float B = 0.0;
-	float C = 0.0;
-	if (useSharperVersion == 0) {
-		// Mitchel-Netravali coefficients.
-		// Best psychovisual result.
-		B = 1.0 / 3.0;
-		C = 1.0 / 3.0;
-	} else {
-		// Sharper version.
-		// May look better in some cases.
-		B = 0.0;
-		C = 0.75;
-	}
 
 	if (ax < 1.0) {
 		return
@@ -43,11 +29,26 @@ float weight(float x) {
 }
 
 float4 weight4(float x) {
+	float B = 0.0;
+	float C = 0.0;
+	if (useSharperVersion == 0) {
+		// Mitchel-Netravali coefficients.
+		// Best psychovisual result.
+		B = 1.0 / 3.0;
+		C = 1.0 / 3.0;
+	} else {
+		// Sharper version.
+		// May look better in some cases.
+		B = 0.0;
+		C = 0.75;
+	}
+
 	return float4(
-		weight(x - 2.0),
-		weight(x - 1.0),
-		weight(x),
-		weight(x + 1.0));
+		weight(x - 2.0, B, C),
+		weight(x - 1.0, B, C),
+		weight(x, B, C),
+		weight(x + 1.0, B, C)
+	);
 }
 
 float3 pixel(float xpos, float ypos) {
