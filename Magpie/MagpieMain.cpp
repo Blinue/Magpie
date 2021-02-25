@@ -39,13 +39,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 [
   {
     "effect": "scale",
-    "type": "Anime4KxDenoise"
-  },
-  {
-    "effect": "scale",
-    "type": "HQBicubic",
-    "scale": [0,0],
-    "sharpness": 1
+    "type": "mitchell",
+    "scale": [0, 0]
   }
 ])"));
             } else {
