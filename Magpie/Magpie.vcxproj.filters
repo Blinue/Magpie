@@ -146,9 +146,6 @@
     <ClInclude Include="Jinc2ScaleEffect.h">
       <Filter>头文件\Effect\缩放</Filter>
     </ClInclude>
-    <ClInclude Include="Jinc2Transform.h">
-      <Filter>头文件\Effect\缩放</Filter>
-    </ClInclude>
     <ClInclude Include="MitchellNetravaliScaleEffect.h">
       <Filter>头文件\Effect\缩放</Filter>
     </ClInclude>
@@ -175,6 +172,9 @@
     </ClInclude>
     <ClInclude Include="Anime4KUpscaleCombineTransform.h">
       <Filter>头文件\Effect\缩放\Anime4K</Filter>
+    </ClInclude>
+    <ClInclude Include="Jinc2ScaleTransform.h">
+      <Filter>头文件\Effect\缩放</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

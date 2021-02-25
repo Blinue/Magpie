@@ -1,21 +1,20 @@
 #pragma once
 #include "pch.h"
 #include "GUIDs.h"
-#include "Jinc2Transform.h"
+#include "Jinc2ScaleTransform.h"
 #include "EffectBase.h"
 #include <d2d1effecthelpers.h>
 
 
+// Jinc2 缩放算法
+// 适合图像放大，可以较好保存边缘
 class Jinc2ScaleEffect : public EffectBase {
 public:
     IFACEMETHODIMP Initialize(
         _In_ ID2D1EffectContext* pEffectContext,
         _In_ ID2D1TransformGraph* pTransformGraph
     ) {
-        HRESULT hr = SimpleScaleTransform::Create(
-            pEffectContext, &_transform, 
-            MAGPIE_JINC2_SCALE_SHADER, 
-            GUID_MAGPIE_JINC2_SCALE_SHADER);
+        HRESULT hr = Jinc2ScaleTransform::Create(pEffectContext, &_transform);
         if (FAILED(hr)) {
             return hr;
         }
@@ -41,14 +40,63 @@ public:
         return _transform->GetScale();
     }
 
+    HRESULT SetWindowSinc(FLOAT value) {
+        if (value <= 0) {
+            return E_INVALIDARG;
+        }
+
+        _transform->SetWindowSinc(value);
+        return S_OK;
+    }
+
+    FLOAT GetWindowSinc() const {
+        return _transform->GetWindowSinc();
+    }
+
+    HRESULT SetSinc(FLOAT value) {
+        if (value <= 0) {
+            return E_INVALIDARG;
+        }
+
+        _transform->SetSinc(value);
+        return S_OK;
+    }
+
+    FLOAT GetSinc() const {
+        return _transform->GetSinc();
+    }
+
+    HRESULT SetARStrength(FLOAT value) {
+        if (value < 0 || value > 1) {
+            return E_INVALIDARG;
+        }
+
+        _transform->SetARStrength(value);
+        return S_OK;
+    }
+
+    FLOAT GetARStrength() const {
+        return _transform->GetARStrength();
+    }
+
     enum PROPS {
-        PROP_SCALE = 0
+        // 缩放倍数。默认值为 (1,1)
+        PROP_SCALE = 0,
+        // 必须大于0，值越小图像越清晰，但会有锯齿。默认值为 0.5
+        PROP_WINDOW_SINC = 1,
+        // 必须大于0，值越大线条越锐利，但会有抖动。默认值为 0.825
+        PROP_SINC = 2,
+        // 抗振铃强度。必须在 0~1 之间。默认值为 0.5
+        PROP_AR_STRENGTH = 3
     };
 
     static HRESULT Register(_In_ ID2D1Factory1* pFactory) {
         const D2D1_PROPERTY_BINDING bindings[] =
         {
             D2D1_VALUE_TYPE_BINDING(L"Scale", &SetScale, &GetScale),
+            D2D1_VALUE_TYPE_BINDING(L"WindowSinc", &SetWindowSinc, &GetWindowSinc),
+            D2D1_VALUE_TYPE_BINDING(L"Sinc", &SetSinc, &GetSinc),
+            D2D1_VALUE_TYPE_BINDING(L"ARStrength", &SetARStrength, &GetARStrength)
         };
 
         HRESULT hr = pFactory->RegisterEffectFromString(CLSID_MAGPIE_JINC2_SCALE_EFFECT, XML(
@@ -65,6 +113,20 @@ public:
                 <Property name='Scale' type='vector2'>
                     <Property name='DisplayName' type='string' value='Scale'/>
                     <Property name='Default' type='vector2' value='(1,1)'/>
+                </Property>
+                <Property name='WindowSinc' type = 'float'>
+                    <Property name='DisplayName' type='string' value='WindowSinc' />
+                    <Property name='Default' type='float' value='0.5' />
+                </Property>
+                <Property name='Sinc' type='float'>
+                    <Property name='DisplayName' type='string' value='Sinc' />
+                    <Property name='Default' type='float' value='0.825' />
+                </Property>
+                <Property name='ARStrength' type='float'>
+                    <Property name='DisplayName' type='string' value='ARStrength' />
+                    <Property name='Default' type='float' value = '0.5' />
+                    <Property name='Min' type='float' value='0' />
+                    <Property name='Max' type='float' value='1.0' />
                 </Property>
             </Effect>
         ), bindings, ARRAYSIZE(bindings), CreateEffect);
@@ -85,5 +147,5 @@ public:
 private:
     Jinc2ScaleEffect() {}
 
-    ComPtr<SimpleScaleTransform> _transform = nullptr;
+    ComPtr<Jinc2ScaleTransform> _transform = nullptr;
 };

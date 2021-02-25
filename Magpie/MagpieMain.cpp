@@ -39,11 +39,11 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 [
   {
     "effect": "scale",
-    "type": "anime4K"
+    "type": "Anime4KxDenoise"
   },
   {
     "effect": "scale",
-    "type": "hqBicubic",
+    "type": "HQBicubic",
     "scale": [0,0],
     "sharpness": 1
   }

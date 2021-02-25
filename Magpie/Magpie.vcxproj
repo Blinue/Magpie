@@ -202,7 +202,7 @@
     <ClInclude Include="EffectRenderer.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="GUIDs.h" />
-    <ClInclude Include="Jinc2Transform.h" />
+    <ClInclude Include="Jinc2ScaleTransform.h" />
     <ClInclude Include="json.hpp" />
     <ClInclude Include="MagWindow.h" />
     <ClInclude Include="MitchellNetravaliScaleEffect.h" />

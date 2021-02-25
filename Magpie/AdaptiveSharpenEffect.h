@@ -58,22 +58,20 @@ public:
     }
 
     HRESULT SetStrength(FLOAT value) {
-        if (value < 0 || value > 1) {
+        if (value <= 0) {
             return E_INVALIDARG;
         }
 
-        // 将 0~1 映射到 0.3~2
-        _pass2Transform->SetCurveHeight(value * 1.7f + 0.3f);
+        _pass2Transform->SetCurveHeight(value);
         return S_OK;
     }
 
     FLOAT GetStrength() const {
-        // 将 0.3~2 映射到 0~1
-        return (_pass2Transform->GetCurveHeight() - 0.3f) / 1.7f;
+        return _pass2Transform->GetCurveHeight();
     }
 
     enum PROPS {
-        // FLOAT 类型。指示锐化强度，取值范围为 0~1，默认值为 0
+        // FLOAT 类型。指示锐化强度，必须大于0，一般在 0.3~2.0 之间。默认值为 0.3
         PROP_STRENGTH = 0
     };
 
@@ -96,9 +94,7 @@ public:
                 </Inputs>
                 <Property name='Strength' type='float'>
                     <Property name='DisplayName' type='string' value='Strength' />
-                    <Property name='Default' type='float' value='0' />
-                    <Property name='Min' type='float' value='0' />
-                    <Property name='Max' type='float' value='1' />
+                    <Property name='Default' type='float' value='0.3' />
                 </Property>
             </Effect>
         ), bindings, ARRAYSIZE(bindings), CreateEffect);

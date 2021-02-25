@@ -36,7 +36,7 @@ public:
         _scale = scale;
     }
 
-    D2D1_VECTOR_2F GetScale() {
+    D2D1_VECTOR_2F GetScale() const {
         return _scale;
     }
 

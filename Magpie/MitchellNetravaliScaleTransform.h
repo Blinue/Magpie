@@ -3,9 +3,7 @@
 #include "GUIDs.h"
 #include "SimpleScaleTransform.h"
 
-// Mitchell-Netravali 插值算法，一种双三次插值，可以获得平滑的边缘
-// 可选是否使用更锐利的版本，默认为否
-// （经测试两种版本几乎没有区别）
+// 为 MitchellNetravaliScaleShader.hlsl 提供参数
 class MitchellNetravaliScaleTransform : public SimpleScaleTransform {
 private:
     MitchellNetravaliScaleTransform() : SimpleScaleTransform(GUID_MAGPIE_MITCHELL_NETRAVALI_SCALE_SHADER) {}

@@ -28,7 +28,7 @@ public:
     }
 
     void SetCurveHeight(float value) {
-        assert(value >= 0.3 && value <= 2);
+        assert(value > 0);
         _curveHeight = value;
     }
 

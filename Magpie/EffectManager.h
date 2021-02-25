@@ -68,15 +68,15 @@ private:
 
 				if (subType == "anime4K") {
 					_AddAnime4KEffect();
-				} else if (subType == "anime4KxDeblur") {
+				} else if (subType == "Anime4KxDeblur") {
 					_AddAnime4KxDeblurEffect();
-				} else if (subType == "anime4KxDenoise") {
+				} else if (subType == "Anime4KxDenoise") {
 					_AddAnime4KxDenoiseEffect();
 				} else if (subType == "jinc2") {
 					_AddJinc2ScaleEffect(effect);
 				} else if (subType == "mitchell") {
 					_AddMitchellNetravaliScaleEffect(effect);
-				} else if (subType == "hqBicubic") {
+				} else if (subType == "HQBicubic") {
 					_AddHQBicubicScaleEffect(effect);
 				} else {
 					Debug::ThrowIfFalse(false, L"未知的 scale effect");
@@ -239,9 +239,9 @@ private:
 			&Jinc2ScaleEffect::Register
 		);
 
-		ComPtr<ID2D1Effect> jinc2Effect = nullptr;
+		ComPtr<ID2D1Effect> effect = nullptr;
 		Debug::ThrowIfFailed(
-			_d2dDC->CreateEffect(CLSID_MAGPIE_JINC2_SCALE_EFFECT, &jinc2Effect),
+			_d2dDC->CreateEffect(CLSID_MAGPIE_JINC2_SCALE_EFFECT, &effect),
 			L"创建 Anime4K Effect 失败"
 		);
 		
@@ -252,16 +252,70 @@ private:
 			const auto& scale = _ReadScaleProp(*it);
 			
 			Debug::ThrowIfFailed(
-				jinc2Effect->SetValue(Jinc2ScaleEffect::PROP_SCALE, scale),
+				effect->SetValue(Jinc2ScaleEffect::PROP_SCALE, scale),
 				L"设置 scale 属性失败"
 			);
 
 			// 存在 scale 则输出图像尺寸改变
 			_SetDestSize(SIZE{ lroundf(_destSize.cx * scale.x), lroundf(_destSize.cy * scale.y) });
 		}
+
+		// windowSinc 属性
+		it = props.find("windowSinc");
+		if (it != props.end()) {
+			const auto& value = *it;
+			Debug::ThrowIfFalse(value.is_number(), L"非法的 windowSinc 属性值");
+
+			float windowSinc = value.get<float>();
+			/*Debug::ThrowIfFalse(
+				windowSinc > 0,
+				L"非法的 windowSinc 属性值"
+			);*/
+
+			Debug::ThrowIfFailed(
+				effect->SetValue(Jinc2ScaleEffect::PROP_WINDOW_SINC, windowSinc),
+				L"设置 windowSinc 属性失败"
+			);
+		}
+
+		// sinc 属性
+		it = props.find("sinc");
+		if (it != props.end()) {
+			const auto& value = *it;
+			Debug::ThrowIfFalse(value.is_number(), L"非法的 sinc 属性值");
+
+			float sinc = value.get<float>();
+			/*Debug::ThrowIfFalse(
+				windowSinc > 0,
+				L"非法的 sinc 属性值"
+			);*/
+
+			Debug::ThrowIfFailed(
+				effect->SetValue(Jinc2ScaleEffect::PROP_SINC, sinc),
+				L"设置 sinc 属性失败"
+			);
+		}
+
+		// ARStrength 属性
+		it = props.find("ARStrength");
+		if (it != props.end()) {
+			const auto& value = *it;
+			Debug::ThrowIfFalse(value.is_number(), L"非法的 ARStrength 属性值");
+
+			float ARStrength = value.get<float>();
+			/*Debug::ThrowIfFalse(
+				windowSinc > 0,
+				L"非法的 ARStrength 属性值"
+			);*/
+
+			Debug::ThrowIfFailed(
+				effect->SetValue(Jinc2ScaleEffect::PROP_AR_STRENGTH, ARStrength),
+				L"设置 ARStrengthc 属性失败"
+			);
+		}
 		
 		// 替换 output effect
-		_PushAsOutputEffect(jinc2Effect);
+		_PushAsOutputEffect(effect);
 	}
 
 	void _AddMitchellNetravaliScaleEffect(const nlohmann::json& props) {
@@ -306,6 +360,7 @@ private:
 		_PushAsOutputEffect(effect);
 	}
 
+	// 内置的 HIGH_QUALITY_CUBIC 缩放算法在缩小图像时效果完美
 	void _AddHQBicubicScaleEffect(const nlohmann::json& props) {
 		ComPtr<ID2D1Effect> effect = nullptr;
 		Debug::ThrowIfFailed(

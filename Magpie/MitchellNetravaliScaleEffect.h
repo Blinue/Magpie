@@ -5,7 +5,9 @@
 #include "EffectBase.h"
 #include <d2d1effecthelpers.h>
 
-
+// Mitchell-Netravali 缩放算法，一种双三次插值，可以获得平滑的边缘
+// 可选是否使用更锐利的版本，默认为否
+// （经测试两种版本几乎没有区别）
 class MitchellNetravaliScaleEffect : public EffectBase {
 public:
     IFACEMETHODIMP Initialize(
