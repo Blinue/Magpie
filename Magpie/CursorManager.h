@@ -8,9 +8,12 @@ public:
         HINSTANCE hInstance,
         const ComPtr<IWICImagingFactory2>& wicImgFactory,
         const ComPtr<ID2D1DeviceContext>& d2dDC,
-        const RECT& srcClient,
+        const D2D1_RECT_F& srcRect,
+        const D2D1_RECT_F& destRect,
         bool noDisturb = false
-    ): _hInstance(hInstance), _wicImgFactory(wicImgFactory), _d2dDC(d2dDC), _srcClient(srcClient) {
+    ): _hInstance(hInstance), _wicImgFactory(wicImgFactory), _d2dDC(d2dDC),
+        _srcRect(srcRect), _destRect(destRect), _noDistrub(noDisturb) 
+    {
         _cursorSize.cx = GetSystemMetrics(SM_CXCURSOR);
         _cursorSize.cy = GetSystemMetrics(SM_CYCURSOR);
 
@@ -26,7 +29,23 @@ public:
 
             SetSystemCursor(CopyCursor(tptCursor), OCR_HAND);
             SetSystemCursor(CopyCursor(tptCursor), OCR_NORMAL);
-            ClipCursor(&srcClient);
+
+            // 限制鼠标在窗口内
+            RECT r{ lroundf(srcRect.left), lroundf(srcRect.top), lroundf(srcRect.right), lroundf(srcRect.bottom) };
+            Debug::ThrowIfFalse(ClipCursor(&r), L"");
+            
+            // 设置鼠标移动速度
+            Debug::ThrowIfFalse(
+                SystemParametersInfo(SPI_GETMOUSESPEED, 0, &_cursorSpeed, 0),
+                L"获取鼠标速度失败"
+            );
+
+            float scale = float(destRect.right - destRect.left) / (srcRect.right - srcRect.left);
+            long newSpeed = std::clamp((long)lround(_cursorSpeed / scale), 1L, 20L);
+            Debug::ThrowIfFalse(
+                SystemParametersInfo(SPI_SETMOUSESPEED, 0, (PVOID)(intptr_t)newSpeed, 0),
+                L"设置鼠标速度失败"
+            );
 
             DestroyCursor(tptCursor);
         }
@@ -36,14 +55,17 @@ public:
 	CursorManager(CursorManager&&) = delete;
 
     ~CursorManager() {
-        ClipCursor(nullptr);
+        if (!_noDistrub) {
+            ClipCursor(nullptr);
+            SystemParametersInfo(SPI_SETMOUSESPEED, 0, (PVOID)(intptr_t)_cursorSpeed, 0);
 
-        SetSystemCursor(_systemCursors.normal, OCR_NORMAL);
-        SetSystemCursor(_systemCursors.hand, OCR_HAND);
-        // _systemCursors 中的资源已释放
+            SetSystemCursor(_systemCursors.normal, OCR_NORMAL);
+            SetSystemCursor(_systemCursors.hand, OCR_HAND);
+            // _systemCursors 中的资源已释放
+        }
     }
 
-	void DrawCursor(const RECT& destClient) {
+	void DrawCursor() {
         CURSORINFO ci{};
         ci.cbSize = sizeof(ci);
         GetCursorInfo(&ci);
@@ -52,13 +74,19 @@ public:
             return;
         }
 
-        POINT targetScreenPos = Utils::MapPoint(ci.ptScreenPos, _srcClient, destClient);
+        D2D1_POINT_2F targetScreenPos = Utils::MapPoint(
+            D2D1_POINT_2F{ (FLOAT)ci.ptScreenPos.x, (FLOAT)ci.ptScreenPos.y },
+            _srcRect, _destRect
+        );
+        // 鼠标坐标为整数，否则会出现模糊
+        targetScreenPos.x = roundf(targetScreenPos.x);
+        targetScreenPos.y = roundf(targetScreenPos.y);
 
         D2D1_RECT_F cursorRect{
-            float(targetScreenPos.x),
-            float(targetScreenPos.y),
-            float(targetScreenPos.x + _cursorSize.cx),
-            float(targetScreenPos.y + _cursorSize.cy)
+            targetScreenPos.x,
+            targetScreenPos.y,
+            targetScreenPos.x + _cursorSize.cx,
+            targetScreenPos.y + _cursorSize.cy
         };
 
         if (ci.hCursor == LoadCursor(NULL, IDC_ARROW)) {
@@ -127,10 +155,15 @@ private:
 
     SIZE _cursorSize{};
 
-    RECT _srcClient;
+    D2D1_RECT_F _srcRect;
+    D2D1_RECT_F _destRect;
 
     struct {
         HCURSOR normal;
         HCURSOR hand;
     } _systemCursors{};
+
+    INT _cursorSpeed = 0;
+
+    bool _noDistrub = false;
 };

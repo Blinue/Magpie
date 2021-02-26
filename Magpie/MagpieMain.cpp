@@ -20,7 +20,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
         SetProcessDPIAware(),
         L"SetProcessDPIAware 失败"
     );
-
+    
     KeyBoardHook::hook({ VK_LMENU, VK_RMENU, VK_F11 });
     KeyBoardHook::setKeyDownCallback([=](int key) {
         std::vector<int> keys = KeyBoardHook::getPressedKeys();

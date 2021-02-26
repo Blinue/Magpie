@@ -45,6 +45,10 @@ public:
 		return outputImg;
 	}
 
+	const SIZE& GetOutputSize() {
+		return _outputSize;
+	}
+
 private:
 	void _CreateSourceEffect(const SIZE& srcSize) {
 		// 创建 Source effect
@@ -199,7 +203,7 @@ private:
 		);
 
 		// 输出图像的长和宽变为 2 倍
-		_SetDestSize(SIZE{ _destSize.cx * 2, _destSize.cy * 2 });
+		_SetDestSize(SIZE{ _outputSize.cx * 2, _outputSize.cy * 2 });
 
 		_PushAsOutputEffect(anime4KEffect);
 	}
@@ -217,7 +221,7 @@ private:
 		);
 
 		// 输出图像的长和宽变为 2 倍
-		_SetDestSize(SIZE{ _destSize.cx * 2, _destSize.cy * 2 });
+		_SetDestSize(SIZE{ _outputSize.cx * 2, _outputSize.cy * 2 });
 
 		_PushAsOutputEffect(anime4KxDeblurEffect);
 	}
@@ -235,7 +239,7 @@ private:
 		);
 
 		// 输出图像的长和宽变为 2 倍
-		_SetDestSize(SIZE{ _destSize.cx * 2, _destSize.cy * 2 });
+		_SetDestSize(SIZE{ _outputSize.cx * 2, _outputSize.cy * 2 });
 
 		_PushAsOutputEffect(effect);
 	}
@@ -264,7 +268,7 @@ private:
 			);
 
 			// 存在 scale 则输出图像尺寸改变
-			_SetDestSize(SIZE{ lroundf(_destSize.cx * scale.x), lroundf(_destSize.cy * scale.y) });
+			_SetDestSize(SIZE{ lroundf(_outputSize.cx * scale.x), lroundf(_outputSize.cy * scale.y) });
 		}
 
 		// windowSinc 属性
@@ -348,7 +352,7 @@ private:
 			);
 
 			// 存在 scale 则输出图像尺寸改变
-			_SetDestSize(SIZE{ lroundf(_destSize.cx * scale.x), lroundf(_destSize.cy * scale.y) });
+			_SetDestSize(SIZE{ lroundf(_outputSize.cx * scale.x), lroundf(_outputSize.cy * scale.y) });
 		}
 
 		// useSharperVersion 属性
@@ -389,7 +393,7 @@ private:
 			);
 
 			// 存在 scale 则输出图像尺寸改变
-			_SetDestSize(SIZE{ lroundf(_destSize.cx * scale.x), lroundf(_destSize.cy * scale.y) });
+			_SetDestSize(SIZE{ lroundf(_outputSize.cx * scale.x), lroundf(_outputSize.cy * scale.y) });
 		}
 
 		// sharpness 属性
@@ -436,7 +440,7 @@ private:
 			);
 
 			// 存在 scale 则输出图像尺寸改变
-			_SetDestSize(SIZE{ lroundf(_destSize.cx * scale.x), lroundf(_destSize.cy * scale.y) });
+			_SetDestSize(SIZE{ lroundf(_outputSize.cx * scale.x), lroundf(_outputSize.cy * scale.y) });
 		}
 
 		// ARStrength 属性
@@ -477,7 +481,7 @@ private:
 
 		if (scale.x == 0 || scale.y == 0) {
 			// 输出图像充满屏幕
-			scale.x = min((FLOAT)_maxSize.cx / _destSize.cx, (FLOAT)_maxSize.cy / _destSize.cy);
+			scale.x = min((FLOAT)_maxSize.cx / _outputSize.cx, (FLOAT)_maxSize.cy / _outputSize.cy);
 			scale.y = scale.x;
 		}
 
@@ -492,14 +496,14 @@ private:
 
 	// 设置 destSize 的同时增大 tile 的大小以容纳图像
 	void _SetDestSize(SIZE value) {
-		if (value.cx > _destSize.cx || value.cy > _destSize.cy) {
+		if (value.cx > _outputSize.cx || value.cy > _outputSize.cy) {
 			// 需要更大的 tile
-			rc.tileSize.width = max(value.cx, _destSize.cx);
-			rc.tileSize.height = max(value.cy, _destSize.cy);
+			rc.tileSize.width = max(value.cx, _outputSize.cx);
+			rc.tileSize.height = max(value.cy, _outputSize.cy);
 			_d2dDC->SetRenderingControls(rc);
 		}
 
-		_destSize = value;
+		_outputSize = value;
 	}
 
 
@@ -523,7 +527,7 @@ private:
 	ComPtr<ID2D1Effect> _outputEffect = nullptr;
 
 	// 输出图像尺寸
-	SIZE _destSize{};
+	SIZE _outputSize{};
 	// 全屏窗口尺寸
 	SIZE _maxSize;
 

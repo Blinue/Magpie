@@ -48,14 +48,14 @@ public:
         return { rect.right - rect.left,rect.bottom - rect.top };
     }
 
-    static POINT MapPoint(POINT p, const RECT& src, const RECT& dest) {
-        SIZE srcSize = GetSize(src);
-        SIZE destSize = GetSize(dest);
-        double factor = (double)destSize.cx / srcSize.cx;
+    static D2D1_POINT_2F MapPoint(D2D1_POINT_2F p, const D2D1_RECT_F& src, const D2D1_RECT_F& dest) {
+        auto srcSize = GetSize(src);
+        auto destSize = GetSize(dest);
+        float factor = destSize.width / srcSize.width;
 
         return {
-            (int)lround((p.x - src.left) * factor) + dest.left,
-            (int)lround((p.y - src.top) * factor) + dest.top
+            (p.x - src.left) * factor + dest.left,
+            (p.y - src.top) * factor + dest.top
         };
     }
 

@@ -13,7 +13,8 @@ public:
         HWND hwndHost,
         const std::wstring_view &effectsJson,
         const RECT& srcClient,
-        const ComPtr<IWICImagingFactory2>& wicImgFactory
+        const ComPtr<IWICImagingFactory2>& wicImgFactory,
+        bool noDisturb
     ) {
         RECT destClient{};
         Debug::ThrowIfFalse(
@@ -25,7 +26,18 @@ public:
         _InitD2D(hwndHost);
 
         _effectManager.reset(new EffectManager(_d2dFactory, _d2dDC, effectsJson, Utils::GetSize(srcClient), _hostWndClientSize));
-        _cursorManager.reset(new CursorManager(hInstance, wicImgFactory, _d2dDC, srcClient));
+
+        // 计算输出位置
+        SIZE outputSize = _effectManager->GetOutputSize();
+        float x = ((float)_hostWndClientSize.cx - outputSize.cx) / 2;
+        float y = ((float)_hostWndClientSize.cy - outputSize.cy) / 2;
+        _destRect = { x, y, x + outputSize.cx, y + outputSize.cy };
+
+        _cursorManager.reset(new CursorManager(
+            hInstance, wicImgFactory, _d2dDC, 
+            D2D1_RECT_F{ (FLOAT)srcClient.left, (FLOAT)srcClient.top, (FLOAT)srcClient.right, (FLOAT)srcClient.bottom },
+            _destRect, noDisturb)
+        );
 	}
  
     // 不可复制，不可移动
@@ -33,36 +45,15 @@ public:
     EffectRenderer(EffectRenderer&&) = delete;
 public:
     void Render(const ComPtr<IWICBitmapSource>& srcBmp) const {
-        ComPtr<ID2D1Image> outputImg = _effectManager->Apply(srcBmp);
-
-        // 获取输出图像尺寸
-        D2D1_RECT_F outputRect{};
-        Debug::ThrowIfFailed(
-            _d2dDC->GetImageLocalBounds(outputImg.Get(), &outputRect),
-            L"获取输出图像尺寸失败"
-        );
-
-        D2D1_SIZE_F outputSize = Utils::GetSize(outputRect);
-        D2D1_POINT_2F pos{
-            ((float)_hostWndClientSize.cx - outputSize.width) / 2,
-            ((float)_hostWndClientSize.cy - outputSize.height) / 2
-        };
-
-
         // 将输出图像显示在窗口中央
         _d2dDC->BeginDraw();
         _d2dDC->Clear();
         _d2dDC->DrawImage(
-            outputImg.Get(),
-            pos
+            _effectManager->Apply(srcBmp).Get(),
+            D2D1_POINT_2F{ _destRect.left, _destRect.top }
         );
 
-        _cursorManager->DrawCursor(RECT{
-            lround(outputRect.left + pos.x),
-            lround(outputRect.top + pos.y),
-            lround(outputRect.right + pos.x),
-            lround(outputRect.bottom + pos.y)
-        });
+        _cursorManager->DrawCursor();
 
         Debug::ThrowIfFailed(
             _d2dDC->EndDraw(),
@@ -213,8 +204,8 @@ private:
         _d2dDC->SetUnitMode(D2D1_UNIT_MODE_PIXELS);
     }
 
-
     SIZE _hostWndClientSize{};
+    D2D1_RECT_F _destRect{};
 
     ComPtr<ID2D1Factory1> _d2dFactory = nullptr;
     ComPtr<ID2D1Device> _d2dDevice = nullptr;

@@ -27,7 +27,7 @@ public:
         );
 
         Debug::ThrowIfFalse(
-            Utils::GetClientScreenRect(_hwndSrc, _srcClient),
+            Utils::GetClientScreenRect(_hwndSrc, _srcRect),
             L"无法获取源窗口客户区尺寸"
         );
 
@@ -48,8 +48,9 @@ public:
                 hInstance,
                 _hwndHost,
                 effectsJson,
-                _srcClient,
-                _wicImgFactory
+                _srcRect,
+                _wicImgFactory,
+                noDisturb
             )
         );
 
@@ -80,7 +81,7 @@ public:
             //}
 
             // 渲染一帧
-            MagSetWindowSource(_instance->_hwndMag, _instance->_srcClient);
+            MagSetWindowSource(_instance->_hwndMag, _instance->_srcRect);
             PostMessage(hWnd, message, 0, 0);
             break;
         }
@@ -122,7 +123,7 @@ private:
 
         // 创建不可见的放大镜控件
         // 大小为目标窗口客户区
-        SIZE srcClientSize = Utils::GetSize(_srcClient);
+        SIZE srcClientSize = Utils::GetSize(_srcRect);
 
         _hwndMag = CreateWindow(WC_MAGNIFIER, L"MagnifierWindow",
             WS_CHILD,
@@ -201,7 +202,7 @@ private:
     HWND _hwndHost = NULL;
     HWND _hwndMag = NULL;
     HWND _hwndSrc;
-    RECT _srcClient{};
+    RECT _srcRect{};
     UINT _frameRate;
 
     ComPtr<IWICImagingFactory2> _wicImgFactory = nullptr;
