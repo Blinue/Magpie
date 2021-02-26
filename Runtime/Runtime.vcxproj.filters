@@ -81,7 +81,7 @@
     <ClCompile Include="pch.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="MagpieMain.cpp">
+    <ClCompile Include="DllMain.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

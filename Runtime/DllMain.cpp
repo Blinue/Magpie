@@ -1,4 +1,4 @@
-﻿// MagpieMain.cpp : 定义应用程序的入口点。
+﻿// DllMain.cpp : Runtime.dll 的入口点。
 //
 
 
@@ -8,10 +8,57 @@
 #include "MagWindow.h"
 using namespace D2D1;
 
-
+HINSTANCE hInstance = NULL;
 std::unique_ptr<MagWindow> magWnd = nullptr;
 
-int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
+// DLL 入口
+BOOL APIENTRY DllMain(
+    HMODULE hModule,
+    DWORD  ul_reason_for_call,
+    LPVOID lpReserved
+) {
+    switch (ul_reason_for_call) {
+    case DLL_PROCESS_ATTACH:
+        hInstance = hModule;
+        break;
+    case DLL_PROCESS_DETACH:
+
+        break;
+    case DLL_THREAD_ATTACH:
+        break;
+    case DLL_THREAD_DETACH:
+        break;
+    }
+    return TRUE;
+}
+
+
+API_DECLSPEC BOOL WINAPI CreateMagWindow(
+    UINT frameRate,
+    const wchar_t* effectsJson,
+    bool noDisturb
+) {
+    try {
+        magWnd.reset(new MagWindow(hInstance, GetForegroundWindow(), frameRate, effectsJson, false));
+    } catch(...) {
+        return FALSE;
+    }
+   
+    return TRUE;
+}
+
+API_DECLSPEC BOOL WINAPI HasMagWindow() {
+    return magWnd != nullptr;
+}
+
+API_DECLSPEC void WINAPI DestroyMagWindow() {
+    magWnd = nullptr;
+}
+
+
+// 编译为 exe 时使用
+int APIENTRY wWinMain(
+    _In_ HINSTANCE hInstance,
     _In_opt_ HINSTANCE hPrevInstance,
     _In_ LPWSTR    lpCmdLine,
     _In_ int       nCmdShow) {
