@@ -182,6 +182,9 @@
     <ClInclude Include="Lanczos6ScaleTransform.h">
       <Filter>头文件\Effect\缩放</Filter>
     </ClInclude>
+    <ClInclude Include="CursorManager.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />

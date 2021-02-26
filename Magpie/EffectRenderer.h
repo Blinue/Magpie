@@ -2,23 +2,37 @@
 #include "pch.h"
 #include "Utils.h"
 #include "EffectManager.h"
+#include "CursorManager.h"
 
 using namespace D2D1;
 
 class EffectRenderer {
 public:
-	EffectRenderer(HWND hwndHost, const std::wstring_view &effectsJson, const SIZE& srcSize) {
-        RECT clientRect{};
-        Utils::GetClientScreenRect(hwndHost, clientRect);
-        _hostWndClientSize = Utils::GetSize(clientRect);
+	EffectRenderer(
+        HINSTANCE hInstance,
+        HWND hwndHost,
+        const std::wstring_view &effectsJson,
+        const RECT& srcClient,
+        const ComPtr<IWICImagingFactory2>& wicImgFactory
+    ) {
+        RECT destClient{};
+        Debug::ThrowIfFalse(
+            Utils::GetClientScreenRect(hwndHost, destClient),
+            L"获取全屏窗口尺寸失败"
+        );
+        _hostWndClientSize = Utils::GetSize(destClient);
 
         _InitD2D(hwndHost);
 
-        _effectManager.reset(new EffectManager(_d2dFactory, _d2dDC, effectsJson, srcSize, _hostWndClientSize));
+        _effectManager.reset(new EffectManager(_d2dFactory, _d2dDC, effectsJson, Utils::GetSize(srcClient), _hostWndClientSize));
+        _cursorManager.reset(new CursorManager(hInstance, wicImgFactory, _d2dDC, srcClient));
 	}
  
+    // 不可复制，不可移动
+    EffectRenderer(const EffectRenderer&) = delete;
+    EffectRenderer(EffectRenderer&&) = delete;
 public:
-    void Render(ComPtr<IWICBitmapSource> srcBmp) const {
+    void Render(const ComPtr<IWICBitmapSource>& srcBmp) const {
         ComPtr<ID2D1Image> outputImg = _effectManager->Apply(srcBmp);
 
         // 获取输出图像尺寸
@@ -27,18 +41,28 @@ public:
             _d2dDC->GetImageLocalBounds(outputImg.Get(), &outputRect),
             L"获取输出图像尺寸失败"
         );
+
         D2D1_SIZE_F outputSize = Utils::GetSize(outputRect);
+        D2D1_POINT_2F pos{
+            ((float)_hostWndClientSize.cx - outputSize.width) / 2,
+            ((float)_hostWndClientSize.cy - outputSize.height) / 2
+        };
+
 
         // 将输出图像显示在窗口中央
         _d2dDC->BeginDraw();
         _d2dDC->Clear();
         _d2dDC->DrawImage(
             outputImg.Get(),
-            D2D1_POINT_2F{
-                ((float)_hostWndClientSize.cx - outputSize.width) / 2,
-                ((float)_hostWndClientSize.cy - outputSize.height) / 2
-            }
+            pos
         );
+
+        _cursorManager->DrawCursor(RECT{
+            lround(outputRect.left + pos.x),
+            lround(outputRect.top + pos.y),
+            lround(outputRect.right + pos.x),
+            lround(outputRect.bottom + pos.y)
+        });
 
         Debug::ThrowIfFailed(
             _d2dDC->EndDraw(),
@@ -46,7 +70,7 @@ public:
         );
 
         Debug::ThrowIfFailed(
-            _d2dSwapChain->Present(0, 0),
+            _dxgiSwapChain->Present(0, 0),
             L"Present 失败"
         );
     }
@@ -71,57 +95,57 @@ private:
         D3D_FEATURE_LEVEL fl;
         Debug::ThrowIfFailed(
             D3D11CreateDevice(
-                nullptr,                    // specify null to use the default adapter
+                nullptr,    // specify null to use the default adapter
                 D3D_DRIVER_TYPE_HARDWARE,
                 NULL,
                 D3D11_CREATE_DEVICE_BGRA_SUPPORT,
-                featureLevels,              // list of feature levels this app can support
+                featureLevels,  // list of feature levels this app can support
                 ARRAYSIZE(featureLevels),   // number of possible feature levels
                 D3D11_SDK_VERSION,
-                &d3dDevice,                    // returns the Direct3D device created
-                &fl,            // returns feature level of device created
-                &d3dDC                    // returns the device immediate context
+                &d3dDevice, // returns the Direct3D device created
+                &fl,    // returns feature level of device created
+                &d3dDC  // returns the device immediate context
             ),
-            L""
+            L"创建 D3D Device 失败"
         );
 
         // Obtain the underlying DXGI device of the Direct3D11 device.
         ComPtr<IDXGIDevice1> dxgiDevice;
         Debug::ThrowIfFailed(
             d3dDevice.As(&dxgiDevice),
-            L""
+            L"获取 DXGI Device 失败"
         );
 
         Debug::ThrowIfFailed(
             D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, __uuidof(ID2D1Factory1), &_d2dFactory),
-            L""
+            L"创建 D2D Factory 失败"
         );
 
         // Obtain the Direct2D device for 2-D rendering.
         
         Debug::ThrowIfFailed(
             _d2dFactory->CreateDevice(dxgiDevice.Get(), &_d2dDevice),
-            L""
+            L"创建 D2D Device 失败"
         );
         
         // Get Direct2D device's corresponding device context object.
         Debug::ThrowIfFailed(
             _d2dDevice->CreateDeviceContext(D2D1_DEVICE_CONTEXT_OPTIONS_NONE, &_d2dDC),
-            L""
+            L"创建 D2D DC 失败"
         );
 
         // Identify the physical adapter (GPU or card) this device is runs on.
         ComPtr<IDXGIAdapter> dxgiAdapter;
         Debug::ThrowIfFailed(
             dxgiDevice->GetAdapter(&dxgiAdapter),
-            L""
+            L"获取 DXGI Adapter 失败"
         );
 
         // Get the factory object that created the DXGI device.
         ComPtr<IDXGIFactory2> dxgiFactory = nullptr;
         Debug::ThrowIfFailed(
             dxgiAdapter->GetParent(IID_PPV_ARGS(&dxgiFactory)),
-            L""
+            L"获取 DXGI Factory 失败"
         );
         
         // Allocate a descriptor.
@@ -147,22 +171,22 @@ private:
                 &swapChainDesc,
                 nullptr,
                 nullptr,
-                &_d2dSwapChain
+                &_dxgiSwapChain
             ),
-            L""
+            L"创建 Swap Chain 失败"
         );
         
         // Ensure that DXGI doesn't queue more than one frame at a time.
         Debug::ThrowIfFailed(
             dxgiDevice->SetMaximumFrameLatency(1),
-            L""
+            L"SetMaximumFrameLatency 失败"
         );
 
         // Direct2D needs the dxgi version of the backbuffer surface pointer.
         ComPtr<IDXGISurface> dxgiBackBuffer = nullptr;
         Debug::ThrowIfFailed(
-            _d2dSwapChain->GetBuffer(0, IID_PPV_ARGS(&dxgiBackBuffer)),
-            L""
+            _dxgiSwapChain->GetBuffer(0, IID_PPV_ARGS(&dxgiBackBuffer)),
+            L"获取 DXGI Backbuffer 失败"
         );
 
         // Now we set up the Direct2D render target bitmap linked to the swapchain. 
@@ -181,7 +205,7 @@ private:
                 &bitmapProperties,
                 &d2dTargetBitmap
             ),
-            L""
+            L"CreateBitmapFromDxgiSurface 失败"
         );
 
         // Now we can set the Direct2D render target.
@@ -195,7 +219,8 @@ private:
     ComPtr<ID2D1Factory1> _d2dFactory = nullptr;
     ComPtr<ID2D1Device> _d2dDevice = nullptr;
     ComPtr<ID2D1DeviceContext> _d2dDC = nullptr;
-    ComPtr<IDXGISwapChain1> _d2dSwapChain = nullptr;
+    ComPtr<IDXGISwapChain1> _dxgiSwapChain = nullptr;
 
     std::unique_ptr<EffectManager> _effectManager = nullptr;
+    std::unique_ptr<CursorManager> _cursorManager = nullptr;
 };

@@ -1,18 +1,24 @@
 #pragma once
 #include "pch.h"
-#include <vector>
-#include <map>
 #include "Utils.h"
 #include "EffectRenderer.h"
 
 
-using namespace std;
-
 class MagWindow {
 public:
-	MagWindow(HINSTANCE hInstance, HWND hwndSrc, UINT frameRate, const std::wstring_view& effectsJson) 
-        : _hInst(hInstance), _hwndSrc(hwndSrc), _frameRate(frameRate)
+	MagWindow(
+        HINSTANCE hInstance, 
+        HWND hwndSrc, 
+        UINT frameRate,
+        const std::wstring_view& effectsJson,
+        bool noDisturb = false
+    ) : _hInst(hInstance), _hwndSrc(hwndSrc), _frameRate(frameRate)
     {
+        if (_instance) {
+            Debug::ThrowIfFalse(false, L"已存在全屏窗口");
+        }
+        _instance = this;
+
         assert(_frameRate >= 1 && _frameRate <= 200);
 
         Debug::ThrowIfFalse(
@@ -26,62 +32,56 @@ public:
         );
 
         _RegisterHostWndClass();
-        _CreateHostWnd();
+
+        Debug::ThrowIfFalse(
+            MagInitialize(),
+            L"MagInitialize 失败"
+        );
+        _CreateHostWnd(noDisturb);
+
         _InitWICImgFactory();
 
         // 初始化 EffectRenderer
-        _effectRenderer.reset(new EffectRenderer(_hwndHost, effectsJson, Utils::GetSize(_srcClient)));
+        
+        _effectRenderer.reset(
+            new EffectRenderer(
+                hInstance,
+                _hwndHost,
+                effectsJson,
+                _srcClient,
+                _wicImgFactory
+            )
+        );
 
-        /*ClipCursor(&srcClient);
-
-        systemCursors.hand = CopyCursor(LoadCursor(NULL, IDC_HAND));
-        systemCursors.normal = CopyCursor(LoadCursor(NULL, IDC_ARROW));
-        SetSystemCursor(CopyCursor(tptCursors.hand), OCR_HAND);
-        SetSystemCursor(CopyCursor(tptCursors.normal), OCR_NORMAL);*/
         ShowWindow(_hwndHost, SW_NORMAL);
         SetTimer(_hwndHost, 1, 1000 / _frameRate, nullptr);
 	}
+
+    // 不可复制，不可移动
+    MagWindow(const MagWindow&) = delete;
+    MagWindow(MagWindow&&) = delete;
     
     ~MagWindow() {
+        MagUninitialize();
+
         DestroyWindow(_hwndHost);
+        _instance = nullptr;
     }
 
     static LRESULT CALLBACK HostWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
         switch (message) {
-        case WM_CREATE:
-        {
-            MagInitialize();
-            break;
-        }
-        case WM_DESTROY:
-        {
-            _instMap.erase(hWnd);
-            MagUninitialize();
-            //PostQuitMessage(0);
-
-            /*hwndHost = NULL;
-            hwndSrc = NULL;
-            hwndMag = NULL;
-
-            ClipCursor(NULL);
-
-            SetSystemCursor(systemCursors.hand, OCR_HAND);
-            SetSystemCursor(systemCursors.normal, OCR_NORMAL);
-            systemCursors.hand = NULL;
-            systemCursors.normal = NULL;*/
-            break;
-        }
         case WM_TIMER:
         {
-            MagWindow* that = GetInstance(hWnd);
-            if (!that) {
+            //if (!_instance) {
                 // 窗口已销毁
+            if(wParam != 0)
                 KillTimer(hWnd, wParam);
-                break;
-            }
+                //break;
+            //}
 
             // 渲染一帧
-            MagSetWindowSource(that->_hwndMag, that->_srcClient);
+            MagSetWindowSource(_instance->_hwndMag, _instance->_srcClient);
+            PostMessage(hWnd, message, 0, 0);
             break;
         }
         default:
@@ -93,7 +93,7 @@ public:
 
 private:
     // 注册全屏窗口类
-    void _RegisterHostWndClass() {
+    void _RegisterHostWndClass() const {
         WNDCLASSEX wcex = {};
         wcex.cbSize = sizeof(WNDCLASSEX);
         wcex.lpfnWndProc = HostWndProc;
@@ -104,19 +104,21 @@ private:
         RegisterClassEx(&wcex);
     }
 
-    void _CreateHostWnd() {
+    void _CreateHostWnd(bool noDisturb) {
         // 创建全屏窗口
         SIZE screenSize = Utils::GetScreenSize(_hwndSrc);
         _hwndHost = CreateWindowEx(
-            WS_EX_TOPMOST | WS_EX_NOACTIVATE | WS_EX_LAYERED | WS_EX_TRANSPARENT,
+            (noDisturb ? 0 : WS_EX_TOPMOST) | WS_EX_NOACTIVATE | WS_EX_LAYERED | WS_EX_TRANSPARENT,
             _HOST_WINDOW_CLASS_NAME, NULL, WS_CLIPCHILDREN | WS_POPUP | WS_VISIBLE,
             0, 0, screenSize.cx, screenSize.cy,
             NULL, NULL, _hInst, NULL);
         Debug::ThrowIfFalse(_hwndHost, L"创建全屏窗口失败");
 
-        _instMap[_hwndHost] = this;
-
-        SetLayeredWindowAttributes(_hwndHost, 0, 255, LWA_ALPHA);
+        // 设置窗口不透明
+        Debug::ThrowIfFalse(
+            SetLayeredWindowAttributes(_hwndHost, 0, 255, LWA_ALPHA),
+            L"SetLayeredWindowAttributes 失败"
+        );
 
         // 创建不可见的放大镜控件
         // 大小为目标窗口客户区
@@ -132,9 +134,6 @@ private:
             MagSetImageScalingCallback(_hwndMag, &_ImageScalingCallback),
             L"设置放大镜回调失败"
         );
-
-        
-        //ShowWindow(_hwndHost, SW_SHOW);
     }
 
     static BOOL CALLBACK _ImageScalingCallback(
@@ -147,7 +146,9 @@ private:
         RECT clipped,
         HRGN dirty
     ) {
-        MagWindow* that = _instMap.begin()->second;//GetInstance(GetParent(hWnd));
+        if (!_instance) {
+            return FALSE;
+        }
         
         Debug::ThrowIfFalse(
             srcheader.width * srcheader.height * 4 == srcheader.cbSize,
@@ -155,22 +156,22 @@ private:
         );
 
         ComPtr<IWICBitmap> wicBmpSource = nullptr;
-        Debug::ThrowIfFailed(
-            that->_wicImgFactory->CreateBitmapFromMemory(
-                srcheader.width,
-                srcheader.height,
-                GUID_WICPixelFormat32bppPBGRA,
-                srcheader.stride,
-                (UINT)srcheader.cbSize,
-                (BYTE*)srcdata,
-                &wicBmpSource
-            ),
-            L"从内存创建 WICBitmap 失败"
+
+        HRESULT hr = _instance->_wicImgFactory->CreateBitmapFromMemory(
+            srcheader.width,
+            srcheader.height,
+            GUID_WICPixelFormat32bppPBGRA,
+            srcheader.stride,
+            (UINT)srcheader.cbSize,
+            (BYTE*)srcdata,
+            &wicBmpSource
         );
+        if (FAILED(hr)) {
+            Debug::writeLine(L"从内存创建 WICBitmap 失败");
+            return FALSE;
+        }
 
-        that->_effectRenderer->Render(wicBmpSource);
-
-        //DrawCursor(_d2dDC);
+        _instance->_effectRenderer->Render(wicBmpSource);
 
         return TRUE;
     }
@@ -193,11 +194,6 @@ private:
         );
     }
 
-    // 查找 MagWindow 实例
-    static MagWindow* GetInstance(HWND hWnd) {
-        return _instMap[hWnd];
-    }
-
     // 全屏窗口类名
     const wchar_t* _HOST_WINDOW_CLASS_NAME = L"Window_Magpie_967EB565-6F73-4E94-AE53-00CC42592A22";
 
@@ -207,9 +203,10 @@ private:
     HWND _hwndSrc;
     RECT _srcClient{};
     UINT _frameRate;
+
     ComPtr<IWICImagingFactory2> _wicImgFactory = nullptr;
     std::unique_ptr<EffectRenderer> _effectRenderer = nullptr;
 
-    // 存储所有实例，可通过窗口句柄查找
-    static std::map<HWND, MagWindow*> _instMap;
+    // 确保只能同时存在一个全屏窗口
+    static MagWindow *_instance;
 };

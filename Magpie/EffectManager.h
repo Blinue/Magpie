@@ -27,7 +27,11 @@ public:
 		_ReadEffectsJson(effectsJson);
 	}
 
-	ComPtr<ID2D1Image> Apply(ComPtr<IWICBitmapSource> srcBmp) {
+	// 不可复制，不可移动
+	EffectManager(const EffectManager&) = delete;
+	EffectManager(EffectManager&&) = delete;
+
+	ComPtr<ID2D1Image> Apply(ComPtr<IWICBitmapSource> srcBmp) const {
 		assert(srcBmp != nullptr);
 
 		Debug::ThrowIfFailed(

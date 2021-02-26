@@ -195,10 +195,10 @@ public:
             <?xml version='1.0'?>
             <Effect>
                 <!--System Properties-->
-                <Property name='DisplayName' type='string' value='Ripple' />
-                <Property name='Author' type='string' value='Microsoft Corporation' />
-                <Property name='Category' type='string' value='Stylize' />
-                <Property name='Description' type='string' value='Adds a ripple effect that can be animated' />
+                <Property name='DisplayName' type='string' value='Anime4K Upscale+Denoise' />
+                <Property name='Author' type='string' value='Xu Liu' />
+                <Property name='Category' type='string' value='Scale' />
+                <Property name='Description' type='string' value='Anime4K Upscale+Denoise' />
                 <Inputs>
                     <Input name='Source' />
                 </Inputs>
