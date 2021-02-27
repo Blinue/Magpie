@@ -25,14 +25,14 @@ public:
         
         if (!noDisturb) {
             HCURSOR tptCursor = _CreateTransparentCursor();
-            Debug::ThrowIfFalse(tptCursor, L"");
+            Debug::ThrowIfFalse(tptCursor, L"创建透明光标失败");
 
             SetSystemCursor(CopyCursor(tptCursor), OCR_HAND);
             SetSystemCursor(CopyCursor(tptCursor), OCR_NORMAL);
 
             // 限制鼠标在窗口内
             RECT r{ lroundf(srcRect.left), lroundf(srcRect.top), lroundf(srcRect.right), lroundf(srcRect.bottom) };
-            Debug::ThrowIfFalse(ClipCursor(&r), L"");
+            Debug::ThrowIfFalse(ClipCursor(&r), L"ClipCursor 失败");
             
             // 设置鼠标移动速度
             Debug::ThrowIfFalse(
@@ -121,11 +121,11 @@ private:
 
         Debug::ThrowIfFailed(
             _wicImgFactory->CreateBitmapFromHICON(hCursor, &wicCursor),
-            L""
+            L"创建鼠标图像位图失败"
         );
         Debug::ThrowIfFailed(
             _wicImgFactory->CreateFormatConverter(&wicFormatConverter),
-            L""
+            L"CreateFormatConverter 失败"
         );
         Debug::ThrowIfFailed(
             wicFormatConverter->Initialize(
@@ -136,11 +136,11 @@ private:
                 0.f,
                 WICBitmapPaletteTypeMedianCut
             ),
-            L""
+            L"IWICFormatConverter 初始化失败"
         );
         Debug::ThrowIfFailed(
             _d2dDC->CreateBitmapFromWicBitmap(wicFormatConverter.Get(), &d2dBmpCursor),
-            L""
+            L"CreateBitmapFromWicBitmap 失败"
         );
 
         return d2dBmpCursor;
