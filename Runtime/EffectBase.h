@@ -6,6 +6,8 @@
 // 自定义 Effect 的基类
 class EffectBase : public ID2D1EffectImpl {
 public:
+    virtual ~EffectBase() {}
+
     /*
     * 以下为 ID2D1EffectImpl 的方法
     */

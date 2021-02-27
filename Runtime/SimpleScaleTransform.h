@@ -12,6 +12,8 @@ protected:
     SimpleScaleTransform(const GUID& shaderID) : SimpleDrawTransform(shaderID) {}
 
 public:
+    virtual ~SimpleScaleTransform() {}
+
     static HRESULT Create(
         _In_ ID2D1EffectContext* d2dEC, 
         _Outptr_ SimpleScaleTransform** ppOutput,

@@ -52,6 +52,7 @@ protected:
 
         _drawInfo->SetPixelShaderConstantBuffer((BYTE*)&shaderConstants, sizeof(shaderConstants));
     }
+
 private:
     bool _useSharperVersion = false;
 };

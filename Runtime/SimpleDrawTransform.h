@@ -13,6 +13,8 @@ protected:
     SimpleDrawTransform(const GUID &shaderID): _shaderID(shaderID) {}
 
 public:
+    virtual ~SimpleDrawTransform() {}
+
     static HRESULT Create(
         _In_ ID2D1EffectContext* d2dEC, 
         _Outptr_ SimpleDrawTransform** ppOutput,

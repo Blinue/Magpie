@@ -22,7 +22,7 @@ namespace Magpie {
     ""scale"": [0,0],
     ""sharpness"": 1
   }
-]", true);
+]", false);
                     } else {
                         Runtime.DestroyMagWindow();
                     }

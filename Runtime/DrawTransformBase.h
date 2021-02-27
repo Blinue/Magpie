@@ -8,6 +8,8 @@
 // 默认实现假设输入个数为 1 且不改变形状，不对输入到输出的映射作任何假设
 class DrawTransformBase : public ID2D1DrawTransform {
 public:
+    virtual ~DrawTransformBase() {}
+
     // 将 hlsl 读取进 Effect Context
     static HRESULT LoadShader(_In_ ID2D1EffectContext* d2dEC, _In_ const wchar_t* path, const GUID& shaderID) {
         if (!d2dEC->IsShaderLoaded(shaderID)) {
