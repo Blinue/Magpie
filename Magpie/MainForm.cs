@@ -22,12 +22,16 @@ namespace Magpie {
     ""scale"": [0,0],
     ""sharpness"": 1
   }
-]", false);
+]", true);
                     } else {
                         Runtime.DestroyMagWindow();
                     }
                 }
              }});
+        }
+
+        private void MainForm_FormClosing(object sender, FormClosingEventArgs e) {
+            Runtime.DestroyMagWindow();
         }
     }
 }

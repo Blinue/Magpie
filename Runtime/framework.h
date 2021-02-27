@@ -29,3 +29,4 @@
 #include <cstdlib>
 #include <exception>
 #include <functional>
+#include <algorithm>

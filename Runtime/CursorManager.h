@@ -1,5 +1,6 @@
 #pragma once
 #include "pch.h"
+#include "Utils.h"
 
 
 class CursorManager {
@@ -73,7 +74,7 @@ public:
         if (ci.hCursor == NULL) {
             return;
         }
-
+        
         D2D1_POINT_2F targetScreenPos = Utils::MapPoint(
             D2D1_POINT_2F{ (FLOAT)ci.ptScreenPos.x, (FLOAT)ci.ptScreenPos.y },
             _srcRect, _destRect
@@ -82,13 +83,16 @@ public:
         targetScreenPos.x = roundf(targetScreenPos.x);
         targetScreenPos.y = roundf(targetScreenPos.y);
 
-        D2D1_RECT_F cursorRect{
-            targetScreenPos.x,
-            targetScreenPos.y,
-            targetScreenPos.x + _cursorSize.cx,
-            targetScreenPos.y + _cursorSize.cy
-        };
+        ICONINFO ii{};
+        GetIconInfo(ci.hCursor, &ii);
 
+        D2D1_RECT_F cursorRect{
+            targetScreenPos.x - ii.xHotspot,
+            targetScreenPos.y - ii.yHotspot,
+            targetScreenPos.x + _cursorSize.cx - ii.xHotspot,
+            targetScreenPos.y + _cursorSize.cy - ii.yHotspot
+        };
+        
         if (ci.hCursor == LoadCursor(NULL, IDC_ARROW)) {
             _d2dDC->DrawBitmap(_d2dBmpNormalCursor.Get(), &cursorRect);
         } else if (ci.hCursor == LoadCursor(NULL, IDC_HAND)) {
