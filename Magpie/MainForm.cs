@@ -11,7 +11,7 @@ namespace Magpie {
             Hook.GlobalEvents().OnCombination(new Dictionary<Combination, Action> {{
                 Combination.FromString("Alt+F11"), () => {
                     if(!Runtime.HasMagWindow()) {
-                        Runtime.CreateMagWindow(0, @"[
+                        Runtime.CreateMagWindow(70, @"[
   {
     ""effect"": ""scale"",
     ""type"": ""Anime4KxDenoise""

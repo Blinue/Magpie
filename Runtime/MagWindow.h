@@ -19,7 +19,7 @@ public:
         }
         _instance = this;
 
-        assert(_frameRate == 0 || (_frameRate >= 30 && _frameRate <= 120));
+        assert(_frameRate >= 1 && _frameRate <= 200);
 
         Debug::ThrowIfFalse(
             IsWindow(_hwndSrc) && IsWindowVisible(_hwndSrc),
@@ -55,12 +55,7 @@ public:
         );
 
         ShowWindow(_hwndHost, SW_NORMAL);
-
-        if (_frameRate > 0) {
-            SetTimer(_hwndHost, 1, 1000 / _frameRate, nullptr);
-        } else {
-            PostMessage(_hwndHost, WM_MAXFRAMERATE, 0, 0);
-        }
+        SetTimer(_hwndHost, 1, 1000 / _frameRate, nullptr);
 	}
 
     // 不可复制，不可移动
@@ -78,37 +73,16 @@ public:
         switch (message) {
         case WM_TIMER:
         {
-            if (!_instance) {
+            //if (!_instance) {
                 // 窗口已销毁
+            if(wParam != 0)
                 KillTimer(hWnd, wParam);
-                break;
-            }
+                //break;
+            //}
 
             // 渲染一帧
-            Debug::ThrowIfFalse(
-                MagSetWindowSource(_instance->_hwndMag, _instance->_srcRect),
-                L"MagSetWindowSource 失败"
-            );
-            break;
-        }
-        case WM_MAXFRAMERATE:
-        {
-            if (!_instance) {
-                // 窗口已销毁，直接退出
-                break;
-            }
-
-            // 渲染一帧
-            Debug::ThrowIfFalse(
-                MagSetWindowSource(_instance->_hwndMag, _instance->_srcRect),
-                L"MagSetWindowSource 失败"
-            );
-
-            // 立即渲染下一帧
-            Debug::ThrowIfFalse(
-                PostMessage(hWnd, WM_MAXFRAMERATE, 0, 0),
-                L"PostMessage 失败"
-            );
+            MagSetWindowSource(_instance->_hwndMag, _instance->_srcRect);
+            PostMessage(hWnd, message, 0, 0);
             break;
         }
         default:
@@ -178,24 +152,25 @@ private:
         }
         
         Debug::ThrowIfFalse(
-            srcheader.cbSize / srcheader.width / srcheader.height == 4,
+            srcheader.width * srcheader.height * 4 == srcheader.cbSize,
             L"srcdata 不是BGRA格式"
         );
 
         ComPtr<IWICBitmap> wicBmpSource = nullptr;
 
-        Debug::ThrowIfFailed(
-            _instance->_wicImgFactory->CreateBitmapFromMemory(
-                srcheader.width,
-                srcheader.height,
-                GUID_WICPixelFormat32bppPBGRA,
-                srcheader.stride,
-                (UINT)srcheader.cbSize,
-                (BYTE*)srcdata,
-                &wicBmpSource
-            ),
-            L"从内存创建 WICBitmap 失败"
+        HRESULT hr = _instance->_wicImgFactory->CreateBitmapFromMemory(
+            srcheader.width,
+            srcheader.height,
+            GUID_WICPixelFormat32bppPBGRA,
+            srcheader.stride,
+            (UINT)srcheader.cbSize,
+            (BYTE*)srcdata,
+            &wicBmpSource
         );
+        if (FAILED(hr)) {
+            Debug::writeLine(L"从内存创建 WICBitmap 失败");
+            return FALSE;
+        }
 
         _instance->_effectRenderer->Render(wicBmpSource);
 
@@ -221,10 +196,7 @@ private:
     }
 
     // 全屏窗口类名
-    static constexpr const wchar_t* _HOST_WINDOW_CLASS_NAME = L"Window_Magpie_967EB565-6F73-4E94-AE53-00CC42592A22";
-
-    // 指定为最大帧率时使用的渲染消息
-    static constexpr const UINT WM_MAXFRAMERATE = WM_USER;
+    const wchar_t* _HOST_WINDOW_CLASS_NAME = L"Window_Magpie_967EB565-6F73-4E94-AE53-00CC42592A22";
 
     HINSTANCE _hInst;
     HWND _hwndHost = NULL;
