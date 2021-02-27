@@ -102,45 +102,45 @@ public:
                 CLSCTX_INPROC_SERVER,
                 IID_PPV_ARGS(&wicImgFactory)
             ),
-            L""
+            L"¥¥Ω® IWICImagingFactory2  ß∞‹"
         );
 
         ComPtr<IStream> stream;
         Debug::ThrowIfFailed(
             SHCreateStreamOnFileEx(fileName.data(), STGM_WRITE | STGM_CREATE, 0, TRUE, nullptr, &stream),
-            L""
+            L"SHCreateStreamOnFileEx  ß∞‹"
         );
 
         ComPtr<IWICBitmapEncoder> bmpEncoder;
         Debug::ThrowIfFailed(
             wicImgFactory->CreateEncoder(GUID_ContainerFormatPng, nullptr, &bmpEncoder),
-            L""
+            L"¥¥Ω® IWICBitmapEncoder  ß∞‹"
         );
         Debug::ThrowIfFailed(
             bmpEncoder->Initialize(stream.Get(), WICBitmapEncoderNoCache),
-            L""
+            L"IWICBitmapEncoder ≥ı ºªØ ß∞‹"
         );
 
         ComPtr<IWICBitmapFrameEncode> frameEncoder;
         Debug::ThrowIfFailed(
             bmpEncoder->CreateNewFrame(&frameEncoder, nullptr),
-            L""
+            L"¥¥Ω® IWICBitmapFrameEncode  ß∞‹"
         );
         Debug::ThrowIfFailed(
             frameEncoder->Initialize(nullptr),
-            L""
+            L"IWICBitmapFrameEncode ≥ı ºªØ ß∞‹"
         );
 
         ComPtr<IWICImageEncoder> d2dImgEncoder;
         Debug::ThrowIfFailed(
             wicImgFactory->CreateImageEncoder(d2dDevice.Get(), &d2dImgEncoder),
-            L""
+            L"¥¥Ω® IWICImageEncoder  ß∞‹"
         );
         d2dImgEncoder->WriteFrame(img.Get(), frameEncoder.Get(), nullptr);
         
-        Debug::ThrowIfFailed(frameEncoder->Commit(), L"");
-        Debug::ThrowIfFailed(bmpEncoder->Commit(), L"");
-        stream->Commit(STGC_DEFAULT);
+        Debug::ThrowIfFailed(frameEncoder->Commit(), L"IWICBitmapFrameEncode.Commit  ß∞‹");
+        Debug::ThrowIfFailed(bmpEncoder->Commit(), L"IWICBitmapEncoder.Commit  ß∞‹");
+        Debug::ThrowIfFailed(stream->Commit(STGC_DEFAULT), L"IStream.Commit  ß∞‹");
     }
 };
 

@@ -48,8 +48,10 @@ public:
         // 将输出图像显示在窗口中央
         _d2dDC->BeginDraw();
         _d2dDC->Clear();
+
+        ComPtr<ID2D1Image> output = _effectManager->Apply(srcBmp);
         _d2dDC->DrawImage(
-            _effectManager->Apply(srcBmp).Get(),
+            output.Get(),
             D2D1_POINT_2F{ _destRect.left, _destRect.top }
         );
 

@@ -39,11 +39,11 @@ API_DECLSPEC BOOL WINAPI CreateMagWindow(
     bool noDisturb
 ) {
     try {
-        magWnd.reset(new MagWindow(hInstance, GetForegroundWindow(), frameRate, effectsJson, false));
+        magWnd.reset(new MagWindow(hInstance, GetForegroundWindow(), frameRate, effectsJson, noDisturb));
     } catch(...) {
         return FALSE;
     }
-   
+    
     return TRUE;
 }
 
