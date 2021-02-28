@@ -17,15 +17,8 @@ public:
         _cursorSize.cx = GetSystemMetrics(SM_CXCURSOR);
         _cursorSize.cy = GetSystemMetrics(SM_CYCURSOR);
 
-        HCURSOR handCursor = LoadCursor(NULL, IDC_HAND);
-        HCURSOR arrowCursor = LoadCursor(NULL, IDC_ARROW);
-        Debug::ThrowIfFalse(handCursor != NULL && arrowCursor != NULL, L"获取系统光标失败");
-        assert(handCursor && arrowCursor);  // 否则 VS 出现警告
-        _systemCursors.hand = CopyCursor(handCursor);
-        _systemCursors.normal = CopyCursor(arrowCursor);
-        if (!_systemCursors.hand || !_systemCursors.normal) {
-            Debug::writeLine(GetLastError());
-        }
+        _systemCursors.hand = CopyCursor(LoadCursor(NULL, IDC_HAND));
+        _systemCursors.normal = CopyCursor(LoadCursor(NULL, IDC_ARROW));
         Debug::ThrowIfFalse(_systemCursors.normal && _systemCursors.hand, L"复制系统光标失败");
 
         _d2dBmpNormalCursor = _CursorToD2DBitmap(_systemCursors.normal);
@@ -64,6 +57,7 @@ public:
     ~CursorManager() {
         if (!_noDistrub) {
             ClipCursor(nullptr);
+
             SystemParametersInfo(SPI_SETMOUSESPEED, 0, (PVOID)(intptr_t)_cursorSpeed, 0);
 
             // 还原系统光标
@@ -79,7 +73,7 @@ public:
         CURSORINFO ci{};
         ci.cbSize = sizeof(ci);
         GetCursorInfo(&ci);
-
+        
         if (ci.hCursor == NULL) {
             return;
         }
@@ -94,6 +88,8 @@ public:
 
         ICONINFO ii{};
         GetIconInfo(ci.hCursor, &ii);
+        DeleteBitmap(ii.hbmColor);
+        DeleteBitmap(ii.hbmMask);
 
         D2D1_RECT_F cursorRect{
             targetScreenPos.x - ii.xHotspot,
@@ -107,10 +103,9 @@ public:
         } else if (ci.hCursor == LoadCursor(NULL, IDC_HAND)) {
             _d2dDC->DrawBitmap(_d2dBmpHandCursor.Get(), &cursorRect);
         } else {
-            _d2dDC->DrawBitmap(_d2dBmpNormalCursor.Get(), &cursorRect);
             try {
-                //ComPtr<ID2D1Bitmap> c = _CursorToD2DBitmap(ci.hCursor);
-                //_d2dDC->DrawBitmap(c.Get(), &cursorRect);
+                ComPtr<ID2D1Bitmap> c = _CursorToD2DBitmap(ci.hCursor);
+                _d2dDC->DrawBitmap(c.Get(), &cursorRect);
             } catch (...) {
                 // 如果出错，只绘制普通光标
                 Debug::writeLine(L"_CursorToD2DBitmap 出错");
