@@ -5,21 +5,28 @@
 
 class CursorManager {
 public:
-	CursorManager(
+    CursorManager(
         HINSTANCE hInstance,
         const ComPtr<IWICImagingFactory2>& wicImgFactory,
         const ComPtr<ID2D1DeviceContext>& d2dDC,
         const D2D1_RECT_F& srcRect,
         const D2D1_RECT_F& destRect,
         bool noDisturb = false
-    ): _hInstance(hInstance), _wicImgFactory(wicImgFactory), _d2dDC(d2dDC),
-        _srcRect(srcRect), _destRect(destRect), _noDistrub(noDisturb) 
-    {
+    ) : _hInstance(hInstance), _wicImgFactory(wicImgFactory), _d2dDC(d2dDC),
+        _srcRect(srcRect), _destRect(destRect), _noDistrub(noDisturb) {
         _cursorSize.cx = GetSystemMetrics(SM_CXCURSOR);
         _cursorSize.cy = GetSystemMetrics(SM_CYCURSOR);
 
-        _systemCursors.hand = CopyCursor(LoadCursor(NULL, IDC_HAND));
-        _systemCursors.normal = CopyCursor(LoadCursor(NULL, IDC_ARROW));
+        HCURSOR handCursor = LoadCursor(NULL, IDC_HAND);
+        HCURSOR arrowCursor = LoadCursor(NULL, IDC_ARROW);
+        Debug::ThrowIfFalse(handCursor != NULL && arrowCursor != NULL, L"获取系统光标失败");
+        assert(handCursor && arrowCursor);  // 否则 VS 出现警告
+        _systemCursors.hand = CopyCursor(handCursor);
+        _systemCursors.normal = CopyCursor(arrowCursor);
+        if (!_systemCursors.hand || !_systemCursors.normal) {
+            Debug::writeLine(GetLastError());
+        }
+        Debug::ThrowIfFalse(_systemCursors.normal && _systemCursors.hand, L"复制系统光标失败");
 
         _d2dBmpNormalCursor = _CursorToD2DBitmap(_systemCursors.normal);
         _d2dBmpHandCursor = _CursorToD2DBitmap(_systemCursors.hand);
@@ -29,7 +36,8 @@ public:
             Debug::ThrowIfFalse(tptCursor, L"创建透明光标失败");
 
             SetSystemCursor(CopyCursor(tptCursor), OCR_HAND);
-            SetSystemCursor(CopyCursor(tptCursor), OCR_NORMAL);
+            SetSystemCursor(tptCursor, OCR_NORMAL);
+            // tptCursor 被销毁
 
             // 限制鼠标在窗口内
             RECT r{ lroundf(srcRect.left), lroundf(srcRect.top), lroundf(srcRect.right), lroundf(srcRect.bottom) };
@@ -47,8 +55,6 @@ public:
                 SystemParametersInfo(SPI_SETMOUSESPEED, 0, (PVOID)(intptr_t)newSpeed, 0),
                 L"设置鼠标速度失败"
             );
-
-            DestroyCursor(tptCursor);
         }
 	}
 
@@ -60,8 +66,11 @@ public:
             ClipCursor(nullptr);
             SystemParametersInfo(SPI_SETMOUSESPEED, 0, (PVOID)(intptr_t)_cursorSpeed, 0);
 
-            SetSystemCursor(_systemCursors.normal, OCR_NORMAL);
-            SetSystemCursor(_systemCursors.hand, OCR_HAND);
+            // 还原系统光标
+            SystemParametersInfo(SPI_SETCURSORS, 0, NULL, 0);
+            //SetSystemCursor(_systemCursors.normal, OCR_NORMAL);
+            //SetSystemCursor(_systemCursors.hand, OCR_HAND);
+
             // _systemCursors 中的资源已释放
         }
     }
@@ -98,9 +107,15 @@ public:
         } else if (ci.hCursor == LoadCursor(NULL, IDC_HAND)) {
             _d2dDC->DrawBitmap(_d2dBmpHandCursor.Get(), &cursorRect);
         } else {
-            ComPtr<ID2D1Bitmap> c = _CursorToD2DBitmap(CopyCursor(ci.hCursor));
-            _d2dDC->DrawBitmap(c.Get(), &cursorRect);
-            //_d2dDC->DrawBitmap(_d2dBmpNormalCursor.Get(), &cursorRect);
+            _d2dDC->DrawBitmap(_d2dBmpNormalCursor.Get(), &cursorRect);
+            try {
+                //ComPtr<ID2D1Bitmap> c = _CursorToD2DBitmap(ci.hCursor);
+                //_d2dDC->DrawBitmap(c.Get(), &cursorRect);
+            } catch (...) {
+                // 如果出错，只绘制普通光标
+                Debug::writeLine(L"_CursorToD2DBitmap 出错");
+                _d2dDC->DrawBitmap(_d2dBmpNormalCursor.Get(), &cursorRect);
+            }
         }
 	}
 
@@ -119,6 +134,8 @@ private:
     }
 
     ComPtr<ID2D1Bitmap> _CursorToD2DBitmap(HCURSOR hCursor) {
+        assert(hCursor != NULL);
+
         ComPtr<IWICBitmap> wicCursor = nullptr;
         ComPtr<IWICFormatConverter> wicFormatConverter = nullptr;
         ComPtr<ID2D1Bitmap> d2dBmpCursor = nullptr;

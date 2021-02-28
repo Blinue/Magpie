@@ -17,7 +17,6 @@ public:
         if (_instance) {
             Debug::ThrowIfFalse(false, L"已存在全屏窗口");
         }
-        _instance = this;
 
         assert(_frameRate == 0 || (_frameRate >= 30 && _frameRate <= 120));
 
@@ -42,7 +41,6 @@ public:
         _InitWICImgFactory();
 
         // 初始化 EffectRenderer
-        
         _effectRenderer.reset(
             new EffectRenderer(
                 hInstance,
@@ -61,6 +59,9 @@ public:
         } else {
             PostMessage(_hwndHost, WM_MAXFRAMERATE, 0, 0);
         }
+
+        // 初始化完成后设置 _instance
+        _instance = this;
 	}
 
     // 不可复制，不可移动
@@ -85,10 +86,9 @@ public:
             }
 
             // 渲染一帧
-            Debug::ThrowIfFalse(
-                MagSetWindowSource(_instance->_hwndMag, _instance->_srcRect),
-                L"MagSetWindowSource 失败"
-            );
+            if (!MagSetWindowSource(_instance->_hwndMag, _instance->_srcRect)) {
+                Debug::writeLine(L"MagSetWindowSource 失败");
+            }
             break;
         }
         case WM_MAXFRAMERATE:
@@ -99,16 +99,14 @@ public:
             }
 
             // 渲染一帧
-            Debug::ThrowIfFalse(
-                MagSetWindowSource(_instance->_hwndMag, _instance->_srcRect),
-                L"MagSetWindowSource 失败"
-            );
+            if (!MagSetWindowSource(_instance->_hwndMag, _instance->_srcRect)) {
+                Debug::writeLine(L"MagSetWindowSource 失败");
+            }
 
             // 立即渲染下一帧
-            Debug::ThrowIfFalse(
-                PostMessage(hWnd, WM_MAXFRAMERATE, 0, 0),
-                L"PostMessage 失败"
-            );
+            if (!PostMessage(hWnd, WM_MAXFRAMERATE, 0, 0)) {
+                Debug::writeLine(L"PostMessage 失败");
+            }
             break;
         }
         default:
@@ -177,28 +175,33 @@ private:
             return FALSE;
         }
         
-        Debug::ThrowIfFalse(
-            srcheader.cbSize / srcheader.width / srcheader.height == 4,
-            L"srcdata 不是BGRA格式"
-        );
+        if (srcheader.cbSize / srcheader.width / srcheader.height != 4) {
+            Debug::writeLine(L"srcdata 不是BGRA格式");
+            return FALSE;
+        }
 
         ComPtr<IWICBitmap> wicBmpSource = nullptr;
 
-        Debug::ThrowIfFailed(
-            _instance->_wicImgFactory->CreateBitmapFromMemory(
-                srcheader.width,
-                srcheader.height,
-                GUID_WICPixelFormat32bppPBGRA,
-                srcheader.stride,
-                (UINT)srcheader.cbSize,
-                (BYTE*)srcdata,
-                &wicBmpSource
-            ),
-            L"从内存创建 WICBitmap 失败"
-        );
+        try {
+            Debug::ThrowIfFailed(
+                _instance->_wicImgFactory->CreateBitmapFromMemory(
+                    srcheader.width,
+                    srcheader.height,
+                    GUID_WICPixelFormat32bppPBGRA,
+                    srcheader.stride,
+                    (UINT)srcheader.cbSize,
+                    (BYTE*)srcdata,
+                    &wicBmpSource
+                ),
+                L"从内存创建 WICBitmap 失败"
+            );
 
-        _instance->_effectRenderer->Render(wicBmpSource);
-
+            _instance->_effectRenderer->Render(wicBmpSource);
+        } catch (...) {
+            Debug::writeLine(L"渲染出错");
+            return FALSE;
+        }
+        
         return TRUE;
     }
 

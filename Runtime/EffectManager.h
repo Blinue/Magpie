@@ -7,8 +7,9 @@
 #include "Jinc2ScaleEffect.h"
 #include "MitchellNetravaliScaleEffect.h"
 #include "Lanczos6ScaleEffect.h"
-#include "json.hpp"
+#include "nlohmann/json.hpp"
 #include <unordered_set>
+
 
 class EffectManager {
 public:

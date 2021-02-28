@@ -45,7 +45,9 @@ namespace Magpie {
                             ? Resources.CommonEffectJson : Resources.AnimeEffectJson;
 
                         if(!Runtime.HasMagWindow()) {
-                            Runtime.CreateMagWindow(frameRate, effectJson, false);
+                            if(!Runtime.CreateMagWindow(frameRate, effectJson, false)) {
+                                MessageBox.Show("创建全屏窗口失败");
+                            }
                         } else {
                             Runtime.DestroyMagWindow();
                         }

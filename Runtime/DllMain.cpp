@@ -6,6 +6,11 @@
 #include "Utils.h"
 #include "KeyBoardHook.h"
 #include "MagWindow.h"
+
+#undef NTDDI_VERSION
+#undef _WIN32_WINNT
+#include "easyhook.h"
+
 using namespace D2D1;
 
 HINSTANCE hInstance = NULL;
@@ -41,6 +46,7 @@ API_DECLSPEC BOOL WINAPI CreateMagWindow(
     try {
         magWnd.reset(new MagWindow(hInstance, GetForegroundWindow(), frameRate, effectsJson, noDisturb));
     } catch(...) {
+        Debug::writeLine(L"创建 MagWindow 失败");
         return FALSE;
     }
     

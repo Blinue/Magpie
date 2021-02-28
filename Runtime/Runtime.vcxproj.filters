@@ -116,9 +116,6 @@
     <ClInclude Include="WndProcThunk.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="json.hpp">
-      <Filter>第三方库</Filter>
-    </ClInclude>
     <ClInclude Include="DrawTransformBase.h">
       <Filter>头文件\Effect</Filter>
     </ClInclude>
@@ -197,6 +194,7 @@
     <None Include="AdaptiveSharpen.hlsli">
       <Filter>着色器\锐化</Filter>
     </None>
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="头文件">
