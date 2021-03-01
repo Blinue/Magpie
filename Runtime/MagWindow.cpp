@@ -1,4 +1,4 @@
 #include "pch.h"
 #include "MagWindow.h"
 
-MagWindow* MagWindow::_instance = nullptr;
+std::unique_ptr<MagWindow> MagWindow::$instance = nullptr;
