@@ -93,7 +93,7 @@ namespace Magpie.Properties {
         ///  {
         ///    &quot;effect&quot;: &quot;sharpen&quot;,
         ///    &quot;type&quot;: &quot;adaptive&quot;,
-        ///    &quot;curveHeight&quot;: 0.8
+        ///    &quot;curveHeight&quot;: 0.3
         ///  }
         ///] 的本地化字符串。
         /// </summary>

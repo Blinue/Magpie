@@ -73,6 +73,8 @@ public:
 
         DestroyWindow(_hwndHost);
         _instance = nullptr;
+
+        UnregisterClass(_HOST_WINDOW_CLASS_NAME, _hInst);
     }
 
     static LRESULT CALLBACK HostWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
@@ -80,8 +82,7 @@ public:
         case WM_TIMER:
         {
             if (!_instance) {
-                // 窗口已销毁
-                KillTimer(hWnd, wParam);
+                // timer此时已被销毁
                 break;
             }
 
