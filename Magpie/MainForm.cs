@@ -7,6 +7,8 @@ using Magpie.Properties;
 
 namespace Magpie {
     public partial class MainForm : Form {
+        public static readonly int WM_SHOWME = NativeMethods.RegisterWindowMessage("WM_SHOWME");
+
         IKeyboardMouseEvents keyboardEvents = null;
 
         public MainForm() {
@@ -24,7 +26,8 @@ namespace Magpie {
         }
 
         protected override void WndProc(ref Message m) {
-            if (m.Msg == NativeMethods.WM_SHOWME) {
+            if (m.Msg == WM_SHOWME) {
+                // 收到 WM_SHOWME 激活窗口
                 if (WindowState == FormWindowState.Minimized) {
                     WindowState = FormWindowState.Normal;
                 }
@@ -37,6 +40,7 @@ namespace Magpie {
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e) {
             NativeMethods.DestroyMagWindow();
+
             Settings.Default.Save();
         }
 
@@ -49,9 +53,11 @@ namespace Magpie {
             keyboardEvents?.Dispose();
             keyboardEvents = Hook.GlobalEvents();
 
+            string hotkey = txtHotkey.Text.Trim();
+
             try {
                 keyboardEvents.OnCombination(new Dictionary<Combination, Action> {{
-                    Combination.FromString(txtHotkey.Text.Trim()), () => {
+                    Combination.FromString(hotkey), () => {
                         uint frameRate = Settings.Default.FrameRate;
                         string effectJson = Settings.Default.ScaleMode == 0
                             ? Resources.CommonEffectJson : Resources.AnimeEffectJson;
@@ -67,7 +73,9 @@ namespace Magpie {
                 }});
 
                 txtHotkey.ForeColor = Color.Black;
-                Settings.Default.Hotkey = txtHotkey.Text.Trim();
+                Settings.Default.Hotkey = hotkey;
+
+                tsmiHotkey.Text = "热键：" + hotkey;
             } catch (ArgumentException) {
                 txtHotkey.ForeColor = Color.Red;
             }
@@ -83,6 +91,30 @@ namespace Magpie {
 
         private void CbbScaleMode_SelectedIndexChanged(object sender, EventArgs e) {
             Settings.Default.ScaleMode = cbbScaleMode.SelectedIndex;
+        }
+
+        private void MainForm_Resize(object sender, EventArgs e) {
+            if(WindowState == FormWindowState.Minimized) {
+                Hide();
+                notifyIcon.Visible = true;
+            } else {
+                notifyIcon.Visible = false;
+            }
+        }
+
+        private void TsmiMainForm_Click(object sender, EventArgs e) {
+            Show();
+            WindowState = FormWindowState.Normal;
+        }
+
+        private void TsmiExit_Click(object sender, EventArgs e) {
+            Close();
+        }
+
+        private void NotifyIcon_MouseClick(object sender, MouseEventArgs e) {
+            if(e.Button == MouseButtons.Left) {
+                tsmiMainForm.PerformClick();
+            }
         }
     }
 }

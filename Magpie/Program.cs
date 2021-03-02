@@ -24,7 +24,7 @@ namespace Magpie {
                 // 已存在实例时广播 WM_SHOWME，唤醒该实例
                 NativeMethods.PostMessage(
                     NativeMethods.HWND_BROADCAST,
-                    NativeMethods.WM_SHOWME,
+                    MainForm.WM_SHOWME,
                     IntPtr.Zero,
                     IntPtr.Zero
                 );

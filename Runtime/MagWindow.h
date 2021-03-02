@@ -157,7 +157,6 @@ private:
                 // 文档没提到，但这里必须截断成 byte，否则无法工作
                 switch ((BYTE)wParam) {
                 case HSHELL_WINDOWACTIVATED:
-                case HSHELL_GETMINRECT:
                 case HSHELL_WINDOWREPLACED:
                 case HSHELL_WINDOWREPLACING:
                     $instance = nullptr;

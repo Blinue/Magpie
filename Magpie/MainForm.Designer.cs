@@ -24,6 +24,8 @@ namespace Magpie {
         /// 使用代码编辑器修改此方法的内容。
         /// </summary>
         private void InitializeComponent() {
+            this.components = new System.ComponentModel.Container();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.lblHotkey = new System.Windows.Forms.Label();
             this.txtHotkey = new System.Windows.Forms.TextBox();
             this.label2 = new System.Windows.Forms.Label();
@@ -33,7 +35,13 @@ namespace Magpie {
             this.lblFrameRate = new System.Windows.Forms.Label();
             this.ckbMaxFrameRate = new System.Windows.Forms.CheckBox();
             this.textBox1 = new System.Windows.Forms.TextBox();
+            this.notifyIcon = new System.Windows.Forms.NotifyIcon(this.components);
+            this.cmsNotifyIcon = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.tsmiHotkey = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiMainForm = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiExit = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.tkbFrameRate)).BeginInit();
+            this.cmsNotifyIcon.SuspendLayout();
             this.SuspendLayout();
             // 
             // lblHotkey
@@ -129,6 +137,43 @@ namespace Magpie {
             this.textBox1.TabIndex = 7;
             this.textBox1.Text = "使用说明：\r\n按下热键即可全屏显示激活的窗口";
             // 
+            // notifyIcon
+            // 
+            this.notifyIcon.ContextMenuStrip = this.cmsNotifyIcon;
+            this.notifyIcon.Icon = ((System.Drawing.Icon)(resources.GetObject("notifyIcon.Icon")));
+            this.notifyIcon.Text = "Magpie";
+            this.notifyIcon.MouseClick += new System.Windows.Forms.MouseEventHandler(this.NotifyIcon_MouseClick);
+            // 
+            // cmsNotifyIcon
+            // 
+            this.cmsNotifyIcon.ImageScalingSize = new System.Drawing.Size(20, 20);
+            this.cmsNotifyIcon.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.tsmiHotkey,
+            this.tsmiMainForm,
+            this.tsmiExit});
+            this.cmsNotifyIcon.Name = "cmsNotifyIcon";
+            this.cmsNotifyIcon.Size = new System.Drawing.Size(124, 76);
+            // 
+            // tsmiHotkey
+            // 
+            this.tsmiHotkey.Enabled = false;
+            this.tsmiHotkey.Name = "tsmiHotkey";
+            this.tsmiHotkey.Size = new System.Drawing.Size(123, 24);
+            // 
+            // tsmiMainForm
+            // 
+            this.tsmiMainForm.Name = "tsmiMainForm";
+            this.tsmiMainForm.Size = new System.Drawing.Size(123, 24);
+            this.tsmiMainForm.Text = "主界面";
+            this.tsmiMainForm.Click += new System.EventHandler(this.TsmiMainForm_Click);
+            // 
+            // tsmiExit
+            // 
+            this.tsmiExit.Name = "tsmiExit";
+            this.tsmiExit.Size = new System.Drawing.Size(123, 24);
+            this.tsmiExit.Text = "退出";
+            this.tsmiExit.Click += new System.EventHandler(this.TsmiExit_Click);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 15F);
@@ -149,7 +194,9 @@ namespace Magpie {
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Magpie";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
+            this.Resize += new System.EventHandler(this.MainForm_Resize);
             ((System.ComponentModel.ISupportInitialize)(this.tkbFrameRate)).EndInit();
+            this.cmsNotifyIcon.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -166,6 +213,11 @@ namespace Magpie {
         private System.Windows.Forms.Label lblFrameRate;
         private System.Windows.Forms.CheckBox ckbMaxFrameRate;
         private System.Windows.Forms.TextBox textBox1;
+        private System.Windows.Forms.NotifyIcon notifyIcon;
+        private System.Windows.Forms.ContextMenuStrip cmsNotifyIcon;
+        private System.Windows.Forms.ToolStripMenuItem tsmiMainForm;
+        private System.Windows.Forms.ToolStripMenuItem tsmiExit;
+        private System.Windows.Forms.ToolStripMenuItem tsmiHotkey;
     }
 }
 
