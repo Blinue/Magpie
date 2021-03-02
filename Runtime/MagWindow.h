@@ -250,7 +250,7 @@ private:
             );
 
             $instance->_effectRenderer->Render(wicBmpSource);
-        } catch (const magpie_exception& e) {
+        } catch (const magpie_exception&) {
             return FALSE;
         } catch (...) {
             Debug::WriteErrorMessage(L"äÖÈ¾³öÏÖÎ´Öª´íÎó");

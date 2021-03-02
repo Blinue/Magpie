@@ -4,7 +4,6 @@ using System.Windows.Forms;
 using Gma.System.MouseKeyHook;
 using System.Drawing;
 using Magpie.Properties;
-using System.Runtime.InteropServices;
 
 namespace Magpie {
     public partial class MainForm : Form {
@@ -24,8 +23,20 @@ namespace Magpie {
             }
         }
 
+        protected override void WndProc(ref Message m) {
+            if (m.Msg == NativeMethods.WM_SHOWME) {
+                if (WindowState == FormWindowState.Minimized) {
+                    WindowState = FormWindowState.Normal;
+                }
+
+                // 忽略错误
+                NativeMethods.SetForegroundWindow(Handle);
+            }
+            base.WndProc(ref m);
+        }
+
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e) {
-            Runtime.DestroyMagWindow();
+            NativeMethods.DestroyMagWindow();
             Settings.Default.Save();
         }
 
@@ -45,12 +56,12 @@ namespace Magpie {
                         string effectJson = Settings.Default.ScaleMode == 0
                             ? Resources.CommonEffectJson : Resources.AnimeEffectJson;
 
-                        if(!Runtime.HasMagWindow()) {
-                            if(!Runtime.CreateMagWindow(frameRate, effectJson, false)) {
-                                MessageBox.Show("创建全屏窗口失败：" + Runtime.GetLastErrorMsg());
+                        if(!NativeMethods.HasMagWindow()) {
+                            if(!NativeMethods.CreateMagWindow(frameRate, effectJson, false)) {
+                                MessageBox.Show("创建全屏窗口失败：" + NativeMethods.GetLastErrorMsg());
                             }
                         } else {
-                            Runtime.DestroyMagWindow();
+                            NativeMethods.DestroyMagWindow();
                         }
                     }
                 }});
