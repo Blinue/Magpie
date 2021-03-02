@@ -212,7 +212,6 @@
     <ClInclude Include="MitchellNetravaliScaleEffect.h" />
     <ClInclude Include="MitchellNetravaliScaleTransform.h" />
     <ClInclude Include="Jinc2ScaleEffect.h" />
-    <ClInclude Include="KeyBoardHook.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Shaders.h" />
     <ClInclude Include="SimpleDrawTransform.h" />
@@ -222,8 +221,8 @@
     <ClInclude Include="WndProcThunk.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Debug.cpp" />
     <ClCompile Include="GUIDs.cpp" />
-    <ClCompile Include="KeyBoardHook.cpp" />
     <ClCompile Include="MagWindow.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
     </ClCompile>

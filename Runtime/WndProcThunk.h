@@ -12,6 +12,7 @@
 #pragma once
 #include <memoryapi.h>
 
+
 class WndProcThunk {
 public:
     WndProcThunk() {

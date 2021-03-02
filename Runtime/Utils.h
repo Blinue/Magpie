@@ -5,27 +5,23 @@
 
 class Utils {
 public:
-    static bool GetClientScreenRect(HWND hWnd, RECT& rect) {
+    static void GetClientScreenRect(HWND hWnd, RECT& rect) {
         RECT r;
-        if (!GetClientRect(hWnd, &r)) {
-            return false;
-        }
+        Debug::ThrowIfWin32Failed(
+            GetClientRect(hWnd, &r),
+            L"GetClientRect  ß∞‹"
+        );
 
         POINT p{};
-        if (!ClientToScreen(hWnd, &p)) {
-            return false;
-        }
+        Debug::ThrowIfWin32Failed(
+            ClientToScreen(hWnd, &p),
+            L"ClientToScreen  ß∞‹"
+        );
 
         rect.bottom = r.bottom + p.y;
         rect.left = r.left + p.x;
         rect.right = r.right + p.x;
         rect.top = r.top + p.y;
-
-        return true;
-    }
-
-    static SIZE GetScreenSize() {
-        return { GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN) };
     }
 
     static SIZE GetScreenSize(HWND hWnd) {
@@ -33,7 +29,7 @@ public:
 
         MONITORINFO mi{};
         mi.cbSize = sizeof(mi);
-        Debug::ThrowIfFalse(
+        Debug::ThrowIfWin32Failed(
             GetMonitorInfo(hMonitor, &mi),
             L"ªÒ»°œ‘ æ∆˜–≈œ¢ ß∞‹"
         );
@@ -46,17 +42,6 @@ public:
 
     static D2D1_SIZE_F GetSize(const D2D1_RECT_F& rect) {
         return { rect.right - rect.left,rect.bottom - rect.top };
-    }
-
-    static D2D1_POINT_2F MapPoint(D2D1_POINT_2F p, const D2D1_RECT_F& src, const D2D1_RECT_F& dest) {
-        auto srcSize = GetSize(src);
-        auto destSize = GetSize(dest);
-        float factor = destSize.width / srcSize.width;
-
-        return {
-            (p.x - src.left) * factor + dest.left,
-            (p.y - src.top) * factor + dest.top
-        };
     }
 
     static BOOL Str2GUID(const std::wstring_view &szGUID, GUID& guid) {
@@ -95,7 +80,7 @@ public:
     ) {
         ComPtr<IWICImagingFactory2> wicImgFactory;
 
-        Debug::ThrowIfFailed(
+        Debug::ThrowIfComFailed(
             CoCreateInstance(
                 CLSID_WICImagingFactory,
                 nullptr,
@@ -106,41 +91,41 @@ public:
         );
 
         ComPtr<IStream> stream;
-        Debug::ThrowIfFailed(
+        Debug::ThrowIfComFailed(
             SHCreateStreamOnFileEx(fileName.data(), STGM_WRITE | STGM_CREATE, 0, TRUE, nullptr, &stream),
             L"SHCreateStreamOnFileEx  ß∞‹"
         );
 
         ComPtr<IWICBitmapEncoder> bmpEncoder;
-        Debug::ThrowIfFailed(
+        Debug::ThrowIfComFailed(
             wicImgFactory->CreateEncoder(GUID_ContainerFormatPng, nullptr, &bmpEncoder),
             L"¥¥Ω® IWICBitmapEncoder  ß∞‹"
         );
-        Debug::ThrowIfFailed(
+        Debug::ThrowIfComFailed(
             bmpEncoder->Initialize(stream.Get(), WICBitmapEncoderNoCache),
             L"IWICBitmapEncoder ≥ı ºªØ ß∞‹"
         );
 
         ComPtr<IWICBitmapFrameEncode> frameEncoder;
-        Debug::ThrowIfFailed(
+        Debug::ThrowIfComFailed(
             bmpEncoder->CreateNewFrame(&frameEncoder, nullptr),
             L"¥¥Ω® IWICBitmapFrameEncode  ß∞‹"
         );
-        Debug::ThrowIfFailed(
+        Debug::ThrowIfComFailed(
             frameEncoder->Initialize(nullptr),
             L"IWICBitmapFrameEncode ≥ı ºªØ ß∞‹"
         );
 
         ComPtr<IWICImageEncoder> d2dImgEncoder;
-        Debug::ThrowIfFailed(
+        Debug::ThrowIfComFailed(
             wicImgFactory->CreateImageEncoder(d2dDevice.Get(), &d2dImgEncoder),
             L"¥¥Ω® IWICImageEncoder  ß∞‹"
         );
         d2dImgEncoder->WriteFrame(img.Get(), frameEncoder.Get(), nullptr);
         
-        Debug::ThrowIfFailed(frameEncoder->Commit(), L"IWICBitmapFrameEncode.Commit  ß∞‹");
-        Debug::ThrowIfFailed(bmpEncoder->Commit(), L"IWICBitmapEncoder.Commit  ß∞‹");
-        Debug::ThrowIfFailed(stream->Commit(STGC_DEFAULT), L"IStream.Commit  ß∞‹");
+        Debug::ThrowIfComFailed(frameEncoder->Commit(), L"IWICBitmapFrameEncode.Commit  ß∞‹");
+        Debug::ThrowIfComFailed(bmpEncoder->Commit(), L"IWICBitmapEncoder.Commit  ß∞‹");
+        Debug::ThrowIfComFailed(stream->Commit(STGC_DEFAULT), L"IStream.Commit  ß∞‹");
     }
 };
 

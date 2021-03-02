@@ -17,10 +17,7 @@ public:
         bool noDisturb
     ) {
         RECT destClient{};
-        Debug::ThrowIfFalse(
-            Utils::GetClientScreenRect(hwndHost, destClient),
-            L"获取全屏窗口尺寸失败"
-        );
+        Utils::GetClientScreenRect(hwndHost, destClient);
         _hostWndClientSize = Utils::GetSize(destClient);
 
         _InitD2D(hwndHost);
@@ -57,12 +54,12 @@ public:
 
         _cursorManager->DrawCursor();
 
-        Debug::ThrowIfFailed(
+        Debug::ThrowIfComFailed(
             _d2dDC->EndDraw(),
             L"EndDraw 失败"
         );
 
-        Debug::ThrowIfFailed(
+        Debug::ThrowIfComFailed(
             _dxgiSwapChain->Present(0, 0),
             L"Present 失败"
         );
@@ -86,7 +83,7 @@ private:
         ComPtr<ID3D11DeviceContext> d3dDC = nullptr;
 
         D3D_FEATURE_LEVEL fl;
-        Debug::ThrowIfFailed(
+        Debug::ThrowIfComFailed(
             D3D11CreateDevice(
                 nullptr,    // specify null to use the default adapter
                 D3D_DRIVER_TYPE_HARDWARE,
@@ -104,39 +101,39 @@ private:
 
         // Obtain the underlying DXGI device of the Direct3D11 device.
         ComPtr<IDXGIDevice1> dxgiDevice;
-        Debug::ThrowIfFailed(
+        Debug::ThrowIfComFailed(
             d3dDevice.As(&dxgiDevice),
             L"获取 DXGI Device 失败"
         );
 
-        Debug::ThrowIfFailed(
+        Debug::ThrowIfComFailed(
             D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, __uuidof(ID2D1Factory1), &_d2dFactory),
             L"创建 D2D Factory 失败"
         );
 
         // Obtain the Direct2D device for 2-D rendering.
         
-        Debug::ThrowIfFailed(
+        Debug::ThrowIfComFailed(
             _d2dFactory->CreateDevice(dxgiDevice.Get(), &_d2dDevice),
             L"创建 D2D Device 失败"
         );
         
         // Get Direct2D device's corresponding device context object.
-        Debug::ThrowIfFailed(
+        Debug::ThrowIfComFailed(
             _d2dDevice->CreateDeviceContext(D2D1_DEVICE_CONTEXT_OPTIONS_NONE, &_d2dDC),
             L"创建 D2D DC 失败"
         );
 
         // Identify the physical adapter (GPU or card) this device is runs on.
         ComPtr<IDXGIAdapter> dxgiAdapter;
-        Debug::ThrowIfFailed(
+        Debug::ThrowIfComFailed(
             dxgiDevice->GetAdapter(&dxgiAdapter),
             L"获取 DXGI Adapter 失败"
         );
 
         // Get the factory object that created the DXGI device.
         ComPtr<IDXGIFactory2> dxgiFactory = nullptr;
-        Debug::ThrowIfFailed(
+        Debug::ThrowIfComFailed(
             dxgiAdapter->GetParent(IID_PPV_ARGS(&dxgiFactory)),
             L"获取 DXGI Factory 失败"
         );
@@ -157,7 +154,7 @@ private:
 
         // Get the final swap chain for this window from the DXGI factory.
 
-        Debug::ThrowIfFailed(
+        Debug::ThrowIfComFailed(
             dxgiFactory->CreateSwapChainForHwnd(
                 d3dDevice.Get(),
                 hwndHost,
@@ -170,14 +167,14 @@ private:
         );
         
         // Ensure that DXGI doesn't queue more than one frame at a time.
-        Debug::ThrowIfFailed(
+        Debug::ThrowIfComFailed(
             dxgiDevice->SetMaximumFrameLatency(1),
             L"SetMaximumFrameLatency 失败"
         );
 
         // Direct2D needs the dxgi version of the backbuffer surface pointer.
         ComPtr<IDXGISurface> dxgiBackBuffer = nullptr;
-        Debug::ThrowIfFailed(
+        Debug::ThrowIfComFailed(
             _dxgiSwapChain->GetBuffer(0, IID_PPV_ARGS(&dxgiBackBuffer)),
             L"获取 DXGI Backbuffer 失败"
         );
@@ -192,7 +189,7 @@ private:
 
         // Get a D2D surface from the DXGI back buffer to use as the D2D render target.
         ComPtr<ID2D1Bitmap1> d2dTargetBitmap = nullptr;
-        Debug::ThrowIfFailed(
+        Debug::ThrowIfComFailed(
             _d2dDC->CreateBitmapFromDxgiSurface(
                 dxgiBackBuffer.Get(),
                 &bitmapProperties,

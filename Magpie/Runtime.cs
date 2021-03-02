@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using System;
+using System.Runtime.InteropServices;
 
 
 namespace Magpie {
@@ -15,5 +16,9 @@ namespace Magpie {
 
         [DllImport("Runtime.dll", CallingConvention = CallingConvention.StdCall)]
         public static extern bool HasMagWindow();
+
+        [DllImport("Runtime.dll", CallingConvention = CallingConvention.StdCall)]
+        [return: MarshalAs(UnmanagedType.LPWStr)]
+        public static extern string GetLastErrorMsg();
     }
 }

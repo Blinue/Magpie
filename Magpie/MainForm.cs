@@ -4,6 +4,7 @@ using System.Windows.Forms;
 using Gma.System.MouseKeyHook;
 using System.Drawing;
 using Magpie.Properties;
+using System.Runtime.InteropServices;
 
 namespace Magpie {
     public partial class MainForm : Form {
@@ -46,7 +47,7 @@ namespace Magpie {
 
                         if(!Runtime.HasMagWindow()) {
                             if(!Runtime.CreateMagWindow(frameRate, effectJson, false)) {
-                                MessageBox.Show("创建全屏窗口失败");
+                                MessageBox.Show("创建全屏窗口失败：" + Runtime.GetLastErrorMsg());
                             }
                         } else {
                             Runtime.DestroyMagWindow();

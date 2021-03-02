@@ -22,13 +22,13 @@ public:
                 FILE_ATTRIBUTE_NORMAL,
                 NULL);
             if (hFile == NULL) {
-                Debug::writeLine(L"打开\""s + path + L"\"失败");
+                Debug::WriteLine(L"打开\""s + path + L"\"失败");
                 return E_FAIL;
             }
 
             LARGE_INTEGER liSize{};
             if (!GetFileSizeEx(hFile, &liSize)) {
-                Debug::writeLine(L"获取\""s + path + L"\"文件大小失败");
+                Debug::WriteLine(L"获取\""s + path + L"\"文件大小失败");
                 return E_FAIL;
             }
 
@@ -36,7 +36,7 @@ public:
             BYTE* buf = new BYTE[size];
             DWORD readed = 0;
             if (!ReadFile(hFile, buf, size, &readed, nullptr) || readed == 0) {
-                Debug::writeLine(L"读取\""s + path + L"\"失败");
+                Debug::WriteLine(L"读取\""s + path + L"\"失败");
                 return E_FAIL;
             }
 
@@ -44,7 +44,7 @@ public:
             delete[] buf;
 
             if (FAILED(hr)) {
-                Debug::writeLine(L"加载着色器\""s + path + L"\"失败");
+                Debug::WriteLine(L"加载着色器\""s + path + L"\"失败");
                 return hr;
             }
         }

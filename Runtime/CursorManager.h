@@ -17,34 +17,35 @@ public:
         _cursorSize.cx = GetSystemMetrics(SM_CXCURSOR);
         _cursorSize.cy = GetSystemMetrics(SM_CYCURSOR);
 
-        _systemCursors.hand = CopyCursor(LoadCursor(NULL, IDC_HAND));
-        _systemCursors.normal = CopyCursor(LoadCursor(NULL, IDC_ARROW));
-        Debug::ThrowIfFalse(_systemCursors.normal && _systemCursors.hand, L"复制系统光标失败");
-
-        _d2dBmpNormalCursor = _CursorToD2DBitmap(_systemCursors.normal);
-        _d2dBmpHandCursor = _CursorToD2DBitmap(_systemCursors.hand);
+        _d2dBmpNormalCursor = _CursorToD2DBitmap(LoadCursor(NULL, IDC_ARROW));
+        _d2dBmpHandCursor = _CursorToD2DBitmap(LoadCursor(NULL, IDC_HAND));
         
         if (!noDisturb) {
             HCURSOR tptCursor = _CreateTransparentCursor();
-            Debug::ThrowIfFalse(tptCursor, L"创建透明光标失败");
 
-            SetSystemCursor(CopyCursor(tptCursor), OCR_HAND);
-            SetSystemCursor(tptCursor, OCR_NORMAL);
+            Debug::ThrowIfWin32Failed(
+                SetSystemCursor(CopyCursor(tptCursor), OCR_HAND),
+                L"设置 OCR_HAND 失败"
+            );
+            Debug::ThrowIfWin32Failed(
+                SetSystemCursor(tptCursor, OCR_NORMAL),
+                L"设置 OCR_NORMAL 失败"
+            );
             // tptCursor 被销毁
 
             // 限制鼠标在窗口内
             RECT r{ lroundf(srcRect.left), lroundf(srcRect.top), lroundf(srcRect.right), lroundf(srcRect.bottom) };
-            Debug::ThrowIfFalse(ClipCursor(&r), L"ClipCursor 失败");
+            Debug::ThrowIfWin32Failed(ClipCursor(&r), L"ClipCursor 失败");
             
             // 设置鼠标移动速度
-            Debug::ThrowIfFalse(
+            Debug::ThrowIfWin32Failed(
                 SystemParametersInfo(SPI_GETMOUSESPEED, 0, &_cursorSpeed, 0),
                 L"获取鼠标速度失败"
             );
 
             float scale = float(destRect.right - destRect.left) / (srcRect.right - srcRect.left);
-            long newSpeed = std::clamp((long)lround(_cursorSpeed / scale), 1L, 20L);
-            Debug::ThrowIfFalse(
+            long newSpeed = std::clamp(lroundf(_cursorSpeed / scale), 1L, 20L);
+            Debug::ThrowIfWin32Failed(
                 SystemParametersInfo(SPI_SETMOUSESPEED, 0, (PVOID)(intptr_t)newSpeed, 0),
                 L"设置鼠标速度失败"
             );
@@ -62,32 +63,31 @@ public:
 
             // 还原系统光标
             SystemParametersInfo(SPI_SETCURSORS, 0, NULL, 0);
-            //SetSystemCursor(_systemCursors.normal, OCR_NORMAL);
-            //SetSystemCursor(_systemCursors.hand, OCR_HAND);
-
-            // _systemCursors 中的资源已释放
         }
     }
 
 	void DrawCursor() {
         CURSORINFO ci{};
         ci.cbSize = sizeof(ci);
-        GetCursorInfo(&ci);
+        Debug::ThrowIfWin32Failed(GetCursorInfo(&ci), L"GetCursorInfo 失败");
         
         if (ci.hCursor == NULL) {
             return;
         }
         
-        D2D1_POINT_2F targetScreenPos = Utils::MapPoint(
-            D2D1_POINT_2F{ (FLOAT)ci.ptScreenPos.x, (FLOAT)ci.ptScreenPos.y },
-            _srcRect, _destRect
-        );
+        // 映射坐标
+        float factor = (_destRect.right - _destRect.left) / (_srcRect.right - _srcRect.left);
+        D2D1_POINT_2F targetScreenPos{
+            ((FLOAT)ci.ptScreenPos.x - _srcRect.left) * factor + _destRect.left,
+            ((FLOAT)ci.ptScreenPos.y - _srcRect.top) * factor + _destRect.top
+        };
         // 鼠标坐标为整数，否则会出现模糊
         targetScreenPos.x = roundf(targetScreenPos.x);
         targetScreenPos.y = roundf(targetScreenPos.y);
 
+
         ICONINFO ii{};
-        GetIconInfo(ci.hCursor, &ii);
+        Debug::ThrowIfWin32Failed(GetIconInfo(ci.hCursor, &ii), L"GetIconInfo 失败");
         DeleteBitmap(ii.hbmColor);
         DeleteBitmap(ii.hbmMask);
 
@@ -106,9 +106,9 @@ public:
             try {
                 ComPtr<ID2D1Bitmap> c = _CursorToD2DBitmap(ci.hCursor);
                 _d2dDC->DrawBitmap(c.Get(), &cursorRect);
-            } catch (...) {
+            } catch (magpie_exception) {
                 // 如果出错，只绘制普通光标
-                Debug::writeLine(L"_CursorToD2DBitmap 出错");
+                Debug::WriteLine(L"_CursorToD2DBitmap 出错");
                 _d2dDC->DrawBitmap(_d2dBmpNormalCursor.Get(), &cursorRect);
             }
         }
@@ -121,11 +121,12 @@ private:
         memset(andPlane, 0xff, len);
         BYTE* xorPlane = new BYTE[len]{};
 
-        HCURSOR _result = CreateCursor(_hInstance, 0, 0, _cursorSize.cx, _cursorSize.cy, andPlane, xorPlane);
+        HCURSOR result = CreateCursor(_hInstance, 0, 0, _cursorSize.cx, _cursorSize.cy, andPlane, xorPlane);
+        Debug::ThrowIfWin32Failed(result, L"创建透明鼠标失败");
 
         delete[] andPlane;
         delete[] xorPlane;
-        return _result;
+        return result;
     }
 
     ComPtr<ID2D1Bitmap> _CursorToD2DBitmap(HCURSOR hCursor) {
@@ -135,15 +136,15 @@ private:
         ComPtr<IWICFormatConverter> wicFormatConverter = nullptr;
         ComPtr<ID2D1Bitmap> d2dBmpCursor = nullptr;
 
-        Debug::ThrowIfFailed(
+        Debug::ThrowIfComFailed(
             _wicImgFactory->CreateBitmapFromHICON(hCursor, &wicCursor),
             L"创建鼠标图像位图失败"
         );
-        Debug::ThrowIfFailed(
+        Debug::ThrowIfComFailed(
             _wicImgFactory->CreateFormatConverter(&wicFormatConverter),
             L"CreateFormatConverter 失败"
         );
-        Debug::ThrowIfFailed(
+        Debug::ThrowIfComFailed(
             wicFormatConverter->Initialize(
                 wicCursor.Get(),
                 GUID_WICPixelFormat32bppPBGRA,
@@ -154,7 +155,7 @@ private:
             ),
             L"IWICFormatConverter 初始化失败"
         );
-        Debug::ThrowIfFailed(
+        Debug::ThrowIfComFailed(
             _d2dDC->CreateBitmapFromWicBitmap(wicFormatConverter.Get(), &d2dBmpCursor),
             L"CreateBitmapFromWicBitmap 失败"
         );
@@ -173,11 +174,6 @@ private:
 
     D2D1_RECT_F _srcRect;
     D2D1_RECT_F _destRect;
-
-    struct {
-        HCURSOR normal;
-        HCURSOR hand;
-    } _systemCursors{};
 
     INT _cursorSpeed = 0;
 

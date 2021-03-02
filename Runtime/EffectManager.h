@@ -35,7 +35,7 @@ public:
 	ComPtr<ID2D1Image> Apply(ComPtr<IWICBitmapSource> srcBmp) const {
 		assert(srcBmp != nullptr);
 
-		Debug::ThrowIfFailed(
+		Debug::ThrowIfComFailed(
 			_d2dSourceEffect->SetValue(D2D1_BITMAPSOURCE_PROP_WIC_BITMAP_SOURCE, srcBmp.Get()),
 			L"设置 D2D1BitmapSource 源失败"
 		);
@@ -53,7 +53,7 @@ public:
 private:
 	void _CreateSourceEffect(const SIZE& srcSize) {
 		// 创建 Source effect
-		Debug::ThrowIfFailed(
+		Debug::ThrowIfComFailed(
 			_d2dDC->CreateEffect(CLSID_D2D1BitmapSource, &_d2dSourceEffect),
 			L"创建 D2D1BitmapSource 失败"
 		);
@@ -117,7 +117,7 @@ private:
 		);
 
 		ComPtr<ID2D1Effect> adaptiveSharpenEffect = nullptr;
-		Debug::ThrowIfFailed(
+		Debug::ThrowIfComFailed(
 			_d2dDC->CreateEffect(CLSID_MAGPIE_ADAPTIVE_SHARPEN_EFFECT, &adaptiveSharpenEffect),
 			L"创建 Adaptive sharpen effect 失败"
 		);
@@ -134,7 +134,7 @@ private:
 				L"非法的 curveHeight 属性值"
 			);
 
-			Debug::ThrowIfFailed(
+			Debug::ThrowIfComFailed(
 				adaptiveSharpenEffect->SetValue(AdaptiveSharpenEffect::PROP_CURVE_HEIGHT, curveHeight),
 				L"设置 curveHeight 属性失败"
 			);
@@ -146,7 +146,7 @@ private:
 
 	void _AddBuiltInSharpenEffect(const nlohmann::json& props) {
 		ComPtr<ID2D1Effect> d2dSharpenEffect = nullptr;
-		Debug::ThrowIfFailed(
+		Debug::ThrowIfComFailed(
 			_d2dDC->CreateEffect(CLSID_D2D1Sharpen, &d2dSharpenEffect),
 			L"创建 sharpen effect 失败"
 		);
@@ -163,7 +163,7 @@ private:
 				L"非法的 sharpness 属性值"
 			);
 
-			Debug::ThrowIfFailed(
+			Debug::ThrowIfComFailed(
 				d2dSharpenEffect->SetValue(D2D1_SHARPEN_PROP_SHARPNESS, sharpness),
 				L"设置 sharpness 属性失败"
 			);
@@ -181,7 +181,7 @@ private:
 				L"非法的 threshold 属性值"
 			);
 
-			Debug::ThrowIfFailed(
+			Debug::ThrowIfComFailed(
 				d2dSharpenEffect->SetValue(D2D1_SHARPEN_PROP_THRESHOLD, threshold),
 				L"设置 threshold 属性失败"
 			);
@@ -198,7 +198,7 @@ private:
 		);
 
 		ComPtr<ID2D1Effect> anime4KEffect = nullptr;
-		Debug::ThrowIfFailed(
+		Debug::ThrowIfComFailed(
 			_d2dDC->CreateEffect(CLSID_MAGIPE_ANIME4K_UPSCALE_EFFECT, &anime4KEffect),
 			L"创建 Anime4K Effect 失败"
 		);
@@ -216,7 +216,7 @@ private:
 		);
 
 		ComPtr<ID2D1Effect> anime4KxDeblurEffect = nullptr;
-		Debug::ThrowIfFailed(
+		Debug::ThrowIfComFailed(
 			_d2dDC->CreateEffect(CLSID_MAGIPE_ANIME4K_UPSCALE_DEBLUR_EFFECT, &anime4KxDeblurEffect),
 			L"创建 Anime4K Effect 失败"
 		);
@@ -234,7 +234,7 @@ private:
 		);
 
 		ComPtr<ID2D1Effect> effect = nullptr;
-		Debug::ThrowIfFailed(
+		Debug::ThrowIfComFailed(
 			_d2dDC->CreateEffect(CLSID_MAGIPE_ANIME4K_UPSCALE_DENOISE_EFFECT, &effect),
 			L"创建 Anime4K Effect 失败"
 		);
@@ -252,7 +252,7 @@ private:
 		);
 
 		ComPtr<ID2D1Effect> effect = nullptr;
-		Debug::ThrowIfFailed(
+		Debug::ThrowIfComFailed(
 			_d2dDC->CreateEffect(CLSID_MAGPIE_JINC2_SCALE_EFFECT, &effect),
 			L"创建 Anime4K Effect 失败"
 		);
@@ -263,7 +263,7 @@ private:
 		if (it != props.end()) {
 			const auto& scale = _ReadScaleProp(*it);
 			
-			Debug::ThrowIfFailed(
+			Debug::ThrowIfComFailed(
 				effect->SetValue(Jinc2ScaleEffect::PROP_SCALE, scale),
 				L"设置 scale 属性失败"
 			);
@@ -284,7 +284,7 @@ private:
 				L"非法的 windowSinc 属性值"
 			);
 
-			Debug::ThrowIfFailed(
+			Debug::ThrowIfComFailed(
 				effect->SetValue(Jinc2ScaleEffect::PROP_WINDOW_SINC, windowSinc),
 				L"设置 windowSinc 属性失败"
 			);
@@ -302,7 +302,7 @@ private:
 				L"非法的 sinc 属性值"
 			);
 
-			Debug::ThrowIfFailed(
+			Debug::ThrowIfComFailed(
 				effect->SetValue(Jinc2ScaleEffect::PROP_SINC, sinc),
 				L"设置 sinc 属性失败"
 			);
@@ -320,7 +320,7 @@ private:
 				L"非法的 ARStrength 属性值"
 			);
 
-			Debug::ThrowIfFailed(
+			Debug::ThrowIfComFailed(
 				effect->SetValue(Jinc2ScaleEffect::PROP_AR_STRENGTH, ARStrength),
 				L"设置 ARStrength 属性失败"
 			);
@@ -337,7 +337,7 @@ private:
 		);
 
 		ComPtr<ID2D1Effect> effect = nullptr;
-		Debug::ThrowIfFailed(
+		Debug::ThrowIfComFailed(
 			_d2dDC->CreateEffect(CLSID_MAGPIE_MITCHELL_NETRAVALI_SCALE_EFFECT, &effect),
 			L"创建 Mitchell-Netraval Scale Effect 失败"
 		);
@@ -347,7 +347,7 @@ private:
 		if (it != props.end()) {
 			const auto& scale = _ReadScaleProp(*it);
 
-			Debug::ThrowIfFailed(
+			Debug::ThrowIfComFailed(
 				effect->SetValue(MitchellNetravaliScaleEffect::PROP_SCALE, scale),
 				L"设置 scale 属性失败"
 			);
@@ -362,7 +362,7 @@ private:
 			const auto& val = *it;
 			Debug::ThrowIfFalse(val.is_boolean(), L"非法的 useSharperVersion 属性值");
 
-			Debug::ThrowIfFailed(
+			Debug::ThrowIfComFailed(
 				effect->SetValue(MitchellNetravaliScaleEffect::PROP_USE_SHARPER_VERSION, (BOOL)val.get<bool>()),
 				L"设置 useSharperVersion 属性失败"
 			);
@@ -375,7 +375,7 @@ private:
 	// 内置的 HIGH_QUALITY_CUBIC 缩放算法在缩小图像时效果完美
 	void _AddHQBicubicScaleEffect(const nlohmann::json& props) {
 		ComPtr<ID2D1Effect> effect = nullptr;
-		Debug::ThrowIfFailed(
+		Debug::ThrowIfComFailed(
 			_d2dDC->CreateEffect(CLSID_D2D1Scale, &effect),
 			L"创建 Anime4K Effect 失败"
 		);
@@ -388,7 +388,7 @@ private:
 		if (it != props.end()) {
 			const auto& scale = _ReadScaleProp(*it);
 
-			Debug::ThrowIfFailed(
+			Debug::ThrowIfComFailed(
 				effect->SetValue(D2D1_SCALE_PROP_SCALE, scale),
 				L"设置 scale 属性失败"
 			);
@@ -409,7 +409,7 @@ private:
 				L"非法的 sharpness 属性值"
 			);
 
-			Debug::ThrowIfFailed(
+			Debug::ThrowIfComFailed(
 				effect->SetValue(D2D1_SCALE_PROP_SHARPNESS, sharpness),
 				L"设置 sharpness 属性失败"
 			);
@@ -425,7 +425,7 @@ private:
 		);
 
 		ComPtr<ID2D1Effect> effect = nullptr;
-		Debug::ThrowIfFailed(
+		Debug::ThrowIfComFailed(
 			_d2dDC->CreateEffect(CLSID_MAGPIE_LANCZOS6_SCALE_EFFECT, &effect),
 			L"创建 Lanczos6 Effect 失败"
 		);
@@ -435,7 +435,7 @@ private:
 		if (it != props.end()) {
 			const auto& scale = _ReadScaleProp(*it);
 
-			Debug::ThrowIfFailed(
+			Debug::ThrowIfComFailed(
 				effect->SetValue(Lanczos6ScaleEffect::PROP_SCALE, scale),
 				L"设置 scale 属性失败"
 			);
@@ -456,7 +456,7 @@ private:
 				L"非法的 ARStrength 属性值"
 			);
 
-			Debug::ThrowIfFailed(
+			Debug::ThrowIfComFailed(
 				effect->SetValue(Lanczos6ScaleEffect::PROP_AR_STRENGTH, ARStrength),
 				L"设置 ARStrengthc 属性失败"
 			);
@@ -512,7 +512,7 @@ private:
 	void _CheckAndRegisterEffect(const GUID& effectID, std::function<HRESULT(ID2D1Factory1*)> registerFunc) {
 		if (_registeredEffects.find(effectID) == _registeredEffects.end()) {
 			// 未注册
-			Debug::ThrowIfFailed(
+			Debug::ThrowIfComFailed(
 				registerFunc(_d2dFactory.Get()),
 				L"注册 Effect 失败"
 			);

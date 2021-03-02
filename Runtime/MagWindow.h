@@ -52,7 +52,7 @@ private:
 
         assert(_frameRate == 0 || (_frameRate >= 30 && _frameRate <= 120));
 
-        Debug::ThrowIfFailed(
+        Debug::ThrowIfComFailed(
             CoInitialize(NULL),
             L"初始化 COM 出错"
         );
@@ -62,20 +62,17 @@ private:
             L"hwndSrc 不合法"
         );
 
-        Debug::ThrowIfFalse(
-            Utils::GetClientScreenRect(_hwndSrc, _srcRect),
-            L"无法获取源窗口客户区尺寸"
-        );
+        Utils::GetClientScreenRect(_hwndSrc, _srcRect);
 
         _RegisterHostWndClass();
 
-        Debug::ThrowIfFalse(
+        Debug::ThrowIfWin32Failed(
             MagInitialize(),
             L"MagInitialize 失败"
         );
         _CreateHostWnd(noDisturb);
 
-        Debug::ThrowIfFailed(
+        Debug::ThrowIfComFailed(
             CoCreateInstance(
                 CLSID_WICImagingFactory,
                 NULL,
@@ -125,7 +122,7 @@ private:
 
             // 渲染一帧
             if (!MagSetWindowSource($instance->_hwndMag, $instance->_srcRect)) {
-                Debug::writeLine(L"MagSetWindowSource 失败");
+                Debug::WriteErrorMessage(L"MagSetWindowSource 失败");
             }
             break;
         }
@@ -144,12 +141,12 @@ private:
 
             // 渲染一帧
             if (!MagSetWindowSource($instance->_hwndMag, $instance->_srcRect)) {
-                Debug::writeLine(L"MagSetWindowSource 失败");
+                Debug::WriteErrorMessage(L"MagSetWindowSource 失败");
             }
 
             // 立即渲染下一帧
             if (!PostMessage(hWnd, _WM_MAXFRAMERATE, 0, 0)) {
-                Debug::writeLine(L"PostMessage 失败");
+                Debug::WriteErrorMessage(L"PostMessage 失败");
             }
             break;
         }
@@ -163,7 +160,6 @@ private:
                 case HSHELL_GETMINRECT:
                 case HSHELL_WINDOWREPLACED:
                 case HSHELL_WINDOWREPLACING:
-                case HSHELL_WINDOWCREATED:
                     $instance = nullptr;
                 }
             } else {
@@ -194,10 +190,10 @@ private:
             _HOST_WINDOW_CLASS_NAME, NULL, WS_CLIPCHILDREN | WS_POPUP | WS_VISIBLE,
             0, 0, screenSize.cx, screenSize.cy,
             NULL, NULL, _hInst, NULL);
-        Debug::ThrowIfFalse(_hwndHost, L"创建全屏窗口失败");
+        Debug::ThrowIfWin32Failed(_hwndHost, L"创建全屏窗口失败");
 
         // 设置窗口不透明
-        Debug::ThrowIfFalse(
+        Debug::ThrowIfWin32Failed(
             SetLayeredWindowAttributes(_hwndHost, 0, 255, LWA_ALPHA),
             L"SetLayeredWindowAttributes 失败"
         );
@@ -210,9 +206,9 @@ private:
             WS_CHILD,
             0, 0, srcClientSize.cx, srcClientSize.cy,
             _hwndHost, NULL, _hInst, NULL);
-        Debug::ThrowIfFalse(_hwndMag, L"创建放大镜控件失败");
+        Debug::ThrowIfWin32Failed(_hwndMag, L"创建放大镜控件失败");
 
-        Debug::ThrowIfFalse(
+        Debug::ThrowIfWin32Failed(
             MagSetImageScalingCallback(_hwndMag, &_ImageScalingCallback),
             L"设置放大镜回调失败"
         );
@@ -233,14 +229,14 @@ private:
         }
         
         if (srcheader.cbSize / srcheader.width / srcheader.height != 4) {
-            Debug::writeLine(L"srcdata 不是BGRA格式");
+            Debug::WriteErrorMessage(L"srcdata 不是BGRA格式");
             return FALSE;
         }
 
         ComPtr<IWICBitmap> wicBmpSource = nullptr;
 
         try {
-            Debug::ThrowIfFailed(
+            Debug::ThrowIfComFailed(
                 $instance->_wicImgFactory->CreateBitmapFromMemory(
                     srcheader.width,
                     srcheader.height,
@@ -254,8 +250,10 @@ private:
             );
 
             $instance->_effectRenderer->Render(wicBmpSource);
+        } catch (const magpie_exception& e) {
+            return FALSE;
         } catch (...) {
-            Debug::writeLine(L"渲染出错");
+            Debug::WriteErrorMessage(L"渲染出现未知错误");
             return FALSE;
         }
         
@@ -264,11 +262,11 @@ private:
 
     void _RegisterHookMsg() {
         _WM_SHELLHOOKMESSAGE = RegisterWindowMessage(L"SHELLHOOK");
-        Debug::ThrowIfFalse(
+        Debug::ThrowIfWin32Failed(
             _WM_SHELLHOOKMESSAGE,
             L"RegisterWindowMessage 失败"
         );
-        Debug::ThrowIfFalse(
+        Debug::ThrowIfWin32Failed(
             RegisterShellHookWindow(_hwndHost),
             L"RegisterShellHookWindow 失败"
         );

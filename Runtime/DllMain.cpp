@@ -3,17 +3,11 @@
 
 
 #include "pch.h"
-#include "Utils.h"
-#include "KeyBoardHook.h"
 #include "MagWindow.h"
 
-#undef NTDDI_VERSION
-#undef _WIN32_WINNT
-#include "easyhook.h"
-
-using namespace D2D1;
 
 HINSTANCE hInstance = NULL;
+
 
 // DLL 入口
 BOOL APIENTRY DllMain(
@@ -26,7 +20,6 @@ BOOL APIENTRY DllMain(
         hInstance = hModule;
         break;
     case DLL_PROCESS_DETACH:
-
         break;
     case DLL_THREAD_ATTACH:
         break;
@@ -44,14 +37,16 @@ API_DECLSPEC BOOL WINAPI CreateMagWindow(
 ) {
     try {
         HWND hwnd = GetForegroundWindow();
-        Debug::ThrowIfFalse(
+        Debug::ThrowIfWin32Failed(
             hwnd,
             L"GetForegroundWindow 返回 NULL"
         );
 
         MagWindow::CreateInstance(hInstance, hwnd, frameRate, effectsJson, noDisturb);
-    } catch(...) {
-        Debug::writeLine(L"创建 MagWindow 失败");
+    } catch(const magpie_exception&) {
+        return FALSE;
+    } catch (...) {
+        Debug::WriteErrorMessage(L"创建全屏窗口发生未知错误");
         return FALSE;
     }
     
@@ -64,4 +59,9 @@ API_DECLSPEC BOOL WINAPI HasMagWindow() {
 
 API_DECLSPEC void WINAPI DestroyMagWindow() {
     MagWindow::$instance = nullptr;
+}
+
+
+API_DECLSPEC const WCHAR* WINAPI GetLastErrorMsg() {
+    return Debug::GetLastErrorMessage().c_str();
 }
