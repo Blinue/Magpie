@@ -17,8 +17,13 @@ namespace Magpie {
         [DllImport("Runtime.dll", CallingConvention = CallingConvention.StdCall)]
         public static extern bool HasMagWindow();
 
-        [DllImport("Runtime.dll", CallingConvention = CallingConvention.StdCall)]
-        [return: MarshalAs(UnmanagedType.LPWStr)]
-        public static extern string GetLastErrorMsg();
+        // 由于无法理解的原因，这里不能直接封送为 string
+        // 见 https://stackoverflow.com/questions/15793736/difference-between-marshalasunmanagedtype-lpwstr-and-marshal-ptrtostringuni
+        [DllImport("Runtime.dll", CallingConvention = CallingConvention.StdCall, EntryPoint = "GetLastErrorMsg")]
+        private static extern IntPtr GetLastErrorMsgNative();
+
+        public static string GetLastErrorMsg() {
+            return Marshal.PtrToStringUni(GetLastErrorMsgNative());
+        }
     }
 }
