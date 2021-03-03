@@ -29,6 +29,7 @@ namespace Magpie {
             if (m.Msg == WM_SHOWME) {
                 // 收到 WM_SHOWME 激活窗口
                 if (WindowState == FormWindowState.Minimized) {
+                    Show();
                     WindowState = FormWindowState.Normal;
                 }
 

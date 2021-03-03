@@ -206,9 +206,6 @@
     <Filter Include="第三方库">
       <UniqueIdentifier>{9f2b3932-bd6a-460e-bc28-6d02b8a56bf2}</UniqueIdentifier>
     </Filter>
-    <Filter Include="资源文件">
-      <UniqueIdentifier>{9d8d4871-1f32-4acc-ac9c-d95088cd1ffc}</UniqueIdentifier>
-    </Filter>
     <Filter Include="头文件\Effect">
       <UniqueIdentifier>{7aeace38-38c9-4406-9075-effd6b4c0381}</UniqueIdentifier>
     </Filter>
