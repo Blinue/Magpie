@@ -204,6 +204,7 @@
     <ClInclude Include="EffectManager.h" />
     <ClInclude Include="EffectRenderer.h" />
     <ClInclude Include="framework.h" />
+    <ClInclude Include="GDIWindowCapturer.h" />
     <ClInclude Include="GUIDs.h" />
     <ClInclude Include="Jinc2ScaleTransform.h" />
     <ClInclude Include="Lanczos6ScaleEffect.h" />

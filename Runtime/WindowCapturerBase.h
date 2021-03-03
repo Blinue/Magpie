@@ -11,5 +11,5 @@ public:
 	WindowCapturerBase(const WindowCapturerBase&) = delete;
 	WindowCapturerBase(WindowCapturerBase&&) = delete;
 
-	virtual ComPtr<IWICBitmap> GetFrame() = 0;
+	virtual ComPtr<IWICBitmapSource> GetFrame() = 0;
 };

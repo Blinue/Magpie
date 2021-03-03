@@ -188,6 +188,9 @@
     <ClInclude Include="MagCallbackWindowCapturer.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="GDIWindowCapturer.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />

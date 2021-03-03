@@ -47,13 +47,13 @@ public:
         _instance = nullptr;
 	}
 
-	ComPtr<IWICBitmap> GetFrame() override {
+	ComPtr<IWICBitmapSource> GetFrame() override {
         // MagSetWindowSource 是同步执行的
         if (!MagSetWindowSource(_hwndMag, _srcRect)) {
             Debug::WriteErrorMessage(L"MagSetWindowSource 失败");
         }
 
-        return _wicBmpSource;
+        return _wicBmp;
 	}
 
 private:
@@ -84,7 +84,7 @@ private:
                 srcheader.stride,
                 (UINT)srcheader.cbSize,
                 (BYTE*)srcdata,
-                &_instance->_wicBmpSource
+                &_instance->_wicBmp
             ),
             L"从内存创建 WICBitmap 失败"
         );
@@ -96,7 +96,7 @@ private:
     const RECT& _srcRect;
     IWICImagingFactory2* _wicImgFactory;
 
-    ComPtr<IWICBitmap> _wicBmpSource = nullptr;
+    ComPtr<IWICBitmap> _wicBmp = nullptr;
 
     static MagCallbackWindowCapturer* _instance;
 };

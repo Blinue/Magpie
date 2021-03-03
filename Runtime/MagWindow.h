@@ -3,6 +3,7 @@
 #include "Utils.h"
 #include "EffectRenderer.h"
 #include "MagCallbackWindowCapturer.h"
+#include "GDIWindowCapturer.h"
 
 
 class MagWindow {
@@ -76,11 +77,17 @@ private:
             L"创建 WICImagingFactory 失败"
         );
 
-        _windowCapturer.reset(new MagCallbackWindowCapturer(
+        /*_windowCapturer.reset(new MagCallbackWindowCapturer(
             hInstance,
             _hwndHost,
             _srcRect,
             _wicImgFactory.Get()
+        ));*/
+        _windowCapturer.reset(new GDIWindowCapturer(
+            _hwndSrc,
+            _srcRect,
+            _wicImgFactory.Get(),
+            true
         ));
 
         // 初始化 EffectRenderer
@@ -109,7 +116,7 @@ private:
     // 渲染一帧，不抛出异常
     static void _Render() {
         try {
-            ComPtr<IWICBitmap> frame = $instance->_windowCapturer->GetFrame();
+            ComPtr<IWICBitmapSource> frame = $instance->_windowCapturer->GetFrame();
             $instance->_effectRenderer->Render(frame.Get());
         } catch (const magpie_exception& e) {
             Debug::WriteErrorMessage(L"渲染失败：" + e.what());
@@ -163,10 +170,13 @@ private:
             if ($instance && $instance->_WM_SHELLHOOKMESSAGE == message) {
                 // 在桌面环境变化时关闭全屏窗口
                 // 文档没提到，但这里必须截断成 byte，否则无法工作
-                switch ((BYTE)wParam) {
-                case HSHELL_WINDOWACTIVATED:
-                case HSHELL_WINDOWREPLACED:
-                case HSHELL_WINDOWREPLACING:
+                BYTE code = (BYTE)wParam;
+
+                if (code == HSHELL_WINDOWACTIVATED
+                    || code == HSHELL_WINDOWREPLACED
+                    || code == HSHELL_WINDOWREPLACING
+                    || (code == HSHELL_WINDOWDESTROYED && (HWND)lParam == $instance->_hwndSrc)
+                ) {
                     $instance = nullptr;
                 }
             } else {
@@ -235,5 +245,5 @@ private:
 
     ComPtr<IWICImagingFactory2> _wicImgFactory = nullptr;
     std::unique_ptr<EffectRenderer> _effectRenderer = nullptr;
-    std::unique_ptr<MagCallbackWindowCapturer> _windowCapturer = nullptr;
+    std::unique_ptr<WindowCapturerBase> _windowCapturer = nullptr;
 };
