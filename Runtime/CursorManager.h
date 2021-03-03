@@ -7,8 +7,8 @@ class CursorManager {
 public:
     CursorManager(
         HINSTANCE hInstance,
-        const ComPtr<IWICImagingFactory2>& wicImgFactory,
-        const ComPtr<ID2D1DeviceContext>& d2dDC,
+        IWICImagingFactory2* wicImgFactory,
+        ID2D1DeviceContext* d2dDC,
         const D2D1_RECT_F& srcRect,
         const D2D1_RECT_F& destRect,
         bool noDisturb = false
@@ -164,8 +164,8 @@ private:
     }
 
     HINSTANCE _hInstance;
-    ComPtr<IWICImagingFactory2> _wicImgFactory;
-    ComPtr<ID2D1DeviceContext> _d2dDC;
+    IWICImagingFactory2* _wicImgFactory;
+    ID2D1DeviceContext* _d2dDC;
 
     ComPtr<ID2D1Bitmap> _d2dBmpNormalCursor = nullptr;
     ComPtr<ID2D1Bitmap> _d2dBmpHandCursor = nullptr;

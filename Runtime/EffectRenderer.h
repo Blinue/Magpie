@@ -13,7 +13,7 @@ public:
         HWND hwndHost,
         const std::wstring_view &effectsJson,
         const RECT& srcClient,
-        const ComPtr<IWICImagingFactory2>& wicImgFactory,
+        IWICImagingFactory2* wicImgFactory,
         bool noDisturb
     ) {
         RECT destClient{};
@@ -31,7 +31,7 @@ public:
         _destRect = { x, y, x + outputSize.cx, y + outputSize.cy };
 
         _cursorManager.reset(new CursorManager(
-            hInstance, wicImgFactory, _d2dDC, 
+            hInstance, wicImgFactory, _d2dDC.Get(), 
             D2D1_RECT_F{ (FLOAT)srcClient.left, (FLOAT)srcClient.top, (FLOAT)srcClient.right, (FLOAT)srcClient.bottom },
             _destRect, noDisturb)
         );
@@ -41,7 +41,7 @@ public:
     EffectRenderer(const EffectRenderer&) = delete;
     EffectRenderer(EffectRenderer&&) = delete;
 public:
-    void Render(const ComPtr<IWICBitmapSource>& srcBmp) const {
+    void Render(IWICBitmapSource* srcBmp) const {
         // 将输出图像显示在窗口中央
         _d2dDC->BeginDraw();
         _d2dDC->Clear();

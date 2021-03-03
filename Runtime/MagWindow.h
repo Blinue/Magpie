@@ -2,6 +2,7 @@
 #include "pch.h"
 #include "Utils.h"
 #include "EffectRenderer.h"
+#include "MagCallbackWindowCapturer.h"
 
 
 class MagWindow {
@@ -30,8 +31,6 @@ public:
     MagWindow(MagWindow&&) = delete;
     
     ~MagWindow() {
-        MagUninitialize();
-        
         DestroyWindow(_hwndHost);
         UnregisterClass(_HOST_WINDOW_CLASS_NAME, _hInst);
 
@@ -47,7 +46,7 @@ private:
         bool noDisturb
     ) : _hInst(hInstance), _hwndSrc(hwndSrc), _frameRate(frameRate) {
         if ($instance) {
-            Debug::ThrowIfFalse(false, L"已存在全屏窗口");
+            Debug::Assert(false, L"已存在全屏窗口");
         }
 
         assert(_frameRate == 0 || (_frameRate >= 30 && _frameRate <= 120));
@@ -57,7 +56,7 @@ private:
             L"初始化 COM 出错"
         );
 
-        Debug::ThrowIfFalse(
+        Debug::Assert(
             IsWindow(_hwndSrc) && IsWindowVisible(_hwndSrc),
             L"hwndSrc 不合法"
         );
@@ -65,11 +64,6 @@ private:
         Utils::GetClientScreenRect(_hwndSrc, _srcRect);
 
         _RegisterHostWndClass();
-
-        Debug::ThrowIfWin32Failed(
-            MagInitialize(),
-            L"MagInitialize 失败"
-        );
         _CreateHostWnd(noDisturb);
 
         Debug::ThrowIfComFailed(
@@ -82,6 +76,13 @@ private:
             L"创建 WICImagingFactory 失败"
         );
 
+        _windowCapturer.reset(new MagCallbackWindowCapturer(
+            hInstance,
+            _hwndHost,
+            _srcRect,
+            _wicImgFactory.Get()
+        ));
+
         // 初始化 EffectRenderer
         _effectRenderer.reset(
             new EffectRenderer(
@@ -89,7 +90,7 @@ private:
                 _hwndHost,
                 effectsJson,
                 _srcRect,
-                _wicImgFactory,
+                _wicImgFactory.Get(),
                 noDisturb
             )
         );
@@ -103,6 +104,18 @@ private:
         }
 
         _RegisterHookMsg();
+    }
+
+    // 渲染一帧，不抛出异常
+    static void _Render() {
+        try {
+            ComPtr<IWICBitmap> frame = $instance->_windowCapturer->GetFrame();
+            $instance->_effectRenderer->Render(frame.Get());
+        } catch (const magpie_exception& e) {
+            Debug::WriteErrorMessage(L"渲染失败：" + e.what());
+        } catch (...) {
+            Debug::WriteErrorMessage(L"渲染出现未知错误");
+        }
     }
 
     static LRESULT CALLBACK _HostWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
@@ -120,10 +133,8 @@ private:
                 break;
             }*/
 
-            // 渲染一帧
-            if (!MagSetWindowSource($instance->_hwndMag, $instance->_srcRect)) {
-                Debug::WriteErrorMessage(L"MagSetWindowSource 失败");
-            }
+            _Render();
+
             break;
         }
         case _WM_MAXFRAMERATE:
@@ -139,10 +150,7 @@ private:
                 break;
             }*/
 
-            // 渲染一帧
-            if (!MagSetWindowSource($instance->_hwndMag, $instance->_srcRect)) {
-                Debug::WriteErrorMessage(L"MagSetWindowSource 失败");
-            }
+            _Render();
 
             // 立即渲染下一帧
             if (!PostMessage(hWnd, _WM_MAXFRAMERATE, 0, 0)) {
@@ -196,67 +204,6 @@ private:
             SetLayeredWindowAttributes(_hwndHost, 0, 255, LWA_ALPHA),
             L"SetLayeredWindowAttributes 失败"
         );
-
-        // 创建不可见的放大镜控件
-        // 大小为目标窗口客户区
-        SIZE srcClientSize = Utils::GetSize(_srcRect);
-
-        _hwndMag = CreateWindow(WC_MAGNIFIER, L"MagnifierWindow",
-            WS_CHILD,
-            0, 0, srcClientSize.cx, srcClientSize.cy,
-            _hwndHost, NULL, _hInst, NULL);
-        Debug::ThrowIfWin32Failed(_hwndMag, L"创建放大镜控件失败");
-
-        Debug::ThrowIfWin32Failed(
-            MagSetImageScalingCallback(_hwndMag, &_ImageScalingCallback),
-            L"设置放大镜回调失败"
-        );
-    }
-
-    static BOOL CALLBACK _ImageScalingCallback(
-        HWND hWnd,
-        void* srcdata,
-        MAGIMAGEHEADER srcheader,
-        void* destdata,
-        MAGIMAGEHEADER destheader,
-        RECT unclipped,
-        RECT clipped,
-        HRGN dirty
-    ) {
-        if (!$instance) {
-            return FALSE;
-        }
-        
-        if (srcheader.cbSize / srcheader.width / srcheader.height != 4) {
-            Debug::WriteErrorMessage(L"srcdata 不是BGRA格式");
-            return FALSE;
-        }
-
-        ComPtr<IWICBitmap> wicBmpSource = nullptr;
-
-        try {
-            Debug::ThrowIfComFailed(
-                $instance->_wicImgFactory->CreateBitmapFromMemory(
-                    srcheader.width,
-                    srcheader.height,
-                    GUID_WICPixelFormat32bppPBGRA,
-                    srcheader.stride,
-                    (UINT)srcheader.cbSize,
-                    (BYTE*)srcdata,
-                    &wicBmpSource
-                ),
-                L"从内存创建 WICBitmap 失败"
-            );
-
-            $instance->_effectRenderer->Render(wicBmpSource);
-        } catch (const magpie_exception&) {
-            return FALSE;
-        } catch (...) {
-            Debug::WriteErrorMessage(L"渲染出现未知错误");
-            return FALSE;
-        }
-        
-        return TRUE;
     }
 
     void _RegisterHookMsg() {
@@ -282,11 +229,11 @@ private:
 
     HINSTANCE _hInst;
     HWND _hwndHost = NULL;
-    HWND _hwndMag = NULL;
     HWND _hwndSrc;
     RECT _srcRect{};
     UINT _frameRate;
 
     ComPtr<IWICImagingFactory2> _wicImgFactory = nullptr;
     std::unique_ptr<EffectRenderer> _effectRenderer = nullptr;
+    std::unique_ptr<MagCallbackWindowCapturer> _windowCapturer = nullptr;
 };

@@ -84,6 +84,9 @@
     <ClCompile Include="Debug.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="MagCallbackWindowCapturer.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Debug.h">
@@ -177,6 +180,12 @@
       <Filter>头文件\Effect\缩放</Filter>
     </ClInclude>
     <ClInclude Include="CursorManager.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="WindowCapturerBase.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="MagCallbackWindowCapturer.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

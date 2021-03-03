@@ -208,6 +208,7 @@
     <ClInclude Include="Jinc2ScaleTransform.h" />
     <ClInclude Include="Lanczos6ScaleEffect.h" />
     <ClInclude Include="Lanczos6ScaleTransform.h" />
+    <ClInclude Include="MagCallbackWindowCapturer.h" />
     <ClInclude Include="MagWindow.h" />
     <ClInclude Include="MitchellNetravaliScaleEffect.h" />
     <ClInclude Include="MitchellNetravaliScaleTransform.h" />
@@ -218,11 +219,13 @@
     <ClInclude Include="SimpleScaleTransform.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="Utils.h" />
+    <ClInclude Include="WindowCapturerBase.h" />
     <ClInclude Include="WndProcThunk.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Debug.cpp" />
     <ClCompile Include="GUIDs.cpp" />
+    <ClCompile Include="MagCallbackWindowCapturer.cpp" />
     <ClCompile Include="MagWindow.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
     </ClCompile>

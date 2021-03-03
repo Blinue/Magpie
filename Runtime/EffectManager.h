@@ -32,11 +32,11 @@ public:
 	EffectManager(const EffectManager&) = delete;
 	EffectManager(EffectManager&&) = delete;
 
-	ComPtr<ID2D1Image> Apply(ComPtr<IWICBitmapSource> srcBmp) const {
+	ComPtr<ID2D1Image> Apply(IWICBitmapSource* srcBmp) const {
 		assert(srcBmp != nullptr);
 
 		Debug::ThrowIfComFailed(
-			_d2dSourceEffect->SetValue(D2D1_BITMAPSOURCE_PROP_WIC_BITMAP_SOURCE, srcBmp.Get()),
+			_d2dSourceEffect->SetValue(D2D1_BITMAPSOURCE_PROP_WIC_BITMAP_SOURCE, srcBmp),
 			L"设置 D2D1BitmapSource 源失败"
 		);
 
@@ -66,10 +66,10 @@ private:
 
 	void _ReadEffectsJson(const std::wstring_view& effectsJson) {
 		const auto& effects = nlohmann::json::parse(effectsJson);
-		Debug::ThrowIfFalse(effects.is_array(), L"json 格式错误");
+		Debug::Assert(effects.is_array(), L"json 格式错误");
 
 		for (const auto &effect : effects) {
-			Debug::ThrowIfFalse(effect.is_object(), L"json 格式错误");
+			Debug::Assert(effect.is_object(), L"json 格式错误");
 
 			const auto &effectType = effect.value("effect", "");
 			
@@ -91,7 +91,7 @@ private:
 				} else if (subType == "lanczos6") {
 					_AddLanczos6ScaleEffect(effect);
 				} else {
-					Debug::ThrowIfFalse(false, L"未知的 scale effect");
+					Debug::Assert(false, L"未知的 scale effect");
 				}
 			} else if (effectType == "sharpen") {
 				const auto& subType = effect.value("type", "");
@@ -101,10 +101,10 @@ private:
 				} else if (subType == "builtIn") {
 					_AddBuiltInSharpenEffect(effect);
 				} else {
-					Debug::ThrowIfFalse(false, L"未知的 sharpen effect");
+					Debug::Assert(false, L"未知的 sharpen effect");
 				}
 			} else {
-				Debug::ThrowIfFalse(false, L"未知的 effect");
+				Debug::Assert(false, L"未知的 effect");
 			}
 		}
 
@@ -126,10 +126,10 @@ private:
 		auto it = props.find("curveHeight");
 		if (it != props.end()) {
 			const auto& value = *it;
-			Debug::ThrowIfFalse(value.is_number(), L"非法的 curveHeight 属性值");
+			Debug::Assert(value.is_number(), L"非法的 curveHeight 属性值");
 
 			float curveHeight = value.get<float>();
-			Debug::ThrowIfFalse(
+			Debug::Assert(
 				curveHeight >= 0 && curveHeight <= 1,
 				L"非法的 curveHeight 属性值"
 			);
@@ -155,10 +155,10 @@ private:
 		auto it = props.find("sharpness");
 		if (it != props.end()) {
 			const auto& value = *it;
-			Debug::ThrowIfFalse(value.is_number(), L"非法的 sharpness 属性值");
+			Debug::Assert(value.is_number(), L"非法的 sharpness 属性值");
 
 			float sharpness = value.get<float>();
-			Debug::ThrowIfFalse(
+			Debug::Assert(
 				sharpness >= 0 && sharpness <= 10,
 				L"非法的 sharpness 属性值"
 			);
@@ -173,10 +173,10 @@ private:
 		it = props.find("threshold");
 		if (it != props.end()) {
 			const auto& value = *it;
-			Debug::ThrowIfFalse(value.is_number(), L"非法的 threshold 属性值");
+			Debug::Assert(value.is_number(), L"非法的 threshold 属性值");
 
 			float threshold = value.get<float>();
-			Debug::ThrowIfFalse(
+			Debug::Assert(
 				threshold >= 0 && threshold <= 1,
 				L"非法的 threshold 属性值"
 			);
@@ -276,10 +276,10 @@ private:
 		it = props.find("windowSinc");
 		if (it != props.end()) {
 			const auto& value = *it;
-			Debug::ThrowIfFalse(value.is_number(), L"非法的 windowSinc 属性值");
+			Debug::Assert(value.is_number(), L"非法的 windowSinc 属性值");
 
 			float windowSinc = value.get<float>();
-			Debug::ThrowIfFalse(
+			Debug::Assert(
 				windowSinc > 0,
 				L"非法的 windowSinc 属性值"
 			);
@@ -294,10 +294,10 @@ private:
 		it = props.find("sinc");
 		if (it != props.end()) {
 			const auto& value = *it;
-			Debug::ThrowIfFalse(value.is_number(), L"非法的 sinc 属性值");
+			Debug::Assert(value.is_number(), L"非法的 sinc 属性值");
 
 			float sinc = value.get<float>();
-			Debug::ThrowIfFalse(
+			Debug::Assert(
 				sinc > 0,
 				L"非法的 sinc 属性值"
 			);
@@ -312,10 +312,10 @@ private:
 		it = props.find("ARStrength");
 		if (it != props.end()) {
 			const auto& value = *it;
-			Debug::ThrowIfFalse(value.is_number(), L"非法的 ARStrength 属性值");
+			Debug::Assert(value.is_number(), L"非法的 ARStrength 属性值");
 
 			float ARStrength = value.get<float>();
-			Debug::ThrowIfFalse(
+			Debug::Assert(
 				ARStrength >= 0 && ARStrength <= 1,
 				L"非法的 ARStrength 属性值"
 			);
@@ -360,7 +360,7 @@ private:
 		it = props.find("useSharperVersion");
 		if (it != props.end()) {
 			const auto& val = *it;
-			Debug::ThrowIfFalse(val.is_boolean(), L"非法的 useSharperVersion 属性值");
+			Debug::Assert(val.is_boolean(), L"非法的 useSharperVersion 属性值");
 
 			Debug::ThrowIfComFailed(
 				effect->SetValue(MitchellNetravaliScaleEffect::PROP_USE_SHARPER_VERSION, (BOOL)val.get<bool>()),
@@ -401,10 +401,10 @@ private:
 		it = props.find("sharpness");
 		if (it != props.end()) {
 			const auto& value = *it;
-			Debug::ThrowIfFalse(value.is_number(), L"非法的 sharpness 属性值");
+			Debug::Assert(value.is_number(), L"非法的 sharpness 属性值");
 
 			float sharpness = value.get<float>();
-			Debug::ThrowIfFalse(
+			Debug::Assert(
 				sharpness >= 0 && sharpness <= 1,
 				L"非法的 sharpness 属性值"
 			);
@@ -448,10 +448,10 @@ private:
 		it = props.find("ARStrength");
 		if (it != props.end()) {
 			const auto& value = *it;
-			Debug::ThrowIfFalse(value.is_number(), L"非法的 ARStrength 属性值");
+			Debug::Assert(value.is_number(), L"非法的 ARStrength 属性值");
 
 			float ARStrength = value.get<float>();
-			Debug::ThrowIfFalse(
+			Debug::Assert(
 				ARStrength >= 0 && ARStrength <= 1,
 				L"非法的 ARStrength 属性值"
 			);
@@ -468,14 +468,14 @@ private:
 
 
 	D2D1_VECTOR_2F _ReadScaleProp(const nlohmann::json& prop) {
-		Debug::ThrowIfFalse(
+		Debug::Assert(
 			prop.is_array() && prop.size() == 2
 			&& prop[0].is_number() && prop[1].is_number(),
 			L"读取 scale 属性失败"
 		);
 
 		D2D1_VECTOR_2F scale{ prop[0], prop[1] };
-		Debug::ThrowIfFalse(
+		Debug::Assert(
 			scale.x >= 0 && scale.y >= 0,
 			L"scale 属性的值非法"
 		);

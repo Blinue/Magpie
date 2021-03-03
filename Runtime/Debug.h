@@ -128,7 +128,7 @@ public:
     }
 
     template <typename T>
-    static void ThrowIfFalse(T result, const std::wstring_view& failMsg) {
+    static void Assert(T result, const std::wstring_view& failMsg) {
         if (result) {
             return;
         }
