@@ -48,7 +48,7 @@ public:
 
         ComPtr<ID2D1Image> output = _effectManager->Apply(srcBmp);
         _d2dDC->DrawImage(
-            srcBmp.Get(),
+            output.Get(),
             D2D1_POINT_2F{ _destRect.left, _destRect.top }
         );
 
