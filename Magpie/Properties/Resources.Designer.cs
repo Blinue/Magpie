@@ -59,48 +59,5 @@ namespace Magpie.Properties {
                 resourceCulture = value;
             }
         }
-        
-        /// <summary>
-        ///   查找类似 [
-        ///  {
-        ///    &quot;effect&quot;: &quot;scale&quot;,
-        ///    &quot;type&quot;: &quot;Anime4KxDenoise&quot;
-        ///  },
-        ///  {
-        ///    &quot;effect&quot;: &quot;scale&quot;,
-        ///    &quot;type&quot;: &quot;HQBicubic&quot;,
-        ///    &quot;scale&quot;: [0,0],
-        ///    &quot;sharpness&quot;: 1
-        ///  }
-        ///] 的本地化字符串。
-        /// </summary>
-        internal static string AnimeEffectJson {
-            get {
-                return ResourceManager.GetString("AnimeEffectJson", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   查找类似 [
-        ///  {
-        ///    &quot;effect&quot;: &quot;scale&quot;,
-        ///    &quot;type&quot;: &quot;jinc2&quot;,
-        ///    &quot;scale&quot;: [0,0],
-        ///    &quot;windowSinc&quot;: 0.35,
-        ///    &quot;sinc&quot;: 0.825,
-        ///    &quot;ARStrength&quot;: 0.7
-        ///  },
-        ///  {
-        ///    &quot;effect&quot;: &quot;sharpen&quot;,
-        ///    &quot;type&quot;: &quot;adaptive&quot;,
-        ///    &quot;curveHeight&quot;: 0.3
-        ///  }
-        ///] 的本地化字符串。
-        /// </summary>
-        internal static string CommonEffectJson {
-            get {
-                return ResourceManager.GetString("CommonEffectJson", resourceCulture);
-            }
-        }
     }
 }

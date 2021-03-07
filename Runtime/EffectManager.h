@@ -76,7 +76,7 @@ private:
 			if (effectType == "scale") {
 				const auto& subType = effect.value("type", "");
 
-				if (subType == "anime4K") {
+				if (subType == "Anime4K") {
 					_AddAnime4KEffect();
 				} else if (subType == "Anime4KxDeblur") {
 					_AddAnime4KxDeblurEffect();

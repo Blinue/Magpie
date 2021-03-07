@@ -43,7 +43,7 @@ D2D_PS_ENTRY(main) {
         SampleInputOffCheckLeft(0, -1, 0),
         SampleInputOffCheckRight(0, 1, 0),
         SampleInputOffCheckTop(0, 0, -1),
-        SampleInputOffCheckBottom(0, 0, 1),
+        SampleInputOffCheckBottom(0, 0, 1)
     };
 
     float2 f = frac(coord.xy / coord.zw + 0.5);

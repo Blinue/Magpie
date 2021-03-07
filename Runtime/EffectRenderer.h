@@ -58,7 +58,7 @@ public:
             _d2dDC->EndDraw(),
             L"EndDraw Ê§°Ü"
         );
-
+        
         Debug::ThrowIfComFailed(
             _dxgiSwapChain->Present(0, 0),
             L"Present Ê§°Ü"
@@ -139,7 +139,7 @@ private:
         
         // Allocate a descriptor.
         DXGI_SWAP_CHAIN_DESC1 swapChainDesc{};
-        swapChainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING | DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT;
+        swapChainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT;
         swapChainDesc.Width = _hostWndClientSize.cx,
         swapChainDesc.Height = _hostWndClientSize.cy,
         swapChainDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM; // this is the most common swapchain format

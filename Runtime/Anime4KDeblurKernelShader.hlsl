@@ -15,10 +15,6 @@ cbuffer constants : register(b0) {
 #include "Anime4K.hlsli"
 
 
-#define max9(a, b, c, d, e, f, g, h, i) max3(max4(a, b, c, d), max4(e, f, g, h), i)
-#define min9(a, b, c, d, e, f, g, h, i) min3(min4(a, b, c, d), min4(e, f, g, h), i)
-
-
 D2D_PS_ENTRY(main) {
 	InitMagpieSampleInput();
 

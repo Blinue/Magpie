@@ -9,6 +9,39 @@ namespace Magpie {
     public partial class MainForm : Form {
         public static readonly int WM_SHOWME = NativeMethods.RegisterWindowMessage("WM_SHOWME");
 
+        private static readonly string AnimeEffectJson = @"[
+  {
+    ""effect"": ""scale"",
+    ""type"": ""Anime4K""
+  },
+  {
+    ""effect"": ""scale"",
+    ""type"": ""HQBicubic"",
+    ""scale"": [0,0],
+    ""sharpness"": 1
+  },
+  {
+    ""effect"": ""sharpen"",
+    ""type"": ""adaptive"",
+    ""curveHeight"": 0.3
+  }
+]";
+        private static readonly string CommonEffectJson = @"[
+  {
+    ""effect"": ""scale"",
+    ""type"": ""jinc2"",
+    ""scale"": [0,0],
+    ""windowSinc"": 0.35,
+    ""sinc"": 0.825,
+    ""ARStrength"": 0.7
+  },
+  {
+    ""effect"": ""sharpen"",
+    ""type"": ""adaptive"",
+    ""curveHeight"": 0.3
+  }
+]";
+
         IKeyboardMouseEvents keyboardEvents = null;
 
         public MainForm() {
@@ -61,7 +94,7 @@ namespace Magpie {
                     Combination.FromString(hotkey), () => {
                         uint frameRate = Settings.Default.FrameRate;
                         string effectJson = Settings.Default.ScaleMode == 0
-                            ? Resources.CommonEffectJson : Resources.AnimeEffectJson;
+                            ? CommonEffectJson : AnimeEffectJson;
 
                         if(!NativeMethods.HasMagWindow()) {
                             if(!NativeMethods.CreateMagWindow(frameRate, effectJson, false)) {

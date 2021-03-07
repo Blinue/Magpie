@@ -117,35 +117,4 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="AnimeEffectJson" xml:space="preserve">
-    <value>[
-  {
-    "effect": "scale",
-    "type": "Anime4KxDenoise"
-  },
-  {
-    "effect": "scale",
-    "type": "HQBicubic",
-    "scale": [0,0],
-    "sharpness": 1
-  }
-]</value>
-  </data>
-  <data name="CommonEffectJson" xml:space="preserve">
-    <value>[
-  {
-    "effect": "scale",
-    "type": "jinc2",
-    "scale": [0,0],
-    "windowSinc": 0.35,
-    "sinc": 0.825,
-    "ARStrength": 0.7
-  },
-  {
-    "effect": "sharpen",
-    "type": "adaptive",
-    "curveHeight": 0.3
-  }
-]</value>
-  </data>
 </root>
