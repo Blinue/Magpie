@@ -12,18 +12,18 @@ namespace Magpie {
         private static readonly string AnimeEffectJson = @"[
   {
     ""effect"": ""scale"",
-    ""type"": ""Anime4K""
+    ""type"": ""Anime4KxDenoise""
   },
   {
     ""effect"": ""scale"",
     ""type"": ""HQBicubic"",
     ""scale"": [0,0],
-    ""sharpness"": 1
+    ""sharpness"": 0
   },
   {
     ""effect"": ""sharpen"",
     ""type"": ""adaptive"",
-    ""curveHeight"": 0.3
+    ""curveHeight"": 0.5
   }
 ]";
         private static readonly string CommonEffectJson = @"[

@@ -46,18 +46,18 @@ public:
             return E_INVALIDARG;
         }
 
-        _inputRect = *pInputRects;
+        _inputRect = pInputRects[0];
         *pOutputRect = { 
-            pInputRects[0].left,
-            pInputRects[0].top,
-            2 * pInputRects[0].right - pInputRects[0].left,
-            2 * pInputRects[0].bottom - pInputRects[0].top,
+            _inputRect.left,
+            _inputRect.top,
+            2 * _inputRect.right - _inputRect.left,
+            2 * _inputRect.bottom - _inputRect.top,
         };
         *pOutputOpaqueSubRect = { 0,0,0,0 };
 
         _shaderConstants = {
-            pInputRects[0].right - pInputRects[0].left,
-            pInputRects[0].bottom - pInputRects[0].top
+            _inputRect.right - _inputRect.left,
+            _inputRect.bottom - _inputRect.top
         };
         _drawInfo->SetPixelShaderConstantBuffer((BYTE*)&_shaderConstants, sizeof(_shaderConstants));
 

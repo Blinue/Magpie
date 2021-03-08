@@ -139,7 +139,7 @@ private:
         
         // Allocate a descriptor.
         DXGI_SWAP_CHAIN_DESC1 swapChainDesc{};
-        swapChainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT;
+        swapChainDesc.Flags = 0;
         swapChainDesc.Width = _hostWndClientSize.cx,
         swapChainDesc.Height = _hostWndClientSize.cy,
         swapChainDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM; // this is the most common swapchain format
@@ -153,7 +153,6 @@ private:
         swapChainDesc.AlphaMode = DXGI_ALPHA_MODE_IGNORE;
 
         // Get the final swap chain for this window from the DXGI factory.
-        ComPtr<IDXGISwapChain1> dxgiSwapChain1;
         Debug::ThrowIfComFailed(
             dxgiFactory->CreateSwapChainForHwnd(
                 d3dDevice.Get(),
@@ -161,20 +160,14 @@ private:
                 &swapChainDesc,
                 nullptr,
                 nullptr,
-                &dxgiSwapChain1
+                &_dxgiSwapChain
             ),
             L"创建 Swap Chain 失败"
-        );
-        // 转换成 IDXGISwapChain2 以使用 DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT
-        // 见 https://docs.microsoft.com/en-us/windows/win32/api/dxgi/ne-dxgi-dxgi_swap_chain_flag
-        Debug::ThrowIfComFailed(
-            dxgiSwapChain1.As(&_dxgiSwapChain),
-            L"获取 IDXGISwapChain2 失败"
         );
         
         // Ensure that DXGI doesn't queue more than one frame at a time.
         Debug::ThrowIfComFailed(
-            _dxgiSwapChain->SetMaximumFrameLatency(1),
+            dxgiDevice->SetMaximumFrameLatency(1),
             L"SetMaximumFrameLatency 失败"
         );
 
@@ -215,7 +208,7 @@ private:
     ComPtr<ID2D1Factory1> _d2dFactory = nullptr;
     ComPtr<ID2D1Device> _d2dDevice = nullptr;
     ComPtr<ID2D1DeviceContext> _d2dDC = nullptr;
-    ComPtr<IDXGISwapChain2> _dxgiSwapChain = nullptr;
+    ComPtr<IDXGISwapChain1> _dxgiSwapChain = nullptr;
 
     std::unique_ptr<EffectManager> _effectManager = nullptr;
     std::unique_ptr<CursorManager> _cursorManager = nullptr;

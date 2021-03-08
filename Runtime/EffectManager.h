@@ -499,6 +499,9 @@ private:
 	void _SetDestSize(SIZE value) {
 		if (value.cx > _outputSize.cx || value.cy > _outputSize.cy) {
 			// 需要更大的 tile
+			D2D1_RENDERING_CONTROLS rc{};
+			_d2dDC->GetRenderingControls(&rc);
+			
 			rc.tileSize.width = max(value.cx, _outputSize.cx);
 			rc.tileSize.height = max(value.cy, _outputSize.cy);
 			_d2dDC->SetRenderingControls(rc);
@@ -537,10 +540,4 @@ private:
 
 	// tile 的大小
 	SIZE _maxDestSize{};
-
-	D2D1_RENDERING_CONTROLS rc{
-		D2D1_BUFFER_PRECISION_32BPC_FLOAT,
-		1024,
-		1024
-	};
 };
