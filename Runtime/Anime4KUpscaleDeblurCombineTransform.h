@@ -104,8 +104,6 @@ public:
     }
 
 private:
-    D2D1_RECT_L _inputRect;
-
     ComPtr<ID2D1DrawInfo> _drawInfo = nullptr;
 
     struct {

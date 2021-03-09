@@ -54,6 +54,7 @@ public:
         }
 
         *pOutputRect = pInputRects[0];
+        _inputRect = pInputRects[0];
         *pOutputOpaqueSubRect = { 0,0,0,0 };
 
         return S_OK;
@@ -70,7 +71,7 @@ public:
 
         // The input needed for the transform is the same as the visible output.
         for (int i = 0; i < 5; ++i) {
-            pInputRects[i] = *pOutputRect;
+            pInputRects[i] = _inputRect;
         }
 
         return S_OK;

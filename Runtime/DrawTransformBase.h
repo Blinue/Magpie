@@ -103,13 +103,12 @@ public:
             return E_INVALIDARG;
         }
 
-        // 输出形状与输入相同
+        // 输入形状与输出相同
         pInputRects[0] = _inputRect;
 
         return S_OK;
     }
 
-    // 决定输入变化时输出的哪个区域需要重新渲染
     // 决定输入变化时输出的哪个区域需要重新渲染
     IFACEMETHODIMP MapInvalidRect(
         UINT32 inputIndex,
@@ -165,6 +164,8 @@ protected:
     // 实现不能公开构造函数
     DrawTransformBase() {}
 
+    // 保存输入形状供 MapOutputRectToInputRects 使用，而不是使用 pOutputRect
+    // 见 https://stackoverflow.com/questions/36920282/pixel-shader-in-direct2d-render-error-along-the-middle
     D2D1_RECT_L _inputRect{};
 
 private:
