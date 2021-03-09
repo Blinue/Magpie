@@ -27,7 +27,7 @@ D2D_PS_ENTRY(main) {
 	InitMagpieSampleInputWithScale(float2(2, 2));
 
 	float2 f = frac(coord.xy / coord.zw);
-	int2 i = round(f * 2);
+	int2 i = int2(f * 2);
 	float c0 = Uncompress(SampleInputRGBAOffNoCheck(1, (float2(0.5, 0.5) - f)))[i.y * 2 + i.x];
 
 	float c = c0 * STRENGTH;

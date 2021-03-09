@@ -71,7 +71,6 @@ public:
     }
 
     // D2D 在每次渲染时调用此函数，决定输入到输出的映射
-    // D2D 在每次渲染时调用此函数，决定输入到输出的映射
     IFACEMETHODIMP MapInputRectsToOutputRect(
         _In_reads_(inputRectCount) const D2D1_RECT_L* pInputRects,
         _In_reads_(inputRectCount) const D2D1_RECT_L* pInputOpaqueSubRects,
@@ -85,6 +84,7 @@ public:
 
         // 输出形状与输入相同
         *pOutputRect = *pInputRects;
+        _inputRect = *pInputRects;
 
         // 对不透明区域不作假设
         *pOutputOpaqueSubRect = { 0,0,0,0 };
@@ -104,7 +104,7 @@ public:
         }
 
         // 输出形状与输入相同
-        pInputRects[0] = *pOutputRect;
+        pInputRects[0] = _inputRect;
 
         return S_OK;
     }
@@ -164,6 +164,8 @@ public:
 protected:
     // 实现不能公开构造函数
     DrawTransformBase() {}
+
+    D2D1_RECT_L _inputRect{};
 
 private:
     // 引用计数

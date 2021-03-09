@@ -47,17 +47,17 @@ public:
         }
 
         _inputRect = pInputRects[0];
-        *pOutputRect = { 
-            _inputRect.left,
-            _inputRect.top,
-            2 * _inputRect.right - _inputRect.left,
-            2 * _inputRect.bottom - _inputRect.top,
+        *pOutputRect = {
+            0,
+            0,
+            _inputRect.right * 2,
+            _inputRect.bottom * 2,
         };
-        *pOutputOpaqueSubRect = { 0,0,0,0 };
+        *pOutputOpaqueSubRect = {};
 
         _shaderConstants = {
-            _inputRect.right - _inputRect.left,
-            _inputRect.bottom - _inputRect.top
+            _inputRect.right,
+            _inputRect.bottom
         };
         _drawInfo->SetPixelShaderConstantBuffer((BYTE*)&_shaderConstants, sizeof(_shaderConstants));
 
@@ -103,8 +103,6 @@ public:
     }
 
 private:
-    D2D1_RECT_L _inputRect;
-
     ComPtr<ID2D1DrawInfo> _drawInfo = nullptr;
 
     struct {

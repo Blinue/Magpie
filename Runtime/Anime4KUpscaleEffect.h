@@ -186,7 +186,6 @@ public:
             return hr;
         }
 
-
         return S_OK;
     }
 

@@ -61,29 +61,10 @@ public:
             lroundf(srcSize.cy * _scale.y)
         };
 
-        *pOutputRect = {
-            _inputRect.left,
-            _inputRect.top,
-            _inputRect.left + destSize.cx,
-            _inputRect.top + destSize.cy
-        };
-        *pOutputOpaqueSubRect = { 0,0,0,0 };
+        *pOutputRect = { 0, 0, destSize.cx, destSize.cy };
+        *pOutputOpaqueSubRect = {};
 
         _SetShaderContantBuffer(srcSize, destSize);
-
-        return S_OK;
-    }
-
-    IFACEMETHODIMP MapOutputRectToInputRects(
-        _In_ const D2D1_RECT_L* pOutputRect,
-        _Out_writes_(inputRectCount) D2D1_RECT_L* pInputRects,
-        UINT32 inputRectCount
-    ) const override {
-        if (inputRectCount != 1) {
-            return E_INVALIDARG;
-        }
-
-        *pInputRects = _inputRect;
 
         return S_OK;
     }
@@ -106,9 +87,6 @@ protected:
     }
 
 private:
-    // 保存输入图像的尺寸
-    D2D1_RECT_L _inputRect{};
-
     // 缩放倍数
     D2D1_VECTOR_2F _scale{ 1,1 };
 };

@@ -107,7 +107,6 @@ private:
 				Debug::Assert(false, L"未知的 effect");
 			}
 		}
-
 	}
 
 	void _AddAdaptiveSharpenEffect(const nlohmann::json& props) {
@@ -387,7 +386,6 @@ private:
 		auto it = props.find("scale");
 		if (it != props.end()) {
 			const auto& scale = _ReadScaleProp(*it);
-
 			Debug::ThrowIfComFailed(
 				effect->SetValue(D2D1_SCALE_PROP_SCALE, scale),
 				L"设置 scale 属性失败"

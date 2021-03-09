@@ -16,14 +16,13 @@ namespace Magpie {
   },
   {
     ""effect"": ""scale"",
-    ""type"": ""HQBicubic"",
-    ""scale"": [0,0],
-    ""sharpness"": 0
+    ""type"": ""mitchell"",
+    ""scale"": [0,0]
   },
   {
     ""effect"": ""sharpen"",
     ""type"": ""adaptive"",
-    ""curveHeight"": 0.5
+    ""curveHeight"": 0.3
   }
 ]";
         private static readonly string CommonEffectJson = @"[

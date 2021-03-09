@@ -19,9 +19,10 @@ D2D_PS_ENTRY(main) {
 	InitMagpieSampleInputWithScale(float2(2, 2));
 
 	float2 f = frac(coord.xy / coord.zw);
-	int2 i = round(f * 2);
+	// 截取整数部分，如果使用 round 会有 bug，因为在特殊情况下 f 可能等于 0.75
+	int2 i = int2(f * 2);
 	float l = Uncompress(SampleInputRGBAOffNoCheck(1, (float2(0.5, 0.5) - f)))[i.y * 2 + i.x];
 
 	float3 yuv = RGB2YUV(SampleInputCur(0));
-	return float4(YUV2RGB(yuv.x + l, yuv.y, yuv.z), 1);
+	return float4(YUV2RGB(yuv.x+l, yuv.y, yuv.z), 1);
 }
