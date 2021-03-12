@@ -22,6 +22,9 @@ namespace Magpie {
         [DllImport("user32", CharSet = CharSet.Unicode)]
         public static extern int RegisterWindowMessage(string message);
 
+        [DllImport("user32.dll", CharSet = CharSet.Unicode)]
+        public static extern IntPtr SetCursor(IntPtr hCursor);
+
 
         [DllImport("Runtime", CallingConvention = CallingConvention.StdCall)]
         public static extern bool CreateMagWindow(
@@ -44,5 +47,14 @@ namespace Magpie {
         public static string GetLastErrorMsg() {
             return Marshal.PtrToStringUni(GetLastErrorMsgNative());
         }
+
+        [DllImport("Runtime", CallingConvention = CallingConvention.StdCall)]
+        public static extern int GetSrcPID();
+
+        [DllImport("Runtime", CallingConvention = CallingConvention.StdCall)]
+        public static extern IntPtr GetSrcWnd();
+
+        [DllImport("Runtime", CallingConvention = CallingConvention.StdCall)]
+        public static extern IntPtr GetHostWnd();
     }
 }

@@ -38,6 +38,14 @@ public:
         CoUninitialize();
     }
 
+    HWND GetSrcWnd() {
+        return _hwndSrc;
+    }
+
+    HWND GetHostWnd() {
+        return _hwndHost;
+    }
+
 private:
     MagWindow(
         HINSTANCE hInstance,

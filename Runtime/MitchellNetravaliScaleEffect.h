@@ -7,6 +7,7 @@
 
 // Mitchell-Netravali 缩放算法，一种双三次插值，可以获得平滑的边缘
 // 可选是否使用更锐利的版本，默认为否
+// （经测试两种版本几乎没有区别）
 class MitchellNetravaliScaleEffect : public EffectBase {
 public:
     IFACEMETHODIMP Initialize(
@@ -50,7 +51,7 @@ public:
 
     enum PROPS {
         PROP_SCALE = 0,
-        PROP_USE_SHARPER_VERSION = 1
+        PROP_USE_SHARPER_VERSION = 0
     };
 
     static HRESULT Register(_In_ ID2D1Factory1* pFactory) {

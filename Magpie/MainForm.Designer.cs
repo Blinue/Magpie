@@ -104,7 +104,7 @@ namespace Magpie {
             this.tkbFrameRate.TabIndex = 3;
             this.tkbFrameRate.TickFrequency = 10;
             this.tkbFrameRate.Value = 60;
-            this.tkbFrameRate.ValueChanged += new System.EventHandler(this.TkbFrameRate_ValueChanged);
+            this.tkbFrameRate.Scroll += new System.EventHandler(this.TkbFrameRate_Scroll);
             // 
             // lblFrameRate
             // 

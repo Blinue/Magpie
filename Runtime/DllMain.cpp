@@ -65,3 +65,28 @@ API_DECLSPEC void WINAPI DestroyMagWindow() {
 API_DECLSPEC const WCHAR* WINAPI GetLastErrorMsg() {
     return Debug::GetLastErrorMessage().c_str();
 }
+
+
+API_DECLSPEC HWND WINAPI GetSrcWnd() {
+    if (MagWindow::$instance == nullptr) {
+        return NULL;
+    }
+
+    return MagWindow::$instance->GetSrcWnd();
+}
+
+API_DECLSPEC UINT32 WINAPI GetSrcPID() {
+    HWND hwndSrc = GetSrcWnd();
+    DWORD pid = 0;
+    GetWindowThreadProcessId(hwndSrc, &pid);
+
+    return pid;
+}
+
+API_DECLSPEC HWND WINAPI GetHostWnd() {
+    if (MagWindow::$instance == nullptr) {
+        return NULL;
+    }
+
+    return MagWindow::$instance->GetHostWnd();
+}

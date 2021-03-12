@@ -17,21 +17,20 @@ public:
         _cursorSize.cx = GetSystemMetrics(SM_CXCURSOR);
         _cursorSize.cy = GetSystemMetrics(SM_CYCURSOR);
 
-        _d2dBmpNormalCursor = _CursorToD2DBitmap(LoadCursor(NULL, IDC_ARROW));
-        _d2dBmpHandCursor = _CursorToD2DBitmap(LoadCursor(NULL, IDC_HAND));
-        
+
         if (!noDisturb) {
+            // 保存替换之前的 arrow 光标图像
+            ComPtr<ID2D1Bitmap> arrowImg = _CursorToD2DBitmap(LoadCursor(NULL, IDC_ARROW));
+
             HCURSOR tptCursor = _CreateTransparentCursor();
 
             Debug::ThrowIfWin32Failed(
-                SetSystemCursor(CopyCursor(tptCursor), OCR_HAND),
-                L"设置 OCR_HAND 失败"
-            );
-            Debug::ThrowIfWin32Failed(
-                SetSystemCursor(tptCursor, OCR_NORMAL),
+                SetSystemCursor(_CreateTransparentCursor(), OCR_NORMAL),
                 L"设置 OCR_NORMAL 失败"
             );
-            // tptCursor 被销毁
+            
+            _hCursorArrow = LoadCursor(NULL, IDC_ARROW);
+            _cursorMap.emplace(_hCursorArrow, arrowImg);
 
             // 限制鼠标在窗口内
             RECT r{ lroundf(srcRect.left), lroundf(srcRect.top), lroundf(srcRect.right), lroundf(srcRect.bottom) };
@@ -69,7 +68,10 @@ public:
 	void DrawCursor() {
         CURSORINFO ci{};
         ci.cbSize = sizeof(ci);
-        Debug::ThrowIfWin32Failed(GetCursorInfo(&ci), L"GetCursorInfo 失败");
+        Debug::ThrowIfWin32Failed(
+            GetCursorInfo(&ci),
+            L"GetCursorInfo 失败"
+        );
         
         if (ci.hCursor == NULL) {
             return;
@@ -98,18 +100,33 @@ public:
             targetScreenPos.y + _cursorSize.cy - ii.yHotspot
         };
         
-        if (ci.hCursor == LoadCursor(NULL, IDC_ARROW)) {
-            _d2dDC->DrawBitmap(_d2dBmpNormalCursor.Get(), &cursorRect);
-        } else if (ci.hCursor == LoadCursor(NULL, IDC_HAND)) {
-            _d2dDC->DrawBitmap(_d2dBmpHandCursor.Get(), &cursorRect);
+        auto it = _cursorMap.find(ci.hCursor);
+        if (it != _cursorMap.end()) {
+            _d2dDC->DrawBitmap(it->second.Get(), &cursorRect);
         } else {
+            Debug::WriteLine(L"未找到");
             try {
-                ComPtr<ID2D1Bitmap> c = _CursorToD2DBitmap(ci.hCursor);
-                _d2dDC->DrawBitmap(c.Get(), &cursorRect);
-            } catch (magpie_exception) {
+                ComPtr<ID2D1Bitmap> cursorBmp = _CursorToD2DBitmap(ci.hCursor);
+                _d2dDC->DrawBitmap(cursorBmp.Get(), &cursorRect);
+
+                // 添加进表
+                _cursorMap[ci.hCursor] = cursorBmp;
+            } catch (...) {
                 // 如果出错，只绘制普通光标
                 Debug::WriteLine(L"_CursorToD2DBitmap 出错");
-                _d2dDC->DrawBitmap(_d2dBmpNormalCursor.Get(), &cursorRect);
+
+                it = _cursorMap.find(_hCursorArrow);
+                if (it == _cursorMap.end()) {
+                    return;
+                }
+
+                cursorRect = {
+                    targetScreenPos.x,
+                    targetScreenPos.y,
+                    targetScreenPos.x + _cursorSize.cx,
+                    targetScreenPos.y + _cursorSize.cy
+                };
+                _d2dDC->DrawBitmap(it->second.Get(), &cursorRect);
             }
         }
 	}
@@ -167,8 +184,8 @@ private:
     IWICImagingFactory2* _wicImgFactory;
     ID2D1DeviceContext* _d2dDC;
 
-    ComPtr<ID2D1Bitmap> _d2dBmpNormalCursor = nullptr;
-    ComPtr<ID2D1Bitmap> _d2dBmpHandCursor = nullptr;
+    HCURSOR _hCursorArrow{};
+    std::map<HCURSOR, ComPtr<ID2D1Bitmap>> _cursorMap;
 
     SIZE _cursorSize{};
 

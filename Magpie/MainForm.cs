@@ -17,13 +17,12 @@ namespace Magpie {
   {
     ""effect"": ""scale"",
     ""type"": ""mitchell"",
-    ""scale"": [0,0],
-    ""useSharperVersion"": true
+    ""scale"": [0,0]
   },
   {
     ""effect"": ""sharpen"",
     ""type"": ""adaptive"",
-    ""curveHeight"": 0.2
+    ""curveHeight"": 0.3
   }
 ]";
         private static readonly string CommonEffectJson = @"[
@@ -43,6 +42,8 @@ namespace Magpie {
 ]";
 
         IKeyboardMouseEvents keyboardEvents = null;
+
+        CursorHookInjector cursorHookInjector = null;
 
         public MainForm() {
             InitializeComponent();
@@ -78,6 +79,11 @@ namespace Magpie {
             Settings.Default.Save();
         }
 
+        private void TkbFrameRate_Scroll(object sender, EventArgs e) {
+            lblFrameRate.Text = tkbFrameRate.Value.ToString();
+            Settings.Default.FrameRate = (uint)tkbFrameRate.Value;
+        }
+
         private void TxtHotkey_TextChanged(object sender, EventArgs e) {
             keyboardEvents?.Dispose();
             keyboardEvents = Hook.GlobalEvents();
@@ -94,7 +100,12 @@ namespace Magpie {
                         if(!NativeMethods.HasMagWindow()) {
                             if(!NativeMethods.CreateMagWindow(frameRate, effectJson, false)) {
                                 MessageBox.Show("创建全屏窗口失败：" + NativeMethods.GetLastErrorMsg());
+                                return;
                             }
+
+                            int pid = NativeMethods.GetSrcPID();
+                            IntPtr hwndHost = NativeMethods.GetHostWnd();
+                            cursorHookInjector = new CursorHookInjector(pid, hwndHost);
                         } else {
                             NativeMethods.DestroyMagWindow();
                         }
@@ -144,11 +155,6 @@ namespace Magpie {
             if(e.Button == MouseButtons.Left) {
                 tsmiMainForm.PerformClick();
             }
-        }
-
-        private void TkbFrameRate_ValueChanged(object sender, EventArgs e) {
-            lblFrameRate.Text = tkbFrameRate.Value.ToString();
-            Settings.Default.FrameRate = (uint)tkbFrameRate.Value;
         }
     }
 }
