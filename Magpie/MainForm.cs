@@ -17,12 +17,13 @@ namespace Magpie {
   {
     ""effect"": ""scale"",
     ""type"": ""mitchell"",
-    ""scale"": [0,0]
+    ""scale"": [0,0],
+    ""useSharperVersion"": true
   },
   {
     ""effect"": ""sharpen"",
     ""type"": ""adaptive"",
-    ""curveHeight"": 0.3
+    ""curveHeight"": 0.2
   }
 ]";
         private static readonly string CommonEffectJson = @"[
@@ -75,11 +76,6 @@ namespace Magpie {
             NativeMethods.DestroyMagWindow();
 
             Settings.Default.Save();
-        }
-
-        private void TkbFrameRate_Scroll(object sender, EventArgs e) {
-            lblFrameRate.Text = tkbFrameRate.Value.ToString();
-            Settings.Default.FrameRate = (uint)tkbFrameRate.Value;
         }
 
         private void TxtHotkey_TextChanged(object sender, EventArgs e) {
@@ -148,6 +144,11 @@ namespace Magpie {
             if(e.Button == MouseButtons.Left) {
                 tsmiMainForm.PerformClick();
             }
+        }
+
+        private void TkbFrameRate_ValueChanged(object sender, EventArgs e) {
+            lblFrameRate.Text = tkbFrameRate.Value.ToString();
+            Settings.Default.FrameRate = (uint)tkbFrameRate.Value;
         }
     }
 }

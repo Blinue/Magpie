@@ -19,7 +19,7 @@ public:
         if (FAILED(hr)) {
             return hr;
         }
-
+        
         *ppOutput = new Anime4KUpscaleDenoiseConvReduceTransform();
 
         return S_OK;
