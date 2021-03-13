@@ -1,4 +1,10 @@
-﻿using System;
+﻿/*
+ * ---------------------
+ *   非常舒服，非常脆弱
+ * ---------------------
+ */
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -58,61 +64,69 @@ namespace Magpie.CursorHook {
         public void Run(EasyHook.RemoteHooking.IContext _, string _1, IntPtr _2, IntPtr hwndSrc) {
             // Injection is now complete and the server interface is connected
             _server.IsInstalled(EasyHook.RemoteHooking.GetCurrentProcessId());
-
+            
             // Install hooks
 
             // SetCursor https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-setcursor
             var setCursorHook = EasyHook.LocalHook.Create(
                 EasyHook.LocalHook.GetProcAddress("user32.dll", "SetCursor"),
                 new SetCursor_Delegate(SetCursor_Hook),
-                this);
+                this
+            );
 
             // Activate hooks on all threads except the current thread
             setCursorHook.ThreadACL.SetExclusiveACL(new int[] { 0 });
 
             _server.ReportMessage("SetCursor钩子安装成功");
 
+            // 不替换这些系统光标，因为已被全局替换
+            var arrowCursor = NativeMethods.LoadCursor(IntPtr.Zero, NativeMethods.IDC_ARROW);
+            var handCursor = NativeMethods.LoadCursor(IntPtr.Zero, NativeMethods.IDC_HAND);
+            var appStartingCursor = NativeMethods.LoadCursor(IntPtr.Zero, NativeMethods.IDC_APPSTARTING);
+            _hCursorToTptCursor[arrowCursor] = arrowCursor;
+            _hCursorToTptCursor[handCursor] = handCursor;
+            _hCursorToTptCursor[appStartingCursor] = appStartingCursor;
+
+            // 将窗口类中的 HCURSOR 替换为透明光标
             void replaceHCursor(IntPtr hWnd) {
-                _server.ReportMessage("wind");
                 // Get(Set)ClassLong 不能使用 Ptr 版本
                 IntPtr hCursor = (IntPtr)NativeMethods.GetClassLong(hWnd, NativeMethods.GCLP_HCURSOR);
-
-                
                 if (hCursor == IntPtr.Zero) {
-                    _server.ReportMessage("zero");
                     return;
                 }
-                //NativeMethods.SetClassLong(hWnd, NativeMethods.GCLP_HCURSOR, CreateTransparentCursor(0, 0));
+                
                 if (!_hwndTohCursor.ContainsKey(hWnd)) {
-                    /*_hwndTohCursor.Add(hWnd1, hCursor);
+                    _hwndTohCursor.Add(hWnd, hCursor);
 
-                    IntPtr hTptCursor = NativeMethods.LoadCursor(IntPtr.Zero, NativeMethods.IDC_ARROW);
-                    if(hTptCursor == IntPtr.Zero) {
-                        _server.ReportMessage("zero");
+                    // 排除透明的系统光标
+                    if (_hCursorToTptCursor.ContainsKey(hCursor)) {
                         return;
                     }
 
-                    _hCursorToTptCursor.Add(hCursor, hTptCursor);*/
+                    IntPtr hTptCursor = CreateTransparentCursor(0, 0);
+                    if(hTptCursor == IntPtr.Zero) {
+                        // 创建透明光标失败
+                        hTptCursor = hCursor;
+                    }
+
+                    NativeMethods.SetClassLong(hWnd, NativeMethods.GCLP_HCURSOR, hTptCursor);
+
+                    _hCursorToTptCursor[hCursor] = hTptCursor;
 
                     // 向全屏窗口发送光标句柄
-                    //NativeMethods.PostMessage(_hwndHost, NativeMethods.MAGPIE_WM_NEWCURSOR, hTptCursor, hCursor);
-
-                    
+                    NativeMethods.SendMessage(_hwndHost, NativeMethods.MAGPIE_WM_NEWCURSOR, hTptCursor, hCursor);
                 }
-
-
             }
-
-            /*replaceHCursor(hwndSrc);
+            
+            replaceHCursor(hwndSrc);
             NativeMethods.EnumChildWindows(hwndSrc, (IntPtr hWnd, int lParam) => {
                 replaceHCursor(hWnd);
                 return true;
             }, 0);
-            NativeMethods.SetCursor(NativeMethods.LoadCursor(IntPtr.Zero, NativeMethods.IDC_ARROW));*/
 
-            var arrowCursor = NativeMethods.LoadCursor(IntPtr.Zero, NativeMethods.IDC_ARROW);
-            _hCursorToTptCursor.Add(arrowCursor, arrowCursor);
-
+            // 向源窗口发送 WM_SETCURSOR，有时有用
+            NativeMethods.PostMessage(hwndSrc, 0x0020, hwndSrc, (IntPtr)1);
+            
             try {
                 // Loop until FileMonitor closes (i.e. IPC fails)
                 while (true) {
@@ -134,6 +148,11 @@ namespace Magpie.CursorHook {
                 }
             } catch {
                 // Ping() or ReportMessages() will raise an exception if host is unreachable
+            }
+
+            // 退出前重置窗口类的光标
+            foreach (var item in _hwndTohCursor) {
+                NativeMethods.SetClassLong(item.Key, NativeMethods.GCLP_HCURSOR, item.Value);
             }
 
             // Remove hooks
@@ -163,10 +182,10 @@ namespace Magpie.CursorHook {
             }
 
             // 未出现过的 hCursor
-            _server.ReportMessage("create");
+            _messageQueue.Enqueue("create");
             IntPtr hTptCursor = CreateTransparentCursor(0, 0);
             if(hTptCursor != IntPtr.Zero) {
-                _hCursorToTptCursor.Add(hCursor, hTptCursor);
+                _hCursorToTptCursor[hCursor] = hTptCursor;
             } else {
                 // 创建透明光标失败
                 hTptCursor = hCursor;

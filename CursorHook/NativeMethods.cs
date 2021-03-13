@@ -18,6 +18,7 @@ namespace Magpie.CursorHook {
 
         public readonly static IntPtr IDC_ARROW = new IntPtr(32512);
         public readonly static IntPtr IDC_HAND = new IntPtr(32649);
+        public readonly static IntPtr IDC_APPSTARTING = new IntPtr(32650);
 
         public readonly static int GCLP_HCURSOR = -12;
 
@@ -35,6 +36,9 @@ namespace Magpie.CursorHook {
 
         [DllImport("user32.dll", CharSet = CharSet.Unicode)]
         public static extern bool PostMessage(IntPtr hWnd, uint Msg, IntPtr wParam, IntPtr lParam);
+
+        [DllImport("user32.dll", CharSet = CharSet.Unicode)]
+        public static extern bool SendMessage(IntPtr hWnd, uint Msg, IntPtr wParam, IntPtr lParam);
 
         public readonly static uint MAGPIE_WM_NEWCURSOR = RegisterWindowMessage("MAGPIE_WM_NEWCURSOR");
 

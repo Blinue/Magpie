@@ -21,16 +21,26 @@ public:
         if (!noDisturb) {
             // 保存替换之前的 arrow 光标图像
             ComPtr<ID2D1Bitmap> arrowImg = _CursorToD2DBitmap(LoadCursor(NULL, IDC_ARROW));
-
-            HCURSOR tptCursor = _CreateTransparentCursor();
+            ComPtr<ID2D1Bitmap> handImg = _CursorToD2DBitmap(LoadCursor(NULL, IDC_HAND));
+            ComPtr<ID2D1Bitmap> appStartingImg = _CursorToD2DBitmap(LoadCursor(NULL, IDC_APPSTARTING));
 
             Debug::ThrowIfWin32Failed(
                 SetSystemCursor(_CreateTransparentCursor(), OCR_NORMAL),
                 L"设置 OCR_NORMAL 失败"
             );
+            Debug::ThrowIfWin32Failed(
+                SetSystemCursor(_CreateTransparentCursor(), OCR_HAND),
+                L"设置 OCR_HAND 失败"
+            );
+            Debug::ThrowIfWin32Failed(
+                SetSystemCursor(_CreateTransparentCursor(), OCR_APPSTARTING),
+                L"设置 OCR_APPSTARTING 失败"
+            );
             
             _hCursorArrow = LoadCursor(NULL, IDC_ARROW);
             _cursorMap.emplace(_hCursorArrow, arrowImg);
+            _cursorMap.emplace(LoadCursor(NULL, IDC_HAND), handImg);
+            _cursorMap.emplace(LoadCursor(NULL, IDC_APPSTARTING), appStartingImg);
 
             // 限制鼠标在窗口内
             RECT r{ lroundf(srcRect.left), lroundf(srcRect.top), lroundf(srcRect.right), lroundf(srcRect.bottom) };

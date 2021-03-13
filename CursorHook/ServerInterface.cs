@@ -10,7 +10,7 @@ namespace Magpie.CursorHook {
     /// </summary>
     public class ServerInterface : MarshalByRefObject {
         public void IsInstalled(int clientPID) {
-            Console.WriteLine("Hook 成功");
+            Console.WriteLine("Hook 已安装");
         }
 
         /// <summary>
