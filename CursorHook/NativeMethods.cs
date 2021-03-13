@@ -19,13 +19,13 @@ namespace Magpie.CursorHook {
         public readonly static IntPtr IDC_ARROW = new IntPtr(32512);
         public readonly static IntPtr IDC_HAND = new IntPtr(32649);
 
-        [DllImport("user32.dll", CharSet = CharSet.Unicode)]
-        public static extern IntPtr SetClassLong(IntPtr hWnd, int nIndex, IntPtr dwNewLong);
-
         public readonly static int GCLP_HCURSOR = -12;
 
         [DllImport("user32.dll", CharSet = CharSet.Unicode)]
-        public static extern int ShowCursor(bool bShow);
+        public static extern int GetClassLong(IntPtr hWnd, int nIndex);
+
+        [DllImport("user32.dll", CharSet = CharSet.Unicode)]
+        public static extern IntPtr SetClassLong(IntPtr hWnd, int nIndex, IntPtr dwNewLong);
 
 
         public delegate bool EnumWindowsProc(IntPtr hwnd, int lParam);
@@ -36,7 +36,7 @@ namespace Magpie.CursorHook {
         [DllImport("user32.dll", CharSet = CharSet.Unicode)]
         public static extern bool PostMessage(IntPtr hWnd, uint Msg, IntPtr wParam, IntPtr lParam);
 
-        public readonly static uint WM_COPYDATA = 0x004A + 1;
+        public readonly static uint MAGPIE_WM_NEWCURSOR = RegisterWindowMessage("MAGPIE_WM_NEWCURSOR");
 
         [StructLayout(LayoutKind.Sequential)]
         public struct POINT {
@@ -54,5 +54,31 @@ namespace Magpie.CursorHook {
 
         [DllImport("user32.dll", CharSet = CharSet.Unicode)]
         public static extern bool GetCursorInfo(ref CURSORINFO pci);
+
+        [DllImport("user32.dll", CharSet = CharSet.Unicode)]
+        public static extern uint RegisterWindowMessage([MarshalAs(UnmanagedType.LPWStr)]string lpString);
+
+        private readonly static int SM_CXCURSOR = 13;
+        private readonly static int SM_CYCURSOR = 14;
+
+        [DllImport("user32.dll", CharSet = CharSet.Unicode)]
+        private static extern int GetSystemMetrics(int nIndex);
+
+        public static (int x, int y) GetCursorSize() {
+            return (GetSystemMetrics(SM_CXCURSOR), GetSystemMetrics(SM_CYCURSOR));
+        }
+
+        [DllImport("user32.dll", CharSet = CharSet.Unicode)]
+        public static extern IntPtr CreateCursor(IntPtr hInst, int xHotSpot, int yHotSpot, int nWidth, int nHeight, byte[] pvANDPlane, byte[] pvXORPlane);
+
+        [DllImport("kernel32.dll", CharSet = CharSet.Unicode)]
+        private static extern IntPtr GetModuleHandle(IntPtr lpModuleName);
+
+        public static IntPtr GetModule() {
+            return GetModuleHandle(IntPtr.Zero);
+        }
+
+        [DllImport("user32.dll", CharSet = CharSet.Unicode)]
+        public static extern bool IsWindow(IntPtr hWnd);
     }
 }

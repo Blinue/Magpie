@@ -104,7 +104,6 @@ public:
         if (it != _cursorMap.end()) {
             _d2dDC->DrawBitmap(it->second.Get(), &cursorRect);
         } else {
-            Debug::WriteLine(L"Œ¥’“µΩ");
             try {
                 ComPtr<ID2D1Bitmap> cursorBmp = _CursorToD2DBitmap(ci.hCursor);
                 _d2dDC->DrawBitmap(cursorBmp.Get(), &cursorRect);
@@ -131,6 +130,10 @@ public:
         }
 	}
 
+    void AddHookCursor(HCURSOR hTptCursor, HCURSOR hCursor) {
+        assert(hTptCursor != NULL && hCursor != NULL);
+        _cursorMap[hTptCursor] = _CursorToD2DBitmap(hCursor);
+    }
 private:
     HCURSOR _CreateTransparentCursor() {
         int len = _cursorSize.cx * _cursorSize.cy;

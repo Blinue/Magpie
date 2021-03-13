@@ -17,12 +17,13 @@ namespace Magpie {
   {
     ""effect"": ""scale"",
     ""type"": ""mitchell"",
-    ""scale"": [0,0]
+    ""scale"": [0,0],
+    ""useSharperVersion"": true
   },
   {
     ""effect"": ""sharpen"",
     ""type"": ""adaptive"",
-    ""curveHeight"": 0.3
+    ""curveHeight"": 0.2
   }
 ]";
         private static readonly string CommonEffectJson = @"[
@@ -105,7 +106,8 @@ namespace Magpie {
 
                             int pid = NativeMethods.GetSrcPID();
                             IntPtr hwndHost = NativeMethods.GetHostWnd();
-                            cursorHookInjector = new CursorHookInjector(pid, hwndHost);
+                            IntPtr hwndSrc = NativeMethods.GetSrcWnd();
+                            cursorHookInjector = new CursorHookInjector(pid, hwndHost, hwndSrc);
                         } else {
                             NativeMethods.DestroyMagWindow();
                         }
@@ -152,9 +154,14 @@ namespace Magpie {
         }
 
         private void NotifyIcon_MouseClick(object sender, MouseEventArgs e) {
-            if(e.Button == MouseButtons.Left) {
+            if (e.Button == MouseButtons.Left) {
                 tsmiMainForm.PerformClick();
             }
+        }
+
+        private void TkbFrameRate_ValueChanged(object sender, EventArgs e) {
+            Settings.Default.FrameRate = (uint)tkbFrameRate.Value;
+            lblFrameRate.Text = tkbFrameRate.Value.ToString();
         }
     }
 }

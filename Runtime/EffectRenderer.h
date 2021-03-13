@@ -29,19 +29,25 @@ public:
         float x = ((float)_hostWndClientSize.cx - outputSize.cx) / 2;
         float y = ((float)_hostWndClientSize.cy - outputSize.cy) / 2;
         _destRect = { x, y, x + outputSize.cx, y + outputSize.cy };
-
-        _cursorManager.reset(new CursorManager(
-            hInstance, wicImgFactory, _d2dDC.Get(), 
-            D2D1_RECT_F{ (FLOAT)srcClient.left, (FLOAT)srcClient.top, (FLOAT)srcClient.right, (FLOAT)srcClient.bottom },
-            _destRect, noDisturb)
-        );
 	}
  
     // 不可复制，不可移动
     EffectRenderer(const EffectRenderer&) = delete;
     EffectRenderer(EffectRenderer&&) = delete;
+
+    const D2D1_RECT_F& GetDestRect() const {
+        return _destRect;
+    }
+
+    const ID2D1DeviceContext* GetD2DDC() const {
+        return _d2dDC.Get();
+    }
+
+    ID2D1DeviceContext* GetD2DDC() {
+        return _d2dDC.Get();
+    }
 public:
-    void Render(IWICBitmapSource* srcBmp) const {
+    void Render(IWICBitmapSource* srcBmp, CursorManager& cursorManager) const {
         // 将输出图像显示在窗口中央
         _d2dDC->BeginDraw();
         _d2dDC->Clear();
@@ -52,7 +58,7 @@ public:
             D2D1_POINT_2F{ _destRect.left, _destRect.top }
         );
 
-        _cursorManager->DrawCursor();
+        cursorManager.DrawCursor();
 
         Debug::ThrowIfComFailed(
             _d2dDC->EndDraw(),
@@ -211,5 +217,4 @@ private:
     ComPtr<IDXGISwapChain1> _dxgiSwapChain = nullptr;
 
     std::unique_ptr<EffectManager> _effectManager = nullptr;
-    std::unique_ptr<CursorManager> _cursorManager = nullptr;
 };

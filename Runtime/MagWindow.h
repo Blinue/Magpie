@@ -110,6 +110,13 @@ private:
             )
         );
 
+        // 初始化 CursorManager
+        _cursorManager.reset(new CursorManager(
+            hInstance, _wicImgFactory.Get(), _effectRenderer->GetD2DDC(),
+            D2D1_RECT_F{ (FLOAT)_srcRect.left, (FLOAT)_srcRect.top, (FLOAT)_srcRect.right, (FLOAT)_srcRect.bottom },
+            _effectRenderer->GetDestRect(), noDisturb)
+        );
+
         ShowWindow(_hwndHost, SW_NORMAL);
 
         if (_frameRate > 0) {
@@ -125,7 +132,7 @@ private:
     static void _Render() {
         try {
             ComPtr<IWICBitmapSource> frame = $instance->_windowCapturer->GetFrame();
-            $instance->_effectRenderer->Render(frame.Get());
+            $instance->_effectRenderer->Render(frame.Get(), *$instance->_cursorManager);
         } catch (const magpie_exception& e) {
             Debug::WriteErrorMessage(L"渲染失败：" + e.what());
         } catch (...) {
@@ -175,7 +182,11 @@ private:
         }
         default:
         {
-            if ($instance && $instance->_WM_SHELLHOOKMESSAGE == message) {
+            if ($instance == nullptr) {
+                return DefWindowProc(hWnd, message, wParam, lParam);
+            }
+
+            if (message == $instance->_WM_SHELLHOOKMESSAGE) {
                 // 在桌面环境变化时关闭全屏窗口
                 // 文档没提到，但这里必须截断成 byte，否则无法工作
                 BYTE code = (BYTE)wParam;
@@ -187,6 +198,10 @@ private:
                 ) {
                     $instance = nullptr;
                 }
+            } else if (message == $instance->_WM_NEWCURSOR) {
+                // 来自 CursorHook 的消息
+                // HCURSOR 似乎是共享资源，尽管来自别的进程但可以直接使用
+                $instance->_cursorManager->AddHookCursor((HCURSOR)wParam, (HCURSOR)lParam);
             } else {
                 return DefWindowProc(hWnd, message, wParam, lParam);
             }
@@ -243,7 +258,10 @@ private:
     // 指定为最大帧率时使用的渲染消息
     static constexpr const UINT _WM_MAXFRAMERATE = WM_USER;
 
-    UINT _WM_SHELLHOOKMESSAGE = 0;
+    
+    UINT _WM_NEWCURSOR = RegisterWindowMessage(L"MAGPIE_WM_NEWCURSOR");
+
+    UINT _WM_SHELLHOOKMESSAGE{};
 
     HINSTANCE _hInst;
     HWND _hwndHost = NULL;
@@ -254,4 +272,5 @@ private:
     ComPtr<IWICImagingFactory2> _wicImgFactory = nullptr;
     std::unique_ptr<EffectRenderer> _effectRenderer = nullptr;
     std::unique_ptr<WindowCapturerBase> _windowCapturer = nullptr;
+    std::unique_ptr<CursorManager> _cursorManager = nullptr;
 };

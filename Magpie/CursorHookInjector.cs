@@ -17,7 +17,7 @@ namespace Magpie {
         private readonly int targetPID;
         private IpcServerChannel ipcServer;
 
-        public CursorHookInjector(int targetPID, IntPtr hwndSrc) {
+        public CursorHookInjector(int targetPID, IntPtr hwndHost, IntPtr hwndSrc) {
             Debug.Assert(targetPID > 0);
 
             this.targetPID = targetPID;
@@ -33,6 +33,7 @@ namespace Magpie {
                     injectionLibrary,   // 32-bit library to inject (if target is 32-bit)
                     injectionLibrary,   // 64-bit library to inject (if target is 64-bit)
                     channelName,        // the parameters to pass into injected library
+                    hwndHost,
                     hwndSrc             // ...
                 );
         }

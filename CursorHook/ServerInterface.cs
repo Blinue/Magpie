@@ -26,16 +26,6 @@ namespace Magpie.CursorHook {
 
         public void ReportMessage(string message) {
             Console.WriteLine(message);
-
-            unsafe {
-                var ci = new NativeMethods.CURSORINFO {
-                    cbSize = sizeof(NativeMethods.CURSORINFO)
-                };
-
-                NativeMethods.GetCursorInfo(ref ci);
-
-                Console.WriteLine("另一进程：" + ci.hCursor.ToString());
-            }
         }
 
         /// <summary>

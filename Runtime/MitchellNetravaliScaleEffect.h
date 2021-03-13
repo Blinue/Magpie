@@ -51,7 +51,7 @@ public:
 
     enum PROPS {
         PROP_SCALE = 0,
-        PROP_USE_SHARPER_VERSION = 0
+        PROP_USE_SHARPER_VERSION = 1
     };
 
     static HRESULT Register(_In_ ID2D1Factory1* pFactory) {

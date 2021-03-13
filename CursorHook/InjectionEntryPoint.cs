@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
 using System.Threading;
+
 
 namespace Magpie.CursorHook {
     /// <summary>
@@ -14,15 +14,19 @@ namespace Magpie.CursorHook {
         /// <summary>
         /// Reference to the server interface within FileMonitor
         /// </summary>
-        private ServerInterface _server = null;
+        private readonly ServerInterface _server;
 
         /// <summary>
         /// Message queue of all files accessed
         /// </summary>
-        private Queue<string> _messageQueue = new Queue<string>();
+        private readonly Queue<string> _messageQueue = new Queue<string>();
 
-        private IntPtr _hwndHost;
+        private readonly IntPtr _hwndHost;
 
+        private readonly (int x, int y) _cursorSize = NativeMethods.GetCursorSize();
+        
+        private readonly Dictionary<IntPtr, IntPtr> _hwndTohCursor = new Dictionary<IntPtr, IntPtr>();
+        private readonly Dictionary<IntPtr, IntPtr> _hCursorToTptCursor = new Dictionary<IntPtr, IntPtr>();
 
         /// <summary>
         /// EasyHook requires a constructor that matches <paramref name="context"/> and any additional parameters as provided
@@ -34,7 +38,7 @@ namespace Magpie.CursorHook {
         /// <param name="channelName">The name of the IPC channel</param>
         public InjectionEntryPoint(
             EasyHook.RemoteHooking.IContext context,
-            string channelName, IntPtr hwndHost) {
+            string channelName, IntPtr hwndHost, IntPtr hwndSrc) {
             _hwndHost = hwndHost;
 
             // Connect to server object using provided channel name
@@ -51,10 +55,7 @@ namespace Magpie.CursorHook {
         /// </summary>
         /// <param name="context">The RemoteHooking context</param>
         /// <param name="channelName">The name of the IPC channel</param>
-        public void Run(
-            EasyHook.RemoteHooking.IContext context,
-            string channelName, IntPtr hwndHost) {
-            
+        public void Run(EasyHook.RemoteHooking.IContext _, string _1, IntPtr _2, IntPtr hwndSrc) {
             // Injection is now complete and the server interface is connected
             _server.IsInstalled(EasyHook.RemoteHooking.GetCurrentProcessId());
 
@@ -71,19 +72,46 @@ namespace Magpie.CursorHook {
 
             _server.ReportMessage("SetCursor钩子安装成功");
 
+            void replaceHCursor(IntPtr hWnd) {
+                _server.ReportMessage("wind");
+                // Get(Set)ClassLong 不能使用 Ptr 版本
+                IntPtr hCursor = (IntPtr)NativeMethods.GetClassLong(hWnd, NativeMethods.GCLP_HCURSOR);
 
-            NativeMethods.EnumChildWindows(IntPtr.Zero, (IntPtr hWnd, int lParam) => {
-                NativeMethods.SetClassLong(hWnd, NativeMethods.GCLP_HCURSOR,
-                    NativeMethods.LoadCursor(IntPtr.Zero, NativeMethods.IDC_ARROW));
+                
+                if (hCursor == IntPtr.Zero) {
+                    _server.ReportMessage("zero");
+                    return;
+                }
+                //NativeMethods.SetClassLong(hWnd, NativeMethods.GCLP_HCURSOR, CreateTransparentCursor(0, 0));
+                if (!_hwndTohCursor.ContainsKey(hWnd)) {
+                    /*_hwndTohCursor.Add(hWnd1, hCursor);
 
-                NativeMethods.EnumChildWindows(hWnd, (IntPtr hWnd1, int lParam1) => {
-                    NativeMethods.SetClassLong(hWnd, NativeMethods.GCLP_HCURSOR,
-                        NativeMethods.LoadCursor(IntPtr.Zero, NativeMethods.IDC_ARROW));
-                    return true;
-                }, 0);
+                    IntPtr hTptCursor = NativeMethods.LoadCursor(IntPtr.Zero, NativeMethods.IDC_ARROW);
+                    if(hTptCursor == IntPtr.Zero) {
+                        _server.ReportMessage("zero");
+                        return;
+                    }
+
+                    _hCursorToTptCursor.Add(hCursor, hTptCursor);*/
+
+                    // 向全屏窗口发送光标句柄
+                    //NativeMethods.PostMessage(_hwndHost, NativeMethods.MAGPIE_WM_NEWCURSOR, hTptCursor, hCursor);
+
+                    
+                }
+
+
+            }
+
+            /*replaceHCursor(hwndSrc);
+            NativeMethods.EnumChildWindows(hwndSrc, (IntPtr hWnd, int lParam) => {
+                replaceHCursor(hWnd);
                 return true;
             }, 0);
-            NativeMethods.SetCursor(NativeMethods.LoadCursor(IntPtr.Zero, NativeMethods.IDC_ARROW));
+            NativeMethods.SetCursor(NativeMethods.LoadCursor(IntPtr.Zero, NativeMethods.IDC_ARROW));*/
+
+            var arrowCursor = NativeMethods.LoadCursor(IntPtr.Zero, NativeMethods.IDC_ARROW);
+            _hCursorToTptCursor.Add(arrowCursor, arrowCursor);
 
             try {
                 // Loop until FileMonitor closes (i.e. IPC fails)
@@ -125,17 +153,46 @@ namespace Magpie.CursorHook {
 
         // The SetCursor hook function. This will be called instead of the original SetCursor once hooked.
         IntPtr SetCursor_Hook(IntPtr hCursor) {
-            _server.ReportMessage("SetCursor前:" + hCursor.ToString());
-            if (!NativeMethods.PostMessage(_hwndHost, NativeMethods.WM_COPYDATA, hCursor, IntPtr.Zero)) {
-                _server.ReportMessage("error: " + Marshal.GetLastWin32Error().ToString());
+            if (!NativeMethods.IsWindow(_hwndHost) || hCursor == IntPtr.Zero) {
+                // 全屏窗口关闭后钩子不做任何操作
+                return NativeMethods.SetCursor(hCursor);
             }
 
-            var r = NativeMethods.SetCursor(hCursor);
+            if(_hCursorToTptCursor.ContainsKey(hCursor)) {
+                return NativeMethods.SetCursor(_hCursorToTptCursor[hCursor]);
+            }
 
-            NativeMethods.PostMessage(_hwndHost, NativeMethods.WM_COPYDATA, NativeMethods.GetCursor(), IntPtr.Zero);
-            _server.ReportMessage("SetCursor后:" + NativeMethods.GetCursor().ToString());
-            return r;
-            //return IntPtr.Zero;
+            // 未出现过的 hCursor
+            _server.ReportMessage("create");
+            IntPtr hTptCursor = CreateTransparentCursor(0, 0);
+            if(hTptCursor != IntPtr.Zero) {
+                _hCursorToTptCursor.Add(hCursor, hTptCursor);
+            } else {
+                // 创建透明光标失败
+                hTptCursor = hCursor;
+            }
+
+            var rt = NativeMethods.SetCursor(hTptCursor);
+            // 向全屏窗口发送光标句柄
+            NativeMethods.PostMessage(_hwndHost, NativeMethods.MAGPIE_WM_NEWCURSOR, NativeMethods.GetCursor(), hCursor);
+
+            return rt;
+        }
+
+        IntPtr CreateTransparentCursor(int xHotSpot, int yHotSpot) {
+            int len = _cursorSize.x * _cursorSize.y;
+
+            // 全 0xff
+            byte[] andPlane = new byte[len];
+            for (int i = 0; i < len; ++i) {
+                andPlane[i] = 0xff;
+            }
+
+            // 全 0
+            byte[] xorPlane = new byte[len];
+
+            return NativeMethods.CreateCursor(NativeMethods.GetModule(), xHotSpot, yHotSpot,
+                _cursorSize.x, _cursorSize.y, andPlane, xorPlane);
         }
     }
 }
