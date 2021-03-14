@@ -17,7 +17,7 @@ namespace Magpie.CursorHook {
     /// becomes the entry point within the target process after injection is complete.
     /// </summary>
     public class InjectionEntryPoint : EasyHook.IEntryPoint {
-//#if DEBUG
+#if DEBUG
         /// <summary>
         /// Reference to the server interface within FileMonitor
         /// </summary>
@@ -27,7 +27,7 @@ namespace Magpie.CursorHook {
         /// Message queue of all files accessed
         /// </summary>
         private readonly Queue<string> _messageQueue = new Queue<string>();
-//#endif
+#endif
 
         private readonly IntPtr _hwndHost;
         private readonly IntPtr _hwndSrc;
@@ -47,20 +47,20 @@ namespace Magpie.CursorHook {
         /// <param name="channelName">The name of the IPC channel</param>
         public InjectionEntryPoint(
             EasyHook.RemoteHooking.IContext _,
-//#if DEBUG
+#if DEBUG
             string channelName,
-//#endif
+#endif
             IntPtr hwndHost, IntPtr hwndSrc
          ) {
             _hwndHost = hwndHost;
             _hwndSrc = hwndSrc;
-//#if DEBUG
+#if DEBUG
             // Connect to server object using provided channel name
             _server = EasyHook.RemoteHooking.IpcConnectClient<ServerInterface>(channelName);
 
             // If Ping fails then the Run method will be not be called
             _server.Ping();
-//#endif
+#endif
         }
 
         /// <summary>
@@ -72,9 +72,9 @@ namespace Magpie.CursorHook {
         /// <param name="channelName">The name of the IPC channel</param>
         public void Run(
             EasyHook.RemoteHooking.IContext _,
-//#if DEBUG
+#if DEBUG
             string _1,
-//#endif
+#endif
             IntPtr _2, IntPtr _3
         ) {
             // 安装钩子
@@ -168,14 +168,14 @@ namespace Magpie.CursorHook {
             try {
                 // Loop until FileMonitor closes (i.e. IPC fails)
                 while (true) {
-                    Thread.Sleep(500);
+                    Thread.Sleep(200);
 
                     if(!NativeMethods.IsWindow(_hwndHost)) {
                         // 全屏窗口已关闭，卸载钩子
                         break;
                     }
 
-//#if DEBUG
+#if DEBUG
                     string[] queued = _messageQueue.ToArray();
                     _messageQueue.Clear();
 
@@ -184,7 +184,7 @@ namespace Magpie.CursorHook {
                     } else {
                         _server.Ping();
                     }
-//#endif
+#endif
                 }
             } catch {
                 // 如果服务器关闭 Ping() 和 ReportMessages() 将抛出异常
@@ -253,9 +253,9 @@ namespace Magpie.CursorHook {
         }
 
         private void ReportToServer(string msg) {
-//#if DEBUG
+#if DEBUG
             _messageQueue.Enqueue(msg);
-//#endif
+#endif
         }
     }
 }

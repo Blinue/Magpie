@@ -126,11 +126,11 @@ namespace Magpie {
         }
 
         private void HookCursor() {
-//#if DEBUG
+#if DEBUG
             string channelName = null;
             // DEBUG 时创建 IPC server
             RemoteHooking.IpcCreateServer<ServerInterface>(ref channelName, WellKnownObjectMode.Singleton);
-//#endif
+#endif
 
             // 获取 CursorHook.dll 的绝对路径
             string injectionLibrary = Path.Combine(
@@ -146,17 +146,21 @@ namespace Magpie {
                 return;
             }
 
-            EasyHook.RemoteHooking.Inject(
+            try {
+                EasyHook.RemoteHooking.Inject(
                 pid,                // 要注入的进程的 ID
                 injectionLibrary,   // 32 位 DLL
                 injectionLibrary,   // 64 位 DLL
                                     // 下面为传递给注入 DLL 的参数
-//#if DEBUG
+#if DEBUG
                 channelName,
-//#endif
+#endif
                 NativeMethods.GetHostWnd(),
                 hwndSrc
-            );
+                );
+            } catch (Exception e) {
+                Console.WriteLine("CursorHook 注入失败：" + e.Message);
+            }
         }
 
         private void CkbMaxFrameRate_CheckedChanged(object sender, EventArgs e) {

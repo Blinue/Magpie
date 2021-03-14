@@ -1,27 +1,19 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace Magpie.CursorHook {
     /// <summary>
     /// Provides an interface for communicating from the client (target) to the server (injector)
     /// </summary>
     public class ServerInterface : MarshalByRefObject {
-        /// <summary>
-        /// Output messages to the console.
-        /// </summary>
-        /// <param name="clientPID"></param>
-        /// <param name="fileNames"></param>
         public void ReportMessages(string[] messages) {
-            for (int i = 0; i < messages.Length; i++) {
-                Console.WriteLine(messages[i]);
+            foreach (var msg in messages) {
+                ReportMessage(msg);
             }
         }
 
         public void ReportMessage(string message) {
-            Console.WriteLine(message);
+            Console.WriteLine("##CursorHook##: " + message);
         }
 
         /// <summary>
@@ -29,7 +21,7 @@ namespace Magpie.CursorHook {
         /// </summary>
         /// <param name="e"></param>
         public void ReportException(Exception e) {
-            Console.WriteLine("IPC出错：" + e.ToString());
+            Console.WriteLine("##CursorHook##: " + "IPC出错：" + e.ToString());
         }
 
         /// <summary>
