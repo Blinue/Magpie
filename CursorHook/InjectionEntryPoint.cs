@@ -13,19 +13,14 @@ using System.Threading;
 
 namespace Magpie.CursorHook {
     /// <summary>
-    /// EasyHook will look for a class implementing <see cref="EasyHook.IEntryPoint"/> during injection. This
-    /// becomes the entry point within the target process after injection is complete.
+    /// 注入时 EasyHook 会寻找 <see cref="EasyHook.IEntryPoint"/> 的实现。
+    /// 注入后此类将成为入口
     /// </summary>
     public class InjectionEntryPoint : EasyHook.IEntryPoint {
 #if DEBUG
-        /// <summary>
-        /// Reference to the server interface within FileMonitor
-        /// </summary>
+        // 用于向 Magpie 里的 IPC server 发送消息
         private readonly ServerInterface _server;
 
-        /// <summary>
-        /// Message queue of all files accessed
-        /// </summary>
         private readonly Queue<string> _messageQueue = new Queue<string>();
 #endif
 
@@ -34,17 +29,14 @@ namespace Magpie.CursorHook {
 
         private readonly (int x, int y) _cursorSize = NativeMethods.GetCursorSize();
         
+        // 用于保存窗口类的 HCURSOR，以在卸载钩子时还原
         private readonly Dictionary<IntPtr, IntPtr> _hwndTohCursor = new Dictionary<IntPtr, IntPtr>();
+
+        // 原光标到透明光标的映射
         private readonly Dictionary<IntPtr, IntPtr> _hCursorToTptCursor = new Dictionary<IntPtr, IntPtr>();
 
-        /// <summary>
-        /// EasyHook requires a constructor that matches <paramref name="context"/> and any additional parameters as provided
-        /// in the original call to <see cref="EasyHook.RemoteHooking.Inject(int, EasyHook.InjectionOptions, string, string, object[])"/>.
-        /// 
-        /// Multiple constructors can exist on the same <see cref="EasyHook.IEntryPoint"/>, providing that each one has a corresponding Run method (e.g. <see cref="Run(EasyHook.RemoteHooking.IContext, string)"/>).
-        /// </summary>
-        /// <param name="context">The RemoteHooking context</param>
-        /// <param name="channelName">The name of the IPC channel</param>
+
+        // EasyHook 需要此方法作为入口
         public InjectionEntryPoint(
             EasyHook.RemoteHooking.IContext _,
 #if DEBUG
@@ -55,21 +47,15 @@ namespace Magpie.CursorHook {
             _hwndHost = hwndHost;
             _hwndSrc = hwndSrc;
 #if DEBUG
-            // Connect to server object using provided channel name
+            // DEBUG 时连接 IPC server
             _server = EasyHook.RemoteHooking.IpcConnectClient<ServerInterface>(channelName);
 
-            // If Ping fails then the Run method will be not be called
+            // 测试连接性，如果失败会抛出异常静默的失败因此 Run 方法不会执行
             _server.Ping();
 #endif
         }
 
-        /// <summary>
-        /// The main entry point for our logic once injected within the target process. 
-        /// This is where the hooks will be created, and a loop will be entered until host process exits.
-        /// EasyHook requires a matching Run method for the constructor
-        /// </summary>
-        /// <param name="context">The RemoteHooking context</param>
-        /// <param name="channelName">The name of the IPC channel</param>
+        // 注入逻辑的入口
         public void Run(
             EasyHook.RemoteHooking.IContext _,
 #if DEBUG
@@ -118,16 +104,7 @@ namespace Magpie.CursorHook {
                     // 透明的系统光标或之前已替换过的
                     hTptCursor = _hCursorToTptCursor[hCursor];
                 } else {
-                    hTptCursor = CreateTransparentCursor(0, 0);
-                    if (hTptCursor != IntPtr.Zero) {
-                        _hCursorToTptCursor[hCursor] = hTptCursor;
-
-                        // 向全屏窗口发送光标句柄
-                        NativeMethods.SendMessage(_hwndHost, NativeMethods.MAGPIE_WM_NEWCURSOR, hTptCursor, hCursor);
-                    } else {
-                        // 创建透明光标失败
-                        hTptCursor = hCursor;
-                    }
+                    hTptCursor = GetReplacedCursor(hCursor);
                 }
 
                 // 替换窗口类的 HCURSOR
@@ -141,12 +118,12 @@ namespace Magpie.CursorHook {
                 }
 
                 replaceHCursor(hWnd);
-                NativeMethods.EnumChildWindows(hWnd, (IntPtr hWnd1, int _3) => {
+                NativeMethods.EnumChildWindows(hWnd, (IntPtr hWnd1, int _4) => {
                     replaceHCursor(hWnd1);
                     return true;
                 }, 0);
                 return true;
-            }, NativeMethods.GetWindowProcessId(hwndSrc));*/
+            }, NativeMethods.GetWindowProcessId(_hwndSrc));*/
 
             // 替换源窗口和它的所有子窗口的窗口类的 HCRUSOR
             // 因为通过窗口类的 HCURSOR 设置光标不会通过 SetCursor
@@ -221,19 +198,21 @@ namespace Magpie.CursorHook {
             }
 
             // 未出现过的 hCursor
+            return NativeMethods.SetCursor(GetReplacedCursor(hCursor));
+        }
+
+        private IntPtr GetReplacedCursor(IntPtr hCursor) {
             IntPtr hTptCursor = CreateTransparentCursor(0, 0);
-            if(hTptCursor != IntPtr.Zero) {
-                _hCursorToTptCursor[hCursor] = hTptCursor;
-            } else {
-                // 创建透明光标失败
-                hTptCursor = hCursor;
+            if (hTptCursor == IntPtr.Zero) {
+                return hCursor;
             }
 
-            var rt = NativeMethods.SetCursor(hTptCursor);
-            // 向全屏窗口发送光标句柄
-            NativeMethods.PostMessage(_hwndHost, NativeMethods.MAGPIE_WM_NEWCURSOR, NativeMethods.GetCursor(), hCursor);
+            _hCursorToTptCursor[hCursor] = hTptCursor;
 
-            return rt;
+            // 向全屏窗口发送光标句柄
+            NativeMethods.PostMessage(_hwndHost, NativeMethods.MAGPIE_WM_NEWCURSOR, hTptCursor, hCursor);
+
+            return hTptCursor;
         }
 
         private IntPtr CreateTransparentCursor(int xHotSpot, int yHotSpot) {

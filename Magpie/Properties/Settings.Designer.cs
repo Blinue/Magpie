@@ -49,7 +49,7 @@ namespace Magpie.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        [global::System.Configuration.DefaultSettingValueAttribute("90")]
         public uint FrameRate {
             get {
                 return ((uint)(this["FrameRate"]));
