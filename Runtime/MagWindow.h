@@ -64,7 +64,7 @@ private:
             CoInitialize(NULL),
             L"初始化 COM 出错"
         );
-
+        
         Debug::Assert(
             IsWindow(_hwndSrc) && IsWindowVisible(_hwndSrc),
             L"hwndSrc 不合法"

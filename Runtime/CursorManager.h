@@ -18,21 +18,25 @@ public:
         _cursorSize.cy = GetSystemMetrics(SM_CYCURSOR);
 
         if (!noDisturb) {
+            HCURSOR hCursorArrow = LoadCursor(NULL, IDC_ARROW);
+            HCURSOR hCursorHand = LoadCursor(NULL, IDC_HAND);
+            HCURSOR hCursorAppStarting = LoadCursor(NULL, IDC_APPSTARTING);
+
             // ±£¥ÊÃÊªª÷Æ«∞µƒ arrow π‚±ÍÕºœÒ
-            ComPtr<ID2D1Bitmap> arrowImg = _CursorToD2DBitmap(LoadCursor(NULL, IDC_ARROW));
-            ComPtr<ID2D1Bitmap> handImg = _CursorToD2DBitmap(LoadCursor(NULL, IDC_HAND));
-            ComPtr<ID2D1Bitmap> appStartingImg = _CursorToD2DBitmap(LoadCursor(NULL, IDC_APPSTARTING));
+            ComPtr<ID2D1Bitmap> arrowImg = _CursorToD2DBitmap(hCursorArrow);
+            ComPtr<ID2D1Bitmap> handImg = _CursorToD2DBitmap(hCursorHand);
+            ComPtr<ID2D1Bitmap> appStartingImg = _CursorToD2DBitmap(hCursorAppStarting);
 
             Debug::ThrowIfWin32Failed(
-                SetSystemCursor(_CreateTransparentCursor(), OCR_NORMAL),
+                SetSystemCursor(_CreateTransparentCursor(hCursorArrow), OCR_NORMAL),
                 L"…Ë÷√ OCR_NORMAL  ß∞‹"
             );
             Debug::ThrowIfWin32Failed(
-                SetSystemCursor(_CreateTransparentCursor(), OCR_HAND),
+                SetSystemCursor(_CreateTransparentCursor(hCursorHand), OCR_HAND),
                 L"…Ë÷√ OCR_HAND  ß∞‹"
             );
             Debug::ThrowIfWin32Failed(
-                SetSystemCursor(_CreateTransparentCursor(), OCR_APPSTARTING),
+                SetSystemCursor(_CreateTransparentCursor(hCursorAppStarting), OCR_APPSTARTING),
                 L"…Ë÷√ OCR_APPSTARTING  ß∞‹"
             );
             
@@ -97,16 +101,13 @@ public:
         targetScreenPos.y = roundf(targetScreenPos.y);
 
 
-        ICONINFO ii{};
-        Debug::ThrowIfWin32Failed(GetIconInfo(ci.hCursor, &ii), L"GetIconInfo  ß∞‹");
-        DeleteBitmap(ii.hbmColor);
-        DeleteBitmap(ii.hbmMask);
+        auto [xHotSpot, yHotSpot] = _GetCursorHotSpot(ci.hCursor);
 
         D2D1_RECT_F cursorRect{
-            targetScreenPos.x - ii.xHotspot,
-            targetScreenPos.y - ii.yHotspot,
-            targetScreenPos.x + _cursorSize.cx - ii.xHotspot,
-            targetScreenPos.y + _cursorSize.cy - ii.yHotspot
+            targetScreenPos.x - xHotSpot,
+            targetScreenPos.y - yHotSpot,
+            targetScreenPos.x + _cursorSize.cx - xHotSpot,
+            targetScreenPos.y + _cursorSize.cy - yHotSpot
         };
         
         auto it = _cursorMap.find(ci.hCursor);
@@ -144,18 +145,45 @@ public:
         _cursorMap[hTptCursor] = _CursorToD2DBitmap(hCursor);
     }
 private:
-    HCURSOR _CreateTransparentCursor() {
+    HCURSOR _CreateTransparentCursor(HCURSOR hCursorHotSpot) {
         int len = _cursorSize.cx * _cursorSize.cy;
         BYTE* andPlane = new BYTE[len];
         memset(andPlane, 0xff, len);
         BYTE* xorPlane = new BYTE[len]{};
 
-        HCURSOR result = CreateCursor(_hInstance, 0, 0, _cursorSize.cx, _cursorSize.cy, andPlane, xorPlane);
+        auto hotSpot = _GetCursorHotSpot(hCursorHotSpot);
+
+        HCURSOR result = CreateCursor(
+            _hInstance,
+            hotSpot.first, hotSpot.second,
+            _cursorSize.cx, _cursorSize.cy,
+            andPlane, xorPlane
+        );
         Debug::ThrowIfWin32Failed(result, L"¥¥Ω®Õ∏√˜ Û±Í ß∞‹");
 
         delete[] andPlane;
         delete[] xorPlane;
         return result;
+    }
+
+    std::pair<int, int> _GetCursorHotSpot(HCURSOR hCursor) {
+        if (hCursor == NULL) {
+            return {};
+        }
+
+        ICONINFO ii{};
+        Debug::ThrowIfWin32Failed(
+            GetIconInfo(hCursor, &ii),
+            L"GetIconInfo  ß∞‹"
+        );
+        
+        DeleteBitmap(ii.hbmColor);
+        DeleteBitmap(ii.hbmMask);
+
+        return {
+            min((int)ii.xHotspot, (int)_cursorSize.cx),
+            min((int)ii.yHotspot, (int)_cursorSize.cy)
+        };
     }
 
     ComPtr<ID2D1Bitmap> _CursorToD2DBitmap(HCURSOR hCursor) {

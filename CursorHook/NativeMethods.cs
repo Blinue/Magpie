@@ -63,6 +63,24 @@ namespace Magpie.CursorHook {
         public static extern bool GetCursorInfo(ref CURSORINFO pci);
 
         [DllImport("user32.dll", CharSet = CharSet.Unicode)]
+        public static extern bool DestroyCursor(IntPtr hCursor);
+
+        [StructLayout(LayoutKind.Sequential)]
+        public struct ICONINFO {
+            public int fIcon;
+            public uint xHotspot;
+            public uint yHotspot;
+            public IntPtr hbmMask;
+            public IntPtr hbmColor;
+        }
+
+        [DllImport("user32.dll", CharSet = CharSet.Unicode)]
+        public static extern bool GetIconInfo(IntPtr hIcon, ref ICONINFO piconinfo);
+
+        [DllImport("gdi32.dll", CharSet = CharSet.Unicode)]
+        public static extern bool DeleteObject(IntPtr ho);
+
+        [DllImport("user32.dll", CharSet = CharSet.Unicode)]
         private static extern uint RegisterWindowMessage([MarshalAs(UnmanagedType.LPWStr)]string lpString);
 
         private readonly static int SM_CXCURSOR = 13;
@@ -92,6 +110,10 @@ namespace Magpie.CursorHook {
         private static extern IntPtr GetParent(IntPtr hWnd);
 
         public static IntPtr GetTopWindow(IntPtr hWnd) {
+            if(hWnd == IntPtr.Zero) {
+                return IntPtr.Zero;
+            }
+
             while(true) {
                 IntPtr parent = GetParent(hWnd);
                 if (parent == IntPtr.Zero) {
@@ -106,6 +128,10 @@ namespace Magpie.CursorHook {
         private static extern int GetWindowThreadProcessId(IntPtr hWnd,ref int lpdwProcessId);
 
         public static int GetWindowProcessId(IntPtr hWnd) {
+            if(hWnd == IntPtr.Zero) {
+                return 0;
+            }
+
             int processId = 0;
             GetWindowThreadProcessId(hWnd, ref processId);
             return processId;

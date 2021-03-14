@@ -57,7 +57,7 @@ private:
 			_d2dDC->CreateEffect(CLSID_D2D1BitmapSource, &_d2dSourceEffect),
 			L"创建 D2D1BitmapSource 失败"
 		);
-
+		
 		// 初始时输出为 Source effect
 		_outputEffect = _d2dSourceEffect;
 
