@@ -1,6 +1,6 @@
 ﻿/*
  * ---------------------
- *   非常舒服，非常脆弱
+ *   非常强大，非常脆弱
  * ---------------------
  */
 
@@ -43,8 +43,7 @@ namespace Magpie.CursorHook {
         /// <param name="context">The RemoteHooking context</param>
         /// <param name="channelName">The name of the IPC channel</param>
         public InjectionEntryPoint(
-            EasyHook.RemoteHooking.IContext context,
-            string channelName, IntPtr hwndHost, IntPtr hwndSrc) {
+            EasyHook.RemoteHooking.IContext _, string channelName, IntPtr hwndHost, IntPtr _1) {
             _hwndHost = hwndHost;
 
             // Connect to server object using provided channel name
@@ -89,48 +88,74 @@ namespace Magpie.CursorHook {
 
             // 将窗口类中的 HCURSOR 替换为透明光标
             void replaceHCursor(IntPtr hWnd) {
+                if (_hwndTohCursor.ContainsKey(hWnd)) {
+                    return;
+                }
+
                 // Get(Set)ClassLong 不能使用 Ptr 版本
                 IntPtr hCursor = (IntPtr)NativeMethods.GetClassLong(hWnd, NativeMethods.GCLP_HCURSOR);
                 if (hCursor == IntPtr.Zero) {
                     return;
                 }
-                
-                if (!_hwndTohCursor.ContainsKey(hWnd)) {
-                    _hwndTohCursor.Add(hWnd, hCursor);
 
-                    // 排除透明的系统光标
-                    if (_hCursorToTptCursor.ContainsKey(hCursor)) {
-                        return;
-                    }
+                _hwndTohCursor[hWnd] = hCursor;
 
-                    IntPtr hTptCursor = CreateTransparentCursor(0, 0);
-                    if(hTptCursor == IntPtr.Zero) {
+                IntPtr hTptCursor = IntPtr.Zero;
+                if (_hCursorToTptCursor.ContainsKey(hCursor)) {
+                    // 透明的系统光标或之前已替换过的
+                    hTptCursor = _hCursorToTptCursor[hCursor];
+                } else {
+                    hTptCursor = CreateTransparentCursor(0, 0);
+                    if (hTptCursor != IntPtr.Zero) {
+                        _hCursorToTptCursor[hCursor] = hTptCursor;
+
+                        // 向全屏窗口发送光标句柄
+                        NativeMethods.SendMessage(_hwndHost, NativeMethods.MAGPIE_WM_NEWCURSOR, hTptCursor, hCursor);
+                    } else {
                         // 创建透明光标失败
                         hTptCursor = hCursor;
                     }
-
-                    NativeMethods.SetClassLong(hWnd, NativeMethods.GCLP_HCURSOR, hTptCursor);
-
-                    _hCursorToTptCursor[hCursor] = hTptCursor;
-
-                    // 向全屏窗口发送光标句柄
-                    NativeMethods.SendMessage(_hwndHost, NativeMethods.MAGPIE_WM_NEWCURSOR, hTptCursor, hCursor);
                 }
+
+                // 替换窗口类的 HCURSOR
+                NativeMethods.SetClassLong(hWnd, NativeMethods.GCLP_HCURSOR, hTptCursor);
             }
-            
-            replaceHCursor(hwndSrc);
-            NativeMethods.EnumChildWindows(hwndSrc, (IntPtr hWnd, int lParam) => {
+
+            // 替换进程中所有顶级窗口的窗口类的 HCURSOR
+            /*NativeMethods.EnumChildWindows(IntPtr.Zero, (IntPtr hWnd, int processId) => {
+                if (NativeMethods.GetWindowProcessId(hWnd) != processId) {
+                    return true;
+                }
+
+                replaceHCursor(hWnd);
+                NativeMethods.EnumChildWindows(hWnd, (IntPtr hWnd1, int _3) => {
+                    replaceHCursor(hWnd1);
+                    return true;
+                }, 0);
+                return true;
+            }, NativeMethods.GetWindowProcessId(hwndSrc));*/
+
+            // 替换源窗口和它的所有子窗口的窗口类的 HCRUSOR
+            // 因为通过窗口类的 HCURSOR 设置光标不会通过 SetCursor
+            IntPtr hwndTop = NativeMethods.GetTopWindow(hwndSrc);
+            replaceHCursor(hwndTop);
+            NativeMethods.EnumChildWindows(hwndTop, (IntPtr hWnd, int _3) => {
                 replaceHCursor(hWnd);
                 return true;
             }, 0);
 
-            // 向源窗口发送 WM_SETCURSOR，有时有用
-            NativeMethods.PostMessage(hwndSrc, 0x0020, hwndSrc, (IntPtr)1);
+            // 向源窗口发送 WM_SETCURSOR，一般可以使其调用 SetCursor
+            NativeMethods.PostMessage(hwndSrc, NativeMethods.WM_SETCURSOR, hwndSrc, (IntPtr)NativeMethods.HTCLIENT);
             
             try {
                 // Loop until FileMonitor closes (i.e. IPC fails)
                 while (true) {
                     Thread.Sleep(500);
+
+                    if(!NativeMethods.IsWindow(_hwndHost)) {
+                        // 全屏窗口已关闭
+                        break;
+                    }
 
                     string[] queued = null;
 
@@ -163,15 +188,17 @@ namespace Magpie.CursorHook {
         }
 
 
-        // The SetCursor delegate, this is needed to create a delegate of our hook function
+        // 用于创建 SetCursor 委托
         [UnmanagedFunctionPointer(CallingConvention.StdCall,
                     CharSet = CharSet.Unicode,
                     SetLastError = true)]
         delegate IntPtr SetCursor_Delegate(IntPtr hCursor);
 
 
-        // The SetCursor hook function. This will be called instead of the original SetCursor once hooked.
+        // 取代 SetCursor 的钩子
         IntPtr SetCursor_Hook(IntPtr hCursor) {
+            // _messageQueue.Enqueue("setcursor");
+
             if (!NativeMethods.IsWindow(_hwndHost) || hCursor == IntPtr.Zero) {
                 // 全屏窗口关闭后钩子不做任何操作
                 return NativeMethods.SetCursor(hCursor);
@@ -182,7 +209,6 @@ namespace Magpie.CursorHook {
             }
 
             // 未出现过的 hCursor
-            _messageQueue.Enqueue("create");
             IntPtr hTptCursor = CreateTransparentCursor(0, 0);
             if(hTptCursor != IntPtr.Zero) {
                 _hCursorToTptCursor[hCursor] = hTptCursor;

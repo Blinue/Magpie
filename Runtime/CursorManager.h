@@ -17,7 +17,6 @@ public:
         _cursorSize.cx = GetSystemMetrics(SM_CXCURSOR);
         _cursorSize.cy = GetSystemMetrics(SM_CYCURSOR);
 
-
         if (!noDisturb) {
             // 保存替换之前的 arrow 光标图像
             ComPtr<ID2D1Bitmap> arrowImg = _CursorToD2DBitmap(LoadCursor(NULL, IDC_ARROW));
