@@ -17,6 +17,7 @@ namespace Magpie.CursorHook {
     /// becomes the entry point within the target process after injection is complete.
     /// </summary>
     public class InjectionEntryPoint : EasyHook.IEntryPoint {
+//#if DEBUG
         /// <summary>
         /// Reference to the server interface within FileMonitor
         /// </summary>
@@ -26,8 +27,10 @@ namespace Magpie.CursorHook {
         /// Message queue of all files accessed
         /// </summary>
         private readonly Queue<string> _messageQueue = new Queue<string>();
+//#endif
 
         private readonly IntPtr _hwndHost;
+        private readonly IntPtr _hwndSrc;
 
         private readonly (int x, int y) _cursorSize = NativeMethods.GetCursorSize();
         
@@ -43,14 +46,21 @@ namespace Magpie.CursorHook {
         /// <param name="context">The RemoteHooking context</param>
         /// <param name="channelName">The name of the IPC channel</param>
         public InjectionEntryPoint(
-            EasyHook.RemoteHooking.IContext _, string channelName, IntPtr hwndHost, IntPtr _1) {
+            EasyHook.RemoteHooking.IContext _,
+//#if DEBUG
+            string channelName,
+//#endif
+            IntPtr hwndHost, IntPtr hwndSrc
+         ) {
             _hwndHost = hwndHost;
-
+            _hwndSrc = hwndSrc;
+//#if DEBUG
             // Connect to server object using provided channel name
             _server = EasyHook.RemoteHooking.IpcConnectClient<ServerInterface>(channelName);
 
             // If Ping fails then the Run method will be not be called
             _server.Ping();
+//#endif
         }
 
         /// <summary>
@@ -60,23 +70,26 @@ namespace Magpie.CursorHook {
         /// </summary>
         /// <param name="context">The RemoteHooking context</param>
         /// <param name="channelName">The name of the IPC channel</param>
-        public void Run(EasyHook.RemoteHooking.IContext _, string _1, IntPtr _2, IntPtr hwndSrc) {
-            // Injection is now complete and the server interface is connected
-            _server.IsInstalled(EasyHook.RemoteHooking.GetCurrentProcessId());
-            
-            // Install hooks
+        public void Run(
+            EasyHook.RemoteHooking.IContext _,
+//#if DEBUG
+            string _1,
+//#endif
+            IntPtr _2, IntPtr _3
+        ) {
+            // 安装钩子
 
-            // SetCursor https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-setcursor
+            // 截获 SetCursor
             var setCursorHook = EasyHook.LocalHook.Create(
                 EasyHook.LocalHook.GetProcAddress("user32.dll", "SetCursor"),
                 new SetCursor_Delegate(SetCursor_Hook),
                 this
             );
 
-            // Activate hooks on all threads except the current thread
+            // Hook 当前线程外的所有线程
             setCursorHook.ThreadACL.SetExclusiveACL(new int[] { 0 });
 
-            _server.ReportMessage("SetCursor钩子安装成功");
+            ReportToServer("SetCursor钩子安装成功");
 
             // 不替换这些系统光标，因为已被全局替换
             var arrowCursor = NativeMethods.LoadCursor(IntPtr.Zero, NativeMethods.IDC_ARROW);
@@ -137,15 +150,20 @@ namespace Magpie.CursorHook {
 
             // 替换源窗口和它的所有子窗口的窗口类的 HCRUSOR
             // 因为通过窗口类的 HCURSOR 设置光标不会通过 SetCursor
-            IntPtr hwndTop = NativeMethods.GetTopWindow(hwndSrc);
+            IntPtr hwndTop = NativeMethods.GetTopWindow(_hwndSrc);
             replaceHCursor(hwndTop);
-            NativeMethods.EnumChildWindows(hwndTop, (IntPtr hWnd, int _3) => {
+            NativeMethods.EnumChildWindows(hwndTop, (IntPtr hWnd, int _4) => {
                 replaceHCursor(hWnd);
                 return true;
             }, 0);
 
             // 向源窗口发送 WM_SETCURSOR，一般可以使其调用 SetCursor
-            NativeMethods.PostMessage(hwndSrc, NativeMethods.WM_SETCURSOR, hwndSrc, (IntPtr)NativeMethods.HTCLIENT);
+            NativeMethods.PostMessage(
+                _hwndSrc,
+                NativeMethods.WM_SETCURSOR,
+                _hwndSrc,
+                (IntPtr)NativeMethods.HTCLIENT
+            );
             
             try {
                 // Loop until FileMonitor closes (i.e. IPC fails)
@@ -153,26 +171,24 @@ namespace Magpie.CursorHook {
                     Thread.Sleep(500);
 
                     if(!NativeMethods.IsWindow(_hwndHost)) {
-                        // 全屏窗口已关闭
+                        // 全屏窗口已关闭，卸载钩子
                         break;
                     }
 
-                    string[] queued = null;
+//#if DEBUG
+                    string[] queued = _messageQueue.ToArray();
+                    _messageQueue.Clear();
 
-                    lock (_messageQueue) {
-                        queued = _messageQueue.ToArray();
-                        _messageQueue.Clear();
-                    }
-
-                    // Send newly monitored file accesses to FileMonitor
-                    if (queued != null && queued.Length > 0) {
+                    if (queued.Length > 0) {
                         _server.ReportMessages(queued);
                     } else {
                         _server.Ping();
                     }
+//#endif
                 }
             } catch {
-                // Ping() or ReportMessages() will raise an exception if host is unreachable
+                // 如果服务器关闭 Ping() 和 ReportMessages() 将抛出异常
+                // 执行到此处表示 Magpie 已关闭
             }
 
             // 退出前重置窗口类的光标
@@ -180,24 +196,20 @@ namespace Magpie.CursorHook {
                 NativeMethods.SetClassLong(item.Key, NativeMethods.GCLP_HCURSOR, item.Value);
             }
 
-            // Remove hooks
+            // 卸载钩子
             setCursorHook.Dispose();
-
-            // Finalise cleanup of hooks
             EasyHook.LocalHook.Release();
         }
 
 
         // 用于创建 SetCursor 委托
-        [UnmanagedFunctionPointer(CallingConvention.StdCall,
-                    CharSet = CharSet.Unicode,
-                    SetLastError = true)]
+        [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode, SetLastError = true)]
         delegate IntPtr SetCursor_Delegate(IntPtr hCursor);
 
 
         // 取代 SetCursor 的钩子
         IntPtr SetCursor_Hook(IntPtr hCursor) {
-            // _messageQueue.Enqueue("setcursor");
+            // ReportToServer("setcursor");
 
             if (!NativeMethods.IsWindow(_hwndHost) || hCursor == IntPtr.Zero) {
                 // 全屏窗口关闭后钩子不做任何操作
@@ -224,7 +236,7 @@ namespace Magpie.CursorHook {
             return rt;
         }
 
-        IntPtr CreateTransparentCursor(int xHotSpot, int yHotSpot) {
+        private IntPtr CreateTransparentCursor(int xHotSpot, int yHotSpot) {
             int len = _cursorSize.x * _cursorSize.y;
 
             // 全 0xff
@@ -238,6 +250,12 @@ namespace Magpie.CursorHook {
 
             return NativeMethods.CreateCursor(NativeMethods.GetModule(), xHotSpot, yHotSpot,
                 _cursorSize.x, _cursorSize.y, andPlane, xorPlane);
+        }
+
+        private void ReportToServer(string msg) {
+//#if DEBUG
+            _messageQueue.Enqueue(msg);
+//#endif
         }
     }
 }

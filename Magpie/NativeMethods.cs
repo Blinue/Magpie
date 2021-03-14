@@ -25,6 +25,14 @@ namespace Magpie {
         [DllImport("user32.dll", CharSet = CharSet.Unicode)]
         public static extern IntPtr SetCursor(IntPtr hCursor);
 
+        [DllImport("user32.dll", CharSet = CharSet.Unicode)]
+        private static extern int GetWindowThreadProcessId(IntPtr hWnd, ref int lpdwProcessId);
+
+        public static int GetWindowProcessId(IntPtr hWnd) {
+            int processId = 0;
+            GetWindowThreadProcessId(hWnd, ref processId);
+            return processId;
+        }
 
         [DllImport("Runtime", CallingConvention = CallingConvention.StdCall)]
         public static extern bool CreateMagWindow(
@@ -47,9 +55,6 @@ namespace Magpie {
         public static string GetLastErrorMsg() {
             return Marshal.PtrToStringUni(GetLastErrorMsgNative());
         }
-
-        [DllImport("Runtime", CallingConvention = CallingConvention.StdCall)]
-        public static extern int GetSrcPID();
 
         [DllImport("Runtime", CallingConvention = CallingConvention.StdCall)]
         public static extern IntPtr GetSrcWnd();

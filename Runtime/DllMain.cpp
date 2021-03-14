@@ -75,13 +75,6 @@ API_DECLSPEC HWND WINAPI GetSrcWnd() {
     return MagWindow::$instance->GetSrcWnd();
 }
 
-API_DECLSPEC UINT32 WINAPI GetSrcPID() {
-    HWND hwndSrc = GetSrcWnd();
-    DWORD pid = 0;
-    GetWindowThreadProcessId(hwndSrc, &pid);
-
-    return pid;
-}
 
 API_DECLSPEC HWND WINAPI GetHostWnd() {
     if (MagWindow::$instance == nullptr) {

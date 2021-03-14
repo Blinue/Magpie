@@ -4,6 +4,12 @@ using System.Windows.Forms;
 using Gma.System.MouseKeyHook;
 using System.Drawing;
 using Magpie.Properties;
+using EasyHook;
+using Magpie.CursorHook;
+using System.Runtime.Remoting;
+using System.IO;
+using System.Reflection;
+using System.Diagnostics;
 
 namespace Magpie {
     public partial class MainForm : Form {
@@ -43,8 +49,6 @@ namespace Magpie {
 ]";
 
         IKeyboardMouseEvents keyboardEvents = null;
-
-        CursorHookInjector cursorHookInjector = null;
 
         public MainForm() {
             InitializeComponent();
@@ -104,10 +108,7 @@ namespace Magpie {
                                 return;
                             }
 
-                            int pid = NativeMethods.GetSrcPID();
-                            IntPtr hwndHost = NativeMethods.GetHostWnd();
-                            IntPtr hwndSrc = NativeMethods.GetSrcWnd();
-                            cursorHookInjector = new CursorHookInjector(pid, hwndHost, hwndSrc);
+                            HookCursor();
                         } else {
                             NativeMethods.DestroyMagWindow();
                         }
@@ -122,6 +123,40 @@ namespace Magpie {
                 txtHotkey.ForeColor = Color.Red;
             }
             
+        }
+
+        private void HookCursor() {
+//#if DEBUG
+            string channelName = null;
+            // DEBUG 时创建 IPC server
+            RemoteHooking.IpcCreateServer<ServerInterface>(ref channelName, WellKnownObjectMode.Singleton);
+//#endif
+
+            // 获取 CursorHook.dll 的绝对路径
+            string injectionLibrary = Path.Combine(
+                Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
+                "CursorHook.dll"
+            );
+
+            // 使用 EasyHook 注入
+            IntPtr hwndSrc = NativeMethods.GetSrcWnd();
+            int pid = NativeMethods.GetWindowProcessId(hwndSrc);
+            if(pid == Process.GetCurrentProcess().Id) {
+                // 不能 hook 本进程
+                return;
+            }
+
+            EasyHook.RemoteHooking.Inject(
+                pid,                // 要注入的进程的 ID
+                injectionLibrary,   // 32 位 DLL
+                injectionLibrary,   // 64 位 DLL
+                                    // 下面为传递给注入 DLL 的参数
+//#if DEBUG
+                channelName,
+//#endif
+                NativeMethods.GetHostWnd(),
+                hwndSrc
+            );
         }
 
         private void CkbMaxFrameRate_CheckedChanged(object sender, EventArgs e) {

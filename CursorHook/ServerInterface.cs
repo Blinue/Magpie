@@ -9,10 +9,6 @@ namespace Magpie.CursorHook {
     /// Provides an interface for communicating from the client (target) to the server (injector)
     /// </summary>
     public class ServerInterface : MarshalByRefObject {
-        public void IsInstalled(int clientPID) {
-            Console.WriteLine("Hook 已安装");
-        }
-
         /// <summary>
         /// Output messages to the console.
         /// </summary>
