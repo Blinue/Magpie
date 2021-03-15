@@ -77,8 +77,10 @@ namespace Magpie.CursorHook {
                 this
             );
 
-            // Hook 当前线程外的所有线程
-            setCursorHook.ThreadACL.SetExclusiveACL(new int[] { 0 });
+            // 只 Hook 窗口线程，因为 SetCursor 必须在窗口线程上调用
+            setCursorHook.ThreadACL.SetInclusiveACL(
+                new int[] { NativeMethods.GetWindowThreadId(_hwndSrc) }
+            );
 
             ReportToServer("SetCursor钩子安装成功");
 

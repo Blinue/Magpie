@@ -11,9 +11,6 @@ namespace Magpie.CursorHook {
         public static extern IntPtr SetCursor(IntPtr hCursor);
 
         [DllImport("user32.dll", CharSet = CharSet.Unicode)]
-        public static extern IntPtr GetCursor();
-
-        [DllImport("user32.dll", CharSet = CharSet.Unicode)]
         public static extern IntPtr LoadCursor(IntPtr hInstance, IntPtr lpCursorName);
 
         public readonly static IntPtr IDC_ARROW = new IntPtr(32512);
@@ -127,6 +124,9 @@ namespace Magpie.CursorHook {
         [DllImport("user32.dll", CharSet = CharSet.Unicode)]
         private static extern int GetWindowThreadProcessId(IntPtr hWnd,ref int lpdwProcessId);
 
+        [DllImport("user32.dll", CharSet = CharSet.Unicode)]
+        private static extern int GetWindowThreadProcessId(IntPtr hWnd, IntPtr lpdwProcessId);
+
         public static int GetWindowProcessId(IntPtr hWnd) {
             if(hWnd == IntPtr.Zero) {
                 return 0;
@@ -135,6 +135,14 @@ namespace Magpie.CursorHook {
             int processId = 0;
             GetWindowThreadProcessId(hWnd, ref processId);
             return processId;
+        }
+
+        public static int GetWindowThreadId(IntPtr hWnd) {
+            if (hWnd == IntPtr.Zero) {
+                return 0;
+            }
+
+            return GetWindowThreadProcessId(hWnd, IntPtr.Zero);
         }
     }
 }
