@@ -33,9 +33,9 @@ namespace Magpie.CursorHook {
         private readonly IntPtr _hwndSrc;
 
         private readonly (int x, int y) _cursorSize = NativeMethods.GetCursorSize();
-        
-        // 用于保存窗口类的 HCURSOR，以在卸载钩子时还原
-        private readonly Dictionary<IntPtr, IntPtr> _hwndTohCursor = new Dictionary<IntPtr, IntPtr>();
+
+        // 保存已替换 HCURSOR 的窗口，以在卸载钩子时还原
+        private readonly HashSet<IntPtr> _replacedHwnds = new HashSet<IntPtr>();
 
         // 原光标到透明光标的映射
         private readonly Dictionary<IntPtr, IntPtr> _hCursorToTptCursor = new Dictionary<IntPtr, IntPtr>();
@@ -94,7 +94,7 @@ namespace Magpie.CursorHook {
 
             // 将窗口类中的 HCURSOR 替换为透明光标
             void replaceHCursor(IntPtr hWnd) {
-                if (_hwndTohCursor.ContainsKey(hWnd)) {
+                if (_replacedHwnds.Contains(hWnd)) {
                     return;
                 }
 
@@ -110,7 +110,7 @@ namespace Magpie.CursorHook {
 
                     // 替换窗口类的 HCURSOR
                     if (NativeMethods.SetClassLong(hWnd, NativeMethods.GCLP_HCURSOR, hTptCursor) == hCursor) {
-                        _hwndTohCursor[hWnd] = hCursor;
+                        _replacedHwnds.Add(hWnd);
                     } else {
                         ReportIfFalse(false, "SetClassLong 失败");
                     }
@@ -127,7 +127,7 @@ namespace Magpie.CursorHook {
                         // 替换窗口类的 HCURSOR
                         if (NativeMethods.SetClassLong(hWnd, NativeMethods.GCLP_HCURSOR, hTptCursor) == hCursor) {
                             // 替换成功
-                            _hwndTohCursor[hWnd] = hCursor;
+                            _replacedHwnds.Add(hWnd);
                             _hCursorToTptCursor[hCursor] = hTptCursor;
                         } else {
                             NativeMethods.DestroyCursor(hTptCursor);
@@ -173,7 +173,7 @@ namespace Magpie.CursorHook {
                 ),
                 "PostMessage 失败"
             );
-            
+
             try {
                 // Loop until FileMonitor closes (i.e. IPC fails)
                 while (true) {
@@ -201,9 +201,23 @@ namespace Magpie.CursorHook {
             }
 
             // 退出前重置窗口类的光标
-            foreach (var item in _hwndTohCursor) {
+            foreach (var hwnd in _replacedHwnds) {
+                IntPtr hCursor = (IntPtr)NativeMethods.GetClassLong(hwnd, NativeMethods.GCLP_HCURSOR);
+                if (hCursor == IntPtr.Zero) {
+                    continue;
+                }
+
+                // 在 _hCursorToTptCursor 中反向查找
+                var item = _hCursorToTptCursor
+                    .FirstOrDefault(pair => pair.Value == hCursor);
+
+                if(item.Key == IntPtr.Zero || item.Value == IntPtr.Zero) {
+                    // 找不到就不替换
+                    continue;
+                }
+
                 // 忽略错误
-                NativeMethods.SetClassLong(item.Key, NativeMethods.GCLP_HCURSOR, item.Value);
+                NativeMethods.SetClassLong(hwnd, NativeMethods.GCLP_HCURSOR, item.Key);
             }
 
             // 清理资源
@@ -223,10 +237,9 @@ namespace Magpie.CursorHook {
         [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode, SetLastError = true)]
         public delegate IntPtr SetCursor_Delegate(IntPtr hCursor);
 
-
         // 取代 SetCursor 的钩子
         public IntPtr SetCursor_Hook(IntPtr hCursor) {
-            ReportToServer("setcursor");
+            // ReportToServer("setcursor");
 
             if (!NativeMethods.IsWindow(_hwndHost) || hCursor == IntPtr.Zero) {
                 // 全屏窗口关闭后钩子不做任何操作
@@ -309,7 +322,9 @@ namespace Magpie.CursorHook {
 
         private void ReportToServer(string msg) {
 #if DEBUG
-            _messageQueue.Enqueue(msg);
+            if(_messageQueue.Count < 1000) {
+                _messageQueue.Enqueue(msg);
+            }
 #endif
         }
 

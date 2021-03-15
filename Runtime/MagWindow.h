@@ -26,7 +26,7 @@ public:
             noDisturb
         ));
     }
-
+    
     // 不可复制，不可移动
     MagWindow(const MagWindow&) = delete;
     MagWindow(MagWindow&&) = delete;
