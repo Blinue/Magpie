@@ -49,13 +49,25 @@ namespace Magpie.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("90")]
-        public uint FrameRate {
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool noVSync {
             get {
-                return ((uint)(this["FrameRate"]));
+                return ((bool)(this["noVSync"]));
             }
             set {
-                this["FrameRate"] = value;
+                this["noVSync"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool showFPS {
+            get {
+                return ((bool)(this["showFPS"]));
+            }
+            set {
+                this["showFPS"] = value;
             }
         }
     }

@@ -2,7 +2,7 @@
 #include "pch.h"
 #include "Utils.h"
 #include "EffectManager.h"
-#include "CursorManager.h"
+#include "Renderable.h"
 
 using namespace D2D1;
 
@@ -14,8 +14,9 @@ public:
         const std::wstring_view &effectsJson,
         const RECT& srcClient,
         IWICImagingFactory2* wicImgFactory,
-        bool noDisturb
-    ) {
+        bool noVSync = false,
+        bool noDisturb = false
+    ): _noVSync(noVSync) {
         RECT destClient{};
         Utils::GetClientScreenRect(hwndHost, destClient);
         _hostWndClientSize = Utils::GetSize(destClient);
@@ -47,7 +48,7 @@ public:
         return _d2dDC.Get();
     }
 public:
-    void Render(IWICBitmapSource* srcBmp, CursorManager& cursorManager) const {
+    void Render(IWICBitmapSource* srcBmp, const std::vector<Renderable*>& renderables) const {
         // 将输出图像显示在窗口中央
         _d2dDC->BeginDraw();
         _d2dDC->Clear();
@@ -58,15 +59,20 @@ public:
             D2D1_POINT_2F{ _destRect.left, _destRect.top }
         );
 
-        cursorManager.DrawCursor();
+        for (auto r : renderables) {
+            if (r) {
+                r->Render();
+            }
+        }
 
         Debug::ThrowIfComFailed(
             _d2dDC->EndDraw(),
             L"EndDraw 失败"
         );
         
+        // 如果帧率不足，关闭垂直同步可以提升帧率
         Debug::ThrowIfComFailed(
-            _dxgiSwapChain->Present(0, 0),
+            _dxgiSwapChain->Present(0, _noVSync ? DXGI_PRESENT_ALLOW_TEARING: 0),
             L"Present 失败"
         );
     }
@@ -145,7 +151,7 @@ private:
         
         // Allocate a descriptor.
         DXGI_SWAP_CHAIN_DESC1 swapChainDesc{};
-        swapChainDesc.Flags = 0;
+        swapChainDesc.Flags = _noVSync ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : 0;
         swapChainDesc.Width = _hostWndClientSize.cx,
         swapChainDesc.Height = _hostWndClientSize.cy,
         swapChainDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM; // this is the most common swapchain format
@@ -210,6 +216,8 @@ private:
 
     SIZE _hostWndClientSize{};
     D2D1_RECT_F _destRect{};
+
+    bool _noVSync;
 
     ComPtr<ID2D1Factory1> _d2dFactory = nullptr;
     ComPtr<ID2D1Device> _d2dDevice = nullptr;

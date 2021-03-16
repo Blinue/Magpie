@@ -239,7 +239,7 @@ namespace Magpie.CursorHook {
 
         // 取代 SetCursor 的钩子
         public IntPtr SetCursor_Hook(IntPtr hCursor) {
-            // ReportToServer("setcursor");
+            // ReportToServer("SetCursor");
 
             if (!NativeMethods.IsWindow(_hwndHost) || hCursor == IntPtr.Zero) {
                 // 全屏窗口关闭后钩子不做任何操作

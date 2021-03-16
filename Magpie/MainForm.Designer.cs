@@ -30,17 +30,14 @@ namespace Magpie {
             this.txtHotkey = new System.Windows.Forms.TextBox();
             this.label2 = new System.Windows.Forms.Label();
             this.cbbScaleMode = new System.Windows.Forms.ComboBox();
-            this.label3 = new System.Windows.Forms.Label();
-            this.tkbFrameRate = new System.Windows.Forms.TrackBar();
-            this.lblFrameRate = new System.Windows.Forms.Label();
-            this.ckbMaxFrameRate = new System.Windows.Forms.CheckBox();
+            this.ckbNoVSync = new System.Windows.Forms.CheckBox();
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.notifyIcon = new System.Windows.Forms.NotifyIcon(this.components);
             this.cmsNotifyIcon = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.tsmiHotkey = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiMainForm = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiExit = new System.Windows.Forms.ToolStripMenuItem();
-            ((System.ComponentModel.ISupportInitialize)(this.tkbFrameRate)).BeginInit();
+            this.ckbShowFPS = new System.Windows.Forms.CheckBox();
             this.cmsNotifyIcon.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -83,48 +80,16 @@ namespace Magpie {
             this.cbbScaleMode.TabIndex = 2;
             this.cbbScaleMode.SelectedIndexChanged += new System.EventHandler(this.CbbScaleMode_SelectedIndexChanged);
             // 
-            // label3
+            // ckbNoVSync
             // 
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(42, 119);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(37, 15);
-            this.label3.TabIndex = 4;
-            this.label3.Text = "帧率";
-            // 
-            // tkbFrameRate
-            // 
-            this.tkbFrameRate.LargeChange = 10;
-            this.tkbFrameRate.Location = new System.Drawing.Point(85, 105);
-            this.tkbFrameRate.Maximum = 120;
-            this.tkbFrameRate.Minimum = 30;
-            this.tkbFrameRate.Name = "tkbFrameRate";
-            this.tkbFrameRate.Size = new System.Drawing.Size(196, 56);
-            this.tkbFrameRate.SmallChange = 5;
-            this.tkbFrameRate.TabIndex = 3;
-            this.tkbFrameRate.TickFrequency = 10;
-            this.tkbFrameRate.Value = 60;
-            this.tkbFrameRate.ValueChanged += new System.EventHandler(this.TkbFrameRate_ValueChanged);
-            // 
-            // lblFrameRate
-            // 
-            this.lblFrameRate.AutoSize = true;
-            this.lblFrameRate.Location = new System.Drawing.Point(93, 147);
-            this.lblFrameRate.Name = "lblFrameRate";
-            this.lblFrameRate.Size = new System.Drawing.Size(23, 15);
-            this.lblFrameRate.TabIndex = 6;
-            this.lblFrameRate.Text = "60";
-            // 
-            // ckbMaxFrameRate
-            // 
-            this.ckbMaxFrameRate.AutoSize = true;
-            this.ckbMaxFrameRate.Location = new System.Drawing.Point(207, 146);
-            this.ckbMaxFrameRate.Name = "ckbMaxFrameRate";
-            this.ckbMaxFrameRate.Size = new System.Drawing.Size(74, 19);
-            this.ckbMaxFrameRate.TabIndex = 4;
-            this.ckbMaxFrameRate.Text = "无限制";
-            this.ckbMaxFrameRate.UseVisualStyleBackColor = true;
-            this.ckbMaxFrameRate.CheckedChanged += new System.EventHandler(this.CkbMaxFrameRate_CheckedChanged);
+            this.ckbNoVSync.AutoSize = true;
+            this.ckbNoVSync.Location = new System.Drawing.Point(85, 129);
+            this.ckbNoVSync.Name = "ckbNoVSync";
+            this.ckbNoVSync.Size = new System.Drawing.Size(119, 19);
+            this.ckbNoVSync.TabIndex = 4;
+            this.ckbNoVSync.Text = "关闭垂直同步";
+            this.ckbNoVSync.UseVisualStyleBackColor = true;
+            this.ckbNoVSync.CheckedChanged += new System.EventHandler(this.CkbNoVSync_CheckedChanged);
             // 
             // textBox1
             // 
@@ -174,16 +139,25 @@ namespace Magpie {
             this.tsmiExit.Text = "退出";
             this.tsmiExit.Click += new System.EventHandler(this.TsmiExit_Click);
             // 
+            // ckbShowFPS
+            // 
+            this.ckbShowFPS.AutoSize = true;
+            this.ckbShowFPS.Location = new System.Drawing.Point(85, 104);
+            this.ckbShowFPS.Name = "ckbShowFPS";
+            this.ckbShowFPS.Size = new System.Drawing.Size(89, 19);
+            this.ckbShowFPS.TabIndex = 8;
+            this.ckbShowFPS.Text = "显示帧率";
+            this.ckbShowFPS.UseVisualStyleBackColor = true;
+            this.ckbShowFPS.CheckedChanged += new System.EventHandler(this.CkbShowFPS_CheckedChanged);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(316, 249);
+            this.Controls.Add(this.ckbShowFPS);
             this.Controls.Add(this.textBox1);
-            this.Controls.Add(this.ckbMaxFrameRate);
-            this.Controls.Add(this.lblFrameRate);
-            this.Controls.Add(this.tkbFrameRate);
-            this.Controls.Add(this.label3);
+            this.Controls.Add(this.ckbNoVSync);
             this.Controls.Add(this.cbbScaleMode);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.txtHotkey);
@@ -196,7 +170,6 @@ namespace Magpie {
             this.Text = "Magpie";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
             this.Resize += new System.EventHandler(this.MainForm_Resize);
-            ((System.ComponentModel.ISupportInitialize)(this.tkbFrameRate)).EndInit();
             this.cmsNotifyIcon.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
@@ -209,16 +182,14 @@ namespace Magpie {
         private System.Windows.Forms.TextBox txtHotkey;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.ComboBox cbbScaleMode;
-        private System.Windows.Forms.Label label3;
-        private System.Windows.Forms.TrackBar tkbFrameRate;
-        private System.Windows.Forms.Label lblFrameRate;
-        private System.Windows.Forms.CheckBox ckbMaxFrameRate;
+        private System.Windows.Forms.CheckBox ckbNoVSync;
         private System.Windows.Forms.TextBox textBox1;
         private System.Windows.Forms.NotifyIcon notifyIcon;
         private System.Windows.Forms.ContextMenuStrip cmsNotifyIcon;
         private System.Windows.Forms.ToolStripMenuItem tsmiMainForm;
         private System.Windows.Forms.ToolStripMenuItem tsmiExit;
         private System.Windows.Forms.ToolStripMenuItem tsmiHotkey;
+        private System.Windows.Forms.CheckBox ckbShowFPS;
     }
 }
 

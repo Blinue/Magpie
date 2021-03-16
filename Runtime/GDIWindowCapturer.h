@@ -11,15 +11,15 @@ public:
 		HWND hwndSrc,
 		const RECT& srcRect,
 		IWICImagingFactory2* wicImgFactory,
-		bool noBitblt
-	): _wicImgFactory(wicImgFactory), _srcRect(srcRect), _hwndSrc(hwndSrc), _noBitblt(noBitblt) {
+		bool useBitblt = false
+	): _wicImgFactory(wicImgFactory), _srcRect(srcRect), _hwndSrc(hwndSrc), _useBitblt(useBitblt) {
 	}
 
 	ComPtr<IWICBitmapSource> GetFrame() override {
-		if (_noBitblt) {
-			return _GetFrameWithNoBitblt();
-		} else {
+		if (_useBitblt) {
 			return _GetFrameWithBitblt();
+		} else {
+			return _GetFrameWithNoBitblt();
 		}
 	}
 
@@ -85,5 +85,5 @@ private:
 	IWICImagingFactory2* _wicImgFactory;
 	const RECT& _srcRect;
 	HWND _hwndSrc;
-	bool _noBitblt;
+	bool _useBitblt;
 };

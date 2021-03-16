@@ -10,12 +10,13 @@
 
 // Windows 头文件
 #include <windows.h>
-#include <magnification.h>
 #include <windowsx.h>
+#include <magnification.h>
 #include <d2d1_3.h>
 #include <d2d1effects_2.h>
 #include <d3d11.h>
 #include <dxgi1_6.h>
+#include <dwrite_3.h>
 #include <wrl.h>
 
 // C 运行时头文件
@@ -31,3 +32,11 @@
 #include <functional>
 #include <algorithm>
 #include <string_view>
+
+
+#pragma comment(lib, "d2d1.lib")
+#pragma comment(lib, "dwrite.lib")
+#pragma comment(lib, "Magnification.lib")
+#pragma comment(lib, "d3d11.lib")
+#pragma comment(lib, "dxguid.lib")
+#pragma comment(lib, "shlwapi.lib")

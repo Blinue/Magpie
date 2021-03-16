@@ -191,6 +191,12 @@
     <ClInclude Include="GDIWindowCapturer.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="Renderable.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="FrameCatcher.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />

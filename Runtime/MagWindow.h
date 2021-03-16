@@ -4,6 +4,8 @@
 #include "EffectRenderer.h"
 #include "MagCallbackWindowCapturer.h"
 #include "GDIWindowCapturer.h"
+#include "CursorManager.h"
+#include "FrameCatcher.h"
 
 
 class MagWindow {
@@ -14,15 +16,17 @@ public:
     static void CreateInstance(
         HINSTANCE hInstance,
         HWND hwndSrc,
-        UINT frameRate,
         const std::wstring_view& effectsJson,
+        bool showFPS = false,
+        bool noVSync = false,
         bool noDisturb = false
     ) {
         $instance.reset(new MagWindow(
             hInstance,
             hwndSrc,
-            frameRate,
+            noVSync,
             effectsJson,
+            showFPS,
             noDisturb
         ));
     }
@@ -50,15 +54,14 @@ private:
     MagWindow(
         HINSTANCE hInstance,
         HWND hwndSrc,
-        UINT frameRate,
+        bool noVSync,
         const std::wstring_view& effectsJson,
+        bool showFPS,
         bool noDisturb
-    ) : _hInst(hInstance), _hwndSrc(hwndSrc), _frameRate(frameRate) {
+    ) : _hInst(hInstance), _hwndSrc(hwndSrc) {
         if ($instance) {
             Debug::Assert(false, L"已存在全屏窗口");
         }
-
-        assert(_frameRate == 0 || (_frameRate >= 30 && _frameRate <= 120));
 
         Debug::ThrowIfComFailed(
             CoInitialize(NULL),
@@ -70,7 +73,7 @@ private:
             L"hwndSrc 不合法"
         );
 
-        Utils::GetClientScreenRect(_hwndSrc, _srcRect);
+        Utils::GetClientScreenRect(_hwndSrc, _srcClient);
 
         _RegisterHostWndClass();
         _CreateHostWnd(noDisturb);
@@ -85,54 +88,78 @@ private:
             L"创建 WICImagingFactory 失败"
         );
 
+        Debug::ThrowIfComFailed(
+            DWriteCreateFactory(
+                DWRITE_FACTORY_TYPE_SHARED,
+                __uuidof(IDWriteFactory),
+                &_dwFactory
+            ),
+            L"创建 IDWriteFactory 失败"
+        );
+
         /*_windowCapturer.reset(new MagCallbackWindowCapturer(
             hInstance,
             _hwndHost,
-            _srcRect,
+            _srcClient,
             _wicImgFactory.Get()
         ));*/
         _windowCapturer.reset(new GDIWindowCapturer(
             _hwndSrc,
-            _srcRect,
-            _wicImgFactory.Get(),
-            true
+            _srcClient,
+            _wicImgFactory.Get()
         ));
 
         // 初始化 EffectRenderer
-        _effectRenderer.reset(
-            new EffectRenderer(
-                hInstance,
-                _hwndHost,
-                effectsJson,
-                _srcRect,
-                _wicImgFactory.Get(),
-                noDisturb
-            )
-        );
+        _effectRenderer.reset(new EffectRenderer(
+            hInstance,
+            _hwndHost,
+            effectsJson,
+            _srcClient,
+            _wicImgFactory.Get(),
+            noVSync,
+            noDisturb
+        ));
 
         // 初始化 CursorManager
         _cursorManager.reset(new CursorManager(
-            hInstance, _wicImgFactory.Get(), _effectRenderer->GetD2DDC(),
-            D2D1_RECT_F{ (FLOAT)_srcRect.left, (FLOAT)_srcRect.top, (FLOAT)_srcRect.right, (FLOAT)_srcRect.bottom },
-            _effectRenderer->GetDestRect(), noDisturb)
-        );
+            _effectRenderer->GetD2DDC(),
+            hInstance,
+            _wicImgFactory.Get(),
+            D2D1::RectF(
+                (float)_srcClient.left,
+                (float)_srcClient.top,
+                (float)_srcClient.right,
+                (float)_srcClient.bottom
+            ),
+            _effectRenderer->GetDestRect(),
+            noDisturb
+        ));
+
+        if (showFPS) {
+            // 初始化 FrameCatcher
+            _frameCatcher.reset(new FrameCatcher(
+                _effectRenderer->GetD2DDC(),
+                _dwFactory.Get(),
+                _effectRenderer->GetDestRect()
+            ));
+        }
 
         ShowWindow(_hwndHost, SW_NORMAL);
 
-        if (_frameRate > 0) {
-            SetTimer(_hwndHost, 1, 1000 / _frameRate, nullptr);
-        } else {
-            PostMessage(_hwndHost, _WM_MAXFRAMERATE, 0, 0);
-        }
+        PostMessage(_hwndHost, _WM_MAXFRAMERATE, 0, 0);
 
         _RegisterHookMsg();
     }
 
+
     // 渲染一帧，不抛出异常
-    static void _Render() {
+    void _Render() {
         try {
-            ComPtr<IWICBitmapSource> frame = $instance->_windowCapturer->GetFrame();
-            $instance->_effectRenderer->Render(frame.Get(), *$instance->_cursorManager);
+            ComPtr<IWICBitmapSource> frame = _windowCapturer->GetFrame();
+            _effectRenderer->Render(frame.Get(), {
+                _cursorManager.get(),
+                _frameCatcher.get()
+            });
         } catch (const magpie_exception& e) {
             Debug::WriteErrorMessage(L"渲染失败：" + e.what());
         } catch (...) {
@@ -142,23 +169,6 @@ private:
 
     static LRESULT CALLBACK _HostWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
         switch (message) {
-        case WM_TIMER:
-        {
-            if (!$instance) {
-                // timer此时已被销毁
-                break;
-            }
-
-            /* 已改为接收 shell 消息
-            if (GetForegroundWindow() != $instance->_hwndSrc) {
-                DestroyMagWindow();
-                break;
-            }*/
-
-            _Render();
-
-            break;
-        }
         case _WM_MAXFRAMERATE:
         {
             if (!$instance) {
@@ -172,9 +182,10 @@ private:
                 break;
             }*/
 
-            _Render();
+            $instance->_Render();
 
             // 立即渲染下一帧
+            // 垂直同步开启时自动限制帧率
             if (!PostMessage(hWnd, _WM_MAXFRAMERATE, 0, 0)) {
                 Debug::WriteErrorMessage(L"PostMessage 失败");
             }
@@ -266,11 +277,12 @@ private:
     HINSTANCE _hInst;
     HWND _hwndHost = NULL;
     HWND _hwndSrc;
-    RECT _srcRect{};
-    UINT _frameRate;
+    RECT _srcClient{};
 
     ComPtr<IWICImagingFactory2> _wicImgFactory = nullptr;
     std::unique_ptr<EffectRenderer> _effectRenderer = nullptr;
     std::unique_ptr<WindowCapturerBase> _windowCapturer = nullptr;
     std::unique_ptr<CursorManager> _cursorManager = nullptr;
+    std::unique_ptr<FrameCatcher> _frameCatcher = nullptr;
+    ComPtr<IDWriteFactory> _dwFactory = nullptr;
 };

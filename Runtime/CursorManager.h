@@ -1,18 +1,19 @@
 #pragma once
 #include "pch.h"
 #include "Utils.h"
+#include "Renderable.h"
 
 
-class CursorManager {
+class CursorManager: public Renderable {
 public:
     CursorManager(
+        ID2D1DeviceContext* d2dDC,
         HINSTANCE hInstance,
         IWICImagingFactory2* wicImgFactory,
-        ID2D1DeviceContext* d2dDC,
         const D2D1_RECT_F& srcRect,
         const D2D1_RECT_F& destRect,
         bool noDisturb = false
-    ) : _hInstance(hInstance), _wicImgFactory(wicImgFactory), _d2dDC(d2dDC),
+    ) : Renderable(d2dDC), _hInstance(hInstance), _wicImgFactory(wicImgFactory),
         _srcRect(srcRect), _destRect(destRect), _noDistrub(noDisturb) {
         _cursorSize.cx = GetSystemMetrics(SM_CXCURSOR);
         _cursorSize.cy = GetSystemMetrics(SM_CYCURSOR);
@@ -78,7 +79,7 @@ public:
         }
     }
 
-	void DrawCursor() {
+	void Render() override {
         CURSORINFO ci{};
         ci.cbSize = sizeof(ci);
         Debug::ThrowIfWin32Failed(
@@ -222,7 +223,7 @@ private:
 
     HINSTANCE _hInstance;
     IWICImagingFactory2* _wicImgFactory;
-    ID2D1DeviceContext* _d2dDC;
+    
 
     HCURSOR _hCursorArrow{};
     std::map<HCURSOR, ComPtr<ID2D1Bitmap>> _cursorMap;
