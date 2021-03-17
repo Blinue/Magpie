@@ -104,8 +104,8 @@ namespace Magpie.CursorHook {
         [DllImport("user32.dll", CharSet = CharSet.Unicode)]
         private static extern uint RegisterWindowMessage([MarshalAs(UnmanagedType.LPWStr)]string lpString);
 
-        private readonly static int SM_CXCURSOR = 13;
-        private readonly static int SM_CYCURSOR = 14;
+        private const int SM_CXCURSOR = 13;
+        private const int SM_CYCURSOR = 14;
 
         [DllImport("user32.dll")]
         private static extern int GetSystemMetrics(int nIndex);

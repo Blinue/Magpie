@@ -16,7 +16,7 @@ namespace Magpie {
     public partial class MainForm : Form {
         public static readonly int WM_SHOWME = NativeMethods.RegisterWindowMessage("WM_SHOWME");
 
-        private static readonly string AnimeEffectJson = @"[
+        private const string AnimeEffectJson = @"[
   {
     ""effect"": ""scale"",
     ""type"": ""Anime4KxDenoise""
@@ -33,19 +33,22 @@ namespace Magpie {
     ""curveHeight"": 0.2
   }
 ]";
-        private static readonly string CommonEffectJson = @"[
+        private const string CommonEffectJson = @"[
   {
     ""effect"": ""scale"",
-    ""type"": ""jinc2"",
-    ""scale"": [0,0],
-    ""windowSinc"": 0.35,
-    ""sinc"": 0.825,
-    ""ARStrength"": 0.7
+    ""type"": ""lanczos6"",
+    ""scale"": [0,0]
   },
   {
     ""effect"": ""sharpen"",
     ""type"": ""adaptive"",
-    ""curveHeight"": 0.3
+    ""curveHeight"": 0.6
+  },
+  {
+    ""effect"": ""sharpen"",
+    ""type"": ""builtIn"",
+    ""sharpness"": 0.5,
+    ""threshold"": 0.5
   }
 ]";
 
@@ -125,6 +128,13 @@ namespace Magpie {
         }
 
         private void HookCursorAtRuntime() {
+            IntPtr hwndSrc = NativeMethods.GetSrcWnd();
+            int pid = NativeMethods.GetWindowProcessId(hwndSrc);
+            if (pid == Process.GetCurrentProcess().Id) {
+                // 不能 hook 本进程
+                return;
+            }
+
 #if DEBUG
             string channelName = null;
             // DEBUG 时创建 IPC server
@@ -138,13 +148,6 @@ namespace Magpie {
             );
 
             // 使用 EasyHook 注入
-            IntPtr hwndSrc = NativeMethods.GetSrcWnd();
-            int pid = NativeMethods.GetWindowProcessId(hwndSrc);
-            if(pid == Process.GetCurrentProcess().Id) {
-                // 不能 hook 本进程
-                return;
-            }
-
             try {
                 EasyHook.RemoteHooking.Inject(
                 pid,                // 要注入的进程的 ID

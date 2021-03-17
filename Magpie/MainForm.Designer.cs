@@ -81,7 +81,7 @@ namespace Magpie {
             this.cbbScaleMode.DropDownWidth = 196;
             this.cbbScaleMode.ItemHeight = 15;
             this.cbbScaleMode.Items.AddRange(new object[] {
-            "通用（jinc2+锐化）",
+            "通用（Lanczos）",
             "动漫（Anime4K）"});
             this.cbbScaleMode.Location = new System.Drawing.Point(79, 27);
             this.cbbScaleMode.Name = "cbbScaleMode";
@@ -167,7 +167,7 @@ namespace Magpie {
             this.groupBox1.Controls.Add(this.ckbNoVSync);
             this.groupBox1.Location = new System.Drawing.Point(12, 162);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(302, 121);
+            this.groupBox1.Size = new System.Drawing.Size(292, 121);
             this.groupBox1.TabIndex = 9;
             this.groupBox1.TabStop = false;
             // 
@@ -206,7 +206,7 @@ namespace Magpie {
             this.groupBox3.Controls.Add(this.label3);
             this.groupBox3.Location = new System.Drawing.Point(12, 66);
             this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size(302, 90);
+            this.groupBox3.Size = new System.Drawing.Size(292, 90);
             this.groupBox3.TabIndex = 11;
             this.groupBox3.TabStop = false;
             // 
@@ -236,7 +236,7 @@ namespace Magpie {
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(328, 358);
+            this.ClientSize = new System.Drawing.Size(318, 358);
             this.Controls.Add(this.groupBox3);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.textBox1);

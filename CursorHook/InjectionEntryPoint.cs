@@ -41,7 +41,7 @@ namespace Magpie.CursorHook {
         // 原光标到透明光标的映射
         private readonly Dictionary<IntPtr, IntPtr> _hCursorToTptCursor = new Dictionary<IntPtr, IntPtr>();
 
-        private static readonly string HOST_WINDOW_CLASS_NAME = "Window_Magpie_967EB565-6F73-4E94-AE53-00CC42592A22";
+        private const string HOST_WINDOW_CLASS_NAME = "Window_Magpie_967EB565-6F73-4E94-AE53-00CC42592A22";
 
 
         // 运行时注入的入口
@@ -71,13 +71,17 @@ namespace Magpie.CursorHook {
 #endif
         }
 
+#if DEBUG
         // DEBUG 时连接 IPC server
         private void ConnectToServer(string channelName) {
+
             _server = EasyHook.RemoteHooking.IpcConnectClient<ServerInterface>(channelName);
 
             // 测试连接性，如果失败会抛出异常静默的失败因此 Run 方法不会执行
             _server.Ping();
+
         }
+#endif
 
         private void ReportMessageQueue() {
 #if DEBUG
