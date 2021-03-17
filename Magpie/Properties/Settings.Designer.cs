@@ -82,5 +82,17 @@ namespace Magpie.Properties {
                 this["InjectMode"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int CaptureMode {
+            get {
+                return ((int)(this["CaptureMode"]));
+            }
+            set {
+                this["CaptureMode"] = value;
+            }
+        }
     }
 }

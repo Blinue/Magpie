@@ -61,6 +61,7 @@ namespace Magpie {
             ckbShowFPS.Checked = Settings.Default.ShowFPS;
             ckbNoVSync.Checked = Settings.Default.NoVSync;
             cbbInjectMode.SelectedIndex = Settings.Default.InjectMode;
+            cbbCaptureMode.SelectedIndex = Settings.Default.CaptureMode;
         }
 
         protected override void WndProc(ref Message m) {
@@ -96,9 +97,10 @@ namespace Magpie {
                             ? CommonEffectJson : AnimeEffectJson;
                         bool showFPS = Settings.Default.ShowFPS;
                         bool noVSync = Settings.Default.NoVSync;
+                        int captureMode = Settings.Default.CaptureMode;
 
                         if(!NativeMethods.HasMagWindow()) {
-                            if(!NativeMethods.CreateMagWindow(effectJson, showFPS, noVSync, false)) {
+                            if(!NativeMethods.CreateMagWindow(effectJson, captureMode, showFPS, noVSync, false)) {
                                 MessageBox.Show("创建全屏窗口失败：" + NativeMethods.GetLastErrorMsg());
                                 return;
                             }
@@ -241,6 +243,10 @@ namespace Magpie {
                 // 不保存启动时注入的选项
                 Settings.Default.InjectMode = cbbInjectMode.SelectedIndex;
             }
+        }
+
+        private void CbbCaptureMode_SelectedIndexChanged(object sender, EventArgs e) {
+            Settings.Default.CaptureMode = cbbCaptureMode.SelectedIndex;
         }
     }
 }

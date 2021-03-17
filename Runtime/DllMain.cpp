@@ -32,6 +32,7 @@ BOOL APIENTRY DllMain(
 
 API_DECLSPEC BOOL WINAPI CreateMagWindow(
     const wchar_t* effectsJson,
+    int captureMode,
     bool showFPS,
     bool noVSync,
     bool noDisturb
@@ -43,7 +44,7 @@ API_DECLSPEC BOOL WINAPI CreateMagWindow(
             L"GetForegroundWindow 返回 NULL"
         );
 
-        MagWindow::CreateInstance(hInstance, hwnd, effectsJson, showFPS, noVSync, noDisturb);
+        MagWindow::CreateInstance(hInstance, hwnd, effectsJson, captureMode, showFPS, noVSync, noDisturb);
     } catch(const magpie_exception&) {
         return FALSE;
     } catch (...) {

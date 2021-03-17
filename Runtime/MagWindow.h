@@ -17,6 +17,7 @@ public:
         HINSTANCE hInstance,
         HWND hwndSrc,
         const std::wstring_view& effectsJson,
+        int captureMode = 0,
         bool showFPS = false,
         bool noVSync = false,
         bool noDisturb = false
@@ -24,9 +25,10 @@ public:
         $instance.reset(new MagWindow(
             hInstance,
             hwndSrc,
-            noVSync,
             effectsJson,
+            captureMode,
             showFPS,
+            noVSync,
             noDisturb
         ));
     }
@@ -54,9 +56,10 @@ private:
     MagWindow(
         HINSTANCE hInstance,
         HWND hwndSrc,
-        bool noVSync,
         const std::wstring_view& effectsJson,
+        int captureMode,
         bool showFPS,
+        bool noVSync,
         bool noDisturb
     ) : _hInst(hInstance), _hwndSrc(hwndSrc) {
         if ($instance) {
@@ -71,6 +74,11 @@ private:
         Debug::Assert(
             IsWindow(_hwndSrc) && IsWindowVisible(_hwndSrc),
             L"hwndSrc 不合法"
+        );
+
+        Debug::Assert(
+            captureMode >= 0 && captureMode <= 1,
+            L"非法的抓取模式"
         );
 
         Utils::GetClientScreenRect(_hwndSrc, _srcClient);
@@ -97,17 +105,21 @@ private:
             L"创建 IDWriteFactory 失败"
         );
 
-        /*_windowCapturer.reset(new MagCallbackWindowCapturer(
-            hInstance,
-            _hwndHost,
-            _srcClient,
-            _wicImgFactory.Get()
-        ));*/
-        _windowCapturer.reset(new GDIWindowCapturer(
-            _hwndSrc,
-            _srcClient,
-            _wicImgFactory.Get()
-        ));
+        if (captureMode == 0) {
+            _windowCapturer.reset(new GDIWindowCapturer(
+                _hwndSrc,
+                _srcClient,
+                _wicImgFactory.Get()
+            ));
+        } else if (captureMode == 1) {
+            _windowCapturer.reset(new MagCallbackWindowCapturer(
+                hInstance,
+                _hwndHost,
+                _srcClient,
+                _wicImgFactory.Get()
+            ));
+        }
+        
 
         // 初始化 EffectRenderer
         _effectRenderer.reset(new EffectRenderer(

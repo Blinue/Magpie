@@ -37,8 +37,9 @@ namespace Magpie {
         [DllImport("Runtime", CallingConvention = CallingConvention.StdCall)]
         public static extern bool CreateMagWindow(
             [MarshalAs(UnmanagedType.LPWStr)] string effectsJson,
-            bool showFPS = false,
-            bool noVSync = false,
+            int captureMode,
+            bool showFPS,
+            bool noVSync,
             bool noDisturb = false
         );
 
