@@ -37,7 +37,8 @@ namespace Magpie {
   {
     ""effect"": ""scale"",
     ""type"": ""lanczos6"",
-    ""scale"": [0,0]
+    ""scale"": [0,0],
+    ""ARStrength"": 0.7
   },
   {
     ""effect"": ""sharpen"",
