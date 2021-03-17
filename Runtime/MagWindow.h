@@ -146,9 +146,10 @@ private:
 
         ShowWindow(_hwndHost, SW_NORMAL);
 
-        PostMessage(_hwndHost, _WM_MAXFRAMERATE, 0, 0);
+        PostMessage(_hwndHost, _WM_RENDER, 0, 0);
 
-        _RegisterHookMsg();
+        // 接收 Shell 消息有时不可靠
+        // _RegisterHookMsg();
     }
 
 
@@ -167,37 +168,29 @@ private:
         }
     }
 
-    static LRESULT CALLBACK _HostWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
+    LRESULT _HostWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
         switch (message) {
-        case _WM_MAXFRAMERATE:
+        case _WM_RENDER:
         {
-            if (!$instance) {
-                // 窗口已销毁，直接退出
+            // 前台窗口改变时自动关闭全屏窗口
+            // 接收 shell 消息有时不可靠
+            if (GetForegroundWindow() != _hwndSrc) {
+                $instance = nullptr;
                 break;
             }
 
-            /* 已改为接收 shell 消息
-            if (GetForegroundWindow() != $instance->_hwndSrc) {
-                DestroyMagWindow();
-                break;
-            }*/
-
-            $instance->_Render();
+            _Render();
 
             // 立即渲染下一帧
             // 垂直同步开启时自动限制帧率
-            if (!PostMessage(hWnd, _WM_MAXFRAMERATE, 0, 0)) {
+            if (!PostMessage(hWnd, _WM_RENDER, 0, 0)) {
                 Debug::WriteErrorMessage(L"PostMessage 失败");
             }
             break;
         }
         default:
         {
-            if ($instance == nullptr) {
-                return DefWindowProc(hWnd, message, wParam, lParam);
-            }
-
-            if (message == $instance->_WM_SHELLHOOKMESSAGE) {
+            /*if (message == $instance->_WM_SHELLHOOKMESSAGE) {
                 // 在桌面环境变化时关闭全屏窗口
                 // 文档没提到，但这里必须截断成 byte，否则无法工作
                 BYTE code = (BYTE)wParam;
@@ -209,23 +202,32 @@ private:
                 ) {
                     $instance = nullptr;
                 }
-            } else if (message == $instance->_WM_NEWCURSOR) {
+            } else */if (message == _WM_NEWCURSOR) {
                 // 来自 CursorHook 的消息
                 // HCURSOR 似乎是共享资源，尽管来自别的进程但可以直接使用
-                $instance->_cursorManager->AddHookCursor((HCURSOR)wParam, (HCURSOR)lParam);
+                _cursorManager->AddHookCursor((HCURSOR)wParam, (HCURSOR)lParam);
             } else {
                 return DefWindowProc(hWnd, message, wParam, lParam);
             }
         }
         }
+
         return 0;
+    }
+
+    static LRESULT CALLBACK _HostWndProcStatic(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
+        if (!$instance) {
+            return DefWindowProc(hWnd, message, wParam, lParam);
+        } else {
+            return $instance->_HostWndProc(hWnd, message, wParam, lParam);
+        }
     }
 
     // 注册全屏窗口类
     void _RegisterHostWndClass() const {
         WNDCLASSEX wcex = {};
         wcex.cbSize = sizeof(WNDCLASSEX);
-        wcex.lpfnWndProc = _HostWndProc;
+        wcex.lpfnWndProc = _HostWndProcStatic;
         wcex.hInstance = _hInst;
         wcex.lpszClassName = _HOST_WINDOW_CLASS_NAME;
 
@@ -267,10 +269,8 @@ private:
     static constexpr const wchar_t* _HOST_WINDOW_CLASS_NAME = L"Window_Magpie_967EB565-6F73-4E94-AE53-00CC42592A22";
 
     // 指定为最大帧率时使用的渲染消息
-    static constexpr const UINT _WM_MAXFRAMERATE = WM_USER;
-
-    
-    UINT _WM_NEWCURSOR = RegisterWindowMessage(L"MAGPIE_WM_NEWCURSOR");
+    static constexpr const UINT _WM_RENDER = WM_USER;
+    static UINT _WM_NEWCURSOR;
 
     UINT _WM_SHELLHOOKMESSAGE{};
 

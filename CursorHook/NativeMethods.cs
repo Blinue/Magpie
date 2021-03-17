@@ -7,7 +7,7 @@ using System.Text;
 namespace Magpie.CursorHook {
 	// Win32 API
 	public static class NativeMethods {
-        [DllImport("user32.dll", CharSet = CharSet.Unicode)]
+        [DllImport("user32.dll")]
         public static extern IntPtr SetCursor(IntPtr hCursor);
 
         [DllImport("user32.dll", CharSet = CharSet.Unicode)]
@@ -20,16 +20,40 @@ namespace Magpie.CursorHook {
         public readonly static int GCLP_HCURSOR = -12;
 
         [DllImport("user32.dll", CharSet = CharSet.Unicode)]
-        public static extern int GetClassLong(IntPtr hWnd, int nIndex);
+        private static extern IntPtr GetClassLongPtr(IntPtr hWnd, int nIndex);
 
         [DllImport("user32.dll", CharSet = CharSet.Unicode)]
-        public static extern IntPtr SetClassLong(IntPtr hWnd, int nIndex, IntPtr dwNewLong);
+        private static extern int GetClassLong(IntPtr hWnd, int nIndex);
 
+        [DllImport("user32.dll", CharSet = CharSet.Unicode)]
+        private static extern IntPtr SetClassLongPtr(IntPtr hWnd, int nIndex, IntPtr dwNewLong);
+
+        [DllImport("user32.dll", CharSet = CharSet.Unicode)]
+        private static extern int SetClassLong(IntPtr hWnd, int nIndex, int dwNewLong);
+
+        public static IntPtr GetClassLongAuto(IntPtr hWnd, int nIndex) {
+            if (EasyHook.NativeAPI.Is64Bit) {
+                return GetClassLongPtr(hWnd, nIndex);
+            } else {
+                return new IntPtr(GetClassLong(hWnd, nIndex));
+            }
+        }
+
+        public static IntPtr SetClassLongAuto(IntPtr hWnd, int nIndex, IntPtr dwNewLong) {
+            if (EasyHook.NativeAPI.Is64Bit) {
+                return SetClassLongPtr(hWnd, nIndex, dwNewLong);
+            } else {
+                return new IntPtr(SetClassLong(hWnd, nIndex, dwNewLong.ToInt32()));
+            }
+        }
 
         public delegate bool EnumWindowsProc(IntPtr hwnd, int lParam);
 
-        [DllImport("user32.dll", CharSet = CharSet.Unicode)]
+        [DllImport("user32.dll")]
         public static extern bool EnumChildWindows(IntPtr hWndParent, EnumWindowsProc lpEnumFunc, int lParam);
+
+        [DllImport("user32.dll")]
+        public static extern bool EnumWindows(EnumWindowsProc lpEnumFunc, int lParam);
 
         [DllImport("user32.dll", CharSet = CharSet.Unicode)]
         public static extern bool PostMessage(IntPtr hWnd, uint Msg, IntPtr wParam, IntPtr lParam);
@@ -56,10 +80,10 @@ namespace Magpie.CursorHook {
             public POINT ptScreenPos;
         }
 
-        [DllImport("user32.dll", CharSet = CharSet.Unicode)]
+        [DllImport("user32.dll")]
         public static extern bool GetCursorInfo(ref CURSORINFO pci);
 
-        [DllImport("user32.dll", CharSet = CharSet.Unicode)]
+        [DllImport("user32.dll")]
         public static extern bool DestroyCursor(IntPtr hCursor);
 
         [StructLayout(LayoutKind.Sequential)]
@@ -71,10 +95,10 @@ namespace Magpie.CursorHook {
             public IntPtr hbmColor;
         }
 
-        [DllImport("user32.dll", CharSet = CharSet.Unicode)]
+        [DllImport("user32.dll")]
         public static extern bool GetIconInfo(IntPtr hIcon, ref ICONINFO piconinfo);
 
-        [DllImport("gdi32.dll", CharSet = CharSet.Unicode)]
+        [DllImport("gdi32.dll")]
         public static extern bool DeleteObject(IntPtr ho);
 
         [DllImport("user32.dll", CharSet = CharSet.Unicode)]
@@ -83,14 +107,14 @@ namespace Magpie.CursorHook {
         private readonly static int SM_CXCURSOR = 13;
         private readonly static int SM_CYCURSOR = 14;
 
-        [DllImport("user32.dll", CharSet = CharSet.Unicode)]
+        [DllImport("user32.dll")]
         private static extern int GetSystemMetrics(int nIndex);
 
         public static (int x, int y) GetCursorSize() {
             return (GetSystemMetrics(SM_CXCURSOR), GetSystemMetrics(SM_CYCURSOR));
         }
 
-        [DllImport("user32.dll", CharSet = CharSet.Unicode)]
+        [DllImport("user32.dll")]
         public static extern IntPtr CreateCursor(IntPtr hInst, int xHotSpot, int yHotSpot, int nWidth, int nHeight, byte[] pvANDPlane, byte[] pvXORPlane);
 
         [DllImport("kernel32.dll", CharSet = CharSet.Unicode)]
@@ -100,31 +124,14 @@ namespace Magpie.CursorHook {
             return GetModuleHandle(IntPtr.Zero);
         }
 
-        [DllImport("user32.dll", CharSet = CharSet.Unicode)]
+        [DllImport("user32.dll")]
         public static extern bool IsWindow(IntPtr hWnd);
 
-        [DllImport("user32.dll", CharSet = CharSet.Unicode)]
-        private static extern IntPtr GetParent(IntPtr hWnd);
 
-        public static IntPtr GetTopWindow(IntPtr hWnd) {
-            if(hWnd == IntPtr.Zero) {
-                return IntPtr.Zero;
-            }
+        [DllImport("user32.dll")]
+        private static extern int GetWindowThreadProcessId(IntPtr hWnd, ref int lpdwProcessId);
 
-            while(true) {
-                IntPtr parent = GetParent(hWnd);
-                if (parent == IntPtr.Zero) {
-                    return hWnd;
-                }
-
-                hWnd = parent;
-            }
-        }
-
-        [DllImport("user32.dll", CharSet = CharSet.Unicode)]
-        private static extern int GetWindowThreadProcessId(IntPtr hWnd,ref int lpdwProcessId);
-
-        [DllImport("user32.dll", CharSet = CharSet.Unicode)]
+        [DllImport("user32.dll")]
         private static extern int GetWindowThreadProcessId(IntPtr hWnd, IntPtr lpdwProcessId);
 
         public static int GetWindowProcessId(IntPtr hWnd) {
@@ -144,5 +151,14 @@ namespace Magpie.CursorHook {
 
             return GetWindowThreadProcessId(hWnd, IntPtr.Zero);
         }
+
+        [DllImport("user32.dll", CharSet = CharSet.Unicode)]
+        public static extern IntPtr FindWindow(
+            [MarshalAs(UnmanagedType.LPWStr)] string lpClassName,
+            IntPtr lpWindowName
+        );
+
+        [DllImport("user32.dll")]
+        public static extern IntPtr GetForegroundWindow();
     }
 }

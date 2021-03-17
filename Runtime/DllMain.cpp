@@ -50,7 +50,7 @@ API_DECLSPEC BOOL WINAPI CreateMagWindow(
         Debug::WriteErrorMessage(L"创建全屏窗口发生未知错误");
         return FALSE;
     }
-    
+
     return TRUE;
 }
 

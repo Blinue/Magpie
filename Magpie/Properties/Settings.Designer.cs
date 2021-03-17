@@ -50,24 +50,36 @@ namespace Magpie.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool noVSync {
+        public bool NoVSync {
             get {
-                return ((bool)(this["noVSync"]));
+                return ((bool)(this["NoVSync"]));
             }
             set {
-                this["noVSync"] = value;
+                this["NoVSync"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool showFPS {
+        public bool ShowFPS {
             get {
-                return ((bool)(this["showFPS"]));
+                return ((bool)(this["ShowFPS"]));
             }
             set {
-                this["showFPS"] = value;
+                this["ShowFPS"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int InjectMode {
+            get {
+                return ((int)(this["InjectMode"]));
+            }
+            set {
+                this["InjectMode"] = value;
             }
         }
     }

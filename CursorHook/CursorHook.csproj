@@ -75,14 +75,6 @@
     <Compile Include="ServerInterface.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="EasyHook32.dll" />
-    <Content Include="EasyHook32Svc.exe" />
-    <Content Include="EasyHook64.dll" />
-    <Content Include="EasyHook64Svc.exe" />
-    <Content Include="EasyLoad32.dll" />
-    <Content Include="EasyLoad64.dll" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

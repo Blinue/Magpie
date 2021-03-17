@@ -2,9 +2,8 @@
 
 
 namespace Magpie.CursorHook {
-    /// <summary>
-    /// Provides an interface for communicating from the client (target) to the server (injector)
-    /// </summary>
+#if DEBUG
+    // IPC 服务器接口
     public class ServerInterface : MarshalByRefObject {
         public void ReportMessages(string[] messages) {
             foreach (var msg in messages) {
@@ -16,18 +15,10 @@ namespace Magpie.CursorHook {
             Console.WriteLine("##CursorHook##: " + message);
         }
 
-        /// <summary>
-        /// Report exception
-        /// </summary>
-        /// <param name="e"></param>
-        public void ReportException(Exception e) {
-            Console.WriteLine("##CursorHook##: " + "IPC出错：" + e.ToString());
-        }
 
-        /// <summary>
-        /// Called to confirm that the IPC channel is still open / host application has not closed
-        /// </summary>
+        // 客户端调用此函数确定服务器的响应性
         public void Ping() {
         }
     }
+#endif
 }

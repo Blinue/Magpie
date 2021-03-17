@@ -51,14 +51,16 @@ namespace Magpie {
 
         IKeyboardMouseEvents keyboardEvents = null;
 
+
         public MainForm() {
             InitializeComponent();
 
             // 加载设置
             txtHotkey.Text = Settings.Default.Hotkey;
             cbbScaleMode.SelectedIndex = Settings.Default.ScaleMode;
-            ckbShowFPS.Checked = Settings.Default.showFPS;
-            ckbNoVSync.Checked = Settings.Default.noVSync;
+            ckbShowFPS.Checked = Settings.Default.ShowFPS;
+            ckbNoVSync.Checked = Settings.Default.NoVSync;
+            cbbInjectMode.SelectedIndex = Settings.Default.InjectMode;
         }
 
         protected override void WndProc(ref Message m) {
@@ -92,8 +94,8 @@ namespace Magpie {
                     Combination.FromString(hotkey), () => {
                         string effectJson = Settings.Default.ScaleMode == 0
                             ? CommonEffectJson : AnimeEffectJson;
-                        bool showFPS = Settings.Default.showFPS;
-                        bool noVSync = Settings.Default.noVSync;
+                        bool showFPS = Settings.Default.ShowFPS;
+                        bool noVSync = Settings.Default.NoVSync;
 
                         if(!NativeMethods.HasMagWindow()) {
                             if(!NativeMethods.CreateMagWindow(effectJson, showFPS, noVSync, false)) {
@@ -101,7 +103,9 @@ namespace Magpie {
                                 return;
                             }
 
-                            HookCursor();
+                            if(cbbInjectMode.SelectedIndex == 1) {
+                                HookCursorAtRuntime();
+                            }
                         } else {
                             NativeMethods.DestroyMagWindow();
                         }
@@ -118,7 +122,7 @@ namespace Magpie {
             
         }
 
-        private void HookCursor() {
+        private void HookCursorAtRuntime() {
 #if DEBUG
             string channelName = null;
             // DEBUG 时创建 IPC server
@@ -156,6 +160,37 @@ namespace Magpie {
             }
         }
 
+        private void HookCursorAtStartUp(string exePath) {
+#if DEBUG
+            string channelName = null;
+            // DEBUG 时创建 IPC server
+            RemoteHooking.IpcCreateServer<ServerInterface>(ref channelName, WellKnownObjectMode.Singleton);
+#endif
+
+            // 获取 CursorHook.dll 的绝对路径
+            string injectionLibrary = Path.Combine(
+                Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
+                "CursorHook.dll"
+            );
+
+            try {
+                EasyHook.RemoteHooking.CreateAndInject(
+                    exePath,    // 可执行文件路径
+                    "",         // 命令行参数
+                    0,          // 传递给 CreateProcess 的标志
+                    injectionLibrary,   // 32 位 DLL
+                    injectionLibrary,   // 64 位 DLL
+                    out int _  // 忽略进程 ID
+                               // 下面为传递给注入 DLL 的参数
+#if DEBUG
+                    , channelName
+#endif
+                );
+            } catch (Exception e) {
+                Console.WriteLine("CursorHook 注入失败：" + e.Message);
+            }
+        }
+
         private void CbbScaleMode_SelectedIndexChanged(object sender, EventArgs e) {
             Settings.Default.ScaleMode = cbbScaleMode.SelectedIndex;
         }
@@ -185,11 +220,27 @@ namespace Magpie {
         }
 
         private void CkbNoVSync_CheckedChanged(object sender, EventArgs e) {
-            Settings.Default.noVSync = ckbNoVSync.Checked;
+            Settings.Default.NoVSync = ckbNoVSync.Checked;
         }
 
         private void CkbShowFPS_CheckedChanged(object sender, EventArgs e) {
-            Settings.Default.showFPS = ckbShowFPS.Checked;
+            Settings.Default.ShowFPS = ckbShowFPS.Checked;
+        }
+
+        private void CbbInjectMode_SelectedIndexChanged(object sender, EventArgs e) {
+            if(cbbInjectMode.SelectedIndex == 2) {
+                // 启动时注入
+                if(openFileDialog.ShowDialog() != DialogResult.OK) {
+                    // 未选择文件，恢复原来的选项
+                    cbbInjectMode.SelectedIndex = Settings.Default.InjectMode;
+                    return;
+                }
+
+                HookCursorAtStartUp(openFileDialog.FileName);
+            } else {
+                // 不保存启动时注入的选项
+                Settings.Default.InjectMode = cbbInjectMode.SelectedIndex;
+            }
         }
     }
 }

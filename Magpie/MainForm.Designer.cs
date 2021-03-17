@@ -38,13 +38,20 @@ namespace Magpie {
             this.tsmiMainForm = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiExit = new System.Windows.Forms.ToolStripMenuItem();
             this.ckbShowFPS = new System.Windows.Forms.CheckBox();
+            this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.cbbInjectMode = new System.Windows.Forms.ComboBox();
+            this.label1 = new System.Windows.Forms.Label();
+            this.openFileDialog = new System.Windows.Forms.OpenFileDialog();
             this.cmsNotifyIcon.SuspendLayout();
+            this.groupBox1.SuspendLayout();
+            this.groupBox2.SuspendLayout();
             this.SuspendLayout();
             // 
             // lblHotkey
             // 
             this.lblHotkey.AutoSize = true;
-            this.lblHotkey.Location = new System.Drawing.Point(42, 26);
+            this.lblHotkey.Location = new System.Drawing.Point(48, 33);
             this.lblHotkey.Name = "lblHotkey";
             this.lblHotkey.Size = new System.Drawing.Size(37, 15);
             this.lblHotkey.TabIndex = 0;
@@ -52,7 +59,7 @@ namespace Magpie {
             // 
             // txtHotkey
             // 
-            this.txtHotkey.Location = new System.Drawing.Point(85, 23);
+            this.txtHotkey.Location = new System.Drawing.Point(91, 30);
             this.txtHotkey.Name = "txtHotkey";
             this.txtHotkey.Size = new System.Drawing.Size(196, 25);
             this.txtHotkey.TabIndex = 1;
@@ -61,7 +68,7 @@ namespace Magpie {
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(12, 69);
+            this.label2.Location = new System.Drawing.Point(6, 30);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(67, 15);
             this.label2.TabIndex = 2;
@@ -74,7 +81,7 @@ namespace Magpie {
             this.cbbScaleMode.Items.AddRange(new object[] {
             "通用（jinc2+锐化）",
             "动漫（Anime4K）"});
-            this.cbbScaleMode.Location = new System.Drawing.Point(85, 66);
+            this.cbbScaleMode.Location = new System.Drawing.Point(79, 27);
             this.cbbScaleMode.Name = "cbbScaleMode";
             this.cbbScaleMode.Size = new System.Drawing.Size(196, 23);
             this.cbbScaleMode.TabIndex = 2;
@@ -83,7 +90,7 @@ namespace Magpie {
             // ckbNoVSync
             // 
             this.ckbNoVSync.AutoSize = true;
-            this.ckbNoVSync.Location = new System.Drawing.Point(85, 129);
+            this.ckbNoVSync.Location = new System.Drawing.Point(79, 90);
             this.ckbNoVSync.Name = "ckbNoVSync";
             this.ckbNoVSync.Size = new System.Drawing.Size(119, 19);
             this.ckbNoVSync.TabIndex = 4;
@@ -95,7 +102,7 @@ namespace Magpie {
             // 
             this.textBox1.BackColor = System.Drawing.SystemColors.Control;
             this.textBox1.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.textBox1.Location = new System.Drawing.Point(12, 194);
+            this.textBox1.Location = new System.Drawing.Point(12, 314);
             this.textBox1.Multiline = true;
             this.textBox1.Name = "textBox1";
             this.textBox1.Size = new System.Drawing.Size(292, 43);
@@ -142,7 +149,7 @@ namespace Magpie {
             // ckbShowFPS
             // 
             this.ckbShowFPS.AutoSize = true;
-            this.ckbShowFPS.Location = new System.Drawing.Point(85, 104);
+            this.ckbShowFPS.Location = new System.Drawing.Point(79, 65);
             this.ckbShowFPS.Name = "ckbShowFPS";
             this.ckbShowFPS.Size = new System.Drawing.Size(89, 19);
             this.ckbShowFPS.TabIndex = 8;
@@ -150,16 +157,63 @@ namespace Magpie {
             this.ckbShowFPS.UseVisualStyleBackColor = true;
             this.ckbShowFPS.CheckedChanged += new System.EventHandler(this.CkbShowFPS_CheckedChanged);
             // 
+            // groupBox1
+            // 
+            this.groupBox1.Controls.Add(this.cbbScaleMode);
+            this.groupBox1.Controls.Add(this.label2);
+            this.groupBox1.Controls.Add(this.ckbShowFPS);
+            this.groupBox1.Controls.Add(this.ckbNoVSync);
+            this.groupBox1.Location = new System.Drawing.Point(12, 61);
+            this.groupBox1.Name = "groupBox1";
+            this.groupBox1.Size = new System.Drawing.Size(302, 121);
+            this.groupBox1.TabIndex = 9;
+            this.groupBox1.TabStop = false;
+            // 
+            // groupBox2
+            // 
+            this.groupBox2.Controls.Add(this.cbbInjectMode);
+            this.groupBox2.Controls.Add(this.label1);
+            this.groupBox2.Location = new System.Drawing.Point(12, 188);
+            this.groupBox2.Name = "groupBox2";
+            this.groupBox2.Size = new System.Drawing.Size(302, 69);
+            this.groupBox2.TabIndex = 10;
+            this.groupBox2.TabStop = false;
+            // 
+            // cbbInjectMode
+            // 
+            this.cbbInjectMode.FormattingEnabled = true;
+            this.cbbInjectMode.Items.AddRange(new object[] {
+            "不注入",
+            "运行时注入",
+            "启动时注入"});
+            this.cbbInjectMode.Location = new System.Drawing.Point(79, 24);
+            this.cbbInjectMode.Name = "cbbInjectMode";
+            this.cbbInjectMode.Size = new System.Drawing.Size(196, 23);
+            this.cbbInjectMode.TabIndex = 1;
+            this.cbbInjectMode.SelectedIndexChanged += new System.EventHandler(this.CbbInjectMode_SelectedIndexChanged);
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(6, 27);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(67, 15);
+            this.label1.TabIndex = 0;
+            this.label1.Text = "注入模式";
+            // 
+            // openFileDialog
+            // 
+            this.openFileDialog.Filter = "可执行文件|*.exe";
+            this.openFileDialog.Title = "请选择要启动并注入的程序";
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(316, 249);
-            this.Controls.Add(this.ckbShowFPS);
+            this.ClientSize = new System.Drawing.Size(327, 369);
+            this.Controls.Add(this.groupBox2);
+            this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.textBox1);
-            this.Controls.Add(this.ckbNoVSync);
-            this.Controls.Add(this.cbbScaleMode);
-            this.Controls.Add(this.label2);
             this.Controls.Add(this.txtHotkey);
             this.Controls.Add(this.lblHotkey);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
@@ -171,6 +225,10 @@ namespace Magpie {
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
             this.Resize += new System.EventHandler(this.MainForm_Resize);
             this.cmsNotifyIcon.ResumeLayout(false);
+            this.groupBox1.ResumeLayout(false);
+            this.groupBox1.PerformLayout();
+            this.groupBox2.ResumeLayout(false);
+            this.groupBox2.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -190,6 +248,11 @@ namespace Magpie {
         private System.Windows.Forms.ToolStripMenuItem tsmiExit;
         private System.Windows.Forms.ToolStripMenuItem tsmiHotkey;
         private System.Windows.Forms.CheckBox ckbShowFPS;
+        private System.Windows.Forms.GroupBox groupBox1;
+        private System.Windows.Forms.GroupBox groupBox2;
+        private System.Windows.Forms.ComboBox cbbInjectMode;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.OpenFileDialog openFileDialog;
     }
 }
 
