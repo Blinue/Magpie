@@ -66,6 +66,7 @@ namespace Magpie {
             ckbNoVSync.Checked = Settings.Default.NoVSync;
             cbbInjectMode.SelectedIndex = Settings.Default.InjectMode;
             cbbCaptureMode.SelectedIndex = Settings.Default.CaptureMode;
+            ckbLowLatencyMode.Checked = Settings.Default.LowLatencyMode;
         }
 
         protected override void WndProc(ref Message m) {
@@ -102,9 +103,17 @@ namespace Magpie {
                         bool showFPS = Settings.Default.ShowFPS;
                         bool noVSync = Settings.Default.NoVSync;
                         int captureMode = Settings.Default.CaptureMode;
+                        bool lowLatencyMode = Settings.Default.LowLatencyMode;
 
                         if(!NativeMethods.HasMagWindow()) {
-                            if(!NativeMethods.CreateMagWindow(effectJson, captureMode, showFPS, noVSync, false)) {
+                            if(!NativeMethods.CreateMagWindow(
+                                effectJson,     // 缩放模式
+                                captureMode,    // 抓取模式
+                                showFPS,        // 显示 FPS
+                                lowLatencyMode, // 低延迟模式
+                                noVSync,        // 关闭垂直同步
+                                false           // 用于调试
+                            )) {
                                 MessageBox.Show("创建全屏窗口失败：" + NativeMethods.GetLastErrorMsg());
                                 return;
                             }
@@ -251,6 +260,11 @@ namespace Magpie {
 
         private void CbbCaptureMode_SelectedIndexChanged(object sender, EventArgs e) {
             Settings.Default.CaptureMode = cbbCaptureMode.SelectedIndex;
+        }
+
+
+        private void CkbLowLatencyMode_CheckedChanged(object sender, EventArgs e) {
+            Settings.Default.LowLatencyMode = ckbLowLatencyMode.Checked;
         }
     }
 }

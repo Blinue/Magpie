@@ -39,6 +39,7 @@ namespace Magpie {
             [MarshalAs(UnmanagedType.LPWStr)] string effectsJson,
             int captureMode,
             bool showFPS,
+            bool lowLatencyMode,
             bool noVSync,
             bool noDisturb = false
         );

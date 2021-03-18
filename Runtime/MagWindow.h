@@ -19,6 +19,7 @@ public:
         const std::wstring_view& effectsJson,
         int captureMode = 0,
         bool showFPS = false,
+        bool lowLatencyMode = false,
         bool noVSync = false,
         bool noDisturb = false
     ) {
@@ -28,6 +29,7 @@ public:
             effectsJson,
             captureMode,
             showFPS,
+            lowLatencyMode,
             noVSync,
             noDisturb
         ));
@@ -59,6 +61,7 @@ private:
         const std::wstring_view& effectsJson,
         int captureMode,
         bool showFPS,
+        bool lowLatencyMode,
         bool noVSync,
         bool noDisturb
     ) : _hInst(hInstance), _hwndSrc(hwndSrc) {
@@ -128,6 +131,7 @@ private:
             effectsJson,
             _srcClient,
             _wicImgFactory.Get(),
+            lowLatencyMode,
             noVSync,
             noDisturb
         ));

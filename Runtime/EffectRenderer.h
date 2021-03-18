@@ -14,9 +14,10 @@ public:
         const std::wstring_view &effectsJson,
         const RECT& srcClient,
         IWICImagingFactory2* wicImgFactory,
+        bool lowLatencyMode = false,
         bool noVSync = false,
         bool noDisturb = false
-    ): _noVSync(noVSync) {
+    ): _noVSync(noVSync), _lowLantencyMode(lowLatencyMode) {
         RECT destClient{};
         Utils::GetClientScreenRect(hwndHost, destClient);
         _hostWndClientSize = Utils::GetSize(destClient);
@@ -49,6 +50,10 @@ public:
     }
 public:
     void Render(IWICBitmapSource* srcBmp, const std::vector<Renderable*>& renderables) const {
+        if (_lowLantencyMode) {
+            WaitForSingleObjectEx(_frameLatencyWaitableObject, 1000, true);
+        }
+        
         // 将输出图像显示在窗口中央
         _d2dDC->BeginDraw();
         _d2dDC->Clear();
@@ -151,7 +156,8 @@ private:
         
         // Allocate a descriptor.
         DXGI_SWAP_CHAIN_DESC1 swapChainDesc{};
-        swapChainDesc.Flags = _noVSync ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : 0;
+        swapChainDesc.Flags = (_noVSync ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : 0) 
+            | (_lowLantencyMode ? DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT : 0);
         swapChainDesc.Width = _hostWndClientSize.cx,
         swapChainDesc.Height = _hostWndClientSize.cy,
         swapChainDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM; // this is the most common swapchain format
@@ -165,6 +171,7 @@ private:
         swapChainDesc.AlphaMode = DXGI_ALPHA_MODE_IGNORE;
 
         // Get the final swap chain for this window from the DXGI factory.
+        ComPtr<IDXGISwapChain1> dxgiSwapChain1;
         Debug::ThrowIfComFailed(
             dxgiFactory->CreateSwapChainForHwnd(
                 d3dDevice.Get(),
@@ -172,16 +179,32 @@ private:
                 &swapChainDesc,
                 nullptr,
                 nullptr,
-                &_dxgiSwapChain
+                &dxgiSwapChain1
             ),
             L"创建 Swap Chain 失败"
         );
-        
-        // Ensure that DXGI doesn't queue more than one frame at a time.
+        // 转换成 IDXGISwapChain2 以使用 DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT
+        // 见 https://docs.microsoft.com/en-us/windows/win32/api/dxgi/ne-dxgi-dxgi_swap_chain_flag
         Debug::ThrowIfComFailed(
-            dxgiDevice->SetMaximumFrameLatency(1),
-            L"SetMaximumFrameLatency 失败"
+            dxgiSwapChain1.As(&_dxgiSwapChain),
+            L"获取 IDXGISwapChain2 失败"
         );
+        
+        if (_lowLantencyMode) {
+            Debug::ThrowIfComFailed(
+                _dxgiSwapChain->SetMaximumFrameLatency(2),
+                L"SetMaximumFrameLatency 失败"
+            );
+
+            _frameLatencyWaitableObject = _dxgiSwapChain->GetFrameLatencyWaitableObject();
+        } else {
+            // Ensure that DXGI doesn't queue more than one frame at a time.
+            Debug::ThrowIfComFailed(
+                dxgiDevice->SetMaximumFrameLatency(1),
+                L"SetMaximumFrameLatency 失败"
+            );
+        }
+
 
         // Direct2D needs the dxgi version of the backbuffer surface pointer.
         ComPtr<IDXGISurface> dxgiBackBuffer = nullptr;
@@ -218,11 +241,14 @@ private:
     D2D1_RECT_F _destRect{};
 
     bool _noVSync;
+    bool _lowLantencyMode;
 
     ComPtr<ID2D1Factory1> _d2dFactory = nullptr;
     ComPtr<ID2D1Device> _d2dDevice = nullptr;
     ComPtr<ID2D1DeviceContext> _d2dDC = nullptr;
-    ComPtr<IDXGISwapChain1> _dxgiSwapChain = nullptr;
+    ComPtr<IDXGISwapChain2> _dxgiSwapChain = nullptr;
 
     std::unique_ptr<EffectManager> _effectManager = nullptr;
+
+    HANDLE _frameLatencyWaitableObject;
 };

@@ -38,16 +38,15 @@ namespace Magpie {
             this.tsmiMainForm = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiExit = new System.Windows.Forms.ToolStripMenuItem();
             this.ckbShowFPS = new System.Windows.Forms.CheckBox();
-            this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.cbbInjectMode = new System.Windows.Forms.ComboBox();
             this.label1 = new System.Windows.Forms.Label();
             this.openFileDialog = new System.Windows.Forms.OpenFileDialog();
-            this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.cbbCaptureMode = new System.Windows.Forms.ComboBox();
             this.label3 = new System.Windows.Forms.Label();
+            this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.ckbLowLatencyMode = new System.Windows.Forms.CheckBox();
             this.cmsNotifyIcon.SuspendLayout();
-            this.groupBox1.SuspendLayout();
-            this.groupBox3.SuspendLayout();
+            this.groupBox2.SuspendLayout();
             this.SuspendLayout();
             // 
             // lblHotkey
@@ -70,7 +69,7 @@ namespace Magpie {
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(6, 30);
+            this.label2.Location = new System.Drawing.Point(18, 64);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(67, 15);
             this.label2.TabIndex = 2;
@@ -83,7 +82,7 @@ namespace Magpie {
             this.cbbScaleMode.Items.AddRange(new object[] {
             "通用（Lanczos）",
             "动漫（Anime4K）"});
-            this.cbbScaleMode.Location = new System.Drawing.Point(79, 27);
+            this.cbbScaleMode.Location = new System.Drawing.Point(91, 61);
             this.cbbScaleMode.Name = "cbbScaleMode";
             this.cbbScaleMode.Size = new System.Drawing.Size(196, 23);
             this.cbbScaleMode.TabIndex = 2;
@@ -92,7 +91,7 @@ namespace Magpie {
             // ckbNoVSync
             // 
             this.ckbNoVSync.AutoSize = true;
-            this.ckbNoVSync.Location = new System.Drawing.Point(79, 90);
+            this.ckbNoVSync.Location = new System.Drawing.Point(17, 76);
             this.ckbNoVSync.Name = "ckbNoVSync";
             this.ckbNoVSync.Size = new System.Drawing.Size(119, 19);
             this.ckbNoVSync.TabIndex = 4;
@@ -104,7 +103,7 @@ namespace Magpie {
             // 
             this.textBox1.BackColor = System.Drawing.SystemColors.Control;
             this.textBox1.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.textBox1.Location = new System.Drawing.Point(12, 309);
+            this.textBox1.Location = new System.Drawing.Point(21, 168);
             this.textBox1.Multiline = true;
             this.textBox1.Name = "textBox1";
             this.textBox1.Size = new System.Drawing.Size(292, 43);
@@ -151,25 +150,13 @@ namespace Magpie {
             // ckbShowFPS
             // 
             this.ckbShowFPS.AutoSize = true;
-            this.ckbShowFPS.Location = new System.Drawing.Point(79, 65);
+            this.ckbShowFPS.Location = new System.Drawing.Point(17, 26);
             this.ckbShowFPS.Name = "ckbShowFPS";
             this.ckbShowFPS.Size = new System.Drawing.Size(89, 19);
             this.ckbShowFPS.TabIndex = 8;
             this.ckbShowFPS.Text = "显示帧率";
             this.ckbShowFPS.UseVisualStyleBackColor = true;
             this.ckbShowFPS.CheckedChanged += new System.EventHandler(this.CkbShowFPS_CheckedChanged);
-            // 
-            // groupBox1
-            // 
-            this.groupBox1.Controls.Add(this.cbbScaleMode);
-            this.groupBox1.Controls.Add(this.label2);
-            this.groupBox1.Controls.Add(this.ckbShowFPS);
-            this.groupBox1.Controls.Add(this.ckbNoVSync);
-            this.groupBox1.Location = new System.Drawing.Point(12, 162);
-            this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(292, 121);
-            this.groupBox1.TabIndex = 9;
-            this.groupBox1.TabStop = false;
             // 
             // cbbInjectMode
             // 
@@ -178,7 +165,7 @@ namespace Magpie {
             "不注入",
             "运行时注入",
             "启动时注入"});
-            this.cbbInjectMode.Location = new System.Drawing.Point(79, 52);
+            this.cbbInjectMode.Location = new System.Drawing.Point(91, 119);
             this.cbbInjectMode.Name = "cbbInjectMode";
             this.cbbInjectMode.Size = new System.Drawing.Size(196, 23);
             this.cbbInjectMode.TabIndex = 1;
@@ -187,7 +174,7 @@ namespace Magpie {
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(6, 55);
+            this.label1.Location = new System.Drawing.Point(18, 122);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(67, 15);
             this.label1.TabIndex = 0;
@@ -198,18 +185,6 @@ namespace Magpie {
             this.openFileDialog.Filter = "可执行文件|*.exe";
             this.openFileDialog.Title = "请选择要启动并注入的程序";
             // 
-            // groupBox3
-            // 
-            this.groupBox3.Controls.Add(this.label1);
-            this.groupBox3.Controls.Add(this.cbbInjectMode);
-            this.groupBox3.Controls.Add(this.cbbCaptureMode);
-            this.groupBox3.Controls.Add(this.label3);
-            this.groupBox3.Location = new System.Drawing.Point(12, 66);
-            this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size(292, 90);
-            this.groupBox3.TabIndex = 11;
-            this.groupBox3.TabStop = false;
-            // 
             // cbbCaptureMode
             // 
             this.cbbCaptureMode.DropDownWidth = 196;
@@ -217,7 +192,7 @@ namespace Magpie {
             this.cbbCaptureMode.Items.AddRange(new object[] {
             "GDI模式",
             "MagCallback模式"});
-            this.cbbCaptureMode.Location = new System.Drawing.Point(79, 23);
+            this.cbbCaptureMode.Location = new System.Drawing.Point(91, 90);
             this.cbbCaptureMode.Name = "cbbCaptureMode";
             this.cbbCaptureMode.Size = new System.Drawing.Size(196, 23);
             this.cbbCaptureMode.TabIndex = 3;
@@ -226,19 +201,47 @@ namespace Magpie {
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(6, 26);
+            this.label3.Location = new System.Drawing.Point(18, 93);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(67, 15);
             this.label3.TabIndex = 4;
             this.label3.Text = "抓取模式";
             // 
+            // groupBox2
+            // 
+            this.groupBox2.Controls.Add(this.ckbLowLatencyMode);
+            this.groupBox2.Controls.Add(this.ckbShowFPS);
+            this.groupBox2.Controls.Add(this.ckbNoVSync);
+            this.groupBox2.Location = new System.Drawing.Point(302, 30);
+            this.groupBox2.Name = "groupBox2";
+            this.groupBox2.Size = new System.Drawing.Size(147, 112);
+            this.groupBox2.TabIndex = 12;
+            this.groupBox2.TabStop = false;
+            this.groupBox2.Text = "高级";
+            // 
+            // ckbLowLatencyMode
+            // 
+            this.ckbLowLatencyMode.AutoSize = true;
+            this.ckbLowLatencyMode.Location = new System.Drawing.Point(17, 51);
+            this.ckbLowLatencyMode.Name = "ckbLowLatencyMode";
+            this.ckbLowLatencyMode.Size = new System.Drawing.Size(104, 19);
+            this.ckbLowLatencyMode.TabIndex = 9;
+            this.ckbLowLatencyMode.Text = "低延迟模式";
+            this.ckbLowLatencyMode.UseVisualStyleBackColor = true;
+            this.ckbLowLatencyMode.CheckedChanged += new System.EventHandler(this.CkbLowLatencyMode_CheckedChanged);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(318, 358);
-            this.Controls.Add(this.groupBox3);
-            this.Controls.Add(this.groupBox1);
+            this.ClientSize = new System.Drawing.Size(478, 223);
+            this.Controls.Add(this.label1);
+            this.Controls.Add(this.cbbScaleMode);
+            this.Controls.Add(this.cbbInjectMode);
+            this.Controls.Add(this.label2);
+            this.Controls.Add(this.cbbCaptureMode);
+            this.Controls.Add(this.groupBox2);
+            this.Controls.Add(this.label3);
             this.Controls.Add(this.textBox1);
             this.Controls.Add(this.txtHotkey);
             this.Controls.Add(this.lblHotkey);
@@ -251,10 +254,8 @@ namespace Magpie {
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
             this.Resize += new System.EventHandler(this.MainForm_Resize);
             this.cmsNotifyIcon.ResumeLayout(false);
-            this.groupBox1.ResumeLayout(false);
-            this.groupBox1.PerformLayout();
-            this.groupBox3.ResumeLayout(false);
-            this.groupBox3.PerformLayout();
+            this.groupBox2.ResumeLayout(false);
+            this.groupBox2.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -274,13 +275,13 @@ namespace Magpie {
         private System.Windows.Forms.ToolStripMenuItem tsmiExit;
         private System.Windows.Forms.ToolStripMenuItem tsmiHotkey;
         private System.Windows.Forms.CheckBox ckbShowFPS;
-        private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.ComboBox cbbInjectMode;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.OpenFileDialog openFileDialog;
-        private System.Windows.Forms.GroupBox groupBox3;
         private System.Windows.Forms.ComboBox cbbCaptureMode;
         private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.GroupBox groupBox2;
+        private System.Windows.Forms.CheckBox ckbLowLatencyMode;
     }
 }
 
