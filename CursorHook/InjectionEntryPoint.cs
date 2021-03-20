@@ -226,8 +226,8 @@ namespace Magpie.CursorHook {
 
                     // 查找全屏窗口
                     IntPtr hwndHost = NativeMethods.FindWindow(HOST_WINDOW_CLASS_NAME, IntPtr.Zero);
-                    if(hwndHost != IntPtr.Zero) {
-                        if(hwndHost != _hwndHost) {
+                    if (hwndHost != IntPtr.Zero) {
+                        if (hwndHost != _hwndHost) {
                             ReportToServer("检测到全屏窗口");
 
                             _hwndHost = hwndHost;
@@ -241,21 +241,14 @@ namespace Magpie.CursorHook {
                             // 向全屏窗口汇报至今为止的映射
                             foreach (var item in _hCursorToTptCursor) {
                                 // 排除系统光标
-                                if(item.Key == arrowCursor
+                                if (item.Key == arrowCursor
                                     || item.Key == handCursor
                                     || item.Key == appStartingCursor
                                 ) {
                                     continue;
                                 }
 
-                                if (!NativeMethods.PostMessage(
-                                    _hwndHost,
-                                    NativeMethods.MAGPIE_WM_NEWCURSOR,
-                                    item.Value,
-                                    item.Key
-                                )) {
-                                    ReportIfFalse(false, "PostMessage失败");
-                                }
+                                ReportCursorMap(item.Value, item.Key);
                             }
 
                             // 不替换这些系统光标，因为已被全局替换
@@ -265,8 +258,9 @@ namespace Magpie.CursorHook {
 
                             ReplaceHCursors();
                         }
+
                     } else {
-                        if(_hwndHost != IntPtr.Zero) {
+                        if (_hwndHost != IntPtr.Zero) {
                             ReportToServer("全屏窗口已关闭");
                             _hwndHost = IntPtr.Zero;
                         }
@@ -389,10 +383,7 @@ namespace Magpie.CursorHook {
             _hCursorToTptCursor[hCursor] = hTptCursor;
 
             // 向全屏窗口发送光标句柄
-            ReportIfFalse(
-                NativeMethods.PostMessage(_hwndHost, NativeMethods.MAGPIE_WM_NEWCURSOR, hTptCursor, hCursor),
-                "PostMessage 失败"
-            );
+            ReportCursorMap(hTptCursor, hCursor);
 
             return hTptCursor;
         }
@@ -439,6 +430,14 @@ namespace Magpie.CursorHook {
             return (
                 Math.Min((int)ii.xHotspot, _cursorSize.x),
                 Math.Min((int)ii.yHotspot, _cursorSize.y)
+            );
+        }
+
+        // 向全屏窗口发送光标句柄
+        private void ReportCursorMap(IntPtr hTptCursor, IntPtr hCursor) {
+            ReportIfFalse(
+                NativeMethods.PostMessage(_hwndHost, NativeMethods.MAGPIE_WM_NEWCURSOR, hTptCursor, hCursor),
+                "PostMessage 失败"
             );
         }
 

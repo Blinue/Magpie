@@ -12,140 +12,173 @@ public:
         IWICImagingFactory2* wicImgFactory,
         const D2D1_RECT_F& srcRect,
         const D2D1_RECT_F& destRect,
-        bool noDisturb = false
+        bool noDisturb = false,
+        bool debugMode = false
     ) : Renderable(d2dDC), _hInstance(hInstance), _wicImgFactory(wicImgFactory),
-        _srcRect(srcRect), _destRect(destRect), _noDistrub(noDisturb) {
+        _srcRect(srcRect), _destRect(destRect), _noDisturb(noDisturb), _debugMode(debugMode) {
         _cursorSize.cx = GetSystemMetrics(SM_CXCURSOR);
         _cursorSize.cy = GetSystemMetrics(SM_CYCURSOR);
 
-        if (!noDisturb) {
-            HCURSOR hCursorArrow = LoadCursor(NULL, IDC_ARROW);
-            HCURSOR hCursorHand = LoadCursor(NULL, IDC_HAND);
-            HCURSOR hCursorAppStarting = LoadCursor(NULL, IDC_APPSTARTING);
 
-            // 保存替换之前的 arrow 光标图像
-            ComPtr<ID2D1Bitmap> arrowImg = _CursorToD2DBitmap(hCursorArrow);
-            ComPtr<ID2D1Bitmap> handImg = _CursorToD2DBitmap(hCursorHand);
-            ComPtr<ID2D1Bitmap> appStartingImg = _CursorToD2DBitmap(hCursorAppStarting);
+        HCURSOR hCursorArrow = LoadCursor(NULL, IDC_ARROW);
+        HCURSOR hCursorHand = LoadCursor(NULL, IDC_HAND);
+        HCURSOR hCursorAppStarting = LoadCursor(NULL, IDC_APPSTARTING);
 
-            Debug::ThrowIfWin32Failed(
-                SetSystemCursor(_CreateTransparentCursor(hCursorArrow), OCR_NORMAL),
-                L"设置 OCR_NORMAL 失败"
-            );
-            Debug::ThrowIfWin32Failed(
-                SetSystemCursor(_CreateTransparentCursor(hCursorHand), OCR_HAND),
-                L"设置 OCR_HAND 失败"
-            );
-            Debug::ThrowIfWin32Failed(
-                SetSystemCursor(_CreateTransparentCursor(hCursorAppStarting), OCR_APPSTARTING),
-                L"设置 OCR_APPSTARTING 失败"
-            );
-            
-            _hCursorArrow = LoadCursor(NULL, IDC_ARROW);
-            _cursorMap.emplace(_hCursorArrow, arrowImg);
-            _cursorMap.emplace(LoadCursor(NULL, IDC_HAND), handImg);
-            _cursorMap.emplace(LoadCursor(NULL, IDC_APPSTARTING), appStartingImg);
+        // 保存替换之前的 arrow 光标图像
+        // SetSystemCursor 不会改变系统光标的句柄
+        _cursorMap.emplace(hCursorArrow, _CursorToD2DBitmap(hCursorArrow));
+        _cursorMap.emplace(hCursorHand, _CursorToD2DBitmap(hCursorHand));
+        _cursorMap.emplace(hCursorAppStarting, _CursorToD2DBitmap(hCursorAppStarting));
 
-            // 限制鼠标在窗口内
-            RECT r{ lroundf(srcRect.left), lroundf(srcRect.top), lroundf(srcRect.right), lroundf(srcRect.bottom) };
-            Debug::ThrowIfWin32Failed(ClipCursor(&r), L"ClipCursor 失败");
-            
-            // 设置鼠标移动速度
-            Debug::ThrowIfWin32Failed(
-                SystemParametersInfo(SPI_GETMOUSESPEED, 0, &_cursorSpeed, 0),
-                L"获取鼠标速度失败"
-            );
-
-            float scale = float(destRect.right - destRect.left) / (srcRect.right - srcRect.left);
-            long newSpeed = std::clamp(lroundf(_cursorSpeed / scale), 1L, 20L);
-            Debug::ThrowIfWin32Failed(
-                SystemParametersInfo(SPI_SETMOUSESPEED, 0, (PVOID)(intptr_t)newSpeed, 0),
-                L"设置鼠标速度失败"
-            );
+        if (_noDisturb) {
+            return;
         }
-	}
+
+        Debug::ThrowIfWin32Failed(
+            SetSystemCursor(_CreateTransparentCursor(hCursorArrow), OCR_NORMAL),
+            L"设置 OCR_NORMAL 失败"
+        );
+        Debug::ThrowIfWin32Failed(
+            SetSystemCursor(_CreateTransparentCursor(hCursorHand), OCR_HAND),
+            L"设置 OCR_HAND 失败"
+        );
+        Debug::ThrowIfWin32Failed(
+            SetSystemCursor(_CreateTransparentCursor(hCursorAppStarting), OCR_APPSTARTING),
+            L"设置 OCR_APPSTARTING 失败"
+        );
+
+        // 限制鼠标在窗口内
+        RECT r{ lroundf(srcRect.left), lroundf(srcRect.top), lroundf(srcRect.right), lroundf(srcRect.bottom) };
+        Debug::ThrowIfWin32Failed(ClipCursor(&r), L"ClipCursor 失败");
+
+        // 设置鼠标移动速度
+        Debug::ThrowIfWin32Failed(
+            SystemParametersInfo(SPI_GETMOUSESPEED, 0, &_cursorSpeed, 0),
+            L"获取鼠标速度失败"
+        );
+
+        float scale = float(destRect.right - destRect.left) / (srcRect.right - srcRect.left);
+        long newSpeed = std::clamp(lroundf(_cursorSpeed / scale), 1L, 20L);
+        Debug::ThrowIfWin32Failed(
+            SystemParametersInfo(SPI_SETMOUSESPEED, 0, (PVOID)(intptr_t)newSpeed, 0),
+            L"设置鼠标速度失败"
+        );
+    }
 
 	CursorManager(const CursorManager&) = delete;
 	CursorManager(CursorManager&&) = delete;
 
     ~CursorManager() {
-        if (!_noDistrub) {
-            ClipCursor(nullptr);
-
-            SystemParametersInfo(SPI_SETMOUSESPEED, 0, (PVOID)(intptr_t)_cursorSpeed, 0);
-
-            // 还原系统光标
-            SystemParametersInfo(SPI_SETCURSORS, 0, NULL, 0);
+        if (_noDisturb) {
+            return;
         }
+
+        ClipCursor(nullptr);
+
+        SystemParametersInfo(SPI_SETMOUSESPEED, 0, (PVOID)(intptr_t)_cursorSpeed, 0);
+
+        // 还原系统光标
+        SystemParametersInfo(SPI_SETCURSORS, 0, NULL, 0);
     }
 
-	void Render() override {
+    void Render() override {
         CURSORINFO ci{};
         ci.cbSize = sizeof(ci);
         Debug::ThrowIfWin32Failed(
             GetCursorInfo(&ci),
             L"GetCursorInfo 失败"
         );
-        
+
+        if (_debugMode) {
+            _RenderDebugLayer(ci.hCursor);
+        }
+
         if (ci.hCursor == NULL) {
             return;
         }
-        
-        // 映射坐标
-        float factor = (_destRect.right - _destRect.left) / (_srcRect.right - _srcRect.left);
-        D2D1_POINT_2F targetScreenPos{
-            ((FLOAT)ci.ptScreenPos.x - _srcRect.left) * factor + _destRect.left,
-            ((FLOAT)ci.ptScreenPos.y - _srcRect.top) * factor + _destRect.top
-        };
-        // 鼠标坐标为整数，否则会出现模糊
-        targetScreenPos.x = roundf(targetScreenPos.x);
-        targetScreenPos.y = roundf(targetScreenPos.y);
 
+        _DrawCursor(ci.hCursor, ci.ptScreenPos);
+    }
 
-        auto [xHotSpot, yHotSpot] = _GetCursorHotSpot(ci.hCursor);
+    void AddHookCursor(HCURSOR hTptCursor, HCURSOR hCursor) {
+        if (hTptCursor == NULL || hCursor == NULL) {
+            return;
+        }
+
+        _cursorMap[hTptCursor] = _CursorToD2DBitmap(hCursor);
+    }
+private:
+    void _RenderDebugLayer(HCURSOR hCursorCur) {
+        D2D1_POINT_2F leftTop{ 0, 50 };
 
         D2D1_RECT_F cursorRect{
-            targetScreenPos.x - xHotSpot,
-            targetScreenPos.y - yHotSpot,
-            targetScreenPos.x + _cursorSize.cx - xHotSpot,
-            targetScreenPos.y + _cursorSize.cy - yHotSpot
+            leftTop.x, leftTop.y, leftTop.x + _cursorSize.cx, leftTop.y + _cursorSize.cy
         };
-        
-        auto it = _cursorMap.find(ci.hCursor);
+
+        ComPtr<ID2D1SolidColorBrush> brush;
+        _d2dDC->CreateSolidColorBrush({ 0,0,0,1 }, &brush);
+
+        for (const auto& a : _cursorMap) {
+            _d2dDC->FillRectangle(cursorRect, brush.Get());
+
+            if (a.first != hCursorCur) {
+                _d2dDC->DrawBitmap(a.second.Get(), &cursorRect);
+            }
+
+            cursorRect.left += _cursorSize.cx;
+            cursorRect.right += _cursorSize.cy;
+        }
+    }
+
+    void _DrawCursor(HCURSOR hCursor, POINT ptScreenPos) {
+        assert(hCursor != NULL);
+
+        auto it = _cursorMap.find(hCursor);
+        ID2D1Bitmap* bmpCursor = nullptr;
+
         if (it != _cursorMap.end()) {
-            _d2dDC->DrawBitmap(it->second.Get(), &cursorRect);
+            bmpCursor = it->second.Get();
         } else {
             try {
-                ComPtr<ID2D1Bitmap> cursorBmp = _CursorToD2DBitmap(ci.hCursor);
-                _d2dDC->DrawBitmap(cursorBmp.Get(), &cursorRect);
+                // 未在映射中找到，创建新映射
+                ComPtr<ID2D1Bitmap> newBmpCursor = _CursorToD2DBitmap(hCursor);
 
-                // 添加进表
-                _cursorMap[ci.hCursor] = cursorBmp;
+                // 添加进映射
+                _cursorMap[hCursor] = newBmpCursor;
+
+                bmpCursor = newBmpCursor.Get();
             } catch (...) {
                 // 如果出错，只绘制普通光标
                 Debug::WriteLine(L"_CursorToD2DBitmap 出错");
 
-                it = _cursorMap.find(_hCursorArrow);
-                if (it == _cursorMap.end()) {
-                    return;
-                }
-
-                cursorRect = {
-                    targetScreenPos.x,
-                    targetScreenPos.y,
-                    targetScreenPos.x + _cursorSize.cx,
-                    targetScreenPos.y + _cursorSize.cy
-                };
-                _d2dDC->DrawBitmap(it->second.Get(), &cursorRect);
+                hCursor = LoadCursor(NULL, IDC_ARROW);
+                bmpCursor = _cursorMap[hCursor].Get();
             }
         }
-	}
 
-    void AddHookCursor(HCURSOR hTptCursor, HCURSOR hCursor) {
-        assert(hTptCursor != NULL && hCursor != NULL);
-        _cursorMap[hTptCursor] = _CursorToD2DBitmap(hCursor);
+        // 映射坐标
+        float factor = (_destRect.right - _destRect.left) / (_srcRect.right - _srcRect.left);
+        D2D1_POINT_2F targetScreenPos{
+            ((FLOAT)ptScreenPos.x - _srcRect.left) * factor + _destRect.left,
+            ((FLOAT)ptScreenPos.y - _srcRect.top) * factor + _destRect.top
+        };
+
+        // 鼠标坐标为整数，否则会出现模糊
+        targetScreenPos.x = roundf(targetScreenPos.x);
+        targetScreenPos.y = roundf(targetScreenPos.y);
+
+        auto [xHotSpot, yHotSpot] = _GetCursorHotSpot(hCursor);
+
+        D2D1_RECT_F cursorRect = {
+           targetScreenPos.x - xHotSpot,
+           targetScreenPos.y - yHotSpot,
+           targetScreenPos.x + _cursorSize.cx - xHotSpot,
+           targetScreenPos.y + _cursorSize.cy - yHotSpot
+        };
+
+        _d2dDC->DrawBitmap(bmpCursor, &cursorRect);
     }
-private:
+
     HCURSOR _CreateTransparentCursor(HCURSOR hCursorHotSpot) {
         int len = _cursorSize.cx * _cursorSize.cy;
         BYTE* andPlane = new BYTE[len];
@@ -223,9 +256,7 @@ private:
 
     HINSTANCE _hInstance;
     IWICImagingFactory2* _wicImgFactory;
-    
 
-    HCURSOR _hCursorArrow{};
     std::map<HCURSOR, ComPtr<ID2D1Bitmap>> _cursorMap;
 
     SIZE _cursorSize{};
@@ -235,5 +266,6 @@ private:
 
     INT _cursorSpeed = 0;
 
-    bool _noDistrub = false;
+    bool _noDisturb = false;
+    bool _debugMode = false;
 };

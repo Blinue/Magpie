@@ -32,6 +32,7 @@ namespace Magpie.CursorHook {
         private static extern int SetClassLong(IntPtr hWnd, int nIndex, int dwNewLong);
 
         public static IntPtr GetClassLongAuto(IntPtr hWnd, int nIndex) {
+            // 尽管文档表示 GetClassLongPtr 可以在 32 位程序里使用，但实际上会失败
             if (EasyHook.NativeAPI.Is64Bit) {
                 return GetClassLongPtr(hWnd, nIndex);
             } else {
@@ -59,9 +60,10 @@ namespace Magpie.CursorHook {
         public static extern bool PostMessage(IntPtr hWnd, uint Msg, IntPtr wParam, IntPtr lParam);
 
         [DllImport("user32.dll", CharSet = CharSet.Unicode)]
-        public static extern bool SendMessage(IntPtr hWnd, uint Msg, IntPtr wParam, IntPtr lParam);
+        public static extern IntPtr SendMessage(IntPtr hWnd, uint Msg, IntPtr wParam, IntPtr lParam);
 
-        public readonly static uint MAGPIE_WM_NEWCURSOR = RegisterWindowMessage("MAGPIE_WM_NEWCURSOR");
+        public readonly static uint MAGPIE_WM_NEWCURSOR = 
+            RegisterWindowMessage(EasyHook.NativeAPI.Is64Bit ? "MAGPIE_WM_NEWCURSOR64" : "MAGPIE_WM_NEWCURSOR32");
 
         public readonly static uint WM_SETCURSOR = 0x0020;
         public readonly static int HTCLIENT = 1;
@@ -97,6 +99,9 @@ namespace Magpie.CursorHook {
 
         [DllImport("user32.dll")]
         public static extern bool GetIconInfo(IntPtr hIcon, ref ICONINFO piconinfo);
+
+        [DllImport("user32.dll")]
+        public static extern IntPtr CopyIcon(IntPtr hIcon);
 
         [DllImport("gdi32.dll")]
         public static extern bool DeleteObject(IntPtr ho);

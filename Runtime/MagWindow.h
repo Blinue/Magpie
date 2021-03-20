@@ -174,8 +174,8 @@ private:
         try {
             ComPtr<IWICBitmapSource> frame = _windowCapturer->GetFrame();
             _effectRenderer->Render(frame.Get(), {
-                _cursorManager.get(),
-                _frameCatcher.get()
+                _frameCatcher.get(),
+                _cursorManager.get()
             });
         } catch (const magpie_exception& e) {
             Debug::WriteErrorMessage(L"渲染失败：" + e.what());
@@ -218,9 +218,16 @@ private:
                 ) {
                     $instance = nullptr;
                 }
-            } else */if (message == _WM_NEWCURSOR) {
+            } else */if (message == _WM_NEWCURSOR32) {
                 // 来自 CursorHook 的消息
                 // HCURSOR 似乎是共享资源，尽管来自别的进程但可以直接使用
+                // 
+                // 如果消息来自 32 位进程，本程序为 64 位，必须转换为补符号位扩展，这是为了和 SetCursor 的处理方法一致
+                // SendMessage 为补 0 扩展，SetCursor 为补符号位扩展
+                _cursorManager->AddHookCursor((HCURSOR)(INT32)wParam, (HCURSOR)(INT32)lParam);
+            } else if (message == _WM_NEWCURSOR64) {
+                // 如果消息来自 64 位进程，本程序为 32 位，HCURSOR 会被截断
+                // Q: 如果被截断是否能正常工作？
                 _cursorManager->AddHookCursor((HCURSOR)wParam, (HCURSOR)lParam);
             } else {
                 return DefWindowProc(hWnd, message, wParam, lParam);
@@ -286,7 +293,8 @@ private:
 
     // 指定为最大帧率时使用的渲染消息
     static constexpr const UINT _WM_RENDER = WM_USER;
-    static UINT _WM_NEWCURSOR;
+    static UINT _WM_NEWCURSOR32;
+    static UINT _WM_NEWCURSOR64;
 
     UINT _WM_SHELLHOOKMESSAGE{};
 

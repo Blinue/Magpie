@@ -3,4 +3,5 @@
 
 std::unique_ptr<MagWindow> MagWindow::$instance = nullptr;
 
-UINT MagWindow::_WM_NEWCURSOR = RegisterWindowMessage(L"MAGPIE_WM_NEWCURSOR");
+UINT MagWindow::_WM_NEWCURSOR32 = RegisterWindowMessage(L"MAGPIE_WM_NEWCURSOR32");
+UINT MagWindow::_WM_NEWCURSOR64 = RegisterWindowMessage(L"MAGPIE_WM_NEWCURSOR64");
