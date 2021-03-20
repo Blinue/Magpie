@@ -72,6 +72,7 @@
     <Compile Include="InjectionEntryPoint.cs" />
     <Compile Include="NativeMethods.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SafeCursorHandle.cs" />
     <Compile Include="ServerInterface.cs" />
   </ItemGroup>
   <ItemGroup>

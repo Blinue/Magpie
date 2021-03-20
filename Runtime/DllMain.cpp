@@ -30,7 +30,7 @@ BOOL APIENTRY DllMain(
 }
 
 
-API_DECLSPEC BOOL WINAPI CreateMagWindow(
+API_DECLSPEC bool WINAPI CreateMagWindow(
     const wchar_t* effectsJson,
     int captureMode,
     bool showFPS,
@@ -56,7 +56,7 @@ API_DECLSPEC BOOL WINAPI CreateMagWindow(
     return TRUE;
 }
 
-API_DECLSPEC BOOL WINAPI HasMagWindow() {
+API_DECLSPEC bool WINAPI HasMagWindow() {
     return MagWindow::$instance != nullptr;
 }
 

@@ -6,17 +6,19 @@ using System.Text;
 
 namespace Magpie {
 	// Win32 API
-	public static class NativeMethods {
+	static class NativeMethods {
 		// 获取用户当前正在使用的窗体的句柄
 		[DllImport("user32", CharSet = CharSet.Unicode)]
 		public static extern IntPtr GetForegroundWindow();
 
         [DllImport("user32", CharSet = CharSet.Unicode)]
+        [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool SetForegroundWindow(IntPtr hWnd);
 
         public static IntPtr HWND_BROADCAST = (IntPtr)0xffff;
 
         [DllImport("user32", CharSet = CharSet.Unicode)]
+        [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool PostMessage(IntPtr hwnd, int msg, IntPtr wparam, IntPtr lparam);
 
         [DllImport("user32", CharSet = CharSet.Unicode)]
@@ -30,24 +32,30 @@ namespace Magpie {
 
         public static int GetWindowProcessId(IntPtr hWnd) {
             int processId = 0;
-            GetWindowThreadProcessId(hWnd, ref processId);
+
+            if(GetWindowThreadProcessId(hWnd, ref processId) == 0) {
+                return 0;
+            }
+
             return processId;
         }
 
         [DllImport("Runtime", CallingConvention = CallingConvention.StdCall)]
+        [return: MarshalAs(UnmanagedType.U1)]
         public static extern bool CreateMagWindow(
             [MarshalAs(UnmanagedType.LPWStr)] string effectsJson,
             int captureMode,
-            bool showFPS,
-            bool lowLatencyMode,
-            bool noVSync,
-            bool noDisturb = false
+            [MarshalAs(UnmanagedType.U1)] bool showFPS,
+            [MarshalAs(UnmanagedType.U1)] bool lowLatencyMode,
+            [MarshalAs(UnmanagedType.U1)] bool noVSync,
+            [MarshalAs(UnmanagedType.U1)] bool noDisturb = false
         );
 
         [DllImport("Runtime", CallingConvention = CallingConvention.StdCall)]
         public static extern void DestroyMagWindow();
 
         [DllImport("Runtime", CallingConvention = CallingConvention.StdCall)]
+        [return: MarshalAs(UnmanagedType.U1)]
         public static extern bool HasMagWindow();
 
         // 由于无法理解的原因，这里不能直接封送为 string

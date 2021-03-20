@@ -224,7 +224,7 @@ private:
                 // 
                 // 如果消息来自 32 位进程，本程序为 64 位，必须转换为补符号位扩展，这是为了和 SetCursor 的处理方法一致
                 // SendMessage 为补 0 扩展，SetCursor 为补符号位扩展
-                _cursorManager->AddHookCursor((HCURSOR)(INT32)wParam, (HCURSOR)(INT32)lParam);
+                _cursorManager->AddHookCursor((HCURSOR)(INT_PTR)(INT32)wParam, (HCURSOR)(INT_PTR)(INT32)lParam);
             } else if (message == _WM_NEWCURSOR64) {
                 // 如果消息来自 64 位进程，本程序为 32 位，HCURSOR 会被截断
                 // Q: 如果被截断是否能正常工作？

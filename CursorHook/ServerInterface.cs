@@ -6,6 +6,10 @@ namespace Magpie.CursorHook {
     // IPC 服务器接口
     public class ServerInterface : MarshalByRefObject {
         public void ReportMessages(string[] messages) {
+            if(messages == null) {
+                return;
+            }
+
             foreach (var msg in messages) {
                 ReportMessage(msg);
             }

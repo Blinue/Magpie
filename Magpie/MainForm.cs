@@ -13,7 +13,7 @@ using System.Windows.Forms;
 
 
 namespace Magpie {
-    public partial class MainForm : Form {
+    partial class MainForm : Form {
         public static readonly int WM_SHOWME = NativeMethods.RegisterWindowMessage("WM_SHOWME");
 
         private const string AnimeEffectJson = @"[
@@ -77,8 +77,7 @@ namespace Magpie {
                     WindowState = FormWindowState.Normal;
                 }
 
-                // 忽略错误
-                NativeMethods.SetForegroundWindow(Handle);
+                _ = NativeMethods.SetForegroundWindow(Handle);
             }
             base.WndProc(ref m);
         }
@@ -140,7 +139,7 @@ namespace Magpie {
         private void HookCursorAtRuntime() {
             IntPtr hwndSrc = NativeMethods.GetSrcWnd();
             int pid = NativeMethods.GetWindowProcessId(hwndSrc);
-            if (pid == Process.GetCurrentProcess().Id) {
+            if (pid == 0 || pid == Process.GetCurrentProcess().Id) {
                 // 不能 hook 本进程
                 return;
             }
