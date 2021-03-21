@@ -1,12 +1,6 @@
 ﻿/*
- * ---------------------
- *   非常强大，非常脆弱
- * ---------------------
- * 
- * 我时常惊叹于 Windows 系统的健壮性，
- * 使用 Windows API 时唯一的限制是你的想象力。
- * 本 HOOK 大部分情况下可以工作，如果可以你就赚了！
- * 
+ * 用于注入源窗口进程的钩子，支持运行时注入和启动时注入两种模式
+ * 原理见 光标映射.md
  */
 
 using System;
@@ -280,6 +274,8 @@ namespace Magpie.CursorHook {
 
                 _ = NativeMethods.SetClassAuto(hwnd, NativeMethods.GCLP_HCURSOR, item.Key.ToInt64());
             }
+
+            _replacedHwnds.Clear();
         }
 
         private void ReplaceHCursors() {
