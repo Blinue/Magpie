@@ -69,7 +69,7 @@ public:
                 r->Render();
             }
         }
-
+        
         Debug::ThrowIfComFailed(
             _d2dDC->EndDraw(),
             L"EndDraw Ê§°Ü"

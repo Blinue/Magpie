@@ -1,4 +1,4 @@
-# MAGPIE <small>v0.2</small>
+# MAGPIE
 
 窗口放大镜！
 
