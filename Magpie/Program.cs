@@ -22,12 +22,7 @@ namespace Magpie {
                 mutex.ReleaseMutex();
             } else {
                 // 已存在实例时广播 WM_SHOWME，唤醒该实例
-                _ = NativeMethods.PostMessage(
-                    NativeMethods.HWND_BROADCAST,
-                    MainForm.WM_SHOWME,
-                    IntPtr.Zero,
-                    IntPtr.Zero
-                );
+                _ = NativeMethods.BroadcastMessage(NativeMethods.MAGPIE_WM_SHOWME);
             }
         }
     }

@@ -10,51 +10,24 @@ using System.IO;
 using System.Reflection;
 using System.Runtime.Remoting;
 using System.Windows.Forms;
+using System.Threading;
 
 
 namespace Magpie {
     partial class MainForm : Form {
-        public static readonly int WM_SHOWME = NativeMethods.RegisterWindowMessage("WM_SHOWME");
-
+        
         private const string AnimeEffectJson = @"[
   {
     ""effect"": ""scale"",
     ""type"": ""Anime4KxDenoise""
-  },
-  {
-    ""effect"": ""scale"",
-    ""type"": ""mitchell"",
-    ""scale"": [0,0],
-    ""useSharperVersion"": true
-  },
-  {
-    ""effect"": ""sharpen"",
-    ""type"": ""adaptive"",
-    ""curveHeight"": 0.2
   }
 ]";
         private const string CommonEffectJson = @"[
-  {
-    ""effect"": ""scale"",
-    ""type"": ""lanczos6"",
-    ""scale"": [0,0],
-    ""ARStrength"": 0.7
-  },
-  {
-    ""effect"": ""sharpen"",
-    ""type"": ""adaptive"",
-    ""curveHeight"": 0.6
-  },
-  {
-    ""effect"": ""sharpen"",
-    ""type"": ""builtIn"",
-    ""sharpness"": 0.5,
-    ""threshold"": 0.5
-  }
 ]";
 
         IKeyboardMouseEvents keyboardEvents = null;
 
+        Thread thread = null;
 
         public MainForm() {
             InitializeComponent();
@@ -67,10 +40,11 @@ namespace Magpie {
             cbbInjectMode.SelectedIndex = Settings.Default.InjectMode;
             cbbCaptureMode.SelectedIndex = Settings.Default.CaptureMode;
             ckbLowLatencyMode.Checked = Settings.Default.LowLatencyMode;
+
         }
 
         protected override void WndProc(ref Message m) {
-            if (m.Msg == WM_SHOWME) {
+            if (m.Msg == NativeMethods.MAGPIE_WM_SHOWME) {
                 // 收到 WM_SHOWME 激活窗口
                 if (WindowState == FormWindowState.Minimized) {
                     Show();
@@ -83,8 +57,6 @@ namespace Magpie {
         }
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e) {
-            NativeMethods.DestroyMagWindow();
-
             Settings.Default.Save();
         }
 
@@ -104,24 +76,27 @@ namespace Magpie {
                         int captureMode = Settings.Default.CaptureMode;
                         bool lowLatencyMode = Settings.Default.LowLatencyMode;
 
-                        if(!NativeMethods.HasMagWindow()) {
-                            if(!NativeMethods.CreateMagWindow(
-                                effectJson,     // 缩放模式
-                                captureMode,    // 抓取模式
-                                showFPS,        // 显示 FPS
-                                lowLatencyMode, // 低延迟模式
-                                noVSync,        // 关闭垂直同步
-                                false           // 用于调试
-                            )) {
-                                MessageBox.Show("创建全屏窗口失败：" + NativeMethods.GetLastErrorMsg());
-                                return;
-                            }
+                        if(thread == null) {
+                            thread = new Thread(() => {
+                                NativeMethods.RunMagWindow(
+                                    effectJson,     // 缩放模式
+                                    captureMode,    // 抓取模式
+                                    showFPS,        // 显示 FPS
+                                    lowLatencyMode, // 低延迟模式
+                                    noVSync,        // 关闭垂直同步
+                                    false           // 用于调试
+                                );
+                            });
+                            thread.SetApartmentState(ApartmentState.MTA);
+                            thread.Start();
 
                             if(cbbInjectMode.SelectedIndex == 1) {
                                 HookCursorAtRuntime();
                             }
                         } else {
-                            NativeMethods.DestroyMagWindow();
+                            NativeMethods.BroadcastMessage(NativeMethods.MAGPIE_WM_DESTORYMAG);
+                            thread.Abort();
+                            thread = null;
                         }
                     }
                 }});
@@ -137,7 +112,7 @@ namespace Magpie {
         }
 
         private void HookCursorAtRuntime() {
-            IntPtr hwndSrc = NativeMethods.GetSrcWnd();
+            IntPtr hwndSrc = NativeMethods.GetForegroundWindow();
             int pid = NativeMethods.GetWindowProcessId(hwndSrc);
             if (pid == 0 || pid == Process.GetCurrentProcess().Id) {
                 // 不能 hook 本进程
@@ -166,7 +141,6 @@ namespace Magpie {
 #if DEBUG
                 channelName,
 #endif
-                NativeMethods.GetHostWnd(),
                 hwndSrc
                 );
             } catch (Exception e) {
@@ -267,3 +241,5 @@ namespace Magpie {
         }
     }
 }
+
+

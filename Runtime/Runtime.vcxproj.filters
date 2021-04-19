@@ -95,7 +95,7 @@
     <ClInclude Include="EffectManager.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="EffectRenderer.h">
+    <ClInclude Include="D2DContext.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="framework.h">
@@ -195,6 +195,12 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="FrameCatcher.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="WinRTCapturer.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderManager.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

@@ -9,10 +9,10 @@ using namespace std::chrono;
 class FrameCatcher : public Renderable {
 public:
 	FrameCatcher(
-		ID2D1DeviceContext* d2dDC,
+		D2DContext& d2dContext,
 		IDWriteFactory* dwFactory,
 		const D2D1_RECT_F& destRect
-	) : Renderable(d2dDC), _dwFactory(dwFactory), _destRect(destRect) {
+	) : Renderable(d2dContext), _dwFactory(dwFactory), _destRect(destRect) {
 		Debug::ThrowIfComFailed(
 			_dwFactory->CreateTextFormat(
 				L"Microsoft YaHei",
@@ -28,7 +28,7 @@ public:
 		);
 
 		Debug::ThrowIfComFailed(
-			_d2dDC->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::White), &_d2dFPSTxtBrush),
+			_d2dContext.GetD2DDC()->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::White), &_d2dFPSTxtBrush),
 			L"创建 _d2dFPSTxtBrush 失败"
 		);
 	}
@@ -38,7 +38,7 @@ public:
 
 		// 绘制文本
 		std::wstring fps = boost::str(boost::wformat(L"%d FPS") % lround(_fps));
-		_d2dDC->DrawTextW(
+		_d2dContext.GetD2DDC()->DrawTextW(
 			fps.c_str(),
 			(UINT32)fps.size(),
 			_dwTxtFmt.Get(),

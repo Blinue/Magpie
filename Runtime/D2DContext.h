@@ -1,45 +1,25 @@
 #pragma once
 #include "pch.h"
 #include "Utils.h"
-#include "EffectManager.h"
-#include "Renderable.h"
 
 using namespace D2D1;
 
-class EffectRenderer {
+class D2DContext {
 public:
-	EffectRenderer(
+	D2DContext(
         HINSTANCE hInstance,
         HWND hwndHost,
-        const std::wstring_view &effectsJson,
-        const RECT& srcClient,
-        IWICImagingFactory2* wicImgFactory,
+        const RECT& hostClient,
         bool lowLatencyMode = false,
         bool noVSync = false,
         bool noDisturb = false
-    ): _noVSync(noVSync), _lowLantencyMode(lowLatencyMode) {
-        RECT destClient{};
-        Utils::GetClientScreenRect(hwndHost, destClient);
-        _hostWndClientSize = Utils::GetSize(destClient);
-
+    ): _noVSync(noVSync), _lowLantencyMode(lowLatencyMode), _hostClient(hostClient) {
         _InitD2D(hwndHost);
-
-        _effectManager.reset(new EffectManager(_d2dFactory, _d2dDC, effectsJson, Utils::GetSize(srcClient), _hostWndClientSize));
-
-        // 计算输出位置
-        SIZE outputSize = _effectManager->GetOutputSize();
-        float x = ((float)_hostWndClientSize.cx - outputSize.cx) / 2;
-        float y = ((float)_hostWndClientSize.cy - outputSize.cy) / 2;
-        _destRect = { x, y, x + outputSize.cx, y + outputSize.cy };
 	}
  
     // 不可复制，不可移动
-    EffectRenderer(const EffectRenderer&) = delete;
-    EffectRenderer(EffectRenderer&&) = delete;
-
-    const D2D1_RECT_F& GetDestRect() const {
-        return _destRect;
-    }
+    D2DContext(const D2DContext&) = delete;
+    D2DContext(D2DContext&&) = delete;
 
     const ID2D1DeviceContext* GetD2DDC() const {
         return _d2dDC.Get();
@@ -48,39 +28,44 @@ public:
     ID2D1DeviceContext* GetD2DDC() {
         return _d2dDC.Get();
     }
-public:
-    void Render(IWICBitmapSource* srcBmp, const std::vector<Renderable*>& renderables) const {
+
+    const ID2D1Factory1* GetD2DFactory() const {
+        return _d2dFactory.Get();
+    }
+
+    ID2D1Factory1* GetD2DFactory() {
+        return _d2dFactory.Get();
+    }
+
+    const ID3D11Device* GetD3DDevice() const {
+        return _d3dDevice.Get();
+    }
+
+    ID3D11Device* GetD3DDevice() {
+        return _d3dDevice.Get();
+    }
+
+    void Render(std::function<void()> renderFunc) {
         if (_lowLantencyMode) {
             WaitForSingleObjectEx(_frameLatencyWaitableObject, 1000, true);
         }
-        
-        // 将输出图像显示在窗口中央
+
         _d2dDC->BeginDraw();
-        _d2dDC->Clear();
 
-        ComPtr<ID2D1Image> output = _effectManager->Apply(srcBmp);
-        _d2dDC->DrawImage(
-            output.Get(),
-            D2D1_POINT_2F{ _destRect.left, _destRect.top }
-        );
+        renderFunc();
 
-        for (auto r : renderables) {
-            if (r) {
-                r->Render();
-            }
-        }
-        
         Debug::ThrowIfComFailed(
             _d2dDC->EndDraw(),
             L"EndDraw 失败"
         );
-        
+
         // 如果帧率不足，关闭垂直同步可以提升帧率
         Debug::ThrowIfComFailed(
-            _dxgiSwapChain->Present(0, _noVSync ? DXGI_PRESENT_ALLOW_TEARING: 0),
+            _dxgiSwapChain->Present(0, _noVSync ? DXGI_PRESENT_ALLOW_TEARING : 0),
             L"Present 失败"
         );
     }
+
 private:
     void _InitD2D(HWND hwndHost) {
         // This array defines the set of DirectX hardware feature levels this app  supports.
@@ -96,7 +81,6 @@ private:
         };
 
         // Create the DX11 API device object, and get a corresponding context.
-        ComPtr<ID3D11Device> d3dDevice = nullptr;
         ComPtr<ID3D11DeviceContext> d3dDC = nullptr;
 
         D3D_FEATURE_LEVEL fl;
@@ -109,7 +93,7 @@ private:
                 featureLevels,  // list of feature levels this app can support
                 ARRAYSIZE(featureLevels),   // number of possible feature levels
                 D3D11_SDK_VERSION,
-                &d3dDevice, // returns the Direct3D device created
+                &_d3dDevice, // returns the Direct3D device created
                 &fl,    // returns feature level of device created
                 &d3dDC  // returns the device immediate context
             ),
@@ -119,7 +103,7 @@ private:
         // Obtain the underlying DXGI device of the Direct3D11 device.
         ComPtr<IDXGIDevice1> dxgiDevice;
         Debug::ThrowIfComFailed(
-            d3dDevice.As(&dxgiDevice),
+            _d3dDevice.As(&dxgiDevice),
             L"获取 DXGI Device 失败"
         );
 
@@ -158,8 +142,8 @@ private:
         DXGI_SWAP_CHAIN_DESC1 swapChainDesc{};
         swapChainDesc.Flags = (_noVSync ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : 0) 
             | (_lowLantencyMode ? DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT : 0);
-        swapChainDesc.Width = _hostWndClientSize.cx,
-        swapChainDesc.Height = _hostWndClientSize.cy,
+        swapChainDesc.Width = _hostClient.right - _hostClient.left,
+        swapChainDesc.Height = _hostClient.bottom - _hostClient.top,
         swapChainDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM; // this is the most common swapchain format
         swapChainDesc.Stereo = FALSE;
         swapChainDesc.SampleDesc.Count = 1;                // don't use multi-sampling
@@ -174,7 +158,7 @@ private:
         ComPtr<IDXGISwapChain1> dxgiSwapChain1;
         Debug::ThrowIfComFailed(
             dxgiFactory->CreateSwapChainForHwnd(
-                d3dDevice.Get(),
+                _d3dDevice.Get(),
                 hwndHost,
                 &swapChainDesc,
                 nullptr,
@@ -237,18 +221,16 @@ private:
         _d2dDC->SetUnitMode(D2D1_UNIT_MODE_PIXELS);
     }
 
-    SIZE _hostWndClientSize{};
-    D2D1_RECT_F _destRect{};
+    const RECT& _hostClient{};
 
     bool _noVSync;
     bool _lowLantencyMode;
 
+    ComPtr<ID3D11Device> _d3dDevice = nullptr;
     ComPtr<ID2D1Factory1> _d2dFactory = nullptr;
     ComPtr<ID2D1Device> _d2dDevice = nullptr;
     ComPtr<ID2D1DeviceContext> _d2dDC = nullptr;
     ComPtr<IDXGISwapChain2> _dxgiSwapChain = nullptr;
-
-    std::unique_ptr<EffectManager> _effectManager = nullptr;
 
     HANDLE _frameLatencyWaitableObject;
 };

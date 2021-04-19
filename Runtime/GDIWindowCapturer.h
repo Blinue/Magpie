@@ -15,7 +15,7 @@ public:
 	): _wicImgFactory(wicImgFactory), _srcRect(srcRect), _hwndSrc(hwndSrc), _useBitblt(useBitblt) {
 	}
 
-	ComPtr<IWICBitmapSource> GetFrame() override {
+	std::variant<ComPtr<IWICBitmapSource>, ComPtr<ID2D1Bitmap1>> GetFrame() override {
 		if (_useBitblt) {
 			return _GetFrameWithBitblt();
 		} else {

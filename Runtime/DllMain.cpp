@@ -30,7 +30,7 @@ BOOL APIENTRY DllMain(
 }
 
 
-API_DECLSPEC bool WINAPI CreateMagWindow(
+API_DECLSPEC void WINAPI RunMagWindow(
     const wchar_t* effectsJson,
     int captureMode,
     bool showFPS,
@@ -47,42 +47,17 @@ API_DECLSPEC bool WINAPI CreateMagWindow(
 
         MagWindow::CreateInstance(hInstance, hwnd, effectsJson, captureMode, showFPS, lowLatencyMode, noVSync, noDisturb);
     } catch(const magpie_exception&) {
-        return FALSE;
+        return;
     } catch (...) {
         Debug::WriteErrorMessage(L"创建全屏窗口发生未知错误");
-        return FALSE;
+        return;
     }
 
-    return TRUE;
-}
+    MSG msg;
 
-API_DECLSPEC bool WINAPI HasMagWindow() {
-    return MagWindow::$instance != nullptr;
-}
-
-API_DECLSPEC void WINAPI DestroyMagWindow() {
-    MagWindow::$instance = nullptr;
-}
-
-
-API_DECLSPEC const WCHAR* WINAPI GetLastErrorMsg() {
-    return Debug::GetLastErrorMessage().c_str();
-}
-
-
-API_DECLSPEC HWND WINAPI GetSrcWnd() {
-    if (MagWindow::$instance == nullptr) {
-        return NULL;
+    // 主消息循环:
+    while (GetMessage(&msg, nullptr, 0, 0)) {
+        TranslateMessage(&msg);
+        DispatchMessage(&msg);
     }
-
-    return MagWindow::$instance->GetSrcWnd();
-}
-
-
-API_DECLSPEC HWND WINAPI GetHostWnd() {
-    if (MagWindow::$instance == nullptr) {
-        return NULL;
-    }
-
-    return MagWindow::$instance->GetHostWnd();
 }

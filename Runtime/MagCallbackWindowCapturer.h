@@ -47,7 +47,7 @@ public:
         _instance = nullptr;
 	}
 
-	ComPtr<IWICBitmapSource> GetFrame() override {
+    std::variant<ComPtr<IWICBitmapSource>, ComPtr<ID2D1Bitmap1>> GetFrame() override {
         // MagSetWindowSource 是同步执行的
         if (!MagSetWindowSource(_hwndMag, _srcRect)) {
             Debug::WriteErrorMessage(L"MagSetWindowSource 失败");

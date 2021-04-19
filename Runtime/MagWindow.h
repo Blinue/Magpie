@@ -1,11 +1,13 @@
 #pragma once
 #include "pch.h"
 #include "Utils.h"
-#include "EffectRenderer.h"
+#include "D2DContext.h"
 #include "MagCallbackWindowCapturer.h"
 #include "GDIWindowCapturer.h"
+#include "WinRTCapturer.h"
 #include "CursorManager.h"
 #include "FrameCatcher.h"
+#include "RenderManager.h"
 
 
 class MagWindow {
@@ -70,7 +72,7 @@ private:
         }
 
         Debug::ThrowIfComFailed(
-            CoInitialize(NULL),
+            CoInitializeEx(NULL, COINIT_MULTITHREADED),
             L"初始化 COM 出错"
         );
         
@@ -80,15 +82,21 @@ private:
         );
 
         Debug::Assert(
-            captureMode >= 0 && captureMode <= 1,
+            captureMode >= 0 && captureMode <= 2,
             L"非法的抓取模式"
         );
 
+        Debug::ThrowIfWin32Failed(
+            GetWindowRect(_hwndSrc, &_srcRect),
+            L"GetWindowRect 失败"
+        );
         Utils::GetClientScreenRect(_hwndSrc, _srcClient);
-
+        
         _RegisterHostWndClass();
         _CreateHostWnd(noDisturb);
 
+        Utils::GetClientScreenRect(_hwndHost, _hostClient);
+        
         Debug::ThrowIfComFailed(
             CoCreateInstance(
                 CLSID_WICImagingFactory,
@@ -98,23 +106,31 @@ private:
             ),
             L"创建 WICImagingFactory 失败"
         );
+        
 
-        Debug::ThrowIfComFailed(
-            DWriteCreateFactory(
-                DWRITE_FACTORY_TYPE_SHARED,
-                __uuidof(IDWriteFactory),
-                &_dwFactory
-            ),
-            L"创建 IDWriteFactory 失败"
-        );
+        // 初始化 D2DContext
+        _d2dContext.reset(new D2DContext(
+            hInstance,
+            _hwndHost,
+            _hostClient,
+            lowLatencyMode,
+            noVSync,
+            noDisturb
+        ));
 
         if (captureMode == 0) {
+            _windowCapturer.reset(new WinRTCapturer(
+                _hwndSrc,
+                _srcClient,
+                *_d2dContext
+            ));
+        } else if (captureMode == 1) {
             _windowCapturer.reset(new GDIWindowCapturer(
                 _hwndSrc,
                 _srcClient,
                 _wicImgFactory.Get()
             ));
-        } else if (captureMode == 1) {
+        } else {
             _windowCapturer.reset(new MagCallbackWindowCapturer(
                 hInstance,
                 _hwndHost,
@@ -122,42 +138,21 @@ private:
                 _wicImgFactory.Get()
             ));
         }
-        
 
-        // 初始化 EffectRenderer
-        _effectRenderer.reset(new EffectRenderer(
-            hInstance,
-            _hwndHost,
+        _renderManager.reset(new RenderManager(
+            *_d2dContext,
             effectsJson,
             _srcClient,
-            _wicImgFactory.Get(),
-            lowLatencyMode,
-            noVSync,
+            _hostClient,
             noDisturb
         ));
 
         // 初始化 CursorManager
-        _cursorManager.reset(new CursorManager(
-            _effectRenderer->GetD2DDC(),
-            hInstance,
-            _wicImgFactory.Get(),
-            D2D1::RectF(
-                (float)_srcClient.left,
-                (float)_srcClient.top,
-                (float)_srcClient.right,
-                (float)_srcClient.bottom
-            ),
-            _effectRenderer->GetDestRect(),
-            noDisturb
-        ));
+        _renderManager->AddCursorManager(_hInst, _wicImgFactory.Get());
 
         if (showFPS) {
             // 初始化 FrameCatcher
-            _frameCatcher.reset(new FrameCatcher(
-                _effectRenderer->GetD2DDC(),
-                _dwFactory.Get(),
-                _effectRenderer->GetDestRect()
-            ));
+            _renderManager->AddFrameCatcher();
         }
 
         ShowWindow(_hwndHost, SW_NORMAL);
@@ -172,11 +167,8 @@ private:
     // 渲染一帧，不抛出异常
     void _Render() {
         try {
-            ComPtr<IWICBitmapSource> frame = _windowCapturer->GetFrame();
-            _effectRenderer->Render(frame.Get(), {
-                _frameCatcher.get(),
-                _cursorManager.get()
-            });
+            const auto& frame = _windowCapturer->GetFrame();
+            _renderManager->Render(frame, _srcRect, _srcClient);
         } catch (const magpie_exception& e) {
             Debug::WriteErrorMessage(L"渲染失败：" + e.what());
         } catch (...) {
@@ -206,29 +198,20 @@ private:
         }
         default:
         {
-            /*if (message == $instance->_WM_SHELLHOOKMESSAGE) {
-                // 在桌面环境变化时关闭全屏窗口
-                // 文档没提到，但这里必须截断成 byte，否则无法工作
-                BYTE code = (BYTE)wParam;
-
-                if (code == HSHELL_WINDOWACTIVATED
-                    || code == HSHELL_WINDOWREPLACED
-                    || code == HSHELL_WINDOWREPLACING
-                    || (code == HSHELL_WINDOWDESTROYED && (HWND)lParam == $instance->_hwndSrc)
-                ) {
-                    $instance = nullptr;
-                }
-            } else */if (message == _WM_NEWCURSOR32) {
+            if (message == _WM_NEWCURSOR32) {
                 // 来自 CursorHook 的消息
                 // HCURSOR 似乎是共享资源，尽管来自别的进程但可以直接使用
                 // 
                 // 如果消息来自 32 位进程，本程序为 64 位，必须转换为补符号位扩展，这是为了和 SetCursor 的处理方法一致
                 // SendMessage 为补 0 扩展，SetCursor 为补符号位扩展
-                _cursorManager->AddHookCursor((HCURSOR)(INT_PTR)(INT32)wParam, (HCURSOR)(INT_PTR)(INT32)lParam);
+                _renderManager->AddHookCursor((HCURSOR)(INT_PTR)(INT32)wParam, (HCURSOR)(INT_PTR)(INT32)lParam);
             } else if (message == _WM_NEWCURSOR64) {
                 // 如果消息来自 64 位进程，本程序为 32 位，HCURSOR 会被截断
                 // Q: 如果被截断是否能正常工作？
-                _cursorManager->AddHookCursor((HCURSOR)wParam, (HCURSOR)lParam);
+                _renderManager->AddHookCursor((HCURSOR)wParam, (HCURSOR)lParam);
+            } else if (message == _WM_DESTORYMAG) {
+                $instance = nullptr;
+                ExitThread(0);
             } else {
                 return DefWindowProc(hWnd, message, wParam, lParam);
             }
@@ -295,18 +278,19 @@ private:
     static constexpr const UINT _WM_RENDER = WM_USER;
     static UINT _WM_NEWCURSOR32;
     static UINT _WM_NEWCURSOR64;
+    static UINT _WM_DESTORYMAG;
 
     UINT _WM_SHELLHOOKMESSAGE{};
 
     HINSTANCE _hInst;
     HWND _hwndHost = NULL;
     HWND _hwndSrc;
+    RECT _srcRect{};
     RECT _srcClient{};
+    RECT _hostClient{};
 
     ComPtr<IWICImagingFactory2> _wicImgFactory = nullptr;
-    std::unique_ptr<EffectRenderer> _effectRenderer = nullptr;
+    std::unique_ptr<D2DContext> _d2dContext = nullptr;
     std::unique_ptr<WindowCapturerBase> _windowCapturer = nullptr;
-    std::unique_ptr<CursorManager> _cursorManager = nullptr;
-    std::unique_ptr<FrameCatcher> _frameCatcher = nullptr;
-    ComPtr<IDWriteFactory> _dwFactory = nullptr;
+    std::unique_ptr<RenderManager> _renderManager = nullptr;
 };

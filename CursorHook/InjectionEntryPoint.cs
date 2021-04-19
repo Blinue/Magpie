@@ -59,9 +59,13 @@ namespace Magpie.CursorHook {
 #if DEBUG
             string channelName,
 #endif
-            IntPtr hwndHost, IntPtr hwndSrc
+            IntPtr hwndSrc
         ) {
-            _hwndHost = hwndHost;
+            _hwndHost = NativeMethods.FindWindow(HOST_WINDOW_CLASS_NAME, IntPtr.Zero);
+            if(_hwndHost == IntPtr.Zero) {
+                throw new Exception("无法找到全屏窗口");
+            }
+
             _hwndSrc = hwndSrc;
 #if DEBUG
             ConnectToServer(channelName);
@@ -83,12 +87,10 @@ namespace Magpie.CursorHook {
 #if DEBUG
         // DEBUG 时连接 IPC server
         private void ConnectToServer(string channelName) {
-
             _server = EasyHook.RemoteHooking.IpcConnectClient<ServerInterface>(channelName);
 
             // 测试连接性，如果失败会抛出异常静默的失败因此 Run 方法不会执行
             _server.Ping();
-
         }
 #endif
 
@@ -115,7 +117,7 @@ namespace Magpie.CursorHook {
 #if DEBUG
             string _2,
 #endif
-            IntPtr _3, IntPtr _4
+            IntPtr _3
         ) {
             // 安装钩子
             EasyHook.LocalHook setCursorHook = null;

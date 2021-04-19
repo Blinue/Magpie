@@ -3,4 +3,3 @@
 // 有关详细信息，请参见 https://go.microsoft.com/fwlink/?linkid=865984
 #define API_DECLSPEC extern "C" __declspec(dllexport)
 #define IFACEMETHODIMP_(type) __override STDMETHODIMP_(type)
-#define FAILED(hr) (((HRESULT)(hr)) < 0)

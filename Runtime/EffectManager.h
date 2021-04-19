@@ -1,5 +1,7 @@
 #pragma once
 #include "pch.h"
+#include "Renderable.h"
+#include "D2DContext.h"
 #include "AdaptiveSharpenEffect.h"
 #include "Anime4KUpscaleEffect.h"
 #include "Anime4KUpscaleDeblurEffect.h"
@@ -11,59 +13,98 @@
 #include <unordered_set>
 
 
-class EffectManager {
+class EffectManager : public Renderable {
 public:
 	EffectManager(
-		ComPtr<ID2D1Factory1> d2dFactory, 
-		ComPtr<ID2D1DeviceContext> d2dDC,
+		D2DContext& d2dContext,
 		const std::wstring_view& effectsJson,
 		const SIZE &srcSize,
-		const SIZE &maxSize
-	): _maxSize(maxSize), _d2dFactory(d2dFactory), _d2dDC(d2dDC) {
+		const RECT& hostClient
+	): Renderable(d2dContext), _hostClient(hostClient) {
 		assert(srcSize.cx > 0 && srcSize.cy > 0);
-		assert(maxSize.cx > 0 && maxSize.cy > 0);
-		assert(d2dFactory != nullptr && d2dDC != nullptr);
 
-		_CreateSourceEffect(srcSize);
+		_SetDestSize(srcSize);
 		_ReadEffectsJson(effectsJson);
+
+		// 计算输出位置
+		float x = float(_hostClient.right - _hostClient.left - _outputSize.cx) / 2;
+		float y = float(_hostClient.bottom - _hostClient.top - _outputSize.cy) / 2;
+		_outputRect = RectF(x, y, x + _outputSize.cx, y + _outputSize.cy);
 	}
 
 	// 不可复制，不可移动
 	EffectManager(const EffectManager&) = delete;
 	EffectManager(EffectManager&&) = delete;
 
-	ComPtr<ID2D1Image> Apply(IWICBitmapSource* srcBmp) const {
+
+	void Render() override {
+		ComPtr<ID2D1Image> outputImg = nullptr;
+		_outputEffect->GetOutput(&outputImg);
+
+		_d2dContext.GetD2DDC()->DrawImage(
+			outputImg.Get(),
+			Point2F(_outputRect.left, _outputRect.top)
+		);
+	}
+
+	void SetInput(IWICBitmapSource* srcBmp) {
 		assert(srcBmp != nullptr);
+
+		if (!_d2dSourceEffect) {
+			// 创建 Source effect
+			Debug::ThrowIfComFailed(
+				_d2dContext.GetD2DDC()->CreateEffect(CLSID_D2D1BitmapSource, &_d2dSourceEffect),
+				L"创建 D2D1BitmapSource 失败"
+			);
+			if (_firstEffect) {
+				_firstEffect->SetInputEffect(0, _d2dSourceEffect.Get());
+			} else {
+				_outputEffect = _firstEffect = _d2dSourceEffect;
+			}
+		}
 
 		Debug::ThrowIfComFailed(
 			_d2dSourceEffect->SetValue(D2D1_BITMAPSOURCE_PROP_WIC_BITMAP_SOURCE, srcBmp),
 			L"设置 D2D1BitmapSource 源失败"
 		);
 
-		ComPtr<ID2D1Image> outputImg = nullptr;
-		_outputEffect->GetOutput(&outputImg);
-
-		return outputImg;
+		if (!_outputEffect) {
+			_outputEffect = _d2dSourceEffect;
+		}
 	}
 
-	const SIZE& GetOutputSize() {
-		return _outputSize;
+	void SetInput(ID2D1Bitmap* srcBmp, const RECT& clientRect) {
+		assert(srcBmp != nullptr);
+
+		if (!_d2dCropEffect) {
+			// 创建 Crop Effect
+			Debug::ThrowIfComFailed(
+				_d2dContext.GetD2DDC()->CreateEffect(CLSID_D2D1Crop, &_d2dCropEffect),
+				L"创建 D2D1Crop 失败"
+			);
+
+			if (!_firstEffect) {
+				_outputEffect = _firstEffect = _d2dCropEffect;
+			} else {
+				_firstEffect->SetInputEffect(0, _d2dCropEffect.Get());
+			}
+		}
+
+		Debug::ThrowIfComFailed(
+			_d2dCropEffect->SetValue(
+				D2D1_CROP_PROP_RECT,
+				RectF(clientRect.left, clientRect.top, clientRect.right, clientRect.bottom)
+			),
+			L"设置 D2D1_CROP_PROP_RECT 失败"
+		);
+		_d2dCropEffect->SetInput(0, srcBmp);
+	}
+
+	const D2D1_RECT_F& GetOutputRect() const {
+		return _outputRect;
 	}
 
 private:
-	void _CreateSourceEffect(const SIZE& srcSize) {
-		// 创建 Source effect
-		Debug::ThrowIfComFailed(
-			_d2dDC->CreateEffect(CLSID_D2D1BitmapSource, &_d2dSourceEffect),
-			L"创建 D2D1BitmapSource 失败"
-		);
-		
-		// 初始时输出为 Source effect
-		_outputEffect = _d2dSourceEffect;
-
-		_SetDestSize(srcSize);
-	}
-
 	void _ReadEffectsJson(const std::wstring_view& effectsJson) {
 		const auto& effects = nlohmann::json::parse(effectsJson);
 		Debug::Assert(effects.is_array(), L"json 格式错误");
@@ -117,7 +158,7 @@ private:
 
 		ComPtr<ID2D1Effect> adaptiveSharpenEffect = nullptr;
 		Debug::ThrowIfComFailed(
-			_d2dDC->CreateEffect(CLSID_MAGPIE_ADAPTIVE_SHARPEN_EFFECT, &adaptiveSharpenEffect),
+			_d2dContext.GetD2DDC()->CreateEffect(CLSID_MAGPIE_ADAPTIVE_SHARPEN_EFFECT, &adaptiveSharpenEffect),
 			L"创建 Adaptive sharpen effect 失败"
 		);
 
@@ -146,7 +187,7 @@ private:
 	void _AddBuiltInSharpenEffect(const nlohmann::json& props) {
 		ComPtr<ID2D1Effect> d2dSharpenEffect = nullptr;
 		Debug::ThrowIfComFailed(
-			_d2dDC->CreateEffect(CLSID_D2D1Sharpen, &d2dSharpenEffect),
+			_d2dContext.GetD2DDC()->CreateEffect(CLSID_D2D1Sharpen, &d2dSharpenEffect),
 			L"创建 sharpen effect 失败"
 		);
 
@@ -198,7 +239,7 @@ private:
 
 		ComPtr<ID2D1Effect> anime4KEffect = nullptr;
 		Debug::ThrowIfComFailed(
-			_d2dDC->CreateEffect(CLSID_MAGIPE_ANIME4K_UPSCALE_EFFECT, &anime4KEffect),
+			_d2dContext.GetD2DDC()->CreateEffect(CLSID_MAGIPE_ANIME4K_UPSCALE_EFFECT, &anime4KEffect),
 			L"创建 Anime4K Effect 失败"
 		);
 
@@ -216,7 +257,7 @@ private:
 
 		ComPtr<ID2D1Effect> anime4KxDeblurEffect = nullptr;
 		Debug::ThrowIfComFailed(
-			_d2dDC->CreateEffect(CLSID_MAGIPE_ANIME4K_UPSCALE_DEBLUR_EFFECT, &anime4KxDeblurEffect),
+			_d2dContext.GetD2DDC()->CreateEffect(CLSID_MAGIPE_ANIME4K_UPSCALE_DEBLUR_EFFECT, &anime4KxDeblurEffect),
 			L"创建 Anime4K Effect 失败"
 		);
 
@@ -234,7 +275,7 @@ private:
 
 		ComPtr<ID2D1Effect> effect = nullptr;
 		Debug::ThrowIfComFailed(
-			_d2dDC->CreateEffect(CLSID_MAGIPE_ANIME4K_UPSCALE_DENOISE_EFFECT, &effect),
+			_d2dContext.GetD2DDC()->CreateEffect(CLSID_MAGIPE_ANIME4K_UPSCALE_DENOISE_EFFECT, &effect),
 			L"创建 Anime4K Effect 失败"
 		);
 
@@ -252,7 +293,7 @@ private:
 
 		ComPtr<ID2D1Effect> effect = nullptr;
 		Debug::ThrowIfComFailed(
-			_d2dDC->CreateEffect(CLSID_MAGPIE_JINC2_SCALE_EFFECT, &effect),
+			_d2dContext.GetD2DDC()->CreateEffect(CLSID_MAGPIE_JINC2_SCALE_EFFECT, &effect),
 			L"创建 Anime4K Effect 失败"
 		);
 		
@@ -337,7 +378,7 @@ private:
 
 		ComPtr<ID2D1Effect> effect = nullptr;
 		Debug::ThrowIfComFailed(
-			_d2dDC->CreateEffect(CLSID_MAGPIE_MITCHELL_NETRAVALI_SCALE_EFFECT, &effect),
+			_d2dContext.GetD2DDC()->CreateEffect(CLSID_MAGPIE_MITCHELL_NETRAVALI_SCALE_EFFECT, &effect),
 			L"创建 Mitchell-Netraval Scale Effect 失败"
 		);
 
@@ -375,7 +416,7 @@ private:
 	void _AddHQBicubicScaleEffect(const nlohmann::json& props) {
 		ComPtr<ID2D1Effect> effect = nullptr;
 		Debug::ThrowIfComFailed(
-			_d2dDC->CreateEffect(CLSID_D2D1Scale, &effect),
+			_d2dContext.GetD2DDC()->CreateEffect(CLSID_D2D1Scale, &effect),
 			L"创建 Anime4K Effect 失败"
 		);
 
@@ -424,7 +465,7 @@ private:
 
 		ComPtr<ID2D1Effect> effect = nullptr;
 		Debug::ThrowIfComFailed(
-			_d2dDC->CreateEffect(CLSID_MAGPIE_LANCZOS6_SCALE_EFFECT, &effect),
+			_d2dContext.GetD2DDC()->CreateEffect(CLSID_MAGPIE_LANCZOS6_SCALE_EFFECT, &effect),
 			L"创建 Lanczos6 Effect 失败"
 		);
 
@@ -480,7 +521,10 @@ private:
 
 		if (scale.x == 0 || scale.y == 0) {
 			// 输出图像充满屏幕
-			scale.x = min((FLOAT)_maxSize.cx / _outputSize.cx, (FLOAT)_maxSize.cy / _outputSize.cy);
+			scale.x = min(
+				float(_hostClient.right - _hostClient.left) / _outputSize.cx,
+				float(_hostClient.bottom - _hostClient.top) / _outputSize.cy
+			);
 			scale.y = scale.x;
 		}
 
@@ -489,8 +533,12 @@ private:
 
 	// 将 effect 添加到 effect 链作为输出
 	void _PushAsOutputEffect(ComPtr<ID2D1Effect> effect) {
-		effect->SetInputEffect(0, _outputEffect.Get());
-		_outputEffect = effect;
+		if (_firstEffect) {
+			effect->SetInputEffect(0, _outputEffect.Get());
+			_outputEffect = effect;
+		} else {
+			_outputEffect = _firstEffect = effect;
+		}
 	}
 
 	// 设置 destSize 的同时增大 tile 的大小以容纳图像
@@ -498,11 +546,11 @@ private:
 		if (value.cx > _outputSize.cx || value.cy > _outputSize.cy) {
 			// 需要更大的 tile
 			D2D1_RENDERING_CONTROLS rc{};
-			_d2dDC->GetRenderingControls(&rc);
+			_d2dContext.GetD2DDC()->GetRenderingControls(&rc);
 			
 			rc.tileSize.width = max(value.cx, _outputSize.cx);
 			rc.tileSize.height = max(value.cy, _outputSize.cy);
-			_d2dDC->SetRenderingControls(rc);
+			_d2dContext.GetD2DDC()->SetRenderingControls(rc);
 		}
 
 		_outputSize = value;
@@ -514,7 +562,7 @@ private:
 		if (_registeredEffects.find(effectID) == _registeredEffects.end()) {
 			// 未注册
 			Debug::ThrowIfComFailed(
-				registerFunc(_d2dFactory.Get()),
+				registerFunc(_d2dContext.GetD2DFactory()),
 				L"注册 Effect 失败"
 			);
 			
@@ -522,16 +570,16 @@ private:
 		}
 	}
 
-	ComPtr<ID2D1Factory1> _d2dFactory;
-	ComPtr<ID2D1DeviceContext> _d2dDC;
-
 	ComPtr<ID2D1Effect> _d2dSourceEffect = nullptr;
+	ComPtr<ID2D1Effect> _d2dCropEffect = nullptr;
+	ComPtr<ID2D1Effect> _firstEffect = nullptr;
 	ComPtr<ID2D1Effect> _outputEffect = nullptr;
 
 	// 输出图像尺寸
 	SIZE _outputSize{};
-	// 全屏窗口尺寸
-	SIZE _maxSize;
+	D2D1_RECT_F _outputRect{};
+	
+	const RECT& _hostClient;
 
 	// 存储已注册的 effect 的 GUID
 	std::unordered_set<GUID> _registeredEffects;

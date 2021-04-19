@@ -1,6 +1,6 @@
 #pragma once
 #include "pch.h"
-
+#include <variant>
 
 class WindowCapturerBase {
 public:
@@ -11,5 +11,5 @@ public:
 	WindowCapturerBase(const WindowCapturerBase&) = delete;
 	WindowCapturerBase(WindowCapturerBase&&) = delete;
 
-	virtual ComPtr<IWICBitmapSource> GetFrame() = 0;
+	virtual std::variant<ComPtr<IWICBitmapSource>, ComPtr<ID2D1Bitmap1>> GetFrame() = 0;
 };

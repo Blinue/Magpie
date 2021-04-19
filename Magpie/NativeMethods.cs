@@ -7,19 +7,26 @@ using System.Text;
 namespace Magpie {
 	// Win32 API
 	static class NativeMethods {
-		// 获取用户当前正在使用的窗体的句柄
-		[DllImport("user32", CharSet = CharSet.Unicode)]
+        public static readonly int MAGPIE_WM_SHOWME = RegisterWindowMessage("WM_SHOWME");
+        public static readonly int MAGPIE_WM_DESTORYMAG = RegisterWindowMessage("MAGPIE_WM_DESTORYMAG");
+        
+
+        // 获取用户当前正在使用的窗体的句柄
+        [DllImport("user32", CharSet = CharSet.Unicode)]
 		public static extern IntPtr GetForegroundWindow();
 
         [DllImport("user32", CharSet = CharSet.Unicode)]
         [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool SetForegroundWindow(IntPtr hWnd);
 
-        public static IntPtr HWND_BROADCAST = (IntPtr)0xffff;
-
         [DllImport("user32", CharSet = CharSet.Unicode)]
         [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool PostMessage(IntPtr hwnd, int msg, IntPtr wparam, IntPtr lparam);
+
+        private static readonly IntPtr HWND_BROADCAST = (IntPtr)0xffff;
+        public static bool BroadcastMessage(int msg) {
+            return PostMessage(HWND_BROADCAST, msg, IntPtr.Zero, IntPtr.Zero);
+        }
 
         [DllImport("user32", CharSet = CharSet.Unicode)]
         public static extern int RegisterWindowMessage(string message);
@@ -40,9 +47,10 @@ namespace Magpie {
             return processId;
         }
 
+
         [DllImport("Runtime", CallingConvention = CallingConvention.StdCall)]
         [return: MarshalAs(UnmanagedType.U1)]
-        public static extern bool CreateMagWindow(
+        public static extern void RunMagWindow(
             [MarshalAs(UnmanagedType.LPWStr)] string effectsJson,
             int captureMode,
             [MarshalAs(UnmanagedType.U1)] bool showFPS,
@@ -51,26 +59,5 @@ namespace Magpie {
             [MarshalAs(UnmanagedType.U1)] bool noDisturb = false
         );
 
-        [DllImport("Runtime", CallingConvention = CallingConvention.StdCall)]
-        public static extern void DestroyMagWindow();
-
-        [DllImport("Runtime", CallingConvention = CallingConvention.StdCall)]
-        [return: MarshalAs(UnmanagedType.U1)]
-        public static extern bool HasMagWindow();
-
-        // 由于无法理解的原因，这里不能直接封送为 string
-        // 见 https://stackoverflow.com/questions/15793736/difference-between-marshalasunmanagedtype-lpwstr-and-marshal-ptrtostringuni
-        [DllImport("Runtime", CallingConvention = CallingConvention.StdCall, EntryPoint = "GetLastErrorMsg")]
-        private static extern IntPtr GetLastErrorMsgNative();
-
-        public static string GetLastErrorMsg() {
-            return Marshal.PtrToStringUni(GetLastErrorMsgNative());
-        }
-
-        [DllImport("Runtime", CallingConvention = CallingConvention.StdCall)]
-        public static extern IntPtr GetSrcWnd();
-
-        [DllImport("Runtime", CallingConvention = CallingConvention.StdCall)]
-        public static extern IntPtr GetHostWnd();
     }
 }

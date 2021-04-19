@@ -7,14 +7,14 @@
 class CursorManager: public Renderable {
 public:
     CursorManager(
-        ID2D1DeviceContext* d2dDC,
+        D2DContext& d2dContext,
         HINSTANCE hInstance,
         IWICImagingFactory2* wicImgFactory,
         const D2D1_RECT_F& srcRect,
         const D2D1_RECT_F& destRect,
         bool noDisturb = false,
         bool debugMode = false
-    ) : Renderable(d2dDC), _hInstance(hInstance), _wicImgFactory(wicImgFactory),
+    ) : Renderable(d2dContext), _hInstance(hInstance), _wicImgFactory(wicImgFactory),
         _srcRect(srcRect), _destRect(destRect), _noDisturb(noDisturb), _debugMode(debugMode) {
         _cursorSize.cx = GetSystemMetrics(SM_CXCURSOR);
         _cursorSize.cy = GetSystemMetrics(SM_CYCURSOR);
@@ -116,13 +116,13 @@ private:
         };
 
         ComPtr<ID2D1SolidColorBrush> brush;
-        _d2dDC->CreateSolidColorBrush({ 0,0,0,1 }, &brush);
+        _d2dContext.GetD2DDC()->CreateSolidColorBrush({ 0,0,0,1 }, &brush);
 
         for (const auto& a : _cursorMap) {
-            _d2dDC->FillRectangle(cursorRect, brush.Get());
+            _d2dContext.GetD2DDC()->FillRectangle(cursorRect, brush.Get());
 
             if (a.first != hCursorCur) {
-                _d2dDC->DrawBitmap(a.second.Get(), &cursorRect);
+                _d2dContext.GetD2DDC()->DrawBitmap(a.second.Get(), &cursorRect);
             }
 
             cursorRect.left += _cursorSize.cx;
@@ -176,7 +176,7 @@ private:
            targetScreenPos.y + _cursorSize.cy - yHotSpot
         };
 
-        _d2dDC->DrawBitmap(bmpCursor, &cursorRect);
+        _d2dContext.GetD2DDC()->DrawBitmap(bmpCursor, &cursorRect);
     }
 
     HCURSOR _CreateTransparentCursor(HCURSOR hCursorHotSpot) {
@@ -247,7 +247,7 @@ private:
             L"IWICFormatConverter ³õÊ¼»¯Ê§°Ü"
         );
         Debug::ThrowIfComFailed(
-            _d2dDC->CreateBitmapFromWicBitmap(wicFormatConverter.Get(), &d2dBmpCursor),
+            _d2dContext.GetD2DDC()->CreateBitmapFromWicBitmap(wicFormatConverter.Get(), &d2dBmpCursor),
             L"CreateBitmapFromWicBitmap Ê§°Ü"
         );
 

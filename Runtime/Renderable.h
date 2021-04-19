@@ -1,14 +1,16 @@
 #pragma once
 #include "pch.h"
+#include "D2DContext.h"
 
 class Renderable {
 public:
-	Renderable(ID2D1DeviceContext* d2dDC): _d2dDC(d2dDC) {
+	Renderable(D2DContext& d2dContext): _d2dContext(d2dContext) {
 	}
 
 	virtual ~Renderable() {}
 
 	virtual void Render() = 0;
+
 protected:
-	ID2D1DeviceContext* _d2dDC;
+	D2DContext& _d2dContext;
 };
