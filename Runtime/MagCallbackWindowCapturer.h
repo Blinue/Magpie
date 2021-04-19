@@ -9,11 +9,11 @@
 class MagCallbackWindowCapturer : public WindowCapturerBase {
 public:
 	MagCallbackWindowCapturer(
+        D2DContext& d2dContext,
         HINSTANCE hInstance,
         HWND hwndHost,
-        const RECT& srcRect,
-        IWICImagingFactory2* wicImgFactory
-    ): _srcRect(srcRect), _wicImgFactory(wicImgFactory) {
+        const RECT& srcRect
+    ): WindowCapturerBase(d2dContext), _srcRect(srcRect) {
         if (_instance) {
             Debug::Assert(false, L"已存在 MagCallbackWindowCapturer 实例");
         }
@@ -47,13 +47,13 @@ public:
         _instance = nullptr;
 	}
 
-    std::variant<ComPtr<IWICBitmapSource>, ComPtr<ID2D1Bitmap1>> GetFrame() override {
+    ComPtr<ID2D1Bitmap> GetFrame() override {
         // MagSetWindowSource 是同步执行的
         if (!MagSetWindowSource(_hwndMag, _srcRect)) {
             Debug::WriteErrorMessage(L"MagSetWindowSource 失败");
         }
 
-        return _wicBmp;
+        return _bmp;
 	}
 
 private:
@@ -75,28 +75,22 @@ private:
             Debug::WriteErrorMessage(L"srcdata 不是BGRA格式");
             return FALSE;
         }
-
-        Debug::ThrowIfComFailed(
-            _instance->_wicImgFactory->CreateBitmapFromMemory(
-                srcheader.width,
-                srcheader.height,
-                GUID_WICPixelFormat32bppPBGRA,
-                srcheader.stride,
-                (UINT)srcheader.cbSize,
-                (BYTE*)srcdata,
-                &_instance->_wicBmp
-            ),
-            L"从内存创建 WICBitmap 失败"
+        
+        _instance->_d2dContext.GetD2DDC()->CreateBitmap(
+            { srcheader.width, srcheader.height },
+            BitmapProperties(PixelFormat(DXGI_FORMAT_B8G8R8A8_UNORM, D2D1_ALPHA_MODE_IGNORE)),
+            & _instance->_bmp
         );
+        D2D1_RECT_U destRect = { 0, 0, srcheader.width, srcheader.height };
+        _instance->_bmp->CopyFromMemory(&destRect, srcdata, srcheader.stride);
 
         return TRUE;
     }
 
     HWND _hwndMag = NULL;
     const RECT& _srcRect;
-    IWICImagingFactory2* _wicImgFactory;
 
-    ComPtr<IWICBitmap> _wicBmp = nullptr;
+    ComPtr<ID2D1Bitmap> _bmp = nullptr;
 
     static MagCallbackWindowCapturer* _instance;
 };

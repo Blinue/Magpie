@@ -8,19 +8,21 @@
 class GDIWindowCapturer : public WindowCapturerBase {
 public:
 	GDIWindowCapturer(
+		D2DContext& d2dContext,
 		HWND hwndSrc,
 		const RECT& srcRect,
 		IWICImagingFactory2* wicImgFactory,
 		bool useBitblt = false
-	): _wicImgFactory(wicImgFactory), _srcRect(srcRect), _hwndSrc(hwndSrc), _useBitblt(useBitblt) {
+	): WindowCapturerBase(d2dContext), _wicImgFactory(wicImgFactory), _srcRect(srcRect), _hwndSrc(hwndSrc), _useBitblt(useBitblt) {
 	}
 
-	std::variant<ComPtr<IWICBitmapSource>, ComPtr<ID2D1Bitmap1>> GetFrame() override {
-		if (_useBitblt) {
-			return _GetFrameWithBitblt();
-		} else {
-			return _GetFrameWithNoBitblt();
-		}
+	ComPtr<ID2D1Bitmap> GetFrame() override {
+		ComPtr<IWICBitmapSource> wicBmp = _useBitblt ? _GetFrameWithBitblt() : _GetFrameWithNoBitblt();
+
+		ComPtr<ID2D1Bitmap> bmp;
+		_d2dContext.GetD2DDC()->CreateBitmapFromWicBitmap(wicBmp.Get(), &bmp);
+
+		return bmp;
 	}
 
 private:

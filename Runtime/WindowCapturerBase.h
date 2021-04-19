@@ -1,15 +1,18 @@
 #pragma once
 #include "pch.h"
-#include <variant>
+#include "D2DContext.h"
 
 class WindowCapturerBase {
 public:
-	WindowCapturerBase() {}
+	WindowCapturerBase(D2DContext& d2dContext): _d2dContext(d2dContext) {}
 
 	virtual ~WindowCapturerBase() {}
 
 	WindowCapturerBase(const WindowCapturerBase&) = delete;
 	WindowCapturerBase(WindowCapturerBase&&) = delete;
 
-	virtual std::variant<ComPtr<IWICBitmapSource>, ComPtr<ID2D1Bitmap1>> GetFrame() = 0;
+	virtual ComPtr<ID2D1Bitmap> GetFrame() = 0;
+
+protected:
+	D2DContext& _d2dContext;
 };

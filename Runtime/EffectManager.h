@@ -26,9 +26,9 @@ public:
 		_SetDestSize(srcSize);
 		_ReadEffectsJson(effectsJson);
 
-		// 计算输出位置
-		float x = float(_hostClient.right - _hostClient.left - _outputSize.cx) / 2;
-		float y = float(_hostClient.bottom - _hostClient.top - _outputSize.cy) / 2;
+		// 计算输出位置，x 和 y 必须为整数，否则会使画面模糊
+		float x = float((_hostClient.right - _hostClient.left - _outputSize.cx) / 2);
+		float y = float((_hostClient.bottom - _hostClient.top - _outputSize.cy) / 2);
 		_outputRect = RectF(x, y, x + _outputSize.cx, y + _outputSize.cy);
 	}
 
@@ -38,66 +38,28 @@ public:
 
 
 	void Render() override {
-		ComPtr<ID2D1Image> outputImg = nullptr;
-		_outputEffect->GetOutput(&outputImg);
+		if (_firstEffect) {
+			_firstEffect->SetInput(0, _inputBmp.Get());
 
-		_d2dContext.GetD2DDC()->DrawImage(
-			outputImg.Get(),
-			Point2F(_outputRect.left, _outputRect.top)
-		);
-	}
+			ComPtr<ID2D1Image> outputImg = nullptr;
+			_outputEffect->GetOutput(&outputImg);
 
-	void SetInput(IWICBitmapSource* srcBmp) {
-		assert(srcBmp != nullptr);
-
-		if (!_d2dSourceEffect) {
-			// 创建 Source effect
-			Debug::ThrowIfComFailed(
-				_d2dContext.GetD2DDC()->CreateEffect(CLSID_D2D1BitmapSource, &_d2dSourceEffect),
-				L"创建 D2D1BitmapSource 失败"
+			_d2dContext.GetD2DDC()->DrawImage(
+				outputImg.Get(),
+				Point2F(_outputRect.left, _outputRect.top)
 			);
-			if (_firstEffect) {
-				_firstEffect->SetInputEffect(0, _d2dSourceEffect.Get());
-			} else {
-				_outputEffect = _firstEffect = _d2dSourceEffect;
-			}
-		}
-
-		Debug::ThrowIfComFailed(
-			_d2dSourceEffect->SetValue(D2D1_BITMAPSOURCE_PROP_WIC_BITMAP_SOURCE, srcBmp),
-			L"设置 D2D1BitmapSource 源失败"
-		);
-
-		if (!_outputEffect) {
-			_outputEffect = _d2dSourceEffect;
+		} else {
+			_d2dContext.GetD2DDC()->DrawImage(
+				_inputBmp.Get(),
+				Point2F(_outputRect.left, _outputRect.top)
+			);
 		}
 	}
 
-	void SetInput(ID2D1Bitmap* srcBmp, const RECT& clientRect) {
+	void SetInput(ComPtr<ID2D1Bitmap> srcBmp) {
 		assert(srcBmp != nullptr);
 
-		if (!_d2dCropEffect) {
-			// 创建 Crop Effect
-			Debug::ThrowIfComFailed(
-				_d2dContext.GetD2DDC()->CreateEffect(CLSID_D2D1Crop, &_d2dCropEffect),
-				L"创建 D2D1Crop 失败"
-			);
-
-			if (!_firstEffect) {
-				_outputEffect = _firstEffect = _d2dCropEffect;
-			} else {
-				_firstEffect->SetInputEffect(0, _d2dCropEffect.Get());
-			}
-		}
-
-		Debug::ThrowIfComFailed(
-			_d2dCropEffect->SetValue(
-				D2D1_CROP_PROP_RECT,
-				RectF(clientRect.left, clientRect.top, clientRect.right, clientRect.bottom)
-			),
-			L"设置 D2D1_CROP_PROP_RECT 失败"
-		);
-		_d2dCropEffect->SetInput(0, srcBmp);
+		_inputBmp = srcBmp;
 	}
 
 	const D2D1_RECT_F& GetOutputRect() const {
@@ -570,8 +532,8 @@ private:
 		}
 	}
 
-	ComPtr<ID2D1Effect> _d2dSourceEffect = nullptr;
-	ComPtr<ID2D1Effect> _d2dCropEffect = nullptr;
+	ComPtr<ID2D1Bitmap> _inputBmp = nullptr;
+
 	ComPtr<ID2D1Effect> _firstEffect = nullptr;
 	ComPtr<ID2D1Effect> _outputEffect = nullptr;
 

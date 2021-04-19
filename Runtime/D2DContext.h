@@ -45,6 +45,14 @@ public:
         return _d3dDevice.Get();
     }
 
+    const ID2D1Device* GetD2DDevice() const {
+        return _d2dDevice.Get();
+    }
+
+    ID2D1Device* GetD2DDevice() {
+        return _d2dDevice.Get();
+    }
+
     void Render(std::function<void()> renderFunc) {
         if (_lowLantencyMode) {
             WaitForSingleObjectEx(_frameLatencyWaitableObject, 1000, true);

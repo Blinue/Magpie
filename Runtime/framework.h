@@ -18,6 +18,7 @@
 #include <dxgi1_6.h>
 #include <dwrite_3.h>
 #include <wrl.h>
+#include <dwmapi.h>
 
 // C 运行时头文件
 #include <malloc.h>
@@ -46,3 +47,4 @@
 #pragma comment(lib, "dxguid.lib")
 #pragma comment(lib, "shlwapi.lib")
 #pragma comment(lib, "windowsapp")
+#pragma comment(lib, "dwmapi.lib")

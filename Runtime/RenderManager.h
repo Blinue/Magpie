@@ -46,56 +46,23 @@ public:
 	}
 
 	void Render(
-		const std::variant<ComPtr<IWICBitmapSource>, ComPtr<ID2D1Bitmap1>>& frame,
-		const RECT& srcRect,
-		const RECT& srcClient
+		ComPtr<ID2D1Bitmap> frame
 	) {
-		if (frame.index() == 0) {
-			_d2dContext.Render([&]() {
-				_d2dContext.GetD2DDC()->Clear();
+		assert(frame);
 
-				_effectManager->SetInput(std::get<0>(frame).Get());
-				_effectManager->Render();
+		_d2dContext.Render([&]() {
+			_d2dContext.GetD2DDC()->Clear();
 
-				if (_frameCatcher) {
-					_frameCatcher->Render();
-				}
-				if (_cursorManager) {
-					_cursorManager->Render();
-				}
-				});
-		} else {
-			const auto& f = std::get<1>(frame);
-			if (!f) {
-				return;
+			_effectManager->SetInput(frame);
+			_effectManager->Render();
+
+			if (_frameCatcher) {
+				_frameCatcher->Render();
 			}
-
-			_d2dContext.Render([&]() {
-				_d2dContext.GetD2DDC()->Clear();
-
-				RECT rect{};
-				
-				_effectManager->SetInput(
-					f.Get(),
-					{
-						srcClient.left - srcRect.left,
-						srcClient.top - srcRect.top,
-						srcClient.right - srcRect.left,
-						srcClient.bottom - srcRect.top
-					}
-				);
-				_effectManager->Render();
-
-				if (_frameCatcher) {
-					_frameCatcher->Render();
-				}
-				if (_cursorManager) {
-					_cursorManager->Render();
-				}
-				});
-		}
-
-		
+			if (_cursorManager) {
+				_cursorManager->Render();
+			}
+		});
 	}
 private:
 	IDWriteFactory* _GetDWFactory() {

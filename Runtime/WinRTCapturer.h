@@ -24,10 +24,10 @@ using namespace Windows::Graphics::DirectX::Direct3D11;
 class WinRTCapturer : public WindowCapturerBase {
 public:
 	WinRTCapturer(
+		D2DContext& d2dContext,
 		HWND hwndSrc,
-		const RECT& srcRect,
-		D2DContext& d2dContext
-	) : _srcRect(srcRect), _hwndSrc(hwndSrc), _d2dContext(d2dContext),
+		const RECT& srcClient
+	) : WindowCapturerBase(d2dContext), _srcClient(srcClient), _hwndSrc(hwndSrc),
 		_captureFramePool(nullptr), _captureSession(nullptr), _captureItem(nullptr), _wrappedDevice(nullptr)
 	{
 		winrt::init_apartment(winrt::apartment_type::multi_threaded);
@@ -87,10 +87,10 @@ public:
 		winrt::uninit_apartment();
 	}
 
-	std::variant<ComPtr<IWICBitmapSource>, ComPtr<ID2D1Bitmap1>> GetFrame() override {
+	ComPtr<ID2D1Bitmap> GetFrame() override {
 		winrt::Direct3D11CaptureFrame frame = _captureFramePool.TryGetNextFrame();
 		if (!frame) {
-			return ComPtr<ID2D1Bitmap1>();
+			return ComPtr<ID2D1Bitmap>();
 		}
 		winrt::IDirect3DSurface d3dSurface = frame.Surface();
 
@@ -106,18 +106,39 @@ public:
 			L"从获取 IDirect3DSurface 获取 IDXGISurface 失败"
 		);
 
-		ComPtr<ID2D1Bitmap1> bmp;
+		ComPtr<ID2D1Bitmap> withFrame;
+		auto p = BitmapProperties(PixelFormat(DXGI_FORMAT_B8G8R8A8_UNORM, D2D1_ALPHA_MODE_IGNORE));
+		_d2dContext.GetD2DDC()->CreateSharedBitmap(__uuidof(IDXGISurface), dxgiSurface.get(), &p, &withFrame);
+
+		RECT srcRect{};
 		Debug::ThrowIfComFailed(
-			_d2dContext.GetD2DDC()->CreateBitmapFromDxgiSurface(dxgiSurface.get(), BitmapProperties1(D2D1_BITMAP_OPTIONS_NONE, PixelFormat(DXGI_FORMAT_B8G8R8A8_UNORM, D2D1_ALPHA_MODE_IGNORE)), &bmp),
-			L""
+			DwmGetWindowAttribute(_hwndSrc, DWMWA_EXTENDED_FRAME_BOUNDS, &srcRect, sizeof(srcRect)),
+			L"GetWindowRect 失败"
 		);
-		return bmp;
+
+		ComPtr<ID2D1Bitmap> withoutFrame;
+		_d2dContext.GetD2DDC()->CreateBitmap(
+			{ UINT32(_srcClient.right - _srcClient.left), UINT32(_srcClient.bottom - _srcClient.top) },
+			BitmapProperties(PixelFormat(DXGI_FORMAT_B8G8R8A8_UNORM, D2D1_ALPHA_MODE_IGNORE)),
+			&withoutFrame
+		);
+
+		D2D1_POINT_2U destPoint{ 0,0 };
+		D2D1_RECT_U srcPoint{
+			UINT32(_srcClient.left - srcRect.left),
+			UINT32(_srcClient.top - srcRect.top),
+			UINT32(_srcClient.right - srcRect.left),
+			UINT32(_srcClient.bottom - srcRect.top)
+		};
+
+		withoutFrame->CopyFromBitmap(&destPoint, withFrame.Get(), &srcPoint);
+		
+		return withoutFrame;
 	}
 
 private:
-	const RECT& _srcRect;
 	HWND _hwndSrc;
-	D2DContext& _d2dContext;
+	const RECT& _srcClient;
 
 	winrt::Direct3D11CaptureFramePool _captureFramePool;
 	winrt::GraphicsCaptureSession _captureSession;

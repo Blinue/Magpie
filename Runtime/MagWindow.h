@@ -86,10 +86,6 @@ private:
             L"非法的抓取模式"
         );
 
-        Debug::ThrowIfWin32Failed(
-            GetWindowRect(_hwndSrc, &_srcRect),
-            L"GetWindowRect 失败"
-        );
         Utils::GetClientScreenRect(_hwndSrc, _srcClient);
         
         _RegisterHostWndClass();
@@ -120,22 +116,23 @@ private:
 
         if (captureMode == 0) {
             _windowCapturer.reset(new WinRTCapturer(
+                *_d2dContext,
                 _hwndSrc,
-                _srcClient,
-                *_d2dContext
+                _srcClient
             ));
         } else if (captureMode == 1) {
             _windowCapturer.reset(new GDIWindowCapturer(
+                *_d2dContext,
                 _hwndSrc,
                 _srcClient,
                 _wicImgFactory.Get()
             ));
         } else {
             _windowCapturer.reset(new MagCallbackWindowCapturer(
+                *_d2dContext,
                 hInstance,
                 _hwndHost,
-                _srcClient,
-                _wicImgFactory.Get()
+                _srcClient
             ));
         }
 
@@ -168,7 +165,9 @@ private:
     void _Render() {
         try {
             const auto& frame = _windowCapturer->GetFrame();
-            _renderManager->Render(frame, _srcRect, _srcClient);
+            if (frame) {
+                _renderManager->Render(frame);
+            }
         } catch (const magpie_exception& e) {
             Debug::WriteErrorMessage(L"渲染失败：" + e.what());
         } catch (...) {
@@ -285,7 +284,6 @@ private:
     HINSTANCE _hInst;
     HWND _hwndHost = NULL;
     HWND _hwndSrc;
-    RECT _srcRect{};
     RECT _srcClient{};
     RECT _hostClient{};
 

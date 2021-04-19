@@ -20,9 +20,37 @@ namespace Magpie {
   {
     ""effect"": ""scale"",
     ""type"": ""Anime4KxDenoise""
+  },
+  {
+    ""effect"": ""scale"",
+    ""type"": ""mitchell"",
+    ""scale"": [0,0],
+    ""useSharperVersion"": true
+  },
+  {
+    ""effect"": ""sharpen"",
+    ""type"": ""adaptive"",
+    ""curveHeight"": 0.2
   }
 ]";
         private const string CommonEffectJson = @"[
+  {
+    ""effect"": ""scale"",
+    ""type"": ""lanczos6"",
+    ""scale"": [0,0],
+    ""ARStrength"": 0.7
+  },
+  {
+    ""effect"": ""sharpen"",
+    ""type"": ""adaptive"",
+    ""curveHeight"": 0.6
+  },
+  {
+    ""effect"": ""sharpen"",
+    ""type"": ""builtIn"",
+    ""sharpness"": 0.5,
+    ""threshold"": 0.5
+  }
 ]";
 
         IKeyboardMouseEvents keyboardEvents = null;
@@ -57,6 +85,7 @@ namespace Magpie {
         }
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e) {
+            DestroyMagWindow();
             Settings.Default.Save();
         }
 
@@ -94,9 +123,7 @@ namespace Magpie {
                                 HookCursorAtRuntime();
                             }
                         } else {
-                            NativeMethods.BroadcastMessage(NativeMethods.MAGPIE_WM_DESTORYMAG);
-                            thread.Abort();
-                            thread = null;
+                            DestroyMagWindow();
                         }
                     }
                 }});
@@ -109,6 +136,14 @@ namespace Magpie {
                 txtHotkey.ForeColor = Color.Red;
             }
             
+        }
+
+        private void DestroyMagWindow() {
+            NativeMethods.BroadcastMessage(NativeMethods.MAGPIE_WM_DESTORYMAG);
+            if(thread != null) {
+                thread.Abort();
+                thread = null;
+            }
         }
 
         private void HookCursorAtRuntime() {
