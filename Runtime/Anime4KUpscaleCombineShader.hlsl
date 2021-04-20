@@ -10,7 +10,6 @@ cbuffer constants : register(b0) {
 #define D2D_INPUT_COUNT 2
 #define D2D_INPUT0_COMPLEX
 #define D2D_INPUT1_COMPLEX
-#define MAGPIE_USE_SAMPLE_INPUT
 #define MAGPIE_USE_YUV
 #include "Anime4K.hlsli"
 

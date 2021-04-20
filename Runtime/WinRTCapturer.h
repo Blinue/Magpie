@@ -7,20 +7,17 @@
 #include <Windows.Graphics.DirectX.Direct3D11.interop.h>
 #include <Windows.Graphics.Capture.Interop.h>
 
-
-
 namespace winrt {
-
 using namespace Windows::Foundation;
 using namespace Windows::Graphics;
 using namespace Windows::Graphics::Capture;
 using namespace Windows::Graphics::DirectX;
 using namespace Windows::Graphics::DirectX::Direct3D11;
-
 }
 
 
 // 使用 Window Runtime 的 Windows.Graphics.Capture API 抓取窗口
+// 见 https://docs.microsoft.com/en-us/windows/uwp/audio-video-camera/screen-capture
 class WinRTCapturer : public WindowCapturerBase {
 public:
 	WinRTCapturer(
@@ -28,11 +25,16 @@ public:
 		HWND hwndSrc,
 		const RECT& srcClient
 	) : WindowCapturerBase(d2dContext), _srcClient(srcClient), _hwndSrc(hwndSrc),
-		_captureFramePool(nullptr), _captureSession(nullptr), _captureItem(nullptr), _wrappedDevice(nullptr)
+		_captureFramePool(nullptr), _captureSession(nullptr), _captureItem(nullptr), _wrappedD3DDevice(nullptr)
 	{
+		// Windows.Graphics.Capture API 似乎只能运行于 MTA，造成诸多麻烦
 		winrt::init_apartment(winrt::apartment_type::multi_threaded);
+
+		Debug::Assert(winrt::GraphicsCaptureSession::IsSupported(), L"当前不支持 WinRT Capture");
+
 		// 以下代码参考自 http://tips.hecomi.com/entry/2021/03/23/230947
 
+		// 创建 IDirect3DDevice
 		ID3D11Device* d3dDevice = d2dContext.GetD3DDevice();
 		ComPtr<IDXGIDevice> dxgiDevice;
 		Debug::ThrowIfComFailed(
@@ -43,16 +45,16 @@ public:
 		Debug::ThrowIfComFailed(
 			CreateDirect3D11DeviceFromDXGIDevice(
 				dxgiDevice.Get(),
-				reinterpret_cast<::IInspectable**>(winrt::put_abi(_wrappedDevice))
+				reinterpret_cast<::IInspectable**>(winrt::put_abi(_wrappedD3DDevice))
 			),
 			L"获取 IDirect3DDevice 失败"
 		);
-		Debug::Assert(_wrappedDevice, L"创建 IDirect3DDevice 失败");
+		Debug::Assert(_wrappedD3DDevice, L"创建 IDirect3DDevice 失败");
 		
+		// 从窗口句柄获取 GraphicsCaptureItem
 		auto interop = winrt::get_activation_factory<winrt::GraphicsCaptureItem, IGraphicsCaptureItemInterop>();
 		Debug::ThrowIfComFailed(
-			interop->CreateForWindow
-			(
+			interop->CreateForWindow(
 				hwndSrc,
 				winrt::guid_of<ABI::Windows::Graphics::Capture::IGraphicsCaptureItem>(),
 				winrt::put_abi(_captureItem)
@@ -61,18 +63,19 @@ public:
 		);
 		Debug::Assert(_captureItem, L"创建 GraphicsCaptureItem 失败");
 
+		// 创建帧缓冲池
 		_captureFramePool = winrt::Direct3D11CaptureFramePool::Create(
-			_wrappedDevice, // D3D device
-			winrt::DirectXPixelFormat::B8G8R8A8UIntNormalized, // Pixel format
-			1, // Number of frames
-			_captureItem.Size() // Size of the buffers
+			_wrappedD3DDevice,
+			winrt::DirectXPixelFormat::B8G8R8A8UIntNormalized,
+			2,					// 帧的缓存数量
+			_captureItem.Size() // 帧的尺寸
 		);
 		Debug::Assert(_captureFramePool, L"创建 Direct3D11CaptureFramePool 失败");
 
+		// 开始捕获
 		_captureSession = _captureFramePool.CreateCaptureSession(_captureItem);
 		Debug::Assert(_captureSession, L"CreateCaptureSession 失败");
 		_captureSession.IsCursorCaptureEnabled(false);
-
 		_captureSession.StartCapture();
 	}
 
@@ -90,10 +93,12 @@ public:
 	ComPtr<ID2D1Bitmap> GetFrame() override {
 		winrt::Direct3D11CaptureFrame frame = _captureFramePool.TryGetNextFrame();
 		if (!frame) {
-			return ComPtr<ID2D1Bitmap>();
+			// 缓冲池没有帧就返回 nullptr
+			return nullptr;
 		}
-		winrt::IDirect3DSurface d3dSurface = frame.Surface();
 
+		// 从帧获取 IDXGISurface
+		winrt::IDirect3DSurface d3dSurface = frame.Surface();
 		winrt::com_ptr<::Windows::Graphics::DirectX::Direct3D11::IDirect3DDxgiInterfaceAccess> dxgiInterfaceAccess(
 			d3dSurface.as<::Windows::Graphics::DirectX::Direct3D11::IDirect3DDxgiInterfaceAccess>()
 		);
@@ -106,10 +111,16 @@ public:
 			L"从获取 IDirect3DSurface 获取 IDXGISurface 失败"
 		);
 
+		// 从 IDXGISurface 获取 ID2D1Bitmap
+		// 这里使用共享以避免拷贝
 		ComPtr<ID2D1Bitmap> withFrame;
 		auto p = BitmapProperties(PixelFormat(DXGI_FORMAT_B8G8R8A8_UNORM, D2D1_ALPHA_MODE_IGNORE));
 		_d2dContext.GetD2DDC()->CreateSharedBitmap(__uuidof(IDXGISurface), dxgiSurface.get(), &p, &withFrame);
 
+		// 获取的帧包含窗口边框，将客户区内容拷贝到新的 ID2D1Bitmap
+		// Q: 能够直接裁剪而不是拷贝？
+
+		// 包含边框的窗口尺寸
 		RECT srcRect{};
 		Debug::ThrowIfComFailed(
 			DwmGetWindowAttribute(_hwndSrc, DWMWA_EXTENDED_FRAME_BOUNDS, &srcRect, sizeof(srcRect)),
@@ -143,5 +154,5 @@ private:
 	winrt::Direct3D11CaptureFramePool _captureFramePool;
 	winrt::GraphicsCaptureSession _captureSession;
 	winrt::GraphicsCaptureItem _captureItem;
-	winrt::IDirect3DDevice _wrappedDevice;
+	winrt::IDirect3DDevice _wrappedD3DDevice;
 };

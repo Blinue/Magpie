@@ -231,8 +231,8 @@ private:
 
     const RECT& _hostClient{};
 
-    bool _noVSync;
-    bool _lowLantencyMode;
+    bool _noVSync;  // 关闭垂直同步
+    bool _lowLantencyMode;  // 低延迟模式
 
     ComPtr<ID3D11Device> _d3dDevice = nullptr;
     ComPtr<ID2D1Factory1> _d2dFactory = nullptr;

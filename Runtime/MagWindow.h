@@ -42,6 +42,11 @@ public:
     MagWindow(MagWindow&&) = delete;
     
     ~MagWindow() {
+        // 以下面的顺序释放资源
+        _renderManager = nullptr;
+        _windowCapturer = nullptr;
+        _d2dContext = nullptr;
+
         DestroyWindow(_hwndHost);
         UnregisterClass(_HOST_WINDOW_CLASS_NAME, _hInst);
 
@@ -75,7 +80,7 @@ private:
             CoInitializeEx(NULL, COINIT_MULTITHREADED),
             L"初始化 COM 出错"
         );
-        
+
         Debug::Assert(
             IsWindow(_hwndSrc) && IsWindowVisible(_hwndSrc),
             L"hwndSrc 不合法"
@@ -87,12 +92,12 @@ private:
         );
 
         Utils::GetClientScreenRect(_hwndSrc, _srcClient);
-        
+
         _RegisterHostWndClass();
         _CreateHostWnd(noDisturb);
 
         Utils::GetClientScreenRect(_hwndHost, _hostClient);
-        
+
         Debug::ThrowIfComFailed(
             CoCreateInstance(
                 CLSID_WICImagingFactory,
@@ -102,7 +107,7 @@ private:
             ),
             L"创建 WICImagingFactory 失败"
         );
-        
+
 
         // 初始化 D2DContext
         _d2dContext.reset(new D2DContext(
@@ -160,6 +165,14 @@ private:
         // _RegisterHookMsg();
     }
 
+    // 关闭全屏窗口并退出线程
+    // 有两个退出路径：
+    // 1. 前台窗口发生改变
+    // 2. 收到_WM_DESTORYMAG 消息
+    static void _DestroyMagWindow() {
+        $instance = nullptr;
+        ExitThread(0);
+    }
 
     // 渲染一帧，不抛出异常
     void _Render() {
@@ -182,7 +195,7 @@ private:
             // 前台窗口改变时自动关闭全屏窗口
             // 接收 shell 消息有时不可靠
             if (GetForegroundWindow() != _hwndSrc) {
-                $instance = nullptr;
+                _DestroyMagWindow();
                 break;
             }
 
@@ -209,8 +222,7 @@ private:
                 // Q: 如果被截断是否能正常工作？
                 _renderManager->AddHookCursor((HCURSOR)wParam, (HCURSOR)lParam);
             } else if (message == _WM_DESTORYMAG) {
-                $instance = nullptr;
-                ExitThread(0);
+                _DestroyMagWindow();
             } else {
                 return DefWindowProc(hWnd, message, wParam, lParam);
             }

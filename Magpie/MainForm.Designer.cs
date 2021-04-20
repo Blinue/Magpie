@@ -190,9 +190,9 @@ namespace Magpie {
             this.cbbCaptureMode.DropDownWidth = 196;
             this.cbbCaptureMode.ItemHeight = 15;
             this.cbbCaptureMode.Items.AddRange(new object[] {
-            "WinRT Capture模式",
-            "GDI模式",
-            "MagCallback模式"});
+            "WinRT Capture",
+            "GDI",
+            "MagCallback"});
             this.cbbCaptureMode.Location = new System.Drawing.Point(91, 90);
             this.cbbCaptureMode.Name = "cbbCaptureMode";
             this.cbbCaptureMode.Size = new System.Drawing.Size(196, 23);

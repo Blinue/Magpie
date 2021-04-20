@@ -1,16 +1,9 @@
-﻿using EasyHook;
-using Gma.System.MouseKeyHook;
-using Magpie.CursorHook;
+﻿using Gma.System.MouseKeyHook;
 using Magpie.Properties;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Drawing;
-using System.IO;
-using System.Reflection;
-using System.Runtime.Remoting;
 using System.Windows.Forms;
-using System.Threading;
 
 
 namespace Magpie {
@@ -53,9 +46,8 @@ namespace Magpie {
   }
 ]";
 
-        IKeyboardMouseEvents keyboardEvents = null;
-
-        Thread thread = null;
+        private IKeyboardMouseEvents keyboardEvents = null;
+        private readonly MagWindow magWindow = new MagWindow();
 
         public MainForm() {
             InitializeComponent();
@@ -85,7 +77,7 @@ namespace Magpie {
         }
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e) {
-            DestroyMagWindow();
+            magWindow.Destory();
             Settings.Default.Save();
         }
 
@@ -98,32 +90,25 @@ namespace Magpie {
             try {
                 keyboardEvents.OnCombination(new Dictionary<Combination, Action> {{
                     Combination.FromString(hotkey), () => {
-                        string effectJson = Settings.Default.ScaleMode == 0
+                        string effectsJson = Settings.Default.ScaleMode == 0
                             ? CommonEffectJson : AnimeEffectJson;
                         bool showFPS = Settings.Default.ShowFPS;
                         bool noVSync = Settings.Default.NoVSync;
                         int captureMode = Settings.Default.CaptureMode;
                         bool lowLatencyMode = Settings.Default.LowLatencyMode;
 
-                        if(thread == null) {
-                            thread = new Thread(() => {
-                                NativeMethods.RunMagWindow(
-                                    effectJson,     // 缩放模式
-                                    captureMode,    // 抓取模式
-                                    showFPS,        // 显示 FPS
-                                    lowLatencyMode, // 低延迟模式
-                                    noVSync,        // 关闭垂直同步
-                                    false           // 用于调试
-                                );
-                            });
-                            thread.SetApartmentState(ApartmentState.MTA);
-                            thread.Start();
-
-                            if(cbbInjectMode.SelectedIndex == 1) {
-                                HookCursorAtRuntime();
-                            }
+                        if(magWindow.IsExist) {
+                            magWindow.Destory();
                         } else {
-                            DestroyMagWindow();
+                            magWindow.Create(
+                                effectsJson,
+                                captureMode,
+                                showFPS,
+                                lowLatencyMode,
+                                noVSync,
+                                cbbInjectMode.SelectedIndex == 1,
+                                false
+                            );
                         }
                     }
                 }});
@@ -135,84 +120,8 @@ namespace Magpie {
             } catch (ArgumentException) {
                 txtHotkey.ForeColor = Color.Red;
             }
-            
         }
 
-        private void DestroyMagWindow() {
-            NativeMethods.BroadcastMessage(NativeMethods.MAGPIE_WM_DESTORYMAG);
-            if(thread != null) {
-                thread.Abort();
-                thread = null;
-            }
-        }
-
-        private void HookCursorAtRuntime() {
-            IntPtr hwndSrc = NativeMethods.GetForegroundWindow();
-            int pid = NativeMethods.GetWindowProcessId(hwndSrc);
-            if (pid == 0 || pid == Process.GetCurrentProcess().Id) {
-                // 不能 hook 本进程
-                return;
-            }
-
-#if DEBUG
-            string channelName = null;
-            // DEBUG 时创建 IPC server
-            RemoteHooking.IpcCreateServer<ServerInterface>(ref channelName, WellKnownObjectMode.Singleton);
-#endif
-
-            // 获取 CursorHook.dll 的绝对路径
-            string injectionLibrary = Path.Combine(
-                Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
-                "CursorHook.dll"
-            );
-
-            // 使用 EasyHook 注入
-            try {
-                EasyHook.RemoteHooking.Inject(
-                pid,                // 要注入的进程的 ID
-                injectionLibrary,   // 32 位 DLL
-                injectionLibrary,   // 64 位 DLL
-                // 下面为传递给注入 DLL 的参数
-#if DEBUG
-                channelName,
-#endif
-                hwndSrc
-                );
-            } catch (Exception e) {
-                Console.WriteLine("CursorHook 注入失败：" + e.Message);
-            }
-        }
-
-        private void HookCursorAtStartUp(string exePath) {
-#if DEBUG
-            string channelName = null;
-            // DEBUG 时创建 IPC server
-            RemoteHooking.IpcCreateServer<ServerInterface>(ref channelName, WellKnownObjectMode.Singleton);
-#endif
-
-            // 获取 CursorHook.dll 的绝对路径
-            string injectionLibrary = Path.Combine(
-                Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
-                "CursorHook.dll"
-            );
-
-            try {
-                EasyHook.RemoteHooking.CreateAndInject(
-                    exePath,    // 可执行文件路径
-                    "",         // 命令行参数
-                    0,          // 传递给 CreateProcess 的标志
-                    injectionLibrary,   // 32 位 DLL
-                    injectionLibrary,   // 64 位 DLL
-                    out int _  // 忽略进程 ID
-                               // 下面为传递给注入 DLL 的参数
-#if DEBUG
-                    , channelName
-#endif
-                );
-            } catch (Exception e) {
-                Console.WriteLine("CursorHook 注入失败：" + e.Message);
-            }
-        }
 
         private void CbbScaleMode_SelectedIndexChanged(object sender, EventArgs e) {
             Settings.Default.ScaleMode = cbbScaleMode.SelectedIndex;
@@ -259,7 +168,7 @@ namespace Magpie {
                     return;
                 }
 
-                HookCursorAtStartUp(openFileDialog.FileName);
+                magWindow.HookCursorAtStartUp(openFileDialog.FileName);
             } else {
                 // 不保存启动时注入的选项
                 Settings.Default.InjectMode = cbbInjectMode.SelectedIndex;
