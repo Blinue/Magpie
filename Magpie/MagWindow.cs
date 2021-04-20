@@ -4,16 +4,42 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Runtime.Remoting;
 using System.Threading;
+using System.Windows.Forms;
 
 
 namespace Magpie {
+    enum MagWindowStatus : int {
+        Idle = 0, Starting = 1, Running = 2
+    }
+
     class MagWindow {
         private Thread magThread = null;
 
-        public bool IsExist {
-            get => magThread != null && magThread.IsAlive;
+        // 用于从全屏窗口的线程接收消息
+        private event Action<int, string> StatusEvent;
+
+        public MagWindowStatus Status { get; private set; } = MagWindowStatus.Idle;
+
+
+        public MagWindow() {
+            StatusEvent += (int status, string errorMsg) => {
+                if(status < 0 || status > 3) {
+                    return;
+                }
+
+                Status = (MagWindowStatus)status;
+
+                if(Status == MagWindowStatus.Idle) {
+                    magThread = null;
+                }
+
+                if (errorMsg != null) {
+                    MessageBox.Show("创建全屏窗口出错：" + errorMsg);
+                }
+            };
         }
 
         public void Create(
@@ -25,14 +51,15 @@ namespace Magpie {
             bool hookCursorAtRuntime,
             bool noDisturb = false
         ) {
-            if (IsExist) {
-                Destory();
+            if (Status != MagWindowStatus.Idle) {
+                return;
             }
 
             // 使用 WinRT Capturer API 需要在 MTA 中
             // C# 窗体必须使用 STA，因此将全屏窗口创建在新的线程里
             magThread = new Thread(() => {
                 NativeMethods.RunMagWindow(
+                    (int status, IntPtr errorMsg) => StatusEvent(status, Marshal.PtrToStringUni(errorMsg)),
                     effectsJson,    // 缩放模式
                     captureMode,    // 抓取模式
                     showFPS,        // 显示 FPS
@@ -51,10 +78,7 @@ namespace Magpie {
 
         public void Destory() {
             NativeMethods.BroadcastMessage(NativeMethods.MAGPIE_WM_DESTORYMAG);
-            if (magThread != null) {
-                magThread.Abort();
-                magThread = null;
-            }
+            magThread = null;
         }
 
         private void HookCursorAtRuntime() {

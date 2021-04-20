@@ -31,6 +31,7 @@ BOOL APIENTRY DllMain(
 
 
 API_DECLSPEC void WINAPI RunMagWindow(
+    void reportStatus(int status, const wchar_t* errorMsg),
     const wchar_t* effectsJson,
     int captureMode,
     bool showFPS,
@@ -38,6 +39,8 @@ API_DECLSPEC void WINAPI RunMagWindow(
     bool noVSync,
     bool noDisturb
 ) {
+    reportStatus(1, nullptr);
+
     try {
         HWND hwnd = GetForegroundWindow();
         Debug::ThrowIfWin32Failed(
@@ -46,12 +49,16 @@ API_DECLSPEC void WINAPI RunMagWindow(
         );
 
         MagWindow::CreateInstance(hInstance, hwnd, effectsJson, captureMode, showFPS, lowLatencyMode, noVSync, noDisturb);
-    } catch(const magpie_exception&) {
+    } catch(const magpie_exception& e) {
+        reportStatus(0, e.what().c_str());
         return;
     } catch (...) {
         Debug::WriteErrorMessage(L"创建全屏窗口发生未知错误");
+        reportStatus(0, L"未知错误");
         return;
     }
+
+    reportStatus(2, nullptr);
 
     MSG msg;
 
@@ -60,4 +67,6 @@ API_DECLSPEC void WINAPI RunMagWindow(
         TranslateMessage(&msg);
         DispatchMessage(&msg);
     }
+
+    reportStatus(0, nullptr);
 }

@@ -26,6 +26,23 @@ namespace Magpie {
     ""curveHeight"": 0.2
   }
 ]";
+        private const string Anime4xEffectJson = @"[
+  {
+    ""effect"": ""scale"",
+    ""type"": ""Anime4KxDenoise""
+  },
+  {
+    ""effect"": ""scale"",
+    ""type"": ""Anime4K""
+  },
+  {
+    ""effect"": ""scale"",
+    ""type"": ""mitchell"",
+    ""scale"": [0,0],
+    ""useSharperVersion"": true
+  }
+]";
+
         private const string CommonEffectJson = @"[
   {
     ""effect"": ""scale"",
@@ -90,14 +107,26 @@ namespace Magpie {
             try {
                 keyboardEvents.OnCombination(new Dictionary<Combination, Action> {{
                     Combination.FromString(hotkey), () => {
-                        string effectsJson = Settings.Default.ScaleMode == 0
-                            ? CommonEffectJson : AnimeEffectJson;
+                        if(magWindow.Status == MagWindowStatus.Starting) {
+                            return;
+                        }
+
+                        string effectsJson = CommonEffectJson;
+                        switch (Settings.Default.ScaleMode) {
+                            case 1:
+                                effectsJson = AnimeEffectJson;
+                                break;
+                            case 2:
+                                effectsJson = Anime4xEffectJson;
+                                break;
+                        }
+                        
                         bool showFPS = Settings.Default.ShowFPS;
                         bool noVSync = Settings.Default.NoVSync;
                         int captureMode = Settings.Default.CaptureMode;
                         bool lowLatencyMode = Settings.Default.LowLatencyMode;
 
-                        if(magWindow.IsExist) {
+                        if(magWindow.Status == MagWindowStatus.Running) {
                             magWindow.Destory();
                         } else {
                             magWindow.Create(

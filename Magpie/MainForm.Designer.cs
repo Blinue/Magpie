@@ -81,7 +81,8 @@ namespace Magpie {
             this.cbbScaleMode.ItemHeight = 15;
             this.cbbScaleMode.Items.AddRange(new object[] {
             "通用（Lanczos）",
-            "动漫（Anime4K）"});
+            "动漫 2x（Anime4K）",
+            "动漫 4x（Anime4K x2）"});
             this.cbbScaleMode.Location = new System.Drawing.Point(91, 61);
             this.cbbScaleMode.Name = "cbbScaleMode";
             this.cbbScaleMode.Size = new System.Drawing.Size(196, 23);

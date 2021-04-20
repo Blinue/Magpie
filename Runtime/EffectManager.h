@@ -503,17 +503,18 @@ private:
 		}
 	}
 
-	// 设置 destSize 的同时增大 tile 的大小以容纳图像
+	
 	void _SetDestSize(SIZE value) {
-		if (value.cx > _outputSize.cx || value.cy > _outputSize.cy) {
-			// 需要更大的 tile
+		// 似乎不再需要设置 tile
+		/*if (value.cx > _outputSize.cx || value.cy > _outputSize.cy) {
+		    // 增大 tile 的大小以容纳图像
 			D2D1_RENDERING_CONTROLS rc{};
 			_d2dContext.GetD2DDC()->GetRenderingControls(&rc);
 			
 			rc.tileSize.width = max(value.cx, _outputSize.cx);
 			rc.tileSize.height = max(value.cy, _outputSize.cy);
 			_d2dContext.GetD2DDC()->SetRenderingControls(rc);
-		}
+		}*/
 
 		_outputSize = value;
 	}

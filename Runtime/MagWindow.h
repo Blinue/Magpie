@@ -51,6 +51,8 @@ public:
         UnregisterClass(_HOST_WINDOW_CLASS_NAME, _hInst);
 
         CoUninitialize();
+
+        PostQuitMessage(0);
     }
 
     HWND GetSrcWnd() {
@@ -171,7 +173,6 @@ private:
     // 2. 收到_WM_DESTORYMAG 消息
     static void _DestroyMagWindow() {
         $instance = nullptr;
-        ExitThread(0);
     }
 
     // 渲染一帧，不抛出异常

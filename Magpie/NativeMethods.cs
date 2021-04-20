@@ -47,10 +47,12 @@ namespace Magpie {
             return processId;
         }
 
+        public delegate void ReportStatus(int status, IntPtr errorMsg);
 
         [DllImport("Runtime", CallingConvention = CallingConvention.StdCall)]
         [return: MarshalAs(UnmanagedType.U1)]
         public static extern void RunMagWindow(
+            ReportStatus reportStatus,
             [MarshalAs(UnmanagedType.LPWStr)] string effectsJson,
             int captureMode,
             [MarshalAs(UnmanagedType.U1)] bool showFPS,

@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <cassert>
+#include <boost/format.hpp>
 
 
 // c++ 原生 exception 不支持宽字符串
@@ -31,7 +32,7 @@ public:
 
     com_exception(HRESULT hr, const std::wstring_view& msg) noexcept
         : magpie_exception(msg), _result(hr) {
-        _whatMsg = std::move(magpie_exception::what() + L"(HRESULT=" + std::to_wstring(_result) + L")");
+        _whatMsg = boost::str(boost::wformat(L"%s (HRESULT=0x%x)") % magpie_exception::what() % _result);
     }
 
     const std::wstring& what() const override {
@@ -80,23 +81,8 @@ public:
         WriteLine(std::wstring_view(msg));
     }
 
-
     static void WriteErrorMessage(const std::wstring_view& msg) {
         WriteLine(msg);
-        SetLastErrorMessage(msg);
-    }
-
-    template<typename T>
-    static void WriteErrorMessage(T msg) {
-        WriteErrorMessage(std::to_wstring(msg));
-    }
-
-    static void WriteErrorMessage(const std::wstring& msg) {
-        WriteErrorMessage(std::wstring_view(msg));
-    }
-
-    static void WriteErrorMessage(const wchar_t* msg) {
-        WriteErrorMessage(std::wstring_view(msg));
     }
 
 
@@ -108,7 +94,6 @@ public:
 
         com_exception e(hr, failMsg);
         WriteLine(L"com_exception: " + e.what());
-        SetLastErrorMessage(e.what());
 
         throw e;
     }
@@ -122,7 +107,6 @@ public:
 
         win32_exception e(failMsg);
         WriteLine(L"win32_exception: " + e.what());
-        SetLastErrorMessage(e.what());
 
         throw e;
     }
@@ -135,19 +119,7 @@ public:
 
         magpie_exception e(failMsg);
         WriteLine(L"magpie_exception: " + e.what());
-        SetLastErrorMessage(e.what());
 
         throw e;
     }
-
-    static void SetLastErrorMessage(const std::wstring_view& msg) {
-        _lastErrorMessage = msg;
-    }
-
-    static const std::wstring& GetLastErrorMessage() {
-        return _lastErrorMessage;
-    }
-
-private:
-    static std::wstring _lastErrorMessage;
 };

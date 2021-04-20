@@ -238,7 +238,6 @@
     <ClInclude Include="WndProcThunk.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Debug.cpp" />
     <ClCompile Include="GUIDs.cpp" />
     <ClCompile Include="MagCallbackWindowCapturer.cpp" />
     <ClCompile Include="MagWindow.cpp">
