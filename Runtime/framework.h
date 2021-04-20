@@ -20,11 +20,6 @@
 #include <wrl.h>
 #include <dwmapi.h>
 
-// C 运行时头文件
-#include <malloc.h>
-#include <memory.h>
-#include <tchar.h>
-
 // C++ 运行时头文件
 #include <string>
 #include <memory>
@@ -39,6 +34,7 @@
 #include <winrt/Windows.Foundation.h>
 #include <winrt/Windows.Graphics.Capture.h>
 #include <winrt/Windows.Graphics.DirectX.h>
+
 
 #pragma comment(lib, "d2d1.lib")
 #pragma comment(lib, "dwrite.lib")
