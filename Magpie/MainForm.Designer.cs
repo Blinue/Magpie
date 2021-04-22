@@ -35,6 +35,7 @@ namespace Magpie {
             this.notifyIcon = new System.Windows.Forms.NotifyIcon(this.components);
             this.cmsNotifyIcon = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.tsmiHotkey = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsmiScale = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiMainForm = new System.Windows.Forms.ToolStripMenuItem();
             this.tsmiExit = new System.Windows.Forms.ToolStripMenuItem();
             this.ckbShowFPS = new System.Windows.Forms.CheckBox();
@@ -45,14 +46,18 @@ namespace Magpie {
             this.label3 = new System.Windows.Forms.Label();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.ckbLowLatencyMode = new System.Windows.Forms.CheckBox();
+            this.btnScale = new System.Windows.Forms.Button();
+            this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.timerScale = new System.Windows.Forms.Timer(this.components);
             this.cmsNotifyIcon.SuspendLayout();
             this.groupBox2.SuspendLayout();
+            this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
             // lblHotkey
             // 
             this.lblHotkey.AutoSize = true;
-            this.lblHotkey.Location = new System.Drawing.Point(48, 33);
+            this.lblHotkey.Location = new System.Drawing.Point(12, 24);
             this.lblHotkey.Name = "lblHotkey";
             this.lblHotkey.Size = new System.Drawing.Size(37, 15);
             this.lblHotkey.TabIndex = 0;
@@ -60,16 +65,16 @@ namespace Magpie {
             // 
             // txtHotkey
             // 
-            this.txtHotkey.Location = new System.Drawing.Point(91, 30);
+            this.txtHotkey.Location = new System.Drawing.Point(55, 21);
             this.txtHotkey.Name = "txtHotkey";
-            this.txtHotkey.Size = new System.Drawing.Size(127, 25);
+            this.txtHotkey.Size = new System.Drawing.Size(196, 25);
             this.txtHotkey.TabIndex = 1;
             this.txtHotkey.TextChanged += new System.EventHandler(this.TxtHotkey_TextChanged);
             // 
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(18, 64);
+            this.label2.Location = new System.Drawing.Point(6, 27);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(67, 15);
             this.label2.TabIndex = 2;
@@ -79,13 +84,9 @@ namespace Magpie {
             // 
             this.cbbScaleMode.DropDownWidth = 196;
             this.cbbScaleMode.ItemHeight = 15;
-            this.cbbScaleMode.Items.AddRange(new object[] {
-            "通用（Lanczos）",
-            "动漫 2x（Anime4K）",
-            "动漫 4x（Anime4K x2）"});
-            this.cbbScaleMode.Location = new System.Drawing.Point(91, 61);
+            this.cbbScaleMode.Location = new System.Drawing.Point(79, 24);
             this.cbbScaleMode.Name = "cbbScaleMode";
-            this.cbbScaleMode.Size = new System.Drawing.Size(196, 23);
+            this.cbbScaleMode.Size = new System.Drawing.Size(187, 23);
             this.cbbScaleMode.TabIndex = 2;
             this.cbbScaleMode.SelectedIndexChanged += new System.EventHandler(this.CbbScaleMode_SelectedIndexChanged);
             // 
@@ -104,10 +105,10 @@ namespace Magpie {
             // 
             this.textBox1.BackColor = System.Drawing.SystemColors.Control;
             this.textBox1.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.textBox1.Location = new System.Drawing.Point(21, 168);
+            this.textBox1.Location = new System.Drawing.Point(15, 246);
             this.textBox1.Multiline = true;
             this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(292, 43);
+            this.textBox1.Size = new System.Drawing.Size(179, 48);
             this.textBox1.TabIndex = 7;
             this.textBox1.Text = "使用说明：\r\n按下热键即可全屏显示激活的窗口";
             // 
@@ -123,28 +124,36 @@ namespace Magpie {
             this.cmsNotifyIcon.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.cmsNotifyIcon.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.tsmiHotkey,
+            this.tsmiScale,
             this.tsmiMainForm,
             this.tsmiExit});
             this.cmsNotifyIcon.Name = "cmsNotifyIcon";
-            this.cmsNotifyIcon.Size = new System.Drawing.Size(124, 76);
+            this.cmsNotifyIcon.Size = new System.Drawing.Size(148, 100);
             // 
             // tsmiHotkey
             // 
             this.tsmiHotkey.Enabled = false;
             this.tsmiHotkey.Name = "tsmiHotkey";
-            this.tsmiHotkey.Size = new System.Drawing.Size(123, 24);
+            this.tsmiHotkey.Size = new System.Drawing.Size(147, 24);
+            // 
+            // tsmiScale
+            // 
+            this.tsmiScale.Name = "tsmiScale";
+            this.tsmiScale.Size = new System.Drawing.Size(147, 24);
+            this.tsmiScale.Text = "5秒后放大";
+            this.tsmiScale.Click += new System.EventHandler(this.TsmiScale_Click);
             // 
             // tsmiMainForm
             // 
             this.tsmiMainForm.Name = "tsmiMainForm";
-            this.tsmiMainForm.Size = new System.Drawing.Size(123, 24);
+            this.tsmiMainForm.Size = new System.Drawing.Size(147, 24);
             this.tsmiMainForm.Text = "主界面";
             this.tsmiMainForm.Click += new System.EventHandler(this.TsmiMainForm_Click);
             // 
             // tsmiExit
             // 
             this.tsmiExit.Name = "tsmiExit";
-            this.tsmiExit.Size = new System.Drawing.Size(123, 24);
+            this.tsmiExit.Size = new System.Drawing.Size(147, 24);
             this.tsmiExit.Text = "退出";
             this.tsmiExit.Click += new System.EventHandler(this.TsmiExit_Click);
             // 
@@ -166,16 +175,16 @@ namespace Magpie {
             "不注入",
             "运行时注入",
             "启动时注入"});
-            this.cbbInjectMode.Location = new System.Drawing.Point(91, 119);
+            this.cbbInjectMode.Location = new System.Drawing.Point(79, 82);
             this.cbbInjectMode.Name = "cbbInjectMode";
-            this.cbbInjectMode.Size = new System.Drawing.Size(196, 23);
+            this.cbbInjectMode.Size = new System.Drawing.Size(187, 23);
             this.cbbInjectMode.TabIndex = 1;
             this.cbbInjectMode.SelectedIndexChanged += new System.EventHandler(this.CbbInjectMode_SelectedIndexChanged);
             // 
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(18, 122);
+            this.label1.Location = new System.Drawing.Point(6, 85);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(67, 15);
             this.label1.TabIndex = 0;
@@ -194,16 +203,16 @@ namespace Magpie {
             "WinRT Capture",
             "GDI",
             "MagCallback"});
-            this.cbbCaptureMode.Location = new System.Drawing.Point(91, 90);
+            this.cbbCaptureMode.Location = new System.Drawing.Point(79, 53);
             this.cbbCaptureMode.Name = "cbbCaptureMode";
-            this.cbbCaptureMode.Size = new System.Drawing.Size(196, 23);
+            this.cbbCaptureMode.Size = new System.Drawing.Size(187, 23);
             this.cbbCaptureMode.TabIndex = 3;
             this.cbbCaptureMode.SelectedIndexChanged += new System.EventHandler(this.CbbCaptureMode_SelectedIndexChanged);
             // 
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(18, 93);
+            this.label3.Location = new System.Drawing.Point(6, 56);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(67, 15);
             this.label3.TabIndex = 4;
@@ -214,7 +223,7 @@ namespace Magpie {
             this.groupBox2.Controls.Add(this.ckbLowLatencyMode);
             this.groupBox2.Controls.Add(this.ckbShowFPS);
             this.groupBox2.Controls.Add(this.ckbNoVSync);
-            this.groupBox2.Location = new System.Drawing.Point(302, 30);
+            this.groupBox2.Location = new System.Drawing.Point(212, 182);
             this.groupBox2.Name = "groupBox2";
             this.groupBox2.Size = new System.Drawing.Size(147, 112);
             this.groupBox2.TabIndex = 12;
@@ -232,18 +241,44 @@ namespace Magpie {
             this.ckbLowLatencyMode.UseVisualStyleBackColor = true;
             this.ckbLowLatencyMode.CheckedChanged += new System.EventHandler(this.CkbLowLatencyMode_CheckedChanged);
             // 
+            // btnScale
+            // 
+            this.btnScale.AutoSize = true;
+            this.btnScale.Location = new System.Drawing.Point(268, 21);
+            this.btnScale.Name = "btnScale";
+            this.btnScale.Size = new System.Drawing.Size(91, 25);
+            this.btnScale.TabIndex = 13;
+            this.btnScale.Text = "5秒后放大";
+            this.btnScale.UseVisualStyleBackColor = true;
+            this.btnScale.Click += new System.EventHandler(this.BtnScale_Click);
+            // 
+            // groupBox1
+            // 
+            this.groupBox1.Controls.Add(this.cbbScaleMode);
+            this.groupBox1.Controls.Add(this.label3);
+            this.groupBox1.Controls.Add(this.cbbCaptureMode);
+            this.groupBox1.Controls.Add(this.label1);
+            this.groupBox1.Controls.Add(this.label2);
+            this.groupBox1.Controls.Add(this.cbbInjectMode);
+            this.groupBox1.Location = new System.Drawing.Point(15, 52);
+            this.groupBox1.Name = "groupBox1";
+            this.groupBox1.Size = new System.Drawing.Size(344, 121);
+            this.groupBox1.TabIndex = 14;
+            this.groupBox1.TabStop = false;
+            // 
+            // timerScale
+            // 
+            this.timerScale.Interval = 1000;
+            this.timerScale.Tick += new System.EventHandler(this.TimerScale_Tick);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(478, 223);
-            this.Controls.Add(this.label1);
-            this.Controls.Add(this.cbbScaleMode);
-            this.Controls.Add(this.cbbInjectMode);
-            this.Controls.Add(this.label2);
-            this.Controls.Add(this.cbbCaptureMode);
+            this.ClientSize = new System.Drawing.Size(377, 311);
+            this.Controls.Add(this.groupBox1);
+            this.Controls.Add(this.btnScale);
             this.Controls.Add(this.groupBox2);
-            this.Controls.Add(this.label3);
             this.Controls.Add(this.textBox1);
             this.Controls.Add(this.txtHotkey);
             this.Controls.Add(this.lblHotkey);
@@ -258,6 +293,8 @@ namespace Magpie {
             this.cmsNotifyIcon.ResumeLayout(false);
             this.groupBox2.ResumeLayout(false);
             this.groupBox2.PerformLayout();
+            this.groupBox1.ResumeLayout(false);
+            this.groupBox1.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -284,6 +321,10 @@ namespace Magpie {
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.GroupBox groupBox2;
         private System.Windows.Forms.CheckBox ckbLowLatencyMode;
+        private System.Windows.Forms.Button btnScale;
+        private System.Windows.Forms.GroupBox groupBox1;
+        private System.Windows.Forms.Timer timerScale;
+        private System.Windows.Forms.ToolStripMenuItem tsmiScale;
     }
 }
 

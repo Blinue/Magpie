@@ -4,70 +4,32 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
-
+using System.Text.Json;
+using System.IO;
 
 namespace Magpie {
     partial class MainForm : Form {
-        
-        private const string AnimeEffectJson = @"[
-  {
-    ""effect"": ""scale"",
-    ""type"": ""Anime4KxDenoise""
-  },
-  {
-    ""effect"": ""scale"",
-    ""type"": ""mitchell"",
-    ""scale"": [0,0],
-    ""useSharperVersion"": true
-  },
-  {
-    ""effect"": ""sharpen"",
-    ""type"": ""adaptive"",
-    ""curveHeight"": 0.2
-  }
-]";
-        private const string Anime4xEffectJson = @"[
-  {
-    ""effect"": ""scale"",
-    ""type"": ""Anime4KxDenoise""
-  },
-  {
-    ""effect"": ""scale"",
-    ""type"": ""Anime4K""
-  },
-  {
-    ""effect"": ""scale"",
-    ""type"": ""mitchell"",
-    ""scale"": [0,0],
-    ""useSharperVersion"": true
-  }
-]";
-
-        private const string CommonEffectJson = @"[
-  {
-    ""effect"": ""scale"",
-    ""type"": ""lanczos6"",
-    ""scale"": [0,0],
-    ""ARStrength"": 0.7
-  },
-  {
-    ""effect"": ""sharpen"",
-    ""type"": ""adaptive"",
-    ""curveHeight"": 0.6
-  },
-  {
-    ""effect"": ""sharpen"",
-    ""type"": ""builtIn"",
-    ""sharpness"": 0.5,
-    ""threshold"": 0.5
-  }
-]";
-
         private IKeyboardMouseEvents keyboardEvents = null;
         private readonly MagWindow magWindow = new MagWindow();
 
+        // 倒计时时间
+        private const int DOWN_COUNT = 5;
+        private int countDownNum;
+
+        private class ScaleModel {
+            public string Name { get; set; }
+
+            public JsonElement Model { get; set; }
+        };
+
+        private ScaleModel[] scaleModels;
+
+        private const string SCALE_MODELS_JSON_PATH = "./ScaleModels.json";
+
         public MainForm() {
             InitializeComponent();
+
+            LoadScaleModels();
 
             // 加载设置
             txtHotkey.Text = Settings.Default.Hotkey;
@@ -77,7 +39,27 @@ namespace Magpie {
             cbbInjectMode.SelectedIndex = Settings.Default.InjectMode;
             cbbCaptureMode.SelectedIndex = Settings.Default.CaptureMode;
             ckbLowLatencyMode.Checked = Settings.Default.LowLatencyMode;
+        }
 
+        private void LoadScaleModels() {
+            string json;
+            if(File.Exists(SCALE_MODELS_JSON_PATH)) {
+                json = File.ReadAllText(SCALE_MODELS_JSON_PATH);
+            } else {
+                File.WriteAllText(SCALE_MODELS_JSON_PATH, Resources.BuiltInScaleModels);
+                json = Resources.BuiltInScaleModels;
+            }
+
+            scaleModels = JsonSerializer.Deserialize<ScaleModel[]>(
+                json,
+                new JsonSerializerOptions {
+                    PropertyNameCaseInsensitive = true
+                }
+            );
+
+            foreach (var scaleModel in scaleModels) {
+                cbbScaleMode.Items.Add(scaleModel.Name);
+            }
         }
 
         protected override void WndProc(ref Message m) {
@@ -106,40 +88,7 @@ namespace Magpie {
 
             try {
                 keyboardEvents.OnCombination(new Dictionary<Combination, Action> {{
-                    Combination.FromString(hotkey), () => {
-                        if(magWindow.Status == MagWindowStatus.Starting) {
-                            return;
-                        }
-
-                        string effectsJson = CommonEffectJson;
-                        switch (Settings.Default.ScaleMode) {
-                            case 1:
-                                effectsJson = AnimeEffectJson;
-                                break;
-                            case 2:
-                                effectsJson = Anime4xEffectJson;
-                                break;
-                        }
-                        
-                        bool showFPS = Settings.Default.ShowFPS;
-                        bool noVSync = Settings.Default.NoVSync;
-                        int captureMode = Settings.Default.CaptureMode;
-                        bool lowLatencyMode = Settings.Default.LowLatencyMode;
-
-                        if(magWindow.Status == MagWindowStatus.Running) {
-                            magWindow.Destory();
-                        } else {
-                            magWindow.Create(
-                                effectsJson,
-                                captureMode,
-                                showFPS,
-                                lowLatencyMode,
-                                noVSync,
-                                cbbInjectMode.SelectedIndex == 1,
-                                false
-                            );
-                        }
-                    }
+                    Combination.FromString(hotkey), () => ToggleMagWindow()
                 }});
 
                 txtHotkey.ForeColor = Color.Black;
@@ -151,6 +100,30 @@ namespace Magpie {
             }
         }
 
+        private void ToggleMagWindow() {
+            if (magWindow.Status == MagWindowStatus.Starting) {
+                return;
+            } else if (magWindow.Status == MagWindowStatus.Running) {
+                magWindow.Destory();
+                return;
+            }
+
+            string effectsJson = scaleModels[Settings.Default.ScaleMode].Model.GetRawText();
+            bool showFPS = Settings.Default.ShowFPS;
+            bool noVSync = Settings.Default.NoVSync;
+            int captureMode = Settings.Default.CaptureMode;
+            bool lowLatencyMode = Settings.Default.LowLatencyMode;
+
+            magWindow.Create(
+                effectsJson,
+                captureMode,
+                showFPS,
+                lowLatencyMode,
+                noVSync,
+                cbbInjectMode.SelectedIndex == 1,
+                false
+            );
+        }
 
         private void CbbScaleMode_SelectedIndexChanged(object sender, EventArgs e) {
             Settings.Default.ScaleMode = cbbScaleMode.SelectedIndex;
@@ -211,6 +184,42 @@ namespace Magpie {
 
         private void CkbLowLatencyMode_CheckedChanged(object sender, EventArgs e) {
             Settings.Default.LowLatencyMode = ckbLowLatencyMode.Checked;
+        }
+
+        private void StartScaleTimer() {
+            if (timerScale.Enabled) {
+                // 已经开始倒计时
+                return;
+            }
+
+            countDownNum = DOWN_COUNT;
+            btnScale.Text = countDownNum.ToString();
+            btnScale.Enabled = false;
+
+            timerScale.Interval = 1000;
+            timerScale.Enabled = true;
+        }
+
+        private void BtnScale_Click(object sender, EventArgs e) {
+            StartScaleTimer();
+        }
+
+        private void TimerScale_Tick(object sender, EventArgs e) {
+            if(--countDownNum != 0) {
+                btnScale.Text = countDownNum.ToString();
+                return;
+            }
+
+            // 计时结束
+            timerScale.Enabled = false;
+            btnScale.Text = "5秒后放大";
+            btnScale.Enabled = true;
+
+            ToggleMagWindow();
+        }
+
+        private void TsmiScale_Click(object sender, EventArgs e) {
+            StartScaleTimer();
         }
     }
 }

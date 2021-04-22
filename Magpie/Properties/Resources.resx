@@ -117,4 +117,74 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="BuiltInScaleModels" xml:space="preserve">
+    <value>[
+  {
+    "name": "通用（Lanczos）",
+    "model": [
+      {
+        "effect": "scale",
+        "type": "lanczos6",
+        "scale": [ 0, 0 ],
+        "ARStrength": 0.7
+      },
+      {
+        "effect": "sharpen",
+        "type": "adaptive",
+        "curveHeight": 0.6
+      },
+      {
+        "effect": "sharpen",
+        "type": "builtIn",
+        "sharpness": 0.5,
+        "threshold": 0.5
+      }
+    ]
+  },
+  {
+    "name": "动漫 2x（Anime4K）",
+    "model": [
+      {
+        "effect": "scale",
+        "type": "Anime4KxDenoise"
+      },
+      {
+        "effect": "scale",
+        "type": "mitchell",
+        "scale": [ 0, 0 ],
+        "useSharperVersion": true
+      },
+      {
+        "effect": "sharpen",
+        "type": "adaptive",
+        "curveHeight": 0.2
+      }
+    ]
+  },
+  {
+    "name": "动漫 4x（Anime4K x2）",
+    "model": [
+      {
+        "effect": "scale",
+        "type": "Anime4KxDenoise"
+      },
+      {
+        "effect": "scale",
+        "type": "Anime4K"
+      },
+      {
+        "effect": "scale",
+        "type": "mitchell",
+        "scale": [ 0, 0 ],
+        "useSharperVersion": true
+      },
+      {
+        "effect": "sharpen",
+        "type": "adaptive",
+        "curveHeight": 0.2
+      }
+    ]
+  }
+]</value>
+  </data>
 </root>

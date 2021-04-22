@@ -59,5 +59,41 @@ namespace Magpie.Properties {
                 resourceCulture = value;
             }
         }
+        
+        /// <summary>
+        ///   查找类似 [
+        ///  {
+        ///    &quot;name&quot;: &quot;通用（Lanczos）&quot;,
+        ///    &quot;model&quot;: [
+        ///      {
+        ///        &quot;effect&quot;: &quot;scale&quot;,
+        ///        &quot;type&quot;: &quot;lanczos6&quot;,
+        ///        &quot;scale&quot;: [ 0, 0 ],
+        ///        &quot;ARStrength&quot;: 0.7
+        ///      },
+        ///      {
+        ///        &quot;effect&quot;: &quot;sharpen&quot;,
+        ///        &quot;type&quot;: &quot;adaptive&quot;,
+        ///        &quot;curveHeight&quot;: 0.6
+        ///      },
+        ///      {
+        ///        &quot;effect&quot;: &quot;sharpen&quot;,
+        ///        &quot;type&quot;: &quot;builtIn&quot;,
+        ///        &quot;sharpness&quot;: 0.5,
+        ///        &quot;threshold&quot;: 0.5
+        ///      }
+        ///    ]
+        ///  },
+        ///  {
+        ///    &quot;name&quot;: &quot;动漫 2x（Anime4K）&quot;,
+        ///    &quot;model&quot;: [
+        ///      {
+        ///        &quot;effect&quot;: &quot;s [字符串的其余部分被截断]&quot;; 的本地化字符串。
+        /// </summary>
+        internal static string BuiltInScaleModels {
+            get {
+                return ResourceManager.GetString("BuiltInScaleModels", resourceCulture);
+            }
+        }
     }
 }
