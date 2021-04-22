@@ -25,6 +25,9 @@ public:
 		return bmp;
 	}
 
+	bool IsAutoRender() override {
+		return false;
+	}
 private:
 	ComPtr<IWICBitmapSource> _GetFrameWithNoBitblt() {
 		SIZE srcSize = Utils::GetSize(_srcRect);
@@ -78,7 +81,7 @@ private:
 			wicBmpClipper->Initialize(wicBmp.Get(), &wicRect),
 			L"wicBmpClipper≥ı ºªØ ß∞‹"
 		);
-
+		
 		return wicBmpClipper;
 	}
 

@@ -13,6 +13,7 @@ public:
 
 	virtual ComPtr<ID2D1Bitmap> GetFrame() = 0;
 
+	virtual bool IsAutoRender() = 0;
 protected:
 	D2DContext& _d2dContext;
 };

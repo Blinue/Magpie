@@ -56,6 +56,9 @@ public:
         return _bmp;
 	}
 
+    bool IsAutoRender() override {
+        return false;
+    }
 private:
     static BOOL CALLBACK _ImageScalingCallback(
         HWND hWnd,

@@ -125,7 +125,8 @@ private:
             _windowCapturer.reset(new WinRTCapturer(
                 *_d2dContext,
                 _hwndSrc,
-                _srcClient
+                _srcClient,
+                [&]() {_RenderNextFrame(); }
             ));
         } else if (captureMode == 1) {
             _windowCapturer.reset(new GDIWindowCapturer(
@@ -161,10 +162,9 @@ private:
 
         ShowWindow(_hwndHost, SW_NORMAL);
 
-        PostMessage(_hwndHost, _WM_RENDER, 0, 0);
-
-        // 接收 Shell 消息有时不可靠
-        // _RegisterHookMsg();
+        if (!_windowCapturer->IsAutoRender()) {
+            _RenderNextFrame();
+        }
     }
 
     // 关闭全屏窗口并退出线程
@@ -189,45 +189,43 @@ private:
         }
     }
 
+    void _RenderNextFrame() {
+        if (!PostMessage(_hwndHost, _WM_RENDER, 0, 0)) {
+            Debug::WriteErrorMessage(L"PostMessage 失败");
+        }
+    }
+
     LRESULT _HostWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
-        switch (message) {
-        case _WM_RENDER:
-        {
+        if (message == _WM_RENDER) {
             // 前台窗口改变时自动关闭全屏窗口
             // 接收 shell 消息有时不可靠
             if (GetForegroundWindow() != _hwndSrc) {
                 _DestroyMagWindow();
-                break;
+                return 0;
             }
 
             _Render();
 
-            // 立即渲染下一帧
-            // 垂直同步开启时自动限制帧率
-            if (!PostMessage(hWnd, _WM_RENDER, 0, 0)) {
-                Debug::WriteErrorMessage(L"PostMessage 失败");
+            if (!_windowCapturer->IsAutoRender()) {
+                // 立即渲染下一帧
+                // 垂直同步开启时自动限制帧率
+                _RenderNextFrame();
             }
-            break;
-        }
-        default:
-        {
-            if (message == _WM_NEWCURSOR32) {
-                // 来自 CursorHook 的消息
-                // HCURSOR 似乎是共享资源，尽管来自别的进程但可以直接使用
-                // 
-                // 如果消息来自 32 位进程，本程序为 64 位，必须转换为补符号位扩展，这是为了和 SetCursor 的处理方法一致
-                // SendMessage 为补 0 扩展，SetCursor 为补符号位扩展
-                _renderManager->AddHookCursor((HCURSOR)(INT_PTR)(INT32)wParam, (HCURSOR)(INT_PTR)(INT32)lParam);
-            } else if (message == _WM_NEWCURSOR64) {
-                // 如果消息来自 64 位进程，本程序为 32 位，HCURSOR 会被截断
-                // Q: 如果被截断是否能正常工作？
-                _renderManager->AddHookCursor((HCURSOR)wParam, (HCURSOR)lParam);
-            } else if (message == _WM_DESTORYMAG) {
-                _DestroyMagWindow();
-            } else {
-                return DefWindowProc(hWnd, message, wParam, lParam);
-            }
-        }
+        } else if (message == _WM_NEWCURSOR32) {
+            // 来自 CursorHook 的消息
+            // HCURSOR 似乎是共享资源，尽管来自别的进程但可以直接使用
+            // 
+            // 如果消息来自 32 位进程，本程序为 64 位，必须转换为补符号位扩展，这是为了和 SetCursor 的处理方法一致
+            // SendMessage 为补 0 扩展，SetCursor 为补符号位扩展
+            _renderManager->AddHookCursor((HCURSOR)(INT_PTR)(INT32)wParam, (HCURSOR)(INT_PTR)(INT32)lParam);
+        } else if (message == _WM_NEWCURSOR64) {
+            // 如果消息来自 64 位进程，本程序为 32 位，HCURSOR 会被截断
+            // Q: 如果被截断是否能正常工作？
+            _renderManager->AddHookCursor((HCURSOR)wParam, (HCURSOR)lParam);
+        } else if (message == _WM_DESTORYMAG) {
+            _DestroyMagWindow();
+        } else {
+            return DefWindowProc(hWnd, message, wParam, lParam);
         }
 
         return 0;
@@ -287,7 +285,7 @@ private:
     static constexpr const wchar_t* _HOST_WINDOW_CLASS_NAME = L"Window_Magpie_967EB565-6F73-4E94-AE53-00CC42592A22";
 
     // 指定为最大帧率时使用的渲染消息
-    static constexpr const UINT _WM_RENDER = WM_USER;
+    static UINT _WM_RENDER;
     static UINT _WM_NEWCURSOR32;
     static UINT _WM_NEWCURSOR64;
     static UINT _WM_DESTORYMAG;

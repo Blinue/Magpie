@@ -62,7 +62,7 @@ namespace Magpie {
             // 
             this.txtHotkey.Location = new System.Drawing.Point(91, 30);
             this.txtHotkey.Name = "txtHotkey";
-            this.txtHotkey.Size = new System.Drawing.Size(196, 25);
+            this.txtHotkey.Size = new System.Drawing.Size(127, 25);
             this.txtHotkey.TabIndex = 1;
             this.txtHotkey.TextChanged += new System.EventHandler(this.TxtHotkey_TextChanged);
             // 

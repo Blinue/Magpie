@@ -23,10 +23,10 @@ public:
 	WinRTCapturer(
 		D2DContext& d2dContext,
 		HWND hwndSrc,
-		const RECT& srcClient
-	) : WindowCapturerBase(d2dContext), _srcClient(srcClient), _hwndSrc(hwndSrc),
-		_captureFramePool(nullptr), _captureSession(nullptr), _captureItem(nullptr), _wrappedD3DDevice(nullptr)
-	{
+		const RECT& srcClient,
+		std::function<void()> render
+	) : WindowCapturerBase(d2dContext), _srcClient(srcClient), _hwndSrc(hwndSrc), _render(render),
+		_captureFramePool(nullptr), _captureSession(nullptr), _captureItem(nullptr), _wrappedD3DDevice(nullptr) 	{
 		// Windows.Graphics.Capture API 似乎只能运行于 MTA，造成诸多麻烦
 		winrt::init_apartment(winrt::apartment_type::multi_threaded);
 
@@ -50,7 +50,7 @@ public:
 			L"获取 IDirect3DDevice 失败"
 		);
 		Debug::Assert(_wrappedD3DDevice, L"创建 IDirect3DDevice 失败");
-		
+
 		// 从窗口句柄获取 GraphicsCaptureItem
 		auto interop = winrt::get_activation_factory<winrt::GraphicsCaptureItem, IGraphicsCaptureItemInterop>();
 		Debug::ThrowIfComFailed(
@@ -71,6 +71,10 @@ public:
 			_captureItem.Size() // 帧的尺寸
 		);
 		Debug::Assert(_captureFramePool, L"创建 Direct3D11CaptureFramePool 失败");
+		_frameArrivedRevoker = _captureFramePool.FrameArrived(
+			winrt::auto_revoke,
+			{ this, &WinRTCapturer::_FrameArrived }
+		);
 
 		// 开始捕获
 		_captureSession = _captureFramePool.CreateCaptureSession(_captureItem);
@@ -80,6 +84,10 @@ public:
 	}
 
 	~WinRTCapturer() {
+		if (_frameArrivedRevoker) {
+			_frameArrivedRevoker.revoke();
+			_frameArrivedRevoker = {};
+		}
 		if (_captureSession) {
 			_captureSession.Close();
 		}
@@ -147,7 +155,23 @@ public:
 		return withoutFrame;
 	}
 
+	bool IsAutoRender() override {
+		return true;
+	}
+
 private:
+	void _FrameArrived(
+		const winrt::Direct3D11CaptureFramePool& sender,
+		const winrt::IInspectable& args
+	) {
+		if (!_frameArrivedRevoker) {
+			return;
+		}
+
+		_render();
+	}
+
+
 	HWND _hwndSrc;
 	const RECT& _srcClient;
 
@@ -155,4 +179,8 @@ private:
 	winrt::GraphicsCaptureSession _captureSession;
 	winrt::GraphicsCaptureItem _captureItem;
 	winrt::IDirect3DDevice _wrappedD3DDevice;
+
+	winrt::Direct3D11CaptureFramePool::FrameArrived_revoker _frameArrivedRevoker;
+
+	std::function<void()> _render;
 };

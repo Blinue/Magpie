@@ -184,7 +184,7 @@ private:
         
         if (_lowLantencyMode) {
             Debug::ThrowIfComFailed(
-                _dxgiSwapChain->SetMaximumFrameLatency(2),
+                _dxgiSwapChain->SetMaximumFrameLatency(1),
                 L"SetMaximumFrameLatency Ê§°Ü"
             );
 
