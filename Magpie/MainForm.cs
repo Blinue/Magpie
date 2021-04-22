@@ -28,12 +28,19 @@ namespace Magpie {
 
         public MainForm() {
             InitializeComponent();
+        }
 
+        private void MainForm_Load(object sender, EventArgs e) {
             LoadScaleModels();
 
             // 加载设置
             txtHotkey.Text = Settings.Default.Hotkey;
+
+            if (Settings.Default.ScaleMode >= cbbScaleMode.Items.Count) {
+                Settings.Default.ScaleMode = 0;
+            }
             cbbScaleMode.SelectedIndex = Settings.Default.ScaleMode;
+
             ckbShowFPS.Checked = Settings.Default.ShowFPS;
             ckbNoVSync.Checked = Settings.Default.NoVSync;
             cbbInjectMode.SelectedIndex = Settings.Default.InjectMode;
@@ -50,12 +57,22 @@ namespace Magpie {
                 json = Resources.BuiltInScaleModels;
             }
 
-            scaleModels = JsonSerializer.Deserialize<ScaleModel[]>(
-                json,
-                new JsonSerializerOptions {
-                    PropertyNameCaseInsensitive = true
-                }
-            );
+            try {
+                scaleModels = JsonSerializer.Deserialize<ScaleModel[]>(
+                    json,
+                    new JsonSerializerOptions {
+                        PropertyNameCaseInsensitive = true
+                    }
+                );
+            } catch (Exception) {
+                MessageBox.Show("读取 ScaleModel.json 失败");
+                Environment.Exit(0);
+            }
+
+            if(scaleModels.Length == 0) {
+                MessageBox.Show("非法的 ScaleModel.json");
+                Environment.Exit(0);
+            }
 
             foreach (var scaleModel in scaleModels) {
                 cbbScaleMode.Items.Add(scaleModel.Name);
@@ -221,6 +238,8 @@ namespace Magpie {
         private void TsmiScale_Click(object sender, EventArgs e) {
             StartScaleTimer();
         }
+
+        
     }
 }
 

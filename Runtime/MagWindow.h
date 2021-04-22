@@ -160,11 +160,20 @@ private:
             _renderManager->AddFrameCatcher();
         }
 
-        ShowWindow(_hwndHost, SW_NORMAL);
+        Debug::ThrowIfWin32Failed(
+            ShowWindow(_hwndHost, SW_NORMAL),
+            L"ShowWindow失败"
+        );
 
         if (!_windowCapturer->IsAutoRender()) {
             _RenderNextFrame();
         }
+
+        // 每 100 毫秒检测前台窗口，发生改变时关闭全屏窗口
+        Debug::ThrowIfWin32Failed(
+            SetTimer(_hwndHost, _CHECK_FORGROUND_TIMER_ID, 100, nullptr),
+            L"SetTimer失败"
+        );
     }
 
     // 关闭全屏窗口并退出线程
@@ -196,14 +205,14 @@ private:
     }
 
     LRESULT _HostWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
-        if (message == _WM_RENDER) {
-            // 前台窗口改变时自动关闭全屏窗口
-            // 接收 shell 消息有时不可靠
-            if (GetForegroundWindow() != _hwndSrc) {
-                _DestroyMagWindow();
-                return 0;
+        if (message == WM_TIMER) {
+            if (wParam == _CHECK_FORGROUND_TIMER_ID) {
+                // 前台窗口改变时自动关闭全屏窗口
+                if (GetForegroundWindow() != _hwndSrc) {
+                    _DestroyMagWindow();
+                }
             }
-
+        } else if (message == _WM_RENDER) {
             _Render();
 
             if (!_windowCapturer->IsAutoRender()) {
@@ -289,6 +298,8 @@ private:
     static UINT _WM_NEWCURSOR32;
     static UINT _WM_NEWCURSOR64;
     static UINT _WM_DESTORYMAG;
+    
+    static constexpr UINT_PTR _CHECK_FORGROUND_TIMER_ID = 1;
 
     UINT _WM_SHELLHOOKMESSAGE{};
 
