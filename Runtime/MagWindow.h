@@ -167,13 +167,14 @@ private:
 
         if (!_windowCapturer->IsAutoRender()) {
             _RenderNextFrame();
+        } else {
+            // IsAutoRender 为真时，为了增强窗口响应性，
+            // 每 100 毫秒检测前台窗口
+            Debug::ThrowIfWin32Failed(
+                SetTimer(_hwndHost, _CHECK_FOREGROUND_TIMER_ID, 100, nullptr),
+                L"SetTimer失败"
+            );
         }
-
-        // 每 100 毫秒检测前台窗口，发生改变时关闭全屏窗口
-        Debug::ThrowIfWin32Failed(
-            SetTimer(_hwndHost, _CHECK_FORGROUND_TIMER_ID, 100, nullptr),
-            L"SetTimer失败"
-        );
     }
 
     // 关闭全屏窗口并退出线程
@@ -204,21 +205,31 @@ private:
         }
     }
 
+    // 前台窗口改变时自动关闭全屏窗口
+    // 如果前台窗口已改变，返回 true，否则返回 false
+    bool _CheckForeground() {
+        bool r = GetForegroundWindow() != _hwndSrc;
+        if (r) {
+            _DestroyMagWindow();
+        }
+        
+        return r;
+    }
+
     LRESULT _HostWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
         if (message == WM_TIMER) {
-            if (wParam == _CHECK_FORGROUND_TIMER_ID) {
-                // 前台窗口改变时自动关闭全屏窗口
-                if (GetForegroundWindow() != _hwndSrc) {
-                    _DestroyMagWindow();
-                }
+            if (wParam == _CHECK_FOREGROUND_TIMER_ID) {
+                _CheckForeground();
             }
         } else if (message == _WM_RENDER) {
-            _Render();
+            if (!_CheckForeground()) {
+                _Render();
 
-            if (!_windowCapturer->IsAutoRender()) {
-                // 立即渲染下一帧
-                // 垂直同步开启时自动限制帧率
-                _RenderNextFrame();
+                if (!_windowCapturer->IsAutoRender()) {
+                    // 立即渲染下一帧
+                    // 垂直同步开启时自动限制帧率
+                    _RenderNextFrame();
+                }
             }
         } else if (message == _WM_NEWCURSOR32) {
             // 来自 CursorHook 的消息
@@ -277,18 +288,6 @@ private:
         );
     }
 
-    void _RegisterHookMsg() {
-        _WM_SHELLHOOKMESSAGE = RegisterWindowMessage(L"SHELLHOOK");
-        Debug::ThrowIfWin32Failed(
-            _WM_SHELLHOOKMESSAGE,
-            L"RegisterWindowMessage 失败"
-        );
-        Debug::ThrowIfWin32Failed(
-            RegisterShellHookWindow(_hwndHost),
-            L"RegisterShellHookWindow 失败"
-        );
-    }
-
 
     // 全屏窗口类名
     static constexpr const wchar_t* _HOST_WINDOW_CLASS_NAME = L"Window_Magpie_967EB565-6F73-4E94-AE53-00CC42592A22";
@@ -299,7 +298,7 @@ private:
     static UINT _WM_NEWCURSOR64;
     static UINT _WM_DESTORYMAG;
     
-    static constexpr UINT_PTR _CHECK_FORGROUND_TIMER_ID = 1;
+    static constexpr UINT_PTR _CHECK_FOREGROUND_TIMER_ID = 1;
 
     UINT _WM_SHELLHOOKMESSAGE{};
 
