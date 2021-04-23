@@ -14,13 +14,7 @@ public:
 	) : EffectRendererBase(d2dContext, effectsJson, srcSize, hostClient) {
 		assert(srcSize.cx > 0 && srcSize.cy > 0);
 
-		_SetDestSize(srcSize);
-		_ReadEffectsJson(effectsJson);
-
-		// 计算输出位置，x 和 y 必须为整数，否则会使画面模糊
-		float x = float((_hostClient.right - _hostClient.left - _outputSize.cx) / 2);
-		float y = float((_hostClient.bottom - _hostClient.top - _outputSize.cy) / 2);
-		_outputRect = RectF(x, y, x + _outputSize.cx, y + _outputSize.cy);
+		_Init(effectsJson, srcSize);
 	}
 
 	void SetInput(ComPtr<IUnknown> inputImg) override {
@@ -29,7 +23,6 @@ public:
 			L"获取输入图像失败"
 		);
 	}
-
 	
 protected:
 	void _PushAsOutputEffect(ComPtr<ID2D1Effect> effect) override {
@@ -52,6 +45,7 @@ protected:
 			return _inputImg;
 		}
 	}
+
 private:
 	ComPtr<ID2D1Image> _inputImg = nullptr;
 

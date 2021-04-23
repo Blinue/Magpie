@@ -47,11 +47,22 @@ public:
 
 	
 protected:
+	void _Init(const std::wstring_view& effectsJson,  const SIZE& srcSize) {
+		_SetDestSize(srcSize);
+		_ReadEffectsJson(effectsJson);
+
+		// 计算输出位置，x 和 y 必须为整数，否则会使画面模糊
+		float x = float((_hostClient.right - _hostClient.left - _outputSize.cx) / 2);
+		float y = float((_hostClient.bottom - _hostClient.top - _outputSize.cy) / 2);
+		_outputRect = RectF(x, y, x + _outputSize.cx, y + _outputSize.cy);
+	}
+
 	// 将 effect 添加到 effect 链作为输出
 	virtual void _PushAsOutputEffect(ComPtr<ID2D1Effect> effect) = 0;
 
 	virtual ComPtr<ID2D1Image> _GetOutputImg() = 0;
 
+private:
 	void _ReadEffectsJson(const std::wstring_view& effectsJson) {
 		const auto& effects = nlohmann::json::parse(effectsJson);
 		Debug::Assert(effects.is_array(), L"json 格式错误");
@@ -97,7 +108,21 @@ protected:
 		}
 	}
 
-//private:
+	void _SetDestSize(SIZE value) {
+		// 似乎不再需要设置 tile
+		/*if (value.cx > _outputSize.cx || value.cy > _outputSize.cy) {
+			// 增大 tile 的大小以容纳图像
+			D2D1_RENDERING_CONTROLS rc{};
+			_d2dContext.GetD2DDC()->GetRenderingControls(&rc);
+
+			rc.tileSize.width = max(value.cx, _outputSize.cx);
+			rc.tileSize.height = max(value.cy, _outputSize.cy);
+			_d2dContext.GetD2DDC()->SetRenderingControls(rc);
+		}*/
+
+		_outputSize = value;
+	}
+
 	void _AddAdaptiveSharpenEffect(const nlohmann::json& props) {
 		_CheckAndRegisterEffect(
 			CLSID_MAGPIE_ADAPTIVE_SHARPEN_EFFECT,
@@ -479,21 +504,6 @@ protected:
 		return scale;
 	}
 	
-	void _SetDestSize(SIZE value) {
-		// 似乎不再需要设置 tile
-		/*if (value.cx > _outputSize.cx || value.cy > _outputSize.cy) {
-		    // 增大 tile 的大小以容纳图像
-			D2D1_RENDERING_CONTROLS rc{};
-			_d2dContext.GetD2DDC()->GetRenderingControls(&rc);
-			
-			rc.tileSize.width = max(value.cx, _outputSize.cx);
-			rc.tileSize.height = max(value.cy, _outputSize.cy);
-			_d2dContext.GetD2DDC()->SetRenderingControls(rc);
-		}*/
-
-		_outputSize = value;
-	}
-
 
 	// 必要时注册 effect
 	void _CheckAndRegisterEffect(const GUID& effectID, std::function<HRESULT(ID2D1Factory1*)> registerFunc) {
@@ -508,7 +518,7 @@ protected:
 		}
 	}
 
-//private:
+private:
 	// 输出图像尺寸
 	SIZE _outputSize{};
 	D2D1_RECT_F _outputRect{};

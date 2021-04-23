@@ -13,23 +13,16 @@ public:
 	): EffectRendererBase(d2dContext, effectsJson, srcSize, hostClient) {
 		assert(srcSize.cx > 0 && srcSize.cy > 0);
 
-		_SetDestSize(srcSize);
-
 		Debug::ThrowIfComFailed(
 			d2dContext.GetD2DDC()->CreateEffect(CLSID_D2D1BitmapSource, &_d2dSourceEffect),
 			L"创建 D2D1BitmapSource 失败"
 		);
 		_outputEffect = _d2dSourceEffect;
 
-		_ReadEffectsJson(effectsJson);
-
-		// 计算输出位置，x 和 y 必须为整数，否则会使画面模糊
-		float x = float((_hostClient.right - _hostClient.left - _outputSize.cx) / 2);
-		float y = float((_hostClient.bottom - _hostClient.top - _outputSize.cy) / 2);
-		_outputRect = RectF(x, y, x + _outputSize.cx, y + _outputSize.cy);
+		_Init(effectsJson, srcSize);
 	}
 
-	virtual void SetInput(ComPtr<IUnknown> inputImg) override {
+	void SetInput(ComPtr<IUnknown> inputImg) override {
 		ComPtr<IWICBitmapSource> wicBitmap;
 		Debug::ThrowIfComFailed(
 			inputImg.As<IWICBitmapSource>(&wicBitmap),
@@ -54,6 +47,7 @@ protected:
 
 		return outputImg;
 	}
+
 private:
 	ComPtr<ID2D1Effect> _d2dSourceEffect = nullptr;
 	ComPtr<ID2D1Effect> _outputEffect = nullptr;
