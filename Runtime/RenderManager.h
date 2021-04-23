@@ -1,10 +1,12 @@
 #pragma once
 #include "pch.h"
 #include "Renderable.h"
-#include "EffectManager.h"
+#include "D2DImageEffectRenderer.h"
+#include "WICBitmapEffectRenderer.h"
 #include "D2DContext.h"
 #include "CursorManager.h"
 #include "FrameCatcher.h"
+#include "WindowCapturerBase.h"
 
 
 class RenderManager {
@@ -14,16 +16,21 @@ public:
 		const std::wstring_view& effectsJson,
 		const RECT& srcClient,
 		const RECT& hostClient,
+		CaptureredFrameType frameType,
 		bool noDisturb = false,
 		bool debugMode = false
-	) :  _d2dContext(d2dContext),
-		_noDisturb(noDisturb), _debugMode(debugMode), _srcClient(srcClient), _hostClient(hostClient),
-		_effectManager(new EffectManager(d2dContext, effectsJson, { srcClient.right- srcClient.left,srcClient.bottom- srcClient.top}, hostClient))
+	) :  _d2dContext(d2dContext), _noDisturb(noDisturb), _debugMode(debugMode),
+		_srcClient(srcClient), _hostClient(hostClient)
 	{
+		if (frameType == CaptureredFrameType::D2DImage) {
+			_effectRenderer.reset(new D2DImageEffectRenderer(d2dContext, effectsJson, { srcClient.right - srcClient.left,srcClient.bottom - srcClient.top }, hostClient));
+		} else {
+			_effectRenderer.reset(new WICBitmapEffectRenderer(d2dContext, effectsJson, { srcClient.right - srcClient.left,srcClient.bottom - srcClient.top }, hostClient));
+		}
 	}
 
 	void AddCursorManager(HINSTANCE hInst, IWICImagingFactory2* wicImgFactory) {
-		const auto& destRect = _effectManager->GetOutputRect();
+		const auto& destRect = _effectRenderer->GetOutputRect();
 
 		_cursorManager.reset(new CursorManager(
 			_d2dContext,
@@ -42,19 +49,17 @@ public:
 	}
 
 	void AddFrameCatcher() {
-		_frameCatcher.reset(new FrameCatcher(_d2dContext, _GetDWFactory(), _effectManager->GetOutputRect()));
+		_frameCatcher.reset(new FrameCatcher(_d2dContext, _GetDWFactory(), _effectRenderer->GetOutputRect()));
 	}
 
-	void Render(
-		ComPtr<ID2D1Bitmap> frame
-	) {
+	void Render(ComPtr<IUnknown> frame) {
 		assert(frame);
 
 		_d2dContext.Render([&]() {
 			_d2dContext.GetD2DDC()->Clear();
 
-			_effectManager->SetInput(frame);
-			_effectManager->Render();
+			_effectRenderer->SetInput(frame);
+			_effectRenderer->Render();
 
 			if (_frameCatcher) {
 				_frameCatcher->Render();
@@ -82,7 +87,7 @@ private:
 
 	ComPtr<IDWriteFactory> _dwFactory = nullptr;
 
-	std::unique_ptr<EffectManager> _effectManager = nullptr;
+	std::unique_ptr<EffectRendererBase> _effectRenderer = nullptr;
 	std::unique_ptr<CursorManager> _cursorManager = nullptr;
 	std::unique_ptr<FrameCatcher> _frameCatcher = nullptr;
 

@@ -54,9 +54,7 @@ public:
     }
 
     void Render(std::function<void()> renderFunc) {
-        if (_lowLantencyMode) {
-            WaitForSingleObjectEx(_frameLatencyWaitableObject, 1000, true);
-        }
+        WaitForSingleObjectEx(_frameLatencyWaitableObject, 1000, true);
 
         _d2dDC->BeginDraw();
 
@@ -149,7 +147,7 @@ private:
         // Allocate a descriptor.
         DXGI_SWAP_CHAIN_DESC1 swapChainDesc{};
         swapChainDesc.Flags = (_noVSync ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : 0) 
-            | (_lowLantencyMode ? DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT : 0);
+            | DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT;
         swapChainDesc.Width = _hostClient.right - _hostClient.left,
         swapChainDesc.Height = _hostClient.bottom - _hostClient.top,
         swapChainDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM; // this is the most common swapchain format
@@ -182,21 +180,12 @@ private:
             L"»ñÈ¡ IDXGISwapChain2 Ê§°Ü"
         );
         
-        if (_lowLantencyMode) {
-            Debug::ThrowIfComFailed(
-                _dxgiSwapChain->SetMaximumFrameLatency(1),
-                L"SetMaximumFrameLatency Ê§°Ü"
-            );
+        Debug::ThrowIfComFailed(
+            _dxgiSwapChain->SetMaximumFrameLatency(_lowLantencyMode ? 1 : 2),
+            L"SetMaximumFrameLatency Ê§°Ü"
+        );
 
-            _frameLatencyWaitableObject = _dxgiSwapChain->GetFrameLatencyWaitableObject();
-        } else {
-            // Ensure that DXGI doesn't queue more than one frame at a time.
-            Debug::ThrowIfComFailed(
-                dxgiDevice->SetMaximumFrameLatency(1),
-                L"SetMaximumFrameLatency Ê§°Ü"
-            );
-        }
-
+        _frameLatencyWaitableObject = _dxgiSwapChain->GetFrameLatencyWaitableObject();
 
         // Direct2D needs the dxgi version of the backbuffer surface pointer.
         ComPtr<IDXGISurface> dxgiBackBuffer = nullptr;

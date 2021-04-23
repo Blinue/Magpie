@@ -11,23 +11,23 @@ public:
 		D2DContext& d2dContext,
 		HWND hwndSrc,
 		const RECT& srcRect,
-		IWICImagingFactory2* wicImgFactory,
+		ComPtr<IWICImagingFactory2> wicImgFactory,
 		bool useBitblt = false
 	): WindowCapturerBase(d2dContext), _wicImgFactory(wicImgFactory), _srcRect(srcRect), _hwndSrc(hwndSrc), _useBitblt(useBitblt) {
 	}
 
-	ComPtr<ID2D1Bitmap> GetFrame() override {
-		ComPtr<IWICBitmapSource> wicBmp = _useBitblt ? _GetFrameWithBitblt() : _GetFrameWithNoBitblt();
-
-		ComPtr<ID2D1Bitmap> bmp;
-		_d2dContext.GetD2DDC()->CreateBitmapFromWicBitmap(wicBmp.Get(), &bmp);
-
-		return bmp;
+	ComPtr<IUnknown> GetFrame() override {
+		return _useBitblt ? _GetFrameWithBitblt() : _GetFrameWithNoBitblt();
 	}
 
 	bool IsAutoRender() override {
 		return false;
 	}
+
+	CaptureredFrameType GetFrameType() override {
+		return CaptureredFrameType::WICBitmap;
+	}
+
 private:
 	ComPtr<IWICBitmapSource> _GetFrameWithNoBitblt() {
 		SIZE srcSize = Utils::GetSize(_srcRect);
@@ -141,7 +141,7 @@ private:
 		return wicBmp;
 	}
 
-	IWICImagingFactory2* _wicImgFactory;
+	ComPtr<IWICImagingFactory2> _wicImgFactory;
 	const RECT& _srcRect;
 	HWND _hwndSrc;
 	bool _useBitblt;

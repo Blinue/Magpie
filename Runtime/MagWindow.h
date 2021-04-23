@@ -133,7 +133,7 @@ private:
                 *_d2dContext,
                 _hwndSrc,
                 _srcClient,
-                _wicImgFactory.Get()
+                _wicImgFactory
             ));
         } else {
             _windowCapturer.reset(new MagCallbackWindowCapturer(
@@ -149,6 +149,7 @@ private:
             effectsJson,
             _srcClient,
             _hostClient,
+            _windowCapturer->GetFrameType(),
             noDisturb
         ));
 

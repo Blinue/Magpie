@@ -208,10 +208,11 @@
     <ClInclude Include="Anime4KUpscaleDenoiseEffect.h" />
     <ClInclude Include="Anime4KUpscaleEffect.h" />
     <ClInclude Include="CursorManager.h" />
+    <ClInclude Include="D2DImageEffectRenderer.h" />
     <ClInclude Include="Debug.h" />
     <ClInclude Include="DrawTransformBase.h" />
     <ClInclude Include="EffectBase.h" />
-    <ClInclude Include="EffectManager.h" />
+    <ClInclude Include="EffectRendererBase.h" />
     <ClInclude Include="D2DContext.h" />
     <ClInclude Include="FrameCatcher.h" />
     <ClInclude Include="framework.h" />
@@ -233,6 +234,7 @@
     <ClInclude Include="SimpleScaleTransform.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="Utils.h" />
+    <ClInclude Include="WICBitmapEffectRenderer.h" />
     <ClInclude Include="WindowCapturerBase.h" />
     <ClInclude Include="WinRTCapturer.h" />
     <ClInclude Include="WndProcThunk.h" />

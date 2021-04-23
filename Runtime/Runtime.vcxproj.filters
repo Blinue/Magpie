@@ -89,12 +89,6 @@
     <ClInclude Include="Debug.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="EffectManager.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="D2DContext.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="framework.h">
       <Filter>头文件</Filter>
     </ClInclude>
@@ -176,29 +170,41 @@
     <ClInclude Include="Lanczos6ScaleTransform.h">
       <Filter>头文件\Effect\缩放</Filter>
     </ClInclude>
-    <ClInclude Include="CursorManager.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="WindowCapturerBase.h">
-      <Filter>头文件</Filter>
+    <ClInclude Include="GDIWindowCapturer.h">
+      <Filter>头文件\Capture</Filter>
     </ClInclude>
     <ClInclude Include="MagCallbackWindowCapturer.h">
-      <Filter>头文件</Filter>
+      <Filter>头文件\Capture</Filter>
     </ClInclude>
-    <ClInclude Include="GDIWindowCapturer.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="Renderable.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="FrameCatcher.h">
-      <Filter>头文件</Filter>
+    <ClInclude Include="WindowCapturerBase.h">
+      <Filter>头文件\Capture</Filter>
     </ClInclude>
     <ClInclude Include="WinRTCapturer.h">
-      <Filter>头文件</Filter>
+      <Filter>头文件\Capture</Filter>
+    </ClInclude>
+    <ClInclude Include="CursorManager.h">
+      <Filter>头文件\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="D2DContext.h">
+      <Filter>头文件\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="EffectRendererBase.h">
+      <Filter>头文件\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="FrameCatcher.h">
+      <Filter>头文件\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderable.h">
+      <Filter>头文件\Render</Filter>
     </ClInclude>
     <ClInclude Include="RenderManager.h">
-      <Filter>头文件</Filter>
+      <Filter>头文件\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="D2DImageEffectRenderer.h">
+      <Filter>头文件\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="WICBitmapEffectRenderer.h">
+      <Filter>头文件\Render</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -247,6 +253,12 @@
     </Filter>
     <Filter Include="头文件\Effect\缩放\Anime4K">
       <UniqueIdentifier>{827f48dd-9825-49ee-bde7-0ba8e779235c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\Capture">
+      <UniqueIdentifier>{6b867004-a0fd-4e2b-aa28-8fffcbdc9fbe}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\Render">
+      <UniqueIdentifier>{45015676-99ea-4ea3-9c14-3bc0e0130a34}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

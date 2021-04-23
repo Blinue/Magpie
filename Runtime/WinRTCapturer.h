@@ -98,7 +98,7 @@ public:
 		winrt::uninit_apartment();
 	}
 
-	ComPtr<ID2D1Bitmap> GetFrame() override {
+	ComPtr<IUnknown> GetFrame() override {
 		winrt::Direct3D11CaptureFrame frame = _captureFramePool.TryGetNextFrame();
 		if (!frame) {
 			// 缓冲池没有帧就返回 nullptr
@@ -159,6 +159,9 @@ public:
 		return true;
 	}
 
+	CaptureredFrameType GetFrameType() override {
+		return CaptureredFrameType::D2DImage;
+	}
 private:
 	void _FrameArrived(
 		const winrt::Direct3D11CaptureFramePool& sender,

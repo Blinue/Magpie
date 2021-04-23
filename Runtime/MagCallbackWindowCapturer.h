@@ -47,7 +47,7 @@ public:
         _instance = nullptr;
 	}
 
-    ComPtr<ID2D1Bitmap> GetFrame() override {
+    ComPtr<IUnknown> GetFrame() override {
         // MagSetWindowSource 是同步执行的
         if (!MagSetWindowSource(_hwndMag, _srcRect)) {
             Debug::WriteErrorMessage(L"MagSetWindowSource 失败");
@@ -58,6 +58,10 @@ public:
 
     bool IsAutoRender() override {
         return false;
+    }
+
+    CaptureredFrameType GetFrameType() override {
+        return CaptureredFrameType::D2DImage;
     }
 private:
     static BOOL CALLBACK _ImageScalingCallback(

@@ -13,60 +13,45 @@
 #include <unordered_set>
 
 
-class EffectManager : public Renderable {
+class EffectRendererBase : public Renderable {
 public:
-	EffectManager(
+	EffectRendererBase(
 		D2DContext& d2dContext,
 		const std::wstring_view& effectsJson,
 		const SIZE &srcSize,
 		const RECT& hostClient
 	): Renderable(d2dContext), _hostClient(hostClient) {
-		assert(srcSize.cx > 0 && srcSize.cy > 0);
-
-		_SetDestSize(srcSize);
-		_ReadEffectsJson(effectsJson);
-
-		// 计算输出位置，x 和 y 必须为整数，否则会使画面模糊
-		float x = float((_hostClient.right - _hostClient.left - _outputSize.cx) / 2);
-		float y = float((_hostClient.bottom - _hostClient.top - _outputSize.cy) / 2);
-		_outputRect = RectF(x, y, x + _outputSize.cx, y + _outputSize.cy);
 	}
+
+	virtual ~EffectRendererBase() {}
 
 	// 不可复制，不可移动
-	EffectManager(const EffectManager&) = delete;
-	EffectManager(EffectManager&&) = delete;
-
-
-	void Render() override {
-		if (_firstEffect) {
-			_firstEffect->SetInput(0, _inputBmp.Get());
-
-			ComPtr<ID2D1Image> outputImg = nullptr;
-			_outputEffect->GetOutput(&outputImg);
-
-			_d2dContext.GetD2DDC()->DrawImage(
-				outputImg.Get(),
-				Point2F(_outputRect.left, _outputRect.top)
-			);
-		} else {
-			_d2dContext.GetD2DDC()->DrawImage(
-				_inputBmp.Get(),
-				Point2F(_outputRect.left, _outputRect.top)
-			);
-		}
-	}
-
-	void SetInput(ComPtr<ID2D1Bitmap> srcBmp) {
-		assert(srcBmp != nullptr);
-
-		_inputBmp = srcBmp;
-	}
+	EffectRendererBase(const EffectRendererBase&) = delete;
+	EffectRendererBase(EffectRendererBase&&) = delete;
 
 	const D2D1_RECT_F& GetOutputRect() const {
 		return _outputRect;
 	}
 
-private:
+	virtual void SetInput(ComPtr<IUnknown> inputImg) = 0;
+
+	void Render() {
+		ComPtr<ID2D1Image> outputImg = _GetOutputImg();
+		const D2D_RECT_F& outputRect = GetOutputRect();
+
+		_d2dContext.GetD2DDC()->DrawImage(
+			outputImg.Get(),
+			Point2F(outputRect.left, outputRect.top)
+		);
+	}
+
+	
+protected:
+	// 将 effect 添加到 effect 链作为输出
+	virtual void _PushAsOutputEffect(ComPtr<ID2D1Effect> effect) = 0;
+
+	virtual ComPtr<ID2D1Image> _GetOutputImg() = 0;
+
 	void _ReadEffectsJson(const std::wstring_view& effectsJson) {
 		const auto& effects = nlohmann::json::parse(effectsJson);
 		Debug::Assert(effects.is_array(), L"json 格式错误");
@@ -112,6 +97,7 @@ private:
 		}
 	}
 
+//private:
 	void _AddAdaptiveSharpenEffect(const nlohmann::json& props) {
 		_CheckAndRegisterEffect(
 			CLSID_MAGPIE_ADAPTIVE_SHARPEN_EFFECT,
@@ -492,17 +478,6 @@ private:
 
 		return scale;
 	}
-
-	// 将 effect 添加到 effect 链作为输出
-	void _PushAsOutputEffect(ComPtr<ID2D1Effect> effect) {
-		if (_firstEffect) {
-			effect->SetInputEffect(0, _outputEffect.Get());
-			_outputEffect = effect;
-		} else {
-			_outputEffect = _firstEffect = effect;
-		}
-	}
-
 	
 	void _SetDestSize(SIZE value) {
 		// 似乎不再需要设置 tile
@@ -533,20 +508,13 @@ private:
 		}
 	}
 
-	ComPtr<ID2D1Bitmap> _inputBmp = nullptr;
-
-	ComPtr<ID2D1Effect> _firstEffect = nullptr;
-	ComPtr<ID2D1Effect> _outputEffect = nullptr;
-
+//private:
 	// 输出图像尺寸
 	SIZE _outputSize{};
 	D2D1_RECT_F _outputRect{};
-	
+
 	const RECT& _hostClient;
 
 	// 存储已注册的 effect 的 GUID
 	std::unordered_set<GUID> _registeredEffects;
-
-	// tile 的大小
-	SIZE _maxDestSize{};
 };
