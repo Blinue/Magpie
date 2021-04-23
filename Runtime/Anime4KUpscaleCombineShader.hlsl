@@ -26,11 +26,10 @@ D2D_PS_ENTRY(main) {
 	float l = Uncompress(D2DSampleInput(1, coord1.xy + (float2(0.5, 0.5) - f) * coord1.zw))[i.y * 2 + i.x];
 
 	// 消除因压缩产生的噪声
-	if (abs(l) > 0.01) {
-		float3 yuv = RGB2YUV(D2DSampleInput(0, coord0.xy).xyz);
-		return float4(YUV2RGB(yuv.x + l, yuv.y, yuv.z), 1);
-	} else {
+	if (abs(l) < 0.01) {
 		return D2DSampleInput(0, coord0.xy);
 	}
-	
+
+	float3 yuv = RGB2YUV(D2DSampleInput(0, coord0.xy).xyz);
+	return float4(YUV2RGB(yuv.x + l, yuv.y, yuv.z), 1);
 }
