@@ -32,7 +32,7 @@ BOOL APIENTRY DllMain(
 
 API_DECLSPEC void WINAPI RunMagWindow(
     void reportStatus(int status, const wchar_t* errorMsg),
-    const wchar_t* effectsJson,
+    const wchar_t* scaleModel,
     int captureMode,
     bool showFPS,
     bool lowLatencyMode,
@@ -48,7 +48,7 @@ API_DECLSPEC void WINAPI RunMagWindow(
             L"GetForegroundWindow 返回 NULL"
         );
 
-        MagWindow::CreateInstance(hInstance, hwnd, effectsJson, captureMode, showFPS, lowLatencyMode, noVSync, noDisturb);
+        MagWindow::CreateInstance(hInstance, hwnd, scaleModel, captureMode, showFPS, lowLatencyMode, noVSync, noDisturb);
     } catch(const magpie_exception& e) {
         reportStatus(0, e.what().c_str());
         return;

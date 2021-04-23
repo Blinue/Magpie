@@ -8,13 +8,13 @@ class D2DImageEffectRenderer : public EffectRendererBase {
 public:
 	D2DImageEffectRenderer(
 		D2DContext& d2dContext,
-		const std::wstring_view& effectsJson,
+		const std::wstring_view& scaleModel,
 		const SIZE& srcSize,
 		const RECT& hostClient
-	) : EffectRendererBase(d2dContext, effectsJson, srcSize, hostClient) {
+	) : EffectRendererBase(d2dContext, hostClient) {
 		assert(srcSize.cx > 0 && srcSize.cy > 0);
 
-		_Init(effectsJson, srcSize);
+		_Init(scaleModel, srcSize);
 	}
 
 	void SetInput(ComPtr<IUnknown> inputImg) override {

@@ -18,7 +18,7 @@ public:
     static void CreateInstance(
         HINSTANCE hInstance,
         HWND hwndSrc,
-        const std::wstring_view& effectsJson,
+        const std::wstring_view& scaleModel,
         int captureMode = 0,
         bool showFPS = false,
         bool lowLatencyMode = false,
@@ -28,7 +28,7 @@ public:
         $instance.reset(new MagWindow(
             hInstance,
             hwndSrc,
-            effectsJson,
+            scaleModel,
             captureMode,
             showFPS,
             lowLatencyMode,
@@ -67,7 +67,7 @@ private:
     MagWindow(
         HINSTANCE hInstance,
         HWND hwndSrc,
-        const std::wstring_view& effectsJson,
+        const std::wstring_view& scaleModel,
         int captureMode,
         bool showFPS,
         bool lowLatencyMode,
@@ -146,7 +146,7 @@ private:
 
         _renderManager.reset(new RenderManager(
             *_d2dContext,
-            effectsJson,
+            scaleModel,
             _srcClient,
             _hostClient,
             _windowCapturer->GetFrameType(),

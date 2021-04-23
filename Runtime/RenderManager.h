@@ -13,7 +13,7 @@ class RenderManager {
 public:
 	RenderManager(
 		D2DContext& d2dContext, 
-		const std::wstring_view& effectsJson,
+		const std::wstring_view& scaleModel,
 		const RECT& srcClient,
 		const RECT& hostClient,
 		CaptureredFrameType frameType,
@@ -23,9 +23,9 @@ public:
 		_srcClient(srcClient), _hostClient(hostClient)
 	{
 		if (frameType == CaptureredFrameType::D2DImage) {
-			_effectRenderer.reset(new D2DImageEffectRenderer(d2dContext, effectsJson, { srcClient.right - srcClient.left,srcClient.bottom - srcClient.top }, hostClient));
+			_effectRenderer.reset(new D2DImageEffectRenderer(d2dContext, scaleModel, { srcClient.right - srcClient.left,srcClient.bottom - srcClient.top }, hostClient));
 		} else {
-			_effectRenderer.reset(new WICBitmapEffectRenderer(d2dContext, effectsJson, { srcClient.right - srcClient.left,srcClient.bottom - srcClient.top }, hostClient));
+			_effectRenderer.reset(new WICBitmapEffectRenderer(d2dContext, scaleModel, { srcClient.right - srcClient.left,srcClient.bottom - srcClient.top }, hostClient));
 		}
 	}
 

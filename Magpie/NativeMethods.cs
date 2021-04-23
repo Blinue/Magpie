@@ -53,7 +53,7 @@ namespace Magpie {
         [return: MarshalAs(UnmanagedType.U1)]
         public static extern void RunMagWindow(
             ReportStatus reportStatus,
-            [MarshalAs(UnmanagedType.LPWStr)] string effectsJson,
+            [MarshalAs(UnmanagedType.LPWStr)] string scaleModel,
             int captureMode,
             [MarshalAs(UnmanagedType.U1)] bool showFPS,
             [MarshalAs(UnmanagedType.U1)] bool lowLatencyMode,

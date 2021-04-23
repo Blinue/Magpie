@@ -7,10 +7,10 @@ class WICBitmapEffectRenderer : public EffectRendererBase {
 public:
 	WICBitmapEffectRenderer(
 		D2DContext& d2dContext,
-		const std::wstring_view& effectsJson,
+		const std::wstring_view& scaleModel,
 		const SIZE& srcSize,
 		const RECT& hostClient
-	): EffectRendererBase(d2dContext, effectsJson, srcSize, hostClient) {
+	): EffectRendererBase(d2dContext, hostClient) {
 		assert(srcSize.cx > 0 && srcSize.cy > 0);
 
 		Debug::ThrowIfComFailed(
@@ -19,7 +19,7 @@ public:
 		);
 		_outputEffect = _d2dSourceEffect;
 
-		_Init(effectsJson, srcSize);
+		_Init(scaleModel, srcSize);
 	}
 
 	void SetInput(ComPtr<IUnknown> inputImg) override {

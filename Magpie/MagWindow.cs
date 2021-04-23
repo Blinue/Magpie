@@ -43,7 +43,7 @@ namespace Magpie {
         }
 
         public void Create(
-            string effectsJson,
+            string scaleModel,
             int captureMode,
             bool showFPS,
             bool lowLatencyMode,
@@ -60,7 +60,7 @@ namespace Magpie {
             magThread = new Thread(() => {
                 NativeMethods.RunMagWindow(
                     (int status, IntPtr errorMsg) => StatusEvent(status, Marshal.PtrToStringUni(errorMsg)),
-                    effectsJson,    // 缩放模式
+                    scaleModel,    // 缩放模式
                     captureMode,    // 抓取模式
                     showFPS,        // 显示 FPS
                     lowLatencyMode, // 低延迟模式

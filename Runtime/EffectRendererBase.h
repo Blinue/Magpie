@@ -17,8 +17,6 @@ class EffectRendererBase : public Renderable {
 public:
 	EffectRendererBase(
 		D2DContext& d2dContext,
-		const std::wstring_view& effectsJson,
-		const SIZE &srcSize,
 		const RECT& hostClient
 	): Renderable(d2dContext), _hostClient(hostClient) {
 	}
@@ -47,9 +45,9 @@ public:
 
 	
 protected:
-	void _Init(const std::wstring_view& effectsJson,  const SIZE& srcSize) {
+	void _Init(const std::wstring_view& scaleModel,  const SIZE& srcSize) {
 		_SetDestSize(srcSize);
-		_ReadEffectsJson(effectsJson);
+		_ReadEffectsJson(scaleModel);
 
 		// 计算输出位置，x 和 y 必须为整数，否则会使画面模糊
 		float x = float((_hostClient.right - _hostClient.left - _outputSize.cx) / 2);
@@ -63,8 +61,8 @@ protected:
 	virtual ComPtr<ID2D1Image> _GetOutputImg() = 0;
 
 private:
-	void _ReadEffectsJson(const std::wstring_view& effectsJson) {
-		const auto& effects = nlohmann::json::parse(effectsJson);
+	void _ReadEffectsJson(const std::wstring_view& scaleModel) {
+		const auto& effects = nlohmann::json::parse(scaleModel);
 		Debug::Assert(effects.is_array(), L"json 格式错误");
 
 		for (const auto &effect : effects) {
