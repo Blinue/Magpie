@@ -67,6 +67,9 @@
     <FxCompile Include="Anime4KDeblurKernelShader.hlsl">
       <Filter>着色器\缩放\Anime4K</Filter>
     </FxCompile>
+    <FxCompile Include="PixelScaleShader.hlsl">
+      <Filter>着色器\缩放</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GUIDs.cpp">
@@ -205,6 +208,12 @@
     </ClInclude>
     <ClInclude Include="WICBitmapEffectRenderer.h">
       <Filter>头文件\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="PixelScaleTransform.h">
+      <Filter>头文件\Effect\缩放</Filter>
+    </ClInclude>
+    <ClInclude Include="PixelScaleEffect.h">
+      <Filter>头文件\Effect\缩放</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

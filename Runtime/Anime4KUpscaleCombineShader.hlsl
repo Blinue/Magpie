@@ -16,9 +16,9 @@ cbuffer constants : register(b0) {
 
 D2D_PS_ENTRY(main) {
 	float4 coord0 = D2DGetInputCoordinate(0);
-	coord0.xy /= float2(2,2);	// 将 dest 坐标映射为 src 坐标
+	coord0.xy = coord0.xy / 2;	// 将 dest 坐标映射为 src 坐标
 	float4 coord1 = D2DGetInputCoordinate(1);
-	coord1.xy /= float2(2, 2);	// 将 dest 坐标映射为 src 坐标
+	coord1.xy = coord1.xy / 2;	// 将 dest 坐标映射为 src 坐标
 
 	float2 f = frac(coord1.xy / coord1.zw);
 	// 截取整数部分，如果使用 round 会有 bug，因为在特殊情况下 f 可能等于 0.75
@@ -28,8 +28,8 @@ D2D_PS_ENTRY(main) {
 	// 消除因压缩产生的噪声
 	if (abs(l) < 0.01) {
 		return D2DSampleInput(0, coord0.xy);
+	} else {
+		float3 yuv = RGB2YUV(D2DSampleInput(0, coord0.xy).xyz);
+		return float4(YUV2RGB(yuv.x + l, yuv.y, yuv.z), 1);
 	}
-
-	float3 yuv = RGB2YUV(D2DSampleInput(0, coord0.xy).xyz);
-	return float4(YUV2RGB(yuv.x + l, yuv.y, yuv.z), 1);
 }

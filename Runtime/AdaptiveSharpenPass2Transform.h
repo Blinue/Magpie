@@ -36,7 +36,7 @@ public:
         return _curveHeight;
     }
 protected:
-    void SetShaderContantBuffer(const SIZE& srcSize) override {
+    void _SetShaderContantBuffer(const SIZE& srcSize) override {
         struct {
             INT32 srcWidth;
             INT32 srcHeight;

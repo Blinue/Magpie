@@ -3,7 +3,6 @@
 #include "GUIDs.h"
 #include "Jinc2ScaleTransform.h"
 #include "EffectBase.h"
-#include <d2d1effecthelpers.h>
 
 
 // Jinc2 Àı∑≈À„∑®
@@ -104,7 +103,7 @@ public:
             <Effect>
                 <!--System Properties-->
                 <Property name='DisplayName' type='string' value='Jinc2 Scale'/>
-                <Property name='Author' type='string' value='Xu Liu'/>
+                <Property name='Author' type='string' value='Blinue'/>
                 <Property name='Category' type='string' value='Scale'/>
                 <Property name='Description' type='string' value='Jinc2 Scale'/>
                 <Inputs>

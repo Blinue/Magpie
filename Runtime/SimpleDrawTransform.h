@@ -16,9 +16,9 @@ public:
     virtual ~SimpleDrawTransform() {}
 
     static HRESULT Create(
-        _In_ ID2D1EffectContext* d2dEC, 
+        _In_ ID2D1EffectContext* d2dEC,
         _Outptr_ SimpleDrawTransform** ppOutput,
-        _In_ const wchar_t* shaderPath, 
+        _In_ const wchar_t* shaderPath,
         const GUID &shaderID
     ) {
         if (!ppOutput) {
@@ -52,7 +52,7 @@ public:
             return hr;
         }
 
-        SetShaderContantBuffer(SIZE {
+        _SetShaderContantBuffer(SIZE {
             pInputRects->right - pInputRects->left,
             pInputRects->bottom - pInputRects->top
         });
@@ -67,7 +67,7 @@ public:
 
 protected:
     // 继承的类可以覆盖此方法向着色器传递参数
-    virtual void SetShaderContantBuffer(const SIZE& srcSize) {
+    virtual void _SetShaderContantBuffer(const SIZE& srcSize) {
         struct {
             INT32 srcWidth;
             INT32 srcHeight;

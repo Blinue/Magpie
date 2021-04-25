@@ -4,6 +4,7 @@
 
 using namespace D2D1;
 
+
 class D2DContext {
 public:
 	D2DContext(

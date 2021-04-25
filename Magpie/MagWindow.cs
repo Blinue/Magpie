@@ -60,7 +60,7 @@ namespace Magpie {
             magThread = new Thread(() => {
                 NativeMethods.RunMagWindow(
                     (int status, IntPtr errorMsg) => StatusEvent(status, Marshal.PtrToStringUni(errorMsg)),
-                    scaleModel,    // 缩放模式
+                    scaleModel,     // 缩放模式
                     captureMode,    // 抓取模式
                     showFPS,        // 显示 FPS
                     lowLatencyMode, // 低延迟模式

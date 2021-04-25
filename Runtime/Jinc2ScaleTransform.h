@@ -3,6 +3,7 @@
 #include "GUIDs.h"
 #include "SimpleScaleTransform.h"
 
+
 // 为 Jinc2ScaleShader.hlsl 提供参数
 // 参数：
 //   windowSinc：必须大于0，值越小图像越清晰，但会有锯齿。默认值为 0.5

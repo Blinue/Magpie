@@ -25,12 +25,14 @@
 
 static float4 coord = 0;
 
-#define SampleInputNoCheck(index, pos) (D2DSampleInput(index, pos).rgb)
 #define SampleInputRGBANoCheck(index, pos) (D2DSampleInput(index, pos))
-#define SampleInputOffNoCheck(index, pos) (SampleInputNoCheck(index, coord.xy + pos * coord.zw))
 #define SampleInputRGBAOffNoCheck(index, pos) (SampleInputRGBANoCheck(index, coord.xy + pos * coord.zw))
-#define SampleInputCur(index) (D2DSampleInput(index, coord.xy).rgb)
 #define SampleInputRGBACur(index) (D2DSampleInput(index, coord.xy))
+
+#define SampleInputNoCheck(index, pos) (SampleInputRGBANoCheck(index, pos).rgb)
+#define SampleInputOffNoCheck(index, pos) (SampleInputRGBAOffNoCheck(index, pos).rgb)
+#define SampleInputCur(index) (SampleInputRGBACur(index).rgb)
+
 
 static float2 _maxCoord = 0;
 
@@ -78,7 +80,7 @@ void InitMagpieSampleInput() {
 
 void InitMagpieSampleInputWithScale(float2 scale) {
 	coord = D2DGetInputCoordinate(0);
-	coord.xy /= scale;	// 将 dest 坐标映射为 src 坐标
+	coord.xy = coord.xy / scale;	// 将 dest 坐标映射为 src 坐标
 	_maxCoord = float2((srcSize.x - 1) * coord.z, (srcSize.y - 1) * coord.w);
 }
 

@@ -66,7 +66,7 @@ public:
                 <Effect>
                 <!--System Properties-->
                 <Property name='DisplayName' type='string' value='Mitchell-Netravali Scale' />
-                <Property name='Author' type='string' value='Xu Liu' />
+                <Property name='Author' type='string' value='Blinue' />
                 <Property name='Category' type='string' value='Scale' />
                 <Property name='Description' type='string' value='Mitchell-Netravali scale algorithm' />
                 <Inputs>

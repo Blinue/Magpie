@@ -9,6 +9,7 @@
 #include "Jinc2ScaleEffect.h"
 #include "MitchellNetravaliScaleEffect.h"
 #include "Lanczos6ScaleEffect.h"
+#include "PixelScaleEffect.h"
 #include "nlohmann/json.hpp"
 #include <unordered_set>
 
@@ -87,6 +88,8 @@ private:
 					_AddHQBicubicScaleEffect(effect);
 				} else if (subType == "lanczos6") {
 					_AddLanczos6ScaleEffect(effect);
+				} else if (subType == "pixel") {
+					_AddPixelScaleEffect(effect);
 				} else {
 					Debug::Assert(false, L"未知的 scale effect");
 				}
@@ -476,6 +479,36 @@ private:
 		_PushAsOutputEffect(effect);
 	}
 
+	void _AddPixelScaleEffect(const nlohmann::json& props) {
+		_CheckAndRegisterEffect(
+			CLSID_MAGPIE_PIXEL_SCALE_EFFECT,
+			&PixelScaleEffect::Register
+		);
+
+		ComPtr<ID2D1Effect> effect = nullptr;
+		Debug::ThrowIfComFailed(
+			_d2dContext.GetD2DDC()->CreateEffect(CLSID_MAGPIE_PIXEL_SCALE_EFFECT, &effect),
+			L"创建 Pixel Scale Effect 失败"
+		);
+
+		// scale 属性
+		auto it = props.find("scale");
+		if (it != props.end()) {
+			Debug::Assert(it->is_number_integer(), L"非法的Scale属性值");
+			int scale = *it;
+
+			Debug::ThrowIfComFailed(
+				effect->SetValue(PixelScaleEffect::PROP_SCALE, scale),
+				L"设置 scale 属性失败"
+			);
+
+			// 存在 scale 则输出图像尺寸改变
+			_SetDestSize(SIZE{ _outputSize.cx * scale, _outputSize.cy * scale });
+		}
+
+		// 替换 output effect
+		_PushAsOutputEffect(effect);
+	}
 
 	D2D1_VECTOR_2F _ReadScaleProp(const nlohmann::json& prop) {
 		Debug::Assert(

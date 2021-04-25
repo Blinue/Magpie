@@ -184,6 +184,36 @@
         "curveHeight": 0.2
       }
     ]
+  },
+  {
+    "name": "像素 2x",
+    "model": [
+      {
+        "effect": "scale",
+        "type": "pixel",
+        "scale": 2
+      }
+    ]
+  },
+  {
+    "name": "像素 3x",
+    "model": [
+      {
+        "effect": "scale",
+        "type": "pixel",
+        "scale": 3
+      }
+    ]
+  },
+  {
+    "name": "像素 4x",
+    "model": [
+      {
+        "effect": "scale",
+        "type": "pixel",
+        "scale": 4
+      }
+    ]
   }
 ]</value>
   </data>

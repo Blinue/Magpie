@@ -86,7 +86,7 @@ public:
             <Effect>
                 <!--System Properties-->
                 <Property name='DisplayName' type='string' value='Adaptive Sharpen' />
-                <Property name='Author' type='string' value='Xu Liu' />
+                <Property name='Author' type='string' value='Blinue' />
                 <Property name='Category' type='string' value='Sharpen' />
                 <Property name='Description' type='string' value='Adaptive Sharpen' />
                 <Inputs>

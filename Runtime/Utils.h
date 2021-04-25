@@ -121,7 +121,10 @@ public:
             wicImgFactory->CreateImageEncoder(d2dDevice.Get(), &d2dImgEncoder),
             L"´´½¨ IWICImageEncoder Ê§°Ü"
         );
-        d2dImgEncoder->WriteFrame(img.Get(), frameEncoder.Get(), nullptr);
+        Debug::ThrowIfComFailed(
+            d2dImgEncoder->WriteFrame(img.Get(), frameEncoder.Get(), nullptr),
+            L"IWICImageEncoder.WriteFrameÊ§°Ü"
+        );
         
         Debug::ThrowIfComFailed(frameEncoder->Commit(), L"IWICBitmapFrameEncode.Commit Ê§°Ü");
         Debug::ThrowIfComFailed(bmpEncoder->Commit(), L"IWICBitmapEncoder.Commit Ê§°Ü");
