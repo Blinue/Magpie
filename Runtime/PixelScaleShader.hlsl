@@ -16,5 +16,6 @@ cbuffer constants : register(b0) {
 D2D_PS_ENTRY(main) {
 	InitMagpieSampleInputWithScale(float2(scale, scale));
 
+	// 不加上 0.5 会使画面模糊
 	return SampleInputRGBANoCheck(0, (int2(coord.xy / coord.zw) + 0.5) * coord.zw);
 }

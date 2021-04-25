@@ -3,6 +3,7 @@
 #include "EffectRendererBase.h"
 
 
+// ÊäÈëÎª IWICBitmapSource
 class WICBitmapEffectRenderer : public EffectRendererBase {
 public:
 	WICBitmapEffectRenderer(

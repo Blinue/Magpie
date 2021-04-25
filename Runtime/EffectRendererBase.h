@@ -14,6 +14,9 @@
 #include <unordered_set>
 
 
+// 取决于不同的捕获方式，会有不同种类的输入，此类包含它们通用的部分
+// 继承此类需要实现 SetInput、_PushAsOutputEffect、_GetOutputImg
+// 并在构造函数中调用 _Init
 class EffectRendererBase : public Renderable {
 public:
 	EffectRendererBase(

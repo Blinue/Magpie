@@ -69,11 +69,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CursorHookBase.cs" />
     <Compile Include="InjectionEntryPoint.cs" />
     <Compile Include="NativeMethods.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RuntimeCursorHook.cs" />
     <Compile Include="SafeCursorHandle.cs" />
     <Compile Include="ServerInterface.cs" />
+    <Compile Include="StartUpCursorHook.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

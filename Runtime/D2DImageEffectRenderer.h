@@ -3,7 +3,7 @@
 #include "EffectRendererBase.h"
 
 
-// 输入为 D2D1Image
+// 输入为 ID2D1Image
 class D2DImageEffectRenderer : public EffectRendererBase {
 public:
 	D2DImageEffectRenderer(

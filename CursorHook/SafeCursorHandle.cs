@@ -3,6 +3,7 @@ using Microsoft.Win32.SafeHandles;
 
 
 namespace Magpie.CursorHook {
+    // HCURSOR 的安全包装
     class SafeCursorHandle : SafeHandleZeroOrMinusOneIsInvalid {
         public SafeCursorHandle() : base(true) {
         }
