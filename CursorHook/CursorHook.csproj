@@ -71,6 +71,7 @@
   <ItemGroup>
     <Compile Include="CursorHookBase.cs" />
     <Compile Include="InjectionEntryPoint.cs" />
+    <Compile Include="IpcServer.cs" />
     <Compile Include="NativeMethods.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RuntimeCursorHook.cs" />

@@ -1,12 +1,10 @@
 ﻿using System;
 
-
 namespace Magpie.CursorHook {
-#if DEBUG
     // IPC 服务器接口
     public class ServerInterface : MarshalByRefObject {
         public void ReportMessages(string[] messages) {
-            if(messages == null) {
+            if (messages == null) {
                 return;
             }
 
@@ -24,5 +22,4 @@ namespace Magpie.CursorHook {
         public void Ping() {
         }
     }
-#endif
 }
