@@ -93,6 +93,8 @@ namespace Magpie {
 #if DEBUG
             // DEBUG 时创建 IPC server
             RemoteHooking.IpcCreateServer<ServerInterface>(ref channelName, WellKnownObjectMode.Singleton);
+#else
+            channelName = "";
 #endif
 
             // 获取 CursorHook.dll 的绝对路径
@@ -122,6 +124,8 @@ namespace Magpie {
 #if DEBUG
             // DEBUG 时创建 IPC server
             RemoteHooking.IpcCreateServer<ServerInterface>(ref channelName, WellKnownObjectMode.Singleton);
+#else
+            channelName = "";
 #endif
 
             // 获取 CursorHook.dll 的绝对路径

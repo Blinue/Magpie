@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Magpie.CursorHook {
     abstract class CursorHookBase : IDisposable {
-        private IpcServer ipcServer = null;
+        private readonly IpcServer ipcServer;
 
         protected IntPtr hwndHost = IntPtr.Zero;
         protected IntPtr hwndSrc = IntPtr.Zero;
@@ -145,35 +145,19 @@ namespace Magpie.CursorHook {
 
         protected void ReportToServer(string msg) {
             lock (ipcServer) {
-                if (ipcServer == null) {
-                    return;
-                }
-
                 ipcServer.AddMessage(msg);
             }
         }
 
         protected void ReportIfFalse(bool flag, string msg) {
-            lock (ipcServer) {
-                if (ipcServer != null && !flag) {
-                    ReportToServer("出错: " + msg);
-                }
+            if (!flag) {
+                ReportToServer("出错: " + msg);
             }
         }
 
         protected void SendMessages() {
             lock (ipcServer) {
-                if (ipcServer == null) {
-                    return;
-                }
-
-                try {
-                    ipcServer.Send();
-                } catch {
-                    // IPC 服务器已关闭
-                    // 只会在调试环境下发生
-                    ipcServer = null;
-                }
+                ipcServer.Send();
             }
         }
 

@@ -16,7 +16,6 @@ namespace Magpie.CursorHook {
     /// 注入后此类将成为入口
     /// </summary>
     public class InjectionEntryPoint : EasyHook.IEntryPoint {
-        private readonly IpcServer ipcServer = null;
         private readonly CursorHookBase cursorHook = null;
 
         // 运行时注入的入口
@@ -25,20 +24,12 @@ namespace Magpie.CursorHook {
             string channelName,
             IntPtr hwndSrc
         ) {
-            if(!string.IsNullOrEmpty(channelName)) {
-                ipcServer = new IpcServer(channelName);
-            }
-
-            cursorHook = new RuntimeCursorHook(hwndSrc, ipcServer);
+            cursorHook = new RuntimeCursorHook(hwndSrc, new IpcServer(channelName));
         }
 
         // 启动时注入的入口
         public InjectionEntryPoint(EasyHook.RemoteHooking.IContext _, string channelName) {
-            if (!string.IsNullOrEmpty(channelName)) {
-                ipcServer = new IpcServer(channelName);
-            }
-
-            cursorHook = new StartUpCursorHook(ipcServer);
+            cursorHook = new StartUpCursorHook(new IpcServer(channelName));
         }
 
         // 运行时注入逻辑的入口
