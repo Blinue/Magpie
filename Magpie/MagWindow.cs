@@ -89,8 +89,8 @@ namespace Magpie {
                 return;
             }
 
-#if DEBUG
             string channelName = null;
+#if DEBUG
             // DEBUG 时创建 IPC server
             RemoteHooking.IpcCreateServer<ServerInterface>(ref channelName, WellKnownObjectMode.Singleton);
 #endif
@@ -108,9 +108,7 @@ namespace Magpie {
                 injectionLibrary,   // 32 位 DLL
                 injectionLibrary,   // 64 位 DLL
                 // 下面为传递给注入 DLL 的参数
-#if DEBUG
                 channelName,
-#endif
                 hwndSrc
                 );
             } catch (Exception e) {
@@ -119,8 +117,9 @@ namespace Magpie {
         }
 
         public void HookCursorAtStartUp(string exePath) {
-#if DEBUG
+
             string channelName = null;
+#if DEBUG
             // DEBUG 时创建 IPC server
             RemoteHooking.IpcCreateServer<ServerInterface>(ref channelName, WellKnownObjectMode.Singleton);
 #endif
@@ -138,11 +137,9 @@ namespace Magpie {
                     0,          // 传递给 CreateProcess 的标志
                     injectionLibrary,   // 32 位 DLL
                     injectionLibrary,   // 64 位 DLL
-                    out int _  // 忽略进程 ID
+                    out int _,  // 忽略进程 ID
                                // 下面为传递给注入 DLL 的参数
-#if DEBUG
-                    , channelName
-#endif
+                    channelName
                 );
             } catch (Exception e) {
                 Console.WriteLine("CursorHook 注入失败：" + e.Message);
