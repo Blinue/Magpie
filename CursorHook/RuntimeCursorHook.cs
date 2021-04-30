@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 
 namespace Magpie.CursorHook {
+    // 运行时钩子
     class RuntimeCursorHook : CursorHookBase {
         public RuntimeCursorHook(IntPtr hwndSrc, IpcServer server) : base(server) {
             hwndHost = NativeMethods.FindWindow(HOST_WINDOW_CLASS_NAME, IntPtr.Zero);

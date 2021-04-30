@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 
 namespace Magpie.CursorHook {
+    // 启动时钩子
     class StartUpCursorHook : CursorHookBase {
         public StartUpCursorHook(IpcServer server): base(server) {
         }

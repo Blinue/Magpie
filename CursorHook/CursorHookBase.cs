@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Magpie.CursorHook {
+    // 运行时钩子和启动时钩子通用的部分
     abstract class CursorHookBase : IDisposable {
         private readonly IpcServer ipcServer;
 
@@ -215,7 +216,7 @@ namespace Magpie.CursorHook {
 
             // 替换源窗口和它的所有子窗口的窗口类的 HCRUSOR
             ReplaceHCursor(hwndSrc);
-            NativeMethods.EnumChildWindows(hwndSrc, (IntPtr hWnd, int _1) => {
+            NativeMethods.EnumChildWindows(hwndSrc, (IntPtr hWnd, int _) => {
                 ReplaceHCursor(hWnd);
                 return true;
             }, IntPtr.Zero);

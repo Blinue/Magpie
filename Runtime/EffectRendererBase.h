@@ -39,11 +39,10 @@ public:
 
 	void Render() {
 		ComPtr<ID2D1Image> outputImg = _GetOutputImg();
-		const D2D_RECT_F& outputRect = GetOutputRect();
 
 		_d2dContext.GetD2DDC()->DrawImage(
 			outputImg.Get(),
-			Point2F(outputRect.left, outputRect.top)
+			Point2F(_outputRect.left, _outputRect.top)
 		);
 	}
 

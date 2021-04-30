@@ -86,7 +86,6 @@ public:
 	~WinRTCapturer() {
 		if (_frameArrivedRevoker) {
 			_frameArrivedRevoker.revoke();
-			_frameArrivedRevoker = {};
 		}
 		if (_captureSession) {
 			_captureSession.Close();
