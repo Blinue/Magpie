@@ -1,6 +1,5 @@
 #pragma once
 #include "pch.h"
-#include "GUIDs.h"
 #include "Jinc2ScaleTransform.h"
 #include "EffectBase.h"
 

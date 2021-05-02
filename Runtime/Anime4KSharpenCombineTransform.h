@@ -1,61 +1,70 @@
 #pragma once
 #include "pch.h"
-#include "GUIDs.h"
-#include "DrawTransformBase.h"
+#include "SimpleDrawTransform.h"
 
 
-class Anime4KUpscaleDenoiseConvReduceTransform : public DrawTransformBase {
+class Anime4KSharpenCombineTransform : public SimpleDrawTransform {
 private:
-    Anime4KUpscaleDenoiseConvReduceTransform() {}
+    Anime4KSharpenCombineTransform() : SimpleDrawTransform(GUID_MAGPIE_ANIME4K_SHARPEN_COMBINE_SHADER){}
+
 public:
-    static HRESULT Create(_In_ ID2D1EffectContext* d2dEC, _Outptr_ Anime4KUpscaleDenoiseConvReduceTransform** ppOutput) {
+    static HRESULT Create(_In_ ID2D1EffectContext* d2dEC, _Outptr_ Anime4KSharpenCombineTransform** ppOutput) {
         *ppOutput = nullptr;
 
         HRESULT hr = DrawTransformBase::LoadShader(
-            d2dEC,
-            MAGPIE_ANIME4K_UPSCALE_DENOISE_CONV_REDUCE_SHADER,
-            GUID_MAGPIE_ANIME4K_UPSCALE_DENOISE_CONV_REDUCE_SHADER
+            d2dEC, 
+            MAGPIE_ANIME4K_SHARPEN_COMBINE_SHADER, 
+            GUID_MAGPIE_ANIME4K_SHARPEN_COMBINE_SHADER
         );
         if (FAILED(hr)) {
             return hr;
         }
 
-        *ppOutput = new Anime4KUpscaleDenoiseConvReduceTransform();
+        *ppOutput = new Anime4KSharpenCombineTransform();
 
         return S_OK;
     }
 
     // ID2D1TransformNode Methods:
-    IFACEMETHODIMP_(UINT32) GetInputCount() const {
-        return 5;
+    IFACEMETHODIMP_(UINT32) GetInputCount() const override {
+        return 2;
     }
 
-    // ID2D1Transform Methods:
     IFACEMETHODIMP MapInputRectsToOutputRect(
         _In_reads_(inputRectCount) const D2D1_RECT_L* pInputRects,
         _In_reads_(inputRectCount) const D2D1_RECT_L* pInputOpaqueSubRects,
         UINT32 inputRectCount,
         _Out_ D2D1_RECT_L* pOutputRect,
         _Out_ D2D1_RECT_L* pOutputOpaqueSubRect
-    ) {
-        if (inputRectCount != 5) {
+    ) override {
+        if (inputRectCount != 2) {
             return E_INVALIDARG;
         }
         if (pInputRects[0].right - pInputRects[0].left != pInputRects[1].right - pInputRects[1].left
             || pInputRects[0].bottom - pInputRects[0].top != pInputRects[1].bottom - pInputRects[1].top
-            || pInputRects[0].right - pInputRects[0].left != pInputRects[2].right - pInputRects[2].left
-            || pInputRects[0].bottom - pInputRects[0].top != pInputRects[2].bottom - pInputRects[2].top
-            || pInputRects[0].right - pInputRects[0].left != pInputRects[3].right - pInputRects[3].left
-            || pInputRects[0].bottom - pInputRects[0].top != pInputRects[3].bottom - pInputRects[3].top
-            || pInputRects[0].right - pInputRects[0].left != pInputRects[4].right - pInputRects[4].left
-            || pInputRects[0].bottom - pInputRects[0].top != pInputRects[4].bottom - pInputRects[4].top
             ) {
             return E_INVALIDARG;
         }
 
-        *pOutputRect = pInputRects[0];
         _inputRect = pInputRects[0];
-        *pOutputOpaqueSubRect = { 0,0,0,0 };
+        *pOutputRect = {
+            0,
+            0,
+            _inputRect.right * 2,
+            _inputRect.bottom * 2,
+        };
+        *pOutputOpaqueSubRect = {};
+
+        struct {
+            INT32 width;
+            INT32 height;
+            FLOAT curveHeight;
+        } _shaderConstants = {
+            _inputRect.right,
+            _inputRect.bottom,
+            _curveHeight
+        };
+        _drawInfo->SetPixelShaderConstantBuffer((BYTE*)&_shaderConstants, sizeof(_shaderConstants));
 
         return S_OK;
     }
@@ -64,15 +73,14 @@ public:
         _In_ const D2D1_RECT_L* pOutputRect,
         _Out_writes_(inputRectCount) D2D1_RECT_L* pInputRects,
         UINT32 inputRectCount
-    ) const {
-        if (inputRectCount != 5) {
+    ) const override {
+        if (inputRectCount != 2) {
             return E_INVALIDARG;
         }
 
         // The input needed for the transform is the same as the visible output.
-        for (int i = 0; i < 5; ++i) {
-            pInputRects[i] = _inputRect;
-        }
+        pInputRects[0] = _inputRect;
+        pInputRects[1] = _inputRect;
 
         return S_OK;
     }
@@ -81,9 +89,9 @@ public:
         UINT32 inputIndex,
         D2D1_RECT_L invalidInputRect,
         _Out_ D2D1_RECT_L* pInvalidOutputRect
-    ) const {
+    ) const override {
         // This transform is designed to only accept one input.
-        if (inputIndex >= 5) {
+        if (inputIndex >= 2) {
             return E_INVALIDARG;
         }
 
@@ -94,11 +102,15 @@ public:
         return S_OK;
     }
 
-    IFACEMETHODIMP SetDrawInfo(ID2D1DrawInfo* pDrawInfo) {
-        _drawInfo = pDrawInfo;
-        return pDrawInfo->SetPixelShader(GUID_MAGPIE_ANIME4K_UPSCALE_DENOISE_CONV_REDUCE_SHADER);
+    void SetCurveHeight(float value) {
+        assert(value >= 0);
+        _curveHeight = value;
+    }
+
+    float GetCurveHeight() {
+        return _curveHeight;
     }
 
 private:
-    ComPtr<ID2D1DrawInfo> _drawInfo = nullptr;
+    float _curveHeight = 0;
 };

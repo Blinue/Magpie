@@ -1,52 +1,46 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <FxCompile Include="Anime4KUpscaleConv4x3x3x1Shader.hlsl">
+    <FxCompile Include="Anime4KConv4x3x3x1Shader.hlsl">
       <Filter>着色器\缩放\Anime4K</Filter>
     </FxCompile>
-    <FxCompile Include="Anime4KUpscaleConv4x3x3x8Shader1.hlsl">
+    <FxCompile Include="Anime4KConv4x3x3x8Pass1Shader.hlsl">
       <Filter>着色器\缩放\Anime4K</Filter>
     </FxCompile>
-    <FxCompile Include="Anime4KUpscaleConv4x3x3x8Shader2.hlsl">
+    <FxCompile Include="Anime4KConv4x3x3x8Pass2Shader.hlsl">
       <Filter>着色器\缩放\Anime4K</Filter>
     </FxCompile>
-    <FxCompile Include="Anime4KUpscaleConv4x3x3x8Shader3.hlsl">
+    <FxCompile Include="Anime4KConv4x3x3x8Pass3Shader.hlsl">
       <Filter>着色器\缩放\Anime4K</Filter>
     </FxCompile>
-    <FxCompile Include="Anime4KUpscaleConv4x3x3x8Shader4.hlsl">
+    <FxCompile Include="Anime4KConv4x3x3x8Pass4Shader.hlsl">
       <Filter>着色器\缩放\Anime4K</Filter>
     </FxCompile>
-    <FxCompile Include="Anime4KUpscaleConv4x3x3x8Shader5.hlsl">
+    <FxCompile Include="Anime4KConv4x3x3x8Pass5Shader.hlsl">
       <Filter>着色器\缩放\Anime4K</Filter>
     </FxCompile>
-    <FxCompile Include="Anime4KUpscaleConvReduceShader.hlsl">
+    <FxCompile Include="Anime4KConvReduceShader.hlsl">
       <Filter>着色器\缩放\Anime4K</Filter>
     </FxCompile>
-    <FxCompile Include="Anime4KUpscaleDeblurCombineShader.hlsl">
+    <FxCompile Include="Anime4KDenoiseConv4x3x3x1Shader.hlsl">
       <Filter>着色器\缩放\Anime4K</Filter>
     </FxCompile>
-    <FxCompile Include="Anime4KUpscaleCombineShader.hlsl">
+    <FxCompile Include="Anime4KDenoiseConv4x3x3x8Pass1Shader.hlsl">
       <Filter>着色器\缩放\Anime4K</Filter>
     </FxCompile>
-    <FxCompile Include="Anime4KUpscaleDenoiseConv4x3x3x1Shader.hlsl">
+    <FxCompile Include="Anime4KDenoiseConv4x3x3x8Pass2Shader.hlsl">
       <Filter>着色器\缩放\Anime4K</Filter>
     </FxCompile>
-    <FxCompile Include="Anime4KUpscaleDenoiseConv4x3x3x8Shader1.hlsl">
+    <FxCompile Include="Anime4KDenoiseConv4x3x3x8Pass3Shader.hlsl">
       <Filter>着色器\缩放\Anime4K</Filter>
     </FxCompile>
-    <FxCompile Include="Anime4KUpscaleDenoiseConv4x3x3x8Shader2.hlsl">
+    <FxCompile Include="Anime4KDenoiseConv4x3x3x8Pass4Shader.hlsl">
       <Filter>着色器\缩放\Anime4K</Filter>
     </FxCompile>
-    <FxCompile Include="Anime4KUpscaleDenoiseConv4x3x3x8Shader3.hlsl">
+    <FxCompile Include="Anime4KDenoiseConv4x3x3x8Pass5Shader.hlsl">
       <Filter>着色器\缩放\Anime4K</Filter>
     </FxCompile>
-    <FxCompile Include="Anime4KUpscaleDenoiseConv4x3x3x8Shader4.hlsl">
-      <Filter>着色器\缩放\Anime4K</Filter>
-    </FxCompile>
-    <FxCompile Include="Anime4KUpscaleDenoiseConv4x3x3x8Shader5.hlsl">
-      <Filter>着色器\缩放\Anime4K</Filter>
-    </FxCompile>
-    <FxCompile Include="Anime4KUpscaleDenoiseConvReduceShader.hlsl">
+    <FxCompile Include="Anime4KDenoiseConvReduceShader.hlsl">
       <Filter>着色器\缩放\Anime4K</Filter>
     </FxCompile>
     <FxCompile Include="Jinc2ScaleShader.hlsl">
@@ -64,11 +58,11 @@
     <FxCompile Include="Lanczos6ScaleShader.hlsl">
       <Filter>着色器\缩放</Filter>
     </FxCompile>
-    <FxCompile Include="Anime4KDeblurKernelShader.hlsl">
-      <Filter>着色器\缩放\Anime4K</Filter>
-    </FxCompile>
     <FxCompile Include="PixelScaleShader.hlsl">
       <Filter>着色器\缩放</Filter>
+    </FxCompile>
+    <FxCompile Include="Anime4KSharpenCombineShader.hlsl">
+      <Filter>着色器\缩放\Anime4K</Filter>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
@@ -122,7 +116,7 @@
     <ClInclude Include="GUIDs.h">
       <Filter>头文件\Effect</Filter>
     </ClInclude>
-    <ClInclude Include="Shaders.h">
+    <ClInclude Include="ShaderPaths.h">
       <Filter>头文件\Effect</Filter>
     </ClInclude>
     <ClInclude Include="AdaptiveSharpenEffect.h">
@@ -140,25 +134,13 @@
     <ClInclude Include="MitchellNetravaliScaleTransform.h">
       <Filter>头文件\Effect\缩放</Filter>
     </ClInclude>
-    <ClInclude Include="Anime4KUpscaleConvReduceTransform.h">
+    <ClInclude Include="Anime4KConvReduceTransform.h">
       <Filter>头文件\Effect\缩放\Anime4K</Filter>
     </ClInclude>
-    <ClInclude Include="Anime4KUpscaleDeblurEffect.h">
+    <ClInclude Include="Anime4KEffect.h">
       <Filter>头文件\Effect\缩放\Anime4K</Filter>
     </ClInclude>
-    <ClInclude Include="Anime4KUpscaleDeblurCombineTransform.h">
-      <Filter>头文件\Effect\缩放\Anime4K</Filter>
-    </ClInclude>
-    <ClInclude Include="Anime4KUpscaleDenoiseConvReduceTransform.h">
-      <Filter>头文件\Effect\缩放\Anime4K</Filter>
-    </ClInclude>
-    <ClInclude Include="Anime4KUpscaleDenoiseEffect.h">
-      <Filter>头文件\Effect\缩放\Anime4K</Filter>
-    </ClInclude>
-    <ClInclude Include="Anime4KUpscaleEffect.h">
-      <Filter>头文件\Effect\缩放\Anime4K</Filter>
-    </ClInclude>
-    <ClInclude Include="Anime4KUpscaleCombineTransform.h">
+    <ClInclude Include="Anime4KSharpenCombineTransform.h">
       <Filter>头文件\Effect\缩放\Anime4K</Filter>
     </ClInclude>
     <ClInclude Include="Jinc2ScaleTransform.h">

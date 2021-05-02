@@ -1,7 +1,7 @@
 #pragma once
 #include "pch.h"
-#include "GUIDs.h"
 #include "SimpleDrawTransform.h"
+
 
 // Adaptive Sharpen Pass 2 需要 curveHeight 参数
 // curveHeight 越大，锐化程度越大

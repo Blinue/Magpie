@@ -3,9 +3,7 @@
 #include "Renderable.h"
 #include "D2DContext.h"
 #include "AdaptiveSharpenEffect.h"
-#include "Anime4KUpscaleEffect.h"
-#include "Anime4KUpscaleDeblurEffect.h"
-#include "Anime4KUpscaleDenoiseEffect.h"
+#include "Anime4KEffect.h"
 #include "Jinc2ScaleEffect.h"
 #include "MitchellNetravaliScaleEffect.h"
 #include "Lanczos6ScaleEffect.h"
@@ -77,11 +75,7 @@ private:
 				const auto& subType = effect.value("type", "");
 
 				if (subType == "Anime4K") {
-					_AddAnime4KEffect();
-				} else if (subType == "Anime4KxDeblur") {
-					_AddAnime4KxDeblurEffect();
-				} else if (subType == "Anime4KxDenoise") {
-					_AddAnime4KxDenoiseEffect();
+					_AddAnime4KEffect(effect);
 				} else if (subType == "jinc2") {
 					_AddJinc2ScaleEffect(effect);
 				} else if (subType == "mitchell") {
@@ -146,7 +140,7 @@ private:
 
 			float curveHeight = value.get<float>();
 			Debug::Assert(
-				curveHeight >= 0 && curveHeight <= 1,
+				curveHeight > 0,
 				L"非法的 curveHeight 属性值"
 			);
 
@@ -207,17 +201,47 @@ private:
 		_PushAsOutputEffect(d2dSharpenEffect);
 	}
 
-	void _AddAnime4KEffect() {
+	void _AddAnime4KEffect(const nlohmann::json& props) {
 		_CheckAndRegisterEffect(
-			CLSID_MAGIPE_ANIME4K_UPSCALE_EFFECT,
-			&Anime4KUpscaleEffect::Register
+			CLSID_MAGIPE_ANIME4K_EFFECT,
+			&Anime4KEffect::Register
 		);
 
 		ComPtr<ID2D1Effect> anime4KEffect = nullptr;
 		Debug::ThrowIfComFailed(
-			_d2dContext.GetD2DDC()->CreateEffect(CLSID_MAGIPE_ANIME4K_UPSCALE_EFFECT, &anime4KEffect),
+			_d2dContext.GetD2DDC()->CreateEffect(CLSID_MAGIPE_ANIME4K_EFFECT, &anime4KEffect),
 			L"创建 Anime4K Effect 失败"
 		);
+
+		// curveHeight 属性
+		auto it = props.find("curveHeight");
+		if (it != props.end()) {
+			const auto& value = *it;
+			Debug::Assert(value.is_number(), L"非法的 curveHeight 属性值");
+
+			float curveHeight = value.get<float>();
+			Debug::Assert(
+				curveHeight >= 0,
+				L"非法的 curveHeight 属性值"
+			);
+
+			Debug::ThrowIfComFailed(
+				anime4KEffect->SetValue(Anime4KEffect::PROP_CURVE_HEIGHT, curveHeight),
+				L"设置 curveHeight 属性失败"
+			);
+		}
+
+		// useDenoiseVersion 属性
+		it = props.find("useDenoiseVersion");
+		if (it != props.end()) {
+			const auto& val = *it;
+			Debug::Assert(val.is_boolean(), L"非法的 useSharperVersion 属性值");
+
+			Debug::ThrowIfComFailed(
+				anime4KEffect->SetValue(Anime4KEffect::PROP_USE_DENOISE_VERSION, (BOOL)val.get<bool>()),
+				L"设置 useSharperVersion 属性失败"
+			);
+		}
 
 		// 输出图像的长和宽变为 2 倍
 		_SetDestSize(SIZE{ _outputSize.cx * 2, _outputSize.cy * 2 });
@@ -225,42 +249,7 @@ private:
 		_PushAsOutputEffect(anime4KEffect);
 	}
 
-	void _AddAnime4KxDeblurEffect() {
-		_CheckAndRegisterEffect(
-			CLSID_MAGIPE_ANIME4K_UPSCALE_DEBLUR_EFFECT,
-			&Anime4KUpscaleDeblurEffect::Register
-		);
-
-		ComPtr<ID2D1Effect> anime4KxDeblurEffect = nullptr;
-		Debug::ThrowIfComFailed(
-			_d2dContext.GetD2DDC()->CreateEffect(CLSID_MAGIPE_ANIME4K_UPSCALE_DEBLUR_EFFECT, &anime4KxDeblurEffect),
-			L"创建 Anime4K Effect 失败"
-		);
-
-		// 输出图像的长和宽变为 2 倍
-		_SetDestSize(SIZE{ _outputSize.cx * 2, _outputSize.cy * 2 });
-
-		_PushAsOutputEffect(anime4KxDeblurEffect);
-	}
-
-	void _AddAnime4KxDenoiseEffect() {
-		_CheckAndRegisterEffect(
-			CLSID_MAGIPE_ANIME4K_UPSCALE_DENOISE_EFFECT,
-			&Anime4KUpscaleDenoiseEffect::Register
-		);
-
-		ComPtr<ID2D1Effect> effect = nullptr;
-		Debug::ThrowIfComFailed(
-			_d2dContext.GetD2DDC()->CreateEffect(CLSID_MAGIPE_ANIME4K_UPSCALE_DENOISE_EFFECT, &effect),
-			L"创建 Anime4K Effect 失败"
-		);
-
-		// 输出图像的长和宽变为 2 倍
-		_SetDestSize(SIZE{ _outputSize.cx * 2, _outputSize.cy * 2 });
-
-		_PushAsOutputEffect(effect);
-	}
-
+	
 	void _AddJinc2ScaleEffect(const nlohmann::json& props) {
 		_CheckAndRegisterEffect(
 			CLSID_MAGPIE_JINC2_SCALE_EFFECT,

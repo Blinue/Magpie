@@ -1,7 +1,7 @@
 #pragma once
 #include "pch.h"
-#include "GUIDs.h"
 #include "SimpleScaleTransform.h"
+
 
 // 为 MitchellNetravaliScaleShader.hlsl 提供参数
 class MitchellNetravaliScaleTransform : public SimpleScaleTransform {

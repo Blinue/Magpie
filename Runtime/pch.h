@@ -9,11 +9,13 @@
 
 #include "framework.h"
 #include "Debug.h"
-#include "Shaders.h"
+#include "ShaderPaths.h"
+
 
 #define XML(X) TEXT(#X)
 
 #define API_DECLSPEC extern "C" __declspec(dllexport)
+
 
 using namespace std::literals::string_literals;
 using namespace Microsoft::WRL;

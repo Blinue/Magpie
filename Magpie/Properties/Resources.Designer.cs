@@ -80,7 +80,7 @@ namespace Magpie.Properties {
         ///        &quot;effect&quot;: &quot;sharpen&quot;,
         ///        &quot;type&quot;: &quot;builtIn&quot;,
         ///        &quot;sharpness&quot;: 0.5,
-        ///        &quot;threshold&quot;: 0.5
+        ///        &quot;threshold&quot;: 0.3
         ///      }
         ///    ]
         ///  },

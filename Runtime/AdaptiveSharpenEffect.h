@@ -1,7 +1,5 @@
 #pragma once
 #include "pch.h"
-#include "GUIDs.h"
-#include "Shaders.h"
 #include "SimpleDrawTransform.h"
 #include "AdaptiveSharpenPass2Transform.h"
 #include "EffectBase.h"

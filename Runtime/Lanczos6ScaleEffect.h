@@ -1,6 +1,5 @@
 #pragma once
 #include "pch.h"
-#include "GUIDs.h"
 #include "Lanczos6ScaleTransform.h"
 #include "EffectBase.h"
 #include <d2d1effecthelpers.h>

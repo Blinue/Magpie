@@ -2,7 +2,6 @@
 #include "pch.h"
 #include "SimpleDrawTransform.h"
 #include "Utils.h"
-#include "GUIDs.h"
 
 
 class PixelScaleTransform : public SimpleDrawTransform {

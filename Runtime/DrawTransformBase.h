@@ -1,5 +1,6 @@
 #pragma once
 #include "pch.h"
+#include "GUIDs.h"
 #include <d2d1effectauthor.h>
 
 

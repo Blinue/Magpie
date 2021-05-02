@@ -137,7 +137,7 @@
         "effect": "sharpen",
         "type": "builtIn",
         "sharpness": 0.5,
-        "threshold": 0.5
+        "threshold": 0.3
       }
     ]
   },
@@ -146,18 +146,13 @@
     "model": [
       {
         "effect": "scale",
-        "type": "Anime4KxDenoise"
+        "type": "Anime4K",
+        "curveHeight": 0.3
       },
       {
         "effect": "scale",
         "type": "mitchell",
-        "scale": [ 0, 0 ],
-        "useSharperVersion": true
-      },
-      {
-        "effect": "sharpen",
-        "type": "adaptive",
-        "curveHeight": 0.2
+        "scale": [ 0, 0 ]
       }
     ]
   },
@@ -166,22 +161,18 @@
     "model": [
       {
         "effect": "scale",
-        "type": "Anime4KxDenoise"
+        "type": "Anime4K",
+        "curveHeight": 0.3
       },
       {
         "effect": "scale",
-        "type": "Anime4K"
+        "type": "Anime4K",
+        "curveHeight": 0.3
       },
       {
         "effect": "scale",
         "type": "mitchell",
-        "scale": [ 0, 0 ],
-        "useSharperVersion": true
-      },
-      {
-        "effect": "sharpen",
-        "type": "adaptive",
-        "curveHeight": 0.2
+        "scale": [ 0, 0 ]
       }
     ]
   },
