@@ -2,8 +2,11 @@
 
 // 纹理会自动将值切割到 0~1，为了使值在着色器之间传递需要进行压缩
 // 因为精度损失，最终会产生噪声
-#define Compress(value) (atan(value) / PI + 0.5);
-#define Uncompress(value) tan(((value) - 0.5) * PI)
+#define Compress(value) (((value) + 3) / 6)
+#define Uncompress(value) ((value) * 6 - 3)
+
+//#define Compress(value) (atan(value) / PI + 0.5)
+//#define Uncompress(value) tan(((value) - 0.5) * PI)
 
 // 有时值在 -1~1 之间，使用下面的压缩算法减少精度损失
 #define Compress1(value) (((value) + 1) / 2)
