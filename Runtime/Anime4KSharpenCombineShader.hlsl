@@ -1,3 +1,5 @@
+// 对Anime4K计算出的插值进行锐化
+// 使用了单步的自适应锐化，参考自 https://github.com/libretro/common-shaders/blob/master/sharpen/shaders/adaptive-sharpen.cg
 
 
 cbuffer constants : register(b0) {
@@ -116,12 +118,7 @@ float getLuma() {
 	// Edge detect contrast compression, center = 0.5
 	edge *= min((0.8 + 2.7 * pow(2, (-7.4 * blur))), 3.2);
 
-	// RGB to greyscale
-	float c0_Y = c[0];
-
-	float kernel[25] = { c0_Y,  c[1], c[2], c[3], c[4], c[5], c[6], c[7], c[8],
-						 c[9], c[10], c[11], c[12], c[13], c[14], c[15], c[16],
-						 c[17], c[18], c[19], c[20], c[21], c[22], c[23], c[24] };
+	float kernel[25] = c;
 
 	// Partial laplacian outer pixel weighting scheme
 	float mdiff_c0 = 0.03 + 4 * (abs(kernel[0] - kernel[2]) + abs(kernel[0] - kernel[4])
@@ -166,7 +163,7 @@ float getLuma() {
 		- (curveHeight / (8192 * pow((edge * 2.2), 4.5) + 0.5));
 
 	// Calculate sharpening diff and scale
-	float sharpdiff = (c0_Y - neg_laplace) * (sharpen_val * 0.8);
+	float sharpdiff = (c[0] - neg_laplace) * (sharpen_val * 0.8);
 	
 	// 不知道为什么，下面的代码会严重拖累运行速度，因此重写了算法
 	// Calculate local near min & max, partial cocktail sort (No branching!)
@@ -202,12 +199,12 @@ float getLuma() {
 		}
 	}
 	
-	float nmax = max(((max1 + max2) / 2), c0_Y);
-	float nmin = min(((min1 + min2) / 2), c0_Y);
+	float nmax = max(((max1 + max2) / 2), c[0]);
+	float nmin = min(((min1 + min2) / 2), c[0]);
 
 	// Calculate tanh scale factor, pos/neg
-	float nmax_scale = max((1 / ((nmax - c0_Y) + L_overshoot)), max_scale_lim);
-	float nmin_scale = max((1 / ((c0_Y - nmin) + D_overshoot)), max_scale_lim);
+	float nmax_scale = max((1 / ((nmax - c[0]) + L_overshoot)), max_scale_lim);
+	float nmin_scale = max((1 / ((c[0] - nmin) + D_overshoot)), max_scale_lim);
 
 	// Soft limit sharpening with tanh, lerp to control maximum compression
 	sharpdiff = lerp((tanh((max(sharpdiff, 0)) * nmax_scale) / nmax_scale), (max(sharpdiff, 0)), L_comp_ratio)
