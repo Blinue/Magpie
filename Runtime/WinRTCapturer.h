@@ -25,12 +25,12 @@ public:
 		HWND hwndSrc,
 		const RECT& srcClient,
 		std::function<void()> render
-	) : WindowCapturerBase(d2dContext), _srcClient(srcClient), _hwndSrc(hwndSrc), _render(render),
-		_captureFramePool(nullptr), _captureSession(nullptr), _captureItem(nullptr), _wrappedD3DDevice(nullptr) 	{
+	) : _d2dContext(d2dContext), _srcClient(srcClient), _hwndSrc(hwndSrc), _render(render),
+		_captureFramePool(nullptr), _captureSession(nullptr), _captureItem(nullptr), _wrappedD3DDevice(nullptr) {
 		// Windows.Graphics.Capture API 似乎只能运行于 MTA，造成诸多麻烦
 		winrt::init_apartment(winrt::apartment_type::multi_threaded);
 
-		Debug::Assert(winrt::GraphicsCaptureSession::IsSupported(), L"当前不支持 WinRT Capture");
+		Debug::Assert(winrt::GraphicsCaptureSession::IsSupported(), L"当前系统不支持 WinRT Capture");
 
 		// 以下代码参考自 http://tips.hecomi.com/entry/2021/03/23/230947
 
@@ -185,4 +185,6 @@ private:
 	winrt::Direct3D11CaptureFramePool::FrameArrived_revoker _frameArrivedRevoker;
 
 	std::function<void()> _render;
+
+	D2DContext& _d2dContext;
 };

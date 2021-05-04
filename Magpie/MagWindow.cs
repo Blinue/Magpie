@@ -12,16 +12,28 @@ using System.Windows.Forms;
 
 namespace Magpie {
     enum MagWindowStatus : int {
-        Idle = 0, Starting = 1, Running = 2
+        Idle = 0,       // 未启动或者已关闭
+        Starting = 1,   // 启动中，此状态下无法执行操作
+        Running = 2     // 运行中
     }
 
+    // 用于管理全屏窗口，该窗口在一个新线程中启动，通过事件与主线程通信
     class MagWindow {
         private Thread magThread = null;
 
         // 用于从全屏窗口的线程接收消息
         private event Action<int, string> StatusEvent;
 
-        public MagWindowStatus Status { get; private set; } = MagWindowStatus.Idle;
+        private MagWindowStatus status = MagWindowStatus.Idle;
+        public MagWindowStatus Status {
+            get => status;
+            private set {
+                status = value;
+                if(status == MagWindowStatus.Idle) {
+                    magThread = null;
+                }
+            }
+        }
 
 
         public MagWindow() {
@@ -31,10 +43,6 @@ namespace Magpie {
                 }
 
                 Status = (MagWindowStatus)status;
-
-                if(Status == MagWindowStatus.Idle) {
-                    magThread = null;
-                }
 
                 if (errorMsg != null) {
                     MessageBox.Show("创建全屏窗口出错：" + errorMsg);
@@ -77,8 +85,11 @@ namespace Magpie {
         }
 
         public void Destory() {
+            if(Status != MagWindowStatus.Running) {
+                return;
+            }
+
             NativeMethods.BroadcastMessage(NativeMethods.MAGPIE_WM_DESTORYMAG);
-            magThread = null;
         }
 
         private void HookCursorAtRuntime() {

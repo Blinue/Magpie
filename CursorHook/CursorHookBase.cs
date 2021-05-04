@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 namespace Magpie.CursorHook {
     // 运行时钩子和启动时钩子通用的部分
+    // 继承此类只需实现 Run
     abstract class CursorHookBase : IDisposable {
         private readonly IpcServer ipcServer;
 
@@ -122,7 +123,7 @@ namespace Magpie.CursorHook {
         }
 
         // 向全屏窗口发送光标句柄
-        protected void ReportCursorMap(SafeCursorHandle hTptCursor, IntPtr hCursor) {
+        private void ReportCursorMap(SafeCursorHandle hTptCursor, IntPtr hCursor) {
             ReportIfFalse(
                 NativeMethods.PostMessage(hwndHost, MAGPIE_WM_NEWCURSOR, hTptCursor.DangerousGetHandle(), hCursor),
                 "PostMessage 失败"

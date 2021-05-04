@@ -46,7 +46,7 @@ public:
 
 	
 protected:
-	void _Init(const std::wstring_view& scaleModel,  const SIZE& srcSize) {
+	void _Init(const std::string_view& scaleModel,  const SIZE& srcSize) {
 		_SetDestSize(srcSize);
 		_ReadEffectsJson(scaleModel);
 
@@ -62,40 +62,40 @@ protected:
 	virtual ComPtr<ID2D1Image> _GetOutputImg() = 0;
 
 private:
-	void _ReadEffectsJson(const std::wstring_view& scaleModel) {
-		const auto& effects = nlohmann::json::parse(scaleModel);
-		Debug::Assert(effects.is_array(), L"json 格式错误");
+	void _ReadEffectsJson(const std::string_view& scaleModel) {
+		const auto& models = nlohmann::json::parse(scaleModel);
+		Debug::Assert(models.is_array(), L"json 格式错误");
 
-		for (const auto &effect : effects) {
-			Debug::Assert(effect.is_object(), L"json 格式错误");
+		for (const auto &model : models) {
+			Debug::Assert(model.is_object(), L"json 格式错误");
 
-			const auto &effectType = effect.value("effect", "");
+			const auto &effectType = model.value("effect", "");
 			
 			if (effectType == "scale") {
-				const auto& subType = effect.value("type", "");
+				const auto& subType = model.value("type", "");
 
 				if (subType == "Anime4K") {
-					_AddAnime4KEffect(effect);
+					_AddAnime4KEffect(model);
 				} else if (subType == "jinc2") {
-					_AddJinc2ScaleEffect(effect);
+					_AddJinc2ScaleEffect(model);
 				} else if (subType == "mitchell") {
-					_AddMitchellNetravaliScaleEffect(effect);
+					_AddMitchellNetravaliScaleEffect(model);
 				} else if (subType == "HQBicubic") {
-					_AddHQBicubicScaleEffect(effect);
+					_AddHQBicubicScaleEffect(model);
 				} else if (subType == "lanczos6") {
-					_AddLanczos6ScaleEffect(effect);
+					_AddLanczos6ScaleEffect(model);
 				} else if (subType == "pixel") {
-					_AddPixelScaleEffect(effect);
+					_AddPixelScaleEffect(model);
 				} else {
 					Debug::Assert(false, L"未知的 scale effect");
 				}
 			} else if (effectType == "sharpen") {
-				const auto& subType = effect.value("type", "");
+				const auto& subType = model.value("type", "");
 
 				if (subType == "adaptive") {
-					_AddAdaptiveSharpenEffect(effect);
+					_AddAdaptiveSharpenEffect(model);
 				} else if (subType == "builtIn") {
-					_AddBuiltInSharpenEffect(effect);
+					_AddBuiltInSharpenEffect(model);
 				} else {
 					Debug::Assert(false, L"未知的 sharpen effect");
 				}
@@ -377,7 +377,7 @@ private:
 		_PushAsOutputEffect(effect);
 	}
 
-	// 内置的 HIGH_QUALITY_CUBIC 缩放算法在缩小图像时效果完美
+	// 内置的 HIGH_QUALITY_CUBIC 缩放算法
 	void _AddHQBicubicScaleEffect(const nlohmann::json& props) {
 		ComPtr<ID2D1Effect> effect = nullptr;
 		Debug::ThrowIfComFailed(
@@ -488,6 +488,7 @@ private:
 			Debug::Assert(it->is_number_integer(), L"非法的Scale属性值");
 			int scale = *it;
 
+			Debug::Assert(scale > 0, L"非法的Scale属性值");
 			Debug::ThrowIfComFailed(
 				effect->SetValue(PixelScaleEffect::PROP_SCALE, scale),
 				L"设置 scale 属性失败"

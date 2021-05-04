@@ -8,7 +8,7 @@ class D2DImageEffectRenderer : public EffectRendererBase {
 public:
 	D2DImageEffectRenderer(
 		D2DContext& d2dContext,
-		const std::wstring_view& scaleModel,
+		const std::string_view& scaleModel,
 		const SIZE& srcSize,
 		const RECT& hostClient
 	) : EffectRendererBase(d2dContext, hostClient) {

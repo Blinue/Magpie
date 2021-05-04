@@ -32,7 +32,7 @@ BOOL APIENTRY DllMain(
 
 API_DECLSPEC void WINAPI RunMagWindow(
     void reportStatus(int status, const wchar_t* errorMsg),
-    const wchar_t* scaleModel,
+    const char* scaleModel,
     int captureMode,
     bool showFPS,
     bool lowLatencyMode,

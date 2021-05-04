@@ -13,7 +13,7 @@ public:
 		const RECT& srcRect,
 		ComPtr<IWICImagingFactory2> wicImgFactory,
 		bool useBitblt = false
-	): WindowCapturerBase(d2dContext), _wicImgFactory(wicImgFactory), _srcRect(srcRect), _hwndSrc(hwndSrc), _useBitblt(useBitblt) {
+	): _d2dContext(d2dContext), _wicImgFactory(wicImgFactory), _srcRect(srcRect), _hwndSrc(hwndSrc), _useBitblt(useBitblt) {
 	}
 
 	ComPtr<IUnknown> GetFrame() override {
@@ -145,4 +145,6 @@ private:
 	const RECT& _srcRect;
 	HWND _hwndSrc;
 	bool _useBitblt;
+
+	D2DContext& _d2dContext;
 };

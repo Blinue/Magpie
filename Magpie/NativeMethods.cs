@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Text;
 
+
 namespace Magpie {
 	// Win32 API
 	static class NativeMethods {
@@ -21,7 +22,7 @@ namespace Magpie {
 
         [DllImport("user32", CharSet = CharSet.Unicode)]
         [return: MarshalAs(UnmanagedType.Bool)]
-        public static extern bool PostMessage(IntPtr hwnd, int msg, IntPtr wparam, IntPtr lparam);
+        private static extern bool PostMessage(IntPtr hwnd, int msg, IntPtr wparam, IntPtr lparam);
 
         private static readonly IntPtr HWND_BROADCAST = (IntPtr)0xffff;
         public static bool BroadcastMessage(int msg) {
@@ -30,9 +31,6 @@ namespace Magpie {
 
         [DllImport("user32", CharSet = CharSet.Unicode)]
         public static extern int RegisterWindowMessage(string message);
-
-        [DllImport("user32.dll", CharSet = CharSet.Unicode)]
-        public static extern IntPtr SetCursor(IntPtr hCursor);
 
         [DllImport("user32.dll", CharSet = CharSet.Unicode)]
         private static extern int GetWindowThreadProcessId(IntPtr hWnd, ref int lpdwProcessId);
@@ -47,13 +45,17 @@ namespace Magpie {
             return processId;
         }
 
+        /*
+         * Runtime.dll
+         */
+        
         public delegate void ReportStatus(int status, IntPtr errorMsg);
 
         [DllImport("Runtime", CallingConvention = CallingConvention.StdCall)]
         [return: MarshalAs(UnmanagedType.U1)]
         public static extern void RunMagWindow(
             ReportStatus reportStatus,
-            [MarshalAs(UnmanagedType.LPWStr)] string scaleModel,
+            [MarshalAs(UnmanagedType.LPUTF8Str)] string scaleModel,
             int captureMode,
             [MarshalAs(UnmanagedType.U1)] bool showFPS,
             [MarshalAs(UnmanagedType.U1)] bool lowLatencyMode,

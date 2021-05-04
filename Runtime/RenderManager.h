@@ -13,7 +13,7 @@ class RenderManager {
 public:
 	RenderManager(
 		D2DContext& d2dContext, 
-		const std::wstring_view& scaleModel,
+		const std::string_view& scaleModel,
 		const RECT& srcClient,
 		const RECT& hostClient,
 		CaptureredFrameType frameType,

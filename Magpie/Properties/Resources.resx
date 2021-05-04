@@ -136,7 +136,7 @@
       {
         "effect": "sharpen",
         "type": "builtIn",
-        "sharpness": 0.5,
+        "sharpness": 1,
         "threshold": 0.3
       }
     ]
@@ -147,7 +147,8 @@
       {
         "effect": "scale",
         "type": "Anime4K",
-        "curveHeight": 0.3
+        "curveHeight": 0.3,
+        "useDenoiseVersion": true
       },
       {
         "effect": "scale",
@@ -162,7 +163,8 @@
       {
         "effect": "scale",
         "type": "Anime4K",
-        "curveHeight": 0.3
+        "curveHeight": 0.3,
+        "useDenoiseVersion": true
       },
       {
         "effect": "scale",

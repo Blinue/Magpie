@@ -1,4 +1,4 @@
-// 对Anime4K计算出的插值进行锐化
+// 对Anime4K计算出的插值进行锐化以及输出最终结果
 // 使用了单步的自适应锐化，参考自 https://github.com/libretro/common-shaders/blob/master/sharpen/shaders/adaptive-sharpen.cg
 
 

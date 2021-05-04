@@ -18,7 +18,7 @@ public:
     static void CreateInstance(
         HINSTANCE hInstance,
         HWND hwndSrc,
-        const std::wstring_view& scaleModel,
+        const std::string_view& scaleModel,
         int captureMode = 0,
         bool showFPS = false,
         bool lowLatencyMode = false,
@@ -67,7 +67,7 @@ private:
     MagWindow(
         HINSTANCE hInstance,
         HWND hwndSrc,
-        const std::wstring_view& scaleModel,
+        const std::string_view& scaleModel,
         int captureMode,
         bool showFPS,
         bool lowLatencyMode,

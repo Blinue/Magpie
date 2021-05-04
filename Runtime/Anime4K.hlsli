@@ -5,6 +5,7 @@
 #define Compress(value) (((value) + 3) / 6)
 #define Uncompress(value) ((value) * 6 - 3)
 
+// 无范围限制的压缩，但速度较慢
 //#define Compress(value) (atan(value) / PI + 0.5)
 //#define Uncompress(value) tan(((value) - 0.5) * PI)
 

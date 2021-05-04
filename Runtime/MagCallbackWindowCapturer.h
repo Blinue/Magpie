@@ -13,7 +13,7 @@ public:
         HINSTANCE hInstance,
         HWND hwndHost,
         const RECT& srcRect
-    ): WindowCapturerBase(d2dContext), _srcRect(srcRect) {
+    ): _srcRect(srcRect), _d2dContext(d2dContext) {
         if (_instance) {
             Debug::Assert(false, L"ÒÑ´æÔÚ MagCallbackWindowCapturer ÊµÀý");
         }
@@ -100,4 +100,6 @@ private:
     ComPtr<ID2D1Bitmap> _bmp = nullptr;
 
     static MagCallbackWindowCapturer* _instance;
+
+    D2DContext& _d2dContext;
 };
