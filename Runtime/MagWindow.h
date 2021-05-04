@@ -2,11 +2,6 @@
 #include "pch.h"
 #include "Utils.h"
 #include "D2DContext.h"
-#include "MagCallbackWindowCapturer.h"
-#include "GDIWindowCapturer.h"
-#include "WinRTCapturer.h"
-#include "CursorManager.h"
-#include "FrameCatcher.h"
 #include "RenderManager.h"
 
 
@@ -44,8 +39,6 @@ public:
     ~MagWindow() {
         // 以下面的顺序释放资源
         _renderManager = nullptr;
-        _windowCapturer = nullptr;
-        _d2dContext = nullptr;
 
         DestroyWindow(_hwndHost);
         UnregisterClass(_HOST_WINDOW_CLASS_NAME, _hInst);
@@ -53,14 +46,6 @@ public:
         CoUninitialize();
 
         PostQuitMessage(0);
-    }
-
-    HWND GetSrcWnd() {
-        return _hwndSrc;
-    }
-
-    HWND GetHostWnd() {
-        return _hwndHost;
     }
 
 private:
@@ -88,165 +73,43 @@ private:
             L"hwndSrc 不合法"
         );
 
-        Debug::Assert(
-            captureMode >= 0 && captureMode <= 2,
-            L"非法的抓取模式"
-        );
-
-        Utils::GetClientScreenRect(_hwndSrc, _srcClient);
-
         _RegisterHostWndClass();
         _CreateHostWnd(noDisturb);
 
-        Utils::GetClientScreenRect(_hwndHost, _hostClient);
-
-        Debug::ThrowIfComFailed(
-            CoCreateInstance(
-                CLSID_WICImagingFactory,
-                NULL,
-                CLSCTX_INPROC_SERVER,
-                IID_PPV_ARGS(&_wicImgFactory)
-            ),
-            L"创建 WICImagingFactory 失败"
-        );
-
-
-        // 初始化 D2DContext
-        _d2dContext.reset(new D2DContext(
-            hInstance,
+        _renderManager.reset(new RenderManager(
+            _hInst,
+            scaleModel,
+            _hwndSrc,
             _hwndHost,
-            _hostClient,
+            captureMode,
+            showFPS,
             lowLatencyMode,
             noVSync,
             noDisturb
         ));
 
-        if (captureMode == 0) {
-            _windowCapturer.reset(new WinRTCapturer(
-                *_d2dContext,
-                _hwndSrc,
-                _srcClient,
-                [&]() {_RenderNextFrame(); }
-            ));
-        } else if (captureMode == 1) {
-            _windowCapturer.reset(new GDIWindowCapturer(
-                *_d2dContext,
-                _hwndSrc,
-                _srcClient,
-                _wicImgFactory
-            ));
-        } else {
-            _windowCapturer.reset(new MagCallbackWindowCapturer(
-                *_d2dContext,
-                hInstance,
-                _hwndHost,
-                _srcClient
-            ));
-        }
-
-        _renderManager.reset(new RenderManager(
-            *_d2dContext,
-            scaleModel,
-            _srcClient,
-            _hostClient,
-            _windowCapturer->GetFrameType(),
-            noDisturb
-        ));
-
-        // 初始化 CursorManager
-        _renderManager->AddCursorManager(_hInst, _wicImgFactory.Get());
-
-        if (showFPS) {
-            // 初始化 FrameCatcher
-            _renderManager->AddFrameCatcher();
-        }
-
         Debug::ThrowIfWin32Failed(
             ShowWindow(_hwndHost, SW_NORMAL),
             L"ShowWindow失败"
         );
-
-        if (!_windowCapturer->IsAutoRender()) {
-            _RenderNextFrame();
-        } else {
-            // IsAutoRender 为真时，为了增强窗口响应性，
-            // 每 100 毫秒检测前台窗口
-            Debug::ThrowIfWin32Failed(
-                SetTimer(_hwndHost, _CHECK_FOREGROUND_TIMER_ID, 100, nullptr),
-                L"SetTimer失败"
-            );
-        }
     }
 
-    // 关闭全屏窗口并退出线程
-    // 有两个退出路径：
-    // 1. 前台窗口发生改变
-    // 2. 收到_WM_DESTORYMAG 消息
-    static void _DestroyMagWindow() {
-        $instance = nullptr;
-    }
-
-    // 渲染一帧，不抛出异常
-    void _Render() {
-        try {
-            const auto& frame = _windowCapturer->GetFrame();
-            if (frame) {
-                _renderManager->Render(frame);
-            }
-        } catch (const magpie_exception& e) {
-            Debug::WriteErrorMessage(L"渲染失败：" + e.what());
-        } catch (...) {
-            Debug::WriteErrorMessage(L"渲染出现未知错误");
-        }
-    }
-
-    void _RenderNextFrame() {
-        if (!PostMessage(_hwndHost, _WM_RENDER, 0, 0)) {
-            Debug::WriteErrorMessage(L"PostMessage 失败");
-        }
-    }
-
-    // 前台窗口改变时自动关闭全屏窗口
-    // 如果前台窗口已改变，返回 true，否则返回 false
-    bool _CheckForeground() {
-        bool r = GetForegroundWindow() != _hwndSrc;
-        if (r) {
-            _DestroyMagWindow();
-        }
-        
-        return r;
-    }
 
     LRESULT _HostWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
-        if (message == WM_TIMER) {
-            if (wParam == _CHECK_FOREGROUND_TIMER_ID) {
-                _CheckForeground();
-            }
-        } else if (message == _WM_RENDER) {
-            if (!_CheckForeground()) {
-                _Render();
-
-                if (!_windowCapturer->IsAutoRender()) {
-                    // 立即渲染下一帧
-                    // 垂直同步开启时自动限制帧率
-                    _RenderNextFrame();
-                }
-            }
-        } else if (message == _WM_NEWCURSOR32) {
-            // 来自 CursorHook 的消息
-            // HCURSOR 似乎是共享资源，尽管来自别的进程但可以直接使用
-            // 
-            // 如果消息来自 32 位进程，本程序为 64 位，必须转换为补符号位扩展，这是为了和 SetCursor 的处理方法一致
-            // SendMessage 为补 0 扩展，SetCursor 为补符号位扩展
-            _renderManager->AddHookCursor((HCURSOR)(INT_PTR)(INT32)wParam, (HCURSOR)(INT_PTR)(INT32)lParam);
-        } else if (message == _WM_NEWCURSOR64) {
-            // 如果消息来自 64 位进程，本程序为 32 位，HCURSOR 会被截断
-            // Q: 如果被截断是否能正常工作？
-            _renderManager->AddHookCursor((HCURSOR)wParam, (HCURSOR)lParam);
-        } else if (message == _WM_DESTORYMAG) {
-            _DestroyMagWindow();
+        if (message == _WM_DESTORYMAG || message == WM_DESTROY) {
+            // 有两个退出路径：
+            // 1. 前台窗口发生改变
+            // 2. 收到_WM_DESTORYMAG 消息
+            $instance = nullptr;
+            return 0;
         } else {
-            return DefWindowProc(hWnd, message, wParam, lParam);
+            auto [resolved, rt] = _renderManager->WndProc(hWnd, message, wParam, lParam);
+
+            if (resolved) {
+                return rt;
+            } else {
+                return DefWindowProc(hWnd, message, wParam, lParam);
+            }
         }
 
         return 0;
@@ -293,24 +156,11 @@ private:
     // 全屏窗口类名
     static constexpr const wchar_t* _HOST_WINDOW_CLASS_NAME = L"Window_Magpie_967EB565-6F73-4E94-AE53-00CC42592A22";
 
-    // 指定为最大帧率时使用的渲染消息
-    static UINT _WM_RENDER;
-    static UINT _WM_NEWCURSOR32;
-    static UINT _WM_NEWCURSOR64;
     static UINT _WM_DESTORYMAG;
-    
-    static constexpr UINT_PTR _CHECK_FOREGROUND_TIMER_ID = 1;
-
-    UINT _WM_SHELLHOOKMESSAGE{};
 
     HINSTANCE _hInst;
     HWND _hwndHost = NULL;
     HWND _hwndSrc;
-    RECT _srcClient{};
-    RECT _hostClient{};
-
-    ComPtr<IWICImagingFactory2> _wicImgFactory = nullptr;
-    std::unique_ptr<D2DContext> _d2dContext = nullptr;
-    std::unique_ptr<WindowCapturerBase> _windowCapturer = nullptr;
+    
     std::unique_ptr<RenderManager> _renderManager = nullptr;
 };

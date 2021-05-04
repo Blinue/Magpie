@@ -20,14 +20,13 @@ public:
 		return _useBitblt ? _GetFrameWithBitblt() : _GetFrameWithNoBitblt();
 	}
 
-	bool IsAutoRender() override {
-		return false;
-	}
-
 	CaptureredFrameType GetFrameType() override {
 		return CaptureredFrameType::WICBitmap;
 	}
 
+	CaptureStyle GetCaptureStyle() override {
+		return CaptureStyle::Normal;
+	}
 private:
 	ComPtr<IWICBitmapSource> _GetFrameWithNoBitblt() {
 		SIZE srcSize = Utils::GetSize(_srcRect);

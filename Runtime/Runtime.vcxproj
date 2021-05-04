@@ -210,6 +210,7 @@
     <ClInclude Include="EffectBase.h" />
     <ClInclude Include="EffectRendererBase.h" />
     <ClInclude Include="D2DContext.h" />
+    <ClInclude Include="EventEmitter.h" />
     <ClInclude Include="FrameCatcher.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="GDIWindowCapturer.h" />
@@ -238,6 +239,7 @@
     <ClInclude Include="WndProcThunk.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="CursorManager.cpp" />
     <ClCompile Include="GUIDs.cpp" />
     <ClCompile Include="MagCallbackWindowCapturer.cpp" />
     <ClCompile Include="MagWindow.cpp">
@@ -245,6 +247,7 @@
     </ClCompile>
     <ClCompile Include="pch.cpp" />
     <ClCompile Include="DllMain.cpp" />
+    <ClCompile Include="RenderManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="AdaptiveSharpen.hlsli">

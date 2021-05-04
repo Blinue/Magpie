@@ -7,6 +7,10 @@ enum class CaptureredFrameType {
 	D2DImage, WICBitmap
 };
 
+enum class CaptureStyle {
+	Normal, Event
+};
+
 
 // 所有类型的 WindowCapturer 的基类
 class WindowCapturerBase {
@@ -21,10 +25,13 @@ public:
 
 	// 捕获一帧
 	virtual ComPtr<IUnknown> GetFrame() = 0;
-
-	// 有的实现无法获知什么时候会有新的帧，因此它们会在新帧到达的时候自动发送渲染消息
-	virtual bool IsAutoRender() = 0;
+	
+	// CaptureStyle 为 Event 时使用，注册回调，通知一帧到达
+	virtual void On(std::function<void()> cb) {}
 
 	// 捕获的帧的类型
 	virtual CaptureredFrameType GetFrameType() = 0;
+
+	// 捕获风格。Normal 表示主动捕获，Event 表示等待一帧到达
+	virtual CaptureStyle GetCaptureStyle() = 0;
 };

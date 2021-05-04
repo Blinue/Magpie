@@ -23,10 +23,24 @@ public:
 	WinRTCapturer(
 		D2DContext& d2dContext,
 		HWND hwndSrc,
-		const RECT& srcClient,
-		std::function<void()> render
-	) : _d2dContext(d2dContext), _srcClient(srcClient), _hwndSrc(hwndSrc), _render(render),
-		_captureFramePool(nullptr), _captureSession(nullptr), _captureItem(nullptr), _wrappedD3DDevice(nullptr) {
+		const RECT& srcClient
+	) : _d2dContext(d2dContext), _hwndSrc(hwndSrc), _captureFramePool(nullptr),
+		_captureSession(nullptr), _captureItem(nullptr), _wrappedD3DDevice(nullptr)
+	{
+		// 包含边框的窗口尺寸
+		RECT srcRect{};
+		Debug::ThrowIfComFailed(
+			DwmGetWindowAttribute(_hwndSrc, DWMWA_EXTENDED_FRAME_BOUNDS, &srcRect, sizeof(srcRect)),
+			L"GetWindowRect 失败"
+		);
+
+		_clientInFrame = {
+			UINT32(srcClient.left - srcRect.left),
+			UINT32(srcClient.top - srcRect.top),
+			UINT32(srcClient.right - srcRect.left),
+			UINT32(srcClient.bottom - srcRect.top)
+		};
+
 		// Windows.Graphics.Capture API 似乎只能运行于 MTA，造成诸多麻烦
 		winrt::init_apartment(winrt::apartment_type::multi_threaded);
 
@@ -97,6 +111,18 @@ public:
 		winrt::uninit_apartment();
 	}
 
+	void On(std::function<void()> cb) override {
+		_cbs.push_back(cb);
+	}
+
+	CaptureredFrameType GetFrameType() override {
+		return CaptureredFrameType::D2DImage;
+	}
+
+	CaptureStyle GetCaptureStyle() override {
+		return CaptureStyle::Event;
+	}
+
 	ComPtr<IUnknown> GetFrame() override {
 		winrt::Direct3D11CaptureFrame frame = _captureFramePool.TryGetNextFrame();
 		if (!frame) {
@@ -125,41 +151,17 @@ public:
 		_d2dContext.GetD2DDC()->CreateSharedBitmap(__uuidof(IDXGISurface), dxgiSurface.get(), &p, &withFrame);
 
 		// 获取的帧包含窗口边框，将客户区内容拷贝到新的 ID2D1Bitmap
-		// Q: 能够直接裁剪而不是拷贝？
-
-		// 包含边框的窗口尺寸
-		RECT srcRect{};
-		Debug::ThrowIfComFailed(
-			DwmGetWindowAttribute(_hwndSrc, DWMWA_EXTENDED_FRAME_BOUNDS, &srcRect, sizeof(srcRect)),
-			L"GetWindowRect 失败"
-		);
-
 		ComPtr<ID2D1Bitmap> withoutFrame;
 		_d2dContext.GetD2DDC()->CreateBitmap(
-			{ UINT32(_srcClient.right - _srcClient.left), UINT32(_srcClient.bottom - _srcClient.top) },
+			{ _clientInFrame.right - _clientInFrame.left, _clientInFrame.bottom - _clientInFrame.top },
 			BitmapProperties(PixelFormat(DXGI_FORMAT_B8G8R8A8_UNORM, D2D1_ALPHA_MODE_IGNORE)),
 			&withoutFrame
 		);
 
 		D2D1_POINT_2U destPoint{ 0,0 };
-		D2D1_RECT_U srcPoint{
-			UINT32(_srcClient.left - srcRect.left),
-			UINT32(_srcClient.top - srcRect.top),
-			UINT32(_srcClient.right - srcRect.left),
-			UINT32(_srcClient.bottom - srcRect.top)
-		};
+		withoutFrame->CopyFromBitmap(&destPoint, withFrame.Get(), &_clientInFrame);
 
-		withoutFrame->CopyFromBitmap(&destPoint, withFrame.Get(), &srcPoint);
-		
 		return withoutFrame;
-	}
-
-	bool IsAutoRender() override {
-		return true;
-	}
-
-	CaptureredFrameType GetFrameType() override {
-		return CaptureredFrameType::D2DImage;
 	}
 private:
 	void _FrameArrived(
@@ -170,12 +172,15 @@ private:
 			return;
 		}
 
-		_render();
+		for (const auto& cb : _cbs) {
+			cb();
+		}
 	}
 
+	std::vector<std::function<void()>> _cbs;
 
 	HWND _hwndSrc;
-	const RECT& _srcClient;
+	D2D1_RECT_U _clientInFrame;
 
 	winrt::Direct3D11CaptureFramePool _captureFramePool;
 	winrt::GraphicsCaptureSession _captureSession;
@@ -183,8 +188,6 @@ private:
 	winrt::IDirect3DDevice _wrappedD3DDevice;
 
 	winrt::Direct3D11CaptureFramePool::FrameArrived_revoker _frameArrivedRevoker;
-
-	std::function<void()> _render;
 
 	D2DContext& _d2dContext;
 };

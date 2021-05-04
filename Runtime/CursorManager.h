@@ -100,14 +100,34 @@ public:
         _DrawCursor(ci.hCursor, ci.ptScreenPos);
     }
 
-    void AddHookCursor(HCURSOR hTptCursor, HCURSOR hCursor) {
+
+    std::pair<bool, LRESULT> WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
+        if (message == _WM_NEWCURSOR32) {
+            // 来自 CursorHook 的消息
+            // HCURSOR 似乎是共享资源，尽管来自别的进程但可以直接使用
+            // 
+            // 如果消息来自 32 位进程，本程序为 64 位，必须转换为补符号位扩展，这是为了和 SetCursor 的处理方法一致
+            // SendMessage 为补 0 扩展，SetCursor 为补符号位扩展
+            _AddHookCursor((HCURSOR)(INT_PTR)(INT32)wParam, (HCURSOR)(INT_PTR)(INT32)lParam);
+            return { true, 0 };
+        } else if (message == _WM_NEWCURSOR64) {
+            // 如果消息来自 64 位进程，本程序为 32 位，HCURSOR 会被截断
+            // Q: 如果被截断是否能正常工作？
+            _AddHookCursor((HCURSOR)wParam, (HCURSOR)lParam);
+            return { true, 0 };
+        }
+
+        return { false, 0 };
+    }
+private:
+    void _AddHookCursor(HCURSOR hTptCursor, HCURSOR hCursor) {
         if (hTptCursor == NULL || hCursor == NULL) {
             return;
         }
 
         _cursorMap[hTptCursor] = _CursorToD2DBitmap(hCursor);
     }
-private:
+
     void _RenderDebugLayer(HCURSOR hCursorCur) {
         D2D1_POINT_2F leftTop{ 0, 50 };
 
@@ -268,4 +288,7 @@ private:
 
     bool _noDisturb = false;
     bool _debugMode = false;
+
+    static UINT _WM_NEWCURSOR32;
+    static UINT _WM_NEWCURSOR64;
 };

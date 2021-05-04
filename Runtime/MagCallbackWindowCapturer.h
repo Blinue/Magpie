@@ -56,12 +56,12 @@ public:
         return _bmp;
 	}
 
-    bool IsAutoRender() override {
-        return false;
-    }
-
     CaptureredFrameType GetFrameType() override {
         return CaptureredFrameType::D2DImage;
+    }
+
+    CaptureStyle GetCaptureStyle() override {
+        return CaptureStyle::Normal;
     }
 private:
     static BOOL CALLBACK _ImageScalingCallback(
