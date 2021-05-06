@@ -267,7 +267,7 @@ private:
 			L"创建 Anime4K Effect 失败"
 		);
 
-		// 输出图像的长和宽变为 2 倍
+
 		_SetDestSize(SIZE{ _outputSize.cx, _outputSize.cy });
 
 		_PushAsOutputEffect(effect);
@@ -285,7 +285,24 @@ private:
 			L"创建 Anime4K Effect 失败"
 		);
 
-		// 输出图像的长和宽变为 2 倍
+		// strength 属性
+		auto it = props.find("strength");
+		if (it != props.end()) {
+			const auto& value = *it;
+			Debug::Assert(value.is_number(), L"非法的 strength 属性值");
+
+			float strength = value.get<float>();
+			Debug::Assert(
+				strength > 0,
+				L"非法的 strength 属性值"
+			);
+
+			Debug::ThrowIfComFailed(
+				effect->SetValue(Anime4KThinLinesEffect::PROP_STRENGTH, strength),
+				L"设置 strength 属性失败"
+			);
+		}
+
 		_SetDestSize(SIZE{ _outputSize.cx, _outputSize.cy });
 
 		_PushAsOutputEffect(effect);

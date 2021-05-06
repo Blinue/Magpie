@@ -4,6 +4,7 @@
 
 
 class Anime4KConvReduceTransform : public SimpleDrawTransform {
+private:
     Anime4KConvReduceTransform(const GUID& shaderID) : SimpleDrawTransform(shaderID) {}
 public:
     virtual ~Anime4KConvReduceTransform() {}

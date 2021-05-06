@@ -1,7 +1,7 @@
 #pragma once
 #include "pch.h"
 #include "SimpleDrawTransform.h"
-#include "SimpleTwoInputsDrawTransform.h"
+#include "Anime4KThinLinesPass7Transform.h"
 #include "EffectBase.h"
 
 
@@ -15,45 +15,6 @@ public:
         _d2dEffectContext = effectContext;
         _d2dTransformGraph = transformGraph;
 
-        return _MakeGraph();
-    }
-
-
-    static HRESULT Register(_In_ ID2D1Factory1* pFactory) {
-        HRESULT hr = pFactory->RegisterEffectFromString(CLSID_MAGPIE_ANIME4K_THINLINES_EFFECT, XML(
-            <?xml version='1.0'?>
-            <Effect>
-                <!--System Properties-->
-                <Property name='DisplayName' type='string' value='Anime4K ThinLines'/>
-                <Property name='Author' type='string' value='Blinue'/>
-                <Property name='Category' type='string' value='Scale'/>
-                <Property name='Description' type='string' value='Anime4K ThinLines'/>
-                <Inputs>
-                    <Input name='Source' />
-                </Inputs>
-            </Effect>
-        ), nullptr, 0, CreateEffect);
-
-        return hr;
-    }
-
-    static HRESULT CALLBACK CreateEffect(_Outptr_ IUnknown** ppEffectImpl) {
-        // This code assumes that the effect class initializes its reference count to 1.
-        *ppEffectImpl = static_cast<ID2D1EffectImpl*>(new Anime4KThinLinesEffect());
-
-        if (*ppEffectImpl == nullptr) {
-            return E_OUTOFMEMORY;
-        }
-
-        return S_OK;
-    }
-
-private:
-    // Constructor should be private since it should never be called externally.
-    Anime4KThinLinesEffect() {}
-
-
-    HRESULT _MakeGraph() {
         HRESULT hr;
 
         hr = SimpleDrawTransform::Create(
@@ -119,11 +80,9 @@ private:
         if (FAILED(hr)) {
             return hr;
         }
-        hr = SimpleTwoInputsDrawTransform::Create(
+        hr = Anime4KThinLinesPass7Transform::Create(
             _d2dEffectContext.Get(),
-            &_pass7Transform,
-            MAGPIE_ANIME4K_THINLINES_PASS7_SHADER,
-            GUID_MAGPIE_ANIME4K_THINLINES_PASS7_SHADER
+            &_pass7Transform
         );
         if (FAILED(hr)) {
             return hr;
@@ -208,6 +167,65 @@ private:
         return S_OK;
     }
 
+    HRESULT SetStrength(FLOAT value) {
+        if (value <= 0) {
+            return E_INVALIDARG;
+        }
+
+        _pass7Transform->SetStrength(value);
+        return S_OK;
+    }
+
+    FLOAT GetStrength() const {
+        return _pass7Transform->GetStrength();
+    }
+
+    enum PROPS {
+        PROP_STRENGTH = 0   // 细化强度，值越大线条越细。默认值为0.2
+    };
+
+    static HRESULT Register(_In_ ID2D1Factory1* pFactory) {
+        const D2D1_PROPERTY_BINDING bindings[] =
+        {
+            D2D1_VALUE_TYPE_BINDING(L"Strength", &SetStrength, &GetStrength)
+        };
+
+        HRESULT hr = pFactory->RegisterEffectFromString(CLSID_MAGPIE_ANIME4K_THINLINES_EFFECT, XML(
+            <?xml version='1.0'?>
+            <Effect>
+                <!--System Properties-->
+                <Property name='DisplayName' type='string' value='Anime4K ThinLines'/>
+                <Property name='Author' type='string' value='Blinue'/>
+                <Property name='Category' type='string' value='Scale'/>
+                <Property name='Description' type='string' value='Anime4K ThinLines'/>
+                <Inputs>
+                    <Input name='Source' />
+                </Inputs>
+                <Property name='Strength' type='float'>
+                    <Property name='DisplayName' type='string' value='Strength' />
+                    <Property name='Default' type='float' value='0.2' />
+                </Property>
+            </Effect>
+        ), bindings, ARRAYSIZE(bindings), CreateEffect);
+
+        return hr;
+    }
+
+    static HRESULT CALLBACK CreateEffect(_Outptr_ IUnknown** ppEffectImpl) {
+        // This code assumes that the effect class initializes its reference count to 1.
+        *ppEffectImpl = static_cast<ID2D1EffectImpl*>(new Anime4KThinLinesEffect());
+
+        if (*ppEffectImpl == nullptr) {
+            return E_OUTOFMEMORY;
+        }
+
+        return S_OK;
+    }
+
+private:
+    // Constructor should be private since it should never be called externally.
+    Anime4KThinLinesEffect() {}
+
     ComPtr<SimpleDrawTransform> _rgb2yuvTransform = nullptr;
     ComPtr<SimpleDrawTransform> _pass1Transform = nullptr;
     ComPtr<SimpleDrawTransform> _pass2Transform = nullptr;
@@ -215,7 +233,7 @@ private:
     ComPtr<SimpleDrawTransform> _pass4Transform = nullptr;
     ComPtr<SimpleDrawTransform> _pass5Transform = nullptr;
     ComPtr<SimpleDrawTransform> _pass6Transform = nullptr;
-    ComPtr<SimpleTwoInputsDrawTransform> _pass7Transform = nullptr;
+    ComPtr<Anime4KThinLinesPass7Transform> _pass7Transform = nullptr;
 
     ComPtr<ID2D1EffectContext> _d2dEffectContext = nullptr;
     ComPtr<ID2D1TransformGraph> _d2dTransformGraph = nullptr;

@@ -3,33 +3,34 @@
 
 
 cbuffer constants : register(b0) {
-	int2 srcSize : packoffset(c0);
+	int2 srcSize : packoffset(c0.x);
+	float strength : packoffset(c0.z);
 };
 
 
 #define MAGPIE_INPUT_COUNT 2
 #include "Anime4K.hlsli"
 
-#define STRENGTH 0.3 //Strength of warping for each iteration
-#define ITERATIONS 3 //Number of iterations for the forwards solver, decreasing strength and increasing iterations improves quality at the cost of speed.
+
+#define ITERATIONS 1 //Number of iterations for the forwards solver, decreasing strength and increasing iterations improves quality at the cost of speed.
 
 
 D2D_PS_ENTRY(main) {
 	InitMagpieSampleInput();
 
-	float relstr = srcSize.y / 1080.0 * STRENGTH;
+	float relstr = srcSize.y / 1080.0 * strength;
 
 	float2 pos = Coord(0).xy;
 
-#if ITERATIONS != 1
+#if ITERATIONS > 1
 	for (int i = 0; i < ITERATIONS; i++) {
 #endif
 
 	float2 dn = Uncompress2(SampleInput(1, pos / Coord(0).zw * Coord(1).zw).xy);
 	float2 dd = (dn / (length(dn) + 0.01)) * Coord(0).zw * relstr; //Quasi-normalization for large vectors, avoids divide by zero
-	pos = GetCheckedPos(0, pos);
+	pos = GetCheckedPos(0, pos - dd);
 
-#if ITERATIONS != 1
+#if ITERATIONS > 1
 	}
 #endif
 

@@ -254,6 +254,9 @@
     <ClInclude Include="Anime4KThinLinesEffect.h">
       <Filter>头文件\Effect\缩放\Anime4K</Filter>
     </ClInclude>
+    <ClInclude Include="Anime4KThinLinesPass7Transform.h">
+      <Filter>头文件\Effect\缩放\Anime4K</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />

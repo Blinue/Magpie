@@ -4,7 +4,8 @@
 
 
 cbuffer constants : register(b0) {
-	int2 srcSize : packoffset(c0);
+	int2 srcSize : packoffset(c0.x);
+	float strength : packoffset(c0.z);	//Line darken proportional strength, higher is darker.
 };
 
 
@@ -12,14 +13,12 @@ cbuffer constants : register(b0) {
 #define MAGPIE_USE_YUV
 #include "Anime4K.hlsli"
 
-#define STRENGTH 0.5 //Line darken proportional strength, higher is darker.
 
 
 D2D_PS_ENTRY(main) {
 	InitMagpieSampleInput();
 
-
-	float c = -SampleInputCur(1).x * STRENGTH;
+	float c = -SampleInputCur(1).x * strength;
 	if (c > -0.01) {
 		c = 0;
 	}

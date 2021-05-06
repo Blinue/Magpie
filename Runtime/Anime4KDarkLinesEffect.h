@@ -15,45 +15,6 @@ public:
         _d2dEffectContext = effectContext;
         _d2dTransformGraph = transformGraph;
 
-        return _MakeGraph();
-    }
-
-
-    static HRESULT Register(_In_ ID2D1Factory1* pFactory) {
-        HRESULT hr = pFactory->RegisterEffectFromString(CLSID_MAGPIE_ANIME4K_DARKLINES_EFFECT, XML(
-            <?xml version='1.0'?>
-            <Effect>
-                <!--System Properties-->
-                <Property name='DisplayName' type='string' value='Anime4K DarkLines'/>
-                <Property name='Author' type='string' value='Blinue'/>
-                <Property name='Category' type='string' value='Scale'/>
-                <Property name='Description' type='string' value='Anime4K DarkLines'/>
-                <Inputs>
-                    <Input name='Source'/>
-                </Inputs>
-            </Effect>
-        ), nullptr, 0, CreateEffect);
-
-        return hr;
-    }
-
-    static HRESULT CALLBACK CreateEffect(_Outptr_ IUnknown** ppEffectImpl) {
-        // This code assumes that the effect class initializes its reference count to 1.
-        *ppEffectImpl = static_cast<ID2D1EffectImpl*>(new Anime4KDarkLinesEffect());
-
-        if (*ppEffectImpl == nullptr) {
-            return E_OUTOFMEMORY;
-        }
-
-        return S_OK;
-    }
-
-private:
-    // Constructor should be private since it should never be called externally.
-    Anime4KDarkLinesEffect() {}
-
-
-    HRESULT _MakeGraph() {
         HRESULT hr;
 
         hr = SimpleDrawTransform::Create(
@@ -110,7 +71,7 @@ private:
         if (FAILED(hr)) {
             return hr;
         }
-        
+
 
         hr = _d2dTransformGraph->AddNode(_rgb2yuvTransform.Get());
         if (FAILED(hr)) {
@@ -136,7 +97,7 @@ private:
         if (FAILED(hr)) {
             return hr;
         }
-        
+
         hr = _d2dTransformGraph->ConnectToEffectInput(0, _rgb2yuvTransform.Get(), 0);
         if (FAILED(hr)) {
             return hr;
@@ -177,6 +138,41 @@ private:
 
         return S_OK;
     }
+
+
+    static HRESULT Register(_In_ ID2D1Factory1* pFactory) {
+        HRESULT hr = pFactory->RegisterEffectFromString(CLSID_MAGPIE_ANIME4K_DARKLINES_EFFECT, XML(
+            <?xml version='1.0'?>
+            <Effect>
+                <!--System Properties-->
+                <Property name='DisplayName' type='string' value='Anime4K DarkLines'/>
+                <Property name='Author' type='string' value='Blinue'/>
+                <Property name='Category' type='string' value='Scale'/>
+                <Property name='Description' type='string' value='Anime4K DarkLines'/>
+                <Inputs>
+                    <Input name='Source'/>
+                </Inputs>
+            </Effect>
+        ), nullptr, 0, CreateEffect);
+
+        return hr;
+    }
+
+    static HRESULT CALLBACK CreateEffect(_Outptr_ IUnknown** ppEffectImpl) {
+        // This code assumes that the effect class initializes its reference count to 1.
+        *ppEffectImpl = static_cast<ID2D1EffectImpl*>(new Anime4KDarkLinesEffect());
+
+        if (*ppEffectImpl == nullptr) {
+            return E_OUTOFMEMORY;
+        }
+
+        return S_OK;
+    }
+
+private:
+    // Constructor should be private since it should never be called externally.
+    Anime4KDarkLinesEffect() {}
+
 
     ComPtr<SimpleDrawTransform> _rgb2yuvTransform = nullptr;
     ComPtr<SimpleDrawTransform> _pass1Transform = nullptr;
