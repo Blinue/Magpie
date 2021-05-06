@@ -8,22 +8,14 @@ cbuffer constants : register(b0) {
 };
 
 
-#define D2D_INPUT_COUNT 2
-#define D2D_INPUT0_COMPLEX
-#define D2D_INPUT1_COMPLEX
+#define MAGPIE_INPUT_COUNT 2
 #include "Anime4K.hlsli"
 
 
 #define SIGMA 1.0
 
-static float4 coord0;
-static float4 coord1;
-static float2 maxCoord1;
+#define get(pos) (Uncompress2(SampleInputChecked(1, pos).x))
 
-float get(float2 pos) {
-	pos = clamp(pos, float2(0, 0), maxCoord1);
-	return Uncompress2(D2DSampleInput(1, pos).x);
-}
 
 float gaussian(float x, float s, float m) {
 	return (1.0 / (s * sqrt(2.0 * 3.14159))) * exp(-0.5 * pow(abs(x - m) / s, 2.0));
@@ -36,11 +28,11 @@ float lumGaussian(float2 pos, float2 d) {
 	float g = get(pos) * gaussian(0.0, s, 0.0);
 	float gn = gaussian(0.0, s, 0.0);
 
-	g += (get(max(pos - d, float2(0, 0))) + get(min(pos + d, maxCoord1))) * gaussian(1.0, s, 0.0);
+	g += (get(pos - d) + get(pos + d)) * gaussian(1.0, s, 0.0);
 	gn += gaussian(1.0, s, 0.0) * 2.0;
 
 	for (int i = 2; float(i) < kernel_size; i++) {
-		g += (get(max(pos - d * i, float2(0,0))) + get(min(pos + d * i, maxCoord1))) * gaussian(float(i), s, 0.0);
+		g += (get(pos - (d * float(i))) + get(pos + (d * float(i)))) * gaussian(float(i), s, 0.0);
 		gn += gaussian(float(i), s, 0.0) * 2.0;
 	}
 
@@ -49,9 +41,7 @@ float lumGaussian(float2 pos, float2 d) {
 
 
 D2D_PS_ENTRY(main) {
-	coord0 = D2DGetInputCoordinate(0);
-	coord1 = D2DGetInputCoordinate(1);
-	maxCoord1 = float2((srcSize.x - 1) * coord1.z, (srcSize.y - 1) * coord1.w);
+	InitMagpieSampleInput();
 
-	return float4(Compress2(min(D2DSampleInput(0, coord0.xy).x - lumGaussian(coord1.xy, float2(0, coord1.w)), 0.0)), 0, 0, 1);
+	return float4(Compress2(min(SampleInputCur(0).x - lumGaussian(Coord(1).xy, float2(0, Coord(1).w)), 0.0)), 0, 0, 1);
 }

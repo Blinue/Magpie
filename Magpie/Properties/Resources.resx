@@ -158,6 +158,32 @@
     ]
   },
   {
+    "name": "动漫 2x（Anime4K+ThinLines）",
+    "model": [
+      {
+        "effect": "scale",
+        "type": "Anime4K",
+        "curveHeight": 1,
+        "useDenoiseVersion": true
+      },
+      {
+        "effect": "scale",
+        "type": "mitchell",
+        "scale": [ 0, 0 ]
+      },
+      {
+        "effect": "scale",
+        "type": "Anime4KThinLines"
+      },
+      {
+        "effect": "sharpen",
+        "type": "builtIn",
+        "sharpness": 0.5,
+        "threshold": 0.3
+      }
+    ]
+  },
+  {
     "name": "动漫 4x（Anime4K x2）",
     "model": [
       {

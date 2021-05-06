@@ -9,9 +9,7 @@ cbuffer constants : register(b0) {
 };
 
 
-#define D2D_INPUT_COUNT 1
-#define D2D_INPUT0_COMPLEX
-#define MAGPIE_USE_SAMPLE_INPUT
+#define MAGPIE_INPUT_COUNT 1
 #include "common.hlsli"
 
 #define FIX(c) max(abs(c), 1e-5)
@@ -27,12 +25,12 @@ float3 weight3(float x) {
 
 
 float3 line_run(float ypos, float3 xpos1, float3 xpos2, float3 linetaps1, float3 linetaps2) {
-    return SampleInputNoCheck(0, float2(xpos1.r, ypos)) * linetaps1.r
-        + SampleInputNoCheck(0, float2(xpos1.g, ypos)) * linetaps2.r
-        + SampleInputNoCheck(0, float2(xpos1.b, ypos)) * linetaps1.g
-        + SampleInputNoCheck(0, float2(xpos2.r, ypos)) * linetaps2.g
-        + SampleInputNoCheck(0, float2(xpos2.g, ypos)) * linetaps1.b
-        + SampleInputNoCheck(0, float2(xpos2.b, ypos)) * linetaps2.b;
+    return SampleInput(0, float2(xpos1.r, ypos)).rgb * linetaps1.r
+        + SampleInput(0, float2(xpos1.g, ypos)).rgb * linetaps2.r
+        + SampleInput(0, float2(xpos1.b, ypos)).rgb * linetaps1.g
+        + SampleInput(0, float2(xpos2.r, ypos)).rgb * linetaps2.g
+        + SampleInput(0, float2(xpos2.g, ypos)).rgb * linetaps1.b
+        + SampleInput(0, float2(xpos2.b, ypos)).rgb * linetaps2.b;
 }
 
 D2D_PS_ENTRY(main) {
@@ -40,13 +38,13 @@ D2D_PS_ENTRY(main) {
 
     // 用于抗振铃
     float3 neighbors[4] = {
-        SampleInputOffCheckLeft(0, -1, 0),
-        SampleInputOffCheckRight(0, 1, 0),
-        SampleInputOffCheckTop(0, 0, -1),
-        SampleInputOffCheckBottom(0, 0, 1)
+        SampleInputOffChecked(0, float2(-1, 0)).rgb,
+        SampleInputOffChecked(0, float2(1, 0)).rgb,
+        SampleInputOffChecked(0, float2(0, -1)).rgb,
+        SampleInputOffChecked(0, float2(0, 1)).rgb
     };
 
-    float2 f = frac(coord.xy / coord.zw + 0.5);
+    float2 f = frac(Coord(0).xy / Coord(0).zw + 0.5);
 
     float3 linetaps1 = weight3(0.5 - f.x * 0.5);
     float3 linetaps2 = weight3(1.0 - f.x * 0.5);
@@ -63,18 +61,18 @@ D2D_PS_ENTRY(main) {
     columntaps2 /= sumc;
 
     // !!!改变当前坐标
-    coord.xy -= (f + 2) * coord.zw;
+    Coord(0).xy -= (f + 2) * Coord(0).zw;
 
-    float3 xpos1 = float3(coord.x, GetCheckedRight(1), GetCheckedRight(2));
-    float3 xpos2 = float3(GetCheckedRight(3), GetCheckedRight(4), GetCheckedRight(5));
+    float3 xpos1 = float3(Coord(0).x, min(Coord(0).x + Coord(0).z, maxCoord0.x), min(Coord(0).x + 2 * Coord(0).z, maxCoord0.x));
+    float3 xpos2 = float3(min(Coord(0).x + 3 * Coord(0).z, maxCoord0.x), min(Coord(0).x + 4 * Coord(0).z, maxCoord0.x), min(Coord(0).x + 5 * Coord(0).z, maxCoord0.x));
 
     // final sum and weight normalization
-    float3 color = line_run(coord.y, xpos1, xpos2, linetaps1, linetaps2) * columntaps1.r
-        + line_run(GetCheckedBottom(1), xpos1, xpos2, linetaps1, linetaps2) * columntaps2.r
-        + line_run(GetCheckedBottom(2), xpos1, xpos2, linetaps1, linetaps2) * columntaps1.g
-        + line_run(GetCheckedBottom(3), xpos1, xpos2, linetaps1, linetaps2) * columntaps2.g
-        + line_run(GetCheckedBottom(4), xpos1, xpos2, linetaps1, linetaps2) * columntaps1.b
-        + line_run(GetCheckedBottom(5), xpos1, xpos2, linetaps1, linetaps2) * columntaps2.b;
+    float3 color = line_run(Coord(0).y, xpos1, xpos2, linetaps1, linetaps2) * columntaps1.r
+        + line_run(min(Coord(0).y + Coord(0).w, maxCoord0.y), xpos1, xpos2, linetaps1, linetaps2) * columntaps2.r
+        + line_run(min(Coord(0).y + 2 * Coord(0).w, maxCoord0.y), xpos1, xpos2, linetaps1, linetaps2) * columntaps1.g
+        + line_run(min(Coord(0).y + 3 * Coord(0).w, maxCoord0.y), xpos1, xpos2, linetaps1, linetaps2) * columntaps2.g
+        + line_run(min(Coord(0).y + 4 * Coord(0).w, maxCoord0.y), xpos1, xpos2, linetaps1, linetaps2) * columntaps1.b
+        + line_run(min(Coord(0).y + 5 * Coord(0).w, maxCoord0.y), xpos1, xpos2, linetaps1, linetaps2) * columntaps2.b;
 
     // 抗振铃
     float3 min_sample = min4(neighbors[0], neighbors[1], neighbors[2], neighbors[3]);

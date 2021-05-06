@@ -4,21 +4,19 @@
 // Anime4K-v3.1-Upscale(x2)+Denoise-CNN(M)-Conv-Reduce
 
 
-#define D2D_INPUT_COUNT 5
-#define D2D_INPUT0_SIMPLE
-#define D2D_INPUT1_SIMPLE
-#define D2D_INPUT2_SIMPLE
-#define D2D_INPUT3_SIMPLE
-#define D2D_INPUT4_SIMPLE
+#define MAGPIE_INPUT_COUNT 5
+#define MAGPIE_NO_CHECK
 #include "Anime4K.hlsli"
 
 
 D2D_PS_ENTRY(main) {
-	float4 a = Uncompress(D2DGetInput(0));
-	float4 b = Uncompress(D2DGetInput(1));
-	float4 c = Uncompress(D2DGetInput(2));
-	float4 d = Uncompress(D2DGetInput(3));
-	float4 e = Uncompress(D2DGetInput(4));
+	InitMagpieSampleInput();
+
+	float4 a = Uncompress(SampleInputCur(0));
+	float4 b = Uncompress(SampleInputCur(1));
+	float4 c = Uncompress(SampleInputCur(2));
+	float4 d = Uncompress(SampleInputCur(3));
+	float4 e = Uncompress(SampleInputCur(4));
 
 	float4 na = -min(a, ZEROS4);
 	float4 nb = -min(b, ZEROS4);

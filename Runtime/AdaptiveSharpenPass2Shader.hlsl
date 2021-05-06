@@ -10,9 +10,7 @@ cbuffer constants : register(b0) {
 };
 
 
-#define D2D_INPUT_COUNT 1
-#define D2D_INPUT0_COMPLEX
-#define MAGPIE_USE_SAMPLE_INPUT
+#define MAGPIE_INPUT_COUNT 1
 #include "AdaptiveSharpen.hlsli"
 
 
@@ -49,8 +47,8 @@ cbuffer constants : register(b0) {
 
 
 
-float4 get(float x, float y) {
-	float4 s = SampleInputRGBANoCheck(0, float2(x, y));
+float4 get(float2 pos) {
+	float4 s = SampleInput(0, pos);
 	return float4(s.xyz, Uncompress(s.w));
 }
 
@@ -58,24 +56,24 @@ float4 get(float x, float y) {
 D2D_PS_ENTRY(main) {
 	InitMagpieSampleInput();
 
-	float4 orig0 = get(coord.x, coord.y);
+	float4 orig0 = get(Coord(0).xy);
 	float c_edge = orig0.w;
 
 	// Displays the origin image if the edge data is not inside a valid range in the .w channel
 	if (c_edge > 32 || c_edge < -0.5) { return float4(orig0.xyz, 1); }
 
-	float left1X = GetCheckedLeft(1);
-	float left2X = GetCheckedLeft(2);
-	float left3X = GetCheckedLeft(3);
-	float right1X = GetCheckedRight(1);
-	float right2X = GetCheckedRight(2);
-	float right3X = GetCheckedRight(3);
-	float top1Y = GetCheckedTop(1);
-	float top2Y = GetCheckedTop(2);
-	float top3Y = GetCheckedTop(3);
-	float bottom1Y = GetCheckedBottom(1);
-	float bottom2Y = GetCheckedBottom(2);
-	float bottom3Y = GetCheckedBottom(3);
+	float left1X = max(0, Coord(0).x - Coord(0).z);
+	float left2X = max(0, left1X - Coord(0).z);
+	float left3X = max(0, left2X - Coord(0).z);
+	float right1X = min(maxCoord0.x, Coord(0).x + Coord(0).z);
+	float right2X = min(maxCoord0.x, right1X + Coord(0).z);
+	float right3X = min(maxCoord0.x, right2X + Coord(0).z);
+	float top1Y = max(0, Coord(0).y - Coord(0).w);
+	float top2Y = max(0, top1Y - Coord(0).w);
+	float top3Y = max(0, top2Y - Coord(0).w);
+	float bottom1Y = min(maxCoord0.y, Coord(0).y + Coord(0).w);
+	float bottom2Y = min(maxCoord0.y, bottom1Y + Coord(0).w);
+	float bottom3Y = min(maxCoord0.y, bottom2Y + Coord(0).w);
 
 	// Get points, saturate colour data in c[0]
 	// [                c22               ]
@@ -87,30 +85,30 @@ D2D_PS_ENTRY(main) {
 	// [                c13               ]
 	float4 c[25] = {
 		orig0,					// c0
-		get(left1X, top1Y),		// c1
-		get(coord.x, top1Y),	// c2
-		get(right1X, top1Y),	// c3
-		get(left1X, coord.y),	// c4
-		get(right1X, coord.y),	// c5
-		get(left1X, bottom1Y),	// c6
-		get(coord.x, bottom1Y),	// c7
-		get(right1X, bottom1Y),	// c8
-		get(coord.x, top2Y),	// c9
-		get(left2X, coord.y),	// c10
-		get(right2X, coord.y),	// c11
-		get(coord.x, bottom2Y),	// c12
-		get(coord.x, bottom3Y),	// c13
-		get(right1X, bottom2Y),	// c14
-		get(left1X, bottom2Y),	// c15
-		get(right3X, coord.y),	// c16
-		get(right2X, bottom1Y),	// c17
-		get(right2X, top1Y),	// c18
-		get(left3X, coord.y),	// c19
-		get(left2X, bottom1Y),	// c20
-		get(left2X, top1Y),		// c21
-		get(coord.x, top3Y),	// c22
-		get(right1X, top2Y),	// c23
-		get(left1X, top2Y)		// c24
+		get(float2(left1X, top1Y)),		// c1
+		get(float2(Coord(0).x, top1Y)),	// c2
+		get(float2(right1X, top1Y)),	// c3
+		get(float2(left1X, Coord(0).y)),	// c4
+		get(float2(right1X, Coord(0).y)),	// c5
+		get(float2(left1X, bottom1Y)),	// c6
+		get(float2(Coord(0).x, bottom1Y)),	// c7
+		get(float2(right1X, bottom1Y)),	// c8
+		get(float2(Coord(0).x, top2Y)),	// c9
+		get(float2(left2X, Coord(0).y)),	// c10
+		get(float2(right2X, Coord(0).y)),	// c11
+		get(float2(Coord(0).x, bottom2Y)),	// c12
+		get(float2(Coord(0).x, bottom3Y)),	// c13
+		get(float2(right1X, bottom2Y)),	// c14
+		get(float2(left1X, bottom2Y)),	// c15
+		get(float2(right3X, Coord(0).y)),	// c16
+		get(float2(right2X, bottom1Y)),	// c17
+		get(float2(right2X, top1Y)),	// c18
+		get(float2(left3X, Coord(0).y)),	// c19
+		get(float2(left2X, bottom1Y)),	// c20
+		get(float2(left2X, top1Y)),		// c21
+		get(float2(Coord(0).x, top3Y)),	// c22
+		get(float2(right1X, top2Y)),	// c23
+		get(float2(left1X, top2Y))		// c24
 	};
 
 	// Allow for higher overshoot if the current edge pixel is surrounded by similar edge pixels

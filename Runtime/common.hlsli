@@ -1,5 +1,3 @@
-#include "d2d1effecthelpers.hlsli"
-
 #define PI 3.1415926535897932384626433832795
 #define HALF_PI  1.5707963267948966192313216916398
 
@@ -15,74 +13,127 @@
 #define min9(a, b, c, d, e, f, g, h, i) min3(min4(a, b, c, d), min4(e, f, g, h), i)
 
 
-#ifdef MAGPIE_USE_SAMPLE_INPUT
+#if MAGPIE_INPUT_COUNT >= 1
 
 /*
 * 包含边界检查的 SampleInput
-* 欲使用下面的宏需要在包含此文件前定义 MAGPIE_USE_SAMPLE_INPUT，
+* 欲使用下面的宏需要在包含此文件前定义 MAGPIE_INPUT_COUNT，
 * 然后在 main 函数的开头调用 InitMagpieSampleInput 或 InitMagpieSampleInputWithScale
 */
 
-static float4 coord = 0;
+#define D2D_INPUT0_COMPLEX
+#ifndef MAGPIE_NO_CHECK
+static float2 maxCoord0;
+#endif
 
-#define SampleInputRGBANoCheck(index, pos) (D2DSampleInput(index, pos))
-#define SampleInputRGBAOffNoCheck(index, pos) (SampleInputRGBANoCheck(index, coord.xy + pos * coord.zw))
-#define SampleInputRGBACur(index) (D2DSampleInput(index, coord.xy))
+#if MAGPIE_INPUT_COUNT >= 2
+#define D2D_INPUT1_COMPLEX
+#ifndef MAGPIE_NO_CHECK
+static float2 maxCoord1;
+#endif
 
-#define SampleInputNoCheck(index, pos) (SampleInputRGBANoCheck(index, pos).rgb)
-#define SampleInputOffNoCheck(index, pos) (SampleInputRGBAOffNoCheck(index, pos).rgb)
-#define SampleInputCur(index) (SampleInputRGBACur(index).rgb)
+#if MAGPIE_INPUT_COUNT >= 3
+#define D2D_INPUT2_COMPLEX
+#ifndef MAGPIE_NO_CHECK
+static float2 maxCoord2;
+#endif
 
+#if MAGPIE_INPUT_COUNT >= 4
+#define D2D_INPUT3_COMPLEX
+#ifndef MAGPIE_NO_CHECK
+static float2 maxCoord3;
+#endif
 
-static float2 _maxCoord = 0;
+#if MAGPIE_INPUT_COUNT >= 5
+#define D2D_INPUT4_COMPLEX
+#ifndef MAGPIE_NO_CHECK
+static float2 maxCoord4;
+#endif
 
-// 使用 rg 而不是 xy
-#define _checkLeft(x) (max(0, x))
-#define _checkRight(x) (min(_maxCoord.r, x))
-#define _checkTop(y) (max(0, y))
-#define _checkBottom(y) (min(_maxCoord.g, y))
+#if MAGPIE_INPUT_COUNT >= 6
+#define D2D_INPUT5_COMPLEX
+#ifndef MAGPIE_NO_CHECK
+static float2 maxCoord5;
+#endif
 
-// 检查边界的 D2DSampleInput
-#define SampleInputCheckLeft(index, x, y) (SampleInputNoCheck(index, float2(_checkLeft(x), y)))
-#define SampleInputCheckRight(index, x, y) (SampleInputNoCheck(index, float2(_checkRight(x), y)))
-#define SampleInputCheckTop(index, x, y) (SampleInputNoCheck(index, float2(x, _checkTop(y))))
-#define SampleInputCheckBottom(index, x, y) (SampleInputNoCheck(index, float2(x, _checkBottom(y))))
-#define SampleInputCheckLeftTop(index, x, y) (SampleInputNoCheck(index, float2(_checkLeft(x), _checkTop(y))))
-#define SampleInputCheckLeftBottom(index, x, y) (SampleInputNoCheck(index, float2(_checkLeft(x), _checkBottom(y))))
-#define SampleInputCheckRightTop(index, x, y) (SampleInputNoCheck(index, float2(_checkRight(x), _checkTop(y))))
-#define SampleInputCheckRightBottom(index, x, y) (SampleInputNoCheck(index, float2(_checkRight(x), _checkBottom(y))))
+#if MAGPIE_INPUT_COUNT >= 7
+#define D2D_INPUT6_COMPLEX
+#ifndef MAGPIE_NO_CHECK
+static float2 maxCoord6;
+#endif
 
-// 检查边界的 D2DSampleInputAtOffset
-// 使用 rg 而不是 xy
-#define SampleInputOffCheckLeft(index, x, y) SampleInputCheckLeft(index, x * coord.z + coord.r, y * coord.w + coord.g)
-#define SampleInputOffCheckRight(index, x, y) SampleInputCheckRight(index, x * coord.z + coord.r, y * coord.w + coord.g)
-#define SampleInputOffCheckTop(index, x, y) SampleInputCheckTop(index, x * coord.z + coord.r, y * coord.w + coord.g)
-#define SampleInputOffCheckBottom(index, x, y) SampleInputCheckBottom(index, x * coord.z + coord.r, y * coord.w + coord.g)
-#define SampleInputOffCheckLeftTop(index, x, y) SampleInputCheckLeftTop(index, x * coord.z + coord.r, y * coord.w + coord.g)
-#define SampleInputOffCheckLeftBottom(index, x, y) SampleInputCheckLeftBottom(index, x * coord.z + coord.r, y * coord.w + coord.g)
-#define SampleInputOffCheckRightTop(index, x, y) SampleInputCheckRightTop(index, x * coord.z + coord.r, y * coord.w + coord.g)
-#define SampleInputOffCheckRightBottom(index, x, y) SampleInputCheckRightBottom(index, x * coord.z + coord.r, y * coord.w + coord.g)
+#if MAGPIE_INPUT_COUNT >= 8
+#define D2D_INPUT7_COMPLEX
+#ifndef MAGPIE_NO_CHECK
+static float2 maxCoord7;
+#endif
 
-// 限制坐标在边界内
-// n 为 offset
-#define GetCheckedLeft(n) _checkLeft(coord.x - n * coord.z)
-#define GetCheckedRight(n) _checkRight(coord.x + n * coord.z)
-#define GetCheckedTop(n) _checkTop(coord.y - n * coord.w)
-#define GetCheckedBottom(n) _checkBottom(coord.y + n * coord.w)
+#if MAGPIE_INPUT_COUNT >= 9
+#error Too many inputs.
+#endif
+
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+
+#define D2D_INPUT_COUNT MAGPIE_INPUT_COUNT
+#include "d2d1effecthelpers.hlsli"
+
+#define Coord(index) (D2DGetInputCoordinate(index))
+
+#define SampleInput(index, pos) (D2DSampleInput(index, (pos)))
+#define SampleInputCur(index) (SampleInput(index, Coord(index).xy))
+#define SampleInputOff(index, pos) (SampleInput(index, Coord(index).xy + (pos) * Coord(index).zw))
+
+#ifndef MAGPIE_NO_CHECK
+#define GetCheckedPos(index, pos) (clamp((pos), float2(0, 0), maxCoord##index))
+#define GetCheckedOffPos(index, pos) (GetCheckedPos(index, Coord(index).xy + (pos) * Coord(index).zw))
+
+#define SampleInputChecked(index, pos) (SampleInput(index, GetCheckedPos(index, (pos))))
+#define SampleInputOffChecked(index, pos) (SampleInput(index, GetCheckedOffPos(index, (pos))))
+#endif
 
 
 // 需要 main 函数的开头调用
 
 void InitMagpieSampleInput() {
-	coord = D2DGetInputCoordinate(0);
-	_maxCoord = float2((srcSize.x - 1) * coord.z, (srcSize.y - 1) * coord.w);
+#ifndef MAGPIE_NO_CHECK
+	maxCoord0 = float2((srcSize.x - 1) * Coord(0).z, (srcSize.y - 1) * Coord(0).w);
+#if MAGPIE_INPUT_COUNT >= 2
+	maxCoord1 = float2((srcSize.x - 1) * Coord(1).z, (srcSize.y - 1) * Coord(1).w);
+#if MAGPIE_INPUT_COUNT >= 3
+	maxCoord2 = float2((srcSize.x - 1) * Coord(2).z, (srcSize.y - 1) * Coord(2).w);
+#if MAGPIE_INPUT_COUNT >= 4
+	maxCoord3 = float2((srcSize.x - 1) * Coord(3).z, (srcSize.y - 1) * Coord(3).w);
+#if MAGPIE_INPUT_COUNT >= 5
+	maxCoord4 = float2((srcSize.x - 1) * Coord(4).z, (srcSize.y - 1) * Coord(4).w);
+#if MAGPIE_INPUT_COUNT >= 6
+	maxCoord5 = float2((srcSize.x - 1) * Coord(5).z, (srcSize.y - 1) * Coord(5).w);
+#if MAGPIE_INPUT_COUNT >= 7
+	maxCoord6 = float2((srcSize.x - 1) * Coord(6).z, (srcSize.y - 1) * Coord(6).w);
+#if MAGPIE_INPUT_COUNT >= 8
+	maxCoord7 = float2((srcSize.x - 1) * Coord(7).z, (srcSize.y - 1) * Coord(7).w);
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
 }
 
 void InitMagpieSampleInputWithScale(float2 scale) {
-	coord = D2DGetInputCoordinate(0);
-	coord.xy = coord.xy / scale;	// 将 dest 坐标映射为 src 坐标
-	_maxCoord = float2((srcSize.x - 1) * coord.z, (srcSize.y - 1) * coord.w);
+	InitMagpieSampleInput();
+
+	// 将 dest 坐标映射为 src 坐标
+	Coord(0).xy /= scale;
 }
+
 
 #endif
 

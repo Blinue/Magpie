@@ -20,9 +20,7 @@ cbuffer constants : register(b0) {
 };
 
 
-#define D2D_INPUT_COUNT 1
-#define D2D_INPUT0_COMPLEX
-#define MAGPIE_USE_SAMPLE_INPUT
+#define MAGPIE_INPUT_COUNT 1
 #include "common.hlsli"
 
 
@@ -44,7 +42,7 @@ D2D_PS_ENTRY(main) {
 	float2 dx = float2(1.0, 0.0);
 	float2 dy = float2(0.0, 1.0);
 
-	float2 pc = coord.xy / coord.zw;
+	float2 pc = Coord(0).xy / Coord(0).zw;
 	float2 tc = floor(pc - float2(0.5, 0.5)) + float2(0.5, 0.5);
 
 	float wa = windowSinc * PI;
@@ -57,36 +55,33 @@ D2D_PS_ENTRY(main) {
 	};
 
 	// !!!改变当前坐标
-	coord.xy = tc * coord.zw;
+	Coord(0).xy = tc * Coord(0).zw;
 
-	float left1X = GetCheckedLeft(1);
-	float right1X = GetCheckedRight(1);
-	float right2X = GetCheckedRight(2);
-	float top1Y = GetCheckedTop(1);
-	float bottom1Y = GetCheckedBottom(1);
-	float bottom2Y = GetCheckedBottom(2);
+	float2 leftTop1 = GetCheckedOffPos(0, float2(-1, -1));
+	float2 rightBottom1 = GetCheckedOffPos(0, float2(1, 1));
+	float2 rightBottom2 = GetCheckedOffPos(0, float2(2, 2));
 
 	// reading the texels
 	// [ c00, c10, c20, c30 ]
 	// [ c01, c11, c21, c31 ]
 	// [ c02, c12, c22, c32 ]
 	// [ c03, c13, c23, c33 ]
-	float3 c00 = SampleInputNoCheck(0, float2(left1X, top1Y));
-	float3 c10 = SampleInputNoCheck(0, float2(coord.x, top1Y));
-	float3 c20 = SampleInputNoCheck(0, float2(right1X, top1Y));
-	float3 c30 = SampleInputNoCheck(0, float2(right2X, top1Y));
-	float3 c01 = SampleInputNoCheck(0, float2(left1X, coord.y));
-	float3 c11 = SampleInputNoCheck(0, float2(coord.x, coord.y));
-	float3 c21 = SampleInputNoCheck(0, float2(right1X, coord.y));
-	float3 c31 = SampleInputNoCheck(0, float2(right2X, coord.y));
-	float3 c02 = SampleInputNoCheck(0, float2(left1X, bottom1Y));
-	float3 c12 = SampleInputNoCheck(0, float2(coord.x, bottom1Y));
-	float3 c22 = SampleInputNoCheck(0, float2(right1X, bottom1Y));
-	float3 c32 = SampleInputNoCheck(0, float2(right2X, bottom1Y));
-	float3 c03 = SampleInputNoCheck(0, float2(left1X, bottom2Y));
-	float3 c13 = SampleInputNoCheck(0, float2(coord.x, bottom2Y));
-	float3 c23 = SampleInputNoCheck(0, float2(right1X, bottom2Y));
-	float3 c33 = SampleInputNoCheck(0, float2(right2X, bottom2Y));
+	float3 c00 = SampleInput(0, leftTop1).rgb;
+	float3 c10 = SampleInput(0, float2(Coord(0).x, leftTop1.y)).rgb;
+	float3 c20 = SampleInput(0, float2(rightBottom1.x, leftTop1.y)).rgb;
+	float3 c30 = SampleInput(0, float2(rightBottom2.x, leftTop1.y)).rgb;
+	float3 c01 = SampleInput(0, float2(leftTop1.x, Coord(0).y)).rgb;
+	float3 c11 = SampleInputCur(0).rgb;
+	float3 c21 = SampleInput(0, float2(rightBottom1.x, Coord(0).y)).rgb;
+	float3 c31 = SampleInput(0, float2(rightBottom2.x, Coord(0).y)).rgb;
+	float3 c02 = SampleInput(0, float2(leftTop1.x, rightBottom1.y)).rgb;
+	float3 c12 = SampleInput(0, float2(Coord(0).x, rightBottom1.y)).rgb;
+	float3 c22 = SampleInput(0, rightBottom1).rgb;
+	float3 c32 = SampleInput(0, float2(rightBottom2.x, rightBottom1.y)).rgb;
+	float3 c03 = SampleInput(0, float2(leftTop1.x, rightBottom2.y)).rgb;
+	float3 c13 = SampleInput(0, float2(Coord(0).x, rightBottom2.y)).rgb;
+	float3 c23 = SampleInput(0, float2(rightBottom1.x, rightBottom2.y)).rgb;
+	float3 c33 = SampleInput(0, rightBottom2).rgb;
 	
 
 	float3 color = mul(weights[0], float4x3(c00, c10, c20, c30));

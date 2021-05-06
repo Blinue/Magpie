@@ -7,35 +7,31 @@ cbuffer constants : register(b0) {
 };
 
 
-#define D2D_INPUT_COUNT 2
-#define D2D_INPUT0_COMPLEX
-#define D2D_INPUT1_COMPLEX
+#define MAGPIE_INPUT_COUNT 2
 #include "Anime4K.hlsli"
 
 #define STRENGTH 0.3 //Strength of warping for each iteration
-#define ITERATIONS 1 //Number of iterations for the forwards solver, decreasing strength and increasing iterations improves quality at the cost of speed.
+#define ITERATIONS 3 //Number of iterations for the forwards solver, decreasing strength and increasing iterations improves quality at the cost of speed.
 
 
 D2D_PS_ENTRY(main) {
-	float4 coord0 = D2DGetInputCoordinate(0);
-	float4 coord1 = D2DGetInputCoordinate(1);
-	float2 maxCoord0 = float2((srcSize.x - 1) * coord0.z, (srcSize.y - 1) * coord0.w);
+	InitMagpieSampleInput();
 
 	float relstr = srcSize.y / 1080.0 * STRENGTH;
 
-	float2 pos = coord0.xy;
+	float2 pos = Coord(0).xy;
 
 #if ITERATIONS != 1
 	for (int i = 0; i < ITERATIONS; i++) {
 #endif
 
-	float2 dn = Uncompress2(D2DSampleInput(1, pos / coord0.zw * coord1.zw).xy);
-	float2 dd = (dn / (length(dn) + 0.01)) * coord0.zw * relstr; //Quasi-normalization for large vectors, avoids divide by zero
-	pos = clamp(pos - dd, float2(0, 0), maxCoord0);
+	float2 dn = Uncompress2(SampleInput(1, pos / Coord(0).zw * Coord(1).zw).xy);
+	float2 dd = (dn / (length(dn) + 0.01)) * Coord(0).zw * relstr; //Quasi-normalization for large vectors, avoids divide by zero
+	pos = GetCheckedPos(0, pos);
 
 #if ITERATIONS != 1
 	}
 #endif
 
-	return D2DSampleInput(0, pos);
+	return SampleInput(0, pos);
 }

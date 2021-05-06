@@ -8,9 +8,7 @@ cbuffer constants : register(b0) {
 };
 
 
-#define D2D_INPUT_COUNT 1
-#define D2D_INPUT0_COMPLEX
-#define MAGPIE_USE_SAMPLE_INPUT
+#define MAGPIE_INPUT_COUNT 1
 #include "Anime4K.hlsli"
 
 
@@ -20,9 +18,9 @@ D2D_PS_ENTRY(main) {
 	//[tl  t tr]
 	//[ l  c  r]
 	//[bl  b br]
-	float l = SampleInputOffCheckLeft(0, -1, 0).x;
+	float l = SampleInputOffChecked(0, float2(-1, 0)).x;
 	float c = SampleInputCur(0).x;
-	float r = SampleInputOffCheckRight(0, 1, 0).x;
+	float r = SampleInputOffChecked(0, float2(1, 0)).x;
 
 
 	//Horizontal Gradient

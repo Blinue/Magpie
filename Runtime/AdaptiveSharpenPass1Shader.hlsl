@@ -10,9 +10,7 @@ cbuffer constants : register(b0) {
 };
 
 
-#define D2D_INPUT_COUNT 1
-#define D2D_INPUT0_COMPLEX
-#define MAGPIE_USE_SAMPLE_INPUT
+#define MAGPIE_INPUT_COUNT 1
 #include "AdaptiveSharpen.hlsli"
 
 
@@ -23,18 +21,18 @@ cbuffer constants : register(b0) {
 D2D_PS_ENTRY(main) {
 	InitMagpieSampleInput();
 
-	float left1X = GetCheckedLeft(1);
-	float left2X = GetCheckedLeft(2);
-	float left3X = GetCheckedLeft(3);
-	float right1X = GetCheckedRight(1);
-	float right2X = GetCheckedRight(2);
-	float right3X = GetCheckedRight(3);
-	float top1Y = GetCheckedTop(1);
-	float top2Y = GetCheckedTop(2);
-	float top3Y = GetCheckedTop(3);
-	float bottom1Y = GetCheckedBottom(1);
-	float bottom2Y = GetCheckedBottom(2);
-	float bottom3Y = GetCheckedBottom(3);
+	float left1X = max(0, Coord(0).x - Coord(0).z);
+	float left2X = max(0, left1X - Coord(0).z);
+	float left3X = max(0, left2X - Coord(0).z);
+	float right1X = min(maxCoord0.x, Coord(0).x + Coord(0).z);
+	float right2X = min(maxCoord0.x, right1X + Coord(0).z);
+	float right3X = min(maxCoord0.x, right2X + Coord(0).z);
+	float top1Y = max(0, Coord(0).y - Coord(0).w);
+	float top2Y = max(0, top1Y - Coord(0).w);
+	float top3Y = max(0, top2Y - Coord(0).w);
+	float bottom1Y = min(maxCoord0.y, Coord(0).y + Coord(0).w);
+	float bottom2Y = min(maxCoord0.y, bottom1Y + Coord(0).w);
+	float bottom3Y = min(maxCoord0.y, bottom2Y + Coord(0).w);
 	
 	// Get points and saturate out of range values (BTB & WTW)
 	// [                c22               ]
@@ -45,32 +43,33 @@ D2D_PS_ENTRY(main) {
 	// [           c15, c12, c14          ]
 	// [                c13               ]
 	float3 c[25] = {
-		SampleInputCur(0),									// c0
-		SampleInputNoCheck(0, float2(left1X, top1Y)),		// c1
-		SampleInputNoCheck(0, float2(coord.x, top1Y)),		// c2
-		SampleInputNoCheck(0, float2(right1X, top1Y)),		// c3
-		SampleInputNoCheck(0, float2(left1X, coord.y)),		// c4
-		SampleInputNoCheck(0, float2(right1X, coord.y)),	// c5
-		SampleInputNoCheck(0, float2(left1X, bottom1Y)),	// c6
-		SampleInputNoCheck(0, float2(coord.x, bottom1Y)),	// c7
-		SampleInputNoCheck(0, float2(right1X, bottom1Y)),	// c8
-		SampleInputNoCheck(0, float2(coord.x, top2Y)),		// c9
-		SampleInputNoCheck(0, float2(left2X, coord.y)),		// c10
-		SampleInputNoCheck(0, float2(right2X, coord.y)),	// c11
-		SampleInputNoCheck(0, float2(coord.x, bottom2Y)),	// c12
-		SampleInputNoCheck(0, float2(coord.x, bottom3Y)),	// c13
-		SampleInputNoCheck(0, float2(right1X, bottom2Y)),	// c14
-		SampleInputNoCheck(0, float2(left1X, bottom2Y)),	// c15
-		SampleInputNoCheck(0, float2(right3X, coord.y)),	// c16
-		SampleInputNoCheck(0, float2(right2X, bottom1Y)),	// c17
-		SampleInputNoCheck(0, float2(right2X, top1Y)),		// c18
-		SampleInputNoCheck(0, float2(left3X, coord.y)),		// c19
-		SampleInputNoCheck(0, float2(left2X, bottom1Y)),	// c20
-		SampleInputNoCheck(0, float2(left2X, top1Y)),		// c21
-		SampleInputNoCheck(0, float2(coord.x, top3Y)),		// c22
-		SampleInputNoCheck(0, float2(right1X, top2Y)),		// c23
-		SampleInputNoCheck(0, float2(left1X, top2Y))		// c24
+		SampleInputCur(0).rgb,									// c0
+		SampleInput(0, float2(left1X, top1Y)).rgb,		// c1
+		SampleInput(0, float2(Coord(0).x, top1Y)).rgb,		// c2
+		SampleInput(0, float2(right1X, top1Y)).rgb,		// c3
+		SampleInput(0, float2(left1X, Coord(0).y)).rgb,		// c4
+		SampleInput(0, float2(right1X, Coord(0).y)).rgb,	// c5
+		SampleInput(0, float2(left1X, bottom1Y)).rgb,	// c6
+		SampleInput(0, float2(Coord(0).x, bottom1Y)).rgb,	// c7
+		SampleInput(0, float2(right1X, bottom1Y)).rgb,	// c8
+		SampleInput(0, float2(Coord(0).x, top2Y)).rgb,		// c9
+		SampleInput(0, float2(left2X, Coord(0).y)).rgb,		// c10
+		SampleInput(0, float2(right2X, Coord(0).y)).rgb,	// c11
+		SampleInput(0, float2(Coord(0).x, bottom2Y)).rgb,	// c12
+		SampleInput(0, float2(Coord(0).x, bottom3Y)).rgb,	// c13
+		SampleInput(0, float2(right1X, bottom2Y)).rgb,	// c14
+		SampleInput(0, float2(left1X, bottom2Y)).rgb,	// c15
+		SampleInput(0, float2(right3X, Coord(0).y)).rgb,	// c16
+		SampleInput(0, float2(right2X, bottom1Y)).rgb,	// c17
+		SampleInput(0, float2(right2X, top1Y)).rgb,		// c18
+		SampleInput(0, float2(left3X, Coord(0).y)).rgb,		// c19
+		SampleInput(0, float2(left2X, bottom1Y)).rgb,	// c20
+		SampleInput(0, float2(left2X, top1Y)).rgb,		// c21
+		SampleInput(0, float2(Coord(0).x, top3Y)).rgb,		// c22
+		SampleInput(0, float2(right1X, top2Y)).rgb,		// c23
+		SampleInput(0, float2(left1X, top2Y)).rgb		// c24
 	};
+
 	
 	// Blur, gauss 3x3
 	float3 blur = (2 * (c[2] + c[4] + c[5] + c[7]) + (c[1] + c[3] + c[6] + c[8]) + 4 * c[0]) / 16;

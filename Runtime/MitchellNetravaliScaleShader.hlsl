@@ -9,9 +9,7 @@ cbuffer constants : register(b0) {
 };
 
 
-#define D2D_INPUT_COUNT 1
-#define D2D_INPUT0_COMPLEX
-#define MAGPIE_USE_SAMPLE_INPUT
+#define MAGPIE_INPUT_COUNT 1
 #include "common.hlsli"
 
 
@@ -52,17 +50,17 @@ float4 weight4(float x) {
 
 
 float3 line_run(float ypos, float4 xpos, float4 linetaps) {
-	return SampleInputNoCheck(0, float2(xpos.r, ypos)) * linetaps.r
-		+ SampleInputNoCheck(0, float2(xpos.g, ypos)) * linetaps.g
-		+ SampleInputNoCheck(0, float2(xpos.b, ypos)) * linetaps.b
-		+ SampleInputNoCheck(0, float2(xpos.a, ypos)) * linetaps.a;
+	return SampleInput(0, float2(xpos.r, ypos)).rgb * linetaps.r
+		+ SampleInput(0, float2(xpos.g, ypos)).rgb * linetaps.g
+		+ SampleInput(0, float2(xpos.b, ypos)).rgb * linetaps.b
+		+ SampleInput(0, float2(xpos.a, ypos)).rgb * linetaps.a;
 }
 
 
 D2D_PS_ENTRY(main) {
 	InitMagpieSampleInputWithScale(float2(destSize) / srcSize);
 
-	float2 f = frac(coord.xy / coord.zw + 0.5);
+	float2 f = frac(Coord(0).xy / Coord(0).zw + 0.5);
 	
 	float4 linetaps = weight4(1.0 - f.x);
 	float4 columntaps = weight4(1.0 - f.y);
@@ -72,14 +70,14 @@ D2D_PS_ENTRY(main) {
 	columntaps /= columntaps.r + columntaps.g + columntaps.b + columntaps.a;
 
 	// !!!改变当前坐标
-	coord.xy -= (f + 1) * coord.zw;
+	Coord(0).xy -= (f + 1) * Coord(0).zw;
 
-	float4 xpos = float4(coord.x, GetCheckedRight(1), GetCheckedRight(2), GetCheckedRight(3));
+	float4 xpos = float4(Coord(0).x, min(Coord(0).x + Coord(0).z, maxCoord0.x), min(Coord(0).x + 2 * Coord(0).z, maxCoord0.x), min(Coord(0).x + 3 * Coord(0).z, maxCoord0.x));
 
 	// final sum and weight normalization
-	return float4(line_run(coord.y, xpos, linetaps) * columntaps.r
-		+ line_run(GetCheckedBottom(1), xpos, linetaps) * columntaps.g
-		+ line_run(GetCheckedBottom(2), xpos, linetaps) * columntaps.b
-		+ line_run(GetCheckedBottom(3), xpos, linetaps) * columntaps.a,
+	return float4(line_run(Coord(0).y, xpos, linetaps) * columntaps.r
+		+ line_run(min(Coord(0).y + Coord(0).w, maxCoord0.y), xpos, linetaps) * columntaps.g
+		+ line_run(min(Coord(0).y + 2 * Coord(0).w, maxCoord0.y), xpos, linetaps) * columntaps.b
+		+ line_run(min(Coord(0).y + 3 * Coord(0).w, maxCoord0.y), xpos, linetaps) * columntaps.a,
 		1);
 }

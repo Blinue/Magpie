@@ -9,33 +9,28 @@ cbuffer constants : register(b0) {
 };
 
 
-#define D2D_INPUT_COUNT 1
-#define D2D_INPUT0_COMPLEX
-#define MAGPIE_USE_SAMPLE_INPUT
+#define MAGPIE_INPUT_COUNT 1
 #include "Anime4K.hlsli"
-
 
 
 D2D_PS_ENTRY(main) {
 	InitMagpieSampleInput();
 
-	float left1X = GetCheckedLeft(1);
-	float right1X = GetCheckedRight(1);
-	float top1Y = GetCheckedTop(1);
-	float bottom1Y = GetCheckedBottom(1);
+	float2 leftTop = GetCheckedOffPos(0, float2(-1, -1));
+	float2 rightBottom = GetCheckedOffPos(0, float2(1, 1));
 
 	// [ a, d, g ]
 	// [ b, e, h ]
 	// [ c, f, i ]
-	float4 a = Uncompress(SampleInputRGBANoCheck(0, float2(left1X, top1Y)));
-	float4 b = Uncompress(SampleInputRGBANoCheck(0, float2(left1X, coord.y)));
-	float4 c = Uncompress(SampleInputRGBANoCheck(0, float2(left1X, bottom1Y)));
-	float4 d = Uncompress(SampleInputRGBANoCheck(0, float2(coord.x, top1Y)));
-	float4 e = Uncompress(SampleInputRGBACur(0));
-	float4 f = Uncompress(SampleInputRGBANoCheck(0, float2(coord.x, bottom1Y)));
-	float4 g = Uncompress(SampleInputRGBANoCheck(0, float2(right1X, top1Y)));
-	float4 h = Uncompress(SampleInputRGBANoCheck(0, float2(right1X, coord.y)));
-	float4 i = Uncompress(SampleInputRGBANoCheck(0, float2(right1X, bottom1Y)));
+	float4 a = Uncompress(SampleInput(0, leftTop));
+	float4 b = Uncompress(SampleInput(0, float2(leftTop.x, Coord(0).y)));
+	float4 c = Uncompress(SampleInput(0, float2(leftTop.x, rightBottom.y)));
+	float4 d = Uncompress(SampleInput(0, float2(Coord(0).x, leftTop.y)));
+	float4 e = Uncompress(SampleInputCur(0));
+	float4 f = Uncompress(SampleInput(0, float2(Coord(0).x, rightBottom.y)));
+	float4 g = Uncompress(SampleInput(0, float2(rightBottom.x, leftTop.y)));
+	float4 h = Uncompress(SampleInput(0, float2(rightBottom.x, Coord(0).y)));
+	float4 i = Uncompress(SampleInput(0, rightBottom));
 
 	float4 na = -min(a, ZEROS4);
 	float4 nb = -min(b, ZEROS4);

@@ -8,18 +8,13 @@ cbuffer constants : register(b0) {
 };
 
 
-#define D2D_INPUT_COUNT 1
-#define D2D_INPUT0_COMPLEX
-#define MAGPIE_USE_SAMPLE_INPUT
+#define MAGPIE_INPUT_COUNT 1
 #include "Anime4K.hlsli"
 
 
 #define SIGMA 1.0
 
-float get(float2 pos) {
-	pos = clamp(pos, float2(0, 0), _maxCoord);
-	return Uncompress2(SampleInputNoCheck(0, pos).x);
-}
+#define get(pos) (Uncompress2(SampleInputChecked(0, pos).x))
 
 float gaussian(float x, float s, float m) {
 	return (1.0 / (s * sqrt(2.0 * 3.14159))) * exp(-0.5 * pow(abs(x - m) / s, 2.0));
@@ -47,5 +42,5 @@ float lumGaussian(float2 pos, float2 d) {
 D2D_PS_ENTRY(main) {
 	InitMagpieSampleInput();
 
-	return float4(-lumGaussian(coord.xy, float2(0, coord.w)), 0, 0, 1);
+	return float4(-lumGaussian(Coord(0).xy, float2(0, Coord(0).w)), 0, 0, 1);
 }

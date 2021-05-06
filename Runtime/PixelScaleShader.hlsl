@@ -7,14 +7,12 @@ cbuffer constants : register(b0) {
 };
 
 
-#define D2D_INPUT_COUNT 1
-#define D2D_INPUT0_COMPLEX
-#define MAGPIE_USE_SAMPLE_INPUT
+#define MAGPIE_INPUT_COUNT 1
 #include "common.hlsli"
 
 
 D2D_PS_ENTRY(main) {
 	InitMagpieSampleInputWithScale(float2(scale, scale));
 
-	return SampleInputRGBANoCheck(0, (floor(coord.xy / coord.zw) + 0.5) * coord.zw);
+	return SampleInput(0, (floor(Coord(0).xy / Coord(0).zw) + 0.5) * Coord(0).zw);
 }

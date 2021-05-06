@@ -9,32 +9,28 @@ cbuffer constants : register(b0) {
 };
 
 
-#define D2D_INPUT_COUNT 1
-#define D2D_INPUT0_COMPLEX
-#define MAGPIE_USE_SAMPLE_INPUT
+#define MAGPIE_INPUT_COUNT 1
 #include "Anime4K.hlsli"
 
 
 D2D_PS_ENTRY(main) {
 	InitMagpieSampleInput();
 
-	float left1X = GetCheckedLeft(1);
-	float right1X = GetCheckedRight(1);
-	float top1Y = GetCheckedTop(1);
-	float bottom1Y = GetCheckedBottom(1);
+	float2 leftTop = GetCheckedOffPos(0, float2(-1, -1));
+	float2 rightBottom = GetCheckedOffPos(0, float2(1, 1));
 
 	// [ a, d, g ]
 	// [ b, e, h ]
 	// [ c, f, i ]
-	float a = SampleInputNoCheck(0, float2(left1X, top1Y)).x;
-	float b = SampleInputNoCheck(0, float2(left1X, coord.y)).x;
-	float c = SampleInputNoCheck(0, float2(left1X, bottom1Y)).x;
-	float d = SampleInputNoCheck(0, float2(coord.x, top1Y)).x;
+	float a = SampleInput(0, leftTop).x;
+	float b = SampleInput(0, float2(leftTop.x, Coord(0).y)).x;
+	float c = SampleInput(0, float2(leftTop.x, rightBottom.y)).x;
+	float d = SampleInput(0, float2(Coord(0).x, leftTop.y)).x;
 	float e = SampleInputCur(0).x;
-	float f = SampleInputNoCheck(0, float2(coord.x, bottom1Y)).x;
-	float g = SampleInputNoCheck(0, float2(right1X, top1Y)).x;
-	float h = SampleInputNoCheck(0, float2(right1X, coord.y)).x;
-	float i = SampleInputNoCheck(0, float2(right1X, bottom1Y)).x;
+	float f = SampleInput(0, float2(Coord(0).x, rightBottom.y)).x;
+	float g = SampleInput(0, float2(rightBottom.x, leftTop.y)).x;
+	float h = SampleInput(0, float2(rightBottom.x, Coord(0).y)).x;
+	float i = SampleInput(0, rightBottom).x;
 
 	float s = -0.09440448 * a + 0.49120164 * b + -0.022703001 * c + -0.016553257 * d + 0.6272513 * e + -0.97632706 * f + 0.10815585 * g + -0.21898738 * h + 0.09604159 * i;
 	float o = s + 0.00028890301;
