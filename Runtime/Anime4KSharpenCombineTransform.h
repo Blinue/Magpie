@@ -1,11 +1,11 @@
 #pragma once
 #include "pch.h"
-#include "SimpleDrawTransform.h"
+#include "SimpleTwoInputsDrawTransform.h"
 
 
-class Anime4KSharpenCombineTransform : public SimpleDrawTransform {
+class Anime4KSharpenCombineTransform : public SimpleTwoInputsDrawTransform {
 private:
-    Anime4KSharpenCombineTransform() : SimpleDrawTransform(GUID_MAGPIE_ANIME4K_SHARPEN_COMBINE_SHADER){}
+    Anime4KSharpenCombineTransform() : SimpleTwoInputsDrawTransform(GUID_MAGPIE_ANIME4K_SHARPEN_COMBINE_SHADER){}
 
 public:
     static HRESULT Create(_In_ ID2D1EffectContext* d2dEC, _Outptr_ Anime4KSharpenCombineTransform** ppOutput) {
@@ -25,10 +25,6 @@ public:
         return S_OK;
     }
 
-    // ID2D1TransformNode Methods:
-    IFACEMETHODIMP_(UINT32) GetInputCount() const override {
-        return 2;
-    }
 
     IFACEMETHODIMP MapInputRectsToOutputRect(
         _In_reads_(inputRectCount) const D2D1_RECT_L* pInputRects,
@@ -65,39 +61,6 @@ public:
             _curveHeight
         };
         _drawInfo->SetPixelShaderConstantBuffer((BYTE*)&_shaderConstants, sizeof(_shaderConstants));
-
-        return S_OK;
-    }
-
-    IFACEMETHODIMP MapOutputRectToInputRects(
-        _In_ const D2D1_RECT_L* pOutputRect,
-        _Out_writes_(inputRectCount) D2D1_RECT_L* pInputRects,
-        UINT32 inputRectCount
-    ) const override {
-        if (inputRectCount != 2) {
-            return E_INVALIDARG;
-        }
-
-        // The input needed for the transform is the same as the visible output.
-        pInputRects[0] = _inputRect;
-        pInputRects[1] = _inputRect;
-
-        return S_OK;
-    }
-
-    IFACEMETHODIMP MapInvalidRect(
-        UINT32 inputIndex,
-        D2D1_RECT_L invalidInputRect,
-        _Out_ D2D1_RECT_L* pInvalidOutputRect
-    ) const override {
-        // This transform is designed to only accept one input.
-        if (inputIndex >= 2) {
-            return E_INVALIDARG;
-        }
-
-        // If part of the transform's input is invalid, mark the corresponding
-        // output region as invalid. 
-        *pInvalidOutputRect = D2D1::RectL(LONG_MIN, LONG_MIN, LONG_MAX, LONG_MAX);
 
         return S_OK;
     }

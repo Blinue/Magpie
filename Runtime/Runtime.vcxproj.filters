@@ -64,6 +64,45 @@
     <FxCompile Include="Anime4KSharpenCombineShader.hlsl">
       <Filter>着色器\缩放\Anime4K</Filter>
     </FxCompile>
+    <FxCompile Include="Anime4KDarkLinesPass1Shader.hlsl">
+      <Filter>着色器\缩放\Anime4K</Filter>
+    </FxCompile>
+    <FxCompile Include="Anime4KDarkLinesPass2Shader.hlsl">
+      <Filter>着色器\缩放\Anime4K</Filter>
+    </FxCompile>
+    <FxCompile Include="Anime4KDarkLinesPass3Shader.hlsl">
+      <Filter>着色器\缩放\Anime4K</Filter>
+    </FxCompile>
+    <FxCompile Include="Anime4KDarkLinesPass4Shader.hlsl">
+      <Filter>着色器\缩放\Anime4K</Filter>
+    </FxCompile>
+    <FxCompile Include="Anime4KDarkLinesPass5Shader.hlsl">
+      <Filter>着色器\缩放\Anime4K</Filter>
+    </FxCompile>
+    <FxCompile Include="Anime4KThinLinesPass1Shader.hlsl">
+      <Filter>着色器\缩放\Anime4K</Filter>
+    </FxCompile>
+    <FxCompile Include="Anime4KThinLinesPass2Shader.hlsl">
+      <Filter>着色器\缩放\Anime4K</Filter>
+    </FxCompile>
+    <FxCompile Include="Anime4KThinLinesPass3Shader.hlsl">
+      <Filter>着色器\缩放\Anime4K</Filter>
+    </FxCompile>
+    <FxCompile Include="Anime4KThinLinesPass4Shader.hlsl">
+      <Filter>着色器\缩放\Anime4K</Filter>
+    </FxCompile>
+    <FxCompile Include="Anime4KThinLinesPass5Shader.hlsl">
+      <Filter>着色器\缩放\Anime4K</Filter>
+    </FxCompile>
+    <FxCompile Include="Anime4KThinLinesPass6Shader.hlsl">
+      <Filter>着色器\缩放\Anime4K</Filter>
+    </FxCompile>
+    <FxCompile Include="Anime4KThinLinesPass7Shader.hlsl">
+      <Filter>着色器\缩放\Anime4K</Filter>
+    </FxCompile>
+    <FxCompile Include="RGB2YUVShader.hlsl">
+      <Filter>着色器\缩放\Anime4K</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GUIDs.cpp">
@@ -205,6 +244,15 @@
     </ClInclude>
     <ClInclude Include="EventEmitter.h">
       <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Anime4KDarkLinesEffect.h">
+      <Filter>头文件\Effect\缩放\Anime4K</Filter>
+    </ClInclude>
+    <ClInclude Include="SimpleTwoInputsDrawTransform.h">
+      <Filter>头文件\Effect</Filter>
+    </ClInclude>
+    <ClInclude Include="Anime4KThinLinesEffect.h">
+      <Filter>头文件\Effect\缩放\Anime4K</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

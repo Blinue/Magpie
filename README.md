@@ -2,7 +2,7 @@
 
 窗口放大镜！
 
-可以将任意窗口全屏显示，支持高级缩放算法，包括 Jinc、[Anime4K](https://github.com/bloc97/Anime4K)（本项目包含一个hlsl移植）、Lanczos等。
+可以将任意窗口全屏显示，支持高级缩放算法，包括 Jinc、[Anime4K](https://github.com/bloc97/Anime4K)（本项目包含一个Direct2D Effect移植）、Lanczos等。
 
 主要用于游戏窗口的放大显示，适用于那些不支持全屏模式，或者游戏自带的全屏模式会使画面模糊的情况。
 

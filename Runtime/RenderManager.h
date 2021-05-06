@@ -115,6 +115,7 @@ public:
 				L"SetTimer ß∞‹"
 			);
 		} else {
+			// ¡¢º¥‰÷»æµ⁄“ª÷°
 			_RenderNextFrame();
 		}
 	}
@@ -123,8 +124,8 @@ public:
 		if(message == WM_TIMER) {
 			if (wParam == _CHECK_FOREGROUND_TIMER_ID) {
 				_CheckForeground();
+				return { true, 0 };
 			}
-			return { true, 0 };
 		} else if (message == _WM_RENDER) {
 			if (!_CheckForeground()) {
 				_Render();

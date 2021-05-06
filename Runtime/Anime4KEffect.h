@@ -65,7 +65,7 @@ public:
             D2D1_VALUE_TYPE_BINDING(L"UseDenoiseVersion", &SetUseDenoiseVersion, &IsUseDenoiseVersion)
         };
 
-        HRESULT hr = pFactory->RegisterEffectFromString(CLSID_MAGIPE_ANIME4K_EFFECT, XML(
+        HRESULT hr = pFactory->RegisterEffectFromString(CLSID_MAGPIE_ANIME4K_EFFECT, XML(
             <?xml version='1.0'?>
             <Effect>
                 <!--System Properties-->
@@ -126,6 +126,18 @@ private:
     HRESULT _MakeGraph() {
         HRESULT hr;
         _d2dTransformGraph->Clear();
+
+        if (!_rgb2yuvTransform) {
+            hr = SimpleDrawTransform::Create(
+                _d2dEffectContext.Get(),
+                &_rgb2yuvTransform,
+                MAGPIE_RGB2YUV_SHADER,
+                GUID_RGB2YUV_SHADER
+            );
+            if (FAILED(hr)) {
+                return hr;
+            }
+        }
 
         if (_useDenoiseVersion) {
             hr = SimpleDrawTransform::Create(
@@ -250,6 +262,10 @@ private:
             }
         }
         
+        hr = _d2dTransformGraph->AddNode(_rgb2yuvTransform.Get());
+        if (FAILED(hr)) {
+            return hr;
+        }
         hr = _d2dTransformGraph->AddNode(_conv4x3x3x1Transform.Get());
         if (FAILED(hr)) {
             return hr;
@@ -284,7 +300,11 @@ private:
         }
 
 
-        hr = _d2dTransformGraph->ConnectToEffectInput(0, _conv4x3x3x1Transform.Get(), 0);
+        hr = _d2dTransformGraph->ConnectToEffectInput(0, _rgb2yuvTransform.Get(), 0);
+        if (FAILED(hr)) {
+            return hr;
+        }
+        hr = _d2dTransformGraph->ConnectNode(_rgb2yuvTransform.Get(), _conv4x3x3x1Transform.Get(), 0);
         if (FAILED(hr)) {
             return hr;
         }
@@ -330,8 +350,7 @@ private:
             return hr;
         }
 
-
-        hr = _d2dTransformGraph->ConnectToEffectInput(0, _sharpenCombineTransform.Get(), 0);
+        hr = _d2dTransformGraph->ConnectNode(_rgb2yuvTransform.Get(), _sharpenCombineTransform.Get(), 0);
         if (FAILED(hr)) {
             return hr;
         }
@@ -348,6 +367,7 @@ private:
         return S_OK;
     }
 
+    ComPtr<SimpleDrawTransform> _rgb2yuvTransform = nullptr;
     ComPtr<SimpleDrawTransform> _conv4x3x3x1Transform = nullptr;
     ComPtr<SimpleDrawTransform> _conv4x3x3x8Transform1 = nullptr;
     ComPtr<SimpleDrawTransform> _conv4x3x3x8Transform2 = nullptr;

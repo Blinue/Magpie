@@ -223,6 +223,6 @@ D2D_PS_ENTRY(main) {
 	
 	float l = getLuma();
 
-	float3 yuv = RGB2YUV(D2DSampleInput(0, coord0.xy).xyz);
+	float3 yuv = D2DSampleInput(0, coord0.xy).xyz;
 	return float4(YUV2RGB(yuv.x + l, yuv.y, yuv.z), 1);
 }

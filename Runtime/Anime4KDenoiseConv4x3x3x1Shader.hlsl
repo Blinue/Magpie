@@ -26,15 +26,15 @@ D2D_PS_ENTRY(main) {
 	// [ a, d, g ]
 	// [ b, e, h ]
 	// [ c, f, i ]
-	float a = GetLuma(SampleInputNoCheck(0, float2(left1X, top1Y)));
-	float b = GetLuma(SampleInputNoCheck(0, float2(left1X, coord.y)));
-	float c = GetLuma(SampleInputNoCheck(0, float2(left1X, bottom1Y)));
-	float d = GetLuma(SampleInputNoCheck(0, float2(coord.x, top1Y)));
-	float e = GetLuma(SampleInputCur(0));
-	float f = GetLuma(SampleInputNoCheck(0, float2(coord.x, bottom1Y)));
-	float g = GetLuma(SampleInputNoCheck(0, float2(right1X, top1Y)));
-	float h = GetLuma(SampleInputNoCheck(0, float2(right1X, coord.y)));
-	float i = GetLuma(SampleInputNoCheck(0, float2(right1X, bottom1Y)));
+	float a = SampleInputNoCheck(0, float2(left1X, top1Y)).x;
+	float b = SampleInputNoCheck(0, float2(left1X, coord.y)).x;
+	float c = SampleInputNoCheck(0, float2(left1X, bottom1Y)).x;
+	float d = SampleInputNoCheck(0, float2(coord.x, top1Y)).x;
+	float e = SampleInputCur(0).x;
+	float f = SampleInputNoCheck(0, float2(coord.x, bottom1Y)).x;
+	float g = SampleInputNoCheck(0, float2(right1X, top1Y)).x;
+	float h = SampleInputNoCheck(0, float2(right1X, coord.y)).x;
+	float i = SampleInputNoCheck(0, float2(right1X, bottom1Y)).x;
 
 	float s = -0.096334584 * a + 0.4884673 * b + -0.03821645 * c + 0.025493674 * d + 0.6071791 * e + -0.97234 * f + 0.099867396 * g + -0.20816612 * h + 0.08195157 * i;
 	float o = s + -0.008229233;

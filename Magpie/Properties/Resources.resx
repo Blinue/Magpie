@@ -131,7 +131,7 @@
       {
         "effect": "sharpen",
         "type": "adaptive",
-        "curveHeight": 0.6
+        "curveHeight": 0.8
       },
       {
         "effect": "sharpen",

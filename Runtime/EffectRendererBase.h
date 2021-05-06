@@ -4,6 +4,8 @@
 #include "D2DContext.h"
 #include "AdaptiveSharpenEffect.h"
 #include "Anime4KEffect.h"
+#include "Anime4KDarkLinesEffect.h"
+#include "Anime4KThinLinesEffect.h"
 #include "Jinc2ScaleEffect.h"
 #include "MitchellNetravaliScaleEffect.h"
 #include "Lanczos6ScaleEffect.h"
@@ -76,6 +78,10 @@ private:
 
 				if (subType == "Anime4K") {
 					_AddAnime4KEffect(model);
+				} else if (subType == "Anime4KDarkLines") {
+					_AddAnime4KDarkLinesEffect(model);
+				} else if (subType == "Anime4KThinLines") {
+					_AddAnime4KThinLinesEffect(model);
 				} else if (subType == "jinc2") {
 					_AddJinc2ScaleEffect(model);
 				} else if (subType == "mitchell") {
@@ -203,13 +209,13 @@ private:
 
 	void _AddAnime4KEffect(const nlohmann::json& props) {
 		_CheckAndRegisterEffect(
-			CLSID_MAGIPE_ANIME4K_EFFECT,
+			CLSID_MAGPIE_ANIME4K_EFFECT,
 			&Anime4KEffect::Register
 		);
 
 		ComPtr<ID2D1Effect> anime4KEffect = nullptr;
 		Debug::ThrowIfComFailed(
-			_d2dContext.GetD2DDC()->CreateEffect(CLSID_MAGIPE_ANIME4K_EFFECT, &anime4KEffect),
+			_d2dContext.GetD2DDC()->CreateEffect(CLSID_MAGPIE_ANIME4K_EFFECT, &anime4KEffect),
 			L"创建 Anime4K Effect 失败"
 		);
 
@@ -247,6 +253,42 @@ private:
 		_SetDestSize(SIZE{ _outputSize.cx * 2, _outputSize.cy * 2 });
 
 		_PushAsOutputEffect(anime4KEffect);
+	}
+
+	void _AddAnime4KDarkLinesEffect(const nlohmann::json& props) {
+		_CheckAndRegisterEffect(
+			CLSID_MAGPIE_ANIME4K_DARKLINES_EFFECT,
+			&Anime4KDarkLinesEffect::Register
+		);
+
+		ComPtr<ID2D1Effect> effect = nullptr;
+		Debug::ThrowIfComFailed(
+			_d2dContext.GetD2DDC()->CreateEffect(CLSID_MAGPIE_ANIME4K_DARKLINES_EFFECT, &effect),
+			L"创建 Anime4K Effect 失败"
+		);
+
+		// 输出图像的长和宽变为 2 倍
+		_SetDestSize(SIZE{ _outputSize.cx, _outputSize.cy });
+
+		_PushAsOutputEffect(effect);
+	}
+
+	void _AddAnime4KThinLinesEffect(const nlohmann::json& props) {
+		_CheckAndRegisterEffect(
+			CLSID_MAGPIE_ANIME4K_THINLINES_EFFECT,
+			&Anime4KThinLinesEffect::Register
+		);
+
+		ComPtr<ID2D1Effect> effect = nullptr;
+		Debug::ThrowIfComFailed(
+			_d2dContext.GetD2DDC()->CreateEffect(CLSID_MAGPIE_ANIME4K_THINLINES_EFFECT, &effect),
+			L"创建 Anime4K Effect 失败"
+		);
+
+		// 输出图像的长和宽变为 2 倍
+		_SetDestSize(SIZE{ _outputSize.cx, _outputSize.cy });
+
+		_PushAsOutputEffect(effect);
 	}
 
 	
