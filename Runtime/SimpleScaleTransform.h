@@ -6,9 +6,9 @@
 
 // 通用的 scale transform
 // 只支持 scale 属性，默认值为 1.0
-class SimpleScaleTransform : public SimpleDrawTransform {
+class SimpleScaleTransform : public SimpleDrawTransform<1> {
 protected:
-    SimpleScaleTransform(const GUID& shaderID) : SimpleDrawTransform(shaderID) {}
+    SimpleScaleTransform(const GUID& shaderID) : SimpleDrawTransform<1>(shaderID) {}
 
 public:
     virtual ~SimpleScaleTransform() {}

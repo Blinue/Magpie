@@ -15,6 +15,7 @@ public:
     DrawTransformBase(const DrawTransformBase&) = delete;
     DrawTransformBase(DrawTransformBase&&) = delete;
 
+protected:
     // 将 hlsl 读取进 Effect Context
     static HRESULT LoadShader(_In_ ID2D1EffectContext* d2dEC, _In_ const wchar_t* path, const GUID& shaderID) {
         if (!d2dEC->IsShaderLoaded(shaderID)) {
@@ -57,6 +58,7 @@ public:
         return S_OK;
     }
 
+public:
     /*
     * 以下为 ID2D1DrawTransform 的方法
     */

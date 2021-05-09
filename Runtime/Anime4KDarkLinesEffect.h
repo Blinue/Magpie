@@ -1,7 +1,6 @@
 #pragma once
 #include "pch.h"
 #include "SimpleDrawTransform.h"
-#include "SimpleTwoInputsDrawTransform.h"
 #include "EffectBase.h"
 
 
@@ -17,7 +16,7 @@ public:
 
         HRESULT hr;
 
-        hr = SimpleDrawTransform::Create(
+        hr = SimpleDrawTransform<>::Create(
             _d2dEffectContext.Get(),
             &_rgb2yuvTransform,
             MAGPIE_RGB2YUV_SHADER,
@@ -26,7 +25,7 @@ public:
         if (FAILED(hr)) {
             return hr;
         }
-        hr = SimpleDrawTransform::Create(
+        hr = SimpleDrawTransform<>::Create(
             _d2dEffectContext.Get(),
             &_pass1Transform,
             MAGPIE_ANIME4K_DARKLINES_PASS1_SHADER,
@@ -35,7 +34,7 @@ public:
         if (FAILED(hr)) {
             return hr;
         }
-        hr = SimpleTwoInputsDrawTransform::Create(
+        hr = SimpleDrawTransform<2>::Create(
             _d2dEffectContext.Get(),
             &_pass2Transform,
             MAGPIE_ANIME4K_DARKLINES_PASS2_SHADER,
@@ -44,7 +43,7 @@ public:
         if (FAILED(hr)) {
             return hr;
         }
-        hr = SimpleDrawTransform::Create(
+        hr = SimpleDrawTransform<>::Create(
             _d2dEffectContext.Get(),
             &_pass3Transform,
             MAGPIE_ANIME4K_DARKLINES_PASS3_SHADER,
@@ -53,7 +52,7 @@ public:
         if (FAILED(hr)) {
             return hr;
         }
-        hr = SimpleDrawTransform::Create(
+        hr = SimpleDrawTransform<>::Create(
             _d2dEffectContext.Get(),
             &_pass4Transform,
             MAGPIE_ANIME4K_DARKLINES_PASS4_SHADER,
@@ -62,7 +61,7 @@ public:
         if (FAILED(hr)) {
             return hr;
         }
-        hr = SimpleTwoInputsDrawTransform::Create(
+        hr = SimpleDrawTransform<2>::Create(
             _d2dEffectContext.Get(),
             &_pass5Transform,
             MAGPIE_ANIME4K_DARKLINES_PASS5_SHADER,
@@ -174,12 +173,12 @@ private:
     Anime4KDarkLinesEffect() {}
 
 
-    ComPtr<SimpleDrawTransform> _rgb2yuvTransform = nullptr;
-    ComPtr<SimpleDrawTransform> _pass1Transform = nullptr;
-    ComPtr<SimpleTwoInputsDrawTransform> _pass2Transform = nullptr;
-    ComPtr<SimpleDrawTransform> _pass3Transform = nullptr;
-    ComPtr<SimpleDrawTransform> _pass4Transform = nullptr;
-    ComPtr<SimpleTwoInputsDrawTransform> _pass5Transform = nullptr;
+    ComPtr<SimpleDrawTransform<>> _rgb2yuvTransform = nullptr;
+    ComPtr<SimpleDrawTransform<>> _pass1Transform = nullptr;
+    ComPtr<SimpleDrawTransform<2>> _pass2Transform = nullptr;
+    ComPtr<SimpleDrawTransform<>> _pass3Transform = nullptr;
+    ComPtr<SimpleDrawTransform<>> _pass4Transform = nullptr;
+    ComPtr<SimpleDrawTransform<2>> _pass5Transform = nullptr;
 
     ComPtr<ID2D1EffectContext> _d2dEffectContext = nullptr;
     ComPtr<ID2D1TransformGraph> _d2dTransformGraph = nullptr;

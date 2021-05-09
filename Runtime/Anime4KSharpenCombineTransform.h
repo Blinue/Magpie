@@ -1,11 +1,11 @@
 #pragma once
 #include "pch.h"
-#include "SimpleTwoInputsDrawTransform.h"
+#include "SimpleDrawTransform.h"
 
 
-class Anime4KSharpenCombineTransform : public SimpleTwoInputsDrawTransform {
+class Anime4KSharpenCombineTransform : public SimpleDrawTransform<2> {
 private:
-    Anime4KSharpenCombineTransform() : SimpleTwoInputsDrawTransform(GUID_MAGPIE_ANIME4K_SHARPEN_COMBINE_SHADER){}
+    Anime4KSharpenCombineTransform() : SimpleDrawTransform<2>(GUID_MAGPIE_ANIME4K_SHARPEN_COMBINE_SHADER){}
 
 public:
     static HRESULT Create(_In_ ID2D1EffectContext* d2dEC, _Outptr_ Anime4KSharpenCombineTransform** ppOutput) {

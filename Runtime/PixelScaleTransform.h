@@ -4,9 +4,9 @@
 #include "Utils.h"
 
 
-class PixelScaleTransform : public SimpleDrawTransform {
+class PixelScaleTransform : public SimpleDrawTransform<> {
 protected:
-    PixelScaleTransform() : SimpleDrawTransform(GUID_MAGPIE_PIXEL_SCALE_SHADER) {}
+    PixelScaleTransform() : SimpleDrawTransform<>(GUID_MAGPIE_PIXEL_SCALE_SHADER) {}
 
 public:
     virtual ~PixelScaleTransform() {}

@@ -13,7 +13,7 @@ public:
         _In_ ID2D1EffectContext* pEffectContext,
         _In_ ID2D1TransformGraph* pTransformGraph
     ) {
-        HRESULT hr = SimpleDrawTransform::Create(
+        HRESULT hr = SimpleDrawTransform<>::Create(
             pEffectContext, 
             &_pass1Transform, 
             MAGPIE_ADAPTIVE_SHARPEN_PASS1_SHADER, 
@@ -114,6 +114,6 @@ public:
 private:
     AdaptiveSharpenEffect() {}
 
-    ComPtr<SimpleDrawTransform> _pass1Transform = nullptr;
+    ComPtr<SimpleDrawTransform<>> _pass1Transform = nullptr;
     ComPtr<AdaptiveSharpenPass2Transform> _pass2Transform = nullptr;
 };

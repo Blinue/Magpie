@@ -202,7 +202,6 @@
     <ClInclude Include="AdaptiveSharpenPass2Transform.h" />
     <ClInclude Include="Anime4KDarkLinesEffect.h" />
     <ClInclude Include="Anime4KSharpenCombineTransform.h" />
-    <ClInclude Include="Anime4KConvReduceTransform.h" />
     <ClInclude Include="Anime4KEffect.h" />
     <ClInclude Include="Anime4KThinLinesEffect.h" />
     <ClInclude Include="Anime4KThinLinesPass7Transform.h" />
@@ -234,7 +233,6 @@
     <ClInclude Include="ShaderPaths.h" />
     <ClInclude Include="SimpleDrawTransform.h" />
     <ClInclude Include="SimpleScaleTransform.h" />
-    <ClInclude Include="SimpleTwoInputsDrawTransform.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="Utils.h" />
     <ClInclude Include="WICBitmapEffectRenderer.h" />

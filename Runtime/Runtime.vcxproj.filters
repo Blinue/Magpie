@@ -179,9 +179,6 @@
     <ClInclude Include="MitchellNetravaliScaleTransform.h">
       <Filter>头文件\Effect\缩放</Filter>
     </ClInclude>
-    <ClInclude Include="Anime4KConvReduceTransform.h">
-      <Filter>头文件\Effect\缩放\Anime4K</Filter>
-    </ClInclude>
     <ClInclude Include="Anime4KEffect.h">
       <Filter>头文件\Effect\缩放\Anime4K</Filter>
     </ClInclude>
@@ -247,9 +244,6 @@
     </ClInclude>
     <ClInclude Include="Anime4KDarkLinesEffect.h">
       <Filter>头文件\Effect\缩放\Anime4K</Filter>
-    </ClInclude>
-    <ClInclude Include="SimpleTwoInputsDrawTransform.h">
-      <Filter>头文件\Effect</Filter>
     </ClInclude>
     <ClInclude Include="Anime4KThinLinesEffect.h">
       <Filter>头文件\Effect\缩放\Anime4K</Filter>

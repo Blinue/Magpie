@@ -1,13 +1,13 @@
 #pragma once
 #include "pch.h"
-#include "SimpleTwoInputsDrawTransform.h"
+#include "SimpleDrawTransform.h"
 #include "GUIDs.h"
 #include "ShaderPaths.h"
 
 
-class Anime4KThinLinesPass7Transform : public SimpleTwoInputsDrawTransform {
+class Anime4KThinLinesPass7Transform : public SimpleDrawTransform<2> {
 private:
-	Anime4KThinLinesPass7Transform() : SimpleTwoInputsDrawTransform(GUID_MAGPIE_ANIME4K_THINLINES_PASS7_SHADER) {}
+	Anime4KThinLinesPass7Transform() : SimpleDrawTransform<2>(GUID_MAGPIE_ANIME4K_THINLINES_PASS7_SHADER) {}
 
 public:
     static HRESULT Create(

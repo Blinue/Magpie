@@ -17,7 +17,7 @@ public:
 
         HRESULT hr;
 
-        hr = SimpleDrawTransform::Create(
+        hr = SimpleDrawTransform<>::Create(
             _d2dEffectContext.Get(),
             &_rgb2yuvTransform,
             MAGPIE_RGB2YUV_SHADER,
@@ -26,7 +26,7 @@ public:
         if (FAILED(hr)) {
             return hr;
         }
-        hr = SimpleDrawTransform::Create(
+        hr = SimpleDrawTransform<>::Create(
             _d2dEffectContext.Get(),
             &_pass1Transform,
             MAGPIE_ANIME4K_THINLINES_PASS1_SHADER,
@@ -35,7 +35,7 @@ public:
         if (FAILED(hr)) {
             return hr;
         }
-        hr = SimpleDrawTransform::Create(
+        hr = SimpleDrawTransform<>::Create(
             _d2dEffectContext.Get(),
             &_pass2Transform,
             MAGPIE_ANIME4K_THINLINES_PASS2_SHADER,
@@ -44,7 +44,7 @@ public:
         if (FAILED(hr)) {
             return hr;
         }
-        hr = SimpleDrawTransform::Create(
+        hr = SimpleDrawTransform<>::Create(
             _d2dEffectContext.Get(),
             &_pass3Transform,
             MAGPIE_ANIME4K_THINLINES_PASS3_SHADER,
@@ -53,7 +53,7 @@ public:
         if (FAILED(hr)) {
             return hr;
         }
-        hr = SimpleDrawTransform::Create(
+        hr = SimpleDrawTransform<>::Create(
             _d2dEffectContext.Get(),
             &_pass4Transform,
             MAGPIE_ANIME4K_THINLINES_PASS4_SHADER,
@@ -62,7 +62,7 @@ public:
         if (FAILED(hr)) {
             return hr;
         }
-        hr = SimpleDrawTransform::Create(
+        hr = SimpleDrawTransform<>::Create(
             _d2dEffectContext.Get(),
             &_pass5Transform,
             MAGPIE_ANIME4K_THINLINES_PASS5_SHADER,
@@ -71,7 +71,7 @@ public:
         if (FAILED(hr)) {
             return hr;
         }
-        hr = SimpleDrawTransform::Create(
+        hr = SimpleDrawTransform<>::Create(
             _d2dEffectContext.Get(),
             &_pass6Transform,
             MAGPIE_ANIME4K_THINLINES_PASS6_SHADER,
@@ -226,13 +226,13 @@ private:
     // Constructor should be private since it should never be called externally.
     Anime4KThinLinesEffect() {}
 
-    ComPtr<SimpleDrawTransform> _rgb2yuvTransform = nullptr;
-    ComPtr<SimpleDrawTransform> _pass1Transform = nullptr;
-    ComPtr<SimpleDrawTransform> _pass2Transform = nullptr;
-    ComPtr<SimpleDrawTransform> _pass3Transform = nullptr;
-    ComPtr<SimpleDrawTransform> _pass4Transform = nullptr;
-    ComPtr<SimpleDrawTransform> _pass5Transform = nullptr;
-    ComPtr<SimpleDrawTransform> _pass6Transform = nullptr;
+    ComPtr<SimpleDrawTransform<>> _rgb2yuvTransform = nullptr;
+    ComPtr<SimpleDrawTransform<>> _pass1Transform = nullptr;
+    ComPtr<SimpleDrawTransform<>> _pass2Transform = nullptr;
+    ComPtr<SimpleDrawTransform<>> _pass3Transform = nullptr;
+    ComPtr<SimpleDrawTransform<>> _pass4Transform = nullptr;
+    ComPtr<SimpleDrawTransform<>> _pass5Transform = nullptr;
+    ComPtr<SimpleDrawTransform<>> _pass6Transform = nullptr;
     ComPtr<Anime4KThinLinesPass7Transform> _pass7Transform = nullptr;
 
     ComPtr<ID2D1EffectContext> _d2dEffectContext = nullptr;
