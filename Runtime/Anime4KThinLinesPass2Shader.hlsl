@@ -15,14 +15,14 @@ cbuffer constants : register(b0) {
 D2D_PS_ENTRY(main) {
 	InitMagpieSampleInput();
 
-	float2 t1 = SampleInputOffChecked(0, float2(0, -1)).xy * 5 - 1;
-	float2 t2 = SampleInputOffChecked(0, float2(0, 1)).xy * 5 - 1;
+	float2 t1 = uncompressLinear(SampleInputOffChecked(0, float2(0, -1)).xy, -1, 4);
+	float2 t2 = uncompressLinear(SampleInputOffChecked(0, float2(0, 1)).xy, -1, 4);
 
 	//[tl  t tr]
 	//[ l cc  r]
 	//[bl  b br]
 	float tx = t1.x;
-	float cx = SampleInputCur(0).x * 5 - 1;
+	float cx = uncompressLinear(SampleInputCur(0).x, -1, 4);
 	float bx = t2.x;
 
 
@@ -47,5 +47,5 @@ D2D_PS_ENTRY(main) {
 	float norm = sqrt(xgrad * xgrad + ygrad * ygrad);
 	float a = pow(norm, 0.7);
 
-	return float4(pow(norm, 0.7) / 2, 0, 0, 1);
+	return float4(compressLinear(pow(norm, 0.7), 0, 2), 0, 0, 1);
 }

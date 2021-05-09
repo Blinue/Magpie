@@ -15,14 +15,14 @@ cbuffer constants : register(b0) {
 D2D_PS_ENTRY(main) {
 	InitMagpieSampleInput();
 
-	float2 t1 = Uncompress2(SampleInputOffChecked(0, float2(0, -1)).xy);
-	float2 t2 = Uncompress2(SampleInputOffChecked(0, float2(0, 1)).xy);
+	float2 t1 = uncompressTan(SampleInputOffChecked(0, float2(0, -1)).xy);
+	float2 t2 = uncompressTan(SampleInputOffChecked(0, float2(0, 1)).xy);
 
 	//[tl  t tr]
 	//[ l cc  r]
 	//[bl  b br]
 	float tx = t1.x;
-	float cx = Uncompress2(SampleInputCur(0).x);
+	float cx = uncompressTan(SampleInputCur(0).x);
 	float bx = t2.x;
 
 
@@ -46,5 +46,5 @@ D2D_PS_ENTRY(main) {
 	float2 dn = { xgrad, ygrad };
 	//Computes the luminance's gradient
 	//Quasi-normalization for large vectors, avoids divide by zero
-	return float4(Compress2(dn / (length(dn) + 0.01)), 0, 1);
+	return float4(compressLinear(dn / (length(dn) + 0.01), -5, 5), 0, 1);
 }

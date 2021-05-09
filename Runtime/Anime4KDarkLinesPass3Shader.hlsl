@@ -14,7 +14,7 @@ cbuffer constants : register(b0) {
 
 #define SIGMA 1.0
 
-#define get(pos) (Uncompress2(SampleInputChecked(0, pos).x))
+#define get(pos) (uncompressTan(SampleInputChecked(0, pos).x))
 
 
 float gaussian(float x, float s, float m) {
@@ -43,5 +43,5 @@ float lumGaussian(float2 pos, float2 d) {
 D2D_PS_ENTRY(main) {
 	InitMagpieSampleInput();
 
-	return float4(Compress2(lumGaussian(Coord(0).xy, float2(Coord(0).z, 0))), 0, 0, 1);
+	return float4(compressTan(lumGaussian(Coord(0).xy, float2(Coord(0).z, 0))), 0, 0, 1);
 }

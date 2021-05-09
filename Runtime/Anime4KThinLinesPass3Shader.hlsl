@@ -13,14 +13,12 @@ cbuffer constants : register(b0) {
 
 #define KERNELSIZE (sigma * 2.0 + 1.0)
 
-#define get(pos) (SampleInputChecked(0, pos).x * 2)
+#define get(pos) (uncompressLinear(SampleInputChecked(0, pos).x, 0, 2))
 
 
 float gaussian(float x, float s) {
-	float a = 1.0 / (s * 2.506628274631);
 	float t = x / s;
-
-	return a * exp(-0.5 * t * t);
+	return exp(-0.5 * t * t) / s / 2.506628274631;
 }
 
 float lumGaussian(float2 pos, float2 d, float sigma) {
@@ -38,5 +36,5 @@ D2D_PS_ENTRY(main) {
 	InitMagpieSampleInput();
 
 	float sigma = (srcSize.y / 1080.0) * 2.0;
-	return float4(Compress2(lumGaussian(Coord(0).xy, float2(Coord(0).z, 0), sigma)), 0, 0, 1);
+	return float4(compressTan(lumGaussian(Coord(0).xy, float2(Coord(0).z, 0), sigma)), 0, 0, 1);
 }

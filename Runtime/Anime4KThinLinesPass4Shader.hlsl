@@ -14,14 +14,12 @@ cbuffer constants : register(b0) {
 
 #define KERNELSIZE (sigma * 2.0 + 1.0)
 
-#define get(pos) (Uncompress2(SampleInputChecked(0, pos).x))
+#define get(pos) (uncompressTan(SampleInputChecked(0, pos).x))
 
 
 float gaussian(float x, float s) {
-	float a = 1.0 / (s * 2.506628274631);
 	float t = x / s;
-
-	return a * exp(-0.5 * t * t);
+	return exp(-0.5 * t * t) / s / 2.506628274631;
 }
 
 float lumGaussian(float2 pos, float2 d, float sigma) {
@@ -40,5 +38,5 @@ D2D_PS_ENTRY(main) {
 
 	float sigma = (srcSize.y / 1080.0) * 2.0;
 	float g = lumGaussian(Coord(0).xy, float2(0, Coord(0).w), sigma);
-	return float4(Compress2(g), 0, 0, 1);
+	return float4(compressTan(g), 0, 0, 1);
 }

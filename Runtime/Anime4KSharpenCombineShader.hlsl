@@ -30,7 +30,7 @@ float get1(float2 pos) {
 	float2 f = frac(pos / Coord(1).zw);
 	
 	int2 i = int2(f * 2);
-	float l = Uncompress1(SampleInput(1, pos + (float2(0.5, 0.5) - f) * Coord(1).zw)[i.y * 2 + i.x]);
+	float l = uncompressLinear(SampleInput(1, pos + (float2(0.5, 0.5) - f) * Coord(1).zw)[i.y * 2 + i.x], -1, 1);
 
 	if (abs(l) < noise_threshold) {
 		return 0;

@@ -18,9 +18,9 @@ D2D_PS_ENTRY(main) {
 	//[tl  t tr]
 	//[ l  c  r]
 	//[bl  b br]
-	float l = Uncompress2(SampleInputOffChecked(0, float2(-1, 0)).x);
-	float c = Uncompress2(SampleInputCur(0).x);
-	float r = Uncompress2(SampleInputOffChecked(0, float2(1, 0)).x);
+	float l = uncompressTan(SampleInputOffChecked(0, float2(-1, 0)).x);
+	float c = uncompressTan(SampleInputCur(0).x);
+	float r = uncompressTan(SampleInputOffChecked(0, float2(1, 0)).x);
 
 
 	//Horizontal Gradient
@@ -36,5 +36,5 @@ D2D_PS_ENTRY(main) {
 	float ygrad = (l + c + c + r);
 
 	//Computes the luminance's gradient
-	return float4(Compress2(xgrad), Compress2(ygrad), 0, 1);
+	return float4(compressTan(xgrad), compressTan(ygrad), 0, 1);
 }

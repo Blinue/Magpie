@@ -26,7 +26,7 @@ D2D_PS_ENTRY(main) {
 	for (int i = 0; i < ITERATIONS; i++) {
 #endif
 
-	float2 dn = Uncompress2(SampleInput(1, pos / Coord(0).zw * Coord(1).zw).xy);
+	float2 dn = uncompressLinear(SampleInput(1, pos / Coord(0).zw * Coord(1).zw).xy, -5, 5);
 	float2 dd = dn * Coord(0).zw * relstr; 
 	pos = GetCheckedPos(0, pos - dd);
 

@@ -18,7 +18,7 @@ cbuffer constants : register(b0) {
 D2D_PS_ENTRY(main) {
 	InitMagpieSampleInput();
 
-	float c = -SampleInputCur(1).x * strength;
+	float c = uncompressLinear(SampleInputCur(1).x, -1, 0) * strength;
 	if (c > -0.01) {
 		c = 0;
 	}

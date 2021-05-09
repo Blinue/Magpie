@@ -12,6 +12,14 @@
 #define max9(a, b, c, d, e, f, g, h, i) max3(max4(a, b, c, d), max4(e, f, g, h), i)
 #define min9(a, b, c, d, e, f, g, h, i) min3(min4(a, b, c, d), min4(e, f, g, h), i)
 
+// 纹理会自动将值切割到 0~1，为了使值在着色器之间传递需要进行压缩
+
+#define compressLinear(x, min, max) (((x) - min) / (max - min))
+#define uncompressLinear(x, min, max) ((x) * (max - min) + min)
+
+#define compressTan(x) (atan(x) / PI + 0.5)
+#define uncompressTan(x) (tan(((x) - 0.5) * PI))
+
 
 #if MAGPIE_INPUT_COUNT >= 1
 
