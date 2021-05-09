@@ -27,7 +27,7 @@ D2D_PS_ENTRY(main) {
 #endif
 
 	float2 dn = Uncompress2(SampleInput(1, pos / Coord(0).zw * Coord(1).zw).xy);
-	float2 dd = (dn / (length(dn) + 0.01)) * Coord(0).zw * relstr; //Quasi-normalization for large vectors, avoids divide by zero
+	float2 dd = dn * Coord(0).zw * relstr; 
 	pos = GetCheckedPos(0, pos - dd);
 
 #if ITERATIONS > 1

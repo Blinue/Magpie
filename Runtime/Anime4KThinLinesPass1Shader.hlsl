@@ -36,5 +36,5 @@ D2D_PS_ENTRY(main) {
 	float ygrad = (l + c + c + r);
 
 	//Computes the luminance's gradient
-	return float4(Compress2(xgrad), Compress2(ygrad), 0, 1);
+	return float4((xgrad + 1) / 5, (xgrad + 1) / 5, 0, 1);
 }

@@ -43,6 +43,8 @@ D2D_PS_ENTRY(main) {
 	//[ 1  2  1]
 	float ygrad = (-ty + by) / 8.0;
 
+	float2 dn = { xgrad, ygrad };
 	//Computes the luminance's gradient
-	return float4(Compress2(xgrad), Compress2(ygrad), 0, 1);
+	//Quasi-normalization for large vectors, avoids divide by zero
+	return float4(Compress2(dn / (length(dn) + 0.01)), 0, 1);
 }
