@@ -32,7 +32,7 @@ float lumGaussian(float2 pos, float2 d) {
 	gn += gaussian(1.0, s, 0.0) * 2.0;
 
 	for (int i = 2; float(i) < kernel_size; i++) {
-		g += (get(pos - (d * float(i))) + get(pos + (d * float(i)))) * gaussian(float(i), s, 0.0);
+		g += (get(pos - (d * float(i))) + get(pos + d * i)) * gaussian(float(i), s, 0.0);
 		gn += gaussian(float(i), s, 0.0) * 2.0;
 	}
 

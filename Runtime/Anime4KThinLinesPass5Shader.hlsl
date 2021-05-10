@@ -9,7 +9,7 @@ cbuffer constants : register(b0) {
 
 
 #define MAGPIE_INPUT_COUNT 1
-#include "Anime4K.hlsli"
+#include "common.hlsli"
 
 
 D2D_PS_ENTRY(main) {
@@ -18,9 +18,9 @@ D2D_PS_ENTRY(main) {
 	//[tl  t tr]
 	//[ l  c  r]
 	//[bl  b br]
-	float l = uncompressTan(SampleInputOffChecked(0, float2(-1, 0)).x);
-	float c = uncompressTan(SampleInputCur(0).x);
-	float r = uncompressTan(SampleInputOffChecked(0, float2(1, 0)).x);
+	float l = uncompressLinear(SampleInputOffChecked(0, float2(-1, 0)).x, 0, 3);
+	float c = uncompressLinear(SampleInputCur(0).x, 0, 3);
+	float r = uncompressLinear(SampleInputOffChecked(0, float2(1, 0)).x, 0, 3);
 
 
 	//Horizontal Gradient
@@ -36,5 +36,5 @@ D2D_PS_ENTRY(main) {
 	float ygrad = (l + c + c + r);
 
 	//Computes the luminance's gradient
-	return float4(compressTan(xgrad), compressTan(ygrad), 0, 1);
+	return float4(compressLinear(xgrad, -3, 3), compressLinear(ygrad, 0, 10), 0, 1);
 }

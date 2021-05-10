@@ -9,7 +9,7 @@ cbuffer constants : register(b0) {
 
 
 #define MAGPIE_INPUT_COUNT 1
-#include "Anime4K.hlsli"
+#include "common.hlsli"
 
 
 D2D_PS_ENTRY(main) {

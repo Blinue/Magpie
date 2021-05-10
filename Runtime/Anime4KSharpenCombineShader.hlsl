@@ -10,7 +10,7 @@ cbuffer constants : register(b0) {
 
 #define MAGPIE_INPUT_COUNT 2
 #define MAGPIE_USE_YUV
-#include "Anime4K.hlsli"
+#include "common.hlsli"
 
 
 //-------------------------------------------------------------------------------------------------

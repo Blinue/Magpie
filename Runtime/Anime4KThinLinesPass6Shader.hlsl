@@ -9,20 +9,22 @@ cbuffer constants : register(b0) {
 
 
 #define MAGPIE_INPUT_COUNT 1
-#include "Anime4K.hlsli"
+#include "common.hlsli"
 
 
 D2D_PS_ENTRY(main) {
 	InitMagpieSampleInput();
 
-	float2 t1 = uncompressTan(SampleInputOffChecked(0, float2(0, -1)).xy);
-	float2 t2 = uncompressTan(SampleInputOffChecked(0, float2(0, 1)).xy);
+	float2 s1 = SampleInputOffChecked(0, float2(0, -1)).xy;
+	float2 s2 = SampleInputOffChecked(0, float2(0, 1)).xy;
+	float2 t1 = { uncompressLinear(s1.x, -3, 3), uncompressLinear(s1.y, 0, 10) };
+	float2 t2 = { uncompressLinear(s2.x, -3, 3), uncompressLinear(s2.y, 0, 10) };
 
 	//[tl  t tr]
 	//[ l cc  r]
 	//[bl  b br]
 	float tx = t1.x;
-	float cx = uncompressTan(SampleInputCur(0).x);
+	float cx = uncompressLinear(SampleInputCur(0).x, -3, 3);
 	float bx = t2.x;
 
 
@@ -46,5 +48,5 @@ D2D_PS_ENTRY(main) {
 	float2 dn = { xgrad, ygrad };
 	//Computes the luminance's gradient
 	//Quasi-normalization for large vectors, avoids divide by zero
-	return float4(compressLinear(dn / (length(dn) + 0.01), -5, 5), 0, 1);
+	return float4(compressLinear(dn / (length(dn) + 0.01), -3, 3), 0, 1);
 }

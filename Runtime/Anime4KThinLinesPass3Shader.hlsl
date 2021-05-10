@@ -9,7 +9,7 @@ cbuffer constants : register(b0) {
 
 
 #define MAGPIE_INPUT_COUNT 1
-#include "Anime4K.hlsli"
+#include "common.hlsli"
 
 #define KERNELSIZE (sigma * 2.0 + 1.0)
 
@@ -36,5 +36,6 @@ D2D_PS_ENTRY(main) {
 	InitMagpieSampleInput();
 
 	float sigma = (srcSize.y / 1080.0) * 2.0;
-	return float4(compressTan(lumGaussian(Coord(0).xy, float2(Coord(0).z, 0), sigma)), 0, 0, 1);
+	float g = lumGaussian(Coord(0).xy, float2(Coord(0).z, 0), sigma);
+	return float4(compressLinear(g, 0, 3), 0, 0, 1);
 }
