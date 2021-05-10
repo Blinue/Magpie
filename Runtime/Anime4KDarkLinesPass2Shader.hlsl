@@ -11,29 +11,31 @@ cbuffer constants : register(b0) {
 #define MAGPIE_INPUT_COUNT 2
 #include "Anime4K.hlsli"
 
-
 #define SIGMA 1.0
 
-#define get(pos) (uncompressTan(SampleInputChecked(1, pos).x))
+#define get(pos) (uncompressLinear(SampleInputChecked(1, pos).x, 0, 2))
 
 
-float gaussian(float x, float s, float m) {
-	return (1.0 / (s * sqrt(2.0 * 3.14159))) * exp(-0.5 * pow(abs(x - m) / s, 2.0));
+float gaussian(float x, float s) {
+	float t = x / s;
+	return exp(-0.5 * t * t) / s / 2.506628274631;
 }
 
 float lumGaussian(float2 pos, float2 d) {
-	float s = SIGMA * srcSize.y / 1080.0;
-	float kernel_size = s * 2.0 + 1.0;
+	float sigma = SIGMA * srcSize.y / 1080.0;
+	float kernelSize = sigma * 2.0 + 1.0;
 
-	float g = get(pos) * gaussian(0.0, s, 0.0);
-	float gn = gaussian(0.0, s, 0.0);
+	float gn = 1 / (sigma * 2.506628274631);
+	float g = get(pos) * gn;
 
-	g += (get(pos - d) + get(pos + d)) * gaussian(1.0, s, 0.0);
-	gn += gaussian(1.0, s, 0.0) * 2.0;
+	float t = gaussian(1.0, sigma);
+	g += (get(pos - d) + get(pos + d)) * t;
+	gn += t * 2.0;
 
-	for (int i = 2; float(i) < kernel_size; i++) {
-		g += (get(pos - (d * float(i))) + get(pos + (d * float(i)))) * gaussian(float(i), s, 0.0);
-		gn += gaussian(float(i), s, 0.0) * 2.0;
+	for (int i = 2; float(i) < kernelSize; i++) {
+		t = gaussian(float(i), sigma);
+		g += (get(pos - d * i) + get(pos + d * i))* t;
+		gn += t * 2.0;
 	}
 
 	return g / gn;
@@ -43,5 +45,6 @@ float lumGaussian(float2 pos, float2 d) {
 D2D_PS_ENTRY(main) {
 	InitMagpieSampleInput();
 
-	return float4(compressTan(min(SampleInputCur(0).x - lumGaussian(Coord(1).xy, float2(0, Coord(1).w)), 0.0)), 0, 0, 1);
+	float g = min(SampleInputCur(0).x - lumGaussian(Coord(1).xy, float2(0, Coord(1).w)), 0.0);
+	return float4(compressLinear(g, -2, 0), 0, 0, 1);
 }

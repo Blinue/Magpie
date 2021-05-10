@@ -11,7 +11,6 @@ cbuffer constants : register(b0) {
 #define MAGPIE_INPUT_COUNT 1
 #include "common.hlsli"
 
-#define KERNELSIZE (sigma * 2.0 + 1.0)
 
 #define get(pos) (uncompressLinear(SampleInputChecked(0, pos).x, 0, 2))
 
@@ -21,11 +20,14 @@ float gaussian(float x, float s) {
 	return exp(-0.5 * t * t) / s / 2.506628274631;
 }
 
-float lumGaussian(float2 pos, float2 d, float sigma) {
+float lumGaussian(float2 pos, float2 d) {
+	float sigma = (srcSize.y / 1080.0) * 2.0;
+	float kernelSize = sigma * 2.0 + 1.0;
+
 	float g = get(pos) / (sigma * 2.506628274631);
 	g += (get(pos - d) + get(pos + d)) * gaussian(1.0, sigma);
-	for (int i = 2; float(i) < KERNELSIZE; i++) {
-		g += (get(pos - (d * float(i))) + get(pos + (d * float(i)))) * gaussian(float(i), sigma);
+	for (int i = 2; float(i) < kernelSize; i++) {
+		g += (get(pos - d * i) + get(pos + d * i)) * gaussian(i, sigma);
 	}
 
 	return g;
@@ -35,7 +37,6 @@ float lumGaussian(float2 pos, float2 d, float sigma) {
 D2D_PS_ENTRY(main) {
 	InitMagpieSampleInput();
 
-	float sigma = (srcSize.y / 1080.0) * 2.0;
-	float g = lumGaussian(Coord(0).xy, float2(Coord(0).z, 0), sigma);
+	float g = lumGaussian(Coord(0).xy, float2(Coord(0).z, 0));
 	return float4(compressLinear(g, 0, 3), 0, 0, 1);
 }
