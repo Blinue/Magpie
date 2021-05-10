@@ -201,6 +201,7 @@
     <ClInclude Include="AdaptiveSharpenEffect.h" />
     <ClInclude Include="AdaptiveSharpenPass2Transform.h" />
     <ClInclude Include="Anime4KDarkLinesEffect.h" />
+    <ClInclude Include="Anime4KDarkLinesPass5Transform.h" />
     <ClInclude Include="Anime4KSharpenCombineTransform.h" />
     <ClInclude Include="Anime4KEffect.h" />
     <ClInclude Include="Anime4KThinLinesEffect.h" />

@@ -2,7 +2,7 @@
 #include "pch.h"
 #include "SimpleDrawTransform.h"
 #include "EffectBase.h"
-
+#include "Anime4KDarkLinesPass5Transform.h"
 
 
 class Anime4KDarkLinesEffect : public EffectBase {
@@ -61,11 +61,9 @@ public:
         if (FAILED(hr)) {
             return hr;
         }
-        hr = SimpleDrawTransform<2>::Create(
+        hr = Anime4KDarkLinesPass5Transform::Create(
             _d2dEffectContext.Get(),
-            &_pass5Transform,
-            MAGPIE_ANIME4K_DARKLINES_PASS5_SHADER,
-            GUID_MAGPIE_ANIME4K_DARKLINES_PASS5_SHADER
+            &_pass5Transform
         );
         if (FAILED(hr)) {
             return hr;
@@ -138,8 +136,30 @@ public:
         return S_OK;
     }
 
+    HRESULT SetStrength(FLOAT value) {
+        if (value <= 0) {
+            return E_INVALIDARG;
+        }
+
+        _pass5Transform->SetStrength(value);
+        return S_OK;
+    }
+
+    FLOAT GetStrength() const {
+        return _pass5Transform->GetStrength();
+    }
+
+    enum PROPS {
+        PROP_STRENGTH = 0   // 加深强度，值越大线条越深。默认值为 1
+    };
+
 
     static HRESULT Register(_In_ ID2D1Factory1* pFactory) {
+        const D2D1_PROPERTY_BINDING bindings[] =
+        {
+            D2D1_VALUE_TYPE_BINDING(L"Strength", &SetStrength, &GetStrength)
+        };
+
         HRESULT hr = pFactory->RegisterEffectFromString(CLSID_MAGPIE_ANIME4K_DARKLINES_EFFECT, XML(
             <?xml version='1.0'?>
             <Effect>
@@ -151,8 +171,12 @@ public:
                 <Inputs>
                     <Input name='Source'/>
                 </Inputs>
+                <Property name='Strength' type='float'>
+                    <Property name='DisplayName' type='string' value='Strength'/>
+                    <Property name='Default' type='float' value='1'/>
+                </Property>
             </Effect>
-        ), nullptr, 0, CreateEffect);
+        ), bindings, ARRAYSIZE(bindings), CreateEffect);
 
         return hr;
     }
@@ -178,7 +202,7 @@ private:
     ComPtr<SimpleDrawTransform<2>> _pass2Transform = nullptr;
     ComPtr<SimpleDrawTransform<>> _pass3Transform = nullptr;
     ComPtr<SimpleDrawTransform<>> _pass4Transform = nullptr;
-    ComPtr<SimpleDrawTransform<2>> _pass5Transform = nullptr;
+    ComPtr<Anime4KDarkLinesPass5Transform> _pass5Transform = nullptr;
 
     ComPtr<ID2D1EffectContext> _d2dEffectContext = nullptr;
     ComPtr<ID2D1TransformGraph> _d2dTransformGraph = nullptr;
