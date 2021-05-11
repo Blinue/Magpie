@@ -28,6 +28,9 @@
 #include <functional>
 #include <algorithm>
 #include <string_view>
+#include <thread>
+#include <atomic>
+#include <mutex>
 
 // C++/WinRT 头文件
 #include <winrt/base.h>

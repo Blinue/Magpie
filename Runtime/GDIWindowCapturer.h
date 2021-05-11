@@ -2,6 +2,10 @@
 #include "pch.h"
 #include "WindowCapturerBase.h"
 #include "Utils.h"
+#include <queue>
+#include <chrono>
+
+using namespace std::chrono;
 
 
 // 使用 GDI 抓取窗口
@@ -14,15 +18,37 @@ public:
 		ComPtr<IWICImagingFactory2> wicImgFactory,
 		bool useBitblt = false
 	): _d2dContext(d2dContext), _wicImgFactory(wicImgFactory), _srcRect(srcRect), _hwndSrc(hwndSrc), _useBitblt(useBitblt) {
+		// 在单独的线程中不断使用GDI截获窗口
+		// 如果放在渲染线程中会造成卡顿
+		_getFrameThread.reset(new std::thread([&]() {
+			while (!_closed) {
+				ComPtr<IWICBitmapSource> frame = _GetFrameWithNoBitblt();
+
+				std::lock_guard<std::mutex> guard(_frameMutex);
+				_frame = frame;
+
+				std::this_thread::yield();
+			}
+		}));
+	}
+
+	~GDIWindowCapturer() {
+		_closed = true;
+		_getFrameThread->join();
 	}
 
 	ComPtr<IUnknown> GetFrame() override {
-		return _useBitblt ? _GetFrameWithBitblt() : _GetFrameWithNoBitblt();
+		std::lock_guard<std::mutex> guard(_frameMutex);
+
+		ComPtr<IWICBitmapSource> frame = _frame;
+		_frame = nullptr;
+		return frame;
 	}
 
 	CaptureredFrameType GetFrameType() override {
 		return CaptureredFrameType::WICBitmap;
 	}
+
 private:
 	ComPtr<IWICBitmapSource> _GetFrameWithNoBitblt() {
 		SIZE srcSize = Utils::GetSize(_srcRect);
@@ -76,70 +102,21 @@ private:
 			wicBmpClipper->Initialize(wicBmp.Get(), &wicRect),
 			L"wicBmpClipper初始化失败"
 		);
-		
+
 		return wicBmpClipper;
-	}
-
-	ComPtr<IWICBitmapSource> _GetFrameWithBitblt() {
-		SIZE srcSize = Utils::GetSize(_srcRect);
-
-		HDC hdcSrc = GetDC(_hwndSrc);
-		Debug::ThrowIfWin32Failed(
-			hdcSrc,
-			L"GetDC失败"
-		);
-		HDC hdcDest = CreateCompatibleDC(hdcSrc);
-		Debug::ThrowIfWin32Failed(
-			hdcDest,
-			L"CreateCompatibleDC失败"
-		);
-		HBITMAP hBmpDest = CreateCompatibleBitmap(hdcSrc, srcSize.cx, srcSize.cy);
-		Debug::ThrowIfWin32Failed(
-			hBmpDest,
-			L"CreateCompatibleBitmap失败"
-		);
-
-		Debug::ThrowIfWin32Failed(
-			SelectObject(hdcDest, hBmpDest),
-			L"SelectObject失败"
-		);
-		Debug::ThrowIfWin32Failed(
-			BitBlt(hdcDest, 0, 0, srcSize.cx, srcSize.cy, hdcSrc, 0, 0, SRCCOPY),
-			L"BitBlt失败"
-		);
-		
-		Debug::ThrowIfWin32Failed(
-			ReleaseDC(_hwndSrc, hdcSrc),
-			L"ReleaseDC失败"
-		);
-
-		ComPtr<IWICBitmap> wicBmp = nullptr;
-		Debug::ThrowIfComFailed(
-			_wicImgFactory->CreateBitmapFromHBITMAP(
-				hBmpDest,
-				NULL,
-				WICBitmapAlphaChannelOption::WICBitmapIgnoreAlpha,
-				&wicBmp
-			),
-			L"CreateBitmapFromHBITMAP失败"
-		);
-
-		Debug::ThrowIfWin32Failed(
-			DeleteBitmap(hBmpDest),
-			L"DeleteBitmap失败"
-		);
-		Debug::ThrowIfWin32Failed(
-			DeleteDC(hdcDest),
-			L"DeleteDC失败"
-		);
-
-		return wicBmp;
 	}
 
 	ComPtr<IWICImagingFactory2> _wicImgFactory;
 	const RECT& _srcRect;
-	HWND _hwndSrc;
+	const HWND _hwndSrc;
 	bool _useBitblt;
 
 	D2DContext& _d2dContext;
+
+	ComPtr<IWICBitmapSource> _frame;
+	// 同步对 _frame 的访问
+	std::mutex _frameMutex;
+	std::atomic_bool _closed = false;
+
+	std::unique_ptr<std::thread> _getFrameThread;
 };

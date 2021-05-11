@@ -115,7 +115,7 @@ private:
         );
 
         Debug::ThrowIfComFailed(
-            D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, IID_PPV_ARGS(&_d2dFactory)),
+            D2D1CreateFactory(D2D1_FACTORY_TYPE_MULTI_THREADED, IID_PPV_ARGS(&_d2dFactory)),
             L"´´½¨ D2D Factory Ê§°Ü"
         );
 
