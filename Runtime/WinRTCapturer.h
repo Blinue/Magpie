@@ -85,10 +85,6 @@ public:
 			_captureItem.Size() // 帧的尺寸
 		);
 		Debug::Assert(_captureFramePool, L"创建 Direct3D11CaptureFramePool 失败");
-		_frameArrivedRevoker = _captureFramePool.FrameArrived(
-			winrt::auto_revoke,
-			{ this, &WinRTCapturer::_FrameArrived }
-		);
 
 		// 开始捕获
 		_captureSession = _captureFramePool.CreateCaptureSession(_captureItem);
@@ -98,9 +94,6 @@ public:
 	}
 
 	~WinRTCapturer() {
-		if (_frameArrivedRevoker) {
-			_frameArrivedRevoker.revoke();
-		}
 		if (_captureSession) {
 			_captureSession.Close();
 		}
@@ -111,16 +104,8 @@ public:
 		winrt::uninit_apartment();
 	}
 
-	void On(std::function<void()> cb) override {
-		_cbs.push_back(cb);
-	}
-
 	CaptureredFrameType GetFrameType() override {
 		return CaptureredFrameType::D2DImage;
-	}
-
-	CaptureStyle GetCaptureStyle() override {
-		return CaptureStyle::Event;
 	}
 
 	ComPtr<IUnknown> GetFrame() override {
@@ -164,21 +149,6 @@ public:
 		return withoutFrame;
 	}
 private:
-	void _FrameArrived(
-		const winrt::Direct3D11CaptureFramePool& sender,
-		const winrt::IInspectable& args
-	) {
-		if (!_frameArrivedRevoker) {
-			return;
-		}
-
-		for (const auto& cb : _cbs) {
-			cb();
-		}
-	}
-
-	std::vector<std::function<void()>> _cbs;
-
 	HWND _hwndSrc;
 	D2D1_RECT_U _clientInFrame;
 
@@ -186,8 +156,6 @@ private:
 	winrt::GraphicsCaptureSession _captureSession;
 	winrt::GraphicsCaptureItem _captureItem;
 	winrt::IDirect3DDevice _wrappedD3DDevice;
-
-	winrt::Direct3D11CaptureFramePool::FrameArrived_revoker _frameArrivedRevoker;
 
 	D2DContext& _d2dContext;
 };

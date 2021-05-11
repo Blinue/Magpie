@@ -23,10 +23,6 @@ public:
 	CaptureredFrameType GetFrameType() override {
 		return CaptureredFrameType::WICBitmap;
 	}
-
-	CaptureStyle GetCaptureStyle() override {
-		return CaptureStyle::Normal;
-	}
 private:
 	ComPtr<IWICBitmapSource> _GetFrameWithNoBitblt() {
 		SIZE srcSize = Utils::GetSize(_srcRect);

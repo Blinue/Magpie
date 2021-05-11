@@ -250,7 +250,6 @@
     </ClCompile>
     <ClCompile Include="pch.cpp" />
     <ClCompile Include="DllMain.cpp" />
-    <ClCompile Include="RenderManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="AdaptiveSharpen.hlsli">

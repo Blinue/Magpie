@@ -59,10 +59,6 @@ public:
     CaptureredFrameType GetFrameType() override {
         return CaptureredFrameType::D2DImage;
     }
-
-    CaptureStyle GetCaptureStyle() override {
-        return CaptureStyle::Normal;
-    }
 private:
     static BOOL CALLBACK _ImageScalingCallback(
         HWND hWnd,

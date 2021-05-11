@@ -120,9 +120,6 @@
     <ClCompile Include="MagCallbackWindowCapturer.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="RenderManager.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="CursorManager.cpp">
       <Filter>源文件</Filter>
     </ClCompile>

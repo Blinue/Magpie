@@ -48,6 +48,9 @@ public:
         PostQuitMessage(0);
     }
 
+    void Render() {
+        _renderManager->Render();
+    }
 private:
     MagWindow(
         HINSTANCE hInstance,

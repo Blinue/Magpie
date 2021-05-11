@@ -57,16 +57,22 @@ API_DECLSPEC void WINAPI RunMagWindow(
         reportStatus(0, L"未知错误");
         return;
     }
-
+    
     reportStatus(2, nullptr);
 
-    MSG msg;
+    // 主消息循环
+    while (true) {
+        MSG msg;
+        while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) {
+            if (msg.message == WM_QUIT) {
+                reportStatus(0, nullptr);
+                return;
+            }
 
-    // 主消息循环:
-    while (GetMessage(&msg, nullptr, 0, 0)) {
-        TranslateMessage(&msg);
-        DispatchMessage(&msg);
+            TranslateMessage(&msg);
+            DispatchMessage(&msg);
+        }
+
+        MagWindow::$instance->Render();
     }
-
-    reportStatus(0, nullptr);
 }

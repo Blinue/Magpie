@@ -102,45 +102,42 @@ public:
 			// 初始化 FrameCatcher
 			_frameCatcher.reset(new FrameCatcher(*_d2dContext, _GetDWFactory(), _effectRenderer->GetOutputRect()));
 		}
-
-		if (_windowCapturer->GetCaptureStyle() == CaptureStyle::Event) {
-			_windowCapturer->On([&]() {
-				_RenderNextFrame();
-			});
-
-			// CaptureStyle 为 Event 时，为了增强窗口响应性，
-			// 每 100 毫秒检测前台窗口
-			Debug::ThrowIfWin32Failed(
-				SetTimer(_hwndHost, _CHECK_FOREGROUND_TIMER_ID, 100, nullptr),
-				L"SetTimer失败"
-			);
-		} else {
-			// 立即渲染第一帧
-			_RenderNextFrame();
-		}
 	}
 
 	std::pair<bool, LRESULT> WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
-		if(message == WM_TIMER) {
-			if (wParam == _CHECK_FOREGROUND_TIMER_ID) {
-				_CheckForeground();
-				return { true, 0 };
-			}
-		} else if (message == _WM_RENDER) {
-			if (!_CheckForeground()) {
-				_Render();
+		return _cursorManager->WndProc(hWnd, message, wParam, lParam);
+	}
 
-				if (_windowCapturer->GetCaptureStyle() == CaptureStyle::Normal) {
-					// 立即渲染下一帧
-					// 垂直同步开启时自动限制帧率
-					_RenderNextFrame();
-				}
-			}
-
-			return { true, 0 };
+	void Render() {
+		if (GetForegroundWindow() != _hwndSrc) {
+			DestroyWindow(_hwndHost);
+			return;
 		}
 
-		return _cursorManager->WndProc(hWnd, message, wParam, lParam);
+		try {
+			_d2dContext->Render([&]() {
+				const auto& frame = _windowCapturer->GetFrame();
+				if (!frame) {
+					return;
+				}
+
+				_d2dContext->GetD2DDC()->Clear();
+
+				_effectRenderer->SetInput(frame);
+				_effectRenderer->Render();
+
+				if (_frameCatcher) {
+					_frameCatcher->Render();
+				}
+				if (_cursorManager) {
+					_cursorManager->Render();
+				}
+				});
+		} catch (const magpie_exception& e) {
+			Debug::WriteErrorMessage(L"渲染失败：" + e.what());
+		} catch (...) {
+			Debug::WriteErrorMessage(L"渲染出现未知错误");
+		}
 	}
 private:
 	IDWriteFactory* _GetDWFactory() {
@@ -156,51 +153,6 @@ private:
 		}
 
 		return _dwFactory.Get();
-	}
-
-	void _RenderNextFrame() {
-		if (!PostMessage(_hwndHost, _WM_RENDER, 0, 0)) {
-			Debug::WriteErrorMessage(L"PostMessage 失败");
-		}
-	}
-
-	// 渲染一帧，不抛出异常
-	void _Render() {
-		try {
-			const auto& frame = _windowCapturer->GetFrame();
-			if (!frame) {
-				return;
-			}
-
-			_d2dContext->Render([&]() {
-				_d2dContext->GetD2DDC()->Clear();
-
-				_effectRenderer->SetInput(frame);
-				_effectRenderer->Render();
-
-				if (_frameCatcher) {
-					_frameCatcher->Render();
-				}
-				if (_cursorManager) {
-					_cursorManager->Render();
-				}
-			});
-		} catch (const magpie_exception& e) {
-			Debug::WriteErrorMessage(L"渲染失败：" + e.what());
-		} catch (...) {
-			Debug::WriteErrorMessage(L"渲染出现未知错误");
-		}
-	}
-
-	// 前台窗口改变时自动关闭全屏窗口
-	// 如果前台窗口已改变，返回 true，否则返回 false
-	bool _CheckForeground() {
-		bool r = GetForegroundWindow() != _hwndSrc;
-		if (r) {
-			DestroyWindow(_hwndHost);
-		}
-
-		return r;
 	}
 
 
@@ -219,10 +171,6 @@ private:
 
 	bool _noDisturb;
 	bool _debugMode;
-
-	static UINT _WM_RENDER;
-
-	static constexpr UINT_PTR _CHECK_FOREGROUND_TIMER_ID = 1;
 
 	ComPtr<IWICImagingFactory2> _wicImgFactory = nullptr;
 	HINSTANCE _hInst;
