@@ -72,16 +72,11 @@ private:
 			Debug::Assert(model.is_object(), L"json 格式错误");
 
 			const auto &effectType = model.value("effect", "");
-			
-			if (effectType == "scale") {
-				const auto& subType = model.value("type", "");
+			const auto& subType = model.value("type", "");
 
+			if (effectType == "scale") {
 				if (subType == "Anime4K") {
 					_AddAnime4KEffect(model);
-				} else if (subType == "Anime4KDarkLines") {
-					_AddAnime4KDarkLinesEffect(model);
-				} else if (subType == "Anime4KThinLines") {
-					_AddAnime4KThinLinesEffect(model);
 				} else if (subType == "jinc2") {
 					_AddJinc2ScaleEffect(model);
 				} else if (subType == "mitchell") {
@@ -96,14 +91,20 @@ private:
 					Debug::Assert(false, L"未知的 scale effect");
 				}
 			} else if (effectType == "sharpen") {
-				const auto& subType = model.value("type", "");
-
 				if (subType == "adaptive") {
 					_AddAdaptiveSharpenEffect(model);
 				} else if (subType == "builtIn") {
 					_AddBuiltInSharpenEffect(model);
 				} else {
 					Debug::Assert(false, L"未知的 sharpen effect");
+				}
+			} else if (effectType == "misc") {
+				if (subType == "Anime4KDarkLines") {
+					_AddAnime4KDarkLinesEffect(model);
+				} else if (subType == "Anime4KThinLines") {
+					_AddAnime4KThinLinesEffect(model);
+				} else {
+					Debug::Assert(false, L"未知的 misc effect");
 				}
 			} else {
 				Debug::Assert(false, L"未知的 effect");

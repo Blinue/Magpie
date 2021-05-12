@@ -213,7 +213,6 @@
     <ClInclude Include="EffectBase.h" />
     <ClInclude Include="EffectRendererBase.h" />
     <ClInclude Include="D2DContext.h" />
-    <ClInclude Include="EventEmitter.h" />
     <ClInclude Include="FrameCatcher.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="GDIWindowCapturer.h" />
@@ -239,7 +238,6 @@
     <ClInclude Include="WICBitmapEffectRenderer.h" />
     <ClInclude Include="WindowCapturerBase.h" />
     <ClInclude Include="WinRTCapturer.h" />
-    <ClInclude Include="WndProcThunk.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CursorManager.cpp" />

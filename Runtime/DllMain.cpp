@@ -61,18 +61,7 @@ API_DECLSPEC void WINAPI RunMagWindow(
     reportStatus(2, nullptr);
 
     // 主消息循环
-    while (true) {
-        MSG msg;
-        while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) {
-            if (msg.message == WM_QUIT) {
-                reportStatus(0, nullptr);
-                return;
-            }
+    MagWindow::$instance->RunMsgLoop();
 
-            TranslateMessage(&msg);
-            DispatchMessage(&msg);
-        }
-
-        MagWindow::$instance->Render();
-    }
+    reportStatus(0, nullptr);
 }

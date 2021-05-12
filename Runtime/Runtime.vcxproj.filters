@@ -143,9 +143,6 @@
     <ClInclude Include="Utils.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="WndProcThunk.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="DrawTransformBase.h">
       <Filter>头文件\Effect</Filter>
     </ClInclude>
@@ -235,9 +232,6 @@
     </ClInclude>
     <ClInclude Include="PixelScaleEffect.h">
       <Filter>头文件\Effect\缩放</Filter>
-    </ClInclude>
-    <ClInclude Include="EventEmitter.h">
-      <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="Anime4KDarkLinesEffect.h">
       <Filter>头文件\Effect\缩放\Anime4K</Filter>

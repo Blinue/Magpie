@@ -24,8 +24,9 @@ public:
 			while (!_closed) {
 				ComPtr<IWICBitmapSource> frame = _GetFrameWithNoBitblt();
 
-				std::lock_guard<std::mutex> guard(_frameMutex);
+				_frameMutex.lock();
 				_frame = frame;
+				_frameMutex.unlock();
 
 				std::this_thread::yield();
 			}

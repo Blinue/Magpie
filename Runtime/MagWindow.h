@@ -48,9 +48,22 @@ public:
         PostQuitMessage(0);
     }
 
-    void Render() {
-        _renderManager->Render();
+    void RunMsgLoop() {
+        while (true) {
+            MSG msg;
+            while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) {
+                if (msg.message == WM_QUIT) {
+                    return;
+                }
+
+                TranslateMessage(&msg);
+                DispatchMessage(&msg);
+            }
+
+            _renderManager->Render();
+        }
     }
+
 private:
     MagWindow(
         HINSTANCE hInstance,
