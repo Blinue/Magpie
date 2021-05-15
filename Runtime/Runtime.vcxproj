@@ -213,6 +213,7 @@
     <ClInclude Include="EffectBase.h" />
     <ClInclude Include="EffectRendererBase.h" />
     <ClInclude Include="D2DContext.h" />
+    <ClInclude Include="Env.h" />
     <ClInclude Include="FrameCatcher.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="GDIWindowCapturer.h" />
@@ -241,6 +242,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CursorManager.cpp" />
+    <ClCompile Include="Env.cpp" />
     <ClCompile Include="GUIDs.cpp" />
     <ClCompile Include="MagCallbackWindowCapturer.cpp" />
     <ClCompile Include="MagWindow.cpp">

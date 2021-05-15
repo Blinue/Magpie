@@ -3,6 +3,7 @@
 #include "WindowCapturerBase.h"
 #include "Utils.h"
 #include "D2DContext.h"
+#include "Env.h"
 
 #include <Windows.Graphics.DirectX.Direct3D11.interop.h>
 #include <Windows.Graphics.Capture.Interop.h>
@@ -20,20 +21,17 @@ using namespace Windows::Graphics::DirectX::Direct3D11;
 // 见 https://docs.microsoft.com/en-us/windows/uwp/audio-video-camera/screen-capture
 class WinRTCapturer : public WindowCapturerBase {
 public:
-	WinRTCapturer(
-		D2DContext& d2dContext,
-		HWND hwndSrc,
-		const RECT& srcClient
-	) : _d2dContext(d2dContext), _hwndSrc(hwndSrc), _captureFramePool(nullptr),
-		_captureSession(nullptr), _captureItem(nullptr), _wrappedD3DDevice(nullptr)
-	{
+	WinRTCapturer() {
+		HWND hwndSrc = Env::$instance->GetHwndSrc();
+		
 		// 包含边框的窗口尺寸
 		RECT srcRect{};
 		Debug::ThrowIfComFailed(
-			DwmGetWindowAttribute(_hwndSrc, DWMWA_EXTENDED_FRAME_BOUNDS, &srcRect, sizeof(srcRect)),
+			DwmGetWindowAttribute(hwndSrc, DWMWA_EXTENDED_FRAME_BOUNDS, &srcRect, sizeof(srcRect)),
 			L"GetWindowRect 失败"
 		);
 
+		const RECT& srcClient = Env::$instance->GetSrcClient();
 		_clientInFrame = {
 			UINT32(srcClient.left - srcRect.left),
 			UINT32(srcClient.top - srcRect.top),
@@ -49,11 +47,9 @@ public:
 
 			// 以下代码参考自 http://tips.hecomi.com/entry/2021/03/23/230947
 
-			// 创建 IDirect3DDevice
-			ID3D11Device* d3dDevice = d2dContext.GetD3DDevice();
 			ComPtr<IDXGIDevice> dxgiDevice;
 			Debug::ThrowIfComFailed(
-				d3dDevice->QueryInterface<IDXGIDevice>(&dxgiDevice),
+				Env::$instance->GetD3DDevice()->QueryInterface<IDXGIDevice>(&dxgiDevice),
 				L"获取 DXGI Device 失败"
 			);
 
@@ -114,6 +110,8 @@ public:
 	}
 
 	ComPtr<IUnknown> GetFrame() override {
+		ID2D1DeviceContext* d2dDC = Env::$instance->GetD2DDC();
+
 		winrt::Direct3D11CaptureFrame frame = _captureFramePool.TryGetNextFrame();
 		if (!frame) {
 			// 缓冲池没有帧就返回 nullptr
@@ -138,11 +136,11 @@ public:
 		// 这里使用共享以避免拷贝
 		ComPtr<ID2D1Bitmap> withFrame;
 		auto p = BitmapProperties(PixelFormat(DXGI_FORMAT_B8G8R8A8_UNORM, D2D1_ALPHA_MODE_IGNORE));
-		_d2dContext.GetD2DDC()->CreateSharedBitmap(__uuidof(IDXGISurface), dxgiSurface.get(), &p, &withFrame);
+		d2dDC->CreateSharedBitmap(__uuidof(IDXGISurface), dxgiSurface.get(), &p, &withFrame);
 
 		// 获取的帧包含窗口边框，将客户区内容拷贝到新的 ID2D1Bitmap
 		ComPtr<ID2D1Bitmap> withoutFrame;
-		_d2dContext.GetD2DDC()->CreateBitmap(
+		d2dDC->CreateBitmap(
 			{ _clientInFrame.right - _clientInFrame.left, _clientInFrame.bottom - _clientInFrame.top },
 			BitmapProperties(PixelFormat(DXGI_FORMAT_B8G8R8A8_UNORM, D2D1_ALPHA_MODE_IGNORE)),
 			&withoutFrame
@@ -153,14 +151,12 @@ public:
 
 		return withoutFrame;
 	}
+
 private:
-	HWND _hwndSrc;
 	D2D1_RECT_U _clientInFrame;
 
-	winrt::Direct3D11CaptureFramePool _captureFramePool;
-	winrt::GraphicsCaptureSession _captureSession;
-	winrt::GraphicsCaptureItem _captureItem;
-	winrt::IDirect3DDevice _wrappedD3DDevice;
-
-	D2DContext& _d2dContext;
+	winrt::Direct3D11CaptureFramePool _captureFramePool{ nullptr };
+	winrt::GraphicsCaptureSession _captureSession{ nullptr };
+	winrt::GraphicsCaptureItem _captureItem{ nullptr };
+	winrt::IDirect3DDevice _wrappedD3DDevice{ nullptr };
 };

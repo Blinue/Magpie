@@ -2,23 +2,14 @@
 #include "pch.h"
 #include "Utils.h"
 #include "Renderable.h"
+#include "Env.h"
 
 
 class CursorManager: public Renderable {
 public:
-    CursorManager(
-        D2DContext& d2dContext,
-        HINSTANCE hInstance,
-        IWICImagingFactory2* wicImgFactory,
-        const D2D1_RECT_F& srcRect,
-        const D2D1_RECT_F& destRect,
-        bool noDisturb = false,
-        bool debugMode = false
-    ) : Renderable(d2dContext), _hInstance(hInstance), _wicImgFactory(wicImgFactory),
-        _srcRect(srcRect), _destRect(destRect), _noDisturb(noDisturb), _debugMode(debugMode) {
+    CursorManager(const RECT& destRect, bool debugMode = false) : _destRect(destRect), _debugMode(debugMode) {
         _cursorSize.cx = GetSystemMetrics(SM_CXCURSOR);
         _cursorSize.cy = GetSystemMetrics(SM_CYCURSOR);
-
 
         HCURSOR hCursorArrow = LoadCursor(NULL, IDC_ARROW);
         HCURSOR hCursorHand = LoadCursor(NULL, IDC_HAND);
@@ -30,7 +21,7 @@ public:
         _cursorMap.emplace(hCursorHand, _CursorToD2DBitmap(hCursorHand));
         _cursorMap.emplace(hCursorAppStarting, _CursorToD2DBitmap(hCursorAppStarting));
 
-        if (_noDisturb) {
+        if (Env::$instance->IsNoDisturb()) {
             return;
         }
 
@@ -48,8 +39,7 @@ public:
         );
 
         // 限制鼠标在窗口内
-        RECT r{ lroundf(srcRect.left), lroundf(srcRect.top), lroundf(srcRect.right), lroundf(srcRect.bottom) };
-        Debug::ThrowIfWin32Failed(ClipCursor(&r), L"ClipCursor 失败");
+        Debug::ThrowIfWin32Failed(ClipCursor(&Env::$instance->GetSrcClient()), L"ClipCursor 失败");
 
         // 设置鼠标移动速度
         Debug::ThrowIfWin32Failed(
@@ -57,8 +47,10 @@ public:
             L"获取鼠标速度失败"
         );
 
-        float scale = float(destRect.right - destRect.left) / (srcRect.right - srcRect.left);
-        long newSpeed = std::clamp(lroundf(_cursorSpeed / scale), 1L, 20L);
+        const RECT& srcRect = Env::$instance->GetSrcClient();
+        _scale = float(_destRect.right - _destRect.left) / (srcRect.right - srcRect.left);
+
+        long newSpeed = std::clamp(lroundf(_cursorSpeed / _scale), 1L, 20L);
         Debug::ThrowIfWin32Failed(
             SystemParametersInfo(SPI_SETMOUSESPEED, 0, (PVOID)(intptr_t)newSpeed, 0),
             L"设置鼠标速度失败"
@@ -69,7 +61,7 @@ public:
 	CursorManager(CursorManager&&) = delete;
 
     ~CursorManager() {
-        if (_noDisturb) {
+        if (Env::$instance->IsNoDisturb()) {
             return;
         }
 
@@ -135,14 +127,15 @@ private:
             leftTop.x, leftTop.y, leftTop.x + _cursorSize.cx, leftTop.y + _cursorSize.cy
         };
 
+        ID2D1DeviceContext* d2dDC = Env::$instance->GetD2DDC();
         ComPtr<ID2D1SolidColorBrush> brush;
-        _d2dContext.GetD2DDC()->CreateSolidColorBrush({ 0,0,0,1 }, &brush);
+        d2dDC->CreateSolidColorBrush({ 0,0,0,1 }, &brush);
 
         for (const auto& a : _cursorMap) {
-            _d2dContext.GetD2DDC()->FillRectangle(cursorRect, brush.Get());
+            d2dDC->FillRectangle(cursorRect, brush.Get());
 
             if (a.first != hCursorCur) {
-                _d2dContext.GetD2DDC()->DrawBitmap(a.second.Get(), &cursorRect);
+                d2dDC->DrawBitmap(a.second.Get(), &cursorRect);
             }
 
             cursorRect.left += _cursorSize.cx;
@@ -177,15 +170,12 @@ private:
         }
 
         // 映射坐标
-        float factor = (_destRect.right - _destRect.left) / (_srcRect.right - _srcRect.left);
-        D2D1_POINT_2F targetScreenPos{
-            ((FLOAT)ptScreenPos.x - _srcRect.left) * factor + _destRect.left,
-            ((FLOAT)ptScreenPos.y - _srcRect.top) * factor + _destRect.top
-        };
-
         // 鼠标坐标为整数，否则会出现模糊
-        targetScreenPos.x = roundf(targetScreenPos.x);
-        targetScreenPos.y = roundf(targetScreenPos.y);
+        const RECT& srcClient = Env::$instance->GetSrcClient();
+        D2D1_POINT_2F targetScreenPos{
+            roundf((ptScreenPos.x - srcClient.left) * _scale + _destRect.left),
+            roundf((ptScreenPos.y - srcClient.top) * _scale + _destRect.top)
+        };
 
         auto [xHotSpot, yHotSpot] = _GetCursorHotSpot(hCursor);
 
@@ -196,7 +186,7 @@ private:
            targetScreenPos.y + _cursorSize.cy - yHotSpot
         };
 
-        _d2dContext.GetD2DDC()->DrawBitmap(bmpCursor, &cursorRect);
+        Env::$instance->GetD2DDC()->DrawBitmap(bmpCursor, &cursorRect);
     }
 
     HCURSOR _CreateTransparentCursor(HCURSOR hCursorHotSpot) {
@@ -208,7 +198,7 @@ private:
         auto hotSpot = _GetCursorHotSpot(hCursorHotSpot);
 
         HCURSOR result = CreateCursor(
-            _hInstance,
+            Env::$instance->GetHInstance(),
             hotSpot.first, hotSpot.second,
             _cursorSize.cx, _cursorSize.cy,
             andPlane, xorPlane
@@ -243,16 +233,18 @@ private:
     ComPtr<ID2D1Bitmap> _CursorToD2DBitmap(HCURSOR hCursor) {
         assert(hCursor != NULL);
 
+        IWICImagingFactory2* wicImgFactory = Env::$instance->GetWICImageFactory();
+
         ComPtr<IWICBitmap> wicCursor = nullptr;
         ComPtr<IWICFormatConverter> wicFormatConverter = nullptr;
         ComPtr<ID2D1Bitmap> d2dBmpCursor = nullptr;
 
         Debug::ThrowIfComFailed(
-            _wicImgFactory->CreateBitmapFromHICON(hCursor, &wicCursor),
+            wicImgFactory->CreateBitmapFromHICON(hCursor, &wicCursor),
             L"创建鼠标图像位图失败"
         );
         Debug::ThrowIfComFailed(
-            _wicImgFactory->CreateFormatConverter(&wicFormatConverter),
+            wicImgFactory->CreateFormatConverter(&wicFormatConverter),
             L"CreateFormatConverter 失败"
         );
         Debug::ThrowIfComFailed(
@@ -267,26 +259,23 @@ private:
             L"IWICFormatConverter 初始化失败"
         );
         Debug::ThrowIfComFailed(
-            _d2dContext.GetD2DDC()->CreateBitmapFromWicBitmap(wicFormatConverter.Get(), &d2dBmpCursor),
+            Env::$instance->GetD2DDC()->CreateBitmapFromWicBitmap(wicFormatConverter.Get(), &d2dBmpCursor),
             L"CreateBitmapFromWicBitmap 失败"
         );
 
         return d2dBmpCursor;
     }
 
-    HINSTANCE _hInstance;
-    IWICImagingFactory2* _wicImgFactory;
 
     std::map<HCURSOR, ComPtr<ID2D1Bitmap>> _cursorMap;
 
     SIZE _cursorSize{};
 
-    D2D1_RECT_F _srcRect;
-    D2D1_RECT_F _destRect;
+    RECT _destRect;
+    float _scale;
 
     INT _cursorSpeed = 0;
 
-    bool _noDisturb = false;
     bool _debugMode = false;
 
     static UINT _WM_NEWCURSOR32;

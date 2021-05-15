@@ -4,9 +4,9 @@
 
 #include "pch.h"
 #include "MagWindow.h"
+#include "Env.h"
 
-
-HINSTANCE hInstance = NULL;
+HINSTANCE hInst = NULL;
 
 
 // DLL 入口
@@ -17,7 +17,7 @@ BOOL APIENTRY DllMain(
 ) {
     switch (ul_reason_for_call) {
     case DLL_PROCESS_ATTACH:
-        hInstance = hModule;
+        hInst = hModule;
         break;
     case DLL_PROCESS_DETACH:
         break;
@@ -41,14 +41,20 @@ API_DECLSPEC void WINAPI RunMagWindow(
 ) {
     reportStatus(1, nullptr);
 
+    Debug::ThrowIfComFailed(
+        CoInitializeEx(NULL, COINIT_MULTITHREADED),
+        L"初始化 COM 出错"
+    );
+
     try {
-        HWND hwnd = GetForegroundWindow();
+        HWND hwndSrc = GetForegroundWindow();
         Debug::ThrowIfWin32Failed(
-            hwnd,
+            hwndSrc,
             L"GetForegroundWindow 返回 NULL"
         );
 
-        MagWindow::CreateInstance(hInstance, hwnd, scaleModel, captureMode, showFPS, lowLatencyMode, noVSync, noDisturb);
+        Env::CreateInstance(hInst, hwndSrc, scaleModel, captureMode, showFPS, lowLatencyMode, noVSync, noDisturb);
+        MagWindow::CreateInstance();
     } catch(const magpie_exception& e) {
         reportStatus(0, e.what().c_str());
         return;

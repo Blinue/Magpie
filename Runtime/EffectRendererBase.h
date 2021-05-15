@@ -12,6 +12,7 @@
 #include "PixelScaleEffect.h"
 #include "nlohmann/json.hpp"
 #include <unordered_set>
+#include "Env.h"
 
 
 // 取决于不同的捕获方式，会有不同种类的输入，此类包含它们通用的部分
@@ -19,10 +20,11 @@
 // 并在构造函数中调用 _Init
 class EffectRendererBase : public Renderable {
 public:
-	EffectRendererBase(
-		D2DContext& d2dContext,
-		const RECT& hostClient
-	): Renderable(d2dContext), _hostClient(hostClient) {
+	EffectRendererBase() :
+		_d2dDC(Env::$instance->GetD2DDC()),
+		_d2dFactory(Env::$instance->GetD2DFactory()),
+		_hostClient(Env::$instance->GetHostClient())
+	{
 	}
 
 	virtual ~EffectRendererBase() {}
@@ -31,7 +33,7 @@ public:
 	EffectRendererBase(const EffectRendererBase&) = delete;
 	EffectRendererBase(EffectRendererBase&&) = delete;
 
-	const D2D1_RECT_F& GetOutputRect() const {
+	const RECT& GetOutputRect() const {
 		return _outputRect;
 	}
 
@@ -40,7 +42,7 @@ public:
 	void Render() {
 		ComPtr<ID2D1Image> outputImg = _GetOutputImg();
 
-		_d2dContext.GetD2DDC()->DrawImage(
+		Env::$instance->GetD2DDC()->DrawImage(
 			outputImg.Get(),
 			Point2F(_outputRect.left, _outputRect.top)
 		);
@@ -48,14 +50,14 @@ public:
 
 	
 protected:
-	void _Init(const std::string_view& scaleModel,  const SIZE& srcSize) {
-		_SetDestSize(srcSize);
-		_ReadEffectsJson(scaleModel);
+	void _Init() {
+		_SetDestSize(Utils::GetSize(Env::$instance->GetSrcClient()));
+		_ReadEffectsJson(Env::$instance->GetScaleModel());
 
 		// 计算输出位置，x 和 y 必须为整数，否则会使画面模糊
-		float x = float((_hostClient.right - _hostClient.left - _outputSize.cx) / 2);
-		float y = float((_hostClient.bottom - _hostClient.top - _outputSize.cy) / 2);
-		_outputRect = RectF(x, y, x + _outputSize.cx, y + _outputSize.cy);
+		int x = (_hostClient.right - _hostClient.left - _outputSize.cx) / 2;
+		int y = (_hostClient.bottom - _hostClient.top - _outputSize.cy) / 2;
+		_outputRect = { x, y, x + _outputSize.cx, y + _outputSize.cy };
 	}
 
 	// 将 effect 添加到 effect 链作为输出
@@ -135,7 +137,7 @@ private:
 
 		ComPtr<ID2D1Effect> adaptiveSharpenEffect = nullptr;
 		Debug::ThrowIfComFailed(
-			_d2dContext.GetD2DDC()->CreateEffect(CLSID_MAGPIE_ADAPTIVE_SHARPEN_EFFECT, &adaptiveSharpenEffect),
+			_d2dDC->CreateEffect(CLSID_MAGPIE_ADAPTIVE_SHARPEN_EFFECT, &adaptiveSharpenEffect),
 			L"创建 Adaptive sharpen effect 失败"
 		);
 
@@ -164,7 +166,7 @@ private:
 	void _AddBuiltInSharpenEffect(const nlohmann::json& props) {
 		ComPtr<ID2D1Effect> d2dSharpenEffect = nullptr;
 		Debug::ThrowIfComFailed(
-			_d2dContext.GetD2DDC()->CreateEffect(CLSID_D2D1Sharpen, &d2dSharpenEffect),
+			_d2dDC->CreateEffect(CLSID_D2D1Sharpen, &d2dSharpenEffect),
 			L"创建 sharpen effect 失败"
 		);
 
@@ -216,7 +218,7 @@ private:
 
 		ComPtr<ID2D1Effect> anime4KEffect = nullptr;
 		Debug::ThrowIfComFailed(
-			_d2dContext.GetD2DDC()->CreateEffect(CLSID_MAGPIE_ANIME4K_EFFECT, &anime4KEffect),
+			_d2dDC->CreateEffect(CLSID_MAGPIE_ANIME4K_EFFECT, &anime4KEffect),
 			L"创建 Anime4K Effect 失败"
 		);
 
@@ -264,7 +266,7 @@ private:
 
 		ComPtr<ID2D1Effect> effect = nullptr;
 		Debug::ThrowIfComFailed(
-			_d2dContext.GetD2DDC()->CreateEffect(CLSID_MAGPIE_ANIME4K_DARKLINES_EFFECT, &effect),
+			_d2dDC->CreateEffect(CLSID_MAGPIE_ANIME4K_DARKLINES_EFFECT, &effect),
 			L"创建 Anime4K Effect 失败"
 		);
 
@@ -299,7 +301,7 @@ private:
 
 		ComPtr<ID2D1Effect> effect = nullptr;
 		Debug::ThrowIfComFailed(
-			_d2dContext.GetD2DDC()->CreateEffect(CLSID_MAGPIE_ANIME4K_THINLINES_EFFECT, &effect),
+			_d2dDC->CreateEffect(CLSID_MAGPIE_ANIME4K_THINLINES_EFFECT, &effect),
 			L"创建 Anime4K Effect 失败"
 		);
 
@@ -335,7 +337,7 @@ private:
 
 		ComPtr<ID2D1Effect> effect = nullptr;
 		Debug::ThrowIfComFailed(
-			_d2dContext.GetD2DDC()->CreateEffect(CLSID_MAGPIE_JINC2_SCALE_EFFECT, &effect),
+			_d2dDC->CreateEffect(CLSID_MAGPIE_JINC2_SCALE_EFFECT, &effect),
 			L"创建 Anime4K Effect 失败"
 		);
 		
@@ -420,7 +422,7 @@ private:
 
 		ComPtr<ID2D1Effect> effect = nullptr;
 		Debug::ThrowIfComFailed(
-			_d2dContext.GetD2DDC()->CreateEffect(CLSID_MAGPIE_MITCHELL_NETRAVALI_SCALE_EFFECT, &effect),
+			_d2dDC->CreateEffect(CLSID_MAGPIE_MITCHELL_NETRAVALI_SCALE_EFFECT, &effect),
 			L"创建 Mitchell-Netraval Scale Effect 失败"
 		);
 
@@ -458,7 +460,7 @@ private:
 	void _AddHQBicubicScaleEffect(const nlohmann::json& props) {
 		ComPtr<ID2D1Effect> effect = nullptr;
 		Debug::ThrowIfComFailed(
-			_d2dContext.GetD2DDC()->CreateEffect(CLSID_D2D1Scale, &effect),
+			_d2dDC->CreateEffect(CLSID_D2D1Scale, &effect),
 			L"创建 Anime4K Effect 失败"
 		);
 
@@ -507,7 +509,7 @@ private:
 
 		ComPtr<ID2D1Effect> effect = nullptr;
 		Debug::ThrowIfComFailed(
-			_d2dContext.GetD2DDC()->CreateEffect(CLSID_MAGPIE_LANCZOS6_SCALE_EFFECT, &effect),
+			_d2dDC->CreateEffect(CLSID_MAGPIE_LANCZOS6_SCALE_EFFECT, &effect),
 			L"创建 Lanczos6 Effect 失败"
 		);
 
@@ -555,7 +557,7 @@ private:
 
 		ComPtr<ID2D1Effect> effect = nullptr;
 		Debug::ThrowIfComFailed(
-			_d2dContext.GetD2DDC()->CreateEffect(CLSID_MAGPIE_PIXEL_SCALE_EFFECT, &effect),
+			_d2dDC->CreateEffect(CLSID_MAGPIE_PIXEL_SCALE_EFFECT, &effect),
 			L"创建 Pixel Scale Effect 失败"
 		);
 
@@ -610,7 +612,7 @@ private:
 		if (_registeredEffects.find(effectID) == _registeredEffects.end()) {
 			// 未注册
 			Debug::ThrowIfComFailed(
-				registerFunc(_d2dContext.GetD2DFactory()),
+				registerFunc(_d2dFactory),
 				L"注册 Effect 失败"
 			);
 			
@@ -621,10 +623,12 @@ private:
 private:
 	// 输出图像尺寸
 	SIZE _outputSize{};
-	D2D1_RECT_F _outputRect{};
-
-	const RECT& _hostClient;
+	RECT _outputRect{};
 
 	// 存储已注册的 effect 的 GUID
 	std::unordered_set<GUID> _registeredEffects;
+
+	ID2D1Factory1* _d2dFactory;
+	ID2D1DeviceContext* _d2dDC;
+	const RECT& _hostClient;
 };

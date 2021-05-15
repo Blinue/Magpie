@@ -2,18 +2,14 @@
 #include "pch.h"
 #include "WindowCapturerBase.h"
 #include "Utils.h"
+#include "Env.h"
 
 
 // 使用 Magnification API 抓取窗口
 // 见 https://docs.microsoft.com/en-us/previous-versions/windows/desktop/magapi/magapi-intro
 class MagCallbackWindowCapturer : public WindowCapturerBase {
 public:
-	MagCallbackWindowCapturer(
-        D2DContext& d2dContext,
-        HINSTANCE hInstance,
-        HWND hwndHost,
-        const RECT& srcRect
-    ): _srcRect(srcRect), _d2dContext(d2dContext) {
+	MagCallbackWindowCapturer() {
         if (_instance) {
             Debug::Assert(false, L"已存在 MagCallbackWindowCapturer 实例");
         }
@@ -25,12 +21,19 @@ public:
 
         // 创建不可见的放大镜控件
         // 大小为目标窗口客户区
-        SIZE srcClientSize = Utils::GetSize(srcRect);
+        SIZE srcClientSize = Utils::GetSize(Env::$instance->GetSrcClient());
 
-        _hwndMag = CreateWindow(WC_MAGNIFIER, L"MagnifierWindow",
+        _hwndMag = CreateWindow(
+            WC_MAGNIFIER,
+            L"MagnifierWindow",
             WS_CHILD,
-            0, 0, srcClientSize.cx, srcClientSize.cy,
-            hwndHost, NULL, hInstance, NULL);
+            0, 0,
+            srcClientSize.cx, srcClientSize.cy,
+            Env::$instance->GetHwndHost(),
+            NULL,
+            Env::$instance->GetHInstance(),
+            NULL
+        );
         Debug::ThrowIfWin32Failed(_hwndMag, L"创建放大镜控件失败");
 
         Debug::ThrowIfWin32Failed(
@@ -49,7 +52,7 @@ public:
 
     ComPtr<IUnknown> GetFrame() override {
         // MagSetWindowSource 是同步执行的
-        if (!MagSetWindowSource(_hwndMag, _srcRect)) {
+        if (!MagSetWindowSource(_hwndMag, Env::$instance->GetSrcClient())) {
             Debug::WriteErrorMessage(L"MagSetWindowSource 失败");
         }
 
@@ -79,7 +82,7 @@ private:
             return FALSE;
         }
         
-        _instance->_d2dContext.GetD2DDC()->CreateBitmap(
+        Env::$instance->GetD2DDC()->CreateBitmap(
             { srcheader.width, srcheader.height },
             BitmapProperties(PixelFormat(DXGI_FORMAT_B8G8R8A8_UNORM, D2D1_ALPHA_MODE_IGNORE)),
             & _instance->_bmp
@@ -91,11 +94,8 @@ private:
     }
 
     HWND _hwndMag = NULL;
-    const RECT& _srcRect;
 
     ComPtr<ID2D1Bitmap> _bmp = nullptr;
 
     static MagCallbackWindowCapturer* _instance;
-
-    D2DContext& _d2dContext;
 };

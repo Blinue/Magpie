@@ -123,6 +123,9 @@
     <ClCompile Include="CursorManager.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="Env.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Debug.h">
@@ -244,6 +247,9 @@
     </ClInclude>
     <ClInclude Include="Anime4KDarkLinesPass5Transform.h">
       <Filter>头文件\Effect\缩放\Anime4K</Filter>
+    </ClInclude>
+    <ClInclude Include="Env.h">
+      <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

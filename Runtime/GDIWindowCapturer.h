@@ -4,6 +4,7 @@
 #include "Utils.h"
 #include <queue>
 #include <chrono>
+#include "Env.h"
 
 using namespace std::chrono;
 
@@ -11,13 +12,7 @@ using namespace std::chrono;
 // 使用 GDI 抓取窗口
 class GDIWindowCapturer : public WindowCapturerBase {
 public:
-	GDIWindowCapturer(
-		D2DContext& d2dContext,
-		HWND hwndSrc,
-		const RECT& srcRect,
-		ComPtr<IWICImagingFactory2> wicImgFactory,
-		bool useBitblt = false
-	): _d2dContext(d2dContext), _wicImgFactory(wicImgFactory), _srcRect(srcRect), _hwndSrc(hwndSrc), _useBitblt(useBitblt) {
+	GDIWindowCapturer() {
 		// 在单独的线程中不断使用GDI截获窗口
 		// 如果放在渲染线程中会造成卡顿
 		_getFrameThread.reset(new std::thread([&]() {
@@ -52,14 +47,15 @@ public:
 
 private:
 	ComPtr<IWICBitmapSource> _GetFrameWithNoBitblt() {
-		SIZE srcSize = Utils::GetSize(_srcRect);
+		HWND hwndSrc = Env::$instance->GetHwndSrc();
+		
 		RECT windowRect{};
 		Debug::ThrowIfWin32Failed(
-			GetWindowRect(_hwndSrc, &windowRect),
+			GetWindowRect(hwndSrc, &windowRect),
 			L"GetWindowRect失败"
 		);
-
-		HDC hdcSrc = GetWindowDC(_hwndSrc);
+		
+		HDC hdcSrc = GetWindowDC(hwndSrc);
 		Debug::ThrowIfWin32Failed(
 			hdcSrc,
 			L"GetDC失败"
@@ -71,13 +67,14 @@ private:
 			L"GetCurrentObject失败"
 		);
 		Debug::ThrowIfWin32Failed(
-			ReleaseDC(_hwndSrc, hdcSrc),
+			ReleaseDC(hwndSrc, hdcSrc),
 			L"ReleaseDC失败"
 		);
 
+		IWICImagingFactory2* wicImgFactory = Env::$instance->GetWICImageFactory();
 		ComPtr<IWICBitmap> wicBmp = nullptr;
 		Debug::ThrowIfComFailed(
-			_wicImgFactory->CreateBitmapFromHBITMAP(
+			wicImgFactory->CreateBitmapFromHBITMAP(
 				hBmpDest,
 				NULL,
 				WICBitmapAlphaChannelOption::WICBitmapIgnoreAlpha,
@@ -89,15 +86,16 @@ private:
 		// 裁剪出客户区
 		ComPtr<IWICBitmapClipper> wicBmpClipper = nullptr;
 		Debug::ThrowIfComFailed(
-			_wicImgFactory->CreateBitmapClipper(&wicBmpClipper),
+			wicImgFactory->CreateBitmapClipper(&wicBmpClipper),
 			L"CreateBitmapClipper失败"
 		);
 
+		const RECT& srcClient = Env::$instance->GetSrcClient();
 		WICRect wicRect = {
-			_srcRect.left - windowRect.left,
-			_srcRect.top - windowRect.top,
-			srcSize.cx,
-			srcSize.cy
+			srcClient.left - windowRect.left,
+			srcClient.top - windowRect.top,
+			srcClient.right - srcClient.left,
+			srcClient.bottom - srcClient.top
 		};
 		Debug::ThrowIfComFailed(
 			wicBmpClipper->Initialize(wicBmp.Get(), &wicRect),
@@ -107,12 +105,6 @@ private:
 		return wicBmpClipper;
 	}
 
-	ComPtr<IWICImagingFactory2> _wicImgFactory;
-	const RECT& _srcRect;
-	const HWND _hwndSrc;
-	bool _useBitblt;
-
-	D2DContext& _d2dContext;
 
 	ComPtr<IWICBitmapSource> _frame;
 	// 同步对 _frame 的访问

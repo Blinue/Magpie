@@ -1,65 +1,32 @@
 #pragma once
 #include "pch.h"
 #include "Utils.h"
+#include "Env.h"
 
 using namespace D2D1;
 
 
 class D2DContext {
 public:
-	D2DContext(
-        HINSTANCE hInstance,
-        HWND hwndHost,
-        const RECT& hostClient,
-        bool lowLatencyMode = false,
-        bool noVSync = false,
-        bool noDisturb = false
-    ): _noVSync(noVSync), _lowLantencyMode(lowLatencyMode), _hostClient(hostClient) {
-        _InitD2D(hwndHost);
+	D2DContext() {
+        _InitD2D();
 	}
  
     // 不可复制，不可移动
     D2DContext(const D2DContext&) = delete;
     D2DContext(D2DContext&&) = delete;
 
-    const ID2D1DeviceContext* GetD2DDC() const {
-        return _d2dDC.Get();
+    ~D2DContext() {
+        CloseHandle(_frameLatencyWaitableObject);
     }
 
-    ID2D1DeviceContext* GetD2DDC() {
-        return _d2dDC.Get();
-    }
 
-    const ID2D1Factory1* GetD2DFactory() const {
-        return _d2dFactory.Get();
-    }
-
-    ID2D1Factory1* GetD2DFactory() {
-        return _d2dFactory.Get();
-    }
-
-    const ID3D11Device* GetD3DDevice() const {
-        return _d3dDevice.Get();
-    }
-
-    ID3D11Device* GetD3DDevice() {
-        return _d3dDevice.Get();
-    }
-
-    const ID2D1Device* GetD2DDevice() const {
-        return _d2dDevice.Get();
-    }
-
-    ID2D1Device* GetD2DDevice() {
-        return _d2dDevice.Get();
-    }
-
-    void Render(std::function<void()> renderFunc) {
+    void Render(std::function<void(ID2D1DeviceContext*)> renderFunc) {
         WaitForSingleObjectEx(_frameLatencyWaitableObject, 1000, true);
 
         _d2dDC->BeginDraw();
 
-        renderFunc();
+        renderFunc(_d2dDC.Get());
 
         Debug::ThrowIfComFailed(
             _d2dDC->EndDraw(),
@@ -68,13 +35,18 @@ public:
 
         // 如果帧率不足，关闭垂直同步可以提升帧率
         Debug::ThrowIfComFailed(
-            _dxgiSwapChain->Present(0, _noVSync ? DXGI_PRESENT_ALLOW_TEARING : 0),
+            _dxgiSwapChain->Present(0, Env::$instance->IsNoVSync() ? DXGI_PRESENT_ALLOW_TEARING : 0),
             L"Present 失败"
         );
     }
 
 private:
-    void _InitD2D(HWND hwndHost) {
+    void _InitD2D() {
+        ComPtr<ID3D11Device> d3dDevice = nullptr;
+        ComPtr<ID2D1Factory1> d2dFactory = nullptr;
+        ComPtr<ID2D1Device> d2dDevice = nullptr;
+        
+
         // This array defines the set of DirectX hardware feature levels this app  supports.
         // The ordering is important and you should  preserve it.
         // Don't forget to declare your app's minimum required feature level in its
@@ -100,7 +72,7 @@ private:
                 featureLevels,  // list of feature levels this app can support
                 ARRAYSIZE(featureLevels),   // number of possible feature levels
                 D3D11_SDK_VERSION,
-                &_d3dDevice, // returns the Direct3D device created
+                &d3dDevice, // returns the Direct3D device created
                 &fl,    // returns feature level of device created
                 &d3dDC  // returns the device immediate context
             ),
@@ -110,24 +82,24 @@ private:
         // Obtain the underlying DXGI device of the Direct3D11 device.
         ComPtr<IDXGIDevice1> dxgiDevice;
         Debug::ThrowIfComFailed(
-            _d3dDevice.As(&dxgiDevice),
+            d3dDevice.As(&dxgiDevice),
             L"获取 DXGI Device 失败"
         );
 
         Debug::ThrowIfComFailed(
-            D2D1CreateFactory(D2D1_FACTORY_TYPE_MULTI_THREADED, IID_PPV_ARGS(&_d2dFactory)),
+            D2D1CreateFactory(D2D1_FACTORY_TYPE_MULTI_THREADED, IID_PPV_ARGS(&d2dFactory)),
             L"创建 D2D Factory 失败"
         );
 
         // Obtain the Direct2D device for 2-D rendering.
         Debug::ThrowIfComFailed(
-            _d2dFactory->CreateDevice(dxgiDevice.Get(), &_d2dDevice),
+            d2dFactory->CreateDevice(dxgiDevice.Get(), &d2dDevice),
             L"创建 D2D Device 失败"
         );
         
         // Get Direct2D device's corresponding device context object.
         Debug::ThrowIfComFailed(
-            _d2dDevice->CreateDeviceContext(D2D1_DEVICE_CONTEXT_OPTIONS_NONE, &_d2dDC),
+            d2dDevice->CreateDeviceContext(D2D1_DEVICE_CONTEXT_OPTIONS_NONE, &_d2dDC),
             L"创建 D2D DC 失败"
         );
 
@@ -147,10 +119,12 @@ private:
         
         // Allocate a descriptor.
         DXGI_SWAP_CHAIN_DESC1 swapChainDesc{};
-        swapChainDesc.Flags = (_noVSync ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : 0) 
+        swapChainDesc.Flags = (Env::$instance->IsNoVSync() ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : 0) 
             | DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT;
-        swapChainDesc.Width = _hostClient.right - _hostClient.left,
-        swapChainDesc.Height = _hostClient.bottom - _hostClient.top,
+
+        const RECT& hostClient = Env::$instance->GetHostClient();
+        swapChainDesc.Width = hostClient.right - hostClient.left,
+        swapChainDesc.Height = hostClient.bottom - hostClient.top,
         swapChainDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM; // this is the most common swapchain format
         swapChainDesc.Stereo = FALSE;
         swapChainDesc.SampleDesc.Count = 1;                // don't use multi-sampling
@@ -165,8 +139,8 @@ private:
         ComPtr<IDXGISwapChain1> dxgiSwapChain1;
         Debug::ThrowIfComFailed(
             dxgiFactory->CreateSwapChainForHwnd(
-                _d3dDevice.Get(),
-                hwndHost,
+                d3dDevice.Get(),
+                Env::$instance->GetHwndHost(),
                 &swapChainDesc,
                 nullptr,
                 nullptr,
@@ -182,7 +156,7 @@ private:
         );
         
         Debug::ThrowIfComFailed(
-            _dxgiSwapChain->SetMaximumFrameLatency(_lowLantencyMode ? 1 : 2),
+            _dxgiSwapChain->SetMaximumFrameLatency(Env::$instance->IsLowLantencyMode() ? 1 : 2),
             L"SetMaximumFrameLatency 失败"
         );
 
@@ -217,16 +191,11 @@ private:
         // Now we can set the Direct2D render target.
         _d2dDC->SetTarget(d2dTargetBitmap.Get());
         _d2dDC->SetUnitMode(D2D1_UNIT_MODE_PIXELS);
+
+        Env::$instance->SetD2DContext(d3dDevice, d2dFactory, d2dDevice, _d2dDC, _dxgiSwapChain);
     }
 
-    const RECT& _hostClient{};
 
-    bool _noVSync;  // 关闭垂直同步
-    bool _lowLantencyMode;  // 低延迟模式
-
-    ComPtr<ID3D11Device> _d3dDevice = nullptr;
-    ComPtr<ID2D1Factory1> _d2dFactory = nullptr;
-    ComPtr<ID2D1Device> _d2dDevice = nullptr;
     ComPtr<ID2D1DeviceContext> _d2dDC = nullptr;
     ComPtr<IDXGISwapChain2> _dxgiSwapChain = nullptr;
 

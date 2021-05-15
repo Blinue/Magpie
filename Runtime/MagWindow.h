@@ -10,26 +10,8 @@ public:
     // 确保只能同时存在一个全屏窗口
     static std::unique_ptr<MagWindow> $instance;
 
-    static void CreateInstance(
-        HINSTANCE hInstance,
-        HWND hwndSrc,
-        const std::string_view& scaleModel,
-        int captureMode = 0,
-        bool showFPS = false,
-        bool lowLatencyMode = false,
-        bool noVSync = false,
-        bool noDisturb = false
-    ) {
-        $instance.reset(new MagWindow(
-            hInstance,
-            hwndSrc,
-            scaleModel,
-            captureMode,
-            showFPS,
-            lowLatencyMode,
-            noVSync,
-            noDisturb
-        ));
+    static void CreateInstance() {
+        $instance.reset(new MagWindow());
     }
     
     // 不可复制，不可移动
@@ -40,10 +22,7 @@ public:
         // 以下面的顺序释放资源
         _renderManager = nullptr;
 
-        DestroyWindow(_hwndHost);
-        UnregisterClass(_HOST_WINDOW_CLASS_NAME, _hInst);
-
-        CoUninitialize();
+        UnregisterClass(_HOST_WINDOW_CLASS_NAME, Env::$instance->GetHInstance());
 
         PostQuitMessage(0);
     }
@@ -65,47 +44,24 @@ public:
     }
 
 private:
-    MagWindow(
-        HINSTANCE hInstance,
-        HWND hwndSrc,
-        const std::string_view& scaleModel,
-        int captureMode,
-        bool showFPS,
-        bool lowLatencyMode,
-        bool noVSync,
-        bool noDisturb
-    ) : _hInst(hInstance), _hwndSrc(hwndSrc) {
+    MagWindow() {
         if ($instance) {
             Debug::Assert(false, L"已存在全屏窗口");
         }
 
-        Debug::ThrowIfComFailed(
-            CoInitializeEx(NULL, COINIT_MULTITHREADED),
-            L"初始化 COM 出错"
-        );
-
+        HWND hwndSrc = Env::$instance->GetHwndSrc();
         Debug::Assert(
-            IsWindow(_hwndSrc) && IsWindowVisible(_hwndSrc),
+            IsWindow(hwndSrc) && IsWindowVisible(hwndSrc),
             L"hwndSrc 不合法"
         );
 
         _RegisterHostWndClass();
-        _CreateHostWnd(noDisturb);
+        _CreateHostWnd();
 
-        _renderManager.reset(new RenderManager(
-            _hInst,
-            scaleModel,
-            _hwndSrc,
-            _hwndHost,
-            captureMode,
-            showFPS,
-            lowLatencyMode,
-            noVSync,
-            noDisturb
-        ));
+        _renderManager.reset(new RenderManager());
 
         Debug::ThrowIfWin32Failed(
-            ShowWindow(_hwndHost, SW_NORMAL),
+            ShowWindow(Env::$instance->GetHwndHost(), SW_NORMAL),
             L"ShowWindow失败"
         );
     }
@@ -144,28 +100,30 @@ private:
         WNDCLASSEX wcex = {};
         wcex.cbSize = sizeof(WNDCLASSEX);
         wcex.lpfnWndProc = _HostWndProcStatic;
-        wcex.hInstance = _hInst;
+        wcex.hInstance = Env::$instance->GetHInstance();
         wcex.lpszClassName = _HOST_WINDOW_CLASS_NAME;
 
         // 忽略重复注册造成的错误
         RegisterClassEx(&wcex);
     }
 
-    void _CreateHostWnd(bool noDisturb) {
+    void _CreateHostWnd() {
         // 创建全屏窗口
-        SIZE screenSize = Utils::GetScreenSize(_hwndSrc);
-        _hwndHost = CreateWindowEx(
-            (noDisturb ? 0 : WS_EX_TOPMOST) | WS_EX_NOACTIVATE | WS_EX_LAYERED | WS_EX_TRANSPARENT,
+        SIZE screenSize = Utils::GetScreenSize(Env::$instance->GetHwndSrc());
+        HWND hwndHost = CreateWindowEx(
+            (Env::$instance->IsNoDisturb() ? 0 : WS_EX_TOPMOST) | WS_EX_NOACTIVATE | WS_EX_LAYERED | WS_EX_TRANSPARENT,
             _HOST_WINDOW_CLASS_NAME, NULL, WS_CLIPCHILDREN | WS_POPUP | WS_VISIBLE,
             0, 0, screenSize.cx, screenSize.cy,
-            NULL, NULL, _hInst, NULL);
-        Debug::ThrowIfWin32Failed(_hwndHost, L"创建全屏窗口失败");
+            NULL, NULL, Env::$instance->GetHInstance(), NULL);
+        Debug::ThrowIfWin32Failed(hwndHost, L"创建全屏窗口失败");
 
         // 设置窗口不透明
         Debug::ThrowIfWin32Failed(
-            SetLayeredWindowAttributes(_hwndHost, 0, 255, LWA_ALPHA),
+            SetLayeredWindowAttributes(hwndHost, 0, 255, LWA_ALPHA),
             L"SetLayeredWindowAttributes 失败"
         );
+
+        Env::$instance->SetHwndHost(hwndHost);
     }
 
 
@@ -173,10 +131,6 @@ private:
     static constexpr const wchar_t* _HOST_WINDOW_CLASS_NAME = L"Window_Magpie_967EB565-6F73-4E94-AE53-00CC42592A22";
 
     static UINT _WM_DESTORYMAG;
-
-    HINSTANCE _hInst;
-    HWND _hwndHost = NULL;
-    HWND _hwndSrc;
     
     std::unique_ptr<RenderManager> _renderManager = nullptr;
 };
