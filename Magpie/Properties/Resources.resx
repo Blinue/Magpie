@@ -174,7 +174,7 @@
       {
         "effect": "scale",
         "type": "Anime4KThinLines",
-        "strength": 0.2
+        "strength": 0.3
       },
       {
         "effect": "sharpen",

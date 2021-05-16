@@ -89,6 +89,8 @@ namespace Magpie {
                 return;
             }
 
+            // 广播 MAGPIE_WM_DESTORYMAG
+            // 可以在没有全屏窗口句柄的情况下关闭它
             NativeMethods.BroadcastMessage(NativeMethods.MAGPIE_WM_DESTORYMAG);
         }
 

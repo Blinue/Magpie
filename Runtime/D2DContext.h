@@ -6,6 +6,7 @@
 using namespace D2D1;
 
 
+// Direct2D »·¾³
 class D2DContext {
 public:
 	D2DContext() {

@@ -7,6 +7,7 @@ using System.Windows.Forms;
 using System.Text.Json;
 using System.IO;
 
+
 namespace Magpie {
     partial class MainForm : Form {
         private IKeyboardMouseEvents keyboardEvents = null;
@@ -238,8 +239,6 @@ namespace Magpie {
         private void TsmiScale_Click(object sender, EventArgs e) {
             StartScaleTimer();
         }
-
-        
     }
 }
 

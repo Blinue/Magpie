@@ -5,6 +5,7 @@
 using namespace std::chrono;
 
 
+// º∆À„÷°¬ 
 class FrameCatcher : public Renderable {
 public:
 	FrameCatcher(const RECT& destRect) : _destRect(destRect) {
@@ -90,8 +91,7 @@ private:
 	double _fps = 0;
 
 	ComPtr<IDWriteTextFormat> _dwTxtFmt = nullptr;
+	ComPtr<ID2D1SolidColorBrush> _d2dFPSTxtBrush = nullptr;
 
 	RECT _destRect;
-
-	ComPtr<ID2D1SolidColorBrush> _d2dFPSTxtBrush = nullptr;
 };

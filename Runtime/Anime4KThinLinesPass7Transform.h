@@ -55,5 +55,5 @@ protected:
     }
 
 private:
-    float _strength = 0.2f;
+    float _strength = 0.3f;
 };

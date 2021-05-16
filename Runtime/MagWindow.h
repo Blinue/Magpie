@@ -5,6 +5,7 @@
 #include "RenderManager.h"
 
 
+// 管理全屏窗口的创建和销毁
 class MagWindow {
 public:
     // 确保只能同时存在一个全屏窗口

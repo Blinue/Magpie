@@ -181,7 +181,7 @@ public:
     }
 
     enum PROPS {
-        PROP_STRENGTH = 0   // 细化强度，值越大线条越细。默认值为0.2
+        PROP_STRENGTH = 0   // 细化强度，值越大线条越细。默认值为0.3
     };
 
     static HRESULT Register(_In_ ID2D1Factory1* pFactory) {
@@ -203,7 +203,7 @@ public:
                 </Inputs>
                 <Property name='Strength' type='float'>
                     <Property name='DisplayName' type='string' value='Strength' />
-                    <Property name='Default' type='float' value='0.2' />
+                    <Property name='Default' type='float' value='0.3' />
                 </Property>
             </Effect>
         ), bindings, ARRAYSIZE(bindings), CreateEffect);

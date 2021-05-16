@@ -18,15 +18,22 @@
 
 #### 缩放模式
 
-目前缩放模式仅支持通用（Lanczos+锐化）以及动漫（Anime4K+mitchell+锐化）。如果你想组合自己的缩放模式，见[自定义缩放](docs/自定义缩放.md)。
+程序预置了数种缩放模式，如果没有符合你的需求的，请[自定义缩放](docs/自定义缩放.md)。
+
+1. 通用：使用Lanczos+锐化。适用于大多数情况。
+2. Anime4K：存在多种变体
+   * 动漫 2x（Anime4K）：对输入应用一次Anime4K，适合放大1~2倍。默认使用降噪版本。
+   * 动漫 2x（Anime4K+ThinLines）：执行Anime4K后细化线条。一般能产生更好的视觉效果。
+   * 动漫 4x（Anime4K x2）：应用两次Anime4K，适合放大2~4倍的情况。
+3. Pixel：将每个像素放大整数倍，可以完整保留原窗口的视觉效果。有2x，3x，4x三种放大倍率可选。
 
 #### 抓取模式
 
 程序如何抓取源窗口图像，有三种选择：
 
-1. WinRT Capture：使用[Screen Capture API](https://docs.microsoft.com/en-us/windows/uwp/audio-video-camera/screen-capture)抓取窗口，最推荐的方法。此API从Windows 10, v1803开始提供
+1. WinRT Capture：使用[Screen Capture API](https://docs.microsoft.com/en-us/windows/uwp/audio-video-camera/screen-capture)抓取窗口，最推荐的方法。此API从Windows 10, v1803开始提供。
 2. GDI：使用GDI抓取源窗口，速度较快，无法抓取到一些DirectX窗口
-3. MagCallback：使用[Magnification API](https://docs.microsoft.com/en-us/previous-versions/windows/desktop/magapi/entry-magapi-sdk)抓取源窗口，相比GDI可以抓取到更多类型的窗口，但速度较慢。不推荐使用
+3. MagCallback：使用[Magnification API](https://docs.microsoft.com/en-us/previous-versions/windows/desktop/magapi/entry-magapi-sdk)抓取源窗口，相比GDI可以抓取到更多类型的窗口，但有明显卡顿。不推荐使用
 
 #### 注入模式
 

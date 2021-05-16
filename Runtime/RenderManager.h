@@ -13,6 +13,7 @@
 #include "Env.h"
 
 
+// 处理全屏窗口的渲染
 class RenderManager {
 public:
 	RenderManager() {
@@ -52,7 +53,9 @@ public:
 	}
 
 	void Render() {
+		// 每次渲染时检测前台窗口是否改变
 		if (GetForegroundWindow() != Env::$instance->GetHwndSrc()) {
+			// 前台窗口改变时关闭全屏窗口
 			DestroyWindow(Env::$instance->GetHwndHost());
 			return;
 		}

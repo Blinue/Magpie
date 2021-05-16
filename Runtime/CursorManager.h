@@ -5,6 +5,7 @@
 #include "Env.h"
 
 
+// 处理光标的渲染
 class CursorManager: public Renderable {
 public:
     CursorManager(const RECT& destRect, bool debugMode = false) : _destRect(destRect), _debugMode(debugMode) {
