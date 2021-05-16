@@ -14,10 +14,9 @@ public:
 		int captureMode,
 		bool showFPS,
 		bool lowLatencyMode,
-		bool noVSync,
 		bool noDisturb
 	) {
-		$instance.reset(new Env(hInst, hwndSrc, scaleModel, captureMode, showFPS, lowLatencyMode, noVSync, noDisturb));
+		$instance.reset(new Env(hInst, hwndSrc, scaleModel, captureMode, showFPS, lowLatencyMode, noDisturb));
 	}
 
 	void SetD2DContext(
@@ -65,10 +64,6 @@ public:
 
 	bool IsShowFPS() {
 		return _showFPS;
-	}
-
-	bool IsNoVSync() {
-		return _noVSync;
 	}
 
 	bool IsLowLantencyMode() {
@@ -137,9 +132,8 @@ private:
 		int captureMode,
 		bool showFPS,
 		bool lowLatencyMode,
-		bool noVSync,
 		bool noDisturb
-	) : _hInst(hInst), _hwndSrc(hwndSrc), _scaleModel(scaleModel), _captureMode(captureMode), _showFPS(showFPS), _noVSync(noVSync), _lowLantencyMode(lowLatencyMode), _noDisturb(noDisturb) {
+	) : _hInst(hInst), _hwndSrc(hwndSrc), _scaleModel(scaleModel), _captureMode(captureMode), _showFPS(showFPS), _lowLantencyMode(lowLatencyMode), _noDisturb(noDisturb) {
 		Debug::Assert(
 			captureMode >= 0 && captureMode <= 2,
 			L"非法的抓取模式"
@@ -158,7 +152,6 @@ private:
 	std::string_view _scaleModel;
 	int _captureMode;
 	bool _showFPS;
-	bool _noVSync;  // 关闭垂直同步
 	bool _lowLantencyMode;  // 低延迟模式
 	bool _noDisturb;
 

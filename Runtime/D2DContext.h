@@ -9,7 +9,7 @@ using namespace D2D1;
 // Direct2D 环境
 class D2DContext {
 public:
-	D2DContext() {
+	D2DContext(bool noVsync = false): _noVSync(noVsync) {
         _InitD2D();
 	}
  
@@ -36,7 +36,7 @@ public:
 
         // 如果帧率不足，关闭垂直同步可以提升帧率
         Debug::ThrowIfComFailed(
-            _dxgiSwapChain->Present(0, Env::$instance->IsNoVSync() ? DXGI_PRESENT_ALLOW_TEARING : 0),
+            _dxgiSwapChain->Present(0, _noVSync ? DXGI_PRESENT_ALLOW_TEARING : 0),
             L"Present 失败"
         );
     }
@@ -120,7 +120,7 @@ private:
         
         // Allocate a descriptor.
         DXGI_SWAP_CHAIN_DESC1 swapChainDesc{};
-        swapChainDesc.Flags = (Env::$instance->IsNoVSync() ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : 0) 
+        swapChainDesc.Flags = (_noVSync ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : 0) 
             | DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT;
 
         const RECT& hostClient = Env::$instance->GetHostClient();
@@ -196,6 +196,7 @@ private:
         Env::$instance->SetD2DContext(d3dDevice, d2dFactory, d2dDevice, _d2dDC, _dxgiSwapChain);
     }
 
+    bool _noVSync;
 
     ComPtr<ID2D1DeviceContext> _d2dDC = nullptr;
     ComPtr<IDXGISwapChain2> _dxgiSwapChain = nullptr;

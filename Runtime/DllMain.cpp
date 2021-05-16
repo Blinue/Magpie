@@ -36,7 +36,6 @@ API_DECLSPEC void WINAPI RunMagWindow(
     int captureMode,
     bool showFPS,
     bool lowLatencyMode,
-    bool noVSync,
     bool noDisturb
 ) {
     reportStatus(1, nullptr);
@@ -57,7 +56,7 @@ API_DECLSPEC void WINAPI RunMagWindow(
             L"该窗口当前正最大/最小化"
         );
 
-        Env::CreateInstance(hInst, hwndSrc, scaleModel, captureMode, showFPS, lowLatencyMode, noVSync, noDisturb);
+        Env::CreateInstance(hInst, hwndSrc, scaleModel, captureMode, showFPS, lowLatencyMode, noDisturb);
         MagWindow::CreateInstance();
     } catch(const magpie_exception& e) {
         reportStatus(0, (L"创建全屏窗口出错：" + e.what()).c_str());

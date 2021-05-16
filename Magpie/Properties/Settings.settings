@@ -8,9 +8,6 @@
     <Setting Name="ScaleMode" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">0</Value>
     </Setting>
-    <Setting Name="NoVSync" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">False</Value>
-    </Setting>
     <Setting Name="ShowFPS" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>

@@ -58,7 +58,6 @@ namespace Magpie {
             int captureMode,
             bool showFPS,
             bool lowLatencyMode,
-            bool noVSync,
             bool hookCursorAtRuntime,
             bool noDisturb = false
         ) {
@@ -75,7 +74,6 @@ namespace Magpie {
                     captureMode,    // 抓取模式
                     showFPS,        // 显示 FPS
                     lowLatencyMode, // 低延迟模式
-                    noVSync,        // 关闭垂直同步
                     noDisturb       // 用于调试
                 );
             });

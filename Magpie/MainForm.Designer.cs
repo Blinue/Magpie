@@ -30,7 +30,6 @@ namespace Magpie {
             this.txtHotkey = new System.Windows.Forms.TextBox();
             this.label2 = new System.Windows.Forms.Label();
             this.cbbScaleMode = new System.Windows.Forms.ComboBox();
-            this.ckbNoVSync = new System.Windows.Forms.CheckBox();
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.notifyIcon = new System.Windows.Forms.NotifyIcon(this.components);
             this.cmsNotifyIcon = new System.Windows.Forms.ContextMenuStrip(this.components);
@@ -90,22 +89,11 @@ namespace Magpie {
             this.cbbScaleMode.TabIndex = 2;
             this.cbbScaleMode.SelectedIndexChanged += new System.EventHandler(this.CbbScaleMode_SelectedIndexChanged);
             // 
-            // ckbNoVSync
-            // 
-            this.ckbNoVSync.AutoSize = true;
-            this.ckbNoVSync.Location = new System.Drawing.Point(17, 76);
-            this.ckbNoVSync.Name = "ckbNoVSync";
-            this.ckbNoVSync.Size = new System.Drawing.Size(119, 19);
-            this.ckbNoVSync.TabIndex = 4;
-            this.ckbNoVSync.Text = "关闭垂直同步";
-            this.ckbNoVSync.UseVisualStyleBackColor = true;
-            this.ckbNoVSync.CheckedChanged += new System.EventHandler(this.CkbNoVSync_CheckedChanged);
-            // 
             // textBox1
             // 
             this.textBox1.BackColor = System.Drawing.SystemColors.Control;
             this.textBox1.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.textBox1.Location = new System.Drawing.Point(15, 246);
+            this.textBox1.Location = new System.Drawing.Point(15, 216);
             this.textBox1.Multiline = true;
             this.textBox1.Name = "textBox1";
             this.textBox1.Size = new System.Drawing.Size(179, 48);
@@ -222,10 +210,9 @@ namespace Magpie {
             // 
             this.groupBox2.Controls.Add(this.ckbLowLatencyMode);
             this.groupBox2.Controls.Add(this.ckbShowFPS);
-            this.groupBox2.Controls.Add(this.ckbNoVSync);
             this.groupBox2.Location = new System.Drawing.Point(212, 182);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(147, 112);
+            this.groupBox2.Size = new System.Drawing.Size(147, 82);
             this.groupBox2.TabIndex = 12;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "高级";
@@ -275,7 +262,7 @@ namespace Magpie {
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(377, 311);
+            this.ClientSize = new System.Drawing.Size(377, 280);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.btnScale);
             this.Controls.Add(this.groupBox2);
@@ -307,7 +294,6 @@ namespace Magpie {
         private System.Windows.Forms.TextBox txtHotkey;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.ComboBox cbbScaleMode;
-        private System.Windows.Forms.CheckBox ckbNoVSync;
         private System.Windows.Forms.TextBox textBox1;
         private System.Windows.Forms.NotifyIcon notifyIcon;
         private System.Windows.Forms.ContextMenuStrip cmsNotifyIcon;

@@ -59,7 +59,6 @@ namespace Magpie {
             int captureMode,
             [MarshalAs(UnmanagedType.U1)] bool showFPS,
             [MarshalAs(UnmanagedType.U1)] bool lowLatencyMode,
-            [MarshalAs(UnmanagedType.U1)] bool noVSync,
             [MarshalAs(UnmanagedType.U1)] bool noDisturb
         );
 

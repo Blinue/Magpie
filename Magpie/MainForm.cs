@@ -43,9 +43,7 @@ namespace Magpie {
                 Settings.Default.ScaleMode = 0;
             }
             cbbScaleMode.SelectedIndex = Settings.Default.ScaleMode;
-
             ckbShowFPS.Checked = Settings.Default.ShowFPS;
-            ckbNoVSync.Checked = Settings.Default.NoVSync;
             cbbInjectMode.SelectedIndex = Settings.Default.InjectMode;
             cbbCaptureMode.SelectedIndex = Settings.Default.CaptureMode;
             ckbLowLatencyMode.Checked = Settings.Default.LowLatencyMode;
@@ -130,7 +128,6 @@ namespace Magpie {
 
             string effectsJson = scaleModels[Settings.Default.ScaleMode].Model.GetRawText();
             bool showFPS = Settings.Default.ShowFPS;
-            bool noVSync = Settings.Default.NoVSync;
             int captureMode = Settings.Default.CaptureMode;
             bool lowLatencyMode = Settings.Default.LowLatencyMode;
 
@@ -139,7 +136,6 @@ namespace Magpie {
                 captureMode,
                 showFPS,
                 lowLatencyMode,
-                noVSync,
                 cbbInjectMode.SelectedIndex == 1,
                 false
             );
@@ -171,10 +167,6 @@ namespace Magpie {
             if (e.Button == MouseButtons.Left) {
                 tsmiMainForm.PerformClick();
             }
-        }
-
-        private void CkbNoVSync_CheckedChanged(object sender, EventArgs e) {
-            Settings.Default.NoVSync = ckbNoVSync.Checked;
         }
 
         private void CkbShowFPS_CheckedChanged(object sender, EventArgs e) {

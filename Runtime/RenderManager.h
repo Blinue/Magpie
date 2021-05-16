@@ -90,7 +90,6 @@ private:
 		) {
 			// 状态改变时关闭全屏窗口
 			DestroyWindow(Env::$instance->GetHwndHost());
-			Debug::WriteLine(L"test");
 			return false;
 		}
 
