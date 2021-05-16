@@ -147,6 +147,8 @@ private:
     void _DrawCursor(HCURSOR hCursor, POINT ptScreenPos) {
         assert(hCursor != NULL);
 
+        ID2D1DeviceContext* d2dDC = Env::$instance->GetD2DDC();
+
         auto it = _cursorMap.find(hCursor);
         ID2D1Bitmap* bmpCursor = nullptr;
 
@@ -180,14 +182,19 @@ private:
 
         auto [xHotSpot, yHotSpot] = _GetCursorHotSpot(hCursor);
 
+        D2D1_RECT_F rect{};
+        Debug::ThrowIfComFailed(
+            d2dDC->GetImageLocalBounds(bmpCursor, &rect),
+            L"GetImageLocalBoundsÊ§°Ü"
+        );
         D2D1_RECT_F cursorRect = {
            targetScreenPos.x - xHotSpot,
            targetScreenPos.y - yHotSpot,
-           targetScreenPos.x + _cursorSize.cx - xHotSpot,
-           targetScreenPos.y + _cursorSize.cy - yHotSpot
+           targetScreenPos.x + rect.right - rect.left - xHotSpot,
+           targetScreenPos.y + rect.bottom - rect.top - yHotSpot
         };
 
-        Env::$instance->GetD2DDC()->DrawBitmap(bmpCursor, &cursorRect);
+        d2dDC->DrawBitmap(bmpCursor, &cursorRect);
     }
 
     HCURSOR _CreateTransparentCursor(HCURSOR hCursorHotSpot) {
