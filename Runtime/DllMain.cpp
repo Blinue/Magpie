@@ -53,7 +53,7 @@ API_DECLSPEC void WINAPI RunMagWindow(
         );
         Debug::Assert(
             Utils::GetWindowShowCmd(hwndSrc) == SW_NORMAL,
-            L"该窗口当前正最大/最小化"
+            L"该窗口当前已最大化或最小化"
         );
 
         Env::CreateInstance(hInst, hwndSrc, scaleModel, captureMode, showFPS, lowLatencyMode, noDisturb);
