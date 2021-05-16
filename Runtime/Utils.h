@@ -3,8 +3,21 @@
 #include "Shlwapi.h"
 #include <utility>
 
+
 class Utils {
 public:
+    static UINT GetWindowShowCmd(HWND hwnd) {
+        assert(hwnd != NULL);
+
+        WINDOWPLACEMENT wp{};
+        Debug::ThrowIfWin32Failed(
+            GetWindowPlacement(hwnd, &wp),
+            L"GetWindowPlacement ß∞‹"
+        );
+
+        return wp.showCmd;
+    }
+
     static void GetClientScreenRect(HWND hWnd, RECT& rect) {
         RECT r;
         Debug::ThrowIfWin32Failed(

@@ -39,10 +39,10 @@ public:
 			(UINT32)fps.size(),
 			_dwTxtFmt.Get(),
 			D2D1::RectF(
-				_destRect.left + 10,
-				_destRect.top + 10, 
-				_destRect.right,
-				_destRect.bottom
+				FLOAT(_destRect.left + 10),
+				FLOAT(_destRect.top + 10),
+				FLOAT(_destRect.right),
+				FLOAT(_destRect.bottom)
 			),
 			_d2dFPSTxtBrush.Get()
 		);

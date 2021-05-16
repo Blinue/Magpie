@@ -172,7 +172,7 @@
         "scale": [ 0, 0 ]
       },
       {
-        "effect": "scale",
+        "effect": "misc",
         "type": "Anime4KThinLines",
         "strength": 0.3
       },

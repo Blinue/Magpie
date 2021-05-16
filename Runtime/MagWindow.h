@@ -18,29 +18,38 @@ public:
     // 不可复制，不可移动
     MagWindow(const MagWindow&) = delete;
     MagWindow(MagWindow&&) = delete;
-    
+
     ~MagWindow() {
-        // 以下面的顺序释放资源
-        _renderManager = nullptr;
-
         UnregisterClass(_HOST_WINDOW_CLASS_NAME, Env::$instance->GetHInstance());
-
-        PostQuitMessage(0);
     }
 
-    void RunMsgLoop() {
+
+public:
+    static std::wstring RunMsgLoop() {
+        std::wstring errMsg;
+
         while (true) {
             MSG msg;
             while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) {
                 if (msg.message == WM_QUIT) {
-                    return;
+                    return std::move(errMsg);
                 }
 
                 TranslateMessage(&msg);
                 DispatchMessage(&msg);
             }
 
-            _renderManager->Render();
+            try {
+                if ($instance) {
+                    $instance->_renderManager->Render();
+                }
+            } catch (const magpie_exception& e) {
+                errMsg = L"渲染出错：" + e.what();
+                DestroyWindow(Env::$instance->GetHwndHost());
+            } catch (...) {
+                errMsg = L"渲染出现未知错误";
+                DestroyWindow(Env::$instance->GetHwndHost());
+            }
         }
     }
 
@@ -69,11 +78,16 @@ private:
 
 
     LRESULT _HostWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
-        if (message == _WM_DESTORYMAG || message == WM_DESTROY) {
+        if (message == _WM_DESTORYMAG) {
+            DestroyWindow(Env::$instance->GetHwndHost());
+            return 0;
+        }
+        if (message == WM_DESTROY) {
             // 有两个退出路径：
             // 1. 前台窗口发生改变
             // 2. 收到_WM_DESTORYMAG 消息
             $instance = nullptr;
+            PostQuitMessage(0);
             return 0;
         } else {
             auto [resolved, rt] = _renderManager->WndProc(hWnd, message, wParam, lParam);

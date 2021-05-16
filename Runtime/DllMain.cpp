@@ -52,11 +52,15 @@ API_DECLSPEC void WINAPI RunMagWindow(
             hwndSrc,
             L"GetForegroundWindow 返回 NULL"
         );
+        Debug::Assert(
+            Utils::GetWindowShowCmd(hwndSrc) == SW_NORMAL,
+            L"该窗口当前正最大/最小化"
+        );
 
         Env::CreateInstance(hInst, hwndSrc, scaleModel, captureMode, showFPS, lowLatencyMode, noVSync, noDisturb);
         MagWindow::CreateInstance();
     } catch(const magpie_exception& e) {
-        reportStatus(0, e.what().c_str());
+        reportStatus(0, (L"创建全屏窗口出错：" + e.what()).c_str());
         return;
     } catch (...) {
         Debug::WriteErrorMessage(L"创建全屏窗口发生未知错误");
@@ -67,7 +71,8 @@ API_DECLSPEC void WINAPI RunMagWindow(
     reportStatus(2, nullptr);
 
     // 主消息循环
-    MagWindow::$instance->RunMsgLoop();
+    std::wstring errMsg = MagWindow::RunMsgLoop();
 
-    reportStatus(0, nullptr);
+    Env::$instance = nullptr;
+    reportStatus(0, errMsg.empty() ? nullptr : errMsg.c_str());
 }

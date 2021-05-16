@@ -44,7 +44,7 @@ public:
 
 		Env::$instance->GetD2DDC()->DrawImage(
 			outputImg.Get(),
-			Point2F(_outputRect.left, _outputRect.top)
+			Point2F(FLOAT(_outputRect.left), FLOAT(_outputRect.top))
 		);
 	}
 

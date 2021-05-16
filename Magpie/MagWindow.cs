@@ -36,7 +36,7 @@ namespace Magpie {
         }
 
 
-        public MagWindow() {
+        public MagWindow(Form mainForm) {
             StatusEvent += (int status, string errorMsg) => {
                 if(status < 0 || status > 3) {
                     return;
@@ -45,7 +45,10 @@ namespace Magpie {
                 Status = (MagWindowStatus)status;
 
                 if (errorMsg != null) {
-                    MessageBox.Show("创建全屏窗口出错：" + errorMsg);
+                    mainForm.Invoke(new Action(() => {
+                        _ = NativeMethods.SetForegroundWindow(mainForm.Handle);
+                        MessageBox.Show(errorMsg);
+                    }));
                 }
             };
         }

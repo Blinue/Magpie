@@ -11,7 +11,7 @@ using System.IO;
 namespace Magpie {
     partial class MainForm : Form {
         private IKeyboardMouseEvents keyboardEvents = null;
-        private readonly MagWindow magWindow = new MagWindow();
+        private readonly MagWindow magWindow;
 
         // 倒计时时间
         private const int DOWN_COUNT = 5;
@@ -29,6 +29,8 @@ namespace Magpie {
 
         public MainForm() {
             InitializeComponent();
+
+            magWindow = new MagWindow(this);
         }
 
         private void MainForm_Load(object sender, EventArgs e) {

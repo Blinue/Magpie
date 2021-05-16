@@ -53,40 +53,50 @@ public:
 	}
 
 	void Render() {
-		// 每次渲染时检测前台窗口是否改变
-		if (GetForegroundWindow() != Env::$instance->GetHwndSrc()) {
-			// 前台窗口改变时关闭全屏窗口
-			DestroyWindow(Env::$instance->GetHwndHost());
+		// 每次渲染之前检测源窗口状态
+		if (!_CheckSrcState()) {
 			return;
 		}
 
-		try {
-			_d2dContext->Render([&](ID2D1DeviceContext* d2dDC) {
-				const auto& frame = _windowCapturer->GetFrame();
-				if (!frame) {
-					return;
-				}
+		_d2dContext->Render([&](ID2D1DeviceContext* d2dDC) {
+			const auto& frame = _windowCapturer->GetFrame();
+			if (!frame) {
+				return;
+			}
 
-				d2dDC->Clear();
+			d2dDC->Clear();
 
-				_effectRenderer->SetInput(frame);
-				_effectRenderer->Render();
+			_effectRenderer->SetInput(frame);
+			_effectRenderer->Render();
 
-				if (_frameCatcher) {
-					_frameCatcher->Render();
-				}
-				if (_cursorManager) {
-					_cursorManager->Render();
-				}
-				});
-		} catch (const magpie_exception& e) {
-			Debug::WriteErrorMessage(L"渲染失败：" + e.what());
-		} catch (...) {
-			Debug::WriteErrorMessage(L"渲染出现未知错误");
-		}
+			if (_frameCatcher) {
+				_frameCatcher->Render();
+			}
+			if (_cursorManager) {
+				_cursorManager->Render();
+			}
+		});
 	}
 
 private:
+	bool _CheckSrcState() {
+		HWND hwndSrc = Env::$instance->GetHwndSrc();
+		RECT rect;
+		Utils::GetClientScreenRect(hwndSrc, rect);
+	
+		if (Env::$instance->GetSrcClient() != rect
+			|| GetForegroundWindow() != hwndSrc
+			|| Utils::GetWindowShowCmd(hwndSrc) != SW_NORMAL
+		) {
+			// 状态改变时关闭全屏窗口
+			DestroyWindow(Env::$instance->GetHwndHost());
+			Debug::WriteLine(L"test");
+			return false;
+		}
+
+		return true;
+	}
+
 	std::unique_ptr<D2DContext> _d2dContext = nullptr;
 	std::unique_ptr<WindowCapturerBase> _windowCapturer = nullptr;
 	std::unique_ptr<EffectRendererBase> _effectRenderer = nullptr;
