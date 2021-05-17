@@ -232,10 +232,7 @@ private:
         DeleteBitmap(ii.hbmColor);
         DeleteBitmap(ii.hbmMask);
 
-        return {
-            min((int)ii.xHotspot, (int)_cursorSize.cx),
-            min((int)ii.yHotspot, (int)_cursorSize.cy)
-        };
+        return { (int)ii.xHotspot , (int)ii.yHotspot };
     }
 
     ComPtr<ID2D1Bitmap> _CursorToD2DBitmap(HCURSOR hCursor) {

@@ -13,7 +13,7 @@ public:
     static HRESULT Create(_In_ ID2D1EffectContext* d2dEC, _Outptr_ AdaptiveSharpenPass2Transform** ppOutput) {
         *ppOutput = nullptr;
 
-        HRESULT hr = DrawTransformBase::LoadShader(
+        HRESULT hr = LoadShader(
             d2dEC,
             MAGPIE_ADAPTIVE_SHARPEN_PASS2_SHADER,
             GUID_MAGPIE_ADAPTIVE_SHARPEN_PASS2_SHADER

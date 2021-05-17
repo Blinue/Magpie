@@ -11,7 +11,7 @@ public:
     static HRESULT Create(_In_ ID2D1EffectContext* d2dEC, _Outptr_ Anime4KSharpenCombineTransform** ppOutput) {
         *ppOutput = nullptr;
 
-        HRESULT hr = DrawTransformBase::LoadShader(
+        HRESULT hr = LoadShader(
             d2dEC, 
             MAGPIE_ANIME4K_SHARPEN_COMBINE_SHADER, 
             GUID_MAGPIE_ANIME4K_SHARPEN_COMBINE_SHADER
@@ -42,12 +42,13 @@ public:
             return E_INVALIDARG;
         }
 
-        _inputRect = pInputRects[0];
+        _inputRects[0] = pInputRects[0];
+        _inputRects[1] = pInputRects[1];
         *pOutputRect = {
             0,
             0,
-            _inputRect.right * 2,
-            _inputRect.bottom * 2,
+            _inputRects[0].right * 2,
+            _inputRects[0].bottom * 2,
         };
         *pOutputOpaqueSubRect = {};
 
@@ -56,8 +57,8 @@ public:
             INT32 height;
             FLOAT curveHeight;
         } _shaderConstants = {
-            _inputRect.right,
-            _inputRect.bottom,
+            _inputRects[0].right,
+            _inputRects[0].bottom,
             _curveHeight
         };
         _drawInfo->SetPixelShaderConstantBuffer((BYTE*)&_shaderConstants, sizeof(_shaderConstants));

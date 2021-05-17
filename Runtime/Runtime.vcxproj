@@ -209,7 +209,6 @@
     <ClInclude Include="CursorManager.h" />
     <ClInclude Include="D2DImageEffectRenderer.h" />
     <ClInclude Include="Debug.h" />
-    <ClInclude Include="DrawTransformBase.h" />
     <ClInclude Include="EffectBase.h" />
     <ClInclude Include="EffectRendererBase.h" />
     <ClInclude Include="D2DContext.h" />

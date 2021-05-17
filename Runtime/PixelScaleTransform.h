@@ -19,7 +19,7 @@ public:
             return E_INVALIDARG;
         }
 
-        HRESULT hr = DrawTransformBase::LoadShader(d2dEC, MAGPIE_PIXEL_SCALE_SHADER, GUID_MAGPIE_PIXEL_SCALE_SHADER);
+        HRESULT hr = LoadShader(d2dEC, MAGPIE_PIXEL_SCALE_SHADER, GUID_MAGPIE_PIXEL_SCALE_SHADER);
         if (FAILED(hr)) {
             return hr;
         }
@@ -48,9 +48,9 @@ public:
             return E_INVALIDARG;
         }
 
-        _inputRect = pInputRects[0];
+        _inputRects[0] = pInputRects[0];
 
-        const auto& srcSize = Utils::GetSize(_inputRect);
+        const auto& srcSize = Utils::GetSize(_inputRects[0]);
         SIZE destSize = {
             srcSize.cx * _scale,
             srcSize.cy * _scale

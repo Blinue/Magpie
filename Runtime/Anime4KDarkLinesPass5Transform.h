@@ -16,7 +16,7 @@ public:
     ) {
         *ppOutput = nullptr;
 
-        HRESULT hr = DrawTransformBase::LoadShader(
+        HRESULT hr = LoadShader(
             d2dEC,
             MAGPIE_ANIME4K_DARKLINES_PASS5_SHADER,
             GUID_MAGPIE_ANIME4K_DARKLINES_PASS5_SHADER

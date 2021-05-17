@@ -17,7 +17,7 @@ public:
             return E_INVALIDARG;
         }
 
-        HRESULT hr = DrawTransformBase::LoadShader(d2dEC, MAGPIE_JINC2_SCALE_SHADER, GUID_MAGPIE_JINC2_SCALE_SHADER);
+        HRESULT hr = LoadShader(d2dEC, MAGPIE_JINC2_SCALE_SHADER, GUID_MAGPIE_JINC2_SCALE_SHADER);
         if (FAILED(hr)) {
             return hr;
         }

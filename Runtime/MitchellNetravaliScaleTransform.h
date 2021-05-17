@@ -13,7 +13,7 @@ public:
             return E_INVALIDARG;
         }
 
-        HRESULT hr = DrawTransformBase::LoadShader(
+        HRESULT hr = LoadShader(
             d2dEC, 
             MAGPIE_MITCHELL_NETRAVALI_SCALE_SHADER, 
             GUID_MAGPIE_MITCHELL_NETRAVALI_SCALE_SHADER

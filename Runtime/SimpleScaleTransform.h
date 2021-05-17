@@ -23,7 +23,7 @@ public:
             return E_INVALIDARG;
         }
 
-        HRESULT hr = DrawTransformBase::LoadShader(d2dEC, shaderPath, shaderID);
+        HRESULT hr = LoadShader(d2dEC, shaderPath, shaderID);
         if (FAILED(hr)) {
             return hr;
         }
@@ -52,9 +52,9 @@ public:
             return E_INVALIDARG;
         }
 
-        _inputRect = pInputRects[0];
+        _inputRects[0] = pInputRects[0];
 
-        const auto& srcSize = Utils::GetSize(_inputRect);
+        const auto& srcSize = Utils::GetSize(_inputRects[0]);
         SIZE destSize = {
             lroundf(srcSize.cx * _scale.x),
             lroundf(srcSize.cy * _scale.y)

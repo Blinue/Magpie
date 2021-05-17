@@ -1,6 +1,7 @@
 #pragma once
 #include "pch.h"
-#include "DrawTransformBase.h"
+#include "GUIDs.h"
+#include <d2d1effectauthor.h>
 
 
 // 用来取代简单的 DrawTransform
@@ -10,10 +11,51 @@
 //  * 只是简单地对输入应用了一个像素着色器
 //  * 无状态
 template <int NINPUTS = 1>
-class SimpleDrawTransform : public DrawTransformBase {
+class SimpleDrawTransform : public ID2D1DrawTransform {
 protected:
     SimpleDrawTransform(const GUID &shaderID): _shaderID(shaderID) {}
 
+    // 将 hlsl 读取进 Effect Context
+    static HRESULT LoadShader(_In_ ID2D1EffectContext* d2dEC, _In_ const wchar_t* path, const GUID& shaderID) {
+        if (!d2dEC->IsShaderLoaded(shaderID)) {
+            HANDLE hFile = CreateFile(
+                path,
+                GENERIC_READ,
+                FILE_SHARE_READ,
+                NULL,
+                OPEN_EXISTING,
+                FILE_ATTRIBUTE_NORMAL,
+                NULL);
+            if (hFile == NULL) {
+                Debug::WriteLine(L"打开\""s + path + L"\"失败");
+                return E_FAIL;
+            }
+
+            LARGE_INTEGER liSize{};
+            if (!GetFileSizeEx(hFile, &liSize)) {
+                Debug::WriteLine(L"获取\""s + path + L"\"文件大小失败");
+                return E_FAIL;
+            }
+
+            DWORD size = (DWORD)liSize.QuadPart;
+            BYTE* buf = new BYTE[size];
+            DWORD readed = 0;
+            if (!ReadFile(hFile, buf, size, &readed, nullptr) || readed == 0) {
+                Debug::WriteLine(L"读取\""s + path + L"\"失败");
+                return E_FAIL;
+            }
+
+            HRESULT hr = d2dEC->LoadPixelShader(shaderID, buf, size);
+            delete[] buf;
+
+            if (FAILED(hr)) {
+                Debug::WriteLine(L"加载着色器\""s + path + L"\"失败");
+                return hr;
+            }
+        }
+
+        return S_OK;
+    }
 public:
     virtual ~SimpleDrawTransform() {}
 
@@ -27,7 +69,7 @@ public:
             return E_INVALIDARG;
         }
 
-        HRESULT hr = DrawTransformBase::LoadShader(d2dEC, shaderPath, shaderID);
+        HRESULT hr = LoadShader(d2dEC, shaderPath, shaderID);
         if (FAILED(hr)) {
             return hr;
         }
@@ -60,7 +102,10 @@ public:
         }
 
         *pOutputRect = pInputRects[0];
-        _inputRect = pInputRects[0];
+        for (int i = 0; i < NINPUTS; ++i) {
+            _inputRects[i] = pInputRects[i];
+        }
+        
         *pOutputOpaqueSubRect = { 0,0,0,0 };
 
         _SetShaderContantBuffer(SIZE{
@@ -86,7 +131,7 @@ public:
         }
 
         for (int i = 0; i < NINPUTS; ++i) {
-            pInputRects[i] = _inputRect;
+            pInputRects[i] = _inputRects[i];
         }
 
         return S_OK;
@@ -109,6 +154,41 @@ public:
         return S_OK;
     }
 
+    /*
+    * 以下为 IUnkown 的方法
+    */
+
+    IFACEMETHODIMP_(ULONG) AddRef() override {
+        InterlockedIncrement(&_cRef);
+        return _cRef;
+    }
+
+    IFACEMETHODIMP_(ULONG) Release() override {
+        ULONG ulRefCount = InterlockedDecrement(&_cRef);
+        if (0 == _cRef) {
+            delete this;
+        }
+        return ulRefCount;
+    }
+
+    IFACEMETHODIMP QueryInterface(REFIID riid, _Outptr_ void** ppOutput) override {
+        if (!ppOutput)
+            return E_INVALIDARG;
+
+        *ppOutput = nullptr;
+        if (riid == __uuidof(ID2D1DrawTransform)
+            || riid == __uuidof(ID2D1Transform)
+            || riid == __uuidof(ID2D1TransformNode)
+            || riid == __uuidof(IUnknown)
+            ) {
+            // 复制指针，增加计数
+            *ppOutput = static_cast<void*>(this);
+            AddRef();
+            return NOERROR;
+        }
+        return E_NOINTERFACE;
+    }
+
 protected:
     // 继承的类可以覆盖此方法向着色器传递参数
     virtual void _SetShaderContantBuffer(const SIZE& srcSize) {
@@ -125,6 +205,14 @@ protected:
 
     ComPtr<ID2D1DrawInfo> _drawInfo = nullptr;
 
+    // 保存输入形状供 MapOutputRectToInputRects 使用，而不是使用 pOutputRect
+    // 见 https://stackoverflow.com/questions/36920282/pixel-shader-in-direct2d-render-error-along-the-middle
+    D2D1_RECT_L _inputRects[NINPUTS];
+
 private:
     const GUID& _shaderID;
+
+    // 引用计数
+    // 因为引用计数从 1 开始，所以创建实例时无需 AddRef
+    ULONG _cRef = 1;
 };
