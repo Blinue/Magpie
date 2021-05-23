@@ -25,7 +25,7 @@ public:
         _ResolveCursor(hCursorArrow, hCursorArrow);
         _ResolveCursor(hCursorHand, hCursorHand);
         _ResolveCursor(hCursorAppStarting, hCursorAppStarting);
-        //_ResolveCursor(hCursorIBeam, hCursorIBeam);
+        _ResolveCursor(hCursorIBeam, hCursorIBeam);
 
         if (Env::$instance->IsNoDisturb()) {
             return;
@@ -43,10 +43,10 @@ public:
             SetSystemCursor(_CreateTransparentCursor(hCursorAppStarting), OCR_APPSTARTING),
             L"设置 OCR_APPSTARTING 失败"
         );
-        /*Debug::ThrowIfWin32Failed(
+        Debug::ThrowIfWin32Failed(
             SetSystemCursor(_CreateTransparentCursor(hCursorIBeam), OCR_IBEAM),
             L"设置 OCR_APPSTARTING 失败"
-        );*/
+        );
 
         // 限制鼠标在窗口内
         Debug::ThrowIfWin32Failed(ClipCursor(&Env::$instance->GetSrcClient()), L"ClipCursor 失败");
@@ -215,6 +215,7 @@ private:
             return;
         }
 
+        Debug::WriteLine(L"New Cursor Map");
         _ResolveCursor(hTptCursor, hCursor);
     }
 

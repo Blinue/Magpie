@@ -35,8 +35,8 @@ namespace Magpie.CursorHook {
             new Dictionary<IntPtr, SafeCursorHandle>() {
                 {arrowCursor, new SafeCursorHandle(arrowCursor, false)},
                 {handCursor, new SafeCursorHandle(handCursor, false)},
-                {appStartingCursor, new SafeCursorHandle(appStartingCursor, false)}/*,
-                {iBeamCursor, new SafeCursorHandle(iBeamCursor, false)}*/
+                {appStartingCursor, new SafeCursorHandle(appStartingCursor, false)},
+                {iBeamCursor, new SafeCursorHandle(iBeamCursor, false)}
             };
 
         protected const string HOST_WINDOW_CLASS_NAME = "Window_Magpie_967EB565-6F73-4E94-AE53-00CC42592A22";
@@ -119,10 +119,7 @@ namespace Magpie.CursorHook {
             _ = NativeMethods.DeleteObject(ii.hbmMask);
             _ = NativeMethods.DeleteObject(ii.hbmColor);
 
-            return (
-                Math.Min((int)ii.xHotspot, cursorSize.x),
-                Math.Min((int)ii.yHotspot, cursorSize.y)
-            );
+            return ((int)ii.xHotspot, (int)ii.yHotspot);
         }
 
         // 向全屏窗口发送光标句柄
@@ -137,10 +134,7 @@ namespace Magpie.CursorHook {
         protected void ReportCursorMap() {
             foreach (var item in hCursorToTptCursor) {
                 // 排除系统光标
-                if (item.Key == arrowCursor
-                    || item.Key == handCursor
-                    || item.Key == appStartingCursor
-                ) {
+                if (IsBuiltInCursor(item.Key)) {
                     continue;
                 }
 
@@ -174,11 +168,7 @@ namespace Magpie.CursorHook {
                 }
 
                 IntPtr hCursor = new IntPtr(NativeMethods.GetClassAuto(hWnd, NativeMethods.GCLP_HCURSOR));
-                if (hCursor == IntPtr.Zero
-                    || hCursor == arrowCursor
-                    || hCursor == handCursor
-                    || hCursor == appStartingCursor
-                ) {
+                if (hCursor == IntPtr.Zero || IsBuiltInCursor(hCursor)) {
                     // 不替换透明的系统光标
                     return;
                 }
@@ -240,11 +230,7 @@ namespace Magpie.CursorHook {
         protected void ReplaceHCursorsBack() {
             foreach (var hwnd in replacedHwnds) {
                 IntPtr hCursor = new IntPtr(NativeMethods.GetClassAuto(hwnd, NativeMethods.GCLP_HCURSOR));
-                if (hCursor == IntPtr.Zero
-                    || hCursor == arrowCursor
-                    || hCursor == handCursor
-                    || hCursor == appStartingCursor
-                ) {
+                if (hCursor == IntPtr.Zero || IsBuiltInCursor(hCursor)) {
                     // 不替换透明的系统光标
                     return;
                 }
@@ -262,6 +248,13 @@ namespace Magpie.CursorHook {
             }
 
             replacedHwnds.Clear();
+        }
+
+        private bool IsBuiltInCursor(IntPtr hCursor) {
+            return hCursor == arrowCursor
+                   || hCursor == handCursor
+                   || hCursor == appStartingCursor
+                   || hCursor == iBeamCursor;
         }
 
         public void Dispose() {
