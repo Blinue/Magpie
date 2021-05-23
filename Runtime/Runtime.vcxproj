@@ -225,6 +225,8 @@
     <ClInclude Include="MitchellNetravaliScaleEffect.h" />
     <ClInclude Include="MitchellNetravaliScaleTransform.h" />
     <ClInclude Include="Jinc2ScaleEffect.h" />
+    <ClInclude Include="MonochromeCursorEffect.h" />
+    <ClInclude Include="MonochromeCursorTransform.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="PixelScaleEffect.h" />
     <ClInclude Include="PixelScaleTransform.h" />
@@ -624,6 +626,12 @@
       <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(OutDir)shaders\%(Filename).cso</ObjectFileOutput>
       <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)shaders\%(Filename).cso</ObjectFileOutput>
       <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)shaders\%(Filename).cso</ObjectFileOutput>
+    </FxCompile>
+    <FxCompile Include="MonochromeCursorShader.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
     </FxCompile>
     <FxCompile Include="PixelScaleShader.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>

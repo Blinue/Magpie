@@ -9,25 +9,13 @@ public:
 	D2DImageEffectRenderer() {
 		_Init();
 	}
-
-	void SetInput(ComPtr<IUnknown> inputImg) override {
+	
+	ComPtr<ID2D1Image> Apply(IUnknown* inputImg) override {
 		Debug::ThrowIfComFailed(
-			inputImg.As<ID2D1Image>(&_inputImg),
+			inputImg->QueryInterface<ID2D1Image>(&_inputImg),
 			L"ªÒ»° ‰»ÎÕºœÒ ß∞‹"
 		);
-	}
-	
-protected:
-	void _PushAsOutputEffect(ComPtr<ID2D1Effect> effect) override {
-		if (_firstEffect) {
-			effect->SetInputEffect(0, _outputEffect.Get());
-			_outputEffect = effect;
-		} else {
-			_outputEffect = _firstEffect = effect;
-		}
-	}
 
-	ComPtr<ID2D1Image> _GetOutputImg() override {
 		if (_firstEffect) {
 			ComPtr<ID2D1Image> outputImg;
 			_firstEffect->SetInput(0, _inputImg.Get());
@@ -38,6 +26,17 @@ protected:
 			return _inputImg;
 		}
 	}
+
+protected:
+	void _PushAsOutputEffect(ComPtr<ID2D1Effect> effect) override {
+		if (_firstEffect) {
+			effect->SetInputEffect(0, _outputEffect.Get());
+			_outputEffect = effect;
+		} else {
+			_outputEffect = _firstEffect = effect;
+		}
+	}
+
 
 private:
 	ComPtr<ID2D1Image> _inputImg = nullptr;

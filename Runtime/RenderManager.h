@@ -39,12 +39,11 @@ public:
 		}
 
 		// 初始化 CursorManager
-		const RECT& destRect = _effectRenderer->GetOutputRect();
-		_cursorManager.reset(new CursorManager(destRect));
+		_cursorManager.reset(new CursorManager());
 
 		if (Env::$instance->IsShowFPS()) {
 			// 初始化 FrameCatcher
-			_frameCatcher.reset(new FrameCatcher(destRect));
+			_frameCatcher.reset(new FrameCatcher());
 		}
 	}
 
@@ -66,8 +65,11 @@ public:
 
 			d2dDC->Clear();
 
-			_effectRenderer->SetInput(frame);
-			_effectRenderer->Render();
+			ComPtr<ID2D1Image> img = _effectRenderer->Apply(frame.Get());
+			img = _cursorManager->RenderEffect(img);
+			
+			const D2D_RECT_F& destRect = Env::$instance->GetDestRect();
+			Env::$instance->GetD2DDC()->DrawImage(img.Get(), { destRect.left, destRect.top });
 
 			if (_frameCatcher) {
 				_frameCatcher->Render();
@@ -78,6 +80,7 @@ public:
 		});
 	}
 
+	
 private:
 	bool _CheckSrcState() {
 		HWND hwndSrc = Env::$instance->GetHwndSrc();

@@ -207,7 +207,7 @@ protected:
 
     // 保存输入形状供 MapOutputRectToInputRects 使用，而不是使用 pOutputRect
     // 见 https://stackoverflow.com/questions/36920282/pixel-shader-in-direct2d-render-error-along-the-middle
-    D2D1_RECT_L _inputRects[NINPUTS];
+    D2D1_RECT_L _inputRects[NINPUTS]{};
 
 private:
     const GUID& _shaderID;

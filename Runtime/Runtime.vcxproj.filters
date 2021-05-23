@@ -64,44 +64,47 @@
     <FxCompile Include="Anime4KSharpenCombineShader.hlsl">
       <Filter>着色器\缩放\Anime4K</Filter>
     </FxCompile>
+    <FxCompile Include="MonochromeCursorShader.hlsl">
+      <Filter>着色器\杂项</Filter>
+    </FxCompile>
     <FxCompile Include="Anime4KDarkLinesPass1Shader.hlsl">
-      <Filter>着色器\缩放\Anime4K</Filter>
+      <Filter>着色器\杂项\Anime4K</Filter>
     </FxCompile>
     <FxCompile Include="Anime4KDarkLinesPass2Shader.hlsl">
-      <Filter>着色器\缩放\Anime4K</Filter>
+      <Filter>着色器\杂项\Anime4K</Filter>
     </FxCompile>
     <FxCompile Include="Anime4KDarkLinesPass3Shader.hlsl">
-      <Filter>着色器\缩放\Anime4K</Filter>
+      <Filter>着色器\杂项\Anime4K</Filter>
     </FxCompile>
     <FxCompile Include="Anime4KDarkLinesPass4Shader.hlsl">
-      <Filter>着色器\缩放\Anime4K</Filter>
+      <Filter>着色器\杂项\Anime4K</Filter>
     </FxCompile>
     <FxCompile Include="Anime4KDarkLinesPass5Shader.hlsl">
-      <Filter>着色器\缩放\Anime4K</Filter>
+      <Filter>着色器\杂项\Anime4K</Filter>
     </FxCompile>
     <FxCompile Include="Anime4KThinLinesPass1Shader.hlsl">
-      <Filter>着色器\缩放\Anime4K</Filter>
+      <Filter>着色器\杂项\Anime4K</Filter>
     </FxCompile>
     <FxCompile Include="Anime4KThinLinesPass2Shader.hlsl">
-      <Filter>着色器\缩放\Anime4K</Filter>
+      <Filter>着色器\杂项\Anime4K</Filter>
     </FxCompile>
     <FxCompile Include="Anime4KThinLinesPass3Shader.hlsl">
-      <Filter>着色器\缩放\Anime4K</Filter>
+      <Filter>着色器\杂项\Anime4K</Filter>
     </FxCompile>
     <FxCompile Include="Anime4KThinLinesPass4Shader.hlsl">
-      <Filter>着色器\缩放\Anime4K</Filter>
+      <Filter>着色器\杂项\Anime4K</Filter>
     </FxCompile>
     <FxCompile Include="Anime4KThinLinesPass5Shader.hlsl">
-      <Filter>着色器\缩放\Anime4K</Filter>
+      <Filter>着色器\杂项\Anime4K</Filter>
     </FxCompile>
     <FxCompile Include="Anime4KThinLinesPass6Shader.hlsl">
-      <Filter>着色器\缩放\Anime4K</Filter>
+      <Filter>着色器\杂项\Anime4K</Filter>
     </FxCompile>
     <FxCompile Include="Anime4KThinLinesPass7Shader.hlsl">
-      <Filter>着色器\缩放\Anime4K</Filter>
+      <Filter>着色器\杂项\Anime4K</Filter>
     </FxCompile>
     <FxCompile Include="RGB2YUVShader.hlsl">
-      <Filter>着色器\缩放\Anime4K</Filter>
+      <Filter>着色器\杂项</Filter>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
@@ -173,12 +176,6 @@
     <ClInclude Include="MitchellNetravaliScaleTransform.h">
       <Filter>头文件\Effect\缩放</Filter>
     </ClInclude>
-    <ClInclude Include="Anime4KEffect.h">
-      <Filter>头文件\Effect\缩放\Anime4K</Filter>
-    </ClInclude>
-    <ClInclude Include="Anime4KSharpenCombineTransform.h">
-      <Filter>头文件\Effect\缩放\Anime4K</Filter>
-    </ClInclude>
     <ClInclude Include="Jinc2ScaleTransform.h">
       <Filter>头文件\Effect\缩放</Filter>
     </ClInclude>
@@ -233,20 +230,32 @@
     <ClInclude Include="PixelScaleEffect.h">
       <Filter>头文件\Effect\缩放</Filter>
     </ClInclude>
-    <ClInclude Include="Anime4KDarkLinesEffect.h">
-      <Filter>头文件\Effect\缩放\Anime4K</Filter>
-    </ClInclude>
-    <ClInclude Include="Anime4KThinLinesEffect.h">
-      <Filter>头文件\Effect\缩放\Anime4K</Filter>
-    </ClInclude>
-    <ClInclude Include="Anime4KThinLinesPass7Transform.h">
-      <Filter>头文件\Effect\缩放\Anime4K</Filter>
-    </ClInclude>
-    <ClInclude Include="Anime4KDarkLinesPass5Transform.h">
-      <Filter>头文件\Effect\缩放\Anime4K</Filter>
-    </ClInclude>
     <ClInclude Include="Env.h">
       <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Anime4KDarkLinesEffect.h">
+      <Filter>头文件\Effect\杂项</Filter>
+    </ClInclude>
+    <ClInclude Include="Anime4KDarkLinesPass5Transform.h">
+      <Filter>头文件\Effect\杂项</Filter>
+    </ClInclude>
+    <ClInclude Include="Anime4KThinLinesEffect.h">
+      <Filter>头文件\Effect\杂项</Filter>
+    </ClInclude>
+    <ClInclude Include="Anime4KThinLinesPass7Transform.h">
+      <Filter>头文件\Effect\杂项</Filter>
+    </ClInclude>
+    <ClInclude Include="Anime4KEffect.h">
+      <Filter>头文件\Effect\缩放</Filter>
+    </ClInclude>
+    <ClInclude Include="Anime4KSharpenCombineTransform.h">
+      <Filter>头文件\Effect\缩放</Filter>
+    </ClInclude>
+    <ClInclude Include="MonochromeCursorTransform.h">
+      <Filter>头文件\Effect\杂项</Filter>
+    </ClInclude>
+    <ClInclude Include="MonochromeCursorEffect.h">
+      <Filter>头文件\Effect\杂项</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -293,14 +302,20 @@
     <Filter Include="头文件\Effect\缩放">
       <UniqueIdentifier>{fc2c2b52-5f93-4962-8c0c-ebb5d28a4d27}</UniqueIdentifier>
     </Filter>
-    <Filter Include="头文件\Effect\缩放\Anime4K">
-      <UniqueIdentifier>{827f48dd-9825-49ee-bde7-0ba8e779235c}</UniqueIdentifier>
-    </Filter>
     <Filter Include="头文件\Capture">
       <UniqueIdentifier>{6b867004-a0fd-4e2b-aa28-8fffcbdc9fbe}</UniqueIdentifier>
     </Filter>
     <Filter Include="头文件\Render">
       <UniqueIdentifier>{45015676-99ea-4ea3-9c14-3bc0e0130a34}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="着色器\杂项">
+      <UniqueIdentifier>{c0195a1b-65dc-4671-b99c-a333e15c17ed}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\Effect\杂项">
+      <UniqueIdentifier>{10cc3a59-c22d-4c5a-85fb-a70f3dd55762}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="着色器\杂项\Anime4K">
+      <UniqueIdentifier>{69bfa03e-b759-4f6b-be6f-125ca11f2524}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

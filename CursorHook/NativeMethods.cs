@@ -14,6 +14,7 @@ namespace Magpie.CursorHook {
         public readonly static IntPtr IDC_ARROW = new IntPtr(32512);
         public readonly static IntPtr IDC_HAND = new IntPtr(32649);
         public readonly static IntPtr IDC_APPSTARTING = new IntPtr(32650);
+        public readonly static IntPtr IDC_IBEAM = new IntPtr(32513);
 
         public const int GCLP_HCURSOR = -12;
 

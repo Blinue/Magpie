@@ -21,7 +21,7 @@ public:
             _d2dEffectContext.Get(),
             &_rgb2yuvTransform,
             MAGPIE_RGB2YUV_SHADER,
-            GUID_RGB2YUV_SHADER
+            GUID_MAGPIE_RGB2YUV_SHADER
         );
         if (FAILED(hr)) {
             return hr;

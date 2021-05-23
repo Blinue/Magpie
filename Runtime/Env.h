@@ -94,6 +94,14 @@ public:
 		return _hostClient;
 	}
 
+	void SetDestRect(const D2D_RECT_F& rect) {
+		_destRect = rect;
+	}
+
+	const D2D_RECT_F& GetDestRect() {
+		return _destRect;
+	}
+
 	IWICImagingFactory2* GetWICImageFactory() {
 		if (_wicImgFactory == nullptr) {
 			Debug::ThrowIfComFailed(
@@ -161,7 +169,7 @@ private:
 	RECT _srcClient;
 	RECT _hostClient{};
 
-
+	D2D_RECT_F _destRect{};
 
 	ComPtr<IWICImagingFactory2> _wicImgFactory = nullptr;
 	ComPtr<IDWriteFactory> _dwFactory = nullptr;

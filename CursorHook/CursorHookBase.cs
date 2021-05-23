@@ -26,6 +26,8 @@ namespace Magpie.CursorHook {
             NativeMethods.LoadCursor(IntPtr.Zero, NativeMethods.IDC_HAND);
         private static readonly IntPtr appStartingCursor =
             NativeMethods.LoadCursor(IntPtr.Zero, NativeMethods.IDC_APPSTARTING);
+        private static readonly IntPtr iBeamCursor =
+            NativeMethods.LoadCursor(IntPtr.Zero, NativeMethods.IDC_IBEAM);
 
         // 原光标到透明光标的映射
         // 不替换透明的系统光标
@@ -33,7 +35,8 @@ namespace Magpie.CursorHook {
             new Dictionary<IntPtr, SafeCursorHandle>() {
                 {arrowCursor, new SafeCursorHandle(arrowCursor, false)},
                 {handCursor, new SafeCursorHandle(handCursor, false)},
-                {appStartingCursor, new SafeCursorHandle(appStartingCursor, false)}
+                {appStartingCursor, new SafeCursorHandle(appStartingCursor, false)}/*,
+                {iBeamCursor, new SafeCursorHandle(iBeamCursor, false)}*/
             };
 
         protected const string HOST_WINDOW_CLASS_NAME = "Window_Magpie_967EB565-6F73-4E94-AE53-00CC42592A22";

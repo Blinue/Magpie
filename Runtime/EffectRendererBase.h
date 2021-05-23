@@ -1,6 +1,5 @@
 #pragma once
 #include "pch.h"
-#include "Renderable.h"
 #include "D2DContext.h"
 #include "AdaptiveSharpenEffect.h"
 #include "Anime4KEffect.h"
@@ -16,14 +15,13 @@
 
 
 // 取决于不同的捕获方式，会有不同种类的输入，此类包含它们通用的部分
-// 继承此类需要实现 SetInput、_PushAsOutputEffect、_GetOutputImg
+// 继承此类需要实现 _PushAsOutputEffect、Apply
 // 并在构造函数中调用 _Init
-class EffectRendererBase : public Renderable {
+class EffectRendererBase {
 public:
 	EffectRendererBase() :
 		_d2dDC(Env::$instance->GetD2DDC()),
-		_d2dFactory(Env::$instance->GetD2DFactory()),
-		_hostClient(Env::$instance->GetHostClient())
+		_d2dFactory(Env::$instance->GetD2DFactory())
 	{
 	}
 
@@ -33,37 +31,24 @@ public:
 	EffectRendererBase(const EffectRendererBase&) = delete;
 	EffectRendererBase(EffectRendererBase&&) = delete;
 
-	const RECT& GetOutputRect() const {
-		return _outputRect;
-	}
+	virtual ComPtr<ID2D1Image> Apply(IUnknown* inputImg) = 0;
 
-	virtual void SetInput(ComPtr<IUnknown> inputImg) = 0;
-
-	void Render() {
-		ComPtr<ID2D1Image> outputImg = _GetOutputImg();
-
-		Env::$instance->GetD2DDC()->DrawImage(
-			outputImg.Get(),
-			Point2F(FLOAT(_outputRect.left), FLOAT(_outputRect.top))
-		);
-	}
-
-	
 protected:
 	void _Init() {
-		_SetDestSize(Utils::GetSize(Env::$instance->GetSrcClient()));
 		_ReadEffectsJson(Env::$instance->GetScaleModel());
 
-		// 计算输出位置，x 和 y 必须为整数，否则会使画面模糊
-		int x = (_hostClient.right - _hostClient.left - _outputSize.cx) / 2;
-		int y = (_hostClient.bottom - _hostClient.top - _outputSize.cy) / 2;
-		_outputRect = { x, y, x + _outputSize.cx, y + _outputSize.cy };
+		const RECT hostClient = Env::$instance->GetHostClient();
+		const RECT srcClient = Env::$instance->GetSrcClient();
+
+		float width = (srcClient.right - srcClient.left) * _scale.first;
+		float height = (srcClient.bottom - srcClient.top) * _scale.second;
+		float left = roundf((hostClient.right - hostClient.left - width) / 2);
+		float top = roundf((hostClient.bottom - hostClient.top - height) / 2);
+		Env::$instance->SetDestRect({left, top, left + width, top + height});
 	}
 
 	// 将 effect 添加到 effect 链作为输出
 	virtual void _PushAsOutputEffect(ComPtr<ID2D1Effect> effect) = 0;
-
-	virtual ComPtr<ID2D1Image> _GetOutputImg() = 0;
 
 private:
 	void _ReadEffectsJson(const std::string_view& scaleModel) {
@@ -112,21 +97,6 @@ private:
 				Debug::Assert(false, L"未知的 effect");
 			}
 		}
-	}
-
-	void _SetDestSize(SIZE value) {
-		// 似乎不再需要设置 tile
-		/*if (value.cx > _outputSize.cx || value.cy > _outputSize.cy) {
-			// 增大 tile 的大小以容纳图像
-			D2D1_RENDERING_CONTROLS rc{};
-			_d2dContext.GetD2DDC()->GetRenderingControls(&rc);
-
-			rc.tileSize.width = max(value.cx, _outputSize.cx);
-			rc.tileSize.height = max(value.cy, _outputSize.cy);
-			_d2dContext.GetD2DDC()->SetRenderingControls(rc);
-		}*/
-
-		_outputSize = value;
 	}
 
 	void _AddAdaptiveSharpenEffect(const nlohmann::json& props) {
@@ -253,7 +223,8 @@ private:
 		}
 
 		// 输出图像的长和宽变为 2 倍
-		_SetDestSize(SIZE{ _outputSize.cx * 2, _outputSize.cy * 2 });
+		_scale.first *= 2;
+		_scale.second *= 2;
 
 		_PushAsOutputEffect(anime4KEffect);
 	}
@@ -288,8 +259,6 @@ private:
 			);
 		}
 
-		_SetDestSize(SIZE{ _outputSize.cx, _outputSize.cy });
-
 		_PushAsOutputEffect(effect);
 	}
 
@@ -323,8 +292,6 @@ private:
 			);
 		}
 
-		_SetDestSize(SIZE{ _outputSize.cx, _outputSize.cy });
-
 		_PushAsOutputEffect(effect);
 	}
 
@@ -353,7 +320,8 @@ private:
 			);
 
 			// 存在 scale 则输出图像尺寸改变
-			_SetDestSize(SIZE{ lroundf(_outputSize.cx * scale.x), lroundf(_outputSize.cy * scale.y) });
+			_scale.first *= scale.x;
+			_scale.second *= scale.y;
 		}
 
 		// windowSinc 属性
@@ -437,7 +405,8 @@ private:
 			);
 
 			// 存在 scale 则输出图像尺寸改变
-			_SetDestSize(SIZE{ lroundf(_outputSize.cx * scale.x), lroundf(_outputSize.cy * scale.y) });
+			_scale.first *= scale.x;
+			_scale.second *= scale.y;
 		}
 
 		// useSharperVersion 属性
@@ -477,7 +446,8 @@ private:
 			);
 
 			// 存在 scale 则输出图像尺寸改变
-			_SetDestSize(SIZE{ lroundf(_outputSize.cx * scale.x), lroundf(_outputSize.cy * scale.y) });
+			_scale.first *= scale.x;
+			_scale.second *= scale.y;
 		}
 
 		// sharpness 属性
@@ -524,7 +494,8 @@ private:
 			);
 
 			// 存在 scale 则输出图像尺寸改变
-			_SetDestSize(SIZE{ lroundf(_outputSize.cx * scale.x), lroundf(_outputSize.cy * scale.y) });
+			_scale.first *= scale.x;
+			_scale.second *= scale.y;
 		}
 
 		// ARStrength 属性
@@ -573,8 +544,8 @@ private:
 				L"设置 scale 属性失败"
 			);
 
-			// 存在 scale 则输出图像尺寸改变
-			_SetDestSize(SIZE{ _outputSize.cx * scale, _outputSize.cy * scale });
+			_scale.first *= scale;
+			_scale.second *= scale;
 		}
 
 		// 替换 output effect
@@ -595,11 +566,14 @@ private:
 		);
 
 		if (scale.x == 0 || scale.y == 0) {
+			SIZE hostSize = Utils::GetSize(Env::$instance->GetHostClient());
+			SIZE srcSize = Utils::GetSize(Env::$instance->GetSrcClient());
+
 			// 输出图像充满屏幕
-			scale.x = min(
-				float(_hostClient.right - _hostClient.left) / _outputSize.cx,
-				float(_hostClient.bottom - _hostClient.top) / _outputSize.cy
-			);
+			float x = float(hostSize.cx) / srcSize.cx / _scale.first;
+			float y = float(hostSize.cy) / srcSize.cy / _scale.second;
+
+			scale.x = min(x, y);
 			scale.y = scale.x;
 		}
 
@@ -622,13 +596,11 @@ private:
 
 private:
 	// 输出图像尺寸
-	SIZE _outputSize{};
-	RECT _outputRect{};
+	std::pair<float, float> _scale{ 1.0f,1.0f };
 
 	// 存储已注册的 effect 的 GUID
 	std::unordered_set<GUID> _registeredEffects;
 
 	ID2D1Factory1* _d2dFactory;
 	ID2D1DeviceContext* _d2dDC;
-	const RECT& _hostClient;
 };

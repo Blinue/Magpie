@@ -8,7 +8,7 @@ using namespace std::chrono;
 // 计算帧率
 class FrameCatcher : public Renderable {
 public:
-	FrameCatcher(const RECT& destRect) : _destRect(destRect) {
+	FrameCatcher() {
 		Debug::ThrowIfComFailed(
 			Env::$instance->GetDWFactory()->CreateTextFormat(
 				L"Microsoft YaHei",
@@ -32,6 +32,7 @@ public:
 	void Render() override {
 		_ReportNewFrame();
 
+		const D2D_RECT_F& destRect = Env::$instance->GetDestRect();
 		// 绘制文本
 		std::wstring fps = boost::str(boost::wformat(L"%d FPS") % lround(_fps));
 		Env::$instance->GetD2DDC()->DrawTextW(
@@ -39,10 +40,10 @@ public:
 			(UINT32)fps.size(),
 			_dwTxtFmt.Get(),
 			D2D1::RectF(
-				FLOAT(_destRect.left + 10),
-				FLOAT(_destRect.top + 10),
-				FLOAT(_destRect.right),
-				FLOAT(_destRect.bottom)
+				destRect.left + 10,
+				destRect.top + 10,
+				destRect.right,
+				destRect.bottom
 			),
 			_d2dFPSTxtBrush.Get()
 		);
@@ -92,6 +93,4 @@ private:
 
 	ComPtr<IDWriteTextFormat> _dwTxtFmt = nullptr;
 	ComPtr<ID2D1SolidColorBrush> _d2dFPSTxtBrush = nullptr;
-
-	RECT _destRect;
 };

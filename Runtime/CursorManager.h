@@ -3,24 +3,29 @@
 #include "Utils.h"
 #include "Renderable.h"
 #include "Env.h"
+#include "MonochromeCursorEffect.h"
+
+using namespace D2D1;
 
 
 // 处理光标的渲染
 class CursorManager: public Renderable {
 public:
-    CursorManager(const RECT& destRect, bool debugMode = false) : _destRect(destRect), _debugMode(debugMode) {
+    CursorManager() {
         _cursorSize.cx = GetSystemMetrics(SM_CXCURSOR);
         _cursorSize.cy = GetSystemMetrics(SM_CYCURSOR);
 
         HCURSOR hCursorArrow = LoadCursor(NULL, IDC_ARROW);
         HCURSOR hCursorHand = LoadCursor(NULL, IDC_HAND);
         HCURSOR hCursorAppStarting = LoadCursor(NULL, IDC_APPSTARTING);
-
+        HCURSOR hCursorIBeam = LoadCursor(NULL, IDC_IBEAM);
+        
         // 保存替换之前的 arrow 光标图像
         // SetSystemCursor 不会改变系统光标的句柄
-        _cursorMap.emplace(hCursorArrow, _CursorToD2DBitmap(hCursorArrow));
-        _cursorMap.emplace(hCursorHand, _CursorToD2DBitmap(hCursorHand));
-        _cursorMap.emplace(hCursorAppStarting, _CursorToD2DBitmap(hCursorAppStarting));
+        _ResolveCursor(hCursorArrow, hCursorArrow);
+        _ResolveCursor(hCursorHand, hCursorHand);
+        _ResolveCursor(hCursorAppStarting, hCursorAppStarting);
+        //_ResolveCursor(hCursorIBeam, hCursorIBeam);
 
         if (Env::$instance->IsNoDisturb()) {
             return;
@@ -38,6 +43,10 @@ public:
             SetSystemCursor(_CreateTransparentCursor(hCursorAppStarting), OCR_APPSTARTING),
             L"设置 OCR_APPSTARTING 失败"
         );
+        /*Debug::ThrowIfWin32Failed(
+            SetSystemCursor(_CreateTransparentCursor(hCursorIBeam), OCR_IBEAM),
+            L"设置 OCR_APPSTARTING 失败"
+        );*/
 
         // 限制鼠标在窗口内
         Debug::ThrowIfWin32Failed(ClipCursor(&Env::$instance->GetSrcClient()), L"ClipCursor 失败");
@@ -48,10 +57,12 @@ public:
             L"获取鼠标速度失败"
         );
 
-        const RECT& srcRect = Env::$instance->GetSrcClient();
-        _scale = float(_destRect.right - _destRect.left) / (srcRect.right - srcRect.left);
+        const RECT& srcClient = Env::$instance->GetSrcClient();
+        const D2D_RECT_F& destRect = Env::$instance->GetDestRect();
+        float scaleX = (destRect.right - destRect.left) / (srcClient.right - srcClient.left);
+        float scaleY = (destRect.bottom - destRect.top) / (srcClient.bottom - srcClient.top);
 
-        long newSpeed = std::clamp(lroundf(_cursorSpeed / _scale), 1L, 20L);
+        long newSpeed = std::clamp(lroundf(_cursorSpeed / (scaleX + scaleY) * 2), 1L, 20L);
         Debug::ThrowIfWin32Failed(
             SystemParametersInfo(SPI_SETMOUSESPEED, 0, (PVOID)(intptr_t)newSpeed, 0),
             L"设置鼠标速度失败"
@@ -74,23 +85,66 @@ public:
         SystemParametersInfo(SPI_SETCURSORS, 0, NULL, 0);
     }
 
-    void Render() override {
-        CURSORINFO ci{};
-        ci.cbSize = sizeof(ci);
-        Debug::ThrowIfWin32Failed(
-            GetCursorInfo(&ci),
-            L"GetCursorInfo 失败"
-        );
+private:
+    struct CursorInfo {
+        HCURSOR handle = NULL;
+        ComPtr<ID2D1Bitmap> bmp = nullptr;
+        int xHotSpot = 0;
+        int yHotSpot = 0;
+        int width = 0;
+        int height = 0;
+        bool isMonochrome = false;
+    };
 
-        if (_debugMode) {
-            _RenderDebugLayer(ci.hCursor);
+    CursorInfo* _cursorInfo = nullptr;
+    D2D1_POINT_2L _targetScreenPos{};
+
+public:
+    ComPtr<ID2D1Image> RenderEffect(ComPtr<ID2D1Image> input) {
+        _CalcCursorPos();
+
+        if (!_cursorInfo || !_cursorInfo->isMonochrome) {
+            return input;
         }
 
-        if (ci.hCursor == NULL) {
+        if (!_monochromeCursorEffect) {
+            Debug::ThrowIfComFailed(
+                MonochromeCursorEffect::Register(Env::$instance->GetD2DFactory()),
+                L"注册MonochromeCursorEffect失败"
+            );
+            Debug::ThrowIfComFailed(
+                Env::$instance->GetD2DDC()->CreateEffect(CLSID_MAGPIE_MONOCHROME_CURSOR_EFFECT, &_monochromeCursorEffect),
+                L"创建MonochromeCursorEffect失败"
+            );
+        }
+
+        _monochromeCursorEffect->SetInput(0, input.Get());
+        _monochromeCursorEffect->SetInput(1, _cursorInfo->bmp.Get());
+
+        auto& destRect = Env::$instance->GetDestRect();
+        _monochromeCursorEffect->SetValue(
+            MonochromeCursorEffect::PROP_CURSOR_POS,
+            D2D_VECTOR_2F{ FLOAT(_targetScreenPos.x) - destRect.left, FLOAT(_targetScreenPos.y) - destRect.top }
+        );
+
+        ComPtr<ID2D1Image> output;
+        _monochromeCursorEffect->GetOutput(&output);
+        return output;
+    }
+
+    void Render() override {
+        if (!_cursorInfo || _cursorInfo->isMonochrome) {
             return;
         }
 
-        _DrawCursor(ci.hCursor, ci.ptScreenPos);
+        D2D1_RECT_F cursorRect = {
+            FLOAT(_targetScreenPos.x),
+            FLOAT(_targetScreenPos.y),
+            FLOAT(_targetScreenPos.x + _cursorInfo->width),
+            FLOAT(_targetScreenPos.y + _cursorInfo->height)
+        };
+
+        Env::$instance->GetD2DDC()->DrawBitmap(_cursorInfo->bmp.Get(), &cursorRect);
     }
 
 
@@ -113,88 +167,55 @@ public:
         return { false, 0 };
     }
 private:
-    void _AddHookCursor(HCURSOR hTptCursor, HCURSOR hCursor) {
-        if (hTptCursor == NULL || hCursor == NULL) {
+    void _CalcCursorPos() {
+        CURSORINFO ci{};
+        ci.cbSize = sizeof(ci);
+        Debug::ThrowIfWin32Failed(
+            GetCursorInfo(&ci),
+            L"GetCursorInfo 失败"
+        );
+
+        if (ci.hCursor == NULL) {
+            _cursorInfo = nullptr;
             return;
         }
 
-        _cursorMap[hTptCursor] = _CursorToD2DBitmap(hCursor);
-    }
-
-    void _RenderDebugLayer(HCURSOR hCursorCur) {
-        D2D1_POINT_2F leftTop{ 0, 50 };
-
-        D2D1_RECT_F cursorRect{
-            leftTop.x, leftTop.y, leftTop.x + _cursorSize.cx, leftTop.y + _cursorSize.cy
-        };
-
-        ID2D1DeviceContext* d2dDC = Env::$instance->GetD2DDC();
-        ComPtr<ID2D1SolidColorBrush> brush;
-        d2dDC->CreateSolidColorBrush({ 0,0,0,1 }, &brush);
-
-        for (const auto& a : _cursorMap) {
-            d2dDC->FillRectangle(cursorRect, brush.Get());
-
-            if (a.first != hCursorCur) {
-                d2dDC->DrawBitmap(a.second.Get(), &cursorRect);
-            }
-
-            cursorRect.left += _cursorSize.cx;
-            cursorRect.right += _cursorSize.cy;
-        }
-    }
-
-    void _DrawCursor(HCURSOR hCursor, POINT ptScreenPos) {
-        assert(hCursor != NULL);
-
-        ID2D1DeviceContext* d2dDC = Env::$instance->GetD2DDC();
-
-        auto it = _cursorMap.find(hCursor);
-        ID2D1Bitmap* bmpCursor = nullptr;
-
+        auto it = _cursorMap.find(ci.hCursor);
         if (it != _cursorMap.end()) {
-            bmpCursor = it->second.Get();
+            _cursorInfo = &it->second;
         } else {
             try {
                 // 未在映射中找到，创建新映射
-                ComPtr<ID2D1Bitmap> newBmpCursor = _CursorToD2DBitmap(hCursor);
+                _ResolveCursor(ci.hCursor, ci.hCursor);
 
-                // 添加进映射
-                _cursorMap[hCursor] = newBmpCursor;
-
-                bmpCursor = newBmpCursor.Get();
+                _cursorInfo = &_cursorMap[ci.hCursor];
             } catch (...) {
-                // 如果出错，只绘制普通光标
-                Debug::WriteLine(L"_CursorToD2DBitmap 出错");
-
-                hCursor = LoadCursor(NULL, IDC_ARROW);
-                bmpCursor = _cursorMap[hCursor].Get();
+                // 如果出错，不绘制光标
+                _cursorInfo = nullptr;
+                Debug::WriteLine(L"Can't find cursor");
+                return;
             }
         }
 
         // 映射坐标
         // 鼠标坐标为整数，否则会出现模糊
         const RECT& srcClient = Env::$instance->GetSrcClient();
-        D2D1_POINT_2F targetScreenPos{
-            roundf((ptScreenPos.x - srcClient.left) * _scale + _destRect.left),
-            roundf((ptScreenPos.y - srcClient.top) * _scale + _destRect.top)
+        const D2D_RECT_F& destRect = Env::$instance->GetDestRect();
+        float scaleX = (destRect.right - destRect.left) / (srcClient.right - srcClient.left);
+        float scaleY = (destRect.bottom - destRect.top) / (srcClient.bottom - srcClient.top);
+
+        _targetScreenPos = {
+            lroundf((ci.ptScreenPos.x - srcClient.left) * scaleX + destRect.left) - _cursorInfo->xHotSpot,
+            lroundf((ci.ptScreenPos.y - srcClient.top) * scaleY + destRect.top) - _cursorInfo->yHotSpot
         };
+    }
 
-        auto [xHotSpot, yHotSpot] = _GetCursorHotSpot(hCursor);
+    void _AddHookCursor(HCURSOR hTptCursor, HCURSOR hCursor) {
+        if (hTptCursor == NULL || hCursor == NULL) {
+            return;
+        }
 
-        D2D1_RECT_F rect{};
-        Debug::ThrowIfComFailed(
-            d2dDC->GetImageLocalBounds(bmpCursor, &rect),
-            L"GetImageLocalBounds失败"
-        );
-        D2D1_RECT_F cursorRect = {
-           targetScreenPos.x - xHotSpot,
-           targetScreenPos.y - yHotSpot,
-           targetScreenPos.x + rect.right - rect.left - xHotSpot,
-           targetScreenPos.y + rect.bottom - rect.top - yHotSpot
-        };
-
-        d2dDC->DrawBitmap(bmpCursor, &cursorRect);
+        _ResolveCursor(hTptCursor, hCursor);
     }
 
     HCURSOR _CreateTransparentCursor(HCURSOR hCursorHotSpot) {
@@ -271,17 +292,96 @@ private:
         return d2dBmpCursor;
     }
 
+    ComPtr<ID2D1Bitmap> _MonochromeToD2DBitmap(HBITMAP hbmMask) {
+        assert(hbmMask != NULL);
 
-    std::map<HCURSOR, ComPtr<ID2D1Bitmap>> _cursorMap;
+        IWICImagingFactory2* wicImgFactory = Env::$instance->GetWICImageFactory();
+
+        ComPtr<IWICBitmap> wicCursor = nullptr;
+        ComPtr<IWICFormatConverter> wicFormatConverter = nullptr;
+        ComPtr<ID2D1Bitmap> d2dBmpCursor = nullptr;
+
+        Debug::ThrowIfComFailed(
+            wicImgFactory->CreateBitmapFromHBITMAP(hbmMask, NULL, WICBitmapAlphaChannelOption::WICBitmapIgnoreAlpha, &wicCursor),
+            L"创建鼠标图像位图失败"
+        );
+        Debug::ThrowIfComFailed(
+            wicImgFactory->CreateFormatConverter(&wicFormatConverter),
+            L"CreateFormatConverter 失败"
+        );
+        Debug::ThrowIfComFailed(
+            wicFormatConverter->Initialize(
+                wicCursor.Get(),
+                GUID_WICPixelFormat32bppPBGRA,
+                WICBitmapDitherTypeNone,
+                NULL,
+                0.f,
+                WICBitmapPaletteTypeMedianCut
+            ),
+            L"IWICFormatConverter 初始化失败"
+        );
+        Debug::ThrowIfComFailed(
+            Env::$instance->GetD2DDC()->CreateBitmapFromWicBitmap(wicFormatConverter.Get(), &d2dBmpCursor),
+            L"CreateBitmapFromWicBitmap 失败"
+        );
+
+        return d2dBmpCursor;
+    }
+
+    void _ResolveCursor(HCURSOR hTptCursor, HCURSOR hCursor) {
+        assert(hCursor != NULL);
+
+        ICONINFO ii{};
+        Debug::ThrowIfWin32Failed(
+            GetIconInfo(hCursor, &ii),
+            L"GetIconInfo 失败"
+        );
+
+        CursorInfo cursorInfo;
+        cursorInfo.handle = hCursor;
+        cursorInfo.xHotSpot = ii.xHotspot;
+        cursorInfo.yHotSpot = ii.yHotspot;
+        cursorInfo.isMonochrome = (ii.hbmColor == NULL);
+
+        if (!cursorInfo.isMonochrome) {
+            SIZE size = _GetSizeOfHBmp(ii.hbmColor);
+            cursorInfo.width = size.cx;
+            cursorInfo.height = size.cy;
+
+            cursorInfo.bmp = _CursorToD2DBitmap(hCursor);
+        } else {
+            SIZE size = _GetSizeOfHBmp(ii.hbmMask);
+            cursorInfo.width = size.cx;
+            cursorInfo.height = size.cy / 2;
+
+            cursorInfo.bmp = _MonochromeToD2DBitmap(ii.hbmMask);
+        }
+
+        if (ii.hbmColor) {
+            DeleteBitmap(ii.hbmColor);
+        }
+        DeleteBitmap(ii.hbmMask);
+
+        _cursorMap.emplace(hTptCursor, cursorInfo);
+    }
+
+    SIZE _GetSizeOfHBmp(HBITMAP hBmp) {
+        BITMAP bmp{};
+        Debug::ThrowIfWin32Failed(
+            GetObject(hBmp, sizeof(bmp), &bmp),
+            L"GetObject 失败"
+        );
+        return { bmp.bmWidth, bmp.bmHeight };
+    }
+    
+    
+    std::map<HCURSOR, CursorInfo> _cursorMap;
 
     SIZE _cursorSize{};
 
-    RECT _destRect;
-    float _scale;
-
     INT _cursorSpeed = 0;
 
-    bool _debugMode = false;
+    ComPtr<ID2D1Effect> _monochromeCursorEffect = nullptr;
 
     static UINT _WM_NEWCURSOR32;
     static UINT _WM_NEWCURSOR64;

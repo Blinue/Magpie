@@ -17,10 +17,10 @@ public:
 		_Init();
 	}
 
-	void SetInput(ComPtr<IUnknown> inputImg) override {
+	ComPtr<ID2D1Image> Apply(IUnknown* inputImg) override {
 		ComPtr<IWICBitmapSource> wicBitmap;
 		Debug::ThrowIfComFailed(
-			inputImg.As<IWICBitmapSource>(&wicBitmap),
+			inputImg->QueryInterface<IWICBitmapSource>(&wicBitmap),
 			L"ªÒ»° ‰»ÎÕºœÒ ß∞‹"
 		);
 
@@ -28,19 +28,17 @@ public:
 			_d2dSourceEffect->SetValue(D2D1_BITMAPSOURCE_PROP_WIC_BITMAP_SOURCE, wicBitmap.Get()),
 			L"…Ë÷√ D2D1BitmapSource ‘¥ ß∞‹"
 		);
+
+		ComPtr<ID2D1Image> outputImg = nullptr;
+		_outputEffect->GetOutput(&outputImg);
+
+		return outputImg;
 	}
 
 protected:
 	void _PushAsOutputEffect(ComPtr<ID2D1Effect> effect) override {
 		effect->SetInputEffect(0, _outputEffect.Get());
 		_outputEffect = effect;
-	}
-
-	ComPtr<ID2D1Image> _GetOutputImg() override {
-		ComPtr<ID2D1Image> outputImg = nullptr;
-		_outputEffect->GetOutput(&outputImg);
-
-		return outputImg;
 	}
 
 private:
