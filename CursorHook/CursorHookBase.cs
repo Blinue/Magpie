@@ -95,10 +95,11 @@ namespace Magpie.CursorHook {
             byte[] xorPlane = new byte[len];
 
             var (xHotSpot, yHotSpot) = GetCursorHotSpot(hotSpot);
-
+            
             SafeCursorHandle rt = NativeMethods.CreateCursor(
                 NativeMethods.GetModule(),
-                xHotSpot, yHotSpot,
+                Math.Min(xHotSpot, cursorSize.x),   // 获取的hotspot可能超出范围，不进行限制CreateCursor会失败
+                Math.Min(yHotSpot, cursorSize.y),
                 cursorSize.x, cursorSize.y,
                 andPlane, xorPlane
             );
@@ -106,7 +107,7 @@ namespace Magpie.CursorHook {
             ReportIfFalse(rt != SafeCursorHandle.Zero, "创建透明光标失败");
             return rt;
         }
-
+        
         private (int, int) GetCursorHotSpot(IntPtr hCursor) {
             if (hCursor == IntPtr.Zero) {
                 return (0, 0);

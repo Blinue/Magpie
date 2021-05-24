@@ -84,19 +84,19 @@ public:
 private:
 	bool _CheckSrcState() {
 		HWND hwndSrc = Env::$instance->GetHwndSrc();
-		RECT rect;
-		Utils::GetClientScreenRect(hwndSrc, rect);
-	
-		if (Env::$instance->GetSrcClient() != rect
-			|| GetForegroundWindow() != hwndSrc
-			|| Utils::GetWindowShowCmd(hwndSrc) != SW_NORMAL
-		) {
-			// 状态改变时关闭全屏窗口
-			DestroyWindow(Env::$instance->GetHwndHost());
-			return false;
+		if (GetForegroundWindow() == hwndSrc) {
+			// 先检查前台窗口，否则在窗口已关闭时GetClientScreenRect会出错
+			RECT rect;
+			Utils::GetClientScreenRect(hwndSrc, rect);
+
+			if (Env::$instance->GetSrcClient() == rect && Utils::GetWindowShowCmd(hwndSrc) == SW_NORMAL) {
+				return true;
+			}
 		}
 
-		return true;
+		// 状态改变时关闭全屏窗口
+		DestroyWindow(Env::$instance->GetHwndHost());
+		return false;
 	}
 
 	std::unique_ptr<D2DContext> _d2dContext = nullptr;

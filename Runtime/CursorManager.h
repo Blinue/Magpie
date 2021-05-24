@@ -30,7 +30,7 @@ public:
         if (Env::$instance->IsNoDisturb()) {
             return;
         }
-
+        
         Debug::ThrowIfWin32Failed(
             SetSystemCursor(_CreateTransparentCursor(hCursorArrow), OCR_NORMAL),
             L"设置 OCR_NORMAL 失败"
@@ -192,7 +192,6 @@ private:
             } catch (...) {
                 // 如果出错，不绘制光标
                 _cursorInfo = nullptr;
-                Debug::WriteLine(L"Can't find cursor");
                 return;
             }
         }
@@ -229,7 +228,8 @@ private:
 
         HCURSOR result = CreateCursor(
             Env::$instance->GetHInstance(),
-            hotSpot.first, hotSpot.second,
+            min(hotSpot.first, _cursorSize.cx),
+            min(hotSpot.second, _cursorSize.cy),
             _cursorSize.cx, _cursorSize.cy,
             andPlane, xorPlane
         );
@@ -254,7 +254,7 @@ private:
         DeleteBitmap(ii.hbmColor);
         DeleteBitmap(ii.hbmMask);
 
-        return { (int)ii.xHotspot , (int)ii.yHotspot };
+        return { (int)ii.xHotspot, (int)ii.yHotspot };
     }
 
     ComPtr<ID2D1Bitmap> _CursorToD2DBitmap(HCURSOR hCursor) {
@@ -363,7 +363,7 @@ private:
         }
         DeleteBitmap(ii.hbmMask);
 
-        _cursorMap.emplace(hTptCursor, cursorInfo);
+        _cursorMap[hTptCursor] = cursorInfo;
     }
 
     SIZE _GetSizeOfHBmp(HBITMAP hBmp) {
