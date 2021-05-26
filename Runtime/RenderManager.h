@@ -56,13 +56,12 @@ public:
 		if (!_CheckSrcState()) {
 			return;
 		}
+		const auto& frame = _windowCapturer->GetFrame();
+		if (!frame) {
+			return;
+		}
 
 		_d2dContext->Render([&](ID2D1DeviceContext* d2dDC) {
-			const auto& frame = _windowCapturer->GetFrame();
-			if (!frame) {
-				return;
-			}
-
 			d2dDC->Clear();
 
 			ComPtr<ID2D1Image> img = _effectRenderer->Apply(frame.Get());

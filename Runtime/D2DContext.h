@@ -23,8 +23,6 @@ public:
 
 
     void Render(std::function<void(ID2D1DeviceContext*)> renderFunc) {
-        WaitForSingleObjectEx(_frameLatencyWaitableObject, 1000, true);
-
         _d2dDC->BeginDraw();
 
         renderFunc(_d2dDC.Get());
@@ -34,7 +32,8 @@ public:
             L"EndDraw 失败"
         );
 
-        // 如果帧率不足，关闭垂直同步可以提升帧率
+        WaitForSingleObjectEx(_frameLatencyWaitableObject, 1000, true);
+
         Debug::ThrowIfComFailed(
             _dxgiSwapChain->Present(0, _noVSync ? DXGI_PRESENT_ALLOW_TEARING : 0),
             L"Present 失败"

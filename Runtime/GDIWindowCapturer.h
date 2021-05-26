@@ -2,11 +2,7 @@
 #include "pch.h"
 #include "WindowCapturerBase.h"
 #include "Utils.h"
-#include <queue>
-#include <chrono>
 #include "Env.h"
-
-using namespace std::chrono;
 
 
 // 使用 GDI 抓取窗口
@@ -19,11 +15,8 @@ public:
 			while (!_closed) {
 				ComPtr<IWICBitmapSource> frame = _GetFrameWithNoBitblt();
 
-				_frameMutex.lock();
+				std::lock_guard<std::mutex> guard(_frameMutex);
 				_frame = frame;
-				_frameMutex.unlock();
-
-				std::this_thread::yield();
 			}
 		}));
 	}
@@ -35,10 +28,7 @@ public:
 
 	ComPtr<IUnknown> GetFrame() override {
 		std::lock_guard<std::mutex> guard(_frameMutex);
-
-		ComPtr<IWICBitmapSource> frame = _frame;
-		_frame = nullptr;
-		return frame;
+		return _frame;
 	}
 
 	CaptureredFrameType GetFrameType() override {
