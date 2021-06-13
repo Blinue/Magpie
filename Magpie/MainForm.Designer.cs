@@ -65,7 +65,7 @@ namespace Magpie {
             // 
             this.txtHotkey.Location = new System.Drawing.Point(55, 21);
             this.txtHotkey.Name = "txtHotkey";
-            this.txtHotkey.Size = new System.Drawing.Size(196, 25);
+            this.txtHotkey.Size = new System.Drawing.Size(164, 25);
             this.txtHotkey.TabIndex = 1;
             this.txtHotkey.TextChanged += new System.EventHandler(this.TxtHotkey_TextChanged);
             // 
@@ -80,7 +80,7 @@ namespace Magpie {
             // 
             // cbbScaleMode
             // 
-            this.cbbScaleMode.DropDownWidth = 196;
+            this.cbbScaleMode.DropDownWidth = 230;
             this.cbbScaleMode.ItemHeight = 15;
             this.cbbScaleMode.Location = new System.Drawing.Point(79, 24);
             this.cbbScaleMode.Name = "cbbScaleMode";
@@ -184,7 +184,7 @@ namespace Magpie {
             // 
             // cbbCaptureMode
             // 
-            this.cbbCaptureMode.DropDownWidth = 196;
+            this.cbbCaptureMode.DropDownWidth = 187;
             this.cbbCaptureMode.ItemHeight = 15;
             this.cbbCaptureMode.Items.AddRange(new object[] {
             "WinRT Capture",
@@ -207,9 +207,9 @@ namespace Magpie {
             // groupBox2
             // 
             this.groupBox2.Controls.Add(this.ckbShowFPS);
-            this.groupBox2.Location = new System.Drawing.Point(212, 182);
+            this.groupBox2.Location = new System.Drawing.Point(200, 182);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(147, 60);
+            this.groupBox2.Size = new System.Drawing.Size(116, 60);
             this.groupBox2.TabIndex = 12;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "高级";
@@ -217,7 +217,7 @@ namespace Magpie {
             // btnScale
             // 
             this.btnScale.AutoSize = true;
-            this.btnScale.Location = new System.Drawing.Point(268, 21);
+            this.btnScale.Location = new System.Drawing.Point(225, 21);
             this.btnScale.Name = "btnScale";
             this.btnScale.Size = new System.Drawing.Size(91, 25);
             this.btnScale.TabIndex = 13;
@@ -235,7 +235,7 @@ namespace Magpie {
             this.groupBox1.Controls.Add(this.cbbInjectMode);
             this.groupBox1.Location = new System.Drawing.Point(15, 52);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(344, 121);
+            this.groupBox1.Size = new System.Drawing.Size(301, 121);
             this.groupBox1.TabIndex = 14;
             this.groupBox1.TabStop = false;
             // 
@@ -248,7 +248,7 @@ namespace Magpie {
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(377, 259);
+            this.ClientSize = new System.Drawing.Size(331, 259);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.btnScale);
             this.Controls.Add(this.groupBox2);
