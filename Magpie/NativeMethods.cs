@@ -58,7 +58,6 @@ namespace Magpie {
             [MarshalAs(UnmanagedType.LPUTF8Str)] string scaleModel,
             int captureMode,
             [MarshalAs(UnmanagedType.U1)] bool showFPS,
-            [MarshalAs(UnmanagedType.U1)] bool lowLatencyMode,
             [MarshalAs(UnmanagedType.U1)] bool noDisturb
         );
 

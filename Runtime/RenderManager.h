@@ -27,7 +27,7 @@ public:
 		} else if (captureMode == 1) {
 			_windowCapturer.reset(new GDIWindowCapturer());
 		} else {
-			_windowCapturer.reset(new MagCallbackWindowCapturer());
+			throw new magpie_exception(L"非法的抓取模式");
 		}
 
 		// 初始化 EffectRenderer

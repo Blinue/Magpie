@@ -13,10 +13,9 @@ public:
 		std::string_view scaleModel,
 		int captureMode,
 		bool showFPS,
-		bool lowLatencyMode,
 		bool noDisturb
 	) {
-		$instance.reset(new Env(hInst, hwndSrc, scaleModel, captureMode, showFPS, lowLatencyMode, noDisturb));
+		$instance.reset(new Env(hInst, hwndSrc, scaleModel, captureMode, showFPS, noDisturb));
 	}
 
 	void SetD2DContext(
@@ -73,10 +72,6 @@ public:
 
 	bool IsShowFPS() {
 		return _showFPS;
-	}
-
-	bool IsLowLantencyMode() {
-		return _lowLantencyMode;
 	}
 
 	bool IsNoDisturb() {
@@ -148,11 +143,10 @@ private:
 		std::string_view scaleModel,
 		int captureMode,
 		bool showFPS,
-		bool lowLatencyMode,
 		bool noDisturb
-	) : _hInst(hInst), _hwndSrc(hwndSrc), _scaleModel(scaleModel), _captureMode(captureMode), _showFPS(showFPS), _lowLantencyMode(lowLatencyMode), _noDisturb(noDisturb) {
+	) : _hInst(hInst), _hwndSrc(hwndSrc), _scaleModel(scaleModel), _captureMode(captureMode), _showFPS(showFPS), _noDisturb(noDisturb) {
 		Debug::Assert(
-			captureMode >= 0 && captureMode <= 2,
+			captureMode >= 0 && captureMode <= 1,
 			L"非法的抓取模式"
 		);
 
@@ -170,7 +164,6 @@ private:
 	std::string_view _scaleModel;
 	int _captureMode;
 	bool _showFPS;
-	bool _lowLantencyMode;  // 低延迟模式
 	bool _noDisturb;
 
 	HWND _hwndSrc;

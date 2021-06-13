@@ -7,6 +7,7 @@
 
 // 使用 Magnification API 抓取窗口
 // 见 https://docs.microsoft.com/en-us/previous-versions/windows/desktop/magapi/magapi-intro
+// 不使用，此API已过时，且速度很慢
 class MagCallbackWindowCapturer : public WindowCapturerBase {
 public:
 	MagCallbackWindowCapturer() {

@@ -57,7 +57,6 @@ namespace Magpie {
             string scaleModel,
             int captureMode,
             bool showFPS,
-            bool lowLatencyMode,
             bool hookCursorAtRuntime,
             bool noDisturb = false
         ) {
@@ -73,7 +72,6 @@ namespace Magpie {
                     scaleModel,     // 缩放模式
                     captureMode,    // 抓取模式
                     showFPS,        // 显示 FPS
-                    lowLatencyMode, // 低延迟模式
                     noDisturb       // 用于调试
                 );
             });

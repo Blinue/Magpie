@@ -46,7 +46,6 @@ namespace Magpie {
             ckbShowFPS.Checked = Settings.Default.ShowFPS;
             cbbInjectMode.SelectedIndex = Settings.Default.InjectMode;
             cbbCaptureMode.SelectedIndex = Settings.Default.CaptureMode;
-            ckbLowLatencyMode.Checked = Settings.Default.LowLatencyMode;
         }
 
         private void LoadScaleModels() {
@@ -129,13 +128,11 @@ namespace Magpie {
             string effectsJson = scaleModels[Settings.Default.ScaleMode].Model.GetRawText();
             bool showFPS = Settings.Default.ShowFPS;
             int captureMode = Settings.Default.CaptureMode;
-            bool lowLatencyMode = Settings.Default.LowLatencyMode;
 
             magWindow.Create(
                 effectsJson,
                 captureMode,
                 showFPS,
-                lowLatencyMode,
                 cbbInjectMode.SelectedIndex == 1,
                 false
             );
@@ -191,11 +188,6 @@ namespace Magpie {
 
         private void CbbCaptureMode_SelectedIndexChanged(object sender, EventArgs e) {
             Settings.Default.CaptureMode = cbbCaptureMode.SelectedIndex;
-        }
-
-
-        private void CkbLowLatencyMode_CheckedChanged(object sender, EventArgs e) {
-            Settings.Default.LowLatencyMode = ckbLowLatencyMode.Checked;
         }
 
         private void StartScaleTimer() {

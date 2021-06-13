@@ -18,7 +18,7 @@ public:
     D2DContext(D2DContext&&) = delete;
 
     ~D2DContext() {
-        CloseHandle(_frameLatencyWaitableObject);
+        // CloseHandle(_frameLatencyWaitableObject);
     }
 
     void Render(std::function<void(ID2D1DeviceContext*)> renderFunc) {
@@ -27,7 +27,7 @@ public:
             Env::$instance->GetDxgiOutput()->WaitForVBlank(),
             L"WaitForVBlankÊ§°Ü"
         );
-        //WaitForSingleObjectEx(_frameLatencyWaitableObject, 1000, true);
+        // WaitForSingleObjectEx(_frameLatencyWaitableObject, 1000, true);
 
         _d2dDC->BeginDraw();
         renderFunc(_d2dDC.Get());
@@ -158,11 +158,11 @@ private:
         );
         
         Debug::ThrowIfComFailed(
-            _dxgiSwapChain->SetMaximumFrameLatency(Env::$instance->IsLowLantencyMode() ? 1 : 2),
+            _dxgiSwapChain->SetMaximumFrameLatency(1),
             L"SetMaximumFrameLatency Ê§°Ü"
         );
 
-        _frameLatencyWaitableObject = _dxgiSwapChain->GetFrameLatencyWaitableObject();
+        // _frameLatencyWaitableObject = _dxgiSwapChain->GetFrameLatencyWaitableObject();
 
         // Direct2D needs the dxgi version of the backbuffer surface pointer.
         ComPtr<IDXGISurface> dxgiBackBuffer = nullptr;
@@ -202,5 +202,5 @@ private:
     ComPtr<ID2D1DeviceContext> _d2dDC = nullptr;
     ComPtr<IDXGISwapChain2> _dxgiSwapChain = nullptr;
 
-    HANDLE _frameLatencyWaitableObject;
+    // HANDLE _frameLatencyWaitableObject;
 };
