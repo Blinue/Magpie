@@ -22,19 +22,14 @@ public:
 		ComPtr<ID3D11Device> d3dDevice,
 		ComPtr<ID2D1Factory1> d2dFactory,
 		ComPtr<ID2D1Device> d2dDevice,
-		ComPtr<ID2D1DeviceContext> d2dDC,
-		ComPtr<IDXGISwapChain2> dxgiSwapChain
+		ComPtr<ID2D1DeviceContext> d2dDC
 	) {
 		_d3dDevice = d3dDevice;
 		_d2dFactory = d2dFactory;
 		_d2dDevice = d2dDevice;
 		_d2dDC = d2dDC;
-		_dxgiSwapChain = dxgiSwapChain;
 
-		Debug::ThrowIfComFailed(
-			_dxgiSwapChain->GetContainingOutput(&_dxgiOutput),
-			L"ªÒ»°DXGIOutput ß∞‹"
-		);
+		
 	}
 
 	void SetHwndHost(HWND hwndHost) {
@@ -56,10 +51,6 @@ public:
 
 	ID2D1Device* GetD2DDevice() {
 		return _d2dDevice.Get();
-	}
-
-	IDXGIOutput* GetDxgiOutput() {
-		return _dxgiOutput.Get();
 	}
 
 	const std::string_view& GetScaleModel() {
@@ -157,8 +148,6 @@ private:
 	ComPtr<ID2D1Factory1> _d2dFactory = nullptr;
 	ComPtr<ID2D1Device> _d2dDevice = nullptr;
 	ComPtr<ID2D1DeviceContext> _d2dDC = nullptr;
-	ComPtr<IDXGISwapChain2> _dxgiSwapChain = nullptr;
-	ComPtr<IDXGIOutput> _dxgiOutput = nullptr;
 
 	HINSTANCE _hInst;
 	std::string_view _scaleModel;

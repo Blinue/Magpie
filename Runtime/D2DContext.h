@@ -9,7 +9,7 @@ using namespace D2D1;
 // Direct2D 环境
 class D2DContext {
 public:
-	D2DContext(bool noVsync = false): _noVSync(noVsync) {
+	D2DContext() {
         _InitD2D();
 	}
  
@@ -18,16 +18,21 @@ public:
     D2DContext(D2DContext&&) = delete;
 
     ~D2DContext() {
-        // CloseHandle(_frameLatencyWaitableObject);
+        if (Env::$instance->GetCaptureMode() != 1) {
+            CloseHandle(_frameLatencyWaitableObject);
+        }
     }
 
     void Render(std::function<void(ID2D1DeviceContext*)> renderFunc) {
-        // GDI 捕获要求必须等待下一次垂直同步
-        Debug::ThrowIfComFailed(
-            Env::$instance->GetDxgiOutput()->WaitForVBlank(),
-            L"WaitForVBlank失败"
-        );
-        // WaitForSingleObjectEx(_frameLatencyWaitableObject, 1000, true);
+        if (Env::$instance->GetCaptureMode() == 1) {
+            // GDI 捕获要求必须等待下一次垂直同步
+            Debug::ThrowIfComFailed(
+                _dxgiOutput->WaitForVBlank(),
+                L"WaitForVBlank失败"
+            );
+        } else {
+            WaitForSingleObjectEx(_frameLatencyWaitableObject, 1000, true);
+        }
 
         _d2dDC->BeginDraw();
         renderFunc(_d2dDC.Get());
@@ -37,7 +42,7 @@ public:
         );
         
         Debug::ThrowIfComFailed(
-            _dxgiSwapChain->Present(0, _noVSync ? DXGI_PRESENT_ALLOW_TEARING : 0),
+            _dxgiSwapChain->Present(0, 0),
             L"Present 失败"
         );
     }
@@ -121,8 +126,7 @@ private:
         
         // Allocate a descriptor.
         DXGI_SWAP_CHAIN_DESC1 swapChainDesc{};
-        swapChainDesc.Flags = (_noVSync ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : 0) 
-            | DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT;
+        swapChainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT;
 
         const RECT& hostClient = Env::$instance->GetHostClient();
         swapChainDesc.Width = hostClient.right - hostClient.left,
@@ -162,7 +166,14 @@ private:
             L"SetMaximumFrameLatency 失败"
         );
 
-        // _frameLatencyWaitableObject = _dxgiSwapChain->GetFrameLatencyWaitableObject();
+        if (Env::$instance->GetCaptureMode() == 1) {
+            Debug::ThrowIfComFailed(
+                _dxgiSwapChain->GetContainingOutput(&_dxgiOutput),
+                L"获取DXGIOutput失败"
+            );
+        } else {
+            _frameLatencyWaitableObject = _dxgiSwapChain->GetFrameLatencyWaitableObject();
+        }
 
         // Direct2D needs the dxgi version of the backbuffer surface pointer.
         ComPtr<IDXGISurface> dxgiBackBuffer = nullptr;
@@ -194,13 +205,14 @@ private:
         _d2dDC->SetTarget(d2dTargetBitmap.Get());
         _d2dDC->SetUnitMode(D2D1_UNIT_MODE_PIXELS);
 
-        Env::$instance->SetD2DContext(d3dDevice, d2dFactory, d2dDevice, _d2dDC, _dxgiSwapChain);
+        Env::$instance->SetD2DContext(d3dDevice, d2dFactory, d2dDevice, _d2dDC);
     }
-
-    bool _noVSync;
 
     ComPtr<ID2D1DeviceContext> _d2dDC = nullptr;
     ComPtr<IDXGISwapChain2> _dxgiSwapChain = nullptr;
 
-    // HANDLE _frameLatencyWaitableObject;
+    // 用于 GDI 捕获
+    ComPtr<IDXGIOutput> _dxgiOutput = nullptr;
+    // 用于 WinRT 捕获
+    HANDLE _frameLatencyWaitableObject;
 };

@@ -32,8 +32,7 @@
 程序如何抓取源窗口图像，有三种选择：
 
 1. WinRT Capture：使用[Screen Capture API](https://docs.microsoft.com/en-us/windows/uwp/audio-video-camera/screen-capture)抓取窗口，最推荐的方法。此API从Windows 10, v1803开始提供。
-2. GDI：使用GDI抓取源窗口，速度较快，无法抓取到一些DirectX窗口
-3. MagCallback：使用[Magnification API](https://docs.microsoft.com/en-us/previous-versions/windows/desktop/magapi/entry-magapi-sdk)抓取源窗口，相比GDI可以抓取到更多类型的窗口，但有明显卡顿。不推荐使用
+2. GDI：使用GDI抓取源窗口，速度稍慢
 
 #### 注入模式
 
@@ -45,8 +44,7 @@
 
 #### 高级选项
 
-* 显示帧率：在屏幕左上角显示帧率
-* 低延迟模式：开启后可有效降低输入延迟，使用WinRT Capture抓取模式时推荐开启
+* 显示帧率：在屏幕左上角显示当前帧率
 
 ## 效果截图
 
