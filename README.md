@@ -12,7 +12,7 @@
 
 ![窗口截图](img/窗口截图.png)
 
-程序启动后，激活要放大的窗口，按下热键即可全屏显示该窗口，再次按下热键将退出全屏。
+程序启动后，激活要放大的窗口，按下热键即可全屏显示该窗口，再次按下热键或者切换前台窗口将退出全屏。
 
 以下为配置说明：
 
@@ -20,7 +20,7 @@
 
 程序预置了数种缩放模式，如果没有符合你的需求的，请[自定义缩放](docs/自定义缩放.md)。
 
-1. 通用：使用Lanczos+锐化。适用于大多数情况。
+1. 通用：Lanczos+锐化
 2. Anime4K：存在多种变体
    * 动漫 2x（Anime4K）：对输入应用一次Anime4K，适合放大1~2倍。默认使用降噪版本。
    * 动漫 2x（Anime4K+ThinLines）：执行Anime4K后细化线条。一般能产生更好的视觉效果。
@@ -46,37 +46,9 @@
 
 * 显示帧率：在屏幕左上角显示当前帧率
 
-## 效果截图
-
-*以下图像均只用于演示目的*
-
-#### 通用模式
-
-源窗口
-
-![通用_源](img/通用_源.png)
-
-放大后
-
-![通用_放大后](img/通用_放大后.png)
-
-#### Anime4K模式
-
-源窗口
-
-![Anime4K_源](img/Anime4K_源.png)
-
-放大后
-
-![Anime4K_放大后](img/Anime4K_放大后.png)
-
 ## 实现原理
 
-尽管功能与[Lossless Scaling](https://store.steampowered.com/app/993090/Lossless_Scaling/)和[IntegerScaler](https://tanalin.com/en/projects/integer-scaler/)类似，但本程序的实现原理与它们完全不同。Lossless Scaling和IntegerScaler使用Magnification API实现对窗口的放大，但此API无法实现高级缩放算法，其核心函数[MagSetImageScalingCallback](https://docs.microsoft.com/en-us/windows/win32/api/magnification/nf-magnification-magsetimagescalingcallback)已被废弃，因此它们必须与显卡驱动打交道，而你的显卡很可能不被支持。此外，它们只支持整数倍的放大，这极大限制了它们的使用场景。举例来说，它们无法把一个1024x768大小的窗口放大到1920x1080。
-
-本程序的原理非常简单：使用一个全屏窗口覆盖屏幕，捕获原窗口的内容放大后在该全屏窗口显示出来。这种方式使得缩放算法不受任何限制，让我们可以自由使用现存的优秀缩放算法。
-
-关于光标的解决方案见[光标映射](./docs/光标映射.md)。
+如果你使用过[Lossless Scaling](https://store.steampowered.com/app/993090/Lossless_Scaling/)或[IntegerScaler](https://tanalin.com/en/projects/integer-scaler/)，我要告诉你的是，本项目和它们是完全不同的。Magpie的原理非常简单：使用一个全屏窗口覆盖屏幕，捕获原窗口的内容放大后在该全屏窗口显示出来。这种方式使得缩放算法不受任何限制，让我们可以自由使用现存的优秀缩放算法。
 
 ## 使用提示
 
