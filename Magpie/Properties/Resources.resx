@@ -132,12 +132,6 @@
         "effect": "sharpen",
         "type": "adaptive",
         "curveHeight": 0.8
-      },
-      {
-        "effect": "sharpen",
-        "type": "builtIn",
-        "sharpness": 1,
-        "threshold": 0.3
       }
     ]
   },

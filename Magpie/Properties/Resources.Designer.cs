@@ -75,12 +75,6 @@ namespace Magpie.Properties {
         ///        &quot;effect&quot;: &quot;sharpen&quot;,
         ///        &quot;type&quot;: &quot;adaptive&quot;,
         ///        &quot;curveHeight&quot;: 0.8
-        ///      },
-        ///      {
-        ///        &quot;effect&quot;: &quot;sharpen&quot;,
-        ///        &quot;type&quot;: &quot;builtIn&quot;,
-        ///        &quot;sharpness&quot;: 1,
-        ///        &quot;threshold&quot;: 0.3
         ///      }
         ///    ]
         ///  },
@@ -88,7 +82,13 @@ namespace Magpie.Properties {
         ///    &quot;name&quot;: &quot;动漫 2x（Anime4K）&quot;,
         ///    &quot;model&quot;: [
         ///      {
-        ///        &quot;effect&quot;: &quot;sca [字符串的其余部分被截断]&quot;; 的本地化字符串。
+        ///        &quot;effect&quot;: &quot;scale&quot;,
+        ///        &quot;type&quot;: &quot;Anime4K&quot;,
+        ///        &quot;curveHeight&quot;: 0.3,
+        ///        &quot;useDenoiseVersion&quot;: true
+        ///      },
+        ///      {
+        ///        &quot;ef [字符串的其余部分被截断]&quot;; 的本地化字符串。
         /// </summary>
         internal static string BuiltInScaleModels {
             get {

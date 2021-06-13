@@ -90,7 +90,20 @@
 
 ## 免责声明
 
-因为使用了进程注入技术，本程序极有可能被报毒。出于安全考虑，您应该检查源代码并自行编译。开发者不对本程序的功能性和可靠性作担保，开发本程序的初衷不含有任何恶意，但使用它所造成的后果应由您自己承担。
+因为使用了进程注入技术，本程序极有可能被报毒。出于安全考虑，您应该检查源代码并自行编译。
+
+开发本程序的初衷不含有任何恶意，但使用它所造成的后果应由您自己承担。
 
 参见[LICENSE](./LICENSE)。
+
+## 鸣谢
+
+感谢以下优秀项目，你们使Magpie的存在成为可能
+
+* [bloc97/Anime4K](https://github.com/bloc97/Anime4K)
+* [nlohmann/json](https://github.com/nlohmann/json)
+* [Boost C++ Libraries](https://www.boost.org/)
+* [EasyHook/EasyHook](https://github.com/EasyHook/EasyHook)
+* [microsoft/cppwinrt](https://github.com/microsoft/cppwinrt)
+* [libretro/common-shaders](https://github.com/libretro/common-shaders)
 

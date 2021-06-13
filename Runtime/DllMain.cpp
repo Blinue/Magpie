@@ -49,7 +49,7 @@ API_DECLSPEC void WINAPI RunMagWindow(
         HWND hwndSrc = GetForegroundWindow();
         Debug::ThrowIfWin32Failed(
             hwndSrc,
-            L"GetForegroundWindow 返回 NULL"
+            L"获取前台窗口失败"
         );
         Debug::Assert(
             Utils::GetWindowShowCmd(hwndSrc) == SW_NORMAL,
