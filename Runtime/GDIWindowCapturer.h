@@ -8,43 +8,15 @@
 // 使用 GDI 抓取窗口
 class GDIWindowCapturer : public WindowCapturerBase {
 public:
-	GDIWindowCapturer() {
-		// 在单独的线程中不断使用GDI截获窗口
-		// 如果放在渲染线程中会造成卡顿
-		_getFrameThread.reset(new std::thread([&]() {
-			while (!_closed) {
-				ComPtr<IWICBitmapSource> frame = _GetFrameWithNoBitblt();
-
-				std::lock_guard<std::mutex> guard(_frameMutex);
-				_frame = frame;
-			}
-		}));
-	}
-
-	~GDIWindowCapturer() {
-		_closed = true;
-		_getFrameThread->join();
-	}
-
 	ComPtr<IUnknown> GetFrame() override {
-		std::lock_guard<std::mutex> guard(_frameMutex);
-		return _frame;
-	}
-
-	CaptureredFrameType GetFrameType() override {
-		return CaptureredFrameType::WICBitmap;
-	}
-
-private:
-	ComPtr<IWICBitmapSource> _GetFrameWithNoBitblt() {
 		HWND hwndSrc = Env::$instance->GetHwndSrc();
-		
+
 		RECT windowRect{};
 		Debug::ThrowIfWin32Failed(
 			GetWindowRect(hwndSrc, &windowRect),
 			L"GetWindowRect失败"
 		);
-		
+
 		HDC hdcSrc = GetWindowDC(hwndSrc);
 		Debug::ThrowIfWin32Failed(
 			hdcSrc,
@@ -95,11 +67,7 @@ private:
 		return wicBmpClipper;
 	}
 
-
-	ComPtr<IWICBitmapSource> _frame;
-	// 同步对 _frame 的访问
-	std::mutex _frameMutex;
-	std::atomic_bool _closed = false;
-
-	std::unique_ptr<std::thread> _getFrameThread;
+	CaptureredFrameType GetFrameType() override {
+		return CaptureredFrameType::WICBitmap;
+	}
 };

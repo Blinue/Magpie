@@ -76,7 +76,7 @@
 
 尽管功能与[Lossless Scaling](https://store.steampowered.com/app/993090/Lossless_Scaling/)和[IntegerScaler](https://tanalin.com/en/projects/integer-scaler/)类似，但本程序的实现原理与它们完全不同。Lossless Scaling和IntegerScaler使用Magnification API实现对窗口的放大，但此API无法实现高级缩放算法，其核心函数[MagSetImageScalingCallback](https://docs.microsoft.com/en-us/windows/win32/api/magnification/nf-magnification-magsetimagescalingcallback)已被废弃，因此它们必须与显卡驱动打交道，而你的显卡很可能不被支持。此外，它们只支持整数倍的放大，这极大限制了它们的使用场景。举例来说，它们无法把一个1024x768大小的窗口放大到1920x1080。
 
-本程序的原理非常简单：使用一个全屏窗口覆盖屏幕，捕获原窗口的内容放大后在该全屏窗口显示出来。这种方式使得缩放算法不受任何限制，让我们可以自由使用现存的优秀缩放算法。为了使用GPU加速，本程序使用了Direct2D，将缩放算法实现为[Direct2D Effect](https://docs.microsoft.com/en-us/windows/win32/direct2d/effects-overview)，通过Effect的堆叠，我们可以用任何方式缩放窗口，以取得完美的效果。
+本程序的原理非常简单：使用一个全屏窗口覆盖屏幕，捕获原窗口的内容放大后在该全屏窗口显示出来。这种方式使得缩放算法不受任何限制，让我们可以自由使用现存的优秀缩放算法。
 
 关于光标的解决方案见[光标映射](./docs/光标映射.md)。
 

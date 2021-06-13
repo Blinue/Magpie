@@ -21,19 +21,21 @@ public:
         CloseHandle(_frameLatencyWaitableObject);
     }
 
-
     void Render(std::function<void(ID2D1DeviceContext*)> renderFunc) {
+        // GDI 捕获要求必须等待下一次垂直同步
+        Debug::ThrowIfComFailed(
+            Env::$instance->GetDxgiOutput()->WaitForVBlank(),
+            L"WaitForVBlank失败"
+        );
+        //WaitForSingleObjectEx(_frameLatencyWaitableObject, 1000, true);
+
         _d2dDC->BeginDraw();
-
         renderFunc(_d2dDC.Get());
-
         Debug::ThrowIfComFailed(
             _d2dDC->EndDraw(),
             L"EndDraw 失败"
         );
-
-        WaitForSingleObjectEx(_frameLatencyWaitableObject, 1000, true);
-
+        
         Debug::ThrowIfComFailed(
             _dxgiSwapChain->Present(0, _noVSync ? DXGI_PRESENT_ALLOW_TEARING : 0),
             L"Present 失败"
