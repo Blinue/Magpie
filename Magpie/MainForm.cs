@@ -4,8 +4,9 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
-using System.Text.Json;
+using Newtonsoft.Json.Linq;
 using System.IO;
+using System.Linq;
 
 
 namespace Magpie {
@@ -17,13 +18,7 @@ namespace Magpie {
         private const int DOWN_COUNT = 5;
         private int countDownNum;
 
-        private class ScaleModel {
-            public string Name { get; set; }
-
-            public JsonElement Model { get; set; }
-        };
-
-        private ScaleModel[] scaleModels;
+        private (string Name, string Model)[] scaleModels;
 
         private const string SCALE_MODELS_JSON_PATH = "./ScaleModels.json";
 
@@ -58,18 +53,22 @@ namespace Magpie {
             }
 
             try {
-                scaleModels = JsonSerializer.Deserialize<ScaleModel[]>(
-                    json,
-                    new JsonSerializerOptions {
-                        PropertyNameCaseInsensitive = true
-                    }
-                );
-            } catch (Exception) {
-                MessageBox.Show("读取 ScaleModel.json 失败");
-                Environment.Exit(0);
-            }
+                scaleModels = JArray.Parse(json)
+                     .Select(t => {
+                         string name = t["name"]?.ToString();
+                         string model = t["model"]?.ToString();
+                         if(name == null || model == null) {
+                             throw new Exception();
+                         }
 
-            if(scaleModels.Length == 0) {
+                         return (name, model);
+                     })
+                     .ToArray();
+
+                if (scaleModels.Length == 0) {
+                    throw new Exception();
+                }
+            } catch (Exception) {
                 MessageBox.Show("非法的 ScaleModel.json");
                 Environment.Exit(0);
             }
@@ -125,7 +124,7 @@ namespace Magpie {
                 return;
             }
 
-            string effectsJson = scaleModels[Settings.Default.ScaleMode].Model.GetRawText();
+            string effectsJson = scaleModels[Settings.Default.ScaleMode].Model;
             bool showFPS = Settings.Default.ShowFPS;
             int captureMode = Settings.Default.CaptureMode;
 

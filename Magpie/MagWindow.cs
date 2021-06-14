@@ -35,7 +35,6 @@ namespace Magpie {
             }
         }
 
-
         public MagWindow(Form mainForm) {
             StatusEvent += (int status, string errorMsg) => {
                 if(status < 0 || status > 3) {
@@ -164,7 +163,7 @@ namespace Magpie {
                     injectionLibrary,   // 32 位 DLL
                     injectionLibrary,   // 64 位 DLL
                     out int _,  // 忽略进程 ID
-                               // 下面为传递给注入 DLL 的参数
+                                // 下面为传递给注入 DLL 的参数
                     channelName
                 );
             } catch (Exception e) {
