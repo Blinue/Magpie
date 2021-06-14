@@ -32,27 +32,25 @@ BOOL APIENTRY DllMain(
 
 API_DECLSPEC void WINAPI RunMagWindow(
     void reportStatus(int status, const wchar_t* errorMsg),
+    HWND hwndSrc,
     const char* scaleModel,
     int captureMode,
     bool showFPS,
     bool noDisturb
 ) {
-    reportStatus(1, nullptr);
-
     Debug::ThrowIfComFailed(
         CoInitializeEx(NULL, COINIT_MULTITHREADED),
         L"初始化 COM 出错"
     );
 
     try {
-        HWND hwndSrc = GetForegroundWindow();
-        Debug::ThrowIfWin32Failed(
-            hwndSrc,
-            L"获取前台窗口失败"
+        Debug::Assert(
+            IsWindow(hwndSrc) && IsWindowVisible(hwndSrc) && Utils::GetWindowShowCmd(hwndSrc) == SW_NORMAL,
+            L"不合法的源窗口"
         );
         Debug::Assert(
-            Utils::GetWindowShowCmd(hwndSrc) == SW_NORMAL,
-            L"该窗口当前已最大化或最小化"
+            captureMode >= 0 && captureMode <= 1,
+            L"非法的抓取模式"
         );
 
         Env::CreateInstance(hInst, hwndSrc, scaleModel, captureMode, showFPS, noDisturb);

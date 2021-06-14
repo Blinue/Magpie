@@ -10,11 +10,19 @@ namespace Magpie {
 	static class NativeMethods {
         public static readonly int MAGPIE_WM_SHOWME = RegisterWindowMessage("WM_SHOWME");
         public static readonly int MAGPIE_WM_DESTORYMAG = RegisterWindowMessage("MAGPIE_WM_DESTORYMAG");
-        
+        public static readonly int SW_NORMAL = 1;
 
         // 获取用户当前正在使用的窗体的句柄
         [DllImport("user32", CharSet = CharSet.Unicode)]
 		public static extern IntPtr GetForegroundWindow();
+
+        [DllImport("user32", CharSet = CharSet.Unicode)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool IsWindow(IntPtr hWnd);
+
+        [DllImport("user32", CharSet = CharSet.Unicode)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool IsWindowVisible(IntPtr hWnd);
 
         [DllImport("user32", CharSet = CharSet.Unicode)]
         [return: MarshalAs(UnmanagedType.Bool)]
@@ -45,16 +53,52 @@ namespace Magpie {
             return processId;
         }
 
+        [StructLayout(LayoutKind.Sequential)]
+        private struct POINT {
+            public int x;
+            public int y;
+        }
+        [StructLayout(LayoutKind.Sequential)]
+        struct RECT {
+            public int left;
+            public int top;
+            public int right;
+            public int bottom;
+        }
+        [StructLayout(LayoutKind.Sequential)]
+        struct WINDOWPLACEMENT {
+            public uint length;
+            public uint flags;
+            public uint showCmd;
+            public POINT ptMinPosition;
+            public POINT ptMaxPosition;
+            public RECT rcNormalPosition;
+        }
+
+        [DllImport("user32.dll", CharSet = CharSet.Unicode)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        private static extern bool GetWindowPlacement(IntPtr hWnd, ref WINDOWPLACEMENT lpwndpl);
+
+        public static int GetWindowShowCmd(IntPtr hWnd) {
+            WINDOWPLACEMENT wp = new WINDOWPLACEMENT();
+            wp.length = (uint)Marshal.SizeOf(wp);
+            if(!GetWindowPlacement(hWnd, ref wp)) {
+                return -1;
+            }
+            return (int)wp.showCmd;
+        }
+
         /*
          * Runtime.dll
          */
-        
+
         public delegate void ReportStatus(int status, IntPtr errorMsg);
 
         [DllImport("Runtime", CallingConvention = CallingConvention.StdCall)]
         [return: MarshalAs(UnmanagedType.U1)]
         public static extern void RunMagWindow(
             ReportStatus reportStatus,
+            IntPtr hwndSrc,
             [MarshalAs(UnmanagedType.LPUTF8Str)] string scaleModel,
             int captureMode,
             [MarshalAs(UnmanagedType.U1)] bool showFPS,

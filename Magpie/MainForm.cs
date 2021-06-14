@@ -191,39 +191,44 @@ namespace Magpie {
         }
 
         private void StartScaleTimer() {
-            if (timerScale.Enabled) {
-                // 已经开始倒计时
-                return;
-            }
-
             countDownNum = DOWN_COUNT;
-            btnScale.Text = countDownNum.ToString();
-            btnScale.Enabled = false;
+            tsmiScale.Text = btnScale.Text = countDownNum.ToString();
 
             timerScale.Interval = 1000;
-            timerScale.Enabled = true;
+            timerScale.Start();
+        }
+
+        private void StopScaleTimer() {
+            timerScale.Stop();
+            tsmiScale.Text = btnScale.Text = "5秒后放大";
+        }
+
+        private void ToggleScaleTimer() {
+            if (timerScale.Enabled) {
+                StopScaleTimer();
+            } else {
+                StartScaleTimer();
+            }
         }
 
         private void BtnScale_Click(object sender, EventArgs e) {
-            StartScaleTimer();
+            ToggleScaleTimer();
         }
 
         private void TimerScale_Tick(object sender, EventArgs e) {
             if(--countDownNum != 0) {
-                btnScale.Text = countDownNum.ToString();
+                tsmiScale.Text = btnScale.Text = countDownNum.ToString();
                 return;
             }
 
             // 计时结束
-            timerScale.Enabled = false;
-            btnScale.Text = "5秒后放大";
-            btnScale.Enabled = true;
+            StopScaleTimer();
 
             ToggleMagWindow();
         }
 
         private void TsmiScale_Click(object sender, EventArgs e) {
-            StartScaleTimer();
+            ToggleScaleTimer();
         }
     }
 }

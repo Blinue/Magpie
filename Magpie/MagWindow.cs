@@ -64,11 +64,22 @@ namespace Magpie {
                 return;
             }
 
+            IntPtr hwndSrc = NativeMethods.GetForegroundWindow();
+            if (!NativeMethods.IsWindow(hwndSrc) 
+                || !NativeMethods.IsWindowVisible(hwndSrc) 
+                || NativeMethods.GetWindowShowCmd(hwndSrc) != NativeMethods.SW_NORMAL
+            ) {
+                // 不合法的源窗口
+                return;
+            }
+
+            Status = MagWindowStatus.Starting;
             // 使用 WinRT Capturer API 需要在 MTA 中
             // C# 窗体必须使用 STA，因此将全屏窗口创建在新的线程里
             magThread = new Thread(() => {
                 NativeMethods.RunMagWindow(
                     (int status, IntPtr errorMsg) => StatusEvent(status, Marshal.PtrToStringUni(errorMsg)),
+                    hwndSrc,        // 源窗口句柄
                     scaleModel,     // 缩放模式
                     captureMode,    // 抓取模式
                     showFPS,        // 显示 FPS
@@ -79,7 +90,7 @@ namespace Magpie {
             magThread.Start();
 
             if (hookCursorAtRuntime) {
-                HookCursorAtRuntime();
+                HookCursorAtRuntime(hwndSrc);
             }
         }
 
@@ -93,8 +104,7 @@ namespace Magpie {
             NativeMethods.BroadcastMessage(NativeMethods.MAGPIE_WM_DESTORYMAG);
         }
 
-        private void HookCursorAtRuntime() {
-            IntPtr hwndSrc = NativeMethods.GetForegroundWindow();
+        private void HookCursorAtRuntime(IntPtr hwndSrc) {
             int pid = NativeMethods.GetWindowProcessId(hwndSrc);
             if (pid == 0 || pid == Process.GetCurrentProcess().Id) {
                 // 不能 hook 本进程

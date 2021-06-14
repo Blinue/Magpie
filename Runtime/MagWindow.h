@@ -59,12 +59,6 @@ private:
             Debug::Assert(false, L"已存在全屏窗口");
         }
 
-        HWND hwndSrc = Env::$instance->GetHwndSrc();
-        Debug::Assert(
-            IsWindow(hwndSrc) && IsWindowVisible(hwndSrc),
-            L"hwndSrc 不合法"
-        );
-
         _RegisterHostWndClass();
         _CreateHostWnd();
 

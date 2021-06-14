@@ -28,8 +28,6 @@ public:
 		_d2dFactory = d2dFactory;
 		_d2dDevice = d2dDevice;
 		_d2dDC = d2dDC;
-
-		
 	}
 
 	void SetHwndHost(HWND hwndHost) {
@@ -135,12 +133,9 @@ private:
 		int captureMode,
 		bool showFPS,
 		bool noDisturb
-	) : _hInst(hInst), _hwndSrc(hwndSrc), _scaleModel(scaleModel), _captureMode(captureMode), _showFPS(showFPS), _noDisturb(noDisturb) {
-		Debug::Assert(
-			captureMode >= 0 && captureMode <= 1,
-			L"非法的抓取模式"
-		);
-
+	) : _hInst(hInst), _hwndSrc(hwndSrc), _scaleModel(scaleModel),
+		_captureMode(captureMode), _showFPS(showFPS), _noDisturb(noDisturb)
+	{
 		Utils::GetClientScreenRect(_hwndSrc, _srcClient);
 	}
 

@@ -10,6 +10,7 @@ public:
         assert(hwnd != NULL);
 
         WINDOWPLACEMENT wp{};
+        wp.length = sizeof(wp);
         Debug::ThrowIfWin32Failed(
             GetWindowPlacement(hwnd, &wp),
             L"GetWindowPlacement ß∞‹"
