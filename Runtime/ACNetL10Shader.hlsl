@@ -7,7 +7,7 @@
 #define MAGPIE_NO_CHECK
 #include "ACNet.hlsli"
 
-#define noise_threshold 0.01
+#define noise_threshold 0.02
 
 
 const static float kernelsL10[4 * 8] = {
@@ -43,8 +43,8 @@ D2D_PS_ENTRY(main) {
 	int index = i.y * 2 + i.x;
 	float2 pos = Coord(1).xy + (float2(0.5, 0.5) - f) * Coord(1).zw;
 
-	float4 mc1 = uncompressLinear(SampleInput(1, pos), -1, 4.5);
-	float4 mc2 = uncompressLinear(SampleInput(2, pos), -1, 3);
+	float4 mc1 = uncompressLinear(SampleInput(1, pos), 0, 4.5);
+	float4 mc2 = uncompressLinear(SampleInput(2, pos), 0, 3);
 
 	float luma = clamp(
 		mc1.x * kernelsL10[0 + index] +
@@ -57,6 +57,7 @@ D2D_PS_ENTRY(main) {
 		mc2.w * kernelsL10[28 + index], 0.0f, 1.0f);
 
 	float4 yuv = SampleInputCur(0);
+	// 消除因压缩产生的噪声
 	if (abs(luma - yuv.x) < noise_threshold) {
 		luma = yuv.x;
 	}

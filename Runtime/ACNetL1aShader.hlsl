@@ -66,5 +66,5 @@ D2D_PS_ENTRY(main) {
 		bl * kernelsL1[3 * 9 + 6] + bc * kernelsL1[3 * 9 + 7] + br * kernelsL1[3 * 9 + 8] + biasL1.w
 	));
 
-	return compressLinear(c1234, -1, 2);
+	return compressLinear(c1234, 0, 2);
 }

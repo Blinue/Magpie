@@ -122,28 +122,28 @@ D2D_PS_ENTRY(main) {
 	// [tl, tc, tr]
 	// [ml, mc, mr]
 	// [bl, bc, br]
-	float4 tl1 = uncompressLinear(SampleInput(0, leftTop1), -1, 2.5);
-	float4 ml1 = uncompressLinear(SampleInput(0, float2(leftTop1.x, Coord(0).y)), -1, 2.5);
-	float4 bl1 = uncompressLinear(SampleInput(0, float2(leftTop1.x, rightBottom1.y)), -1, 2.5);
-	float4 tc1 = uncompressLinear(SampleInput(0, float2(Coord(0).x, leftTop1.y)), -1, 2.5);
-	float4 mc1 = uncompressLinear(SampleInputCur(0), -1, 2.5);
-	float4 bc1 = uncompressLinear(SampleInput(0, float2(Coord(0).x, rightBottom1.y)), -1, 2.5);
-	float4 tr1 = uncompressLinear(SampleInput(0, float2(rightBottom1.x, leftTop1.y)), -1, 2.5);
-	float4 mr1 = uncompressLinear(SampleInput(0, float2(rightBottom1.x, Coord(0).y)), -1, 2.5);
-	float4 br1 = uncompressLinear(SampleInput(0, rightBottom1), -1, 2.5);
+	float4 tl1 = uncompressLinear(SampleInput(0, leftTop1), 0, 2.5);
+	float4 ml1 = uncompressLinear(SampleInput(0, float2(leftTop1.x, Coord(0).y)), 0, 2.5);
+	float4 bl1 = uncompressLinear(SampleInput(0, float2(leftTop1.x, rightBottom1.y)), 0, 2.5);
+	float4 tc1 = uncompressLinear(SampleInput(0, float2(Coord(0).x, leftTop1.y)), 0, 2.5);
+	float4 mc1 = uncompressLinear(SampleInputCur(0), 0, 2.5);
+	float4 bc1 = uncompressLinear(SampleInput(0, float2(Coord(0).x, rightBottom1.y)), 0, 2.5);
+	float4 tr1 = uncompressLinear(SampleInput(0, float2(rightBottom1.x, leftTop1.y)), 0, 2.5);
+	float4 mr1 = uncompressLinear(SampleInput(0, float2(rightBottom1.x, Coord(0).y)), 0, 2.5);
+	float4 br1 = uncompressLinear(SampleInput(0, rightBottom1), 0, 2.5);
 
 	float2 leftTop2 = GetCheckedOffPos(1, float2(-1, -1));
 	float2 rightBottom2 = GetCheckedOffPos(1, float2(1, 1));
 
-	float4 tl2 = uncompressLinear(SampleInput(1, leftTop2), -1, 3);
-	float4 ml2 = uncompressLinear(SampleInput(1, float2(leftTop2.x, Coord(1).y)), -1, 3);
-	float4 bl2 = uncompressLinear(SampleInput(1, float2(leftTop2.x, rightBottom2.y)), -1, 3);
-	float4 tc2 = uncompressLinear(SampleInput(1, float2(Coord(1).x, leftTop2.y)), -1, 3);
-	float4 mc2 = uncompressLinear(SampleInputCur(1), -1, 3);
-	float4 bc2 = uncompressLinear(SampleInput(1, float2(Coord(1).x, rightBottom2.y)), -1, 3);
-	float4 tr2 = uncompressLinear(SampleInput(1, float2(rightBottom2.x, leftTop2.y)), -1, 3);
-	float4 mr2 = uncompressLinear(SampleInput(1, float2(rightBottom2.x, Coord(1).y)), -1, 3);
-	float4 br2 = uncompressLinear(SampleInput(1, rightBottom2), -1, 3);
+	float4 tl2 = uncompressLinear(SampleInput(1, leftTop2), 0, 3);
+	float4 ml2 = uncompressLinear(SampleInput(1, float2(leftTop2.x, Coord(1).y)), 0, 3);
+	float4 bl2 = uncompressLinear(SampleInput(1, float2(leftTop2.x, rightBottom2.y)), 0, 3);
+	float4 tc2 = uncompressLinear(SampleInput(1, float2(Coord(1).x, leftTop2.y)), 0, 3);
+	float4 mc2 = uncompressLinear(SampleInputCur(1), 0, 3);
+	float4 bc2 = uncompressLinear(SampleInput(1, float2(Coord(1).x, rightBottom2.y)), 0, 3);
+	float4 tr2 = uncompressLinear(SampleInput(1, float2(rightBottom2.x, leftTop2.y)), 0, 3);
+	float4 mr2 = uncompressLinear(SampleInput(1, float2(rightBottom2.x, Coord(1).y)), 0, 3);
+	float4 br2 = uncompressLinear(SampleInput(1, rightBottom2), 0, 3);
 
 	float4 c5678 = RELU(float4(
 		tl1.x * kernelsL[0 * 72 + 0 * 9 + 0] + tc1.x * kernelsL[0 * 72 + 0 * 9 + 1] + tr1.x * kernelsL[0 * 72 + 0 * 9 + 2] +
@@ -275,5 +275,5 @@ D2D_PS_ENTRY(main) {
 		bl2.w * kernelsL[3 * 72 + 7 * 9 + 6] + bc2.w * kernelsL[3 * 72 + 7 * 9 + 7] + br2.w * kernelsL[3 * 72 + 7 * 9 + 8] + biasL.w
 	));
 
-	return compressLinear(c5678, -1, 4);
+	return compressLinear(c5678, 0, 4);
 }
