@@ -28,6 +28,28 @@ constexpr auto MAGPIE_ANIME4K_DENOISE_CONV_REDUCE_SHADER = L"shaders/Anime4KDeno
 constexpr auto MAGPIE_ANIME4K_SHARPEN_COMBINE_SHADER = L"shaders/Anime4KSharpenCombineShader.cso";
 
 
+/*
+* ACNet 相关
+ */
+constexpr auto MAGPIE_ACNET_L1A_SHADER = L"shaders/AcNetL1aShader.cso";
+constexpr auto MAGPIE_ACNET_L1B_SHADER = L"shaders/AcNetL1bShader.cso";
+constexpr auto MAGPIE_ACNET_L2A_SHADER = L"shaders/AcNetL2aShader.cso";
+constexpr auto MAGPIE_ACNET_L2B_SHADER = L"shaders/AcNetL2bShader.cso";
+constexpr auto MAGPIE_ACNET_L3A_SHADER = L"shaders/AcNetL3aShader.cso";
+constexpr auto MAGPIE_ACNET_L3B_SHADER = L"shaders/AcNetL3bShader.cso";
+constexpr auto MAGPIE_ACNET_L4A_SHADER = L"shaders/AcNetL4aShader.cso";
+constexpr auto MAGPIE_ACNET_L4B_SHADER = L"shaders/AcNetL4bShader.cso";
+constexpr auto MAGPIE_ACNET_L5A_SHADER = L"shaders/AcNetL5aShader.cso";
+constexpr auto MAGPIE_ACNET_L5B_SHADER = L"shaders/AcNetL5bShader.cso";
+constexpr auto MAGPIE_ACNET_L6A_SHADER = L"shaders/AcNetL6aShader.cso";
+constexpr auto MAGPIE_ACNET_L6B_SHADER = L"shaders/AcNetL6bShader.cso";
+constexpr auto MAGPIE_ACNET_L7A_SHADER = L"shaders/AcNetL7aShader.cso";
+constexpr auto MAGPIE_ACNET_L7B_SHADER = L"shaders/AcNetL7bShader.cso";
+constexpr auto MAGPIE_ACNET_L8A_SHADER = L"shaders/AcNetL8aShader.cso";
+constexpr auto MAGPIE_ACNET_L8B_SHADER = L"shaders/AcNetL8bShader.cso";
+constexpr auto MAGPIE_ACNET_L9A_SHADER = L"shaders/AcNetL9aShader.cso";
+constexpr auto MAGPIE_ACNET_L9B_SHADER = L"shaders/AcNetL9bShader.cso";
+constexpr auto MAGPIE_ACNET_L10_SHADER = L"shaders/AcNetL10Shader.cso";
 
 /*
 * 缩放相关

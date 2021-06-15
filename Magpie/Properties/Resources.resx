@@ -136,6 +136,25 @@
     ]
   },
   {
+    "name": "动漫 2x（ACNet）",
+    "model": [
+      {
+        "effect": "scale",
+        "type": "ACNet"
+      },
+      {
+        "effect": "scale",
+        "type": "mitchell",
+        "scale": [ 0, 0 ]
+      },
+      {
+        "effect": "sharpen",
+        "type": "adaptive",
+        "curveHeight": 0.3
+      }
+    ]
+  },
+  {
     "name": "动漫 2x（Anime4K）",
     "model": [
       {

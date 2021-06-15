@@ -1,6 +1,7 @@
 #pragma once
 #include "pch.h"
 #include "Anime4KSharpenCombineTransform.h"
+#include "Anime4KConvReduceTransform.h"
 #include "SimpleDrawTransform.h"
 #include "EffectBase.h"
 
@@ -143,7 +144,8 @@ private:
                 _d2dEffectContext.Get(),
                 &_conv4x3x3x1Transform,
                 MAGPIE_ANIME4K_DENOISE_CONV_4x3x3x1_SHADER,
-                GUID_MAGPIE_ANIME4K_DENOISE_CONV_4x3x3x1_SHADER);
+                GUID_MAGPIE_ANIME4K_DENOISE_CONV_4x3x3x1_SHADER
+            );
             if (FAILED(hr)) {
                 return hr;
             }
@@ -188,15 +190,6 @@ private:
                 &_conv4x3x3x8Transform5,
                 MAGPIE_ANIME4K_DENOISE_CONV_4x3x3x8_PASS5_SHADER,
                 GUID_MAGPIE_ANIME4K_DENOISE_CONV_4x3x3x8_PASS5_SHADER
-            );
-            if (FAILED(hr)) {
-                return hr;
-            }
-            hr = SimpleDrawTransform<5>::Create(
-                _d2dEffectContext.Get(),
-                &_convReduceTransform,
-                MAGPIE_ANIME4K_DENOISE_CONV_REDUCE_SHADER,
-                GUID_MAGPIE_ANIME4K_DENOISE_CONV_REDUCE_SHADER
             );
             if (FAILED(hr)) {
                 return hr;
@@ -255,16 +248,15 @@ private:
             if (FAILED(hr)) {
                 return hr;
             }
+        }
 
-            hr = SimpleDrawTransform<5>::Create(
-                _d2dEffectContext.Get(),
-                &_convReduceTransform,
-                MAGPIE_ANIME4K_CONV_REDUCE_SHADER,
-                GUID_MAGPIE_ANIME4K_CONV_REDUCE_SHADER
-            );
-            if (FAILED(hr)) {
-                return hr;
-            }
+        hr = Anime4KConvReduceTransform::Create(
+            _d2dEffectContext.Get(),
+            &_convReduceTransform,
+            _useDenoiseVersion
+        );
+        if (FAILED(hr)) {
+            return hr;
         }
 
         if (!_sharpenCombineTransform) {
@@ -387,7 +379,7 @@ private:
     ComPtr<SimpleDrawTransform<>> _conv4x3x3x8Transform3 = nullptr;
     ComPtr<SimpleDrawTransform<>> _conv4x3x3x8Transform4 = nullptr;
     ComPtr<SimpleDrawTransform<>> _conv4x3x3x8Transform5 = nullptr;
-    ComPtr<SimpleDrawTransform<5>> _convReduceTransform = nullptr;
+    ComPtr<Anime4KConvReduceTransform> _convReduceTransform = nullptr;
     ComPtr<Anime4KSharpenCombineTransform> _sharpenCombineTransform = nullptr;
 
     ComPtr<ID2D1EffectContext> _d2dEffectContext = nullptr;

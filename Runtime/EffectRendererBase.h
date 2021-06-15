@@ -9,6 +9,7 @@
 #include "MitchellNetravaliScaleEffect.h"
 #include "Lanczos6ScaleEffect.h"
 #include "PixelScaleEffect.h"
+#include "ACNetEffect.h"
 #include "nlohmann/json.hpp"
 #include <unordered_set>
 #include "Env.h"
@@ -64,6 +65,8 @@ private:
 			if (effectType == "scale") {
 				if (subType == "Anime4K") {
 					_AddAnime4KEffect(model);
+				} else if (subType == "ACNet") {
+					_AddACNetEffect();
 				} else if (subType == "jinc2") {
 					_AddJinc2ScaleEffect(model);
 				} else if (subType == "mitchell") {
@@ -178,6 +181,25 @@ private:
 
 		// 替换 output effect
 		_PushAsOutputEffect(d2dSharpenEffect);
+	}
+
+	void _AddACNetEffect() {
+		_CheckAndRegisterEffect(
+			CLSID_MAGPIE_ACNET_EFFECT,
+			&ACNetEffect::Register
+		);
+
+		ComPtr<ID2D1Effect> effect = nullptr;
+		Debug::ThrowIfComFailed(
+			_d2dDC->CreateEffect(CLSID_MAGPIE_ACNET_EFFECT, &effect),
+			L"创建 ACNet Effect 失败"
+		);
+
+		// 输出图像的长和宽变为 2 倍
+		_scale.first *= 2;
+		_scale.second *= 2;
+
+		_PushAsOutputEffect(effect);
 	}
 
 	void _AddAnime4KEffect(const nlohmann::json& props) {

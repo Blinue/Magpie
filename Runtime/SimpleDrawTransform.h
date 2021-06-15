@@ -99,13 +99,11 @@ public:
             {
                 return E_INVALIDARG;
             }
+
+            _inputRects[i] = pInputRects[i];
         }
 
         *pOutputRect = pInputRects[0];
-        for (int i = 0; i < NINPUTS; ++i) {
-            _inputRects[i] = pInputRects[i];
-        }
-        
         *pOutputOpaqueSubRect = { 0,0,0,0 };
 
         _SetShaderContantBuffer(SIZE{
