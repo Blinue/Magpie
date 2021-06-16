@@ -1,5 +1,5 @@
-// Anime4K-v3.1-Denoise-Bilateral-Median
-// ÒÆÖ²×Ô https://github.com/bloc97/Anime4K/blob/master/glsl/Denoise/Anime4K_Denoise_Bilateral_Median.glsl
+// Anime4K-v3.1-Denoise-Bilateral
+// ÒÆÖ²×Ô https://github.com/bloc97/Anime4K/tree/master/glsl/Denoise
 
 
 #pragma warning(disable: 3557)

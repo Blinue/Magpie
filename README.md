@@ -21,11 +21,12 @@
 程序预置了数种缩放模式，如果没有符合你的需求的，请[自定义缩放](docs/自定义缩放.md)。
 
 1. 通用：Lanczos+锐化
-2. Anime4K：存在多种变体
+2. ACNet：[ACNetGLSL](https://github.com/TianZerL/ACNetGLSL)的移植
+3. Anime4K：存在多种变体
    * 动漫 2x（Anime4K）：对输入应用一次Anime4K，适合放大1~2倍。默认使用降噪版本。
    * 动漫 2x（Anime4K+ThinLines）：执行Anime4K后细化线条。一般能产生更好的视觉效果。
    * 动漫 4x（Anime4K x2）：应用两次Anime4K，适合放大2~4倍的情况。
-3. Pixel：将每个像素放大整数倍，可以完整保留原窗口的视觉效果。有2x，3x，4x三种放大倍率可选。
+4. Pixel：将每个像素放大整数倍，可以完整保留原窗口的视觉效果。有2x，3x，4x三种放大倍率可选。
 
 #### 抓取模式
 
