@@ -163,6 +163,9 @@
     <FxCompile Include="ACNetL10Shader.hlsl">
       <Filter>着色器\缩放\ACNet</Filter>
     </FxCompile>
+    <FxCompile Include="Anime4KDenoiseBilateralShader.hlsl">
+      <Filter>着色器\杂项\Anime4K</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GUIDs.cpp">
@@ -322,6 +325,12 @@
     </ClInclude>
     <ClInclude Include="Anime4KConvReduceTransform.h">
       <Filter>头文件\Effect\缩放</Filter>
+    </ClInclude>
+    <ClInclude Include="Anime4KDenoiseBilateralEffect.h">
+      <Filter>头文件\Effect\杂项</Filter>
+    </ClInclude>
+    <ClInclude Include="Anime4KDenoiseBilateralTransform.h">
+      <Filter>头文件\Effect\杂项</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

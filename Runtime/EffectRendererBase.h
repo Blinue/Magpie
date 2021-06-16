@@ -10,6 +10,7 @@
 #include "Lanczos6ScaleEffect.h"
 #include "PixelScaleEffect.h"
 #include "ACNetEffect.h"
+#include "Anime4KDenoiseBilateralEffect.h"
 #include "nlohmann/json.hpp"
 #include <unordered_set>
 #include "Env.h"
@@ -93,6 +94,8 @@ private:
 					_AddAnime4KDarkLinesEffect(model);
 				} else if (subType == "Anime4KThinLines") {
 					_AddAnime4KThinLinesEffect(model);
+				} else if (subType == "Anime4KDenoiseBilateral") {
+					_AddAnime4KDenoiseBilateral(model);
 				} else {
 					Debug::Assert(false, L"未知的 misc effect");
 				}
@@ -100,6 +103,62 @@ private:
 				Debug::Assert(false, L"未知的 effect");
 			}
 		}
+	}
+
+	void _AddAnime4KDenoiseBilateral(const nlohmann::json& props) {
+		_CheckAndRegisterEffect(
+			CLSID_MAGPIE_ANIME4K_DENOISE_BILATERAL_EFFECT,
+			&Anime4KDenoiseBilateralEffect::Register
+		);
+
+		ComPtr<ID2D1Effect> effect = nullptr;
+		Debug::ThrowIfComFailed(
+			_d2dDC->CreateEffect(CLSID_MAGPIE_ANIME4K_DENOISE_BILATERAL_EFFECT, &effect),
+			L"创建 Anime4K denoise bilateral effect 失败"
+		);
+
+		// variant 属性
+		auto it = props.find("variant");
+		if (it != props.end()) {
+			Debug::Assert(it->is_string(), L"非法的variant属性值");
+			std::string_view variant = *it;
+			int v = 0;
+			if (variant == "mode") {
+				v = 0;
+			} else if (variant == "median") {
+				v = 1;
+			} else if (variant == "mean") {
+				v = 2;
+			} else {
+				Debug::Assert(false, L"非法的variant属性值");
+			}
+			
+			Debug::ThrowIfComFailed(
+				effect->SetValue(Anime4KDenoiseBilateralEffect::PROP_VARIANT, v),
+				L"设置 scale 属性失败"
+			);
+		}
+
+		// intensity 属性
+		it = props.find("intensity");
+		if (it != props.end()) {
+			const auto& value = *it;
+			Debug::Assert(value.is_number(), L"非法的intensity属性值");
+
+			float intensity = value.get<float>();
+			Debug::Assert(
+				intensity > 0,
+				L"非法的intensity属性值"
+			);
+
+			Debug::ThrowIfComFailed(
+				effect->SetValue(Anime4KDenoiseBilateralEffect::PROP_INTENSITY, intensity),
+				L"设置intensity属性失败"
+			);
+		}
+
+		// 替换 output effect
+		_PushAsOutputEffect(effect);
 	}
 
 	void _AddAdaptiveSharpenEffect(const nlohmann::json& props) {

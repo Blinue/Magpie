@@ -82,3 +82,4 @@ constexpr auto MAGPIE_ANIME4K_THINLINES_PASS4_SHADER = L"shaders/Anime4KThinLine
 constexpr auto MAGPIE_ANIME4K_THINLINES_PASS5_SHADER = L"shaders/Anime4KThinLinesPass5Shader.cso";
 constexpr auto MAGPIE_ANIME4K_THINLINES_PASS6_SHADER = L"shaders/Anime4KThinLinesPass6Shader.cso";
 constexpr auto MAGPIE_ANIME4K_THINLINES_PASS7_SHADER = L"shaders/Anime4KThinLinesPass7Shader.cso";
+constexpr auto MAGPIE_ANIME4K_DENOISE_BILATERAL_SHADER = L"shaders/Anime4KDenoiseBilateralShader.cso";

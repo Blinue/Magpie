@@ -1,6 +1,7 @@
 #define PI 3.1415926535897932384626433832795
 #define HALF_PI  1.5707963267948966192313216916398
 
+#define ZEROS3 (float3(0,0,0))
 #define ZEROS4 (float4(0,0,0,0))
 
 #define min4(a, b, c, d) min(min(a, b), min(c, d))
@@ -164,7 +165,7 @@ const static float3x3 _yuv2rgb = {
 		1, 1.77216, 0.00099
 };
 
-#define RGB2YUV(rgb) (mul(_rgb2yuv, rgb) + float3(0, 0.5, 0.5))
-#define YUV2RGB(y, u, v) (mul(_yuv2rgb, float3(y, u - 0.5, v - 0.5)))
+#define RGB2YUV(rgb) (mul(_rgb2yuv, (rgb)) + float3(0, 0.5, 0.5))
+#define YUV2RGB(yuv) (mul(_yuv2rgb, (yuv) - float3(0, 0.5, 0.5)))
 
 #endif

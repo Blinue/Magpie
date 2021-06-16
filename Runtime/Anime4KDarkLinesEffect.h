@@ -11,13 +11,8 @@ public:
         _In_ ID2D1EffectContext* effectContext,
         _In_ ID2D1TransformGraph* transformGraph
     ) {
-        _d2dEffectContext = effectContext;
-        _d2dTransformGraph = transformGraph;
-
-        HRESULT hr;
-
-        hr = SimpleDrawTransform<>::Create(
-            _d2dEffectContext.Get(),
+        HRESULT hr = SimpleDrawTransform<>::Create(
+            effectContext,
             &_rgb2yuvTransform,
             MAGPIE_RGB2YUV_SHADER,
             GUID_MAGPIE_RGB2YUV_SHADER
@@ -26,7 +21,7 @@ public:
             return hr;
         }
         hr = SimpleDrawTransform<>::Create(
-            _d2dEffectContext.Get(),
+            effectContext,
             &_pass1Transform,
             MAGPIE_ANIME4K_DARKLINES_PASS1_SHADER,
             GUID_MAGPIE_ANIME4K_DARKLINES_PASS1_SHADER
@@ -35,7 +30,7 @@ public:
             return hr;
         }
         hr = SimpleDrawTransform<2>::Create(
-            _d2dEffectContext.Get(),
+            effectContext,
             &_pass2Transform,
             MAGPIE_ANIME4K_DARKLINES_PASS2_SHADER,
             GUID_MAGPIE_ANIME4K_DARKLINES_PASS2_SHADER
@@ -44,7 +39,7 @@ public:
             return hr;
         }
         hr = SimpleDrawTransform<>::Create(
-            _d2dEffectContext.Get(),
+            effectContext,
             &_pass3Transform,
             MAGPIE_ANIME4K_DARKLINES_PASS3_SHADER,
             GUID_MAGPIE_ANIME4K_DARKLINES_PASS3_SHADER
@@ -53,7 +48,7 @@ public:
             return hr;
         }
         hr = SimpleDrawTransform<>::Create(
-            _d2dEffectContext.Get(),
+            effectContext,
             &_pass4Transform,
             MAGPIE_ANIME4K_DARKLINES_PASS4_SHADER,
             GUID_MAGPIE_ANIME4K_DARKLINES_PASS4_SHADER
@@ -62,7 +57,7 @@ public:
             return hr;
         }
         hr = Anime4KDarkLinesPass5Transform::Create(
-            _d2dEffectContext.Get(),
+            effectContext,
             &_pass5Transform
         );
         if (FAILED(hr)) {
@@ -70,65 +65,65 @@ public:
         }
 
 
-        hr = _d2dTransformGraph->AddNode(_rgb2yuvTransform.Get());
+        hr = transformGraph->AddNode(_rgb2yuvTransform.Get());
         if (FAILED(hr)) {
             return hr;
         }
-        hr = _d2dTransformGraph->AddNode(_pass1Transform.Get());
+        hr = transformGraph->AddNode(_pass1Transform.Get());
         if (FAILED(hr)) {
             return hr;
         }
-        hr = _d2dTransformGraph->AddNode(_pass2Transform.Get());
+        hr = transformGraph->AddNode(_pass2Transform.Get());
         if (FAILED(hr)) {
             return hr;
         }
-        hr = _d2dTransformGraph->AddNode(_pass3Transform.Get());
+        hr = transformGraph->AddNode(_pass3Transform.Get());
         if (FAILED(hr)) {
             return hr;
         }
-        hr = _d2dTransformGraph->AddNode(_pass4Transform.Get());
+        hr = transformGraph->AddNode(_pass4Transform.Get());
         if (FAILED(hr)) {
             return hr;
         }
-        hr = _d2dTransformGraph->AddNode(_pass5Transform.Get());
-        if (FAILED(hr)) {
-            return hr;
-        }
-
-        hr = _d2dTransformGraph->ConnectToEffectInput(0, _rgb2yuvTransform.Get(), 0);
-        if (FAILED(hr)) {
-            return hr;
-        }
-        hr = _d2dTransformGraph->ConnectNode(_rgb2yuvTransform.Get(), _pass1Transform.Get(), 0);
-        if (FAILED(hr)) {
-            return hr;
-        }
-        hr = _d2dTransformGraph->ConnectNode(_rgb2yuvTransform.Get(), _pass2Transform.Get(), 0);
-        if (FAILED(hr)) {
-            return hr;
-        }
-        hr = _d2dTransformGraph->ConnectNode(_rgb2yuvTransform.Get(), _pass5Transform.Get(), 0);
-        if (FAILED(hr)) {
-            return hr;
-        }
-        hr = _d2dTransformGraph->ConnectNode(_pass1Transform.Get(), _pass2Transform.Get(), 1);
-        if (FAILED(hr)) {
-            return hr;
-        }
-        hr = _d2dTransformGraph->ConnectNode(_pass2Transform.Get(), _pass3Transform.Get(), 0);
-        if (FAILED(hr)) {
-            return hr;
-        }
-        hr = _d2dTransformGraph->ConnectNode(_pass3Transform.Get(), _pass4Transform.Get(), 0);
-        if (FAILED(hr)) {
-            return hr;
-        }
-        hr = _d2dTransformGraph->ConnectNode(_pass4Transform.Get(), _pass5Transform.Get(), 1);
+        hr = transformGraph->AddNode(_pass5Transform.Get());
         if (FAILED(hr)) {
             return hr;
         }
 
-        hr = _d2dTransformGraph->SetOutputNode(_pass5Transform.Get());
+        hr = transformGraph->ConnectToEffectInput(0, _rgb2yuvTransform.Get(), 0);
+        if (FAILED(hr)) {
+            return hr;
+        }
+        hr = transformGraph->ConnectNode(_rgb2yuvTransform.Get(), _pass1Transform.Get(), 0);
+        if (FAILED(hr)) {
+            return hr;
+        }
+        hr = transformGraph->ConnectNode(_rgb2yuvTransform.Get(), _pass2Transform.Get(), 0);
+        if (FAILED(hr)) {
+            return hr;
+        }
+        hr = transformGraph->ConnectNode(_rgb2yuvTransform.Get(), _pass5Transform.Get(), 0);
+        if (FAILED(hr)) {
+            return hr;
+        }
+        hr = transformGraph->ConnectNode(_pass1Transform.Get(), _pass2Transform.Get(), 1);
+        if (FAILED(hr)) {
+            return hr;
+        }
+        hr = transformGraph->ConnectNode(_pass2Transform.Get(), _pass3Transform.Get(), 0);
+        if (FAILED(hr)) {
+            return hr;
+        }
+        hr = transformGraph->ConnectNode(_pass3Transform.Get(), _pass4Transform.Get(), 0);
+        if (FAILED(hr)) {
+            return hr;
+        }
+        hr = transformGraph->ConnectNode(_pass4Transform.Get(), _pass5Transform.Get(), 1);
+        if (FAILED(hr)) {
+            return hr;
+        }
+
+        hr = transformGraph->SetOutputNode(_pass5Transform.Get());
         if (FAILED(hr)) {
             return hr;
         }
@@ -203,7 +198,4 @@ private:
     ComPtr<SimpleDrawTransform<>> _pass3Transform = nullptr;
     ComPtr<SimpleDrawTransform<>> _pass4Transform = nullptr;
     ComPtr<Anime4KDarkLinesPass5Transform> _pass5Transform = nullptr;
-
-    ComPtr<ID2D1EffectContext> _d2dEffectContext = nullptr;
-    ComPtr<ID2D1TransformGraph> _d2dTransformGraph = nullptr;
 };

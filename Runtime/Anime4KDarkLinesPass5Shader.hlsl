@@ -21,5 +21,5 @@ D2D_PS_ENTRY(main) {
 	float c = uncompressLinear(SampleInputCur(1).x, -1, 0) * strength;
 
 	float3 yuv = SampleInputCur(0).xyz;
-	return float4(YUV2RGB(max(c + yuv.x, 0), yuv.y, yuv.z), 1);
+	return float4(YUV2RGB(float3(max(c + yuv.x, 0), yuv.yz)), 1);
 }

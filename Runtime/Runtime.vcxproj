@@ -205,6 +205,8 @@
     <ClInclude Include="Anime4KDarkLinesEffect.h" />
     <ClInclude Include="Anime4KDarkLinesPass5Transform.h" />
     <ClInclude Include="Anime4KConvReduceTransform.h" />
+    <ClInclude Include="Anime4KDenoiseBilateralEffect.h" />
+    <ClInclude Include="Anime4KDenoiseBilateralTransform.h" />
     <ClInclude Include="Anime4KSharpenCombineTransform.h" />
     <ClInclude Include="Anime4KEffect.h" />
     <ClInclude Include="Anime4KThinLinesEffect.h" />
@@ -542,6 +544,12 @@
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
     </FxCompile>
     <FxCompile Include="Anime4KDarkLinesPass5Shader.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+    </FxCompile>
+    <FxCompile Include="Anime4KDenoiseBilateralShader.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>

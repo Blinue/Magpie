@@ -216,5 +216,5 @@ D2D_PS_ENTRY(main) {
 	float l = getDiff();
 
 	float3 yuv = SampleInputCur(0).xyz;
-	return float4(YUV2RGB(yuv.x + l, yuv.y, yuv.z), 1);
+	return float4(YUV2RGB(float3(yuv.x + l, yuv.yz)), 1);
 }
