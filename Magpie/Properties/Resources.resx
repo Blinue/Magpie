@@ -124,7 +124,7 @@
     "model": [
       {
         "effect": "scale",
-        "type": "lanczos6",
+        "type": "lanczos",
         "scale": [ 0, 0 ],
         "ARStrength": 0.7
       },

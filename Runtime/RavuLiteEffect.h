@@ -1,11 +1,11 @@
 #pragma once
 #include "pch.h"
 #include "SimpleDrawTransform.h"
-#include "RavuPass2Transform.h"
+#include "RavuLitePass2Transform.h"
 #include "EffectBase.h"
 
 
-class RavuEffect : public EffectBase {
+class RavuLiteEffect : public EffectBase {
 public:
     IFACEMETHODIMP Initialize(
         _In_ ID2D1EffectContext* effectContext,
@@ -23,13 +23,13 @@ public:
         hr = SimpleDrawTransform<>::Create(
             effectContext,
             &_pass1Transform,
-            MAGPIE_RAVU_PASS1_SHADER,
-            GUID_MAGPIE_RAVU_PASS1_SHADER
+            MAGPIE_RAVU_LITE_R3_PASS1_SHADER,
+            GUID_MAGPIE_RAVU_LITE_R3_PASS1_SHADER
         );
         if (FAILED(hr)) {
             return hr;
         }
-        hr = RavuPass2Transform::Create(effectContext, &_pass2Transform);
+        hr = RavuLitePass2Transform::Create(effectContext, &_pass2Transform);
         if (FAILED(hr)) {
             return hr;
         }
@@ -73,7 +73,7 @@ public:
     }
 
     static HRESULT Register(_In_ ID2D1Factory1* pFactory) {
-        HRESULT hr = pFactory->RegisterEffectFromString(CLSID_MAGPIE_RAVU_EFFECT, XML(
+        HRESULT hr = pFactory->RegisterEffectFromString(CLSID_MAGPIE_RAVU_LITE_EFFECT, XML(
             <?xml version='1.0'?>
             <Effect>
                 <!--System Properties-->
@@ -92,7 +92,7 @@ public:
 
     static HRESULT CALLBACK CreateEffect(_Outptr_ IUnknown** ppEffectImpl) {
         // This code assumes that the effect class initializes its reference count to 1.
-        *ppEffectImpl = static_cast<ID2D1EffectImpl*>(new RavuEffect());
+        *ppEffectImpl = static_cast<ID2D1EffectImpl*>(new RavuLiteEffect());
 
         if (*ppEffectImpl == nullptr) {
             return E_OUTOFMEMORY;
@@ -103,9 +103,9 @@ public:
 
 private:
     // Constructor should be private since it should never be called externally.
-    RavuEffect() {}
+    RavuLiteEffect() {}
 
     ComPtr<SimpleDrawTransform<>> _rgb2yuvTransform = nullptr;
     ComPtr<SimpleDrawTransform<>> _pass1Transform = nullptr;
-    ComPtr<RavuPass2Transform> _pass2Transform = nullptr;
+    ComPtr<RavuLitePass2Transform> _pass2Transform = nullptr;
 };

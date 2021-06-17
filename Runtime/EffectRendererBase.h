@@ -5,13 +5,13 @@
 #include "Anime4KEffect.h"
 #include "Anime4KDarkLinesEffect.h"
 #include "Anime4KThinLinesEffect.h"
-#include "Jinc2ScaleEffect.h"
+#include "JincScaleEffect.h"
 #include "MitchellNetravaliScaleEffect.h"
-#include "Lanczos6ScaleEffect.h"
+#include "LanczosScaleEffect.h"
 #include "PixelScaleEffect.h"
 #include "ACNetEffect.h"
 #include "Anime4KDenoiseBilateralEffect.h"
-#include "RavuEffect.h"
+#include "RavuLiteEffect.h"
 #include "nlohmann/json.hpp"
 #include <unordered_set>
 #include "Env.h"
@@ -69,18 +69,18 @@ private:
 					_AddAnime4KEffect(model);
 				} else if (subType == "ACNet") {
 					_AddACNetEffect();
-				} else if (subType == "jinc2") {
-					_AddJinc2ScaleEffect(model);
+				} else if (subType == "jinc") {
+					_AddJincScaleEffect(model);
 				} else if (subType == "mitchell") {
 					_AddMitchellNetravaliScaleEffect(model);
 				} else if (subType == "HQBicubic") {
 					_AddHQBicubicScaleEffect(model);
-				} else if (subType == "lanczos6") {
-					_AddLanczos6ScaleEffect(model);
+				} else if (subType == "lanczos") {
+					_AddLanczosScaleEffect(model);
 				} else if (subType == "pixel") {
 					_AddPixelScaleEffect(model);
-				} else if (subType == "ravu") {
-					_AddRavuEffect(model);
+				} else if (subType == "ravuLite") {
+					_AddRavuLiteEffect(model);
 				} else {
 					Debug::Assert(false, L"未知的 scale effect");
 				}
@@ -108,15 +108,15 @@ private:
 		}
 	}
 
-	void _AddRavuEffect(const nlohmann::json& props) {
+	void _AddRavuLiteEffect(const nlohmann::json& props) {
 		_CheckAndRegisterEffect(
-			CLSID_MAGPIE_RAVU_EFFECT,
-			&RavuEffect::Register
+			CLSID_MAGPIE_RAVU_LITE_EFFECT,
+			&RavuLiteEffect::Register
 		);
 
 		ComPtr<ID2D1Effect> effect = nullptr;
 		Debug::ThrowIfComFailed(
-			_d2dDC->CreateEffect(CLSID_MAGPIE_RAVU_EFFECT, &effect),
+			_d2dDC->CreateEffect(CLSID_MAGPIE_RAVU_LITE_EFFECT, &effect),
 			L"创建 ravu effect 失败"
 		);
 
@@ -400,16 +400,16 @@ private:
 	}
 
 	
-	void _AddJinc2ScaleEffect(const nlohmann::json& props) {
+	void _AddJincScaleEffect(const nlohmann::json& props) {
 		_CheckAndRegisterEffect(
-			CLSID_MAGPIE_JINC2_SCALE_EFFECT,
-			&Jinc2ScaleEffect::Register
+			CLSID_MAGPIE_JINC_SCALE_EFFECT,
+			&JincScaleEffect::Register
 		);
 
 		ComPtr<ID2D1Effect> effect = nullptr;
 		Debug::ThrowIfComFailed(
-			_d2dDC->CreateEffect(CLSID_MAGPIE_JINC2_SCALE_EFFECT, &effect),
-			L"创建 Anime4K Effect 失败"
+			_d2dDC->CreateEffect(CLSID_MAGPIE_JINC_SCALE_EFFECT, &effect),
+			L"创建 Jinc Effect 失败"
 		);
 		
 
@@ -419,7 +419,7 @@ private:
 			const auto& scale = _ReadScaleProp(*it);
 			
 			Debug::ThrowIfComFailed(
-				effect->SetValue(Jinc2ScaleEffect::PROP_SCALE, scale),
+				effect->SetValue(JincScaleEffect::PROP_SCALE, scale),
 				L"设置 scale 属性失败"
 			);
 
@@ -441,7 +441,7 @@ private:
 			);
 
 			Debug::ThrowIfComFailed(
-				effect->SetValue(Jinc2ScaleEffect::PROP_WINDOW_SINC, windowSinc),
+				effect->SetValue(JincScaleEffect::PROP_WINDOW_SINC, windowSinc),
 				L"设置 windowSinc 属性失败"
 			);
 		}
@@ -459,7 +459,7 @@ private:
 			);
 
 			Debug::ThrowIfComFailed(
-				effect->SetValue(Jinc2ScaleEffect::PROP_SINC, sinc),
+				effect->SetValue(JincScaleEffect::PROP_SINC, sinc),
 				L"设置 sinc 属性失败"
 			);
 		}
@@ -477,7 +477,7 @@ private:
 			);
 
 			Debug::ThrowIfComFailed(
-				effect->SetValue(Jinc2ScaleEffect::PROP_AR_STRENGTH, ARStrength),
+				effect->SetValue(JincScaleEffect::PROP_AR_STRENGTH, ARStrength),
 				L"设置 ARStrength 属性失败"
 			);
 		}
@@ -575,16 +575,16 @@ private:
 		_PushAsOutputEffect(effect);
 	}
 
-	void _AddLanczos6ScaleEffect(const nlohmann::json& props) {
+	void _AddLanczosScaleEffect(const nlohmann::json& props) {
 		_CheckAndRegisterEffect(
-			CLSID_MAGPIE_LANCZOS6_SCALE_EFFECT,
-			&Lanczos6ScaleEffect::Register
+			CLSID_MAGPIE_LANCZOS_SCALE_EFFECT,
+			&LanczosScaleEffect::Register
 		);
 
 		ComPtr<ID2D1Effect> effect = nullptr;
 		Debug::ThrowIfComFailed(
-			_d2dDC->CreateEffect(CLSID_MAGPIE_LANCZOS6_SCALE_EFFECT, &effect),
-			L"创建 Lanczos6 Effect 失败"
+			_d2dDC->CreateEffect(CLSID_MAGPIE_LANCZOS_SCALE_EFFECT, &effect),
+			L"创建 Lanczos Effect 失败"
 		);
 
 		// scale 属性
@@ -593,7 +593,7 @@ private:
 			const auto& scale = _ReadScaleProp(*it);
 
 			Debug::ThrowIfComFailed(
-				effect->SetValue(Lanczos6ScaleEffect::PROP_SCALE, scale),
+				effect->SetValue(LanczosScaleEffect::PROP_SCALE, scale),
 				L"设置 scale 属性失败"
 			);
 
@@ -615,7 +615,7 @@ private:
 			);
 
 			Debug::ThrowIfComFailed(
-				effect->SetValue(Lanczos6ScaleEffect::PROP_AR_STRENGTH, ARStrength),
+				effect->SetValue(LanczosScaleEffect::PROP_AR_STRENGTH, ARStrength),
 				L"设置 ARStrengthc 属性失败"
 			);
 		}

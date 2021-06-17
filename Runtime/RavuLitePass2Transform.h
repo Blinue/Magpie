@@ -3,24 +3,24 @@
 #include "SimpleDrawTransform.h"
 
 
-class RavuPass2Transform : public SimpleDrawTransform<2> {
+class RavuLitePass2Transform : public SimpleDrawTransform<2> {
 private:
-    RavuPass2Transform() : SimpleDrawTransform<2>(GUID_MAGPIE_RAVU_PASS2_SHADER) {}
+    RavuLitePass2Transform() : SimpleDrawTransform<2>(GUID_MAGPIE_RAVU_LITE_R3_PASS2_SHADER) {}
 
 public:
-    static HRESULT Create(_In_ ID2D1EffectContext* d2dEC, _Outptr_ RavuPass2Transform** ppOutput) {
+    static HRESULT Create(_In_ ID2D1EffectContext* d2dEC, _Outptr_ RavuLitePass2Transform** ppOutput) {
         *ppOutput = nullptr;
 
         HRESULT hr = LoadShader(
             d2dEC,
-            MAGPIE_RAVU_PASS2_SHADER,
-            GUID_MAGPIE_RAVU_PASS2_SHADER
+            MAGPIE_RAVU_LITE_R3_PASS2_SHADER,
+            GUID_MAGPIE_RAVU_LITE_R3_PASS2_SHADER
         );
         if (FAILED(hr)) {
             return hr;
         }
 
-        *ppOutput = new RavuPass2Transform();
+        *ppOutput = new RavuLitePass2Transform();
 
         return S_OK;
     }

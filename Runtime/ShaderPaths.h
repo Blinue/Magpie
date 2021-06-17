@@ -63,8 +63,8 @@ constexpr auto MAGPIE_MITCHELL_NETRAVALI_SCALE_SHADER = L"shaders/MitchellNetrav
 // Pixel
 constexpr auto MAGPIE_PIXEL_SCALE_SHADER = L"shaders/PixelScaleShader.cso";
 
-constexpr auto MAGPIE_RAVU_PASS1_SHADER = L"shaders/RavuPass1Shader.cso";
-constexpr auto MAGPIE_RAVU_PASS2_SHADER = L"shaders/RavuPass2Shader.cso";
+constexpr auto MAGPIE_RAVU_LITE_R3_PASS1_SHADER = L"shaders/RavuLiteR3Pass1Shader.cso";
+constexpr auto MAGPIE_RAVU_LITE_R3_PASS2_SHADER = L"shaders/RavuLiteR3Pass2Shader.cso";
 
 /*
 * ÆäËû

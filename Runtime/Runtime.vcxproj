@@ -222,21 +222,21 @@
     <ClInclude Include="framework.h" />
     <ClInclude Include="GDIWindowCapturer.h" />
     <ClInclude Include="GUIDs.h" />
-    <ClInclude Include="Jinc2ScaleTransform.h" />
-    <ClInclude Include="Lanczos6ScaleEffect.h" />
-    <ClInclude Include="Lanczos6ScaleTransform.h" />
+    <ClInclude Include="JincScaleTransform.h" />
+    <ClInclude Include="LanczosScaleEffect.h" />
+    <ClInclude Include="LanczosScaleTransform.h" />
     <ClInclude Include="MagCallbackWindowCapturer.h" />
     <ClInclude Include="MagWindow.h" />
     <ClInclude Include="MitchellNetravaliScaleEffect.h" />
     <ClInclude Include="MitchellNetravaliScaleTransform.h" />
-    <ClInclude Include="Jinc2ScaleEffect.h" />
+    <ClInclude Include="JincScaleEffect.h" />
     <ClInclude Include="MonochromeCursorEffect.h" />
     <ClInclude Include="MonochromeCursorTransform.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="PixelScaleEffect.h" />
     <ClInclude Include="PixelScaleTransform.h" />
-    <ClInclude Include="RavuEffect.h" />
-    <ClInclude Include="RavuPass2Transform.h" />
+    <ClInclude Include="RavuLiteEffect.h" />
+    <ClInclude Include="RavuLitePass2Transform.h" />
     <ClInclude Include="Renderable.h" />
     <ClInclude Include="RenderManager.h" />
     <ClInclude Include="ShaderPaths.h" />
@@ -804,8 +804,8 @@
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
     </FxCompile>
-    <FxCompile Include="RavuPass1Shader.hlsl" />
-    <FxCompile Include="RavuPass2Shader.hlsl" />
+    <FxCompile Include="RavuLiteR3Pass1Shader.hlsl" />
+    <FxCompile Include="RavuLiteR3Pass2Shader.hlsl" />
     <FxCompile Include="RGB2YUVShader.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>

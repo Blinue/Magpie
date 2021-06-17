@@ -67,7 +67,7 @@ namespace Magpie.Properties {
         ///    &quot;model&quot;: [
         ///      {
         ///        &quot;effect&quot;: &quot;scale&quot;,
-        ///        &quot;type&quot;: &quot;lanczos6&quot;,
+        ///        &quot;type&quot;: &quot;lanczos&quot;,
         ///        &quot;scale&quot;: [ 0, 0 ],
         ///        &quot;ARStrength&quot;: 0.7
         ///      },
@@ -88,7 +88,7 @@ namespace Magpie.Properties {
         ///      {
         ///        &quot;effect&quot;: &quot;scale&quot;,
         ///        &quot;type&quot;: &quot;mitchell&quot;,
-        ///        &quot;scale&quot;: [ 0, 0 [字符串的其余部分被截断]&quot;; 的本地化字符串。
+        ///        &quot;scale&quot;: [ 0, 0  [字符串的其余部分被截断]&quot;; 的本地化字符串。
         /// </summary>
         internal static string BuiltInScaleModels {
             get {

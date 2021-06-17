@@ -1,18 +1,18 @@
 #pragma once
 #include "pch.h"
-#include "Jinc2ScaleTransform.h"
+#include "JincScaleTransform.h"
 #include "EffectBase.h"
 
 
 // Jinc2 缩放算法
 // 适合图像放大，可以较好保存边缘
-class Jinc2ScaleEffect : public EffectBase {
+class JincScaleEffect : public EffectBase {
 public:
     IFACEMETHODIMP Initialize(
         _In_ ID2D1EffectContext* pEffectContext,
         _In_ ID2D1TransformGraph* pTransformGraph
     ) {
-        HRESULT hr = Jinc2ScaleTransform::Create(pEffectContext, &_transform);
+        HRESULT hr = JincScaleTransform::Create(pEffectContext, &_transform);
         if (FAILED(hr)) {
             return hr;
         }
@@ -97,7 +97,7 @@ public:
             D2D1_VALUE_TYPE_BINDING(L"ARStrength", &SetARStrength, &GetARStrength)
         };
 
-        HRESULT hr = pFactory->RegisterEffectFromString(CLSID_MAGPIE_JINC2_SCALE_EFFECT, XML(
+        HRESULT hr = pFactory->RegisterEffectFromString(CLSID_MAGPIE_JINC_SCALE_EFFECT, XML(
             <?xml version='1.0'?>
             <Effect>
                 <!--System Properties-->
@@ -133,7 +133,7 @@ public:
     }
 
     static HRESULT CALLBACK CreateEffect(_Outptr_ IUnknown** ppEffectImpl) {
-        *ppEffectImpl = static_cast<ID2D1EffectImpl*>(new Jinc2ScaleEffect());
+        *ppEffectImpl = static_cast<ID2D1EffectImpl*>(new JincScaleEffect());
 
         if (*ppEffectImpl == nullptr) {
             return E_OUTOFMEMORY;
@@ -143,7 +143,7 @@ public:
     }
 
 private:
-    Jinc2ScaleEffect() {}
+    JincScaleEffect() {}
 
-    ComPtr<Jinc2ScaleTransform> _transform = nullptr;
+    ComPtr<JincScaleTransform> _transform = nullptr;
 };

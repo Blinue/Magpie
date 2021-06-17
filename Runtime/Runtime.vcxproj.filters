@@ -166,10 +166,10 @@
     <FxCompile Include="Anime4KDenoiseBilateralShader.hlsl">
       <Filter>着色器\杂项\Anime4K</Filter>
     </FxCompile>
-    <FxCompile Include="RavuPass1Shader.hlsl">
+    <FxCompile Include="RavuLiteR3Pass1Shader.hlsl">
       <Filter>着色器\缩放</Filter>
     </FxCompile>
-    <FxCompile Include="RavuPass2Shader.hlsl">
+    <FxCompile Include="RavuLiteR3Pass2Shader.hlsl">
       <Filter>着色器\缩放</Filter>
     </FxCompile>
   </ItemGroup>
@@ -233,7 +233,7 @@
     <ClInclude Include="AdaptiveSharpenPass2Transform.h">
       <Filter>头文件\Effect\锐化</Filter>
     </ClInclude>
-    <ClInclude Include="Jinc2ScaleEffect.h">
+    <ClInclude Include="JincScaleEffect.h">
       <Filter>头文件\Effect\缩放</Filter>
     </ClInclude>
     <ClInclude Include="MitchellNetravaliScaleEffect.h">
@@ -242,16 +242,16 @@
     <ClInclude Include="MitchellNetravaliScaleTransform.h">
       <Filter>头文件\Effect\缩放</Filter>
     </ClInclude>
-    <ClInclude Include="Jinc2ScaleTransform.h">
+    <ClInclude Include="JincScaleTransform.h">
       <Filter>头文件\Effect\缩放</Filter>
     </ClInclude>
     <ClInclude Include="SimpleScaleTransform.h">
       <Filter>头文件\Effect\缩放</Filter>
     </ClInclude>
-    <ClInclude Include="Lanczos6ScaleEffect.h">
+    <ClInclude Include="LanczosScaleEffect.h">
       <Filter>头文件\Effect\缩放</Filter>
     </ClInclude>
-    <ClInclude Include="Lanczos6ScaleTransform.h">
+    <ClInclude Include="LanczosScaleTransform.h">
       <Filter>头文件\Effect\缩放</Filter>
     </ClInclude>
     <ClInclude Include="GDIWindowCapturer.h">
@@ -338,10 +338,10 @@
     <ClInclude Include="Anime4KDenoiseBilateralTransform.h">
       <Filter>头文件\Effect\杂项</Filter>
     </ClInclude>
-    <ClInclude Include="RavuEffect.h">
+    <ClInclude Include="RavuLiteEffect.h">
       <Filter>头文件\Effect\缩放</Filter>
     </ClInclude>
-    <ClInclude Include="RavuPass2Transform.h">
+    <ClInclude Include="RavuLitePass2Transform.h">
       <Filter>头文件\Effect\缩放</Filter>
     </ClInclude>
   </ItemGroup>
