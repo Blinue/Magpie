@@ -77,4 +77,5 @@
 * [EasyHook/EasyHook](https://github.com/EasyHook/EasyHook)
 * [microsoft/cppwinrt](https://github.com/microsoft/cppwinrt)
 * [libretro/common-shaders](https://github.com/libretro/common-shaders)
+* [TianZerL/Anime4KCPP](https://github.com/TianZerL/Anime4KCPP)
 

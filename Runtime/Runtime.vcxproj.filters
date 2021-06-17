@@ -166,6 +166,12 @@
     <FxCompile Include="Anime4KDenoiseBilateralShader.hlsl">
       <Filter>着色器\杂项\Anime4K</Filter>
     </FxCompile>
+    <FxCompile Include="RavuPass1Shader.hlsl">
+      <Filter>着色器\缩放</Filter>
+    </FxCompile>
+    <FxCompile Include="RavuPass2Shader.hlsl">
+      <Filter>着色器\缩放</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GUIDs.cpp">
@@ -331,6 +337,12 @@
     </ClInclude>
     <ClInclude Include="Anime4KDenoiseBilateralTransform.h">
       <Filter>头文件\Effect\杂项</Filter>
+    </ClInclude>
+    <ClInclude Include="RavuEffect.h">
+      <Filter>头文件\Effect\缩放</Filter>
+    </ClInclude>
+    <ClInclude Include="RavuPass2Transform.h">
+      <Filter>头文件\Effect\缩放</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

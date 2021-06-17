@@ -56,7 +56,7 @@ D2D_PS_ENTRY(main) {
 		mc2.z * kernelsL10[24 + index] +
 		mc2.w * kernelsL10[28 + index], 0.0f, 1.0f);
 
-	float4 yuv = SampleInputCur(0);
+	float3 yuv = SampleInputCur(0).xyz;
 	// 消除因压缩产生的噪声
 	if (abs(luma - yuv.x) < noise_threshold) {
 		luma = yuv.x;

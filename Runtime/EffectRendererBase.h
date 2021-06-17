@@ -11,6 +11,7 @@
 #include "PixelScaleEffect.h"
 #include "ACNetEffect.h"
 #include "Anime4KDenoiseBilateralEffect.h"
+#include "RavuEffect.h"
 #include "nlohmann/json.hpp"
 #include <unordered_set>
 #include "Env.h"
@@ -78,6 +79,8 @@ private:
 					_AddLanczos6ScaleEffect(model);
 				} else if (subType == "pixel") {
 					_AddPixelScaleEffect(model);
+				} else if (subType == "ravu") {
+					_AddRavuEffect(model);
 				} else {
 					Debug::Assert(false, L"未知的 scale effect");
 				}
@@ -103,6 +106,26 @@ private:
 				Debug::Assert(false, L"未知的 effect");
 			}
 		}
+	}
+
+	void _AddRavuEffect(const nlohmann::json& props) {
+		_CheckAndRegisterEffect(
+			CLSID_MAGPIE_RAVU_EFFECT,
+			&RavuEffect::Register
+		);
+
+		ComPtr<ID2D1Effect> effect = nullptr;
+		Debug::ThrowIfComFailed(
+			_d2dDC->CreateEffect(CLSID_MAGPIE_RAVU_EFFECT, &effect),
+			L"创建 ravu effect 失败"
+		);
+
+		// 输出图像的长和宽变为 2 倍
+		_scale.first *= 2;
+		_scale.second *= 2;
+
+		// 替换 output effect
+		_PushAsOutputEffect(effect);
 	}
 
 	void _AddAnime4KDenoiseBilateral(const nlohmann::json& props) {
