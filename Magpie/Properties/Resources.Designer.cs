@@ -79,16 +79,16 @@ namespace Magpie.Properties {
         ///    ]
         ///  },
         ///  {
-        ///    &quot;name&quot;: &quot;动漫 2x（ACNet）&quot;,
+        ///    &quot;name&quot;: &quot;通用（RAVU）&quot;,
         ///    &quot;model&quot;: [
         ///      {
         ///        &quot;effect&quot;: &quot;scale&quot;,
-        ///        &quot;type&quot;: &quot;ACNet&quot;
+        ///        &quot;type&quot;: &quot;ravuZoom&quot;,
+        ///        &quot;scale&quot;: [ 0, 0 ]
         ///      },
         ///      {
-        ///        &quot;effect&quot;: &quot;scale&quot;,
-        ///        &quot;type&quot;: &quot;mitchell&quot;,
-        ///        &quot;scale&quot;: [ 0, 0  [字符串的其余部分被截断]&quot;; 的本地化字符串。
+        ///        &quot;effect&quot;: &quot;misc&quot;,
+        ///        &quot;type&quot;: &quot;Anime4KDen [字符串的其余部分被截断]&quot;; 的本地化字符串。
         /// </summary>
         internal static string BuiltInScaleModels {
             get {

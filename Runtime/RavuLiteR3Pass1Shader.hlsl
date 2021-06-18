@@ -1,3 +1,7 @@
+// ravu-lite-r3 Pass1
+// ÒÆÖ²×Ô https://github.com/bjin/mpv-prescalers/blob/master/ravu-lite-r3.hook
+
+
 cbuffer constants : register(b0) {
 	int2 srcSize : packoffset(c0);
 };

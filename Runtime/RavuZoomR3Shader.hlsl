@@ -1,3 +1,7 @@
+// ravu-zoom-r3
+// 移植自 https://github.com/bjin/mpv-prescalers/blob/master/ravu-zoom-r3-yuv.hook
+
+
 cbuffer constants : register(b0) {
 	int2 srcSize : packoffset(c0.x);
 	int2 destSize : packoffset(c0.z);
@@ -40,6 +44,7 @@ D2D_PS_ENTRY(main) {
 	float2 pos = Coord(0).xy / Coord(0).zw;
 	float2 subpix = frac(pos - 0.5);
 	pos -= subpix;
+	// LUT_POS 的等价，但它到底是什么？
 	subpix = lerp(float2(0.5, 0.5) / float2(9.0, 9.0), 1.0 - 0.5 / float2(9.0, 9.0), subpix);
 	float2 subpix_inv = 1.0 - subpix;
 	subpix /= float2(5.0, 288.0);
