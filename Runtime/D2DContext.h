@@ -68,8 +68,6 @@ private:
 
         // Create the DX11 API device object, and get a corresponding context.
         ComPtr<ID3D11DeviceContext> d3dDC = nullptr;
-
-        D3D_FEATURE_LEVEL fl;
         Debug::ThrowIfComFailed(
             D3D11CreateDevice(
                 nullptr,    // specify null to use the default adapter
@@ -80,7 +78,7 @@ private:
                 ARRAYSIZE(featureLevels),   // number of possible feature levels
                 D3D11_SDK_VERSION,
                 &d3dDevice, // returns the Direct3D device created
-                &fl,    // returns feature level of device created
+                nullptr,    // returns feature level of device created
                 &d3dDC  // returns the device immediate context
             ),
             L"´´½¨ D3D Device Ê§°Ü"

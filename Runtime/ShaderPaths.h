@@ -65,6 +65,7 @@ constexpr auto MAGPIE_PIXEL_SCALE_SHADER = L"shaders/PixelScaleShader.cso";
 
 constexpr auto MAGPIE_RAVU_LITE_R3_PASS1_SHADER = L"shaders/RavuLiteR3Pass1Shader.cso";
 constexpr auto MAGPIE_RAVU_LITE_R3_PASS2_SHADER = L"shaders/RavuLiteR3Pass2Shader.cso";
+constexpr auto MAGPIE_RAVU_ZOOM_R3_SHADER = L"shaders/RavuZoomR3Shader.cso";
 
 /*
 * ÆäËû

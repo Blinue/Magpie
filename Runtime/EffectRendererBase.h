@@ -12,6 +12,7 @@
 #include "ACNetEffect.h"
 #include "Anime4KDenoiseBilateralEffect.h"
 #include "RavuLiteEffect.h"
+#include "RavuZoomEffect.h"
 #include "nlohmann/json.hpp"
 #include <unordered_set>
 #include "Env.h"
@@ -81,6 +82,8 @@ private:
 					_AddPixelScaleEffect(model);
 				} else if (subType == "ravuLite") {
 					_AddRavuLiteEffect(model);
+				} else if (subType == "ravuZoom") {
+					_AddRavuZoomEffect(model);
 				} else {
 					Debug::Assert(false, L"未知的 scale effect");
 				}
@@ -106,6 +109,41 @@ private:
 				Debug::Assert(false, L"未知的 effect");
 			}
 		}
+	}
+
+	void _AddRavuZoomEffect(const nlohmann::json& props) {
+		_CheckAndRegisterEffect(
+			CLSID_MAGPIE_RAVU_ZOOM_EFFECT,
+			&RavuZoomEffect::Register
+		);
+
+		ComPtr<ID2D1Effect> effect = nullptr;
+		Debug::ThrowIfComFailed(
+			_d2dDC->CreateEffect(CLSID_MAGPIE_RAVU_ZOOM_EFFECT, &effect),
+			L"创建 ravu zoom effect 失败"
+		);
+
+		// scale 属性
+		auto it = props.find("scale");
+		if (it != props.end()) {
+			const auto& scale = _ReadScaleProp(*it);
+
+			Debug::ThrowIfComFailed(
+				effect->SetValue(RavuZoomEffect::PROP_SCALE, scale),
+				L"设置 scale 属性失败"
+			);
+
+			// 存在 scale 则输出图像尺寸改变
+			_scale.first *= scale.x;
+			_scale.second *= scale.y;
+		}
+
+		// 设置权重纹理
+		effect->SetInput(1, 
+			Utils::LoadBitmapFromFile(Env::$instance->GetWICImageFactory(), _d2dDC, L"RavuZoomR3Weights.png").Get());
+
+		// 替换 output effect
+		_PushAsOutputEffect(effect);
 	}
 
 	void _AddRavuLiteEffect(const nlohmann::json& props) {

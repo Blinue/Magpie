@@ -144,6 +144,36 @@ public:
         Debug::ThrowIfComFailed(bmpEncoder->Commit(), L"IWICBitmapEncoder.Commit  ß∞‹");
         Debug::ThrowIfComFailed(stream->Commit(STGC_DEFAULT), L"IStream.Commit  ß∞‹");
     }
+
+    static ComPtr<ID2D1Bitmap> LoadBitmapFromFile(IWICImagingFactory2* wicImgFactory, ID2D1DeviceContext* d2dDC, const wchar_t* fileName) {
+        ComPtr<IWICBitmapDecoder> wicBmpDecoder;
+        Debug::ThrowIfComFailed(
+            wicImgFactory->CreateDecoderFromFilename(
+                fileName, nullptr, GENERIC_READ, WICDecodeMetadataCacheOnDemand, &wicBmpDecoder),
+            L"CreateDecoderFromFilename ß∞‹"
+        );
+        ComPtr<IWICBitmapFrameDecode> wicBmpFrameDecode;
+        Debug::ThrowIfComFailed(
+            wicBmpDecoder->GetFrame(0, &wicBmpFrameDecode),
+            L"GetFrame ß∞‹"
+        );
+        ComPtr<IWICFormatConverter> wicFmtCvt;
+        Debug::ThrowIfComFailed(
+            wicImgFactory->CreateFormatConverter(&wicFmtCvt),
+            L"CreateFormatConverter ß∞‹"
+        );
+        Debug::ThrowIfComFailed(
+            wicFmtCvt->Initialize(wicBmpFrameDecode.Get(), GUID_WICPixelFormat32bppPBGRA, WICBitmapDitherTypeNone, nullptr, 0, WICBitmapPaletteTypeMedianCut),
+            L"IWICFormatConverter≥ı ºªØ ß∞‹"
+        );
+        ComPtr<ID2D1Bitmap1> bmp;
+        Debug::ThrowIfComFailed(
+            d2dDC->CreateBitmapFromWicBitmap(wicFmtCvt.Get(), &bmp),
+            L"CreateBitmapFromWicBitmap ß∞‹"
+        );
+
+        return bmp;
+    }
 };
 
 namespace std {

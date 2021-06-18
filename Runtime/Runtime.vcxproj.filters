@@ -167,10 +167,13 @@
       <Filter>着色器\杂项\Anime4K</Filter>
     </FxCompile>
     <FxCompile Include="RavuLiteR3Pass1Shader.hlsl">
-      <Filter>着色器\缩放</Filter>
+      <Filter>着色器\缩放\RAVU</Filter>
     </FxCompile>
     <FxCompile Include="RavuLiteR3Pass2Shader.hlsl">
-      <Filter>着色器\缩放</Filter>
+      <Filter>着色器\缩放\RAVU</Filter>
+    </FxCompile>
+    <FxCompile Include="RavuZoomR3Shader.hlsl">
+      <Filter>着色器\缩放\RAVU</Filter>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
@@ -344,6 +347,12 @@
     <ClInclude Include="RavuLitePass2Transform.h">
       <Filter>头文件\Effect\缩放</Filter>
     </ClInclude>
+    <ClInclude Include="RavuZoomEffect.h">
+      <Filter>头文件\Effect\缩放</Filter>
+    </ClInclude>
+    <ClInclude Include="RavuZoomTransform.h">
+      <Filter>头文件\Effect\缩放</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />
@@ -410,5 +419,13 @@
     <Filter Include="着色器\缩放\ACNet">
       <UniqueIdentifier>{a0d684f2-dd98-4813-ab7c-afed4c9c2002}</UniqueIdentifier>
     </Filter>
+    <Filter Include="着色器\缩放\RAVU">
+      <UniqueIdentifier>{a6d3fe21-679b-4fda-8535-033c52eef3c1}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="RavuZoomR3Weights.png">
+      <Filter>着色器\缩放\RAVU</Filter>
+    </Image>
   </ItemGroup>
 </Project>
