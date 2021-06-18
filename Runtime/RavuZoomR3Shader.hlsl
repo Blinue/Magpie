@@ -18,15 +18,19 @@ float mod(float x, float y) {
 
 
 float4 sampleWeightsTexture(float2 pos) {
-	float2 xy = SampleInput(1, pos).xy;
-	xy.x = uncompressLinear(xy.x, -0.35019588470458984, 0.35121241211891174);
-	xy.y = uncompressLinear(xy.y, -0.36509251594543457, 0.3279324769973755);
+	float3 s1 = SampleInput(1, pos).xyz;
+	float3 s2 = SampleInput(1, float2(pos.x + WEIGHTS_TEXTURE_WIDTH * Coord(1).z, pos.y)).xyz;
 
-	float2 zw = SampleInput(1, float2(pos.x + WEIGHTS_TEXTURE_WIDTH * Coord(1).z, pos.y)).xy;
-	zw.x = uncompressLinear(zw.x, -0.309879332780838, 1.4822126626968384);
-	zw.y = uncompressLinear(zw.y, -0.30084773898124695, 1.4810420274734497);
+	// z 和 w 的高字节为 s1 和 s2 的 z 分量
+	float z = (round(s1.z * 255) * 256 + round(s2.x * 255)) / 65535;
+	float w = (round(s2.z * 255) * 256 + round(s2.y * 255)) / 65535;
 
-	return float4(xy, zw);
+	s1.x = uncompressLinear(s1.x, -0.35019588470458984, 0.35121241211891174);
+	s1.y = uncompressLinear(s1.y, -0.36509251594543457, 0.3279324769973755);
+	z = uncompressLinear(z, -0.309879332780838, 1.4822126626968384);
+	w = uncompressLinear(w, -0.30084773898124695, 1.4810420274734497);
+
+	return float4(s1.xy, z, w);
 }
 
 D2D_PS_ENTRY(main) {
