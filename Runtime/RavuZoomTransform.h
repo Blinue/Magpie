@@ -38,7 +38,7 @@ public:
         }
 
         // 权重纹理为固定大小
-        if (pInputRects[1].right - pInputRects[1].left != 45 * 2
+        if (pInputRects[1].right - pInputRects[1].left != 45 * 4
             || pInputRects[1].bottom - pInputRects[1].top != 2592
         ) {
             return E_INVALIDARG;

@@ -11,22 +11,16 @@ weights: np.ndarray = resolve(IN_FILE)
 for i in range(4):
     minElem = np.amin(weights[:, :, i])
     maxElem = np.amax(weights[:, :, i])
-    print(minElem, maxElem)
+    print(minElem, maxElem, sep=', ')
 
     weights[:, :, i] = (weights[:, :, i] - minElem) / (maxElem - minElem)
 
-out = np.zeros((weights.shape[0], weights.shape[1] * 2, 3), dtype=np.uint8)
+weights = np.round(weights * 65535).astype(np.int)
 
-# x 和 y 用一个字节表示
-out[:, :weights.shape[1], 0:2] = np.round(weights[:, :, 0:2] * 255).astype(np.uint8)
+out = np.zeros((weights.shape[0], weights.shape[1] * 4, 3), dtype=np.uint8)
 
-# z 和 w 用两个字节表示，高字节放在像素的 z 分量里
-z = np.round(weights[:, :, 2] * 65535).astype(np.int)
-w = np.round(weights[:, :, 3] * 65535).astype(np.int)
-
-out[:, :weights.shape[1], 2] = z / 256
-out[:, weights.shape[1]:, 0] = z % 256
-out[:, weights.shape[1]:, 1] = w % 256
-out[:, weights.shape[1]:, 2] = w / 256
+for i in range(4):
+    out[:, weights.shape[1] * i : weights.shape[1] * (i + 1), 0] = weights[:, :, i] / 256
+    out[:, weights.shape[1] * i : weights.shape[1] * (i + 1), 1] = weights[:, :, i] % 256
 
 imageio.imwrite(OUT_FILE, out)

@@ -22,19 +22,24 @@ float mod(float x, float y) {
 
 
 float4 sampleWeightsTexture(float2 pos) {
-	float3 s1 = SampleInput(1, pos).xyz;
-	float3 s2 = SampleInput(1, float2(pos.x + WEIGHTS_TEXTURE_WIDTH * Coord(1).z, pos.y)).xyz;
+	float2 x = SampleInput(1, pos).xy;
+	float2 y = SampleInput(1, float2(pos.x + WEIGHTS_TEXTURE_WIDTH * Coord(1).z, pos.y)).xy;
+	float2 z = SampleInput(1, float2(pos.x + 2 * WEIGHTS_TEXTURE_WIDTH * Coord(1).z, pos.y)).xy;
+	float2 w = SampleInput(1, float2(pos.x + 3 * WEIGHTS_TEXTURE_WIDTH * Coord(1).z, pos.y)).xy;
 
-	// z 和 w 的高字节为 s1 和 s2 的 z 分量
-	float z = (round(s1.z * 255) * 256 + round(s2.x * 255)) / 65535;
-	float w = (round(s2.z * 255) * 256 + round(s2.y * 255)) / 65535;
+	float4 r = {
+		(x.x * 255 * 256 + x.y * 255) / 65535,
+		(y.x * 255 * 256 + y.y * 255) / 65535,
+		(z.x * 255 * 256 + z.y * 255) / 65535,
+		(w.x * 255 * 256 + w.y * 255) / 65535
+	};
 
-	s1.x = uncompressLinear(s1.x, -0.35019588470458984, 0.35121241211891174);
-	s1.y = uncompressLinear(s1.y, -0.36509251594543457, 0.3279324769973755);
-	z = uncompressLinear(z, -0.309879332780838, 1.4822126626968384);
-	w = uncompressLinear(w, -0.30084773898124695, 1.4810420274734497);
+	r.x = uncompressLinear(r.x, -0.35019588470458984, 0.35121241211891174);
+	r.y = uncompressLinear(r.y, -0.36509251594543457, 0.3279324769973755);
+	r.z = uncompressLinear(r.z, -0.309879332780838, 1.4822126626968384);
+	r.w = uncompressLinear(r.w, -0.30084773898124695, 1.4810420274734497);
 
-	return float4(s1.xy, z, w);
+	return r;
 }
 
 D2D_PS_ENTRY(main) {
@@ -204,7 +209,7 @@ D2D_PS_ENTRY(main) {
 	res = clamp(res, 0.0, 1.0);
 
 	float3 origin = SampleInputCur(0).xyz;
-	if (abs(res.x - origin.x) < 0.03) {
+	if (abs(res.x - origin.x) < 0.01) {
 		res = origin;
 	}
 	return float4(YUV2RGB(res), 1);
