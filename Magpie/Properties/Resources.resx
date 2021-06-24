@@ -160,12 +160,8 @@
       {
         "effect": "scale",
         "type": "mitchell",
-        "scale": [ 0, 0 ]
-      },
-      {
-        "effect": "sharpen",
-        "type": "adaptive",
-        "curveHeight": 0.3
+        "scale": [ 0, 0 ],
+        "useSharperVersion": true
       }
     ]
   },
@@ -181,7 +177,8 @@
       {
         "effect": "scale",
         "type": "mitchell",
-        "scale": [ 0, 0 ]
+        "scale": [ 0, 0 ],
+        "useSharperVersion": true
       }
     ]
   },
@@ -197,7 +194,8 @@
       {
         "effect": "scale",
         "type": "mitchell",
-        "scale": [ 0, 0 ]
+        "scale": [ 0, 0 ],
+         "useSharperVersion": true
       },
       {
         "effect": "misc",
@@ -229,7 +227,8 @@
       {
         "effect": "scale",
         "type": "mitchell",
-        "scale": [ 0, 0 ]
+        "scale": [ 0, 0 ],
+         "useSharperVersion": true
       }
     ]
   },
