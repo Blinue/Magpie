@@ -2,6 +2,7 @@
 #include "pch.h"
 #include "JincScaleTransform.h"
 #include "EffectBase.h"
+#include "GUIDs.h"
 
 
 // Jinc2 Ëõ·ÅËã·¨

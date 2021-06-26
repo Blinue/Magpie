@@ -3,6 +3,8 @@
 #include "SimpleDrawTransform.h"
 #include "Anime4KDenoiseBilateralTransform.h"
 #include "EffectBase.h"
+#include "GUIDs.h"
+#include <CommonEffectDefines.h>
 
 
 class Anime4KDenoiseBilateralEffect : public EffectBase {

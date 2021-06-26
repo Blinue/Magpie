@@ -3,6 +3,7 @@
 #include "LanczosScaleTransform.h"
 #include "EffectBase.h"
 #include <d2d1effecthelpers.h>
+#include "GUIDs.h"
 
 
 class LanczosScaleEffect : public EffectBase {

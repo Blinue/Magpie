@@ -9,13 +9,16 @@
 #include "MitchellNetravaliScaleEffect.h"
 #include "LanczosScaleEffect.h"
 #include "PixelScaleEffect.h"
-#include "ACNetEffect.h"
 #include "Anime4KDenoiseBilateralEffect.h"
 #include "RavuLiteEffect.h"
 #include "RavuZoomEffect.h"
 #include "nlohmann/json.hpp"
 #include <unordered_set>
 #include "Env.h"
+
+
+using EffectInitializeFunc = HRESULT(ID2D1Factory1* factory);
+using EffectCreateFunc = HRESULT(ID2D1DeviceContext* d2dDC, const nlohmann::json& props, ID2D1Effect** effect, std::pair<float, float>& scale);
 
 
 // 取决于不同的捕获方式，会有不同种类的输入，此类包含它们通用的部分
@@ -69,7 +72,7 @@ private:
 				if (subType == "Anime4K") {
 					_AddAnime4KEffect(model);
 				} else if (subType == "ACNet") {
-					_AddACNetEffect();
+					_AddACNetEffect(model);
 				} else if (subType == "jinc") {
 					_AddJincScaleEffect(model);
 				} else if (subType == "mitchell") {
@@ -302,21 +305,24 @@ private:
 		_PushAsOutputEffect(d2dSharpenEffect);
 	}
 
-	void _AddACNetEffect() {
-		_CheckAndRegisterEffect(
-			CLSID_MAGPIE_ACNET_EFFECT,
-			&ACNetEffect::Register
-		);
+	void _AddACNetEffect(const nlohmann::json& props) {
+		HMODULE dll = LoadLibrary(L"effects/ACNet.dll");
+		Debug::ThrowIfWin32Failed(dll, L"加载 effects/ACNet.dll 失败");
+
+		auto initialize = (EffectInitializeFunc*)GetProcAddress(dll, "Initialize");
+		auto create = (EffectCreateFunc*)GetProcAddress(dll, "Create");
+
+		initialize(_d2dFactory);
 
 		ComPtr<ID2D1Effect> effect = nullptr;
+		std::pair<float, float> scale;
+
 		Debug::ThrowIfComFailed(
-			_d2dDC->CreateEffect(CLSID_MAGPIE_ACNET_EFFECT, &effect),
+			create(_d2dDC, props, &effect, scale),
 			L"创建 ACNet Effect 失败"
 		);
 
-		// 输出图像的长和宽变为 2 倍
-		_scale.first *= 2;
-		_scale.second *= 2;
+		_SetScale(scale);
 
 		_PushAsOutputEffect(effect);
 	}
@@ -721,6 +727,22 @@ private:
 		return scale;
 	}
 	
+	void _SetScale(std::pair<float, float> scale) {
+		if (scale.first == 0 || scale.second == 0) {
+			SIZE hostSize = Utils::GetSize(Env::$instance->GetHostClient());
+			SIZE srcSize = Utils::GetSize(Env::$instance->GetSrcClient());
+
+			// 输出图像充满屏幕
+			float x = float(hostSize.cx) / srcSize.cx / _scale.first;
+			float y = float(hostSize.cy) / srcSize.cy / _scale.second;
+
+			scale.first = min(x, y);
+			scale.second = scale.first;
+		}
+
+		_scale.first *= scale.first;
+		_scale.second *= scale.second;
+	}
 
 	// 必要时注册 effect
 	void _CheckAndRegisterEffect(const GUID& effectID, std::function<HRESULT(ID2D1Factory1*)> registerFunc) {

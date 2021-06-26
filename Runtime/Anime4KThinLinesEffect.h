@@ -3,6 +3,8 @@
 #include "SimpleDrawTransform.h"
 #include "Anime4KThinLinesPass7Transform.h"
 #include "EffectBase.h"
+#include "GUIDs.h"
+#include <CommonEffectDefines.h>
 
 
 

@@ -1,6 +1,7 @@
 #pragma once
 #include "pch.h"
 #include "SimpleScaleTransform.h"
+#include "GUIDs.h"
 
 
 // 为 Jinc2ScaleShader.hlsl 提供参数

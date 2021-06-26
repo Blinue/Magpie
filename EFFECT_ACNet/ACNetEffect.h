@@ -1,8 +1,10 @@
 #pragma once
 #include "pch.h"
-#include "SimpleDrawTransform.h"
+#include <SimpleDrawTransform.h>
 #include "ACNetL10Transform.h"
-#include "EffectBase.h"
+#include <EffectBase.h>
+#include "EffectDefines.h"
+
 
 
 // ACNet 超采样算法，可将动漫图像放大至两倍

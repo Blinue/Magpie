@@ -4,6 +4,7 @@
 #include "AdaptiveSharpenPass2Transform.h"
 #include "EffectBase.h"
 #include <d2d1effecthelpers.h>
+#include "GUIDs.h"
 
 
 // Adaptive sharpen Ëã·¨

@@ -1,8 +1,6 @@
 #pragma once
-#include "pch.h"
 #include <d2d1effectauthor.h>
 #include <d2d1effecthelpers.h>
-#include "GUIDs.h"
 
 
 // 自定义 Effect 的基类

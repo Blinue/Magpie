@@ -2,6 +2,7 @@
 #include "pch.h"
 #include "EffectBase.h"
 #include "PixelScaleTransform.h"
+#include "GUIDs.h"
 
 
 class PixelScaleEffect : public EffectBase {

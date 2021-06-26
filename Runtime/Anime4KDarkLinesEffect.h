@@ -3,6 +3,8 @@
 #include "SimpleDrawTransform.h"
 #include "EffectBase.h"
 #include "Anime4KDarkLinesPass5Transform.h"
+#include "GUIDs.h"
+#include <CommonEffectDefines.h>
 
 
 class Anime4KDarkLinesEffect : public EffectBase {

@@ -2,6 +2,7 @@
 #include "pch.h"
 #include "MonochromeCursorTransform.h"
 #include "EffectBase.h"
+#include "GUIDs.h"
 
 
 class MonochromeCursorEffect : public EffectBase {

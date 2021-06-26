@@ -2,6 +2,7 @@
 #include "pch.h"
 #include "SimpleDrawTransform.h"
 #include "Utils.h"
+#include "GUIDs.h"
 
 
 class RavuZoomTransform : public SimpleDrawTransform<2> {

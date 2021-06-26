@@ -3,6 +3,7 @@
 #include "SimpleDrawTransform.h"
 #include "GUIDs.h"
 #include "ShaderPaths.h"
+#include "GUIDs.h"
 
 
 class Anime4KThinLinesPass7Transform : public SimpleDrawTransform<2> {

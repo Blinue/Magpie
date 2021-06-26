@@ -4,6 +4,8 @@
 #include "Anime4KConvReduceTransform.h"
 #include "SimpleDrawTransform.h"
 #include "EffectBase.h"
+#include "GUIDs.h"
+#include <CommonEffectDefines.h>
 
 
 // Anime4K 超采样算法，可将动漫图像放大至两倍

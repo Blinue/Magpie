@@ -3,6 +3,8 @@
 #include "SimpleDrawTransform.h"
 #include "RavuLitePass2Transform.h"
 #include "EffectBase.h"
+#include "GUIDs.h"
+#include <CommonEffectDefines.h>
 
 
 class RavuLiteEffect : public EffectBase {

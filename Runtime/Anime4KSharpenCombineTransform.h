@@ -1,6 +1,7 @@
 #pragma once
 #include "pch.h"
 #include "SimpleDrawTransform.h"
+#include "GUIDs.h"
 
 
 class Anime4KSharpenCombineTransform : public SimpleDrawTransform<2> {

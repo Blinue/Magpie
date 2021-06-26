@@ -1,6 +1,7 @@
 #pragma once
 #include "pch.h"
 #include "SimpleDrawTransform.h"
+#include "GUIDs.h"
 
 
 class Anime4KConvReduceTransform : public SimpleDrawTransform<5> {

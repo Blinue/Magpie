@@ -1,6 +1,8 @@
 #pragma once
 #include "pch.h"
-#include "SimpleDrawTransform.h"
+#include <SimpleDrawTransform.h>
+#include "EffectDefines.h"
+
 
 
 class ACNetL10Transform : public SimpleDrawTransform<3> {

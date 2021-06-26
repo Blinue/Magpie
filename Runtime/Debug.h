@@ -3,6 +3,7 @@
 #include <cassert>
 #include <boost/format.hpp>
 #include <chrono>
+#include <CommonDebug.h>
 
 
 // c++ 原生 exception 不支持宽字符串
@@ -54,38 +55,11 @@ public:
 };
 
 
-class Debug {
+class Debug : public CommonDebug {
 public:
     Debug() = delete;
     Debug(const Debug&) = delete;
     Debug(Debug&&) = delete;
-
-
-    static void WriteLine(const std::wstring_view& msg) {
-#ifdef _DEBUG
-        OutputDebugString(L"##DEBUG##: ");
-        OutputDebugString(msg.data());
-        OutputDebugString(L"\n");
-#endif // _DEBUG
-    }
-
-    template<typename T>
-    static void WriteLine(T msg) {
-        WriteLine(std::to_wstring(msg));
-    }
-
-    static void WriteLine(const std::wstring& msg) {
-        WriteLine(std::wstring_view(msg));
-    }
-
-    static void WriteLine(const wchar_t* msg) {
-        WriteLine(std::wstring_view(msg));
-    }
-
-    static void WriteErrorMessage(const std::wstring_view& msg) {
-        WriteLine(msg);
-    }
-
 
     // 将 COM 的错误转换为异常
     static void ThrowIfComFailed(HRESULT hr, const std::wstring_view& failMsg) {

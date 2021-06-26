@@ -4,6 +4,8 @@
 #include "RavuZoomTransform.h"
 #include "RavuZoomWeightsTransform.h"
 #include <d2d1effecthelpers.h>
+#include "GUIDs.h"
+#include <CommonEffectDefines.h>
 
 
 class RavuZoomEffect : public EffectBase {

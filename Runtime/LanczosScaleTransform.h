@@ -1,6 +1,7 @@
 #pragma once
 #include "pch.h"
 #include "SimpleScaleTransform.h"
+#include "GUIDs.h"
 
 
 // 为 LanczosScaleShader.hlsl 提供参数

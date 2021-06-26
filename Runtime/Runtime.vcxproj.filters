@@ -103,66 +103,6 @@
     <FxCompile Include="Anime4KThinLinesPass7Shader.hlsl">
       <Filter>着色器\杂项\Anime4K</Filter>
     </FxCompile>
-    <FxCompile Include="RGB2YUVShader.hlsl">
-      <Filter>着色器\杂项</Filter>
-    </FxCompile>
-    <FxCompile Include="ACNetL1aShader.hlsl">
-      <Filter>着色器\缩放\ACNet</Filter>
-    </FxCompile>
-    <FxCompile Include="ACNetL1bShader.hlsl">
-      <Filter>着色器\缩放\ACNet</Filter>
-    </FxCompile>
-    <FxCompile Include="ACNetL2aShader.hlsl">
-      <Filter>着色器\缩放\ACNet</Filter>
-    </FxCompile>
-    <FxCompile Include="ACNetL2bShader.hlsl">
-      <Filter>着色器\缩放\ACNet</Filter>
-    </FxCompile>
-    <FxCompile Include="ACNetL3aShader.hlsl">
-      <Filter>着色器\缩放\ACNet</Filter>
-    </FxCompile>
-    <FxCompile Include="ACNetL3bShader.hlsl">
-      <Filter>着色器\缩放\ACNet</Filter>
-    </FxCompile>
-    <FxCompile Include="ACNetL4aShader.hlsl">
-      <Filter>着色器\缩放\ACNet</Filter>
-    </FxCompile>
-    <FxCompile Include="ACNetL4bShader.hlsl">
-      <Filter>着色器\缩放\ACNet</Filter>
-    </FxCompile>
-    <FxCompile Include="ACNetL5aShader.hlsl">
-      <Filter>着色器\缩放\ACNet</Filter>
-    </FxCompile>
-    <FxCompile Include="ACNetL5bShader.hlsl">
-      <Filter>着色器\缩放\ACNet</Filter>
-    </FxCompile>
-    <FxCompile Include="ACNetL6aShader.hlsl">
-      <Filter>着色器\缩放\ACNet</Filter>
-    </FxCompile>
-    <FxCompile Include="ACNetL6bShader.hlsl">
-      <Filter>着色器\缩放\ACNet</Filter>
-    </FxCompile>
-    <FxCompile Include="ACNetL7aShader.hlsl">
-      <Filter>着色器\缩放\ACNet</Filter>
-    </FxCompile>
-    <FxCompile Include="ACNetL7bShader.hlsl">
-      <Filter>着色器\缩放\ACNet</Filter>
-    </FxCompile>
-    <FxCompile Include="ACNetL8aShader.hlsl">
-      <Filter>着色器\缩放\ACNet</Filter>
-    </FxCompile>
-    <FxCompile Include="ACNetL8bShader.hlsl">
-      <Filter>着色器\缩放\ACNet</Filter>
-    </FxCompile>
-    <FxCompile Include="ACNetL9aShader.hlsl">
-      <Filter>着色器\缩放\ACNet</Filter>
-    </FxCompile>
-    <FxCompile Include="ACNetL9bShader.hlsl">
-      <Filter>着色器\缩放\ACNet</Filter>
-    </FxCompile>
-    <FxCompile Include="ACNetL10Shader.hlsl">
-      <Filter>着色器\缩放\ACNet</Filter>
-    </FxCompile>
     <FxCompile Include="Anime4KDenoiseBilateralShader.hlsl">
       <Filter>着色器\杂项\Anime4K</Filter>
     </FxCompile>
@@ -220,12 +160,6 @@
     </ClInclude>
     <ClInclude Include="Utils.h">
       <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="EffectBase.h">
-      <Filter>头文件\Effect</Filter>
-    </ClInclude>
-    <ClInclude Include="SimpleDrawTransform.h">
-      <Filter>头文件\Effect</Filter>
     </ClInclude>
     <ClInclude Include="GUIDs.h">
       <Filter>头文件\Effect</Filter>
@@ -329,12 +263,6 @@
     <ClInclude Include="MonochromeCursorEffect.h">
       <Filter>头文件\Effect\杂项</Filter>
     </ClInclude>
-    <ClInclude Include="ACNetEffect.h">
-      <Filter>头文件\Effect\缩放</Filter>
-    </ClInclude>
-    <ClInclude Include="ACNetL10Transform.h">
-      <Filter>头文件\Effect\缩放</Filter>
-    </ClInclude>
     <ClInclude Include="Anime4KConvReduceTransform.h">
       <Filter>头文件\Effect\缩放</Filter>
     </ClInclude>
@@ -362,9 +290,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />
-    <None Include="common.hlsli">
-      <Filter>着色器</Filter>
-    </None>
     <None Include="Anime4K.hlsli">
       <Filter>着色器\缩放\Anime4K</Filter>
     </None>
@@ -372,9 +297,6 @@
       <Filter>着色器\锐化</Filter>
     </None>
     <None Include="packages.config" />
-    <None Include="ACNet.hlsli">
-      <Filter>着色器\缩放\ACNet</Filter>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="头文件">
@@ -421,9 +343,6 @@
     </Filter>
     <Filter Include="着色器\杂项\Anime4K">
       <UniqueIdentifier>{69bfa03e-b759-4f6b-be6f-125ca11f2524}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="着色器\缩放\ACNet">
-      <UniqueIdentifier>{a0d684f2-dd98-4813-ab7c-afed4c9c2002}</UniqueIdentifier>
     </Filter>
     <Filter Include="着色器\缩放\RAVU">
       <UniqueIdentifier>{a6d3fe21-679b-4fda-8535-033c52eef3c1}</UniqueIdentifier>

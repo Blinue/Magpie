@@ -1,7 +1,6 @@
 #pragma once
-#include "pch.h"
-#include "GUIDs.h"
 #include <d2d1effectauthor.h>
+#include "CommonDebug.h"
 
 
 // 用来取代简单的 DrawTransform
@@ -27,13 +26,13 @@ protected:
                 FILE_ATTRIBUTE_NORMAL,
                 NULL);
             if (hFile == NULL) {
-                Debug::WriteLine(L"打开\""s + path + L"\"失败");
+                CommonDebug::WriteLine(L"打开\""s + path + L"\"失败");
                 return E_FAIL;
             }
 
             LARGE_INTEGER liSize{};
             if (!GetFileSizeEx(hFile, &liSize)) {
-                Debug::WriteLine(L"获取\""s + path + L"\"文件大小失败");
+                CommonDebug::WriteLine(L"获取\""s + path + L"\"文件大小失败");
                 return E_FAIL;
             }
 
@@ -41,7 +40,7 @@ protected:
             BYTE* buf = new BYTE[size];
             DWORD readed = 0;
             if (!ReadFile(hFile, buf, size, &readed, nullptr) || readed == 0) {
-                Debug::WriteLine(L"读取\""s + path + L"\"失败");
+                CommonDebug::WriteLine(L"读取\""s + path + L"\"失败");
                 return E_FAIL;
             }
 
@@ -49,7 +48,7 @@ protected:
             delete[] buf;
 
             if (FAILED(hr)) {
-                Debug::WriteLine(L"加载着色器\""s + path + L"\"失败");
+                CommonDebug::WriteLine(L"加载着色器\""s + path + L"\"失败");
                 return hr;
             }
         }

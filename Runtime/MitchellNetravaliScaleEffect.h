@@ -3,6 +3,7 @@
 #include "MitchellNetravaliScaleTransform.h"
 #include "EffectBase.h"
 #include <d2d1effecthelpers.h>
+#include "GUIDs.h"
 
 
 // Mitchell-Netravali 缩放算法，一种双三次插值，可以获得平滑的边缘
