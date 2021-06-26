@@ -175,6 +175,9 @@
     <FxCompile Include="RavuZoomR3Shader.hlsl">
       <Filter>着色器\缩放\RAVU</Filter>
     </FxCompile>
+    <FxCompile Include="RavuZoomR3WeightsShader.hlsl">
+      <Filter>着色器\缩放\RAVU</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GUIDs.cpp">
@@ -351,6 +354,9 @@
       <Filter>头文件\Effect\缩放</Filter>
     </ClInclude>
     <ClInclude Include="RavuZoomTransform.h">
+      <Filter>头文件\Effect\缩放</Filter>
+    </ClInclude>
+    <ClInclude Include="RavuZoomWeightsTransform.h">
       <Filter>头文件\Effect\缩放</Filter>
     </ClInclude>
   </ItemGroup>

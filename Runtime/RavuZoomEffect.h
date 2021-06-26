@@ -2,6 +2,7 @@
 #include "pch.h"
 #include "EffectBase.h"
 #include "RavuZoomTransform.h"
+#include "RavuZoomWeightsTransform.h"
 #include <d2d1effecthelpers.h>
 
 
@@ -24,6 +25,10 @@ public:
         if (FAILED(hr)) {
             return hr;
         }
+        hr = RavuZoomWeightsTransform::Create(pEffectContext, &_ravuZoomWeightsTransform);
+        if (FAILED(hr)) {
+            return hr;
+        }
 
         hr = pTransformGraph->AddNode(_rgb2yuvTransform.Get());
         if (FAILED(hr)) {
@@ -33,16 +38,24 @@ public:
         if (FAILED(hr)) {
             return hr;
         }
+        hr = pTransformGraph->AddNode(_ravuZoomWeightsTransform.Get());
+        if (FAILED(hr)) {
+            return hr;
+        }
 
         hr = pTransformGraph->ConnectToEffectInput(0, _rgb2yuvTransform.Get(), 0);
         if (FAILED(hr)) {
             return hr;
         }
-        hr = pTransformGraph->ConnectToEffectInput(1, _ravuZoomTransform.Get(), 1);
+        hr = pTransformGraph->ConnectToEffectInput(1, _ravuZoomWeightsTransform.Get(), 0);
         if (FAILED(hr)) {
             return hr;
         }
         hr = pTransformGraph->ConnectNode(_rgb2yuvTransform.Get(), _ravuZoomTransform.Get(), 0);
+        if (FAILED(hr)) {
+            return hr;
+        }
+        hr = pTransformGraph->ConnectNode(_ravuZoomWeightsTransform.Get(), _ravuZoomTransform.Get(), 1);
         if (FAILED(hr)) {
             return hr;
         }
@@ -115,4 +128,5 @@ private:
 
     ComPtr<SimpleDrawTransform<>> _rgb2yuvTransform = nullptr;
     ComPtr<RavuZoomTransform> _ravuZoomTransform = nullptr;
+    ComPtr<RavuZoomWeightsTransform> _ravuZoomWeightsTransform = nullptr;
 };

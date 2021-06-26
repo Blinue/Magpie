@@ -238,6 +238,7 @@
     <ClInclude Include="RavuLiteEffect.h" />
     <ClInclude Include="RavuLitePass2Transform.h" />
     <ClInclude Include="RavuZoomEffect.h" />
+    <ClInclude Include="RavuZoomWeightsTransform.h" />
     <ClInclude Include="RavuZoomTransform.h" />
     <ClInclude Include="Renderable.h" />
     <ClInclude Include="RenderManager.h" />
@@ -813,6 +814,12 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
     </FxCompile>
     <FxCompile Include="RavuZoomR3Shader.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+    </FxCompile>
+    <FxCompile Include="RavuZoomR3WeightsShader.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
