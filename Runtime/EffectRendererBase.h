@@ -139,8 +139,7 @@ private:
 		}
 
 		// 设置权重纹理
-		effect->SetInput(1, 
-			Utils::LoadBitmapFromFile(Env::$instance->GetWICImageFactory(), _d2dDC, L"RavuZoomR3Weights.png").Get());
+		RavuZoomEffect::LoadWeights(effect.Get());
 
 		// 替换 output effect
 		_PushAsOutputEffect(effect);

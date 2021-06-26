@@ -123,6 +123,11 @@ public:
         return S_OK;
     }
 
+    static void LoadWeights(ID2D1Effect* effect) {
+        effect->SetInput(1,
+            Utils::LoadBitmapFromFile(Env::$instance->GetWICImageFactory(), Env::$instance->GetD2DDC(), L"RavuZoomR3Weights.png").Get());
+    }
+
 private:
     RavuZoomEffect() {}
 
