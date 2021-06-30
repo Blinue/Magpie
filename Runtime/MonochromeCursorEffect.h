@@ -1,8 +1,8 @@
 #pragma once
 #include "pch.h"
 #include "MonochromeCursorTransform.h"
-#include "EffectBase.h"
-#include "GUIDs.h"
+#include <EffectBase.h>
+#include "EffectDefines.h"
 
 
 class MonochromeCursorEffect : public EffectBase {

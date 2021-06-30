@@ -57,9 +57,13 @@ public:
 
 class Debug : public CommonDebug {
 public:
-    Debug() = delete;
-    Debug(const Debug&) = delete;
-    Debug(Debug&&) = delete;
+    static SIZE GetSize(const RECT& rect) {
+        return { rect.right - rect.left, rect.bottom - rect.top };
+    }
+
+    static D2D1_SIZE_F GetSize(const D2D1_RECT_F& rect) {
+        return { rect.right - rect.left,rect.bottom - rect.top };
+    }
 
     // 将 COM 的错误转换为异常
     static void ThrowIfComFailed(HRESULT hr, const std::wstring_view& failMsg) {

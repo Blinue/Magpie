@@ -24,7 +24,16 @@
     <ClInclude Include="CommonEffectDefines.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="EffectUtils.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
     <ClInclude Include="CommonDebug.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="CommonPch.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="SimpleScaleTransform.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
@@ -32,15 +41,11 @@
     <None Include="common.hlsli">
       <Filter>着色器</Filter>
     </None>
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="RGB2YUVShader.hlsl">
       <Filter>着色器</Filter>
     </FxCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="GUIDs.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
   </ItemGroup>
 </Project>

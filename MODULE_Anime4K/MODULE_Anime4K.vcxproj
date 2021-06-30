@@ -21,33 +21,34 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{95c6c401-ae29-4b29-b1a7-20782f0937d1}</ProjectGuid>
-    <RootNamespace>EffectCommon</RootNamespace>
+    <ProjectGuid>{fd3ed999-21e0-4f6a-ab78-f37e2466a356}</ProjectGuid>
+    <RootNamespace>MODULEAnime4K</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>MODULE_Anime4K</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>Utility</ConfigurationType>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
     <PreferredToolArchitecture>x64</PreferredToolArchitecture>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
@@ -79,7 +80,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(SolutionDir)build\$(Platform)\$(Configuration)\</OutDir>
+    <OutDir>$(SolutionDir)build\$(Platform)\$(Configuration)\effects\</OutDir>
+    <TargetName>Anime4K</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
@@ -88,12 +90,15 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;MODULEANIME4K_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableUAC>false</EnableUAC>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -102,41 +107,42 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;MODULEANIME4K_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableUAC>false</EnableUAC>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;MODULEANIME4K_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
+      <AdditionalIncludeDirectories>$(SolutionDir)\EffectCommon;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableUAC>false</EnableUAC>
     </Link>
     <FxCompile>
+      <AdditionalIncludeDirectories>$(WindowsSDK_IncludePath);$(SolutionDir)\EffectCommon;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ShaderType>Pixel</ShaderType>
-    </FxCompile>
-    <FxCompile>
       <ShaderModel>5.0</ShaderModel>
-    </FxCompile>
-    <FxCompile>
       <CompileD2DCustomEffect>true</CompileD2DCustomEffect>
-      <AdditionalIncludeDirectories>$(WindowsSDK_IncludePath);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <DisableOptimizations>false</DisableOptimizations>
-      <EnableDebuggingInformation>false</EnableDebuggingInformation>
-      <ObjectFileOutput>$(OutDir)\shaders\%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput>$(OutDir)\..\shaders\%(Filename).cso</ObjectFileOutput>
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -145,31 +151,79 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;MODULEANIME4K_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableUAC>false</EnableUAC>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="CommonDebug.h" />
-    <ClInclude Include="CommonEffectDefines.h" />
-    <ClInclude Include="CommonPch.h" />
-    <ClInclude Include="EffectUtils.h" />
-    <ClInclude Include="EffectBase.h" />
-    <ClInclude Include="SimpleDrawTransform.h" />
-    <ClInclude Include="SimpleScaleTransform.h" />
+    <ClInclude Include="Anime4KConvReduceTransform.h" />
+    <ClInclude Include="Anime4KDarkLinesEffect.h" />
+    <ClInclude Include="Anime4KDarkLinesPass5Transform.h" />
+    <ClInclude Include="Anime4KDenoiseBilateralEffect.h" />
+    <ClInclude Include="Anime4KDenoiseBilateralTransform.h" />
+    <ClInclude Include="Anime4KEffect.h" />
+    <ClInclude Include="Anime4KSharpenCombineTransform.h" />
+    <ClInclude Include="Anime4KThinLinesEffect.h" />
+    <ClInclude Include="Anime4KThinLinesPass7Transform.h" />
+    <ClInclude Include="EffectDefines.h" />
+    <ClInclude Include="pch.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="common.hlsli" />
+    <ClCompile Include="DllMain.cpp" />
+    <ClCompile Include="pch.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Anime4K.hlsli" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="RGB2YUVShader.hlsl" />
+    <FxCompile Include="Anime4KConv4x3x3x1Shader.hlsl" />
+    <FxCompile Include="Anime4KConv4x3x3x8Pass1Shader.hlsl" />
+    <FxCompile Include="Anime4KConv4x3x3x8Pass2Shader.hlsl" />
+    <FxCompile Include="Anime4KConv4x3x3x8Pass3Shader.hlsl" />
+    <FxCompile Include="Anime4KConv4x3x3x8Pass4Shader.hlsl" />
+    <FxCompile Include="Anime4KConv4x3x3x8Pass5Shader.hlsl" />
+    <FxCompile Include="Anime4KConvReduceShader.hlsl" />
+    <FxCompile Include="Anime4KDarkLinesPass1Shader.hlsl" />
+    <FxCompile Include="Anime4KDarkLinesPass2Shader.hlsl" />
+    <FxCompile Include="Anime4KDarkLinesPass3Shader.hlsl" />
+    <FxCompile Include="Anime4KDarkLinesPass4Shader.hlsl" />
+    <FxCompile Include="Anime4KDarkLinesPass5Shader.hlsl" />
+    <FxCompile Include="Anime4KDenoiseBilateralShader.hlsl" />
+    <FxCompile Include="Anime4KDenoiseConv4x3x3x1Shader.hlsl" />
+    <FxCompile Include="Anime4KDenoiseConv4x3x3x8Pass1Shader.hlsl" />
+    <FxCompile Include="Anime4KDenoiseConv4x3x3x8Pass2Shader.hlsl" />
+    <FxCompile Include="Anime4KDenoiseConv4x3x3x8Pass3Shader.hlsl" />
+    <FxCompile Include="Anime4KDenoiseConv4x3x3x8Pass4Shader.hlsl" />
+    <FxCompile Include="Anime4KDenoiseConv4x3x3x8Pass5Shader.hlsl" />
+    <FxCompile Include="Anime4KDenoiseConvReduceShader.hlsl" />
+    <FxCompile Include="Anime4KSharpenCombineShader.hlsl" />
+    <FxCompile Include="Anime4KThinLinesPass1Shader.hlsl" />
+    <FxCompile Include="Anime4KThinLinesPass2Shader.hlsl" />
+    <FxCompile Include="Anime4KThinLinesPass3Shader.hlsl" />
+    <FxCompile Include="Anime4KThinLinesPass4Shader.hlsl" />
+    <FxCompile Include="Anime4KThinLinesPass5Shader.hlsl" />
+    <FxCompile Include="Anime4KThinLinesPass6Shader.hlsl" />
+    <FxCompile Include="Anime4KThinLinesPass7Shader.hlsl" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\EffectCommon\EffectCommon.vcxproj">
+      <Project>{95c6c401-ae29-4b29-b1a7-20782f0937d1}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

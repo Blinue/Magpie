@@ -1,7 +1,9 @@
 #pragma once
-#include "pch.h"
 #include "Shlwapi.h"
 #include <utility>
+#include <wrl.h>
+
+using namespace Microsoft::WRL;
 
 
 class Utils {
@@ -145,34 +147,23 @@ public:
         Debug::ThrowIfComFailed(stream->Commit(STGC_DEFAULT), L"IStream.Commit  ß∞‹");
     }
 
-    static ComPtr<ID2D1Bitmap> LoadBitmapFromFile(IWICImagingFactory2* wicImgFactory, ID2D1DeviceContext* d2dDC, const wchar_t* fileName) {
-        ComPtr<IWICBitmapDecoder> wicBmpDecoder;
-        Debug::ThrowIfComFailed(
-            wicImgFactory->CreateDecoderFromFilename(
-                fileName, nullptr, GENERIC_READ, WICDecodeMetadataCacheOnDemand, &wicBmpDecoder),
-            L"CreateDecoderFromFilename ß∞‹"
-        );
-        ComPtr<IWICBitmapFrameDecode> wicBmpFrameDecode;
-        Debug::ThrowIfComFailed(
-            wicBmpDecoder->GetFrame(0, &wicBmpFrameDecode),
-            L"GetFrame ß∞‹"
-        );
-        ComPtr<IWICFormatConverter> wicFmtCvt;
-        Debug::ThrowIfComFailed(
-            wicImgFactory->CreateFormatConverter(&wicFmtCvt),
-            L"CreateFormatConverter ß∞‹"
-        );
-        Debug::ThrowIfComFailed(
-            wicFmtCvt->Initialize(wicBmpFrameDecode.Get(), GUID_WICPixelFormat32bppPBGRA, WICBitmapDitherTypeNone, nullptr, 0, WICBitmapPaletteTypeMedianCut),
-            L"IWICFormatConverter≥ı ºªØ ß∞‹"
-        );
-        ComPtr<ID2D1Bitmap1> bmp;
-        Debug::ThrowIfComFailed(
-            d2dDC->CreateBitmapFromWicBitmap(wicFmtCvt.Get(), &bmp),
-            L"CreateBitmapFromWicBitmap ß∞‹"
-        );
+    static HRESULT UTF8ToUTF16(std::string_view str, std::wstring& result) {
+        assert(str.size() > 0);
 
-        return bmp;
+        int convertResult = MultiByteToWideChar(CP_UTF8, 0, str.data(), (int)str.size(), nullptr, 0);
+        if (convertResult <= 0) {
+            return E_FAIL;
+        }
+
+        std::wstring r(L"\0", convertResult + 10);
+        convertResult= MultiByteToWideChar(CP_UTF8, 0, str.data(), (int)str.size(), &r[0], (int)r.size());
+        if (convertResult <= 0) {
+            return E_FAIL;
+        }
+
+        result = std::move(r);
+
+        return S_OK;
     }
 };
 

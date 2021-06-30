@@ -1,0 +1,61 @@
+#pragma once
+#include <d2d1_3.h>
+#include <vector>
+#include <wincodec.h>
+#include <nlohmann/json.hpp>
+
+using namespace Microsoft::WRL;
+
+
+class EffectUtils {
+public:
+	static HRESULT IsEffectRegistered(ID2D1Factory1* d2dFactory, const CLSID& effectID, bool& result) {
+		UINT32 n;
+		HRESULT hr = d2dFactory->GetRegisteredEffects(nullptr, 0, nullptr, &n);
+		if (FAILED(hr)) {
+			return hr;
+		}
+
+		std::vector<CLSID> effects(n);
+		hr = d2dFactory->GetRegisteredEffects(effects.data(), n, &n, nullptr);
+		if (FAILED(hr)) {
+			return hr;
+		}
+
+		auto it = std::find(effects.begin(), effects.end(), effectID);
+		result = it != effects.end();
+
+		return S_OK;
+	}
+
+	static HRESULT ReadScaleProp(const nlohmann::json& props, std::pair<float, float>& scale) {
+		if (!props.is_array() || props.size() != 2 || !props[0].is_number() || !props[1].is_number()) {
+			return E_INVALIDARG;
+		}
+
+		std::pair<float, float> result = { props[0], props[1] };
+		if (result.first == 0 || result.second == 0) {
+			return E_INVALIDARG;
+		}
+
+		scale = result;
+		return S_OK;
+	}
+
+	static HRESULT LoadBitmapFromHBmp(IWICImagingFactory2* wicImgFactory, ID2D1DeviceContext* d2dDC, HBITMAP hBmp, ComPtr<ID2D1Bitmap>& d2dBmp) {
+		ComPtr<IWICBitmap> wicBmp;
+		HRESULT hr = wicImgFactory->CreateBitmapFromHBITMAP(hBmp, nullptr, WICBitmapIgnoreAlpha, &wicBmp);
+		if (FAILED(hr)) {
+			return hr;
+		}
+		
+		ComPtr<ID2D1Bitmap1> result;
+		hr = d2dDC->CreateBitmapFromWicBitmap(wicBmp.Get(), &result);
+		if (FAILED(hr)) {
+			return hr;
+		}
+		
+		d2dBmp = std::move(result);
+		return S_OK;
+	}
+};

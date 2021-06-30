@@ -7,17 +7,8 @@
 #ifndef PCH_H
 #define PCH_H
 
-#include "framework.h"
-#include "Debug.h"
-#include "Utils.h"
 
+#include <CommonPch.h>
 
-#define XML(X) TEXT(#X)
-
-#define API_DECLSPEC extern "C" __declspec(dllexport)
-
-
-using namespace std::literals::string_literals;
-using namespace Microsoft::WRL;
 
 #endif //PCH_H

@@ -1,8 +1,7 @@
 #pragma once
 #include "pch.h"
-#include "SimpleDrawTransform.h"
-#include "GUIDs.h"
-#include "ShaderPaths.h"
+#include <SimpleDrawTransform.h>
+#include "EffectDefines.h"
 
 
 class MonochromeCursorTransform : public SimpleDrawTransform<2> {

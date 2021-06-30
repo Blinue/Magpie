@@ -1,125 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <FxCompile Include="Anime4KConv4x3x3x1Shader.hlsl">
-      <Filter>着色器\缩放\Anime4K</Filter>
-    </FxCompile>
-    <FxCompile Include="Anime4KConv4x3x3x8Pass1Shader.hlsl">
-      <Filter>着色器\缩放\Anime4K</Filter>
-    </FxCompile>
-    <FxCompile Include="Anime4KConv4x3x3x8Pass2Shader.hlsl">
-      <Filter>着色器\缩放\Anime4K</Filter>
-    </FxCompile>
-    <FxCompile Include="Anime4KConv4x3x3x8Pass3Shader.hlsl">
-      <Filter>着色器\缩放\Anime4K</Filter>
-    </FxCompile>
-    <FxCompile Include="Anime4KConv4x3x3x8Pass4Shader.hlsl">
-      <Filter>着色器\缩放\Anime4K</Filter>
-    </FxCompile>
-    <FxCompile Include="Anime4KConv4x3x3x8Pass5Shader.hlsl">
-      <Filter>着色器\缩放\Anime4K</Filter>
-    </FxCompile>
-    <FxCompile Include="Anime4KConvReduceShader.hlsl">
-      <Filter>着色器\缩放\Anime4K</Filter>
-    </FxCompile>
-    <FxCompile Include="Anime4KDenoiseConv4x3x3x1Shader.hlsl">
-      <Filter>着色器\缩放\Anime4K</Filter>
-    </FxCompile>
-    <FxCompile Include="Anime4KDenoiseConv4x3x3x8Pass1Shader.hlsl">
-      <Filter>着色器\缩放\Anime4K</Filter>
-    </FxCompile>
-    <FxCompile Include="Anime4KDenoiseConv4x3x3x8Pass2Shader.hlsl">
-      <Filter>着色器\缩放\Anime4K</Filter>
-    </FxCompile>
-    <FxCompile Include="Anime4KDenoiseConv4x3x3x8Pass3Shader.hlsl">
-      <Filter>着色器\缩放\Anime4K</Filter>
-    </FxCompile>
-    <FxCompile Include="Anime4KDenoiseConv4x3x3x8Pass4Shader.hlsl">
-      <Filter>着色器\缩放\Anime4K</Filter>
-    </FxCompile>
-    <FxCompile Include="Anime4KDenoiseConv4x3x3x8Pass5Shader.hlsl">
-      <Filter>着色器\缩放\Anime4K</Filter>
-    </FxCompile>
-    <FxCompile Include="Anime4KDenoiseConvReduceShader.hlsl">
-      <Filter>着色器\缩放\Anime4K</Filter>
-    </FxCompile>
-    <FxCompile Include="Jinc2ScaleShader.hlsl">
-      <Filter>着色器\缩放</Filter>
-    </FxCompile>
-    <FxCompile Include="MitchellNetravaliScaleShader.hlsl">
-      <Filter>着色器\缩放</Filter>
-    </FxCompile>
-    <FxCompile Include="AdaptiveSharpenPass1Shader.hlsl">
-      <Filter>着色器\锐化</Filter>
-    </FxCompile>
-    <FxCompile Include="AdaptiveSharpenPass2Shader.hlsl">
-      <Filter>着色器\锐化</Filter>
-    </FxCompile>
-    <FxCompile Include="Lanczos6ScaleShader.hlsl">
-      <Filter>着色器\缩放</Filter>
-    </FxCompile>
-    <FxCompile Include="PixelScaleShader.hlsl">
-      <Filter>着色器\缩放</Filter>
-    </FxCompile>
-    <FxCompile Include="Anime4KSharpenCombineShader.hlsl">
-      <Filter>着色器\缩放\Anime4K</Filter>
-    </FxCompile>
-    <FxCompile Include="MonochromeCursorShader.hlsl">
-      <Filter>着色器\杂项</Filter>
-    </FxCompile>
-    <FxCompile Include="Anime4KDarkLinesPass1Shader.hlsl">
-      <Filter>着色器\杂项\Anime4K</Filter>
-    </FxCompile>
-    <FxCompile Include="Anime4KDarkLinesPass2Shader.hlsl">
-      <Filter>着色器\杂项\Anime4K</Filter>
-    </FxCompile>
-    <FxCompile Include="Anime4KDarkLinesPass3Shader.hlsl">
-      <Filter>着色器\杂项\Anime4K</Filter>
-    </FxCompile>
-    <FxCompile Include="Anime4KDarkLinesPass4Shader.hlsl">
-      <Filter>着色器\杂项\Anime4K</Filter>
-    </FxCompile>
-    <FxCompile Include="Anime4KDarkLinesPass5Shader.hlsl">
-      <Filter>着色器\杂项\Anime4K</Filter>
-    </FxCompile>
-    <FxCompile Include="Anime4KThinLinesPass1Shader.hlsl">
-      <Filter>着色器\杂项\Anime4K</Filter>
-    </FxCompile>
-    <FxCompile Include="Anime4KThinLinesPass2Shader.hlsl">
-      <Filter>着色器\杂项\Anime4K</Filter>
-    </FxCompile>
-    <FxCompile Include="Anime4KThinLinesPass3Shader.hlsl">
-      <Filter>着色器\杂项\Anime4K</Filter>
-    </FxCompile>
-    <FxCompile Include="Anime4KThinLinesPass4Shader.hlsl">
-      <Filter>着色器\杂项\Anime4K</Filter>
-    </FxCompile>
-    <FxCompile Include="Anime4KThinLinesPass5Shader.hlsl">
-      <Filter>着色器\杂项\Anime4K</Filter>
-    </FxCompile>
-    <FxCompile Include="Anime4KThinLinesPass6Shader.hlsl">
-      <Filter>着色器\杂项\Anime4K</Filter>
-    </FxCompile>
-    <FxCompile Include="Anime4KThinLinesPass7Shader.hlsl">
-      <Filter>着色器\杂项\Anime4K</Filter>
-    </FxCompile>
-    <FxCompile Include="Anime4KDenoiseBilateralShader.hlsl">
-      <Filter>着色器\杂项\Anime4K</Filter>
-    </FxCompile>
-    <FxCompile Include="RavuLiteR3Pass1Shader.hlsl">
-      <Filter>着色器\缩放\RAVU</Filter>
-    </FxCompile>
-    <FxCompile Include="RavuLiteR3Pass2Shader.hlsl">
-      <Filter>着色器\缩放\RAVU</Filter>
-    </FxCompile>
-    <FxCompile Include="RavuZoomR3Shader.hlsl">
-      <Filter>着色器\缩放\RAVU</Filter>
-    </FxCompile>
-    <FxCompile Include="RavuZoomR3WeightsShader.hlsl">
-      <Filter>着色器\缩放\RAVU</Filter>
-    </FxCompile>
-  </ItemGroup>
-  <ItemGroup>
     <ClCompile Include="GUIDs.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
@@ -161,38 +42,8 @@
     <ClInclude Include="Utils.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="GUIDs.h">
+    <ClInclude Include="EffectDefines.h">
       <Filter>头文件\Effect</Filter>
-    </ClInclude>
-    <ClInclude Include="ShaderPaths.h">
-      <Filter>头文件\Effect</Filter>
-    </ClInclude>
-    <ClInclude Include="AdaptiveSharpenEffect.h">
-      <Filter>头文件\Effect\锐化</Filter>
-    </ClInclude>
-    <ClInclude Include="AdaptiveSharpenPass2Transform.h">
-      <Filter>头文件\Effect\锐化</Filter>
-    </ClInclude>
-    <ClInclude Include="JincScaleEffect.h">
-      <Filter>头文件\Effect\缩放</Filter>
-    </ClInclude>
-    <ClInclude Include="MitchellNetravaliScaleEffect.h">
-      <Filter>头文件\Effect\缩放</Filter>
-    </ClInclude>
-    <ClInclude Include="MitchellNetravaliScaleTransform.h">
-      <Filter>头文件\Effect\缩放</Filter>
-    </ClInclude>
-    <ClInclude Include="JincScaleTransform.h">
-      <Filter>头文件\Effect\缩放</Filter>
-    </ClInclude>
-    <ClInclude Include="SimpleScaleTransform.h">
-      <Filter>头文件\Effect\缩放</Filter>
-    </ClInclude>
-    <ClInclude Include="LanczosScaleEffect.h">
-      <Filter>头文件\Effect\缩放</Filter>
-    </ClInclude>
-    <ClInclude Include="LanczosScaleTransform.h">
-      <Filter>头文件\Effect\缩放</Filter>
     </ClInclude>
     <ClInclude Include="GDIWindowCapturer.h">
       <Filter>头文件\Capture</Filter>
@@ -230,72 +81,18 @@
     <ClInclude Include="WICBitmapEffectRenderer.h">
       <Filter>头文件\Render</Filter>
     </ClInclude>
-    <ClInclude Include="PixelScaleTransform.h">
-      <Filter>头文件\Effect\缩放</Filter>
-    </ClInclude>
-    <ClInclude Include="PixelScaleEffect.h">
-      <Filter>头文件\Effect\缩放</Filter>
-    </ClInclude>
     <ClInclude Include="Env.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Anime4KDarkLinesEffect.h">
-      <Filter>头文件\Effect\杂项</Filter>
-    </ClInclude>
-    <ClInclude Include="Anime4KDarkLinesPass5Transform.h">
-      <Filter>头文件\Effect\杂项</Filter>
-    </ClInclude>
-    <ClInclude Include="Anime4KThinLinesEffect.h">
-      <Filter>头文件\Effect\杂项</Filter>
-    </ClInclude>
-    <ClInclude Include="Anime4KThinLinesPass7Transform.h">
-      <Filter>头文件\Effect\杂项</Filter>
-    </ClInclude>
-    <ClInclude Include="Anime4KEffect.h">
-      <Filter>头文件\Effect\缩放</Filter>
-    </ClInclude>
-    <ClInclude Include="Anime4KSharpenCombineTransform.h">
-      <Filter>头文件\Effect\缩放</Filter>
+    <ClInclude Include="MonochromeCursorEffect.h">
+      <Filter>头文件\Effect</Filter>
     </ClInclude>
     <ClInclude Include="MonochromeCursorTransform.h">
-      <Filter>头文件\Effect\杂项</Filter>
-    </ClInclude>
-    <ClInclude Include="MonochromeCursorEffect.h">
-      <Filter>头文件\Effect\杂项</Filter>
-    </ClInclude>
-    <ClInclude Include="Anime4KConvReduceTransform.h">
-      <Filter>头文件\Effect\缩放</Filter>
-    </ClInclude>
-    <ClInclude Include="Anime4KDenoiseBilateralEffect.h">
-      <Filter>头文件\Effect\杂项</Filter>
-    </ClInclude>
-    <ClInclude Include="Anime4KDenoiseBilateralTransform.h">
-      <Filter>头文件\Effect\杂项</Filter>
-    </ClInclude>
-    <ClInclude Include="RavuLiteEffect.h">
-      <Filter>头文件\Effect\缩放</Filter>
-    </ClInclude>
-    <ClInclude Include="RavuLitePass2Transform.h">
-      <Filter>头文件\Effect\缩放</Filter>
-    </ClInclude>
-    <ClInclude Include="RavuZoomEffect.h">
-      <Filter>头文件\Effect\缩放</Filter>
-    </ClInclude>
-    <ClInclude Include="RavuZoomTransform.h">
-      <Filter>头文件\Effect\缩放</Filter>
-    </ClInclude>
-    <ClInclude Include="RavuZoomWeightsTransform.h">
-      <Filter>头文件\Effect\缩放</Filter>
+      <Filter>头文件\Effect</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />
-    <None Include="Anime4K.hlsli">
-      <Filter>着色器\缩放\Anime4K</Filter>
-    </None>
-    <None Include="AdaptiveSharpen.hlsli">
-      <Filter>着色器\锐化</Filter>
-    </None>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
@@ -314,43 +111,16 @@
     <Filter Include="头文件\Effect">
       <UniqueIdentifier>{7aeace38-38c9-4406-9075-effd6b4c0381}</UniqueIdentifier>
     </Filter>
-    <Filter Include="着色器\缩放">
-      <UniqueIdentifier>{e928574b-2716-4963-968f-78095f3d185a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="着色器\缩放\Anime4K">
-      <UniqueIdentifier>{9a9496cb-bf27-498d-9170-32d6ba869ae3}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="着色器\锐化">
-      <UniqueIdentifier>{f509bffd-924b-4886-b25a-3704015ad9c4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="头文件\Effect\锐化">
-      <UniqueIdentifier>{dc400ea1-bb3d-4010-841f-31adb019357e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="头文件\Effect\缩放">
-      <UniqueIdentifier>{fc2c2b52-5f93-4962-8c0c-ebb5d28a4d27}</UniqueIdentifier>
-    </Filter>
     <Filter Include="头文件\Capture">
       <UniqueIdentifier>{6b867004-a0fd-4e2b-aa28-8fffcbdc9fbe}</UniqueIdentifier>
     </Filter>
     <Filter Include="头文件\Render">
       <UniqueIdentifier>{45015676-99ea-4ea3-9c14-3bc0e0130a34}</UniqueIdentifier>
     </Filter>
-    <Filter Include="着色器\杂项">
-      <UniqueIdentifier>{c0195a1b-65dc-4671-b99c-a333e15c17ed}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="头文件\Effect\杂项">
-      <UniqueIdentifier>{10cc3a59-c22d-4c5a-85fb-a70f3dd55762}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="着色器\杂项\Anime4K">
-      <UniqueIdentifier>{69bfa03e-b759-4f6b-be6f-125ca11f2524}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="着色器\缩放\RAVU">
-      <UniqueIdentifier>{a6d3fe21-679b-4fda-8535-033c52eef3c1}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="RavuZoomR3Weights.png">
-      <Filter>着色器\缩放\RAVU</Filter>
-    </Image>
+    <FxCompile Include="MonochromeCursorShader.hlsl">
+      <Filter>着色器</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>
