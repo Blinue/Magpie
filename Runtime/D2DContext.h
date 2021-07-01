@@ -24,16 +24,6 @@ public:
     }
 
     void Render(std::function<void(ID2D1DeviceContext*)> renderFunc) {
-        if (Env::$instance->GetCaptureMode() == 1) {
-            // GDI 捕获要求必须等待下一次垂直同步
-            Debug::ThrowIfComFailed(
-                _dxgiOutput->WaitForVBlank(),
-                L"WaitForVBlank失败"
-            );
-        } else {
-            WaitForSingleObjectEx(_frameLatencyWaitableObject, 1000, true);
-        }
-
         _d2dDC->BeginDraw();
         renderFunc(_d2dDC.Get());
         Debug::ThrowIfComFailed(
@@ -45,6 +35,17 @@ public:
             _dxgiSwapChain->Present(0, 0),
             L"Present 失败"
         );
+        
+        // 放在这里可以降低渲染延迟
+        if (Env::$instance->GetCaptureMode() == 1) {
+            // GDI 捕获要求必须等待下一次垂直同步
+            Debug::ThrowIfComFailed(
+                _dxgiOutput->WaitForVBlank(),
+                L"WaitForVBlank失败"
+            );
+        } else {
+            WaitForSingleObjectEx(_frameLatencyWaitableObject, 1000, true);
+        }
     }
 
 private:
@@ -92,7 +93,7 @@ private:
         );
 
         Debug::ThrowIfComFailed(
-            D2D1CreateFactory(D2D1_FACTORY_TYPE_MULTI_THREADED, IID_PPV_ARGS(&d2dFactory)),
+            D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, IID_PPV_ARGS(&d2dFactory)),
             L"创建 D2D Factory 失败"
         );
 
