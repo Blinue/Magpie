@@ -161,8 +161,7 @@ public:
             return E_FAIL;
         }
 
-        result = std::move(r);
-
+        result = std::wstring(r.begin(), r.begin() + convertResult);
         return S_OK;
     }
 };

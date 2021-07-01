@@ -228,8 +228,8 @@ private:
 
         HCURSOR result = CreateCursor(
             Env::$instance->GetHInstance(),
-            min(hotSpot.first, _cursorSize.cx),
-            min(hotSpot.second, _cursorSize.cy),
+            std::min(hotSpot.first, (int)_cursorSize.cx),
+            std::min(hotSpot.second, (int)_cursorSize.cy),
             _cursorSize.cx, _cursorSize.cy,
             andPlane, xorPlane
         );

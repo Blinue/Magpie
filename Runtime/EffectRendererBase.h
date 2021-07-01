@@ -11,8 +11,9 @@ using EffectCreateFunc = HRESULT(
 	ID2D1DeviceContext* d2dDC,
 	IWICImagingFactory2* wicImgFactory,
 	const nlohmann::json& props,
-	ComPtr<ID2D1Effect>& effect,
-	std::pair<float, float>& scale
+	float fillScale,
+	std::pair<float, float>& scale,
+	ComPtr<ID2D1Effect>& effect
 );
 
 
@@ -25,6 +26,11 @@ public:
 		_d2dDC(Env::$instance->GetD2DDC()),
 		_d2dFactory(Env::$instance->GetD2DFactory())
 	{
+		SIZE hostSize = Utils::GetSize(Env::$instance->GetHostClient());
+		SIZE srcSize = Utils::GetSize(Env::$instance->GetSrcClient());
+
+		// 输出图像充满屏幕时的缩放比例
+		_fillScale = std::min(float(hostSize.cx) / srcSize.cx, float(hostSize.cy) / srcSize.cy);
 	}
 
 	virtual ~EffectRendererBase() {}
@@ -61,6 +67,7 @@ private:
 			Debug::Assert(model.is_object(), L"json 格式错误");
 
 			const auto &moduleName = model.value("module", "");
+			Debug::Assert(moduleName.size() > 0, L"json 格式错误");
 
 			std::wstring moduleNameW;
 			Debug::ThrowIfComFailed(
@@ -74,39 +81,21 @@ private:
 			Debug::ThrowIfWin32Failed(createEffect, L"非法的dll");
 
 			ComPtr<ID2D1Effect> effect;
-			std::pair<float, float> scale;
 			Debug::ThrowIfComFailed(
-				createEffect(_d2dFactory, _d2dDC, Env::$instance->GetWICImageFactory(), model, effect, scale),
+				createEffect(_d2dFactory, _d2dDC, Env::$instance->GetWICImageFactory(), model, _fillScale, _scale, effect),
 				L"json格式错误"
 			);
 
 			// 替换 output effect
 			_PushAsOutputEffect(effect);
-			_UpdateScale(scale);
 		}
 	}
-	
-	void _UpdateScale(std::pair<float, float> scale) {
-		if (scale.first == 0 || scale.second == 0) {
-			SIZE hostSize = Utils::GetSize(Env::$instance->GetHostClient());
-			SIZE srcSize = Utils::GetSize(Env::$instance->GetSrcClient());
-
-			// 输出图像充满屏幕
-			float x = float(hostSize.cx) / srcSize.cx / _scale.first;
-			float y = float(hostSize.cy) / srcSize.cy / _scale.second;
-
-			scale.first = min(x, y);
-			scale.second = scale.first;
-		}
-
-		_scale.first *= scale.first;
-		_scale.second *= scale.second;
-	}
-
 
 private:
 	// 输出图像尺寸
 	std::pair<float, float> _scale{ 1.0f,1.0f };
+
+	float _fillScale = 0;
 
 	ID2D1Factory1* _d2dFactory;
 	ID2D1DeviceContext* _d2dDC;

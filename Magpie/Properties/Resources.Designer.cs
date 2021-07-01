@@ -66,14 +66,14 @@ namespace Magpie.Properties {
         ///    &quot;name&quot;: &quot;通用（Lanczos）&quot;,
         ///    &quot;model&quot;: [
         ///      {
-        ///        &quot;effect&quot;: &quot;scale&quot;,
-        ///        &quot;type&quot;: &quot;lanczos&quot;,
-        ///        &quot;scale&quot;: [ 0, 0 ],
+        ///        &quot;module&quot;: &quot;Common&quot;,
+        ///        &quot;effect&quot;: &quot;lanczos&quot;,
+        ///        &quot;scale&quot;: [ -1, -1 ],
         ///        &quot;ARStrength&quot;: 0.7
         ///      },
         ///      {
-        ///        &quot;effect&quot;: &quot;sharpen&quot;,
-        ///        &quot;type&quot;: &quot;adaptive&quot;,
+        ///        &quot;module&quot;: &quot;Common&quot;,
+        ///        &quot;effect&quot;: &quot;adaptiveSharpen&quot;,
         ///        &quot;curveHeight&quot;: 0.8
         ///      }
         ///    ]
@@ -82,13 +82,13 @@ namespace Magpie.Properties {
         ///    &quot;name&quot;: &quot;通用（RAVU）&quot;,
         ///    &quot;model&quot;: [
         ///      {
-        ///        &quot;effect&quot;: &quot;scale&quot;,
-        ///        &quot;type&quot;: &quot;ravuZoom&quot;,
-        ///        &quot;scale&quot;: [ 0, 0 ]
+        ///        &quot;module&quot;: &quot;RAVU&quot;,
+        ///        &quot;effect&quot;: &quot;zoom&quot;,
+        ///        &quot;scale&quot;: [ -1, -1 ]
         ///      },
         ///      {
-        ///        &quot;effect&quot;: &quot;misc&quot;,
-        ///        &quot;type&quot;: &quot;Anime4KDen [字符串的其余部分被截断]&quot;; 的本地化字符串。
+        ///        &quot;module&quot;: &quot;Anime4K&quot;,
+        ///        &quot;eff [字符串的其余部分被截断]&quot;; 的本地化字符串。
         /// </summary>
         internal static string BuiltInScaleModels {
             get {

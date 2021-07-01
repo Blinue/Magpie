@@ -3,7 +3,7 @@ import imageio
 import numpy as np
 
 IN_FILE = 'TEXTURE.txt'
-OUT_FILE = 'RavuZoomR3Weights.png'
+OUT_FILE = 'RavuZoomR3Weights.bmp'
 
 weights: np.ndarray = resolve(IN_FILE)
 

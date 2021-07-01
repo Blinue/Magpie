@@ -123,14 +123,14 @@
     "name": "通用（Lanczos）",
     "model": [
       {
-        "effect": "scale",
-        "type": "lanczos",
-        "scale": [ 0, 0 ],
+        "module": "Common",
+        "effect": "lanczos",
+        "scale": [ -1, -1 ],
         "ARStrength": 0.7
       },
       {
-        "effect": "sharpen",
-        "type": "adaptive",
+        "module": "Common",
+        "effect": "adaptiveSharpen",
         "curveHeight": 0.8
       }
     ]
@@ -139,13 +139,13 @@
     "name": "通用（RAVU）",
     "model": [
       {
-        "effect": "scale",
-        "type": "ravuZoom",
-        "scale": [ 0, 0 ]
+        "module": "RAVU",
+        "effect": "zoom",
+        "scale": [ -1, -1 ]
       },
       {
-        "effect": "misc",
-        "type": "Anime4KDenoiseBilateral",
+        "module": "Anime4K",
+        "effect": "denoiseBilateral",
         "variant": "mode"
       }
     ]
@@ -154,13 +154,12 @@
     "name": "动漫 2x（ACNet）",
     "model": [
       {
-        "effect": "scale",
-        "type": "ACNet"
+        "module": "ACNet"
       },
       {
-        "effect": "scale",
-        "type": "mitchell",
-        "scale": [ 0, 0 ],
+        "module": "Common",
+        "effect": "mitchell",
+        "scale": [ -1, -1 ],
         "useSharperVersion": true
       }
     ]
@@ -169,15 +168,15 @@
     "name": "动漫 2x（Anime4K）",
     "model": [
       {
-        "effect": "scale",
-        "type": "Anime4K",
+        "module": "Anime4K",
+        "effect": "Anime4K",
         "curveHeight": 0.3,
         "useDenoiseVersion": true
       },
       {
-        "effect": "scale",
-        "type": "mitchell",
-        "scale": [ 0, 0 ],
+        "module": "Common",
+        "effect": "mitchell",
+        "scale": [ -1, -1 ],
         "useSharperVersion": true
       }
     ]
@@ -186,49 +185,27 @@
     "name": "动漫 2x（Anime4K+ThinLines）",
     "model": [
       {
-        "effect": "scale",
-        "type": "Anime4K",
+        "module": "Anime4K",
+        "effect": "Anime4K",
         "curveHeight": 0.6,
         "useDenoiseVersion": true
       },
       {
-        "effect": "scale",
-        "type": "mitchell",
-        "scale": [ 0, 0 ],
-         "useSharperVersion": true
+        "module": "Common",
+        "effect": "mitchell",
+        "scale": [ -1, -1 ],
+        "useSharperVersion": true
       },
       {
-        "effect": "misc",
-        "type": "Anime4KThinLines",
+        "module": "Anime4K",
+        "effect": "thinLines",
         "strength": 0.3
       },
       {
+        "module": "Common",
         "effect": "sharpen",
-        "type": "builtIn",
         "sharpness": 1,
         "threshold": 0.3
-      }
-    ]
-  },
-  {
-    "name": "动漫 4x（Anime4K x2）",
-    "model": [
-      {
-        "effect": "scale",
-        "type": "Anime4K",
-        "curveHeight": 0.3,
-        "useDenoiseVersion": true
-      },
-      {
-        "effect": "scale",
-        "type": "Anime4K",
-        "curveHeight": 0.3
-      },
-      {
-        "effect": "scale",
-        "type": "mitchell",
-        "scale": [ 0, 0 ],
-         "useSharperVersion": true
       }
     ]
   },
@@ -236,8 +213,8 @@
     "name": "像素 2x",
     "model": [
       {
-        "effect": "scale",
-        "type": "pixel",
+        "module": "Common",
+        "effect": "pixelScale",
         "scale": 2
       }
     ]
@@ -246,19 +223,9 @@
     "name": "像素 3x",
     "model": [
       {
-        "effect": "scale",
-        "type": "pixel",
+        "module": "Common",
+        "effect": "pixelScale",
         "scale": 3
-      }
-    ]
-  },
-  {
-    "name": "像素 4x",
-    "model": [
-      {
-        "effect": "scale",
-        "type": "pixel",
-        "scale": 4
       }
     ]
   }

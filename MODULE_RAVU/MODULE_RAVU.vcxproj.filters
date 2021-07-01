@@ -69,12 +69,12 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="EFFECT_RAVU.rc">
+    <ResourceCompile Include="MODULE_RAVU.rc">
       <Filter>资源文件</Filter>
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="RAVUZoomR3Weights.png">
+    <Image Include="RavuZoomR3Weights.bmp">
       <Filter>资源文件</Filter>
     </Image>
   </ItemGroup>

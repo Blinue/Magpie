@@ -68,7 +68,8 @@ HRESULT CreateAnime4KEffect(
 	}
 
 	effect = std::move(result);
-	scale = { 2.0f,2.0f };
+	scale.first *= 2;
+	scale.second *= 2;
 
 	return S_OK;
 }
@@ -77,8 +78,7 @@ HRESULT CreateDarkLinesEffect(
 	ID2D1Factory1* d2dFactory,
 	ID2D1DeviceContext* d2dDC,
 	const nlohmann::json& props,
-	ComPtr<ID2D1Effect>& effect,
-	std::pair<float, float>& scale
+	ComPtr<ID2D1Effect>& effect
 ) {
 	bool isRegistered;
 	HRESULT hr = EffectUtils::IsEffectRegistered(d2dFactory, CLSID_MAGPIE_ANIME4K_DARKLINES_EFFECT, isRegistered);
@@ -119,8 +119,6 @@ HRESULT CreateDarkLinesEffect(
 	}
 
 	effect = std::move(result);
-	scale = { 1.0f,1.0f };
-
 	return S_OK;
 }
 
@@ -128,8 +126,7 @@ HRESULT CreateThinLinesEffect(
 	ID2D1Factory1* d2dFactory,
 	ID2D1DeviceContext* d2dDC,
 	const nlohmann::json& props,
-	ComPtr<ID2D1Effect>& effect,
-	std::pair<float, float>& scale
+	ComPtr<ID2D1Effect>& effect
 ) {
 	bool isRegistered;
 	HRESULT hr = EffectUtils::IsEffectRegistered(d2dFactory, CLSID_MAGPIE_ANIME4K_THINLINES_EFFECT, isRegistered);
@@ -170,8 +167,6 @@ HRESULT CreateThinLinesEffect(
 	}
 
 	effect = std::move(result);
-	scale = { 1.0f,1.0f };
-
 	return S_OK;
 }
 
@@ -179,8 +174,7 @@ HRESULT CreateDenoiseBilateralEffect(
 	ID2D1Factory1* d2dFactory,
 	ID2D1DeviceContext* d2dDC,
 	const nlohmann::json& props,
-	ComPtr<ID2D1Effect>& effect,
-	std::pair<float, float>& scale
+	ComPtr<ID2D1Effect>& effect
 ) {
 	bool isRegistered;
 	HRESULT hr = EffectUtils::IsEffectRegistered(d2dFactory, CLSID_MAGPIE_ANIME4K_DENOISE_BILATERAL_EFFECT, isRegistered);
@@ -246,8 +240,6 @@ HRESULT CreateDenoiseBilateralEffect(
 	}
 	
 	effect = std::move(result);
-	scale = { 1.0f,1.0f };
-
 	return S_OK;
 }
 
@@ -257,18 +249,19 @@ API_DECLSPEC HRESULT CreateEffect(
 	ID2D1DeviceContext* d2dDC,
 	IWICImagingFactory2* wicImgFactory,
 	const nlohmann::json& props,
-	ComPtr<ID2D1Effect>& effect,
-	std::pair<float, float>& scale
+	float fillScale,
+	std::pair<float, float>& scale,
+	ComPtr<ID2D1Effect>& effect
 ) {
 	const auto& e = props.value("effect", "");
 	if (e == "Anime4K") {
 		return CreateAnime4KEffect(d2dFactory, d2dDC, props, effect, scale);
 	} else if (e == "darkLines") {
-		return CreateDarkLinesEffect(d2dFactory, d2dDC, props, effect, scale);
+		return CreateDarkLinesEffect(d2dFactory, d2dDC, props, effect);
 	} else if (e == "thinLines") {
-		return CreateThinLinesEffect(d2dFactory, d2dDC, props, effect, scale);
+		return CreateThinLinesEffect(d2dFactory, d2dDC, props, effect);
 	} else if (e == "denoiseBilateral") {
-		return CreateDenoiseBilateralEffect(d2dFactory, d2dDC, props, effect, scale);
+		return CreateDenoiseBilateralEffect(d2dFactory, d2dDC, props, effect);
 	} else {
 		return E_INVALIDARG;
 	}

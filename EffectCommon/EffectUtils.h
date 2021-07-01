@@ -28,17 +28,25 @@ public:
 		return S_OK;
 	}
 
-	static HRESULT ReadScaleProp(const nlohmann::json& props, std::pair<float, float>& scale) {
+	static HRESULT ReadScaleProp(
+		const nlohmann::json& props,
+		float fillScale,
+		const std::pair<float, float>& scale,
+		std::pair<float, float>& result
+	) {
 		if (!props.is_array() || props.size() != 2 || !props[0].is_number() || !props[1].is_number()) {
 			return E_INVALIDARG;
 		}
 
-		std::pair<float, float> result = { props[0], props[1] };
-		if (result.first == 0 || result.second == 0) {
+		std::pair<float, float> origin = { props[0], props[1] };
+		if (origin.first == 0 || origin.second == 0) {
 			return E_INVALIDARG;
 		}
 
-		scale = result;
+		result = {
+			origin.first > 0 ? origin.first : -origin.first * fillScale / scale.first,
+			origin.second > 0 ? origin.second : -origin.second * fillScale / scale.second
+		};
 		return S_OK;
 	}
 

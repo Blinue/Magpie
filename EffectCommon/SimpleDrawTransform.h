@@ -25,7 +25,7 @@ protected:
                 OPEN_EXISTING,
                 FILE_ATTRIBUTE_NORMAL,
                 NULL);
-            if (hFile == NULL) {
+            if (hFile == INVALID_HANDLE_VALUE) {
                 CommonDebug::WriteLine(L"´ò¿ª\""s + path + L"\"Ê§°Ü");
                 return E_FAIL;
             }

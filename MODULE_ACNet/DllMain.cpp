@@ -10,8 +10,9 @@ API_DECLSPEC HRESULT CreateEffect(
     ID2D1DeviceContext* d2dDC,
     IWICImagingFactory2* wicImgFactory,
     const nlohmann::json& props,
-    ComPtr<ID2D1Effect>& effect,
-    std::pair<float, float>& scale
+    float fillScale,
+    std::pair<float, float>& scale,
+    ComPtr<ID2D1Effect>& effect
 ) {
     bool isRegistered;
     HRESULT hr = EffectUtils::IsEffectRegistered(d2dFactory, CLSID_MAGPIE_ACNET_EFFECT, isRegistered);
@@ -33,6 +34,7 @@ API_DECLSPEC HRESULT CreateEffect(
     }
 
     effect = std::move(result);
-    scale = { 2.0f, 2.0f };
+    scale.first *= 2;
+    scale.second *= 2;
     return S_OK;
 }
