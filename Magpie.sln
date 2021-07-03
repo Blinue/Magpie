@@ -26,6 +26,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MODULE_Common", "MODULE_Com
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BUILD_ALL_MODULES", "BUILD_ALL_MODULES\BUILD_ALL_MODULES.vcxproj", "{D2E9F2FF-D5B3-4C4E-BE17-D5409B814743}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MODULE_FSRCNNX", "MODULE_FSRCNNX\MODULE_FSRCNNX.vcxproj", "{F7D98898-B2F7-4708-85E8-CAA4E09A6E3C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -72,6 +74,10 @@ Global
 		{D2E9F2FF-D5B3-4C4E-BE17-D5409B814743}.Debug|x64.Build.0 = Debug|x64
 		{D2E9F2FF-D5B3-4C4E-BE17-D5409B814743}.Release|x64.ActiveCfg = Release|x64
 		{D2E9F2FF-D5B3-4C4E-BE17-D5409B814743}.Release|x64.Build.0 = Release|x64
+		{F7D98898-B2F7-4708-85E8-CAA4E09A6E3C}.Debug|x64.ActiveCfg = Debug|x64
+		{F7D98898-B2F7-4708-85E8-CAA4E09A6E3C}.Debug|x64.Build.0 = Debug|x64
+		{F7D98898-B2F7-4708-85E8-CAA4E09A6E3C}.Release|x64.ActiveCfg = Release|x64
+		{F7D98898-B2F7-4708-85E8-CAA4E09A6E3C}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -139,9 +139,9 @@ API_DECLSPEC HRESULT CreateEffect(
     ComPtr<ID2D1Effect>& effect
 ) {
     const auto& e = props.value("effect", "");
-    if (e == "lite") {
+    if (e == "RAVULite") {
         return CreateLiteEffect(d2dFactory, d2dDC, props, effect, scale);
-    } else if (e == "zoom") {
+    } else if (e == "RAVUZoom") {
         return CreateZoomEffect(d2dFactory, d2dDC, wicImgFactory, props, fillScale, scale, effect);
     } else {
         return E_INVALIDARG;

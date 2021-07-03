@@ -140,7 +140,7 @@
     "model": [
       {
         "module": "RAVU",
-        "effect": "zoom",
+        "effect": "RAVUZoom",
         "scale": [ -1, -1 ]
       },
       {

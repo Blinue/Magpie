@@ -83,12 +83,12 @@ namespace Magpie.Properties {
         ///    &quot;model&quot;: [
         ///      {
         ///        &quot;module&quot;: &quot;RAVU&quot;,
-        ///        &quot;effect&quot;: &quot;zoom&quot;,
+        ///        &quot;effect&quot;: &quot;RAVUZoom&quot;,
         ///        &quot;scale&quot;: [ -1, -1 ]
         ///      },
         ///      {
         ///        &quot;module&quot;: &quot;Anime4K&quot;,
-        ///        &quot;eff [字符串的其余部分被截断]&quot;; 的本地化字符串。
+        ///         [字符串的其余部分被截断]&quot;; 的本地化字符串。
         /// </summary>
         internal static string BuiltInScaleModels {
             get {

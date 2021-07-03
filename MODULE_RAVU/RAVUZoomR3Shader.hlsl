@@ -196,7 +196,7 @@ D2D_PS_ENTRY(main) {
 	w = sampleWeightsTexture(float2(36 * Coord(1).z, coord_y) + subpix_inv);
 	res += sample19 * w[0];
 	res += sample18 * w[1];
-	res = clamp(res, 0, 1);
+	res = saturate(res);
 
 	return float4(YUV2RGB(res), 1);
 }

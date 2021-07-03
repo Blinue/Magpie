@@ -92,7 +92,8 @@ public:
             return E_INVALIDARG;
         }
 
-        for (int i = 0; i < NINPUTS; ++i) {
+        _inputRects[0] = pInputRects[0];
+        for (int i = 1; i < NINPUTS; ++i) {
             if (pInputRects[0].right - pInputRects[0].left != pInputRects[i].right - pInputRects[i].left
                 || pInputRects[0].bottom - pInputRects[0].top != pInputRects[i].bottom - pInputRects[i].top)
             {

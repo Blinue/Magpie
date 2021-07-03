@@ -5,24 +5,24 @@
 
 
 
-class ACNetL10Transform : public SimpleDrawTransform<3> {
+class FSRCNNXAggregationTransform : public SimpleDrawTransform<2> {
 private:
-    ACNetL10Transform() : SimpleDrawTransform<3>(GUID_MAGPIE_ACNET_L10_SHADER) {}
+    FSRCNNXAggregationTransform() : SimpleDrawTransform<2>(GUID_MAGPIE_FSRCNNX_8041_AGGREGATION_SHADER) {}
 
 public:
-    static HRESULT Create(_In_ ID2D1EffectContext* d2dEC, _Outptr_ ACNetL10Transform** ppOutput) {
+    static HRESULT Create(_In_ ID2D1EffectContext* d2dEC, _Outptr_ FSRCNNXAggregationTransform** ppOutput) {
         *ppOutput = nullptr;
 
         HRESULT hr = LoadShader(
             d2dEC,
-            MAGPIE_ACNET_L10_SHADER,
-            GUID_MAGPIE_ACNET_L10_SHADER
+            MAGPIE_FSRCNNX_8041_AGGREGATION_SHADER,
+            GUID_MAGPIE_FSRCNNX_8041_AGGREGATION_SHADER
         );
         if (FAILED(hr)) {
             return hr;
         }
 
-        *ppOutput = new ACNetL10Transform();
+        *ppOutput = new FSRCNNXAggregationTransform();
 
         return S_OK;
     }
@@ -35,19 +35,16 @@ public:
         _Out_ D2D1_RECT_L* pOutputRect,
         _Out_ D2D1_RECT_L* pOutputOpaqueSubRect
     ) override {
-        if (inputRectCount != 3) {
+        if (inputRectCount != 2) {
+            return E_INVALIDARG;
+        }
+        if (pInputRects[0].right - pInputRects[0].left != pInputRects[1].right - pInputRects[1].left
+            || pInputRects[0].bottom - pInputRects[0].top != pInputRects[1].bottom - pInputRects[1].top) {
             return E_INVALIDARG;
         }
 
         _inputRects[0] = pInputRects[0];
-        for (int i = 1; i < 3; ++i) {
-            if (pInputRects[0].right - pInputRects[0].left != pInputRects[i].right - pInputRects[i].left
-                || pInputRects[0].bottom - pInputRects[0].top != pInputRects[i].bottom - pInputRects[i].top) {
-                return E_INVALIDARG;
-            }
-
-            _inputRects[i] = pInputRects[i];
-        }
+        _inputRects[1] = pInputRects[1];
 
         *pOutputRect = {
             0,

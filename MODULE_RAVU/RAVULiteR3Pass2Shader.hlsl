@@ -12,6 +12,8 @@ cbuffer constants : register(b0) {
 #define MAGPIE_USE_YUV
 #include "common.hlsli"
 
+#define noise_threshold 0.02
+
 
 D2D_PS_ENTRY(main) {
 	Coord(0).xy /= 2;
@@ -20,7 +22,13 @@ D2D_PS_ENTRY(main) {
 	float2 dir = frac(Coord(1).xy / Coord(1).zw) - 0.5;
 	int idx = int(dir.x > 0.0) * 2 + int(dir.y > 0.0);
 
-	float l = SampleInputOff(1, -dir)[idx];
+	float luma = SampleInputOff(1, -dir)[idx];
 	float3 yuv = SampleInputCur(0).xyz;
-	return float4(YUV2RGB(float3(l, yuv.yz)), 1);
+
+	// 消除因压缩产生的噪声
+	if (abs(luma - yuv.x) < noise_threshold) {
+		luma = yuv.x;
+	}
+
+	return float4(YUV2RGB(float3(luma, yuv.yz)), 1);
 }

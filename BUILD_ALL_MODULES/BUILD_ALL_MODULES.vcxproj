@@ -155,6 +155,9 @@
     <ProjectReference Include="..\MODULE_Common\MODULE_Common.vcxproj">
       <Project>{ec100169-8050-440a-96f0-3ac8b9382f30}</Project>
     </ProjectReference>
+    <ProjectReference Include="..\MODULE_FSRCNNX\MODULE_FSRCNNX.vcxproj">
+      <Project>{f7d98898-b2f7-4708-85e8-caa4e09a6e3c}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\MODULE_RAVU\MODULE_RAVU.vcxproj">
       <Project>{e5a19099-f4b4-48ed-89db-43a3f1fcf8ae}</Project>
     </ProjectReference>

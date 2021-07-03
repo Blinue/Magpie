@@ -3874,6 +3874,6 @@ D2D_PS_ENTRY(main) {
 	res += luma11 * w + luma13 * w.wzyx;
 	w = ravu_lite_lut3[coord_y][12];
 	res += luma12 * w;
-	res = clamp(res, 0.0, 1.0);
+	
 	return res;
 }
