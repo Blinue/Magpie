@@ -190,6 +190,8 @@
   <ItemGroup>
     <ClInclude Include="AdaptiveSharpenEffect.h" />
     <ClInclude Include="AdaptiveSharpenPass2Transform.h" />
+    <ClInclude Include="ContrastAdaptiveSharpenEffect.h" />
+    <ClInclude Include="ContrastAdaptiveSharpenTransform.h" />
     <ClInclude Include="EffectDefines.h" />
     <ClInclude Include="JincScaleEffect.h" />
     <ClInclude Include="JincScaleTransform.h" />
@@ -217,6 +219,12 @@
   <ItemGroup>
     <FxCompile Include="AdaptiveSharpenPass1Shader.hlsl" />
     <FxCompile Include="AdaptiveSharpenPass2Shader.hlsl" />
+    <FxCompile Include="ContrastAdaptiveSharpenShader.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+    </FxCompile>
     <FxCompile Include="Jinc2ScaleShader.hlsl" />
     <FxCompile Include="Lanczos6ScaleShader.hlsl" />
     <FxCompile Include="MitchellNetravaliScaleShader.hlsl" />

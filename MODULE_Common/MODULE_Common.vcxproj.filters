@@ -51,6 +51,12 @@
     <ClInclude Include="EffectDefines.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="ContrastAdaptiveSharpenEffect.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="ContrastAdaptiveSharpenTransform.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DllMain.cpp">
@@ -77,6 +83,9 @@
       <Filter>着色器</Filter>
     </FxCompile>
     <FxCompile Include="PixelScaleShader.hlsl">
+      <Filter>着色器</Filter>
+    </FxCompile>
+    <FxCompile Include="ContrastAdaptiveSharpenShader.hlsl">
       <Filter>着色器</Filter>
     </FxCompile>
   </ItemGroup>

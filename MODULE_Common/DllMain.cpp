@@ -6,6 +6,7 @@
 #include "LanczosScaleEffect.h"
 #include "MitchellNetravaliScaleEffect.h"
 #include "PixelScaleEffect.h"
+#include "ContrastAdaptiveSharpenEffect.h"
 
 #pragma comment(lib, "dxguid.lib")
 
@@ -297,6 +298,54 @@ API_DECLSPEC HRESULT CreatePixelScaleEffect(
 	return S_OK;
 }
 
+API_DECLSPEC HRESULT CreateContrastAdaptiveSharpenEffect(
+	ID2D1Factory1* d2dFactory,
+	ID2D1DeviceContext* d2dDC,
+	const nlohmann::json& props,
+	ComPtr<ID2D1Effect>& effect
+) {
+	bool isRegistered;
+	HRESULT hr = EffectUtils::IsEffectRegistered(d2dFactory, CLSID_MAGPIE_CONTRAST_ADAPTIVE_SHARPEN_EFFECT, isRegistered);
+	if (FAILED(hr)) {
+		return hr;
+	}
+
+	if (!isRegistered) {
+		hr = ContrastAdaptiveSharpenEffect::Register(d2dFactory);
+		if (FAILED(hr)) {
+			return hr;
+		}
+	}
+
+	ComPtr<ID2D1Effect> result;
+	hr = d2dDC->CreateEffect(CLSID_MAGPIE_CONTRAST_ADAPTIVE_SHARPEN_EFFECT, &result);
+	if (FAILED(hr)) {
+		return hr;
+	}
+
+	// sharpness 属性
+	auto it = props.find("sharpness");
+	if (it != props.end()) {
+		const auto& value = *it;
+		if (!value.is_number()) {
+			return E_INVALIDARG;
+		}
+
+		float sharpness = value.get<float>();
+		if (sharpness < 0 || sharpness > 1) {
+			return E_INVALIDARG;
+		}
+
+		hr = result->SetValue(ContrastAdaptiveSharpenEffect::PROP_SHARPNESS, sharpness);
+		if (FAILED(hr)) {
+			return hr;
+		}
+	}
+
+	effect = std::move(result);
+	return S_OK;
+}
+
 
 API_DECLSPEC HRESULT CreateEffect(
 	ID2D1Factory1* d2dFactory,
@@ -312,6 +361,8 @@ API_DECLSPEC HRESULT CreateEffect(
 		return CreateSharpenEffect(d2dFactory, d2dDC, props, effect);
 	} else if (e == "adaptiveSharpen") {
 		return CreateAdaptiveSharpenEffect(d2dFactory, d2dDC, props, effect);
+	} else if (e == "CAS") {
+		return CreateContrastAdaptiveSharpenEffect(d2dFactory, d2dDC, props, effect);
 	} else if (e == "lanczos") {
 		return CreateLanczosEffect(d2dFactory, d2dDC, props, fillScale, scale, effect);
 	} else if (e == "mitchell") {

@@ -151,6 +151,21 @@
     ]
   },
   {
+    "name": "通用（FSRCNNX）",
+    "model": [
+      {
+        "module": "FSRCNNX",
+        "effect": "FSRCNNX"
+      },
+      {
+        "module": "Common",
+        "effect": "mitchell",
+        "scale": [ -1, -1 ],
+        "useSharperVersion": true
+      }
+    ]
+  },
+  {
     "name": "动漫 2x（ACNet）",
     "model": [
       {
