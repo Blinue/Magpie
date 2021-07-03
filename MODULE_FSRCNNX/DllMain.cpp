@@ -13,6 +13,11 @@ API_DECLSPEC HRESULT CreateEffect(
     std::pair<float, float>& scale,
     ComPtr<ID2D1Effect>& effect
 ) {
+    const auto& e = props.value("effect", "");
+    if (e != "FSRCNNX" && e != "FSRCNNXLineArt") {
+        return E_INVALIDARG;
+    }
+
     bool isRegistered;
     HRESULT hr = EffectUtils::IsEffectRegistered(d2dFactory, CLSID_MAGPIE_FSRCNNX_EFFECT, isRegistered);
     if (FAILED(hr)) {
@@ -30,6 +35,13 @@ API_DECLSPEC HRESULT CreateEffect(
     hr = d2dDC->CreateEffect(CLSID_MAGPIE_FSRCNNX_EFFECT, &result);
     if (FAILED(hr)) {
         return hr;
+    }
+
+    if (e == "FSRCNNXLineArt") {
+        hr = result->SetValue(FSRCNNXEffect::PROP_USE_LINE_ART_VERSION, TRUE);
+        if (FAILED(hr)) {
+            return hr;
+        }
     }
 
     effect = std::move(result);

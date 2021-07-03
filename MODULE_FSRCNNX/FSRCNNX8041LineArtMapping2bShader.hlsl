@@ -9,8 +9,8 @@ cbuffer constants : register(b0) {
 #define MAGPIE_INPUT_COUNT 2
 #include "common.hlsli"
 
-#define get0(pos) uncompressTan(SampleInput(0, pos))
-#define get1(pos) uncompressTan(SampleInput(1, pos))
+#define get0(pos) uncompressLinear(SampleInput(0, pos), -2.5, 3.5)
+#define get1(pos) uncompressLinear(SampleInput(1, pos), -1.5, 3.5)
 
 
 D2D_PS_ENTRY(main) {

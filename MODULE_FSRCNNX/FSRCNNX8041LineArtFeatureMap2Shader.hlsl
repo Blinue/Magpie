@@ -74,5 +74,5 @@ D2D_PS_ENTRY(main) {
 	res += float4(0.0698847994208336, -0.0164128411561251, 0.0043246182613075, -0.0244176983833313)
 		* SampleInput(0, float2(right2X, bottom2Y)).x;
 
-	return compressLinear(res, -2, 2);
+	return compressLinear(res, -1, 1);
 }

@@ -42,6 +42,7 @@ public:
             if (FAILED(hr)) {
                 // 失败时还原状态
                 _useDenoiseVersion = !_useDenoiseVersion;
+                _MakeGraph();
             }
 
             return hr;
@@ -130,7 +131,7 @@ private:
 
         if (!_rgb2yuvTransform) {
             hr = SimpleDrawTransform<>::Create(
-                _d2dEffectContext.Get(),
+                _d2dEffectContext,
                 &_rgb2yuvTransform,
                 MAGPIE_RGB2YUV_SHADER,
                 GUID_MAGPIE_RGB2YUV_SHADER
@@ -142,7 +143,7 @@ private:
 
         if (_useDenoiseVersion) {
             hr = SimpleDrawTransform<>::Create(
-                _d2dEffectContext.Get(),
+                _d2dEffectContext,
                 &_conv4x3x3x1Transform,
                 MAGPIE_ANIME4K_DENOISE_CONV_4x3x3x1_SHADER,
                 GUID_MAGPIE_ANIME4K_DENOISE_CONV_4x3x3x1_SHADER
@@ -151,7 +152,7 @@ private:
                 return hr;
             }
             hr = SimpleDrawTransform<>::Create(
-                _d2dEffectContext.Get(),
+                _d2dEffectContext,
                 &_conv4x3x3x8Transform1,
                 MAGPIE_ANIME4K_DENOISE_CONV_4x3x3x8_PASS1_SHADER,
                 GUID_MAGPIE_ANIME4K_DENOISE_CONV_4x3x3x8_PASS1_SHADER
@@ -160,7 +161,7 @@ private:
                 return hr;
             }
             hr = SimpleDrawTransform<>::Create(
-                _d2dEffectContext.Get(),
+                _d2dEffectContext,
                 &_conv4x3x3x8Transform2,
                 MAGPIE_ANIME4K_DENOISE_CONV_4x3x3x8_PASS2_SHADER,
                 GUID_MAGPIE_ANIME4K_DENOISE_CONV_4x3x3x8_PASS2_SHADER
@@ -169,7 +170,7 @@ private:
                 return hr;
             }
             hr = SimpleDrawTransform<>::Create(
-                _d2dEffectContext.Get(),
+                _d2dEffectContext,
                 &_conv4x3x3x8Transform3,
                 MAGPIE_ANIME4K_DENOISE_CONV_4x3x3x8_PASS3_SHADER,
                 GUID_MAGPIE_ANIME4K_DENOISE_CONV_4x3x3x8_PASS3_SHADER
@@ -178,7 +179,7 @@ private:
                 return hr;
             }
             hr = SimpleDrawTransform<>::Create(
-                _d2dEffectContext.Get(),
+                _d2dEffectContext,
                 &_conv4x3x3x8Transform4,
                 MAGPIE_ANIME4K_DENOISE_CONV_4x3x3x8_PASS4_SHADER,
                 GUID_MAGPIE_ANIME4K_DENOISE_CONV_4x3x3x8_PASS4_SHADER
@@ -187,7 +188,7 @@ private:
                 return hr;
             }
             hr = SimpleDrawTransform<>::Create(
-                _d2dEffectContext.Get(),
+                _d2dEffectContext,
                 &_conv4x3x3x8Transform5,
                 MAGPIE_ANIME4K_DENOISE_CONV_4x3x3x8_PASS5_SHADER,
                 GUID_MAGPIE_ANIME4K_DENOISE_CONV_4x3x3x8_PASS5_SHADER
@@ -197,7 +198,7 @@ private:
             }
         } else {
             hr = SimpleDrawTransform<>::Create(
-                _d2dEffectContext.Get(),
+                _d2dEffectContext,
                 &_conv4x3x3x1Transform,
                 MAGPIE_ANIME4K_CONV_4x3x3x1_SHADER,
                 GUID_MAGPIE_ANIME4K_CONV_4x3x3x1_SHADER);
@@ -205,7 +206,7 @@ private:
                 return hr;
             }
             hr = SimpleDrawTransform<>::Create(
-                _d2dEffectContext.Get(),
+                _d2dEffectContext,
                 &_conv4x3x3x8Transform1,
                 MAGPIE_ANIME4K_CONV_4x3x3x8_PASS1_SHADER,
                 GUID_MAGPIE_ANIME4K_CONV_4x3x3x8_PASS1_SHADER
@@ -214,7 +215,7 @@ private:
                 return hr;
             }
             hr = SimpleDrawTransform<>::Create(
-                _d2dEffectContext.Get(),
+                _d2dEffectContext,
                 &_conv4x3x3x8Transform2,
                 MAGPIE_ANIME4K_CONV_4x3x3x8_PASS2_SHADER,
                 GUID_MAGPIE_ANIME4K_CONV_4x3x3x8_PASS2_SHADER
@@ -223,7 +224,7 @@ private:
                 return hr;
             }
             hr = SimpleDrawTransform<>::Create(
-                _d2dEffectContext.Get(),
+                _d2dEffectContext,
                 &_conv4x3x3x8Transform3,
                 MAGPIE_ANIME4K_CONV_4x3x3x8_PASS3_SHADER,
                 GUID_MAGPIE_ANIME4K_CONV_4x3x3x8_PASS3_SHADER
@@ -232,7 +233,7 @@ private:
                 return hr;
             }
             hr = SimpleDrawTransform<>::Create(
-                _d2dEffectContext.Get(),
+                _d2dEffectContext,
                 &_conv4x3x3x8Transform4,
                 MAGPIE_ANIME4K_CONV_4x3x3x8_PASS4_SHADER,
                 GUID_MAGPIE_ANIME4K_CONV_4x3x3x8_PASS4_SHADER
@@ -241,7 +242,7 @@ private:
                 return hr;
             }
             hr = SimpleDrawTransform<>::Create(
-                _d2dEffectContext.Get(),
+                _d2dEffectContext,
                 &_conv4x3x3x8Transform5,
                 MAGPIE_ANIME4K_CONV_4x3x3x8_PASS5_SHADER,
                 GUID_MAGPIE_ANIME4K_CONV_4x3x3x8_PASS5_SHADER
@@ -252,7 +253,7 @@ private:
         }
 
         hr = Anime4KConvReduceTransform::Create(
-            _d2dEffectContext.Get(),
+            _d2dEffectContext,
             &_convReduceTransform,
             _useDenoiseVersion
         );
@@ -262,7 +263,7 @@ private:
 
         if (!_sharpenCombineTransform) {
             // 不重新创建 sharpenCombineTransform
-            hr = Anime4KSharpenCombineTransform::Create(_d2dEffectContext.Get(), &_sharpenCombineTransform);
+            hr = Anime4KSharpenCombineTransform::Create(_d2dEffectContext, &_sharpenCombineTransform);
             if (FAILED(hr)) {
                 return hr;
             }
@@ -383,8 +384,8 @@ private:
     ComPtr<Anime4KConvReduceTransform> _convReduceTransform = nullptr;
     ComPtr<Anime4KSharpenCombineTransform> _sharpenCombineTransform = nullptr;
 
-    ComPtr<ID2D1EffectContext> _d2dEffectContext = nullptr;
-    ComPtr<ID2D1TransformGraph> _d2dTransformGraph = nullptr;
+    ID2D1EffectContext* _d2dEffectContext = nullptr;
+    ID2D1TransformGraph* _d2dTransformGraph = nullptr;
 
     bool _useDenoiseVersion = false;
 };

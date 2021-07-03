@@ -15,5 +15,5 @@ D2D_PS_ENTRY(main) {
 	res += uncompressLinear(SampleInputCur(2), -1, 1.5);
 	res = max(res, ZEROS4) + float4(0.9962985515594482, 0.9851159453392029, 0.2272046357393265, -0.1116774082183838) * min(res, ZEROS4);
 
-	return compressLinear(res, -1.5, 2);
+	return compressTan(res);
 }

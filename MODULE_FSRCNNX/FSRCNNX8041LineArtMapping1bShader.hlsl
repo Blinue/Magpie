@@ -10,7 +10,7 @@ cbuffer constants : register(b0) {
 #include "common.hlsli"
 
 #define get0(pos) uncompressLinear(SampleInput(0, pos), -1, 1.5)
-#define get1(pos) uncompressLinear(SampleInput(1, pos), -2, 2)
+#define get1(pos) uncompressLinear(SampleInput(1, pos), -1, 1)
 
 
 D2D_PS_ENTRY(main) {
@@ -40,5 +40,5 @@ D2D_PS_ENTRY(main) {
 	res += mul(get1(rightBottom), float4x4(0.1536326855421066, 0.2366072386503220, 0.0591898001730442, -0.0547822229564190, 0.1068296432495117, -0.0342746265232563, -0.1388098448514938, 0.3756637275218964, 0.2406303733587265, 0.1881252676248550, -0.1518276780843735, 0.1872117221355438, 0.1484777033329010, 0.1825126409530640, -0.1781855672597885, 0.1650572419166565));
 	res = max(res, ZEROS4) + float4(-0.5060276985168457, -1.3971502780914307, 0.7606850862503052, -0.5118398666381836) * min(res, ZEROS4);
 
-	return compressLinear(res, -4, 4.5);
+	return compressLinear(res, -1.5, 3.5);
 }
