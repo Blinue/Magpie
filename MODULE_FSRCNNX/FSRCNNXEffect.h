@@ -7,6 +7,7 @@
 
 
 // FSRCNNX 超采样算法，可将图像放大至两倍
+// 移植自 https://github.com/igv/FSRCNN-TensorFlow
 class FSRCNNXEffect : public EffectBase {
 public:
     IFACEMETHODIMP Initialize(

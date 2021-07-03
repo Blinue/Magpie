@@ -5,7 +5,7 @@
 cbuffer constants : register(b0) {
 	int2 srcSize : packoffset(c0.x);
 	int2 destSize : packoffset(c0.z);
-	int useSharperVersion : packoffset(c1.x);
+	int variant : packoffset(c1.x);
 };
 
 
@@ -17,9 +17,9 @@ float weight(float x, float B, float C) {
 	float ax = abs(x);
 
 	if (ax < 1.0) {
-		return (pow(x, 2.0) * ((12.0 - 9.0 * B - 6.0 * C) * ax + (-18.0 + 12.0 * B + 6.0 * C)) + (6.0 - 2.0 * B)) / 6.0;
+		return (x * x * ((12.0 - 9.0 * B - 6.0 * C) * ax + (-18.0 + 12.0 * B + 6.0 * C)) + (6.0 - 2.0 * B)) / 6.0;
 	} else if (ax >= 1.0 && ax < 2.0) {
-		return (pow(x, 2.0) * ((-B - 6.0 * C) * ax + (6.0 * B + 30.0 * C)) + (-12.0 * B - 48.0 * C) * ax + (8.0 * B + 24.0 * C)) / 6.0;
+		return (x * x * ((-B - 6.0 * C) * ax + (6.0 * B + 30.0 * C)) + (-12.0 * B - 48.0 * C) * ax + (8.0 * B + 24.0 * C)) / 6.0;
 	} else {
 		return 0.0;
 	}
@@ -28,14 +28,18 @@ float weight(float x, float B, float C) {
 float4 weight4(float x) {
 	float B = 0.0;
 	float C = 0.0;
-	if (useSharperVersion == 0) {
-		// Mitchel-Netravali coefficients.
-		// Best psychovisual result.
+
+	if (variant == 0) {
+		// Mitchell
 		B = 1.0 / 3.0;
 		C = 1.0 / 3.0;
+	} else if (variant == 1) {
+		// Catrom
+		B = 0.0;
+		C = 0.5;
 	} else {
-		// Sharper version.
-		// May look better in some cases.
+		// Sharper
+		// PhotoShop 使用的参数
 		B = 0.0;
 		C = 0.75;
 	}

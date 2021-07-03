@@ -228,17 +228,28 @@ API_DECLSPEC HRESULT CreateMitchellEffect(
 		}
 	}
 
-	// useSharperVersion 属性
-	it = props.find("useSharperVersion");
+	// variant 属性
+	it = props.find("variant");
 	if (it != props.end()) {
-		const auto& val = *it;
-		if (!val.is_boolean()) {
+		if (!it->is_string()) {
 			return E_INVALIDARG;
 		}
 
-		hr = result->SetValue(MitchellNetravaliScaleEffect::PROP_USE_SHARPER_VERSION, (BOOL)val.get<bool>());
-		if (!val.is_boolean()) {
+		std::string_view variant = *it;
+		int v = 0;
+		if (variant == "mitchell") {
+			v = 0;
+		} else if (variant == "catrom") {
+			v = 1;
+		} else if (variant == "sharper") {
+			v = 2;
+		} else {
 			return E_INVALIDARG;
+		}
+
+		hr = result->SetValue(MitchellNetravaliScaleEffect::PROP_VARIANT, v);
+		if (FAILED(hr)) {
+			return hr;
 		}
 	}
 

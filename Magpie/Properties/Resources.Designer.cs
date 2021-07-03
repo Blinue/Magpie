@@ -74,7 +74,7 @@ namespace Magpie.Properties {
         ///      {
         ///        &quot;module&quot;: &quot;Common&quot;,
         ///        &quot;effect&quot;: &quot;adaptiveSharpen&quot;,
-        ///        &quot;curveHeight&quot;: 0.8
+        ///        &quot;curveHeight&quot;: 0.6
         ///      }
         ///    ]
         ///  },

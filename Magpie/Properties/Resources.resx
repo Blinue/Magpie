@@ -131,7 +131,7 @@
       {
         "module": "Common",
         "effect": "adaptiveSharpen",
-        "curveHeight": 0.8
+        "curveHeight": 0.6
       }
     ]
   },
@@ -161,7 +161,7 @@
         "module": "Common",
         "effect": "mitchell",
         "scale": [ -1, -1 ],
-        "useSharperVersion": true
+        "variant": "catrom"
       }
     ]
   },
@@ -175,7 +175,7 @@
         "module": "Common",
         "effect": "mitchell",
         "scale": [ -1, -1 ],
-        "useSharperVersion": true
+        "variant": "catrom"
       }
     ]
   },
@@ -192,7 +192,7 @@
         "module": "Common",
         "effect": "mitchell",
         "scale": [ -1, -1 ],
-        "useSharperVersion": true
+        "variant": "catrom"
       }
     ]
   },
@@ -209,7 +209,7 @@
         "module": "Common",
         "effect": "mitchell",
         "scale": [ -1, -1 ],
-        "useSharperVersion": true
+        "variant": "catrom"
       },
       {
         "module": "Anime4K",

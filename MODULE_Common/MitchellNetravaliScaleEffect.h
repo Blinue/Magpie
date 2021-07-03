@@ -39,25 +39,29 @@ public:
         return _transform->GetScale();
     }
 
-    HRESULT SetUseSharperVersion(BOOL value) {
-        _transform->SetUseSharpenVersion((bool)value);
+    HRESULT SetVariant(INT value) {
+        if (value < 0 || value > 2) {
+            return E_INVALIDARG;
+        }
+
+        _transform->SetVariant(value);
         return S_OK;
     }
 
-    BOOL IsUseSharperVersion() const {
-        return (BOOL)_transform->IsUseSharpenVersion();
+    INT GetVariant() const {
+        return _transform->GetVariant();
     }
 
     enum PROPS {
         PROP_SCALE = 0,
-        PROP_USE_SHARPER_VERSION = 1
+        PROP_VARIANT = 1    // mitchell 变体：0 为 Mitchell，1 为 Catrom，2 为 Sharper。默认值为 0
     };
 
     static HRESULT Register(_In_ ID2D1Factory1* pFactory) {
         const D2D1_PROPERTY_BINDING bindings[] =
         {
             D2D1_VALUE_TYPE_BINDING(L"Scale", &SetScale, &GetScale),
-            D2D1_VALUE_TYPE_BINDING(L"UseSharperVersion", &SetUseSharperVersion, &IsUseSharperVersion)
+            D2D1_VALUE_TYPE_BINDING(L"Variant", &SetVariant, &GetVariant)
         };
 
         HRESULT hr = pFactory->RegisterEffectFromString(CLSID_MAGPIE_MITCHELL_NETRAVALI_SCALE_EFFECT, XML(
@@ -75,9 +79,11 @@ public:
                     <Property name='DisplayName' type='string' value='Scale' />
                     <Property name='Default' type='vector2' value='(1,1)' />
                 </Property>
-                <Property name='UseSharperVersion' type='bool'>
-                    <Property name='DisplayName' type='string' value='Use Sharper Version' />
-                    <Property name='Default' type='bool' value='false' />
+                <Property name='Variant' type='int32'>
+                    <Property name='DisplayName' type='string' value='Variant'/>
+                    <Property name='Default' type='int32' value='0'/>
+                    <Property name='Min' type='int32' value='0'/>
+                    <Property name='Max' type='int32' value='2'/>
                 </Property>
             </Effect>
         ), bindings, ARRAYSIZE(bindings), CreateEffect);

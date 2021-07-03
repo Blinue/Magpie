@@ -27,12 +27,13 @@ public:
         return hr;
     }
 
-    void SetUseSharpenVersion(bool value) {
-        _useSharperVersion = value;
+    void SetVariant(int value) {
+        assert(value >= 0 && value <= 2);
+        _variant = value;
     }
 
-    bool IsUseSharpenVersion() {
-        return _useSharperVersion;
+    int GetVariant() {
+        return _variant;
     }
 
 protected:
@@ -42,18 +43,18 @@ protected:
             INT32 srcHeight;
             INT32 destWidth;
             INT32 destHeight;
-            INT32 useSharperVersion;
+            INT32 variant;
         } shaderConstants{
             srcSize.cx,
             srcSize.cy,
             destSize.cx,
             destSize.cy,
-            (INT32)_useSharperVersion
+            _variant
         };
 
         _drawInfo->SetPixelShaderConstantBuffer((BYTE*)&shaderConstants, sizeof(shaderConstants));
     }
 
 private:
-    bool _useSharperVersion = false;
+    int _variant = 0;
 };

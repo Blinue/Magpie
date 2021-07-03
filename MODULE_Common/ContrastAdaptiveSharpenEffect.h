@@ -6,7 +6,8 @@
 #include "EffectDefines.h"
 
 
-
+// 对比度自适应锐化
+// 移植自 https://github.com/deus0ww/mpv-conf/blob/master/shaders/cas/cas_rgb.glsl
 class ContrastAdaptiveSharpenEffect : public EffectBase {
 public:
     IFACEMETHODIMP Initialize(
