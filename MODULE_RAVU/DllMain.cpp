@@ -5,7 +5,6 @@
 #include <nlohmann/json.hpp>
 #include "RAVULiteEffect.h"
 #include "RAVUZoomEffect.h"
-#include "resource.h"
 
 
 HINSTANCE hInst = NULL;
@@ -107,20 +106,10 @@ HRESULT CreateZoomEffect(
     }
 
     // 设置权重纹理
-    HBITMAP hBmp = (HBITMAP)LoadImage(hInst, MAKEINTRESOURCE(IDB_BITMAP1), IMAGE_BITMAP, 0, 0, 0);
-    if (hBmp == NULL) {
-        auto a = GetLastError();
-        return E_FAIL;
-    }
-    ComPtr<ID2D1Bitmap> weights;
-    hr = EffectUtils::LoadBitmapFromHBmp(wicImgFactory, d2dDC, hBmp, weights);
+    hr = RAVUZoomEffect::LoadWeights(result.Get(), hInst, wicImgFactory, d2dDC);
     if (FAILED(hr)) {
         return hr;
     }
-    if (!DeleteObject(hBmp)) {
-        return E_FAIL;
-    }
-    result->SetInput(1, weights.Get());
 
     effect = std::move(result);
     scale.first *= scaleResult.first;

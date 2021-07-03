@@ -7,7 +7,7 @@ cbuffer constants : register(b0) {
 
 
 #define MAGPIE_INPUT_COUNT 2
-#include "FSRCNNX8041.hlsli"
+#include "common.hlsli"
 
 #define get0(pos) uncompressLinear(SampleInput(0, pos), -1, 1.5)
 #define get1(pos) uncompressLinear(SampleInput(1, pos), -2, 2)

@@ -2,11 +2,6 @@
 // ÒÆÖ²×Ô https://github.com/bjin/mpv-prescalers/blob/master/ravu-lite-r3.hook
 
 
-cbuffer constants : register(b0) {
-	int2 srcSize : packoffset(c0);
-};
-
-
 #define MAGPIE_INPUT_COUNT 2
 #define MAGPIE_NO_CHECK
 #define MAGPIE_USE_YUV

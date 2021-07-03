@@ -5,6 +5,7 @@
 #include "RavuZoomWeightsTransform.h"
 #include <d2d1effecthelpers.h>
 #include "EffectDefines.h"
+#include "resource.h"
 
 
 class RAVUZoomEffect : public EffectBase {
@@ -124,6 +125,23 @@ public:
         return S_OK;
     }
 
+    static HRESULT LoadWeights(ID2D1Effect* effect, HINSTANCE hInst, IWICImagingFactory2* wicImgFactory, ID2D1DeviceContext* d2dDC) {
+        HBITMAP hBmp = (HBITMAP)LoadImage(hInst, MAKEINTRESOURCE(IDB_RAVU_ZOOM_R3_WEIGHTS), IMAGE_BITMAP, 0, 0, 0);
+        if (hBmp == NULL) {
+            return E_FAIL;
+        }
+        ComPtr<ID2D1Bitmap> weights;
+        HRESULT hr = EffectUtils::LoadBitmapFromHBmp(wicImgFactory, d2dDC, hBmp, weights);
+        if (FAILED(hr)) {
+            return hr;
+        }
+        if (!DeleteObject(hBmp)) {
+            return E_FAIL;
+        }
+
+        effect->SetInput(1, weights.Get());
+        return S_OK;
+    }
 private:
     RAVUZoomEffect() {}
 

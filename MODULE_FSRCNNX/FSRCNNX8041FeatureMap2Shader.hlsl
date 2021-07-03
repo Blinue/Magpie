@@ -7,7 +7,7 @@ cbuffer constants : register(b0) {
 
 
 #define MAGPIE_INPUT_COUNT 1
-#include "FSRCNNX8041.hlsli"
+#include "common.hlsli"
 
 
 D2D_PS_ENTRY(main) {

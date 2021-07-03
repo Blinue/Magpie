@@ -79,11 +79,47 @@
     <FxCompile Include="FSRCNNX8041AggregationShader.hlsl">
       <Filter>着色器</Filter>
     </FxCompile>
+    <FxCompile Include="FSRCNNX8041LineArtFeatureMap1Shader.hlsl">
+      <Filter>着色器</Filter>
+    </FxCompile>
+    <FxCompile Include="FSRCNNX8041LineArtFeatureMap2Shader.hlsl">
+      <Filter>着色器</Filter>
+    </FxCompile>
+    <FxCompile Include="FSRCNNX8041LineArtMapping1aShader.hlsl">
+      <Filter>着色器</Filter>
+    </FxCompile>
+    <FxCompile Include="FSRCNNX8041LineArtMapping1bShader.hlsl">
+      <Filter>着色器</Filter>
+    </FxCompile>
+    <FxCompile Include="FSRCNNX8041LineArtMapping2aShader.hlsl">
+      <Filter>着色器</Filter>
+    </FxCompile>
+    <FxCompile Include="FSRCNNX8041LineArtMapping2bShader.hlsl">
+      <Filter>着色器</Filter>
+    </FxCompile>
+    <FxCompile Include="FSRCNNX8041LineArtMapping3aShader.hlsl">
+      <Filter>着色器</Filter>
+    </FxCompile>
+    <FxCompile Include="FSRCNNX8041LineArtMapping3bShader.hlsl">
+      <Filter>着色器</Filter>
+    </FxCompile>
+    <FxCompile Include="FSRCNNX8041LineArtMapping4aShader.hlsl">
+      <Filter>着色器</Filter>
+    </FxCompile>
+    <FxCompile Include="FSRCNNX8041LineArtMapping4bShader.hlsl">
+      <Filter>着色器</Filter>
+    </FxCompile>
+    <FxCompile Include="FSRCNNX8041LineArtSubBandResiduals1Shader.hlsl">
+      <Filter>着色器</Filter>
+    </FxCompile>
+    <FxCompile Include="FSRCNNX8041LineArtSubBandResiduals2Shader.hlsl">
+      <Filter>着色器</Filter>
+    </FxCompile>
+    <FxCompile Include="FSRCNNX8041LineArtSubPixelConvShader.hlsl">
+      <Filter>着色器</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="FSRCNNX8041.hlsli">
-      <Filter>着色器</Filter>
-    </None>
     <None Include="packages.config" />
   </ItemGroup>
 </Project>

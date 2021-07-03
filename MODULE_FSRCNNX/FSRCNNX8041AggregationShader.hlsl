@@ -4,7 +4,7 @@
 #define MAGPIE_INPUT_COUNT 2
 #define MAGPIE_USE_YUV
 #define MAGPIE_NO_CHECK
-#include "FSRCNNX8041.hlsli"
+#include "common.hlsli"
 
 #define noise_threshold 0.02
 

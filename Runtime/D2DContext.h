@@ -23,28 +23,32 @@ public:
         }
     }
 
-    void Render(std::function<void(ID2D1DeviceContext*)> renderFunc) {
+    void Render(std::function<bool(ID2D1DeviceContext*)> renderFunc) {
+        if (!_waitingForFrame) {
+            // 在任何渲染发生之前等待以减少输入延迟
+            if (Env::$instance->GetCaptureMode() == 1) {
+                // GDI 捕获要求必须等待下一次垂直同步
+                Debug::ThrowIfComFailed(
+                    _dxgiOutput->WaitForVBlank(),
+                    L"WaitForVBlank失败"
+                );
+            } else {
+                WaitForSingleObjectEx(_frameLatencyWaitableObject, 1000, true);
+            }
+        }
+
         _d2dDC->BeginDraw();
-        renderFunc(_d2dDC.Get());
+        _waitingForFrame = !renderFunc(_d2dDC.Get());
         Debug::ThrowIfComFailed(
             _d2dDC->EndDraw(),
             L"EndDraw 失败"
         );
-        
-        Debug::ThrowIfComFailed(
-            _dxgiSwapChain->Present(0, 0),
-            L"Present 失败"
-        );
-        
-        // 放在这里可以降低渲染延迟
-        if (Env::$instance->GetCaptureMode() == 1) {
-            // GDI 捕获要求必须等待下一次垂直同步
+
+        if (!_waitingForFrame) {
             Debug::ThrowIfComFailed(
-                _dxgiOutput->WaitForVBlank(),
-                L"WaitForVBlank失败"
+                _dxgiSwapChain->Present(0, 0),
+                L"Present 失败"
             );
-        } else {
-            WaitForSingleObjectEx(_frameLatencyWaitableObject, 1000, true);
         }
     }
 
@@ -214,4 +218,7 @@ private:
     ComPtr<IDXGIOutput> _dxgiOutput = nullptr;
     // 用于 WinRT 捕获
     HANDLE _frameLatencyWaitableObject;
+
+    // 未接收到帧时确保不渲染
+    bool _waitingForFrame = false;
 };

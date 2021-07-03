@@ -1,14 +1,9 @@
 // (FSRCNNX_x2_8-0-4-1) sub-band residuals 1
 
 
-cbuffer constants : register(b0) {
-	int2 srcSize : packoffset(c0.x);
-};
-
-
 #define MAGPIE_INPUT_COUNT 3
 #define MAGPIE_NO_CHECK
-#include "FSRCNNX8041.hlsli"
+#include "common.hlsli"
 
 
 D2D_PS_ENTRY(main) {

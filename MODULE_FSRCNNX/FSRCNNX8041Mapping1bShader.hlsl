@@ -7,7 +7,7 @@ cbuffer constants : register(b0) {
 
 
 #define MAGPIE_INPUT_COUNT 2
-#include "FSRCNNX8041.hlsli"
+#include "common.hlsli"
 
 #define get0(pos) uncompressLinear(SampleInput(0, pos), -1, 1.5)
 #define get1(pos) uncompressLinear(SampleInput(1, pos), -2, 2)
@@ -40,5 +40,5 @@ D2D_PS_ENTRY(main) {
 	res += mul(get1(rightBottom), float4x4(-0.0344385802745819, 0.1270371377468109, 0.0922426953911781, -0.0426749102771282, -0.1656492203474045, -0.3273328542709351, -0.0282224025577307, 0.1099396124482155, -0.1113230437040329, 0.2943290174007416, -0.2181112915277481, -0.3177657723426819, -0.1096536740660667, -0.0508293099701405, -0.0256164856255054, -0.0388228967785835));
 	res = max(res, ZEROS4) + float4(0.7142407894134521, 0.0686190053820610, 0.3999933302402496, -1.0247212648391724) * min(res, ZEROS4);
 
-	return compressLinear(res, -4, 4.5);
+	return compressTan(res);
 }
