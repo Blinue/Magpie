@@ -144,26 +144,6 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\EffectCommon\EffectCommon.vcxproj">
-      <Project>{95c6c401-ae29-4b29-b1a7-20782f0937d1}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\MODULE_ACNet\MODULE_ACNet.vcxproj">
-      <Project>{340bc8c2-c2b0-434c-be5e-76d640cbca85}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\MODULE_Anime4K\MODULE_Anime4K.vcxproj">
-      <Project>{fd3ed999-21e0-4f6a-ab78-f37e2466a356}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\MODULE_Common\MODULE_Common.vcxproj">
-      <Project>{ec100169-8050-440a-96f0-3ac8b9382f30}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\MODULE_FSRCNNX\MODULE_FSRCNNX.vcxproj">
-      <Project>{f7d98898-b2f7-4708-85e8-caa4e09a6e3c}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\MODULE_RAVU\MODULE_RAVU.vcxproj">
-      <Project>{e5a19099-f4b4-48ed-89db-43a3f1fcf8ae}</Project>
-    </ProjectReference>
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

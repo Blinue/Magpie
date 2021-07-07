@@ -98,8 +98,11 @@ static float2 maxCoord7;
 #define SampleInputCur(index) (SampleInput(index, Coord(index).xy))
 #define SampleInputOff(index, pos) (SampleInput(index, Coord(index).xy + (pos) * Coord(index).zw))
 
+// 在循环中使用
+#define SampleInputLod(index, pos) (InputTexture##index.SampleLevel(InputSampler##index, (pos), 0))
+
 #ifndef MAGPIE_NO_CHECK
-#define GetCheckedPos(index, pos) (clamp((pos), float2(0, 0), maxCoord##index))
+#define GetCheckedPos(index, pos) (clamp((pos), 0, maxCoord##index))
 #define GetCheckedOffPos(index, pos) (GetCheckedPos(index, Coord(index).xy + (pos) * Coord(index).zw))
 
 #define SampleInputChecked(index, pos) (SampleInput(index, GetCheckedPos(index, (pos))))

@@ -18,6 +18,24 @@ public:
         _d2dEffectContext = effectContext;
         _d2dTransformGraph = transformGraph;
 
+        HRESULT hr = SimpleDrawTransform<>::Create(
+            _d2dEffectContext,
+            &_rgb2yuvTransform,
+            MAGPIE_RGB2YUV_SHADER,
+            GUID_MAGPIE_RGB2YUV_SHADER
+        );
+        if (FAILED(hr)) {
+            return hr;
+        }
+
+        hr = Anime4KSharpenCombineTransform::Create(_d2dEffectContext, &_sharpenCombineTransform);
+        if (FAILED(hr)) {
+            return hr;
+        }
+        if (FAILED(hr)) {
+            return hr;
+        }
+
         return _MakeGraph();
     }
 
@@ -128,18 +146,6 @@ private:
     HRESULT _MakeGraph() {
         HRESULT hr;
         _d2dTransformGraph->Clear();
-
-        if (!_rgb2yuvTransform) {
-            hr = SimpleDrawTransform<>::Create(
-                _d2dEffectContext,
-                &_rgb2yuvTransform,
-                MAGPIE_RGB2YUV_SHADER,
-                GUID_MAGPIE_RGB2YUV_SHADER
-            );
-            if (FAILED(hr)) {
-                return hr;
-            }
-        }
 
         if (_useDenoiseVersion) {
             hr = SimpleDrawTransform<>::Create(
@@ -259,14 +265,6 @@ private:
         );
         if (FAILED(hr)) {
             return hr;
-        }
-
-        if (!_sharpenCombineTransform) {
-            // 不重新创建 sharpenCombineTransform
-            hr = Anime4KSharpenCombineTransform::Create(_d2dEffectContext, &_sharpenCombineTransform);
-            if (FAILED(hr)) {
-                return hr;
-            }
         }
         
         hr = _d2dTransformGraph->AddNode(_rgb2yuvTransform.Get());

@@ -21,10 +21,9 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{340bc8c2-c2b0-434c-be5e-76d640cbca85}</ProjectGuid>
-    <RootNamespace>MODULEACNet</RootNamespace>
+    <ProjectGuid>{1ceadc6b-cbc0-4ab6-904a-d03ce9d2fdfa}</ProjectGuid>
+    <RootNamespace>MODULESSIM</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
-    <ProjectName>MODULE_ACNet</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -45,8 +44,6 @@
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
-    <PreferredToolArchitecture>
-    </PreferredToolArchitecture>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
@@ -82,19 +79,16 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(SolutionDir)build\$(Platform)\$(Configuration)\effects\</OutDir>
-    <ExtensionsToDeleteOnClean>$(ExtensionsToDeleteOnClean)</ExtensionsToDeleteOnClean>
-    <TargetName>ACNet</TargetName>
+    <TargetName>SSIM</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>$(SolutionDir)build\$(Platform)\$(Configuration)\effects\</OutDir>
-    <TargetName>ACNet</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;_DEBUG;MODULEACNET_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;MODULESSIM_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
@@ -111,7 +105,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;NDEBUG;MODULEACNET_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;MODULESSIM_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
@@ -128,7 +122,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;MODULEACNET_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;MODULESSIM_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
@@ -145,11 +139,19 @@
       <AdditionalIncludeDirectories>$(WindowsSDK_IncludePath);$(SolutionDir)\EffectCommon;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </FxCompile>
     <FxCompile>
-      <ShaderType>Pixel</ShaderType>
-      <ShaderModel>5.0</ShaderModel>
-      <CompileD2DCustomEffect>true</CompileD2DCustomEffect>
       <DisableOptimizations>false</DisableOptimizations>
+    </FxCompile>
+    <FxCompile>
       <EnableDebuggingInformation>false</EnableDebuggingInformation>
+    </FxCompile>
+    <FxCompile>
+      <ShaderType>Pixel</ShaderType>
+    </FxCompile>
+    <FxCompile>
+      <ShaderModel>5.0</ShaderModel>
+    </FxCompile>
+    <FxCompile>
+      <CompileD2DCustomEffect>true</CompileD2DCustomEffect>
       <ObjectFileOutput>$(OutDir)\..\shaders\%(Filename).cso</ObjectFileOutput>
     </FxCompile>
   </ItemDefinitionGroup>
@@ -159,13 +161,10 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;MODULEACNET_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;MODULESSIM_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <LanguageStandard>stdcpp17</LanguageStandard>
-      <LanguageStandard_C>stdc17</LanguageStandard_C>
-      <AdditionalIncludeDirectories>$(SolutionDir)\EffectCommon;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -174,29 +173,13 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
     </Link>
-    <FxCompile>
-      <DisableOptimizations>false</DisableOptimizations>
-    </FxCompile>
-    <FxCompile>
-      <EnableDebuggingInformation>false</EnableDebuggingInformation>
-    </FxCompile>
-    <FxCompile>
-      <ShaderType>Pixel</ShaderType>
-    </FxCompile>
-    <FxCompile>
-      <ShaderModel>5.0</ShaderModel>
-    </FxCompile>
-    <FxCompile>
-      <CompileD2DCustomEffect>true</CompileD2DCustomEffect>
-      <AdditionalIncludeDirectories>$(WindowsSDK_IncludePath);$(SolutionDir)\EffectCommon;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <ObjectFileOutput>$(OutDir)\..\shaders\%(Filename).cso</ObjectFileOutput>
-    </FxCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="ACNetEffect.h" />
-    <ClInclude Include="ACNetL10Transform.h" />
     <ClInclude Include="EffectDefines.h" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="SSimDownscalerEffect.h" />
+    <ClInclude Include="SSimDownscalerL2Pass1Transform.h" />
+    <ClInclude Include="SSimDownscalerL2Pass2Transform.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DllMain.cpp" />
@@ -208,35 +191,46 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="ACNet.hlsli" />
-    <None Include="common.hlsli" />
-    <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <FxCompile Include="ACNetL10Shader.hlsl" />
-    <FxCompile Include="ACNetL1aShader.hlsl" />
-    <FxCompile Include="ACNetL1bShader.hlsl" />
-    <FxCompile Include="ACNetL2aShader.hlsl" />
-    <FxCompile Include="ACNetL2bShader.hlsl" />
-    <FxCompile Include="ACNetL3aShader.hlsl" />
-    <FxCompile Include="ACNetL3bShader.hlsl" />
-    <FxCompile Include="ACNetL4aShader.hlsl" />
-    <FxCompile Include="ACNetL4bShader.hlsl" />
-    <FxCompile Include="ACNetL5aShader.hlsl" />
-    <FxCompile Include="ACNetL5bShader.hlsl" />
-    <FxCompile Include="ACNetL6aShader.hlsl" />
-    <FxCompile Include="ACNetL6bShader.hlsl" />
-    <FxCompile Include="ACNetL7aShader.hlsl" />
-    <FxCompile Include="ACNetL7bShader.hlsl" />
-    <FxCompile Include="ACNetL8aShader.hlsl" />
-    <FxCompile Include="ACNetL8bShader.hlsl" />
-    <FxCompile Include="ACNetL9aShader.hlsl" />
-    <FxCompile Include="ACNetL9bShader.hlsl" />
+    <FxCompile Include="SSimDownscalerFinalShader.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+    </FxCompile>
+    <FxCompile Include="SSimDownscalerL2Pass1Shader.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+    </FxCompile>
+    <FxCompile Include="SSimDownscalerL2Pass2Shader.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <DisableOptimizations Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</DisableOptimizations>
+      <EnableDebuggingInformation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</EnableDebuggingInformation>
+    </FxCompile>
+    <FxCompile Include="SSimDownscalerMeanShader.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+    </FxCompile>
+    <FxCompile Include="SSimDownscalerRShader.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\EffectCommon\EffectCommon.vcxproj">
       <Project>{95c6c401-ae29-4b29-b1a7-20782f0937d1}</Project>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

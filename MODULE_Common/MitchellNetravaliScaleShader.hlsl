@@ -43,6 +43,11 @@ float4 weight4(float x) {
 		B = 0.0;
 		C = 0.75;
 	}
+	// Hermite: B = 0; C = 0;
+	// Spline: B = 1; C = 0;
+	// Robidoux: B = 0.3782; C = 0.3109;
+	// Robidoux Sharp: B = 0.2620; C = 0.3690;
+	// Robidoux Soft: B = 0.6796; C = 0.1602;
 
 	return float4(
 		weight(x - 2.0, B, C),
