@@ -33,7 +33,7 @@ public:
                     L"WaitForVBlank ß∞‹"
                 );
             } else {
-                WaitForSingleObjectEx(_frameLatencyWaitableObject, 1000, true);
+                WaitForSingleObject(_frameLatencyWaitableObject, 1000);
             }
         }
 

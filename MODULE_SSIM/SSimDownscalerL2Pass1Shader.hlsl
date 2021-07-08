@@ -3,7 +3,6 @@
 cbuffer constants : register(b0) {
 	int2 srcSize : packoffset(c0.x);
     int2 destSize : packoffset(c0.z);
-    int variant : packoffset(c1.x);
 };
 
 
@@ -27,18 +26,18 @@ D2D_PS_ENTRY(main) {
     float high = floor(cur.y + taps - 0.5);
 
     float W = 0;
-    float4 avg = 0;
+    float3 avg = 0;
     float2 pos = cur;
 
     for (float k = low; k <= high; k++) {
         pos.y =  k + 0.5;
         float w = Kernel((pos.y - cur.y) * scale.y);
 
-        float4 t = SampleInputLod(0, GetCheckedPos(0, pos * Coord(0).zw));
+        float3 t = SampleInputLod(0, GetCheckedPos(0, pos * Coord(0).zw)).xyz;
         avg += w * t * t;
         W += w;
     }
     avg /= W;
 
-    return avg;
+    return float4(compressLinear(avg, -0.5, 1.5), 1);
 }

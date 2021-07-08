@@ -178,8 +178,6 @@
     <ClInclude Include="EffectDefines.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="SSimDownscalerEffect.h" />
-    <ClInclude Include="SSimDownscalerL2Pass1Transform.h" />
-    <ClInclude Include="SSimDownscalerL2Pass2Transform.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DllMain.cpp" />

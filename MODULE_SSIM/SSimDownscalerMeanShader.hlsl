@@ -17,20 +17,20 @@ cbuffer constants : register(b0) {
 
 
 
-float4 ScaleH(float2 pos, float curX) {
+float3 ScaleH(float2 pos, float curX) {
     // Calculate bounds
     float low = floor(-0.5 * maxtaps);
     float high = floor(0.5 * maxtaps);
 
     float W = 0;
-    float4 avg = 0;
+    float3 avg = 0;
 
     for (float k = 0.0; k < maxtaps; k++) {
         float rel = k + low + 1.0;
         pos.x = curX + rel;
         float w = Kernel(rel);
 
-        avg += w * SampleInputChecked(0, pos * Coord(0).zw);
+        avg += w * SampleInputChecked(0, pos * Coord(0).zw).rgb;
         W += w;
     }
     avg /= W;
@@ -47,7 +47,7 @@ D2D_PS_ENTRY(main) {
     float high = floor(0.5 * maxtaps);
 
     float W = 0;
-    float4 avg = 0;
+    float3 avg = 0;
     float2 pos = cur;
 
     for (float k = 0.0; k < maxtaps; k++) {
@@ -59,6 +59,5 @@ D2D_PS_ENTRY(main) {
         W += w;
     }
     avg /= W;
-
-    return avg;
+    return float4(avg, 1);
 }

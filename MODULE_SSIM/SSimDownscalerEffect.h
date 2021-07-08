@@ -1,7 +1,7 @@
 #pragma once
 #include <EffectBase.h>
-#include "SSimDownscalerL2Pass1Transform.h"
-#include "SSimDownscalerL2Pass2Transform.h"
+#include <SimpleDrawTransform.h>
+#include <SimpleScaleTransform.h>
 
 
 class SSimDownscalerEffect : public EffectBase {
@@ -13,12 +13,22 @@ public:
         _effectContext = pEffectContext;
         _transformGraph = pTransformGraph;
 
-        HRESULT hr = SSimDownscalerL2Pass1Transform::Create(pEffectContext, &_l2Pass1Transform);
+        HRESULT hr = SimpleScaleTransform::Create(
+            pEffectContext,
+            &_l2Pass1Transform,
+            MAGPIE_SSIM_DOWNSCALER_L2_PASS1_SHADER,
+            GUID_MAGPIE_SSIM_DOWNSCALER_L2_PASS1_SHADER
+        );
         if (FAILED(hr)) {
             return hr;
         }
 
-        hr = SSimDownscalerL2Pass2Transform::Create(pEffectContext, &_l2Pass2Transform);
+        hr = SimpleDrawTransform<1>::Create(
+            pEffectContext,
+            &_l2Pass2Transform,
+            MAGPIE_SSIM_DOWNSCALER_L2_PASS2_SHADER,
+            GUID_MAGPIE_SSIM_DOWNSCALER_L2_PASS2_SHADER
+        );
         if (FAILED(hr)) {
             return hr;
         }
@@ -212,8 +222,8 @@ private:
         return S_OK;
     }
 
-    ComPtr<SSimDownscalerL2Pass1Transform> _l2Pass1Transform = nullptr;
-    ComPtr<SSimDownscalerL2Pass2Transform> _l2Pass2Transform = nullptr;
+    ComPtr<SimpleScaleTransform> _l2Pass1Transform = nullptr;
+    ComPtr<SimpleDrawTransform<1>> _l2Pass2Transform = nullptr;
     ComPtr<ID2D1TransformNode> _downScaleTransform = nullptr;
     ComPtr<SimpleDrawTransform<1>> _meanTransform = nullptr;
     ComPtr<SimpleDrawTransform<3>> _rTransform = nullptr;
