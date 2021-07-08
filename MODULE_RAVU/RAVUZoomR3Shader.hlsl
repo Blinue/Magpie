@@ -15,6 +15,8 @@ cbuffer constants : register(b0) {
 #define WEIGHTS_TEXTURE_WIDTH 45
 #define WEIGHTS_TEXTURE_HEIGHT 2592
 
+#define noise_threshold 0.015
+
 
 float mod(float x, float y) {
 	return x - y * floor(x / y);
@@ -197,6 +199,11 @@ D2D_PS_ENTRY(main) {
 	res += sample19 * w[0];
 	res += sample18 * w[1];
 	res = saturate(res);
+
+	float3 origin = SampleInputCur(0).xyz;
+	if (abs(res.x - origin.x) < noise_threshold) {
+		res = origin;
+	}
 
 	return float4(YUV2RGB(res), 1);
 }

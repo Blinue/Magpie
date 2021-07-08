@@ -69,12 +69,11 @@ D2D_PS_ENTRY(main) {
 
     
     float3 origin = SampleInputCur(0).rgb;
-    return float4((origin), 1);
     float3 r = GammaInv(avg[1] + avg[2] * Gamma(origin) - avg[0]);
 
     // Ïû³ıÔëµã
-    /*if (abs(GetLuma(r) - GetLuma(origin)) > 0.1) {
+    if (abs(GetLuma(r) - GetLuma(origin)) > 0.1) {
         r = origin;
-    }*/
+    }
     return float4(r, 1);
 }
