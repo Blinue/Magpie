@@ -3,6 +3,7 @@
 #include <initguid.h>
 #include "EffectDefines.h"
 #include "SSimDownscalerEffect.h"
+#include <boost/format.hpp>
 
 
 using EffectCreateFunc = HRESULT(
@@ -73,11 +74,13 @@ HRESULT CreateSSimDownscalerEffect(
 
 	std::pair<float, float> t = scale;
 	ComPtr<ID2D1Effect> mitchellEffect = nullptr;
-	auto json = nlohmann::json::parse(LR"({
+	auto s = nlohmann::to_string(*it);
+	s = (boost::format(R"({
 		"effect" : "mitchell",
-		"scale" : [-1, -1],
+		"scale" : %1%,
 		"variant": "mitchell"
-	})");
+	})") % s).str();
+	auto json = nlohmann::json::parse(s);
 	hr = createEffect(d2dFactory, d2dDC, nullptr, json, fillScale, t, mitchellEffect);
 	if (FAILED(hr)) {
 		return hr;
