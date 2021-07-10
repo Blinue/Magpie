@@ -2,6 +2,7 @@
 #include "Shlwapi.h"
 #include <utility>
 #include <wrl.h>
+#include <EffectUtils.h>
 
 using namespace Microsoft::WRL;
 
@@ -148,21 +149,7 @@ public:
     }
 
     static HRESULT UTF8ToUTF16(std::string_view str, std::wstring& result) {
-        assert(str.size() > 0);
-
-        int convertResult = MultiByteToWideChar(CP_UTF8, 0, str.data(), (int)str.size(), nullptr, 0);
-        if (convertResult <= 0) {
-            return E_FAIL;
-        }
-
-        std::wstring r(L"\0", convertResult + 10);
-        convertResult= MultiByteToWideChar(CP_UTF8, 0, str.data(), (int)str.size(), &r[0], (int)r.size());
-        if (convertResult <= 0) {
-            return E_FAIL;
-        }
-
-        result = std::wstring(r.begin(), r.begin() + convertResult);
-        return S_OK;
+        return EffectUtils::UTF8ToUTF16(str, result);
     }
 };
 

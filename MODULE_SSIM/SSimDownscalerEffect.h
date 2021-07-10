@@ -2,6 +2,9 @@
 #include <EffectBase.h>
 #include <SimpleDrawTransform.h>
 #include <SimpleScaleTransform.h>
+#include <nlohmann/json.hpp>
+#include <boost/format.hpp>
+#include "EffectDefines.h"
 
 
 class SSimDownscalerEffect : public EffectBase {
@@ -140,6 +143,52 @@ public:
         return S_OK;
     }
 
+    static HRESULT CreateAndSetDownScaleEffect(
+        ID2D1Effect* result,
+        ID2D1Factory1* d2dFactory,
+        ID2D1DeviceContext* d2dDC,
+        std::pair<float, float> scale
+    ) {
+        assert(scale.first > 0 && scale.second > 0);
+
+        HMODULE dll = LoadLibrary(L"effects\\Common");
+        if (dll == NULL) {
+            return E_FAIL;
+        }
+
+        using EffectCreateFunc = HRESULT(
+            ID2D1Factory1* d2dFactory,
+            ID2D1DeviceContext* d2dDC,
+            IWICImagingFactory2* wicImgFactory,
+            const nlohmann::json& props,
+            float fillScale,
+            std::pair<float, float>& scale,
+            ComPtr<ID2D1Effect>& effect
+        );
+        auto createEffect = (EffectCreateFunc*)GetProcAddress(dll, "CreateEffect");
+        if (createEffect == NULL) {
+            return E_FAIL;
+        }
+
+        std::pair<float, float> t = scale;
+        ComPtr<ID2D1Effect> mitchellEffect = nullptr;
+        auto json = nlohmann::json::parse((boost::format(R"({
+		    "effect" : "mitchell",
+		    "scale" : [%1%, %2%],
+		    "variant": "mitchell"
+	    })") % scale.first % scale.second).str());
+        HRESULT hr = createEffect(d2dFactory, d2dDC, nullptr, json, {}, t, mitchellEffect);
+        if (FAILED(hr)) {
+            return hr;
+        }
+
+        hr = result->SetValue(SSimDownscalerEffect::PROP_DOWN_SCALE_EFFECT, mitchellEffect.Get());
+        if (FAILED(hr)) {
+            return hr;
+        }
+
+        return S_OK;
+    }
 private:
     SSimDownscalerEffect() {}
 

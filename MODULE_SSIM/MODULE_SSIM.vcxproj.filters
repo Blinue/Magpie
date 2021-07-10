@@ -24,6 +24,15 @@
     <ClInclude Include="EffectDefines.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="SSimSuperResEffect.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="SSimSuperResVarLTransform.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="SSimSuperResFinalTransform.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DllMain.cpp">
@@ -47,6 +56,21 @@
       <Filter>着色器</Filter>
     </FxCompile>
     <FxCompile Include="SSimDownscalerFinalShader.hlsl">
+      <Filter>着色器</Filter>
+    </FxCompile>
+    <FxCompile Include="SSimSuperResDownscaling1Shader.hlsl">
+      <Filter>着色器</Filter>
+    </FxCompile>
+    <FxCompile Include="SSimSuperResDownscaling2Shader.hlsl">
+      <Filter>着色器</Filter>
+    </FxCompile>
+    <FxCompile Include="SSimSuperResVarLShader.hlsl">
+      <Filter>着色器</Filter>
+    </FxCompile>
+    <FxCompile Include="SSimSuperResVarHShader.hlsl">
+      <Filter>着色器</Filter>
+    </FxCompile>
+    <FxCompile Include="SSimSuperResFinalShader.hlsl">
       <Filter>着色器</Filter>
     </FxCompile>
   </ItemGroup>

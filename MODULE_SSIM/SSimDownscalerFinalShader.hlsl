@@ -1,4 +1,4 @@
-//!DESC SSimDownscaler final pass
+// SSimDownscaler final pass
 
 cbuffer constants : register(b0) {
     int2 srcSize : packoffset(c0.x);

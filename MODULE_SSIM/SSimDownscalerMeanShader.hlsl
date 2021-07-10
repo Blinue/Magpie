@@ -1,4 +1,4 @@
-//!DESC SSimDownscaler calc Mean
+// SSimDownscaler calc Mean
 
 cbuffer constants : register(b0) {
     int2 srcSize : packoffset(c0.x);

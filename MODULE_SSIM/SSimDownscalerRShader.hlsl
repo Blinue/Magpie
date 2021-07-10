@@ -1,4 +1,4 @@
-//!DESC SSimDownscaler calc R
+// SSimDownscaler calc R
 
 cbuffer constants : register(b0) {
     int2 srcSize : packoffset(c0.x);   // srcSize

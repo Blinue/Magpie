@@ -1,4 +1,4 @@
-//!DESC SSimDownscaler calc L2 pass 2
+// SSimDownscaler calc L2 pass 2
 
 cbuffer constants : register(b0) {
     int2 srcSize : packoffset(c0.x);

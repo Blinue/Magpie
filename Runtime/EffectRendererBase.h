@@ -67,7 +67,7 @@ private:
 			Debug::Assert(model.is_object(), L"json 格式错误");
 
 			const auto &moduleName = model.value("module", "");
-			Debug::Assert(moduleName.size() > 0, L"json 格式错误");
+			Debug::Assert(!moduleName.empty(), L"json 格式错误");
 
 			std::wstring moduleNameW;
 			Debug::ThrowIfComFailed(
