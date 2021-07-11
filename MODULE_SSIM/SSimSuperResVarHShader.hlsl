@@ -7,7 +7,6 @@ cbuffer constants : register(b0) {
 
 
 #define MAGPIE_INPUT_COUNT 2
-#define MAGPIE_NO_CHECK
 #include "common.hlsli"
 
 
@@ -15,13 +14,15 @@ cbuffer constants : register(b0) {
 #define spread      1.0 / 1000.0
 
 #define sqr(x)      pow(x, 2.0)
-#define GetH(x,y)   SampleInputOff(0, float2(x, y) / scale).rgb
+#define GetH(x,y)   SampleInputOffChecked(0, float2(x, y) / scale).rgb
 
 #define Luma(rgb)   ( dot(rgb*rgb, float3(0.2126, 0.7152, 0.0722)) )
 
 
 
 D2D_PS_ENTRY(main) {
+    InitMagpieSampleInput();
+
     int X, Y;
     float3 meanH = 0;
     for (X = -1; X <= 1; X++) {

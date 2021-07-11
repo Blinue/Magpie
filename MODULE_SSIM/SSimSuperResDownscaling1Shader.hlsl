@@ -7,7 +7,6 @@ cbuffer constants : register(b0) {
 
 
 #define MAGPIE_INPUT_COUNT 2    // POSTKERNEL
-#define MAGPIE_NO_CHECK
 #include "common.hlsli"
 
 
@@ -21,6 +20,8 @@ cbuffer constants : register(b0) {
 
 
 D2D_PS_ENTRY(main) {
+    InitMagpieSampleInput();
+
     float2 cur = Coord(0).xy / Coord(0).zw;
 
     // Calculate bounds
@@ -36,7 +37,7 @@ D2D_PS_ENTRY(main) {
         pos.y = k + 0.5;
         float w = Kernel((pos.y - cur.y) / scale.y);
 
-        tex.rgb = SampleInputLod(0, pos * Coord(0).zw).rgb;
+        tex.rgb = SampleInputLod(0, GetCheckedPos(0, pos * Coord(0).zw)).rgb;
         tex.a = Luma(tex.rgb);
         avg += w * tex;
         W += w;

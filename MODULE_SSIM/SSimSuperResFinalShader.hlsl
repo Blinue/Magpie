@@ -6,7 +6,6 @@ cbuffer constants : register(b0) {
 };
 
 #define MAGPIE_INPUT_COUNT 5    // PREKERNEL, POSTKERNEL, LOWRES, varL, varH
-#define MAGPIE_NO_CHECK
 #include "common.hlsli"
 
 
@@ -28,26 +27,31 @@ cbuffer constants : register(b0) {
 #define Luma(rgb)   ( dot(rgb*rgb, float3(0.2126, 0.7152, 0.0722)) )
 
 float L(float x, float y) {
-    float2 c = SampleInputOff(3, float2(x, y) + 0.5).xy;
+    float2 c = SampleInputOffChecked(3, float2(x, y) + 0.5).xy;
     return (c.x + c.y / 10) / 8;
 }
 
 float H(float x, float y) {
-    float2 c = SampleInputOff(4, float2(x, y) + 0.5).xy;
+    float2 c = SampleInputOffChecked(4, float2(x, y) + 0.5).xy;
     return (c.x + c.y / 10) / 8;
 }
 
 float4 Lowres(float x, float y) {
-    float4 c = SampleInputOff(2, float2(x, y) + 0.5);
+    float4 c = SampleInputOffChecked(2, float2(x, y) + 0.5);
     c.a = c.a /20;
     return c;
 }
 
 D2D_PS_ENTRY(main) {
-    InitMagpieSampleInput();
-
     float2 scale = float2(destSize) / srcSize;
     Coord(0).xy /= scale;
+
+    // PREKERNEL 为 srcSize，其他为 destSize
+    maxCoord0 = float2((srcSize.x - 1) * Coord(0).z, (srcSize.y - 1) * Coord(0).w);
+    maxCoord1 = float2((destSize.x - 1) * Coord(1).z, (destSize.y - 1) * Coord(1).w);
+    maxCoord2 = float2((destSize.x - 1) * Coord(1).z, (destSize.y - 1) * Coord(1).w);
+    maxCoord3 = float2((destSize.x - 1) * Coord(1).z, (destSize.y - 1) * Coord(1).w);
+    maxCoord4 = float2((destSize.x - 1) * Coord(1).z, (destSize.y - 1) * Coord(1).w);
 
     int X, Y;
 
@@ -79,7 +83,7 @@ D2D_PS_ENTRY(main) {
             float2 krnl = Kernel(float2(X, Y) - offset);
             float weight = krnl.r * krnl.g / (Luma(abs(c0.rgb - Lowres(X, Y).rgb)) + Lowres(X, Y).a + sqr(0.5 / 255.0));
 
-            diff += weight * (SampleInputOff(0, float2(X, Y) / scale).rgb + Lowres(X, Y).rgb * R + (-1.0 - R) * (c0.rgb));
+            diff += weight * (SampleInputOffChecked(0, float2(X, Y) / scale).rgb + Lowres(X, Y).rgb * R + (-1.0 - R) * (c0.rgb));
             weightSum += weight;
         }
     diff /= weightSum;

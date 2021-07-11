@@ -7,7 +7,6 @@ cbuffer constants : register(b0) {
 
 
 #define MAGPIE_INPUT_COUNT 2    // PREKERNEL，（第2个输入不使用）
-#define MAGPIE_NO_CHECK
 #include "common.hlsli"
 
 
@@ -15,7 +14,7 @@ cbuffer constants : register(b0) {
 #define spread      1.0 / 1000.0
 
 #define sqr(x)      pow(x, 2.0)
-#define GetL(x,y)   SampleInputOff(0, float2(x, y)).rgb
+#define GetL(x,y)   SampleInputOffChecked(0, float2(x, y)).rgb
 
 #define Luma(rgb)   ( dot(rgb*rgb, float3(0.2126, 0.7152, 0.0722)) )
 
