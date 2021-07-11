@@ -2,8 +2,9 @@
 #include <EffectBase.h>
 #include <SimpleDrawTransform.h>
 #include <SimpleScaleTransform.h>
-#include "SSimSuperResVarLTransform.h"
+#include "SSimSuperResWithScaleTransform.h"
 #include "SSimSuperResFinalTransform.h"
+#include "SSimSuperResVarLTransform.h"
 #include "EffectDefines.h"
 
 
@@ -16,7 +17,7 @@ public:
         _effectContext = pEffectContext;
         _transformGraph = pTransformGraph;
 
-        HRESULT hr = SimpleDrawTransform<1>::Create(
+        HRESULT hr = SSimSuperResWithScaleTransform::Create(
             _effectContext,
             &_downscaling1Transform,
             MAGPIE_SSIM_SUPERRES_DOWNSCALING1_SHADER,
@@ -26,7 +27,7 @@ public:
             return hr;
         }
 
-        hr = SimpleDrawTransform<1>::Create(
+        hr = SSimSuperResWithScaleTransform::Create(
             _effectContext,
             &_downscaling2Transform,
             MAGPIE_SSIM_SUPERRES_DOWNSCALING2_SHADER,
@@ -44,7 +45,7 @@ public:
             return hr;
         }
 
-        hr = SimpleDrawTransform<1>::Create(
+        hr = SSimSuperResWithScaleTransform::Create(
             _effectContext,
             &_varHTransform,
             MAGPIE_SSIM_SUPERRES_VARH_SHADER,
@@ -162,6 +163,18 @@ private:
         if (FAILED(hr)) {
             return hr;
         }
+        hr = _transformGraph->ConnectToEffectInput(0, _downscaling1Transform.Get(), 1);
+        if (FAILED(hr)) {
+            return hr;
+        }
+        hr = _transformGraph->ConnectToEffectInput(0, _downscaling2Transform.Get(), 1);
+        if (FAILED(hr)) {
+            return hr;
+        }
+        hr = _transformGraph->ConnectToEffectInput(0, _varHTransform.Get(), 1);
+        if (FAILED(hr)) {
+            return hr;
+        }
         hr = _transformGraph->ConnectToEffectInput(0, _finalTransform.Get(), 0);
         if (FAILED(hr)) {
             return hr;
@@ -207,10 +220,10 @@ private:
     }
 
     ComPtr<ID2D1TransformNode> _upScaleTransform = nullptr;
-    ComPtr<SimpleDrawTransform<1>> _downscaling1Transform = nullptr;
-    ComPtr<SimpleDrawTransform<1>> _downscaling2Transform = nullptr;
+    ComPtr<SSimSuperResWithScaleTransform> _downscaling1Transform = nullptr;
+    ComPtr<SSimSuperResWithScaleTransform> _downscaling2Transform = nullptr;
     ComPtr<SSimSuperResVarLTransform> _varLTransform = nullptr;
-    ComPtr<SimpleDrawTransform<1>> _varHTransform = nullptr;
+    ComPtr<SSimSuperResWithScaleTransform> _varHTransform = nullptr;
     ComPtr<SSimSuperResFinalTransform> _finalTransform = nullptr;
 
     ComPtr<ID2D1Effect> _upScaleEffect = nullptr;

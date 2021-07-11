@@ -4,24 +4,26 @@
 #include "EffectDefines.h"
 
 
-class SSimSuperResVarLTransform : public SimpleDrawTransform<2> {
+// 第二个输入只是为了传入缩放倍数
+class SSimSuperResWithScaleTransform : public SimpleDrawTransform<2> {
 private:
-    SSimSuperResVarLTransform() : SimpleDrawTransform<2>(GUID_MAGPIE_SSIM_SUPERRES_VARL_SHADER) {}
+    SSimSuperResWithScaleTransform(const GUID& shaderId) : SimpleDrawTransform<2>(shaderId) {}
 
 public:
-    static HRESULT Create(_In_ ID2D1EffectContext* d2dEC, _Outptr_ SSimSuperResVarLTransform** ppOutput) {
+    static HRESULT Create(
+        _In_ ID2D1EffectContext* d2dEC,
+        _Outptr_ SSimSuperResWithScaleTransform** ppOutput,
+        _In_ const wchar_t* path,
+        const GUID& shaderId
+    ) {
         *ppOutput = nullptr;
 
-        HRESULT hr = LoadShader(
-            d2dEC,
-            MAGPIE_SSIM_SUPERRES_VARL_SHADER,
-            GUID_MAGPIE_SSIM_SUPERRES_VARL_SHADER
-        );
+        HRESULT hr = LoadShader(d2dEC, path, shaderId);
         if (FAILED(hr)) {
             return hr;
         }
 
-        *ppOutput = new SSimSuperResVarLTransform();
+        *ppOutput = new SSimSuperResWithScaleTransform(shaderId);
 
         return S_OK;
     }
@@ -41,7 +43,7 @@ public:
         _inputRects[0] = pInputRects[0];
         _inputRects[1] = pInputRects[1];
 
-        *pOutputRect = _inputRects[1];
+        *pOutputRect = _inputRects[0];
         *pOutputOpaqueSubRect = {};
 
         int srcWidth = _inputRects[0].right - _inputRects[0].left;
@@ -54,8 +56,8 @@ public:
         } shaderConstants{
             srcWidth,
             srcHeight,
-            (_inputRects[1].right - _inputRects[1].left) / float(srcWidth),
-            (_inputRects[1].bottom - _inputRects[1].top) / float(srcHeight)
+            float(srcWidth) / (_inputRects[1].right - _inputRects[1].left),
+            float(srcHeight) / (_inputRects[1].bottom - _inputRects[1].top)
         };
 
         _drawInfo->SetPixelShaderConstantBuffer((BYTE*)&shaderConstants, sizeof(shaderConstants));

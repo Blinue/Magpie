@@ -2,10 +2,11 @@
 
 cbuffer constants : register(b0) {
     int2 srcSize : packoffset(c0.x);
+    float2 scale : packoffset(c0.z);
 };
 
 
-#define MAGPIE_INPUT_COUNT 1
+#define MAGPIE_INPUT_COUNT 2
 #define MAGPIE_NO_CHECK
 #include "common.hlsli"
 
@@ -23,8 +24,8 @@ D2D_PS_ENTRY(main) {
     float2 cur = Coord(0).xy / Coord(0).zw;
 
     // Calculate bounds
-    float low = ceil(cur.x - taps * 1.5 - 0.5);
-    float high = floor(cur.x + taps * 1.5 - 0.5);
+    float low = ceil(cur.x - taps * scale.x - 0.5);
+    float high = floor(cur.x + taps * scale.x - 0.5);
 
     float W = 0.0;
     float4 avg = 0;
@@ -33,7 +34,7 @@ D2D_PS_ENTRY(main) {
 
     for (float k = low; k <= high; k++) {
         pos.x = k + 0.5;
-        float w = Kernel((pos.x - cur.x) / 1.5);
+        float w = Kernel((pos.x - cur.x) / scale.x);
 
         tex.rgb = SampleInputLod(0, pos * Coord(0).zw).rgb;
         tex.a = Luma(tex.rgb);
@@ -44,6 +45,4 @@ D2D_PS_ENTRY(main) {
 
     float a = abs(avg.a - Luma(avg.rgb)) + SampleInputCur(0).a / 20;
     return float4(avg.rgb, a * 20);
-    //a *= 10;
-    //return float4(a, a, a, 1);
 }

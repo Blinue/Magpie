@@ -45,7 +45,9 @@ float4 Lowres(float x, float y) {
 
 D2D_PS_ENTRY(main) {
     InitMagpieSampleInput();
-    Coord(0).xy /= float2(destSize) / srcSize;
+
+    float2 scale = float2(destSize) / srcSize;
+    Coord(0).xy /= scale;
 
     int X, Y;
 
@@ -77,7 +79,7 @@ D2D_PS_ENTRY(main) {
             float2 krnl = Kernel(float2(X, Y) - offset);
             float weight = krnl.r * krnl.g / (Luma(abs(c0.rgb - Lowres(X, Y).rgb)) + Lowres(X, Y).a + sqr(0.5 / 255.0));
 
-            diff += weight * (SampleInputOff(0, float2(X, Y)).rgb + Lowres(X, Y).rgb * R + (-1.0 - R) * (c0.rgb));
+            diff += weight * (SampleInputOff(0, float2(X, Y) / scale).rgb + Lowres(X, Y).rgb * R + (-1.0 - R) * (c0.rgb));
             weightSum += weight;
         }
     diff /= weightSum;

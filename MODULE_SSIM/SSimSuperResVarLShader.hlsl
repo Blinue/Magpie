@@ -2,7 +2,7 @@
 
 cbuffer constants : register(b0) {
     int2 srcSize : packoffset(c0.x);
-    int2 destSize : packoffset(c0.z);
+    float2 scale : packoffset(c0.z);
 };
 
 
@@ -22,7 +22,6 @@ cbuffer constants : register(b0) {
 
 
 D2D_PS_ENTRY(main) {
-    float2 scale = float2(destSize) / srcSize;
     InitMagpieSampleInputWithScale(scale);
 
     int X, Y;

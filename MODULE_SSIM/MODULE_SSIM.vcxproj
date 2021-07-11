@@ -181,6 +181,7 @@
     <ClInclude Include="SSimSuperResEffect.h" />
     <ClInclude Include="SSimSuperResFinalTransform.h" />
     <ClInclude Include="SSimSuperResVarLTransform.h" />
+    <ClInclude Include="SSimSuperResWithScaleTransform.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DllMain.cpp" />

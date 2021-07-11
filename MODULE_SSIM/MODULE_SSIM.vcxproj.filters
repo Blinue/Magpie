@@ -27,10 +27,13 @@
     <ClInclude Include="SSimSuperResEffect.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="SSimSuperResVarLTransform.h">
+    <ClInclude Include="SSimSuperResWithScaleTransform.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="SSimSuperResFinalTransform.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="SSimSuperResVarLTransform.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
