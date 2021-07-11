@@ -64,11 +64,13 @@ D2D_PS_ENTRY(main) {
         W += w;
     }
     avg /= W;
-
+    
     float3 cur2 = SampleInputCur(2).rgb;
     cur2 *= cur2;
     float3 Sl = abs(avg[0] - cur2);
     float3 Sh = abs(avg[1] - cur2);
-    float3 r = lerp(0.5f, 1.0 / (1.0 + sqrt(Sh / Sl)), 1 - step(Sl, 5e-6));
-    return float4(r, 0.0);
+    
+    // 受限于精度，这里增大噪声阈值
+    float3 r = lerp(0.5f, 1.0 / (1.0 + sqrt(Sh / Sl)), 1 - step(Sl, 8e-4));
+    return float4(r, 1);
 }
