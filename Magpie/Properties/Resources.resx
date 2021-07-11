@@ -166,7 +166,7 @@
     ]
   },
   {
-    "name": "动漫 2x（ACNet）",
+    "name": "动漫（ACNet）",
     "model": [
       {
         "module": "ACNet"
@@ -180,7 +180,7 @@
     ]
   },
   {
-    "name": "动漫 2x（Anime4K）",
+    "name": "动漫（Anime4K）",
     "model": [
       {
         "module": "Anime4K",
@@ -197,7 +197,7 @@
     ]
   },
   {
-    "name": "动漫 2x（Anime4K+ThinLines）",
+    "name": "动漫（Anime4K+ThinLines）",
     "model": [
       {
         "module": "Anime4K",
