@@ -63,7 +63,7 @@ namespace Magpie.Properties {
         /// <summary>
         ///   查找类似 [
         ///  {
-        ///    &quot;name&quot;: &quot;通用（Lanczos）&quot;,
+        ///    &quot;name&quot;: &quot;Lanczos&quot;,
         ///    &quot;model&quot;: [
         ///      {
         ///        &quot;module&quot;: &quot;Common&quot;,
@@ -79,7 +79,7 @@ namespace Magpie.Properties {
         ///    ]
         ///  },
         ///  {
-        ///    &quot;name&quot;: &quot;通用（RAVU）&quot;,
+        ///    &quot;name&quot;: &quot;RAVU&quot;,
         ///    &quot;model&quot;: [
         ///      {
         ///        &quot;module&quot;: &quot;RAVU&quot;,
@@ -88,7 +88,7 @@ namespace Magpie.Properties {
         ///      },
         ///      {
         ///        &quot;module&quot;: &quot;Anime4K&quot;,
-        ///         [字符串的其余部分被截断]&quot;; 的本地化字符串。
+        ///        &quot;effect&quot; [字符串的其余部分被截断]&quot;; 的本地化字符串。
         /// </summary>
         internal static string BuiltInScaleModels {
             get {

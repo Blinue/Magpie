@@ -120,7 +120,7 @@
   <data name="BuiltInScaleModels" xml:space="preserve">
     <value>[
   {
-    "name": "通用（Lanczos）",
+    "name": "Lanczos",
     "model": [
       {
         "module": "Common",
@@ -136,7 +136,7 @@
     ]
   },
   {
-    "name": "通用（RAVU）",
+    "name": "RAVU",
     "model": [
       {
         "module": "RAVU",
@@ -151,7 +151,7 @@
     ]
   },
   {
-    "name": "通用（FSRCNNX）",
+    "name": "FSRCNNX",
     "model": [
       {
         "module": "FSRCNNX",
@@ -166,7 +166,7 @@
     ]
   },
   {
-    "name": "动漫（ACNet）",
+    "name": "ACNet",
     "model": [
       {
         "module": "ACNet"
@@ -180,7 +180,7 @@
     ]
   },
   {
-    "name": "动漫（Anime4K）",
+    "name": "Anime4K",
     "model": [
       {
         "module": "Anime4K",
@@ -197,7 +197,7 @@
     ]
   },
   {
-    "name": "动漫（Anime4K+ThinLines）",
+    "name": "Anime4K+ThinLines",
     "model": [
       {
         "module": "Anime4K",

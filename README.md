@@ -1,48 +1,47 @@
+![Lines of code](https://img.shields.io/tokei/lines/github/Blinue/Magpie)
+
 # MAGPIE
 
-窗口放大镜！
+Magpie可以将任意窗口放大至全屏，支持多种高级缩放算法，包括Lanczos、[Anime4K](https://github.com/bloc97/Anime4K)、[RAVU](https://github.com/bjin/mpv-prescalers)、[FSRCNNX](https://github.com/igv/FSRCNN-TensorFlow)等。
 
-可以将任意窗口全屏显示，支持高级缩放算法，包括[Anime4K](https://github.com/bloc97/Anime4K)、[RAVU](https://github.com/bjin/mpv-prescalers)、Lanczos等。
+主要用于游戏窗口的放大显示，适用于不支持全屏模式，或者内置的全屏模式会使画面模糊的情况。
 
-主要用于游戏窗口的放大显示，适用于那些不支持全屏模式，或者游戏自带的全屏模式会使画面模糊的情况。
-
-使用中遇到问题请提交issue。
+欢迎标星，欢迎任何形式的共享。
 
 ## 使用方法
 
 ![窗口截图](img/窗口截图.png)
 
-程序启动后，激活要放大的窗口，按下热键即可全屏显示该窗口，再次按下热键或者切换前台窗口将退出全屏。
+要放大的窗口位于前台时，按下热键即可全屏显示该窗口，再次按下热键或者切换前台窗口将退出全屏。
 
 以下为配置说明：
 
 #### 缩放模式
 
-程序预置了数种缩放模式，如果没有符合你的需求的，请[自定义缩放](docs/自定义缩放.md)。
+程序预置了多种缩放模式，如果它们不符合你的需求，请[自定义缩放](docs/自定义缩放.md)。
 
-1. 通用：Lanczos+锐化
-2. 通用：RAVU
-3. ACNet：[ACNetGLSL](https://github.com/TianZerL/ACNetGLSL)的移植
-4. Anime4K：存在多种变体
-   * 动漫 2x（Anime4K）：对输入应用一次Anime4K，适合放大1~2倍。默认使用降噪版本。
-   * 动漫 2x（Anime4K+ThinLines）：执行Anime4K后细化线条。一般能产生更好的视觉效果。
-   * 动漫 4x（Anime4K x2）：应用两次Anime4K，适合放大2~4倍的情况。
-5. Pixel：将每个像素放大整数倍，可以完整保留原窗口的视觉效果。有2x，3x，4x三种放大倍率可选。
+1. Lanczos：常见的传统插值算法，善于保留锐利的边缘。
+2. RAVU：见[About RAVU](https://github.com/bjin/mpv-prescalers#about-ravu)。此预置使用了zoom变体。
+3. ACNet：[ACNetGLSL](https://github.com/TianZerL/ACNetGLSL)的移植。适合动画风格的图像和视频放大。
+4. Anime4K：开源的高质量的实时动漫缩放/降噪算法。
+   * Anime4K：对输入应用一次Anime4K。默认使用降噪版本。
+   * Anime4K+ThinLines：执行Anime4K后细化线条。
+5. 像素：将每个像素放大整数倍，可以完整保留原图像的视觉效果。预置了2x和3x两种放大倍率。
 
 #### 抓取模式
 
 指示程序如何抓取源窗口图像
 
 1. WinRT Capture：使用[Screen Capture API](https://docs.microsoft.com/en-us/windows/uwp/audio-video-camera/screen-capture)抓取窗口，最推荐的方法。此API从Windows 10, v1803开始提供。
-2. GDI：使用GDI抓取源窗口，速度稍慢
+2. GDI：使用GDI抓取源窗口，速度稍慢。
 
 #### 注入模式
 
-如果源程序使用了自定义光标，屏幕上可能出现两个光标，使用进程注入可解决这个问题
+如果源程序使用了自定义光标，屏幕上可能出现两个光标，Magpie提供了进程注入的功能解决这个问题：
 
 1. 不使用注入：适用于源窗口没有自定义光标的场合
-2. 运行时注入：在窗口运行时按下热键可进入全屏并注入窗口，退出全屏后取消注入
-3. 启动时注入：适用于运行时注入不起作用的场合，不能注入正在运行的进程，需要手动选择要启动并注入的程序
+2. 运行时注入：在执行缩放的同时注入源窗口线程，退出全屏后取消注入
+3. 启动时注入：适用于运行时注入不起作用的场合，不能注入正在运行的进程，需要手动选择要启动并注入的程序。
 
 #### 高级选项
 
@@ -50,7 +49,7 @@
 
 ## 实现原理
 
-如果你使用过[Lossless Scaling](https://store.steampowered.com/app/993090/Lossless_Scaling/)或[IntegerScaler](https://tanalin.com/en/projects/integer-scaler/)，我要告诉你的是，本项目和它们是完全不同的。Magpie的原理非常简单：使用一个全屏窗口覆盖屏幕，捕获原窗口的内容放大后在该全屏窗口显示出来。这种方式使得缩放算法不受任何限制，让我们可以自由使用现存的优秀缩放算法。
+因为实现原理的差别，Magpie比[Lossless Scaling](https://store.steampowered.com/app/993090/Lossless_Scaling/)和[IntegerScaler](https://tanalin.com/en/projects/integer-scaler/)强大的多。Magpie的原理非常简单：使用一个全屏窗口覆盖屏幕，捕获原窗口的内容放大后在该全屏窗口显示出来。这种方式使得缩放算法不受任何限制，让我们可以自由使用现存的优秀缩放算法。
 
 ## 使用提示
 
