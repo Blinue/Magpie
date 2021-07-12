@@ -1,4 +1,4 @@
-![Lines of code](https://img.shields.io/tokei/lines/github/Blinue/Magpie)![Help Wanted](https://img.shields.io/github/issues/Blinue/Magpie/help wanted?color=%232EA043&label=help wanted)
+![Lines of code](https://img.shields.io/tokei/lines/github/Blinue/Magpie)![Help Wanted](https://img.shields.io/github/issues/Blinue/Magpie/help%20wanted?color=%232EA043&label=help%20wanted)
 
 # MAGPIE
 
@@ -38,7 +38,7 @@ Magpie可以将任意窗口放大至全屏，支持多种高级缩放算法，�
 
 #### 注入模式
 
-如果源程序使用了自定义光标，屏幕上可能出现两个光标，Magpie提供了进程注入的功能解决这个问题：
+如果源窗口使用了自定义光标，屏幕上可能出现两个光标。为了解决这个问题，Magpie提供了进程注入的功能：
 
 1. 不使用注入：适用于源窗口没有自定义光标的场合
 2. 运行时注入：在执行缩放的同时注入源窗口线程，退出全屏后取消注入
@@ -50,7 +50,7 @@ Magpie可以将任意窗口放大至全屏，支持多种高级缩放算法，�
 
 ## 实现原理
 
-因为实现原理的差别，Magpie比[Lossless Scaling](https://store.steampowered.com/app/993090/Lossless_Scaling/)和[IntegerScaler](https://tanalin.com/en/projects/integer-scaler/)强大的多。Magpie的原理非常简单：使用一个全屏窗口覆盖屏幕，捕获原窗口的内容放大后在该全屏窗口显示出来。这种方式使得缩放算法不受任何限制，让我们可以自由使用现存的优秀缩放算法。
+因为实现原理的不同，Magpie比[Lossless Scaling](https://store.steampowered.com/app/993090/Lossless_Scaling/)和[IntegerScaler](https://tanalin.com/en/projects/integer-scaler/)强大的多。Magpie的原理非常简单：使用一个全屏窗口覆盖屏幕，捕获原窗口的内容放大后在该全屏窗口显示出来。这种方式使得缩放算法不受任何限制，让我们可以自由使用现存的优秀缩放算法。
 
 ## 使用提示
 
@@ -84,4 +84,3 @@ Magpie可以将任意窗口放大至全屏，支持多种高级缩放算法，�
 * [TianZerL/ACNetGLSL](https://github.com/TianZerL/ACNetGLSL)
 * [igv’s gists](https://gist.github.com/igv)
 * [deus0ww/mpv-conf](https://github.com/deus0ww/mpv-conf)
-
