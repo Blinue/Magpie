@@ -1,4 +1,4 @@
-![Lines of code](https://img.shields.io/tokei/lines/github/Blinue/Magpie) ![Help Wanted](https://img.shields.io/github/issues/Blinue/Magpie/help%20wanted?color=%232EA043&label=help%20wanted)
+[![Lines of code](https://img.shields.io/tokei/lines/github/Blinue/Magpie)](https://github.com/Blinue/Magpie) [![Help Wanted](https://img.shields.io/github/issues/Blinue/Magpie/help%20wanted?color=%232EA043&label=help%20wanted)](https://github.com/Blinue/Magpie/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22)
 
 # MAGPIE
 
