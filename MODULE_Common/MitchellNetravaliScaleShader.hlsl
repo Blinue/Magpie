@@ -39,7 +39,7 @@ float4 weight4(float x) {
 		C = 0.5;
 	} else {
 		// Sharper
-		// PhotoShop 使用的参数
+		// Photoshop 使用的参数
 		B = 0.0;
 		C = 0.75;
 	}

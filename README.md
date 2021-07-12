@@ -1,4 +1,4 @@
-![Lines of code](https://img.shields.io/tokei/lines/github/Blinue/Magpie)
+![Lines of code](https://img.shields.io/tokei/lines/github/Blinue/Magpie)![Help Wanted](https://img.shields.io/github/issues/Blinue/Magpie/help wanted?color=%232EA043&label=help wanted)
 
 # MAGPIE
 
@@ -6,7 +6,7 @@ Magpie可以将任意窗口放大至全屏，支持多种高级缩放算法，�
 
 主要用于游戏窗口的放大显示，适用于不支持全屏模式，或者内置的全屏模式会使画面模糊的情况。
 
-欢迎标星，欢迎任何形式的共享。
+欢迎标星，欢迎任何形式的贡献。
 
 ## 使用方法
 
@@ -21,12 +21,13 @@ Magpie可以将任意窗口放大至全屏，支持多种高级缩放算法，�
 程序预置了多种缩放模式，如果它们不符合你的需求，请[自定义缩放](docs/自定义缩放.md)。
 
 1. Lanczos：常见的传统插值算法，善于保留锐利的边缘。
-2. RAVU：见[About RAVU](https://github.com/bjin/mpv-prescalers#about-ravu)。此预置使用了zoom变体。
-3. ACNet：[ACNetGLSL](https://github.com/TianZerL/ACNetGLSL)的移植。适合动画风格的图像和视频放大。
-4. Anime4K：开源的高质量的实时动漫缩放/降噪算法。
+2. RAVU：见[About RAVU](https://github.com/bjin/mpv-prescalers#about-ravu)。此预置使用zoom变体。
+3. FSRCNNX：FSRCNN的变体。在各种场合表现优秀。
+4. ACNet：[ACNetGLSL](https://github.com/TianZerL/ACNetGLSL)的移植。适合动画风格的图像和视频放大。
+5. Anime4K：开源的高质量的实时动漫缩放/降噪算法。
    * Anime4K：对输入应用一次Anime4K。默认使用降噪版本。
    * Anime4K+ThinLines：执行Anime4K后细化线条。
-5. 像素：将每个像素放大整数倍，可以完整保留原图像的视觉效果。预置了2x和3x两种放大倍率。
+6. 像素：将每个像素放大整数倍，可以完整保留原图像的视觉效果。预置了2x和3x两种放大倍率。
 
 #### 抓取模式
 
@@ -71,11 +72,16 @@ Magpie可以将任意窗口放大至全屏，支持多种高级缩放算法，�
 
 感谢以下优秀项目，你们使Magpie的存在成为可能
 
-* [bloc97/Anime4K](https://github.com/bloc97/Anime4K)
 * [nlohmann/json](https://github.com/nlohmann/json)
 * [Boost C++ Libraries](https://www.boost.org/)
 * [EasyHook/EasyHook](https://github.com/EasyHook/EasyHook)
 * [microsoft/cppwinrt](https://github.com/microsoft/cppwinrt)
 * [libretro/common-shaders](https://github.com/libretro/common-shaders)
 * [TianZerL/Anime4KCPP](https://github.com/TianZerL/Anime4KCPP)
+* [bloc97/Anime4K](https://github.com/bloc97/Anime4K)
+* [bjin/mpv-prescalers](https://github.com/bjin/mpv-prescalers)
+* [igv/FSRCNN-TensorFlow](https://github.com/igv/FSRCNN-TensorFlow)
+* [TianZerL/ACNetGLSL](https://github.com/TianZerL/ACNetGLSL)
+* [igv’s gists](https://gist.github.com/igv)
+* [deus0ww/mpv-conf](https://github.com/deus0ww/mpv-conf)
 
