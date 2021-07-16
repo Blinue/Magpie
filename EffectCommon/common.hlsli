@@ -98,8 +98,16 @@ static float2 maxCoord7;
 #define SampleInputCur(index) (SampleInput(index, Coord(index).xy))
 #define SampleInputOff(index, pos) (SampleInput(index, Coord(index).xy + (pos) * Coord(index).zw))
 
-// 在循环中使用
+// LOD
 #define SampleInputLod(index, pos) (InputTexture##index.SampleLevel(InputSampler##index, (pos), 0))
+
+// Gather
+#define GatherInputRed(index, pos) (InputTexture##index.GatherRed(InputSampler##index, (pos), 0))
+#define GatherInputGreen(index, pos) (InputTexture##index.GatherGreen(InputSampler##index, (pos), 0))
+#define GatherInputBlue(index, pos) (InputTexture##index.GatherBlue(InputSampler##index, (pos), 0))
+
+// Load
+#define LoadInput(index, pos) (InputTexture##index.Load(pos))
 
 #ifndef MAGPIE_NO_CHECK
 #define GetCheckedPos(index, pos) (clamp((pos), 0, maxCoord##index))
@@ -109,6 +117,8 @@ static float2 maxCoord7;
 #define SampleInputOffChecked(index, pos) (SampleInput(index, GetCheckedOffPos(index, (pos))))
 #endif
 
+
+#define MAGPIE_ENTRY(name) D2D_PS_ENTRY(name)
 
 // 需要 main 函数的开头调用
 

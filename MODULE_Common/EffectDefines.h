@@ -31,6 +31,13 @@ DEFINE_GUID(GUID_MAGPIE_PIXEL_SCALE_SHADER,
 DEFINE_GUID(GUID_MAGPIE_CONTRAST_ADAPTIVE_SHARPEN_SHADER,
     0x3e7f23c3, 0x185f, 0x4ac6, 0xb6, 0xb8, 0xd5, 0x18, 0x7e, 0x69, 0xca, 0x4f);
 
+// {6B5C18BA-B415-4EDC-9A1C-7D4876E94633}
+DEFINE_GUID(GUID_MAGPIE_FFX_EASU_SHADER,
+    0x6b5c18ba, 0xb415, 0x4edc, 0x9a, 0x1c, 0x7d, 0x48, 0x76, 0xe9, 0x46, 0x33);
+// {16C7F163-CBCC-4764-8AF8-07FC113747FA}
+DEFINE_GUID(GUID_MAGPIE_FFX_RCAS_SHADER,
+    0x16c7f163, 0xcbcc, 0x4764, 0x8a, 0xf8, 0x7, 0xfc, 0x11, 0x37, 0x47, 0xfa);
+
 
 
 // {FF65D2D6-4359-429D-B30A-F3F65B5AF20D}
@@ -58,6 +65,9 @@ DEFINE_GUID(CLSID_MAGPIE_LANCZOS_SCALE_EFFECT,
 DEFINE_GUID(CLSID_MAGPIE_PIXEL_SCALE_EFFECT,
     0xed9318d, 0xd624, 0x4582, 0x9c, 0xe2, 0x39, 0x9b, 0x79, 0x42, 0x8a, 0xb4);
 
+// {0C748324-87A8-4A9E-AF73-38309CF9CF2C}
+DEFINE_GUID(CLSID_MAGPIE_FSR_EFFECT,
+    0xc748324, 0x87a8, 0x4a9e, 0xaf, 0x73, 0x38, 0x30, 0x9c, 0xf9, 0xcf, 0x2c);
 
 
 constexpr auto MAGPIE_ADAPTIVE_SHARPEN_PASS1_SHADER = L"shaders/AdaptiveSharpenPass1Shader.cso";
@@ -68,3 +78,6 @@ constexpr auto MAGPIE_LANCZOS6_SCALE_SHADER = L"shaders/Lanczos6ScaleShader.cso"
 constexpr auto MAGPIE_JINC2_SCALE_SHADER = L"shaders/Jinc2ScaleShader.cso";
 constexpr auto MAGPIE_MITCHELL_NETRAVALI_SCALE_SHADER = L"shaders/MitchellNetravaliScaleShader.cso";
 constexpr auto MAGPIE_PIXEL_SCALE_SHADER = L"shaders/PixelScaleShader.cso";
+
+constexpr auto MAGPIE_FFX_EASU_SHADER = L"shaders/FfxEasuShader.cso";
+constexpr auto MAGPIE_FFX_RCAS_SHADER = L"shaders/FfxRcasShader.cso";

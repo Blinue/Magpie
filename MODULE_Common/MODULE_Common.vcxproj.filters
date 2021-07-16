@@ -57,6 +57,15 @@
     <ClInclude Include="ContrastAdaptiveSharpenTransform.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="FSREffect.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="FfxEasuTransform.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="FfxRcasTransform.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DllMain.cpp">
@@ -88,11 +97,23 @@
     <FxCompile Include="ContrastAdaptiveSharpenShader.hlsl">
       <Filter>着色器</Filter>
     </FxCompile>
+    <FxCompile Include="FfxEasuShader.hlsl">
+      <Filter>着色器</Filter>
+    </FxCompile>
+    <FxCompile Include="FfxRcasShader.hlsl">
+      <Filter>着色器</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="AdaptiveSharpen.hlsli">
       <Filter>着色器</Filter>
     </None>
     <None Include="packages.config" />
+    <None Include="ffx_a.hlsli">
+      <Filter>着色器</Filter>
+    </None>
+    <None Include="ffx_fsr1.hlsli">
+      <Filter>着色器</Filter>
+    </None>
   </ItemGroup>
 </Project>

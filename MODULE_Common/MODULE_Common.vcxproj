@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -193,6 +193,9 @@
     <ClInclude Include="ContrastAdaptiveSharpenEffect.h" />
     <ClInclude Include="ContrastAdaptiveSharpenTransform.h" />
     <ClInclude Include="EffectDefines.h" />
+    <ClInclude Include="FSREffect.h" />
+    <ClInclude Include="FfxEasuTransform.h" />
+    <ClInclude Include="FfxRcasTransform.h" />
     <ClInclude Include="JincScaleEffect.h" />
     <ClInclude Include="JincScaleTransform.h" />
     <ClInclude Include="LanczosScaleEffect.h" />
@@ -214,12 +217,26 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="AdaptiveSharpen.hlsli" />
+    <None Include="ffx_a.hlsli" />
+    <None Include="ffx_fsr1.hlsli" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="AdaptiveSharpenPass1Shader.hlsl" />
     <FxCompile Include="AdaptiveSharpenPass2Shader.hlsl" />
     <FxCompile Include="ContrastAdaptiveSharpenShader.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+    </FxCompile>
+    <FxCompile Include="FfxEasuShader.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+    </FxCompile>
+    <FxCompile Include="FfxRcasShader.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>

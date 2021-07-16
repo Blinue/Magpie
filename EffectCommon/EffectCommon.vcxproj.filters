@@ -42,6 +42,9 @@
       <Filter>着色器</Filter>
     </None>
     <None Include="packages.config" />
+    <None Include="ffx_a.hlsli">
+      <Filter>着色器</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="RGB2YUVShader.hlsl">
