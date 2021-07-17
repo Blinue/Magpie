@@ -55,36 +55,40 @@ namespace Magpie {
             // lblHotkey
             // 
             this.lblHotkey.AutoSize = true;
-            this.lblHotkey.Location = new System.Drawing.Point(12, 24);
+            this.lblHotkey.Location = new System.Drawing.Point(9, 21);
+            this.lblHotkey.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.lblHotkey.Name = "lblHotkey";
-            this.lblHotkey.Size = new System.Drawing.Size(37, 15);
+            this.lblHotkey.Size = new System.Drawing.Size(41, 13);
             this.lblHotkey.TabIndex = 0;
-            this.lblHotkey.Text = "热键";
+            this.lblHotkey.Text = "Hotkey";
             // 
             // txtHotkey
             // 
-            this.txtHotkey.Location = new System.Drawing.Point(55, 21);
+            this.txtHotkey.Location = new System.Drawing.Point(54, 18);
+            this.txtHotkey.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
             this.txtHotkey.Name = "txtHotkey";
-            this.txtHotkey.Size = new System.Drawing.Size(164, 25);
+            this.txtHotkey.Size = new System.Drawing.Size(124, 20);
             this.txtHotkey.TabIndex = 1;
             this.txtHotkey.TextChanged += new System.EventHandler(this.TxtHotkey_TextChanged);
             // 
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(6, 27);
+            this.label2.Location = new System.Drawing.Point(4, 23);
+            this.label2.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(67, 15);
+            this.label2.Size = new System.Drawing.Size(72, 13);
             this.label2.TabIndex = 2;
-            this.label2.Text = "缩放模式";
+            this.label2.Text = "Scaling Mode";
             // 
             // cbbScaleMode
             // 
             this.cbbScaleMode.DropDownWidth = 230;
-            this.cbbScaleMode.ItemHeight = 15;
-            this.cbbScaleMode.Location = new System.Drawing.Point(79, 24);
+            this.cbbScaleMode.ItemHeight = 13;
+            this.cbbScaleMode.Location = new System.Drawing.Point(80, 19);
+            this.cbbScaleMode.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
             this.cbbScaleMode.Name = "cbbScaleMode";
-            this.cbbScaleMode.Size = new System.Drawing.Size(187, 23);
+            this.cbbScaleMode.Size = new System.Drawing.Size(141, 21);
             this.cbbScaleMode.TabIndex = 2;
             this.cbbScaleMode.SelectedIndexChanged += new System.EventHandler(this.CbbScaleMode_SelectedIndexChanged);
             // 
@@ -92,12 +96,14 @@ namespace Magpie {
             // 
             this.textBox1.BackColor = System.Drawing.SystemColors.Control;
             this.textBox1.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.textBox1.Location = new System.Drawing.Point(15, 194);
+            this.textBox1.Location = new System.Drawing.Point(11, 168);
+            this.textBox1.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
             this.textBox1.Multiline = true;
             this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(179, 48);
+            this.textBox1.Size = new System.Drawing.Size(146, 58);
             this.textBox1.TabIndex = 7;
-            this.textBox1.Text = "使用说明：\r\n按下热键即可全屏显示激活的窗口";
+            this.textBox1.Text = "Instructions for use:\r\nPress the hotkey to display the activated window in full s" +
+    "creen";
             // 
             // notifyIcon
             // 
@@ -115,43 +121,44 @@ namespace Magpie {
             this.tsmiMainForm,
             this.tsmiExit});
             this.cmsNotifyIcon.Name = "cmsNotifyIcon";
-            this.cmsNotifyIcon.Size = new System.Drawing.Size(148, 100);
+            this.cmsNotifyIcon.Size = new System.Drawing.Size(161, 92);
             // 
             // tsmiHotkey
             // 
             this.tsmiHotkey.Enabled = false;
             this.tsmiHotkey.Name = "tsmiHotkey";
-            this.tsmiHotkey.Size = new System.Drawing.Size(147, 24);
+            this.tsmiHotkey.Size = new System.Drawing.Size(160, 22);
             // 
             // tsmiScale
             // 
             this.tsmiScale.Name = "tsmiScale";
-            this.tsmiScale.Size = new System.Drawing.Size(147, 24);
-            this.tsmiScale.Text = "5秒后放大";
+            this.tsmiScale.Size = new System.Drawing.Size(160, 22);
+            this.tsmiScale.Text = "Zoom in after 5s";
             this.tsmiScale.Click += new System.EventHandler(this.TsmiScale_Click);
             // 
             // tsmiMainForm
             // 
             this.tsmiMainForm.Name = "tsmiMainForm";
-            this.tsmiMainForm.Size = new System.Drawing.Size(147, 24);
+            this.tsmiMainForm.Size = new System.Drawing.Size(160, 22);
             this.tsmiMainForm.Text = "主界面";
             this.tsmiMainForm.Click += new System.EventHandler(this.TsmiMainForm_Click);
             // 
             // tsmiExit
             // 
             this.tsmiExit.Name = "tsmiExit";
-            this.tsmiExit.Size = new System.Drawing.Size(147, 24);
+            this.tsmiExit.Size = new System.Drawing.Size(160, 22);
             this.tsmiExit.Text = "退出";
             this.tsmiExit.Click += new System.EventHandler(this.TsmiExit_Click);
             // 
             // ckbShowFPS
             // 
             this.ckbShowFPS.AutoSize = true;
-            this.ckbShowFPS.Location = new System.Drawing.Point(17, 26);
+            this.ckbShowFPS.Location = new System.Drawing.Point(13, 23);
+            this.ckbShowFPS.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
             this.ckbShowFPS.Name = "ckbShowFPS";
-            this.ckbShowFPS.Size = new System.Drawing.Size(89, 19);
+            this.ckbShowFPS.Size = new System.Drawing.Size(76, 17);
             this.ckbShowFPS.TabIndex = 8;
-            this.ckbShowFPS.Text = "显示帧率";
+            this.ckbShowFPS.Text = "Show FPS";
             this.ckbShowFPS.UseVisualStyleBackColor = true;
             this.ckbShowFPS.CheckedChanged += new System.EventHandler(this.CkbShowFPS_CheckedChanged);
             // 
@@ -159,23 +166,25 @@ namespace Magpie {
             // 
             this.cbbInjectMode.FormattingEnabled = true;
             this.cbbInjectMode.Items.AddRange(new object[] {
-            "不注入",
-            "运行时注入",
-            "启动时注入"});
-            this.cbbInjectMode.Location = new System.Drawing.Point(79, 82);
+            "No injection",
+            "Runtime Injection",
+            "Injection at startup"});
+            this.cbbInjectMode.Location = new System.Drawing.Point(80, 71);
+            this.cbbInjectMode.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
             this.cbbInjectMode.Name = "cbbInjectMode";
-            this.cbbInjectMode.Size = new System.Drawing.Size(187, 23);
+            this.cbbInjectMode.Size = new System.Drawing.Size(141, 21);
             this.cbbInjectMode.TabIndex = 1;
             this.cbbInjectMode.SelectedIndexChanged += new System.EventHandler(this.CbbInjectMode_SelectedIndexChanged);
             // 
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(6, 85);
+            this.label1.Location = new System.Drawing.Point(4, 74);
+            this.label1.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(67, 15);
+            this.label1.Size = new System.Drawing.Size(76, 13);
             this.label1.TabIndex = 0;
-            this.label1.Text = "注入模式";
+            this.label1.Text = "Injection mode";
             // 
             // openFileDialog
             // 
@@ -185,43 +194,48 @@ namespace Magpie {
             // cbbCaptureMode
             // 
             this.cbbCaptureMode.DropDownWidth = 187;
-            this.cbbCaptureMode.ItemHeight = 15;
+            this.cbbCaptureMode.ItemHeight = 13;
             this.cbbCaptureMode.Items.AddRange(new object[] {
             "WinRT Capture",
             "GDI"});
-            this.cbbCaptureMode.Location = new System.Drawing.Point(79, 53);
+            this.cbbCaptureMode.Location = new System.Drawing.Point(80, 46);
+            this.cbbCaptureMode.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
             this.cbbCaptureMode.Name = "cbbCaptureMode";
-            this.cbbCaptureMode.Size = new System.Drawing.Size(187, 23);
+            this.cbbCaptureMode.Size = new System.Drawing.Size(141, 21);
             this.cbbCaptureMode.TabIndex = 3;
             this.cbbCaptureMode.SelectedIndexChanged += new System.EventHandler(this.CbbCaptureMode_SelectedIndexChanged);
             // 
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(6, 56);
+            this.label3.Location = new System.Drawing.Point(4, 49);
+            this.label3.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(67, 15);
+            this.label3.Size = new System.Drawing.Size(74, 13);
             this.label3.TabIndex = 4;
-            this.label3.Text = "抓取模式";
+            this.label3.Text = "Capture Mode";
             // 
             // groupBox2
             // 
             this.groupBox2.Controls.Add(this.ckbShowFPS);
-            this.groupBox2.Location = new System.Drawing.Point(200, 182);
+            this.groupBox2.Location = new System.Drawing.Point(161, 158);
+            this.groupBox2.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(116, 60);
+            this.groupBox2.Padding = new System.Windows.Forms.Padding(2, 3, 2, 3);
+            this.groupBox2.Size = new System.Drawing.Size(97, 52);
             this.groupBox2.TabIndex = 12;
             this.groupBox2.TabStop = false;
-            this.groupBox2.Text = "高级";
+            this.groupBox2.Text = "Advanced";
             // 
             // btnScale
             // 
             this.btnScale.AutoSize = true;
-            this.btnScale.Location = new System.Drawing.Point(225, 21);
+            this.btnScale.Location = new System.Drawing.Point(185, 16);
+            this.btnScale.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
             this.btnScale.Name = "btnScale";
-            this.btnScale.Size = new System.Drawing.Size(91, 25);
+            this.btnScale.Size = new System.Drawing.Size(93, 23);
             this.btnScale.TabIndex = 13;
-            this.btnScale.Text = "5秒后放大";
+            this.btnScale.Text = "Zoom in after 5s";
             this.btnScale.UseVisualStyleBackColor = true;
             this.btnScale.Click += new System.EventHandler(this.BtnScale_Click);
             // 
@@ -233,9 +247,11 @@ namespace Magpie {
             this.groupBox1.Controls.Add(this.label1);
             this.groupBox1.Controls.Add(this.label2);
             this.groupBox1.Controls.Add(this.cbbInjectMode);
-            this.groupBox1.Location = new System.Drawing.Point(15, 52);
+            this.groupBox1.Location = new System.Drawing.Point(11, 45);
+            this.groupBox1.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(301, 121);
+            this.groupBox1.Padding = new System.Windows.Forms.Padding(2, 3, 2, 3);
+            this.groupBox1.Size = new System.Drawing.Size(247, 105);
             this.groupBox1.TabIndex = 14;
             this.groupBox1.TabStop = false;
             // 
@@ -246,9 +262,9 @@ namespace Magpie {
             // 
             // MainForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 15F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(331, 259);
+            this.ClientSize = new System.Drawing.Size(290, 227);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.btnScale);
             this.Controls.Add(this.groupBox2);
@@ -257,6 +273,7 @@ namespace Magpie {
             this.Controls.Add(this.lblHotkey);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
             this.MaximizeBox = false;
             this.Name = "MainForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
