@@ -121,12 +121,14 @@ namespace Magpie {
                 return;
             } else if (magWindow.Status == MagWindowStatus.Running) {
                 magWindow.Destory();
+                tsmiScale.Text = btnScale.Text = "Zoom in after 5s";
                 return;
             }
 
             string effectsJson = scaleModels[Settings.Default.ScaleMode].Model;
             bool showFPS = Settings.Default.ShowFPS;
             int captureMode = Settings.Default.CaptureMode;
+            tsmiScale.Text = btnScale.Text = "Zoom out after 5s";
 
             magWindow.Create(
                 effectsJson,
@@ -191,7 +193,7 @@ namespace Magpie {
 
         private void StartScaleTimer() {
             countDownNum = DOWN_COUNT;
-            tsmiScale.Text = btnScale.Text = countDownNum.ToString();
+            tsmiScale.Text = btnScale.Text = $"Cancel ({countDownNum.ToString()})";
 
             timerScale.Interval = 1000;
             timerScale.Start();
@@ -199,11 +201,11 @@ namespace Magpie {
 
         private void StopScaleTimer() {
             timerScale.Stop();
-            tsmiScale.Text = btnScale.Text = "5秒后放大";
         }
 
         private void ToggleScaleTimer() {
             if (timerScale.Enabled) {
+                tsmiScale.Text = btnScale.Text =  (magWindow.Status == MagWindowStatus.Running)? "Zoom out after 5s": "Zoom in after 5s";
                 StopScaleTimer();
             } else {
                 StartScaleTimer();
@@ -216,7 +218,7 @@ namespace Magpie {
 
         private void TimerScale_Tick(object sender, EventArgs e) {
             if(--countDownNum != 0) {
-                tsmiScale.Text = btnScale.Text = countDownNum.ToString();
+                tsmiScale.Text = btnScale.Text = $"Cancel ({countDownNum.ToString()})";
                 return;
             }
 
