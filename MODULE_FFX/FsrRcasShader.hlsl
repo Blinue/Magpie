@@ -43,19 +43,21 @@ MAGPIE_ENTRY(main) {
     float hR = h.r;
     float hG = h.g;
     float hB = h.b;
-
+	
+#ifdef FSR_RCAS_DENOISE
     // Luma times 2.
     float bL = bB * 0.5 + (bR * 0.5 + bG);
     float dL = dB * 0.5 + (dR * 0.5 + dG);
     float eL = eB * 0.5 + (eR * 0.5 + eG);
     float fL = fB * 0.5 + (fR * 0.5 + fG);
     float hL = hB * 0.5 + (hR * 0.5 + hG);
-#ifdef FSR_RCAS_DENOISE
+    
     // Noise detection.
     float nz = 0.25 * bL + 0.25 * dL + 0.25 * fL + 0.25 * hL - eL;
     nz = saturate(abs(nz) * rcp(max3(max3(bL, dL, eL), fL, hL) - min3(min3(bL, dL, eL), fL, hL)));
     nz = -0.5 * nz + 1.0;
 #endif
+	
     // Min and max of ring.
     float mn4R = min(min3(bR, dR, fR), hR);
     float mn4G = min(min3(bG, dG, fG), hG);
@@ -76,10 +78,12 @@ MAGPIE_ENTRY(main) {
     float lobeG = max(-hitMinG, hitMaxG);
     float lobeB = max(-hitMinB, hitMaxB);
     float lobe = max(-FSR_RCAS_LIMIT, min(max3(lobeR, lobeG, lobeB), 0)) * exp2(-sharpness);
+	
     // Apply noise removal.
 #ifdef FSR_RCAS_DENOISE
     lobe *= nz;
 #endif
+	
     // Resolve, which needs the medium precision rcp approximation to avoid visible tonality changes.
     float rcpL = rcp(4.0 * lobe + 1.0);
     float3 c = {

@@ -6,7 +6,7 @@
 // 自定义 Effect 的基类
 class EffectBase : public ID2D1EffectImpl {
 public:
-    virtual ~EffectBase() {}
+    virtual ~EffectBase() = default;
 
     /*
     * 以下为 ID2D1EffectImpl 的方法
@@ -37,7 +37,7 @@ public:
     }
 
     IFACEMETHODIMP_(ULONG) Release() override {
-        ULONG ulRefCount = InterlockedDecrement(&_cRef);
+	    const ULONG ulRefCount = InterlockedDecrement(&_cRef);
         if (0 == _cRef) {
             delete this;
         }
@@ -54,7 +54,7 @@ public:
             || riid == __uuidof(IUnknown)
             ) {
             // Increment the reference count and return the pointer.
-            *ppOutput = (LPVOID)this;
+            *ppOutput = static_cast<LPVOID>(this);
             AddRef();
             return NOERROR;
         }

@@ -12,12 +12,14 @@
 template <int NINPUTS = 1>
 class SimpleDrawTransform : public ID2D1DrawTransform {
 protected:
-    SimpleDrawTransform(const GUID &shaderID): _shaderID(shaderID) {}
+	explicit SimpleDrawTransform(const GUID &shaderID): _shaderID(shaderID) {}
+
+    SimpleDrawTransform(SimpleDrawTransform&&) = default;
 
     // 将 hlsl 读取进 Effect Context
     static HRESULT LoadShader(_In_ ID2D1EffectContext* d2dEC, _In_ const wchar_t* path, const GUID& shaderID) {
         if (!d2dEC->IsShaderLoaded(shaderID)) {
-            HANDLE hFile = CreateFile(
+	        const HANDLE hFile = CreateFile(
                 path,
                 GENERIC_READ,
                 FILE_SHARE_READ,
@@ -36,15 +38,15 @@ protected:
                 return E_FAIL;
             }
 
-            DWORD size = (DWORD)liSize.QuadPart;
-            BYTE* buf = new BYTE[size];
+	        const auto size = static_cast<DWORD>(liSize.QuadPart);
+	        const auto buf = new BYTE[size];
             DWORD readed = 0;
             if (!ReadFile(hFile, buf, size, &readed, nullptr) || readed == 0) {
                 CommonDebug::WriteLine(L"读取\""s + path + L"\"失败");
                 return E_FAIL;
             }
 
-            HRESULT hr = d2dEC->LoadPixelShader(shaderID, buf, size);
+	        const HRESULT hr = d2dEC->LoadPixelShader(shaderID, buf, size);
             delete[] buf;
 
             if (FAILED(hr)) {
@@ -56,7 +58,7 @@ protected:
         return S_OK;
     }
 public:
-    virtual ~SimpleDrawTransform() {}
+    virtual ~SimpleDrawTransform() = default;
 
     static HRESULT Create(
         _In_ ID2D1EffectContext* d2dEC,
@@ -106,7 +108,7 @@ public:
         *pOutputRect = pInputRects[0];
         *pOutputOpaqueSubRect = { 0,0,0,0 };
 
-        _SetShaderContantBuffer(SIZE{
+        _SetShaderConstantBuffer(SIZE{
             pInputRects->right - pInputRects->left,
             pInputRects->bottom - pInputRects->top
             });
@@ -162,7 +164,7 @@ public:
     }
 
     IFACEMETHODIMP_(ULONG) Release() override {
-        ULONG ulRefCount = InterlockedDecrement(&_cRef);
+		const ULONG ulRefCount = InterlockedDecrement(&_cRef);
         if (0 == _cRef) {
             delete this;
         }
@@ -189,7 +191,7 @@ public:
 
 protected:
     // 继承的类可以覆盖此方法向着色器传递参数
-    virtual void _SetShaderContantBuffer(const SIZE& srcSize) {
+    virtual void _SetShaderConstantBuffer(const SIZE& srcSize) {
         struct {
             INT32 srcWidth;
             INT32 srcHeight;
@@ -198,7 +200,7 @@ protected:
             srcSize.cy
         };
 
-        _drawInfo->SetPixelShaderConstantBuffer((BYTE*)&shaderConstants, sizeof(shaderConstants));
+        _drawInfo->SetPixelShaderConstantBuffer(reinterpret_cast<BYTE*>(&shaderConstants), sizeof(shaderConstants));
     }
 
     ComPtr<ID2D1DrawInfo> _drawInfo = nullptr;

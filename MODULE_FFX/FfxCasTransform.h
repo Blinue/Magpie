@@ -35,7 +35,7 @@ public:
         return _sharpness;
     }
 protected:
-    void _SetShaderContantBuffer(const SIZE& srcSize) override {
+    void _SetShaderConstantBuffer(const SIZE& srcSize) override {
         struct {
             INT32 srcWidth;
             INT32 srcHeight;

@@ -35,18 +35,18 @@ public:
         return _sharpness;
     }
 protected:
-    void _SetShaderContantBuffer(const SIZE& srcSize) override {
+    void _SetShaderConstantBuffer(const SIZE& srcSize) override {
         struct {
             UINT32 srcWidth;
             UINT32 srcHeight;
             FLOAT sharpness;
         } shaderConstants{
-            (UINT32)srcSize.cx,
-            (UINT32)srcSize.cy,
+            static_cast<UINT32>(srcSize.cx),
+            static_cast<UINT32>(srcSize.cy),
             2 - _sharpness * 2
         };
 
-        _drawInfo->SetPixelShaderConstantBuffer((BYTE*)&shaderConstants, sizeof(shaderConstants));
+        _drawInfo->SetPixelShaderConstantBuffer(reinterpret_cast<BYTE*>(&shaderConstants), sizeof(shaderConstants));
     }
 
 private:

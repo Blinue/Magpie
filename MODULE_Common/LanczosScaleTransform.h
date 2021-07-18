@@ -35,7 +35,7 @@ public:
     }
 
 protected:
-    void _SetShaderContantBuffer(const SIZE& srcSize, const SIZE& destSize) override {
+    void _SetShaderConstantBuffer(const SIZE& srcSize, const SIZE& destSize) override {
         struct {
             INT32 srcWidth;
             INT32 srcHeight;

@@ -59,13 +59,13 @@ public:
         *pOutputRect = { 0, 0, destSize.cx, destSize.cy };
         *pOutputOpaqueSubRect = {};
 
-        _SetShaderContantBuffer(srcSize);
+        _SetShaderConstantBuffer(srcSize);
 
         return S_OK;
     }
 
 protected:
-    void _SetShaderContantBuffer(const SIZE& srcSize) override {
+    void _SetShaderConstantBuffer(const SIZE& srcSize) override {
         struct {
             INT32 srcWidth;
             INT32 srcHeight;

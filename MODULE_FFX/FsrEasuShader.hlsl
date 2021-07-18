@@ -16,8 +16,9 @@ void FsrEasuTap(
     float2 len, // Length.
     float lob, // Negative lobe strength.
     float clp, // Clipping point.
-    float3 c) { // Tap color.
-     // Rotate offset by direction.
+    float3 c  // Tap color.
+) { 
+    // Rotate offset by direction.
     float2 v;
     v.x = (off.x * (dir.x)) + (off.y * dir.y);
     v.y = (off.x * (-dir.y)) + (off.y * dir.x);
@@ -27,7 +28,7 @@ void FsrEasuTap(
     float d2 = v.x * v.x + v.y * v.y;
     // Limit to the window as at corner, 2 taps can easily be outside.
     d2 = min(d2, clp);
-    // Approximation of lancos2 without sin() or rcp(), or sqrt() to get x.
+    // Approximation of lanczos2 without sin() or rcp(), or sqrt() to get x.
     //  (25/16 * (2/5 * x^2 - 1)^2 - (25/16 - 1)) * (1/4 * x^2 - 1)^2
     //  |_______________________________________|   |_______________|
     //                   base                             window
@@ -90,12 +91,9 @@ void FsrEasuSet(
 MAGPIE_ENTRY(main) {
     InitMagpieSampleInput();
 
-    float2 rcpSrc = rcp(srcSize);
-    float2 rcpDest = rcp(destSize);
-
     //------------------------------------------------------------------------------------------------------------------------------
       // Get position of 'f'.
-    float2 pp = (floor(Coord(0).xy / Coord(0).zw) + 0.5) * srcSize * rcpDest - 0.5;
+    float2 pp = (floor(Coord(0).xy / Coord(0).zw) + 0.5) * srcSize * rcp(destSize) - 0.5;
     float2 fp = floor(pp);
     pp -= fp;
     //------------------------------------------------------------------------------------------------------------------------------

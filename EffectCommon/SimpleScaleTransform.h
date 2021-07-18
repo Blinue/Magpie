@@ -62,13 +62,13 @@ public:
         *pOutputRect = { 0, 0, destSize.cx, destSize.cy };
         *pOutputOpaqueSubRect = {};
 
-        _SetShaderContantBuffer(srcSize, destSize);
+        _SetShaderConstantBuffer(srcSize, destSize);
 
         return S_OK;
     }
 protected:
     // 继承的类可以覆盖此方法向着色器传递参数
-    virtual void _SetShaderContantBuffer(const SIZE& srcSize, const SIZE& destSize) {
+    virtual void _SetShaderConstantBuffer(const SIZE& srcSize, const SIZE& destSize) {
         struct {
             INT32 srcWidth;
             INT32 srcHeight;
