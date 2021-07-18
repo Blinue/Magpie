@@ -14,8 +14,8 @@ cbuffer constants : register(b0) {
 D2D_PS_ENTRY(main) {
 	InitMagpieSampleInput();
 
-	float2 leftTop = GetCheckedOffPos(0, float2(-1, -1));
-	float2 rightBottom = GetCheckedOffPos(0, float2(1, 1));
+	float2 leftTop = max(0, Coord(0).xy - Coord(0).zw);
+	float2 rightBottom = min(maxCoord0.xy, Coord(0).xy + Coord(0).zw);
 
 	// fetch a 3x3 neighborhood around the pixel 'e',
 	//	a b c

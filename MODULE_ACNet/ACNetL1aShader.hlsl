@@ -32,8 +32,8 @@ const static float4 biasL1 = {-0.7577, -0.0210, 0.0292, -0.0189};
 D2D_PS_ENTRY(main) {
 	InitMagpieSampleInput();
 
-	float2 leftTop = GetCheckedOffPos(0, float2(-1, -1));
-	float2 rightBottom = GetCheckedOffPos(0, float2(1, 1));
+	float2 leftTop = max(0, Coord(0).xy - Coord(0).zw);
+	float2 rightBottom = min(maxCoord0.xy, Coord(0).xy + Coord(0).zw);
 
 	// [tl, tc, tr]
 	// [ml, mc, mr]

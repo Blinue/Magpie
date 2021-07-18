@@ -116,8 +116,8 @@ const static float4 biasL = { -5.8305e-03, -8.6574e-02,  4.2228e-02, -4.3500e-02
 D2D_PS_ENTRY(main) {
 	InitMagpieSampleInput();
 
-	float2 leftTop1 = GetCheckedOffPos(0, float2(-1, -1));
-	float2 rightBottom1 = GetCheckedOffPos(0, float2(1, 1));
+	float2 leftTop1 = max(0, Coord(0).xy - Coord(0).zw);
+	float2 rightBottom1 = min(maxCoord0.xy, Coord(0).xy + Coord(0).zw);
 
 	// [tl, tc, tr]
 	// [ml, mc, mr]
@@ -132,8 +132,8 @@ D2D_PS_ENTRY(main) {
 	float4 mr1 = uncompressLinear(SampleInput(0, float2(rightBottom1.x, Coord(0).y)), 0, 3.5);
 	float4 br1 = uncompressLinear(SampleInput(0, rightBottom1), 0, 3.5);
 
-	float2 leftTop2 = GetCheckedOffPos(1, float2(-1, -1));
-	float2 rightBottom2 = GetCheckedOffPos(1, float2(1, 1));
+	float2 leftTop2 = max(0, Coord(1).xy - Coord(1).zw);
+	float2 rightBottom2 = min(maxCoord1.xy, Coord(1).xy + Coord(1).zw);
 
 	float4 tl2 = uncompressLinear(SampleInput(1, leftTop2), 0, 2);
 	float4 ml2 = uncompressLinear(SampleInput(1, float2(leftTop2.x, Coord(1).y)), 0, 2);
