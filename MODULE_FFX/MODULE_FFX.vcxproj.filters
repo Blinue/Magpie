@@ -46,12 +46,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="ffx_a.hlsli">
-      <Filter>着色器</Filter>
-    </None>
-    <None Include="ffx_fsr1.hlsli">
-      <Filter>着色器</Filter>
-    </None>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

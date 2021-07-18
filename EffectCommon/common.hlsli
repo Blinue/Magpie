@@ -4,11 +4,11 @@
 #define ZEROS3 (float3(0,0,0))
 #define ZEROS4 (float4(0,0,0,0))
 
-#define min4(a, b, c, d) min(min(a, b), min(c, d))
-#define max4(a, b, c, d) max(max(a, b), max(c, d))
-
 #define min3(a, b, c) min(a, min(b, c))
 #define max3(a, b, c) max(a, max(b, c))
+
+#define min4(a, b, c, d) min(min(a, b), min(c, d))
+#define max4(a, b, c, d) max(max(a, b), max(c, d))
 
 #define max9(a, b, c, d, e, f, g, h, i) max3(max4(a, b, c, d), max4(e, f, g, h), i)
 #define min9(a, b, c, d, e, f, g, h, i) min3(min4(a, b, c, d), min4(e, f, g, h), i)
@@ -107,7 +107,7 @@ static float2 maxCoord7;
 #define GatherInputBlue(index, pos) (InputTexture##index.GatherBlue(InputSampler##index, (pos), 0))
 
 // Load
-#define LoadInput(index, pos) (InputTexture##index.Load(pos))
+#define LoadInput(index, pos) (InputTexture##index.Load(int3(pos, 0)))
 
 #ifndef MAGPIE_NO_CHECK
 #define GetCheckedPos(index, pos) (clamp((pos), 0, maxCoord##index))
