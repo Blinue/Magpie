@@ -5,29 +5,29 @@
 
 
 
-class FfxRcasTransform : public SimpleDrawTransform<1> {
+class FsrRcasTransform : public SimpleDrawTransform<1> {
 private:
-    FfxRcasTransform() : SimpleDrawTransform<1>(GUID_MAGPIE_FFX_RCAS_SHADER) {}
+    FsrRcasTransform() : SimpleDrawTransform<1>(GUID_MAGPIE_FSR_RCAS_SHADER) {}
 public:
-    static HRESULT Create(_In_ ID2D1EffectContext* d2dEC, _Outptr_ FfxRcasTransform** ppOutput) {
+    static HRESULT Create(_In_ ID2D1EffectContext* d2dEC, _Outptr_ FsrRcasTransform** ppOutput) {
         *ppOutput = nullptr;
 
         HRESULT hr = LoadShader(
             d2dEC,
-            MAGPIE_FFX_RCAS_SHADER,
-            GUID_MAGPIE_FFX_RCAS_SHADER
+            MAGPIE_FSR_RCAS_SHADER,
+            GUID_MAGPIE_FSR_RCAS_SHADER
         );
         if (FAILED(hr)) {
             return hr;
         }
 
-        *ppOutput = new FfxRcasTransform();
+        *ppOutput = new FsrRcasTransform();
 
         return S_OK;
     }
 
     void SetSharpness(float value) {
-        assert(value >= 0);
+        assert(value >= 0 && value <= 1);
         _sharpness = value;
     }
 
@@ -43,12 +43,12 @@ protected:
         } shaderConstants{
             (UINT32)srcSize.cx,
             (UINT32)srcSize.cy,
-            _sharpness
+            2 - _sharpness * 2
         };
 
         _drawInfo->SetPixelShaderConstantBuffer((BYTE*)&shaderConstants, sizeof(shaderConstants));
     }
 
 private:
-    float _sharpness = 0.0f;
+    float _sharpness = 0.8f;
 };

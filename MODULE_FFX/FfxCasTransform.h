@@ -5,23 +5,23 @@
 
 
 
-class ContrastAdaptiveSharpenTransform : public SimpleDrawTransform<1> {
+class FfxCasTransform : public SimpleDrawTransform<1> {
 private:
-    ContrastAdaptiveSharpenTransform() : SimpleDrawTransform<1>(GUID_MAGPIE_CONTRAST_ADAPTIVE_SHARPEN_SHADER) {}
+    FfxCasTransform() : SimpleDrawTransform<1>(GUID_MAGPIE_FFX_CAS_SHADER) {}
 public:
-    static HRESULT Create(_In_ ID2D1EffectContext* d2dEC, _Outptr_ ContrastAdaptiveSharpenTransform** ppOutput) {
+    static HRESULT Create(_In_ ID2D1EffectContext* d2dEC, _Outptr_ FfxCasTransform** ppOutput) {
         *ppOutput = nullptr;
 
         HRESULT hr = LoadShader(
             d2dEC,
-            MAGPIE_CONTRAST_ADAPTIVE_SHARPEN_SHADER,
-            GUID_MAGPIE_CONTRAST_ADAPTIVE_SHARPEN_SHADER
+            MAGPIE_FFX_CAS_SHADER,
+            GUID_MAGPIE_FFX_CAS_SHADER
         );
         if (FAILED(hr)) {
             return hr;
         }
 
-        *ppOutput = new ContrastAdaptiveSharpenTransform();
+        *ppOutput = new FfxCasTransform();
 
         return S_OK;
     }

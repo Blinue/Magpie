@@ -18,34 +18,19 @@
     <ClInclude Include="pch.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="AdaptiveSharpenEffect.h">
+    <ClInclude Include="FsrEasuTransform.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="AdaptiveSharpenPass2Transform.h">
+    <ClInclude Include="FSREffect.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="JincScaleEffect.h">
+    <ClInclude Include="FsrRcasTransform.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="JincScaleTransform.h">
+    <ClInclude Include="FfxCasEffect.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="LanczosScaleEffect.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="LanczosScaleTransform.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="MitchellNetravaliScaleEffect.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="MitchellNetravaliScaleTransform.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="PixelScaleEffect.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="PixelScaleTransform.h">
+    <ClInclude Include="FfxCasTransform.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="EffectDefines.h">
@@ -61,29 +46,23 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="AdaptiveSharpenPass1Shader.hlsl">
+    <None Include="ffx_a.hlsli">
       <Filter>着色器</Filter>
-    </FxCompile>
-    <FxCompile Include="AdaptiveSharpenPass2Shader.hlsl">
-      <Filter>着色器</Filter>
-    </FxCompile>
-    <FxCompile Include="Jinc2ScaleShader.hlsl">
-      <Filter>着色器</Filter>
-    </FxCompile>
-    <FxCompile Include="Lanczos6ScaleShader.hlsl">
-      <Filter>着色器</Filter>
-    </FxCompile>
-    <FxCompile Include="MitchellNetravaliScaleShader.hlsl">
-      <Filter>着色器</Filter>
-    </FxCompile>
-    <FxCompile Include="PixelScaleShader.hlsl">
-      <Filter>着色器</Filter>
-    </FxCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="AdaptiveSharpen.hlsli">
+    </None>
+    <None Include="ffx_fsr1.hlsli">
       <Filter>着色器</Filter>
     </None>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="FsrEasuShader.hlsl">
+      <Filter>着色器</Filter>
+    </FxCompile>
+    <FxCompile Include="FsrRcasShader.hlsl">
+      <Filter>着色器</Filter>
+    </FxCompile>
+    <FxCompile Include="FfxCasShader.hlsl">
+      <Filter>着色器</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

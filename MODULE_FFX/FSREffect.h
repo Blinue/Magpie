@@ -2,8 +2,8 @@
 #include "pch.h"
 #include <EffectBase.h>
 #include "EffectDefines.h"
-#include "FfxEasuTransform.h"
-#include "FfxRcasTransform.h"
+#include "FsrEasuTransform.h"
+#include "FsrRcasTransform.h"
 
 
 class FSREffect : public EffectBase {
@@ -12,11 +12,11 @@ public:
         _In_ ID2D1EffectContext* pEffectContext,
         _In_ ID2D1TransformGraph* pTransformGraph
     ) {
-        HRESULT hr = FfxEasuTransform::Create(pEffectContext, &_easuTransform);
+        HRESULT hr = FsrEasuTransform::Create(pEffectContext, &_easuTransform);
         if (FAILED(hr)) {
             return hr;
         }
-        hr = FfxRcasTransform::Create(pEffectContext, &_rcasTransform);
+        hr = FsrRcasTransform::Create(pEffectContext, &_rcasTransform);
         if (FAILED(hr)) {
             return hr;
         }
@@ -59,14 +59,29 @@ public:
         return _easuTransform->GetScale();
     }
 
+    HRESULT SetSharpness(FLOAT value) {
+        if (value < 0 || value > 1) {
+            return E_INVALIDARG;
+        }
+
+        _rcasTransform->SetSharpness(value);
+        return S_OK;
+    }
+
+    FLOAT GetSharpness() const {
+        return _rcasTransform->GetSharpness();
+    }
+
     enum PROPS {
         PROP_SCALE = 0,
+        PROP_SHARPNESS = 1
     };
 
     static HRESULT Register(_In_ ID2D1Factory1* pFactory) {
         const D2D1_PROPERTY_BINDING bindings[] =
         {
-            D2D1_VALUE_TYPE_BINDING(L"Scale", &SetScale, &GetScale)
+            D2D1_VALUE_TYPE_BINDING(L"Scale", &SetScale, &GetScale),
+            D2D1_VALUE_TYPE_BINDING(L"Sharpness", &SetSharpness, &GetSharpness)
         };
 
         HRESULT hr = pFactory->RegisterEffectFromString(CLSID_MAGPIE_FSR_EFFECT, XML(
@@ -84,7 +99,12 @@ public:
                 <Property name='DisplayName' type='string' value='Scale'/>
                 <Property name='Default' type='vector2' value='(1,1)'/>
             </Property>
-            
+            <Property name='Sharpness' type='float'>
+                <Property name='DisplayName' type='string' value='Sharpness'/>
+                <Property name='Default' type='float' value='0.8'/>
+                <Property name='Min' type='float' value='0'/>
+                <Property name='Max' type='float' value='1.0'/>
+            </Property>
             </Effect>
         ), bindings, ARRAYSIZE(bindings), CreateEffect);
 
@@ -104,6 +124,6 @@ public:
 private:
     FSREffect() {}
 
-    ComPtr<FfxEasuTransform> _easuTransform = nullptr;
-    ComPtr<FfxRcasTransform> _rcasTransform = nullptr;
+    ComPtr<FsrEasuTransform> _easuTransform = nullptr;
+    ComPtr<FsrRcasTransform> _rcasTransform = nullptr;
 };

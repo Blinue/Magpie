@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -21,10 +21,9 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{ec100169-8050-440a-96f0-3ac8b9382f30}</ProjectGuid>
-    <RootNamespace>MODULECommon</RootNamespace>
+    <ProjectGuid>{7e9e83ee-673a-490c-a771-f9aa4f0b89e7}</ProjectGuid>
+    <RootNamespace>MODULEFFX</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
-    <ProjectName>MODULE_Common</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -45,8 +44,6 @@
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
-    <PreferredToolArchitecture>
-    </PreferredToolArchitecture>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
@@ -81,19 +78,19 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <TargetName>Common</TargetName>
     <OutDir>$(SolutionDir)build\$(Platform)\$(Configuration)\effects\</OutDir>
+    <TargetName>FFX</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(SolutionDir)build\$(Platform)\$(Configuration)\effects\</OutDir>
-    <TargetName>Common</TargetName>
+    <TargetName>FFX</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;_DEBUG;MODULECOMMON_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;MODULEFFX_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
@@ -110,7 +107,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;NDEBUG;MODULECOMMON_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;MODULEFFX_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
@@ -127,7 +124,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;MODULECOMMON_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;MODULEFFX_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
@@ -141,17 +138,13 @@
       <EnableUAC>false</EnableUAC>
     </Link>
     <FxCompile>
-      <ShaderType>Pixel</ShaderType>
-    </FxCompile>
-    <FxCompile>
       <ShaderModel>5.0</ShaderModel>
-    </FxCompile>
-    <FxCompile>
       <CompileD2DCustomEffect>true</CompileD2DCustomEffect>
       <AdditionalIncludeDirectories>$(WindowsSDK_IncludePath);$(SolutionDir)\EffectCommon;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <ObjectFileOutput>$(OutDir)\..\shaders\%(Filename).cso</ObjectFileOutput>
       <DisableOptimizations>false</DisableOptimizations>
       <EnableDebuggingInformation>false</EnableDebuggingInformation>
+      <ShaderType>Pixel</ShaderType>
+      <ObjectFileOutput>$(OutDir)\..\shaders\%(Filename).cso</ObjectFileOutput>
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -160,7 +153,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;MODULECOMMON_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;MODULEFFX_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
@@ -188,18 +181,13 @@
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="AdaptiveSharpenEffect.h" />
-    <ClInclude Include="AdaptiveSharpenPass2Transform.h" />
     <ClInclude Include="EffectDefines.h" />
-    <ClInclude Include="JincScaleEffect.h" />
-    <ClInclude Include="JincScaleTransform.h" />
-    <ClInclude Include="LanczosScaleEffect.h" />
-    <ClInclude Include="LanczosScaleTransform.h" />
-    <ClInclude Include="MitchellNetravaliScaleEffect.h" />
-    <ClInclude Include="MitchellNetravaliScaleTransform.h" />
+    <ClInclude Include="FfxCasEffect.h" />
+    <ClInclude Include="FfxCasTransform.h" />
+    <ClInclude Include="FsrEasuTransform.h" />
+    <ClInclude Include="FSREffect.h" />
+    <ClInclude Include="FsrRcasTransform.h" />
     <ClInclude Include="pch.h" />
-    <ClInclude Include="PixelScaleEffect.h" />
-    <ClInclude Include="PixelScaleTransform.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DllMain.cpp" />
@@ -211,21 +199,14 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="AdaptiveSharpen.hlsli" />
+    <None Include="ffx_a.hlsli" />
+    <None Include="ffx_fsr1.hlsli" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="AdaptiveSharpenPass1Shader.hlsl" />
-    <FxCompile Include="AdaptiveSharpenPass2Shader.hlsl" />
-    <FxCompile Include="Jinc2ScaleShader.hlsl" />
-    <FxCompile Include="Lanczos6ScaleShader.hlsl" />
-    <FxCompile Include="MitchellNetravaliScaleShader.hlsl" />
-    <FxCompile Include="PixelScaleShader.hlsl" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\EffectCommon\EffectCommon.vcxproj">
-      <Project>{95c6c401-ae29-4b29-b1a7-20782f0937d1}</Project>
-    </ProjectReference>
+    <FxCompile Include="FfxCasShader.hlsl" />
+    <FxCompile Include="FsrEasuShader.hlsl" />
+    <FxCompile Include="FsrRcasShader.hlsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

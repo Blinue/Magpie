@@ -4,21 +4,21 @@
 #include "EffectDefines.h"
 
 
-class FfxEasuTransform : public SimpleScaleTransform {
+class FsrEasuTransform : public SimpleScaleTransform {
 private:
-    FfxEasuTransform() : SimpleScaleTransform(GUID_MAGPIE_FFX_EASU_SHADER) {}
+    FsrEasuTransform() : SimpleScaleTransform(GUID_MAGPIE_FSR_EASU_SHADER) {}
 public:
-    static HRESULT Create(_In_ ID2D1EffectContext* d2dEC, _Outptr_ FfxEasuTransform** ppOutput) {
+    static HRESULT Create(_In_ ID2D1EffectContext* d2dEC, _Outptr_ FsrEasuTransform** ppOutput) {
         if (!ppOutput) {
             return E_INVALIDARG;
         }
 
-        HRESULT hr = LoadShader(d2dEC, MAGPIE_FFX_EASU_SHADER, GUID_MAGPIE_FFX_EASU_SHADER);
+        HRESULT hr = LoadShader(d2dEC, MAGPIE_FSR_EASU_SHADER, GUID_MAGPIE_FSR_EASU_SHADER);
         if (FAILED(hr)) {
             return hr;
         }
 
-        *ppOutput = new FfxEasuTransform();
+        *ppOutput = new FsrEasuTransform();
         return hr;
     }
 

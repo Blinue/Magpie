@@ -1,20 +1,20 @@
 #pragma once
 #include "pch.h"
 #include <SimpleDrawTransform.h>
-#include "ContrastAdaptiveSharpenTransform.h"
+#include "FfxCasTransform.h"
 #include <EffectBase.h>
 #include "EffectDefines.h"
 
 
 // 对比度自适应锐化
 // 移植自 https://github.com/deus0ww/mpv-conf/blob/master/shaders/cas/cas_rgb.glsl
-class ContrastAdaptiveSharpenEffect : public EffectBase {
+class FfxCasEffect : public EffectBase {
 public:
     IFACEMETHODIMP Initialize(
         _In_ ID2D1EffectContext* pEffectContext,
         _In_ ID2D1TransformGraph* pTransformGraph
     ) {
-        HRESULT hr = ContrastAdaptiveSharpenTransform::Create(pEffectContext, &_transform);
+        HRESULT hr = FfxCasTransform::Create(pEffectContext, &_transform);
         if (FAILED(hr)) {
             return hr;
         }
@@ -51,7 +51,7 @@ public:
             D2D1_VALUE_TYPE_BINDING(L"Sharpness", &SetSharpness, &GetSharpness),
         };
 
-        HRESULT hr = pFactory->RegisterEffectFromString(CLSID_MAGPIE_CONTRAST_ADAPTIVE_SHARPEN_EFFECT, XML(
+        HRESULT hr = pFactory->RegisterEffectFromString(CLSID_MAGPIE_FFX_CAS_EFFECT, XML(
             <?xml version='1.0'?>
             <Effect>
                 <!--System Properties-->
@@ -65,6 +65,8 @@ public:
                 <Property name='Sharpness' type = 'float'>
                     <Property name='DisplayName' type='string' value='Sharpness'/>
                     <Property name='Default' type='float' value='0.4'/>
+                    <Property name='Min' type='float' value='0'/>
+                    <Property name='Max' type='float' value='1.0'/>
                 </Property>
             </Effect>
         ), bindings, ARRAYSIZE(bindings), CreateEffect);
@@ -73,7 +75,7 @@ public:
     }
 
     static HRESULT CALLBACK CreateEffect(_Outptr_ IUnknown** ppEffectImpl) {
-        *ppEffectImpl = static_cast<ID2D1EffectImpl*>(new ContrastAdaptiveSharpenEffect());
+        *ppEffectImpl = static_cast<ID2D1EffectImpl*>(new FfxCasEffect());
 
         if (*ppEffectImpl == nullptr) {
             return E_OUTOFMEMORY;
@@ -83,7 +85,7 @@ public:
     }
 
 private:
-    ContrastAdaptiveSharpenEffect() {}
+    FfxCasEffect() {}
 
-    ComPtr<ContrastAdaptiveSharpenTransform> _transform = nullptr;
+    ComPtr<FfxCasTransform> _transform = nullptr;
 };
