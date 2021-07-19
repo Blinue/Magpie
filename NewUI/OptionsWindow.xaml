@@ -1,0 +1,18 @@
+﻿<Window x:Class="NewUI.OptionsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:NewUI"
+        mc:Ignorable="d"
+        Title="Magpie 选项" Height="441.469" Width="809.597">
+    <DockPanel Margin="0" LastChildFill="False">
+        <ListView Height="412" VerticalAlignment="Top" Width="217">
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn/>
+                </GridView>
+            </ListView.View>
+        </ListView>
+    </DockPanel>
+</Window>

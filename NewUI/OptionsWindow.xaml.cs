@@ -10,26 +10,15 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
 using System.Windows.Shapes;
 
 namespace NewUI {
     /// <summary>
-    /// MainWindow.xaml 的交互逻辑
+    /// OptionsWindow.xaml 的交互逻辑
     /// </summary>
-    public partial class MainWindow : Window {
-        private readonly OptionsWindow optionsWindow = new OptionsWindow();
-
-        public MainWindow() {
+    public partial class OptionsWindow : Window {
+        public OptionsWindow() {
             InitializeComponent();
-        }
-
-        private void TextBox_TextChanged(object sender, TextChangedEventArgs e) {
-
-        }
-
-        private void BtnOptions_Click(object sender, RoutedEventArgs e) {
-            optionsWindow.Show();
         }
     }
 }

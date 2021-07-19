@@ -5,12 +5,21 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:NewUI"
         mc:Ignorable="d"
-        Title="MainWindow" Height="380.687" Width="573.934">
-    <Grid Margin="0,0,-0.4,-1">
-        <Label Content="热键" HorizontalAlignment="Left" Margin="58,101,0,0" VerticalAlignment="Top"/>
-        <TextBox HorizontalAlignment="Left" Height="23" Margin="97,105,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
-        <Button Content="5秒后放大" HorizontalAlignment="Left" Margin="58,172,0,0" VerticalAlignment="Top" Width="75"/>
-        <Button Content="设置" HorizontalAlignment="Left" Margin="58,195,0,0" VerticalAlignment="Top" Width="75"/>
+        Title="Magpie" Height="220.113" Width="373.668" ResizeMode="CanMinimize">
+    <Grid Margin="0">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <Label Content="热键" HorizontalAlignment="Left" Margin="41,18,0,0" VerticalAlignment="Top"/>
+        <TextBox HorizontalAlignment="Left" Height="25" Margin="80,19,0,0" TextWrapping="Wrap" Width="153" TextChanged="TextBox_TextChanged" MaxLines="1" VerticalContentAlignment="Center" VerticalAlignment="Top"/>
+        <Button Content="5秒后放大" HorizontalAlignment="Left" Margin="259,19,0,0" Width="75" Height="25" VerticalAlignment="Top"/>
+        <Button x:Name="btnOptions" Content="选项" HorizontalAlignment="Left" Margin="259,131,0,0" VerticalAlignment="Top" Width="75" Height="25" Click="BtnOptions_Click"/>
+        <Label Content="缩放模式" HorizontalAlignment="Left" Margin="18,68,0,0" VerticalAlignment="Top"/>
+        <ComboBox HorizontalAlignment="Left" Margin="80,69,0,0" VerticalAlignment="Top" Width="153" Height="25"/>
+        <Label Content="抓取模式" HorizontalAlignment="Left" Margin="18,100,0,0" VerticalAlignment="Top"/>
+        <ComboBox HorizontalAlignment="Left" Margin="80,100,0,0" VerticalAlignment="Top" Width="153" Height="25"/>
+        <Label Content="进程注入" HorizontalAlignment="Left" Margin="18,131,0,0" VerticalAlignment="Top"/>
+        <ComboBox HorizontalAlignment="Left" Margin="80,131,0,0" VerticalAlignment="Top" Width="153" Height="25"/>
 
     </Grid>
 </Window>
