@@ -4,6 +4,6 @@
              xmlns:local="clr-namespace:NewUI"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
-         
+        <BitmapImage UriSource="logo.ico" x:Key="Logo"/>
     </Application.Resources>
 </Application>
