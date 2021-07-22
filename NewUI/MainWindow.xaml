@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:NewUI"
         mc:Ignorable="d"
-        Title="Magpie" Height="220.113" Width="373.668" ResizeMode="CanMinimize" WindowStartupLocation="CenterScreen">
+        Title="Magpie" Height="220.113" Width="373.668" ResizeMode="CanMinimize" WindowStartupLocation="CenterScreen" Icon="{StaticResource Logo}">
     <Grid Margin="0">
         <Grid.ColumnDefinitions>
             <ColumnDefinition/>

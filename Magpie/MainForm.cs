@@ -10,7 +10,7 @@ using System.Linq;
 
 
 namespace Magpie {
-    partial class MainForm : Form {
+    internal partial class MainForm : Form {
         private IKeyboardMouseEvents keyboardEvents = null;
         private readonly MagWindow magWindow;
 
@@ -45,7 +45,7 @@ namespace Magpie {
 
         private void LoadScaleModels() {
             string json;
-            if(File.Exists(SCALE_MODELS_JSON_PATH)) {
+            if (File.Exists(SCALE_MODELS_JSON_PATH)) {
                 json = File.ReadAllText(SCALE_MODELS_JSON_PATH);
             } else {
                 File.WriteAllText(SCALE_MODELS_JSON_PATH, Resources.BuiltInScaleModels);
@@ -57,11 +57,7 @@ namespace Magpie {
                      .Select(t => {
                          string name = t["name"]?.ToString();
                          string model = t["model"]?.ToString();
-                         if(name == null || model == null) {
-                             throw new Exception();
-                         }
-
-                         return (name, model);
+                         return name == null || model == null ? throw new Exception() : (name, model);
                      })
                      .ToArray();
 
@@ -69,12 +65,12 @@ namespace Magpie {
                     throw new Exception();
                 }
             } catch (Exception) {
-                MessageBox.Show("非法的 ScaleModel.json");
+                _ = MessageBox.Show("非法的 ScaleModel.json");
                 Environment.Exit(0);
             }
 
-            foreach (var scaleModel in scaleModels) {
-                cbbScaleMode.Items.Add(scaleModel.Name);
+            foreach ((string Name, string Model) scaleModel in scaleModels) {
+                _ = cbbScaleMode.Items.Add(scaleModel.Name);
             }
         }
 
@@ -142,7 +138,7 @@ namespace Magpie {
         }
 
         private void MainForm_Resize(object sender, EventArgs e) {
-            if(WindowState == FormWindowState.Minimized) {
+            if (WindowState == FormWindowState.Minimized) {
                 Hide();
                 notifyIcon.Visible = true;
             } else {
@@ -170,9 +166,9 @@ namespace Magpie {
         }
 
         private void CbbInjectMode_SelectedIndexChanged(object sender, EventArgs e) {
-            if(cbbInjectMode.SelectedIndex == 2) {
+            if (cbbInjectMode.SelectedIndex == 2) {
                 // 启动时注入
-                if(openFileDialog.ShowDialog() != DialogResult.OK) {
+                if (openFileDialog.ShowDialog() != DialogResult.OK) {
                     // 未选择文件，恢复原来的选项
                     cbbInjectMode.SelectedIndex = Settings.Default.InjectMode;
                     return;
@@ -215,7 +211,7 @@ namespace Magpie {
         }
 
         private void TimerScale_Tick(object sender, EventArgs e) {
-            if(--countDownNum != 0) {
+            if (--countDownNum != 0) {
                 tsmiScale.Text = btnScale.Text = countDownNum.ToString();
                 return;
             }

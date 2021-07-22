@@ -92,24 +92,24 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="AboutOptionsPage.xaml.cs">
+    <Compile Include="Options\AboutOptionsPage.xaml.cs">
       <DependentUpon>AboutOptionsPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="AdvancedOptionsPage.xaml.cs">
+    <Compile Include="Options\AdvancedOptionsPage.xaml.cs">
       <DependentUpon>AdvancedOptionsPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="ScaleOptionsPage.xaml.cs">
+    <Compile Include="Options\ScaleOptionsPage.xaml.cs">
       <DependentUpon>ScaleOptionsPage.xaml</DependentUpon>
     </Compile>
-    <Page Include="AboutOptionsPage.xaml">
+    <Page Include="Options\AboutOptionsPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="AdvancedOptionsPage.xaml">
+    <Page Include="Options\AdvancedOptionsPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="ApplicationOptionsPage.xaml">
+    <Page Include="Options\ApplicationOptionsPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -121,24 +121,28 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="ApplicationOptionsPage.xaml.cs">
+    <Compile Include="Options\ApplicationOptionsPage.xaml.cs">
       <DependentUpon>ApplicationOptionsPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="OptionsWindow.xaml">
+    <Page Include="Options\OptionsPageStyleDictionary.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="ScaleOptionsPage.xaml">
+    <Page Include="Options\OptionsWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Options\ScaleOptionsPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="OptionsWindow.xaml.cs">
+    <Compile Include="Options\OptionsWindow.xaml.cs">
       <DependentUpon>OptionsWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs">

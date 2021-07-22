@@ -17,17 +17,18 @@ namespace NewUI {
     /// OptionsWindow.xaml 的交互逻辑
     /// </summary>
     public partial class OptionsWindow : Window {
-        static readonly string[] OPTIONS_PAGES = new string[] {
-            "ApplicationOptionsPage.xaml",
-            "ScaleOptionsPage.xaml",
-            "AdvancedOptionsPage.xaml",
-            "AboutOptionsPage.xaml"
+        private static readonly string[] OPTIONS_PAGES = new string[] {
+            "Options/ApplicationOptionsPage.xaml",
+            "Options/ScaleOptionsPage.xaml",
+            "Options/AdvancedOptionsPage.xaml",
+            "Options/AboutOptionsPage.xaml"
         };
 
         public OptionsWindow() {
             InitializeComponent();
 
             lbxOptionsPage.SelectedIndex = 0;
+            _ = ((ListBoxItem)lbxOptionsPage.SelectedItem).Focus();
         }
 
         private void LxbOptionsPage_SelectionChanged(object sender, SelectionChangedEventArgs e) {
