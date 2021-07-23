@@ -7,7 +7,7 @@
         mc:Ignorable="d"
         Title="Magpie 选项" Height="400" Width="650" Icon="{StaticResource Logo}">
     <DockPanel>
-        <ListBox x:Name="lbxOptionsPage" Margin="0" SelectionChanged="LxbOptionsPage_SelectionChanged" Padding="0">
+        <ListBox x:Name="lbxOptionsPage" Margin="0" SelectionChanged="LxbOptionsPage_SelectionChanged" Padding="0" BorderThickness="0,0,1,0">
             <ListBox.Resources>
                 <Style TargetType="ListBoxItem">
                     <Setter Property="HorizontalContentAlignment" Value="Center" />
