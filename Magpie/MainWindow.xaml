@@ -6,7 +6,7 @@
         xmlns:tb="http://www.hardcodet.net/taskbar"
         xmlns:local="clr-namespace:Magpie"
         mc:Ignorable="d"
-        Title="Magpie" Height="210" Width="380" ResizeMode="CanMinimize" WindowStartupLocation="CenterScreen" Icon="{StaticResource Logo}"
+        Title="Magpie" Height="220" Width="380" ResizeMode="CanMinimize" WindowStartupLocation="CenterScreen" Icon="{StaticResource Logo}"
         Closing="Window_Closing" SourceInitialized="Window_SourceInitialized" StateChanged="Window_StateChanged">
     <Grid Margin="10,15,10,10">
         <Grid.Resources>

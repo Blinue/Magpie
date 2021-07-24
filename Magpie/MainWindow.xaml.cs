@@ -1,7 +1,6 @@
 ﻿using Gma.System.MouseKeyHook;
 using Microsoft.Win32;
 using Newtonsoft.Json.Linq;
-using Magpie.Properties;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -12,6 +11,8 @@ using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Threading;
 using System.Windows.Media;
+using Magpie.Properties;
+
 
 namespace Magpie {
     /// <summary>
@@ -70,7 +71,7 @@ namespace Magpie {
             if (File.Exists(SCALE_MODELS_JSON_PATH)) {
                 json = File.ReadAllText(SCALE_MODELS_JSON_PATH);
             } else {
-                json = Resources["BuiltInScaleModels"] as string;
+                json = Properties.Resources.BuiltInScaleModels;
                 File.WriteAllText(SCALE_MODELS_JSON_PATH, json);
             }
 
