@@ -5,7 +5,7 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:NewUI"
       mc:Ignorable="d" 
-      d:DesignHeight="450" d:DesignWidth="800"
+      d:DesignHeight="200" d:DesignWidth="400"
       Title="AboutOptionsPage">
     <Page.Resources>
         <ResourceDictionary>
@@ -16,9 +16,9 @@
     </Page.Resources>
     
     <StackPanel>
-        <StackPanel Margin="5,10,0,10" Orientation="Horizontal">
+        <StackPanel Orientation="Horizontal">
             <Image Height="50" Source="{StaticResource Logo}" HorizontalAlignment="Left" VerticalAlignment="Top"/>
-            <Label Content="MAGPIE" Margin="5,0,-4.8,0" VerticalAlignment="Center" FontSize="20"/>
+            <Label Content="MAGPIE" Margin="5,0,0,0" VerticalAlignment="Center" FontSize="20"/>
         </StackPanel>
 
 

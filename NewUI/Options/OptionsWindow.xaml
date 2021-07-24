@@ -49,6 +49,6 @@
                 </StackPanel>
             </ListBoxItem>
         </ListBox>
-        <Frame x:Name="contentFrame" NavigationUIVisibility="Hidden" Padding="10,10,10,0"/>
+        <Frame x:Name="contentFrame" NavigationUIVisibility="Hidden" Padding="20,20,20,0"/>
     </DockPanel>
 </Window>

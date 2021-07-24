@@ -5,7 +5,7 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:NewUI"
       mc:Ignorable="d" 
-      d:DesignHeight="450" d:DesignWidth="800"
+      d:DesignHeight="200" d:DesignWidth="400"
       Title="ApplicationOptionsPage">
     <Page.Resources>
         <ResourceDictionary>
@@ -16,10 +16,10 @@
     </Page.Resources>
     
     <StackPanel HorizontalAlignment="Left" VerticalAlignment="Top">
-        <StackPanel Height="25" Orientation="Horizontal" VerticalAlignment="Top" HorizontalAlignment="Left" Width="252" Margin="0,10">
-            <Label Content="语言" Width="55"/>
-            <ComboBox Width="120"/>
+        <StackPanel Orientation="Horizontal" VerticalAlignment="Top" HorizontalAlignment="Left">
+            <Label Content="语言" Padding="0" VerticalAlignment="Center"/>
+            <ComboBox Margin="10,0,0,0" VerticalAlignment="Center"/>
         </StackPanel>
-        <CheckBox Style="{StaticResource OptionItem}" Content="开机启动" Margin="5,10,0,10"/>
+        <CheckBox Style="{StaticResource OptionItem}" Content="开机启动"/>
     </StackPanel>
 </Page>

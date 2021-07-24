@@ -5,7 +5,7 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:NewUI"
       mc:Ignorable="d" 
-      d:DesignHeight="450" d:DesignWidth="800"
+      d:DesignHeight="200" d:DesignWidth="400"
       Title="ScaleOptionsPage">
     <Page.Resources>
         <ResourceDictionary>
@@ -16,8 +16,8 @@
     </Page.Resources>
     
     <StackPanel>
-        <CheckBox Style="{StaticResource OptionItem}" Content="缩放时调整光标速度" Margin="5,10,0,10"/>
-        <Button Content="打开缩放配置" HorizontalAlignment="Left" Margin="5,10,0,10" Padding="5"/>
+        <CheckBox Content="缩放时调整光标速度"/>
+        <Button Style="{StaticResource OptionItem}" Content="打开缩放配置" HorizontalAlignment="Left" Padding="5"/>
 
     </StackPanel>
 </Page>
