@@ -20,6 +20,6 @@
             <Label Content="日志级别" Padding="0" VerticalContentAlignment="Center" />
             <ComboBox Margin="10,0,0,0" />
         </StackPanel>
-        <CheckBox Style="{StaticResource OptionItem}" Content="显示帧率"/>
+        <CheckBox Content="显示帧率" Margin="0,20,0,0"/>
     </StackPanel>
 </Page>

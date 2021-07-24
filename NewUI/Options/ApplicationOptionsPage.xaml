@@ -20,6 +20,6 @@
             <Label Content="语言" Padding="0" VerticalAlignment="Center"/>
             <ComboBox Margin="10,0,0,0" VerticalAlignment="Center"/>
         </StackPanel>
-        <CheckBox Style="{StaticResource OptionItem}" Content="开机启动"/>
+        <CheckBox Content="开机启动" Margin="0,20,0,0"/>
     </StackPanel>
 </Page>

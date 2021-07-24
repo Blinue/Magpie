@@ -46,7 +46,7 @@
     
     mimetype: application/x-microsoft.net.object.binary.base64
     value   : The object must be serialized with 
-            : System.Serialization.Formatters.Binary.BinaryFormatter
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
             : and then encoded with base64 encoding.
     
     mimetype: application/x-microsoft.net.object.soap.base64
@@ -60,6 +60,7 @@
             : and then encoded with base64 encoding.
     -->
   <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
     <xsd:element name="root" msdata:IsDataSet="true">
       <xsd:complexType>
         <xsd:choice maxOccurs="unbounded">
@@ -68,9 +69,10 @@
               <xsd:sequence>
                 <xsd:element name="value" type="xsd:string" minOccurs="0" />
               </xsd:sequence>
-              <xsd:attribute name="name" type="xsd:string" />
+              <xsd:attribute name="name" use="required" type="xsd:string" />
               <xsd:attribute name="type" type="xsd:string" />
               <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
             </xsd:complexType>
           </xsd:element>
           <xsd:element name="assembly">
@@ -85,9 +87,10 @@
                 <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
                 <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
               </xsd:sequence>
-              <xsd:attribute name="name" type="xsd:string" msdata:Ordinal="1" />
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
               <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
               <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
             </xsd:complexType>
           </xsd:element>
           <xsd:element name="resheader">
@@ -109,9 +112,138 @@
     <value>2.0</value>
   </resheader>
   <resheader name="reader">
-    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <resheader name="writer">
-    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="BuiltInScaleModels" xml:space="preserve">
+    <value>[
+  {
+    "name": "Lanczos",
+    "model": [
+      {
+        "module": "Common",
+        "effect": "lanczos",
+        "scale": [ -1, -1 ],
+        "ARStrength": 0.7
+      },
+      {
+        "module": "Common",
+        "effect": "adaptiveSharpen",
+        "curveHeight": 0.6
+      }
+    ]
+  },
+  {
+    "name": "RAVU",
+    "model": [
+      {
+        "module": "RAVU",
+        "effect": "RAVUZoom",
+        "scale": [ -1, -1 ]
+      },
+      {
+        "module": "Anime4K",
+        "effect": "denoiseBilateral",
+        "variant": "mode"
+      }
+    ]
+  },
+  {
+    "name": "FSRCNNX",
+    "model": [
+      {
+        "module": "FSRCNNX",
+        "effect": "FSRCNNX"
+      },
+      {
+        "module": "Common",
+        "effect": "mitchell",
+        "scale": [ -1, -1 ],
+        "variant": "catrom"
+      }
+    ]
+  },
+  {
+    "name": "ACNet",
+    "model": [
+      {
+        "module": "ACNet"
+      },
+      {
+        "module": "Common",
+        "effect": "mitchell",
+        "scale": [ -1, -1 ],
+        "variant": "catrom"
+      }
+    ]
+  },
+  {
+    "name": "Anime4K",
+    "model": [
+      {
+        "module": "Anime4K",
+        "effect": "Anime4K",
+        "curveHeight": 0.3,
+        "useDenoiseVersion": true
+      },
+      {
+        "module": "Common",
+        "effect": "mitchell",
+        "scale": [ -1, -1 ],
+        "variant": "catrom"
+      }
+    ]
+  },
+  {
+    "name": "Anime4K+ThinLines",
+    "model": [
+      {
+        "module": "Anime4K",
+        "effect": "Anime4K",
+        "curveHeight": 0.6,
+        "useDenoiseVersion": true
+      },
+      {
+        "module": "Common",
+        "effect": "mitchell",
+        "scale": [ -1, -1 ],
+        "variant": "catrom"
+      },
+      {
+        "module": "Anime4K",
+        "effect": "thinLines",
+        "strength": 0.3
+      },
+      {
+        "module": "Common",
+        "effect": "sharpen",
+        "sharpness": 1,
+        "threshold": 0.3
+      }
+    ]
+  },
+  {
+    "name": "像素 2x",
+    "model": [
+      {
+        "module": "Common",
+        "effect": "pixelScale",
+        "scale": 2
+      }
+    ]
+  },
+  {
+    "name": "像素 3x",
+    "model": [
+      {
+        "module": "Common",
+        "effect": "pixelScale",
+        "scale": 3
+      }
+    ]
+  }
+]</value>
+  </data>
 </root>

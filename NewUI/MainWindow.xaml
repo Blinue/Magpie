@@ -3,12 +3,15 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:tb="http://www.hardcodet.net/taskbar"
         xmlns:local="clr-namespace:NewUI"
         mc:Ignorable="d"
-        Title="Magpie" Height="210" Width="380" ResizeMode="CanMinimize" WindowStartupLocation="CenterScreen" Icon="{StaticResource Logo}">
+        Title="Magpie" Height="210" Width="380" ResizeMode="CanMinimize" WindowStartupLocation="CenterScreen" Icon="{StaticResource Logo}"
+        Closing="Window_Closing" SourceInitialized="Window_SourceInitialized" StateChanged="Window_StateChanged">
     <Grid Margin="10,15,10,10">
+
         <Grid.Resources>
-            <Style TargetType="ComboBox">
+            <Style TargetType="ComboBox" BasedOn="{StaticResource ComboBox}">
                 <Setter Property="Grid.Column" Value="1" />
                 <Setter Property="Margin" Value="10,0" />
                 <Setter Property="VerticalAlignment" Value="Center" />
@@ -18,6 +21,7 @@
                 <Setter Property="HorizontalAlignment" Value="Right" />
                 <Setter Property="Margin" Value="0" />
             </Style>
+            <local:NotifyIconLeftClickCommand x:Key="NotifyIconLeftClickCommand" />
         </Grid.Resources>
         
         <Grid.ColumnDefinitions>
@@ -33,22 +37,68 @@
         </Grid.RowDefinitions>
         
         <Label Style="{StaticResource Col0}" Content="热键" VerticalAlignment="Top"/>
-        <TextBox Grid.Column="1" Margin="10,0" VerticalAlignment="Top" Padding="1,3" />
-        <Button Content="5秒后缩放" Grid.Column="2" HorizontalAlignment="Center" Margin="0" VerticalAlignment="Top" Padding="10,3" Width="80"/>
+        <TextBox x:Name="txtHotkey" Grid.Column="1" Margin="10,0" VerticalAlignment="Top" Padding="1,3" TextChanged="TxtHotkey_TextChanged" >
+            <TextBox.ContextMenu>
+                <ContextMenu/>
+            </TextBox.ContextMenu>
+        </TextBox>
+        <Button Content="5秒后缩放" Name="btnScale" Click="BtnScale_Click" Grid.Column="2" HorizontalAlignment="Center" Margin="0" VerticalAlignment="Top" Padding="10,3" Width="80"/>
 
-        <Label Style="{StaticResource Col0}" Content="缩放模式" Grid.Row="1" VerticalAlignment="Center"/>
-        <ComboBox Grid.Row="1" />
+        <Label Style="{StaticResource Col0}" Content="缩放模式" Grid.Row="1" VerticalAlignment="Center" />
+        <ComboBox Name="cbbScaleMode" Grid.Row="1" SelectionChanged="CbbScaleMode_SelectionChanged" />
 
         <Label Style="{StaticResource Col0}" Content="抓取模式" Grid.Row="2" VerticalAlignment="Center"/>
-        <ComboBox Grid.Row="2" />
+        <ComboBox Name="cbbCaptureMode" Grid.Row="2" SelectionChanged="CbbCaptureMode_SelectionChanged">
+            <ComboBoxItem Content="WinRT Capture" />
+            <ComboBoxItem Content="GDI" />
+        </ComboBox>
 
         <Label Style="{StaticResource Col0}" Content="进程注入" Grid.Row="3" VerticalAlignment="Center"/>
-        <ComboBox Grid.Row="3" />
+        <ComboBox Name="cbbInjectMode" Grid.Row="3" SelectionChanged="CbbInjectMode_SelectionChanged">
+            <ComboBoxItem Content="不注入" />
+            <ComboBoxItem Content="运行时注入" />
+            <ComboBoxItem Content="启动时注入" />
+        </ComboBox>
         <Button Click="BtnOptions_Click" Grid.Column="2" HorizontalAlignment="Center" Margin="0" Grid.Row="3" VerticalAlignment="Center" Padding="10,5">
             <StackPanel Orientation="Horizontal">
                 <Label FontFamily="Segoe MDL2 Assets" Content="&#xE713;" Padding="0,0,5,0" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" />
                 <Label Content="选项" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Padding="0" />
             </StackPanel>
         </Button>
+
+        <tb:TaskbarIcon
+            x:Name="notifyIcon"
+            ToolTipText="Magpie"
+            IconSource="{StaticResource Logo}"
+            Visibility="Hidden"
+            LeftClickCommand="{StaticResource NotifyIconLeftClickCommand}"
+            LeftClickCommandParameter="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindow}}}"
+            NoLeftClickDelay="True"
+        >
+            <tb:TaskbarIcon.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Name="cmiHotkey" IsEnabled="False">
+                        <MenuItem.Icon>
+                            <Label Style="{StaticResource ContextMenuItemFontIcon}" Content="&#xEDA7;" />
+                        </MenuItem.Icon>
+                    </MenuItem>
+                    <MenuItem Header="5秒后缩放" Name="cmiScale" Click="CmiScale_Click">
+                        <MenuItem.Icon>
+                            <Label Style="{StaticResource ContextMenuItemFontIcon}" Content="&#xE916;" />
+                        </MenuItem.Icon>
+                    </MenuItem>
+                    <MenuItem Header="主界面" Click="CmiMainForm_Click">
+                        <MenuItem.Icon>
+                            <Label Style="{StaticResource ContextMenuItemFontIcon}" Content="&#xE737;" />
+                        </MenuItem.Icon>
+                    </MenuItem>
+                    <MenuItem Header="退出" Click="CmiExit_Click">
+                        <MenuItem.Icon>
+                            <Label Style="{StaticResource ContextMenuItemFontIcon}" Content="&#xF3B1;" />
+                        </MenuItem.Icon>
+                    </MenuItem>
+                </ContextMenu>
+            </tb:TaskbarIcon.ContextMenu>
+        </tb:TaskbarIcon>
     </Grid>
 </Window>

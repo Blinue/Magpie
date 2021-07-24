@@ -7,10 +7,10 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Runtime.Remoting;
 using System.Threading;
-using System.Windows.Forms;
+using System.Windows;
+using System.Windows.Interop;
 
-
-namespace Magpie {
+namespace NewUI {
     enum MagWindowStatus : int {
         Idle = 0,       // 未启动或者已关闭
         Starting = 1,   // 启动中，此状态下无法执行操作
@@ -35,7 +35,7 @@ namespace Magpie {
             }
         }
 
-        public MagWindow(Form mainForm) {
+        public MagWindow(Window parent) {
             StatusEvent += (int status, string errorMsg) => {
                 if(status < 0 || status > 3) {
                     return;
@@ -44,9 +44,9 @@ namespace Magpie {
                 Status = (MagWindowStatus)status;
 
                 if (errorMsg != null) {
-                    mainForm.Invoke(new Action(() => {
-                        _ = NativeMethods.SetForegroundWindow(mainForm.Handle);
-                        MessageBox.Show(errorMsg);
+                    parent.Dispatcher.Invoke(new Action(() => {
+                        _ = NativeMethods.SetForegroundWindow(new WindowInteropHelper(parent).Handle);
+                        _ = MessageBox.Show(errorMsg);
                     }));
                 }
             };
