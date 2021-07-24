@@ -11,7 +11,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Threading;
-
+using System.Windows.Media;
 
 namespace Magpie {
     /// <summary>
@@ -116,13 +116,12 @@ namespace Magpie {
                     Combination.FromString(hotkey), () => ToggleMagWindow()
                 }});
 
-                
-                //txtHotkey.ForeColor = Color.Black;
+                txtHotkey.Foreground = Brushes.Black;
                 Settings.Default.Hotkey = hotkey;
 
                 cmiHotkey.Header = hotkey;
             } catch (ArgumentException) {
-                //txtHotkey.ForeColor = Color.Red;
+                txtHotkey.Foreground = Brushes.Red;
             }
         }
 
@@ -178,7 +177,6 @@ namespace Magpie {
             countDownNum = DOWN_COUNT;
             cmiScale.Header = btnScale.Content = countDownNum.ToString();
 
-            
             timerScale.Start();
         }
 
@@ -241,14 +239,15 @@ namespace Magpie {
         private void BtnScale_Click(object sender, RoutedEventArgs e) {
             ToggleScaleTimer();
         }
-
-        
     }
 
     public class NotifyIconLeftClickCommand : ICommand {
+#pragma warning disable 67
+        // 未使用
         public event EventHandler CanExecuteChanged;
+#pragma warning restore 67
 
-        public bool CanExecute(object parameter) {
+        public bool CanExecute(object _) {
             return true;
         }
 

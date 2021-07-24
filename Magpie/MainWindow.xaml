@@ -9,7 +9,6 @@
         Title="Magpie" Height="210" Width="380" ResizeMode="CanMinimize" WindowStartupLocation="CenterScreen" Icon="{StaticResource Logo}"
         Closing="Window_Closing" SourceInitialized="Window_SourceInitialized" StateChanged="Window_StateChanged">
     <Grid Margin="10,15,10,10">
-
         <Grid.Resources>
             <Style TargetType="ComboBox" BasedOn="{StaticResource ComboBox}">
                 <Setter Property="Grid.Column" Value="1" />
@@ -61,8 +60,8 @@
         </ComboBox>
         <Button Click="BtnOptions_Click" Grid.Column="2" HorizontalAlignment="Center" Margin="0" Grid.Row="3" VerticalAlignment="Center" Padding="10,5">
             <StackPanel Orientation="Horizontal">
-                <Label FontFamily="Segoe MDL2 Assets" Content="&#xE713;" Padding="0,0,5,0" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" />
-                <Label Content="选项" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Padding="0" />
+                <Label FontFamily="Segoe MDL2 Assets" Content="&#xE713;" Padding="0" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Margin="0" />
+                <Label Content="选项" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Padding="0" Margin="5,0,0,0" />
             </StackPanel>
         </Button>
 
