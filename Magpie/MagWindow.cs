@@ -10,7 +10,7 @@ using System.Threading;
 using System.Windows;
 using System.Windows.Interop;
 
-namespace NewUI {
+namespace Magpie {
     enum MagWindowStatus : int {
         Idle = 0,       // 未启动或者已关闭
         Starting = 1,   // 启动中，此状态下无法执行操作

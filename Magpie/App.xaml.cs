@@ -3,7 +3,7 @@ using System.Threading;
 using System.Windows;
 
 
-namespace NewUI {
+namespace Magpie {
     /// <summary>
     /// App.xaml 的交互逻辑
     /// </summary>

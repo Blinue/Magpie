@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace NewUI.Properties {
+namespace Magpie.Properties {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]

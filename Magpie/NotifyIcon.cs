@@ -1,4 +1,4 @@
-﻿namespace NewUI {
+﻿namespace Magpie {
     internal class NotifyIcon {
     }
 }

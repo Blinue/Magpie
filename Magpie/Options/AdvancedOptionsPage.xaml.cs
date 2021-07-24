@@ -13,12 +13,12 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace NewUI {
+namespace Magpie {
     /// <summary>
-    /// ScaleOptionsPage.xaml 的交互逻辑
+    /// AdvancedOptionsPage.xaml 的交互逻辑
     /// </summary>
-    public partial class ScaleOptionsPage : Page {
-        public ScaleOptionsPage() {
+    public partial class AdvancedOptionsPage : Page {
+        public AdvancedOptionsPage() {
             InitializeComponent();
         }
     }

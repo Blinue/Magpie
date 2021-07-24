@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 
 
-namespace NewUI {
+namespace Magpie {
 	// Win32 API
 	static class NativeMethods {
         public static readonly int MAGPIE_WM_SHOWME = RegisterWindowMessage("WM_SHOWME");

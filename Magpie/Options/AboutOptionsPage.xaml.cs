@@ -13,7 +13,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace NewUI {
+namespace Magpie {
     /// <summary>
     /// AboutOptionsPage.xaml 的交互逻辑
     /// </summary>

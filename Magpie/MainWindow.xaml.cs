@@ -1,7 +1,7 @@
 ﻿using Gma.System.MouseKeyHook;
 using Microsoft.Win32;
 using Newtonsoft.Json.Linq;
-using NewUI.Properties;
+using Magpie.Properties;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -13,7 +13,7 @@ using System.Windows.Interop;
 using System.Windows.Threading;
 
 
-namespace NewUI {
+namespace Magpie {
     /// <summary>
     /// MainWindow.xaml 的交互逻辑
     /// </summary>

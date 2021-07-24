@@ -1,12 +1,12 @@
-﻿<Page x:Class="NewUI.ScaleOptionsPage"
+﻿<Page x:Class="Magpie.AboutOptionsPage"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-      xmlns:local="clr-namespace:NewUI"
+      xmlns:local="clr-namespace:Magpie"
       mc:Ignorable="d" 
       d:DesignHeight="200" d:DesignWidth="400"
-      Title="ScaleOptionsPage">
+      Title="AboutOptionsPage">
     <Page.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -16,7 +16,11 @@
     </Page.Resources>
     
     <StackPanel>
-        <CheckBox Content="缩放时调整光标速度"/>
-        <Button Content="打开缩放配置" HorizontalAlignment="Left" Margin="0,20,0,0"/>
+        <StackPanel Orientation="Horizontal">
+            <Image Height="50" Source="{StaticResource Logo}" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+            <Label Content="MAGPIE" Margin="5,0,0,0" VerticalAlignment="Center" FontSize="20"/>
+        </StackPanel>
+
+
     </StackPanel>
 </Page>

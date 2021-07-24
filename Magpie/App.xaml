@@ -1,7 +1,7 @@
-﻿<Application x:Class="NewUI.App"
+﻿<Application x:Class="Magpie.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:local="clr-namespace:NewUI"
+             xmlns:local="clr-namespace:Magpie"
              StartupUri="MainWindow.xaml"
              Startup="Application_Startup" Exit="Application_Exit">
     <Application.Resources>

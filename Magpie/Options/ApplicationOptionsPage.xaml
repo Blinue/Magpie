@@ -1,12 +1,12 @@
-﻿<Page x:Class="NewUI.AdvancedOptionsPage"
+﻿<Page x:Class="Magpie.ApplicationOptionsPage"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-      xmlns:local="clr-namespace:NewUI"
+      xmlns:local="clr-namespace:Magpie"
       mc:Ignorable="d" 
       d:DesignHeight="200" d:DesignWidth="400"
-      Title="AdvancedOptionsPage">
+      Title="ApplicationOptionsPage">
     <Page.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -15,11 +15,11 @@
         </ResourceDictionary>
     </Page.Resources>
     
-    <StackPanel>
-        <StackPanel Orientation="Horizontal">
-            <Label Content="日志级别" Padding="0" VerticalContentAlignment="Center" />
-            <ComboBox Margin="10,0,0,0" />
+    <StackPanel HorizontalAlignment="Left" VerticalAlignment="Top">
+        <StackPanel Orientation="Horizontal" VerticalAlignment="Top" HorizontalAlignment="Left">
+            <Label Content="语言" Padding="0" VerticalAlignment="Center"/>
+            <ComboBox Margin="10,0,0,0" VerticalAlignment="Center"/>
         </StackPanel>
-        <CheckBox Content="显示帧率" Margin="0,20,0,0"/>
+        <CheckBox Content="开机启动" Margin="0,20,0,0"/>
     </StackPanel>
 </Page>
