@@ -219,6 +219,7 @@
     <ClInclude Include="pch.h" />
     <ClInclude Include="Renderable.h" />
     <ClInclude Include="RenderManager.h" />
+    <ClInclude Include="resource.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="Utils.h" />
     <ClInclude Include="WICBitmapEffectRenderer.h" />
@@ -253,6 +254,9 @@
     <ProjectReference Include="..\EffectCommon\EffectCommon.vcxproj">
       <Project>{95c6c401-ae29-4b29-b1a7-20782f0937d1}</Project>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="version.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

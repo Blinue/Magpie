@@ -5,7 +5,7 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:Magpie"
       mc:Ignorable="d" 
-      d:DesignHeight="200" d:DesignWidth="400"
+      d:DesignHeight="300" d:DesignWidth="400"
       Title="AboutOptionsPage">
     <Page.Resources>
         <ResourceDictionary>
@@ -14,13 +14,99 @@
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Page.Resources>
-    
-    <StackPanel>
-        <StackPanel Orientation="Horizontal">
-            <Image Height="50" Source="{StaticResource Logo}" HorizontalAlignment="Left" VerticalAlignment="Top"/>
-            <Label Content="MAGPIE" Margin="5,0,0,0" VerticalAlignment="Center" FontSize="20"/>
-        </StackPanel>
 
+    <StackPanel Margin="0">
+        <Grid>
+            <StackPanel Orientation="Horizontal">
+                <Image Height="28" Source="{StaticResource Logo}" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <Label Content="MAGPIE" Margin="5,0,0,-3" VerticalAlignment="Top" FontSize="20" Padding="0" HorizontalAlignment="Left"/>
+                    <Label Content="版本 0.6.0" Padding="0" Margin="10,0,0,0" VerticalAlignment="Bottom" FontSize="11" />
+                </StackPanel>
+            </StackPanel>
+            <Button Content="开源许可" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" HorizontalAlignment="Right" VerticalAlignment="Center" />
+        </Grid>
 
+        <Grid Margin="0,20,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+
+            <Label Content="支持" Padding="0" FontWeight="Bold" />
+            <Separator Margin="5,0,0,0" VerticalAlignment="Center" Grid.Column="1"/>
+        </Grid>
+        <Grid Margin="5,5,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition />
+                <RowDefinition />
+                <RowDefinition />
+            </Grid.RowDefinitions>
+
+            <Label Content="项目地址" Padding="5" HorizontalAlignment="Left" VerticalAlignment="Center" />
+            <TextBlock Grid.Column="1" Padding="5">
+                <Hyperlink NavigateUri="https://github.com/Blinue/Magpie" RequestNavigate="Hyperlink_RequestNavigate">
+                    https://github.com/Blinue/Magpie
+                </Hyperlink>
+            </TextBlock>
+            <Label Content="反馈" Grid.Row="1" Padding="5" Grid.RowSpan="2" HorizontalAlignment="Left" VerticalAlignment="Center" />
+            <TextBlock Grid.Column="1" Grid.Row="1" Padding="5">
+                <Hyperlink NavigateUri="https://github.com/Blinue/Magpie/issues" RequestNavigate="Hyperlink_RequestNavigate">
+                    https://github.com/Blinue/Magpie/issues
+                </Hyperlink>
+            </TextBlock>
+            <TextBlock Grid.Column="1" Grid.Row="2" Padding="5,0">
+                <Hyperlink NavigateUri="mailto:blinue@outlook.com" RequestNavigate="Hyperlink_RequestNavigate">
+                    mailto:blinue@outlook.com
+                </Hyperlink>
+            </TextBlock>
+        </Grid>
+        <!-- Margin为20会使分隔线模糊 -->
+        <Grid Margin="0,19.8,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+
+            <Label Content="鸣谢" Padding="0" FontWeight="Bold" />
+            <Separator Margin="5,0,0,0" VerticalAlignment="Center" Grid.Column="1"/>
+        </Grid>
+        <Grid Margin="5,5,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition />
+                <RowDefinition />
+                <RowDefinition />
+                <RowDefinition />
+                <RowDefinition />
+            </Grid.RowDefinitions>
+            <Label Content="Visual Studio" Padding="5" />
+            <TextBlock Grid.Column="1" Padding="5">
+                <Hyperlink NavigateUri="https://visualstudio.microsoft.com/" RequestNavigate="Hyperlink_RequestNavigate">
+                    https://visualstudio.microsoft.com/
+                </Hyperlink>
+            </TextBlock>
+            <Label Content="EasyHook" Padding="5" Grid.Row="1" />
+            <TextBlock Grid.Column="1" Padding="5" Grid.Row="1">
+                <Hyperlink NavigateUri="https://github.com/EasyHook/EasyHook" RequestNavigate="Hyperlink_RequestNavigate">
+                    https://github.com/EasyHook/EasyHook
+                </Hyperlink>
+            </TextBlock>
+            <Label Content="C++/WinRT" Padding="5" Grid.Row="2" />
+            <TextBlock Grid.Column="1" Padding="5" Grid.Row="2">
+                <Hyperlink NavigateUri="https://github.com/microsoft/cppwinrt" RequestNavigate="Hyperlink_RequestNavigate">
+                    https://github.com/microsoft/cppwinrt
+                </Hyperlink>
+            </TextBlock>
+            <TextBlock Text="Magpie移植的所有优秀着色器项目" Grid.Row="3" Grid.ColumnSpan="2" Padding="5" />
+            <TextBlock Text="所有为Magpie提供给反馈与支持的人" Grid.Row="4" Grid.ColumnSpan="2" Padding="5" />
+        </Grid>
     </StackPanel>
 </Page>

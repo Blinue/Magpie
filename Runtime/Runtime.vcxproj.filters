@@ -90,6 +90,9 @@
     <ClInclude Include="MonochromeCursorTransform.h">
       <Filter>头文件\Effect</Filter>
     </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>资源文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />
@@ -117,10 +120,18 @@
     <Filter Include="头文件\Render">
       <UniqueIdentifier>{45015676-99ea-4ea3-9c14-3bc0e0130a34}</UniqueIdentifier>
     </Filter>
+    <Filter Include="资源文件">
+      <UniqueIdentifier>{f3740afe-3a7c-49d0-84ea-04d66feace50}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="MonochromeCursorShader.hlsl">
       <Filter>着色器</Filter>
     </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="version.rc">
+      <Filter>资源文件</Filter>
+    </ResourceCompile>
   </ItemGroup>
 </Project>
