@@ -8,6 +8,10 @@ namespace Magpie {
     /// App.xaml 的交互逻辑
     /// </summary>
     public partial class App : Application {
+        public static readonly string APPLICATION_DIR = AppDomain.CurrentDomain.SetupInformation.ApplicationBase;
+        public static readonly string SCALE_MODELS_JSON_PATH =
+            AppDomain.CurrentDomain.SetupInformation.ApplicationBase + "ScaleModels.json";
+
         private static readonly Mutex mutex = new Mutex(true, "{4C416227-4A30-4A2F-8F23-8701544DD7D6}");
 
         private void Application_Startup(object sender, StartupEventArgs e) {

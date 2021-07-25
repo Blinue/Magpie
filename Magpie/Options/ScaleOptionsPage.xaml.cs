@@ -1,17 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+
 
 namespace Magpie.Options {
     /// <summary>
@@ -20,6 +10,10 @@ namespace Magpie.Options {
     public partial class ScaleOptionsPage : Page {
         public ScaleOptionsPage() {
             InitializeComponent();
+        }
+
+        private void BtnScale_Click(object sender, RoutedEventArgs e) {
+            _ = Process.Start(new ProcessStartInfo(App.SCALE_MODELS_JSON_PATH));
         }
     }
 }

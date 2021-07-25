@@ -17,6 +17,6 @@
     
     <StackPanel>
         <CheckBox Content="缩放时调整光标速度"/>
-        <Button Content="打开缩放配置" HorizontalAlignment="Left" Margin="0,20,0,0"/>
+        <Button Content="打开缩放配置" HorizontalAlignment="Left" Margin="0,20,0,0" Click="BtnScale_Click"/>
     </StackPanel>
 </Page>

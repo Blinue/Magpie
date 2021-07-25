@@ -39,6 +39,9 @@ namespace Magpie.Options {
 
             ckbMinimizeAtStartUp.IsChecked = Settings.Default.MinimizeAtWindowsStartUp;
 
+            shortcut.TargetPath = Assembly.GetExecutingAssembly().Location;
+            shortcut.WorkingDirectory = AppDomain.CurrentDomain.SetupInformation.ApplicationBase;
+
             // 延迟绑定，防止在初始化时执行
             ckbRunAtStartUp.Checked += CkbRunAtStartUp_Checked;
             ckbMinimizeAtStartUp.Checked += CkbMinimizeAtStartUp_Checked;
@@ -46,11 +49,7 @@ namespace Magpie.Options {
 
         // 在用户的“启动”文件夹创建快捷方式以实现开机启动
         private void CreateShortCut() {
-            shortcut.TargetPath = Assembly.GetExecutingAssembly().Location;
-            shortcut.WorkingDirectory = AppDomain.CurrentDomain.SetupInformation.ApplicationBase;
-
             shortcut.Arguments = ckbMinimizeAtStartUp.IsChecked.GetValueOrDefault(false) ? "-st" : "";
-
             shortcut.Save();
         }
 
