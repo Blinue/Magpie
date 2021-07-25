@@ -260,6 +260,10 @@ namespace Magpie {
         private void BtnScale_Click(object sender, RoutedEventArgs e) {
             ToggleScaleTimer();
         }
+
+        private void CmiOptions_Click(object sender, RoutedEventArgs e) {
+            BtnOptions_Click(sender, e);
+        }
     }
 
     public class NotifyIconLeftClickCommand : ICommand {

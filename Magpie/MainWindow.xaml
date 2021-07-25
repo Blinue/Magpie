@@ -86,9 +86,15 @@
                             <Label Style="{StaticResource ContextMenuItemFontIcon}" Content="&#xE916;" />
                         </MenuItem.Icon>
                     </MenuItem>
+                    <Separator />
                     <MenuItem Header="主界面" Click="CmiMainForm_Click">
                         <MenuItem.Icon>
                             <Label Style="{StaticResource ContextMenuItemFontIcon}" Content="&#xE737;" />
+                        </MenuItem.Icon>
+                    </MenuItem>
+                    <MenuItem Header="选项" Click="CmiOptions_Click">
+                        <MenuItem.Icon>
+                            <Label Style="{StaticResource ContextMenuItemFontIcon}" Content="&#xE713;" />
                         </MenuItem.Icon>
                     </MenuItem>
                     <MenuItem Header="退出" Click="CmiExit_Click">
