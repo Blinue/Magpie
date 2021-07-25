@@ -1,11 +1,11 @@
-﻿<Window x:Class="Magpie.OptionsWindow"
+﻿<Window x:Class="Magpie.Options.OptionsWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:Magpie"
+        xmlns:local="clr-namespace:Magpie.Options"
         mc:Ignorable="d"
-        Title="Magpie 选项" Height="400" Width="650" Icon="{StaticResource Logo}">
+        Title="Magpie 选项" Height="400" Width="650">
     <DockPanel>
         <ListBox x:Name="lbxOptionsPage" Margin="0" SelectionChanged="LxbOptionsPage_SelectionChanged" Padding="0" BorderThickness="0,0,1,0">
             <ListBox.Resources>

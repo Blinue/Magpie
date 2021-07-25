@@ -14,7 +14,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 
 
-namespace Magpie {
+namespace Magpie.Options {
     /// <summary>
     /// ApplicationOptionsPage.xaml 的交互逻辑
     /// </summary>

@@ -5,7 +5,7 @@
              StartupUri="MainWindow.xaml"
              Startup="Application_Startup" Exit="Application_Exit">
     <Application.Resources>
-        <BitmapImage UriSource="logo.ico" x:Key="Logo"/>
+        <BitmapImage UriSource="Logo.ico" x:Key="Logo"/>
         <Style TargetType="Label" x:Key="ContextMenuItemFontIcon">
             <Setter Property="Padding" Value="0" />
             <Setter Property="Margin" Value="0" />

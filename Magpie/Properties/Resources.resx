@@ -117,115 +117,14 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="BuiltInScaleModels" xml:space="preserve">
-    <value>[
-  {
-    "name": "Lanczos",
-    "model": [
-      {
-        "module": "Common",
-        "effect": "lanczos",
-        "scale": [ -1, -1 ],
-        "ARStrength": 0.7
-      },
-      {
-        "module": "Common",
-        "effect": "adaptiveSharpen",
-        "curveHeight": 0.6
-      }
-    ]
-  },
-  {
-    "name": "RAVU",
-    "model": [
-      {
-        "module": "RAVU",
-        "effect": "RAVUZoom",
-        "scale": [ -1, -1 ]
-      },
-      {
-        "module": "Anime4K",
-        "effect": "denoiseBilateral",
-        "variant": "mode"
-      }
-    ]
-  },
-  {
-    "name": "FSRCNNX",
-    "model": [
-      {
-        "module": "FSRCNNX",
-        "effect": "FSRCNNX"
-      },
-      {
-        "module": "Common",
-        "effect": "mitchell",
-        "scale": [ -1, -1 ],
-        "variant": "catrom"
-      }
-    ]
-  },
-  {
-    "name": "ACNet",
-    "model": [
-      {
-        "module": "ACNet"
-      },
-      {
-        "module": "Common",
-        "effect": "mitchell",
-        "scale": [ -1, -1 ],
-        "variant": "catrom"
-      }
-    ]
-  },
-  {
-    "name": "Anime4K",
-    "model": [
-      {
-        "module": "Anime4K",
-        "effect": "Anime4K",
-        "curveHeight": 0.3,
-        "useDenoiseVersion": true
-      },
-      {
-        "module": "Common",
-        "effect": "mitchell",
-        "scale": [ -1, -1 ],
-        "variant": "catrom"
-      }
-    ]
-  },
-  {
-    "name": "FSR",
-    "model": [
-      {
-        "module": "FFX",
-        "effect": "FSR",
-        "scale": [-1, -1]
-      }
-    ]
-  },
-  {
-    "name": "像素 2x",
-    "model": [
-      {
-        "module": "Common",
-        "effect": "pixelScale",
-        "scale": 2
-      }
-    ]
-  },
-  {
-    "name": "像素 3x",
-    "model": [
-      {
-        "module": "Common",
-        "effect": "pixelScale",
-        "scale": 3
-      }
-    ]
-  }
-]</value>
+  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+  <data name="BuiltInScaleModels" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Assets\BuiltInScaleModels.json;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
+  </data>
+  <data name="Licenses" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Assets\Licenses.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;gb2312</value>
+  </data>
+  <data name="Logo" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Assets\Logo.ico;System.Drawing.Icon, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
 </root>

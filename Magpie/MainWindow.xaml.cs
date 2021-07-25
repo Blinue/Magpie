@@ -12,6 +12,7 @@ using System.Windows.Interop;
 using System.Windows.Threading;
 using System.Windows.Media;
 using Magpie.Properties;
+using Magpie.Options;
 
 
 namespace Magpie {
@@ -19,6 +20,7 @@ namespace Magpie {
     /// MainWindow.xaml 的交互逻辑
     /// </summary>
     public partial class MainWindow : Window {
+        private OptionsWindow optionsWindow = null;
         private readonly OpenFileDialog openFileDialog = new OpenFileDialog();
         private readonly DispatcherTimer timerScale = new DispatcherTimer();
 
@@ -98,7 +100,15 @@ namespace Magpie {
         }
 
         private void BtnOptions_Click(object sender, RoutedEventArgs e) {
-            new OptionsWindow().Show();
+            if (optionsWindow == null) {
+                optionsWindow = new OptionsWindow();
+                optionsWindow.Closed += (object _, EventArgs _1) => {
+                    optionsWindow = null;
+                };
+            }
+
+            optionsWindow.Show();
+            _ = optionsWindow.Focus();
         }
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e) {

@@ -10,16 +10,20 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
 using System.Windows.Shapes;
+
 
 namespace Magpie.Options {
     /// <summary>
-    /// AdvancedOptionsPage.xaml 的交互逻辑
+    /// LicenseWindow.xaml 的交互逻辑
     /// </summary>
-    public partial class AdvancedOptionsPage : Page {
-        public AdvancedOptionsPage() {
+    public partial class LicenseWindow : Window {
+        public LicenseWindow() {
             InitializeComponent();
+        }
+
+        private void BtnOK_Click(object sender, RoutedEventArgs e) {
+            Close();
         }
     }
 }
