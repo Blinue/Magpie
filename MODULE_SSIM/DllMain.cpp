@@ -5,6 +5,7 @@
 #include "SSimDownscalerEffect.h"
 #include "SSimSuperResEffect.h"
 #include <EffectUtils.h>
+#include <fmt/xchar.h>
 
 
 HRESULT CreateSSimDownscalerEffect(
@@ -106,7 +107,7 @@ HRESULT CreateSSimSuperResEffect(
 	std::wstring moduleNameW;
 	hr = EffectUtils::UTF8ToUTF16(moduleName, moduleNameW);
 	
-	HMODULE dll = LoadLibrary((boost::wformat(L"effects\\%1%") % moduleNameW).str().c_str());
+	HMODULE dll = LoadLibrary((fmt::format(L"effects\\{}", moduleNameW)).c_str());
 	if (!dll) {
 		return E_INVALIDARG;
 	}

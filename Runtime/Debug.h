@@ -1,9 +1,10 @@
 #pragma once
 #include <string>
 #include <cassert>
-#include <boost/format.hpp>
 #include <chrono>
 #include <CommonDebug.h>
+#include <fmt/format.h>
+#include <fmt/xchar.h>
 
 
 // c++ 原生 exception 不支持宽字符串
@@ -34,7 +35,7 @@ public:
 
     com_exception(HRESULT hr, const std::wstring_view& msg) noexcept
         : magpie_exception(msg), _result(hr) {
-        _whatMsg = boost::str(boost::wformat(L"%s (HRESULT=0x%x)") % magpie_exception::what() % _result);
+        _whatMsg = fmt::format(L"{} (HRESULT={#x})", magpie_exception::what(), _result);
     }
 
     const std::wstring& what() const override {

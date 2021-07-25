@@ -5,7 +5,6 @@
 #include "Env.h"
 
 
-
 using EffectCreateFunc = HRESULT(
 	ID2D1Factory1* d2dFactory,
 	ID2D1DeviceContext* d2dDC,
@@ -74,8 +73,8 @@ private:
 				Utils::UTF8ToUTF16(moduleName, moduleNameW),
 				L"解析模块名出错"
 			);
-			HMODULE dll = LoadLibrary((boost::wformat(L"effects\\%1%") % moduleNameW).str().c_str());
-			Debug::ThrowIfWin32Failed(dll, (boost::wformat(L"加载模块%1%出错") % moduleNameW).str());
+			HMODULE dll = LoadLibrary(fmt::format(L"effects\\{}", moduleNameW).c_str());
+			Debug::ThrowIfWin32Failed(dll, fmt::format(L"加载模块{}出错", moduleNameW));
 			
 			auto createEffect = (EffectCreateFunc*)GetProcAddress(dll, "CreateEffect");
 			Debug::ThrowIfWin32Failed(createEffect, L"非法的dll");

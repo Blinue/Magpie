@@ -3,8 +3,8 @@
 #include <SimpleDrawTransform.h>
 #include <SimpleScaleTransform.h>
 #include <nlohmann/json.hpp>
-#include <boost/format.hpp>
 #include "EffectDefines.h"
+#include <fmt/format.h>
 
 
 class SSimDownscalerEffect : public EffectBase {
@@ -172,11 +172,11 @@ public:
 
         std::pair<float, float> t = scale;
         ComPtr<ID2D1Effect> mitchellEffect = nullptr;
-        auto json = nlohmann::json::parse((boost::format(R"({
+        auto json = nlohmann::json::parse(fmt::format(R"({
 		    "effect" : "mitchell",
-		    "scale" : [%1%, %2%],
+		    "scale" : [{}, {}],
 		    "variant": "mitchell"
-	    })") % scale.first % scale.second).str());
+	    })", scale.first, scale.second));
         HRESULT hr = createEffect(d2dFactory, d2dDC, nullptr, json, {}, t, mitchellEffect);
         if (FAILED(hr)) {
             return hr;

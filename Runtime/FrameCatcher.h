@@ -34,7 +34,7 @@ public:
 
 		const D2D_RECT_F& destRect = Env::$instance->GetDestRect();
 		// »æÖÆÎÄ±¾
-		std::wstring fps = boost::str(boost::wformat(L"%d FPS") % lround(_fps));
+		std::wstring fps = fmt::format(L"{} FPS", lround(_fps));
 		Env::$instance->GetD2DDC()->DrawTextW(
 			fps.c_str(),
 			(UINT32)fps.size(),

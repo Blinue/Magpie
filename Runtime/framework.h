@@ -39,8 +39,10 @@
 #include <winrt/Windows.Graphics.Capture.h>
 #include <winrt/Windows.Graphics.DirectX.h>
 
-// boost
-#include <boost/format.hpp>
+
+// format
+#include <fmt/format.h>
+#include <fmt/xchar.h>
 
 
 #pragma comment(lib, "d2d1.lib")

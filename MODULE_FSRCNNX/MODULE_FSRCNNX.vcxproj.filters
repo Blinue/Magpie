@@ -120,6 +120,6 @@
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
+    <Text Include="conanfile.txt" />
   </ItemGroup>
 </Project>

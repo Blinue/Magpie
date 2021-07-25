@@ -102,6 +102,8 @@
     <None Include="common.hlsli">
       <Filter>着色器</Filter>
     </None>
-    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="conanfile.txt" />
   </ItemGroup>
 </Project>

@@ -66,9 +66,6 @@
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
     <ResourceCompile Include="MODULE_RAVU.rc">
       <Filter>资源文件</Filter>
     </ResourceCompile>
@@ -77,5 +74,8 @@
     <Image Include="RavuZoomR3Weights.bmp">
       <Filter>资源文件</Filter>
     </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="conanfile.txt" />
   </ItemGroup>
 </Project>

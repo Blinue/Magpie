@@ -46,9 +46,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
     <FxCompile Include="FsrEasuShader.hlsl">
       <Filter>着色器</Filter>
     </FxCompile>
@@ -58,5 +55,8 @@
     <FxCompile Include="FfxCasShader.hlsl">
       <Filter>着色器</Filter>
     </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="conanfile.txt" />
   </ItemGroup>
 </Project>
