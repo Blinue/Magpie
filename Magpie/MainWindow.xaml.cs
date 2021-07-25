@@ -164,6 +164,16 @@ namespace Magpie {
             source.AddHook(WndProc);
 
             magWindow = new MagWindow(this);
+
+            // 检查命令行参数
+            string[] args = Environment.GetCommandLineArgs();
+            foreach (string arg in args) {
+                if (arg == "-st") {
+                    // 启动到系统托盘
+                    WindowState = WindowState.Minimized;
+                    break;
+                }
+            }
         }
 
         private IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled) {

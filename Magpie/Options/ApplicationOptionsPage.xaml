@@ -20,6 +20,9 @@
             <Label Content="语言" Padding="0" VerticalAlignment="Center"/>
             <ComboBox Margin="10,0,0,0" VerticalAlignment="Center"/>
         </StackPanel>
-        <CheckBox Content="开机启动" Margin="0,20,0,0"/>
+        <StackPanel>
+            <CheckBox x:Name="ckbRunAtStartUp" Content="开机启动" Margin="0,20,0,0" Unchecked="CkbRunAtStartUp_Unchecked"/>
+            <CheckBox x:Name="ckbMinimizeAtStartUp" Content="开机启动时最小化到系统托盘" Margin="20,10,0,0" Unchecked="CkbMinimizeAtStartUp_Unchecked"/>
+        </StackPanel>
     </StackPanel>
 </Page>

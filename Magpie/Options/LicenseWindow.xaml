@@ -6,14 +6,14 @@
         xmlns:local="clr-namespace:Magpie.Options"
         xmlns:resx="clr-namespace:Magpie.Properties"
         mc:Ignorable="d"
-        Title="开源许可" Height="350" Width="500" ResizeMode="NoResize">
+        Title="Magpie 开源许可" Height="400" Width="550" ResizeMode="NoResize">
     <Grid Margin="10">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
-        <TextBlock Text="Magpie和它用到的开源软件的许可：" />
+        <TextBlock Text="Magpie和它使用的开源软件的许可：" />
         <TextBox VerticalScrollBarVisibility="Auto" Text="{x:Static resx:Resources.Licenses}" UndoLimit="0" Grid.Row="1" AllowDrop="False" IsTabStop="False" Margin="0,10,0,0" TextWrapping="Wrap" IsUndoEnabled="False" IsReadOnly="True" />
         <Button Content="确定" Grid.Row="2" HorizontalAlignment="Right" Margin="0,10,0,0" Padding="10,5" IsDefault="True" Click="BtnOK_Click" />
     </Grid>
