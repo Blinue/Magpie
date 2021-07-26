@@ -218,7 +218,7 @@
     <Image Include="RavuZoomR3Weights.bmp" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="conanfile.txt" />
+    <None Include="conanfile.py" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />

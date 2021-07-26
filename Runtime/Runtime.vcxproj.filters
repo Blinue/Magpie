@@ -97,6 +97,7 @@
   <ItemGroup>
     <None Include="cpp.hint" />
     <None Include="packages.config" />
+    <None Include="conanfile.py" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="头文件">
@@ -133,8 +134,5 @@
     <ResourceCompile Include="version.rc">
       <Filter>资源文件</Filter>
     </ResourceCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="conanfile.txt" />
   </ItemGroup>
 </Project>

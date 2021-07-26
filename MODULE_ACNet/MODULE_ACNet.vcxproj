@@ -212,6 +212,7 @@
   <ItemGroup>
     <None Include="ACNet.hlsli" />
     <None Include="common.hlsli" />
+    <None Include="conanfile.py" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="ACNetL10Shader.hlsl" />
@@ -238,9 +239,6 @@
     <ProjectReference Include="..\EffectCommon\EffectCommon.vcxproj">
       <Project>{95c6c401-ae29-4b29-b1a7-20782f0937d1}</Project>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="conanfile.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />

@@ -183,12 +183,10 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="common.hlsli" />
+    <None Include="conanfile.py" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="RGB2YUVShader.hlsl" />
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="conanfile.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />

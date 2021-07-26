@@ -41,13 +41,11 @@
     <None Include="common.hlsli">
       <Filter>着色器</Filter>
     </None>
+    <None Include="conanfile.py" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="RGB2YUVShader.hlsl">
       <Filter>着色器</Filter>
     </FxCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="conanfile.txt" />
   </ItemGroup>
 </Project>

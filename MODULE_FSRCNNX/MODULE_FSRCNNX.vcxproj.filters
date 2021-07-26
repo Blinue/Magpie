@@ -120,6 +120,6 @@
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="conanfile.txt" />
+    <None Include="conanfile.py" />
   </ItemGroup>
 </Project>

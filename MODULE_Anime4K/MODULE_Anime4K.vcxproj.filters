@@ -147,8 +147,6 @@
     <None Include="Anime4K.hlsli">
       <Filter>着色器</Filter>
     </None>
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="conanfile.txt" />
+    <None Include="conanfile.py" />
   </ItemGroup>
 </Project>

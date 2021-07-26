@@ -206,6 +206,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Anime4K.hlsli" />
+    <None Include="conanfile.py" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Anime4KConv4x3x3x1Shader.hlsl" />
@@ -241,9 +242,6 @@
     <ProjectReference Include="..\EffectCommon\EffectCommon.vcxproj">
       <Project>{95c6c401-ae29-4b29-b1a7-20782f0937d1}</Project>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="conanfile.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />

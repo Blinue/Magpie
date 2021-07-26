@@ -238,6 +238,7 @@
     <ClCompile Include="DllMain.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="conanfile.py" />
     <None Include="cpp.hint" />
     <None Include="packages.config" />
   </ItemGroup>
@@ -257,9 +258,6 @@
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="version.rc" />
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="conanfile.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
