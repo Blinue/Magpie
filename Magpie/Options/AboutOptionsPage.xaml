@@ -21,7 +21,7 @@
                 <Image Height="28" Source="{StaticResource Logo}" HorizontalAlignment="Left" VerticalAlignment="Top"/>
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                     <Label Content="MAGPIE" Margin="5,0,0,-3" VerticalAlignment="Top" FontSize="20" Padding="0" HorizontalAlignment="Left"/>
-                    <Label Content="版本 0.6.0" Padding="0" Margin="10,0,0,0" VerticalAlignment="Bottom" FontSize="11" />
+                    <Label Name="lblVersion" Content="版本" Padding="0" Margin="10,0,0,0" VerticalAlignment="Bottom" FontSize="11" />
                 </StackPanel>
             </StackPanel>
             <Button Content="开源许可" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" HorizontalAlignment="Right" VerticalAlignment="Center" Click="BtnLicense_Click" />

@@ -17,6 +17,7 @@ csProjects = ["CursorHook", "Magpie"]
 cppProjects = ["Runtime"]
 cppProjects.extend(map(lambda d: path.basename(d), glob.iglob(rootDir + '\\MODULE_*')))
 
+# C# 项目
 for csProject in csProjects:
     with open(rootDir + '\\' + csProject + '\\Properties\\AssemblyInfo.cs', mode='r+', encoding='utf8') as f:
         src = f.read()
@@ -28,6 +29,16 @@ for csProject in csProjects:
         f.truncate()
         f.write(src)
 
+# Magpie 的全局变量
+with open(rootDir + '\\Magpie\\App.xaml.cs', mode='r+', encoding='utf8') as f:
+    src = f.read()
+    src = re.sub(r'Version\(".*?"\)', 'Version("' + version + '")', src)
+    
+    f.seek(0)
+    f.truncate()
+    f.write(src)
+
+# C++ 项目
 for cppProject in cppProjects:
     with open(rootDir + '\\' + cppProject + '\\version.rc', mode='r+', encoding='utf8') as f:
         src = f.read()

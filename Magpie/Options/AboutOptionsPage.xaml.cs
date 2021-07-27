@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Diagnostics;
 using System.Windows.Controls;
 using System.Windows.Navigation;
@@ -13,6 +13,8 @@ namespace Magpie.Options {
 
         public AboutOptionsPage() {
             InitializeComponent();
+
+            lblVersion.Content = "版本 " + App.APP_VERSION.ToString(3);
         }
 
         private void Hyperlink_RequestNavigate(object sender, RequestNavigateEventArgs e) {
