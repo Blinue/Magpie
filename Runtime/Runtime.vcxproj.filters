@@ -131,7 +131,7 @@
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="version.rc">
+    <ResourceCompile Include="Version.rc">
       <Filter>资源文件</Filter>
     </ResourceCompile>
   </ItemGroup>

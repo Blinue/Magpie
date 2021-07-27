@@ -203,6 +203,7 @@
     <ClInclude Include="pch.h" />
     <ClInclude Include="PixelScaleEffect.h" />
     <ClInclude Include="PixelScaleTransform.h" />
+    <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DllMain.cpp" />
@@ -229,6 +230,9 @@
     <ProjectReference Include="..\EffectCommon\EffectCommon.vcxproj">
       <Project>{95c6c401-ae29-4b29-b1a7-20782f0937d1}</Project>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Version.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />

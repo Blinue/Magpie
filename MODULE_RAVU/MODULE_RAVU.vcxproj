@@ -191,6 +191,7 @@
     <ClInclude Include="RAVUZoomTransform.h" />
     <ClInclude Include="RAVUZoomWeightsTransform.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="resource1.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DllMain.cpp" />
@@ -213,7 +214,8 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="MODULE_RAVU.rc" />
+    <ResourceCompile Include="Resource.rc" />
+    <ResourceCompile Include="Version.rc" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="RavuZoomR3Weights.bmp" />

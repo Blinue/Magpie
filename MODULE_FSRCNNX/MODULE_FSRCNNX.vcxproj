@@ -184,6 +184,7 @@
     <ClInclude Include="FSRCNNXAggregationTransform.h" />
     <ClInclude Include="FSRCNNXEffect.h" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DllMain.cpp" />
@@ -365,6 +366,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="conanfile.py" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Version.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />
