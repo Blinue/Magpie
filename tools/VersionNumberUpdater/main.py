@@ -26,8 +26,9 @@ for cppProject in cppProjects:
     with open(rootDir + '\\' + cppProject + '\\version.rc', mode='r+', encoding='utf8') as f:
         src = f.read()
 
-        src = re.sub(r'FILEVERSION .*?\n', 'FILEVERSION ' + versionNumberComma + '\n', src)
-        src = re.sub(r'PRODUCTVERSION .*\n', 'PRODUCTVERSION ' + versionNumberComma + '\n', src)
+        #src = re.sub(r'FILEVERSION .*?\n', 'FILEVERSION ' + versionNumberComma + '\n', src)
+        #src = re.sub(r'PRODUCTVERSION .*?\n', 'PRODUCTVERSION ' + versionNumberComma + '\n', src)
+        src = re.sub(r'"FileVersion",(\b)*?".*?"\n', '"FileVersion", "' + versionNumber + '"\n', src)
 
         f.seek(0)
         f.truncate()

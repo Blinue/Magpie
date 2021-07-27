@@ -1,5 +1,7 @@
 // Microsoft Visual C++ generated resource script.
 //
+#pragma code_page(65001)
+
 #include "resource.h"
 
 #define APSTUDIO_READONLY_SYMBOLS
@@ -13,11 +15,10 @@
 #undef APSTUDIO_READONLY_SYMBOLS
 
 /////////////////////////////////////////////////////////////////////////////
-// ∑«Ãÿ∂®”Ô—‘(ƒ¨»œ÷µ) resources
+// ÈùûÁâπÂÆöËØ≠Ë®Ä(ÈªòËÆ§ÂÄº) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_NEUD)
 LANGUAGE LANG_NEUTRAL, SUBLANG_DEFAULT
-#pragma code_page(936)
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -25,8 +26,8 @@ LANGUAGE LANG_NEUTRAL, SUBLANG_DEFAULT
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 1,0,0,1
- PRODUCTVERSION 1,0,0,1
+ FILEVERSION 0,6,0,0
+ PRODUCTVERSION 0,6,0,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -39,34 +40,31 @@ VS_VERSION_INFO VERSIONINFO
 BEGIN
     BLOCK "StringFileInfo"
     BEGIN
-        BLOCK "080404b0"
+        BLOCK "040004b0"
         BEGIN
-            VALUE "CompanyName", "TODO: <π´Àæ√˚>"
-            VALUE "FileDescription", "TODO: <Œƒº˛Àµ√˜>"
-            VALUE "FileVersion", "1.0.0.1"
-            VALUE "InternalName", "MODULE_A.dll"
+            VALUE "FileVersion", "0.6.0.0"
+            VALUE "InternalName", "ACNet.dll"
             VALUE "LegalCopyright", "Copyright (C) 2021"
-            VALUE "OriginalFilename", "MODULE_A.dll"
-            VALUE "ProductName", "TODO: <≤˙∆∑√˚>"
+            VALUE "OriginalFilename", "ACNet.dll"
+            VALUE "ProductName", "Magpie"
             VALUE "ProductVersion", "1.0.0.1"
         END
     END
     BLOCK "VarFileInfo"
     BEGIN
-        VALUE "Translation", 0x804, 1200
+        VALUE "Translation", 0x400, 1200
     END
 END
 
-#endif    // ∑«Ãÿ∂®”Ô—‘(ƒ¨»œ÷µ) resources
+#endif    // ÈùûÁâπÂÆöËØ≠Ë®Ä(ÈªòËÆ§ÂÄº) resources
 /////////////////////////////////////////////////////////////////////////////
 
 
 /////////////////////////////////////////////////////////////////////////////
-// ÷–Œƒ(ºÚÃÂ£¨÷–π˙) resources
+// ‰∏≠Êñá(ÁÆÄ‰ΩìÔºå‰∏≠ÂõΩ) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_CHS)
 LANGUAGE LANG_CHINESE, SUBLANG_CHINESE_SIMPLIFIED
-#pragma code_page(936)
 
 #ifdef APSTUDIO_INVOKED
 /////////////////////////////////////////////////////////////////////////////
@@ -93,7 +91,7 @@ END
 
 #endif    // APSTUDIO_INVOKED
 
-#endif    // ÷–Œƒ(ºÚÃÂ£¨÷–π˙) resources
+#endif    // ‰∏≠Êñá(ÁÆÄ‰ΩìÔºå‰∏≠ÂõΩ) resources
 /////////////////////////////////////////////////////////////////////////////
 
 

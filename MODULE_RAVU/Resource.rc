@@ -1,5 +1,7 @@
 // Microsoft Visual C++ generated resource script.
 //
+#pragma code_page(65001)
+
 #include "resource.h"
 
 #define APSTUDIO_READONLY_SYMBOLS
@@ -13,7 +15,7 @@
 #undef APSTUDIO_READONLY_SYMBOLS
 
 /////////////////////////////////////////////////////////////////////////////
-// ╥гль╤╗сОят(д╛хож╣) resources
+// И²·Г┴╧Е╝ Х╞╜Х╗─(И╩≤Х╝╓Е─╪) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_NEUD)
 LANGUAGE LANG_NEUTRAL, SUBLANG_DEFAULT
@@ -26,12 +28,12 @@ LANGUAGE LANG_NEUTRAL, SUBLANG_DEFAULT
 
 IDB_RAVU_ZOOM_R3_WEIGHTS BITMAP                  "RavuZoomR3Weights.bmp"
 
-#endif    // ╥гль╤╗сОят(д╛хож╣) resources
+#endif    // И²·Г┴╧Е╝ Х╞╜Х╗─(И╩≤Х╝╓Е─╪) resources
 /////////////////////////////////////////////////////////////////////////////
 
 
 /////////////////////////////////////////////////////////////////////////////
-// жпнд(╪РлЕё╛жп╧З) resources
+// Д╦╜Ф√┤(Г╝─Д╫⌠О╪▄Д╦╜Е⌡╫) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_CHS)
 LANGUAGE LANG_CHINESE, SUBLANG_CHINESE_SIMPLIFIED
@@ -62,7 +64,7 @@ END
 
 #endif    // APSTUDIO_INVOKED
 
-#endif    // жпнд(╪РлЕё╛жп╧З) resources
+#endif    // Д╦╜Ф√┤(Г╝─Д╫⌠О╪▄Д╦╜Е⌡╫) resources
 /////////////////////////////////////////////////////////////////////////////
 
 
