@@ -47,7 +47,7 @@ BEGIN
             VALUE "LegalCopyright", "Copyright (C) 2021"
             VALUE "OriginalFilename", "ACNet.dll"
             VALUE "ProductName", "Magpie"
-            VALUE "ProductVersion", "1.0.0.1"
+            VALUE "ProductVersion", "0.6.0.0"
         END
     END
     BLOCK "VarFileInfo"

@@ -42,12 +42,12 @@ BEGIN
     BEGIN
         BLOCK "040004b0"
         BEGIN
-            VALUE "FileVersion", "1.0.0.1"
+            VALUE "FileVersion", "0.6.0.0"
             VALUE "InternalName", "RAVU.dll"
             VALUE "LegalCopyright", "Copyright (C) 2021"
             VALUE "OriginalFilename", "RAVU.dll"
             VALUE "ProductName", "Magpie"
-            VALUE "ProductVersion", "1.0.0.1"
+            VALUE "ProductVersion", "0.6.0.0"
         END
     END
     BLOCK "VarFileInfo"
