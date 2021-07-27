@@ -78,8 +78,8 @@ public:
     }
 
     enum PROPS {
-        PROP_VARIANT = 0,   // ����������࣬0: mode, 1: median, 2: mean��Ĭ��ֵΪ 0
-        PROP_INTENSITY = 1  // ����ǿ�ȣ�Խ��ǿ��Խ�ߣ��������0��Ĭ��ֵΪ 0.1
+        PROP_VARIANT = 0,   // 降噪变体种类，0: mode, 1: median, 2: mean，默认值为 0
+        PROP_INTENSITY = 1  // 降噪强度，越大强度越高，必须大于0，默认值为 0.1
     };
 
     static HRESULT Register(_In_ ID2D1Factory1* pFactory) {

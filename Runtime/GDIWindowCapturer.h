@@ -5,7 +5,7 @@
 #include "Env.h"
 
 
-// Ê¹ÓÃ GDI ×¥È¡´°¿Ú
+// ä½¿ç”¨ GDI æŠ“å–çª—å£
 class GDIWindowCapturer : public WindowCapturerBase {
 public:
 	ComPtr<IUnknown> GetFrame() override {
@@ -14,23 +14,23 @@ public:
 		RECT windowRect{};
 		Debug::ThrowIfWin32Failed(
 			GetWindowRect(hwndSrc, &windowRect),
-			L"GetWindowRectÊ§°Ü"
+			L"GetWindowRectå¤±è´¥"
 		);
 
 		HDC hdcSrc = GetWindowDC(hwndSrc);
 		Debug::ThrowIfWin32Failed(
 			hdcSrc,
-			L"GetDCÊ§°Ü"
+			L"GetDCå¤±è´¥"
 		);
-		// Ö±½Ó»ñÈ¡Òª·Å´ó´°¿ÚµÄ DC ¹ØÁªµÄ HBITMAP£¬¶ø²»ÊÇ×Ô¼º´´½¨Ò»¸ö
+		// ç›´æ¥è·å–è¦æ”¾å¤§çª—å£çš„ DC å…³è”çš„ HBITMAPï¼Œè€Œä¸æ˜¯è‡ªå·±åˆ›å»ºä¸€ä¸ª
 		HBITMAP hBmpDest = (HBITMAP)GetCurrentObject(hdcSrc, OBJ_BITMAP);
 		Debug::ThrowIfWin32Failed(
 			hBmpDest,
-			L"GetCurrentObjectÊ§°Ü"
+			L"GetCurrentObjectå¤±è´¥"
 		);
 		Debug::ThrowIfWin32Failed(
 			ReleaseDC(hwndSrc, hdcSrc),
-			L"ReleaseDCÊ§°Ü"
+			L"ReleaseDCå¤±è´¥"
 		);
 
 		IWICImagingFactory2* wicImgFactory = Env::$instance->GetWICImageFactory();
@@ -42,14 +42,14 @@ public:
 				WICBitmapAlphaChannelOption::WICBitmapIgnoreAlpha,
 				&wicBmp
 			),
-			L"CreateBitmapFromHBITMAPÊ§°Ü"
+			L"CreateBitmapFromHBITMAPå¤±è´¥"
 		);
 
-		// ²Ã¼ô³ö¿Í»§Çø
+		// è£å‰ªå‡ºå®¢æˆ·åŒº
 		ComPtr<IWICBitmapClipper> wicBmpClipper = nullptr;
 		Debug::ThrowIfComFailed(
 			wicImgFactory->CreateBitmapClipper(&wicBmpClipper),
-			L"CreateBitmapClipperÊ§°Ü"
+			L"CreateBitmapClipperå¤±è´¥"
 		);
 
 		const RECT& srcClient = Env::$instance->GetSrcClient();
@@ -61,7 +61,7 @@ public:
 		};
 		Debug::ThrowIfComFailed(
 			wicBmpClipper->Initialize(wicBmp.Get(), &wicRect),
-			L"wicBmpClipper³õÊ¼»¯Ê§°Ü"
+			L"wicBmpClipperåˆå§‹åŒ–å¤±è´¥"
 		);
 
 		return wicBmpClipper;

@@ -38,7 +38,7 @@ public:
     }
 
     enum PROPS {
-        // 缩放倍数。默认值为 1
+        // 缂╂斁鍊嶆暟銆傞粯璁ゅ�间负 1
         PROP_SCALE = 0,
     };
 

@@ -16,7 +16,7 @@ public:
         wp.length = sizeof(wp);
         Debug::ThrowIfWin32Failed(
             GetWindowPlacement(hwnd, &wp),
-            L"GetWindowPlacement ß∞‹"
+            L"GetWindowPlacementÂ§±Ë¥•"
         );
 
         return wp.showCmd;
@@ -26,13 +26,13 @@ public:
         RECT r;
         Debug::ThrowIfWin32Failed(
             GetClientRect(hWnd, &r),
-            L"GetClientRect  ß∞‹"
+            L"GetClientRect Â§±Ë¥•"
         );
 
         POINT p{};
         Debug::ThrowIfWin32Failed(
             ClientToScreen(hWnd, &p),
-            L"ClientToScreen  ß∞‹"
+            L"ClientToScreen Â§±Ë¥•"
         );
 
         rect.bottom = r.bottom + p.y;
@@ -48,7 +48,7 @@ public:
         mi.cbSize = sizeof(mi);
         Debug::ThrowIfWin32Failed(
             GetMonitorInfo(hMonitor, &mi),
-            L"ªÒ»°œ‘ æ∆˜–≈œ¢ ß∞‹"
+            L"Ëé∑ÂèñÊòæÁ§∫Âô®‰ø°ÊÅØÂ§±Ë¥•"
         );
         return GetSize(mi.rcMonitor);
     }
@@ -104,48 +104,48 @@ public:
                 CLSCTX_INPROC_SERVER,
                 IID_PPV_ARGS(&wicImgFactory)
             ),
-            L"¥¥Ω® IWICImagingFactory2  ß∞‹"
+            L"ÂàõÂª∫ IWICImagingFactory2 Â§±Ë¥•"
         );
 
         ComPtr<IStream> stream;
         Debug::ThrowIfComFailed(
             SHCreateStreamOnFileEx(fileName.data(), STGM_WRITE | STGM_CREATE, 0, TRUE, nullptr, &stream),
-            L"SHCreateStreamOnFileEx  ß∞‹"
+            L"SHCreateStreamOnFileEx Â§±Ë¥•"
         );
 
         ComPtr<IWICBitmapEncoder> bmpEncoder;
         Debug::ThrowIfComFailed(
             wicImgFactory->CreateEncoder(GUID_ContainerFormatPng, nullptr, &bmpEncoder),
-            L"¥¥Ω® IWICBitmapEncoder  ß∞‹"
+            L"ÂàõÂª∫ IWICBitmapEncoder Â§±Ë¥•"
         );
         Debug::ThrowIfComFailed(
             bmpEncoder->Initialize(stream.Get(), WICBitmapEncoderNoCache),
-            L"IWICBitmapEncoder ≥ı ºªØ ß∞‹"
+            L"IWICBitmapEncoder ÂàùÂßãÂåñÂ§±Ë¥•"
         );
 
         ComPtr<IWICBitmapFrameEncode> frameEncoder;
         Debug::ThrowIfComFailed(
             bmpEncoder->CreateNewFrame(&frameEncoder, nullptr),
-            L"¥¥Ω® IWICBitmapFrameEncode  ß∞‹"
+            L"ÂàõÂª∫ IWICBitmapFrameEncode Â§±Ë¥•"
         );
         Debug::ThrowIfComFailed(
             frameEncoder->Initialize(nullptr),
-            L"IWICBitmapFrameEncode ≥ı ºªØ ß∞‹"
+            L"IWICBitmapFrameEncode ÂàùÂßãÂåñÂ§±Ë¥•"
         );
 
         ComPtr<IWICImageEncoder> d2dImgEncoder;
         Debug::ThrowIfComFailed(
             wicImgFactory->CreateImageEncoder(d2dDevice.Get(), &d2dImgEncoder),
-            L"¥¥Ω® IWICImageEncoder  ß∞‹"
+            L"ÂàõÂª∫ IWICImageEncoder Â§±Ë¥•"
         );
         Debug::ThrowIfComFailed(
             d2dImgEncoder->WriteFrame(img.Get(), frameEncoder.Get(), nullptr),
-            L"IWICImageEncoder.WriteFrame ß∞‹"
+            L"IWICImageEncoder.WriteFrameÂ§±Ë¥•"
         );
         
-        Debug::ThrowIfComFailed(frameEncoder->Commit(), L"IWICBitmapFrameEncode.Commit  ß∞‹");
-        Debug::ThrowIfComFailed(bmpEncoder->Commit(), L"IWICBitmapEncoder.Commit  ß∞‹");
-        Debug::ThrowIfComFailed(stream->Commit(STGC_DEFAULT), L"IStream.Commit  ß∞‹");
+        Debug::ThrowIfComFailed(frameEncoder->Commit(), L"IWICBitmapFrameEncode.Commit Â§±Ë¥•");
+        Debug::ThrowIfComFailed(bmpEncoder->Commit(), L"IWICBitmapEncoder.Commit Â§±Ë¥•");
+        Debug::ThrowIfComFailed(stream->Commit(STGC_DEFAULT), L"IStream.Commit Â§±Ë¥•");
     }
 
     static HRESULT UTF8ToUTF16(std::string_view str, std::wstring& result) {
@@ -154,7 +154,7 @@ public:
 };
 
 namespace std {
-    // std::hash µƒ GUID ÃÿªØ
+    // std::hash ÁöÑ GUID ÁâπÂåñ
     template<>
     struct hash<GUID> {
         size_t operator()(const GUID& value) const {

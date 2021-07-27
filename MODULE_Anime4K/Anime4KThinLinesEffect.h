@@ -179,7 +179,7 @@ public:
     }
 
     enum PROPS {
-        PROP_STRENGTH = 0   // ϸ��ǿ�ȣ�ֵԽ������Խϸ��Ĭ��ֵΪ0.3
+        PROP_STRENGTH = 0   // 细化强度，值越大线条越细。默认值为0.3
     };
 
     static HRESULT Register(_In_ ID2D1Factory1* pFactory) {

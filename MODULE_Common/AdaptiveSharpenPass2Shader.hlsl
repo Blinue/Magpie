@@ -1,12 +1,12 @@
-// ×ÔÊÊÓ¦Èñ»¯Ëã·¨ Pass2
-// ÒÆÖ²×Ô https://github.com/libretro/common-shaders/blob/master/sharpen/shaders/adaptive-sharpen-pass2.cg
+// è‡ªé€‚åº”é”åŒ–ç®—æ³• Pass2
+// ç§»æ¤è‡ª https://github.com/libretro/common-shaders/blob/master/sharpen/shaders/adaptive-sharpen-pass2.cg
 //
 // Adaptive sharpen
 // Tuned for use post resize, EXPECTS FULL RANGE GAMMA LIGHT
 
 cbuffer constants : register(b0) {
 	int2 srcSize : packoffset(c0.x);
-	float curveHeight : packoffset(c0.z);	// Èñ»¯Ç¿¶È£¬±ØĞëÎªÕıÖµ¡£Ò»°ãÔÚ 0.3~2.0 Ö®¼ä
+	float curveHeight : packoffset(c0.z);	// é”åŒ–å¼ºåº¦ï¼Œå¿…é¡»ä¸ºæ­£å€¼ã€‚ä¸€èˆ¬åœ¨ 0.3~2.0 ä¹‹é—´
 };
 
 

@@ -80,6 +80,6 @@ protected:
     }
 
 private:
-    // Ëõ·Å±¶Êı
+    // ç¼©æ”¾å€æ•°
     int _scale = 1;
 };

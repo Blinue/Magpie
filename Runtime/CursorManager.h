@@ -8,7 +8,7 @@
 using namespace D2D1;
 
 
-// ´¦Àí¹â±êµÄäÖÈ¾
+// å¤„ç†å…‰æ ‡çš„æ¸²æŸ“
 class CursorManager: public Renderable {
 public:
     CursorManager() {
@@ -20,8 +20,8 @@ public:
         HCURSOR hCursorAppStarting = LoadCursor(NULL, IDC_APPSTARTING);
         HCURSOR hCursorIBeam = LoadCursor(NULL, IDC_IBEAM);
         
-        // ±£´æÌæ»»Ö®Ç°µÄ arrow ¹â±êÍ¼Ïñ
-        // SetSystemCursor ²»»á¸Ä±äÏµÍ³¹â±êµÄ¾ä±ú
+        // ä¿å­˜æ›¿æ¢ä¹‹å‰çš„ arrow å…‰æ ‡å›¾åƒ
+        // SetSystemCursor ä¸ä¼šæ”¹å˜ç³»ç»Ÿå…‰æ ‡çš„å¥æŸ„
         _ResolveCursor(hCursorArrow, hCursorArrow);
         _ResolveCursor(hCursorHand, hCursorHand);
         _ResolveCursor(hCursorAppStarting, hCursorAppStarting);
@@ -33,28 +33,28 @@ public:
         
         Debug::ThrowIfWin32Failed(
             SetSystemCursor(_CreateTransparentCursor(hCursorArrow), OCR_NORMAL),
-            L"ÉèÖÃ OCR_NORMAL Ê§°Ü"
+            L"è®¾ç½® OCR_NORMAL å¤±è´¥"
         );
         Debug::ThrowIfWin32Failed(
             SetSystemCursor(_CreateTransparentCursor(hCursorHand), OCR_HAND),
-            L"ÉèÖÃ OCR_HAND Ê§°Ü"
+            L"è®¾ç½® OCR_HAND å¤±è´¥"
         );
         Debug::ThrowIfWin32Failed(
             SetSystemCursor(_CreateTransparentCursor(hCursorAppStarting), OCR_APPSTARTING),
-            L"ÉèÖÃ OCR_APPSTARTING Ê§°Ü"
+            L"è®¾ç½® OCR_APPSTARTING å¤±è´¥"
         );
         Debug::ThrowIfWin32Failed(
             SetSystemCursor(_CreateTransparentCursor(hCursorIBeam), OCR_IBEAM),
-            L"ÉèÖÃ OCR_APPSTARTING Ê§°Ü"
+            L"è®¾ç½® OCR_APPSTARTING å¤±è´¥"
         );
 
-        // ÏÞÖÆÊó±êÔÚ´°¿ÚÄÚ
-        Debug::ThrowIfWin32Failed(ClipCursor(&Env::$instance->GetSrcClient()), L"ClipCursor Ê§°Ü");
+        // é™åˆ¶é¼ æ ‡åœ¨çª—å£å†…
+        Debug::ThrowIfWin32Failed(ClipCursor(&Env::$instance->GetSrcClient()), L"ClipCursor å¤±è´¥");
 
-        // ÉèÖÃÊó±êÒÆ¶¯ËÙ¶È
+        // è®¾ç½®é¼ æ ‡ç§»åŠ¨é€Ÿåº¦
         Debug::ThrowIfWin32Failed(
             SystemParametersInfo(SPI_GETMOUSESPEED, 0, &_cursorSpeed, 0),
-            L"»ñÈ¡Êó±êËÙ¶ÈÊ§°Ü"
+            L"èŽ·å–é¼ æ ‡é€Ÿåº¦å¤±è´¥"
         );
 
         const RECT& srcClient = Env::$instance->GetSrcClient();
@@ -65,7 +65,7 @@ public:
         long newSpeed = std::clamp(lroundf(_cursorSpeed / (scaleX + scaleY) * 2), 1L, 20L);
         Debug::ThrowIfWin32Failed(
             SystemParametersInfo(SPI_SETMOUSESPEED, 0, (PVOID)(intptr_t)newSpeed, 0),
-            L"ÉèÖÃÊó±êËÙ¶ÈÊ§°Ü"
+            L"è®¾ç½®é¼ æ ‡é€Ÿåº¦å¤±è´¥"
         );
     }
 
@@ -81,7 +81,7 @@ public:
 
         SystemParametersInfo(SPI_SETMOUSESPEED, 0, (PVOID)(intptr_t)_cursorSpeed, 0);
 
-        // »¹Ô­ÏµÍ³¹â±ê
+        // è¿˜åŽŸç³»ç»Ÿå…‰æ ‡
         SystemParametersInfo(SPI_SETCURSORS, 0, NULL, 0);
     }
 
@@ -110,11 +110,11 @@ public:
         if (!_monochromeCursorEffect) {
             Debug::ThrowIfComFailed(
                 MonochromeCursorEffect::Register(Env::$instance->GetD2DFactory()),
-                L"×¢²áMonochromeCursorEffectÊ§°Ü"
+                L"æ³¨å†ŒMonochromeCursorEffectå¤±è´¥"
             );
             Debug::ThrowIfComFailed(
                 Env::$instance->GetD2DDC()->CreateEffect(CLSID_MAGPIE_MONOCHROME_CURSOR_EFFECT, &_monochromeCursorEffect),
-                L"´´½¨MonochromeCursorEffectÊ§°Ü"
+                L"åˆ›å»ºMonochromeCursorEffectå¤±è´¥"
             );
         }
 
@@ -150,16 +150,16 @@ public:
 
     std::pair<bool, LRESULT> WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
         if (message == _WM_NEWCURSOR32) {
-            // À´×Ô CursorHook µÄÏûÏ¢
-            // HCURSOR ËÆºõÊÇ¹²Ïí×ÊÔ´£¬¾¡¹ÜÀ´×Ô±ðµÄ½ø³Ìµ«¿ÉÒÔÖ±½ÓÊ¹ÓÃ
+            // æ¥è‡ª CursorHook çš„æ¶ˆæ¯
+            // HCURSOR ä¼¼ä¹Žæ˜¯å…±äº«èµ„æºï¼Œå°½ç®¡æ¥è‡ªåˆ«çš„è¿›ç¨‹ä½†å¯ä»¥ç›´æŽ¥ä½¿ç”¨
             // 
-            // Èç¹ûÏûÏ¢À´×Ô 32 Î»½ø³Ì£¬±¾³ÌÐòÎª 64 Î»£¬±ØÐë×ª»»Îª²¹·ûºÅÎ»À©Õ¹£¬ÕâÊÇÎªÁËºÍ SetCursor µÄ´¦Àí·½·¨Ò»ÖÂ
-            // SendMessage Îª²¹ 0 À©Õ¹£¬SetCursor Îª²¹·ûºÅÎ»À©Õ¹
+            // å¦‚æžœæ¶ˆæ¯æ¥è‡ª 32 ä½è¿›ç¨‹ï¼Œæœ¬ç¨‹åºä¸º 64 ä½ï¼Œå¿…é¡»è½¬æ¢ä¸ºè¡¥ç¬¦å·ä½æ‰©å±•ï¼Œè¿™æ˜¯ä¸ºäº†å’Œ SetCursor çš„å¤„ç†æ–¹æ³•ä¸€è‡´
+            // SendMessage ä¸ºè¡¥ 0 æ‰©å±•ï¼ŒSetCursor ä¸ºè¡¥ç¬¦å·ä½æ‰©å±•
             _AddHookCursor((HCURSOR)(INT_PTR)(INT32)wParam, (HCURSOR)(INT_PTR)(INT32)lParam);
             return { true, 0 };
         } else if (message == _WM_NEWCURSOR64) {
-            // Èç¹ûÏûÏ¢À´×Ô 64 Î»½ø³Ì£¬±¾³ÌÐòÎª 32 Î»£¬HCURSOR »á±»½Ø¶Ï
-            // Q: Èç¹û±»½Ø¶ÏÊÇ·ñÄÜÕý³£¹¤×÷£¿
+            // å¦‚æžœæ¶ˆæ¯æ¥è‡ª 64 ä½è¿›ç¨‹ï¼Œæœ¬ç¨‹åºä¸º 32 ä½ï¼ŒHCURSOR ä¼šè¢«æˆªæ–­
+            // Q: å¦‚æžœè¢«æˆªæ–­æ˜¯å¦èƒ½æ­£å¸¸å·¥ä½œï¼Ÿ
             _AddHookCursor((HCURSOR)wParam, (HCURSOR)lParam);
             return { true, 0 };
         }
@@ -172,7 +172,7 @@ private:
         ci.cbSize = sizeof(ci);
         Debug::ThrowIfWin32Failed(
             GetCursorInfo(&ci),
-            L"GetCursorInfo Ê§°Ü"
+            L"GetCursorInfo å¤±è´¥"
         );
 
         if (ci.hCursor == NULL) {
@@ -185,19 +185,19 @@ private:
             _cursorInfo = &it->second;
         } else {
             try {
-                // Î´ÔÚÓ³ÉäÖÐÕÒµ½£¬´´½¨ÐÂÓ³Éä
+                // æœªåœ¨æ˜ å°„ä¸­æ‰¾åˆ°ï¼Œåˆ›å»ºæ–°æ˜ å°„
                 _ResolveCursor(ci.hCursor, ci.hCursor);
 
                 _cursorInfo = &_cursorMap[ci.hCursor];
             } catch (...) {
-                // Èç¹û³ö´í£¬²»»æÖÆ¹â±ê
+                // å¦‚æžœå‡ºé”™ï¼Œä¸ç»˜åˆ¶å…‰æ ‡
                 _cursorInfo = nullptr;
                 return;
             }
         }
 
-        // Ó³Éä×ø±ê
-        // Êó±ê×ø±êÎªÕûÊý£¬·ñÔò»á³öÏÖÄ£ºý
+        // æ˜ å°„åæ ‡
+        // é¼ æ ‡åæ ‡ä¸ºæ•´æ•°ï¼Œå¦åˆ™ä¼šå‡ºçŽ°æ¨¡ç³Š
         const RECT& srcClient = Env::$instance->GetSrcClient();
         const D2D_RECT_F& destRect = Env::$instance->GetDestRect();
         float scaleX = (destRect.right - destRect.left) / (srcClient.right - srcClient.left);
@@ -233,7 +233,7 @@ private:
             _cursorSize.cx, _cursorSize.cy,
             andPlane, xorPlane
         );
-        Debug::ThrowIfWin32Failed(result, L"´´½¨Í¸Ã÷Êó±êÊ§°Ü");
+        Debug::ThrowIfWin32Failed(result, L"åˆ›å»ºé€æ˜Žé¼ æ ‡å¤±è´¥");
 
         delete[] andPlane;
         delete[] xorPlane;
@@ -248,7 +248,7 @@ private:
         ICONINFO ii{};
         Debug::ThrowIfWin32Failed(
             GetIconInfo(hCursor, &ii),
-            L"GetIconInfo Ê§°Ü"
+            L"GetIconInfo å¤±è´¥"
         );
         
         DeleteBitmap(ii.hbmColor);
@@ -268,11 +268,11 @@ private:
 
         Debug::ThrowIfComFailed(
             wicImgFactory->CreateBitmapFromHICON(hCursor, &wicCursor),
-            L"´´½¨Êó±êÍ¼ÏñÎ»Í¼Ê§°Ü"
+            L"åˆ›å»ºé¼ æ ‡å›¾åƒä½å›¾å¤±è´¥"
         );
         Debug::ThrowIfComFailed(
             wicImgFactory->CreateFormatConverter(&wicFormatConverter),
-            L"CreateFormatConverter Ê§°Ü"
+            L"CreateFormatConverter å¤±è´¥"
         );
         Debug::ThrowIfComFailed(
             wicFormatConverter->Initialize(
@@ -283,11 +283,11 @@ private:
                 0.f,
                 WICBitmapPaletteTypeMedianCut
             ),
-            L"IWICFormatConverter ³õÊ¼»¯Ê§°Ü"
+            L"IWICFormatConverter åˆå§‹åŒ–å¤±è´¥"
         );
         Debug::ThrowIfComFailed(
             Env::$instance->GetD2DDC()->CreateBitmapFromWicBitmap(wicFormatConverter.Get(), &d2dBmpCursor),
-            L"CreateBitmapFromWicBitmap Ê§°Ü"
+            L"CreateBitmapFromWicBitmap å¤±è´¥"
         );
 
         return d2dBmpCursor;
@@ -304,11 +304,11 @@ private:
 
         Debug::ThrowIfComFailed(
             wicImgFactory->CreateBitmapFromHBITMAP(hbmMask, NULL, WICBitmapAlphaChannelOption::WICBitmapIgnoreAlpha, &wicCursor),
-            L"´´½¨Êó±êÍ¼ÏñÎ»Í¼Ê§°Ü"
+            L"åˆ›å»ºé¼ æ ‡å›¾åƒä½å›¾å¤±è´¥"
         );
         Debug::ThrowIfComFailed(
             wicImgFactory->CreateFormatConverter(&wicFormatConverter),
-            L"CreateFormatConverter Ê§°Ü"
+            L"CreateFormatConverter å¤±è´¥"
         );
         Debug::ThrowIfComFailed(
             wicFormatConverter->Initialize(
@@ -319,11 +319,11 @@ private:
                 0.f,
                 WICBitmapPaletteTypeMedianCut
             ),
-            L"IWICFormatConverter ³õÊ¼»¯Ê§°Ü"
+            L"IWICFormatConverter åˆå§‹åŒ–å¤±è´¥"
         );
         Debug::ThrowIfComFailed(
             Env::$instance->GetD2DDC()->CreateBitmapFromWicBitmap(wicFormatConverter.Get(), &d2dBmpCursor),
-            L"CreateBitmapFromWicBitmap Ê§°Ü"
+            L"CreateBitmapFromWicBitmap å¤±è´¥"
         );
 
         return d2dBmpCursor;
@@ -335,7 +335,7 @@ private:
         ICONINFO ii{};
         Debug::ThrowIfWin32Failed(
             GetIconInfo(hCursor, &ii),
-            L"GetIconInfo Ê§°Ü"
+            L"GetIconInfo å¤±è´¥"
         );
 
         CursorInfo cursorInfo;
@@ -370,7 +370,7 @@ private:
         BITMAP bmp{};
         Debug::ThrowIfWin32Failed(
             GetObject(hBmp, sizeof(bmp), &bmp),
-            L"GetObject Ê§°Ü"
+            L"GetObject å¤±è´¥"
         );
         return { bmp.bmWidth, bmp.bmHeight };
     }

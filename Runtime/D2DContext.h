@@ -6,14 +6,14 @@
 using namespace D2D1;
 
 
-// Direct2D »·¾³
+// Direct2D ç¯å¢ƒ
 class D2DContext {
 public:
 	D2DContext() {
         _InitD2D();
 	}
  
-    // ²»¿É¸´ÖÆ£¬²»¿ÉÒÆ¶¯
+    // ä¸å¯å¤åˆ¶ï¼Œä¸å¯ç§»åŠ¨
     D2DContext(const D2DContext&) = delete;
     D2DContext(D2DContext&&) = delete;
 
@@ -25,12 +25,12 @@ public:
 
     void Render(std::function<bool(ID2D1DeviceContext*)> renderFunc) {
         if (!_waitingForFrame) {
-            // ÔÚÈÎºÎäÖÈ¾·¢ÉúÖ®Ç°µÈ´ıÒÔ¼õÉÙÊäÈëÑÓ³Ù
+            // åœ¨ä»»ä½•æ¸²æŸ“å‘ç”Ÿä¹‹å‰ç­‰å¾…ä»¥å‡å°‘è¾“å…¥å»¶è¿Ÿ
             if (Env::$instance->GetCaptureMode() == 1) {
-                // GDI ²¶»ñÒªÇó±ØĞëµÈ´ıÏÂÒ»´Î´¹Ö±Í¬²½
+                // GDI æ•è·è¦æ±‚å¿…é¡»ç­‰å¾…ä¸‹ä¸€æ¬¡å‚ç›´åŒæ­¥
                 Debug::ThrowIfComFailed(
                     _dxgiOutput->WaitForVBlank(),
-                    L"WaitForVBlankÊ§°Ü"
+                    L"WaitForVBlankå¤±è´¥"
                 );
             } else {
                 WaitForSingleObject(_frameLatencyWaitableObject, 1000);
@@ -41,13 +41,13 @@ public:
         _waitingForFrame = !renderFunc(_d2dDC.Get());
         Debug::ThrowIfComFailed(
             _d2dDC->EndDraw(),
-            L"EndDraw Ê§°Ü"
+            L"EndDraw å¤±è´¥"
         );
 
         if (!_waitingForFrame) {
             Debug::ThrowIfComFailed(
                 _dxgiSwapChain->Present(0, 0),
-                L"Present Ê§°Ü"
+                L"Present å¤±è´¥"
             );
         }
     }
@@ -86,45 +86,45 @@ private:
                 nullptr,    // returns feature level of device created
                 &d3dDC  // returns the device immediate context
             ),
-            L"´´½¨ D3D Device Ê§°Ü"
+            L"åˆ›å»º D3D Device å¤±è´¥"
         );
 
         // Obtain the underlying DXGI device of the Direct3D11 device.
         ComPtr<IDXGIDevice1> dxgiDevice;
         Debug::ThrowIfComFailed(
             d3dDevice.As(&dxgiDevice),
-            L"»ñÈ¡ DXGI Device Ê§°Ü"
+            L"è·å– DXGI Device å¤±è´¥"
         );
 
         Debug::ThrowIfComFailed(
             D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, IID_PPV_ARGS(&d2dFactory)),
-            L"´´½¨ D2D Factory Ê§°Ü"
+            L"åˆ›å»º D2D Factory å¤±è´¥"
         );
 
         // Obtain the Direct2D device for 2-D rendering.
         Debug::ThrowIfComFailed(
             d2dFactory->CreateDevice(dxgiDevice.Get(), &d2dDevice),
-            L"´´½¨ D2D Device Ê§°Ü"
+            L"åˆ›å»º D2D Device å¤±è´¥"
         );
         
         // Get Direct2D device's corresponding device context object.
         Debug::ThrowIfComFailed(
             d2dDevice->CreateDeviceContext(D2D1_DEVICE_CONTEXT_OPTIONS_NONE, &_d2dDC),
-            L"´´½¨ D2D DC Ê§°Ü"
+            L"åˆ›å»º D2D DC å¤±è´¥"
         );
 
         // Identify the physical adapter (GPU or card) this device is runs on.
         ComPtr<IDXGIAdapter> dxgiAdapter;
         Debug::ThrowIfComFailed(
             dxgiDevice->GetAdapter(&dxgiAdapter),
-            L"»ñÈ¡ DXGI Adapter Ê§°Ü"
+            L"è·å– DXGI Adapter å¤±è´¥"
         );
 
         // Get the factory object that created the DXGI device.
         ComPtr<IDXGIFactory2> dxgiFactory = nullptr;
         Debug::ThrowIfComFailed(
             dxgiAdapter->GetParent(IID_PPV_ARGS(&dxgiFactory)),
-            L"»ñÈ¡ DXGI Factory Ê§°Ü"
+            L"è·å– DXGI Factory å¤±è´¥"
         );
         
         // Allocate a descriptor.
@@ -155,24 +155,24 @@ private:
                 nullptr,
                 &dxgiSwapChain1
             ),
-            L"´´½¨ Swap Chain Ê§°Ü"
+            L"åˆ›å»º Swap Chain å¤±è´¥"
         );
-        // ×ª»»³É IDXGISwapChain2 ÒÔÊ¹ÓÃ DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT
-        // ¼û https://docs.microsoft.com/en-us/windows/win32/api/dxgi/ne-dxgi-dxgi_swap_chain_flag
+        // è½¬æ¢æˆ IDXGISwapChain2 ä»¥ä½¿ç”¨ DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT
+        // è§ https://docs.microsoft.com/en-us/windows/win32/api/dxgi/ne-dxgi-dxgi_swap_chain_flag
         Debug::ThrowIfComFailed(
             dxgiSwapChain1.As(&_dxgiSwapChain),
-            L"»ñÈ¡ IDXGISwapChain2 Ê§°Ü"
+            L"è·å– IDXGISwapChain2 å¤±è´¥"
         );
         
         Debug::ThrowIfComFailed(
             _dxgiSwapChain->SetMaximumFrameLatency(1),
-            L"SetMaximumFrameLatency Ê§°Ü"
+            L"SetMaximumFrameLatency å¤±è´¥"
         );
 
         if (Env::$instance->GetCaptureMode() == 1) {
             Debug::ThrowIfComFailed(
                 _dxgiSwapChain->GetContainingOutput(&_dxgiOutput),
-                L"»ñÈ¡DXGIOutputÊ§°Ü"
+                L"è·å–DXGIOutputå¤±è´¥"
             );
         } else {
             _frameLatencyWaitableObject = _dxgiSwapChain->GetFrameLatencyWaitableObject();
@@ -182,7 +182,7 @@ private:
         ComPtr<IDXGISurface> dxgiBackBuffer = nullptr;
         Debug::ThrowIfComFailed(
             _dxgiSwapChain->GetBuffer(0, IID_PPV_ARGS(&dxgiBackBuffer)),
-            L"»ñÈ¡ DXGI Backbuffer Ê§°Ü"
+            L"è·å– DXGI Backbuffer å¤±è´¥"
         );
 
         // Now we set up the Direct2D render target bitmap linked to the swapchain. 
@@ -201,7 +201,7 @@ private:
                 &bitmapProperties,
                 &d2dTargetBitmap
             ),
-            L"CreateBitmapFromDxgiSurface Ê§°Ü"
+            L"CreateBitmapFromDxgiSurface å¤±è´¥"
         );
 
         // Now we can set the Direct2D render target.
@@ -214,11 +214,11 @@ private:
     ComPtr<ID2D1DeviceContext> _d2dDC = nullptr;
     ComPtr<IDXGISwapChain2> _dxgiSwapChain = nullptr;
 
-    // ÓÃÓÚ GDI ²¶»ñ
+    // ç”¨äº GDI æ•è·
     ComPtr<IDXGIOutput> _dxgiOutput = nullptr;
-    // ÓÃÓÚ WinRT ²¶»ñ
+    // ç”¨äº WinRT æ•è·
     HANDLE _frameLatencyWaitableObject;
 
-    // Î´½ÓÊÕµ½Ö¡Ê±È·±£²»äÖÈ¾
+    // æœªæ¥æ”¶åˆ°å¸§æ—¶ç¡®ä¿ä¸æ¸²æŸ“
     bool _waitingForFrame = false;
 };

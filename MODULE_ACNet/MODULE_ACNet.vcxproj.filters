@@ -99,9 +99,6 @@
     <None Include="ACNet.hlsli">
       <Filter>着色器</Filter>
     </None>
-    <None Include="common.hlsli">
-      <Filter>着色器</Filter>
-    </None>
     <None Include="conanfile.py" />
   </ItemGroup>
 </Project>

@@ -1,5 +1,5 @@
 // ravu-lite-r3 Pass1
-// ÒÆÖ²×Ô https://github.com/bjin/mpv-prescalers/blob/master/ravu-lite-r3.hook
+// ç§»æ¤è‡ª https://github.com/bjin/mpv-prescalers/blob/master/ravu-lite-r3.hook
 
 
 cbuffer constants : register(b0) {

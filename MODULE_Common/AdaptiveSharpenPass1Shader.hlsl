@@ -1,5 +1,5 @@
-// ×ÔÊÊÓ¦Èñ»¯Ëã·¨ Pass1
-// ÒÆÖ²×Ô https://github.com/libretro/common-shaders/blob/master/sharpen/shaders/adaptive-sharpen-pass1.cg
+// è‡ªé€‚åº”é”åŒ–ç®—æ³• Pass1
+// ç§»æ¤è‡ª https://github.com/libretro/common-shaders/blob/master/sharpen/shaders/adaptive-sharpen-pass1.cg
 // 
 // Adaptive sharpen
 // Tuned for use post resize, EXPECTS FULL RANGE GAMMA LIGHT

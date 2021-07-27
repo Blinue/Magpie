@@ -1,6 +1,6 @@
 #include "common.hlsli"
 
-
-// 假设值在-3~-3。因为精度损失，最终会产生噪声
+ 
+// 鍋囪鍊煎湪-3~-3銆傚洜涓虹簿搴︽崯澶憋紝鏈�缁堜細浜х敓鍣０
 #define Compress(value) compressLinear(value, -3, 3)
 #define Uncompress(value) uncompressLinear(value, -3, 3)

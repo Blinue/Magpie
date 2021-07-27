@@ -52,7 +52,7 @@ public:
 
     enum PROPS {
         PROP_SCALE = 0,
-        // 抗振铃强度。必须在 0~1 之间。默认值为 0.5
+        // 鎶楁尟閾冨己搴︺�傚繀椤诲湪 0~1 涔嬮棿銆傞粯璁ゅ�间负 0.5
         PROP_AR_STRENGTH = 1
     };
 

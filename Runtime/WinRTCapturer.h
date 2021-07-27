@@ -17,18 +17,18 @@ using namespace Windows::Graphics::DirectX::Direct3D11;
 }
 
 
-// Ê¹ÓÃ Window Runtime µÄ Windows.Graphics.Capture API ×¥È¡´°¿Ú
-// ¼û https://docs.microsoft.com/en-us/windows/uwp/audio-video-camera/screen-capture
+// ä½¿ç”¨ Window Runtime çš„ Windows.Graphics.Capture API æŠ“å–çª—å£
+// è§ https://docs.microsoft.com/en-us/windows/uwp/audio-video-camera/screen-capture
 class WinRTCapturer : public WindowCapturerBase {
 public:
 	WinRTCapturer() {
 		HWND hwndSrc = Env::$instance->GetHwndSrc();
 		
-		// °üº¬±ß¿òµÄ´°¿Ú³ß´ç
+		// åŒ…å«è¾¹æ¡†çš„çª—å£å°ºå¯¸
 		RECT srcRect{};
 		Debug::ThrowIfComFailed(
 			DwmGetWindowAttribute(hwndSrc, DWMWA_EXTENDED_FRAME_BOUNDS, &srcRect, sizeof(srcRect)),
-			L"GetWindowRect Ê§°Ü"
+			L"GetWindowRect å¤±è´¥"
 		);
 
 		const RECT& srcClient = Env::$instance->GetSrcClient();
@@ -40,17 +40,17 @@ public:
 		};
 
 		try {
-			// Windows.Graphics.Capture API ËÆºõÖ»ÄÜÔËĞĞÓÚ MTA£¬Ôì³ÉÖî¶àÂé·³
+			// Windows.Graphics.Capture API ä¼¼ä¹åªèƒ½è¿è¡Œäº MTAï¼Œé€ æˆè¯¸å¤šéº»çƒ¦
 			winrt::init_apartment(winrt::apartment_type::multi_threaded);
 
-			Debug::Assert(winrt::GraphicsCaptureSession::IsSupported(), L"µ±Ç°ÏµÍ³²»Ö§³Ö WinRT Capture");
+			Debug::Assert(winrt::GraphicsCaptureSession::IsSupported(), L"å½“å‰ç³»ç»Ÿä¸æ”¯æŒ WinRT Capture");
 
-			// ÒÔÏÂ´úÂë²Î¿¼×Ô http://tips.hecomi.com/entry/2021/03/23/230947
+			// ä»¥ä¸‹ä»£ç å‚è€ƒè‡ª http://tips.hecomi.com/entry/2021/03/23/230947
 
 			ComPtr<IDXGIDevice> dxgiDevice;
 			Debug::ThrowIfComFailed(
 				Env::$instance->GetD3DDevice()->QueryInterface<IDXGIDevice>(&dxgiDevice),
-				L"»ñÈ¡ DXGI Device Ê§°Ü"
+				L"è·å– DXGI Device å¤±è´¥"
 			);
 
 			Debug::ThrowIfComFailed(
@@ -58,11 +58,11 @@ public:
 					dxgiDevice.Get(),
 					reinterpret_cast<::IInspectable**>(winrt::put_abi(_wrappedD3DDevice))
 				),
-				L"»ñÈ¡ IDirect3DDevice Ê§°Ü"
+				L"è·å– IDirect3DDevice å¤±è´¥"
 			);
-			Debug::Assert(_wrappedD3DDevice, L"´´½¨ IDirect3DDevice Ê§°Ü");
+			Debug::Assert(_wrappedD3DDevice, L"åˆ›å»º IDirect3DDevice å¤±è´¥");
 
-			// ´Ó´°¿Ú¾ä±ú»ñÈ¡ GraphicsCaptureItem
+			// ä»çª—å£å¥æŸ„è·å– GraphicsCaptureItem
 			auto interop = winrt::get_activation_factory<winrt::GraphicsCaptureItem, IGraphicsCaptureItemInterop>();
 			Debug::ThrowIfComFailed(
 				interop->CreateForWindow(
@@ -70,27 +70,27 @@ public:
 					winrt::guid_of<ABI::Windows::Graphics::Capture::IGraphicsCaptureItem>(),
 					winrt::put_abi(_captureItem)
 				),
-				L"´´½¨ GraphicsCaptureItem Ê§°Ü"
+				L"åˆ›å»º GraphicsCaptureItem å¤±è´¥"
 			);
-			Debug::Assert(_captureItem, L"´´½¨ GraphicsCaptureItem Ê§°Ü");
+			Debug::Assert(_captureItem, L"åˆ›å»º GraphicsCaptureItem å¤±è´¥");
 
-			// ´´½¨Ö¡»º³å³Ø
+			// åˆ›å»ºå¸§ç¼“å†²æ± 
 			_captureFramePool = winrt::Direct3D11CaptureFramePool::Create(
 				_wrappedD3DDevice,
 				winrt::DirectXPixelFormat::B8G8R8A8UIntNormalized,
-				1,					// Ö¡µÄ»º´æÊıÁ¿
-				_captureItem.Size() // Ö¡µÄ³ß´ç
+				1,					// å¸§çš„ç¼“å­˜æ•°é‡
+				_captureItem.Size() // å¸§çš„å°ºå¯¸
 			);
-			Debug::Assert(_captureFramePool, L"´´½¨ Direct3D11CaptureFramePool Ê§°Ü");
+			Debug::Assert(_captureFramePool, L"åˆ›å»º Direct3D11CaptureFramePool å¤±è´¥");
 
-			// ¿ªÊ¼²¶»ñ
+			// å¼€å§‹æ•è·
 			_captureSession = _captureFramePool.CreateCaptureSession(_captureItem);
-			Debug::Assert(_captureSession, L"CreateCaptureSession Ê§°Ü");
+			Debug::Assert(_captureSession, L"CreateCaptureSession å¤±è´¥");
 			_captureSession.IsCursorCaptureEnabled(false);
 			_captureSession.StartCapture();
 		} catch (winrt::hresult_error) {
-			// ÓĞĞ©´°¿ÚÎŞ·¨ÓÃWinRT²¶»ñ
-			Debug::Assert(false, L"WinRT ²¶»ñ³ö´í");
+			// æœ‰äº›çª—å£æ— æ³•ç”¨WinRTæ•è·
+			Debug::Assert(false, L"WinRT æ•è·å‡ºé”™");
 		}
 	}
 
@@ -114,11 +114,11 @@ public:
 
 		winrt::Direct3D11CaptureFrame frame = _captureFramePool.TryGetNextFrame();
 		if (!frame) {
-			// »º³å³ØÃ»ÓĞÖ¡¾Í·µ»Ø nullptr
+			// ç¼“å†²æ± æ²¡æœ‰å¸§å°±è¿”å› nullptr
 			return nullptr;
 		}
 
-		// ´ÓÖ¡»ñÈ¡ IDXGISurface
+		// ä»å¸§è·å– IDXGISurface
 		winrt::IDirect3DSurface d3dSurface = frame.Surface();
 		winrt::com_ptr<::Windows::Graphics::DirectX::Direct3D11::IDirect3DDxgiInterfaceAccess> dxgiInterfaceAccess(
 			d3dSurface.as<::Windows::Graphics::DirectX::Direct3D11::IDirect3DDxgiInterfaceAccess>()
@@ -129,16 +129,16 @@ public:
 				__uuidof(dxgiSurface),
 				dxgiSurface.put_void()
 			),
-			L"´Ó»ñÈ¡ IDirect3DSurface »ñÈ¡ IDXGISurface Ê§°Ü"
+			L"ä»è·å– IDirect3DSurface è·å– IDXGISurface å¤±è´¥"
 		);
 
-		// ´Ó IDXGISurface »ñÈ¡ ID2D1Bitmap
-		// ÕâÀïÊ¹ÓÃ¹²ÏíÒÔ±ÜÃâ¿½±´
+		// ä» IDXGISurface è·å– ID2D1Bitmap
+		// è¿™é‡Œä½¿ç”¨å…±äº«ä»¥é¿å…æ‹·è´
 		ComPtr<ID2D1Bitmap> withFrame;
 		auto p = BitmapProperties(PixelFormat(DXGI_FORMAT_B8G8R8A8_UNORM, D2D1_ALPHA_MODE_IGNORE));
 		d2dDC->CreateSharedBitmap(__uuidof(IDXGISurface), dxgiSurface.get(), &p, &withFrame);
 
-		// »ñÈ¡µÄÖ¡°üº¬´°¿Ú±ß¿ò£¬½«¿Í»§ÇøÄÚÈİ¿½±´µ½ĞÂµÄ ID2D1Bitmap
+		// è·å–çš„å¸§åŒ…å«çª—å£è¾¹æ¡†ï¼Œå°†å®¢æˆ·åŒºå†…å®¹æ‹·è´åˆ°æ–°çš„ ID2D1Bitmap
 		ComPtr<ID2D1Bitmap> withoutFrame;
 		d2dDC->CreateBitmap(
 			{ _clientInFrame.right - _clientInFrame.left, _clientInFrame.bottom - _clientInFrame.top },

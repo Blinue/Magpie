@@ -5,7 +5,7 @@
 #include "EffectDefines.h"
 
 
-// Jinc2 �����㷨
+// Jinc2 缩放算法
 class JincScaleEffect : public EffectBase {
 public:
     IFACEMETHODIMP Initialize(
@@ -78,13 +78,13 @@ public:
     }
 
     enum PROPS {
-        // ���ű�����Ĭ��ֵΪ (1,1)
+        // 缩放倍数。默认值为 (1,1)
         PROP_SCALE = 0,
-        // �������0��ֵԽСͼ��Խ�����������о�ݡ�Ĭ��ֵΪ 0.5
+        // 必须大于0，值越小图像越清晰，但会有锯齿。默认值为 0.5
         PROP_WINDOW_SINC = 1,
-        // �������0��ֵԽ������Խ�����������ж�����Ĭ��ֵΪ 0.825
+        // 必须大于0，值越大线条越锐利，但会有抖动。默认值为 0.825
         PROP_SINC = 2,
-        // ������ǿ�ȡ������� 0~1 ֮�䡣Ĭ��ֵΪ 0.5
+        // 抗振铃强度。必须在 0~1 之间。默认值为 0.5
         PROP_AR_STRENGTH = 3
     };
 

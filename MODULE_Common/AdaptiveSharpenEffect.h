@@ -6,7 +6,7 @@
 #include "EffectDefines.h"
 
 
-// Adaptive sharpen 算法
+// Adaptive sharpen 绠楁硶
 class AdaptiveSharpenEffect : public EffectBase {
 public:
     IFACEMETHODIMP Initialize(
@@ -69,7 +69,7 @@ public:
     }
 
     enum PROPS {
-        // FLOAT 类型。指示锐化强度，必须大于0，一般在 0.3~2.0 之间。默认值为 0.3
+        // FLOAT 绫诲瀷銆傛寚绀洪攼鍖栧己搴︼紝蹇呴』澶т簬0锛屼竴鑸湪 0.3~2.0 涔嬮棿銆傞粯璁ゅ�间负 0.3
         PROP_CURVE_HEIGHT = 0
     };
 

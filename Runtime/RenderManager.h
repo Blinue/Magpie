@@ -13,24 +13,24 @@
 #include "Env.h"
 
 
-// ´¦ÀíÈ«ÆÁ´°¿ÚµÄäÖÈ¾
+// å¤„ç†å…¨å±çª—å£çš„æ¸²æŸ“
 class RenderManager {
 public:
 	RenderManager() {
-		// ³õÊ¼»¯ D2DContext
+		// åˆå§‹åŒ– D2DContext
 		_d2dContext.reset(new D2DContext());
 
-		// ³õÊ¼»¯ WindowCapturer
+		// åˆå§‹åŒ– WindowCapturer
 		int captureMode = Env::$instance->GetCaptureMode();
 		if (captureMode == 0) {
 			_windowCapturer.reset(new WinRTCapturer());
 		} else if (captureMode == 1) {
 			_windowCapturer.reset(new GDIWindowCapturer());
 		} else {
-			throw new magpie_exception(L"·Ç·¨µÄ×¥È¡Ä£Ê½");
+			throw new magpie_exception(L"éžæ³•çš„æŠ“å–æ¨¡å¼");
 		}
 
-		// ³õÊ¼»¯ EffectRenderer
+		// åˆå§‹åŒ– EffectRenderer
 		CaptureredFrameType frameType = _windowCapturer->GetFrameType();
 		if (frameType == CaptureredFrameType::D2DImage) {
 			_effectRenderer.reset(new D2DImageEffectRenderer());
@@ -38,11 +38,11 @@ public:
 			_effectRenderer.reset(new WICBitmapEffectRenderer());
 		}
 
-		// ³õÊ¼»¯ CursorManager
+		// åˆå§‹åŒ– CursorManager
 		_cursorManager.reset(new CursorManager());
 
 		if (Env::$instance->IsShowFPS()) {
-			// ³õÊ¼»¯ FrameCatcher
+			// åˆå§‹åŒ– FrameCatcher
 			_frameCatcher.reset(new FrameCatcher());
 		}
 	}
@@ -52,7 +52,7 @@ public:
 	}
 
 	void Render() {
-		// Ã¿´ÎäÖÈ¾Ö®Ç°¼ì²âÔ´´°¿Ú×´Ì¬
+		// æ¯æ¬¡æ¸²æŸ“ä¹‹å‰æ£€æµ‹æºçª—å£çŠ¶æ€
 		if (!_CheckSrcState()) {
 			return;
 		}
@@ -87,7 +87,7 @@ private:
 	bool _CheckSrcState() {
 		HWND hwndSrc = Env::$instance->GetHwndSrc();
 		if (GetForegroundWindow() == hwndSrc) {
-			// ÏÈ¼ì²éÇ°Ì¨´°¿Ú£¬·ñÔòÔÚ´°¿ÚÒÑ¹Ø±ÕÊ±GetClientScreenRect»á³ö´í
+			// å…ˆæ£€æŸ¥å‰å°çª—å£ï¼Œå¦åˆ™åœ¨çª—å£å·²å…³é—­æ—¶GetClientScreenRectä¼šå‡ºé”™
 			RECT rect;
 			Utils::GetClientScreenRect(hwndSrc, rect);
 
@@ -96,7 +96,7 @@ private:
 			}
 		}
 
-		// ×´Ì¬¸Ä±äÊ±¹Ø±ÕÈ«ÆÁ´°¿Ú
+		// çŠ¶æ€æ”¹å˜æ—¶å…³é—­å…¨å±çª—å£
 		DestroyWindow(Env::$instance->GetHwndHost());
 		return false;
 	}

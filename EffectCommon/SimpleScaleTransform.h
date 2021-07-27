@@ -3,8 +3,8 @@
 #include "SimpleDrawTransform.h"
 
 
-// Í¨ÓÃµÄ scale transform
-// Ö»Ö§³Ö scale ÊôĞÔ£¬Ä¬ÈÏÖµÎª 1.0
+// é€šç”¨çš„ scale transform
+// åªæ”¯æŒ scale å±æ€§ï¼Œé»˜è®¤å€¼ä¸º 1.0
 class SimpleScaleTransform : public SimpleDrawTransform<1> {
 protected:
     SimpleScaleTransform(const GUID& shaderID) : SimpleDrawTransform<1>(shaderID) {}
@@ -67,7 +67,7 @@ public:
         return S_OK;
     }
 protected:
-    // ¼Ì³ĞµÄÀà¿ÉÒÔ¸²¸Ç´Ë·½·¨Ïò×ÅÉ«Æ÷´«µİ²ÎÊı
+    // ç»§æ‰¿çš„ç±»å¯ä»¥è¦†ç›–æ­¤æ–¹æ³•å‘ç€è‰²å™¨ä¼ é€’å‚æ•°
     virtual void _SetShaderConstantBuffer(const SIZE& srcSize, const SIZE& destSize) {
         struct {
             INT32 srcWidth;
@@ -85,6 +85,6 @@ protected:
     }
 
 private:
-    // Ëõ·Å±¶Êı
+    // ç¼©æ”¾å€æ•°
     D2D1_VECTOR_2F _scale{ 1,1 };
 };

@@ -1,4 +1,4 @@
-﻿// DllMain.cpp : Runtime.dll 的入口点。
+// DllMain.cpp : Runtime.dll 的入口点。
 //
 
 

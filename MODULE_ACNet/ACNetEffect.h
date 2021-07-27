@@ -7,8 +7,8 @@
 
 
 
-// ACNet ³¬²ÉÑùËã·¨£¬¿É½«¶¯ÂşÍ¼Ïñ·Å´óÖÁÁ½±¶
-// ÒÆÖ²×Ô https://github.com/TianZerL/ACNetGLSL/blob/master/glsl/ACNet.glsl
+// ACNet è¶…é‡‡æ ·ç®—æ³•ï¼Œå¯å°†åŠ¨æ¼«å›¾åƒæ”¾å¤§è‡³ä¸¤å€
+// ç§»æ¤è‡ª https://github.com/TianZerL/ACNetGLSL/blob/master/glsl/ACNet.glsl
 class ACNetEffect : public EffectBase {
 public:
     IFACEMETHODIMP Initialize(

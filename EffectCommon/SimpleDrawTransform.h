@@ -3,12 +3,12 @@
 #include "CommonDebug.h"
 
 
-// ÓÃÀ´È¡´ú¼òµ¥µÄ DrawTransform
-// ¸Ã DrawTransform ±ØĞëÂú×ãÒÔÏÂÌõ¼ş£º
-//  * NINPUTS ¸öÊäÈë
-//  * Êä³öÓëËùÓĞÊäÈë³ß´çÏàÍ¬
-//  * Ö»ÊÇ¼òµ¥µØ¶ÔÊäÈëÓ¦ÓÃÁËÒ»¸öÏñËØ×ÅÉ«Æ÷
-//  * ÎŞ×´Ì¬
+// ç”¨æ¥å–ä»£ç®€å•çš„ DrawTransform
+// è¯¥ DrawTransform å¿…é¡»æ»¡è¶³ä»¥ä¸‹æ¡ä»¶ï¼š
+//  * NINPUTS ä¸ªè¾“å…¥
+//  * è¾“å‡ºä¸æ‰€æœ‰è¾“å…¥å°ºå¯¸ç›¸åŒ
+//  * åªæ˜¯ç®€å•åœ°å¯¹è¾“å…¥åº”ç”¨äº†ä¸€ä¸ªåƒç´ ç€è‰²å™¨
+//  * æ— çŠ¶æ€
 template <int NINPUTS = 1>
 class SimpleDrawTransform : public ID2D1DrawTransform {
 protected:
@@ -16,7 +16,7 @@ protected:
 
     SimpleDrawTransform(SimpleDrawTransform&&) = default;
 
-    // ½« hlsl ¶ÁÈ¡½ø Effect Context
+    // å°† hlsl è¯»å–è¿› Effect Context
     static HRESULT LoadShader(_In_ ID2D1EffectContext* d2dEC, _In_ const wchar_t* path, const GUID& shaderID) {
         if (!d2dEC->IsShaderLoaded(shaderID)) {
 	        const HANDLE hFile = CreateFile(
@@ -28,13 +28,13 @@ protected:
                 FILE_ATTRIBUTE_NORMAL,
                 NULL);
             if (hFile == INVALID_HANDLE_VALUE) {
-                CommonDebug::WriteLine(L"´ò¿ª\""s + path + L"\"Ê§°Ü");
+                CommonDebug::WriteLine(L"æ‰“å¼€\""s + path + L"\"å¤±è´¥");
                 return E_FAIL;
             }
 
             LARGE_INTEGER liSize{};
             if (!GetFileSizeEx(hFile, &liSize)) {
-                CommonDebug::WriteLine(L"»ñÈ¡\""s + path + L"\"ÎÄ¼ş´óĞ¡Ê§°Ü");
+                CommonDebug::WriteLine(L"è·å–\""s + path + L"\"æ–‡ä»¶å¤§å°å¤±è´¥");
                 return E_FAIL;
             }
 
@@ -42,7 +42,7 @@ protected:
 	        const auto buf = new BYTE[size];
             DWORD readed = 0;
             if (!ReadFile(hFile, buf, size, &readed, nullptr) || readed == 0) {
-                CommonDebug::WriteLine(L"¶ÁÈ¡\""s + path + L"\"Ê§°Ü");
+                CommonDebug::WriteLine(L"è¯»å–\""s + path + L"\"å¤±è´¥");
                 return E_FAIL;
             }
 
@@ -50,7 +50,7 @@ protected:
             delete[] buf;
 
             if (FAILED(hr)) {
-                CommonDebug::WriteLine(L"¼ÓÔØ×ÅÉ«Æ÷\""s + path + L"\"Ê§°Ü");
+                CommonDebug::WriteLine(L"åŠ è½½ç€è‰²å™¨\""s + path + L"\"å¤±è´¥");
                 return hr;
             }
         }
@@ -155,7 +155,7 @@ public:
     }
 
     /*
-    * ÒÔÏÂÎª IUnkown µÄ·½·¨
+    * ä»¥ä¸‹ä¸º IUnkown çš„æ–¹æ³•
     */
 
     IFACEMETHODIMP_(ULONG) AddRef() override {
@@ -181,7 +181,7 @@ public:
             || riid == __uuidof(ID2D1TransformNode)
             || riid == __uuidof(IUnknown)
             ) {
-            // ¸´ÖÆÖ¸Õë£¬Ôö¼Ó¼ÆÊı
+            // å¤åˆ¶æŒ‡é’ˆï¼Œå¢åŠ è®¡æ•°
             *ppOutput = static_cast<void*>(this);
             AddRef();
             return NOERROR;
@@ -190,7 +190,7 @@ public:
     }
 
 protected:
-    // ¼Ì³ĞµÄÀà¿ÉÒÔ¸²¸Ç´Ë·½·¨Ïò×ÅÉ«Æ÷´«µİ²ÎÊı
+    // ç»§æ‰¿çš„ç±»å¯ä»¥è¦†ç›–æ­¤æ–¹æ³•å‘ç€è‰²å™¨ä¼ é€’å‚æ•°
     virtual void _SetShaderConstantBuffer(const SIZE& srcSize) {
         struct {
             INT32 srcWidth;
@@ -205,14 +205,14 @@ protected:
 
     ComPtr<ID2D1DrawInfo> _drawInfo = nullptr;
 
-    // ±£´æÊäÈëĞÎ×´¹© MapOutputRectToInputRects Ê¹ÓÃ£¬¶ø²»ÊÇÊ¹ÓÃ pOutputRect
-    // ¼û https://stackoverflow.com/questions/36920282/pixel-shader-in-direct2d-render-error-along-the-middle
+    // ä¿å­˜è¾“å…¥å½¢çŠ¶ä¾› MapOutputRectToInputRects ä½¿ç”¨ï¼Œè€Œä¸æ˜¯ä½¿ç”¨ pOutputRect
+    // è§ https://stackoverflow.com/questions/36920282/pixel-shader-in-direct2d-render-error-along-the-middle
     D2D1_RECT_L _inputRects[NINPUTS]{};
 
 private:
     const GUID& _shaderID;
 
-    // ÒıÓÃ¼ÆÊı
-    // ÒòÎªÒıÓÃ¼ÆÊı´Ó 1 ¿ªÊ¼£¬ËùÒÔ´´½¨ÊµÀıÊ±ÎŞĞè AddRef
+    // å¼•ç”¨è®¡æ•°
+    // å› ä¸ºå¼•ç”¨è®¡æ•°ä» 1 å¼€å§‹ï¼Œæ‰€ä»¥åˆ›å»ºå®ä¾‹æ—¶æ— éœ€ AddRef
     ULONG _cRef = 1;
 };

@@ -1,5 +1,5 @@
 // ravu-zoom-r3
-// ÒÆÖ²×Ô https://github.com/bjin/mpv-prescalers/blob/master/ravu-zoom-r3-yuv.hook
+// ç§»æ¤è‡ª https://github.com/bjin/mpv-prescalers/blob/master/ravu-zoom-r3-yuv.hook
 
 
 cbuffer constants : register(b0) {
@@ -41,7 +41,7 @@ D2D_PS_ENTRY(main) {
 	float2 pos = Coord(0).xy / Coord(0).zw;
 	float2 subpix = frac(pos - 0.5);
 	pos = (pos - subpix) * Coord(0).zw;
-	// LUT_POS µÄµÈ¼Û£¬µ«Ëüµ½µ×ÊÇÊ²Ã´£¿
+	// LUT_POS çš„ç­‰ä»·ï¼Œä½†å®ƒåˆ°åº•æ˜¯ä»€ä¹ˆï¼Ÿ
 	subpix = lerp(float2(0.5, 0.5) / float2(9, 9), 1 - 0.5 / float2(9, 9), subpix);
 	float2 subpix_inv = 1.0 - subpix;
 	subpix *= float2(WEIGHTS_TEXTURE_WIDTH, WEIGHTS_TEXTURE_HEIGHT) * Coord(1).zw;

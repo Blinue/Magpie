@@ -5,8 +5,8 @@
 #include "EffectDefines.h"
 
 
-// Mitchell-Netravali Ëõ·ÅËã·¨£¬Ò»ÖÖË«Èı´Î²åÖµ£¬¿ÉÒÔ»ñµÃÆ½»¬µÄ±ßÔµ
-// ¿ÉÑ¡ÊÇ·ñÊ¹ÓÃ¸üÈñÀûµÄ°æ±¾£¬Ä¬ÈÏÎª·ñ
+// Mitchell-Netravali ç¼©æ”¾ç®—æ³•ï¼Œä¸€ç§åŒä¸‰æ¬¡æ’å€¼ï¼Œå¯ä»¥è·å¾—å¹³æ»‘çš„è¾¹ç¼˜
+// å¯é€‰æ˜¯å¦ä½¿ç”¨æ›´é”åˆ©çš„ç‰ˆæœ¬ï¼Œé»˜è®¤ä¸ºå¦
 class MitchellNetravaliScaleEffect : public EffectBase {
 public:
     IFACEMETHODIMP Initialize(
@@ -54,7 +54,7 @@ public:
 
     enum PROPS {
         PROP_SCALE = 0,
-        PROP_VARIANT = 1    // mitchell ±äÌå£º0 Îª Mitchell£¬1 Îª Catrom£¬2 Îª Sharper¡£Ä¬ÈÏÖµÎª 0
+        PROP_VARIANT = 1    // mitchell å˜ä½“ï¼š0 ä¸º Mitchellï¼Œ1 ä¸º Catromï¼Œ2 ä¸º Sharperã€‚é»˜è®¤å€¼ä¸º 0
     };
 
     static HRESULT Register(_In_ ID2D1Factory1* pFactory) {

@@ -6,8 +6,8 @@
 #include "FSRCNNXAggregationTransform.h"
 
 
-// FSRCNNX ³¬²ÉÑùËã·¨£¬¿É½«Í¼Ïñ·Å´óÖÁÁ½±¶
-// ÒÆÖ²×Ô https://github.com/igv/FSRCNN-TensorFlow
+// FSRCNNX è¶…é‡‡æ ·ç®—æ³•ï¼Œå¯å°†å›¾åƒæ”¾å¤§è‡³ä¸¤å€
+// ç§»æ¤è‡ª https://github.com/igv/FSRCNN-TensorFlow
 class FSRCNNXEffect : public EffectBase {
 public:
     IFACEMETHODIMP Initialize(
@@ -26,7 +26,7 @@ public:
 
             HRESULT hr = _MakeGraph();
             if (FAILED(hr)) {
-                // Ê§°ÜÊ±»¹Ô­×´Ì¬
+                // å¤±è´¥æ—¶è¿˜åŸçŠ¶æ€
                 _useLineArtVersion = !_useLineArtVersion;
                 _MakeGraph();
             }

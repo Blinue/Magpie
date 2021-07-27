@@ -1,4 +1,4 @@
-// Pixel ��ֵ�㷨
+// Pixel 插值算法
 
 
 cbuffer constants : register(b0) {

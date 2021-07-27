@@ -13,7 +13,7 @@
 #define max9(a, b, c, d, e, f, g, h, i) max3(max4(a, b, c, d), max4(e, f, g, h), i)
 #define min9(a, b, c, d, e, f, g, h, i) min3(min4(a, b, c, d), min4(e, f, g, h), i)
 
-// ÎÆÀí»á×Ô¶¯½«ÖµÇĞ¸îµ½ 0~1£¬ÎªÁËÊ¹ÖµÔÚ×ÅÉ«Æ÷Ö®¼ä´«µİĞèÒª½øĞĞÑ¹Ëõ
+// çº¹ç†ä¼šè‡ªåŠ¨å°†å€¼åˆ‡å‰²åˆ° 0~1ï¼Œä¸ºäº†ä½¿å€¼åœ¨ç€è‰²å™¨ä¹‹é—´ä¼ é€’éœ€è¦è¿›è¡Œå‹ç¼©
 
 #define compressLinear(x, min, max) (((x) - min) / (max - min))
 #define uncompressLinear(x, min, max) ((x) * (max - min) + min)
@@ -25,9 +25,9 @@
 #if MAGPIE_INPUT_COUNT >= 1
 
 /*
-* °üº¬±ß½ç¼ì²éµÄ SampleInput
-* ÓûÊ¹ÓÃÏÂÃæµÄºêĞèÒªÔÚ°üº¬´ËÎÄ¼şÇ°¶¨Òå MAGPIE_INPUT_COUNT£¬
-* È»ºóÔÚ main º¯ÊıµÄ¿ªÍ·µ÷ÓÃ InitMagpieSampleInput »ò InitMagpieSampleInputWithScale
+* åŒ…å«è¾¹ç•Œæ£€æŸ¥çš„ SampleInput
+* æ¬²ä½¿ç”¨ä¸‹é¢çš„å®éœ€è¦åœ¨åŒ…å«æ­¤æ–‡ä»¶å‰å®šä¹‰ MAGPIE_INPUT_COUNTï¼Œ
+* ç„¶ååœ¨ main å‡½æ•°çš„å¼€å¤´è°ƒç”¨ InitMagpieSampleInput æˆ– InitMagpieSampleInputWithScale
 */
 
 #define D2D_INPUT0_COMPLEX
@@ -120,7 +120,7 @@ static float2 maxCoord7;
 
 #define MAGPIE_ENTRY(name) D2D_PS_ENTRY(name)
 
-// ĞèÒª main º¯ÊıµÄ¿ªÍ·µ÷ÓÃ
+// éœ€è¦ main å‡½æ•°çš„å¼€å¤´è°ƒç”¨
 
 void InitMagpieSampleInput() {
 #ifndef MAGPIE_NO_CHECK
@@ -152,7 +152,7 @@ void InitMagpieSampleInput() {
 void InitMagpieSampleInputWithScale(float2 scale) {
 	InitMagpieSampleInput();
 
-	// ½« dest ×ø±êÓ³ÉäÎª src ×ø±ê
+	// å°† dest åæ ‡æ˜ å°„ä¸º src åæ ‡
 	Coord(0).xy /= scale;
 }
 
@@ -163,8 +163,8 @@ void InitMagpieSampleInputWithScale(float2 scale) {
 #ifdef MAGPIE_USE_YUV
 
 /*
-* RGB ºÍ YUV »¥×ª
-* ĞèÔÚ°üº¬´ËÎÄ¼şÇ°¶¨Òå MAGPIE_USE_YUV
+* RGB å’Œ YUV äº’è½¬
+* éœ€åœ¨åŒ…å«æ­¤æ–‡ä»¶å‰å®šä¹‰ MAGPIE_USE_YUV
 */
 
 const static float3x3 _rgb2yuv = {

@@ -1,5 +1,5 @@
-// Mitchell-Netravali ²åÖµËã·¨
-// ÒÆÖ²×Ô https://github.com/libretro/common-shaders/blob/master/bicubic/shaders/bicubic-normal.cg
+// Mitchell-Netravali æ’å€¼ç®—æ³•
+// ç§»æ¤è‡ª https://github.com/libretro/common-shaders/blob/master/bicubic/shaders/bicubic-normal.cg
 
 
 cbuffer constants : register(b0) {
@@ -39,7 +39,7 @@ float4 weight4(float x) {
 		C = 0.5;
 	} else {
 		// Sharper
-		// Photoshop Ê¹ÓÃµÄ²ÎÊı
+		// Photoshop ä½¿ç”¨çš„å‚æ•°
 		B = 0.0;
 		C = 0.75;
 	}
@@ -78,7 +78,7 @@ D2D_PS_ENTRY(main) {
 	linetaps /= linetaps.r + linetaps.g + linetaps.b + linetaps.a;
 	columntaps /= columntaps.r + columntaps.g + columntaps.b + columntaps.a;
 
-	// !!!¸Ä±äµ±Ç°×ø±ê
+	// !!!æ”¹å˜å½“å‰åæ ‡
 	Coord(0).xy -= (f + 1) * Coord(0).zw;
 
 	float4 xpos = float4(Coord(0).x, min(Coord(0).x + Coord(0).z, maxCoord0.x), min(Coord(0).x + 2 * Coord(0).z, maxCoord0.x), min(Coord(0).x + 3 * Coord(0).z, maxCoord0.x));

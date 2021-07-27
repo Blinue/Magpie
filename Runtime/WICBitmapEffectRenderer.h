@@ -4,13 +4,13 @@
 #include "Env.h"
 
 
-//  ‰»ÎŒ™ IWICBitmapSource
+// ËæìÂÖ•‰∏∫ IWICBitmapSource
 class WICBitmapEffectRenderer : public EffectRendererBase {
 public:
 	WICBitmapEffectRenderer() {
 		Debug::ThrowIfComFailed(
 			Env::$instance->GetD2DDC()->CreateEffect(CLSID_D2D1BitmapSource, &_d2dSourceEffect),
-			L"¥¥Ω® D2D1BitmapSource  ß∞‹"
+			L"ÂàõÂª∫ D2D1BitmapSource Â§±Ë¥•"
 		);
 		_outputEffect = _d2dSourceEffect;
 
@@ -21,12 +21,12 @@ public:
 		ComPtr<IWICBitmapSource> wicBitmap;
 		Debug::ThrowIfComFailed(
 			inputImg->QueryInterface<IWICBitmapSource>(&wicBitmap),
-			L"ªÒ»° ‰»ÎÕºœÒ ß∞‹"
+			L"Ëé∑ÂèñËæìÂÖ•ÂõæÂÉèÂ§±Ë¥•"
 		);
 
 		Debug::ThrowIfComFailed(
 			_d2dSourceEffect->SetValue(D2D1_BITMAPSOURCE_PROP_WIC_BITMAP_SOURCE, wicBitmap.Get()),
-			L"…Ë÷√ D2D1BitmapSource ‘¥ ß∞‹"
+			L"ËÆæÁΩÆ D2D1BitmapSource Ê∫êÂ§±Ë¥•"
 		);
 
 		ComPtr<ID2D1Image> outputImg = nullptr;

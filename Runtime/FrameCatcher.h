@@ -5,7 +5,7 @@
 using namespace std::chrono;
 
 
-// ¼ÆËãÖ¡ÂÊ
+// è®¡ç®—å¸§ç‡
 class FrameCatcher : public Renderable {
 public:
 	FrameCatcher() {
@@ -20,12 +20,12 @@ public:
 				L"en-us",
 				&_dwTxtFmt
 			),
-			L"´´½¨IDWriteTextFormatÊ§°Ü"
+			L"åˆ›å»ºIDWriteTextFormatå¤±è´¥"
 		);
 
 		Debug::ThrowIfComFailed(
 			Env::$instance->GetD2DDC()->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::White), &_d2dFPSTxtBrush),
-			L"´´½¨ _d2dFPSTxtBrush Ê§°Ü"
+			L"åˆ›å»º _d2dFPSTxtBrush å¤±è´¥"
 		);
 	}
 
@@ -33,7 +33,7 @@ public:
 		_ReportNewFrame();
 
 		const D2D_RECT_F& destRect = Env::$instance->GetDestRect();
-		// »æÖÆÎÄ±¾
+		// ç»˜åˆ¶æ–‡æœ¬
 		std::wstring fps = fmt::format(L"{} FPS", lround(_fps));
 		Env::$instance->GetD2DDC()->DrawTextW(
 			fps.c_str(),
@@ -54,7 +54,7 @@ public:
 private:
 	void _ReportNewFrame() {
 		if (_begin == steady_clock::time_point()) {
-			// µÚÒ»Ö¡
+			// ç¬¬ä¸€å¸§
 			_lastBegin = _last = _begin = steady_clock::now();
 			return;
 		}
@@ -69,7 +69,7 @@ private:
 			return;
 		}
 
-		// ÒÑ¹ıÒ»Ãë
+		// å·²è¿‡ä¸€ç§’
 		_fps = _frameCount + double(duration_cast<milliseconds>(cur - _last).count() + 1000 - ms) / 1000;
 		_frameCount += 1 - _fps;
 		_lastBegin = cur;
@@ -80,14 +80,14 @@ private:
 		return static_cast<double>(_allFrameCount) * 1000 / ms;
 	}
 
-	// ÓÃÓÚ¼ÆËãÆ½¾ùÖ¡ÂÊ
-	steady_clock::time_point _begin;	// µÚÒ»Ö¡µÄÊ±¼ä
-	int _allFrameCount = 0;	// ÒÑäÖÈ¾µÄ×ÜÖ¡Êı
+	// ç”¨äºè®¡ç®—å¹³å‡å¸§ç‡
+	steady_clock::time_point _begin;	// ç¬¬ä¸€å¸§çš„æ—¶é—´
+	int _allFrameCount = 0;	// å·²æ¸²æŸ“çš„æ€»å¸§æ•°
 
 
-	steady_clock::time_point _lastBegin;	// ±£´æÒ»ÃëµÄ¿ªÊ¼
-	steady_clock::time_point _last;			// ±£´æÉÏÒ»Ö¡µÄÊ±¼ä
-	double _frameCount = 0;					// ±£´æÒ»ÃëÄÚÒÑäÖÈ¾µÄÖ¡Êı£¬²»Ò»¶¨ÊÇÕûÊı
+	steady_clock::time_point _lastBegin;	// ä¿å­˜ä¸€ç§’çš„å¼€å§‹
+	steady_clock::time_point _last;			// ä¿å­˜ä¸Šä¸€å¸§çš„æ—¶é—´
+	double _frameCount = 0;					// ä¿å­˜ä¸€ç§’å†…å·²æ¸²æŸ“çš„å¸§æ•°ï¼Œä¸ä¸€å®šæ˜¯æ•´æ•°
 	
 	double _fps = 0;
 

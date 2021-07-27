@@ -1,5 +1,5 @@
 // Anime4K-v3.1-DarkLines-Kernel(Y)
-// ÒÆÖ²×Ô https://github.com/bloc97/Anime4K/blob/master/glsl/Experimental-Effects/Anime4K_DarkLines_HQ.glsl
+// ç§»æ¤è‡ª https://github.com/bloc97/Anime4K/blob/master/glsl/Experimental-Effects/Anime4K_DarkLines_HQ.glsl
 
 
 

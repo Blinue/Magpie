@@ -1,11 +1,11 @@
-// Lanczos6 ²åÖµËã·¨
-// ÒÆÖ²×Ô https://github.com/libretro/common-shaders/blob/master/windowed/shaders/lanczos6.cg
+// Lanczos6 æ’å€¼ç®—æ³•
+// ç§»æ¤è‡ª https://github.com/libretro/common-shaders/blob/master/windowed/shaders/lanczos6.cg
 
 
 cbuffer constants : register(b0) {
     int2 srcSize : packoffset(c0.x);
     int2 destSize : packoffset(c0.z);
-    float ARStrength : packoffset(c1.x);	// ¿¹ÕñÁåÇ¿¶È¡£È¡Öµ·¶Î§ 0~1£¬Ô½´ó¿¹ÕñÁåĞ§¹ûÔ½ºÃ£¬µ«Í¼ÏñÔ½Ä£ºı
+    float ARStrength : packoffset(c1.x);	// æŠ—æŒ¯é“ƒå¼ºåº¦ã€‚å–å€¼èŒƒå›´ 0~1ï¼Œè¶Šå¤§æŠ—æŒ¯é“ƒæ•ˆæœè¶Šå¥½ï¼Œä½†å›¾åƒè¶Šæ¨¡ç³Š
 };
 
 
@@ -36,7 +36,7 @@ float3 line_run(float ypos, float3 xpos1, float3 xpos2, float3 linetaps1, float3
 D2D_PS_ENTRY(main) {
     InitMagpieSampleInputWithScale(float2(destSize) / srcSize);
 
-    // ÓÃÓÚ¿¹ÕñÁå
+    // ç”¨äºæŠ—æŒ¯é“ƒ
     float3 neighbors[4] = {
         SampleInputOffChecked(0, float2(-1, 0)).rgb,
         SampleInputOffChecked(0, float2(1, 0)).rgb,
@@ -60,7 +60,7 @@ D2D_PS_ENTRY(main) {
     columntaps1 /= sumc;
     columntaps2 /= sumc;
 
-    // !!!¸Ä±äµ±Ç°×ø±ê
+    // !!!æ”¹å˜å½“å‰åæ ‡
     Coord(0).xy -= (f + 2) * Coord(0).zw;
 
     float3 xpos1 = float3(Coord(0).x, min(Coord(0).x + Coord(0).z, maxCoord0.x), min(Coord(0).x + 2 * Coord(0).z, maxCoord0.x));
@@ -74,7 +74,7 @@ D2D_PS_ENTRY(main) {
         + line_run(min(Coord(0).y + 4 * Coord(0).w, maxCoord0.y), xpos1, xpos2, linetaps1, linetaps2) * columntaps1.b
         + line_run(min(Coord(0).y + 5 * Coord(0).w, maxCoord0.y), xpos1, xpos2, linetaps1, linetaps2) * columntaps2.b;
 
-    // ¿¹ÕñÁå
+    // æŠ—æŒ¯é“ƒ
     float3 min_sample = min4(neighbors[0], neighbors[1], neighbors[2], neighbors[3]);
     float3 max_sample = max4(neighbors[0], neighbors[1], neighbors[2], neighbors[3]);
     color = lerp(color, clamp(color, min_sample, max_sample), ARStrength);

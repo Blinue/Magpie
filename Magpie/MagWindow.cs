@@ -1,4 +1,4 @@
-﻿using EasyHook;
+using EasyHook;
 using Magpie.CursorHook;
 using System;
 using System.Diagnostics;
@@ -9,6 +9,7 @@ using System.Runtime.Remoting;
 using System.Threading;
 using System.Windows;
 using System.Windows.Interop;
+
 
 namespace Magpie {
     enum MagWindowStatus : int {

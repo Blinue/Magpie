@@ -1,10 +1,10 @@
-// ¶ÔAnime4K¼ÆËã³öµÄ²îÖµ½øĞĞÈñ»¯ÒÔ¼°Êä³ö×îÖÕ½á¹û
-// Ê¹ÓÃÁËµ¥²½µÄ×ÔÊÊÓ¦Èñ»¯£¬²Î¿¼×Ô https://github.com/libretro/common-shaders/blob/master/sharpen/shaders/adaptive-sharpen.cg
+// å¯¹Anime4Kè®¡ç®—å‡ºçš„å·®å€¼è¿›è¡Œé”åŒ–ä»¥åŠè¾“å‡ºæœ€ç»ˆç»“æœ
+// ä½¿ç”¨äº†å•æ­¥çš„è‡ªé€‚åº”é”åŒ–ï¼Œå‚è€ƒè‡ª https://github.com/libretro/common-shaders/blob/master/sharpen/shaders/adaptive-sharpen.cg
 
 
 cbuffer constants : register(b0) {
 	int2 srcSize : packoffset(c0.x);
-	float curveHeight : packoffset(c0.z);	// Èñ»¯Ç¿¶È£¬Áã±íÊ¾²»Èñ»¯£¬·ñÔò±ØĞëÎªÕıÖµ£¬Ò»°ãÔÚ 0.3~2.0 Ö®¼ä
+	float curveHeight : packoffset(c0.z);	// é”åŒ–å¼ºåº¦ï¼Œé›¶è¡¨ç¤ºä¸é”åŒ–ï¼Œå¦åˆ™å¿…é¡»ä¸ºæ­£å€¼ï¼Œä¸€èˆ¬åœ¨ 0.3~2.0 ä¹‹é—´
 };
 
 
@@ -21,7 +21,7 @@ cbuffer constants : register(b0) {
 #define D_comp_ratio    0.250                // Max compression ratio, dark overshoot (1/0.25=4x)
 #define L_overshoot     0.004                // Max light overshoot before max compression
 #define L_comp_ratio    0.167                // Max compression ratio, light overshoot (1/0.167=6x)
-#define max_scale_lim   10.0                 // Abs change before max compression (1/10=¡À10%)
+#define max_scale_lim   10.0                 // Abs change before max compression (1/10=Â±10%)
 
 #define noise_threshold 0.005
 
@@ -157,7 +157,7 @@ float getDiff() {
 		// Calculate sharpening diff and scale
 		float sharpdiff = (c[0] - neg_laplace) * (sharpen_val * 0.8);
 
-		// ²»ÖªµÀÎªÊ²Ã´£¬ÏÂÃæµÄ´úÂë»áÑÏÖØÍÏÀÛÔËĞĞËÙ¶È£¬Òò´ËÖØĞ´ÁËËã·¨
+		// ä¸çŸ¥é“ä¸ºä»€ä¹ˆï¼Œä¸‹é¢çš„ä»£ç ä¼šä¸¥é‡æ‹–ç´¯è¿è¡Œé€Ÿåº¦ï¼Œå› æ­¤é‡å†™äº†ç®—æ³•
 		// Calculate local near min & max, partial cocktail sort (No branching!)
 		/*for (int i = 0; i < 2; ++i) {
 			for (int i1 = 1 + i; i1 < 25 - i; ++i1)     {

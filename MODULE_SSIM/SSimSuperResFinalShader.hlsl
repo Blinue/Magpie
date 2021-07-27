@@ -46,7 +46,7 @@ D2D_PS_ENTRY(main) {
     float2 scale = float2(destSize) / srcSize;
     Coord(0).xy /= scale;
 
-    // PREKERNEL Îª srcSize£¬ÆäËûÎª destSize
+    // PREKERNEL ä¸º srcSizeï¼Œå…¶ä»–ä¸º destSize
     maxCoord0 = float2((srcSize.x - 1) * Coord(0).z, (srcSize.y - 1) * Coord(0).w);
     maxCoord1 = float2((destSize.x - 1) * Coord(1).z, (destSize.y - 1) * Coord(1).w);
     maxCoord2 = float2((destSize.x - 1) * Coord(1).z, (destSize.y - 1) * Coord(1).w);

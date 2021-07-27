@@ -5,23 +5,23 @@
 #include "Env.h"
 
 
-// Ê¹ÓÃ Magnification API ×¥È¡´°¿Ú
-// ¼û https://docs.microsoft.com/en-us/previous-versions/windows/desktop/magapi/magapi-intro
-// ²»Ê¹ÓÃ£¬´ËAPIÒÑ¹ıÊ±£¬ÇÒËÙ¶ÈºÜÂı
+// ä½¿ç”¨ Magnification API æŠ“å–çª—å£
+// è§ https://docs.microsoft.com/en-us/previous-versions/windows/desktop/magapi/magapi-intro
+// ä¸ä½¿ç”¨ï¼Œæ­¤APIå·²è¿‡æ—¶ï¼Œä¸”é€Ÿåº¦å¾ˆæ…¢
 class MagCallbackWindowCapturer : public WindowCapturerBase {
 public:
 	MagCallbackWindowCapturer() {
         if (_instance) {
-            Debug::Assert(false, L"ÒÑ´æÔÚ MagCallbackWindowCapturer ÊµÀı");
+            Debug::Assert(false, L"å·²å­˜åœ¨ MagCallbackWindowCapturer å®ä¾‹");
         }
 
 		Debug::ThrowIfWin32Failed(
 			MagInitialize(),
-			L"MagInitialize Ê§°Ü"
+			L"MagInitialize å¤±è´¥"
 		);
 
-        // ´´½¨²»¿É¼ûµÄ·Å´ó¾µ¿Ø¼ş
-        // ´óĞ¡ÎªÄ¿±ê´°¿Ú¿Í»§Çø
+        // åˆ›å»ºä¸å¯è§çš„æ”¾å¤§é•œæ§ä»¶
+        // å¤§å°ä¸ºç›®æ ‡çª—å£å®¢æˆ·åŒº
         SIZE srcClientSize = Utils::GetSize(Env::$instance->GetSrcClient());
 
         _hwndMag = CreateWindow(
@@ -35,11 +35,11 @@ public:
             Env::$instance->GetHInstance(),
             NULL
         );
-        Debug::ThrowIfWin32Failed(_hwndMag, L"´´½¨·Å´ó¾µ¿Ø¼şÊ§°Ü");
+        Debug::ThrowIfWin32Failed(_hwndMag, L"åˆ›å»ºæ”¾å¤§é•œæ§ä»¶å¤±è´¥");
 
         Debug::ThrowIfWin32Failed(
             MagSetImageScalingCallback(_hwndMag, &_ImageScalingCallback),
-            L"ÉèÖÃ·Å´ó¾µ»Øµ÷Ê§°Ü"
+            L"è®¾ç½®æ”¾å¤§é•œå›è°ƒå¤±è´¥"
         );
 
         _instance = this;
@@ -52,9 +52,9 @@ public:
 	}
 
     ComPtr<IUnknown> GetFrame() override {
-        // MagSetWindowSource ÊÇÍ¬²½Ö´ĞĞµÄ
+        // MagSetWindowSource æ˜¯åŒæ­¥æ‰§è¡Œçš„
         if (!MagSetWindowSource(_hwndMag, Env::$instance->GetSrcClient())) {
-            Debug::WriteErrorMessage(L"MagSetWindowSource Ê§°Ü");
+            Debug::WriteErrorMessage(L"MagSetWindowSource å¤±è´¥");
         }
 
         return _bmp;
@@ -79,7 +79,7 @@ private:
         }
 
         if (srcheader.cbSize / srcheader.width / srcheader.height != 4) {
-            Debug::WriteErrorMessage(L"srcdata ²»ÊÇBGRA¸ñÊ½");
+            Debug::WriteErrorMessage(L"srcdata ä¸æ˜¯BGRAæ ¼å¼");
             return FALSE;
         }
         

@@ -104,7 +104,7 @@ public:
 					CLSCTX_INPROC_SERVER,
 					IID_PPV_ARGS(&_wicImgFactory)
 				),
-				L"´´½¨ WICImagingFactory Ê§°Ü"
+				L"åˆ›å»º WICImagingFactory å¤±è´¥"
 			);
 		}
 
@@ -119,7 +119,7 @@ public:
 					__uuidof(IDWriteFactory),
 					&_dwFactory
 				),
-				L"´´½¨ IDWriteFactory Ê§°Ü"
+				L"åˆ›å»º IDWriteFactory å¤±è´¥"
 			);
 		}
 

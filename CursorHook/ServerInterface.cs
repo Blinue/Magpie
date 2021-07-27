@@ -1,4 +1,5 @@
-﻿using System;
+using System;
+
 
 namespace Magpie.CursorHook {
     // IPC 服务器接口

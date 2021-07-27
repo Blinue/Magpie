@@ -1,5 +1,5 @@
 // ACNet_L8_2
-// ÒÆÖ²×Ô https://github.com/TianZerL/ACNetGLSL/blob/master/glsl/ACNet.glsl
+// ç§»æ¤è‡ª https://github.com/TianZerL/ACNetGLSL/blob/master/glsl/ACNet.glsl
 
 
 cbuffer constants : register(b0) {

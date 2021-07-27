@@ -3,7 +3,7 @@
 #include "EffectRendererBase.h"
 
 
-// ÊäÈëÎª ID2D1Image
+// è¾“å…¥ä¸º ID2D1Image
 class D2DImageEffectRenderer : public EffectRendererBase {
 public:
 	D2DImageEffectRenderer() {
@@ -13,7 +13,7 @@ public:
 	ComPtr<ID2D1Image> Apply(IUnknown* inputImg) override {
 		Debug::ThrowIfComFailed(
 			inputImg->QueryInterface<ID2D1Image>(&_inputImg),
-			L"»ñÈ¡ÊäÈëÍ¼ÏñÊ§°Ü"
+			L"è·å–è¾“å…¥å›¾åƒå¤±è´¥"
 		);
 
 		if (_firstEffect) {

@@ -3,13 +3,13 @@
 #include <d2d1effecthelpers.h>
 
 
-// ×Ô¶¨Òå Effect µÄ»ùÀà
+// è‡ªå®šä¹‰ Effect çš„åŸºç±»
 class EffectBase : public ID2D1EffectImpl {
 public:
     virtual ~EffectBase() = default;
 
     /*
-    * ÒÔÏÂÎª ID2D1EffectImpl µÄ·½·¨
+    * ä»¥ä¸‹ä¸º ID2D1EffectImpl çš„æ–¹æ³•
     */
 
     IFACEMETHODIMP Initialize(
@@ -28,7 +28,7 @@ public:
     }
 
     /*
-    * ÒÔÏÂÎª IUnkown µÄ·½·¨
+    * ä»¥ä¸‹ä¸º IUnkown çš„æ–¹æ³•
     */
     
     IFACEMETHODIMP_(ULONG) AddRef() override {
@@ -62,7 +62,7 @@ public:
     }
 
 protected:
-    // ÊµÏÖ²»ÄÜ¹«¿ª¹¹Ôìº¯Êı
+    // å®ç°ä¸èƒ½å…¬å¼€æ„é€ å‡½æ•°
     EffectBase() {}
 
 private:

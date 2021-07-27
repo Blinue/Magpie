@@ -7,8 +7,8 @@
 #include "EffectDefines.h"
 
 
-// Anime4K ³¬²ÉÑùËã·¨£¬¿É½«¶¯ÂşÍ¼Ïñ·Å´óÖÁÁ½±¶
-// ÒÆÖ²×Ô https://github.com/bloc97/Anime4K/blob/master/glsl/Upscale/Anime4K_Upscale_CNN_M_x2.glsl
+// Anime4K è¶…é‡‡æ ·ç®—æ³•ï¼Œå¯å°†åŠ¨æ¼«å›¾åƒæ”¾å¤§è‡³ä¸¤å€
+// ç§»æ¤è‡ª https://github.com/bloc97/Anime4K/blob/master/glsl/Upscale/Anime4K_Upscale_CNN_M_x2.glsl
 class Anime4KEffect : public EffectBase {
 public:
     IFACEMETHODIMP Initialize(
@@ -58,7 +58,7 @@ public:
 
             HRESULT hr = _MakeGraph();
             if (FAILED(hr)) {
-                // Ê§°ÜÊ±»¹Ô­×´Ì¬
+                // å¤±è´¥æ—¶è¿˜åŸçŠ¶æ€
                 _useDenoiseVersion = !_useDenoiseVersion;
                 _MakeGraph();
             }

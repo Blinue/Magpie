@@ -1,4 +1,4 @@
-﻿#include "pch.h"
+#include "pch.h"
 #include <initguid.h>
 #include "EffectDefines.h"
 #include "FSREffect.h"

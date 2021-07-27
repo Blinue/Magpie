@@ -1,5 +1,5 @@
 // ravu-lite-r3 Pass2
-// ÒÆÖ²×Ô https://github.com/bjin/mpv-prescalers/blob/master/ravu-lite-r3.hook
+// ç§»æ¤è‡ª https://github.com/bjin/mpv-prescalers/blob/master/ravu-lite-r3.hook
 
 
 #define MAGPIE_INPUT_COUNT 2
@@ -20,7 +20,7 @@ D2D_PS_ENTRY(main) {
 	float luma = SampleInputOff(1, -dir)[idx];
 	float3 yuv = SampleInputCur(0).xyz;
 
-	// Ïû³ıÒòÑ¹Ëõ²úÉúµÄÔëÉù
+	// æ¶ˆé™¤å› å‹ç¼©äº§ç”Ÿçš„å™ªå£°
 	if (abs(luma - yuv.x) < noise_threshold) {
 		luma = yuv.x;
 	}

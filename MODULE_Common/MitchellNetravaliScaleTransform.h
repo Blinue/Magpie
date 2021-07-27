@@ -4,7 +4,7 @@
 #include "EffectDefines.h"
 
 
-// Îª MitchellNetravaliScaleShader.hlsl Ìá¹©²ÎÊı
+// ä¸º MitchellNetravaliScaleShader.hlsl æä¾›å‚æ•°
 class MitchellNetravaliScaleTransform : public SimpleScaleTransform {
 private:
     MitchellNetravaliScaleTransform() : SimpleScaleTransform(GUID_MAGPIE_MITCHELL_NETRAVALI_SCALE_SHADER) {}

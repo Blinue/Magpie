@@ -6,7 +6,7 @@ cbuffer constants : register(b0) {
 };
 
 
-#define MAGPIE_INPUT_COUNT 2    // PREKERNEL£¬£¨µÚ2¸öÊäÈë²»Ê¹ÓÃ£©
+#define MAGPIE_INPUT_COUNT 2    // PREKERNELï¼Œï¼ˆç¬¬2ä¸ªè¾“å…¥ä¸ä½¿ç”¨ï¼‰
 #include "common.hlsli"
 
 

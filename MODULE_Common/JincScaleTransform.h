@@ -4,11 +4,11 @@
 #include "EffectDefines.h"
 
 
-// Ϊ Jinc2ScaleShader.hlsl �ṩ����
-// ������
-//   windowSinc���������0��ֵԽСͼ��Խ�����������о�ݡ�Ĭ��ֵΪ 0.5
-//   sinc���������0��ֵԽ������Խ�����������ж�����Ĭ��ֵΪ 0.825
-//   ARStrength��������ǿ�ȡ������� 0~1 ֮�䡣Ĭ��ֵΪ 0.5
+// 为 Jinc2ScaleShader.hlsl 提供参数
+// 参数：
+//   windowSinc：必须大于0，值越小图像越清晰，但会有锯齿。默认值为 0.5
+//   sinc：必须大于0，值越大线条越锐利，但会有抖动。默认值为 0.825
+//   ARStrength：抗振铃强度。必须在 0~1 之间。默认值为 0.5
 class JincScaleTransform : public SimpleScaleTransform {
 private:
     JincScaleTransform() : SimpleScaleTransform(GUID_MAGPIE_JINC2_SCALE_SHADER) {}

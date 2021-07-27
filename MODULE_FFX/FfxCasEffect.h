@@ -6,8 +6,8 @@
 #include "EffectDefines.h"
 
 
-// ¶Ô±È¶È×ÔÊÊÓ¦Èñ»¯
-// ÒÆÖ²×Ô https://github.com/deus0ww/mpv-conf/blob/master/shaders/cas/cas_rgb.glsl
+// å¯¹æ¯”åº¦è‡ªé€‚åº”é”åŒ–
+// ç§»æ¤è‡ª https://github.com/deus0ww/mpv-conf/blob/master/shaders/cas/cas_rgb.glsl
 class FfxCasEffect : public EffectBase {
 public:
     IFACEMETHODIMP Initialize(
@@ -41,7 +41,7 @@ public:
     }
 
     enum PROPS {
-        // Èñ»¯Ç¿¶È£¬±ØĞëÔÚ0~1Ö®¼ä¡£Ä¬ÈÏÖµÎª 0.4
+        // é”åŒ–å¼ºåº¦ï¼Œå¿…é¡»åœ¨0~1ä¹‹é—´ã€‚é»˜è®¤å€¼ä¸º 0.4
         PROP_SHARPNESS = 0
     };
 

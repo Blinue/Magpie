@@ -4,9 +4,9 @@
 #include "EffectDefines.h"
 
 
-// Îª LanczosScaleShader.hlsl Ìá¹©²ÎÊı
-// ²ÎÊı£º
-//   ARStrength£º¿¹ÕñÁåÇ¿¶È¡£±ØĞëÔÚ 0~1 Ö®¼ä¡£Ä¬ÈÏÖµÎª 0.5
+// ä¸º LanczosScaleShader.hlsl æä¾›å‚æ•°
+// å‚æ•°ï¼š
+//   ARStrengthï¼šæŠ—æŒ¯é“ƒå¼ºåº¦ã€‚å¿…é¡»åœ¨ 0~1 ä¹‹é—´ã€‚é»˜è®¤å€¼ä¸º 0.5
 class LanczosScaleTransform : public SimpleScaleTransform {
 private:
     LanczosScaleTransform() : SimpleScaleTransform(GUID_MAGPIE_LANCZOS6_SCALE_SHADER) {}

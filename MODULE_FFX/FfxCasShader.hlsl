@@ -1,8 +1,8 @@
-// 对比度自适应锐化
+// 瀵规瘮搴﹁嚜閫傚簲閿愬寲
 
 cbuffer constants : register(b0) {
 	int2 srcSize : packoffset(c0.x);
-	float sharpness : packoffset(c0.z); // 锐化强度，必须在0~1之间
+	float sharpness : packoffset(c0.z); // 閿愬寲寮哄害锛屽繀椤诲湪0~1涔嬮棿
 };
 
 

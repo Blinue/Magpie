@@ -16,9 +16,9 @@ using EffectCreateFunc = HRESULT(
 );
 
 
-// È¡¾öÓÚ²»Í¬µÄ²¶»ñ·½Ê½£¬»áÓĞ²»Í¬ÖÖÀàµÄÊäÈë£¬´ËÀà°üº¬ËüÃÇÍ¨ÓÃµÄ²¿·Ö
-// ¼Ì³Ğ´ËÀàĞèÒªÊµÏÖ _PushAsOutputEffect¡¢Apply
-// ²¢ÔÚ¹¹Ôìº¯ÊıÖĞµ÷ÓÃ _Init
+// å–å†³äºä¸åŒçš„æ•è·æ–¹å¼ï¼Œä¼šæœ‰ä¸åŒç§ç±»çš„è¾“å…¥ï¼Œæ­¤ç±»åŒ…å«å®ƒä»¬é€šç”¨çš„éƒ¨åˆ†
+// ç»§æ‰¿æ­¤ç±»éœ€è¦å®ç° _PushAsOutputEffectã€Apply
+// å¹¶åœ¨æ„é€ å‡½æ•°ä¸­è°ƒç”¨ _Init
 class EffectRendererBase {
 public:
 	EffectRendererBase() :
@@ -28,13 +28,13 @@ public:
 		SIZE hostSize = Utils::GetSize(Env::$instance->GetHostClient());
 		SIZE srcSize = Utils::GetSize(Env::$instance->GetSrcClient());
 
-		// Êä³öÍ¼Ïñ³äÂúÆÁÄ»Ê±µÄËõ·Å±ÈÀı
+		// è¾“å‡ºå›¾åƒå……æ»¡å±å¹•æ—¶çš„ç¼©æ”¾æ¯”ä¾‹
 		_fillScale = std::min(float(hostSize.cx) / srcSize.cx, float(hostSize.cy) / srcSize.cy);
 	}
 
 	virtual ~EffectRendererBase() {}
 
-	// ²»¿É¸´ÖÆ£¬²»¿ÉÒÆ¶¯
+	// ä¸å¯å¤åˆ¶ï¼Œä¸å¯ç§»åŠ¨
 	EffectRendererBase(const EffectRendererBase&) = delete;
 	EffectRendererBase(EffectRendererBase&&) = delete;
 
@@ -54,44 +54,44 @@ protected:
 		Env::$instance->SetDestRect({left, top, left + width, top + height});
 	}
 
-	// ½« effect Ìí¼Óµ½ effect Á´×÷ÎªÊä³ö
+	// å°† effect æ·»åŠ åˆ° effect é“¾ä½œä¸ºè¾“å‡º
 	virtual void _PushAsOutputEffect(ComPtr<ID2D1Effect> effect) = 0;
 
 private:
 	void _ReadEffectsJson(const std::string_view& scaleModel) {
 		const auto& models = nlohmann::json::parse(scaleModel);
-		Debug::Assert(models.is_array(), L"json ¸ñÊ½´íÎó");
+		Debug::Assert(models.is_array(), L"json æ ¼å¼é”™è¯¯");
 
 		for (const auto &model : models) {
-			Debug::Assert(model.is_object(), L"json ¸ñÊ½´íÎó");
+			Debug::Assert(model.is_object(), L"json æ ¼å¼é”™è¯¯");
 
 			const auto &moduleName = model.value("module", "");
-			Debug::Assert(!moduleName.empty(), L"json ¸ñÊ½´íÎó");
+			Debug::Assert(!moduleName.empty(), L"json æ ¼å¼é”™è¯¯");
 
 			std::wstring moduleNameW;
 			Debug::ThrowIfComFailed(
 				Utils::UTF8ToUTF16(moduleName, moduleNameW),
-				L"½âÎöÄ£¿éÃû³ö´í"
+				L"è§£ææ¨¡å—åå‡ºé”™"
 			);
 			HMODULE dll = LoadLibrary(fmt::format(L"effects\\{}", moduleNameW).c_str());
-			Debug::ThrowIfWin32Failed(dll, fmt::format(L"¼ÓÔØÄ£¿é{}³ö´í", moduleNameW));
+			Debug::ThrowIfWin32Failed(dll, fmt::format(L"åŠ è½½æ¨¡å—{}å‡ºé”™", moduleNameW));
 			
 			auto createEffect = (EffectCreateFunc*)GetProcAddress(dll, "CreateEffect");
-			Debug::ThrowIfWin32Failed(createEffect, L"·Ç·¨µÄdll");
+			Debug::ThrowIfWin32Failed(createEffect, L"éæ³•çš„dll");
 
 			ComPtr<ID2D1Effect> effect;
 			Debug::ThrowIfComFailed(
 				createEffect(_d2dFactory, _d2dDC, Env::$instance->GetWICImageFactory(), model, _fillScale, _scale, effect),
-				L"json¸ñÊ½´íÎó"
+				L"jsonæ ¼å¼é”™è¯¯"
 			);
 
-			// Ìæ»» output effect
+			// æ›¿æ¢ output effect
 			_PushAsOutputEffect(effect);
 		}
 	}
 
 private:
-	// Êä³öÍ¼Ïñ³ß´ç
+	// è¾“å‡ºå›¾åƒå°ºå¯¸
 	std::pair<float, float> _scale{ 1.0f,1.0f };
 
 	float _fillScale = 0;

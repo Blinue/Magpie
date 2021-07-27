@@ -38,7 +38,7 @@ public:
             return E_INVALIDARG;
         }
 
-        // È¨ÖØÎÆÀíÎª¹Ì¶¨´óĞ¡
+        // æƒé‡çº¹ç†ä¸ºå›ºå®šå¤§å°
         if (pInputRects[1].right - pInputRects[1].left != 45
             || pInputRects[1].bottom - pInputRects[1].top != 2592
         ) {
@@ -83,6 +83,6 @@ public:
     }
 
 private:
-    // Ëõ·Å±¶Êı
+    // ç¼©æ”¾å€æ•°
     D2D1_VECTOR_2F _scale{ 1,1 };
 };

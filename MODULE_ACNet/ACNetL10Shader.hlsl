@@ -1,5 +1,5 @@
 // ACNet_L10
-// ÒÆÖ²×Ô https://github.com/TianZerL/ACNetGLSL/blob/master/glsl/ACNet.glsl
+// ç§»æ¤è‡ª https://github.com/TianZerL/ACNetGLSL/blob/master/glsl/ACNet.glsl
 
 
 #define MAGPIE_INPUT_COUNT 3
@@ -57,7 +57,7 @@ D2D_PS_ENTRY(main) {
 		mc2.w * kernelsL10[28 + index], 0.0f, 1.0f);
 
 	float3 yuv = SampleInputCur(0).xyz;
-	// Ïû³ıÒòÑ¹Ëõ²úÉúµÄÔëÉù
+	// æ¶ˆé™¤å› å‹ç¼©äº§ç”Ÿçš„å™ªå£°
 	if (abs(luma - yuv.x) < noise_threshold) {
 		luma = yuv.x;
 	}

@@ -146,7 +146,7 @@ public:
     }
 
     enum PROPS {
-        PROP_STRENGTH = 0   // ����ǿ�ȣ�ֵԽ������Խ�Ĭ��ֵΪ 1
+        PROP_STRENGTH = 0   // 加深强度，值越大线条越深。默认值为 1
     };
 
 

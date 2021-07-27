@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Microsoft.Win32.SafeHandles;
 
 

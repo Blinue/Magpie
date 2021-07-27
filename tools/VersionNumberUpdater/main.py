@@ -2,7 +2,8 @@ from os import path
 import glob
 import re
 
-versionNumber = "0.6.0.0"
+versionNumber = '0.6.0.0'
+versionNumberComma = versionNumber.replace('.', ',')
 
 rootDir = '..\\..'
 
@@ -21,3 +22,13 @@ for csProject in csProjects:
         f.truncate()
         f.write(src)
 
+for cppProject in cppProjects:
+    with open(rootDir + '\\' + cppProject + '\\version.rc', mode='r+', encoding='utf8') as f:
+        src = f.read()
+
+        src = re.sub(r'FILEVERSION .*?\n', 'FILEVERSION ' + versionNumberComma + '\n', src)
+        src = re.sub(r'PRODUCTVERSION .*\n', 'PRODUCTVERSION ' + versionNumberComma + '\n', src)
+
+        f.seek(0)
+        f.truncate()
+        f.write(src)

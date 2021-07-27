@@ -1,5 +1,5 @@
-// Jinc2 ²åÖµËã·¨
-// ÒÆÖ²×Ô https://github.com/libretro/common-shaders/blob/master/windowed/shaders/jinc2.cg
+// Jinc2 æ’å€¼ç®—æ³•
+// ç§»æ¤è‡ª https://github.com/libretro/common-shaders/blob/master/windowed/shaders/jinc2.cg
 //
 // This is an approximation of Jinc(x)*Jinc(x*r1/r2) for x < 2.5,
 // where r1 and r2 are the first two zeros of jinc function.
@@ -13,10 +13,10 @@
 cbuffer constants : register(b0) {
 	int2 srcSize : packoffset(c0.x);
 	int2 destSize : packoffset(c0.z);
-	float windowSinc : packoffset(c1.x);	// A¡£±ØĞë´óÓÚ0£¬ÖµÔ½Ğ¡Í¼ÏñÔ½ÇåÎú£¬µ«»áÓĞ¾â³İ
-	float sinc : packoffset(c1.y);			// B¡£±ØĞë´óÓÚ0£¬ÖµÔ½´óÏßÌõÔ½ÈñÀû£¬µ«»áÓĞ¶¶¶¯
-											// µÈÓÚ 1 Ê±ÍË»¯³É lanczos ²åÖµ
-	float ARStrength : packoffset(c1.z);	// ¿¹ÕñÁåÇ¿¶È¡£È¡Öµ·¶Î§ 0~1£¬Ô½´ó¿¹ÕñÁåĞ§¹ûÔ½ºÃ£¬µ«Í¼ÏñÔ½Ä£ºı
+	float windowSinc : packoffset(c1.x);	// Aã€‚å¿…é¡»å¤§äº0ï¼Œå€¼è¶Šå°å›¾åƒè¶Šæ¸…æ™°ï¼Œä½†ä¼šæœ‰é”¯é½¿
+	float sinc : packoffset(c1.y);			// Bã€‚å¿…é¡»å¤§äº0ï¼Œå€¼è¶Šå¤§çº¿æ¡è¶Šé”åˆ©ï¼Œä½†ä¼šæœ‰æŠ–åŠ¨
+											// ç­‰äº 1 æ—¶é€€åŒ–æˆ lanczos æ’å€¼
+	float ARStrength : packoffset(c1.z);	// æŠ—æŒ¯é“ƒå¼ºåº¦ã€‚å–å€¼èŒƒå›´ 0~1ï¼Œè¶Šå¤§æŠ—æŒ¯é“ƒæ•ˆæœè¶Šå¥½ï¼Œä½†å›¾åƒè¶Šæ¨¡ç³Š
 };
 
 
@@ -54,7 +54,7 @@ D2D_PS_ENTRY(main) {
 		resampler(float4(d(pc, tc - dx + 2.0 * dy), d(pc, tc + 2.0 * dy), d(pc, tc + dx + 2.0 * dy), d(pc, tc + 2.0 * dx + 2.0 * dy)), wa, wb)
 	};
 
-	// !!!¸Ä±äµ±Ç°×ø±ê
+	// !!!æ”¹å˜å½“å‰åæ ‡
 	Coord(0).xy = tc * Coord(0).zw;
 
 	float2 leftTop1 = GetCheckedOffPos(0, float2(-1, -1));
@@ -90,7 +90,7 @@ D2D_PS_ENTRY(main) {
 	color += mul(weights[3], float4x3(c03, c13, c23, c33));
 	color = color / (dot(mul(weights, float4(1, 1, 1, 1)), 1));
 
-	// ¿¹ÕñÁå
+	// æŠ—æŒ¯é“ƒ
 	// Get min/max samples
 	float3 min_sample = min4(c11, c21, c12, c22);
 	float3 max_sample = max4(c11, c21, c12, c22);

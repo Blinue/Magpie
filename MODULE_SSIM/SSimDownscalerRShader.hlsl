@@ -70,7 +70,7 @@ D2D_PS_ENTRY(main) {
     float3 Sl = abs(avg[0] - cur2);
     float3 Sh = abs(avg[1] - cur2);
     
-    // ÊÜÏŞÓÚ¾«¶È£¬ÕâÀïÔö´óÔëÉùãĞÖµ
+    // å—é™äºç²¾åº¦ï¼Œè¿™é‡Œå¢å¤§å™ªå£°é˜ˆå€¼
     float3 r = lerp(0.5f, 1.0 / (1.0 + sqrt(Sh / Sl)), 1 - step(Sl, 8e-4));
     return float4(r, 1);
 }

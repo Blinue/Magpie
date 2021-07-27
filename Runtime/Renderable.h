@@ -2,7 +2,7 @@
 #include "pch.h"
 
 
-// ËùÓĞ¿ÉÔÚÆÁÄ»ÉÏäÖÈ¾µÄÀàµÄ»ùÀà
+// æ‰€æœ‰å¯åœ¨å±å¹•ä¸Šæ¸²æŸ“çš„ç±»çš„åŸºç±»
 class Renderable {
 public:
 	Renderable() {

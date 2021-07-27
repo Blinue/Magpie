@@ -1,5 +1,5 @@
-// Denoise °æ±¾µÄ Conv-Reduce
-// ÒÆÖ²×Ô https://github.com/bloc97/Anime4K/blob/master/glsl/Upscale%2BDenoise/Anime4K_Upscale_CNN_M_x2_Denoise.glsl
+// Denoise ç‰ˆæœ¬çš„ Conv-Reduce
+// ç§»æ¤è‡ª https://github.com/bloc97/Anime4K/blob/master/glsl/Upscale%2BDenoise/Anime4K_Upscale_CNN_M_x2_Denoise.glsl
 //
 // Anime4K-v3.1-Upscale(x2)+Denoise-CNN(M)-Conv-Reduce
 

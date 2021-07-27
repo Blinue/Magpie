@@ -5,17 +5,17 @@
 #include "RenderManager.h"
 
 
-// ¹ÜÀíÈ«ÆÁ´°¿ÚµÄ´´½¨ºÍÏú»Ù
+// ç®¡ç†å…¨å±çª—å£çš„åˆ›å»ºå’Œé”€æ¯
 class MagWindow {
 public:
-    // È·±£Ö»ÄÜÍ¬Ê±´æÔÚÒ»¸öÈ«ÆÁ´°¿Ú
+    // ç¡®ä¿åªèƒ½åŒæ—¶å­˜åœ¨ä¸€ä¸ªå…¨å±çª—å£
     static std::unique_ptr<MagWindow> $instance;
 
     static void CreateInstance() {
         $instance.reset(new MagWindow());
     }
     
-    // ²»¿É¸´ÖÆ£¬²»¿ÉÒÆ¶¯
+    // ä¸å¯å¤åˆ¶ï¼Œä¸å¯ç§»åŠ¨
     MagWindow(const MagWindow&) = delete;
     MagWindow(MagWindow&&) = delete;
 
@@ -44,10 +44,10 @@ public:
                     $instance->_renderManager->Render();
                 }
             } catch (const magpie_exception& e) {
-                errMsg = L"äÖÈ¾³ö´í£º" + e.what();
+                errMsg = L"æ¸²æŸ“å‡ºé”™ï¼š" + e.what();
                 DestroyWindow(Env::$instance->GetHwndHost());
             } catch (...) {
-                errMsg = L"äÖÈ¾³öÏÖÎ´Öª´íÎó";
+                errMsg = L"æ¸²æŸ“å‡ºç°æœªçŸ¥é”™è¯¯";
                 DestroyWindow(Env::$instance->GetHwndHost());
             }
         }
@@ -56,7 +56,7 @@ public:
 private:
     MagWindow() {
         if ($instance) {
-            Debug::Assert(false, L"ÒÑ´æÔÚÈ«ÆÁ´°¿Ú");
+            Debug::Assert(false, L"å·²å­˜åœ¨å…¨å±çª—å£");
         }
 
         _RegisterHostWndClass();
@@ -66,7 +66,7 @@ private:
 
         Debug::ThrowIfWin32Failed(
             ShowWindow(Env::$instance->GetHwndHost(), SW_NORMAL),
-            L"ShowWindowÊ§°Ü"
+            L"ShowWindowå¤±è´¥"
         );
     }
 
@@ -77,9 +77,9 @@ private:
             return 0;
         }
         if (message == WM_DESTROY) {
-            // ÓĞÁ½¸öÍË³öÂ·¾¶£º
-            // 1. Ç°Ì¨´°¿Ú·¢Éú¸Ä±ä
-            // 2. ÊÕµ½_WM_DESTORYMAG ÏûÏ¢
+            // æœ‰ä¸¤ä¸ªé€€å‡ºè·¯å¾„ï¼š
+            // 1. å‰å°çª—å£å‘ç”Ÿæ”¹å˜
+            // 2. æ”¶åˆ°_WM_DESTORYMAG æ¶ˆæ¯
             $instance = nullptr;
             PostQuitMessage(0);
             return 0;
@@ -104,7 +104,7 @@ private:
         }
     }
 
-    // ×¢²áÈ«ÆÁ´°¿ÚÀà
+    // æ³¨å†Œå…¨å±çª—å£ç±»
     void _RegisterHostWndClass() const {
         WNDCLASSEX wcex = {};
         wcex.cbSize = sizeof(WNDCLASSEX);
@@ -112,31 +112,31 @@ private:
         wcex.hInstance = Env::$instance->GetHInstance();
         wcex.lpszClassName = _HOST_WINDOW_CLASS_NAME;
 
-        // ºöÂÔÖØ¸´×¢²áÔì³ÉµÄ´íÎó
+        // å¿½ç•¥é‡å¤æ³¨å†Œé€ æˆçš„é”™è¯¯
         RegisterClassEx(&wcex);
     }
 
     void _CreateHostWnd() {
-        // ´´½¨È«ÆÁ´°¿Ú
+        // åˆ›å»ºå…¨å±çª—å£
         SIZE screenSize = Utils::GetScreenSize(Env::$instance->GetHwndSrc());
         HWND hwndHost = CreateWindowEx(
             (Env::$instance->IsNoDisturb() ? 0 : WS_EX_TOPMOST) | WS_EX_NOACTIVATE | WS_EX_LAYERED | WS_EX_TRANSPARENT,
             _HOST_WINDOW_CLASS_NAME, NULL, WS_CLIPCHILDREN | WS_POPUP | WS_VISIBLE,
             0, 0, screenSize.cx, screenSize.cy,
             NULL, NULL, Env::$instance->GetHInstance(), NULL);
-        Debug::ThrowIfWin32Failed(hwndHost, L"´´½¨È«ÆÁ´°¿ÚÊ§°Ü");
+        Debug::ThrowIfWin32Failed(hwndHost, L"åˆ›å»ºå…¨å±çª—å£å¤±è´¥");
 
-        // ÉèÖÃ´°¿Ú²»Í¸Ã÷
+        // è®¾ç½®çª—å£ä¸é€æ˜
         Debug::ThrowIfWin32Failed(
             SetLayeredWindowAttributes(hwndHost, 0, 255, LWA_ALPHA),
-            L"SetLayeredWindowAttributes Ê§°Ü"
+            L"SetLayeredWindowAttributes å¤±è´¥"
         );
 
         Env::$instance->SetHwndHost(hwndHost);
     }
 
 
-    // È«ÆÁ´°¿ÚÀàÃû
+    // å…¨å±çª—å£ç±»å
     static constexpr const wchar_t* _HOST_WINDOW_CLASS_NAME = L"Window_Magpie_967EB565-6F73-4E94-AE53-00CC42592A22";
 
     static UINT _WM_DESTORYMAG;

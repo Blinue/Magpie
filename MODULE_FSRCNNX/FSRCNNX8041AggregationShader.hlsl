@@ -22,7 +22,7 @@ D2D_PS_ENTRY(main) {
 	float luma = SampleInput(1, pos)[index];
 	float3 yuv = SampleInputCur(0).xyz;
 
-	// 消除因压缩产生的噪声
+	// 娑堥櫎鍥犲帇缂╀骇鐢熺殑鍣０
 	if (abs(luma - yuv.x) < noise_threshold) {
 		luma = yuv.x;
 	}

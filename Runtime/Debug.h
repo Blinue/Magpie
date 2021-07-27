@@ -7,7 +7,7 @@
 #include <fmt/xchar.h>
 
 
-// c++ Ô­Éú exception ²»Ö§³Ö¿í×Ö·û´®
+// c++ åŸç”Ÿ exception ä¸æ”¯æŒå®½å­—ç¬¦ä¸²
 class magpie_exception {
 public:
     magpie_exception() noexcept {}
@@ -26,7 +26,7 @@ private:
 };
 
 
-// COM ³ö´íÊ±²úÉúµÄÒì³£
+// COM å‡ºé”™æ—¶äº§ç”Ÿçš„å¼‚å¸¸
 class com_exception : public magpie_exception {
 public:
     com_exception(HRESULT hr) noexcept: _result(hr) {
@@ -47,7 +47,7 @@ private:
     std::wstring _whatMsg;
 };
 
-// µ÷ÓÃ WIN32 API ³ö´íÊ±²úÉúµÄÒì³£
+// è°ƒç”¨ WIN32 API å‡ºé”™æ—¶äº§ç”Ÿçš„å¼‚å¸¸
 class win32_exception : public magpie_exception {
 public:
     win32_exception() noexcept : magpie_exception() {};
@@ -66,7 +66,7 @@ public:
         return { rect.right - rect.left,rect.bottom - rect.top };
     }
 
-    // ½« COM µÄ´íÎó×ª»»ÎªÒì³£
+    // å°† COM çš„é”™è¯¯è½¬æ¢ä¸ºå¼‚å¸¸
     static void ThrowIfComFailed(HRESULT hr, const std::wstring_view& failMsg) {
         if (SUCCEEDED(hr)) {
             return;
@@ -78,7 +78,7 @@ public:
         throw e;
     }
 
-    // ½« Win32 ´íÎó×ª»»³ÉÒì³£
+    // å°† Win32 é”™è¯¯è½¬æ¢æˆå¼‚å¸¸
     template <typename T>
     static void ThrowIfWin32Failed(T result, const std::wstring_view& failMsg) {
         if (result) {

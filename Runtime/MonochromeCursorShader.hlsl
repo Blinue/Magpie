@@ -1,4 +1,4 @@
-// 绘制单色光标
+// 缁樺埗鍗曡壊鍏夋爣
 
 cbuffer constants : register(b0) {
 	int4 cursorRect : packoffset(c0);

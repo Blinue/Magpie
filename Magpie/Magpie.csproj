@@ -111,7 +111,6 @@
     </ApplicationDefinition>
     <Compile Include="MagWindow.cs" />
     <Compile Include="NativeMethods.cs" />
-    <Compile Include="NotifyIcon.cs" />
     <Compile Include="Options\AboutOptionsPage.xaml.cs">
       <DependentUpon>AboutOptionsPage.xaml</DependentUpon>
     </Compile>

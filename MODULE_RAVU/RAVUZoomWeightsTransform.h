@@ -37,7 +37,7 @@ public:
             return E_INVALIDARG;
         }
 
-        // È¨ÖØÎÆÀíÎª¹Ì¶¨´óĞ¡
+        // æƒé‡çº¹ç†ä¸ºå›ºå®šå¤§å°
         if (pInputRects[0].right - pInputRects[0].left != 45 * 4
             || pInputRects[0].bottom - pInputRects[0].top != 2592
             ) {

@@ -74,7 +74,7 @@ public:
 
     enum PROPS {
         PROP_SCALE = 0,
-        PROP_SHARPNESS = 1  // 锐化强度，必须在0~1之间。默认值为 0.8
+        PROP_SHARPNESS = 1  // 閿愬寲寮哄害锛屽繀椤诲湪0~1涔嬮棿銆傞粯璁ゅ�间负 0.8
     };
 
     static HRESULT Register(_In_ ID2D1Factory1* pFactory) {

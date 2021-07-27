@@ -12,20 +12,20 @@ enum class CaptureStyle {
 };
 
 
-// ËùÓĞÀàĞÍµÄ WindowCapturer µÄ»ùÀà
+// æ‰€æœ‰ç±»å‹çš„ WindowCapturer çš„åŸºç±»
 class WindowCapturerBase {
 public:
 	WindowCapturerBase() {}
 
 	virtual ~WindowCapturerBase() {}
 
-	// ²»¿É¸´ÖÆ£¬²»¿ÉÒÆ¶¯
+	// ä¸å¯å¤åˆ¶ï¼Œä¸å¯ç§»åŠ¨
 	WindowCapturerBase(const WindowCapturerBase&) = delete;
 	WindowCapturerBase(WindowCapturerBase&&) = delete;
 
-	// ²¶»ñÒ»Ö¡
+	// æ•è·ä¸€å¸§
 	virtual ComPtr<IUnknown> GetFrame() = 0;
 
-	// ²¶»ñµÄÖ¡µÄÀàĞÍ
+	// æ•è·çš„å¸§çš„ç±»å‹
 	virtual CaptureredFrameType GetFrameType() = 0;
 };

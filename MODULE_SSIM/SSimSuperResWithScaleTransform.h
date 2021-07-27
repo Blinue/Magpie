@@ -4,7 +4,7 @@
 #include "EffectDefines.h"
 
 
-// 第二个输入只是为了传入缩放倍数
+// 绗簩涓緭鍏ュ彧鏄负浜嗕紶鍏ョ缉鏀惧�嶆暟
 class SSimSuperResWithScaleTransform : public SimpleDrawTransform<2> {
 private:
     SSimSuperResWithScaleTransform(const GUID& shaderId) : SimpleDrawTransform<2>(shaderId) {}

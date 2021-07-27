@@ -4,9 +4,9 @@
 #include "EffectDefines.h"
 
 
-// Adaptive Sharpen Pass 2 ĞèÒª curveHeight ²ÎÊı
-// curveHeight Ô½´ó£¬Èñ»¯³Ì¶ÈÔ½´ó
-// curveHeight µÄÈ¡ÖµÔÚ 0.3~2 Ö®¼ä£¬Ä¬ÈÏÖµÎª 0.3
+// Adaptive Sharpen Pass 2 éœ€è¦ curveHeight å‚æ•°
+// curveHeight è¶Šå¤§ï¼Œé”åŒ–ç¨‹åº¦è¶Šå¤§
+// curveHeight çš„å–å€¼åœ¨ 0.3~2 ä¹‹é—´ï¼Œé»˜è®¤å€¼ä¸º 0.3
 class AdaptiveSharpenPass2Transform : public SimpleDrawTransform<> {
 private:
     AdaptiveSharpenPass2Transform(): SimpleDrawTransform<>(GUID_MAGPIE_ADAPTIVE_SHARPEN_PASS2_SHADER) {}

@@ -1,14 +1,14 @@
 #pragma once
 
 
-#define WIN32_LEAN_AND_MEAN             // ´Ó Windows Í·ÎÄ¼şÖĞÅÅ³ı¼«ÉÙÊ¹ÓÃµÄÄÚÈİ
-// Windows Í·ÎÄ¼ş
+#define WIN32_LEAN_AND_MEAN             // ä» Windows å¤´æ–‡ä»¶ä¸­æ’é™¤æå°‘ä½¿ç”¨çš„å†…å®¹
+// Windows å¤´æ–‡ä»¶
 #include <windows.h>
 #include <wrl.h>
 #include <d2d1_3.h>
 #include <d2d1effects_2.h>
 
-// C++ ÔËĞĞÊ±Í·ÎÄ¼ş
+// C++ è¿è¡Œæ—¶å¤´æ–‡ä»¶
 #include <string>
 #include <cassert>
 

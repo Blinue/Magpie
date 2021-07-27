@@ -1,5 +1,5 @@
 // Conv-4x3x3x8 (2)
-// “∆÷≤◊‘ https://github.com/bloc97/Anime4K/blob/master/glsl/Upscale/Anime4K_Upscale_CNN_M_x2.glsl
+// ÁßªÊ§çËá™ https://github.com/bloc97/Anime4K/blob/master/glsl/Upscale/Anime4K_Upscale_CNN_M_x2.glsl
 //
 // Anime4K-v3.1-Upscale(x2)-CNN(M)-Conv-4x3x3x8
 
