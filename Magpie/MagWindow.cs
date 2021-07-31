@@ -12,25 +12,30 @@ using System.Windows.Interop;
 
 
 namespace Magpie {
-    enum MagWindowStatus : int {
+    internal enum MagWindowStatus : int {
         Idle = 0,       // 未启动或者已关闭
         Starting = 1,   // 启动中，此状态下无法执行操作
         Running = 2     // 运行中
     }
 
     // 用于管理全屏窗口，该窗口在一个新线程中启动，通过事件与主线程通信
-    class MagWindow {
+    internal class MagWindow {
+        public event Action Closed;
+
+        public IntPtr SrcWindow { get; private set; } = IntPtr.Zero;
+
         private Thread magThread = null;
 
         // 用于从全屏窗口的线程接收消息
         private event Action<int, string> StatusEvent;
+
 
         private MagWindowStatus status = MagWindowStatus.Idle;
         public MagWindowStatus Status {
             get => status;
             private set {
                 status = value;
-                if(status == MagWindowStatus.Idle) {
+                if (status == MagWindowStatus.Idle) {
                     magThread = null;
                 }
             }
@@ -38,11 +43,22 @@ namespace Magpie {
 
         public MagWindow(Window parent) {
             StatusEvent += (int status, string errorMsg) => {
-                if(status < 0 || status > 3) {
+                if (status < 0 || status > 3) {
                     return;
                 }
 
-                Status = (MagWindowStatus)status;
+                MagWindowStatus status_ = (MagWindowStatus)status;
+                if (status_ == Status) {
+                    return;
+                }
+
+                if (status_ == MagWindowStatus.Idle) {
+                    if (Closed != null) {
+                        Closed.Invoke();
+                    }
+                    SrcWindow = IntPtr.Zero;
+                }
+                Status = status_;
 
                 if (errorMsg != null) {
                     parent.Dispatcher.Invoke(new Action(() => {
@@ -65,8 +81,8 @@ namespace Magpie {
             }
 
             IntPtr hwndSrc = NativeMethods.GetForegroundWindow();
-            if (!NativeMethods.IsWindow(hwndSrc) 
-                || !NativeMethods.IsWindowVisible(hwndSrc) 
+            if (!NativeMethods.IsWindow(hwndSrc)
+                || !NativeMethods.IsWindowVisible(hwndSrc)
                 || NativeMethods.GetWindowShowCmd(hwndSrc) != NativeMethods.SW_NORMAL
             ) {
                 // 不合法的源窗口
@@ -92,16 +108,18 @@ namespace Magpie {
             if (hookCursorAtRuntime) {
                 HookCursorAtRuntime(hwndSrc);
             }
+
+            SrcWindow = hwndSrc;
         }
 
         public void Destory() {
-            if(Status != MagWindowStatus.Running) {
+            if (Status != MagWindowStatus.Running) {
                 return;
             }
 
             // 广播 MAGPIE_WM_DESTORYMAG
             // 可以在没有全屏窗口句柄的情况下关闭它
-            NativeMethods.BroadcastMessage(NativeMethods.MAGPIE_WM_DESTORYMAG);
+            _ = NativeMethods.BroadcastMessage(NativeMethods.MAGPIE_WM_DESTORYMAG);
         }
 
         private void HookCursorAtRuntime(IntPtr hwndSrc) {
@@ -127,7 +145,7 @@ namespace Magpie {
 
             // 使用 EasyHook 注入
             try {
-                EasyHook.RemoteHooking.Inject(
+                RemoteHooking.Inject(
                 pid,                // 要注入的进程的 ID
                 injectionLibrary,   // 32 位 DLL
                 injectionLibrary,   // 64 位 DLL
@@ -157,7 +175,7 @@ namespace Magpie {
             );
 
             try {
-                EasyHook.RemoteHooking.CreateAndInject(
+                RemoteHooking.CreateAndInject(
                     exePath,    // 可执行文件路径
                     "",         // 命令行参数
                     0,          // 传递给 CreateProcess 的标志

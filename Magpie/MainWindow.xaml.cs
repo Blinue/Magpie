@@ -1,4 +1,4 @@
-﻿using Gma.System.MouseKeyHook;
+using Gma.System.MouseKeyHook;
 using Microsoft.Win32;
 using Newtonsoft.Json.Linq;
 using System;
@@ -14,6 +14,8 @@ using System.Windows.Media;
 using Magpie.Properties;
 using Magpie.Options;
 using System.Threading;
+using System.Diagnostics;
+
 
 namespace Magpie {
     /// <summary>
@@ -35,6 +37,9 @@ namespace Magpie {
         private (string Name, string Model)[] scaleModels;
 
         private IntPtr Handle;
+
+        // 不为零时表示全屏窗口不是因为热键关闭的
+        private IntPtr prevSrcWindow = IntPtr.Zero;
 
         public MainWindow() {
             InitializeComponent();
@@ -166,10 +171,14 @@ namespace Magpie {
                 return;
             }
 
-            if (magWindow.Status == MagWindowStatus.Starting) {
-                return;
-            } else if (magWindow.Status == MagWindowStatus.Running) {
+            if (magWindow.Status == MagWindowStatus.Running) {
+                // 通过热键关闭全屏窗口
                 magWindow.Destory();
+                prevSrcWindow = IntPtr.Zero;
+                return;
+            }
+
+            if (magWindow.Status == MagWindowStatus.Starting) {
                 return;
             }
 
@@ -184,6 +193,8 @@ namespace Magpie {
                 cbbInjectMode.SelectedIndex == 1,
                 false
             );
+
+            prevSrcWindow = magWindow.SrcWindow;
         }
 
         private void Window_SourceInitialized(object sender, EventArgs e) {
@@ -193,6 +204,7 @@ namespace Magpie {
             source.AddHook(WndProc);
 
             magWindow = new MagWindow(this);
+            magWindow.Closed += MagWindow_Closed;
 
             // 检查命令行参数
             string[] args = Environment.GetCommandLineArgs();
@@ -202,6 +214,18 @@ namespace Magpie {
                     WindowState = WindowState.Minimized;
                     break;
                 }
+            }
+        }
+
+        private void MagWindow_Closed() {
+            if (!Settings.Default.AutoRestore) {
+                return;
+            }
+
+            if (NativeMethods.IsWindow(prevSrcWindow)) {
+                Debug.WriteLine("autoRestore");
+            } else {
+                prevSrcWindow = IntPtr.Zero;
             }
         }
 

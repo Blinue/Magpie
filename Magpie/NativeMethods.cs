@@ -1,18 +1,14 @@
 using System;
-using System.Collections.Generic;
-using System.Drawing;
 using System.Runtime.InteropServices;
-using System.Text;
 
 
 namespace Magpie {
-	// Win32 API
-	static class NativeMethods {
+    // Win32 API
+    static class NativeMethods {
         public static readonly int MAGPIE_WM_SHOWME = RegisterWindowMessage("WM_SHOWME");
         public static readonly int MAGPIE_WM_DESTORYMAG = RegisterWindowMessage("MAGPIE_WM_DESTORYMAG");
         public static readonly int SW_NORMAL = 1;
 
-        // 获取用户当前正在使用的窗体的句柄
         [DllImport("user32", CharSet = CharSet.Unicode)]
 		public static extern IntPtr GetForegroundWindow();
 
@@ -46,11 +42,7 @@ namespace Magpie {
         public static int GetWindowProcessId(IntPtr hWnd) {
             int processId = 0;
 
-            if(GetWindowThreadProcessId(hWnd, ref processId) == 0) {
-                return 0;
-            }
-
-            return processId;
+            return GetWindowThreadProcessId(hWnd, ref processId) == 0 ? 0 : processId;
         }
 
         [StructLayout(LayoutKind.Sequential)]
@@ -59,14 +51,14 @@ namespace Magpie {
             public int y;
         }
         [StructLayout(LayoutKind.Sequential)]
-        struct RECT {
+        private struct RECT {
             public int left;
             public int top;
             public int right;
             public int bottom;
         }
         [StructLayout(LayoutKind.Sequential)]
-        struct WINDOWPLACEMENT {
+        private struct WINDOWPLACEMENT {
             public uint length;
             public uint flags;
             public uint showCmd;
@@ -82,7 +74,7 @@ namespace Magpie {
         public static int GetWindowShowCmd(IntPtr hWnd) {
             WINDOWPLACEMENT wp = new WINDOWPLACEMENT();
             wp.length = (uint)Marshal.SizeOf(wp);
-            if(!GetWindowPlacement(hWnd, ref wp)) {
+            if (!GetWindowPlacement(hWnd, ref wp)) {
                 return -1;
             }
             return (int)wp.showCmd;
