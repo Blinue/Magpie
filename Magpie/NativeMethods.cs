@@ -1,16 +1,16 @@
 using System;
 using System.Runtime.InteropServices;
-
+using System.Text;
 
 namespace Magpie {
     // Win32 API
-    static class NativeMethods {
+    internal static class NativeMethods {
         public static readonly int MAGPIE_WM_SHOWME = RegisterWindowMessage("WM_SHOWME");
         public static readonly int MAGPIE_WM_DESTORYMAG = RegisterWindowMessage("MAGPIE_WM_DESTORYMAG");
         public static readonly int SW_NORMAL = 1;
 
         [DllImport("user32", CharSet = CharSet.Unicode)]
-		public static extern IntPtr GetForegroundWindow();
+        public static extern IntPtr GetForegroundWindow();
 
         [DllImport("user32", CharSet = CharSet.Unicode)]
         [return: MarshalAs(UnmanagedType.Bool)]
@@ -74,10 +74,28 @@ namespace Magpie {
         public static int GetWindowShowCmd(IntPtr hWnd) {
             WINDOWPLACEMENT wp = new WINDOWPLACEMENT();
             wp.length = (uint)Marshal.SizeOf(wp);
-            if (!GetWindowPlacement(hWnd, ref wp)) {
-                return -1;
+            return !GetWindowPlacement(hWnd, ref wp) ? -1 : (int)wp.showCmd;
+        }
+
+        [DllImport("user32.dll", CharSet = CharSet.Unicode)]
+        private static extern int GetWindowTextLength(IntPtr hWnd);
+
+        [DllImport("user32.dll", CharSet = CharSet.Unicode)]
+        private static extern int GetWindowText(
+            IntPtr hWnd,
+            [MarshalAs(UnmanagedType.LPWStr)] StringBuilder lpString,
+            int nMaxCount
+        );
+
+        public static string GetWindowTitle(IntPtr hWnd) {
+            int len = GetWindowTextLength(hWnd);
+            if (len <= 0) {
+                return "";
             }
-            return (int)wp.showCmd;
+
+            StringBuilder sb = new StringBuilder(len + 1);
+            len = GetWindowText(hWnd, sb, sb.Capacity);
+            return len > 0 ? sb.ToString() : "";
         }
 
         /*

@@ -8,11 +8,11 @@
         mc:Ignorable="d"
         Title="Magpie" ResizeMode="CanMinimize" WindowStartupLocation="CenterScreen"
         Closing="Window_Closing" SourceInitialized="Window_SourceInitialized" StateChanged="Window_StateChanged" HorizontalAlignment="Left" VerticalAlignment="Top" SizeToContent="Height" Width="388">
-    <StackPanel Margin="15">
+    <StackPanel Margin="15, 10">
         <StackPanel.Resources>
             <local:NotifyIconLeftClickCommand x:Key="NotifyIconLeftClickCommand" />
         </StackPanel.Resources>
-        
+
         <tb:TaskbarIcon
             x:Name="notifyIcon"
             ToolTipText="Magpie"
@@ -110,12 +110,16 @@
                 <ColumnDefinition />
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
-            <StackPanel Orientation="Horizontal">
-                <TextBlock Margin="0" TextWrapping="Wrap" Text="当前窗口：" VerticalAlignment="Center"/>
-                <Button Content="取消" Margin="10,0,0,0" VerticalAlignment="Center" Padding="5,2"/>
-            </StackPanel>
-           
-            <Button Click="BtnOptions_Click" HorizontalAlignment="Right" Margin="10,0,0,0" VerticalAlignment="Bottom" Padding="10,5" Grid.Column="1">
+            <Grid x:Name="gridAutoRestore" Visibility="Hidden">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <TextBlock x:Name="tbCurWndTitle" Margin="0" Text="当前窗口：" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                <Button Content="取消" Margin="5,0,0,0" VerticalAlignment="Center" Padding="5,2" Click="BtnCancelRestore_Click" Grid.Column="1"/>
+            </Grid>
+
+            <Button Click="BtnOptions_Click" Margin="10,0,0,0" VerticalAlignment="Center" Padding="10,5" Grid.Column="1" HorizontalAlignment="Right">
                 <StackPanel Orientation="Horizontal">
                     <Label FontFamily="Segoe MDL2 Assets" Content="&#xE713;" Padding="0" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Margin="0" />
                     <Label Content="选项" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Padding="0" Margin="5,0,0,0" />
@@ -123,7 +127,7 @@
             </Button>
         </Grid>
     </StackPanel>
-    
 
-    
+
+
 </Window>

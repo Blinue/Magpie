@@ -14,7 +14,6 @@ using System.Windows.Media;
 using Magpie.Properties;
 using Magpie.Options;
 using System.Threading;
-using System.Diagnostics;
 
 
 namespace Magpie {
@@ -24,7 +23,9 @@ namespace Magpie {
     public partial class MainWindow : Window {
         private OptionsWindow optionsWindow = null;
         private readonly OpenFileDialog openFileDialog = new OpenFileDialog();
-        private readonly DispatcherTimer timerScale = new DispatcherTimer();
+        private readonly DispatcherTimer timerScale = new DispatcherTimer {
+            Interval = new TimeSpan(0, 0, 1)
+        };
         private readonly FileSystemWatcher scaleModelsWatcher = new FileSystemWatcher();
 
         private IKeyboardMouseEvents keyboardEvents = null;
@@ -40,12 +41,15 @@ namespace Magpie {
 
         // 不为零时表示全屏窗口不是因为热键关闭的
         private IntPtr prevSrcWindow = IntPtr.Zero;
+        private readonly DispatcherTimer timerRestore = new DispatcherTimer {
+            Interval = new TimeSpan(0, 0, 0, 0, 200)
+        };
 
         public MainWindow() {
             InitializeComponent();
 
             timerScale.Tick += TimerScale_Tick;
-            timerScale.Interval = new TimeSpan(0, 0, 1);
+            timerRestore.Tick += TimerRestore_Tick;
 
             LoadScaleModels();
 
@@ -66,6 +70,22 @@ namespace Magpie {
             cbbScaleMode.SelectedIndex = Settings.Default.ScaleMode;
             cbbInjectMode.SelectedIndex = Settings.Default.InjectMode;
             cbbCaptureMode.SelectedIndex = Settings.Default.CaptureMode;
+        }
+
+        private void TimerRestore_Tick(object sender, EventArgs e) {
+            if (!Settings.Default.AutoRestore || !NativeMethods.IsWindow(prevSrcWindow)) {
+                StopWaitingForRestore();
+                return;
+            }
+
+            if (NativeMethods.GetForegroundWindow() == prevSrcWindow) {
+                StopWaitingForRestore();
+                ToggleMagWindow();
+                return;
+            }
+
+            tbCurWndTitle.Text = "当前窗口：" + NativeMethods.GetWindowTitle(prevSrcWindow);
+            gridAutoRestore.Visibility = Visibility.Visible;
         }
 
         private void ScaleModelsWatcher_Changed(object sender, FileSystemEventArgs e) {
@@ -217,16 +237,25 @@ namespace Magpie {
             }
         }
 
+        private void StopWaitingForRestore() {
+            gridAutoRestore.Visibility = Visibility.Hidden;
+            tbCurWndTitle.Text = "";
+            prevSrcWindow = IntPtr.Zero;
+            timerRestore.Stop();
+        }
+
         private void MagWindow_Closed() {
             if (!Settings.Default.AutoRestore) {
                 return;
             }
 
-            if (NativeMethods.IsWindow(prevSrcWindow)) {
-                Debug.WriteLine("autoRestore");
-            } else {
-                prevSrcWindow = IntPtr.Zero;
-            }
+            Dispatcher.Invoke(() => {
+                if (NativeMethods.IsWindow(prevSrcWindow)) {
+                    timerRestore.Start();
+                } else {
+                    StopWaitingForRestore();
+                }
+            });
         }
 
         private IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled) {
@@ -316,6 +345,10 @@ namespace Magpie {
 
         private void CmiOptions_Click(object sender, RoutedEventArgs e) {
             BtnOptions_Click(sender, e);
+        }
+
+        private void BtnCancelRestore_Click(object sender, RoutedEventArgs e) {
+            StopWaitingForRestore();
         }
     }
 

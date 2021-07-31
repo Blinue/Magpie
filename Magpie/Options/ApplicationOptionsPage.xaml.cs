@@ -36,7 +36,8 @@ namespace Magpie.Options {
 
             shortcut.TargetPath = Assembly.GetExecutingAssembly().Location;
             shortcut.WorkingDirectory = AppDomain.CurrentDomain.SetupInformation.ApplicationBase;
-
+            
+            // 防止初始化时调用事件处理
             ckbRunAtStartUp.Checked += CkbRunAtStartUp_Checked;
             ckbMinimizeAtStartUp.Checked += CkbMinimizeAtStartUp_Checked;
         }
