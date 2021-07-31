@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -14,16 +14,16 @@ using System.Windows.Shapes;
 
 
 namespace Magpie.Options {
-    /// <summary>
-    /// LicenseWindow.xaml 的交互逻辑
-    /// </summary>
-    public partial class LicenseWindow : Window {
-        public LicenseWindow() {
-            InitializeComponent();
-        }
+	/// <summary>
+	/// LicenseWindow.xaml 的交互逻辑
+	/// </summary>
+	public partial class LicenseWindow : Window {
+		public LicenseWindow() {
+			InitializeComponent();
+		}
 
-        private void BtnOK_Click(object sender, RoutedEventArgs e) {
-            Close();
-        }
-    }
+		private void BtnOK_Click(object sender, RoutedEventArgs e) {
+			Close();
+		}
+	}
 }

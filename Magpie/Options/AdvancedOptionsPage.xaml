@@ -4,6 +4,7 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:Magpie.Options"
+      xmlns:props="clr-namespace:Magpie.Properties"
       mc:Ignorable="d" 
       d:DesignHeight="200" d:DesignWidth="400"
       Title="AdvancedOptionsPage">
@@ -20,6 +21,6 @@
             <Label Content="日志级别" Padding="0" VerticalContentAlignment="Center" />
             <ComboBox Margin="10,0,0,0" />
         </StackPanel>
-        <CheckBox Content="显示帧率" Margin="0,20,0,0"/>
+        <CheckBox Content="显示帧率" Margin="0,20,0,0" IsChecked="{Binding Source={x:Static props:Settings.Default},Path=ShowFPS,Mode=TwoWay}"/>
     </StackPanel>
 </Page>
