@@ -5,6 +5,7 @@
 #include "pch.h"
 #include "MagWindow.h"
 #include "Env.h"
+#include <spdlog/spdlog.h>
 
 HINSTANCE hInst = NULL;
 
