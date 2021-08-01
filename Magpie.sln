@@ -16,6 +16,9 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MODULE_ACNet", "MODULE_ACNet\MODULE_ACNet.vcxproj", "{340BC8C2-C2B0-434C-BE5E-76D640CBCA85}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "EffectCommon", "EffectCommon\EffectCommon.vcxproj", "{95C6C401-AE29-4B29-B1A7-20782F0937D1}"
+	ProjectSection(ProjectDependencies) = postProject
+		{456CCAE4-2C51-4CF2-8D3A-1EFCE8C41A2D} = {456CCAE4-2C51-4CF2-8D3A-1EFCE8C41A2D}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MODULE_Anime4K", "MODULE_Anime4K\MODULE_Anime4K.vcxproj", "{FD3ED999-21E0-4F6A-AB78-F37E2466A356}"
 EndProject
@@ -39,11 +42,16 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MODULE_SSIM", "MODULE_SSIM\MODULE_SSIM.vcxproj", "{1CEADC6B-CBC0-4AB6-904A-D03CE9D2FDFA}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MODULE_FFX", "MODULE_FFX\MODULE_FFX.vcxproj", "{7E9E83EE-673A-490C-A771-F9AA4F0B89E7}"
+	ProjectSection(ProjectDependencies) = postProject
+		{95C6C401-AE29-4B29-B1A7-20782F0937D1} = {95C6C401-AE29-4B29-B1A7-20782F0937D1}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{651769E5-E8D5-4347-92E2-9EFFB46D9C16}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
 	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CONAN_INSTALL", "CONAN_INSTALL\CONAN_INSTALL.vcxproj", "{456CCAE4-2C51-4CF2-8D3A-1EFCE8C41A2D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -51,6 +59,10 @@ Global
 		Release|x64 = Release|x64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{688F31ED-5C36-476C-8A21-A7B39DFF1355}.Debug|x64.ActiveCfg = Debug|x64
+		{688F31ED-5C36-476C-8A21-A7B39DFF1355}.Debug|x64.Build.0 = Debug|x64
+		{688F31ED-5C36-476C-8A21-A7B39DFF1355}.Release|x64.ActiveCfg = Release|x64
+		{688F31ED-5C36-476C-8A21-A7B39DFF1355}.Release|x64.Build.0 = Release|x64
 		{8FC22A64-6D09-478B-9980-608D27601EF2}.Debug|x64.ActiveCfg = Debug|x64
 		{8FC22A64-6D09-478B-9980-608D27601EF2}.Debug|x64.Build.0 = Debug|x64
 		{8FC22A64-6D09-478B-9980-608D27601EF2}.Release|x64.ActiveCfg = Release|x64
@@ -91,14 +103,14 @@ Global
 		{1CEADC6B-CBC0-4AB6-904A-D03CE9D2FDFA}.Debug|x64.Build.0 = Debug|x64
 		{1CEADC6B-CBC0-4AB6-904A-D03CE9D2FDFA}.Release|x64.ActiveCfg = Release|x64
 		{1CEADC6B-CBC0-4AB6-904A-D03CE9D2FDFA}.Release|x64.Build.0 = Release|x64
-		{688F31ED-5C36-476C-8A21-A7B39DFF1355}.Debug|x64.ActiveCfg = Debug|x64
-		{688F31ED-5C36-476C-8A21-A7B39DFF1355}.Debug|x64.Build.0 = Debug|x64
-		{688F31ED-5C36-476C-8A21-A7B39DFF1355}.Release|x64.ActiveCfg = Release|x64
-		{688F31ED-5C36-476C-8A21-A7B39DFF1355}.Release|x64.Build.0 = Release|x64
 		{7E9E83EE-673A-490C-A771-F9AA4F0B89E7}.Debug|x64.ActiveCfg = Debug|x64
 		{7E9E83EE-673A-490C-A771-F9AA4F0B89E7}.Debug|x64.Build.0 = Debug|x64
 		{7E9E83EE-673A-490C-A771-F9AA4F0B89E7}.Release|x64.ActiveCfg = Release|x64
 		{7E9E83EE-673A-490C-A771-F9AA4F0B89E7}.Release|x64.Build.0 = Release|x64
+		{456CCAE4-2C51-4CF2-8D3A-1EFCE8C41A2D}.Debug|x64.ActiveCfg = Debug|x64
+		{456CCAE4-2C51-4CF2-8D3A-1EFCE8C41A2D}.Debug|x64.Build.0 = Debug|x64
+		{456CCAE4-2C51-4CF2-8D3A-1EFCE8C41A2D}.Release|x64.ActiveCfg = Release|x64
+		{456CCAE4-2C51-4CF2-8D3A-1EFCE8C41A2D}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
