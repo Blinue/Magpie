@@ -90,7 +90,7 @@
       <Message>Installing dependencies via Conan</Message>
       <Command>.\ConanInstall.bat</Command>
       <LinkObjects>false</LinkObjects>
-			<Outputs>$(SolutionDir).conan/$(Configuration)/Runtime/conanbuildinfo.props</Outputs>
+      <Outputs>$(SolutionDir).conan/$(Configuration)/Runtime/conanbuildinfo.props</Outputs>
     </CustomBuild>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

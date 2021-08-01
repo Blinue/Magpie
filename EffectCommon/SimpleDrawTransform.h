@@ -3,7 +3,7 @@
 #include "CommonDebug.h"
 
 
-// 用来取代简单的 DrawTransform
+// 通用的 DrawTransform
 // 该 DrawTransform 必须满足以下条件：
 //  * NINPUTS 个输入
 //  * 输出与所有输入尺寸相同
