@@ -10,11 +10,6 @@
 *.userosscache
 *.sln.docstates
 
-# EasyHook
-EasyHook*.dll
-EasyHook*.exe
-EasyLoad*.dll
-
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
 
