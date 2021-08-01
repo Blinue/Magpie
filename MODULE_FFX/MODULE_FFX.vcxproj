@@ -38,11 +38,11 @@
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\.conan\Debug\MODULE_FFX\conanbuildinfo.props" />
+    <Import Project="..\.conan\Debug\MODULE_FFX\conanbuildinfo.props" Condition="exists('..\.conan\Debug\MODULE_FFX\conanbuildinfo.props')" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\.conan\Release\MODULE_FFX\conanbuildinfo.props" />
+    <Import Project="..\.conan\Release\MODULE_FFX\conanbuildinfo.props" Condition="exists('..\.conan\Release\MODULE_FFX\conanbuildinfo.props')" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
