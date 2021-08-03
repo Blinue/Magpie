@@ -8,25 +8,61 @@
 using namespace D2D1;
 
 
-// 处理光标的渲染
+// 处理光标的渲�?
 class CursorManager: public Renderable {
 public:
+<<<<<<< HEAD
 	CursorManager() {
 		_cursorSize.cx = GetSystemMetrics(SM_CXCURSOR);
 		_cursorSize.cy = GetSystemMetrics(SM_CYCURSOR);
+=======
+    CursorManager() {
+        _cursorSize.cx = GetSystemMetrics(SM_CXCURSOR);
+        _cursorSize.cy = GetSystemMetrics(SM_CYCURSOR);
+
+        if (!Env::$instance->IsNoDisturb()) {
+			// ��������ڴ�����
+			// ��Ĭ��ʧ��
+			ClipCursor(&Env::$instance->GetSrcClient()), L"ClipCursor ʧ��";
+
+			// ��������ƶ��ٶ�
+			Debug::ThrowIfWin32Failed(
+				SystemParametersInfo(SPI_GETMOUSESPEED, 0, &_cursorSpeed, 0),
+				L"��ȡ����ٶ�ʧ��"
+			);
+
+			const RECT& srcClient = Env::$instance->GetSrcClient();
+			const D2D_RECT_F& destRect = Env::$instance->GetDestRect();
+			float scaleX = (destRect.right - destRect.left) / (srcClient.right - srcClient.left);
+			float scaleY = (destRect.bottom - destRect.top) / (srcClient.bottom - srcClient.top);
+
+			long newSpeed = std::clamp(lroundf(_cursorSpeed / (scaleX + scaleY) * 2), 1L, 20L);
+			Debug::ThrowIfWin32Failed(
+				SystemParametersInfo(SPI_SETMOUSESPEED, 0, (PVOID)(intptr_t)newSpeed, 0),
+				L"��������ٶ�ʧ��"
+			);
+        }
+>>>>>>> v0.5.2
 
 		HCURSOR hCursorArrow = LoadCursor(NULL, IDC_ARROW);
 		HCURSOR hCursorHand = LoadCursor(NULL, IDC_HAND);
 		HCURSOR hCursorAppStarting = LoadCursor(NULL, IDC_APPSTARTING);
 		HCURSOR hCursorIBeam = LoadCursor(NULL, IDC_IBEAM);
+<<<<<<< HEAD
 		
-		// 保存替换之前的 arrow 光标图像
-		// SetSystemCursor 不会改变系统光标的句柄
+		// 保存替换之前�?arrow 光标图像
+		// SetSystemCursor 不会改变系统光标的句�?
+=======
+
+		// �����滻֮ǰ�� arrow ���ͼ��
+		// SetSystemCursor ����ı�ϵͳ���ľ��
+>>>>>>> v0.5.2
 		_ResolveCursor(hCursorArrow, hCursorArrow);
 		_ResolveCursor(hCursorHand, hCursorHand);
 		_ResolveCursor(hCursorAppStarting, hCursorAppStarting);
 		_ResolveCursor(hCursorIBeam, hCursorIBeam);
 
+<<<<<<< HEAD
 		if (Env::$instance->IsNoDisturb()) {
 			return;
 		}
@@ -68,6 +104,14 @@ public:
 			L"设置鼠标速度失败"
 		);
 	}
+=======
+		
+		SetSystemCursor(_CreateTransparentCursor(hCursorArrow), OCR_NORMAL);
+		SetSystemCursor(_CreateTransparentCursor(hCursorHand), OCR_HAND);
+		SetSystemCursor(_CreateTransparentCursor(hCursorAppStarting), OCR_APPSTARTING);
+		SetSystemCursor(_CreateTransparentCursor(hCursorIBeam), OCR_IBEAM);
+    }
+>>>>>>> v0.5.2
 
 	CursorManager(const CursorManager&) = delete;
 	CursorManager(CursorManager&&) = delete;
@@ -150,16 +194,16 @@ public:
 
 	std::pair<bool, LRESULT> WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
 		if (message == _WM_NEWCURSOR32) {
-			// 来自 CursorHook 的消息
-			// HCURSOR 似乎是共享资源，尽管来自别的进程但可以直接使用
+			// 来自 CursorHook 的消�?
+			// HCURSOR 似乎是共享资源，尽管来自别的进程但可以直接使�?
 			// 
-			// 如果消息来自 32 位进程，本程序为 64 位，必须转换为补符号位扩展，这是为了和 SetCursor 的处理方法一致
-			// SendMessage 为补 0 扩展，SetCursor 为补符号位扩展
+			// 如果消息来自 32 位进程，本程序为 64 位，必须转换为补符号位扩展，这是为了�?SetCursor 的处理方法一�?
+			// SendMessage 为补 0 扩展，SetCursor 为补符号位扩�?
 			_AddHookCursor((HCURSOR)(INT_PTR)(INT32)wParam, (HCURSOR)(INT_PTR)(INT32)lParam);
 			return { true, 0 };
 		} else if (message == _WM_NEWCURSOR64) {
 			// 如果消息来自 64 位进程，本程序为 32 位，HCURSOR 会被截断
-			// Q: 如果被截断是否能正常工作？
+			// Q: 如果被截断是否能正常工作�?
 			_AddHookCursor((HCURSOR)wParam, (HCURSOR)lParam);
 			return { true, 0 };
 		}
@@ -185,7 +229,7 @@ private:
 			_cursorInfo = &it->second;
 		} else {
 			try {
-				// 未在映射中找到，创建新映射
+				// 未在映射中找到，创建新映�?
 				_ResolveCursor(ci.hCursor, ci.hCursor);
 
 				_cursorInfo = &_cursorMap[ci.hCursor];
@@ -197,7 +241,7 @@ private:
 		}
 
 		// 映射坐标
-		// 鼠标坐标为整数，否则会出现模糊
+		// 鼠标坐标为整数，否则会出现模�?
 		const RECT& srcClient = Env::$instance->GetSrcClient();
 		const D2D_RECT_F& destRect = Env::$instance->GetDestRect();
 		float scaleX = (destRect.right - destRect.left) / (srcClient.right - srcClient.left);
@@ -283,7 +327,7 @@ private:
 				0.f,
 				WICBitmapPaletteTypeMedianCut
 			),
-			L"IWICFormatConverter 初始化失败"
+			L"IWICFormatConverter 初始化失�?
 		);
 		Debug::ThrowIfComFailed(
 			Env::$instance->GetD2DDC()->CreateBitmapFromWicBitmap(wicFormatConverter.Get(), &d2dBmpCursor),
@@ -319,7 +363,7 @@ private:
 				0.f,
 				WICBitmapPaletteTypeMedianCut
 			),
-			L"IWICFormatConverter 初始化失败"
+			L"IWICFormatConverter 初始化失�?
 		);
 		Debug::ThrowIfComFailed(
 			Env::$instance->GetD2DDC()->CreateBitmapFromWicBitmap(wicFormatConverter.Get(), &d2dBmpCursor),
