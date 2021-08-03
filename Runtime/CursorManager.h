@@ -15,58 +15,46 @@ public:
         _cursorSize.cx = GetSystemMetrics(SM_CXCURSOR);
         _cursorSize.cy = GetSystemMetrics(SM_CYCURSOR);
 
-        HCURSOR hCursorArrow = LoadCursor(NULL, IDC_ARROW);
-        HCURSOR hCursorHand = LoadCursor(NULL, IDC_HAND);
-        HCURSOR hCursorAppStarting = LoadCursor(NULL, IDC_APPSTARTING);
-        HCURSOR hCursorIBeam = LoadCursor(NULL, IDC_IBEAM);
-        
-        // 保存替换之前的 arrow 光标图像
-        // SetSystemCursor 不会改变系统光标的句柄
-        _ResolveCursor(hCursorArrow, hCursorArrow);
-        _ResolveCursor(hCursorHand, hCursorHand);
-        _ResolveCursor(hCursorAppStarting, hCursorAppStarting);
-        _ResolveCursor(hCursorIBeam, hCursorIBeam);
+        if (!Env::$instance->IsNoDisturb()) {
+			// 限制鼠标在窗口内
+			// 静默的失败
+			ClipCursor(&Env::$instance->GetSrcClient()), L"ClipCursor 失败";
 
-        if (Env::$instance->IsNoDisturb()) {
-            return;
+			// 设置鼠标移动速度
+			Debug::ThrowIfWin32Failed(
+				SystemParametersInfo(SPI_GETMOUSESPEED, 0, &_cursorSpeed, 0),
+				L"获取鼠标速度失败"
+			);
+
+			const RECT& srcClient = Env::$instance->GetSrcClient();
+			const D2D_RECT_F& destRect = Env::$instance->GetDestRect();
+			float scaleX = (destRect.right - destRect.left) / (srcClient.right - srcClient.left);
+			float scaleY = (destRect.bottom - destRect.top) / (srcClient.bottom - srcClient.top);
+
+			long newSpeed = std::clamp(lroundf(_cursorSpeed / (scaleX + scaleY) * 2), 1L, 20L);
+			Debug::ThrowIfWin32Failed(
+				SystemParametersInfo(SPI_SETMOUSESPEED, 0, (PVOID)(intptr_t)newSpeed, 0),
+				L"设置鼠标速度失败"
+			);
         }
-        
-        Debug::ThrowIfWin32Failed(
-            SetSystemCursor(_CreateTransparentCursor(hCursorArrow), OCR_NORMAL),
-            L"设置 OCR_NORMAL 失败"
-        );
-        Debug::ThrowIfWin32Failed(
-            SetSystemCursor(_CreateTransparentCursor(hCursorHand), OCR_HAND),
-            L"设置 OCR_HAND 失败"
-        );
-        Debug::ThrowIfWin32Failed(
-            SetSystemCursor(_CreateTransparentCursor(hCursorAppStarting), OCR_APPSTARTING),
-            L"设置 OCR_APPSTARTING 失败"
-        );
-        Debug::ThrowIfWin32Failed(
-            SetSystemCursor(_CreateTransparentCursor(hCursorIBeam), OCR_IBEAM),
-            L"设置 OCR_APPSTARTING 失败"
-        );
 
-        // 限制鼠标在窗口内
-        Debug::ThrowIfWin32Failed(ClipCursor(&Env::$instance->GetSrcClient()), L"ClipCursor 失败");
+		HCURSOR hCursorArrow = LoadCursor(NULL, IDC_ARROW);
+		HCURSOR hCursorHand = LoadCursor(NULL, IDC_HAND);
+		HCURSOR hCursorAppStarting = LoadCursor(NULL, IDC_APPSTARTING);
+		HCURSOR hCursorIBeam = LoadCursor(NULL, IDC_IBEAM);
 
-        // 设置鼠标移动速度
-        Debug::ThrowIfWin32Failed(
-            SystemParametersInfo(SPI_GETMOUSESPEED, 0, &_cursorSpeed, 0),
-            L"获取鼠标速度失败"
-        );
+		// 保存替换之前的 arrow 光标图像
+		// SetSystemCursor 不会改变系统光标的句柄
+		_ResolveCursor(hCursorArrow, hCursorArrow);
+		_ResolveCursor(hCursorHand, hCursorHand);
+		_ResolveCursor(hCursorAppStarting, hCursorAppStarting);
+		_ResolveCursor(hCursorIBeam, hCursorIBeam);
 
-        const RECT& srcClient = Env::$instance->GetSrcClient();
-        const D2D_RECT_F& destRect = Env::$instance->GetDestRect();
-        float scaleX = (destRect.right - destRect.left) / (srcClient.right - srcClient.left);
-        float scaleY = (destRect.bottom - destRect.top) / (srcClient.bottom - srcClient.top);
-
-        long newSpeed = std::clamp(lroundf(_cursorSpeed / (scaleX + scaleY) * 2), 1L, 20L);
-        Debug::ThrowIfWin32Failed(
-            SystemParametersInfo(SPI_SETMOUSESPEED, 0, (PVOID)(intptr_t)newSpeed, 0),
-            L"设置鼠标速度失败"
-        );
+		
+		SetSystemCursor(_CreateTransparentCursor(hCursorArrow), OCR_NORMAL);
+		SetSystemCursor(_CreateTransparentCursor(hCursorHand), OCR_HAND);
+		SetSystemCursor(_CreateTransparentCursor(hCursorAppStarting), OCR_APPSTARTING);
+		SetSystemCursor(_CreateTransparentCursor(hCursorIBeam), OCR_IBEAM);
     }
 
 	CursorManager(const CursorManager&) = delete;

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -197,30 +197,12 @@
     ]
   },
   {
-    "name": "Anime4K+ThinLines",
+    "name": "FSR",
     "model": [
       {
-        "module": "Anime4K",
-        "effect": "Anime4K",
-        "curveHeight": 0.6,
-        "useDenoiseVersion": true
-      },
-      {
-        "module": "Common",
-        "effect": "mitchell",
-        "scale": [ -1, -1 ],
-        "variant": "catrom"
-      },
-      {
-        "module": "Anime4K",
-        "effect": "thinLines",
-        "strength": 0.3
-      },
-      {
-        "module": "Common",
-        "effect": "sharpen",
-        "sharpness": 1,
-        "threshold": 0.3
+        "module": "FFX",
+        "effect": "FSR",
+        "scale": [-1, -1]
       }
     ]
   },
