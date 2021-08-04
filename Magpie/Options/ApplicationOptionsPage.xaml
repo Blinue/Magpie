@@ -18,14 +18,14 @@
     
     <StackPanel HorizontalAlignment="Left" VerticalAlignment="Top">
         <StackPanel Orientation="Horizontal" VerticalAlignment="Top" HorizontalAlignment="Left">
-            <Label Content="语言" Padding="0" VerticalAlignment="Center"/>
+            <Label Content="Language" Padding="0" VerticalAlignment="Center"/>
             <ComboBox Margin="10,0,0,0" VerticalAlignment="Center"/>
         </StackPanel>
         <StackPanel>
-            <CheckBox x:Name="ckbRunAtStartUp" Content="开机启动" Margin="0,20,0,0" Unchecked="CkbRunAtStartUp_Unchecked"/>
+            <CheckBox x:Name="ckbRunAtStartUp" Content="Start with Windows" Margin="0,20,0,0" Unchecked="CkbRunAtStartUp_Unchecked"/>
             <CheckBox
                 x:Name="ckbMinimizeAtStartUp"
-                Content="开机启动时最小化到系统托盘"
+                Content="Start Minimized"
                 Margin="20,10,0,0"
                 Unchecked="CkbMinimizeAtStartUp_Unchecked"
                 IsChecked="{Binding Source={x:Static props:Settings.Default},Path=MinimizeAtWindowsStartUp,Mode=TwoWay}"

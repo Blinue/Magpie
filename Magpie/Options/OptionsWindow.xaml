@@ -27,25 +27,25 @@
             <ListBoxItem>
                 <StackPanel Orientation="Horizontal">
                     <Label Style="{StaticResource Icon}" Content="&#xECAA;" />
-                    <Label Style="{StaticResource Name}" Content="应用程序" />
+                    <Label Style="{StaticResource Name}" Content="Application" />
                 </StackPanel>
             </ListBoxItem>
             <ListBoxItem>
                 <StackPanel Orientation="Horizontal">
                     <Label Style="{StaticResource Icon}" Content="&#xE92D;" />
-                    <Label Style="{StaticResource Name}" Content="缩放" />
+                    <Label Style="{StaticResource Name}" Content="Zoom" />
                 </StackPanel>
             </ListBoxItem>
             <ListBoxItem>
                 <StackPanel Orientation="Horizontal">
                     <Label Style="{StaticResource Icon}" Content="&#xEC7A;" />
-                    <Label Style="{StaticResource Name}" Content="高级" />
+                    <Label Style="{StaticResource Name}" Content="Advanced" />
                 </StackPanel>
             </ListBoxItem>
             <ListBoxItem>
                 <StackPanel Orientation="Horizontal">
                     <Label Style="{StaticResource Icon}" Content="&#xE946;" />
-                    <Label Style="{StaticResource Name}" Content="关于" />
+                    <Label Style="{StaticResource Name}" Content="About" />
                 </StackPanel>
             </ListBoxItem>
         </ListBox>

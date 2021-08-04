@@ -17,8 +17,8 @@
     </Page.Resources>
 
     <StackPanel>
-        <CheckBox Content="缩放时调整光标速度"/>
-        <CheckBox Content="如果源窗口失去焦点，则在它重获焦点时恢复全屏" Margin="0,20,0,0" IsChecked="{Binding Source={x:Static props:Settings.Default},Path=AutoRestore,Mode=TwoWay}" />
-        <Button Content="打开缩放配置" HorizontalAlignment="Left" Margin="0,20,0,0" Click="BtnScale_Click"/>
+        <CheckBox Content="Adjust cursor speed when zooming "/>
+        <CheckBox Content="If the source window loses focus, restore full screen when it regains focus " Margin="0,20,0,0" IsChecked="{Binding Source={x:Static props:Settings.Default},Path=AutoRestore,Mode=TwoWay}" />
+        <Button Content="Open Zoom Config" HorizontalAlignment="Left" Margin="0,20,0,0" Click="BtnScale_Click"/>
     </StackPanel>
 </Page>

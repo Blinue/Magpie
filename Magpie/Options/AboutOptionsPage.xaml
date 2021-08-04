@@ -5,7 +5,7 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:Magpie.Options"
       mc:Ignorable="d" 
-      d:DesignHeight="300" d:DesignWidth="400"
+      d:DesignHeight="341.15" d:DesignWidth="400"
       Title="AboutOptionsPage">
     <Page.Resources>
         <ResourceDictionary>
@@ -24,7 +24,7 @@
                     <Label Name="lblVersion" Content="版本" Padding="0" Margin="10,0,0,0" VerticalAlignment="Bottom" FontSize="11" />
                 </StackPanel>
             </StackPanel>
-            <Button Content="开源许可" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" HorizontalAlignment="Right" VerticalAlignment="Center" Click="BtnLicense_Click" />
+            <Button Content="Credits" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" HorizontalAlignment="Right" VerticalAlignment="Center" Click="BtnLicense_Click" />
         </Grid>
 
         <Grid Margin="0,20,0,0">
@@ -107,6 +107,7 @@
             </TextBlock>
             <TextBlock Text="Magpie移植的所有优秀着色器项目" Grid.Row="3" Grid.ColumnSpan="2" Padding="5" />
             <TextBlock Text="所有为Magpie提供反馈与贡献的人" Grid.Row="4" Grid.ColumnSpan="2" Padding="5" />
+            <TextBlock Grid.Row="5" Grid.ColumnSpan="2" Padding="5" ><Run/><LineBreak/><Run Text="Translated by 7Brandyn7"/></TextBlock>
         </Grid>
     </StackPanel>
 </Page>
