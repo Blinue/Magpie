@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -117,41 +117,31 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
-  <data name="BuiltInScaleModels" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Assets\BuiltInScaleModels.json;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
-  </data>
-  <data name="Licenses" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Assets\Licenses.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;gb2312</value>
-  </data>
-  <data name="Logo" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Assets\Logo.ico;System.Drawing.Icon, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
   <data name="不注入" xml:space="preserve">
-    <value>不注入</value>
+    <value>No Injection</value>
   </data>
   <data name="启动时注入" xml:space="preserve">
-    <value>启动时注入</value>
+    <value>Injection at Startup</value>
   </data>
   <data name="抓取模式" xml:space="preserve">
-    <value>抓取模式</value>
+    <value>Capture Mode</value>
   </data>
   <data name="热键" xml:space="preserve">
-    <value>热键</value>
+    <value>Hotkey</value>
   </data>
   <data name="秒后缩放" xml:space="preserve">
-    <value>5秒后缩放</value>
+    <value>Zoom in after 5s</value>
   </data>
   <data name="缩放模式" xml:space="preserve">
-    <value>缩放模式</value>
+    <value>Scaling Mode</value>
   </data>
   <data name="运行时注入" xml:space="preserve">
-    <value>运行时注入</value>
+    <value>Runtime Injection</value>
   </data>
   <data name="进程注入" xml:space="preserve">
-    <value>进程注入</value>
+    <value>Injection Mode</value>
   </data>
   <data name="选项" xml:space="preserve">
-    <value>选项</value>
+    <value>Options</value>
   </data>
 </root>

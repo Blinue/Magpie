@@ -129,15 +129,6 @@ namespace Magpie.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Testing.
-        /// </summary>
-        public static string TestString {
-            get {
-                return ResourceManager.GetString("TestString", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to 不注入.
         /// </summary>
         public static string 不注入 {
@@ -206,6 +197,15 @@ namespace Magpie.Properties {
         public static string 进程注入 {
             get {
                 return ResourceManager.GetString("进程注入", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 选项.
+        /// </summary>
+        public static string 选项 {
+            get {
+                return ResourceManager.GetString("选项", resourceCulture);
             }
         }
     }

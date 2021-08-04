@@ -287,7 +287,7 @@ namespace Magpie {
 
 		private void StopScaleTimer() {
 			timerScale.Stop();
-			btnScale.Content = cmiScale.Header = "5秒后放大";
+			btnScale.Content = cmiScale.Header = Properties.Resources.秒后缩放;
 		}
 
 		private void ToggleScaleTimer() {
