@@ -127,4 +127,31 @@
   <data name="Logo" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Assets\Logo.ico;System.Drawing.Icon, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
+  <data name="TestString" xml:space="preserve">
+    <value>Testing</value>
+  </data>
+  <data name="不注入" xml:space="preserve">
+    <value>不注入</value>
+  </data>
+  <data name="启动时注入" xml:space="preserve">
+    <value>启动时注入</value>
+  </data>
+  <data name="抓取模式" xml:space="preserve">
+    <value>抓取模式</value>
+  </data>
+  <data name="热键" xml:space="preserve">
+    <value>热键</value>
+  </data>
+  <data name="秒后缩放" xml:space="preserve">
+    <value>5秒后缩放</value>
+  </data>
+  <data name="缩放模式" xml:space="preserve">
+    <value>缩放模式</value>
+  </data>
+  <data name="运行时注入" xml:space="preserve">
+    <value>运行时注入</value>
+  </data>
+  <data name="进程注入" xml:space="preserve">
+    <value>进程注入</value>
+  </data>
 </root>
