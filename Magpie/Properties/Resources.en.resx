@@ -117,11 +117,24 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+  <data name="BuiltInScaleModels" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Assets\BuiltInScaleModels.en.json;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="Magpie_选项" xml:space="preserve">
+    <value>Magpie Options</value>
+  </data>
   <data name="不注入" xml:space="preserve">
     <value>No Injection</value>
   </data>
+  <data name="关于" xml:space="preserve">
+    <value>About</value>
+  </data>
   <data name="启动时注入" xml:space="preserve">
     <value>Injection at Startup</value>
+  </data>
+  <data name="应用程序" xml:space="preserve">
+    <value>Application</value>
   </data>
   <data name="抓取模式" xml:space="preserve">
     <value>Capture Mode</value>
@@ -131,6 +144,9 @@
   </data>
   <data name="秒后缩放" xml:space="preserve">
     <value>Zoom in after 5s</value>
+  </data>
+  <data name="缩放" xml:space="preserve">
+    <value>Zoom</value>
   </data>
   <data name="缩放模式" xml:space="preserve">
     <value>Scaling Mode</value>
@@ -143,5 +159,8 @@
   </data>
   <data name="选项" xml:space="preserve">
     <value>Options</value>
+  </data>
+  <data name="高级" xml:space="preserve">
+    <value>Advanced</value>
   </data>
 </root>

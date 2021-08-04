@@ -129,6 +129,15 @@ namespace Magpie.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Magpie 选项.
+        /// </summary>
+        public static string Magpie_选项 {
+            get {
+                return ResourceManager.GetString("Magpie_选项", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to 不注入.
         /// </summary>
         public static string 不注入 {
@@ -138,11 +147,29 @@ namespace Magpie.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to 关于.
+        /// </summary>
+        public static string 关于 {
+            get {
+                return ResourceManager.GetString("关于", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to 启动时注入.
         /// </summary>
         public static string 启动时注入 {
             get {
                 return ResourceManager.GetString("启动时注入", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 应用程序.
+        /// </summary>
+        public static string 应用程序 {
+            get {
+                return ResourceManager.GetString("应用程序", resourceCulture);
             }
         }
         
@@ -170,6 +197,15 @@ namespace Magpie.Properties {
         public static string 秒后缩放 {
             get {
                 return ResourceManager.GetString("秒后缩放", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 缩放.
+        /// </summary>
+        public static string 缩放 {
+            get {
+                return ResourceManager.GetString("缩放", resourceCulture);
             }
         }
         
@@ -206,6 +242,15 @@ namespace Magpie.Properties {
         public static string 选项 {
             get {
                 return ResourceManager.GetString("选项", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 高级.
+        /// </summary>
+        public static string 高级 {
+            get {
+                return ResourceManager.GetString("高级", resourceCulture);
             }
         }
     }

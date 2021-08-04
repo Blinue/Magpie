@@ -87,7 +87,7 @@
                     <ContextMenu/>
                 </TextBox.ContextMenu>
             </TextBox>
-            <Button Content="{x:Static p:Resources.秒后缩放}" Name="btnScale" Click="BtnScale_Click" Grid.Column="2" HorizontalAlignment="Right" Margin="0,5,0,0" VerticalAlignment="Top" Padding="10,3" Width="80"/>
+            <Button Content="{x:Static p:Resources.秒后缩放}" Name="btnScale" Click="BtnScale_Click" Grid.Column="2" HorizontalAlignment="Right" Margin="0,5,0,0" VerticalAlignment="Top" Padding="10,3"/>
 
             <Label Style="{StaticResource Col0}" Content="{x:Static p:Resources.缩放模式}" Grid.Row="1" VerticalAlignment="Center" Margin="0,20,0,0" Padding="0,5,5,5" />
             <ComboBox Name="cbbScaleMode" Grid.Row="1" SelectionChanged="CbbScaleMode_SelectionChanged" Margin="10,20,10,0" />
