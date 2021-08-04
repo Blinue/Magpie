@@ -80,28 +80,28 @@
                 <RowDefinition/>
             </Grid.RowDefinitions>
 
-            <Label Style="{StaticResource Col0}" Content="热键" VerticalAlignment="Top" Margin="0,5,0,0" Padding="0,5,5,5"/>
+            <Label Style="{StaticResource Col0}" Content="Hotkey" VerticalAlignment="Top" Margin="0,5,0,0" Padding="0,5,5,5"/>
             <TextBox x:Name="txtHotkey" Grid.Column="1" Margin="10,5,10,0" VerticalAlignment="Top" Padding="1,3" TextChanged="TxtHotkey_TextChanged" >
                 <TextBox.ContextMenu>
                     <ContextMenu/>
                 </TextBox.ContextMenu>
             </TextBox>
-            <Button Content="5秒后缩放" Name="btnScale" Click="BtnScale_Click" Grid.Column="2" HorizontalAlignment="Right" Margin="0,5,0,0" VerticalAlignment="Top" Padding="10,3" Width="80"/>
+            <Button Content="Start in 5" Name="btnScale" Click="BtnScale_Click" Grid.Column="2" HorizontalAlignment="Right" Margin="0,5,0,0" VerticalAlignment="Top" Padding="10,3" Width="80"/>
 
-            <Label Style="{StaticResource Col0}" Content="缩放模式" Grid.Row="1" VerticalAlignment="Center" Margin="0,20,0,0" Padding="0,5,5,5" />
+            <Label Style="{StaticResource Col0}" Content="Mode" Grid.Row="1" VerticalAlignment="Center" Margin="0,20,0,0" Padding="0,5,5,5" />
             <ComboBox Name="cbbScaleMode" Grid.Row="1" SelectionChanged="CbbScaleMode_SelectionChanged" Margin="10,20,10,0" />
 
-            <Label Style="{StaticResource Col0}" Content="抓取模式" Grid.Row="2" VerticalAlignment="Center" Margin="0,10,0,0" Padding="0,5,5,5"/>
+            <Label Style="{StaticResource Col0}" Content="Capture" Grid.Row="2" VerticalAlignment="Center" Margin="0,10,0,0" Padding="0,5,5,5"/>
             <ComboBox Name="cbbCaptureMode" Grid.Row="2" SelectionChanged="CbbCaptureMode_SelectionChanged" Margin="10,10,10,0">
                 <ComboBoxItem Content="WinRT Capture" />
                 <ComboBoxItem Content="GDI" />
             </ComboBox>
 
-            <Label Style="{StaticResource Col0}" Content="进程注入" Grid.Row="3" VerticalAlignment="Center" Margin="0,10,0,0" Padding="0,5,5,5"/>
+            <Label Style="{StaticResource Col0}" Content="Injector" Grid.Row="3" VerticalAlignment="Center" Margin="0,10,0,0" Padding="0,5,5,5"/>
             <ComboBox Name="cbbInjectMode" Grid.Row="3" SelectionChanged="CbbInjectMode_SelectionChanged" Margin="10,10,10,0">
-                <ComboBoxItem Content="不注入" />
-                <ComboBoxItem Content="运行时注入" />
-                <ComboBoxItem Content="启动时注入" />
+                <ComboBoxItem Content="None" />
+                <ComboBoxItem Content="Runtime" />
+                <ComboBoxItem Content="Startup" />
             </ComboBox>
         </Grid>
 
@@ -122,7 +122,7 @@
             <Button Click="BtnOptions_Click" Margin="10,0,0,0" VerticalAlignment="Center" Padding="10,5" Grid.Column="1" HorizontalAlignment="Right">
                 <StackPanel Orientation="Horizontal">
                     <Label FontFamily="Segoe MDL2 Assets" Content="&#xE713;" Padding="0" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Margin="0" />
-                    <Label Content="选项" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Padding="0" Margin="5,0,0,0" />
+                    <Label Content="Option" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Padding="0" Margin="5,0,0,0" />
                 </StackPanel>
             </Button>
         </Grid>
