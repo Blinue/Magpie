@@ -61,6 +61,60 @@ namespace Magpie.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to About.
+        /// </summary>
+        public static string About {
+            get {
+                return ResourceManager.GetString("About", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Adjust cursor scale while zoomed.
+        /// </summary>
+        public static string Adjust_Cursor_Scale {
+            get {
+                return ResourceManager.GetString("Adjust_Cursor_Scale", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Advanced.
+        /// </summary>
+        public static string Advanced {
+            get {
+                return ResourceManager.GetString("Advanced", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to All those who have provided feedback and contributions to Magpie.
+        /// </summary>
+        public static string All_Contributors_Thanks_Text {
+            get {
+                return ResourceManager.GetString("All_Contributors_Thanks_Text", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to All shader projects supported by Magpie.
+        /// </summary>
+        public static string All_Shaders_Thanks_Text {
+            get {
+                return ResourceManager.GetString("All_Shaders_Thanks_Text", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Application.
+        /// </summary>
+        public static string Application {
+            get {
+                return ResourceManager.GetString("Application", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to [
         ///  {
         ///    &quot;name&quot;: &quot;Lanczos&quot;,
@@ -97,6 +151,24 @@ namespace Magpie.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Capture Mode.
+        /// </summary>
+        public static string Capture_Mode {
+            get {
+                return ResourceManager.GetString("Capture_Mode", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Close.
+        /// </summary>
+        public static string Close {
+            get {
+                return ResourceManager.GetString("Close", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to C++ / WinRT.
         /// </summary>
         public static string Cpp_WinRT {
@@ -106,11 +178,65 @@ namespace Magpie.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Current Window.
+        /// </summary>
+        public static string Current_Window {
+            get {
+                return ResourceManager.GetString("Current_Window", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to EasyHook.
         /// </summary>
         public static string EasyHook {
             get {
                 return ResourceManager.GetString("EasyHook", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Feedback.
+        /// </summary>
+        public static string Feedback {
+            get {
+                return ResourceManager.GetString("Feedback", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Hotkey.
+        /// </summary>
+        public static string Hotkey {
+            get {
+                return ResourceManager.GetString("Hotkey", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Injection at Startup.
+        /// </summary>
+        public static string Injection_At_Startup {
+            get {
+                return ResourceManager.GetString("Injection_At_Startup", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Injection Mode.
+        /// </summary>
+        public static string Injection_Mode {
+            get {
+                return ResourceManager.GetString("Injection_Mode", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Language.
+        /// </summary>
+        public static string Language {
+            get {
+                return ResourceManager.GetString("Language", resourceCulture);
             }
         }
         
@@ -137,6 +263,24 @@ namespace Magpie.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The liceses that Magpie Uses:.
+        /// </summary>
+        public static string Licenses_That_Magpie_Uses {
+            get {
+                return ResourceManager.GetString("Licenses_That_Magpie_Uses", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Logging Level.
+        /// </summary>
+        public static string Logging_Level {
+            get {
+                return ResourceManager.GetString("Logging_Level", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Icon similar to (Icon).
         /// </summary>
         public static System.Drawing.Icon Logo {
@@ -147,38 +291,155 @@ namespace Magpie.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The liceses that Magpie Uses:.
-        /// </summary>
-        public static string Magpie_和它使用的开源软件的许可 {
-            get {
-                return ResourceManager.GetString("Magpie_和它使用的开源软件的许可", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Magpie Open Source Licenses.
         /// </summary>
-        public static string Magpie_开源许可 {
+        public static string Magpie_Open_Source_Licenses {
             get {
-                return ResourceManager.GetString("Magpie_开源许可", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to All shader projects supported by Magpie.
-        /// </summary>
-        public static string Magpie_移植的所有优秀着色器项目 {
-            get {
-                return ResourceManager.GetString("Magpie_移植的所有优秀着色器项目", resourceCulture);
+                return ResourceManager.GetString("Magpie_Open_Source_Licenses", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Magpie Options.
         /// </summary>
-        public static string Magpie_选项 {
+        public static string Magpie_Options {
             get {
-                return ResourceManager.GetString("Magpie_选项", resourceCulture);
+                return ResourceManager.GetString("Magpie_Options", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Minimise to the System Tray at Startup.
+        /// </summary>
+        public static string Minimise_To_System_Tray {
+            get {
+                return ResourceManager.GetString("Minimise_To_System_Tray", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No Injection.
+        /// </summary>
+        public static string No_Injection {
+            get {
+                return ResourceManager.GetString("No_Injection", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Open Scale configuration file.
+        /// </summary>
+        public static string Open_Scale_Config_File {
+            get {
+                return ResourceManager.GetString("Open_Scale_Config_File", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Open Source Licenses.
+        /// </summary>
+        public static string Open_Source_Licenses {
+            get {
+                return ResourceManager.GetString("Open_Source_Licenses", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Options.
+        /// </summary>
+        public static string Options {
+            get {
+                return ResourceManager.GetString("Options", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Parse Failure.
+        /// </summary>
+        public static string Parse_Failure {
+            get {
+                return ResourceManager.GetString("Parse_Failure", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Project URL.
+        /// </summary>
+        public static string Project_URL {
+            get {
+                return ResourceManager.GetString("Project_URL", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Restore full screen when source window loses focus.
+        /// </summary>
+        public static string Restore_Full_Screen {
+            get {
+                return ResourceManager.GetString("Restore_Full_Screen", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Run at Startup.
+        /// </summary>
+        public static string Run_At_Startup {
+            get {
+                return ResourceManager.GetString("Run_At_Startup", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Runtime Injection.
+        /// </summary>
+        public static string Runtime_Injection {
+            get {
+                return ResourceManager.GetString("Runtime_Injection", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Scaling Mode.
+        /// </summary>
+        public static string Scaling_Mode {
+            get {
+                return ResourceManager.GetString("Scaling_Mode", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Show Frame Rate.
+        /// </summary>
+        public static string Show_Frame_Rate {
+            get {
+                return ResourceManager.GetString("Show_Frame_Rate", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Support.
+        /// </summary>
+        public static string Support {
+            get {
+                return ResourceManager.GetString("Support", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Thanks.
+        /// </summary>
+        public static string Thanks {
+            get {
+                return ResourceManager.GetString("Thanks", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Version.
+        /// </summary>
+        public static string Version {
+            get {
+                return ResourceManager.GetString("Version", resourceCulture);
             }
         }
         
@@ -192,281 +453,20 @@ namespace Magpie.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to No Injection.
+        ///   Looks up a localized string similar to Zoom.
         /// </summary>
-        public static string 不注入 {
+        public static string Zoom {
             get {
-                return ResourceManager.GetString("不注入", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to About.
-        /// </summary>
-        public static string 关于 {
-            get {
-                return ResourceManager.GetString("关于", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Feedback.
-        /// </summary>
-        public static string 反馈 {
-            get {
-                return ResourceManager.GetString("反馈", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Injection at Startup.
-        /// </summary>
-        public static string 启动时注入 {
-            get {
-                return ResourceManager.GetString("启动时注入", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Restore full screen when source window loses focus.
-        /// </summary>
-        public static string 如果源窗口失去焦点_则在它重获焦点时恢复全屏 {
-            get {
-                return ResourceManager.GetString("如果源窗口失去焦点_则在它重获焦点时恢复全屏", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Application.
-        /// </summary>
-        public static string 应用程序 {
-            get {
-                return ResourceManager.GetString("应用程序", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Run at Startup.
-        /// </summary>
-        public static string 开机启动 {
-            get {
-                return ResourceManager.GetString("开机启动", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Minimise to the System Tray at Startup.
-        /// </summary>
-        public static string 开机启动时最小化到系统托盘 {
-            get {
-                return ResourceManager.GetString("开机启动时最小化到系统托盘", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Open Source Licenses.
-        /// </summary>
-        public static string 开源许可 {
-            get {
-                return ResourceManager.GetString("开源许可", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Current Window.
-        /// </summary>
-        public static string 当前窗口 {
-            get {
-                return ResourceManager.GetString("当前窗口", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to All those who have provided feedback and contributions to Magpie.
-        /// </summary>
-        public static string 所有为Magpie提供反馈与贡献的人 {
-            get {
-                return ResourceManager.GetString("所有为Magpie提供反馈与贡献的人", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Open Scale configuration file.
-        /// </summary>
-        public static string 打开缩放配置 {
-            get {
-                return ResourceManager.GetString("打开缩放配置", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Capture Mode.
-        /// </summary>
-        public static string 抓取模式 {
-            get {
-                return ResourceManager.GetString("抓取模式", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Support.
-        /// </summary>
-        public static string 支持 {
-            get {
-                return ResourceManager.GetString("支持", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Logging Level.
-        /// </summary>
-        public static string 日志级别 {
-            get {
-                return ResourceManager.GetString("日志级别", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Show Frame Rate.
-        /// </summary>
-        public static string 显示帧率 {
-            get {
-                return ResourceManager.GetString("显示帧率", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Hotkey.
-        /// </summary>
-        public static string 热键 {
-            get {
-                return ResourceManager.GetString("热键", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Version.
-        /// </summary>
-        public static string 版本 {
-            get {
-                return ResourceManager.GetString("版本", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Close.
-        /// </summary>
-        public static string 确定 {
-            get {
-                return ResourceManager.GetString("确定", resourceCulture);
+                return ResourceManager.GetString("Zoom", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Zoom in after 5s.
         /// </summary>
-        public static string 秒后缩放 {
+        public static string Zoom_In_After_5S {
             get {
-                return ResourceManager.GetString("秒后缩放", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Zoom.
-        /// </summary>
-        public static string 缩放 {
-            get {
-                return ResourceManager.GetString("缩放", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Adjust cursor scale while zoomed.
-        /// </summary>
-        public static string 缩放时调整光标速度 {
-            get {
-                return ResourceManager.GetString("缩放时调整光标速度", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Scaling Mode.
-        /// </summary>
-        public static string 缩放模式 {
-            get {
-                return ResourceManager.GetString("缩放模式", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Parse Failure.
-        /// </summary>
-        public static string 解析失败 {
-            get {
-                return ResourceManager.GetString("解析失败", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Language.
-        /// </summary>
-        public static string 语言 {
-            get {
-                return ResourceManager.GetString("语言", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Runtime Injection.
-        /// </summary>
-        public static string 运行时注入 {
-            get {
-                return ResourceManager.GetString("运行时注入", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Injection Mode.
-        /// </summary>
-        public static string 进程注入 {
-            get {
-                return ResourceManager.GetString("进程注入", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Options.
-        /// </summary>
-        public static string 选项 {
-            get {
-                return ResourceManager.GetString("选项", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Project URL.
-        /// </summary>
-        public static string 项目地址 {
-            get {
-                return ResourceManager.GetString("项目地址", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Advanced.
-        /// </summary>
-        public static string 高级 {
-            get {
-                return ResourceManager.GetString("高级", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Thanks.
-        /// </summary>
-        public static string 鸣谢 {
-            get {
-                return ResourceManager.GetString("鸣谢", resourceCulture);
+                return ResourceManager.GetString("Zoom_In_After_5S", resourceCulture);
             }
         }
     }

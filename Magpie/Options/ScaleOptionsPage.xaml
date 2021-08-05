@@ -18,8 +18,8 @@
     </Page.Resources>
 
     <StackPanel>
-        <CheckBox Content="{x:Static p:Resources.缩放时调整光标速度}"/>
-        <CheckBox Content="{x:Static p:Resources.如果源窗口失去焦点_则在它重获焦点时恢复全屏}" Margin="0,20,0,0" IsChecked="{Binding Source={x:Static props:Settings.Default},Path=AutoRestore,Mode=TwoWay}" />
-        <Button Content="{x:Static p:Resources.打开缩放配置}" HorizontalAlignment="Left" Margin="0,20,0,0" Click="BtnScale_Click"/>
+        <CheckBox Content="{x:Static p:Resources.Adjust_Cursor_Scale}"/>
+        <CheckBox Content="{x:Static p:Resources.Restore_Full_Screen}" Margin="0,20,0,0" IsChecked="{Binding Source={x:Static props:Settings.Default},Path=AutoRestore,Mode=TwoWay}" />
+        <Button Content="{x:Static p:Resources.Open_Scale_Config_File}" HorizontalAlignment="Left" Margin="0,20,0,0" Click="BtnScale_Click"/>
     </StackPanel>
 </Page>

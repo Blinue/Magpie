@@ -117,122 +117,122 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="About" xml:space="preserve">
+    <value>关于</value>
+  </data>
+  <data name="Adjust_Cursor_Scale" xml:space="preserve">
+    <value>缩放时调整光标速度</value>
+  </data>
+  <data name="Advanced" xml:space="preserve">
+    <value>高级</value>
+  </data>
+  <data name="All_Contributors_Thanks_Text" xml:space="preserve">
+    <value>Magpie移植的所有优秀着色器项目</value>
+  </data>
+  <data name="All_Shaders_Thanks_Text" xml:space="preserve">
+    <value>所有为Magpie提供反馈与贡献的人</value>
+  </data>
+  <data name="Application" xml:space="preserve">
+    <value>应用程序</value>
+  </data>
   <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
   <data name="BuiltInScaleModels" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Assets\BuiltInScaleModels.zh-CN.json;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
+  <data name="Capture_Mode" xml:space="preserve">
+    <value>抓取模式</value>
+  </data>
+  <data name="Close" xml:space="preserve">
+    <value>确定</value>
+  </data>
   <data name="Cpp_WinRT" xml:space="preserve">
     <value>C++ / WinRT</value>
+  </data>
+  <data name="Current_Window" xml:space="preserve">
+    <value>当前窗口</value>
   </data>
   <data name="EasyHook" xml:space="preserve">
     <value>EasyHook</value>
   </data>
-  <data name="Magpie_和它使用的开源软件的许可" xml:space="preserve">
+  <data name="Feedback" xml:space="preserve">
+    <value>反馈</value>
+  </data>
+  <data name="Hotkey" xml:space="preserve">
+    <value>热键</value>
+  </data>
+  <data name="Injection_At_Startup" xml:space="preserve">
+    <value>启动时注入</value>
+  </data>
+  <data name="Injection_Mode" xml:space="preserve">
+    <value>进程注入</value>
+  </data>
+  <data name="Language" xml:space="preserve">
+    <value>语言</value>
+  </data>
+  <data name="Licenses_That_Magpie_Uses" xml:space="preserve">
     <value>Magpie和它使用的开源软件的许可：</value>
   </data>
-  <data name="Magpie_开源许可" xml:space="preserve">
+  <data name="Logging_Level" xml:space="preserve">
+    <value>日志级别</value>
+  </data>
+  <data name="Magpie_Open_Source_Licenses" xml:space="preserve">
     <value>Magpie 开源许可</value>
   </data>
-  <data name="Magpie_移植的所有优秀着色器项目" xml:space="preserve">
-    <value>Magpie移植的所有优秀着色器项目</value>
-  </data>
-  <data name="Magpie_选项" xml:space="preserve">
+  <data name="Magpie_Options" xml:space="preserve">
     <value>Magpie 选项</value>
+  </data>
+  <data name="Minimise_To_System_Tray" xml:space="preserve">
+    <value>开机启动时最小化到系统托盘</value>
+  </data>
+  <data name="No_Injection" xml:space="preserve">
+    <value>不注入</value>
+  </data>
+  <data name="Open_Scale_Config_File" xml:space="preserve">
+    <value>打开缩放配置</value>
+  </data>
+  <data name="Open_Source_Licenses" xml:space="preserve">
+    <value>开源许可</value>
+  </data>
+  <data name="Options" xml:space="preserve">
+    <value>选项</value>
+  </data>
+  <data name="Parse_Failure" xml:space="preserve">
+    <value>解析失败</value>
+  </data>
+  <data name="Project_URL" xml:space="preserve">
+    <value>项目地址</value>
+  </data>
+  <data name="Restore_Full_Screen" xml:space="preserve">
+    <value>如果源窗口失去焦点，则在它重获焦点时恢复全屏</value>
+  </data>
+  <data name="Runtime_Injection" xml:space="preserve">
+    <value>运行时注入</value>
+  </data>
+  <data name="Run_At_Startup" xml:space="preserve">
+    <value>开机启动</value>
+  </data>
+  <data name="Scaling_Mode" xml:space="preserve">
+    <value>缩放模式</value>
+  </data>
+  <data name="Show_Frame_Rate" xml:space="preserve">
+    <value>显示帧率</value>
+  </data>
+  <data name="Support" xml:space="preserve">
+    <value>支持</value>
+  </data>
+  <data name="Thanks" xml:space="preserve">
+    <value>鸣谢</value>
+  </data>
+  <data name="Version" xml:space="preserve">
+    <value>版本</value>
   </data>
   <data name="Visual_Studio" xml:space="preserve">
     <value>Visual Studio</value>
   </data>
-  <data name="不注入" xml:space="preserve">
-    <value>不注入</value>
-  </data>
-  <data name="关于" xml:space="preserve">
-    <value>关于</value>
-  </data>
-  <data name="反馈" xml:space="preserve">
-    <value>反馈</value>
-  </data>
-  <data name="启动时注入" xml:space="preserve">
-    <value>启动时注入</value>
-  </data>
-  <data name="如果源窗口失去焦点_则在它重获焦点时恢复全屏" xml:space="preserve">
-    <value>如果源窗口失去焦点，则在它重获焦点时恢复全屏</value>
-  </data>
-  <data name="应用程序" xml:space="preserve">
-    <value>应用程序</value>
-  </data>
-  <data name="开机启动" xml:space="preserve">
-    <value>开机启动</value>
-  </data>
-  <data name="开机启动时最小化到系统托盘" xml:space="preserve">
-    <value>开机启动时最小化到系统托盘</value>
-  </data>
-  <data name="开源许可" xml:space="preserve">
-    <value>开源许可</value>
-  </data>
-  <data name="当前窗口" xml:space="preserve">
-    <value>当前窗口</value>
-  </data>
-  <data name="所有为Magpie提供反馈与贡献的人" xml:space="preserve">
-    <value>所有为Magpie提供反馈与贡献的人</value>
-  </data>
-  <data name="打开缩放配置" xml:space="preserve">
-    <value>打开缩放配置</value>
-  </data>
-  <data name="抓取模式" xml:space="preserve">
-    <value>抓取模式</value>
-  </data>
-  <data name="支持" xml:space="preserve">
-    <value>支持</value>
-  </data>
-  <data name="日志级别" xml:space="preserve">
-    <value>日志级别</value>
-  </data>
-  <data name="显示帧率" xml:space="preserve">
-    <value>显示帧率</value>
-  </data>
-  <data name="热键" xml:space="preserve">
-    <value>热键</value>
-  </data>
-  <data name="版本" xml:space="preserve">
-    <value>版本</value>
-  </data>
-  <data name="确定" xml:space="preserve">
-    <value>确定</value>
-  </data>
-  <data name="秒后缩放" xml:space="preserve">
-    <value>5秒后缩放</value>
-  </data>
-  <data name="缩放" xml:space="preserve">
+  <data name="Zoom" xml:space="preserve">
     <value>缩放</value>
   </data>
-  <data name="缩放时调整光标速度" xml:space="preserve">
-    <value>缩放时调整光标速度</value>
-  </data>
-  <data name="缩放模式" xml:space="preserve">
-    <value>缩放模式</value>
-  </data>
-  <data name="解析失败" xml:space="preserve">
-    <value>解析失败</value>
-  </data>
-  <data name="语言" xml:space="preserve">
-    <value>语言</value>
-  </data>
-  <data name="运行时注入" xml:space="preserve">
-    <value>运行时注入</value>
-  </data>
-  <data name="进程注入" xml:space="preserve">
-    <value>进程注入</value>
-  </data>
-  <data name="选项" xml:space="preserve">
-    <value>选项</value>
-  </data>
-  <data name="项目地址" xml:space="preserve">
-    <value>项目地址</value>
-  </data>
-  <data name="高级" xml:space="preserve">
-    <value>高级</value>
-  </data>
-  <data name="鸣谢" xml:space="preserve">
-    <value>鸣谢</value>
+  <data name="Zoom_In_After_5S" xml:space="preserve">
+    <value>5秒后缩放</value>
   </data>
 </root>

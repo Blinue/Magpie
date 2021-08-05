@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:Magpie.Options"
         xmlns:p="clr-namespace:Magpie.Properties;assembly=Magpie"
         mc:Ignorable="d"
-        Title="{x:Static p:Resources.Magpie_选项}" Height="400" Width="650">
+        Title="{x:Static p:Resources.Magpie_Options}" Height="400" Width="650">
     <DockPanel>
         <ListBox x:Name="lbxOptionsPage" Margin="0" SelectionChanged="LxbOptionsPage_SelectionChanged" Padding="0" BorderThickness="0,0,1,0">
             <ListBox.Resources>
@@ -28,25 +28,25 @@
             <ListBoxItem>
                 <StackPanel Orientation="Horizontal">
                     <Label Style="{StaticResource Icon}" Content="&#xECAA;" />
-                    <Label Style="{StaticResource Name}" Content="{x:Static p:Resources.应用程序}" />
+                    <Label Style="{StaticResource Name}" Content="{x:Static p:Resources.Application}" />
                 </StackPanel>
             </ListBoxItem>
             <ListBoxItem>
                 <StackPanel Orientation="Horizontal">
                     <Label Style="{StaticResource Icon}" Content="&#xE92D;" />
-                    <Label Style="{StaticResource Name}" Content="{x:Static p:Resources.缩放}" />
+                    <Label Style="{StaticResource Name}" Content="{x:Static p:Resources.Zoom}" />
                 </StackPanel>
             </ListBoxItem>
             <ListBoxItem>
                 <StackPanel Orientation="Horizontal">
                     <Label Style="{StaticResource Icon}" Content="&#xEC7A;" />
-                    <Label Style="{StaticResource Name}" Content="{x:Static p:Resources.高级}" />
+                    <Label Style="{StaticResource Name}" Content="{x:Static p:Resources.Advanced}" />
                 </StackPanel>
             </ListBoxItem>
             <ListBoxItem>
                 <StackPanel Orientation="Horizontal">
                     <Label Style="{StaticResource Icon}" Content="&#xE946;" />
-                    <Label Style="{StaticResource Name}" Content="{x:Static p:Resources.关于}" />
+                    <Label Style="{StaticResource Name}" Content="{x:Static p:Resources.About}" />
                 </StackPanel>
             </ListBoxItem>
         </ListBox>

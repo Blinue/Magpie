@@ -22,10 +22,10 @@
                 <Image Height="28" Source="{StaticResource Logo}" HorizontalAlignment="Left" VerticalAlignment="Top"/>
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                     <Label Content="MAGPIE" Margin="5,0,0,-3" VerticalAlignment="Top" FontSize="20" Padding="0" HorizontalAlignment="Left"/>
-                    <Label Name="lblVersion" Content="{x:Static p:Resources.版本}" Padding="0" Margin="10,0,0,0" VerticalAlignment="Bottom" FontSize="11" />
+                    <Label Name="lblVersion" Content="{x:Static p:Resources.Version}" Padding="0" Margin="10,0,0,0" VerticalAlignment="Bottom" FontSize="11" />
                 </StackPanel>
             </StackPanel>
-            <Button Content="{x:Static p:Resources.开源许可}" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" HorizontalAlignment="Right" VerticalAlignment="Center" Click="BtnLicense_Click" />
+            <Button Content="{x:Static p:Resources.Open_Source_Licenses}" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" HorizontalAlignment="Right" VerticalAlignment="Center" Click="BtnLicense_Click" />
         </Grid>
 
         <Grid Margin="0,20,0,0">
@@ -34,7 +34,7 @@
                 <ColumnDefinition />
             </Grid.ColumnDefinitions>
 
-            <Label Content="{x:Static p:Resources.支持}" Padding="0" FontWeight="Bold" />
+            <Label Content="{x:Static p:Resources.Support}" Padding="0" FontWeight="Bold" />
             <Separator Margin="5,0,0,0" VerticalAlignment="Center" Grid.Column="1"/>
         </Grid>
         <Grid Margin="5,5,0,0">
@@ -48,13 +48,13 @@
                 <RowDefinition />
             </Grid.RowDefinitions>
 
-            <Label Content="{x:Static p:Resources.项目地址}" Padding="5" HorizontalAlignment="Left" VerticalAlignment="Center" />
+            <Label Content="{x:Static p:Resources.Project_URL}" Padding="5" HorizontalAlignment="Left" VerticalAlignment="Center" />
             <TextBlock Grid.Column="1" Padding="5">
                 <Hyperlink NavigateUri="https://github.com/Blinue/Magpie" RequestNavigate="Hyperlink_RequestNavigate">
                     https://github.com/Blinue/Magpie
                 </Hyperlink>
             </TextBlock>
-            <Label Content="{x:Static p:Resources.反馈}" Grid.Row="1" Padding="5" Grid.RowSpan="2" HorizontalAlignment="Left" VerticalAlignment="Center" />
+            <Label Content="{x:Static p:Resources.Feedback}" Grid.Row="1" Padding="5" Grid.RowSpan="2" HorizontalAlignment="Left" VerticalAlignment="Center" />
             <TextBlock Grid.Column="1" Grid.Row="1" Padding="5">
                 <Hyperlink NavigateUri="https://github.com/Blinue/Magpie/issues" RequestNavigate="Hyperlink_RequestNavigate">
                     https://github.com/Blinue/Magpie/issues
@@ -73,7 +73,7 @@
                 <ColumnDefinition />
             </Grid.ColumnDefinitions>
 
-            <Label Content="{x:Static p:Resources.鸣谢}" Padding="0" FontWeight="Bold" />
+            <Label Content="{x:Static p:Resources.Thanks}" Padding="0" FontWeight="Bold" />
             <Separator Margin="5,0,0,0" VerticalAlignment="Center" Grid.Column="1"/>
         </Grid>
         <Grid Margin="5,5,0,0">
@@ -106,8 +106,8 @@
                     https://github.com/microsoft/cppwinrt
                 </Hyperlink>
             </TextBlock>
-            <TextBlock Text="{x:Static p:Resources.Magpie_移植的所有优秀着色器项目}" Grid.Row="3" Grid.ColumnSpan="2" Padding="5" />
-            <TextBlock Text="{x:Static p:Resources.所有为Magpie提供反馈与贡献的人}" Grid.Row="4" Grid.ColumnSpan="2" Padding="5" />
+            <TextBlock Text="{x:Static p:Resources.All_Shaders_Thanks_Text}" Grid.Row="3" Grid.ColumnSpan="2" Padding="5" />
+            <TextBlock Text="{x:Static p:Resources.All_Contributors_Thanks_Text}" Grid.Row="4" Grid.ColumnSpan="2" Padding="5" />
         </Grid>
     </StackPanel>
 </Page>
