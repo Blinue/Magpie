@@ -97,6 +97,24 @@ namespace Magpie.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to C++ / WinRT.
+        /// </summary>
+        public static string Cpp_WinRT {
+            get {
+                return ResourceManager.GetString("Cpp_WinRT", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to EasyHook.
+        /// </summary>
+        public static string EasyHook {
+            get {
+                return ResourceManager.GetString("EasyHook", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to [Magpie]
         ///https://github.com/Blinue/Magpie
         ///---------------------------------------------------
@@ -129,11 +147,47 @@ namespace Magpie.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The liceses that Magpie Uses:.
+        /// </summary>
+        public static string Magpie_和它使用的开源软件的许可 {
+            get {
+                return ResourceManager.GetString("Magpie_和它使用的开源软件的许可", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Magpie Open Source Licenses.
+        /// </summary>
+        public static string Magpie_开源许可 {
+            get {
+                return ResourceManager.GetString("Magpie_开源许可", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to All shader projects supported by Magpie.
+        /// </summary>
+        public static string Magpie_移植的所有优秀着色器项目 {
+            get {
+                return ResourceManager.GetString("Magpie_移植的所有优秀着色器项目", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Magpie Options.
         /// </summary>
         public static string Magpie_选项 {
             get {
                 return ResourceManager.GetString("Magpie_选项", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Visual Studio.
+        /// </summary>
+        public static string Visual_Studio {
+            get {
+                return ResourceManager.GetString("Visual_Studio", resourceCulture);
             }
         }
         
@@ -156,11 +210,29 @@ namespace Magpie.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Feedback.
+        /// </summary>
+        public static string 反馈 {
+            get {
+                return ResourceManager.GetString("反馈", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Injection at Startup.
         /// </summary>
         public static string 启动时注入 {
             get {
                 return ResourceManager.GetString("启动时注入", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Restore full screen when source window loses focus.
+        /// </summary>
+        public static string 如果源窗口失去焦点_则在它重获焦点时恢复全屏 {
+            get {
+                return ResourceManager.GetString("如果源窗口失去焦点_则在它重获焦点时恢复全屏", resourceCulture);
             }
         }
         
@@ -174,11 +246,56 @@ namespace Magpie.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Run at Startup.
+        /// </summary>
+        public static string 开机启动 {
+            get {
+                return ResourceManager.GetString("开机启动", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Minimise to the System Tray at Startup.
+        /// </summary>
+        public static string 开机启动时最小化到系统托盘 {
+            get {
+                return ResourceManager.GetString("开机启动时最小化到系统托盘", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Open Source Licenses.
+        /// </summary>
+        public static string 开源许可 {
+            get {
+                return ResourceManager.GetString("开源许可", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Current Window.
         /// </summary>
         public static string 当前窗口 {
             get {
                 return ResourceManager.GetString("当前窗口", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to All those who have provided feedback and contributions to Magpie.
+        /// </summary>
+        public static string 所有为Magpie提供反馈与贡献的人 {
+            get {
+                return ResourceManager.GetString("所有为Magpie提供反馈与贡献的人", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Open Scale configuration file.
+        /// </summary>
+        public static string 打开缩放配置 {
+            get {
+                return ResourceManager.GetString("打开缩放配置", resourceCulture);
             }
         }
         
@@ -192,11 +309,56 @@ namespace Magpie.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Support.
+        /// </summary>
+        public static string 支持 {
+            get {
+                return ResourceManager.GetString("支持", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Logging Level.
+        /// </summary>
+        public static string 日志级别 {
+            get {
+                return ResourceManager.GetString("日志级别", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Show Frame Rate.
+        /// </summary>
+        public static string 显示帧率 {
+            get {
+                return ResourceManager.GetString("显示帧率", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Hotkey.
         /// </summary>
         public static string 热键 {
             get {
                 return ResourceManager.GetString("热键", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Version.
+        /// </summary>
+        public static string 版本 {
+            get {
+                return ResourceManager.GetString("版本", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Close.
+        /// </summary>
+        public static string 确定 {
+            get {
+                return ResourceManager.GetString("确定", resourceCulture);
             }
         }
         
@@ -219,6 +381,15 @@ namespace Magpie.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Adjust cursor scale while zoomed.
+        /// </summary>
+        public static string 缩放时调整光标速度 {
+            get {
+                return ResourceManager.GetString("缩放时调整光标速度", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Scaling Mode.
         /// </summary>
         public static string 缩放模式 {
@@ -233,6 +404,15 @@ namespace Magpie.Properties {
         public static string 解析失败 {
             get {
                 return ResourceManager.GetString("解析失败", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Language.
+        /// </summary>
+        public static string 语言 {
+            get {
+                return ResourceManager.GetString("语言", resourceCulture);
             }
         }
         
@@ -264,11 +444,29 @@ namespace Magpie.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Project URL.
+        /// </summary>
+        public static string 项目地址 {
+            get {
+                return ResourceManager.GetString("项目地址", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Advanced.
         /// </summary>
         public static string 高级 {
             get {
                 return ResourceManager.GetString("高级", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Thanks.
+        /// </summary>
+        public static string 鸣谢 {
+            get {
+                return ResourceManager.GetString("鸣谢", resourceCulture);
             }
         }
     }

@@ -121,8 +121,26 @@
   <data name="BuiltInScaleModels" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Assets\BuiltInScaleModels.zh-CN.json;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
+  <data name="Cpp_WinRT" xml:space="preserve">
+    <value>C++ / WinRT</value>
+  </data>
+  <data name="EasyHook" xml:space="preserve">
+    <value>EasyHook</value>
+  </data>
+  <data name="Magpie_和它使用的开源软件的许可" xml:space="preserve">
+    <value>Magpie和它使用的开源软件的许可：</value>
+  </data>
+  <data name="Magpie_开源许可" xml:space="preserve">
+    <value>Magpie 开源许可</value>
+  </data>
+  <data name="Magpie_移植的所有优秀着色器项目" xml:space="preserve">
+    <value>Magpie移植的所有优秀着色器项目</value>
+  </data>
   <data name="Magpie_选项" xml:space="preserve">
     <value>Magpie 选项</value>
+  </data>
+  <data name="Visual_Studio" xml:space="preserve">
+    <value>Visual Studio</value>
   </data>
   <data name="不注入" xml:space="preserve">
     <value>不注入</value>
@@ -130,20 +148,56 @@
   <data name="关于" xml:space="preserve">
     <value>关于</value>
   </data>
+  <data name="反馈" xml:space="preserve">
+    <value>反馈</value>
+  </data>
   <data name="启动时注入" xml:space="preserve">
     <value>启动时注入</value>
+  </data>
+  <data name="如果源窗口失去焦点_则在它重获焦点时恢复全屏" xml:space="preserve">
+    <value>如果源窗口失去焦点，则在它重获焦点时恢复全屏</value>
   </data>
   <data name="应用程序" xml:space="preserve">
     <value>应用程序</value>
   </data>
+  <data name="开机启动" xml:space="preserve">
+    <value>开机启动</value>
+  </data>
+  <data name="开机启动时最小化到系统托盘" xml:space="preserve">
+    <value>开机启动时最小化到系统托盘</value>
+  </data>
+  <data name="开源许可" xml:space="preserve">
+    <value>开源许可</value>
+  </data>
   <data name="当前窗口" xml:space="preserve">
     <value>当前窗口</value>
+  </data>
+  <data name="所有为Magpie提供反馈与贡献的人" xml:space="preserve">
+    <value>所有为Magpie提供反馈与贡献的人</value>
+  </data>
+  <data name="打开缩放配置" xml:space="preserve">
+    <value>打开缩放配置</value>
   </data>
   <data name="抓取模式" xml:space="preserve">
     <value>抓取模式</value>
   </data>
+  <data name="支持" xml:space="preserve">
+    <value>支持</value>
+  </data>
+  <data name="日志级别" xml:space="preserve">
+    <value>日志级别</value>
+  </data>
+  <data name="显示帧率" xml:space="preserve">
+    <value>显示帧率</value>
+  </data>
   <data name="热键" xml:space="preserve">
     <value>热键</value>
+  </data>
+  <data name="版本" xml:space="preserve">
+    <value>版本</value>
+  </data>
+  <data name="确定" xml:space="preserve">
+    <value>确定</value>
   </data>
   <data name="秒后缩放" xml:space="preserve">
     <value>5秒后缩放</value>
@@ -151,11 +205,17 @@
   <data name="缩放" xml:space="preserve">
     <value>缩放</value>
   </data>
+  <data name="缩放时调整光标速度" xml:space="preserve">
+    <value>缩放时调整光标速度</value>
+  </data>
   <data name="缩放模式" xml:space="preserve">
     <value>缩放模式</value>
   </data>
   <data name="解析失败" xml:space="preserve">
     <value>解析失败</value>
+  </data>
+  <data name="语言" xml:space="preserve">
+    <value>语言</value>
   </data>
   <data name="运行时注入" xml:space="preserve">
     <value>运行时注入</value>
@@ -166,7 +226,13 @@
   <data name="选项" xml:space="preserve">
     <value>选项</value>
   </data>
+  <data name="项目地址" xml:space="preserve">
+    <value>项目地址</value>
+  </data>
   <data name="高级" xml:space="preserve">
     <value>高级</value>
+  </data>
+  <data name="鸣谢" xml:space="preserve">
+    <value>鸣谢</value>
   </data>
 </root>
