@@ -7,9 +7,11 @@
 
 #include <Windows.Graphics.DirectX.Direct3D11.interop.h>
 #include <Windows.Graphics.Capture.Interop.h>
+#include <winrt/Windows.Foundation.Metadata.h>
 
 namespace winrt {
 using namespace Windows::Foundation;
+using namespace Windows::Foundation::Metadata;
 using namespace Windows::Graphics;
 using namespace Windows::Graphics::Capture;
 using namespace Windows::Graphics::DirectX;
@@ -43,6 +45,11 @@ public:
 			// Windows.Graphics.Capture API 似乎只能运行于 MTA，造成诸多麻烦
 			winrt::init_apartment(winrt::apartment_type::multi_threaded);
 
+			Debug::Assert(
+				winrt::ApiInformation::IsTypePresent(L"Windows.Graphics.Capture.GraphicsCaptureSession"),
+				L"无法使用WinRT捕获"
+			);
+
 			Debug::Assert(winrt::GraphicsCaptureSession::IsSupported(), L"当前系统不支持 WinRT Capture");
 
 			// 以下代码参考自 http://tips.hecomi.com/entry/2021/03/23/230947
@@ -64,6 +71,8 @@ public:
 
 			// 从窗口句柄获取 GraphicsCaptureItem
 			auto interop = winrt::get_activation_factory<winrt::GraphicsCaptureItem, IGraphicsCaptureItemInterop>();
+			Debug::Assert(interop, L"获取IGraphicsCaptureItemInterop失败");
+
 			Debug::ThrowIfComFailed(
 				interop->CreateForWindow(
 					hwndSrc,
@@ -86,7 +95,14 @@ public:
 			// 开始捕获
 			_captureSession = _captureFramePool.CreateCaptureSession(_captureItem);
 			Debug::Assert(_captureSession, L"CreateCaptureSession 失败");
-			_captureSession.IsCursorCaptureEnabled(false);
+			
+			if (winrt::ApiInformation::IsPropertyPresent(
+				L"Windows.Graphics.Capture.GraphicsCaptureSession",
+				L"IsCursorCaptureEnabled"
+			)) {
+				// 从 v2004 开始提供
+				_captureSession.IsCursorCaptureEnabled(false);
+			}
 			_captureSession.StartCapture();
 		} catch (winrt::hresult_error) {
 			// 有些窗口无法用WinRT捕获
