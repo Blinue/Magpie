@@ -1,4 +1,4 @@
-[
+﻿[
   {
     "name": "Lanczos",
     "model": [
@@ -87,7 +87,7 @@
     ]
   },
   {
-    "name": "2x Pixel",
+    "name": "像素 2x",
     "model": [
       {
         "module": "Common",
@@ -97,7 +97,7 @@
     ]
   },
   {
-    "name": "3x Pixel",
+    "name": "像素 3x",
     "model": [
       {
         "module": "Common",

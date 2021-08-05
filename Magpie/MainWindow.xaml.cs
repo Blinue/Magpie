@@ -83,7 +83,7 @@ namespace Magpie {
 				return;
 			}
 
-			tbCurWndTitle.Text = "当前窗口：" + NativeMethods.GetWindowTitle(prevSrcWindow);
+			tbCurWndTitle.Text = $"{Properties.Resources.当前窗口}：{NativeMethods.GetWindowTitle(prevSrcWindow)}";
 			gridAutoRestore.Visibility = Visibility.Visible;
 		}
 
@@ -144,7 +144,7 @@ namespace Magpie {
 				scaleModels = null;
 
 				cbbScaleMode.Items.Clear();
-				_ = cbbScaleMode.Items.Add("<解析失败>");
+				_ = cbbScaleMode.Items.Add($"<{Properties.Resources.解析失败}>");
 			}
 		}
 

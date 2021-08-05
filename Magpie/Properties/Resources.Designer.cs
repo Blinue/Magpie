@@ -129,7 +129,7 @@ namespace Magpie.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Magpie 选项.
+        ///   Looks up a localized string similar to Magpie Options.
         /// </summary>
         public static string Magpie_选项 {
             get {
@@ -138,7 +138,7 @@ namespace Magpie.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to 不注入.
+        ///   Looks up a localized string similar to No Injection.
         /// </summary>
         public static string 不注入 {
             get {
@@ -147,7 +147,7 @@ namespace Magpie.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to 关于.
+        ///   Looks up a localized string similar to About.
         /// </summary>
         public static string 关于 {
             get {
@@ -156,7 +156,7 @@ namespace Magpie.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to 启动时注入.
+        ///   Looks up a localized string similar to Injection at Startup.
         /// </summary>
         public static string 启动时注入 {
             get {
@@ -165,7 +165,7 @@ namespace Magpie.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to 应用程序.
+        ///   Looks up a localized string similar to Application.
         /// </summary>
         public static string 应用程序 {
             get {
@@ -174,7 +174,16 @@ namespace Magpie.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to 抓取模式.
+        ///   Looks up a localized string similar to Current Window.
+        /// </summary>
+        public static string 当前窗口 {
+            get {
+                return ResourceManager.GetString("当前窗口", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Capture Mode.
         /// </summary>
         public static string 抓取模式 {
             get {
@@ -183,7 +192,7 @@ namespace Magpie.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to 热键.
+        ///   Looks up a localized string similar to Hotkey.
         /// </summary>
         public static string 热键 {
             get {
@@ -192,7 +201,7 @@ namespace Magpie.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to 5秒后缩放.
+        ///   Looks up a localized string similar to Zoom in after 5s.
         /// </summary>
         public static string 秒后缩放 {
             get {
@@ -201,7 +210,7 @@ namespace Magpie.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to 缩放.
+        ///   Looks up a localized string similar to Zoom.
         /// </summary>
         public static string 缩放 {
             get {
@@ -210,7 +219,7 @@ namespace Magpie.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to 缩放模式.
+        ///   Looks up a localized string similar to Scaling Mode.
         /// </summary>
         public static string 缩放模式 {
             get {
@@ -219,7 +228,16 @@ namespace Magpie.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to 运行时注入.
+        ///   Looks up a localized string similar to Parse Failure.
+        /// </summary>
+        public static string 解析失败 {
+            get {
+                return ResourceManager.GetString("解析失败", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Runtime Injection.
         /// </summary>
         public static string 运行时注入 {
             get {
@@ -228,7 +246,7 @@ namespace Magpie.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to 进程注入.
+        ///   Looks up a localized string similar to Injection Mode.
         /// </summary>
         public static string 进程注入 {
             get {
@@ -237,7 +255,7 @@ namespace Magpie.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to 选项.
+        ///   Looks up a localized string similar to Options.
         /// </summary>
         public static string 选项 {
             get {
@@ -246,7 +264,7 @@ namespace Magpie.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to 高级.
+        ///   Looks up a localized string similar to Advanced.
         /// </summary>
         public static string 高级 {
             get {
