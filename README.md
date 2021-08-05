@@ -1,12 +1,12 @@
 # MAGPIE Translated by Prefix
 
-Magpie can enlarge any window to full screen and supports a variety of advanced zoom algorithms, including Lanczos, [Anime4K](https://github.com/bloc97/Anime4K), [FSR](https://github.com/GPUOpen- Effects/FidelityFX-FSR), [FSRCNNX](https://github.com/igv/FSRCNN-TensorFlow), etc.
+Magpie can enlarge any window to full screen and supports a variety of advanced zoom algorithms, including Lanczos, [Anime4K](https://github.com/bloc97/Anime4K), [FSR](https://github.com/GPUOpen-Effects/FidelityFX-FSR), [FSRCNNX](https://github.com/igv/FSRCNN-TensorFlow), etc.
 
 It is mainly used for the enlarged display of the game window. It is suitable for situations where the full-screen mode is not supported, or the built-in full-screen mode will blur the picture.
 
 Stars are welcome, and contributions of any kind are welcome.
 
-☛ [Compilation Guide](https://github.com/Blinue/Magpie/wiki/Compilation Guide)
+☛ [Compilation Guide](https://github.com/Blinue/Magpie/wiki/%E7%BC%96%E8%AF%91%E6%8C%87%E5%8D%97)
 
 ## Instructions
 
@@ -49,7 +49,7 @@ If a custom cursor is used in the source window, two cursors may appear on the s
 
 ## Implementation principle
 
-Because of the different implementation principles, Magpie is better than [Lossless Scaling](https://store.steampowered.com/app/993090/Lossless_Scaling/) and [IntegerScaler](https://tanalin.com/en/projects/integer-scaler /) Much more powerful. The principle of Magpie is very simple: use a full-screen window to cover the screen, and the content of the captured original window will be enlarged and displayed in the full-screen window. In this way, the scaling algorithm is not subject to any restrictions, allowing us to freely use existing excellent scaling algorithms.
+Because of the different implementation principles, Magpie is better than [Lossless Scaling](https://store.steampowered.com/app/993090/Lossless_Scaling/) and [IntegerScaler](https://tanalin.com/en/projects/integer-scaler/) Much more powerful. The principle of Magpie is very simple: use a full-screen window to cover the screen, and the content of the captured original window will be enlarged and displayed in the full-screen window. In this way, the scaling algorithm is not subject to any restrictions, allowing us to freely use existing excellent scaling algorithms.
 
 ## Use suggestions
 
