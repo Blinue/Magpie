@@ -6,7 +6,7 @@ Magpie可以将任意窗口放大至全屏，支持多种高级缩放算法，�
 
 主要用于游戏窗口的放大显示，适用于不支持全屏模式，或者内置的全屏模式会使画面模糊的情况。
 
-欢迎标星，欢迎任何形式的贡献。
+使用中遇到问题请提交 issue。
 
 ☛ [编译指南](https://github.com/Blinue/Magpie/wiki/编译指南)
 
@@ -34,7 +34,7 @@ Magpie可以将任意窗口放大至全屏，支持多种高级缩放算法，�
 
 指示程序如何抓取源窗口图像
 
-1. WinRT Capture：使用[Screen Capture API](https://docs.microsoft.com/en-us/windows/uwp/audio-video-camera/screen-capture)抓取窗口，最推荐的方法。此API从Windows 10, v1803开始提供。
+1. WinRT Capture：使用[Screen Capture API](https://docs.microsoft.com/en-us/windows/uwp/audio-video-camera/screen-capture)抓取窗口，最推荐的方法。此API从Windows 10, v1903开始提供。
 2. GDI：使用GDI抓取源窗口，速度稍慢。
 
 #### 注入模式
