@@ -10,7 +10,7 @@ Stars are welcome, and contributions of any kind are welcome.
 
 ## Instructions
 
-![Window Screenshot](img/Window Screenshot.png)
+![窗口截图](img/窗口截图.png)
 
 When the window to be enlarged is in the foreground, press the hot key to display the window in full screen, and press the hot key again or switch the foreground window to exit the full screen.
 
@@ -55,7 +55,7 @@ Because of the different implementation principles, Magpie is better than [Lossl
 
 1. If you have set DPI scaling, and the window to be enlarged does not support it (shown as a blurry picture), please enter the compatibility settings of the program first, and set "High DPI Scaling Alternative" to "Application".
 
-   ![High DPI Setting](img/High DPI Setting.png)
+   ![高DPI设置](img/高DPI设置.png)
 
 2. Some games support adjusting the window size, but simply use linear scaling. In this case, please set it to the original resolution first.
 
