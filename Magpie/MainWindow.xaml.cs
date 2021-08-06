@@ -39,7 +39,7 @@ namespace Magpie {
 
 		private IntPtr Handle;
 
-		// 不为零时表示全屏窗口不是因为热键关闭的
+		// 不为零时表示全屏窗口不是因为Hotkey关闭的
 		private IntPtr prevSrcWindow = IntPtr.Zero;
 		private readonly DispatcherTimer timerRestore = new DispatcherTimer {
 			Interval = new TimeSpan(0, 0, 0, 0, 200)
@@ -83,7 +83,7 @@ namespace Magpie {
 				return;
 			}
 
-			tbCurWndTitle.Text = "当前窗口：" + NativeMethods.GetWindowTitle(prevSrcWindow);
+			tbCurWndTitle.Text = $"{Properties.Resources.Current_Window}：{NativeMethods.GetWindowTitle(prevSrcWindow)}";
 			gridAutoRestore.Visibility = Visibility.Visible;
 		}
 
@@ -144,7 +144,7 @@ namespace Magpie {
 				scaleModels = null;
 
 				cbbScaleMode.Items.Clear();
-				_ = cbbScaleMode.Items.Add("<解析失败>");
+				_ = cbbScaleMode.Items.Add($"<{Properties.Resources.Parse_Failure}>");
 			}
 		}
 
@@ -287,7 +287,7 @@ namespace Magpie {
 
 		private void StopScaleTimer() {
 			timerScale.Stop();
-			btnScale.Content = cmiScale.Header = "5秒后放大";
+			btnScale.Content = cmiScale.Header = Properties.Resources.Zoom_In_After_5S;
 		}
 
 		private void ToggleScaleTimer() {
