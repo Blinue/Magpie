@@ -61,6 +61,11 @@ namespace Magpie {
 			scaleModelsWatcher.Deleted += ScaleModelsWatcher_Changed;
 			scaleModelsWatcher.EnableRaisingEvents = true;
 
+			// 如果系统不支持，删除 WinRT Caputre 选项
+			if(NativeMethods.GetOSVersion() < new Version(10, 0, 18362)) {
+				cbbCaptureMode.Items.RemoveAt(0);
+			}
+
 			// 加载设置
 			txtHotkey.Text = Settings.Default.Hotkey;
 
@@ -69,6 +74,9 @@ namespace Magpie {
 			}
 			cbbScaleMode.SelectedIndex = Settings.Default.ScaleMode;
 			cbbInjectMode.SelectedIndex = Settings.Default.InjectMode;
+			if(Settings.Default.CaptureMode >= cbbCaptureMode.Items.Count) {
+				Settings.Default.CaptureMode = 0;
+			}
 			cbbCaptureMode.SelectedIndex = Settings.Default.CaptureMode;
 		}
 

@@ -98,6 +98,35 @@ namespace Magpie {
 			return len > 0 ? sb.ToString() : "";
 		}
 
+		[StructLayout(LayoutKind.Sequential)]
+		private struct OsVersionInfo {
+			public uint dwOSVersionInfoSize;
+
+			public uint dwMajorVersion;
+			public uint dwMinorVersion;
+
+			public uint dwBuildNumber;
+
+			public uint dwPlatformId;
+
+			[MarshalAs(UnmanagedType.ByValTStr, SizeConst = 128)]
+			public string szCSDVersion;
+		}
+
+		[DllImport("ntdll.dll", SetLastError = true)]
+		private static extern uint RtlGetVersion(ref OsVersionInfo versionInformation);
+
+		public static Version GetOSVersion() {
+			OsVersionInfo osVersionInfo = new OsVersionInfo();
+			osVersionInfo.dwOSVersionInfoSize = (uint)Marshal.SizeOf(osVersionInfo);
+			_ = RtlGetVersion(ref osVersionInfo);
+			return new Version(
+				(int)osVersionInfo.dwMajorVersion,
+				(int)osVersionInfo.dwMinorVersion,
+				(int)osVersionInfo.dwBuildNumber
+				);
+		}
+
 		/*
          * Runtime.dll
          */
