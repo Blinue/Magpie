@@ -87,7 +87,7 @@ public:
 			_captureFramePool = winrt::Direct3D11CaptureFramePool::Create(
 				_wrappedD3DDevice,
 				winrt::DirectXPixelFormat::B8G8R8A8UIntNormalized,
-				1,					// 帧的缓存数量
+				2,					// 帧的缓存数量
 				_captureItem.Size() // 帧的尺寸
 			);
 			Debug::Assert(_captureFramePool, L"创建 Direct3D11CaptureFramePool 失败");
