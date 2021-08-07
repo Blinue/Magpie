@@ -21,7 +21,7 @@
                     <Setter Property="FontFamily" Value="Segoe MDL2 Assets" />
                 </Style>
                 <Style TargetType="Label" x:Key="Name">
-                    <Setter Property="Width" Value="80" />
+                    <Setter Property="Width" Value="90" />
                 </Style>
             </ListBox.Resources>
 

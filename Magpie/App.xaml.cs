@@ -30,8 +30,6 @@ namespace Magpie {
 				// 已存在实例时广播 WM_SHOWME，唤醒该实例
 				_ = NativeMethods.BroadcastMessage(NativeMethods.MAGPIE_WM_SHOWME);
 			}
-
-			Thread.CurrentThread.CurrentUICulture = CultureInfo.GetCultureInfo("en-US");
 		}
 
 		private void Application_Exit(object sender, ExitEventArgs e) {

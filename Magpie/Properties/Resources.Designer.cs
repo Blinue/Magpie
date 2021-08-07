@@ -169,7 +169,7 @@ namespace Magpie.Properties {
         }
         
         /// <summary>
-        ///   查找类似 C++ / WinRT 的本地化字符串。
+        ///   查找类似 C++/WinRT 的本地化字符串。
         /// </summary>
         public static string Cpp_WinRT {
             get {
@@ -178,7 +178,7 @@ namespace Magpie.Properties {
         }
         
         /// <summary>
-        ///   查找类似 Current Window 的本地化字符串。
+        ///   查找类似 Current Window:  的本地化字符串。
         /// </summary>
         public static string Current_Window {
             get {

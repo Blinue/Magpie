@@ -9,7 +9,7 @@
         mc:Ignorable="d"
         Title="Magpie" ResizeMode="CanMinimize" WindowStartupLocation="CenterScreen"
         Closing="Window_Closing" SourceInitialized="Window_SourceInitialized" StateChanged="Window_StateChanged" HorizontalAlignment="Left" VerticalAlignment="Top" SizeToContent="WidthAndHeight">
-    <StackPanel Margin="15, 10">
+    <StackPanel Margin="20,20">
         <StackPanel.Resources>
             <local:NotifyIconLeftClickCommand x:Key="NotifyIconLeftClickCommand" />
         </StackPanel.Resources>
@@ -54,13 +54,29 @@
                 </ContextMenu>
             </tb:TaskbarIcon.ContextMenu>
         </tb:TaskbarIcon>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
 
+            <Label Margin="0" Content="{x:Static p:Resources.Hotkey}" HorizontalAlignment="Right" VerticalAlignment="Center" Padding="0,5,5,5"/>
+            <TextBox x:Name="txtHotkey" Grid.Column="1" Margin="10,0" VerticalAlignment="Center" Padding="1,3" TextChanged="TxtHotkey_TextChanged" >
+                <TextBox.ContextMenu>
+                    <ContextMenu/>
+                </TextBox.ContextMenu>
+            </TextBox>
+            <Button Content="{x:Static p:Resources.Scale_After_5S}" Name="btnScale" Click="BtnScale_Click" Grid.Column="2" HorizontalAlignment="Right" Margin="0" VerticalAlignment="Center" Padding="10,3"/>
+
+        </Grid>
         <Grid VerticalAlignment="Top">
             <Grid.Resources>
                 <Style TargetType="ComboBox" BasedOn="{StaticResource ComboBox}">
                     <Setter Property="Grid.Column" Value="1" />
                     <Setter Property="Margin" Value="10,0" />
                     <Setter Property="VerticalAlignment" Value="Center" />
+                    <Setter Property="Padding" Value="6,5,5,5" />
                 </Style>
                 <Style TargetType="Label" x:Key="Col0">
                     <Setter Property="Grid.Column" Value="0" />
@@ -71,61 +87,48 @@
 
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="1*" MinWidth="200"/>
+                <ColumnDefinition Width="1*" MinWidth="220"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
                 <RowDefinition />
                 <RowDefinition/>
                 <RowDefinition/>
-                <RowDefinition/>
             </Grid.RowDefinitions>
 
-            <Label Style="{StaticResource Col0}" Content="{x:Static p:Resources.Hotkey}" VerticalAlignment="Top" Margin="0,5,0,0" Padding="0,5,5,5"/>
-            <TextBox x:Name="txtHotkey" Grid.Column="1" Margin="10,5,10,0" VerticalAlignment="Top" Padding="1,3" TextChanged="TxtHotkey_TextChanged" >
-                <TextBox.ContextMenu>
-                    <ContextMenu/>
-                </TextBox.ContextMenu>
-            </TextBox>
-            <Button Content="{x:Static p:Resources.Scale_After_5S}" Name="btnScale" Click="BtnScale_Click" Grid.Column="2" HorizontalAlignment="Right" Margin="0,5,0,0" VerticalAlignment="Top" Padding="10,3"/>
+            <Label Style="{StaticResource Col0}" Content="{x:Static p:Resources.Scaling_Mode}" Grid.Row="0" VerticalAlignment="Center" Margin="0,20,0,0" Padding="0,5,5,5" />
+            <ComboBox Name="cbbScaleMode" Grid.Row="0" SelectionChanged="CbbScaleMode_SelectionChanged" Margin="5,20,0,0" />
 
-            <Label Style="{StaticResource Col0}" Content="{x:Static p:Resources.Scaling_Mode}" Grid.Row="1" VerticalAlignment="Center" Margin="0,20,0,0" Padding="0,5,5,5" />
-            <ComboBox Name="cbbScaleMode" Grid.Row="1" SelectionChanged="CbbScaleMode_SelectionChanged" Margin="10,20,10,0" />
-
-            <Label Style="{StaticResource Col0}" Content="{x:Static p:Resources.Capture_Mode}" Grid.Row="2" VerticalAlignment="Top" Margin="0,9.667,0.333,0" Padding="0,5,5,5"/>
-            <ComboBox Name="cbbCaptureMode" Grid.Row="2" SelectionChanged="CbbCaptureMode_SelectionChanged" Margin="10,10,10,0">
+            <Label Style="{StaticResource Col0}" Content="{x:Static p:Resources.Capture_Mode}" Grid.Row="1" VerticalAlignment="Top" Margin="0,15,0,0" Padding="0,5,5,5"/>
+            <ComboBox Name="cbbCaptureMode" Grid.Row="1" SelectionChanged="CbbCaptureMode_SelectionChanged" Margin="5,15,0,0">
                 <ComboBoxItem Content="WinRT Capture" />
                 <ComboBoxItem Content="GDI" />
             </ComboBox>
 
-            <Label Style="{StaticResource Col0}" Content="{x:Static p:Resources.Injection_Mode}" Grid.Row="3" VerticalAlignment="Center" Margin="0,10,0,0" Padding="0,5,5,5"/>
-            <ComboBox Name="cbbInjectMode" Grid.Row="3" SelectionChanged="CbbInjectMode_SelectionChanged" Margin="10,10,10,0">
+            <Label Style="{StaticResource Col0}" Content="{x:Static p:Resources.Injection_Mode}" Grid.Row="2" VerticalAlignment="Center" Margin="0,15,0,0" Padding="0,5,5,5"/>
+            <ComboBox Name="cbbInjectMode" Grid.Row="2" SelectionChanged="CbbInjectMode_SelectionChanged" Margin="5,15,0,0">
                 <ComboBoxItem Content="{x:Static p:Resources.No_Injection}" />
                 <ComboBoxItem Content="{x:Static p:Resources.Runtime_Injection}" />
                 <ComboBoxItem Content="{x:Static p:Resources.Injection_At_Startup}" />
             </ComboBox>
         </Grid>
 
-        <Grid Margin="0,20,0,0">
+        <Grid x:Name="gridAutoRestore" Margin="0,20,0,0" Visibility="Collapsed">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition />
+                <ColumnDefinition Width="1*" />
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
-            <Grid x:Name="gridAutoRestore" Visibility="Hidden">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition />
-                    <ColumnDefinition Width="Auto" />
-                </Grid.ColumnDefinitions>
-                <TextBlock x:Name="tbCurWndTitle" Margin="0" Text="Current_Window：" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" MaxWidth="250"/>
-                <Button Content="取消" Margin="5,0,0,0" VerticalAlignment="Center" Padding="5,2" Click="BtnCancelRestore_Click" Grid.Column="1"/>
+            <Grid x:Name="gridCurrentWnd">
+                <TextBlock x:Name="tbCurWndTitle" Margin="0" Text="Current_Window: " VerticalAlignment="Center" TextTrimming="CharacterEllipsis" MaxWidth="{Binding ElementName=gridCurrentWnd, Path=ActualWidth}" />
             </Grid>
-
-            <Button Click="BtnOptions_Click" Margin="10,0,0,0" VerticalAlignment="Center" Padding="10,5" Grid.Column="1" HorizontalAlignment="Right">
-                <StackPanel Orientation="Horizontal">
-                    <Label FontFamily="Segoe MDL2 Assets" Content="&#xE713;" Padding="0" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Margin="0" />
-                    <Label Content="{x:Static p:Resources.Options}" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Padding="0" Margin="5,0,0,0" />
-                </StackPanel>
-            </Button>
+            <Button Content="取消" Margin="5,0,0,0" VerticalAlignment="Center" Padding="5,2" Click="BtnCancelRestore_Click" Grid.Column="1"/>
         </Grid>
+
+        <Button Click="BtnOptions_Click" Margin="0,20,0,0" VerticalAlignment="Center" Padding="10,5" Grid.Column="1" HorizontalAlignment="Right">
+            <StackPanel Orientation="Horizontal">
+                <Label FontFamily="Segoe MDL2 Assets" Content="&#xE713;" Padding="0" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Margin="0" />
+                <Label Content="{x:Static p:Resources.Options}" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Padding="0" Margin="5,0,0,0" />
+            </StackPanel>
+        </Button>
     </StackPanel>
 </Window>

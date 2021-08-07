@@ -100,7 +100,7 @@ namespace Magpie {
 				return;
 			}
 
-			tbCurWndTitle.Text = $"{Properties.Resources.Current_Window}：{NativeMethods.GetWindowTitle(prevSrcWindow)}";
+			tbCurWndTitle.Text = $"{Properties.Resources.Current_Window}{NativeMethods.GetWindowTitle(prevSrcWindow)}";
 			gridAutoRestore.Visibility = Visibility.Visible;
 		}
 
@@ -276,7 +276,7 @@ namespace Magpie {
 		private void StopWaitingForRestore() {
 			Logger.Info("停止监视源窗口是否为前台窗口");
 
-			gridAutoRestore.Visibility = Visibility.Hidden;
+			gridAutoRestore.Visibility = Visibility.Collapsed;
 			tbCurWndTitle.Text = "";
 			prevSrcWindow = IntPtr.Zero;
 			timerRestore.Stop();

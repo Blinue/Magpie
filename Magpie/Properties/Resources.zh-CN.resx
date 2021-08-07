@@ -146,10 +146,10 @@
     <value>确定</value>
   </data>
   <data name="Cpp_WinRT" xml:space="preserve">
-    <value>C++ / WinRT</value>
+    <value>C++/WinRT</value>
   </data>
   <data name="Current_Window" xml:space="preserve">
-    <value>当前窗口</value>
+    <value>当前窗口：</value>
   </data>
   <data name="EasyHook" xml:space="preserve">
     <value>EasyHook</value>
