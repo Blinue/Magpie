@@ -13,9 +13,13 @@ namespace Magpie {
 		public static readonly string SCALE_MODELS_JSON_PATH =
 			AppDomain.CurrentDomain.SetupInformation.ApplicationBase + "ScaleModels.json";
 
+		private static NLog.Logger Logger { get; } = NLog.LogManager.GetCurrentClassLogger();
+
 		private static readonly Mutex mutex = new Mutex(true, "{4C416227-4A30-4A2F-8F23-8701544DD7D6}");
 
 		private void Application_Startup(object sender, StartupEventArgs e) {
+			Logger.Debug("程序启动 ");
+
 			// 不允许多个实例同时运行
 			if (!mutex.WaitOne(TimeSpan.Zero, true)) {
 				Current.Shutdown();
