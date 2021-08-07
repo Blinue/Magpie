@@ -8,7 +8,7 @@
         xmlns:p="clr-namespace:Magpie.Properties;assembly=Magpie"
         mc:Ignorable="d"
         Title="Magpie" ResizeMode="CanMinimize" WindowStartupLocation="CenterScreen"
-        Closing="Window_Closing" SourceInitialized="Window_SourceInitialized" StateChanged="Window_StateChanged" HorizontalAlignment="Left" VerticalAlignment="Top" SizeToContent="Height" Width="388">
+        Closing="Window_Closing" SourceInitialized="Window_SourceInitialized" StateChanged="Window_StateChanged" HorizontalAlignment="Left" VerticalAlignment="Top" SizeToContent="WidthAndHeight">
     <StackPanel Margin="15, 10">
         <StackPanel.Resources>
             <local:NotifyIconLeftClickCommand x:Key="NotifyIconLeftClickCommand" />
@@ -30,7 +30,7 @@
                             <Label Style="{StaticResource ContextMenuItemFontIcon}" Content="&#xEDA7;" />
                         </MenuItem.Icon>
                     </MenuItem>
-                    <MenuItem Header="5Zoom_In_After_5S" Name="cmiScale" Click="CmiScale_Click">
+                    <MenuItem Header="Scale_After_5S" Name="cmiScale" Click="CmiScale_Click">
                         <MenuItem.Icon>
                             <Label Style="{StaticResource ContextMenuItemFontIcon}" Content="&#xE916;" />
                         </MenuItem.Icon>
@@ -71,7 +71,7 @@
 
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="1*" MinWidth="200"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
@@ -87,7 +87,7 @@
                     <ContextMenu/>
                 </TextBox.ContextMenu>
             </TextBox>
-            <Button Content="{x:Static p:Resources.Zoom_In_After_5S}" Name="btnScale" Click="BtnScale_Click" Grid.Column="2" HorizontalAlignment="Right" Margin="0,5,0,0" VerticalAlignment="Top" Padding="10,3"/>
+            <Button Content="{x:Static p:Resources.Scale_After_5S}" Name="btnScale" Click="BtnScale_Click" Grid.Column="2" HorizontalAlignment="Right" Margin="0,5,0,0" VerticalAlignment="Top" Padding="10,3"/>
 
             <Label Style="{StaticResource Col0}" Content="{x:Static p:Resources.Scaling_Mode}" Grid.Row="1" VerticalAlignment="Center" Margin="0,20,0,0" Padding="0,5,5,5" />
             <ComboBox Name="cbbScaleMode" Grid.Row="1" SelectionChanged="CbbScaleMode_SelectionChanged" Margin="10,20,10,0" />
@@ -116,7 +116,7 @@
                     <ColumnDefinition />
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
-                <TextBlock x:Name="tbCurWndTitle" Margin="0" Text="Current_Window：" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                <TextBlock x:Name="tbCurWndTitle" Margin="0" Text="Current_Window：" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" MaxWidth="250"/>
                 <Button Content="取消" Margin="5,0,0,0" VerticalAlignment="Center" Padding="5,2" Click="BtnCancelRestore_Click" Grid.Column="1"/>
             </Grid>
 

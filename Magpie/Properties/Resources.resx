@@ -197,7 +197,7 @@
     <value>Open Scale configuration file</value>
   </data>
   <data name="Open_Source_Licenses" xml:space="preserve">
-    <value>Open Source Licenses</value>
+    <value>Licenses</value>
   </data>
   <data name="Options" xml:space="preserve">
     <value>Options</value>
@@ -216,6 +216,9 @@
   </data>
   <data name="Run_At_Startup" xml:space="preserve">
     <value>Run at Startup</value>
+  </data>
+  <data name="Scale_After_5S" xml:space="preserve">
+    <value>Scale after 5s</value>
   </data>
   <data name="Scaling_Mode" xml:space="preserve">
     <value>Scaling Mode</value>
@@ -237,8 +240,5 @@
   </data>
   <data name="Zoom" xml:space="preserve">
     <value>Zoom</value>
-  </data>
-  <data name="Zoom_In_After_5S" xml:space="preserve">
-    <value>Zoom in after 5s</value>
   </data>
 </root>
