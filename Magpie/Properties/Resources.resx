@@ -154,6 +154,9 @@
   <data name="EasyHook" xml:space="preserve">
     <value>EasyHook</value>
   </data>
+  <data name="Exit" xml:space="preserve">
+    <value>Exit</value>
+  </data>
   <data name="Feedback" xml:space="preserve">
     <value>Feedback</value>
   </data>
@@ -189,6 +192,9 @@
   </data>
   <data name="Magpie_Options" xml:space="preserve">
     <value>Magpie Options</value>
+  </data>
+  <data name="Main_Window" xml:space="preserve">
+    <value>Main Window</value>
   </data>
   <data name="Minimise_To_System_Tray" xml:space="preserve">
     <value>Minimise to the System Tray at Startup</value>

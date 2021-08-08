@@ -154,6 +154,9 @@
   <data name="EasyHook" xml:space="preserve">
     <value>EasyHook</value>
   </data>
+  <data name="Exit" xml:space="preserve">
+    <value>退出</value>
+  </data>
   <data name="Feedback" xml:space="preserve">
     <value>反馈</value>
   </data>
@@ -183,6 +186,9 @@
   </data>
   <data name="Magpie_Options" xml:space="preserve">
     <value>Magpie 选项</value>
+  </data>
+  <data name="Main_Window" xml:space="preserve">
+    <value>主窗口</value>
   </data>
   <data name="Minimise_To_System_Tray" xml:space="preserve">
     <value>开机启动时最小化到系统托盘</value>

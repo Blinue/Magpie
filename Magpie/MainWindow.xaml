@@ -30,23 +30,23 @@
                             <Label Style="{StaticResource ContextMenuItemFontIcon}" Content="&#xEDA7;" />
                         </MenuItem.Icon>
                     </MenuItem>
-                    <MenuItem Header="Scale_After_5S" Name="cmiScale" Click="CmiScale_Click">
+                    <MenuItem Header="{x:Static p:Resources.Scale_After_5S}" Name="cmiScale" Click="CmiScale_Click">
                         <MenuItem.Icon>
                             <Label Style="{StaticResource ContextMenuItemFontIcon}" Content="&#xE916;" />
                         </MenuItem.Icon>
                     </MenuItem>
                     <Separator />
-                    <MenuItem Header="主界面" Click="CmiMainForm_Click">
+                    <MenuItem Header="{x:Static p:Resources.Main_Window}" Click="CmiMainForm_Click">
                         <MenuItem.Icon>
                             <Label Style="{StaticResource ContextMenuItemFontIcon}" Content="&#xE737;" />
                         </MenuItem.Icon>
                     </MenuItem>
-                    <MenuItem Header="Options" Click="CmiOptions_Click">
+                    <MenuItem Header="{x:Static p:Resources.Options}" Click="CmiOptions_Click">
                         <MenuItem.Icon>
                             <Label Style="{StaticResource ContextMenuItemFontIcon}" Content="&#xE713;" />
                         </MenuItem.Icon>
                     </MenuItem>
-                    <MenuItem Header="退出" Click="CmiExit_Click">
+                    <MenuItem Header="{x:Static p:Resources.Exit}" Click="CmiExit_Click">
                         <MenuItem.Icon>
                             <Label Style="{StaticResource ContextMenuItemFontIcon}" Content="&#xF3B1;" />
                         </MenuItem.Icon>

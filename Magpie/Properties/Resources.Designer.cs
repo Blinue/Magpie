@@ -196,6 +196,15 @@ namespace Magpie.Properties {
         }
         
         /// <summary>
+        ///   查找类似 Exit 的本地化字符串。
+        /// </summary>
+        public static string Exit {
+            get {
+                return ResourceManager.GetString("Exit", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Feedback 的本地化字符串。
         /// </summary>
         public static string Feedback {
@@ -314,6 +323,15 @@ namespace Magpie.Properties {
         public static string Magpie_Options {
             get {
                 return ResourceManager.GetString("Magpie_Options", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Main Window 的本地化字符串。
+        /// </summary>
+        public static string Main_Window {
+            get {
+                return ResourceManager.GetString("Main_Window", resourceCulture);
             }
         }
         
