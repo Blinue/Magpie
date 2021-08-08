@@ -70,7 +70,7 @@
             <Button Content="{x:Static p:Resources.Scale_After_5S}" Name="btnScale" Click="BtnScale_Click" Grid.Column="2" HorizontalAlignment="Right" Margin="0" VerticalAlignment="Center" Padding="10,3"/>
 
         </Grid>
-        <Grid VerticalAlignment="Top">
+        <Grid VerticalAlignment="Top" Margin="0,0,0,10">
             <Grid.Resources>
                 <Style TargetType="ComboBox" BasedOn="{StaticResource ComboBox}">
                     <Setter Property="Grid.Column" Value="1" />
@@ -113,22 +113,18 @@
             </ComboBox>
         </Grid>
 
-        <Grid x:Name="gridAutoRestore" Margin="0,20,0,0" Visibility="Collapsed">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="1*" />
-                <ColumnDefinition Width="Auto" />
-            </Grid.ColumnDefinitions>
-            <Grid x:Name="gridCurrentWnd">
-                <TextBlock x:Name="tbCurWndTitle" Margin="0" Text="Current_Window: " VerticalAlignment="Center" TextTrimming="CharacterEllipsis" MaxWidth="{Binding ElementName=gridCurrentWnd, Path=ActualWidth}" />
-            </Grid>
-            <Button Content="取消" Margin="5,0,0,0" VerticalAlignment="Center" Padding="5,2" Click="BtnCancelRestore_Click" Grid.Column="1"/>
+        <Grid x:Name="gridCurWnd" Margin="0,10,0,0" Visibility="Collapsed">
+            <TextBlock x:Name="tbCurWndTitle" Margin="0" Text="Current_Window" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" MaxWidth="{Binding ElementName=gridCurWnd, Path=ActualWidth}" />
         </Grid>
 
-        <Button Click="BtnOptions_Click" Margin="0,20,0,0" VerticalAlignment="Center" Padding="10,5" Grid.Column="1" HorizontalAlignment="Right">
-            <StackPanel Orientation="Horizontal">
-                <Label FontFamily="Segoe MDL2 Assets" Content="&#xE713;" Padding="0" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Margin="0" />
-                <Label Content="{x:Static p:Resources.Options}" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Padding="0" Margin="5,0,0,0" />
-            </StackPanel>
-        </Button>
+        <Grid Margin="0,10,0,0">
+            <Button x:Name="btnForgetCurrentWnd" Content="{x:Static p:Resources.Forget_Current_Window}" Margin="0" VerticalAlignment="Top" Padding="5,2" Click="BtnCancelRestore_Click" Grid.Column="1" HorizontalAlignment="Left" Visibility="Collapsed"/>
+            <Button Click="BtnOptions_Click" Margin="0" VerticalAlignment="Center" Padding="10,5" Grid.Column="1" HorizontalAlignment="Right">
+                <StackPanel Orientation="Horizontal">
+                    <Label FontFamily="Segoe MDL2 Assets" Content="&#xE713;" Padding="0" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Margin="0" />
+                    <Label Content="{x:Static p:Resources.Options}" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Padding="0" Margin="5,0,0,0" />
+                </StackPanel>
+            </Button>
+        </Grid>
     </StackPanel>
 </Window>

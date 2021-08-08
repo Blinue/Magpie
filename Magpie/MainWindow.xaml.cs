@@ -101,7 +101,9 @@ namespace Magpie {
 			}
 
 			tbCurWndTitle.Text = $"{Properties.Resources.Current_Window}{NativeMethods.GetWindowTitle(prevSrcWindow)}";
-			gridAutoRestore.Visibility = Visibility.Visible;
+			if (WindowState == WindowState.Normal) {
+				btnForgetCurrentWnd.Visibility = gridCurWnd.Visibility = Visibility.Visible;
+			}
 		}
 
 		private void ScaleModelsWatcher_Changed(object sender, FileSystemEventArgs e) {
@@ -276,7 +278,9 @@ namespace Magpie {
 		private void StopWaitingForRestore() {
 			Logger.Info("停止监视源窗口是否为前台窗口");
 
-			gridAutoRestore.Visibility = Visibility.Collapsed;
+			if (WindowState == WindowState.Normal) {
+				btnForgetCurrentWnd.Visibility = gridCurWnd.Visibility = Visibility.Collapsed;
+			}
 			tbCurWndTitle.Text = "";
 			prevSrcWindow = IntPtr.Zero;
 			timerRestore.Stop();
@@ -347,6 +351,7 @@ namespace Magpie {
 				notifyIcon.Visibility = Visibility.Visible;
 			} else {
 				notifyIcon.Visibility = Visibility.Hidden;
+				btnForgetCurrentWnd.Visibility = gridCurWnd.Visibility = timerRestore.IsEnabled ? Visibility.Visible : Visibility.Collapsed;
 			}
 		}
 

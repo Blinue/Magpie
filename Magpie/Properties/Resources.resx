@@ -157,6 +157,9 @@
   <data name="Feedback" xml:space="preserve">
     <value>Feedback</value>
   </data>
+  <data name="Forget_Current_Window" xml:space="preserve">
+    <value>Forget</value>
+  </data>
   <data name="Hotkey" xml:space="preserve">
     <value>Hotkey</value>
   </data>
@@ -182,7 +185,7 @@
     <value>..\Assets\Logo.ico;System.Drawing.Icon, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="Magpie_Open_Source_Licenses" xml:space="preserve">
-    <value>Magpie Open Source Licenses</value>
+    <value>Magpie Licenses</value>
   </data>
   <data name="Magpie_Options" xml:space="preserve">
     <value>Magpie Options</value>
@@ -212,7 +215,7 @@
     <value>Restore full screen when source window loses focus</value>
   </data>
   <data name="Runtime_Injection" xml:space="preserve">
-    <value>Runtime Injection</value>
+    <value>Injection at Runtime</value>
   </data>
   <data name="Run_At_Startup" xml:space="preserve">
     <value>Run at Startup</value>

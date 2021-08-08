@@ -205,6 +205,15 @@ namespace Magpie.Properties {
         }
         
         /// <summary>
+        ///   查找类似 Forget 的本地化字符串。
+        /// </summary>
+        public static string Forget_Current_Window {
+            get {
+                return ResourceManager.GetString("Forget_Current_Window", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Hotkey 的本地化字符串。
         /// </summary>
         public static string Hotkey {
@@ -291,7 +300,7 @@ namespace Magpie.Properties {
         }
         
         /// <summary>
-        ///   查找类似 Magpie Open Source Licenses 的本地化字符串。
+        ///   查找类似 Magpie Licenses 的本地化字符串。
         /// </summary>
         public static string Magpie_Open_Source_Licenses {
             get {
@@ -390,7 +399,7 @@ namespace Magpie.Properties {
         }
         
         /// <summary>
-        ///   查找类似 Runtime Injection 的本地化字符串。
+        ///   查找类似 Injection at Runtime 的本地化字符串。
         /// </summary>
         public static string Runtime_Injection {
             get {

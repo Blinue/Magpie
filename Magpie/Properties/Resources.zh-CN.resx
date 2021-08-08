@@ -127,10 +127,10 @@
     <value>高级</value>
   </data>
   <data name="All_Contributors_Thanks_Text" xml:space="preserve">
-    <value>Magpie移植的所有优秀着色器项目</value>
+    <value>所有为Magpie提供反馈与贡献的人</value>
   </data>
   <data name="All_Shaders_Thanks_Text" xml:space="preserve">
-    <value>所有为Magpie提供反馈与贡献的人</value>
+    <value>Magpie移植的所有优秀着色器项目</value>
   </data>
   <data name="Application" xml:space="preserve">
     <value>应用程序</value>
@@ -156,6 +156,9 @@
   </data>
   <data name="Feedback" xml:space="preserve">
     <value>反馈</value>
+  </data>
+  <data name="Forget_Current_Window" xml:space="preserve">
+    <value>忘记当前窗口</value>
   </data>
   <data name="Hotkey" xml:space="preserve">
     <value>热键</value>
