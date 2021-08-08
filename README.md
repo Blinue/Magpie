@@ -10,6 +10,8 @@ Magpie可以将任意窗口放大至全屏，支持多种高级缩放算法，�
 
 ☛ [编译指南](https://github.com/Blinue/Magpie/wiki/编译指南)
 
+☛ [FAQ](https://github.com/Blinue/Magpie/wiki/FAQ)
+
 ## 使用方法
 
 ![窗口截图](img/窗口截图.png)
