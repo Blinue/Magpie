@@ -140,6 +140,7 @@ namespace Magpie {
 			IntPtr hwndSrc,
 			[MarshalAs(UnmanagedType.LPUTF8Str)] string scaleModel,
 			int captureMode,
+			int bufferPrecision,
 			[MarshalAs(UnmanagedType.U1)] bool showFPS,
 			[MarshalAs(UnmanagedType.U1)] bool noDisturb
 		);

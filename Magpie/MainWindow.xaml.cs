@@ -44,7 +44,7 @@ namespace Magpie {
 		// 不为零时表示全屏窗口不是因为Hotkey关闭的
 		private IntPtr prevSrcWindow = IntPtr.Zero;
 		private readonly DispatcherTimer timerRestore = new DispatcherTimer {
-			Interval = new TimeSpan(0, 0, 0, 0, 200)
+			Interval = new TimeSpan(0, 0, 0, 0, 300)
 		};
 
 		public MainWindow() {
@@ -214,8 +214,10 @@ namespace Magpie {
 				Settings.Default.Hotkey = hotkey;
 
 				cmiHotkey.Header = hotkey;
+
+				Logger.Info($"快捷键已变更为{txtHotkey.Text}");
 			} catch (ArgumentException ex) {
-				Logger.Error(ex, "解析快捷键失败");
+				Logger.Error(ex, $"解析快捷键失败：{txtHotkey.Text}");
 				txtHotkey.Foreground = Brushes.Red;
 			}
 		}
@@ -230,22 +232,25 @@ namespace Magpie {
 			}
 
 			if (magWindow.Status == MagWindowStatus.Running) {
-				// 通过热键关闭全屏窗口
+				Logger.Info("通过热键退出全屏");
 				magWindow.Destory();
 				return;
 			}
 
 			if (magWindow.Status == MagWindowStatus.Starting) {
+				Logger.Info("全屏窗口正在启动中，忽略切换全屏的请求");
 				return;
 			}
 
 			string effectsJson = scaleModels[Settings.Default.ScaleMode].Model;
 			bool showFPS = Settings.Default.ShowFPS;
 			int captureMode = Settings.Default.CaptureMode;
+			int bufferPrecision = Settings.Default.BufferPrecision;
 
 			magWindow.Create(
 				effectsJson,
 				captureMode,
+				bufferPrecision,
 				showFPS,
 				cbbInjectMode.SelectedIndex == 1,
 				false

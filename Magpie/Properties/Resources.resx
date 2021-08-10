@@ -135,6 +135,12 @@
   <data name="Application" xml:space="preserve">
     <value>Application</value>
   </data>
+  <data name="Buffer_Precision" xml:space="preserve">
+    <value>Intermediate Texture Precision</value>
+  </data>
+  <data name="Buffer_Precision_Default" xml:space="preserve">
+    <value>Default</value>
+  </data>
   <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
   <data name="BuiltInScaleModels" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Assets\BuiltInScaleModels.json;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>

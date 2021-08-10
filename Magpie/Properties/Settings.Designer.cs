@@ -106,5 +106,17 @@ namespace Magpie.Properties {
                 this["AutoRestore"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int BufferPrecision {
+            get {
+                return ((int)(this["BufferPrecision"]));
+            }
+            set {
+                this["BufferPrecision"] = value;
+            }
+        }
     }
 }

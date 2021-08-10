@@ -20,6 +20,8 @@ namespace Magpie {
 
 	// 用于管理全屏窗口，该窗口在一个新线程中启动，通过事件与主线程通信
 	internal class MagWindow {
+		private static NLog.Logger Logger { get; } = NLog.LogManager.GetCurrentClassLogger();
+
 		public event Action Closed;
 
 		public IntPtr SrcWindow { get; private set; } = IntPtr.Zero;
@@ -72,11 +74,13 @@ namespace Magpie {
 		public void Create(
 			string scaleModel,
 			int captureMode,
+			int bufferPrecision,
 			bool showFPS,
 			bool hookCursorAtRuntime,
 			bool noDisturb = false
 		) {
 			if (Status != MagWindowStatus.Idle) {
+				Logger.Info("已存在全屏窗口，取消进入全屏");
 				return;
 			}
 
@@ -85,7 +89,7 @@ namespace Magpie {
 				|| !NativeMethods.IsWindowVisible(hwndSrc)
 				|| NativeMethods.GetWindowShowCmd(hwndSrc) != NativeMethods.SW_NORMAL
 			) {
-				// 不合法的源窗口
+				Logger.Info("源窗口不合法");
 				return;
 			}
 
@@ -93,11 +97,14 @@ namespace Magpie {
 			// 使用 WinRT Capturer API 需要在 MTA 中
 			// C# 窗体必须使用 STA，因此将全屏窗口创建在新的线程里
 			magThread = new Thread(() => {
+				Logger.Info("正在新线程中创建全屏窗口");
+
 				NativeMethods.RunMagWindow(
 					(int status, IntPtr errorMsg) => StatusEvent(status, Marshal.PtrToStringUni(errorMsg)),
 					hwndSrc,        // 源窗口句柄
 					scaleModel,     // 缩放模式
 					captureMode,    // 抓取模式
+					bufferPrecision,    // 缓冲区精度
 					showFPS,        // 显示 FPS
 					noDisturb       // 用于调试
 				);
@@ -123,9 +130,11 @@ namespace Magpie {
 		}
 
 		private void HookCursorAtRuntime(IntPtr hwndSrc) {
+			Logger.Info("正在进行运行时注入");
+
 			int pid = NativeMethods.GetWindowProcessId(hwndSrc);
 			if (pid == 0 || pid == Process.GetCurrentProcess().Id) {
-				// 不能 hook 本进程
+				Logger.Info("不能注入本进程，已取消");
 				return;
 			}
 
@@ -146,19 +155,21 @@ namespace Magpie {
 			// 使用 EasyHook 注入
 			try {
 				RemoteHooking.Inject(
-				pid,                // 要注入的进程的 ID
-				injectionLibrary,   // 32 位 DLL
-				injectionLibrary,   // 64 位 DLL
-									// 下面为传递给注入 DLL 的参数
-				channelName,
-				hwndSrc
+					pid,                // 要注入的进程的 ID
+					injectionLibrary,   // 32 位 DLL
+					injectionLibrary,   // 64 位 DLL
+										// 下面为传递给注入 DLL 的参数
+					channelName,
+					hwndSrc
 				);
+				Logger.Info($"已注入CursorHook\n\t进程ID：{pid}\n\t源窗口句柄：{hwndSrc}");
 			} catch (Exception e) {
-				Console.WriteLine("CursorHook 注入失败：" + e.Message);
+				Logger.Error(e, "CursorHook注入失败");
 			}
 		}
 
 		public void HookCursorAtStartUp(string exePath) {
+			Logger.Info("正在进行启动时注入");
 
 			string channelName = null;
 #if DEBUG
@@ -185,8 +196,10 @@ namespace Magpie {
 								// 下面为传递给注入 DLL 的参数
 					channelName
 				);
+
+				Logger.Info($"已启动进程并注入\n\t可执行文件：{exePath}");
 			} catch (Exception e) {
-				Console.WriteLine("CursorHook 注入失败：" + e.Message);
+				Logger.Error(e, "CursorHook注入失败");
 			}
 		}
 	}

@@ -12,10 +12,11 @@ public:
 		HWND hwndSrc,
 		std::string_view scaleModel,
 		int captureMode,
+		int bufferPrecision,
 		bool showFPS,
 		bool noDisturb
 	) {
-		$instance.reset(new Env(hInst, hwndSrc, scaleModel, captureMode, showFPS, noDisturb));
+		$instance.reset(new Env(hInst, hwndSrc, scaleModel, captureMode, bufferPrecision, showFPS, noDisturb));
 	}
 
 	void SetD2DContext(
@@ -57,6 +58,10 @@ public:
 
 	int GetCaptureMode() {
 		return _captureMode;
+	}
+
+	int GetBufferPrecision() {
+		return _bufferPrecision;
 	}
 
 	bool IsShowFPS() {
@@ -131,10 +136,11 @@ private:
 		HWND hwndSrc,
 		std::string_view scaleModel,
 		int captureMode,
+		int bufferPrecision,
 		bool showFPS,
 		bool noDisturb
 	) : _hInst(hInst), _hwndSrc(hwndSrc), _scaleModel(scaleModel),
-		_captureMode(captureMode), _showFPS(showFPS), _noDisturb(noDisturb)
+		_captureMode(captureMode), _bufferPrecision(bufferPrecision), _showFPS(showFPS), _noDisturb(noDisturb)
 	{
 		Utils::GetClientScreenRect(_hwndSrc, _srcClient);
 	}
@@ -147,6 +153,7 @@ private:
 	HINSTANCE _hInst;
 	std::string_view _scaleModel;
 	int _captureMode;
+	int _bufferPrecision;
 	bool _showFPS;
 	bool _noDisturb;
 

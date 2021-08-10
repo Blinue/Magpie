@@ -115,6 +115,24 @@ namespace Magpie.Properties {
         }
         
         /// <summary>
+        ///   查找类似 Intermediate Texture Precision 的本地化字符串。
+        /// </summary>
+        public static string Buffer_Precision {
+            get {
+                return ResourceManager.GetString("Buffer_Precision", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Default 的本地化字符串。
+        /// </summary>
+        public static string Buffer_Precision_Default {
+            get {
+                return ResourceManager.GetString("Buffer_Precision_Default", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 [
         ///  {
         ///    &quot;name&quot;: &quot;Lanczos&quot;,

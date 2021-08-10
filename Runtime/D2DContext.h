@@ -207,6 +207,27 @@ private:
 		// Now we can set the Direct2D render target.
 		_d2dDC->SetTarget(d2dTargetBitmap.Get());
 		_d2dDC->SetUnitMode(D2D1_UNIT_MODE_PIXELS);
+		
+		D2D1_RENDERING_CONTROLS c;
+		_d2dDC->GetRenderingControls(&c);
+		switch (Env::$instance->GetBufferPrecision()) {
+		case 1:
+			c.bufferPrecision = D2D1_BUFFER_PRECISION_8BPC_UNORM;
+			break;
+		case 2:
+			c.bufferPrecision = D2D1_BUFFER_PRECISION_16BPC_UNORM;
+			break;
+		case 3:
+			c.bufferPrecision = D2D1_BUFFER_PRECISION_16BPC_FLOAT;
+			break;
+		case 4:
+			c.bufferPrecision = D2D1_BUFFER_PRECISION_32BPC_FLOAT;
+			break;
+		default:
+			c.bufferPrecision = D2D1_BUFFER_PRECISION_UNKNOWN;
+			break;
+		}
+		_d2dDC->SetRenderingControls(c);
 
 		Env::$instance->SetD2DContext(d3dDevice, d2dFactory, d2dDevice, _d2dDC);
 	}
