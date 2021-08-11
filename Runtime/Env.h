@@ -14,9 +14,10 @@ public:
 		int captureMode,
 		int bufferPrecision,
 		bool showFPS,
+		bool adjustCursorSpeed,
 		bool noDisturb
 	) {
-		$instance.reset(new Env(hInst, hwndSrc, scaleModel, captureMode, bufferPrecision, showFPS, noDisturb));
+		$instance.reset(new Env(hInst, hwndSrc, scaleModel, captureMode, bufferPrecision, showFPS, adjustCursorSpeed, noDisturb));
 	}
 
 	void SetD2DContext(
@@ -36,59 +37,63 @@ public:
 		Utils::GetClientScreenRect(_hwndHost, _hostClient);
 	}
 
-	ID2D1DeviceContext* GetD2DDC() {
+	ID2D1DeviceContext* GetD2DDC() const {
 		return _d2dDC.Get();
 	}
 
-	ID2D1Factory1* GetD2DFactory() {
+	ID2D1Factory1* GetD2DFactory() const {
 		return _d2dFactory.Get();
 	}
 
-	ID3D11Device* GetD3DDevice() {
+	ID3D11Device* GetD3DDevice() const {
 		return _d3dDevice.Get();
 	}
 
-	ID2D1Device* GetD2DDevice() {
+	ID2D1Device* GetD2DDevice() const {
 		return _d2dDevice.Get();
 	}
 
-	const std::string_view& GetScaleModel() {
+	const std::string_view& GetScaleModel() const {
 		return _scaleModel;
 	}
 
-	int GetCaptureMode() {
+	int GetCaptureMode() const {
 		return _captureMode;
 	}
 
-	int GetBufferPrecision() {
+	int GetBufferPrecision() const {
 		return _bufferPrecision;
 	}
 
-	bool IsShowFPS() {
+	bool IsShowFPS() const {
 		return _showFPS;
 	}
 
-	bool IsNoDisturb() {
+	bool IsAdjustCursorSpeed() const {
+		return _adjustCursorSpeed;
+	}
+
+	bool IsNoDisturb() const {
 		return _noDisturb;
 	}
 
-	HINSTANCE GetHInstance() {
+	HINSTANCE GetHInstance() const {
 		return _hInst;
 	}
 
-	HWND GetHwndSrc() {
+	HWND GetHwndSrc() const {
 		return _hwndSrc;
 	}
 
-	HWND GetHwndHost() {
+	HWND GetHwndHost() const {
 		return _hwndHost;
 	}
 
-	const RECT& GetSrcClient() {
+	const RECT& GetSrcClient() const {
 		return _srcClient;
 	}
 
-	const RECT& GetHostClient() {
+	const RECT& GetHostClient() const {
 		return _hostClient;
 	}
 
@@ -96,7 +101,7 @@ public:
 		_destRect = rect;
 	}
 
-	const D2D_RECT_F& GetDestRect() {
+	const D2D_RECT_F& GetDestRect() const {
 		return _destRect;
 	}
 
@@ -138,9 +143,10 @@ private:
 		int captureMode,
 		int bufferPrecision,
 		bool showFPS,
+		bool adjustCursorSpeed,
 		bool noDisturb
-	) : _hInst(hInst), _hwndSrc(hwndSrc), _scaleModel(scaleModel),
-		_captureMode(captureMode), _bufferPrecision(bufferPrecision), _showFPS(showFPS), _noDisturb(noDisturb)
+	) : _hInst(hInst), _hwndSrc(hwndSrc), _scaleModel(scaleModel), _captureMode(captureMode),
+		_bufferPrecision(bufferPrecision), _showFPS(showFPS), _adjustCursorSpeed(adjustCursorSpeed), _noDisturb(noDisturb)
 	{
 		Utils::GetClientScreenRect(_hwndSrc, _srcClient);
 	}
@@ -155,6 +161,7 @@ private:
 	int _captureMode;
 	int _bufferPrecision;
 	bool _showFPS;
+	bool _adjustCursorSpeed;
 	bool _noDisturb;
 
 	HWND _hwndSrc;

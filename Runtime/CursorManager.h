@@ -23,23 +23,24 @@ public:
 		// 静默的失败
 		ClipCursor(&Env::$instance->GetSrcClient()), L"ClipCursor 失败";
 
-		// 设置鼠标移动速度
-		Debug::ThrowIfWin32Failed(
-			SystemParametersInfo(SPI_GETMOUSESPEED, 0, &_cursorSpeed, 0),
-			L"获取鼠标速度失败"
-		);
+		if (Env::$instance->IsAdjustCursorSpeed()) {
+			// 设置鼠标移动速度
+			Debug::ThrowIfWin32Failed(
+				SystemParametersInfo(SPI_GETMOUSESPEED, 0, &_cursorSpeed, 0),
+				L"获取鼠标速度失败"
+			);
 
-		const RECT& srcClient = Env::$instance->GetSrcClient();
-		const D2D_RECT_F& destRect = Env::$instance->GetDestRect();
-		float scaleX = (destRect.right - destRect.left) / (srcClient.right - srcClient.left);
-		float scaleY = (destRect.bottom - destRect.top) / (srcClient.bottom - srcClient.top);
+			const RECT& srcClient = Env::$instance->GetSrcClient();
+			const D2D_RECT_F& destRect = Env::$instance->GetDestRect();
+			float scaleX = (destRect.right - destRect.left) / (srcClient.right - srcClient.left);
+			float scaleY = (destRect.bottom - destRect.top) / (srcClient.bottom - srcClient.top);
 
-		long newSpeed = std::clamp(lroundf(_cursorSpeed / (scaleX + scaleY) * 2), 1L, 20L);
-		Debug::ThrowIfWin32Failed(
-			SystemParametersInfo(SPI_SETMOUSESPEED, 0, (PVOID)(intptr_t)newSpeed, 0),
-			L"设置鼠标速度失败"
-		);
-
+			long newSpeed = std::clamp(lroundf(_cursorSpeed / (scaleX + scaleY) * 2), 1L, 20L);
+			Debug::ThrowIfWin32Failed(
+				SystemParametersInfo(SPI_SETMOUSESPEED, 0, (PVOID)(intptr_t)newSpeed, 0),
+				L"设置鼠标速度失败"
+			);
+		}
 
 		// 保存替换之前的 arrow 光标图像
 		// SetSystemCursor 不会改变系统光标的句柄
@@ -51,7 +52,6 @@ public:
 		_ResolveCursor(hCursorHand, hCursorHand);
 		_ResolveCursor(hCursorAppStarting, hCursorAppStarting);
 		_ResolveCursor(hCursorIBeam, hCursorIBeam);
-
 
 		SetSystemCursor(_CreateTransparentCursor(hCursorArrow), OCR_NORMAL);
 		SetSystemCursor(_CreateTransparentCursor(hCursorHand), OCR_HAND);
@@ -69,7 +69,9 @@ public:
 
 		ClipCursor(nullptr);
 
-		SystemParametersInfo(SPI_SETMOUSESPEED, 0, (PVOID)(intptr_t)_cursorSpeed, 0);
+		if (Env::$instance->IsAdjustCursorSpeed()) {
+			SystemParametersInfo(SPI_SETMOUSESPEED, 0, (PVOID)(intptr_t)_cursorSpeed, 0);
+		}
 
 		// 还原系统光标
 		SystemParametersInfo(SPI_SETCURSORS, 0, NULL, 0);
@@ -165,7 +167,7 @@ private:
 			L"GetCursorInfo 失败"
 		);
 
-		if (ci.hCursor == NULL) {
+		if (ci.hCursor == NULL || ci.flags != CURSOR_SHOWING) {
 			_cursorInfo = nullptr;
 			return;
 		}

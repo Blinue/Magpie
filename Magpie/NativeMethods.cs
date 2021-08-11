@@ -142,6 +142,7 @@ namespace Magpie {
 			int captureMode,
 			int bufferPrecision,
 			[MarshalAs(UnmanagedType.U1)] bool showFPS,
+			[MarshalAs(UnmanagedType.U1)] bool adjustCursorSpeed,
 			[MarshalAs(UnmanagedType.U1)] bool noDisturb
 		);
 

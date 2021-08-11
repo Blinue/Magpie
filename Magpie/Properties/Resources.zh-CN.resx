@@ -120,7 +120,7 @@
   <data name="About" xml:space="preserve">
     <value>关于</value>
   </data>
-  <data name="Adjust_Cursor_Scale" xml:space="preserve">
+  <data name="Adjust_Cursor_Speed" xml:space="preserve">
     <value>缩放时调整光标速度</value>
   </data>
   <data name="Advanced" xml:space="preserve">
@@ -202,7 +202,7 @@
   <data name="No_Injection" xml:space="preserve">
     <value>不注入</value>
   </data>
-  <data name="Open_Scale_Config_File" xml:space="preserve">
+  <data name="Open_Scale_Config" xml:space="preserve">
     <value>打开缩放配置</value>
   </data>
   <data name="Open_Source_Licenses" xml:space="preserve">

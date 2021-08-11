@@ -70,11 +70,11 @@ namespace Magpie.Properties {
         }
         
         /// <summary>
-        ///   查找类似 Adjust cursor scale while zoomed 的本地化字符串。
+        ///   查找类似 Adjust cursor speed while zoomed 的本地化字符串。
         /// </summary>
-        public static string Adjust_Cursor_Scale {
+        public static string Adjust_Cursor_Speed {
             get {
-                return ResourceManager.GetString("Adjust_Cursor_Scale", resourceCulture);
+                return ResourceManager.GetString("Adjust_Cursor_Speed", resourceCulture);
             }
         }
         
@@ -372,11 +372,11 @@ namespace Magpie.Properties {
         }
         
         /// <summary>
-        ///   查找类似 Open Scale configuration file 的本地化字符串。
+        ///   查找类似 Open Scale Config 的本地化字符串。
         /// </summary>
-        public static string Open_Scale_Config_File {
+        public static string Open_Scale_Config {
             get {
-                return ResourceManager.GetString("Open_Scale_Config_File", resourceCulture);
+                return ResourceManager.GetString("Open_Scale_Config", resourceCulture);
             }
         }
         

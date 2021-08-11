@@ -118,5 +118,17 @@ namespace Magpie.Properties {
                 this["BufferPrecision"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool AdjustCursorSpeed {
+            get {
+                return ((bool)(this["AdjustCursorSpeed"]));
+            }
+            set {
+                this["AdjustCursorSpeed"] = value;
+            }
+        }
     }
 }

@@ -38,6 +38,7 @@ API_DECLSPEC void WINAPI RunMagWindow(
 	int captureMode,
 	int bufferPrecision,
 	bool showFPS,
+	bool adjustCursorSpeed,
 	bool noDisturb
 ) {
 	Debug::ThrowIfComFailed(
@@ -55,7 +56,7 @@ API_DECLSPEC void WINAPI RunMagWindow(
 			L"非法的抓取模式"
 		);
 
-		Env::CreateInstance(hInst, hwndSrc, scaleModel, captureMode, bufferPrecision, showFPS, noDisturb);
+		Env::CreateInstance(hInst, hwndSrc, scaleModel, captureMode, bufferPrecision, showFPS, adjustCursorSpeed, noDisturb);
 		MagWindow::CreateInstance();
 	} catch(const magpie_exception& e) {
 		reportStatus(0, (L"创建全屏窗口出错：" + e.what()).c_str());

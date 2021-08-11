@@ -76,6 +76,7 @@ namespace Magpie {
 			int captureMode,
 			int bufferPrecision,
 			bool showFPS,
+			bool adjustCursorSpeed,
 			bool hookCursorAtRuntime,
 			bool noDisturb = false
 		) {
@@ -106,6 +107,7 @@ namespace Magpie {
 					captureMode,    // 抓取模式
 					bufferPrecision,    // 缓冲区精度
 					showFPS,        // 显示 FPS
+					adjustCursorSpeed,  // 自动调整光标速度
 					noDisturb       // 用于调试
 				);
 			});

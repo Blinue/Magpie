@@ -246,12 +246,14 @@ namespace Magpie {
 			bool showFPS = Settings.Default.ShowFPS;
 			int captureMode = Settings.Default.CaptureMode;
 			int bufferPrecision = Settings.Default.BufferPrecision;
+			bool adjustCursorSpeed = Settings.Default.AdjustCursorSpeed;
 
 			magWindow.Create(
 				effectsJson,
 				captureMode,
 				bufferPrecision,
 				showFPS,
+				adjustCursorSpeed,
 				cbbInjectMode.SelectedIndex == 1,
 				false
 			);
