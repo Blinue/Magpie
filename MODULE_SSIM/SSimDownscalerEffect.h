@@ -172,11 +172,11 @@ public:
 
         std::pair<float, float> t = scale;
         ComPtr<ID2D1Effect> mitchellEffect = nullptr;
-        auto json = nlohmann::json::parse(fmt::format(R"({
+        auto json = nlohmann::json::parse(fmt::format(R"({{
 		    "effect" : "mitchell",
 		    "scale" : [{}, {}],
 		    "variant": "mitchell"
-	    })", scale.first, scale.second));
+	    }})", scale.first, scale.second));
         HRESULT hr = createEffect(d2dFactory, d2dDC, nullptr, json, {}, t, mitchellEffect);
         if (FAILED(hr)) {
             return hr;
