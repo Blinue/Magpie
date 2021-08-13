@@ -4,7 +4,7 @@
 #include <chrono>
 #include <CommonDebug.h>
 #include <fmt/format.h>
-#include <fmt/xchar.h>
+#include <fmt/printf.h>
 
 
 // c++ 原生 exception 不支持宽字符串
@@ -35,7 +35,7 @@ public:
 
 	com_exception(HRESULT hr, const std::wstring_view& msg) noexcept
 		: magpie_exception(msg), _result(hr) {
-		_whatMsg = fmt::format(L"{} (HRESULT={#x})", magpie_exception::what(), _result);
+		_whatMsg = fmt::sprintf(L"%s (HRESULT=0x%X)", magpie_exception::what().c_str(), hr);
 	}
 
 	const std::wstring& what() const override {

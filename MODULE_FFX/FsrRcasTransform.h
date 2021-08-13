@@ -50,5 +50,5 @@ protected:
     }
 
 private:
-    float _sharpness = 0.8f;
+    float _sharpness = 0.9f;
 };

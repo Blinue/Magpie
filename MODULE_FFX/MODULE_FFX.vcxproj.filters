@@ -25,7 +25,7 @@
     <ClInclude Include="FsrEasuTransform.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="FSREffect.h">
+    <ClInclude Include="FsrRcasEffect.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="FsrRcasTransform.h">
@@ -41,6 +41,9 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="resource.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="FsrEasuEffect.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

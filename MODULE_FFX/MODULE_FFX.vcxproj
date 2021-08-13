@@ -123,8 +123,9 @@
     <ClInclude Include="EffectDefines.h" />
     <ClInclude Include="FfxCasEffect.h" />
     <ClInclude Include="FfxCasTransform.h" />
+    <ClInclude Include="FsrEasuEffect.h" />
     <ClInclude Include="FsrEasuTransform.h" />
-    <ClInclude Include="FSREffect.h" />
+    <ClInclude Include="FsrRcasEffect.h" />
     <ClInclude Include="FsrRcasTransform.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="resource.h" />

@@ -1,4 +1,4 @@
-﻿[
+[
   {
     "name": "Lanczos",
     "model": [
@@ -81,8 +81,13 @@
     "model": [
       {
         "module": "FFX",
-        "effect": "FSR",
-        "scale": [-1, -1]
+        "effect": "FsrEasu",
+        "scale": [ -1, -1 ]
+      },
+      {
+        "module": "FFX",
+        "effect": "FsrRcas",
+        "sharpness": 0.9
       }
     ]
   },
