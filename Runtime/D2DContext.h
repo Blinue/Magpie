@@ -129,7 +129,7 @@ private:
 		
 		// Allocate a descriptor.
 		DXGI_SWAP_CHAIN_DESC1 swapChainDesc{};
-		swapChainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT;
+		swapChainDesc.Flags = Env::$instance->GetCaptureMode() == 0 ? DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT : 0;
 
 		const RECT& hostClient = Env::$instance->GetHostClient();
 		swapChainDesc.Width = hostClient.right - hostClient.left,
@@ -164,10 +164,14 @@ private:
 			L"获取 IDXGISwapChain2 失败"
 		);
 		
-		Debug::ThrowIfComFailed(
-			_dxgiSwapChain->SetMaximumFrameLatency(1),
-			L"SetMaximumFrameLatency 失败"
-		);
+		if (Env::$instance->GetCaptureMode() == 1) {
+			dxgiDevice->SetMaximumFrameLatency(1);
+		} else {
+			Debug::ThrowIfComFailed(
+				_dxgiSwapChain->SetMaximumFrameLatency(1),
+				L"SetMaximumFrameLatency 失败"
+			);
+		}
 
 		if (Env::$instance->GetCaptureMode() == 1) {
 			Debug::ThrowIfComFailed(
@@ -203,7 +207,7 @@ private:
 			),
 			L"CreateBitmapFromDxgiSurface 失败"
 		);
-
+		
 		// Now we can set the Direct2D render target.
 		_d2dDC->SetTarget(d2dTargetBitmap.Get());
 		_d2dDC->SetUnitMode(D2D1_UNIT_MODE_PIXELS);
