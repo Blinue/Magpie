@@ -117,48 +117,63 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="About" xml:space="preserve">
-    <value>关于</value>
-  </data>
-  <data name="Adjust_Cursor_Speed" xml:space="preserve">
-    <value>缩放时调整光标速度</value>
-  </data>
-  <data name="Advanced" xml:space="preserve">
-    <value>高级</value>
-  </data>
-  <data name="All_Contributors_Thanks_Text" xml:space="preserve">
+  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+  <data name="UI_Options_About_Thanks_Contributors" xml:space="preserve">
     <value>所有为Magpie提供反馈与贡献的人</value>
   </data>
-  <data name="All_Shaders_Thanks_Text" xml:space="preserve">
+  <data name="UI_Options_About_Thanks_Shaders" xml:space="preserve">
     <value>Magpie移植的所有优秀着色器项目</value>
   </data>
-  <data name="Application" xml:space="preserve">
-    <value>应用程序</value>
-  </data>
-  <data name="Buffer_Precision" xml:space="preserve">
+  <data name="UI_Options_Advanced_Buffer_Precision" xml:space="preserve">
     <value>中间纹理精度</value>
   </data>
-  <data name="Buffer_Precision_Default" xml:space="preserve">
+  <data name="UI_Options_Advanced_Buffer_Precision_Default" xml:space="preserve">
     <value>默认</value>
   </data>
-  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
   <data name="BuiltInScaleModels" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Assets\BuiltInScaleModels.zh-CN.json;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
+  </data>
+  <data name="UI_Options_About_Licenses_Close" xml:space="preserve">
+    <value>确定</value>
+  </data>
+  <data name="UI_Options_About_Feedback" xml:space="preserve">
+    <value>反馈</value>
+  </data>
+  <data name="UI_Options_About_Licenses_Header" xml:space="preserve">
+    <value>Magpie和它使用的开源软件的许可：</value>
+  </data>
+  <data name="UI_Options_Advanced_Logging_Level" xml:space="preserve">
+    <value>日志级别</value>
+  </data>
+  <data name="UI_Options_About_Licenses_Title" xml:space="preserve">
+    <value>Magpie 开源许可</value>
+  </data>
+  <data name="UI_Options_Scale_Open_Scale_Config" xml:space="preserve">
+    <value>打开缩放配置</value>
+  </data>
+  <data name="UI_Options_About_Licenses" xml:space="preserve">
+    <value>开源许可</value>
+  </data>
+  <data name="UI_Main_Parse_Failure" xml:space="preserve">
+    <value>解析失败</value>
+  </data>
+  <data name="UI_Options_About_Project_URL" xml:space="preserve">
+    <value>项目地址</value>
+  </data>
+  <data name="UI_Options_Advanced_Show_Frame_Rate" xml:space="preserve">
+    <value>显示帧率</value>
+  </data>
+  <data name="UI_Options_About_Support" xml:space="preserve">
+    <value>支持</value>
+  </data>
+  <data name="UI_Options_About_Thanks" xml:space="preserve">
+    <value>鸣谢</value>
   </data>
   <data name="UI_Main_Capture_Mode" xml:space="preserve">
     <value>抓取模式</value>
   </data>
-  <data name="Close" xml:space="preserve">
-    <value>确定</value>
-  </data>
-  <data name="Current_Window" xml:space="preserve">
+  <data name="UI_Main_Current_Window" xml:space="preserve">
     <value>当前窗口：</value>
-  </data>
-  <data name="UI_SysTray_Exit" xml:space="preserve">
-    <value>退出</value>
-  </data>
-  <data name="Feedback" xml:space="preserve">
-    <value>反馈</value>
   </data>
   <data name="UI_Main_Forget_Current_Window" xml:space="preserve">
     <value>忘记当前窗口</value>
@@ -166,56 +181,20 @@
   <data name="UI_Main_Hotkey" xml:space="preserve">
     <value>热键</value>
   </data>
-  <data name="UI_Main_Injection_Mode_Injection_At_Startup" xml:space="preserve">
-    <value>启动时注入</value>
-  </data>
   <data name="UI_Main_Injection_Mode" xml:space="preserve">
     <value>进程注入</value>
   </data>
-  <data name="Language" xml:space="preserve">
-    <value>语言</value>
-  </data>
-  <data name="Licenses_That_Magpie_Uses" xml:space="preserve">
-    <value>Magpie和它使用的开源软件的许可：</value>
-  </data>
-  <data name="Logging_Level" xml:space="preserve">
-    <value>日志级别</value>
-  </data>
-  <data name="Magpie_Open_Source_Licenses" xml:space="preserve">
-    <value>Magpie 开源许可</value>
-  </data>
-  <data name="Magpie_Options" xml:space="preserve">
-    <value>Magpie 选项</value>
-  </data>
-  <data name="Minimise_To_System_Tray" xml:space="preserve">
-    <value>开机启动时最小化到系统托盘</value>
+  <data name="UI_Main_Injection_Mode_Injection_At_Startup" xml:space="preserve">
+    <value>启动时注入</value>
   </data>
   <data name="UI_Main_Injection_Mode_No_Injection" xml:space="preserve">
     <value>不注入</value>
   </data>
-  <data name="Open_Scale_Config" xml:space="preserve">
-    <value>打开缩放配置</value>
-  </data>
-  <data name="Open_Source_Licenses" xml:space="preserve">
-    <value>开源许可</value>
-  </data>
-  <data name="UI_Main_Options" xml:space="preserve">
-    <value>选项</value>
-  </data>
-  <data name="Parse_Failure" xml:space="preserve">
-    <value>解析失败</value>
-  </data>
-  <data name="Project_URL" xml:space="preserve">
-    <value>项目地址</value>
-  </data>
-  <data name="Restore_Full_Screen" xml:space="preserve">
-    <value>如果源窗口失去焦点，则在它重获焦点时恢复全屏</value>
-  </data>
   <data name="UI_Main_Injection_Mode_Runtime_Injection" xml:space="preserve">
     <value>运行时注入</value>
   </data>
-  <data name="Run_At_Startup" xml:space="preserve">
-    <value>开机启动</value>
+  <data name="UI_Main_Options" xml:space="preserve">
+    <value>选项</value>
   </data>
   <data name="UI_Main_Scale_After_5S" xml:space="preserve">
     <value>5秒后缩放</value>
@@ -223,28 +202,52 @@
   <data name="UI_Main_Scaling_Mode" xml:space="preserve">
     <value>缩放模式</value>
   </data>
-  <data name="Show_Frame_Rate" xml:space="preserve">
-    <value>显示帧率</value>
+  <data name="UI_Main_Title" xml:space="preserve">
+    <value>Magpie</value>
   </data>
-  <data name="Support" xml:space="preserve">
-    <value>支持</value>
+  <data name="UI_Options_About" xml:space="preserve">
+    <value>关于</value>
   </data>
-  <data name="Thanks" xml:space="preserve">
-    <value>鸣谢</value>
+  <data name="UI_Options_Advanced" xml:space="preserve">
+    <value>高级</value>
   </data>
-  <data name="Version" xml:space="preserve">
-    <value>版本</value>
+  <data name="UI_Options_Application" xml:space="preserve">
+    <value>应用程序</value>
   </data>
-  <data name="Zoom" xml:space="preserve">
+  <data name="UI_Options_Application_Language" xml:space="preserve">
+    <value>语言</value>
+  </data>
+  <data name="UI_Options_Application_Minimise_To_System_Tray" xml:space="preserve">
+    <value>开机启动时最小化到系统托盘</value>
+  </data>
+  <data name="UI_Options_Application_Run_At_Startup" xml:space="preserve">
+    <value>开机启动</value>
+  </data>
+  <data name="UI_Options_Scale_Adjust_Cursor_Speed" xml:space="preserve">
+    <value>缩放时调整光标速度</value>
+  </data>
+  <data name="UI_Options_Scale_Restore_Full_Screen" xml:space="preserve">
+    <value>如果源窗口失去焦点，则在它重获焦点时恢复全屏</value>
+  </data>
+  <data name="UI_Options_Title" xml:space="preserve">
+    <value>Magpie 选项</value>
+  </data>
+  <data name="UI_Options_Zoom" xml:space="preserve">
     <value>缩放</value>
+  </data>
+  <data name="UI_SysTray_Exit" xml:space="preserve">
+    <value>退出</value>
   </data>
   <data name="UI_SysTray_Main_Window" xml:space="preserve">
     <value>主窗口</value>
   </data>
+  <data name="UI_SysTray_Options" xml:space="preserve">
+    <value>选项</value>
+  </data>
   <data name="UI_SysTray_Scale_After_5S" xml:space="preserve">
     <value>5秒后缩放</value>
   </data>
-  <data name="UI_SysTray_Options" xml:space="preserve">
-    <value>选项</value>
+  <data name="UI_Options_About_Version" xml:space="preserve">
+    <value>版本</value>
   </data>
 </root>

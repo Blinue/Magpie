@@ -100,7 +100,7 @@ namespace Magpie {
 				return;
 			}
 
-			tbCurWndTitle.Text = $"{Properties.Resources.Current_Window}{NativeMethods.GetWindowTitle(prevSrcWindow)}";
+			tbCurWndTitle.Text = $"{Properties.Resources.UI_Main_Current_Window}{NativeMethods.GetWindowTitle(prevSrcWindow)}";
 			if (WindowState == WindowState.Normal) {
 				btnForgetCurrentWnd.Visibility = gridCurWnd.Visibility = Visibility.Visible;
 			}
@@ -165,21 +165,23 @@ namespace Magpie {
 				scaleModels = null;
 
 				cbbScaleMode.Items.Clear();
-				_ = cbbScaleMode.Items.Add($"<{Properties.Resources.Parse_Failure}>");
+				_ = cbbScaleMode.Items.Add($"<{Properties.Resources.UI_Main_Parse_Failure}>");
 			}
 
 			// 保留当前选择
 			int idx = cbbScaleMode.SelectedIndex;
-			cbbScaleMode.Items.Clear();
-			foreach ((string Name, string Model) scaleModel in scaleModels) {
-				_ = cbbScaleMode.Items.Add(scaleModel.Name);
+
+			if (scaleModels != null) {
+				cbbScaleMode.Items.Clear();
+				foreach ((string Name, string Model) scaleModel in scaleModels) {
+					_ = cbbScaleMode.Items.Add(scaleModel.Name);
+				}
 			}
 
-			if (idx >= cbbScaleMode.Items.Count) {
+			if (idx >= cbbScaleMode.Items.Count || idx < 0) {
 				idx = 0;
 			}
 			cbbScaleMode.SelectedIndex = idx;
-
 		}
 
 		private void BtnOptions_Click(object sender, RoutedEventArgs e) {

@@ -7,7 +7,7 @@
         xmlns:local="clr-namespace:Magpie"
         xmlns:p="clr-namespace:Magpie.Properties;assembly=Magpie"
         mc:Ignorable="d"
-        Title="Magpie" ResizeMode="CanMinimize" WindowStartupLocation="CenterScreen"
+        Title="{x:Static p:Resources.UI_Main_Title}" ResizeMode="CanMinimize" WindowStartupLocation="CenterScreen"
         Closing="Window_Closing" SourceInitialized="Window_SourceInitialized" StateChanged="Window_StateChanged" HorizontalAlignment="Left" VerticalAlignment="Top" SizeToContent="WidthAndHeight">
     <StackPanel Margin="20,20">
         <StackPanel.Resources>
@@ -114,7 +114,7 @@
         </Grid>
 
         <Grid x:Name="gridCurWnd" Margin="0,10,0,0" Visibility="Collapsed">
-            <TextBlock x:Name="tbCurWndTitle" Margin="0" Text="Current_Window" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" MaxWidth="{Binding ElementName=gridCurWnd, Path=ActualWidth}" />
+            <TextBlock x:Name="tbCurWndTitle" Margin="0" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" MaxWidth="{Binding ElementName=gridCurWnd, Path=ActualWidth}" />
         </Grid>
 
         <Grid Margin="0,10,0,0">

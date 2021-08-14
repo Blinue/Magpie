@@ -61,78 +61,6 @@ namespace Magpie.Properties {
         }
         
         /// <summary>
-        ///   查找类似 About 的本地化字符串。
-        /// </summary>
-        public static string About {
-            get {
-                return ResourceManager.GetString("About", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   查找类似 Adjust cursor speed while zoomed 的本地化字符串。
-        /// </summary>
-        public static string Adjust_Cursor_Speed {
-            get {
-                return ResourceManager.GetString("Adjust_Cursor_Speed", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   查找类似 Advanced 的本地化字符串。
-        /// </summary>
-        public static string Advanced {
-            get {
-                return ResourceManager.GetString("Advanced", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   查找类似 All those who have provided feedback and contributions to Magpie 的本地化字符串。
-        /// </summary>
-        public static string All_Contributors_Thanks_Text {
-            get {
-                return ResourceManager.GetString("All_Contributors_Thanks_Text", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   查找类似 All shader projects supported by Magpie 的本地化字符串。
-        /// </summary>
-        public static string All_Shaders_Thanks_Text {
-            get {
-                return ResourceManager.GetString("All_Shaders_Thanks_Text", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   查找类似 Application 的本地化字符串。
-        /// </summary>
-        public static string Application {
-            get {
-                return ResourceManager.GetString("Application", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   查找类似 Intermediate Texture Precision 的本地化字符串。
-        /// </summary>
-        public static string Buffer_Precision {
-            get {
-                return ResourceManager.GetString("Buffer_Precision", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   查找类似 Default 的本地化字符串。
-        /// </summary>
-        public static string Buffer_Precision_Default {
-            get {
-                return ResourceManager.GetString("Buffer_Precision_Default", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   查找类似 [
         ///  {
         ///    &quot;name&quot;: &quot;Lanczos&quot;,
@@ -169,42 +97,6 @@ namespace Magpie.Properties {
         }
         
         /// <summary>
-        ///   查找类似 Close 的本地化字符串。
-        /// </summary>
-        public static string Close {
-            get {
-                return ResourceManager.GetString("Close", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   查找类似 Current Window:  的本地化字符串。
-        /// </summary>
-        public static string Current_Window {
-            get {
-                return ResourceManager.GetString("Current_Window", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   查找类似 Feedback 的本地化字符串。
-        /// </summary>
-        public static string Feedback {
-            get {
-                return ResourceManager.GetString("Feedback", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   查找类似 Language 的本地化字符串。
-        /// </summary>
-        public static string Language {
-            get {
-                return ResourceManager.GetString("Language", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   查找类似 [Magpie]
         ///https://github.com/Blinue/Magpie
         ///---------------------------------------------------
@@ -227,24 +119,6 @@ namespace Magpie.Properties {
         }
         
         /// <summary>
-        ///   查找类似 The liceses that Magpie Uses: 的本地化字符串。
-        /// </summary>
-        public static string Licenses_That_Magpie_Uses {
-            get {
-                return ResourceManager.GetString("Licenses_That_Magpie_Uses", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   查找类似 Logging Level 的本地化字符串。
-        /// </summary>
-        public static string Logging_Level {
-            get {
-                return ResourceManager.GetString("Logging_Level", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   查找类似于 (图标) 的 System.Drawing.Icon 类型的本地化资源。
         /// </summary>
         public static System.Drawing.Icon Logo {
@@ -255,119 +129,20 @@ namespace Magpie.Properties {
         }
         
         /// <summary>
-        ///   查找类似 Magpie Licenses 的本地化字符串。
-        /// </summary>
-        public static string Magpie_Open_Source_Licenses {
-            get {
-                return ResourceManager.GetString("Magpie_Open_Source_Licenses", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   查找类似 Magpie Options 的本地化字符串。
-        /// </summary>
-        public static string Magpie_Options {
-            get {
-                return ResourceManager.GetString("Magpie_Options", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   查找类似 Minimise to the System Tray at Startup 的本地化字符串。
-        /// </summary>
-        public static string Minimise_To_System_Tray {
-            get {
-                return ResourceManager.GetString("Minimise_To_System_Tray", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   查找类似 Open Scale Config 的本地化字符串。
-        /// </summary>
-        public static string Open_Scale_Config {
-            get {
-                return ResourceManager.GetString("Open_Scale_Config", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   查找类似 Licenses 的本地化字符串。
-        /// </summary>
-        public static string Open_Source_Licenses {
-            get {
-                return ResourceManager.GetString("Open_Source_Licenses", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   查找类似 Parse Failure 的本地化字符串。
-        /// </summary>
-        public static string Parse_Failure {
-            get {
-                return ResourceManager.GetString("Parse_Failure", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   查找类似 Project URL 的本地化字符串。
-        /// </summary>
-        public static string Project_URL {
-            get {
-                return ResourceManager.GetString("Project_URL", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   查找类似 Restore full screen when source window loses focus 的本地化字符串。
-        /// </summary>
-        public static string Restore_Full_Screen {
-            get {
-                return ResourceManager.GetString("Restore_Full_Screen", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   查找类似 Run at Startup 的本地化字符串。
-        /// </summary>
-        public static string Run_At_Startup {
-            get {
-                return ResourceManager.GetString("Run_At_Startup", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   查找类似 Show Frame Rate 的本地化字符串。
-        /// </summary>
-        public static string Show_Frame_Rate {
-            get {
-                return ResourceManager.GetString("Show_Frame_Rate", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   查找类似 Support 的本地化字符串。
-        /// </summary>
-        public static string Support {
-            get {
-                return ResourceManager.GetString("Support", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   查找类似 Thanks 的本地化字符串。
-        /// </summary>
-        public static string Thanks {
-            get {
-                return ResourceManager.GetString("Thanks", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   查找类似 Capture Mode 的本地化字符串。
         /// </summary>
         public static string UI_Main_Capture_Mode {
             get {
                 return ResourceManager.GetString("UI_Main_Capture_Mode", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Current Window:  的本地化字符串。
+        /// </summary>
+        public static string UI_Main_Current_Window {
+            get {
+                return ResourceManager.GetString("UI_Main_Current_Window", resourceCulture);
             }
         }
         
@@ -435,6 +210,15 @@ namespace Magpie.Properties {
         }
         
         /// <summary>
+        ///   查找类似 Parse Failure 的本地化字符串。
+        /// </summary>
+        public static string UI_Main_Parse_Failure {
+            get {
+                return ResourceManager.GetString("UI_Main_Parse_Failure", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Scale after 5s 的本地化字符串。
         /// </summary>
         public static string UI_Main_Scale_After_5S {
@@ -449,6 +233,249 @@ namespace Magpie.Properties {
         public static string UI_Main_Scaling_Mode {
             get {
                 return ResourceManager.GetString("UI_Main_Scaling_Mode", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Magpie 的本地化字符串。
+        /// </summary>
+        public static string UI_Main_Title {
+            get {
+                return ResourceManager.GetString("UI_Main_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 About 的本地化字符串。
+        /// </summary>
+        public static string UI_Options_About {
+            get {
+                return ResourceManager.GetString("UI_Options_About", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Feedback 的本地化字符串。
+        /// </summary>
+        public static string UI_Options_About_Feedback {
+            get {
+                return ResourceManager.GetString("UI_Options_About_Feedback", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Licenses 的本地化字符串。
+        /// </summary>
+        public static string UI_Options_About_Licenses {
+            get {
+                return ResourceManager.GetString("UI_Options_About_Licenses", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Close 的本地化字符串。
+        /// </summary>
+        public static string UI_Options_About_Licenses_Close {
+            get {
+                return ResourceManager.GetString("UI_Options_About_Licenses_Close", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 The liceses that Magpie Uses: 的本地化字符串。
+        /// </summary>
+        public static string UI_Options_About_Licenses_Header {
+            get {
+                return ResourceManager.GetString("UI_Options_About_Licenses_Header", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Magpie Licenses 的本地化字符串。
+        /// </summary>
+        public static string UI_Options_About_Licenses_Title {
+            get {
+                return ResourceManager.GetString("UI_Options_About_Licenses_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Project URL 的本地化字符串。
+        /// </summary>
+        public static string UI_Options_About_Project_URL {
+            get {
+                return ResourceManager.GetString("UI_Options_About_Project_URL", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Support 的本地化字符串。
+        /// </summary>
+        public static string UI_Options_About_Support {
+            get {
+                return ResourceManager.GetString("UI_Options_About_Support", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Thanks 的本地化字符串。
+        /// </summary>
+        public static string UI_Options_About_Thanks {
+            get {
+                return ResourceManager.GetString("UI_Options_About_Thanks", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 All those who have provided feedback and contributions to Magpie 的本地化字符串。
+        /// </summary>
+        public static string UI_Options_About_Thanks_Contributors {
+            get {
+                return ResourceManager.GetString("UI_Options_About_Thanks_Contributors", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 All shader projects supported by Magpie 的本地化字符串。
+        /// </summary>
+        public static string UI_Options_About_Thanks_Shaders {
+            get {
+                return ResourceManager.GetString("UI_Options_About_Thanks_Shaders", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Version 的本地化字符串。
+        /// </summary>
+        public static string UI_Options_About_Version {
+            get {
+                return ResourceManager.GetString("UI_Options_About_Version", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Advanced 的本地化字符串。
+        /// </summary>
+        public static string UI_Options_Advanced {
+            get {
+                return ResourceManager.GetString("UI_Options_Advanced", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Intermediate Texture Precision 的本地化字符串。
+        /// </summary>
+        public static string UI_Options_Advanced_Buffer_Precision {
+            get {
+                return ResourceManager.GetString("UI_Options_Advanced_Buffer_Precision", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Default 的本地化字符串。
+        /// </summary>
+        public static string UI_Options_Advanced_Buffer_Precision_Default {
+            get {
+                return ResourceManager.GetString("UI_Options_Advanced_Buffer_Precision_Default", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Logging Level 的本地化字符串。
+        /// </summary>
+        public static string UI_Options_Advanced_Logging_Level {
+            get {
+                return ResourceManager.GetString("UI_Options_Advanced_Logging_Level", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Show Frame Rate 的本地化字符串。
+        /// </summary>
+        public static string UI_Options_Advanced_Show_Frame_Rate {
+            get {
+                return ResourceManager.GetString("UI_Options_Advanced_Show_Frame_Rate", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Application 的本地化字符串。
+        /// </summary>
+        public static string UI_Options_Application {
+            get {
+                return ResourceManager.GetString("UI_Options_Application", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Language 的本地化字符串。
+        /// </summary>
+        public static string UI_Options_Application_Language {
+            get {
+                return ResourceManager.GetString("UI_Options_Application_Language", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Minimise to the System Tray at Startup 的本地化字符串。
+        /// </summary>
+        public static string UI_Options_Application_Minimise_To_System_Tray {
+            get {
+                return ResourceManager.GetString("UI_Options_Application_Minimise_To_System_Tray", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Run at Startup 的本地化字符串。
+        /// </summary>
+        public static string UI_Options_Application_Run_At_Startup {
+            get {
+                return ResourceManager.GetString("UI_Options_Application_Run_At_Startup", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Adjust cursor speed while zoomed 的本地化字符串。
+        /// </summary>
+        public static string UI_Options_Scale_Adjust_Cursor_Speed {
+            get {
+                return ResourceManager.GetString("UI_Options_Scale_Adjust_Cursor_Speed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Open Scale Config 的本地化字符串。
+        /// </summary>
+        public static string UI_Options_Scale_Open_Scale_Config {
+            get {
+                return ResourceManager.GetString("UI_Options_Scale_Open_Scale_Config", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Restore full screen when source window loses focus 的本地化字符串。
+        /// </summary>
+        public static string UI_Options_Scale_Restore_Full_Screen {
+            get {
+                return ResourceManager.GetString("UI_Options_Scale_Restore_Full_Screen", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Magpie Options 的本地化字符串。
+        /// </summary>
+        public static string UI_Options_Title {
+            get {
+                return ResourceManager.GetString("UI_Options_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Zoom 的本地化字符串。
+        /// </summary>
+        public static string UI_Options_Zoom {
+            get {
+                return ResourceManager.GetString("UI_Options_Zoom", resourceCulture);
             }
         }
         
@@ -485,24 +512,6 @@ namespace Magpie.Properties {
         public static string UI_SysTray_Scale_After_5S {
             get {
                 return ResourceManager.GetString("UI_SysTray_Scale_After_5S", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   查找类似 Version 的本地化字符串。
-        /// </summary>
-        public static string Version {
-            get {
-                return ResourceManager.GetString("Version", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   查找类似 Zoom 的本地化字符串。
-        /// </summary>
-        public static string Zoom {
-            get {
-                return ResourceManager.GetString("Zoom", resourceCulture);
             }
         }
     }

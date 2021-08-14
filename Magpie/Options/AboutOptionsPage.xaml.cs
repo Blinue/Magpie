@@ -14,7 +14,7 @@ namespace Magpie.Options {
 		public AboutOptionsPage() {
 			InitializeComponent();
 
-			lblVersion.Content = $"{Properties.Resources.Version} {App.APP_VERSION.ToString(3)}";
+			lblVersion.Content = $"{Properties.Resources.UI_Options_About_Version} {App.APP_VERSION.ToString(3)}";
 		}
 
 		private void Hyperlink_RequestNavigate(object sender, RequestNavigateEventArgs e) {

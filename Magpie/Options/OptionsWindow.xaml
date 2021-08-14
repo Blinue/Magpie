@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:Magpie.Options"
         xmlns:p="clr-namespace:Magpie.Properties;assembly=Magpie"
         mc:Ignorable="d"
-        Title="{x:Static p:Resources.Magpie_Options}" Height="400" Width="650">
+        Title="{x:Static p:Resources.UI_Options_Title}" Height="400" Width="650">
     <DockPanel>
         <ListBox x:Name="lbxOptionsPage" Margin="0" SelectionChanged="LxbOptionsPage_SelectionChanged" Padding="0" BorderThickness="0,0,1,0" Grid.IsSharedSizeScope="True">
             <ListBox.Resources>
@@ -28,7 +28,7 @@
                         <ColumnDefinition SharedSizeGroup="Name" />
                     </Grid.ColumnDefinitions>
                     <Label Grid.Column="0" Style="{StaticResource Icon}" Content="&#xECAA;" />
-                    <Label Grid.Column="1" Content="{x:Static p:Resources.Application}" />
+                    <Label Grid.Column="1" Content="{x:Static p:Resources.UI_Options_Application}" />
                 </Grid>
             </ListBoxItem>
             <ListBoxItem>
@@ -38,7 +38,7 @@
                         <ColumnDefinition SharedSizeGroup="Name" />
                     </Grid.ColumnDefinitions>
                     <Label Grid.Column="0" Style="{StaticResource Icon}" Content="&#xE92D;" />
-                    <Label Grid.Column="1" Content="{x:Static p:Resources.Zoom}" />
+                    <Label Grid.Column="1" Content="{x:Static p:Resources.UI_Options_Zoom}" />
                 </Grid>
             </ListBoxItem>
             <ListBoxItem>
@@ -48,7 +48,7 @@
                         <ColumnDefinition SharedSizeGroup="Name" />
                     </Grid.ColumnDefinitions>
                     <Label Grid.Column="0" Style="{StaticResource Icon}" Content="&#xEC7A;" />
-                    <Label Grid.Column="1" Content="{x:Static p:Resources.Advanced}" />
+                    <Label Grid.Column="1" Content="{x:Static p:Resources.UI_Options_Advanced}" />
                 </Grid>
             </ListBoxItem>
             <ListBoxItem>
@@ -58,7 +58,7 @@
                         <ColumnDefinition SharedSizeGroup="Name" />
                     </Grid.ColumnDefinitions>
                     <Label Grid.Column="0" Style="{StaticResource Icon}" Content="&#xE946;" />
-                    <Label Grid.Column="1" Content="{x:Static p:Resources.About}" />
+                    <Label Grid.Column="1" Content="{x:Static p:Resources.UI_Options_About}" />
                 </Grid>
             </ListBoxItem>
         </ListBox>

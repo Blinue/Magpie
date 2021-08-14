@@ -7,8 +7,7 @@
       xmlns:props="clr-namespace:Magpie.Properties"
       xmlns:p="clr-namespace:Magpie.Properties;assembly=Magpie"
       mc:Ignorable="d" 
-      d:DesignHeight="200" d:DesignWidth="400"
-      Title="ApplicationOptionsPage">
+      d:DesignHeight="200" d:DesignWidth="400">
     <Page.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -19,14 +18,14 @@
     
     <StackPanel HorizontalAlignment="Left" VerticalAlignment="Top">
         <StackPanel Orientation="Horizontal" VerticalAlignment="Top" HorizontalAlignment="Left">
-            <Label Content="{x:Static p:Resources.Language}" Padding="0" VerticalAlignment="Center"/>
+            <Label Content="{x:Static p:Resources.UI_Options_Application_Language}" Padding="0" VerticalAlignment="Center"/>
             <ComboBox Margin="10,0,0,0" VerticalAlignment="Center"/>
         </StackPanel>
         <StackPanel>
-            <CheckBox x:Name="ckbRunAtStartUp" Content="{x:Static p:Resources.Run_At_Startup}" Margin="0,20,0,0" Unchecked="CkbRunAtStartUp_Unchecked"/>
+            <CheckBox x:Name="ckbRunAtStartUp" Content="{x:Static p:Resources.UI_Options_Application_Run_At_Startup}" Margin="0,20,0,0" Unchecked="CkbRunAtStartUp_Unchecked"/>
             <CheckBox
                 x:Name="ckbMinimizeAtStartUp"
-                Content="{x:Static p:Resources.Minimise_To_System_Tray}"
+                Content="{x:Static p:Resources.UI_Options_Application_Minimise_To_System_Tray}"
                 Margin="20,10,0,0"
                 Unchecked="CkbMinimizeAtStartUp_Unchecked"
                 IsChecked="{Binding Source={x:Static props:Settings.Default},Path=MinimizeAtWindowsStartUp,Mode=TwoWay}"
