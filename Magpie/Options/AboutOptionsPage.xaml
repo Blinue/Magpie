@@ -88,19 +88,19 @@
                 <RowDefinition />
                 <RowDefinition />
             </Grid.RowDefinitions>
-            <Label Content="{x:Static p:Resources.Visual_Studio}" Padding="5" />
+            <Label Content="Visual Studio" Padding="5" />
             <TextBlock Grid.Column="1" Padding="5">
                 <Hyperlink NavigateUri="https://visualstudio.microsoft.com/" RequestNavigate="Hyperlink_RequestNavigate">
                     https://visualstudio.microsoft.com/
                 </Hyperlink>
             </TextBlock>
-            <Label Content="{x:Static p:Resources.EasyHook}" Padding="5" Grid.Row="1" />
+            <Label Content="EasyHook" Padding="5" Grid.Row="1" />
             <TextBlock Grid.Column="1" Padding="5" Grid.Row="1">
                 <Hyperlink NavigateUri="https://github.com/EasyHook/EasyHook" RequestNavigate="Hyperlink_RequestNavigate">
                     https://github.com/EasyHook/EasyHook
                 </Hyperlink>
             </TextBlock>
-            <Label Content="{x:Static p:Resources.Cpp_WinRT}" Padding="5" Grid.Row="2" />
+            <Label Content="C++/WinRT" Padding="5" Grid.Row="2" />
             <TextBlock Grid.Column="1" Padding="5" Grid.Row="2">
                 <Hyperlink NavigateUri="https://github.com/microsoft/cppwinrt" RequestNavigate="Hyperlink_RequestNavigate">
                     https://github.com/microsoft/cppwinrt

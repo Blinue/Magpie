@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -145,37 +145,31 @@
   <data name="BuiltInScaleModels" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Assets\BuiltInScaleModels.zh-CN.json;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
   </data>
-  <data name="Capture_Mode" xml:space="preserve">
+  <data name="UI_Main_Capture_Mode" xml:space="preserve">
     <value>抓取模式</value>
   </data>
   <data name="Close" xml:space="preserve">
     <value>确定</value>
   </data>
-  <data name="Cpp_WinRT" xml:space="preserve">
-    <value>C++/WinRT</value>
-  </data>
   <data name="Current_Window" xml:space="preserve">
     <value>当前窗口：</value>
   </data>
-  <data name="EasyHook" xml:space="preserve">
-    <value>EasyHook</value>
-  </data>
-  <data name="Exit" xml:space="preserve">
+  <data name="UI_SysTray_Exit" xml:space="preserve">
     <value>退出</value>
   </data>
   <data name="Feedback" xml:space="preserve">
     <value>反馈</value>
   </data>
-  <data name="Forget_Current_Window" xml:space="preserve">
+  <data name="UI_Main_Forget_Current_Window" xml:space="preserve">
     <value>忘记当前窗口</value>
   </data>
-  <data name="Hotkey" xml:space="preserve">
+  <data name="UI_Main_Hotkey" xml:space="preserve">
     <value>热键</value>
   </data>
-  <data name="Injection_At_Startup" xml:space="preserve">
+  <data name="UI_Main_Injection_Mode_Injection_At_Startup" xml:space="preserve">
     <value>启动时注入</value>
   </data>
-  <data name="Injection_Mode" xml:space="preserve">
+  <data name="UI_Main_Injection_Mode" xml:space="preserve">
     <value>进程注入</value>
   </data>
   <data name="Language" xml:space="preserve">
@@ -193,13 +187,10 @@
   <data name="Magpie_Options" xml:space="preserve">
     <value>Magpie 选项</value>
   </data>
-  <data name="Main_Window" xml:space="preserve">
-    <value>主窗口</value>
-  </data>
   <data name="Minimise_To_System_Tray" xml:space="preserve">
     <value>开机启动时最小化到系统托盘</value>
   </data>
-  <data name="No_Injection" xml:space="preserve">
+  <data name="UI_Main_Injection_Mode_No_Injection" xml:space="preserve">
     <value>不注入</value>
   </data>
   <data name="Open_Scale_Config" xml:space="preserve">
@@ -208,7 +199,7 @@
   <data name="Open_Source_Licenses" xml:space="preserve">
     <value>开源许可</value>
   </data>
-  <data name="Options" xml:space="preserve">
+  <data name="UI_Main_Options" xml:space="preserve">
     <value>选项</value>
   </data>
   <data name="Parse_Failure" xml:space="preserve">
@@ -220,16 +211,16 @@
   <data name="Restore_Full_Screen" xml:space="preserve">
     <value>如果源窗口失去焦点，则在它重获焦点时恢复全屏</value>
   </data>
-  <data name="Runtime_Injection" xml:space="preserve">
+  <data name="UI_Main_Injection_Mode_Runtime_Injection" xml:space="preserve">
     <value>运行时注入</value>
   </data>
   <data name="Run_At_Startup" xml:space="preserve">
     <value>开机启动</value>
   </data>
-  <data name="Scale_After_5S" xml:space="preserve">
+  <data name="UI_Main_Scale_After_5S" xml:space="preserve">
     <value>5秒后缩放</value>
   </data>
-  <data name="Scaling_Mode" xml:space="preserve">
+  <data name="UI_Main_Scaling_Mode" xml:space="preserve">
     <value>缩放模式</value>
   </data>
   <data name="Show_Frame_Rate" xml:space="preserve">
@@ -244,10 +235,16 @@
   <data name="Version" xml:space="preserve">
     <value>版本</value>
   </data>
-  <data name="Visual_Studio" xml:space="preserve">
-    <value>Visual Studio</value>
-  </data>
   <data name="Zoom" xml:space="preserve">
     <value>缩放</value>
+  </data>
+  <data name="UI_SysTray_Main_Window" xml:space="preserve">
+    <value>主窗口</value>
+  </data>
+  <data name="UI_SysTray_Scale_After_5S" xml:space="preserve">
+    <value>5秒后缩放</value>
+  </data>
+  <data name="UI_SysTray_Options" xml:space="preserve">
+    <value>选项</value>
   </data>
 </root>

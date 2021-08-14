@@ -337,7 +337,8 @@ namespace Magpie {
 
 		private void StopScaleTimer() {
 			timerScale.Stop();
-			btnScale.Content = cmiScale.Header = Properties.Resources.Scale_After_5S;
+			btnScale.Content = Properties.Resources.UI_Main_Scale_After_5S;
+			cmiScale.Header = Properties.Resources.UI_SysTray_Scale_After_5S;
 		}
 
 		private void ToggleScaleTimer() {

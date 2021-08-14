@@ -8,46 +8,58 @@
         mc:Ignorable="d"
         Title="{x:Static p:Resources.Magpie_Options}" Height="400" Width="650">
     <DockPanel>
-        <ListBox x:Name="lbxOptionsPage" Margin="0" SelectionChanged="LxbOptionsPage_SelectionChanged" Padding="0" BorderThickness="0,0,1,0">
+        <ListBox x:Name="lbxOptionsPage" Margin="0" SelectionChanged="LxbOptionsPage_SelectionChanged" Padding="0" BorderThickness="0,0,1,0" Grid.IsSharedSizeScope="True">
             <ListBox.Resources>
                 <Style TargetType="ListBoxItem">
-                    <Setter Property="HorizontalContentAlignment" Value="Center" />
                     <Setter Property="FontSize" Value="14" />
                     <Setter Property="Padding" Value="10,6" />
                 </Style>
                 <Style TargetType="Label" x:Key="Icon">
-                    <Setter Property="Width" Value="24" />
-                    <Setter Property="Height" Value="24" />
                     <Setter Property="FontFamily" Value="Segoe MDL2 Assets" />
-                </Style>
-                <Style TargetType="Label" x:Key="Name">
-                    <Setter Property="Width" Value="90" />
+                    <Setter Property="HorizontalAlignment" Value="Center" />
+                    <Setter Property="VerticalAlignment" Value="Center" />
                 </Style>
             </ListBox.Resources>
 
             <ListBoxItem>
-                <StackPanel Orientation="Horizontal">
-                    <Label Style="{StaticResource Icon}" Content="&#xECAA;" />
-                    <Label Style="{StaticResource Name}" Content="{x:Static p:Resources.Application}" />
-                </StackPanel>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition />
+                        <ColumnDefinition SharedSizeGroup="Name" />
+                    </Grid.ColumnDefinitions>
+                    <Label Grid.Column="0" Style="{StaticResource Icon}" Content="&#xECAA;" />
+                    <Label Grid.Column="1" Content="{x:Static p:Resources.Application}" />
+                </Grid>
             </ListBoxItem>
             <ListBoxItem>
-                <StackPanel Orientation="Horizontal">
-                    <Label Style="{StaticResource Icon}" Content="&#xE92D;" />
-                    <Label Style="{StaticResource Name}" Content="{x:Static p:Resources.Zoom}" />
-                </StackPanel>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition />
+                        <ColumnDefinition SharedSizeGroup="Name" />
+                    </Grid.ColumnDefinitions>
+                    <Label Grid.Column="0" Style="{StaticResource Icon}" Content="&#xE92D;" />
+                    <Label Grid.Column="1" Content="{x:Static p:Resources.Zoom}" />
+                </Grid>
             </ListBoxItem>
             <ListBoxItem>
-                <StackPanel Orientation="Horizontal">
-                    <Label Style="{StaticResource Icon}" Content="&#xEC7A;" />
-                    <Label Style="{StaticResource Name}" Content="{x:Static p:Resources.Advanced}" />
-                </StackPanel>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition />
+                        <ColumnDefinition SharedSizeGroup="Name" />
+                    </Grid.ColumnDefinitions>
+                    <Label Grid.Column="0" Style="{StaticResource Icon}" Content="&#xEC7A;" />
+                    <Label Grid.Column="1" Content="{x:Static p:Resources.Advanced}" />
+                </Grid>
             </ListBoxItem>
             <ListBoxItem>
-                <StackPanel Orientation="Horizontal">
-                    <Label Style="{StaticResource Icon}" Content="&#xE946;" />
-                    <Label Style="{StaticResource Name}" Content="{x:Static p:Resources.About}" />
-                </StackPanel>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition />
+                        <ColumnDefinition SharedSizeGroup="Name" />
+                    </Grid.ColumnDefinitions>
+                    <Label Grid.Column="0" Style="{StaticResource Icon}" Content="&#xE946;" />
+                    <Label Grid.Column="1" Content="{x:Static p:Resources.About}" />
+                </Grid>
             </ListBoxItem>
         </ListBox>
         <Frame x:Name="contentFrame" NavigationUIVisibility="Hidden" Padding="20,20,20,0"/>

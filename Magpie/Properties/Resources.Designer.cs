@@ -169,29 +169,11 @@ namespace Magpie.Properties {
         }
         
         /// <summary>
-        ///   查找类似 Capture Mode 的本地化字符串。
-        /// </summary>
-        public static string Capture_Mode {
-            get {
-                return ResourceManager.GetString("Capture_Mode", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   查找类似 Close 的本地化字符串。
         /// </summary>
         public static string Close {
             get {
                 return ResourceManager.GetString("Close", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   查找类似 C++/WinRT 的本地化字符串。
-        /// </summary>
-        public static string Cpp_WinRT {
-            get {
-                return ResourceManager.GetString("Cpp_WinRT", resourceCulture);
             }
         }
         
@@ -205,65 +187,11 @@ namespace Magpie.Properties {
         }
         
         /// <summary>
-        ///   查找类似 EasyHook 的本地化字符串。
-        /// </summary>
-        public static string EasyHook {
-            get {
-                return ResourceManager.GetString("EasyHook", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   查找类似 Exit 的本地化字符串。
-        /// </summary>
-        public static string Exit {
-            get {
-                return ResourceManager.GetString("Exit", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   查找类似 Feedback 的本地化字符串。
         /// </summary>
         public static string Feedback {
             get {
                 return ResourceManager.GetString("Feedback", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   查找类似 Forget 的本地化字符串。
-        /// </summary>
-        public static string Forget_Current_Window {
-            get {
-                return ResourceManager.GetString("Forget_Current_Window", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   查找类似 Hotkey 的本地化字符串。
-        /// </summary>
-        public static string Hotkey {
-            get {
-                return ResourceManager.GetString("Hotkey", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   查找类似 Injection at Startup 的本地化字符串。
-        /// </summary>
-        public static string Injection_At_Startup {
-            get {
-                return ResourceManager.GetString("Injection_At_Startup", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   查找类似 Injection Mode 的本地化字符串。
-        /// </summary>
-        public static string Injection_Mode {
-            get {
-                return ResourceManager.GetString("Injection_Mode", resourceCulture);
             }
         }
         
@@ -345,29 +273,11 @@ namespace Magpie.Properties {
         }
         
         /// <summary>
-        ///   查找类似 Main Window 的本地化字符串。
-        /// </summary>
-        public static string Main_Window {
-            get {
-                return ResourceManager.GetString("Main_Window", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   查找类似 Minimise to the System Tray at Startup 的本地化字符串。
         /// </summary>
         public static string Minimise_To_System_Tray {
             get {
                 return ResourceManager.GetString("Minimise_To_System_Tray", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   查找类似 No Injection 的本地化字符串。
-        /// </summary>
-        public static string No_Injection {
-            get {
-                return ResourceManager.GetString("No_Injection", resourceCulture);
             }
         }
         
@@ -386,15 +296,6 @@ namespace Magpie.Properties {
         public static string Open_Source_Licenses {
             get {
                 return ResourceManager.GetString("Open_Source_Licenses", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   查找类似 Options 的本地化字符串。
-        /// </summary>
-        public static string Options {
-            get {
-                return ResourceManager.GetString("Options", resourceCulture);
             }
         }
         
@@ -435,33 +336,6 @@ namespace Magpie.Properties {
         }
         
         /// <summary>
-        ///   查找类似 Injection at Runtime 的本地化字符串。
-        /// </summary>
-        public static string Runtime_Injection {
-            get {
-                return ResourceManager.GetString("Runtime_Injection", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   查找类似 Scale after 5s 的本地化字符串。
-        /// </summary>
-        public static string Scale_After_5S {
-            get {
-                return ResourceManager.GetString("Scale_After_5S", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   查找类似 Scaling Mode 的本地化字符串。
-        /// </summary>
-        public static string Scaling_Mode {
-            get {
-                return ResourceManager.GetString("Scaling_Mode", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   查找类似 Show Frame Rate 的本地化字符串。
         /// </summary>
         public static string Show_Frame_Rate {
@@ -489,20 +363,137 @@ namespace Magpie.Properties {
         }
         
         /// <summary>
+        ///   查找类似 Capture Mode 的本地化字符串。
+        /// </summary>
+        public static string UI_Main_Capture_Mode {
+            get {
+                return ResourceManager.GetString("UI_Main_Capture_Mode", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Forget 的本地化字符串。
+        /// </summary>
+        public static string UI_Main_Forget_Current_Window {
+            get {
+                return ResourceManager.GetString("UI_Main_Forget_Current_Window", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Hotkey 的本地化字符串。
+        /// </summary>
+        public static string UI_Main_Hotkey {
+            get {
+                return ResourceManager.GetString("UI_Main_Hotkey", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Injection Mode 的本地化字符串。
+        /// </summary>
+        public static string UI_Main_Injection_Mode {
+            get {
+                return ResourceManager.GetString("UI_Main_Injection_Mode", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Injection at Startup 的本地化字符串。
+        /// </summary>
+        public static string UI_Main_Injection_Mode_Injection_At_Startup {
+            get {
+                return ResourceManager.GetString("UI_Main_Injection_Mode_Injection_At_Startup", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 No Injection 的本地化字符串。
+        /// </summary>
+        public static string UI_Main_Injection_Mode_No_Injection {
+            get {
+                return ResourceManager.GetString("UI_Main_Injection_Mode_No_Injection", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Injection at Runtime 的本地化字符串。
+        /// </summary>
+        public static string UI_Main_Injection_Mode_Runtime_Injection {
+            get {
+                return ResourceManager.GetString("UI_Main_Injection_Mode_Runtime_Injection", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Options 的本地化字符串。
+        /// </summary>
+        public static string UI_Main_Options {
+            get {
+                return ResourceManager.GetString("UI_Main_Options", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Scale after 5s 的本地化字符串。
+        /// </summary>
+        public static string UI_Main_Scale_After_5S {
+            get {
+                return ResourceManager.GetString("UI_Main_Scale_After_5S", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Scaling Mode 的本地化字符串。
+        /// </summary>
+        public static string UI_Main_Scaling_Mode {
+            get {
+                return ResourceManager.GetString("UI_Main_Scaling_Mode", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Exit 的本地化字符串。
+        /// </summary>
+        public static string UI_SysTray_Exit {
+            get {
+                return ResourceManager.GetString("UI_SysTray_Exit", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Main Window 的本地化字符串。
+        /// </summary>
+        public static string UI_SysTray_Main_Window {
+            get {
+                return ResourceManager.GetString("UI_SysTray_Main_Window", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Options 的本地化字符串。
+        /// </summary>
+        public static string UI_SysTray_Options {
+            get {
+                return ResourceManager.GetString("UI_SysTray_Options", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Scale after 5s 的本地化字符串。
+        /// </summary>
+        public static string UI_SysTray_Scale_After_5S {
+            get {
+                return ResourceManager.GetString("UI_SysTray_Scale_After_5S", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Version 的本地化字符串。
         /// </summary>
         public static string Version {
             get {
                 return ResourceManager.GetString("Version", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   查找类似 Visual Studio 的本地化字符串。
-        /// </summary>
-        public static string Visual_Studio {
-            get {
-                return ResourceManager.GetString("Visual_Studio", resourceCulture);
             }
         }
         
