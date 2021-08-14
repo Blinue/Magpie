@@ -11,73 +11,73 @@
 //   ARStrength：抗振铃强度。必须在 0~1 之间。默认值为 0.5
 class JincScaleTransform : public SimpleScaleTransform {
 private:
-    JincScaleTransform() : SimpleScaleTransform(GUID_MAGPIE_JINC2_SCALE_SHADER) {}
+	JincScaleTransform() : SimpleScaleTransform(GUID_MAGPIE_JINC2_SCALE_SHADER) {}
 public:
-    static HRESULT Create(_In_ ID2D1EffectContext* d2dEC, _Outptr_ JincScaleTransform** ppOutput) {
-        if (!ppOutput) {
-            return E_INVALIDARG;
-        }
+	static HRESULT Create(_In_ ID2D1EffectContext* d2dEC, _Outptr_ JincScaleTransform** ppOutput) {
+		if (!ppOutput) {
+			return E_INVALIDARG;
+		}
 
-        HRESULT hr = LoadShader(d2dEC, MAGPIE_JINC2_SCALE_SHADER, GUID_MAGPIE_JINC2_SCALE_SHADER);
-        if (FAILED(hr)) {
-            return hr;
-        }
+		HRESULT hr = LoadShader(d2dEC, MAGPIE_JINC2_SCALE_SHADER, GUID_MAGPIE_JINC2_SCALE_SHADER);
+		if (FAILED(hr)) {
+			return hr;
+		}
 
-        *ppOutput = new JincScaleTransform();
-        return hr;
-    }
+		*ppOutput = new JincScaleTransform();
+		return hr;
+	}
 
-    void SetWindowSinc(float value) {
-        assert(value > 0);
-        _windowSinc = value;
-    }
+	void SetWindowSinc(float value) {
+		assert(value > 0);
+		_windowSinc = value;
+	}
 
-    float GetWindowSinc() const {
-        return _windowSinc;
-    }
+	float GetWindowSinc() const {
+		return _windowSinc;
+	}
 
-    void SetSinc(float value) {
-        assert(value > 0);
-        _sinc = value;
-    }
+	void SetSinc(float value) {
+		assert(value > 0);
+		_sinc = value;
+	}
 
-    float GetSinc() const {
-        return _sinc;
-    }
+	float GetSinc() const {
+		return _sinc;
+	}
 
-    void SetARStrength(float value) {
-        assert(value >= 0 && value <= 1);
-        _ARStrength = value;
-    }
+	void SetARStrength(float value) {
+		assert(value >= 0 && value <= 1);
+		_ARStrength = value;
+	}
 
-    float GetARStrength() {
-        return _ARStrength;
-    }
+	float GetARStrength() {
+		return _ARStrength;
+	}
 
 protected:
-    void _SetShaderConstantBuffer(const SIZE& srcSize, const SIZE& destSize) override {
-        struct {
-            INT32 srcWidth;
-            INT32 srcHeight;
-            INT32 destWidth;
-            INT32 destHeight;
-            float windowSinc;
-            float sinc;
-            float arStrength;
-        } shaderConstants{
-            srcSize.cx,
-            srcSize.cy,
-            destSize.cx,
-            destSize.cy,
-            _windowSinc,
-            _sinc,
-            _ARStrength
-        };
+	void _SetShaderConstantBuffer(const SIZE& srcSize, const SIZE& destSize) override {
+		struct {
+			INT32 srcWidth;
+			INT32 srcHeight;
+			INT32 destWidth;
+			INT32 destHeight;
+			float windowSinc;
+			float sinc;
+			float arStrength;
+		} shaderConstants{
+			srcSize.cx,
+			srcSize.cy,
+			destSize.cx,
+			destSize.cy,
+			_windowSinc,
+			_sinc,
+			_ARStrength
+		};
 
-        _drawInfo->SetPixelShaderConstantBuffer((BYTE*)&shaderConstants, sizeof(shaderConstants));
-    }
+		_drawInfo->SetPixelShaderConstantBuffer((BYTE*)&shaderConstants, sizeof(shaderConstants));
+	}
 private:
-    float _windowSinc = 0.5f;
-    float _sinc = 0.825f;
-    float _ARStrength = 0.5f;
+	float _windowSinc = 0.5f;
+	float _sinc = 0.825f;
+	float _ARStrength = 0.5f;
 };

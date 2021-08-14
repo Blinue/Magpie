@@ -1,9 +1,9 @@
 with open('../EffectCommon/conanfile.py') as f:
-    exec(f.read())
+	exec(f.read())
 
 
 class ModuleRAVUConan(EffectCommonConan):
-    pass
+	pass
 
 
 del EffectCommonConan

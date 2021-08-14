@@ -1,8 +1,8 @@
 // SSSR varH
 
 cbuffer constants : register(b0) {
-    int2 srcSize : packoffset(c0.x);
-    int2 destSize : packoffset(c0.z);
+	int2 srcSize : packoffset(c0.x);
+	int2 destSize : packoffset(c0.z);
 };
 
 #define MAGPIE_INPUT_COUNT 5    // PREKERNEL, POSTKERNEL, LOWRES, varL, varH
@@ -27,68 +27,68 @@ cbuffer constants : register(b0) {
 #define Luma(rgb)   ( dot(rgb*rgb, float3(0.2126, 0.7152, 0.0722)) )
 
 float L(float x, float y) {
-    float2 c = SampleInputOffChecked(3, float2(x, y) + 0.5).xy;
-    return (c.x + c.y / 10) / 8;
+	float2 c = SampleInputOffChecked(3, float2(x, y) + 0.5).xy;
+	return (c.x + c.y / 10) / 8;
 }
 
 float H(float x, float y) {
-    float2 c = SampleInputOffChecked(4, float2(x, y) + 0.5).xy;
-    return (c.x + c.y / 10) / 8;
+	float2 c = SampleInputOffChecked(4, float2(x, y) + 0.5).xy;
+	return (c.x + c.y / 10) / 8;
 }
 
 float4 Lowres(float x, float y) {
-    float4 c = SampleInputOffChecked(2, float2(x, y) + 0.5);
-    c.a = c.a /20;
-    return c;
+	float4 c = SampleInputOffChecked(2, float2(x, y) + 0.5);
+	c.a = c.a /20;
+	return c;
 }
 
 D2D_PS_ENTRY(main) {
-    float2 scale = float2(destSize) / srcSize;
-    Coord(0).xy /= scale;
+	float2 scale = float2(destSize) / srcSize;
+	Coord(0).xy /= scale;
 
-    // PREKERNEL 为 srcSize，其他为 destSize
-    maxCoord0 = float2((srcSize.x - 1) * Coord(0).z, (srcSize.y - 1) * Coord(0).w);
-    maxCoord1 = float2((destSize.x - 1) * Coord(1).z, (destSize.y - 1) * Coord(1).w);
-    maxCoord2 = float2((destSize.x - 1) * Coord(1).z, (destSize.y - 1) * Coord(1).w);
-    maxCoord3 = float2((destSize.x - 1) * Coord(1).z, (destSize.y - 1) * Coord(1).w);
-    maxCoord4 = float2((destSize.x - 1) * Coord(1).z, (destSize.y - 1) * Coord(1).w);
+	// PREKERNEL 为 srcSize，其他为 destSize
+	maxCoord0 = float2((srcSize.x - 1) * Coord(0).z, (srcSize.y - 1) * Coord(0).w);
+	maxCoord1 = float2((destSize.x - 1) * Coord(1).z, (destSize.y - 1) * Coord(1).w);
+	maxCoord2 = float2((destSize.x - 1) * Coord(1).z, (destSize.y - 1) * Coord(1).w);
+	maxCoord3 = float2((destSize.x - 1) * Coord(1).z, (destSize.y - 1) * Coord(1).w);
+	maxCoord4 = float2((destSize.x - 1) * Coord(1).z, (destSize.y - 1) * Coord(1).w);
 
-    int X, Y;
+	int X, Y;
 
-    float4 c0 = SampleInputCur(1);
+	float4 c0 = SampleInputCur(1);
 
-    // Calculate position
-    float2 pos = Coord(1).xy / Coord(1).zw - 0.5;
-    float2 offset = pos - (even ? floor(pos) : round(pos));
-    pos -= offset;
+	// Calculate position
+	float2 pos = Coord(1).xy / Coord(1).zw - 0.5;
+	float2 offset = pos - (even ? floor(pos) : round(pos));
+	pos -= offset;
 
-    float2 mVar = 0;
-    for (X = -1; X <= 1; X++)
-        for (Y = -1; Y <= 1; Y++) {
-            float2 w = clamp(1.5 - abs(float2(X, Y) - offset), 0.0, 1.0);
-            mVar += w.r * w.g * float2(Lowres(X, Y).a, 1.0);
-        }
-    mVar.r /= mVar.g;
+	float2 mVar = 0;
+	for (X = -1; X <= 1; X++)
+		for (Y = -1; Y <= 1; Y++) {
+			float2 w = clamp(1.5 - abs(float2(X, Y) - offset), 0.0, 1.0);
+			mVar += w.r * w.g * float2(Lowres(X, Y).a, 1.0);
+		}
+	mVar.r /= mVar.g;
 
-    // Calculate faithfulness force
-    float weightSum = 0;
-    float3 diff = 0;
+	// Calculate faithfulness force
+	float weightSum = 0;
+	float3 diff = 0;
 
-    for (X = minX; X <= maxX; X++)
-        for (Y = minX; Y <= maxX; Y++) {
-            float varL = L(X, Y);
-            float varH = H(X, Y);
-            float R = -sqrt((varL + sqr(0.5 / 255.0)) / (varH + mVar.r + sqr(0.5 / 255.0)));
+	for (X = minX; X <= maxX; X++)
+		for (Y = minX; Y <= maxX; Y++) {
+			float varL = L(X, Y);
+			float varH = H(X, Y);
+			float R = -sqrt((varL + sqr(0.5 / 255.0)) / (varH + mVar.r + sqr(0.5 / 255.0)));
 
-            float2 krnl = Kernel(float2(X, Y) - offset);
-            float weight = krnl.r * krnl.g / (Luma(abs(c0.rgb - Lowres(X, Y).rgb)) + Lowres(X, Y).a + sqr(0.5 / 255.0));
+			float2 krnl = Kernel(float2(X, Y) - offset);
+			float weight = krnl.r * krnl.g / (Luma(abs(c0.rgb - Lowres(X, Y).rgb)) + Lowres(X, Y).a + sqr(0.5 / 255.0));
 
-            diff += weight * (SampleInputOffChecked(0, float2(X, Y) / scale).rgb + Lowres(X, Y).rgb * R + (-1.0 - R) * (c0.rgb));
-            weightSum += weight;
-        }
-    diff /= weightSum;
+			diff += weight * (SampleInputOffChecked(0, float2(X, Y) / scale).rgb + Lowres(X, Y).rgb * R + (-1.0 - R) * (c0.rgb));
+			weightSum += weight;
+		}
+	diff /= weightSum;
 
-    c0.rgb = ((c0.rgb) + diff);
+	c0.rgb = ((c0.rgb) + diff);
 
-    return c0;
+	return c0;
 }

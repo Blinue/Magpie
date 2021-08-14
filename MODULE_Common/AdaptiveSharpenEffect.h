@@ -9,111 +9,111 @@
 // Adaptive sharpen 算法
 class AdaptiveSharpenEffect : public EffectBase {
 public:
-    IFACEMETHODIMP Initialize(
-        _In_ ID2D1EffectContext* pEffectContext,
-        _In_ ID2D1TransformGraph* pTransformGraph
-    ) {
-        HRESULT hr = SimpleDrawTransform<>::Create(
-            pEffectContext, 
-            &_pass1Transform, 
-            MAGPIE_ADAPTIVE_SHARPEN_PASS1_SHADER, 
-            GUID_MAGPIE_ADAPTIVE_SHARPEN_PASS1_SHADER
-        );
-        if (FAILED(hr)) {
-            return hr;
-        }
-        hr = AdaptiveSharpenPass2Transform::Create(
-            pEffectContext, 
-            &_pass2Transform
-        );
-        if (FAILED(hr)) {
-            return hr;
-        }
+	IFACEMETHODIMP Initialize(
+		_In_ ID2D1EffectContext* pEffectContext,
+		_In_ ID2D1TransformGraph* pTransformGraph
+	) {
+		HRESULT hr = SimpleDrawTransform<>::Create(
+			pEffectContext, 
+			&_pass1Transform, 
+			MAGPIE_ADAPTIVE_SHARPEN_PASS1_SHADER, 
+			GUID_MAGPIE_ADAPTIVE_SHARPEN_PASS1_SHADER
+		);
+		if (FAILED(hr)) {
+			return hr;
+		}
+		hr = AdaptiveSharpenPass2Transform::Create(
+			pEffectContext, 
+			&_pass2Transform
+		);
+		if (FAILED(hr)) {
+			return hr;
+		}
 
-        hr = pTransformGraph->AddNode(_pass1Transform.Get());
-        if (FAILED(hr)) {
-            return hr;
-        }
-        hr = pTransformGraph->AddNode(_pass2Transform.Get());
-        if (FAILED(hr)) {
-            return hr;
-        }
+		hr = pTransformGraph->AddNode(_pass1Transform.Get());
+		if (FAILED(hr)) {
+			return hr;
+		}
+		hr = pTransformGraph->AddNode(_pass2Transform.Get());
+		if (FAILED(hr)) {
+			return hr;
+		}
 
-        hr = pTransformGraph->ConnectToEffectInput(0, _pass1Transform.Get(), 0);
-        if (FAILED(hr)) {
-            return hr;
-        }
-        hr = pTransformGraph->ConnectNode(_pass1Transform.Get(), _pass2Transform.Get(), 0);
-        if (FAILED(hr)) {
-            return hr;
-        }
-        hr = pTransformGraph->SetOutputNode(_pass2Transform.Get());
-        if (FAILED(hr)) {
-            return hr;
-        }
+		hr = pTransformGraph->ConnectToEffectInput(0, _pass1Transform.Get(), 0);
+		if (FAILED(hr)) {
+			return hr;
+		}
+		hr = pTransformGraph->ConnectNode(_pass1Transform.Get(), _pass2Transform.Get(), 0);
+		if (FAILED(hr)) {
+			return hr;
+		}
+		hr = pTransformGraph->SetOutputNode(_pass2Transform.Get());
+		if (FAILED(hr)) {
+			return hr;
+		}
 
-        return S_OK;
-    }
+		return S_OK;
+	}
 
-    HRESULT SetCurveHeight(FLOAT value) {
-        if (value <= 0) {
-            return E_INVALIDARG;
-        }
+	HRESULT SetCurveHeight(FLOAT value) {
+		if (value <= 0) {
+			return E_INVALIDARG;
+		}
 
-        _pass2Transform->SetCurveHeight(value);
-        return S_OK;
-    }
+		_pass2Transform->SetCurveHeight(value);
+		return S_OK;
+	}
 
-    FLOAT GetCurveHeight() const {
-        return _pass2Transform->GetCurveHeight();
-    }
+	FLOAT GetCurveHeight() const {
+		return _pass2Transform->GetCurveHeight();
+	}
 
-    enum PROPS {
-        // FLOAT 类型。指示锐化强度，必须大于0，一般在 0.3~2.0 之间。默认值为 0.3
-        PROP_CURVE_HEIGHT = 0
-    };
+	enum PROPS {
+		// FLOAT 类型。指示锐化强度，必须大于0，一般在 0.3~2.0 之间。默认值为 0.3
+		PROP_CURVE_HEIGHT = 0
+	};
 
-    static HRESULT Register(_In_ ID2D1Factory1* pFactory) {
-        const D2D1_PROPERTY_BINDING bindings[] =
-        {
-            D2D1_VALUE_TYPE_BINDING(L"CurveHeight", &SetCurveHeight, &GetCurveHeight),
-        };
+	static HRESULT Register(_In_ ID2D1Factory1* pFactory) {
+		const D2D1_PROPERTY_BINDING bindings[] =
+		{
+			D2D1_VALUE_TYPE_BINDING(L"CurveHeight", &SetCurveHeight, &GetCurveHeight),
+		};
 
-        HRESULT hr = pFactory->RegisterEffectFromString(CLSID_MAGPIE_ADAPTIVE_SHARPEN_EFFECT, XML(
-            <?xml version='1.0'?>
-            <Effect>
-                <!--System Properties-->
-                <Property name='DisplayName' type='string' value='Adaptive Sharpen' />
-                <Property name='Author' type='string' value='Blinue' />
-                <Property name='Category' type='string' value='Sharpen' />
-                <Property name='Description' type='string' value='Adaptive Sharpen' />
-                <Inputs>
-                    <Input name='Source' />
-                </Inputs>
-                <Property name='CurveHeight' type='float'>
-                    <Property name='DisplayName' type='string' value='CurveHeight' />
-                    <Property name='Default' type='float' value='0.3' />
-                </Property>
-            </Effect>
-        ), bindings, ARRAYSIZE(bindings), CreateEffect);
+		HRESULT hr = pFactory->RegisterEffectFromString(CLSID_MAGPIE_ADAPTIVE_SHARPEN_EFFECT, XML(
+			<?xml version='1.0'?>
+			<Effect>
+				<!--System Properties-->
+				<Property name='DisplayName' type='string' value='Adaptive Sharpen' />
+				<Property name='Author' type='string' value='Blinue' />
+				<Property name='Category' type='string' value='Sharpen' />
+				<Property name='Description' type='string' value='Adaptive Sharpen' />
+				<Inputs>
+					<Input name='Source' />
+				</Inputs>
+				<Property name='CurveHeight' type='float'>
+					<Property name='DisplayName' type='string' value='CurveHeight' />
+					<Property name='Default' type='float' value='0.3' />
+				</Property>
+			</Effect>
+		), bindings, ARRAYSIZE(bindings), CreateEffect);
 
-        return hr;
-    }
+		return hr;
+	}
 
-    static HRESULT CALLBACK CreateEffect(_Outptr_ IUnknown** ppEffectImpl) {
-        *ppEffectImpl = static_cast<ID2D1EffectImpl*>(new AdaptiveSharpenEffect());
+	static HRESULT CALLBACK CreateEffect(_Outptr_ IUnknown** ppEffectImpl) {
+		*ppEffectImpl = static_cast<ID2D1EffectImpl*>(new AdaptiveSharpenEffect());
 
-        if (*ppEffectImpl == nullptr) {
-            return E_OUTOFMEMORY;
-        }
+		if (*ppEffectImpl == nullptr) {
+			return E_OUTOFMEMORY;
+		}
 
-        return S_OK;
-    }
+		return S_OK;
+	}
 
 
 private:
-    AdaptiveSharpenEffect() {}
+	AdaptiveSharpenEffect() {}
 
-    ComPtr<SimpleDrawTransform<>> _pass1Transform = nullptr;
-    ComPtr<AdaptiveSharpenPass2Transform> _pass2Transform = nullptr;
+	ComPtr<SimpleDrawTransform<>> _pass1Transform = nullptr;
+	ComPtr<AdaptiveSharpenPass2Transform> _pass2Transform = nullptr;
 };

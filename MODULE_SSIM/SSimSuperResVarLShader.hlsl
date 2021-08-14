@@ -1,8 +1,8 @@
 // SSSR varL
 
 cbuffer constants : register(b0) {
-    int2 srcSize : packoffset(c0.x);
-    float2 scale : packoffset(c0.z);
+	int2 srcSize : packoffset(c0.x);
+	float2 scale : packoffset(c0.z);
 };
 
 
@@ -21,27 +21,27 @@ cbuffer constants : register(b0) {
 
 
 D2D_PS_ENTRY(main) {
-    InitMagpieSampleInputWithScale(scale);
+	InitMagpieSampleInputWithScale(scale);
 
-    int X, Y;
-    float3 meanL = 0;
-    for (X = -1; X <= 1; ++X) {
-        for (Y = -1; Y <= 1; ++Y) {
-            meanL += GetL(X, Y) * pow(spread, sqr(float(X)) + sqr(float(Y)));
-        }
-    }
-    meanL /= (1.0 + 4.0 * spread + 4.0 * spread * spread);
+	int X, Y;
+	float3 meanL = 0;
+	for (X = -1; X <= 1; ++X) {
+		for (Y = -1; Y <= 1; ++Y) {
+			meanL += GetL(X, Y) * pow(spread, sqr(float(X)) + sqr(float(Y)));
+		}
+	}
+	meanL /= (1.0 + 4.0 * spread + 4.0 * spread * spread);
 
-    float varL = 0.0;
-    for (X = -1; X <= 1; X++) {
-        for (Y = -1; Y <= 1; Y++) {
-            varL += Luma(abs(GetL(X, Y) - meanL)) * pow(spread, sqr(float(X)) + sqr(float(Y)));
-        }
-    }
-    varL /= (spread + 4.0 * spread + 4.0 * spread * spread);
-    
-    varL *= 8;
-    float x = floor(varL * 10) / 10;
-    float y = ((varL - x) * 100) / 10;
-    return float4(x, y, 0, 1);
+	float varL = 0.0;
+	for (X = -1; X <= 1; X++) {
+		for (Y = -1; Y <= 1; Y++) {
+			varL += Luma(abs(GetL(X, Y) - meanL)) * pow(spread, sqr(float(X)) + sqr(float(Y)));
+		}
+	}
+	varL /= (spread + 4.0 * spread + 4.0 * spread * spread);
+	
+	varL *= 8;
+	float x = floor(varL * 10) / 10;
+	float y = ((varL - x) * 100) / 10;
+	return float4(x, y, 0, 1);
 }

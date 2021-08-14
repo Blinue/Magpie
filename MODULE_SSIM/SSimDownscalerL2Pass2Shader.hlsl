@@ -1,7 +1,7 @@
 // SSimDownscaler calc L2 pass 2
 
 cbuffer constants : register(b0) {
-    int2 srcSize : packoffset(c0.x);
+	int2 srcSize : packoffset(c0.x);
 };
 
 
@@ -17,24 +17,24 @@ cbuffer constants : register(b0) {
 
 
 D2D_PS_ENTRY(main) {
-    InitMagpieSampleInput();
+	InitMagpieSampleInput();
 
-    float2 cur = Coord(0).xy / Coord(0).zw;
-    // Calculate bounds
-    float low = ceil(cur.x - taps - 0.5);
-    float high = floor(cur.x + taps - 0.5);
+	float2 cur = Coord(0).xy / Coord(0).zw;
+	// Calculate bounds
+	float low = ceil(cur.x - taps - 0.5);
+	float high = floor(cur.x + taps - 0.5);
 
-    float W = 0.0;
-    float3 avg = 0;
-    float2 pos = cur;
+	float W = 0.0;
+	float3 avg = 0;
+	float2 pos = cur;
 
-    for (float k = low; k <= high; k++) {
-        pos.x = k + 0.5;
-        float w = Kernel(pos.x - cur.x);
-        avg += w * uncompressLinear(SampleInputLod(0, GetCheckedPos(0, pos * Coord(0).zw)).xyz, -0.5, 1.5);
-        W += w;
-    }
+	for (float k = low; k <= high; k++) {
+		pos.x = k + 0.5;
+		float w = Kernel(pos.x - cur.x);
+		avg += w * uncompressLinear(SampleInputLod(0, GetCheckedPos(0, pos * Coord(0).zw)).xyz, -0.5, 1.5);
+		W += w;
+	}
 
-    avg /= W;
-    return float4(compressLinear(avg, -0.5, 1.5), 1);
+	avg /= W;
+	return float4(compressLinear(avg, -0.5, 1.5), 1);
 }

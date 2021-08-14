@@ -1,8 +1,8 @@
 // SSSR Downscaling I
 
 cbuffer constants : register(b0) {
-    int2 srcSize : packoffset(c0.x);
-    float2 scale : packoffset(c0.z);
+	int2 srcSize : packoffset(c0.x);
+	float2 scale : packoffset(c0.z);
 };
 
 
@@ -20,29 +20,29 @@ cbuffer constants : register(b0) {
 
 
 D2D_PS_ENTRY(main) {
-    InitMagpieSampleInput();
+	InitMagpieSampleInput();
 
-    float2 cur = Coord(0).xy / Coord(0).zw;
+	float2 cur = Coord(0).xy / Coord(0).zw;
 
-    // Calculate bounds
-    float low = ceil(cur.y - taps * scale.y - 0.5f);
-    float high = floor(cur.y + taps * scale.y - 0.5f);
+	// Calculate bounds
+	float low = ceil(cur.y - taps * scale.y - 0.5f);
+	float high = floor(cur.y + taps * scale.y - 0.5f);
 
-    float W = 0.0;
-    float4 avg = 0;
-    float2 pos = cur;
-    float4 tex;
-    
-    for (float k = low; k <= high; k++) {
-        pos.y = k + 0.5;
-        float w = Kernel((pos.y - cur.y) / scale.y);
+	float W = 0.0;
+	float4 avg = 0;
+	float2 pos = cur;
+	float4 tex;
+	
+	for (float k = low; k <= high; k++) {
+		pos.y = k + 0.5;
+		float w = Kernel((pos.y - cur.y) / scale.y);
 
-        tex.rgb = SampleInputLod(0, GetCheckedPos(0, pos * Coord(0).zw)).rgb;
-        tex.a = Luma(tex.rgb);
-        avg += w * tex;
-        W += w;
-    }
-    avg /= W;
+		tex.rgb = SampleInputLod(0, GetCheckedPos(0, pos * Coord(0).zw)).rgb;
+		tex.a = Luma(tex.rgb);
+		avg += w * tex;
+		W += w;
+	}
+	avg /= W;
 
-    return float4(avg.rgb, abs(avg.a - Luma(avg.rgb)) * 20);
+	return float4(avg.rgb, abs(avg.a - Luma(avg.rgb)) * 20);
 }

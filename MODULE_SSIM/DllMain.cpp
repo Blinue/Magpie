@@ -145,13 +145,13 @@ HRESULT CreateSSimSuperResEffect(
 }
 
 API_DECLSPEC HRESULT CreateEffect(
-    ID2D1Factory1* d2dFactory,
-    ID2D1DeviceContext* d2dDC,
-    IWICImagingFactory2* wicImgFactory,
-    const nlohmann::json& props,
-    float fillScale,
-    std::pair<float, float>& scale,
-    ComPtr<ID2D1Effect>& effect
+	ID2D1Factory1* d2dFactory,
+	ID2D1DeviceContext* d2dDC,
+	IWICImagingFactory2* wicImgFactory,
+	const nlohmann::json& props,
+	float fillScale,
+	std::pair<float, float>& scale,
+	ComPtr<ID2D1Effect>& effect
 ) {
 	const auto& e = props.value("effect", "");
 	if (e == "SSimDownscaler") {
