@@ -139,11 +139,25 @@ API_DECLSPEC HRESULT CreateFsrRcasEffect(
 		}
 
 		float sharpness = value.get<float>();
-		if (sharpness < 0 || sharpness > 1) {
+		if (sharpness <= 0) {
 			return E_INVALIDARG;
 		}
 
 		hr = result->SetValue(FsrRcasEffect::PROP_SHARPNESS, sharpness);
+		if (FAILED(hr)) {
+			return hr;
+		}
+	}
+
+	// removeNoise 属性
+	it = props.find("removeNoise");
+	if (it != props.end()) {
+		const auto& val = *it;
+		if (!val.is_boolean()) {
+			return E_INVALIDARG;
+		}
+
+		hr = result->SetValue(FsrRcasEffect::PROP_REMOVE_NOISE, (BOOL)val.get<bool>());
 		if (FAILED(hr)) {
 			return hr;
 		}

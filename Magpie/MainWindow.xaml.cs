@@ -198,6 +198,11 @@ namespace Magpie {
 
 		private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e) {
 			magWindow.Destory();
+
+			if (optionsWindow != null) {
+				optionsWindow.Close();
+			}
+
 			Settings.Default.Save();
 		}
 

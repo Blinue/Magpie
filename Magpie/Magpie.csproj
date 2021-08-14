@@ -188,7 +188,6 @@
       <LastGenOutput>Resources.zh-CN.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <None Include="Assets\BuiltInScaleModels.json" />
-    <None Include="Assets\BuiltInScaleModels.zh-CN.json" />
     <Content Include="Nlog.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

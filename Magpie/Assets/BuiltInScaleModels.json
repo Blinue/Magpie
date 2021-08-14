@@ -87,7 +87,8 @@
       {
         "module": "FFX",
         "effect": "FsrRcas",
-        "sharpness": 0.9
+        "sharpness": 0.87,
+        "removeNoise": true
       }
     ]
   },

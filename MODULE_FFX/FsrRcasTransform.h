@@ -27,28 +27,39 @@ public:
     }
 
     void SetSharpness(float value) {
-        assert(value >= 0 && value <= 1);
+        assert(value > 0);
         _sharpness = value;
     }
 
-    float GetSharpness() {
+    float GetSharpness() const {
         return _sharpness;
     }
+
+	void SetRemoveNoise(bool value) {
+		_removeNoise = value;
+	}
+
+	bool IsRemoveNoise() const {
+		return _removeNoise;
+	}
 protected:
     void _SetShaderConstantBuffer(const SIZE& srcSize) override {
         struct {
             UINT32 srcWidth;
             UINT32 srcHeight;
             FLOAT sharpness;
+			BOOL removeNoise;
         } shaderConstants{
             static_cast<UINT32>(srcSize.cx),
             static_cast<UINT32>(srcSize.cy),
-            2 - _sharpness * 2
+            _sharpness,
+			_removeNoise
         };
 
         _drawInfo->SetPixelShaderConstantBuffer(reinterpret_cast<BYTE*>(&shaderConstants), sizeof(shaderConstants));
     }
 
 private:
-    float _sharpness = 0.9f;
+    float _sharpness = 0.87f;
+	bool _removeNoise = false;
 };
