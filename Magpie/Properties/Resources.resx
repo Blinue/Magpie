@@ -118,62 +118,14 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
-  <data name="UI_Options_About_Thanks_Contributors" xml:space="preserve">
-    <value>All those who have provided feedback and contributions to Magpie</value>
-  </data>
-  <data name="UI_Options_About_Thanks_Shaders" xml:space="preserve">
-    <value>All shader projects supported by Magpie</value>
-  </data>
-  <data name="UI_Options_Advanced_Buffer_Precision" xml:space="preserve">
-    <value>Intermediate Texture Precision</value>
-  </data>
-  <data name="UI_Options_Advanced_Buffer_Precision_Default" xml:space="preserve">
-    <value>Default</value>
-  </data>
   <data name="BuiltInScaleModels" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Assets\BuiltInScaleModels.json;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
-  </data>
-  <data name="UI_Options_About_Licenses_Close" xml:space="preserve">
-    <value>Close</value>
-  </data>
-  <data name="UI_Options_About_Feedback" xml:space="preserve">
-    <value>Feedback</value>
   </data>
   <data name="Licenses" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Assets\Licenses.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;gb2312</value>
   </data>
-  <data name="UI_Options_About_Licenses_Header" xml:space="preserve">
-    <value>The liceses that Magpie Uses:</value>
-  </data>
-  <data name="UI_Options_Advanced_Logging_Level" xml:space="preserve">
-    <value>Logging Level</value>
-  </data>
   <data name="Logo" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Assets\Logo.ico;System.Drawing.Icon, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="UI_Options_About_Licenses_Title" xml:space="preserve">
-    <value>Magpie Licenses</value>
-  </data>
-  <data name="UI_Options_Scale_Open_Scale_Config" xml:space="preserve">
-    <value>Open Scale Config</value>
-  </data>
-  <data name="UI_Options_About_Licenses" xml:space="preserve">
-    <value>Licenses</value>
-  </data>
-  <data name="UI_Main_Parse_Failure" xml:space="preserve">
-    <value>Parse Failure</value>
-  </data>
-  <data name="UI_Options_About_Project_URL" xml:space="preserve">
-    <value>Project URL</value>
-  </data>
-  <data name="UI_Options_Advanced_Show_Frame_Rate" xml:space="preserve">
-    <value>Show Frame Rate</value>
-  </data>
-  <data name="UI_Options_About_Support" xml:space="preserve">
-    <value>Support</value>
-  </data>
-  <data name="UI_Options_About_Thanks" xml:space="preserve">
-    <value>Thanks</value>
   </data>
   <data name="UI_Main_Capture_Mode" xml:space="preserve">
     <value>Capture Mode</value>
@@ -203,6 +155,9 @@
   <data name="UI_Main_Options" xml:space="preserve">
     <value>Options</value>
   </data>
+  <data name="UI_Main_Parse_Failure" xml:space="preserve">
+    <value>Parse Failure</value>
+  </data>
   <data name="UI_Main_Scale_After_5S" xml:space="preserve">
     <value>Scale after 5s</value>
   </data>
@@ -215,8 +170,53 @@
   <data name="UI_Options_About" xml:space="preserve">
     <value>About</value>
   </data>
+  <data name="UI_Options_About_Feedback" xml:space="preserve">
+    <value>Feedback</value>
+  </data>
+  <data name="UI_Options_About_Licenses" xml:space="preserve">
+    <value>Licenses</value>
+  </data>
+  <data name="UI_Options_About_Licenses_Close" xml:space="preserve">
+    <value>Close</value>
+  </data>
+  <data name="UI_Options_About_Licenses_Header" xml:space="preserve">
+    <value>The liceses that Magpie Uses:</value>
+  </data>
+  <data name="UI_Options_About_Licenses_Title" xml:space="preserve">
+    <value>Magpie Licenses</value>
+  </data>
+  <data name="UI_Options_About_Project_URL" xml:space="preserve">
+    <value>Project URL</value>
+  </data>
+  <data name="UI_Options_About_Support" xml:space="preserve">
+    <value>Support</value>
+  </data>
+  <data name="UI_Options_About_Thanks" xml:space="preserve">
+    <value>Thanks</value>
+  </data>
+  <data name="UI_Options_About_Thanks_Contributors" xml:space="preserve">
+    <value>All those who have provided feedback and contributions to Magpie</value>
+  </data>
+  <data name="UI_Options_About_Thanks_Shaders" xml:space="preserve">
+    <value>All shader projects supported by Magpie</value>
+  </data>
+  <data name="UI_Options_About_Version" xml:space="preserve">
+    <value>Version</value>
+  </data>
   <data name="UI_Options_Advanced" xml:space="preserve">
     <value>Advanced</value>
+  </data>
+  <data name="UI_Options_Advanced_Buffer_Precision" xml:space="preserve">
+    <value>Intermediate Texture Precision</value>
+  </data>
+  <data name="UI_Options_Advanced_Buffer_Precision_Default" xml:space="preserve">
+    <value>Default</value>
+  </data>
+  <data name="UI_Options_Advanced_Logging_Level" xml:space="preserve">
+    <value>Logging Level</value>
+  </data>
+  <data name="UI_Options_Advanced_Show_Frame_Rate" xml:space="preserve">
+    <value>Show Frame Rate</value>
   </data>
   <data name="UI_Options_Application" xml:space="preserve">
     <value>Application</value>
@@ -232,6 +232,9 @@
   </data>
   <data name="UI_Options_Scale_Adjust_Cursor_Speed" xml:space="preserve">
     <value>Adjust cursor speed while zoomed</value>
+  </data>
+  <data name="UI_Options_Scale_Open_Scale_Config" xml:space="preserve">
+    <value>Open Scale Config</value>
   </data>
   <data name="UI_Options_Scale_Restore_Full_Screen" xml:space="preserve">
     <value>Restore full screen when source window loses focus</value>
@@ -253,8 +256,5 @@
   </data>
   <data name="UI_SysTray_Scale_After_5S" xml:space="preserve">
     <value>Scale after 5s</value>
-  </data>
-  <data name="UI_Options_About_Version" xml:space="preserve">
-    <value>Version</value>
   </data>
 </root>

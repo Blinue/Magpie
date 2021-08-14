@@ -92,7 +92,7 @@
     ]
   },
   {
-    "name": "Pixel Scale 2x",
+    "name": "Integer Scale 2x",
     "model": [
       {
         "module": "Common",
@@ -102,7 +102,7 @@
     ]
   },
   {
-    "name": "Pixel Scale 3x",
+    "name": "Integer Scale 3x",
     "model": [
       {
         "module": "Common",
