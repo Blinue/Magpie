@@ -97,7 +97,7 @@
             </Grid.RowDefinitions>
 
             <Label Style="{StaticResource Col0}" Content="{x:Static p:Resources.UI_Main_Scaling_Mode}" Grid.Row="0" VerticalAlignment="Center" Margin="0,20,0,0" Padding="0,5,5,5" />
-            <ComboBox Name="cbbScaleMode" Grid.Row="0" SelectionChanged="CbbScaleMode_SelectionChanged" Margin="5,20,0,0" />
+            <ComboBox Name="cbbScaleMode" Grid.Row="0" Margin="5,20,0,0" />
 
             <Label Style="{StaticResource Col0}" Content="{x:Static p:Resources.UI_Main_Capture_Mode}" Grid.Row="1" VerticalAlignment="Top" Margin="0,15,0,0" Padding="0,5,5,5"/>
             <ComboBox Name="cbbCaptureMode" Grid.Row="1" SelectionChanged="CbbCaptureMode_SelectionChanged" Margin="5,15,0,0">

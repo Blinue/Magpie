@@ -87,6 +87,9 @@ namespace Magpie {
 				Settings.Default.CaptureMode = 0;
 			}
 			cbbCaptureMode.SelectedIndex = Settings.Default.CaptureMode;
+
+			// 延迟绑定，防止加载时改变设置
+			cbbScaleMode.SelectionChanged += CbbScaleMode_SelectionChanged;
 		}
 
 		private void TimerRestore_Tick(object sender, EventArgs e) {
