@@ -1,10 +1,7 @@
 using Gma.System.MouseKeyHook;
 using Microsoft.Win32;
-using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -13,7 +10,6 @@ using System.Windows.Threading;
 using System.Windows.Media;
 using Magpie.Properties;
 using Magpie.Options;
-using System.Threading;
 
 
 namespace Magpie {
@@ -28,16 +24,15 @@ namespace Magpie {
 		private readonly DispatcherTimer timerScale = new DispatcherTimer {
 			Interval = new TimeSpan(0, 0, 1)
 		};
-		private readonly FileSystemWatcher scaleModelsWatcher = new FileSystemWatcher();
 
 		private IKeyboardMouseEvents keyboardEvents = null;
 		private MagWindow magWindow;
 
+		private readonly ScaleModelManager scaleModels;
+
 		// 倒计时时间
 		private const int DOWN_COUNT = 5;
 		private int countDownNum;
-
-		private (string Name, string Model)[] scaleModels;
 
 		private IntPtr Handle;
 
@@ -50,23 +45,11 @@ namespace Magpie {
 		public MainWindow() {
 			InitializeComponent();
 
+			scaleModels = new ScaleModelManager(Dispatcher);
+			cbbScaleMode.ItemsSource = scaleModels;
+
 			timerScale.Tick += TimerScale_Tick;
 			timerRestore.Tick += TimerRestore_Tick;
-
-			LoadScaleModels();
-
-			// 监视ScaleModels.json的更改
-			scaleModelsWatcher.Path = App.APPLICATION_DIR;
-			scaleModelsWatcher.NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName;
-			scaleModelsWatcher.Filter = App.SCALE_MODELS_JSON_PATH.Substring(App.SCALE_MODELS_JSON_PATH.LastIndexOf('\\') + 1);
-			scaleModelsWatcher.Changed += ScaleModelsWatcher_Changed;
-			scaleModelsWatcher.Deleted += ScaleModelsWatcher_Changed;
-			try {
-				scaleModelsWatcher.EnableRaisingEvents = true;
-				Logger.Info("正在监视" + scaleModelsWatcher.Filter + "的更改");
-			} catch (FileNotFoundException e) {
-				Logger.Error(e, "监视失败：" + scaleModelsWatcher.Filter + "不存在");
-			}
 
 
 			// 如果系统不支持，删除 WinRT Caputre 选项
@@ -83,10 +66,6 @@ namespace Magpie {
 			}
 			cbbScaleMode.SelectedIndex = Settings.Default.ScaleMode;
 			cbbInjectMode.SelectedIndex = Settings.Default.InjectMode;
-			if (Settings.Default.CaptureMode >= cbbCaptureMode.Items.Count) {
-				Settings.Default.CaptureMode = 0;
-			}
-			cbbCaptureMode.SelectedIndex = Settings.Default.CaptureMode;
 
 			// 延迟绑定，防止加载时改变设置
 			cbbScaleMode.SelectionChanged += CbbScaleMode_SelectionChanged;
@@ -109,16 +88,6 @@ namespace Magpie {
 			}
 		}
 
-		private void ScaleModelsWatcher_Changed(object sender, FileSystemEventArgs e) {
-			Logger.Info("缩放配置文件已更改");
-
-			// 立即读取可能会访问冲突
-			Thread.Sleep(10);
-			Dispatcher.Invoke(() => {
-				LoadScaleModels();
-			});
-		}
-
 		private void TimerScale_Tick(object sender, EventArgs e) {
 			if (--countDownNum != 0) {
 				cmiScale.Header = btnScale.Content = countDownNum.ToString();
@@ -129,62 +98,6 @@ namespace Magpie {
 			StopScaleTimer();
 
 			ToggleMagWindow();
-		}
-
-		private void LoadScaleModels() {
-			string json = "";
-			if (File.Exists(App.SCALE_MODELS_JSON_PATH)) {
-				try {
-					json = File.ReadAllText(App.SCALE_MODELS_JSON_PATH);
-					Logger.Info("已读取缩放配置");
-				} catch (Exception e) {
-					Logger.Error(e, "读取缩放配置失败");
-				}
-			} else {
-				json = Properties.Resources.BuiltInScaleModels;
-				try {
-					File.WriteAllText(App.SCALE_MODELS_JSON_PATH, json);
-					Logger.Info("已创建默认缩放配置文件");
-				} catch (Exception e) {
-					Logger.Error(e, "创建默认缩放配置文件失败");
-				}
-			}
-
-			try {
-				// 解析缩放配置
-				scaleModels = JArray.Parse(json)
-					 .Select(t => {
-						 string name = t["name"]?.ToString();
-						 string model = t["model"]?.ToString();
-						 return name == null || model == null ? throw new Exception() : (name, model);
-					 })
-					 .ToArray();
-
-				if (scaleModels.Length == 0) {
-					throw new Exception("缩放配置是空数组");
-				}
-			} catch (Exception e) {
-				Logger.Error(e, "解析缩放配置失败");
-				scaleModels = null;
-
-				cbbScaleMode.Items.Clear();
-				_ = cbbScaleMode.Items.Add($"<{Properties.Resources.UI_Main_Parse_Failure}>");
-			}
-
-			// 保留当前选择
-			int idx = cbbScaleMode.SelectedIndex;
-
-			if (scaleModels != null) {
-				cbbScaleMode.Items.Clear();
-				foreach ((string Name, string Model) scaleModel in scaleModels) {
-					_ = cbbScaleMode.Items.Add(scaleModel.Name);
-				}
-			}
-
-			if (idx >= cbbScaleMode.Items.Count || idx < 0) {
-				idx = 0;
-			}
-			cbbScaleMode.SelectedIndex = idx;
 		}
 
 		private void BtnOptions_Click(object sender, RoutedEventArgs e) {
@@ -237,9 +150,9 @@ namespace Magpie {
 				StopWaitingForRestore();
 			}
 
-			if (scaleModels == null || scaleModels.Length == 0) {
+			/*if (scaleModels == null || scaleModels.Length == 0) {
 				return;
-			}
+			}*/
 
 			if (magWindow.Status == MagWindowStatus.Running) {
 				Logger.Info("通过热键退出全屏");
@@ -357,10 +270,6 @@ namespace Magpie {
 			} else {
 				StartScaleTimer();
 			}
-		}
-
-		private void CbbCaptureMode_SelectionChanged(object sender, SelectionChangedEventArgs e) {
-			Settings.Default.CaptureMode = cbbCaptureMode.SelectedIndex;
 		}
 
 		private void Window_StateChanged(object sender, EventArgs e) {

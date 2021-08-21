@@ -58,7 +58,7 @@ public:
 		}
 		
 		_d2dContext->Render([&](ID2D1DeviceContext* d2dDC) -> bool {
-			const auto& frame = _windowCapturer->GetFrame();
+			ComPtr<IUnknown> frame = _windowCapturer->GetFrame();
 			if (!frame) {
 				return false;
 			}
