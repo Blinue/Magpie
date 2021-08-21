@@ -233,6 +233,9 @@
   <data name="UI_Options_Application_Run_At_Startup" xml:space="preserve">
     <value>Run at Startup</value>
   </data>
+  <data name="UI_Options_Common_Restart_To_Apply" xml:space="preserve">
+    <value>This change will be applied after restarting Magpie.</value>
+  </data>
   <data name="UI_Options_Scale_Adjust_Cursor_Speed" xml:space="preserve">
     <value>Adjust cursor speed while zoomed</value>
   </data>

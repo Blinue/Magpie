@@ -444,6 +444,15 @@ namespace Magpie.Properties {
         }
         
         /// <summary>
+        ///   查找类似 This change will be applied after restarting Magpie. 的本地化字符串。
+        /// </summary>
+        public static string UI_Options_Common_Restart_To_Apply {
+            get {
+                return ResourceManager.GetString("UI_Options_Common_Restart_To_Apply", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Adjust cursor speed while zoomed 的本地化字符串。
         /// </summary>
         public static string UI_Options_Scale_Adjust_Cursor_Speed {

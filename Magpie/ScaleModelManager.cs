@@ -3,7 +3,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Threading;
-using System.Windows.Threading;
+using System.Windows;
 
 
 namespace Magpie {
@@ -11,15 +11,12 @@ namespace Magpie {
 		private static NLog.Logger Logger { get; } = NLog.LogManager.GetCurrentClassLogger();
 
 		private readonly FileSystemWatcher scaleModelsWatcher = new FileSystemWatcher();
-		private readonly Dispatcher mainThreadDispatcher;
 
 		private ScaleModel[] scaleModels = null;
 
 		public event Action ScaleModelsChanged;
 
-		public ScaleModelManager(Dispatcher dispatcher) {
-			mainThreadDispatcher = dispatcher;
-
+		public ScaleModelManager() {
 			LoadFromLocal();
 
 			// 监视ScaleModels.json的更改
@@ -97,7 +94,7 @@ namespace Magpie {
 
 			// 立即读取可能会访问冲突
 			Thread.Sleep(10);
-			mainThreadDispatcher.Invoke(LoadFromLocal);
+			Application.Current.Dispatcher.Invoke(LoadFromLocal);
 		}
 
 		public class ScaleModel {

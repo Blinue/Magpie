@@ -28,7 +28,7 @@ namespace Magpie {
 		private IKeyboardMouseEvents keyboardEvents = null;
 		private MagWindow magWindow;
 
-		private readonly ScaleModelManager scaleModelManager;
+		private readonly ScaleModelManager scaleModelManager = new ScaleModelManager();
 
 		// 倒计时时间
 		private const int DOWN_COUNT = 5;
@@ -45,7 +45,6 @@ namespace Magpie {
 		public MainWindow() {
 			InitializeComponent();
 
-			scaleModelManager = new ScaleModelManager(Dispatcher);
 			BindScaleModels();
 			scaleModelManager.ScaleModelsChanged += BindScaleModels;
 

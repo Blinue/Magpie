@@ -17,26 +17,34 @@ namespace Magpie.Options {
 		private readonly IWshRuntimeLibrary.IWshShortcut shortcut = null;
 		private readonly string pathLink;
 
-		private readonly (string displayName, string cultureName)[] supportedCultures = {
-			("English", "en-US"),
-			("中文", "zh-CN"),
-			("Ру́сский язы́к", "ru-RU")
+		private readonly CultureInfo[] supportedCultures = {
+			CultureInfo.GetCultureInfo("en-US"),
+			CultureInfo.GetCultureInfo("zh-CN"),
+			CultureInfo.GetCultureInfo("ru-RU")
 		};
+
+		private static string originCulture = null;
 
 		public ApplicationOptionsPage() {
 			InitializeComponent();
 
+			if (originCulture == null) {
+				originCulture = Settings.Default.CultureName;
+			}
+
 			// 第一项为系统默认语言
 			_ = cbbLanguage.Items.Add(Properties.Resources.UI_Options_Application_Language_Default);
-			foreach ((string displayName, string cultureName) in supportedCultures) {
-				_ = cbbLanguage.Items.Add(displayName);
+			foreach (CultureInfo cultureInfo in supportedCultures) {
+				_ = cbbLanguage.Items.Add(cultureInfo.NativeName);
 			}
+
+			cbbLanguage.SelectionChanged += CbbLanguage_SelectionChanged;
 
 			if (string.IsNullOrEmpty(Settings.Default.CultureName)) {
 				cbbLanguage.SelectedIndex = 0;
 			} else {
 				int idx = Array.FindIndex(supportedCultures, culture => {
-					return culture.cultureName == Settings.Default.CultureName;
+					return culture.Name == Settings.Default.CultureName;
 				});
 				if (idx == -1) {
 					// 未找到，重置为默认
@@ -45,8 +53,6 @@ namespace Magpie.Options {
 				}
 				cbbLanguage.SelectedIndex = idx + 1;
 			}
-
-			cbbLanguage.SelectionChanged += CbbLanguage_SelectionChanged;
 
 			string startUpFolder = Environment.GetFolderPath(Environment.SpecialFolder.Startup);
 			pathLink = startUpFolder + "\\Magpie.lnk";
@@ -73,19 +79,20 @@ namespace Magpie.Options {
 		}
 
 		private void CbbLanguage_SelectionChanged(object sender, SelectionChangedEventArgs e) {
-			if (cbbLanguage.SelectedIndex < 0 || cbbLanguage.SelectedIndex > supportedCultures.Length) {
-				return;
+			Settings.Default.CultureName = cbbLanguage.SelectedIndex == 0 ? "" : supportedCultures[cbbLanguage.SelectedIndex - 1].Name;
+
+			if (Settings.Default.CultureName != originCulture) {
+				CultureInfo cultureInfo = cbbLanguage.SelectedIndex == 0
+					? CultureInfo.GetCultureInfo(NativeMethods.GetUserDefaultLocalName())
+					: supportedCultures[cbbLanguage.SelectedIndex - 1];
+
+				// 提示信息的语言为将要切换的语言
+				lblRestartToApply.Content = Properties.Resources.ResourceManager.GetString(
+					"UI_Options_Common_Restart_To_Apply", cultureInfo);
+				lblRestartToApply.Visibility = Visibility.Visible;
+			} else {
+				lblRestartToApply.Visibility = Visibility.Collapsed;
 			}
-
-			Settings.Default.CultureName = cbbLanguage.SelectedIndex == 0 ? ""
-				: supportedCultures[cbbLanguage.SelectedIndex - 1].cultureName;
-
-			string cultureName = Settings.Default.CultureName == "" ? NativeMethods.GetUserDefaultLocalName() : Settings.Default.CultureName;
-			CultureInfo cultureInfo = CultureInfo.GetCultureInfo(cultureName);
-
-			Thread.CurrentThread.CurrentCulture = cultureInfo;
-			Thread.CurrentThread.CurrentUICulture = cultureInfo;
-			Properties.Resources.Culture = cultureInfo;
 		}
 
 		// 在用户的“启动”文件夹创建快捷方式以实现开机启动
