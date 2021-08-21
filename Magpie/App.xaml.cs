@@ -1,3 +1,4 @@
+using Magpie.Properties;
 using System;
 using System.Diagnostics;
 using System.Globalization;
@@ -30,6 +31,12 @@ namespace Magpie {
 				// 已存在实例时广播 WM_SHOWME，唤醒该实例
 				_ = NativeMethods.BroadcastMessage(NativeMethods.MAGPIE_WM_SHOWME);
 			}
+
+			if (!string.IsNullOrEmpty(Settings.Default.CultureName)) {
+				Thread.CurrentThread.CurrentCulture = Thread.CurrentThread.CurrentUICulture =
+					CultureInfo.GetCultureInfo(Settings.Default.CultureName);
+			}
+			Logger.Info($"当前语言：{Thread.CurrentThread.CurrentUICulture.Name}");
 		}
 
 		private void Application_Exit(object sender, ExitEventArgs e) {

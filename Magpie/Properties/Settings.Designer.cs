@@ -130,5 +130,17 @@ namespace Magpie.Properties {
                 this["AdjustCursorSpeed"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string CultureName {
+            get {
+                return ((string)(this["CultureName"]));
+            }
+            set {
+                this["CultureName"] = value;
+            }
+        }
     }
 }

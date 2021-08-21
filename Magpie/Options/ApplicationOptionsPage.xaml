@@ -19,7 +19,7 @@
     <StackPanel HorizontalAlignment="Left" VerticalAlignment="Top">
         <StackPanel Orientation="Horizontal" VerticalAlignment="Top" HorizontalAlignment="Left">
             <Label Content="{x:Static p:Resources.UI_Options_Application_Language}" Padding="0" VerticalAlignment="Center"/>
-            <ComboBox Margin="10,0,0,0" VerticalAlignment="Center"/>
+            <ComboBox Name="cbbLanguage" Margin="10,0,0,0" VerticalAlignment="Center"/>
         </StackPanel>
         <StackPanel>
             <CheckBox x:Name="ckbRunAtStartUp" Content="{x:Static p:Resources.UI_Options_Application_Run_At_Startup}" Margin="0,20,0,0" Unchecked="CkbRunAtStartUp_Unchecked"/>

@@ -224,6 +224,9 @@
   <data name="UI_Options_Application_Language" xml:space="preserve">
     <value>Language</value>
   </data>
+  <data name="UI_Options_Application_Language_Default" xml:space="preserve">
+    <value>Default</value>
+  </data>
   <data name="UI_Options_Application_Minimise_To_System_Tray" xml:space="preserve">
     <value>Minimise to the System Tray at Startup</value>
   </data>

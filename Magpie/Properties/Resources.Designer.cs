@@ -417,6 +417,15 @@ namespace Magpie.Properties {
         }
         
         /// <summary>
+        ///   查找类似 Default 的本地化字符串。
+        /// </summary>
+        public static string UI_Options_Application_Language_Default {
+            get {
+                return ResourceManager.GetString("UI_Options_Application_Language_Default", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Minimise to the System Tray at Startup 的本地化字符串。
         /// </summary>
         public static string UI_Options_Application_Minimise_To_System_Tray {

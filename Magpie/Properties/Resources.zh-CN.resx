@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -212,6 +212,9 @@
   </data>
   <data name="UI_Options_Application_Language" xml:space="preserve">
     <value>语言</value>
+  </data>
+  <data name="UI_Options_Application_Language_Default" xml:space="preserve">
+    <value>默认</value>
   </data>
   <data name="UI_Options_Application_Minimise_To_System_Tray" xml:space="preserve">
     <value>开机启动时最小化到系统托盘</value>

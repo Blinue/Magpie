@@ -127,6 +127,17 @@ namespace Magpie {
 				);
 		}
 
+		private static readonly int LOCALE_NAME_MAX_LENGTH = 85;
+
+		[DllImport("kernel32.dll", SetLastError = true)]
+		private static extern int GetUserDefaultLocaleName([MarshalAs(UnmanagedType.LPWStr)] StringBuilder lpLocaleName, int cchLocaleName);
+
+		public static string GetUserDefaultLocalName() {
+			StringBuilder sb = new StringBuilder(LOCALE_NAME_MAX_LENGTH);
+			_ = GetUserDefaultLocaleName(sb, LOCALE_NAME_MAX_LENGTH);
+			return sb.ToString();
+		}
+
 		/*
          * Runtime.dll
          */
