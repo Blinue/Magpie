@@ -28,7 +28,7 @@ namespace Magpie {
 		private IKeyboardMouseEvents keyboardEvents = null;
 		private MagWindow magWindow;
 
-		private readonly ScaleModelManager scaleModels;
+		private readonly ScaleModelManager scaleModelManager;
 
 		// 倒计时时间
 		private const int DOWN_COUNT = 5;
@@ -45,8 +45,9 @@ namespace Magpie {
 		public MainWindow() {
 			InitializeComponent();
 
-			scaleModels = new ScaleModelManager(Dispatcher);
-			cbbScaleMode.ItemsSource = scaleModels;
+			scaleModelManager = new ScaleModelManager(Dispatcher);
+			BindScaleModels();
+			scaleModelManager.ScaleModelsChanged += BindScaleModels;
 
 			timerScale.Tick += TimerScale_Tick;
 			timerRestore.Tick += TimerRestore_Tick;
@@ -69,6 +70,26 @@ namespace Magpie {
 
 			// 延迟绑定，防止加载时改变设置
 			cbbScaleMode.SelectionChanged += CbbScaleMode_SelectionChanged;
+		}
+
+		private void BindScaleModels() {
+			int oldIdx = cbbScaleMode.SelectedIndex;
+			cbbScaleMode.Items.Clear();
+
+			ScaleModelManager.ScaleModel[] scaleModels = scaleModelManager.GetScaleModels();
+			if (scaleModels == null || scaleModels.Length == 0) {
+				_ = cbbScaleMode.Items.Add($"<{Properties.Resources.UI_Main_Parse_Failure}>");
+				cbbScaleMode.SelectedIndex = 0;
+			} else {
+				foreach (ScaleModelManager.ScaleModel m in scaleModels) {
+					_ = cbbScaleMode.Items.Add(m.Name);
+				}
+
+				if (oldIdx < 0 || oldIdx >= scaleModels.Length) {
+					oldIdx = 0;
+				}
+				cbbScaleMode.SelectedIndex = oldIdx;
+			}
 		}
 
 		private void TimerRestore_Tick(object sender, EventArgs e) {
@@ -150,9 +171,9 @@ namespace Magpie {
 				StopWaitingForRestore();
 			}
 
-			/*if (scaleModels == null || scaleModels.Length == 0) {
+			if (!scaleModelManager.IsValid()) {
 				return;
-			}*/
+			}
 
 			if (magWindow.Status == MagWindowStatus.Running) {
 				Logger.Info("通过热键退出全屏");
@@ -165,7 +186,7 @@ namespace Magpie {
 				return;
 			}
 
-			string effectsJson = scaleModels[Settings.Default.ScaleMode].Model;
+			string effectsJson = scaleModelManager.GetScaleModels()[Settings.Default.ScaleMode].Model;
 			bool showFPS = Settings.Default.ShowFPS;
 			int captureMode = Settings.Default.CaptureMode;
 			int bufferPrecision = Settings.Default.BufferPrecision;

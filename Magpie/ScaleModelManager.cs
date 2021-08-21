@@ -1,19 +1,26 @@
 using Newtonsoft.Json.Linq;
 using System;
-using System.ComponentModel;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Windows.Threading;
 
+
 namespace Magpie {
-	internal class ScaleModelManager : BindingList<ScaleModelManager.ScaleModel> {
+	internal class ScaleModelManager {
 		private static NLog.Logger Logger { get; } = NLog.LogManager.GetCurrentClassLogger();
 
 		private readonly FileSystemWatcher scaleModelsWatcher = new FileSystemWatcher();
 		private readonly Dispatcher mainThreadDispatcher;
 
+		private ScaleModel[] scaleModels = null;
+
+		public event Action ScaleModelsChanged;
+
 		public ScaleModelManager(Dispatcher dispatcher) {
 			mainThreadDispatcher = dispatcher;
+
+			LoadFromLocal();
 
 			// 监视ScaleModels.json的更改
 			scaleModelsWatcher.Path = App.APPLICATION_DIR;
@@ -27,8 +34,14 @@ namespace Magpie {
 			} catch (FileNotFoundException e) {
 				Logger.Error(e, "监视失败：" + scaleModelsWatcher.Filter + "不存在");
 			}
+		}
 
-			LoadFromLocal();
+		public ScaleModel[] GetScaleModels() {
+			return scaleModels;
+		}
+
+		public bool IsValid() {
+			return scaleModels != null && scaleModels.Length > 0;
 		}
 
 		private void LoadFromLocal() {
@@ -42,31 +55,40 @@ namespace Magpie {
 				}
 			} else {
 				try {
+					json = App.SCALE_MODELS_JSON_PATH;
 					File.WriteAllText(App.SCALE_MODELS_JSON_PATH, Properties.Resources.BuiltInScaleModels);
 					Logger.Info("已创建默认缩放配置文件");
 				} catch (Exception e) {
 					Logger.Error(e, "创建默认缩放配置文件失败");
 				}
-				return;
 			}
 
 			try {
 				// 解析缩放配置
-				foreach (JToken item in JArray.Parse(json)) {
-					string name = item["name"]?.ToString();
-					string model = item["model"]?.ToString();
-					if (name == null || model == null) {
-						throw new Exception();
-					}
+				scaleModels = JArray.Parse(json)
+					 .Select(t => {
+						 string name = t["name"]?.ToString();
+						 string model = t["model"]?.ToString();
+						 return name == null || model == null
+							 ? throw new Exception("未找到name或model属性")
+							 : new ScaleModel {
+								 Name = name,
+								 Model = model
+							 };
+					 })
+					 .ToArray();
 
-					Add(new ScaleModel {
-						Name = name,
-						Model = model
-					});
+				if (scaleModels.Length == 0) {
+					throw new Exception("数组为空");
 				}
 			} catch (Exception e) {
 				Logger.Error(e, "解析缩放配置失败");
-				Clear();
+				scaleModels = null;
+			}
+
+			if (ScaleModelsChanged != null) {
+				ScaleModelsChanged.Invoke();
+				Logger.Info("已引发ScaleModelsChanged事件");
 			}
 		}
 
