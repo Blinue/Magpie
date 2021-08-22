@@ -1,4 +1,6 @@
 using Magpie.Properties;
+using NLog;
+using NLog.Config;
 using System;
 using System.Diagnostics;
 using System.Globalization;
@@ -16,11 +18,40 @@ namespace Magpie {
 		public static readonly string SCALE_MODELS_JSON_PATH =
 			AppDomain.CurrentDomain.SetupInformation.ApplicationBase + "ScaleModels.json";
 
-		private static NLog.Logger Logger { get; } = NLog.LogManager.GetCurrentClassLogger();
+		private static Logger Logger { get; } = LogManager.GetCurrentClassLogger();
 
 		private static readonly Mutex mutex = new Mutex(true, "{4C416227-4A30-4A2F-8F23-8701544DD7D6}");
 
+		public static void UpdateLoggingLevel(int logLevel) {
+			LogLevel minLogLevel = LogLevel.Info;
+			switch (logLevel) {
+				case 0:
+					minLogLevel = LogLevel.Off;
+					break;
+				case 1:
+					minLogLevel = LogLevel.Info;
+					break;
+				case 2:
+					minLogLevel = LogLevel.Warn;
+					break;
+				case 3:
+					minLogLevel = LogLevel.Error;
+					break;
+				default:
+					break;
+			}
+
+			foreach (LoggingRule rule in LogManager.Configuration.LoggingRules) {
+				rule.SetLoggingLevels(minLogLevel, LogLevel.Off);
+			}
+			LogManager.ReconfigExistingLoggers();
+
+			Logger.Info($"日志级别变更为 {minLogLevel}");
+		}
+
 		private void Application_Startup(object sender, StartupEventArgs e) {
+			UpdateLoggingLevel(Settings.Default.LoggingLevel);
+
 			Logger.Info($"程序启动\n\t进程 ID：{Process.GetCurrentProcess().Id}\n\tMagpie版本：{APP_VERSION}\n\tOS版本：{NativeMethods.GetOSVersion()}");
 
 			// 不允许多个实例同时运行

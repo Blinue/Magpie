@@ -142,5 +142,17 @@ namespace Magpie.Properties {
                 this["CultureName"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("1")]
+        public int LoggingLevel {
+            get {
+                return ((int)(this["LoggingLevel"]));
+            }
+            set {
+                this["LoggingLevel"] = value;
+            }
+        }
     }
 }

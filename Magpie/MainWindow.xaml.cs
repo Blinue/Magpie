@@ -54,7 +54,7 @@ namespace Magpie {
 
 			// 如果系统不支持，删除 WinRT Caputre 选项
 			if (NativeMethods.GetOSVersion() < new Version(10, 0, 18362)) {
-				Logger.Info("当前操作系统不支持 WinRT Capture，已删除该选项");
+				Logger.Warn("当前操作系统不支持 WinRT Capture，已删除该选项");
 				cbbCaptureMode.Items.RemoveAt(0);
 			}
 

@@ -215,6 +215,18 @@
   <data name="UI_Options_Advanced_Logging_Level" xml:space="preserve">
     <value>Logging Level</value>
   </data>
+  <data name="UI_Options_Advanced_Logging_Level_Error" xml:space="preserve">
+    <value>Error</value>
+  </data>
+  <data name="UI_Options_Advanced_Logging_Level_Info" xml:space="preserve">
+    <value>Info</value>
+  </data>
+  <data name="UI_Options_Advanced_Logging_Level_Off" xml:space="preserve">
+    <value>Off</value>
+  </data>
+  <data name="UI_Options_Advanced_Logging_Level_Warn" xml:space="preserve">
+    <value>Warn</value>
+  </data>
   <data name="UI_Options_Advanced_Show_Frame_Rate" xml:space="preserve">
     <value>Show Frame Rate</value>
   </data>

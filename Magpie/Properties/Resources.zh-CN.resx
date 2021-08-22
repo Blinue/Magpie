@@ -204,6 +204,18 @@
   <data name="UI_Options_Advanced_Logging_Level" xml:space="preserve">
     <value>日志级别</value>
   </data>
+  <data name="UI_Options_Advanced_Logging_Level_Error" xml:space="preserve">
+    <value>错误</value>
+  </data>
+  <data name="UI_Options_Advanced_Logging_Level_Info" xml:space="preserve">
+    <value>信息</value>
+  </data>
+  <data name="UI_Options_Advanced_Logging_Level_Off" xml:space="preserve">
+    <value>关闭</value>
+  </data>
+  <data name="UI_Options_Advanced_Logging_Level_Warn" xml:space="preserve">
+    <value>警告</value>
+  </data>
   <data name="UI_Options_Advanced_Show_Frame_Rate" xml:space="preserve">
     <value>显示帧率</value>
   </data>

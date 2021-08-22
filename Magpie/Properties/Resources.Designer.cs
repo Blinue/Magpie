@@ -390,6 +390,42 @@ namespace Magpie.Properties {
         }
         
         /// <summary>
+        ///   查找类似 Error 的本地化字符串。
+        /// </summary>
+        public static string UI_Options_Advanced_Logging_Level_Error {
+            get {
+                return ResourceManager.GetString("UI_Options_Advanced_Logging_Level_Error", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Info 的本地化字符串。
+        /// </summary>
+        public static string UI_Options_Advanced_Logging_Level_Info {
+            get {
+                return ResourceManager.GetString("UI_Options_Advanced_Logging_Level_Info", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Off 的本地化字符串。
+        /// </summary>
+        public static string UI_Options_Advanced_Logging_Level_Off {
+            get {
+                return ResourceManager.GetString("UI_Options_Advanced_Logging_Level_Off", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Warn 的本地化字符串。
+        /// </summary>
+        public static string UI_Options_Advanced_Logging_Level_Warn {
+            get {
+                return ResourceManager.GetString("UI_Options_Advanced_Logging_Level_Warn", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Show Frame Rate 的本地化字符串。
         /// </summary>
         public static string UI_Options_Advanced_Show_Frame_Rate {

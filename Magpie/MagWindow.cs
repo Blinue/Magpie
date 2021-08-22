@@ -90,7 +90,7 @@ namespace Magpie {
 				|| !NativeMethods.IsWindowVisible(hwndSrc)
 				|| NativeMethods.GetWindowShowCmd(hwndSrc) != NativeMethods.SW_NORMAL
 			) {
-				Logger.Info("源窗口不合法");
+				Logger.Warn("源窗口不合法");
 				return;
 			}
 
@@ -136,7 +136,7 @@ namespace Magpie {
 
 			int pid = NativeMethods.GetWindowProcessId(hwndSrc);
 			if (pid == 0 || pid == Process.GetCurrentProcess().Id) {
-				Logger.Info("不能注入本进程，已取消");
+				Logger.Warn("不能注入本进程，已取消");
 				return;
 			}
 
