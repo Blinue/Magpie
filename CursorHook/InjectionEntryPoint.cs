@@ -4,6 +4,8 @@
  */
 
 using System;
+using System.IO;
+using NLog;
 
 
 namespace Magpie.CursorHook {
@@ -12,7 +14,14 @@ namespace Magpie.CursorHook {
 	/// 注入后此类将成为入口
 	/// </summary>
 	public class InjectionEntryPoint : EasyHook.IEntryPoint {
+		private static Logger Logger { get; } = LogManager.GetCurrentClassLogger();
+
 		private readonly CursorHookBase cursorHook = null;
+
+		static InjectionEntryPoint() {
+			string configPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "CursorHook.dll.config");
+			LogManager.Configuration = new NLog.Config.XmlLoggingConfiguration(configPath);
+		}
 
 		// 运行时注入的入口
 		public InjectionEntryPoint(
@@ -20,11 +29,15 @@ namespace Magpie.CursorHook {
 			string channelName,
 			IntPtr hwndSrc
 		) {
+			Logger.Info("正在执行运行时注入");
+
 			cursorHook = new RuntimeCursorHook(hwndSrc, new IpcServer(channelName));
 		}
 
 		// 启动时注入的入口
 		public InjectionEntryPoint(EasyHook.RemoteHooking.IContext _, string channelName) {
+			Logger.Info("正在执行启动时注入");
+
 			cursorHook = new StartUpCursorHook(new IpcServer(channelName));
 		}
 
