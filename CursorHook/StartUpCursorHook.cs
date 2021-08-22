@@ -1,3 +1,4 @@
+using NLog;
 using System;
 using System.Threading;
 
@@ -5,8 +6,7 @@ using System.Threading;
 namespace Magpie.CursorHook {
 	// 启动时钩子
 	internal class StartUpCursorHook : CursorHookBase {
-		public StartUpCursorHook(IpcServer server) : base(server) {
-		}
+		private static Logger Logger { get; } = LogManager.GetCurrentClassLogger();
 
 		public override void Run() {
 			// 安装钩子
@@ -23,11 +23,11 @@ namespace Magpie.CursorHook {
 				setCursorHook.ThreadACL.SetExclusiveACL(new int[] { 0 });
 			} catch (Exception e) {
 				// 安装失败，直接退出
-				ReportIfFalse(false, "安装钩子失败：" + e.Message);
+				Logger.Fatal(e, "安装钩子失败");
 				return;
 			}
 
-			ReportToServer("SetCursor钩子安装成功");
+			Logger.Info("SetCursor 钩子安装成功");
 
 
 			// 启动时注入完成，唤醒注入进程
@@ -39,7 +39,7 @@ namespace Magpie.CursorHook {
 				IntPtr hwndHost = NativeMethods.FindWindow(HOST_WINDOW_CLASS_NAME, IntPtr.Zero);
 				if (hwndHost != IntPtr.Zero) {
 					if (hwndHost != base.hwndHost) {
-						ReportToServer("检测到全屏窗口");
+						Logger.Info("检测到全屏窗口");
 
 						base.hwndHost = hwndHost;
 						// hwndSrc 为前台窗口
@@ -51,14 +51,13 @@ namespace Magpie.CursorHook {
 					}
 				} else {
 					if (base.hwndHost != IntPtr.Zero) {
-						ReportToServer("全屏窗口已关闭");
+						Logger.Info("全屏窗口已关闭");
 						base.hwndHost = IntPtr.Zero;
 
 						ReplaceHCursorsBack();
 					}
 				}
 
-				SendMessages();
 				Thread.Sleep(200);
 			}
 		}

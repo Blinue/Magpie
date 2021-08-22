@@ -27,7 +27,7 @@ namespace Magpie {
 			scaleModelsWatcher.Deleted += ScaleModelsWatcher_Changed;
 			try {
 				scaleModelsWatcher.EnableRaisingEvents = true;
-				Logger.Info("正在监视" + scaleModelsWatcher.Filter + "的更改");
+				Logger.Info("正在监视 " + scaleModelsWatcher.Filter + " 的更改");
 			} catch (FileNotFoundException e) {
 				Logger.Error(e, "监视失败：" + scaleModelsWatcher.Filter + "不存在");
 			}
@@ -67,7 +67,7 @@ namespace Magpie {
 						 string name = t["name"]?.ToString();
 						 string model = t["model"]?.ToString();
 						 return name == null || model == null
-							 ? throw new Exception("未找到name或model属性")
+							 ? throw new Exception("未找到 name 或 model 属性")
 							 : new ScaleModel {
 								 Name = name,
 								 Model = model
@@ -85,7 +85,7 @@ namespace Magpie {
 
 			if (ScaleModelsChanged != null) {
 				ScaleModelsChanged.Invoke();
-				Logger.Info("已引发ScaleModelsChanged事件");
+				Logger.Info("已引发 ScaleModelsChanged 事件");
 			}
 		}
 

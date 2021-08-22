@@ -6,7 +6,7 @@
 using System;
 using System.IO;
 using NLog;
-
+using NLog.Config;
 
 namespace Magpie.CursorHook {
 	/// <summary>
@@ -20,35 +20,65 @@ namespace Magpie.CursorHook {
 
 		static InjectionEntryPoint() {
 			string configPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "CursorHook.dll.config");
-			LogManager.Configuration = new NLog.Config.XmlLoggingConfiguration(configPath);
+			LogManager.Configuration = new XmlLoggingConfiguration(configPath);
+		}
+
+		public InjectionEntryPoint(int logLevel) {
+			UpdateLoggingLevel(logLevel);
+
+			AppDomainSetup info = AppDomain.CurrentDomain.SetupInformation;
+			Logger.Info($"正在初始化 CursorHook\n\t程序名：{info.ApplicationName}");
 		}
 
 		// 运行时注入的入口
-		public InjectionEntryPoint(
-			EasyHook.RemoteHooking.IContext _,
-			string channelName,
-			IntPtr hwndSrc
-		) {
-			Logger.Info("正在执行运行时注入");
-
-			cursorHook = new RuntimeCursorHook(hwndSrc, new IpcServer(channelName));
+		public InjectionEntryPoint(EasyHook.RemoteHooking.IContext _, int logLevel, IntPtr hwndSrc) : this(logLevel) {
+			cursorHook = new RuntimeCursorHook(hwndSrc);
 		}
 
 		// 启动时注入的入口
-		public InjectionEntryPoint(EasyHook.RemoteHooking.IContext _, string channelName) {
-			Logger.Info("正在执行启动时注入");
-
-			cursorHook = new StartUpCursorHook(new IpcServer(channelName));
+		public InjectionEntryPoint(EasyHook.RemoteHooking.IContext _, int logLevel) : this(logLevel) {
+			cursorHook = new StartUpCursorHook();
 		}
 
 		// 运行时注入逻辑的入口
-		public void Run(EasyHook.RemoteHooking.IContext _1, string _2, IntPtr _3) {
+		public void Run(EasyHook.RemoteHooking.IContext _1, int _2, IntPtr _3) {
+			Logger.Info("正在执行运行时注入");
+
 			cursorHook.Run();
 		}
 
 		// 启动时注入逻辑的入口
-		public void Run(EasyHook.RemoteHooking.IContext _1, string _2) {
+		public void Run(EasyHook.RemoteHooking.IContext _1, int _2) {
+			Logger.Info("正在执行启动时注入");
+
 			cursorHook.Run();
+		}
+
+		private static void UpdateLoggingLevel(int logLevel) {
+			LogLevel minLogLevel = LogLevel.Info;
+			switch (logLevel) {
+				case 0:
+					minLogLevel = LogLevel.Off;
+					break;
+				case 1:
+					minLogLevel = LogLevel.Info;
+					break;
+				case 2:
+					minLogLevel = LogLevel.Warn;
+					break;
+				case 3:
+					minLogLevel = LogLevel.Error;
+					break;
+				default:
+					break;
+			}
+
+			foreach (LoggingRule rule in LogManager.Configuration.LoggingRules) {
+				rule.SetLoggingLevels(minLogLevel, LogLevel.Off);
+			}
+			LogManager.ReconfigExistingLoggers();
+
+			Logger.Info($"日志级别变更为 {minLogLevel}");
 		}
 	}
 }

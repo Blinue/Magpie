@@ -158,7 +158,7 @@ namespace Magpie {
 
 				cmiHotkey.Header = hotkey;
 
-				Logger.Info($"快捷键已变更为{txtHotkey.Text}");
+				Logger.Info($"当前热键：{txtHotkey.Text}");
 			} catch (ArgumentException ex) {
 				Logger.Error(ex, $"解析快捷键失败：{txtHotkey.Text}");
 				txtHotkey.Foreground = Brushes.Red;

@@ -1,11 +1,10 @@
 using EasyHook;
-using Magpie.CursorHook;
+using Magpie.Properties;
 using System;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
-using System.Runtime.Remoting;
 using System.Threading;
 using System.Windows;
 using System.Windows.Interop;
@@ -140,14 +139,6 @@ namespace Magpie {
 				return;
 			}
 
-			string channelName = null;
-#if DEBUG
-			// DEBUG 时创建 IPC server
-			RemoteHooking.IpcCreateServer<ServerInterface>(ref channelName, WellKnownObjectMode.Singleton);
-#else
-			channelName = "";
-#endif
-
 			// 获取 CursorHook.dll 的绝对路径
 			string injectionLibrary = Path.Combine(
 				Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
@@ -161,25 +152,17 @@ namespace Magpie {
 					injectionLibrary,   // 32 位 DLL
 					injectionLibrary,   // 64 位 DLL
 										// 下面为传递给注入 DLL 的参数
-					channelName,
+					Settings.Default.LoggingLevel,
 					hwndSrc
 				);
-				Logger.Info($"已注入CursorHook\n\t进程ID：{pid}\n\t源窗口句柄：{hwndSrc}");
+				Logger.Info($"已注入 CursorHook\n\t进程 ID：{pid}\n\t源窗口句柄：{hwndSrc}");
 			} catch (Exception e) {
-				Logger.Error(e, "CursorHook注入失败");
+				Logger.Error(e, "CursorHook 注入失败");
 			}
 		}
 
 		public void HookCursorAtStartUp(string exePath) {
 			Logger.Info("正在进行启动时注入");
-
-			string channelName = null;
-#if DEBUG
-			// DEBUG 时创建 IPC server
-			RemoteHooking.IpcCreateServer<ServerInterface>(ref channelName, WellKnownObjectMode.Singleton);
-#else
-			channelName = "";
-#endif
 
 			// 获取 CursorHook.dll 的绝对路径
 			string injectionLibrary = Path.Combine(
@@ -196,7 +179,7 @@ namespace Magpie {
 					injectionLibrary,   // 64 位 DLL
 					out int _,  // 忽略进程 ID
 								// 下面为传递给注入 DLL 的参数
-					channelName
+					Settings.Default.LoggingLevel
 				);
 
 				Logger.Info($"已启动进程并注入\n\t可执行文件：{exePath}");

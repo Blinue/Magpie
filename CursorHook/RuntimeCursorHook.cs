@@ -1,3 +1,4 @@
+using NLog;
 using System;
 using System.Threading;
 
@@ -5,7 +6,9 @@ using System.Threading;
 namespace Magpie.CursorHook {
 	// 运行时钩子
 	internal class RuntimeCursorHook : CursorHookBase {
-		public RuntimeCursorHook(IntPtr hwndSrc, IpcServer server) : base(server) {
+		private static Logger Logger { get; } = LogManager.GetCurrentClassLogger();
+
+		public RuntimeCursorHook(IntPtr hwndSrc) {
 			hwndHost = NativeMethods.FindWindow(HOST_WINDOW_CLASS_NAME, IntPtr.Zero);
 			if (hwndHost == IntPtr.Zero) {
 				throw new Exception("无法找到全屏窗口");
@@ -31,16 +34,15 @@ namespace Magpie.CursorHook {
 				);
 			} catch (Exception e) {
 				// 安装失败，直接退出
-				ReportIfFalse(false, "安装钩子失败：" + e.Message);
+				Logger.Fatal(e, "安装钩子失败");
 				return;
 			}
 
-			ReportToServer("SetCursor钩子安装成功");
+			Logger.Info("SetCursor 钩子安装成功");
 
 			ReplaceHCursors();
 
 			while (NativeMethods.IsWindow(hwndHost)) {
-				SendMessages();
 				Thread.Sleep(200);
 			}
 

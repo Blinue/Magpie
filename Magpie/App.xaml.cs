@@ -46,13 +46,13 @@ namespace Magpie {
 			}
 			LogManager.ReconfigExistingLoggers();
 
-			Logger.Info($"日志级别变更为 {minLogLevel}");
+			Logger.Info($"当前日志级别：{minLogLevel}");
 		}
 
 		private void Application_Startup(object sender, StartupEventArgs e) {
 			UpdateLoggingLevel(Settings.Default.LoggingLevel);
 
-			Logger.Info($"程序启动\n\t进程 ID：{Process.GetCurrentProcess().Id}\n\tMagpie版本：{APP_VERSION}\n\tOS版本：{NativeMethods.GetOSVersion()}");
+			Logger.Info($"程序启动\n\t进程 ID：{Process.GetCurrentProcess().Id}\n\tMagpie 版本：{APP_VERSION}\n\tOS 版本：{NativeMethods.GetOSVersion()}");
 
 			// 不允许多个实例同时运行
 			if (!mutex.WaitOne(TimeSpan.Zero, true)) {

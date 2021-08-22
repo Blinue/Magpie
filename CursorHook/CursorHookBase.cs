@@ -1,3 +1,4 @@
+using NLog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,7 +9,7 @@ namespace Magpie.CursorHook {
 	// 运行时钩子和启动时钩子通用的部分
 	// 继承此类只需实现 Run
 	internal abstract class CursorHookBase : IDisposable {
-		private readonly IpcServer ipcServer;
+		private static Logger Logger { get; } = LogManager.GetCurrentClassLogger();
 
 		protected IntPtr hwndHost = IntPtr.Zero;
 		protected IntPtr hwndSrc = IntPtr.Zero;
@@ -42,10 +43,6 @@ namespace Magpie.CursorHook {
 
 		private static readonly uint MAGPIE_WM_NEWCURSOR = NativeMethods.RegisterWindowMessage(
 			EasyHook.NativeAPI.Is64Bit ? "MAGPIE_WM_NEWCURSOR64" : "MAGPIE_WM_NEWCURSOR32");
-
-		public CursorHookBase(IpcServer server) {
-			ipcServer = server;
-		}
 
 		public abstract void Run();
 
@@ -103,7 +100,10 @@ namespace Magpie.CursorHook {
 				andPlane, xorPlane
 			);
 
-			ReportIfFalse(rt != SafeCursorHandle.Zero, "创建透明光标失败");
+			if (rt == SafeCursorHandle.Zero) {
+				Logger.Error($"创建透明光标失败\n\t错误代码：{Marshal.GetLastWin32Error()}");
+			}
+
 			return rt;
 		}
 
@@ -124,10 +124,9 @@ namespace Magpie.CursorHook {
 
 		// 向全屏窗口发送光标句柄
 		private void ReportCursorMap(SafeCursorHandle hTptCursor, IntPtr hCursor) {
-			ReportIfFalse(
-				NativeMethods.PostMessage(hwndHost, MAGPIE_WM_NEWCURSOR, hTptCursor.DangerousGetHandle(), hCursor),
-				"PostMessage 失败"
-			);
+			if (!NativeMethods.PostMessage(hwndHost, MAGPIE_WM_NEWCURSOR, hTptCursor.DangerousGetHandle(), hCursor)) {
+				Logger.Error($"PostMessage 失败\n\t错误代码：{Marshal.GetLastWin32Error()}");
+			}
 		}
 
 		// 向全屏窗口汇报至今为止的映射
@@ -139,24 +138,6 @@ namespace Magpie.CursorHook {
 				}
 
 				ReportCursorMap(item.Value, item.Key);
-			}
-		}
-
-		protected void ReportToServer(string msg) {
-			lock (ipcServer) {
-				ipcServer.AddMessage(msg);
-			}
-		}
-
-		protected void ReportIfFalse(bool flag, string msg) {
-			if (!flag) {
-				ReportToServer("出错: " + msg);
-			}
-		}
-
-		protected void SendMessages() {
-			lock (ipcServer) {
-				ipcServer.Send();
 			}
 		}
 
@@ -181,7 +162,7 @@ namespace Magpie.CursorHook {
 					if (NativeMethods.SetClassAuto(hWnd, NativeMethods.GCLP_HCURSOR, hTptCursor.DangerousGetHandle().ToInt64()) == hCursor.ToInt64()) {
 						_ = replacedHwnds.Add(hWnd);
 					} else {
-						ReportIfFalse(false, "SetClassLongAuto 失败");
+						Logger.Error($"SetClassLongAuto 失败\n\t错误代码：{Marshal.GetLastWin32Error()}");
 					}
 				} else {
 					// 以下代码如果出错不会有任何更改
@@ -200,10 +181,10 @@ namespace Magpie.CursorHook {
 							hCursorToTptCursor[hCursor] = hTptCursor;
 						} else {
 							_ = NativeMethods.SetClassAuto(hWnd, NativeMethods.GCLP_HCURSOR, hCursor.ToInt64());
-							ReportIfFalse(false, "PostMessage 失败");
+							Logger.Error($"PostMessage 失败\n\t错误代码：{Marshal.GetLastWin32Error()}");
 						}
 					} else {
-						ReportIfFalse(false, "SetClassLongAuto 失败");
+						Logger.Error($"SetClassLongAuto 失败\n\t错误代码：{Marshal.GetLastWin32Error()}");
 					}
 				}
 			}
@@ -216,15 +197,14 @@ namespace Magpie.CursorHook {
 			}, IntPtr.Zero);
 
 			// 向源窗口发送 WM_SETCURSOR，一般可以使其调用 SetCursor
-			ReportIfFalse(
-				NativeMethods.PostMessage(
-					hwndSrc,
-					NativeMethods.WM_SETCURSOR,
-					hwndSrc,
-					(IntPtr)NativeMethods.HTCLIENT
-				),
-				"PostMessage 失败"
-			);
+			if (!NativeMethods.PostMessage(
+				hwndSrc,
+				NativeMethods.WM_SETCURSOR,
+				hwndSrc,
+				(IntPtr)NativeMethods.HTCLIENT
+			)) {
+				Logger.Error($"PostMessage 失败\n\t错误代码：{Marshal.GetLastWin32Error()}");
+			}
 		}
 
 		protected void ReplaceHCursorsBack() {
