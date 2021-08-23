@@ -27,7 +27,7 @@ namespace Magpie.CursorHook {
 			UpdateLoggingLevel(logLevel);
 
 			AppDomainSetup info = AppDomain.CurrentDomain.SetupInformation;
-			Logger.Info($"正在初始化 CursorHook\n\t程序名：{info.ApplicationName}");
+			Logger.Info($"正在初始化 CursorHook\n\t程序名：{info.ApplicationName}\n\t架构：{(EasyHook.NativeAPI.Is64Bit ? "x64" : "x86")}");
 		}
 
 		// 运行时注入的入口

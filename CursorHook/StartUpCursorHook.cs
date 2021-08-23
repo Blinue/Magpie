@@ -29,7 +29,6 @@ namespace Magpie.CursorHook {
 
 			Logger.Info("SetCursor 钩子安装成功");
 
-
 			// 启动时注入完成，唤醒注入进程
 			EasyHook.RemoteHooking.WakeUpProcess();
 
@@ -49,13 +48,11 @@ namespace Magpie.CursorHook {
 
 						ReplaceHCursors();
 					}
-				} else {
-					if (base.hwndHost != IntPtr.Zero) {
-						Logger.Info("全屏窗口已关闭");
-						base.hwndHost = IntPtr.Zero;
+				} else if (base.hwndHost != IntPtr.Zero) {
+					Logger.Info("全屏窗口已关闭");
+					base.hwndHost = IntPtr.Zero;
 
-						ReplaceHCursorsBack();
-					}
+					ReplaceHCursorsBack();
 				}
 
 				Thread.Sleep(200);

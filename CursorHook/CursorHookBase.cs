@@ -52,7 +52,8 @@ namespace Magpie.CursorHook {
 
 		// 取代 SetCursor 的钩子
 		protected IntPtr SetCursorHook(IntPtr hCursor) {
-			// ReportToServer("SetCursor");
+			Logger.Debug($"源窗口已调用 SetCursor\n\thCursor：{hCursor}");
+
 			IntPtr hCursorTar = hCursor;
 
 			if (hwndHost == IntPtr.Zero || hCursor == IntPtr.Zero || !NativeMethods.IsWindow(hwndHost)) {
@@ -101,7 +102,7 @@ namespace Magpie.CursorHook {
 			);
 
 			if (rt == SafeCursorHandle.Zero) {
-				Logger.Error($"创建透明光标失败\n\t错误代码：{Marshal.GetLastWin32Error()}");
+				Logger.Error($"创建透明光标失败\n\tWin32 错误代码：{Marshal.GetLastWin32Error()}");
 			}
 
 			return rt;
@@ -125,7 +126,9 @@ namespace Magpie.CursorHook {
 		// 向全屏窗口发送光标句柄
 		private void ReportCursorMap(SafeCursorHandle hTptCursor, IntPtr hCursor) {
 			if (!NativeMethods.PostMessage(hwndHost, MAGPIE_WM_NEWCURSOR, hTptCursor.DangerousGetHandle(), hCursor)) {
-				Logger.Error($"PostMessage 失败\n\t错误代码：{Marshal.GetLastWin32Error()}");
+				Logger.Error($"PostMessage 失败\n\tWin32 错误代码：{Marshal.GetLastWin32Error()}");
+			} else {
+				Logger.Info($"已向全屏窗口发送新的映射：\n\t源光标：{hCursor}\n\t透明光标：{hTptCursor.DangerousGetHandle()}");
 			}
 		}
 
@@ -162,7 +165,7 @@ namespace Magpie.CursorHook {
 					if (NativeMethods.SetClassAuto(hWnd, NativeMethods.GCLP_HCURSOR, hTptCursor.DangerousGetHandle().ToInt64()) == hCursor.ToInt64()) {
 						_ = replacedHwnds.Add(hWnd);
 					} else {
-						Logger.Error($"SetClassLongAuto 失败\n\t错误代码：{Marshal.GetLastWin32Error()}");
+						Logger.Error($"SetClassLongAuto 失败\n\tWin32 错误代码：{Marshal.GetLastWin32Error()}");
 					}
 				} else {
 					// 以下代码如果出错不会有任何更改
@@ -181,10 +184,10 @@ namespace Magpie.CursorHook {
 							hCursorToTptCursor[hCursor] = hTptCursor;
 						} else {
 							_ = NativeMethods.SetClassAuto(hWnd, NativeMethods.GCLP_HCURSOR, hCursor.ToInt64());
-							Logger.Error($"PostMessage 失败\n\t错误代码：{Marshal.GetLastWin32Error()}");
+							Logger.Error($"PostMessage 失败\n\tWin32 错误代码：{Marshal.GetLastWin32Error()}");
 						}
 					} else {
-						Logger.Error($"SetClassLongAuto 失败\n\t错误代码：{Marshal.GetLastWin32Error()}");
+						Logger.Error($"SetClassLongAuto 失败\n\tWin32 错误代码：{Marshal.GetLastWin32Error()}");
 					}
 				}
 			}
@@ -196,6 +199,8 @@ namespace Magpie.CursorHook {
 				return true;
 			}, IntPtr.Zero);
 
+			Logger.Info("已替换源窗口和其所有子窗口的窗口类光标");
+
 			// 向源窗口发送 WM_SETCURSOR，一般可以使其调用 SetCursor
 			if (!NativeMethods.PostMessage(
 				hwndSrc,
@@ -203,7 +208,7 @@ namespace Magpie.CursorHook {
 				hwndSrc,
 				(IntPtr)NativeMethods.HTCLIENT
 			)) {
-				Logger.Error($"PostMessage 失败\n\t错误代码：{Marshal.GetLastWin32Error()}");
+				Logger.Error($"PostMessage 失败\n\tWin32 错误代码：{Marshal.GetLastWin32Error()}");
 			}
 		}
 
@@ -228,6 +233,8 @@ namespace Magpie.CursorHook {
 			}
 
 			replacedHwnds.Clear();
+
+			Logger.Info("已还原源窗口和其所有子窗口的窗口类光标");
 		}
 
 		private bool IsBuiltInCursor(IntPtr hCursor) {
