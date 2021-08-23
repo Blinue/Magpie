@@ -226,8 +226,6 @@ namespace Magpie {
 		}
 
 		private void StopWaitingForRestore() {
-			Logger.Info("停止监视源窗口是否为前台窗口");
-
 			if (WindowState == WindowState.Normal) {
 				btnForgetCurrentWnd.Visibility = gridCurWnd.Visibility = Visibility.Collapsed;
 			}
@@ -246,6 +244,7 @@ namespace Magpie {
 					Logger.Info("正在监视源窗口是否为前台窗口");
 					timerRestore.Start();
 				} else {
+					Logger.Info("停止监视源窗口是否为前台窗口");
 					StopWaitingForRestore();
 				}
 			});

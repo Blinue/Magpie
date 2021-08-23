@@ -11,11 +11,11 @@ namespace Magpie.CursorHook {
 		public RuntimeCursorHook(IntPtr hwndSrc) {
 			hwndHost = NativeMethods.FindWindow(HOST_WINDOW_CLASS_NAME, IntPtr.Zero);
 			if (hwndHost == IntPtr.Zero) {
-				Logger.Warn("未找到全屏窗口，将等待3秒");
+				Logger.Warn("未找到全屏窗口，将等待 2 秒");
 
-				// 未找到全屏窗口，在 3 秒内多次尝试
+				// 未找到全屏窗口，在 2 秒内多次尝试
 				for (int i = 0; i < 10; ++i) {
-					Thread.Sleep(300);
+					Thread.Sleep(200);
 
 					hwndHost = NativeMethods.FindWindow(HOST_WINDOW_CLASS_NAME, IntPtr.Zero);
 					if (hwndHost != IntPtr.Zero) {

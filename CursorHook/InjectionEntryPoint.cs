@@ -32,6 +32,7 @@ namespace Magpie.CursorHook {
 
 		// 运行时注入的入口
 		public InjectionEntryPoint(EasyHook.RemoteHooking.IContext _, int logLevel, IntPtr hwndSrc) : this(logLevel) {
+			Logger.Info($"源窗口句柄：{hwndSrc}");
 			cursorHook = new RuntimeCursorHook(hwndSrc);
 		}
 
