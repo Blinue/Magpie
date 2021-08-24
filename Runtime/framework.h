@@ -1,7 +1,3 @@
-// header.h: 标准系统包含文件的包含文件，
-// 或特定于项目的包含文件
-//
-
 #pragma once
 
 #include "targetver.h"
@@ -39,10 +35,13 @@
 #include <winrt/Windows.Graphics.Capture.h>
 #include <winrt/Windows.Graphics.DirectX.h>
 
-
 // format
 #include <fmt/format.h>
 #include <fmt/xchar.h>
+
+// spdlog
+#include <spdlog/spdlog.h>
+#include <spdlog/sinks/basic_file_sink.h>
 
 
 #pragma comment(lib, "d2d1.lib")

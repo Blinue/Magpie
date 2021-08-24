@@ -43,7 +43,7 @@ namespace Magpie {
 		}
 
 		public MagWindow(Window parent) {
-			StatusEvent += (int status, string errorMsg) => {
+			StatusEvent += (int status, string errorMsgId) => {
 				if (status < 0 || status > 3) {
 					return;
 				}
@@ -54,16 +54,21 @@ namespace Magpie {
 				}
 
 				if (status_ == MagWindowStatus.Idle) {
-					if (Closed != null) {
+					if (errorMsgId != null && Closed != null) {
 						Closed.Invoke();
 					}
 					SrcWindow = IntPtr.Zero;
 				}
 				Status = status_;
 
-				if (errorMsg != null) {
+				if (errorMsgId != null) {
 					parent.Dispatcher.Invoke(new Action(() => {
 						_ = NativeMethods.SetForegroundWindow(new WindowInteropHelper(parent).Handle);
+
+						string errorMsg = Resources.ResourceManager.GetString(errorMsgId, Resources.Culture);
+						if (errorMsg == null) {
+							errorMsg = Resources.Msg_Error_Generic;
+						}
 						_ = MessageBox.Show(errorMsg);
 					}));
 				}

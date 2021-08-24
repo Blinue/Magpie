@@ -127,6 +127,12 @@
   <data name="Logo" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Assets\Logo.ico;System.Drawing.Icon, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
+  <data name="Msg_Error_Generic" xml:space="preserve">
+    <value></value>
+  </data>
+  <data name="Msg_Error_Invalid_Source_Window" xml:space="preserve">
+    <value></value>
+  </data>
   <data name="UI_Main_Capture_Mode" xml:space="preserve">
     <value>Capture Mode</value>
   </data>

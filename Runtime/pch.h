@@ -10,6 +10,7 @@
 #include "framework.h"
 #include "Debug.h"
 #include "Utils.h"
+#include "ErrorMessages.h"
 
 
 #define XML(X) TEXT(#X)

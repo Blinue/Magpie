@@ -129,6 +129,24 @@ namespace Magpie.Properties {
         }
         
         /// <summary>
+        ///   查找类似  的本地化字符串。
+        /// </summary>
+        public static string Msg_Error_Generic {
+            get {
+                return ResourceManager.GetString("Msg_Error_Generic", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似  的本地化字符串。
+        /// </summary>
+        public static string Msg_Error_Invalid_Source_Window {
+            get {
+                return ResourceManager.GetString("Msg_Error_Invalid_Source_Window", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Capture Mode 的本地化字符串。
         /// </summary>
         public static string UI_Main_Capture_Mode {

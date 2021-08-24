@@ -5,10 +5,10 @@
 #include "pch.h"
 #include "MagWindow.h"
 #include "Env.h"
-#include <spdlog/spdlog.h>
+
 
 HINSTANCE hInst = NULL;
-
+std::shared_ptr<spdlog::logger> logger = nullptr;
 
 // DLL 入口
 BOOL APIENTRY DllMain(
@@ -19,6 +19,21 @@ BOOL APIENTRY DllMain(
 	switch (ul_reason_for_call) {
 	case DLL_PROCESS_ATTACH:
 		hInst = hModule;
+
+		// 初始化 spdlog
+		try {
+			logger = spdlog::basic_logger_mt(".", "logs/Runtime.log");
+		} catch (const spdlog::spdlog_ex& e) {
+			std::wstring msg;
+			Utils::UTF8ToUTF16(e.what(), msg);
+			Debug::WriteErrorMessage(fmt::format(L"spdlog初始化失败：{}", msg));
+		}
+
+		logger->set_level(spdlog::level::info);
+		logger->set_pattern("%Y-%m-%d %H:%M:%S.%e|%l|%s:%!|%v");
+		logger->flush_on(spdlog::level::warn);
+		spdlog::flush_every(std::chrono::seconds(5));
+
 		break;
 	case DLL_PROCESS_DETACH:
 		break;
@@ -32,7 +47,7 @@ BOOL APIENTRY DllMain(
 
 
 API_DECLSPEC void WINAPI RunMagWindow(
-	void reportStatus(int status, const wchar_t* errorMsg),
+	void reportStatus(int status, const wchar_t* errorMsgId),
 	HWND hwndSrc,
 	const char* scaleModel,
 	int captureMode,
@@ -46,11 +61,13 @@ API_DECLSPEC void WINAPI RunMagWindow(
 		L"初始化 COM 出错"
 	);
 
+	if (!IsWindow(hwndSrc) || !IsWindowVisible(hwndSrc) || !Utils::GetWindowShowCmd(hwndSrc) == SW_NORMAL) {
+		SPDLOG_LOGGER_CRITICAL(logger, "不合法的源窗口");
+		reportStatus(0, ErrorMessages::INVALID_SOURCE_WINDOW);
+		return;
+	}
+
 	try {
-		Debug::Assert(
-			IsWindow(hwndSrc) && IsWindowVisible(hwndSrc) && Utils::GetWindowShowCmd(hwndSrc) == SW_NORMAL,
-			L"不合法的源窗口"
-		);
 		Debug::Assert(
 			captureMode >= 0 && captureMode <= 1,
 			L"非法的抓取模式"
@@ -61,9 +78,9 @@ API_DECLSPEC void WINAPI RunMagWindow(
 	} catch(const magpie_exception& e) {
 		reportStatus(0, (L"创建全屏窗口出错：" + e.what()).c_str());
 		return;
-	} catch (...) {
-		Debug::WriteErrorMessage(L"创建全屏窗口发生未知错误");
-		reportStatus(0, L"未知错误");
+	} catch (const std::exception& e) {
+		SPDLOG_LOGGER_CRITICAL(logger, "创建全屏窗口出错：{}", e.what());
+		reportStatus(0, ErrorMessages::GENERIC);
 		return;
 	}
 	
@@ -74,4 +91,6 @@ API_DECLSPEC void WINAPI RunMagWindow(
 
 	Env::$instance = nullptr;
 	reportStatus(0, errMsg.empty() ? nullptr : errMsg.c_str());
+	SPDLOG_LOGGER_INFO(logger, "全屏窗口已退出");
+	logger->flush();
 }
