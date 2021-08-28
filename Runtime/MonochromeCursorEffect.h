@@ -1,7 +1,7 @@
 #pragma once
 #include "pch.h"
 #include "MonochromeCursorTransform.h"
-#include <EffectBase.h>
+#include "EffectBase.h"
 #include "EffectDefines.h"
 
 

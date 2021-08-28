@@ -2,7 +2,7 @@
 #include <string>
 #include <cassert>
 #include <chrono>
-#include <CommonDebug.h>
+#include "CommonDebug.h"
 #include <fmt/format.h>
 #include <fmt/printf.h>
 

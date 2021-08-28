@@ -8,16 +8,9 @@ using namespace DirectX;
 
 struct SimpleVertex {
 	XMFLOAT3 Pos;
-	XMFLOAT4 Color;
+	XMFLOAT4 TexCoord;
 };
 
-struct ConstantBuffer {
-	XMMATRIX mWorld;
-	XMMATRIX mView;
-	XMMATRIX mProjection;
-};
-
-ID3D11Buffer* g_pVertexBuffer;
 
 class D3DContext {
 public:
@@ -33,34 +26,15 @@ public:
 		if (_d3dRenderTargetView) {
 			_d3dRenderTargetView->Release();
 		}
-		if (_constantBuffer) {
-			_constantBuffer->Release();
-		}
 	}
 
 	void Render() {
 		_d3dDC->OMSetRenderTargets(1, &_d3dRenderTargetView, nullptr);
-
-		static ULONGLONG timeStart = 0;
-		ULONGLONG timeCur = GetTickCount64();
-		if (timeStart == 0)
-			timeStart = timeCur;
-		float t = (timeCur - timeStart) / 1000.0f;
-
-		_worldTransform = XMMatrixRotationY(t);
-
-		ConstantBuffer cb{};
-		cb.mWorld = XMMatrixTranspose(_worldTransform);
-		cb.mView = XMMatrixTranspose(_viewTransform);
-		cb.mProjection = XMMatrixTranspose(_projectionTransform);
-		_d3dDC->UpdateSubresource(_constantBuffer, 0, nullptr, &cb, 0, 0);
-
 		_d3dDC->ClearRenderTargetView(_d3dRenderTargetView, Colors::MidnightBlue);
 
 		_d3dDC->VSSetShader(_vsShader.Get(), nullptr, 0);
-		_d3dDC->VSSetConstantBuffers(0, 1, &_constantBuffer);
 		_d3dDC->PSSetShader(_psShader.Get(), nullptr, 0);
-		_d3dDC->DrawIndexed(36, 0, 0);
+		_d3dDC->Draw(4, 0);
 
 		_dxgiSwapChain->Present(0, 0);
 	}
@@ -162,7 +136,7 @@ private:
 		// Compile the vertex shader
 		ComPtr<ID3DBlob> blob = nullptr;
 		Debug::ThrowIfComFailed(
-			_CompileShaderFromFile(L"shaders\\Test.fxh", "VS", "vs_4_0", &blob),
+			_CompileShaderFromFile(L"shaders\\Test.hlsl", "VS", "vs_4_0", &blob),
 			L""
 		);
 
@@ -175,7 +149,7 @@ private:
 		// Define the input layout
 		D3D11_INPUT_ELEMENT_DESC layout[] = {
 			{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-			{ "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 }
+			{ "TEXCOORD", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 		};
 		UINT numElements = ARRAYSIZE(layout);
 
@@ -191,7 +165,7 @@ private:
 
 		// Compile the pixel shader
 		Debug::ThrowIfComFailed(
-			_CompileShaderFromFile(L"shaders\\Test.fxh", "PS", "ps_4_0", &blob),
+			_CompileShaderFromFile(L"shaders\\Test.hlsl", "PS", "ps_4_0", &blob),
 			L""
 		);
 
@@ -204,18 +178,14 @@ private:
 		// Create vertex buffer
 		SimpleVertex vertices[] =
 		{
-			{ XMFLOAT3(-1.0f, 1.0f, -1.0f), XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f) },
-			{ XMFLOAT3(1.0f, 1.0f, -1.0f), XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f) },
-			{ XMFLOAT3(1.0f, 1.0f, 1.0f), XMFLOAT4(0.0f, 1.0f, 1.0f, 1.0f) },
-			{ XMFLOAT3(-1.0f, 1.0f, 1.0f), XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f) },
-			{ XMFLOAT3(-1.0f, -1.0f, -1.0f), XMFLOAT4(1.0f, 0.0f, 1.0f, 1.0f) },
-			{ XMFLOAT3(1.0f, -1.0f, -1.0f), XMFLOAT4(1.0f, 1.0f, 0.0f, 1.0f) },
-			{ XMFLOAT3(1.0f, -1.0f, 1.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f) },
-			{ XMFLOAT3(-1.0f, -1.0f, 1.0f), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f) },
+			{ XMFLOAT3(-0.5f, 0.5f, 0.5f), XMFLOAT4(0.0f,0.0f,0.0f,0.0f)},
+			{ XMFLOAT3(0.5f, 0.5f, 0.5f), XMFLOAT4(1.0f,0.0f,0.0f,0.0f) },
+			{ XMFLOAT3(-0.5f, -0.5f, 0.5f), XMFLOAT4(0.0f,1.0f,0.0f,0.0f) },
+			{ XMFLOAT3(0.5f, -0.5f, 0.5f), XMFLOAT4(1.0f,1.0f,0.0f,0.0f) }
 		};
 		D3D11_BUFFER_DESC bd = {};
 		bd.Usage = D3D11_USAGE_DEFAULT;
-		bd.ByteWidth = sizeof(SimpleVertex) * 8;
+		bd.ByteWidth = sizeof(vertices);
 		bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 
 		ID3D11Buffer* buffer;
@@ -232,59 +202,8 @@ private:
 		_d3dDC->IASetVertexBuffers(0, 1, &buffer, &stride, &offset);
 		buffer->Release();
 
-		WORD indices[] =
-		{
-			3,1,0,
-			2,1,3,
-
-			0,5,4,
-			1,5,0,
-
-			3,4,7,
-			0,4,3,
-
-			1,6,5,
-			2,6,1,
-
-			2,7,6,
-			3,7,2,
-
-			6,4,5,
-			7,4,6,
-		};
-
-		bd.Usage = D3D11_USAGE_DEFAULT;
-		bd.ByteWidth = sizeof(WORD) * 36;        // 36 vertices needed for 12 triangles in a triangle list
-		bd.BindFlags = D3D11_BIND_INDEX_BUFFER;
-		bd.CPUAccessFlags = 0;
-		InitData.pSysMem = indices;
-		Debug::ThrowIfComFailed(
-			_d3dDevice->CreateBuffer(&bd, &InitData, &buffer),
-			L""
-		);
-		_d3dDC->IASetIndexBuffer(buffer, DXGI_FORMAT_R16_UINT, 0);
-		buffer->Release();
-
 		// Set primitive topology
-		_d3dDC->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-		bd.Usage = D3D11_USAGE_DEFAULT;
-		bd.ByteWidth = sizeof(ConstantBuffer);
-		bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-		bd.CPUAccessFlags = 0;
-		Debug::ThrowIfComFailed(
-			_d3dDevice->CreateBuffer(&bd, nullptr, &_constantBuffer),
-			L""
-		);
-
-		_worldTransform = XMMatrixIdentity();
-
-		XMVECTOR Eye = XMVectorSet(0.0f, 1.0f, -5.0f, 0.0f);
-		XMVECTOR At = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
-		XMVECTOR Up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
-		_viewTransform = XMMatrixLookAtLH(Eye, At, Up);
-
-		_projectionTransform = XMMatrixPerspectiveFovLH(XM_PIDIV2, hostWidth / (FLOAT)hostHeight, 0.01f, 100.0f);
+		_d3dDC->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 	}
 
 	HRESULT _CompileShaderFromFile(const WCHAR* szFileName, LPCSTR szEntryPoint, LPCSTR szShaderModel, ID3DBlob** ppBlobOut) {
@@ -322,9 +241,4 @@ private:
 	ComPtr<ID3D11VertexShader> _vsShader = nullptr;
 	ComPtr<ID3D11PixelShader> _psShader = nullptr;
 	ComPtr<ID3D11InputLayout> _vertexLayout = nullptr;
-	ID3D11Buffer* _constantBuffer = nullptr;
-
-	XMMATRIX _worldTransform;
-	XMMATRIX _viewTransform;
-	XMMATRIX _projectionTransform;
 };

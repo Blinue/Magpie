@@ -1,9 +1,6 @@
-with open('../EffectCommon/conanfile.py') as f:
-	exec(f.read())
+from conans import ConanFile, CMake
 
-
-class RuntimeConan(EffectCommonConan):
-	pass
-
-
-del EffectCommonConan
+class EffectCommonConan(ConanFile):
+	requires = "fmt/8.0.1", "nlohmann_json/3.9.1", "spdlog/1.9.1"
+	generators = "visual_studio"
+	

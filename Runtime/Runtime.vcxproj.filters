@@ -99,11 +99,26 @@
     <ClInclude Include="D3DContext.h">
       <Filter>头文件\Render</Filter>
     </ClInclude>
+    <ClInclude Include="CommonDebug.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="EffectUtils.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="SimpleDrawTransform.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="EffectBase.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />
     <None Include="conanfile.py" />
     <None Include="packages.config" />
+    <None Include="common.hlsli">
+      <Filter>着色器</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="头文件">
@@ -142,7 +157,7 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <CopyFileToFolders Include="Test.fxh">
+    <CopyFileToFolders Include="Test.hlsl">
       <Filter>着色器</Filter>
     </CopyFileToFolders>
   </ItemGroup>

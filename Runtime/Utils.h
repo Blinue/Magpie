@@ -2,7 +2,7 @@
 #include "Shlwapi.h"
 #include <utility>
 #include <wrl.h>
-#include <EffectUtils.h>
+#include "EffectUtils.h"
 
 using namespace Microsoft::WRL;
 
