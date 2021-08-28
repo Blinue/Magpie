@@ -142,6 +142,7 @@
   <ItemGroup>
     <ClInclude Include="CursorManager.h" />
     <ClInclude Include="D2DImageEffectRenderer.h" />
+    <ClInclude Include="D3DContext.h" />
     <ClInclude Include="Debug.h" />
     <ClInclude Include="EffectRendererBase.h" />
     <ClInclude Include="D2DContext.h" />
@@ -180,6 +181,11 @@
     <None Include="conanfile.py" />
     <None Include="cpp.hint" />
     <None Include="packages.config" />
+    <CopyFileToFolders Include="Test.fxh">
+      <FileType>Document</FileType>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</DeploymentContent>
+      <DestinationFolders Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)shaders</DestinationFolders>
+    </CopyFileToFolders>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="MonochromeCursorShader.hlsl" />

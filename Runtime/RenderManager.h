@@ -3,7 +3,7 @@
 #include "Renderable.h"
 #include "D2DImageEffectRenderer.h"
 #include "WICBitmapEffectRenderer.h"
-#include "D2DContext.h"
+#include "D3DContext.h"
 #include "CursorManager.h"
 #include "FrameCatcher.h"
 #include "WindowCapturerBase.h"
@@ -18,10 +18,10 @@ class RenderManager {
 public:
 	RenderManager() {
 		// 初始化 D2DContext
-		_d2dContext.reset(new D2DContext());
+		_d3dContext.reset(new D3DContext());
 
 		// 初始化 WindowCapturer
-		int captureMode = Env::$instance->GetCaptureMode();
+		/*int captureMode = Env::$instance->GetCaptureMode();
 		if (captureMode == 0) {
 			_windowCapturer.reset(new WinRTCapturer());
 		} else if (captureMode == 1) {
@@ -44,7 +44,7 @@ public:
 		if (Env::$instance->IsShowFPS()) {
 			// 初始化 FrameCatcher
 			_frameCatcher.reset(new FrameCatcher());
-		}
+		}*/
 	}
 
 	std::pair<bool, LRESULT> WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
@@ -57,7 +57,8 @@ public:
 			return;
 		}
 		
-		_d2dContext->Render([&](ID2D1DeviceContext* d2dDC) -> bool {
+		_d3dContext->Render();
+		/*_d3dContext->Render([&](ID2D1DeviceContext* d2dDC) -> bool {
 			ComPtr<IUnknown> frame = _windowCapturer->GetFrame();
 			if (!frame) {
 				return false;
@@ -79,7 +80,7 @@ public:
 			}
 
 			return true;
-		});
+		});*/
 	}
 
 	
@@ -101,7 +102,7 @@ private:
 		return false;
 	}
 
-	std::unique_ptr<D2DContext> _d2dContext = nullptr;
+	std::unique_ptr<D3DContext> _d3dContext = nullptr;
 	std::unique_ptr<WindowCapturerBase> _windowCapturer = nullptr;
 	std::unique_ptr<EffectRendererBase> _effectRenderer = nullptr;
 	std::unique_ptr<CursorManager> _cursorManager = nullptr;

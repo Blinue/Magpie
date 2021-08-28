@@ -96,6 +96,9 @@
     <ClInclude Include="ErrorMessages.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="D3DContext.h">
+      <Filter>头文件\Render</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />
@@ -137,5 +140,10 @@
     <ResourceCompile Include="Version.rc">
       <Filter>资源文件</Filter>
     </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <CopyFileToFolders Include="Test.fxh">
+      <Filter>着色器</Filter>
+    </CopyFileToFolders>
   </ItemGroup>
 </Project>
