@@ -8,7 +8,9 @@
 // 使用 GDI 抓取窗口
 class GDIWindowCapturer : public WindowCapturerBase {
 public:
-	ComPtr<IUnknown> GetFrame() override {
+	ComPtr<ID3D11Texture2D> GetFrame() override {
+		return nullptr;
+
 		HWND hwndSrc = Env::$instance->GetHwndSrc();
 
 		RECT windowRect{};
@@ -64,7 +66,7 @@ public:
 			L"wicBmpClipper初始化失败"
 		);
 
-		return wicBmpClipper;
+		// return wicBmpClipper;
 	}
 
 	CaptureredFrameType GetFrameType() override {

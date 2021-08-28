@@ -2,9 +2,8 @@
 #include "pch.h"
 #include "WindowCapturerBase.h"
 #include "Utils.h"
-#include "D2DContext.h"
 #include "Env.h"
-
+#include "D3DContext.h"
 #include <Windows.Graphics.DirectX.Direct3D11.interop.h>
 #include <Windows.Graphics.Capture.Interop.h>
 #include <winrt/Windows.Foundation.Metadata.h>
@@ -87,7 +86,7 @@ public:
 			_captureFramePool = winrt::Direct3D11CaptureFramePool::Create(
 				_wrappedD3DDevice,
 				winrt::DirectXPixelFormat::B8G8R8A8UIntNormalized,
-				1,					// 帧的缓存数量
+				2,					// 帧的缓存数量
 				_captureItem.Size() // 帧的尺寸
 			);
 			Debug::Assert(_captureFramePool, L"创建 Direct3D11CaptureFramePool 失败");
@@ -125,9 +124,7 @@ public:
 		return CaptureredFrameType::D2DImage;
 	}
 
-	ComPtr<IUnknown> GetFrame() override {
-		ID2D1DeviceContext* d2dDC = Env::$instance->GetD2DDC();
-
+	ComPtr<ID3D11Texture2D> GetFrame() override {
 		winrt::Direct3D11CaptureFrame frame = _captureFramePool.TryGetNextFrame();
 		if (!frame) {
 			// 缓冲池没有帧就返回 nullptr
@@ -136,36 +133,18 @@ public:
 
 		// 从帧获取 IDXGISurface
 		winrt::IDirect3DSurface d3dSurface = frame.Surface();
+		
 		winrt::com_ptr<::Windows::Graphics::DirectX::Direct3D11::IDirect3DDxgiInterfaceAccess> dxgiInterfaceAccess(
 			d3dSurface.as<::Windows::Graphics::DirectX::Direct3D11::IDirect3DDxgiInterfaceAccess>()
 		);
-		winrt::com_ptr<::IDXGISurface> dxgiSurface;
+
+		ComPtr<ID3D11Texture2D> d3dTexture;
 		Debug::ThrowIfComFailed(
-			dxgiInterfaceAccess->GetInterface(
-				__uuidof(dxgiSurface),
-				dxgiSurface.put_void()
-			),
-			L"从获取 IDirect3DSurface 获取 IDXGISurface 失败"
+			dxgiInterfaceAccess->GetInterface(IID_PPV_ARGS(&d3dTexture)),
+			L"从获取 IDirect3DSurface 获取 ID3D11Texture2D 失败"
 		);
 
-		// 从 IDXGISurface 获取 ID2D1Bitmap
-		// 这里使用共享以避免拷贝
-		ComPtr<ID2D1Bitmap> withFrame;
-		auto p = BitmapProperties(PixelFormat(DXGI_FORMAT_B8G8R8A8_UNORM, D2D1_ALPHA_MODE_IGNORE));
-		d2dDC->CreateSharedBitmap(__uuidof(IDXGISurface), dxgiSurface.get(), &p, &withFrame);
-
-		// 获取的帧包含窗口边框，将客户区内容拷贝到新的 ID2D1Bitmap
-		ComPtr<ID2D1Bitmap> withoutFrame;
-		d2dDC->CreateBitmap(
-			{ _clientInFrame.right - _clientInFrame.left, _clientInFrame.bottom - _clientInFrame.top },
-			BitmapProperties(PixelFormat(DXGI_FORMAT_B8G8R8A8_UNORM, D2D1_ALPHA_MODE_IGNORE)),
-			&withoutFrame
-		);
-
-		D2D1_POINT_2U destPoint{ 0,0 };
-		withoutFrame->CopyFromBitmap(&destPoint, withFrame.Get(), &_clientInFrame);
-
-		return withoutFrame;
+		return d3dTexture;
 	}
 
 private:

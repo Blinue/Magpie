@@ -26,14 +26,37 @@ public:
 		if (_d3dRenderTargetView) {
 			_d3dRenderTargetView->Release();
 		}
+		if (_linearSampler) {
+			_linearSampler->Release();
+		}
 	}
 
-	void Render() {
+	void Render(ComPtr<ID3D11Texture2D> input) {
+		if (!input) {
+			return;
+		}
+
 		_d3dDC->OMSetRenderTargets(1, &_d3dRenderTargetView, nullptr);
 		_d3dDC->ClearRenderTargetView(_d3dRenderTargetView, Colors::MidnightBlue);
 
 		_d3dDC->VSSetShader(_vsShader.Get(), nullptr, 0);
 		_d3dDC->PSSetShader(_psShader.Get(), nullptr, 0);
+		_d3dDC->PSSetSamplers(0, 1, &_linearSampler);
+
+		{
+			ID3D11ShaderResourceView* rv = nullptr;
+			D3D11_SHADER_RESOURCE_VIEW_DESC desc{};
+			desc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
+			desc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+			desc.Texture2D = { 0,1 };
+			Debug::ThrowIfComFailed(
+				_d3dDevice->CreateShaderResourceView(input.Get(), &desc, &rv),
+				L""
+			);
+			_d3dDC->PSSetShaderResources(0, 1, &rv);
+			rv->Release();
+		}
+
 		_d3dDC->Draw(4, 0);
 
 		_dxgiSwapChain->Present(0, 0);
@@ -93,7 +116,7 @@ private:
 			DXGI_SWAP_CHAIN_DESC1 sd = {};
 			sd.Width = hostWidth;
 			sd.Height = hostHeight;
-			sd.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+			sd.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
 			sd.SampleDesc.Count = 1;
 			sd.SampleDesc.Quality = 0;
 			sd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
@@ -149,7 +172,7 @@ private:
 		// Define the input layout
 		D3D11_INPUT_ELEMENT_DESC layout[] = {
 			{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-			{ "TEXCOORD", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+			{ "TEXCOORD", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 		};
 		UINT numElements = ARRAYSIZE(layout);
 
@@ -229,6 +252,21 @@ private:
 			return hr;
 		}
 
+		D3D11_SAMPLER_DESC sampDesc = {};
+		sampDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+		sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+		sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+		sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+		sampDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+		sampDesc.MinLOD = 0;
+		sampDesc.MaxLOD = 0;
+		Debug::ThrowIfComFailed(
+			_d3dDevice->CreateSamplerState(&sampDesc, &_linearSampler),
+			L""
+		);
+
+		Env::$instance->SetD3DContext(_d3dDevice, _d3dDC);
+
 		return S_OK;
 	}
 
@@ -237,6 +275,7 @@ private:
 	ComPtr<IDXGISwapChain1> _dxgiSwapChain = nullptr;
 	ComPtr<ID3D11DeviceContext4> _d3dDC = nullptr;
 	ID3D11RenderTargetView* _d3dRenderTargetView = nullptr;
+	ID3D11SamplerState* _linearSampler = nullptr;
 
 	ComPtr<ID3D11VertexShader> _vsShader = nullptr;
 	ComPtr<ID3D11PixelShader> _psShader = nullptr;

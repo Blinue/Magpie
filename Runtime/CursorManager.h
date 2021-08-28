@@ -100,14 +100,14 @@ public:
 		}
 
 		if (!_monochromeCursorEffect) {
-			Debug::ThrowIfComFailed(
+			/*Debug::ThrowIfComFailed(
 				MonochromeCursorEffect::Register(Env::$instance->GetD2DFactory()),
 				L"注册MonochromeCursorEffect失败"
 			);
 			Debug::ThrowIfComFailed(
 				Env::$instance->GetD2DDC()->CreateEffect(CLSID_MAGPIE_MONOCHROME_CURSOR_EFFECT, &_monochromeCursorEffect),
 				L"创建MonochromeCursorEffect失败"
-			);
+			);*/
 		}
 
 		_monochromeCursorEffect->SetInput(0, input.Get());
@@ -136,7 +136,7 @@ public:
 			FLOAT(_targetScreenPos.y + _cursorInfo->height)
 		};
 
-		Env::$instance->GetD2DDC()->DrawBitmap(_cursorInfo->bmp.Get(), &cursorRect);
+		//Env::$instance->GetD2DDC()->DrawBitmap(_cursorInfo->bmp.Get(), &cursorRect);
 	}
 
 
@@ -277,10 +277,10 @@ private:
 			),
 			L"IWICFormatConverter 初始化失败"
 		);
-		Debug::ThrowIfComFailed(
+		/*Debug::ThrowIfComFailed(
 			Env::$instance->GetD2DDC()->CreateBitmapFromWicBitmap(wicFormatConverter.Get(), &d2dBmpCursor),
 			L"CreateBitmapFromWicBitmap 失败"
-		);
+		);*/
 
 		return d2dBmpCursor;
 	}
@@ -313,10 +313,10 @@ private:
 			),
 			L"IWICFormatConverter 初始化失败"
 		);
-		Debug::ThrowIfComFailed(
+		/*Debug::ThrowIfComFailed(
 			Env::$instance->GetD2DDC()->CreateBitmapFromWicBitmap(wicFormatConverter.Get(), &d2dBmpCursor),
 			L"CreateBitmapFromWicBitmap 失败"
-		);
+		);*/
 
 		return d2dBmpCursor;
 	}

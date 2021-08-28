@@ -4,13 +4,12 @@
 #include "D2DImageEffectRenderer.h"
 #include "WICBitmapEffectRenderer.h"
 #include "D3DContext.h"
-#include "CursorManager.h"
 #include "FrameCatcher.h"
 #include "WindowCapturerBase.h"
-#include "MagCallbackWindowCapturer.h"
 #include "GDIWindowCapturer.h"
 #include "WinRTCapturer.h"
 #include "Env.h"
+#include "CursorManager.h"
 
 
 // 处理全屏窗口的渲染
@@ -20,6 +19,7 @@ public:
 		// 初始化 D2DContext
 		_d3dContext.reset(new D3DContext());
 
+		_windowCapturer.reset(new WinRTCapturer());
 		// 初始化 WindowCapturer
 		/*int captureMode = Env::$instance->GetCaptureMode();
 		if (captureMode == 0) {
@@ -57,7 +57,7 @@ public:
 			return;
 		}
 		
-		_d3dContext->Render();
+		_d3dContext->Render(_windowCapturer->GetFrame());
 		/*_d3dContext->Render([&](ID2D1DeviceContext* d2dDC) -> bool {
 			ComPtr<IUnknown> frame = _windowCapturer->GetFrame();
 			if (!frame) {

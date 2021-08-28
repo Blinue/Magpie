@@ -1,6 +1,5 @@
 #pragma once
 #include "pch.h"
-#include "D2DContext.h"
 #include "nlohmann/json.hpp"
 #include "Env.h"
 
@@ -21,10 +20,7 @@ using EffectCreateFunc = HRESULT(
 // 并在构造函数中调用 _Init
 class EffectRendererBase {
 public:
-	EffectRendererBase() :
-		_d2dDC(Env::$instance->GetD2DDC()),
-		_d2dFactory(Env::$instance->GetD2DFactory())
-	{
+	EffectRendererBase() {
 		SIZE hostSize = Utils::GetSize(Env::$instance->GetHostClient());
 		SIZE srcSize = Utils::GetSize(Env::$instance->GetSrcClient());
 

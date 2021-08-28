@@ -1,7 +1,7 @@
 #pragma once
 #include "pch.h"
 #include "Utils.h"
-#include "D2DContext.h"
+// #include "D2DContext.h"
 #include "RenderManager.h"
 
 

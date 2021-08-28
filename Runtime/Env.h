@@ -20,16 +20,9 @@ public:
 		$instance.reset(new Env(hInst, hwndSrc, scaleModel, captureMode, bufferPrecision, showFPS, adjustCursorSpeed, noDisturb));
 	}
 
-	void SetD2DContext(
-		ComPtr<ID3D11Device> d3dDevice,
-		ComPtr<ID2D1Factory1> d2dFactory,
-		ComPtr<ID2D1Device> d2dDevice,
-		ComPtr<ID2D1DeviceContext> d2dDC
-	) {
+	void SetD3DContext(ComPtr<ID3D11Device3> d3dDevice, ComPtr<ID3D11DeviceContext4> d3dDC) {
 		_d3dDevice = d3dDevice;
-		_d2dFactory = d2dFactory;
-		_d2dDevice = d2dDevice;
-		_d2dDC = d2dDC;
+		_d3dDC = d3dDC;
 	}
 
 	void SetHwndHost(HWND hwndHost) {
@@ -37,20 +30,12 @@ public:
 		Utils::GetClientScreenRect(_hwndHost, _hostClient);
 	}
 
-	ID2D1DeviceContext* GetD2DDC() const {
-		return _d2dDC.Get();
-	}
-
-	ID2D1Factory1* GetD2DFactory() const {
-		return _d2dFactory.Get();
-	}
-
-	ID3D11Device* GetD3DDevice() const {
+	ID3D11Device3* GetD3DDevice() const {
 		return _d3dDevice.Get();
 	}
 
-	ID2D1Device* GetD2DDevice() const {
-		return _d2dDevice.Get();
+	ID3D11DeviceContext4* GetD3DDC() const {
+		return _d3dDC.Get();
 	}
 
 	const std::string_view& GetScaleModel() const {
@@ -151,10 +136,8 @@ private:
 		Utils::GetClientScreenRect(_hwndSrc, _srcClient);
 	}
 
-	ComPtr<ID3D11Device> _d3dDevice = nullptr;
-	ComPtr<ID2D1Factory1> _d2dFactory = nullptr;
-	ComPtr<ID2D1Device> _d2dDevice = nullptr;
-	ComPtr<ID2D1DeviceContext> _d2dDC = nullptr;
+	ComPtr<ID3D11Device3> _d3dDevice = nullptr;
+	ComPtr<ID3D11DeviceContext4> _d3dDC = nullptr;
 
 	HINSTANCE _hInst;
 	std::string_view _scaleModel;

@@ -1,8 +1,12 @@
+Texture2D frameTexture : register(t0);
+SamplerState linearSampler : register(s0);
+
 
 struct VS_OUTPUT {
-	float4 Position   : SV_POSITION; // vertex position 
-	float4 TexCoord  : TEXCOORD0;   // vertex texture coords 
+	float4 Position : SV_POSITION; // vertex position 
+	float4 TexCoord : TEXCOORD0;   // vertex texture coords 
 };
+
 //--------------------------------------------------------------------------------------
 // Vertex Shader
 //--------------------------------------------------------------------------------------
@@ -20,5 +24,5 @@ VS_OUTPUT VS(float4 pos : POSITION, float4 texCoord : TEXCOORD)
 //--------------------------------------------------------------------------------------
 float4 PS(VS_OUTPUT input) : SV_Target
 {
-    return float4(input.TexCoord.xy, 0.0f, 1.0f );    // Yellow, with Alpha = 1
+    return frameTexture.Sample(linearSampler, input.TexCoord.xy);    // Yellow, with Alpha = 1
 }

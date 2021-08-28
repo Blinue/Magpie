@@ -13,9 +13,6 @@
     <ClCompile Include="DllMain.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="MagCallbackWindowCapturer.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="CursorManager.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
@@ -48,9 +45,6 @@
     <ClInclude Include="GDIWindowCapturer.h">
       <Filter>头文件\Capture</Filter>
     </ClInclude>
-    <ClInclude Include="MagCallbackWindowCapturer.h">
-      <Filter>头文件\Capture</Filter>
-    </ClInclude>
     <ClInclude Include="WindowCapturerBase.h">
       <Filter>头文件\Capture</Filter>
     </ClInclude>
@@ -58,9 +52,6 @@
       <Filter>头文件\Capture</Filter>
     </ClInclude>
     <ClInclude Include="CursorManager.h">
-      <Filter>头文件\Render</Filter>
-    </ClInclude>
-    <ClInclude Include="D2DContext.h">
       <Filter>头文件\Render</Filter>
     </ClInclude>
     <ClInclude Include="EffectRendererBase.h">

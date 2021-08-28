@@ -23,10 +23,10 @@ public:
 			L"创建IDWriteTextFormat失败"
 		);
 
-		Debug::ThrowIfComFailed(
+		/*Debug::ThrowIfComFailed(
 			Env::$instance->GetD2DDC()->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::White), &_d2dFPSTxtBrush),
 			L"创建 _d2dFPSTxtBrush 失败"
-		);
+		);*/
 	}
 
 	void Render() override {
@@ -35,7 +35,7 @@ public:
 		const D2D_RECT_F& destRect = Env::$instance->GetDestRect();
 		// 绘制文本
 		std::wstring fps = fmt::format(L"{} FPS", lround(_fps));
-		Env::$instance->GetD2DDC()->DrawTextW(
+		/*Env::$instance->GetD2DDC()->DrawTextW(
 			fps.c_str(),
 			(UINT32)fps.size(),
 			_dwTxtFmt.Get(),
@@ -46,7 +46,7 @@ public:
 				destRect.bottom
 			),
 			_d2dFPSTxtBrush.Get()
-		);
+		);*/
 		//Debug::WriteLine(_fps);
 		//Debug::WriteLine(L"AVG: "s + std::to_wstring(_GetAvgFPS(cur)));
 	}

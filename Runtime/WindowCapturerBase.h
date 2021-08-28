@@ -1,6 +1,5 @@
 #pragma once
 #include "pch.h"
-#include "D2DContext.h"
 
 
 enum class CaptureredFrameType {
@@ -24,7 +23,7 @@ public:
 	WindowCapturerBase(WindowCapturerBase&&) = delete;
 
 	// 捕获一帧
-	virtual ComPtr<IUnknown> GetFrame() = 0;
+	virtual ComPtr<ID3D11Texture2D> GetFrame() = 0;
 
 	// 捕获的帧的类型
 	virtual CaptureredFrameType GetFrameType() = 0;

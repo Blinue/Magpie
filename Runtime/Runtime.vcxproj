@@ -147,7 +147,6 @@
     <ClInclude Include="Debug.h" />
     <ClInclude Include="EffectBase.h" />
     <ClInclude Include="EffectRendererBase.h" />
-    <ClInclude Include="D2DContext.h" />
     <ClInclude Include="EffectUtils.h" />
     <ClInclude Include="Env.h" />
     <ClInclude Include="ErrorMessages.h" />
@@ -155,7 +154,6 @@
     <ClInclude Include="framework.h" />
     <ClInclude Include="GDIWindowCapturer.h" />
     <ClInclude Include="EffectDefines.h" />
-    <ClInclude Include="MagCallbackWindowCapturer.h" />
     <ClInclude Include="MagWindow.h" />
     <ClInclude Include="MonochromeCursorEffect.h" />
     <ClInclude Include="MonochromeCursorTransform.h" />
@@ -174,7 +172,6 @@
     <ClCompile Include="CursorManager.cpp" />
     <ClCompile Include="Env.cpp" />
     <ClCompile Include="GUIDs.cpp" />
-    <ClCompile Include="MagCallbackWindowCapturer.cpp" />
     <ClCompile Include="MagWindow.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
     </ClCompile>
