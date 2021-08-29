@@ -24,5 +24,5 @@ VS_OUTPUT VS(float4 pos : POSITION, float4 texCoord : TEXCOORD)
 //--------------------------------------------------------------------------------------
 float4 PS(VS_OUTPUT input) : SV_Target
 {
-    return frameTexture.Sample(linearSampler, input.TexCoord.xy);    // Yellow, with Alpha = 1
+    return frameTexture.Sample(linearSampler, input.TexCoord.xy);
 }

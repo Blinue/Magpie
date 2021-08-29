@@ -35,7 +35,7 @@ public:
 		if (!input) {
 			return;
 		}
-
+		
 		_d3dDC->OMSetRenderTargets(1, &_d3dRenderTargetView, nullptr);
 		_d3dDC->ClearRenderTargetView(_d3dRenderTargetView, Colors::MidnightBlue);
 
@@ -48,7 +48,8 @@ public:
 			D3D11_SHADER_RESOURCE_VIEW_DESC desc{};
 			desc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
 			desc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-			desc.Texture2D = { 0,1 };
+			desc.Texture2D.MostDetailedMip = 0;
+			desc.Texture2D.MipLevels = 1;
 			Debug::ThrowIfComFailed(
 				_d3dDevice->CreateShaderResourceView(input.Get(), &desc, &rv),
 				L""
@@ -201,10 +202,10 @@ private:
 		// Create vertex buffer
 		SimpleVertex vertices[] =
 		{
-			{ XMFLOAT3(-0.5f, 0.5f, 0.5f), XMFLOAT4(0.0f,0.0f,0.0f,0.0f)},
-			{ XMFLOAT3(0.5f, 0.5f, 0.5f), XMFLOAT4(1.0f,0.0f,0.0f,0.0f) },
-			{ XMFLOAT3(-0.5f, -0.5f, 0.5f), XMFLOAT4(0.0f,1.0f,0.0f,0.0f) },
-			{ XMFLOAT3(0.5f, -0.5f, 0.5f), XMFLOAT4(1.0f,1.0f,0.0f,0.0f) }
+			{ XMFLOAT3(-1.0f, 1.0f, 0.0f), XMFLOAT4(0.0f,0.0f,0.0f,0.0f)},
+			{ XMFLOAT3(1.0f, 1.0f, 0.0f), XMFLOAT4(1.0f,0.0f,0.0f,0.0f) },
+			{ XMFLOAT3(-1.0f, -1.0f, 0.0f), XMFLOAT4(0.0f,1.0f,0.0f,0.0f) },
+			{ XMFLOAT3(1.0f, -1.0f, 0.0f), XMFLOAT4(1.0f,1.0f,0.0f,0.0f) }
 		};
 		D3D11_BUFFER_DESC bd = {};
 		bd.Usage = D3D11_USAGE_DEFAULT;
@@ -254,9 +255,9 @@ private:
 
 		D3D11_SAMPLER_DESC sampDesc = {};
 		sampDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-		sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-		sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-		sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+		sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+		sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+		sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
 		sampDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
 		sampDesc.MinLOD = 0;
 		sampDesc.MaxLOD = 0;

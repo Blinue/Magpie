@@ -86,7 +86,7 @@ public:
 			_captureFramePool = winrt::Direct3D11CaptureFramePool::Create(
 				_wrappedD3DDevice,
 				winrt::DirectXPixelFormat::B8G8R8A8UIntNormalized,
-				2,					// 帧的缓存数量
+				1,					// 帧的缓存数量
 				_captureItem.Size() // 帧的尺寸
 			);
 			Debug::Assert(_captureFramePool, L"创建 Direct3D11CaptureFramePool 失败");
@@ -138,13 +138,34 @@ public:
 			d3dSurface.as<::Windows::Graphics::DirectX::Direct3D11::IDirect3DDxgiInterfaceAccess>()
 		);
 
-		ComPtr<ID3D11Texture2D> d3dTexture;
+		ComPtr<ID3D11Texture2D> withFrame;
 		Debug::ThrowIfComFailed(
-			dxgiInterfaceAccess->GetInterface(IID_PPV_ARGS(&d3dTexture)),
+			dxgiInterfaceAccess->GetInterface(IID_PPV_ARGS(&withFrame)),
 			L"从获取 IDirect3DSurface 获取 ID3D11Texture2D 失败"
 		);
 
-		return d3dTexture;
+		ComPtr<ID3D11Texture2D> withoutFrame;
+		D3D11_TEXTURE2D_DESC desc{};
+		desc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
+		desc.Width = _clientInFrame.right - _clientInFrame.left;
+		desc.Height = _clientInFrame.bottom - _clientInFrame.top;
+		desc.MipLevels = 1;
+		desc.ArraySize = 1;
+		desc.SampleDesc.Count = 1;
+		desc.SampleDesc.Quality = 0;
+		desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+		Debug::ThrowIfComFailed(
+			Env::$instance->GetD3DDevice()->CreateTexture2D(&desc, nullptr, &withoutFrame),
+			L""
+		);
+
+		D3D11_BOX box {
+			_clientInFrame.left, _clientInFrame.top, 0,
+			_clientInFrame.right, _clientInFrame.bottom, 1
+		};
+		Env::$instance->GetD3DDC()->CopySubresourceRegion(withoutFrame.Get(), 0, 0, 0, 0, withFrame.Get(), 0, &box);
+
+		return withoutFrame;
 	}
 
 private:
