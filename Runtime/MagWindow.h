@@ -64,10 +64,10 @@ private:
 
 		_renderManager.reset(new RenderManager());
 
-		Debug::ThrowIfWin32Failed(
-			ShowWindow(Env::$instance->GetHwndHost(), SW_NORMAL),
-			L"ShowWindow失败"
-		);
+		//Debug::ThrowIfWin32Failed(
+		ShowWindow(Env::$instance->GetHwndHost(), SW_NORMAL);
+		//	L"ShowWindow失败"
+		//);
 
 		// 取消全屏窗口的置顶，这样可以使该窗口在最前
 		DWORD style = GetWindowStyle(Env::$instance->GetHwndHost());
@@ -123,11 +123,11 @@ private:
 
 	void _CreateHostWnd() {
 		// 创建全屏窗口
-		SIZE screenSize = Utils::GetScreenSize(Env::$instance->GetHwndSrc());
+		RECT screenRect = Utils::GetScreenRect(Env::$instance->GetHwndSrc());
 		HWND hwndHost = CreateWindowEx(
 			WS_EX_TOPMOST | WS_EX_NOACTIVATE | WS_EX_LAYERED | WS_EX_TRANSPARENT,
 			_HOST_WINDOW_CLASS_NAME, NULL, WS_CLIPCHILDREN | WS_POPUP | WS_VISIBLE,
-			0, 0, screenSize.cx, screenSize.cy,
+			screenRect.left, screenRect.top, screenRect.right - screenRect.left, screenRect.bottom - screenRect.top,
 			NULL, NULL, Env::$instance->GetHInstance(), NULL);
 		Debug::ThrowIfWin32Failed(hwndHost, L"创建全屏窗口失败");
 

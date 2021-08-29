@@ -41,7 +41,7 @@ public:
 		rect.top = r.top + p.y;
 	}
 
-	static SIZE GetScreenSize(HWND hWnd) {
+	static RECT GetScreenRect(HWND hWnd) {
 		HMONITOR hMonitor = MonitorFromWindow(hWnd, MONITOR_DEFAULTTONEAREST);
 
 		MONITORINFO mi{};
@@ -50,7 +50,7 @@ public:
 			GetMonitorInfo(hMonitor, &mi),
 			L"获取显示器信息失败"
 		);
-		return GetSize(mi.rcMonitor);
+		return mi.rcMonitor;
 	}
 
 	static SIZE GetSize(const RECT& rect) {

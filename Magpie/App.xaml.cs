@@ -4,6 +4,7 @@ using NLog.Config;
 using System;
 using System.Diagnostics;
 using System.Globalization;
+using System.IO;
 using System.Threading;
 using System.Windows;
 
@@ -16,7 +17,7 @@ namespace Magpie {
 		public static readonly Version APP_VERSION = new Version("0.6.0.0");
 		public static readonly string APPLICATION_DIR = AppDomain.CurrentDomain.SetupInformation.ApplicationBase;
 		public static readonly string SCALE_MODELS_JSON_PATH =
-			AppDomain.CurrentDomain.SetupInformation.ApplicationBase + "ScaleModels.json";
+			Path.Combine(AppDomain.CurrentDomain.SetupInformation.ApplicationBase, "ScaleModels.json");
 
 		private static Logger Logger { get; } = LogManager.GetCurrentClassLogger();
 
@@ -71,6 +72,8 @@ namespace Magpie {
 		}
 
 		private void Application_Exit(object sender, ExitEventArgs e) {
+			Settings.Default.Save();
+
 			mutex.ReleaseMutex();
 
 			Logger.Info($"程序关闭\n\t进程 ID：{Process.GetCurrentProcess().Id}");

@@ -1,5 +1,3 @@
-[![Lines of code](https://img.shields.io/tokei/lines/github/Blinue/Magpie)](https://github.com/Blinue/Magpie) [![Help Wanted](https://img.shields.io/github/issues/Blinue/Magpie/help%20wanted?color=%232EA043&label=help%20wanted)](https://github.com/Blinue/Magpie/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22)
-
 # MAGPIE
 
 Magpie可以将任意窗口放大至全屏，支持多种高级缩放算法，包括Lanczos、[Anime4K](https://github.com/bloc97/Anime4K)、[FSR](https://github.com/GPUOpen-Effects/FidelityFX-FSR)、[FSRCNNX](https://github.com/igv/FSRCNN-TensorFlow)等。
@@ -30,7 +28,7 @@ Magpie可以将任意窗口放大至全屏，支持多种高级缩放算法，�
 4. ACNet：[ACNetGLSL](https://github.com/TianZerL/ACNetGLSL)的移植。适合动画风格的图像和视频放大。
 5. Anime4K：开源的高质量的实时动漫缩放/降噪算法。
 6. FSR：适用于3D游戏。
-7. 像素：将每个像素放大整数倍，可以完整保留原图像的视觉效果。预置了2x和3x两种放大倍率。
+7. Integer Scale：将每个像素放大整数倍，可以完整保留原图像的视觉效果。预置了2x和3x两种放大倍率。
 
 #### 抓取模式
 
@@ -47,14 +45,6 @@ Magpie可以将任意窗口放大至全屏，支持多种高级缩放算法，�
 2. 运行时注入：在执行缩放的同时注入源窗口线程，退出全屏后取消注入
 3. 启动时注入：适用于运行时注入不起作用的场合，不能注入正在运行的进程，需要手动选择要启动并注入的程序。
 
-#### 高级选项
-
-* 显示帧率：在屏幕左上角显示当前帧率
-
-## 实现原理
-
-因为实现原理的不同，Magpie比[Lossless Scaling](https://store.steampowered.com/app/993090/Lossless_Scaling/)和[IntegerScaler](https://tanalin.com/en/projects/integer-scaler/)强大的多。Magpie的原理非常简单：使用一个全屏窗口覆盖屏幕，捕获原窗口的内容放大后在该全屏窗口显示出来。这种方式使得缩放算法不受任何限制，让我们可以自由使用现存的优秀缩放算法。
-
 ## 使用提示
 
 1. 如果你设置了DPI缩放，而要放大的窗口不支持（表现为画面模糊），请首先进入该程序的兼容性设置，将“高DPI缩放替代”设置为“应用程序”。
@@ -65,8 +55,6 @@ Magpie可以将任意窗口放大至全屏，支持多种高级缩放算法，�
 
 ## 免责声明
 
-因为使用了进程注入技术，本程序极有可能被报毒。出于安全考虑，您应该检查源代码并自行编译。
-
-开发本程序的初衷不含有任何恶意，但使用它所造成的后果应由您自己承担。
+因为使用了进程注入技术，本程序有可能被报毒。出于安全考虑，您应该检查源代码并自行编译。开发本程序的初衷不含有任何恶意，但使用它所造成的后果应由您自己承担。
 
 参见[LICENSE](./LICENSE)。

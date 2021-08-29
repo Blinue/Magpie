@@ -1,3 +1,4 @@
+using NLog;
 using System;
 using System.Diagnostics;
 using System.Windows.Controls;
@@ -9,6 +10,8 @@ namespace Magpie.Options {
 	/// AboutOptionsPage.xaml 的交互逻辑
 	/// </summary>
 	public partial class AboutOptionsPage : Page {
+		private static Logger Logger { get; } = LogManager.GetCurrentClassLogger();
+
 		private LicenseWindow licenseWindow = null;
 
 		public AboutOptionsPage() {
@@ -18,7 +21,16 @@ namespace Magpie.Options {
 		}
 
 		private void Hyperlink_RequestNavigate(object sender, RequestNavigateEventArgs e) {
-			_ = Process.Start(new ProcessStartInfo(e.Uri.AbsoluteUri));
+			ProcessStartInfo psi = new ProcessStartInfo(e.Uri.AbsoluteUri) {
+				UseShellExecute = true
+			};
+
+			try {
+				_ = Process.Start(psi);
+			} catch (Exception ex) {
+				Logger.Error(ex, "打开超链接失败");
+			}
+
 			e.Handled = true;
 		}
 

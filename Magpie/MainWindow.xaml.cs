@@ -26,7 +26,7 @@ namespace Magpie {
 		};
 
 		private IKeyboardMouseEvents keyboardEvents = null;
-		private MagWindow magWindow;
+		private MagWindow magWindow = null;
 
 		private readonly ScaleModelManager scaleModelManager = new ScaleModelManager();
 
@@ -138,8 +138,6 @@ namespace Magpie {
 			if (optionsWindow != null) {
 				optionsWindow.Close();
 			}
-
-			Settings.Default.Save();
 		}
 
 		private void TxtHotkey_TextChanged(object sender, TextChangedEventArgs e) {
@@ -235,7 +233,8 @@ namespace Magpie {
 		}
 
 		private void MagWindow_Closed() {
-			if (!Settings.Default.AutoRestore) {
+			// 不监视 Magpie 主窗口
+			if (!Settings.Default.AutoRestore || prevSrcWindow == Handle) {
 				return;
 			}
 
