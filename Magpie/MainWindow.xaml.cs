@@ -26,7 +26,7 @@ namespace Magpie {
 		};
 
 		private IKeyboardMouseEvents keyboardEvents = null;
-		private MagWindow magWindow;
+		private MagWindow magWindow = null;
 
 		private readonly ScaleModelManager scaleModelManager = new ScaleModelManager();
 
@@ -138,8 +138,6 @@ namespace Magpie {
 			if (optionsWindow != null) {
 				optionsWindow.Close();
 			}
-
-			Settings.Default.Save();
 		}
 
 		private void TxtHotkey_TextChanged(object sender, TextChangedEventArgs e) {
