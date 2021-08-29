@@ -47,6 +47,7 @@ namespace Magpie {
 				if (status < 0 || status > 3) {
 					return;
 				}
+				bool noError = string.IsNullOrEmpty(errorMsgId);
 
 				MagWindowStatus status_ = (MagWindowStatus)status;
 				if (status_ == Status) {
@@ -54,14 +55,14 @@ namespace Magpie {
 				}
 
 				if (status_ == MagWindowStatus.Idle) {
-					if (errorMsgId != null && Closed != null) {
+					if (noError && Closed != null) {
 						Closed.Invoke();
 					}
 					SrcWindow = IntPtr.Zero;
 				}
 				Status = status_;
 
-				if (errorMsgId != null) {
+				if (!noError) {
 					parent.Dispatcher.Invoke(new Action(() => {
 						_ = NativeMethods.SetForegroundWindow(new WindowInteropHelper(parent).Handle);
 
