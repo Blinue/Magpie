@@ -64,10 +64,10 @@ private:
 
 		_renderManager.reset(new RenderManager());
 
-		Debug::ThrowIfWin32Failed(
-			ShowWindow(Env::$instance->GetHwndHost(), SW_NORMAL),
-			L"ShowWindow失败"
-		);
+		//Debug::ThrowIfWin32Failed(
+		ShowWindow(Env::$instance->GetHwndHost(), SW_NORMAL);
+		//	L"ShowWindow失败"
+		//);
 
 		// 取消全屏窗口的置顶，这样可以使该窗口在最前
 		DWORD style = GetWindowStyle(Env::$instance->GetHwndHost());

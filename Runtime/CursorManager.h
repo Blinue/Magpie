@@ -25,10 +25,10 @@ public:
 
 		if (Env::$instance->IsAdjustCursorSpeed()) {
 			// 设置鼠标移动速度
-			Debug::ThrowIfWin32Failed(
-				SystemParametersInfo(SPI_GETMOUSESPEED, 0, &_cursorSpeed, 0),
-				L"获取鼠标速度失败"
-			);
+			//Debug::ThrowIfWin32Failed(
+			SystemParametersInfo(SPI_GETMOUSESPEED, 0, &_cursorSpeed, 0);
+			//	L"获取鼠标速度失败"
+			//);
 
 			const RECT& srcClient = Env::$instance->GetSrcClient();
 			const D2D_RECT_F& destRect = Env::$instance->GetDestRect();
@@ -36,10 +36,10 @@ public:
 			float scaleY = (destRect.bottom - destRect.top) / (srcClient.bottom - srcClient.top);
 
 			long newSpeed = std::clamp(lroundf(_cursorSpeed / (scaleX + scaleY) * 2), 1L, 20L);
-			Debug::ThrowIfWin32Failed(
-				SystemParametersInfo(SPI_SETMOUSESPEED, 0, (PVOID)(intptr_t)newSpeed, 0),
-				L"设置鼠标速度失败"
-			);
+			//Debug::ThrowIfWin32Failed(
+			SystemParametersInfo(SPI_SETMOUSESPEED, 0, (PVOID)(intptr_t)newSpeed, 0);
+			//	L"设置鼠标速度失败"
+			//);
 		}
 
 		// 保存替换之前的 arrow 光标图像
@@ -162,10 +162,10 @@ private:
 	void _CalcCursorPos() {
 		CURSORINFO ci{};
 		ci.cbSize = sizeof(ci);
-		Debug::ThrowIfWin32Failed(
-			GetCursorInfo(&ci),
-			L"GetCursorInfo 失败"
-		);
+		//Debug::ThrowIfWin32Failed(
+		GetCursorInfo(&ci);
+		//	L"GetCursorInfo 失败"
+		//);
 
 		if (ci.hCursor == NULL || ci.flags != CURSOR_SHOWING) {
 			_cursorInfo = nullptr;

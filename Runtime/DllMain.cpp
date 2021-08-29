@@ -19,21 +19,6 @@ BOOL APIENTRY DllMain(
 	switch (ul_reason_for_call) {
 	case DLL_PROCESS_ATTACH:
 		hInst = hModule;
-
-		// 初始化 spdlog
-		try {
-			logger = spdlog::basic_logger_mt(".", "logs/Runtime.log");
-		} catch (const spdlog::spdlog_ex& e) {
-			std::wstring msg;
-			Utils::UTF8ToUTF16(e.what(), msg);
-			Debug::WriteErrorMessage(fmt::format(L"spdlog初始化失败：{}", msg));
-		}
-
-		logger->set_level(spdlog::level::info);
-		logger->set_pattern("%Y-%m-%d %H:%M:%S.%e|%l|%s:%!|%v");
-		logger->flush_on(spdlog::level::warn);
-		spdlog::flush_every(std::chrono::seconds(5));
-
 		break;
 	case DLL_PROCESS_DETACH:
 		break;
@@ -45,6 +30,17 @@ BOOL APIENTRY DllMain(
 	return TRUE;
 }
 
+void InitLog() {
+	if (logger) {
+		return;
+	}
+
+	logger = spdlog::rotating_logger_mt(".", "logs/Runtime.log", 100000, 2);
+	logger->set_level(spdlog::level::info);
+	logger->set_pattern("%Y-%m-%d %H:%M:%S.%e|%l|%s:%!|%v");
+	logger->flush_on(spdlog::level::warn);
+	spdlog::flush_every(std::chrono::seconds(5));
+}
 
 API_DECLSPEC void WINAPI RunMagWindow(
 	void reportStatus(int status, const wchar_t* errorMsgId),
@@ -56,6 +52,16 @@ API_DECLSPEC void WINAPI RunMagWindow(
 	bool adjustCursorSpeed,
 	bool noDisturb
 ) {
+	try {
+		InitLog();
+	} catch (const spdlog::spdlog_ex& e) {
+		std::wstring msg;
+		Utils::UTF8ToUTF16(e.what(), msg);
+		Debug::WriteErrorMessage(fmt::format(L"spdlog初始化失败：{}", msg));
+		reportStatus(2, msg.c_str());
+		return;
+	}
+
 	Debug::ThrowIfComFailed(
 		CoInitializeEx(NULL, COINIT_MULTITHREADED),
 		L"初始化 COM 出错"
