@@ -18,7 +18,11 @@ namespace Magpie.Options {
 		}
 
 		private void Hyperlink_RequestNavigate(object sender, RequestNavigateEventArgs e) {
-			_ = Process.Start(new ProcessStartInfo(e.Uri.AbsoluteUri));
+			ProcessStartInfo psi = new ProcessStartInfo(e.Uri.AbsoluteUri) {
+				UseShellExecute = true
+			};
+			_ = Process.Start(psi);
+
 			e.Handled = true;
 		}
 
