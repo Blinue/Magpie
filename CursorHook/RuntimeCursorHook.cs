@@ -29,7 +29,7 @@ namespace Magpie.CursorHook {
 				}
 			}
 
-			Logger.Info($"全屏窗口：{hwndSrc}");
+			Logger.Info($"全屏窗口句柄：{hwndHost}");
 			this.hwndSrc = hwndSrc;
 		}
 

@@ -52,7 +52,7 @@ namespace Magpie {
 				}
 			} else {
 				try {
-					json = App.SCALE_MODELS_JSON_PATH;
+					json = Properties.Resources.BuiltInScaleModels;
 					File.WriteAllText(App.SCALE_MODELS_JSON_PATH, Properties.Resources.BuiltInScaleModels);
 					Logger.Info("已创建默认缩放配置文件");
 				} catch (Exception e) {

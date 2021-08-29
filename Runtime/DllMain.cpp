@@ -52,7 +52,7 @@ API_DECLSPEC void WINAPI RunMagWindow(
 	bool adjustCursorSpeed,
 	bool noDisturb
 ) {
-	try {
+	/*try {
 		InitLog();
 	} catch (const spdlog::spdlog_ex& e) {
 		std::wstring msg;
@@ -60,7 +60,7 @@ API_DECLSPEC void WINAPI RunMagWindow(
 		Debug::WriteErrorMessage(fmt::format(L"spdlog初始化失败：{}", msg));
 		reportStatus(2, msg.c_str());
 		return;
-	}
+	}*/
 
 	Debug::ThrowIfComFailed(
 		CoInitializeEx(NULL, COINIT_MULTITHREADED),
@@ -68,7 +68,7 @@ API_DECLSPEC void WINAPI RunMagWindow(
 	);
 
 	if (!IsWindow(hwndSrc) || !IsWindowVisible(hwndSrc) || !Utils::GetWindowShowCmd(hwndSrc) == SW_NORMAL) {
-		SPDLOG_LOGGER_CRITICAL(logger, "不合法的源窗口");
+		//SPDLOG_LOGGER_CRITICAL(logger, "不合法的源窗口");
 		reportStatus(0, ErrorMessages::INVALID_SOURCE_WINDOW);
 		return;
 	}
@@ -85,7 +85,7 @@ API_DECLSPEC void WINAPI RunMagWindow(
 		reportStatus(0, (L"创建全屏窗口出错：" + e.what()).c_str());
 		return;
 	} catch (const std::exception& e) {
-		SPDLOG_LOGGER_CRITICAL(logger, "创建全屏窗口出错：{}", e.what());
+		//SPDLOG_LOGGER_CRITICAL(logger, "创建全屏窗口出错：{}", e.what());
 		reportStatus(0, ErrorMessages::GENERIC);
 		return;
 	}
@@ -97,6 +97,6 @@ API_DECLSPEC void WINAPI RunMagWindow(
 
 	Env::$instance = nullptr;
 	reportStatus(0, errMsg.empty() ? nullptr : errMsg.c_str());
-	SPDLOG_LOGGER_INFO(logger, "全屏窗口已退出");
-	logger->flush();
+	//SPDLOG_LOGGER_INFO(logger, "全屏窗口已退出");
+	//logger->flush();
 }
