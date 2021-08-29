@@ -21,7 +21,7 @@ namespace Magpie {
 
 		private static Logger Logger { get; } = LogManager.GetCurrentClassLogger();
 
-		private static readonly Mutex mutex = new Mutex(true, "{4C416227-4A30-4A2F-8F23-8701544DD7D6}");
+		private static Mutex mutex = new Mutex(true, "{4C416227-4A30-4A2F-8F23-8701544DD7D6}");
 
 		public static void UpdateLoggingLevel(int logLevel) {
 			LogLevel minLogLevel = LogLevel.Info;
@@ -62,6 +62,9 @@ namespace Magpie {
 				Current.Shutdown();
 				// 已存在实例时广播 WM_SHOWME，唤醒该实例
 				_ = NativeMethods.BroadcastMessage(NativeMethods.MAGPIE_WM_SHOWME);
+
+				mutex = null;
+				return;
 			}
 
 			if (!string.IsNullOrEmpty(Settings.Default.CultureName)) {
@@ -69,12 +72,18 @@ namespace Magpie {
 					CultureInfo.GetCultureInfo(Settings.Default.CultureName);
 			}
 			Logger.Info($"当前语言：{Thread.CurrentThread.CurrentUICulture.Name}");
+
+			MainWindow window = new MainWindow();
+			MainWindow = window;
+			window.Show();
 		}
 
 		private void Application_Exit(object sender, ExitEventArgs e) {
-			Settings.Default.Save();
+			if (mutex != null) {
+				Settings.Default.Save();
 
-			mutex.ReleaseMutex();
+				mutex.ReleaseMutex();
+			}
 
 			Logger.Info($"程序关闭\n\t进程 ID：{Process.GetCurrentProcess().Id}");
 		}
