@@ -10,12 +10,11 @@ struct VS_OUTPUT {
 //--------------------------------------------------------------------------------------
 // Vertex Shader
 //--------------------------------------------------------------------------------------
-VS_OUTPUT VS(float4 pos : POSITION, float4 texCoord : TEXCOORD)
-{
+VS_OUTPUT VS(float4 pos : POSITION, float4 texCoord : TEXCOORD) {
 	VS_OUTPUT output;
 	output.Position = pos;
 	output.TexCoord = texCoord;
-    return output;
+	return output;
 }
 
 
@@ -24,5 +23,5 @@ VS_OUTPUT VS(float4 pos : POSITION, float4 texCoord : TEXCOORD)
 //--------------------------------------------------------------------------------------
 float4 PS(VS_OUTPUT input) : SV_Target
 {
-    return frameTexture.Sample(linearSampler, input.TexCoord.xy);
+	return frameTexture.Sample(linearSampler, input.TexCoord.xy);
 }

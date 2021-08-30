@@ -102,6 +102,9 @@
     <ClInclude Include="EffectBase.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="Effect.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />
@@ -148,7 +151,7 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <CopyFileToFolders Include="Test.hlsl">
+    <CopyFileToFolders Include="Lanczos6.hlsl">
       <Filter>着色器</Filter>
     </CopyFileToFolders>
   </ItemGroup>

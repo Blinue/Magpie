@@ -101,6 +101,9 @@
       <EnableDebuggingInformation>false</EnableDebuggingInformation>
       <DisableOptimizations>false</DisableOptimizations>
     </FxCompile>
+    <CopyFileToFolders>
+      <DestinationFolders>$(OutDir)shaders</DestinationFolders>
+    </CopyFileToFolders>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -145,6 +148,7 @@
     <ClInclude Include="D2DImageEffectRenderer.h" />
     <ClInclude Include="D3DContext.h" />
     <ClInclude Include="Debug.h" />
+    <ClInclude Include="Effect.h" />
     <ClInclude Include="EffectBase.h" />
     <ClInclude Include="EffectRendererBase.h" />
     <ClInclude Include="EffectUtils.h" />
@@ -183,13 +187,13 @@
     <None Include="conanfile.py" />
     <None Include="cpp.hint" />
     <None Include="packages.config" />
-    <CopyFileToFolders Include="Test.hlsl">
-      <FileType>Document</FileType>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</DeploymentContent>
-      <DestinationFolders Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)shaders</DestinationFolders>
-    </CopyFileToFolders>
   </ItemGroup>
   <ItemGroup>
+    <CopyFileToFolders Include="Lanczos6.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
     <FxCompile Include="MonochromeCursorShader.hlsl" />
   </ItemGroup>
   <ItemGroup>
