@@ -16,7 +16,7 @@ public:
 			{ UINT(srcClient.right - srcClient.left), UINT(srcClient.bottom - srcClient.top) },
 			_d3dRenderTargetView,
 			_linearSampler,
-			{1.5f,1.5f}
+			{1.2f,1.2f}
 		));
 	}
 

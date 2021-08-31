@@ -24,10 +24,10 @@ public:
 		outputResource.As<ID3D11Texture2D>(&outputTexture);
 		D3D11_TEXTURE2D_DESC desc;
 		outputTexture->GetDesc(&desc);
-		D2D1_SIZE_F outputTextureSize = { (float)desc.Width, (float)desc.Height };
+		D2D1_SIZE_U outputTextureSize = { desc.Width, desc.Height };
 
-		_vp.Width = outputTextureSize.width;
-		_vp.Height = outputTextureSize.height;
+		_vp.Width = (float)outputTextureSize.width;
+		_vp.Height = (float)outputTextureSize.height;
 		_vp.MinDepth = 0.0f;
 		_vp.MaxDepth = 1.0f;
 
@@ -65,11 +65,24 @@ public:
 			L""
 		);
 		
+		
 		// 创建顶点缓冲区
-		float outputLeft = -((inputSize.width & 0xfffffffe) / (float)outputTextureSize.width);
-		float outputTop = (inputSize.height & 0xfffffffe) / (float)outputTextureSize.height;
-		float outputRight = outputLeft + 2 * inputSize.width / (float)outputTextureSize.width;
-		float outputBottom = outputTop - 2 * inputSize.height  / (float)outputTextureSize.height;
+		D2D1_SIZE_U outputSize = {
+			(UINT32)lroundf(inputSize.width * scale.x),
+			(UINT32)lroundf(inputSize.height * scale.y)
+		};
+
+		float outputLeft, outputTop, outputRight, outputBottom;
+		if (outputTextureSize.width == outputSize.width && outputTextureSize.height == outputSize.height) {
+			outputLeft = outputBottom  = -1;
+			outputRight = outputTop = 1;
+		} else {
+			outputLeft = std::floorf(((float)outputTextureSize.width - outputSize.width) / 2) * 2 / outputTextureSize.width - 1;
+			outputTop = 1 - std::ceilf(((float)outputTextureSize.height - outputSize.height) / 2) * 2 / outputTextureSize.height;
+			outputRight = outputLeft + 2 * outputSize.width / (float)outputTextureSize.width;
+			outputBottom = outputTop - 2 * outputSize.height / (float)outputTextureSize.height;
+		}
+		
 		float pixelWidth = 1.0f / inputSize.width;
 		float pixelHeight = 1.0f / inputSize.height;
 		SimpleVertex vertices[] = {
@@ -93,9 +106,7 @@ public:
 
 	void Apply(ID3D11ShaderResourceView* input) {
 		_d3dDC->RSSetViewports(1, &_vp);
-
 		_d3dDC->OMSetRenderTargets(1, &_output, nullptr);
-		// _d3dDC->ClearRenderTargetView(_output, Colors::Black);
 
 		_d3dDC->IASetInputLayout(_vtxLayout.Get());
 
