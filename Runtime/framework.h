@@ -12,6 +12,8 @@
 #include <d2d1_3.h>
 #include <d2d1effects_2.h>
 #include <d3d11.h>
+#include <d3d11_4.h>
+#include <d3dcompiler.h>
 #include <dxgi1_6.h>
 #include <dwrite_3.h>
 #include <wrl.h>

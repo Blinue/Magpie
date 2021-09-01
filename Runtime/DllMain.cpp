@@ -69,7 +69,7 @@ API_DECLSPEC void WINAPI RunMagWindow(
 
 	if (!IsWindow(hwndSrc) || !IsWindowVisible(hwndSrc) || !Utils::GetWindowShowCmd(hwndSrc) == SW_NORMAL) {
 		//SPDLOG_LOGGER_CRITICAL(logger, "不合法的源窗口");
-		reportStatus(0, ErrorMessages::INVALID_SOURCE_WINDOW);
+		reportStatus(0, L"不合法的源窗口");
 		return;
 	}
 
@@ -86,7 +86,9 @@ API_DECLSPEC void WINAPI RunMagWindow(
 		return;
 	} catch (const std::exception& e) {
 		//SPDLOG_LOGGER_CRITICAL(logger, "创建全屏窗口出错：{}", e.what());
-		reportStatus(0, ErrorMessages::GENERIC);
+		std::wstring err;
+		Utils::UTF8ToUTF16(e.what(), err);
+		reportStatus(0, err.c_str());
 		return;
 	}
 	

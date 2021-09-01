@@ -66,11 +66,11 @@ namespace Magpie {
 					parent.Dispatcher.Invoke(new Action(() => {
 						_ = NativeMethods.SetForegroundWindow(new WindowInteropHelper(parent).Handle);
 
-						string errorMsg = Resources.ResourceManager.GetString(errorMsgId, Resources.Culture);
+						/*string errorMsg = Resources.ResourceManager.GetString(errorMsgId, Resources.Culture);
 						if (errorMsg == null) {
 							errorMsg = Resources.Msg_Error_Generic;
-						}
-						_ = MessageBox.Show(errorMsg);
+						}*/
+						_ = MessageBox.Show(errorMsgId);
 					}));
 				}
 			};
