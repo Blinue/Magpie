@@ -47,7 +47,6 @@ float3 line_run(float ypos, float3 xpos1, float3 xpos2, float3 linetaps1, float3
 
 float4 PS(VS_OUTPUT input) : SV_Target{
 	float4 coord = input.TexCoord;
-	return frameTexture.Sample(linearSampler, coord.xy);
 
 	// 用于抗振铃
 	float3 neighbors[4] = {

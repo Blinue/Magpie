@@ -107,6 +107,21 @@ public:
 			// 有些窗口无法用WinRT捕获
 			Debug::Assert(false, L"WinRT 捕获出错");
 		}
+
+		
+		D3D11_TEXTURE2D_DESC desc{};
+		desc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
+		desc.Width = _clientInFrame.right - _clientInFrame.left;
+		desc.Height = _clientInFrame.bottom - _clientInFrame.top;
+		desc.MipLevels = 1;
+		desc.ArraySize = 1;
+		desc.SampleDesc.Count = 1;
+		desc.SampleDesc.Quality = 0;
+		desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
+		Debug::ThrowIfComFailed(
+			Env::$instance->GetD3DDevice()->CreateTexture2D(&desc, nullptr, &_withoutFrame),
+			L""
+		);
 	}
 
 	~WinRTCapturer() {
@@ -144,28 +159,13 @@ public:
 			L"从获取 IDirect3DSurface 获取 ID3D11Texture2D 失败"
 		);
 
-		ComPtr<ID3D11Texture2D> withoutFrame;
-		D3D11_TEXTURE2D_DESC desc{};
-		desc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
-		desc.Width = _clientInFrame.right - _clientInFrame.left;
-		desc.Height = _clientInFrame.bottom - _clientInFrame.top;
-		desc.MipLevels = 1;
-		desc.ArraySize = 1;
-		desc.SampleDesc.Count = 1;
-		desc.SampleDesc.Quality = 0;
-		desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
-		Debug::ThrowIfComFailed(
-			Env::$instance->GetD3DDevice()->CreateTexture2D(&desc, nullptr, &withoutFrame),
-			L""
-		);
-
 		D3D11_BOX box {
 			_clientInFrame.left, _clientInFrame.top, 0,
 			_clientInFrame.right, _clientInFrame.bottom, 1
 		};
-		Env::$instance->GetD3DDC()->CopySubresourceRegion(withoutFrame.Get(), 0, 0, 0, 0, withFrame.Get(), 0, &box);
+		Env::$instance->GetD3DDC()->CopySubresourceRegion(_withoutFrame.Get(), 0, 0, 0, 0, withFrame.Get(), 0, &box);
 
-		return withoutFrame;
+		return _withoutFrame;
 	}
 
 private:
@@ -175,4 +175,6 @@ private:
 	winrt::GraphicsCaptureSession _captureSession{ nullptr };
 	winrt::GraphicsCaptureItem _captureItem{ nullptr };
 	winrt::IDirect3DDevice _wrappedD3DDevice{ nullptr };
+
+	ComPtr<ID3D11Texture2D> _withoutFrame;
 };
