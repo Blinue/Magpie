@@ -102,14 +102,4 @@ public:
 
 		throw e;
 	}
-
-	static int Measure(std::function<void()> func) {
-		using namespace std::chrono;
-
-		auto t = steady_clock::now();
-		func();
-		auto dura = duration_cast<milliseconds>(steady_clock::now() - t);
-
-		return int(dura.count());
-	}
 };

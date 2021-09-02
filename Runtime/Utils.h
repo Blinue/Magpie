@@ -1,10 +1,11 @@
 #pragma once
+#include "pch.h"
 #include "Shlwapi.h"
 #include <utility>
 #include <wrl.h>
 #include "EffectUtils.h"
+#include "App.h"
 
-using namespace Microsoft::WRL;
 
 
 class Utils {
@@ -148,8 +149,35 @@ public:
 		Debug::ThrowIfComFailed(stream->Commit(STGC_DEFAULT), L"IStream.Commit 失败");
 	}
 
-	static HRESULT UTF8ToUTF16(std::string_view str, std::wstring& result) {
-		return EffectUtils::UTF8ToUTF16(str, result);
+	static std::wstring UTF8ToUTF16(std::string_view str) {
+		assert(str.size() > 0);
+
+		int convertResult = MultiByteToWideChar(CP_UTF8, 0, str.data(), (int)str.size(), nullptr, 0);
+		if (convertResult <= 0) {
+			SPDLOG_LOGGER_ERROR(App::GetInstance()->GetLogger(), "UTF8ToUTF16 失败");
+			assert(false);
+			return {};
+		}
+
+		std::wstring r(convertResult + 10, L'\0');
+		convertResult = MultiByteToWideChar(CP_UTF8, 0, str.data(), (int)str.size(), &r[0], (int)r.size());
+		if (convertResult <= 0) {
+			SPDLOG_LOGGER_ERROR(App::GetInstance()->GetLogger(), "UTF8ToUTF16 失败");
+			assert(false);
+			return {};
+		}
+
+		return std::wstring(r.begin(), r.begin() + convertResult);
+	}
+
+	static int Measure(std::function<void()> func) {
+		using namespace std::chrono;
+
+		auto t = steady_clock::now();
+		func();
+		auto dura = duration_cast<milliseconds>(steady_clock::now() - t);
+
+		return int(dura.count());
 	}
 };
 

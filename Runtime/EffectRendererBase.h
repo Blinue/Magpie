@@ -64,11 +64,7 @@ private:
 			const auto &moduleName = model.value("module", "");
 			Debug::Assert(!moduleName.empty(), L"json 格式错误");
 
-			std::wstring moduleNameW;
-			Debug::ThrowIfComFailed(
-				Utils::UTF8ToUTF16(moduleName, moduleNameW),
-				L"解析模块名出错"
-			);
+			std::wstring moduleNameW = Utils::UTF8ToUTF16(moduleName);
 			HMODULE dll = LoadLibrary(fmt::format(L"effects\\{}", moduleNameW).c_str());
 			Debug::ThrowIfWin32Failed(dll, fmt::format(L"加载模块{}出错", moduleNameW));
 			

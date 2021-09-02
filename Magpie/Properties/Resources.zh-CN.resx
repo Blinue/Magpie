@@ -123,6 +123,9 @@
   <data name="Msg_Error_Invalid_Source_Window" xml:space="preserve">
     <value>非法的源窗口</value>
   </data>
+  <data name="Msg_Error_Init_Logger" xml:space="preserve">
+    <value>初始化日志失败</value>
+  </data>
   <data name="UI_Main_Capture_Mode" xml:space="preserve">
     <value>抓取模式</value>
   </data>

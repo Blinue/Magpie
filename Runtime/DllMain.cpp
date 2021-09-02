@@ -5,10 +5,11 @@
 #include "pch.h"
 #include "MagWindow.h"
 #include "Env.h"
+#include "App.h"
 
 
 HINSTANCE hInst = NULL;
-std::shared_ptr<spdlog::logger> logger = nullptr;
+static std::shared_ptr<spdlog::logger> logger = nullptr;
 
 // DLL 入口
 BOOL APIENTRY DllMain(
@@ -30,16 +31,42 @@ BOOL APIENTRY DllMain(
 	return TRUE;
 }
 
-void InitLog() {
-	if (logger) {
-		return;
-	}
-
+void InitLogger() {
 	logger = spdlog::rotating_logger_mt(".", "logs/Runtime.log", 100000, 2);
 	logger->set_level(spdlog::level::info);
 	logger->set_pattern("%Y-%m-%d %H:%M:%S.%e|%l|%s:%!|%v");
 	logger->flush_on(spdlog::level::warn);
 	spdlog::flush_every(std::chrono::seconds(5));
+}
+
+API_DECLSPEC void WINAPI Run(
+	void reportStatus(int status, const wchar_t* errorMsgId)
+) {
+	reportStatus(1, nullptr);
+
+	if (!logger) {
+		try {
+			InitLogger();
+		} catch (const spdlog::spdlog_ex& e) {
+			// 初始化日志失败，直接退出
+			reportStatus(0, ErrorMessages::INIT_LOGGER);
+			return;
+		}
+	}
+
+	App* app = App::GetInstance();
+	if (!app->Initialize(logger)) {
+		// 初始化失败
+		SPDLOG_LOGGER_INFO(logger, "App 初始化失败，返回 GENREIC 消息");
+		reportStatus(0, ErrorMessages::GENERIC);
+		return;
+	}
+
+	SPDLOG_LOGGER_INFO(logger, "汇报初始化完成");
+	reportStatus(2, nullptr);
+
+	SPDLOG_LOGGER_INFO(logger, "汇报已退出");
+	reportStatus(0, nullptr);
 }
 
 API_DECLSPEC void WINAPI RunMagWindow(
@@ -66,6 +93,7 @@ API_DECLSPEC void WINAPI RunMagWindow(
 		CoInitializeEx(NULL, COINIT_MULTITHREADED),
 		L"初始化 COM 出错"
 	);
+	
 
 	if (!IsWindow(hwndSrc) || !IsWindowVisible(hwndSrc) || !Utils::GetWindowShowCmd(hwndSrc) == SW_NORMAL) {
 		//SPDLOG_LOGGER_CRITICAL(logger, "不合法的源窗口");

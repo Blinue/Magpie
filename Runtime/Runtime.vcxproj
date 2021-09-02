@@ -143,6 +143,7 @@
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="App.h" />
     <ClInclude Include="CommonDebug.h" />
     <ClInclude Include="CursorManager.h" />
     <ClInclude Include="D2DImageEffectRenderer.h" />
@@ -173,6 +174,7 @@
     <ClInclude Include="WinRTCapturer.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="App.cpp" />
     <ClCompile Include="CursorManager.cpp" />
     <ClCompile Include="Env.cpp" />
     <ClCompile Include="GUIDs.cpp" />

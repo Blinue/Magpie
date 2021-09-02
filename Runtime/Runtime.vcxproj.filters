@@ -19,6 +19,9 @@
     <ClCompile Include="Env.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="App.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Debug.h">
@@ -103,6 +106,9 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="Effect.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="App.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

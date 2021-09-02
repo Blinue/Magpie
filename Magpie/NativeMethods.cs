@@ -145,7 +145,11 @@ namespace Magpie {
 		public delegate void ReportStatus(int status, IntPtr errorMsg);
 
 		[DllImport("Runtime", CallingConvention = CallingConvention.StdCall)]
-		[return: MarshalAs(UnmanagedType.U1)]
+		public static extern void Run(
+			ReportStatus reportStatus
+		);
+
+		[DllImport("Runtime", CallingConvention = CallingConvention.StdCall)]
 		public static extern void RunMagWindow(
 			ReportStatus reportStatus,
 			IntPtr hwndSrc,

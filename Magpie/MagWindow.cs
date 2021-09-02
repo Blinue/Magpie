@@ -105,15 +105,8 @@ namespace Magpie {
 			magThread = new Thread(() => {
 				Logger.Info("正在新线程中创建全屏窗口");
 
-				NativeMethods.RunMagWindow(
-					(int status, IntPtr errorMsg) => StatusEvent(status, Marshal.PtrToStringUni(errorMsg)),
-					hwndSrc,        // 源窗口句柄
-					scaleModel,     // 缩放模式
-					captureMode,    // 抓取模式
-					bufferPrecision,    // 缓冲区精度
-					showFPS,        // 显示 FPS
-					adjustCursorSpeed,  // 自动调整光标速度
-					noDisturb       // 用于调试
+				NativeMethods.Run(
+					(int status, IntPtr errorMsg) => StatusEvent(status, Marshal.PtrToStringUni(errorMsg))
 				);
 			});
 			magThread.SetApartmentState(ApartmentState.MTA);
