@@ -147,7 +147,6 @@
     <ClInclude Include="CommonDebug.h" />
     <ClInclude Include="CursorManager.h" />
     <ClInclude Include="D2DImageEffectRenderer.h" />
-    <ClInclude Include="D3DContext.h" />
     <ClInclude Include="Debug.h" />
     <ClInclude Include="Effect.h" />
     <ClInclude Include="EffectBase.h" />
@@ -163,8 +162,10 @@
     <ClInclude Include="MonochromeCursorTransform.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Renderable.h" />
+    <ClInclude Include="Renderer.h" />
     <ClInclude Include="RenderManager.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="ResourceManager.h" />
     <ClInclude Include="SimpleDrawTransform.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="Utils.h" />
@@ -179,6 +180,8 @@
     <ClCompile Include="GUIDs.cpp" />
     <ClCompile Include="pch.cpp" />
     <ClCompile Include="DllMain.cpp" />
+    <ClCompile Include="Renderer.cpp" />
+    <ClCompile Include="ResourceManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="common.hlsli" />

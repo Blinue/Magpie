@@ -35,9 +35,16 @@ bool App::Initialize(
 	}
 
 	if (!_CreateHostWnd()) {
+		SPDLOG_LOGGER_INFO(logger, "创建主窗口失败");
 		return false;
 	}
-	
+
+	_renderer.reset(new Renderer());
+	if (!_renderer->Initialize()) {
+		SPDLOG_LOGGER_INFO(logger, "初始化 Renderer 失败");
+		return false;
+	}
+
 	return true;
 }
 
@@ -48,6 +55,8 @@ void App::Run() {
 		MSG msg;
 		while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) {
 			if (msg.message == WM_QUIT) {
+				_renderer = nullptr;
+				SPDLOG_LOGGER_INFO(_logger, "主窗口已销毁");
 				return;
 			}
 
@@ -55,8 +64,7 @@ void App::Run() {
 			DispatchMessage(&msg);
 		}
 
-
-		//$instance->_renderManager->Render();
+		_renderer->Render();
 	}
 }
 
@@ -84,14 +92,16 @@ bool App::_CreateHostWnd() {
 	}
 
 	RECT screenRect = Utils::GetScreenRect(_hwndSrc);
+	_hostWndSize.cx = screenRect.right - screenRect.left;
+	_hostWndSize.cy = screenRect.bottom - screenRect.top;
 	_hwndHost = CreateWindowEx(
 		WS_EX_TOPMOST | WS_EX_NOACTIVATE | WS_EX_LAYERED | WS_EX_TRANSPARENT,
 		_HOST_WINDOW_CLASS_NAME,
 		NULL, WS_CLIPCHILDREN | WS_POPUP | WS_VISIBLE,
 		screenRect.left,
 		screenRect.top,
-		screenRect.right - screenRect.left,
-		screenRect.bottom - screenRect.top,
+		_hostWndSize.cx,
+		_hostWndSize.cy,
 		NULL,
 		NULL,
 		_hInst,
@@ -131,6 +141,7 @@ LRESULT App::_HostWndProcStatic(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
 
 LRESULT App::_HostWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
 	if (message == _WM_DESTORYHOST) {
+		SPDLOG_LOGGER_INFO(_logger, "收到 MAGPIE_WM_DESTORYHOST 消息，即将销毁主窗口");
 		DestroyWindow(_hwndHost);
 		return 0;
 	}

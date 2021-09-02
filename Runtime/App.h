@@ -1,5 +1,6 @@
 #pragma once
 #include "pch.h"
+#include "Renderer.h"
 
 
 class App {
@@ -32,6 +33,11 @@ public:
 	HWND GetHwndHost() const {
 		return _hwndHost;
 	}
+
+	SIZE GetHostWndSize() const {
+		return _hostWndSize;
+	}
+
 private:
 	App() {}
 
@@ -51,6 +57,10 @@ private:
 	HINSTANCE _hInst = NULL;
 	HWND _hwndSrc = NULL;
 	HWND _hwndHost = NULL;
+
+	SIZE _hostWndSize{};
+
+	std::unique_ptr<Renderer> _renderer;
 
 	std::shared_ptr<spdlog::logger> _logger = nullptr;
 };
