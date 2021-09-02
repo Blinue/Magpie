@@ -159,7 +159,6 @@
     <ClInclude Include="framework.h" />
     <ClInclude Include="GDIWindowCapturer.h" />
     <ClInclude Include="EffectDefines.h" />
-    <ClInclude Include="MagWindow.h" />
     <ClInclude Include="MonochromeCursorEffect.h" />
     <ClInclude Include="MonochromeCursorTransform.h" />
     <ClInclude Include="pch.h" />
@@ -178,9 +177,6 @@
     <ClCompile Include="CursorManager.cpp" />
     <ClCompile Include="Env.cpp" />
     <ClCompile Include="GUIDs.cpp" />
-    <ClCompile Include="MagWindow.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
-    </ClCompile>
     <ClCompile Include="pch.cpp" />
     <ClCompile Include="DllMain.cpp" />
   </ItemGroup>

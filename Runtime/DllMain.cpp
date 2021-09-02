@@ -3,7 +3,6 @@
 
 
 #include "pch.h"
-#include "MagWindow.h"
 #include "Env.h"
 #include "App.h"
 
@@ -31,6 +30,7 @@ BOOL APIENTRY DllMain(
 	return TRUE;
 }
 
+
 void InitLogger() {
 	logger = spdlog::rotating_logger_mt(".", "logs/Runtime.log", 100000, 2);
 	logger->set_level(spdlog::level::info);
@@ -40,14 +40,15 @@ void InitLogger() {
 }
 
 API_DECLSPEC void WINAPI Run(
-	void reportStatus(int status, const wchar_t* errorMsgId)
+	void reportStatus(int status, const wchar_t* errorMsgId),
+	HWND hwndSrc
 ) {
 	reportStatus(1, nullptr);
 
 	if (!logger) {
 		try {
 			InitLogger();
-		} catch (const spdlog::spdlog_ex& e) {
+		} catch (const spdlog::spdlog_ex&) {
 			// 初始化日志失败，直接退出
 			reportStatus(0, ErrorMessages::INIT_LOGGER);
 			return;
@@ -55,7 +56,7 @@ API_DECLSPEC void WINAPI Run(
 	}
 
 	App* app = App::GetInstance();
-	if (!app->Initialize(logger)) {
+	if (!app || !app->Initialize(logger, hInst, hwndSrc)) {
 		// 初始化失败
 		SPDLOG_LOGGER_INFO(logger, "App 初始化失败，返回 GENREIC 消息");
 		reportStatus(0, ErrorMessages::GENERIC);
@@ -65,66 +66,8 @@ API_DECLSPEC void WINAPI Run(
 	SPDLOG_LOGGER_INFO(logger, "汇报初始化完成");
 	reportStatus(2, nullptr);
 
+	app->Run();
+
 	SPDLOG_LOGGER_INFO(logger, "汇报已退出");
 	reportStatus(0, nullptr);
-}
-
-API_DECLSPEC void WINAPI RunMagWindow(
-	void reportStatus(int status, const wchar_t* errorMsgId),
-	HWND hwndSrc,
-	const char* scaleModel,
-	int captureMode,
-	int bufferPrecision,
-	bool showFPS,
-	bool adjustCursorSpeed,
-	bool noDisturb
-) {
-	/*try {
-		InitLog();
-	} catch (const spdlog::spdlog_ex& e) {
-		std::wstring msg;
-		Utils::UTF8ToUTF16(e.what(), msg);
-		Debug::WriteErrorMessage(fmt::format(L"spdlog初始化失败：{}", msg));
-		reportStatus(2, msg.c_str());
-		return;
-	}*/
-
-	Debug::ThrowIfComFailed(
-		CoInitializeEx(NULL, COINIT_MULTITHREADED),
-		L"初始化 COM 出错"
-	);
-	
-
-	if (!IsWindow(hwndSrc) || !IsWindowVisible(hwndSrc) || !Utils::GetWindowShowCmd(hwndSrc) == SW_NORMAL) {
-		//SPDLOG_LOGGER_CRITICAL(logger, "不合法的源窗口");
-		reportStatus(0, ErrorMessages::INVALID_SOURCE_WINDOW);
-		return;
-	}
-
-	try {
-		Debug::Assert(
-			captureMode >= 0 && captureMode <= 1,
-			L"非法的抓取模式"
-		);
-
-		Env::CreateInstance(hInst, hwndSrc, scaleModel, captureMode, bufferPrecision, showFPS, adjustCursorSpeed, noDisturb);
-		MagWindow::CreateInstance();
-	} catch(const magpie_exception& e) {
-		reportStatus(0, (L"创建全屏窗口出错：" + e.what()).c_str());
-		return;
-	} catch (const std::exception& e) {
-		//SPDLOG_LOGGER_CRITICAL(logger, "创建全屏窗口出错：{}", e.what());
-		reportStatus(0, ErrorMessages::GENERIC);
-		return;
-	}
-	
-	reportStatus(2, nullptr);
-
-	// 主消息循环
-	std::wstring errMsg = MagWindow::RunMsgLoop();
-
-	Env::$instance = nullptr;
-	reportStatus(0, errMsg.empty() ? nullptr : errMsg.c_str());
-	//SPDLOG_LOGGER_INFO(logger, "全屏窗口已退出");
-	//logger->flush();
 }

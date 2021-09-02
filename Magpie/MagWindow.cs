@@ -106,7 +106,8 @@ namespace Magpie {
 				Logger.Info("正在新线程中创建全屏窗口");
 
 				NativeMethods.Run(
-					(int status, IntPtr errorMsg) => StatusEvent(status, Marshal.PtrToStringUni(errorMsg))
+					(int status, IntPtr errorMsg) => StatusEvent(status, Marshal.PtrToStringUni(errorMsg)),
+					hwndSrc
 				);
 			});
 			magThread.SetApartmentState(ApartmentState.MTA);
@@ -126,7 +127,7 @@ namespace Magpie {
 
 			// 广播 MAGPIE_WM_DESTORYMAG
 			// 可以在没有全屏窗口句柄的情况下关闭它
-			_ = NativeMethods.BroadcastMessage(NativeMethods.MAGPIE_WM_DESTORYMAG);
+			_ = NativeMethods.BroadcastMessage(NativeMethods.MAGPIE_WM_DESTORYHOST);
 		}
 
 		private void HookCursorAtRuntime(IntPtr hwndSrc) {

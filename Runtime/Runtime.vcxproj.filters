@@ -4,9 +4,6 @@
     <ClCompile Include="GUIDs.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="MagWindow.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="pch.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
@@ -28,9 +25,6 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="framework.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="MagWindow.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="pch.h">
