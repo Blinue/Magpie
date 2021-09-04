@@ -23,23 +23,27 @@ public:
 		return wp.showCmd;
 	}
 
-	static void GetClientScreenRect(HWND hWnd, RECT& rect) {
+	static bool GetClientScreenRect(HWND hWnd, RECT& rect) {
 		RECT r;
-		Debug::ThrowIfWin32Failed(
-			GetClientRect(hWnd, &r),
-			L"GetClientRect 失败"
-		);
+		if (!GetClientRect(hWnd, &r)) {
+			SPDLOG_LOGGER_ERROR(App::GetInstance()->GetLogger(),
+				fmt::format("GetClientRect 出错\n\tLastErrorCode：{}", GetLastError()));
+			return false;
+		}
 
 		POINT p{};
-		Debug::ThrowIfWin32Failed(
-			ClientToScreen(hWnd, &p),
-			L"ClientToScreen 失败"
-		);
+		if (!ClientToScreen(hWnd, &p)) {
+			SPDLOG_LOGGER_ERROR(App::GetInstance()->GetLogger(),
+				fmt::format("ClientToScree 出错\n\tLastErrorCode：{}", GetLastError()));
+			return false;
+		}
 
 		rect.bottom = r.bottom + p.y;
 		rect.left = r.left + p.x;
 		rect.right = r.right + p.x;
 		rect.top = r.top + p.y;
+
+		return true;
 	}
 
 	static RECT GetScreenRect(HWND hWnd) {
@@ -150,8 +154,6 @@ public:
 	}
 
 	static std::wstring UTF8ToUTF16(std::string_view str) {
-		assert(str.size() > 0);
-
 		int convertResult = MultiByteToWideChar(CP_UTF8, 0, str.data(), (int)str.size(), nullptr, 0);
 		if (convertResult <= 0) {
 			SPDLOG_LOGGER_ERROR(App::GetInstance()->GetLogger(), "UTF8ToUTF16 失败");
@@ -168,6 +170,25 @@ public:
 		}
 
 		return std::wstring(r.begin(), r.begin() + convertResult);
+	}
+
+	static std::string UTF16ToUTF8(std::wstring_view str) {
+		int convertResult = WideCharToMultiByte(CP_UTF8, 0, str.data(), (int)str.size(), nullptr, 0, nullptr, nullptr);
+		if (convertResult <= 0) {
+			SPDLOG_LOGGER_ERROR(App::GetInstance()->GetLogger(), "UTF16ToUTF8 失败");
+			assert(false);
+			return {};
+		}
+
+		std::string r(convertResult + 10, L'\0');
+		convertResult = WideCharToMultiByte(CP_UTF8, 0, str.data(), (int)str.size(), &r[0], (int)r.size(), nullptr, nullptr);
+		if (convertResult <= 0) {
+			SPDLOG_LOGGER_ERROR(App::GetInstance()->GetLogger(), "UTF16ToUTF8 失败");
+			assert(false);
+			return {};
+		}
+
+		return std::string(r.begin(), r.begin() + convertResult);
 	}
 
 	static int Measure(std::function<void()> func) {

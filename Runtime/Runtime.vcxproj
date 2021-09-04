@@ -155,6 +155,7 @@
     <ClInclude Include="Env.h" />
     <ClInclude Include="ErrorMessages.h" />
     <ClInclude Include="FrameCatcher.h" />
+    <ClInclude Include="FrameSourceBase.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="GDIWindowCapturer.h" />
     <ClInclude Include="EffectDefines.h" />
@@ -165,23 +166,23 @@
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="RenderManager.h" />
     <ClInclude Include="resource.h" />
-    <ClInclude Include="ResourceManager.h" />
     <ClInclude Include="SimpleDrawTransform.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="Utils.h" />
     <ClInclude Include="WICBitmapEffectRenderer.h" />
     <ClInclude Include="WindowCapturerBase.h" />
-    <ClInclude Include="WinRTCapturer.h" />
+    <ClInclude Include="WinRTFrameSource.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App.cpp" />
     <ClCompile Include="CursorManager.cpp" />
+    <ClCompile Include="Effect.cpp" />
     <ClCompile Include="Env.cpp" />
     <ClCompile Include="GUIDs.cpp" />
     <ClCompile Include="pch.cpp" />
     <ClCompile Include="DllMain.cpp" />
     <ClCompile Include="Renderer.cpp" />
-    <ClCompile Include="ResourceManager.cpp" />
+    <ClCompile Include="WinRTFrameSource.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="common.hlsli" />

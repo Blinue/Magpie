@@ -1,8 +1,10 @@
 #include "pch.h"
 #include "App.h"
 #include "Utils.h"
+#include "WinRTFrameSource.h"
 
 
+const wchar_t* App::_errorMsg = ErrorMessages::GENERIC;
 const UINT App::_WM_DESTORYHOST = RegisterWindowMessage(L"MAGPIE_WM_DESTORYHOST");
 
 
@@ -16,6 +18,7 @@ bool App::Initialize(
 	_hInst = hInst;
 
 	SPDLOG_LOGGER_INFO(logger, "正在初始化 App");
+	SetErrorMsg(ErrorMessages::GENERIC);
 
 	// 确保只初始化一次
 	static bool initalized = false;
@@ -23,16 +26,24 @@ bool App::Initialize(
 		// 初始化 COM
 		HRESULT hr = Windows::Foundation::Initialize(RO_INIT_MULTITHREADED);
 		if (FAILED(hr)) {
-			SPDLOG_LOGGER_CRITICAL(logger, fmt::format("初始化 COM 失败\n\tHRESULT：{}", hr));
+			SPDLOG_LOGGER_CRITICAL(logger, fmt::sprintf("初始化 COM 失败\n\tHRESULT：0x%X", hr));
 			return false;
 		}
-		SPDLOG_LOGGER_INFO(logger, "初始化 COM 成功");
+		SPDLOG_LOGGER_INFO(logger, "已初始化 COM");
 
 		// 注册主窗口类
 		_RegisterHostWndClass();
 
 		initalized = true;
 	}
+
+	if (!Utils::GetClientScreenRect(_hwndSrc, _srcClientRect)) {
+		SPDLOG_LOGGER_CRITICAL(logger, "获取源窗口客户区失败");
+		return false;
+	}
+
+	SPDLOG_LOGGER_INFO(logger, fmt::format("源窗口客户区尺寸：{}x{}",
+		_srcClientRect.right - _srcClientRect.left, _srcClientRect.bottom - _srcClientRect.top));
 
 	if (!_CreateHostWnd()) {
 		SPDLOG_LOGGER_INFO(logger, "创建主窗口失败");
@@ -44,7 +55,14 @@ bool App::Initialize(
 		SPDLOG_LOGGER_INFO(logger, "初始化 Renderer 失败");
 		return false;
 	}
+	
+	_frameSource.reset(new WinRTFrameSource());
+	if (!_frameSource->Initialize()) {
+		SPDLOG_LOGGER_INFO(logger, "初始化 WinRTFrameSource 失败");
+		return false;
+	}
 
+	SPDLOG_LOGGER_INFO(logger, "App 初始化成功");
 	return true;
 }
 
@@ -55,7 +73,8 @@ void App::Run() {
 		MSG msg;
 		while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) {
 			if (msg.message == WM_QUIT) {
-				_renderer = nullptr;
+				// 释放资源
+				_ReleaseResources();
 				SPDLOG_LOGGER_INFO(_logger, "主窗口已销毁");
 				return;
 			}
@@ -112,6 +131,8 @@ bool App::_CreateHostWnd() {
 		return false;
 	}
 
+	SPDLOG_LOGGER_INFO(_logger, fmt::format("主窗口尺寸：{}x{}", _hostWndSize.cx, _hostWndSize.cy));
+
 	// 设置窗口不透明
 	if (!SetLayeredWindowAttributes(_hwndHost, 0, 255, LWA_ALPHA)) {
 		SPDLOG_LOGGER_ERROR(_logger, fmt::format("SetLayeredWindowAttributes 失败\n\tLastErrorCode：{}", GetLastError()));
@@ -163,5 +184,10 @@ LRESULT App::_HostWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	}
 
 	return 0;
+}
+
+void App::_ReleaseResources() {
+	_frameSource = nullptr;
+	_renderer = nullptr;
 }
 

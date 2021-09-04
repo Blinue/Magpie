@@ -59,7 +59,7 @@ API_DECLSPEC void WINAPI Run(
 	if (!app || !app->Initialize(logger, hInst, hwndSrc)) {
 		// 初始化失败
 		SPDLOG_LOGGER_INFO(logger, "App 初始化失败，返回 GENREIC 消息");
-		reportStatus(0, ErrorMessages::GENERIC);
+		reportStatus(0, App::GetErrorMsg());
 		return;
 	}
 

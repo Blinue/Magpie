@@ -22,7 +22,10 @@
     <ClCompile Include="Renderer.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="ResourceManager.cpp">
+    <ClCompile Include="WinRTFrameSource.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Effect.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
@@ -49,9 +52,6 @@
       <Filter>头文件\Capture</Filter>
     </ClInclude>
     <ClInclude Include="WindowCapturerBase.h">
-      <Filter>头文件\Capture</Filter>
-    </ClInclude>
-    <ClInclude Include="WinRTCapturer.h">
       <Filter>头文件\Capture</Filter>
     </ClInclude>
     <ClInclude Include="CursorManager.h">
@@ -111,7 +111,10 @@
     <ClInclude Include="Renderer.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="ResourceManager.h">
+    <ClInclude Include="FrameSourceBase.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="WinRTFrameSource.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

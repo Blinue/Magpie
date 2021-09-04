@@ -14,7 +14,7 @@ bool Renderer::Initialize() {
 }
 
 void Renderer::Render() {
-	ID3D11RenderTargetView* rtv = _renderTargetView.Get();
+	ID3D11RenderTargetView* rtv = _backBufferRtv.Get();
 	_d3dDC->OMSetRenderTargets(1, &rtv, nullptr);
 	_d3dDC->ClearRenderTargetView(rtv, DirectX::Colors::MidnightBlue);
 
@@ -51,20 +51,20 @@ bool Renderer::_InitD3D() {
 			&d3dDC
 		);
 		if (FAILED(hr)) {
-			SPDLOG_LOGGER_CRITICAL(_logger, fmt::format("D3D11CreateDevice 失败\n\tHRESULT：{}", hr));
+			SPDLOG_LOGGER_CRITICAL(_logger, fmt::sprintf("D3D11CreateDevice 失败\n\tHRESULT：0x%X", hr));
 			return false;
 		}
 		SPDLOG_LOGGER_INFO(_logger, fmt::format("已创建 D3D Device\n\t功能级别：{}", featureLevel));
 
 		hr = d3dDevice.As<ID3D11Device5>(&_d3dDevice);
 		if (FAILED(hr)) {
-			SPDLOG_LOGGER_CRITICAL(_logger, fmt::format("获取 ID3D11Device5 失败\n\tHRESULT：{}", hr));
+			SPDLOG_LOGGER_CRITICAL(_logger, fmt::sprintf("获取 ID3D11Device5 失败\n\tHRESULT：0x%X", hr));
 			return false;
 		}
 
 		hr = d3dDC.As<ID3D11DeviceContext4>(&_d3dDC);
 		if (FAILED(hr)) {
-			SPDLOG_LOGGER_CRITICAL(_logger, fmt::format("获取 ID3D11DeviceContext4 失败\n\tHRESULT：{}", hr));
+			SPDLOG_LOGGER_CRITICAL(_logger, fmt::sprintf("获取 ID3D11DeviceContext4 失败\n\tHRESULT：0x%X", hr));
 			return false;
 		}
 	}
@@ -72,23 +72,22 @@ bool Renderer::_InitD3D() {
 	{
 		ComPtr<IDXGIFactory2> dxgiFactory;
 
-		ComPtr<IDXGIDevice> dxgiDevice = nullptr;
-		hr = _d3dDevice.As<IDXGIDevice>(&dxgiDevice);
+		hr = _d3dDevice.As<IDXGIDevice4>(&_dxgiDevice);
 		if (FAILED(hr)) {
-			SPDLOG_LOGGER_CRITICAL(_logger, fmt::format("获取 IDXGIDevice 失败\n\tHRESULT：{}", hr));
+			SPDLOG_LOGGER_CRITICAL(_logger, fmt::sprintf("获取 IDXGIDevice 失败\n\tHRESULT：0x%X", hr));
 			return false;
 		}
 		
 		ComPtr<IDXGIAdapter> dxgiAdapter;
-		hr = dxgiDevice->GetAdapter(&dxgiAdapter);
+		hr = _dxgiDevice->GetAdapter(&dxgiAdapter);
 		if (FAILED(hr)) {
-			SPDLOG_LOGGER_CRITICAL(_logger, fmt::format("获取 IDXGIAdapter 失败\n\tHRESULT：{}", hr));
+			SPDLOG_LOGGER_CRITICAL(_logger, fmt::sprintf("获取 IDXGIAdapter 失败\n\tHRESULT：0x%X", hr));
 			return false;
 		}
 		
 		hr = dxgiAdapter->GetParent(IID_PPV_ARGS(&dxgiFactory));
 		if (FAILED(hr)) {
-			SPDLOG_LOGGER_CRITICAL(_logger, fmt::format("获取 IDXGIFactory2 失败\n\tHRESULT：{}", hr));
+			SPDLOG_LOGGER_CRITICAL(_logger, fmt::sprintf("获取 IDXGIFactory2 失败\n\tHRESULT：0x%X", hr));
 			return false;
 		}
 
@@ -111,13 +110,13 @@ bool Renderer::_InitD3D() {
 			&_dxgiSwapChain
 		);
 		if (FAILED(hr)) {
-			SPDLOG_LOGGER_CRITICAL(_logger, fmt::format("创建交换链失败\n\tHRESULT：{}", hr));
+			SPDLOG_LOGGER_CRITICAL(_logger, fmt::sprintf("创建交换链失败\n\tHRESULT：{0x%X", hr));
 			return false;
 		}
 		
 		hr = dxgiFactory->MakeWindowAssociation(App::GetInstance()->GetHwndHost(), DXGI_MWA_NO_ALT_ENTER);
 		if (FAILED(hr)) {
-			SPDLOG_LOGGER_ERROR(_logger, fmt::format("MakeWindowAssociation 失败\n\tHRESULT：{}", hr));
+			SPDLOG_LOGGER_ERROR(_logger, fmt::sprintf("MakeWindowAssociation 失败\n\tHRESULT：0x%X", hr));
 		}
 	}
 
@@ -125,13 +124,13 @@ bool Renderer::_InitD3D() {
 		ComPtr<ID3D11Texture2D> pBackBuffer;
 		hr = _dxgiSwapChain->GetBuffer(0, IID_PPV_ARGS(&pBackBuffer));
 		if (FAILED(hr)) {
-			SPDLOG_LOGGER_CRITICAL(_logger, fmt::format("获取后缓冲区失败\n\tHRESULT：{}", hr));
+			SPDLOG_LOGGER_CRITICAL(_logger, fmt::sprintf("获取后缓冲区失败\n\tHRESULT：0x%X", hr));
 			return false;
 		}
 		
-		hr = _d3dDevice->CreateRenderTargetView(pBackBuffer.Get(), NULL, &_renderTargetView);
+		hr = _d3dDevice->CreateRenderTargetView(pBackBuffer.Get(), NULL, &_backBufferRtv);
 		if (FAILED(hr)) {
-			SPDLOG_LOGGER_CRITICAL(_logger, fmt::format("创建后缓冲区的渲染目标视图失败\n\tHRESULT：{}", hr));
+			SPDLOG_LOGGER_CRITICAL(_logger, fmt::sprintf("创建后缓冲区的渲染目标视图失败\n\tHRESULT：0x%X", hr));
 			return false;
 		}
 	}
@@ -139,5 +138,52 @@ bool Renderer::_InitD3D() {
 	// 所有效果都使用三角形带拓扑
 	_d3dDC->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 
+	SPDLOG_LOGGER_INFO(_logger, "Renderer 初始化完成");
 	return true;
+}
+
+ComPtr<ID3D11SamplerState> Renderer::GetSampler(FilterType filterType) {
+	if (filterType == FilterType::LINEAR) {
+		if (!_linearSampler) {
+			D3D11_SAMPLER_DESC desc{};
+			desc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+			desc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+			desc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+			desc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
+			desc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+			desc.MinLOD = 0;
+			desc.MaxLOD = 0;
+			HRESULT hr = _d3dDevice->CreateSamplerState(&desc, &_linearSampler);
+
+			if (FAILED(hr)) {
+				SPDLOG_LOGGER_ERROR(_logger, fmt::sprintf("创建 ID3D11SamplerState 出错\n\tHRESULT：0x%X", hr));
+				return nullptr;
+			} else {
+				SPDLOG_LOGGER_INFO(_logger, "已创建 ID3D11SamplerState\n\tFilter：D3D11_FILTER_MIN_MAG_MIP_LINEAR");
+			}
+		}
+
+		return _linearSampler;
+	} else {
+		if (!_pointSampler) {
+			D3D11_SAMPLER_DESC desc{};
+			desc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
+			desc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+			desc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+			desc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
+			desc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+			desc.MinLOD = 0;
+			desc.MaxLOD = 0;
+			HRESULT hr = _d3dDevice->CreateSamplerState(&desc, &_pointSampler);
+
+			if (FAILED(hr)) {
+				SPDLOG_LOGGER_ERROR(_logger, fmt::sprintf("创建 ID3D11SamplerState 出错\n\tHRESULT：0x%X", hr));
+				return nullptr;
+			} else {
+				SPDLOG_LOGGER_INFO(_logger, "已创建 ID3D11SamplerState\n\tFilter：D3D11_FILTER_MIN_MAG_MIP_POINT");
+			}
+		}
+
+		return _pointSampler;
+	}
 }
