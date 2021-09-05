@@ -4,20 +4,21 @@
 #include "Utils.h"
 
 
+extern std::shared_ptr<spdlog::logger> logger;
+
 bool WinRTFrameSource::Initialize() {
-    _logger = App::GetInstance()->GetLogger();
-	_d3dDC = App::GetInstance()->GetRenderer().GetD3DDC();
-    HWND hwndSrc = App::GetInstance()->GetHwndSrc();
+	_d3dDC = App::GetInstance().GetRenderer().GetD3DDC();
+    HWND hwndSrc = App::GetInstance().GetHwndSrc();
 
     // 包含边框的窗口尺寸
     RECT srcRect{};
     HRESULT hr = DwmGetWindowAttribute(hwndSrc, DWMWA_EXTENDED_FRAME_BOUNDS, &srcRect, sizeof(srcRect));
     if (FAILED(hr)) {
-        SPDLOG_LOGGER_CRITICAL(_logger, fmt::sprintf("DwmGetWindowAttribute 失败\n\tHRESULT：0x%X", hr));
+        SPDLOG_LOGGER_CRITICAL(logger, fmt::sprintf("DwmGetWindowAttribute 失败\n\tHRESULT：0x%X", hr));
         return false;
     }
 
-    const RECT& srcClient = App::GetInstance()->GetSrcClientRect();
+    const RECT& srcClient = App::GetInstance().GetSrcClientRect();
     _clientInFrame = {
         UINT32(srcClient.left - srcRect.left),
         UINT32(srcClient.top - srcRect.top),
@@ -30,22 +31,22 @@ bool WinRTFrameSource::Initialize() {
         winrt::init_apartment(winrt::apartment_type::multi_threaded);
 
         if (!winrt::ApiInformation::IsTypePresent(L"Windows.Graphics.Capture.GraphicsCaptureSession")) {
-            SPDLOG_LOGGER_CRITICAL(_logger, "不存在 GraphicsCaptureSession API");
+            SPDLOG_LOGGER_CRITICAL(logger, "不存在 GraphicsCaptureSession API");
             App::SetErrorMsg(ErrorMessages::WINRT);
             return false;
         }
         if (!winrt::GraphicsCaptureSession::IsSupported()) {
-            SPDLOG_LOGGER_CRITICAL(_logger, "当前不支持 WinRT 捕获");
+            SPDLOG_LOGGER_CRITICAL(logger, "当前不支持 WinRT 捕获");
             App::SetErrorMsg(ErrorMessages::WINRT);
             return false;
         }
 
         hr = CreateDirect3D11DeviceFromDXGIDevice(
-            App::GetInstance()->GetRenderer().GetDXGIDevice().Get(),
+            App::GetInstance().GetRenderer().GetDXGIDevice().Get(),
             reinterpret_cast<::IInspectable**>(winrt::put_abi(_wrappedD3DDevice))
         );
         if (FAILED(hr)) {
-            SPDLOG_LOGGER_CRITICAL(_logger, "创建 IDirect3DDevice 失败");
+            SPDLOG_LOGGER_CRITICAL(logger, "创建 IDirect3DDevice 失败");
             App::SetErrorMsg(ErrorMessages::WINRT);
             return false;
         }
@@ -53,7 +54,7 @@ bool WinRTFrameSource::Initialize() {
         // 从窗口句柄获取 GraphicsCaptureItem
         auto interop = winrt::get_activation_factory<winrt::GraphicsCaptureItem, IGraphicsCaptureItemInterop>();
         if (!interop) {
-            SPDLOG_LOGGER_CRITICAL(_logger, "获取 IGraphicsCaptureItemInterop 失败");
+            SPDLOG_LOGGER_CRITICAL(logger, "获取 IGraphicsCaptureItemInterop 失败");
             App::SetErrorMsg(ErrorMessages::WINRT);
             return false;
         }
@@ -64,7 +65,7 @@ bool WinRTFrameSource::Initialize() {
             winrt::put_abi(_captureItem)
         );
         if (FAILED(hr)) {
-            SPDLOG_LOGGER_CRITICAL(_logger, "创建 GraphicsCaptureItem 失败");
+            SPDLOG_LOGGER_CRITICAL(logger, "创建 GraphicsCaptureItem 失败");
             App::SetErrorMsg(ErrorMessages::WINRT);
             return false;
         }
@@ -87,12 +88,12 @@ bool WinRTFrameSource::Initialize() {
             // 从 v2004 开始提供
             _captureSession.IsCursorCaptureEnabled(false);
 		} else {
-			SPDLOG_LOGGER_INFO(_logger, "当前系统无 IsCursorCaptureEnabled API");
+			SPDLOG_LOGGER_INFO(logger, "当前系统无 IsCursorCaptureEnabled API");
 		}
 
         _captureSession.StartCapture();
     } catch (const winrt::hresult_error& e) {
-        SPDLOG_LOGGER_CRITICAL(_logger, fmt::format("初始化 WinRT 失败：{}", Utils::UTF16ToUTF8(e.message())));
+        SPDLOG_LOGGER_CRITICAL(logger, fmt::format("初始化 WinRT 失败：{}", Utils::UTF16ToUTF8(e.message())));
         App::SetErrorMsg(ErrorMessages::WINRT);
         return false;
     }
@@ -107,13 +108,13 @@ bool WinRTFrameSource::Initialize() {
     desc.SampleDesc.Count = 1;
     desc.SampleDesc.Quality = 0;
     desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
-    hr = App::GetInstance()->GetRenderer().GetD3DDevice()->CreateTexture2D(&desc, nullptr, &_output);
+    hr = App::GetInstance().GetRenderer().GetD3DDevice()->CreateTexture2D(&desc, nullptr, &_output);
     if (FAILED(hr)) {
-        SPDLOG_LOGGER_CRITICAL(_logger, "创建纹理失败");
+        SPDLOG_LOGGER_CRITICAL(logger, "创建纹理失败");
         return false;
     }
 
-    SPDLOG_LOGGER_INFO(_logger, "WinRTFrameSource 初始化完成");
+    SPDLOG_LOGGER_INFO(logger, "WinRTFrameSource 初始化完成");
     return true;
 }
 
@@ -138,7 +139,7 @@ bool WinRTFrameSource::Update() {
 	ComPtr<ID3D11Texture2D> withFrame;
 	HRESULT hr = dxgiInterfaceAccess->GetInterface(IID_PPV_ARGS(&withFrame));
 	if (FAILED(hr)) {
-		SPDLOG_LOGGER_ERROR(_logger, "从获取 IDirect3DSurface 获取 ID3D11Texture2D 失败");
+		SPDLOG_LOGGER_ERROR(logger, "从获取 IDirect3DSurface 获取 ID3D11Texture2D 失败");
 		return false;
 	}
 

@@ -40,5 +40,4 @@ private:
 	ComPtr<ID3D11DeviceContext4> _d3dDC = nullptr;
 
 	ComPtr<ID3D11Texture2D> _output;
-	std::shared_ptr<spdlog::logger> _logger = nullptr;
 };

@@ -53,58 +53,39 @@ class Effect {
 public:
 	Effect() {};
 
-	Effect(D2D_SIZE_U inputSize, ID3D11RenderTargetView* output, ID3D11SamplerState* linearSampler, D2D1_VECTOR_2F scale);
-
-	bool Initialize(D2D_SIZE_U inputSize) {
-
-	}
-
-	std::vector<EffectIntermediateTextureDesc> GetIntermediateTextureDescs() const {
-
-	}
-
-	std::vector<EffectSamplerDesc> GetSamplerDescs() const {
-
-	}
+	bool Initialize(ComPtr<ID3D11Texture2D> input);
 
 	std::vector<EffectConstantDesc> GetConstantDescs() const {
-
+		return {};
 	}
 
 	void Draw();
-
-	void BindResources(
-		ComPtr<ID3D11Texture2D> input,
-		std::vector<ComPtr<ID3D11Texture2D>> intermediateTextures,
-		std::vector<ComPtr<ID3D11SamplerState>> samplers
-	) {
-
-	}
 
 	void SetConstant(std::wstring_view var, float value) {
 
 	}
 
-	D2D_SIZE_U GetOutputSize() const {
-
+	SIZE GetOutputSize() const {
+		return _inputSize;
 	}
 
-	void SetOutput(ComPtr<ID3D11Texture2D> output) {
-
-	}
+	bool SetOutput(ComPtr<ID3D11Texture2D> output);
 
 private:
 	HRESULT _CompileShaderFromFile(const WCHAR* szFileName, LPCSTR szEntryPoint, LPCSTR szShaderModel, ID3DBlob** ppBlobOut);
 
-
-	ID3D11Device3* _d3dDevice = nullptr;
-	ID3D11DeviceContext4* _d3dDC = nullptr;
-	ID3D11SamplerState* _linearSampler = nullptr;
+	ComPtr<ID3D11Device5> _d3dDevice = nullptr;
+	ComPtr<ID3D11DeviceContext4> _d3dDC = nullptr;
 	ComPtr<ID3D11VertexShader> _vsShader = nullptr;
 	ComPtr<ID3D11PixelShader> _psShader = nullptr;
 	ComPtr<ID3D11InputLayout> _vtxLayout = nullptr;
 	ComPtr<ID3D11Buffer> _vtxBuffer = nullptr;
 
-	ID3D11RenderTargetView* _output;
+	ID3D11SamplerState* _sampler = nullptr;
+
+	ID3D11ShaderResourceView* _inputSrv = nullptr;
+	ID3D11RenderTargetView* _outputRtv = nullptr;
 	D3D11_VIEWPORT _vp{};
+
+	SIZE _inputSize{};
 };

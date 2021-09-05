@@ -1,35 +1,41 @@
 #include "pch.h"
 #include "Effect.h"
+#include "App.h"
 
 
-Effect::Effect(D2D_SIZE_U inputSize, ID3D11RenderTargetView* output, ID3D11SamplerState* linearSampler, D2D1_VECTOR_2F scale) : _output(output), _linearSampler(linearSampler) {
-	_d3dDevice = Env::$instance->GetD3DDevice();
-	_d3dDC = Env::$instance->GetD3DDC();
+extern std::shared_ptr<spdlog::logger> logger;
 
-	ComPtr<ID3D11Resource> outputResource;
-	output->GetResource(&outputResource);
-	ComPtr<ID3D11Texture2D> outputTexture;
-	outputResource.As<ID3D11Texture2D>(&outputTexture);
+bool Effect::Initialize(ComPtr<ID3D11Texture2D> input) {
+	Renderer& renderer = App::GetInstance().GetRenderer();
+	_d3dDevice = renderer.GetD3DDevice();
+	_d3dDC = renderer.GetD3DDC();
+
 	D3D11_TEXTURE2D_DESC desc;
-	outputTexture->GetDesc(&desc);
-	D2D1_SIZE_U outputTextureSize = { desc.Width, desc.Height };
+	input->GetDesc(&desc);
+	_inputSize.cx = desc.Width;
+	_inputSize.cy = desc.Height;
 
-	_vp.Width = (float)outputTextureSize.width;
-	_vp.Height = (float)outputTextureSize.height;
-	_vp.MinDepth = 0.0f;
-	_vp.MaxDepth = 1.0f;
+	HRESULT hr = renderer.GetShaderResourceView(input.Get(), &_inputSrv);
+	if (FAILED(hr)) {
+		SPDLOG_LOGGER_CRITICAL(logger, fmt::sprintf("获取 ShaderResourceView 失败\n\tHRESULT：0x%X", hr));
+		return false;
+	}
+
+	_sampler = renderer.GetSampler(Renderer::FilterType::LINEAR).Get();
 
 	// 编译顶点着色器
 	ComPtr<ID3DBlob> blob = nullptr;
-	Debug::ThrowIfComFailed(
-		_CompileShaderFromFile(L"shaders\\Lanczos6.hlsl", "VS", "vs_5_0", &blob),
-		L""
-	);
+	hr = _CompileShaderFromFile(L"shaders\\Lanczos6.hlsl", "VS", "vs_5_0", &blob);
+	if (FAILED(hr)) {
+		SPDLOG_LOGGER_CRITICAL(logger, fmt::sprintf("编译顶点着色器失败\n\tHRESULT：0x%X", hr));
+		return false;
+	}
 
-	Debug::ThrowIfComFailed(
-		_d3dDevice->CreateVertexShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, &_vsShader),
-		L""
-	);
+	hr = _d3dDevice->CreateVertexShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, &_vsShader);
+	if (FAILED(hr)) {
+		SPDLOG_LOGGER_CRITICAL(logger, fmt::sprintf("创建顶点着色器失败\n\tHRESULT：0x%X", hr));
+		return false;
+	}
 
 	// 创建输入布局
 	D3D11_INPUT_ELEMENT_DESC layout[] = {
@@ -37,27 +43,71 @@ Effect::Effect(D2D_SIZE_U inputSize, ID3D11RenderTargetView* output, ID3D11Sampl
 		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, sizeof(XMFLOAT3), D3D11_INPUT_PER_VERTEX_DATA, 0 },
 	};
 	UINT numElements = ARRAYSIZE(layout);
-	Debug::ThrowIfComFailed(
-		_d3dDevice->CreateInputLayout(layout, numElements, blob->GetBufferPointer(),
-			blob->GetBufferSize(), &_vtxLayout),
-		L""
-	);
+	hr = _d3dDevice->CreateInputLayout(layout, numElements, blob->GetBufferPointer(),
+			blob->GetBufferSize(), &_vtxLayout);
+	if (FAILED(hr)) {
+		SPDLOG_LOGGER_CRITICAL(logger, fmt::sprintf("创建输入布局失败\n\tHRESULT：0x%X", hr));
+		return false;
+	}
 
 	// 编译像素着色器
-	Debug::ThrowIfComFailed(
-		_CompileShaderFromFile(L"shaders\\Lanczos6.hlsl", "PS", "ps_5_0", &blob),
-		L""
-	);
-	Debug::ThrowIfComFailed(
-		_d3dDevice->CreatePixelShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, &_psShader),
-		L""
-	);
+	hr = _CompileShaderFromFile(L"shaders\\Lanczos6.hlsl", "PS", "ps_5_0", &blob);
+	if (FAILED(hr)) {
+		SPDLOG_LOGGER_CRITICAL(logger, fmt::sprintf("编译像素着色器失败\n\tHRESULT：0x%X", hr));
+		return false;
+	}
 
+	hr = _d3dDevice->CreatePixelShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, &_psShader);
+	if (FAILED(hr)) {
+		SPDLOG_LOGGER_CRITICAL(logger, fmt::sprintf("创建像素着色器失败\n\tHRESULT：0x%X", hr));
+		return false;
+	}
+
+	return true;
+}
+
+void Effect::Draw() {
+	_d3dDC->OMSetRenderTargets(1, &_outputRtv, nullptr);
+	_d3dDC->RSSetViewports(1, &_vp);
+
+	_d3dDC->IASetInputLayout(_vtxLayout.Get());
+
+	UINT stride = sizeof(SimpleVertex);
+	UINT offset = 0;
+	auto t = _vtxBuffer.Get();
+	_d3dDC->IASetVertexBuffers(0, 1, &t, &stride, &offset);
+
+	_d3dDC->VSSetShader(_vsShader.Get(), nullptr, 0);
+
+	_d3dDC->PSSetShader(_psShader.Get(), nullptr, 0);
+	_d3dDC->PSSetSamplers(0, 1, &_sampler);
+	_d3dDC->PSSetShaderResources(0, 1, &_inputSrv);
+
+	_d3dDC->Draw(4, 0);
+}
+
+
+
+bool Effect::SetOutput(ComPtr<ID3D11Texture2D> output) {
+	HRESULT hr = App::GetInstance().GetRenderer().GetRenderTargetView(output.Get(), &_outputRtv);
+	if (FAILED(hr)) {
+		SPDLOG_LOGGER_CRITICAL(logger, fmt::sprintf("获取 RenderTargetView 失败\n\tHRESULT：0x%X", hr));
+		return false;
+	}
+
+	D3D11_TEXTURE2D_DESC desc;
+	output->GetDesc(&desc);
+	D2D1_SIZE_U outputTextureSize = { desc.Width, desc.Height };
+
+	_vp.Width = (float)outputTextureSize.width;
+	_vp.Height = (float)outputTextureSize.height;
+	_vp.MinDepth = 0.0f;
+	_vp.MaxDepth = 1.0f;
 
 	// 创建顶点缓冲区
 	D2D1_SIZE_U outputSize = {
-		(UINT32)lroundf(inputSize.width * scale.x),
-		(UINT32)lroundf(inputSize.height * scale.y)
+		(UINT32)lroundf(_inputSize.cx * 1.5f),
+		(UINT32)lroundf(_inputSize.cy * 1.5f)
 	};
 
 	float outputLeft, outputTop, outputRight, outputBottom;
@@ -71,8 +121,8 @@ Effect::Effect(D2D_SIZE_U inputSize, ID3D11RenderTargetView* output, ID3D11Sampl
 		outputBottom = outputTop - 2 * outputSize.height / (float)outputTextureSize.height;
 	}
 
-	float pixelWidth = 1.0f / inputSize.width;
-	float pixelHeight = 1.0f / inputSize.height;
+	float pixelWidth = 1.0f / _inputSize.cx;
+	float pixelHeight = 1.0f / _inputSize.cy;
 	SimpleVertex vertices[] = {
 		{ XMFLOAT3(outputLeft, outputTop, 0.5f), XMFLOAT4(0.0f, 0.0f, pixelWidth, pixelHeight) },
 		{ XMFLOAT3(outputRight, outputTop, 0.5f), XMFLOAT4(1.0f, 0.0f, pixelWidth, pixelHeight) },
@@ -90,52 +140,19 @@ Effect::Effect(D2D_SIZE_U inputSize, ID3D11RenderTargetView* output, ID3D11Sampl
 		_d3dDevice->CreateBuffer(&bd, &InitData, &_vtxBuffer),
 		L""
 	);
+
+	return true;
 }
-
-void Effect::Draw() {
-}
-/*
-void Apply(ID3D11ShaderResourceView* input) {
-	_d3dDC->RSSetViewports(1, &_vp);
-	_d3dDC->OMSetRenderTargets(1, &_output, nullptr);
-
-	_d3dDC->IASetInputLayout(_vtxLayout.Get());
-
-	UINT stride = sizeof(SimpleVertex);
-	UINT offset = 0;
-	auto t = _vtxBuffer.Get();
-	_d3dDC->IASetVertexBuffers(0, 1, &t, &stride, &offset);
-
-	_d3dDC->VSSetShader(_vsShader.Get(), nullptr, 0);
-
-	_d3dDC->PSSetShader(_psShader.Get(), nullptr, 0);
-	_d3dDC->PSSetSamplers(0, 1, &_linearSampler);
-	_d3dDC->PSSetShaderResources(0, 1, &input);
-	
-	_d3dDC->Draw(4, 0);
-}*/
-
-
 
 HRESULT Effect::_CompileShaderFromFile(const WCHAR* szFileName, LPCSTR szEntryPoint, LPCSTR szShaderModel, ID3DBlob** ppBlobOut) {
 	DWORD dwShaderFlags = D3DCOMPILE_ENABLE_STRICTNESS;
-#ifdef _DEBUG
-	// Set the D3DCOMPILE_DEBUG flag to embed debug information in the shaders.
-	// Setting this flag improves the shader debugging experience, but still allows 
-	// the shaders to be optimized and to run exactly the way they will run in 
-	// the release configuration of this program.
-	dwShaderFlags |= D3DCOMPILE_DEBUG;
-
-	// Disable optimizations to further improve shader debugging
-	dwShaderFlags |= D3DCOMPILE_SKIP_OPTIMIZATION;
-#endif
-
-	ComPtr<ID3DBlob> pErrorBlob = nullptr;
+	ComPtr<ID3DBlob> errorBlob = nullptr;
 	HRESULT hr = D3DCompileFromFile(szFileName, nullptr, nullptr, szEntryPoint, szShaderModel,
-		dwShaderFlags, 0, ppBlobOut, &pErrorBlob);
+		dwShaderFlags, 0, ppBlobOut, &errorBlob);
 	if (FAILED(hr)) {
-		if (pErrorBlob) {
-			OutputDebugStringA(reinterpret_cast<const char*>(pErrorBlob->GetBufferPointer()));
+		if (errorBlob) {
+			SPDLOG_LOGGER_ERROR(logger, fmt::sprintf(
+				"编译着色器失败：%s\n\tHRESULT：0x%X", (const char*)errorBlob->GetBufferPointer(), hr));
 		}
 		return hr;
 	}

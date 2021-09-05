@@ -4,9 +4,9 @@
 #include <utility>
 #include <wrl.h>
 #include "EffectUtils.h"
-#include "App.h"
 
 
+extern std::shared_ptr<spdlog::logger> logger;
 
 class Utils {
 public:
@@ -26,14 +26,14 @@ public:
 	static bool GetClientScreenRect(HWND hWnd, RECT& rect) {
 		RECT r;
 		if (!GetClientRect(hWnd, &r)) {
-			SPDLOG_LOGGER_ERROR(App::GetInstance()->GetLogger(),
+			SPDLOG_LOGGER_ERROR(logger,
 				fmt::format("GetClientRect 出错\n\tLastErrorCode：{}", GetLastError()));
 			return false;
 		}
 
 		POINT p{};
 		if (!ClientToScreen(hWnd, &p)) {
-			SPDLOG_LOGGER_ERROR(App::GetInstance()->GetLogger(),
+			SPDLOG_LOGGER_ERROR(logger,
 				fmt::format("ClientToScree 出错\n\tLastErrorCode：{}", GetLastError()));
 			return false;
 		}
@@ -156,7 +156,7 @@ public:
 	static std::wstring UTF8ToUTF16(std::string_view str) {
 		int convertResult = MultiByteToWideChar(CP_UTF8, 0, str.data(), (int)str.size(), nullptr, 0);
 		if (convertResult <= 0) {
-			SPDLOG_LOGGER_ERROR(App::GetInstance()->GetLogger(), "UTF8ToUTF16 失败");
+			SPDLOG_LOGGER_ERROR(logger, "UTF8ToUTF16 失败");
 			assert(false);
 			return {};
 		}
@@ -164,7 +164,7 @@ public:
 		std::wstring r(convertResult + 10, L'\0');
 		convertResult = MultiByteToWideChar(CP_UTF8, 0, str.data(), (int)str.size(), &r[0], (int)r.size());
 		if (convertResult <= 0) {
-			SPDLOG_LOGGER_ERROR(App::GetInstance()->GetLogger(), "UTF8ToUTF16 失败");
+			SPDLOG_LOGGER_ERROR(logger, "UTF8ToUTF16 失败");
 			assert(false);
 			return {};
 		}
@@ -175,7 +175,7 @@ public:
 	static std::string UTF16ToUTF8(std::wstring_view str) {
 		int convertResult = WideCharToMultiByte(CP_UTF8, 0, str.data(), (int)str.size(), nullptr, 0, nullptr, nullptr);
 		if (convertResult <= 0) {
-			SPDLOG_LOGGER_ERROR(App::GetInstance()->GetLogger(), "UTF16ToUTF8 失败");
+			SPDLOG_LOGGER_ERROR(logger, "UTF16ToUTF8 失败");
 			assert(false);
 			return {};
 		}
@@ -183,7 +183,7 @@ public:
 		std::string r(convertResult + 10, L'\0');
 		convertResult = WideCharToMultiByte(CP_UTF8, 0, str.data(), (int)str.size(), &r[0], (int)r.size(), nullptr, nullptr);
 		if (convertResult <= 0) {
-			SPDLOG_LOGGER_ERROR(App::GetInstance()->GetLogger(), "UTF16ToUTF8 失败");
+			SPDLOG_LOGGER_ERROR(logger, "UTF16ToUTF8 失败");
 			assert(false);
 			return {};
 		}

@@ -8,7 +8,7 @@
 
 
 HINSTANCE hInst = NULL;
-static std::shared_ptr<spdlog::logger> logger = nullptr;
+std::shared_ptr<spdlog::logger> logger = nullptr;
 
 // DLL 入口
 BOOL APIENTRY DllMain(
@@ -55,8 +55,8 @@ API_DECLSPEC void WINAPI Run(
 		}
 	}
 
-	App* app = App::GetInstance();
-	if (!app || !app->Initialize(logger, hInst, hwndSrc)) {
+	App& app = App::GetInstance();
+	if (!app.Initialize(logger, hInst, hwndSrc)) {
 		// 初始化失败
 		SPDLOG_LOGGER_INFO(logger, "App 初始化失败，返回 GENREIC 消息");
 		reportStatus(0, App::GetErrorMsg());
@@ -66,7 +66,7 @@ API_DECLSPEC void WINAPI Run(
 	SPDLOG_LOGGER_INFO(logger, "汇报初始化完成");
 	reportStatus(2, nullptr);
 
-	app->Run();
+	app.Run();
 
 	SPDLOG_LOGGER_INFO(logger, "汇报已退出");
 	reportStatus(0, nullptr);

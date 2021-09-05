@@ -6,9 +6,9 @@
 
 class App {
 public:
-	static App* GetInstance() {
+	static App& GetInstance() {
 		static App* instance = new App();
-		return instance;
+		return *instance;
 	}
 
 	bool Initialize(
@@ -45,6 +45,10 @@ public:
 
 	Renderer& GetRenderer() {
 		return *_renderer;
+	}
+
+	FrameSourceBase& GetFrameSource() {
+		return *_frameSource;
 	}
 
 	static const wchar_t* GetErrorMsg() {

@@ -52,13 +52,24 @@ bool App::Initialize(
 
 	_renderer.reset(new Renderer());
 	if (!_renderer->Initialize()) {
-		SPDLOG_LOGGER_INFO(logger, "初始化 Renderer 失败");
+		SPDLOG_LOGGER_INFO(logger, "初始化 Renderer 失败，正在清理");
+		DestroyWindow(_hwndHost);
+		Run();
 		return false;
 	}
 	
 	_frameSource.reset(new WinRTFrameSource());
 	if (!_frameSource->Initialize()) {
-		SPDLOG_LOGGER_INFO(logger, "初始化 WinRTFrameSource 失败");
+		SPDLOG_LOGGER_INFO(logger, "初始化 WinRTFrameSource 失败，正在清理");
+		DestroyWindow(_hwndHost);
+		Run();
+		return false;
+	}
+
+	if (!_renderer->InitializeEffects(_frameSource->GetOutput())) {
+		SPDLOG_LOGGER_INFO(logger, "初始化效果失败，正在清理");
+		DestroyWindow(_hwndHost);
+		Run();
 		return false;
 	}
 
@@ -156,7 +167,7 @@ bool App::_CreateHostWnd() {
 }
 
 LRESULT App::_HostWndProcStatic(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
-	return GetInstance()->_HostWndProc(hWnd, message, wParam, lParam);
+	return GetInstance()._HostWndProc(hWnd, message, wParam, lParam);
 }
 
 
