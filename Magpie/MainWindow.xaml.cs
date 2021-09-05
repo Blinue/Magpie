@@ -133,11 +133,8 @@ namespace Magpie {
 		}
 
 		private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e) {
-			magWindow.Destory();
-
-			if (optionsWindow != null) {
-				optionsWindow.Close();
-			}
+			WindowState = WindowState.Minimized;
+			e.Cancel = true;
 		}
 
 		private void TxtHotkey_TextChanged(object sender, TextChangedEventArgs e) {
@@ -318,6 +315,13 @@ namespace Magpie {
 
 
 		private void CmiExit_Click(object sender, RoutedEventArgs e) {
+			magWindow.Destory();
+
+			if (optionsWindow != null) {
+				optionsWindow.Close();
+			}
+			
+			Closing -= Window_Closing;
 			Close();
 		}
 
