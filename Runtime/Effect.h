@@ -1,7 +1,5 @@
 #pragma once
 #include "pch.h"
-#include "Env.h"
-#include <directxcolors.h>
 #include <variant>
 
 using namespace DirectX;

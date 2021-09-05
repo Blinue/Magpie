@@ -9,13 +9,10 @@
 #include <windows.h>
 #include <windowsx.h>
 #include <magnification.h>
-#include <d2d1_3.h>
-#include <d2d1effects_2.h>
 #include <d3d11.h>
 #include <d3d11_4.h>
 #include <d3dcompiler.h>
 #include <dxgi1_6.h>
-#include <dwrite_3.h>
 #include <wrl.h>
 #include <dwmapi.h>
 
@@ -40,17 +37,15 @@
 // format
 #include <fmt/format.h>
 #include <fmt/xchar.h>
+#include <fmt/printf.h>
 
 // spdlog
 #include <spdlog/spdlog.h>
 #include <spdlog/sinks/rotating_file_sink.h>
 
 
-#pragma comment(lib, "d2d1.lib")
-#pragma comment(lib, "dwrite.lib")
+
 #pragma comment(lib, "Magnification.lib")
 #pragma comment(lib, "d3d11.lib")
-#pragma comment(lib, "dxguid.lib")
-#pragma comment(lib, "shlwapi.lib")
 #pragma comment(lib, "windowsapp")
 #pragma comment(lib, "dwmapi.lib")

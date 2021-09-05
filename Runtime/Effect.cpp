@@ -136,10 +136,11 @@ bool Effect::SetOutput(ComPtr<ID3D11Texture2D> output) {
 
 	D3D11_SUBRESOURCE_DATA InitData = {};
 	InitData.pSysMem = vertices;
-	Debug::ThrowIfComFailed(
-		_d3dDevice->CreateBuffer(&bd, &InitData, &_vtxBuffer),
-		L""
-	);
+	hr = _d3dDevice->CreateBuffer(&bd, &InitData, &_vtxBuffer);
+	if (FAILED(hr)) {
+		SPDLOG_LOGGER_ERROR(logger, fmt::sprintf("创建顶点缓冲区失败\n\tHRESULT：0x%X", hr));
+		return false;
+	}
 
 	return true;
 }

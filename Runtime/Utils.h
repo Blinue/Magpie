@@ -1,9 +1,7 @@
 #pragma once
 #include "pch.h"
-#include "Shlwapi.h"
 #include <utility>
 #include <wrl.h>
-#include "EffectUtils.h"
 
 
 extern std::shared_ptr<spdlog::logger> logger;
@@ -15,10 +13,7 @@ public:
 
 		WINDOWPLACEMENT wp{};
 		wp.length = sizeof(wp);
-		Debug::ThrowIfWin32Failed(
-			GetWindowPlacement(hwnd, &wp),
-			L"GetWindowPlacement失败"
-		);
+		GetWindowPlacement(hwnd, &wp);
 
 		return wp.showCmd;
 	}
@@ -51,10 +46,7 @@ public:
 
 		MONITORINFO mi{};
 		mi.cbSize = sizeof(mi);
-		Debug::ThrowIfWin32Failed(
-			GetMonitorInfo(hMonitor, &mi),
-			L"获取显示器信息失败"
-		);
+		GetMonitorInfo(hMonitor, &mi);
 		return mi.rcMonitor;
 	}
 
@@ -93,64 +85,6 @@ public:
 			guid.Data4[2], guid.Data4[3], guid.Data4[4], guid.Data4[5], guid.Data4[6], guid.Data4[7]
 		);
 		return { buf };
-	}
-
-	static void SaveD2DImage(
-		ComPtr<ID2D1Device> d2dDevice,
-		ComPtr<ID2D1Image> img,
-		const std::wstring_view& fileName
-	) {
-		ComPtr<IWICImagingFactory2> wicImgFactory;
-
-		Debug::ThrowIfComFailed(
-			CoCreateInstance(
-				CLSID_WICImagingFactory,
-				nullptr,
-				CLSCTX_INPROC_SERVER,
-				IID_PPV_ARGS(&wicImgFactory)
-			),
-			L"创建 IWICImagingFactory2 失败"
-		);
-
-		ComPtr<IStream> stream;
-		Debug::ThrowIfComFailed(
-			SHCreateStreamOnFileEx(fileName.data(), STGM_WRITE | STGM_CREATE, 0, TRUE, nullptr, &stream),
-			L"SHCreateStreamOnFileEx 失败"
-		);
-
-		ComPtr<IWICBitmapEncoder> bmpEncoder;
-		Debug::ThrowIfComFailed(
-			wicImgFactory->CreateEncoder(GUID_ContainerFormatPng, nullptr, &bmpEncoder),
-			L"创建 IWICBitmapEncoder 失败"
-		);
-		Debug::ThrowIfComFailed(
-			bmpEncoder->Initialize(stream.Get(), WICBitmapEncoderNoCache),
-			L"IWICBitmapEncoder 初始化失败"
-		);
-
-		ComPtr<IWICBitmapFrameEncode> frameEncoder;
-		Debug::ThrowIfComFailed(
-			bmpEncoder->CreateNewFrame(&frameEncoder, nullptr),
-			L"创建 IWICBitmapFrameEncode 失败"
-		);
-		Debug::ThrowIfComFailed(
-			frameEncoder->Initialize(nullptr),
-			L"IWICBitmapFrameEncode 初始化失败"
-		);
-
-		ComPtr<IWICImageEncoder> d2dImgEncoder;
-		Debug::ThrowIfComFailed(
-			wicImgFactory->CreateImageEncoder(d2dDevice.Get(), &d2dImgEncoder),
-			L"创建 IWICImageEncoder 失败"
-		);
-		Debug::ThrowIfComFailed(
-			d2dImgEncoder->WriteFrame(img.Get(), frameEncoder.Get(), nullptr),
-			L"IWICImageEncoder.WriteFrame失败"
-		);
-		
-		Debug::ThrowIfComFailed(frameEncoder->Commit(), L"IWICBitmapFrameEncode.Commit 失败");
-		Debug::ThrowIfComFailed(bmpEncoder->Commit(), L"IWICBitmapEncoder.Commit 失败");
-		Debug::ThrowIfComFailed(stream->Commit(STGC_DEFAULT), L"IStream.Commit 失败");
 	}
 
 	static std::wstring UTF8ToUTF16(std::string_view str) {

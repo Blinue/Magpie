@@ -13,9 +13,6 @@
     <ClCompile Include="CursorManager.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="Env.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="App.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
@@ -30,9 +27,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Debug.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="framework.h">
       <Filter>头文件</Filter>
     </ClInclude>
@@ -57,26 +51,8 @@
     <ClInclude Include="CursorManager.h">
       <Filter>头文件\Render</Filter>
     </ClInclude>
-    <ClInclude Include="EffectRendererBase.h">
-      <Filter>头文件\Render</Filter>
-    </ClInclude>
     <ClInclude Include="FrameCatcher.h">
       <Filter>头文件\Render</Filter>
-    </ClInclude>
-    <ClInclude Include="Renderable.h">
-      <Filter>头文件\Render</Filter>
-    </ClInclude>
-    <ClInclude Include="RenderManager.h">
-      <Filter>头文件\Render</Filter>
-    </ClInclude>
-    <ClInclude Include="D2DImageEffectRenderer.h">
-      <Filter>头文件\Render</Filter>
-    </ClInclude>
-    <ClInclude Include="WICBitmapEffectRenderer.h">
-      <Filter>头文件\Render</Filter>
-    </ClInclude>
-    <ClInclude Include="Env.h">
-      <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="MonochromeCursorEffect.h">
       <Filter>头文件\Effect</Filter>
@@ -88,15 +64,6 @@
       <Filter>资源文件</Filter>
     </ClInclude>
     <ClInclude Include="ErrorMessages.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="CommonDebug.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="EffectUtils.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="SimpleDrawTransform.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="EffectBase.h">

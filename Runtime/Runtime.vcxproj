@@ -144,15 +144,9 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="App.h" />
-    <ClInclude Include="CommonDebug.h" />
     <ClInclude Include="CursorManager.h" />
-    <ClInclude Include="D2DImageEffectRenderer.h" />
-    <ClInclude Include="Debug.h" />
     <ClInclude Include="Effect.h" />
     <ClInclude Include="EffectBase.h" />
-    <ClInclude Include="EffectRendererBase.h" />
-    <ClInclude Include="EffectUtils.h" />
-    <ClInclude Include="Env.h" />
     <ClInclude Include="ErrorMessages.h" />
     <ClInclude Include="FrameCatcher.h" />
     <ClInclude Include="FrameSourceBase.h" />
@@ -162,14 +156,10 @@
     <ClInclude Include="MonochromeCursorEffect.h" />
     <ClInclude Include="MonochromeCursorTransform.h" />
     <ClInclude Include="pch.h" />
-    <ClInclude Include="Renderable.h" />
     <ClInclude Include="Renderer.h" />
-    <ClInclude Include="RenderManager.h" />
     <ClInclude Include="resource.h" />
-    <ClInclude Include="SimpleDrawTransform.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="Utils.h" />
-    <ClInclude Include="WICBitmapEffectRenderer.h" />
     <ClInclude Include="WindowCapturerBase.h" />
     <ClInclude Include="WinRTFrameSource.h" />
   </ItemGroup>
@@ -177,7 +167,6 @@
     <ClCompile Include="App.cpp" />
     <ClCompile Include="CursorManager.cpp" />
     <ClCompile Include="Effect.cpp" />
-    <ClCompile Include="Env.cpp" />
     <ClCompile Include="GUIDs.cpp" />
     <ClCompile Include="pch.cpp" />
     <ClCompile Include="DllMain.cpp" />
