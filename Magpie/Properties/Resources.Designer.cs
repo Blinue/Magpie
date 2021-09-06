@@ -489,6 +489,15 @@ namespace Magpie.Properties {
         }
         
         /// <summary>
+        ///   查找类似 Minimize to the System Tray when Close the Window 的本地化字符串。
+        /// </summary>
+        public static string UI_Options_Application_Minimize_When_Close {
+            get {
+                return ResourceManager.GetString("UI_Options_Application_Minimize_When_Close", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Run at Startup 的本地化字符串。
         /// </summary>
         public static string UI_Options_Application_Run_At_Startup {
