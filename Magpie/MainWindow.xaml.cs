@@ -42,6 +42,14 @@ namespace Magpie {
 			Interval = new TimeSpan(0, 0, 0, 0, 300)
 		};
 
+		private void Application_Closing() {
+			magWindow.Destory();
+
+			if (optionsWindow != null) {
+				optionsWindow.Close();
+			}
+		}
+
 		public MainWindow() {
 			InitializeComponent();
 
@@ -133,10 +141,11 @@ namespace Magpie {
 		}
 
 		private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e) {
-			magWindow.Destory();
-
-			if (optionsWindow != null) {
-				optionsWindow.Close();
+			if (Settings.Default.MinimizeWhenClose) {
+				WindowState = WindowState.Minimized;
+				e.Cancel = true;
+			} else {
+				Application_Closing();
 			}
 		}
 
@@ -318,6 +327,8 @@ namespace Magpie {
 
 
 		private void CmiExit_Click(object sender, RoutedEventArgs e) {
+			Application_Closing();
+			Closing -= Window_Closing;
 			Close();
 		}
 
