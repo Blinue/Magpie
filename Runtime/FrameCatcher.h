@@ -27,14 +27,31 @@ public:
 			Env::$instance->GetD2DDC()->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::White), &_d2dFPSTxtBrush),
 			L"创建 _d2dFPSTxtBrush 失败"
 		);
+		Debug::ThrowIfComFailed(
+			Env::$instance->GetD2DDC()->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::DimGray), &_d2dFPSTxtShadowBrush),
+			L"创建 _d2dFPSTxtShadowBrush 失败"
+		);
 	}
 
 	void Render() override {
 		_ReportNewFrame();
 
 		const D2D_RECT_F& destRect = Env::$instance->GetDestRect();
-		// 绘制文本
 		std::wstring fps = fmt::format(L"{} FPS", lround(_fps));
+		// 绘制阴影
+		Env::$instance->GetD2DDC()->DrawTextW(
+			fps.c_str(),
+			(UINT32)fps.size(),
+			_dwTxtFmt.Get(),
+			D2D1::RectF(
+				destRect.left + 12,
+				destRect.top + 12,
+				destRect.right + 2,
+				destRect.bottom + 2
+			),
+			_d2dFPSTxtShadowBrush.Get()
+		);
+		// 绘制文本
 		Env::$instance->GetD2DDC()->DrawTextW(
 			fps.c_str(),
 			(UINT32)fps.size(),
@@ -93,4 +110,5 @@ private:
 
 	ComPtr<IDWriteTextFormat> _dwTxtFmt = nullptr;
 	ComPtr<ID2D1SolidColorBrush> _d2dFPSTxtBrush = nullptr;
+	ComPtr<ID2D1SolidColorBrush> _d2dFPSTxtShadowBrush = nullptr;
 };
