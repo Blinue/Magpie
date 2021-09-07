@@ -61,7 +61,7 @@ public:
 	}
 
 	SIZE CalcOutputSize(SIZE inputSize) const {
-		return inputSize;
+		return { lroundf(inputSize.cx * 1.5f), lroundf(inputSize.cy * 1.5f) };
 	}
 
 	bool Build(ComPtr<ID3D11Texture2D> input, ComPtr<ID3D11Texture2D> output);

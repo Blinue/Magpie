@@ -36,7 +36,7 @@ bool Renderer::InitializeEffects(ComPtr<ID3D11Texture2D> input) {
 		"VS", "vs_5_0", D3DCOMPILE_ENABLE_STRICTNESS, 0, &blob, &errorMsgs);
 	if (FAILED(hr)) {
 		if (errorMsgs) {
-			SPDLOG_LOGGER_ERROR(logger, fmt::sprintf(
+			SPDLOG_LOGGER_CRITICAL(logger, fmt::sprintf(
 				"编译顶点着色器失败：%s\n\tHRESULT：0x%X", (const char*)errorMsgs->GetBufferPointer(), hr));
 		}
 		return false;
@@ -63,10 +63,13 @@ bool Renderer::InitializeEffects(ComPtr<ID3D11Texture2D> input) {
 
 	Effect& effect = _effects.emplace_back();
 	if (!effect.InitializeFromString("")) {
-		SPDLOG_LOGGER_INFO(logger, "初始化 Effect 失败");
+		SPDLOG_LOGGER_CRITICAL(logger, "初始化 Effect 失败");
 		return false;
 	}
-	effect.Build(App::GetInstance().GetFrameSource().GetOutput(), _backBuffer);
+	if (!effect.Build(App::GetInstance().GetFrameSource().GetOutput(), _backBuffer)) {
+		SPDLOG_LOGGER_CRITICAL(logger, "构建 Effect 失败");
+		return false;
+	}
 
 	return true;
 }

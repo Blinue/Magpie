@@ -47,6 +47,7 @@ float3 line_run(float ypos, float3 xpos1, float3 xpos2, float3 linetaps1, float3
 
 float4 PS(VS_OUTPUT input) : SV_Target{
 	float4 coord = input.TexCoord;
+	coord.zw *= 1.5f;
 
 	// 用于抗振铃
 	float3 neighbors[4] = {
@@ -100,6 +101,7 @@ bool Effect::InitializeFromString(std::string hlsl) {
 	Renderer& renderer = App::GetInstance().GetRenderer();
 	_Pass& pass = _passes.emplace_back();
 	if (!pass.Initialize(this, lanczos6PS)) {
+		SPDLOG_LOGGER_ERROR(logger, "Pass1 初始化失败");
 		return false;
 	}
 	PassDesc& desc = _passDescs.emplace_back();
@@ -121,8 +123,9 @@ bool Effect::Build(ComPtr<ID3D11Texture2D> input, ComPtr<ID3D11Texture2D> output
 
 	for (int i = 0; i < _passes.size(); ++i) {
 		PassDesc& desc = _passDescs[i];
-		if (!_passes[i].Build(desc.inputs, desc.samplers, desc.constants, output,
-			SIZE{ lroundf(inputDesc.Width * 1.5f), lroundf(inputDesc.Height * 1.5f) })) {
+		if (!_passes[i].Build(desc.inputs, desc.samplers, desc.constants, output, 
+			CalcOutputSize({(long)inputDesc.Width, (long)inputDesc.Height}))) {
+			SPDLOG_LOGGER_ERROR(logger, fmt::format("构建 Pass{} 时出错", i + 1));
 			return false;
 		}
 	}
@@ -143,13 +146,13 @@ bool Effect::_Pass::Initialize(Effect* parent, std::string_view pixelShader) {
 	_d3dDC = renderer.GetD3DDC();
 
 	ComPtr<ID3DBlob> blob = nullptr;
-	ComPtr<ID3DBlob> errorBlob = nullptr;
-	HRESULT hr = D3DCompileFromFile(L"shaders\\Lanczos6.hlsl", nullptr, nullptr, "PS", "ps_5_0",
-		D3DCOMPILE_ENABLE_STRICTNESS, 0, &blob, &errorBlob);
+	ComPtr<ID3DBlob> errorMsgs = nullptr;
+	HRESULT hr = D3DCompile(pixelShader.data(), pixelShader.size(), nullptr, nullptr, nullptr,
+		"PS", "ps_5_0", D3DCOMPILE_ENABLE_STRICTNESS, 0, &blob, &errorMsgs);
 	if (FAILED(hr)) {
-		if (errorBlob) {
+		if (errorMsgs) {
 			SPDLOG_LOGGER_ERROR(logger, fmt::sprintf(
-				"编译像素着色器失败：%s\n\tHRESULT：0x%X", (const char*)errorBlob->GetBufferPointer(), hr));
+				"编译像素着色器失败：%s\n\tHRESULT：0x%X", (const char*)errorMsgs->GetBufferPointer(), hr));
 		}
 		return false;
 	}
@@ -180,6 +183,7 @@ bool Effect::_Pass::Build(
 	for (int i = 0; i < _inputs.size(); ++i) {
 		hr = renderer.GetShaderResourceView(_parent->_textures[inputs[i]].Get(), &_inputs[i]);
 		if (FAILED(hr)) {
+			SPDLOG_LOGGER_ERROR(logger, fmt::sprintf("获取 ShaderResourceView 失败\n\tHRESULT：0x%X", hr));
 			return false;
 		}
 	}
@@ -244,6 +248,15 @@ bool Effect::_Pass::Build(
 
 void Effect::_Pass::Draw() {
 	_d3dDC->OMSetRenderTargets(1, &_outputRtv, nullptr);
+
+	// 如果和上一个 Pass 相同不再重复设置参数
+	static _Pass* lastPass = nullptr;
+	if (lastPass == this) {
+		_d3dDC->Draw(4, 0);
+		return;
+	}
+	lastPass = this;
+
 	_d3dDC->RSSetViewports(1, &_vp);
 
 	_d3dDC->IASetInputLayout(_vtxLayout.Get());
