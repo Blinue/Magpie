@@ -34,6 +34,14 @@ public:
 
 	HRESULT GetShaderResourceView(ID3D11Texture2D* texture, ID3D11ShaderResourceView** result);
 
+	ComPtr<ID3D11VertexShader> GetVSShader() const {
+		return _vsShader;
+	}
+
+	ComPtr<ID3D11InputLayout> GetInputLayout() const {
+		return _inputLayout;
+	}
+
 private:
 	bool _InitD3D();
 
@@ -49,5 +57,7 @@ private:
 	std::unordered_map<ID3D11Texture2D*, ComPtr<ID3D11RenderTargetView>> _rtvMap;
 	std::unordered_map<ID3D11Texture2D*, ComPtr<ID3D11ShaderResourceView>> _srvMap;
 
+	ComPtr<ID3D11VertexShader> _vsShader = nullptr;
+	ComPtr<ID3D11InputLayout> _inputLayout = nullptr;
 	std::vector<Effect> _effects;
 };

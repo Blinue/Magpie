@@ -11,9 +11,7 @@ struct VS_OUTPUT {
 // Vertex Shader
 //--------------------------------------------------------------------------------------
 VS_OUTPUT VS(float4 pos : POSITION, float4 texCoord : TEXCOORD) {
-	VS_OUTPUT output;
-	output.Position = pos;
-	output.TexCoord = texCoord;
+	VS_OUTPUT output = { pos, texCoord };
 	return output;
 }
 

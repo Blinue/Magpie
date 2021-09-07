@@ -3,8 +3,22 @@
 #include "App.h"
 #include <DirectXColors.h>
 
+using namespace DirectX;
 
 extern std::shared_ptr<spdlog::logger> logger;
+
+const char vertexShader[] = R"(
+	struct VS_OUTPUT {
+		float4 Position : SV_POSITION; // vertex position
+		float4 TexCoord : TEXCOORD0;   // vertex texture coords
+	};
+
+	VS_OUTPUT VS(float4 pos : POSITION, float4 texCoord : TEXCOORD) {
+		VS_OUTPUT output = { pos, texCoord };
+		return output;
+	}
+)";
+
 
 bool Renderer::Initialize() {
 	if (!_InitD3D()) {
@@ -15,12 +29,44 @@ bool Renderer::Initialize() {
 }
 
 bool Renderer::InitializeEffects(ComPtr<ID3D11Texture2D> input) {
+	// 编译顶点着色器
+	ComPtr<ID3DBlob> errorMsgs = nullptr;
+	ComPtr<ID3DBlob> blob = nullptr;
+	HRESULT hr = D3DCompile(vertexShader, sizeof(vertexShader), nullptr, nullptr, nullptr,
+		"VS", "vs_5_0", D3DCOMPILE_ENABLE_STRICTNESS, 0, &blob, &errorMsgs);
+	if (FAILED(hr)) {
+		if (errorMsgs) {
+			SPDLOG_LOGGER_ERROR(logger, fmt::sprintf(
+				"编译顶点着色器失败：%s\n\tHRESULT：0x%X", (const char*)errorMsgs->GetBufferPointer(), hr));
+		}
+		return false;
+	}
+
+	hr = _d3dDevice->CreateVertexShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, &_vsShader);
+	if (FAILED(hr)) {
+		SPDLOG_LOGGER_CRITICAL(logger, fmt::sprintf("创建顶点着色器失败\n\tHRESULT：0x%X", hr));
+		return false;
+	}
+
+	// 创建输入布局
+	D3D11_INPUT_ELEMENT_DESC layout[] = {
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, sizeof(XMFLOAT3), D3D11_INPUT_PER_VERTEX_DATA, 0 },
+	};
+	UINT numElements = ARRAYSIZE(layout);
+	hr = _d3dDevice->CreateInputLayout(layout, numElements, blob->GetBufferPointer(),
+		blob->GetBufferSize(), &_inputLayout);
+	if (FAILED(hr)) {
+		SPDLOG_LOGGER_CRITICAL(logger, fmt::sprintf("创建输入布局失败\n\tHRESULT：0x%X", hr));
+		return false;
+	}
+
 	Effect& effect = _effects.emplace_back();
-	if (!effect.Initialize(input)) {
+	if (!effect.InitializeFromString("")) {
 		SPDLOG_LOGGER_INFO(logger, "初始化 Effect 失败");
 		return false;
 	}
-	effect.SetOutput(_backBuffer);
+	effect.Build(App::GetInstance().GetFrameSource().GetOutput(), _backBuffer);
 
 	return true;
 }
