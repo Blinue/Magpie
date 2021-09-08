@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 #include "pch.h"
 #include "Renderable.h"
 #include "D2DImageEffectRenderer.h"
