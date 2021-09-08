@@ -59,13 +59,6 @@ namespace Magpie {
 			timerScale.Tick += TimerScale_Tick;
 			timerRestore.Tick += TimerRestore_Tick;
 
-
-			// 如果系统不支持，删除 WinRT Caputre 选项
-			if (NativeMethods.GetOSVersion() < new Version(10, 0, 18362)) {
-				Logger.Warn("当前操作系统不支持 WinRT Capture，已删除该选项");
-				cbbCaptureMode.Items.RemoveAt(0);
-			}
-
 			// 加载设置
 			txtHotkey.Text = Settings.Default.Hotkey;
 
