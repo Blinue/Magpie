@@ -245,8 +245,8 @@
   <data name="UI_Options_Application_Language_Default" xml:space="preserve">
     <value>Default</value>
   </data>
-  <data name="UI_Options_Application_Minimise_To_System_Tray" xml:space="preserve">
-    <value>Minimise to the System Tray at Startup</value>
+  <data name="UI_Options_Application_Minimize_To_System_Tray" xml:space="preserve">
+    <value>Minimize to the System Tray at Startup</value>
   </data>
   <data name="UI_Options_Application_Minimize_When_Close" xml:space="preserve">
     <value>Minimize to the System Tray when Close the Window</value>

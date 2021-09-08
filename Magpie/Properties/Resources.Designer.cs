@@ -480,11 +480,11 @@ namespace Magpie.Properties {
         }
         
         /// <summary>
-        ///   查找类似 Minimise to the System Tray at Startup 的本地化字符串。
+        ///   查找类似 Minimize to the System Tray at Startup 的本地化字符串。
         /// </summary>
-        public static string UI_Options_Application_Minimise_To_System_Tray {
+        public static string UI_Options_Application_Minimize_To_System_Tray {
             get {
-                return ResourceManager.GetString("UI_Options_Application_Minimise_To_System_Tray", resourceCulture);
+                return ResourceManager.GetString("UI_Options_Application_Minimize_To_System_Tray", resourceCulture);
             }
         }
         

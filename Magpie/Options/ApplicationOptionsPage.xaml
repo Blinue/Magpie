@@ -26,7 +26,7 @@
             <CheckBox x:Name="ckbRunAtStartUp" Content="{x:Static p:Resources.UI_Options_Application_Run_At_Startup}" Margin="0,20,0,0" Unchecked="CkbRunAtStartUp_Unchecked"/>
             <CheckBox
                 x:Name="ckbMinimizeAtStartUp"
-                Content="{x:Static p:Resources.UI_Options_Application_Minimise_To_System_Tray}"
+                Content="{x:Static p:Resources.UI_Options_Application_Minimize_To_System_Tray}"
                 Margin="20,10,0,0"
                 Unchecked="CkbMinimizeAtStartUp_Unchecked"
                 IsChecked="{Binding Source={x:Static props:Settings.Default},Path=MinimizeAtWindowsStartUp,Mode=TwoWay}"
@@ -35,7 +35,7 @@
             <CheckBox 
                 x:Name="ckbMinimizeWhenClose"
                 Content="{x:Static p:Resources.UI_Options_Application_Minimize_When_Close}"
-                Margin="0,10,0,0"
+                Margin="0,20,0,0"
                 IsChecked="{Binding Source={x:Static props:Settings.Default},Path=MinimizeWhenClose,Mode=TwoWay}"
             />
         </StackPanel>
