@@ -18,6 +18,17 @@ Magpie可以将任意窗口放大至全屏，支持多种高级缩放算法，�
 
 以下为配置说明：
 
+#### 热键修改
+
+程序使用[globalmousekeyhook](https://github.com/gmamaladze/globalmousekeyhook)检测热键。
+
+手动输入键值修改为你喜欢的键位（多个键位组合之间用 `+` 连接）
+
+1. 字母使用大写，如 `A` ；数字使用特殊格式，如 `D1` （小键盘数字则为 `NumPad1` ）
+2. 功能键的单词首字母大写，如 `Capital` （不能写 `Caps` ）， `F1` ， `PageUp`
+3. 个别键位不能作为单独的触发热键，必须与其它键位组合使用，如 `Control` ， `Shift` ， `Alt`
+4. 组合键按照前后顺序按下才能正确触发，如 `B+C` （先按住b不松手而后再按下c）
+
 #### 缩放模式
 
 程序预置了多种缩放模式，如果它们不符合你的需求，请[自定义缩放](https://github.com/Blinue/Magpie/wiki/%E8%87%AA%E5%AE%9A%E4%B9%89%E7%BC%A9%E6%94%BE)。
@@ -36,14 +47,6 @@ Magpie可以将任意窗口放大至全屏，支持多种高级缩放算法，�
 
 1. WinRT Capture：使用[Screen Capture API](https://docs.microsoft.com/en-us/windows/uwp/audio-video-camera/screen-capture)抓取窗口，最推荐的方法。此API从Windows 10, v1903开始提供。
 2. GDI：使用GDI抓取源窗口，速度稍慢。
-
-#### 注入模式
-
-如果源窗口使用了自定义光标，屏幕上可能出现两个光标。为了解决这个问题，Magpie提供了进程注入的功能：
-
-1. 不使用注入：适用于源窗口没有自定义光标的场合
-2. 运行时注入：在执行缩放的同时注入源窗口线程，退出全屏后取消注入
-3. 启动时注入：适用于运行时注入不起作用的场合，不能注入正在运行的进程，需要手动选择要启动并注入的程序。
 
 ## 使用提示
 

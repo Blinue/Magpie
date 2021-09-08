@@ -128,13 +128,13 @@
     <value>..\Assets\Logo.ico;System.Drawing.Icon, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="Msg_Error_Generic" xml:space="preserve">
-    <value></value>
+    <value />
   </data>
   <data name="Msg_Error_Init_Logger" xml:space="preserve">
     <value></value>
   </data>
   <data name="Msg_Error_Invalid_Source_Window" xml:space="preserve">
-    <value></value>
+    <value />
   </data>
   <data name="Msg_Error_WinRT" xml:space="preserve">
     <value></value>
@@ -251,8 +251,11 @@
   <data name="UI_Options_Application_Language_Default" xml:space="preserve">
     <value>Default</value>
   </data>
-  <data name="UI_Options_Application_Minimise_To_System_Tray" xml:space="preserve">
-    <value>Minimise to the System Tray at Startup</value>
+  <data name="UI_Options_Application_Minimize_To_System_Tray" xml:space="preserve">
+    <value>Minimize to the System Tray at Startup</value>
+  </data>
+  <data name="UI_Options_Application_Minimize_When_Close" xml:space="preserve">
+    <value>Minimize to the System Tray when Close the Window</value>
   </data>
   <data name="UI_Options_Application_Run_At_Startup" xml:space="preserve">
     <value>Run at Startup</value>

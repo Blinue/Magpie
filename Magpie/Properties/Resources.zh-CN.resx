@@ -240,8 +240,11 @@
   <data name="UI_Options_Application_Language_Default" xml:space="preserve">
     <value>默认</value>
   </data>
-  <data name="UI_Options_Application_Minimise_To_System_Tray" xml:space="preserve">
+  <data name="UI_Options_Application_Minimize_To_System_Tray" xml:space="preserve">
     <value>开机启动时最小化到系统托盘</value>
+  </data>
+  <data name="UI_Options_Application_Minimize_When_Close" xml:space="preserve">
+    <value>关闭时最小化到系统托盘</value>
   </data>
   <data name="UI_Options_Application_Run_At_Startup" xml:space="preserve">
     <value>开机启动</value>

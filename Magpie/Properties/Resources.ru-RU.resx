@@ -217,7 +217,7 @@
   <data name="UI_Options_Application_Language_Default" xml:space="preserve">
     <value>По умолчанию</value>
   </data>
-  <data name="UI_Options_Application_Minimise_To_System_Tray" xml:space="preserve">
+  <data name="UI_Options_Application_Minimize_To_System_Tray" xml:space="preserve">
     <value>Минимизировать системную область при запуске</value>
   </data>
   <data name="UI_Options_Application_Run_At_Startup" xml:space="preserve">

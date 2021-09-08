@@ -12,9 +12,6 @@ using namespace D2D1;
 class CursorManager: public Renderable {
 public:
 	CursorManager() {
-		_cursorSize.cx = GetSystemMetrics(SM_CXCURSOR);
-		_cursorSize.cy = GetSystemMetrics(SM_CYCURSOR);
-
 		if (Env::$instance->IsNoDisturb()) {
 			return;
 		}
@@ -42,21 +39,8 @@ public:
 			//);
 		}
 
-		// 保存替换之前的 arrow 光标图像
-		// SetSystemCursor 不会改变系统光标的句柄
-		HCURSOR hCursorArrow = LoadCursor(NULL, IDC_ARROW);
-		HCURSOR hCursorHand = LoadCursor(NULL, IDC_HAND);
-		HCURSOR hCursorAppStarting = LoadCursor(NULL, IDC_APPSTARTING);
-		HCURSOR hCursorIBeam = LoadCursor(NULL, IDC_IBEAM);
-		_ResolveCursor(hCursorArrow, hCursorArrow);
-		_ResolveCursor(hCursorHand, hCursorHand);
-		_ResolveCursor(hCursorAppStarting, hCursorAppStarting);
-		_ResolveCursor(hCursorIBeam, hCursorIBeam);
-
-		SetSystemCursor(_CreateTransparentCursor(hCursorArrow), OCR_NORMAL);
-		SetSystemCursor(_CreateTransparentCursor(hCursorHand), OCR_HAND);
-		SetSystemCursor(_CreateTransparentCursor(hCursorAppStarting), OCR_APPSTARTING);
-		SetSystemCursor(_CreateTransparentCursor(hCursorIBeam), OCR_IBEAM);
+		MagInitialize();
+		MagShowSystemCursor(FALSE);
 	}
 
 	CursorManager(const CursorManager&) = delete;
@@ -73,8 +57,8 @@ public:
 			SystemParametersInfo(SPI_SETMOUSESPEED, 0, (PVOID)(intptr_t)_cursorSpeed, 0);
 		}
 
-		// 还原系统光标
-		SystemParametersInfo(SPI_SETCURSORS, 0, NULL, 0);
+		MagShowSystemCursor(TRUE);
+		MagUninitialize();
 	}
 
 private:
@@ -139,25 +123,6 @@ public:
 		//Env::$instance->GetD2DDC()->DrawBitmap(_cursorInfo->bmp.Get(), &cursorRect);
 	}
 
-
-	std::pair<bool, LRESULT> WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
-		if (message == _WM_NEWCURSOR32) {
-			// 来自 CursorHook 的消息
-			// HCURSOR 似乎是共享资源，尽管来自别的进程但可以直接使用
-			// 
-			// 如果消息来自 32 位进程，本程序为 64 位，必须转换为补符号位扩展，这是为了和 SetCursor 的处理方法一致
-			// SendMessage 为补 0 扩展，SetCursor 为补符号位扩展
-			_AddHookCursor((HCURSOR)(INT_PTR)(INT32)wParam, (HCURSOR)(INT_PTR)(INT32)lParam);
-			return { true, 0 };
-		} else if (message == _WM_NEWCURSOR64) {
-			// 如果消息来自 64 位进程，本程序为 32 位，HCURSOR 会被截断
-			// Q: 如果被截断是否能正常工作？
-			_AddHookCursor((HCURSOR)wParam, (HCURSOR)lParam);
-			return { true, 0 };
-		}
-
-		return { false, 0 };
-	}
 private:
 	void _CalcCursorPos() {
 		CURSORINFO ci{};
@@ -199,54 +164,6 @@ private:
 			lroundf((ci.ptScreenPos.x - srcClient.left) * scaleX + destRect.left) - _cursorInfo->xHotSpot,
 			lroundf((ci.ptScreenPos.y - srcClient.top) * scaleY + destRect.top) - _cursorInfo->yHotSpot
 		};
-	}
-
-	void _AddHookCursor(HCURSOR hTptCursor, HCURSOR hCursor) {
-		if (hTptCursor == NULL || hCursor == NULL) {
-			return;
-		}
-
-		Debug::WriteLine(L"New Cursor Map");
-		_ResolveCursor(hTptCursor, hCursor);
-	}
-
-	HCURSOR _CreateTransparentCursor(HCURSOR hCursorHotSpot) {
-		int len = _cursorSize.cx * _cursorSize.cy;
-		BYTE* andPlane = new BYTE[len];
-		memset(andPlane, 0xff, len);
-		BYTE* xorPlane = new BYTE[len]{};
-
-		auto hotSpot = _GetCursorHotSpot(hCursorHotSpot);
-
-		HCURSOR result = CreateCursor(
-			Env::$instance->GetHInstance(),
-			std::min(hotSpot.first, (int)_cursorSize.cx),
-			std::min(hotSpot.second, (int)_cursorSize.cy),
-			_cursorSize.cx, _cursorSize.cy,
-			andPlane, xorPlane
-		);
-		Debug::ThrowIfWin32Failed(result, L"创建透明鼠标失败");
-
-		delete[] andPlane;
-		delete[] xorPlane;
-		return result;
-	}
-
-	std::pair<int, int> _GetCursorHotSpot(HCURSOR hCursor) {
-		if (hCursor == NULL) {
-			return {};
-		}
-
-		ICONINFO ii{};
-		Debug::ThrowIfWin32Failed(
-			GetIconInfo(hCursor, &ii),
-			L"GetIconInfo 失败"
-		);
-
-		DeleteBitmap(ii.hbmColor);
-		DeleteBitmap(ii.hbmMask);
-
-		return { (int)ii.xHotspot, (int)ii.yHotspot };
 	}
 
 	ComPtr<ID2D1Bitmap> _CursorToD2DBitmap(HCURSOR hCursor) {
@@ -370,12 +287,7 @@ private:
 
 	std::map<HCURSOR, CursorInfo> _cursorMap;
 
-	SIZE _cursorSize{};
-
 	INT _cursorSpeed = 0;
 
 	ComPtr<ID2D1Effect> _monochromeCursorEffect = nullptr;
-
-	static UINT _WM_NEWCURSOR32;
-	static UINT _WM_NEWCURSOR64;
 };
