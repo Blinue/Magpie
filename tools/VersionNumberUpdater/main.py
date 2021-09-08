@@ -13,7 +13,7 @@ versionComma = version.replace('.', ',')
 
 rootDir = '..\\..'
 
-csProjects = ["CursorHook", "Magpie"]
+csProjects = ["Magpie"]
 cppProjects = ["Runtime"]
 cppProjects.extend(map(lambda d: path.basename(d), glob.iglob(rootDir + '\\MODULE_*')))
 
