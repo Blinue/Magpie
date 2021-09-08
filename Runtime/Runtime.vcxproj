@@ -146,13 +146,11 @@
     <ClInclude Include="App.h" />
     <ClInclude Include="CursorManager.h" />
     <ClInclude Include="Effect.h" />
-    <ClInclude Include="EffectBase.h" />
     <ClInclude Include="ErrorMessages.h" />
     <ClInclude Include="FrameCatcher.h" />
     <ClInclude Include="FrameSourceBase.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="GDIWindowCapturer.h" />
-    <ClInclude Include="EffectDefines.h" />
     <ClInclude Include="MonochromeCursorEffect.h" />
     <ClInclude Include="MonochromeCursorTransform.h" />
     <ClInclude Include="pch.h" />
@@ -165,9 +163,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App.cpp" />
-    <ClCompile Include="CursorManager.cpp" />
     <ClCompile Include="Effect.cpp" />
-    <ClCompile Include="GUIDs.cpp" />
     <ClCompile Include="pch.cpp" />
     <ClCompile Include="DllMain.cpp" />
     <ClCompile Include="Renderer.cpp" />
