@@ -1,9 +1,4 @@
-using EasyHook;
-using Magpie.Properties;
-using System;
-using System.Diagnostics;
-using System.IO;
-using System.Reflection;
+﻿using System;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows;
@@ -119,10 +114,6 @@ namespace Magpie {
 			magThread.SetApartmentState(ApartmentState.MTA);
 			magThread.Start();
 
-			if (hookCursorAtRuntime) {
-				HookCursorAtRuntime(hwndSrc);
-			}
-
 			SrcWindow = hwndSrc;
 		}
 
@@ -134,64 +125,6 @@ namespace Magpie {
 			// 广播 MAGPIE_WM_DESTORYMAG
 			// 可以在没有全屏窗口句柄的情况下关闭它
 			_ = NativeMethods.BroadcastMessage(NativeMethods.MAGPIE_WM_DESTORYMAG);
-		}
-
-		private void HookCursorAtRuntime(IntPtr hwndSrc) {
-			Logger.Info("正在进行运行时注入");
-
-			int pid = NativeMethods.GetWindowProcessId(hwndSrc);
-			if (pid == 0 || pid == Process.GetCurrentProcess().Id) {
-				Logger.Warn("不能注入本进程，已取消");
-				return;
-			}
-
-			// 获取 CursorHook.dll 的绝对路径
-			string injectionLibrary = Path.Combine(
-				Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
-				"CursorHook.dll"
-			);
-
-			// 使用 EasyHook 注入
-			try {
-				RemoteHooking.Inject(
-					pid,                // 要注入的进程的 ID
-					injectionLibrary,   // 32 位 DLL
-					injectionLibrary,   // 64 位 DLL
-										// 下面为传递给注入 DLL 的参数
-					Settings.Default.LoggingLevel,
-					hwndSrc
-				);
-				Logger.Info($"已注入 CursorHook\n\t进程 ID：{pid}\n\t源窗口句柄：{hwndSrc}");
-			} catch (Exception e) {
-				Logger.Error(e, "CursorHook 注入失败");
-			}
-		}
-
-		public void HookCursorAtStartUp(string exePath) {
-			Logger.Info("正在进行启动时注入");
-
-			// 获取 CursorHook.dll 的绝对路径
-			string injectionLibrary = Path.Combine(
-				Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
-				"CursorHook.dll"
-			);
-
-			try {
-				RemoteHooking.CreateAndInject(
-					exePath,    // 可执行文件路径
-					"",         // 命令行参数
-					0,          // 传递给 CreateProcess 的标志
-					injectionLibrary,   // 32 位 DLL
-					injectionLibrary,   // 64 位 DLL
-					out int _,  // 忽略进程 ID
-								// 下面为传递给注入 DLL 的参数
-					Settings.Default.LoggingLevel
-				);
-
-				Logger.Info($"已启动进程并注入\n\t可执行文件：{exePath}");
-			} catch (Exception e) {
-				Logger.Error(e, "CursorHook注入失败");
-			}
 		}
 	}
 }

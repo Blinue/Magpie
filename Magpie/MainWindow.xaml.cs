@@ -1,4 +1,4 @@
-using Gma.System.MouseKeyHook;
+﻿using Gma.System.MouseKeyHook;
 using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
@@ -73,7 +73,6 @@ namespace Magpie {
 				Settings.Default.ScaleMode = 0;
 			}
 			cbbScaleMode.SelectedIndex = Settings.Default.ScaleMode;
-			cbbInjectMode.SelectedIndex = Settings.Default.InjectMode;
 
 			// 延迟绑定，防止加载时改变设置
 			cbbScaleMode.SelectionChanged += CbbScaleMode_SelectionChanged;
@@ -204,7 +203,6 @@ namespace Magpie {
 				bufferPrecision,
 				showFPS,
 				adjustCursorSpeed,
-				cbbInjectMode.SelectedIndex == 1,
 				false
 			);
 
@@ -308,23 +306,6 @@ namespace Magpie {
 				btnForgetCurrentWnd.Visibility = gridCurWnd.Visibility = timerRestore.IsEnabled ? Visibility.Visible : Visibility.Collapsed;
 			}
 		}
-
-		private void CbbInjectMode_SelectionChanged(object sender, SelectionChangedEventArgs e) {
-			if (cbbInjectMode.SelectedIndex == 2) {
-				// 启动时注入
-				if (!openFileDialog.ShowDialog().GetValueOrDefault(false)) {
-					// 未选择文件，恢复原来的选项
-					cbbInjectMode.SelectedIndex = Settings.Default.InjectMode;
-					return;
-				}
-
-				magWindow.HookCursorAtStartUp(openFileDialog.FileName);
-			} else {
-				// 不保存启动时注入的选项
-				Settings.Default.InjectMode = cbbInjectMode.SelectedIndex;
-			}
-		}
-
 
 		private void CmiExit_Click(object sender, RoutedEventArgs e) {
 			Application_Closing();

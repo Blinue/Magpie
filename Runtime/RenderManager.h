@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "pch.h"
 #include "Renderable.h"
 #include "D2DImageEffectRenderer.h"
@@ -45,10 +45,6 @@ public:
 			// 初始化 FrameCatcher
 			_frameCatcher.reset(new FrameCatcher());
 		}
-	}
-
-	std::pair<bool, LRESULT> WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
-		return _cursorManager->WndProc(hWnd, message, wParam, lParam);
 	}
 
 	void Render() {

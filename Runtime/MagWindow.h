@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "pch.h"
 #include "Utils.h"
 #include "D2DContext.h"
@@ -88,17 +88,9 @@ private:
 			$instance = nullptr;
 			PostQuitMessage(0);
 			return 0;
-		} else {
-			auto [resolved, rt] = _renderManager->WndProc(hWnd, message, wParam, lParam);
-
-			if (resolved) {
-				return rt;
-			} else {
-				return DefWindowProc(hWnd, message, wParam, lParam);
-			}
 		}
 
-		return 0;
+		return DefWindowProc(hWnd, message, wParam, lParam);
 	}
 
 	static LRESULT CALLBACK _HostWndProcStatic(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
