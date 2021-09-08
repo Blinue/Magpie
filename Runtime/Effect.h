@@ -46,7 +46,8 @@ struct PassDesc {
 
 class Effect {
 public:
-	bool InitializeFromString(std::string hlsl);
+	bool InitializeFromString(std::string_view hlsl);
+	bool InitializeFromFile(const wchar_t* fileName);
 
 	const std::vector<EffectConstantDesc>& GetConstantDescs() const {
 		return _constantDescs;

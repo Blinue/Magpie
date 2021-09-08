@@ -13,9 +13,8 @@ versionComma = version.replace('.', ',')
 
 rootDir = '..\\..'
 
-csProjects = ["CursorHook", "Magpie"]
+csProjects = ["Magpie"]
 cppProjects = ["Runtime"]
-cppProjects.extend(map(lambda d: path.basename(d), glob.iglob(rootDir + '\\MODULE_*')))
 
 # C# 项目
 for csProject in csProjects:
