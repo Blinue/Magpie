@@ -1,6 +1,6 @@
 #pragma once
 #include "pch.h"
-
+#include <io.h>
 
 extern std::shared_ptr<spdlog::logger> logger;
 
@@ -169,21 +169,17 @@ public:
 			return false;
 		}
 
-		if (fseek(hFile, 0, SEEK_END)) {
-			SPDLOG_LOGGER_ERROR(logger, fmt::format("打开文件{}时失败", UTF16ToUTF8(fileName)));
-		}
+		// 获取文件长度
+		int fd = _fileno(hFile);
+		long size = _filelength(fd);
 
-		long size = ftell(hFile);
 		result.clear();
 		result.resize(static_cast<size_t>(size) + 1, 0);
-
-		if (fseek(hFile, 0, SEEK_SET)) {
-			SPDLOG_LOGGER_ERROR(logger, fmt::format("打开文件{}时失败", UTF16ToUTF8(fileName)));
-		}
 
 		size_t readed = fread(result.data(), 1, size, hFile);
 		result.resize(readed + 1);
 
+		fclose(hFile);
 		return true;
 	}
 };
