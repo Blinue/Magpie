@@ -4,18 +4,22 @@
 #include "WinRTFrameSource.h"
 
 
+extern std::shared_ptr<spdlog::logger> logger;
+
 const wchar_t* App::_errorMsg = ErrorMessages::GENERIC;
 const UINT App::_WM_DESTORYHOST = RegisterWindowMessage(L"MAGPIE_WM_DESTORYHOST");
 
 
 bool App::Initialize(
-	std::shared_ptr<spdlog::logger> logger,
 	HINSTANCE hInst,
-	HWND hwndSrc
+	HWND hwndSrc,
+	bool adjustCursorSpeed
 ) {
 	_logger = logger;
 	_hwndSrc = hwndSrc;
 	_hInst = hInst;
+
+	_adjustCursorSpeed = adjustCursorSpeed;
 
 	SPDLOG_LOGGER_INFO(logger, "正在初始化 App");
 	SetErrorMsg(ErrorMessages::GENERIC);
@@ -68,6 +72,14 @@ bool App::Initialize(
 
 	if (!_renderer->InitializeEffects()) {
 		SPDLOG_LOGGER_INFO(logger, "初始化效果失败，正在清理");
+		DestroyWindow(_hwndHost);
+		Run();
+		return false;
+	}
+
+	_cursorManager.reset(new CursorManager());
+	if (!_cursorManager->Initialize()) {
+		SPDLOG_LOGGER_INFO(logger, "初始化 CursorManager 失败，正在清理");
 		DestroyWindow(_hwndHost);
 		Run();
 		return false;
@@ -198,6 +210,7 @@ LRESULT App::_HostWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 }
 
 void App::_ReleaseResources() {
+	_cursorManager = nullptr;
 	_frameSource = nullptr;
 	_renderer = nullptr;
 }

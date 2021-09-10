@@ -147,7 +147,8 @@ namespace Magpie {
 		[DllImport("Runtime", CallingConvention = CallingConvention.StdCall)]
 		public static extern void Run(
 			ReportStatus reportStatus,
-			IntPtr hwndSrc
+			IntPtr hwndSrc,
+			[MarshalAs(UnmanagedType.U1)] bool adjustCursorSpeed
 		);
 	}
 }

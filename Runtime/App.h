@@ -2,6 +2,7 @@
 #include "pch.h"
 #include "Renderer.h"
 #include "FrameSourceBase.h"
+#include "CursorManager.h"
 
 
 class App {
@@ -12,9 +13,9 @@ public:
 	}
 
 	bool Initialize(
-		std::shared_ptr<spdlog::logger> logger,
 		HINSTANCE hInst,
-		HWND hwndSrc
+		HWND hwndSrc,
+		bool adjustCursorSpeed
 	);
 
 	void Run();
@@ -49,6 +50,10 @@ public:
 
 	FrameSourceBase& GetFrameSource() {
 		return *_frameSource;
+	}
+
+	bool IsAdjustCursorSpeed() const {
+		return _adjustCursorSpeed;
 	}
 
 	static const wchar_t* GetErrorMsg() {
@@ -86,8 +91,11 @@ private:
 	SIZE _hostWndSize{};
 	RECT _srcClientRect{};
 
+	bool _adjustCursorSpeed = false;
+
 	std::unique_ptr<Renderer> _renderer = nullptr;
 	std::unique_ptr<FrameSourceBase> _frameSource = nullptr;
+	std::unique_ptr<CursorManager> _cursorManager = nullptr;
 
 	std::shared_ptr<spdlog::logger> _logger = nullptr;
 };

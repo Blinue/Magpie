@@ -1,7 +1,8 @@
 #include "pch.h"
 #include "Renderer.h"
 #include "App.h"
-#include <DirectXColors.h>
+
+
 
 using namespace DirectX;
 
@@ -79,6 +80,23 @@ bool Renderer::InitializeEffects() {
 	if (!effect.Build(input, _backBuffer)) {
 		SPDLOG_LOGGER_CRITICAL(logger, "构建 Effect 失败");
 		return false;
+	}
+
+	// 计算输出图像的位置
+	SIZE outputSize = effect.CalcOutputSize({ (LONG)inputDesc.Width, (LONG)inputDesc.Height });
+	if (outputSize.cx >= hostSize.cx) {
+		_destRect.left = 0;
+		_destRect.right = hostSize.cx;
+	} else {
+		_destRect.left = (hostSize.cx - outputSize.cx) / 2;
+		_destRect.right = _destRect.left + outputSize.cx;
+	}
+	if (outputSize.cy >= hostSize.cy) {
+		_destRect.top = 0;
+		_destRect.bottom = hostSize.cy;
+	} else {
+		_destRect.top = (hostSize.cy - outputSize.cy) / 2;
+		_destRect.bottom = _destRect.top + outputSize.cy;
 	}
 
 	return true;

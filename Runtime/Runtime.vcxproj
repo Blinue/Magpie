@@ -163,6 +163,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App.cpp" />
+    <ClCompile Include="CursorManager.cpp" />
     <ClCompile Include="Effect.cpp" />
     <ClCompile Include="pch.cpp" />
     <ClCompile Include="DllMain.cpp" />

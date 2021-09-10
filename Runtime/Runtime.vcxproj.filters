@@ -19,6 +19,7 @@
     <ClCompile Include="Effect.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="CursorManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -38,9 +39,6 @@
     </ClInclude>
     <ClInclude Include="WindowCapturerBase.h">
       <Filter>头文件\Capture</Filter>
-    </ClInclude>
-    <ClInclude Include="CursorManager.h">
-      <Filter>头文件\Render</Filter>
     </ClInclude>
     <ClInclude Include="FrameCatcher.h">
       <Filter>头文件\Render</Filter>
@@ -70,6 +68,9 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="WinRTFrameSource.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="CursorManager.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

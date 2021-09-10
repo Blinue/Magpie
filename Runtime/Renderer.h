@@ -16,6 +16,10 @@ public:
 		POINT
 	};
 
+	const RECT& GetDestRect() const {
+		return _destRect;
+	}
+
 	ComPtr<ID3D11SamplerState> GetSampler(FilterType filterType);
 
 	ComPtr<ID3D11Device5> GetD3DDevice() const{
@@ -60,4 +64,6 @@ private:
 	ComPtr<ID3D11VertexShader> _vsShader = nullptr;
 	ComPtr<ID3D11InputLayout> _inputLayout = nullptr;
 	std::vector<Effect> _effects;
+
+	RECT _destRect{};
 };
