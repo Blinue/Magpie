@@ -14,7 +14,7 @@ struct SimpleVertex {
 
 
 bool Effect::InitializeFromString(std::string_view hlsl) {
-	Renderer& renderer = App::GetInstance().GetRenderer();
+	/*Renderer& renderer = App::GetInstance().GetRenderer();
 	_Pass& pass = _passes.emplace_back();
 
 	if (!pass.Initialize(this, hlsl)) {
@@ -26,9 +26,9 @@ bool Effect::InitializeFromString(std::string_view hlsl) {
 	desc.samplers.push_back(0);
 	desc.output = 1;
 
-	_samplers.emplace_back(renderer.GetSampler(Renderer::FilterType::LINEAR));
+	_samplers.emplace_back(renderer.GetSampler(Renderer::FilterType::LINEAR));*/
 
-	return true;
+	return false;
 }
 
 bool Effect::InitializeFromFile(const wchar_t* fileName) {
@@ -41,16 +41,175 @@ bool Effect::InitializeFromFile(const wchar_t* fileName) {
 	return InitializeFromString(psText);
 }
 
+bool Effect::InitializeLanczos() {
+	Renderer& renderer = App::GetInstance().GetRenderer();
+	_d3dDevice = renderer.GetD3DDevice();
+	_d3dDC = renderer.GetD3DDC();
+
+	const wchar_t* fileName = L"shaders\\Lanczos6.hlsl";
+	std::string hlsl;
+	if (!Utils::ReadTextFile(fileName, hlsl)) {
+		SPDLOG_LOGGER_ERROR(logger, fmt::format("读取着色器文件{}失败", Utils::UTF16ToUTF8(fileName)));
+		return false;
+	}
+
+	_Pass& pass = _passes.emplace_back();
+
+	if (!pass.Initialize(this, hlsl)) {
+		SPDLOG_LOGGER_ERROR(logger, "Pass1 初始化失败");
+		return false;
+	}
+	PassDesc& desc = _passDescs.emplace_back();
+	desc.inputs.push_back(0);
+	desc.samplers.push_back(0);
+	desc.constants.push_back(0);
+	desc.constants.push_back(1);
+	desc.output = 1;
+
+	_samplers.emplace_back(renderer.GetSampler(Renderer::FilterType::LINEAR));
+
+	EffectConstantDesc& desc1 = _constantDescs.emplace_back();
+	desc1.name = "scaleX";
+	desc1.type = EffectConstantType::Float;
+	desc1.defaultValue = 1.0f;
+
+	if (CanScale()) {
+		_constants.emplace_back().floatVal = 1.0f;
+		_constants.emplace_back().floatVal = 1.0f;
+	}
+
+	// 大小必须为 4 的倍数
+	_constants.resize((_constants.size() + 3) / 4 * 4);
+
+	return true;
+}
+
+bool Effect::SetConstant(int index, float value) {
+	if (index < 0 || index >= _constantDescs.size()) {
+		return false;
+	}
+
+	const auto& desc = _constantDescs[index];
+	if (desc.type != EffectConstantType::Float) {
+		return false;
+	}
+
+	if (_constants[CanScale() ? index + 2 : index].floatVal == value) {
+		return true;
+	}
+
+	// 检查是否是合法的值
+	if (desc.minValue.index() == 1) {
+		if (desc.includeMin) {
+			if (value < std::get<float>(desc.minValue)) {
+				return false;
+			}
+		} else {
+			if (value <= std::get<float>(desc.minValue)) {
+				return false;
+			}
+		}
+	}
+
+	if (desc.maxValue.index() == 1) {
+		if (desc.includeMax) {
+			if (value > std::get<float>(desc.maxValue)) {
+				return false;
+			}
+		} else {
+			if (value >= std::get<float>(desc.maxValue)) {
+				return false;
+			}
+		}
+	}
+
+	_constants[CanScale() ? index + 2 : index].floatVal = value;
+
+	return true;
+}
+
+bool Effect::SetConstant(int index, int value) {
+	if (index < 0 || index >= _constantDescs.size()) {
+		return false;
+	}
+
+	const auto& desc = _constantDescs[index];
+	if (desc.type != EffectConstantType::Int) {
+		return false;
+	}
+
+	if (_constants[index].intVal == value) {
+		return true;
+	}
+
+	// 检查是否是合法的值
+	if (desc.minValue.index() == 2) {
+		if (desc.includeMin) {
+			if (value < std::get<int>(desc.minValue)) {
+				return false;
+			}
+		} else {
+			if (value <= std::get<int>(desc.minValue)) {
+				return false;
+			}
+		}
+	}
+
+	if (desc.maxValue.index() == 2) {
+		if (desc.includeMax) {
+			if (value > std::get<int>(desc.maxValue)) {
+				return false;
+			}
+		} else {
+			if (value >= std::get<int>(desc.maxValue)) {
+				return false;
+			}
+		}
+	}
+
+	_constants[index].intVal = value;
+
+	return true;
+}
+
+SIZE Effect::CalcOutputSize(SIZE inputSize) const {
+	return { lroundf(inputSize.cx * _constants[0].floatVal), lroundf(inputSize.cy * _constants[1].floatVal) };
+}
+
+void Effect::SetScale(float x, float y) {
+	_constants[0].floatVal = x;
+	_constants[1].floatVal = y;
+}
+
+bool Effect::CanScale() const {
+	return true;
+}
+
 bool Effect::Build(ComPtr<ID3D11Texture2D> input, ComPtr<ID3D11Texture2D> output) {
 	_textures.emplace_back(input);
 	_textures.emplace_back(output);
+
+	// 创建常量缓冲区
+	D3D11_BUFFER_DESC bd{};
+	bd.Usage = D3D11_USAGE_DEFAULT;
+	bd.ByteWidth = 4 * (UINT)_constants.size();
+	bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+
+	D3D11_SUBRESOURCE_DATA initData{};
+	initData.pSysMem = _constants.data();
+	
+	HRESULT hr = _d3dDevice->CreateBuffer(&bd, &initData, &_constantBuffer);
+	if (FAILED(hr)) {
+		SPDLOG_LOGGER_ERROR(logger, fmt::sprintf("CreateBuffer 失败\n\tHRESULT：0x%X", hr));
+		return false;
+	}
 
 	D3D11_TEXTURE2D_DESC inputDesc;
 	input->GetDesc(&inputDesc);
 
 	for (int i = 0; i < _passes.size(); ++i) {
 		PassDesc& desc = _passDescs[i];
-		if (!_passes[i].Build(desc.inputs, desc.samplers, desc.constants, output, 
+		if (!_passes[i].Build(desc.inputs, desc.samplers, output, 
 			CalcOutputSize({(long)inputDesc.Width, (long)inputDesc.Height}))) {
 			SPDLOG_LOGGER_ERROR(logger, fmt::format("构建 Pass{} 时出错", i + 1));
 			return false;
@@ -61,6 +220,9 @@ bool Effect::Build(ComPtr<ID3D11Texture2D> input, ComPtr<ID3D11Texture2D> output
 }
 
 void Effect::Draw() {
+	ID3D11Buffer* t = _constantBuffer.Get();
+	_d3dDC->PSSetConstantBuffers(0, 1, &t);
+
 	for (_Pass& pass : _passes) {
 		pass.Draw();
 	}
@@ -99,7 +261,6 @@ bool Effect::_Pass::Initialize(Effect* parent, std::string_view pixelShader) {
 bool Effect::_Pass::Build(
 	const std::vector<int>& inputs,
 	const std::vector<int>& samplers,
-	const std::vector<int>& constants,
 	ComPtr<ID3D11Texture2D> output,
 	std::optional<SIZE> outputSize
 ) {
@@ -119,8 +280,6 @@ bool Effect::_Pass::Build(
 	for (int i = 0; i < _samplers.size(); ++i) {
 		_samplers[i] = _parent->_samplers[samplers[i]].Get();
 	}
-
-	_constants = constants;
 
 	hr = App::GetInstance().GetRenderer().GetRenderTargetView(output.Get(), &_outputRtv);
 	if (FAILED(hr)) {
@@ -175,15 +334,6 @@ bool Effect::_Pass::Build(
 
 void Effect::_Pass::Draw() {
 	_d3dDC->OMSetRenderTargets(1, &_outputRtv, nullptr);
-
-	// 如果和上一个 Pass 相同不再重复设置参数
-	static _Pass* lastPass = nullptr;
-	if (lastPass == this) {
-		_d3dDC->Draw(4, 0);
-		return;
-	}
-	lastPass = this;
-
 	_d3dDC->RSSetViewports(1, &_vp);
 
 	_d3dDC->IASetInputLayout(_vtxLayout.Get());

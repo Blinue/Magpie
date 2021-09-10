@@ -7,7 +7,7 @@ class Renderer {
 public:
 	bool Initialize();
 
-	bool InitializeEffects(ComPtr<ID3D11Texture2D> input);
+	bool InitializeEffects();
 
 	void Render();
 

@@ -1,3 +1,8 @@
+cbuffer CONSTANT_BUFFER : register(b0) {
+	float2 SCALE;
+};
+
+
 Texture2D frameTexture : register(t0);
 SamplerState linearSampler : register(s0);
 
@@ -7,9 +12,6 @@ struct VS_OUTPUT {
 	float4 TexCoord : TEXCOORD0;   // vertex texture coords 
 };
 
-//--------------------------------------------------------------------------------------
-// Pixel Shader
-//--------------------------------------------------------------------------------------
 
 #define FIX(c) max(abs(c), 1e-5)
 #define PI 3.14159265359
@@ -36,7 +38,7 @@ float3 line_run(float ypos, float3 xpos1, float3 xpos2, float3 linetaps1, float3
 
 float4 PS(VS_OUTPUT input) : SV_Target{
 	float4 coord = input.TexCoord;
-	coord.zw *= 1.5;
+	coord.zw *= SCALE;
 
 	// 用于抗振铃
 	float3 neighbors[4] = {

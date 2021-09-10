@@ -1,3 +1,4 @@
+using Magpie.Properties;
 using System;
 using System.Runtime.InteropServices;
 using System.Threading;
@@ -61,11 +62,11 @@ namespace Magpie {
 					parent.Dispatcher.Invoke(new Action(() => {
 						_ = NativeMethods.SetForegroundWindow(new WindowInteropHelper(parent).Handle);
 
-						/*string errorMsg = Resources.ResourceManager.GetString(errorMsgId, Resources.Culture);
+						string errorMsg = Resources.ResourceManager.GetString(errorMsgId, Resources.Culture);
 						if (errorMsg == null) {
-							errorMsg = Resources.Msg_Error_Generic;
-						}*/
-						_ = MessageBox.Show(errorMsgId);
+							errorMsg = Resources.ResourceManager.GetString(Resources.Msg_Error_Generic);
+						}
+						_ = MessageBox.Show(errorMsg);
 					}));
 				}
 			};

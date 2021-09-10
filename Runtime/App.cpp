@@ -66,7 +66,7 @@ bool App::Initialize(
 		return false;
 	}
 
-	if (!_renderer->InitializeEffects(_frameSource->GetOutput())) {
+	if (!_renderer->InitializeEffects()) {
 		SPDLOG_LOGGER_INFO(logger, "初始化效果失败，正在清理");
 		DestroyWindow(_hwndHost);
 		Run();

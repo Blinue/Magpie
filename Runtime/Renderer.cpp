@@ -28,7 +28,7 @@ bool Renderer::Initialize() {
 	return true;
 }
 
-bool Renderer::InitializeEffects(ComPtr<ID3D11Texture2D> input) {
+bool Renderer::InitializeEffects() {
 	// 编译顶点着色器
 	ComPtr<ID3DBlob> errorMsgs = nullptr;
 	ComPtr<ID3DBlob> blob = nullptr;
@@ -62,11 +62,21 @@ bool Renderer::InitializeEffects(ComPtr<ID3D11Texture2D> input) {
 	}
 
 	Effect& effect = _effects.emplace_back();
-	if (!effect.InitializeFromFile(L"shaders\\Lanczos6.hlsl")) {
+	if (!effect.InitializeLanczos()) {
 		SPDLOG_LOGGER_CRITICAL(logger, "初始化 Effect 失败");
 		return false;
 	}
-	if (!effect.Build(App::GetInstance().GetFrameSource().GetOutput(), _backBuffer)) {
+
+	ComPtr<ID3D11Texture2D> input = App::GetInstance().GetFrameSource().GetOutput();
+	D3D11_TEXTURE2D_DESC inputDesc;
+	input->GetDesc(&inputDesc);
+	SIZE hostSize = App::GetInstance().GetHostWndSize();
+
+	// 等比缩放到最大
+	float fillScale = std::min(float(hostSize.cx) / inputDesc.Width, float(hostSize.cy) / inputDesc.Height);
+	effect.SetScale(fillScale, fillScale);
+
+	if (!effect.Build(input, _backBuffer)) {
 		SPDLOG_LOGGER_CRITICAL(logger, "构建 Effect 失败");
 		return false;
 	}

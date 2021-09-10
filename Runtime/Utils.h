@@ -135,30 +135,22 @@ public:
 	}
 
 	static bool ReadFile(const wchar_t* fileName, std::vector<BYTE>& result) {
-		HANDLE hFile = CreateFile(fileName, GENERIC_READ, FILE_SHARE_READ,
-			NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
-		if (hFile == INVALID_HANDLE_VALUE) {
-			SPDLOG_LOGGER_ERROR(logger, fmt::format("打开文件{}失败\n\tLastErrorCode：{}", UTF16ToUTF8(fileName), GetLastError()));
+		FILE* hFile;
+		if (_wfopen_s(&hFile, fileName, L"rb") || !hFile) {
+			SPDLOG_LOGGER_ERROR(logger, fmt::format("打开文件{}失败", UTF16ToUTF8(fileName)));
 			return false;
 		}
 
-		LARGE_INTEGER size;
-		if (!GetFileSizeEx(hFile, &size)) {
-			SPDLOG_LOGGER_ERROR(logger, fmt::format("获取文件{}大小失败\n\tLastErrorCode：{}", UTF16ToUTF8(fileName), GetLastError()));
-			return false;
-		}
-		result.resize(size.QuadPart);
+		// 获取文件长度
+		int fd = _fileno(hFile);
+		long size = _filelength(fd);
 
-		DWORD readed = 0;
-		if (!::ReadFile(hFile, result.data(), static_cast<DWORD>(size.QuadPart), &readed, nullptr)) {
-			SPDLOG_LOGGER_ERROR(logger, fmt::format("读取文件{}失败\n\tLastErrorCode：{}", UTF16ToUTF8(fileName), GetLastError()));
-			return false;
-		}
+		result.resize(size);
 
-		if (size.QuadPart != readed) {
-			SPDLOG_LOGGER_WARN(logger, fmt::format("读取文件{}时读取的字节数和文件大小不一致", UTF16ToUTF8(fileName)));
-		}
+		size_t readed = fread(result.data(), 1, size, hFile);
+		assert(readed == size);
 
+		fclose(hFile);
 		return true;
 	}
 
