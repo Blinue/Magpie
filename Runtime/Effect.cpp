@@ -2,8 +2,7 @@
 #include "Effect.h"
 #include "App.h"
 #include "Utils.h"
-
-using namespace DirectX;
+#include <DirectXColors.h>
 
 extern std::shared_ptr<spdlog::logger> logger;
 
@@ -40,6 +39,7 @@ bool Effect::InitializeLanczos() {
 	Renderer& renderer = App::GetInstance().GetRenderer();
 	_d3dDevice = renderer.GetD3DDevice();
 	_d3dDC = renderer.GetD3DDC();
+	_vsShader = renderer.GetVSShader();
 
 	const wchar_t* fileName = L"shaders\\Lanczos6.hlsl";
 	std::string hlsl;
@@ -68,10 +68,8 @@ bool Effect::InitializeLanczos() {
 	desc1.type = EffectConstantType::Float;
 	desc1.defaultValue = 1.0f;
 
-	if (CanScale()) {
-		_constants.emplace_back().floatVal = 1.0f;
-		_constants.emplace_back().floatVal = 1.0f;
-	}
+	_constants.emplace_back();
+	_constants.emplace_back();
 
 	// 大小必须为 4 的倍数
 	_constants.resize((_constants.size() + 3) / 4 * 4);
@@ -89,7 +87,7 @@ bool Effect::SetConstant(int index, float value) {
 		return false;
 	}
 
-	if (_constants[CanScale() ? index + 2 : index].floatVal == value) {
+	if (_constants[static_cast<size_t>(index) + 2].floatVal == value) {
 		return true;
 	}
 
@@ -118,7 +116,7 @@ bool Effect::SetConstant(int index, float value) {
 		}
 	}
 
-	_constants[CanScale() ? index + 2 : index].floatVal = value;
+	_constants[static_cast<size_t>(index) + 2].floatVal = value;
 
 	return true;
 }
@@ -168,21 +166,26 @@ bool Effect::SetConstant(int index, int value) {
 }
 
 SIZE Effect::CalcOutputSize(SIZE inputSize) const {
-	return { lroundf(inputSize.cx * _constants[0].floatVal), lroundf(inputSize.cy * _constants[1].floatVal) };
+	return {};
 }
 
-void Effect::SetScale(float x, float y) {
-	_constants[0].floatVal = x;
-	_constants[1].floatVal = y;
-}
-
-bool Effect::CanScale() const {
+bool Effect::CanSetOutputSize() const {
 	return true;
+}
+
+void Effect::SetOutputSize(SIZE value) {
+	
 }
 
 bool Effect::Build(ComPtr<ID3D11Texture2D> input, ComPtr<ID3D11Texture2D> output) {
 	_textures.emplace_back(input);
 	_textures.emplace_back(output);
+
+	D3D11_TEXTURE2D_DESC inputDesc;
+	input->GetDesc(&inputDesc);
+
+	_constants[0].floatVal = 1.0f / inputDesc.Width;
+	_constants[1].floatVal = 1.0f / inputDesc.Height;
 
 	// 创建常量缓冲区
 	D3D11_BUFFER_DESC bd{};
@@ -199,13 +202,9 @@ bool Effect::Build(ComPtr<ID3D11Texture2D> input, ComPtr<ID3D11Texture2D> output
 		return false;
 	}
 
-	D3D11_TEXTURE2D_DESC inputDesc;
-	input->GetDesc(&inputDesc);
-
 	for (int i = 0; i < _passes.size(); ++i) {
 		PassDesc& desc = _passDescs[i];
-		if (!_passes[i].Build(desc.inputs, desc.samplers, output, 
-			CalcOutputSize({(long)inputDesc.Width, (long)inputDesc.Height}))) {
+		if (!_passes[i].Build(desc.inputs, desc.samplers, output)) {
 			SPDLOG_LOGGER_ERROR(logger, fmt::format("构建 Pass{} 时出错", i + 1));
 			return false;
 		}
@@ -217,6 +216,7 @@ bool Effect::Build(ComPtr<ID3D11Texture2D> input, ComPtr<ID3D11Texture2D> output
 void Effect::Draw() {
 	ID3D11Buffer* t = _constantBuffer.Get();
 	_d3dDC->PSSetConstantBuffers(0, 1, &t);
+	_d3dDC->VSSetShader(_vsShader.Get(), nullptr, 0);
 
 	for (_Pass& pass : _passes) {
 		pass.Draw();
@@ -224,31 +224,21 @@ void Effect::Draw() {
 }
 
 
-bool Effect::_Pass::Initialize(Effect* parent, std::string_view pixelShader) {
+bool Effect::_Pass::Initialize(Effect* parent, const std::string& pixelShader) {
 	Renderer& renderer = App::GetInstance().GetRenderer();
 	_parent = parent;
 	_d3dDC = renderer.GetD3DDC();
 
 	ComPtr<ID3DBlob> blob = nullptr;
-	ComPtr<ID3DBlob> errorMsgs = nullptr;
-	HRESULT hr = D3DCompile(pixelShader.data(), pixelShader.size(), nullptr, nullptr, nullptr,
-		"PS", "ps_5_0", D3DCOMPILE_ENABLE_STRICTNESS, 0, &blob, &errorMsgs);
-	if (FAILED(hr)) {
-		if (errorMsgs) {
-			SPDLOG_LOGGER_ERROR(logger, fmt::sprintf(
-				"编译像素着色器失败：%s\n\tHRESULT：0x%X", (const char*)errorMsgs->GetBufferPointer(), hr));
-		}
+	if (!Utils::CompilePixelShader(pixelShader.c_str(), pixelShader.size(), &blob)) {
 		return false;
 	}
 	
-	hr = renderer.GetD3DDevice()->CreatePixelShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, &_psShader);
+	HRESULT hr = renderer.GetD3DDevice()->CreatePixelShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, &_psShader);
 	if (FAILED(hr)) {
-		SPDLOG_LOGGER_CRITICAL(logger, fmt::sprintf("创建像素着色器失败\n\tHRESULT：0x%X", hr));
+		SPDLOG_LOGGER_ERROR(logger, fmt::sprintf("创建像素着色器失败\n\tHRESULT：0x%X", hr));
 		return false;
 	}
-
-	_vsShader = renderer.GetVSShader();
-	_vtxLayout = renderer.GetInputLayout();
 
 	return true;
 }
@@ -256,8 +246,7 @@ bool Effect::_Pass::Initialize(Effect* parent, std::string_view pixelShader) {
 bool Effect::_Pass::Build(
 	const std::vector<int>& inputs,
 	const std::vector<int>& samplers,
-	ComPtr<ID3D11Texture2D> output,
-	std::optional<SIZE> outputSize
+	ComPtr<ID3D11Texture2D> output
 ) {
 	Renderer& renderer = App::GetInstance().GetRenderer();
 	HRESULT hr;
@@ -278,7 +267,7 @@ bool Effect::_Pass::Build(
 
 	hr = App::GetInstance().GetRenderer().GetRenderTargetView(output.Get(), &_outputRtv);
 	if (FAILED(hr)) {
-		SPDLOG_LOGGER_CRITICAL(logger, fmt::sprintf("获取 RenderTargetView 失败\n\tHRESULT：0x%X", hr));
+		SPDLOG_LOGGER_ERROR(logger, fmt::sprintf("获取 RenderTargetView 失败\n\tHRESULT：0x%X", hr));
 		return false;
 	}
 
@@ -291,55 +280,14 @@ bool Effect::_Pass::Build(
 	_vp.MinDepth = 0.0f;
 	_vp.MaxDepth = 1.0f;
 
-	// 创建顶点缓冲区
-	float outputLeft, outputTop, outputRight, outputBottom;
-	if (!outputSize.has_value() || (outputTextureSize.cx == outputSize->cx && outputTextureSize.cy == outputSize->cy)) {
-		outputLeft = outputBottom = -1;
-		outputRight = outputTop = 1;
-	} else {
-		outputLeft = std::floorf(((float)outputTextureSize.cx - outputSize->cx) / 2) * 2 / outputTextureSize.cx - 1;
-		outputTop = 1 - std::ceilf(((float)outputTextureSize.cy - outputSize->cy) / 2) * 2 / outputTextureSize.cy;
-		outputRight = outputLeft + 2 * outputSize->cx / (float)outputTextureSize.cx;
-		outputBottom = outputTop - 2 * outputSize->cy / (float)outputTextureSize.cy;
-	}
-
-	float pixelWidth = 1.0f / outputSize->cx;
-	float pixelHeight = 1.0f / outputSize->cy;
-	SimpleVertex vertices[] = {
-		{ XMFLOAT3(outputLeft, outputTop, 0.5f), XMFLOAT4(0.0f, 0.0f, pixelWidth, pixelHeight) },
-		{ XMFLOAT3(outputRight, outputTop, 0.5f), XMFLOAT4(1.0f, 0.0f, pixelWidth, pixelHeight) },
-		{ XMFLOAT3(outputLeft, outputBottom, 0.5f), XMFLOAT4(0.0f, 1.0f, pixelWidth, pixelHeight) },
-		{ XMFLOAT3(outputRight, outputBottom, 0.5f), XMFLOAT4(1.0f, 1.0f, pixelWidth, pixelHeight) }
-	};
-	D3D11_BUFFER_DESC bd = {};
-	bd.Usage = D3D11_USAGE_DEFAULT;
-	bd.ByteWidth = sizeof(vertices);
-	bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-
-	D3D11_SUBRESOURCE_DATA InitData = {};
-	InitData.pSysMem = vertices;
-	hr = renderer.GetD3DDevice()->CreateBuffer(&bd, &InitData, &_vtxBuffer);
-	if (FAILED(hr)) {
-		SPDLOG_LOGGER_ERROR(logger, fmt::sprintf("创建顶点缓冲区失败\n\tHRESULT：0x%X", hr));
-		return false;
-	}
-
 	return true;
 }
 
 void Effect::_Pass::Draw() {
 	_d3dDC->OMSetRenderTargets(1, &_outputRtv, nullptr);
 	_d3dDC->RSSetViewports(1, &_vp);
-
-	_d3dDC->IASetInputLayout(_vtxLayout.Get());
-
-	UINT stride = sizeof(SimpleVertex);
-	UINT offset = 0;
-	auto t = _vtxBuffer.Get();
-	_d3dDC->IASetVertexBuffers(0, 1, &t, &stride, &offset);
-
-	_d3dDC->VSSetShader(_vsShader.Get(), nullptr, 0);
-
+	_d3dDC->ClearRenderTargetView(_outputRtv, Colors::Brown);
+	
 	_d3dDC->PSSetShader(_psShader.Get(), nullptr, 0);
 	if (!_samplers.empty()) {
 		_d3dDC->PSSetSamplers(0, (UINT)_samplers.size(), _samplers.data());
@@ -348,5 +296,5 @@ void Effect::_Pass::Draw() {
 		_d3dDC->PSSetShaderResources(0, (UINT)_inputs.size(), _inputs.data());
 	}
 
-	_d3dDC->Draw(4, 0);
+	_d3dDC->Draw(3, 0);
 }

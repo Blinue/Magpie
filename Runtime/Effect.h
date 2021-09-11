@@ -29,7 +29,7 @@ enum class EffectConstantType {
 
 struct EffectConstantDesc {
 	std::string name;
-	EffectConstantType type;
+	EffectConstantType type = EffectConstantType::Float;
 	std::variant<float, int> defaultValue;
 	std::variant<std::monostate, float, int> minValue;
 	std::variant<std::monostate, float, int> maxValue;
@@ -70,9 +70,9 @@ public:
 
 	SIZE CalcOutputSize(SIZE inputSize) const;
 
-	void SetScale(float x, float y);
+	bool CanSetOutputSize() const;
 
-	bool CanScale() const;
+	void SetOutputSize(SIZE value);
 
 	bool Build(ComPtr<ID3D11Texture2D> input, ComPtr<ID3D11Texture2D> output);
 
@@ -81,13 +81,12 @@ public:
 private:
 	class _Pass {
 	public:
-		bool Initialize(Effect* parent, std::string_view pixelShader);
+		bool Initialize(Effect* parent, const std::string& pixelShader);
 
 		bool Build(
 			const std::vector<int>& inputs,
 			const std::vector<int>& samplers,
-			ComPtr<ID3D11Texture2D> output,
-			std::optional<SIZE> outputSize = {}
+			ComPtr<ID3D11Texture2D> output
 		);
 
 		void Draw();
@@ -99,9 +98,6 @@ private:
 		ID3D11RenderTargetView* _outputRtv = nullptr;
 		
 		ComPtr<ID3D11PixelShader> _psShader = nullptr;
-		ComPtr<ID3D11VertexShader> _vsShader = nullptr;
-		ComPtr<ID3D11InputLayout> _vtxLayout = nullptr;
-		ComPtr<ID3D11Buffer> _vtxBuffer = nullptr;
 
 		std::vector<ID3D11ShaderResourceView*> _inputs;
 		std::vector<ID3D11SamplerState*> _samplers;
@@ -118,6 +114,8 @@ private:
 	std::vector<EffectConstantDesc> _constantDescs;
 	std::vector<Constant32> _constants;
 	ComPtr<ID3D11Buffer> _constantBuffer = nullptr;
+
+	ComPtr<ID3D11VertexShader> _vsShader;
 
 	std::vector<PassDesc> _passDescs;
 	std::vector<_Pass> _passes;

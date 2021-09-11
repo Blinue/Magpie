@@ -141,6 +141,9 @@
       <CompileD2DCustomEffect>true</CompileD2DCustomEffect>
       <ObjectFileOutput>$(OutDir)\shaders\%(Filename).cso</ObjectFileOutput>
     </FxCompile>
+    <CopyFileToFolders>
+      <DestinationFolders>$(OutDir)shaders</DestinationFolders>
+    </CopyFileToFolders>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="App.h" />
@@ -168,6 +171,7 @@
     <ClCompile Include="pch.cpp" />
     <ClCompile Include="DllMain.cpp" />
     <ClCompile Include="Renderer.cpp" />
+    <ClCompile Include="Utils.cpp" />
     <ClCompile Include="WinRTFrameSource.cpp" />
   </ItemGroup>
   <ItemGroup>

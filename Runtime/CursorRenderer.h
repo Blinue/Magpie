@@ -153,7 +153,4 @@ private:
 
 	ID3D11SamplerState* _sampler = nullptr;
 	ComPtr<ID3D11PixelShader> _psShader = nullptr;
-	ComPtr<ID3D11VertexShader> _vsShader = nullptr;
-	ComPtr<ID3D11InputLayout> _vtxLayout = nullptr;
-	ComPtr<ID3D11Buffer> _vtxBuffer = nullptr;
 };

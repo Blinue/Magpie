@@ -3,19 +3,21 @@
 #include "App.h"
 #include "Utils.h"
 
-
-using namespace DirectX;
-
 extern std::shared_ptr<spdlog::logger> logger;
 
 const char vertexShader[] = R"(
 	struct VS_OUTPUT {
-		float4 Position : SV_POSITION; // vertex position
-		float4 TexCoord : TEXCOORD0;   // vertex texture coords
+		float4 Position : SV_POSITION;
+		float2 TexCoord : TEXCOORD0;
 	};
+	
+	VS_OUTPUT VS(uint id : SV_VERTEXID) {
+		VS_OUTPUT output;
 
-	VS_OUTPUT VS(float4 pos : POSITION, float4 texCoord : TEXCOORD) {
-		VS_OUTPUT output = { pos, texCoord };
+		float2 texCoord = float2(id & 1, id >> 1) * 2.0;
+		output.TexCoord = texCoord;
+		output.Position = float4(texCoord * float2(2.0, -2.0) + float2(-1.0, 1.0), 0.0, 1.0);
+
 		return output;
 	}
 )";
@@ -75,9 +77,8 @@ bool Renderer::InitializeEffects() {
 
 	// 等比缩放到最大
 	float fillScale = std::min(float(hostSize.cx) / inputDesc.Width, float(hostSize.cy) / inputDesc.Height);
-	effect.SetScale(fillScale, fillScale);
-
-	SIZE outputSize = effect.CalcOutputSize({ (LONG)inputDesc.Width, (LONG)inputDesc.Height });
+	SIZE outputSize = { lroundf(inputDesc.Width * fillScale), lroundf(inputDesc.Height * fillScale) };
+	effect.SetOutputSize(outputSize);
 
 	D3D11_TEXTURE2D_DESC desc{};
 	desc.Width = outputSize.cx;
