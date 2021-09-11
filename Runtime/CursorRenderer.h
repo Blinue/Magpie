@@ -3,22 +3,27 @@
 
 
 // 处理光标的渲染
-class CursorManager {
+class CursorRenderer {
 public:
-	bool Initialize();
+	bool Initialize(ComPtr<ID3D11Texture2D> input, ComPtr<ID3D11Texture2D> output);
 
-	~CursorManager();
-/*
+	~CursorRenderer();
+
+	void Draw();
+
 private:
 	struct CursorInfo {
 		HCURSOR handle = NULL;
-		ComPtr<ID2D1Bitmap> bmp = nullptr;
+		ComPtr<ID3D11Texture2D> texture = nullptr;
 		int xHotSpot = 0;
 		int yHotSpot = 0;
 		int width = 0;
 		int height = 0;
 		bool isMonochrome = false;
 	};
+/*
+private:
+	
 
 	CursorInfo* _cursorInfo = nullptr;
 	D2D1_POINT_2L _targetScreenPos{};
@@ -136,4 +141,19 @@ private:
 	*/
 private:
 	INT _cursorSpeed = 0;
+
+	ComPtr<ID3D11DeviceContext4> _d3dDC = nullptr;
+	ComPtr<ID3D11Device5> _d3dDevice = nullptr;
+	ComPtr<ID3D11Texture2D> _input = nullptr;
+	ComPtr<ID3D11Texture2D> _output = nullptr;
+
+	ID3D11RenderTargetView* _outputRtv = nullptr;
+	ID3D11ShaderResourceView* _inputSrv = nullptr;
+	D3D11_VIEWPORT _vp{};
+
+	ID3D11SamplerState* _sampler = nullptr;
+	ComPtr<ID3D11PixelShader> _psShader = nullptr;
+	ComPtr<ID3D11VertexShader> _vsShader = nullptr;
+	ComPtr<ID3D11InputLayout> _vtxLayout = nullptr;
+	ComPtr<ID3D11Buffer> _vtxBuffer = nullptr;
 };

@@ -2,11 +2,12 @@
 #include "pch.h"
 #include "Renderer.h"
 #include "FrameSourceBase.h"
-#include "CursorManager.h"
 
 
 class App {
 public:
+	~App();
+
 	static App& GetInstance() {
 		static App* instance = new App();
 		return *instance;
@@ -95,7 +96,6 @@ private:
 
 	std::unique_ptr<Renderer> _renderer = nullptr;
 	std::unique_ptr<FrameSourceBase> _frameSource = nullptr;
-	std::unique_ptr<CursorManager> _cursorManager = nullptr;
 
 	std::shared_ptr<spdlog::logger> _logger = nullptr;
 };

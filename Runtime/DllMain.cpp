@@ -20,6 +20,7 @@ BOOL APIENTRY DllMain(
 		hInst = hModule;
 		break;
 	case DLL_PROCESS_DETACH:
+		App::GetInstance().~App();
 		break;
 	case DLL_THREAD_ATTACH:
 		break;
@@ -31,7 +32,7 @@ BOOL APIENTRY DllMain(
 
 
 void InitLogger() {
-	logger = spdlog::rotating_logger_mt(".", "logs/Runtime.log", 100000, 2);
+	logger = spdlog::rotating_logger_mt(".", "logs/Runtime.log", 100000, 1);
 	logger->set_level(spdlog::level::info);
 	logger->set_pattern("%Y-%m-%d %H:%M:%S.%e|%l|%s:%!|%v");
 	logger->flush_on(spdlog::level::warn);

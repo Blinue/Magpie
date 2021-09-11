@@ -10,6 +10,11 @@ const wchar_t* App::_errorMsg = ErrorMessages::GENERIC;
 const UINT App::_WM_DESTORYHOST = RegisterWindowMessage(L"MAGPIE_WM_DESTORYHOST");
 
 
+App::~App() {
+	MagUninitialize();
+	Windows::Foundation::Uninitialize();
+}
+
 bool App::Initialize(
 	HINSTANCE hInst,
 	HWND hwndSrc,
@@ -37,6 +42,11 @@ bool App::Initialize(
 
 		// 注册主窗口类
 		_RegisterHostWndClass();
+
+		// 供隐藏光标使用
+		if (!MagInitialize()) {
+			SPDLOG_LOGGER_ERROR(logger, "MagInitialize 失败");
+		}
 
 		initalized = true;
 	}
@@ -72,14 +82,6 @@ bool App::Initialize(
 
 	if (!_renderer->InitializeEffects()) {
 		SPDLOG_LOGGER_INFO(logger, "初始化效果失败，正在清理");
-		DestroyWindow(_hwndHost);
-		Run();
-		return false;
-	}
-
-	_cursorManager.reset(new CursorManager());
-	if (!_cursorManager->Initialize()) {
-		SPDLOG_LOGGER_INFO(logger, "初始化 CursorManager 失败，正在清理");
 		DestroyWindow(_hwndHost);
 		Run();
 		return false;
@@ -210,7 +212,6 @@ LRESULT App::_HostWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 }
 
 void App::_ReleaseResources() {
-	_cursorManager = nullptr;
 	_frameSource = nullptr;
 	_renderer = nullptr;
 }

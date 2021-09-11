@@ -144,7 +144,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="App.h" />
-    <ClInclude Include="CursorManager.h" />
+    <ClInclude Include="CursorRenderer.h" />
     <ClInclude Include="Effect.h" />
     <ClInclude Include="ErrorMessages.h" />
     <ClInclude Include="FrameCatcher.h" />
@@ -163,7 +163,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App.cpp" />
-    <ClCompile Include="CursorManager.cpp" />
+    <ClCompile Include="CursorRenderer.cpp" />
     <ClCompile Include="Effect.cpp" />
     <ClCompile Include="pch.cpp" />
     <ClCompile Include="DllMain.cpp" />

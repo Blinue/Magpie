@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "Renderer.h"
 #include "App.h"
-
+#include "Utils.h"
 
 
 using namespace DirectX;
@@ -68,48 +68,67 @@ bool Renderer::InitializeEffects() {
 		return false;
 	}
 
-	ComPtr<ID3D11Texture2D> input = App::GetInstance().GetFrameSource().GetOutput();
+	_effectInput = App::GetInstance().GetFrameSource().GetOutput();
 	D3D11_TEXTURE2D_DESC inputDesc;
-	input->GetDesc(&inputDesc);
+	_effectInput->GetDesc(&inputDesc);
 	SIZE hostSize = App::GetInstance().GetHostWndSize();
 
 	// 等比缩放到最大
 	float fillScale = std::min(float(hostSize.cx) / inputDesc.Width, float(hostSize.cy) / inputDesc.Height);
 	effect.SetScale(fillScale, fillScale);
 
-	if (!effect.Build(input, _backBuffer)) {
+	SIZE outputSize = effect.CalcOutputSize({ (LONG)inputDesc.Width, (LONG)inputDesc.Height });
+
+	D3D11_TEXTURE2D_DESC desc{};
+	desc.Width = outputSize.cx;
+	desc.Height = outputSize.cy;
+	desc.MipLevels = 1;
+	desc.ArraySize = 1;
+	desc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
+	desc.SampleDesc.Count = 1;
+	desc.SampleDesc.Quality = 0;
+	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
+	hr = _d3dDevice->CreateTexture2D(&desc, nullptr, &_effectOutput);
+	if (FAILED(hr)) {
+		SPDLOG_LOGGER_CRITICAL(logger, fmt::sprintf("创建 Texture2D 失败\n\tHRESULT：0x%X", hr));
+		return false;
+	}
+
+	if (!effect.Build(_effectInput, _effectOutput)) {
 		SPDLOG_LOGGER_CRITICAL(logger, "构建 Effect 失败");
 		return false;
 	}
 
-	// 计算输出图像的位置
-	SIZE outputSize = effect.CalcOutputSize({ (LONG)inputDesc.Width, (LONG)inputDesc.Height });
-	if (outputSize.cx >= hostSize.cx) {
-		_destRect.left = 0;
-		_destRect.right = hostSize.cx;
-	} else {
-		_destRect.left = (hostSize.cx - outputSize.cx) / 2;
-		_destRect.right = _destRect.left + outputSize.cx;
-	}
-	if (outputSize.cy >= hostSize.cy) {
-		_destRect.top = 0;
-		_destRect.bottom = hostSize.cy;
-	} else {
-		_destRect.top = (hostSize.cy - outputSize.cy) / 2;
-		_destRect.bottom = _destRect.top + outputSize.cy;
+	if (!_cursorRenderer.Initialize(_effectOutput, _backBuffer)) {
+		SPDLOG_LOGGER_CRITICAL(logger, "构建 CursorRenderer 失败");
+		return false;
 	}
 
 	return true;
 }
 
+
 void Renderer::Render() {
-	if (!App::GetInstance().GetFrameSource().Update()) {
+	if (!_waitingForNextFrame) {
+		WaitForSingleObjectEx(_frameLatencyWaitableObject, 1000, true);
+	}
+	
+	_waitingForNextFrame = !App::GetInstance().GetFrameSource().Update();
+	if (_waitingForNextFrame) {
+		return;
+	}
+
+	if (!_CheckSrcState()) {
+		SPDLOG_LOGGER_INFO(logger, "源窗口状态改变，退出全屏");
+		DestroyWindow(App::GetInstance().GetHwndHost());
 		return;
 	}
 
 	for (Effect& effect : _effects) {
 		effect.Draw();
 	}
+
+	_cursorRenderer.Draw();
 
 	_dxgiSwapChain->Present(0, 0);
 }
@@ -229,20 +248,36 @@ bool Renderer::_InitD3D() {
 		sd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 		sd.BufferCount = 2;
 		sd.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;
+		sd.Flags = DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT;
 
+		ComPtr<IDXGISwapChain1> dxgiSwapChain = nullptr;
 		hr = dxgiFactory->CreateSwapChainForHwnd(
 			_d3dDevice.Get(),
 			App::GetInstance().GetHwndHost(),
 			&sd,
 			nullptr,
 			nullptr,
-			&_dxgiSwapChain
+			&dxgiSwapChain
 		);
 		if (FAILED(hr)) {
 			SPDLOG_LOGGER_CRITICAL(logger, fmt::sprintf("创建交换链失败\n\tHRESULT：{0x%X", hr));
 			return false;
 		}
 
+		hr = dxgiSwapChain.As<IDXGISwapChain4>(&_dxgiSwapChain);
+		if (FAILED(hr)) {
+			SPDLOG_LOGGER_CRITICAL(logger, fmt::sprintf("获取 IDXGISwapChain4 失败\n\tHRESULT：0x%X", hr));
+			return false;
+		}
+
+		hr = _dxgiSwapChain->SetMaximumFrameLatency(1);
+		if (FAILED(hr)) {
+			SPDLOG_LOGGER_CRITICAL(logger, fmt::sprintf("获取 IDXGISwapChain4 失败\n\tHRESULT：0x%X", hr));
+			return false;
+		}
+
+		_frameLatencyWaitableObject = _dxgiSwapChain->GetFrameLatencyWaitableObject();
+		
 		hr = dxgiFactory->MakeWindowAssociation(App::GetInstance().GetHwndHost(), DXGI_MWA_NO_ALT_ENTER);
 		if (FAILED(hr)) {
 			SPDLOG_LOGGER_ERROR(logger, fmt::sprintf("MakeWindowAssociation 失败\n\tHRESULT：0x%X", hr));
@@ -259,6 +294,31 @@ bool Renderer::_InitD3D() {
 	_d3dDC->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 
 	SPDLOG_LOGGER_INFO(logger, "Renderer 初始化完成");
+	return true;
+}
+
+bool Renderer::_CheckSrcState() {
+	HWND hwndSrc = App::GetInstance().GetHwndSrc();
+	if (GetForegroundWindow() != hwndSrc) {
+		SPDLOG_LOGGER_INFO(logger, "前台窗口已改变");
+		return false;
+	}
+
+	RECT rect;
+	if (!Utils::GetClientScreenRect(hwndSrc, rect)) {
+		SPDLOG_LOGGER_ERROR(logger, "GetClientScreenRect 出错");
+		return false;
+	}
+
+	if (App::GetInstance().GetSrcClientRect() != rect) {
+		SPDLOG_LOGGER_INFO(logger, "源窗口位置或大小改变");
+		return false;
+	}
+	if (Utils::GetWindowShowCmd(hwndSrc) != SW_NORMAL) {
+		SPDLOG_LOGGER_INFO(logger, "源窗口显示状态改变");
+		return false;
+	}
+
 	return true;
 }
 

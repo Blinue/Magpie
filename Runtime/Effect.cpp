@@ -7,11 +7,6 @@ using namespace DirectX;
 
 extern std::shared_ptr<spdlog::logger> logger;
 
-struct SimpleVertex {
-	XMFLOAT3 Pos;
-	XMFLOAT4 TexCoord;
-};
-
 
 bool Effect::InitializeFromString(std::string_view hlsl) {
 	/*Renderer& renderer = App::GetInstance().GetRenderer();

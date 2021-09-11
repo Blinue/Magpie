@@ -1,6 +1,7 @@
 #pragma once
 #include "pch.h"
 #include "Effect.h"
+#include "CursorRenderer.h"
 
 
 class Renderer {
@@ -15,10 +16,6 @@ public:
 		LINEAR,
 		POINT
 	};
-
-	const RECT& GetDestRect() const {
-		return _destRect;
-	}
 
 	ComPtr<ID3D11SamplerState> GetSampler(FilterType filterType);
 
@@ -49,14 +46,20 @@ public:
 private:
 	bool _InitD3D();
 
+	bool _CheckSrcState();
+
 	ComPtr<ID3D11Device5> _d3dDevice = nullptr;
 	ComPtr<IDXGIDevice4> _dxgiDevice = nullptr;
-	ComPtr<IDXGISwapChain1> _dxgiSwapChain = nullptr;
+	ComPtr<IDXGISwapChain4> _dxgiSwapChain = nullptr;
 	ComPtr<ID3D11DeviceContext4> _d3dDC = nullptr;
+	HANDLE _frameLatencyWaitableObject = NULL;
+	bool _waitingForNextFrame = false;
 
 	ComPtr<ID3D11SamplerState> _linearSampler = nullptr;
 	ComPtr<ID3D11SamplerState> _pointSampler = nullptr;
 
+	ComPtr<ID3D11Texture2D> _effectInput = nullptr;
+	ComPtr<ID3D11Texture2D> _effectOutput = nullptr;
 	ComPtr<ID3D11Texture2D> _backBuffer = nullptr;
 	std::unordered_map<ID3D11Texture2D*, ComPtr<ID3D11RenderTargetView>> _rtvMap;
 	std::unordered_map<ID3D11Texture2D*, ComPtr<ID3D11ShaderResourceView>> _srvMap;
@@ -66,4 +69,5 @@ private:
 	std::vector<Effect> _effects;
 
 	RECT _destRect{};
+	CursorRenderer _cursorRenderer;
 };

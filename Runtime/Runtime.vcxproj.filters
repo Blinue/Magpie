@@ -19,7 +19,9 @@
     <ClCompile Include="Effect.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="CursorManager.cpp" />
+    <ClCompile Include="CursorRenderer.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -70,7 +72,7 @@
     <ClInclude Include="WinRTFrameSource.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="CursorManager.h">
+    <ClInclude Include="CursorRenderer.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
