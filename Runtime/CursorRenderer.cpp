@@ -39,20 +39,30 @@ bool CursorRenderer::Initialize(ComPtr<ID3D11Texture2D> input, ComPtr<ID3D11Text
 	input->GetDesc(&inputDesc);
 	output->GetDesc(&outputDesc);
 
+	// 如果输出可以容纳输入，将其居中；如果不能容纳，等比缩放到能容纳的最大大小
 	RECT destRect{};
-	if (inputDesc.Width >= outputDesc.Width) {
-		destRect.left = 0;
-		destRect.right = outputDesc.Width;
-	} else {
+	if (inputDesc.Width <= outputDesc.Width && inputDesc.Height <= outputDesc.Height) {
 		destRect.left = (outputDesc.Width - inputDesc.Width) / 2;
 		destRect.right = destRect.left + inputDesc.Width;
-	}
-	if (inputDesc.Height >= outputDesc.Height) {
-		destRect.top = 0;
-		destRect.bottom = outputDesc.Height;
-	} else {
 		destRect.top = (outputDesc.Height - inputDesc.Height) / 2;
 		destRect.bottom = destRect.top + inputDesc.Height;
+	} else {
+		float scaleX = float(outputDesc.Width) / inputDesc.Width;
+		float scaleY = float(outputDesc.Height) / inputDesc.Height;
+
+		if ( scaleX >= scaleY ) {
+			long width = lroundf(inputDesc.Width * scaleY);
+			destRect.left = (outputDesc.Width - width) / 2;
+			destRect.right = destRect.left + width;
+			destRect.top = 0;
+			destRect.bottom = outputDesc.Height;
+		} else {
+			long height = lroundf(inputDesc.Height * scaleX);
+			destRect.left = 0;
+			destRect.right = outputDesc.Width;
+			destRect.top = (outputDesc.Height - height) / 2;
+			destRect.bottom = destRect.top + height;
+		}
 	}
 
 	/*if (App::GetInstance().IsAdjustCursorSpeed()) {
@@ -84,6 +94,8 @@ bool CursorRenderer::Initialize(ComPtr<ID3D11Texture2D> input, ComPtr<ID3D11Text
 		return false;
 	}
 
+	_vp.TopLeftX = destRect.left;
+	_vp.TopLeftY = destRect.top;
 	_vp.Width = float(destRect.right - destRect.left);
 	_vp.Height = float(destRect.bottom - destRect.top);
 	_vp.MinDepth = 0.0f;
@@ -125,7 +137,6 @@ CursorRenderer::~CursorRenderer() {
 void CursorRenderer::Draw() {
 	_d3dDC->OMSetRenderTargets(1, &_outputRtv, nullptr);
 	_d3dDC->RSSetViewports(1, &_vp);
-
 	_d3dDC->PSSetShader(_psShader.Get(), nullptr, 0);
 	_d3dDC->PSSetSamplers(0, 1, &_sampler);
 	_d3dDC->PSSetShaderResources(0, 1, &_inputSrv);

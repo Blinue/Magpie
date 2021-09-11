@@ -284,6 +284,7 @@ bool Effect::_Pass::Build(
 }
 
 void Effect::_Pass::Draw() {
+	_d3dDC->PSSetShaderResources(0, 0, nullptr);
 	_d3dDC->OMSetRenderTargets(1, &_outputRtv, nullptr);
 	_d3dDC->RSSetViewports(1, &_vp);
 	_d3dDC->ClearRenderTargetView(_outputRtv, Colors::Brown);

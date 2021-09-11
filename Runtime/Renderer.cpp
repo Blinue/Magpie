@@ -8,14 +8,14 @@ extern std::shared_ptr<spdlog::logger> logger;
 const char vertexShader[] = R"(
 	struct VS_OUTPUT {
 		float4 Position : SV_POSITION;
-		float2 TexCoord : TEXCOORD0;
+		float4 TexCoord : TEXCOORD0;
 	};
 	
 	VS_OUTPUT VS(uint id : SV_VERTEXID) {
 		VS_OUTPUT output;
 
 		float2 texCoord = float2(id & 1, id >> 1) * 2.0;
-		output.TexCoord = texCoord;
+		output.TexCoord = float4(texCoord, 0, 0);
 		output.Position = float4(texCoord * float2(2.0, -2.0) + float2(-1.0, 1.0), 0.0, 1.0);
 
 		return output;
@@ -124,6 +124,10 @@ void Renderer::Render() {
 		DestroyWindow(App::GetInstance().GetHwndHost());
 		return;
 	}
+
+	_d3dDC->ClearState();
+	// 所有渲染都使用三角形带拓扑
+	_d3dDC->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 
 	for (Effect& effect : _effects) {
 		effect.Draw();
@@ -290,9 +294,6 @@ bool Renderer::_InitD3D() {
 		SPDLOG_LOGGER_CRITICAL(logger, fmt::sprintf("获取后缓冲区失败\n\tHRESULT：0x%X", hr));
 		return false;
 	}
-
-	// 所有效果都使用三角形带拓扑
-	_d3dDC->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 
 	SPDLOG_LOGGER_INFO(logger, "Renderer 初始化完成");
 	return true;
