@@ -69,14 +69,14 @@
     <ClInclude Include="Renderer.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="FrameSourceBase.h">
+    <ClInclude Include="CursorRenderer.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="WinRTFrameSource.h">
-      <Filter>头文件</Filter>
+      <Filter>头文件\Capture</Filter>
     </ClInclude>
-    <ClInclude Include="CursorRenderer.h">
-      <Filter>头文件</Filter>
+    <ClInclude Include="FrameSourceBase.h">
+      <Filter>头文件\Capture</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

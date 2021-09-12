@@ -51,7 +51,8 @@ bool App::Initialize(
 		initalized = true;
 	}
 
-	if (!Utils::GetClientScreenRect(_hwndSrc, _srcClientRect)) {
+	_srcClientRect = Utils::GetClientScreenRect(_hwndSrc);
+	if (_srcClientRect.right == 0 || _srcClientRect.bottom == 0) {
 		SPDLOG_LOGGER_CRITICAL(logger, "获取源窗口客户区失败");
 		return false;
 	}

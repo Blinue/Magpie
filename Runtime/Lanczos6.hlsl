@@ -36,7 +36,7 @@ float3 line_run(float ypos, float3 xpos1, float3 xpos2, float3 linetaps1, float3
 		+ INPUT.Sample(linearSampler, float2(xpos2.b, ypos)).rgb * linetaps2.b;
 }
 
-float4 PS(VS_OUTPUT input) : SV_TARGET {
+float4 main(VS_OUTPUT input) : SV_TARGET {
 	float2 coord = input.TexCoord.xy;
 
 	// 用于抗振铃

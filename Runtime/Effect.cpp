@@ -39,7 +39,7 @@ bool Effect::InitializeLanczos() {
 	Renderer& renderer = App::GetInstance().GetRenderer();
 	_d3dDevice = renderer.GetD3DDevice();
 	_d3dDC = renderer.GetD3DDC();
-	_vsShader = renderer.GetVSShader();
+	_vertexShader = renderer.GetVSShader();
 
 	const wchar_t* fileName = L"shaders\\Lanczos6.hlsl";
 	std::string hlsl;
@@ -216,7 +216,7 @@ bool Effect::Build(ComPtr<ID3D11Texture2D> input, ComPtr<ID3D11Texture2D> output
 void Effect::Draw() {
 	ID3D11Buffer* t = _constantBuffer.Get();
 	_d3dDC->PSSetConstantBuffers(0, 1, &t);
-	_d3dDC->VSSetShader(_vsShader.Get(), nullptr, 0);
+	_d3dDC->VSSetShader(_vertexShader.Get(), nullptr, 0);
 
 	for (_Pass& pass : _passes) {
 		pass.Draw();
@@ -234,7 +234,7 @@ bool Effect::_Pass::Initialize(Effect* parent, const std::string& pixelShader) {
 		return false;
 	}
 	
-	HRESULT hr = renderer.GetD3DDevice()->CreatePixelShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, &_psShader);
+	HRESULT hr = renderer.GetD3DDevice()->CreatePixelShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, &_pixelShader);
 	if (FAILED(hr)) {
 		SPDLOG_LOGGER_ERROR(logger, fmt::sprintf("创建像素着色器失败\n\tHRESULT：0x%X", hr));
 		return false;
@@ -289,7 +289,7 @@ void Effect::_Pass::Draw() {
 	_d3dDC->RSSetViewports(1, &_vp);
 	_d3dDC->ClearRenderTargetView(_outputRtv, Colors::Brown);
 	
-	_d3dDC->PSSetShader(_psShader.Get(), nullptr, 0);
+	_d3dDC->PSSetShader(_pixelShader.Get(), nullptr, 0);
 	if (!_samplers.empty()) {
 		_d3dDC->PSSetSamplers(0, (UINT)_samplers.size(), _samplers.data());
 	}

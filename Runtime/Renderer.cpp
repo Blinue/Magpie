@@ -6,20 +6,22 @@
 extern std::shared_ptr<spdlog::logger> logger;
 
 const char vertexShader[] = R"(
-	struct VS_OUTPUT {
-		float4 Position : SV_POSITION;
-		float4 TexCoord : TEXCOORD0;
-	};
+
+struct VS_OUTPUT {
+	float4 Position : SV_POSITION;
+	float4 TexCoord : TEXCOORD0;
+};
 	
-	VS_OUTPUT VS(uint id : SV_VERTEXID) {
-		VS_OUTPUT output;
+VS_OUTPUT main(uint id : SV_VERTEXID) {
+	VS_OUTPUT output;
 
-		float2 texCoord = float2(id & 1, id >> 1) * 2.0;
-		output.TexCoord = float4(texCoord, 0, 0);
-		output.Position = float4(texCoord * float2(2.0, -2.0) + float2(-1.0, 1.0), 0.0, 1.0);
+	float2 texCoord = float2(id & 1, id >> 1) * 2.0;
+	output.TexCoord = float4(texCoord, 0, 0);
+	output.Position = float4(texCoord * float2(2.0, -2.0) + float2(-1.0, 1.0), 0.0, 1.0);
 
-		return output;
-	}
+	return output;
+}
+
 )";
 
 
@@ -36,7 +38,7 @@ bool Renderer::InitializeEffects() {
 	ComPtr<ID3DBlob> errorMsgs = nullptr;
 	ComPtr<ID3DBlob> blob = nullptr;
 	HRESULT hr = D3DCompile(vertexShader, sizeof(vertexShader), nullptr, nullptr, nullptr,
-		"VS", "vs_5_0", D3DCOMPILE_ENABLE_STRICTNESS, 0, &blob, &errorMsgs);
+		"main", "vs_5_0", D3DCOMPILE_ENABLE_STRICTNESS, 0, &blob, &errorMsgs);
 	if (FAILED(hr)) {
 		if (errorMsgs) {
 			SPDLOG_LOGGER_CRITICAL(logger, fmt::sprintf(
@@ -45,7 +47,7 @@ bool Renderer::InitializeEffects() {
 		return false;
 	}
 
-	hr = _d3dDevice->CreateVertexShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, &_vsShader);
+	hr = _d3dDevice->CreateVertexShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, &_vertexShader);
 	if (FAILED(hr)) {
 		SPDLOG_LOGGER_CRITICAL(logger, fmt::sprintf("创建顶点着色器失败\n\tHRESULT：0x%X", hr));
 		return false;
@@ -306,12 +308,7 @@ bool Renderer::_CheckSrcState() {
 		return false;
 	}
 
-	RECT rect;
-	if (!Utils::GetClientScreenRect(hwndSrc, rect)) {
-		SPDLOG_LOGGER_ERROR(logger, "GetClientScreenRect 出错");
-		return false;
-	}
-
+	RECT rect = Utils::GetClientScreenRect(hwndSrc);
 	if (App::GetInstance().GetSrcClientRect() != rect) {
 		SPDLOG_LOGGER_INFO(logger, "源窗口位置或大小改变");
 		return false;

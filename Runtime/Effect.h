@@ -97,7 +97,7 @@ private:
 
 		ID3D11RenderTargetView* _outputRtv = nullptr;
 		
-		ComPtr<ID3D11PixelShader> _psShader = nullptr;
+		ComPtr<ID3D11PixelShader> _pixelShader = nullptr;
 
 		std::vector<ID3D11ShaderResourceView*> _inputs;
 		std::vector<ID3D11SamplerState*> _samplers;
@@ -115,7 +115,7 @@ private:
 	std::vector<Constant32> _constants;
 	ComPtr<ID3D11Buffer> _constantBuffer = nullptr;
 
-	ComPtr<ID3D11VertexShader> _vsShader;
+	ComPtr<ID3D11VertexShader> _vertexShader;
 
 	std::vector<PassDesc> _passDescs;
 	std::vector<_Pass> _passes;

@@ -1,4 +1,5 @@
 // 绘制单色光标
+// https://docs.microsoft.com/en-us/windows-hardware/drivers/display/drawing-monochrome-pointers
 
 cbuffer constants : register(b0) {
 	int4 cursorRect : packoffset(c0);

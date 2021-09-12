@@ -10,32 +10,38 @@ UINT Utils::GetWindowShowCmd(HWND hwnd) {
 
 	WINDOWPLACEMENT wp{};
 	wp.length = sizeof(wp);
-	GetWindowPlacement(hwnd, &wp);
+	if (!GetWindowPlacement(hwnd, &wp)) {
+		SPDLOG_LOGGER_ERROR(logger,
+			fmt::format("GetWindowPlacement 出错\n\tLastErrorCode：{}", GetLastError()));
+		assert(false);
+	}
 
 	return wp.showCmd;
 }
 
-bool Utils::GetClientScreenRect(HWND hWnd, RECT& rect) {
+RECT Utils::GetClientScreenRect(HWND hWnd) {
 	RECT r;
 	if (!GetClientRect(hWnd, &r)) {
 		SPDLOG_LOGGER_ERROR(logger,
 			fmt::format("GetClientRect 出错\n\tLastErrorCode：{}", GetLastError()));
-		return false;
+		assert(false);
+		return {};
 	}
 
 	POINT p{};
 	if (!ClientToScreen(hWnd, &p)) {
 		SPDLOG_LOGGER_ERROR(logger,
-			fmt::format("ClientToScree 出错\n\tLastErrorCode：{}", GetLastError()));
-		return false;
+			fmt::format("ClientToScreen 出错\n\tLastErrorCode：{}", GetLastError()));
+		assert(false);
+		return {};
 	}
 
-	rect.bottom = r.bottom + p.y;
-	rect.left = r.left + p.x;
-	rect.right = r.right + p.x;
-	rect.top = r.top + p.y;
+	r.bottom += p.y;
+	r.left += p.x;
+	r.right += p.x;
+	r.top += p.y;
 
-	return true;
+	return r;
 }
 
 RECT Utils::GetScreenRect(HWND hWnd) {
@@ -43,42 +49,18 @@ RECT Utils::GetScreenRect(HWND hWnd) {
 
 	MONITORINFO mi{};
 	mi.cbSize = sizeof(mi);
-	GetMonitorInfo(hMonitor, &mi);
-	return mi.rcMonitor;
-}
-
-BOOL Utils::Str2GUID(const std::wstring_view& szGUID, GUID& guid) {
-	if (szGUID.size() != 36) {
-		return FALSE;
+	if (!GetMonitorInfo(hMonitor, &mi)) {
+		SPDLOG_LOGGER_ERROR(logger,
+			fmt::format("GetMonitorInfo 出错\n\tLastErrorCode：{}", GetLastError()));
+		assert(false);
 	}
-
-	return swscanf_s(szGUID.data(),
-		L"%08lx-%04hx-%04hx-%02hhx%02hhx-%02hhx%02hhx%02hhx%02hhx%02hhx%02hhx",
-		&guid.Data1,
-		&guid.Data2,
-		&guid.Data3,
-		&guid.Data4[0], &guid.Data4[1],
-		&guid.Data4[2], &guid.Data4[3], &guid.Data4[4], &guid.Data4[5], &guid.Data4[6], &guid.Data4[7]
-	) == 11;
-}
-
-std::string Utils::GUID2Str(GUID guid) {
-	char buf[65]{};
-
-	sprintf_s(buf, "%08X-%04X-%04X-%02X%02X-%02X%02X%02X%02X%02X%02X",
-		guid.Data1,
-		guid.Data2,
-		guid.Data3,
-		guid.Data4[0], guid.Data4[1],
-		guid.Data4[2], guid.Data4[3], guid.Data4[4], guid.Data4[5], guid.Data4[6], guid.Data4[7]
-	);
-	return { buf };
+	return mi.rcMonitor;
 }
 
 std::wstring Utils::UTF8ToUTF16(std::string_view str) {
 	int convertResult = MultiByteToWideChar(CP_UTF8, 0, str.data(), (int)str.size(), nullptr, 0);
 	if (convertResult <= 0) {
-		SPDLOG_LOGGER_ERROR(logger, "UTF8ToUTF16 失败");
+		SPDLOG_LOGGER_ERROR(logger, fmt::format("UTF8ToUTF16 失败\n\tLastErrorCode：{}", GetLastError()));
 		assert(false);
 		return {};
 	}
@@ -86,7 +68,7 @@ std::wstring Utils::UTF8ToUTF16(std::string_view str) {
 	std::wstring r(convertResult + 10, L'\0');
 	convertResult = MultiByteToWideChar(CP_UTF8, 0, str.data(), (int)str.size(), &r[0], (int)r.size());
 	if (convertResult <= 0) {
-		SPDLOG_LOGGER_ERROR(logger, "UTF8ToUTF16 失败");
+		SPDLOG_LOGGER_ERROR(logger, fmt::format("UTF8ToUTF16 失败\n\tLastErrorCode：{}", GetLastError()));
 		assert(false);
 		return {};
 	}
@@ -97,7 +79,7 @@ std::wstring Utils::UTF8ToUTF16(std::string_view str) {
 std::string Utils::UTF16ToUTF8(std::wstring_view str) {
 	int convertResult = WideCharToMultiByte(CP_UTF8, 0, str.data(), (int)str.size(), nullptr, 0, nullptr, nullptr);
 	if (convertResult <= 0) {
-		SPDLOG_LOGGER_ERROR(logger, "UTF16ToUTF8 失败");
+		SPDLOG_LOGGER_ERROR(logger, fmt::format("UTF16ToUTF8 失败\n\tLastErrorCode：{}", GetLastError()));
 		assert(false);
 		return {};
 	}
@@ -105,7 +87,7 @@ std::string Utils::UTF16ToUTF8(std::wstring_view str) {
 	std::string r(convertResult + 10, L'\0');
 	convertResult = WideCharToMultiByte(CP_UTF8, 0, str.data(), (int)str.size(), &r[0], (int)r.size(), nullptr, nullptr);
 	if (convertResult <= 0) {
-		SPDLOG_LOGGER_ERROR(logger, "UTF16ToUTF8 失败");
+		SPDLOG_LOGGER_ERROR(logger, fmt::format("UTF16ToUTF8 失败\n\tLastErrorCode：{}", GetLastError()));
 		assert(false);
 		return {};
 	}
@@ -169,7 +151,7 @@ bool Utils::CompilePixelShader(const char* hlsl, size_t hlslLen, ID3DBlob** blob
 
     UINT flags = D3DCOMPILE_ENABLE_STRICTNESS;
     HRESULT hr = D3DCompile(hlsl, hlslLen, nullptr, nullptr, nullptr,
-        "PS", "ps_5_0", flags, 0, blob, &errorMsgs);
+        "main", "ps_5_0", flags, 0, blob, &errorMsgs);
     if (FAILED(hr)) {
         if (errorMsgs) {
             SPDLOG_LOGGER_ERROR(logger, fmt::sprintf(
