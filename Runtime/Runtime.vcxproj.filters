@@ -114,11 +114,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="MonochromeCursorShader.hlsl">
-      <Filter>着色器</Filter>
-    </FxCompile>
-  </ItemGroup>
-  <ItemGroup>
     <ResourceCompile Include="Version.rc">
       <Filter>资源文件</Filter>
     </ResourceCompile>

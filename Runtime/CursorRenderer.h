@@ -18,28 +18,13 @@ private:
 		int yHotSpot = 0;
 		int width = 0;
 		int height = 0;
+		bool isMonochrome = false;
 	};
 
 	bool _ResolveCursor(HCURSOR hCursor, _CursorInfo& result) const;
-/*
-private:
 
-public:
-	void Render() {
-		if (!_cursorInfo || _cursorInfo->isMonochrome) {
-			return;
-		}
+	bool _DrawWithCursor();
 
-		D2D1_RECT_F cursorRect = {
-			FLOAT(_targetScreenPos.x),
-			FLOAT(_targetScreenPos.y),
-			FLOAT(_targetScreenPos.x + _cursorInfo->width),
-			FLOAT(_targetScreenPos.y + _cursorInfo->height)
-		};
-
-		//Env::$instance->GetD2DDC()->DrawBitmap(_cursorInfo->bmp.Get(), &cursorRect);
-	}
-	*/
 private:
 	INT _cursorSpeed = 0;
 	RECT _destRect{};
@@ -49,8 +34,6 @@ private:
 
 	ComPtr<ID3D11DeviceContext4> _d3dDC = nullptr;
 	ComPtr<ID3D11Device5> _d3dDevice = nullptr;
-	ComPtr<ID3D11Texture2D> _input = nullptr;
-	ComPtr<ID3D11Texture2D> _output = nullptr;
 
 	ID3D11RenderTargetView* _outputRtv = nullptr;
 	ID3D11ShaderResourceView* _inputSrv = nullptr;

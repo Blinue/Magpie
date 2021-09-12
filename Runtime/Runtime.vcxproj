@@ -186,7 +186,6 @@
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
       <FileType>Document</FileType>
     </CopyFileToFolders>
-    <FxCompile Include="MonochromeCursorShader.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Version.rc" />

@@ -26,7 +26,7 @@ float4 main(VS_OUTPUT input) : SV_Target{
 const char withCursorPS[] = R"(
 
 Texture2D inputTex : register(t0);
-Texture2D<uint4> cursorTex : register(t1);
+Texture2D cursorTex : register(t1);
 
 SamplerState linearSam : register(s0);
 SamplerState pointSam : register(s1);
@@ -37,6 +37,7 @@ cbuffer constants : register(b0) {
 
 cbuffer constants : register(b1) {
 	int4 cursorRect;
+	bool isMono;
 };
 
 struct VS_OUTPUT {
@@ -48,24 +49,26 @@ float4 main(VS_OUTPUT input) : SV_TARGET {
 	float2 coord = input.TexCoord.xy;
 	int2 pos = floor(coord * inputTexSize);
 	
-	float4 cur = inputTex.Sample(linearSam, coord);
+	float3 cur = inputTex.Sample(linearSam, coord).rgb;
 	if (pos.x < cursorRect.x || pos.x >= cursorRect.z || pos.y < cursorRect.y || pos.y >= cursorRect.w) {
-		return cur;
+		return float4(cur, 1);
 	} else {
-		uint2 cursorSize = cursorRect.zw - cursorRect.xy;
-		int2 cursorCoord = pos - cursorRect.xy;
-		uint andMask = cursorTex.Load(int3(cursorCoord, 0)).x;
-		uint3 xorMask = cursorTex.Load(int3(cursorCoord.x, cursorCoord.y + cursorSize.y, 0)).bgr;
+		float2 cursorCoord = (pos - cursorRect.xy + 0.5f) / (cursorRect.zw - cursorRect.xy);
+		cursorCoord.y /= 2;
+
+		uint3 andMask = cursorTex.Sample(pointSam, cursorCoord).rgb * 255;
+		float4 xorMask = cursorTex.Sample(pointSam, float2(cursorCoord.x, cursorCoord.y + 0.5f));
 		
-		return float4(((uint3(cur.rgb * 255) & andMask) ^ xorMask) / 255.0f, 1);
+		float3 r = ((uint3(cur * 255) & andMask) ^ uint3(xorMask.rgb * 255)) / 255.0f;
+		// 模拟透明度
+		// 单色光标的透明度和一般光标不同
+		return float4(isMono ? r : lerp(r, cur, 1.0f - xorMask.a), 1);
 	}
 }
 
 )";
 
 bool CursorRenderer::Initialize(ComPtr<ID3D11Texture2D> input, ComPtr<ID3D11Texture2D> output) {
-	_input = input;
-	_output = output;
 	App& app = App::GetInstance();
 	Renderer& renderer = app.GetRenderer();
 	_d3dDC = renderer.GetD3DDC();
@@ -110,6 +113,8 @@ bool CursorRenderer::Initialize(ComPtr<ID3D11Texture2D> input, ComPtr<ID3D11Text
 	_scaleX = float(_destRect.right - _destRect.left) / (srcClient.right - srcClient.left);
 	_scaleY = float(_destRect.bottom - _destRect.top) / (srcClient.bottom - srcClient.top);
 
+	SPDLOG_LOGGER_INFO(logger, fmt::format("scaleX：{}，scaleY：{}", _scaleX, _scaleY));
+
 	if (App::GetInstance().IsAdjustCursorSpeed()) {
 		// 设置鼠标移动速度
 		if (SystemParametersInfo(SPI_GETMOUSESPEED, 0, &_cursorSpeed, 0)) {
@@ -127,11 +132,13 @@ bool CursorRenderer::Initialize(ComPtr<ID3D11Texture2D> input, ComPtr<ID3D11Text
 
 	HRESULT hr = renderer.GetRenderTargetView(output.Get(), &_outputRtv);
 	if (FAILED(hr)) {
+		SPDLOG_LOGGER_ERROR(logger, fmt::sprintf("GetRenderTargetView 失败\n\tHRESULT：0x%X", hr));
 		return false;
 	}
 
 	hr = renderer.GetShaderResourceView(input.Get(), &_inputSrv);
 	if (FAILED(hr)) {
+		SPDLOG_LOGGER_ERROR(logger, fmt::sprintf("GetShaderResourceView 失败\n\tHRESULT：0x%X", hr));
 		return false;
 	}
 
@@ -146,6 +153,7 @@ bool CursorRenderer::Initialize(ComPtr<ID3D11Texture2D> input, ComPtr<ID3D11Text
 
 	ComPtr<ID3DBlob> blob = nullptr;
 	if (!Utils::CompilePixelShader(noCursorPS, sizeof(noCursorPS), &blob)) {
+		SPDLOG_LOGGER_ERROR(logger, "编译无光标着色器失败");
 		return false;
 	}
 	hr = renderer.GetD3DDevice()->CreatePixelShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, &_noCursorPS);
@@ -155,6 +163,7 @@ bool CursorRenderer::Initialize(ComPtr<ID3D11Texture2D> input, ComPtr<ID3D11Text
 	}
 
 	if (!Utils::CompilePixelShader(withCursorPS, sizeof(withCursorPS), &blob)) {
+		SPDLOG_LOGGER_ERROR(logger, "编译有光标着色器失败");
 		return false;
 	}
 	hr = renderer.GetD3DDevice()->CreatePixelShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, &_withCursorPS);
@@ -182,7 +191,7 @@ bool CursorRenderer::Initialize(ComPtr<ID3D11Texture2D> input, ComPtr<ID3D11Text
 	// 创建存储光标位置的缓冲区
 	bd.Usage = D3D11_USAGE_DYNAMIC;
 	bd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	bd.ByteWidth = 16;
+	bd.ByteWidth = 32;
 	bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 
 	hr = _d3dDevice->CreateBuffer(&bd, nullptr, &_constantBuffer2);
@@ -216,7 +225,10 @@ CursorRenderer::~CursorRenderer() {
 
 bool GetHBmpBits32(HBITMAP hBmp, int& width, int& height, std::vector<BYTE>& pixels) {
 	BITMAP bmp{};
-	GetObject(hBmp, sizeof(bmp), &bmp);
+	if (!GetObject(hBmp, sizeof(bmp), &bmp)) {
+		SPDLOG_LOGGER_ERROR(logger, fmt::format("GetObject 失败\n\tLastErrorCode：{}", GetLastError()));
+		return false;
+	}
 	width = bmp.bmWidth;
 	height = bmp.bmHeight;
 
@@ -225,13 +237,17 @@ bool GetHBmpBits32(HBITMAP hBmp, int& width, int& height, std::vector<BYTE>& pix
 	bi.bmiHeader.biWidth = width;
 	bi.bmiHeader.biHeight = -height;
 	bi.bmiHeader.biPlanes = 1;
-	bi.bmiHeader.biBitCount = 32;
 	bi.bmiHeader.biCompression = BI_RGB;
+	bi.bmiHeader.biBitCount = 32;
 	bi.bmiHeader.biSizeImage = width * height * 4;
 
 	pixels.resize(bi.bmiHeader.biSizeImage);
 	HDC hdc = GetDC(NULL);
-	GetDIBits(hdc, hBmp, 0, height, &pixels[0], &bi, DIB_RGB_COLORS);
+	if (GetDIBits(hdc, hBmp, 0, height, &pixels[0], &bi, DIB_RGB_COLORS) != height) {
+		SPDLOG_LOGGER_ERROR(logger, fmt::format("GetDIBits 失败\n\tLastErrorCode：{}", GetLastError()));
+		ReleaseDC(NULL, hdc);
+		return false;
+	}
 	ReleaseDC(NULL, hdc);
 
 	return true;
@@ -241,22 +257,47 @@ bool CursorRenderer::_ResolveCursor(HCURSOR hCursor, _CursorInfo& result) const 
 	assert(hCursor != NULL);
 
 	ICONINFO ii{};
-	GetIconInfo(hCursor, &ii);
+	if (!GetIconInfo(hCursor, &ii)) {
+		SPDLOG_LOGGER_ERROR(logger, fmt::format("GetIconInfo 失败\n\tLastErrorCode：{}", GetLastError()));
+		return false;
+	}
 
 	result.xHotSpot = ii.xHotspot;
 	result.yHotSpot = ii.yHotspot;
 
+	auto clear = [&ii]() {
+		if (ii.hbmColor) {
+			DeleteBitmap(ii.hbmColor);
+		}
+		DeleteBitmap(ii.hbmMask);
+	};
+
 	std::vector<BYTE> pixels;
 
-	if (ii.hbmColor == NULL) {
+	result.isMonochrome = ii.hbmColor == NULL;
+	if (result.isMonochrome) {
 		// 单色光标
-		GetHBmpBits32(ii.hbmMask, result.width, result.height, pixels);
+		if (!GetHBmpBits32(ii.hbmMask, result.width, result.height, pixels)) {
+			SPDLOG_LOGGER_ERROR(logger, "GetHBmpBits32 失败");
+			clear();
+			return false;
+		}
 	} else {
-		GetHBmpBits32(ii.hbmMask, result.width, result.height, pixels);
+		if (!GetHBmpBits32(ii.hbmMask, result.width, result.height, pixels)) {
+			SPDLOG_LOGGER_ERROR(logger, "GetHBmpBits32 失败");
+			clear();
+			return false;
+		}
 
 		std::vector<BYTE> colorMsk;
-		GetHBmpBits32(ii.hbmColor, result.width, result.height, colorMsk);
+		if (!GetHBmpBits32(ii.hbmColor, result.width, result.height, colorMsk)) {
+			SPDLOG_LOGGER_ERROR(logger, "GetHBmpBits32 失败");
+			clear();
+			return false;
+		}
 		if (pixels.size() != colorMsk.size()) {
+			SPDLOG_LOGGER_ERROR(logger, "hbmMask 和 hbmColor 的尺寸不一致");
+			clear();
 			return false;
 		}
 
@@ -265,17 +306,14 @@ bool CursorRenderer::_ResolveCursor(HCURSOR hCursor, _CursorInfo& result) const 
 		result.height *= 2;
 	}
 
-	if (ii.hbmColor) {
-		DeleteBitmap(ii.hbmColor);
-	}
-	DeleteBitmap(ii.hbmMask);
+	clear();
 
 	D3D11_TEXTURE2D_DESC desc{};
 	desc.Width = result.width;
 	desc.Height = result.height;
 	desc.MipLevels = 1;
 	desc.ArraySize = 1;
-	desc.Format = DXGI_FORMAT_R8G8B8A8_UINT;
+	desc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
 	desc.SampleDesc.Count = 1;
 	desc.SampleDesc.Quality = 0;
 	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
@@ -303,66 +341,77 @@ bool CursorRenderer::_ResolveCursor(HCURSOR hCursor, _CursorInfo& result) const 
 	return true;
 }
 
+bool CursorRenderer::_DrawWithCursor() {
+	CURSORINFO ci{};
+	ci.cbSize = sizeof(ci);
+	if (!GetCursorInfo(&ci)) {
+		SPDLOG_LOGGER_ERROR(logger, fmt::format("GetCursorInfo 失败\n\tLastErrorCode：{}", GetLastError()));
+		return false;
+	}
+
+	if (!ci.hCursor || ci.flags != CURSOR_SHOWING) {
+		return false;
+	}
+
+	_CursorInfo* info = nullptr;
+	
+	auto it = _cursorMap.find(ci.hCursor);
+	if (it != _cursorMap.end()) {
+		info = &it->second;
+	} else {
+		// 未在映射中找到，创建新映射
+		_CursorInfo t;
+		if (_ResolveCursor(ci.hCursor, t)) {
+			info = &_cursorMap[ci.hCursor];
+			*info = t;
+
+			SPDLOG_LOGGER_INFO(logger, fmt::format("已解析光标：{}", (void*)ci.hCursor));
+		} else {
+			SPDLOG_LOGGER_ERROR(logger, "解析光标失败");
+			return false;
+		}
+	}
+
+	// 映射坐标
+	// 鼠标坐标为整数，否则会出现模糊
+	const RECT& srcClient = App::GetInstance().GetSrcClientRect();
+	POINT targetScreenPos = {
+		lroundf((ci.ptScreenPos.x - srcClient.left) * _scaleX) - info->xHotSpot,
+		lroundf((ci.ptScreenPos.y - srcClient.top) * _scaleY) - info->yHotSpot
+	};
+
+	// 向着色器传递光标位置
+	_d3dDC->PSSetConstantBuffers(0, 0, nullptr);
+	D3D11_MAPPED_SUBRESOURCE ms{};
+	HRESULT hr = _d3dDC->Map(_constantBuffer2.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &ms);
+	if (FAILED(hr)) {
+		SPDLOG_LOGGER_ERROR(logger, fmt::sprintf("Map 失败\n\tHRESULT：0x%X", hr));
+		return false;
+	}
+	INT* cursorRect = (INT*)ms.pData;
+	cursorRect[0] = targetScreenPos.x;
+	cursorRect[1] = targetScreenPos.y;
+	cursorRect[2] = targetScreenPos.x + info->width;
+	cursorRect[3] = targetScreenPos.y + info->height;
+	cursorRect[4] = info->isMonochrome;
+	_d3dDC->Unmap(_constantBuffer2.Get(), 0);
+
+	_d3dDC->PSSetShader(_withCursorPS.Get(), nullptr, 0);
+	ID3D11ShaderResourceView* srvs[2] = { _inputSrv, info->masks.Get() };
+	_d3dDC->PSSetShaderResources(0, 2, srvs);
+	ID3D11Buffer* buffer[2] = { _constantBuffer1.Get(), _constantBuffer2.Get() };
+	_d3dDC->PSSetConstantBuffers(0, 2, buffer);
+	ID3D11SamplerState* samplers[2] = { _linearSam.Get(), _pointSam.Get() };
+	_d3dDC->PSSetSamplers(0, 2, samplers);
+
+	return true;
+}
+
 void CursorRenderer::Draw() {
 	_d3dDC->OMSetRenderTargets(1, &_outputRtv, nullptr);
 	_d3dDC->RSSetViewports(1, &_vp);
 	
-
-	CURSORINFO ci{};
-	ci.cbSize = sizeof(ci);
-	GetCursorInfo(&ci);
-
-	_CursorInfo* info = nullptr;
-
-	if (ci.hCursor && ci.flags == CURSOR_SHOWING) {
-		auto it = _cursorMap.find(ci.hCursor);
-		if (it != _cursorMap.end()) {
-			info = &it->second;
-		} else {
-			// 未在映射中找到，创建新映射
-			_CursorInfo t;
-			if (_ResolveCursor(ci.hCursor, t)) {
-				info = &_cursorMap[ci.hCursor];
-				*info = t;
-			}
-		}
-	}
-
-	if (info) {
-		// 映射坐标
-		// 鼠标坐标为整数，否则会出现模糊
-		const RECT& srcClient = App::GetInstance().GetSrcClientRect();
-		POINT targetScreenPos = {
-			lroundf((ci.ptScreenPos.x - srcClient.left) * _scaleX) - info->xHotSpot,
-			lroundf((ci.ptScreenPos.y - srcClient.top) * _scaleY) - info->yHotSpot
-		};
-
-		// 向着色器传递光标位置
-		_d3dDC->PSSetConstantBuffers(0, 0, nullptr);
-		D3D11_MAPPED_SUBRESOURCE ms{};
-		HRESULT hr = _d3dDC->Map(_constantBuffer2.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &ms);
-		if (FAILED(hr)) {
-			_d3dDC->PSSetShaderResources(0, 1, &_inputSrv);
-			_d3dDC->PSSetShader(_noCursorPS.Get(), nullptr, 0);
-			_d3dDC->PSSetSamplers(0, 1, &_sampler);
-			_d3dDC->Draw(3, 0);
-			return;
-		}
-		INT* cursorRect = (INT*)ms.pData;
-		cursorRect[0] = targetScreenPos.x;
-		cursorRect[1] = targetScreenPos.y;
-		cursorRect[2] = targetScreenPos.x + info->width;
-		cursorRect[3] = targetScreenPos.y + info->height;
-		_d3dDC->Unmap(_constantBuffer2.Get(), 0);
-
-		_d3dDC->PSSetShader(_withCursorPS.Get(), nullptr, 0);
-		ID3D11ShaderResourceView* srvs[2] = { _inputSrv, info->masks.Get() };
-		_d3dDC->PSSetShaderResources(0, 2, srvs);
-		ID3D11Buffer* buffer[2] = { _constantBuffer1.Get(), _constantBuffer2.Get() };
-		_d3dDC->PSSetConstantBuffers(0, 2, buffer);
-		ID3D11SamplerState* samplers[2] = { _linearSam.Get(), _pointSam.Get() };
-		_d3dDC->PSSetSamplers(0, 2, samplers);
-	} else {
+	if (!_DrawWithCursor()) {
 		// 不显示鼠标或创建映射失败
 		_d3dDC->PSSetShaderResources(0, 1, &_inputSrv);
 		_d3dDC->PSSetShader(_noCursorPS.Get(), nullptr, 0);

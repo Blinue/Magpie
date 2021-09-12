@@ -115,15 +115,15 @@ void Renderer::Render() {
 	if (!_waitingForNextFrame) {
 		WaitForSingleObjectEx(_frameLatencyWaitableObject, 1000, true);
 	}
-	
-	_waitingForNextFrame = !App::GetInstance().GetFrameSource().Update();
-	if (_waitingForNextFrame) {
-		return;
-	}
 
 	if (!_CheckSrcState()) {
 		SPDLOG_LOGGER_INFO(logger, "源窗口状态改变，退出全屏");
 		DestroyWindow(App::GetInstance().GetHwndHost());
+		return;
+	}
+	
+	_waitingForNextFrame = !App::GetInstance().GetFrameSource().Update();
+	if (_waitingForNextFrame) {
 		return;
 	}
 
