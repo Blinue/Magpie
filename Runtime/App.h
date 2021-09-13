@@ -16,6 +16,7 @@ public:
 	bool Initialize(
 		HINSTANCE hInst,
 		HWND hwndSrc,
+		int captureMode,
 		bool adjustCursorSpeed
 	);
 
@@ -57,6 +58,10 @@ public:
 		return _adjustCursorSpeed;
 	}
 
+	int GetCaptureMode() const {
+		return _captureMode;
+	}
+
 	static const wchar_t* GetErrorMsg() {
 		return _errorMsg;
 	}
@@ -92,6 +97,7 @@ private:
 	SIZE _hostWndSize{};
 	RECT _srcClientRect{};
 
+	int _captureMode = 0;
 	bool _adjustCursorSpeed = false;
 
 	std::unique_ptr<Renderer> _renderer;

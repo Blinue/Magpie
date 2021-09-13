@@ -148,6 +148,7 @@ namespace Magpie {
 		public static extern void Run(
 			ReportStatus reportStatus,
 			IntPtr hwndSrc,
+			int captureMode,
 			[MarshalAs(UnmanagedType.U1)] bool adjustCursorSpeed
 		);
 	}

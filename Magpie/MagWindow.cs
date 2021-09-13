@@ -104,6 +104,7 @@ namespace Magpie {
 				NativeMethods.Run(
 					(int status, IntPtr errorMsg) => StatusEvent(status, Marshal.PtrToStringUni(errorMsg)),
 					hwndSrc,
+					captureMode,
 					adjustCursorSpeed
 				);
 			});

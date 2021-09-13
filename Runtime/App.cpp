@@ -3,6 +3,7 @@
 #include "Utils.h"
 #include "GraphicsCaptureFrameSource.h"
 #include "SharedSurfaceFrameSource.h"
+#include "GDIOverDXGIFrameSource.h"
 
 
 extern std::shared_ptr<spdlog::logger> logger;
@@ -19,12 +20,14 @@ App::~App() {
 bool App::Initialize(
 	HINSTANCE hInst,
 	HWND hwndSrc,
+	int captureMode,
 	bool adjustCursorSpeed
 ) {
 	_logger = logger;
 	_hwndSrc = hwndSrc;
 	_hInst = hInst;
 
+	_captureMode = captureMode;
 	_adjustCursorSpeed = adjustCursorSpeed;
 
 	SPDLOG_LOGGER_INFO(logger, "正在初始化 App");
@@ -74,7 +77,23 @@ bool App::Initialize(
 		return false;
 	}
 	
-	_frameSource.reset(new SharedSurfaceFrameSource());
+	switch (captureMode) {
+	case 0:
+		_frameSource.reset(new GraphicsCaptureFrameSource());
+		break;
+	case 1:
+		_frameSource.reset(new SharedSurfaceFrameSource());
+		break;
+	case 2:
+		_frameSource.reset(new GDIOverDXGIFrameSource());
+		break;
+	default:
+		SPDLOG_LOGGER_CRITICAL(logger, "未知的捕获模式，正在清理");
+		DestroyWindow(_hwndHost);
+		Run();
+		return false;
+	}
+	
 	if (!_frameSource->Initialize()) {
 		SPDLOG_LOGGER_CRITICAL(logger, "初始化 FrameSource 失败，正在清理");
 		DestroyWindow(_hwndHost);

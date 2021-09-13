@@ -23,10 +23,16 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="GraphicsCaptureFrameSource.cpp">
-      <Filter>头文件\Capture</Filter>
+      <Filter>捕获</Filter>
     </ClCompile>
     <ClCompile Include="SharedSurfaceFrameSource.cpp">
-      <Filter>头文件\Capture</Filter>
+      <Filter>捕获</Filter>
+    </ClCompile>
+    <ClCompile Include="GDIOverDXGIFrameSource.cpp">
+      <Filter>捕获</Filter>
+    </ClCompile>
+    <ClCompile Include="GDIFrameSource2.cpp">
+      <Filter>捕获</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -43,19 +49,7 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="GDIWindowCapturer.h">
-      <Filter>头文件\Capture</Filter>
-    </ClInclude>
-    <ClInclude Include="WindowCapturerBase.h">
-      <Filter>头文件\Capture</Filter>
-    </ClInclude>
-    <ClInclude Include="FrameCatcher.h">
-      <Filter>头文件\Render</Filter>
-    </ClInclude>
-    <ClInclude Include="MonochromeCursorEffect.h">
-      <Filter>头文件\Effect</Filter>
-    </ClInclude>
-    <ClInclude Include="MonochromeCursorTransform.h">
-      <Filter>头文件\Effect</Filter>
+      <Filter>捕获</Filter>
     </ClInclude>
     <ClInclude Include="resource.h">
       <Filter>资源文件</Filter>
@@ -76,13 +70,19 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="GraphicsCaptureFrameSource.h">
-      <Filter>头文件\Capture</Filter>
-    </ClInclude>
-    <ClInclude Include="FrameSourceBase.h">
-      <Filter>头文件\Capture</Filter>
+      <Filter>捕获</Filter>
     </ClInclude>
     <ClInclude Include="SharedSurfaceFrameSource.h">
-      <Filter>头文件\Capture</Filter>
+      <Filter>捕获</Filter>
+    </ClInclude>
+    <ClInclude Include="FrameSourceBase.h">
+      <Filter>捕获</Filter>
+    </ClInclude>
+    <ClInclude Include="GDIOverDXGIFrameSource.h">
+      <Filter>捕获</Filter>
+    </ClInclude>
+    <ClInclude Include="GDIFrameSource2.h">
+      <Filter>捕获</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -106,17 +106,11 @@
     <Filter Include="第三方库">
       <UniqueIdentifier>{9f2b3932-bd6a-460e-bc28-6d02b8a56bf2}</UniqueIdentifier>
     </Filter>
-    <Filter Include="头文件\Effect">
-      <UniqueIdentifier>{7aeace38-38c9-4406-9075-effd6b4c0381}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="头文件\Capture">
-      <UniqueIdentifier>{6b867004-a0fd-4e2b-aa28-8fffcbdc9fbe}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="头文件\Render">
-      <UniqueIdentifier>{45015676-99ea-4ea3-9c14-3bc0e0130a34}</UniqueIdentifier>
-    </Filter>
     <Filter Include="资源文件">
       <UniqueIdentifier>{f3740afe-3a7c-49d0-84ea-04d66feace50}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="捕获">
+      <UniqueIdentifier>{6b867004-a0fd-4e2b-aa28-8fffcbdc9fbe}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

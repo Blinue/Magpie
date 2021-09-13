@@ -14,7 +14,7 @@ bool GraphicsCaptureFrameSource::Initialize() {
     RECT srcRect{};
     HRESULT hr = DwmGetWindowAttribute(hwndSrc, DWMWA_EXTENDED_FRAME_BOUNDS, &srcRect, sizeof(srcRect));
     if (FAILED(hr)) {
-        SPDLOG_LOGGER_CRITICAL(logger, MakeComErrorMsg("DwmGetWindowAttribute 失败", hr));
+        SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("DwmGetWindowAttribute 失败", hr));
         return false;
     }
 

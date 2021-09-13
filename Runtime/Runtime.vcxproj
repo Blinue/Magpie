@@ -150,25 +150,25 @@
     <ClInclude Include="CursorRenderer.h" />
     <ClInclude Include="Effect.h" />
     <ClInclude Include="ErrorMessages.h" />
-    <ClInclude Include="FrameCatcher.h" />
     <ClInclude Include="FrameSourceBase.h" />
     <ClInclude Include="framework.h" />
+    <ClInclude Include="GDIOverDXGIFrameSource.h" />
+    <ClInclude Include="GDIFrameSource2.h" />
     <ClInclude Include="GDIWindowCapturer.h" />
-    <ClInclude Include="MonochromeCursorEffect.h" />
-    <ClInclude Include="MonochromeCursorTransform.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="SharedSurfaceFrameSource.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="Utils.h" />
-    <ClInclude Include="WindowCapturerBase.h" />
     <ClInclude Include="GraphicsCaptureFrameSource.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App.cpp" />
     <ClCompile Include="CursorRenderer.cpp" />
     <ClCompile Include="Effect.cpp" />
+    <ClCompile Include="GDIOverDXGIFrameSource.cpp" />
+    <ClCompile Include="GDIFrameSource2.cpp" />
     <ClCompile Include="pch.cpp" />
     <ClCompile Include="DllMain.cpp" />
     <ClCompile Include="Renderer.cpp" />
