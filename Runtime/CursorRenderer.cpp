@@ -32,11 +32,7 @@ SamplerState linearSam : register(s0);
 SamplerState pointSam : register(s1);
 
 cbuffer constants : register(b0) {
-	uint2 inputTexSize;
-};
-
-cbuffer constants : register(b1) {
-	int4 cursorRect;
+	float4 cursorRect;
 	bool isMono;
 };
 
@@ -47,13 +43,12 @@ struct VS_OUTPUT {
 
 float4 main(VS_OUTPUT input) : SV_TARGET {
 	float2 coord = input.TexCoord.xy;
-	int2 pos = floor(coord * inputTexSize);
 	
 	float3 cur = inputTex.Sample(linearSam, coord).rgb;
-	if (pos.x < cursorRect.x || pos.x >= cursorRect.z || pos.y < cursorRect.y || pos.y >= cursorRect.w) {
+	if (coord.x < cursorRect.x || coord.x > cursorRect.z || coord.y < cursorRect.y || coord.y > cursorRect.w) {
 		return float4(cur, 1);
 	} else {
-		float2 cursorCoord = (pos - cursorRect.xy + 0.5f) / (cursorRect.zw - cursorRect.xy);
+		float2 cursorCoord = (coord - cursorRect.xy) / (cursorRect.zw - cursorRect.xy);
 		cursorCoord.y /= 2;
 
 		uint3 andMask = cursorTex.Sample(pointSam, cursorCoord).rgb * 255;
@@ -74,7 +69,6 @@ bool CursorRenderer::Initialize(ComPtr<ID3D11Texture2D> input, ComPtr<ID3D11Text
 	_d3dDC = renderer.GetD3DDC();
 	_d3dDevice = renderer.GetD3DDevice();
 
-
 	// 限制鼠标在窗口内
 	if (!ClipCursor(&App::GetInstance().GetSrcClientRect())) {
 		SPDLOG_LOGGER_ERROR(logger, "ClipCursor 失败");
@@ -83,6 +77,9 @@ bool CursorRenderer::Initialize(ComPtr<ID3D11Texture2D> input, ComPtr<ID3D11Text
 	D3D11_TEXTURE2D_DESC inputDesc, outputDesc;
 	input->GetDesc(&inputDesc);
 	output->GetDesc(&outputDesc);
+
+	_inputSize.cx = inputDesc.Width;
+	_inputSize.cy = inputDesc.Height;
 
 	// 如果输出可以容纳输入，将其居中；如果不能容纳，等比缩放到能容纳的最大大小
 	if (inputDesc.Width <= outputDesc.Width && inputDesc.Height <= outputDesc.Height) {
@@ -172,29 +169,14 @@ bool CursorRenderer::Initialize(ComPtr<ID3D11Texture2D> input, ComPtr<ID3D11Text
 		return false;
 	}
 
-	// 创建存储输入尺寸的缓冲区
+	// 创建提供光标信息的缓冲区
 	D3D11_BUFFER_DESC bd{};
-	bd.Usage = D3D11_USAGE_DEFAULT;
-	bd.ByteWidth = 16;
-	bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-
-	D3D11_SUBRESOURCE_DATA initData{};
-	UINT inputTexSize[4] = { inputDesc.Width, inputDesc.Height, 0, 0 };
-	initData.pSysMem = inputTexSize;
-
-	hr = _d3dDevice->CreateBuffer(&bd, &initData, &_constantBuffer1);
-	if (FAILED(hr)) {
-		SPDLOG_LOGGER_ERROR(logger, fmt::sprintf("CreateBuffer 失败\n\tHRESULT：0x%X", hr));
-		return false;
-	}
-
-	// 创建存储光标位置的缓冲区
 	bd.Usage = D3D11_USAGE_DYNAMIC;
 	bd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 	bd.ByteWidth = 32;
 	bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 
-	hr = _d3dDevice->CreateBuffer(&bd, nullptr, &_constantBuffer2);
+	hr = _d3dDevice->CreateBuffer(&bd, nullptr, &_withCursorCB);
 	if (FAILED(hr)) {
 		SPDLOG_LOGGER_ERROR(logger, fmt::sprintf("CreateBuffer 失败\n\tHRESULT：0x%X", hr));
 		return false;
@@ -380,27 +362,27 @@ bool CursorRenderer::_DrawWithCursor() {
 		lroundf((ci.ptScreenPos.y - srcClient.top) * _scaleY) - info->yHotSpot
 	};
 
-	// 向着色器传递光标位置
+	// 向着色器传递光标信息
 	_d3dDC->PSSetConstantBuffers(0, 0, nullptr);
 	D3D11_MAPPED_SUBRESOURCE ms{};
-	HRESULT hr = _d3dDC->Map(_constantBuffer2.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &ms);
+	HRESULT hr = _d3dDC->Map(_withCursorCB.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &ms);
 	if (FAILED(hr)) {
 		SPDLOG_LOGGER_ERROR(logger, fmt::sprintf("Map 失败\n\tHRESULT：0x%X", hr));
 		return false;
 	}
-	INT* cursorRect = (INT*)ms.pData;
-	cursorRect[0] = targetScreenPos.x;
-	cursorRect[1] = targetScreenPos.y;
-	cursorRect[2] = targetScreenPos.x + info->width;
-	cursorRect[3] = targetScreenPos.y + info->height;
-	cursorRect[4] = info->isMonochrome;
-	_d3dDC->Unmap(_constantBuffer2.Get(), 0);
+	FLOAT* cursorRect = (FLOAT*)ms.pData;
+	cursorRect[0] = float(targetScreenPos.x) / _inputSize.cx;
+	cursorRect[1] = float(targetScreenPos.y) / _inputSize.cy;
+	cursorRect[2] = float(targetScreenPos.x + info->width) / _inputSize.cx;
+	cursorRect[3] = float(targetScreenPos.y + info->height) / _inputSize.cy;
+	((INT*)ms.pData)[4] = info->isMonochrome;
+	_d3dDC->Unmap(_withCursorCB.Get(), 0);
 
 	_d3dDC->PSSetShader(_withCursorPS.Get(), nullptr, 0);
 	ID3D11ShaderResourceView* srvs[2] = { _inputSrv, info->masks.Get() };
 	_d3dDC->PSSetShaderResources(0, 2, srvs);
-	ID3D11Buffer* buffer[2] = { _constantBuffer1.Get(), _constantBuffer2.Get() };
-	_d3dDC->PSSetConstantBuffers(0, 2, buffer);
+	ID3D11Buffer* withCursorCB = _withCursorCB.Get();
+	_d3dDC->PSSetConstantBuffers(0, 1, &withCursorCB);
 	ID3D11SamplerState* samplers[2] = { _linearSam.Get(), _pointSam.Get() };
 	_d3dDC->PSSetSamplers(0, 2, samplers);
 

@@ -28,6 +28,7 @@ private:
 private:
 	INT _cursorSpeed = 0;
 	RECT _destRect{};
+	SIZE _inputSize{};
 	float _scaleX = 0;
 	float _scaleY = 0;
 	std::unordered_map<HCURSOR, _CursorInfo> _cursorMap;
@@ -42,8 +43,7 @@ private:
 	ID3D11SamplerState* _sampler = nullptr;
 	ComPtr<ID3D11PixelShader> _noCursorPS = nullptr;
 	ComPtr<ID3D11PixelShader> _withCursorPS = nullptr;
-	ComPtr<ID3D11Buffer> _constantBuffer1 = nullptr;
-	ComPtr<ID3D11Buffer> _constantBuffer2 = nullptr;
+	ComPtr<ID3D11Buffer> _withCursorCB = nullptr;
 	ComPtr<ID3D11SamplerState> _linearSam = nullptr;
 	ComPtr<ID3D11SamplerState> _pointSam = nullptr;
 };
