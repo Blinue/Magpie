@@ -5,17 +5,18 @@
 
 extern std::shared_ptr<spdlog::logger> logger;
 
+
 bool SharedSurfaceFrameSource::Initialize() {
 	HMODULE user32 = GetModuleHandle(L"user32");
 	if (!user32) {
-		SPDLOG_LOGGER_ERROR(logger, "获取 User32 模块句柄失败");
+		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("获取 User32 模块句柄失败"));
 		return false;
 	}
 
 	_dwmGetDxSharedSurface = (_DwmGetDxSharedSurfaceFunc*)GetProcAddress(user32, "DwmGetDxSharedSurface");
 
 	if (!_dwmGetDxSharedSurface) {
-		SPDLOG_LOGGER_ERROR(logger, "获取函数 DwmGetDxSharedSurfaceFunc 地址失败");
+		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("获取函数 DwmGetDxSharedSurfaceFunc 地址失败"));
 		return false;
 	}
 
@@ -24,14 +25,19 @@ bool SharedSurfaceFrameSource::Initialize() {
 	_hwndSrc = App::GetInstance().GetHwndSrc();
 
 	RECT srcWindowRect;
-	GetWindowRect(_hwndSrc, &srcWindowRect);
+	if (!GetWindowRect(_hwndSrc, &srcWindowRect)) {
+		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetWindowRect 失败"));
+		return false;
+	}
 	const RECT srcClientRect = App::GetInstance().GetSrcClientRect();
 	
 	_clientInFrame = {
-		srcClientRect.left - srcWindowRect.left,
-		srcClientRect.top - srcWindowRect.top,
-		srcClientRect.right - srcWindowRect.left,
-		srcClientRect.bottom - srcWindowRect.top
+		UINT(srcClientRect.left - srcWindowRect.left),
+		UINT(srcClientRect.top - srcWindowRect.top),
+		0,
+		UINT(srcClientRect.right - srcWindowRect.left),
+		UINT(srcClientRect.bottom - srcWindowRect.top),
+		1
 	};
 
 	D3D11_TEXTURE2D_DESC desc{};
@@ -43,8 +49,13 @@ bool SharedSurfaceFrameSource::Initialize() {
 	desc.SampleDesc.Count = 1;
 	desc.SampleDesc.Quality = 0;
 	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
-	_d3dDevice->CreateTexture2D(&desc, nullptr, &_output);
+	HRESULT hr = _d3dDevice->CreateTexture2D(&desc, nullptr, &_output);
+	if (FAILED(hr)) {
+		SPDLOG_LOGGER_CRITICAL(logger, MakeComErrorMsg("创建 Texture2D 失败", hr));
+		return false;
+	}
 
+	SPDLOG_LOGGER_INFO(logger, "SharedSurfaceFrameSource 初始化完成");
 	return true;
 }
 
@@ -53,22 +64,22 @@ ComPtr<ID3D11Texture2D> SharedSurfaceFrameSource::GetOutput() {
 }
 
 bool SharedSurfaceFrameSource::Update() {
-	HANDLE handle = NULL;
-	if (!_dwmGetDxSharedSurface(_hwndSrc, &handle, nullptr, nullptr, nullptr, nullptr)) {
+	HANDLE sharedTextureHandle = NULL;
+	if (!_dwmGetDxSharedSurface(_hwndSrc, &sharedTextureHandle, nullptr, nullptr, nullptr, nullptr)
+		|| !sharedTextureHandle
+	) {
+		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("DwmGetDxSharedSurface 失败"));
 		return false;
 	}
 
-	ComPtr<ID3D11Texture2D> texture;
-	HRESULT hr = _d3dDevice->OpenSharedResource(handle, IID_PPV_ARGS(&texture));
+	ComPtr<ID3D11Texture2D> sharedTexture;
+	HRESULT hr = _d3dDevice->OpenSharedResource(sharedTextureHandle, IID_PPV_ARGS(&sharedTexture));
 	if (FAILED(hr)) {
+		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("OpenSharedResource 失败", hr));
 		return false;
 	}
 	
-	D3D11_BOX box{
-		_clientInFrame.left, _clientInFrame.top, 0,
-		_clientInFrame.right, _clientInFrame.bottom, 1
-	};
-	_d3dDC->CopySubresourceRegion(_output.Get(), 0, 0, 0, 0, texture.Get(), 0, &box);
+	_d3dDC->CopySubresourceRegion(_output.Get(), 0, 0, 0, 0, sharedTexture.Get(), 0, &_clientInFrame);
 
 	return true;
 }

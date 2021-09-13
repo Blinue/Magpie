@@ -20,4 +20,14 @@ using namespace std::literals::string_literals;
 using namespace Microsoft::WRL;
 using namespace DirectX;
 
+
+static std::string MakeWin32ErrorMsg(std::string_view msg) {
+	return fmt::format("{}\n\tLastErrorCode：{}", msg, GetLastError());
+}
+
+static std::string MakeComErrorMsg(std::string_view msg, HRESULT hr) {
+	return fmt::sprintf("%s\n\tHRESULT：0x%X", msg, hr);
+}
+
+
 #endif //PCH_H

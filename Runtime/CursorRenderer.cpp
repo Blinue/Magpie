@@ -71,7 +71,7 @@ bool CursorRenderer::Initialize(ComPtr<ID3D11Texture2D> input, ComPtr<ID3D11Text
 
 	// 限制鼠标在窗口内
 	if (!ClipCursor(&App::GetInstance().GetSrcClientRect())) {
-		SPDLOG_LOGGER_ERROR(logger, "ClipCursor 失败");
+		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("ClipCursor 失败"));
 	}
 
 	D3D11_TEXTURE2D_DESC inputDesc, outputDesc;
@@ -118,10 +118,10 @@ bool CursorRenderer::Initialize(ComPtr<ID3D11Texture2D> input, ComPtr<ID3D11Text
 			long newSpeed = std::clamp(lroundf(_cursorSpeed / (_scaleX + _scaleY) * 2), 1L, 20L);
 
 			if (!SystemParametersInfo(SPI_SETMOUSESPEED, 0, (PVOID)(intptr_t)newSpeed, 0)) {
-				SPDLOG_LOGGER_ERROR(logger, "设置光标移速失败");
+				SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("设置光标移速失败"));
 			}
 		} else {
-			SPDLOG_LOGGER_ERROR(logger, "获取光标移速失败");
+			SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("获取光标移速失败"));
 		}
 
 		SPDLOG_LOGGER_INFO(logger, "已调整光标移速");
@@ -129,13 +129,13 @@ bool CursorRenderer::Initialize(ComPtr<ID3D11Texture2D> input, ComPtr<ID3D11Text
 
 	HRESULT hr = renderer.GetRenderTargetView(output.Get(), &_outputRtv);
 	if (FAILED(hr)) {
-		SPDLOG_LOGGER_ERROR(logger, fmt::sprintf("GetRenderTargetView 失败\n\tHRESULT：0x%X", hr));
+		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("GetRenderTargetView 失败", hr));
 		return false;
 	}
 
 	hr = renderer.GetShaderResourceView(input.Get(), &_inputSrv);
 	if (FAILED(hr)) {
-		SPDLOG_LOGGER_ERROR(logger, fmt::sprintf("GetShaderResourceView 失败\n\tHRESULT：0x%X", hr));
+		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("GetShaderResourceView 失败", hr));
 		return false;
 	}
 
@@ -146,8 +146,6 @@ bool CursorRenderer::Initialize(ComPtr<ID3D11Texture2D> input, ComPtr<ID3D11Text
 	_vp.MinDepth = 0.0f;
 	_vp.MaxDepth = 1.0f;
 
-	_sampler = renderer.GetSampler(Renderer::FilterType::POINT).Get();
-
 	ComPtr<ID3DBlob> blob = nullptr;
 	if (!Utils::CompilePixelShader(noCursorPS, sizeof(noCursorPS), &blob)) {
 		SPDLOG_LOGGER_ERROR(logger, "编译无光标着色器失败");
@@ -155,7 +153,7 @@ bool CursorRenderer::Initialize(ComPtr<ID3D11Texture2D> input, ComPtr<ID3D11Text
 	}
 	hr = renderer.GetD3DDevice()->CreatePixelShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, &_noCursorPS);
 	if (FAILED(hr)) {
-		SPDLOG_LOGGER_ERROR(logger, fmt::sprintf("创建像素着色器失败\n\tHRESULT：0x%X", hr));
+		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("创建像素着色器失败", hr));
 		return false;
 	}
 
@@ -165,7 +163,7 @@ bool CursorRenderer::Initialize(ComPtr<ID3D11Texture2D> input, ComPtr<ID3D11Text
 	}
 	hr = renderer.GetD3DDevice()->CreatePixelShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, &_withCursorPS);
 	if (FAILED(hr)) {
-		SPDLOG_LOGGER_ERROR(logger, fmt::sprintf("创建像素着色器失败\n\tHRESULT：0x%X", hr));
+		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("创建像素着色器失败", hr));
 		return false;
 	}
 
@@ -178,15 +176,19 @@ bool CursorRenderer::Initialize(ComPtr<ID3D11Texture2D> input, ComPtr<ID3D11Text
 
 	hr = _d3dDevice->CreateBuffer(&bd, nullptr, &_withCursorCB);
 	if (FAILED(hr)) {
-		SPDLOG_LOGGER_ERROR(logger, fmt::sprintf("CreateBuffer 失败\n\tHRESULT：0x%X", hr));
+		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("CreateBuffer 失败", hr));
 		return false;
 	}
 
-	_linearSam = renderer.GetSampler(Renderer::FilterType::LINEAR);
-	_pointSam = renderer.GetSampler(Renderer::FilterType::POINT);
+	if (!renderer.GetSampler(Renderer::FilterType::LINEAR, &_linearSam) 
+		|| !renderer.GetSampler(Renderer::FilterType::POINT, &_pointSam)
+	) {
+		SPDLOG_LOGGER_ERROR(logger, "GetSampler 失败");
+		return false;
+	}
 	
 	if (!MagShowSystemCursor(FALSE)) {
-		SPDLOG_LOGGER_ERROR(logger, "MagShowSystemCursor 失败");
+		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("MagShowSystemCursor 失败"));
 	}
 
 	SPDLOG_LOGGER_INFO(logger, "CursorRenderer 初始化完成");
@@ -208,7 +210,7 @@ CursorRenderer::~CursorRenderer() {
 bool GetHBmpBits32(HBITMAP hBmp, int& width, int& height, std::vector<BYTE>& pixels) {
 	BITMAP bmp{};
 	if (!GetObject(hBmp, sizeof(bmp), &bmp)) {
-		SPDLOG_LOGGER_ERROR(logger, fmt::format("GetObject 失败\n\tLastErrorCode：{}", GetLastError()));
+		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetObject 失败"));
 		return false;
 	}
 	width = bmp.bmWidth;
@@ -226,7 +228,7 @@ bool GetHBmpBits32(HBITMAP hBmp, int& width, int& height, std::vector<BYTE>& pix
 	pixels.resize(bi.bmiHeader.biSizeImage);
 	HDC hdc = GetDC(NULL);
 	if (GetDIBits(hdc, hBmp, 0, height, &pixels[0], &bi, DIB_RGB_COLORS) != height) {
-		SPDLOG_LOGGER_ERROR(logger, fmt::format("GetDIBits 失败\n\tLastErrorCode：{}", GetLastError()));
+		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetDIBits 失败"));
 		ReleaseDC(NULL, hdc);
 		return false;
 	}
@@ -240,7 +242,7 @@ bool CursorRenderer::_ResolveCursor(HCURSOR hCursor, _CursorInfo& result) const 
 
 	ICONINFO ii{};
 	if (!GetIconInfo(hCursor, &ii)) {
-		SPDLOG_LOGGER_ERROR(logger, fmt::format("GetIconInfo 失败\n\tLastErrorCode：{}", GetLastError()));
+		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetIconInfo 失败"));
 		return false;
 	}
 
@@ -308,13 +310,13 @@ bool CursorRenderer::_ResolveCursor(HCURSOR hCursor, _CursorInfo& result) const 
 	ComPtr<ID3D11Texture2D> texture;
 	HRESULT hr = _d3dDevice->CreateTexture2D(&desc, &initData, &texture);
 	if (FAILED(hr)) {
-		SPDLOG_LOGGER_ERROR(logger, fmt::sprintf("创建 Texture2D 失败\n\tHRESULT：0x%X", hr));
+		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("创建 Texture2D 失败", hr));
 		return false;
 	}
 
 	hr = _d3dDevice->CreateShaderResourceView(texture.Get(), nullptr, &result.masks);
 	if (FAILED(hr)) {
-		SPDLOG_LOGGER_ERROR(logger, fmt::sprintf("创建 ShaderResourceView 失败\n\tHRESULT：0x%X", hr));
+		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("创建 ShaderResourceView 失败", hr));
 		return false;
 	}
 
@@ -327,7 +329,7 @@ bool CursorRenderer::_DrawWithCursor() {
 	CURSORINFO ci{};
 	ci.cbSize = sizeof(ci);
 	if (!GetCursorInfo(&ci)) {
-		SPDLOG_LOGGER_ERROR(logger, fmt::format("GetCursorInfo 失败\n\tLastErrorCode：{}", GetLastError()));
+		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetCursorInfo 失败"));
 		return false;
 	}
 
@@ -367,7 +369,7 @@ bool CursorRenderer::_DrawWithCursor() {
 	D3D11_MAPPED_SUBRESOURCE ms{};
 	HRESULT hr = _d3dDC->Map(_withCursorCB.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &ms);
 	if (FAILED(hr)) {
-		SPDLOG_LOGGER_ERROR(logger, fmt::sprintf("Map 失败\n\tHRESULT：0x%X", hr));
+		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("Map 失败", hr));
 		return false;
 	}
 	FLOAT* cursorRect = (FLOAT*)ms.pData;
@@ -383,7 +385,7 @@ bool CursorRenderer::_DrawWithCursor() {
 	_d3dDC->PSSetShaderResources(0, 2, srvs);
 	ID3D11Buffer* withCursorCB = _withCursorCB.Get();
 	_d3dDC->PSSetConstantBuffers(0, 1, &withCursorCB);
-	ID3D11SamplerState* samplers[2] = { _linearSam.Get(), _pointSam.Get() };
+	ID3D11SamplerState* samplers[2] = { _linearSam, _pointSam };
 	_d3dDC->PSSetSamplers(0, 2, samplers);
 
 	return true;
@@ -397,7 +399,7 @@ void CursorRenderer::Draw() {
 		// 不显示鼠标或创建映射失败
 		_d3dDC->PSSetShaderResources(0, 1, &_inputSrv);
 		_d3dDC->PSSetShader(_noCursorPS.Get(), nullptr, 0);
-		_d3dDC->PSSetSamplers(0, 1, &_sampler);
+		_d3dDC->PSSetSamplers(0, 1, &_pointSam);
 	}
 	
 	_d3dDC->Draw(3, 0);

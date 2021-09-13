@@ -17,7 +17,7 @@ public:
 		POINT
 	};
 
-	ComPtr<ID3D11SamplerState> GetSampler(FilterType filterType);
+	bool GetSampler(FilterType filterType, ID3D11SamplerState** result);
 
 	ComPtr<ID3D11Device5> GetD3DDevice() const{
 		return _d3dDevice;

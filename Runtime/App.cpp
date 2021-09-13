@@ -36,7 +36,7 @@ bool App::Initialize(
 		// 初始化 COM
 		HRESULT hr = Windows::Foundation::Initialize(RO_INIT_MULTITHREADED);
 		if (FAILED(hr)) {
-			SPDLOG_LOGGER_CRITICAL(logger, fmt::sprintf("初始化 COM 失败\n\tHRESULT：0x%X", hr));
+			SPDLOG_LOGGER_CRITICAL(logger, MakeComErrorMsg("初始化 COM 失败", hr));
 			return false;
 		}
 		SPDLOG_LOGGER_INFO(logger, "已初始化 COM");
@@ -46,7 +46,7 @@ bool App::Initialize(
 
 		// 供隐藏光标使用
 		if (!MagInitialize()) {
-			SPDLOG_LOGGER_ERROR(logger, "MagInitialize 失败");
+			SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("MagInitialize 失败"));
 		}
 
 		initalized = true;
@@ -62,13 +62,13 @@ bool App::Initialize(
 		_srcClientRect.right - _srcClientRect.left, _srcClientRect.bottom - _srcClientRect.top));
 
 	if (!_CreateHostWnd()) {
-		SPDLOG_LOGGER_INFO(logger, "创建主窗口失败");
+		SPDLOG_LOGGER_CRITICAL(logger, "创建主窗口失败");
 		return false;
 	}
 
 	_renderer.reset(new Renderer());
 	if (!_renderer->Initialize()) {
-		SPDLOG_LOGGER_INFO(logger, "初始化 Renderer 失败，正在清理");
+		SPDLOG_LOGGER_CRITICAL(logger, "初始化 Renderer 失败，正在清理");
 		DestroyWindow(_hwndHost);
 		Run();
 		return false;
@@ -76,14 +76,14 @@ bool App::Initialize(
 	
 	_frameSource.reset(new SharedSurfaceFrameSource());
 	if (!_frameSource->Initialize()) {
-		SPDLOG_LOGGER_INFO(logger, "初始化 FrameSource 失败，正在清理");
+		SPDLOG_LOGGER_CRITICAL(logger, "初始化 FrameSource 失败，正在清理");
 		DestroyWindow(_hwndHost);
 		Run();
 		return false;
 	}
 
 	if (!_renderer->InitializeEffects()) {
-		SPDLOG_LOGGER_INFO(logger, "初始化效果失败，正在清理");
+		SPDLOG_LOGGER_CRITICAL(logger, "初始化效果失败，正在清理");
 		DestroyWindow(_hwndHost);
 		Run();
 		return false;
@@ -124,7 +124,7 @@ void App::_RegisterHostWndClass() const {
 
 	if (!RegisterClassEx(&wcex)) {
 		// 忽略此错误，因为可能是重复注册产生的错误
-		SPDLOG_LOGGER_ERROR(_logger, fmt::format("注册主窗口类失败\n\tLastErrorCode：{}", GetLastError()));
+		SPDLOG_LOGGER_ERROR(_logger, MakeWin32ErrorMsg("注册主窗口类失败"));
 	} else {
 		SPDLOG_LOGGER_INFO(_logger, "已注册主窗口类");
 	}
@@ -154,7 +154,7 @@ bool App::_CreateHostWnd() {
 		NULL
 	);
 	if (!_hwndHost) {
-		SPDLOG_LOGGER_CRITICAL(_logger, fmt::format("创建主窗口失败\n\tLastErrorCode：{}", GetLastError()));
+		SPDLOG_LOGGER_CRITICAL(_logger, MakeWin32ErrorMsg("创建主窗口失败"));
 		return false;
 	}
 
@@ -162,20 +162,20 @@ bool App::_CreateHostWnd() {
 
 	// 设置窗口不透明
 	if (!SetLayeredWindowAttributes(_hwndHost, 0, 255, LWA_ALPHA)) {
-		SPDLOG_LOGGER_ERROR(_logger, fmt::format("SetLayeredWindowAttributes 失败\n\tLastErrorCode：{}", GetLastError()));
+		SPDLOG_LOGGER_ERROR(_logger, MakeWin32ErrorMsg("SetLayeredWindowAttributes 失败"));
 	}
 
 	// 取消置顶，这样可以使该窗口在最前
 	if (!ShowWindow(_hwndHost, SW_NORMAL)) {
-		SPDLOG_LOGGER_ERROR(_logger, fmt::format("ShowWindow 失败\n\tLastErrorCode：{}", GetLastError()));
+		SPDLOG_LOGGER_ERROR(_logger, MakeWin32ErrorMsg("ShowWindow 失败"));
 	}
 	DWORD style = GetWindowStyle(_hwndHost);
 	if (!style) {
-		SPDLOG_LOGGER_ERROR(_logger, fmt::format("GetWindowStyle 失败\n\tLastErrorCode：{}", GetLastError()));
+		SPDLOG_LOGGER_ERROR(_logger, MakeWin32ErrorMsg("GetWindowStyle 失败"));
 	}
 	style &= ~WS_EX_TOPMOST;
 	if (!SetWindowLong(_hwndHost, GWL_STYLE, style)) {
-		SPDLOG_LOGGER_ERROR(_logger, fmt::format("SetWindowLong 失败\n\tLastErrorCode：{}", GetLastError()));
+		SPDLOG_LOGGER_ERROR(_logger, MakeWin32ErrorMsg("SetWindowLong 失败"));
 	}
 
 	SPDLOG_LOGGER_INFO(_logger, "已创建主窗口");
@@ -199,18 +199,9 @@ LRESULT App::_HostWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		// 2. 收到_WM_DESTORYMAG 消息
 		PostQuitMessage(0);
 		return 0;
-	} else {
-		return DefWindowProc(hWnd, message, wParam, lParam);
-		/*auto [resolved, rt] = _renderManager->WndProc(hWnd, message, wParam, lParam);
-
-		if (resolved) {
-			return rt;
-		} else {
-			return DefWindowProc(hWnd, message, wParam, lParam);
-		}*/
 	}
 
-	return 0;
+	return DefWindowProc(hWnd, message, wParam, lParam);
 }
 
 void App::_ReleaseResources() {

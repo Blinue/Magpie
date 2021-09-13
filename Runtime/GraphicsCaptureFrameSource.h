@@ -30,7 +30,7 @@ public:
 	bool Update() override;
 
 private:
-	RECT _clientInFrame{};
+	D3D11_BOX _clientInFrame{};
 
 	winrt::Direct3D11CaptureFramePool _captureFramePool{ nullptr };
 	winrt::GraphicsCaptureSession _captureSession{ nullptr };

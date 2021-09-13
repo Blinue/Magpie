@@ -24,7 +24,7 @@ private:
 	);
 	_DwmGetDxSharedSurfaceFunc *_dwmGetDxSharedSurface = nullptr;
 
-	RECT _clientInFrame{};
+	D3D11_BOX _clientInFrame{};
 	HWND _hwndSrc = NULL;
 	ComPtr<ID3D11DeviceContext4> _d3dDC;
 	ComPtr<ID3D11Device5> _d3dDevice;

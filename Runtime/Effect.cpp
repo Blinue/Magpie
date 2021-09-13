@@ -61,7 +61,12 @@ bool Effect::InitializeLanczos() {
 	desc.constants.push_back(1);
 	desc.output = 1;
 
-	_samplers.emplace_back(renderer.GetSampler(Renderer::FilterType::LINEAR));
+	ID3D11SamplerState* sam = nullptr;
+	if (!renderer.GetSampler(Renderer::FilterType::LINEAR, &sam)) {
+		SPDLOG_LOGGER_ERROR(logger, "GetSampler 失败");
+		return false;
+	}
+	_samplers.emplace_back(sam);
 
 	EffectConstantDesc& desc1 = _constantDescs.emplace_back();
 	desc1.name = "scaleX";
@@ -198,7 +203,7 @@ bool Effect::Build(ComPtr<ID3D11Texture2D> input, ComPtr<ID3D11Texture2D> output
 	
 	HRESULT hr = _d3dDevice->CreateBuffer(&bd, &initData, &_constantBuffer);
 	if (FAILED(hr)) {
-		SPDLOG_LOGGER_ERROR(logger, fmt::sprintf("CreateBuffer 失败\n\tHRESULT：0x%X", hr));
+		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("CreateBuffer 失败", hr));
 		return false;
 	}
 
@@ -235,7 +240,7 @@ bool Effect::_Pass::Initialize(Effect* parent, const std::string& pixelShader) {
 	
 	HRESULT hr = renderer.GetD3DDevice()->CreatePixelShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, &_pixelShader);
 	if (FAILED(hr)) {
-		SPDLOG_LOGGER_ERROR(logger, fmt::sprintf("创建像素着色器失败\n\tHRESULT：0x%X", hr));
+		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("创建像素着色器失败", hr));
 		return false;
 	}
 
@@ -254,7 +259,7 @@ bool Effect::_Pass::Build(
 	for (int i = 0; i < _inputs.size(); ++i) {
 		hr = renderer.GetShaderResourceView(_parent->_textures[inputs[i]].Get(), &_inputs[i]);
 		if (FAILED(hr)) {
-			SPDLOG_LOGGER_ERROR(logger, fmt::sprintf("获取 ShaderResourceView 失败\n\tHRESULT：0x%X", hr));
+			SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("获取 ShaderResourceView 失败", hr));
 			return false;
 		}
 	}
@@ -266,7 +271,7 @@ bool Effect::_Pass::Build(
 
 	hr = App::GetInstance().GetRenderer().GetRenderTargetView(output.Get(), &_outputRtv);
 	if (FAILED(hr)) {
-		SPDLOG_LOGGER_ERROR(logger, fmt::sprintf("获取 RenderTargetView 失败\n\tHRESULT：0x%X", hr));
+		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("获取 RenderTargetView 失败", hr));
 		return false;
 	}
 

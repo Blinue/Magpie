@@ -11,8 +11,7 @@ UINT Utils::GetWindowShowCmd(HWND hwnd) {
 	WINDOWPLACEMENT wp{};
 	wp.length = sizeof(wp);
 	if (!GetWindowPlacement(hwnd, &wp)) {
-		SPDLOG_LOGGER_ERROR(logger,
-			fmt::format("GetWindowPlacement 出错\n\tLastErrorCode：{}", GetLastError()));
+		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetWindowPlacement 出错"));
 		assert(false);
 	}
 
@@ -22,16 +21,14 @@ UINT Utils::GetWindowShowCmd(HWND hwnd) {
 RECT Utils::GetClientScreenRect(HWND hWnd) {
 	RECT r;
 	if (!GetClientRect(hWnd, &r)) {
-		SPDLOG_LOGGER_ERROR(logger,
-			fmt::format("GetClientRect 出错\n\tLastErrorCode：{}", GetLastError()));
+		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetClientRect 出错"));
 		assert(false);
 		return {};
 	}
 
 	POINT p{};
 	if (!ClientToScreen(hWnd, &p)) {
-		SPDLOG_LOGGER_ERROR(logger,
-			fmt::format("ClientToScreen 出错\n\tLastErrorCode：{}", GetLastError()));
+		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("ClientToScreen 出错"));
 		assert(false);
 		return {};
 	}
@@ -50,8 +47,7 @@ RECT Utils::GetScreenRect(HWND hWnd) {
 	MONITORINFO mi{};
 	mi.cbSize = sizeof(mi);
 	if (!GetMonitorInfo(hMonitor, &mi)) {
-		SPDLOG_LOGGER_ERROR(logger,
-			fmt::format("GetMonitorInfo 出错\n\tLastErrorCode：{}", GetLastError()));
+		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetMonitorInfo 出错"));
 		assert(false);
 	}
 	return mi.rcMonitor;
@@ -60,7 +56,7 @@ RECT Utils::GetScreenRect(HWND hWnd) {
 std::wstring Utils::UTF8ToUTF16(std::string_view str) {
 	int convertResult = MultiByteToWideChar(CP_UTF8, 0, str.data(), (int)str.size(), nullptr, 0);
 	if (convertResult <= 0) {
-		SPDLOG_LOGGER_ERROR(logger, fmt::format("UTF8ToUTF16 失败\n\tLastErrorCode：{}", GetLastError()));
+		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("MultiByteToWideChar 失败"));
 		assert(false);
 		return {};
 	}
@@ -68,7 +64,7 @@ std::wstring Utils::UTF8ToUTF16(std::string_view str) {
 	std::wstring r(convertResult + 10, L'\0');
 	convertResult = MultiByteToWideChar(CP_UTF8, 0, str.data(), (int)str.size(), &r[0], (int)r.size());
 	if (convertResult <= 0) {
-		SPDLOG_LOGGER_ERROR(logger, fmt::format("UTF8ToUTF16 失败\n\tLastErrorCode：{}", GetLastError()));
+		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("MultiByteToWideChar 失败"));
 		assert(false);
 		return {};
 	}
@@ -79,7 +75,7 @@ std::wstring Utils::UTF8ToUTF16(std::string_view str) {
 std::string Utils::UTF16ToUTF8(std::wstring_view str) {
 	int convertResult = WideCharToMultiByte(CP_UTF8, 0, str.data(), (int)str.size(), nullptr, 0, nullptr, nullptr);
 	if (convertResult <= 0) {
-		SPDLOG_LOGGER_ERROR(logger, fmt::format("UTF16ToUTF8 失败\n\tLastErrorCode：{}", GetLastError()));
+		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("WideCharToMultiByte 失败"));
 		assert(false);
 		return {};
 	}
@@ -87,7 +83,7 @@ std::string Utils::UTF16ToUTF8(std::wstring_view str) {
 	std::string r(convertResult + 10, L'\0');
 	convertResult = WideCharToMultiByte(CP_UTF8, 0, str.data(), (int)str.size(), &r[0], (int)r.size(), nullptr, nullptr);
 	if (convertResult <= 0) {
-		SPDLOG_LOGGER_ERROR(logger, fmt::format("UTF16ToUTF8 失败\n\tLastErrorCode：{}", GetLastError()));
+		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("WideCharToMultiByte 失败"));
 		assert(false);
 		return {};
 	}
@@ -154,8 +150,8 @@ bool Utils::CompilePixelShader(const char* hlsl, size_t hlslLen, ID3DBlob** blob
         "main", "ps_5_0", flags, 0, blob, &errorMsgs);
     if (FAILED(hr)) {
         if (errorMsgs) {
-            SPDLOG_LOGGER_ERROR(logger, fmt::sprintf(
-                "编译像素着色器失败：%s\n\tHRESULT：0x%X", (const char*)errorMsgs->GetBufferPointer(), hr));
+            SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg(
+				fmt::format("编译像素着色器失败：{}", (const char*)errorMsgs->GetBufferPointer()), hr));
         }
         return false;
     }
