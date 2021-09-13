@@ -1,7 +1,8 @@
 #include "pch.h"
 #include "App.h"
 #include "Utils.h"
-#include "WinRTFrameSource.h"
+#include "GraphicsCaptureFrameSource.h"
+#include "SharedSurfaceFrameSource.h"
 
 
 extern std::shared_ptr<spdlog::logger> logger;
@@ -73,9 +74,9 @@ bool App::Initialize(
 		return false;
 	}
 	
-	_frameSource.reset(new WinRTFrameSource());
+	_frameSource.reset(new SharedSurfaceFrameSource());
 	if (!_frameSource->Initialize()) {
-		SPDLOG_LOGGER_INFO(logger, "初始化 WinRTFrameSource 失败，正在清理");
+		SPDLOG_LOGGER_INFO(logger, "初始化 FrameSource 失败，正在清理");
 		DestroyWindow(_hwndHost);
 		Run();
 		return false;

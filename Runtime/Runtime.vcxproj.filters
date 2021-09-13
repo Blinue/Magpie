@@ -13,9 +13,6 @@
     <ClCompile Include="Renderer.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="WinRTFrameSource.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="Effect.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
@@ -24,6 +21,12 @@
     </ClCompile>
     <ClCompile Include="Utils.cpp">
       <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="GraphicsCaptureFrameSource.cpp">
+      <Filter>头文件\Capture</Filter>
+    </ClCompile>
+    <ClCompile Include="SharedSurfaceFrameSource.cpp">
+      <Filter>头文件\Capture</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -72,10 +75,13 @@
     <ClInclude Include="CursorRenderer.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="WinRTFrameSource.h">
+    <ClInclude Include="GraphicsCaptureFrameSource.h">
       <Filter>头文件\Capture</Filter>
     </ClInclude>
     <ClInclude Include="FrameSourceBase.h">
+      <Filter>头文件\Capture</Filter>
+    </ClInclude>
+    <ClInclude Include="SharedSurfaceFrameSource.h">
       <Filter>头文件\Capture</Filter>
     </ClInclude>
   </ItemGroup>

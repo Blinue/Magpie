@@ -159,10 +159,11 @@
     <ClInclude Include="pch.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="SharedSurfaceFrameSource.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="Utils.h" />
     <ClInclude Include="WindowCapturerBase.h" />
-    <ClInclude Include="WinRTFrameSource.h" />
+    <ClInclude Include="GraphicsCaptureFrameSource.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App.cpp" />
@@ -171,8 +172,9 @@
     <ClCompile Include="pch.cpp" />
     <ClCompile Include="DllMain.cpp" />
     <ClCompile Include="Renderer.cpp" />
+    <ClCompile Include="SharedSurfaceFrameSource.cpp" />
     <ClCompile Include="Utils.cpp" />
-    <ClCompile Include="WinRTFrameSource.cpp" />
+    <ClCompile Include="GraphicsCaptureFrameSource.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="common.hlsli" />

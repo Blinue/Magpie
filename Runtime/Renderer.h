@@ -48,24 +48,24 @@ private:
 
 	bool _CheckSrcState();
 
-	ComPtr<ID3D11Device5> _d3dDevice = nullptr;
-	ComPtr<IDXGIDevice4> _dxgiDevice = nullptr;
-	ComPtr<IDXGISwapChain4> _dxgiSwapChain = nullptr;
-	ComPtr<ID3D11DeviceContext4> _d3dDC = nullptr;
+	ComPtr<ID3D11Device5> _d3dDevice;
+	ComPtr<IDXGIDevice4> _dxgiDevice;
+	ComPtr<IDXGISwapChain4> _dxgiSwapChain;
+	ComPtr<ID3D11DeviceContext4> _d3dDC;
 	HANDLE _frameLatencyWaitableObject = NULL;
 	bool _waitingForNextFrame = false;
 
-	ComPtr<ID3D11SamplerState> _linearSampler = nullptr;
-	ComPtr<ID3D11SamplerState> _pointSampler = nullptr;
+	ComPtr<ID3D11SamplerState> _linearSampler;
+	ComPtr<ID3D11SamplerState> _pointSampler;
 
-	ComPtr<ID3D11Texture2D> _effectInput = nullptr;
-	ComPtr<ID3D11Texture2D> _effectOutput = nullptr;
-	ComPtr<ID3D11Texture2D> _backBuffer = nullptr;
+	ComPtr<ID3D11Texture2D> _effectInput;
+	ComPtr<ID3D11Texture2D> _effectOutput;
+	ComPtr<ID3D11Texture2D> _backBuffer;
 	std::unordered_map<ID3D11Texture2D*, ComPtr<ID3D11RenderTargetView>> _rtvMap;
 	std::unordered_map<ID3D11Texture2D*, ComPtr<ID3D11ShaderResourceView>> _srvMap;
 
-	ComPtr<ID3D11VertexShader> _vertexShader = nullptr;
-	ComPtr<ID3D11InputLayout> _inputLayout = nullptr;
+	ComPtr<ID3D11VertexShader> _vertexShader;
+	ComPtr<ID3D11InputLayout> _inputLayout;
 	std::vector<Effect> _effects;
 
 	RECT _destRect{};

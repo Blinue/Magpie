@@ -216,7 +216,6 @@ bool Effect::Build(ComPtr<ID3D11Texture2D> input, ComPtr<ID3D11Texture2D> output
 void Effect::Draw() {
 	ID3D11Buffer* t = _constantBuffer.Get();
 	_d3dDC->PSSetConstantBuffers(0, 1, &t);
-	_d3dDC->VSSetShader(_vertexShader.Get(), nullptr, 0);
 
 	for (_Pass& pass : _passes) {
 		pass.Draw();
@@ -287,7 +286,6 @@ void Effect::_Pass::Draw() {
 	_d3dDC->PSSetShaderResources(0, 0, nullptr);
 	_d3dDC->OMSetRenderTargets(1, &_outputRtv, nullptr);
 	_d3dDC->RSSetViewports(1, &_vp);
-	_d3dDC->ClearRenderTargetView(_outputRtv, Colors::Brown);
 	
 	_d3dDC->PSSetShader(_pixelShader.Get(), nullptr, 0);
 	if (!_samplers.empty()) {

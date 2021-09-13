@@ -33,17 +33,17 @@ private:
 	float _scaleY = 0;
 	std::unordered_map<HCURSOR, _CursorInfo> _cursorMap;
 
-	ComPtr<ID3D11DeviceContext4> _d3dDC = nullptr;
-	ComPtr<ID3D11Device5> _d3dDevice = nullptr;
+	ComPtr<ID3D11DeviceContext4> _d3dDC;
+	ComPtr<ID3D11Device5> _d3dDevice;
 
 	ID3D11RenderTargetView* _outputRtv = nullptr;
 	ID3D11ShaderResourceView* _inputSrv = nullptr;
 	D3D11_VIEWPORT _vp{};
 
 	ID3D11SamplerState* _sampler = nullptr;
-	ComPtr<ID3D11PixelShader> _noCursorPS = nullptr;
-	ComPtr<ID3D11PixelShader> _withCursorPS = nullptr;
-	ComPtr<ID3D11Buffer> _withCursorCB = nullptr;
-	ComPtr<ID3D11SamplerState> _linearSam = nullptr;
-	ComPtr<ID3D11SamplerState> _pointSam = nullptr;
+	ComPtr<ID3D11PixelShader> _noCursorPS;
+	ComPtr<ID3D11PixelShader> _withCursorPS;
+	ComPtr<ID3D11Buffer> _withCursorCB;
+	ComPtr<ID3D11SamplerState> _linearSam;
+	ComPtr<ID3D11SamplerState> _pointSam;
 };

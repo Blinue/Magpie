@@ -130,6 +130,7 @@ void Renderer::Render() {
 	_d3dDC->ClearState();
 	// 所有渲染都使用三角形带拓扑
 	_d3dDC->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+	_d3dDC->VSSetShader(_vertexShader.Get(), nullptr, 0);
 
 	for (Effect& effect : _effects) {
 		effect.Draw();

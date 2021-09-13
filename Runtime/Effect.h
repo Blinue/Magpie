@@ -93,11 +93,11 @@ private:
 
 	private:
 		Effect* _parent = nullptr;
-		ComPtr<ID3D11DeviceContext4> _d3dDC = nullptr;
+		ComPtr<ID3D11DeviceContext4> _d3dDC;
 
 		ID3D11RenderTargetView* _outputRtv = nullptr;
 		
-		ComPtr<ID3D11PixelShader> _pixelShader = nullptr;
+		ComPtr<ID3D11PixelShader> _pixelShader;
 
 		std::vector<ID3D11ShaderResourceView*> _inputs;
 		std::vector<ID3D11SamplerState*> _samplers;
@@ -105,15 +105,15 @@ private:
 		D3D11_VIEWPORT _vp{};
 	};
 
-	ComPtr<ID3D11Device5> _d3dDevice = nullptr;
-	ComPtr<ID3D11DeviceContext4> _d3dDC = nullptr;
+	ComPtr<ID3D11Device5> _d3dDevice;
+	ComPtr<ID3D11DeviceContext4> _d3dDC;
 
 	std::vector<ComPtr<ID3D11SamplerState>> _samplers;
 	std::vector<ComPtr<ID3D11Texture2D>> _textures;
 
 	std::vector<EffectConstantDesc> _constantDescs;
 	std::vector<Constant32> _constants;
-	ComPtr<ID3D11Buffer> _constantBuffer = nullptr;
+	ComPtr<ID3D11Buffer> _constantBuffer;
 
 	ComPtr<ID3D11VertexShader> _vertexShader;
 

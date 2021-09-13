@@ -1,12 +1,12 @@
 #include "pch.h"
-#include "WinRTFrameSource.h"
+#include "GraphicsCaptureFrameSource.h"
 #include "App.h"
 #include "Utils.h"
 
 
 extern std::shared_ptr<spdlog::logger> logger;
 
-bool WinRTFrameSource::Initialize() {
+bool GraphicsCaptureFrameSource::Initialize() {
 	_d3dDC = App::GetInstance().GetRenderer().GetD3DDC();
     HWND hwndSrc = App::GetInstance().GetHwndSrc();
 
@@ -20,10 +20,10 @@ bool WinRTFrameSource::Initialize() {
 
     const RECT& srcClient = App::GetInstance().GetSrcClientRect();
     _clientInFrame = {
-        UINT32(srcClient.left - srcRect.left),
-        UINT32(srcClient.top - srcRect.top),
-        UINT32(srcClient.right - srcRect.left),
-        UINT32(srcClient.bottom - srcRect.top)
+        srcClient.left - srcRect.left,
+        srcClient.top - srcRect.top,
+        srcClient.right - srcRect.left,
+        srcClient.bottom - srcRect.top
     };
 
     try {
@@ -114,15 +114,15 @@ bool WinRTFrameSource::Initialize() {
         return false;
     }
 
-    SPDLOG_LOGGER_INFO(logger, "WinRTFrameSource 初始化完成");
+    SPDLOG_LOGGER_INFO(logger, "GraphicsCaptureFrameSource 初始化完成");
     return true;
 }
 
-ComPtr<ID3D11Texture2D> WinRTFrameSource::GetOutput() {
+ComPtr<ID3D11Texture2D> GraphicsCaptureFrameSource::GetOutput() {
 	return _output;
 }
 
-bool WinRTFrameSource::Update() {
+bool GraphicsCaptureFrameSource::Update() {
 	winrt::Direct3D11CaptureFrame frame = _captureFramePool.TryGetNextFrame();
 	if (!frame) {
 		// 缓冲池没有帧返回 false
@@ -152,7 +152,7 @@ bool WinRTFrameSource::Update() {
 	return true;
 }
 
-WinRTFrameSource::~WinRTFrameSource() {
+GraphicsCaptureFrameSource::~GraphicsCaptureFrameSource() {
 	if (_captureSession) {
 		_captureSession.Close();
 	}

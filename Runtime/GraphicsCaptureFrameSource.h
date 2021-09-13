@@ -18,10 +18,10 @@ using namespace Windows::Graphics::DirectX::Direct3D11;
 
 // 使用 Window Runtime 的 Windows.Graphics.Capture API 抓取窗口
 // 见 https://docs.microsoft.com/en-us/windows/uwp/audio-video-camera/screen-capture
-class WinRTFrameSource : public FrameSourceBase {
+class GraphicsCaptureFrameSource : public FrameSourceBase {
 public:
-	WinRTFrameSource() {};
-	~WinRTFrameSource();
+	GraphicsCaptureFrameSource() {};
+	virtual ~GraphicsCaptureFrameSource();
 
 	bool Initialize() override;
 
@@ -30,14 +30,14 @@ public:
 	bool Update() override;
 
 private:
-	D2D1_RECT_U _clientInFrame{};
+	RECT _clientInFrame{};
 
 	winrt::Direct3D11CaptureFramePool _captureFramePool{ nullptr };
 	winrt::GraphicsCaptureSession _captureSession{ nullptr };
 	winrt::GraphicsCaptureItem _captureItem{ nullptr };
 	winrt::IDirect3DDevice _wrappedD3DDevice{ nullptr };
 
-	ComPtr<ID3D11DeviceContext4> _d3dDC = nullptr;
+	ComPtr<ID3D11DeviceContext4> _d3dDC;
 
 	ComPtr<ID3D11Texture2D> _output;
 };

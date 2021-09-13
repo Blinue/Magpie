@@ -94,8 +94,8 @@ private:
 
 	bool _adjustCursorSpeed = false;
 
-	std::unique_ptr<Renderer> _renderer = nullptr;
-	std::unique_ptr<FrameSourceBase> _frameSource = nullptr;
+	std::unique_ptr<Renderer> _renderer;
+	std::unique_ptr<FrameSourceBase> _frameSource;
 
-	std::shared_ptr<spdlog::logger> _logger = nullptr;
+	std::shared_ptr<spdlog::logger> _logger;
 };
