@@ -33,7 +33,7 @@ bool Renderer::Initialize() {
 	return true;
 }
 
-bool Renderer::InitializeEffects() {
+bool Renderer::InitializeEffectsAndCursor() {
 	// 编译顶点着色器
 	ComPtr<ID3DBlob> errorMsgs = nullptr;
 	ComPtr<ID3DBlob> blob = nullptr;

@@ -8,7 +8,7 @@ class Renderer {
 public:
 	bool Initialize();
 
-	bool InitializeEffects();
+	bool InitializeEffectsAndCursor();
 
 	void Render();
 

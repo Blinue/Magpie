@@ -154,7 +154,6 @@
     <ClInclude Include="framework.h" />
     <ClInclude Include="GDIOverDXGIFrameSource.h" />
     <ClInclude Include="GDIFrameSource.h" />
-    <ClInclude Include="Mag.h" />
     <ClInclude Include="MagCallbackFrameSource.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Renderer.h" />

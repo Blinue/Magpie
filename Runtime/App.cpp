@@ -105,7 +105,7 @@ bool App::Initialize(
 		return false;
 	}
 
-	if (!_renderer->InitializeEffects()) {
+	if (!_renderer->InitializeEffectsAndCursor()) {
 		SPDLOG_LOGGER_CRITICAL(logger, "初始化效果失败，即将退出");
 		DestroyWindow(_hwndHost);
 		Run();
