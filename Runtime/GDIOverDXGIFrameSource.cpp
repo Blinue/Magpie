@@ -48,7 +48,7 @@ bool GDIOverDXGIFrameSource::Update() {
 		return false;
 	}
 
-	HDC hdcSrc = GetDC(_hwndSrc);
+	HDC hdcSrc = GetDCEx(_hwndSrc, NULL, DCX_LOCKWINDOWUPDATE);
 	if (!hdcSrc) {
 		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetDC 失败"));
 		_dxgiSurface->ReleaseDC(nullptr);

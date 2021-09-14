@@ -103,6 +103,7 @@
                 <ComboBoxItem Content="GraphicsCapture" />
                 <ComboBoxItem Content="SharedSurface" />
                 <ComboBoxItem Content="GDI Over DXGI" />
+                <ComboBoxItem Content="GDI" />
             </ComboBox>
         </Grid>
 

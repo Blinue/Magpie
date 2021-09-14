@@ -39,10 +39,6 @@ public:
 		return _vertexShader;
 	}
 
-	ComPtr<ID3D11InputLayout> GetInputLayout() const {
-		return _inputLayout;
-	}
-
 private:
 	bool _InitD3D();
 
@@ -65,7 +61,6 @@ private:
 	std::unordered_map<ID3D11Texture2D*, ComPtr<ID3D11ShaderResourceView>> _srvMap;
 
 	ComPtr<ID3D11VertexShader> _vertexShader;
-	ComPtr<ID3D11InputLayout> _inputLayout;
 	std::vector<Effect> _effects;
 
 	RECT _destRect{};

@@ -16,7 +16,7 @@ bool SharedSurfaceFrameSource::Initialize() {
 	_dwmGetDxSharedSurface = (_DwmGetDxSharedSurfaceFunc*)GetProcAddress(user32, "DwmGetDxSharedSurface");
 
 	if (!_dwmGetDxSharedSurface) {
-		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("获取函数 DwmGetDxSharedSurfaceFunc 地址失败"));
+		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("获取函数 DwmGetDxSharedSurface 地址失败"));
 		return false;
 	}
 

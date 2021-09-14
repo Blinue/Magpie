@@ -27,24 +27,24 @@ float3 weight3(float x) {
 }
 
 
-float3 line_run(float ypos, float3 xpos1, float3 xpos2, float3 linetaps1, float3 linetaps2) {
-	return INPUT.Sample(linearSampler, float2(xpos1.r, ypos)).rgb * linetaps1.r
-		+ INPUT.Sample(linearSampler, float2(xpos1.g, ypos)).rgb * linetaps2.r
-		+ INPUT.Sample(linearSampler, float2(xpos1.b, ypos)).rgb * linetaps1.g
-		+ INPUT.Sample(linearSampler, float2(xpos2.r, ypos)).rgb * linetaps2.g
-		+ INPUT.Sample(linearSampler, float2(xpos2.g, ypos)).rgb * linetaps1.b
-		+ INPUT.Sample(linearSampler, float2(xpos2.b, ypos)).rgb * linetaps2.b;
+float4 line_run(float ypos, float3 xpos1, float3 xpos2, float3 linetaps1, float3 linetaps2) {
+	return INPUT.Sample(linearSampler, float2(xpos1.r, ypos)) * linetaps1.r
+		+ INPUT.Sample(linearSampler, float2(xpos1.g, ypos)) * linetaps2.r
+		+ INPUT.Sample(linearSampler, float2(xpos1.b, ypos)) * linetaps1.g
+		+ INPUT.Sample(linearSampler, float2(xpos2.r, ypos)) * linetaps2.g
+		+ INPUT.Sample(linearSampler, float2(xpos2.g, ypos)) * linetaps1.b
+		+ INPUT.Sample(linearSampler, float2(xpos2.b, ypos)) * linetaps2.b;
 }
 
 float4 main(VS_OUTPUT input) : SV_TARGET {
 	float2 coord = input.TexCoord.xy;
 
 	// 用于抗振铃
-	float3 neighbors[4] = {
-		INPUT.Sample(linearSampler, float2(coord.x - INPUT_PT.x, coord.y)).rgb,
-		INPUT.Sample(linearSampler, float2(coord.x + INPUT_PT.x, coord.y)).rgb,
-		INPUT.Sample(linearSampler, float2(coord.x, coord.y - INPUT_PT.y)).rgb,
-		INPUT.Sample(linearSampler, float2(coord.x, coord.y + INPUT_PT.y)).rgb
+	float4 neighbors[4] = {
+		INPUT.Sample(linearSampler, float2(coord.x - INPUT_PT.x, coord.y)),
+		INPUT.Sample(linearSampler, float2(coord.x + INPUT_PT.x, coord.y)),
+		INPUT.Sample(linearSampler, float2(coord.x, coord.y - INPUT_PT.y)),
+		INPUT.Sample(linearSampler, float2(coord.x, coord.y + INPUT_PT.y))
 	};
 
 	float2 f = frac(coord / INPUT_PT + 0.5);
@@ -70,7 +70,7 @@ float4 main(VS_OUTPUT input) : SV_TARGET {
 	float3 xpos2 = float3(coord.x + 3 * INPUT_PT.x, coord.x + 4 * INPUT_PT.x, coord.x + 5 * INPUT_PT.x);
 
 	// final sum and weight normalization
-	float3 color = line_run(coord.y, xpos1, xpos2, linetaps1, linetaps2) * columntaps1.r
+	float4 color = line_run(coord.y, xpos1, xpos2, linetaps1, linetaps2) * columntaps1.r
 		+ line_run(coord.y + INPUT_PT.y, xpos1, xpos2, linetaps1, linetaps2) * columntaps2.r
 		+ line_run(coord.y + 2 * INPUT_PT.y, xpos1, xpos2, linetaps1, linetaps2) * columntaps1.g
 		+ line_run(coord.y + 3 * INPUT_PT.y, xpos1, xpos2, linetaps1, linetaps2) * columntaps2.g
@@ -78,9 +78,9 @@ float4 main(VS_OUTPUT input) : SV_TARGET {
 		+ line_run(coord.y + 5 * INPUT_PT.y, xpos1, xpos2, linetaps1, linetaps2) * columntaps2.b;
 
 	// 抗振铃
-	float3 min_sample = min4(neighbors[0], neighbors[1], neighbors[2], neighbors[3]);
-	float3 max_sample = max4(neighbors[0], neighbors[1], neighbors[2], neighbors[3]);
+	float4 min_sample = min4(neighbors[0], neighbors[1], neighbors[2], neighbors[3]);
+	float4 max_sample = max4(neighbors[0], neighbors[1], neighbors[2], neighbors[3]);
 	color = lerp(color, clamp(color, min_sample, max_sample), 0.5);
 
-	return float4(color, 1);
+	return color;
 }

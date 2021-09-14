@@ -53,19 +53,6 @@ bool Renderer::InitializeEffects() {
 		return false;
 	}
 
-	// 创建输入布局
-	D3D11_INPUT_ELEMENT_DESC layout[] = {
-		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, sizeof(XMFLOAT3), D3D11_INPUT_PER_VERTEX_DATA, 0 },
-	};
-	UINT numElements = ARRAYSIZE(layout);
-	hr = _d3dDevice->CreateInputLayout(layout, numElements, blob->GetBufferPointer(),
-		blob->GetBufferSize(), &_inputLayout);
-	if (FAILED(hr)) {
-		SPDLOG_LOGGER_CRITICAL(logger, MakeComErrorMsg("创建输入布局失败", hr));
-		return false;
-	}
-
 	Effect& effect = _effects.emplace_back();
 	if (!effect.InitializeLanczos()) {
 		SPDLOG_LOGGER_CRITICAL(logger, "初始化 Effect 失败");

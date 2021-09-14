@@ -2,10 +2,10 @@
 #include "FrameSourceBase.h"
 
 
-class GDIFrameSource2 : public FrameSourceBase {
+class GDIFrameSource : public FrameSourceBase {
 public:
-	GDIFrameSource2() {};
-	virtual ~GDIFrameSource2() {}
+	GDIFrameSource() {};
+	virtual ~GDIFrameSource();
 
 	bool Initialize() override;
 
@@ -18,4 +18,7 @@ private:
 
 	HWND _hwndSrc = NULL;
 	ComPtr<ID3D11Texture2D> _output;
+
+	HDC _hdcMem = NULL;
+	HBITMAP _hbmMem = NULL;
 };

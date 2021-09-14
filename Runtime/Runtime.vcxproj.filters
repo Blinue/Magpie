@@ -31,7 +31,7 @@
     <ClCompile Include="GDIOverDXGIFrameSource.cpp">
       <Filter>捕获</Filter>
     </ClCompile>
-    <ClCompile Include="GDIFrameSource2.cpp">
+    <ClCompile Include="GDIFrameSource.cpp">
       <Filter>捕获</Filter>
     </ClCompile>
   </ItemGroup>
@@ -81,7 +81,7 @@
     <ClInclude Include="GDIOverDXGIFrameSource.h">
       <Filter>捕获</Filter>
     </ClInclude>
-    <ClInclude Include="GDIFrameSource2.h">
+    <ClInclude Include="GDIFrameSource.h">
       <Filter>捕获</Filter>
     </ClInclude>
   </ItemGroup>

@@ -49,10 +49,6 @@ union Constant32 {
 	float floatVal;
 };
 
-struct SimpleVertex {
-	XMFLOAT3 Pos;
-	XMFLOAT4 TexCoord;
-};
 
 class Effect {
 public:

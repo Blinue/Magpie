@@ -4,6 +4,7 @@
 #include "GraphicsCaptureFrameSource.h"
 #include "SharedSurfaceFrameSource.h"
 #include "GDIOverDXGIFrameSource.h"
+#include "GDIFrameSource.h"
 
 
 extern std::shared_ptr<spdlog::logger> logger;
@@ -86,6 +87,9 @@ bool App::Initialize(
 		break;
 	case 2:
 		_frameSource.reset(new GDIOverDXGIFrameSource());
+		break;
+	case 3:
+		_frameSource.reset(new GDIFrameSource());
 		break;
 	default:
 		SPDLOG_LOGGER_CRITICAL(logger, "未知的捕获模式，正在清理");

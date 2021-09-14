@@ -153,7 +153,7 @@
     <ClInclude Include="FrameSourceBase.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="GDIOverDXGIFrameSource.h" />
-    <ClInclude Include="GDIFrameSource2.h" />
+    <ClInclude Include="GDIFrameSource.h" />
     <ClInclude Include="GDIWindowCapturer.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Renderer.h" />
@@ -168,7 +168,7 @@
     <ClCompile Include="CursorRenderer.cpp" />
     <ClCompile Include="Effect.cpp" />
     <ClCompile Include="GDIOverDXGIFrameSource.cpp" />
-    <ClCompile Include="GDIFrameSource2.cpp" />
+    <ClCompile Include="GDIFrameSource.cpp" />
     <ClCompile Include="pch.cpp" />
     <ClCompile Include="DllMain.cpp" />
     <ClCompile Include="Renderer.cpp" />
