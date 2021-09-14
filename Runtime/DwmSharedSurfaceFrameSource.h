@@ -2,10 +2,10 @@
 #include "FrameSourceBase.h"
 
 
-class SharedSurfaceFrameSource : public FrameSourceBase {
+class DwmSharedSurfaceFrameSource : public FrameSourceBase {
 public:
-	SharedSurfaceFrameSource() {}
-	virtual ~SharedSurfaceFrameSource() {}
+	DwmSharedSurfaceFrameSource() {}
+	virtual ~DwmSharedSurfaceFrameSource() {}
 
 	bool Initialize() override;
 

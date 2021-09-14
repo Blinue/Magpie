@@ -5,26 +5,26 @@
 
 extern std::shared_ptr<spdlog::logger> logger;
 
-GDIFrameSource::~GDIFrameSource() {
-	DeleteBitmap(_hbmMem);
-	DeleteDC(_hdcMem);
-}
 
 bool GDIFrameSource::Initialize() {
 	_hwndSrc = App::GetInstance().GetHwndSrc();
 	_d3dDC = App::GetInstance().GetRenderer().GetD3DDC();
 
-	const RECT& srcClientRect = App::GetInstance().GetSrcClientRect();
-	SIZE srcClientSize = { srcClientRect.right - srcClientRect.left, srcClientRect.bottom - srcClientRect.top };
+	_srcClientRect = App::GetInstance().GetSrcClientRect();
+	_srcClientSize = { _srcClientRect.right - _srcClientRect.left, _srcClientRect.bottom - _srcClientRect.top };
 
-	RECT windowRect;
-	GetWindowRect(_hwndSrc, &windowRect);
+	if (!GetWindowRect(_hwndSrc, &_srcWndRect)) {
+		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetWindowRect 失败"));
+		return false;
+	}
+	_srcWndSize = { _srcWndRect.right - _srcWndRect.left, _srcWndRect.bottom - _srcWndRect.top };
 
+	_pixels.resize(static_cast<size_t>(_srcWndSize.cx) * _srcWndSize.cy * 4);
 	
 	D3D11_TEXTURE2D_DESC desc{};
 	desc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
-	desc.Width = srcClientSize.cx;
-	desc.Height = srcClientSize.cy;
+	desc.Width = _srcClientSize.cx;
+	desc.Height = _srcClientSize.cy;
 	desc.Usage = D3D11_USAGE_DYNAMIC;
 	desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 	desc.MipLevels = 1;
@@ -38,11 +38,6 @@ bool GDIFrameSource::Initialize() {
 		return false;
 	}
 
-	HDC hdcScreen = GetDC(NULL);
-	_hdcMem = CreateCompatibleDC(hdcScreen);
-	_hbmMem = CreateCompatibleBitmap(hdcScreen, srcClientSize.cx, srcClientSize.cy);
-	ReleaseDC(NULL, hdcScreen);
-
 	return true;
 }
 
@@ -51,34 +46,65 @@ ComPtr<ID3D11Texture2D> GDIFrameSource::GetOutput() {
 }
 
 bool GDIFrameSource::Update() {
-	D3D11_MAPPED_SUBRESOURCE ms{};
-	_d3dDC->Map(_output.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &ms);
-
-	HDC hdcSrc = GetDCEx(_hwndSrc, NULL, DCX_LOCKWINDOWUPDATE);
+	HDC hdcSrc = GetWindowDC(_hwndSrc);
+	if (!hdcSrc) {
+		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetWindowDC 失败"));
+		return false;
+	}
+	HDC hdcScreen = GetDC(NULL);
+	if (!hdcScreen) {
+		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetDC 失败"));
+		ReleaseDC(_hwndSrc, hdcSrc);
+		return false;
+	}
 	
-	const RECT& srcClientRect = App::GetInstance().GetSrcClientRect();
-	SIZE srcClientSize = { srcClientRect.right - srcClientRect.left, srcClientRect.bottom - srcClientRect.top };
-
-	HBITMAP hbmOld = SelectBitmap(_hdcMem, _hbmMem);
-	BitBlt(_hdcMem, 0, 0, srcClientSize.cx, srcClientSize.cy, hdcSrc, 0, 0, SRCCOPY);
-	SelectBitmap(_hdcMem, hbmOld);
-
+	// 直接获取 DC 中当前图像，而不是使用 BitBlt 复制
+	HBITMAP hBmpDest = (HBITMAP)GetCurrentObject(hdcSrc, OBJ_BITMAP);
+	if (!hBmpDest) {
+		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetCurrentObject 失败"));
+		ReleaseDC(_hwndSrc, hdcSrc);
+		ReleaseDC(NULL, hdcScreen);
+		return false;
+	}
+	
 	BITMAPINFO bi{};
 	bi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
-	bi.bmiHeader.biWidth = srcClientSize.cx;
-	bi.bmiHeader.biHeight = -srcClientSize.cy;
+	bi.bmiHeader.biWidth = _srcWndSize.cx;
+	bi.bmiHeader.biHeight = -_srcWndSize.cy;
 	bi.bmiHeader.biPlanes = 1;
 	bi.bmiHeader.biCompression = BI_RGB;
 	bi.bmiHeader.biBitCount = 32;
-	bi.bmiHeader.biSizeImage = srcClientSize.cx * srcClientSize.cy * 4;
+	bi.bmiHeader.biSizeImage = _pixels.size();
 
-	std::vector<BYTE> pixels(bi.bmiHeader.biSizeImage);
-	GetDIBits(_hdcMem, _hbmMem, 0, srcClientRect.top - srcClientRect.bottom, pixels.data(), &bi, DIB_RGB_COLORS);
-	for (int i = 0; i < srcClientSize.cy; ++i) {
-		std::memcpy((BYTE*)ms.pData + i * ms.RowPitch, &pixels[0] + i * srcClientSize.cx * 4, srcClientSize.cx * 4);
+	if (GetDIBits(hdcScreen, hBmpDest, 0, _srcWndSize.cy, _pixels.data(), &bi, DIB_RGB_COLORS) != _srcWndSize.cy) {
+		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetDIBits 失败"));
+		ReleaseDC(_hwndSrc, hdcSrc);
+		ReleaseDC(NULL, hdcScreen);
+		return false;
+	}
+
+	// 将客户区的像素复制到 Texture2D 中
+	D3D11_MAPPED_SUBRESOURCE ms{};
+	HRESULT hr = _d3dDC->Map(_output.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &ms);
+	if (FAILED(hr)) {
+		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("Map 失败", hr));
+		ReleaseDC(_hwndSrc, hdcSrc);
+		ReleaseDC(NULL, hdcScreen);
+		return false;
+	}
+
+	BYTE* pPixels = _pixels.data() + (_srcWndSize.cx * (_srcClientRect.top - _srcWndRect.top) 
+		+ _srcClientRect.left - _srcWndRect.left) * 4;
+	BYTE* pData = (BYTE*)ms.pData;
+	for (int i = 0; i < _srcClientSize.cy; ++i) {
+		std::memcpy(pData, pPixels, static_cast<size_t>(_srcClientSize.cx) * 4);
+
+		pPixels += _srcWndSize.cx * 4;
+		pData += ms.RowPitch;
 	}
 
 	ReleaseDC(_hwndSrc, hdcSrc);
+	ReleaseDC(NULL, hdcScreen);
 	_d3dDC->Unmap(_output.Get(), 0);
 
 	return true;

@@ -112,7 +112,7 @@ bool CursorRenderer::Initialize(ComPtr<ID3D11Texture2D> input, ComPtr<ID3D11Text
 
 	SPDLOG_LOGGER_INFO(logger, fmt::format("scaleX：{}，scaleY：{}", _scaleX, _scaleY));
 
-	/*if (App::GetInstance().IsAdjustCursorSpeed()) {
+	if (App::GetInstance().IsAdjustCursorSpeed()) {
 		// 设置鼠标移动速度
 		if (SystemParametersInfo(SPI_GETMOUSESPEED, 0, &_cursorSpeed, 0)) {
 			long newSpeed = std::clamp(lroundf(_cursorSpeed / (_scaleX + _scaleY) * 2), 1L, 20L);
@@ -125,7 +125,7 @@ bool CursorRenderer::Initialize(ComPtr<ID3D11Texture2D> input, ComPtr<ID3D11Text
 		}
 
 		SPDLOG_LOGGER_INFO(logger, "已调整光标移速");
-	}*/
+	}
 
 	HRESULT hr = renderer.GetRenderTargetView(output.Get(), &_outputRtv);
 	if (FAILED(hr)) {
@@ -187,9 +187,9 @@ bool CursorRenderer::Initialize(ComPtr<ID3D11Texture2D> input, ComPtr<ID3D11Text
 		return false;
 	}
 	
-	/*if (!MagShowSystemCursor(FALSE)) {
+	if (!MagShowSystemCursor(FALSE)) {
 		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("MagShowSystemCursor 失败"));
-	}*/
+	}
 
 	SPDLOG_LOGGER_INFO(logger, "CursorRenderer 初始化完成");
 	return true;
@@ -198,11 +198,11 @@ bool CursorRenderer::Initialize(ComPtr<ID3D11Texture2D> input, ComPtr<ID3D11Text
 CursorRenderer::~CursorRenderer() {
 	ClipCursor(nullptr);
 
-	/*if (App::GetInstance().IsAdjustCursorSpeed()) {
+	if (App::GetInstance().IsAdjustCursorSpeed()) {
 		SystemParametersInfo(SPI_SETMOUSESPEED, 0, (PVOID)(intptr_t)_cursorSpeed, 0);
 	}
 
-	MagShowSystemCursor(TRUE);*/
+	MagShowSystemCursor(TRUE);
 
 	SPDLOG_LOGGER_INFO(logger, "CursorRenderer 已析构");
 }

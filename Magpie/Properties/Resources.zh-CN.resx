@@ -126,8 +126,8 @@
   <data name="Msg_Error_Invalid_Source_Window" xml:space="preserve">
     <value>非法的源窗口</value>
   </data>
-  <data name="Msg_Error_WinRT" xml:space="preserve">
-    <value>无法使用WinRT捕获该窗口</value>
+  <data name="Msg_Error_GraphicsCapture" xml:space="preserve">
+    <value>无法使用GraphicsCapture捕获该窗口</value>
   </data>
   <data name="UI_Main_Capture_Mode" xml:space="preserve">
     <value>抓取模式</value>

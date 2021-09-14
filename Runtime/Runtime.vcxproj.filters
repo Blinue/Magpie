@@ -25,7 +25,7 @@
     <ClCompile Include="GraphicsCaptureFrameSource.cpp">
       <Filter>捕获</Filter>
     </ClCompile>
-    <ClCompile Include="SharedSurfaceFrameSource.cpp">
+    <ClCompile Include="DwmSharedSurfaceFrameSource.cpp">
       <Filter>捕获</Filter>
     </ClCompile>
     <ClCompile Include="GDIOverDXGIFrameSource.cpp">
@@ -48,9 +48,6 @@
     <ClInclude Include="Utils.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="GDIWindowCapturer.h">
-      <Filter>捕获</Filter>
-    </ClInclude>
     <ClInclude Include="resource.h">
       <Filter>资源文件</Filter>
     </ClInclude>
@@ -72,7 +69,7 @@
     <ClInclude Include="GraphicsCaptureFrameSource.h">
       <Filter>捕获</Filter>
     </ClInclude>
-    <ClInclude Include="SharedSurfaceFrameSource.h">
+    <ClInclude Include="DwmSharedSurfaceFrameSource.h">
       <Filter>捕获</Filter>
     </ClInclude>
     <ClInclude Include="FrameSourceBase.h">

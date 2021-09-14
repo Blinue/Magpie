@@ -2,7 +2,7 @@
 #include "App.h"
 #include "Utils.h"
 #include "GraphicsCaptureFrameSource.h"
-#include "SharedSurfaceFrameSource.h"
+#include "DwmSharedSurfaceFrameSource.h"
 #include "GDIOverDXGIFrameSource.h"
 #include "GDIFrameSource.h"
 
@@ -83,7 +83,7 @@ bool App::Initialize(
 		_frameSource.reset(new GraphicsCaptureFrameSource());
 		break;
 	case 1:
-		_frameSource.reset(new SharedSurfaceFrameSource());
+		_frameSource.reset(new DwmSharedSurfaceFrameSource());
 		break;
 	case 2:
 		_frameSource.reset(new GDIOverDXGIFrameSource());

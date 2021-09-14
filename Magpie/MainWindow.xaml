@@ -101,7 +101,7 @@
             <Label Style="{StaticResource Col0}" Content="{x:Static props:Resources.UI_Main_Capture_Mode}" Grid.Row="1" VerticalAlignment="Top" Margin="0,15,0,0" Padding="0,5,5,5"/>
             <ComboBox Name="cbbCaptureMode" Grid.Row="1" SelectedIndex="{Binding Source={x:Static props:Settings.Default},Path=CaptureMode,Mode=TwoWay}" Margin="5,15,0,0">
                 <ComboBoxItem Content="GraphicsCapture" />
-                <ComboBoxItem Content="SharedSurface" />
+                <ComboBoxItem Content="DwmSharedSurface" />
                 <ComboBoxItem Content="GDI Over DXGI" />
                 <ComboBoxItem Content="GDI" />
             </ComboBox>

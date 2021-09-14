@@ -5,7 +5,7 @@
 class GDIFrameSource : public FrameSourceBase {
 public:
 	GDIFrameSource() {};
-	virtual ~GDIFrameSource();
+	virtual ~GDIFrameSource() {}
 
 	bool Initialize() override;
 
@@ -19,6 +19,10 @@ private:
 	HWND _hwndSrc = NULL;
 	ComPtr<ID3D11Texture2D> _output;
 
-	HDC _hdcMem = NULL;
-	HBITMAP _hbmMem = NULL;
+	RECT _srcClientRect{};
+	SIZE _srcClientSize{};
+	RECT _srcWndRect{};
+	SIZE _srcWndSize{};
+
+	std::vector<BYTE> _pixels;
 };

@@ -136,7 +136,7 @@
   <data name="Msg_Error_Invalid_Source_Window" xml:space="preserve">
     <value />
   </data>
-  <data name="Msg_Error_WinRT" xml:space="preserve">
+  <data name="Msg_Error_GraphicsCapture" xml:space="preserve">
     <value></value>
   </data>
   <data name="UI_Main_Capture_Mode" xml:space="preserve">

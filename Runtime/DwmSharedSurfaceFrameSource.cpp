@@ -1,12 +1,12 @@
 #include "pch.h"
-#include "SharedSurfaceFrameSource.h"
+#include "DwmSharedSurfaceFrameSource.h"
 #include "App.h"
 
 
 extern std::shared_ptr<spdlog::logger> logger;
 
 
-bool SharedSurfaceFrameSource::Initialize() {
+bool DwmSharedSurfaceFrameSource::Initialize() {
 	HMODULE user32 = GetModuleHandle(L"user32");
 	if (!user32) {
 		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("获取 User32 模块句柄失败"));
@@ -55,15 +55,15 @@ bool SharedSurfaceFrameSource::Initialize() {
 		return false;
 	}
 
-	SPDLOG_LOGGER_INFO(logger, "SharedSurfaceFrameSource 初始化完成");
+	SPDLOG_LOGGER_INFO(logger, "DwmSharedSurfaceFrameSource 初始化完成");
 	return true;
 }
 
-ComPtr<ID3D11Texture2D> SharedSurfaceFrameSource::GetOutput() {
+ComPtr<ID3D11Texture2D> DwmSharedSurfaceFrameSource::GetOutput() {
 	return _output;
 }
 
-bool SharedSurfaceFrameSource::Update() {
+bool DwmSharedSurfaceFrameSource::Update() {
 	HANDLE sharedTextureHandle = NULL;
 	if (!_dwmGetDxSharedSurface(_hwndSrc, &sharedTextureHandle, nullptr, nullptr, nullptr, nullptr)
 		|| !sharedTextureHandle

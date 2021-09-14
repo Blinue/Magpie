@@ -140,6 +140,15 @@ namespace Magpie.Properties {
         /// <summary>
         ///   查找类似  的本地化字符串。
         /// </summary>
+        public static string Msg_Error_GraphicsCapture {
+            get {
+                return ResourceManager.GetString("Msg_Error_GraphicsCapture", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似  的本地化字符串。
+        /// </summary>
         public static string Msg_Error_Init_Logger {
             get {
                 return ResourceManager.GetString("Msg_Error_Init_Logger", resourceCulture);
@@ -152,15 +161,6 @@ namespace Magpie.Properties {
         public static string Msg_Error_Invalid_Source_Window {
             get {
                 return ResourceManager.GetString("Msg_Error_Invalid_Source_Window", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   查找类似  的本地化字符串。
-        /// </summary>
-        public static string Msg_Error_WinRT {
-            get {
-                return ResourceManager.GetString("Msg_Error_WinRT", resourceCulture);
             }
         }
         

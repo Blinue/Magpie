@@ -34,12 +34,12 @@ bool GraphicsCaptureFrameSource::Initialize() {
 
         if (!winrt::ApiInformation::IsTypePresent(L"Windows.Graphics.Capture.GraphicsCaptureSession")) {
             SPDLOG_LOGGER_ERROR(logger, "不存在 GraphicsCaptureSession API");
-            App::SetErrorMsg(ErrorMessages::WINRT);
+            App::SetErrorMsg(ErrorMessages::GRAPHICS_CAPTURE);
             return false;
         }
         if (!winrt::GraphicsCaptureSession::IsSupported()) {
             SPDLOG_LOGGER_ERROR(logger, "当前不支持 WinRT 捕获");
-            App::SetErrorMsg(ErrorMessages::WINRT);
+            App::SetErrorMsg(ErrorMessages::GRAPHICS_CAPTURE);
             return false;
         }
 
@@ -49,7 +49,7 @@ bool GraphicsCaptureFrameSource::Initialize() {
         );
         if (FAILED(hr)) {
             SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("创建 IDirect3DDevice 失败", hr));
-            App::SetErrorMsg(ErrorMessages::WINRT);
+            App::SetErrorMsg(ErrorMessages::GRAPHICS_CAPTURE);
             return false;
         }
 
@@ -57,7 +57,7 @@ bool GraphicsCaptureFrameSource::Initialize() {
         auto interop = winrt::get_activation_factory<winrt::GraphicsCaptureItem, IGraphicsCaptureItemInterop>();
         if (!interop) {
             SPDLOG_LOGGER_ERROR(logger, "获取 IGraphicsCaptureItemInterop 失败");
-            App::SetErrorMsg(ErrorMessages::WINRT);
+            App::SetErrorMsg(ErrorMessages::GRAPHICS_CAPTURE);
             return false;
         }
 
@@ -68,7 +68,7 @@ bool GraphicsCaptureFrameSource::Initialize() {
         );
         if (FAILED(hr)) {
             SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("创建 GraphicsCaptureItem 失败", hr));
-            App::SetErrorMsg(ErrorMessages::WINRT);
+            App::SetErrorMsg(ErrorMessages::GRAPHICS_CAPTURE);
             return false;
         }
 
@@ -96,7 +96,7 @@ bool GraphicsCaptureFrameSource::Initialize() {
         _captureSession.StartCapture();
     } catch (const winrt::hresult_error& e) {
         SPDLOG_LOGGER_ERROR(logger, fmt::format("初始化 WinRT 失败：{}", Utils::UTF16ToUTF8(e.message())));
-        App::SetErrorMsg(ErrorMessages::WINRT);
+        App::SetErrorMsg(ErrorMessages::GRAPHICS_CAPTURE);
         return false;
     }
 
