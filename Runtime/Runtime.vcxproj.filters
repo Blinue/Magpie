@@ -34,6 +34,9 @@
     <ClCompile Include="GDIFrameSource.cpp">
       <Filter>捕获</Filter>
     </ClCompile>
+    <ClCompile Include="MagCallbackFrameSource.cpp">
+      <Filter>捕获</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -79,6 +82,12 @@
       <Filter>捕获</Filter>
     </ClInclude>
     <ClInclude Include="GDIFrameSource.h">
+      <Filter>捕获</Filter>
+    </ClInclude>
+    <ClInclude Include="MagCallbackFrameSource.h">
+      <Filter>捕获</Filter>
+    </ClInclude>
+    <ClInclude Include="Mag.h">
       <Filter>捕获</Filter>
     </ClInclude>
   </ItemGroup>

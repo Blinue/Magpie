@@ -2,8 +2,7 @@
 
 #include "targetver.h"
 #define WIN32_LEAN_AND_MEAN             // 从 Windows 头文件中排除极少使用的内容
-#define OEMRESOURCE	// 需要设置系统光标 https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-setsystemcursor
-#define NOMINMAX	// 使用标准库的min和max而不是宏
+#define NOMINMAX	// 使用标准库的 min 和 max 而不是宏
 
 // Windows 头文件
 #include <windows.h>

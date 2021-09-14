@@ -48,7 +48,7 @@ bool App::Initialize(
 		// 注册主窗口类
 		_RegisterHostWndClass();
 
-		// 供隐藏光标使用
+		// 供隐藏光标和 MagCallback 抓取模式使用
 		if (!MagInitialize()) {
 			SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("MagInitialize 失败"));
 		}
@@ -92,21 +92,21 @@ bool App::Initialize(
 		_frameSource.reset(new GDIFrameSource());
 		break;
 	default:
-		SPDLOG_LOGGER_CRITICAL(logger, "未知的捕获模式，正在清理");
+		SPDLOG_LOGGER_CRITICAL(logger, "未知的捕获模式，即将退出");
 		DestroyWindow(_hwndHost);
 		Run();
 		return false;
 	}
 	
 	if (!_frameSource->Initialize()) {
-		SPDLOG_LOGGER_CRITICAL(logger, "初始化 FrameSource 失败，正在清理");
+		SPDLOG_LOGGER_CRITICAL(logger, "初始化 FrameSource 失败，即将退出");
 		DestroyWindow(_hwndHost);
 		Run();
 		return false;
 	}
 
 	if (!_renderer->InitializeEffects()) {
-		SPDLOG_LOGGER_CRITICAL(logger, "初始化效果失败，正在清理");
+		SPDLOG_LOGGER_CRITICAL(logger, "初始化效果失败，即将退出");
 		DestroyWindow(_hwndHost);
 		Run();
 		return false;
