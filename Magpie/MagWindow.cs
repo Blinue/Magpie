@@ -73,7 +73,6 @@ namespace Magpie {
 		}
 
 		public void Create(
-			string scaleModel,
 			int captureMode,
 			int bufferPrecision,
 			bool showFPS,

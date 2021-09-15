@@ -1,5 +1,4 @@
 using Gma.System.MouseKeyHook;
-using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.Windows;
@@ -20,15 +19,12 @@ namespace Magpie {
 		private static NLog.Logger Logger { get; } = NLog.LogManager.GetCurrentClassLogger();
 
 		private OptionsWindow optionsWindow = null;
-		private readonly OpenFileDialog openFileDialog = new OpenFileDialog();
 		private readonly DispatcherTimer timerScale = new DispatcherTimer {
 			Interval = new TimeSpan(0, 0, 1)
 		};
 
 		private IKeyboardMouseEvents keyboardEvents = null;
 		private MagWindow magWindow = null;
-
-		private readonly ScaleModelManager scaleModelManager = new ScaleModelManager();
 
 		// 倒计时时间
 		private const int DOWN_COUNT = 5;
@@ -53,43 +49,13 @@ namespace Magpie {
 		public MainWindow() {
 			InitializeComponent();
 
-			BindScaleModels();
-			scaleModelManager.ScaleModelsChanged += BindScaleModels;
-
 			timerScale.Tick += TimerScale_Tick;
 			timerRestore.Tick += TimerRestore_Tick;
 
 			// 加载设置
 			txtHotkey.Text = Settings.Default.Hotkey;
-
-			if (Settings.Default.ScaleMode >= cbbScaleMode.Items.Count) {
-				Settings.Default.ScaleMode = 0;
-			}
-			cbbScaleMode.SelectedIndex = Settings.Default.ScaleMode;
-
-			// 延迟绑定，防止加载时改变设置
-			cbbScaleMode.SelectionChanged += CbbScaleMode_SelectionChanged;
 		}
 
-		private void BindScaleModels() {
-			int oldIdx = cbbScaleMode.SelectedIndex;
-			cbbScaleMode.Items.Clear();
-
-			ScaleModelManager.ScaleModel[] scaleModels = scaleModelManager.GetScaleModels();
-			if (scaleModels == null || scaleModels.Length == 0) {
-				_ = cbbScaleMode.Items.Add($"<{Properties.Resources.UI_Main_Parse_Failure}>");
-				cbbScaleMode.SelectedIndex = 0;
-			} else {
-				foreach (ScaleModelManager.ScaleModel m in scaleModels) {
-					_ = cbbScaleMode.Items.Add(m.Name);
-				}
-
-				if (oldIdx < 0 || oldIdx >= scaleModels.Length) {
-					oldIdx = 0;
-				}
-				cbbScaleMode.SelectedIndex = oldIdx;
-			}
-		}
 
 		private void TimerRestore_Tick(object sender, EventArgs e) {
 			if (!Settings.Default.AutoRestore || !NativeMethods.IsWindow(prevSrcWindow)) {
@@ -169,10 +135,6 @@ namespace Magpie {
 				StopWaitingForRestore();
 			}
 
-			if (!scaleModelManager.IsValid()) {
-				return;
-			}
-
 			if (magWindow.Status == MagWindowStatus.Running) {
 				Logger.Info("通过热键退出全屏");
 				magWindow.Destory();
@@ -184,14 +146,12 @@ namespace Magpie {
 				return;
 			}
 
-			string effectsJson = scaleModelManager.GetScaleModels()[Settings.Default.ScaleMode].Model;
 			bool showFPS = Settings.Default.ShowFPS;
 			int captureMode = Settings.Default.CaptureMode;
 			int bufferPrecision = Settings.Default.BufferPrecision;
 			bool adjustCursorSpeed = Settings.Default.AdjustCursorSpeed;
 
 			magWindow.Create(
-				effectsJson,
 				captureMode,
 				bufferPrecision,
 				showFPS,
@@ -263,10 +223,6 @@ namespace Magpie {
 				handled = true;
 			}
 			return IntPtr.Zero;
-		}
-
-		private void CbbScaleMode_SelectionChanged(object sender, SelectionChangedEventArgs e) {
-			Settings.Default.ScaleMode = cbbScaleMode.SelectedIndex;
 		}
 
 		private void StartScaleTimer() {

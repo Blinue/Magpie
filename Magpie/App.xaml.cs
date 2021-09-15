@@ -14,7 +14,7 @@ namespace Magpie {
 	/// App.xaml 的交互逻辑
 	/// </summary>
 	public partial class App : Application {
-		public static readonly Version APP_VERSION = new Version("0.6.0.0");
+		public static readonly Version APP_VERSION = new Version("0.6.100.0");
 		public static readonly string APPLICATION_DIR = AppDomain.CurrentDomain.SetupInformation.ApplicationBase;
 		public static readonly string SCALE_MODELS_JSON_PATH =
 			Path.Combine(AppDomain.CurrentDomain.SetupInformation.ApplicationBase, "ScaleModels.json");

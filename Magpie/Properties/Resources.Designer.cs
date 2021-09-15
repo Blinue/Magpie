@@ -192,6 +192,15 @@ namespace Magpie.Properties {
         }
         
         /// <summary>
+        ///   查找类似 FSR Sharpness 的本地化字符串。
+        /// </summary>
+        public static string UI_Main_FSR_Sharpness {
+            get {
+                return ResourceManager.GetString("UI_Main_FSR_Sharpness", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Hotkey 的本地化字符串。
         /// </summary>
         public static string UI_Main_Hotkey {

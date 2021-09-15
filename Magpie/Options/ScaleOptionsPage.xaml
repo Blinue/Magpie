@@ -19,6 +19,5 @@
     <StackPanel>
         <CheckBox Content="{x:Static p:Resources.UI_Options_Scale_Adjust_Cursor_Speed}" IsChecked="{Binding Source={x:Static props:Settings.Default},Path=AdjustCursorSpeed,Mode=TwoWay}"/>
         <CheckBox Content="{x:Static p:Resources.UI_Options_Scale_Restore_Full_Screen}" Margin="0,20,0,0" IsChecked="{Binding Source={x:Static props:Settings.Default},Path=AutoRestore,Mode=TwoWay}" />
-        <Button Content="{x:Static p:Resources.UI_Options_Scale_Open_Scale_Config}" HorizontalAlignment="Left" Margin="0,20,0,0" Click="BtnScale_Click"/>
     </StackPanel>
 </Page>
