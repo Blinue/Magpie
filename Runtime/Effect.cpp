@@ -55,37 +55,27 @@ bool Effect::InitializeFsr() {
 		return false;
 	}
 
-	_passes.reserve(2);
-	_Pass& easuPass = _passes.emplace_back();
-	_Pass& rcasPass = _passes.emplace_back();
-
-	if (!easuPass.Initialize(this, easuHlsl)) {
+	_passes.resize(2);
+	if (!_passes[0].Initialize(this, easuHlsl)) {
 		SPDLOG_LOGGER_ERROR(logger, "easuPass 初始化失败");
 		return false;
 	}
-	if (!rcasPass.Initialize(this, rcasHlsl)) {
+	if (!_passes[1].Initialize(this, rcasHlsl)) {
 		SPDLOG_LOGGER_ERROR(logger, "rcasPass 初始化失败");
 		return false;
 	}
 
-	_passDescs.reserve(2);
-	PassDesc& desc1 = _passDescs.emplace_back();
-	desc1.inputs.push_back(0);
-	desc1.samplers.push_back(0);
-	desc1.output = 1;
+	_passDescs.resize(2);
+	_passDescs[0].inputs.push_back(0);
+	_passDescs[0].output = 1;
+	_passDescs[1].inputs.push_back(1);
+	_passDescs[1].output = 2;
 
-	PassDesc& desc2 = _passDescs.emplace_back();
-	desc2.inputs.push_back(1);
-	desc2.samplers.push_back(0);
-	desc2.output = 2;
-
-	ID3D11SamplerState* sam = nullptr;
+	ID3D11SamplerState*& sam = _samplers.emplace_back();
 	if (!renderer.GetSampler(Renderer::FilterType::LINEAR, &sam)) {
 		SPDLOG_LOGGER_ERROR(logger, "GetSampler 失败");
 		return false;
 	}
-	_samplers.emplace_back(sam);
-
 	
 	for (int i = 0; i < 5; ++i) {
 		_constants.emplace_back();
@@ -248,7 +238,7 @@ bool Effect::Build(ComPtr<ID3D11Texture2D> input, ComPtr<ID3D11Texture2D> output
 
 	for (int i = 0; i < _passes.size(); ++i) {
 		PassDesc& desc = _passDescs[i];
-		if (!_passes[i].Build(desc.inputs, desc.samplers, desc.output)) {
+		if (!_passes[i].Build(desc.inputs, desc.output)) {
 			SPDLOG_LOGGER_ERROR(logger, fmt::format("构建 Pass{} 时出错", i + 1));
 			return false;
 		}
@@ -260,6 +250,10 @@ bool Effect::Build(ComPtr<ID3D11Texture2D> input, ComPtr<ID3D11Texture2D> output
 void Effect::Draw() {
 	ID3D11Buffer* t = _constantBuffer.Get();
 	_d3dDC->PSSetConstantBuffers(0, 1, &t);
+
+	if (!_samplers.empty()) {
+		_d3dDC->PSSetSamplers(0, (UINT)_samplers.size(), _samplers.data());
+	}
 
 	for (_Pass& pass : _passes) {
 		pass.Draw();
@@ -286,11 +280,7 @@ bool Effect::_Pass::Initialize(Effect* parent, const std::string& pixelShader) {
 	return true;
 }
 
-bool Effect::_Pass::Build(
-	const std::vector<int>& inputs,
-	const std::vector<int>& samplers,
-	int output
-) {
+bool Effect::_Pass::Build(const std::vector<int>& inputs, int output) {
 	Renderer& renderer = App::GetInstance().GetRenderer();
 	HRESULT hr;
 
@@ -301,11 +291,6 @@ bool Effect::_Pass::Build(
 			SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("获取 ShaderResourceView 失败", hr));
 			return false;
 		}
-	}
-
-	_samplers.resize(samplers.size());
-	for (int i = 0; i < _samplers.size(); ++i) {
-		_samplers[i] = _parent->_samplers[samplers[i]].Get();
 	}
 
 	ComPtr<ID3D11Texture2D> outputTex = _parent->_textures[output];
@@ -331,11 +316,8 @@ void Effect::_Pass::Draw() {
 	_d3dDC->PSSetShaderResources(0, 0, nullptr);
 	_d3dDC->OMSetRenderTargets(1, &_outputRtv, nullptr);
 	_d3dDC->RSSetViewports(1, &_vp);
-	
 	_d3dDC->PSSetShader(_pixelShader.Get(), nullptr, 0);
-	if (!_samplers.empty()) {
-		_d3dDC->PSSetSamplers(0, (UINT)_samplers.size(), _samplers.data());
-	}
+	
 	if (!_inputs.empty()) {
 		_d3dDC->PSSetShaderResources(0, (UINT)_inputs.size(), _inputs.data());
 	}

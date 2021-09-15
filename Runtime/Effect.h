@@ -39,7 +39,6 @@ struct EffectConstantDesc {
 
 struct PassDesc {
 	std::vector<int> inputs;
-	std::vector<int> samplers;
 	int output = -1;
 };
 
@@ -78,11 +77,7 @@ private:
 	public:
 		bool Initialize(Effect* parent, const std::string& pixelShader);
 
-		bool Build(
-			const std::vector<int>& inputs,
-			const std::vector<int>& samplers,
-			int output
-		);
+		bool Build(const std::vector<int>& inputs, int output);
 
 		void Draw();
 
@@ -103,7 +98,7 @@ private:
 	ComPtr<ID3D11Device3> _d3dDevice;
 	ComPtr<ID3D11DeviceContext3> _d3dDC;
 
-	std::vector<ComPtr<ID3D11SamplerState>> _samplers;
+	std::vector<ID3D11SamplerState*> _samplers;
 	std::vector<ComPtr<ID3D11Texture2D>> _textures;
 
 	std::vector<EffectConstantDesc> _constantDescs;
