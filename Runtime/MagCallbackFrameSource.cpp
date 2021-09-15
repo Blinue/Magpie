@@ -104,7 +104,7 @@ BOOL MagCallbackFrameSource::_ImageScalingCallback(
 
 	BYTE* pPixels = (BYTE*)srcdata;
 	BYTE* pData = (BYTE*)ms.pData;
-	for (int i = 0; i < srcheader.height; ++i) {
+	for (UINT i = 0; i < srcheader.height; ++i) {
 		std::memcpy(pData, pPixels, static_cast<size_t>(srcheader.width) * 4);
 
 		pPixels += srcheader.stride;

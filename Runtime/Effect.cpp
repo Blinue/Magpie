@@ -35,31 +35,49 @@ bool Effect::InitializeFromFile(const wchar_t* fileName) {
 	return InitializeFromString(psText);
 }
 
-bool Effect::InitializeLanczos() {
+bool Effect::InitializeFsr() {
 	Renderer& renderer = App::GetInstance().GetRenderer();
 	_d3dDevice = renderer.GetD3DDevice();
 	_d3dDC = renderer.GetD3DDC();
 	_vertexShader = renderer.GetVSShader();
 
-	const wchar_t* fileName = L"shaders\\Lanczos6.hlsl";
-	std::string hlsl;
-	if (!Utils::ReadTextFile(fileName, hlsl)) {
+	const wchar_t* fileName = L"shaders\\FsrEasu.hlsl";
+	std::string easuHlsl;
+	if (!Utils::ReadTextFile(fileName, easuHlsl)) {
 		SPDLOG_LOGGER_ERROR(logger, fmt::format("读取着色器文件{}失败", Utils::UTF16ToUTF8(fileName)));
 		return false;
 	}
 
-	_Pass& pass = _passes.emplace_back();
-
-	if (!pass.Initialize(this, hlsl)) {
-		SPDLOG_LOGGER_ERROR(logger, "Pass1 初始化失败");
+	fileName = L"shaders\\FsrRcas.hlsl";
+	std::string rcasHlsl;
+	if (!Utils::ReadTextFile(fileName, rcasHlsl)) {
+		SPDLOG_LOGGER_ERROR(logger, fmt::format("读取着色器文件{}失败", Utils::UTF16ToUTF8(fileName)));
 		return false;
 	}
-	PassDesc& desc = _passDescs.emplace_back();
-	desc.inputs.push_back(0);
-	desc.samplers.push_back(0);
-	desc.constants.push_back(0);
-	desc.constants.push_back(1);
-	desc.output = 1;
+
+	_passes.reserve(2);
+	_Pass& easuPass = _passes.emplace_back();
+	_Pass& rcasPass = _passes.emplace_back();
+
+	if (!easuPass.Initialize(this, easuHlsl)) {
+		SPDLOG_LOGGER_ERROR(logger, "easuPass 初始化失败");
+		return false;
+	}
+	if (!rcasPass.Initialize(this, rcasHlsl)) {
+		SPDLOG_LOGGER_ERROR(logger, "rcasPass 初始化失败");
+		return false;
+	}
+
+	_passDescs.reserve(2);
+	PassDesc& desc1 = _passDescs.emplace_back();
+	desc1.inputs.push_back(0);
+	desc1.samplers.push_back(0);
+	desc1.output = 1;
+
+	PassDesc& desc2 = _passDescs.emplace_back();
+	desc2.inputs.push_back(1);
+	desc2.samplers.push_back(0);
+	desc2.output = 2;
 
 	ID3D11SamplerState* sam = nullptr;
 	if (!renderer.GetSampler(Renderer::FilterType::LINEAR, &sam)) {
@@ -68,13 +86,10 @@ bool Effect::InitializeLanczos() {
 	}
 	_samplers.emplace_back(sam);
 
-	EffectConstantDesc& desc1 = _constantDescs.emplace_back();
-	desc1.name = "scaleX";
-	desc1.type = EffectConstantType::Float;
-	desc1.defaultValue = 1.0f;
-
-	_constants.emplace_back();
-	_constants.emplace_back();
+	
+	for (int i = 0; i < 5; ++i) {
+		_constants.emplace_back();
+	}
 
 	// 大小必须为 4 的倍数
 	_constants.resize((_constants.size() + 3) / 4 * 4);
@@ -183,14 +198,38 @@ void Effect::SetOutputSize(SIZE value) {
 }
 
 bool Effect::Build(ComPtr<ID3D11Texture2D> input, ComPtr<ID3D11Texture2D> output) {
-	_textures.emplace_back(input);
-	_textures.emplace_back(output);
-
 	D3D11_TEXTURE2D_DESC inputDesc;
 	input->GetDesc(&inputDesc);
+	D3D11_TEXTURE2D_DESC outputDesc;
+	output->GetDesc(&outputDesc);
 
-	_constants[0].floatVal = 1.0f / inputDesc.Width;
-	_constants[1].floatVal = 1.0f / inputDesc.Height;
+	_textures.emplace_back(input);
+
+	ComPtr<ID3D11Texture2D>& tex1 = _textures.emplace_back();
+	D3D11_TEXTURE2D_DESC desc{};
+	desc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
+	desc.Width = outputDesc.Width;
+	desc.Height = outputDesc.Height;
+	desc.Usage = D3D11_USAGE_DEFAULT;
+	desc.MipLevels = 1;
+	desc.ArraySize = 1;
+	desc.SampleDesc.Count = 1;
+	desc.SampleDesc.Quality = 0;
+	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
+	HRESULT hr = App::GetInstance().GetRenderer().GetD3DDevice()->CreateTexture2D(&desc, nullptr, &tex1);
+	if (FAILED(hr)) {
+		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("创建 Texture2D 失败", hr));
+		return false;
+	}
+
+	_textures.emplace_back(output);
+
+
+	_constants[0].intVal = inputDesc.Width;
+	_constants[1].intVal = inputDesc.Height;
+	_constants[2].intVal = outputDesc.Width;
+	_constants[3].intVal = outputDesc.Height;
+	_constants[4].floatVal = 0.87f;
 
 	// 创建常量缓冲区
 	D3D11_BUFFER_DESC bd{};
@@ -201,7 +240,7 @@ bool Effect::Build(ComPtr<ID3D11Texture2D> input, ComPtr<ID3D11Texture2D> output
 	D3D11_SUBRESOURCE_DATA initData{};
 	initData.pSysMem = _constants.data();
 	
-	HRESULT hr = _d3dDevice->CreateBuffer(&bd, &initData, &_constantBuffer);
+	hr = _d3dDevice->CreateBuffer(&bd, &initData, &_constantBuffer);
 	if (FAILED(hr)) {
 		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("CreateBuffer 失败", hr));
 		return false;
@@ -209,7 +248,7 @@ bool Effect::Build(ComPtr<ID3D11Texture2D> input, ComPtr<ID3D11Texture2D> output
 
 	for (int i = 0; i < _passes.size(); ++i) {
 		PassDesc& desc = _passDescs[i];
-		if (!_passes[i].Build(desc.inputs, desc.samplers, output)) {
+		if (!_passes[i].Build(desc.inputs, desc.samplers, desc.output)) {
 			SPDLOG_LOGGER_ERROR(logger, fmt::format("构建 Pass{} 时出错", i + 1));
 			return false;
 		}
@@ -250,7 +289,7 @@ bool Effect::_Pass::Initialize(Effect* parent, const std::string& pixelShader) {
 bool Effect::_Pass::Build(
 	const std::vector<int>& inputs,
 	const std::vector<int>& samplers,
-	ComPtr<ID3D11Texture2D> output
+	int output
 ) {
 	Renderer& renderer = App::GetInstance().GetRenderer();
 	HRESULT hr;
@@ -269,14 +308,15 @@ bool Effect::_Pass::Build(
 		_samplers[i] = _parent->_samplers[samplers[i]].Get();
 	}
 
-	hr = App::GetInstance().GetRenderer().GetRenderTargetView(output.Get(), &_outputRtv);
+	ComPtr<ID3D11Texture2D> outputTex = _parent->_textures[output];
+	hr = App::GetInstance().GetRenderer().GetRenderTargetView(outputTex.Get(), &_outputRtv);
 	if (FAILED(hr)) {
 		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("获取 RenderTargetView 失败", hr));
 		return false;
 	}
 
 	D3D11_TEXTURE2D_DESC desc;
-	output->GetDesc(&desc);
+	outputTex->GetDesc(&desc);
 	SIZE outputTextureSize = { (LONG)desc.Width, (LONG)desc.Height };
 
 	_vp.Width = (float)outputTextureSize.cx;

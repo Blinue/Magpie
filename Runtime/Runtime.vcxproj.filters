@@ -122,5 +122,11 @@
     <CopyFileToFolders Include="Lanczos6.hlsl">
       <Filter>着色器</Filter>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="FsrEasu.hlsl">
+      <Filter>着色器</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="FsrRcas.hlsl">
+      <Filter>着色器</Filter>
+    </CopyFileToFolders>
   </ItemGroup>
 </Project>

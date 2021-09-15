@@ -54,7 +54,7 @@ bool Renderer::InitializeEffectsAndCursor() {
 	}
 
 	Effect& effect = _effects.emplace_back();
-	if (!effect.InitializeLanczos()) {
+	if (!effect.InitializeFsr()) {
 		SPDLOG_LOGGER_CRITICAL(logger, "初始化 Effect 失败");
 		return false;
 	}

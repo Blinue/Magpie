@@ -74,7 +74,7 @@ bool GDIFrameSource::Update() {
 	bi.bmiHeader.biPlanes = 1;
 	bi.bmiHeader.biCompression = BI_RGB;
 	bi.bmiHeader.biBitCount = 32;
-	bi.bmiHeader.biSizeImage = _pixels.size();
+	bi.bmiHeader.biSizeImage = (DWORD)_pixels.size();
 
 	if (GetDIBits(hdcScreen, hBmpDest, 0, _srcWndSize.cy, _pixels.data(), &bi, DIB_RGB_COLORS) != _srcWndSize.cy) {
 		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetDIBits 失败"));

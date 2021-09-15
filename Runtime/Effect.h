@@ -40,7 +40,6 @@ struct EffectConstantDesc {
 struct PassDesc {
 	std::vector<int> inputs;
 	std::vector<int> samplers;
-	std::vector<int> constants;
 	int output = -1;
 };
 
@@ -54,7 +53,7 @@ class Effect {
 public:
 	bool InitializeFromString(std::string_view hlsl);
 	bool InitializeFromFile(const wchar_t* fileName);
-	bool InitializeLanczos();
+	bool InitializeFsr();
 
 	const std::vector<EffectConstantDesc>& GetConstantDescs() const {
 		return _constantDescs;
@@ -82,7 +81,7 @@ private:
 		bool Build(
 			const std::vector<int>& inputs,
 			const std::vector<int>& samplers,
-			ComPtr<ID3D11Texture2D> output
+			int output
 		);
 
 		void Draw();
