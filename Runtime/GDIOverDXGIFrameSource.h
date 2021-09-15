@@ -15,7 +15,7 @@ public:
 	bool Update() override;
 
 private:
-	ComPtr<ID3D11DeviceContext4> _d3dDC;
+	ComPtr<ID3D11DeviceContext3> _d3dDC;
 
 	HWND _hwndSrc = NULL;
 	ComPtr<IDXGISurface1> _dxgiSurface;

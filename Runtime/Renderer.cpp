@@ -199,13 +199,13 @@ bool Renderer::_InitD3D() {
 		}
 		SPDLOG_LOGGER_INFO(logger, fmt::format("已创建 D3D Device\n\t功能级别：{}", featureLevel));
 
-		hr = d3dDevice.As<ID3D11Device5>(&_d3dDevice);
+		hr = d3dDevice.As<ID3D11Device3>(&_d3dDevice);
 		if (FAILED(hr)) {
 			SPDLOG_LOGGER_CRITICAL(logger, MakeComErrorMsg("获取 ID3D11Device5 失败", hr));
 			return false;
 		}
 
-		hr = d3dDC.As<ID3D11DeviceContext4>(&_d3dDC);
+		hr = d3dDC.As<ID3D11DeviceContext3>(&_d3dDC);
 		if (FAILED(hr)) {
 			SPDLOG_LOGGER_CRITICAL(logger, MakeComErrorMsg("获取 ID3D11DeviceContext4 失败", hr));
 			return false;
