@@ -100,7 +100,7 @@ bool Renderer::InitializeEffectsAndCursor() {
 
 void Renderer::Render() {
 	if (!_waitingForNextFrame) {
-		WaitForSingleObjectEx(_frameLatencyWaitableObject, 1000, true);
+		WaitForSingleObjectEx(_frameLatencyWaitableObject, 1000, FALSE);
 	}
 
 	if (!_CheckSrcState()) {

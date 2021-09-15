@@ -129,7 +129,7 @@ namespace Magpie.Properties {
         }
         
         /// <summary>
-        ///   查找类似  的本地化字符串。
+        ///   查找类似 An error occurred, please check the log for more information. 的本地化字符串。
         /// </summary>
         public static string Msg_Error_Generic {
             get {
@@ -138,7 +138,7 @@ namespace Magpie.Properties {
         }
         
         /// <summary>
-        ///   查找类似  的本地化字符串。
+        ///   查找类似 The window cannot be captured using GraphicsCapture. 的本地化字符串。
         /// </summary>
         public static string Msg_Error_GraphicsCapture {
             get {
@@ -147,7 +147,7 @@ namespace Magpie.Properties {
         }
         
         /// <summary>
-        ///   查找类似  的本地化字符串。
+        ///   查找类似 Failed to initialize log. 的本地化字符串。
         /// </summary>
         public static string Msg_Error_Init_Logger {
             get {
@@ -156,7 +156,7 @@ namespace Magpie.Properties {
         }
         
         /// <summary>
-        ///   查找类似  的本地化字符串。
+        ///   查找类似 Invalid source window 的本地化字符串。
         /// </summary>
         public static string Msg_Error_Invalid_Source_Window {
             get {
@@ -165,11 +165,11 @@ namespace Magpie.Properties {
         }
         
         /// <summary>
-        ///   查找类似 Capture Mode 的本地化字符串。
+        ///   查找类似 Capture Method 的本地化字符串。
         /// </summary>
-        public static string UI_Main_Capture_Mode {
+        public static string UI_Main_Capture_Method {
             get {
-                return ResourceManager.GetString("UI_Main_Capture_Mode", resourceCulture);
+                return ResourceManager.GetString("UI_Main_Capture_Method", resourceCulture);
             }
         }
         
