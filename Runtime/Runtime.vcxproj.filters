@@ -37,6 +37,9 @@
     <ClCompile Include="MagCallbackFrameSource.cpp">
       <Filter>捕获</Filter>
     </ClCompile>
+    <ClCompile Include="FrameRateRenderer.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -86,6 +89,9 @@
     </ClInclude>
     <ClInclude Include="MagCallbackFrameSource.h">
       <Filter>捕获</Filter>
+    </ClInclude>
+    <ClInclude Include="FrameRateRenderer.h">
+      <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
