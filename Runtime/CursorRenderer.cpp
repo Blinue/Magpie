@@ -33,7 +33,6 @@ SamplerState pointSam : register(s1);
 
 cbuffer constants : register(b0) {
 	float4 cursorRect;
-	bool isMono;
 };
 
 struct VS_OUTPUT {
@@ -56,8 +55,7 @@ float4 main(VS_OUTPUT input) : SV_TARGET {
 		
 		float3 r = ((uint3(cur * 255) & andMask) ^ uint3(xorMask.rgb * 255)) / 255.0f;
 		// 模拟透明度
-		// 单色光标的透明度和一般光标不同
-		return float4(isMono ? r : lerp(r, cur, 1.0f - xorMask.a), 1);
+		return float4(lerp(r, cur, 1.0f - xorMask.a), 1);
 	}
 }
 
@@ -171,7 +169,7 @@ bool CursorRenderer::Initialize(ComPtr<ID3D11Texture2D> input, ComPtr<ID3D11Text
 	D3D11_BUFFER_DESC bd{};
 	bd.Usage = D3D11_USAGE_DYNAMIC;
 	bd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	bd.ByteWidth = 32;
+	bd.ByteWidth = 16;
 	bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 
 	hr = _d3dDevice->CreateBuffer(&bd, nullptr, &_withCursorCB);
@@ -290,6 +288,20 @@ bool CursorRenderer::_ResolveCursor(HCURSOR hCursor, _CursorInfo& result) const 
 		result.height *= 2;
 	}
 
+	// 特别处理 Alpha 通道全为 0 的光标
+	bool isTransparent = true;
+	for (int i = 0, n = result.width * result.height / 2; i < n; ++i) {
+		if (pixels[n * 4 + i * 4 + 3] > 0) {
+			isTransparent = false;
+			break;
+		}
+	}
+	if (isTransparent) {
+		for (int i = 0, n = result.width * result.height / 2; i < n; ++i) {
+			pixels[n * 4 + i * 4 + 3] = 255;
+		}
+	}
+
 	clear();
 
 	D3D11_TEXTURE2D_DESC desc{};
@@ -377,7 +389,6 @@ bool CursorRenderer::_DrawWithCursor() {
 	cursorRect[1] = float(targetScreenPos.y) / _inputSize.cy;
 	cursorRect[2] = float(targetScreenPos.x + info->width) / _inputSize.cx;
 	cursorRect[3] = float(targetScreenPos.y + info->height) / _inputSize.cy;
-	((INT*)ms.pData)[4] = info->isMonochrome;
 	_d3dDC->Unmap(_withCursorCB.Get(), 0);
 
 	_d3dDC->PSSetShader(_withCursorPS.Get(), nullptr, 0);

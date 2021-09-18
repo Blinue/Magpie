@@ -89,6 +89,10 @@ bool Renderer::InitializeEffectsAndCursor() {
 		return false;
 	}
 
+	if (!_frameRateRenderer.Initialize()) {
+		return false;
+	}
+
 	if (!_cursorRenderer.Initialize(_effectOutput, _backBuffer)) {
 		SPDLOG_LOGGER_CRITICAL(logger, "构建 CursorRenderer 失败");
 		return false;
@@ -123,6 +127,7 @@ void Renderer::Render() {
 		effect.Draw();
 	}
 
+	_frameRateRenderer.Draw();
 	_cursorRenderer.Draw();
 
 	_dxgiSwapChain->Present(0, 0);

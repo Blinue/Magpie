@@ -2,6 +2,7 @@
 #include "pch.h"
 #include "Effect.h"
 #include "CursorRenderer.h"
+#include "FrameRateRenderer.h"
 
 
 class Renderer {
@@ -65,4 +66,5 @@ private:
 
 	RECT _destRect{};
 	CursorRenderer _cursorRenderer;
+	FrameRateRenderer _frameRateRenderer;
 };
