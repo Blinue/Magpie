@@ -67,6 +67,7 @@
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(SolutionDir)build\$(Configuration)\</OutDir>
     <IntDir>$(Configuration)\</IntDir>
+    <MultiProcFXC>true</MultiProcFXC>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
@@ -95,11 +96,15 @@
     <FxCompile>
       <AdditionalIncludeDirectories>$(WindowsSDK_IncludePath);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ShaderModel>5.0</ShaderModel>
-      <CompileD2DCustomEffect>true</CompileD2DCustomEffect>
-      <ShaderType>Pixel</ShaderType>
-      <ObjectFileOutput>$(OutDir)\shaders\%(Filename).cso</ObjectFileOutput>
+      <CompileD2DCustomEffect>false</CompileD2DCustomEffect>
+      <ObjectFileOutput>
+      </ObjectFileOutput>
       <EnableDebuggingInformation>false</EnableDebuggingInformation>
       <DisableOptimizations>false</DisableOptimizations>
+      <AllResourcesBound>true</AllResourcesBound>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <VariableName>%(Filename)ShaderByteCode</VariableName>
+      <HeaderFileOutput>%(RelativeDir)%(Filename).h</HeaderFileOutput>
     </FxCompile>
     <CopyFileToFolders>
       <DestinationFolders>$(OutDir)shaders</DestinationFolders>
@@ -180,31 +185,36 @@
     <ClCompile Include="GraphicsCaptureFrameSource.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="common.hlsli" />
     <None Include="conanfile.py" />
     <None Include="cpp.hint" />
     <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <CopyFileToFolders Include="Lanczos6.hlsl">
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
-      <FileType>Document</FileType>
-    </CopyFileToFolders>
+    <None Include="shaders\common.hlsli" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Version.rc" />
   </ItemGroup>
   <ItemGroup>
-    <CopyFileToFolders Include="FsrEasu.hlsl">
+    <FxCompile Include="shaders\CopyPS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+    </FxCompile>
+    <FxCompile Include="shaders\CursorPS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+    </FxCompile>
+    <FxCompile Include="shaders\FillVS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+    </FxCompile>
+    <CopyFileToFolders Include="shaders\FsrEasu.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
       <FileType>Document</FileType>
     </CopyFileToFolders>
-  </ItemGroup>
-  <ItemGroup>
-    <CopyFileToFolders Include="FsrRcas.hlsl">
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+    <CopyFileToFolders Include="shaders\FsrRcas.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="shaders\Lanczos6.hlsl">
+      <DisableOptimizations Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</DisableOptimizations>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+      </ObjectFileOutput>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
       <FileType>Document</FileType>
     </CopyFileToFolders>

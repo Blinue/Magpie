@@ -2,64 +2,12 @@
 #include "CursorRenderer.h"
 #include "App.h"
 #include "Utils.h"
-
+#include "shaders/CopyPS.h"
+#include "shaders/CursorPS.h"
 
 extern std::shared_ptr<spdlog::logger> logger;
 
 
-const char noCursorPS[] = R"(
-
-Texture2D tex : register(t0);
-SamplerState sam : register(s0);
-
-struct VS_OUTPUT {
-	float4 Position : SV_POSITION;
-	float4 TexCoord : TEXCOORD0;
-};
-
-float4 main(VS_OUTPUT input) : SV_Target{
-	return tex.Sample(sam, input.TexCoord);
-}
-
-)";
-
-const char withCursorPS[] = R"(
-
-Texture2D inputTex : register(t0);
-Texture2D cursorTex : register(t1);
-
-SamplerState linearSam : register(s0);
-SamplerState pointSam : register(s1);
-
-cbuffer constants : register(b0) {
-	float4 cursorRect;
-};
-
-struct VS_OUTPUT {
-	float4 Position : SV_POSITION;
-	float4 TexCoord : TEXCOORD0;
-};
-
-float4 main(VS_OUTPUT input) : SV_TARGET {
-	float2 coord = input.TexCoord.xy;
-	
-	float3 cur = inputTex.Sample(linearSam, coord).rgb;
-	if (coord.x < cursorRect.x || coord.x > cursorRect.z || coord.y < cursorRect.y || coord.y > cursorRect.w) {
-		return float4(cur, 1);
-	} else {
-		float2 cursorCoord = (coord - cursorRect.xy) / (cursorRect.zw - cursorRect.xy);
-		cursorCoord.y /= 2;
-
-		uint3 andMask = cursorTex.Sample(pointSam, cursorCoord).rgb * 255;
-		float4 xorMask = cursorTex.Sample(pointSam, float2(cursorCoord.x, cursorCoord.y + 0.5f));
-		
-		float3 r = ((uint3(cur * 255) & andMask) ^ uint3(xorMask.rgb * 255)) / 255.0f;
-		// 模拟透明度
-		return float4(lerp(r, cur, 1.0f - xorMask.a), 1);
-	}
-}
-
-)";
 
 bool CursorRenderer::Initialize(ComPtr<ID3D11Texture2D> input, ComPtr<ID3D11Texture2D> output) {
 	App& app = App::GetInstance();
@@ -144,22 +92,14 @@ bool CursorRenderer::Initialize(ComPtr<ID3D11Texture2D> input, ComPtr<ID3D11Text
 	_vp.MinDepth = 0.0f;
 	_vp.MaxDepth = 1.0f;
 
-	ComPtr<ID3DBlob> blob = nullptr;
-	if (!Utils::CompilePixelShader(noCursorPS, sizeof(noCursorPS), &blob)) {
-		SPDLOG_LOGGER_ERROR(logger, "编译无光标着色器失败");
-		return false;
-	}
-	hr = renderer.GetD3DDevice()->CreatePixelShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, &_noCursorPS);
+	
+	hr = renderer.GetD3DDevice()->CreatePixelShader(CopyPSShaderByteCode, sizeof(CopyPSShaderByteCode), nullptr, &_noCursorPS);
 	if (FAILED(hr)) {
 		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("创建像素着色器失败", hr));
 		return false;
 	}
 
-	if (!Utils::CompilePixelShader(withCursorPS, sizeof(withCursorPS), &blob)) {
-		SPDLOG_LOGGER_ERROR(logger, "编译有光标着色器失败");
-		return false;
-	}
-	hr = renderer.GetD3DDevice()->CreatePixelShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, &_withCursorPS);
+	hr = renderer.GetD3DDevice()->CreatePixelShader(CursorPSShaderByteCode, sizeof(CursorPSShaderByteCode), nullptr, &_withCursorPS);
 	if (FAILED(hr)) {
 		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("创建像素着色器失败", hr));
 		return false;
@@ -290,15 +230,19 @@ bool CursorRenderer::_ResolveCursor(HCURSOR hCursor, _CursorInfo& result) const 
 
 	// 特别处理 Alpha 通道全为 0 的光标
 	bool isTransparent = true;
-	for (int i = 0, n = result.width * result.height / 2; i < n; ++i) {
-		if (pixels[n * 4 + i * 4 + 3] > 0) {
+	int n = result.width * result.height / 2;
+	for (int i = 0, offset = n * 4 + 3; i < n; ++i, offset += 4) {
+		if (pixels[offset] > 0) {
 			isTransparent = false;
 			break;
 		}
 	}
 	if (isTransparent) {
-		for (int i = 0, n = result.width * result.height / 2; i < n; ++i) {
-			pixels[n * 4 + i * 4 + 3] = 255;
+		size_t offset = static_cast<size_t>(n) * 4;
+		for (int i = 0; i < n; ++i, offset += 4) {
+			if (pixels[offset] || pixels[offset + 1] || pixels[offset + 2]) {
+				pixels[offset + 3] = 255;
+			}
 		}
 	}
 

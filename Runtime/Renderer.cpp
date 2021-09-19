@@ -2,27 +2,10 @@
 #include "Renderer.h"
 #include "App.h"
 #include "Utils.h"
+#include "shaders/FillVS.h"
 
 extern std::shared_ptr<spdlog::logger> logger;
 
-const char vertexShader[] = R"(
-
-struct VS_OUTPUT {
-	float4 Position : SV_POSITION;
-	float4 TexCoord : TEXCOORD0;
-};
-	
-VS_OUTPUT main(uint id : SV_VERTEXID) {
-	VS_OUTPUT output;
-
-	float2 texCoord = float2(id & 1, id >> 1) * 2.0;
-	output.TexCoord = float4(texCoord, 0, 0);
-	output.Position = float4(texCoord * float2(2.0, -2.0) + float2(-1.0, 1.0), 0.0, 1.0);
-
-	return output;
-}
-
-)";
 
 
 bool Renderer::Initialize() {
@@ -34,20 +17,7 @@ bool Renderer::Initialize() {
 }
 
 bool Renderer::InitializeEffectsAndCursor() {
-	// 编译顶点着色器
-	ComPtr<ID3DBlob> errorMsgs = nullptr;
-	ComPtr<ID3DBlob> blob = nullptr;
-	HRESULT hr = D3DCompile(vertexShader, sizeof(vertexShader), nullptr, nullptr, nullptr,
-		"main", "vs_5_0", D3DCOMPILE_ENABLE_STRICTNESS, 0, &blob, &errorMsgs);
-	if (FAILED(hr)) {
-		if (errorMsgs) {
-			SPDLOG_LOGGER_CRITICAL(logger, MakeComErrorMsg(
-				fmt::format("编译顶点着色器失败：{}", (const char*)errorMsgs->GetBufferPointer()), hr));
-		}
-		return false;
-	}
-
-	hr = _d3dDevice->CreateVertexShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, &_vertexShader);
+	HRESULT hr = _d3dDevice->CreateVertexShader(FillVSShaderByteCode, sizeof(FillVSShaderByteCode), nullptr, &_vertexShader);
 	if (FAILED(hr)) {
 		SPDLOG_LOGGER_CRITICAL(logger, MakeComErrorMsg("创建顶点着色器失败", hr));
 		return false;

@@ -98,7 +98,7 @@
     <None Include="cpp.hint" />
     <None Include="conanfile.py" />
     <None Include="packages.config" />
-    <None Include="common.hlsli">
+    <None Include="shaders\common.hlsli">
       <Filter>着色器</Filter>
     </None>
   </ItemGroup>
@@ -125,13 +125,24 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <CopyFileToFolders Include="Lanczos6.hlsl">
+    <FxCompile Include="shaders\CopyPS.hlsl">
+      <Filter>着色器</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\CursorPS.hlsl">
+      <Filter>着色器</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\FillVS.hlsl">
+      <Filter>着色器</Filter>
+    </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <CopyFileToFolders Include="shaders\FsrEasu.hlsl">
       <Filter>着色器</Filter>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="FsrEasu.hlsl">
+    <CopyFileToFolders Include="shaders\FsrRcas.hlsl">
       <Filter>着色器</Filter>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="FsrRcas.hlsl">
+    <CopyFileToFolders Include="shaders\Lanczos6.hlsl">
       <Filter>着色器</Filter>
     </CopyFileToFolders>
   </ItemGroup>
