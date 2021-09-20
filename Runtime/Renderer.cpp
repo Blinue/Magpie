@@ -3,6 +3,7 @@
 #include "App.h"
 #include "Utils.h"
 #include "shaders/FillVS.h"
+#include "shaders/CopyPS.h"
 
 extern std::shared_ptr<spdlog::logger> logger;
 
@@ -13,16 +14,22 @@ bool Renderer::Initialize() {
 		return false;
 	}
 
+	HRESULT hr = _d3dDevice->CreateVertexShader(FillVSShaderByteCode, sizeof(FillVSShaderByteCode), nullptr, &_fillVS);
+	if (FAILED(hr)) {
+		SPDLOG_LOGGER_CRITICAL(logger, MakeComErrorMsg("创建 FillVS 失败", hr));
+		return false;
+	}
+
+	hr = _d3dDevice->CreatePixelShader(CopyPSShaderByteCode, sizeof(CopyPSShaderByteCode), nullptr, &_copyPS);
+	if (FAILED(hr)) {
+		SPDLOG_LOGGER_CRITICAL(logger, MakeComErrorMsg("创建 CopyPS 失败", hr));
+		return false;
+	}
+
 	return true;
 }
 
 bool Renderer::InitializeEffectsAndCursor() {
-	HRESULT hr = _d3dDevice->CreateVertexShader(FillVSShaderByteCode, sizeof(FillVSShaderByteCode), nullptr, &_vertexShader);
-	if (FAILED(hr)) {
-		SPDLOG_LOGGER_CRITICAL(logger, MakeComErrorMsg("创建顶点着色器失败", hr));
-		return false;
-	}
-
 	Effect& effect = _effects.emplace_back();
 	if (!effect.InitializeFsr()) {
 		SPDLOG_LOGGER_CRITICAL(logger, "初始化 Effect 失败");
@@ -48,7 +55,7 @@ bool Renderer::InitializeEffectsAndCursor() {
 	desc.SampleDesc.Count = 1;
 	desc.SampleDesc.Quality = 0;
 	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
-	hr = _d3dDevice->CreateTexture2D(&desc, nullptr, &_effectOutput);
+	HRESULT hr = _d3dDevice->CreateTexture2D(&desc, nullptr, &_effectOutput);
 	if (FAILED(hr)) {
 		SPDLOG_LOGGER_CRITICAL(logger, MakeComErrorMsg("创建 Texture2D 失败", hr));
 		return false;
@@ -91,7 +98,7 @@ void Renderer::Render() {
 	_d3dDC->ClearState();
 	// 所有渲染都使用三角形带拓扑
 	_d3dDC->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
-	_d3dDC->VSSetShader(_vertexShader.Get(), nullptr, 0);
+	_d3dDC->VSSetShader(_fillVS.Get(), nullptr, 0);
 
 	for (Effect& effect : _effects) {
 		effect.Draw();
@@ -137,6 +144,20 @@ HRESULT Renderer::GetShaderResourceView(ID3D11Texture2D* texture, ID3D11ShaderRe
 		*result = r.Get();
 		return S_OK;
 	}
+}
+
+void Renderer::SetFillVS() {
+	_d3dDC->IASetInputLayout(nullptr);
+	_d3dDC->IASetVertexBuffers(0, 0, nullptr, nullptr, nullptr);
+	_d3dDC->VSSetShader(_fillVS.Get(), nullptr, 0);
+}
+
+
+void Renderer::SetCopyPS(ID3D11SamplerState* sampler, ID3D11ShaderResourceView* input) {
+	_d3dDC->PSSetShader(_copyPS.Get(), nullptr, 0);
+	_d3dDC->PSSetConstantBuffers(0, 0, nullptr);
+	_d3dDC->PSSetShaderResources(0, 1, &input);
+	_d3dDC->PSSetSamplers(0, 1, &sampler);
 }
 
 bool Renderer::_InitD3D() {
@@ -331,3 +352,4 @@ bool Renderer::GetSampler(FilterType filterType, ID3D11SamplerState** result) {
 
 	return true;
 }
+

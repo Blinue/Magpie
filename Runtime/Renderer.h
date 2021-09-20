@@ -36,9 +36,9 @@ public:
 
 	HRESULT GetShaderResourceView(ID3D11Texture2D* texture, ID3D11ShaderResourceView** result);
 
-	ComPtr<ID3D11VertexShader> GetVSShader() const {
-		return _vertexShader;
-	}
+	void SetFillVS();
+
+	void SetCopyPS(ID3D11SamplerState* sampler, ID3D11ShaderResourceView* input);
 
 private:
 	bool _InitD3D();
@@ -61,7 +61,8 @@ private:
 	std::unordered_map<ID3D11Texture2D*, ComPtr<ID3D11RenderTargetView>> _rtvMap;
 	std::unordered_map<ID3D11Texture2D*, ComPtr<ID3D11ShaderResourceView>> _srvMap;
 
-	ComPtr<ID3D11VertexShader> _vertexShader;
+	ComPtr<ID3D11VertexShader> _fillVS;
+	ComPtr<ID3D11PixelShader> _copyPS;
 	std::vector<Effect> _effects;
 
 	RECT _destRect{};

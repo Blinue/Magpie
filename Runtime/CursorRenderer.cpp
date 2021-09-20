@@ -2,7 +2,6 @@
 #include "CursorRenderer.h"
 #include "App.h"
 #include "Utils.h"
-#include "shaders/CopyPS.h"
 #include "shaders/CursorPS.h"
 
 extern std::shared_ptr<spdlog::logger> logger;
@@ -92,14 +91,7 @@ bool CursorRenderer::Initialize(ComPtr<ID3D11Texture2D> input, ComPtr<ID3D11Text
 	_vp.MinDepth = 0.0f;
 	_vp.MaxDepth = 1.0f;
 
-	
-	hr = renderer.GetD3DDevice()->CreatePixelShader(CopyPSShaderByteCode, sizeof(CopyPSShaderByteCode), nullptr, &_noCursorPS);
-	if (FAILED(hr)) {
-		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("创建像素着色器失败", hr));
-		return false;
-	}
-
-	hr = renderer.GetD3DDevice()->CreatePixelShader(CursorPSShaderByteCode, sizeof(CursorPSShaderByteCode), nullptr, &_withCursorPS);
+	hr = renderer.GetD3DDevice()->CreatePixelShader(CursorPSShaderByteCode, sizeof(CursorPSShaderByteCode), nullptr, &_cursorPS);
 	if (FAILED(hr)) {
 		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("创建像素着色器失败", hr));
 		return false;
@@ -335,7 +327,7 @@ bool CursorRenderer::_DrawWithCursor() {
 	cursorRect[3] = float(targetScreenPos.y + info->height) / _inputSize.cy;
 	_d3dDC->Unmap(_withCursorCB.Get(), 0);
 
-	_d3dDC->PSSetShader(_withCursorPS.Get(), nullptr, 0);
+	_d3dDC->PSSetShader(_cursorPS.Get(), nullptr, 0);
 	ID3D11ShaderResourceView* srvs[2] = { _inputSrv, info->masks.Get() };
 	_d3dDC->PSSetShaderResources(0, 2, srvs);
 	ID3D11Buffer* withCursorCB = _withCursorCB.Get();
@@ -352,9 +344,7 @@ void CursorRenderer::Draw() {
 	
 	if (!_DrawWithCursor()) {
 		// 不显示鼠标或创建映射失败
-		_d3dDC->PSSetShaderResources(0, 1, &_inputSrv);
-		_d3dDC->PSSetShader(_noCursorPS.Get(), nullptr, 0);
-		_d3dDC->PSSetSamplers(0, 1, &_pointSam);
+		App::GetInstance().GetRenderer().SetCopyPS(_pointSam, _inputSrv);
 	}
 	
 	_d3dDC->Draw(3, 0);

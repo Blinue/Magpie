@@ -142,8 +142,5 @@
     <CopyFileToFolders Include="shaders\FsrRcas.hlsl">
       <Filter>着色器</Filter>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="shaders\Lanczos6.hlsl">
-      <Filter>着色器</Filter>
-    </CopyFileToFolders>
   </ItemGroup>
 </Project>

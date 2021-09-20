@@ -40,8 +40,7 @@ private:
 	ID3D11ShaderResourceView* _inputSrv = nullptr;
 	D3D11_VIEWPORT _vp{};
 
-	ComPtr<ID3D11PixelShader> _noCursorPS;
-	ComPtr<ID3D11PixelShader> _withCursorPS;
+	ComPtr<ID3D11PixelShader> _cursorPS;
 	ComPtr<ID3D11Buffer> _withCursorCB;
 	ID3D11SamplerState* _linearSam = nullptr;
 	ID3D11SamplerState* _pointSam = nullptr;

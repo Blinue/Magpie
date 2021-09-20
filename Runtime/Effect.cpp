@@ -2,7 +2,6 @@
 #include "Effect.h"
 #include "App.h"
 #include "Utils.h"
-#include <DirectXColors.h>
 
 extern std::shared_ptr<spdlog::logger> logger;
 
@@ -39,7 +38,6 @@ bool Effect::InitializeFsr() {
 	Renderer& renderer = App::GetInstance().GetRenderer();
 	_d3dDevice = renderer.GetD3DDevice();
 	_d3dDC = renderer.GetD3DDC();
-	_vertexShader = renderer.GetVSShader();
 
 	const wchar_t* fileName = L"shaders\\FsrEasu.hlsl";
 	std::string easuHlsl;
@@ -254,6 +252,8 @@ void Effect::Draw() {
 	if (!_samplers.empty()) {
 		_d3dDC->PSSetSamplers(0, (UINT)_samplers.size(), _samplers.data());
 	}
+
+	App::GetInstance().GetRenderer().SetFillVS();
 
 	for (_Pass& pass : _passes) {
 		pass.Draw();
