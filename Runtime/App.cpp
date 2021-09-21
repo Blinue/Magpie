@@ -137,6 +137,24 @@ void App::Run() {
 	}
 }
 
+ComPtr<IWICImagingFactory2> App::GetWICImageFactory() {
+    if (_wicImgFactory == nullptr) {
+        HRESULT hr = CoCreateInstance(
+            CLSID_WICImagingFactory,
+            NULL,
+            CLSCTX_INPROC_SERVER,
+            IID_PPV_ARGS(&_wicImgFactory)
+        );
+
+		if (FAILED(hr)) {
+			SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("创建 WICImagingFactory 失败", hr));
+			return nullptr;
+		}
+    }
+
+    return _wicImgFactory;
+}
+
 // 注册主窗口类
 void App::_RegisterHostWndClass() const {
 	WNDCLASSEX wcex = {};

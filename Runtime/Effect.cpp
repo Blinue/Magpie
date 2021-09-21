@@ -2,6 +2,7 @@
 #include "Effect.h"
 #include "App.h"
 #include "Utils.h"
+#include <VertexTypes.h>
 
 extern std::shared_ptr<spdlog::logger> logger;
 
@@ -174,7 +175,11 @@ bool Effect::SetConstant(int index, int value) {
 }
 
 SIZE Effect::CalcOutputSize(SIZE inputSize) const {
-	return {};
+	if (_outputSize.has_value()) {
+		return _outputSize.value();
+	} else {
+		return inputSize;
+	}
 }
 
 bool Effect::CanSetOutputSize() const {
@@ -182,22 +187,22 @@ bool Effect::CanSetOutputSize() const {
 }
 
 void Effect::SetOutputSize(SIZE value) {
-	
+	_outputSize = value;
 }
 
 bool Effect::Build(ComPtr<ID3D11Texture2D> input, ComPtr<ID3D11Texture2D> output) {
 	D3D11_TEXTURE2D_DESC inputDesc;
 	input->GetDesc(&inputDesc);
-	D3D11_TEXTURE2D_DESC outputDesc;
-	output->GetDesc(&outputDesc);
+	
+	SIZE outputSize = CalcOutputSize({ (long)inputDesc.Width, (long)inputDesc.Height });
 
 	_textures.emplace_back(input);
 
 	ComPtr<ID3D11Texture2D>& tex1 = _textures.emplace_back();
 	D3D11_TEXTURE2D_DESC desc{};
 	desc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
-	desc.Width = outputDesc.Width;
-	desc.Height = outputDesc.Height;
+	desc.Width = outputSize.cx;
+	desc.Height = outputSize.cy;
 	desc.Usage = D3D11_USAGE_DEFAULT;
 	desc.MipLevels = 1;
 	desc.ArraySize = 1;
@@ -215,8 +220,8 @@ bool Effect::Build(ComPtr<ID3D11Texture2D> input, ComPtr<ID3D11Texture2D> output
 
 	_constants[0].intVal = inputDesc.Width;
 	_constants[1].intVal = inputDesc.Height;
-	_constants[2].intVal = outputDesc.Width;
-	_constants[3].intVal = outputDesc.Height;
+	_constants[2].intVal = outputSize.cx;
+	_constants[3].intVal = outputSize.cy;
 	_constants[4].floatVal = 0.87f;
 
 	// 创建常量缓冲区
@@ -236,7 +241,8 @@ bool Effect::Build(ComPtr<ID3D11Texture2D> input, ComPtr<ID3D11Texture2D> output
 
 	for (int i = 0; i < _passes.size(); ++i) {
 		PassDesc& desc = _passDescs[i];
-		if (!_passes[i].Build(desc.inputs, desc.output)) {
+		if (!_passes[i].Build(desc.inputs, desc.output, outputSize)
+		) {
 			SPDLOG_LOGGER_ERROR(logger, fmt::format("构建 Pass{} 时出错", i + 1));
 			return false;
 		}
@@ -248,12 +254,7 @@ bool Effect::Build(ComPtr<ID3D11Texture2D> input, ComPtr<ID3D11Texture2D> output
 void Effect::Draw() {
 	ID3D11Buffer* t = _constantBuffer.Get();
 	_d3dDC->PSSetConstantBuffers(0, 1, &t);
-
-	if (!_samplers.empty()) {
-		_d3dDC->PSSetSamplers(0, (UINT)_samplers.size(), _samplers.data());
-	}
-
-	App::GetInstance().GetRenderer().SetFillVS();
+	_d3dDC->PSSetSamplers(0, (UINT)_samplers.size(), _samplers.data());
 
 	for (_Pass& pass : _passes) {
 		pass.Draw();
@@ -280,7 +281,7 @@ bool Effect::_Pass::Initialize(Effect* parent, const std::string& pixelShader) {
 	return true;
 }
 
-bool Effect::_Pass::Build(const std::vector<int>& inputs, int output) {
+bool Effect::_Pass::Build(const std::vector<int>& inputs, int output, std::optional<SIZE> outputSize) {
 	Renderer& renderer = App::GetInstance().GetRenderer();
 	HRESULT hr;
 
@@ -309,6 +310,34 @@ bool Effect::_Pass::Build(const std::vector<int>& inputs, int output) {
 	_vp.MinDepth = 0.0f;
 	_vp.MaxDepth = 1.0f;
 
+	// 创建顶点缓冲区
+	float outputLeft, outputTop, outputRight, outputBottom;
+	if (outputSize.has_value() && (outputTextureSize.cx != outputSize->cx || outputTextureSize.cy != outputSize->cy)) {
+		outputLeft = std::floorf(((float)outputTextureSize.cx - outputSize->cx) / 2) * 2 / outputTextureSize.cx - 1;
+		outputTop = 1 - std::ceilf(((float)outputTextureSize.cy - outputSize->cy) / 2) * 2 / outputTextureSize.cy;
+		outputRight = outputLeft + 2 * outputSize->cx / (float)outputTextureSize.cx;
+		outputBottom = outputTop - 2 * outputSize->cy / (float)outputTextureSize.cy;
+
+		VertexPositionTexture vertices[] = {
+			{ XMFLOAT3(outputLeft, outputTop, 0.5f), XMFLOAT2(0.0f, 0.0f) },
+			{ XMFLOAT3(outputRight, outputTop, 0.5f), XMFLOAT2(1.0f, 0.0f) },
+			{ XMFLOAT3(outputLeft, outputBottom, 0.5f), XMFLOAT2(0.0f, 1.0f) },
+			{ XMFLOAT3(outputRight, outputBottom, 0.5f), XMFLOAT2(1.0f, 1.0f) }
+		};
+		D3D11_BUFFER_DESC bd = {};
+		bd.Usage = D3D11_USAGE_DEFAULT;
+		bd.ByteWidth = sizeof(vertices);
+		bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+
+		D3D11_SUBRESOURCE_DATA InitData = {};
+		InitData.pSysMem = vertices;
+		hr = renderer.GetD3DDevice()->CreateBuffer(&bd, &InitData, &_vtxBuffer);
+		if (FAILED(hr)) {
+			SPDLOG_LOGGER_ERROR(logger, fmt::sprintf("创建顶点缓冲区失败\n\tHRESULT：0x%X", hr));
+			return false;
+		}
+	}
+
 	return true;
 }
 
@@ -316,11 +345,15 @@ void Effect::_Pass::Draw() {
 	_d3dDC->PSSetShaderResources(0, 0, nullptr);
 	_d3dDC->OMSetRenderTargets(1, &_outputRtv, nullptr);
 	_d3dDC->RSSetViewports(1, &_vp);
-	_d3dDC->PSSetShader(_pixelShader.Get(), nullptr, 0);
-	
-	if (!_inputs.empty()) {
-		_d3dDC->PSSetShaderResources(0, (UINT)_inputs.size(), _inputs.data());
-	}
 
-	_d3dDC->Draw(3, 0);
+	_d3dDC->PSSetShader(_pixelShader.Get(), nullptr, 0);
+	_d3dDC->PSSetShaderResources(0, (UINT)_inputs.size(), _inputs.data());
+
+	if (_vtxBuffer) {
+		App::GetInstance().GetRenderer().SetSimpleVS(_vtxBuffer.Get());
+		_d3dDC->Draw(4, 0);
+	} else {
+		App::GetInstance().GetRenderer().SetFillVS();
+		_d3dDC->Draw(3, 0);
+	}
 }

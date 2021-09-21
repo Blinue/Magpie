@@ -3,6 +3,7 @@
 #include "Effect.h"
 #include "CursorRenderer.h"
 #include "FrameRateRenderer.h"
+#include <CommonStates.h>
 
 
 class Renderer {
@@ -36,9 +37,13 @@ public:
 
 	HRESULT GetShaderResourceView(ID3D11Texture2D* texture, ID3D11ShaderResourceView** result);
 
-	void SetFillVS();
+	bool SetFillVS();
 
-	void SetCopyPS(ID3D11SamplerState* sampler, ID3D11ShaderResourceView* input);
+	bool SetSimpleVS(ID3D11Buffer* simpleVB);
+
+	bool SetCopyPS(ID3D11SamplerState* sampler, ID3D11ShaderResourceView* input);
+
+	bool SetAlphaBlend(bool enable);
 
 private:
 	bool _InitD3D();
@@ -62,6 +67,8 @@ private:
 	std::unordered_map<ID3D11Texture2D*, ComPtr<ID3D11ShaderResourceView>> _srvMap;
 
 	ComPtr<ID3D11VertexShader> _fillVS;
+	ComPtr<ID3D11VertexShader> _simpleVS;
+	ComPtr<ID3D11InputLayout> _simpleIL;
 	ComPtr<ID3D11PixelShader> _copyPS;
 	std::vector<Effect> _effects;
 

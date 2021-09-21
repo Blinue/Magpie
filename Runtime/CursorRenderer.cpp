@@ -3,61 +3,48 @@
 #include "App.h"
 #include "Utils.h"
 #include "shaders/CursorPS.h"
+#include <VertexTypes.h>
 
 extern std::shared_ptr<spdlog::logger> logger;
 
 
 
-bool CursorRenderer::Initialize(ComPtr<ID3D11Texture2D> input, ComPtr<ID3D11Texture2D> output) {
+bool CursorRenderer::Initialize(ComPtr<ID3D11Texture2D> renderTarget, SIZE outputSize) {
 	App& app = App::GetInstance();
 	Renderer& renderer = app.GetRenderer();
 	_d3dDC = renderer.GetD3DDC();
 	_d3dDevice = renderer.GetD3DDevice();
 
 	// 限制鼠标在窗口内
-	if (!ClipCursor(&App::GetInstance().GetSrcClientRect())) {
+	/*if (!ClipCursor(&App::GetInstance().GetSrcClientRect())) {
 		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("ClipCursor 失败"));
-	}
+	}*/
 
-	D3D11_TEXTURE2D_DESC inputDesc, outputDesc;
-	input->GetDesc(&inputDesc);
-	output->GetDesc(&outputDesc);
+	D3D11_TEXTURE2D_DESC rtDesc;
+	renderTarget->GetDesc(&rtDesc);
 
-	_inputSize.cx = inputDesc.Width;
-	_inputSize.cy = inputDesc.Height;
+	_vp.TopLeftX = 0;
+	_vp.TopLeftY = 0;
+	_vp.Width = rtDesc.Width;
+	_vp.Height = rtDesc.Height;
+	_vp.MinDepth = 0.0f;
+	_vp.MaxDepth = 1.0f;
 
-	// 如果输出可以容纳输入，将其居中；如果不能容纳，等比缩放到能容纳的最大大小
-	if (inputDesc.Width <= outputDesc.Width && inputDesc.Height <= outputDesc.Height) {
-		_destRect.left = (outputDesc.Width - inputDesc.Width) / 2;
-		_destRect.right = _destRect.left + inputDesc.Width;
-		_destRect.top = (outputDesc.Height - inputDesc.Height) / 2;
-		_destRect.bottom = _destRect.top + inputDesc.Height;
-	} else {
-		float scaleX = float(outputDesc.Width) / inputDesc.Width;
-		float scaleY = float(outputDesc.Height) / inputDesc.Height;
-
-		if ( scaleX >= scaleY ) {
-			long width = lroundf(inputDesc.Width * scaleY);
-			_destRect.left = (outputDesc.Width - width) / 2;
-			_destRect.right = _destRect.left + width;
-			_destRect.top = 0;
-			_destRect.bottom = outputDesc.Height;
-		} else {
-			long height = lroundf(inputDesc.Height * scaleX);
-			_destRect.left = 0;
-			_destRect.right = outputDesc.Width;
-			_destRect.top = (outputDesc.Height - height) / 2;
-			_destRect.bottom = _destRect.top + height;
-		}
-	}
 
 	const RECT& srcClient = app.GetSrcClientRect();
-	_scaleX = float(_destRect.right - _destRect.left) / (srcClient.right - srcClient.left);
-	_scaleY = float(_destRect.bottom - _destRect.top) / (srcClient.bottom - srcClient.top);
+	SIZE srcSize = { srcClient.right - srcClient.left, srcClient.bottom - srcClient.top };
+
+	_destRect.left = (outputSize.cx - srcSize.cx) / 2;
+	_destRect.right = _destRect.left + srcSize.cx;
+	_destRect.top = (outputSize.cy - srcSize.cy) / 2;
+	_destRect.bottom = _destRect.top + srcSize.cy;
+
+	_scaleX = float(_destRect.right - _destRect.left) / srcSize.cx;
+	_scaleY = float(_destRect.bottom - _destRect.top) / srcSize.cy;
 
 	SPDLOG_LOGGER_INFO(logger, fmt::format("scaleX：{}，scaleY：{}", _scaleX, _scaleY));
 
-	if (App::GetInstance().IsAdjustCursorSpeed()) {
+	/*if (App::GetInstance().IsAdjustCursorSpeed()) {
 		// 设置鼠标移动速度
 		if (SystemParametersInfo(SPI_GETMOUSESPEED, 0, &_cursorSpeed, 0)) {
 			long newSpeed = std::clamp(lroundf(_cursorSpeed / (_scaleX + _scaleY) * 2), 1L, 20L);
@@ -70,69 +57,55 @@ bool CursorRenderer::Initialize(ComPtr<ID3D11Texture2D> input, ComPtr<ID3D11Text
 		}
 
 		SPDLOG_LOGGER_INFO(logger, "已调整光标移速");
-	}
+	}*/
 
-	HRESULT hr = renderer.GetRenderTargetView(output.Get(), &_outputRtv);
+	HRESULT hr = renderer.GetRenderTargetView(renderTarget.Get(), &_rtv);
 	if (FAILED(hr)) {
 		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("GetRenderTargetView 失败", hr));
 		return false;
 	}
-
-	hr = renderer.GetShaderResourceView(input.Get(), &_inputSrv);
-	if (FAILED(hr)) {
-		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("GetShaderResourceView 失败", hr));
-		return false;
-	}
-
-	_vp.TopLeftX = (FLOAT)_destRect.left;
-	_vp.TopLeftY = (FLOAT)_destRect.top;
-	_vp.Width = float(_destRect.right - _destRect.left);
-	_vp.Height = float(_destRect.bottom - _destRect.top);
-	_vp.MinDepth = 0.0f;
-	_vp.MaxDepth = 1.0f;
 
 	hr = renderer.GetD3DDevice()->CreatePixelShader(CursorPSShaderByteCode, sizeof(CursorPSShaderByteCode), nullptr, &_cursorPS);
 	if (FAILED(hr)) {
 		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("创建像素着色器失败", hr));
 		return false;
 	}
-
-	// 创建提供光标信息的缓冲区
-	D3D11_BUFFER_DESC bd{};
+	
+	D3D11_BUFFER_DESC bd = {};
 	bd.Usage = D3D11_USAGE_DYNAMIC;
+	bd.ByteWidth = sizeof(VertexPositionTexture) * 4;
+	bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 	bd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	bd.ByteWidth = 16;
-	bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 
-	hr = _d3dDevice->CreateBuffer(&bd, nullptr, &_withCursorCB);
+	hr = renderer.GetD3DDevice()->CreateBuffer(&bd, nullptr, &_vtxBuffer);
 	if (FAILED(hr)) {
-		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("CreateBuffer 失败", hr));
+		SPDLOG_LOGGER_ERROR(logger, fmt::sprintf("创建顶点缓冲区失败\n\tHRESULT：0x%X", hr));
 		return false;
 	}
 
-	if (!renderer.GetSampler(Renderer::FilterType::LINEAR, &_linearSam) 
+	if (!renderer.GetSampler(Renderer::FilterType::LINEAR, &_linearSam)
 		|| !renderer.GetSampler(Renderer::FilterType::POINT, &_pointSam)
 	) {
 		SPDLOG_LOGGER_ERROR(logger, "GetSampler 失败");
 		return false;
 	}
-	
-	if (!MagShowSystemCursor(FALSE)) {
+
+	/*if (!MagShowSystemCursor(FALSE)) {
 		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("MagShowSystemCursor 失败"));
-	}
+	}*/
 
 	SPDLOG_LOGGER_INFO(logger, "CursorRenderer 初始化完成");
 	return true;
 }
 
 CursorRenderer::~CursorRenderer() {
-	ClipCursor(nullptr);
+	/*ClipCursor(nullptr);
 
 	if (App::GetInstance().IsAdjustCursorSpeed()) {
 		SystemParametersInfo(SPI_SETMOUSESPEED, 0, (PVOID)(intptr_t)_cursorSpeed, 0);
 	}
 
-	MagShowSystemCursor(TRUE);
+	MagShowSystemCursor(TRUE);*/
 
 	SPDLOG_LOGGER_INFO(logger, "CursorRenderer 已析构");
 }
@@ -186,132 +159,136 @@ bool CursorRenderer::_ResolveCursor(HCURSOR hCursor, _CursorInfo& result) const 
 		DeleteBitmap(ii.hbmMask);
 	};
 
-	std::vector<BYTE> pixels;
-
 	result.isMonochrome = ii.hbmColor == NULL;
-	if (result.isMonochrome) {
-		// 单色光标
-		if (!GetHBmpBits32(ii.hbmMask, result.width, result.height, pixels)) {
-			SPDLOG_LOGGER_ERROR(logger, "GetHBmpBits32 失败");
-			clear();
-			return false;
-		}
-	} else {
-		if (!GetHBmpBits32(ii.hbmMask, result.width, result.height, pixels)) {
-			SPDLOG_LOGGER_ERROR(logger, "GetHBmpBits32 失败");
-			clear();
-			return false;
-		}
-
-		std::vector<BYTE> colorMsk;
-		if (!GetHBmpBits32(ii.hbmColor, result.width, result.height, colorMsk)) {
-			SPDLOG_LOGGER_ERROR(logger, "GetHBmpBits32 失败");
-			clear();
-			return false;
-		}
-		if (pixels.size() != colorMsk.size()) {
-			SPDLOG_LOGGER_ERROR(logger, "hbmMask 和 hbmColor 的尺寸不一致");
-			clear();
-			return false;
-		}
-
-		pixels.resize(pixels.size() * 2);
-		std::memcpy(pixels.data() + colorMsk.size(), colorMsk.data(), colorMsk.size());
-		result.height *= 2;
-	}
-
-	// 特别处理 Alpha 通道全为 0 的光标
-	bool isTransparent = true;
-	int n = result.width * result.height / 2;
-	for (int i = 0, offset = n * 4 + 3; i < n; ++i, offset += 4) {
-		if (pixels[offset] > 0) {
-			isTransparent = false;
-			break;
-		}
-	}
-	if (isTransparent) {
-		size_t offset = static_cast<size_t>(n) * 4;
-		for (int i = 0; i < n; ++i, offset += 4) {
-			if (pixels[offset] || pixels[offset + 1] || pixels[offset + 2]) {
-				pixels[offset + 3] = 255;
-			}
-		}
-	}
-
-	clear();
-
-	D3D11_TEXTURE2D_DESC desc{};
-	desc.Width = result.width;
-	desc.Height = result.height;
-	desc.MipLevels = 1;
-	desc.ArraySize = 1;
-	desc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
-	desc.SampleDesc.Count = 1;
-	desc.SampleDesc.Quality = 0;
-	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
-	desc.Usage = D3D11_USAGE_IMMUTABLE;
-
-	D3D11_SUBRESOURCE_DATA initData{};
-	initData.pSysMem = &pixels[0];
-	initData.SysMemPitch = result.width * 4;
 
 	ComPtr<ID3D11Texture2D> texture;
-	HRESULT hr = _d3dDevice->CreateTexture2D(&desc, &initData, &texture);
-	if (FAILED(hr)) {
-		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("创建 Texture2D 失败", hr));
-		return false;
+
+	if (result.isMonochrome) {
+		BITMAP bmp{};
+		if (!GetObject(ii.hbmMask, sizeof(bmp), &bmp)) {
+			SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetObject 失败"));
+			return false;
+		}
+		result.width = bmp.bmWidth;
+		result.height = bmp.bmHeight;
+
+		BITMAPINFO bi{};
+		bi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
+		bi.bmiHeader.biWidth = result.width;
+		bi.bmiHeader.biHeight = -(LONG)result.height;
+		bi.bmiHeader.biPlanes = 1;
+		bi.bmiHeader.biCompression = BI_RGB;
+		bi.bmiHeader.biBitCount = 32;
+		bi.bmiHeader.biSizeImage = result.width * result.height * 4;
+
+		std::vector<BYTE> pixels(bi.bmiHeader.biSizeImage);
+		HDC hdc = GetDC(NULL);
+		if (GetDIBits(hdc, ii.hbmMask, 0, result.height, &pixels[0], &bi, DIB_RGB_COLORS) != result.height) {
+			SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetDIBits 失败"));
+			ReleaseDC(NULL, hdc);
+			return false;
+		}
+		ReleaseDC(NULL, hdc);
+
+		clear();
+
+		// 单色光标的纹理由两部分组成：上半部分为单色光标的掩码，红色通道是 AND 掩码，绿色通道是 XOR 掩码
+		// 下半部分为光标覆盖部分的纹理，在运行时从原始纹理中复制过来
+		const int halfSize = bi.bmiHeader.biSizeImage / 8;
+		BYTE* upPtr = &pixels[1];
+		BYTE* downPtr = &pixels[static_cast<size_t>(halfSize) * 4];
+		for (int i = 0; i < halfSize; ++i) {
+			*upPtr = *downPtr;
+			upPtr += 4;
+			downPtr += 4;
+		}
+
+		D3D11_TEXTURE2D_DESC desc{};
+		desc.Width = result.width;
+		desc.Height = result.height;
+		desc.MipLevels = 1;
+		desc.ArraySize = 1;
+		desc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
+		desc.SampleDesc.Count = 1;
+		desc.SampleDesc.Quality = 0;
+		desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+		desc.Usage = D3D11_USAGE_DEFAULT;
+
+		D3D11_SUBRESOURCE_DATA initData{};
+		initData.pSysMem = &pixels[0];
+		initData.SysMemPitch = result.width * 4;
+
+		HRESULT hr = _d3dDevice->CreateTexture2D(&desc, &initData, &texture);
+		if (FAILED(hr)) {
+			SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("创建 Texture2D 失败", hr));
+			return false;
+		}
+
+		result.height /= 2;
+	} else {
+		// 彩色光标，使用 WIC 将光标转换为带 Alpha 通道的图像
+
+		clear();
+
+		ComPtr<IWICImagingFactory2> wicFactory = App::GetInstance().GetWICImageFactory();
+		if (!wicFactory) {
+			SPDLOG_LOGGER_ERROR(logger, "获取 WICImageFactory 失败");
+			return false;
+		}
+
+		ComPtr<IWICBitmap> wicBitmap;
+		HRESULT hr = wicFactory->CreateBitmapFromHICON(hCursor, &wicBitmap);
+		if (FAILED(hr)) {
+			SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("CreateBitmapFromHICON 失败", hr));
+			return false;
+		}
+
+		hr = wicBitmap->GetSize(&result.width, &result.height);
+		if (FAILED(hr)) {
+			SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("GetSize 失败", hr));
+			return false;
+		}
+		
+		std::vector<BYTE> pixels(result.width * result.height * 4);
+		hr = wicBitmap->CopyPixels(nullptr, result.width * 4, (UINT)pixels.size(), pixels.data());
+		if (FAILED(hr)) {
+			SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("CopyPixels 失败", hr));
+			return false;
+		}
+
+		D3D11_TEXTURE2D_DESC desc{};
+		desc.Width = result.width;
+		desc.Height = result.height;
+		desc.MipLevels = 1;
+		desc.ArraySize = 1;
+		desc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
+		desc.SampleDesc.Count = 1;
+		desc.SampleDesc.Quality = 0;
+		desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+		desc.Usage = D3D11_USAGE_IMMUTABLE;
+
+		D3D11_SUBRESOURCE_DATA initData{};
+		initData.pSysMem = &pixels[0];
+		initData.SysMemPitch = result.width * 4;
+
+		hr = _d3dDevice->CreateTexture2D(&desc, &initData, &texture);
+		if (FAILED(hr)) {
+			SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("创建 Texture2D 失败", hr));
+			return false;
+		}
 	}
 
-	hr = _d3dDevice->CreateShaderResourceView(texture.Get(), nullptr, &result.masks);
+	HRESULT hr = _d3dDevice->CreateShaderResourceView(texture.Get(), nullptr, &result.texture);
 	if (FAILED(hr)) {
 		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("创建 ShaderResourceView 失败", hr));
 		return false;
 	}
 
-	result.height /= 2;
-
 	return true;
 }
 
 bool CursorRenderer::_DrawWithCursor() {
-	CURSORINFO ci{};
-	ci.cbSize = sizeof(ci);
-	if (!GetCursorInfo(&ci)) {
-		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetCursorInfo 失败"));
-		return false;
-	}
-
-	if (!ci.hCursor || ci.flags != CURSOR_SHOWING) {
-		return false;
-	}
-
-	_CursorInfo* info = nullptr;
-	
-	auto it = _cursorMap.find(ci.hCursor);
-	if (it != _cursorMap.end()) {
-		info = &it->second;
-	} else {
-		// 未在映射中找到，创建新映射
-		_CursorInfo t;
-		if (_ResolveCursor(ci.hCursor, t)) {
-			info = &_cursorMap[ci.hCursor];
-			*info = t;
-
-			SPDLOG_LOGGER_INFO(logger, fmt::format("已解析光标：{}", (void*)ci.hCursor));
-		} else {
-			SPDLOG_LOGGER_ERROR(logger, "解析光标失败");
-			return false;
-		}
-	}
-
-	// 映射坐标
-	// 鼠标坐标为整数，否则会出现模糊
-	const RECT& srcClient = App::GetInstance().GetSrcClientRect();
-	POINT targetScreenPos = {
-		lroundf((ci.ptScreenPos.x - srcClient.left) * _scaleX) - info->xHotSpot,
-		lroundf((ci.ptScreenPos.y - srcClient.top) * _scaleY) - info->yHotSpot
-	};
-
+	/*
 	// 向着色器传递光标信息
 	_d3dDC->PSSetConstantBuffers(0, 0, nullptr);
 	D3D11_MAPPED_SUBRESOURCE ms{};
@@ -328,24 +305,79 @@ bool CursorRenderer::_DrawWithCursor() {
 	_d3dDC->Unmap(_withCursorCB.Get(), 0);
 
 	_d3dDC->PSSetShader(_cursorPS.Get(), nullptr, 0);
-	ID3D11ShaderResourceView* srvs[2] = { _inputSrv, info->masks.Get() };
+	ID3D11ShaderResourceView* srvs[2] = { _inputSrv, info->texture.Get() };
 	_d3dDC->PSSetShaderResources(0, 2, srvs);
 	ID3D11Buffer* withCursorCB = _withCursorCB.Get();
 	_d3dDC->PSSetConstantBuffers(0, 1, &withCursorCB);
 	ID3D11SamplerState* samplers[2] = { _linearSam, _pointSam };
 	_d3dDC->PSSetSamplers(0, 2, samplers);
-
+	*/
 	return true;
 }
 
 void CursorRenderer::Draw() {
-	_d3dDC->OMSetRenderTargets(1, &_outputRtv, nullptr);
-	_d3dDC->RSSetViewports(1, &_vp);
-	
-	if (!_DrawWithCursor()) {
-		// 不显示鼠标或创建映射失败
-		App::GetInstance().GetRenderer().SetCopyPS(_pointSam, _inputSrv);
+	CURSORINFO ci{};
+	ci.cbSize = sizeof(ci);
+	if (!GetCursorInfo(&ci)) {
+		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetCursorInfo 失败"));
+		return;
 	}
+
+	if (!ci.hCursor || ci.flags != CURSOR_SHOWING) {
+		return;
+	}
+
+	_CursorInfo* info = nullptr;
+
+	auto it = _cursorMap.find(ci.hCursor);
+	if (it != _cursorMap.end()) {
+		info = &it->second;
+	} else {
+		// 未在映射中找到，创建新映射
+		_CursorInfo t;
+		if (_ResolveCursor(ci.hCursor, t)) {
+			info = &_cursorMap[ci.hCursor];
+			*info = t;
+
+			SPDLOG_LOGGER_INFO(logger, fmt::format("已解析光标：{}", (void*)ci.hCursor));
+		} else {
+			SPDLOG_LOGGER_ERROR(logger, "解析光标失败");
+			return;
+		}
+	}
+
+	// 映射坐标
+	// 鼠标坐标为整数，否则会出现模糊
+	const RECT& srcClient = App::GetInstance().GetSrcClientRect();
+	POINT targetScreenPos = {
+		lroundf((ci.ptScreenPos.x - srcClient.left) * _scaleX) - info->xHotSpot,
+		lroundf((ci.ptScreenPos.y - srcClient.top) * _scaleY) - info->yHotSpot
+	};
+
+	//_d3dDC->OMSetRenderTargets(1, &_rtv, nullptr);
+	//_d3dDC->RSSetViewports(1, &_vp);
+	/*
+	D3D11_MAPPED_SUBRESOURCE ms;
+	_d3dDC->Map(_vtxBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &ms);
+
 	
-	_d3dDC->Draw(3, 0);
+	VertexPositionTexture vertices[] = {
+		{ XMFLOAT3(outputLeft, outputTop, 0.5f), XMFLOAT2(0.0f, 0.0f) },
+		{ XMFLOAT3(outputRight, outputTop, 0.5f), XMFLOAT2(1.0f, 0.0f) },
+		{ XMFLOAT3(outputLeft, outputBottom, 0.5f), XMFLOAT2(0.0f, 1.0f) },
+		{ XMFLOAT3(outputRight, outputBottom, 0.5f), XMFLOAT2(1.0f, 1.0f) }
+	};
+
+	_d3dDC->Unmap(_vtxBuffer.Get(), 0);
+
+	if (!info->isMonochrome) {
+		D3D11_BLEND_DESC desc{};
+		
+		ID3D11BlendState* _blendState;
+		_d3dDevice->CreateBlendState(&desc, &_blendState);
+
+		_d3dDC->OMSetBlendState()
+	}*/
+	
+	//_d3dDC->Draw(4, 0);
 }

@@ -134,6 +134,9 @@
     <FxCompile Include="shaders\FillVS.hlsl">
       <Filter>着色器</Filter>
     </FxCompile>
+    <FxCompile Include="shaders\SimpleVS.hlsl">
+      <Filter>着色器</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="shaders\FsrEasu.hlsl">
