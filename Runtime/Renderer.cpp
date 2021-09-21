@@ -78,8 +78,8 @@ void Renderer::Render() {
 		effect.Draw();
 	}
 
-	/*_frameRateRenderer.Draw();
-	_cursorRenderer.Draw();*/
+	_frameRateRenderer.Draw();
+	_cursorRenderer.Draw();
 
 	_dxgiSwapChain->Present(0, 0);
 }
@@ -332,7 +332,29 @@ bool Renderer::_CheckSrcState() {
 }
 
 bool Renderer::SetAlphaBlend(bool enable) {
+	if (!enable) {
+		_d3dDC->OMSetBlendState(nullptr, nullptr, 0xffffffff);
+		return true;
+	}
+	
+	if (!_alphaBlendState) {
+		D3D11_BLEND_DESC desc{};
+		desc.RenderTarget[0].BlendEnable = TRUE;
+		desc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
+		desc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
+		desc.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
+		desc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
+		desc.RenderTarget[0].BlendOp = desc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+		desc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
 
+		HRESULT hr = _d3dDevice->CreateBlendState(&desc, &_alphaBlendState);
+		if (FAILED(hr)) {
+			SPDLOG_LOGGER_CRITICAL(logger, MakeComErrorMsg("CreateBlendState 失败", hr));
+			return false;
+		}
+	}
+	
+	_d3dDC->OMSetBlendState(_alphaBlendState.Get(), nullptr, 0xffffffff);
 	return true;
 }
 

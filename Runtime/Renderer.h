@@ -59,9 +59,9 @@ private:
 
 	ComPtr<ID3D11SamplerState> _linearSampler;
 	ComPtr<ID3D11SamplerState> _pointSampler;
+	ComPtr<ID3D11BlendState> _alphaBlendState;
 
 	ComPtr<ID3D11Texture2D> _effectInput;
-	ComPtr<ID3D11Texture2D> _effectOutput;
 	ComPtr<ID3D11Texture2D> _backBuffer;
 	std::unordered_map<ID3D11Texture2D*, ComPtr<ID3D11RenderTargetView>> _rtvMap;
 	std::unordered_map<ID3D11Texture2D*, ComPtr<ID3D11ShaderResourceView>> _srvMap;
@@ -72,7 +72,6 @@ private:
 	ComPtr<ID3D11PixelShader> _copyPS;
 	std::vector<Effect> _effects;
 
-	RECT _destRect{};
 	CursorRenderer _cursorRenderer;
 	FrameRateRenderer _frameRateRenderer;
 };
