@@ -23,17 +23,17 @@ bool CursorRenderer::Initialize(ComPtr<ID3D11Texture2D> renderTarget, SIZE outpu
 	D3D11_TEXTURE2D_DESC rtDesc;
 	renderTarget->GetDesc(&rtDesc);
 
-	_vp.TopLeftX = 0;
-	_vp.TopLeftY = 0;
-	_vp.Width = (FLOAT)rtDesc.Width;
-	_vp.Height = (FLOAT)rtDesc.Height;
-	_vp.MinDepth = 0.0f;
-	_vp.MaxDepth = 1.0f;
-
 	_destRect.left = (rtDesc.Width - outputSize.cx) / 2;
 	_destRect.right = _destRect.left + outputSize.cx;
 	_destRect.top = (rtDesc.Height - outputSize.cy) / 2;
 	_destRect.bottom = _destRect.top + outputSize.cy;
+
+	_vp.TopLeftX = (FLOAT)_destRect.left;
+	_vp.TopLeftY = (FLOAT)_destRect.top;
+	_vp.Width = FLOAT(_destRect.right - _destRect.left);
+	_vp.Height = FLOAT(_destRect.bottom - _destRect.top);
+	_vp.MinDepth = 0.0f;
+	_vp.MaxDepth = 1.0f;
 
 	const RECT& srcClient = app.GetSrcClientRect();
 	SIZE srcSize = { srcClient.right - srcClient.left, srcClient.bottom - srcClient.top };
@@ -158,14 +158,14 @@ bool CursorRenderer::_ResolveCursor(HCURSOR hCursor, _CursorInfo& result) const 
 		DeleteBitmap(ii.hbmMask);
 	};
 
-	result.isMonochrome = ii.hbmColor == NULL;
-
 	ComPtr<ID3D11Texture2D> texture;
 
-	if (result.isMonochrome) {
+	if(ii.hbmColor == NULL) {
+		// 单色光标
 		BITMAP bmp{};
 		if (!GetObject(ii.hbmMask, sizeof(bmp), &bmp)) {
 			SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetObject 失败"));
+			clear();
 			return false;
 		}
 		result.width = bmp.bmWidth;
@@ -185,50 +185,57 @@ bool CursorRenderer::_ResolveCursor(HCURSOR hCursor, _CursorInfo& result) const 
 		if (GetDIBits(hdc, ii.hbmMask, 0, result.height, &pixels[0], &bi, DIB_RGB_COLORS) != result.height) {
 			SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetDIBits 失败"));
 			ReleaseDC(NULL, hdc);
+			clear();
 			return false;
 		}
 		ReleaseDC(NULL, hdc);
 
-		clear();
-
-		// 单色光标的纹理由两部分组成：上半部分为单色光标的掩码，红色通道是 AND 掩码，绿色通道是 XOR 掩码
+		// 存在反色部分的光标的纹理由两部分组成：上半部分为单色光标的掩码，红色通道是 AND 掩码，绿色通道是 XOR 掩码
 		// 下半部分为光标覆盖部分的纹理，在运行时从原始纹理中复制过来
 		const int halfSize = bi.bmiHeader.biSizeImage / 8;
 		BYTE* upPtr = &pixels[1];
 		BYTE* downPtr = &pixels[static_cast<size_t>(halfSize) * 4];
 		for (int i = 0; i < halfSize; ++i) {
 			*upPtr = *downPtr;
+			// 判断光标是否存在反色部分
+			if (!result.hasInv && *(upPtr - 1) == 255 && *upPtr == 255) {
+				result.hasInv = true;
+			}
+
 			upPtr += 4;
 			downPtr += 4;
 		}
 
-		D3D11_TEXTURE2D_DESC desc{};
-		desc.Width = result.width;
-		desc.Height = result.height;
-		desc.MipLevels = 1;
-		desc.ArraySize = 1;
-		desc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
-		desc.SampleDesc.Count = 1;
-		desc.SampleDesc.Quality = 0;
-		desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
-		desc.Usage = D3D11_USAGE_DEFAULT;
+		if (result.hasInv) {
+			D3D11_TEXTURE2D_DESC desc{};
+			desc.Width = result.width;
+			desc.Height = result.height;
+			desc.MipLevels = 1;
+			desc.ArraySize = 1;
+			desc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
+			desc.SampleDesc.Count = 1;
+			desc.SampleDesc.Quality = 0;
+			desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+			desc.Usage = D3D11_USAGE_DEFAULT;
 
-		D3D11_SUBRESOURCE_DATA initData{};
-		initData.pSysMem = &pixels[0];
-		initData.SysMemPitch = result.width * 4;
+			D3D11_SUBRESOURCE_DATA initData{};
+			initData.pSysMem = &pixels[0];
+			initData.SysMemPitch = result.width * 4;
 
-		HRESULT hr = _d3dDevice->CreateTexture2D(&desc, &initData, &texture);
-		if (FAILED(hr)) {
-			SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("创建 Texture2D 失败", hr));
-			return false;
+			HRESULT hr = _d3dDevice->CreateTexture2D(&desc, &initData, &texture);
+			if (FAILED(hr)) {
+				SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("创建 Texture2D 失败", hr));
+				return false;
+			}
+
+			result.height /= 2;
 		}
+	}
 
-		result.height /= 2;
-	} else {
-		// 彩色光标，使用 WIC 将光标转换为带 Alpha 通道的图像
+	clear();
 
-		clear();
-
+	if(!result.hasInv) {
+		// 光标无反色部分，使用 WIC 将光标转换为带 Alpha 通道的图像
 		ComPtr<IWICImagingFactory2> wicFactory = App::GetInstance().GetWICImageFactory();
 		if (!wicFactory) {
 			SPDLOG_LOGGER_ERROR(logger, "获取 WICImageFactory 失败");
@@ -349,8 +356,8 @@ void CursorRenderer::Draw() {
 	// 鼠标坐标为整数，否则会出现模糊
 	const RECT& srcClient = App::GetInstance().GetSrcClientRect();
 	POINT targetScreenPos = {
-		lroundf((ci.ptScreenPos.x - srcClient.left) * _scaleX) - info->xHotSpot + _destRect.left,
-		lroundf((ci.ptScreenPos.y - srcClient.top) * _scaleY) - info->yHotSpot + _destRect.top
+		lroundf((ci.ptScreenPos.x - srcClient.left) * _scaleX) - info->xHotSpot,
+		lroundf((ci.ptScreenPos.y - srcClient.top) * _scaleY) - info->yHotSpot
 	};
 
 	_d3dDC->OMSetRenderTargets(1, &_rtv, nullptr);
@@ -375,14 +382,26 @@ void CursorRenderer::Draw() {
 	Renderer& renderer = App::GetInstance().GetRenderer();
 	renderer.SetSimpleVS(_vtxBuffer.Get());
 
-	if (!info->isMonochrome) {
+	if (!info->hasInv) {
 		renderer.SetCopyPS(_pointSam, info->texture.Get());
 		renderer.SetAlphaBlend(true);
 		_d3dDC->Draw(4, 0);
 
 		renderer.SetAlphaBlend(false);
 	} else {
+		ID3D11Resource* texture, *renderTarget;
+		info->texture->GetResource(&texture);
+		_rtv->GetResource(&renderTarget);
+		D3D11_BOX box {
+			targetScreenPos.x,
+			targetScreenPos.y,
+			0,
+			targetScreenPos.x + info->width,
+			targetScreenPos.y + info->height,
+			1
+		};
 		
+		//_d3dDC->CopySubresourceRegion(texture, 0, 0, info->height, 0, renderTarget, 0, &box);
 	}
 	
 	//_d3dDC->Draw(4, 0);

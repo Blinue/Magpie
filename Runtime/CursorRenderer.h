@@ -18,7 +18,7 @@ private:
 		int yHotSpot = 0;
 		UINT width = 0;
 		UINT height = 0;
-		bool isMonochrome = false;
+		bool hasInv = false;
 	};
 
 	bool _ResolveCursor(HCURSOR hCursor, _CursorInfo& result) const;
