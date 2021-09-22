@@ -20,7 +20,6 @@ namespace Magpie {
 		private static NLog.Logger Logger { get; } = NLog.LogManager.GetCurrentClassLogger();
 
 		private OptionsWindow optionsWindow = null;
-		private readonly OpenFileDialog openFileDialog = new OpenFileDialog();
 		private readonly DispatcherTimer timerScale = new DispatcherTimer {
 			Interval = new TimeSpan(0, 0, 1)
 		};

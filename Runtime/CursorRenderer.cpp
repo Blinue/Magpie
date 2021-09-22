@@ -8,7 +8,6 @@
 extern std::shared_ptr<spdlog::logger> logger;
 
 
-
 bool CursorRenderer::Initialize(ComPtr<ID3D11Texture2D> renderTarget, SIZE outputSize) {
 	App& app = App::GetInstance();
 	Renderer& renderer = app.GetRenderer();
@@ -333,6 +332,20 @@ void CursorRenderer::Draw() {
 		lroundf((ci.ptScreenPos.y - srcClient.top) * _scaleY) - info->yHotSpot
 	};
 
+	RECT cursorRect{
+		targetScreenPos.x + _destRect.left,
+		targetScreenPos.y + _destRect.top,
+		targetScreenPos.x + info->width + _destRect.left,
+		targetScreenPos.y + info->height + _destRect.top
+	};
+
+	if (cursorRect.right <= _destRect.left || cursorRect.bottom <= _destRect.top
+		|| cursorRect.left >= _destRect.right || cursorRect.top >= _destRect.bottom
+	) {
+		// 光标在窗口外
+		return;
+	}
+
 	_d3dDC->OMSetRenderTargets(1, &_rtv, nullptr);
 	_d3dDC->RSSetViewports(1, &_vp);
 	
@@ -366,16 +379,18 @@ void CursorRenderer::Draw() {
 
 		info->texture->GetResource(&texture);
 		_rtv->GetResource(&renderTarget);
+
+		// 复制时 srcBox 必须在 srcResource 内
 		D3D11_BOX box {
-			targetScreenPos.x + _destRect.left,
-			targetScreenPos.y + _destRect.top,
+			(UINT)std::max(cursorRect.left, _destRect.left),
+			(UINT)std::max(cursorRect.top, _destRect.top),
 			0,
-			targetScreenPos.x + info->width + _destRect.left,
-			targetScreenPos.y + info->height + _destRect.top,
+			(UINT)std::min(cursorRect.right, _destRect.right),
+			(UINT)std::min(cursorRect.bottom, _destRect.bottom),
 			1
 		};
 		
-		_d3dDC->CopySubresourceRegion(texture.Get(), 0, 0, info->height, 0, renderTarget.Get(), 0, &box);
+		_d3dDC->CopySubresourceRegion(texture.Get(), 0, box.left - cursorRect.left, box.top - cursorRect.top + info->height, 0, renderTarget.Get(), 0, &box);
 
 		_d3dDC->PSSetShader(_monoCursorPS.Get(), nullptr, 0);
 		_d3dDC->PSSetConstantBuffers(0, 0, nullptr);
