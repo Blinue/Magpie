@@ -2,7 +2,7 @@
 #include "CursorRenderer.h"
 #include "App.h"
 #include "Utils.h"
-#include "shaders/CursorPS.h"
+#include "shaders/MonochromeCursorPS.h"
 #include <VertexTypes.h>
 
 extern std::shared_ptr<spdlog::logger> logger;
@@ -64,9 +64,10 @@ bool CursorRenderer::Initialize(ComPtr<ID3D11Texture2D> renderTarget, SIZE outpu
 		return false;
 	}
 
-	hr = renderer.GetD3DDevice()->CreatePixelShader(CursorPSShaderByteCode, sizeof(CursorPSShaderByteCode), nullptr, &_cursorPS);
+	hr = renderer.GetD3DDevice()->CreatePixelShader(
+		MonochromeCursorPSShaderByteCode, sizeof(MonochromeCursorPSShaderByteCode), nullptr, &_monoCursorPS);
 	if (FAILED(hr)) {
-		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("创建像素着色器失败", hr));
+		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("创建 MonochromeCursorPS 失败", hr));
 		return false;
 	}
 	
@@ -293,34 +294,6 @@ bool CursorRenderer::_ResolveCursor(HCURSOR hCursor, _CursorInfo& result) const 
 	return true;
 }
 
-bool CursorRenderer::_DrawWithCursor() {
-	/*
-	// 向着色器传递光标信息
-	_d3dDC->PSSetConstantBuffers(0, 0, nullptr);
-	D3D11_MAPPED_SUBRESOURCE ms{};
-	HRESULT hr = _d3dDC->Map(_withCursorCB.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &ms);
-	if (FAILED(hr)) {
-		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("Map 失败", hr));
-		return false;
-	}
-	FLOAT* cursorRect = (FLOAT*)ms.pData;
-	cursorRect[0] = float(targetScreenPos.x) / _inputSize.cx;
-	cursorRect[1] = float(targetScreenPos.y) / _inputSize.cy;
-	cursorRect[2] = float(targetScreenPos.x + info->width) / _inputSize.cx;
-	cursorRect[3] = float(targetScreenPos.y + info->height) / _inputSize.cy;
-	_d3dDC->Unmap(_withCursorCB.Get(), 0);
-
-	_d3dDC->PSSetShader(_cursorPS.Get(), nullptr, 0);
-	ID3D11ShaderResourceView* srvs[2] = { _inputSrv, info->texture.Get() };
-	_d3dDC->PSSetShaderResources(0, 2, srvs);
-	ID3D11Buffer* withCursorCB = _withCursorCB.Get();
-	_d3dDC->PSSetConstantBuffers(0, 1, &withCursorCB);
-	ID3D11SamplerState* samplers[2] = { _linearSam, _pointSam };
-	_d3dDC->PSSetSamplers(0, 2, samplers);
-	*/
-	return true;
-}
-
 void CursorRenderer::Draw() {
 	CURSORINFO ci{};
 	ci.cbSize = sizeof(ci);
@@ -389,20 +362,27 @@ void CursorRenderer::Draw() {
 
 		renderer.SetAlphaBlend(false);
 	} else {
-		ID3D11Resource* texture, *renderTarget;
+		ComPtr<ID3D11Resource> texture, renderTarget;
+
 		info->texture->GetResource(&texture);
 		_rtv->GetResource(&renderTarget);
 		D3D11_BOX box {
-			targetScreenPos.x,
-			targetScreenPos.y,
+			targetScreenPos.x + _destRect.left,
+			targetScreenPos.y + _destRect.top,
 			0,
-			targetScreenPos.x + info->width,
-			targetScreenPos.y + info->height,
+			targetScreenPos.x + info->width + _destRect.left,
+			targetScreenPos.y + info->height + _destRect.top,
 			1
 		};
 		
-		//_d3dDC->CopySubresourceRegion(texture, 0, 0, info->height, 0, renderTarget, 0, &box);
+		_d3dDC->CopySubresourceRegion(texture.Get(), 0, 0, info->height, 0, renderTarget.Get(), 0, &box);
+
+		_d3dDC->PSSetShader(_monoCursorPS.Get(), nullptr, 0);
+		_d3dDC->PSSetConstantBuffers(0, 0, nullptr);
+		ID3D11ShaderResourceView* t = info->texture.Get();
+		_d3dDC->PSSetShaderResources(0, 1, &t);
+		_d3dDC->PSSetSamplers(0, 1, &_pointSam);
+
+		_d3dDC->Draw(4, 0);
 	}
-	
-	//_d3dDC->Draw(4, 0);
 }

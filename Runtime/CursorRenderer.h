@@ -23,8 +23,6 @@ private:
 
 	bool _ResolveCursor(HCURSOR hCursor, _CursorInfo& result) const;
 
-	bool _DrawWithCursor();
-
 private:
 	INT _cursorSpeed = 0;
 	RECT _destRect{};
@@ -39,7 +37,7 @@ private:
 	D3D11_VIEWPORT _vp{};
 	ComPtr<ID3D11Buffer> _vtxBuffer;
 
-	ComPtr<ID3D11PixelShader> _cursorPS;
+	ComPtr<ID3D11PixelShader> _monoCursorPS;
 	ComPtr<ID3D11Buffer> _withCursorCB;
 	ID3D11SamplerState* _linearSam = nullptr;
 	ID3D11SamplerState* _pointSam = nullptr;
