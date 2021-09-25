@@ -26,6 +26,7 @@ private:
 private:
 	INT _cursorSpeed = 0;
 	RECT _destRect{};
+	SIZE _renderTargetSize{};
 	float _scaleX = 0;
 	float _scaleY = 0;
 	std::unordered_map<HCURSOR, _CursorInfo> _cursorMap;
@@ -34,8 +35,12 @@ private:
 	ComPtr<ID3D11Device3> _d3dDevice;
 
 	ID3D11RenderTargetView* _rtv = nullptr;
-	D3D11_VIEWPORT _vp{};
 	ComPtr<ID3D11Buffer> _vtxBuffer;
+
+	ID3D11ShaderResourceView* _renderTargetSrv = nullptr;
+	ComPtr<ID3D11Texture2D> _tmpTexture;
+	ID3D11RenderTargetView* _tmpRtv = nullptr;
+	ID3D11ShaderResourceView* _tmpSrv = nullptr;
 
 	ComPtr<ID3D11PixelShader> _monoCursorPS;
 	ComPtr<ID3D11Buffer> _withCursorCB;

@@ -206,17 +206,12 @@ bool App::_CreateHostWnd() {
 		SPDLOG_LOGGER_ERROR(_logger, MakeWin32ErrorMsg("SetLayeredWindowAttributes 失败"));
 	}
 
-	// 取消置顶，这样可以使该窗口在最前
 	if (!ShowWindow(_hwndHost, SW_NORMAL)) {
 		SPDLOG_LOGGER_ERROR(_logger, MakeWin32ErrorMsg("ShowWindow 失败"));
 	}
-	DWORD style = GetWindowStyle(_hwndHost);
-	if (!style) {
-		SPDLOG_LOGGER_ERROR(_logger, MakeWin32ErrorMsg("GetWindowStyle 失败"));
-	}
-	style &= ~WS_EX_TOPMOST;
-	if (!SetWindowLong(_hwndHost, GWL_STYLE, style)) {
-		SPDLOG_LOGGER_ERROR(_logger, MakeWin32ErrorMsg("SetWindowLong 失败"));
+	// 取消置顶，这样可以使该窗口在最前
+	if (!SetWindowPos(_hwndHost, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE)) {
+		SPDLOG_LOGGER_ERROR(_logger, MakeWin32ErrorMsg("SetWindowPos 失败"));
 	}
 
 	SPDLOG_LOGGER_INFO(_logger, "已创建主窗口");

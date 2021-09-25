@@ -262,7 +262,7 @@ bool Renderer::_InitD3D() {
 		sd.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
 		sd.SampleDesc.Count = 1;
 		sd.SampleDesc.Quality = 0;
-		sd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+		sd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT | DXGI_USAGE_SHADER_INPUT;
 		sd.BufferCount = 2;
 		sd.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;
 		sd.Flags = DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT;
