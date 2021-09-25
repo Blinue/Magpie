@@ -361,7 +361,6 @@ void CursorRenderer::Draw() {
 	}
 
 	// 映射坐标
-	// 鼠标坐标为整数，否则会出现模糊
 	const RECT& srcClient = App::GetInstance().GetSrcClientRect();
 	POINT targetScreenPos = {
 		lroundf((ci.ptScreenPos.x - srcClient.left) * _scaleX) - info->xHotSpot,
@@ -455,7 +454,7 @@ void CursorRenderer::Draw() {
 		float topPos = (float)cursorRect.top / _renderTargetSize.cy;
 		float bottomPos = (float)cursorRect.bottom / _renderTargetSize.cy;
 		data[0] = { XMFLOAT3(-1, 1, 0.5f), XMFLOAT2(leftPos, topPos) };
-		data[1] = { XMFLOAT3(1.0f, 1.0f, 0.5f), XMFLOAT2(rightPos, topPos) };
+		data[1] = { XMFLOAT3(1, 1, 0.5f), XMFLOAT2(rightPos, topPos) };
 		data[2] = { XMFLOAT3(-1, -1, 0.5f), XMFLOAT2(leftPos, bottomPos) };
 		data[3] = { XMFLOAT3(1, -1, 0.5f), XMFLOAT2(rightPos, bottomPos) };
 
