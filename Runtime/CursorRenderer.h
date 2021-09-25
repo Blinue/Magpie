@@ -24,6 +24,7 @@ private:
 	bool _ResolveCursor(HCURSOR hCursor, _CursorInfo& result) const;
 
 private:
+	SIZE _monoCursorSize{};
 	INT _cursorSpeed = 0;
 	RECT _destRect{};
 	SIZE _renderTargetSize{};
@@ -34,13 +35,13 @@ private:
 	ComPtr<ID3D11DeviceContext3> _d3dDC;
 	ComPtr<ID3D11Device3> _d3dDevice;
 
+	ID3D11ShaderResourceView* _renderTargetSrv = nullptr;
 	ID3D11RenderTargetView* _rtv = nullptr;
 	ComPtr<ID3D11Buffer> _vtxBuffer;
 
-	ID3D11ShaderResourceView* _renderTargetSrv = nullptr;
-	ComPtr<ID3D11Texture2D> _tmpTexture;
-	ID3D11RenderTargetView* _tmpRtv = nullptr;
-	ID3D11ShaderResourceView* _tmpSrv = nullptr;
+	ComPtr<ID3D11Texture2D> _monoTmpTexture;
+	ID3D11RenderTargetView* _monoTmpRtv = nullptr;
+	ID3D11ShaderResourceView* _monoTmpSrv = nullptr;
 
 	ComPtr<ID3D11PixelShader> _monoCursorPS;
 	ComPtr<ID3D11Buffer> _withCursorCB;

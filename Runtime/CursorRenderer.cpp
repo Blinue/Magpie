@@ -20,7 +20,11 @@ bool CursorRenderer::Initialize(ComPtr<ID3D11Texture2D> renderTarget, SIZE outpu
 		return false;
 	}
 
-	renderer.GetShaderResourceView(renderTarget.Get(), &_renderTargetSrv);
+	hr = renderer.GetShaderResourceView(renderTarget.Get(), &_renderTargetSrv);
+	if (FAILED(hr)) {
+		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("GetShaderResourceView 失败", hr));
+		return false;
+	}
 
 	hr = renderer.GetD3DDevice()->CreatePixelShader(
 		MonochromeCursorPSShaderByteCode, sizeof(MonochromeCursorPSShaderByteCode), nullptr, &_monoCursorPS);
@@ -37,7 +41,7 @@ bool CursorRenderer::Initialize(ComPtr<ID3D11Texture2D> renderTarget, SIZE outpu
 
 	hr = renderer.GetD3DDevice()->CreateBuffer(&bd, nullptr, &_vtxBuffer);
 	if (FAILED(hr)) {
-		SPDLOG_LOGGER_ERROR(logger, fmt::sprintf("创建顶点缓冲区失败\n\tHRESULT：0x%X", hr));
+		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("创建顶点缓冲区失败", hr));
 		return false;
 	}
 
@@ -48,9 +52,11 @@ bool CursorRenderer::Initialize(ComPtr<ID3D11Texture2D> renderTarget, SIZE outpu
 		return false;
 	}
 
+	_monoCursorSize = { GetSystemMetrics(SM_CXCURSOR), GetSystemMetrics(SM_CYCURSOR) };
+
 	D3D11_TEXTURE2D_DESC desc{};
-	desc.Width = 32;
-	desc.Height = 32;
+	desc.Width = _monoCursorSize.cx;
+	desc.Height = _monoCursorSize.cy;
 	desc.MipLevels = 1;
 	desc.ArraySize = 1;
 	desc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
@@ -58,10 +64,23 @@ bool CursorRenderer::Initialize(ComPtr<ID3D11Texture2D> renderTarget, SIZE outpu
 	desc.SampleDesc.Quality = 0;
 	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
 	desc.Usage = D3D11_USAGE_DEFAULT;
-	_d3dDevice->CreateTexture2D(&desc, nullptr, &_tmpTexture);
 
-	renderer.GetRenderTargetView(_tmpTexture.Get(), &_tmpRtv);
-	renderer.GetShaderResourceView(_tmpTexture.Get(), &_tmpSrv);
+	hr = _d3dDevice->CreateTexture2D(&desc, nullptr, &_monoTmpTexture);
+	if (FAILED(hr)) {
+		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("创建 Texture2D 失败", hr));
+		return false;
+	}
+
+	hr = renderer.GetRenderTargetView(_monoTmpTexture.Get(), &_monoTmpRtv);
+	if (FAILED(hr)) {
+		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("GetRenderTargetView 失败", hr));
+		return false;
+	}
+	hr = renderer.GetShaderResourceView(_monoTmpTexture.Get(), &_monoTmpSrv);
+	if (FAILED(hr)) {
+		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("GetShaderResourceView 失败", hr));
+		return false;
+	}
 
 	D3D11_TEXTURE2D_DESC rtDesc;
 	renderTarget->GetDesc(&rtDesc);
@@ -202,8 +221,7 @@ bool CursorRenderer::_ResolveCursor(HCURSOR hCursor, _CursorInfo& result) const 
 		}
 		ReleaseDC(NULL, hdc);
 
-		// 存在反色部分的光标的纹理由两部分组成：上半部分为单色光标的掩码，红色通道是 AND 掩码，绿色通道是 XOR 掩码
-		// 下半部分为光标覆盖部分的纹理，在运行时从原始纹理中复制过来
+		// 红色通道是 AND 掩码，绿色通道是 XOR 掩码
 		const int halfSize = bi.bmiHeader.biSizeImage / 8;
 		BYTE* upPtr = &pixels[1];
 		BYTE* downPtr = &pixels[static_cast<size_t>(halfSize) * 4];
@@ -219,8 +237,14 @@ bool CursorRenderer::_ResolveCursor(HCURSOR hCursor, _CursorInfo& result) const 
 		}
 
 		if (result.hasInv) {
+			SPDLOG_LOGGER_INFO(logger, "此光标含反色部分");
 			result.height /= 2;
 
+			if (result.width != _monoCursorSize.cx || result.height != _monoCursorSize.cy) {
+				SPDLOG_LOGGER_ERROR(logger, "单色光标的尺寸不合法");
+				return false;
+			}
+			
 			D3D11_TEXTURE2D_DESC desc{};
 			desc.Width = result.width;
 			desc.Height = result.height;
@@ -380,7 +404,11 @@ void CursorRenderer::Draw() {
 		_d3dDC->RSSetViewports(1, &vp);
 
 		D3D11_MAPPED_SUBRESOURCE ms;
-		_d3dDC->Map(_vtxBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &ms);
+		HRESULT hr = _d3dDC->Map(_vtxBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &ms);
+		if (FAILED(hr)) {
+			SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("Map 失败", hr));
+			return;
+		}
 
 		VertexPositionTexture* data = (VertexPositionTexture*)ms.pData;
 		data[0] = { XMFLOAT3(left, top, 0.5f), XMFLOAT2(0.0f, 0.0f) };
@@ -390,13 +418,24 @@ void CursorRenderer::Draw() {
 
 		_d3dDC->Unmap(_vtxBuffer.Get(), 0);
 
-		renderer.SetCopyPS(_pointSam, info->texture.Get());
-		renderer.SetAlphaBlend(true);
+		if (!renderer.SetCopyPS(_pointSam, info->texture.Get())) {
+			SPDLOG_LOGGER_ERROR(logger, "SetCopyPS 失败");
+			return;
+		}
+		if (!renderer.SetAlphaBlend(true)) {
+			SPDLOG_LOGGER_ERROR(logger, "SetAlphaBlend 失败");
+			return;
+		}
 		_d3dDC->Draw(4, 0);
 
-		renderer.SetAlphaBlend(false);
+		if (!renderer.SetAlphaBlend(false)) {
+			SPDLOG_LOGGER_ERROR(logger, "SetAlphaBlend 失败");
+			return;
+		}
 	} else {
-		_d3dDC->OMSetRenderTargets(1, &_tmpRtv, nullptr);
+		// 绘制带有反色部分的光标，首先将光标覆盖的纹理复制到 _monoTmpTexture 中
+		// 不知为何 CopySubresourceRegion 会大幅增加 GPU 占用
+		_d3dDC->OMSetRenderTargets(1, &_monoTmpRtv, nullptr);
 		D3D11_VIEWPORT vp{};
 		vp.Width = (FLOAT)info->width;
 		vp.Height = (FLOAT)info->height;
@@ -404,7 +443,11 @@ void CursorRenderer::Draw() {
 		_d3dDC->RSSetViewports(1, &vp);
 		
 		D3D11_MAPPED_SUBRESOURCE ms;
-		_d3dDC->Map(_vtxBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &ms);
+		HRESULT hr = _d3dDC->Map(_vtxBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &ms);
+		if (FAILED(hr)) {
+			SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("Map 失败", hr));
+			return;
+		}
 
 		VertexPositionTexture* data = (VertexPositionTexture*)ms.pData;
 		float leftPos = (float)cursorRect.left / _renderTargetSize.cx;
@@ -418,10 +461,18 @@ void CursorRenderer::Draw() {
 
 		_d3dDC->Unmap(_vtxBuffer.Get(), 0);
 
-		renderer.SetCopyPS(_pointSam, _renderTargetSrv);
+		if (!renderer.SetCopyPS(_pointSam, _renderTargetSrv)) {
+			SPDLOG_LOGGER_ERROR(logger, "SetCopyPS 失败");
+			return;
+		}
 		_d3dDC->Draw(4, 0);
 		
-		_d3dDC->Map(_vtxBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &ms);
+		// 绘制光标
+		hr = _d3dDC->Map(_vtxBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &ms);
+		if (FAILED(hr)) {
+			SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("Map 失败", hr));
+			return;
+		}
 
 		data = (VertexPositionTexture*)ms.pData;
 		data[0] = { XMFLOAT3(left, top, 0.5f), XMFLOAT2(0.0f, 0.0f) };
@@ -434,7 +485,7 @@ void CursorRenderer::Draw() {
 		_d3dDC->PSSetShader(_monoCursorPS.Get(), nullptr, 0);
 		_d3dDC->PSSetConstantBuffers(0, 0, nullptr);
 		_d3dDC->OMSetRenderTargets(0, nullptr, nullptr);
-		ID3D11ShaderResourceView* srv[2] = { _tmpSrv, info->texture.Get() };
+		ID3D11ShaderResourceView* srv[2] = { _monoTmpSrv, info->texture.Get() };
 		_d3dDC->PSSetShaderResources(0, 2, srv);
 		_d3dDC->PSSetSamplers(0, 1, &_pointSam);
 
