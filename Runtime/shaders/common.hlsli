@@ -1,9 +1,6 @@
 #define PI 3.1415926535897932384626433832795
 #define HALF_PI  1.5707963267948966192313216916398
 
-#define ZEROS3 (float3(0,0,0))
-#define ZEROS4 (float4(0,0,0,0))
-
 #define min3(a, b, c) min(a, min(b, c))
 #define max3(a, b, c) max(a, max(b, c))
 

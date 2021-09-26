@@ -73,7 +73,7 @@ bool GraphicsCaptureFrameSource::Initialize() {
         }
 
         // 创建帧缓冲池
-        _captureFramePool = winrt::Direct3D11CaptureFramePool::Create(
+        _captureFramePool = winrt::Direct3D11CaptureFramePool::CreateFreeThreaded(
             _wrappedD3DDevice,
             winrt::DirectXPixelFormat::B8G8R8A8UIntNormalized,
             1,					// 帧的缓存数量

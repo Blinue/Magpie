@@ -37,6 +37,9 @@
     <ClCompile Include="MagCallbackFrameSource.cpp">
       <Filter>捕获</Filter>
     </ClCompile>
+    <ClCompile Include="FrameRateRenderer.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -87,12 +90,15 @@
     <ClInclude Include="MagCallbackFrameSource.h">
       <Filter>捕获</Filter>
     </ClInclude>
+    <ClInclude Include="FrameRateRenderer.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />
     <None Include="conanfile.py" />
     <None Include="packages.config" />
-    <None Include="common.hlsli">
+    <None Include="shaders\common.hlsli">
       <Filter>着色器</Filter>
     </None>
   </ItemGroup>
@@ -119,14 +125,28 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <CopyFileToFolders Include="Lanczos6.hlsl">
+    <FxCompile Include="shaders\CopyPS.hlsl">
+      <Filter>着色器</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\FillVS.hlsl">
+      <Filter>着色器</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\SimpleVS.hlsl">
+      <Filter>着色器</Filter>
+    </FxCompile>
+    <FxCompile Include="shaders\MonochromeCursorPS.hlsl">
+      <Filter>着色器</Filter>
+    </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <CopyFileToFolders Include="shaders\FsrEasu.hlsl">
       <Filter>着色器</Filter>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="FsrEasu.hlsl">
+    <CopyFileToFolders Include="shaders\FsrRcas.hlsl">
       <Filter>着色器</Filter>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="FsrRcas.hlsl">
-      <Filter>着色器</Filter>
+    <CopyFileToFolders Include="assets\OpenSans.spritefont">
+      <Filter>资源文件</Filter>
     </CopyFileToFolders>
   </ItemGroup>
 </Project>

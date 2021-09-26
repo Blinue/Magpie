@@ -2,6 +2,8 @@
 #include "pch.h"
 #include "Effect.h"
 #include "CursorRenderer.h"
+#include "FrameRateRenderer.h"
+#include <CommonStates.h>
 
 
 class Renderer {
@@ -31,13 +33,17 @@ public:
 		return _dxgiDevice;
 	}
 
-	HRESULT GetRenderTargetView(ID3D11Texture2D* texture, ID3D11RenderTargetView** result);
+	bool GetRenderTargetView(ID3D11Texture2D* texture, ID3D11RenderTargetView** result);
 
-	HRESULT GetShaderResourceView(ID3D11Texture2D* texture, ID3D11ShaderResourceView** result);
+	bool GetShaderResourceView(ID3D11Texture2D* texture, ID3D11ShaderResourceView** result);
 
-	ComPtr<ID3D11VertexShader> GetVSShader() const {
-		return _vertexShader;
-	}
+	bool SetFillVS();
+
+	bool SetSimpleVS(ID3D11Buffer* simpleVB);
+
+	bool SetCopyPS(ID3D11SamplerState* sampler, ID3D11ShaderResourceView* input);
+
+	bool SetAlphaBlend(bool enable);
 
 private:
 	bool _InitD3D();
@@ -53,16 +59,19 @@ private:
 
 	ComPtr<ID3D11SamplerState> _linearSampler;
 	ComPtr<ID3D11SamplerState> _pointSampler;
+	ComPtr<ID3D11BlendState> _alphaBlendState;
 
 	ComPtr<ID3D11Texture2D> _effectInput;
-	ComPtr<ID3D11Texture2D> _effectOutput;
 	ComPtr<ID3D11Texture2D> _backBuffer;
 	std::unordered_map<ID3D11Texture2D*, ComPtr<ID3D11RenderTargetView>> _rtvMap;
 	std::unordered_map<ID3D11Texture2D*, ComPtr<ID3D11ShaderResourceView>> _srvMap;
 
-	ComPtr<ID3D11VertexShader> _vertexShader;
+	ComPtr<ID3D11VertexShader> _fillVS;
+	ComPtr<ID3D11VertexShader> _simpleVS;
+	ComPtr<ID3D11InputLayout> _simpleIL;
+	ComPtr<ID3D11PixelShader> _copyPS;
 	std::vector<Effect> _effects;
 
-	RECT _destRect{};
 	CursorRenderer _cursorRenderer;
+	FrameRateRenderer _frameRateRenderer;
 };

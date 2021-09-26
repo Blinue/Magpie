@@ -74,10 +74,8 @@ namespace Magpie {
 
 		public void Create(
 			int captureMode,
-			int bufferPrecision,
 			bool showFPS,
 			bool adjustCursorSpeed,
-			bool hookCursorAtRuntime,
 			bool noDisturb = false
 		) {
 			if (Status != MagWindowStatus.Idle) {
@@ -104,7 +102,8 @@ namespace Magpie {
 					(int status, IntPtr errorMsg) => StatusEvent(status, Marshal.PtrToStringUni(errorMsg)),
 					hwndSrc,
 					captureMode,
-					adjustCursorSpeed
+					adjustCursorSpeed,
+					showFPS
 				);
 			});
 			magThread.SetApartmentState(ApartmentState.MTA);

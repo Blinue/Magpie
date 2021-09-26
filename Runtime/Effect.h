@@ -77,7 +77,7 @@ private:
 	public:
 		bool Initialize(Effect* parent, const std::string& pixelShader);
 
-		bool Build(const std::vector<int>& inputs, int output);
+		bool Build(const std::vector<int>& inputs, int output, std::optional<SIZE> outputSize);
 
 		void Draw();
 
@@ -92,6 +92,7 @@ private:
 		std::vector<ID3D11ShaderResourceView*> _inputs;
 		std::vector<ID3D11SamplerState*> _samplers;
 
+		ComPtr<ID3D11Buffer> _vtxBuffer;
 		D3D11_VIEWPORT _vp{};
 	};
 
@@ -106,6 +107,8 @@ private:
 	ComPtr<ID3D11Buffer> _constantBuffer;
 
 	ComPtr<ID3D11VertexShader> _vertexShader;
+
+	std::optional<SIZE> _outputSize;
 
 	std::vector<PassDesc> _passDescs;
 	std::vector<_Pass> _passes;

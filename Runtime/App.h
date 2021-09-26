@@ -17,7 +17,8 @@ public:
 		HINSTANCE hInst,
 		HWND hwndSrc,
 		int captureMode,
-		bool adjustCursorSpeed
+		bool adjustCursorSpeed,
+		bool showFPS
 	);
 
 	void Run();
@@ -58,6 +59,10 @@ public:
 		return _adjustCursorSpeed;
 	}
 
+	bool IsShowFPS() const {
+		return _showFPS;
+	}
+
 	int GetCaptureMode() const {
 		return _captureMode;
 	}
@@ -69,6 +74,8 @@ public:
 	static void SetErrorMsg(const wchar_t* errorMsg) {
 		_errorMsg = errorMsg;
 	}
+
+	ComPtr<IWICImagingFactory2> GetWICImageFactory();
 
 private:
 	App() {}
@@ -99,9 +106,11 @@ private:
 
 	int _captureMode = 0;
 	bool _adjustCursorSpeed = false;
+	bool _showFPS = false;
 
 	std::unique_ptr<Renderer> _renderer;
 	std::unique_ptr<FrameSourceBase> _frameSource;
+	ComPtr<IWICImagingFactory2> _wicImgFactory;
 
 	std::shared_ptr<spdlog::logger> _logger;
 };

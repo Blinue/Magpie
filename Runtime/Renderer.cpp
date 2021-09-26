@@ -2,27 +2,13 @@
 #include "Renderer.h"
 #include "App.h"
 #include "Utils.h"
+#include "shaders/FillVS.h"
+#include "shaders/CopyPS.h"
+#include "shaders/SimpleVS.h"
+#include <VertexTypes.h>
 
 extern std::shared_ptr<spdlog::logger> logger;
 
-const char vertexShader[] = R"(
-
-struct VS_OUTPUT {
-	float4 Position : SV_POSITION;
-	float4 TexCoord : TEXCOORD0;
-};
-	
-VS_OUTPUT main(uint id : SV_VERTEXID) {
-	VS_OUTPUT output;
-
-	float2 texCoord = float2(id & 1, id >> 1) * 2.0;
-	output.TexCoord = float4(texCoord, 0, 0);
-	output.Position = float4(texCoord * float2(2.0, -2.0) + float2(-1.0, 1.0), 0.0, 1.0);
-
-	return output;
-}
-
-)";
 
 
 bool Renderer::Initialize() {
@@ -34,25 +20,6 @@ bool Renderer::Initialize() {
 }
 
 bool Renderer::InitializeEffectsAndCursor() {
-	// 编译顶点着色器
-	ComPtr<ID3DBlob> errorMsgs = nullptr;
-	ComPtr<ID3DBlob> blob = nullptr;
-	HRESULT hr = D3DCompile(vertexShader, sizeof(vertexShader), nullptr, nullptr, nullptr,
-		"main", "vs_5_0", D3DCOMPILE_ENABLE_STRICTNESS, 0, &blob, &errorMsgs);
-	if (FAILED(hr)) {
-		if (errorMsgs) {
-			SPDLOG_LOGGER_CRITICAL(logger, MakeComErrorMsg(
-				fmt::format("编译顶点着色器失败：{}", (const char*)errorMsgs->GetBufferPointer()), hr));
-		}
-		return false;
-	}
-
-	hr = _d3dDevice->CreateVertexShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, &_vertexShader);
-	if (FAILED(hr)) {
-		SPDLOG_LOGGER_CRITICAL(logger, MakeComErrorMsg("创建顶点着色器失败", hr));
-		return false;
-	}
-
 	Effect& effect = _effects.emplace_back();
 	if (!effect.InitializeFsr()) {
 		SPDLOG_LOGGER_CRITICAL(logger, "初始化 Effect 失败");
@@ -67,29 +34,27 @@ bool Renderer::InitializeEffectsAndCursor() {
 	// 等比缩放到最大
 	float fillScale = std::min(float(hostSize.cx) / inputDesc.Width, float(hostSize.cy) / inputDesc.Height);
 	SIZE outputSize = { lroundf(inputDesc.Width * fillScale), lroundf(inputDesc.Height * fillScale) };
+
+	RECT destRect{};
+	destRect.left = (hostSize.cx - outputSize.cx) / 2;
+	destRect.right = destRect.left + outputSize.cx;
+	destRect.top = (hostSize.cy - outputSize.cy) / 2;
+	destRect.bottom = destRect.top + outputSize.cy;
+
 	effect.SetOutputSize(outputSize);
 
-	D3D11_TEXTURE2D_DESC desc{};
-	desc.Width = outputSize.cx;
-	desc.Height = outputSize.cy;
-	desc.MipLevels = 1;
-	desc.ArraySize = 1;
-	desc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
-	desc.SampleDesc.Count = 1;
-	desc.SampleDesc.Quality = 0;
-	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
-	hr = _d3dDevice->CreateTexture2D(&desc, nullptr, &_effectOutput);
-	if (FAILED(hr)) {
-		SPDLOG_LOGGER_CRITICAL(logger, MakeComErrorMsg("创建 Texture2D 失败", hr));
-		return false;
-	}
-
-	if (!effect.Build(_effectInput, _effectOutput)) {
+	if (!effect.Build(_effectInput, _backBuffer)) {
 		SPDLOG_LOGGER_CRITICAL(logger, "构建 Effect 失败");
 		return false;
 	}
 
-	if (!_cursorRenderer.Initialize(_effectOutput, _backBuffer)) {
+	if (App::GetInstance().IsShowFPS()) {
+		if (!_frameRateRenderer.Initialize(_backBuffer, destRect)) {
+			return false;
+		}
+	}
+
+	if (!_cursorRenderer.Initialize(_backBuffer, destRect)) {
 		SPDLOG_LOGGER_CRITICAL(logger, "构建 CursorRenderer 失败");
 		return false;
 	}
@@ -100,7 +65,7 @@ bool Renderer::InitializeEffectsAndCursor() {
 
 void Renderer::Render() {
 	if (!_waitingForNextFrame) {
-		WaitForSingleObjectEx(_frameLatencyWaitableObject, 1000, true);
+		WaitForSingleObjectEx(_frameLatencyWaitableObject, 1000, FALSE);
 	}
 
 	if (!_CheckSrcState()) {
@@ -117,51 +82,120 @@ void Renderer::Render() {
 	_d3dDC->ClearState();
 	// 所有渲染都使用三角形带拓扑
 	_d3dDC->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
-	_d3dDC->VSSetShader(_vertexShader.Get(), nullptr, 0);
 
 	for (Effect& effect : _effects) {
 		effect.Draw();
 	}
 
+	if (App::GetInstance().IsShowFPS()) {
+		_frameRateRenderer.Draw();
+	}
+	
 	_cursorRenderer.Draw();
 
 	_dxgiSwapChain->Present(0, 0);
 }
 
-HRESULT Renderer::GetRenderTargetView(ID3D11Texture2D* texture, ID3D11RenderTargetView** result) {
+bool Renderer::GetRenderTargetView(ID3D11Texture2D* texture, ID3D11RenderTargetView** result) {
 	auto it = _rtvMap.find(texture);
 	if (it != _rtvMap.end()) {
 		*result = it->second.Get();
-		return S_OK;
+		return true;
 	}
 
 	ComPtr<ID3D11RenderTargetView>& r = _rtvMap[texture];
 	HRESULT hr = _d3dDevice->CreateRenderTargetView(texture, nullptr, &r);
 	if (FAILED(hr)) {
 		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("CreateRenderTargetView 失败", hr));
-		return hr;
+		return false;
 	} else {
 		*result = r.Get();
-		return S_OK;
+		return true;
 	}
 }
 
-HRESULT Renderer::GetShaderResourceView(ID3D11Texture2D* texture, ID3D11ShaderResourceView** result) {
+bool Renderer::GetShaderResourceView(ID3D11Texture2D* texture, ID3D11ShaderResourceView** result) {
 	auto it = _srvMap.find(texture);
 	if (it != _srvMap.end()) {
 		*result = it->second.Get();
-		return S_OK;
+		return true;
 	}
 
 	ComPtr<ID3D11ShaderResourceView>& r = _srvMap[texture];
 	HRESULT hr = _d3dDevice->CreateShaderResourceView(texture, nullptr, &r);
 	if (FAILED(hr)) {
 		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("CreateShaderResourceView 失败", hr));
-		return hr;
+		return false;
 	} else {
 		*result = r.Get();
-		return S_OK;
+		return true;
 	}
+}
+
+bool Renderer::SetFillVS() {
+	if (!_fillVS) {
+		HRESULT hr = _d3dDevice->CreateVertexShader(FillVSShaderByteCode, sizeof(FillVSShaderByteCode), nullptr, &_fillVS);
+		if (FAILED(hr)) {
+			SPDLOG_LOGGER_CRITICAL(logger, MakeComErrorMsg("创建 FillVS 失败", hr));
+			return false;
+		}
+	}
+	
+	_d3dDC->IASetInputLayout(nullptr);
+	_d3dDC->IASetVertexBuffers(0, 0, nullptr, nullptr, nullptr);
+	_d3dDC->VSSetShader(_fillVS.Get(), nullptr, 0);
+
+	return true;
+}
+
+
+bool Renderer::SetCopyPS(ID3D11SamplerState* sampler, ID3D11ShaderResourceView* input) {
+	if (!_copyPS) {
+		HRESULT hr = _d3dDevice->CreatePixelShader(CopyPSShaderByteCode, sizeof(CopyPSShaderByteCode), nullptr, &_copyPS);
+		if (FAILED(hr)) {
+			SPDLOG_LOGGER_CRITICAL(logger, MakeComErrorMsg("创建 CopyPS 失败", hr));
+			return false;
+		}
+	}
+
+	_d3dDC->PSSetShader(_copyPS.Get(), nullptr, 0);
+	_d3dDC->PSSetConstantBuffers(0, 0, nullptr);
+	_d3dDC->PSSetShaderResources(0, 1, &input);
+	_d3dDC->PSSetSamplers(0, 1, &sampler);
+
+	return true;
+}
+
+bool Renderer::SetSimpleVS(ID3D11Buffer* simpleVB) {
+	if (!_simpleVS) {
+		HRESULT hr = _d3dDevice->CreateVertexShader(SimpleVSShaderByteCode, sizeof(SimpleVSShaderByteCode), nullptr, &_simpleVS);
+		if (FAILED(hr)) {
+			SPDLOG_LOGGER_CRITICAL(logger, MakeComErrorMsg("创建 SimpleVS 失败", hr));
+			return false;
+		}
+
+		hr = _d3dDevice->CreateInputLayout(
+			VertexPositionTexture::InputElements,
+			VertexPositionTexture::InputElementCount,
+			SimpleVSShaderByteCode,
+			sizeof(SimpleVSShaderByteCode),
+			&_simpleIL
+		);
+		if (FAILED(hr)) {
+			SPDLOG_LOGGER_CRITICAL(logger, fmt::sprintf("创建 SimpleVS 输入布局失败\n\tHRESULT：0x%X", hr));
+			return false;
+		}
+	}
+
+	_d3dDC->IASetInputLayout(_simpleIL.Get());
+
+	UINT stride = sizeof(VertexPositionTexture);
+	UINT offset = 0;
+	_d3dDC->IASetVertexBuffers(0, 1, &simpleVB, &stride, &offset);
+
+	_d3dDC->VSSetShader(_simpleVS.Get(), nullptr, 0);
+
+	return true;
 }
 
 bool Renderer::_InitD3D() {
@@ -240,7 +274,7 @@ bool Renderer::_InitD3D() {
 		sd.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
 		sd.SampleDesc.Count = 1;
 		sd.SampleDesc.Quality = 0;
-		sd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+		sd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT | DXGI_USAGE_SHADER_INPUT;
 		sd.BufferCount = 2;
 		sd.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;
 		sd.Flags = DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT;
@@ -309,6 +343,33 @@ bool Renderer::_CheckSrcState() {
 	return true;
 }
 
+bool Renderer::SetAlphaBlend(bool enable) {
+	if (!enable) {
+		_d3dDC->OMSetBlendState(nullptr, nullptr, 0xffffffff);
+		return true;
+	}
+	
+	if (!_alphaBlendState) {
+		D3D11_BLEND_DESC desc{};
+		desc.RenderTarget[0].BlendEnable = TRUE;
+		desc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
+		desc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
+		desc.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
+		desc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
+		desc.RenderTarget[0].BlendOp = desc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+		desc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+
+		HRESULT hr = _d3dDevice->CreateBlendState(&desc, &_alphaBlendState);
+		if (FAILED(hr)) {
+			SPDLOG_LOGGER_CRITICAL(logger, MakeComErrorMsg("CreateBlendState 失败", hr));
+			return false;
+		}
+	}
+	
+	_d3dDC->OMSetBlendState(_alphaBlendState.Get(), nullptr, 0xffffffff);
+	return true;
+}
+
 bool Renderer::GetSampler(FilterType filterType, ID3D11SamplerState** result) {
 	if (filterType == FilterType::LINEAR) {
 		if (!_linearSampler) {
@@ -356,3 +417,4 @@ bool Renderer::GetSampler(FilterType filterType, ID3D11SamplerState** result) {
 
 	return true;
 }
+

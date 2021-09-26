@@ -133,6 +133,8 @@ namespace Magpie {
 		private void ToggleMagWindow() {
 			if (Settings.Default.AutoRestore) {
 				StopWaitingForRestore();
+				// 立即更新布局，因为窗口大小可能改变，如果接下来放大 Magpie 本身会立即退出
+				UpdateLayout();
 			}
 
 			if (magWindow.Status == MagWindowStatus.Running) {
@@ -148,15 +150,12 @@ namespace Magpie {
 
 			bool showFPS = Settings.Default.ShowFPS;
 			int captureMode = Settings.Default.CaptureMode;
-			int bufferPrecision = Settings.Default.BufferPrecision;
 			bool adjustCursorSpeed = Settings.Default.AdjustCursorSpeed;
 
 			magWindow.Create(
 				captureMode,
-				bufferPrecision,
 				showFPS,
-				adjustCursorSpeed,
-				false
+				adjustCursorSpeed
 			);
 
 			prevSrcWindow = magWindow.SrcWindow;

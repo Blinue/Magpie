@@ -22,7 +22,8 @@ bool App::Initialize(
 	HINSTANCE hInst,
 	HWND hwndSrc,
 	int captureMode,
-	bool adjustCursorSpeed
+	bool adjustCursorSpeed,
+	bool showFPS
 ) {
 	_logger = logger;
 	_hwndSrc = hwndSrc;
@@ -30,6 +31,7 @@ bool App::Initialize(
 
 	_captureMode = captureMode;
 	_adjustCursorSpeed = adjustCursorSpeed;
+	_showFPS = showFPS;
 
 	SPDLOG_LOGGER_INFO(logger, "正在初始化 App");
 	SetErrorMsg(ErrorMessages::GENERIC);
@@ -137,6 +139,24 @@ void App::Run() {
 	}
 }
 
+ComPtr<IWICImagingFactory2> App::GetWICImageFactory() {
+    if (_wicImgFactory == nullptr) {
+        HRESULT hr = CoCreateInstance(
+            CLSID_WICImagingFactory,
+            NULL,
+            CLSCTX_INPROC_SERVER,
+            IID_PPV_ARGS(&_wicImgFactory)
+        );
+
+		if (FAILED(hr)) {
+			SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("创建 WICImagingFactory 失败", hr));
+			return nullptr;
+		}
+    }
+
+    return _wicImgFactory;
+}
+
 // 注册主窗口类
 void App::_RegisterHostWndClass() const {
 	WNDCLASSEX wcex = {};
@@ -188,17 +208,12 @@ bool App::_CreateHostWnd() {
 		SPDLOG_LOGGER_ERROR(_logger, MakeWin32ErrorMsg("SetLayeredWindowAttributes 失败"));
 	}
 
-	// 取消置顶，这样可以使该窗口在最前
 	if (!ShowWindow(_hwndHost, SW_NORMAL)) {
 		SPDLOG_LOGGER_ERROR(_logger, MakeWin32ErrorMsg("ShowWindow 失败"));
 	}
-	DWORD style = GetWindowStyle(_hwndHost);
-	if (!style) {
-		SPDLOG_LOGGER_ERROR(_logger, MakeWin32ErrorMsg("GetWindowStyle 失败"));
-	}
-	style &= ~WS_EX_TOPMOST;
-	if (!SetWindowLong(_hwndHost, GWL_STYLE, style)) {
-		SPDLOG_LOGGER_ERROR(_logger, MakeWin32ErrorMsg("SetWindowLong 失败"));
+	// 取消置顶，这样可以使该窗口在最前
+	if (!SetWindowPos(_hwndHost, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE)) {
+		SPDLOG_LOGGER_ERROR(_logger, MakeWin32ErrorMsg("SetWindowPos 失败"));
 	}
 
 	SPDLOG_LOGGER_INFO(_logger, "已创建主窗口");

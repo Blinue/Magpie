@@ -11,7 +11,7 @@ SamplerState sam : register(s0);
 
 struct VS_OUTPUT {
 	float4 Position : SV_POSITION; // vertex position 
-	float4 TexCoord : TEXCOORD0;   // vertex texture coords 
+	float2 TexCoord : TEXCOORD0;   // vertex texture coords 
 };
 
 #define min3(a, b, c) min(a, min(b, c))
