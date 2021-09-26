@@ -31,12 +31,9 @@ void FrameRateRenderer::Draw() {
 
 	_spriteBatch->Begin(SpriteSortMode::SpriteSortMode_Immediate);
 
-	std::string fps = fmt::format("{} FPS", lround(_fps));
-	//XMVECTOR position = _spriteFont->MeasureString(fps.c_str());
-	
 	_spriteFont->DrawString(
 		_spriteBatch.get(),
-		fps.c_str(),
+		fmt::format("{} FPS", lround(_fps)).c_str(),
 		XMFLOAT2(10, 10)
 	);
 	_spriteBatch->End();

@@ -27,15 +27,5 @@
             </ComboBox>
         </StackPanel>
         <CheckBox Content="{x:Static p:Resources.UI_Options_Advanced_Show_Frame_Rate}" Margin="0,20,0,0" IsChecked="{Binding Source={x:Static props:Settings.Default},Path=ShowFPS,Mode=TwoWay}"/>
-        <StackPanel Orientation="Horizontal" Margin="0,20,0,0">
-            <Label Content="{x:Static p:Resources.UI_Options_Advanced_Buffer_Precision}" Padding="0" VerticalContentAlignment="Center" />
-            <ComboBox Margin="10,0,0,0" SelectedIndex="{Binding Source={x:Static props:Settings.Default},Path=BufferPrecision,Mode=TwoWay}">
-                <ComboBoxItem Content="{x:Static p:Resources.UI_Options_Advanced_Buffer_Precision_Default}" />
-                <ComboBoxItem Content="8_UNORM" />
-                <ComboBoxItem Content="16_UNORM" />
-                <ComboBoxItem Content="16_FLOAT" />
-                <ComboBoxItem Content="32_FLOAT" />
-            </ComboBox>
-        </StackPanel>
     </StackPanel>
 </Page>

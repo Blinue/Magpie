@@ -1,4 +1,4 @@
-﻿<?xml version='1.0' encoding='utf-8'?>
+<?xml version='1.0' encoding='utf-8'?>
 <SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="Magpie.Properties" GeneratedClassName="Settings">
   <Profiles />
   <Settings>
@@ -19,9 +19,6 @@
     </Setting>
     <Setting Name="AutoRestore" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
-    </Setting>
-    <Setting Name="BufferPrecision" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">0</Value>
     </Setting>
     <Setting Name="AdjustCursorSpeed" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>

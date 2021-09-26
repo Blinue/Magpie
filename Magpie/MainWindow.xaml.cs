@@ -188,16 +188,13 @@ namespace Magpie {
 			string effectsJson = scaleModelManager.GetScaleModels()[Settings.Default.ScaleMode].Model;
 			bool showFPS = Settings.Default.ShowFPS;
 			int captureMode = Settings.Default.CaptureMode;
-			int bufferPrecision = Settings.Default.BufferPrecision;
 			bool adjustCursorSpeed = Settings.Default.AdjustCursorSpeed;
 
 			magWindow.Create(
 				effectsJson,
 				captureMode,
-				bufferPrecision,
 				showFPS,
-				adjustCursorSpeed,
-				false
+				adjustCursorSpeed
 			);
 
 			prevSrcWindow = magWindow.SrcWindow;
