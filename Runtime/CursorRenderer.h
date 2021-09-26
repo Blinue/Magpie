@@ -5,7 +5,7 @@
 // 处理光标的渲染
 class CursorRenderer {
 public:
-	bool Initialize(ComPtr<ID3D11Texture2D> renderTarget, SIZE outputSize);
+	bool Initialize(ComPtr<ID3D11Texture2D> renderTarget, const RECT& destRect);
 
 	~CursorRenderer();
 

@@ -43,7 +43,8 @@ API_DECLSPEC void WINAPI Run(
 	void reportStatus(int status, const wchar_t* errorMsgId),
 	HWND hwndSrc,
 	int captureMode,
-	bool adjustCursorSpeed
+	bool adjustCursorSpeed,
+	bool showFPS
 ) {
 	reportStatus(1, nullptr);
 
@@ -58,7 +59,7 @@ API_DECLSPEC void WINAPI Run(
 	}
 
 	App& app = App::GetInstance();
-	if (!app.Initialize(hInst, hwndSrc, captureMode, adjustCursorSpeed)) {
+	if (!app.Initialize(hInst, hwndSrc, captureMode, adjustCursorSpeed, showFPS)) {
 		// 初始化失败
 		SPDLOG_LOGGER_INFO(logger, "App 初始化失败，返回 GENREIC 消息");
 		reportStatus(0, App::GetErrorMsg());

@@ -283,21 +283,18 @@ bool Effect::_Pass::Initialize(Effect* parent, const std::string& pixelShader) {
 
 bool Effect::_Pass::Build(const std::vector<int>& inputs, int output, std::optional<SIZE> outputSize) {
 	Renderer& renderer = App::GetInstance().GetRenderer();
-	HRESULT hr;
 
 	_inputs.resize(inputs.size());
 	for (int i = 0; i < _inputs.size(); ++i) {
-		hr = renderer.GetShaderResourceView(_parent->_textures[inputs[i]].Get(), &_inputs[i]);
-		if (FAILED(hr)) {
-			SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("获取 ShaderResourceView 失败", hr));
+		if (!renderer.GetShaderResourceView(_parent->_textures[inputs[i]].Get(), &_inputs[i])) {
+			SPDLOG_LOGGER_ERROR(logger,"获取 ShaderResourceView 失败");
 			return false;
 		}
 	}
 
 	ComPtr<ID3D11Texture2D> outputTex = _parent->_textures[output];
-	hr = App::GetInstance().GetRenderer().GetRenderTargetView(outputTex.Get(), &_outputRtv);
-	if (FAILED(hr)) {
-		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("获取 RenderTargetView 失败", hr));
+	if (!App::GetInstance().GetRenderer().GetRenderTargetView(outputTex.Get(), &_outputRtv)) {
+		SPDLOG_LOGGER_ERROR(logger, "获取 RenderTargetView 失败");
 		return false;
 	}
 
@@ -331,7 +328,7 @@ bool Effect::_Pass::Build(const std::vector<int>& inputs, int output, std::optio
 
 		D3D11_SUBRESOURCE_DATA InitData = {};
 		InitData.pSysMem = vertices;
-		hr = renderer.GetD3DDevice()->CreateBuffer(&bd, &InitData, &_vtxBuffer);
+		HRESULT hr = renderer.GetD3DDevice()->CreateBuffer(&bd, &InitData, &_vtxBuffer);
 		if (FAILED(hr)) {
 			SPDLOG_LOGGER_ERROR(logger, fmt::sprintf("创建顶点缓冲区失败\n\tHRESULT：0x%X", hr));
 			return false;

@@ -8,25 +8,23 @@
 extern std::shared_ptr<spdlog::logger> logger;
 
 
-bool CursorRenderer::Initialize(ComPtr<ID3D11Texture2D> renderTarget, SIZE outputSize) {
+bool CursorRenderer::Initialize(ComPtr<ID3D11Texture2D> renderTarget, const RECT& destRect) {
 	App& app = App::GetInstance();
 	Renderer& renderer = app.GetRenderer();
 	_d3dDC = renderer.GetD3DDC();
 	_d3dDevice = renderer.GetD3DDevice();
 
-	HRESULT hr = renderer.GetRenderTargetView(renderTarget.Get(), &_rtv);
-	if (FAILED(hr)) {
-		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("GetRenderTargetView 失败", hr));
+	if (!renderer.GetRenderTargetView(renderTarget.Get(), &_rtv)) {
+		SPDLOG_LOGGER_ERROR(logger, "GetRenderTargetView 失败");
 		return false;
 	}
 
-	hr = renderer.GetShaderResourceView(renderTarget.Get(), &_renderTargetSrv);
-	if (FAILED(hr)) {
-		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("GetShaderResourceView 失败", hr));
+	if (!renderer.GetShaderResourceView(renderTarget.Get(), &_renderTargetSrv)) {
+		SPDLOG_LOGGER_ERROR(logger, "GetShaderResourceView 失败");
 		return false;
 	}
 
-	hr = renderer.GetD3DDevice()->CreatePixelShader(
+	HRESULT hr = renderer.GetD3DDevice()->CreatePixelShader(
 		MonochromeCursorPSShaderByteCode, sizeof(MonochromeCursorPSShaderByteCode), nullptr, &_monoCursorPS);
 	if (FAILED(hr)) {
 		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("创建 MonochromeCursorPS 失败", hr));
@@ -71,14 +69,13 @@ bool CursorRenderer::Initialize(ComPtr<ID3D11Texture2D> renderTarget, SIZE outpu
 		return false;
 	}
 
-	hr = renderer.GetRenderTargetView(_monoTmpTexture.Get(), &_monoTmpRtv);
-	if (FAILED(hr)) {
-		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("GetRenderTargetView 失败", hr));
+	if (!renderer.GetRenderTargetView(_monoTmpTexture.Get(), &_monoTmpRtv)) {
+		SPDLOG_LOGGER_ERROR(logger, "GetRenderTargetView 失败");
 		return false;
 	}
-	hr = renderer.GetShaderResourceView(_monoTmpTexture.Get(), &_monoTmpSrv);
-	if (FAILED(hr)) {
-		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("GetShaderResourceView 失败", hr));
+	
+	if (!renderer.GetShaderResourceView(_monoTmpTexture.Get(), &_monoTmpSrv)) {
+		SPDLOG_LOGGER_ERROR(logger, "GetShaderResourceView 失败");
 		return false;
 	}
 
@@ -87,10 +84,7 @@ bool CursorRenderer::Initialize(ComPtr<ID3D11Texture2D> renderTarget, SIZE outpu
 
 	_renderTargetSize = { (long)rtDesc.Width, (long)rtDesc.Height };
 
-	_destRect.left = (rtDesc.Width - outputSize.cx) / 2;
-	_destRect.right = _destRect.left + outputSize.cx;
-	_destRect.top = (rtDesc.Height - outputSize.cy) / 2;
-	_destRect.bottom = _destRect.top + outputSize.cy;
+	_destRect = destRect;
 
 	const RECT& srcClient = app.GetSrcClientRect();
 	SIZE srcSize = { srcClient.right - srcClient.left, srcClient.bottom - srcClient.top };

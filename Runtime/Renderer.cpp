@@ -34,6 +34,13 @@ bool Renderer::InitializeEffectsAndCursor() {
 	// 等比缩放到最大
 	float fillScale = std::min(float(hostSize.cx) / inputDesc.Width, float(hostSize.cy) / inputDesc.Height);
 	SIZE outputSize = { lroundf(inputDesc.Width * fillScale), lroundf(inputDesc.Height * fillScale) };
+
+	RECT destRect{};
+	destRect.left = (hostSize.cx - outputSize.cx) / 2;
+	destRect.right = destRect.left + outputSize.cx;
+	destRect.top = (hostSize.cy - outputSize.cy) / 2;
+	destRect.bottom = destRect.top + outputSize.cy;
+
 	effect.SetOutputSize(outputSize);
 
 	if (!effect.Build(_effectInput, _backBuffer)) {
@@ -41,11 +48,13 @@ bool Renderer::InitializeEffectsAndCursor() {
 		return false;
 	}
 
-	if (!_frameRateRenderer.Initialize()) {
-		return false;
+	if (App::GetInstance().IsShowFPS()) {
+		if (!_frameRateRenderer.Initialize(_backBuffer, destRect)) {
+			return false;
+		}
 	}
 
-	if (!_cursorRenderer.Initialize(_backBuffer, outputSize)) {
+	if (!_cursorRenderer.Initialize(_backBuffer, destRect)) {
 		SPDLOG_LOGGER_CRITICAL(logger, "构建 CursorRenderer 失败");
 		return false;
 	}
@@ -78,45 +87,48 @@ void Renderer::Render() {
 		effect.Draw();
 	}
 
-	_frameRateRenderer.Draw();
+	if (App::GetInstance().IsShowFPS()) {
+		_frameRateRenderer.Draw();
+	}
+	
 	_cursorRenderer.Draw();
 
 	_dxgiSwapChain->Present(0, 0);
 }
 
-HRESULT Renderer::GetRenderTargetView(ID3D11Texture2D* texture, ID3D11RenderTargetView** result) {
+bool Renderer::GetRenderTargetView(ID3D11Texture2D* texture, ID3D11RenderTargetView** result) {
 	auto it = _rtvMap.find(texture);
 	if (it != _rtvMap.end()) {
 		*result = it->second.Get();
-		return S_OK;
+		return true;
 	}
 
 	ComPtr<ID3D11RenderTargetView>& r = _rtvMap[texture];
 	HRESULT hr = _d3dDevice->CreateRenderTargetView(texture, nullptr, &r);
 	if (FAILED(hr)) {
 		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("CreateRenderTargetView 失败", hr));
-		return hr;
+		return false;
 	} else {
 		*result = r.Get();
-		return S_OK;
+		return true;
 	}
 }
 
-HRESULT Renderer::GetShaderResourceView(ID3D11Texture2D* texture, ID3D11ShaderResourceView** result) {
+bool Renderer::GetShaderResourceView(ID3D11Texture2D* texture, ID3D11ShaderResourceView** result) {
 	auto it = _srvMap.find(texture);
 	if (it != _srvMap.end()) {
 		*result = it->second.Get();
-		return S_OK;
+		return true;
 	}
 
 	ComPtr<ID3D11ShaderResourceView>& r = _srvMap[texture];
 	HRESULT hr = _d3dDevice->CreateShaderResourceView(texture, nullptr, &r);
 	if (FAILED(hr)) {
 		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("CreateShaderResourceView 失败", hr));
-		return hr;
+		return false;
 	} else {
 		*result = r.Get();
-		return S_OK;
+		return true;
 	}
 }
 

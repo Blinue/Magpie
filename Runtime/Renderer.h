@@ -33,9 +33,9 @@ public:
 		return _dxgiDevice;
 	}
 
-	HRESULT GetRenderTargetView(ID3D11Texture2D* texture, ID3D11RenderTargetView** result);
+	bool GetRenderTargetView(ID3D11Texture2D* texture, ID3D11RenderTargetView** result);
 
-	HRESULT GetShaderResourceView(ID3D11Texture2D* texture, ID3D11ShaderResourceView** result);
+	bool GetShaderResourceView(ID3D11Texture2D* texture, ID3D11ShaderResourceView** result);
 
 	bool SetFillVS();
 

@@ -189,6 +189,11 @@
     <ClCompile Include="GraphicsCaptureFrameSource.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <CopyFileToFolders Include="assets\OpenSans.spritefont">
+      <FileType>Document</FileType>
+      <DestinationFolders Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)assets</DestinationFolders>
+      <DestinationFolders Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)assets</DestinationFolders>
+    </CopyFileToFolders>
     <None Include="conanfile.py" />
     <None Include="cpp.hint" />
     <None Include="packages.config" />

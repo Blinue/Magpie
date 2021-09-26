@@ -149,7 +149,8 @@ namespace Magpie {
 			ReportStatus reportStatus,
 			IntPtr hwndSrc,
 			int captureMode,
-			[MarshalAs(UnmanagedType.U1)] bool adjustCursorSpeed
+			[MarshalAs(UnmanagedType.U1)] bool adjustCursorSpeed,
+			[MarshalAs(UnmanagedType.U1)] bool showFPS
 		);
 	}
 }
