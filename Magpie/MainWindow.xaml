@@ -96,7 +96,7 @@
             </Grid.RowDefinitions>
 
             <Label Style="{StaticResource Col0}" Content="{x:Static props:Resources.UI_Main_FSR_Sharpness}" Grid.Row="0" VerticalAlignment="Center" Margin="0,20,0,0" Padding="0,5,5,5" />
-            <Slider Grid.Column="1" Margin="5,15,0,0" VerticalAlignment="Center" Maximum="2" LargeChange="0.2" SmallChange="0.05" Value="{Binding Source={x:Static props:Settings.Default},Path=FsrSharpness,Mode=TwoWay}" />
+            <Slider Grid.Column="1" Margin="5,15,0,0" VerticalAlignment="Center" Maximum="2" LargeChange="0.2" SmallChange="0.05" Value="{Binding Source={x:Static props:Settings.Default},Path=FsrSharpness,Mode=TwoWay}" Minimum="0.3" />
 
             <Label Style="{StaticResource Col0}" Content="{x:Static props:Resources.UI_Main_Capture_Method}" Grid.Row="1" VerticalAlignment="Top" Margin="0,15,0,0" Padding="0,5,5,5"/>
             <ComboBox Name="cbbCaptureMode" Grid.Row="1" SelectedIndex="{Binding Source={x:Static props:Settings.Default},Path=CaptureMode,Mode=TwoWay}" Margin="5,15,0,0">
