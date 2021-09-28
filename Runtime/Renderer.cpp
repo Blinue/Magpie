@@ -11,6 +11,10 @@ extern std::shared_ptr<spdlog::logger> logger;
 
 
 
+Renderer::~Renderer() {
+	CloseHandle(_frameLatencyWaitableObject);
+}
+
 bool Renderer::Initialize() {
 	if (!_InitD3D()) {
 		return false;
@@ -65,7 +69,7 @@ bool Renderer::InitializeEffectsAndCursor() {
 
 void Renderer::Render() {
 	if (!_waitingForNextFrame) {
-		WaitForSingleObjectEx(_frameLatencyWaitableObject, 1000, FALSE);
+		WaitForSingleObject(_frameLatencyWaitableObject, 1000);
 	}
 
 	if (!_CheckSrcState()) {
@@ -92,7 +96,7 @@ void Renderer::Render() {
 	}
 	
 	_cursorRenderer.Draw();
-
+	
 	_dxgiSwapChain->Present(0, 0);
 }
 
@@ -298,13 +302,7 @@ bool Renderer::_InitD3D() {
 			SPDLOG_LOGGER_CRITICAL(logger, MakeComErrorMsg("获取 IDXGISwapChain4 失败", hr));
 			return false;
 		}
-
-		hr = _dxgiSwapChain->SetMaximumFrameLatency(1);
-		if (FAILED(hr)) {
-			SPDLOG_LOGGER_CRITICAL(logger, MakeComErrorMsg("获取 IDXGISwapChain4 失败", hr));
-			return false;
-		}
-
+		
 		_frameLatencyWaitableObject = _dxgiSwapChain->GetFrameLatencyWaitableObject();
 		
 		hr = dxgiFactory->MakeWindowAssociation(App::GetInstance().GetHwndHost(), DXGI_MWA_NO_ALT_ENTER);

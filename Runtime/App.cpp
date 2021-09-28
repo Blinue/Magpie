@@ -211,10 +211,6 @@ bool App::_CreateHostWnd() {
 	if (!ShowWindow(_hwndHost, SW_NORMAL)) {
 		SPDLOG_LOGGER_ERROR(_logger, MakeWin32ErrorMsg("ShowWindow 失败"));
 	}
-	// 取消置顶，这样可以使该窗口在最前
-	if (!SetWindowPos(_hwndHost, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE)) {
-		SPDLOG_LOGGER_ERROR(_logger, MakeWin32ErrorMsg("SetWindowPos 失败"));
-	}
 
 	SPDLOG_LOGGER_INFO(_logger, "已创建主窗口");
 	return true;
