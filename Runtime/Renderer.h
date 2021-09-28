@@ -8,6 +8,8 @@
 
 class Renderer {
 public:
+	~Renderer();
+
 	bool Initialize();
 
 	bool InitializeEffectsAndCursor();

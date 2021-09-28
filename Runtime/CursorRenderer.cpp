@@ -383,7 +383,8 @@ void CursorRenderer::Draw() {
 
 	Renderer& renderer = App::GetInstance().GetRenderer();
 	renderer.SetSimpleVS(_vtxBuffer.Get());
-
+	_d3dDC->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+	
 	if (!info->hasInv) {
 		_d3dDC->OMSetRenderTargets(1, &_rtv, nullptr);
 		D3D11_VIEWPORT vp{
