@@ -32,5 +32,8 @@
     <Setting Name="MinimizeWhenClose" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
+    <Setting Name="FsrSharpness" Type="System.Single" Scope="User">
+      <Value Profile="(Default)">0.87</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

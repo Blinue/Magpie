@@ -76,6 +76,7 @@ namespace Magpie {
 			int captureMode,
 			bool showFPS,
 			bool adjustCursorSpeed,
+			float fsrSharpness,
 			bool noDisturb = false
 		) {
 			if (Status != MagWindowStatus.Idle) {
@@ -103,7 +104,8 @@ namespace Magpie {
 					hwndSrc,
 					captureMode,
 					adjustCursorSpeed,
-					showFPS
+					showFPS,
+					fsrSharpness
 				);
 			});
 			magThread.SetApartmentState(ApartmentState.MTA);

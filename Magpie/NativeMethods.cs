@@ -150,7 +150,8 @@ namespace Magpie {
 			IntPtr hwndSrc,
 			int captureMode,
 			[MarshalAs(UnmanagedType.U1)] bool adjustCursorSpeed,
-			[MarshalAs(UnmanagedType.U1)] bool showFPS
+			[MarshalAs(UnmanagedType.U1)] bool showFPS,
+			float fsrSharpness
 		);
 	}
 }

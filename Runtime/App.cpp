@@ -23,7 +23,8 @@ bool App::Initialize(
 	HWND hwndSrc,
 	int captureMode,
 	bool adjustCursorSpeed,
-	bool showFPS
+	bool showFPS,
+	float fsrSharpness
 ) {
 	_logger = logger;
 	_hwndSrc = hwndSrc;
@@ -32,6 +33,7 @@ bool App::Initialize(
 	_captureMode = captureMode;
 	_adjustCursorSpeed = adjustCursorSpeed;
 	_showFPS = showFPS;
+	_fsrSharpness = fsrSharpness;
 
 	SPDLOG_LOGGER_INFO(logger, "正在初始化 App");
 	SetErrorMsg(ErrorMessages::GENERIC);

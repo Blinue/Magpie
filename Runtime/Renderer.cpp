@@ -47,6 +47,8 @@ bool Renderer::InitializeEffectsAndCursor() {
 
 	effect.SetOutputSize(outputSize);
 
+	effect.SetConstant(0, App::GetInstance().GetFsrSharpness());
+
 	if (!effect.Build(_effectInput, _backBuffer)) {
 		SPDLOG_LOGGER_CRITICAL(logger, "构建 Effect 失败");
 		return false;

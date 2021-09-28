@@ -18,7 +18,8 @@ public:
 		HWND hwndSrc,
 		int captureMode,
 		bool adjustCursorSpeed,
-		bool showFPS
+		bool showFPS,
+		float fsrSharpness
 	);
 
 	void Run();
@@ -67,6 +68,10 @@ public:
 		return _captureMode;
 	}
 
+	float GetFsrSharpness() const {
+		return _fsrSharpness;
+	}
+
 	static const wchar_t* GetErrorMsg() {
 		return _errorMsg;
 	}
@@ -107,6 +112,7 @@ private:
 	int _captureMode = 0;
 	bool _adjustCursorSpeed = false;
 	bool _showFPS = false;
+	float _fsrSharpness = 0;
 
 	std::unique_ptr<Renderer> _renderer;
 	std::unique_ptr<FrameSourceBase> _frameSource;

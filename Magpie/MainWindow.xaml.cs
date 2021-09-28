@@ -151,11 +151,13 @@ namespace Magpie {
 			bool showFPS = Settings.Default.ShowFPS;
 			int captureMode = Settings.Default.CaptureMode;
 			bool adjustCursorSpeed = Settings.Default.AdjustCursorSpeed;
+			float fsrSharpness = Settings.Default.FsrSharpness;
 
 			magWindow.Create(
 				captureMode,
 				showFPS,
-				adjustCursorSpeed
+				adjustCursorSpeed,
+				fsrSharpness
 			);
 
 			prevSrcWindow = magWindow.SrcWindow;

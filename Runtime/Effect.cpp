@@ -75,10 +75,20 @@ bool Effect::InitializeFsr() {
 		SPDLOG_LOGGER_ERROR(logger, "GetSampler 失败");
 		return false;
 	}
-	
-	for (int i = 0; i < 5; ++i) {
+
+	EffectConstantDesc& c1 = _constantDescs.emplace_back();
+	c1.type = EffectConstantType::Float;
+	c1.defaultValue = 0.87f;
+	c1.minValue = 0.0f;
+	c1.includeMin = false;
+	c1.name = "Sharpness";
+
+	for (int i = 0; i < 4; ++i) {
 		_constants.emplace_back();
 	}
+
+	Constant32& c = _constants.emplace_back();
+	c.floatVal = std::get<float>(c1.defaultValue);
 
 	// 大小必须为 4 的倍数
 	_constants.resize((_constants.size() + 3) / 4 * 4);
@@ -96,7 +106,7 @@ bool Effect::SetConstant(int index, float value) {
 		return false;
 	}
 
-	if (_constants[static_cast<size_t>(index) + 2].floatVal == value) {
+	if (_constants[static_cast<size_t>(index) + 4].floatVal == value) {
 		return true;
 	}
 
@@ -125,7 +135,7 @@ bool Effect::SetConstant(int index, float value) {
 		}
 	}
 
-	_constants[static_cast<size_t>(index) + 2].floatVal = value;
+	_constants[static_cast<size_t>(index) + 4].floatVal = value;
 
 	return true;
 }
@@ -140,7 +150,7 @@ bool Effect::SetConstant(int index, int value) {
 		return false;
 	}
 
-	if (_constants[index].intVal == value) {
+	if (_constants[static_cast<size_t>(index) + 4].intVal == value) {
 		return true;
 	}
 
@@ -169,7 +179,7 @@ bool Effect::SetConstant(int index, int value) {
 		}
 	}
 
-	_constants[index].intVal = value;
+	_constants[static_cast<size_t>(index) + 4].intVal = value;
 
 	return true;
 }
@@ -222,7 +232,6 @@ bool Effect::Build(ComPtr<ID3D11Texture2D> input, ComPtr<ID3D11Texture2D> output
 	_constants[1].intVal = inputDesc.Height;
 	_constants[2].intVal = outputSize.cx;
 	_constants[3].intVal = outputSize.cy;
-	_constants[4].floatVal = 0.87f;
 
 	// 创建常量缓冲区
 	D3D11_BUFFER_DESC bd{};
