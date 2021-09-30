@@ -29,7 +29,7 @@ private:
 
 	double _fps = 0;
 
-	ComPtr<ID3D11DeviceContext3> _d3dDC;
+	ComPtr<ID3D11DeviceContext> _d3dDC;
 	D3D11_VIEWPORT _vp{};
 
 	ID3D11RenderTargetView* _rtv = nullptr;

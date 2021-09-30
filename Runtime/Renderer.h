@@ -23,11 +23,11 @@ public:
 
 	bool GetSampler(FilterType filterType, ID3D11SamplerState** result);
 
-	ComPtr<ID3D11Device3> GetD3DDevice() const{
+	ComPtr<ID3D11Device1> GetD3DDevice() const{
 		return _d3dDevice;
 	}
 
-	ComPtr<ID3D11DeviceContext3> GetD3DDC() const {
+	ComPtr<ID3D11DeviceContext1> GetD3DDC() const {
 		return _d3dDC;
 	}
 
@@ -52,10 +52,10 @@ private:
 
 	bool _CheckSrcState();
 
-	ComPtr<ID3D11Device3> _d3dDevice;
+	ComPtr<ID3D11Device1> _d3dDevice;
 	ComPtr<IDXGIDevice4> _dxgiDevice;
 	ComPtr<IDXGISwapChain4> _dxgiSwapChain;
-	ComPtr<ID3D11DeviceContext3> _d3dDC;
+	ComPtr<ID3D11DeviceContext1> _d3dDC;
 	HANDLE _frameLatencyWaitableObject = NULL;
 	bool _waitingForNextFrame = false;
 

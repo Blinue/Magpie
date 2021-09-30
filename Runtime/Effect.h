@@ -83,7 +83,7 @@ private:
 
 	private:
 		Effect* _parent = nullptr;
-		ComPtr<ID3D11DeviceContext3> _d3dDC;
+		ComPtr<ID3D11DeviceContext> _d3dDC;
 
 		ID3D11RenderTargetView* _outputRtv = nullptr;
 		
@@ -96,8 +96,8 @@ private:
 		D3D11_VIEWPORT _vp{};
 	};
 
-	ComPtr<ID3D11Device3> _d3dDevice;
-	ComPtr<ID3D11DeviceContext3> _d3dDC;
+	ComPtr<ID3D11Device> _d3dDevice;
+	ComPtr<ID3D11DeviceContext> _d3dDC;
 
 	std::vector<ID3D11SamplerState*> _samplers;
 	std::vector<ComPtr<ID3D11Texture2D>> _textures;

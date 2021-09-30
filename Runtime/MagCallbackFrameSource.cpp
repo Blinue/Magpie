@@ -92,7 +92,7 @@ BOOL MagCallbackFrameSource::_ImageScalingCallback(
 		return FALSE;
 	}
 
-	ComPtr<ID3D11DeviceContext3> d3dDC = App::GetInstance().GetRenderer().GetD3DDC();
+	ComPtr<ID3D11DeviceContext> d3dDC = App::GetInstance().GetRenderer().GetD3DDC();
 	ComPtr<ID3D11Texture2D> output = App::GetInstance().GetFrameSource().GetOutput();
 
 	D3D11_MAPPED_SUBRESOURCE ms{};

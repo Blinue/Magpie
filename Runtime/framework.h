@@ -9,7 +9,7 @@
 #include <windowsx.h>
 #include <magnification.h>
 #include <d3d11.h>
-#include <d3d11_3.h>
+#include <d3d11_1.h>
 #include <d3dcompiler.h>
 #include <dxgi1_5.h>
 #include <wrl.h>
@@ -22,8 +22,6 @@
 #include <functional>
 #include <algorithm>
 #include <string_view>
-
-
 
 // C++/WinRT 头文件
 #include <winrt/base.h>

@@ -37,7 +37,7 @@ private:
 	winrt::GraphicsCaptureItem _captureItem{ nullptr };
 	winrt::IDirect3DDevice _wrappedD3DDevice{ nullptr };
 
-	ComPtr<ID3D11DeviceContext3> _d3dDC;
+	ComPtr<ID3D11DeviceContext> _d3dDC;
 
 	ComPtr<ID3D11Texture2D> _output;
 };

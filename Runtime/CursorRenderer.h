@@ -32,8 +32,8 @@ private:
 	float _scaleY = 0;
 	std::unordered_map<HCURSOR, _CursorInfo> _cursorMap;
 
-	ComPtr<ID3D11DeviceContext3> _d3dDC;
-	ComPtr<ID3D11Device3> _d3dDevice;
+	ComPtr<ID3D11DeviceContext> _d3dDC;
+	ComPtr<ID3D11Device> _d3dDevice;
 
 	ID3D11ShaderResourceView* _renderTargetSrv = nullptr;
 	ID3D11RenderTargetView* _rtv = nullptr;

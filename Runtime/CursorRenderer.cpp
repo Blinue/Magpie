@@ -128,7 +128,7 @@ CursorRenderer::~CursorRenderer() {
 	if (App::GetInstance().IsAdjustCursorSpeed()) {
 		SystemParametersInfo(SPI_SETMOUSESPEED, 0, (PVOID)(intptr_t)_cursorSpeed, 0);
 	}
-
+	
 	MagShowSystemCursor(TRUE);
 
 	SPDLOG_LOGGER_INFO(logger, "CursorRenderer 已析构");
