@@ -69,7 +69,7 @@ bool Renderer::InitializeEffectsAndCursor() {
 
 void Renderer::Render() {
 	if (!_waitingForNextFrame) {
-		WaitForSingleObject(_frameLatencyWaitableObject, 1000);
+		WaitForSingleObjectEx(_frameLatencyWaitableObject, 1000, TRUE);
 	}
 
 	if (!_CheckSrcState()) {
@@ -96,8 +96,8 @@ void Renderer::Render() {
 	}
 	
 	_cursorRenderer.Draw();
-	
-	_dxgiSwapChain->Present(0, 0);
+
+	_dxgiSwapChain->Present(1, 0);
 }
 
 bool Renderer::GetRenderTargetView(ID3D11Texture2D* texture, ID3D11RenderTargetView** result) {
@@ -213,6 +213,7 @@ bool Renderer::_InitD3D() {
 #endif
 
 		D3D_FEATURE_LEVEL featureLevels[] = {
+			D3D_FEATURE_LEVEL_11_1,
 			D3D_FEATURE_LEVEL_11_0,
 			D3D_FEATURE_LEVEL_10_1,
 			D3D_FEATURE_LEVEL_10_0,
