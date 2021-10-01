@@ -35,6 +35,10 @@ public:
 		return _dxgiDevice;
 	}
 
+	bool IsSupportTearing() const {
+		return _supportTearing;
+	}
+
 	bool GetRenderTargetView(ID3D11Texture2D* texture, ID3D11RenderTargetView** result);
 
 	bool GetShaderResourceView(ID3D11Texture2D* texture, ID3D11ShaderResourceView** result);
@@ -58,6 +62,9 @@ private:
 	ComPtr<ID3D11DeviceContext1> _d3dDC;
 	HANDLE _frameLatencyWaitableObject = NULL;
 	bool _waitingForNextFrame = false;
+
+	bool _supportTearing = false;
+	bool _supportMPO = false;
 
 	ComPtr<ID3D11SamplerState> _linearSampler;
 	ComPtr<ID3D11SamplerState> _pointSampler;

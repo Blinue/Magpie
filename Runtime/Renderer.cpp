@@ -315,6 +315,58 @@ bool Renderer::_InitD3D() {
 		if (FAILED(hr)) {
 			SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("MakeWindowAssociation 失败", hr));
 		}
+
+		// 检查可变帧率支持
+		BOOL supportTearing = FALSE;
+		ComPtr<IDXGIFactory5> dxgiFactory5;
+		hr = dxgiFactory.As<IDXGIFactory5>(&dxgiFactory5);
+		if (FAILED(hr)) {
+			SPDLOG_LOGGER_WARN(logger, MakeComErrorMsg("获取 IDXGIFactory5 失败", hr));
+		} else {
+			hr = dxgiFactory5->CheckFeatureSupport(DXGI_FEATURE_PRESENT_ALLOW_TEARING, &supportTearing, sizeof(supportTearing));
+			if (FAILED(hr)) {
+				SPDLOG_LOGGER_WARN(logger, MakeComErrorMsg("CheckFeatureSupport 失败", hr));
+			}
+		}
+
+		_supportTearing = (bool)supportTearing;
+		SPDLOG_LOGGER_INFO(logger, fmt::format("可变刷新率支持：{}", supportTearing ? "是" : "否"));
+
+		// 检查 Multiplane Overlay 支持
+		BOOL supportMPO = FALSE;
+		ComPtr<IDXGIOutput> output;
+		hr = _dxgiSwapChain->GetContainingOutput(&output);
+		if (FAILED(hr)) {
+			SPDLOG_LOGGER_WARN(logger, MakeComErrorMsg("获取 IDXGIOutput 失败", hr));
+		} else {
+			ComPtr<IDXGIOutput2> output2;
+			hr = output.As<IDXGIOutput2>(&output2);
+			if (FAILED(hr)) {
+				SPDLOG_LOGGER_WARN(logger, MakeComErrorMsg("获取 IDXGIOutput2 失败", hr));
+			} else {
+				supportMPO = output2->SupportsOverlays();
+			}
+		}
+
+		SPDLOG_LOGGER_INFO(logger, fmt::format("Multiplane Overlay 支持：{}", supportMPO ? "是" : "否"));
+
+		// 检查 Hardware Composition 支持
+		BOOL supportHardwareComposition = FALSE;
+		ComPtr<IDXGIOutput6> output6;
+		hr = output.As<IDXGIOutput6>(&output6);
+		if (FAILED(hr)) {
+			SPDLOG_LOGGER_WARN(logger, MakeComErrorMsg("获取 IDXGIOutput6 失败", hr));
+		} else {
+			UINT flags;
+			hr = output6->CheckHardwareCompositionSupport(&flags);
+			if (FAILED(hr)) {
+				SPDLOG_LOGGER_WARN(logger, MakeComErrorMsg("CheckHardwareCompositionSupport 失败", hr));
+			} else {
+				supportHardwareComposition = flags & DXGI_HARDWARE_COMPOSITION_SUPPORT_FLAG_WINDOWED;
+			}
+		}
+
+		SPDLOG_LOGGER_INFO(logger, fmt::format("Hardware Composition 支持：{}", supportHardwareComposition ? "是" : "否"));
 	}
 
 	hr = _dxgiSwapChain->GetBuffer(0, IID_PPV_ARGS(&_backBuffer));
