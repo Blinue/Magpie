@@ -97,7 +97,11 @@ void Renderer::Render() {
 	
 	_cursorRenderer.Draw();
 
-	_dxgiSwapChain->Present(1, 0);
+	if (App::GetInstance().IsNoVsync()) {
+		_dxgiSwapChain->Present(0, DXGI_PRESENT_ALLOW_TEARING);
+	} else {
+		_dxgiSwapChain->Present(1, 0);
+	}
 }
 
 bool Renderer::GetRenderTargetView(ID3D11Texture2D* texture, ID3D11RenderTargetView** result) {
@@ -216,10 +220,7 @@ bool Renderer::_InitD3D() {
 			D3D_FEATURE_LEVEL_11_1,
 			D3D_FEATURE_LEVEL_11_0,
 			D3D_FEATURE_LEVEL_10_1,
-			D3D_FEATURE_LEVEL_10_0,
-			D3D_FEATURE_LEVEL_9_3,
-			D3D_FEATURE_LEVEL_9_2,
-			D3D_FEATURE_LEVEL_9_1,
+			D3D_FEATURE_LEVEL_10_0
 		};
 
 		ComPtr<ID3D11Device> d3dDevice;
@@ -278,16 +279,40 @@ bool Renderer::_InitD3D() {
 			return false;
 		}
 
+		// 检查可变帧率支持
+		BOOL supportTearing = FALSE;
+		ComPtr<IDXGIFactory5> dxgiFactory5;
+		hr = dxgiFactory.As<IDXGIFactory5>(&dxgiFactory5);
+		if (FAILED(hr)) {
+			SPDLOG_LOGGER_WARN(logger, MakeComErrorMsg("获取 IDXGIFactory5 失败", hr));
+		} else {
+			hr = dxgiFactory5->CheckFeatureSupport(DXGI_FEATURE_PRESENT_ALLOW_TEARING, &supportTearing, sizeof(supportTearing));
+			if (FAILED(hr)) {
+				SPDLOG_LOGGER_WARN(logger, MakeComErrorMsg("CheckFeatureSupport 失败", hr));
+			}
+		}
+
+		_supportTearing = (bool)supportTearing;
+		SPDLOG_LOGGER_INFO(logger, fmt::format("可变刷新率支持：{}", supportTearing ? "是" : "否"));
+
+		bool noVsync = App::GetInstance().IsNoVsync();
+		if (noVsync && !supportTearing) {
+			SPDLOG_LOGGER_CRITICAL(logger, "当前显示器不支持可变刷新率，初始化失败");
+			App::GetInstance().SetErrorMsg(ErrorMessages::VSYNC_OFF_NOT_SUPPORTED);
+			return false;
+		}
+
 		DXGI_SWAP_CHAIN_DESC1 sd = {};
 		sd.Width = hostSize.cx;
 		sd.Height = hostSize.cy;
 		sd.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
+		sd.AlphaMode = DXGI_ALPHA_MODE_IGNORE;
 		sd.SampleDesc.Count = 1;
 		sd.SampleDesc.Quality = 0;
 		sd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT | DXGI_USAGE_SHADER_INPUT;
 		sd.BufferCount = 2;
 		sd.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
-		sd.Flags = DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT;
+		sd.Flags = noVsync ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT;
 
 		ComPtr<IDXGISwapChain1> dxgiSwapChain = nullptr;
 		hr = dxgiFactory->CreateSwapChainForHwnd(
@@ -315,22 +340,6 @@ bool Renderer::_InitD3D() {
 		if (FAILED(hr)) {
 			SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("MakeWindowAssociation 失败", hr));
 		}
-
-		// 检查可变帧率支持
-		BOOL supportTearing = FALSE;
-		ComPtr<IDXGIFactory5> dxgiFactory5;
-		hr = dxgiFactory.As<IDXGIFactory5>(&dxgiFactory5);
-		if (FAILED(hr)) {
-			SPDLOG_LOGGER_WARN(logger, MakeComErrorMsg("获取 IDXGIFactory5 失败", hr));
-		} else {
-			hr = dxgiFactory5->CheckFeatureSupport(DXGI_FEATURE_PRESENT_ALLOW_TEARING, &supportTearing, sizeof(supportTearing));
-			if (FAILED(hr)) {
-				SPDLOG_LOGGER_WARN(logger, MakeComErrorMsg("CheckFeatureSupport 失败", hr));
-			}
-		}
-
-		_supportTearing = (bool)supportTearing;
-		SPDLOG_LOGGER_INFO(logger, fmt::format("可变刷新率支持：{}", supportTearing ? "是" : "否"));
 
 		// 检查 Multiplane Overlay 支持
 		BOOL supportMPO = FALSE;

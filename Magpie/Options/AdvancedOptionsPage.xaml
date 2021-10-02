@@ -26,6 +26,5 @@
                 <ComboBoxItem Content="{x:Static p:Resources.UI_Options_Advanced_Logging_Level_Error}" />
             </ComboBox>
         </StackPanel>
-        <CheckBox Content="{x:Static p:Resources.UI_Options_Advanced_Show_Frame_Rate}" Margin="0,20,0,0" IsChecked="{Binding Source={x:Static props:Settings.Default},Path=ShowFPS,Mode=TwoWay}"/>
     </StackPanel>
 </Page>

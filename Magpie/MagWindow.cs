@@ -1,29 +1,32 @@
 using Magpie.Properties;
 using System;
-using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows;
 using System.Windows.Interop;
 
 
 namespace Magpie {
-	// 用于管理全屏窗口，该窗口在一个新线程中启动，通过事件与主线程通信
+	// 用于管理全屏窗口，该窗口在一个新线程中启动
 	internal class MagWindow : IDisposable {
 		private static NLog.Logger Logger { get; } = NLog.LogManager.GetCurrentClassLogger();
 
+		// 全屏窗口关闭时引发此事件
 		public event Action Closed;
 
 		public IntPtr SrcWindow { get; private set; } = IntPtr.Zero;
 
 		private readonly Thread magThread = null;
 
+		// 用于指示 magThread 进入全屏
 		private readonly AutoResetEvent runEvent = new AutoResetEvent(false);
 
+		// 传递给 magThread 的参数
 		private class MagWindowParams {
 			public volatile IntPtr hwndSrc;
 			public volatile int captureMode;
 			public volatile bool adjustCursorSpeed;
 			public volatile bool showFPS;
+			public volatile bool noVsync;
 			public volatile bool exiting = false;
 		}
 
@@ -43,7 +46,9 @@ namespace Magpie {
 				if (!NativeMethods.Initialize()) {
 					// 初始化失败
 					CloseEvent("Msg_Error_Init");
-					parent.Close();
+					parent.Dispatcher.Invoke(() => {
+						parent.Close();
+					});
 					return;
 				}
 
@@ -58,7 +63,8 @@ namespace Magpie {
 						magWindowParams.hwndSrc,
 						magWindowParams.captureMode,
 						magWindowParams.adjustCursorSpeed,
-						magWindowParams.showFPS
+						magWindowParams.showFPS,
+						magWindowParams.noVsync
 					);
 
 					CloseEvent(msg);
@@ -96,7 +102,7 @@ namespace Magpie {
 			int captureMode,
 			bool showFPS,
 			bool adjustCursorSpeed,
-			bool noDisturb = false
+			bool noVsync
 		) {
 			if (Running) {
 				Logger.Info("已存在全屏窗口，取消进入全屏");
@@ -118,6 +124,7 @@ namespace Magpie {
 			magWindowParams.captureMode = captureMode;
 			magWindowParams.showFPS = showFPS;
 			magWindowParams.adjustCursorSpeed = adjustCursorSpeed;
+			magWindowParams.noVsync = noVsync;
 
 			runEvent.Set();
 			Running = true;
@@ -133,7 +140,14 @@ namespace Magpie {
 			_ = NativeMethods.BroadcastMessage(NativeMethods.MAGPIE_WM_DESTORYHOST);
 		}
 
+		bool disposed = false;
+
 		public void Dispose() {
+			if (disposed) {
+				return;
+			}
+			disposed = true;
+
 			magWindowParams.exiting = true;
 
 			if (Running) {

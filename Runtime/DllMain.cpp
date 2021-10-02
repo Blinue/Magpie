@@ -56,10 +56,11 @@ API_DECLSPEC const char* WINAPI Run(
 	HWND hwndSrc,
 	int captureMode,
 	bool adjustCursorSpeed,
-	bool showFPS
+	bool showFPS,
+	bool noVsync
 ) {
 	App& app = App::GetInstance();
-	if (!app.Run(hwndSrc, captureMode, adjustCursorSpeed, showFPS)) {
+	if (!app.Run(hwndSrc, captureMode, adjustCursorSpeed, showFPS, noVsync)) {
 		// 初始化失败
 		SPDLOG_LOGGER_INFO(logger, "App.Run 失败");
 		return app.GetErrorMsg();

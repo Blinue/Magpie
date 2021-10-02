@@ -165,6 +165,15 @@ namespace Magpie.Properties {
         }
         
         /// <summary>
+        ///   查找类似 This monitor does not support turning off VSync. 的本地化字符串。
+        /// </summary>
+        public static string Msg_Error_Vsync_Off_Not_Supported {
+            get {
+                return ResourceManager.GetString("Msg_Error_Vsync_Off_Not_Supported", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Capture Method 的本地化字符串。
         /// </summary>
         public static string UI_Main_Capture_Method {
@@ -462,15 +471,6 @@ namespace Magpie.Properties {
         }
         
         /// <summary>
-        ///   查找类似 Show Frame Rate 的本地化字符串。
-        /// </summary>
-        public static string UI_Options_Advanced_Show_Frame_Rate {
-            get {
-                return ResourceManager.GetString("UI_Options_Advanced_Show_Frame_Rate", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   查找类似 Application 的本地化字符串。
         /// </summary>
         public static string UI_Options_Application {
@@ -543,6 +543,15 @@ namespace Magpie.Properties {
         }
         
         /// <summary>
+        ///   查找类似 Disable Vsync 的本地化字符串。
+        /// </summary>
+        public static string UI_Options_Scale_No_VSync {
+            get {
+                return ResourceManager.GetString("UI_Options_Scale_No_VSync", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Open Scale Config 的本地化字符串。
         /// </summary>
         public static string UI_Options_Scale_Open_Scale_Config {
@@ -557,6 +566,15 @@ namespace Magpie.Properties {
         public static string UI_Options_Scale_Restore_Full_Screen {
             get {
                 return ResourceManager.GetString("UI_Options_Scale_Restore_Full_Screen", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Show Frame Rate 的本地化字符串。
+        /// </summary>
+        public static string UI_Options_Scale_Show_Frame_Rate {
+            get {
+                return ResourceManager.GetString("UI_Options_Scale_Show_Frame_Rate", resourceCulture);
             }
         }
         

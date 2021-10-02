@@ -142,5 +142,17 @@ namespace Magpie.Properties {
                 this["MinimizeWhenClose"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool NoVsync {
+            get {
+                return ((bool)(this["NoVsync"]));
+            }
+            set {
+                this["NoVsync"] = value;
+            }
+        }
     }
 }

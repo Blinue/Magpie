@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -205,7 +205,7 @@
   <data name="UI_Options_Advanced_Logging_Level" xml:space="preserve">
     <value>Уровень регистрации</value>
   </data>
-  <data name="UI_Options_Advanced_Show_Frame_Rate" xml:space="preserve">
+  <data name="UI_Options_Scale_Show_Frame_Rate" xml:space="preserve">
     <value>Показывать частоту кадров</value>
   </data>
   <data name="UI_Options_Application" xml:space="preserve">

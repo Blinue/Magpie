@@ -46,12 +46,14 @@ bool App::Run(
 	HWND hwndSrc,
 	int captureMode,
 	bool adjustCursorSpeed,
-	bool showFPS
+	bool showFPS,
+	bool noVsync
 ) {
 	_hwndSrc = hwndSrc;
 	_captureMode = captureMode;
 	_adjustCursorSpeed = adjustCursorSpeed;
 	_showFPS = showFPS;
+	_noVsync = noVsync;
 	
 	SetErrorMsg(ErrorMessages::GENERIC);
 

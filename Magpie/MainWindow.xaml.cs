@@ -186,12 +186,14 @@ namespace Magpie {
 			bool showFPS = Settings.Default.ShowFPS;
 			int captureMode = Settings.Default.CaptureMode;
 			bool adjustCursorSpeed = Settings.Default.AdjustCursorSpeed;
+			bool noVsync = Settings.Default.NoVsync;
 
 			magWindow.Create(
 				effectsJson,
 				captureMode,
 				showFPS,
-				adjustCursorSpeed
+				adjustCursorSpeed,
+				noVsync
 			);
 
 			prevSrcWindow = magWindow.SrcWindow;

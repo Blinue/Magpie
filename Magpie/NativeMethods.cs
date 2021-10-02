@@ -151,11 +151,18 @@ namespace Magpie {
 			IntPtr hwndSrc,
 			int captureMode,
 			[MarshalAs(UnmanagedType.U1)] bool adjustCursorSpeed,
-			[MarshalAs(UnmanagedType.U1)] bool showFPS
+			[MarshalAs(UnmanagedType.U1)] bool showFPS,
+			[MarshalAs(UnmanagedType.U1)] bool noVsync
 		);
 
-		public static string Run(IntPtr hwndSrc, int captureMode, bool adjustCursorSpeed, bool showFPS) {
-			IntPtr msg = RunNative(hwndSrc, captureMode, adjustCursorSpeed, showFPS);
+		public static string Run(
+			IntPtr hwndSrc,
+			int captureMode,
+			bool adjustCursorSpeed,
+			bool showFPS,
+			bool noVsync
+		) {
+			IntPtr msg = RunNative(hwndSrc, captureMode, adjustCursorSpeed, showFPS, noVsync);
 			return Marshal.PtrToStringAnsi(msg);
 		}
 	}
