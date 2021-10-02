@@ -7,56 +7,75 @@ using System.Windows.Interop;
 
 
 namespace Magpie {
-	internal enum MagWindowStatus : int {
-		Idle = 0,       // 未启动或者已关闭
-		Starting = 1,   // 启动中，此状态下无法执行操作
-		Running = 2     // 运行中
-	}
-
 	// 用于管理全屏窗口，该窗口在一个新线程中启动，通过事件与主线程通信
-	internal class MagWindow {
+	internal class MagWindow : IDisposable {
 		private static NLog.Logger Logger { get; } = NLog.LogManager.GetCurrentClassLogger();
 
 		public event Action Closed;
 
 		public IntPtr SrcWindow { get; private set; } = IntPtr.Zero;
 
-		private Thread magThread = null;
+		private readonly Thread magThread = null;
 
-		// 用于从全屏窗口的线程接收消息
-		private event Action<int, string> StatusEvent;
+		private readonly AutoResetEvent runEvent = new AutoResetEvent(false);
 
-
-		private MagWindowStatus status = MagWindowStatus.Idle;
-		public MagWindowStatus Status {
-			get => status;
-			private set {
-				status = value;
-				if (status == MagWindowStatus.Idle) {
-					magThread = null;
-				}
-			}
+		private class MagWindowParams {
+			public volatile IntPtr hwndSrc;
+			public volatile int captureMode;
+			public volatile bool adjustCursorSpeed;
+			public volatile bool showFPS;
+			public volatile bool exiting = false;
 		}
 
+		private readonly MagWindowParams magWindowParams = new MagWindowParams();
+
+		// 用于从全屏窗口的线程接收消息
+		private event Action<string> CloseEvent;
+
+		public bool Running { get; private set; }
+
 		public MagWindow(Window parent) {
-			StatusEvent += (int status, string errorMsgId) => {
-				if (status < 0 || status > 3) {
+			// 使用 WinRT Capturer API 需要在 MTA 中
+			// C# 窗体必须使用 STA，因此将全屏窗口创建在新的线程里
+			magThread = new Thread(() => {
+				Logger.Info("正在新线程中创建全屏窗口");
+
+				if (!NativeMethods.Initialize()) {
+					// 初始化失败
+					CloseEvent("Msg_Error_Init");
+					parent.Close();
 					return;
 				}
+
+				while (!magWindowParams.exiting) {
+					runEvent.WaitOne();
+
+					if (magWindowParams.exiting) {
+						break;
+					}
+
+					string msg = NativeMethods.Run(
+						magWindowParams.hwndSrc,
+						magWindowParams.captureMode,
+						magWindowParams.adjustCursorSpeed,
+						magWindowParams.showFPS
+					);
+
+					CloseEvent(msg);
+				}
+			});
+
+			magThread.SetApartmentState(ApartmentState.MTA);
+			magThread.Start();
+
+			CloseEvent += (string errorMsgId) => {
 				bool noError = string.IsNullOrEmpty(errorMsgId);
 
-				MagWindowStatus status_ = (MagWindowStatus)status;
-				if (status_ == Status) {
-					return;
+				if (noError && Closed != null) {
+					Closed.Invoke();
 				}
-
-				if (status_ == MagWindowStatus.Idle) {
-					if (noError && Closed != null) {
-						Closed.Invoke();
-					}
-					SrcWindow = IntPtr.Zero;
-				}
-				Status = status_;
+				SrcWindow = IntPtr.Zero;
+				Running = false;
 
 				if (!noError) {
 					parent.Dispatcher.Invoke(new Action(() => {
@@ -79,7 +98,7 @@ namespace Magpie {
 			bool adjustCursorSpeed,
 			bool noDisturb = false
 		) {
-			if (Status != MagWindowStatus.Idle) {
+			if (Running) {
 				Logger.Info("已存在全屏窗口，取消进入全屏");
 				return;
 			}
@@ -93,34 +112,42 @@ namespace Magpie {
 				return;
 			}
 
-			Status = MagWindowStatus.Starting;
-			// 使用 WinRT Capturer API 需要在 MTA 中
-			// C# 窗体必须使用 STA，因此将全屏窗口创建在新的线程里
-			magThread = new Thread(() => {
-				Logger.Info("正在新线程中创建全屏窗口");
-
-				NativeMethods.Run(
-					(int status, IntPtr errorMsg) => StatusEvent(status, Marshal.PtrToStringUni(errorMsg)),
-					hwndSrc,
-					captureMode,
-					adjustCursorSpeed,
-					showFPS
-				);
-			});
-			magThread.SetApartmentState(ApartmentState.MTA);
-			magThread.Start();
-
 			SrcWindow = hwndSrc;
+
+			magWindowParams.hwndSrc = hwndSrc;
+			magWindowParams.captureMode = captureMode;
+			magWindowParams.showFPS = showFPS;
+			magWindowParams.adjustCursorSpeed = adjustCursorSpeed;
+
+			runEvent.Set();
+			Running = true;
 		}
 
 		public void Destory() {
-			if (Status != MagWindowStatus.Running) {
+			if (!Running) {
 				return;
 			}
 
 			// 广播 MAGPIE_WM_DESTORYMAG
 			// 可以在没有全屏窗口句柄的情况下关闭它
 			_ = NativeMethods.BroadcastMessage(NativeMethods.MAGPIE_WM_DESTORYHOST);
+		}
+
+		public void Dispose() {
+			magWindowParams.exiting = true;
+
+			if (Running) {
+				Destory();
+
+				while (Running) {
+					Thread.Sleep(1);
+				}
+			} else {
+				runEvent.Set();
+				Thread.Sleep(1);
+			}
+			
+			runEvent.Dispose();
 		}
 	}
 }

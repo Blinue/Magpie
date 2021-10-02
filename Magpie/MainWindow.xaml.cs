@@ -132,6 +132,8 @@ namespace Magpie {
 		}
 
 		private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e) {
+			magWindow.Dispose();
+
 			if (Settings.Default.MinimizeWhenClose) {
 				WindowState = WindowState.Minimized;
 				e.Cancel = true;
@@ -174,14 +176,9 @@ namespace Magpie {
 				return;
 			}
 
-			if (magWindow.Status == MagWindowStatus.Running) {
+			if (magWindow.Running) {
 				Logger.Info("通过热键退出全屏");
 				magWindow.Destory();
-				return;
-			}
-
-			if (magWindow.Status == MagWindowStatus.Starting) {
-				Logger.Info("全屏窗口正在启动中，忽略切换全屏的请求");
 				return;
 			}
 

@@ -13,19 +13,14 @@ public:
 		return *instance;
 	}
 
-	bool Initialize(
-		HINSTANCE hInst,
+	bool Initialize(HINSTANCE hInst);
+
+	bool Run(
 		HWND hwndSrc,
 		int captureMode,
 		bool adjustCursorSpeed,
 		bool showFPS
 	);
-
-	void Run();
-
-	std::shared_ptr<spdlog::logger> GetLogger() const {
-		return _logger;
-	}
 
 	HINSTANCE GetHInstance() const {
 		return _hInst;
@@ -67,11 +62,11 @@ public:
 		return _captureMode;
 	}
 
-	static const wchar_t* GetErrorMsg() {
+	const char* GetErrorMsg() const {
 		return _errorMsg;
 	}
 
-	static void SetErrorMsg(const wchar_t* errorMsg) {
+	void SetErrorMsg(const char* errorMsg) {
 		_errorMsg = errorMsg;
 	}
 
@@ -79,6 +74,8 @@ public:
 
 private:
 	App() {}
+
+	void _Run();
 
 	void _RegisterHostWndClass() const;
 
@@ -91,7 +88,7 @@ private:
 
 	void _ReleaseResources();
 
-	static const wchar_t* _errorMsg;
+	const char* _errorMsg = ErrorMessages::GENERIC;
 
 	// 全屏窗口类名
 	static constexpr const wchar_t* _HOST_WINDOW_CLASS_NAME = L"Window_Magpie_967EB565-6F73-4E94-AE53-00CC42592A22";
@@ -111,6 +108,4 @@ private:
 	std::unique_ptr<Renderer> _renderer;
 	std::unique_ptr<FrameSourceBase> _frameSource;
 	ComPtr<IWICImagingFactory2> _wicImgFactory;
-
-	std::shared_ptr<spdlog::logger> _logger;
 };

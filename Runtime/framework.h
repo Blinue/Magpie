@@ -1,8 +1,37 @@
 #pragma once
 
 #include "targetver.h"
-#define WIN32_LEAN_AND_MEAN             // 从 Windows 头文件中排除极少使用的内容
-#define NOMINMAX	// 使用标准库的 min 和 max 而不是宏
+
+// 从 Windows 头文件中排除极少使用的内容
+#define WIN32_LEAN_AND_MEAN
+// 使用标准库的 min 和 max 而不是宏
+#define NOMINMAX
+// 排除不需要的 API
+#define NOGDICAPMASKS
+#define NOMENUS
+#define NOICONS
+#define NOKEYSTATES
+#define NOSYSCOMMANDS
+#define NOATOM
+#define NOCLIPBOARD
+#define NOCOLOR
+#define NODRAWTEXT
+#define NOMB
+#define NOMEMMGR
+#define NOMETAFILE
+#define NOOPENFILE
+#define NOSCROLL
+#define NOSERVICE
+#define NOSOUND
+#define NOTEXTMETRIC
+#define NOWH
+#define NOCOMM
+#define NOKANJI
+#define NOHELP
+#define NOPROFILER
+#define NODEFERWINDOWPOS
+#define NOMCX
+
 
 // Windows 头文件
 #include <windows.h>
@@ -13,7 +42,7 @@
 #include <d3dcompiler.h>
 #include <dxgi1_5.h>
 #include <dxgi1_6.h>
-#include <wrl.h>
+#include <wrl/client.h>
 #include <dwmapi.h>
 
 // C++ 运行时头文件

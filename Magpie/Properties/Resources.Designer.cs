@@ -147,11 +147,11 @@ namespace Magpie.Properties {
         }
         
         /// <summary>
-        ///   查找类似 Failed to initialize log. 的本地化字符串。
+        ///   查找类似 Failed to initialize Runtime. 的本地化字符串。
         /// </summary>
-        public static string Msg_Error_Init_Logger {
+        public static string Msg_Error_Init {
             get {
-                return ResourceManager.GetString("Msg_Error_Init_Logger", resourceCulture);
+                return ResourceManager.GetString("Msg_Error_Init", resourceCulture);
             }
         }
         

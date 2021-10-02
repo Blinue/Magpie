@@ -142,15 +142,21 @@ namespace Magpie {
          * Runtime.dll
          */
 
-		public delegate void ReportStatus(int status, IntPtr errorMsg);
-
 		[DllImport("Runtime", CallingConvention = CallingConvention.StdCall)]
-		public static extern void Run(
-			ReportStatus reportStatus,
+		[return: MarshalAs(UnmanagedType.Bool)]
+		public static extern bool Initialize();
+
+		[DllImport("Runtime", EntryPoint = "Run", CallingConvention = CallingConvention.StdCall)]
+		private static extern IntPtr RunNative(
 			IntPtr hwndSrc,
 			int captureMode,
 			[MarshalAs(UnmanagedType.U1)] bool adjustCursorSpeed,
 			[MarshalAs(UnmanagedType.U1)] bool showFPS
 		);
+
+		public static string Run(IntPtr hwndSrc, int captureMode, bool adjustCursorSpeed, bool showFPS) {
+			IntPtr msg = RunNative(hwndSrc, captureMode, adjustCursorSpeed, showFPS);
+			return Marshal.PtrToStringAnsi(msg);
+		}
 	}
 }
