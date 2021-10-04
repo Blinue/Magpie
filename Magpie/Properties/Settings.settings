@@ -32,7 +32,10 @@
     <Setting Name="MinimizeWhenClose" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
-    <Setting Name="FrameRate" Type="System.Int32" Scope="User">
+    <Setting Name="FrameRateLimit" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">60</Value>
+    </Setting>
+    <Setting Name="FrameRateType" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">0</Value>
     </Setting>
   </Settings>

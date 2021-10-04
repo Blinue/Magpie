@@ -5,9 +5,8 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:Magpie.Options"
       xmlns:props="clr-namespace:Magpie.Properties"
-      xmlns:p="clr-namespace:Magpie.Properties;assembly=Magpie"
       mc:Ignorable="d" 
-      d:DesignHeight="200" d:DesignWidth="400">
+      d:DesignHeight="300" d:DesignWidth="400">
     <Page.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -17,10 +16,37 @@
     </Page.Resources>
 
     <StackPanel>
-        <CheckBox Content="{x:Static p:Resources.UI_Options_Scale_Adjust_Cursor_Speed}" IsChecked="{Binding Source={x:Static props:Settings.Default},Path=AdjustCursorSpeed,Mode=TwoWay}"/>
-        <CheckBox Content="{x:Static p:Resources.UI_Options_Scale_Restore_Full_Screen}" Margin="0,20,0,0" IsChecked="{Binding Source={x:Static props:Settings.Default},Path=AutoRestore,Mode=TwoWay}" />
-        <CheckBox Content="{x:Static p:Resources.UI_Options_Scale_Show_Frame_Rate}" Margin="0,20,0,0" IsChecked="{Binding Source={x:Static props:Settings.Default},Path=ShowFPS,Mode=TwoWay}"/>
-        <CheckBox Content="{x:Static p:Resources.UI_Options_Scale_No_VSync}" Margin="0,20,0,0" IsChecked="{Binding Source={x:Static props:Settings.Default}, Path=NoVsync,Mode=TwoWay}" />
-        <Button Content="{x:Static p:Resources.UI_Options_Scale_Open_Scale_Config}" HorizontalAlignment="Left" Margin="0,20,0,0" Click="BtnScale_Click"/>
+        <CheckBox Content="{x:Static props:Resources.UI_Options_Scale_Adjust_Cursor_Speed}" 
+                  IsChecked="{Binding Source={x:Static props:Settings.Default},Path=AdjustCursorSpeed,Mode=TwoWay}"/>
+        <CheckBox Content="{x:Static props:Resources.UI_Options_Scale_Restore_Full_Screen}" 
+                  Margin="0,20,0,0" 
+                  IsChecked="{Binding Source={x:Static props:Settings.Default},Path=AutoRestore,Mode=TwoWay}" />
+        <CheckBox Content="{x:Static props:Resources.UI_Options_Scale_Show_Frame_Rate}" 
+                  Margin="0,20,0,0" 
+                  IsChecked="{Binding Source={x:Static props:Settings.Default},Path=ShowFPS,Mode=TwoWay}"/>
+        <StackPanel Margin="0,20,0,0">
+            <Label Content="帧率" FontWeight="Bold" Padding="0" FontSize="14" />
+            <RadioButton GroupName="FrameRate" 
+                         IsChecked="{Binding Source={x:Static props:Settings.Default},Path=FrameRateType, Converter={StaticResource radioBoolToIntConverter},ConverterParameter=0,Mode=TwoWay}" 
+                         Content="垂直同步" Margin="0,10,0,0" />
+            <RadioButton GroupName="FrameRate" 
+                         IsChecked="{Binding Source={x:Static props:Settings.Default},Path=FrameRateType, Converter={StaticResource radioBoolToIntConverter},ConverterParameter=1,Mode=TwoWay}" 
+                         Content="无限制" Margin="0,10,0,0" />
+            <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                <RadioButton x:Name="rdbLimitFrameRate" GroupName="FrameRate" 
+                             IsChecked="{Binding Source={x:Static props:Settings.Default},Path=FrameRateType, Converter={StaticResource radioBoolToIntConverter},ConverterParameter=2,Mode=TwoWay}" 
+                             Content="限制帧率" VerticalAlignment="Center"  />
+                <Slider x:Name="sldFrameRate" 
+                        IsEnabled="{Binding ElementName=rdbLimitFrameRate, Path=IsChecked,Mode=OneWay}" 
+                        Value="{Binding Source={x:Static props:Settings.Default},Path=FrameRateLimit,Mode=TwoWay}" 
+                        Width="200" Minimum="30" Maximum="120" LargeChange="10" SmallChange="5" Margin="10,0,0,0" 
+                        TickFrequency="5" IsSnapToTickEnabled="True" />
+                <Label IsEnabled="{Binding ElementName=rdbLimitFrameRate, Path=IsChecked,Mode=OneWay}"
+                       Content="{Binding ElementName=sldFrameRate,Path=Value,Mode=OneWay}"
+                       Padding="0" Margin="10,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Center" />
+            </StackPanel>
+        </StackPanel>
+        <Button Content="{x:Static props:Resources.UI_Options_Scale_Open_Scale_Config}" 
+                HorizontalAlignment="Left" Margin="0,20,0,0" Click="BtnScale_Click"/>
     </StackPanel>
 </Page>

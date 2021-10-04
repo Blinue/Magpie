@@ -145,13 +145,25 @@ namespace Magpie.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("0")]
-        public int FrameRate {
+        [global::System.Configuration.DefaultSettingValueAttribute("60")]
+        public int FrameRateLimit {
             get {
-                return ((int)(this["FrameRate"]));
+                return ((int)(this["FrameRateLimit"]));
             }
             set {
-                this["FrameRate"] = value;
+                this["FrameRateLimit"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int FrameRateType {
+            get {
+                return ((int)(this["FrameRateType"]));
+            }
+            set {
+                this["FrameRateType"] = value;
             }
         }
     }

@@ -186,7 +186,21 @@ namespace Magpie {
 			bool showFPS = Settings.Default.ShowFPS;
 			int captureMode = Settings.Default.CaptureMode;
 			bool adjustCursorSpeed = Settings.Default.AdjustCursorSpeed;
-			int frameRate = Settings.Default.FrameRate;
+
+			int frameRate = 0;
+			switch (Settings.Default.FrameRateType) {
+				case 1:
+					// 不限帧率
+					frameRate = -1;
+					break;
+				case 2:
+					// 限制帧率
+					frameRate = Settings.Default.FrameRateLimit;
+					break;
+				default:
+					// 垂直同步
+					break;
+			}
 
 			magWindow.Create(
 				effectsJson,
