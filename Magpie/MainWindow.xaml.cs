@@ -337,6 +337,10 @@ namespace Magpie {
 		private void BtnCancelRestore_Click(object sender, RoutedEventArgs e) {
 			StopWaitingForRestore();
 		}
+
+		public void SetRuntimeLogLevel(int logLevel) {
+			magWindow.SetLogLevel(logLevel);
+		}
 	}
 
 	public class NotifyIconLeftClickCommand : ICommand {

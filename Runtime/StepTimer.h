@@ -46,7 +46,7 @@ public:
 	void ResetElapsedTime();
 
 	// Update timer state, calling the specified Update function the appropriate number of times.
-	void Tick(std::function<bool()> render);
+	void Tick(std::function<void()> render);
 
 private:
 	// Source timing data uses QPC units.
@@ -68,6 +68,4 @@ private:
 	// Members for configuring fixed timestep mode.
 	bool m_isFixedTimeStep = false;
 	uint64_t m_targetElapsedTicks = TicksPerSecond / 60;
-
-	bool _waitingForNextFrame = false;
 };

@@ -144,7 +144,10 @@ namespace Magpie {
 
 		[DllImport("Runtime", CallingConvention = CallingConvention.StdCall)]
 		[return: MarshalAs(UnmanagedType.Bool)]
-		public static extern bool Initialize();
+		public static extern bool Initialize(int logLevel);
+
+		[DllImport("Runtime", CallingConvention = CallingConvention.StdCall)]
+		public static extern void SetLogLevel(int logLevel);
 
 		[DllImport("Runtime", EntryPoint = "Run", CallingConvention = CallingConvention.StdCall)]
 		private static extern IntPtr RunNative(

@@ -20,14 +20,20 @@ namespace Magpie {
 		// 用于指示 magThread 进入全屏
 		private readonly AutoResetEvent runEvent = new AutoResetEvent(false);
 
+		private enum MagWindowCmd {
+			Run,
+			Exit,
+			SetLogLevel
+		}
+
 		// 传递给 magThread 的参数
 		private class MagWindowParams {
 			public volatile IntPtr hwndSrc;
 			public volatile int captureMode;
 			public volatile bool adjustCursorSpeed;
 			public volatile bool showFPS;
-			public volatile int frameRate;
-			public volatile bool exiting = false;
+			public volatile int frameRateOrLogLevel;
+			public volatile MagWindowCmd cmd = MagWindowCmd.Run;
 		}
 
 		private readonly MagWindowParams magWindowParams = new MagWindowParams();
@@ -43,7 +49,21 @@ namespace Magpie {
 			magThread = new Thread(() => {
 				Logger.Info("正在新线程中创建全屏窗口");
 
-				if (!NativeMethods.Initialize()) {
+				int ResolveLogLevel(int logLevel) {
+					switch (logLevel) {
+						case 1:
+							return 2;
+						case 2:
+							return 3;
+						case 3:
+							return 4;
+						default:
+							return 6;
+					}
+				}
+
+
+				if (!NativeMethods.Initialize(ResolveLogLevel(Settings.Default.LoggingLevel))) {
 					// 初始化失败
 					CloseEvent("Msg_Error_Init");
 					parent.Dispatcher.Invoke(() => {
@@ -52,22 +72,26 @@ namespace Magpie {
 					return;
 				}
 
-				while (!magWindowParams.exiting) {
-					runEvent.WaitOne();
+				while (magWindowParams.cmd != MagWindowCmd.Exit) {
+					_ = runEvent.WaitOne();
 
-					if (magWindowParams.exiting) {
+					if (magWindowParams.cmd == MagWindowCmd.Exit) {
 						break;
 					}
 
-					string msg = NativeMethods.Run(
-						magWindowParams.hwndSrc,
-						magWindowParams.captureMode,
-						magWindowParams.adjustCursorSpeed,
-						magWindowParams.showFPS,
-						magWindowParams.frameRate
-					);
+					if (magWindowParams.cmd == MagWindowCmd.SetLogLevel) {
+						NativeMethods.SetLogLevel(ResolveLogLevel(magWindowParams.frameRateOrLogLevel));
+					} else {
+						string msg = NativeMethods.Run(
+							magWindowParams.hwndSrc,
+							magWindowParams.captureMode,
+							magWindowParams.adjustCursorSpeed,
+							magWindowParams.showFPS,
+							magWindowParams.frameRateOrLogLevel
+						);
 
-					CloseEvent(msg);
+						CloseEvent(msg);
+					}
 				}
 			});
 
@@ -120,14 +144,22 @@ namespace Magpie {
 
 			SrcWindow = hwndSrc;
 
+			magWindowParams.cmd = MagWindowCmd.Run;
 			magWindowParams.hwndSrc = hwndSrc;
 			magWindowParams.captureMode = captureMode;
 			magWindowParams.showFPS = showFPS;
 			magWindowParams.adjustCursorSpeed = adjustCursorSpeed;
-			magWindowParams.frameRate = frameRate;
+			magWindowParams.frameRateOrLogLevel = frameRate;
 
-			runEvent.Set();
+			_ = runEvent.Set();
 			Running = true;
+		}
+
+		public void SetLogLevel(int logLevel) {
+			magWindowParams.cmd = MagWindowCmd.SetLogLevel;
+			magWindowParams.frameRateOrLogLevel = logLevel;
+
+			_ = runEvent.Set();
 		}
 
 		public void Destory() {
@@ -140,7 +172,7 @@ namespace Magpie {
 			_ = NativeMethods.BroadcastMessage(NativeMethods.MAGPIE_WM_DESTORYHOST);
 		}
 
-		bool disposed = false;
+		private bool disposed = false;
 
 		public void Dispose() {
 			if (disposed) {
@@ -148,7 +180,7 @@ namespace Magpie {
 			}
 			disposed = true;
 
-			magWindowParams.exiting = true;
+			magWindowParams.cmd = MagWindowCmd.Exit;
 
 			if (Running) {
 				Destory();
@@ -157,10 +189,10 @@ namespace Magpie {
 					Thread.Sleep(1);
 				}
 			} else {
-				runEvent.Set();
+				_ = runEvent.Set();
 				Thread.Sleep(1);
 			}
-			
+
 			runEvent.Dispose();
 		}
 	}

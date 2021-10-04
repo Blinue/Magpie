@@ -255,6 +255,15 @@
   <data name="UI_Options_Scale_Adjust_Cursor_Speed" xml:space="preserve">
     <value>缩放时调整光标速度</value>
   </data>
+  <data name="UI_Options_Scale_Frame_Rate" xml:space="preserve">
+    <value>帧率</value>
+  </data>
+  <data name="UI_Options_Scale_Frame_Rate_Limiter" xml:space="preserve">
+    <value>限制帧率</value>
+  </data>
+  <data name="UI_Options_Scale_Frame_Rate_Not_Limited" xml:space="preserve">
+    <value>无限制</value>
+  </data>
   <data name="UI_Options_Scale_No_VSync" xml:space="preserve">
     <value>关闭垂直同步</value>
   </data>
@@ -266,6 +275,9 @@
   </data>
   <data name="UI_Options_Scale_Show_Frame_Rate" xml:space="preserve">
     <value>显示帧率</value>
+  </data>
+  <data name="UI_Options_Scale_VSync" xml:space="preserve">
+    <value>垂直同步</value>
   </data>
   <data name="UI_Options_Title" xml:space="preserve">
     <value>Magpie 选项</value>

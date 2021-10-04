@@ -30,17 +30,31 @@ BOOL APIENTRY DllMain(
 	return TRUE;
 }
 
-API_DECLSPEC BOOL WINAPI Initialize() {
+// 日志级别：
+// 0：TRACE，1：DEBUG，...，6：OFF
+API_DECLSPEC void WINAPI SetLogLevel(int logLevel) {
+	assert(logger);
+
+	logger->flush();
+	logger->set_level((spdlog::level::level_enum)logLevel);
+	static const char* LOG_LEVELS[7] = { "TRACE", "DEBUG", "INFO", "WARN", "ERROR", "CRITICAL", "OFF" };
+	SPDLOG_LOGGER_INFO(logger, fmt::format("当前日志级别：{}", LOG_LEVELS[logLevel]));
+}
+
+
+API_DECLSPEC BOOL WINAPI Initialize(int logLevel) {
+	// 初始化日志
 	try {
 		logger = spdlog::rotating_logger_mt(".", "logs/Runtime.log", 100000, 1);
-		logger->set_level(spdlog::level::info);
+		logger->set_level((spdlog::level::level_enum)logLevel);
 		logger->set_pattern("%Y-%m-%d %H:%M:%S.%e|%l|%s:%!|%v");
 		logger->flush_on(spdlog::level::warn);
 		spdlog::flush_every(std::chrono::seconds(5));
 	} catch (const spdlog::spdlog_ex&) {
-		// 初始化日志失败
 		return FALSE;
 	}
+
+	SetLogLevel(logLevel);
 
 	// 初始化 App
 	App& app = App::GetInstance();
@@ -50,7 +64,6 @@ API_DECLSPEC BOOL WINAPI Initialize() {
 
 	return TRUE;
 }
-
 
 API_DECLSPEC const char* WINAPI Run(
 	HWND hwndSrc,

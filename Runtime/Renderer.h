@@ -61,7 +61,7 @@ private:
 
 	bool _CheckSrcState();
 
-	bool _Render();
+	void _Render();
 
 	ComPtr<ID3D11Device1> _d3dDevice;
 	ComPtr<IDXGIDevice1> _dxgiDevice;

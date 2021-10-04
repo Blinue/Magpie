@@ -543,6 +543,33 @@ namespace Magpie.Properties {
         }
         
         /// <summary>
+        ///   查找类似 Frame Rate 的本地化字符串。
+        /// </summary>
+        public static string UI_Options_Scale_Frame_Rate {
+            get {
+                return ResourceManager.GetString("UI_Options_Scale_Frame_Rate", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Limiter 的本地化字符串。
+        /// </summary>
+        public static string UI_Options_Scale_Frame_Rate_Limiter {
+            get {
+                return ResourceManager.GetString("UI_Options_Scale_Frame_Rate_Limiter", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Not Limited 的本地化字符串。
+        /// </summary>
+        public static string UI_Options_Scale_Frame_Rate_Not_Limited {
+            get {
+                return ResourceManager.GetString("UI_Options_Scale_Frame_Rate_Not_Limited", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Disable Vsync 的本地化字符串。
         /// </summary>
         public static string UI_Options_Scale_No_VSync {
@@ -575,6 +602,15 @@ namespace Magpie.Properties {
         public static string UI_Options_Scale_Show_Frame_Rate {
             get {
                 return ResourceManager.GetString("UI_Options_Scale_Show_Frame_Rate", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 VSync 的本地化字符串。
+        /// </summary>
+        public static string UI_Options_Scale_VSync {
+            get {
+                return ResourceManager.GetString("UI_Options_Scale_VSync", resourceCulture);
             }
         }
         

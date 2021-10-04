@@ -24,12 +24,7 @@ void StepTimer::ResetElapsedTime() {
 	m_qpcSecondCounter = 0;
 }
 
-void StepTimer::Tick(std::function<bool()> render) {
-    if (_waitingForNextFrame) {
-        _waitingForNextFrame = !render();
-        return;
-    }
-
+void StepTimer::Tick(std::function<void()> render) {
     // Query the current time.
     LARGE_INTEGER currentTime;
 
@@ -74,7 +69,7 @@ void StepTimer::Tick(std::function<bool()> render) {
             m_leftOverTicks %= m_targetElapsedTicks;
 
             m_frameCount++;
-            _waitingForNextFrame = !render();
+            render();
         }
     } else {
         // Variable timestep update logic.
@@ -83,7 +78,7 @@ void StepTimer::Tick(std::function<bool()> render) {
         m_leftOverTicks = 0;
         m_frameCount++;
 
-        _waitingForNextFrame = !render();
+        render();
     }
 
     // Track the current framerate.

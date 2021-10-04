@@ -79,7 +79,11 @@ bool Renderer::InitializeEffectsAndCursor() {
 
 
 void Renderer::Render() {
-	_timer.Tick(std::bind(&Renderer::_Render, this));
+	if (_waitingForNextFrame) {
+		_Render();
+	} else {
+		_timer.Tick(std::bind(&Renderer::_Render, this));
+	}
 }
 
 bool Renderer::GetRenderTargetView(ID3D11Texture2D* texture, ID3D11RenderTargetView** result) {
@@ -375,7 +379,7 @@ bool Renderer::_InitD3D() {
 	return true;
 }
 
-bool Renderer::_Render() {
+void Renderer::_Render() {
 	int frameRate = App::GetInstance().GetFrameRate();
 
 	if (!_waitingForNextFrame && frameRate == 0) {
@@ -385,12 +389,12 @@ bool Renderer::_Render() {
 	if (!_CheckSrcState()) {
 		SPDLOG_LOGGER_INFO(logger, "源窗口状态改变，退出全屏");
 		DestroyWindow(App::GetInstance().GetHwndHost());
-		return true;
+		return;
 	}
 
 	_waitingForNextFrame = !App::GetInstance().GetFrameSource().Update();
 	if (_waitingForNextFrame) {
-		return false;
+		return;
 	}
 
 	_d3dDC->ClearState();
@@ -412,8 +416,6 @@ bool Renderer::_Render() {
 	} else {
 		_dxgiSwapChain->Present(1, 0);
 	}
-
-	return true;
 }
 
 bool Renderer::_CheckSrcState() {

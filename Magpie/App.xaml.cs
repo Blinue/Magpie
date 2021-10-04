@@ -23,7 +23,7 @@ namespace Magpie {
 
 		private static Mutex mutex = new Mutex(true, "{4C416227-4A30-4A2F-8F23-8701544DD7D6}");
 
-		public static void UpdateLoggingLevel(int logLevel) {
+		public static void SetLogLevel(int logLevel) {
 			LogLevel minLogLevel = LogLevel.Info;
 			switch (logLevel) {
 				case 0:
@@ -51,7 +51,7 @@ namespace Magpie {
 		}
 
 		private void Application_Startup(object sender, StartupEventArgs e) {
-			UpdateLoggingLevel(Settings.Default.LoggingLevel);
+			SetLogLevel(Settings.Default.LoggingLevel);
 
 			Logger.Info($"程序启动\n\t进程 ID：{Process.GetCurrentProcess().Id}\n\tMagpie 版本：{APP_VERSION}\n\tOS 版本：{NativeMethods.GetOSVersion()}");
 
