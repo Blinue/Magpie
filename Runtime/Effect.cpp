@@ -311,7 +311,7 @@ bool Effect::_Pass::Build(const std::vector<int>& inputs, int output, std::optio
 	float outputLeft, outputTop, outputRight, outputBottom;
 	if (outputSize.has_value() && (outputTextureSize.cx != outputSize->cx || outputTextureSize.cy != outputSize->cy)) {
 		outputLeft = std::floorf(((float)outputTextureSize.cx - outputSize->cx) / 2) * 2 / outputTextureSize.cx - 1;
-		outputTop = 1 - std::ceilf(((float)outputTextureSize.cy - outputSize->cy) / 2) * 2 / outputTextureSize.cy;
+		outputTop = 1 - std::floorf(((float)outputTextureSize.cy - outputSize->cy) / 2) * 2 / outputTextureSize.cy;
 		outputRight = outputLeft + 2 * outputSize->cx / (float)outputTextureSize.cx;
 		outputBottom = outputTop - 2 * outputSize->cy / (float)outputTextureSize.cy;
 

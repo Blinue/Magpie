@@ -7,7 +7,7 @@
 #include "pch.h"
 
 
-// Helper class for animation and simulation timing.
+// 帧率限制器
 class StepTimer {
 public:
 	StepTimer();
