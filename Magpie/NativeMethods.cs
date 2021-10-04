@@ -152,7 +152,7 @@ namespace Magpie {
 			int captureMode,
 			[MarshalAs(UnmanagedType.U1)] bool adjustCursorSpeed,
 			[MarshalAs(UnmanagedType.U1)] bool showFPS,
-			[MarshalAs(UnmanagedType.U1)] bool noVsync
+			int frameRate
 		);
 
 		public static string Run(
@@ -160,9 +160,9 @@ namespace Magpie {
 			int captureMode,
 			bool adjustCursorSpeed,
 			bool showFPS,
-			bool noVsync
+			int frameRate
 		) {
-			IntPtr msg = RunNative(hwndSrc, captureMode, adjustCursorSpeed, showFPS, noVsync);
+			IntPtr msg = RunNative(hwndSrc, captureMode, adjustCursorSpeed, showFPS, frameRate);
 			return Marshal.PtrToStringAnsi(msg);
 		}
 	}

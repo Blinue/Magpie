@@ -4,6 +4,7 @@
 #include "CursorRenderer.h"
 #include "FrameRateRenderer.h"
 #include <CommonStates.h>
+#include "StepTimer.h"
 
 
 class Renderer {
@@ -31,12 +32,8 @@ public:
 		return _d3dDC;
 	}
 
-	ComPtr<IDXGIDevice3> GetDXGIDevice() const {
+	ComPtr<IDXGIDevice1> GetDXGIDevice() const {
 		return _dxgiDevice;
-	}
-
-	bool IsSupportTearing() const {
-		return _supportTearing;
 	}
 
 	bool GetRenderTargetView(ID3D11Texture2D* texture, ID3D11RenderTargetView** result);
@@ -51,20 +48,27 @@ public:
 
 	bool SetAlphaBlend(bool enable);
 
+	StepTimer& GetTimer() {
+		return _timer;
+	}
+
+	const StepTimer& GetTimer() const {
+		return _timer;
+	}
+
 private:
 	bool _InitD3D();
 
 	bool _CheckSrcState();
 
+	bool _Render();
+
 	ComPtr<ID3D11Device1> _d3dDevice;
-	ComPtr<IDXGIDevice4> _dxgiDevice;
-	ComPtr<IDXGISwapChain4> _dxgiSwapChain;
+	ComPtr<IDXGIDevice1> _dxgiDevice;
+	ComPtr<IDXGISwapChain2> _dxgiSwapChain;
 	ComPtr<ID3D11DeviceContext1> _d3dDC;
 	HANDLE _frameLatencyWaitableObject = NULL;
 	bool _waitingForNextFrame = false;
-
-	bool _supportTearing = false;
-	bool _supportMPO = false;
 
 	ComPtr<ID3D11SamplerState> _linearSampler;
 	ComPtr<ID3D11SamplerState> _pointSampler;
@@ -83,4 +87,6 @@ private:
 
 	CursorRenderer _cursorRenderer;
 	FrameRateRenderer _frameRateRenderer;
+
+	StepTimer _timer;
 };

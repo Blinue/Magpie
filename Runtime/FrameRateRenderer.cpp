@@ -24,42 +24,16 @@ bool FrameRateRenderer::Initialize(ComPtr<ID3D11Texture2D> renderTarget, const R
 }
 
 void FrameRateRenderer::Draw() {
-	_ReportNewFrame();
+	const StepTimer& timer = App::GetInstance().GetRenderer().GetTimer();
 
 	_d3dDC->OMSetRenderTargets(1, &_rtv, nullptr);
 	_d3dDC->RSSetViewports(1, &_vp);
 
 	_spriteBatch->Begin(SpriteSortMode::SpriteSortMode_Immediate);
-
 	_spriteFont->DrawString(
 		_spriteBatch.get(),
-		fmt::format("{} FPS", lround(_fps)).c_str(),
+		fmt::format("{} FPS", timer.GetFramesPerSecond()).c_str(),
 		XMFLOAT2(10, 10)
 	);
 	_spriteBatch->End();
-}
-
-bool FrameRateRenderer::_ReportNewFrame() {
-    if (_begin == steady_clock::time_point()) {
-        // 第一帧
-        _lastBegin = _last = _begin = steady_clock::now();
-        return false;
-    }
-
-    ++_allFrameCount;
-
-    auto cur = steady_clock::now();
-    auto ms = duration_cast<milliseconds>(cur - _lastBegin).count();
-    if (ms < 1000) {
-        ++_frameCount;
-        _last = cur;
-        return false;
-    }
-
-    // 已过一秒
-    _fps = _frameCount + double(duration_cast<milliseconds>(cur - _last).count() + 1000 - ms) / 1000;
-    _frameCount += 1 - _fps;
-    _lastBegin = cur;
-
-	return true;
 }

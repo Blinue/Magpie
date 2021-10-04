@@ -44,6 +44,7 @@
 #include <dxgi1_6.h>
 #include <wrl/client.h>
 #include <dwmapi.h>
+#include <profileapi.h>
 
 // C++ 运行时头文件
 #include <string>

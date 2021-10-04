@@ -40,6 +40,7 @@
     <ClCompile Include="FrameRateRenderer.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="StepTimer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -91,6 +92,9 @@
       <Filter>捕获</Filter>
     </ClInclude>
     <ClInclude Include="FrameRateRenderer.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="StepTimer.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

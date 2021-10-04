@@ -26,7 +26,7 @@ namespace Magpie {
 			public volatile int captureMode;
 			public volatile bool adjustCursorSpeed;
 			public volatile bool showFPS;
-			public volatile bool noVsync;
+			public volatile int frameRate;
 			public volatile bool exiting = false;
 		}
 
@@ -64,7 +64,7 @@ namespace Magpie {
 						magWindowParams.captureMode,
 						magWindowParams.adjustCursorSpeed,
 						magWindowParams.showFPS,
-						magWindowParams.noVsync
+						magWindowParams.frameRate
 					);
 
 					CloseEvent(msg);
@@ -102,7 +102,7 @@ namespace Magpie {
 			int captureMode,
 			bool showFPS,
 			bool adjustCursorSpeed,
-			bool noVsync
+			int frameRate
 		) {
 			if (Running) {
 				Logger.Info("已存在全屏窗口，取消进入全屏");
@@ -124,7 +124,7 @@ namespace Magpie {
 			magWindowParams.captureMode = captureMode;
 			magWindowParams.showFPS = showFPS;
 			magWindowParams.adjustCursorSpeed = adjustCursorSpeed;
-			magWindowParams.noVsync = noVsync;
+			magWindowParams.frameRate = frameRate;
 
 			runEvent.Set();
 			Running = true;

@@ -145,13 +145,13 @@ namespace Magpie.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool NoVsync {
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int FrameRate {
             get {
-                return ((bool)(this["NoVsync"]));
+                return ((int)(this["FrameRate"]));
             }
             set {
-                this["NoVsync"] = value;
+                this["FrameRate"] = value;
             }
         }
     }

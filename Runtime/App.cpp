@@ -47,13 +47,13 @@ bool App::Run(
 	int captureMode,
 	bool adjustCursorSpeed,
 	bool showFPS,
-	bool noVsync
+	int frameRate
 ) {
 	_hwndSrc = hwndSrc;
 	_captureMode = captureMode;
 	_adjustCursorSpeed = adjustCursorSpeed;
 	_showFPS = showFPS;
-	_noVsync = noVsync;
+	_frameRate = frameRate;
 	
 	SetErrorMsg(ErrorMessages::GENERIC);
 

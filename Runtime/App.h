@@ -20,7 +20,7 @@ public:
 		int captureMode,
 		bool adjustCursorSpeed,
 		bool showFPS,
-		bool noVsync
+		int frameRate
 	);
 
 	HINSTANCE GetHInstance() const {
@@ -63,8 +63,8 @@ public:
 		return _captureMode;
 	}
 
-	bool IsNoVsync() const {
-		return _noVsync;
+	int GetFrameRate() const {
+		return _frameRate;
 	}
 
 	const char* GetErrorMsg() const {
@@ -109,7 +109,7 @@ private:
 	int _captureMode = 0;
 	bool _adjustCursorSpeed = false;
 	bool _showFPS = false;
-	bool _noVsync = false;
+	int _frameRate = 0;
 
 	std::unique_ptr<Renderer> _renderer;
 	std::unique_ptr<FrameSourceBase> _frameSource;
