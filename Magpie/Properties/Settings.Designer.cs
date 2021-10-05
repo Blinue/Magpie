@@ -166,5 +166,17 @@ namespace Magpie.Properties {
                 this["FrameRateType"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool DisableRoundCorner {
+            get {
+                return ((bool)(this["DisableRoundCorner"]));
+            }
+            set {
+                this["DisableRoundCorner"] = value;
+            }
+        }
     }
 }

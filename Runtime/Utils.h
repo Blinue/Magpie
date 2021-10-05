@@ -29,4 +29,8 @@ public:
 	static bool ReadTextFile(const wchar_t* fileName, std::string& result);
 
 	static bool CompilePixelShader(const char* hlsl, size_t hlslLen, ID3DBlob** blob);
+
+	static const RTL_OSVERSIONINFOW& GetOSVersion();
+
+	static int CompareVersion(int major1, int minor1, int build1, int major2, int minor2, int build2);
 };

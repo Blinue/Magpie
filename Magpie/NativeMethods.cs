@@ -116,15 +116,20 @@ namespace Magpie {
 		[DllImport("ntdll.dll", SetLastError = true)]
 		private static extern uint RtlGetVersion(ref OsVersionInfo versionInformation);
 
+		private static Version version = null;
 		public static Version GetOSVersion() {
-			OsVersionInfo osVersionInfo = new OsVersionInfo();
-			osVersionInfo.dwOSVersionInfoSize = (uint)Marshal.SizeOf(osVersionInfo);
-			_ = RtlGetVersion(ref osVersionInfo);
-			return new Version(
-				(int)osVersionInfo.dwMajorVersion,
-				(int)osVersionInfo.dwMinorVersion,
-				(int)osVersionInfo.dwBuildNumber
+			if (version == null) {
+				OsVersionInfo osVersionInfo = new OsVersionInfo();
+				osVersionInfo.dwOSVersionInfoSize = (uint)Marshal.SizeOf(osVersionInfo);
+				_ = RtlGetVersion(ref osVersionInfo);
+				version = new Version(
+					(int)osVersionInfo.dwMajorVersion,
+					(int)osVersionInfo.dwMinorVersion,
+					(int)osVersionInfo.dwBuildNumber
 				);
+			}
+
+			return version;
 		}
 
 		private static readonly int LOCALE_NAME_MAX_LENGTH = 85;
@@ -155,6 +160,7 @@ namespace Magpie {
 			int captureMode,
 			[MarshalAs(UnmanagedType.U1)] bool adjustCursorSpeed,
 			[MarshalAs(UnmanagedType.U1)] bool showFPS,
+			[MarshalAs(UnmanagedType.U1)] bool disableRoundCorner,
 			int frameRate
 		);
 
@@ -163,9 +169,10 @@ namespace Magpie {
 			int captureMode,
 			bool adjustCursorSpeed,
 			bool showFPS,
+			bool disableRoundCorner,
 			int frameRate
 		) {
-			IntPtr msg = RunNative(hwndSrc, captureMode, adjustCursorSpeed, showFPS, frameRate);
+			IntPtr msg = RunNative(hwndSrc, captureMode, adjustCursorSpeed, showFPS, disableRoundCorner, frameRate);
 			return Marshal.PtrToStringAnsi(msg);
 		}
 	}

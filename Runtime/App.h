@@ -20,6 +20,7 @@ public:
 		int captureMode,
 		bool adjustCursorSpeed,
 		bool showFPS,
+		bool disableRoundCorner,
 		int frameRate
 	);
 

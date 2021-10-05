@@ -47,6 +47,7 @@ bool App::Run(
 	int captureMode,
 	bool adjustCursorSpeed,
 	bool showFPS,
+	bool disableRoundCorner,
 	int frameRate
 ) {
 	_hwndSrc = hwndSrc;
@@ -113,7 +114,31 @@ bool App::Run(
 		return false;
 	}
 
+	const auto& version = Utils::GetOSVersion();
+	bool isWin11 = Utils::CompareVersion(
+		version.dwMajorVersion, version.dwMinorVersion,
+		version.dwBuildNumber, 10, 0, 22000) >= 0;
+
+	if (disableRoundCorner && isWin11) {
+		INT attr = DWM_WINDOW_CORNER_PREFERENCE::DWMWCP_DONOTROUND;
+		HRESULT hr = DwmSetWindowAttribute(hwndSrc, DWMWINDOWATTRIBUTE::DWMWA_WINDOW_CORNER_PREFERENCE, &attr, sizeof(attr));
+		if (FAILED(hr)) {
+			SPDLOG_LOGGER_ERROR(logger, "禁用窗口圆角失败");
+			disableRoundCorner = false;
+		} else {
+			SPDLOG_LOGGER_INFO(logger, "已禁用窗口圆角");
+		}
+	}
+
 	_Run();
+
+	if (disableRoundCorner && isWin11) {
+		INT attr = DWM_WINDOW_CORNER_PREFERENCE::DWMWCP_DEFAULT;
+		DwmSetWindowAttribute(hwndSrc, DWMWINDOWATTRIBUTE::DWMWA_WINDOW_CORNER_PREFERENCE, &attr, sizeof(attr));
+
+		SPDLOG_LOGGER_INFO(logger, "已取消禁用窗口圆角");
+	}
+
 	return true;
 }
 

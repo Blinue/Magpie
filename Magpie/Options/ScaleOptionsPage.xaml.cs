@@ -15,6 +15,10 @@ namespace Magpie.Options {
 
 		public ScaleOptionsPage() {
 			InitializeComponent();
+
+			if (NativeMethods.GetOSVersion() < new Version(10, 0, 22000)) {
+				ccbDisableRoundCorner.Visibility = Visibility.Collapsed;
+			}
 		}
 
 		private void BtnScale_Click(object sender, RoutedEventArgs e) {

@@ -32,6 +32,7 @@ namespace Magpie {
 			public volatile int captureMode;
 			public volatile bool adjustCursorSpeed;
 			public volatile bool showFPS;
+			public volatile bool disableRoundCorner;
 			public volatile int frameRateOrLogLevel;
 			public volatile MagWindowCmd cmd = MagWindowCmd.Run;
 		}
@@ -87,6 +88,7 @@ namespace Magpie {
 							magWindowParams.captureMode,
 							magWindowParams.adjustCursorSpeed,
 							magWindowParams.showFPS,
+							magWindowParams.disableRoundCorner,
 							magWindowParams.frameRateOrLogLevel
 						);
 
@@ -126,6 +128,7 @@ namespace Magpie {
 			int captureMode,
 			bool showFPS,
 			bool adjustCursorSpeed,
+			bool disableRoundCorner,
 			int frameRate
 		) {
 			if (Running) {
@@ -149,6 +152,7 @@ namespace Magpie {
 			magWindowParams.captureMode = captureMode;
 			magWindowParams.showFPS = showFPS;
 			magWindowParams.adjustCursorSpeed = adjustCursorSpeed;
+			magWindowParams.disableRoundCorner = disableRoundCorner;
 			magWindowParams.frameRateOrLogLevel = frameRate;
 
 			_ = runEvent.Set();

@@ -255,6 +255,9 @@
   <data name="UI_Options_Scale_Adjust_Cursor_Speed" xml:space="preserve">
     <value>缩放时调整光标速度</value>
   </data>
+  <data name="UI_Options_Scale_Disable_Round_Corner" xml:space="preserve">
+    <value>缩放时禁用窗口圆角</value>
+  </data>
   <data name="UI_Options_Scale_Frame_Rate" xml:space="preserve">
     <value>帧率</value>
   </data>

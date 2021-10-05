@@ -4,6 +4,7 @@
 
 #include "pch.h"
 #include "App.h"
+#include "Utils.h"
 
 
 static HINSTANCE hInst = NULL;
@@ -70,12 +71,17 @@ API_DECLSPEC const char* WINAPI Run(
 	int captureMode,
 	bool adjustCursorSpeed,
 	bool showFPS,
+	bool disableRoundCorner,
 	int frameRate	// 0：垂直同步，负数：不限帧率，正数：限制的帧率
 ) {
-	SPDLOG_LOGGER_INFO(logger, fmt::format("运行时参数：\n\thwndSrc：{}\n\tcaptureMode：{}\n\tadjustCursorSpeed：{}\n\tshowFPS：{}\n\tframeRate：{}", (void*)hwndSrc, captureMode, adjustCursorSpeed, showFPS, frameRate));
+	SPDLOG_LOGGER_INFO(logger, fmt::format("运行时参数：\n\thwndSrc：{}\n\tcaptureMode：{}\n\tadjustCursorSpeed：{}\n\tshowFPS：{}\n\tdisableRoundCorner：{}\n\tframeRate：{}", (void*)hwndSrc, captureMode, adjustCursorSpeed, showFPS, disableRoundCorner, frameRate));
+
+	const auto& version = Utils::GetOSVersion();
+	SPDLOG_LOGGER_INFO(logger, fmt::format("OS 版本：{}.{}.{}",
+		version.dwMajorVersion, version.dwMinorVersion, version.dwBuildNumber));
 
 	App& app = App::GetInstance();
-	if (!app.Run(hwndSrc, captureMode, adjustCursorSpeed, showFPS, frameRate)) {
+	if (!app.Run(hwndSrc, captureMode, adjustCursorSpeed, showFPS, disableRoundCorner, frameRate)) {
 		// 初始化失败
 		SPDLOG_LOGGER_INFO(logger, "App.Run 失败");
 		return app.GetErrorMsg();

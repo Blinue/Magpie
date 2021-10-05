@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -182,9 +182,6 @@
   <data name="UI_Main_Title" xml:space="preserve">
     <value>Magpie</value>
   </data>
-  <data name="UI_Options_Scale_Frame_Rate_Not_Limited" xml:space="preserve">
-    <value>Not Limited</value>
-  </data>
   <data name="UI_Options_About" xml:space="preserve">
     <value>About</value>
   </data>
@@ -269,11 +266,17 @@
   <data name="UI_Options_Scale_Adjust_Cursor_Speed" xml:space="preserve">
     <value>Adjust cursor speed while zoomed</value>
   </data>
+  <data name="UI_Options_Scale_Disable_Round_Corner" xml:space="preserve">
+    <value>Disable round corner of window while zoomed</value>
+  </data>
   <data name="UI_Options_Scale_Frame_Rate" xml:space="preserve">
     <value>Frame Rate</value>
   </data>
   <data name="UI_Options_Scale_Frame_Rate_Limiter" xml:space="preserve">
     <value>Limiter</value>
+  </data>
+  <data name="UI_Options_Scale_Frame_Rate_Not_Limited" xml:space="preserve">
+    <value>Not Limited</value>
   </data>
   <data name="UI_Options_Scale_No_VSync" xml:space="preserve">
     <value>Disable Vsync</value>

@@ -543,6 +543,15 @@ namespace Magpie.Properties {
         }
         
         /// <summary>
+        ///   查找类似 Disable round corner of window while zoomed 的本地化字符串。
+        /// </summary>
+        public static string UI_Options_Scale_Disable_Round_Corner {
+            get {
+                return ResourceManager.GetString("UI_Options_Scale_Disable_Round_Corner", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Frame Rate 的本地化字符串。
         /// </summary>
         public static string UI_Options_Scale_Frame_Rate {

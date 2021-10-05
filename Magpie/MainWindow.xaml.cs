@@ -186,6 +186,7 @@ namespace Magpie {
 			bool showFPS = Settings.Default.ShowFPS;
 			int captureMode = Settings.Default.CaptureMode;
 			bool adjustCursorSpeed = Settings.Default.AdjustCursorSpeed;
+			bool disableRoundCorner = Settings.Default.DisableRoundCorner;
 
 			int frameRate = 0;
 			switch (Settings.Default.FrameRateType) {
@@ -207,6 +208,7 @@ namespace Magpie {
 				captureMode,
 				showFPS,
 				adjustCursorSpeed,
+				disableRoundCorner,
 				frameRate
 			);
 

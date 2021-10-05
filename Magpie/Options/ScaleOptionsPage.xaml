@@ -24,6 +24,10 @@
         <CheckBox Content="{x:Static props:Resources.UI_Options_Scale_Show_Frame_Rate}" 
                   Margin="0,20,0,0" 
                   IsChecked="{Binding Source={x:Static props:Settings.Default},Path=ShowFPS,Mode=TwoWay}"/>
+        <CheckBox x:Name="ccbDisableRoundCorner"
+                  Content="{x:Static props:Resources.UI_Options_Scale_Disable_Round_Corner}"
+                  Margin="0,20,0,0"
+                  IsChecked="{Binding Source={x:Static props:Settings.Default},Path=DisableRoundCorner,Mode=TwoWay}" />
         <StackPanel Margin="0,20,0,0">
             <Label Content="{x:Static props:Resources.UI_Options_Scale_Frame_Rate}" FontWeight="Bold" Padding="0" FontSize="14" />
             <RadioButton GroupName="FrameRate" 
