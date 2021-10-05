@@ -72,6 +72,8 @@ API_DECLSPEC const char* WINAPI Run(
 	bool showFPS,
 	int frameRate	// 0：垂直同步，负数：不限帧率，正数：限制的帧率
 ) {
+	SPDLOG_LOGGER_INFO(logger, fmt::format("运行时参数：\n\thwndSrc：{}\n\tcaptureMode：{}\n\tadjustCursorSpeed：{}\n\tshowFPS：{}\n\tframeRate：{}", (void*)hwndSrc, captureMode, adjustCursorSpeed, showFPS, frameRate));
+
 	App& app = App::GetInstance();
 	if (!app.Run(hwndSrc, captureMode, adjustCursorSpeed, showFPS, frameRate)) {
 		// 初始化失败
@@ -80,5 +82,7 @@ API_DECLSPEC const char* WINAPI Run(
 	}
 
 	SPDLOG_LOGGER_INFO(logger, "即将退出");
+	logger->flush();
+
 	return nullptr;
 }
