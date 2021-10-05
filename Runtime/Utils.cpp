@@ -167,13 +167,13 @@ const RTL_OSVERSIONINFOW& Utils::GetOSVersion() {
 	if (version.dwMajorVersion == 0) {
 		HMODULE hNtDll = LoadLibrary(L"ntdll.dll");
 		if (hNtDll == NULL) {
-			SPDLOG_LOGGER_CRITICAL(logger, "加载 ntdll.dll 失败");
+			SPDLOG_LOGGER_CRITICAL(logger, MakeWin32ErrorMsg("加载 ntdll.dll 失败"));
 			assert(false);
 		}
 
 		auto rtlGetVersion = (LONG(WINAPI*)(PRTL_OSVERSIONINFOW))GetProcAddress(hNtDll, "RtlGetVersion");
 		if (rtlGetVersion == nullptr) {
-			SPDLOG_LOGGER_CRITICAL(logger, "获取 RtlGetVersion 地址失败");
+			SPDLOG_LOGGER_CRITICAL(logger, MakeWin32ErrorMsg("获取 RtlGetVersion 地址失败"));
 			assert(false);
 		}
 

@@ -1,27 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="pch.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="DllMain.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="App.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="Renderer.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="Effect.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="CursorRenderer.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="Utils.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="GraphicsCaptureFrameSource.cpp">
       <Filter>捕获</Filter>
     </ClCompile>
@@ -37,41 +16,40 @@
     <ClCompile Include="MagCallbackFrameSource.cpp">
       <Filter>捕获</Filter>
     </ClCompile>
-    <ClCompile Include="FrameRateRenderer.cpp">
-      <Filter>源文件</Filter>
+    <ClCompile Include="CursorRenderer.cpp">
+      <Filter>渲染</Filter>
     </ClCompile>
-    <ClCompile Include="StepTimer.cpp" />
+    <ClCompile Include="FrameRateRenderer.cpp">
+      <Filter>渲染</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer.cpp">
+      <Filter>渲染</Filter>
+    </ClCompile>
+    <ClCompile Include="Effect.cpp">
+      <Filter>效果</Filter>
+    </ClCompile>
+    <ClCompile Include="EffectCompiler.cpp">
+      <Filter>效果</Filter>
+    </ClCompile>
+    <ClCompile Include="StepTimer.cpp">
+      <Filter>渲染</Filter>
+    </ClCompile>
+    <ClCompile Include="App.cpp">
+      <Filter>应用程序</Filter>
+    </ClCompile>
+    <ClCompile Include="DllMain.cpp">
+      <Filter>应用程序</Filter>
+    </ClCompile>
+    <ClCompile Include="Utils.cpp">
+      <Filter>应用程序</Filter>
+    </ClCompile>
+    <ClCompile Include="pch.cpp">
+      <Filter>应用程序</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="framework.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="pch.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="targetver.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="Utils.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="resource.h">
       <Filter>资源文件</Filter>
-    </ClInclude>
-    <ClInclude Include="ErrorMessages.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="Effect.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="App.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="Renderer.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="CursorRenderer.h">
-      <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="GraphicsCaptureFrameSource.h">
       <Filter>捕获</Filter>
@@ -91,11 +69,44 @@
     <ClInclude Include="MagCallbackFrameSource.h">
       <Filter>捕获</Filter>
     </ClInclude>
+    <ClInclude Include="CursorRenderer.h">
+      <Filter>渲染</Filter>
+    </ClInclude>
     <ClInclude Include="FrameRateRenderer.h">
-      <Filter>头文件</Filter>
+      <Filter>渲染</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer.h">
+      <Filter>渲染</Filter>
     </ClInclude>
     <ClInclude Include="StepTimer.h">
-      <Filter>头文件</Filter>
+      <Filter>渲染</Filter>
+    </ClInclude>
+    <ClInclude Include="EffectDesc.h">
+      <Filter>效果</Filter>
+    </ClInclude>
+    <ClInclude Include="Effect.h">
+      <Filter>效果</Filter>
+    </ClInclude>
+    <ClInclude Include="EffectCompiler.h">
+      <Filter>效果</Filter>
+    </ClInclude>
+    <ClInclude Include="App.h">
+      <Filter>应用程序</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils.h">
+      <Filter>应用程序</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>应用程序</Filter>
+    </ClInclude>
+    <ClInclude Include="ErrorMessages.h">
+      <Filter>应用程序</Filter>
+    </ClInclude>
+    <ClInclude Include="framework.h">
+      <Filter>应用程序</Filter>
+    </ClInclude>
+    <ClInclude Include="pch.h">
+      <Filter>应用程序</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -107,12 +118,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Filter Include="头文件">
-      <UniqueIdentifier>{3952c476-cabb-4540-85f7-1e61009bb320}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="源文件">
-      <UniqueIdentifier>{0404efaa-f838-435a-a592-35c48d478ed4}</UniqueIdentifier>
-    </Filter>
     <Filter Include="着色器">
       <UniqueIdentifier>{0d12cfca-e0f7-451b-b3ce-713fb1202715}</UniqueIdentifier>
     </Filter>
@@ -121,6 +126,15 @@
     </Filter>
     <Filter Include="捕获">
       <UniqueIdentifier>{6b867004-a0fd-4e2b-aa28-8fffcbdc9fbe}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="渲染">
+      <UniqueIdentifier>{3e370183-16df-445f-a0c4-dffa32222bae}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="效果">
+      <UniqueIdentifier>{6794d3b3-9e79-4d19-99d6-4dc154a3a421}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="应用程序">
+      <UniqueIdentifier>{03b14d85-c703-4e07-94ac-d7ef17b18cf1}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
