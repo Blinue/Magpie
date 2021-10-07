@@ -9,7 +9,7 @@ enum class EffectIntermediateTextureFormat {
 };
 
 struct EffectIntermediateTextureDesc {
-	D2D_SIZE_U size;
+	std::pair<std::string, std::string> sizeExpr;
 	EffectIntermediateTextureFormat format;
 };
 
@@ -27,9 +27,14 @@ enum class EffectConstantType {
 	Int
 };
 
+struct EffectValueConstantDesc {
+	std::string name;
+	std::string valueExpr;
+};
 
 struct EffectConstantDesc {
 	std::string name;
+	std::string label;
 	EffectConstantType type = EffectConstantType::Float;
 	std::variant<float, int> defaultValue;
 	std::variant<std::monostate, float, int> minValue;
@@ -38,11 +43,23 @@ struct EffectConstantDesc {
 	bool includeMax = false;
 };
 
-struct PassDesc {
+struct EffectPassDesc {
 	std::vector<int> inputs;
-	int output = -1;
+	std::vector<int> outputs;
+	std::vector<BYTE> cso;
 };
 
-class EffectDesc {
+struct EffectDesc {
+	UINT version;
+	
+	// 用于计算效果的输出，无值表示支持任意大小的输出
+	std::optional<std::pair<std::string, std::string>> outSizeExpr;
 
+	std::vector<EffectConstantDesc> consts;
+	std::vector<EffectValueConstantDesc> valueConsts;
+
+	std::vector<EffectIntermediateTextureDesc> textures;
+	std::vector<EffectSamplerDesc> samplers;
+
+	std::vector<EffectPassDesc> passes;
 };

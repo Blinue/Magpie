@@ -72,6 +72,6 @@ private:
 
 	std::optional<SIZE> _outputSize;
 
-	std::vector<PassDesc> _passDescs;
+	std::vector<EffectPassDesc> _passDescs;
 	std::vector<_Pass> _passes;
 };

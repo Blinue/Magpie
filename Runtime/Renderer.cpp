@@ -6,6 +6,7 @@
 #include "shaders/CopyPS.h"
 #include "shaders/SimpleVS.h"
 #include <VertexTypes.h>
+#include "EffectCompiler.h"
 
 extern std::shared_ptr<spdlog::logger> logger;
 
@@ -35,6 +36,9 @@ bool Renderer::Initialize() {
 }
 
 bool Renderer::InitializeEffectsAndCursor() {
+	EffectDesc desc{};
+	EffectCompiler::Compile(L"shaders/test.hlsl", desc);
+
 	Effect& effect = _effects.emplace_back();
 	if (!effect.InitializeFsr()) {
 		SPDLOG_LOGGER_CRITICAL(logger, "初始化 Effect 失败");

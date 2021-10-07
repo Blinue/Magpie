@@ -67,9 +67,9 @@ bool Effect::InitializeFsr() {
 
 	_passDescs.resize(2);
 	_passDescs[0].inputs.push_back(0);
-	_passDescs[0].output = 1;
+	_passDescs[0].outputs.push_back(1);
 	_passDescs[1].inputs.push_back(1);
-	_passDescs[1].output = 2;
+	_passDescs[1].outputs.push_back(2);
 
 	ID3D11SamplerState*& sam = _samplers.emplace_back();
 	if (!renderer.GetSampler(Renderer::FilterType::LINEAR, &sam)) {
@@ -241,8 +241,8 @@ bool Effect::Build(ComPtr<ID3D11Texture2D> input, ComPtr<ID3D11Texture2D> output
 	}
 
 	for (int i = 0; i < _passes.size(); ++i) {
-		PassDesc& desc = _passDescs[i];
-		if (!_passes[i].Build(desc.inputs, desc.output, outputSize)
+		EffectPassDesc& desc = _passDescs[i];
+		if (!_passes[i].Build(desc.inputs, desc.outputs[0], outputSize)
 		) {
 			SPDLOG_LOGGER_ERROR(logger, fmt::format("构建 Pass{} 时出错", i + 1));
 			return false;

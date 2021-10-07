@@ -33,4 +33,11 @@ public:
 	static const RTL_OSVERSIONINFOW& GetOSVersion();
 
 	static int CompareVersion(int major1, int minor1, int build1, int major2, int minor2, int build2);
+
+	template<typename Elem>
+	static std::basic_string<Elem> ToUpperCase(std::basic_string_view<Elem> str) {
+		std::basic_string<Elem> result(str);
+		std::transform(result.begin(), result.end(), result.begin(), std::toupper);
+		return result;
+	}
 };
