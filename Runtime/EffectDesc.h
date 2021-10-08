@@ -53,7 +53,7 @@ struct EffectDesc {
 	UINT version;
 	
 	// 用于计算效果的输出，无值表示支持任意大小的输出
-	std::optional<std::pair<std::string, std::string>> outSizeExpr;
+	std::pair<std::string, std::string> outSizeExpr;
 
 	std::vector<EffectConstantDesc> consts;
 	std::vector<EffectValueConstantDesc> valueConsts;
