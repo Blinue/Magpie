@@ -13,6 +13,7 @@ Magpie可以将任意窗口放大至全屏，支持多种高级缩放算法，�
 ## 使用方法
 
 ![窗口截图](img/窗口截图.png)
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FBlinue%2FMagpie.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2FBlinue%2FMagpie?ref=badge_shield)
 
 要放大的窗口位于前台时，按下热键即可全屏显示该窗口，再次按下热键或者切换前台窗口将退出全屏。
 
@@ -59,3 +60,7 @@ Magpie可以将任意窗口放大至全屏，支持多种高级缩放算法，�
 ## 许可
 
 参见[LICENSE](./LICENSE)。
+
+
+## License
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FBlinue%2FMagpie.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2FBlinue%2FMagpie?ref=badge_large)
