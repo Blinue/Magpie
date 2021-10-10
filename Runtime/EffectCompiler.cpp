@@ -13,7 +13,9 @@ UINT EffectCompiler::Compile(const wchar_t* fileName, EffectDesc& desc) {
 	}
 
 	// 移除注释
-	_RemoveComments(source);
+	if (_RemoveComments(source)) {
+		return 1;
+	}
 
 	std::string_view sourceView(source);
 
@@ -97,7 +99,7 @@ UINT EffectCompiler::Compile(const wchar_t* fileName, EffectDesc& desc) {
 				}
 			}
 		} else {
-			t = t.substr(1);
+			t.remove_prefix(1);
 		}
 
 		newLine = t[0] == '\n';
@@ -118,28 +120,55 @@ UINT EffectCompiler::Compile(const wchar_t* fileName, EffectDesc& desc) {
 	return 0;
 }
 
-void EffectCompiler::_RemoveComments(std::string& source) {
+UINT EffectCompiler::_RemoveComments(std::string& source) {
+	// 确保以换行符结尾
+	if (source.back() != '\n') {
+		source.push_back('\n');
+	}
+
 	std::string result;
 	result.reserve(source.size());
 
 	int j = 0;
-	for (size_t i = 0; i < source.size(); ++i) {
+	// 单独处理最后两个字符
+	for (size_t i = 0, end = source.size() - 2; i < end; ++i) {
 		if (source[i] == '/') {
 			if (source[i + 1] == '/' && source[i + 2] != '!') {
 				// 行注释
 				i += 2;
+
+				// 无需处理越界，因为必定以换行符结尾
 				while (source[i] != '\n') {
 					++i;
+				}
+
+				// 文件结尾
+				if (i >= source.size() - 2) {
+					source.resize(j);
+					return 0;
 				}
 
 				continue;
 			} else if (source[i + 1] == '*') {
 				// 块注释
 				i += 2;
-				while (source[i] != '*' || source[i + 1] != '/') {
-					++i;
+
+				while(true) {
+					if (++i >= source.size()) {
+						// 未闭合
+						return 1;
+					}
+
+					if (source[i - 1] == '*' && source[i] == '/') {
+						break;
+					}
+				} 
+
+				// 文件结尾
+				if (i >= source.size() - 2) {
+					source.resize(j);
+					return 0;
 				}
-				++i;
 
 				continue;
 			}
@@ -148,8 +177,10 @@ void EffectCompiler::_RemoveComments(std::string& source) {
 		source[j++] = source[i];
 	}
 
-	source[j] = '\0';
+	// 无需复制最后的换行符
+	source[j++] = source[source.size() - 2];
 	source.resize(j);
+	return 0;
 }
 
 void EffectCompiler::_RemoveBlanks(std::string& source) {
@@ -196,7 +227,7 @@ UINT EffectCompiler::_GetNextMetaIndicator(std::string_view& source) {
 		}
 	}
 
-	source = source.substr(source.size());
+	source.remove_prefix(source.size());
 	return 1;
 }
 
@@ -232,7 +263,7 @@ UINT EffectCompiler::_GetNextUInt(std::string_view& source, UINT& value) {
 				}
 			}
 
-			source = source.substr(i);
+			source.remove_prefix(i);
 			return 0;
 		} else if (cur != ' ' && cur != '\t') {
 			source.remove_prefix(i);

@@ -11,7 +11,7 @@ public:
 	static UINT Compile(const wchar_t* fileName, EffectDesc& desc);
 
 private:
-	static void _RemoveComments(std::string& source);
+	static UINT _RemoveComments(std::string& source);
 
 	static void _RemoveBlanks(std::string& source);
 
