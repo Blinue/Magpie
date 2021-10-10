@@ -18,7 +18,7 @@ UINT EffectCompiler::Compile(const wchar_t* fileName, EffectDesc& desc) {
 	std::string_view sourceView(source);
 
 	// 检查头
-	if (!_CheckHeader(sourceView)) {
+	if (!_CheckMagic(sourceView)) {
 		return 2;
 	}
 
@@ -38,29 +38,28 @@ UINT EffectCompiler::Compile(const wchar_t* fileName, EffectDesc& desc) {
 	std::vector<std::string_view> commonBlocks;
 	std::vector<std::string_view> passBlocks;
 
-	bool newLine = true;
 	BlockType curBlockType = BlockType::Header;
 	size_t curBlockOff = 0;
 
 	auto completeCurrentBlock = [&](size_t len, BlockType newBlockType) {
 		switch (curBlockType) {
 		case BlockType::Header:
-			headerBlock = std::string_view(sourceView.data() + curBlockOff, len);
+			headerBlock = sourceView.substr(curBlockOff, len);
 			break;
 		case BlockType::Constant:
-			constantBlocks.emplace_back(sourceView.data() + curBlockOff, len);
+			constantBlocks.push_back(sourceView.substr(curBlockOff, len));
 			break;
 		case BlockType::Texture:
-			textureBlocks.emplace_back(sourceView.data() + curBlockOff, len);
+			textureBlocks.push_back(sourceView.substr(curBlockOff, len));
 			break;
 		case BlockType::Sampler:
-			samplerBlocks.emplace_back(sourceView.data() + curBlockOff, len);
+			samplerBlocks.push_back(sourceView.substr(curBlockOff, len));
 			break;
 		case BlockType::Common:
-			commonBlocks.emplace_back(sourceView.data() + curBlockOff, len);
+			commonBlocks.push_back(sourceView.substr(curBlockOff, len));
 			break;
 		case BlockType::Pass:
-			passBlocks.emplace_back(sourceView.data() + curBlockOff, len);
+			passBlocks.push_back(sourceView.substr(curBlockOff, len));
 			break;
 		default:
 			assert(false);
@@ -70,46 +69,50 @@ UINT EffectCompiler::Compile(const wchar_t* fileName, EffectDesc& desc) {
 		curBlockType = newBlockType;
 		curBlockOff += len;
 	};
+	
+	bool newLine = true;
+	std::string_view t = sourceView;
+	while (t.size() > 5) {
+		if (newLine) {
+			// 包含换行符
+			size_t len = t.data() - sourceView.data() - curBlockOff + 1;
 
-	for (size_t i = 0, end = sourceView.size() - 2; i < end; ++i) {
-		if (newLine && sourceView[i] == '/' && sourceView[i + 1] == '/' && sourceView[i + 2] == '!') {
-			i += 3;
-
-			std::string_view t(sourceView.data() + i, sourceView.size() - 3);
-			std::string_view token;
-			if (_GetNextToken<false>(t, token)) {
-				return 1;
+			if (!_GetNextMetaIndicator(t)) {
+				std::string_view token;
+				if (_GetNextToken<false>(t, token)) {
+					return 1;
+				}
+				std::string blockType = Utils::ToUpperCase(token);
+				
+				if (blockType == "CONSTANT") {
+					completeCurrentBlock(len, BlockType::Constant);
+				} else if (blockType == "TEXTURE") {
+					completeCurrentBlock(len, BlockType::Texture);
+				} else if (blockType == "SAMPLER") {
+					completeCurrentBlock(len, BlockType::Sampler);
+				} else if (blockType == "COMMON") {
+					completeCurrentBlock(len, BlockType::Common);
+				} else if (blockType == "PASS") {
+					completeCurrentBlock(len, BlockType::Pass);
+				}
 			}
-			std::string blockType = Utils::ToUpperCase(token);
-
-			if (blockType == "CONSTANT") {
-				completeCurrentBlock(i - 3 - curBlockOff, BlockType::Constant);
-			} else if (blockType == "TEXTURE") {
-				completeCurrentBlock(i - 3 - curBlockOff, BlockType::Texture);
-			} else if (blockType == "SAMPLER") {
-				completeCurrentBlock(i - 3 - curBlockOff, BlockType::Sampler);
-			} else if (blockType == "COMMON") {
-				completeCurrentBlock(i - 3 - curBlockOff, BlockType::Common);
-			} else if (blockType == "PASS") {
-				completeCurrentBlock(i - 3 - curBlockOff, BlockType::Pass);
-			}
-
-			continue;
 		} else {
-			newLine = false;
+			t = t.substr(1);
 		}
 
-		if (sourceView[i] == '\n') {
-			newLine = true;
-		}
+		newLine = t[0] == '\n';
 	}
 
 	completeCurrentBlock(sourceView.size() - curBlockOff, BlockType::Header);
 
-	_ResolveHeader(headerBlock, desc);
+	if (_ResolveHeader(headerBlock, desc)) {
+		return 1;
+	}
 
 	for (std::string_view& block : constantBlocks) {
-		_ResolveConstants(block, desc);
+		if (_ResolveConstants(block, desc)) {
+			return 1;
+		}
 	}
 
 	return 0;
@@ -175,6 +178,28 @@ std::string EffectCompiler::_RemoveBlanks(std::string_view source) {
 	return result;
 }
 
+UINT EffectCompiler::_GetNextMetaIndicator(std::string_view& source) {
+	for (int i = 0, end = source.size() - 2; i < end; ++i) {
+		char cur = source[i];
+
+		if (cur == '/') {
+			if (source[static_cast<size_t>(i) + 1] == '/' && source[static_cast<size_t>(i) + 2] == '!') {
+				source.remove_prefix(static_cast<size_t>(i) + 3);
+				return 0;
+			} else {
+				source.remove_prefix(i);
+				return 1;
+			}
+		} else if (!std::isspace(cur)) {
+			source.remove_prefix(i);
+			return 1;
+		}
+	}
+
+	source = source.substr(source.size());
+	return 1;
+}
+
 UINT EffectCompiler::_GetNextExpr(std::string_view& source, std::string& expr) {
 	size_t pos = source.find('\n');
 	if (pos == std::string_view::npos) {
@@ -185,8 +210,8 @@ UINT EffectCompiler::_GetNextExpr(std::string_view& source, std::string& expr) {
 	if (expr.empty()) {
 		return 1;
 	}
-
-	source = source.substr(pos);
+	
+	source.remove_prefix(pos);
 	return 0;
 }
 
@@ -210,18 +235,19 @@ UINT EffectCompiler::_GetNextUInt(std::string_view& source, UINT& value) {
 			source = source.substr(i);
 			return 0;
 		} else if (cur != ' ' && cur != '\t') {
-			source = source.substr(i);
+			source.remove_prefix(i);
 			return 1;
 		}
 	}
 
+	source.remove_prefix(source.size());
 	return 1;
 }
 
 
-bool EffectCompiler::_CheckHeader(std::string_view& source) {
+bool EffectCompiler::_CheckMagic(std::string_view& source) {
 	std::string_view token;
-	if (_GetNextToken<true>(source, token) || token != "//!") {
+	if (_GetNextMetaIndicator(source)) {
 		return false;
 	}
 	
@@ -236,25 +262,23 @@ bool EffectCompiler::_CheckHeader(std::string_view& source) {
 		return false;
 	}
 
-	size_t off = source.find('\n');
-	if (off == std::string_view::npos) {
+	if (source.empty()) {
 		return false;
 	}
 
-	source = source.substr(off + 1);
 	return true;
 }
 
 UINT EffectCompiler::_ResolveHeader(std::string_view block, EffectDesc& desc) {
 	// 必需的选项：VERSION
-	// 可选的选项：WIDTH，HEIGHT
+	// 可选的选项：OUTPUT_WIDTH，OUTPUT_HEIGHT
 
 	std::vector<bool> processed(3, false);
 
 	std::string_view token;
 
 	while (true) {
-		if (_GetNextToken<true>(block, token) || Utils::ToUpperCase(token) != "//!") {
+		if (_GetNextMetaIndicator(block)) {
 			break;
 		}
 
@@ -279,6 +303,10 @@ UINT EffectCompiler::_ResolveHeader(std::string_view block, EffectDesc& desc) {
 			}
 
 			desc.version = version;
+
+			if (_GetNextToken<false>(block, token) != 2) {
+				return 1;
+			}
 		} else if (t == "OUTPUT_WIDTH") {
 			if (processed[1]) {
 				return 1;
@@ -301,6 +329,11 @@ UINT EffectCompiler::_ResolveHeader(std::string_view block, EffectDesc& desc) {
 			return 1;
 		}
 	}
+
+	// HEADER 块不含代码部分
+	if (_GetNextToken<true>(block, token) != 2) {
+		return 1;
+	}
 	
 	if (!processed[0] || (processed[1] ^ processed[2])) {
 		return 1;
@@ -310,6 +343,50 @@ UINT EffectCompiler::_ResolveHeader(std::string_view block, EffectDesc& desc) {
 }
 
 UINT EffectCompiler::_ResolveConstants(std::string_view block, EffectDesc& desc) {
-	// 可选的选项：VALUE，DEFAULT，LABEL，MIN，MAX，INCLUDE_MIN，INCLUDE_MAX
+	// 可选的选项：VALUE，DEFAULT，LABEL，MIN，MAX
+	// VALUE 与其他选项互斥
 
+	std::vector<bool> processed(5, false);
+
+	std::string_view token;
+
+	if (_GetNextMetaIndicator(block)) {
+		return 1;
+	}
+
+	if (_GetNextToken<false>(block, token) || Utils::ToUpperCase(token) != "CONSTANT") {
+		return 1;
+	}
+	if (_GetNextToken<false>(block, token) != 2) {
+		return 1;
+	}
+	
+	while (true) {
+		if (_GetNextToken<true>(block, token) || token != "//!") {
+			break;
+		}
+
+		if (_GetNextToken<false>(block, token)) {
+			return 1;
+		}
+
+
+		std::string t = Utils::ToUpperCase(token);
+
+		if (t == "VALUE") {
+
+		} else if (t == "DEFAULT") {
+
+		} else if (t == "LABEL") {
+
+		} else if (t == "MIN") {
+
+		} else if (t == "MAX") {
+
+		} else {
+			return 1;
+		}
+	}
+
+	return 0;
 }

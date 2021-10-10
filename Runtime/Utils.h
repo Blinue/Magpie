@@ -40,4 +40,17 @@ public:
 		std::transform(result.begin(), result.end(), result.begin(), std::toupper);
 		return result;
 	}
+
+	template<typename T>
+	class ScopeExit {
+	public:
+		ScopeExit(const ScopeExit&) = delete;
+		ScopeExit(ScopeExit&&) = delete;
+
+		explicit ScopeExit(T&& exitScope) : _exitScope(std::forward<T>(exitScope)) {}
+		~ScopeExit() { _exitScope(); }
+
+	private:
+		T _exitScope;
+	};
 };

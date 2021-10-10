@@ -154,12 +154,14 @@ bool GetHBmpBits32(HBITMAP hBmp, int& width, int& height, std::vector<BYTE>& pix
 
 	pixels.resize(bi.bmiHeader.biSizeImage);
 	HDC hdc = GetDC(NULL);
+	Utils::ScopeExit se([hdc]() {
+		ReleaseDC(NULL, hdc);
+	});
+
 	if (GetDIBits(hdc, hBmp, 0, height, &pixels[0], &bi, DIB_RGB_COLORS) != height) {
 		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetDIBits 失败"));
-		ReleaseDC(NULL, hdc);
 		return false;
 	}
-	ReleaseDC(NULL, hdc);
 
 	return true;
 }
@@ -176,12 +178,12 @@ bool CursorRenderer::_ResolveCursor(HCURSOR hCursor, _CursorInfo& result) const 
 	result.xHotSpot = ii.xHotspot;
 	result.yHotSpot = ii.yHotspot;
 
-	auto clear = [&ii]() {
+	Utils::ScopeExit se([&ii]() {
 		if (ii.hbmColor) {
 			DeleteBitmap(ii.hbmColor);
 		}
 		DeleteBitmap(ii.hbmMask);
-	};
+	});
 
 	ComPtr<ID3D11Texture2D> texture;
 
@@ -190,7 +192,6 @@ bool CursorRenderer::_ResolveCursor(HCURSOR hCursor, _CursorInfo& result) const 
 		BITMAP bmp{};
 		if (!GetObject(ii.hbmMask, sizeof(bmp), &bmp)) {
 			SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetObject 失败"));
-			clear();
 			return false;
 		}
 		result.width = bmp.bmWidth;
@@ -210,7 +211,6 @@ bool CursorRenderer::_ResolveCursor(HCURSOR hCursor, _CursorInfo& result) const 
 		if (GetDIBits(hdc, ii.hbmMask, 0, result.height, &pixels[0], &bi, DIB_RGB_COLORS) != result.height) {
 			SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetDIBits 失败"));
 			ReleaseDC(NULL, hdc);
-			clear();
 			return false;
 		}
 		ReleaseDC(NULL, hdc);
@@ -261,8 +261,6 @@ bool CursorRenderer::_ResolveCursor(HCURSOR hCursor, _CursorInfo& result) const 
 			}
 		}
 	}
-
-	clear();
 
 	if(!result.hasInv) {
 		// 光标无反色部分，使用 WIC 将光标转换为带 Alpha 通道的图像

@@ -39,8 +39,6 @@ struct EffectConstantDesc {
 	std::variant<float, int> defaultValue;
 	std::variant<std::monostate, float, int> minValue;
 	std::variant<std::monostate, float, int> maxValue;
-	bool includeMin = false;
-	bool includeMax = false;
 };
 
 struct EffectPassDesc {
@@ -52,7 +50,7 @@ struct EffectPassDesc {
 struct EffectDesc {
 	UINT version;
 	
-	// 用于计算效果的输出，无值表示支持任意大小的输出
+	// 用于计算效果的输出，空值表示支持任意大小的输出
 	std::pair<std::string, std::string> outSizeExpr;
 
 	std::vector<EffectConstantDesc> consts;

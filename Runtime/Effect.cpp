@@ -103,26 +103,14 @@ bool Effect::SetConstant(int index, float value) {
 
 	// 检查是否是合法的值
 	if (desc.minValue.index() == 1) {
-		if (desc.includeMin) {
-			if (value < std::get<float>(desc.minValue)) {
-				return false;
-			}
-		} else {
-			if (value <= std::get<float>(desc.minValue)) {
-				return false;
-			}
+		if (value < std::get<float>(desc.minValue)) {
+			return false;
 		}
 	}
 
 	if (desc.maxValue.index() == 1) {
-		if (desc.includeMax) {
-			if (value > std::get<float>(desc.maxValue)) {
-				return false;
-			}
-		} else {
-			if (value >= std::get<float>(desc.maxValue)) {
-				return false;
-			}
+		if (value > std::get<float>(desc.maxValue)) {
+			return false;
 		}
 	}
 
@@ -147,26 +135,14 @@ bool Effect::SetConstant(int index, int value) {
 
 	// 检查是否是合法的值
 	if (desc.minValue.index() == 2) {
-		if (desc.includeMin) {
-			if (value < std::get<int>(desc.minValue)) {
-				return false;
-			}
-		} else {
-			if (value <= std::get<int>(desc.minValue)) {
-				return false;
-			}
+		if (value < std::get<int>(desc.minValue)) {
+			return false;
 		}
 	}
 
 	if (desc.maxValue.index() == 2) {
-		if (desc.includeMax) {
-			if (value > std::get<int>(desc.maxValue)) {
-				return false;
-			}
-		} else {
-			if (value >= std::get<int>(desc.maxValue)) {
-				return false;
-			}
+		if (value > std::get<int>(desc.maxValue)) {
+			return false;
 		}
 	}
 

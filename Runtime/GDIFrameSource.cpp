@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "GDIFrameSource.h"
 #include "App.h"
+#include "Utils.h"
 
 
 extern std::shared_ptr<spdlog::logger> logger;
@@ -57,13 +58,16 @@ bool GDIFrameSource::Update() {
 		ReleaseDC(_hwndSrc, hdcSrc);
 		return false;
 	}
+
+	Utils::ScopeExit se([&]() {
+		ReleaseDC(_hwndSrc, hdcSrc);
+		ReleaseDC(NULL, hdcScreen);
+	});
 	
 	// 直接获取 DC 中当前图像，而不是使用 BitBlt 复制
 	HBITMAP hBmpDest = (HBITMAP)GetCurrentObject(hdcSrc, OBJ_BITMAP);
 	if (!hBmpDest) {
 		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetCurrentObject 失败"));
-		ReleaseDC(_hwndSrc, hdcSrc);
-		ReleaseDC(NULL, hdcScreen);
 		return false;
 	}
 	
@@ -78,8 +82,6 @@ bool GDIFrameSource::Update() {
 
 	if (GetDIBits(hdcScreen, hBmpDest, 0, _srcWndSize.cy, _pixels.data(), &bi, DIB_RGB_COLORS) != _srcWndSize.cy) {
 		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetDIBits 失败"));
-		ReleaseDC(_hwndSrc, hdcSrc);
-		ReleaseDC(NULL, hdcScreen);
 		return false;
 	}
 
@@ -88,8 +90,6 @@ bool GDIFrameSource::Update() {
 	HRESULT hr = _d3dDC->Map(_output.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &ms);
 	if (FAILED(hr)) {
 		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("Map 失败", hr));
-		ReleaseDC(_hwndSrc, hdcSrc);
-		ReleaseDC(NULL, hdcScreen);
 		return false;
 	}
 
@@ -103,8 +103,6 @@ bool GDIFrameSource::Update() {
 		pData += ms.RowPitch;
 	}
 
-	ReleaseDC(_hwndSrc, hdcSrc);
-	ReleaseDC(NULL, hdcScreen);
 	_d3dDC->Unmap(_output.Get(), 0);
 
 	return true;

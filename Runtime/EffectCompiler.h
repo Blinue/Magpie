@@ -17,6 +17,8 @@ private:
 
 	static std::string _RemoveBlanks(std::string_view source);
 
+	static UINT _GetNextMetaIndicator(std::string_view& source);
+
 	static UINT _GetNextExpr(std::string_view& source, std::string& expr);
 
 	static UINT _GetNextUInt(std::string_view& source, UINT& value);
@@ -33,31 +35,20 @@ private:
 
 					if (!std::isalnum(c) && c != '_') {
 						nextToken = source.substr(i, j - i);
-						source = source.substr(j);
+						source.remove_prefix(j);
 						return 0;
 					}
 				}
 
 				nextToken = source.substr(i);
-				source = source.substr(source.size(), 0);
+				source.remove_prefix(source.size());
 				return 0;
-			}
-
-			//! 元数据指示
-			if (cur == '/') {
-				if (i + 2 < source.size() && source[i + 1] == '/' && source[i + 2] == '!') {
-					nextToken = source.substr(i, 3);
-					source = source.substr(i + 3);
-					return 0;
-				} else {
-					return 1;
-				}
 			}
 
 			// 分号
 			if (cur == ';') {
 				nextToken = source.substr(i, 1);
-				source = source.substr(i + 1);
+				source.remove_prefix(i + 1);
 				return 0;
 			}
 
@@ -70,6 +61,7 @@ private:
 				if (cur != ' ' && cur != '\t') {
 					if (cur == '\n') {
 						// 未找到标识符
+						source.remove_prefix(i + 1);
 						return 2;
 					} else {
 						return 1;
@@ -79,10 +71,11 @@ private:
 		}
 
 		// 未找到标识符
+		source.remove_prefix(source.size());
 		return 2;
 	}
 
-	static bool _CheckHeader(std::string_view& source);
+	static bool _CheckMagic(std::string_view& source);
 
 	static UINT _ResolveHeader(std::string_view block, EffectDesc& desc);
 

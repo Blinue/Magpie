@@ -136,7 +136,7 @@ bool Utils::ReadTextFile(const wchar_t* fileName, std::string& result) {
 	result.resize(static_cast<size_t>(size) + 1, 0);
 
 	size_t readed = fread(result.data(), 1, size, hFile);
-	result.resize(readed + 1);
+	result.resize(readed);
 
 	fclose(hFile);
 	return true;
