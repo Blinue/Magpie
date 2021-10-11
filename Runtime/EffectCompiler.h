@@ -23,17 +23,21 @@ private:
 
 	static UINT _GetNextUInt(std::string_view& source, UINT& value);
 
+	static UINT _GetNextFloat(std::string_view& source, float& value);
+
+	static UINT _GetNextString(std::string_view& source, std::string& value);
+
 	template<bool AllowNewLine>
 	static UINT _GetNextToken(std::string_view& source, std::string_view& nextToken) {
 		for (size_t i = 0; i < source.size(); ++i) {
 			char cur = source[i];
 
-			if (std::isalpha(cur) || cur == '_') {
+			if (Utils::isalpha(cur) || cur == '_') {
 				// 标识符
 				for (size_t j = i + 1; j < source.size(); ++j) {
 					char c = source[j];
 
-					if (!std::isalnum(c) && c != '_') {
+					if (!Utils::isalnum(c) && c != '_') {
 						nextToken = source.substr(i, j - i);
 						source.remove_prefix(j);
 						return 0;
@@ -53,7 +57,7 @@ private:
 			}
 
 			if constexpr (AllowNewLine) {
-				if (!std::isspace(cur)) {
+				if (!Utils::isspace(cur)) {
 					// 未知字符
 					return 1;
 				}

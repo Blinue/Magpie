@@ -41,6 +41,37 @@ public:
 		return result;
 	}
 
+	template<typename Elem>
+	static void Trim(std::basic_string_view<Elem>& str) {
+		for (int i = 0; i < str.size(); ++i) {
+			if (!isspace(str[i])) {
+				str.remove_prefix(i);
+
+				for (int i = str.size() - 1; i >= 0; --i) {
+					if (!isspace(str[i])) {
+						str.remove_suffix(str.size() + 1 - i);
+						break;
+					}
+				}
+				return;
+			}
+		}
+
+		str.remove_prefix(str.size());
+	}
+
+	static int isspace(char c) {
+		return c < 0 ? 0 : std::isspace(c);
+	}
+
+	static int isalpha(char c) {
+		return c < 0 ? 0 : std::isalpha(c);
+	}
+
+	static int isalnum(char c) {
+		return c < 0 ? 0 : std::isalnum(c);
+	}
+
 	template<typename T>
 	class ScopeExit {
 	public:

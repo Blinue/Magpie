@@ -98,6 +98,10 @@ UINT EffectCompiler::Compile(const wchar_t* fileName, EffectDesc& desc) {
 					completeCurrentBlock(len, BlockType::Pass);
 				}
 			}
+
+			if (t.size() <= 5) {
+				break;
+			}
 		} else {
 			t.remove_prefix(1);
 		}
@@ -210,7 +214,8 @@ std::string EffectCompiler::_RemoveBlanks(std::string_view source) {
 }
 
 UINT EffectCompiler::_GetNextMetaIndicator(std::string_view& source) {
-	for (int i = 0, end = source.size() - 2; i < end; ++i) {
+	int i = 0;
+	for (int end = static_cast<int>(source.size() - 2); i < end; ++i) {
 		char cur = source[i];
 
 		if (cur == '/') {
@@ -221,28 +226,33 @@ UINT EffectCompiler::_GetNextMetaIndicator(std::string_view& source) {
 				source.remove_prefix(i);
 				return 1;
 			}
-		} else if (!std::isspace(cur)) {
+		} else if (!Utils::isspace(cur)) {
 			source.remove_prefix(i);
 			return 1;
 		}
 	}
 
-	source.remove_prefix(source.size());
+	// 处理最后两个字符
+	if (i < source.size() && Utils::isspace(source[i])) {
+		++i;
+		if (i < source.size() && Utils::isspace(source[i])) {
+			++i;
+		}
+	}
+	
+	source.remove_prefix(i);
 	return 1;
 }
 
 UINT EffectCompiler::_GetNextExpr(std::string_view& source, std::string& expr) {
 	size_t pos = source.find('\n');
-	if (pos == std::string_view::npos) {
-		return 1;
-	}
 
 	expr = _RemoveBlanks(source.substr(0, pos));
 	if (expr.empty()) {
 		return 1;
 	}
 	
-	source.remove_prefix(pos);
+	source.remove_prefix(std::min(pos + 1, source.size()));
 	return 0;
 }
 
@@ -273,6 +283,97 @@ UINT EffectCompiler::_GetNextUInt(std::string_view& source, UINT& value) {
 
 	source.remove_prefix(source.size());
 	return 1;
+}
+
+UINT EffectCompiler::_GetNextFloat(std::string_view& source, float& value) {
+	bool isNegative = false;
+
+	for (size_t i = 0; i < source.size(); ++i) {
+		char cur = source[i];
+
+		if (cur == '-') {
+			if (i + 1 >= source.size()) {
+				source.remove_prefix(i);
+				return 1;
+			}
+
+			cur = source[i + 1];
+			if (cur < '0' || cur > '9') {
+				source.remove_prefix(i);
+				return 1;
+			} else {
+				isNegative = true;
+				continue;
+			}
+		} else if (cur >= '0' && cur <= '9') {
+			size_t j = isNegative ? i - 1 : i;
+			value = cur - '0';
+
+			while (++i < source.size()) {
+				cur = source[i];
+				if (cur >= '0' && cur <= '9') {
+					value = value * 10 + cur - '0';
+				} else if (cur == '.') {
+					// 小数部分
+					// 必须至少存在一位
+					if (++i >= source.size()) {
+						source.remove_prefix(j);
+						return 1;
+					}
+					cur = source[i];
+					if (cur >= '0' && cur <= '9') {
+						value += (cur - '0') * 0.1f;
+					} else {
+						source.remove_prefix(j);
+						return 1;
+					}
+					
+					float base = 0.01f;
+					while (++i < source.size()) {
+						cur = source[i];
+						if (cur >= '0' && cur <= '9') {
+							value += (cur - '0') * base;
+						} else {
+							break;
+						}
+
+						base /= 10;
+					}
+					break;
+				} else {
+					break;
+				}
+			}
+
+			if (isNegative) {
+				value = -value;
+			}
+
+			source.remove_prefix(i);
+			return 0;
+		} else if (cur != ' ' && cur != '\t') {
+			source.remove_prefix(i);
+			return 1;
+		}
+	}
+
+	source.remove_prefix(source.size());
+	return 1;
+}
+
+UINT EffectCompiler::_GetNextString(std::string_view& source, std::string& value) {
+	size_t pos = source.find('\n');
+
+	std::string_view t = source.substr(0, pos);
+	Utils::Trim(t);
+	if (t.empty()) {
+		return 1;
+	}
+
+	value = t;
+
+	source.remove_prefix(std::min(pos + 1, source.size()));
+	return 0;
 }
 
 
@@ -391,9 +492,12 @@ UINT EffectCompiler::_ResolveConstants(std::string_view block, EffectDesc& desc)
 	if (_GetNextToken<false>(block, token) != 2) {
 		return 1;
 	}
+
+	EffectConstantDesc desc1{};
+	EffectValueConstantDesc desc2{};
 	
 	while (true) {
-		if (_GetNextToken<true>(block, token) || token != "//!") {
+		if (_GetNextMetaIndicator(block)) {
 			break;
 		}
 
@@ -401,19 +505,48 @@ UINT EffectCompiler::_ResolveConstants(std::string_view block, EffectDesc& desc)
 			return 1;
 		}
 
-
 		std::string t = Utils::ToUpperCase(token);
 
 		if (t == "VALUE") {
+			for (int i = 0; i < 5; ++i) {
+				if (processed[i]) {
+					return 1;
+				}
+			}
+			processed[0] = true;
 
+			if (_GetNextExpr(block, desc2.valueExpr)) {
+				return 1;
+			}
 		} else if (t == "DEFAULT") {
-
+			if (processed[0] || processed[1]) {
+				return 1;
+			}
+			processed[1] = true;
+			
+			desc1.defaultValue = 0.0f;
+			if (_GetNextFloat(block, std::get<float>(desc1.defaultValue))) {
+				return 1;
+			}
 		} else if (t == "LABEL") {
+			if (processed[0] || processed[2]) {
+				return 1;
+			}
+			processed[2] = true;
 
+			if (_GetNextString(block, desc1.label)) {
+				return 1;
+			}
 		} else if (t == "MIN") {
-
+			if (processed[0] || processed[3]) {
+				return 1;
+			}
+			processed[3] = true;
 		} else if (t == "MAX") {
-
+			if (processed[0] || processed[4]) {
+				return 1;
+			}
+			processed[4] = true;
 		} else {
 			return 1;
 		}
