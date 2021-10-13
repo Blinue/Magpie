@@ -43,19 +43,19 @@ public:
 	static void Trim(std::string_view& str);
 
 	static int isspace(char c) {
-		return c <= 0 ? 0 : std::isspace(c);
+		return std::isspace(static_cast<unsigned char>(c));
 	}
 
 	static int isalpha(char c) {
-		return c <= 0 ? 0 : std::isalpha(c);
+		return std::isalpha(static_cast<unsigned char>(c));
 	}
 
 	static int isalnum(char c) {
-		return c <= 0 ? 0 : std::isalnum(c);
+		return std::isalnum(static_cast<unsigned char>(c));
 	}
 
 	static char toupper(char c) {
-		return c <= 0 ? c : std::toupper(c);
+		return std::toupper(static_cast<unsigned char>(c));
 	}
 
 	template<typename T>

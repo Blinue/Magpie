@@ -79,7 +79,7 @@ UINT EffectCompiler::Compile(const wchar_t* fileName, EffectDesc& desc) {
 			// 包含换行符
 			size_t len = t.data() - sourceView.data() - curBlockOff + 1;
 
-			if (!_GetNextMetaIndicator(t)) {
+			if (_CheckNextToken<true>(t, _META_INDICATOR)) {
 				std::string_view token;
 				if (_GetNextToken<false>(t, token)) {
 					return 1;
@@ -187,190 +187,39 @@ UINT EffectCompiler::_RemoveComments(std::string& source) {
 	return 0;
 }
 
-void EffectCompiler::_RemoveBlanks(std::string& source) {
-	size_t j = 0;
-	for (size_t i = 0; i < source.size(); ++i) {
-		char c = source[i];
-		if (!isspace(c)) {
-			source[j++] = c;
-		}
-	}
-	source.resize(j);
-}
-
-std::string EffectCompiler::_RemoveBlanks(std::string_view source) {
-	std::string result(source.size(), 0);
-
-	size_t j = 0;
-	for (size_t i = 0; i < source.size(); ++i) {
-		char c = source[i];
-		if (!isspace(c)) {
-			result[j++] = c;
-		}
-	}
-	result.resize(j);
-
-	return result;
-}
-
-UINT EffectCompiler::_GetNextMetaIndicator(std::string_view& source) {
-	int i = 0;
-	for (int end = static_cast<int>(source.size() - 2); i < end; ++i) {
-		char cur = source[i];
-
-		if (cur == '/') {
-			if (source[static_cast<size_t>(i) + 1] == '/' && source[static_cast<size_t>(i) + 2] == '!') {
-				source.remove_prefix(static_cast<size_t>(i) + 3);
-				return 0;
-			} else {
-				source.remove_prefix(i);
-				return 1;
-			}
-		} else if (!Utils::isspace(cur)) {
-			source.remove_prefix(i);
-			return 1;
-		}
-	}
-
-	// 处理最后两个字符
-	if (i < source.size() && Utils::isspace(source[i])) {
-		++i;
-		if (i < source.size() && Utils::isspace(source[i])) {
-			++i;
-		}
-	}
-	
-	source.remove_prefix(i);
-	return 1;
-}
-
 UINT EffectCompiler::_GetNextExpr(std::string_view& source, std::string& expr) {
-	size_t pos = source.find('\n');
+	_RemoveLeadingBlanks<false>(source);
+	size_t size = std::min(source.find('\n') + 1, source.size());
 
-	expr = _RemoveBlanks(source.substr(0, pos));
+	// 移除空白字符
+	expr.resize(size);
+
+	size_t j = 0;
+	for (size_t i = 0; i < size; ++i) {
+		char c = source[i];
+		if (!isspace(c)) {
+			expr[j++] = c;
+		}
+	}
+	expr.resize(j);
+
 	if (expr.empty()) {
 		return 1;
 	}
 	
-	source.remove_prefix(std::min(pos + 1, source.size()));
+	source.remove_prefix(size);
 	return 0;
 }
 
-UINT EffectCompiler::_GetNextUInt(std::string_view& source, UINT& value) {
-	for (int i = 0; i < source.size(); ++i) {
-		char cur = source[i];
-
-		if (cur >= '0' && cur <= '9') {
-			// 含有数字
-			value = cur - '0';
-
-			while (++i < source.size()) {
-				cur = source[i];
-				if (cur >= '0' && cur <= '9') {
-					value = value * 10 + cur - '0';
-				} else {
-					break;
-				}
-			}
-
-			source.remove_prefix(i);
-			return 0;
-		} else if (cur != ' ' && cur != '\t') {
-			source.remove_prefix(i);
-			return 1;
-		}
-	}
-
-	source.remove_prefix(source.size());
-	return 1;
-}
-
-UINT EffectCompiler::_GetNextFloat(std::string_view& source, float& value) {
-	bool isNegative = false;
-
-	for (size_t i = 0; i < source.size(); ++i) {
-		char cur = source[i];
-
-		if (cur == '-') {
-			if (i + 1 >= source.size()) {
-				source.remove_prefix(i);
-				return 1;
-			}
-
-			cur = source[i + 1];
-			if (cur < '0' || cur > '9') {
-				source.remove_prefix(i);
-				return 1;
-			} else {
-				isNegative = true;
-				continue;
-			}
-		} else if (cur >= '0' && cur <= '9') {
-			size_t j = isNegative ? i - 1 : i;
-			value = cur - '0';
-
-			while (++i < source.size()) {
-				cur = source[i];
-				if (cur >= '0' && cur <= '9') {
-					value = value * 10 + cur - '0';
-				} else if (cur == '.') {
-					// 小数部分
-					// 必须至少存在一位
-					if (++i >= source.size()) {
-						source.remove_prefix(j);
-						return 1;
-					}
-					cur = source[i];
-					if (cur >= '0' && cur <= '9') {
-						value += (cur - '0') * 0.1f;
-					} else {
-						source.remove_prefix(j);
-						return 1;
-					}
-					
-					float base = 0.01f;
-					while (++i < source.size()) {
-						cur = source[i];
-						if (cur >= '0' && cur <= '9') {
-							value += (cur - '0') * base;
-						} else {
-							break;
-						}
-
-						base /= 10;
-					}
-					break;
-				} else {
-					break;
-				}
-			}
-
-			if (isNegative) {
-				value = -value;
-			}
-
-			source.remove_prefix(i);
-			return 0;
-		} else if (cur != ' ' && cur != '\t') {
-			source.remove_prefix(i);
-			return 1;
-		}
-	}
-
-	source.remove_prefix(source.size());
-	return 1;
-}
-
-UINT EffectCompiler::_GetNextString(std::string_view& source, std::string& value) {
+UINT EffectCompiler::_GetNextString(std::string_view& source, std::string_view& value) {
+	_RemoveLeadingBlanks<false>(source);
 	size_t pos = source.find('\n');
 
-	std::string_view t = source.substr(0, pos);
-	Utils::Trim(t);
-	if (t.empty()) {
+	value = source.substr(0, pos);
+	Utils::Trim(value);
+	if (value.empty()) {
 		return 1;
 	}
-
-	value = t;
 
 	source.remove_prefix(std::min(pos + 1, source.size()));
 	return 0;
@@ -379,14 +228,14 @@ UINT EffectCompiler::_GetNextString(std::string_view& source, std::string& value
 
 bool EffectCompiler::_CheckMagic(std::string_view& source) {
 	std::string_view token;
-	if (_GetNextMetaIndicator(source)) {
+	if (!_CheckNextToken<true>(source, _META_INDICATOR)) {
 		return false;
 	}
 	
-	if (_GetNextToken<false>(source, token) || Utils::ToUpperCase(token) != "MAGPIE") {
+	if (!_CheckNextToken<false>(source, "MAGPIE")) {
 		return false;
 	}
-	if (_GetNextToken<false>(source, token) || Utils::ToUpperCase(token) != "EFFECT") {
+	if (!_CheckNextToken<false>(source, "EFFECT")) {
 		return false;
 	}
 
@@ -410,7 +259,7 @@ UINT EffectCompiler::_ResolveHeader(std::string_view block, EffectDesc& desc) {
 	std::string_view token;
 
 	while (true) {
-		if (_GetNextMetaIndicator(block)) {
+		if (!_CheckNextToken<true>(block, _META_INDICATOR)) {
 			break;
 		}
 
@@ -426,7 +275,7 @@ UINT EffectCompiler::_ResolveHeader(std::string_view block, EffectDesc& desc) {
 			processed[0] = true;
 
 			UINT version;
-			if (_GetNextUInt(block, version)) {
+			if (_GetNextNumber(block, version)) {
 				return 1;
 			}
 
@@ -482,11 +331,11 @@ UINT EffectCompiler::_ResolveConstants(std::string_view block, EffectDesc& desc)
 
 	std::string_view token;
 
-	if (_GetNextMetaIndicator(block)) {
+	if (!_CheckNextToken<true>(block, _META_INDICATOR)) {
 		return 1;
 	}
 
-	if (_GetNextToken<false>(block, token) || Utils::ToUpperCase(token) != "CONSTANT") {
+	if (!_CheckNextToken<false>(block, "CONSTANT")) {
 		return 1;
 	}
 	if (_GetNextToken<false>(block, token) != 2) {
@@ -495,9 +344,13 @@ UINT EffectCompiler::_ResolveConstants(std::string_view block, EffectDesc& desc)
 
 	EffectConstantDesc desc1{};
 	EffectValueConstantDesc desc2{};
+
+	std::string_view defaultValue;
+	std::string_view minValue;
+	std::string_view maxValue;
 	
 	while (true) {
-		if (_GetNextMetaIndicator(block)) {
+		if (!_CheckNextToken<true>(block, _META_INDICATOR)) {
 			break;
 		}
 
@@ -524,8 +377,7 @@ UINT EffectCompiler::_ResolveConstants(std::string_view block, EffectDesc& desc)
 			}
 			processed[1] = true;
 			
-			desc1.defaultValue = 0.0f;
-			if (_GetNextFloat(block, std::get<float>(desc1.defaultValue))) {
+			if (_GetNextString(block, defaultValue)) {
 				return 1;
 			}
 		} else if (t == "LABEL") {
@@ -534,22 +386,142 @@ UINT EffectCompiler::_ResolveConstants(std::string_view block, EffectDesc& desc)
 			}
 			processed[2] = true;
 
-			if (_GetNextString(block, desc1.label)) {
+			std::string_view t;
+			if (_GetNextString(block, t)) {
 				return 1;
 			}
+			desc1.label = t;
 		} else if (t == "MIN") {
 			if (processed[0] || processed[3]) {
 				return 1;
 			}
 			processed[3] = true;
+
+			if (_GetNextString(block, minValue)) {
+				return 1;
+			}
 		} else if (t == "MAX") {
 			if (processed[0] || processed[4]) {
 				return 1;
 			}
 			processed[4] = true;
+
+			if (_GetNextString(block, maxValue)) {
+				return 1;
+			}
 		} else {
 			return 1;
 		}
+	}
+
+	// 代码部分
+	if (_GetNextToken<true>(block, token)) {
+		return 1;
+	}
+
+	if (token == "float") {
+		if (processed[0]) {
+			desc2.type = EffectConstantType::Float;
+		} else {
+			desc1.type = EffectConstantType::Float;
+
+			if (!defaultValue.empty()) {
+				desc1.defaultValue = 0.0f;
+				if (_GetNextNumber(defaultValue, std::get<float>(desc1.defaultValue))) {
+					return 1;
+				}
+			}
+			if (!minValue.empty()) {
+				float value;
+				if (_GetNextNumber(minValue, value)) {
+					return 1;
+				}
+
+				if (!defaultValue.empty() && std::get<float>(desc1.defaultValue) < value) {
+					return 1;
+				}
+
+				desc1.minValue = value;
+			}
+			if (!maxValue.empty()) {
+				float value;
+				if (_GetNextNumber(maxValue, value)) {
+					return 1;
+				}
+
+				if (!defaultValue.empty() && std::get<float>(desc1.defaultValue) > value) {
+					return 1;
+				}
+
+				if (!minValue.empty() && std::get<float>(desc1.minValue) > value) {
+					return 1;
+				}
+
+				desc1.maxValue = value;
+			}
+		}
+	} else if (token == "int") {
+		if (processed[0]) {
+			desc2.type = EffectConstantType::Int;
+		} else {
+			desc1.type = EffectConstantType::Int;
+
+			if (!defaultValue.empty()) {
+				desc1.defaultValue = 0;
+				if (_GetNextNumber(defaultValue, std::get<int>(desc1.defaultValue))) {
+					return 1;
+				}
+			}
+			if (!minValue.empty()) {
+				int value;
+				if (_GetNextNumber(minValue, value)) {
+					return 1;
+				}
+
+				if (!defaultValue.empty() && std::get<int>(desc1.defaultValue) < value) {
+					return 1;
+				}
+
+				desc1.minValue = value;
+			}
+			if (!maxValue.empty()) {
+				int value;
+				if (_GetNextNumber(maxValue, value)) {
+					return 1;
+				}
+
+				if (!defaultValue.empty() && std::get<int>(desc1.defaultValue) > value) {
+					return 1;
+				}
+
+				if (!minValue.empty() && std::get<int>(desc1.minValue) > value) {
+					return 1;
+				}
+
+				desc1.maxValue = value;
+			}
+		}
+	} else {
+		return 1;
+	}
+
+	if (_GetNextToken<true>(block, token)) {
+		return 1;
+	}
+	(processed[0] ? desc2.name : desc1.name) = token;
+
+	if (!_CheckNextToken<true>(block, ";")) {
+		return 1;
+	}
+
+	if (_GetNextToken<true>(block, token) != 2) {
+		return 1;
+	}
+
+	if (processed[0]) {
+		desc.valueConstants.emplace_back(std::move(desc2));
+	} else {
+		desc.constants.emplace_back(std::move(desc1));
 	}
 
 	return 0;

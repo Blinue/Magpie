@@ -37,7 +37,7 @@ struct EffectConstantDesc {
 	std::string name;
 	std::string label;
 	EffectConstantType type = EffectConstantType::Float;
-	std::variant<float, int> defaultValue;
+	std::variant<std::monostate, float, int> defaultValue;
 	std::variant<std::monostate, float, int> minValue;
 	std::variant<std::monostate, float, int> maxValue;
 };

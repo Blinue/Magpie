@@ -2,6 +2,7 @@
 #include "pch.h"
 #include "EffectDesc.h"
 #include "Utils.h"
+#include <charconv>
 
 
 class EffectCompiler {
@@ -13,70 +14,92 @@ public:
 private:
 	static UINT _RemoveComments(std::string& source);
 
-	static void _RemoveBlanks(std::string& source);
+	template<bool IncludeNewLine>
+    static void _RemoveLeadingBlanks(std::string_view& source) {
+        size_t i = 0;
+        for (; i < source.size(); ++i) {
+			if constexpr (IncludeNewLine) {
+				if (!Utils::isspace(source[i])) {
+					break;
+				}
+			} else {
+				char c = source[i];
+				if (c != ' ' && c != '\t') {
+					break;
+				}
+			}
+        }
 
-	static std::string _RemoveBlanks(std::string_view source);
-
-	static UINT _GetNextMetaIndicator(std::string_view& source);
+        source.remove_prefix(i);
+    }
 
 	static UINT _GetNextExpr(std::string_view& source, std::string& expr);
 
-	static UINT _GetNextUInt(std::string_view& source, UINT& value);
+	template<typename T>
+	static UINT _GetNextNumber(std::string_view& source, T& value) {
+		_RemoveLeadingBlanks<false>(source);
 
-	static UINT _GetNextFloat(std::string_view& source, float& value);
+		if (source.empty()) {
+			return 1;
+		}
 
-	static UINT _GetNextString(std::string_view& source, std::string& value);
+		const auto& result = std::from_chars(source.data(), source.data() + source.size(), value);
+		if ((int)result.ec) {
+			return 1;
+		}
+
+		// 解析成功
+		source.remove_prefix(result.ptr - source.data());
+		return 0;
+	}
+
+	static UINT _GetNextString(std::string_view& source, std::string_view& value);
 
 	template<bool AllowNewLine>
-	static UINT _GetNextToken(std::string_view& source, std::string_view& nextToken) {
-		for (size_t i = 0; i < source.size(); ++i) {
-			char cur = source[i];
+	static bool _CheckNextToken(std::string_view& source, std::string_view token) {
+		_RemoveLeadingBlanks<AllowNewLine>(source);
+		
+		if (source.size() < token.size() || source.compare(0, token.size(), token) != 0) {
+			return false;
+		}
 
-			if (Utils::isalpha(cur) || cur == '_') {
-				// 标识符
-				for (size_t j = i + 1; j < source.size(); ++j) {
-					char c = source[j];
+		source.remove_prefix(token.size());
+		return true;
+	}
 
-					if (!Utils::isalnum(c) && c != '_') {
-						nextToken = source.substr(i, j - i);
-						source.remove_prefix(j);
-						return 0;
-					}
+	template<bool AllowNewLine>
+	static UINT _GetNextToken(std::string_view& source, std::string_view& value) {
+		_RemoveLeadingBlanks<AllowNewLine>(source);
+
+		if (source.empty()) {
+			return 2;
+		}
+
+		char cur = source[0];
+
+		if (Utils::isalpha(cur) || cur == '_') {
+			for (size_t j = 1; j < source.size(); ++j) {
+				cur = source[j];
+
+				if (!Utils::isalnum(cur) && cur != '_') {
+					value = source.substr(0, j);
+					source.remove_prefix(j);
+					return 0;
 				}
-
-				nextToken = source.substr(i);
-				source.remove_prefix(source.size());
-				return 0;
 			}
 
-			// 分号
-			if (cur == ';') {
-				nextToken = source.substr(i, 1);
-				source.remove_prefix(i + 1);
-				return 0;
-			}
-
+			value = source;
+			source.remove_prefix(source.size());
+			return 0;
+		} else {
 			if constexpr (AllowNewLine) {
-				if (!Utils::isspace(cur)) {
-					// 未知字符
-					return 1;
-				}
+				return 1;
 			} else {
-				if (cur != ' ' && cur != '\t') {
-					if (cur == '\n') {
-						// 未找到标识符
-						source.remove_prefix(i + 1);
-						return 2;
-					} else {
-						return 1;
-					}
+				if (cur == '\n') {
+					return 2;
 				}
 			}
 		}
-
-		// 未找到标识符
-		source.remove_prefix(source.size());
-		return 2;
 	}
 
 	static bool _CheckMagic(std::string_view& source);
@@ -84,4 +107,6 @@ private:
 	static UINT _ResolveHeader(std::string_view block, EffectDesc& desc);
 
 	static UINT _ResolveConstants(std::string_view block, EffectDesc& desc);
+
+	static constexpr const char* _META_INDICATOR = "//!";
 };
