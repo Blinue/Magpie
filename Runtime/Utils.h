@@ -34,42 +34,28 @@ public:
 
 	static int CompareVersion(int major1, int minor1, int build1, int major2, int minor2, int build2);
 
-	template<typename Elem>
-	static std::basic_string<Elem> ToUpperCase(std::basic_string_view<Elem> str) {
-		std::basic_string<Elem> result(str);
-		std::transform(result.begin(), result.end(), result.begin(), std::toupper);
+	static std::string ToUpperCase(std::string_view str) {
+		std::string result(str);
+		std::transform(result.begin(), result.end(), result.begin(), toupper);
 		return result;
 	}
 
-	template<typename Elem>
-	static void Trim(std::basic_string_view<Elem>& str) {
-		for (int i = 0; i < str.size(); ++i) {
-			if (!isspace(str[i])) {
-				str.remove_prefix(i);
-
-				for (int i = str.size() - 1; i >= 0; --i) {
-					if (!isspace(str[i])) {
-						str.remove_suffix(str.size() + 1 - i);
-						break;
-					}
-				}
-				return;
-			}
-		}
-
-		str.remove_prefix(str.size());
-	}
+	static void Trim(std::string_view& str);
 
 	static int isspace(char c) {
-		return c < 0 ? 0 : std::isspace(c);
+		return c <= 0 ? 0 : std::isspace(c);
 	}
 
 	static int isalpha(char c) {
-		return c < 0 ? 0 : std::isalpha(c);
+		return c <= 0 ? 0 : std::isalpha(c);
 	}
 
 	static int isalnum(char c) {
-		return c < 0 ? 0 : std::isalnum(c);
+		return c <= 0 ? 0 : std::isalnum(c);
+	}
+
+	static char toupper(char c) {
+		return c <= 0 ? c : std::toupper(c);
 	}
 
 	template<typename T>
