@@ -115,8 +115,20 @@ UINT EffectCompiler::Compile(const wchar_t* fileName, EffectDesc& desc) {
 		return 1;
 	}
 
-	for (std::string_view& block : constantBlocks) {
-		if (_ResolveConstants(block, desc)) {
+	for (const std::string_view& block : constantBlocks) {
+		if (_ResolveConstant(block, desc)) {
+			return 1;
+		}
+	}
+
+	for (const std::string_view& block : textureBlocks) {
+		if (_ResolveTexture(block, desc)) {
+			return 1;
+		}
+	}
+
+	for (const std::string_view& block : samplerBlocks) {
+		if (_ResolveSampler(block, desc)) {
 			return 1;
 		}
 	}
@@ -323,7 +335,7 @@ UINT EffectCompiler::_ResolveHeader(std::string_view block, EffectDesc& desc) {
 	return 0;
 }
 
-UINT EffectCompiler::_ResolveConstants(std::string_view block, EffectDesc& desc) {
+UINT EffectCompiler::_ResolveConstant(std::string_view block, EffectDesc& desc) {
 	// 可选的选项：VALUE，DEFAULT，LABEL，MIN，MAX
 	// VALUE 与其他选项互斥
 
@@ -522,6 +534,183 @@ UINT EffectCompiler::_ResolveConstants(std::string_view block, EffectDesc& desc)
 		desc.valueConstants.emplace_back(std::move(desc2));
 	} else {
 		desc.constants.emplace_back(std::move(desc1));
+	}
+
+	return 0;
+}
+
+UINT EffectCompiler::_ResolveTexture(std::string_view block, EffectDesc& desc) {
+	// 如果名称为 INPUT 不能有任何选项
+	// 否则必需的选项：FORMAT
+	// 可选的选项：WIDTH，HEIGHT
+
+	EffectIntermediateTextureDesc& texDesc = desc.textures.emplace_back();
+
+	std::vector<bool> processed(3, false);
+
+	std::string_view token;
+
+	if (!_CheckNextToken<true>(block, _META_INDICATOR)) {
+		return 1;
+	}
+
+	if (!_CheckNextToken<false>(block, "TEXTURE")) {
+		return 1;
+	}
+	if (_GetNextToken<false>(block, token) != 2) {
+		return 1;
+	}
+
+	while (true) {
+		if (!_CheckNextToken<true>(block, _META_INDICATOR)) {
+			break;
+		}
+
+		if (_GetNextToken<false>(block, token)) {
+			return 1;
+		}
+
+		std::string t = Utils::ToUpperCase(token);
+
+		if (t == "FORMAT") {
+			if (processed[0]) {
+				return 1;
+			}
+			processed[0] = true;
+
+			if (_GetNextString(block, token)) {
+				return 1;
+			}
+
+			if (token == "B8G8R8A8_UNORM") {
+				texDesc.format = EffectIntermediateTextureFormat::B8G8R8A8_UNORM;
+			} else if (token == "R16G16B16A16_FLOAT") {
+				texDesc.format = EffectIntermediateTextureFormat::R16G16B16A16_FLOAT;
+			} else {
+				return 1;
+			}
+		} else if (t == "WIDTH") {
+			if (processed[1]) {
+				return 1;
+			}
+			processed[1] = true;
+
+			if (_GetNextExpr(block, texDesc.sizeExpr.first)) {
+				return 1;
+			}
+		} else if (t == "HEIGHT") {
+			if (processed[2]) {
+				return 1;
+			}
+			processed[2] = true;
+
+			if (_GetNextExpr(block, texDesc.sizeExpr.second)) {
+				return 1;
+			}
+		} else  {
+			return 1;
+		}
+	}
+
+	// WIDTH 和 HEIGHT 必须成对出现
+	if (processed[1] ^ processed[2]) {
+		return 1;
+	}
+
+	// 代码部分
+	if (!_CheckNextToken<true>(block, "Texture2D")) {
+		return 1;
+	}
+	
+	if (_GetNextToken<true>(block, token)) {
+		return 1;
+	}
+
+	if (token == "INPUT") {
+		if (processed[0] || processed[1]) {
+			return 1;
+		}
+	} else {
+		// 否则 FORMAT 为必需
+		if (!processed[0]) {
+			return 1;
+		}
+	}
+
+	texDesc.name = token;
+
+	if (!_CheckNextToken<true>(block, ";")) {
+		return 1;
+	}
+
+	if (_GetNextToken<true>(block, token) != 2) {
+		return 1;
+	}
+
+	return 0;
+}
+
+UINT EffectCompiler::_ResolveSampler(std::string_view block, EffectDesc& desc) {
+	// 必选项：FILTER
+	
+	EffectSamplerDesc& samDesc = desc.samplers.emplace_back();
+
+	std::string_view token;
+
+	if (!_CheckNextToken<true>(block, _META_INDICATOR)) {
+		return 1;
+	}
+
+	if (!_CheckNextToken<false>(block, "SAMPLER")) {
+		return 1;
+	}
+	if (_GetNextToken<false>(block, token) != 2) {
+		return 1;
+	}
+
+	if (!_CheckNextToken<true>(block, _META_INDICATOR)) {
+		return 1;
+	}
+
+	if (_GetNextToken<false>(block, token)) {
+		return 1;
+	}
+
+	if (Utils::ToUpperCase(token) != "FILTER") {
+		return 1;
+	}
+
+	if (_GetNextString(block, token)) {
+		return 1;
+	}
+
+	std::string filter = Utils::ToUpperCase(token);
+
+	if (filter == "LINEAR") {
+		samDesc.filterType = EffectSamplerFilterType::Linear;
+	} else if (filter == "POINT") {
+		samDesc.filterType = EffectSamplerFilterType::Point;
+	} else {
+		return 1;
+	}
+
+	// 代码部分
+	if (!_CheckNextToken<true>(block, "SamplerState")) {
+		return 1;
+	}
+
+	if (_GetNextToken<true>(block, token)) {
+		return 1;
+	}
+
+	samDesc.name = token;
+
+	if (!_CheckNextToken<true>(block, ";")) {
+		return 1;
+	}
+
+	if (_GetNextToken<true>(block, token) != 2) {
+		return 1;
 	}
 
 	return 0;

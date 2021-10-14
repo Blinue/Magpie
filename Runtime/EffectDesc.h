@@ -11,6 +11,7 @@ enum class EffectIntermediateTextureFormat {
 struct EffectIntermediateTextureDesc {
 	std::pair<std::string, std::string> sizeExpr;
 	EffectIntermediateTextureFormat format;
+	std::string name;
 };
 
 enum class EffectSamplerFilterType {
@@ -20,6 +21,7 @@ enum class EffectSamplerFilterType {
 
 struct EffectSamplerDesc {
 	EffectSamplerFilterType filterType;
+	std::string name;
 };
 
 enum class EffectConstantType {

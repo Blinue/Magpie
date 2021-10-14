@@ -78,27 +78,24 @@ private:
 		char cur = source[0];
 
 		if (Utils::isalpha(cur) || cur == '_') {
-			for (size_t j = 1; j < source.size(); ++j) {
+			size_t j = 1;
+			for (; j < source.size(); ++j) {
 				cur = source[j];
 
 				if (!Utils::isalnum(cur) && cur != '_') {
-					value = source.substr(0, j);
-					source.remove_prefix(j);
-					return 0;
+					break;
 				}
 			}
 
-			value = source;
-			source.remove_prefix(source.size());
+			value = source.substr(0, j);
+			source.remove_prefix(j);
 			return 0;
+		}
+
+		if constexpr (AllowNewLine) {
+			return 1;
 		} else {
-			if constexpr (AllowNewLine) {
-				return 1;
-			} else {
-				if (cur == '\n') {
-					return 2;
-				}
-			}
+			return cur == '\n' ? 2 : 1;
 		}
 	}
 
@@ -106,7 +103,11 @@ private:
 
 	static UINT _ResolveHeader(std::string_view block, EffectDesc& desc);
 
-	static UINT _ResolveConstants(std::string_view block, EffectDesc& desc);
+	static UINT _ResolveConstant(std::string_view block, EffectDesc& desc);
+
+	static UINT _ResolveTexture(std::string_view block, EffectDesc& desc);
+
+	static UINT _ResolveSampler(std::string_view block, EffectDesc& desc);
 
 	static constexpr const char* _META_INDICATOR = "//!";
 };
