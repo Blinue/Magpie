@@ -133,6 +133,18 @@ UINT EffectCompiler::Compile(const wchar_t* fileName, EffectDesc& desc) {
 		}
 	}
 
+	for (std::string_view& block : commonBlocks) {
+		if (_ResolveCommon(block)) {
+			return 1;
+		}
+	}
+
+	for (const std::string_view& block : passBlocks) {
+		if (_ResolvePass(block, commonBlocks, desc)) {
+			return 1;
+		}
+	}
+
 	return 0;
 }
 
@@ -712,6 +724,63 @@ UINT EffectCompiler::_ResolveSampler(std::string_view block, EffectDesc& desc) {
 	if (_GetNextToken<true>(block, token) != 2) {
 		return 1;
 	}
+
+	return 0;
+}
+
+UINT EffectCompiler::_ResolveCommon(std::string_view& block) {
+	// 无选项
+
+	if (!_CheckNextToken<true>(block, _META_INDICATOR)) {
+		return 1;
+	}
+
+	if (!_CheckNextToken<false>(block, "COMMON")) {
+		return 1;
+	}
+
+	if (_CheckNextToken<true>(block, _META_INDICATOR)) {
+		return 1;
+	}
+
+	if (block.empty()) {
+		return 1;
+	}
+
+	return 0;
+}
+
+UINT EffectCompiler::_ResolvePass(std::string_view block, const std::vector<std::string_view>& commons, EffectDesc& desc) {
+	// 可选项：BIND，SAVE
+
+	std::string_view token;
+
+	if (!_CheckNextToken<true>(block, _META_INDICATOR)) {
+		return 1;
+	}
+
+	if (!_CheckNextToken<false>(block, "PASS")) {
+		return 1;
+	}
+
+	UINT index;
+	if (_GetNextNumber(block, index)) {
+		return 1;
+	}
+	if (_GetNextToken<false>(block, token) != 2) {
+		return 1;
+	}
+
+	if (desc.passes.size() < index) {
+		desc.passes.resize(index);
+	}
+
+	EffectPassDesc& passDesc = desc.passes[static_cast<size_t>(index) - 1];
+	if (!passDesc.cso.empty()) {
+		return 1;
+	}
+
+
 
 	return 0;
 }

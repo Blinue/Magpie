@@ -109,5 +109,9 @@ private:
 
 	static UINT _ResolveSampler(std::string_view block, EffectDesc& desc);
 
+	static UINT _ResolveCommon(std::string_view& block);
+
+	static UINT _ResolvePass(std::string_view block, const std::vector<std::string_view>& commons, EffectDesc& desc);
+
 	static constexpr const char* _META_INDICATOR = "//!";
 };
