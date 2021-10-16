@@ -45,8 +45,8 @@ struct EffectConstantDesc {
 };
 
 struct EffectPassDesc {
-	std::vector<int> inputs;
-	std::vector<int> outputs;
+	std::vector<UINT> inputs;
+	std::vector<UINT> outputs;
 	std::vector<BYTE> cso;
 };
 

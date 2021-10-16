@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "Effect.h"
+#include "EffectDrawer.h"
 #include "App.h"
 #include "Utils.h"
 #include <VertexTypes.h>
@@ -8,7 +8,7 @@
 extern std::shared_ptr<spdlog::logger> logger;
 
 
-bool Effect::InitializeFromString(std::string_view hlsl) {
+bool EffectDrawer::InitializeFromString(std::string_view hlsl) {
 	/*Renderer& renderer = App::GetInstance().GetRenderer();
 	_Pass& pass = _passes.emplace_back();
 
@@ -26,7 +26,7 @@ bool Effect::InitializeFromString(std::string_view hlsl) {
 	return false;
 }
 
-bool Effect::InitializeFromFile(const wchar_t* fileName) {
+bool EffectDrawer::InitializeFromFile(const wchar_t* fileName) {
 	std::string psText;
 	if (!Utils::ReadTextFile(fileName, psText)) {
 		SPDLOG_LOGGER_ERROR(logger, fmt::format("读取着色器文件{}失败", Utils::UTF16ToUTF8(fileName)));
@@ -36,7 +36,7 @@ bool Effect::InitializeFromFile(const wchar_t* fileName) {
 	return InitializeFromString(psText);
 }
 
-bool Effect::InitializeFsr() {
+bool EffectDrawer::InitializeFsr() {
 	Renderer& renderer = App::GetInstance().GetRenderer();
 	_d3dDevice = renderer.GetD3DDevice();
 	_d3dDC = renderer.GetD3DDC();
@@ -87,7 +87,7 @@ bool Effect::InitializeFsr() {
 	return true;
 }
 
-bool Effect::SetConstant(int index, float value) {
+bool EffectDrawer::SetConstant(int index, float value) {
 	if (index < 0 || index >= _constantDescs.size()) {
 		return false;
 	}
@@ -119,7 +119,7 @@ bool Effect::SetConstant(int index, float value) {
 	return true;
 }
 
-bool Effect::SetConstant(int index, int value) {
+bool EffectDrawer::SetConstant(int index, int value) {
 	if (index < 0 || index >= _constantDescs.size()) {
 		return false;
 	}
@@ -151,7 +151,7 @@ bool Effect::SetConstant(int index, int value) {
 	return true;
 }
 
-SIZE Effect::CalcOutputSize(SIZE inputSize) const {
+SIZE EffectDrawer::CalcOutputSize(SIZE inputSize) const {
 	if (_outputSize.has_value()) {
 		return _outputSize.value();
 	} else {
@@ -159,15 +159,15 @@ SIZE Effect::CalcOutputSize(SIZE inputSize) const {
 	}
 }
 
-bool Effect::CanSetOutputSize() const {
+bool EffectDrawer::CanSetOutputSize() const {
 	return true;
 }
 
-void Effect::SetOutputSize(SIZE value) {
+void EffectDrawer::SetOutputSize(SIZE value) {
 	_outputSize = value;
 }
 
-bool Effect::Build(ComPtr<ID3D11Texture2D> input, ComPtr<ID3D11Texture2D> output) {
+bool EffectDrawer::Build(ComPtr<ID3D11Texture2D> input, ComPtr<ID3D11Texture2D> output) {
 	D3D11_TEXTURE2D_DESC inputDesc;
 	input->GetDesc(&inputDesc);
 	
@@ -228,7 +228,7 @@ bool Effect::Build(ComPtr<ID3D11Texture2D> input, ComPtr<ID3D11Texture2D> output
 	return true;
 }
 
-void Effect::Draw() {
+void EffectDrawer::Draw() {
 	ID3D11Buffer* t = _constantBuffer.Get();
 	_d3dDC->PSSetConstantBuffers(0, 1, &t);
 	_d3dDC->PSSetSamplers(0, (UINT)_samplers.size(), _samplers.data());
@@ -239,13 +239,13 @@ void Effect::Draw() {
 }
 
 
-bool Effect::_Pass::Initialize(Effect* parent, const std::string& pixelShader) {
+bool EffectDrawer::_Pass::Initialize(EffectDrawer* parent, const std::string& pixelShader) {
 	Renderer& renderer = App::GetInstance().GetRenderer();
 	_parent = parent;
 	_d3dDC = renderer.GetD3DDC();
 
 	ComPtr<ID3DBlob> blob = nullptr;
-	if (!Utils::CompilePixelShader(pixelShader.c_str(), pixelShader.size(), &blob)) {
+	if (!Utils::CompilePixelShader(pixelShader, "main", &blob)) {
 		return false;
 	}
 	
@@ -258,7 +258,7 @@ bool Effect::_Pass::Initialize(Effect* parent, const std::string& pixelShader) {
 	return true;
 }
 
-bool Effect::_Pass::Build(const std::vector<int>& inputs, int output, std::optional<SIZE> outputSize) {
+bool EffectDrawer::_Pass::Build(const std::vector<UINT>& inputs, UINT output, std::optional<SIZE> outputSize) {
 	Renderer& renderer = App::GetInstance().GetRenderer();
 
 	_inputs.resize(inputs.size());
@@ -315,7 +315,7 @@ bool Effect::_Pass::Build(const std::vector<int>& inputs, int output, std::optio
 	return true;
 }
 
-void Effect::_Pass::Draw() {
+void EffectDrawer::_Pass::Draw() {
 	_d3dDC->PSSetShaderResources(0, 0, nullptr);
 	_d3dDC->OMSetRenderTargets(1, &_outputRtv, nullptr);
 	_d3dDC->RSSetViewports(1, &_vp);

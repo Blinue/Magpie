@@ -1,7 +1,7 @@
 #pragma once
 #include "pch.h"
 #include "EffectDesc.h"
-#include "Utils.h"
+#include "StrUtils.h"
 #include <charconv>
 
 
@@ -19,7 +19,7 @@ private:
         size_t i = 0;
         for (; i < source.size(); ++i) {
 			if constexpr (IncludeNewLine) {
-				if (!Utils::isspace(source[i])) {
+				if (!StrUtils::isspace(source[i])) {
 					break;
 				}
 			} else {
@@ -77,12 +77,12 @@ private:
 
 		char cur = source[0];
 
-		if (Utils::isalpha(cur) || cur == '_') {
+		if (StrUtils::isalpha(cur) || cur == '_') {
 			size_t j = 1;
 			for (; j < source.size(); ++j) {
 				cur = source[j];
 
-				if (!Utils::isalnum(cur) && cur != '_') {
+				if (!StrUtils::isalnum(cur) && cur != '_') {
 					break;
 				}
 			}
@@ -111,7 +111,7 @@ private:
 
 	static UINT _ResolveCommon(std::string_view& block);
 
-	static UINT _ResolvePass(std::string_view block, const std::vector<std::string_view>& commons, EffectDesc& desc);
+	static UINT _ResolvePasses(const std::vector<std::string_view>& blocks, const std::vector<std::string_view>& commons, EffectDesc& desc);
 
 	static constexpr const char* _META_INDICATOR = "//!";
 };

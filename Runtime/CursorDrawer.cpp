@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "CursorRenderer.h"
+#include "CursorDrawer.h"
 #include "App.h"
 #include "Utils.h"
 #include "shaders/MonochromeCursorPS.h"
@@ -8,7 +8,7 @@
 extern std::shared_ptr<spdlog::logger> logger;
 
 
-bool CursorRenderer::Initialize(ComPtr<ID3D11Texture2D> renderTarget, const RECT& destRect) {
+bool CursorDrawer::Initialize(ComPtr<ID3D11Texture2D> renderTarget, const RECT& destRect) {
 	App& app = App::GetInstance();
 	Renderer& renderer = app.GetRenderer();
 	_d3dDC = renderer.GetD3DDC();
@@ -118,11 +118,11 @@ bool CursorRenderer::Initialize(ComPtr<ID3D11Texture2D> renderTarget, const RECT
 		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("MagShowSystemCursor 失败"));
 	}
 
-	SPDLOG_LOGGER_INFO(logger, "CursorRenderer 初始化完成");
+	SPDLOG_LOGGER_INFO(logger, "CursorDrawer 初始化完成");
 	return true;
 }
 
-CursorRenderer::~CursorRenderer() {
+CursorDrawer::~CursorDrawer() {
 	ClipCursor(nullptr);
 
 	if (App::GetInstance().IsAdjustCursorSpeed()) {
@@ -131,7 +131,7 @@ CursorRenderer::~CursorRenderer() {
 	
 	MagShowSystemCursor(TRUE);
 
-	SPDLOG_LOGGER_INFO(logger, "CursorRenderer 已析构");
+	SPDLOG_LOGGER_INFO(logger, "CursorDrawer 已析构");
 }
 
 bool GetHBmpBits32(HBITMAP hBmp, int& width, int& height, std::vector<BYTE>& pixels) {
@@ -166,7 +166,7 @@ bool GetHBmpBits32(HBITMAP hBmp, int& width, int& height, std::vector<BYTE>& pix
 	return true;
 }
 
-bool CursorRenderer::_ResolveCursor(HCURSOR hCursor, _CursorInfo& result) const {
+bool CursorDrawer::_ResolveCursor(HCURSOR hCursor, _CursorInfo& result) const {
 	assert(hCursor != NULL);
 
 	ICONINFO ii{};
@@ -321,7 +321,7 @@ bool CursorRenderer::_ResolveCursor(HCURSOR hCursor, _CursorInfo& result) const 
 	return true;
 }
 
-void CursorRenderer::Draw() {
+void CursorDrawer::Draw() {
 	CURSORINFO ci{};
 	ci.cbSize = sizeof(ci);
 	if (!GetCursorInfo(&ci)) {

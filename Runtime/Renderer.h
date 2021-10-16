@@ -1,8 +1,8 @@
 #pragma once
 #include "pch.h"
-#include "Effect.h"
-#include "CursorRenderer.h"
-#include "FrameRateRenderer.h"
+#include "EffectDrawer.h"
+#include "CursorDrawer.h"
+#include "FrameRateDrawer.h"
 #include <CommonStates.h>
 #include "StepTimer.h"
 
@@ -83,10 +83,10 @@ private:
 	ComPtr<ID3D11VertexShader> _simpleVS;
 	ComPtr<ID3D11InputLayout> _simpleIL;
 	ComPtr<ID3D11PixelShader> _copyPS;
-	std::vector<Effect> _effects;
+	std::vector<EffectDrawer> _effects;
 
-	CursorRenderer _cursorRenderer;
-	FrameRateRenderer _frameRateRenderer;
+	CursorDrawer _cursorRenderer;
+	FrameRateDrawer _frameRateDrawer;
 
 	StepTimer _timer;
 };

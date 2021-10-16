@@ -3,11 +3,11 @@
 
 
 // 处理光标的渲染
-class CursorRenderer {
+class CursorDrawer {
 public:
 	bool Initialize(ComPtr<ID3D11Texture2D> renderTarget, const RECT& destRect);
 
-	~CursorRenderer();
+	~CursorDrawer();
 
 	void Draw();
 

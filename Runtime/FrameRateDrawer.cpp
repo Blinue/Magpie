@@ -1,11 +1,11 @@
 #include "pch.h"
-#include "FrameRateRenderer.h"
+#include "FrameRateDrawer.h"
 #include "App.h"
 
 using namespace std::chrono;
 
 
-bool FrameRateRenderer::Initialize(ComPtr<ID3D11Texture2D> renderTarget, const RECT& destRect) {
+bool FrameRateDrawer::Initialize(ComPtr<ID3D11Texture2D> renderTarget, const RECT& destRect) {
 	Renderer& renderer = App::GetInstance().GetRenderer();
 	_d3dDC = renderer.GetD3DDC();
 	if (!renderer.GetRenderTargetView(renderTarget.Get(), &_rtv)) {
@@ -23,7 +23,7 @@ bool FrameRateRenderer::Initialize(ComPtr<ID3D11Texture2D> renderTarget, const R
 	return true;
 }
 
-void FrameRateRenderer::Draw() {
+void FrameRateDrawer::Draw() {
 	const StepTimer& timer = App::GetInstance().GetRenderer().GetTimer();
 
 	_d3dDC->OMSetRenderTargets(1, &_rtv, nullptr);

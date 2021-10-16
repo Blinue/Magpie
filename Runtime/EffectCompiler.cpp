@@ -1,5 +1,7 @@
 #include "pch.h"
 #include "EffectCompiler.h"
+#include <unordered_set>
+#include "Utils.h"
 
 
 UINT EffectCompiler::Compile(const wchar_t* fileName, EffectDesc& desc) {
@@ -84,7 +86,7 @@ UINT EffectCompiler::Compile(const wchar_t* fileName, EffectDesc& desc) {
 				if (_GetNextToken<false>(t, token)) {
 					return 1;
 				}
-				std::string blockType = Utils::ToUpperCase(token);
+				std::string blockType = StrUtils::ToUpperCase(token);
 				
 				if (blockType == "CONSTANT") {
 					completeCurrentBlock(len, BlockType::Constant);
@@ -121,6 +123,9 @@ UINT EffectCompiler::Compile(const wchar_t* fileName, EffectDesc& desc) {
 		}
 	}
 
+	// 纹理第一个元素为 INPUT
+	EffectIntermediateTextureDesc& inputTex = desc.textures.emplace_back();
+	inputTex.name = "INPUT";
 	for (const std::string_view& block : textureBlocks) {
 		if (_ResolveTexture(block, desc)) {
 			return 1;
@@ -133,17 +138,36 @@ UINT EffectCompiler::Compile(const wchar_t* fileName, EffectDesc& desc) {
 		}
 	}
 
+	{
+		// 确保没有重复的名字
+		std::unordered_set<std::string> names;
+		for (const auto& d : desc.constants) {
+			if (names.find(d.name) != names.end()) {
+				return 1;
+			}
+			names.insert(d.name);
+		}
+		for (const auto& d : desc.textures) {
+			if (names.find(d.name) != names.end()) {
+				return 1;
+			}
+			names.insert(d.name);
+		}
+		for (const auto& d : desc.samplers) {
+			if (names.find(d.name) != names.end()) {
+				return 1;
+			}
+			names.insert(d.name);
+		}
+	}
+
 	for (std::string_view& block : commonBlocks) {
 		if (_ResolveCommon(block)) {
 			return 1;
 		}
 	}
 
-	for (const std::string_view& block : passBlocks) {
-		if (_ResolvePass(block, commonBlocks, desc)) {
-			return 1;
-		}
-	}
+	_ResolvePasses(passBlocks, commonBlocks, desc);
 
 	return 0;
 }
@@ -240,7 +264,7 @@ UINT EffectCompiler::_GetNextString(std::string_view& source, std::string_view& 
 	size_t pos = source.find('\n');
 
 	value = source.substr(0, pos);
-	Utils::Trim(value);
+	StrUtils::Trim(value);
 	if (value.empty()) {
 		return 1;
 	}
@@ -290,7 +314,7 @@ UINT EffectCompiler::_ResolveHeader(std::string_view block, EffectDesc& desc) {
 		if (_GetNextToken<false>(block, token)) {
 			return 1;
 		}
-		std::string t = Utils::ToUpperCase(token);
+		std::string t = StrUtils::ToUpperCase(token);
 
 		if (t == "VERSION") {
 			if (processed[0]) {
@@ -382,7 +406,7 @@ UINT EffectCompiler::_ResolveConstant(std::string_view block, EffectDesc& desc) 
 			return 1;
 		}
 
-		std::string t = Utils::ToUpperCase(token);
+		std::string t = StrUtils::ToUpperCase(token);
 
 		if (t == "VALUE") {
 			for (int i = 0; i < 5; ++i) {
@@ -582,7 +606,7 @@ UINT EffectCompiler::_ResolveTexture(std::string_view block, EffectDesc& desc) {
 			return 1;
 		}
 
-		std::string t = Utils::ToUpperCase(token);
+		std::string t = StrUtils::ToUpperCase(token);
 
 		if (t == "FORMAT") {
 			if (processed[0]) {
@@ -642,14 +666,17 @@ UINT EffectCompiler::_ResolveTexture(std::string_view block, EffectDesc& desc) {
 		if (processed[0] || processed[1]) {
 			return 1;
 		}
+
+		// INPUT 已为第一个元素
+		desc.textures.pop_back();
 	} else {
 		// 否则 FORMAT 为必需
 		if (!processed[0]) {
 			return 1;
 		}
-	}
 
-	texDesc.name = token;
+		texDesc.name = token;
+	}
 
 	if (!_CheckNextToken<true>(block, ";")) {
 		return 1;
@@ -688,7 +715,7 @@ UINT EffectCompiler::_ResolveSampler(std::string_view block, EffectDesc& desc) {
 		return 1;
 	}
 
-	if (Utils::ToUpperCase(token) != "FILTER") {
+	if (StrUtils::ToUpperCase(token) != "FILTER") {
 		return 1;
 	}
 
@@ -696,7 +723,7 @@ UINT EffectCompiler::_ResolveSampler(std::string_view block, EffectDesc& desc) {
 		return 1;
 	}
 
-	std::string filter = Utils::ToUpperCase(token);
+	std::string filter = StrUtils::ToUpperCase(token);
 
 	if (filter == "LINEAR") {
 		samDesc.filterType = EffectSamplerFilterType::Linear;
@@ -750,36 +777,156 @@ UINT EffectCompiler::_ResolveCommon(std::string_view& block) {
 	return 0;
 }
 
-UINT EffectCompiler::_ResolvePass(std::string_view block, const std::vector<std::string_view>& commons, EffectDesc& desc) {
+UINT EffectCompiler::_ResolvePasses(const std::vector<std::string_view>& blocks, const std::vector<std::string_view>& commons, EffectDesc& desc) {
 	// 可选项：BIND，SAVE
 
+	std::string commonHlsl;
+
+	// 预估需要的空间
+	size_t reservedSize = (desc.constants.size() + desc.samplers.size()) * 30;
+	for (const auto& c : commons) {
+		reservedSize += c.size();
+	}
+	commonHlsl.reserve(size_t(reservedSize * 1.5f));
+
+	if (!desc.constants.empty()) {
+		// 常量缓冲区
+		commonHlsl.append("cbuffer __C:register(b0){");
+		for (const auto& d : desc.constants) {
+			commonHlsl.append(d.type == EffectConstantType::Int ? "int " : "float ")
+				.append(d.name)
+				.append(";");
+		}
+		commonHlsl.append("};");
+	}
+	if (!desc.samplers.empty()) {
+		// 采样器
+		for (int i = 0; i < desc.samplers.size(); ++i) {
+			commonHlsl.append(fmt::format("SamplerState {}:register(s{});", desc.samplers[i].name, i));
+		}
+	}
+	commonHlsl.push_back('\n');
+
+	for (const auto& c : commons) {
+		commonHlsl.append(c);
+
+		if (commonHlsl.back() != '\n') {
+			commonHlsl.push_back('\n');
+		}
+	}
+	
 	std::string_view token;
 
-	if (!_CheckNextToken<true>(block, _META_INDICATOR)) {
-		return 1;
-	}
+	for (std::string_view block : blocks) {
+		if (!_CheckNextToken<true>(block, _META_INDICATOR)) {
+			return 1;
+		}
 
-	if (!_CheckNextToken<false>(block, "PASS")) {
-		return 1;
-	}
+		if (!_CheckNextToken<false>(block, "PASS")) {
+			return 1;
+		}
 
-	UINT index;
-	if (_GetNextNumber(block, index)) {
-		return 1;
-	}
-	if (_GetNextToken<false>(block, token) != 2) {
-		return 1;
-	}
+		UINT index;
+		if (_GetNextNumber(block, index)) {
+			return 1;
+		}
+		if (_GetNextToken<false>(block, token) != 2) {
+			return 1;
+		}
 
-	if (desc.passes.size() < index) {
-		desc.passes.resize(index);
-	}
+		if (desc.passes.size() < index) {
+			desc.passes.resize(index);
+		}
 
-	EffectPassDesc& passDesc = desc.passes[static_cast<size_t>(index) - 1];
-	if (!passDesc.cso.empty()) {
-		return 1;
-	}
+		EffectPassDesc& passDesc = desc.passes[static_cast<size_t>(index) - 1];
+		if (!passDesc.cso.empty()) {
+			return 1;
+		}
 
+		while (true) {
+			if (!_CheckNextToken<true>(block, _META_INDICATOR)) {
+				break;
+			}
+
+			if (_GetNextToken<false>(block, token)) {
+				return 1;
+			}
+
+			std::string t = StrUtils::ToUpperCase(token);
+
+			if (t == "BIND") {
+				std::string binds;
+				if (_GetNextExpr(block, binds)) {
+					return 1;
+				}
+
+				std::vector<std::string_view> inputs = StrUtils::Split(binds, ',');
+				for (const std::string_view& input : inputs) {
+					size_t i = 0;
+					for (; i < desc.textures.size(); ++i) {
+						if (desc.textures[i].name == input) {
+							passDesc.inputs.push_back((UINT)i);
+							break;
+						}
+					}
+
+					if (i == desc.textures.size()) {
+						// 未找到纹理名称
+						return 1;
+					}
+				}
+			} else if (t == "SAVE") {
+				std::string saves;
+				if (_GetNextExpr(block, saves)) {
+					return 1;
+				}
+
+				std::vector<std::string_view> outputs = StrUtils::Split(saves, ',');
+				for (const std::string_view& output : outputs) {
+					size_t i = 0;
+					for (; i < desc.textures.size(); ++i) {
+						if (desc.textures[i].name == output) {
+							passDesc.outputs.push_back((UINT)i);
+							break;
+						}
+					}
+
+					if (i == desc.textures.size()) {
+						// 未找到纹理名称
+						return 1;
+					}
+				}
+			} else {
+				return 1;
+			}
+		}
+
+		std::string passHlsl;
+		passHlsl.reserve(size_t((commonHlsl.size() + block.size() + passDesc.inputs.size() * 30) * 1.5));
+
+		for (int i = 0; i < passDesc.inputs.size(); ++i) {
+			passHlsl.append(fmt::format("Texture2D {}:register(t{});", desc.textures[passDesc.inputs[i]].name, i));
+		}
+		passHlsl.append(commonHlsl).append(block);
+
+		if (passHlsl.back() == '\n') {
+			passHlsl.push_back('\n');
+		}
+		
+		// main 函数
+		if (passDesc.outputs.size() <= 1) {
+			passHlsl.append(fmt::format("float4 __M(float4 p:SV_POSITION,float2 c:TEXCOORD):SV_TARGET"
+				"{{return Pass{}(c);}}", index));
+		} else {
+			// 多渲染目标
+
+		}
+
+		ComPtr<ID3DBlob> blob = nullptr;
+		if (!Utils::CompilePixelShader(passHlsl, "__M", &blob)) {
+			return false;
+		}
+	}
 
 
 	return 0;

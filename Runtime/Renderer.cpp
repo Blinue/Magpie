@@ -39,9 +39,9 @@ bool Renderer::InitializeEffectsAndCursor() {
 	EffectDesc desc{};
 	EffectCompiler::Compile(L"shaders/test.hlsl", desc);
 
-	Effect& effect = _effects.emplace_back();
+	EffectDrawer& effect = _effects.emplace_back();
 	if (!effect.InitializeFsr()) {
-		SPDLOG_LOGGER_CRITICAL(logger, "初始化 Effect 失败");
+		SPDLOG_LOGGER_CRITICAL(logger, "初始化 EffectDrawer 失败");
 		return false;
 	}
 
@@ -63,18 +63,18 @@ bool Renderer::InitializeEffectsAndCursor() {
 	effect.SetOutputSize(outputSize);
 
 	if (!effect.Build(_effectInput, _backBuffer)) {
-		SPDLOG_LOGGER_CRITICAL(logger, "构建 Effect 失败");
+		SPDLOG_LOGGER_CRITICAL(logger, "构建 EffectDrawer 失败");
 		return false;
 	}
 
 	if (App::GetInstance().IsShowFPS()) {
-		if (!_frameRateRenderer.Initialize(_backBuffer, destRect)) {
+		if (!_frameRateDrawer.Initialize(_backBuffer, destRect)) {
 			return false;
 		}
 	}
 
 	if (!_cursorRenderer.Initialize(_backBuffer, destRect)) {
-		SPDLOG_LOGGER_CRITICAL(logger, "构建 CursorRenderer 失败");
+		SPDLOG_LOGGER_CRITICAL(logger, "构建 CursorDrawer 失败");
 		return false;
 	}
 
@@ -405,12 +405,12 @@ void Renderer::_Render() {
 	// 所有渲染都使用三角形带拓扑
 	_d3dDC->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 
-	for (Effect& effect : _effects) {
+	for (EffectDrawer& effect : _effects) {
 		effect.Draw();
 	}
 
 	if (App::GetInstance().IsShowFPS()) {
-		_frameRateRenderer.Draw();
+		_frameRateDrawer.Draw();
 	}
 
 	_cursorRenderer.Draw();

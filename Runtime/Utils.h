@@ -2,8 +2,7 @@
 #include "pch.h"
 
 
-class Utils {
-public:
+struct Utils {
 	static UINT GetWindowShowCmd(HWND hwnd);
 
 	static RECT GetClientScreenRect(HWND hWnd);
@@ -28,35 +27,11 @@ public:
 
 	static bool ReadTextFile(const wchar_t* fileName, std::string& result);
 
-	static bool CompilePixelShader(const char* hlsl, size_t hlslLen, ID3DBlob** blob);
+	static bool CompilePixelShader(std::string_view hlsl, const char* entryPoint, ID3DBlob** blob);
 
 	static const RTL_OSVERSIONINFOW& GetOSVersion();
 
 	static int CompareVersion(int major1, int minor1, int build1, int major2, int minor2, int build2);
-
-	static std::string ToUpperCase(std::string_view str) {
-		std::string result(str);
-		std::transform(result.begin(), result.end(), result.begin(), toupper);
-		return result;
-	}
-
-	static void Trim(std::string_view& str);
-
-	static int isspace(char c) {
-		return std::isspace(static_cast<unsigned char>(c));
-	}
-
-	static int isalpha(char c) {
-		return std::isalpha(static_cast<unsigned char>(c));
-	}
-
-	static int isalnum(char c) {
-		return std::isalnum(static_cast<unsigned char>(c));
-	}
-
-	static char toupper(char c) {
-		return std::toupper(static_cast<unsigned char>(c));
-	}
 
 	template<typename T>
 	class ScopeExit {

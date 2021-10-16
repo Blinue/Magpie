@@ -142,12 +142,12 @@ bool Utils::ReadTextFile(const wchar_t* fileName, std::string& result) {
 	return true;
 }
 
-bool Utils::CompilePixelShader(const char* hlsl, size_t hlslLen, ID3DBlob** blob) {
+bool Utils::CompilePixelShader(std::string_view hlsl, const char* entryPoint, ID3DBlob** blob) {
     ComPtr<ID3DBlob> errorMsgs = nullptr;
 
     UINT flags = D3DCOMPILE_ENABLE_STRICTNESS;
-    HRESULT hr = D3DCompile(hlsl, hlslLen, nullptr, nullptr, nullptr,
-        "main", "ps_5_0", flags, 0, blob, &errorMsgs);
+    HRESULT hr = D3DCompile(hlsl.data(), hlsl.size(), nullptr, nullptr, nullptr,
+        entryPoint, "ps_5_0", flags, 0, blob, &errorMsgs);
     if (FAILED(hr)) {
         if (errorMsgs) {
             SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg(
@@ -158,8 +158,6 @@ bool Utils::CompilePixelShader(const char* hlsl, size_t hlslLen, ID3DBlob** blob
 
     return true;
 }
-
-
 
 const RTL_OSVERSIONINFOW& Utils::GetOSVersion() {
 	static RTL_OSVERSIONINFOW version{};
@@ -195,23 +193,4 @@ int Utils::CompareVersion(int major1, int minor1, int build1, int major2, int mi
 	} else {
 		return build1 - build2;
 	}
-}
-
-void Utils::Trim(std::string_view& str) {
-	for (int i = 0; i < str.size(); ++i) {
-		if (!isspace(str[i])) {
-			str.remove_prefix(i);
-
-			size_t i = str.size() - 1;
-			for (; i > 0; --i) {
-				if (!isspace(str[i])) {
-					break;
-				}
-			}
-			str.remove_suffix(str.size() - 1 - i);
-			return;
-		}
-	}
-
-	str.remove_prefix(str.size());
 }

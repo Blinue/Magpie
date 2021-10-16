@@ -156,12 +156,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="App.h" />
-    <ClInclude Include="CursorRenderer.h" />
-    <ClInclude Include="Effect.h" />
+    <ClInclude Include="CursorDrawer.h" />
+    <ClInclude Include="EffectDrawer.h" />
     <ClInclude Include="EffectCompiler.h" />
     <ClInclude Include="EffectDesc.h" />
     <ClInclude Include="ErrorMessages.h" />
-    <ClInclude Include="FrameRateRenderer.h" />
+    <ClInclude Include="FrameRateDrawer.h" />
     <ClInclude Include="FrameSourceBase.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="GDIOverDXGIFrameSource.h" />
@@ -172,16 +172,17 @@
     <ClInclude Include="resource.h" />
     <ClInclude Include="DwmSharedSurfaceFrameSource.h" />
     <ClInclude Include="StepTimer.h" />
+    <ClInclude Include="StrUtils.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="Utils.h" />
     <ClInclude Include="GraphicsCaptureFrameSource.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App.cpp" />
-    <ClCompile Include="CursorRenderer.cpp" />
-    <ClCompile Include="Effect.cpp" />
+    <ClCompile Include="CursorDrawer.cpp" />
+    <ClCompile Include="EffectDrawer.cpp" />
     <ClCompile Include="EffectCompiler.cpp" />
-    <ClCompile Include="FrameRateRenderer.cpp" />
+    <ClCompile Include="FrameRateDrawer.cpp" />
     <ClCompile Include="GDIOverDXGIFrameSource.cpp" />
     <ClCompile Include="GDIFrameSource.cpp" />
     <ClCompile Include="MagCallbackFrameSource.cpp" />
@@ -190,6 +191,7 @@
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="DwmSharedSurfaceFrameSource.cpp" />
     <ClCompile Include="StepTimer.cpp" />
+    <ClCompile Include="StrUtils.cpp" />
     <ClCompile Include="Utils.cpp" />
     <ClCompile Include="GraphicsCaptureFrameSource.cpp" />
   </ItemGroup>

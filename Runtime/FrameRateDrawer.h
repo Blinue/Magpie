@@ -4,7 +4,7 @@
 #include <chrono>
 
 
-class FrameRateRenderer {
+class FrameRateDrawer {
 public:
 	bool Initialize(ComPtr<ID3D11Texture2D> renderTarget, const RECT& destRect);
 

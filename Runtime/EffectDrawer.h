@@ -10,7 +10,7 @@ union Constant32 {
 };
 
 
-class Effect {
+class EffectDrawer {
 public:
 	bool InitializeFromString(std::string_view hlsl);
 	bool InitializeFromFile(const wchar_t* fileName);
@@ -37,14 +37,14 @@ public:
 private:
 	class _Pass {
 	public:
-		bool Initialize(Effect* parent, const std::string& pixelShader);
+		bool Initialize(EffectDrawer* parent, const std::string& pixelShader);
 
-		bool Build(const std::vector<int>& inputs, int output, std::optional<SIZE> outputSize);
+		bool Build(const std::vector<UINT>& inputs, UINT output, std::optional<SIZE> outputSize);
 
 		void Draw();
 
 	private:
-		Effect* _parent = nullptr;
+		EffectDrawer* _parent = nullptr;
 		ComPtr<ID3D11DeviceContext> _d3dDC;
 
 		ID3D11RenderTargetView* _outputRtv = nullptr;
