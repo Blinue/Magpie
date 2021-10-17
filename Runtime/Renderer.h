@@ -17,12 +17,7 @@ public:
 
 	void Render();
 
-	enum class FilterType {
-		LINEAR,
-		POINT
-	};
-
-	bool GetSampler(FilterType filterType, ID3D11SamplerState** result);
+	bool GetSampler(EffectSamplerFilterType filterType, ID3D11SamplerState** result);
 
 	ComPtr<ID3D11Device1> GetD3DDevice() const{
 		return _d3dDevice;

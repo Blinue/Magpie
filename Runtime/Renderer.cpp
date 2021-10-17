@@ -36,11 +36,8 @@ bool Renderer::Initialize() {
 }
 
 bool Renderer::InitializeEffectsAndCursor() {
-	EffectDesc desc{};
-	EffectCompiler::Compile(L"shaders/test.hlsl", desc);
-
 	EffectDrawer& effect = _effects.emplace_back();
-	if (!effect.InitializeFsr()) {
+	if (!effect.Initialize(L"shaders/Lanczos.hlsl")) {
 		SPDLOG_LOGGER_CRITICAL(logger, "初始化 EffectDrawer 失败");
 		return false;
 	}
@@ -469,8 +466,8 @@ bool Renderer::SetAlphaBlend(bool enable) {
 	return true;
 }
 
-bool Renderer::GetSampler(FilterType filterType, ID3D11SamplerState** result) {
-	if (filterType == FilterType::LINEAR) {
+bool Renderer::GetSampler(EffectSamplerFilterType filterType, ID3D11SamplerState** result) {
+	if (filterType == EffectSamplerFilterType::Linear) {
 		if (!_linearSampler) {
 			D3D11_SAMPLER_DESC desc{};
 			desc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;

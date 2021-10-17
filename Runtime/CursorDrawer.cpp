@@ -43,8 +43,8 @@ bool CursorDrawer::Initialize(ComPtr<ID3D11Texture2D> renderTarget, const RECT& 
 		return false;
 	}
 
-	if (!renderer.GetSampler(Renderer::FilterType::LINEAR, &_linearSam)
-		|| !renderer.GetSampler(Renderer::FilterType::POINT, &_pointSam)
+	if (!renderer.GetSampler(EffectSamplerFilterType::Linear, &_linearSam)
+		|| !renderer.GetSampler(EffectSamplerFilterType::Point, &_pointSam)
 	) {
 		SPDLOG_LOGGER_ERROR(logger, "GetSampler 失败");
 		return false;

@@ -10,7 +10,7 @@ enum class EffectIntermediateTextureFormat {
 
 struct EffectIntermediateTextureDesc {
 	std::pair<std::string, std::string> sizeExpr;
-	EffectIntermediateTextureFormat format;
+	EffectIntermediateTextureFormat format = EffectIntermediateTextureFormat::B8G8R8A8_UNORM;
 	std::string name;
 };
 
@@ -20,7 +20,7 @@ enum class EffectSamplerFilterType {
 };
 
 struct EffectSamplerDesc {
-	EffectSamplerFilterType filterType;
+	EffectSamplerFilterType filterType = EffectSamplerFilterType::Linear;
 	std::string name;
 };
 
@@ -39,7 +39,7 @@ struct EffectConstantDesc {
 	std::string name;
 	std::string label;
 	EffectConstantType type = EffectConstantType::Float;
-	std::variant<std::monostate, float, int> defaultValue;
+	std::variant<float, int> defaultValue;
 	std::variant<std::monostate, float, int> minValue;
 	std::variant<std::monostate, float, int> maxValue;
 };
@@ -47,7 +47,7 @@ struct EffectConstantDesc {
 struct EffectPassDesc {
 	std::vector<UINT> inputs;
 	std::vector<UINT> outputs;
-	std::vector<BYTE> cso;
+	ComPtr<ID3DBlob> cso;
 };
 
 struct EffectDesc {

@@ -3,6 +3,10 @@
 
 
 struct StrUtils {
+	static std::wstring UTF8ToUTF16(std::string_view str);
+
+	static std::string UTF16ToUTF8(std::wstring_view str);
+
 	static void Trim(std::string_view& str);
 
 	static std::vector<std::string_view> Split(std::string_view str, char delimiter) {

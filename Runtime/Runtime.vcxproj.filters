@@ -117,7 +117,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />
-    <None Include="conanfile.py" />
     <None Include="packages.config" />
     <None Include="shaders\common.hlsli">
       <Filter>着色器</Filter>
@@ -172,5 +171,11 @@
     <CopyFileToFolders Include="assets\OpenSans.spritefont">
       <Filter>资源文件</Filter>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="shaders\Lanczos.hlsl">
+      <Filter>着色器</Filter>
+    </CopyFileToFolders>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="conanfile.txt" />
   </ItemGroup>
 </Project>

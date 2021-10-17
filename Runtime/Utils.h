@@ -17,10 +17,6 @@ struct Utils {
 		return { rect.right - rect.left,rect.bottom - rect.top };
 	}
 
-	static std::wstring UTF8ToUTF16(std::string_view str);
-
-	static std::string UTF16ToUTF8(std::wstring_view str);
-
 	static int Measure(std::function<void()> func);
 
 	static bool ReadFile(const wchar_t* fileName, std::vector<BYTE>& result);

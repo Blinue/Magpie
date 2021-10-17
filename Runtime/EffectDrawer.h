@@ -12,19 +12,17 @@ union Constant32 {
 
 class EffectDrawer {
 public:
-	bool InitializeFromString(std::string_view hlsl);
-	bool InitializeFromFile(const wchar_t* fileName);
-	bool InitializeFsr();
+	bool Initialize(const wchar_t* fileName);
 
 	const std::vector<EffectConstantDesc>& GetConstantDescs() const {
-		return _constantDescs;
+		return _effectDesc.constants;
 	}
 
 	bool SetConstant(int index, float value);
 
 	bool SetConstant(int index, int value);
 
-	SIZE CalcOutputSize(SIZE inputSize) const;
+	bool CalcOutputSize(SIZE inputSize, SIZE& outputSize) const;
 
 	bool CanSetOutputSize() const;
 
@@ -37,7 +35,7 @@ public:
 private:
 	class _Pass {
 	public:
-		bool Initialize(EffectDrawer* parent, const std::string& pixelShader);
+		bool Initialize(EffectDrawer* parent, ComPtr<ID3DBlob> shaderBlob);
 
 		bool Build(const std::vector<UINT>& inputs, UINT output, std::optional<SIZE> outputSize);
 
@@ -64,7 +62,6 @@ private:
 	std::vector<ID3D11SamplerState*> _samplers;
 	std::vector<ComPtr<ID3D11Texture2D>> _textures;
 
-	std::vector<EffectConstantDesc> _constantDescs;
 	std::vector<Constant32> _constants;
 	ComPtr<ID3D11Buffer> _constantBuffer;
 
@@ -72,6 +69,6 @@ private:
 
 	std::optional<SIZE> _outputSize;
 
-	std::vector<EffectPassDesc> _passDescs;
+	EffectDesc _effectDesc{};
 	std::vector<_Pass> _passes;
 };

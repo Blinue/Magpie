@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "GraphicsCaptureFrameSource.h"
 #include "App.h"
-#include "Utils.h"
+#include "StrUtils.h"
 
 
 extern std::shared_ptr<spdlog::logger> logger;
@@ -95,7 +95,7 @@ bool GraphicsCaptureFrameSource::Initialize() {
 
         _captureSession.StartCapture();
     } catch (const winrt::hresult_error& e) {
-        SPDLOG_LOGGER_ERROR(logger, fmt::format("初始化 WinRT 失败：{}", Utils::UTF16ToUTF8(e.message())));
+        SPDLOG_LOGGER_ERROR(logger, fmt::format("初始化 WinRT 失败：{}", StrUtils::UTF16ToUTF8(e.message())));
         App::GetInstance().SetErrorMsg(ErrorMessages::GRAPHICS_CAPTURE);
         return false;
     }

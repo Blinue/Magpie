@@ -8,7 +8,9 @@ UINT EffectCompiler::Compile(const wchar_t* fileName, EffectDesc& desc) {
 	desc = {};
 
 	std::string source;
-	Utils::ReadTextFile(fileName, source);
+	if (!Utils::ReadTextFile(fileName, source)) {
+		return 1;
+	}
 
 	if (source.empty()) {
 		return 1;
@@ -113,6 +115,11 @@ UINT EffectCompiler::Compile(const wchar_t* fileName, EffectDesc& desc) {
 
 	completeCurrentBlock(sourceView.size() - curBlockOff, BlockType::Header);
 
+	// 必须有 PASS 块
+	if (passBlocks.empty()) {
+		return 1;
+	}
+
 	if (_ResolveHeader(headerBlock, desc)) {
 		return 1;
 	}
@@ -167,7 +174,9 @@ UINT EffectCompiler::Compile(const wchar_t* fileName, EffectDesc& desc) {
 		}
 	}
 
-	_ResolvePasses(passBlocks, commonBlocks, desc);
+	if (_ResolvePasses(passBlocks, commonBlocks, desc)) {
+		return 1;
+	}
 
 	return 0;
 }
@@ -374,6 +383,7 @@ UINT EffectCompiler::_ResolveHeader(std::string_view block, EffectDesc& desc) {
 UINT EffectCompiler::_ResolveConstant(std::string_view block, EffectDesc& desc) {
 	// 可选的选项：VALUE，DEFAULT，LABEL，MIN，MAX
 	// VALUE 与其他选项互斥
+	// 如果无 VALUE 则必须有 DEFAULT
 
 	std::vector<bool> processed(5, false);
 
@@ -550,6 +560,10 @@ UINT EffectCompiler::_ResolveConstant(std::string_view block, EffectDesc& desc) 
 			}
 		}
 	} else {
+		return 1;
+	}
+
+	if (processed[0] == processed[1]) {
 		return 1;
 	}
 
@@ -789,9 +803,14 @@ UINT EffectCompiler::_ResolvePasses(const std::vector<std::string_view>& blocks,
 	}
 	commonHlsl.reserve(size_t(reservedSize * 1.5f));
 
-	if (!desc.constants.empty()) {
+	if (!desc.constants.empty() || !desc.valueConstants.empty()) {
 		// 常量缓冲区
 		commonHlsl.append("cbuffer __C:register(b0){");
+		for (const auto& d : desc.valueConstants) {
+			commonHlsl.append(d.type == EffectConstantType::Int ? "int " : "float ")
+				.append(d.name)
+				.append(";");
+		}
 		for (const auto& d : desc.constants) {
 			commonHlsl.append(d.type == EffectConstantType::Int ? "int " : "float ")
 				.append(d.name)
@@ -839,8 +858,14 @@ UINT EffectCompiler::_ResolvePasses(const std::vector<std::string_view>& blocks,
 		}
 
 		EffectPassDesc& passDesc = desc.passes[static_cast<size_t>(index) - 1];
-		if (!passDesc.cso.empty()) {
+		if (passDesc.cso) {
 			return 1;
+		}
+
+		// 用于检查输入和输出中重复的纹理
+		std::unordered_map<std::string_view, UINT> texNames;
+		for (size_t i = 0; i < desc.textures.size(); ++i) {
+			texNames.emplace(desc.textures[i].name, (UINT)i);
 		}
 
 		while (true) {
@@ -859,21 +884,17 @@ UINT EffectCompiler::_ResolvePasses(const std::vector<std::string_view>& blocks,
 				if (_GetNextExpr(block, binds)) {
 					return 1;
 				}
-
+				
 				std::vector<std::string_view> inputs = StrUtils::Split(binds, ',');
 				for (const std::string_view& input : inputs) {
-					size_t i = 0;
-					for (; i < desc.textures.size(); ++i) {
-						if (desc.textures[i].name == input) {
-							passDesc.inputs.push_back((UINT)i);
-							break;
-						}
-					}
-
-					if (i == desc.textures.size()) {
+					auto it = texNames.find(input);
+					if (it == texNames.end()) {
 						// 未找到纹理名称
 						return 1;
 					}
+
+					passDesc.inputs.push_back(it->second);
+					texNames.erase(it);
 				}
 			} else if (t == "SAVE") {
 				std::string saves;
@@ -882,19 +903,25 @@ UINT EffectCompiler::_ResolvePasses(const std::vector<std::string_view>& blocks,
 				}
 
 				std::vector<std::string_view> outputs = StrUtils::Split(saves, ',');
+				if (outputs.size() > 8) {
+					// 最多 8 个输出
+					return 1;
+				}
+				
 				for (const std::string_view& output : outputs) {
-					size_t i = 0;
-					for (; i < desc.textures.size(); ++i) {
-						if (desc.textures[i].name == output) {
-							passDesc.outputs.push_back((UINT)i);
-							break;
-						}
+					// INPUT 不能作为输出
+					if (output == "INPUT") {
+						return 1;
 					}
 
-					if (i == desc.textures.size()) {
+					auto it = texNames.find(output);
+					if (it == texNames.end()) {
 						// 未找到纹理名称
 						return 1;
 					}
+
+					passDesc.outputs.push_back(it->second);
+					texNames.erase(it);
 				}
 			} else {
 				return 1;
@@ -909,7 +936,7 @@ UINT EffectCompiler::_ResolvePasses(const std::vector<std::string_view>& blocks,
 		}
 		passHlsl.append(commonHlsl).append(block);
 
-		if (passHlsl.back() == '\n') {
+		if (passHlsl.back() != '\n') {
 			passHlsl.push_back('\n');
 		}
 		
@@ -919,15 +946,33 @@ UINT EffectCompiler::_ResolvePasses(const std::vector<std::string_view>& blocks,
 				"{{return Pass{}(c);}}", index));
 		} else {
 			// 多渲染目标
-
+			passHlsl.append("void main(float4 p:SV_POSITION,float2 c:TEXCOORD,out float4 t0:SV_TARGET0,out float4 t1:SV_TARGET1");
+			for (int i = 2; i < passDesc.outputs.size(); ++i) {
+				passHlsl.append(fmt::format(",out float4 t{0}:SV_TARGET{0}", i));
+			}
+			passHlsl.append(fmt::format("){{Pass{}(c,t0,t1", index));
+			for (int i = 2; i < passDesc.outputs.size(); ++i) {
+				passHlsl.append(fmt::format(",t{}", i));
+			}
+			passHlsl.append(");}");
 		}
 
-		ComPtr<ID3DBlob> blob = nullptr;
-		if (!Utils::CompilePixelShader(passHlsl, "__M", &blob)) {
-			return false;
+		if (!Utils::CompilePixelShader(passHlsl, "__M", passDesc.cso.ReleaseAndGetAddressOf())) {
+			return 1;
 		}
 	}
 
+	// 确保每个 PASS 都存在
+	for (const auto& p : desc.passes) {
+		if (!p.cso) {
+			return 1;
+		}
+	}
+	
+	// 最后一个 PASS 必须输出到 OUTPUT
+	if (!desc.passes.back().outputs.empty()) {
+		return 1;
+	}
 
 	return 0;
 }

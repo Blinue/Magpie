@@ -3,96 +3,115 @@
 #include "App.h"
 #include "Utils.h"
 #include <VertexTypes.h>
+#include "EffectCompiler.h"
+
+#ifdef _UNICODE
+#undef _UNICODE
+// Conan 的 muparser 不含 UNICODE 支持
 #include <muParser.h>
+#define _UNICODE
+#else
+#include <muParser.h>
+#endif
+
 
 extern std::shared_ptr<spdlog::logger> logger;
 
+// 所有 EffectDrawer 共享一个实例
+static mu::Parser exprParser;
 
-bool EffectDrawer::InitializeFromString(std::string_view hlsl) {
-	/*Renderer& renderer = App::GetInstance().GetRenderer();
-	_Pass& pass = _passes.emplace_back();
+void SetExprVars(SIZE inputSize, SIZE outputSize) {
+	assert(inputSize.cx > 0 && inputSize.cy > 0);
 
-	if (!pass.Initialize(this, hlsl)) {
-		SPDLOG_LOGGER_ERROR(logger, "Pass1 初始化失败");
-		return false;
+	static double inputWidth = 0;
+	static double inputHeight = 0;
+	static double inputPtX = 0;
+	static double inputPtY = 0;
+	static double outputWidth = 0;
+	static double outputHeight = 0;
+	static double outputPtX = 0;
+	static double outputPtY = 0;
+	static double scaleX = 0;
+	static double scaleY = 0;
+
+	static bool init = false;
+
+	if (!init) {
+		init = true;
+
+		exprParser.DefineVar("INPUT_WIDTH", &inputWidth);
+		exprParser.DefineVar("INPUT_HEIGHT", &inputHeight);
+		exprParser.DefineVar("INPUT_PT_X", &inputPtX);
+		exprParser.DefineVar("INPUT_PT_Y", &inputPtY);
+		exprParser.DefineVar("OUTPUT_WIDTH", &outputWidth);
+		exprParser.DefineVar("OUTPUT_HEIGHT", &outputHeight);
+		exprParser.DefineVar("OUTPUT_PT_X", &outputPtX);
+		exprParser.DefineVar("OUTPUT_PT_Y", &outputPtY);
+		exprParser.DefineVar("SCALE_X", &scaleX);
+		exprParser.DefineVar("SCALE_Y", &scaleY);
 	}
-	PassDesc& desc = _passDescs.emplace_back();
-	desc.inputs.push_back(0);
-	desc.samplers.push_back(0);
-	desc.output = 1;
 
-	_samplers.emplace_back(renderer.GetSampler(Renderer::FilterType::LINEAR));*/
-
-	return false;
+	inputWidth = inputSize.cx;
+	inputHeight = inputSize.cy;
+	inputPtX = 1.0f / inputSize.cx;
+	inputPtY = 1.0f / inputSize.cy;
+	outputWidth = outputSize.cx;
+	outputHeight = outputSize.cy;
+	outputPtX = 1.0f / outputSize.cx;
+	outputPtY = 1.0f / outputSize.cy;
+	scaleX = inputPtX * outputWidth;
+	scaleY = inputPtY * outputHeight;
 }
 
-bool EffectDrawer::InitializeFromFile(const wchar_t* fileName) {
-	std::string psText;
-	if (!Utils::ReadTextFile(fileName, psText)) {
-		SPDLOG_LOGGER_ERROR(logger, fmt::format("读取着色器文件{}失败", Utils::UTF16ToUTF8(fileName)));
+
+bool EffectDrawer::Initialize(const wchar_t* fileName) {
+	if (EffectCompiler::Compile(fileName, _effectDesc)) {
+		SPDLOG_LOGGER_ERROR(logger, fmt::format("编译 {} 失败", StrUtils::UTF16ToUTF8(fileName)));
 		return false;
 	}
 
-	return InitializeFromString(psText);
-}
-
-bool EffectDrawer::InitializeFsr() {
 	Renderer& renderer = App::GetInstance().GetRenderer();
 	_d3dDevice = renderer.GetD3DDevice();
 	_d3dDC = renderer.GetD3DDC();
 
-	const wchar_t* fileName = L"shaders\\FsrEasu.hlsl";
-	std::string easuHlsl;
-	if (!Utils::ReadTextFile(fileName, easuHlsl)) {
-		SPDLOG_LOGGER_ERROR(logger, fmt::format("读取着色器文件{}失败", Utils::UTF16ToUTF8(fileName)));
-		return false;
+	_samplers.resize(_effectDesc.passes.size());
+	for (int i = 0; i < _samplers.size(); ++i) {
+		if (!renderer.GetSampler(_effectDesc.samplers[i].filterType, &_samplers[i])) {
+			SPDLOG_LOGGER_ERROR(logger, fmt::format("创建采样器 {} 失败", _effectDesc.samplers[i].name));
+			return false;
+		}
 	}
 
-	fileName = L"shaders\\FsrRcas.hlsl";
-	std::string rcasHlsl;
-	if (!Utils::ReadTextFile(fileName, rcasHlsl)) {
-		SPDLOG_LOGGER_ERROR(logger, fmt::format("读取着色器文件{}失败", Utils::UTF16ToUTF8(fileName)));
-		return false;
-	}
-
-	_passes.resize(2);
-	if (!_passes[0].Initialize(this, easuHlsl)) {
-		SPDLOG_LOGGER_ERROR(logger, "easuPass 初始化失败");
-		return false;
-	}
-	if (!_passes[1].Initialize(this, rcasHlsl)) {
-		SPDLOG_LOGGER_ERROR(logger, "rcasPass 初始化失败");
-		return false;
-	}
-
-	_passDescs.resize(2);
-	_passDescs[0].inputs.push_back(0);
-	_passDescs[0].outputs.push_back(1);
-	_passDescs[1].inputs.push_back(1);
-	_passDescs[1].outputs.push_back(2);
-
-	ID3D11SamplerState*& sam = _samplers.emplace_back();
-	if (!renderer.GetSampler(Renderer::FilterType::LINEAR, &sam)) {
-		SPDLOG_LOGGER_ERROR(logger, "GetSampler 失败");
-		return false;
-	}
-	
-	for (int i = 0; i < 5; ++i) {
-		_constants.emplace_back();
+	_passes.resize(_effectDesc.passes.size());
+	for (int i = 0; i < _passes.size(); ++i) {
+		if (!_passes[i].Initialize(this, _effectDesc.passes[i].cso)) {
+			SPDLOG_LOGGER_ERROR(logger, fmt::format("Pass{} 初始化失败", i + 1));
+			return false;
+		}
 	}
 
 	// 大小必须为 4 的倍数
-	_constants.resize((_constants.size() + 3) / 4 * 4);
+	_constants.resize((_effectDesc.valueConstants.size() + _effectDesc.constants.size() + 3) / 4 * 4);
+
+	// 设置常量默认值
+	for (int i = 0; i < _effectDesc.constants.size(); ++i) {
+		const auto& c = _effectDesc.constants[i];
+		if (c.type == EffectConstantType::Float) {
+			_constants[_effectDesc.valueConstants.size() + i].floatVal = std::get<float>(c.defaultValue);
+		} else {
+			_constants[_effectDesc.valueConstants.size() + i].intVal = std::get<int>(c.defaultValue);
+		}
+	}
 
 	return true;
 }
 
 bool EffectDrawer::SetConstant(int index, float value) {
-	if (index < 0 || index >= _constantDescs.size()) {
+	if (index < 0 || index >= _effectDesc.constants.size()) {
 		return false;
 	}
 
-	const auto& desc = _constantDescs[index];
+	const auto& desc = _effectDesc.constants[index];
 	if (desc.type != EffectConstantType::Float) {
 		return false;
 	}
@@ -120,11 +139,11 @@ bool EffectDrawer::SetConstant(int index, float value) {
 }
 
 bool EffectDrawer::SetConstant(int index, int value) {
-	if (index < 0 || index >= _constantDescs.size()) {
+	if (index < 0 || index >= _effectDesc.constants.size()) {
 		return false;
 	}
 
-	const auto& desc = _constantDescs[index];
+	const auto& desc = _effectDesc.constants[index];
 	if (desc.type != EffectConstantType::Int) {
 		return false;
 	}
@@ -151,16 +170,29 @@ bool EffectDrawer::SetConstant(int index, int value) {
 	return true;
 }
 
-SIZE EffectDrawer::CalcOutputSize(SIZE inputSize) const {
-	if (_outputSize.has_value()) {
-		return _outputSize.value();
+bool EffectDrawer::CalcOutputSize(SIZE inputSize, SIZE& outputSize) const {
+	if (CanSetOutputSize()) {
+		outputSize = _outputSize.has_value() ? _outputSize.value() : inputSize;
+		return true;
 	} else {
-		return inputSize;
+		// Effect 已指定输出尺寸
+		SetExprVars(inputSize, {});
+
+		try {
+			exprParser.SetExpr(_effectDesc.outSizeExpr.first);
+			outputSize.cx = std::lround(exprParser.Eval());
+			exprParser.SetExpr(_effectDesc.outSizeExpr.second);
+			outputSize.cy = std::lround(exprParser.Eval());
+		} catch (...) {
+			return false;
+		}
+
+		return true;
 	}
 }
 
 bool EffectDrawer::CanSetOutputSize() const {
-	return true;
+	return _effectDesc.outSizeExpr.first.empty();
 }
 
 void EffectDrawer::SetOutputSize(SIZE value) {
@@ -170,36 +202,70 @@ void EffectDrawer::SetOutputSize(SIZE value) {
 bool EffectDrawer::Build(ComPtr<ID3D11Texture2D> input, ComPtr<ID3D11Texture2D> output) {
 	D3D11_TEXTURE2D_DESC inputDesc;
 	input->GetDesc(&inputDesc);
-	
-	SIZE outputSize = CalcOutputSize({ (long)inputDesc.Width, (long)inputDesc.Height });
+	SIZE inputSize = { (long)inputDesc.Width, (long)inputDesc.Height };
 
-	_textures.emplace_back(input);
-
-	ComPtr<ID3D11Texture2D>& tex1 = _textures.emplace_back();
-	D3D11_TEXTURE2D_DESC desc{};
-	desc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
-	desc.Width = outputSize.cx;
-	desc.Height = outputSize.cy;
-	desc.Usage = D3D11_USAGE_DEFAULT;
-	desc.MipLevels = 1;
-	desc.ArraySize = 1;
-	desc.SampleDesc.Count = 1;
-	desc.SampleDesc.Quality = 0;
-	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
-	HRESULT hr = App::GetInstance().GetRenderer().GetD3DDevice()->CreateTexture2D(&desc, nullptr, &tex1);
-	if (FAILED(hr)) {
-		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("创建 Texture2D 失败", hr));
+	SIZE outputSize;
+	if (!CalcOutputSize({ (long)inputDesc.Width, (long)inputDesc.Height }, outputSize)) {
 		return false;
 	}
+	
+	SetExprVars(inputSize, outputSize);
 
-	_textures.emplace_back(output);
+	// 创建中间纹理
+	_textures.resize(_effectDesc.textures.size() + 1);
+	_textures[0] = input;
+	for (size_t i = 1, end = _effectDesc.textures.size() - 1; i < end; ++i) {
+		SIZE texSize{};
+		try {
+			exprParser.SetExpr(_effectDesc.textures[i].sizeExpr.first);
+			texSize.cx = std::lround(exprParser.Eval());
+			exprParser.SetExpr(_effectDesc.textures[i].sizeExpr.second);
+			texSize.cy = std::lround(exprParser.Eval());
+		} catch (...) {
+			return false;
+		}
 
+		if (texSize.cx <= 0 || texSize.cy <= 0) {
+			return false;
+		}
 
-	_constants[0].intVal = inputDesc.Width;
-	_constants[1].intVal = inputDesc.Height;
-	_constants[2].intVal = outputSize.cx;
-	_constants[3].intVal = outputSize.cy;
-	_constants[4].floatVal = 0.87f;
+		D3D11_TEXTURE2D_DESC desc{};
+		desc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
+		desc.Width = texSize.cx;
+		desc.Height = texSize.cy;
+		desc.Usage = D3D11_USAGE_DEFAULT;
+		desc.MipLevels = 1;
+		desc.ArraySize = 1;
+		desc.SampleDesc.Count = 1;
+		desc.SampleDesc.Quality = 0;
+		desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
+		HRESULT hr = App::GetInstance().GetRenderer().GetD3DDevice()->CreateTexture2D(
+			&desc, nullptr, _textures[i].ReleaseAndGetAddressOf());
+		if (FAILED(hr)) {
+			SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("创建 Texture2D 失败", hr));
+			return false;
+		}
+	}
+
+	_textures.back() = output;
+
+	for (size_t i = 0; i < _effectDesc.valueConstants.size(); ++i) {
+		const auto& d = _effectDesc.valueConstants[i];
+
+		double value;
+		try {
+			exprParser.SetExpr(d.valueExpr);
+			value = exprParser.Eval();
+		} catch (...) {
+			return false;
+		}
+		
+		if (_effectDesc.valueConstants[i].type == EffectConstantType::Float) {
+			_constants[i].floatVal = (float)value;
+		} else {
+			_constants[i].intVal = (int)std::lround(value);
+		}
+	}
 
 	// 创建常量缓冲区
 	D3D11_BUFFER_DESC bd{};
@@ -210,14 +276,20 @@ bool EffectDrawer::Build(ComPtr<ID3D11Texture2D> input, ComPtr<ID3D11Texture2D> 
 	D3D11_SUBRESOURCE_DATA initData{};
 	initData.pSysMem = _constants.data();
 	
-	hr = _d3dDevice->CreateBuffer(&bd, &initData, &_constantBuffer);
+	HRESULT hr = _d3dDevice->CreateBuffer(&bd, &initData, &_constantBuffer);
 	if (FAILED(hr)) {
 		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("CreateBuffer 失败", hr));
 		return false;
 	}
 
-	for (int i = 0; i < _passes.size(); ++i) {
-		EffectPassDesc& desc = _passDescs[i];
+	for (size_t i = 0; i < _passes.size(); ++i) {
+		EffectPassDesc& desc = _effectDesc.passes[i];
+
+		// 为空时表示输出到 OUTPUT
+		if (desc.outputs.empty()) {
+			desc.outputs.push_back(UINT(_effectDesc.textures.size()));
+		}
+
 		if (!_passes[i].Build(desc.inputs, desc.outputs[0], outputSize)
 		) {
 			SPDLOG_LOGGER_ERROR(logger, fmt::format("构建 Pass{} 时出错", i + 1));
@@ -239,17 +311,12 @@ void EffectDrawer::Draw() {
 }
 
 
-bool EffectDrawer::_Pass::Initialize(EffectDrawer* parent, const std::string& pixelShader) {
+bool EffectDrawer::_Pass::Initialize(EffectDrawer* parent, ComPtr<ID3DBlob> shaderBlob) {
 	Renderer& renderer = App::GetInstance().GetRenderer();
 	_parent = parent;
 	_d3dDC = renderer.GetD3DDC();
 
-	ComPtr<ID3DBlob> blob = nullptr;
-	if (!Utils::CompilePixelShader(pixelShader, "main", &blob)) {
-		return false;
-	}
-	
-	HRESULT hr = renderer.GetD3DDevice()->CreatePixelShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, &_pixelShader);
+	HRESULT hr = renderer.GetD3DDevice()->CreatePixelShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), nullptr, &_pixelShader);
 	if (FAILED(hr)) {
 		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("创建像素着色器失败", hr));
 		return false;

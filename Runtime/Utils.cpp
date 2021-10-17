@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "Utils.h"
 #include <io.h>
+#include "StrUtils.h"
 
 
 extern std::shared_ptr<spdlog::logger> logger;
@@ -53,44 +54,6 @@ RECT Utils::GetScreenRect(HWND hWnd) {
 	return mi.rcMonitor;
 }
 
-std::wstring Utils::UTF8ToUTF16(std::string_view str) {
-	int convertResult = MultiByteToWideChar(CP_UTF8, 0, str.data(), (int)str.size(), nullptr, 0);
-	if (convertResult <= 0) {
-		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("MultiByteToWideChar 失败"));
-		assert(false);
-		return {};
-	}
-
-	std::wstring r(convertResult + 10, L'\0');
-	convertResult = MultiByteToWideChar(CP_UTF8, 0, str.data(), (int)str.size(), &r[0], (int)r.size());
-	if (convertResult <= 0) {
-		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("MultiByteToWideChar 失败"));
-		assert(false);
-		return {};
-	}
-
-	return std::wstring(r.begin(), r.begin() + convertResult);
-}
-
-std::string Utils::UTF16ToUTF8(std::wstring_view str) {
-	int convertResult = WideCharToMultiByte(CP_UTF8, 0, str.data(), (int)str.size(), nullptr, 0, nullptr, nullptr);
-	if (convertResult <= 0) {
-		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("WideCharToMultiByte 失败"));
-		assert(false);
-		return {};
-	}
-
-	std::string r(convertResult + 10, L'\0');
-	convertResult = WideCharToMultiByte(CP_UTF8, 0, str.data(), (int)str.size(), &r[0], (int)r.size(), nullptr, nullptr);
-	if (convertResult <= 0) {
-		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("WideCharToMultiByte 失败"));
-		assert(false);
-		return {};
-	}
-
-	return std::string(r.begin(), r.begin() + convertResult);
-}
-
 int Utils::Measure(std::function<void()> func) {
     using namespace std::chrono;
 
@@ -104,7 +67,7 @@ int Utils::Measure(std::function<void()> func) {
 bool Utils::ReadFile(const wchar_t* fileName, std::vector<BYTE>& result) {
 	FILE* hFile;
 	if (_wfopen_s(&hFile, fileName, L"rb") || !hFile) {
-		SPDLOG_LOGGER_ERROR(logger, fmt::format("打开文件{}失败", UTF16ToUTF8(fileName)));
+		SPDLOG_LOGGER_ERROR(logger, fmt::format("打开文件{}失败", StrUtils::UTF16ToUTF8(fileName)));
 		return false;
 	}
 
@@ -124,7 +87,7 @@ bool Utils::ReadFile(const wchar_t* fileName, std::vector<BYTE>& result) {
 bool Utils::ReadTextFile(const wchar_t* fileName, std::string& result) {
 	FILE* hFile;
 	if (_wfopen_s(&hFile, fileName, L"rt") || !hFile) {
-		SPDLOG_LOGGER_ERROR(logger, fmt::format("打开文件{}失败", UTF16ToUTF8(fileName)));
+		SPDLOG_LOGGER_ERROR(logger, fmt::format("打开文件{}失败", StrUtils::UTF16ToUTF8(fileName)));
 		return false;
 	}
 
