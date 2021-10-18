@@ -82,7 +82,7 @@ bool EffectDrawer::Initialize(const wchar_t* fileName) {
 	_d3dDC = renderer.GetD3DDC();
 
 	_samplers.resize(_effectDesc.samplers.size());
-	for (int i = 0; i < _samplers.size(); ++i) {
+	for (size_t i = 0; i < _samplers.size(); ++i) {
 		if (!renderer.GetSampler(_effectDesc.samplers[i].filterType, &_samplers[i])) {
 			SPDLOG_LOGGER_ERROR(logger, fmt::format("创建采样器 {} 失败", _effectDesc.samplers[i].name));
 			return false;
@@ -90,8 +90,8 @@ bool EffectDrawer::Initialize(const wchar_t* fileName) {
 	}
 
 	_passes.resize(_effectDesc.passes.size());
-	for (int i = 0; i < _passes.size(); ++i) {
-		if (!_passes[i].Initialize(this, _effectDesc.passes[i].cso)) {
+	for (size_t i = 0; i < _passes.size(); ++i) {
+		if (!_passes[i].Initialize(this, i)) {
 			SPDLOG_LOGGER_ERROR(logger, fmt::format("Pass{} 初始化失败", i + 1));
 			return false;
 		}
@@ -101,7 +101,7 @@ bool EffectDrawer::Initialize(const wchar_t* fileName) {
 	_constants.resize((_effectDesc.constants.size() + _effectDesc.valueConstants.size() + 3) / 4 * 4);
 
 	// 设置常量默认值
-	for (int i = 0; i < _effectDesc.constants.size(); ++i) {
+	for (size_t i = 0; i < _effectDesc.constants.size(); ++i) {
 		const auto& c = _effectDesc.constants[i];
 		if (c.type == EffectConstantType::Float) {
 			_constants[i].floatVal = std::get<float>(c.defaultValue);
@@ -292,7 +292,7 @@ bool EffectDrawer::Build(ComPtr<ID3D11Texture2D> input, ComPtr<ID3D11Texture2D> 
 			_constants[i + _effectDesc.constants.size()].intVal = (int)std::lround(value);
 		}
 	}
-
+	
 	// 创建常量缓冲区
 	D3D11_BUFFER_DESC bd{};
 	bd.Usage = D3D11_USAGE_DEFAULT;
@@ -316,7 +316,7 @@ bool EffectDrawer::Build(ComPtr<ID3D11Texture2D> input, ComPtr<ID3D11Texture2D> 
 			desc.outputs.push_back(UINT(_effectDesc.textures.size()));
 		}
 
-		if (!_passes[i].Build(desc.inputs, desc.outputs[0], outputSize)
+		if (!_passes[i].Build(outputSize)
 		) {
 			SPDLOG_LOGGER_ERROR(logger, fmt::format("构建 Pass{} 时出错", i + 1));
 			return false;
@@ -337,12 +337,14 @@ void EffectDrawer::Draw() {
 }
 
 
-bool EffectDrawer::_Pass::Initialize(EffectDrawer* parent, ComPtr<ID3DBlob> shaderBlob) {
+bool EffectDrawer::_Pass::Initialize(EffectDrawer* parent, size_t index) {
 	Renderer& renderer = App::GetInstance().GetRenderer();
 	_parent = parent;
+	_passDesc = &parent->_effectDesc.passes[index];
 	_d3dDC = renderer.GetD3DDC();
 
-	HRESULT hr = renderer.GetD3DDevice()->CreatePixelShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), nullptr, &_pixelShader);
+	HRESULT hr = renderer.GetD3DDevice()->CreatePixelShader(
+		_passDesc->cso->GetBufferPointer(), _passDesc->cso->GetBufferSize(), nullptr, &_pixelShader);
 	if (FAILED(hr)) {
 		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("创建像素着色器失败", hr));
 		return false;
@@ -351,25 +353,27 @@ bool EffectDrawer::_Pass::Initialize(EffectDrawer* parent, ComPtr<ID3DBlob> shad
 	return true;
 }
 
-bool EffectDrawer::_Pass::Build(const std::vector<UINT>& inputs, UINT output, std::optional<SIZE> outputSize) {
+bool EffectDrawer::_Pass::Build(std::optional<SIZE> outputSize) {
 	Renderer& renderer = App::GetInstance().GetRenderer();
 
-	_inputs.resize(inputs.size());
-	for (int i = 0; i < _inputs.size(); ++i) {
-		if (!renderer.GetShaderResourceView(_parent->_textures[inputs[i]].Get(), &_inputs[i])) {
+	_inputs.resize(_passDesc->inputs.size());
+	for (size_t i = 0; i < _inputs.size(); ++i) {
+		if (!renderer.GetShaderResourceView(_parent->_textures[_passDesc->inputs[i]].Get(), &_inputs[i])) {
 			SPDLOG_LOGGER_ERROR(logger,"获取 ShaderResourceView 失败");
 			return false;
 		}
 	}
 
-	ComPtr<ID3D11Texture2D> outputTex = _parent->_textures[output];
-	if (!App::GetInstance().GetRenderer().GetRenderTargetView(outputTex.Get(), &_outputRtv)) {
-		SPDLOG_LOGGER_ERROR(logger, "获取 RenderTargetView 失败");
-		return false;
+	_outputs.resize(_passDesc->outputs.size());
+	for (size_t i = 0; i < _outputs.size(); ++i) {
+		if (!App::GetInstance().GetRenderer().GetRenderTargetView(_parent->_textures[_passDesc->outputs[i]].Get(), &_outputs[i])) {
+			SPDLOG_LOGGER_ERROR(logger, "获取 RenderTargetView 失败");
+			return false;
+		}
 	}
 
 	D3D11_TEXTURE2D_DESC desc;
-	outputTex->GetDesc(&desc);
+	_parent->_textures[_passDesc->outputs[0]]->GetDesc(&desc);
 	SIZE outputTextureSize = { (LONG)desc.Width, (LONG)desc.Height };
 
 	_vp.Width = (float)outputTextureSize.cx;
@@ -410,7 +414,7 @@ bool EffectDrawer::_Pass::Build(const std::vector<UINT>& inputs, UINT output, st
 
 void EffectDrawer::_Pass::Draw() {
 	_d3dDC->PSSetShaderResources(0, 0, nullptr);
-	_d3dDC->OMSetRenderTargets(1, &_outputRtv, nullptr);
+	_d3dDC->OMSetRenderTargets((UINT)_outputs.size(), _outputs.data(), nullptr);
 	_d3dDC->RSSetViewports(1, &_vp);
 
 	_d3dDC->PSSetShader(_pixelShader.Get(), nullptr, 0);

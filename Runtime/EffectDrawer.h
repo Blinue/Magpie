@@ -35,21 +35,21 @@ public:
 private:
 	class _Pass {
 	public:
-		bool Initialize(EffectDrawer* parent, ComPtr<ID3DBlob> shaderBlob);
+		bool Initialize(EffectDrawer* parent, size_t index);
 
-		bool Build(const std::vector<UINT>& inputs, UINT output, std::optional<SIZE> outputSize);
+		bool Build(std::optional<SIZE> outputSize);
 
 		void Draw();
 
 	private:
 		EffectDrawer* _parent = nullptr;
+		const EffectPassDesc* _passDesc = nullptr;
 		ComPtr<ID3D11DeviceContext> _d3dDC;
-
-		ID3D11RenderTargetView* _outputRtv = nullptr;
 		
 		ComPtr<ID3D11PixelShader> _pixelShader;
 
 		std::vector<ID3D11ShaderResourceView*> _inputs;
+		std::vector<ID3D11RenderTargetView*> _outputs;
 		std::vector<ID3D11SamplerState*> _samplers;
 
 		ComPtr<ID3D11Buffer> _vtxBuffer;

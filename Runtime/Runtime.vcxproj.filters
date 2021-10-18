@@ -118,9 +118,6 @@
   <ItemGroup>
     <None Include="cpp.hint" />
     <None Include="packages.config" />
-    <None Include="shaders\common.hlsli">
-      <Filter>着色器</Filter>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="着色器">

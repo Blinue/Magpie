@@ -2,6 +2,7 @@
 #include "EffectCompiler.h"
 #include <unordered_set>
 #include "Utils.h"
+#include <bitset>
 
 
 UINT EffectCompiler::Compile(const wchar_t* fileName, EffectDesc& desc) {
@@ -311,7 +312,7 @@ UINT EffectCompiler::_ResolveHeader(std::string_view block, EffectDesc& desc) {
 	// 必需的选项：VERSION
 	// 可选的选项：OUTPUT_WIDTH，OUTPUT_HEIGHT
 
-	std::vector<bool> processed(3, false);
+	std::bitset<3> processed;
 
 	std::string_view token;
 
@@ -385,7 +386,7 @@ UINT EffectCompiler::_ResolveConstant(std::string_view block, EffectDesc& desc) 
 	// VALUE 与其他选项互斥
 	// 如果无 VALUE 则必须有 DEFAULT
 
-	std::vector<bool> processed(5, false);
+	std::bitset<5> processed;
 
 	std::string_view token;
 
@@ -596,7 +597,7 @@ UINT EffectCompiler::_ResolveTexture(std::string_view block, EffectDesc& desc) {
 
 	EffectIntermediateTextureDesc& texDesc = desc.textures.emplace_back();
 
-	std::vector<bool> processed(3, false);
+	std::bitset<3> processed;
 
 	std::string_view token;
 
@@ -868,6 +869,8 @@ UINT EffectCompiler::_ResolvePasses(const std::vector<std::string_view>& blocks,
 			texNames.emplace(desc.textures[i].name, (UINT)i);
 		}
 
+		std::bitset<2> processed;
+
 		while (true) {
 			if (!_CheckNextToken<true>(block, _META_INDICATOR)) {
 				break;
@@ -880,6 +883,11 @@ UINT EffectCompiler::_ResolvePasses(const std::vector<std::string_view>& blocks,
 			std::string t = StrUtils::ToUpperCase(token);
 
 			if (t == "BIND") {
+				if (processed[0]) {
+					return 1;
+				}
+				processed[0] = true;
+
 				std::string binds;
 				if (_GetNextExpr(block, binds)) {
 					return 1;
@@ -897,6 +905,11 @@ UINT EffectCompiler::_ResolvePasses(const std::vector<std::string_view>& blocks,
 					texNames.erase(it);
 				}
 			} else if (t == "SAVE") {
+				if (processed[1]) {
+					return 1;
+				}
+				processed[1] = true;
+
 				std::string saves;
 				if (_GetNextExpr(block, saves)) {
 					return 1;

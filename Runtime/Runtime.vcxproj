@@ -204,7 +204,6 @@
     </CopyFileToFolders>
     <None Include="cpp.hint" />
     <None Include="packages.config" />
-    <None Include="shaders\common.hlsli" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Version.rc" />
