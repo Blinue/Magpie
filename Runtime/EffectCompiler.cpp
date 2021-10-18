@@ -806,12 +806,12 @@ UINT EffectCompiler::_ResolvePasses(const std::vector<std::string_view>& blocks,
 	if (!desc.constants.empty() || !desc.valueConstants.empty()) {
 		// 常量缓冲区
 		commonHlsl.append("cbuffer __C:register(b0){");
-		for (const auto& d : desc.valueConstants) {
+		for (const auto& d : desc.constants) {
 			commonHlsl.append(d.type == EffectConstantType::Int ? "int " : "float ")
 				.append(d.name)
 				.append(";");
 		}
-		for (const auto& d : desc.constants) {
+		for (const auto& d : desc.valueConstants) {
 			commonHlsl.append(d.type == EffectConstantType::Int ? "int " : "float ")
 				.append(d.name)
 				.append(";");

@@ -18,9 +18,9 @@ public:
 		return _effectDesc.constants;
 	}
 
-	bool SetConstant(int index, float value);
+	bool SetConstant(std::string_view name, float value);
 
-	bool SetConstant(int index, int value);
+	bool SetConstant(std::string_view name, int value);
 
 	bool CalcOutputSize(SIZE inputSize, SIZE& outputSize) const;
 
@@ -62,6 +62,7 @@ private:
 	std::vector<ID3D11SamplerState*> _samplers;
 	std::vector<ComPtr<ID3D11Texture2D>> _textures;
 
+	std::unordered_map<std::string_view, UINT> _constNamesMap;
 	std::vector<Constant32> _constants;
 	ComPtr<ID3D11Buffer> _constantBuffer;
 

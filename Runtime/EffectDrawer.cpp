@@ -65,9 +65,16 @@ void SetExprVars(SIZE inputSize, SIZE outputSize) {
 
 
 bool EffectDrawer::Initialize(const wchar_t* fileName) {
-	if (EffectCompiler::Compile(fileName, _effectDesc)) {
+	bool result = false;
+	int duration = Utils::Measure([&]() {
+		result = !EffectCompiler::Compile(fileName, _effectDesc);
+	});
+
+	if (!result) {
 		SPDLOG_LOGGER_ERROR(logger, fmt::format("编译 {} 失败", StrUtils::UTF16ToUTF8(fileName)));
 		return false;
+	} else {
+		SPDLOG_LOGGER_INFO(logger, fmt::format("编译 {} 用时 {} 毫秒", StrUtils::UTF16ToUTF8(fileName), duration / 1000.0f));
 	}
 
 	Renderer& renderer = App::GetInstance().GetRenderer();
@@ -91,32 +98,39 @@ bool EffectDrawer::Initialize(const wchar_t* fileName) {
 	}
 
 	// 大小必须为 4 的倍数
-	_constants.resize((_effectDesc.valueConstants.size() + _effectDesc.constants.size() + 3) / 4 * 4);
+	_constants.resize((_effectDesc.constants.size() + _effectDesc.valueConstants.size() + 3) / 4 * 4);
 
 	// 设置常量默认值
 	for (int i = 0; i < _effectDesc.constants.size(); ++i) {
 		const auto& c = _effectDesc.constants[i];
 		if (c.type == EffectConstantType::Float) {
-			_constants[_effectDesc.valueConstants.size() + i].floatVal = std::get<float>(c.defaultValue);
+			_constants[i].floatVal = std::get<float>(c.defaultValue);
 		} else {
-			_constants[_effectDesc.valueConstants.size() + i].intVal = std::get<int>(c.defaultValue);
+			_constants[i].intVal = std::get<int>(c.defaultValue);
 		}
 	}
 
+	// 用于快速查找常量名
+	for (UINT i = 0; i < _effectDesc.constants.size(); ++i) {
+		_constNamesMap.emplace(_effectDesc.constants[i].name, i);
+	}
+	
 	return true;
 }
 
-bool EffectDrawer::SetConstant(int index, float value) {
-	if (index < 0 || index >= _effectDesc.constants.size()) {
+bool EffectDrawer::SetConstant(std::string_view name, float value) {
+	auto it = _constNamesMap.find(name);
+	if (it == _constNamesMap.end()) {
 		return false;
 	}
+	UINT index = it->second;
 
 	const auto& desc = _effectDesc.constants[index];
 	if (desc.type != EffectConstantType::Float) {
 		return false;
 	}
 
-	if (_constants[static_cast<size_t>(index) + 2].floatVal == value) {
+	if (_constants[index].floatVal == value) {
 		return true;
 	}
 
@@ -133,15 +147,17 @@ bool EffectDrawer::SetConstant(int index, float value) {
 		}
 	}
 
-	_constants[static_cast<size_t>(index) + 2].floatVal = value;
+	_constants[index].floatVal = value;
 
 	return true;
 }
 
-bool EffectDrawer::SetConstant(int index, int value) {
-	if (index < 0 || index >= _effectDesc.constants.size()) {
+bool EffectDrawer::SetConstant(std::string_view name, int value) {
+	auto it = _constNamesMap.find(name);
+	if (it == _constNamesMap.end()) {
 		return false;
 	}
+	UINT index = it->second;
 
 	const auto& desc = _effectDesc.constants[index];
 	if (desc.type != EffectConstantType::Int) {
@@ -261,9 +277,9 @@ bool EffectDrawer::Build(ComPtr<ID3D11Texture2D> input, ComPtr<ID3D11Texture2D> 
 		}
 		
 		if (_effectDesc.valueConstants[i].type == EffectConstantType::Float) {
-			_constants[i].floatVal = (float)value;
+			_constants[i + _effectDesc.constants.size()].floatVal = (float)value;
 		} else {
-			_constants[i].intVal = (int)std::lround(value);
+			_constants[i + _effectDesc.constants.size()].intVal = (int)std::lround(value);
 		}
 	}
 

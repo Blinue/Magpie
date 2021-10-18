@@ -18,6 +18,12 @@ float outputPtX;
 //!VALUE OUTPUT_PT_Y
 float outputPtY;
 
+//!CONSTANT
+//!DEFAULT 0.5
+//!MIN 0
+//!MAX 1
+float ARStrength;
+
 //!TEXTURE
 Texture2D INPUT;
 
@@ -90,7 +96,7 @@ float4 Pass1(float2 pos) {
 	// 抗振铃
 	float3 min_sample = min4(neighbors[0], neighbors[1], neighbors[2], neighbors[3]);
 	float3 max_sample = max4(neighbors[0], neighbors[1], neighbors[2], neighbors[3]);
-	color = lerp(color, clamp(color, min_sample, max_sample), 0.5);
+	color = lerp(color, clamp(color, min_sample, max_sample), ARStrength);
 
 	return float4(color, 1);
 }

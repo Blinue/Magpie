@@ -58,6 +58,9 @@ bool Renderer::InitializeEffectsAndCursor() {
 	destRect.bottom = destRect.top + outputSize.cy;
 
 	effect.SetOutputSize(outputSize);
+	if (!effect.SetConstant("ARStrength", 0.7f)) {
+		return false;
+	}
 
 	if (!effect.Build(_effectInput, _backBuffer)) {
 		SPDLOG_LOGGER_CRITICAL(logger, "构建 EffectDrawer 失败");
