@@ -81,7 +81,7 @@ bool EffectDrawer::Initialize(const wchar_t* fileName) {
 	_d3dDevice = renderer.GetD3DDevice();
 	_d3dDC = renderer.GetD3DDC();
 
-	_samplers.resize(_effectDesc.passes.size());
+	_samplers.resize(_effectDesc.samplers.size());
 	for (int i = 0; i < _samplers.size(); ++i) {
 		if (!renderer.GetSampler(_effectDesc.samplers[i].filterType, &_samplers[i])) {
 			SPDLOG_LOGGER_ERROR(logger, fmt::format("创建采样器 {} 失败", _effectDesc.samplers[i].name));
@@ -230,7 +230,7 @@ bool EffectDrawer::Build(ComPtr<ID3D11Texture2D> input, ComPtr<ID3D11Texture2D> 
 	// 创建中间纹理
 	_textures.resize(_effectDesc.textures.size() + 1);
 	_textures[0] = input;
-	for (size_t i = 1, end = _effectDesc.textures.size() - 1; i < end; ++i) {
+	for (size_t i = 1; i < _effectDesc.textures.size(); ++i) {
 		SIZE texSize{};
 		try {
 			exprParser.SetExpr(_effectDesc.textures[i].sizeExpr.first);
@@ -246,7 +246,17 @@ bool EffectDrawer::Build(ComPtr<ID3D11Texture2D> input, ComPtr<ID3D11Texture2D> 
 		}
 
 		D3D11_TEXTURE2D_DESC desc{};
-		desc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
+		switch (_effectDesc.textures[i].format) {
+		case EffectIntermediateTextureFormat::B8G8R8A8_UNORM:
+			desc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
+			break;
+		case EffectIntermediateTextureFormat::R16G16B16A16_FLOAT:
+			desc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
+			break;
+		default:
+			return false;
+		}
+		
 		desc.Width = texSize.cx;
 		desc.Height = texSize.cy;
 		desc.Usage = D3D11_USAGE_DEFAULT;

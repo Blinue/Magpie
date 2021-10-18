@@ -162,16 +162,13 @@
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
-    <CopyFileToFolders Include="shaders\FsrEasu.hlsl">
-      <Filter>着色器</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="shaders\FsrRcas.hlsl">
-      <Filter>着色器</Filter>
-    </CopyFileToFolders>
     <CopyFileToFolders Include="assets\OpenSans.spritefont">
       <Filter>资源文件</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="shaders\Lanczos.hlsl">
+      <Filter>着色器</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="shaders\FSR.hlsl">
       <Filter>着色器</Filter>
     </CopyFileToFolders>
   </ItemGroup>

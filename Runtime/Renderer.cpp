@@ -37,7 +37,7 @@ bool Renderer::Initialize() {
 
 bool Renderer::InitializeEffectsAndCursor() {
 	EffectDrawer& effect = _effects.emplace_back();
-	if (!effect.Initialize(L"shaders/Lanczos.hlsl")) {
+	if (!effect.Initialize(L"shaders/FSR.hlsl")) {
 		SPDLOG_LOGGER_CRITICAL(logger, "初始化 EffectDrawer 失败");
 		return false;
 	}
@@ -58,7 +58,7 @@ bool Renderer::InitializeEffectsAndCursor() {
 	destRect.bottom = destRect.top + outputSize.cy;
 
 	effect.SetOutputSize(outputSize);
-	if (!effect.SetConstant("ARStrength", 0.7f)) {
+	if (!effect.SetConstant("sharpness", 0.87f)) {
 		return false;
 	}
 
