@@ -158,6 +158,7 @@
   <ItemGroup>
     <ClInclude Include="App.h" />
     <ClInclude Include="CursorDrawer.h" />
+    <ClInclude Include="EffectCache.h" />
     <ClInclude Include="EffectDrawer.h" />
     <ClInclude Include="EffectCompiler.h" />
     <ClInclude Include="EffectDesc.h" />
@@ -181,6 +182,7 @@
   <ItemGroup>
     <ClCompile Include="App.cpp" />
     <ClCompile Include="CursorDrawer.cpp" />
+    <ClCompile Include="EffectCache.cpp" />
     <ClCompile Include="EffectDrawer.cpp" />
     <ClCompile Include="EffectCompiler.cpp" />
     <ClCompile Include="FrameRateDrawer.cpp" />

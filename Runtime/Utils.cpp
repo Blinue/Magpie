@@ -2,7 +2,7 @@
 #include "Utils.h"
 #include <io.h>
 #include "StrUtils.h"
-
+#include <winternl.h>
 
 
 bool Utils::ReadFile(const wchar_t* fileName, std::vector<BYTE>& result) {
@@ -69,3 +69,75 @@ const RTL_OSVERSIONINFOW& Utils::GetOSVersion() {
 	
 	return version;
 }
+
+Utils::MD5::MD5() {
+	NTSTATUS status = BCryptOpenAlgorithmProvider(&_hAlg, BCRYPT_MD5_ALGORITHM, NULL, 0);
+	if (!NT_SUCCESS(status)) {
+		SPDLOG_LOGGER_ERROR(logger,fmt::format("BCryptOpenAlgorithmProvider 失败\n\tNTSTATUS={}", status));
+		return;
+	}
+
+	ULONG result;
+
+	status = BCryptGetProperty(_hAlg, BCRYPT_OBJECT_LENGTH, (PBYTE)&_hashObjLen, sizeof(_hashObjLen), &result, 0);
+	if (!NT_SUCCESS(status)) {
+		SPDLOG_LOGGER_ERROR(logger, fmt::format("BCryptGetProperty 失败\n\tNTSTATUS={}", status));
+		return;
+	}
+
+	_hashObj = HeapAlloc(GetProcessHeap(), 0, _hashObjLen);
+	if (!_hashObj) {
+		SPDLOG_LOGGER_ERROR(logger, "HeapAlloc 失败");
+		return;
+	}
+
+	status = BCryptGetProperty(_hAlg, BCRYPT_HASH_LENGTH, (PBYTE)&_hashLen, sizeof(_hashLen), &result, 0);
+	if (!NT_SUCCESS(status)) {
+		SPDLOG_LOGGER_ERROR(logger, fmt::format("BCryptGetProperty 失败\n\tNTSTATUS={}", status));
+		return;
+	}
+
+	SPDLOG_LOGGER_INFO(logger, "Utils::MD5 初始化成功");
+}
+
+Utils::MD5::~MD5() {
+	if (_hAlg) {
+		BCryptCloseAlgorithmProvider(_hAlg, 0);
+	}
+	if (_hashObj) {
+		HeapFree(GetProcessHeap(), 0, _hashObj);
+	}
+}
+
+
+bool Utils::MD5::Hash(void* data, size_t len, std::vector<BYTE>& result) {
+	if (_hashLen == 0) {
+		// 初始化失败
+		return false;
+	}
+	result.resize(_hashLen);
+
+	BCRYPT_HASH_HANDLE hHash;
+	NTSTATUS status = BCryptCreateHash(_hAlg, &hHash, (PUCHAR)_hashObj, _hashObjLen, NULL, 0, 0);
+	if (!NT_SUCCESS(status)) {
+		SPDLOG_LOGGER_ERROR(logger, fmt::format("BCryptCreateHash 失败\n\tNTSTATUS={}", status));
+		return false;
+	}
+
+	status = BCryptHashData(hHash, (PUCHAR)data, len, 0);
+	if (!NT_SUCCESS(status)) {
+		SPDLOG_LOGGER_ERROR(logger, fmt::format("BCryptCreateHash 失败\n\tNTSTATUS={}", status));
+		return false;
+	}
+
+	status = BCryptFinishHash(hHash, result.data(), result.size(), 0);
+	if (!NT_SUCCESS(status)) {
+		SPDLOG_LOGGER_ERROR(logger, fmt::format("BCryptFinishHash 失败\n\tNTSTATUS={}", status));
+		return false;
+	}
+
+	BCryptDestroyHash(hHash);
+
+	return true;
+}
+

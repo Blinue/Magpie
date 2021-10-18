@@ -49,6 +49,9 @@
     <ClCompile Include="StrUtils.cpp">
       <Filter>应用程序</Filter>
     </ClCompile>
+    <ClCompile Include="EffectCache.cpp">
+      <Filter>效果</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="resource.h">
@@ -113,6 +116,9 @@
     </ClInclude>
     <ClInclude Include="StrUtils.h">
       <Filter>应用程序</Filter>
+    </ClInclude>
+    <ClInclude Include="EffectCache.h">
+      <Filter>效果</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -1,5 +1,6 @@
 #pragma once
 #include "pch.h"
+#include <bcrypt.h>
 
 
 extern std::shared_ptr<spdlog::logger> logger;
@@ -108,6 +109,26 @@ struct Utils {
 			return build1 - build2;
 		}
 	}
+
+	class MD5 {
+	public:
+		static MD5* GetInstance() {
+			static MD5* instance = new MD5();
+			return instance;
+		}
+
+		bool Hash(void* data, size_t len, std::vector<BYTE>& result);
+
+	private:
+		MD5();
+
+		~MD5();
+
+		BCRYPT_ALG_HANDLE _hAlg = NULL;
+		DWORD _hashObjLen = 0;		// hash 对象的大小
+		void* _hashObj = nullptr;	// 存储 hash 对象
+		DWORD _hashLen = 0;			// 哈希结果的大小
+	};
 
 	template<typename T>
 	class ScopeExit {

@@ -22,6 +22,9 @@ UINT EffectCompiler::Compile(const wchar_t* fileName, EffectDesc& desc) {
 		return 1;
 	}
 
+	std::vector<BYTE> md5;
+	Utils::MD5::GetInstance()->Hash(source.data(), source.size(), md5);
+
 	std::string_view sourceView(source);
 
 	// 检查头
