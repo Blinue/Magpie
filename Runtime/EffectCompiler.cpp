@@ -3,6 +3,7 @@
 #include <unordered_set>
 #include "Utils.h"
 #include <bitset>
+#include "EffectCache.h"
 
 
 UINT EffectCompiler::Compile(const wchar_t* fileName, EffectDesc& desc) {
@@ -22,8 +23,21 @@ UINT EffectCompiler::Compile(const wchar_t* fileName, EffectDesc& desc) {
 		return 1;
 	}
 
-	std::vector<BYTE> md5;
-	Utils::MD5::GetInstance()->Hash(source.data(), source.size(), md5);
+	std::string md5;
+	{
+		std::vector<BYTE> hash;
+		if (!Utils::Hasher::GetInstance()->Hash(source.data(), source.size(), hash)) {
+			SPDLOG_LOGGER_ERROR(logger, "计算 hash 失败");
+		} else {
+			md5 = Utils::Bin2Hex(hash.data(), hash.size());
+
+			if (EffectCache::Load(fileName, md5, desc)) {
+				// 已从缓存中读取
+				return true;
+			}
+		}
+	}
+	
 
 	std::string_view sourceView(source);
 
@@ -181,6 +195,8 @@ UINT EffectCompiler::Compile(const wchar_t* fileName, EffectDesc& desc) {
 	if (_ResolvePasses(passBlocks, commonBlocks, desc)) {
 		return 1;
 	}
+
+	EffectCache::Save(fileName, md5, desc);
 
 	return 0;
 }

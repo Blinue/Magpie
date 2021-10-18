@@ -70,8 +70,30 @@ const RTL_OSVERSIONINFOW& Utils::GetOSVersion() {
 	return version;
 }
 
-Utils::MD5::MD5() {
-	NTSTATUS status = BCryptOpenAlgorithmProvider(&_hAlg, BCRYPT_MD5_ALGORITHM, NULL, 0);
+std::string Utils::Bin2Hex(BYTE* data, size_t len) {
+	if (!data || len == 0) {
+		return {};
+	}
+
+	static char oct2Hex[16] = {
+		'0','1','2','3','4','5','6','7',
+		'8','9','a','b','c','d','e','f'
+	};
+
+	std::string result(len * 2, 0);
+	char* pResult = &result[0];
+
+	for (size_t i = 0; i < len; ++i) {
+		BYTE b = *data++;
+		*pResult++ = oct2Hex[(b >> 4) & 0xf];
+		*pResult++ = oct2Hex[b & 0xf];
+	}
+
+	return result;
+}
+
+Utils::Hasher::Hasher() {
+	NTSTATUS status = BCryptOpenAlgorithmProvider(&_hAlg, BCRYPT_SHA1_ALGORITHM, NULL, 0);
 	if (!NT_SUCCESS(status)) {
 		SPDLOG_LOGGER_ERROR(logger,fmt::format("BCryptOpenAlgorithmProvider 失败\n\tNTSTATUS={}", status));
 		return;
@@ -97,46 +119,60 @@ Utils::MD5::MD5() {
 		return;
 	}
 
-	SPDLOG_LOGGER_INFO(logger, "Utils::MD5 初始化成功");
+	status = BCryptCreateHash(_hAlg, &_hHash, (PUCHAR)_hashObj, _hashObjLen, NULL, 0, BCRYPT_HASH_REUSABLE_FLAG);
+	if (NT_SUCCESS(status)) {
+		_supportReuse = true;
+	} else {
+		SPDLOG_LOGGER_WARN(logger, fmt::format("BCryptCreateHash 失败：当前设备不支持 BCRYPT_HASH_REUSABLE_FLAG\n\tNTSTATUS={}", status));
+	}
+
+	SPDLOG_LOGGER_INFO(logger, "Utils::Hasher 初始化成功");
 }
 
-Utils::MD5::~MD5() {
+Utils::Hasher::~Hasher() {
 	if (_hAlg) {
 		BCryptCloseAlgorithmProvider(_hAlg, 0);
 	}
 	if (_hashObj) {
 		HeapFree(GetProcessHeap(), 0, _hashObj);
 	}
+	if (_hHash) {
+		BCryptDestroyHash(_hHash);
+	}
 }
 
-
-bool Utils::MD5::Hash(void* data, size_t len, std::vector<BYTE>& result) {
+bool Utils::Hasher::Hash(void* data, size_t len, std::vector<BYTE>& result) {
 	if (_hashLen == 0) {
 		// 初始化失败
 		return false;
 	}
 	result.resize(_hashLen);
 
-	BCRYPT_HASH_HANDLE hHash;
-	NTSTATUS status = BCryptCreateHash(_hAlg, &hHash, (PUCHAR)_hashObj, _hashObjLen, NULL, 0, 0);
+	NTSTATUS status;
+
+	if (!_supportReuse) {
+		status = BCryptCreateHash(_hAlg, &_hHash, (PUCHAR)_hashObj, _hashObjLen, NULL, 0, BCRYPT_HASH_REUSABLE_FLAG);
+		if (!NT_SUCCESS(status)) {
+			SPDLOG_LOGGER_ERROR(logger, fmt::format("BCryptCreateHash 失败\n\tNTSTATUS={}", status));
+			return false;
+		}
+	}
+
+	status = BCryptHashData(_hHash, (PUCHAR)data, (ULONG)len, 0);
 	if (!NT_SUCCESS(status)) {
 		SPDLOG_LOGGER_ERROR(logger, fmt::format("BCryptCreateHash 失败\n\tNTSTATUS={}", status));
 		return false;
 	}
 
-	status = BCryptHashData(hHash, (PUCHAR)data, len, 0);
-	if (!NT_SUCCESS(status)) {
-		SPDLOG_LOGGER_ERROR(logger, fmt::format("BCryptCreateHash 失败\n\tNTSTATUS={}", status));
-		return false;
-	}
-
-	status = BCryptFinishHash(hHash, result.data(), result.size(), 0);
+	status = BCryptFinishHash(_hHash, result.data(), (ULONG)result.size(), 0);
 	if (!NT_SUCCESS(status)) {
 		SPDLOG_LOGGER_ERROR(logger, fmt::format("BCryptFinishHash 失败\n\tNTSTATUS={}", status));
 		return false;
 	}
 
-	BCryptDestroyHash(hHash);
+	if (!_supportReuse) {
+		BCryptDestroyHash(_hHash);
+	}
 
 	return true;
 }

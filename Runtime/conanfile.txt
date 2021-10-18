@@ -1,8 +1,9 @@
 [requires]
 fmt/8.0.1
-nlohmann_json/3.9.1
 spdlog/1.9.1
 muparser/2.3.2
+bitsery/5.2.2
+rapidjson/cci.20200410
 
 [generators]
 visual_studio

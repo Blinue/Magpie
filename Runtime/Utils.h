@@ -59,10 +59,6 @@ struct Utils {
 		return { rect.right - rect.left, rect.bottom - rect.top };
 	}
 
-	static D2D1_SIZE_F GetSize(const D2D1_RECT_F& rect) {
-		return { rect.right - rect.left,rect.bottom - rect.top };
-	}
-
 	// 单位为微秒
 	template<typename Fn>
 	static int Measure(const Fn& func) {
@@ -78,6 +74,12 @@ struct Utils {
 	static bool ReadFile(const wchar_t* fileName, std::vector<BYTE>& result);
 
 	static bool ReadTextFile(const wchar_t* fileName, std::string& result);
+
+	static bool FileExists(const wchar_t* fileName) {
+		DWORD attrs = GetFileAttributesW(fileName);
+		// 排除文件夹
+		return (attrs != INVALID_FILE_ATTRIBUTES) && !(attrs & FILE_ATTRIBUTE_DIRECTORY);
+	}
 
 	static bool CompilePixelShader(std::string_view hlsl, const char* entryPoint, ID3DBlob** blob) {
 		ComPtr<ID3DBlob> errorMsgs = nullptr;
@@ -110,24 +112,28 @@ struct Utils {
 		}
 	}
 
-	class MD5 {
+	static std::string Bin2Hex(BYTE* data, size_t len);
+
+	class Hasher {
 	public:
-		static MD5* GetInstance() {
-			static MD5* instance = new MD5();
+		static Hasher* GetInstance() {
+			static Hasher* instance = new Hasher();
 			return instance;
 		}
 
 		bool Hash(void* data, size_t len, std::vector<BYTE>& result);
 
 	private:
-		MD5();
+		Hasher();
 
-		~MD5();
+		~Hasher();
 
 		BCRYPT_ALG_HANDLE _hAlg = NULL;
 		DWORD _hashObjLen = 0;		// hash 对象的大小
 		void* _hashObj = nullptr;	// 存储 hash 对象
 		DWORD _hashLen = 0;			// 哈希结果的大小
+		BCRYPT_HASH_HANDLE _hHash = NULL;
+		bool _supportReuse = false;
 	};
 
 	template<typename T>
