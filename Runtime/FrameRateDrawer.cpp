@@ -1,8 +1,7 @@
 #include "pch.h"
 #include "FrameRateDrawer.h"
 #include "App.h"
-
-using namespace std::chrono;
+#include "resource.h"
 
 
 bool FrameRateDrawer::Initialize(ComPtr<ID3D11Texture2D> renderTarget, const RECT& destRect) {
@@ -19,7 +18,20 @@ bool FrameRateDrawer::Initialize(ComPtr<ID3D11Texture2D> renderTarget, const REC
 	_vp.Height = FLOAT(destRect.bottom - destRect.top);
 
 	_spriteBatch.reset(new SpriteBatch(renderer.GetD3DDC().Get()));
-	_spriteFont.reset(new SpriteFont(renderer.GetD3DDevice().Get(), L"assets/OpenSans.spritefont"));
+
+	// 从资源文件获取字体
+	HMODULE hInst = App::GetInstance().GetHInstance();
+	HRSRC hRsrc = FindResource(hInst, MAKEINTRESOURCE(IDR_FRAME_RATE_FONT), RT_RCDATA);
+	if (!hRsrc) {
+		return false;
+	}
+	HGLOBAL hRes = LoadResource(hInst, hRsrc);
+	if (!hRes) {
+		return false;
+	}
+
+	_spriteFont.reset(new SpriteFont(renderer.GetD3DDevice().Get(),
+		(const uint8_t*)LockResource(hRes), SizeofResource(hInst, hRsrc)));
 	return true;
 }
 

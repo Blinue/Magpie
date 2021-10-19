@@ -199,16 +199,16 @@
     <ClCompile Include="GraphicsCaptureFrameSource.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <CopyFileToFolders Include="assets\OpenSans.spritefont">
+    <None Include="assets\OpenSans.spritefont">
       <FileType>Document</FileType>
       <DestinationFolders Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)assets</DestinationFolders>
       <DestinationFolders Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)assets</DestinationFolders>
-    </CopyFileToFolders>
+    </None>
     <None Include="cpp.hint" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="Version.rc" />
+    <ResourceCompile Include="Runtime.rc" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="shaders\CopyPS.hlsl">

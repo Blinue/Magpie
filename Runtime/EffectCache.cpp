@@ -81,19 +81,23 @@ void serialize(Archive& ar, EffectConstantDesc& o) {
 	ar& o.label;
 
 	ar& index;
-	if (index == 1) {
+	if (index == 0) {
+		o.maxValue = {};
+	} else if (index == 1) {
 		o.maxValue = 0.0f;
 		ar& std::get<1>(o.maxValue);
-	} else if (index == 2) {
+	} else {
 		o.maxValue = 0;
 		ar& std::get<2>(o.maxValue);
 	}
 
 	ar& index;
-	if (index == 1) {
+	if (index == 0) {
+		o.minValue = {};
+	} else if (index == 1) {
 		o.minValue = 0.0f;
 		ar& std::get<1>(o.minValue);
-	} else if (index == 2) {
+	} else {
 		o.minValue = 0;
 		ar& std::get<2>(o.minValue);
 	}
@@ -175,7 +179,7 @@ bool EffectCache::Load(const wchar_t* fileName, std::string_view hash, EffectDes
 	}
 
 	if (std::memcmp(buf.data(), bufHash.data(), bufHash.size()) != 0) {
-		SPDLOG_LOGGER_INFO(logger, "哈希检查失败");
+		SPDLOG_LOGGER_ERROR(logger, "缓存文件校验失败");
 		return false;
 	}
 
@@ -193,7 +197,7 @@ bool EffectCache::Load(const wchar_t* fileName, std::string_view hash, EffectDes
 
 		ia& desc;
 	} catch (...) {
-		SPDLOG_LOGGER_INFO(logger, "反序列化失败");
+		SPDLOG_LOGGER_ERROR(logger, "反序列化失败");
 		desc = {};
 		return false;
 	}
@@ -240,7 +244,6 @@ void EffectCache::Save(const wchar_t* fileName, std::string_view hash, const Eff
 		}
 	} else {
 		// 删除所有该文件的缓存
-
 		std::wregex regex(fmt::format(L"^{}_[0-9,a-f]{{{}}}.cmfx$", ConvertFileName(fileName),
 				Utils::Hasher::GetInstance()->GetHashLength() * 2), std::wregex::optimize | std::wregex::nosubs);
 
@@ -258,7 +261,7 @@ void EffectCache::Save(const wchar_t* fileName, std::string_view hash, const Eff
 				}
 
 				if (!DeleteFile((L".\\cache\\"s + findData.cFileName).c_str())) {
-					SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg(fmt::format("删除缓存文件{}失败",
+					SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg(fmt::format("删除缓存文件 {} 失败",
 						StrUtils::UTF16ToUTF8(findData.cFileName))));
 				}
 			}
