@@ -46,27 +46,36 @@ bool Utils::ReadTextFile(const wchar_t* fileName, std::string& result) {
 	return true;
 }
 
-const RTL_OSVERSIONINFOW& Utils::GetOSVersion() {
-	static RTL_OSVERSIONINFOW version{};
-
-	if (version.dwMajorVersion == 0) {
-		HMODULE hNtDll = LoadLibrary(L"ntdll.dll");
-		if (hNtDll == NULL) {
-			SPDLOG_LOGGER_CRITICAL(logger, MakeWin32ErrorMsg("加载 ntdll.dll 失败"));
-			assert(false);
-		}
-
-		auto rtlGetVersion = (LONG(WINAPI*)(PRTL_OSVERSIONINFOW))GetProcAddress(hNtDll, "RtlGetVersion");
-		if (rtlGetVersion == nullptr) {
-			SPDLOG_LOGGER_CRITICAL(logger, MakeWin32ErrorMsg("获取 RtlGetVersion 地址失败"));
-			assert(false);
-		}
-
-		rtlGetVersion(&version);
-
-		FreeLibrary(hNtDll);
+bool Utils::WriteFile(const wchar_t* fileName, const void* buffer, size_t bufferSize) {
+	FILE* hFile;
+	if (_wfopen_s(&hFile, fileName, L"wb") || !hFile) {
+		SPDLOG_LOGGER_ERROR(logger, fmt::format("打开文件{}失败", StrUtils::UTF16ToUTF8(fileName)));
+		return false;
 	}
-	
+
+	size_t writed = fwrite(buffer, 1, bufferSize, hFile);
+	assert(writed == bufferSize);
+
+	fclose(hFile);
+	return true;
+}
+
+RTL_OSVERSIONINFOW _GetOSVersion() {
+	auto rtlGetVersion = (LONG(WINAPI*)(PRTL_OSVERSIONINFOW))GetProcAddress(GetModuleHandle(L"ntdll.dll"), "RtlGetVersion");
+	if (rtlGetVersion == nullptr) {
+		SPDLOG_LOGGER_CRITICAL(logger, MakeWin32ErrorMsg("获取 RtlGetVersion 地址失败"));
+		assert(false);
+		return {};
+	}
+
+	RTL_OSVERSIONINFOW version;
+	rtlGetVersion(&version);
+
+	return version;
+}
+
+const RTL_OSVERSIONINFOW& Utils::GetOSVersion() {
+	static RTL_OSVERSIONINFOW version = _GetOSVersion();
 	return version;
 }
 
@@ -136,7 +145,7 @@ Utils::Hasher::~Hasher() {
 	if (_hashObj) {
 		HeapFree(GetProcessHeap(), 0, _hashObj);
 	}
-	if (_hHash) {
+	if (_supportReuse && _hHash) {
 		BCryptDestroyHash(_hHash);
 	}
 }

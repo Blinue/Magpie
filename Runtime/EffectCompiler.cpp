@@ -33,7 +33,7 @@ UINT EffectCompiler::Compile(const wchar_t* fileName, EffectDesc& desc) {
 
 			if (EffectCache::Load(fileName, md5, desc)) {
 				// 已从缓存中读取
-				return true;
+				return 0;
 			}
 		}
 	}

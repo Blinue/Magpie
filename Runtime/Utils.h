@@ -55,10 +55,6 @@ struct Utils {
 		return mi.rcMonitor;
 	}
 
-	static SIZE GetSize(const RECT& rect) {
-		return { rect.right - rect.left, rect.bottom - rect.top };
-	}
-
 	// 单位为微秒
 	template<typename Fn>
 	static int Measure(const Fn& func) {
@@ -75,10 +71,17 @@ struct Utils {
 
 	static bool ReadTextFile(const wchar_t* fileName, std::string& result);
 
+	static bool WriteFile(const wchar_t* fileName, const void* buffer, size_t bufferSize);
+
 	static bool FileExists(const wchar_t* fileName) {
 		DWORD attrs = GetFileAttributesW(fileName);
 		// 排除文件夹
 		return (attrs != INVALID_FILE_ATTRIBUTES) && !(attrs & FILE_ATTRIBUTE_DIRECTORY);
+	}
+
+	static bool DirExists(const wchar_t* fileName) {
+		DWORD attrs = GetFileAttributesW(fileName);
+		return (attrs != INVALID_FILE_ATTRIBUTES) && (attrs & FILE_ATTRIBUTE_DIRECTORY);
 	}
 
 	static bool CompilePixelShader(std::string_view hlsl, const char* entryPoint, ID3DBlob** blob) {
@@ -123,6 +126,9 @@ struct Utils {
 
 		bool Hash(void* data, size_t len, std::vector<BYTE>& result);
 
+		DWORD GetHashLength() {
+			return _hashLen;
+		}
 	private:
 		Hasher();
 

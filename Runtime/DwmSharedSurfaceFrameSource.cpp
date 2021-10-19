@@ -7,13 +7,8 @@ extern std::shared_ptr<spdlog::logger> logger;
 
 
 bool DwmSharedSurfaceFrameSource::Initialize() {
-	HMODULE user32 = GetModuleHandle(L"user32");
-	if (!user32) {
-		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("获取 User32 模块句柄失败"));
-		return false;
-	}
-
-	_dwmGetDxSharedSurface = (_DwmGetDxSharedSurfaceFunc*)GetProcAddress(user32, "DwmGetDxSharedSurface");
+	_dwmGetDxSharedSurface = (_DwmGetDxSharedSurfaceFunc*)GetProcAddress(
+		GetModuleHandle(L"user32.dll"), "DwmGetDxSharedSurface");
 
 	if (!_dwmGetDxSharedSurface) {
 		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("获取函数 DwmGetDxSharedSurface 地址失败"));
