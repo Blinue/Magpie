@@ -63,6 +63,11 @@ API_DECLSPEC BOOL WINAPI Initialize(int logLevel) {
 		return FALSE;
 	}
 
+	// 初始化 Hasher
+	if (Utils::Hasher::GetInstance()->GetHashLength() == 0) {
+		return FALSE;
+	}
+
 	return TRUE;
 }
 

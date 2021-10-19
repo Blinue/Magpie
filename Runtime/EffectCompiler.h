@@ -11,6 +11,8 @@ public:
 
 	static UINT Compile(const wchar_t* fileName, EffectDesc& desc);
 
+	static constexpr UINT VERSION = 1;
+
 private:
 	static UINT _RemoveComments(std::string& source);
 

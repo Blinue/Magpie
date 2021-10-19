@@ -13,11 +13,11 @@ UINT EffectCompiler::Compile(const wchar_t* fileName, EffectDesc& desc) {
 	if (!Utils::ReadTextFile(fileName, source)) {
 		return 1;
 	}
-
+	
 	if (source.empty()) {
 		return 1;
 	}
-
+	
 	// 移除注释
 	if (_RemoveComments(source)) {
 		return 1;
@@ -356,11 +356,9 @@ UINT EffectCompiler::_ResolveHeader(std::string_view block, EffectDesc& desc) {
 				return 1;
 			}
 
-			if (version != 1) {
+			if (version != VERSION) {
 				return 1;
 			}
-
-			desc.version = version;
 
 			if (_GetNextToken<false>(block, token) != 2) {
 				return 1;
