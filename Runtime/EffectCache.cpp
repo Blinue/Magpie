@@ -15,6 +15,10 @@ void serialize(Archive& ar, ComPtr<ID3DBlob>& o) {
 	SIZE_T size = 0;
 	ar& size;
 	HRESULT hr = D3DCreateBlob(size, o.ReleaseAndGetAddressOf());
+	if (FAILED(hr)) {
+		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("D3DCreateBlob 失败", hr));
+		throw new std::exception();
+	}
 
 	BYTE* buf = (BYTE*)o->GetBufferPointer();
 	for (SIZE_T i = 0; i < size; ++i) {
@@ -144,13 +148,13 @@ std::wstring ConvertFileName(const wchar_t* fileName) {
 	return file;
 }
 
-std::wstring GetCacheFileName(const wchar_t* fileName, std::string_view hash) {
-	return fmt::format(L".\\cache\\{}_{}.cmfx", ConvertFileName(fileName), StrUtils::UTF8ToUTF16(hash));
+std::wstring EffectCache::_GetCacheFileName(const wchar_t* fileName, std::string_view hash) {
+	return fmt::format(L".\\cache\\{}_{}.{}", ConvertFileName(fileName), StrUtils::UTF8ToUTF16(hash), _SUFFIX);
 }
 
 
 bool EffectCache::Load(const wchar_t* fileName, std::string_view hash, EffectDesc& desc) {
-	std::wstring cacheFileName = GetCacheFileName(fileName, hash);
+	std::wstring cacheFileName = _GetCacheFileName(fileName, hash);
 
 	if (!Utils::FileExists(cacheFileName.c_str())) {
 		return false;
@@ -169,9 +173,9 @@ bool EffectCache::Load(const wchar_t* fileName, std::string_view hash, EffectDes
 
 	// 检查哈希
 	std::vector<BYTE> bufHash;
-	if (!Utils::Hasher::GetInstance()->Hash(
-		buf.data() + Utils::Hasher::GetInstance()->GetHashLength(),
-		buf.size() - Utils::Hasher::GetInstance()->GetHashLength(),
+	if (!Utils::Hasher::GetInstance().Hash(
+		buf.data() + Utils::Hasher::GetInstance().GetHashLength(),
+		buf.size() - Utils::Hasher::GetInstance().GetHashLength(),
 		bufHash
 	)) {
 		SPDLOG_LOGGER_ERROR(logger, "计算哈希失败");
@@ -211,7 +215,7 @@ void EffectCache::Save(const wchar_t* fileName, std::string_view hash, const Eff
 
 	std::vector<BYTE> buf;
 	buf.reserve(4096);
-	buf.resize(Utils::Hasher::GetInstance()->GetHashLength());
+	buf.resize(Utils::Hasher::GetInstance().GetHashLength());
 
 	try {
 		yas::vector_ostream os(buf);
@@ -226,9 +230,9 @@ void EffectCache::Save(const wchar_t* fileName, std::string_view hash, const Eff
 
 	// 填充 HASH
 	std::vector<BYTE> bufHash;
-	if (!Utils::Hasher::GetInstance()->Hash(
-		buf.data() + Utils::Hasher::GetInstance()->GetHashLength(),
-		buf.size() - Utils::Hasher::GetInstance()->GetHashLength(),
+	if (!Utils::Hasher::GetInstance().Hash(
+		buf.data() + Utils::Hasher::GetInstance().GetHashLength(),
+		buf.size() - Utils::Hasher::GetInstance().GetHashLength(),
 		bufHash
 	)) {
 		SPDLOG_LOGGER_ERROR(logger, "计算哈希失败");
@@ -244,8 +248,8 @@ void EffectCache::Save(const wchar_t* fileName, std::string_view hash, const Eff
 		}
 	} else {
 		// 删除所有该文件的缓存
-		std::wregex regex(fmt::format(L"^{}_[0-9,a-f]{{{}}}.cmfx$", ConvertFileName(fileName),
-				Utils::Hasher::GetInstance()->GetHashLength() * 2), std::wregex::optimize | std::wregex::nosubs);
+		std::wregex regex(fmt::format(L"^{}_[0-9,a-f]{{{}}}.{}$", ConvertFileName(fileName),
+				Utils::Hasher::GetInstance().GetHashLength() * 2, _SUFFIX), std::wregex::optimize | std::wregex::nosubs);
 
 		WIN32_FIND_DATA findData;
 		HANDLE hFind = FindFirstFile(L".\\cache\\*", &findData);
@@ -271,7 +275,7 @@ void EffectCache::Save(const wchar_t* fileName, std::string_view hash, const Eff
 		}
 	}
 	
-	std::wstring cacheFileName = GetCacheFileName(fileName, hash);
+	std::wstring cacheFileName = _GetCacheFileName(fileName, hash);
 	if (!Utils::WriteFile(cacheFileName.c_str(), buf.data(), buf.size())) {
 		SPDLOG_LOGGER_ERROR(logger, "保存缓存失败");
 	}

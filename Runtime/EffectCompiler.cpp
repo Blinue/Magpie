@@ -26,7 +26,7 @@ UINT EffectCompiler::Compile(const wchar_t* fileName, EffectDesc& desc) {
 	std::string md5;
 	{
 		std::vector<BYTE> hash;
-		if (!Utils::Hasher::GetInstance()->Hash(source.data(), source.size(), hash)) {
+		if (!Utils::Hasher::GetInstance().Hash(source.data(), source.size(), hash)) {
 			SPDLOG_LOGGER_ERROR(logger, "计算 hash 失败");
 		} else {
 			md5 = Utils::Bin2Hex(hash.data(), hash.size());

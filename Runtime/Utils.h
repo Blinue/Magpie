@@ -119,10 +119,12 @@ struct Utils {
 
 	class Hasher {
 	public:
-		static Hasher* GetInstance() {
-			static Hasher* instance = new Hasher();
+		static Hasher& GetInstance() {
+			static Hasher instance;
 			return instance;
 		}
+
+		bool Initialize();
 
 		bool Hash(void* data, size_t len, std::vector<BYTE>& result);
 
@@ -130,8 +132,6 @@ struct Utils {
 			return _hashLen;
 		}
 	private:
-		Hasher();
-
 		~Hasher();
 
 		BCRYPT_ALG_HANDLE _hAlg = NULL;

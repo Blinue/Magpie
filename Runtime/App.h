@@ -9,8 +9,8 @@ public:
 	~App();
 
 	static App& GetInstance() {
-		static App* instance = new App();
-		return *instance;
+		static App instance;
+		return instance;
 	}
 
 	bool Initialize(HINSTANCE hInst);

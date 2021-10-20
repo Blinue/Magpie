@@ -58,13 +58,12 @@ API_DECLSPEC BOOL WINAPI Initialize(int logLevel) {
 	SetLogLevel(logLevel);
 
 	// 初始化 App
-	App& app = App::GetInstance();
-	if (!app.Initialize(hInst)) {
+	if (!App::GetInstance().Initialize(hInst)) {
 		return FALSE;
 	}
 
 	// 初始化 Hasher
-	if (Utils::Hasher::GetInstance()->GetHashLength() == 0) {
+	if (!Utils::Hasher::GetInstance().Initialize()) {
 		return FALSE;
 	}
 
