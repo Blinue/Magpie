@@ -12,6 +12,12 @@ union Constant32 {
 
 class EffectDrawer {
 public:
+	EffectDrawer() = default;
+
+	EffectDrawer(const EffectDrawer& other);
+
+	EffectDrawer(EffectDrawer&& other) noexcept;
+
 	bool Initialize(const wchar_t* fileName);
 
 	enum class ConstantType {
@@ -20,7 +26,7 @@ public:
 		NotFound
 	};
 
-	ConstantType GetConstantType(std::string_view name);
+	ConstantType GetConstantType(std::string_view name) const;
 
 	bool SetConstant(std::string_view name, float value);
 
@@ -45,10 +51,12 @@ private:
 
 		void Draw();
 
+		void SetParent(EffectDrawer* parent) {
+			_parent = parent;
+		}
 	private:
 		EffectDrawer* _parent = nullptr;
-		const EffectPassDesc* _passDesc = nullptr;
-		ComPtr<ID3D11DeviceContext> _d3dDC;
+		size_t _index = 0;
 		
 		ComPtr<ID3D11PixelShader> _pixelShader;
 

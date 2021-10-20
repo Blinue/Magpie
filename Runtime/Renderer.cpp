@@ -438,7 +438,11 @@ bool Renderer::_ResolveEffectsJson(const std::string& effectsJson, RECT& destRec
 	std::vector<SIZE> texSizes;
 	texSizes.push_back({ (LONG)inputDesc.Width, (LONG)inputDesc.Height });
 
-	for (const auto& effectJson : doc.GetArray()) {
+	const auto& effectsArr = doc.GetArray();
+	_effects.reserve(effectsArr.Size());
+	texSizes.reserve(static_cast<size_t>(effectsArr.Size()) + 1);
+
+	for (const auto& effectJson : effectsArr) {
 		if (!effectJson.IsObject()) {
 			return false;
 		}
@@ -487,6 +491,10 @@ bool Renderer::_ResolveEffectsJson(const std::string& effectsJson, RECT& destRec
 
 					outputSize = { std::lroundf(outputSize.cx * scaleX), std::lroundf(outputSize.cy * scaleY) };
 				} else if (std::abs(scaleX) < DELTA) {
+					if (std::abs(scaleY) >= DELTA) {
+						return false;
+					}
+
 					outputSize = hostSize;
 				} else {
 					if (scaleY > -DELTA) {
