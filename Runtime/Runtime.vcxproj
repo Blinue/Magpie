@@ -211,6 +211,9 @@
     <ResourceCompile Include="Runtime.rc" />
   </ItemGroup>
   <ItemGroup>
+    <CopyFileToFolders Include="shaders\ACNet.hlsl">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
     <FxCompile Include="shaders\CopyPS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>

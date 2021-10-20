@@ -976,7 +976,7 @@ UINT EffectCompiler::_ResolvePasses(const std::vector<std::string_view>& blocks,
 				"{{return Pass{}(c);}}", index));
 		} else {
 			// 多渲染目标
-			passHlsl.append("void main(float4 p:SV_POSITION,float2 c:TEXCOORD,out float4 t0:SV_TARGET0,out float4 t1:SV_TARGET1");
+			passHlsl.append("void __M(float4 p:SV_POSITION,float2 c:TEXCOORD,out float4 t0:SV_TARGET0,out float4 t1:SV_TARGET1");
 			for (int i = 2; i < passDesc.outputs.size(); ++i) {
 				passHlsl.append(fmt::format(",out float4 t{0}:SV_TARGET{0}", i));
 			}

@@ -267,7 +267,7 @@ bool EffectDrawer::Build(ComPtr<ID3D11Texture2D> input, ComPtr<ID3D11Texture2D> 
 	SIZE inputSize = { (long)inputDesc.Width, (long)inputDesc.Height };
 
 	SIZE outputSize;
-	if (!CalcOutputSize({ (long)inputDesc.Width, (long)inputDesc.Height }, outputSize)) {
+	if (!CalcOutputSize(inputSize, outputSize)) {
 		return false;
 	}
 	
@@ -339,19 +339,21 @@ bool EffectDrawer::Build(ComPtr<ID3D11Texture2D> input, ComPtr<ID3D11Texture2D> 
 		}
 	}
 	
-	// 创建常量缓冲区
-	D3D11_BUFFER_DESC bd{};
-	bd.Usage = D3D11_USAGE_DEFAULT;
-	bd.ByteWidth = 4 * (UINT)_constants.size();
-	bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	if (!_constants.empty()) {
+		// 创建常量缓冲区
+		D3D11_BUFFER_DESC bd{};
+		bd.Usage = D3D11_USAGE_DEFAULT;
+		bd.ByteWidth = 4 * (UINT)_constants.size();
+		bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 
-	D3D11_SUBRESOURCE_DATA initData{};
-	initData.pSysMem = _constants.data();
-	
-	HRESULT hr = _d3dDevice->CreateBuffer(&bd, &initData, &_constantBuffer);
-	if (FAILED(hr)) {
-		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("CreateBuffer 失败", hr));
-		return false;
+		D3D11_SUBRESOURCE_DATA initData{};
+		initData.pSysMem = _constants.data();
+
+		HRESULT hr = _d3dDevice->CreateBuffer(&bd, &initData, &_constantBuffer);
+		if (FAILED(hr)) {
+			SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("CreateBuffer 失败", hr));
+			return false;
+		}
 	}
 
 	for (size_t i = 0; i < _passes.size(); ++i) {
@@ -362,7 +364,7 @@ bool EffectDrawer::Build(ComPtr<ID3D11Texture2D> input, ComPtr<ID3D11Texture2D> 
 			desc.outputs.push_back(UINT(_effectDesc.textures.size()));
 		}
 
-		if (!_passes[i].Build(outputSize)
+		if (!_passes[i].Build(i < _passes.size() - 1 ? std::optional<SIZE>() : outputSize)
 		) {
 			SPDLOG_LOGGER_ERROR(logger, fmt::format("构建 Pass{} 时出错", i + 1));
 			return false;
@@ -374,7 +376,12 @@ bool EffectDrawer::Build(ComPtr<ID3D11Texture2D> input, ComPtr<ID3D11Texture2D> 
 
 void EffectDrawer::Draw() {
 	ID3D11Buffer* t = _constantBuffer.Get();
-	_d3dDC->PSSetConstantBuffers(0, 1, &t);
+	if (t) {
+		_d3dDC->PSSetConstantBuffers(0, 1, &t);
+	} else {
+		_d3dDC->PSSetConstantBuffers(0, 0, nullptr);
+	}
+	
 	_d3dDC->PSSetSamplers(0, (UINT)_samplers.size(), _samplers.data());
 
 	for (_Pass& pass : _passes) {
