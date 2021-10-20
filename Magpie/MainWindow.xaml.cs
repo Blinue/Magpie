@@ -181,7 +181,7 @@ namespace Magpie {
 				return;
 			}
 
-			string effectsJson = scaleModelManager.GetScaleModels()[Settings.Default.ScaleMode].Model;
+			string effectsJson = scaleModelManager.GetScaleModels()[Settings.Default.ScaleMode].Effects;
 			bool showFPS = Settings.Default.ShowFPS;
 			int captureMode = Settings.Default.CaptureMode;
 			bool adjustCursorSpeed = Settings.Default.AdjustCursorSpeed;

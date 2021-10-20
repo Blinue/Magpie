@@ -118,6 +118,16 @@ bool EffectDrawer::Initialize(const wchar_t* fileName) {
 	return true;
 }
 
+EffectDrawer::ConstantType EffectDrawer::GetConstantType(std::string_view name) {
+	auto it = _constNamesMap.find(name);
+	if (it == _constNamesMap.end()) {
+		return ConstantType::NotFound;
+	}
+
+	return _effectDesc.constants[it->second].type == EffectConstantType::Float ?
+		ConstantType::Float : ConstantType::Int;
+}
+
 bool EffectDrawer::SetConstant(std::string_view name, float value) {
 	auto it = _constNamesMap.find(name);
 	if (it == _constNamesMap.end()) {

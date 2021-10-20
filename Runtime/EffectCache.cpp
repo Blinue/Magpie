@@ -75,10 +75,10 @@ void serialize(Archive& ar, EffectConstantDesc& o) {
 	ar& index;
 
 	if (index == 0) {
-		o.defaultValue = 0.0f;
+		o.defaultValue.emplace<0>();
 		ar& std::get<0>(o.defaultValue);
 	} else {
-		o.defaultValue = 0;
+		o.defaultValue.emplace<1>();
 		ar& std::get<1>(o.defaultValue);
 	}
 
@@ -86,23 +86,23 @@ void serialize(Archive& ar, EffectConstantDesc& o) {
 
 	ar& index;
 	if (index == 0) {
-		o.maxValue = {};
+		o.maxValue.emplace<0>();
 	} else if (index == 1) {
-		o.maxValue = 0.0f;
+		o.maxValue.emplace<1>();
 		ar& std::get<1>(o.maxValue);
 	} else {
-		o.maxValue = 0;
+		o.maxValue.emplace<2>();
 		ar& std::get<2>(o.maxValue);
 	}
 
 	ar& index;
 	if (index == 0) {
-		o.minValue = {};
+		o.minValue.emplace<0>();
 	} else if (index == 1) {
-		o.minValue = 0.0f;
+		o.minValue.emplace<1>();
 		ar& std::get<1>(o.minValue);
 	} else {
-		o.minValue = 0;
+		o.minValue.emplace<2>();
 		ar& std::get<2>(o.minValue);
 	}
 

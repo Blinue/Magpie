@@ -3,76 +3,9 @@
     "name": "Lanczos",
     "model": [
       {
-        "module": "Common",
-        "effect": "lanczos",
+        "effect": "Lanczos",
         "scale": [ -1, -1 ],
         "ARStrength": 0.7
-      },
-      {
-        "module": "Common",
-        "effect": "adaptiveSharpen",
-        "curveHeight": 0.6
-      }
-    ]
-  },
-  {
-    "name": "RAVU",
-    "model": [
-      {
-        "module": "RAVU",
-        "effect": "RAVUZoom",
-        "scale": [ -1, -1 ]
-      },
-      {
-        "module": "Anime4K",
-        "effect": "denoiseBilateral",
-        "variant": "mode"
-      }
-    ]
-  },
-  {
-    "name": "FSRCNNX",
-    "model": [
-      {
-        "module": "FSRCNNX",
-        "effect": "FSRCNNX"
-      },
-      {
-        "module": "Common",
-        "effect": "mitchell",
-        "scale": [ -1, -1 ],
-        "variant": "catrom"
-      }
-    ]
-  },
-  {
-    "name": "ACNet",
-    "model": [
-      {
-        "module": "ACNet"
-      },
-      {
-        "module": "Common",
-        "effect": "mitchell",
-        "scale": [ -1, -1 ],
-        "variant": "catrom"
-      }
-    ]
-  },
-  {
-    "name": "Anime4K",
-    "model": [
-      {
-        "module": "Anime4K",
-        "effect": "Anime4K",
-        "curveHeight": 0.3,
-        "useDenoiseVersion": true
-      },
-      {
-        "module": "Common",
-        "effect": "mitchell",
-        "scale": [ -1, -1 ],
-        "variant": "catrom"
       }
     ]
   },
@@ -80,35 +13,8 @@
     "name": "FSR",
     "model": [
       {
-        "module": "FFX",
-        "effect": "FsrEasu",
+        "effect": "FSR",
         "scale": [ -1, -1 ]
-      },
-      {
-        "module": "FFX",
-        "effect": "FsrRcas",
-        "sharpness": 0.87,
-        "removeNoise": true
-      }
-    ]
-  },
-  {
-    "name": "Integer Scale 2x",
-    "model": [
-      {
-        "module": "Common",
-        "effect": "pixelScale",
-        "scale": 2
-      }
-    ]
-  },
-  {
-    "name": "Integer Scale 3x",
-    "model": [
-      {
-        "module": "Common",
-        "effect": "pixelScale",
-        "scale": 3
       }
     ]
   }

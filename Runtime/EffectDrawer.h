@@ -14,9 +14,13 @@ class EffectDrawer {
 public:
 	bool Initialize(const wchar_t* fileName);
 
-	const std::vector<EffectConstantDesc>& GetConstantDescs() const {
-		return _effectDesc.constants;
-	}
+	enum class ConstantType {
+		Float,
+		Int,
+		NotFound
+	};
+
+	ConstantType GetConstantType(std::string_view name);
 
 	bool SetConstant(std::string_view name, float value);
 

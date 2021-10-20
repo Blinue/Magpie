@@ -435,7 +435,8 @@ bool Renderer::_ResolveEffectsJson(const std::string& effectsJson, RECT& destRec
 		return false;
 	}
 
-	SIZE imgSize = { inputDesc.Width, inputDesc.Height };
+	std::vector<SIZE> texSizes;
+	texSizes.push_back({ (LONG)inputDesc.Width, (LONG)inputDesc.Height });
 
 	for (const auto& effectJson : doc.GetArray()) {
 		if (!effectJson.IsObject()) {
@@ -477,24 +478,29 @@ bool Renderer::_ResolveEffectsJson(const std::string& effectsJson, RECT& destRec
 
 				static float DELTA = 1e-5f;
 
+				SIZE outputSize = texSizes.back();;
+
 				if (scaleX >= DELTA) {
 					if (scaleY < DELTA) {
 						return false;
 					}
 
-					imgSize = { std::lroundf(imgSize.cx * scaleX), std::lroundf(imgSize.cy * scaleY) };
+					outputSize = { std::lroundf(outputSize.cx * scaleX), std::lroundf(outputSize.cy * scaleY) };
 				} else if (std::abs(scaleX) < DELTA) {
-					imgSize = hostSize;
+					outputSize = hostSize;
 				} else {
 					if (scaleY > -DELTA) {
 						return false;
 					}
 
-					float fillScale = std::min(float(hostSize.cx) / imgSize.cx, float(hostSize.cy) / imgSize.cy);
-					imgSize = { std::lroundf(imgSize.cx * fillScale * -scaleX), std::lroundf(imgSize.cy * fillScale * -scaleY) };
+					float fillScale = std::min(float(hostSize.cx) / outputSize.cx, float(hostSize.cy) / outputSize.cy);
+					outputSize = {
+						std::lroundf(outputSize.cx * fillScale * -scaleX),
+						std::lroundf(outputSize.cy * fillScale * -scaleY)
+					};
 				}
 
-				effect.SetOutputSize(imgSize);
+				effect.SetOutputSize(outputSize);
 			}
 		}
 
@@ -508,20 +514,88 @@ bool Renderer::_ResolveEffectsJson(const std::string& effectsJson, RECT& destRec
 			if (name == "effect" || (effect.CanSetOutputSize() && name == "scale")) {
 				continue;
 			} else {
+				auto type = effect.GetConstantType(name);
+				if (type == EffectDrawer::ConstantType::Float) {
+					if (!prop.value.IsNumber()) {
+						return false;
+					}
 
+					if (!effect.SetConstant(name, prop.value.GetFloat())) {
+						return false;
+					}
+				} else if (type == EffectDrawer::ConstantType::Int) {
+					int value;
+					if (prop.value.IsInt()) {
+						value = prop.value.GetInt();
+					} else if (prop.value.IsBool()) {
+						// bool 值视为 int
+						value = (int)prop.value.GetBool();
+					} else {
+						return false;
+					}
+
+					if (!effect.SetConstant(name, value)) {
+						return false;
+					}
+				} else {
+					return false;
+				}
 			}
 		}
 
-		if (!effect.Build(_effectInput, _backBuffer)) {
-			SPDLOG_LOGGER_CRITICAL(logger, "构建 EffectDrawer 失败");
+		SIZE& outputSize = texSizes.emplace_back();
+		if (!effect.CalcOutputSize(texSizes[texSizes.size() - 2], outputSize)) {
 			return false;
 		}
 	}
 
-	destRect.left = (hostSize.cx - imgSize.cx) / 2;
-	destRect.right = destRect.left + imgSize.cx;
-	destRect.top = (hostSize.cy - imgSize.cy) / 2;
-	destRect.bottom = destRect.top + imgSize.cy;
+	if (_effects.size() == 1) {
+		if (!_effects.back().Build(_effectInput, _backBuffer)) {
+			return false;
+		}
+	} else if(_effects.size() > 1) {
+		// 创建效果间的中间纹理
+		ComPtr<ID3D11Texture2D> curTex = _effectInput;
+
+		D3D11_TEXTURE2D_DESC desc{};
+		desc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
+		desc.Usage = D3D11_USAGE_DEFAULT;
+		desc.MipLevels = 1;
+		desc.ArraySize = 1;
+		desc.SampleDesc.Count = 1;
+		desc.SampleDesc.Quality = 0;
+		desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
+
+		assert(texSizes.size() == _effects.size() + 1);
+		for (size_t i = 0, end = _effects.size() - 1; i < end; ++i) {
+			SIZE texSize = texSizes[i + 1];
+			desc.Width = texSize.cx;
+			desc.Height = texSize.cy;
+
+			ComPtr<ID3D11Texture2D> outputTex;
+			HRESULT hr = _d3dDevice->CreateTexture2D(&desc, nullptr, &outputTex);
+			if (FAILED(hr)) {
+				return false;
+			}
+
+			if (!_effects[i].Build(curTex, outputTex)) {
+				return false;
+			}
+
+			curTex = outputTex;
+		}
+
+		// 最后一个效果输出到后缓冲纹理
+		if (!_effects.back().Build(curTex, _backBuffer)) {
+			return false;
+		}
+	}
+
+	SIZE outputSize = texSizes.back();
+	destRect.left = (hostSize.cx - outputSize.cx) / 2;
+	destRect.right = destRect.left + outputSize.cx;
+	destRect.top = (hostSize.cy - outputSize.cy) / 2;
+	destRect.bottom = destRect.top + outputSize.cy;
 
 	return true;
 }
