@@ -8,18 +8,16 @@ body:
       Report the issues related with performance regression, such as output-lag / high usage of CPU / low FPS ...
 
       如遇较为严重的性能问题例如卡顿、过高的性能占用、较低的帧率等异常情况，在此报告。
-- type: textarea
+- type: input
   attributes:
     label: Program(Game) 游戏名
-    placeholder: >
-      StarCraft
+    placeholder: "StarCraft"
   validations:
     required: true
-- type: textarea
+- type: input
   attributes:
-    label: Capture mode 捕获模式
-    placeholder: >
-      GDI
+    label: Capture method 捕获模式
+    placeholder: "GDI"
   validations:
     required: true
 - type: textarea
