@@ -2,12 +2,12 @@ name: Bug 错误
 description: Report bugs 报告错误
 labels: bug
 body:
-- type: textarea
+- type: input
   attributes:
     label: Magpie version 程序版本
   validations:
     required: true
-- type: textarea
+- type: input
   attributes:
     label: Windows version 系统版本
     placeholder: >
