@@ -1,14 +1,11 @@
 #pragma once
 #include "pch.h"
 #include "FrameSourceBase.h"
-#include <Windows.Graphics.DirectX.Direct3D11.interop.h>
-#include <Windows.Graphics.Capture.Interop.h>
-#include <winrt/Windows.Foundation.Metadata.h>
+#include <winrt/Windows.Graphics.Capture.h>
 
 
 namespace winrt {
 using namespace Windows::Foundation;
-using namespace Windows::Foundation::Metadata;
 using namespace Windows::Graphics;
 using namespace Windows::Graphics::Capture;
 using namespace Windows::Graphics::DirectX;
@@ -28,6 +25,10 @@ public:
 	ComPtr<ID3D11Texture2D> GetOutput() override;
 
 	bool Update() override;
+
+	bool HasRoundCornerInWin11() override {
+		return true;
+	}
 
 private:
 	D3D11_BOX _clientInFrame{};

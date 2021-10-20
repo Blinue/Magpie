@@ -14,6 +14,10 @@ public:
 
 	bool Update() override;
 
+	bool HasRoundCornerInWin11() override {
+		return false;
+	}
+
 private:
 	using _DwmGetDxSharedSurfaceFunc = bool(
 		HWND hWnd,

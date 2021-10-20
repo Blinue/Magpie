@@ -7,6 +7,8 @@
 #include "shaders/SimpleVS.h"
 #include <VertexTypes.h>
 #include "EffectCompiler.h"
+#include <rapidjson/document.h>
+
 
 extern std::shared_ptr<spdlog::logger> logger;
 
@@ -35,38 +37,12 @@ bool Renderer::Initialize() {
 	return true;
 }
 
-bool Renderer::InitializeEffectsAndCursor() {
-	EffectDrawer& effect = _effects.emplace_back();
-	if (!effect.Initialize(L"shaders\\FSR.hlsl")) {
-		SPDLOG_LOGGER_CRITICAL(logger, "初始化 EffectDrawer 失败");
+bool Renderer::InitializeEffectsAndCursor(const std::string& effectsJson) {
+	RECT destRect;
+	if (!_ResolveEffectsJson(effectsJson, destRect)) {
 		return false;
 	}
-
-	_effectInput = App::GetInstance().GetFrameSource().GetOutput();
-	D3D11_TEXTURE2D_DESC inputDesc;
-	_effectInput->GetDesc(&inputDesc);
-	SIZE hostSize = App::GetInstance().GetHostWndSize();
-
-	// 等比缩放到最大
-	float fillScale = std::min(float(hostSize.cx) / inputDesc.Width, float(hostSize.cy) / inputDesc.Height);
-	SIZE outputSize = { lroundf(inputDesc.Width * fillScale), lroundf(inputDesc.Height * fillScale) };
-
-	RECT destRect{};
-	destRect.left = (hostSize.cx - outputSize.cx) / 2;
-	destRect.right = destRect.left + outputSize.cx;
-	destRect.top = (hostSize.cy - outputSize.cy) / 2;
-	destRect.bottom = destRect.top + outputSize.cy;
-
-	effect.SetOutputSize(outputSize);
-	if (!effect.SetConstant("sharpness", 0.87f)) {
-		return false;
-	}
-
-	if (!effect.Build(_effectInput, _backBuffer)) {
-		SPDLOG_LOGGER_CRITICAL(logger, "构建 EffectDrawer 失败");
-		return false;
-	}
-
+	
 	if (App::GetInstance().IsShowFPS()) {
 		if (!_frameRateDrawer.Initialize(_backBuffer, destRect)) {
 			return false;
@@ -438,6 +414,114 @@ bool Renderer::_CheckSrcState() {
 		SPDLOG_LOGGER_INFO(logger, "源窗口显示状态改变");
 		return false;
 	}
+
+	return true;
+}
+
+bool Renderer::_ResolveEffectsJson(const std::string& effectsJson, RECT& destRect) {
+	_effectInput = App::GetInstance().GetFrameSource().GetOutput();
+	D3D11_TEXTURE2D_DESC inputDesc;
+	_effectInput->GetDesc(&inputDesc);
+
+	SIZE hostSize = App::GetInstance().GetHostWndSize();
+
+	rapidjson::Document doc;
+	if (doc.Parse(effectsJson.c_str(), effectsJson.size()).HasParseError()) {
+		// 解析 json 失败
+		return false;
+	}
+
+	if (!doc.IsArray()) {
+		return false;
+	}
+
+	SIZE imgSize = { inputDesc.Width, inputDesc.Height };
+
+	for (const auto& effectJson : doc.GetArray()) {
+		if (!effectJson.IsObject()) {
+			return false;
+		}
+
+		EffectDrawer& effect = _effects.emplace_back();
+
+		auto effectName = effectJson.FindMember("effect");
+		if (effectName == effectJson.MemberEnd() || !effectName->value.IsString()) {
+			// 未找到 effect 属性或该属性不合法
+			return false;
+		}
+
+		if (!effect.Initialize((L"shaders\\" + StrUtils::UTF8ToUTF16(effectName->value.GetString()) + L".hlsl").c_str())) {
+			return false;
+		}
+
+		if (effect.CanSetOutputSize()) {
+			// scale 属性可用
+			auto scaleProp = effectJson.FindMember("scale");
+			if (scaleProp != effectJson.MemberEnd()) {
+				if (!scaleProp->value.IsArray()) {
+					return false;
+				}
+
+				// scale 属性的值为两个元素组成的数组
+				// [+, +]：缩放比例
+				// [0, 0]：非等比例缩放到屏幕大小
+				// [-, -]：相对于屏幕能容纳的最大等比缩放的比例
+
+				const auto& scale = scaleProp->value.GetArray();
+				if (scale.Size() != 2 || !scale[0].IsNumber() || !scale[1].IsNumber()) {
+					return false;
+				}
+
+				float scaleX = scale[0].GetFloat();
+				float scaleY = scale[1].GetFloat();
+
+				static float DELTA = 1e-5f;
+
+				if (scaleX >= DELTA) {
+					if (scaleY < DELTA) {
+						return false;
+					}
+
+					imgSize = { std::lroundf(imgSize.cx * scaleX), std::lroundf(imgSize.cy * scaleY) };
+				} else if (std::abs(scaleX) < DELTA) {
+					imgSize = hostSize;
+				} else {
+					if (scaleY > -DELTA) {
+						return false;
+					}
+
+					float fillScale = std::min(float(hostSize.cx) / imgSize.cx, float(hostSize.cy) / imgSize.cy);
+					imgSize = { std::lroundf(imgSize.cx * fillScale * -scaleX), std::lroundf(imgSize.cy * fillScale * -scaleY) };
+				}
+
+				effect.SetOutputSize(imgSize);
+			}
+		}
+
+		for (const auto& prop : effectJson.GetObject()) {
+			if (!prop.name.IsString()) {
+				return false;
+			}
+
+			std::string_view name = prop.name.GetString();
+
+			if (name == "effect" || (effect.CanSetOutputSize() && name == "scale")) {
+				continue;
+			} else {
+
+			}
+		}
+
+		if (!effect.Build(_effectInput, _backBuffer)) {
+			SPDLOG_LOGGER_CRITICAL(logger, "构建 EffectDrawer 失败");
+			return false;
+		}
+	}
+
+	destRect.left = (hostSize.cx - imgSize.cx) / 2;
+	destRect.right = destRect.left + imgSize.cx;
+	destRect.top = (hostSize.cy - imgSize.cy) / 2;
+	destRect.bottom = destRect.top + imgSize.cy;
 
 	return true;
 }

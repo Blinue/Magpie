@@ -61,9 +61,15 @@ bool Utils::WriteFile(const wchar_t* fileName, const void* buffer, size_t buffer
 }
 
 RTL_OSVERSIONINFOW _GetOSVersion() {
-	auto rtlGetVersion = (LONG(WINAPI*)(PRTL_OSVERSIONINFOW))GetProcAddress(GetModuleHandle(L"ntdll.dll"), "RtlGetVersion");
+	HMODULE hNtDll = GetModuleHandle(L"ntdll.dll");
+	if (!hNtDll) {
+		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("获取 ntdll.dll 句柄失败"));
+		return {};
+	}
+	
+	auto rtlGetVersion = (LONG(WINAPI*)(PRTL_OSVERSIONINFOW))GetProcAddress(hNtDll, "RtlGetVersion");
 	if (rtlGetVersion == nullptr) {
-		SPDLOG_LOGGER_CRITICAL(logger, MakeWin32ErrorMsg("获取 RtlGetVersion 地址失败"));
+		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("获取 RtlGetVersion 地址失败"));
 		assert(false);
 		return {};
 	}

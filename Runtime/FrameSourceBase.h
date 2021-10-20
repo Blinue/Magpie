@@ -17,4 +17,6 @@ public:
 	virtual ComPtr<ID3D11Texture2D> GetOutput() = 0;
 
 	virtual bool Update() = 0;
+
+	virtual bool HasRoundCornerInWin11() = 0;
 };

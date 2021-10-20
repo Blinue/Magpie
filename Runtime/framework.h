@@ -57,10 +57,8 @@
 // C++/WinRT 头文件
 #include <winrt/base.h>
 #include <winrt/Windows.Foundation.h>
-#include <winrt/Windows.Graphics.Capture.h>
-#include <winrt/Windows.Graphics.DirectX.h>
 
-// format
+// fmt
 #include <fmt/format.h>
 #include <fmt/xchar.h>
 #include <fmt/printf.h>

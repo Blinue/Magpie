@@ -13,7 +13,7 @@ public:
 
 	bool Initialize();
 
-	bool InitializeEffectsAndCursor();
+	bool InitializeEffectsAndCursor(const std::string& effectsJson);
 
 	void Render();
 
@@ -55,6 +55,8 @@ private:
 	bool _InitD3D();
 
 	bool _CheckSrcState();
+
+	bool _ResolveEffectsJson(const std::string& effectsJson, RECT& destRect);
 
 	void _Render();
 

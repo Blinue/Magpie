@@ -2,6 +2,15 @@
 #include "GraphicsCaptureFrameSource.h"
 #include "App.h"
 #include "StrUtils.h"
+#include <Windows.Graphics.DirectX.Direct3D11.interop.h>
+#include <Windows.Graphics.Capture.Interop.h>
+#include <winrt/Windows.Foundation.Metadata.h>
+#include "Utils.h"
+
+
+namespace winrt {
+using namespace Windows::Foundation::Metadata;
+}
 
 
 extern std::shared_ptr<spdlog::logger> logger;

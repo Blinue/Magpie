@@ -30,6 +30,7 @@ namespace Magpie {
 		private class MagWindowParams {
 			public volatile IntPtr hwndSrc;
 			public volatile int captureMode;
+			public volatile string effectsJson;
 			public volatile bool adjustCursorSpeed;
 			public volatile bool showFPS;
 			public volatile bool disableRoundCorner;
@@ -85,6 +86,7 @@ namespace Magpie {
 					} else {
 						string msg = NativeMethods.Run(
 							magWindowParams.hwndSrc,
+							magWindowParams.effectsJson,
 							magWindowParams.captureMode,
 							magWindowParams.adjustCursorSpeed,
 							magWindowParams.showFPS,
@@ -124,7 +126,7 @@ namespace Magpie {
 		}
 
 		public void Create(
-			string scaleModel,
+			string effectsJson,
 			int captureMode,
 			bool showFPS,
 			bool adjustCursorSpeed,
@@ -150,6 +152,7 @@ namespace Magpie {
 			magWindowParams.cmd = MagWindowCmd.Run;
 			magWindowParams.hwndSrc = hwndSrc;
 			magWindowParams.captureMode = captureMode;
+			magWindowParams.effectsJson = effectsJson;
 			magWindowParams.showFPS = showFPS;
 			magWindowParams.adjustCursorSpeed = adjustCursorSpeed;
 			magWindowParams.disableRoundCorner = disableRoundCorner;

@@ -14,6 +14,10 @@ public:
 
 	bool Update() override;
 
+	bool HasRoundCornerInWin11() override {
+		return false;
+	}
+
 private:
 	ComPtr<ID3D11DeviceContext> _d3dDC;
 

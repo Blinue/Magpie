@@ -13,6 +13,10 @@ public:
 
 	bool Update() override;
 
+	bool HasRoundCornerInWin11() override {
+		return true;
+	}
+
 private:
 	static BOOL CALLBACK _ImageScalingCallback(
 		HWND hWnd,

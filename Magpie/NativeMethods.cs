@@ -157,6 +157,7 @@ namespace Magpie {
 		[DllImport("Runtime", EntryPoint = "Run", CallingConvention = CallingConvention.StdCall)]
 		private static extern IntPtr RunNative(
 			IntPtr hwndSrc,
+			[MarshalAs(UnmanagedType.LPUTF8Str)] string effectsJson,
 			int captureMode,
 			[MarshalAs(UnmanagedType.U1)] bool adjustCursorSpeed,
 			[MarshalAs(UnmanagedType.U1)] bool showFPS,
@@ -166,13 +167,14 @@ namespace Magpie {
 
 		public static string Run(
 			IntPtr hwndSrc,
+			string effectsJson,
 			int captureMode,
 			bool adjustCursorSpeed,
 			bool showFPS,
 			bool disableRoundCorner,
 			int frameRate
 		) {
-			IntPtr msg = RunNative(hwndSrc, captureMode, adjustCursorSpeed, showFPS, disableRoundCorner, frameRate);
+			IntPtr msg = RunNative(hwndSrc, effectsJson, captureMode, adjustCursorSpeed, showFPS, disableRoundCorner, frameRate);
 			return Marshal.PtrToStringAnsi(msg);
 		}
 	}

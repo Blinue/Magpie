@@ -17,6 +17,7 @@ public:
 
 	bool Run(
 		HWND hwndSrc,
+		const std::string& effectsJson,
 		int captureMode,
 		bool adjustCursorSpeed,
 		bool showFPS,

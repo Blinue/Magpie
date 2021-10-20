@@ -44,6 +44,7 @@ bool App::Initialize(HINSTANCE hInst) {
 
 bool App::Run(
 	HWND hwndSrc,
+	const std::string& effectsJson,
 	int captureMode,
 	bool adjustCursorSpeed,
 	bool showFPS,
@@ -107,38 +108,45 @@ bool App::Run(
 		return false;
 	}
 
-	if (!_renderer->InitializeEffectsAndCursor()) {
+	if (!_renderer->InitializeEffectsAndCursor(effectsJson)) {
 		SPDLOG_LOGGER_CRITICAL(logger, "初始化效果失败，即将退出");
 		DestroyWindow(_hwndHost);
 		_Run();
 		return false;
 	}
 
-	const auto& version = Utils::GetOSVersion();
-	bool isWin11 = Utils::CompareVersion(
-		version.dwMajorVersion, version.dwMinorVersion,
-		version.dwBuildNumber, 10, 0, 22000) >= 0;
+	// 合适时禁用窗口圆角
+	bool roundCornerDisabled = false;
+	if (disableRoundCorner && _frameSource->HasRoundCornerInWin11()) {
+		const auto& version = Utils::GetOSVersion();
+		bool isWin11 = Utils::CompareVersion(
+			version.dwMajorVersion, version.dwMinorVersion,
+			version.dwBuildNumber, 10, 0, 22000) >= 0;
 
-	if (disableRoundCorner && isWin11) {
-		INT attr = DWMWCP_DONOTROUND;
-		HRESULT hr = DwmSetWindowAttribute(hwndSrc, DWMWA_WINDOW_CORNER_PREFERENCE, &attr, sizeof(attr));
-		if (FAILED(hr)) {
-			SPDLOG_LOGGER_ERROR(logger, "禁用窗口圆角失败");
-			disableRoundCorner = false;
-		} else {
-			SPDLOG_LOGGER_INFO(logger, "已禁用窗口圆角");
+		if (isWin11) {
+			INT attr = DWMWCP_DONOTROUND;
+			HRESULT hr = DwmSetWindowAttribute(hwndSrc, DWMWA_WINDOW_CORNER_PREFERENCE, &attr, sizeof(attr));
+			if (FAILED(hr)) {
+				SPDLOG_LOGGER_ERROR(logger, "禁用窗口圆角失败");
+			} else {
+				SPDLOG_LOGGER_INFO(logger, "已禁用窗口圆角");
+				roundCornerDisabled = true;
+			}
 		}
 	}
 
 	_Run();
 
-	if (disableRoundCorner && isWin11) {
+	if (roundCornerDisabled) {
 		INT attr = DWMWCP_DEFAULT;
-		DwmSetWindowAttribute(hwndSrc, DWMWA_WINDOW_CORNER_PREFERENCE, &attr, sizeof(attr));
-
-		SPDLOG_LOGGER_INFO(logger, "已取消禁用窗口圆角");
+		HRESULT hr = DwmSetWindowAttribute(hwndSrc, DWMWA_WINDOW_CORNER_PREFERENCE, &attr, sizeof(attr));
+		if (FAILED(hr)) {
+			SPDLOG_LOGGER_INFO(logger, "取消禁用窗口圆角失败");
+		} else {
+			SPDLOG_LOGGER_INFO(logger, "已取消禁用窗口圆角");
+		}
 	}
-
+	
 	return true;
 }
 
