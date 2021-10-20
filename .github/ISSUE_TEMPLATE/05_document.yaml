@@ -1,6 +1,6 @@
 name: Doc 文档
 description: Discuss about docs 文档相关的讨论
-labels: doc
+labels: documentation
 body:
 - type: markdown
   attributes:
@@ -9,12 +9,9 @@ body:
 
       以下链接为文档库，此模块接受任何文档相关的问题。
 
-      https://github.com/hooke007/Magpie/wiki
+      https://github.com/Blinue/Magpie/wiki
 - type: textarea
   attributes:
     label: Description of the problem 问题描述
   validations:
     required: true
-- type: textarea
-  attributes:
-    label: Related original content (optional) 原始文档的相关内容（可选）
