@@ -13,11 +13,11 @@ UINT EffectCompiler::Compile(const wchar_t* fileName, EffectDesc& desc) {
 	if (!Utils::ReadTextFile(fileName, source)) {
 		return 1;
 	}
-	
+
 	if (source.empty()) {
 		return 1;
 	}
-	
+
 	// 移除注释
 	if (_RemoveComments(source)) {
 		return 1;
@@ -37,7 +37,7 @@ UINT EffectCompiler::Compile(const wchar_t* fileName, EffectDesc& desc) {
 			}
 		}
 	}
-	
+
 
 	std::string_view sourceView(source);
 
@@ -93,7 +93,7 @@ UINT EffectCompiler::Compile(const wchar_t* fileName, EffectDesc& desc) {
 		curBlockType = newBlockType;
 		curBlockOff += len;
 	};
-	
+
 	bool newLine = true;
 	std::string_view t = sourceView;
 	while (t.size() > 5) {
@@ -107,7 +107,7 @@ UINT EffectCompiler::Compile(const wchar_t* fileName, EffectDesc& desc) {
 					return 1;
 				}
 				std::string blockType = StrUtils::ToUpperCase(token);
-				
+
 				if (blockType == "CONSTANT") {
 					completeCurrentBlock(len, BlockType::Constant);
 				} else if (blockType == "TEXTURE") {
@@ -234,7 +234,7 @@ UINT EffectCompiler::_RemoveComments(std::string& source) {
 				// 块注释
 				i += 2;
 
-				while(true) {
+				while (true) {
 					if (++i >= source.size()) {
 						// 未闭合
 						return 1;
@@ -243,7 +243,7 @@ UINT EffectCompiler::_RemoveComments(std::string& source) {
 					if (source[i - 1] == '*' && source[i] == '/') {
 						break;
 					}
-				} 
+				}
 
 				// 文件结尾
 				if (i >= source.size() - 2) {
@@ -283,7 +283,7 @@ UINT EffectCompiler::_GetNextExpr(std::string_view& source, std::string& expr) {
 	if (expr.empty()) {
 		return 1;
 	}
-	
+
 	source.remove_prefix(size);
 	return 0;
 }
@@ -308,7 +308,7 @@ bool EffectCompiler::_CheckMagic(std::string_view& source) {
 	if (!_CheckNextToken<true>(source, _META_INDICATOR)) {
 		return false;
 	}
-	
+
 	if (!_CheckNextToken<false>(source, "MAGPIE")) {
 		return false;
 	}
@@ -390,7 +390,7 @@ UINT EffectCompiler::_ResolveHeader(std::string_view block, EffectDesc& desc) {
 	if (_GetNextToken<true>(block, token) != 2) {
 		return 1;
 	}
-	
+
 	if (!processed[0] || (processed[1] ^ processed[2])) {
 		return 1;
 	}
@@ -424,7 +424,7 @@ UINT EffectCompiler::_ResolveConstant(std::string_view block, EffectDesc& desc) 
 	std::string_view defaultValue;
 	std::string_view minValue;
 	std::string_view maxValue;
-	
+
 	while (true) {
 		if (!_CheckNextToken<true>(block, _META_INDICATOR)) {
 			break;
@@ -452,7 +452,7 @@ UINT EffectCompiler::_ResolveConstant(std::string_view block, EffectDesc& desc) 
 				return 1;
 			}
 			processed[1] = true;
-			
+
 			if (_GetNextString(block, defaultValue)) {
 				return 1;
 			}
@@ -675,7 +675,7 @@ UINT EffectCompiler::_ResolveTexture(std::string_view block, EffectDesc& desc) {
 			if (_GetNextExpr(block, texDesc.sizeExpr.second)) {
 				return 1;
 			}
-		} else  {
+		} else {
 			return 1;
 		}
 	}
@@ -689,7 +689,7 @@ UINT EffectCompiler::_ResolveTexture(std::string_view block, EffectDesc& desc) {
 	if (!_CheckNextToken<true>(block, "Texture2D")) {
 		return 1;
 	}
-	
+
 	if (_GetNextToken<true>(block, token)) {
 		return 1;
 	}
@@ -723,7 +723,7 @@ UINT EffectCompiler::_ResolveTexture(std::string_view block, EffectDesc& desc) {
 
 UINT EffectCompiler::_ResolveSampler(std::string_view block, EffectDesc& desc) {
 	// 必选项：FILTER
-	
+
 	EffectSamplerDesc& samDesc = desc.samplers.emplace_back();
 
 	std::string_view token;
@@ -809,6 +809,21 @@ UINT EffectCompiler::_ResolveCommon(std::string_view& block) {
 	return 0;
 }
 
+struct TPContext {
+	ULONG index;
+	std::vector<std::string>& passSources;
+	std::vector<EffectPassDesc>& passes;
+};
+
+void NTAPI TPWork(PTP_CALLBACK_INSTANCE, PVOID Context, PTP_WORK) {
+	TPContext* con = (TPContext*)Context;
+	ULONG index = InterlockedIncrement(&con->index);
+
+	if (!Utils::CompilePixelShader(con->passSources[index], "__M", con->passes[index].cso.ReleaseAndGetAddressOf())) {
+		con->passes[index].cso = nullptr;
+	}
+}
+
 UINT EffectCompiler::_ResolvePasses(const std::vector<std::string_view>& blocks, const std::vector<std::string_view>& commons, EffectDesc& desc) {
 	// 可选项：BIND，SAVE
 
@@ -851,8 +866,11 @@ UINT EffectCompiler::_ResolvePasses(const std::vector<std::string_view>& blocks,
 			commonHlsl.push_back('\n');
 		}
 	}
-	
+
 	std::string_view token;
+
+	std::vector<std::string> passSources(blocks.size());
+	desc.passes.resize(blocks.size());
 
 	for (std::string_view block : blocks) {
 		if (!_CheckNextToken<true>(block, _META_INDICATOR)) {
@@ -863,7 +881,7 @@ UINT EffectCompiler::_ResolvePasses(const std::vector<std::string_view>& blocks,
 			return 1;
 		}
 
-		UINT index;
+		size_t index;
 		if (_GetNextNumber(block, index)) {
 			return 1;
 		}
@@ -871,14 +889,15 @@ UINT EffectCompiler::_ResolvePasses(const std::vector<std::string_view>& blocks,
 			return 1;
 		}
 
-		if (desc.passes.size() < index) {
-			desc.passes.resize(index);
-		}
-
-		EffectPassDesc& passDesc = desc.passes[static_cast<size_t>(index) - 1];
-		if (passDesc.cso) {
+		if (index == 0 || index >= block.size() + 1) {
 			return 1;
 		}
+
+		if (!passSources[index - 1].empty()) {
+			return 1;
+		}
+
+		EffectPassDesc& passDesc = desc.passes[index - 1];
 
 		// 用于检查输入和输出中重复的纹理
 		std::unordered_map<std::string_view, UINT> texNames;
@@ -909,7 +928,7 @@ UINT EffectCompiler::_ResolvePasses(const std::vector<std::string_view>& blocks,
 				if (_GetNextExpr(block, binds)) {
 					return 1;
 				}
-				
+
 				std::vector<std::string_view> inputs = StrUtils::Split(binds, ',');
 				for (const std::string_view& input : inputs) {
 					auto it = texNames.find(input);
@@ -937,7 +956,7 @@ UINT EffectCompiler::_ResolvePasses(const std::vector<std::string_view>& blocks,
 					// 最多 8 个输出
 					return 1;
 				}
-				
+
 				for (const std::string_view& output : outputs) {
 					// INPUT 不能作为输出
 					if (output == "INPUT") {
@@ -958,7 +977,7 @@ UINT EffectCompiler::_ResolvePasses(const std::vector<std::string_view>& blocks,
 			}
 		}
 
-		std::string passHlsl;
+		std::string& passHlsl = passSources[index - 1];
 		passHlsl.reserve(size_t((commonHlsl.size() + block.size() + passDesc.inputs.size() * 30) * 1.5));
 
 		for (int i = 0; i < passDesc.inputs.size(); ++i) {
@@ -969,7 +988,7 @@ UINT EffectCompiler::_ResolvePasses(const std::vector<std::string_view>& blocks,
 		if (passHlsl.back() != '\n') {
 			passHlsl.push_back('\n');
 		}
-		
+
 		// main 函数
 		if (passDesc.outputs.size() <= 1) {
 			passHlsl.append(fmt::format("float4 __M(float4 p:SV_POSITION,float2 c:TEXCOORD):SV_TARGET"
@@ -986,22 +1005,65 @@ UINT EffectCompiler::_ResolvePasses(const std::vector<std::string_view>& blocks,
 			}
 			passHlsl.append(");}");
 		}
-
-		if (!Utils::CompilePixelShader(passHlsl, "__M", passDesc.cso.ReleaseAndGetAddressOf())) {
-			return 1;
-		}
 	}
 
 	// 确保每个 PASS 都存在
-	for (const auto& p : desc.passes) {
-		if (!p.cso) {
+	for (const auto& s : passSources) {
+		if (s.empty()) {
 			return 1;
 		}
 	}
-	
+
 	// 最后一个 PASS 必须输出到 OUTPUT
 	if (!desc.passes.back().outputs.empty()) {
 		return 1;
+	}
+
+	// 编译生成的 hlsl
+	assert(!passSources.empty());
+	if (passSources.size() == 1) {
+		if (!Utils::CompilePixelShader(passSources[0], "__M", desc.passes[0].cso.ReleaseAndGetAddressOf())) {
+			return 1;
+		}
+	} else {
+		// 有多个 Pass，使用线程池加速编译
+
+		TPContext context = {
+			0,
+			passSources,
+			desc.passes
+		};
+		
+		PTP_WORK work = CreateThreadpoolWork(TPWork, &context, nullptr);
+		
+		if (work) {
+			for (size_t i = 1; i < passSources.size(); ++i) {
+				SubmitThreadpoolWork(work);
+			}
+
+			if (!Utils::CompilePixelShader(passSources[0], "__M", desc.passes[0].cso.ReleaseAndGetAddressOf())) {
+				CloseThreadpoolWork(work);
+				return 1;
+			}
+
+			WaitForThreadpoolWorkCallbacks(work, FALSE);
+			CloseThreadpoolWork(work);
+
+			for (size_t i = 0; i < passSources.size(); ++i) {
+				if (!desc.passes[i].cso) {
+					return 1;
+				}
+			}
+		} else {
+			SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("CreateThreadpoolWork 失败，回退到单线程编译"));
+
+			// 回退到单线程
+			for (size_t i = 0; i < passSources.size(); ++i) {
+				if (!Utils::CompilePixelShader(passSources[i], "__M", desc.passes[i].cso.ReleaseAndGetAddressOf())) {
+					return 1;
+				}
+			}
+		}
 	}
 
 	return 0;

@@ -25,25 +25,25 @@ Texture2D yuvTex;
 //!TEXTURE
 //!WIDTH INPUT_WIDTH
 //!HEIGHT INPUT_HEIGHT
-//!FORMAT B8G8R8A8_UNORM
+//!FORMAT R16G16B16A16_FLOAT
 Texture2D tex1;
 
 //!TEXTURE
 //!WIDTH INPUT_WIDTH
 //!HEIGHT INPUT_HEIGHT
-//!FORMAT B8G8R8A8_UNORM
+//!FORMAT R16G16B16A16_FLOAT
 Texture2D tex2;
 
 //!TEXTURE
 //!WIDTH INPUT_WIDTH
 //!HEIGHT INPUT_HEIGHT
-//!FORMAT B8G8R8A8_UNORM
+//!FORMAT R16G16B16A16_FLOAT
 Texture2D tex3;
 
 //!TEXTURE
 //!WIDTH INPUT_WIDTH
 //!HEIGHT INPUT_HEIGHT
-//!FORMAT B8G8R8A8_UNORM
+//!FORMAT R16G16B16A16_FLOAT
 Texture2D tex4;
 
 
@@ -54,8 +54,6 @@ SamplerState sam;
 
 //!COMMON
 
-#define compressLinear(x, min, max) (((x) - min) / (max - min))
-#define uncompressLinear(x, min, max) ((x) * (max - min) + min)
 
 #define RELU(x) max(x, 0)
 
@@ -129,7 +127,7 @@ void Pass2(float2 pos, out float4 target1, out float4 target2) {
 	float mr = yuvTex.Sample(sam, pos + float2(inputPtX, 0)).x;
 	float br = yuvTex.Sample(sam, pos + float2(inputPtX, inputPtY)).x;
 
-	float4 c = RELU(float4(
+	target1 = RELU(float4(
 		tl * kernelsL1A[0 * 9 + 0] + tc * kernelsL1A[0 * 9 + 1] + tr * kernelsL1A[0 * 9 + 2] +
 		ml * kernelsL1A[0 * 9 + 3] + mc * kernelsL1A[0 * 9 + 4] + mr * kernelsL1A[0 * 9 + 5] +
 		bl * kernelsL1A[0 * 9 + 6] + bc * kernelsL1A[0 * 9 + 7] + br * kernelsL1A[0 * 9 + 8] + biasL1A.x,
@@ -145,11 +143,9 @@ void Pass2(float2 pos, out float4 target1, out float4 target2) {
 		tl * kernelsL1A[3 * 9 + 0] + tc * kernelsL1A[3 * 9 + 1] + tr * kernelsL1A[3 * 9 + 2] +
 		ml * kernelsL1A[3 * 9 + 3] + mc * kernelsL1A[3 * 9 + 4] + mr * kernelsL1A[3 * 9 + 5] +
 		bl * kernelsL1A[3 * 9 + 6] + bc * kernelsL1A[3 * 9 + 7] + br * kernelsL1A[3 * 9 + 8] + biasL1A.w
-	));
+		));
 
-	target1 = compressLinear(c, 0, 2);
-
-	c = RELU(float4(
+	target2 = RELU(float4(
 		tl * kernelsL1B[0 * 9 + 0] + tc * kernelsL1B[0 * 9 + 1] + tr * kernelsL1B[0 * 9 + 2] +
 		ml * kernelsL1B[0 * 9 + 3] + mc * kernelsL1B[0 * 9 + 4] + mr * kernelsL1B[0 * 9 + 5] +
 		bl * kernelsL1B[0 * 9 + 6] + bc * kernelsL1B[0 * 9 + 7] + br * kernelsL1B[0 * 9 + 8] + biasL1B.x,
@@ -165,9 +161,7 @@ void Pass2(float2 pos, out float4 target1, out float4 target2) {
 		tl * kernelsL1B[3 * 9 + 0] + tc * kernelsL1B[3 * 9 + 1] + tr * kernelsL1B[3 * 9 + 2] +
 		ml * kernelsL1B[3 * 9 + 3] + mc * kernelsL1B[3 * 9 + 4] + mr * kernelsL1B[3 * 9 + 5] +
 		bl * kernelsL1B[3 * 9 + 6] + bc * kernelsL1B[3 * 9 + 7] + br * kernelsL1B[3 * 9 + 8] + biasL1B.w
-	));
-
-	target2 = compressLinear(c, 0, 2);
+		));
 }
 
 
@@ -381,25 +375,25 @@ void Pass3(float2 pos, out float4 target1, out float4 target2) {
 	// [tl, tc, tr]
 	// [ml, mc, mr]
 	// [bl, bc, br]
-	float4 tl1 = uncompressLinear(tex1.Sample(sam, pos + float2(-inputPtX, -inputPtY)), 0, 2);
-	float4 ml1 = uncompressLinear(tex1.Sample(sam, pos + float2(-inputPtX, 0)), 0, 2);
-	float4 bl1 = uncompressLinear(tex1.Sample(sam, pos + float2(-inputPtX, inputPtY)), 0, 2);
-	float4 tc1 = uncompressLinear(tex1.Sample(sam, pos + float2(0, -inputPtY)), 0, 2);
-	float4 mc1 = uncompressLinear(tex1.Sample(sam, pos), 0, 2);
-	float4 bc1 = uncompressLinear(tex1.Sample(sam, pos + float2(0, inputPtY)), 0, 2);
-	float4 tr1 = uncompressLinear(tex1.Sample(sam, pos + float2(inputPtX, -inputPtY)), 0, 2);
-	float4 mr1 = uncompressLinear(tex1.Sample(sam, pos + float2(inputPtX, 0)), 0, 2);
-	float4 br1 = uncompressLinear(tex1.Sample(sam, pos + float2(inputPtX, inputPtY)), 0, 2);
+	float4 tl1 = tex1.Sample(sam, pos + float2(-inputPtX, -inputPtY));
+	float4 ml1 = tex1.Sample(sam, pos + float2(-inputPtX, 0));
+	float4 bl1 = tex1.Sample(sam, pos + float2(-inputPtX, inputPtY));
+	float4 tc1 = tex1.Sample(sam, pos + float2(0, -inputPtY));
+	float4 mc1 = tex1.Sample(sam, pos);
+	float4 bc1 = tex1.Sample(sam, pos + float2(0, inputPtY));
+	float4 tr1 = tex1.Sample(sam, pos + float2(inputPtX, -inputPtY));
+	float4 mr1 = tex1.Sample(sam, pos + float2(inputPtX, 0));
+	float4 br1 = tex1.Sample(sam, pos + float2(inputPtX, inputPtY));
 
-	float4 tl2 = uncompressLinear(tex2.Sample(sam, pos + float2(-inputPtX, -inputPtY)), 0, 2);
-	float4 ml2 = uncompressLinear(tex2.Sample(sam, pos + float2(-inputPtX, 0)), 0, 2);
-	float4 bl2 = uncompressLinear(tex2.Sample(sam, pos + float2(-inputPtX, inputPtY)), 0, 2);
-	float4 tc2 = uncompressLinear(tex2.Sample(sam, pos + float2(0, -inputPtY)), 0, 2);
-	float4 mc2 = uncompressLinear(tex2.Sample(sam, pos), 0, 2);
-	float4 bc2 = uncompressLinear(tex2.Sample(sam, pos + float2(0, inputPtY)), 0, 2);
-	float4 tr2 = uncompressLinear(tex2.Sample(sam, pos + float2(inputPtX, -inputPtY)), 0, 2);
-	float4 mr2 = uncompressLinear(tex2.Sample(sam, pos + float2(inputPtX, 0)), 0, 2);
-	float4 br2 = uncompressLinear(tex2.Sample(sam, pos + float2(inputPtX, inputPtY)), 0, 2);
+	float4 tl2 = tex2.Sample(sam, pos + float2(-inputPtX, -inputPtY));
+	float4 ml2 = tex2.Sample(sam, pos + float2(-inputPtX, 0));
+	float4 bl2 = tex2.Sample(sam, pos + float2(-inputPtX, inputPtY));
+	float4 tc2 = tex2.Sample(sam, pos + float2(0, -inputPtY));
+	float4 mc2 = tex2.Sample(sam, pos);
+	float4 bc2 = tex2.Sample(sam, pos + float2(0, inputPtY));
+	float4 tr2 = tex2.Sample(sam, pos + float2(inputPtX, -inputPtY));
+	float4 mr2 = tex2.Sample(sam, pos + float2(inputPtX, 0));
+	float4 br2 = tex2.Sample(sam, pos + float2(inputPtX, inputPtY));
 
 
 	target1 = RELU(float4(
@@ -532,7 +526,7 @@ void Pass3(float2 pos, out float4 target1, out float4 target2) {
 		bl2.w * kernelsLA[3 * 72 + 7 * 9 + 6] + bc2.w * kernelsLA[3 * 72 + 7 * 9 + 7] + br2.w * kernelsLA[3 * 72 + 7 * 9 + 8] + biasLA.w
 		));
 
-	float4 c = RELU(float4(
+	target2 = RELU(float4(
 		tl1.x * kernelsLB[0 * 72 + 0 * 9 + 0] + tc1.x * kernelsLB[0 * 72 + 0 * 9 + 1] + tr1.x * kernelsLB[0 * 72 + 0 * 9 + 2] +
 		ml1.x * kernelsLB[0 * 72 + 0 * 9 + 3] + mc1.x * kernelsLB[0 * 72 + 0 * 9 + 4] + mr1.x * kernelsLB[0 * 72 + 0 * 9 + 5] +
 		bl1.x * kernelsLB[0 * 72 + 0 * 9 + 6] + bc1.x * kernelsLB[0 * 72 + 0 * 9 + 7] + br1.x * kernelsLB[0 * 72 + 0 * 9 + 8] +
@@ -660,8 +654,7 @@ void Pass3(float2 pos, out float4 target1, out float4 target2) {
 		tl2.w * kernelsLB[3 * 72 + 7 * 9 + 0] + tc2.w * kernelsLB[3 * 72 + 7 * 9 + 1] + tr2.w * kernelsLB[3 * 72 + 7 * 9 + 2] +
 		ml2.w * kernelsLB[3 * 72 + 7 * 9 + 3] + mc2.w * kernelsLB[3 * 72 + 7 * 9 + 4] + mr2.w * kernelsLB[3 * 72 + 7 * 9 + 5] +
 		bl2.w * kernelsLB[3 * 72 + 7 * 9 + 6] + bc2.w * kernelsLB[3 * 72 + 7 * 9 + 7] + br2.w * kernelsLB[3 * 72 + 7 * 9 + 8] + biasLB.w
-	));
-	target2 = compressLinear(c, 0, 3);
+		));
 }
 
 
@@ -886,18 +879,18 @@ void Pass4(float2 pos, out float4 target1, out float4 target2) {
 	float4 mr1 = tex3.Sample(sam, pos + float2(inputPtX, 0));
 	float4 br1 = tex3.Sample(sam, pos + float2(inputPtX, inputPtY));
 
-	float4 tl2 = uncompressLinear(tex4.Sample(sam, pos + float2(-inputPtX, -inputPtY)), 0, 3);
-	float4 ml2 = uncompressLinear(tex4.Sample(sam, pos + float2(-inputPtX, 0)), 0, 3);
-	float4 bl2 = uncompressLinear(tex4.Sample(sam, pos + float2(-inputPtX, inputPtY)), 0, 3);
-	float4 tc2 = uncompressLinear(tex4.Sample(sam, pos + float2(0, -inputPtY)), 0, 3);
-	float4 mc2 = uncompressLinear(tex4.Sample(sam, pos), 0, 3);
-	float4 bc2 = uncompressLinear(tex4.Sample(sam, pos + float2(0, inputPtY)), 0, 3);
-	float4 tr2 = uncompressLinear(tex4.Sample(sam, pos + float2(inputPtX, -inputPtY)), 0, 3);
-	float4 mr2 = uncompressLinear(tex4.Sample(sam, pos + float2(inputPtX, 0)), 0, 3);
-	float4 br2 = uncompressLinear(tex4.Sample(sam, pos + float2(inputPtX, inputPtY)), 0, 3);
+	float4 tl2 = tex4.Sample(sam, pos + float2(-inputPtX, -inputPtY));
+	float4 ml2 = tex4.Sample(sam, pos + float2(-inputPtX, 0));
+	float4 bl2 = tex4.Sample(sam, pos + float2(-inputPtX, inputPtY));
+	float4 tc2 = tex4.Sample(sam, pos + float2(0, -inputPtY));
+	float4 mc2 = tex4.Sample(sam, pos);
+	float4 bc2 = tex4.Sample(sam, pos + float2(0, inputPtY));
+	float4 tr2 = tex4.Sample(sam, pos + float2(inputPtX, -inputPtY));
+	float4 mr2 = tex4.Sample(sam, pos + float2(inputPtX, 0));
+	float4 br2 = tex4.Sample(sam, pos + float2(inputPtX, inputPtY));
 
 
-	float4 c = RELU(float4(
+	target1 = RELU(float4(
 		tl1.x * kernelsLA[0 * 72 + 0 * 9 + 0] + tc1.x * kernelsLA[0 * 72 + 0 * 9 + 1] + tr1.x * kernelsLA[0 * 72 + 0 * 9 + 2] +
 		ml1.x * kernelsLA[0 * 72 + 0 * 9 + 3] + mc1.x * kernelsLA[0 * 72 + 0 * 9 + 4] + mr1.x * kernelsLA[0 * 72 + 0 * 9 + 5] +
 		bl1.x * kernelsLA[0 * 72 + 0 * 9 + 6] + bc1.x * kernelsLA[0 * 72 + 0 * 9 + 7] + br1.x * kernelsLA[0 * 72 + 0 * 9 + 8] +
@@ -1025,10 +1018,9 @@ void Pass4(float2 pos, out float4 target1, out float4 target2) {
 		tl2.w * kernelsLA[3 * 72 + 7 * 9 + 0] + tc2.w * kernelsLA[3 * 72 + 7 * 9 + 1] + tr2.w * kernelsLA[3 * 72 + 7 * 9 + 2] +
 		ml2.w * kernelsLA[3 * 72 + 7 * 9 + 3] + mc2.w * kernelsLA[3 * 72 + 7 * 9 + 4] + mr2.w * kernelsLA[3 * 72 + 7 * 9 + 5] +
 		bl2.w * kernelsLA[3 * 72 + 7 * 9 + 6] + bc2.w * kernelsLA[3 * 72 + 7 * 9 + 7] + br2.w * kernelsLA[3 * 72 + 7 * 9 + 8] + biasLA.w
-	));
-	target1 = compressLinear(c, 0, 3.5);
+		));
 
-	c = RELU(float4(
+	target2 = RELU(float4(
 		tl1.x * kernelsLB[0 * 72 + 0 * 9 + 0] + tc1.x * kernelsLB[0 * 72 + 0 * 9 + 1] + tr1.x * kernelsLB[0 * 72 + 0 * 9 + 2] +
 		ml1.x * kernelsLB[0 * 72 + 0 * 9 + 3] + mc1.x * kernelsLB[0 * 72 + 0 * 9 + 4] + mr1.x * kernelsLB[0 * 72 + 0 * 9 + 5] +
 		bl1.x * kernelsLB[0 * 72 + 0 * 9 + 6] + bc1.x * kernelsLB[0 * 72 + 0 * 9 + 7] + br1.x * kernelsLB[0 * 72 + 0 * 9 + 8] +
@@ -1156,8 +1148,7 @@ void Pass4(float2 pos, out float4 target1, out float4 target2) {
 		tl2.w * kernelsLB[3 * 72 + 7 * 9 + 0] + tc2.w * kernelsLB[3 * 72 + 7 * 9 + 1] + tr2.w * kernelsLB[3 * 72 + 7 * 9 + 2] +
 		ml2.w * kernelsLB[3 * 72 + 7 * 9 + 3] + mc2.w * kernelsLB[3 * 72 + 7 * 9 + 4] + mr2.w * kernelsLB[3 * 72 + 7 * 9 + 5] +
 		bl2.w * kernelsLB[3 * 72 + 7 * 9 + 6] + bc2.w * kernelsLB[3 * 72 + 7 * 9 + 7] + br2.w * kernelsLB[3 * 72 + 7 * 9 + 8] + biasLB.w
-	));
-	target2 = compressLinear(c, 0, 2);
+		));
 }
 
 //!PASS 5
@@ -1371,28 +1362,28 @@ void Pass5(float2 pos, out float4 target1, out float4 target2) {
 	// [tl, tc, tr]
 	// [ml, mc, mr]
 	// [bl, bc, br]
-	float4 tl1 = uncompressLinear(tex1.Sample(sam, pos + float2(-inputPtX, -inputPtY)), 0, 3.5);
-	float4 ml1 = uncompressLinear(tex1.Sample(sam, pos + float2(-inputPtX, 0)), 0, 3.5);
-	float4 bl1 = uncompressLinear(tex1.Sample(sam, pos + float2(-inputPtX, inputPtY)), 0, 3.5);
-	float4 tc1 = uncompressLinear(tex1.Sample(sam, pos + float2(0, -inputPtY)), 0, 3.5);
-	float4 mc1 = uncompressLinear(tex1.Sample(sam, pos), 0, 3.5);
-	float4 bc1 = uncompressLinear(tex1.Sample(sam, pos + float2(0, inputPtY)), 0, 3.5);
-	float4 tr1 = uncompressLinear(tex1.Sample(sam, pos + float2(inputPtX, -inputPtY)), 0, 3.5);
-	float4 mr1 = uncompressLinear(tex1.Sample(sam, pos + float2(inputPtX, 0)), 0, 3.5);
-	float4 br1 = uncompressLinear(tex1.Sample(sam, pos + float2(inputPtX, inputPtY)), 0, 3.5);
+	float4 tl1 = tex1.Sample(sam, pos + float2(-inputPtX, -inputPtY));
+	float4 ml1 = tex1.Sample(sam, pos + float2(-inputPtX, 0));
+	float4 bl1 = tex1.Sample(sam, pos + float2(-inputPtX, inputPtY));
+	float4 tc1 = tex1.Sample(sam, pos + float2(0, -inputPtY));
+	float4 mc1 = tex1.Sample(sam, pos);
+	float4 bc1 = tex1.Sample(sam, pos + float2(0, inputPtY));
+	float4 tr1 = tex1.Sample(sam, pos + float2(inputPtX, -inputPtY));
+	float4 mr1 = tex1.Sample(sam, pos + float2(inputPtX, 0));
+	float4 br1 = tex1.Sample(sam, pos + float2(inputPtX, inputPtY));
 
-	float4 tl2 = uncompressLinear(tex2.Sample(sam, pos + float2(-inputPtX, -inputPtY)), 0, 2);
-	float4 ml2 = uncompressLinear(tex2.Sample(sam, pos + float2(-inputPtX, 0)), 0, 2);
-	float4 bl2 = uncompressLinear(tex2.Sample(sam, pos + float2(-inputPtX, inputPtY)), 0, 2);
-	float4 tc2 = uncompressLinear(tex2.Sample(sam, pos + float2(0, -inputPtY)), 0, 2);
-	float4 mc2 = uncompressLinear(tex2.Sample(sam, pos), 0, 2);
-	float4 bc2 = uncompressLinear(tex2.Sample(sam, pos + float2(0, inputPtY)), 0, 2);
-	float4 tr2 = uncompressLinear(tex2.Sample(sam, pos + float2(inputPtX, -inputPtY)), 0, 2);
-	float4 mr2 = uncompressLinear(tex2.Sample(sam, pos + float2(inputPtX, 0)), 0, 2);
-	float4 br2 = uncompressLinear(tex2.Sample(sam, pos + float2(inputPtX, inputPtY)), 0, 2);
+	float4 tl2 = tex2.Sample(sam, pos + float2(-inputPtX, -inputPtY));
+	float4 ml2 = tex2.Sample(sam, pos + float2(-inputPtX, 0));
+	float4 bl2 = tex2.Sample(sam, pos + float2(-inputPtX, inputPtY));
+	float4 tc2 = tex2.Sample(sam, pos + float2(0, -inputPtY));
+	float4 mc2 = tex2.Sample(sam, pos);
+	float4 bc2 = tex2.Sample(sam, pos + float2(0, inputPtY));
+	float4 tr2 = tex2.Sample(sam, pos + float2(inputPtX, -inputPtY));
+	float4 mr2 = tex2.Sample(sam, pos + float2(inputPtX, 0));
+	float4 br2 = tex2.Sample(sam, pos + float2(inputPtX, inputPtY));
 
 
-	float4 c = RELU(float4(
+	target1 = RELU(float4(
 		tl1.x * kernelsLA[0 * 72 + 0 * 9 + 0] + tc1.x * kernelsLA[0 * 72 + 0 * 9 + 1] + tr1.x * kernelsLA[0 * 72 + 0 * 9 + 2] +
 		ml1.x * kernelsLA[0 * 72 + 0 * 9 + 3] + mc1.x * kernelsLA[0 * 72 + 0 * 9 + 4] + mr1.x * kernelsLA[0 * 72 + 0 * 9 + 5] +
 		bl1.x * kernelsLA[0 * 72 + 0 * 9 + 6] + bc1.x * kernelsLA[0 * 72 + 0 * 9 + 7] + br1.x * kernelsLA[0 * 72 + 0 * 9 + 8] +
@@ -1521,9 +1512,8 @@ void Pass5(float2 pos, out float4 target1, out float4 target2) {
 		ml2.w * kernelsLA[3 * 72 + 7 * 9 + 3] + mc2.w * kernelsLA[3 * 72 + 7 * 9 + 4] + mr2.w * kernelsLA[3 * 72 + 7 * 9 + 5] +
 		bl2.w * kernelsLA[3 * 72 + 7 * 9 + 6] + bc2.w * kernelsLA[3 * 72 + 7 * 9 + 7] + br2.w * kernelsLA[3 * 72 + 7 * 9 + 8] + biasLA.w
 		));
-	target1 = compressLinear(c, 0, 2);
 
-	c = RELU(float4(
+	target2 = RELU(float4(
 		tl1.x * kernelsLB[0 * 72 + 0 * 9 + 0] + tc1.x * kernelsLB[0 * 72 + 0 * 9 + 1] + tr1.x * kernelsLB[0 * 72 + 0 * 9 + 2] +
 		ml1.x * kernelsLB[0 * 72 + 0 * 9 + 3] + mc1.x * kernelsLB[0 * 72 + 0 * 9 + 4] + mr1.x * kernelsLB[0 * 72 + 0 * 9 + 5] +
 		bl1.x * kernelsLB[0 * 72 + 0 * 9 + 6] + bc1.x * kernelsLB[0 * 72 + 0 * 9 + 7] + br1.x * kernelsLB[0 * 72 + 0 * 9 + 8] +
@@ -1652,7 +1642,6 @@ void Pass5(float2 pos, out float4 target1, out float4 target2) {
 		ml2.w * kernelsLB[3 * 72 + 7 * 9 + 3] + mc2.w * kernelsLB[3 * 72 + 7 * 9 + 4] + mr2.w * kernelsLB[3 * 72 + 7 * 9 + 5] +
 		bl2.w * kernelsLB[3 * 72 + 7 * 9 + 6] + bc2.w * kernelsLB[3 * 72 + 7 * 9 + 7] + br2.w * kernelsLB[3 * 72 + 7 * 9 + 8] + biasLB.w
 		));
-	target2 = compressLinear(c, 0, 3);
 }
 
 //!PASS 6
@@ -1866,28 +1855,28 @@ void Pass6(float2 pos, out float4 target1, out float4 target2) {
 	// [tl, tc, tr]
 	// [ml, mc, mr]
 	// [bl, bc, br]
-	float4 tl1 = uncompressLinear(tex3.Sample(sam, pos + float2(-inputPtX, -inputPtY)), 0, 2);
-	float4 ml1 = uncompressLinear(tex3.Sample(sam, pos + float2(-inputPtX, 0)), 0, 2);
-	float4 bl1 = uncompressLinear(tex3.Sample(sam, pos + float2(-inputPtX, inputPtY)), 0, 2);
-	float4 tc1 = uncompressLinear(tex3.Sample(sam, pos + float2(0, -inputPtY)), 0, 2);
-	float4 mc1 = uncompressLinear(tex3.Sample(sam, pos), 0, 2);
-	float4 bc1 = uncompressLinear(tex3.Sample(sam, pos + float2(0, inputPtY)), 0, 2);
-	float4 tr1 = uncompressLinear(tex3.Sample(sam, pos + float2(inputPtX, -inputPtY)), 0, 2);
-	float4 mr1 = uncompressLinear(tex3.Sample(sam, pos + float2(inputPtX, 0)), 0, 2);
-	float4 br1 = uncompressLinear(tex3.Sample(sam, pos + float2(inputPtX, inputPtY)), 0, 2);
+	float4 tl1 = tex3.Sample(sam, pos + float2(-inputPtX, -inputPtY));
+	float4 ml1 = tex3.Sample(sam, pos + float2(-inputPtX, 0));
+	float4 bl1 = tex3.Sample(sam, pos + float2(-inputPtX, inputPtY));
+	float4 tc1 = tex3.Sample(sam, pos + float2(0, -inputPtY));
+	float4 mc1 = tex3.Sample(sam, pos);
+	float4 bc1 = tex3.Sample(sam, pos + float2(0, inputPtY));
+	float4 tr1 = tex3.Sample(sam, pos + float2(inputPtX, -inputPtY));
+	float4 mr1 = tex3.Sample(sam, pos + float2(inputPtX, 0));
+	float4 br1 = tex3.Sample(sam, pos + float2(inputPtX, inputPtY));
 
-	float4 tl2 = uncompressLinear(tex4.Sample(sam, pos + float2(-inputPtX, -inputPtY)), 0, 3);
-	float4 ml2 = uncompressLinear(tex4.Sample(sam, pos + float2(-inputPtX, 0)), 0, 3);
-	float4 bl2 = uncompressLinear(tex4.Sample(sam, pos + float2(-inputPtX, inputPtY)), 0, 3);
-	float4 tc2 = uncompressLinear(tex4.Sample(sam, pos + float2(0, -inputPtY)), 0, 3);
-	float4 mc2 = uncompressLinear(tex4.Sample(sam, pos), 0, 3);
-	float4 bc2 = uncompressLinear(tex4.Sample(sam, pos + float2(0, inputPtY)), 0, 3);
-	float4 tr2 = uncompressLinear(tex4.Sample(sam, pos + float2(inputPtX, -inputPtY)), 0, 3);
-	float4 mr2 = uncompressLinear(tex4.Sample(sam, pos + float2(inputPtX, 0)), 0, 3);
-	float4 br2 = uncompressLinear(tex4.Sample(sam, pos + float2(inputPtX, inputPtY)), 0, 3);
+	float4 tl2 = tex4.Sample(sam, pos + float2(-inputPtX, -inputPtY));
+	float4 ml2 = tex4.Sample(sam, pos + float2(-inputPtX, 0));
+	float4 bl2 = tex4.Sample(sam, pos + float2(-inputPtX, inputPtY));
+	float4 tc2 = tex4.Sample(sam, pos + float2(0, -inputPtY));
+	float4 mc2 = tex4.Sample(sam, pos);
+	float4 bc2 = tex4.Sample(sam, pos + float2(0, inputPtY));
+	float4 tr2 = tex4.Sample(sam, pos + float2(inputPtX, -inputPtY));
+	float4 mr2 = tex4.Sample(sam, pos + float2(inputPtX, 0));
+	float4 br2 = tex4.Sample(sam, pos + float2(inputPtX, inputPtY));
 
 
-	float4 c = RELU(float4(
+	target1 = RELU(float4(
 		tl1.x * kernelsLA[0 * 72 + 0 * 9 + 0] + tc1.x * kernelsLA[0 * 72 + 0 * 9 + 1] + tr1.x * kernelsLA[0 * 72 + 0 * 9 + 2] +
 		ml1.x * kernelsLA[0 * 72 + 0 * 9 + 3] + mc1.x * kernelsLA[0 * 72 + 0 * 9 + 4] + mr1.x * kernelsLA[0 * 72 + 0 * 9 + 5] +
 		bl1.x * kernelsLA[0 * 72 + 0 * 9 + 6] + bc1.x * kernelsLA[0 * 72 + 0 * 9 + 7] + br1.x * kernelsLA[0 * 72 + 0 * 9 + 8] +
@@ -2016,9 +2005,8 @@ void Pass6(float2 pos, out float4 target1, out float4 target2) {
 		ml2.w * kernelsLA[3 * 72 + 7 * 9 + 3] + mc2.w * kernelsLA[3 * 72 + 7 * 9 + 4] + mr2.w * kernelsLA[3 * 72 + 7 * 9 + 5] +
 		bl2.w * kernelsLA[3 * 72 + 7 * 9 + 6] + bc2.w * kernelsLA[3 * 72 + 7 * 9 + 7] + br2.w * kernelsLA[3 * 72 + 7 * 9 + 8] + biasLA.w
 		));
-	target1 = compressLinear(c, 0, 2);
 
-	c = RELU(float4(
+	target2 = RELU(float4(
 		tl1.x * kernelsLB[0 * 72 + 0 * 9 + 0] + tc1.x * kernelsLB[0 * 72 + 0 * 9 + 1] + tr1.x * kernelsLB[0 * 72 + 0 * 9 + 2] +
 		ml1.x * kernelsLB[0 * 72 + 0 * 9 + 3] + mc1.x * kernelsLB[0 * 72 + 0 * 9 + 4] + mr1.x * kernelsLB[0 * 72 + 0 * 9 + 5] +
 		bl1.x * kernelsLB[0 * 72 + 0 * 9 + 6] + bc1.x * kernelsLB[0 * 72 + 0 * 9 + 7] + br1.x * kernelsLB[0 * 72 + 0 * 9 + 8] +
@@ -2147,7 +2135,6 @@ void Pass6(float2 pos, out float4 target1, out float4 target2) {
 		ml2.w * kernelsLB[3 * 72 + 7 * 9 + 3] + mc2.w * kernelsLB[3 * 72 + 7 * 9 + 4] + mr2.w * kernelsLB[3 * 72 + 7 * 9 + 5] +
 		bl2.w * kernelsLB[3 * 72 + 7 * 9 + 6] + bc2.w * kernelsLB[3 * 72 + 7 * 9 + 7] + br2.w * kernelsLB[3 * 72 + 7 * 9 + 8] + biasLB.w
 		));
-	target2 = compressLinear(c, 0, 3);
 }
 
 
@@ -2362,28 +2349,28 @@ void Pass7(float2 pos, out float4 target1, out float4 target2) {
 	// [tl, tc, tr]
 	// [ml, mc, mr]
 	// [bl, bc, br]
-	float4 tl1 = uncompressLinear(tex1.Sample(sam, pos + float2(-inputPtX, -inputPtY)), 0, 2);
-	float4 ml1 = uncompressLinear(tex1.Sample(sam, pos + float2(-inputPtX, 0)), 0, 2);
-	float4 bl1 = uncompressLinear(tex1.Sample(sam, pos + float2(-inputPtX, inputPtY)), 0, 2);
-	float4 tc1 = uncompressLinear(tex1.Sample(sam, pos + float2(0, -inputPtY)), 0, 2);
-	float4 mc1 = uncompressLinear(tex1.Sample(sam, pos), 0, 2);
-	float4 bc1 = uncompressLinear(tex1.Sample(sam, pos + float2(0, inputPtY)), 0, 2);
-	float4 tr1 = uncompressLinear(tex1.Sample(sam, pos + float2(inputPtX, -inputPtY)), 0, 2);
-	float4 mr1 = uncompressLinear(tex1.Sample(sam, pos + float2(inputPtX, 0)), 0, 2);
-	float4 br1 = uncompressLinear(tex1.Sample(sam, pos + float2(inputPtX, inputPtY)), 0, 2);
+	float4 tl1 = tex1.Sample(sam, pos + float2(-inputPtX, -inputPtY));
+	float4 ml1 = tex1.Sample(sam, pos + float2(-inputPtX, 0));
+	float4 bl1 = tex1.Sample(sam, pos + float2(-inputPtX, inputPtY));
+	float4 tc1 = tex1.Sample(sam, pos + float2(0, -inputPtY));
+	float4 mc1 = tex1.Sample(sam, pos);
+	float4 bc1 = tex1.Sample(sam, pos + float2(0, inputPtY));
+	float4 tr1 = tex1.Sample(sam, pos + float2(inputPtX, -inputPtY));
+	float4 mr1 = tex1.Sample(sam, pos + float2(inputPtX, 0));
+	float4 br1 = tex1.Sample(sam, pos + float2(inputPtX, inputPtY));
 
-	float4 tl2 = uncompressLinear(tex2.Sample(sam, pos + float2(-inputPtX, -inputPtY)), 0, 3);
-	float4 ml2 = uncompressLinear(tex2.Sample(sam, pos + float2(-inputPtX, 0)), 0, 3);
-	float4 bl2 = uncompressLinear(tex2.Sample(sam, pos + float2(-inputPtX, inputPtY)), 0, 3);
-	float4 tc2 = uncompressLinear(tex2.Sample(sam, pos + float2(0, -inputPtY)), 0, 3);
-	float4 mc2 = uncompressLinear(tex2.Sample(sam, pos), 0, 3);
-	float4 bc2 = uncompressLinear(tex2.Sample(sam, pos + float2(0, inputPtY)), 0, 3);
-	float4 tr2 = uncompressLinear(tex2.Sample(sam, pos + float2(inputPtX, -inputPtY)), 0, 3);
-	float4 mr2 = uncompressLinear(tex2.Sample(sam, pos + float2(inputPtX, 0)), 0, 3);
-	float4 br2 = uncompressLinear(tex2.Sample(sam, pos + float2(inputPtX, inputPtY)), 0, 3);
+	float4 tl2 = tex2.Sample(sam, pos + float2(-inputPtX, -inputPtY));
+	float4 ml2 = tex2.Sample(sam, pos + float2(-inputPtX, 0));
+	float4 bl2 = tex2.Sample(sam, pos + float2(-inputPtX, inputPtY));
+	float4 tc2 = tex2.Sample(sam, pos + float2(0, -inputPtY));
+	float4 mc2 = tex2.Sample(sam, pos);
+	float4 bc2 = tex2.Sample(sam, pos + float2(0, inputPtY));
+	float4 tr2 = tex2.Sample(sam, pos + float2(inputPtX, -inputPtY));
+	float4 mr2 = tex2.Sample(sam, pos + float2(inputPtX, 0));
+	float4 br2 = tex2.Sample(sam, pos + float2(inputPtX, inputPtY));
 
 
-	float4 c = RELU(float4(
+	target1 = RELU(float4(
 		tl1.x * kernelsLA[0 * 72 + 0 * 9 + 0] + tc1.x * kernelsLA[0 * 72 + 0 * 9 + 1] + tr1.x * kernelsLA[0 * 72 + 0 * 9 + 2] +
 		ml1.x * kernelsLA[0 * 72 + 0 * 9 + 3] + mc1.x * kernelsLA[0 * 72 + 0 * 9 + 4] + mr1.x * kernelsLA[0 * 72 + 0 * 9 + 5] +
 		bl1.x * kernelsLA[0 * 72 + 0 * 9 + 6] + bc1.x * kernelsLA[0 * 72 + 0 * 9 + 7] + br1.x * kernelsLA[0 * 72 + 0 * 9 + 8] +
@@ -2512,9 +2499,8 @@ void Pass7(float2 pos, out float4 target1, out float4 target2) {
 		ml2.w * kernelsLA[3 * 72 + 7 * 9 + 3] + mc2.w * kernelsLA[3 * 72 + 7 * 9 + 4] + mr2.w * kernelsLA[3 * 72 + 7 * 9 + 5] +
 		bl2.w * kernelsLA[3 * 72 + 7 * 9 + 6] + bc2.w * kernelsLA[3 * 72 + 7 * 9 + 7] + br2.w * kernelsLA[3 * 72 + 7 * 9 + 8] + biasLA.w
 		));
-	target1 = compressLinear(c, 0, 2.5);
 
-	c = RELU(float4(
+	target2 = RELU(float4(
 		tl1.x * kernelsLB[0 * 72 + 0 * 9 + 0] + tc1.x * kernelsLB[0 * 72 + 0 * 9 + 1] + tr1.x * kernelsLB[0 * 72 + 0 * 9 + 2] +
 		ml1.x * kernelsLB[0 * 72 + 0 * 9 + 3] + mc1.x * kernelsLB[0 * 72 + 0 * 9 + 4] + mr1.x * kernelsLB[0 * 72 + 0 * 9 + 5] +
 		bl1.x * kernelsLB[0 * 72 + 0 * 9 + 6] + bc1.x * kernelsLB[0 * 72 + 0 * 9 + 7] + br1.x * kernelsLB[0 * 72 + 0 * 9 + 8] +
@@ -2643,7 +2629,6 @@ void Pass7(float2 pos, out float4 target1, out float4 target2) {
 		ml2.w * kernelsLB[3 * 72 + 7 * 9 + 3] + mc2.w * kernelsLB[3 * 72 + 7 * 9 + 4] + mr2.w * kernelsLB[3 * 72 + 7 * 9 + 5] +
 		bl2.w * kernelsLB[3 * 72 + 7 * 9 + 6] + bc2.w * kernelsLB[3 * 72 + 7 * 9 + 7] + br2.w * kernelsLB[3 * 72 + 7 * 9 + 8] + biasLB.w
 		));
-	target2 = compressLinear(c, 0, 3);
 }
 
 //!PASS 8
@@ -2857,28 +2842,28 @@ void Pass8(float2 pos, out float4 target1, out float4 target2) {
 	// [tl, tc, tr]
 	// [ml, mc, mr]
 	// [bl, bc, br]
-	float4 tl1 = uncompressLinear(tex3.Sample(sam, pos + float2(-inputPtX, -inputPtY)), 0, 2.5);
-	float4 ml1 = uncompressLinear(tex3.Sample(sam, pos + float2(-inputPtX, 0)), 0, 2.5);
-	float4 bl1 = uncompressLinear(tex3.Sample(sam, pos + float2(-inputPtX, inputPtY)), 0, 2.5);
-	float4 tc1 = uncompressLinear(tex3.Sample(sam, pos + float2(0, -inputPtY)), 0, 2.5);
-	float4 mc1 = uncompressLinear(tex3.Sample(sam, pos), 0, 2.5);
-	float4 bc1 = uncompressLinear(tex3.Sample(sam, pos + float2(0, inputPtY)), 0, 2.5);
-	float4 tr1 = uncompressLinear(tex3.Sample(sam, pos + float2(inputPtX, -inputPtY)), 0, 2.5);
-	float4 mr1 = uncompressLinear(tex3.Sample(sam, pos + float2(inputPtX, 0)), 0, 2.5);
-	float4 br1 = uncompressLinear(tex3.Sample(sam, pos + float2(inputPtX, inputPtY)), 0, 2.5);
+	float4 tl1 = tex3.Sample(sam, pos + float2(-inputPtX, -inputPtY));
+	float4 ml1 = tex3.Sample(sam, pos + float2(-inputPtX, 0));
+	float4 bl1 = tex3.Sample(sam, pos + float2(-inputPtX, inputPtY));
+	float4 tc1 = tex3.Sample(sam, pos + float2(0, -inputPtY));
+	float4 mc1 = tex3.Sample(sam, pos);
+	float4 bc1 = tex3.Sample(sam, pos + float2(0, inputPtY));
+	float4 tr1 = tex3.Sample(sam, pos + float2(inputPtX, -inputPtY));
+	float4 mr1 = tex3.Sample(sam, pos + float2(inputPtX, 0));
+	float4 br1 = tex3.Sample(sam, pos + float2(inputPtX, inputPtY));
 
-	float4 tl2 = uncompressLinear(tex4.Sample(sam, pos + float2(-inputPtX, -inputPtY)), 0, 3);
-	float4 ml2 = uncompressLinear(tex4.Sample(sam, pos + float2(-inputPtX, 0)), 0, 3);
-	float4 bl2 = uncompressLinear(tex4.Sample(sam, pos + float2(-inputPtX, inputPtY)), 0, 3);
-	float4 tc2 = uncompressLinear(tex4.Sample(sam, pos + float2(0, -inputPtY)), 0, 3);
-	float4 mc2 = uncompressLinear(tex4.Sample(sam, pos), 0, 3);
-	float4 bc2 = uncompressLinear(tex4.Sample(sam, pos + float2(0, inputPtY)), 0, 3);
-	float4 tr2 = uncompressLinear(tex4.Sample(sam, pos + float2(inputPtX, -inputPtY)), 0, 3);
-	float4 mr2 = uncompressLinear(tex4.Sample(sam, pos + float2(inputPtX, 0)), 0, 3);
-	float4 br2 = uncompressLinear(tex4.Sample(sam, pos + float2(inputPtX, inputPtY)), 0, 3);
+	float4 tl2 = tex4.Sample(sam, pos + float2(-inputPtX, -inputPtY));
+	float4 ml2 = tex4.Sample(sam, pos + float2(-inputPtX, 0));
+	float4 bl2 = tex4.Sample(sam, pos + float2(-inputPtX, inputPtY));
+	float4 tc2 = tex4.Sample(sam, pos + float2(0, -inputPtY));
+	float4 mc2 = tex4.Sample(sam, pos);
+	float4 bc2 = tex4.Sample(sam, pos + float2(0, inputPtY));
+	float4 tr2 = tex4.Sample(sam, pos + float2(inputPtX, -inputPtY));
+	float4 mr2 = tex4.Sample(sam, pos + float2(inputPtX, 0));
+	float4 br2 = tex4.Sample(sam, pos + float2(inputPtX, inputPtY));
 
 
-	float4 c = RELU(float4(
+	target1 = RELU(float4(
 		tl1.x * kernelsLA[0 * 72 + 0 * 9 + 0] + tc1.x * kernelsLA[0 * 72 + 0 * 9 + 1] + tr1.x * kernelsLA[0 * 72 + 0 * 9 + 2] +
 		ml1.x * kernelsLA[0 * 72 + 0 * 9 + 3] + mc1.x * kernelsLA[0 * 72 + 0 * 9 + 4] + mr1.x * kernelsLA[0 * 72 + 0 * 9 + 5] +
 		bl1.x * kernelsLA[0 * 72 + 0 * 9 + 6] + bc1.x * kernelsLA[0 * 72 + 0 * 9 + 7] + br1.x * kernelsLA[0 * 72 + 0 * 9 + 8] +
@@ -3007,9 +2992,8 @@ void Pass8(float2 pos, out float4 target1, out float4 target2) {
 		ml2.w * kernelsLA[3 * 72 + 7 * 9 + 3] + mc2.w * kernelsLA[3 * 72 + 7 * 9 + 4] + mr2.w * kernelsLA[3 * 72 + 7 * 9 + 5] +
 		bl2.w * kernelsLA[3 * 72 + 7 * 9 + 6] + bc2.w * kernelsLA[3 * 72 + 7 * 9 + 7] + br2.w * kernelsLA[3 * 72 + 7 * 9 + 8] + biasLA.w
 		));
-	target1 = compressLinear(c, 0, 4);
 
-	c = RELU(float4(
+	target2 = RELU(float4(
 		tl1.x * kernelsLB[0 * 72 + 0 * 9 + 0] + tc1.x * kernelsLB[0 * 72 + 0 * 9 + 1] + tr1.x * kernelsLB[0 * 72 + 0 * 9 + 2] +
 		ml1.x * kernelsLB[0 * 72 + 0 * 9 + 3] + mc1.x * kernelsLB[0 * 72 + 0 * 9 + 4] + mr1.x * kernelsLB[0 * 72 + 0 * 9 + 5] +
 		bl1.x * kernelsLB[0 * 72 + 0 * 9 + 6] + bc1.x * kernelsLB[0 * 72 + 0 * 9 + 7] + br1.x * kernelsLB[0 * 72 + 0 * 9 + 8] +
@@ -3138,7 +3122,6 @@ void Pass8(float2 pos, out float4 target1, out float4 target2) {
 		ml2.w * kernelsLB[3 * 72 + 7 * 9 + 3] + mc2.w * kernelsLB[3 * 72 + 7 * 9 + 4] + mr2.w * kernelsLB[3 * 72 + 7 * 9 + 5] +
 		bl2.w * kernelsLB[3 * 72 + 7 * 9 + 6] + bc2.w * kernelsLB[3 * 72 + 7 * 9 + 7] + br2.w * kernelsLB[3 * 72 + 7 * 9 + 8] + biasLB.w
 		));
-	target2 = compressLinear(c, 0, 4);
 }
 
 
@@ -3353,28 +3336,28 @@ void Pass9(float2 pos, out float4 target1, out float4 target2) {
 	// [tl, tc, tr]
 	// [ml, mc, mr]
 	// [bl, bc, br]
-	float4 tl1 = uncompressLinear(tex1.Sample(sam, pos + float2(-inputPtX, -inputPtY)), 0, 4);
-	float4 ml1 = uncompressLinear(tex1.Sample(sam, pos + float2(-inputPtX, 0)), 0, 4);
-	float4 bl1 = uncompressLinear(tex1.Sample(sam, pos + float2(-inputPtX, inputPtY)), 0, 4);
-	float4 tc1 = uncompressLinear(tex1.Sample(sam, pos + float2(0, -inputPtY)), 0, 4);
-	float4 mc1 = uncompressLinear(tex1.Sample(sam, pos), 0, 4);
-	float4 bc1 = uncompressLinear(tex1.Sample(sam, pos + float2(0, inputPtY)), 0, 4);
-	float4 tr1 = uncompressLinear(tex1.Sample(sam, pos + float2(inputPtX, -inputPtY)), 0, 4);
-	float4 mr1 = uncompressLinear(tex1.Sample(sam, pos + float2(inputPtX, 0)), 0, 4);
-	float4 br1 = uncompressLinear(tex1.Sample(sam, pos + float2(inputPtX, inputPtY)), 0, 4);
+	float4 tl1 = tex1.Sample(sam, pos + float2(-inputPtX, -inputPtY));
+	float4 ml1 = tex1.Sample(sam, pos + float2(-inputPtX, 0));
+	float4 bl1 = tex1.Sample(sam, pos + float2(-inputPtX, inputPtY));
+	float4 tc1 = tex1.Sample(sam, pos + float2(0, -inputPtY));
+	float4 mc1 = tex1.Sample(sam, pos);
+	float4 bc1 = tex1.Sample(sam, pos + float2(0, inputPtY));
+	float4 tr1 = tex1.Sample(sam, pos + float2(inputPtX, -inputPtY));
+	float4 mr1 = tex1.Sample(sam, pos + float2(inputPtX, 0));
+	float4 br1 = tex1.Sample(sam, pos + float2(inputPtX, inputPtY));
 
-	float4 tl2 = uncompressLinear(tex2.Sample(sam, pos + float2(-inputPtX, -inputPtY)), 0, 4);
-	float4 ml2 = uncompressLinear(tex2.Sample(sam, pos + float2(-inputPtX, 0)), 0, 4);
-	float4 bl2 = uncompressLinear(tex2.Sample(sam, pos + float2(-inputPtX, inputPtY)), 0, 4);
-	float4 tc2 = uncompressLinear(tex2.Sample(sam, pos + float2(0, -inputPtY)), 0, 4);
-	float4 mc2 = uncompressLinear(tex2.Sample(sam, pos), 0, 4);
-	float4 bc2 = uncompressLinear(tex2.Sample(sam, pos + float2(0, inputPtY)), 0, 4);
-	float4 tr2 = uncompressLinear(tex2.Sample(sam, pos + float2(inputPtX, -inputPtY)), 0, 4);
-	float4 mr2 = uncompressLinear(tex2.Sample(sam, pos + float2(inputPtX, 0)), 0, 4);
-	float4 br2 = uncompressLinear(tex2.Sample(sam, pos + float2(inputPtX, inputPtY)), 0, 4);
+	float4 tl2 = tex2.Sample(sam, pos + float2(-inputPtX, -inputPtY));
+	float4 ml2 = tex2.Sample(sam, pos + float2(-inputPtX, 0));
+	float4 bl2 = tex2.Sample(sam, pos + float2(-inputPtX, inputPtY));
+	float4 tc2 = tex2.Sample(sam, pos + float2(0, -inputPtY));
+	float4 mc2 = tex2.Sample(sam, pos);
+	float4 bc2 = tex2.Sample(sam, pos + float2(0, inputPtY));
+	float4 tr2 = tex2.Sample(sam, pos + float2(inputPtX, -inputPtY));
+	float4 mr2 = tex2.Sample(sam, pos + float2(inputPtX, 0));
+	float4 br2 = tex2.Sample(sam, pos + float2(inputPtX, inputPtY));
 
 
-	float4 c = RELU(float4(
+	target1 = RELU(float4(
 		tl1.x * kernelsLA[0 * 72 + 0 * 9 + 0] + tc1.x * kernelsLA[0 * 72 + 0 * 9 + 1] + tr1.x * kernelsLA[0 * 72 + 0 * 9 + 2] +
 		ml1.x * kernelsLA[0 * 72 + 0 * 9 + 3] + mc1.x * kernelsLA[0 * 72 + 0 * 9 + 4] + mr1.x * kernelsLA[0 * 72 + 0 * 9 + 5] +
 		bl1.x * kernelsLA[0 * 72 + 0 * 9 + 6] + bc1.x * kernelsLA[0 * 72 + 0 * 9 + 7] + br1.x * kernelsLA[0 * 72 + 0 * 9 + 8] +
@@ -3503,9 +3486,8 @@ void Pass9(float2 pos, out float4 target1, out float4 target2) {
 		ml2.w * kernelsLA[3 * 72 + 7 * 9 + 3] + mc2.w * kernelsLA[3 * 72 + 7 * 9 + 4] + mr2.w * kernelsLA[3 * 72 + 7 * 9 + 5] +
 		bl2.w * kernelsLA[3 * 72 + 7 * 9 + 6] + bc2.w * kernelsLA[3 * 72 + 7 * 9 + 7] + br2.w * kernelsLA[3 * 72 + 7 * 9 + 8] + biasLA.w
 		));
-	target1 = compressLinear(c, 0, 4);
 
-	c = RELU(float4(
+	target2 = RELU(float4(
 		tl1.x * kernelsLB[0 * 72 + 0 * 9 + 0] + tc1.x * kernelsLB[0 * 72 + 0 * 9 + 1] + tr1.x * kernelsLB[0 * 72 + 0 * 9 + 2] +
 		ml1.x * kernelsLB[0 * 72 + 0 * 9 + 3] + mc1.x * kernelsLB[0 * 72 + 0 * 9 + 4] + mr1.x * kernelsLB[0 * 72 + 0 * 9 + 5] +
 		bl1.x * kernelsLB[0 * 72 + 0 * 9 + 6] + bc1.x * kernelsLB[0 * 72 + 0 * 9 + 7] + br1.x * kernelsLB[0 * 72 + 0 * 9 + 8] +
@@ -3634,7 +3616,6 @@ void Pass9(float2 pos, out float4 target1, out float4 target2) {
 		ml2.w * kernelsLB[3 * 72 + 7 * 9 + 3] + mc2.w * kernelsLB[3 * 72 + 7 * 9 + 4] + mr2.w * kernelsLB[3 * 72 + 7 * 9 + 5] +
 		bl2.w * kernelsLB[3 * 72 + 7 * 9 + 6] + bc2.w * kernelsLB[3 * 72 + 7 * 9 + 7] + br2.w * kernelsLB[3 * 72 + 7 * 9 + 8] + biasLB.w
 		));
-	target2 = compressLinear(c, 0, 4);
 }
 
 
@@ -3849,28 +3830,28 @@ void Pass10(float2 pos, out float4 target1, out float4 target2) {
 	// [tl, tc, tr]
 	// [ml, mc, mr]
 	// [bl, bc, br]
-	float4 tl1 = uncompressLinear(tex3.Sample(sam, pos + float2(-inputPtX, -inputPtY)), 0, 4);
-	float4 ml1 = uncompressLinear(tex3.Sample(sam, pos + float2(-inputPtX, 0)), 0, 4);
-	float4 bl1 = uncompressLinear(tex3.Sample(sam, pos + float2(-inputPtX, inputPtY)), 0, 4);
-	float4 tc1 = uncompressLinear(tex3.Sample(sam, pos + float2(0, -inputPtY)), 0, 4);
-	float4 mc1 = uncompressLinear(tex3.Sample(sam, pos), 0, 4);
-	float4 bc1 = uncompressLinear(tex3.Sample(sam, pos + float2(0, inputPtY)), 0, 4);
-	float4 tr1 = uncompressLinear(tex3.Sample(sam, pos + float2(inputPtX, -inputPtY)), 0, 4);
-	float4 mr1 = uncompressLinear(tex3.Sample(sam, pos + float2(inputPtX, 0)), 0, 4);
-	float4 br1 = uncompressLinear(tex3.Sample(sam, pos + float2(inputPtX, inputPtY)), 0, 4);
+	float4 tl1 = tex3.Sample(sam, pos + float2(-inputPtX, -inputPtY));
+	float4 ml1 = tex3.Sample(sam, pos + float2(-inputPtX, 0));
+	float4 bl1 = tex3.Sample(sam, pos + float2(-inputPtX, inputPtY));
+	float4 tc1 = tex3.Sample(sam, pos + float2(0, -inputPtY));
+	float4 mc1 = tex3.Sample(sam, pos);
+	float4 bc1 = tex3.Sample(sam, pos + float2(0, inputPtY));
+	float4 tr1 = tex3.Sample(sam, pos + float2(inputPtX, -inputPtY));
+	float4 mr1 = tex3.Sample(sam, pos + float2(inputPtX, 0));
+	float4 br1 = tex3.Sample(sam, pos + float2(inputPtX, inputPtY));
 
-	float4 tl2 = uncompressLinear(tex4.Sample(sam, pos + float2(-inputPtX, -inputPtY)), 0, 4);
-	float4 ml2 = uncompressLinear(tex4.Sample(sam, pos + float2(-inputPtX, 0)), 0, 4);
-	float4 bl2 = uncompressLinear(tex4.Sample(sam, pos + float2(-inputPtX, inputPtY)), 0, 4);
-	float4 tc2 = uncompressLinear(tex4.Sample(sam, pos + float2(0, -inputPtY)), 0, 4);
-	float4 mc2 = uncompressLinear(tex4.Sample(sam, pos), 0, 4);
-	float4 bc2 = uncompressLinear(tex4.Sample(sam, pos + float2(0, inputPtY)), 0, 4);
-	float4 tr2 = uncompressLinear(tex4.Sample(sam, pos + float2(inputPtX, -inputPtY)), 0, 4);
-	float4 mr2 = uncompressLinear(tex4.Sample(sam, pos + float2(inputPtX, 0)), 0, 4);
-	float4 br2 = uncompressLinear(tex4.Sample(sam, pos + float2(inputPtX, inputPtY)), 0, 4);
+	float4 tl2 = tex4.Sample(sam, pos + float2(-inputPtX, -inputPtY));
+	float4 ml2 = tex4.Sample(sam, pos + float2(-inputPtX, 0));
+	float4 bl2 = tex4.Sample(sam, pos + float2(-inputPtX, inputPtY));
+	float4 tc2 = tex4.Sample(sam, pos + float2(0, -inputPtY));
+	float4 mc2 = tex4.Sample(sam, pos);
+	float4 bc2 = tex4.Sample(sam, pos + float2(0, inputPtY));
+	float4 tr2 = tex4.Sample(sam, pos + float2(inputPtX, -inputPtY));
+	float4 mr2 = tex4.Sample(sam, pos + float2(inputPtX, 0));
+	float4 br2 = tex4.Sample(sam, pos + float2(inputPtX, inputPtY));
 
 
-	float4 c = RELU(float4(
+	target1 = RELU(float4(
 		tl1.x * kernelsLA[0 * 72 + 0 * 9 + 0] + tc1.x * kernelsLA[0 * 72 + 0 * 9 + 1] + tr1.x * kernelsLA[0 * 72 + 0 * 9 + 2] +
 		ml1.x * kernelsLA[0 * 72 + 0 * 9 + 3] + mc1.x * kernelsLA[0 * 72 + 0 * 9 + 4] + mr1.x * kernelsLA[0 * 72 + 0 * 9 + 5] +
 		bl1.x * kernelsLA[0 * 72 + 0 * 9 + 6] + bc1.x * kernelsLA[0 * 72 + 0 * 9 + 7] + br1.x * kernelsLA[0 * 72 + 0 * 9 + 8] +
@@ -3999,9 +3980,8 @@ void Pass10(float2 pos, out float4 target1, out float4 target2) {
 		ml2.w * kernelsLA[3 * 72 + 7 * 9 + 3] + mc2.w * kernelsLA[3 * 72 + 7 * 9 + 4] + mr2.w * kernelsLA[3 * 72 + 7 * 9 + 5] +
 		bl2.w * kernelsLA[3 * 72 + 7 * 9 + 6] + bc2.w * kernelsLA[3 * 72 + 7 * 9 + 7] + br2.w * kernelsLA[3 * 72 + 7 * 9 + 8] + biasLA.w
 		));
-	target1 = compressLinear(c, 0, 4.5);
 
-	c = RELU(float4(
+	target2 = RELU(float4(
 		tl1.x * kernelsLB[0 * 72 + 0 * 9 + 0] + tc1.x * kernelsLB[0 * 72 + 0 * 9 + 1] + tr1.x * kernelsLB[0 * 72 + 0 * 9 + 2] +
 		ml1.x * kernelsLB[0 * 72 + 0 * 9 + 3] + mc1.x * kernelsLB[0 * 72 + 0 * 9 + 4] + mr1.x * kernelsLB[0 * 72 + 0 * 9 + 5] +
 		bl1.x * kernelsLB[0 * 72 + 0 * 9 + 6] + bc1.x * kernelsLB[0 * 72 + 0 * 9 + 7] + br1.x * kernelsLB[0 * 72 + 0 * 9 + 8] +
@@ -4130,7 +4110,6 @@ void Pass10(float2 pos, out float4 target1, out float4 target2) {
 		ml2.w * kernelsLB[3 * 72 + 7 * 9 + 3] + mc2.w * kernelsLB[3 * 72 + 7 * 9 + 4] + mr2.w * kernelsLB[3 * 72 + 7 * 9 + 5] +
 		bl2.w * kernelsLB[3 * 72 + 7 * 9 + 6] + bc2.w * kernelsLB[3 * 72 + 7 * 9 + 7] + br2.w * kernelsLB[3 * 72 + 7 * 9 + 8] + biasLB.w
 		));
-	target2 = compressLinear(c, 0, 3);
 }
 
 
@@ -4164,9 +4143,9 @@ const static float4 biasL = { -0.0006,  0.0117,  0.0083,  0.0686 };
 
 
 const static float3x3 _yuv2rgb = {
-		1, -0.00093, 1.401687,
-		1, -0.3437, -0.71417,
-		1, 1.77216, 0.00099
+	1, -0.00093, 1.401687,
+	1, -0.3437, -0.71417,
+	1, 1.77216, 0.00099
 };
 
 
@@ -4176,8 +4155,8 @@ float4 Pass11(float2 pos) {
 	int index = i.y * 2 + i.x;
 	float2 pos1 = pos + (float2(0.5, 0.5) - f) * float2(inputPtX, inputPtY);
 
-	float4 mc1 = uncompressLinear(tex1.Sample(sam, pos1), 0, 4.5);
-	float4 mc2 = uncompressLinear(tex2.Sample(sam, pos1), 0, 3);
+	float4 mc1 = tex1.Sample(sam, pos1);
+	float4 mc2 = tex2.Sample(sam, pos1);
 
 	float luma = clamp(
 		mc1.x * kernelsL10[0 + index] +
@@ -4190,10 +4169,5 @@ float4 Pass11(float2 pos) {
 		mc2.w * kernelsL10[28 + index], 0.0f, 1.0f);
 
 	float3 yuv = yuvTex.Sample(sam, pos);
-	// 消除因压缩产生的噪声
-	if (abs(luma - yuv.x) < noise_threshold) {
-		luma = yuv.x;
-	}
-
 	return float4(mul(_yuv2rgb, float3(luma, yuv.yz) - float3(0, 0.5, 0.5)), 1);
 }
