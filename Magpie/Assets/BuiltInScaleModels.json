@@ -1,7 +1,7 @@
 [
   {
     "name": "Lanczos",
-    "model": [
+    "effects": [
       {
         "effect": "Lanczos",
         "scale": [ -1, -1 ],
@@ -11,10 +11,24 @@
   },
   {
     "name": "FSR",
-    "model": [
+    "effects": [
       {
         "effect": "FSR",
-        "scale": [ -1, -1 ]
+        "scale": [ -1, -1 ],
+        "sharpness": 0.5
+      }
+    ]
+  },
+  {
+    "name": "ACNet",
+    "effects": [
+      {
+        "effect": "ACNet"
+      },
+      {
+        "effect": "Mitchell",
+        "scale": [ -1, -1 ],
+        "variant": 1
       }
     ]
   }

@@ -177,6 +177,9 @@
     <CopyFileToFolders Include="shaders\ACNet.hlsl">
       <Filter>着色器</Filter>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="shaders\Mitchell.hlsl">
+      <Filter>着色器</Filter>
+    </CopyFileToFolders>
   </ItemGroup>
   <ItemGroup>
     <Text Include="conanfile.txt" />

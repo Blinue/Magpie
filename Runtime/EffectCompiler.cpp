@@ -1027,7 +1027,6 @@ UINT EffectCompiler::_ResolvePasses(const std::vector<std::string_view>& blocks,
 		}
 	} else {
 		// 有多个 Pass，使用线程池加速编译
-
 		TPContext context = {
 			0,
 			passSources,
