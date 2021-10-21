@@ -4,8 +4,11 @@
     "effects": [
       {
         "effect": "Lanczos",
-        "scale": [ -1, -1 ],
-        "ARStrength": 0.7
+        "scale": [ -1, -1 ]
+      },
+      {
+        "effect": "AdaptiveSharpen",
+        "curveHeight": 0.3
       }
     ]
   },
@@ -14,8 +17,7 @@
     "effects": [
       {
         "effect": "FSR",
-        "scale": [ -1, -1 ],
-        "sharpness": 0.5
+        "scale": [ -1, -1 ]
       }
     ]
   },
@@ -29,6 +31,15 @@
         "effect": "Mitchell",
         "scale": [ -1, -1 ],
         "variant": 1
+      }
+    ]
+  },
+  {
+    "name": "Integer Scale 2x",
+    "effects": [
+      {
+        "effect": "Nearest",
+        "scale": [ 2, 2 ]
       }
     ]
   }

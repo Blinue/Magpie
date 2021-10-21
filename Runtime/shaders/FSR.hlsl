@@ -34,7 +34,7 @@ Texture2D INPUT;
 Texture2D tex1;
 
 //!SAMPLER
-//!FILTER LINEAR
+//!FILTER POINT
 SamplerState sam;
 
 //!COMMON

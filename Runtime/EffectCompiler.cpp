@@ -216,18 +216,15 @@ UINT EffectCompiler::_RemoveComments(std::string& source) {
 		if (source[i] == '/') {
 			if (source[i + 1] == '/' && source[i + 2] != '!') {
 				// 行注释
-				i += 2;
+				++i;
 
 				// 无需处理越界，因为必定以换行符结尾
 				while (source[i] != '\n') {
 					++i;
 				}
 
-				// 文件结尾
-				if (i >= source.size() - 2) {
-					source.resize(j);
-					return 0;
-				}
+				// 保留换行符
+				source[j++] = '\n';
 
 				continue;
 			} else if (source[i + 1] == '*') {

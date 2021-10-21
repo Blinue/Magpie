@@ -1,22 +1,17 @@
+// Lanczos6 插值算法
+// 移植自 https://github.com/libretro/common-shaders/blob/master/windowed/shaders/lanczos6.cg
+
 //!MAGPIE EFFECT
 //!VERSION 1
 
 
 //!CONSTANT
-//!VALUE OUTPUT_WIDTH
-float outputWidth;
+//!VALUE INPUT_PT_X
+float inputPtX;
 
 //!CONSTANT
-//!VALUE OUTPUT_HEIGHT
-float outputHeight;
-
-//!CONSTANT
-//!VALUE OUTPUT_PT_X
-float outputPtX;
-
-//!CONSTANT
-//!VALUE OUTPUT_PT_Y
-float outputPtY;
+//!VALUE INPUT_PT_Y
+float inputPtY;
 
 //!CONSTANT
 //!DEFAULT 0.5
@@ -28,7 +23,7 @@ float ARStrength;
 Texture2D INPUT;
 
 //!SAMPLER
-//!FILTER LINEAR
+//!FILTER POINT
 SamplerState sam;
 
 
@@ -59,13 +54,13 @@ float3 line_run(float ypos, float3 xpos1, float3 xpos2, float3 linetaps1, float3
 float4 Pass1(float2 pos) {
 	// 用于抗振铃
 	float3 neighbors[4] = {
-		INPUT.Sample(sam, float2(pos.x - outputPtX, pos.y)).rgb,
-		INPUT.Sample(sam, float2(pos.x + outputPtX, pos.y)).rgb,
-		INPUT.Sample(sam, float2(pos.x, pos.y - outputPtY)).rgb,
-		INPUT.Sample(sam, float2(pos.x, pos.y + outputPtY)).rgb
+		INPUT.Sample(sam, float2(pos.x - inputPtX, pos.y)).rgb,
+		INPUT.Sample(sam, float2(pos.x + inputPtX, pos.y)).rgb,
+		INPUT.Sample(sam, float2(pos.x, pos.y - inputPtY)).rgb,
+		INPUT.Sample(sam, float2(pos.x, pos.y + inputPtY)).rgb
 	};
 
-	float2 f = frac(pos.xy * float2(outputWidth, outputHeight) + 0.5);
+	float2 f = frac(pos.xy / float2(inputPtX, inputPtY) + 0.5);
 	float3 linetaps1 = weight3(0.5 - f.x * 0.5);
 	float3 linetaps2 = weight3(1.0 - f.x * 0.5);
 	float3 columntaps1 = weight3(0.5 - f.y * 0.5);
@@ -81,17 +76,17 @@ float4 Pass1(float2 pos) {
 	columntaps2 /= sumc;
 
 	// !!!改变当前坐标
-	pos -= (f + 2) * float2(outputPtX, outputPtY);
-	float3 xpos1 = float3(pos.x, pos.x + outputPtX, pos.x + 2 * outputPtX);
-	float3 xpos2 = float3(pos.x + 3 * outputPtX, pos.x + 4 * outputPtX, pos.x + 5 * outputPtX);
+	pos -= (f + 2) * float2(inputPtX, inputPtY);
+	float3 xpos1 = float3(pos.x, pos.x + inputPtX, pos.x + 2 * inputPtX);
+	float3 xpos2 = float3(pos.x + 3 * inputPtX, pos.x + 4 * inputPtX, pos.x + 5 * inputPtX);
 
 	// final sum and weight normalization
 	float3 color = line_run(pos.y, xpos1, xpos2, linetaps1, linetaps2) * columntaps1.r
-		+ line_run(pos.y + outputPtY, xpos1, xpos2, linetaps1, linetaps2) * columntaps2.r
-		+ line_run(pos.y + 2 * outputPtY, xpos1, xpos2, linetaps1, linetaps2) * columntaps1.g
-		+ line_run(pos.y + 3 * outputPtY, xpos1, xpos2, linetaps1, linetaps2) * columntaps2.g
-		+ line_run(pos.y + 4 * outputPtY, xpos1, xpos2, linetaps1, linetaps2) * columntaps1.b
-		+ line_run(pos.y + 5 * outputPtY, xpos1, xpos2, linetaps1, linetaps2) * columntaps2.b;
+		+ line_run(pos.y + inputPtY, xpos1, xpos2, linetaps1, linetaps2) * columntaps2.r
+		+ line_run(pos.y + 2 * inputPtY, xpos1, xpos2, linetaps1, linetaps2) * columntaps1.g
+		+ line_run(pos.y + 3 * inputPtY, xpos1, xpos2, linetaps1, linetaps2) * columntaps2.g
+		+ line_run(pos.y + 4 * inputPtY, xpos1, xpos2, linetaps1, linetaps2) * columntaps1.b
+		+ line_run(pos.y + 5 * inputPtY, xpos1, xpos2, linetaps1, linetaps2) * columntaps2.b;
 
 	// 抗振铃
 	float3 min_sample = min4(neighbors[0], neighbors[1], neighbors[2], neighbors[3]);

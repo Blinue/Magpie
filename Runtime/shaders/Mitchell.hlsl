@@ -1,14 +1,17 @@
+// Mitchell-Netravali 插值算法
+// 移植自 https://github.com/libretro/common-shaders/blob/master/bicubic/shaders/bicubic-normal.cg
+
 //!MAGPIE EFFECT
 //!VERSION 1
 
 
 //!CONSTANT
-//!VALUE OUTPUT_PT_X
-float outputPtX;
+//!VALUE INPUT_PT_X
+float inputPtX;
 
 //!CONSTANT
-//!VALUE OUTPUT_PT_Y
-float outputPtY;
+//!VALUE INPUT_PT_Y
+float inputPtY;
 
 
 //!CONSTANT
@@ -25,7 +28,7 @@ int variant;
 Texture2D INPUT;
 
 //!SAMPLER
-//!FILTER LINEAR
+//!FILTER POINT
 SamplerState sam;
 
 
@@ -86,7 +89,7 @@ float3 line_run(float ypos, float4 xpos, float4 linetaps) {
 
 
 float4 Pass1(float2 pos) {
-	float2 f = frac(pos / float2(outputPtX, outputPtY) + 0.5);
+	float2 f = frac(pos / float2(inputPtX, inputPtY) + 0.5);
 
 	float4 linetaps = weight4(1.0 - f.x);
 	float4 columntaps = weight4(1.0 - f.y);
@@ -96,14 +99,14 @@ float4 Pass1(float2 pos) {
 	columntaps /= columntaps.r + columntaps.g + columntaps.b + columntaps.a;
 
 	// !!!改变当前坐标
-	pos -= (f + 1) * float2(outputPtX, outputPtY);
+	pos -= (f + 1) * float2(inputPtX, inputPtY);
 
-	float4 xpos = float4(pos.x, pos.x + outputPtX, pos.x + 2 * outputPtX, pos.x + 3 * outputPtX);
+	float4 xpos = float4(pos.x, pos.x + inputPtX, pos.x + 2 * inputPtX, pos.x + 3 * inputPtX);
 
 	// final sum and weight normalization
 	return float4(line_run(pos.y, xpos, linetaps) * columntaps.r
-		+ line_run(pos.y + outputPtY, xpos, linetaps) * columntaps.g
-		+ line_run(pos.y + 2 * outputPtY, xpos, linetaps) * columntaps.b
-		+ line_run(pos.y + 3 * outputPtY, xpos, linetaps) * columntaps.a,
+		+ line_run(pos.y + inputPtY, xpos, linetaps) * columntaps.g
+		+ line_run(pos.y + 2 * inputPtY, xpos, linetaps) * columntaps.b
+		+ line_run(pos.y + 3 * inputPtY, xpos, linetaps) * columntaps.a,
 		1);
 }
