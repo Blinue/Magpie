@@ -198,5 +198,8 @@
     <CopyFileToFolders Include="effects\FSRCNNX.hlsl">
       <Filter>效果</Filter>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="effects\FSRCNNXLineArt.hlsl">
+      <Filter>效果</Filter>
+    </CopyFileToFolders>
   </ItemGroup>
 </Project>
