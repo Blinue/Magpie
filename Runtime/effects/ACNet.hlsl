@@ -1,3 +1,7 @@
+// ACNet
+// 移植自 https://github.com/TianZerL/ACNetGLSL/blob/master/glsl/ACNet.glsl
+
+
 //!MAGPIE EFFECT
 //!VERSION 1
 //!OUTPUT_WIDTH INPUT_WIDTH * 2

@@ -216,7 +216,7 @@ UINT EffectCompiler::_RemoveComments(std::string& source) {
 		if (source[i] == '/') {
 			if (source[i + 1] == '/' && source[i + 2] != '!') {
 				// 行注释
-				++i;
+				i += 2;
 
 				// 无需处理越界，因为必定以换行符结尾
 				while (source[i] != '\n') {

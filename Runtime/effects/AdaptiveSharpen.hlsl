@@ -1,4 +1,4 @@
-// 自适应锐化算法 Pass1
+// 自适应锐化算法
 // 移植自 https://github.com/libretro/common-shaders/blob/master/sharpen/shaders/adaptive-sharpen-pass1.cg
 // 
 // Adaptive sharpen

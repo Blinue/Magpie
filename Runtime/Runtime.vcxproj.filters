@@ -25,12 +25,6 @@
     <ClCompile Include="Renderer.cpp">
       <Filter>渲染</Filter>
     </ClCompile>
-    <ClCompile Include="EffectDrawer.cpp">
-      <Filter>效果</Filter>
-    </ClCompile>
-    <ClCompile Include="EffectCompiler.cpp">
-      <Filter>效果</Filter>
-    </ClCompile>
     <ClCompile Include="StepTimer.cpp">
       <Filter>渲染</Filter>
     </ClCompile>
@@ -49,8 +43,14 @@
     <ClCompile Include="StrUtils.cpp">
       <Filter>应用程序</Filter>
     </ClCompile>
+    <ClCompile Include="EffectDrawer.cpp">
+      <Filter>渲染</Filter>
+    </ClCompile>
+    <ClCompile Include="EffectCompiler.cpp">
+      <Filter>渲染</Filter>
+    </ClCompile>
     <ClCompile Include="EffectCache.cpp">
-      <Filter>效果</Filter>
+      <Filter>渲染</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -87,15 +87,6 @@
     <ClInclude Include="StepTimer.h">
       <Filter>渲染</Filter>
     </ClInclude>
-    <ClInclude Include="EffectDesc.h">
-      <Filter>效果</Filter>
-    </ClInclude>
-    <ClInclude Include="EffectDrawer.h">
-      <Filter>效果</Filter>
-    </ClInclude>
-    <ClInclude Include="EffectCompiler.h">
-      <Filter>效果</Filter>
-    </ClInclude>
     <ClInclude Include="App.h">
       <Filter>应用程序</Filter>
     </ClInclude>
@@ -117,8 +108,17 @@
     <ClInclude Include="StrUtils.h">
       <Filter>应用程序</Filter>
     </ClInclude>
+    <ClInclude Include="EffectDrawer.h">
+      <Filter>渲染</Filter>
+    </ClInclude>
+    <ClInclude Include="EffectDesc.h">
+      <Filter>渲染</Filter>
+    </ClInclude>
+    <ClInclude Include="EffectCompiler.h">
+      <Filter>渲染</Filter>
+    </ClInclude>
     <ClInclude Include="EffectCache.h">
-      <Filter>效果</Filter>
+      <Filter>渲染</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -168,29 +168,35 @@
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
-    <CopyFileToFolders Include="shaders\Lanczos.hlsl">
-      <Filter>着色器</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="shaders\FSR.hlsl">
-      <Filter>着色器</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="shaders\ACNet.hlsl">
-      <Filter>着色器</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="shaders\Mitchell.hlsl">
-      <Filter>着色器</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="shaders\Nearest.hlsl">
-      <Filter>着色器</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="shaders\Jinc.hlsl">
-      <Filter>着色器</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="shaders\AdaptiveSharpen.hlsl">
-      <Filter>着色器</Filter>
-    </CopyFileToFolders>
+    <Text Include="conanfile.txt" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="conanfile.txt" />
+    <CopyFileToFolders Include="effects\ACNet.hlsl">
+      <Filter>效果</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="effects\AdaptiveSharpen.hlsl">
+      <Filter>效果</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="effects\FSR.hlsl">
+      <Filter>效果</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="effects\Jinc.hlsl">
+      <Filter>效果</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="effects\Lanczos.hlsl">
+      <Filter>效果</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="effects\Mitchell.hlsl">
+      <Filter>效果</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="effects\Nearest.hlsl">
+      <Filter>效果</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="effects\CAS.hlsl">
+      <Filter>效果</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="effects\FSRCNNX.hlsl">
+      <Filter>效果</Filter>
+    </CopyFileToFolders>
   </ItemGroup>
 </Project>

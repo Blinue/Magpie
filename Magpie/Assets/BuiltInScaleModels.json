@@ -35,6 +35,19 @@
     ]
   },
   {
+    "name": "FSRCNNX",
+    "effects": [
+      {
+        "effect": "FSRCNNX"
+      },
+      {
+        "effect": "Mitchell",
+        "scale": [ -1, -1 ],
+        "variant": 1
+      }
+    ]
+  },
+  {
     "name": "Integer Scale 2x",
     "effects": [
       {
