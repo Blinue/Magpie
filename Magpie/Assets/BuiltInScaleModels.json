@@ -22,6 +22,19 @@
     ]
   },
   {
+    "name": "FSRCNNX",
+    "effects": [
+      {
+        "effect": "FSRCNNX"
+      },
+      {
+        "effect": "Mitchell",
+        "scale": [ -1, -1 ],
+        "variant": 1
+      }
+    ]
+  },
+  {
     "name": "ACNet",
     "effects": [
       {
@@ -35,10 +48,10 @@
     ]
   },
   {
-    "name": "FSRCNNX",
+    "name": "Anime4K",
     "effects": [
       {
-        "effect": "FSRCNNX"
+        "effect": "Anime4K_Upscale_L"
       },
       {
         "effect": "Mitchell",
