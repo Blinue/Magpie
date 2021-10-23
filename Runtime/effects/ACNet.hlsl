@@ -4157,7 +4157,7 @@ float4 Pass11(float2 pos) {
 	float2 f = frac(pos / float2(inputPtX, inputPtY));
 	int2 i = int2(f * 2);
 	int index = i.y * 2 + i.x;
-	float2 pos1 = pos + (float2(0.5, 0.5) - f) * float2(inputPtX, inputPtY);
+	float2 pos1 = pos + (0.5 - f) * float2(inputPtX, inputPtY);
 
 	float4 mc1 = tex1.Sample(sam, pos1);
 	float4 mc2 = tex2.Sample(sam, pos1);
