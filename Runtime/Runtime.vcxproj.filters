@@ -210,5 +210,8 @@
     <CopyFileToFolders Include="effects\Anime4K_Upscale_S.hlsl">
       <Filter>效果</Filter>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="effects\Anime4K_Upscale_L.hlsl">
+      <Filter>效果</Filter>
+    </CopyFileToFolders>
   </ItemGroup>
 </Project>
