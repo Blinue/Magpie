@@ -238,7 +238,10 @@
     <CopyFileToFolders Include="effects\FSRCNNX.hlsl">
       <FileType>Document</FileType>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="effects\FSRCNNXLineArt.hlsl">
+    <CopyFileToFolders Include="effects\FSRCNNX_LineArt.hlsl">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="effects\RAVU_Lite.hlsl">
       <FileType>Document</FileType>
     </CopyFileToFolders>
     <FxCompile Include="shaders\CopyPS.hlsl">
