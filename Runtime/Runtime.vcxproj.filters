@@ -204,5 +204,8 @@
     <CopyFileToFolders Include="effects\RAVU_Lite.hlsl">
       <Filter>效果</Filter>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="effects\SSimDownscaler.hlsl">
+      <Filter>效果</Filter>
+    </CopyFileToFolders>
   </ItemGroup>
 </Project>
