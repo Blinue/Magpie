@@ -234,5 +234,11 @@
     <CopyFileToFolders Include="effects\Anime4K_Restore_M.hlsl">
       <Filter>效果</Filter>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="effects\Anime4K_Restore_VL.hlsl">
+      <Filter>效果</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="effects\Linear.hlsl">
+      <Filter>效果</Filter>
+    </CopyFileToFolders>
   </ItemGroup>
 </Project>

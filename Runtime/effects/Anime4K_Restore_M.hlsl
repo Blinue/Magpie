@@ -23,10 +23,6 @@ Texture2D INPUT;
 //!FILTER POINT
 SamplerState sam;
 
-//!SAMPLER
-//!FILTER LINEAR
-SamplerState sam1;
-
 //!TEXTURE
 //!WIDTH INPUT_WIDTH
 //!HEIGHT INPUT_HEIGHT
