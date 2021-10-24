@@ -51,7 +51,7 @@
     "name": "Anime4K",
     "effects": [
       {
-        "effect": "Anime4K_Upscale_L"
+        "effect": "Anime4K_Upscale_Denoise_L"
       },
       {
         "effect": "Mitchell",

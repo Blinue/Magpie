@@ -52,6 +52,9 @@
     <ClCompile Include="EffectCache.cpp">
       <Filter>渲染</Filter>
     </ClCompile>
+    <ClCompile Include="EffectDesc.cpp">
+      <Filter>渲染</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="resource.h">
@@ -217,6 +220,12 @@
       <Filter>效果</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="effects\Anime4K_Upscale_Denoise_L.hlsl">
+      <Filter>效果</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="effects\Anime4K_Denoise_Bilateral_Mean.hlsl">
+      <Filter>效果</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="effects\Anime4K_Denoise_Bilateral_Mode.hlsl">
       <Filter>效果</Filter>
     </CopyFileToFolders>
   </ItemGroup>

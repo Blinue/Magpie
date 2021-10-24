@@ -3929,7 +3929,7 @@ float4 Pass3(float2 pos) {
 	int idx = int(dir.x > 0.0) * 2 + int(dir.y > 0.0);
 
 	float luma = tex1.Sample(sam, pos - dir * float2(inputPtX, inputPtX))[idx];
-	float3 yuv = yuvTex.Sample(sam, pos);
+	float3 yuv = yuvTex.Sample(sam, pos).xyz;
 
 	return float4(mul(_yuv2rgb, float3(luma, yuv.yz) - float3(0, 0.5, 0.5)), 1);
 }

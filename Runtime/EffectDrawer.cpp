@@ -290,19 +290,9 @@ bool EffectDrawer::Build(ComPtr<ID3D11Texture2D> input, ComPtr<ID3D11Texture2D> 
 		if (texSize.cx <= 0 || texSize.cy <= 0) {
 			return false;
 		}
-
-		D3D11_TEXTURE2D_DESC desc{};
-		switch (_effectDesc.textures[i].format) {
-		case EffectIntermediateTextureFormat::B8G8R8A8_UNORM:
-			desc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
-			break;
-		case EffectIntermediateTextureFormat::R16G16B16A16_FLOAT:
-			desc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
-			break;
-		default:
-			return false;
-		}
 		
+		D3D11_TEXTURE2D_DESC desc{};
+		desc.Format = EffectIntermediateTextureDesc::DXGI_FORMAT_MAP[(UINT)_effectDesc.textures[i].format];
 		desc.Width = texSize.cx;
 		desc.Height = texSize.cy;
 		desc.Usage = D3D11_USAGE_DEFAULT;

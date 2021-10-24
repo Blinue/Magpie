@@ -647,13 +647,31 @@ UINT EffectCompiler::_ResolveTexture(std::string_view block, EffectDesc& desc) {
 				return 1;
 			}
 
-			if (token == "B8G8R8A8_UNORM") {
-				texDesc.format = EffectIntermediateTextureFormat::B8G8R8A8_UNORM;
-			} else if (token == "R16G16B16A16_FLOAT") {
-				texDesc.format = EffectIntermediateTextureFormat::R16G16B16A16_FLOAT;
-			} else {
+			static std::unordered_map<std::string, EffectIntermediateTextureFormat> formatMap = {
+				{"R8_UNORM", EffectIntermediateTextureFormat::R8_UNORM},
+				{"R16_UNORM", EffectIntermediateTextureFormat::R16_UNORM},
+				{"R16_FLOAT", EffectIntermediateTextureFormat::R16_FLOAT},
+				{"R8G8_UNORM", EffectIntermediateTextureFormat::R8G8_UNORM},
+				{"B5G6R5_UNORM", EffectIntermediateTextureFormat::B5G6R5_UNORM},
+				{"R16G16_UNORM", EffectIntermediateTextureFormat::R16G16_UNORM},
+				{"R16G16_FLOAT", EffectIntermediateTextureFormat::R16G16_FLOAT},
+				{"R8G8B8A8_UNORM", EffectIntermediateTextureFormat::R8G8B8A8_UNORM},
+				{"B8G8R8A8_UNORM", EffectIntermediateTextureFormat::B8G8R8A8_UNORM},
+				{"R10G10B10A2_UNORM", EffectIntermediateTextureFormat::R10G10B10A2_UNORM},
+				{"R32_FLOAT", EffectIntermediateTextureFormat::R32_FLOAT},
+				{"R11G11B10_FLOAT", EffectIntermediateTextureFormat::R11G11B10_FLOAT},
+				{"R32G32_FLOAT", EffectIntermediateTextureFormat::R32G32_FLOAT},
+				{"R16G16B16A16_UNORM", EffectIntermediateTextureFormat::R16G16B16A16_UNORM},
+				{"R16G16B16A16_FLOAT", EffectIntermediateTextureFormat::R16G16B16A16_FLOAT},
+				{"R32G32B32A32_FLOAT", EffectIntermediateTextureFormat::R32G32B32A32_FLOAT}
+			};
+
+			auto it = formatMap.find(std::string(token));
+			if (it == formatMap.end()) {
 				return 1;
 			}
+
+			texDesc.format = it->second;
 		} else if (t == "WIDTH") {
 			if (processed[1]) {
 				return 1;

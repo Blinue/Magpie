@@ -109,7 +109,7 @@
       <HeaderFileOutput>%(RelativeDir)%(Filename).h</HeaderFileOutput>
     </FxCompile>
     <CopyFileToFolders>
-      <DestinationFolders>$(OutDir)shaders</DestinationFolders>
+      <DestinationFolders>$(OutDir)effects</DestinationFolders>
     </CopyFileToFolders>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -183,6 +183,7 @@
     <ClCompile Include="App.cpp" />
     <ClCompile Include="CursorDrawer.cpp" />
     <ClCompile Include="EffectCache.cpp" />
+    <ClCompile Include="EffectDesc.cpp" />
     <ClCompile Include="EffectDrawer.cpp" />
     <ClCompile Include="EffectCompiler.cpp" />
     <ClCompile Include="FrameRateDrawer.cpp" />
@@ -257,6 +258,12 @@
       <FileType>Document</FileType>
     </CopyFileToFolders>
     <CopyFileToFolders Include="effects\Anime4K_Upscale_Denoise_L.hlsl">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="effects\Anime4K_Denoise_Bilateral_Mean.hlsl">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="effects\Anime4K_Denoise_Bilateral_Mode.hlsl">
       <FileType>Document</FileType>
     </CopyFileToFolders>
     <FxCompile Include="shaders\CopyPS.hlsl">

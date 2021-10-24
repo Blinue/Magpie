@@ -455,7 +455,7 @@ bool Renderer::_ResolveEffectsJson(const std::string& effectsJson, RECT& destRec
 			return false;
 		}
 
-		if (!effect.Initialize((L"shaders\\" + StrUtils::UTF8ToUTF16(effectName->value.GetString()) + L".hlsl").c_str())) {
+		if (!effect.Initialize((L"effects\\" + StrUtils::UTF8ToUTF16(effectName->value.GetString()) + L".hlsl").c_str())) {
 			return false;
 		}
 

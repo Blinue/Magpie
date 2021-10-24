@@ -4172,6 +4172,6 @@ float4 Pass11(float2 pos) {
 		mc2.z * kernelsL10[24 + index] +
 		mc2.w * kernelsL10[28 + index], 0.0f, 1.0f);
 
-	float3 yuv = yuvTex.Sample(sam, pos);
+	float3 yuv = yuvTex.Sample(sam, pos).xyz;
 	return float4(mul(_yuv2rgb, float3(luma, yuv.yz) - float3(0, 0.5, 0.5)), 1);
 }

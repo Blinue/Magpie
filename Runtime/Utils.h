@@ -96,6 +96,12 @@ struct Utils {
 					fmt::format("编译像素着色器失败：{}", (const char*)errorMsgs->GetBufferPointer()), hr));
 			}
 			return false;
+		} else {
+			if (errorMsgs) {
+				// 显示警告消息
+				SPDLOG_LOGGER_WARN(logger,
+					"编译像素着色器时产生警告："s + (const char*)errorMsgs->GetBufferPointer());
+			}
 		}
 
 		return true;
