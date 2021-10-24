@@ -14,27 +14,32 @@ float inputPtX;
 //!VALUE INPUT_PT_Y
 float inputPtY;
 
+//!CONSTANT
+//!MIN 1e-5
+//!DEFAULT 0.1
+float intensitySigma;
+
 //!TEXTURE
 Texture2D INPUT;
 
 //!SAMPLER
-//!FILTER LINEAR
+//!FILTER POINT
 SamplerState sam;
 
 
 //!PASS 1
 //!BIND INPUT
 
-#define INTENSITY_SIGMA 0.1 //Intensity window size, higher is stronger denoise, must be a positive real number
+#define INTENSITY_SIGMA intensitySigma //Intensity window size, higher is stronger denoise, must be a positive real number
 #define SPATIAL_SIGMA 1.0 //Spatial window size, higher is stronger denoise, must be a positive real number.
 
 #define INTENSITY_POWER_CURVE 1.0 //Intensity window power curve. Setting it to 0 will make the intensity window treat all intensities equally, while increasing it will make the window narrower in darker intensities and wider in brighter intensities.
 
-#define KERNELSIZE (max(int(ceil(SPATIAL_SIGMA * 2.0)), 1) * 2 + 1) //Kernel size, must be an positive odd integer.
+#define KERNELSIZE (max(uint(ceil(SPATIAL_SIGMA * 2.0)), 1) * 2 + 1) //Kernel size, must be an positive odd integer.
 #define KERNELHALFSIZE (int(KERNELSIZE/2)) //Half of the kernel size without remainder. Must be equal to trunc(KERNELSIZE/2).
 #define KERNELLEN (KERNELSIZE * KERNELSIZE) //Total area of kernel. Must be equal to KERNELSIZE * KERNELSIZE.
 
-#define GETOFFSET(i) float2((i % KERNELSIZE) - KERNELHALFSIZE, (i / KERNELSIZE) - KERNELHALFSIZE)
+#define GETOFFSET(i) int2(int(i % KERNELSIZE) - KERNELHALFSIZE, int(i / KERNELSIZE) - KERNELHALFSIZE)
 
 float3 gaussian_vec(float3 x, float3 s, float3 m) {
 	float3 scaled = (x - m) / s;
@@ -56,9 +61,9 @@ float4 Pass1(float2 pos) {
 	float3 is = pow(vc + 0.0001, INTENSITY_POWER_CURVE) * INTENSITY_SIGMA;
 	float ss = SPATIAL_SIGMA;
 
-	for (int i = 0; i < KERNELLEN; i++) {
-		float2 ipos = GETOFFSET(i);
-		float3 v = INPUT.Sample(sam, pos + ipos * float2(inputPtX, inputPtY)).rgb;
+	for (uint i = 0; i < KERNELLEN; i++) {
+		float2 ipos = pos + GETOFFSET(i) * float2(inputPtX, inputPtY);
+		float3 v = INPUT.Sample(sam, ipos).rgb;
 		float3 d = gaussian_vec(v, is, vc) * gaussian(length(ipos), ss, 0.0);
 		sum += d * v;
 		n += d;
