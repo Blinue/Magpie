@@ -152,7 +152,7 @@
       <HeaderFileOutput>%(RelativeDir)%(Filename).h</HeaderFileOutput>
     </FxCompile>
     <CopyFileToFolders>
-      <DestinationFolders>$(OutDir)shaders</DestinationFolders>
+      <DestinationFolders>$(OutDir)effects</DestinationFolders>
     </CopyFileToFolders>
   </ItemDefinitionGroup>
   <ItemGroup>
