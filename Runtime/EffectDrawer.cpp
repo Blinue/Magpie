@@ -371,7 +371,7 @@ void EffectDrawer::Draw() {
 	} else {
 		_d3dDC->PSSetConstantBuffers(0, 0, nullptr);
 	}
-	
+
 	_d3dDC->PSSetSamplers(0, (UINT)_samplers.size(), _samplers.data());
 
 	for (_Pass& pass : _passes) {
@@ -400,8 +400,9 @@ bool EffectDrawer::_Pass::Build(std::optional<SIZE> outputSize) {
 	Renderer& renderer = App::GetInstance().GetRenderer();
 	const EffectPassDesc& passDesc = _parent->_effectDesc.passes[_index];
 
-	_inputs.resize(passDesc.inputs.size());
-	for (size_t i = 0; i < _inputs.size(); ++i) {
+	_inputs.resize(passDesc.inputs.size() * 2);
+	// 后半部分留空
+	for (size_t i = 0; i < passDesc.inputs.size(); ++i) {
 		if (!renderer.GetShaderResourceView(_parent->_textures[passDesc.inputs[i]].Get(), &_inputs[i])) {
 			SPDLOG_LOGGER_ERROR(logger,"获取 ShaderResourceView 失败");
 			return false;
@@ -459,12 +460,13 @@ bool EffectDrawer::_Pass::Build(std::optional<SIZE> outputSize) {
 void EffectDrawer::_Pass::Draw() {
 	ComPtr<ID3D11DeviceContext> d3dDC = _parent->_d3dDC;
 
-	d3dDC->PSSetShaderResources(0, 0, nullptr);
 	d3dDC->OMSetRenderTargets((UINT)_outputs.size(), _outputs.data(), nullptr);
 	d3dDC->RSSetViewports(1, &_vp);
 
 	d3dDC->PSSetShader(_pixelShader.Get(), nullptr, 0);
-	d3dDC->PSSetShaderResources(0, (UINT)_inputs.size(), _inputs.data());
+
+	UINT nInputs = (UINT)(_inputs.size() / 2);
+	d3dDC->PSSetShaderResources(0, nInputs, _inputs.data());
 
 	if (_vtxBuffer) {
 		App::GetInstance().GetRenderer().SetSimpleVS(_vtxBuffer.Get());
@@ -473,4 +475,6 @@ void EffectDrawer::_Pass::Draw() {
 		App::GetInstance().GetRenderer().SetFillVS();
 		d3dDC->Draw(3, 0);
 	}
+
+	d3dDC->PSSetShaderResources(0, nInputs, _inputs.data() + nInputs);
 }

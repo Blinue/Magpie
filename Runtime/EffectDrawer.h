@@ -60,6 +60,7 @@ private:
 		
 		ComPtr<ID3D11PixelShader> _pixelShader;
 
+		// 后半部分为空，用于解绑
 		std::vector<ID3D11ShaderResourceView*> _inputs;
 		std::vector<ID3D11RenderTargetView*> _outputs;
 		std::vector<ID3D11SamplerState*> _samplers;
