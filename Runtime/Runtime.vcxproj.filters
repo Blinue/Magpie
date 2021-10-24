@@ -231,5 +231,8 @@
     <CopyFileToFolders Include="effects\Anime4K_Denoise_Bilateral_Median.hlsl">
       <Filter>效果</Filter>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="effects\Anime4K_Restore_M.hlsl">
+      <Filter>效果</Filter>
+    </CopyFileToFolders>
   </ItemGroup>
 </Project>

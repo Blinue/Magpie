@@ -442,6 +442,11 @@ bool Renderer::_ResolveEffectsJson(const std::string& effectsJson, RECT& destRec
 	_effects.reserve(effectsArr.Size());
 	texSizes.reserve(static_cast<size_t>(effectsArr.Size()) + 1);
 
+	// 不得为空
+	if (effectsArr.Empty()) {
+		return false;
+	}
+
 	for (const auto& effectJson : effectsArr) {
 		if (!effectJson.IsObject()) {
 			return false;
@@ -561,7 +566,7 @@ bool Renderer::_ResolveEffectsJson(const std::string& effectsJson, RECT& destRec
 		if (!_effects.back().Build(_effectInput, _backBuffer)) {
 			return false;
 		}
-	} else if(_effects.size() > 1) {
+	} else {
 		// 创建效果间的中间纹理
 		ComPtr<ID3D11Texture2D> curTex = _effectInput;
 
