@@ -51,6 +51,10 @@ public:
 		return _timer;
 	}
 
+	D3D_FEATURE_LEVEL GetFeatureLevel() const {
+		return _featureLevel;
+	}
+
 private:
 	bool _InitD3D();
 
@@ -59,6 +63,8 @@ private:
 	bool _ResolveEffectsJson(const std::string& effectsJson, RECT& destRect);
 
 	void _Render();
+
+	D3D_FEATURE_LEVEL _featureLevel = D3D_FEATURE_LEVEL_10_0;
 
 	ComPtr<ID3D11Device1> _d3dDevice;
 	ComPtr<IDXGIDevice1> _dxgiDevice;

@@ -4,6 +4,7 @@
 #include "Utils.h"
 #include <bitset>
 #include "EffectCache.h"
+#include "TextureLoader.h"
 
 
 UINT EffectCompiler::Compile(const wchar_t* fileName, EffectDesc& desc) {

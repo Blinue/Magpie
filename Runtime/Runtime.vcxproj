@@ -176,6 +176,7 @@
     <ClInclude Include="StepTimer.h" />
     <ClInclude Include="StrUtils.h" />
     <ClInclude Include="targetver.h" />
+    <ClInclude Include="TextureLoader.h" />
     <ClInclude Include="Utils.h" />
     <ClInclude Include="GraphicsCaptureFrameSource.h" />
   </ItemGroup>
@@ -196,6 +197,7 @@
     <ClCompile Include="DwmSharedSurfaceFrameSource.cpp" />
     <ClCompile Include="StepTimer.cpp" />
     <ClCompile Include="StrUtils.cpp" />
+    <ClCompile Include="TextureLoader.cpp" />
     <ClCompile Include="Utils.cpp" />
     <ClCompile Include="GraphicsCaptureFrameSource.cpp" />
   </ItemGroup>
