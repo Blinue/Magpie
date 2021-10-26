@@ -180,9 +180,6 @@
     <CopyFileToFolders Include="effects\AdaptiveSharpen.hlsl">
       <Filter>效果</Filter>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="effects\FSR.hlsl">
-      <Filter>效果</Filter>
-    </CopyFileToFolders>
     <CopyFileToFolders Include="effects\Jinc.hlsl">
       <Filter>效果</Filter>
     </CopyFileToFolders>
@@ -238,6 +235,12 @@
       <Filter>效果</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="effects\Linear.hlsl">
+      <Filter>效果</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="effects\FSR_EASU.hlsl">
+      <Filter>效果</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="effects\FSR_RCAS.hlsl">
       <Filter>效果</Filter>
     </CopyFileToFolders>
   </ItemGroup>

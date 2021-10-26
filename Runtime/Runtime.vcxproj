@@ -218,9 +218,6 @@
     <CopyFileToFolders Include="effects\AdaptiveSharpen.hlsl">
       <FileType>Document</FileType>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="effects\FSR.hlsl">
-      <FileType>Document</FileType>
-    </CopyFileToFolders>
     <CopyFileToFolders Include="effects\Jinc.hlsl">
       <FileType>Document</FileType>
     </CopyFileToFolders>
@@ -276,6 +273,12 @@
       <FileType>Document</FileType>
     </CopyFileToFolders>
     <CopyFileToFolders Include="effects\Linear.hlsl">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="effects\FSR_EASU.hlsl">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="effects\FSR_RCAS.hlsl">
       <FileType>Document</FileType>
     </CopyFileToFolders>
     <FxCompile Include="shaders\CopyPS.hlsl">

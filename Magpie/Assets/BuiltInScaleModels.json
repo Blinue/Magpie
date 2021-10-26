@@ -16,8 +16,12 @@
     "name": "FSR",
     "effects": [
       {
-        "effect": "FSR",
+        "effect": "FSR_EASU",
         "scale": [ -1, -1 ]
+      },
+      {
+        "effect": "FSR_RCAS",
+        "sharpness": 0.87
       }
     ]
   },
