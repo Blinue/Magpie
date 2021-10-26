@@ -1,11 +1,12 @@
 #include "pch.h"
 #include "TextureLoader.h"
+#include <DDSTextureLoader.h>
 
 
 extern std::shared_ptr<spdlog::logger> logger;
 
 
-ComPtr<ID3D11Texture2D> TextureLoader::Load(const wchar_t* fileName) {
+ComPtr<ID3D11Texture2D> LoadImg(const wchar_t* fileName) {
 	ComPtr<IWICImagingFactory2> factory = App::GetInstance().GetWICImageFactory();
 	if (!factory) {
 		SPDLOG_LOGGER_ERROR(logger, "GetWICImageFactory 失败");
@@ -64,7 +65,7 @@ ComPtr<ID3D11Texture2D> TextureLoader::Load(const wchar_t* fileName) {
 
 		useFloatFormat = bitsPerPixel > 32 || type == WICPixelFormatNumericRepresentationFixed || type == WICPixelFormatNumericRepresentationFloat;
 	}
-	
+
 	// 转换格式
 	ComPtr<IWICFormatConverter> formatConverter;
 	hr = factory->CreateFormatConverter(&formatConverter);
@@ -72,7 +73,7 @@ ComPtr<ID3D11Texture2D> TextureLoader::Load(const wchar_t* fileName) {
 		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("CreateFormatConverter 失败", hr));
 		return nullptr;
 	}
-	
+
 	WICPixelFormatGUID targetFormat = useFloatFormat ? GUID_WICPixelFormat64bppRGBAHalf : GUID_WICPixelFormat32bppBGRA;
 	hr = formatConverter->Initialize(frame.Get(), targetFormat, WICBitmapDitherTypeNone, nullptr, 0, WICBitmapPaletteTypeCustom);
 	if (FAILED(hr)) {
@@ -82,7 +83,7 @@ ComPtr<ID3D11Texture2D> TextureLoader::Load(const wchar_t* fileName) {
 
 	// 检查 D3D 纹理尺寸限制
 	UINT width, height;
-	hr =  formatConverter->GetSize(&width, &height);
+	hr = formatConverter->GetSize(&width, &height);
 	if (FAILED(hr)) {
 		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("GetSize 失败", hr));
 		return nullptr;
@@ -136,4 +137,81 @@ ComPtr<ID3D11Texture2D> TextureLoader::Load(const wchar_t* fileName) {
 	}
 
 	return result;
+}
+
+ComPtr<ID3D11Texture2D> LoadDDS(const wchar_t* fileName) {
+	ComPtr<ID3D11Resource> result;
+
+	HRESULT hr = DirectX::CreateDDSTextureFromFileEx(
+		App::GetInstance().GetRenderer().GetD3DDevice().Get(),
+		fileName,
+		0,
+		D3D11_USAGE_DEFAULT,
+		D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET,
+		0,
+		0,
+		false,
+		&result,
+		nullptr
+	);
+	if (FAILED(hr)) {
+		SPDLOG_LOGGER_INFO(logger, MakeComErrorMsg("CreateDDSTextureFromFile 失败，将尝试不作为渲染目标", hr));
+
+		// 第二次尝试，不作为渲染目标
+		hr = DirectX::CreateDDSTextureFromFileEx(
+			App::GetInstance().GetRenderer().GetD3DDevice().Get(),
+			fileName,
+			0,
+			D3D11_USAGE_DEFAULT,
+			D3D11_BIND_SHADER_RESOURCE,
+			0,
+			0,
+			false,
+			&result,
+			nullptr
+		);
+
+		if (FAILED(hr)) {
+			SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("CreateDDSTextureFromFile 失败", hr));
+			return nullptr;
+		}
+	}
+
+	ComPtr<ID3D11Texture2D> tex;
+	hr = result.As<ID3D11Texture2D>(&tex);
+	if (FAILED(hr)) {
+		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("从 ID3D11Resource 获取 ID3D11Texture2D 失败", hr));
+		return nullptr;
+	}
+
+	return tex;
+}
+
+ComPtr<ID3D11Texture2D> TextureLoader::Load(const wchar_t* fileName) {
+	std::wstring_view sv(fileName);
+	size_t npos = sv.find_last_of(L'.');
+	if (npos == std::wstring_view::npos) {
+		SPDLOG_LOGGER_ERROR(logger, "文件名无后缀名");
+		return nullptr;
+	}
+
+	std::wstring_view suffix = sv.substr(npos + 1);
+	
+	static std::unordered_map<std::wstring_view, ComPtr<ID3D11Texture2D>(*)(const wchar_t*)> funcs = {
+		{L"bmp", LoadImg},
+		{L"jpg", LoadImg},
+		{L"jpeg", LoadImg},
+		{L"png", LoadImg},
+		{L"tif", LoadImg},
+		{L"tiff", LoadImg},
+		{L"dds", LoadDDS}
+	};
+
+	auto it = funcs.find(suffix);
+	if (it == funcs.end()) {
+		SPDLOG_LOGGER_ERROR(logger, "不支持读取该格式");
+		return nullptr;
+	}
+
+	return it->second(fileName);
 }
