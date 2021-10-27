@@ -6,22 +6,24 @@
 
 
 bool Utils::ReadFile(const wchar_t* fileName, std::vector<BYTE>& result) {
-	FILE* hFile;
-	if (_wfopen_s(&hFile, fileName, L"rb") || !hFile) {
-		SPDLOG_LOGGER_ERROR(logger, fmt::format("打开文件{}失败", StrUtils::UTF16ToUTF8(fileName)));
+	SPDLOG_LOGGER_INFO(logger, fmt::format("读取文件：{}", StrUtils::UTF16ToUTF8(fileName)));
+
+	HANDLE hFile = CreateFile(fileName, GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL | FILE_FLAG_SEQUENTIAL_SCAN, NULL);
+	if (!hFile) {
+		SPDLOG_LOGGER_ERROR(logger, "打开文件失败");
 		return false;
 	}
 
-	// 获取文件长度
-	int fd = _fileno(hFile);
-	long size = _filelength(fd);
-
+	DWORD size = GetFileSize(hFile, &size);
 	result.resize(size);
 
-	size_t readed = fread(result.data(), 1, size, hFile);
-	assert(readed == size);
+	DWORD readed;
+	if (!::ReadFile(hFile, result.data(), size, &readed, nullptr)) {
+		SPDLOG_LOGGER_ERROR(logger, "读取文件失败");
+		return false;
+	}
 
-	fclose(hFile);
+	CloseHandle(hFile);
 	return true;
 }
 
