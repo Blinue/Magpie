@@ -65,6 +65,15 @@
     ]
   },
   {
+    "name": "RAVU",
+    "effects": [
+      {
+        "effect": "RAVU_R3",
+        "scale": [-1, -1]
+      }
+    ]
+  },
+  {
     "name": "Integer Scale 2x",
     "effects": [
       {

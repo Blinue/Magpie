@@ -1,4 +1,4 @@
-// 移植自 https://github.com/libretro/common-shaders/tree/master/xbrz/shaders/xbrz-freescale-multipass
+// 移植自 https://github.com/libretro/common-shaders/blob/master/xbrz/shaders/xbrz-freescale.cg
 
 //!MAGPIE EFFECT
 //!VERSION 1

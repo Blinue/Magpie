@@ -1,4 +1,4 @@
-// 移植自 https://github.com/bjin/mpv-prescalers/blob/master/ravu-r2-yuv.hook
+// 移植自 https://github.com/bjin/mpv-prescalers/blob/master/ravu-zoom-r3.hook
 
 //!MAGPIE EFFECT
 //!VERSION 1

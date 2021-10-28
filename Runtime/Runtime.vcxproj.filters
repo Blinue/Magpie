@@ -207,7 +207,7 @@
     <CopyFileToFolders Include="effects\FSRCNNX_LineArt.hlsl">
       <Filter>效果</Filter>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="effects\RAVU_Lite.hlsl">
+    <CopyFileToFolders Include="effects\RAVU_Lite_R3.hlsl">
       <Filter>效果</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="effects\SSimDownscaler.hlsl">
@@ -271,6 +271,9 @@
       <Filter>效果</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="effects\xBRZ_Freescale_Multipass.hlsl">
+      <Filter>效果</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="effects\RAVU_Lite_R3_Weights.dds">
       <Filter>效果</Filter>
     </CopyFileToFolders>
   </ItemGroup>

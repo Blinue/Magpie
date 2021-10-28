@@ -241,7 +241,7 @@
     <CopyFileToFolders Include="effects\FSRCNNX_LineArt.hlsl">
       <FileType>Document</FileType>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="effects\RAVU_Lite.hlsl">
+    <CopyFileToFolders Include="effects\RAVU_Lite_R3.hlsl">
       <FileType>Document</FileType>
     </CopyFileToFolders>
     <CopyFileToFolders Include="effects\SSimDownscaler.hlsl">
@@ -326,6 +326,9 @@
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="effects\RAVU_R3_Weights.dds" />
+  </ItemGroup>
+  <ItemGroup>
+    <CopyFileToFolders Include="effects\RAVU_Lite_R3_Weights.dds" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
