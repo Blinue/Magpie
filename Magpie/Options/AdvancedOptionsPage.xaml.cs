@@ -1,4 +1,5 @@
 using Magpie.Properties;
+using System.Windows;
 using System.Windows.Controls;
 
 
@@ -14,7 +15,8 @@ namespace Magpie.Options {
 		}
 
 		private void CbbLoggingLevel_SelectionChanged(object sender, SelectionChangedEventArgs e) {
-			App.UpdateLoggingLevel(Settings.Default.LoggingLevel);
+			App.SetLogLevel(Settings.Default.LoggingLevel);
+			((MainWindow)Application.Current.MainWindow).SetRuntimeLogLevel(Settings.Default.LoggingLevel);
 		}
 	}
 }

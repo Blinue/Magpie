@@ -129,7 +129,7 @@ namespace Magpie.Properties {
         }
         
         /// <summary>
-        ///   查找类似  的本地化字符串。
+        ///   查找类似 An error occurred, please check the log for more information. 的本地化字符串。
         /// </summary>
         public static string Msg_Error_Generic {
             get {
@@ -138,7 +138,25 @@ namespace Magpie.Properties {
         }
         
         /// <summary>
-        ///   查找类似  的本地化字符串。
+        ///   查找类似 The window cannot be captured using GraphicsCapture. 的本地化字符串。
+        /// </summary>
+        public static string Msg_Error_GraphicsCapture {
+            get {
+                return ResourceManager.GetString("Msg_Error_GraphicsCapture", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Failed to initialize Runtime. 的本地化字符串。
+        /// </summary>
+        public static string Msg_Error_Init {
+            get {
+                return ResourceManager.GetString("Msg_Error_Init", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Invalid source window 的本地化字符串。
         /// </summary>
         public static string Msg_Error_Invalid_Source_Window {
             get {
@@ -147,11 +165,20 @@ namespace Magpie.Properties {
         }
         
         /// <summary>
-        ///   查找类似 Capture Mode 的本地化字符串。
+        ///   查找类似 This monitor does not support turning off VSync. 的本地化字符串。
         /// </summary>
-        public static string UI_Main_Capture_Mode {
+        public static string Msg_Error_Vsync_Off_Not_Supported {
             get {
-                return ResourceManager.GetString("UI_Main_Capture_Mode", resourceCulture);
+                return ResourceManager.GetString("Msg_Error_Vsync_Off_Not_Supported", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Capture Method 的本地化字符串。
+        /// </summary>
+        public static string UI_Main_Capture_Method {
+            get {
+                return ResourceManager.GetString("UI_Main_Capture_Method", resourceCulture);
             }
         }
         
@@ -444,15 +471,6 @@ namespace Magpie.Properties {
         }
         
         /// <summary>
-        ///   查找类似 Show Frame Rate 的本地化字符串。
-        /// </summary>
-        public static string UI_Options_Advanced_Show_Frame_Rate {
-            get {
-                return ResourceManager.GetString("UI_Options_Advanced_Show_Frame_Rate", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   查找类似 Application 的本地化字符串。
         /// </summary>
         public static string UI_Options_Application {
@@ -525,6 +543,51 @@ namespace Magpie.Properties {
         }
         
         /// <summary>
+        ///   查找类似 Disable round corner of window while zoomed 的本地化字符串。
+        /// </summary>
+        public static string UI_Options_Scale_Disable_Round_Corner {
+            get {
+                return ResourceManager.GetString("UI_Options_Scale_Disable_Round_Corner", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Frame Rate 的本地化字符串。
+        /// </summary>
+        public static string UI_Options_Scale_Frame_Rate {
+            get {
+                return ResourceManager.GetString("UI_Options_Scale_Frame_Rate", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Limiter 的本地化字符串。
+        /// </summary>
+        public static string UI_Options_Scale_Frame_Rate_Limiter {
+            get {
+                return ResourceManager.GetString("UI_Options_Scale_Frame_Rate_Limiter", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Not Limited 的本地化字符串。
+        /// </summary>
+        public static string UI_Options_Scale_Frame_Rate_Not_Limited {
+            get {
+                return ResourceManager.GetString("UI_Options_Scale_Frame_Rate_Not_Limited", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Disable Vsync 的本地化字符串。
+        /// </summary>
+        public static string UI_Options_Scale_No_VSync {
+            get {
+                return ResourceManager.GetString("UI_Options_Scale_No_VSync", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Open Scale Config 的本地化字符串。
         /// </summary>
         public static string UI_Options_Scale_Open_Scale_Config {
@@ -539,6 +602,24 @@ namespace Magpie.Properties {
         public static string UI_Options_Scale_Restore_Full_Screen {
             get {
                 return ResourceManager.GetString("UI_Options_Scale_Restore_Full_Screen", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Show Frame Rate 的本地化字符串。
+        /// </summary>
+        public static string UI_Options_Scale_Show_Frame_Rate {
+            get {
+                return ResourceManager.GetString("UI_Options_Scale_Show_Frame_Rate", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 VSync 的本地化字符串。
+        /// </summary>
+        public static string UI_Options_Scale_VSync {
+            get {
+                return ResourceManager.GetString("UI_Options_Scale_VSync", resourceCulture);
             }
         }
         

@@ -119,6 +119,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.ru-RU.resx</DependentUpon>
     </Compile>
+    <Compile Include="RadioBoolToIntConverter.cs" />
     <Compile Include="ScaleModelManager.cs" />
     <Page Include="Options\AboutOptionsPage.xaml">
       <SubType>Designer</SubType>

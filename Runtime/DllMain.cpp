@@ -3,11 +3,11 @@
 
 
 #include "pch.h"
-#include "MagWindow.h"
-#include "Env.h"
+#include "App.h"
+#include "Utils.h"
 
 
-HINSTANCE hInst = NULL;
+static HINSTANCE hInst = NULL;
 std::shared_ptr<spdlog::logger> logger = nullptr;
 
 // DLL 入口
@@ -21,6 +21,7 @@ BOOL APIENTRY DllMain(
 		hInst = hModule;
 		break;
 	case DLL_PROCESS_DETACH:
+		App::GetInstance().~App();
 		break;
 	case DLL_THREAD_ATTACH:
 		break;
@@ -30,75 +31,69 @@ BOOL APIENTRY DllMain(
 	return TRUE;
 }
 
-void InitLog() {
-	if (logger) {
-		return;
-	}
+// 日志级别：
+// 0：TRACE，1：DEBUG，...，6：OFF
+API_DECLSPEC void WINAPI SetLogLevel(int logLevel) {
+	assert(logger);
 
-	logger = spdlog::rotating_logger_mt(".", "logs/Runtime.log", 100000, 2);
-	logger->set_level(spdlog::level::info);
-	logger->set_pattern("%Y-%m-%d %H:%M:%S.%e|%l|%s:%!|%v");
-	logger->flush_on(spdlog::level::warn);
-	spdlog::flush_every(std::chrono::seconds(5));
+	logger->flush();
+	logger->set_level((spdlog::level::level_enum)logLevel);
+	static const char* LOG_LEVELS[7] = { "TRACE", "DEBUG", "INFO", "WARN", "ERROR", "CRITICAL", "OFF" };
+	SPDLOG_LOGGER_INFO(logger, fmt::format("当前日志级别：{}", LOG_LEVELS[logLevel]));
 }
 
-API_DECLSPEC void WINAPI RunMagWindow(
-	void reportStatus(int status, const wchar_t* errorMsgId),
-	HWND hwndSrc,
-	const char* scaleModel,
-	int captureMode,
-	int bufferPrecision,
-	bool showFPS,
-	bool adjustCursorSpeed,
-	bool noDisturb
-) {
-	/*try {
-		InitLog();
-	} catch (const spdlog::spdlog_ex& e) {
-		std::wstring msg;
-		Utils::UTF8ToUTF16(e.what(), msg);
-		Debug::WriteErrorMessage(fmt::format(L"spdlog初始化失败：{}", msg));
-		reportStatus(2, msg.c_str());
-		return;
-	}*/
 
-	Debug::ThrowIfComFailed(
-		CoInitializeEx(NULL, COINIT_MULTITHREADED),
-		L"初始化 COM 出错"
-	);
-
-	if (!IsWindow(hwndSrc) || !IsWindowVisible(hwndSrc) || !Utils::GetWindowShowCmd(hwndSrc) == SW_NORMAL) {
-		//SPDLOG_LOGGER_CRITICAL(logger, "不合法的源窗口");
-		reportStatus(0, L"不合法的源窗口");
-		return;
-	}
-
+API_DECLSPEC BOOL WINAPI Initialize(int logLevel) {
+	// 初始化日志
 	try {
-		Debug::Assert(
-			captureMode >= 0 && captureMode <= 1,
-			L"非法的抓取模式"
-		);
-
-		Env::CreateInstance(hInst, hwndSrc, scaleModel, captureMode, bufferPrecision, showFPS, adjustCursorSpeed, noDisturb);
-		MagWindow::CreateInstance();
-	} catch(const magpie_exception& e) {
-		reportStatus(0, (L"创建全屏窗口出错：" + e.what()).c_str());
-		return;
-	} catch (const std::exception& e) {
-		//SPDLOG_LOGGER_CRITICAL(logger, "创建全屏窗口出错：{}", e.what());
-		std::wstring err;
-		Utils::UTF8ToUTF16(e.what(), err);
-		reportStatus(0, err.c_str());
-		return;
+		logger = spdlog::rotating_logger_mt(".", "logs/Runtime.log", 100000, 1);
+		logger->set_level((spdlog::level::level_enum)logLevel);
+		logger->set_pattern("%Y-%m-%d %H:%M:%S.%e|%l|%s:%!|%v");
+		logger->flush_on(spdlog::level::warn);
+		spdlog::flush_every(std::chrono::seconds(5));
+	} catch (const spdlog::spdlog_ex&) {
+		return FALSE;
 	}
-	
-	reportStatus(2, nullptr);
 
-	// 主消息循环
-	std::wstring errMsg = MagWindow::RunMsgLoop();
+	SetLogLevel(logLevel);
 
-	Env::$instance = nullptr;
-	reportStatus(0, errMsg.empty() ? nullptr : errMsg.c_str());
-	//SPDLOG_LOGGER_INFO(logger, "全屏窗口已退出");
-	//logger->flush();
+	// 初始化 App
+	if (!App::GetInstance().Initialize(hInst)) {
+		return FALSE;
+	}
+
+	// 初始化 Hasher
+	if (!Utils::Hasher::GetInstance().Initialize()) {
+		return FALSE;
+	}
+
+	return TRUE;
+}
+
+API_DECLSPEC const char* WINAPI Run(
+	HWND hwndSrc,
+	const char* effectsJson,
+	int captureMode,
+	bool adjustCursorSpeed,
+	bool showFPS,
+	bool disableRoundCorner,
+	int frameRate	// 0：垂直同步，负数：不限帧率，正数：限制的帧率
+) {
+	SPDLOG_LOGGER_INFO(logger, fmt::format("运行时参数：\n\thwndSrc：{}\n\tcaptureMode：{}\n\tadjustCursorSpeed：{}\n\tshowFPS：{}\n\tdisableRoundCorner：{}\n\tframeRate：{}", (void*)hwndSrc, captureMode, adjustCursorSpeed, showFPS, disableRoundCorner, frameRate));
+
+	const auto& version = Utils::GetOSVersion();
+	SPDLOG_LOGGER_INFO(logger, fmt::format("OS 版本：{}.{}.{}",
+		version.dwMajorVersion, version.dwMinorVersion, version.dwBuildNumber));
+
+	App& app = App::GetInstance();
+	if (!app.Run(hwndSrc, effectsJson, captureMode, adjustCursorSpeed, showFPS, disableRoundCorner, frameRate)) {
+		// 初始化失败
+		SPDLOG_LOGGER_INFO(logger, "App.Run 失败");
+		return app.GetErrorMsg();
+	}
+
+	SPDLOG_LOGGER_INFO(logger, "即将退出");
+	logger->flush();
+
+	return nullptr;
 }

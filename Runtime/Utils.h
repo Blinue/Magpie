@@ -1,44 +1,46 @@
 #pragma once
-#include "Shlwapi.h"
-#include <utility>
-#include <wrl.h>
-#include <EffectUtils.h>
-
-using namespace Microsoft::WRL;
+#include "pch.h"
+#include <bcrypt.h>
 
 
-class Utils {
-public:
+extern std::shared_ptr<spdlog::logger> logger;
+
+
+struct Utils {
 	static UINT GetWindowShowCmd(HWND hwnd) {
 		assert(hwnd != NULL);
 
 		WINDOWPLACEMENT wp{};
 		wp.length = sizeof(wp);
-		Debug::ThrowIfWin32Failed(
-			GetWindowPlacement(hwnd, &wp),
-			L"GetWindowPlacement失败"
-		);
+		if (!GetWindowPlacement(hwnd, &wp)) {
+			SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetWindowPlacement 出错"));
+			assert(false);
+		}
 
 		return wp.showCmd;
 	}
 
-	static void GetClientScreenRect(HWND hWnd, RECT& rect) {
+	static RECT GetClientScreenRect(HWND hWnd) {
 		RECT r;
-		Debug::ThrowIfWin32Failed(
-			GetClientRect(hWnd, &r),
-			L"GetClientRect 失败"
-		);
+		if (!GetClientRect(hWnd, &r)) {
+			SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetClientRect 出错"));
+			assert(false);
+			return {};
+		}
 
 		POINT p{};
-		Debug::ThrowIfWin32Failed(
-			ClientToScreen(hWnd, &p),
-			L"ClientToScreen 失败"
-		);
+		if (!ClientToScreen(hWnd, &p)) {
+			SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("ClientToScreen 出错"));
+			assert(false);
+			return {};
+		}
 
-		rect.bottom = r.bottom + p.y;
-		rect.left = r.left + p.x;
-		rect.right = r.right + p.x;
-		rect.top = r.top + p.y;
+		r.bottom += p.y;
+		r.left += p.x;
+		r.right += p.x;
+		r.top += p.y;
+
+		return r;
 	}
 
 	static RECT GetScreenRect(HWND hWnd) {
@@ -46,127 +48,122 @@ public:
 
 		MONITORINFO mi{};
 		mi.cbSize = sizeof(mi);
-		Debug::ThrowIfWin32Failed(
-			GetMonitorInfo(hMonitor, &mi),
-			L"获取显示器信息失败"
-		);
+		if (!GetMonitorInfo(hMonitor, &mi)) {
+			SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetMonitorInfo 出错"));
+			assert(false);
+		}
 		return mi.rcMonitor;
 	}
 
-	static SIZE GetSize(const RECT& rect) {
-		return { rect.right - rect.left, rect.bottom - rect.top };
+	// 单位为微秒
+	template<typename Fn>
+	static int Measure(const Fn& func) {
+		using namespace std::chrono;
+
+		auto t = steady_clock::now();
+		func();
+		auto dura = duration_cast<microseconds>(steady_clock::now() - t);
+
+		return int(dura.count());
 	}
 
-	static D2D1_SIZE_F GetSize(const D2D1_RECT_F& rect) {
-		return { rect.right - rect.left,rect.bottom - rect.top };
+	static bool ReadFile(const wchar_t* fileName, std::vector<BYTE>& result);
+
+	static bool ReadTextFile(const wchar_t* fileName, std::string& result);
+
+	static bool WriteFile(const wchar_t* fileName, const void* buffer, size_t bufferSize);
+
+	static bool FileExists(const wchar_t* fileName) {
+		DWORD attrs = GetFileAttributesW(fileName);
+		// 排除文件夹
+		return (attrs != INVALID_FILE_ATTRIBUTES) && !(attrs & FILE_ATTRIBUTE_DIRECTORY);
 	}
 
-	static BOOL Str2GUID(const std::wstring_view &szGUID, GUID& guid) {
-		if (szGUID.size() != 36) {
-			return FALSE;
-		}
-
-		return swscanf_s(szGUID.data(),
-			L"%08lx-%04hx-%04hx-%02hhx%02hhx-%02hhx%02hhx%02hhx%02hhx%02hhx%02hhx",
-			&guid.Data1,
-			&guid.Data2,
-			&guid.Data3,
-			&guid.Data4[0], &guid.Data4[1],
-			&guid.Data4[2], &guid.Data4[3], &guid.Data4[4], &guid.Data4[5], &guid.Data4[6], &guid.Data4[7]
-		) == 11;
+	static bool DirExists(const wchar_t* fileName) {
+		DWORD attrs = GetFileAttributesW(fileName);
+		return (attrs != INVALID_FILE_ATTRIBUTES) && (attrs & FILE_ATTRIBUTE_DIRECTORY);
 	}
 
+	static bool CompilePixelShader(std::string_view hlsl, const char* entryPoint, ID3DBlob** blob) {
+		ComPtr<ID3DBlob> errorMsgs = nullptr;
 
-	static std::string GUID2Str(GUID guid) {
-		char buf[65]{};
-
-		sprintf_s(buf, "%08X-%04X-%04X-%02X%02X-%02X%02X%02X%02X%02X%02X",
-			guid.Data1,
-			guid.Data2,
-			guid.Data3,
-			guid.Data4[0], guid.Data4[1],
-			guid.Data4[2], guid.Data4[3], guid.Data4[4], guid.Data4[5], guid.Data4[6], guid.Data4[7]
-		);
-		return { buf };
-	}
-
-	static void SaveD2DImage(
-		ComPtr<ID2D1Device> d2dDevice,
-		ComPtr<ID2D1Image> img,
-		const std::wstring_view& fileName
-	) {
-		ComPtr<IWICImagingFactory2> wicImgFactory;
-
-		Debug::ThrowIfComFailed(
-			CoCreateInstance(
-				CLSID_WICImagingFactory,
-				nullptr,
-				CLSCTX_INPROC_SERVER,
-				IID_PPV_ARGS(&wicImgFactory)
-			),
-			L"创建 IWICImagingFactory2 失败"
-		);
-
-		ComPtr<IStream> stream;
-		Debug::ThrowIfComFailed(
-			SHCreateStreamOnFileEx(fileName.data(), STGM_WRITE | STGM_CREATE, 0, TRUE, nullptr, &stream),
-			L"SHCreateStreamOnFileEx 失败"
-		);
-
-		ComPtr<IWICBitmapEncoder> bmpEncoder;
-		Debug::ThrowIfComFailed(
-			wicImgFactory->CreateEncoder(GUID_ContainerFormatPng, nullptr, &bmpEncoder),
-			L"创建 IWICBitmapEncoder 失败"
-		);
-		Debug::ThrowIfComFailed(
-			bmpEncoder->Initialize(stream.Get(), WICBitmapEncoderNoCache),
-			L"IWICBitmapEncoder 初始化失败"
-		);
-
-		ComPtr<IWICBitmapFrameEncode> frameEncoder;
-		Debug::ThrowIfComFailed(
-			bmpEncoder->CreateNewFrame(&frameEncoder, nullptr),
-			L"创建 IWICBitmapFrameEncode 失败"
-		);
-		Debug::ThrowIfComFailed(
-			frameEncoder->Initialize(nullptr),
-			L"IWICBitmapFrameEncode 初始化失败"
-		);
-
-		ComPtr<IWICImageEncoder> d2dImgEncoder;
-		Debug::ThrowIfComFailed(
-			wicImgFactory->CreateImageEncoder(d2dDevice.Get(), &d2dImgEncoder),
-			L"创建 IWICImageEncoder 失败"
-		);
-		Debug::ThrowIfComFailed(
-			d2dImgEncoder->WriteFrame(img.Get(), frameEncoder.Get(), nullptr),
-			L"IWICImageEncoder.WriteFrame失败"
-		);
-		
-		Debug::ThrowIfComFailed(frameEncoder->Commit(), L"IWICBitmapFrameEncode.Commit 失败");
-		Debug::ThrowIfComFailed(bmpEncoder->Commit(), L"IWICBitmapEncoder.Commit 失败");
-		Debug::ThrowIfComFailed(stream->Commit(STGC_DEFAULT), L"IStream.Commit 失败");
-	}
-
-	static HRESULT UTF8ToUTF16(std::string_view str, std::wstring& result) {
-		return EffectUtils::UTF8ToUTF16(str, result);
-	}
-};
-
-namespace std {
-	// std::hash 的 GUID 特化
-	template<>
-	struct hash<GUID> {
-		size_t operator()(const GUID& value) const {
-			size_t result = hash<unsigned long>()(value.Data1);
-			result ^= hash<unsigned short>()(value.Data2) << 1;
-			result ^= hash<unsigned short>()(value.Data3) << 2;
-			
-			for (int i = 0; i < 8; ++i) {
-				result ^= hash<unsigned short>()(value.Data4[i]) << i;
+		UINT flags = D3DCOMPILE_ENABLE_STRICTNESS;
+		HRESULT hr = D3DCompile(hlsl.data(), hlsl.size(), nullptr, nullptr, nullptr,
+			entryPoint, "ps_5_0", flags, 0, blob, &errorMsgs);
+		if (FAILED(hr)) {
+			if (errorMsgs) {
+				SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg(
+					fmt::format("编译像素着色器失败：{}", (const char*)errorMsgs->GetBufferPointer()), hr));
 			}
-
-			return result;
+			return false;
+		} else {
+			if (errorMsgs) {
+				// 显示警告消息
+				SPDLOG_LOGGER_WARN(logger,
+					"编译像素着色器时产生警告："s + (const char*)errorMsgs->GetBufferPointer());
+			}
 		}
+
+		return true;
+	}
+
+	static const RTL_OSVERSIONINFOW& GetOSVersion();
+
+	static int CompareVersion(int major1, int minor1, int build1, int major2, int minor2, int build2) {
+		if (major1 != major2) {
+			return major1 - major2;
+		}
+
+		if (minor1 != minor2) {
+			return minor1 - minor2;
+		} else {
+			return build1 - build2;
+		}
+	}
+
+	static std::string Bin2Hex(BYTE* data, size_t len);
+
+	class Hasher {
+	public:
+		static Hasher& GetInstance() {
+			static Hasher instance;
+			return instance;
+		}
+
+		bool Initialize();
+
+		bool Hash(void* data, size_t len, std::vector<BYTE>& result);
+
+		DWORD GetHashLength() {
+			return _hashLen;
+		}
+	private:
+		~Hasher();
+
+		BCRYPT_ALG_HANDLE _hAlg = NULL;
+		DWORD _hashObjLen = 0;		// hash 对象的大小
+		void* _hashObj = nullptr;	// 存储 hash 对象
+		DWORD _hashLen = 0;			// 哈希结果的大小
+		BCRYPT_HASH_HANDLE _hHash = NULL;
+		bool _supportReuse = false;
 	};
-}
+
+	template<typename T>
+	class ScopeExit {
+	public:
+		ScopeExit(const ScopeExit&) = delete;
+		ScopeExit(ScopeExit&&) = delete;
+
+		explicit ScopeExit(T&& exitScope) : _exitScope(std::forward<T>(exitScope)) {}
+		~ScopeExit() { _exitScope(); }
+
+	private:
+		T _exitScope;
+	};
+
+	struct HandleCloser { void operator()(HANDLE h) noexcept { assert(h != INVALID_HANDLE_VALUE); if (h) CloseHandle(h); } };
+
+	using ScopedHandle = std::unique_ptr<std::remove_pointer<HANDLE>::type, HandleCloser>;
+
+	static HANDLE SafeHandle(HANDLE h) noexcept { return (h == INVALID_HANDLE_VALUE) ? nullptr : h; }
+};

@@ -15,5 +15,6 @@
         <Style TargetType="ComboBox" x:Key="ComboBox">
             <Setter Property="Padding" Value="6,4,5,4" />
         </Style>
+        <local:RadioBoolToIntConverter x:Key="radioBoolToIntConverter" />
     </Application.Resources>
 </Application>

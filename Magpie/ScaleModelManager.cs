@@ -64,13 +64,13 @@ namespace Magpie {
 				// 解析缩放配置
 				scaleModels = JArray.Parse(json)
 					 .Select(t => {
-						 string name = t["name"]?.ToString();
-						 string model = t["model"]?.ToString();
-						 return name == null || model == null
+						 string name = t["name"]?.ToString(Newtonsoft.Json.Formatting.None);
+						 string effects = t["effects"]?.ToString(Newtonsoft.Json.Formatting.None);
+						 return name == null || effects == null
 							 ? throw new Exception("未找到 name 或 model 属性")
 							 : new ScaleModel {
-								 Name = name,
-								 Model = model
+								 Name = name.Substring(1, name.Length - 2),
+								 Effects = effects
 							 };
 					 })
 					 .ToArray();
@@ -100,7 +100,7 @@ namespace Magpie {
 		public class ScaleModel {
 			public string Name { get; set; }
 
-			public string Model { get; set; }
+			public string Effects { get; set; }
 		}
 	}
 }

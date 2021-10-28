@@ -1,5 +1,4 @@
 using Gma.System.MouseKeyHook;
-using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.Windows;
@@ -20,7 +19,6 @@ namespace Magpie {
 		private static NLog.Logger Logger { get; } = NLog.LogManager.GetCurrentClassLogger();
 
 		private OptionsWindow optionsWindow = null;
-		private readonly OpenFileDialog openFileDialog = new OpenFileDialog();
 		private readonly DispatcherTimer timerScale = new DispatcherTimer {
 			Interval = new TimeSpan(0, 0, 1)
 		};
@@ -133,6 +131,8 @@ namespace Magpie {
 		}
 
 		private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e) {
+			magWindow.Dispose();
+
 			if (Settings.Default.MinimizeWhenClose) {
 				WindowState = WindowState.Minimized;
 				e.Cancel = true;
@@ -167,36 +167,48 @@ namespace Magpie {
 		private void ToggleMagWindow() {
 			if (Settings.Default.AutoRestore) {
 				StopWaitingForRestore();
+				// 立即更新布局，因为窗口大小可能改变，如果接下来放大 Magpie 本身会立即退出
+				UpdateLayout();
 			}
 
 			if (!scaleModelManager.IsValid()) {
 				return;
 			}
 
-			if (magWindow.Status == MagWindowStatus.Running) {
+			if (magWindow.Running) {
 				Logger.Info("通过热键退出全屏");
 				magWindow.Destory();
 				return;
 			}
 
-			if (magWindow.Status == MagWindowStatus.Starting) {
-				Logger.Info("全屏窗口正在启动中，忽略切换全屏的请求");
-				return;
-			}
-
-			string effectsJson = scaleModelManager.GetScaleModels()[Settings.Default.ScaleMode].Model;
+			string effectsJson = scaleModelManager.GetScaleModels()[Settings.Default.ScaleMode].Effects;
 			bool showFPS = Settings.Default.ShowFPS;
 			int captureMode = Settings.Default.CaptureMode;
-			int bufferPrecision = Settings.Default.BufferPrecision;
 			bool adjustCursorSpeed = Settings.Default.AdjustCursorSpeed;
+			bool disableRoundCorner = Settings.Default.DisableRoundCorner;
+
+			int frameRate = 0;
+			switch (Settings.Default.FrameRateType) {
+				case 1:
+					// 不限帧率
+					frameRate = -1;
+					break;
+				case 2:
+					// 限制帧率
+					frameRate = Settings.Default.FrameRateLimit;
+					break;
+				default:
+					// 垂直同步
+					break;
+			}
 
 			magWindow.Create(
 				effectsJson,
 				captureMode,
-				bufferPrecision,
 				showFPS,
 				adjustCursorSpeed,
-				false
+				disableRoundCorner,
+				frameRate
 			);
 
 			prevSrcWindow = magWindow.SrcWindow;
@@ -325,6 +337,10 @@ namespace Magpie {
 
 		private void BtnCancelRestore_Click(object sender, RoutedEventArgs e) {
 			StopWaitingForRestore();
+		}
+
+		public void SetRuntimeLogLevel(int logLevel) {
+			magWindow.SetLogLevel(logLevel);
 		}
 	}
 

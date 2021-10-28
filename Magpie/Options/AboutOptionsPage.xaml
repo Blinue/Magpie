@@ -85,7 +85,6 @@
                 <RowDefinition />
                 <RowDefinition />
                 <RowDefinition />
-                <RowDefinition />
             </Grid.RowDefinitions>
             <Label Content="Visual Studio" Padding="5" />
             <TextBlock Grid.Column="1" Padding="5">
@@ -93,20 +92,14 @@
                     https://visualstudio.microsoft.com/
                 </Hyperlink>
             </TextBlock>
-            <Label Content="EasyHook" Padding="5" Grid.Row="1" />
+            <Label Content="C++/WinRT" Padding="5" Grid.Row="1" />
             <TextBlock Grid.Column="1" Padding="5" Grid.Row="1">
-                <Hyperlink NavigateUri="https://github.com/EasyHook/EasyHook" RequestNavigate="Hyperlink_RequestNavigate">
-                    https://github.com/EasyHook/EasyHook
-                </Hyperlink>
-            </TextBlock>
-            <Label Content="C++/WinRT" Padding="5" Grid.Row="2" />
-            <TextBlock Grid.Column="1" Padding="5" Grid.Row="2">
                 <Hyperlink NavigateUri="https://github.com/microsoft/cppwinrt" RequestNavigate="Hyperlink_RequestNavigate">
                     https://github.com/microsoft/cppwinrt
                 </Hyperlink>
             </TextBlock>
-            <TextBlock Text="{x:Static p:Resources.UI_Options_About_Thanks_Shaders}" Grid.Row="3" Grid.ColumnSpan="2" Padding="5" />
-            <TextBlock Text="{x:Static p:Resources.UI_Options_About_Thanks_Contributors}" Grid.Row="4" Grid.ColumnSpan="2" Padding="5" />
+            <TextBlock Text="{x:Static p:Resources.UI_Options_About_Thanks_Shaders}" Grid.Row="2" Grid.ColumnSpan="2" Padding="5" />
+            <TextBlock Text="{x:Static p:Resources.UI_Options_About_Thanks_Contributors}" Grid.Row="3" Grid.ColumnSpan="2" Padding="5" />
         </Grid>
     </StackPanel>
 </Page>

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -128,13 +128,22 @@
     <value>..\Assets\Logo.ico;System.Drawing.Icon, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="Msg_Error_Generic" xml:space="preserve">
-    <value />
+    <value>An error occurred, please check the log for more information.</value>
+  </data>
+  <data name="Msg_Error_GraphicsCapture" xml:space="preserve">
+    <value>The window cannot be captured using GraphicsCapture.</value>
+  </data>
+  <data name="Msg_Error_Init" xml:space="preserve">
+    <value>Failed to initialize Runtime.</value>
   </data>
   <data name="Msg_Error_Invalid_Source_Window" xml:space="preserve">
-    <value />
+    <value>Invalid source window</value>
   </data>
-  <data name="UI_Main_Capture_Mode" xml:space="preserve">
-    <value>Capture Mode</value>
+  <data name="Msg_Error_Vsync_Off_Not_Supported" xml:space="preserve">
+    <value>This monitor does not support turning off VSync.</value>
+  </data>
+  <data name="UI_Main_Capture_Method" xml:space="preserve">
+    <value>Capture Method</value>
   </data>
   <data name="UI_Main_Current_Window" xml:space="preserve">
     <value>Current Window: </value>
@@ -233,9 +242,6 @@
   <data name="UI_Options_Advanced_Logging_Level_Warn" xml:space="preserve">
     <value>Warn</value>
   </data>
-  <data name="UI_Options_Advanced_Show_Frame_Rate" xml:space="preserve">
-    <value>Show Frame Rate</value>
-  </data>
   <data name="UI_Options_Application" xml:space="preserve">
     <value>Application</value>
   </data>
@@ -260,11 +266,32 @@
   <data name="UI_Options_Scale_Adjust_Cursor_Speed" xml:space="preserve">
     <value>Adjust cursor speed while zoomed</value>
   </data>
+  <data name="UI_Options_Scale_Disable_Round_Corner" xml:space="preserve">
+    <value>Disable round corner of window while zoomed</value>
+  </data>
+  <data name="UI_Options_Scale_Frame_Rate" xml:space="preserve">
+    <value>Frame Rate</value>
+  </data>
+  <data name="UI_Options_Scale_Frame_Rate_Limiter" xml:space="preserve">
+    <value>Limiter</value>
+  </data>
+  <data name="UI_Options_Scale_Frame_Rate_Not_Limited" xml:space="preserve">
+    <value>Not Limited</value>
+  </data>
+  <data name="UI_Options_Scale_No_VSync" xml:space="preserve">
+    <value>Disable Vsync</value>
+  </data>
   <data name="UI_Options_Scale_Open_Scale_Config" xml:space="preserve">
     <value>Open Scale Config</value>
   </data>
   <data name="UI_Options_Scale_Restore_Full_Screen" xml:space="preserve">
     <value>Restore full screen when source window loses focus</value>
+  </data>
+  <data name="UI_Options_Scale_Show_Frame_Rate" xml:space="preserve">
+    <value>Show Frame Rate</value>
+  </data>
+  <data name="UI_Options_Scale_VSync" xml:space="preserve">
+    <value>VSync</value>
   </data>
   <data name="UI_Options_Title" xml:space="preserve">
     <value>Magpie Options</value>
