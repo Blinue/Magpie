@@ -21,6 +21,6 @@
 假设该文件名为 TEXTURE.txt，要将结果输出到 weights.dds 中，执行以下命令
 
 ``` bash
-> .\parse.bat TEXTURE.txt weights
+> .\parse.bat TEXTURE.txt weights.dds
 ```
 
