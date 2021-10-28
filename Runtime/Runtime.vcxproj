@@ -289,10 +289,16 @@
     <CopyFileToFolders Include="effects\Anime4K_Upscale_S_Lite.hlsl">
       <FileType>Document</FileType>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="effects\2xbrz.hlsl">
+    <CopyFileToFolders Include="effects\xBRZ_2x.hlsl">
       <FileType>Document</FileType>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="effects\3xbrz.hlsl">
+    <CopyFileToFolders Include="effects\xBRZ_3x.hlsl">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="effects\xBRZ_Freescale.hlsl">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="effects\xBRZ_Freescale_Multipass.hlsl">
       <FileType>Document</FileType>
     </CopyFileToFolders>
     <FxCompile Include="shaders\CopyPS.hlsl">

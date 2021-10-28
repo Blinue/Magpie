@@ -3877,7 +3877,7 @@ float4 Pass2(float2 pos) {
 	float delta = sqrt(max(T * T / 4.0 - D, 0.0));
 	float L1 = T / 2.0 + delta, L2 = T / 2.0 - delta;
 	float sqrtL1 = sqrt(L1), sqrtL2 = sqrt(L2);
-	float theta = lerp(mod(atan2(L1 - a, b) + PI, PI), 0.0, abs(b) < 1.192092896e-7);
+	float theta = lerp(mod(atan2(b, L1 - a) + PI, PI), 0.0, abs(b) < 1.192092896e-7);
 	float lambda = sqrtL1;
 	float mu = lerp((sqrtL1 - sqrtL2) / (sqrtL1 + sqrtL2), 0.0, sqrtL1 + sqrtL2 < 1.192092896e-7);
 	float angle = floor(theta * 24.0 / PI);
