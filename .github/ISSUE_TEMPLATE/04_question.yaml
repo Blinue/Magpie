@@ -1,0 +1,33 @@
+name: Q&A 问询
+description: Ask questions about Magpie 提出关于magpie的问题
+labels: question
+body:
+- type: markdown
+  attributes:
+    value: >
+      Before asking questions, make sure it hasn't been mentioned before.
+
+      提问之前应先检索以下列表检查是否已有相关的回答。
+
+      https://github.com/Blinue/Magpie/labels/question
+
+      https://github.com/Blinue/Magpie/wiki/FAQ
+
+      Issues about compilation can also be reported here. Check if you follow the instruction below.
+
+      编译相关的疑问也可在此提出，首先检查是否按照如下说明的流程编译。
+
+      https://github.com/Blinue/Magpie/wiki/%E7%BC%96%E8%AF%91%E6%8C%87%E5%8D%97
+
+      Don't ask questions about bugs. To open the right template from the previous selection.
+
+      程序报错不要使用此模板，应该返回上级重新选择 `Bug 错误` 选项。
+- type: textarea
+  attributes:
+    label: Question 问题
+  validations:
+    required: true
+- type: textarea
+  attributes:
+    label: Logs files (optional) 日志文件（可选）
+    description: It's not necessary but if you want to post to help describe your problem. 不必上传日志，但是你想借此描述你的问题也可以。

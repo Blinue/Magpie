@@ -1,0 +1,34 @@
+name: Performance 性能
+description: obvious performance problems at runtime 运行时有显著的性能衰减
+labels: performance
+body:
+- type: markdown
+  attributes:
+    value: >
+      Report the issues related with performance regression, such as output-lag / high usage of CPU / low FPS ...
+
+      如遇较为严重的性能问题例如卡顿、过高的性能占用、较低的帧率等异常情况，在此报告。
+- type: input
+  attributes:
+    label: Program(Game) 游戏名
+    placeholder: "StarCraft"
+  validations:
+    required: true
+- type: input
+  attributes:
+    label: Capture method 捕获模式
+    placeholder: "GDI"
+  validations:
+    required: true
+- type: textarea
+  attributes:
+    label: Related screenshot (optional) 相关截图（可选）
+- type: textarea
+  attributes:
+    label: Other information (optional) 补充信息（可选）
+- type: textarea
+  attributes:
+    label: Log files 日志文件
+    description: Post the logs that in the `logs` folder, which will help analyse the causes. 上传logs目录中的文件有助于分析原因。
+  validations:
+    required: true

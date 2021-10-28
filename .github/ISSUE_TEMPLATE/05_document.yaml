@@ -1,0 +1,17 @@
+name: Doc 文档
+description: Discuss about docs 文档相关的讨论
+labels: documentation
+body:
+- type: markdown
+  attributes:
+    value: >
+      Here is Magpie's docs, you can ask anything about the wiki.
+
+      以下链接为文档库，此模块接受任何文档相关的问题。
+
+      https://github.com/Blinue/Magpie/wiki
+- type: textarea
+  attributes:
+    label: Description of the problem 问题描述
+  validations:
+    required: true

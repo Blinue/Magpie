@@ -1,0 +1,20 @@
+name: Feature Request 功能请求
+description: Create the request for a new feature 提出一个增加新功能的请求
+labels: enhancement
+body:
+- type: markdown
+  attributes:
+    value: >
+      Make sure it hasn't been mentioned before.
+
+      确保此类请求之前尚未被其他人提出过。
+
+      https://github.com/Blinue/Magpie/labels/enhancement
+- type: textarea
+  attributes:
+    label: Expected behavior 预期的功能
+  validations:
+    required: true
+- type: textarea
+  attributes:
+    label: Alternative behavior (optional) 近似的功能（可选）

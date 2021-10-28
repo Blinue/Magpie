@@ -1,0 +1,31 @@
+name: Bug 错误
+description: Report bugs 报告错误
+labels: bug
+body:
+- type: input
+  attributes:
+    label: Magpie version 程序版本
+  validations:
+    required: true
+- type: input
+  attributes:
+    label: Windows version 系统版本
+    placeholder: >
+      win10 2004
+  validations:
+    required: true
+- type: textarea
+  attributes:
+    label: Related screenshot (optional) 相关截图（可选）
+- type: textarea
+  attributes:
+    label: Reproduction steps 复现步骤
+    description: Describe the reproduction steps precisely if possible. 尽可能详细描述错误产生的细节。
+  validations:
+    required: true
+- type: textarea
+  attributes:
+    label: Log files 日志文件
+    description: Post the logs that in the `logs` folder, which will help analyse the causes. 上传logs目录中的文件有助于分析原因。
+  validations:
+    required: true
