@@ -10,14 +10,14 @@
 
 
 std::wstring UTF8ToUTF16(std::string_view str) {
-	int convertResult = MultiByteToWideChar(CP_UTF8, 0, str.data(), (int)str.size(), nullptr, 0);
+	int convertResult = MultiByteToWideChar(CP_ACP, 0, str.data(), (int)str.size(), nullptr, 0);
 	if (convertResult <= 0) {
 		assert(false);
 		return {};
 	}
 
 	std::wstring r(convertResult + 10, L'\0');
-	convertResult = MultiByteToWideChar(CP_UTF8, 0, str.data(), (int)str.size(), &r[0], (int)r.size());
+	convertResult = MultiByteToWideChar(CP_ACP, 0, str.data(), (int)str.size(), &r[0], (int)r.size());
 	if (convertResult <= 0) {
 		assert(false);
 		return {};
