@@ -13,11 +13,6 @@
 extern std::shared_ptr<spdlog::logger> logger;
 
 
-
-Renderer::~Renderer() {
-	CloseHandle(_frameLatencyWaitableObject);
-}
-
 bool Renderer::Initialize() {
 	if (!_InitD3D()) {
 		return false;
@@ -324,7 +319,11 @@ bool Renderer::_InitD3D() {
 				SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("SetMaximumFrameLatency 失败", hr));
 			}
 		} else {
-			_frameLatencyWaitableObject = _dxgiSwapChain->GetFrameLatencyWaitableObject();
+			_frameLatencyWaitableObject.reset(Utils::SafeHandle(_dxgiSwapChain->GetFrameLatencyWaitableObject()));
+			if (!_frameLatencyWaitableObject) {
+				SPDLOG_LOGGER_ERROR(logger, "GetFrameLatencyWaitableObject 失败");
+				return false;
+			}
 		}
 		
 		hr = dxgiFactory->MakeWindowAssociation(App::GetInstance().GetHwndHost(), DXGI_MWA_NO_ALT_ENTER);
@@ -381,7 +380,7 @@ void Renderer::_Render() {
 	int frameRate = App::GetInstance().GetFrameRate();
 
 	if (!_waitingForNextFrame && frameRate == 0) {
-		WaitForSingleObjectEx(_frameLatencyWaitableObject, 1000, TRUE);
+		WaitForSingleObjectEx(_frameLatencyWaitableObject.get(), 1000, TRUE);
 	}
 
 	if (!_CheckSrcState()) {

@@ -5,12 +5,11 @@
 #include "FrameRateDrawer.h"
 #include <CommonStates.h>
 #include "StepTimer.h"
+#include "Utils.h"
 
 
 class Renderer {
 public:
-	~Renderer();
-
 	bool Initialize();
 
 	bool InitializeEffectsAndCursor(const std::string& effectsJson);
@@ -70,7 +69,7 @@ private:
 	ComPtr<IDXGIDevice1> _dxgiDevice;
 	ComPtr<IDXGISwapChain2> _dxgiSwapChain;
 	ComPtr<ID3D11DeviceContext1> _d3dDC;
-	HANDLE _frameLatencyWaitableObject = NULL;
+	Utils::ScopedHandle _frameLatencyWaitableObject = NULL;
 	bool _waitingForNextFrame = false;
 
 	ComPtr<ID3D11SamplerState> _linearSampler;
