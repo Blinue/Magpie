@@ -289,6 +289,9 @@
     <CopyFileToFolders Include="effects\Anime4K_Upscale_S_Lite.hlsl">
       <FileType>Document</FileType>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="effects\RAVU_R3.hlsl">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
     <CopyFileToFolders Include="effects\xBRZ_2x.hlsl">
       <FileType>Document</FileType>
     </CopyFileToFolders>
@@ -320,6 +323,9 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="conanfile.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <CopyFileToFolders Include="effects\RAVU_R3_Weights.dds" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

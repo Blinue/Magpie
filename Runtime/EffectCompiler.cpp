@@ -4,7 +4,6 @@
 #include "Utils.h"
 #include <bitset>
 #include "EffectCache.h"
-#include "TextureLoader.h"
 
 
 UINT EffectCompiler::Compile(const wchar_t* fileName, EffectDesc& desc) {
@@ -606,13 +605,13 @@ UINT EffectCompiler::_ResolveConstant(std::string_view block, EffectDesc& desc) 
 }
 
 UINT EffectCompiler::_ResolveTexture(std::string_view block, EffectDesc& desc) {
-	// 如果名称为 INPUT 不能有任何选项
+	// 如果名称为 INPUT 不能有任何选项，含 SOURCE 时不能有任何其他选项
 	// 否则必需的选项：FORMAT
 	// 可选的选项：WIDTH，HEIGHT
 
 	EffectIntermediateTextureDesc& texDesc = desc.textures.emplace_back();
 
-	std::bitset<3> processed;
+	std::bitset<4> processed;
 
 	std::string_view token;
 
@@ -638,11 +637,22 @@ UINT EffectCompiler::_ResolveTexture(std::string_view block, EffectDesc& desc) {
 
 		std::string t = StrUtils::ToUpperCase(token);
 
-		if (t == "FORMAT") {
-			if (processed[0]) {
+		if (t == "SOURCE") {
+			if (processed.any()) {
 				return 1;
 			}
 			processed[0] = true;
+
+			if (_GetNextString(block, token)) {
+				return 1;
+			}
+
+			texDesc.source = token;
+		} else if (t == "FORMAT") {
+			if (processed[0] || processed[1]) {
+				return 1;
+			}
+			processed[1] = true;
 
 			if (_GetNextString(block, token)) {
 				return 1;
@@ -674,19 +684,19 @@ UINT EffectCompiler::_ResolveTexture(std::string_view block, EffectDesc& desc) {
 
 			texDesc.format = it->second;
 		} else if (t == "WIDTH") {
-			if (processed[1]) {
+			if (processed[0] || processed[2]) {
 				return 1;
 			}
-			processed[1] = true;
+			processed[2] = true;
 
 			if (_GetNextExpr(block, texDesc.sizeExpr.first)) {
 				return 1;
 			}
 		} else if (t == "HEIGHT") {
-			if (processed[2]) {
+			if (processed[0] || processed[3]) {
 				return 1;
 			}
-			processed[2] = true;
+			processed[3] = true;
 
 			if (_GetNextExpr(block, texDesc.sizeExpr.second)) {
 				return 1;
@@ -697,7 +707,7 @@ UINT EffectCompiler::_ResolveTexture(std::string_view block, EffectDesc& desc) {
 	}
 
 	// WIDTH 和 HEIGHT 必须成对出现
-	if (processed[1] ^ processed[2]) {
+	if (processed[2] ^ processed[3]) {
 		return 1;
 	}
 
@@ -711,15 +721,15 @@ UINT EffectCompiler::_ResolveTexture(std::string_view block, EffectDesc& desc) {
 	}
 
 	if (token == "INPUT") {
-		if (processed[0] || processed[1]) {
+		if (processed[1] || processed[2]) {
 			return 1;
 		}
 
 		// INPUT 已为第一个元素
 		desc.textures.pop_back();
 	} else {
-		// 否则 FORMAT 为必需
-		if (!processed[0]) {
+		// 否则 FORMAT 和 SOURCE 必须二选一
+		if (processed[0] == processed[1]) {
 			return 1;
 		}
 
@@ -909,7 +919,7 @@ UINT EffectCompiler::_ResolvePasses(const std::vector<std::string_view>& blocks,
 			return 1;
 		}
 
-		if (!passSources[index - 1].empty()) {
+		if (index > passSources.size() || !passSources[index - 1].empty()) {
 			return 1;
 		}
 

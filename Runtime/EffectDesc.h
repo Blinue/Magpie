@@ -26,6 +26,7 @@ struct EffectIntermediateTextureDesc {
 	std::pair<std::string, std::string> sizeExpr;
 	EffectIntermediateTextureFormat format = EffectIntermediateTextureFormat::B8G8R8A8_UNORM;
 	std::string name;
+	std::string source;
 
 	static const DXGI_FORMAT DXGI_FORMAT_MAP[16];
 };

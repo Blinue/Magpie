@@ -142,6 +142,7 @@ ComPtr<ID3D11Texture2D> LoadImg(const wchar_t* fileName) {
 ComPtr<ID3D11Texture2D> LoadDDS(const wchar_t* fileName) {
 	ComPtr<ID3D11Resource> result;
 
+	DirectX::DDS_ALPHA_MODE alphaMode = DirectX::DDS_ALPHA_MODE_STRAIGHT;
 	HRESULT hr = DirectX::CreateDDSTextureFromFileEx(
 		App::GetInstance().GetRenderer().GetD3DDevice().Get(),
 		fileName,
@@ -152,7 +153,8 @@ ComPtr<ID3D11Texture2D> LoadDDS(const wchar_t* fileName) {
 		0,
 		false,
 		&result,
-		nullptr
+		nullptr,
+		&alphaMode
 	);
 	if (FAILED(hr)) {
 		SPDLOG_LOGGER_INFO(logger, MakeComErrorMsg("CreateDDSTextureFromFile 失败，将尝试不作为渲染目标", hr));
@@ -168,7 +170,8 @@ ComPtr<ID3D11Texture2D> LoadDDS(const wchar_t* fileName) {
 			0,
 			false,
 			&result,
-			nullptr
+			nullptr,
+			&alphaMode
 		);
 
 		if (FAILED(hr)) {

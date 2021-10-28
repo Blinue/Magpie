@@ -116,7 +116,7 @@ void serialize(Archive& ar, EffectValueConstantDesc& o) {
 
 template<typename Archive>
 void serialize(Archive& ar, EffectIntermediateTextureDesc& o) {
-	ar& o.format& o.name& o.sizeExpr;
+	ar& o.format& o.name & o.source & o.sizeExpr;
 }
 
 template<typename Archive>

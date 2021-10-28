@@ -1,19 +1,21 @@
 @ECHO OFF
 
-python texture2Tiff.py %1 %2.tiff
+SET TEXTURE_DATA=__Resolved.txt
+
+python resolveTexture.py %1 %TEXTURE_DATA%
 
 IF %ERRORLEVEL% NEQ 0 (
-    ECHO Error: texture2Tiff.py failed
+    ECHO "resolveTexture.py Ê§°Ü"
     PAUSE
     EXIT 1
 )
 
-texconv -f R16G16B16A16_FLOAT -m 1 -fl 11.1 -y -nologo %2.tiff
+MPVHookTextureParser %TEXTURE_DATA% %2
 
 IF %ERRORLEVEL% NEQ 0 (
-    ECHO "Error: Failed to convert .tiff to .dds"
+    ECHO "Éú³É DDS Ê§°Ü"
     PAUSE
     EXIT 1
 )
 
-DEL %2.tiff
+DEL %TEXTURE_DATA%

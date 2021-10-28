@@ -4,6 +4,7 @@
 #include "Utils.h"
 #include <VertexTypes.h>
 #include "EffectCompiler.h"
+#include "TextureLoader.h"
 
 #ifdef _UNICODE
 #undef _UNICODE
@@ -277,35 +278,43 @@ bool EffectDrawer::Build(ComPtr<ID3D11Texture2D> input, ComPtr<ID3D11Texture2D> 
 	_textures.resize(_effectDesc.textures.size() + 1);
 	_textures[0] = input;
 	for (size_t i = 1; i < _effectDesc.textures.size(); ++i) {
-		SIZE texSize{};
-		try {
-			exprParser.SetExpr(_effectDesc.textures[i].sizeExpr.first);
-			texSize.cx = std::lround(exprParser.Eval());
-			exprParser.SetExpr(_effectDesc.textures[i].sizeExpr.second);
-			texSize.cy = std::lround(exprParser.Eval());
-		} catch (...) {
-			return false;
-		}
+		if (!_effectDesc.textures[i].source.empty()) {
+			// 从文件加载纹理
+			_textures[i] = TextureLoader::Load((L"effects\\" + StrUtils::UTF8ToUTF16(_effectDesc.textures[i].source)).c_str());
+			if (!_textures[i]) {
+				return false;
+			}
+		} else {
+			SIZE texSize{};
+			try {
+				exprParser.SetExpr(_effectDesc.textures[i].sizeExpr.first);
+				texSize.cx = std::lround(exprParser.Eval());
+				exprParser.SetExpr(_effectDesc.textures[i].sizeExpr.second);
+				texSize.cy = std::lround(exprParser.Eval());
+			} catch (...) {
+				return false;
+			}
 
-		if (texSize.cx <= 0 || texSize.cy <= 0) {
-			return false;
-		}
-		
-		D3D11_TEXTURE2D_DESC desc{};
-		desc.Format = EffectIntermediateTextureDesc::DXGI_FORMAT_MAP[(UINT)_effectDesc.textures[i].format];
-		desc.Width = texSize.cx;
-		desc.Height = texSize.cy;
-		desc.Usage = D3D11_USAGE_DEFAULT;
-		desc.MipLevels = 1;
-		desc.ArraySize = 1;
-		desc.SampleDesc.Count = 1;
-		desc.SampleDesc.Quality = 0;
-		desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
-		HRESULT hr = App::GetInstance().GetRenderer().GetD3DDevice()->CreateTexture2D(
-			&desc, nullptr, _textures[i].ReleaseAndGetAddressOf());
-		if (FAILED(hr)) {
-			SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("创建 Texture2D 失败", hr));
-			return false;
+			if (texSize.cx <= 0 || texSize.cy <= 0) {
+				return false;
+			}
+
+			D3D11_TEXTURE2D_DESC desc{};
+			desc.Format = EffectIntermediateTextureDesc::DXGI_FORMAT_MAP[(UINT)_effectDesc.textures[i].format];
+			desc.Width = texSize.cx;
+			desc.Height = texSize.cy;
+			desc.Usage = D3D11_USAGE_DEFAULT;
+			desc.MipLevels = 1;
+			desc.ArraySize = 1;
+			desc.SampleDesc.Count = 1;
+			desc.SampleDesc.Quality = 0;
+			desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
+			HRESULT hr = App::GetInstance().GetRenderer().GetD3DDevice()->CreateTexture2D(
+				&desc, nullptr, _textures[i].ReleaseAndGetAddressOf());
+			if (FAILED(hr)) {
+				SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("创建 Texture2D 失败", hr));
+				return false;
+			}
 		}
 	}
 
