@@ -319,7 +319,7 @@ bool Renderer::_InitD3D() {
 				SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("SetMaximumFrameLatency 失败", hr));
 			}
 		} else {
-			_frameLatencyWaitableObject.reset(Utils::SafeHandle(_dxgiSwapChain->GetFrameLatencyWaitableObject()));
+			_frameLatencyWaitableObject.reset(_dxgiSwapChain->GetFrameLatencyWaitableObject());
 			if (!_frameLatencyWaitableObject) {
 				SPDLOG_LOGGER_ERROR(logger, "GetFrameLatencyWaitableObject 失败");
 				return false;

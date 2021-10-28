@@ -11,8 +11,8 @@ IF %ERRORLEVEL% NEQ 0 (
 texconv -f R16G16B16A16_FLOAT -m 1 -fl 11.1 -y -nologo %2.tiff
 
 IF %ERRORLEVEL% NEQ 0 (
-    ECHO Error: Failed to convert .tiff to .dds
-    PASUE
+    ECHO "Error: Failed to convert .tiff to .dds"
+    PAUSE
     EXIT 1
 )
 
