@@ -1,5 +1,7 @@
 # MAGPIE
 
+[![许可](https://img.shields.io/github/license/Blinue/Magpie)](./LICENSE)
+
 Magpie可以将任意窗口放大至全屏，支持多种高级缩放算法，包括Lanczos、[Anime4K](https://github.com/bloc97/Anime4K)、[FSR](https://github.com/GPUOpen-Effects/FidelityFX-FSR)、[FSRCNNX](https://github.com/igv/FSRCNN-TensorFlow)等。
 
 主要用于游戏窗口的放大显示，适用于不支持全屏模式，或者内置的全屏模式会使画面模糊的情况。
@@ -55,7 +57,3 @@ Magpie可以将任意窗口放大至全屏，支持多种高级缩放算法，�
    ![高DPI设置](img/高DPI设置.png)
 
 2. 一些游戏支持调整窗口的大小，但只是简单的使用线性缩放，这时请先将其设为原始分辨率。
-
-## 许可
-
-参见[LICENSE](./LICENSE)。
