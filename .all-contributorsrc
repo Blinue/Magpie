@@ -37,6 +37,16 @@
       "contributions": [
         "userTesting"
       ]
+    },
+    {
+      "login": "neoKushan",
+      "name": "Steve Donaghy",
+      "avatar_url": "https://avatars.githubusercontent.com/u/1029699?v=4",
+      "profile": "https://www.stevedonaghy.com/",
+      "contributions": [
+        "code",
+        "translation"
+      ]
     }
   ],
   "contributorsPerLine": 7,
