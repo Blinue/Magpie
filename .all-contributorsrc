@@ -17,6 +17,17 @@
         "doc",
         "question"
       ]
+    },
+    {
+      "login": "hooke007",
+      "name": "hooke007",
+      "avatar_url": "https://avatars.githubusercontent.com/u/41094733?v=4",
+      "profile": "https://github.com/hooke007",
+      "contributions": [
+        "doc",
+        "question",
+        "userTesting"
+      ]
     }
   ],
   "contributorsPerLine": 7,
