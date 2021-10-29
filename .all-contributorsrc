@@ -47,6 +47,15 @@
         "code",
         "translation"
       ]
+    },
+    {
+      "login": "JeffersonQin",
+      "name": "gyro永不抽风",
+      "avatar_url": "https://avatars.githubusercontent.com/u/30655701?v=4",
+      "profile": "http://gyrojeff.top",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,
