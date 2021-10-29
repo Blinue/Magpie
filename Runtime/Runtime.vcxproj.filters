@@ -291,5 +291,8 @@
     <CopyFileToFolders Include="effects\SharpBilinear.hlsl">
       <Filter>效果</Filter>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="effects\FXAA.hlsl">
+      <Filter>效果</Filter>
+    </CopyFileToFolders>
   </ItemGroup>
 </Project>
