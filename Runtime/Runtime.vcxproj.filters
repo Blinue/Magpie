@@ -255,10 +255,10 @@
     <CopyFileToFolders Include="effects\Anime4K_Upscale_S_Lite.hlsl">
       <Filter>效果</Filter>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="effects\RAVU_R3_Weights.dds">
+    <CopyFileToFolders Include="effects\RAVU_Zoom_R3_Weights.dds">
       <Filter>效果</Filter>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="effects\RAVU_R3.hlsl">
+    <CopyFileToFolders Include="effects\RAVU_Zoom_R3.hlsl">
       <Filter>效果</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="effects\xBRZ_2x.hlsl">
@@ -283,6 +283,12 @@
       <Filter>效果</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="effects\xBRZ_6x.hlsl">
+      <Filter>效果</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="effects\Pixellate.hlsl">
+      <Filter>效果</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="effects\SharpBilinear.hlsl">
       <Filter>效果</Filter>
     </CopyFileToFolders>
   </ItemGroup>

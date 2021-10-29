@@ -22,7 +22,7 @@ Texture2D INPUT;
 Texture2D yuvTex;
 
 //!TEXTURE
-//!SOURCE RAVU_R3_Weights.dds
+//!SOURCE RAVU_Zoom_R3_Weights.dds
 Texture2D ravu_zoom_lut3;
 
 

@@ -68,7 +68,7 @@
     "name": "RAVU",
     "effects": [
       {
-        "effect": "RAVU_R3",
+        "effect": "RAVU_Zoom_R3",
         "scale": [-1, -1]
       }
     ]

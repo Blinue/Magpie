@@ -289,7 +289,7 @@
     <CopyFileToFolders Include="effects\Anime4K_Upscale_S_Lite.hlsl">
       <FileType>Document</FileType>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="effects\RAVU_R3.hlsl">
+    <CopyFileToFolders Include="effects\RAVU_Zoom_R3.hlsl">
       <FileType>Document</FileType>
     </CopyFileToFolders>
     <CopyFileToFolders Include="effects\xBRZ_2x.hlsl">
@@ -313,6 +313,12 @@
     <CopyFileToFolders Include="effects\xBRZ_6x.hlsl">
       <FileType>Document</FileType>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="effects\Pixellate.hlsl">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="effects\SharpBilinear.hlsl">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
     <FxCompile Include="shaders\CopyPS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
@@ -334,7 +340,7 @@
     <Text Include="conanfile.txt" />
   </ItemGroup>
   <ItemGroup>
-    <CopyFileToFolders Include="effects\RAVU_R3_Weights.dds" />
+    <CopyFileToFolders Include="effects\RAVU_Zoom_R3_Weights.dds" />
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="effects\RAVU_Lite_R3_Weights.dds" />
