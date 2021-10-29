@@ -28,6 +28,15 @@
         "question",
         "userTesting"
       ]
+    },
+    {
+      "login": "palxex",
+      "name": "Pal Lockheart",
+      "avatar_url": "https://avatars.githubusercontent.com/u/58222?v=4",
+      "profile": "http://palxex.ys168.com",
+      "contributions": [
+        "userTesting"
+      ]
     }
   ],
   "contributorsPerLine": 7,
