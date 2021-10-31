@@ -84,29 +84,6 @@ struct Utils {
 		return (attrs != INVALID_FILE_ATTRIBUTES) && (attrs & FILE_ATTRIBUTE_DIRECTORY);
 	}
 
-	static bool CompilePixelShader(std::string_view hlsl, const char* entryPoint, ID3DBlob** blob) {
-		ComPtr<ID3DBlob> errorMsgs = nullptr;
-
-		UINT flags = D3DCOMPILE_ENABLE_STRICTNESS;
-		HRESULT hr = D3DCompile(hlsl.data(), hlsl.size(), nullptr, nullptr, nullptr,
-			entryPoint, "ps_5_0", flags, 0, blob, &errorMsgs);
-		if (FAILED(hr)) {
-			if (errorMsgs) {
-				SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg(
-					fmt::format("编译像素着色器失败：{}", (const char*)errorMsgs->GetBufferPointer()), hr));
-			}
-			return false;
-		} else {
-			if (errorMsgs) {
-				// 显示警告消息
-				SPDLOG_LOGGER_WARN(logger,
-					"编译像素着色器时产生警告："s + (const char*)errorMsgs->GetBufferPointer());
-			}
-		}
-
-		return true;
-	}
-
 	static const RTL_OSVERSIONINFOW& GetOSVersion();
 
 	static int CompareVersion(int major1, int minor1, int build1, int major2, int minor2, int build2) {

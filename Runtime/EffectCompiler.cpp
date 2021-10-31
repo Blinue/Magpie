@@ -201,6 +201,30 @@ UINT EffectCompiler::Compile(const wchar_t* fileName, EffectDesc& desc) {
 	return 0;
 }
 
+bool EffectCompiler::_CompilePassPS(std::string_view hlsl, const char* entryPoint, ID3DBlob** blob, UINT passIndex) {
+	ComPtr<ID3DBlob> errorMsgs = nullptr;
+
+	UINT flags = D3DCOMPILE_ENABLE_STRICTNESS;
+	_PassInclude passInclude;
+	HRESULT hr = D3DCompile(hlsl.data(), hlsl.size(), fmt::format("Pass{}", passIndex).c_str(), nullptr, &passInclude,
+		entryPoint, "ps_5_0", flags, 0, blob, &errorMsgs);
+	if (FAILED(hr)) {
+		if (errorMsgs) {
+			SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg(
+				fmt::format("编译像素着色器失败：{}", (const char*)errorMsgs->GetBufferPointer()), hr));
+		}
+		return false;
+	} else {
+		if (errorMsgs) {
+			// 显示警告消息
+			SPDLOG_LOGGER_WARN(logger,
+				"编译像素着色器时产生警告："s + (const char*)errorMsgs->GetBufferPointer());
+		}
+	}
+
+	return true;
+}
+
 UINT EffectCompiler::_RemoveComments(std::string& source) {
 	// 确保以换行符结尾
 	if (source.back() != '\n') {
@@ -841,11 +865,11 @@ struct TPContext {
 	std::vector<EffectPassDesc>& passes;
 };
 
-void NTAPI TPWork(PTP_CALLBACK_INSTANCE, PVOID Context, PTP_WORK) {
+void NTAPI EffectCompiler::_TPWork(PTP_CALLBACK_INSTANCE, PVOID Context, PTP_WORK) {
 	TPContext* con = (TPContext*)Context;
 	ULONG index = InterlockedIncrement(&con->index);
 
-	if (!Utils::CompilePixelShader(con->passSources[index], "__M", con->passes[index].cso.ReleaseAndGetAddressOf())) {
+	if (!_CompilePassPS(con->passSources[index], "__M", con->passes[index].cso.ReleaseAndGetAddressOf(), index + 1)) {
 		con->passes[index].cso = nullptr;
 	}
 }
@@ -1048,7 +1072,7 @@ UINT EffectCompiler::_ResolvePasses(const std::vector<std::string_view>& blocks,
 	// 编译生成的 hlsl
 	assert(!passSources.empty());
 	if (passSources.size() == 1) {
-		if (!Utils::CompilePixelShader(passSources[0], "__M", desc.passes[0].cso.ReleaseAndGetAddressOf())) {
+		if (!_CompilePassPS(passSources[0], "__M", desc.passes[0].cso.ReleaseAndGetAddressOf(), 1)) {
 			return 1;
 		}
 	} else {
@@ -1059,14 +1083,14 @@ UINT EffectCompiler::_ResolvePasses(const std::vector<std::string_view>& blocks,
 			desc.passes
 		};
 		
-		PTP_WORK work = CreateThreadpoolWork(TPWork, &context, nullptr);
+		PTP_WORK work = CreateThreadpoolWork(_TPWork, &context, nullptr);
 		
 		if (work) {
 			for (size_t i = 1; i < passSources.size(); ++i) {
 				SubmitThreadpoolWork(work);
 			}
 
-			if (!Utils::CompilePixelShader(passSources[0], "__M", desc.passes[0].cso.ReleaseAndGetAddressOf())) {
+			if (!_CompilePassPS(passSources[0], "__M", desc.passes[0].cso.ReleaseAndGetAddressOf(), 1)) {
 				CloseThreadpoolWork(work);
 				return 1;
 			}
@@ -1084,7 +1108,7 @@ UINT EffectCompiler::_ResolvePasses(const std::vector<std::string_view>& blocks,
 
 			// 回退到单线程
 			for (size_t i = 0; i < passSources.size(); ++i) {
-				if (!Utils::CompilePixelShader(passSources[i], "__M", desc.passes[i].cso.ReleaseAndGetAddressOf())) {
+				if (!_CompilePassPS(passSources[i], "__M", desc.passes[i].cso.ReleaseAndGetAddressOf(), (UINT)i + 1)) {
 					return 1;
 				}
 			}
@@ -1092,4 +1116,32 @@ UINT EffectCompiler::_ResolvePasses(const std::vector<std::string_view>& blocks,
 	}
 
 	return 0;
+}
+
+HRESULT EffectCompiler::_PassInclude::Open(
+	D3D_INCLUDE_TYPE IncludeType,
+	LPCSTR pFileName,
+	LPCVOID pParentData,
+	LPCVOID* ppData,
+	UINT* pBytes
+) {
+	std::wstring relativePath = L"effects\\" + StrUtils::UTF8ToUTF16(pFileName);
+
+	std::string file;
+	if (!Utils::ReadTextFile(relativePath.c_str(), file)) {
+		return E_FAIL;
+	}
+
+	char* result = new char[file.size()];
+	std::memcpy(result, file.data(), file.size());
+
+	*ppData = result;
+	*pBytes = (UINT)file.size();
+
+	return S_OK;
+}
+
+HRESULT EffectCompiler::_PassInclude::Close(LPCVOID pData) {
+	delete[] (char*)pData;
+	return S_OK;
 }

@@ -14,6 +14,21 @@ public:
 	static constexpr UINT VERSION = 1;
 
 private:
+	class _PassInclude : public ID3DInclude {
+	public:
+		HRESULT CALLBACK Open(
+			D3D_INCLUDE_TYPE IncludeType,
+			LPCSTR pFileName,
+			LPCVOID pParentData,
+			LPCVOID* ppData,
+			UINT* pBytes
+		) override;
+
+		HRESULT CALLBACK Close(LPCVOID pData) override;
+	};
+
+	static bool _CompilePassPS(std::string_view hlsl, const char* entryPoint, ID3DBlob** blob, UINT passIndex);
+
 	static UINT _RemoveComments(std::string& source);
 
 	template<bool IncludeNewLine>
@@ -112,6 +127,8 @@ private:
 	static UINT _ResolveSampler(std::string_view block, EffectDesc& desc);
 
 	static UINT _ResolveCommon(std::string_view& block);
+
+	static void NTAPI _TPWork(PTP_CALLBACK_INSTANCE, PVOID Context, PTP_WORK);
 
 	static UINT _ResolvePasses(const std::vector<std::string_view>& blocks, const std::vector<std::string_view>& commons, EffectDesc& desc);
 
