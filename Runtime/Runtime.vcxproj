@@ -319,7 +319,16 @@
     <CopyFileToFolders Include="effects\SharpBilinear.hlsl">
       <FileType>Document</FileType>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="effects\FXAA.hlsl">
+    <CopyFileToFolders Include="effects\_FXAA.hlsl">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="effects\FXAA_Medium.hlsl">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="effects\FXAA_High.hlsl">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="effects\FXAA_Ultra.hlsl">
       <FileType>Document</FileType>
     </CopyFileToFolders>
     <FxCompile Include="shaders\CopyPS.hlsl">

@@ -1,30 +1,5 @@
 // 移植自 https://github.com/libretro/slang-shaders/blob/master/anti-aliasing/shaders/fxaa.slang
 
-//!MAGPIE EFFECT
-//!VERSION 1
-//!OUTPUT_WIDTH INPUT_WIDTH
-//!OUTPUT_HEIGHT INPUT_HEIGHT
-
-
-//!CONSTANT
-//!VALUE INPUT_PT_X
-float inputPtX;
-
-//!CONSTANT
-//!VALUE INPUT_PT_Y
-float inputPtY;
-
-
-//!TEXTURE
-Texture2D INPUT;
-
-//!SAMPLER
-//!FILTER LINEAR
-SamplerState sam;
-
-
-//!PASS 1
-//!BIND INPUT
 
 /*
 FXAA_PRESET - Choose compile-in knob preset 0-5.
@@ -105,12 +80,12 @@ float3 FxaaLerp3(float3 a, float3 b, float amountOfA) {
 }
 
 
-float4 Pass1(float2 pos) {
-	float3 rgbN = INPUT.Sample(sam, pos + float2(0, -inputPtY)).xyz;
-	float3 rgbW = INPUT.Sample(sam, pos + float2(-inputPtX, 0)).xyz;
+float4 FXAA(Texture2D INPUT, SamplerState sam, float2 pos, float2 inputPt) {
+	float3 rgbN = INPUT.Sample(sam, pos + float2(0, -inputPt.y)).xyz;
+	float3 rgbW = INPUT.Sample(sam, pos + float2(-inputPt.x, 0)).xyz;
 	float3 rgbM = INPUT.Sample(sam, pos).xyz;
-	float3 rgbE = INPUT.Sample(sam, pos + float2(inputPtX, 0)).xyz;
-	float3 rgbS = INPUT.Sample(sam, pos + float2(0, inputPtY)).xyz;
+	float3 rgbE = INPUT.Sample(sam, pos + float2(inputPt.x, 0)).xyz;
+	float3 rgbS = INPUT.Sample(sam, pos + float2(0, inputPt.y)).xyz;
 
 	float lumaN = FxaaLuma(rgbN);
 	float lumaW = FxaaLuma(rgbW);
@@ -132,10 +107,10 @@ float4 Pass1(float2 pos) {
 	float blendL = max(0.0, (rangeL / range) - FXAA_SUBPIX_TRIM) * FXAA_SUBPIX_TRIM_SCALE;
 	blendL = min(FXAA_SUBPIX_CAP, blendL);
 
-	float3 rgbNW = INPUT.Sample(sam, pos + float2(-inputPtX, -inputPtY)).xyz;
-	float3 rgbNE = INPUT.Sample(sam, pos + float2(inputPtX, -inputPtY)).xyz;
-	float3 rgbSW = INPUT.Sample(sam, pos + float2(-inputPtX, inputPtY)).xyz;
-	float3 rgbSE = INPUT.Sample(sam, pos + float2(inputPtX, inputPtY)).xyz;
+	float3 rgbNW = INPUT.Sample(sam, pos + float2(-inputPt.x, -inputPt.y)).xyz;
+	float3 rgbNE = INPUT.Sample(sam, pos + float2(inputPt.x, -inputPt.y)).xyz;
+	float3 rgbSW = INPUT.Sample(sam, pos + float2(-inputPt.x, inputPt.y)).xyz;
+	float3 rgbSE = INPUT.Sample(sam, pos + float2(inputPt.x, inputPt.y)).xyz;
 	rgbL += (rgbNW + rgbNE + rgbSW + rgbSE);
 	rgbL *= 1.0 / 9.0;
 
@@ -154,7 +129,7 @@ float4 Pass1(float2 pos) {
 		abs((0.25 * lumaNE) + (-0.5 * lumaE) + (0.25 * lumaSE));
 
 	bool horzSpan = edgeHorz >= edgeVert;
-	float lengthSign = horzSpan ? -inputPtY : -inputPtX;
+	float lengthSign = horzSpan ? -inputPt.y : -inputPt.x;
 
 	if (!horzSpan) {
 		lumaN = lumaW;
@@ -180,7 +155,7 @@ float4 Pass1(float2 pos) {
 	gradientN *= FXAA_SEARCH_THRESHOLD;
 
 	float2 posP = posN;
-	float2 offNP = horzSpan ? float2(inputPtX, 0.0) : float2(0.0, inputPtY);
+	float2 offNP = horzSpan ? float2(inputPt.x, 0.0) : float2(0.0, inputPt.y);
 	float lumaEndN = lumaN;
 	float lumaEndP = lumaN;
 	bool doneN = false;

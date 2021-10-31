@@ -291,7 +291,16 @@
     <CopyFileToFolders Include="effects\SharpBilinear.hlsl">
       <Filter>效果</Filter>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="effects\FXAA.hlsl">
+    <CopyFileToFolders Include="effects\_FXAA.hlsl">
+      <Filter>效果</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="effects\FXAA_MEDIUM.hlsl">
+      <Filter>效果</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="effects\FXAA_High.hlsl">
+      <Filter>效果</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="effects\FXAA_Ultra.hlsl">
       <Filter>效果</Filter>
     </CopyFileToFolders>
   </ItemGroup>
