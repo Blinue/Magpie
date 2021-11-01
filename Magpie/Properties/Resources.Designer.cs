@@ -565,6 +565,24 @@ namespace Magpie.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Cursor.
+        /// </summary>
+        public static string UI_Options_Scale_Cursor {
+            get {
+                return ResourceManager.GetString("UI_Options_Scale_Cursor", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Do not Draw the Cursor.
+        /// </summary>
+        public static string UI_Options_Scale_Cursor_Do_Not_Draw {
+            get {
+                return ResourceManager.GetString("UI_Options_Scale_Cursor_Do_Not_Draw", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Disable round corner of window while zoomed.
         /// </summary>
         public static string UI_Options_Scale_Disable_Round_Corner {

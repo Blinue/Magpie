@@ -184,6 +184,7 @@ namespace Magpie {
 			string effectsJson = scaleModelManager.GetScaleModels()[Settings.Default.ScaleMode].Effects;
 			bool showFPS = Settings.Default.ShowFPS;
 			int captureMode = Settings.Default.CaptureMode;
+			bool noCursor = Settings.Default.NoCursor;
 			bool adjustCursorSpeed = Settings.Default.AdjustCursorSpeed;
 			bool disableRoundCorner = Settings.Default.DisableRoundCorner;
 
@@ -206,6 +207,7 @@ namespace Magpie {
 				effectsJson,
 				captureMode,
 				showFPS,
+				noCursor,
 				adjustCursorSpeed,
 				disableRoundCorner,
 				frameRate

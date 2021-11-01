@@ -74,6 +74,7 @@ API_DECLSPEC const char* WINAPI Run(
 	HWND hwndSrc,
 	const char* effectsJson,
 	int captureMode,
+	bool noCursor,
 	bool adjustCursorSpeed,
 	bool showFPS,
 	bool disableRoundCorner,
@@ -86,7 +87,7 @@ API_DECLSPEC const char* WINAPI Run(
 		version.dwMajorVersion, version.dwMinorVersion, version.dwBuildNumber));
 
 	App& app = App::GetInstance();
-	if (!app.Run(hwndSrc, effectsJson, captureMode, adjustCursorSpeed, showFPS, disableRoundCorner, frameRate)) {
+	if (!app.Run(hwndSrc, effectsJson, captureMode, noCursor, adjustCursorSpeed, showFPS, disableRoundCorner, frameRate)) {
 		// 初始化失败
 		SPDLOG_LOGGER_INFO(logger, "App.Run 失败");
 		return app.GetErrorMsg();

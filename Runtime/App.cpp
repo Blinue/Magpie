@@ -46,6 +46,7 @@ bool App::Run(
 	HWND hwndSrc,
 	const std::string& effectsJson,
 	int captureMode,
+	bool noCursor,
 	bool adjustCursorSpeed,
 	bool showFPS,
 	bool disableRoundCorner,
@@ -53,6 +54,7 @@ bool App::Run(
 ) {
 	_hwndSrc = hwndSrc;
 	_captureMode = captureMode;
+	_noCursor = noCursor;
 	_adjustCursorSpeed = adjustCursorSpeed;
 	_showFPS = showFPS;
 	_frameRate = frameRate;

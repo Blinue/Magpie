@@ -190,5 +190,17 @@ namespace Magpie.Properties {
                 this["RunAsAdmin"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool NoCursor {
+            get {
+                return ((bool)(this["NoCursor"]));
+            }
+            set {
+                this["NoCursor"] = value;
+            }
+        }
     }
 }

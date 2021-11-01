@@ -5,8 +5,7 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:Magpie.Options"
       xmlns:props="clr-namespace:Magpie.Properties"
-      mc:Ignorable="d" 
-      d:DesignHeight="300" d:DesignWidth="400">
+      mc:Ignorable="d" d:DesignWidth="400" Height="394.969">
     <Page.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -16,20 +15,26 @@
     </Page.Resources>
 
     <StackPanel>
-        <CheckBox Content="{x:Static props:Resources.UI_Options_Scale_Adjust_Cursor_Speed}" 
-                  IsChecked="{Binding Source={x:Static props:Settings.Default},Path=AdjustCursorSpeed,Mode=TwoWay}"/>
         <CheckBox Content="{x:Static props:Resources.UI_Options_Scale_Restore_Full_Screen}" 
-                  Margin="0,20,0,0" 
                   IsChecked="{Binding Source={x:Static props:Settings.Default},Path=AutoRestore,Mode=TwoWay}" />
         <CheckBox Content="{x:Static props:Resources.UI_Options_Scale_Show_Frame_Rate}" 
-                  Margin="0,20,0,0" 
+                  Margin="0,15,0,0" 
                   IsChecked="{Binding Source={x:Static props:Settings.Default},Path=ShowFPS,Mode=TwoWay}"/>
         <CheckBox x:Name="ccbDisableRoundCorner"
                   Content="{x:Static props:Resources.UI_Options_Scale_Disable_Round_Corner}"
-                  Margin="0,20,0,0"
+                  Margin="0,15,0,0"
                   IsChecked="{Binding Source={x:Static props:Settings.Default},Path=DisableRoundCorner,Mode=TwoWay}" />
-        <StackPanel Margin="0,20,0,0">
-            <Label Content="{x:Static props:Resources.UI_Options_Scale_Frame_Rate}" FontWeight="Bold" Padding="0" FontSize="14" />
+        <StackPanel Margin="0,15,0,0">
+            <Label Content="{x:Static props:Resources.UI_Options_Scale_Cursor}" FontWeight="Bold" Padding="0" FontSize="15" />
+            <CheckBox Content="{x:Static props:Resources.UI_Options_Scale_Cursor_Do_Not_Draw}"
+                      Margin="0,10,0,0"
+                      IsChecked="{Binding Source={x:Static props:Settings.Default},Path=NoCursor,Mode=TwoWay}" />
+            <CheckBox Content="{x:Static props:Resources.UI_Options_Scale_Adjust_Cursor_Speed}" 
+                      Margin="0,15,0,0" 
+                      IsChecked="{Binding Source={x:Static props:Settings.Default},Path=AdjustCursorSpeed,Mode=TwoWay}"/>
+        </StackPanel>
+        <StackPanel Margin="0,15,0,0">
+            <Label Content="{x:Static props:Resources.UI_Options_Scale_Frame_Rate}" FontWeight="Bold" Padding="0" FontSize="15" />
             <RadioButton GroupName="FrameRate" 
                          IsChecked="{Binding Source={x:Static props:Settings.Default},Path=FrameRateType, Converter={StaticResource radioBoolToIntConverter},ConverterParameter=0,Mode=TwoWay}" 
                          Content="{x:Static props:Resources.UI_Options_Scale_VSync}" Margin="0,10,0,0" />
@@ -43,7 +48,7 @@
                 <Slider x:Name="sldFrameRate" 
                         IsEnabled="{Binding ElementName=rdbLimitFrameRate, Path=IsChecked,Mode=OneWay}" 
                         Value="{Binding Source={x:Static props:Settings.Default},Path=FrameRateLimit,Mode=TwoWay}" 
-                        Width="200" Minimum="30" Maximum="120" LargeChange="10" SmallChange="5" Margin="10,0,0,0" 
+                        Width="150" Minimum="30" Maximum="115" LargeChange="10" SmallChange="5" Margin="10,0,0,0" 
                         TickFrequency="5" IsSnapToTickEnabled="True" />
                 <Label IsEnabled="{Binding ElementName=rdbLimitFrameRate, Path=IsChecked,Mode=OneWay}"
                        Content="{Binding ElementName=sldFrameRate,Path=Value,Mode=OneWay}"
@@ -51,6 +56,6 @@
             </StackPanel>
         </StackPanel>
         <Button Content="{x:Static props:Resources.UI_Options_Scale_Open_Scale_Config}" 
-                HorizontalAlignment="Left" Margin="0,20,0,0" Click="BtnScale_Click"/>
+                HorizontalAlignment="Left" Margin="0,15,0,0" Click="BtnScale_Click"/>
     </StackPanel>
 </Page>

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -261,6 +261,12 @@
   <data name="UI_Options_Scale_Adjust_Cursor_Speed" xml:space="preserve">
     <value>缩放时调整光标速度</value>
   </data>
+  <data name="UI_Options_Scale_Cursor" xml:space="preserve">
+    <value>光标</value>
+  </data>
+  <data name="UI_Options_Scale_Cursor_Do_Not_Draw" xml:space="preserve">
+    <value>不绘制光标</value>
+  </data>
   <data name="UI_Options_Scale_Disable_Round_Corner" xml:space="preserve">
     <value>缩放时禁用窗口圆角</value>
   </data>
@@ -280,7 +286,7 @@
     <value>打开缩放配置</value>
   </data>
   <data name="UI_Options_Scale_Restore_Full_Screen" xml:space="preserve">
-    <value>如果源窗口失去焦点，则在它重获焦点时恢复全屏</value>
+    <value>源窗口重获焦点时自动恢复全屏</value>
   </data>
   <data name="UI_Options_Scale_Show_Frame_Rate" xml:space="preserve">
     <value>显示帧率</value>

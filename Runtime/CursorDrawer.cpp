@@ -10,93 +10,102 @@ extern std::shared_ptr<spdlog::logger> logger;
 
 bool CursorDrawer::Initialize(ComPtr<ID3D11Texture2D> renderTarget, const RECT& destRect) {
 	App& app = App::GetInstance();
-	Renderer& renderer = app.GetRenderer();
-	_d3dDC = renderer.GetD3DDC();
-	_d3dDevice = renderer.GetD3DDevice();
+	if (!app.IsNoCursor()) {
+		Renderer& renderer = app.GetRenderer();
+		_d3dDC = renderer.GetD3DDC();
+		_d3dDevice = renderer.GetD3DDevice();
 
-	if (!renderer.GetRenderTargetView(renderTarget.Get(), &_rtv)) {
-		SPDLOG_LOGGER_ERROR(logger, "GetRenderTargetView 失败");
-		return false;
-	}
+		if (!renderer.GetRenderTargetView(renderTarget.Get(), &_rtv)) {
+			SPDLOG_LOGGER_ERROR(logger, "GetRenderTargetView 失败");
+			return false;
+		}
 
-	if (!renderer.GetShaderResourceView(renderTarget.Get(), &_renderTargetSrv)) {
-		SPDLOG_LOGGER_ERROR(logger, "GetShaderResourceView 失败");
-		return false;
-	}
+		if (!renderer.GetShaderResourceView(renderTarget.Get(), &_renderTargetSrv)) {
+			SPDLOG_LOGGER_ERROR(logger, "GetShaderResourceView 失败");
+			return false;
+		}
 
-	HRESULT hr = renderer.GetD3DDevice()->CreatePixelShader(
-		MonochromeCursorPSShaderByteCode, sizeof(MonochromeCursorPSShaderByteCode), nullptr, &_monoCursorPS);
-	if (FAILED(hr)) {
-		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("创建 MonochromeCursorPS 失败", hr));
-		return false;
+		HRESULT hr = renderer.GetD3DDevice()->CreatePixelShader(
+			MonochromeCursorPSShaderByteCode, sizeof(MonochromeCursorPSShaderByteCode), nullptr, &_monoCursorPS);
+		if (FAILED(hr)) {
+			SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("创建 MonochromeCursorPS 失败", hr));
+			return false;
+		}
+
+		D3D11_BUFFER_DESC bd = {};
+		bd.Usage = D3D11_USAGE_DYNAMIC;
+		bd.ByteWidth = sizeof(VertexPositionTexture) * 4;
+		bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+		bd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+
+		hr = renderer.GetD3DDevice()->CreateBuffer(&bd, nullptr, &_vtxBuffer);
+		if (FAILED(hr)) {
+			SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("创建顶点缓冲区失败", hr));
+			return false;
+		}
+
+		if (!renderer.GetSampler(EffectSamplerFilterType::Linear, &_linearSam)
+			|| !renderer.GetSampler(EffectSamplerFilterType::Point, &_pointSam)
+		) {
+			SPDLOG_LOGGER_ERROR(logger, "GetSampler 失败");
+			return false;
+		}
+
+		_monoCursorSize = { GetSystemMetrics(SM_CXCURSOR), GetSystemMetrics(SM_CYCURSOR) };
+
+		D3D11_TEXTURE2D_DESC desc{};
+		desc.Width = _monoCursorSize.cx;
+		desc.Height = _monoCursorSize.cy;
+		desc.MipLevels = 1;
+		desc.ArraySize = 1;
+		desc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
+		desc.SampleDesc.Count = 1;
+		desc.SampleDesc.Quality = 0;
+		desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
+		desc.Usage = D3D11_USAGE_DEFAULT;
+
+		hr = _d3dDevice->CreateTexture2D(&desc, nullptr, &_monoTmpTexture);
+		if (FAILED(hr)) {
+			SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("创建 Texture2D 失败", hr));
+			return false;
+		}
+
+		if (!renderer.GetRenderTargetView(_monoTmpTexture.Get(), &_monoTmpRtv)) {
+			SPDLOG_LOGGER_ERROR(logger, "GetRenderTargetView 失败");
+			return false;
+		}
+
+		if (!renderer.GetShaderResourceView(_monoTmpTexture.Get(), &_monoTmpSrv)) {
+			SPDLOG_LOGGER_ERROR(logger, "GetShaderResourceView 失败");
+			return false;
+		}
+
+		D3D11_TEXTURE2D_DESC rtDesc;
+		renderTarget->GetDesc(&rtDesc);
+
+		_renderTargetSize = { (long)rtDesc.Width, (long)rtDesc.Height };
+
+		_destRect = destRect;
+
+		const RECT& srcClient = app.GetSrcClientRect();
+		SIZE srcSize = { srcClient.right - srcClient.left, srcClient.bottom - srcClient.top };
+
+		_scaleX = float(_destRect.right - _destRect.left) / srcSize.cx;
+		_scaleY = float(_destRect.bottom - _destRect.top) / srcSize.cy;
+
+		SPDLOG_LOGGER_INFO(logger, fmt::format("scaleX：{}，scaleY：{}", _scaleX, _scaleY));
 	}
 	
-	D3D11_BUFFER_DESC bd = {};
-	bd.Usage = D3D11_USAGE_DYNAMIC;
-	bd.ByteWidth = sizeof(VertexPositionTexture) * 4;
-	bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	bd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-
-	hr = renderer.GetD3DDevice()->CreateBuffer(&bd, nullptr, &_vtxBuffer);
-	if (FAILED(hr)) {
-		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("创建顶点缓冲区失败", hr));
-		return false;
-	}
-
-	if (!renderer.GetSampler(EffectSamplerFilterType::Linear, &_linearSam)
-		|| !renderer.GetSampler(EffectSamplerFilterType::Point, &_pointSam)
-	) {
-		SPDLOG_LOGGER_ERROR(logger, "GetSampler 失败");
-		return false;
-	}
-
-	_monoCursorSize = { GetSystemMetrics(SM_CXCURSOR), GetSystemMetrics(SM_CYCURSOR) };
-
-	D3D11_TEXTURE2D_DESC desc{};
-	desc.Width = _monoCursorSize.cx;
-	desc.Height = _monoCursorSize.cy;
-	desc.MipLevels = 1;
-	desc.ArraySize = 1;
-	desc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
-	desc.SampleDesc.Count = 1;
-	desc.SampleDesc.Quality = 0;
-	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
-	desc.Usage = D3D11_USAGE_DEFAULT;
-
-	hr = _d3dDevice->CreateTexture2D(&desc, nullptr, &_monoTmpTexture);
-	if (FAILED(hr)) {
-		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("创建 Texture2D 失败", hr));
-		return false;
-	}
-
-	if (!renderer.GetRenderTargetView(_monoTmpTexture.Get(), &_monoTmpRtv)) {
-		SPDLOG_LOGGER_ERROR(logger, "GetRenderTargetView 失败");
-		return false;
-	}
-	
-	if (!renderer.GetShaderResourceView(_monoTmpTexture.Get(), &_monoTmpSrv)) {
-		SPDLOG_LOGGER_ERROR(logger, "GetShaderResourceView 失败");
-		return false;
-	}
-
-	D3D11_TEXTURE2D_DESC rtDesc;
-	renderTarget->GetDesc(&rtDesc);
-
-	_renderTargetSize = { (long)rtDesc.Width, (long)rtDesc.Height };
-
-	_destRect = destRect;
-
-	const RECT& srcClient = app.GetSrcClientRect();
-	SIZE srcSize = { srcClient.right - srcClient.left, srcClient.bottom - srcClient.top };
-
-	_scaleX = float(_destRect.right - _destRect.left) / srcSize.cx;
-	_scaleY = float(_destRect.bottom - _destRect.top) / srcSize.cy;
-
-	SPDLOG_LOGGER_INFO(logger, fmt::format("scaleX：{}，scaleY：{}", _scaleX, _scaleY));
-	
-	// 限制鼠标在窗口内
-	if (!ClipCursor(&App::GetInstance().GetSrcClientRect())) {
-		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("ClipCursor 失败"));
+	// 限制光标在窗口内
+	// 为了在 3D 游戏中起作用，每隔一定时间执行一次
+	if (!app.RegisterTimer(50, []() {
+		ClipCursor(&App::GetInstance().GetSrcClientRect());
+	})) {
+		// 注册定时器失败，仅尝试一次
+		SPDLOG_LOGGER_ERROR(logger, "注册定时器失败");
+		if (!ClipCursor(&App::GetInstance().GetSrcClientRect())) {
+			SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("ClipCursor 失败"));
+		}
 	}
 
 	if (App::GetInstance().IsAdjustCursorSpeed()) {
@@ -123,6 +132,7 @@ bool CursorDrawer::Initialize(ComPtr<ID3D11Texture2D> renderTarget, const RECT& 
 }
 
 CursorDrawer::~CursorDrawer() {
+	// CursorDrawer 析构时计时器已销毁
 	ClipCursor(nullptr);
 
 	if (App::GetInstance().IsAdjustCursorSpeed()) {
@@ -322,6 +332,11 @@ bool CursorDrawer::_ResolveCursor(HCURSOR hCursor, _CursorInfo& result) const {
 }
 
 void CursorDrawer::Draw() {
+	if (App::GetInstance().IsNoCursor()) {
+		// 不绘制光标
+		return;
+	}
+
 	CURSORINFO ci{};
 	ci.cbSize = sizeof(ci);
 	if (!GetCursorInfo(&ci)) {
