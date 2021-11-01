@@ -5,6 +5,8 @@ using System;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
+using System.Reflection;
+using System.Security.Principal;
 using System.Threading;
 using System.Windows;
 
@@ -55,6 +57,36 @@ namespace Magpie {
 
 			Logger.Info($"程序启动\n\t进程 ID：{Process.GetCurrentProcess().Id}\n\tMagpie 版本：{APP_VERSION}\n\tOS 版本：{NativeMethods.GetOSVersion()}");
 
+			if (!string.IsNullOrEmpty(Settings.Default.CultureName)) {
+				Thread.CurrentThread.CurrentCulture = Thread.CurrentThread.CurrentUICulture =
+					CultureInfo.GetCultureInfo(Settings.Default.CultureName);
+			}
+			Logger.Info($"当前语言：{Thread.CurrentThread.CurrentUICulture.Name}");
+
+			// 检测管理员权限
+			if (Settings.Default.RunAsAdmin && !IsRunAsAdministrator()) {
+				// 创建一个管理员权限的新进程
+				ProcessStartInfo processInfo = new ProcessStartInfo(Assembly.GetExecutingAssembly().CodeBase) {
+					UseShellExecute = true,
+					Verb = "runas"
+				};
+
+				bool success = true;
+				try {
+					_ = Process.Start(processInfo);
+				} catch (Exception ex) {
+					// 失败时以普通权限运行
+					success = false;
+					_ = MessageBox.Show(Magpie.Properties.Resources.Msg_Error_Run_As_Admin);
+					Logger.Error(ex, "启动管理员权限进程失败");
+				}
+
+				if (success) {
+					// 关闭当前进程
+					return;
+				}
+			}
+
 			// 不允许多个实例同时运行
 			if (!mutex.WaitOne(TimeSpan.Zero, true)) {
 				Logger.Info("已有实例，即将退出");
@@ -67,15 +99,16 @@ namespace Magpie {
 				return;
 			}
 
-			if (!string.IsNullOrEmpty(Settings.Default.CultureName)) {
-				Thread.CurrentThread.CurrentCulture = Thread.CurrentThread.CurrentUICulture =
-					CultureInfo.GetCultureInfo(Settings.Default.CultureName);
-			}
-			Logger.Info($"当前语言：{Thread.CurrentThread.CurrentUICulture.Name}");
-
 			MainWindow window = new MainWindow();
 			MainWindow = window;
 			window.Show();
+		}
+
+		private bool IsRunAsAdministrator() {
+			WindowsIdentity wi = WindowsIdentity.GetCurrent();
+			WindowsPrincipal wp = new WindowsPrincipal(wi);
+
+			return wp.IsInRole(WindowsBuiltInRole.Administrator);
 		}
 
 		private void Application_Exit(object sender, ExitEventArgs e) {

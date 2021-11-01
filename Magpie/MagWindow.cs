@@ -64,8 +64,17 @@ namespace Magpie {
 					}
 				}
 
+				bool initSuccess = false;
+				try {
+					initSuccess = NativeMethods.Initialize(ResolveLogLevel(Settings.Default.LoggingLevel));
+					if (!initSuccess) {
+						Logger.Error("Initialize 失败");
+					}
+				} catch (Exception e) {
+					Logger.Error(e, "Initialize 失败");
+				}
 
-				if (!NativeMethods.Initialize(ResolveLogLevel(Settings.Default.LoggingLevel))) {
+				if (!initSuccess) {
 					// 初始化失败
 					CloseEvent("Msg_Error_Init");
 					parent.Dispatcher.Invoke(() => {
