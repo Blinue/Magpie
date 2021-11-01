@@ -83,6 +83,7 @@ namespace Magpie {
 
 				if (success) {
 					// 关闭当前进程
+					Shutdown();
 					return;
 				}
 			}
