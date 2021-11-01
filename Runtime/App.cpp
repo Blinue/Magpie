@@ -56,6 +56,9 @@ bool App::Run(
 	_adjustCursorSpeed = adjustCursorSpeed;
 	_showFPS = showFPS;
 	_frameRate = frameRate;
+
+	// 每次进入全屏都要重置
+	_nextTimerId = 1;
 	
 	SetErrorMsg(ErrorMessages::GENERIC);
 
@@ -189,6 +192,18 @@ ComPtr<IWICImagingFactory2> App::GetWICImageFactory() {
     return _wicImgFactory;
 }
 
+bool App::RegisterTimer(UINT uElapse, std::function<void()> cb) {
+	if (!SetTimer(_hwndHost, _nextTimerId, uElapse, nullptr)) {
+		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("SetTimer 失败"));
+		return false;
+	}
+
+	++_nextTimerId;
+	_timerCbs.emplace_back(std::move(cb));
+
+	return true;
+}
+
 // 注册主窗口类
 void App::_RegisterHostWndClass() const {
 	WNDCLASSEX wcex = {};
@@ -216,7 +231,7 @@ bool App::_CreateHostWnd() {
 	_hostWndSize.cx = screenRect.right - screenRect.left;
 	_hostWndSize.cy = screenRect.bottom - screenRect.top;
 	_hwndHost = CreateWindowEx(
-		WS_EX_TOPMOST | WS_EX_NOACTIVATE | WS_EX_LAYERED | WS_EX_TRANSPARENT,
+		/*WS_EX_TOPMOST |*/ WS_EX_NOACTIVATE | WS_EX_LAYERED | WS_EX_TRANSPARENT,
 		_HOST_WINDOW_CLASS_NAME,
 		NULL, WS_CLIPCHILDREN | WS_POPUP | WS_VISIBLE,
 		screenRect.left,
@@ -259,12 +274,27 @@ LRESULT App::_HostWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		DestroyWindow(_hwndHost);
 		return 0;
 	}
-	if (message == WM_DESTROY) {
+
+	switch (message) {
+	case WM_DESTROY:
+	{
 		// 有两个退出路径：
 		// 1. 前台窗口发生改变
 		// 2. 收到_WM_DESTORYMAG 消息
 		PostQuitMessage(0);
 		return 0;
+	}
+	case WM_TIMER:
+	{
+		if (hWnd != _hwndHost || wParam <= 0 || wParam > _timerCbs.size()) {
+			break;
+		}
+
+		_timerCbs[wParam - 1]();
+		return 0;
+	}
+	default:
+		break;
 	}
 
 	return DefWindowProc(hWnd, message, wParam, lParam);
@@ -273,5 +303,7 @@ LRESULT App::_HostWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 void App::_ReleaseResources() {
 	_frameSource = nullptr;
 	_renderer = nullptr;
-}
 
+	// 计时器资源在窗口销毁时自动释放
+	_timerCbs.clear();
+}

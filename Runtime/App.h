@@ -79,6 +79,8 @@ public:
 
 	ComPtr<IWICImagingFactory2> GetWICImageFactory();
 
+	bool RegisterTimer(UINT uElapse, std::function<void()> cb);
+
 private:
 	App() {}
 
@@ -116,4 +118,8 @@ private:
 	std::unique_ptr<Renderer> _renderer;
 	std::unique_ptr<FrameSourceBase> _frameSource;
 	ComPtr<IWICImagingFactory2> _wicImgFactory;
+
+	UINT _nextTimerId = 1;
+	// 存储所有注册的计时器
+	std::vector<std::function<void()>> _timerCbs;
 };
