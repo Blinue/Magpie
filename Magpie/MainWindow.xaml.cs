@@ -344,6 +344,10 @@ namespace Magpie {
 		public void SetRuntimeLogLevel(int logLevel) {
 			magWindow.SetLogLevel(logLevel);
 		}
+
+		private void Window_Deactivated(object sender, EventArgs e) {
+			Settings.Default.Save();
+		}
 	}
 
 	public class NotifyIconLeftClickCommand : ICommand {

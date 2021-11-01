@@ -1,3 +1,4 @@
+using Magpie.Properties;
 using System;
 using System.Windows;
 using System.Windows.Controls;
@@ -29,6 +30,12 @@ namespace Magpie.Options {
 			}
 
 			contentFrame.Source = new Uri(OPTIONS_PAGES[idx], UriKind.Relative);
+
+			Settings.Default.Save();
+		}
+
+		private void Window_Deactivated(object sender, EventArgs e) {
+			Settings.Default.Save();
 		}
 	}
 }

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -128,7 +128,7 @@
     <value>..\Assets\Logo.ico;System.Drawing.Icon, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="Msg_Error_Generic" xml:space="preserve">
-    <value>An error occurred, please check the log for more information.</value>
+    <value>An error occurred, please check logs for more information.</value>
   </data>
   <data name="Msg_Error_GraphicsCapture" xml:space="preserve">
     <value>The window cannot be captured using GraphicsCapture.</value>
@@ -270,7 +270,7 @@
     <value>This change will be applied after restarting Magpie.</value>
   </data>
   <data name="UI_Options_Scale_Adjust_Cursor_Speed" xml:space="preserve">
-    <value>Adjust cursor speed while zoomed</value>
+    <value>Adjust Cursor Speed while Zoomed</value>
   </data>
   <data name="UI_Options_Scale_Cursor" xml:space="preserve">
     <value>Cursor</value>
@@ -279,7 +279,7 @@
     <value>Do not Draw the Cursor</value>
   </data>
   <data name="UI_Options_Scale_Disable_Round_Corner" xml:space="preserve">
-    <value>Disable round corner of window while zoomed</value>
+    <value>Disable Round Corner of Window while Zoomed</value>
   </data>
   <data name="UI_Options_Scale_Frame_Rate" xml:space="preserve">
     <value>Frame Rate</value>
@@ -297,7 +297,7 @@
     <value>Open Scale Config</value>
   </data>
   <data name="UI_Options_Scale_Restore_Full_Screen" xml:space="preserve">
-    <value>Restore full screen when source window loses focus</value>
+    <value>Restore Fullscreen when Source Window Regains Focus</value>
   </data>
   <data name="UI_Options_Scale_Show_Frame_Rate" xml:space="preserve">
     <value>Show Frame Rate</value>
