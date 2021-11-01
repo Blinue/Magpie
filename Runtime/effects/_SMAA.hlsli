@@ -50,7 +50,7 @@
   *
   * The shader has three passes, chained together as follows:
   *
-  *                           |input|------------------�
+  *                           |input|------------------·
   *                              v                     |
   *                    [ SMAA*EdgeDetection ]          |
   *                              v                     |
@@ -60,7 +60,7 @@
   *                              v                     |
   *                          |blendTex|                |
   *                              v                     |
-  *                [ SMAANeighborhoodBlending ] <------�
+  *                [ SMAANeighborhoodBlending ] <------·
   *                              v
   *                           |output|
   *
@@ -145,6 +145,8 @@
   *
   *     For example:
   *         #define SMAA_RT_METRICS float4(1.0 / 1280.0, 1.0 / 720.0, 1280.0, 720.0)
+  *         #define SMAA_LINEAR_SAMPLER LinearSampler
+  *         #define SMAA_POINT_SAMPLER PointSampler
   *         #define SMAA_PRESET_HIGH
   *         #include "SMAA.h"
   *
