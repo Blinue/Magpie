@@ -68,7 +68,8 @@ namespace Magpie {
 				// 创建一个管理员权限的新进程
 				ProcessStartInfo processInfo = new ProcessStartInfo(Assembly.GetExecutingAssembly().CodeBase) {
 					UseShellExecute = true,
-					Verb = "runas"
+					Verb = "runas",
+					Arguments = string.Join(" ", e.Args)
 				};
 
 				bool success = true;
