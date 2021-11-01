@@ -291,9 +291,6 @@
     <CopyFileToFolders Include="effects\SharpBilinear.hlsl">
       <Filter>效果</Filter>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="effects\_FXAA.hlsl">
-      <Filter>效果</Filter>
-    </CopyFileToFolders>
     <CopyFileToFolders Include="effects\FXAA_MEDIUM.hlsl">
       <Filter>效果</Filter>
     </CopyFileToFolders>
@@ -301,6 +298,21 @@
       <Filter>效果</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="effects\FXAA_Ultra.hlsl">
+      <Filter>效果</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="effects\_FXAA.hlsli">
+      <Filter>效果</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="effects\_SMAA.hlsli">
+      <Filter>效果</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="effects\SMAA.hlsl">
+      <Filter>效果</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="effects\SMAA_SearchTex.dds">
+      <Filter>效果</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="effects\SMAA_AreaTex.dds">
       <Filter>效果</Filter>
     </CopyFileToFolders>
   </ItemGroup>

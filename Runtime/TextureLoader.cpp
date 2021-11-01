@@ -187,6 +187,9 @@ ComPtr<ID3D11Texture2D> LoadDDS(const wchar_t* fileName) {
 		return nullptr;
 	}
 
+	D3D11_TEXTURE2D_DESC d;
+	tex->GetDesc(&d);
+
 	return tex;
 }
 

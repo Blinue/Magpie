@@ -27,7 +27,7 @@ SamplerState sam;
 //!BIND INPUT
 
 #define FXAA_PRESET 3
-#include "_FXAA.hlsl"
+#include "_FXAA.hlsli"
 
 
 float4 Pass1(float2 pos) {
