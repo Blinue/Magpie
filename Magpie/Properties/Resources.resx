@@ -139,6 +139,9 @@
   <data name="Msg_Error_Invalid_Source_Window" xml:space="preserve">
     <value>Invalid source window</value>
   </data>
+  <data name="Msg_Error_Run_As_Admin" xml:space="preserve">
+    <value>Failed to obtain administrator privileges.</value>
+  </data>
   <data name="Msg_Error_Vsync_Off_Not_Supported" xml:space="preserve">
     <value>This monitor does not support turning off VSync.</value>
   </data>
@@ -244,6 +247,9 @@
   </data>
   <data name="UI_Options_Application" xml:space="preserve">
     <value>Application</value>
+  </data>
+  <data name="UI_Options_Application_Always_Run_As_Admin" xml:space="preserve">
+    <value>Always Run as Administrator</value>
   </data>
   <data name="UI_Options_Application_Language" xml:space="preserve">
     <value>Language</value>
