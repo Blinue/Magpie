@@ -208,10 +208,10 @@
       <DestinationFolders Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)assets</DestinationFolders>
     </None>
     <None Include="cpp.hint" />
-    <CopyFileToFolders Include="effects\_FXAA.hlsli">
+    <CopyFileToFolders Include="effects\FXAA.hlsli">
       <FileType>Document</FileType>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="effects\_SMAA.hlsli">
+    <CopyFileToFolders Include="effects\SMAA.hlsli">
       <FileType>Document</FileType>
     </CopyFileToFolders>
     <None Include="packages.config" />
@@ -334,7 +334,16 @@
     <CopyFileToFolders Include="effects\FXAA_Ultra.hlsl">
       <FileType>Document</FileType>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="effects\SMAA.hlsl">
+    <CopyFileToFolders Include="effects\SMAA_High.hlsl">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="effects\SMAA_Low.hlsl">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="effects\SMAA_Medium.hlsl">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="effects\SMAA_Ultra.hlsl">
       <FileType>Document</FileType>
     </CopyFileToFolders>
     <FxCompile Include="shaders\CopyPS.hlsl">

@@ -1,3 +1,12 @@
+// SMAA For Magpie
+// 移植自 https://github.com/iryoku/smaa
+// 根据 Magpie 的需求做了一些更改：
+// 1. 将 VS 的计算移到 PS 中
+// 2. 删除一些用不到的功能，如 predicated thresholding，temporal supersampling 等
+// 3. 添加两个采样器的预定义 SMAA_LINEAR_SAMPLER 和 SMAA_POINT_SAMPLER
+// 4. 删除跨平台相关的逻辑
+// 5. EdgeDetection 中不再使用 discard
+
 /**
  * Copyright (C) 2013 Jorge Jimenez (jorge@iryoku.com)
  * Copyright (C) 2013 Jose I. Echevarria (joseignacioechevarria@gmail.com)
@@ -394,7 +403,7 @@ float2 SMAALumaEdgeDetectionPS(float2 texcoord, SMAATexture2D(colorTex)) {
 
 	// Then discard if there is no edge:
 	if (dot(edges, float2(1.0, 1.0)) == 0.0)
-		return float2(0, 0);
+		return float2(0, 0);	// 不使用 discard
 
 	// Calculate right and bottom deltas:
 	float Lright = dot(SMAASamplePoint(colorTex, offset[1].xy).rgb, weights);
@@ -896,4 +905,3 @@ float4 SMAANeighborhoodBlendingPS(
 			return color;
 		}
 }
-
