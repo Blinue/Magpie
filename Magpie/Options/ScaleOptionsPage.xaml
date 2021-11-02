@@ -5,7 +5,7 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:Magpie.Options"
       xmlns:props="clr-namespace:Magpie.Properties"
-      mc:Ignorable="d" d:DesignWidth="400" Height="394.969">
+      mc:Ignorable="d" d:DesignWidth="400">
     <Page.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -35,6 +35,10 @@
             <CheckBox Content="{x:Static props:Resources.UI_Options_Scale_Adjust_Cursor_Speed}" 
                       Margin="0,15,0,0" 
                       IsChecked="{Binding Source={x:Static props:Settings.Default},Path=AdjustCursorSpeed,Mode=TwoWay}"/>
+            <StackPanel Orientation="Horizontal" Margin="0,15,0,0">
+                <Label Content="{x:Static props:Resources.UI_Options_Scale_Cursor_Zoom_Factor}" Padding="0" VerticalContentAlignment="Center" />
+                <ComboBox x:Name="cbbCursorZoomFactor" Margin="10,0,0,0" SelectionChanged="CbbCursorZoomFactor_SelectionChanged" />
+            </StackPanel>
         </StackPanel>
         
         <StackPanel Margin="0,20,0,0">
@@ -52,8 +56,8 @@
                 <Slider x:Name="sldFrameRate" 
                         IsEnabled="{Binding ElementName=rdbLimitFrameRate, Path=IsChecked,Mode=OneWay}" 
                         Value="{Binding Source={x:Static props:Settings.Default},Path=FrameRateLimit,Mode=TwoWay}" 
-                        Width="150" Minimum="30" Maximum="115" LargeChange="10" SmallChange="5" Margin="10,0,0,0" 
-                        TickFrequency="5" IsSnapToTickEnabled="True" />
+                        Width="200" Minimum="30" Maximum="144" LargeChange="10" SmallChange="5" Margin="10,0,0,0" 
+                        TickFrequency="1" IsSnapToTickEnabled="True" />
                 <Label IsEnabled="{Binding ElementName=rdbLimitFrameRate, Path=IsChecked,Mode=OneWay}"
                        Content="{Binding ElementName=sldFrameRate,Path=Value,Mode=OneWay}"
                        Padding="0" Margin="10,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Center" />

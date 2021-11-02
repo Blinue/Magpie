@@ -583,6 +583,15 @@ namespace Magpie.Properties {
         }
         
         /// <summary>
+        ///   查找类似 Zoom Factor of the Cursor 的本地化字符串。
+        /// </summary>
+        public static string UI_Options_Scale_Cursor_Zoom_Factor {
+            get {
+                return ResourceManager.GetString("UI_Options_Scale_Cursor_Zoom_Factor", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Allow Additional Latency to Improve Performance 的本地化字符串。
         /// </summary>
         public static string UI_Options_Scale_Disable_Low_Latency {

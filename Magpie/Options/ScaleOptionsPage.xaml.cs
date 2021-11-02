@@ -1,3 +1,4 @@
+using Magpie.Properties;
 using NLog;
 using System;
 using System.ComponentModel;
@@ -13,11 +14,29 @@ namespace Magpie.Options {
 	public partial class ScaleOptionsPage : Page {
 		private static Logger Logger { get; } = LogManager.GetCurrentClassLogger();
 
+		private static readonly float[] cursorZoomFactors = { 0.5f, 1.0f, 1.5f, 2.0f };
+
 		public ScaleOptionsPage() {
 			InitializeComponent();
 
 			if (NativeMethods.GetOSVersion() < new Version(10, 0, 22000)) {
 				ccbDisableRoundCorner.Visibility = Visibility.Collapsed;
+			}
+
+			cbbCursorZoomFactor.Items.Clear();
+			for (int i = 0; i < cursorZoomFactors.Length; ++i) {
+				_ = cbbCursorZoomFactor.Items.Add(new ComboBoxItem {
+					Content = cursorZoomFactors[i].ToString() + "x",
+					HorizontalContentAlignment = HorizontalAlignment.Right
+				});
+
+				if (Math.Abs(Settings.Default.CursorZoomFactor - cursorZoomFactors[i]) < 1e-5) {
+					cbbCursorZoomFactor.SelectedIndex = i;
+				}
+			}
+			if (cbbCursorZoomFactor.SelectedIndex < 0) {
+				Settings.Default.CursorZoomFactor = 1.0f;
+				cbbCursorZoomFactor.SelectedIndex = 2;
 			}
 		}
 
@@ -41,6 +60,14 @@ namespace Magpie.Options {
 			} catch (Exception ex) {
 				Logger.Error(ex, $"打开缩放配置失败\n\t缩放配置路径：{App.SCALE_MODELS_JSON_PATH}");
 			}
+		}
+
+		private void CbbCursorZoomFactor_SelectionChanged(object sender, SelectionChangedEventArgs e) {
+			if (cbbCursorZoomFactor.SelectedIndex < 0 || cbbCursorZoomFactor.SelectedIndex >= cursorZoomFactors.Length) {
+				return;
+			}
+
+			Settings.Default.CursorZoomFactor = cursorZoomFactors[cbbCursorZoomFactor.SelectedIndex];
 		}
 	}
 }
