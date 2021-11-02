@@ -62,6 +62,8 @@
                 </Grid>
             </ListBoxItem>
         </ListBox>
-        <Frame x:Name="contentFrame" NavigationUIVisibility="Hidden" Padding="20,20,20,0"/>
+        <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+            <Frame x:Name="contentFrame" NavigationUIVisibility="Hidden" Padding="20,20,20,20" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+        </ScrollViewer>
     </DockPanel>
 </Window>

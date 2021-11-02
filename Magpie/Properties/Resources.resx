@@ -278,6 +278,9 @@
   <data name="UI_Options_Scale_Cursor_Do_Not_Draw" xml:space="preserve">
     <value>Do not Draw the Cursor</value>
   </data>
+  <data name="UI_Options_Scale_Disable_Low_Latency" xml:space="preserve">
+    <value>Allow Additional Latency to Improve Performance</value>
+  </data>
   <data name="UI_Options_Scale_Disable_Round_Corner" xml:space="preserve">
     <value>Disable Round Corner of Window while Zoomed</value>
   </data>
@@ -295,6 +298,9 @@
   </data>
   <data name="UI_Options_Scale_Open_Scale_Config" xml:space="preserve">
     <value>Open Scale Config</value>
+  </data>
+  <data name="UI_Options_Scale_Performance" xml:space="preserve">
+    <value>Performance</value>
   </data>
   <data name="UI_Options_Scale_Restore_Full_Screen" xml:space="preserve">
     <value>Restore Fullscreen when Source Window Regains Focus</value>

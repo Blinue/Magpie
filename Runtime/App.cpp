@@ -50,7 +50,8 @@ bool App::Run(
 	bool adjustCursorSpeed,
 	bool showFPS,
 	bool disableRoundCorner,
-	int frameRate
+	int frameRate,
+	bool disableLowLatency
 ) {
 	_hwndSrc = hwndSrc;
 	_captureMode = captureMode;
@@ -58,6 +59,7 @@ bool App::Run(
 	_adjustCursorSpeed = adjustCursorSpeed;
 	_showFPS = showFPS;
 	_frameRate = frameRate;
+	_disableLowLatency = disableLowLatency;
 
 	// 每次进入全屏都要重置
 	_nextTimerId = 1;

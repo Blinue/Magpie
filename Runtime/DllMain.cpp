@@ -78,7 +78,8 @@ API_DECLSPEC const char* WINAPI Run(
 	bool adjustCursorSpeed,
 	bool showFPS,
 	bool disableRoundCorner,
-	int frameRate	// 0：垂直同步，负数：不限帧率，正数：限制的帧率
+	int frameRate,	// 0：垂直同步，负数：不限帧率，正数：限制的帧率
+	bool disableLowLatency
 ) {
 	SPDLOG_LOGGER_INFO(logger, fmt::format("运行时参数：\n\thwndSrc：{}\n\tcaptureMode：{}\n\tadjustCursorSpeed：{}\n\tshowFPS：{}\n\tdisableRoundCorner：{}\n\tframeRate：{}", (void*)hwndSrc, captureMode, adjustCursorSpeed, showFPS, disableRoundCorner, frameRate));
 
@@ -87,7 +88,9 @@ API_DECLSPEC const char* WINAPI Run(
 		version.dwMajorVersion, version.dwMinorVersion, version.dwBuildNumber));
 
 	App& app = App::GetInstance();
-	if (!app.Run(hwndSrc, effectsJson, captureMode, noCursor, adjustCursorSpeed, showFPS, disableRoundCorner, frameRate)) {
+	if (!app.Run(hwndSrc, effectsJson, captureMode, noCursor, adjustCursorSpeed,
+		showFPS, disableRoundCorner, frameRate, disableLowLatency)
+	) {
 		// 初始化失败
 		SPDLOG_LOGGER_INFO(logger, "App.Run 失败");
 		return app.GetErrorMsg();

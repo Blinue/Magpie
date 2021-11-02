@@ -23,7 +23,8 @@ public:
 		bool adjustCursorSpeed,
 		bool showFPS,
 		bool disableRoundCorner,
-		int frameRate
+		int frameRate,
+		bool disableLowLatency
 	);
 
 	HINSTANCE GetHInstance() const {
@@ -74,6 +75,10 @@ public:
 		return _frameRate;
 	}
 
+	bool IsDisableLowLatency() const {
+		return _disableLowLatency;
+	}
+
 	const char* GetErrorMsg() const {
 		return _errorMsg;
 	}
@@ -120,6 +125,7 @@ private:
 	bool _adjustCursorSpeed = false;
 	bool _showFPS = false;
 	int _frameRate = 0;
+	bool _disableLowLatency = false;
 
 	std::unique_ptr<Renderer> _renderer;
 	std::unique_ptr<FrameSourceBase> _frameSource;

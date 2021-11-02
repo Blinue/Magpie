@@ -289,7 +289,7 @@ bool Renderer::_InitD3D() {
 		sd.SampleDesc.Count = 1;
 		sd.SampleDesc.Quality = 0;
 		sd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT | DXGI_USAGE_SHADER_INPUT;
-		sd.BufferCount = 2;
+		sd.BufferCount = App::GetInstance().IsDisableLowLatency() ? 3 : 2;
 		sd.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
 		sd.Flags = frameRate != 0 ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT;
 
@@ -319,6 +319,9 @@ bool Renderer::_InitD3D() {
 				SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("SetMaximumFrameLatency 失败", hr));
 			}
 		} else {
+			// 关闭低延迟模式时将最大延迟设为 2 以使 CPU 和 GPU 并行执行
+			_dxgiSwapChain->SetMaximumFrameLatency(App::GetInstance().IsDisableLowLatency() ? 2 : 1);
+
 			_frameLatencyWaitableObject.reset(_dxgiSwapChain->GetFrameLatencyWaitableObject());
 			if (!_frameLatencyWaitableObject) {
 				SPDLOG_LOGGER_ERROR(logger, "GetFrameLatencyWaitableObject 失败");

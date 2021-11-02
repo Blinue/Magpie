@@ -583,6 +583,15 @@ namespace Magpie.Properties {
         }
         
         /// <summary>
+        ///   查找类似 Allow Additional Latency to Improve Performance 的本地化字符串。
+        /// </summary>
+        public static string UI_Options_Scale_Disable_Low_Latency {
+            get {
+                return ResourceManager.GetString("UI_Options_Scale_Disable_Low_Latency", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Disable Round Corner of Window while Zoomed 的本地化字符串。
         /// </summary>
         public static string UI_Options_Scale_Disable_Round_Corner {
@@ -633,6 +642,15 @@ namespace Magpie.Properties {
         public static string UI_Options_Scale_Open_Scale_Config {
             get {
                 return ResourceManager.GetString("UI_Options_Scale_Open_Scale_Config", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Performance 的本地化字符串。
+        /// </summary>
+        public static string UI_Options_Scale_Performance {
+            get {
+                return ResourceManager.GetString("UI_Options_Scale_Performance", resourceCulture);
             }
         }
         
