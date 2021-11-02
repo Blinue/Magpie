@@ -23,12 +23,14 @@ namespace Magpie.Options {
 		};
 
 		private static string originCulture = null;
+		private static bool originRunAsAdmin = false;
 
 		public ApplicationOptionsPage() {
 			InitializeComponent();
 
 			if (originCulture == null) {
 				originCulture = Settings.Default.CultureName;
+				originRunAsAdmin = Settings.Default.RunAsAdmin;
 			}
 
 			// 第一项为系统默认语言
@@ -75,6 +77,14 @@ namespace Magpie.Options {
 			// 防止初始化时调用事件处理
 			ckbRunAtStartUp.Checked += CkbRunAtStartUp_Checked;
 			ckbMinimizeAtStartUp.Checked += CkbMinimizeAtStartUp_Checked;
+			ckbRunAsAdmin.Checked += CkbRunAsAdmin_Checked;
+			ckbRunAsAdmin.Unchecked += CkbRunAsAdmin_Unchecked;
+
+			if (ckbRunAsAdmin.IsChecked.Value) {
+				CkbRunAsAdmin_Checked(ckbRunAsAdmin, new RoutedEventArgs());
+			} else {
+				CkbRunAsAdmin_Unchecked(ckbRunAsAdmin, new RoutedEventArgs());
+			}
 		}
 
 		private void CbbLanguage_SelectionChanged(object sender, SelectionChangedEventArgs e) {
@@ -86,11 +96,11 @@ namespace Magpie.Options {
 					: supportedCultures[cbbLanguage.SelectedIndex - 1];
 
 				// 提示信息的语言为将要切换的语言
-				lblRestartToApply.Content = Properties.Resources.ResourceManager.GetString(
+				lblRestartToApply1.Content = Properties.Resources.ResourceManager.GetString(
 					"UI_Options_Common_Restart_To_Apply", cultureInfo);
-				lblRestartToApply.Visibility = Visibility.Visible;
+				lblRestartToApply1.Visibility = Visibility.Visible;
 			} else {
-				lblRestartToApply.Visibility = Visibility.Collapsed;
+				lblRestartToApply1.Visibility = Visibility.Collapsed;
 			}
 		}
 
@@ -116,6 +126,14 @@ namespace Magpie.Options {
 
 		private void CkbMinimizeAtStartUp_Unchecked(object sender, RoutedEventArgs e) {
 			CreateShortCut();
+		}
+
+		private void CkbRunAsAdmin_Checked(object sender, RoutedEventArgs e) {
+			lblRestartToApply2.Visibility = originRunAsAdmin ? Visibility.Collapsed : Visibility.Visible;
+		}
+
+		private void CkbRunAsAdmin_Unchecked(object sender, RoutedEventArgs e) {
+			lblRestartToApply2.Visibility = originRunAsAdmin ? Visibility.Visible : Visibility.Collapsed;
 		}
 	}
 }
