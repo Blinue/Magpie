@@ -8,7 +8,7 @@ public:
 	GDIFrameSource() {};
 	virtual ~GDIFrameSource() {}
 
-	bool Initialize() override;
+	bool Initialize(SIZE& frameSize) override;
 
 	ComPtr<ID3D11Texture2D> GetOutput() override;
 

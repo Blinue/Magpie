@@ -12,7 +12,7 @@ public:
 	FrameSourceBase(const FrameSourceBase&) = delete;
 	FrameSourceBase(FrameSourceBase&&) = delete;
 
-	virtual bool Initialize() = 0;
+	virtual bool Initialize(SIZE& frameSize) = 0;
 
 	virtual ComPtr<ID3D11Texture2D> GetOutput() = 0;
 

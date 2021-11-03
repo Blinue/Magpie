@@ -8,7 +8,7 @@ public:
 	DwmSharedSurfaceFrameSource() {}
 	virtual ~DwmSharedSurfaceFrameSource() {}
 
-	bool Initialize() override;
+	bool Initialize(SIZE& frameSize) override;
 
 	ComPtr<ID3D11Texture2D> GetOutput() override;
 

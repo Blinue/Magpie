@@ -80,7 +80,8 @@ RTL_OSVERSIONINFOW _GetOSVersion() {
 		return {};
 	}
 
-	RTL_OSVERSIONINFOW version;
+	RTL_OSVERSIONINFOW version{};
+	version.dwOSVersionInfoSize = sizeof(version);
 	rtlGetVersion(&version);
 
 	return version;

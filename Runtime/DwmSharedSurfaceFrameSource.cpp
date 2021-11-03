@@ -6,7 +6,7 @@
 extern std::shared_ptr<spdlog::logger> logger;
 
 
-bool DwmSharedSurfaceFrameSource::Initialize() {
+bool DwmSharedSurfaceFrameSource::Initialize(SIZE& frameSize) {
 	_dwmGetDxSharedSurface = (_DwmGetDxSharedSurfaceFunc*)GetProcAddress(
 		GetModuleHandle(L"user32.dll"), "DwmGetDxSharedSurface");
 
@@ -19,26 +19,65 @@ bool DwmSharedSurfaceFrameSource::Initialize() {
 	_d3dDevice = App::GetInstance().GetRenderer().GetD3DDevice();
 	_hwndSrc = App::GetInstance().GetHwndSrc();
 
-	RECT srcWindowRect;
-	if (!GetWindowRect(_hwndSrc, &srcWindowRect)) {
-		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetWindowRect 失败"));
-		return false;
+	POINT clientOffset;
+	float dpiScale;
+	{
+		HDC hdcSrcClient = GetDCEx(_hwndSrc, NULL, DCX_LOCKWINDOWUPDATE);
+		if (!hdcSrcClient) {
+			return false;
+		}
+		HDC hdcSrcWindow = GetDCEx(_hwndSrc, NULL, DCX_LOCKWINDOWUPDATE | DCX_WINDOW);
+		if (!hdcSrcWindow) {
+			return false;
+		}
+
+		HBITMAP hBmpDest = (HBITMAP)GetCurrentObject(hdcSrcWindow, OBJ_BITMAP);
+		if (!hBmpDest) {
+			SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetCurrentObject 失败"));
+			return false;
+		}
+
+		BITMAP bmp{};
+		GetObject(hBmpDest, sizeof(bmp), &bmp);
+		POINT p1{}, p2{};
+		GetDCOrgEx(hdcSrcClient, &p1);
+		GetDCOrgEx(hdcSrcWindow, &p2);
+		ReleaseDC(_hwndSrc, hdcSrcClient);
+		ReleaseDC(_hwndSrc, hdcSrcWindow);
+
+
+		SIZE realWindowSize = { bmp.bmWidth, bmp.bmHeight };
+
+		RECT srcWindowRect;
+		if (!GetWindowRect(_hwndSrc, &srcWindowRect)) {
+			SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetWindowRect 失败"));
+			return false;
+		}
+
+		clientOffset = { p1.x - p2.x, p1.y - p2.y };
+		dpiScale = float(srcWindowRect.right - srcWindowRect.left) / realWindowSize.cx;
 	}
-	const RECT srcClientRect = App::GetInstance().GetSrcClientRect();
+	
+
+	RECT srcClientRect = App::GetInstance().GetSrcClientRect();
+	frameSize = { 
+		(LONG)ceilf((srcClientRect.right - srcClientRect.left) / dpiScale),
+		(LONG)ceilf((srcClientRect.bottom - srcClientRect.top) / dpiScale)
+	};
 	
 	_clientInFrame = {
-		UINT(srcClientRect.left - srcWindowRect.left),
-		UINT(srcClientRect.top - srcWindowRect.top),
+		UINT(clientOffset.x),
+		UINT(clientOffset.y),
 		0,
-		UINT(srcClientRect.right - srcWindowRect.left),
-		UINT(srcClientRect.bottom - srcWindowRect.top),
+		UINT(clientOffset.x + frameSize.cx),
+		UINT(clientOffset.y + frameSize.cy),
 		1
 	};
 
 	D3D11_TEXTURE2D_DESC desc{};
 	desc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
-	desc.Width = srcClientRect.right - srcClientRect.left;
-	desc.Height = srcClientRect.bottom - srcClientRect.top;
+	desc.Width = frameSize.cx;
+	desc.Height = frameSize.cy;
 	desc.MipLevels = 1;
 	desc.ArraySize = 1;
 	desc.SampleDesc.Count = 1;

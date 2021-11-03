@@ -5,7 +5,7 @@
 
 extern std::shared_ptr<spdlog::logger> logger;
 
-bool GDIOverDXGIFrameSource::Initialize() {
+bool GDIOverDXGIFrameSource::Initialize(SIZE& frameSize) {
 	_hwndSrc = App::GetInstance().GetHwndSrc();
 	const RECT& srcClientRect = App::GetInstance().GetSrcClientRect();
 

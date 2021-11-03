@@ -15,7 +15,16 @@ using namespace Windows::Foundation::Metadata;
 
 extern std::shared_ptr<spdlog::logger> logger;
 
-bool GraphicsCaptureFrameSource::Initialize() {
+bool GraphicsCaptureFrameSource::Initialize(SIZE& frameSize) {
+	App::GetInstance().SetErrorMsg(ErrorMessages::GRAPHICS_CAPTURE);
+
+	// 只在 Win10 1903 及更新版本中可用
+	const RTL_OSVERSIONINFOW& version = Utils::GetOSVersion();
+	if (Utils::CompareVersion(version.dwMajorVersion, version.dwMinorVersion, version.dwBuildNumber, 10, 0, 18362) < 0) {
+		SPDLOG_LOGGER_ERROR(logger, "当前操作系统无法使用 GraphicsCapture");
+		return false;
+	}
+
 	_d3dDC = App::GetInstance().GetRenderer().GetD3DDC();
     HWND hwndSrc = App::GetInstance().GetHwndSrc();
 
@@ -28,6 +37,7 @@ bool GraphicsCaptureFrameSource::Initialize() {
     }
 
     const RECT& srcClient = App::GetInstance().GetSrcClientRect();
+	
     _clientInFrame = {
         UINT(srcClient.left - srcRect.left),
 		UINT(srcClient.top - srcRect.top),
@@ -37,18 +47,18 @@ bool GraphicsCaptureFrameSource::Initialize() {
 		1
     };
 
+	frameSize = { LONG(_clientInFrame.right - _clientInFrame.left), LONG(_clientInFrame.bottom - _clientInFrame.top) };
+
     try {
         // Windows.Graphics.Capture API 似乎只能运行于 MTA，造成诸多麻烦
         winrt::init_apartment(winrt::apartment_type::multi_threaded);
 
         if (!winrt::ApiInformation::IsTypePresent(L"Windows.Graphics.Capture.GraphicsCaptureSession")) {
             SPDLOG_LOGGER_ERROR(logger, "不存在 GraphicsCaptureSession API");
-            App::GetInstance().SetErrorMsg(ErrorMessages::GRAPHICS_CAPTURE);
             return false;
         }
         if (!winrt::GraphicsCaptureSession::IsSupported()) {
             SPDLOG_LOGGER_ERROR(logger, "当前不支持 WinRT 捕获");
-            App::GetInstance().SetErrorMsg(ErrorMessages::GRAPHICS_CAPTURE);
             return false;
         }
 
@@ -58,7 +68,6 @@ bool GraphicsCaptureFrameSource::Initialize() {
         );
         if (FAILED(hr)) {
             SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("创建 IDirect3DDevice 失败", hr));
-            App::GetInstance().SetErrorMsg(ErrorMessages::GRAPHICS_CAPTURE);
             return false;
         }
 
@@ -66,7 +75,6 @@ bool GraphicsCaptureFrameSource::Initialize() {
         auto interop = winrt::get_activation_factory<winrt::GraphicsCaptureItem, IGraphicsCaptureItemInterop>();
         if (!interop) {
             SPDLOG_LOGGER_ERROR(logger, "获取 IGraphicsCaptureItemInterop 失败");
-            App::GetInstance().SetErrorMsg(ErrorMessages::GRAPHICS_CAPTURE);
             return false;
         }
 
@@ -77,7 +85,6 @@ bool GraphicsCaptureFrameSource::Initialize() {
         );
         if (FAILED(hr)) {
             SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("创建 GraphicsCaptureItem 失败", hr));
-            App::GetInstance().SetErrorMsg(ErrorMessages::GRAPHICS_CAPTURE);
             return false;
         }
 
@@ -105,15 +112,14 @@ bool GraphicsCaptureFrameSource::Initialize() {
         _captureSession.StartCapture();
     } catch (const winrt::hresult_error& e) {
         SPDLOG_LOGGER_ERROR(logger, fmt::format("初始化 WinRT 失败：{}", StrUtils::UTF16ToUTF8(e.message())));
-        App::GetInstance().SetErrorMsg(ErrorMessages::GRAPHICS_CAPTURE);
         return false;
     }
 
 
     D3D11_TEXTURE2D_DESC desc{};
     desc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
-    desc.Width = _clientInFrame.right - _clientInFrame.left;
-    desc.Height = _clientInFrame.bottom - _clientInFrame.top;
+	desc.Width = frameSize.cx;
+    desc.Height = frameSize.cy;
     desc.MipLevels = 1;
     desc.ArraySize = 1;
     desc.SampleDesc.Count = 1;
@@ -125,6 +131,7 @@ bool GraphicsCaptureFrameSource::Initialize() {
         return false;
     }
 
+	App::GetInstance().SetErrorMsg(ErrorMessages::GENERIC);
     SPDLOG_LOGGER_INFO(logger, "GraphicsCaptureFrameSource 初始化完成");
     return true;
 }
