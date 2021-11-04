@@ -7,7 +7,7 @@
 extern std::shared_ptr<spdlog::logger> logger;
 
 
-bool GDIFrameSource::Initialize(SIZE& frameSize) {
+bool GDIFrameSource::Initialize() {
 	_hwndSrc = App::GetInstance().GetHwndSrc();
 	_d3dDC = App::GetInstance().GetRenderer().GetD3DDC();
 

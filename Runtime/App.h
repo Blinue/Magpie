@@ -39,10 +39,6 @@ public:
 		return _srcClientRect;
 	}
 
-	SIZE GetSrcFrameSize() const {
-		return _srcFrameSize;
-	}
-
 	HWND GetHwndHost() const {
 		return _hwndHost;
 	}
@@ -123,7 +119,6 @@ private:
 
 	SIZE _hostWndSize{};
 	RECT _srcClientRect{};
-	SIZE _srcFrameSize{};	// 源窗口画面尺寸，由于 GUI 缩放不一定和 _srcClientRect 大小相同
 
 	int _captureMode = 0;
 	bool _noCursor = false;

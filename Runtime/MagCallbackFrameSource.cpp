@@ -11,7 +11,7 @@ MagCallbackFrameSource::~MagCallbackFrameSource() {
 	DestroyWindow(_hwndMag);
 }
 
-bool MagCallbackFrameSource::Initialize(SIZE& frameSize) {
+bool MagCallbackFrameSource::Initialize() {
 	HWND hwndHost = App::GetInstance().GetHwndHost();
 	const RECT& srcClientRect = App::GetInstance().GetSrcClientRect();
 

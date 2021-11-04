@@ -6,7 +6,7 @@
 extern std::shared_ptr<spdlog::logger> logger;
 
 
-bool DwmSharedSurfaceFrameSource::Initialize(SIZE& frameSize) {
+bool DwmSharedSurfaceFrameSource::Initialize() {
 	_dwmGetDxSharedSurface = (_DwmGetDxSharedSurfaceFunc*)GetProcAddress(
 		GetModuleHandle(L"user32.dll"), "DwmGetDxSharedSurface");
 
@@ -18,61 +18,12 @@ bool DwmSharedSurfaceFrameSource::Initialize(SIZE& frameSize) {
 	_d3dDC = App::GetInstance().GetRenderer().GetD3DDC();
 	_d3dDevice = App::GetInstance().GetRenderer().GetD3DDevice();
 	_hwndSrc = App::GetInstance().GetHwndSrc();
-
-	POINT clientOffset;
-	float dpiScale;
-	{
-		HDC hdcSrcClient = GetDCEx(_hwndSrc, NULL, DCX_LOCKWINDOWUPDATE);
-		if (!hdcSrcClient) {
-			return false;
-		}
-		HDC hdcSrcWindow = GetDCEx(_hwndSrc, NULL, DCX_LOCKWINDOWUPDATE | DCX_WINDOW);
-		if (!hdcSrcWindow) {
-			return false;
-		}
-
-		HBITMAP hBmpDest = (HBITMAP)GetCurrentObject(hdcSrcWindow, OBJ_BITMAP);
-		if (!hBmpDest) {
-			SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetCurrentObject 失败"));
-			return false;
-		}
-
-		BITMAP bmp{};
-		GetObject(hBmpDest, sizeof(bmp), &bmp);
-		POINT p1{}, p2{};
-		GetDCOrgEx(hdcSrcClient, &p1);
-		GetDCOrgEx(hdcSrcWindow, &p2);
-		ReleaseDC(_hwndSrc, hdcSrcClient);
-		ReleaseDC(_hwndSrc, hdcSrcWindow);
-
-
-		SIZE realWindowSize = { bmp.bmWidth, bmp.bmHeight };
-
-		RECT srcWindowRect;
-		if (!GetWindowRect(_hwndSrc, &srcWindowRect)) {
-			SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetWindowRect 失败"));
-			return false;
-		}
-
-		clientOffset = { p1.x - p2.x, p1.y - p2.y };
-		dpiScale = float(srcWindowRect.right - srcWindowRect.left) / realWindowSize.cx;
+	
+	SIZE frameSize;
+	if (!_CalcFrameSize(frameSize)) {
+		SPDLOG_LOGGER_ERROR(logger, "_CalcFrameSize 失败");
+		return false;
 	}
-	
-
-	RECT srcClientRect = App::GetInstance().GetSrcClientRect();
-	frameSize = { 
-		(LONG)ceilf((srcClientRect.right - srcClientRect.left) / dpiScale),
-		(LONG)ceilf((srcClientRect.bottom - srcClientRect.top) / dpiScale)
-	};
-	
-	_clientInFrame = {
-		UINT(clientOffset.x),
-		UINT(clientOffset.y),
-		0,
-		UINT(clientOffset.x + frameSize.cx),
-		UINT(clientOffset.y + frameSize.cy),
-		1
-	};
 
 	D3D11_TEXTURE2D_DESC desc{};
 	desc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
@@ -115,5 +66,60 @@ bool DwmSharedSurfaceFrameSource::Update() {
 	
 	_d3dDC->CopySubresourceRegion(_output.Get(), 0, 0, 0, 0, sharedTexture.Get(), 0, &_clientInFrame);
 
+	return true;
+}
+
+
+bool DwmSharedSurfaceFrameSource::_CalcFrameSize(SIZE& frameSize) {
+	// 首先尝试 DPI 感知方式，失败时回落到普通方式
+
+	POINT clientOffset;
+	float dpiScale;
+	bool success = true;
+	if (!_GetDpiAwareWindowClientOffset(_hwndSrc, clientOffset)) {
+		SPDLOG_LOGGER_ERROR(logger, "_GetDpiAwareWindowClientOffset 失败");
+		success = false;
+	}
+	if (success && !_GetWindowDpiScale(_hwndSrc, dpiScale)) {
+		SPDLOG_LOGGER_ERROR(logger, "_GetWindowDpiScale 失败");
+		success = false;
+	}
+
+	if (success) {
+		RECT srcClientRect = App::GetInstance().GetSrcClientRect();
+		frameSize = {
+			(LONG)ceilf((srcClientRect.right - srcClientRect.left) / dpiScale),
+			(LONG)ceilf((srcClientRect.bottom - srcClientRect.top) / dpiScale)
+		};
+
+		_clientInFrame = {
+			UINT(clientOffset.x),
+			UINT(clientOffset.y),
+			0,
+			UINT(clientOffset.x + frameSize.cx),
+			UINT(clientOffset.y + frameSize.cy),
+			1
+		};
+	} else {
+		// 回落到普通方式
+		RECT srcWindowRect;
+		if (!GetWindowRect(_hwndSrc, &srcWindowRect)) {
+			SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetWindowRect 失败"));
+			return false;
+		}
+
+		const RECT srcClientRect = App::GetInstance().GetSrcClientRect();
+		_clientInFrame = {
+			UINT(srcClientRect.left - srcWindowRect.left),
+			UINT(srcClientRect.top - srcWindowRect.top),
+			0,
+			UINT(srcClientRect.right - srcWindowRect.left),
+			UINT(srcClientRect.bottom - srcWindowRect.top),
+			1
+		};
+
+		frameSize = { srcClientRect.right - srcClientRect.left, srcClientRect.bottom - srcClientRect.top };
+	}
+	
 	return true;
 }

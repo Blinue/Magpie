@@ -108,7 +108,7 @@ bool App::Run(
 		return false;
 	}
 	
-	if (!_frameSource->Initialize(_srcFrameSize)) {
+	if (!_frameSource->Initialize()) {
 		SPDLOG_LOGGER_CRITICAL(logger, "初始化 FrameSource 失败，即将退出");
 		DestroyWindow(_hwndHost);
 		_Run();

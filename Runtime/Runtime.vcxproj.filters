@@ -58,6 +58,7 @@
     <ClCompile Include="TextureLoader.cpp">
       <Filter>渲染</Filter>
     </ClCompile>
+    <ClCompile Include="FrameSourceBase.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="resource.h">

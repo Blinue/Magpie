@@ -7,7 +7,7 @@ public:
 	MagCallbackFrameSource() {};
 	virtual ~MagCallbackFrameSource();
 
-	bool Initialize(SIZE& frameSize) override;
+	bool Initialize() override;
 
 	ComPtr<ID3D11Texture2D> GetOutput() override;
 

@@ -188,6 +188,7 @@
     <ClCompile Include="EffectDrawer.cpp" />
     <ClCompile Include="EffectCompiler.cpp" />
     <ClCompile Include="FrameRateDrawer.cpp" />
+    <ClCompile Include="FrameSourceBase.cpp" />
     <ClCompile Include="GDIOverDXGIFrameSource.cpp" />
     <ClCompile Include="GDIFrameSource.cpp" />
     <ClCompile Include="MagCallbackFrameSource.cpp" />

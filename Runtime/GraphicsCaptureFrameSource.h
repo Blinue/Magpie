@@ -20,7 +20,7 @@ public:
 	GraphicsCaptureFrameSource() {};
 	virtual ~GraphicsCaptureFrameSource();
 
-	bool Initialize(SIZE& frameSize) override;
+	bool Initialize() override;
 
 	ComPtr<ID3D11Texture2D> GetOutput() override;
 

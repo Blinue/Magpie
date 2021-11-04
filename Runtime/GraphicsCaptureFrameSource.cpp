@@ -15,7 +15,7 @@ using namespace Windows::Foundation::Metadata;
 
 extern std::shared_ptr<spdlog::logger> logger;
 
-bool GraphicsCaptureFrameSource::Initialize(SIZE& frameSize) {
+bool GraphicsCaptureFrameSource::Initialize() {
 	App::GetInstance().SetErrorMsg(ErrorMessages::GRAPHICS_CAPTURE);
 
 	// 只在 Win10 1903 及更新版本中可用
@@ -47,7 +47,7 @@ bool GraphicsCaptureFrameSource::Initialize(SIZE& frameSize) {
 		1
     };
 
-	frameSize = { LONG(_clientInFrame.right - _clientInFrame.left), LONG(_clientInFrame.bottom - _clientInFrame.top) };
+	SIZE frameSize = { LONG(_clientInFrame.right - _clientInFrame.left), LONG(_clientInFrame.bottom - _clientInFrame.top) };
 
     try {
         // Windows.Graphics.Capture API 似乎只能运行于 MTA，造成诸多麻烦

@@ -8,7 +8,7 @@ public:
 	DwmSharedSurfaceFrameSource() {}
 	virtual ~DwmSharedSurfaceFrameSource() {}
 
-	bool Initialize(SIZE& frameSize) override;
+	bool Initialize() override;
 
 	ComPtr<ID3D11Texture2D> GetOutput() override;
 
@@ -19,6 +19,8 @@ public:
 	}
 
 private:
+	bool _CalcFrameSize(SIZE& frameSize);
+
 	using _DwmGetDxSharedSurfaceFunc = bool(
 		HWND hWnd,
 		HANDLE* phSurface,
