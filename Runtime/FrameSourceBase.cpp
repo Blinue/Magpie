@@ -43,6 +43,10 @@ bool FrameSourceBase::_GetWindowDpiScale(HWND hWnd, float& dpiScale) {
 }
 
 bool FrameSourceBase::_GetDpiAwareWindowClientOffset(HWND hWnd, POINT& clientOffset) {
+	// 使用 DPI 缩放也无法可靠计算出窗口客户区的位置
+	// 这里使用窗口 HDC 和客户区 HDC 的原点坐标差值
+	// GetDCOrgEx 获得的是 DC 原点的屏幕坐标
+
 	HDC hdcClient = GetDCEx(hWnd, NULL, DCX_LOCKWINDOWUPDATE);
 	if (!hdcClient) {
 		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetDCEx 失败"));

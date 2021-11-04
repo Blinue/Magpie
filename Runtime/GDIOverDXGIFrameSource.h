@@ -22,6 +22,7 @@ private:
 	ComPtr<ID3D11DeviceContext> _d3dDC;
 
 	HWND _hwndSrc = NULL;
+	SIZE _frameSize{};
 	ComPtr<IDXGISurface1> _dxgiSurface;
 	ComPtr<ID3D11Texture2D> _output;
 };

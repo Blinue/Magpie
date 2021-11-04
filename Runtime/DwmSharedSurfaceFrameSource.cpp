@@ -76,15 +76,24 @@ bool DwmSharedSurfaceFrameSource::_CalcFrameSize(SIZE& frameSize) {
 	POINT clientOffset;
 	float dpiScale;
 	bool success = true;
-	if (!_GetDpiAwareWindowClientOffset(_hwndSrc, clientOffset)) {
-		SPDLOG_LOGGER_ERROR(logger, "_GetDpiAwareWindowClientOffset 失败");
-		success = false;
-	}
-	if (success && !_GetWindowDpiScale(_hwndSrc, dpiScale)) {
+
+	if ( !_GetWindowDpiScale(_hwndSrc, dpiScale)) {
 		SPDLOG_LOGGER_ERROR(logger, "_GetWindowDpiScale 失败");
 		success = false;
 	}
 
+	SPDLOG_LOGGER_INFO(logger, fmt::format("源窗口 DPI 缩放为 {}", dpiScale));
+
+	if (abs(dpiScale - 1.0f) < 1e-5f) {
+		// 无 DPI 缩放，使用普通方式
+		success = false;
+	}
+
+	if (success && !_GetDpiAwareWindowClientOffset(_hwndSrc, clientOffset)) {
+		SPDLOG_LOGGER_ERROR(logger, "_GetDpiAwareWindowClientOffset 失败");
+		success = false;
+	}
+	
 	if (success) {
 		RECT srcClientRect = App::GetInstance().GetSrcClientRect();
 		frameSize = {

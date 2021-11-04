@@ -9,10 +9,27 @@ bool GDIOverDXGIFrameSource::Initialize() {
 	_hwndSrc = App::GetInstance().GetHwndSrc();
 	const RECT& srcClientRect = App::GetInstance().GetSrcClientRect();
 
+	float dpiScale = -1;
+	if (!_GetWindowDpiScale(_hwndSrc, dpiScale)) {
+		SPDLOG_LOGGER_ERROR(logger, "_GetWindowDpiScale 失败");
+	}
+
+	SPDLOG_LOGGER_INFO(logger, fmt::format("源窗口 DPI 缩放为 {}", dpiScale));
+
+	if (dpiScale > 0 && abs(dpiScale - 1.0f) > 1e-5f) {
+		// DPI 感知
+		_frameSize = {
+			(LONG)ceilf((srcClientRect.right - srcClientRect.left) / dpiScale),
+			(LONG)ceilf((srcClientRect.bottom - srcClientRect.top) / dpiScale)
+		};
+	} else {
+		_frameSize = { srcClientRect.right - srcClientRect.left, srcClientRect.bottom - srcClientRect.top };
+	}
+
 	D3D11_TEXTURE2D_DESC desc{};
 	desc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
-	desc.Width = srcClientRect.right - srcClientRect.left;
-	desc.Height = srcClientRect.bottom - srcClientRect.top;
+	desc.Width = _frameSize.cx;
+	desc.Height = _frameSize.cy;
 	desc.Usage = D3D11_USAGE_DEFAULT;
 	desc.MipLevels = 1;
 	desc.ArraySize = 1;
@@ -48,19 +65,18 @@ bool GDIOverDXGIFrameSource::Update() {
 		return false;
 	}
 
-	HDC hdcSrc = GetDCEx(_hwndSrc, NULL, DCX_LOCKWINDOWUPDATE);
-	if (!hdcSrc) {
+	HDC hdcSrcClient = GetDCEx(_hwndSrc, NULL, DCX_LOCKWINDOWUPDATE);
+	if (!hdcSrcClient) {
 		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetDC 失败"));
 		_dxgiSurface->ReleaseDC(nullptr);
 		return false;
 	}
 
-	const RECT& srcClientRect = App::GetInstance().GetSrcClientRect();
-	if (!BitBlt(hdcDest, 0, 0, srcClientRect.right - srcClientRect.left, srcClientRect.bottom - srcClientRect.top, hdcSrc, 0, 0, SRCCOPY)) {
+	if (!BitBlt(hdcDest, 0, 0, _frameSize.cx, _frameSize.cy, hdcSrcClient, 0, 0, SRCCOPY)) {
 		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("BitBlt 失败"));
 	}
 
-	ReleaseDC(_hwndSrc, hdcSrc);
+	ReleaseDC(_hwndSrc, hdcSrcClient);
 	_dxgiSurface->ReleaseDC(nullptr);
 
     return true;

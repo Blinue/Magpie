@@ -18,9 +18,9 @@ bool GDIFrameSource::Initialize() {
 		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetWindowRect 失败"));
 		return false;
 	}
-	_srcWndSize = { _srcWndRect.right - _srcWndRect.left, _srcWndRect.bottom - _srcWndRect.top };
+	_frameSize = { _srcWndRect.right - _srcWndRect.left, _srcWndRect.bottom - _srcWndRect.top };
 
-	_pixels.resize(static_cast<size_t>(_srcWndSize.cx) * _srcWndSize.cy * 4);
+	_pixels.resize(static_cast<size_t>(_frameSize.cx) * _frameSize.cy * 4);
 	
 	D3D11_TEXTURE2D_DESC desc{};
 	desc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
@@ -73,14 +73,14 @@ bool GDIFrameSource::Update() {
 	
 	BITMAPINFO bi{};
 	bi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
-	bi.bmiHeader.biWidth = _srcWndSize.cx;
-	bi.bmiHeader.biHeight = -_srcWndSize.cy;
+	bi.bmiHeader.biWidth = _frameSize.cx;
+	bi.bmiHeader.biHeight = -_frameSize.cy;
 	bi.bmiHeader.biPlanes = 1;
 	bi.bmiHeader.biCompression = BI_RGB;
 	bi.bmiHeader.biBitCount = 32;
 	bi.bmiHeader.biSizeImage = (DWORD)_pixels.size();
 
-	if (GetDIBits(hdcScreen, hBmpDest, 0, _srcWndSize.cy, _pixels.data(), &bi, DIB_RGB_COLORS) != _srcWndSize.cy) {
+	if (GetDIBits(hdcScreen, hBmpDest, 0, _frameSize.cy, _pixels.data(), &bi, DIB_RGB_COLORS) != _frameSize.cy) {
 		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetDIBits 失败"));
 		return false;
 	}
@@ -93,13 +93,13 @@ bool GDIFrameSource::Update() {
 		return false;
 	}
 
-	BYTE* pPixels = _pixels.data() + (_srcWndSize.cx * (_srcClientRect.top - _srcWndRect.top) 
+	BYTE* pPixels = _pixels.data() + (_frameSize.cx * (_srcClientRect.top - _srcWndRect.top) 
 		+ _srcClientRect.left - _srcWndRect.left) * 4;
 	BYTE* pData = (BYTE*)ms.pData;
 	for (int i = 0; i < _srcClientSize.cy; ++i) {
 		std::memcpy(pData, pPixels, static_cast<size_t>(_srcClientSize.cx) * 4);
 
-		pPixels += _srcWndSize.cx * 4;
+		pPixels += _frameSize.cx * 4;
 		pData += ms.RowPitch;
 	}
 
