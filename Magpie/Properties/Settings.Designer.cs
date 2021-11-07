@@ -226,5 +226,17 @@ namespace Magpie.Properties {
                 this["CursorZoomFactor"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool DebugShowAllCaptureMethods {
+            get {
+                return ((bool)(this["DebugShowAllCaptureMethods"]));
+            }
+            set {
+                this["DebugShowAllCaptureMethods"] = value;
+            }
+        }
     }
 }

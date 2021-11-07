@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -224,11 +224,8 @@
   <data name="UI_Options_Advanced" xml:space="preserve">
     <value>Advanced</value>
   </data>
-  <data name="UI_Options_Advanced_Buffer_Precision" xml:space="preserve">
-    <value>Intermediate Texture Precision</value>
-  </data>
-  <data name="UI_Options_Advanced_Buffer_Precision_Default" xml:space="preserve">
-    <value>Default</value>
+  <data name="UI_Options_Advanced_Debug" xml:space="preserve">
+    <value>Debug</value>
   </data>
   <data name="UI_Options_Advanced_Logging_Level" xml:space="preserve">
     <value>Logging Level</value>
@@ -244,6 +241,9 @@
   </data>
   <data name="UI_Options_Advanced_Logging_Level_Warn" xml:space="preserve">
     <value>Warn</value>
+  </data>
+  <data name="UI_Options_Advanced_Show_All_Capture_Methods" xml:space="preserve">
+    <value>Show All Capture Methods</value>
   </data>
   <data name="UI_Options_Application" xml:space="preserve">
     <value>Application</value>

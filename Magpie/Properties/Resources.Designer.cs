@@ -421,20 +421,11 @@ namespace Magpie.Properties {
         }
         
         /// <summary>
-        ///   查找类似 Intermediate Texture Precision 的本地化字符串。
+        ///   查找类似 Debug 的本地化字符串。
         /// </summary>
-        public static string UI_Options_Advanced_Buffer_Precision {
+        public static string UI_Options_Advanced_Debug {
             get {
-                return ResourceManager.GetString("UI_Options_Advanced_Buffer_Precision", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   查找类似 Default 的本地化字符串。
-        /// </summary>
-        public static string UI_Options_Advanced_Buffer_Precision_Default {
-            get {
-                return ResourceManager.GetString("UI_Options_Advanced_Buffer_Precision_Default", resourceCulture);
+                return ResourceManager.GetString("UI_Options_Advanced_Debug", resourceCulture);
             }
         }
         
@@ -480,6 +471,15 @@ namespace Magpie.Properties {
         public static string UI_Options_Advanced_Logging_Level_Warn {
             get {
                 return ResourceManager.GetString("UI_Options_Advanced_Logging_Level_Warn", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Show All Capture Methods 的本地化字符串。
+        /// </summary>
+        public static string UI_Options_Advanced_Show_All_Capture_Methods {
+            get {
+                return ResourceManager.GetString("UI_Options_Advanced_Show_All_Capture_Methods", resourceCulture);
             }
         }
         

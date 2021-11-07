@@ -196,12 +196,6 @@
   <data name="UI_Options_Advanced" xml:space="preserve">
     <value>Расширенные</value>
   </data>
-  <data name="UI_Options_Advanced_Buffer_Precision" xml:space="preserve">
-    <value>Промежуточная Точность Текстуры</value>
-  </data>
-  <data name="UI_Options_Advanced_Buffer_Precision_Default" xml:space="preserve">
-    <value>По умолчанию</value>
-  </data>
   <data name="UI_Options_Advanced_Logging_Level" xml:space="preserve">
     <value>Уровень регистрации</value>
   </data>

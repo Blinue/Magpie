@@ -20,7 +20,7 @@
         <CheckBox Content="{x:Static props:Resources.UI_Options_Scale_Show_Frame_Rate}" 
                   Margin="0,15,0,0" 
                   IsChecked="{Binding Source={x:Static props:Settings.Default},Path=ShowFPS,Mode=TwoWay}"/>
-        <CheckBox x:Name="ccbDisableRoundCorner"
+        <CheckBox x:Name="ckbDisableRoundCorner"
                   Content="{x:Static props:Resources.UI_Options_Scale_Disable_Round_Corner}"
                   Margin="0,15,0,0"
                   IsChecked="{Binding Source={x:Static props:Settings.Default},Path=DisableRoundCorner,Mode=TwoWay}" />

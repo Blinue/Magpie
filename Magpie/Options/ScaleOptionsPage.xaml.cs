@@ -20,7 +20,7 @@ namespace Magpie.Options {
 			InitializeComponent();
 
 			if (NativeMethods.GetOSVersion() < new Version(10, 0, 22000)) {
-				ccbDisableRoundCorner.Visibility = Visibility.Collapsed;
+				ckbDisableRoundCorner.Visibility = Visibility.Collapsed;
 			}
 
 			cbbCursorZoomFactor.Items.Clear();
