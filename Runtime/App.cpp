@@ -2,9 +2,10 @@
 #include "App.h"
 #include "Utils.h"
 #include "GraphicsCaptureFrameSource.h"
-#include "DwmSharedSurfaceFrameSource.h"
-#include "GDIOverDXGIFrameSource.h"
 #include "GDIFrameSource.h"
+#include "DwmSharedSurfaceFrameSource.h"
+#include "LegacyGDIFrameSource.h"
+#include "MagCallbackFrameSource.h"
 
 
 extern std::shared_ptr<spdlog::logger> logger;
@@ -93,13 +94,16 @@ bool App::Run(
 		_frameSource.reset(new GraphicsCaptureFrameSource());
 		break;
 	case 1:
-		_frameSource.reset(new DwmSharedSurfaceFrameSource());
+		_frameSource.reset(new GDIFrameSource());
 		break;
 	case 2:
-		_frameSource.reset(new GDIOverDXGIFrameSource());
+		_frameSource.reset(new DwmSharedSurfaceFrameSource());
 		break;
 	case 3:
-		_frameSource.reset(new GDIFrameSource());
+		_frameSource.reset(new LegacyGDIFrameSource());
+		break;
+	case 4:
+		_frameSource.reset(new MagCallbackFrameSource());
 		break;
 	default:
 		SPDLOG_LOGGER_CRITICAL(logger, "未知的捕获模式，即将退出");

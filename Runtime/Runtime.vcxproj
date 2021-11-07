@@ -166,8 +166,8 @@
     <ClInclude Include="FrameRateDrawer.h" />
     <ClInclude Include="FrameSourceBase.h" />
     <ClInclude Include="framework.h" />
-    <ClInclude Include="GDIOverDXGIFrameSource.h" />
     <ClInclude Include="GDIFrameSource.h" />
+    <ClInclude Include="LegacyGDIFrameSource.h" />
     <ClInclude Include="MagCallbackFrameSource.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Renderer.h" />
@@ -189,8 +189,8 @@
     <ClCompile Include="EffectCompiler.cpp" />
     <ClCompile Include="FrameRateDrawer.cpp" />
     <ClCompile Include="FrameSourceBase.cpp" />
-    <ClCompile Include="GDIOverDXGIFrameSource.cpp" />
     <ClCompile Include="GDIFrameSource.cpp" />
+    <ClCompile Include="LegacyGDIFrameSource.cpp" />
     <ClCompile Include="MagCallbackFrameSource.cpp" />
     <ClCompile Include="pch.cpp" />
     <ClCompile Include="DllMain.cpp" />

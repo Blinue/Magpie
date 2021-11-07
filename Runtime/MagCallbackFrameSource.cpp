@@ -62,6 +62,7 @@ bool MagCallbackFrameSource::Initialize() {
 		return false;
 	}
 
+	SPDLOG_LOGGER_INFO(logger, "MagCallbackFrameSource 初始化完成");
 	return true;
 }
 

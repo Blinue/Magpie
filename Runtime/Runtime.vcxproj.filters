@@ -7,10 +7,10 @@
     <ClCompile Include="DwmSharedSurfaceFrameSource.cpp">
       <Filter>捕获</Filter>
     </ClCompile>
-    <ClCompile Include="GDIOverDXGIFrameSource.cpp">
+    <ClCompile Include="GDIFrameSource.cpp">
       <Filter>捕获</Filter>
     </ClCompile>
-    <ClCompile Include="GDIFrameSource.cpp">
+    <ClCompile Include="LegacyGDIFrameSource.cpp">
       <Filter>捕获</Filter>
     </ClCompile>
     <ClCompile Include="MagCallbackFrameSource.cpp">
@@ -58,7 +58,9 @@
     <ClCompile Include="TextureLoader.cpp">
       <Filter>渲染</Filter>
     </ClCompile>
-    <ClCompile Include="FrameSourceBase.cpp" />
+    <ClCompile Include="FrameSourceBase.cpp">
+      <Filter>捕获</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="resource.h">
@@ -73,10 +75,10 @@
     <ClInclude Include="FrameSourceBase.h">
       <Filter>捕获</Filter>
     </ClInclude>
-    <ClInclude Include="GDIOverDXGIFrameSource.h">
+    <ClInclude Include="GDIFrameSource.h">
       <Filter>捕获</Filter>
     </ClInclude>
-    <ClInclude Include="GDIFrameSource.h">
+    <ClInclude Include="LegacyGDIFrameSource.h">
       <Filter>捕获</Filter>
     </ClInclude>
     <ClInclude Include="MagCallbackFrameSource.h">
