@@ -47,22 +47,15 @@ bool App::Run(
 	HWND hwndSrc,
 	const std::string& effectsJson,
 	int captureMode,
-	bool noCursor,
-	bool adjustCursorSpeed,
-	bool showFPS,
-	bool disableRoundCorner,
 	int frameRate,
-	bool disableLowLatency,
-	bool breakpointMode
+	UINT flags
 ) {
 	_hwndSrc = hwndSrc;
 	_captureMode = captureMode;
-	_noCursor = noCursor;
-	_adjustCursorSpeed = adjustCursorSpeed;
-	_showFPS = showFPS;
 	_frameRate = frameRate;
-	_disableLowLatency = disableLowLatency;
-	_breakpointMode = breakpointMode;
+	_flags = flags;
+
+	SPDLOG_LOGGER_INFO(logger, fmt::format("运行时参数：\n\thwndSrc：{}\n\tcaptureMode：{}\n\tadjustCursorSpeed：{}\n\tshowFPS：{}\n\tdisableRoundCorner：{}\n\tframeRate：{}\n\tdisableLowLatency：{}\n\tbreakpointMode：{}", (void*)hwndSrc, captureMode, IsAdjustCursorSpeed(), IsShowFPS(), IsDisableRoundCorner(), frameRate, IsDisableLowLatency(), IsBreakpointMode()));
 
 	// 每次进入全屏都要重置
 	_nextTimerId = 1;
@@ -130,7 +123,7 @@ bool App::Run(
 
 	// 合适时禁用窗口圆角
 	bool roundCornerDisabled = false;
-	if (disableRoundCorner && _frameSource->HasRoundCornerInWin11()) {
+	if (IsDisableRoundCorner() && _frameSource->HasRoundCornerInWin11()) {
 		const auto& version = Utils::GetOSVersion();
 		bool isWin11 = Utils::CompareVersion(
 			version.dwMajorVersion, version.dwMinorVersion,

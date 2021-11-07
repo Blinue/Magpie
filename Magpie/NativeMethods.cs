@@ -159,29 +159,18 @@ namespace Magpie {
 			IntPtr hwndSrc,
 			[MarshalAs(UnmanagedType.LPUTF8Str)] string effectsJson,
 			int captureMode,
-			[MarshalAs(UnmanagedType.U1)] bool noCursor,
-			[MarshalAs(UnmanagedType.U1)] bool adjustCursorSpeed,
-			[MarshalAs(UnmanagedType.U1)] bool showFPS,
-			[MarshalAs(UnmanagedType.U1)] bool disableRoundCorner,
 			int frameRate,
-			[MarshalAs(UnmanagedType.U1)] bool disableLowLatency,
-			[MarshalAs(UnmanagedType.U1)] bool breakpointMode
+			uint flags
 		);
 
 		public static string Run(
 			IntPtr hwndSrc,
 			string effectsJson,
 			int captureMode,
-			bool noCursor,
-			bool adjustCursorSpeed,
-			bool showFPS,
-			bool disableRoundCorner,
 			int frameRate,
-			bool disableLowLatency,
-			bool breakpointMode
+			uint flags
 		) {
-			IntPtr msg = RunNative(hwndSrc, effectsJson, captureMode, noCursor, adjustCursorSpeed,
-				showFPS, disableRoundCorner, frameRate, disableLowLatency, breakpointMode);
+			IntPtr msg = RunNative(hwndSrc, effectsJson, captureMode, frameRate, flags);
 			return Marshal.PtrToStringAnsi(msg);
 		}
 	}
