@@ -184,13 +184,6 @@ namespace Magpie {
 			}
 
 			string effectsJson = scaleModelManager.GetScaleModels()[Settings.Default.ScaleMode].Effects;
-			bool showFPS = Settings.Default.ShowFPS;
-			int captureMode = Settings.Default.CaptureMode;
-			bool noCursor = Settings.Default.NoCursor;
-			bool adjustCursorSpeed = Settings.Default.AdjustCursorSpeed;
-			bool disableRoundCorner = Settings.Default.DisableRoundCorner;
-			bool disableLowLatency = Settings.Default.DisableLowLatency;
-			bool breakpointMode = Settings.Default.DebugBreakpointMode;
 
 			int frameRate = 0;
 			switch (Settings.Default.FrameRateType) {
@@ -209,14 +202,15 @@ namespace Magpie {
 
 			magWindow.Create(
 				effectsJson,
-				captureMode,
-				showFPS,
-				noCursor,
-				adjustCursorSpeed,
-				disableRoundCorner,
+				Settings.Default.CaptureMode,
+				Settings.Default.ShowFPS,
+				Settings.Default.NoCursor,
+				Settings.Default.AdjustCursorSpeed,
+				Settings.Default.DisableRoundCorner,
+				Settings.Default.DisableWindowResizing,
 				frameRate,
-				disableLowLatency,
-				breakpointMode
+				Settings.Default.DisableLowLatency,
+				Settings.Default.DebugBreakpointMode
 			);
 
 			prevSrcWindow = magWindow.SrcWindow;

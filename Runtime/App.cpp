@@ -121,7 +121,7 @@ bool App::Run(
 		return false;
 	}
 
-	// 合适时禁用窗口圆角
+	// 禁用窗口圆角
 	bool roundCornerDisabled = false;
 	if (IsDisableRoundCorner() && _frameSource->HasRoundCornerInWin11()) {
 		const auto& version = Utils::GetOSVersion();
@@ -141,7 +141,32 @@ bool App::Run(
 		}
 	}
 
+	// 禁用窗口大小调整
+	bool windowResizingDisabled = false;
+	if (IsDisableWindowResizing()) {
+		LONG_PTR style = GetWindowLongPtr(hwndSrc, GWL_STYLE);
+		if (style & WS_THICKFRAME) {
+			if (SetWindowLongPtr(hwndSrc, GWL_STYLE, style ^ WS_THICKFRAME)) {
+				SPDLOG_LOGGER_INFO(logger, "已禁用窗口大小调整");
+				windowResizingDisabled = true;
+			} else {
+				SPDLOG_LOGGER_ERROR(logger, "禁用窗口大小调整失败");
+			}
+		}
+	}
+
 	_Run();
+
+	if (windowResizingDisabled) {
+		LONG_PTR style = GetWindowLongPtr(hwndSrc, GWL_STYLE);
+		if (!(style & WS_THICKFRAME)) {
+			if (SetWindowLongPtr(hwndSrc, GWL_STYLE, style | WS_THICKFRAME)) {
+				SPDLOG_LOGGER_INFO(logger, "已取消禁用窗口大小调整");
+			} else {
+				SPDLOG_LOGGER_ERROR(logger, "取消禁用窗口大小调整失败");
+			}
+		}
+	}
 
 	if (roundCornerDisabled) {
 		INT attr = DWMWCP_DEFAULT;

@@ -250,5 +250,17 @@ namespace Magpie.Properties {
                 this["DebugBreakpointMode"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool DisableWindowResizing {
+            get {
+                return ((bool)(this["DisableWindowResizing"]));
+            }
+            set {
+                this["DisableWindowResizing"] = value;
+            }
+        }
     }
 }

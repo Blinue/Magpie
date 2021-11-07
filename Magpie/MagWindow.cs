@@ -42,7 +42,8 @@ namespace Magpie {
 			ShowFPS = 0x4,
 			DisableRoundCorner = 0x8,
 			DisableLowLatency = 0x10,
-			BreakpointMode = 0x20
+			BreakpointMode = 0x20,
+			DisableWindowResizing = 0x40
 		}
 
 		private readonly MagWindowParams magWindowParams = new MagWindowParams();
@@ -146,6 +147,7 @@ namespace Magpie {
 			bool noCursor,
 			bool adjustCursorSpeed,
 			bool disableRoundCorner,
+			bool disableWindowResizing,
 			int frameRate,
 			bool disableLowLatency,
 			bool breakpointMode
@@ -176,7 +178,8 @@ namespace Magpie {
 				(adjustCursorSpeed ? (uint)FlagMasks.AdjustCursorSpeed : 0) |
 				(disableRoundCorner ? (uint)FlagMasks.DisableRoundCorner : 0) |
 				(disableLowLatency ? (uint)FlagMasks.DisableLowLatency : 0) |
-				(breakpointMode ? (uint)FlagMasks.BreakpointMode : 0);
+				(breakpointMode ? (uint)FlagMasks.BreakpointMode : 0) |
+				(disableWindowResizing ? (uint)FlagMasks.DisableWindowResizing : 0);
 
 			_ = runEvent.Set();
 			Running = true;

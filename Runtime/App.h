@@ -79,6 +79,10 @@ public:
 		return _flags & (UINT)_FlagMasks::DisableRoundCorner;
 	}
 
+	bool IsDisableWindowResizing() const {
+		return _flags & (UINT)_FlagMasks::DisableWindowResizing;
+	}
+
 	bool IsBreakpointMode() const {
 		return _flags & (UINT)_FlagMasks::BreakpointMode;
 	}
@@ -134,7 +138,8 @@ private:
 		ShowFPS = 0x4,
 		DisableRoundCorner = 0x8,
 		DisableLowLatency = 0x10,
-		BreakpointMode = 0x20
+		BreakpointMode = 0x20,
+		DisableWindowResizing = 0x40
 	};
 
 	std::unique_ptr<Renderer> _renderer;

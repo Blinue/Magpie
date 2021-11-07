@@ -20,10 +20,6 @@
         <CheckBox Content="{x:Static props:Resources.UI_Options_Scale_Show_Frame_Rate}" 
                   Margin="0,15,0,0" 
                   IsChecked="{Binding Source={x:Static props:Settings.Default},Path=ShowFPS,Mode=TwoWay}"/>
-        <CheckBox x:Name="ckbDisableRoundCorner"
-                  Content="{x:Static props:Resources.UI_Options_Scale_Disable_Round_Corner}"
-                  Margin="0,15,0,0"
-                  IsChecked="{Binding Source={x:Static props:Settings.Default},Path=DisableRoundCorner,Mode=TwoWay}" />
         <Button Content="{x:Static props:Resources.UI_Options_Scale_Open_Scale_Config}" 
                 HorizontalAlignment="Left" Margin="0,15,0,0" Click="BtnScale_Click"/>
         
@@ -39,6 +35,17 @@
                 <Label Content="{x:Static props:Resources.UI_Options_Scale_Cursor_Zoom_Factor}" Padding="0" VerticalContentAlignment="Center" />
                 <ComboBox x:Name="cbbCursorZoomFactor" Margin="10,0,0,0" SelectionChanged="CbbCursorZoomFactor_SelectionChanged" />
             </StackPanel>
+        </StackPanel>
+
+        <StackPanel Margin="0,20,0,0">
+            <Label Content="{x:Static props:Resources.UI_Options_Scale_Source_Window}" FontWeight="Bold" Padding="0" FontSize="15" />
+            <CheckBox Content="{x:Static props:Resources.UI_Options_Scale_Disable_Window_Resizing}"
+                      Margin="0,10,0,0"
+                      IsChecked="{Binding Source={x:Static props:Settings.Default},Path=DisableWindowResizing,Mode=TwoWay}"/>
+            <CheckBox x:Name="ckbDisableRoundCorner"
+                  Content="{x:Static props:Resources.UI_Options_Scale_Disable_Round_Corner}"
+                  Margin="0,15,0,0"
+                  IsChecked="{Binding Source={x:Static props:Settings.Default},Path=DisableRoundCorner,Mode=TwoWay}" />
         </StackPanel>
         
         <StackPanel Margin="0,20,0,0">
