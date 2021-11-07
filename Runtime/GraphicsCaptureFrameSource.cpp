@@ -38,7 +38,7 @@ bool GraphicsCaptureFrameSource::Initialize() {
 
     const RECT& srcClient = App::GetInstance().GetSrcClientRect();
 	
-    _clientInFrame = {
+    _frameInWnd = {
         UINT(srcClient.left - srcRect.left),
 		UINT(srcClient.top - srcRect.top),
 		0,
@@ -47,7 +47,7 @@ bool GraphicsCaptureFrameSource::Initialize() {
 		1
     };
 
-	SIZE frameSize = { LONG(_clientInFrame.right - _clientInFrame.left), LONG(_clientInFrame.bottom - _clientInFrame.top) };
+	SIZE frameSize = { LONG(_frameInWnd.right - _frameInWnd.left), LONG(_frameInWnd.bottom - _frameInWnd.top) };
 
     try {
         // Windows.Graphics.Capture API 似乎只能运行于 MTA，造成诸多麻烦
@@ -161,7 +161,7 @@ bool GraphicsCaptureFrameSource::Update() {
 		return false;
 	}
 
-	_d3dDC->CopySubresourceRegion(_output.Get(), 0, 0, 0, 0, withFrame.Get(), 0, &_clientInFrame);
+	_d3dDC->CopySubresourceRegion(_output.Get(), 0, 0, 0, 0, withFrame.Get(), 0, &_frameInWnd);
 
 	return true;
 }

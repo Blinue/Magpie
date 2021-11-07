@@ -31,7 +31,7 @@ public:
 	}
 
 private:
-	D3D11_BOX _clientInFrame{};
+	D3D11_BOX _frameInWnd{};
 
 	winrt::Direct3D11CaptureFramePool _captureFramePool{ nullptr };
 	winrt::GraphicsCaptureSession _captureSession{ nullptr };

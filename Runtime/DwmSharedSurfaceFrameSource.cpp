@@ -64,7 +64,7 @@ bool DwmSharedSurfaceFrameSource::Update() {
 		return false;
 	}
 	
-	_d3dDC->CopySubresourceRegion(_output.Get(), 0, 0, 0, 0, sharedTexture.Get(), 0, &_clientInFrame);
+	_d3dDC->CopySubresourceRegion(_output.Get(), 0, 0, 0, 0, sharedTexture.Get(), 0, &_frameInWnd);
 
 	return true;
 }
@@ -101,7 +101,7 @@ bool DwmSharedSurfaceFrameSource::_CalcFrameSize(SIZE& frameSize) {
 			(LONG)ceilf((srcClientRect.bottom - srcClientRect.top) / dpiScale)
 		};
 
-		_clientInFrame = {
+		_frameInWnd = {
 			UINT(clientOffset.x),
 			UINT(clientOffset.y),
 			0,
@@ -118,7 +118,7 @@ bool DwmSharedSurfaceFrameSource::_CalcFrameSize(SIZE& frameSize) {
 		}
 
 		const RECT srcClientRect = App::GetInstance().GetSrcClientRect();
-		_clientInFrame = {
+		_frameInWnd = {
 			UINT(srcClientRect.left - srcWindowRect.left),
 			UINT(srcClientRect.top - srcWindowRect.top),
 			0,

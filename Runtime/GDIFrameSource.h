@@ -24,10 +24,7 @@ private:
 	HWND _hwndSrc = NULL;
 	ComPtr<ID3D11Texture2D> _output;
 
-	RECT _srcClientRect{};
-	SIZE _srcClientSize{};
-	RECT _srcWndRect{};
-	SIZE _frameSize{};
-
+	RECT _frameInWindow{};
+	SIZE _srcWndSize{};
 	std::vector<BYTE> _pixels;
 };
