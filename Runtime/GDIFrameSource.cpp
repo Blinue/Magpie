@@ -19,15 +19,62 @@ bool GDIFrameSource::Initialize() {
 		return false;
 	}
 
-	_frameInWindow = {
-		srcClientRect.left - srcWndRect.left,
-		srcClientRect.top - srcWndRect.top,
-		srcClientRect.right - srcWndRect.left,
-		srcClientRect.bottom - srcWndRect.top
-	};
-	_srcWndSize = { srcWndRect.right - srcWndRect.left, srcWndRect.bottom - srcWndRect.top };
+	POINT clientOffset;
+	float dpiScale;
+	bool success = true;
 
-	_pixels.resize(static_cast<size_t>(_srcWndSize.cx * _srcWndSize.cy * 4));
+	if (!_GetWindowDpiScale(_hwndSrc, dpiScale)) {
+		SPDLOG_LOGGER_ERROR(logger, "_GetWindowDpiScale 失败");
+		success = false;
+	}
+
+	SPDLOG_LOGGER_INFO(logger, fmt::format("源窗口 DPI 缩放为 {}", dpiScale));
+
+	if (abs(dpiScale - 1.0f) < 1e-5f) {
+		// 无 DPI 缩放，使用普通方式
+		success = false;
+	}
+
+	if (success && !_GetDpiAwareWindowClientOffset(_hwndSrc, clientOffset)) {
+		SPDLOG_LOGGER_ERROR(logger, "_GetDpiAwareWindowClientOffset 失败");
+		success = false;
+	}
+
+	_bi.bmiHeader.biSize = sizeof(_bi);
+	_bi.bmiHeader.biPlanes = 1;
+	_bi.bmiHeader.biCompression = BI_RGB;
+	_bi.bmiHeader.biBitCount = 32;
+
+	if (success) {
+		SIZE frameSize = {
+			(LONG)ceilf((srcClientRect.right - srcClientRect.left) / dpiScale),
+			(LONG)ceilf((srcClientRect.bottom - srcClientRect.top) / dpiScale)
+		};
+		_frameInWindow = {
+			clientOffset.x,
+			clientOffset.y,
+			clientOffset.x + frameSize.cx,
+			clientOffset.y + frameSize.cy
+		};
+		
+		_bi.bmiHeader.biWidth = std::lroundf((srcWndRect.right - srcWndRect.left) / dpiScale);
+		_bi.bmiHeader.biHeight = std::lroundf((srcWndRect.top - srcWndRect.bottom) / dpiScale);
+	} else {
+		// 回落到普通方式
+		_frameInWindow = {
+			srcClientRect.left - srcWndRect.left,
+			srcClientRect.top - srcWndRect.top,
+			srcClientRect.right - srcWndRect.left,
+			srcClientRect.bottom - srcWndRect.top
+		};
+
+		_bi.bmiHeader.biWidth = srcWndRect.right - srcWndRect.left;
+		_bi.bmiHeader.biHeight = srcWndRect.top - srcWndRect.bottom;
+	}
+
+	_bi.bmiHeader.biSizeImage = _bi.bmiHeader.biWidth * -_bi.bmiHeader.biHeight * 4;
+
+	_pixels.reset(new BYTE[_bi.bmiHeader.biSizeImage]);
 	
 	D3D11_TEXTURE2D_DESC desc{};
 	desc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
@@ -79,17 +126,10 @@ bool GDIFrameSource::Update() {
 	}
 
 	SIZE frameSize = { _frameInWindow.right - _frameInWindow.left, _frameInWindow.bottom - _frameInWindow.top };
-	
-	BITMAPINFO bi{};
-	bi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
-	bi.bmiHeader.biWidth = _srcWndSize.cx;
-	bi.bmiHeader.biHeight = -_srcWndSize.cy;
-	bi.bmiHeader.biPlanes = 1;
-	bi.bmiHeader.biCompression = BI_RGB;
-	bi.bmiHeader.biBitCount = 32;
-	bi.bmiHeader.biSizeImage = (DWORD)_pixels.size();
 
-	if (GetDIBits(hdcScreen, hBmpDest, 0, _srcWndSize.cy, _pixels.data(), &bi, DIB_RGB_COLORS) != _srcWndSize.cy) {
+	if (GetDIBits(hdcScreen, hBmpDest, 0, -_bi.bmiHeader.biHeight,
+		_pixels.get(), &_bi, DIB_RGB_COLORS) != -_bi.bmiHeader.biHeight
+	) {
 		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetDIBits 失败"));
 		return false;
 	}
@@ -102,12 +142,12 @@ bool GDIFrameSource::Update() {
 		return false;
 	}
 
-	BYTE* pPixels = _pixels.data() + (_srcWndSize.cx * _frameInWindow.top + _frameInWindow.left) * 4;
+	BYTE* pPixels = _pixels.get() + (_bi.bmiHeader.biWidth * _frameInWindow.top + _frameInWindow.left) * 4;
 	BYTE* pData = (BYTE*)ms.pData;
 	for (int i = 0; i < frameSize.cy; ++i) {
 		std::memcpy(pData, pPixels, static_cast<size_t>(frameSize.cx * 4));
 
-		pPixels += _srcWndSize.cx * 4;
+		pPixels += _bi.bmiHeader.biWidth * 4;
 		pData += ms.RowPitch;
 	}
 

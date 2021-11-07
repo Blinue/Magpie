@@ -92,8 +92,6 @@ bool CursorDrawer::Initialize(ComPtr<ID3D11Texture2D> renderTarget, const RECT& 
 
 	_scaleX = float(destRect.right - destRect.left) / srcSize.cx;
 	_scaleY = float(destRect.bottom - destRect.top) / srcSize.cy;
-
-	SPDLOG_LOGGER_INFO(logger, fmt::format("scaleX：{}，scaleY：{}", _scaleX, _scaleY));
 	
 	// 限制光标在窗口内
 	// 为了在 3D 游戏中起作用，每隔一定时间执行一次
