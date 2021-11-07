@@ -93,35 +93,37 @@ bool CursorDrawer::Initialize(ComPtr<ID3D11Texture2D> renderTarget, const RECT& 
 	_scaleX = float(destRect.right - destRect.left) / srcSize.cx;
 	_scaleY = float(destRect.bottom - destRect.top) / srcSize.cy;
 	
-	// 限制光标在窗口内
-	// 为了在 3D 游戏中起作用，每隔一定时间执行一次
-	if (!app.RegisterTimer(50, []() {
-		ClipCursor(&App::GetInstance().GetSrcClientRect());
-	})) {
-		// 注册定时器失败，仅尝试一次
-		SPDLOG_LOGGER_ERROR(logger, "注册定时器失败");
-		if (!ClipCursor(&App::GetInstance().GetSrcClientRect())) {
-			SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("ClipCursor 失败"));
-		}
-	}
-
-	if (App::GetInstance().IsAdjustCursorSpeed()) {
-		// 设置鼠标移动速度
-		if (SystemParametersInfo(SPI_GETMOUSESPEED, 0, &_cursorSpeed, 0)) {
-			long newSpeed = std::clamp(lroundf(_cursorSpeed / (_scaleX + _scaleY) * 2), 1L, 20L);
-
-			if (!SystemParametersInfo(SPI_SETMOUSESPEED, 0, (PVOID)(intptr_t)newSpeed, 0)) {
-				SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("设置光标移速失败"));
+	if (!App::GetInstance().IsBreakpointMode()) {
+		// 限制光标在窗口内
+		// 为了在 3D 游戏中起作用，每隔一定时间执行一次
+		if (!app.RegisterTimer(50, []() {
+			ClipCursor(&App::GetInstance().GetSrcClientRect());
+			})) {
+			// 注册定时器失败，仅尝试一次
+			SPDLOG_LOGGER_ERROR(logger, "注册定时器失败");
+			if (!ClipCursor(&App::GetInstance().GetSrcClientRect())) {
+				SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("ClipCursor 失败"));
 			}
-		} else {
-			SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("获取光标移速失败"));
 		}
 
-		SPDLOG_LOGGER_INFO(logger, "已调整光标移速");
-	}
+		if (App::GetInstance().IsAdjustCursorSpeed()) {
+			// 设置鼠标移动速度
+			if (SystemParametersInfo(SPI_GETMOUSESPEED, 0, &_cursorSpeed, 0)) {
+				long newSpeed = std::clamp(lroundf(_cursorSpeed / (_scaleX + _scaleY) * 2), 1L, 20L);
 
-	if (!MagShowSystemCursor(FALSE)) {
-		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("MagShowSystemCursor 失败"));
+				if (!SystemParametersInfo(SPI_SETMOUSESPEED, 0, (PVOID)(intptr_t)newSpeed, 0)) {
+					SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("设置光标移速失败"));
+				}
+			} else {
+				SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("获取光标移速失败"));
+			}
+
+			SPDLOG_LOGGER_INFO(logger, "已调整光标移速");
+		}
+
+		if (!MagShowSystemCursor(FALSE)) {
+			SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("MagShowSystemCursor 失败"));
+		}
 	}
 
 	SPDLOG_LOGGER_INFO(logger, "CursorDrawer 初始化完成");
@@ -129,14 +131,16 @@ bool CursorDrawer::Initialize(ComPtr<ID3D11Texture2D> renderTarget, const RECT& 
 }
 
 CursorDrawer::~CursorDrawer() {
-	// CursorDrawer 析构时计时器已销毁
-	ClipCursor(nullptr);
+	if (!App::GetInstance().IsBreakpointMode()) {
+		// CursorDrawer 析构时计时器已销毁
+		ClipCursor(nullptr);
 
-	if (App::GetInstance().IsAdjustCursorSpeed()) {
-		SystemParametersInfo(SPI_SETMOUSESPEED, 0, (PVOID)(intptr_t)_cursorSpeed, 0);
+		if (App::GetInstance().IsAdjustCursorSpeed()) {
+			SystemParametersInfo(SPI_SETMOUSESPEED, 0, (PVOID)(intptr_t)_cursorSpeed, 0);
+		}
+
+		MagShowSystemCursor(TRUE);
 	}
-	
-	MagShowSystemCursor(TRUE);
 
 	SPDLOG_LOGGER_INFO(logger, "CursorDrawer 已析构");
 }

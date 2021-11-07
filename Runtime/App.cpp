@@ -52,7 +52,8 @@ bool App::Run(
 	bool showFPS,
 	bool disableRoundCorner,
 	int frameRate,
-	bool disableLowLatency
+	bool disableLowLatency,
+	bool breakpointMode
 ) {
 	_hwndSrc = hwndSrc;
 	_captureMode = captureMode;
@@ -61,6 +62,7 @@ bool App::Run(
 	_showFPS = showFPS;
 	_frameRate = frameRate;
 	_disableLowLatency = disableLowLatency;
+	_breakpointMode = breakpointMode;
 
 	// 每次进入全屏都要重置
 	_nextTimerId = 1;
@@ -239,7 +241,7 @@ bool App::_CreateHostWnd() {
 	_hostWndSize.cx = screenRect.right - screenRect.left;
 	_hostWndSize.cy = screenRect.bottom - screenRect.top;
 	_hwndHost = CreateWindowEx(
-		WS_EX_TOPMOST | WS_EX_NOACTIVATE | WS_EX_LAYERED | WS_EX_TRANSPARENT,
+		(IsBreakpointMode() ? 0 : WS_EX_TOPMOST) | WS_EX_NOACTIVATE | WS_EX_LAYERED | WS_EX_TRANSPARENT,
 		_HOST_WINDOW_CLASS_NAME,
 		NULL, WS_CLIPCHILDREN | WS_POPUP | WS_VISIBLE,
 		screenRect.left,

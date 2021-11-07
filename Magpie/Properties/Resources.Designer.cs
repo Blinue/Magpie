@@ -421,6 +421,15 @@ namespace Magpie.Properties {
         }
         
         /// <summary>
+        ///   查找类似 Breakpoint Mode 的本地化字符串。
+        /// </summary>
+        public static string UI_Options_Advanced_Breakpoint_Mode {
+            get {
+                return ResourceManager.GetString("UI_Options_Advanced_Breakpoint_Mode", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Debug 的本地化字符串。
         /// </summary>
         public static string UI_Options_Advanced_Debug {

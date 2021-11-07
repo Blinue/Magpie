@@ -213,6 +213,9 @@
   <data name="UI_Options_Advanced" xml:space="preserve">
     <value>高级</value>
   </data>
+  <data name="UI_Options_Advanced_Breakpoint_Mode" xml:space="preserve">
+    <value>断点模式</value>
+  </data>
   <data name="UI_Options_Advanced_Debug" xml:space="preserve">
     <value>调试</value>
   </data>

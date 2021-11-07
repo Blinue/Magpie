@@ -37,6 +37,7 @@ namespace Magpie {
 			public volatile bool disableRoundCorner;
 			public volatile int frameRateOrLogLevel;
 			public volatile bool disableLowLatency;
+			public volatile bool breakpointMode;
 			public volatile MagWindowCmd cmd = MagWindowCmd.Run;
 		}
 
@@ -104,7 +105,8 @@ namespace Magpie {
 							magWindowParams.showFPS,
 							magWindowParams.disableRoundCorner,
 							magWindowParams.frameRateOrLogLevel,
-							magWindowParams.disableLowLatency
+							magWindowParams.disableLowLatency,
+							magWindowParams.breakpointMode
 						);
 
 						CloseEvent(msg);
@@ -146,7 +148,8 @@ namespace Magpie {
 			bool adjustCursorSpeed,
 			bool disableRoundCorner,
 			int frameRate,
-			bool disableLowLatency
+			bool disableLowLatency,
+			bool breakpointMode
 		) {
 			if (Running) {
 				Logger.Info("已存在全屏窗口，取消进入全屏");
@@ -174,6 +177,7 @@ namespace Magpie {
 			magWindowParams.disableRoundCorner = disableRoundCorner;
 			magWindowParams.frameRateOrLogLevel = frameRate;
 			magWindowParams.disableLowLatency = disableLowLatency;
+			magWindowParams.breakpointMode = breakpointMode;
 
 			_ = runEvent.Set();
 			Running = true;

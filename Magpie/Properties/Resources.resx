@@ -224,6 +224,9 @@
   <data name="UI_Options_Advanced" xml:space="preserve">
     <value>Advanced</value>
   </data>
+  <data name="UI_Options_Advanced_Breakpoint_Mode" xml:space="preserve">
+    <value>Breakpoint Mode</value>
+  </data>
   <data name="UI_Options_Advanced_Debug" xml:space="preserve">
     <value>Debug</value>
   </data>

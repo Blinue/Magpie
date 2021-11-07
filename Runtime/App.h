@@ -24,7 +24,8 @@ public:
 		bool showFPS,
 		bool disableRoundCorner,
 		int frameRate,
-		bool disableLowLatency
+		bool disableLowLatency,
+		bool breakpointMode
 	);
 
 	HINSTANCE GetHInstance() const {
@@ -79,6 +80,10 @@ public:
 		return _disableLowLatency;
 	}
 
+	bool IsBreakpointMode() const {
+		return _breakpointMode;
+	}
+
 	const char* GetErrorMsg() const {
 		return _errorMsg;
 	}
@@ -126,6 +131,7 @@ private:
 	bool _showFPS = false;
 	int _frameRate = 0;
 	bool _disableLowLatency = false;
+	bool _breakpointMode = false;
 
 	std::unique_ptr<Renderer> _renderer;
 	std::unique_ptr<FrameSourceBase> _frameSource;

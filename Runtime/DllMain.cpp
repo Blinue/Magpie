@@ -79,9 +79,10 @@ API_DECLSPEC const char* WINAPI Run(
 	bool showFPS,
 	bool disableRoundCorner,
 	int frameRate,	// 0：垂直同步，负数：不限帧率，正数：限制的帧率
-	bool disableLowLatency
+	bool disableLowLatency,
+	bool breakpointMode
 ) {
-	SPDLOG_LOGGER_INFO(logger, fmt::format("运行时参数：\n\thwndSrc：{}\n\tcaptureMode：{}\n\tadjustCursorSpeed：{}\n\tshowFPS：{}\n\tdisableRoundCorner：{}\n\tframeRate：{}", (void*)hwndSrc, captureMode, adjustCursorSpeed, showFPS, disableRoundCorner, frameRate));
+	SPDLOG_LOGGER_INFO(logger, fmt::format("运行时参数：\n\thwndSrc：{}\n\tcaptureMode：{}\n\tadjustCursorSpeed：{}\n\tshowFPS：{}\n\tdisableRoundCorner：{}\n\tframeRate：{}\n\tdisableLowLatency：{}\n\tbreakpointMode：{}\n\t", (void*)hwndSrc, captureMode, adjustCursorSpeed, showFPS, disableRoundCorner, frameRate, disableLowLatency, breakpointMode));
 
 	const auto& version = Utils::GetOSVersion();
 	SPDLOG_LOGGER_INFO(logger, fmt::format("OS 版本：{}.{}.{}",
@@ -89,7 +90,7 @@ API_DECLSPEC const char* WINAPI Run(
 
 	App& app = App::GetInstance();
 	if (!app.Run(hwndSrc, effectsJson, captureMode, noCursor, adjustCursorSpeed,
-		showFPS, disableRoundCorner, frameRate, disableLowLatency)
+		showFPS, disableRoundCorner, frameRate, disableLowLatency, breakpointMode)
 	) {
 		// 初始化失败
 		SPDLOG_LOGGER_INFO(logger, "App.Run 失败");

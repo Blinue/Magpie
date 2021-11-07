@@ -164,7 +164,8 @@ namespace Magpie {
 			[MarshalAs(UnmanagedType.U1)] bool showFPS,
 			[MarshalAs(UnmanagedType.U1)] bool disableRoundCorner,
 			int frameRate,
-			[MarshalAs(UnmanagedType.U1)] bool disableLowLatency
+			[MarshalAs(UnmanagedType.U1)] bool disableLowLatency,
+			[MarshalAs(UnmanagedType.U1)] bool breakpointMode
 		);
 
 		public static string Run(
@@ -176,10 +177,11 @@ namespace Magpie {
 			bool showFPS,
 			bool disableRoundCorner,
 			int frameRate,
-			bool disableLowLatency
+			bool disableLowLatency,
+			bool breakpointMode
 		) {
-			IntPtr msg = RunNative(hwndSrc, effectsJson, captureMode, noCursor,
-				adjustCursorSpeed, showFPS, disableRoundCorner, frameRate, disableLowLatency);
+			IntPtr msg = RunNative(hwndSrc, effectsJson, captureMode, noCursor, adjustCursorSpeed,
+				showFPS, disableRoundCorner, frameRate, disableLowLatency, breakpointMode);
 			return Marshal.PtrToStringAnsi(msg);
 		}
 	}

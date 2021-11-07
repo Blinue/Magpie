@@ -190,6 +190,7 @@ namespace Magpie {
 			bool adjustCursorSpeed = Settings.Default.AdjustCursorSpeed;
 			bool disableRoundCorner = Settings.Default.DisableRoundCorner;
 			bool disableLowLatency = Settings.Default.DisableLowLatency;
+			bool breakpointMode = Settings.Default.DebugBreakpointMode;
 
 			int frameRate = 0;
 			switch (Settings.Default.FrameRateType) {
@@ -214,7 +215,8 @@ namespace Magpie {
 				adjustCursorSpeed,
 				disableRoundCorner,
 				frameRate,
-				disableLowLatency
+				disableLowLatency,
+				breakpointMode
 			);
 
 			prevSrcWindow = magWindow.SrcWindow;
