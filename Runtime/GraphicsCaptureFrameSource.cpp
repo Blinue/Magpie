@@ -102,6 +102,7 @@ bool GraphicsCaptureFrameSource::Initialize() {
 		// 开始捕获
 		_captureSession = _captureFramePool.CreateCaptureSession(_captureItem);
 
+		// 隐藏光标
 		if (winrt::ApiInformation::IsPropertyPresent(
 			L"Windows.Graphics.Capture.GraphicsCaptureSession",
 			L"IsCursorCaptureEnabled"
@@ -110,6 +111,24 @@ bool GraphicsCaptureFrameSource::Initialize() {
 			_captureSession.IsCursorCaptureEnabled(false);
 		} else {
 			SPDLOG_LOGGER_INFO(logger, "当前系统无 IsCursorCaptureEnabled API");
+		}
+
+		// 不显示黄色边框
+		if (winrt::ApiInformation::IsPropertyPresent(
+			L"Windows.Graphics.Capture.GraphicsCaptureSession",
+			L"IsBorderRequired"
+		)) {
+			// 从 win11 开始提供
+			// 先请求权限
+			auto status = winrt::GraphicsCaptureAccess::RequestAccessAsync(winrt::GraphicsCaptureAccessKind::Borderless).get();
+			if (status == decltype(status)::Allowed) {
+				_captureSession.IsBorderRequired(false);
+			} else {
+				SPDLOG_LOGGER_INFO(logger, "IsCursorCaptureEnabled 失败");
+			}
+			
+		} else {
+			SPDLOG_LOGGER_INFO(logger, "当前系统无 IsBorderRequired API");
 		}
 
 		_captureSession.StartCapture();
