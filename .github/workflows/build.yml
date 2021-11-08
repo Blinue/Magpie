@@ -3,7 +3,7 @@ name: build
 on:
   push:
     branches:
-      - main
+      - master
 
 env:
   # Configuration type to build.
