@@ -87,14 +87,15 @@ bool GraphicsCaptureFrameSource::Initialize() {
             SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("创建 GraphicsCaptureItem 失败", hr));
             return false;
         }
-
+		
         // 创建帧缓冲池
-        _captureFramePool = winrt::Direct3D11CaptureFramePool::CreateFreeThreaded(
-            _wrappedD3DDevice,
-            winrt::DirectXPixelFormat::B8G8R8A8UIntNormalized,
-            1,					// 帧的缓存数量
-            _captureItem.Size() // 帧的尺寸
-        );
+		// 帧的尺寸为不含阴影的窗口尺寸，和 _captureItem.Size() 不同
+		_captureFramePool = winrt::Direct3D11CaptureFramePool::CreateFreeThreaded(
+			_wrappedD3DDevice,
+			winrt::DirectXPixelFormat::B8G8R8A8UIntNormalized,
+			1,	// 帧的缓存数量
+			{ srcRect.right - srcRect.left, srcRect.bottom - srcRect.top } // 帧的尺寸
+		);
 
         // 开始捕获
         _captureSession = _captureFramePool.CreateCaptureSession(_captureItem);
