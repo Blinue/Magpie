@@ -14,8 +14,17 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+    
+    - name: Setup Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.8
+        architecture: x64
+    
+    - name: Setup Conan
+    - run: pip install conan
 
-    - name: Add MSBuild to PATH
+    - name: Setup MSBuild
       uses: microsoft/setup-msbuild@v1.0.2
 
     - name: Restore NuGet packages
