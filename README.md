@@ -1,5 +1,6 @@
 # MAGPIE
 
+[![build](https://github.com/Blinue/Magpie/actions/workflows/build.yml/badge.svg)](https://github.com/Blinue/Magpie/actions/workflows/build.yml)
 [![All Contributors](https://img.shields.io/github/all-contributors/Blinue/Magpie)](#contributors-)
 [![许可](https://img.shields.io/github/license/Blinue/Magpie)](./LICENSE)
 
