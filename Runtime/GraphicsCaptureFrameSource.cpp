@@ -38,6 +38,8 @@ bool GraphicsCaptureFrameSource::Initialize() {
 
     const RECT& srcClient = App::GetInstance().GetSrcClientRect();
 	
+	// 在源窗口存在 DPI 缩放时有时会有一像素的偏移（取决于窗口在屏幕上的位置）
+	// 可能是 DwmGetWindowAttribute 的 bug
     _frameInWnd = {
         UINT(srcClient.left - srcRect.left),
 		UINT(srcClient.top - srcRect.top),
