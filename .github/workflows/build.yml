@@ -1,6 +1,9 @@
 name: build
 
-on: [push]
+on:
+  push:
+    branches:
+      - main
 
 env:
   # Configuration type to build.
