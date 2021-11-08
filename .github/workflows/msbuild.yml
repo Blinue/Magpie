@@ -23,11 +23,11 @@ jobs:
       run: nuget restore ${{env.SOLUTION_FILE_PATH}}
       
     - name: Conan Install
-      working-directory: ${{env.GITHUB_WORKSPACE}}/CONAN_INSTALL
-      run: msbuild
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      run: msbuild ./CONAN_INSTALL
 
     - name: Build
       working-directory: ${{env.GITHUB_WORKSPACE}}
       # Add additional options to the MSBuild command line here (like platform or verbosity level).
       # See https://docs.microsoft.com/visualstudio/msbuild/msbuild-command-line-reference
-      run: msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}}
+      run: msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} ./Magpie.sln
