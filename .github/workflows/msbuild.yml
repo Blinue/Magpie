@@ -23,8 +23,8 @@ jobs:
       run: nuget restore ${{env.SOLUTION_FILE_PATH}}
       
     - name: Conan Install
-    - working-directory: ${{env.GITHUB_WORKSPACE}}/CONAN_INSTALL
-    - run: msbuild
+      working-directory: ${{env.GITHUB_WORKSPACE}}/CONAN_INSTALL
+      run: msbuild
 
     - name: Build
       working-directory: ${{env.GITHUB_WORKSPACE}}
