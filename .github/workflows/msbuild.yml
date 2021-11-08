@@ -24,10 +24,10 @@ jobs:
       
     - name: Conan Install
       working-directory: ${{env.GITHUB_WORKSPACE}}
-      run: msbuild ./CONAN_INSTALL
+      run: msbuild /p:Configuration=${{env.BUILD_CONFIGURATION}} /p:Platform=x64 ./CONAN_INSTALL
 
     - name: Build
       working-directory: ${{env.GITHUB_WORKSPACE}}
       # Add additional options to the MSBuild command line here (like platform or verbosity level).
       # See https://docs.microsoft.com/visualstudio/msbuild/msbuild-command-line-reference
-      run: msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} ./Magpie.sln
+      run: msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} /p:Platform=x64 ./Magpie.sln
