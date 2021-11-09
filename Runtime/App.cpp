@@ -23,13 +23,19 @@ bool App::Initialize(HINSTANCE hInst) {
 
 	_hInst = hInst;
 
-	// 初始化 COM
-	HRESULT hr = Windows::Foundation::Initialize(RO_INIT_MULTITHREADED);
-	if (FAILED(hr)) {
-		SPDLOG_LOGGER_CRITICAL(logger, MakeComErrorMsg("初始化 COM 失败", hr));
-		return false;
+	// 在 Win10/11 中使用 winrt::init_apartment，否则初始化 COM
+	if (Utils::IsWin10OrNewer()) {
+		winrt::init_apartment(winrt::apartment_type::multi_threaded);
+		SPDLOG_LOGGER_INFO(logger, "已初始化 WinRT");
+	} else {
+		// 初始化 COM
+		HRESULT hr = Windows::Foundation::Initialize(RO_INIT_MULTITHREADED);
+		if (FAILED(hr)) {
+			SPDLOG_LOGGER_CRITICAL(logger, MakeComErrorMsg("初始化 COM 失败", hr));
+			return false;
+		}
+		SPDLOG_LOGGER_INFO(logger, "已初始化 COM");
 	}
-	SPDLOG_LOGGER_INFO(logger, "已初始化 COM");
 
 	// 注册主窗口类
 	_RegisterHostWndClass();

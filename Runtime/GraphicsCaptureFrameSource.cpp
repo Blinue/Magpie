@@ -52,9 +52,6 @@ bool GraphicsCaptureFrameSource::Initialize() {
 	SIZE frameSize = { LONG(_frameInWnd.right - _frameInWnd.left), LONG(_frameInWnd.bottom - _frameInWnd.top) };
 
 	try {
-		// Windows.Graphics.Capture API 似乎只能运行于 MTA，造成诸多麻烦
-		winrt::init_apartment(winrt::apartment_type::multi_threaded);
-
 		if (!winrt::ApiInformation::IsTypePresent(L"Windows.Graphics.Capture.GraphicsCaptureSession")) {
 			SPDLOG_LOGGER_ERROR(logger, "不存在 GraphicsCaptureSession API");
 			return false;
