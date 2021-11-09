@@ -35,7 +35,6 @@ private:
 
 	winrt::Direct3D11CaptureFramePool _captureFramePool{ nullptr };
 	winrt::GraphicsCaptureSession _captureSession{ nullptr };
-	winrt::GraphicsCaptureItem _captureItem{ nullptr };
 	winrt::IDirect3DDevice _wrappedD3DDevice{ nullptr };
 
 	ComPtr<ID3D11DeviceContext> _d3dDC;
