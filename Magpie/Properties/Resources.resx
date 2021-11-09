@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -288,7 +288,7 @@
     <value>Allow Additional Latency to Improve Performance</value>
   </data>
   <data name="UI_Options_Scale_Disable_Round_Corner" xml:space="preserve">
-    <value>Disable Round Corner of Window while Zoomed</value>
+    <value>Disable Round Corner while Zoomed</value>
   </data>
   <data name="UI_Options_Scale_Disable_Window_Resizing" xml:space="preserve">
     <value>Disable Window Resizing while Zoomed</value>

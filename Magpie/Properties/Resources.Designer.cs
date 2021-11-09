@@ -610,7 +610,7 @@ namespace Magpie.Properties {
         }
         
         /// <summary>
-        ///   查找类似 Disable Round Corner of Window while Zoomed 的本地化字符串。
+        ///   查找类似 Disable Round Corner while Zoomed 的本地化字符串。
         /// </summary>
         public static string UI_Options_Scale_Disable_Round_Corner {
             get {

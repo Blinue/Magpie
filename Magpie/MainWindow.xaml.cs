@@ -24,7 +24,9 @@ namespace Magpie {
 		};
 
 		private IKeyboardMouseEvents keyboardEvents = null;
-		private NotifyIcon notifyIcon = new NotifyIcon();
+		private readonly NotifyIcon notifyIcon = new NotifyIcon();
+		private ToolStripItem tsiHotkey;
+		private ToolStripItem tsiScale;
 		private MagWindow magWindow = null;
 
 		private readonly ScaleModelManager scaleModelManager = new ScaleModelManager();
@@ -43,7 +45,6 @@ namespace Magpie {
 
 		private void Application_Closing() {
 			magWindow.Dispose();
-			notifyIcon.Dispose();
 
 			if (optionsWindow != null) {
 				optionsWindow.Close();
@@ -82,8 +83,26 @@ namespace Magpie {
 			notifyIcon.MouseClick += NotifyIcon_MouseClick;
 
 			ContextMenuStrip menu = new ContextMenuStrip();
-			menu.Items.Add(Properties.Resources.UI_SysTray_Main_Window, null, CmiMainForm_Click);
-			menu.Items.Add(Properties.Resources.UI_SysTray_Exit, null, CmiExit_Click);
+
+			tsiHotkey = menu.Items.Add(Settings.Default.Hotkey, null);
+			tsiHotkey.Enabled = false;
+
+			tsiScale = menu.Items.Add(Properties.Resources.UI_SysTray_Scale_After_5S, null, (sender, e) => {
+				ToggleScaleTimer();
+			});
+
+			menu.Items.Add(Properties.Resources.UI_SysTray_Main_Window, null, (sender, e) => {
+				Show();
+				WindowState = WindowState.Normal;
+			});
+			menu.Items.Add(Properties.Resources.UI_SysTray_Options, null, (sender, e) => {
+				BtnOptions_Click(sender, new RoutedEventArgs());
+			});
+			menu.Items.Add(Properties.Resources.UI_SysTray_Exit, null, (sender, e) => {
+				Application_Closing();
+				Closing -= Window_Closing;
+				Close();
+			});
 			notifyIcon.ContextMenuStrip = menu;
 		}
 
@@ -135,7 +154,7 @@ namespace Magpie {
 
 		private void TimerScale_Tick(object sender, EventArgs e) {
 			if (--countDownNum != 0) {
-				//cmiScale.Header = btnScale.Content = countDownNum.ToString();
+				btnScale.Content = tsiScale.Text = countDownNum.ToString();
 				return;
 			}
 
@@ -180,7 +199,7 @@ namespace Magpie {
 				txtHotkey.Foreground = Brushes.Black;
 				Settings.Default.Hotkey = hotkey;
 
-				//cmiHotkey.Header = hotkey;
+				tsiHotkey.Text = hotkey;
 
 				Logger.Info($"当前热键：{txtHotkey.Text}");
 			} catch (ArgumentException ex) {
@@ -308,15 +327,16 @@ namespace Magpie {
 
 		private void StartScaleTimer() {
 			countDownNum = DOWN_COUNT;
-			//cmiScale.Header = btnScale.Content = countDownNum.ToString();
+			btnScale.Content = tsiScale.Text = countDownNum.ToString();
 
 			timerScale.Start();
 		}
 
 		private void StopScaleTimer() {
 			timerScale.Stop();
+
 			btnScale.Content = Properties.Resources.UI_Main_Scale_After_5S;
-			//cmiScale.Header = Properties.Resources.UI_SysTray_Scale_After_5S;
+			tsiScale.Text = Properties.Resources.UI_SysTray_Scale_After_5S;
 		}
 
 		private void ToggleScaleTimer() {
@@ -337,27 +357,8 @@ namespace Magpie {
 			}
 		}
 
-		private void CmiExit_Click(object sender, EventArgs e) {
-			Application_Closing();
-			Closing -= Window_Closing;
-			Close();
-		}
-
-		private void CmiMainForm_Click(object sender, EventArgs e) {
-			Show();
-			WindowState = WindowState.Normal;
-		}
-
-		private void CmiScale_Click(object sender, RoutedEventArgs e) {
-			ToggleScaleTimer();
-		}
-
 		private void BtnScale_Click(object sender, RoutedEventArgs e) {
 			ToggleScaleTimer();
-		}
-
-		private void CmiOptions_Click(object sender, RoutedEventArgs e) {
-			BtnOptions_Click(sender, e);
 		}
 
 		private void BtnCancelRestore_Click(object sender, RoutedEventArgs e) {
