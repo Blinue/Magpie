@@ -16,10 +16,10 @@ jobs:
     runs-on: windows-latest
 
     steps:
-    - uses: actions/checkout@v2.4
+    - uses: actions/checkout@v2.4.0
     
     - name: Setup Python
-      uses: actions/setup-python@v2.2
+      uses: actions/setup-python@v2.2.2
       with:
         python-version: 3.8
         architecture: x64
