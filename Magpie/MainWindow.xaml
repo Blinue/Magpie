@@ -10,50 +10,6 @@
         Title="{x:Static props:Resources.UI_Main_Title}" ResizeMode="CanMinimize" WindowStartupLocation="CenterScreen"
         Closing="Window_Closing" SourceInitialized="Window_SourceInitialized" StateChanged="Window_StateChanged" HorizontalAlignment="Left" VerticalAlignment="Top" SizeToContent="WidthAndHeight" Deactivated="Window_Deactivated">
     <StackPanel Margin="20,20">
-        <StackPanel.Resources>
-            <local:NotifyIconLeftClickCommand x:Key="NotifyIconLeftClickCommand" />
-        </StackPanel.Resources>
-
-        <tb:TaskbarIcon
-            x:Name="notifyIcon"
-            ToolTipText="Magpie"
-            IconSource="{StaticResource Logo}"
-            Visibility="Hidden"
-            LeftClickCommand="{StaticResource NotifyIconLeftClickCommand}"
-            LeftClickCommandParameter="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindow}}}"
-            NoLeftClickDelay="True"
-        >
-            <tb:TaskbarIcon.ContextMenu>
-                <ContextMenu>
-                    <MenuItem Name="cmiHotkey" IsEnabled="False">
-                        <MenuItem.Icon>
-                            <Label Style="{StaticResource ContextMenuItemFontIcon}" Content="&#xEDA7;" />
-                        </MenuItem.Icon>
-                    </MenuItem>
-                    <MenuItem Header="{x:Static props:Resources.UI_SysTray_Scale_After_5S}" Name="cmiScale" Click="CmiScale_Click">
-                        <MenuItem.Icon>
-                            <Label Style="{StaticResource ContextMenuItemFontIcon}" Content="&#xE916;" />
-                        </MenuItem.Icon>
-                    </MenuItem>
-                    <Separator />
-                    <MenuItem Header="{x:Static props:Resources.UI_SysTray_Main_Window}" Click="CmiMainForm_Click">
-                        <MenuItem.Icon>
-                            <Label Style="{StaticResource ContextMenuItemFontIcon}" Content="&#xE737;" />
-                        </MenuItem.Icon>
-                    </MenuItem>
-                    <MenuItem Header="{x:Static props:Resources.UI_SysTray_Options}" Click="CmiOptions_Click">
-                        <MenuItem.Icon>
-                            <Label Style="{StaticResource ContextMenuItemFontIcon}" Content="&#xE713;" />
-                        </MenuItem.Icon>
-                    </MenuItem>
-                    <MenuItem Header="{x:Static props:Resources.UI_SysTray_Exit}" Click="CmiExit_Click">
-                        <MenuItem.Icon>
-                            <Label Style="{StaticResource ContextMenuItemFontIcon}" Content="&#xF3B1;" />
-                        </MenuItem.Icon>
-                    </MenuItem>
-                </ContextMenu>
-            </tb:TaskbarIcon.ContextMenu>
-        </tb:TaskbarIcon>
         <Grid>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
@@ -68,7 +24,6 @@
                 </TextBox.ContextMenu>
             </TextBox>
             <Button Content="{x:Static props:Resources.UI_Main_Scale_After_5S}" Name="btnScale" Click="BtnScale_Click" Grid.Column="2" HorizontalAlignment="Right" Margin="0" VerticalAlignment="Center" Padding="10,3"/>
-
         </Grid>
         <Grid VerticalAlignment="Top" Margin="0,0,0,10">
             <Grid.Resources>
