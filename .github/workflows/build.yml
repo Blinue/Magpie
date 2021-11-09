@@ -30,6 +30,7 @@ jobs:
     - name: Setup MSBuild
       uses: microsoft/setup-msbuild@v1.1
       with:
+        vs-version: '[17.0,17.1)'
         msbuild-architecture: x64
 
     - name: Restore NuGet packages
