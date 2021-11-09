@@ -13,7 +13,7 @@ env:
 
 jobs:
   build:
-    runs-on: windows-latest
+    runs-on: windows-2022
 
     steps:
     - uses: actions/checkout@v2.4.0
@@ -29,9 +29,6 @@ jobs:
 
     - name: Setup MSBuild
       uses: microsoft/setup-msbuild@v1.1
-      with:
-        msbuild-architecture: x64
-        vs-prerelease: true
 
     - name: Restore NuGet packages
       working-directory: ${{env.GITHUB_WORKSPACE}}
