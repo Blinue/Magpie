@@ -32,9 +32,9 @@ private:
 	static UINT _RemoveComments(std::string& source);
 
 	template<bool IncludeNewLine>
-    static void _RemoveLeadingBlanks(std::string_view& source) {
-        size_t i = 0;
-        for (; i < source.size(); ++i) {
+	static void _RemoveLeadingBlanks(std::string_view& source) {
+		size_t i = 0;
+		for (; i < source.size(); ++i) {
 			if constexpr (IncludeNewLine) {
 				if (!StrUtils::isspace(source[i])) {
 					break;
@@ -45,10 +45,10 @@ private:
 					break;
 				}
 			}
-        }
+		}
 
-        source.remove_prefix(i);
-    }
+		source.remove_prefix(i);
+	}
 
 	static UINT _GetNextExpr(std::string_view& source, std::string& expr);
 

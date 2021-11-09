@@ -619,7 +619,7 @@ namespace Magpie.Properties {
         }
         
         /// <summary>
-        ///   查找类似 Disable Window Resizing while zoomed 的本地化字符串。
+        ///   查找类似 Disable Window Resizing while Zoomed 的本地化字符串。
         /// </summary>
         public static string UI_Options_Scale_Disable_Window_Resizing {
             get {

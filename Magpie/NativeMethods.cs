@@ -144,8 +144,8 @@ namespace Magpie {
 		}
 
 		/*
-         * Runtime.dll
-         */
+		 * Runtime.dll
+		 */
 
 		[DllImport("Runtime", CallingConvention = CallingConvention.StdCall)]
 		[return: MarshalAs(UnmanagedType.Bool)]

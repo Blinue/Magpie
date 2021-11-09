@@ -291,7 +291,7 @@
     <value>Disable Round Corner of Window while Zoomed</value>
   </data>
   <data name="UI_Options_Scale_Disable_Window_Resizing" xml:space="preserve">
-    <value>Disable Window Resizing while zoomed</value>
+    <value>Disable Window Resizing while Zoomed</value>
   </data>
   <data name="UI_Options_Scale_Frame_Rate" xml:space="preserve">
     <value>Frame Rate</value>
