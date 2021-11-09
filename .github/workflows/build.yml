@@ -28,7 +28,7 @@ jobs:
 
     - name: Restore NuGet packages
       working-directory: ${{env.GITHUB_WORKSPACE}}
-      run: nuget restore ${{env.SOLUTION_FILE_PATH}}
+      run: nuget restore .
       
     - name: Conan Install
       working-directory: ${{env.GITHUB_WORKSPACE}}
