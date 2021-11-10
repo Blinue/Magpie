@@ -592,6 +592,15 @@ namespace Magpie.Properties {
         }
         
         /// <summary>
+        ///   查找类似 Same as Source Window 的本地化字符串。
+        /// </summary>
+        public static string UI_Options_Scale_Cursor_Same_As_Source_Window {
+            get {
+                return ResourceManager.GetString("UI_Options_Scale_Cursor_Same_As_Source_Window", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Zoom Factor of the Cursor 的本地化字符串。
         /// </summary>
         public static string UI_Options_Scale_Cursor_Zoom_Factor {

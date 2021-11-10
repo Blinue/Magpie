@@ -245,12 +245,13 @@ namespace Magpie {
 			magWindow.Create(
 				effectsJson,
 				Settings.Default.CaptureMode,
+				frameRate,
+				Settings.Default.CursorZoomFactor,
 				Settings.Default.ShowFPS,
 				Settings.Default.NoCursor,
 				Settings.Default.AdjustCursorSpeed,
 				Settings.Default.DisableRoundCorner,
 				Settings.Default.DisableWindowResizing,
-				frameRate,
 				Settings.Default.DisableLowLatency,
 				Settings.Default.DebugBreakpointMode
 			);

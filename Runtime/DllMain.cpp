@@ -75,6 +75,7 @@ API_DECLSPEC const char* WINAPI Run(
 	const char* effectsJson,
 	int captureMode,
 	int frameRate,	// 0：垂直同步，负数：不限帧率，正数：限制的帧率
+	float cursorZoomFactor,	// 负数和 0：和源原窗口相同，正数：缩放比例
 	UINT flags
 ) {
 	const auto& version = Utils::GetOSVersion();
@@ -82,7 +83,7 @@ API_DECLSPEC const char* WINAPI Run(
 		version.dwMajorVersion, version.dwMinorVersion, version.dwBuildNumber));
 
 	App& app = App::GetInstance();
-	if (!app.Run(hwndSrc, effectsJson, captureMode, frameRate, flags)
+	if (!app.Run(hwndSrc, effectsJson, captureMode, frameRate, cursorZoomFactor, flags)
 	) {
 		// 初始化失败
 		SPDLOG_LOGGER_INFO(logger, "App.Run 失败");

@@ -14,7 +14,7 @@ namespace Magpie.Options {
 	public partial class ScaleOptionsPage : Page {
 		private static Logger Logger { get; } = LogManager.GetCurrentClassLogger();
 
-		private static readonly float[] cursorZoomFactors = { 0.5f, 1.0f, 1.5f, 2.0f };
+		private static readonly float[] cursorZoomFactors = { 0.5f, 0.75f, 1.0f, 1.5f, 2.0f, 2.5f, 3.0f, -1.0f };
 
 		public ScaleOptionsPage() {
 			InitializeComponent();
@@ -24,16 +24,24 @@ namespace Magpie.Options {
 			}
 
 			cbbCursorZoomFactor.Items.Clear();
-			for (int i = 0; i < cursorZoomFactors.Length; ++i) {
+			for (int i = 0; i < cursorZoomFactors.Length - 1; ++i) {
 				_ = cbbCursorZoomFactor.Items.Add(new ComboBoxItem {
-					Content = cursorZoomFactors[i].ToString() + "x",
-					HorizontalContentAlignment = HorizontalAlignment.Right
+					Content = cursorZoomFactors[i].ToString() + "x"
 				});
 
 				if (Math.Abs(Settings.Default.CursorZoomFactor - cursorZoomFactors[i]) < 1e-5) {
 					cbbCursorZoomFactor.SelectedIndex = i;
 				}
 			}
+
+			_ = cbbCursorZoomFactor.Items.Add(new ComboBoxItem {
+				Content = Properties.Resources.UI_Options_Scale_Cursor_Same_As_Source_Window
+			});
+
+			if(Settings.Default.CursorZoomFactor <= 0) {
+				cbbCursorZoomFactor.SelectedIndex = cursorZoomFactors.Length - 1;
+			}
+
 			if (cbbCursorZoomFactor.SelectedIndex < 0) {
 				Settings.Default.CursorZoomFactor = 1.0f;
 				cbbCursorZoomFactor.SelectedIndex = 2;

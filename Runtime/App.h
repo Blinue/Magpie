@@ -20,6 +20,7 @@ public:
 		const std::string& effectsJson,
 		int captureMode,
 		int frameRate,
+		float cursorZoomFactor,
 		UINT flags
 	);
 
@@ -57,6 +58,10 @@ public:
 
 	int GetFrameRate() const {
 		return _frameRate;
+	}
+
+	float GetCursorZoomFactor() const {
+		return _cursorZoomFactor;
 	}
 
 	bool IsNoCursor() const {
@@ -130,6 +135,7 @@ private:
 
 	int _captureMode = 0;
 	int _frameRate = 0;
+	float _cursorZoomFactor = 0;
 	UINT _flags = 0;
 
 	enum class _FlagMasks : UINT {

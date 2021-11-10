@@ -32,6 +32,7 @@ namespace Magpie {
 			public volatile int captureMode;
 			public volatile string effectsJson;
 			public volatile int frameRateOrLogLevel;
+			public volatile float cursorZoomFactor;
 			public volatile uint flags;
 			public volatile MagWindowCmd cmd = MagWindowCmd.Run;
 		}
@@ -106,6 +107,7 @@ namespace Magpie {
 							magWindowParams.effectsJson,
 							magWindowParams.captureMode,
 							magWindowParams.frameRateOrLogLevel,
+							magWindowParams.cursorZoomFactor,
 							magWindowParams.flags
 						);
 
@@ -143,12 +145,13 @@ namespace Magpie {
 		public void Create(
 			string effectsJson,
 			int captureMode,
+			int frameRate,
+			float cursorZoomFactor,
 			bool showFPS,
 			bool noCursor,
 			bool adjustCursorSpeed,
 			bool disableRoundCorner,
 			bool disableWindowResizing,
-			int frameRate,
 			bool disableLowLatency,
 			bool breakpointMode
 		) {
@@ -173,6 +176,7 @@ namespace Magpie {
 			magWindowParams.captureMode = captureMode;
 			magWindowParams.effectsJson = effectsJson;
 			magWindowParams.frameRateOrLogLevel = frameRate;
+			magWindowParams.cursorZoomFactor = cursorZoomFactor;
 			magWindowParams.flags = (showFPS ? (uint)FlagMasks.ShowFPS : 0) |
 				(noCursor ? (uint)FlagMasks.NoCursor : 0) |
 				(adjustCursorSpeed ? (uint)FlagMasks.AdjustCursorSpeed : 0) |

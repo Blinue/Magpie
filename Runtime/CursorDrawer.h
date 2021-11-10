@@ -27,9 +27,11 @@ private:
 	SIZE _monoCursorSize{};
 	INT _cursorSpeed = 0;
 	RECT _destRect{};
+	float _zoomFactorX = 1;
+	float _zoomFactorY = 1;
 	SIZE _renderTargetSize{};
-	float _scaleX = 0;
-	float _scaleY = 0;
+	float _clientScaleX = 0;
+	float _clientScaleY = 0;
 	std::unordered_map<HCURSOR, _CursorInfo> _cursorMap;
 
 	ComPtr<ID3D11DeviceContext> _d3dDC;

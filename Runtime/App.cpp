@@ -54,11 +54,13 @@ bool App::Run(
 	const std::string& effectsJson,
 	int captureMode,
 	int frameRate,
+	float cursorZoomFactor,
 	UINT flags
 ) {
 	_hwndSrc = hwndSrc;
 	_captureMode = captureMode;
 	_frameRate = frameRate;
+	_cursorZoomFactor = cursorZoomFactor;
 	_flags = flags;
 
 	SPDLOG_LOGGER_INFO(logger, fmt::format("运行时参数：\n\thwndSrc：{}\n\tcaptureMode：{}\n\tadjustCursorSpeed：{}\n\tshowFPS：{}\n\tdisableRoundCorner：{}\n\tframeRate：{}\n\tdisableLowLatency：{}\n\tbreakpointMode：{}", (void*)hwndSrc, captureMode, IsAdjustCursorSpeed(), IsShowFPS(), IsDisableRoundCorner(), frameRate, IsDisableLowLatency(), IsBreakpointMode()));

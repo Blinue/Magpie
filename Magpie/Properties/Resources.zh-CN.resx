@@ -270,6 +270,9 @@
   <data name="UI_Options_Scale_Cursor_Do_Not_Draw" xml:space="preserve">
     <value>不绘制光标</value>
   </data>
+  <data name="UI_Options_Scale_Cursor_Same_As_Source_Window" xml:space="preserve">
+    <value>和源窗口相同</value>
+  </data>
   <data name="UI_Options_Scale_Cursor_Zoom_Factor" xml:space="preserve">
     <value>光标缩放系数</value>
   </data>

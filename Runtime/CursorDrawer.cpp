@@ -15,6 +15,14 @@ bool CursorDrawer::Initialize(ComPtr<ID3D11Texture2D> renderTarget, const RECT& 
 		_d3dDC = renderer.GetD3DDC();
 		_d3dDevice = renderer.GetD3DDevice();
 
+		_zoomFactorX = _zoomFactorY = App::GetInstance().GetCursorZoomFactor();
+		if (_zoomFactorX <= 0) {
+			D3D11_TEXTURE2D_DESC desc{};
+			app.GetFrameSource().GetOutput()->GetDesc(&desc);
+			_zoomFactorX = float(destRect.right - destRect.left) / desc.Width;
+			_zoomFactorY = float(destRect.bottom - destRect.top) / desc.Height;
+		}
+
 		if (!renderer.GetRenderTargetView(renderTarget.Get(), &_rtv)) {
 			SPDLOG_LOGGER_ERROR(logger, "GetRenderTargetView 失败");
 			return false;
@@ -54,8 +62,8 @@ bool CursorDrawer::Initialize(ComPtr<ID3D11Texture2D> renderTarget, const RECT& 
 		_monoCursorSize = { GetSystemMetrics(SM_CXCURSOR), GetSystemMetrics(SM_CYCURSOR) };
 
 		D3D11_TEXTURE2D_DESC desc{};
-		desc.Width = _monoCursorSize.cx;
-		desc.Height = _monoCursorSize.cy;
+		desc.Width = lroundf(_monoCursorSize.cx * _zoomFactorX);
+		desc.Height = lroundf(_monoCursorSize.cy * _zoomFactorY);
 		desc.MipLevels = 1;
 		desc.ArraySize = 1;
 		desc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
@@ -90,8 +98,8 @@ bool CursorDrawer::Initialize(ComPtr<ID3D11Texture2D> renderTarget, const RECT& 
 	const RECT& srcClient = app.GetSrcClientRect();
 	SIZE srcSize = { srcClient.right - srcClient.left, srcClient.bottom - srcClient.top };
 
-	_scaleX = float(destRect.right - destRect.left) / srcSize.cx;
-	_scaleY = float(destRect.bottom - destRect.top) / srcSize.cy;
+	_clientScaleX = float(destRect.right - destRect.left) / srcSize.cx;
+	_clientScaleY = float(destRect.bottom - destRect.top) / srcSize.cy;
 	
 	if (!App::GetInstance().IsBreakpointMode()) {
 		// 限制光标在窗口内
@@ -109,7 +117,7 @@ bool CursorDrawer::Initialize(ComPtr<ID3D11Texture2D> renderTarget, const RECT& 
 		if (App::GetInstance().IsAdjustCursorSpeed()) {
 			// 设置鼠标移动速度
 			if (SystemParametersInfo(SPI_GETMOUSESPEED, 0, &_cursorSpeed, 0)) {
-				long newSpeed = std::clamp(lroundf(_cursorSpeed / (_scaleX + _scaleY) * 2), 1L, 20L);
+				long newSpeed = std::clamp(lroundf(_cursorSpeed / (_clientScaleX + _clientScaleY) * 2), 1L, 20L);
 
 				if (!SystemParametersInfo(SPI_SETMOUSESPEED, 0, (PVOID)(intptr_t)newSpeed, 0)) {
 					SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("设置光标移速失败"));
@@ -368,13 +376,13 @@ void CursorDrawer::Draw() {
 		}
 	}
 
-	SIZE cursorSize = { info->width, info->height };
+	SIZE cursorSize = { lroundf(info->width * _zoomFactorX), lroundf(info->height * _zoomFactorY) };
 
 	// 映射坐标
 	const RECT& srcClient = App::GetInstance().GetSrcClientRect();
 	POINT targetScreenPos = {
-		lroundf((ci.ptScreenPos.x - srcClient.left) * _scaleX) - info->xHotSpot,
-		lroundf((ci.ptScreenPos.y - srcClient.top) * _scaleY) - info->yHotSpot
+		lroundf((ci.ptScreenPos.x - srcClient.left) * _clientScaleX - info->xHotSpot * _zoomFactorX),
+		lroundf((ci.ptScreenPos.y - srcClient.top) * _clientScaleY - info->yHotSpot * _zoomFactorY)
 	};
 
 	RECT cursorRect{

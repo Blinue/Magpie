@@ -160,6 +160,7 @@ namespace Magpie {
 			[MarshalAs(UnmanagedType.LPUTF8Str)] string effectsJson,
 			int captureMode,
 			int frameRate,
+			float cursorZoomFactor,
 			uint flags
 		);
 
@@ -168,9 +169,10 @@ namespace Magpie {
 			string effectsJson,
 			int captureMode,
 			int frameRate,
+			float cursorZoomFactor,
 			uint flags
 		) {
-			IntPtr msg = RunNative(hwndSrc, effectsJson, captureMode, frameRate, flags);
+			IntPtr msg = RunNative(hwndSrc, effectsJson, captureMode, frameRate, cursorZoomFactor, flags);
 			return Marshal.PtrToStringAnsi(msg);
 		}
 	}

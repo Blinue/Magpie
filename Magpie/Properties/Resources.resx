@@ -281,6 +281,9 @@
   <data name="UI_Options_Scale_Cursor_Do_Not_Draw" xml:space="preserve">
     <value>Do not Draw the Cursor</value>
   </data>
+  <data name="UI_Options_Scale_Cursor_Same_As_Source_Window" xml:space="preserve">
+    <value>Same as Source Window</value>
+  </data>
   <data name="UI_Options_Scale_Cursor_Zoom_Factor" xml:space="preserve">
     <value>Zoom Factor of the Cursor</value>
   </data>
