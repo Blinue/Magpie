@@ -25,7 +25,7 @@ namespace Magpie {
 
 		private static Mutex mutex = new Mutex(true, "{4C416227-4A30-4A2F-8F23-8701544DD7D6}");
 
-		public static void SetLogLevel(int logLevel) {
+		public static void SetLogLevel(uint logLevel) {
 			LogLevel minLogLevel = LogLevel.Info;
 			switch (logLevel) {
 				case 0:

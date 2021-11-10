@@ -12,7 +12,7 @@ namespace Magpie.Properties {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "16.10.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "17.0.3.0")]
     public sealed partial class Settings : global::System.Configuration.ApplicationSettingsBase {
         
         private static Settings defaultInstance = ((Settings)(global::System.Configuration.ApplicationSettingsBase.Synchronized(new Settings())));
@@ -38,9 +38,9 @@ namespace Magpie.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("0")]
-        public int ScaleMode {
+        public uint ScaleMode {
             get {
-                return ((int)(this["ScaleMode"]));
+                return ((uint)(this["ScaleMode"]));
             }
             set {
                 this["ScaleMode"] = value;
@@ -62,9 +62,9 @@ namespace Magpie.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("0")]
-        public int CaptureMode {
+        public uint CaptureMode {
             get {
-                return ((int)(this["CaptureMode"]));
+                return ((uint)(this["CaptureMode"]));
             }
             set {
                 this["CaptureMode"] = value;
@@ -122,9 +122,9 @@ namespace Magpie.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("1")]
-        public int LoggingLevel {
+        public uint LoggingLevel {
             get {
-                return ((int)(this["LoggingLevel"]));
+                return ((uint)(this["LoggingLevel"]));
             }
             set {
                 this["LoggingLevel"] = value;
@@ -146,9 +146,9 @@ namespace Magpie.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("60")]
-        public int FrameRateLimit {
+        public uint FrameRateLimit {
             get {
-                return ((int)(this["FrameRateLimit"]));
+                return ((uint)(this["FrameRateLimit"]));
             }
             set {
                 this["FrameRateLimit"] = value;
@@ -260,6 +260,18 @@ namespace Magpie.Properties {
             }
             set {
                 this["DisableWindowResizing"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public uint CursorInterpolationMode {
+            get {
+                return ((uint)(this["CursorInterpolationMode"]));
+            }
+            set {
+                this["CursorInterpolationMode"] = value;
             }
         }
     }

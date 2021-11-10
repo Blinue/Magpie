@@ -5,13 +5,13 @@
     <Setting Name="Hotkey" Type="System.String" Scope="User">
       <Value Profile="(Default)">Alt+F11</Value>
     </Setting>
-    <Setting Name="ScaleMode" Type="System.Int32" Scope="User">
+    <Setting Name="ScaleMode" Type="System.UInt32" Scope="User">
       <Value Profile="(Default)">0</Value>
     </Setting>
     <Setting Name="ShowFPS" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
-    <Setting Name="CaptureMode" Type="System.Int32" Scope="User">
+    <Setting Name="CaptureMode" Type="System.UInt32" Scope="User">
       <Value Profile="(Default)">0</Value>
     </Setting>
     <Setting Name="MinimizeAtWindowsStartUp" Type="System.Boolean" Scope="User">
@@ -26,13 +26,13 @@
     <Setting Name="CultureName" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
-    <Setting Name="LoggingLevel" Type="System.Int32" Scope="User">
+    <Setting Name="LoggingLevel" Type="System.UInt32" Scope="User">
       <Value Profile="(Default)">1</Value>
     </Setting>
     <Setting Name="MinimizeWhenClose" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
-    <Setting Name="FrameRateLimit" Type="System.Int32" Scope="User">
+    <Setting Name="FrameRateLimit" Type="System.UInt32" Scope="User">
       <Value Profile="(Default)">60</Value>
     </Setting>
     <Setting Name="FrameRateType" Type="System.Int32" Scope="User">
@@ -61,6 +61,9 @@
     </Setting>
     <Setting Name="DisableWindowResizing" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="CursorInterpolationMode" Type="System.UInt32" Scope="User">
+      <Value Profile="(Default)">0</Value>
     </Setting>
   </Settings>
 </SettingsFile>

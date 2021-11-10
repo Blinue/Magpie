@@ -29,10 +29,11 @@ namespace Magpie {
 		// 传递给 magThread 的参数
 		private class MagWindowParams {
 			public volatile IntPtr hwndSrc;
-			public volatile int captureMode;
+			public volatile uint captureMode;
 			public volatile string effectsJson;
 			public volatile int frameRateOrLogLevel;
 			public volatile float cursorZoomFactor;
+			public volatile uint cursorInterpolationMode;
 			public volatile uint flags;
 			public volatile MagWindowCmd cmd = MagWindowCmd.Run;
 		}
@@ -60,7 +61,7 @@ namespace Magpie {
 			magThread = new Thread(() => {
 				Logger.Info("正在新线程中创建全屏窗口");
 
-				int ResolveLogLevel(int logLevel) {
+				uint ResolveLogLevel(uint logLevel) {
 					switch (logLevel) {
 						case 1:
 							return 2;
@@ -100,7 +101,7 @@ namespace Magpie {
 					}
 
 					if (magWindowParams.cmd == MagWindowCmd.SetLogLevel) {
-						NativeMethods.SetLogLevel(ResolveLogLevel(magWindowParams.frameRateOrLogLevel));
+						NativeMethods.SetLogLevel(ResolveLogLevel((uint)magWindowParams.frameRateOrLogLevel));
 					} else {
 						string msg = NativeMethods.Run(
 							magWindowParams.hwndSrc,
@@ -108,6 +109,7 @@ namespace Magpie {
 							magWindowParams.captureMode,
 							magWindowParams.frameRateOrLogLevel,
 							magWindowParams.cursorZoomFactor,
+							magWindowParams.cursorInterpolationMode,
 							magWindowParams.flags
 						);
 
@@ -144,9 +146,10 @@ namespace Magpie {
 
 		public void Create(
 			string effectsJson,
-			int captureMode,
+			uint captureMode,
 			int frameRate,
 			float cursorZoomFactor,
+			uint cursorInterpolationMode,
 			bool showFPS,
 			bool noCursor,
 			bool adjustCursorSpeed,
@@ -177,6 +180,7 @@ namespace Magpie {
 			magWindowParams.effectsJson = effectsJson;
 			magWindowParams.frameRateOrLogLevel = frameRate;
 			magWindowParams.cursorZoomFactor = cursorZoomFactor;
+			magWindowParams.cursorInterpolationMode = cursorInterpolationMode;
 			magWindowParams.flags = (showFPS ? (uint)FlagMasks.ShowFPS : 0) |
 				(noCursor ? (uint)FlagMasks.NoCursor : 0) |
 				(adjustCursorSpeed ? (uint)FlagMasks.AdjustCursorSpeed : 0) |
@@ -189,9 +193,9 @@ namespace Magpie {
 			Running = true;
 		}
 
-		public void SetLogLevel(int logLevel) {
+		public void SetLogLevel(uint logLevel) {
 			magWindowParams.cmd = MagWindowCmd.SetLogLevel;
-			magWindowParams.frameRateOrLogLevel = logLevel;
+			magWindowParams.frameRateOrLogLevel = (int)logLevel;
 
 			_ = runEvent.Set();
 		}

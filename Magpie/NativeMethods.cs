@@ -149,30 +149,32 @@ namespace Magpie {
 
 		[DllImport("Runtime", CallingConvention = CallingConvention.StdCall)]
 		[return: MarshalAs(UnmanagedType.Bool)]
-		public static extern bool Initialize(int logLevel);
+		public static extern bool Initialize(uint logLevel);
 
 		[DllImport("Runtime", CallingConvention = CallingConvention.StdCall)]
-		public static extern void SetLogLevel(int logLevel);
+		public static extern void SetLogLevel(uint logLevel);
 
 		[DllImport("Runtime", EntryPoint = "Run", CallingConvention = CallingConvention.StdCall)]
 		private static extern IntPtr RunNative(
 			IntPtr hwndSrc,
 			[MarshalAs(UnmanagedType.LPUTF8Str)] string effectsJson,
-			int captureMode,
+			uint captureMode,
 			int frameRate,
 			float cursorZoomFactor,
+			uint cursorInterpolationMode,
 			uint flags
 		);
 
 		public static string Run(
 			IntPtr hwndSrc,
 			string effectsJson,
-			int captureMode,
+			uint captureMode,
 			int frameRate,
 			float cursorZoomFactor,
+			uint cursorInterpolationMode,
 			uint flags
 		) {
-			IntPtr msg = RunNative(hwndSrc, effectsJson, captureMode, frameRate, cursorZoomFactor, flags);
+			IntPtr msg = RunNative(hwndSrc, effectsJson, captureMode, frameRate, cursorZoomFactor, cursorInterpolationMode, flags);
 			return Marshal.PtrToStringAnsi(msg);
 		}
 	}

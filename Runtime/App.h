@@ -18,9 +18,10 @@ public:
 	bool Run(
 		HWND hwndSrc,
 		const std::string& effectsJson,
-		int captureMode,
+		UINT captureMode,
 		int frameRate,
 		float cursorZoomFactor,
+		UINT cursorInterpolationMode,
 		UINT flags
 	);
 
@@ -52,7 +53,7 @@ public:
 		return *_frameSource;
 	}
 
-	int GetCaptureMode() const {
+	UINT GetCaptureMode() const {
 		return _captureMode;
 	}
 
@@ -62,6 +63,10 @@ public:
 
 	float GetCursorZoomFactor() const {
 		return _cursorZoomFactor;
+	}
+
+	UINT GetCursorInterpolationMode() const {
+		return _cursorInterpolationMode;
 	}
 
 	bool IsNoCursor() const {
@@ -133,9 +138,10 @@ private:
 	SIZE _hostWndSize{};
 	RECT _srcClientRect{};
 
-	int _captureMode = 0;
+	UINT _captureMode = 0;
 	int _frameRate = 0;
 	float _cursorZoomFactor = 0;
+	UINT _cursorInterpolationMode = 02;
 	UINT _flags = 0;
 
 	enum class _FlagMasks : UINT {

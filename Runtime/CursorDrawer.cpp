@@ -436,7 +436,10 @@ void CursorDrawer::Draw() {
 
 		_d3dDC->Unmap(_vtxBuffer.Get(), 0);
 
-		if (!renderer.SetCopyPS(_pointSam, info->texture.Get())) {
+		if (!renderer.SetCopyPS(
+			App::GetInstance().GetCursorInterpolationMode() == 0 ? _pointSam : _linearSam,
+			info->texture.Get())
+		) {
 			SPDLOG_LOGGER_ERROR(logger, "SetCopyPS 失败");
 			return;
 		}
@@ -505,7 +508,7 @@ void CursorDrawer::Draw() {
 		_d3dDC->OMSetRenderTargets(0, nullptr, nullptr);
 		ID3D11ShaderResourceView* srv[2] = { _monoTmpSrv, info->texture.Get() };
 		_d3dDC->PSSetShaderResources(0, 2, srv);
-		_d3dDC->PSSetSamplers(0, 1, &_pointSam);
+		_d3dDC->PSSetSamplers(0, 1, App::GetInstance().GetCursorInterpolationMode() == 0 ? &_pointSam : &_linearSam);
 
 		_d3dDC->OMSetRenderTargets(1, &_rtv, nullptr);
 		vp.TopLeftX = (FLOAT)_destRect.left;

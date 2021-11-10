@@ -33,7 +33,7 @@ BOOL APIENTRY DllMain(
 
 // 日志级别：
 // 0：TRACE，1：DEBUG，...，6：OFF
-API_DECLSPEC void WINAPI SetLogLevel(int logLevel) {
+API_DECLSPEC void WINAPI SetLogLevel(UINT logLevel) {
 	assert(logger);
 
 	logger->flush();
@@ -43,7 +43,7 @@ API_DECLSPEC void WINAPI SetLogLevel(int logLevel) {
 }
 
 
-API_DECLSPEC BOOL WINAPI Initialize(int logLevel) {
+API_DECLSPEC BOOL WINAPI Initialize(UINT logLevel) {
 	// 初始化日志
 	try {
 		logger = spdlog::rotating_logger_mt(".", "logs/Runtime.log", 100000, 1);
@@ -73,9 +73,10 @@ API_DECLSPEC BOOL WINAPI Initialize(int logLevel) {
 API_DECLSPEC const char* WINAPI Run(
 	HWND hwndSrc,
 	const char* effectsJson,
-	int captureMode,
+	UINT captureMode,
 	int frameRate,	// 0：垂直同步，负数：不限帧率，正数：限制的帧率
 	float cursorZoomFactor,	// 负数和 0：和源原窗口相同，正数：缩放比例
+	UINT cursorInterpolationMode,	// 0：最近邻，1：双线性
 	UINT flags
 ) {
 	const auto& version = Utils::GetOSVersion();
@@ -83,7 +84,7 @@ API_DECLSPEC const char* WINAPI Run(
 		version.dwMajorVersion, version.dwMinorVersion, version.dwBuildNumber));
 
 	App& app = App::GetInstance();
-	if (!app.Run(hwndSrc, effectsJson, captureMode, frameRate, cursorZoomFactor, flags)
+	if (!app.Run(hwndSrc, effectsJson, captureMode, frameRate, cursorZoomFactor, cursorInterpolationMode, flags)
 	) {
 		// 初始化失败
 		SPDLOG_LOGGER_INFO(logger, "App.Run 失败");

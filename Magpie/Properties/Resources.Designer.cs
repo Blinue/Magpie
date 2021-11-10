@@ -592,6 +592,33 @@ namespace Magpie.Properties {
         }
         
         /// <summary>
+        ///   查找类似 Interpolation Mode 的本地化字符串。
+        /// </summary>
+        public static string UI_Options_Scale_Cursor_Interpolation_Mode {
+            get {
+                return ResourceManager.GetString("UI_Options_Scale_Cursor_Interpolation_Mode", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Bilinear 的本地化字符串。
+        /// </summary>
+        public static string UI_Options_Scale_Cursor_Interpolation_Mode_Bilinear {
+            get {
+                return ResourceManager.GetString("UI_Options_Scale_Cursor_Interpolation_Mode_Bilinear", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Nearest 的本地化字符串。
+        /// </summary>
+        public static string UI_Options_Scale_Cursor_Interpolation_Mode_Nearest {
+            get {
+                return ResourceManager.GetString("UI_Options_Scale_Cursor_Interpolation_Mode_Nearest", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Same as Source Window 的本地化字符串。
         /// </summary>
         public static string UI_Options_Scale_Cursor_Same_As_Source_Window {
