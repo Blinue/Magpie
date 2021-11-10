@@ -61,6 +61,7 @@
     <ClCompile Include="FrameSourceBase.cpp">
       <Filter>捕获</Filter>
     </ClCompile>
+    <ClCompile Include="ImageReizer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="resource.h">
@@ -132,6 +133,7 @@
     <ClInclude Include="TextureLoader.h">
       <Filter>渲染</Filter>
     </ClInclude>
+    <ClInclude Include="ImageReizer.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />

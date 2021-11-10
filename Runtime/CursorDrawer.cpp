@@ -368,6 +368,8 @@ void CursorDrawer::Draw() {
 		}
 	}
 
+	SIZE cursorSize = { info->width, info->height };
+
 	// 映射坐标
 	const RECT& srcClient = App::GetInstance().GetSrcClientRect();
 	POINT targetScreenPos = {
@@ -378,8 +380,8 @@ void CursorDrawer::Draw() {
 	RECT cursorRect{
 		targetScreenPos.x + _destRect.left,
 		targetScreenPos.y + _destRect.top,
-		targetScreenPos.x + (LONG)info->width + _destRect.left,
-		targetScreenPos.y + (LONG)info->height + _destRect.top
+		targetScreenPos.x + cursorSize.cx + _destRect.left,
+		targetScreenPos.y + cursorSize.cy + _destRect.top
 	};
 
 	if (cursorRect.right <= _destRect.left || cursorRect.bottom <= _destRect.top
@@ -392,8 +394,8 @@ void CursorDrawer::Draw() {
 
 	float left = targetScreenPos.x / FLOAT(_destRect.right - _destRect.left) * 2 - 1.0f;
 	float top = 1.0f - targetScreenPos.y / FLOAT(_destRect.bottom - _destRect.top) * 2;
-	float right = left + info->width / FLOAT(_destRect.right - _destRect.left) * 2;
-	float bottom = top - info->height / FLOAT(_destRect.bottom - _destRect.top) * 2;
+	float right = left + cursorSize.cx / FLOAT(_destRect.right - _destRect.left) * 2;
+	float bottom = top - cursorSize.cy / FLOAT(_destRect.bottom - _destRect.top) * 2;
 
 	Renderer& renderer = App::GetInstance().GetRenderer();
 	renderer.SetSimpleVS(_vtxBuffer.Get());
@@ -445,8 +447,8 @@ void CursorDrawer::Draw() {
 		// 不知为何 CopySubresourceRegion 会大幅增加 GPU 占用
 		_d3dDC->OMSetRenderTargets(1, &_monoTmpRtv, nullptr);
 		D3D11_VIEWPORT vp{};
-		vp.Width = (FLOAT)info->width;
-		vp.Height = (FLOAT)info->height;
+		vp.Width = (FLOAT)cursorSize.cx;
+		vp.Height = (FLOAT)cursorSize.cy;
 		vp.MaxDepth = 1.0f;
 		_d3dDC->RSSetViewports(1, &vp);
 		
