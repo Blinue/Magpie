@@ -90,7 +90,9 @@ bool App::Run(
 	}
 
 	if (IsDisableDirectFlip() && !IsBreakpointMode()) {
-		_DisableDirectFlip();
+		if (!_DisableDirectFlip()) {
+			SPDLOG_LOGGER_ERROR(logger, "_DisableDirectFlip 失败");
+		}
 	}
 
 	_renderer.reset(new Renderer());
@@ -329,7 +331,8 @@ bool App::_CreateHostWnd() {
 }
 
 bool App::_DisableDirectFlip() {
-	// 没有显式关闭 DirectFlip 的方法，这里创建一个几乎不可见的置顶窗口
+	// 没有显式关闭 DirectFlip 的方法
+	// 将全屏窗口设为稍微透明，以灰色全屏窗口为背景
 	_hwndDDF = CreateWindowEx(
 		WS_EX_NOACTIVATE | WS_EX_LAYERED | WS_EX_TRANSPARENT,
 		DDF_WINDOW_CLASS_NAME, NULL, WS_CLIPCHILDREN | WS_POPUP | WS_VISIBLE,
@@ -341,7 +344,9 @@ bool App::_DisableDirectFlip() {
 		return false;
 	}
 
-	SetWindowPos(_hwndDDF, _hwndHost, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOREDRAW);
+	if (!SetWindowPos(_hwndDDF, _hwndHost, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOREDRAW)) {
+		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("SetWindowPos 失败"));
+	}
 
 	// 设置窗口不透明
 	if (!SetLayeredWindowAttributes(_hwndDDF, 0, 255, LWA_ALPHA)) {
