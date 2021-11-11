@@ -67,7 +67,8 @@
                 <RadioButton x:Name="rdbLimitFrameRate" GroupName="FrameRate" 
                              IsChecked="{Binding Source={x:Static props:Settings.Default},Path=FrameRateType, Converter={StaticResource radioBoolToIntConverter},ConverterParameter=2,Mode=TwoWay}" 
                              Content="{x:Static props:Resources.UI_Options_Scale_Frame_Rate_Limiter}" VerticalAlignment="Center"  />
-                <Slider IsEnabled="{Binding ElementName=rdbLimitFrameRate, Path=IsChecked,Mode=OneWay}" 
+                <Slider x:Name="sldFrameRate"
+                        IsEnabled="{Binding ElementName=rdbLimitFrameRate, Path=IsChecked,Mode=OneWay}" 
                         Value="{Binding Source={x:Static props:Settings.Default},Path=FrameRateLimit,Mode=TwoWay}" 
                         Width="200" Minimum="30" Maximum="144" LargeChange="10" SmallChange="5" Margin="10,0,0,0" 
                         TickFrequency="1" IsSnapToTickEnabled="True" />
