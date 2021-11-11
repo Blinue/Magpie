@@ -637,6 +637,15 @@ namespace Magpie.Properties {
         }
         
         /// <summary>
+        ///   查找类似 Disable DirectFlip 的本地化字符串。
+        /// </summary>
+        public static string UI_Options_Scale_Disable_DirectFlip {
+            get {
+                return ResourceManager.GetString("UI_Options_Scale_Disable_DirectFlip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Allow Additional Latency to Improve Performance 的本地化字符串。
         /// </summary>
         public static string UI_Options_Scale_Disable_Low_Latency {

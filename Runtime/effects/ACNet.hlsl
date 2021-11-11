@@ -4143,8 +4143,6 @@ const static float kernelsL10[4 * 8] = {
 	 0.0415, -0.1858
 };
 
-const static float4 biasL = { -0.0006,  0.0117,  0.0083,  0.0686 };
-
 
 const static float3x3 _yuv2rgb = {
 	1, -0.00093, 1.401687,

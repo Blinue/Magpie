@@ -285,6 +285,9 @@
   <data name="UI_Options_Scale_Cursor_Zoom_Factor" xml:space="preserve">
     <value>光标缩放系数</value>
   </data>
+  <data name="UI_Options_Scale_Disable_DirectFlip" xml:space="preserve">
+    <value>禁用 DirectFlip</value>
+  </data>
   <data name="UI_Options_Scale_Disable_Low_Latency" xml:space="preserve">
     <value>允许额外的延迟以提高性能</value>
   </data>

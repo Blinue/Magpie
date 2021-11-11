@@ -274,5 +274,17 @@ namespace Magpie.Properties {
                 this["CursorInterpolationMode"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool DisableDirectFlip {
+            get {
+                return ((bool)(this["DisableDirectFlip"]));
+            }
+            set {
+                this["DisableDirectFlip"] = value;
+            }
+        }
     }
 }

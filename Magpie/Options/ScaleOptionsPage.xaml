@@ -82,6 +82,9 @@
             <CheckBox Content="{x:Static props:Resources.UI_Options_Scale_Disable_Low_Latency}"
                       Margin="0,10,0,0"
                       IsChecked="{Binding Source={x:Static props:Settings.Default},Path=DisableLowLatency,Mode=TwoWay}" />
+            <CheckBox Content="{x:Static props:Resources.UI_Options_Scale_Disable_DirectFlip}"
+                      Margin="0,10,0,0"
+                      IsChecked="{Binding Source={x:Static props:Settings.Default},Path=DisableDirectFlip,Mode=TwoWay}" />
         </StackPanel>
     </StackPanel>
 </Page>

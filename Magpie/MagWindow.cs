@@ -45,7 +45,8 @@ namespace Magpie {
 			DisableRoundCorner = 0x8,
 			DisableLowLatency = 0x10,
 			BreakpointMode = 0x20,
-			DisableWindowResizing = 0x40
+			DisableWindowResizing = 0x40,
+			DisableDirectFlip = 0x80
 		}
 
 		private readonly MagWindowParams magWindowParams = new MagWindowParams();
@@ -156,7 +157,8 @@ namespace Magpie {
 			bool disableRoundCorner,
 			bool disableWindowResizing,
 			bool disableLowLatency,
-			bool breakpointMode
+			bool breakpointMode,
+			bool disableDirectFlip
 		) {
 			if (Running) {
 				Logger.Info("已存在全屏窗口，取消进入全屏");
@@ -187,7 +189,8 @@ namespace Magpie {
 				(disableRoundCorner ? (uint)FlagMasks.DisableRoundCorner : 0) |
 				(disableLowLatency ? (uint)FlagMasks.DisableLowLatency : 0) |
 				(breakpointMode ? (uint)FlagMasks.BreakpointMode : 0) |
-				(disableWindowResizing ? (uint)FlagMasks.DisableWindowResizing : 0);
+				(disableWindowResizing ? (uint)FlagMasks.DisableWindowResizing : 0) |
+				(disableDirectFlip ? (uint)FlagMasks.DisableDirectFlip : 0);
 
 			_ = runEvent.Set();
 			Running = true;

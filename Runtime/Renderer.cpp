@@ -388,7 +388,7 @@ void Renderer::_Render() {
 
 	if (!_CheckSrcState()) {
 		SPDLOG_LOGGER_INFO(logger, "源窗口状态改变，退出全屏");
-		DestroyWindow(App::GetInstance().GetHwndHost());
+		App::GetInstance().Close();
 		return;
 	}
 

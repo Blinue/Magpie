@@ -25,6 +25,8 @@ public:
 		UINT flags
 	);
 
+	void Close();
+
 	HINSTANCE GetHInstance() const {
 		return _hInst;
 	}
@@ -97,6 +99,10 @@ public:
 		return _flags & (UINT)_FlagMasks::BreakpointMode;
 	}
 
+	bool IsDisableDirectFlip() const {
+		return _flags & (UINT)_FlagMasks::DisableDirectFlip;
+	}
+
 	const char* GetErrorMsg() const {
 		return _errorMsg;
 	}
@@ -114,10 +120,12 @@ private:
 
 	void _Run();
 
-	void _RegisterHostWndClass() const;
+	void _RegisterWndClasses() const;
 
 	// 创建主窗口
 	bool _CreateHostWnd();
+
+	bool _DisableDirectFlip();
 
 	static LRESULT CALLBACK _HostWndProcStatic(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
@@ -127,13 +135,12 @@ private:
 
 	const char* _errorMsg = ErrorMessages::GENERIC;
 
-	// 全屏窗口类名
-	static constexpr const wchar_t* _HOST_WINDOW_CLASS_NAME = L"Window_Magpie_967EB565-6F73-4E94-AE53-00CC42592A22";
-	static const UINT _WM_DESTORYHOST;
-
 	HINSTANCE _hInst = NULL;
 	HWND _hwndSrc = NULL;
 	HWND _hwndHost = NULL;
+
+	// 用于关闭 DirectFlip
+	HWND _hwndDDF = NULL;
 
 	SIZE _hostWndSize{};
 	RECT _srcClientRect{};
@@ -151,7 +158,8 @@ private:
 		DisableRoundCorner = 0x8,
 		DisableLowLatency = 0x10,
 		BreakpointMode = 0x20,
-		DisableWindowResizing = 0x40
+		DisableWindowResizing = 0x40,
+		DisableDirectFlip = 0x80
 	};
 
 	std::unique_ptr<Renderer> _renderer;

@@ -254,7 +254,8 @@ namespace Magpie {
 				Settings.Default.DisableRoundCorner,
 				Settings.Default.DisableWindowResizing,
 				Settings.Default.DisableLowLatency,
-				Settings.Default.DebugBreakpointMode
+				Settings.Default.DebugBreakpointMode,
+				Settings.Default.DisableDirectFlip
 			);
 
 			prevSrcWindow = magWindow.SrcWindow;
