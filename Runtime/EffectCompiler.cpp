@@ -1090,10 +1090,7 @@ UINT EffectCompiler::_ResolvePasses(const std::vector<std::string_view>& blocks,
 				SubmitThreadpoolWork(work);
 			}
 
-			if (!_CompilePassPS(passSources[0], "__M", desc.passes[0].cso.ReleaseAndGetAddressOf(), 1)) {
-				CloseThreadpoolWork(work);
-				return 1;
-			}
+			_CompilePassPS(passSources[0], "__M", desc.passes[0].cso.ReleaseAndGetAddressOf(), 1);
 
 			WaitForThreadpoolWorkCallbacks(work, FALSE);
 			CloseThreadpoolWork(work);

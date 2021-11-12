@@ -275,7 +275,7 @@
     <CopyFileToFolders Include="effects\Anime4K_Denoise_Bilateral_Median.hlsl">
       <FileType>Document</FileType>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="effects\Anime4K_Restore_M.hlsl">
+    <CopyFileToFolders Include="effects\Anime4K_Restore_Soft_M.hlsl">
       <FileType>Document</FileType>
     </CopyFileToFolders>
     <CopyFileToFolders Include="effects\Anime4K_Restore_VL.hlsl">
@@ -348,6 +348,12 @@
       <FileType>Document</FileType>
     </CopyFileToFolders>
     <CopyFileToFolders Include="effects\Anime4K_Restore_L.hlsl">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="effects\Anime4K_Restore_Soft_L.hlsl">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="effects\Anime4K_Restore_M.hlsl">
       <FileType>Document</FileType>
     </CopyFileToFolders>
     <FxCompile Include="shaders\CopyPS.hlsl">
