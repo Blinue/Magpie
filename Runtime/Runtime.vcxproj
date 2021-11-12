@@ -356,6 +356,12 @@
     <CopyFileToFolders Include="effects\Anime4K_Restore_M.hlsl">
       <FileType>Document</FileType>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="effects\Anime4K_3D_AA_Upscale_US.hlsl">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="effects\Anime4K_3D_Upscale_US.hlsl">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
     <FxCompile Include="shaders\CopyPS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>

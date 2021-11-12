@@ -336,5 +336,11 @@
     <CopyFileToFolders Include="effects\Anime4K_Restore_M.hlsl">
       <Filter>效果</Filter>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="effects\Anime4K_3D_AA_Upscale_US.hlsl">
+      <Filter>效果</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="effects\Anime4K_3D_Upscale_US.hlsl">
+      <Filter>效果</Filter>
+    </CopyFileToFolders>
   </ItemGroup>
 </Project>
