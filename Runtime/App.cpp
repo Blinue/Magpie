@@ -11,9 +11,8 @@
 extern std::shared_ptr<spdlog::logger> logger;
 
 const UINT WM_DESTORYHOST = RegisterWindowMessage(L"MAGPIE_WM_DESTORYHOST");
-// 全屏窗口类名
+
 static constexpr const wchar_t* HOST_WINDOW_CLASS_NAME = L"Window_Magpie_967EB565-6F73-4E94-AE53-00CC42592A22";
-// 用于关闭 DirectFlip 的窗口类名
 static constexpr const wchar_t* DDF_WINDOW_CLASS_NAME = L"Window_Magpie_C322D752-C866-4630-91F5-32CB242A8930";
 
 
@@ -280,7 +279,6 @@ void App::_RegisterWndClasses() const {
 	wcex.lpszClassName = DDF_WINDOW_CLASS_NAME;
 
 	if (!RegisterClassEx(&wcex)) {
-		// 忽略此错误，因为可能是重复注册产生的错误
 		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("注册 DDF 窗口类失败"));
 	} else {
 		SPDLOG_LOGGER_INFO(logger, "已注册 DDF 窗口类");
@@ -318,6 +316,7 @@ bool App::_CreateHostWnd() {
 	SPDLOG_LOGGER_INFO(logger, fmt::format("主窗口尺寸：{}x{}", _hostWndSize.cx, _hostWndSize.cy));
 
 	// 设置窗口不透明
+	// 不完全透明时可关闭 DirectFlip
 	if (!SetLayeredWindowAttributes(_hwndHost, 0, IsDisableDirectFlip() ? 254 : 255, LWA_ALPHA)) {
 		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("SetLayeredWindowAttributes 失败"));
 	}

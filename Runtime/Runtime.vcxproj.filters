@@ -327,5 +327,8 @@
     <CopyFileToFolders Include="effects\SMAA_Ultra.hlsl">
       <Filter>效果</Filter>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="effects\Anime4K_Restore_L.hlsl">
+      <Filter>效果</Filter>
+    </CopyFileToFolders>
   </ItemGroup>
 </Project>

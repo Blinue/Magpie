@@ -707,4 +707,3 @@ bool Renderer::GetSampler(EffectSamplerFilterType filterType, ID3D11SamplerState
 
 	return true;
 }
-

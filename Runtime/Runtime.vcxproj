@@ -347,6 +347,9 @@
     <CopyFileToFolders Include="effects\SMAA_Ultra.hlsl">
       <FileType>Document</FileType>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="effects\Anime4K_Restore_L.hlsl">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
     <FxCompile Include="shaders\CopyPS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>

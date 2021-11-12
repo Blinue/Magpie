@@ -139,7 +139,7 @@ private:
 	HWND _hwndSrc = NULL;
 	HWND _hwndHost = NULL;
 
-	// 用于关闭 DirectFlip
+	// 关闭 DirectFlip 时的背景全屏窗口
 	HWND _hwndDDF = NULL;
 
 	SIZE _hostWndSize{};
