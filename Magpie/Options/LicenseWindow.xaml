@@ -7,6 +7,7 @@
         xmlns:p="clr-namespace:Magpie.Properties;assembly=Magpie"
         xmlns:resx="clr-namespace:Magpie.Properties"
         mc:Ignorable="d"
+        Icon="{DynamicResource Logo}"
         Title="{x:Static p:Resources.UI_Options_About_Licenses_Title}" Height="400" Width="550" ResizeMode="NoResize">
     <Grid Margin="10">
         <Grid.RowDefinitions>
@@ -15,7 +16,7 @@
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
         <TextBlock Text="{x:Static p:Resources.UI_Options_About_Licenses_Header}" />
-        <TextBox VerticalScrollBarVisibility="Auto" Text="{x:Static resx:Resources.Licenses}" UndoLimit="0" Grid.Row="1" AllowDrop="False" IsTabStop="False" Margin="0,10,0,0" TextWrapping="Wrap" IsUndoEnabled="False" IsReadOnly="True" />
+        <TextBox x:Name="tbLicenses" VerticalScrollBarVisibility="Auto" UndoLimit="0" Grid.Row="1" AllowDrop="False" IsTabStop="False" Margin="0,10,0,0" TextWrapping="Wrap" IsUndoEnabled="False" IsReadOnly="True" />
         <Button Content="{x:Static p:Resources.UI_Options_About_Licenses_Close}" Grid.Row="2" HorizontalAlignment="Right" Margin="0,10,0,0" Padding="10,5" IsDefault="True" Click="BtnOK_Click" />
     </Grid>
 </Window>

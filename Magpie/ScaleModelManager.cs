@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Windows;
-
+using System.Windows.Resources;
 
 namespace Magpie {
 	internal class ScaleModelManager {
@@ -52,8 +52,12 @@ namespace Magpie {
 				}
 			} else {
 				try {
-					json = Properties.Resources.BuiltInScaleModels;
-					File.WriteAllText(App.SCALE_MODELS_JSON_PATH, Properties.Resources.BuiltInScaleModels);
+					Uri uri = new Uri("pack://application:,,,/Magpie;component/Resources/BuiltInScaleModels.json", UriKind.Absolute);
+					StreamResourceInfo info = Application.GetResourceStream(uri);
+					using (StreamReader reader = new StreamReader(info.Stream)) {
+						json = reader.ReadToEnd();
+					}
+					File.WriteAllText(App.SCALE_MODELS_JSON_PATH, json);
 					Logger.Info("已创建默认缩放配置文件");
 				} catch (Exception e) {
 					Logger.Error(e, "创建默认缩放配置文件失败");

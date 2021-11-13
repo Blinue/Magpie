@@ -94,7 +94,7 @@ const RTL_OSVERSIONINFOW& Utils::GetOSVersion() {
 
 bool _IsWin10OrNewer() {
 	const RTL_OSVERSIONINFOW& osVer = Utils::GetOSVersion();
-	return Utils::CompareVersion(osVer.dwMajorVersion, osVer.dwMinorVersion, osVer.dwBuildNumber, 10, 0, 0) >= 0;
+	return osVer.dwMajorVersion >= 10;
 }
 
 bool Utils::IsWin10OrNewer() {

@@ -9,6 +9,8 @@ using System.Windows.Media;
 using System.Windows.Forms;
 using Magpie.Properties;
 using Magpie.Options;
+using System.Windows.Media.Imaging;
+using System.Linq;
 
 
 namespace Magpie {
@@ -43,6 +45,11 @@ namespace Magpie {
 			Interval = new TimeSpan(0, 0, 0, 0, 300)
 		};
 
+		// 每秒检查一次系统主题
+		private readonly DispatcherTimer timerCheckOSTheme = new DispatcherTimer {
+			Interval = new TimeSpan(0, 0, 0, 1, 0),
+		};
+
 		private void Application_Closing() {
 			magWindow.Dispose();
 
@@ -55,6 +62,12 @@ namespace Magpie {
 			InitializeComponent();
 
 			InitNotifyIcon();
+
+			CheckOSTheme();
+			timerCheckOSTheme.Tick += (sender, e) => {
+				CheckOSTheme();
+			};
+			timerCheckOSTheme.Start();
 
 			BindScaleModels();
 			scaleModelManager.ScaleModelsChanged += BindScaleModels;
@@ -78,7 +91,7 @@ namespace Magpie {
 
 		void InitNotifyIcon() {
 			notifyIcon.Visible = false;
-			notifyIcon.Icon = Properties.Resources.Logo;
+			
 			notifyIcon.Text = Title;
 			notifyIcon.MouseClick += NotifyIcon_MouseClick;
 
@@ -399,6 +412,40 @@ namespace Magpie {
 				cbbCaptureMethod.Items.RemoveAt(4);
 				cbbCaptureMethod.Items.RemoveAt(3);
 			}
+		}
+
+		private void CheckOSTheme() {
+			bool isLightTheme = false;
+
+			// 检查注册表获取系统主题，迁移到新版本的 .NET 后将使用 WinRT
+			IntPtr hKey = IntPtr.Zero;
+			if (NativeMethods.RegOpenKeyEx(
+				NativeMethods.HKEY_CURRENT_USER,
+				"Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize",
+				0,
+				NativeMethods.KEY_READ,
+				ref hKey
+			) == 0) {
+				int dataSize = 4;
+				byte[] data = new byte[dataSize];
+				if (NativeMethods.RegQueryValueEx(
+					hKey,
+					"SystemUsesLightTheme",
+					IntPtr.Zero,
+					IntPtr.Zero,
+					data,
+					ref dataSize
+				) == 0) {
+					isLightTheme = data.Any(b => { return b != 0; });
+				}
+
+				NativeMethods.RegCloseKey(hKey);
+			}
+
+			Uri logoUri = new Uri($"pack://application:,,,/Magpie;component/Resources/Logo_{(isLightTheme ? "Black" : "White")}.ico");
+
+			notifyIcon.Icon = new System.Drawing.Icon(App.GetResourceStream(logoUri).Stream);
+			System.Windows.Application.Current.Resources["Logo"] = new BitmapImage(logoUri);
 		}
 	}
 }

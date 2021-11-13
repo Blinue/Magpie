@@ -7,6 +7,7 @@
         xmlns:local="clr-namespace:Magpie"
         xmlns:props="clr-namespace:Magpie.Properties"
         mc:Ignorable="d"
+        Icon="{DynamicResource Logo}"
         Title="{x:Static props:Resources.UI_Main_Title}" ResizeMode="CanMinimize" WindowStartupLocation="CenterScreen"
         Closing="Window_Closing" SourceInitialized="Window_SourceInitialized" StateChanged="Window_StateChanged" HorizontalAlignment="Left" VerticalAlignment="Top" SizeToContent="WidthAndHeight" Deactivated="Window_Deactivated">
     <StackPanel Margin="20,20">

@@ -143,6 +143,18 @@ namespace Magpie {
 			return sb.ToString();
 		}
 
+		public static readonly IntPtr HKEY_CURRENT_USER = new IntPtr(0x80000001);
+		public static readonly int KEY_READ = 131097;
+
+		[DllImport("advapi32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
+		public static extern int RegOpenKeyEx(IntPtr hKey, string lpSubKey, int ulOptions, int samDesired, ref IntPtr phkResult);
+
+		[DllImport("advapi32.dll", SetLastError = true)]
+		public static extern int RegCloseKey(IntPtr hKey);
+
+		[DllImport("advapi32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
+		public static extern int RegQueryValueEx(IntPtr hKey, string lpValueName, IntPtr lpReserved, IntPtr lpType, byte[] lpData, ref int lpcbData);
+
 		/*
 		 * Runtime.dll
 		 */
