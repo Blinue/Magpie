@@ -81,5 +81,14 @@
         "scale": [ 2, 2 ]
       }
     ]
+  },
+  {
+    "name": "Integer Scale 3x",
+    "effects": [
+      {
+        "effect": "Nearest",
+        "scale": [ 3, 3 ]
+      }
+    ]
   }
 ]

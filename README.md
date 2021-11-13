@@ -14,6 +14,8 @@ Magpie 可以将任意窗口放大至全屏，支持多种高级缩放算法，�
 
 ☛ [FAQ](https://github.com/Blinue/Magpie/wiki/FAQ)
 
+☛ [自定义缩放配置](https://github.com/Blinue/Magpie/wiki/自定义缩放配置)
+
 ## 使用方法
 
 ![窗口截图](img/窗口截图.png)
@@ -35,26 +37,27 @@ Magpie 可以将任意窗口放大至全屏，支持多种高级缩放算法，�
 
 #### 缩放模式
 
-程序预置了多种缩放模式，如果它们不符合你的需求，请[自定义缩放](https://github.com/Blinue/Magpie/wiki/%E8%87%AA%E5%AE%9A%E4%B9%89%E7%BC%A9%E6%94%BE)。
+程序预置了多种缩放模式，如果它们不符合你的需求，请[自定义缩放配置](https://github.com/Blinue/Magpie/wiki/自定义缩放配置)。
 
 1. Lanczos：常见的传统插值算法，善于保留锐利的边缘。
-2. RAVU：见[About RAVU](https://github.com/bjin/mpv-prescalers#about-ravu)。此预置使用zoom变体。
-3. FSRCNNX：FSRCNN的变体。在各种场合表现优秀。
+2. FSR：[FidelityFX-FSR](https://github.com/GPUOpen-Effects/FidelityFX-FSR) 的移植，适合缩放 3D 游戏。
+3. FSRCNNX：
 4. ACNet：[ACNetGLSL](https://github.com/TianZerL/ACNetGLSL)的移植。适合动画风格的图像和视频放大。
 5. Anime4K：开源的高质量的实时动漫缩放/降噪算法。
-6. FSR：适用于3D游戏。
+6. RAVU：见 [About RAVU](https://github.com/bjin/mpv-prescalers#about-ravu)。此预置使用zoom变体。
 7. Integer Scale：将每个像素放大整数倍，可以完整保留原图像的视觉效果。预置了2x和3x两种放大倍率。
 
-#### 抓取模式
+#### 捕获模式
 
-指示程序如何抓取源窗口图像
+指示程序如何捕获源窗口图像
 
-1. WinRT Capture：使用[Screen Capture API](https://docs.microsoft.com/en-us/windows/uwp/audio-video-camera/screen-capture)抓取窗口，最推荐的方法。此 API 从 Windows 10, v1903 开始提供。
-2. GDI：使用 GDI 抓取源窗口，速度稍慢。
+1. Graphics Capture：使用 [Screen Capture API](https://docs.microsoft.com/en-us/windows/uwp/audio-video-camera/screen-capture) 捕获窗口，最推荐的方法。此 API 从 Windows 10, v1903 开始提供。
+2. GDI：使用 GDI 捕获源窗口。和 Graphics Capture 相比 CPU 占用更少。
+3. DwmSharedSurface：使用未公开的 DwmSharedSurface 捕获窗口。
 
 ## 使用提示
 
-1. 如果你设置了 DPI 缩放，而要放大的窗口不支持（表现为画面模糊），请首先进入该程序的兼容性设置，将“高 DPI 缩放替代”设置为“应用程序”。
+1. 如果你设置了 DPI 缩放，而要放大的窗口不支持（表现为画面模糊），建议首先进入该程序的兼容性设置，将“高 DPI 缩放替代”设置为“应用程序”。
 
    ![高DPI设置](img/高DPI设置.png)
 
