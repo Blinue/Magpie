@@ -44,7 +44,7 @@ Magpie 可以将任意窗口放大至全屏，支持多种高级缩放算法，�
 3. FSRCNNX：[FSRCNNX](https://github.com/igv/FSRCNN-TensorFlow) 的移植。
 4. ACNet：[ACNetGLSL](https://github.com/TianZerL/ACNetGLSL)的移植。适合动画风格的图像和视频放大。
 5. Anime4K：开源的高质量的实时动漫缩放/降噪算法。
-6. RAVU：见 [About RAVU](https://github.com/bjin/mpv-prescalers#about-ravu)。此预置使用zoom变体。
+6. RAVU：见 [About RAVU](https://github.com/bjin/mpv-prescalers#about-ravu)。此预置使用 zoom 变体。
 7. Integer Scale：将每个像素放大整数倍，可以完整保留原图像的视觉效果。预置了2x和3x两种放大倍率。
 
 #### 捕获模式
@@ -53,7 +53,7 @@ Magpie 可以将任意窗口放大至全屏，支持多种高级缩放算法，�
 
 1. Graphics Capture：使用 [Screen Capture API](https://docs.microsoft.com/en-us/windows/uwp/audio-video-camera/screen-capture) 捕获窗口，最推荐的方法。此 API 从 Windows 10, v1903 开始提供。
 2. GDI：使用 GDI 捕获源窗口。和 Graphics Capture 相比 CPU 占用更少。
-3. DwmSharedSurface：使用未公开的 DwmSharedSurface 捕获窗口。
+3. DwmSharedSurface：使用未公开的 DwmSharedSurface API 捕获窗口。
 
 ## 使用提示
 
