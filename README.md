@@ -41,7 +41,7 @@ Magpie 可以将任意窗口放大至全屏，支持多种高级缩放算法，�
 
 1. Lanczos：常见的传统插值算法，善于保留锐利的边缘。
 2. FSR：[FidelityFX-FSR](https://github.com/GPUOpen-Effects/FidelityFX-FSR) 的移植，适合缩放 3D 游戏。
-3. FSRCNNX：
+3. FSRCNNX：[FSRCNNX](https://github.com/igv/FSRCNN-TensorFlow) 的移植。
 4. ACNet：[ACNetGLSL](https://github.com/TianZerL/ACNetGLSL)的移植。适合动画风格的图像和视频放大。
 5. Anime4K：开源的高质量的实时动漫缩放/降噪算法。
 6. RAVU：见 [About RAVU](https://github.com/bjin/mpv-prescalers#about-ravu)。此预置使用zoom变体。
@@ -49,7 +49,7 @@ Magpie 可以将任意窗口放大至全屏，支持多种高级缩放算法，�
 
 #### 捕获模式
 
-指示程序如何捕获源窗口图像
+指示程序如何捕获源窗口图像。
 
 1. Graphics Capture：使用 [Screen Capture API](https://docs.microsoft.com/en-us/windows/uwp/audio-video-camera/screen-capture) 捕获窗口，最推荐的方法。此 API 从 Windows 10, v1903 开始提供。
 2. GDI：使用 GDI 捕获源窗口。和 Graphics Capture 相比 CPU 占用更少。
