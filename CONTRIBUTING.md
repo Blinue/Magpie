@@ -47,11 +47,11 @@ Magpie 没有广泛的测试过，因此错误不可避免。希望你能向开�
 
 贡献新的翻译和修正现有翻译都是非常欢迎的。向 Magpie 贡献翻译非常简单，所有用户界面文本均存储在 resx 中，创建新的Resources.xx-xx.resx 文件并翻译所有字符串即可。
 
-贡献翻译的方式和[贡献代码](#我想贡献代码)的方式相同，但翻译的 pull request 基本都会被接受。强烈推荐你定期维护自己的翻译，因为 Magpie 的用户界面经常会进行较大的更改。
+贡献翻译的方式和[贡献代码](#我想贡献代码-)的方式相同，但翻译的 pull request 基本都会被接受。强烈推荐你定期维护自己的翻译，因为 Magpie 的用户界面经常会进行较大的更改。
 
 ### 我想贡献文档 📖
 
-因为开发者的懒惰，Magpie 的文档长期处于缺失/过时的状态。尽管 Magpie  的 wiki 是人人可编辑的，但强烈推荐你在编辑前提交一个[Issue（docs）](https://github.com/Blinue/Magpie/issues/new?assignees=&labels=documentation&template=05_document.yaml)，以避免加入错误/过时的信息。更改 README、贡献指南等文档需要参考[贡献代码](#我想贡献代码)。
+因为开发者的懒惰，Magpie 的文档长期处于缺失/过时的状态。尽管 Magpie  的 wiki 是人人可编辑的，但强烈推荐你在编辑前提交一个[Issue（docs）](https://github.com/Blinue/Magpie/issues/new?assignees=&labels=documentation&template=05_document.yaml)，以避免加入错误/过时的信息。更改 README、贡献指南等文档需要参考[贡献代码](#我想贡献代码-)。
 
 ### 我想资助 Magpie 💰
 
