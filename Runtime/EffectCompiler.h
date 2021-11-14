@@ -11,6 +11,7 @@ public:
 
 	static UINT Compile(const wchar_t* fileName, EffectDesc& desc);
 
+	// 当前 MagpieFX 版本
 	static constexpr UINT VERSION = 1;
 
 private:

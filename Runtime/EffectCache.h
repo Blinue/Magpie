@@ -16,4 +16,8 @@ private:
 
 	// 缓存文件后缀名：Compiled MagpieFX
 	static constexpr const wchar_t* _SUFFIX = L"cmfx";
+
+	// 缓存版本
+	// 当缓存文件结构有更改时将更新它，使得所有旧缓存失效
+	static constexpr const UINT _VERSION = 1;
 };

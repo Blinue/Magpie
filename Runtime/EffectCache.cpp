@@ -194,8 +194,8 @@ bool EffectCache::Load(const wchar_t* fileName, std::string_view hash, EffectDes
 		// 检查版本
 		UINT version;
 		ia& version;
-		if (version != EffectCompiler::VERSION) {
-			SPDLOG_LOGGER_INFO(logger, "版本不匹配");
+		if (version != _VERSION) {
+			SPDLOG_LOGGER_INFO(logger, "缓存版本不匹配");
 			return false;
 		}
 
