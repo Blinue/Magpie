@@ -44,7 +44,7 @@ BEGIN
         BEGIN
             VALUE "FileVersion", "0.7.0.0"
             VALUE "InternalName", "Runtime.dll"
-            VALUE "LegalCopyright", "Copyright (C) 2021"
+            VALUE "LegalCopyright", "Copyright (C) 2021 Liu Xu"
             VALUE "OriginalFilename", "Runtime.dll"
             VALUE "ProductName", "Magpie"
             VALUE "ProductVersion", "0.7.0.0"
