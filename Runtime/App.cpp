@@ -74,6 +74,40 @@ bool App::Run(
 	
 	SetErrorMsg(ErrorMessages::GENERIC);
 
+	// 禁用窗口圆角
+	bool roundCornerDisabled = false;
+	if (IsDisableRoundCorner() && _frameSource->HasRoundCornerInWin11()) {
+		const auto& version = Utils::GetOSVersion();
+		bool isWin11 = Utils::CompareVersion(
+			version.dwMajorVersion, version.dwMinorVersion,
+			version.dwBuildNumber, 10, 0, 22000) >= 0;
+
+		if (isWin11) {
+			INT attr = DWMWCP_DONOTROUND;
+			HRESULT hr = DwmSetWindowAttribute(hwndSrc, DWMWA_WINDOW_CORNER_PREFERENCE, &attr, sizeof(attr));
+			if (FAILED(hr)) {
+				SPDLOG_LOGGER_ERROR(logger, "禁用窗口圆角失败");
+			} else {
+				SPDLOG_LOGGER_INFO(logger, "已禁用窗口圆角");
+				roundCornerDisabled = true;
+			}
+		}
+	}
+
+	// 禁用窗口大小调整
+	bool windowResizingDisabled = false;
+	if (IsDisableWindowResizing()) {
+		LONG_PTR style = GetWindowLongPtr(hwndSrc, GWL_STYLE);
+		if (style & WS_THICKFRAME) {
+			if (SetWindowLongPtr(hwndSrc, GWL_STYLE, style ^ WS_THICKFRAME)) {
+				SPDLOG_LOGGER_INFO(logger, "已禁用窗口大小调整");
+				windowResizingDisabled = true;
+			} else {
+				SPDLOG_LOGGER_ERROR(logger, "禁用窗口大小调整失败");
+			}
+		}
+	}
+
 	_srcClientRect = Utils::GetClientScreenRect(_hwndSrc);
 	if (_srcClientRect.right == 0 || _srcClientRect.bottom == 0) {
 		SPDLOG_LOGGER_CRITICAL(logger, "获取源窗口客户区失败");
@@ -139,42 +173,9 @@ bool App::Run(
 		return false;
 	}
 
-	// 禁用窗口圆角
-	bool roundCornerDisabled = false;
-	if (IsDisableRoundCorner() && _frameSource->HasRoundCornerInWin11()) {
-		const auto& version = Utils::GetOSVersion();
-		bool isWin11 = Utils::CompareVersion(
-			version.dwMajorVersion, version.dwMinorVersion,
-			version.dwBuildNumber, 10, 0, 22000) >= 0;
-
-		if (isWin11) {
-			INT attr = DWMWCP_DONOTROUND;
-			HRESULT hr = DwmSetWindowAttribute(hwndSrc, DWMWA_WINDOW_CORNER_PREFERENCE, &attr, sizeof(attr));
-			if (FAILED(hr)) {
-				SPDLOG_LOGGER_ERROR(logger, "禁用窗口圆角失败");
-			} else {
-				SPDLOG_LOGGER_INFO(logger, "已禁用窗口圆角");
-				roundCornerDisabled = true;
-			}
-		}
-	}
-
-	// 禁用窗口大小调整
-	bool windowResizingDisabled = false;
-	if (IsDisableWindowResizing()) {
-		LONG_PTR style = GetWindowLongPtr(hwndSrc, GWL_STYLE);
-		if (style & WS_THICKFRAME) {
-			if (SetWindowLongPtr(hwndSrc, GWL_STYLE, style ^ WS_THICKFRAME)) {
-				SPDLOG_LOGGER_INFO(logger, "已禁用窗口大小调整");
-				windowResizingDisabled = true;
-			} else {
-				SPDLOG_LOGGER_ERROR(logger, "禁用窗口大小调整失败");
-			}
-		}
-	}
-
 	_Run();
 
+	// 还原窗口大小调整
 	if (windowResizingDisabled) {
 		LONG_PTR style = GetWindowLongPtr(hwndSrc, GWL_STYLE);
 		if (!(style & WS_THICKFRAME)) {
@@ -186,6 +187,7 @@ bool App::Run(
 		}
 	}
 
+	// 还原窗口圆角
 	if (roundCornerDisabled) {
 		INT attr = DWMWCP_DEFAULT;
 		HRESULT hr = DwmSetWindowAttribute(hwndSrc, DWMWA_WINDOW_CORNER_PREFERENCE, &attr, sizeof(attr));

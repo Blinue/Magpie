@@ -8,9 +8,11 @@
 #include "StrUtils.h"
 
 
+static constexpr const char* META_INDICATOR = "//!";
+
+
 extern std::shared_ptr<spdlog::logger> logger;
 
-static constexpr const char* META_INDICATOR = "//!";
 
 UINT RemoveComments(std::string& source) {
 	// 确保以换行符结尾
@@ -798,7 +800,144 @@ void NTAPI TPWork(PTP_CALLBACK_INSTANCE, PVOID Context, PTP_WORK) {
 	}
 }
 
+UINT ResolvePass(std::string_view block, EffectDesc& desc, std::vector<std::string>& passSources, const std::string& commonHlsl) {
+	std::string_view token;
 
+	if (!CheckNextToken<true>(block, META_INDICATOR)) {
+		return 1;
+	}
+
+	if (!CheckNextToken<false>(block, "PASS")) {
+		return 1;
+	}
+
+	size_t index;
+	if (GetNextNumber(block, index)) {
+		return 1;
+	}
+	if (GetNextToken<false>(block, token) != 2) {
+		return 1;
+	}
+
+	if (index == 0 || index >= block.size() + 1) {
+		return 1;
+	}
+
+	if (index > passSources.size() || !passSources[index - 1].empty()) {
+		return 1;
+	}
+
+	EffectPassDesc& passDesc = desc.passes[index - 1];
+
+	// 用于检查输入和输出中重复的纹理
+	std::unordered_map<std::string_view, UINT> texNames;
+	for (size_t i = 0; i < desc.textures.size(); ++i) {
+		texNames.emplace(desc.textures[i].name, (UINT)i);
+	}
+
+	std::bitset<2> processed;
+
+	while (true) {
+		if (!CheckNextToken<true>(block, META_INDICATOR)) {
+			break;
+		}
+
+		if (GetNextToken<false>(block, token)) {
+			return 1;
+		}
+
+		std::string t = StrUtils::ToUpperCase(token);
+
+		if (t == "BIND") {
+			if (processed[0]) {
+				return 1;
+			}
+			processed[0] = true;
+
+			std::string binds;
+			if (GetNextExpr(block, binds)) {
+				return 1;
+			}
+
+			std::vector<std::string_view> inputs = StrUtils::Split(binds, ',');
+			for (const std::string_view& input : inputs) {
+				auto it = texNames.find(input);
+				if (it == texNames.end()) {
+					// 未找到纹理名称
+					return 1;
+				}
+
+				passDesc.inputs.push_back(it->second);
+				texNames.erase(it);
+			}
+		} else if (t == "SAVE") {
+			if (processed[1]) {
+				return 1;
+			}
+			processed[1] = true;
+
+			std::string saves;
+			if (GetNextExpr(block, saves)) {
+				return 1;
+			}
+
+			std::vector<std::string_view> outputs = StrUtils::Split(saves, ',');
+			if (outputs.size() > 8) {
+				// 最多 8 个输出
+				return 1;
+			}
+
+			for (const std::string_view& output : outputs) {
+				// INPUT 不能作为输出
+				if (output == "INPUT") {
+					return 1;
+				}
+
+				auto it = texNames.find(output);
+				if (it == texNames.end()) {
+					// 未找到纹理名称
+					return 1;
+				}
+
+				passDesc.outputs.push_back(it->second);
+				texNames.erase(it);
+			}
+		} else {
+			return 1;
+		}
+	}
+
+	std::string& passHlsl = passSources[index - 1];
+	passHlsl.reserve(size_t((commonHlsl.size() + block.size() + passDesc.inputs.size() * 30) * 1.5));
+
+	for (int i = 0; i < passDesc.inputs.size(); ++i) {
+		passHlsl.append(fmt::format("Texture2D {}:register(t{});", desc.textures[passDesc.inputs[i]].name, i));
+	}
+	passHlsl.append(commonHlsl).append(block);
+
+	if (passHlsl.back() != '\n') {
+		passHlsl.push_back('\n');
+	}
+
+	// main 函数
+	if (passDesc.outputs.size() <= 1) {
+		passHlsl.append(fmt::format("float4 __M(float4 p:SV_POSITION,float2 c:TEXCOORD):SV_TARGET"
+			"{{return Pass{}(c);}}", index));
+	} else {
+		// 多渲染目标
+		passHlsl.append("void __M(float4 p:SV_POSITION,float2 c:TEXCOORD,out float4 t0:SV_TARGET0,out float4 t1:SV_TARGET1");
+		for (int i = 2; i < passDesc.outputs.size(); ++i) {
+			passHlsl.append(fmt::format(",out float4 t{0}:SV_TARGET{0}", i));
+		}
+		passHlsl.append(fmt::format("){{Pass{}(c,t0,t1", index));
+		for (int i = 2; i < passDesc.outputs.size(); ++i) {
+			passHlsl.append(fmt::format(",t{}", i));
+		}
+		passHlsl.append(");}");
+	}
+
+	return 0;
+}
 
 UINT ResolvePasses(const std::vector<std::string_view>& blocks, const std::vector<std::string_view>& commons, EffectDesc& desc) {
 	// 可选项：BIND，SAVE
@@ -848,138 +987,10 @@ UINT ResolvePasses(const std::vector<std::string_view>& blocks, const std::vecto
 	std::vector<std::string> passSources(blocks.size());
 	desc.passes.resize(blocks.size());
 
-	for (std::string_view block : blocks) {
-		if (!CheckNextToken<true>(block, META_INDICATOR)) {
+	for (size_t i = 0; i < blocks.size(); ++i) {
+		if (ResolvePass(blocks[i], desc, passSources, commonHlsl)) {
+			SPDLOG_LOGGER_ERROR(logger, fmt::format("解析 Pass{} 失败", i + 1));
 			return 1;
-		}
-
-		if (!CheckNextToken<false>(block, "PASS")) {
-			return 1;
-		}
-
-		size_t index;
-		if (GetNextNumber(block, index)) {
-			return 1;
-		}
-		if (GetNextToken<false>(block, token) != 2) {
-			return 1;
-		}
-
-		if (index == 0 || index >= block.size() + 1) {
-			return 1;
-		}
-
-		if (index > passSources.size() || !passSources[index - 1].empty()) {
-			return 1;
-		}
-
-		EffectPassDesc& passDesc = desc.passes[index - 1];
-
-		// 用于检查输入和输出中重复的纹理
-		std::unordered_map<std::string_view, UINT> texNames;
-		for (size_t i = 0; i < desc.textures.size(); ++i) {
-			texNames.emplace(desc.textures[i].name, (UINT)i);
-		}
-
-		std::bitset<2> processed;
-
-		while (true) {
-			if (!CheckNextToken<true>(block, META_INDICATOR)) {
-				break;
-			}
-
-			if (GetNextToken<false>(block, token)) {
-				return 1;
-			}
-
-			std::string t = StrUtils::ToUpperCase(token);
-
-			if (t == "BIND") {
-				if (processed[0]) {
-					return 1;
-				}
-				processed[0] = true;
-
-				std::string binds;
-				if (GetNextExpr(block, binds)) {
-					return 1;
-				}
-
-				std::vector<std::string_view> inputs = StrUtils::Split(binds, ',');
-				for (const std::string_view& input : inputs) {
-					auto it = texNames.find(input);
-					if (it == texNames.end()) {
-						// 未找到纹理名称
-						return 1;
-					}
-
-					passDesc.inputs.push_back(it->second);
-					texNames.erase(it);
-				}
-			} else if (t == "SAVE") {
-				if (processed[1]) {
-					return 1;
-				}
-				processed[1] = true;
-
-				std::string saves;
-				if (GetNextExpr(block, saves)) {
-					return 1;
-				}
-
-				std::vector<std::string_view> outputs = StrUtils::Split(saves, ',');
-				if (outputs.size() > 8) {
-					// 最多 8 个输出
-					return 1;
-				}
-
-				for (const std::string_view& output : outputs) {
-					// INPUT 不能作为输出
-					if (output == "INPUT") {
-						return 1;
-					}
-
-					auto it = texNames.find(output);
-					if (it == texNames.end()) {
-						// 未找到纹理名称
-						return 1;
-					}
-
-					passDesc.outputs.push_back(it->second);
-					texNames.erase(it);
-				}
-			} else {
-				return 1;
-			}
-		}
-
-		std::string& passHlsl = passSources[index - 1];
-		passHlsl.reserve(size_t((commonHlsl.size() + block.size() + passDesc.inputs.size() * 30) * 1.5));
-
-		for (int i = 0; i < passDesc.inputs.size(); ++i) {
-			passHlsl.append(fmt::format("Texture2D {}:register(t{});", desc.textures[passDesc.inputs[i]].name, i));
-		}
-		passHlsl.append(commonHlsl).append(block);
-
-		if (passHlsl.back() != '\n') {
-			passHlsl.push_back('\n');
-		}
-
-		// main 函数
-		if (passDesc.outputs.size() <= 1) {
-			passHlsl.append(fmt::format("float4 __M(float4 p:SV_POSITION,float2 c:TEXCOORD):SV_TARGET"
-				"{{return Pass{}(c);}}", index));
-		} else {
-			// 多渲染目标
-			passHlsl.append("void __M(float4 p:SV_POSITION,float2 c:TEXCOORD,out float4 t0:SV_TARGET0,out float4 t1:SV_TARGET1");
-			for (int i = 2; i < passDesc.outputs.size(); ++i) {
-				passHlsl.append(fmt::format(",out float4 t{0}:SV_TARGET{0}", i));
-			}
-			passHlsl.append(fmt::format("){{Pass{}(c,t0,t1", index));
-			for (int i = 2; i < passDesc.outputs.size(); ++i) {
-				passHlsl.append(fmt::format(",t{}", i));
-			}
-			passHlsl.append(");}");
 		}
 	}
 

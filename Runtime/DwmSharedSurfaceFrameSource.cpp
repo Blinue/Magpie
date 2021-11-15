@@ -66,7 +66,6 @@ bool DwmSharedSurfaceFrameSource::Update() {
 	
 	_d3dDC->CopySubresourceRegion(_output.Get(), 0, 0, 0, 0, sharedTexture.Get(), 0, &_frameInWnd);
 
-	SPDLOG_LOGGER_INFO(logger, "DwmSharedSurfaceFrameSource 初始化完成");
 	return true;
 }
 
