@@ -430,9 +430,9 @@ namespace Magpie {
 			}
 		}
 
-		private void CheckOSTheme() {
-			bool isLightTheme = false;
+		private bool? isLightTheme = null;
 
+		private void CheckOSTheme() {
 			// 检查注册表获取系统主题，迁移到新版本的 .NET 后将使用 WinRT
 			IntPtr hKey = IntPtr.Zero;
 			if (NativeMethods.RegOpenKeyEx(
@@ -452,16 +452,18 @@ namespace Magpie {
 					data,
 					ref dataSize
 				) == 0) {
-					isLightTheme = data.Any(b => { return b != 0; });
+					bool newVal = data.Any(b => { return b != 0; });
+					if (!isLightTheme.HasValue || newVal != isLightTheme.Value) {
+						isLightTheme = newVal;
+						Uri logoUri = new Uri($"pack://application:,,,/Magpie;component/Resources/Logo_{(newVal ? "Black" : "White")}.ico");
+
+						notifyIcon.Icon = new System.Drawing.Icon(App.GetResourceStream(logoUri).Stream);
+						System.Windows.Application.Current.Resources["Logo"] = new BitmapImage(logoUri);
+					}
 				}
 
 				NativeMethods.RegCloseKey(hKey);
 			}
-
-			Uri logoUri = new Uri($"pack://application:,,,/Magpie;component/Resources/Logo_{(isLightTheme ? "Black" : "White")}.ico");
-
-			notifyIcon.Icon = new System.Drawing.Icon(App.GetResourceStream(logoUri).Stream);
-			System.Windows.Application.Current.Resources["Logo"] = new BitmapImage(logoUri);
 		}
 	}
 }
