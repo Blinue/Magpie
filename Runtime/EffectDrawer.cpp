@@ -5,6 +5,7 @@
 #include <VertexTypes.h>
 #include "EffectCompiler.h"
 #include "TextureLoader.h"
+#include "StrUtils.h"
 
 #ifdef _UNICODE
 #undef _UNICODE

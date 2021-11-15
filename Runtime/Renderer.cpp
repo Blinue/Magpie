@@ -2,6 +2,7 @@
 #include "Renderer.h"
 #include "App.h"
 #include "Utils.h"
+#include "StrUtils.h"
 #include "shaders/FillVS.h"
 #include "shaders/CopyPS.h"
 #include "shaders/SimpleVS.h"
