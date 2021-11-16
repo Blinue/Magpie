@@ -41,7 +41,7 @@ jobs:
       run: msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} /p:Platform=x64 ./Magpie.sln
     
     - name: Clean up
-      working-directory: ${{env.GITHUB_WORKSPACE}}/build/Release
+      working-directory: ./build/Release
       run: |
         del *.pdb
         del *.lib
