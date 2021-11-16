@@ -27,15 +27,12 @@ jobs:
         vs-prerelease: true
 
     - name: Restore NuGet packages
-      working-directory: ${{env.GITHUB_WORKSPACE}}
-      run: nuget restore .
+      run: nuget restore
       
     - name: Conan Install
-      working-directory: ${{env.GITHUB_WORKSPACE}}
       run: msbuild /p:Configuration=${{env.BUILD_CONFIGURATION}} /p:Platform=x64 ./CONAN_INSTALL
 
     - name: Build
-      working-directory: ${{env.GITHUB_WORKSPACE}}
       # Add additional options to the MSBuild command line here (like platform or verbosity level).
       # See https://docs.microsoft.com/visualstudio/msbuild/msbuild-command-line-reference
       run: msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} /p:Platform=x64 ./Magpie.sln
@@ -53,4 +50,4 @@ jobs:
       uses: actions/upload-artifact@v2
       with: 
           name: Magpie-Dev-Build
-          path: ${{env.GITHUB_WORKSPACE}}/build/Release
+          path: ./build/Release
