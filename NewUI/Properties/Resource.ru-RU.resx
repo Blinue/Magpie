@@ -1,0 +1,228 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+	<!-- 
+		Microsoft ResX Schema
+
+		Version 1.3
+
+		The primary goals of this format is to allow a simple XML format 
+		that is mostly human readable. The generation and parsing of the 
+		various data types are done through the TypeConverter classes 
+		associated with the data types.
+
+		Example:
+
+		... ado.net/XML headers & schema ...
+		<resheader name="resmimetype">text/microsoft-resx</resheader>
+		<resheader name="version">1.3</resheader>
+		<resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+		<resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+		<data name="Name1">this is my long string</data>
+		<data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+		<data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+			[base64 mime encoded serialized .NET Framework object]
+		</data>
+		<data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+			[base64 mime encoded string representing a byte array form of the .NET Framework object]
+		</data>
+
+		There are any number of "resheader" rows that contain simple 
+		name/value pairs.
+
+		Each data row contains a name, and value. The row also contains a 
+		type or mimetype. Type corresponds to a .NET class that support 
+		text/value conversion through the TypeConverter architecture. 
+		Classes that don't support this are serialized and stored with the 
+		mimetype set.
+
+		The mimetype is used for serialized objects, and tells the 
+		ResXResourceReader how to depersist the object. This is currently not 
+		extensible. For a given mimetype the value must be set accordingly:
+
+		Note - application/x-microsoft.net.object.binary.base64 is the format 
+		that the ResXResourceWriter will generate, however the reader can 
+		read any of the formats listed below.
+
+		mimetype: application/x-microsoft.net.object.binary.base64
+		value   : The object must be serialized with 
+			: System.Serialization.Formatters.Binary.BinaryFormatter
+			: and then encoded with base64 encoding.
+
+		mimetype: application/x-microsoft.net.object.soap.base64
+		value   : The object must be serialized with 
+			: System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+			: and then encoded with base64 encoding.
+
+		mimetype: application/x-microsoft.net.object.bytearray.base64
+		value   : The object must be serialized into a byte array 
+			: using a System.ComponentModel.TypeConverter
+			: and then encoded with base64 encoding.
+	-->
+	
+	<xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+		<xsd:element name="root" msdata:IsDataSet="true">
+			<xsd:complexType>
+				<xsd:choice maxOccurs="unbounded">
+					<xsd:element name="data">
+						<xsd:complexType>
+							<xsd:sequence>
+								<xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+								<xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+							</xsd:sequence>
+							<xsd:attribute name="name" type="xsd:string" msdata:Ordinal="1" />
+							<xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+							<xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+						</xsd:complexType>
+					</xsd:element>
+					<xsd:element name="resheader">
+						<xsd:complexType>
+							<xsd:sequence>
+								<xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+							</xsd:sequence>
+							<xsd:attribute name="name" type="xsd:string" use="required" />
+						</xsd:complexType>
+					</xsd:element>
+				</xsd:choice>
+			</xsd:complexType>
+		</xsd:element>
+	</xsd:schema>
+	<resheader name="resmimetype">
+		<value>text/microsoft-resx</value>
+	</resheader>
+	<resheader name="version">
+		<value>1.3</value>
+	</resheader>
+	<resheader name="reader">
+		<value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.3500.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+	</resheader>
+	<resheader name="writer">
+		<value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.3500.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+	</resheader>
+  <data name="UI_Main_Capture_Method" xml:space="preserve">
+    <value>Режим захвата</value>
+  </data>
+  <data name="UI_Main_Current_Window" xml:space="preserve">
+    <value>Текущее окно: </value>
+    <comment>@MutedRule(WhiteSpaceTail)</comment>
+  </data>
+  <data name="UI_Main_Forget_Current_Window" xml:space="preserve">
+    <value>Закрыть</value>
+  </data>
+  <data name="UI_Main_Hotkey" xml:space="preserve">
+    <value>Горячая клавиша</value>
+  </data>
+  <data name="UI_Main_Injection_Mode" xml:space="preserve">
+    <value>Режим ввода</value>
+  </data>
+  <data name="UI_Main_Injection_Mode_Injection_At_Startup" xml:space="preserve">
+    <value>Введение при запуске</value>
+  </data>
+  <data name="UI_Main_Injection_Mode_No_Injection" xml:space="preserve">
+    <value>Не вводить</value>
+  </data>
+  <data name="UI_Main_Injection_Mode_Runtime_Injection" xml:space="preserve">
+    <value>Вводимое при выполнении</value>
+  </data>
+  <data name="UI_Main_Options" xml:space="preserve">
+    <value>Настройки</value>
+  </data>
+  <data name="UI_Main_Parse_Failure" xml:space="preserve">
+    <value>Ошибка синтаксического анализа</value>
+  </data>
+  <data name="UI_Main_Scale_After_5S" xml:space="preserve">
+    <value>Масштабировать через 5сек</value>
+  </data>
+  <data name="UI_Main_Scaling_Mode" xml:space="preserve">
+    <value>Режим масштабирования</value>
+  </data>
+  <data name="UI_Main_Title" xml:space="preserve">
+    <value>Magpie</value>
+  </data>
+  <data name="UI_Options_About" xml:space="preserve">
+    <value>Подробнее</value>
+  </data>
+  <data name="UI_Options_About_Feedback" xml:space="preserve">
+    <value>Обратная связь</value>
+  </data>
+  <data name="UI_Options_About_Licenses" xml:space="preserve">
+    <value>Лицензии</value>
+  </data>
+  <data name="UI_Options_About_Licenses_Close" xml:space="preserve">
+    <value>Закрыть</value>
+  </data>
+  <data name="UI_Options_About_Licenses_Header" xml:space="preserve">
+    <value>Лицензии используемые Magpie:</value>
+  </data>
+  <data name="UI_Options_About_Licenses_Title" xml:space="preserve">
+    <value>Лицензии Magpie</value>
+  </data>
+  <data name="UI_Options_About_Project_URL" xml:space="preserve">
+    <value>URL проекта</value>
+  </data>
+  <data name="UI_Options_About_Support" xml:space="preserve">
+    <value>Поддержка</value>
+  </data>
+  <data name="UI_Options_About_Thanks" xml:space="preserve">
+    <value>Благодарности</value>
+  </data>
+  <data name="UI_Options_About_Thanks_Contributors" xml:space="preserve">
+    <value>Все те, кто оставлял отзывы и вносил вклад в Magpie</value>
+  </data>
+  <data name="UI_Options_About_Thanks_Shaders" xml:space="preserve">
+    <value>Все шейдерные проекты, поддерживаемые Magpie</value>
+  </data>
+  <data name="UI_Options_About_Version" xml:space="preserve">
+    <value>Версия</value>
+  </data>
+  <data name="UI_Options_Advanced" xml:space="preserve">
+    <value>Расширенные</value>
+  </data>
+  <data name="UI_Options_Advanced_Logging_Level" xml:space="preserve">
+    <value>Уровень регистрации</value>
+  </data>
+  <data name="UI_Options_Scale_Show_Frame_Rate" xml:space="preserve">
+    <value>Показывать частоту кадров</value>
+  </data>
+  <data name="UI_Options_Application" xml:space="preserve">
+    <value>Приложение</value>
+  </data>
+  <data name="UI_Options_Application_Language" xml:space="preserve">
+    <value>Язык</value>
+  </data>
+  <data name="UI_Options_Application_Language_Default" xml:space="preserve">
+    <value>По умолчанию</value>
+  </data>
+  <data name="UI_Options_Application_Minimize_To_System_Tray" xml:space="preserve">
+    <value>Минимизировать системную область при запуске</value>
+  </data>
+  <data name="UI_Options_Application_Run_At_Startup" xml:space="preserve">
+    <value>Запустить при запуске</value>
+  </data>
+  <data name="UI_Options_Scale_Adjust_Cursor_Speed" xml:space="preserve">
+    <value>Прибавить чувствительность при приближении</value>
+  </data>
+  <data name="UI_Options_Scale_Open_Scale_Config" xml:space="preserve">
+    <value>Открыть конфигурацию масштабирования</value>
+  </data>
+  <data name="UI_Options_Scale_Restore_Full_Screen" xml:space="preserve">
+    <value>Вернуться к полному экрану, когда исходное окно теряет фокус</value>
+  </data>
+  <data name="UI_Options_Title" xml:space="preserve">
+    <value>Настройки Magpie</value>
+  </data>
+  <data name="UI_Options_Zoom" xml:space="preserve">
+    <value>Приблизить</value>
+  </data>
+  <data name="UI_SysTray_Exit" xml:space="preserve">
+    <value>Выход</value>
+  </data>
+  <data name="UI_SysTray_Main_Window" xml:space="preserve">
+    <value>Главное окно</value>
+  </data>
+  <data name="UI_SysTray_Options" xml:space="preserve">
+    <value>Настройки</value>
+  </data>
+  <data name="UI_SysTray_Scale_After_5S" xml:space="preserve">
+    <value>Масштабировать через 5сек</value>
+  </data>
+</root>
