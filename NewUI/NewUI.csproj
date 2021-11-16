@@ -19,6 +19,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Resources\BuiltInScaleModels.json" />
+    <None Remove="Resources\Licenses.txt" />
+    <None Remove="Resources\Logo_Black.ico" />
+    <None Remove="Resources\Logo_White.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Content Include="logo.ico" />
   </ItemGroup>
 
@@ -26,6 +33,20 @@
     <PackageReference Include="MouseKeyHook" Version="5.6.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="NLog" Version="4.7.12" />
+    <PackageReference Include="System.Drawing.Common" Version="6.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="System.Windows.Forms">
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.7.2\System.Windows.Forms.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Resources\BuiltInScaleModels.json" />
+    <Resource Include="Resources\Licenses.txt" />
+    <Resource Include="Resources\Logo_Black.ico" />
+    <Resource Include="Resources\Logo_White.ico" />
   </ItemGroup>
 
   <ItemGroup>
@@ -43,7 +64,7 @@
 
   <ItemGroup>
     <EmbeddedResource Update="Properties\Resources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
+      <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>

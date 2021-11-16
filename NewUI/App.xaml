@@ -4,7 +4,7 @@
              xmlns:local="clr-namespace:NewUI"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
-        <BitmapImage UriSource="pack://application:,,,/Magpie;component/Resources/Logo_Black.ico" x:Key="Logo" />
+        <BitmapImage UriSource="pack://application:,,,/NewUI;component/Resources/Logo_Black.ico" x:Key="Logo" />
         <Style TargetType="Label" x:Key="ContextMenuItemFontIcon">
             <Setter Property="Padding" Value="0" />
             <Setter Property="Margin" Value="0" />

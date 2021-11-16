@@ -1,0 +1,94 @@
+[
+  {
+    "name": "Lanczos",
+    "effects": [
+      {
+        "effect": "Lanczos",
+        "scale": [ -1, -1 ]
+      },
+      {
+        "effect": "AdaptiveSharpen",
+        "curveHeight": 0.3
+      }
+    ]
+  },
+  {
+    "name": "FSR",
+    "effects": [
+      {
+        "effect": "FSR_EASU",
+        "scale": [ -1, -1 ]
+      },
+      {
+        "effect": "FSR_RCAS",
+        "sharpness": 0.87
+      }
+    ]
+  },
+  {
+    "name": "FSRCNNX",
+    "effects": [
+      {
+        "effect": "FSRCNNX"
+      },
+      {
+        "effect": "Mitchell",
+        "scale": [ -1, -1 ],
+        "variant": 1
+      }
+    ]
+  },
+  {
+    "name": "ACNet",
+    "effects": [
+      {
+        "effect": "ACNet"
+      },
+      {
+        "effect": "Mitchell",
+        "scale": [ -1, -1 ],
+        "variant": 1
+      }
+    ]
+  },
+  {
+    "name": "Anime4K",
+    "effects": [
+      {
+        "effect": "Anime4K_Upscale_Denoise_L"
+      },
+      {
+        "effect": "Mitchell",
+        "scale": [ -1, -1 ],
+        "variant": 1
+      }
+    ]
+  },
+  {
+    "name": "RAVU",
+    "effects": [
+      {
+        "effect": "RAVU_Zoom_R3",
+        "scale": [-1, -1]
+      }
+    ]
+  },
+  {
+    "name": "Integer Scale 2x",
+    "effects": [
+      {
+        "effect": "Nearest",
+        "scale": [ 2, 2 ]
+      }
+    ]
+  },
+  {
+    "name": "Integer Scale 3x",
+    "effects": [
+      {
+        "effect": "Nearest",
+        "scale": [ 3, 3 ]
+      }
+    ]
+  }
+]

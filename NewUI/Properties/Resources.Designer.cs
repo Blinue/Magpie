@@ -22,7 +22,7 @@ namespace NewUI.Properties {
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "17.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    internal class Resources {
+    public class Resources {
         
         private static global::System.Resources.ResourceManager resourceMan;
         
@@ -36,7 +36,7 @@ namespace NewUI.Properties {
         ///   返回此类使用的缓存的 ResourceManager 实例。
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Resources.ResourceManager ResourceManager {
+        public static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
                     global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("NewUI.Properties.Resources", typeof(Resources).Assembly);
@@ -51,7 +51,7 @@ namespace NewUI.Properties {
         ///   使用此强类型资源类的所有资源查找执行重写。
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Globalization.CultureInfo Culture {
+        public static global::System.Globalization.CultureInfo Culture {
             get {
                 return resourceCulture;
             }
@@ -63,7 +63,7 @@ namespace NewUI.Properties {
         /// <summary>
         ///   查找类似 An error occurred, please check logs for more information. 的本地化字符串。
         /// </summary>
-        internal static string Msg_Error_Generic {
+        public static string Msg_Error_Generic {
             get {
                 return ResourceManager.GetString("Msg_Error_Generic", resourceCulture);
             }
@@ -72,7 +72,7 @@ namespace NewUI.Properties {
         /// <summary>
         ///   查找类似 The window cannot be captured using GraphicsCapture. 的本地化字符串。
         /// </summary>
-        internal static string Msg_Error_GraphicsCapture {
+        public static string Msg_Error_GraphicsCapture {
             get {
                 return ResourceManager.GetString("Msg_Error_GraphicsCapture", resourceCulture);
             }
@@ -81,7 +81,7 @@ namespace NewUI.Properties {
         /// <summary>
         ///   查找类似 Failed to initialize Runtime. 的本地化字符串。
         /// </summary>
-        internal static string Msg_Error_Init {
+        public static string Msg_Error_Init {
             get {
                 return ResourceManager.GetString("Msg_Error_Init", resourceCulture);
             }
@@ -90,7 +90,7 @@ namespace NewUI.Properties {
         /// <summary>
         ///   查找类似 Invalid source window 的本地化字符串。
         /// </summary>
-        internal static string Msg_Error_Invalid_Source_Window {
+        public static string Msg_Error_Invalid_Source_Window {
             get {
                 return ResourceManager.GetString("Msg_Error_Invalid_Source_Window", resourceCulture);
             }
@@ -99,7 +99,7 @@ namespace NewUI.Properties {
         /// <summary>
         ///   查找类似 Failed to obtain administrator privileges. 的本地化字符串。
         /// </summary>
-        internal static string Msg_Error_Run_As_Admin {
+        public static string Msg_Error_Run_As_Admin {
             get {
                 return ResourceManager.GetString("Msg_Error_Run_As_Admin", resourceCulture);
             }
@@ -108,7 +108,7 @@ namespace NewUI.Properties {
         /// <summary>
         ///   查找类似 This monitor does not support turning off VSync. 的本地化字符串。
         /// </summary>
-        internal static string Msg_Error_Vsync_Off_Not_Supported {
+        public static string Msg_Error_Vsync_Off_Not_Supported {
             get {
                 return ResourceManager.GetString("Msg_Error_Vsync_Off_Not_Supported", resourceCulture);
             }
@@ -117,7 +117,7 @@ namespace NewUI.Properties {
         /// <summary>
         ///   查找类似 Capture Method 的本地化字符串。
         /// </summary>
-        internal static string UI_Main_Capture_Method {
+        public static string UI_Main_Capture_Method {
             get {
                 return ResourceManager.GetString("UI_Main_Capture_Method", resourceCulture);
             }
@@ -126,7 +126,7 @@ namespace NewUI.Properties {
         /// <summary>
         ///   查找类似 Current Window:  的本地化字符串。
         /// </summary>
-        internal static string UI_Main_Current_Window {
+        public static string UI_Main_Current_Window {
             get {
                 return ResourceManager.GetString("UI_Main_Current_Window", resourceCulture);
             }
@@ -135,7 +135,7 @@ namespace NewUI.Properties {
         /// <summary>
         ///   查找类似 Forget 的本地化字符串。
         /// </summary>
-        internal static string UI_Main_Forget_Current_Window {
+        public static string UI_Main_Forget_Current_Window {
             get {
                 return ResourceManager.GetString("UI_Main_Forget_Current_Window", resourceCulture);
             }
@@ -144,7 +144,7 @@ namespace NewUI.Properties {
         /// <summary>
         ///   查找类似 Hotkey 的本地化字符串。
         /// </summary>
-        internal static string UI_Main_Hotkey {
+        public static string UI_Main_Hotkey {
             get {
                 return ResourceManager.GetString("UI_Main_Hotkey", resourceCulture);
             }
@@ -153,7 +153,7 @@ namespace NewUI.Properties {
         /// <summary>
         ///   查找类似 Injection Mode 的本地化字符串。
         /// </summary>
-        internal static string UI_Main_Injection_Mode {
+        public static string UI_Main_Injection_Mode {
             get {
                 return ResourceManager.GetString("UI_Main_Injection_Mode", resourceCulture);
             }
@@ -162,7 +162,7 @@ namespace NewUI.Properties {
         /// <summary>
         ///   查找类似 Injection at Startup 的本地化字符串。
         /// </summary>
-        internal static string UI_Main_Injection_Mode_Injection_At_Startup {
+        public static string UI_Main_Injection_Mode_Injection_At_Startup {
             get {
                 return ResourceManager.GetString("UI_Main_Injection_Mode_Injection_At_Startup", resourceCulture);
             }
@@ -171,7 +171,7 @@ namespace NewUI.Properties {
         /// <summary>
         ///   查找类似 No Injection 的本地化字符串。
         /// </summary>
-        internal static string UI_Main_Injection_Mode_No_Injection {
+        public static string UI_Main_Injection_Mode_No_Injection {
             get {
                 return ResourceManager.GetString("UI_Main_Injection_Mode_No_Injection", resourceCulture);
             }
@@ -180,7 +180,7 @@ namespace NewUI.Properties {
         /// <summary>
         ///   查找类似 Injection at Runtime 的本地化字符串。
         /// </summary>
-        internal static string UI_Main_Injection_Mode_Runtime_Injection {
+        public static string UI_Main_Injection_Mode_Runtime_Injection {
             get {
                 return ResourceManager.GetString("UI_Main_Injection_Mode_Runtime_Injection", resourceCulture);
             }
@@ -189,7 +189,7 @@ namespace NewUI.Properties {
         /// <summary>
         ///   查找类似 Options 的本地化字符串。
         /// </summary>
-        internal static string UI_Main_Options {
+        public static string UI_Main_Options {
             get {
                 return ResourceManager.GetString("UI_Main_Options", resourceCulture);
             }
@@ -198,7 +198,7 @@ namespace NewUI.Properties {
         /// <summary>
         ///   查找类似 Parse Failure 的本地化字符串。
         /// </summary>
-        internal static string UI_Main_Parse_Failure {
+        public static string UI_Main_Parse_Failure {
             get {
                 return ResourceManager.GetString("UI_Main_Parse_Failure", resourceCulture);
             }
@@ -207,7 +207,7 @@ namespace NewUI.Properties {
         /// <summary>
         ///   查找类似 Scale after 5s 的本地化字符串。
         /// </summary>
-        internal static string UI_Main_Scale_After_5S {
+        public static string UI_Main_Scale_After_5S {
             get {
                 return ResourceManager.GetString("UI_Main_Scale_After_5S", resourceCulture);
             }
@@ -216,7 +216,7 @@ namespace NewUI.Properties {
         /// <summary>
         ///   查找类似 Scaling Mode 的本地化字符串。
         /// </summary>
-        internal static string UI_Main_Scaling_Mode {
+        public static string UI_Main_Scaling_Mode {
             get {
                 return ResourceManager.GetString("UI_Main_Scaling_Mode", resourceCulture);
             }
@@ -225,7 +225,7 @@ namespace NewUI.Properties {
         /// <summary>
         ///   查找类似 Magpie 的本地化字符串。
         /// </summary>
-        internal static string UI_Main_Title {
+        public static string UI_Main_Title {
             get {
                 return ResourceManager.GetString("UI_Main_Title", resourceCulture);
             }
@@ -234,7 +234,7 @@ namespace NewUI.Properties {
         /// <summary>
         ///   查找类似 About 的本地化字符串。
         /// </summary>
-        internal static string UI_Options_About {
+        public static string UI_Options_About {
             get {
                 return ResourceManager.GetString("UI_Options_About", resourceCulture);
             }
@@ -243,7 +243,7 @@ namespace NewUI.Properties {
         /// <summary>
         ///   查找类似 Feedback 的本地化字符串。
         /// </summary>
-        internal static string UI_Options_About_Feedback {
+        public static string UI_Options_About_Feedback {
             get {
                 return ResourceManager.GetString("UI_Options_About_Feedback", resourceCulture);
             }
@@ -252,7 +252,7 @@ namespace NewUI.Properties {
         /// <summary>
         ///   查找类似 Licenses 的本地化字符串。
         /// </summary>
-        internal static string UI_Options_About_Licenses {
+        public static string UI_Options_About_Licenses {
             get {
                 return ResourceManager.GetString("UI_Options_About_Licenses", resourceCulture);
             }
@@ -261,7 +261,7 @@ namespace NewUI.Properties {
         /// <summary>
         ///   查找类似 Close 的本地化字符串。
         /// </summary>
-        internal static string UI_Options_About_Licenses_Close {
+        public static string UI_Options_About_Licenses_Close {
             get {
                 return ResourceManager.GetString("UI_Options_About_Licenses_Close", resourceCulture);
             }
@@ -270,7 +270,7 @@ namespace NewUI.Properties {
         /// <summary>
         ///   查找类似 The liceses that Magpie Uses: 的本地化字符串。
         /// </summary>
-        internal static string UI_Options_About_Licenses_Header {
+        public static string UI_Options_About_Licenses_Header {
             get {
                 return ResourceManager.GetString("UI_Options_About_Licenses_Header", resourceCulture);
             }
@@ -279,7 +279,7 @@ namespace NewUI.Properties {
         /// <summary>
         ///   查找类似 Magpie Licenses 的本地化字符串。
         /// </summary>
-        internal static string UI_Options_About_Licenses_Title {
+        public static string UI_Options_About_Licenses_Title {
             get {
                 return ResourceManager.GetString("UI_Options_About_Licenses_Title", resourceCulture);
             }
@@ -288,7 +288,7 @@ namespace NewUI.Properties {
         /// <summary>
         ///   查找类似 Project URL 的本地化字符串。
         /// </summary>
-        internal static string UI_Options_About_Project_URL {
+        public static string UI_Options_About_Project_URL {
             get {
                 return ResourceManager.GetString("UI_Options_About_Project_URL", resourceCulture);
             }
@@ -297,7 +297,7 @@ namespace NewUI.Properties {
         /// <summary>
         ///   查找类似 Support 的本地化字符串。
         /// </summary>
-        internal static string UI_Options_About_Support {
+        public static string UI_Options_About_Support {
             get {
                 return ResourceManager.GetString("UI_Options_About_Support", resourceCulture);
             }
@@ -306,7 +306,7 @@ namespace NewUI.Properties {
         /// <summary>
         ///   查找类似 Thanks 的本地化字符串。
         /// </summary>
-        internal static string UI_Options_About_Thanks {
+        public static string UI_Options_About_Thanks {
             get {
                 return ResourceManager.GetString("UI_Options_About_Thanks", resourceCulture);
             }
@@ -315,7 +315,7 @@ namespace NewUI.Properties {
         /// <summary>
         ///   查找类似 All those who have provided feedback and contributions to Magpie 的本地化字符串。
         /// </summary>
-        internal static string UI_Options_About_Thanks_Contributors {
+        public static string UI_Options_About_Thanks_Contributors {
             get {
                 return ResourceManager.GetString("UI_Options_About_Thanks_Contributors", resourceCulture);
             }
@@ -324,7 +324,7 @@ namespace NewUI.Properties {
         /// <summary>
         ///   查找类似 All shader projects supported by Magpie 的本地化字符串。
         /// </summary>
-        internal static string UI_Options_About_Thanks_Shaders {
+        public static string UI_Options_About_Thanks_Shaders {
             get {
                 return ResourceManager.GetString("UI_Options_About_Thanks_Shaders", resourceCulture);
             }
@@ -333,7 +333,7 @@ namespace NewUI.Properties {
         /// <summary>
         ///   查找类似 Version 的本地化字符串。
         /// </summary>
-        internal static string UI_Options_About_Version {
+        public static string UI_Options_About_Version {
             get {
                 return ResourceManager.GetString("UI_Options_About_Version", resourceCulture);
             }
@@ -342,7 +342,7 @@ namespace NewUI.Properties {
         /// <summary>
         ///   查找类似 Advanced 的本地化字符串。
         /// </summary>
-        internal static string UI_Options_Advanced {
+        public static string UI_Options_Advanced {
             get {
                 return ResourceManager.GetString("UI_Options_Advanced", resourceCulture);
             }
@@ -351,7 +351,7 @@ namespace NewUI.Properties {
         /// <summary>
         ///   查找类似 Breakpoint Mode 的本地化字符串。
         /// </summary>
-        internal static string UI_Options_Advanced_Breakpoint_Mode {
+        public static string UI_Options_Advanced_Breakpoint_Mode {
             get {
                 return ResourceManager.GetString("UI_Options_Advanced_Breakpoint_Mode", resourceCulture);
             }
@@ -360,7 +360,7 @@ namespace NewUI.Properties {
         /// <summary>
         ///   查找类似 Debug 的本地化字符串。
         /// </summary>
-        internal static string UI_Options_Advanced_Debug {
+        public static string UI_Options_Advanced_Debug {
             get {
                 return ResourceManager.GetString("UI_Options_Advanced_Debug", resourceCulture);
             }
@@ -369,7 +369,7 @@ namespace NewUI.Properties {
         /// <summary>
         ///   查找类似 Logging Level 的本地化字符串。
         /// </summary>
-        internal static string UI_Options_Advanced_Logging_Level {
+        public static string UI_Options_Advanced_Logging_Level {
             get {
                 return ResourceManager.GetString("UI_Options_Advanced_Logging_Level", resourceCulture);
             }
@@ -378,7 +378,7 @@ namespace NewUI.Properties {
         /// <summary>
         ///   查找类似 Error 的本地化字符串。
         /// </summary>
-        internal static string UI_Options_Advanced_Logging_Level_Error {
+        public static string UI_Options_Advanced_Logging_Level_Error {
             get {
                 return ResourceManager.GetString("UI_Options_Advanced_Logging_Level_Error", resourceCulture);
             }
@@ -387,7 +387,7 @@ namespace NewUI.Properties {
         /// <summary>
         ///   查找类似 Info 的本地化字符串。
         /// </summary>
-        internal static string UI_Options_Advanced_Logging_Level_Info {
+        public static string UI_Options_Advanced_Logging_Level_Info {
             get {
                 return ResourceManager.GetString("UI_Options_Advanced_Logging_Level_Info", resourceCulture);
             }
@@ -396,7 +396,7 @@ namespace NewUI.Properties {
         /// <summary>
         ///   查找类似 Off 的本地化字符串。
         /// </summary>
-        internal static string UI_Options_Advanced_Logging_Level_Off {
+        public static string UI_Options_Advanced_Logging_Level_Off {
             get {
                 return ResourceManager.GetString("UI_Options_Advanced_Logging_Level_Off", resourceCulture);
             }
@@ -405,7 +405,7 @@ namespace NewUI.Properties {
         /// <summary>
         ///   查找类似 Warn 的本地化字符串。
         /// </summary>
-        internal static string UI_Options_Advanced_Logging_Level_Warn {
+        public static string UI_Options_Advanced_Logging_Level_Warn {
             get {
                 return ResourceManager.GetString("UI_Options_Advanced_Logging_Level_Warn", resourceCulture);
             }
@@ -414,7 +414,7 @@ namespace NewUI.Properties {
         /// <summary>
         ///   查找类似 Show All Capture Methods 的本地化字符串。
         /// </summary>
-        internal static string UI_Options_Advanced_Show_All_Capture_Methods {
+        public static string UI_Options_Advanced_Show_All_Capture_Methods {
             get {
                 return ResourceManager.GetString("UI_Options_Advanced_Show_All_Capture_Methods", resourceCulture);
             }
@@ -423,7 +423,7 @@ namespace NewUI.Properties {
         /// <summary>
         ///   查找类似 Application 的本地化字符串。
         /// </summary>
-        internal static string UI_Options_Application {
+        public static string UI_Options_Application {
             get {
                 return ResourceManager.GetString("UI_Options_Application", resourceCulture);
             }
@@ -432,7 +432,7 @@ namespace NewUI.Properties {
         /// <summary>
         ///   查找类似 Always Run as Administrator 的本地化字符串。
         /// </summary>
-        internal static string UI_Options_Application_Always_Run_As_Admin {
+        public static string UI_Options_Application_Always_Run_As_Admin {
             get {
                 return ResourceManager.GetString("UI_Options_Application_Always_Run_As_Admin", resourceCulture);
             }
@@ -441,7 +441,7 @@ namespace NewUI.Properties {
         /// <summary>
         ///   查找类似 Language 的本地化字符串。
         /// </summary>
-        internal static string UI_Options_Application_Language {
+        public static string UI_Options_Application_Language {
             get {
                 return ResourceManager.GetString("UI_Options_Application_Language", resourceCulture);
             }
@@ -450,7 +450,7 @@ namespace NewUI.Properties {
         /// <summary>
         ///   查找类似 Default 的本地化字符串。
         /// </summary>
-        internal static string UI_Options_Application_Language_Default {
+        public static string UI_Options_Application_Language_Default {
             get {
                 return ResourceManager.GetString("UI_Options_Application_Language_Default", resourceCulture);
             }
@@ -459,7 +459,7 @@ namespace NewUI.Properties {
         /// <summary>
         ///   查找类似 Minimize to the System Tray at Startup 的本地化字符串。
         /// </summary>
-        internal static string UI_Options_Application_Minimize_To_System_Tray {
+        public static string UI_Options_Application_Minimize_To_System_Tray {
             get {
                 return ResourceManager.GetString("UI_Options_Application_Minimize_To_System_Tray", resourceCulture);
             }
@@ -468,7 +468,7 @@ namespace NewUI.Properties {
         /// <summary>
         ///   查找类似 Minimize to the System Tray when Close the Window 的本地化字符串。
         /// </summary>
-        internal static string UI_Options_Application_Minimize_When_Close {
+        public static string UI_Options_Application_Minimize_When_Close {
             get {
                 return ResourceManager.GetString("UI_Options_Application_Minimize_When_Close", resourceCulture);
             }
@@ -477,7 +477,7 @@ namespace NewUI.Properties {
         /// <summary>
         ///   查找类似 Run at Startup 的本地化字符串。
         /// </summary>
-        internal static string UI_Options_Application_Run_At_Startup {
+        public static string UI_Options_Application_Run_At_Startup {
             get {
                 return ResourceManager.GetString("UI_Options_Application_Run_At_Startup", resourceCulture);
             }
@@ -486,7 +486,7 @@ namespace NewUI.Properties {
         /// <summary>
         ///   查找类似 This change will be applied after restarting Magpie. 的本地化字符串。
         /// </summary>
-        internal static string UI_Options_Common_Restart_To_Apply {
+        public static string UI_Options_Common_Restart_To_Apply {
             get {
                 return ResourceManager.GetString("UI_Options_Common_Restart_To_Apply", resourceCulture);
             }
@@ -495,7 +495,7 @@ namespace NewUI.Properties {
         /// <summary>
         ///   查找类似 Adjust Cursor Speed while Zoomed 的本地化字符串。
         /// </summary>
-        internal static string UI_Options_Scale_Adjust_Cursor_Speed {
+        public static string UI_Options_Scale_Adjust_Cursor_Speed {
             get {
                 return ResourceManager.GetString("UI_Options_Scale_Adjust_Cursor_Speed", resourceCulture);
             }
@@ -504,7 +504,7 @@ namespace NewUI.Properties {
         /// <summary>
         ///   查找类似 Cursor 的本地化字符串。
         /// </summary>
-        internal static string UI_Options_Scale_Cursor {
+        public static string UI_Options_Scale_Cursor {
             get {
                 return ResourceManager.GetString("UI_Options_Scale_Cursor", resourceCulture);
             }
@@ -513,7 +513,7 @@ namespace NewUI.Properties {
         /// <summary>
         ///   查找类似 Confine the Cursor in 3D Games 的本地化字符串。
         /// </summary>
-        internal static string UI_Options_Scale_Cursor_Confine_In_3D_Games {
+        public static string UI_Options_Scale_Cursor_Confine_In_3D_Games {
             get {
                 return ResourceManager.GetString("UI_Options_Scale_Cursor_Confine_In_3D_Games", resourceCulture);
             }
@@ -522,7 +522,7 @@ namespace NewUI.Properties {
         /// <summary>
         ///   查找类似 Do not Draw the Cursor 的本地化字符串。
         /// </summary>
-        internal static string UI_Options_Scale_Cursor_Do_Not_Draw {
+        public static string UI_Options_Scale_Cursor_Do_Not_Draw {
             get {
                 return ResourceManager.GetString("UI_Options_Scale_Cursor_Do_Not_Draw", resourceCulture);
             }
@@ -531,7 +531,7 @@ namespace NewUI.Properties {
         /// <summary>
         ///   查找类似 Interpolation Mode 的本地化字符串。
         /// </summary>
-        internal static string UI_Options_Scale_Cursor_Interpolation_Mode {
+        public static string UI_Options_Scale_Cursor_Interpolation_Mode {
             get {
                 return ResourceManager.GetString("UI_Options_Scale_Cursor_Interpolation_Mode", resourceCulture);
             }
@@ -540,7 +540,7 @@ namespace NewUI.Properties {
         /// <summary>
         ///   查找类似 Bilinear 的本地化字符串。
         /// </summary>
-        internal static string UI_Options_Scale_Cursor_Interpolation_Mode_Bilinear {
+        public static string UI_Options_Scale_Cursor_Interpolation_Mode_Bilinear {
             get {
                 return ResourceManager.GetString("UI_Options_Scale_Cursor_Interpolation_Mode_Bilinear", resourceCulture);
             }
@@ -549,7 +549,7 @@ namespace NewUI.Properties {
         /// <summary>
         ///   查找类似 Nearest 的本地化字符串。
         /// </summary>
-        internal static string UI_Options_Scale_Cursor_Interpolation_Mode_Nearest {
+        public static string UI_Options_Scale_Cursor_Interpolation_Mode_Nearest {
             get {
                 return ResourceManager.GetString("UI_Options_Scale_Cursor_Interpolation_Mode_Nearest", resourceCulture);
             }
@@ -558,7 +558,7 @@ namespace NewUI.Properties {
         /// <summary>
         ///   查找类似 Same as Source Window 的本地化字符串。
         /// </summary>
-        internal static string UI_Options_Scale_Cursor_Same_As_Source_Window {
+        public static string UI_Options_Scale_Cursor_Same_As_Source_Window {
             get {
                 return ResourceManager.GetString("UI_Options_Scale_Cursor_Same_As_Source_Window", resourceCulture);
             }
@@ -567,7 +567,7 @@ namespace NewUI.Properties {
         /// <summary>
         ///   查找类似 Zoom Factor of the Cursor 的本地化字符串。
         /// </summary>
-        internal static string UI_Options_Scale_Cursor_Zoom_Factor {
+        public static string UI_Options_Scale_Cursor_Zoom_Factor {
             get {
                 return ResourceManager.GetString("UI_Options_Scale_Cursor_Zoom_Factor", resourceCulture);
             }
@@ -576,7 +576,7 @@ namespace NewUI.Properties {
         /// <summary>
         ///   查找类似 Disable DirectFlip 的本地化字符串。
         /// </summary>
-        internal static string UI_Options_Scale_Disable_DirectFlip {
+        public static string UI_Options_Scale_Disable_DirectFlip {
             get {
                 return ResourceManager.GetString("UI_Options_Scale_Disable_DirectFlip", resourceCulture);
             }
@@ -585,7 +585,7 @@ namespace NewUI.Properties {
         /// <summary>
         ///   查找类似 Allow Additional Latency to Improve Performance 的本地化字符串。
         /// </summary>
-        internal static string UI_Options_Scale_Disable_Low_Latency {
+        public static string UI_Options_Scale_Disable_Low_Latency {
             get {
                 return ResourceManager.GetString("UI_Options_Scale_Disable_Low_Latency", resourceCulture);
             }
@@ -594,7 +594,7 @@ namespace NewUI.Properties {
         /// <summary>
         ///   查找类似 Disable Round Corner while Zoomed 的本地化字符串。
         /// </summary>
-        internal static string UI_Options_Scale_Disable_Round_Corner {
+        public static string UI_Options_Scale_Disable_Round_Corner {
             get {
                 return ResourceManager.GetString("UI_Options_Scale_Disable_Round_Corner", resourceCulture);
             }
@@ -603,7 +603,7 @@ namespace NewUI.Properties {
         /// <summary>
         ///   查找类似 Disable Window Resizing while Zoomed 的本地化字符串。
         /// </summary>
-        internal static string UI_Options_Scale_Disable_Window_Resizing {
+        public static string UI_Options_Scale_Disable_Window_Resizing {
             get {
                 return ResourceManager.GetString("UI_Options_Scale_Disable_Window_Resizing", resourceCulture);
             }
@@ -612,7 +612,7 @@ namespace NewUI.Properties {
         /// <summary>
         ///   查找类似 Frame Rate 的本地化字符串。
         /// </summary>
-        internal static string UI_Options_Scale_Frame_Rate {
+        public static string UI_Options_Scale_Frame_Rate {
             get {
                 return ResourceManager.GetString("UI_Options_Scale_Frame_Rate", resourceCulture);
             }
@@ -621,7 +621,7 @@ namespace NewUI.Properties {
         /// <summary>
         ///   查找类似 Limiter 的本地化字符串。
         /// </summary>
-        internal static string UI_Options_Scale_Frame_Rate_Limiter {
+        public static string UI_Options_Scale_Frame_Rate_Limiter {
             get {
                 return ResourceManager.GetString("UI_Options_Scale_Frame_Rate_Limiter", resourceCulture);
             }
@@ -630,7 +630,7 @@ namespace NewUI.Properties {
         /// <summary>
         ///   查找类似 Not Limited 的本地化字符串。
         /// </summary>
-        internal static string UI_Options_Scale_Frame_Rate_Not_Limited {
+        public static string UI_Options_Scale_Frame_Rate_Not_Limited {
             get {
                 return ResourceManager.GetString("UI_Options_Scale_Frame_Rate_Not_Limited", resourceCulture);
             }
@@ -639,7 +639,7 @@ namespace NewUI.Properties {
         /// <summary>
         ///   查找类似 Disable Vsync 的本地化字符串。
         /// </summary>
-        internal static string UI_Options_Scale_No_VSync {
+        public static string UI_Options_Scale_No_VSync {
             get {
                 return ResourceManager.GetString("UI_Options_Scale_No_VSync", resourceCulture);
             }
@@ -648,7 +648,7 @@ namespace NewUI.Properties {
         /// <summary>
         ///   查找类似 Open Scale Config 的本地化字符串。
         /// </summary>
-        internal static string UI_Options_Scale_Open_Scale_Config {
+        public static string UI_Options_Scale_Open_Scale_Config {
             get {
                 return ResourceManager.GetString("UI_Options_Scale_Open_Scale_Config", resourceCulture);
             }
@@ -657,7 +657,7 @@ namespace NewUI.Properties {
         /// <summary>
         ///   查找类似 Performance 的本地化字符串。
         /// </summary>
-        internal static string UI_Options_Scale_Performance {
+        public static string UI_Options_Scale_Performance {
             get {
                 return ResourceManager.GetString("UI_Options_Scale_Performance", resourceCulture);
             }
@@ -666,7 +666,7 @@ namespace NewUI.Properties {
         /// <summary>
         ///   查找类似 Restore Fullscreen when Source Window Regains Focus 的本地化字符串。
         /// </summary>
-        internal static string UI_Options_Scale_Restore_Full_Screen {
+        public static string UI_Options_Scale_Restore_Full_Screen {
             get {
                 return ResourceManager.GetString("UI_Options_Scale_Restore_Full_Screen", resourceCulture);
             }
@@ -675,7 +675,7 @@ namespace NewUI.Properties {
         /// <summary>
         ///   查找类似 Show Frame Rate 的本地化字符串。
         /// </summary>
-        internal static string UI_Options_Scale_Show_Frame_Rate {
+        public static string UI_Options_Scale_Show_Frame_Rate {
             get {
                 return ResourceManager.GetString("UI_Options_Scale_Show_Frame_Rate", resourceCulture);
             }
@@ -684,7 +684,7 @@ namespace NewUI.Properties {
         /// <summary>
         ///   查找类似 Source Window 的本地化字符串。
         /// </summary>
-        internal static string UI_Options_Scale_Source_Window {
+        public static string UI_Options_Scale_Source_Window {
             get {
                 return ResourceManager.GetString("UI_Options_Scale_Source_Window", resourceCulture);
             }
@@ -693,7 +693,7 @@ namespace NewUI.Properties {
         /// <summary>
         ///   查找类似 VSync 的本地化字符串。
         /// </summary>
-        internal static string UI_Options_Scale_VSync {
+        public static string UI_Options_Scale_VSync {
             get {
                 return ResourceManager.GetString("UI_Options_Scale_VSync", resourceCulture);
             }
@@ -702,7 +702,7 @@ namespace NewUI.Properties {
         /// <summary>
         ///   查找类似 Magpie Options 的本地化字符串。
         /// </summary>
-        internal static string UI_Options_Title {
+        public static string UI_Options_Title {
             get {
                 return ResourceManager.GetString("UI_Options_Title", resourceCulture);
             }
@@ -711,7 +711,7 @@ namespace NewUI.Properties {
         /// <summary>
         ///   查找类似 Zoom 的本地化字符串。
         /// </summary>
-        internal static string UI_Options_Zoom {
+        public static string UI_Options_Zoom {
             get {
                 return ResourceManager.GetString("UI_Options_Zoom", resourceCulture);
             }
@@ -720,7 +720,7 @@ namespace NewUI.Properties {
         /// <summary>
         ///   查找类似 Exit 的本地化字符串。
         /// </summary>
-        internal static string UI_SysTray_Exit {
+        public static string UI_SysTray_Exit {
             get {
                 return ResourceManager.GetString("UI_SysTray_Exit", resourceCulture);
             }
@@ -729,7 +729,7 @@ namespace NewUI.Properties {
         /// <summary>
         ///   查找类似 Main Window 的本地化字符串。
         /// </summary>
-        internal static string UI_SysTray_Main_Window {
+        public static string UI_SysTray_Main_Window {
             get {
                 return ResourceManager.GetString("UI_SysTray_Main_Window", resourceCulture);
             }
@@ -738,7 +738,7 @@ namespace NewUI.Properties {
         /// <summary>
         ///   查找类似 Options 的本地化字符串。
         /// </summary>
-        internal static string UI_SysTray_Options {
+        public static string UI_SysTray_Options {
             get {
                 return ResourceManager.GetString("UI_SysTray_Options", resourceCulture);
             }
@@ -747,7 +747,7 @@ namespace NewUI.Properties {
         /// <summary>
         ///   查找类似 Scale after 5s 的本地化字符串。
         /// </summary>
-        internal static string UI_SysTray_Scale_After_5S {
+        public static string UI_SysTray_Scale_After_5S {
             get {
                 return ResourceManager.GetString("UI_SysTray_Scale_After_5S", resourceCulture);
             }
