@@ -152,9 +152,28 @@ std::wstring EffectCache::_GetCacheFileName(const wchar_t* fileName, std::string
 	return fmt::format(L".\\cache\\{}_{}.{}", ConvertFileName(fileName), StrUtils::UTF8ToUTF16(hash), _SUFFIX);
 }
 
+void EffectCache::_AddToMemCache(const std::wstring& cacheFileName, const EffectDesc& desc) {
+	_memCache[cacheFileName] = desc;
+
+	if (_memCache.size() > _MAX_CACHE_COUNT) {
+		// 清理一半内存缓存
+		auto it = _memCache.begin();
+		std::advance(it, _memCache.size() / 2);
+		_memCache.erase(_memCache.begin(), it);
+
+		SPDLOG_LOGGER_INFO(logger, "已清理内存缓存");
+	}
+}
+
 
 bool EffectCache::Load(const wchar_t* fileName, std::string_view hash, EffectDesc& desc) {
 	std::wstring cacheFileName = _GetCacheFileName(fileName, hash);
+
+	auto it = _memCache.find(cacheFileName);
+	if (it != _memCache.end()) {
+		desc = it->second;
+		return true;
+	}
 
 	if (!Utils::FileExists(cacheFileName.c_str())) {
 		return false;
@@ -205,6 +224,8 @@ bool EffectCache::Load(const wchar_t* fileName, std::string_view hash, EffectDes
 		desc = {};
 		return false;
 	}
+
+	_AddToMemCache(cacheFileName, desc);
 	
 	SPDLOG_LOGGER_INFO(logger, "已读取缓存 " + StrUtils::UTF16ToUTF8(cacheFileName));
 	return true;
@@ -279,6 +300,8 @@ void EffectCache::Save(const wchar_t* fileName, std::string_view hash, const Eff
 	if (!Utils::WriteFile(cacheFileName.c_str(), buf.data(), buf.size())) {
 		SPDLOG_LOGGER_ERROR(logger, "保存缓存失败");
 	}
+
+	_AddToMemCache(cacheFileName, desc);
 
 	SPDLOG_LOGGER_INFO(logger, "已保存缓存 " + StrUtils::UTF16ToUTF8(cacheFileName));
 }

@@ -1086,7 +1086,7 @@ UINT EffectCompiler::Compile(const wchar_t* fileName, EffectDesc& desc) {
 		} else {
 			md5 = Utils::Bin2Hex(hash.data(), hash.size());
 
-			if (EffectCache::Load(fileName, md5, desc)) {
+			if (EffectCache::GetInstance().Load(fileName, md5, desc)) {
 				// 已从缓存中读取
 				return 0;
 			}
@@ -1262,7 +1262,7 @@ UINT EffectCompiler::Compile(const wchar_t* fileName, EffectDesc& desc) {
 		return 1;
 	}
 
-	EffectCache::Save(fileName, md5, desc);
+	EffectCache::GetInstance().Save(fileName, md5, desc);
 
 	return 0;
 }
