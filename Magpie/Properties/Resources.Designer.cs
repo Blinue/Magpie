@@ -511,6 +511,15 @@ namespace Magpie.Properties {
         }
         
         /// <summary>
+        ///   查找类似 Confine the Cursor in 3D Games 的本地化字符串。
+        /// </summary>
+        public static string UI_Options_Scale_Cursor_Confine_In_3D_Games {
+            get {
+                return ResourceManager.GetString("UI_Options_Scale_Cursor_Confine_In_3D_Games", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Do not Draw the Cursor 的本地化字符串。
         /// </summary>
         public static string UI_Options_Scale_Cursor_Do_Not_Draw {

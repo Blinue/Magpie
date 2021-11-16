@@ -103,6 +103,10 @@ public:
 		return _flags & (UINT)_FlagMasks::DisableDirectFlip;
 	}
 
+	bool IsConfineCursorIn3DGames() const {
+		return _flags & (UINT)_FlagMasks::ConfineCursorIn3DGames;
+	}
+
 	const char* GetErrorMsg() const {
 		return _errorMsg;
 	}
@@ -159,7 +163,8 @@ private:
 		DisableLowLatency = 0x10,
 		BreakpointMode = 0x20,
 		DisableWindowResizing = 0x40,
-		DisableDirectFlip = 0x80
+		DisableDirectFlip = 0x80,
+		ConfineCursorIn3DGames = 0x100
 	};
 
 	std::unique_ptr<Renderer> _renderer;

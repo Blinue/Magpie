@@ -267,6 +267,9 @@
   <data name="UI_Options_Scale_Cursor" xml:space="preserve">
     <value>光标</value>
   </data>
+  <data name="UI_Options_Scale_Cursor_Confine_In_3D_Games" xml:space="preserve">
+    <value>在 3D 游戏中限制光标</value>
+  </data>
   <data name="UI_Options_Scale_Cursor_Do_Not_Draw" xml:space="preserve">
     <value>不绘制光标</value>
   </data>

@@ -104,14 +104,15 @@ bool CursorDrawer::Initialize(ComPtr<ID3D11Texture2D> renderTarget, const RECT& 
 	if (!App::GetInstance().IsBreakpointMode()) {
 		// 限制光标在窗口内
 		// 为了在 3D 游戏中起作用，每隔一定时间执行一次
-		if (!app.RegisterTimer(50, []() {
-			ClipCursor(&App::GetInstance().GetSrcClientRect());
-			})) {
-			// 注册定时器失败，仅尝试一次
-			SPDLOG_LOGGER_ERROR(logger, "注册定时器失败");
-			if (!ClipCursor(&App::GetInstance().GetSrcClientRect())) {
-				SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("ClipCursor 失败"));
+		if (App::GetInstance().IsConfineCursorIn3DGames()) {
+			if (!app.RegisterTimer(50, std::bind(ClipCursor, &App::GetInstance().GetSrcClientRect()))) {
+				SPDLOG_LOGGER_ERROR(logger, "注册定时器失败");
+				// 注册定时器失败则仅尝试一次
 			}
+		}
+		
+		if (!ClipCursor(&App::GetInstance().GetSrcClientRect())) {
+			SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("ClipCursor 失败"));
 		}
 
 		if (App::GetInstance().IsAdjustCursorSpeed()) {
