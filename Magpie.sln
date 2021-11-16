@@ -1,9 +1,10 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.30907.101
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Magpie", "Magpie\Magpie.csproj", "{688F31ED-5C36-476C-8A21-A7B39DFF1355}"
 	ProjectSection(ProjectDependencies) = postProject
+		{00AE9B14-C920-46D3-86F2-37CCCDBE8451} = {00AE9B14-C920-46D3-86F2-37CCCDBE8451}
 		{8FC22A64-6D09-478B-9980-608D27601EF2} = {8FC22A64-6D09-478B-9980-608D27601EF2}
 	EndProjectSection
 EndProject
@@ -15,6 +16,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CONAN_INSTALL", "CONAN_INSTALL\CONAN_INSTALL.vcxproj", "{456CCAE4-2C51-4CF2-8D3A-1EFCE8C41A2D}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Effects", "Effects\Effects.vcxproj", "{00AE9B14-C920-46D3-86F2-37CCCDBE8451}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -32,6 +35,10 @@ Global
 		{8FC22A64-6D09-478B-9980-608D27601EF2}.Release|x64.Build.0 = Release|x64
 		{456CCAE4-2C51-4CF2-8D3A-1EFCE8C41A2D}.Debug|x64.ActiveCfg = Debug|x64
 		{456CCAE4-2C51-4CF2-8D3A-1EFCE8C41A2D}.Release|x64.ActiveCfg = Release|x64
+		{00AE9B14-C920-46D3-86F2-37CCCDBE8451}.Debug|x64.ActiveCfg = Debug|x64
+		{00AE9B14-C920-46D3-86F2-37CCCDBE8451}.Debug|x64.Build.0 = Debug|x64
+		{00AE9B14-C920-46D3-86F2-37CCCDBE8451}.Release|x64.ActiveCfg = Release|x64
+		{00AE9B14-C920-46D3-86F2-37CCCDBE8451}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
