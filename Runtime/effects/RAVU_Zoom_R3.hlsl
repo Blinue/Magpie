@@ -54,6 +54,12 @@ float4 Pass1(float2 pos) {
 //!PASS 2
 //!BIND yuvTex, ravu_zoom_lut3
 
+
+#define PI 3.1415926535897932384626433832795
+
+// https://github.com/mpv-player/mpv/issues/9390#issuecomment-961082863
+#define LUT_POS(x, lut_size) lerp(0.5 / (lut_size), 1.0 - 0.5 / (lut_size), (x))
+
 const static float3x3 _yuv2rgb = {
 	1, -0.00093, 1.401687,
 	1, -0.3437, -0.71417,
@@ -71,8 +77,7 @@ float4 Pass2(float2 pos) {
 	float2 subpix = frac(pos - 0.5);
 	pos -= subpix;
 
-	// LUT_POS 的等价，但它到底是什么？
-	subpix = lerp(float2(0.5, 0.5) / float2(9, 9), 1 - 0.5 / float2(9, 9), subpix);
+	subpix = LUT_POS(subpix, 9);
 
 	float2 subpix_inv = 1.0 - subpix;
 	subpix /= float2(5.0, 288.0);
@@ -170,10 +175,10 @@ float4 Pass2(float2 pos) {
 	float delta = sqrt(max(T * T / 4.0 - D, 0.0));
 	float L1 = T / 2.0 + delta, L2 = T / 2.0 - delta;
 	float sqrtL1 = sqrt(L1), sqrtL2 = sqrt(L2);
-	float theta = lerp(mod(atan2(b, L1 - a) + 3.141592653589793, 3.141592653589793), 0.0, abs(b) < 1.192092896e-7);
+	float theta = lerp(mod(atan2(b, L1 - a) + PI, PI), 0.0, abs(b) < 1.192092896e-7);
 	float lambda = sqrtL1;
 	float mu = lerp((sqrtL1 - sqrtL2) / (sqrtL1 + sqrtL2), 0.0, sqrtL1 + sqrtL2 < 1.192092896e-7);
-	float angle = floor(theta * 24.0 / 3.141592653589793);
+	float angle = floor(theta * 24.0 / PI);
 	float strength = lerp(lerp(0.0, 1.0, lambda >= 0.004), lerp(2.0, 3.0, lambda >= 0.05), lambda >= 0.016);
 	float coherence = lerp(lerp(0.0, 1.0, mu >= 0.25), 2.0, mu >= 0.5);
 	float coord_y = ((angle * 4.0 + strength) * 3.0 + coherence) / 288.0;
