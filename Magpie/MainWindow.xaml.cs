@@ -434,6 +434,9 @@ namespace Magpie {
 
 		private void CheckOSTheme() {
 			// 检查注册表获取系统主题，迁移到新版本的 .NET 后将使用 WinRT
+			// 较老版本的 Windows 无该注册表项，始终使用黑色图标
+			bool newTheme = true;
+
 			IntPtr hKey = IntPtr.Zero;
 			if (NativeMethods.RegOpenKeyEx(
 				NativeMethods.HKEY_CURRENT_USER,
@@ -452,17 +455,18 @@ namespace Magpie {
 					data,
 					ref dataSize
 				) == 0) {
-					bool newVal = data.Any(b => { return b != 0; });
-					if (!isLightTheme.HasValue || newVal != isLightTheme.Value) {
-						isLightTheme = newVal;
-						Uri logoUri = new Uri($"pack://application:,,,/Magpie;component/Resources/Logo_{(newVal ? "Black" : "White")}.ico");
-
-						notifyIcon.Icon = new System.Drawing.Icon(App.GetResourceStream(logoUri).Stream);
-						System.Windows.Application.Current.Resources["Logo"] = new BitmapImage(logoUri);
-					}
+					newTheme = data.Any(b => { return b != 0; });
 				}
 
 				NativeMethods.RegCloseKey(hKey);
+			}
+
+			if (!isLightTheme.HasValue || isLightTheme != newTheme) {
+				isLightTheme = newTheme;
+				Uri logoUri = new Uri($"pack://application:,,,/Magpie;component/Resources/Logo_{(isLightTheme.Value ? "Black" : "White")}.ico");
+
+				notifyIcon.Icon = new System.Drawing.Icon(App.GetResourceStream(logoUri).Stream);
+				System.Windows.Application.Current.Resources["Logo"] = new BitmapImage(logoUri);
 			}
 		}
 	}
