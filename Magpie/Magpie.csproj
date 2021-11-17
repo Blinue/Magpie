@@ -5,18 +5,18 @@
     <TargetFramework>net6.0-windows10.0.22000.0</TargetFramework>
     <Nullable>enable</Nullable>
     <UseWPF>true</UseWPF>
+	<UseWindowsForms>true</UseWindowsForms>
     <SupportedOSPlatformVersion>8.0</SupportedOSPlatformVersion>
     <DebugType>full</DebugType>
     <PlatformTarget>x64</PlatformTarget>
     <BaseOutputPath>..\build\</BaseOutputPath>
     <ApplicationIcon>logo.ico</ApplicationIcon>
-  </PropertyGroup>
-
-  <PropertyGroup>
-    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-    <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
-    <StartupObject>Magpie.App</StartupObject>
-    <UseWindowsForms>True</UseWindowsForms>
+	<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+	<AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
+	<StartupObject>Magpie.App</StartupObject>
+	<PublishReadyToRun>true</PublishReadyToRun>
+	<SelfContained>false</SelfContained>
+	<PublishSingleFile>true</PublishSingleFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -50,10 +50,18 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Resource Include="Resources\BuiltInScaleModels.json" />
-    <Resource Include="Resources\Licenses.txt" />
-    <Resource Include="Resources\Logo_Black.ico" />
-    <Resource Include="Resources\Logo_White.ico" />
+    <Resource Include="Resources\BuiltInScaleModels.json">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\Licenses.txt">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\Logo_Black.ico">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\Logo_White.ico">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
   </ItemGroup>
 
   <ItemGroup>
