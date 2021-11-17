@@ -18,6 +18,9 @@ jobs:
     steps:
     - uses: actions/checkout@v2.4.0
     
+    - name: Restore NuGet packages
+      run: nuget restore
+    
     - name: Setup Conan
       run: pip install conan
 
