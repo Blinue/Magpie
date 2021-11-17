@@ -21,14 +21,12 @@ namespace Magpie {
 	/// Interaction logic for App.xaml
 	/// </summary>
 	public partial class App : Application {
-		public static readonly Version APP_VERSION = new Version("0.7.0.0");
-		public static readonly string APPLICATION_DIR = AppDomain.CurrentDomain.SetupInformation.ApplicationBase;
-		public static readonly string SCALE_MODELS_JSON_PATH =
-			Path.Combine(AppDomain.CurrentDomain.SetupInformation.ApplicationBase, "ScaleModels.json");
+		public static readonly Version APP_VERSION = new("0.7.0.0");
+		public static readonly string SCALE_MODELS_JSON_PATH = Path.Combine(Directory.GetCurrentDirectory(), "ScaleModels.json");
 
 		private static Logger Logger { get; } = LogManager.GetCurrentClassLogger();
 
-		private static Mutex mutex = new Mutex(true, "{4C416227-4A30-4A2F-8F23-8701544DD7D6}");
+		private static Mutex? mutex = new(true, "{4C416227-4A30-4A2F-8F23-8701544DD7D6}");
 
 		public static void SetLogLevel(uint logLevel) {
 			LogLevel minLogLevel = LogLevel.Info;
@@ -77,7 +75,7 @@ namespace Magpie {
 			InitNLog();
 			SetLogLevel(Settings.Default.LoggingLevel);
 
-			Logger.Info($"程序启动\n\t进程 ID：{Process.GetCurrentProcess().Id}\n\tMagpie 版本：{APP_VERSION}\n\tOS 版本：{NativeMethods.GetOSVersion()}");
+			Logger.Info($"程序启动\n\t进程 ID：{Environment.ProcessId}\n\tMagpie 版本：{APP_VERSION}\n\tOS 版本：{NativeMethods.GetOSVersion()}");
 
 			if (!string.IsNullOrEmpty(Settings.Default.CultureName)) {
 				Thread.CurrentThread.CurrentCulture = Thread.CurrentThread.CurrentUICulture =
@@ -88,14 +86,19 @@ namespace Magpie {
 			// 检测管理员权限
 			if (Settings.Default.RunAsAdmin && !IsRunAsAdministrator()) {
 				// 创建一个管理员权限的新进程
-				ProcessStartInfo processInfo = new(Process.GetCurrentProcess().MainModule.FileName) {
-					UseShellExecute = true,
-					Verb = "runas",
-					Arguments = string.Join(" ", e.Args)
-				};
-
 				bool success = true;
 				try {
+					string exePath = Process.GetCurrentProcess().MainModule?.FileName ?? "";
+					if (exePath.Length == 0) {
+						throw new Exception("获取 Magpie 可执行文件路径失败");
+					}
+
+					ProcessStartInfo processInfo = new(exePath) {
+						UseShellExecute = true,
+						Verb = "runas",
+						Arguments = string.Join(" ", e.Args)
+					};
+				
 					_ = Process.Start(processInfo);
 				} catch (Exception ex) {
 					// 失败时以普通权限运行
@@ -112,7 +115,7 @@ namespace Magpie {
 			}
 
 			// 不允许多个实例同时运行
-			if (!mutex.WaitOne(TimeSpan.Zero, true)) {
+			if (!mutex!.WaitOne(TimeSpan.Zero, true)) {
 				Logger.Info("已有实例，即将退出");
 
 				Current.Shutdown();
@@ -123,14 +126,14 @@ namespace Magpie {
 				return;
 			}
 
-			MainWindow window = new MainWindow();
+			MainWindow window = new();
 			MainWindow = window;
 			window.Show();
 		}
 
-		private bool IsRunAsAdministrator() {
+		private static bool IsRunAsAdministrator() {
 			WindowsIdentity wi = WindowsIdentity.GetCurrent();
-			WindowsPrincipal wp = new WindowsPrincipal(wi);
+			WindowsPrincipal wp = new(wi);
 
 			return wp.IsInRole(WindowsBuiltInRole.Administrator);
 		}
@@ -142,7 +145,7 @@ namespace Magpie {
 				mutex.ReleaseMutex();
 			}
 
-			Logger.Info($"程序关闭\n\t进程 ID：{Process.GetCurrentProcess().Id}");
+			Logger.Info($"程序关闭\n\t进程 ID：{Environment.ProcessId}");
 		}
 	}
 }
