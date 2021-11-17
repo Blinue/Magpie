@@ -1,19 +1,24 @@
-using Magpie.Properties;
+﻿using Magpie.Properties;
 using NLog;
 using NLog.Config;
 using System;
+using System.Collections.Generic;
+using System.Configuration;
+using System.Data;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Security.Principal;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 
 
 namespace Magpie {
 	/// <summary>
-	/// App.xaml 的交互逻辑
+	/// Interaction logic for App.xaml
 	/// </summary>
 	public partial class App : Application {
 		public static readonly Version APP_VERSION = new Version("0.7.0.0");

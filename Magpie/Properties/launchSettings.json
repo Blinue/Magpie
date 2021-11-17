@@ -1,6 +1,6 @@
 {
   "profiles": {
-    "NewUI": {
+    "Magpie": {
       "commandName": "Project",
       "nativeDebugging": true
     }

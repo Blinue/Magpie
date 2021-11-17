@@ -1,8 +1,8 @@
-<Application x:Class="Magpie.App"
+﻿<Application x:Class="Magpie.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:Magpie"
-             Startup="Application_Startup" Exit="Application_Exit">
+             StartupUri="MainWindow.xaml">
     <Application.Resources>
         <BitmapImage UriSource="pack://application:,,,/Magpie;component/Resources/Logo_Black.ico" x:Key="Logo" />
         <Style TargetType="Label" x:Key="ContextMenuItemFontIcon">

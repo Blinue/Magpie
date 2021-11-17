@@ -1,20 +1,4 @@
-// Copyright (c) 2021 - present, Liu Xu
-//
-//  This program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
-
-using Gma.System.MouseKeyHook;
+﻿using Gma.System.MouseKeyHook;
 using System;
 using System.Collections.Generic;
 using System.Windows;
@@ -24,14 +8,13 @@ using System.Windows.Threading;
 using System.Windows.Media;
 using System.Windows.Forms;
 using Magpie.Properties;
-using Magpie.Options;
 using System.Windows.Media.Imaging;
 using System.Linq;
-
+using Magpie.Options;
 
 namespace Magpie {
 	/// <summary>
-	/// MainWindow.xaml 的交互逻辑
+	/// Interaction logic for MainWindow.xaml
 	/// </summary>
 	public partial class MainWindow : Window {
 		private static NLog.Logger Logger { get; } = NLog.LogManager.GetCurrentClassLogger();
@@ -76,7 +59,7 @@ namespace Magpie {
 
 		public MainWindow() {
 			InitializeComponent();
-
+			
 			InitNotifyIcon();
 
 			CheckOSTheme();
@@ -104,10 +87,10 @@ namespace Magpie {
 			// 延迟绑定，防止加载时改变设置
 			cbbScaleMode.SelectionChanged += CbbScaleMode_SelectionChanged;
 		}
-
+		
 		void InitNotifyIcon() {
 			notifyIcon.Visible = false;
-			
+
 			notifyIcon.Text = Title;
 			notifyIcon.MouseClick += NotifyIcon_MouseClick;
 
@@ -192,7 +175,7 @@ namespace Magpie {
 
 			ToggleMagWindow();
 		}
-
+		
 		private void BtnOptions_Click(object sender, RoutedEventArgs e) {
 			if (optionsWindow == null) {
 				optionsWindow = new OptionsWindow();
@@ -236,7 +219,7 @@ namespace Magpie {
 				txtHotkey.Foreground = Brushes.Red;
 			}
 		}
-
+		
 		private void ToggleMagWindow() {
 			if (Settings.Default.AutoRestore) {
 				StopWaitingForRestore();
@@ -290,7 +273,7 @@ namespace Magpie {
 
 			prevSrcWindow = magWindow.SrcWindow;
 		}
-
+		
 		private void Window_SourceInitialized(object sender, EventArgs e) {
 			Handle = new WindowInteropHelper(this).Handle;
 
@@ -311,7 +294,7 @@ namespace Magpie {
 				}
 			}
 		}
-
+		
 		private void StopWaitingForRestore() {
 			if (WindowState == WindowState.Normal) {
 				btnForgetCurrentWnd.Visibility = gridCurWnd.Visibility = Visibility.Collapsed;
@@ -320,7 +303,7 @@ namespace Magpie {
 			prevSrcWindow = IntPtr.Zero;
 			timerRestore.Stop();
 		}
-
+		
 		private void MagWindow_Closed() {
 			// 不监视 Magpie 主窗口
 			if (!Settings.Default.AutoRestore || prevSrcWindow == Handle) {
@@ -337,7 +320,7 @@ namespace Magpie {
 				}
 			});
 		}
-
+		
 		private IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled) {
 			if (msg == NativeMethods.MAGPIE_WM_SHOWME) {
 				Logger.Info("收到 WM_SHOWME 消息");
@@ -353,11 +336,11 @@ namespace Magpie {
 			}
 			return IntPtr.Zero;
 		}
-
+		
 		private void CbbScaleMode_SelectionChanged(object sender, SelectionChangedEventArgs e) {
-			Settings.Default.ScaleMode = (uint)cbbScaleMode.SelectedIndex;
+			//Settings.Default.ScaleMode = (uint)cbbScaleMode.SelectedIndex;
 		}
-
+		
 		private void StartScaleTimer() {
 			countDownNum = DOWN_COUNT;
 			btnScale.Content = tsiScale.Text = countDownNum.ToString();
@@ -367,7 +350,7 @@ namespace Magpie {
 
 		private void StopScaleTimer() {
 			timerScale.Stop();
-			
+
 			btnScale.Content = Properties.Resources.UI_Main_Scale_After_5S;
 			tsiScale.Text = Properties.Resources.UI_SysTray_Scale_After_5S;
 		}
@@ -379,7 +362,7 @@ namespace Magpie {
 				StartScaleTimer();
 			}
 		}
-
+		
 		private void Window_StateChanged(object sender, EventArgs e) {
 			if (WindowState == WindowState.Minimized) {
 				Hide();
@@ -405,7 +388,7 @@ namespace Magpie {
 		private void Window_Deactivated(object sender, EventArgs e) {
 			Settings.Default.Save();
 		}
-
+		
 		public void ShowAllCaptureMethods(bool isShow) {
 			if (isShow) {
 				if (cbbCaptureMethod.Items.Count != 3) {
@@ -430,7 +413,7 @@ namespace Magpie {
 				cbbCaptureMethod.Items.RemoveAt(3);
 			}
 		}
-
+		
 		private bool? isLightTheme = null;
 
 		private void CheckOSTheme() {

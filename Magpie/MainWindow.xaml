@@ -1,4 +1,4 @@
-<Window x:Class="Magpie.MainWindow"
+﻿<Window x:Class="Magpie.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -8,7 +8,7 @@
         mc:Ignorable="d"
         Icon="{DynamicResource Logo}"
         Title="{x:Static props:Resources.UI_Main_Title}" ResizeMode="CanMinimize" WindowStartupLocation="CenterScreen"
-        Closing="Window_Closing" SourceInitialized="Window_SourceInitialized" StateChanged="Window_StateChanged" HorizontalAlignment="Left" VerticalAlignment="Top" SizeToContent="WidthAndHeight" Deactivated="Window_Deactivated">
+         Closing="Window_Closing" SourceInitialized="Window_SourceInitialized" StateChanged="Window_StateChanged" HorizontalAlignment="Left" VerticalAlignment="Top" SizeToContent="WidthAndHeight" Deactivated="Window_Deactivated">
     <StackPanel Margin="20,20">
         <Grid>
             <Grid.ColumnDefinitions>

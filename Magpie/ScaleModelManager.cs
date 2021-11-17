@@ -6,6 +6,7 @@ using System.Threading;
 using System.Windows;
 using System.Windows.Resources;
 
+
 namespace Magpie {
 	internal class ScaleModelManager {
 		private static NLog.Logger Logger { get; } = NLog.LogManager.GetCurrentClassLogger();

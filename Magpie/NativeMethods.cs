@@ -1,10 +1,9 @@
-using System;
+﻿using System;
 using System.Runtime.InteropServices;
 using System.Text;
 
 namespace Magpie {
-	// Win32 API
-	internal static class NativeMethods {
+	internal class NativeMethods {
 		public static readonly int MAGPIE_WM_SHOWME = RegisterWindowMessage("WM_SHOWME");
 		public static readonly int MAGPIE_WM_DESTORYHOST = RegisterWindowMessage("MAGPIE_WM_DESTORYHOST");
 		public static readonly int SW_NORMAL = 1;
