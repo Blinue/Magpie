@@ -53,6 +53,9 @@ jobs:
     - name: Check outputs
       run: echo ${{ steps.vars.outputs.sha_short }}
 
+    - name: Check sha
+      run: echo ${{ github.sha }}
+
     - name: Store build
       uses: actions/upload-artifact@v2
       with: 
