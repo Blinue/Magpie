@@ -50,7 +50,9 @@ namespace Magpie {
 		};
 
 		private void Application_Closing() {
-			magWindow.Dispose();
+			if (magWindow != null) {
+				magWindow.Dispose();
+			}
 
 			if (optionsWindow != null) {
 				optionsWindow.Close();

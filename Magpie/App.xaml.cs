@@ -57,7 +57,24 @@ namespace Magpie {
 			Logger.Info($"当前日志级别：{minLogLevel}");
 		}
 
+		private static void InitNLog() {
+			NLog.Targets.FileTarget logfile = new("logfile") {
+				FileName = "logs/Magpie.log",
+				ArchiveAboveSize= 100000,
+				MaxArchiveFiles = 1,
+				ArchiveFileName = "logs/Magpie.1.log",
+				Encoding = System.Text.Encoding.UTF8,
+				KeepFileOpen = true,
+				Layout = "${longdate}|${level:uppercase=true}|${logger}|${message}${onexception:inner=|${exception}}"
+			};
+
+			LoggingConfiguration config = new();
+			config.AddRule(LogLevel.Info, LogLevel.Off, logfile);
+			LogManager.Configuration = config;
+		}
+
 		private void Application_Startup(object sender, StartupEventArgs e) {
+			InitNLog();
 			SetLogLevel(Settings.Default.LoggingLevel);
 
 			Logger.Info($"程序启动\n\t进程 ID：{Process.GetCurrentProcess().Id}\n\tMagpie 版本：{APP_VERSION}\n\tOS 版本：{NativeMethods.GetOSVersion()}");
@@ -71,7 +88,7 @@ namespace Magpie {
 			// 检测管理员权限
 			if (Settings.Default.RunAsAdmin && !IsRunAsAdministrator()) {
 				// 创建一个管理员权限的新进程
-				ProcessStartInfo processInfo = new ProcessStartInfo(Assembly.GetExecutingAssembly().CodeBase) {
+				ProcessStartInfo processInfo = new(Process.GetCurrentProcess().MainModule.FileName) {
 					UseShellExecute = true,
 					Verb = "runas",
 					Arguments = string.Join(" ", e.Args)
