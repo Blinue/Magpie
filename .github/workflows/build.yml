@@ -46,6 +46,13 @@ jobs:
         del *.exp
         del xaudio2_9redist.dll
 
+    - name: Set outputs
+      id: vars
+      run: echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
+    
+    - name: Check outputs
+      run: echo ${{ steps.vars.outputs.sha_short }}
+
     - name: Store build
       uses: actions/upload-artifact@v2
       with: 
