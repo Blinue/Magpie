@@ -27,10 +27,10 @@ jobs:
         vs-prerelease: true
 
     - name: Conan Install
-      run: msbuild /p:Configuration=${{env.BUILD_CONFIGURATION}};Platform=x64 ./CONAN_INSTALL
+      run: msbuild /p:Configuration=${{env.BUILD_CONFIGURATION}} /p:Platform=x64 ./CONAN_INSTALL
 
     - name: Publish
-      run: msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}};Platform=x64 ./DEPLOY
+      run: msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} /p:Platform=x64 ./DEPLOY
 
     - name: Save hash
       id: vars
