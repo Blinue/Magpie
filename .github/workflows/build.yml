@@ -42,7 +42,6 @@ jobs:
       run: |
         del *.pdb
         del *.lib
-        del *.xml
         del *.exp
         del xaudio2_9redist.dll
 
