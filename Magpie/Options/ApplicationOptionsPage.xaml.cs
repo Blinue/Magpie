@@ -1,8 +1,8 @@
 using Magpie.Properties;
 using System;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
-using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -12,8 +12,8 @@ namespace Magpie.Options {
 	/// ApplicationOptionsPage.xaml 的交互逻辑
 	/// </summary>
 	public partial class ApplicationOptionsPage : Page {
-		private readonly IWshRuntimeLibrary.WshShell shell = new IWshRuntimeLibrary.WshShell();
-		private readonly IWshRuntimeLibrary.IWshShortcut shortcut = null;
+		private readonly IWshRuntimeLibrary.WshShell shell = new();
+		private readonly IWshRuntimeLibrary.IWshShortcut? shortcut = null;
 		private readonly string pathLink;
 
 		private readonly CultureInfo[] supportedCultures = {
@@ -22,7 +22,7 @@ namespace Magpie.Options {
 			CultureInfo.GetCultureInfo("ru-RU")
 		};
 
-		private static string originCulture = null;
+		private static string? originCulture = null;
 		private static bool originRunAsAdmin = false;
 
 		public ApplicationOptionsPage() {
@@ -71,7 +71,7 @@ namespace Magpie.Options {
 				}
 			}
 
-			shortcut.TargetPath = Assembly.GetExecutingAssembly().Location;
+			shortcut.TargetPath = Process.GetCurrentProcess().MainModule?.FileName;
 			shortcut.WorkingDirectory = AppDomain.CurrentDomain.SetupInformation.ApplicationBase;
 
 			// 防止初始化时调用事件处理
@@ -80,7 +80,7 @@ namespace Magpie.Options {
 			ckbRunAsAdmin.Checked += CkbRunAsAdmin_Checked;
 			ckbRunAsAdmin.Unchecked += CkbRunAsAdmin_Unchecked;
 
-			if (ckbRunAsAdmin.IsChecked.Value) {
+			if (ckbRunAsAdmin.IsChecked!.Value) {
 				CkbRunAsAdmin_Checked(ckbRunAsAdmin, new RoutedEventArgs());
 			} else {
 				CkbRunAsAdmin_Unchecked(ckbRunAsAdmin, new RoutedEventArgs());
@@ -106,7 +106,7 @@ namespace Magpie.Options {
 
 		// 在用户的“启动”文件夹创建快捷方式以实现开机启动
 		private void CreateShortCut() {
-			shortcut.Arguments = ckbMinimizeAtStartUp.IsChecked.GetValueOrDefault(false) ? "-st" : "";
+			shortcut!.Arguments = ckbMinimizeAtStartUp.IsChecked.GetValueOrDefault(false) ? "-st" : "";
 			shortcut.Save();
 		}
 
