@@ -19,7 +19,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CONAN_INSTALL", "CONAN_INST
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Effects", "Effects\Effects.vcxproj", "{00AE9B14-C920-46D3-86F2-37CCCDBE8451}"
 EndProject
-
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -28,8 +27,8 @@ Global
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{D6BDD49C-C10A-4298-9718-EB4DF0AD9BAD}.Debug|x64.ActiveCfg = Debug|Any CPU
 		{D6BDD49C-C10A-4298-9718-EB4DF0AD9BAD}.Debug|x64.Build.0 = Debug|Any CPU
-		{D6BDD49C-C10A-4298-9718-EB4DF0AD9BAD}.Release|x64.ActiveCfg = Release|x64
-		{D6BDD49C-C10A-4298-9718-EB4DF0AD9BAD}.Release|x64.Build.0 = Release|x64
+		{D6BDD49C-C10A-4298-9718-EB4DF0AD9BAD}.Release|x64.ActiveCfg = Release|Any CPU
+		{D6BDD49C-C10A-4298-9718-EB4DF0AD9BAD}.Release|x64.Build.0 = Release|Any CPU
 		{8FC22A64-6D09-478B-9980-608D27601EF2}.Debug|x64.ActiveCfg = Debug|x64
 		{8FC22A64-6D09-478B-9980-608D27601EF2}.Debug|x64.Build.0 = Debug|x64
 		{8FC22A64-6D09-478B-9980-608D27601EF2}.Release|x64.ActiveCfg = Release|x64
@@ -45,7 +44,7 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		RESX_SortFileContentOnSave = True
 		SolutionGuid = {63EF2070-2182-44B1-AEA1-0B48F5096846}
+		RESX_SortFileContentOnSave = True
 	EndGlobalSection
 EndGlobal
