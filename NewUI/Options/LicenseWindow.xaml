@@ -1,0 +1,22 @@
+<Window x:Class="NewUI.Options.LicenseWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:NewUI.Options"
+        xmlns:p="clr-namespace:NewUI.Properties;assembly=NewUI"
+        xmlns:resx="clr-namespace:NewUI.Properties"
+        mc:Ignorable="d"
+        Icon="{DynamicResource Logo}"
+        Title="{x:Static p:Resources.UI_Options_About_Licenses_Title}" Height="400" Width="550" ResizeMode="NoResize">
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <TextBlock Text="{x:Static p:Resources.UI_Options_About_Licenses_Header}" />
+        <TextBox x:Name="tbLicenses" VerticalScrollBarVisibility="Auto" UndoLimit="0" Grid.Row="1" AllowDrop="False" IsTabStop="False" Margin="0,10,0,0" TextWrapping="Wrap" IsUndoEnabled="False" IsReadOnly="True" />
+        <Button Content="{x:Static p:Resources.UI_Options_About_Licenses_Close}" Grid.Row="2" HorizontalAlignment="Right" Margin="0,10,0,0" Padding="10,5" IsDefault="True" Click="BtnOK_Click" />
+    </Grid>
+</Window>

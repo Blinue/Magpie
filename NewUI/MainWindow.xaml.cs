@@ -449,7 +449,7 @@ namespace NewUI {
 				isLightTheme = newTheme;
 				Uri logoUri = new Uri($"pack://application:,,,/NewUI;component/Resources/Logo_{(isLightTheme.Value ? "Black" : "White")}.ico");
 
-				//notifyIcon.Icon = new System.Drawing.Icon(App.GetResourceStream(logoUri).Stream);
+				notifyIcon.Icon = new System.Drawing.Icon(App.GetResourceStream(logoUri).Stream);
 				System.Windows.Application.Current.Resources["Logo"] = new BitmapImage(logoUri);
 			}
 		}
