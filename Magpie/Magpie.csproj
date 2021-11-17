@@ -7,7 +7,6 @@
     <UseWPF>true</UseWPF>
 	<UseWindowsForms>true</UseWindowsForms>
     <SupportedOSPlatformVersion>8.0</SupportedOSPlatformVersion>
-    <DebugType>full</DebugType>
     <PlatformTarget>x64</PlatformTarget>
     <BaseOutputPath>..\build\</BaseOutputPath>
     <ApplicationIcon>logo.ico</ApplicationIcon>
@@ -17,6 +16,11 @@
 	<PublishReadyToRun>true</PublishReadyToRun>
 	<SelfContained>false</SelfContained>
 	<PublishSingleFile>true</PublishSingleFile>
+	<RuntimeIdentifier>win-x64</RuntimeIdentifier>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+	<DebugType>Full</DebugType>
   </PropertyGroup>
 
   <ItemGroup>

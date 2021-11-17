@@ -19,6 +19,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CONAN_INSTALL", "CONAN_INST
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Effects", "Effects\Effects.vcxproj", "{00AE9B14-C920-46D3-86F2-37CCCDBE8451}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DEPLOY", "DEPLOY\DEPLOY.vcxproj", "{B7512D05-CC38-4736-9B1F-C3A4A335BFD4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -39,6 +41,10 @@ Global
 		{00AE9B14-C920-46D3-86F2-37CCCDBE8451}.Debug|x64.Build.0 = Debug|x64
 		{00AE9B14-C920-46D3-86F2-37CCCDBE8451}.Release|x64.ActiveCfg = Release|x64
 		{00AE9B14-C920-46D3-86F2-37CCCDBE8451}.Release|x64.Build.0 = Release|x64
+		{B7512D05-CC38-4736-9B1F-C3A4A335BFD4}.Debug|x64.ActiveCfg = Debug|x64
+		{B7512D05-CC38-4736-9B1F-C3A4A335BFD4}.Debug|x64.Build.0 = Debug|x64
+		{B7512D05-CC38-4736-9B1F-C3A4A335BFD4}.Release|x64.ActiveCfg = Release|x64
+		{B7512D05-CC38-4736-9B1F-C3A4A335BFD4}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

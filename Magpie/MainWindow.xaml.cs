@@ -338,7 +338,7 @@ namespace Magpie {
 		}
 		
 		private void CbbScaleMode_SelectionChanged(object sender, SelectionChangedEventArgs e) {
-			//Settings.Default.ScaleMode = (uint)cbbScaleMode.SelectedIndex;
+			Settings.Default.ScaleMode = (uint)cbbScaleMode.SelectedIndex;
 		}
 		
 		private void StartScaleTimer() {
