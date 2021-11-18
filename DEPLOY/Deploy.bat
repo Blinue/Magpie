@@ -2,7 +2,7 @@ REM 编译 Runtime
 msbuild /p:Configuration=Release;Platform=x64;OutDir=../publish/ ../Runtime
 
 IF %ERRORLEVEL% NEQ 0 (
-    ECHO Error: MSBuild not found
+    ECHO Error: Failed to build Runtime
     EXIT 1
 )
 
@@ -10,7 +10,7 @@ REM 复制效果文件
 msbuild /p:Configuration=Release;Platform=x64;OutDir=../publish/ ../Effects
 
 IF %ERRORLEVEL% NEQ 0 (
-    ECHO Error: MSBuild not found
+    ECHO Error: Failed to build Effects
     EXIT 1
 )
 
@@ -18,7 +18,7 @@ REM 部署 .NET
 msbuild -t:restore /t:Publish /p:Configuration=Release;Platform=x64;PublishDir=../publish ../Magpie/Magpie.csproj
 
 IF %ERRORLEVEL% NEQ 0 (
-    ECHO Error: MSBuild not found
+    ECHO Error: Failed to build Magpie
     EXIT 1
 )
 
