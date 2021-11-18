@@ -11,14 +11,14 @@ namespace Magpie {
 		private static NLog.Logger Logger { get; } = NLog.LogManager.GetCurrentClassLogger();
 
 		// 全屏窗口关闭时引发此事件
-		public event Action Closed;
+		public event Action? Closed;
 
 		public IntPtr SrcWindow { get; private set; } = IntPtr.Zero;
 
-		private readonly Thread magThread = null;
+		private readonly Thread magThread;
 
 		// 用于指示 magThread 进入全屏
-		private readonly AutoResetEvent runEvent = new AutoResetEvent(false);
+		private readonly AutoResetEvent runEvent = new(false);
 
 		private enum MagWindowCmd {
 			Run,
@@ -30,7 +30,7 @@ namespace Magpie {
 		private class MagWindowParams {
 			public volatile IntPtr hwndSrc;
 			public volatile uint captureMode;
-			public volatile string effectsJson;
+			public volatile string effectsJson = "";
 			public volatile int frameRateOrLogLevel;
 			public volatile float cursorZoomFactor;
 			public volatile uint cursorInterpolationMode;
@@ -50,10 +50,10 @@ namespace Magpie {
 			ConfineCursorIn3DGames = 0x100
 		}
 
-		private readonly MagWindowParams magWindowParams = new MagWindowParams();
+		private readonly MagWindowParams magWindowParams = new();
 
 		// 用于从全屏窗口的线程接收消息
-		private event Action<string> CloseEvent;
+		private event Action<string?> CloseEvent;
 
 		public bool Running { get; private set; }
 
@@ -63,17 +63,13 @@ namespace Magpie {
 			magThread = new Thread(() => {
 				Logger.Info("正在新线程中创建全屏窗口");
 
-				uint ResolveLogLevel(uint logLevel) {
-					switch (logLevel) {
-						case 1:
-							return 2;
-						case 2:
-							return 3;
-						case 3:
-							return 4;
-						default:
-							return 6;
-					}
+				static uint ResolveLogLevel(uint logLevel) {
+					return logLevel switch {
+						1 => 2,
+						2 => 3,
+						3 => 4,
+						_ => 6,
+					};
 				}
 
 				bool initSuccess = false;
@@ -88,7 +84,7 @@ namespace Magpie {
 
 				if (!initSuccess) {
 					// 初始化失败
-					CloseEvent("Msg_Error_Init");
+					CloseEvent?.Invoke("Msg_Error_Init");
 					parent.Dispatcher.Invoke(() => {
 						parent.Close();
 					});
@@ -105,7 +101,7 @@ namespace Magpie {
 					if (magWindowParams.cmd == MagWindowCmd.SetLogLevel) {
 						NativeMethods.SetLogLevel(ResolveLogLevel((uint)magWindowParams.frameRateOrLogLevel));
 					} else {
-						string msg = NativeMethods.Run(
+						string? msg = NativeMethods.Run(
 							magWindowParams.hwndSrc,
 							magWindowParams.effectsJson,
 							magWindowParams.captureMode,
@@ -115,7 +111,7 @@ namespace Magpie {
 							magWindowParams.flags
 						);
 
-						CloseEvent(msg);
+						CloseEvent?.Invoke(msg);
 					}
 				}
 			});
@@ -123,7 +119,7 @@ namespace Magpie {
 			magThread.SetApartmentState(ApartmentState.MTA);
 			magThread.Start();
 
-			CloseEvent += (string errorMsgId) => {
+			CloseEvent += (string? errorMsgId) => {
 				bool noError = string.IsNullOrEmpty(errorMsgId);
 
 				if (noError && Closed != null) {
@@ -136,7 +132,7 @@ namespace Magpie {
 					parent.Dispatcher.Invoke(new Action(() => {
 						_ = NativeMethods.SetForegroundWindow(new WindowInteropHelper(parent).Handle);
 
-						string errorMsg = Resources.ResourceManager.GetString(errorMsgId, Resources.Culture);
+						string? errorMsg = Resources.ResourceManager.GetString(errorMsgId!, Resources.Culture);
 						if (errorMsg == null) {
 							errorMsg = Resources.ResourceManager.GetString(Resources.Msg_Error_Generic);
 						}

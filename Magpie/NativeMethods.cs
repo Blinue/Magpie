@@ -71,7 +71,7 @@ namespace Magpie {
 		private static extern bool GetWindowPlacement(IntPtr hWnd, ref WINDOWPLACEMENT lpwndpl);
 
 		public static int GetWindowShowCmd(IntPtr hWnd) {
-			WINDOWPLACEMENT wp = new WINDOWPLACEMENT();
+			WINDOWPLACEMENT wp = new();
 			wp.length = (uint)Marshal.SizeOf(wp);
 			return !GetWindowPlacement(hWnd, ref wp) ? -1 : (int)wp.showCmd;
 		}
@@ -92,7 +92,7 @@ namespace Magpie {
 				return "";
 			}
 
-			StringBuilder sb = new StringBuilder(len + 1);
+			StringBuilder sb = new(len + 1);
 			len = GetWindowText(hWnd, sb, sb.Capacity);
 			return len > 0 ? sb.ToString() : "";
 		}
@@ -115,10 +115,10 @@ namespace Magpie {
 		[DllImport("ntdll.dll", SetLastError = true)]
 		private static extern uint RtlGetVersion(ref OsVersionInfo versionInformation);
 
-		private static Version version = null;
+		private static Version? version = null;
 		public static Version GetOSVersion() {
 			if (version == null) {
-				OsVersionInfo osVersionInfo = new OsVersionInfo();
+				OsVersionInfo osVersionInfo = new();
 				osVersionInfo.dwOSVersionInfoSize = (uint)Marshal.SizeOf(osVersionInfo);
 				_ = RtlGetVersion(ref osVersionInfo);
 				version = new Version(
@@ -137,12 +137,12 @@ namespace Magpie {
 		private static extern int GetUserDefaultLocaleName([MarshalAs(UnmanagedType.LPWStr)] StringBuilder lpLocaleName, int cchLocaleName);
 
 		public static string GetUserDefaultLocalName() {
-			StringBuilder sb = new StringBuilder(LOCALE_NAME_MAX_LENGTH);
+			StringBuilder sb = new(LOCALE_NAME_MAX_LENGTH);
 			_ = GetUserDefaultLocaleName(sb, LOCALE_NAME_MAX_LENGTH);
 			return sb.ToString();
 		}
 
-		public static readonly IntPtr HKEY_CURRENT_USER = new IntPtr(0x80000001);
+		public static readonly IntPtr HKEY_CURRENT_USER = new(0x80000001);
 		public static readonly int KEY_READ = 131097;
 
 		[DllImport("advapi32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
@@ -165,10 +165,10 @@ namespace Magpie {
 		[DllImport("Runtime", CallingConvention = CallingConvention.StdCall)]
 		public static extern void SetLogLevel(uint logLevel);
 
-		[DllImport("Runtime", EntryPoint = "Run", CallingConvention = CallingConvention.StdCall)]
+		[DllImport("Runtime", EntryPoint = "Run", CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode)]
 		private static extern IntPtr RunNative(
 			IntPtr hwndSrc,
-			[MarshalAs(UnmanagedType.LPUTF8Str)] string effectsJson,
+			[MarshalAs(UnmanagedType.LPStr)] string effectsJson,
 			uint captureMode,
 			int frameRate,
 			float cursorZoomFactor,
@@ -176,7 +176,7 @@ namespace Magpie {
 			uint flags
 		);
 
-		public static string Run(
+		public static string? Run(
 			IntPtr hwndSrc,
 			string effectsJson,
 			uint captureMode,
