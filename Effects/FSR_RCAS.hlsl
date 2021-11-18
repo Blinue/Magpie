@@ -88,12 +88,12 @@ float4 Pass1(float2 pos) {
 	// Immediate constants for peak range.
 	float2 peakC = { 1.0, -1.0 * 4.0 };
 	// Limiters, these need to be high precision RCPs.
-	float hitMinR = mn4R * rcp(4.0 * mx4R);
-	float hitMinG = mn4G * rcp(4.0 * mx4G);
-	float hitMinB = mn4B * rcp(4.0 * mx4B);
-	float hitMaxR = (peakC.x - mx4R) * rcp(4.0 * mn4R + peakC.y);
-	float hitMaxG = (peakC.x - mx4G) * rcp(4.0 * mn4G + peakC.y);
-	float hitMaxB = (peakC.x - mx4B) * rcp(4.0 * mn4B + peakC.y);
+	float hitMinR = min(mn4R, eR) * rcp(4.0 * mx4R);
+	float hitMinG = min(mn4G, eG) * rcp(4.0 * mx4G);
+	float hitMinB = min(mn4B, eB) * rcp(4.0 * mx4B);
+	float hitMaxR = (peakC.x - max(mx4R, eR)) * rcp(4.0 * mn4R + peakC.y);
+	float hitMaxG = (peakC.x - max(mx4G, eG)) * rcp(4.0 * mn4G + peakC.y);
+	float hitMaxB = (peakC.x - max(mx4B, eB)) * rcp(4.0 * mn4B + peakC.y);
 	float lobeR = max(-hitMinR, hitMaxR);
 	float lobeG = max(-hitMinG, hitMaxG);
 	float lobeB = max(-hitMinB, hitMaxB);
