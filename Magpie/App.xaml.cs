@@ -21,7 +21,7 @@ namespace Magpie {
 	/// Interaction logic for App.xaml
 	/// </summary>
 	public partial class App : Application {
-		public static readonly Version APP_VERSION = new("0.7.0.0");
+		public static readonly Version APP_VERSION = new("0.8.0.0");
 		public static readonly string SCALE_MODELS_JSON_PATH = Path.Combine(Directory.GetCurrentDirectory(), "ScaleModels.json");
 
 		private static Logger Logger { get; } = LogManager.GetCurrentClassLogger();

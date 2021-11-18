@@ -18,6 +18,7 @@
 	<RuntimeIdentifier>win-x64</RuntimeIdentifier>
 	<Platforms>x64</Platforms>
 	<OutputPath>..\build\$(Configuration)</OutputPath>
+	<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">

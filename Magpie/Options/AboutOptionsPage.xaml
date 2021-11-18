@@ -18,7 +18,7 @@
     <StackPanel Margin="0">
         <Grid>
             <StackPanel Orientation="Horizontal">
-                <Image Height="28" Source="../logo.ico" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                <Image Height="28" Source="pack://application:,,,/Magpie;component/Resources/Logo_Black.ico" HorizontalAlignment="Left" VerticalAlignment="Top"/>
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                     <Label Content="MAGPIE" Margin="5,0,0,-3" VerticalAlignment="Top" FontSize="20" Padding="0" HorizontalAlignment="Left"/>
                     <Label Name="lblVersion" Padding="0" Margin="10,0,0,0" VerticalAlignment="Bottom" FontSize="11" />

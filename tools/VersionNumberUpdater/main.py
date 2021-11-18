@@ -26,7 +26,7 @@ with open(rootDir + '\\Magpie\\Properties\\AssemblyInfo.cs', mode='r+', encoding
 # Magpie 的全局变量
 with open(rootDir + '\\Magpie\\App.xaml.cs', mode='r+', encoding='utf8') as f:
     src = f.read()
-    src = re.sub(r'Version\(".*?"\)', 'Version("' + version + '")', src)
+    src = re.sub(r'APP_VERSION = new\(".*?"\)', 'APP_VERSION = new("' + version + '")', src)
 
     f.seek(0)
     f.truncate()
