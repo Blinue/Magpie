@@ -17,6 +17,7 @@
 		<Platforms>x64</Platforms>
 		<OutputPath>..\build\$(Configuration)</OutputPath>
 		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+		<ProduceReferenceAssembly>false</ProduceReferenceAssembly>
 	</PropertyGroup>
 
 	<PropertyGroup>
