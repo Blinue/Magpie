@@ -107,14 +107,6 @@ bool App::Run(
 			SPDLOG_LOGGER_ERROR(logger, "_DisableDirectFlip 失败");
 		}
 	}
-
-	_renderer.reset(new Renderer());
-	if (!_renderer->Initialize()) {
-		SPDLOG_LOGGER_CRITICAL(logger, "初始化 Renderer 失败，正在清理");
-		DestroyWindow(_hwndHost);
-		_Run();
-		return false;
-	}
 	
 	switch (captureMode) {
 	case 0:
@@ -146,7 +138,7 @@ bool App::Run(
 		return false;
 	}
 
-	if (!_renderer->InitializeEffectsAndCursor(effectsJson)) {
+	if (!Renderer::GetInstance().PrepareForRender(effectsJson)) {
 		SPDLOG_LOGGER_CRITICAL(logger, "初始化效果失败，即将退出");
 		DestroyWindow(_hwndHost);
 		_Run();
@@ -218,7 +210,7 @@ void App::_Run() {
 			DispatchMessage(&msg);
 		}
 
-		_renderer->Render();
+		Renderer::GetInstance().Render();
 	}
 }
 
@@ -401,7 +393,7 @@ LRESULT App::_HostWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 void App::_ReleaseResources() {
 	_frameSource = nullptr;
-	_renderer = nullptr;
+	Renderer::GetInstance().ReleaseResources();
 
 	// 计时器资源在窗口销毁时自动释放
 	_timerCbs.clear();

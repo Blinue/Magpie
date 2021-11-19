@@ -25,7 +25,6 @@ bool GraphicsCaptureFrameSource::Initialize() {
 		return false;
 	}
 
-	_d3dDC = App::GetInstance().GetRenderer().GetD3DDC();
 	HWND hwndSrc = App::GetInstance().GetHwndSrc();
 
 	// 包含边框的窗口尺寸
@@ -62,7 +61,7 @@ bool GraphicsCaptureFrameSource::Initialize() {
 		}
 
 		hr = CreateDirect3D11DeviceFromDXGIDevice(
-			App::GetInstance().GetRenderer().GetDXGIDevice().Get(),
+			Renderer::GetInstance().GetDXGIDevice().Get(),
 			reinterpret_cast<::IInspectable**>(winrt::put_abi(_wrappedD3DDevice))
 		);
 		if (FAILED(hr)) {
@@ -144,7 +143,7 @@ bool GraphicsCaptureFrameSource::Initialize() {
 	desc.SampleDesc.Count = 1;
 	desc.SampleDesc.Quality = 0;
 	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
-	hr = App::GetInstance().GetRenderer().GetD3DDevice()->CreateTexture2D(&desc, nullptr, &_output);
+	hr = Renderer::GetInstance().GetD3DDevice()->CreateTexture2D(&desc, nullptr, &_output);
 	if (FAILED(hr)) {
 		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("创建 Texture2D 失败", hr));
 		return false;
@@ -180,7 +179,7 @@ bool GraphicsCaptureFrameSource::Update() {
 		return false;
 	}
 
-	_d3dDC->CopySubresourceRegion(_output.Get(), 0, 0, 0, 0, withFrame.Get(), 0, &_frameInWnd);
+	Renderer::GetInstance().GetD3DDC()->CopySubresourceRegion(_output.Get(), 0, 0, 0, 0, withFrame.Get(), 0, &_frameInWnd);
 
 	return true;
 }

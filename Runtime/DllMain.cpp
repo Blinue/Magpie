@@ -71,11 +71,19 @@ API_DECLSPEC BOOL WINAPI Initialize(UINT logLevel) {
 
 	// 初始化 App
 	if (!App::GetInstance().Initialize(hInst)) {
+		SPDLOG_LOGGER_CRITICAL(logger, "初始化 App 失败");
+		return FALSE;
+	}
+
+	// 初始化 Renderer
+	if (!Renderer::GetInstance().Initialize()) {
+		SPDLOG_LOGGER_CRITICAL(logger, "初始化 Renderer 失败");
 		return FALSE;
 	}
 
 	// 初始化 Hasher
 	if (!Utils::Hasher::GetInstance().Initialize()) {
+		SPDLOG_LOGGER_CRITICAL(logger, "初始化 Utils::Hasher 失败");
 		return FALSE;
 	}
 

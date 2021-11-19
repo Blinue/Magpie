@@ -26,7 +26,7 @@ bool MagCallbackFrameSource::Initialize() {
 	desc.SampleDesc.Count = 1;
 	desc.SampleDesc.Quality = 0;
 	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
-	HRESULT hr = App::GetInstance().GetRenderer().GetD3DDevice()->CreateTexture2D(&desc, nullptr, &_output);
+	HRESULT hr = Renderer::GetInstance().GetD3DDevice()->CreateTexture2D(&desc, nullptr, &_output);
 	if (FAILED(hr)) {
 		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("创建 Texture2D 失败", hr));
 		return false;
@@ -93,7 +93,7 @@ BOOL MagCallbackFrameSource::_ImageScalingCallback(
 		return FALSE;
 	}
 
-	ComPtr<ID3D11DeviceContext> d3dDC = App::GetInstance().GetRenderer().GetD3DDC();
+	ComPtr<ID3D11DeviceContext> d3dDC = Renderer::GetInstance().GetD3DDC();
 	ComPtr<ID3D11Texture2D> output = App::GetInstance().GetFrameSource().GetOutput();
 
 	D3D11_MAPPED_SUBRESOURCE ms{};

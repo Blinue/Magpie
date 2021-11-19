@@ -7,16 +7,19 @@ extern std::shared_ptr<spdlog::logger> logger;
 
 
 bool DwmSharedSurfaceFrameSource::Initialize() {
-	_dwmGetDxSharedSurface = (_DwmGetDxSharedSurfaceFunc*)GetProcAddress(
-		GetModuleHandle(L"user32.dll"), "DwmGetDxSharedSurface");
+	HMODULE hUser32 = GetModuleHandle(L"user32.dll");
+	if (!hUser32) {
+		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetModuleHandle 失败"));
+		return false;
+	}
+	_dwmGetDxSharedSurface = (_DwmGetDxSharedSurfaceFunc*)GetProcAddress(hUser32, "DwmGetDxSharedSurface");
 
 	if (!_dwmGetDxSharedSurface) {
 		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("获取函数 DwmGetDxSharedSurface 地址失败"));
 		return false;
 	}
 
-	_d3dDC = App::GetInstance().GetRenderer().GetD3DDC();
-	_d3dDevice = App::GetInstance().GetRenderer().GetD3DDevice();
+	_d3dDevice = Renderer::GetInstance().GetD3DDevice();
 	_hwndSrc = App::GetInstance().GetHwndSrc();
 	
 	SIZE frameSize;
@@ -64,7 +67,7 @@ bool DwmSharedSurfaceFrameSource::Update() {
 		return false;
 	}
 	
-	_d3dDC->CopySubresourceRegion(_output.Get(), 0, 0, 0, 0, sharedTexture.Get(), 0, &_frameInWnd);
+	Renderer::GetInstance().GetD3DDC()->CopySubresourceRegion(_output.Get(), 0, 0, 0, 0, sharedTexture.Get(), 0, &_frameInWnd);
 
 	return true;
 }
