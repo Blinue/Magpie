@@ -208,7 +208,7 @@ bool Renderer::_GetHardwareAdapter(ComPtr<IDXGIAdapter1>& adapter) {
 			return false;
 		}
 		
-		if (desc.Flags & DXGI_ADAPTER_FLAG_SOFTWARE) {
+		if (desc.Flags == DXGI_ADAPTER_FLAG_SOFTWARE) {
 			warpAdapter = adapter;
 			wrapDesc = desc;
 			continue;
@@ -284,7 +284,7 @@ bool Renderer::_InitD3D() {
 
 	ComPtr<IDXGIAdapter1> adapter;
 	if (!_GetHardwareAdapter(adapter)) {
-		SPDLOG_LOGGER_WARN(logger, "找不到可用 Adapter");
+		SPDLOG_LOGGER_ERROR(logger, "找不到可用 Adapter");
 		return false;
 	}
 
