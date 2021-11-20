@@ -16,10 +16,12 @@ extern std::shared_ptr<spdlog::logger> logger;
 
 bool Renderer::Initialize() {
 	if (!_InitD3D()) {
+		SPDLOG_LOGGER_ERROR(logger, "_InitD3D 失败");
 		return false;
 	}
 
 	if (!_CreateSwapChain()) {
+		SPDLOG_LOGGER_ERROR(logger, "_CreateSwapChain 失败");
 		return false;
 	}
 
@@ -40,17 +42,19 @@ bool Renderer::Initialize() {
 bool Renderer::InitializeEffectsAndCursor(const std::string& effectsJson) {
 	RECT destRect;
 	if (!_ResolveEffectsJson(effectsJson, destRect)) {
+		SPDLOG_LOGGER_ERROR(logger, "_ResolveEffectsJson 失败");
 		return false;
 	}
 	
 	if (App::GetInstance().IsShowFPS()) {
 		if (!_frameRateDrawer.Initialize(_backBuffer, destRect)) {
+			SPDLOG_LOGGER_ERROR(logger, "初始化 FrameRateDrawer 失败");
 			return false;
 		}
 	}
 
-	if (!_cursorRenderer.Initialize(_backBuffer, destRect)) {
-		SPDLOG_LOGGER_CRITICAL(logger, "构建 CursorDrawer 失败");
+	if (!_cursorDrawer.Initialize(_backBuffer, destRect)) {
+		SPDLOG_LOGGER_ERROR(logger, "初始化 CursorDrawer 失败");
 		return false;
 	}
 
@@ -106,7 +110,7 @@ bool Renderer::SetFillVS() {
 	if (!_fillVS) {
 		HRESULT hr = _d3dDevice->CreateVertexShader(FillVSShaderByteCode, sizeof(FillVSShaderByteCode), nullptr, &_fillVS);
 		if (FAILED(hr)) {
-			SPDLOG_LOGGER_CRITICAL(logger, MakeComErrorMsg("创建 FillVS 失败", hr));
+			SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("创建 FillVS 失败", hr));
 			return false;
 		}
 	}
@@ -123,7 +127,7 @@ bool Renderer::SetCopyPS(ID3D11SamplerState* sampler, ID3D11ShaderResourceView* 
 	if (!_copyPS) {
 		HRESULT hr = _d3dDevice->CreatePixelShader(CopyPSShaderByteCode, sizeof(CopyPSShaderByteCode), nullptr, &_copyPS);
 		if (FAILED(hr)) {
-			SPDLOG_LOGGER_CRITICAL(logger, MakeComErrorMsg("创建 CopyPS 失败", hr));
+			SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("创建 CopyPS 失败", hr));
 			return false;
 		}
 	}
@@ -140,7 +144,7 @@ bool Renderer::SetSimpleVS(ID3D11Buffer* simpleVB) {
 	if (!_simpleVS) {
 		HRESULT hr = _d3dDevice->CreateVertexShader(SimpleVSShaderByteCode, sizeof(SimpleVSShaderByteCode), nullptr, &_simpleVS);
 		if (FAILED(hr)) {
-			SPDLOG_LOGGER_CRITICAL(logger, MakeComErrorMsg("创建 SimpleVS 失败", hr));
+			SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("创建 SimpleVS 失败", hr));
 			return false;
 		}
 
@@ -152,7 +156,7 @@ bool Renderer::SetSimpleVS(ID3D11Buffer* simpleVB) {
 			&_simpleIL
 		);
 		if (FAILED(hr)) {
-			SPDLOG_LOGGER_CRITICAL(logger, fmt::sprintf("创建 SimpleVS 输入布局失败\n\tHRESULT：0x%X", hr));
+			SPDLOG_LOGGER_ERROR(logger, fmt::sprintf("创建 SimpleVS 输入布局失败\n\tHRESULT：0x%X", hr));
 			return false;
 		}
 	}
@@ -301,6 +305,7 @@ bool Renderer::_InitD3D() {
 
 	if (FAILED(hr)) {
 		SPDLOG_LOGGER_WARN(logger, "D3D11CreateDevice 失败");
+		return false;
 	}
 
 
@@ -385,13 +390,13 @@ bool Renderer::_CreateSwapChain() {
 		&dxgiSwapChain
 	);
 	if (FAILED(hr)) {
-		SPDLOG_LOGGER_CRITICAL(logger, MakeComErrorMsg("创建交换链失败", hr));
+		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("创建交换链失败", hr));
 		return false;
 	}
 
 	hr = dxgiSwapChain.As<IDXGISwapChain2>(&_dxgiSwapChain);
 	if (FAILED(hr)) {
-		SPDLOG_LOGGER_CRITICAL(logger, MakeComErrorMsg("获取 IDXGISwapChain2 失败", hr));
+		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("获取 IDXGISwapChain2 失败", hr));
 		return false;
 	}
 
@@ -452,7 +457,7 @@ bool Renderer::_CreateSwapChain() {
 
 	hr = _dxgiSwapChain->GetBuffer(0, IID_PPV_ARGS(_backBuffer.ReleaseAndGetAddressOf()));
 	if (FAILED(hr)) {
-		SPDLOG_LOGGER_CRITICAL(logger, MakeComErrorMsg("获取后缓冲区失败", hr));
+		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("获取后缓冲区失败", hr));
 		return false;
 	}
 
@@ -489,7 +494,7 @@ void Renderer::_Render() {
 		_frameRateDrawer.Draw();
 	}
 
-	_cursorRenderer.Draw();
+	_cursorDrawer.Draw();
 
 	if (frameRate != 0) {
 		_dxgiSwapChain->Present(0, DXGI_PRESENT_ALLOW_TEARING);

@@ -14,6 +14,7 @@ const UINT WM_DESTORYHOST = RegisterWindowMessage(L"MAGPIE_WM_DESTORYHOST");
 
 static constexpr const wchar_t* HOST_WINDOW_CLASS_NAME = L"Window_Magpie_967EB565-6F73-4E94-AE53-00CC42592A22";
 static constexpr const wchar_t* DDF_WINDOW_CLASS_NAME = L"Window_Magpie_C322D752-C866-4630-91F5-32CB242A8930";
+static constexpr const wchar_t* HOST_WINDOW_TITLE = L"Magpie_Host";
 
 
 App::~App() {
@@ -300,7 +301,8 @@ bool App::_CreateHostWnd() {
 	_hwndHost = CreateWindowEx(
 		(IsBreakpointMode() ? 0 : WS_EX_TOPMOST) | WS_EX_NOACTIVATE | WS_EX_LAYERED | WS_EX_TRANSPARENT,
 		HOST_WINDOW_CLASS_NAME,
-		NULL, WS_CLIPCHILDREN | WS_POPUP | WS_VISIBLE,
+		HOST_WINDOW_TITLE,
+		WS_CLIPCHILDREN | WS_POPUP | WS_VISIBLE,
 		screenRect.left,
 		screenRect.top,
 		_hostWndSize.cx,

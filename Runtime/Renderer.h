@@ -94,7 +94,7 @@ private:
 	ComPtr<ID3D11PixelShader> _copyPS;
 	std::vector<EffectDrawer> _effects;
 
-	CursorDrawer _cursorRenderer;
+	CursorDrawer _cursorDrawer;
 	FrameRateDrawer _frameRateDrawer;
 
 	StepTimer _timer;

@@ -17,6 +17,7 @@
 #include "pch.h"
 #include "App.h"
 #include "Utils.h"
+#include "StrUtils.h"
 
 
 static HINSTANCE hInst = NULL;
@@ -91,9 +92,26 @@ API_DECLSPEC const char* WINAPI Run(
 	UINT cursorInterpolationMode,	// 0：最近邻，1：双线性
 	UINT flags
 ) {
+	if (!hwndSrc || !IsWindow(hwndSrc)) {
+		SPDLOG_LOGGER_CRITICAL(logger, "非法的源窗口句柄");
+		return ErrorMessages::GENERIC;
+	}
+
 	const auto& version = Utils::GetOSVersion();
 	SPDLOG_LOGGER_INFO(logger, fmt::format("OS 版本：{}.{}.{}",
 		version.dwMajorVersion, version.dwMinorVersion, version.dwBuildNumber));
+
+	int len = GetWindowTextLength(hwndSrc);
+	if (len <= 0) {
+		SPDLOG_LOGGER_INFO(logger, "源窗口无标题");
+	} else {
+		std::wstring title(len, 0);
+		if (!GetWindowText(hwndSrc, &title[0], title.size() + 1)) {
+			SPDLOG_LOGGER_ERROR(logger, "获取源窗口标题失败");
+		} else {
+			SPDLOG_LOGGER_INFO(logger, "源窗口标题：" + StrUtils::UTF16ToUTF8(title));
+		}
+	}
 
 	App& app = App::GetInstance();
 	if (!app.Run(hwndSrc, effectsJson, captureMode, frameRate, cursorZoomFactor, cursorInterpolationMode, flags)
