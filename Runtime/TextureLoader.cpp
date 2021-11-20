@@ -89,7 +89,7 @@ ComPtr<ID3D11Texture2D> LoadImg(const wchar_t* fileName) {
 		return nullptr;
 	}
 
-	switch (Renderer::GetInstance().GetFeatureLevel()) {
+	switch (App::GetInstance().GetRenderer().GetFeatureLevel()) {
 	case D3D_FEATURE_LEVEL_10_0:
 	case D3D_FEATURE_LEVEL_10_1:
 		if (width > 8192 || height > 8192) {
@@ -130,7 +130,7 @@ ComPtr<ID3D11Texture2D> LoadImg(const wchar_t* fileName) {
 	initData.SysMemPitch = stride;
 
 	ComPtr<ID3D11Texture2D> result;
-	hr = Renderer::GetInstance().GetD3DDevice()->CreateTexture2D(&desc, &initData, &result);
+	hr = App::GetInstance().GetRenderer().GetD3DDevice()->CreateTexture2D(&desc, &initData, &result);
 	if (FAILED(hr)) {
 		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("CreateTexture2D 失败", hr));
 		return nullptr;
@@ -144,7 +144,7 @@ ComPtr<ID3D11Texture2D> LoadDDS(const wchar_t* fileName) {
 
 	DirectX::DDS_ALPHA_MODE alphaMode = DirectX::DDS_ALPHA_MODE_STRAIGHT;
 	HRESULT hr = DirectX::CreateDDSTextureFromFileEx(
-		Renderer::GetInstance().GetD3DDevice().Get(),
+		App::GetInstance().GetRenderer().GetD3DDevice().Get(),
 		fileName,
 		0,
 		D3D11_USAGE_DEFAULT,
@@ -161,7 +161,7 @@ ComPtr<ID3D11Texture2D> LoadDDS(const wchar_t* fileName) {
 
 		// 第二次尝试，不作为渲染目标
 		hr = DirectX::CreateDDSTextureFromFileEx(
-			Renderer::GetInstance().GetD3DDevice().Get(),
+			App::GetInstance().GetRenderer().GetD3DDevice().Get(),
 			fileName,
 			0,
 			D3D11_USAGE_DEFAULT,

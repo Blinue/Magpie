@@ -11,8 +11,9 @@ extern std::shared_ptr<spdlog::logger> logger;
 bool CursorDrawer::Initialize(ComPtr<ID3D11Texture2D> renderTarget, const RECT& destRect) {
 	App& app = App::GetInstance();
 	if (!app.IsNoCursor()) {
-		_d3dDC = Renderer::GetInstance().GetD3DDC();
-		_d3dDevice = Renderer::GetInstance().GetD3DDevice();
+		Renderer& renderer = app.GetRenderer();
+		_d3dDC = renderer.GetD3DDC();
+		_d3dDevice = renderer.GetD3DDevice();
 
 		_zoomFactorX = _zoomFactorY = App::GetInstance().GetCursorZoomFactor();
 		if (_zoomFactorX <= 0) {
@@ -22,17 +23,17 @@ bool CursorDrawer::Initialize(ComPtr<ID3D11Texture2D> renderTarget, const RECT& 
 			_zoomFactorY = float(destRect.bottom - destRect.top) / desc.Height;
 		}
 
-		if (!Renderer::GetInstance().GetRenderTargetView(renderTarget.Get(), &_rtv)) {
+		if (!renderer.GetRenderTargetView(renderTarget.Get(), &_rtv)) {
 			SPDLOG_LOGGER_ERROR(logger, "GetRenderTargetView 失败");
 			return false;
 		}
 
-		if (!Renderer::GetInstance().GetShaderResourceView(renderTarget.Get(), &_renderTargetSrv)) {
+		if (!renderer.GetShaderResourceView(renderTarget.Get(), &_renderTargetSrv)) {
 			SPDLOG_LOGGER_ERROR(logger, "GetShaderResourceView 失败");
 			return false;
 		}
 
-		HRESULT hr = Renderer::GetInstance().GetD3DDevice()->CreatePixelShader(
+		HRESULT hr = renderer.GetD3DDevice()->CreatePixelShader(
 			MonochromeCursorPSShaderByteCode, sizeof(MonochromeCursorPSShaderByteCode), nullptr, &_monoCursorPS);
 		if (FAILED(hr)) {
 			SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("创建 MonochromeCursorPS 失败", hr));
@@ -45,14 +46,14 @@ bool CursorDrawer::Initialize(ComPtr<ID3D11Texture2D> renderTarget, const RECT& 
 		bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 		bd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 
-		hr = Renderer::GetInstance().GetD3DDevice()->CreateBuffer(&bd, nullptr, &_vtxBuffer);
+		hr = renderer.GetD3DDevice()->CreateBuffer(&bd, nullptr, &_vtxBuffer);
 		if (FAILED(hr)) {
 			SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("创建顶点缓冲区失败", hr));
 			return false;
 		}
 
-		if (!Renderer::GetInstance().GetSampler(EffectSamplerFilterType::Linear, &_linearSam)
-			|| !Renderer::GetInstance().GetSampler(EffectSamplerFilterType::Point, &_pointSam)
+		if (!renderer.GetSampler(EffectSamplerFilterType::Linear, &_linearSam)
+			|| !renderer.GetSampler(EffectSamplerFilterType::Point, &_pointSam)
 		) {
 			SPDLOG_LOGGER_ERROR(logger, "GetSampler 失败");
 			return false;
@@ -77,12 +78,12 @@ bool CursorDrawer::Initialize(ComPtr<ID3D11Texture2D> renderTarget, const RECT& 
 			return false;
 		}
 
-		if (!Renderer::GetInstance().GetRenderTargetView(_monoTmpTexture.Get(), &_monoTmpRtv)) {
+		if (!renderer.GetRenderTargetView(_monoTmpTexture.Get(), &_monoTmpRtv)) {
 			SPDLOG_LOGGER_ERROR(logger, "GetRenderTargetView 失败");
 			return false;
 		}
 
-		if (!Renderer::GetInstance().GetShaderResourceView(_monoTmpTexture.Get(), &_monoTmpSrv)) {
+		if (!renderer.GetShaderResourceView(_monoTmpTexture.Get(), &_monoTmpSrv)) {
 			SPDLOG_LOGGER_ERROR(logger, "GetShaderResourceView 失败");
 			return false;
 		}
@@ -405,7 +406,8 @@ void CursorDrawer::Draw() {
 	float right = left + cursorSize.cx / FLOAT(_destRect.right - _destRect.left) * 2;
 	float bottom = top - cursorSize.cy / FLOAT(_destRect.bottom - _destRect.top) * 2;
 
-	Renderer::GetInstance().SetSimpleVS(_vtxBuffer.Get());
+	Renderer& renderer = App::GetInstance().GetRenderer();
+	renderer.SetSimpleVS(_vtxBuffer.Get());
 	_d3dDC->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 	
 	if (!info->hasInv) {
@@ -435,20 +437,20 @@ void CursorDrawer::Draw() {
 
 		_d3dDC->Unmap(_vtxBuffer.Get(), 0);
 
-		if (!Renderer::GetInstance().SetCopyPS(
+		if (!renderer.SetCopyPS(
 			App::GetInstance().GetCursorInterpolationMode() == 0 ? _pointSam : _linearSam,
 			info->texture.Get())
 		) {
 			SPDLOG_LOGGER_ERROR(logger, "SetCopyPS 失败");
 			return;
 		}
-		if (!Renderer::GetInstance().SetAlphaBlend(true)) {
+		if (!renderer.SetAlphaBlend(true)) {
 			SPDLOG_LOGGER_ERROR(logger, "SetAlphaBlend 失败");
 			return;
 		}
 		_d3dDC->Draw(4, 0);
 
-		if (!Renderer::GetInstance().SetAlphaBlend(false)) {
+		if (!renderer.SetAlphaBlend(false)) {
 			SPDLOG_LOGGER_ERROR(logger, "SetAlphaBlend 失败");
 			return;
 		}
@@ -481,7 +483,7 @@ void CursorDrawer::Draw() {
 
 		_d3dDC->Unmap(_vtxBuffer.Get(), 0);
 
-		if (!Renderer::GetInstance().SetCopyPS(_pointSam, _renderTargetSrv)) {
+		if (!renderer.SetCopyPS(_pointSam, _renderTargetSrv)) {
 			SPDLOG_LOGGER_ERROR(logger, "SetCopyPS 失败");
 			return;
 		}

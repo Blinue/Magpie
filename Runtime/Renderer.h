@@ -10,16 +10,9 @@
 
 class Renderer {
 public:
-	static Renderer& GetInstance() {
-		static Renderer instance;
-		return instance;
-	}
-
 	bool Initialize();
 
-	bool PrepareForRender(const std::string& effectsJson);
-
-	void ReleaseResources();
+	bool InitializeEffectsAndCursor(const std::string& effectsJson);
 
 	void Render();
 
@@ -64,21 +57,18 @@ public:
 private:
 	bool _InitD3D();
 
-	bool _CreateSwapChain();
-
 	bool _CheckSrcState();
 
 	bool _ResolveEffectsJson(const std::string& effectsJson, RECT& destRect);
 
 	void _Render();
 
-	D3D_FEATURE_LEVEL _featureLevel = D3D_FEATURE_LEVEL_9_1;
+	D3D_FEATURE_LEVEL _featureLevel = D3D_FEATURE_LEVEL_10_0;
 
-	ComPtr<IDXGIFactory2> _dxgiFactory;
 	ComPtr<ID3D11Device1> _d3dDevice;
 	ComPtr<IDXGIDevice1> _dxgiDevice;
-	ComPtr<ID3D11DeviceContext1> _d3dDC;
 	ComPtr<IDXGISwapChain2> _dxgiSwapChain;
+	ComPtr<ID3D11DeviceContext1> _d3dDC;
 	Utils::ScopedHandle _frameLatencyWaitableObject = NULL;
 	bool _waitingForNextFrame = false;
 
@@ -97,8 +87,8 @@ private:
 	ComPtr<ID3D11PixelShader> _copyPS;
 	std::vector<EffectDrawer> _effects;
 
-	std::unique_ptr<CursorDrawer> _cursorDrawer;
-	std::unique_ptr<FrameRateDrawer> _frameRateDrawer;
+	CursorDrawer _cursorRenderer;
+	FrameRateDrawer _frameRateDrawer;
 
 	StepTimer _timer;
 };

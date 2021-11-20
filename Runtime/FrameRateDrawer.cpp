@@ -5,8 +5,9 @@
 
 
 bool FrameRateDrawer::Initialize(ComPtr<ID3D11Texture2D> renderTarget, const RECT& destRect) {
-	_d3dDC = Renderer::GetInstance().GetD3DDC();
-	if (!Renderer::GetInstance().GetRenderTargetView(renderTarget.Get(), &_rtv)) {
+	Renderer& renderer = App::GetInstance().GetRenderer();
+	_d3dDC = renderer.GetD3DDC();
+	if (!renderer.GetRenderTargetView(renderTarget.Get(), &_rtv)) {
 		return false;
 	}
 
@@ -16,7 +17,7 @@ bool FrameRateDrawer::Initialize(ComPtr<ID3D11Texture2D> renderTarget, const REC
 	_vp.Width = FLOAT(destRect.right - destRect.left);
 	_vp.Height = FLOAT(destRect.bottom - destRect.top);
 
-	_spriteBatch.reset(new SpriteBatch(Renderer::GetInstance().GetD3DDC().Get()));
+	_spriteBatch.reset(new SpriteBatch(renderer.GetD3DDC().Get()));
 
 	// 从资源文件获取字体
 	HMODULE hInst = App::GetInstance().GetHInstance();
@@ -29,13 +30,13 @@ bool FrameRateDrawer::Initialize(ComPtr<ID3D11Texture2D> renderTarget, const REC
 		return false;
 	}
 
-	_spriteFont.reset(new SpriteFont(Renderer::GetInstance().GetD3DDevice().Get(),
+	_spriteFont.reset(new SpriteFont(renderer.GetD3DDevice().Get(),
 		(const uint8_t*)LockResource(hRes), SizeofResource(hInst, hRsrc)));
 	return true;
 }
 
 void FrameRateDrawer::Draw() {
-	const StepTimer& timer = Renderer::GetInstance().GetTimer();
+	const StepTimer& timer = App::GetInstance().GetRenderer().GetTimer();
 
 	_d3dDC->OMSetRenderTargets(1, &_rtv, nullptr);
 	_d3dDC->RSSetViewports(1, &_vp);

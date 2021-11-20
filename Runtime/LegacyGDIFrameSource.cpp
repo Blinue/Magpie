@@ -9,6 +9,7 @@ extern std::shared_ptr<spdlog::logger> logger;
 
 bool LegacyGDIFrameSource::Initialize() {
 	_hwndSrc = App::GetInstance().GetHwndSrc();
+	_d3dDC = App::GetInstance().GetRenderer().GetD3DDC();
 
 	const RECT& srcClientRect = App::GetInstance().GetSrcClientRect();
 
@@ -85,7 +86,7 @@ bool LegacyGDIFrameSource::Initialize() {
 	desc.SampleDesc.Count = 1;
 	desc.SampleDesc.Quality = 0;
 	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
-	HRESULT hr = Renderer::GetInstance().GetD3DDevice()->CreateTexture2D(&desc, nullptr, &_output);
+	HRESULT hr = App::GetInstance().GetRenderer().GetD3DDevice()->CreateTexture2D(&desc, nullptr, &_output);
 	if (FAILED(hr)) {
 		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("创建 Texture2D 失败", hr));
 		return false;
@@ -135,7 +136,7 @@ bool LegacyGDIFrameSource::Update() {
 
 	// 将客户区的像素复制到 Texture2D 中
 	D3D11_MAPPED_SUBRESOURCE ms{};
-	HRESULT hr = Renderer::GetInstance().GetD3DDC()->Map(_output.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &ms);
+	HRESULT hr = _d3dDC->Map(_output.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &ms);
 	if (FAILED(hr)) {
 		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("Map 失败", hr));
 		return false;
@@ -150,7 +151,7 @@ bool LegacyGDIFrameSource::Update() {
 		pData += ms.RowPitch;
 	}
 
-	Renderer::GetInstance().GetD3DDC()->Unmap(_output.Get(), 0);
+	_d3dDC->Unmap(_output.Get(), 0);
 
 	return true;
 }

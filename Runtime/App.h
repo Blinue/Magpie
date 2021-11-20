@@ -47,6 +47,10 @@ public:
 		return _hostWndSize;
 	}
 
+	Renderer& GetRenderer() {
+		return *_renderer;
+	}
+
 	FrameSourceBase& GetFrameSource() {
 		return *_frameSource;
 	}
@@ -163,6 +167,7 @@ private:
 		ConfineCursorIn3DGames = 0x100
 	};
 
+	std::unique_ptr<Renderer> _renderer;
 	std::unique_ptr<FrameSourceBase> _frameSource;
 	ComPtr<IWICImagingFactory2> _wicImgFactory;
 
