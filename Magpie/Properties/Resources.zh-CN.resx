@@ -261,6 +261,9 @@
   <data name="UI_Options_Common_Restart_To_Apply" xml:space="preserve">
     <value>此更改将在重新启动Magpie后应用。</value>
   </data>
+  <data name="UI_Options_Scale_Adapter" xml:space="preserve">
+    <value>图形适配器</value>
+  </data>
   <data name="UI_Options_Scale_Adjust_Cursor_Speed" xml:space="preserve">
     <value>缩放时调整光标速度</value>
   </data>

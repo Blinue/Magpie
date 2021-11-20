@@ -156,7 +156,7 @@ bool Renderer::SetSimpleVS(ID3D11Buffer* simpleVB) {
 			&_simpleIL
 		);
 		if (FAILED(hr)) {
-			SPDLOG_LOGGER_ERROR(logger, fmt::sprintf("创建 SimpleVS 输入布局失败\n\tHRESULT：0x%X", hr));
+			SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("创建 SimpleVS 输入布局失败", hr));
 			return false;
 		}
 	}
@@ -192,13 +192,30 @@ bool SdkLayersAvailable() noexcept {
 }
 #endif
 
+inline void LogAdapter(const DXGI_ADAPTER_DESC1& adapterDesc) {
+	SPDLOG_LOGGER_INFO(logger, fmt::format("当前图形适配器：\n\tVID：{:#x}\n\tPID：{:#x}\n\t描述：{}",
+		adapterDesc.VendorId, adapterDesc.DeviceId, StrUtils::UTF16ToUTF8(adapterDesc.Description)));
+}
 
-bool Renderer::_GetHardwareAdapter(ComPtr<IDXGIAdapter1>& adapter) {
+bool GetGraphicsAdapter(IDXGIFactory1* dxgiFactory, UINT adapterIdx, ComPtr<IDXGIAdapter1>& adapter) {
+	HRESULT hr = dxgiFactory->EnumAdapters1(adapterIdx, adapter.ReleaseAndGetAddressOf());
+	if (SUCCEEDED(hr)) {
+		DXGI_ADAPTER_DESC1 desc;
+		HRESULT hr = adapter->GetDesc1(&desc);
+		if (FAILED(hr)) {
+			return false;
+		}
+
+		LogAdapter(desc);
+		return true;
+	}
+
+	// 指定 GPU 失败，回落到普通方式
 	ComPtr<IDXGIAdapter1> warpAdapter;
-	DXGI_ADAPTER_DESC1 wrapDesc;
+	DXGI_ADAPTER_DESC1 warpDesc;
 
 	for (UINT adapterIndex = 0;
-			SUCCEEDED(_dxgiFactory->EnumAdapters1(adapterIndex,
+			SUCCEEDED(dxgiFactory->EnumAdapters1(adapterIndex,
 				adapter.ReleaseAndGetAddressOf()));
 			adapterIndex++
 	) {
@@ -207,25 +224,21 @@ bool Renderer::_GetHardwareAdapter(ComPtr<IDXGIAdapter1>& adapter) {
 		if (FAILED(hr)) {
 			return false;
 		}
-		
+
 		if (desc.Flags == DXGI_ADAPTER_FLAG_SOFTWARE) {
 			warpAdapter = adapter;
-			wrapDesc = desc;
+			warpDesc = desc;
 			continue;
 		}
 
-		SPDLOG_LOGGER_INFO(logger, fmt::sprintf("当前图形适配器：\n\tVID：0x%X\n\tPID：0x%X\n\t描述：%s",
-			desc.VendorId, desc.DeviceId, StrUtils::UTF16ToUTF8(desc.Description)));
-
+		LogAdapter(desc);
 		return true;
 	}
 
-	// 未找到则回落到 Basic Render Driver Adapter（WARP）
+	// 回落到 Basic Render Driver Adapter（WARP）
 	// https://docs.microsoft.com/en-us/windows/win32/direct3darticles/directx-warp
 	if (warpAdapter) {
-		SPDLOG_LOGGER_INFO(logger, fmt::sprintf("当前图形适配器：\n\tVID：0x%X\n\tPID：0x%X\n\t描述：%s",
-			wrapDesc.VendorId, wrapDesc.DeviceId, StrUtils::UTF16ToUTF8(wrapDesc.Description)));
-
+		LogAdapter(warpDesc);
 		adapter = warpAdapter;
 		return true;
 	} else {
@@ -275,15 +288,12 @@ bool Renderer::_InitD3D() {
 		D3D_FEATURE_LEVEL_11_1,
 		D3D_FEATURE_LEVEL_11_0,
 		D3D_FEATURE_LEVEL_10_1,
-		D3D_FEATURE_LEVEL_10_0,
-		D3D_FEATURE_LEVEL_9_3,
-		D3D_FEATURE_LEVEL_9_2,
-		D3D_FEATURE_LEVEL_9_1,
+		D3D_FEATURE_LEVEL_10_0
 	};
 	UINT nFeatureLevels = ARRAYSIZE(featureLevels);
 
 	ComPtr<IDXGIAdapter1> adapter;
-	if (!_GetHardwareAdapter(adapter)) {
+	if (!GetGraphicsAdapter(_dxgiFactory.Get(), App::GetInstance().GetAdapterIdx(), adapter)) {
 		SPDLOG_LOGGER_ERROR(logger, "找不到可用 Adapter");
 		return false;
 	}

@@ -51,7 +51,9 @@ API_DECLSPEC void WINAPI SetLogLevel(UINT logLevel) {
 
 	logger->flush();
 	logger->set_level((spdlog::level::level_enum)logLevel);
-	static const char* LOG_LEVELS[7] = { "TRACE", "DEBUG", "INFO", "WARN", "ERROR", "CRITICAL", "OFF" };
+	static const char* LOG_LEVELS[7] = {
+		"TRACE", "DEBUG", "INFO", "WARN", "ERROR", "CRITICAL", "OFF"
+	};
 	SPDLOG_LOGGER_INFO(logger, fmt::format("当前日志级别：{}", LOG_LEVELS[logLevel]));
 }
 
@@ -90,6 +92,7 @@ API_DECLSPEC const char* WINAPI Run(
 	int frameRate,	// 0：垂直同步，负数：不限帧率，正数：限制的帧率
 	float cursorZoomFactor,	// 负数和 0：和源原窗口相同，正数：缩放比例
 	UINT cursorInterpolationMode,	// 0：最近邻，1：双线性
+	UINT adapterIdx,
 	UINT flags
 ) {
 	if (!hwndSrc || !IsWindow(hwndSrc)) {
@@ -106,7 +109,7 @@ API_DECLSPEC const char* WINAPI Run(
 		SPDLOG_LOGGER_INFO(logger, "源窗口无标题");
 	} else {
 		std::wstring title(len, 0);
-		if (!GetWindowText(hwndSrc, &title[0], title.size() + 1)) {
+		if (!GetWindowText(hwndSrc, &title[0], int(title.size() + 1))) {
 			SPDLOG_LOGGER_ERROR(logger, "获取源窗口标题失败");
 		} else {
 			SPDLOG_LOGGER_INFO(logger, "源窗口标题：" + StrUtils::UTF16ToUTF8(title));
@@ -114,7 +117,8 @@ API_DECLSPEC const char* WINAPI Run(
 	}
 
 	App& app = App::GetInstance();
-	if (!app.Run(hwndSrc, effectsJson, captureMode, frameRate, cursorZoomFactor, cursorInterpolationMode, flags)
+	if (!app.Run(hwndSrc, effectsJson, captureMode, frameRate,
+		cursorZoomFactor, cursorInterpolationMode, adapterIdx, flags)
 	) {
 		// 初始化失败
 		SPDLOG_LOGGER_INFO(logger, "App.Run 失败");
@@ -125,4 +129,47 @@ API_DECLSPEC const char* WINAPI Run(
 	logger->flush();
 
 	return nullptr;
+}
+
+
+// ----------------------------------------------------------------------------------------
+// 以下函数在用户界面的主线程上调用
+
+
+constexpr const char* ADAPTER_DELIMITER = "/$@\\";
+
+std::string InitGetAllGraphicsAdapters() {
+	std::string result;
+
+	ComPtr<IDXGIFactory1> dxgiFactory;
+	HRESULT hr = CreateDXGIFactory1(IID_PPV_ARGS(&dxgiFactory));
+	if (FAILED(hr)) {
+		return "";
+	}
+
+	ComPtr<IDXGIAdapter1> adapter;
+	for (UINT adapterIndex = 0;
+			SUCCEEDED(dxgiFactory->EnumAdapters1(adapterIndex,
+				adapter.ReleaseAndGetAddressOf()));
+			adapterIndex++
+	) {
+		if (adapterIndex > 0) {
+			result += ADAPTER_DELIMITER;
+		}
+
+		DXGI_ADAPTER_DESC1 desc;
+		HRESULT hr = adapter->GetDesc1(&desc);
+		if (SUCCEEDED(hr)) {
+			result += StrUtils::UTF16ToUTF8(desc.Description);
+		} else {
+			result += "???";
+		}
+	}
+
+	return result;
+}
+
+API_DECLSPEC const char* WINAPI GetAllGraphicsAdapters() {
+	static std::string result = InitGetAllGraphicsAdapters();
+	return result.c_str();
 }

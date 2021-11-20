@@ -1,5 +1,6 @@
 using System;
 using System.Runtime.InteropServices;
+using System.Security;
 using System.Text;
 
 namespace Magpie {
@@ -174,8 +175,20 @@ namespace Magpie {
 			int frameRate,
 			float cursorZoomFactor,
 			uint cursorInterpolationMode,
+			uint adapterIdx,
 			uint flags
 		);
+
+		[DllImport("kernel32.dll", CharSet = CharSet.Ansi, ExactSpelling = true)]
+		private static extern int lstrlenA(IntPtr ptr);
+
+		private static unsafe string PtrToUTF8String(IntPtr ptr) {
+			if (ptr == IntPtr.Zero) {
+				return null;
+			}
+			
+			return Encoding.UTF8.GetString((byte*)ptr, lstrlenA(ptr));
+		}
 
 		public static string Run(
 			IntPtr hwndSrc,
@@ -184,10 +197,21 @@ namespace Magpie {
 			int frameRate,
 			float cursorZoomFactor,
 			uint cursorInterpolationMode,
+			uint adapterIdx,
 			uint flags
 		) {
-			IntPtr msg = RunNative(hwndSrc, effectsJson, captureMode, frameRate, cursorZoomFactor, cursorInterpolationMode, flags);
-			return Marshal.PtrToStringAnsi(msg);
+			return PtrToUTF8String(RunNative(hwndSrc, effectsJson, captureMode,
+				frameRate, cursorZoomFactor, cursorInterpolationMode, adapterIdx, flags));
+		}
+
+		[DllImport("Runtime", EntryPoint = "GetAllGraphicsAdapters", CallingConvention = CallingConvention.StdCall)]
+		private static extern IntPtr GetAllGraphicsAdaptersNative();
+
+
+
+		public static string[] GetAllGraphicsAdapters() {
+			string result = PtrToUTF8String(GetAllGraphicsAdaptersNative());
+			return result.Split(new string[] { @"/$@\" }, StringSplitOptions.RemoveEmptyEntries);
 		}
 	}
 }

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -261,6 +261,9 @@
   </data>
   <data name="UI_Options_Common_Restart_To_Apply" xml:space="preserve">
     <value>This change will be applied after restarting Magpie.</value>
+  </data>
+  <data name="UI_Options_Scale_Adapter" xml:space="preserve">
+    <value>Graphics Adapter</value>
   </data>
   <data name="UI_Options_Scale_Adjust_Cursor_Speed" xml:space="preserve">
     <value>Adjust Cursor Speed while Zoomed</value>

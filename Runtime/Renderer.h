@@ -57,8 +57,6 @@ public:
 private:
 	bool _InitD3D();
 
-	bool _GetHardwareAdapter(ComPtr<IDXGIAdapter1>& adapter);
-
 	bool _CreateSwapChain();
 
 	bool _CheckSrcState();
