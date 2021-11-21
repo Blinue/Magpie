@@ -193,7 +193,7 @@ bool SdkLayersAvailable() noexcept {
 #endif
 
 inline void LogAdapter(const DXGI_ADAPTER_DESC1& adapterDesc) {
-	SPDLOG_LOGGER_INFO(logger, fmt::format("当前图形适配器：\n\tVID：{:#x}\n\tPID：{:#x}\n\t描述：{}",
+	SPDLOG_LOGGER_INFO(logger, fmt::format("当前图形适配器：\n\VendorId：{:#x}\n\DeviceId：{:#x}\n\t描述：{}",
 		adapterDesc.VendorId, adapterDesc.DeviceId, StrUtils::UTF16ToUTF8(adapterDesc.Description)));
 }
 
@@ -277,7 +277,7 @@ bool Renderer::_InitD3D() {
 #ifdef _DEBUG
 	createDeviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
 	if (SdkLayersAvailable()) {
-		// If the project is in a debug build, enable debugging via SDK Layers with this flag.
+		// 在 DEBUG 配置启用调试层
 		createDeviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
 	} else {
 		SPDLOG_LOGGER_INFO(logger, "D3D11 调试层不可用");
@@ -321,7 +321,6 @@ bool Renderer::_InitD3D() {
 		SPDLOG_LOGGER_WARN(logger, "D3D11CreateDevice 失败");
 		return false;
 	}
-
 
 	std::string_view fl;
 	switch (_featureLevel) {

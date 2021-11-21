@@ -181,7 +181,7 @@ namespace Magpie {
 		[DllImport("kernel32.dll", CharSet = CharSet.Ansi, ExactSpelling = true)]
 		private static extern int lstrlenA(IntPtr ptr);
 
-		private static unsafe string PtrToUTF8String(IntPtr ptr) {
+		private static unsafe string? PtrToUTF8String(IntPtr ptr) {
 			if (ptr == IntPtr.Zero) {
 				return null;
 			}
@@ -189,7 +189,7 @@ namespace Magpie {
 			return Encoding.UTF8.GetString((byte*)ptr, lstrlenA(ptr));
 		}
 
-		public static string Run(
+		public static string? Run(
 			IntPtr hwndSrc,
 			string effectsJson,
 			uint captureMode,
@@ -206,11 +206,9 @@ namespace Magpie {
 		[DllImport("Runtime", EntryPoint = "GetAllGraphicsAdapters", CallingConvention = CallingConvention.StdCall)]
 		private static extern IntPtr GetAllGraphicsAdaptersNative();
 
-
-
 		public static string[] GetAllGraphicsAdapters() {
-			string result = PtrToUTF8String(GetAllGraphicsAdaptersNative());
-			return result.Split(new string[] { @"/$@\" }, StringSplitOptions.RemoveEmptyEntries);
+			string result = PtrToUTF8String(GetAllGraphicsAdaptersNative())!;
+			return result.Split(@"/$@\", StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
 		}
 	}
 }

@@ -4,6 +4,7 @@
 		<OutputType>WinExe</OutputType>
 		<TargetFramework>net6.0-windows</TargetFramework>
 		<Nullable>enable</Nullable>
+		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
 		<UseWPF>true</UseWPF>
 		<UseWindowsForms>true</UseWindowsForms>
 		<SupportedOSPlatformVersion>7.0</SupportedOSPlatformVersion>
