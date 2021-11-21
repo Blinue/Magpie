@@ -493,6 +493,15 @@ namespace Magpie.Properties {
         }
         
         /// <summary>
+        ///   查找类似 Graphics Adapter 的本地化字符串。
+        /// </summary>
+        public static string UI_Options_Scale_Adapter {
+            get {
+                return ResourceManager.GetString("UI_Options_Scale_Adapter", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Adjust Cursor Speed while Zoomed 的本地化字符串。
         /// </summary>
         public static string UI_Options_Scale_Adjust_Cursor_Speed {

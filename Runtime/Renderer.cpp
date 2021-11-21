@@ -16,6 +16,12 @@ extern std::shared_ptr<spdlog::logger> logger;
 
 bool Renderer::Initialize() {
 	if (!_InitD3D()) {
+		SPDLOG_LOGGER_ERROR(logger, "_InitD3D 失败");
+		return false;
+	}
+
+	if (!_CreateSwapChain()) {
+		SPDLOG_LOGGER_ERROR(logger, "_CreateSwapChain 失败");
 		return false;
 	}
 
@@ -36,17 +42,19 @@ bool Renderer::Initialize() {
 bool Renderer::InitializeEffectsAndCursor(const std::string& effectsJson) {
 	RECT destRect;
 	if (!_ResolveEffectsJson(effectsJson, destRect)) {
+		SPDLOG_LOGGER_ERROR(logger, "_ResolveEffectsJson 失败");
 		return false;
 	}
 	
 	if (App::GetInstance().IsShowFPS()) {
 		if (!_frameRateDrawer.Initialize(_backBuffer, destRect)) {
+			SPDLOG_LOGGER_ERROR(logger, "初始化 FrameRateDrawer 失败");
 			return false;
 		}
 	}
 
-	if (!_cursorRenderer.Initialize(_backBuffer, destRect)) {
-		SPDLOG_LOGGER_CRITICAL(logger, "构建 CursorDrawer 失败");
+	if (!_cursorDrawer.Initialize(_backBuffer, destRect)) {
+		SPDLOG_LOGGER_ERROR(logger, "初始化 CursorDrawer 失败");
 		return false;
 	}
 
@@ -102,7 +110,7 @@ bool Renderer::SetFillVS() {
 	if (!_fillVS) {
 		HRESULT hr = _d3dDevice->CreateVertexShader(FillVSShaderByteCode, sizeof(FillVSShaderByteCode), nullptr, &_fillVS);
 		if (FAILED(hr)) {
-			SPDLOG_LOGGER_CRITICAL(logger, MakeComErrorMsg("创建 FillVS 失败", hr));
+			SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("创建 FillVS 失败", hr));
 			return false;
 		}
 	}
@@ -119,7 +127,7 @@ bool Renderer::SetCopyPS(ID3D11SamplerState* sampler, ID3D11ShaderResourceView* 
 	if (!_copyPS) {
 		HRESULT hr = _d3dDevice->CreatePixelShader(CopyPSShaderByteCode, sizeof(CopyPSShaderByteCode), nullptr, &_copyPS);
 		if (FAILED(hr)) {
-			SPDLOG_LOGGER_CRITICAL(logger, MakeComErrorMsg("创建 CopyPS 失败", hr));
+			SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("创建 CopyPS 失败", hr));
 			return false;
 		}
 	}
@@ -136,7 +144,7 @@ bool Renderer::SetSimpleVS(ID3D11Buffer* simpleVB) {
 	if (!_simpleVS) {
 		HRESULT hr = _d3dDevice->CreateVertexShader(SimpleVSShaderByteCode, sizeof(SimpleVSShaderByteCode), nullptr, &_simpleVS);
 		if (FAILED(hr)) {
-			SPDLOG_LOGGER_CRITICAL(logger, MakeComErrorMsg("创建 SimpleVS 失败", hr));
+			SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("创建 SimpleVS 失败", hr));
 			return false;
 		}
 
@@ -148,7 +156,7 @@ bool Renderer::SetSimpleVS(ID3D11Buffer* simpleVB) {
 			&_simpleIL
 		);
 		if (FAILED(hr)) {
-			SPDLOG_LOGGER_CRITICAL(logger, fmt::sprintf("创建 SimpleVS 输入布局失败\n\tHRESULT：0x%X", hr));
+			SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("创建 SimpleVS 输入布局失败", hr));
 			return false;
 		}
 	}
@@ -164,196 +172,285 @@ bool Renderer::SetSimpleVS(ID3D11Buffer* simpleVB) {
 	return true;
 }
 
-bool Renderer::_InitD3D() {
-	HRESULT hr;
-	const SIZE hostSize = App::GetInstance().GetHostWndSize();
-
-	{
-		UINT createDeviceFlags = 0;
 #ifdef _DEBUG
-		createDeviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
+// Check for SDK Layer support.
+bool SdkLayersAvailable() noexcept {
+	HRESULT hr = D3D11CreateDevice(
+		nullptr,
+		D3D_DRIVER_TYPE_NULL,       // There is no need to create a real hardware device.
+		nullptr,
+		D3D11_CREATE_DEVICE_DEBUG,  // Check for the SDK layers.
+		nullptr,                    // Any feature level will do.
+		0,
+		D3D11_SDK_VERSION,
+		nullptr,                    // No need to keep the D3D device reference.
+		nullptr,                    // No need to know the feature level.
+		nullptr                     // No need to keep the D3D device context reference.
+	);
+
+	return SUCCEEDED(hr);
+}
 #endif
 
-		D3D_FEATURE_LEVEL featureLevels[] = {
-			D3D_FEATURE_LEVEL_11_1,
-			D3D_FEATURE_LEVEL_11_0,
-			D3D_FEATURE_LEVEL_10_1,
-			D3D_FEATURE_LEVEL_10_0
-		};
+inline void LogAdapter(const DXGI_ADAPTER_DESC1& adapterDesc) {
+	SPDLOG_LOGGER_INFO(logger, fmt::format("当前图形适配器：\n\tVID：{:#x}\n\tPID：{:#x}\n\t描述：{}",
+		adapterDesc.VendorId, adapterDesc.DeviceId, StrUtils::UTF16ToUTF8(adapterDesc.Description)));
+}
 
-		ComPtr<ID3D11Device> d3dDevice;
-		ComPtr<ID3D11DeviceContext> d3dDC;
-		hr = D3D11CreateDevice(
-			nullptr,
-			D3D_DRIVER_TYPE_HARDWARE,
-			nullptr,
-			createDeviceFlags,
-			featureLevels,
-			1,
-			D3D11_SDK_VERSION,
-			&d3dDevice,
-			&_featureLevel,
-			&d3dDC
-		);
+bool GetGraphicsAdapter(IDXGIFactory1* dxgiFactory, UINT adapterIdx, ComPtr<IDXGIAdapter1>& adapter) {
+	HRESULT hr = dxgiFactory->EnumAdapters1(adapterIdx, adapter.ReleaseAndGetAddressOf());
+	if (SUCCEEDED(hr)) {
+		DXGI_ADAPTER_DESC1 desc;
+		HRESULT hr = adapter->GetDesc1(&desc);
 		if (FAILED(hr)) {
-			SPDLOG_LOGGER_CRITICAL(logger, MakeComErrorMsg("D3D11CreateDevice 失败", hr));
 			return false;
 		}
 
-		std::string_view fl;
-		switch (_featureLevel) {
-		case D3D_FEATURE_LEVEL_10_0:
-			fl = "10.0";
-			break;
-		case D3D_FEATURE_LEVEL_10_1:
-			fl = "10.1";
-			break;
-		case D3D_FEATURE_LEVEL_11_0:
-			fl = "11.0";
-			break;
-		case D3D_FEATURE_LEVEL_11_1:
-			fl = "11.1";
-			break;
-		default:
-			fl = "未知";
-			break;
-		}
-		SPDLOG_LOGGER_INFO(logger, fmt::format("已创建 D3D Device\n\t功能级别：{}", fl));
+		LogAdapter(desc);
+		return true;
+	}
 
-		hr = d3dDevice.As<ID3D11Device1>(&_d3dDevice);
+	// 指定 GPU 失败，回落到普通方式
+	ComPtr<IDXGIAdapter1> warpAdapter;
+	DXGI_ADAPTER_DESC1 warpDesc;
+
+	for (UINT adapterIndex = 0;
+			SUCCEEDED(dxgiFactory->EnumAdapters1(adapterIndex,
+				adapter.ReleaseAndGetAddressOf()));
+			adapterIndex++
+	) {
+		DXGI_ADAPTER_DESC1 desc;
+		HRESULT hr = adapter->GetDesc1(&desc);
 		if (FAILED(hr)) {
-			SPDLOG_LOGGER_CRITICAL(logger, MakeComErrorMsg("获取 ID3D11Device1 失败", hr));
 			return false;
 		}
 
-		hr = d3dDC.As<ID3D11DeviceContext1>(&_d3dDC);
+		if (desc.Flags == DXGI_ADAPTER_FLAG_SOFTWARE) {
+			warpAdapter = adapter;
+			warpDesc = desc;
+			continue;
+		}
+
+		LogAdapter(desc);
+		return true;
+	}
+
+	// 回落到 Basic Render Driver Adapter（WARP）
+	// https://docs.microsoft.com/en-us/windows/win32/direct3darticles/directx-warp
+	if (warpAdapter) {
+		LogAdapter(warpDesc);
+		adapter = warpAdapter;
+		return true;
+	} else {
+		return false;
+	}
+}
+
+bool Renderer::_InitD3D() {
+	HRESULT hr = CreateDXGIFactory1(IID_PPV_ARGS(_dxgiFactory.ReleaseAndGetAddressOf()));
+	if (FAILED(hr)) {
+		return false;
+	}
+
+	// 检查可变帧率支持
+	BOOL supportTearing = FALSE;
+	ComPtr<IDXGIFactory5> dxgiFactory5;
+	hr = _dxgiFactory.As<IDXGIFactory5>(&dxgiFactory5);
+	if (FAILED(hr)) {
+		SPDLOG_LOGGER_WARN(logger, MakeComErrorMsg("获取 IDXGIFactory5 失败", hr));
+	} else {
+		hr = dxgiFactory5->CheckFeatureSupport(DXGI_FEATURE_PRESENT_ALLOW_TEARING, &supportTearing, sizeof(supportTearing));
 		if (FAILED(hr)) {
-			SPDLOG_LOGGER_CRITICAL(logger, MakeComErrorMsg("获取 ID3D11DeviceContext1 失败", hr));
+			SPDLOG_LOGGER_WARN(logger, MakeComErrorMsg("CheckFeatureSupport 失败", hr));
+		}
+	}
+
+	SPDLOG_LOGGER_INFO(logger, fmt::format("可变刷新率支持：{}", supportTearing ? "是" : "否"));
+
+	if (App::GetInstance().GetFrameRate() != 0 && !supportTearing) {
+		SPDLOG_LOGGER_ERROR(logger, "当前显示器不支持可变刷新率");
+		App::GetInstance().SetErrorMsg(ErrorMessages::VSYNC_OFF_NOT_SUPPORTED);
+		return false;
+	}
+
+	UINT createDeviceFlags = D3D11_CREATE_DEVICE_BGRA_SUPPORT;
+#ifdef _DEBUG
+	createDeviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
+	if (SdkLayersAvailable()) {
+		// If the project is in a debug build, enable debugging via SDK Layers with this flag.
+		createDeviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
+	} else {
+		SPDLOG_LOGGER_INFO(logger, "D3D11 调试层不可用");
+	}
+#endif
+
+	D3D_FEATURE_LEVEL featureLevels[] = {
+		D3D_FEATURE_LEVEL_11_1,
+		D3D_FEATURE_LEVEL_11_0,
+		D3D_FEATURE_LEVEL_10_1,
+		D3D_FEATURE_LEVEL_10_0,
+		// 不支持功能级别 9.x，但这里加上没坏处
+		D3D_FEATURE_LEVEL_9_3,
+		D3D_FEATURE_LEVEL_9_2,
+		D3D_FEATURE_LEVEL_9_1,
+	};
+	UINT nFeatureLevels = ARRAYSIZE(featureLevels);
+
+	ComPtr<IDXGIAdapter1> adapter;
+	if (!GetGraphicsAdapter(_dxgiFactory.Get(), App::GetInstance().GetAdapterIdx(), adapter)) {
+		SPDLOG_LOGGER_ERROR(logger, "找不到可用 Adapter");
+		return false;
+	}
+
+	ComPtr<ID3D11Device> d3dDevice;
+	ComPtr<ID3D11DeviceContext> d3dDC;
+	hr = D3D11CreateDevice(
+		adapter.Get(),
+		D3D_DRIVER_TYPE_UNKNOWN,
+		nullptr,
+		createDeviceFlags,
+		featureLevels,
+		nFeatureLevels,
+		D3D11_SDK_VERSION,
+		&d3dDevice,
+		&_featureLevel,
+		&d3dDC
+	);
+
+	if (FAILED(hr)) {
+		SPDLOG_LOGGER_WARN(logger, "D3D11CreateDevice 失败");
+		return false;
+	}
+
+
+	std::string_view fl;
+	switch (_featureLevel) {
+	case D3D_FEATURE_LEVEL_11_1:
+		fl = "11.1";
+		break;
+	case D3D_FEATURE_LEVEL_11_0:
+		fl = "11.0";
+		break;
+	case D3D_FEATURE_LEVEL_10_1:
+		fl = "10.1";
+		break;
+	case D3D_FEATURE_LEVEL_10_0:
+		fl = "10.0";
+		break;
+	case D3D_FEATURE_LEVEL_9_3:
+		fl = "9.3";
+		break;
+	case D3D_FEATURE_LEVEL_9_2:
+		fl = "9.2";
+		break;
+	case D3D_FEATURE_LEVEL_9_1:
+		fl = "9.1";
+		break;
+	default:
+		fl = "未知";
+		break;
+	}
+	SPDLOG_LOGGER_INFO(logger, fmt::format("已创建 D3D Device\n\t功能级别：{}", fl));
+
+	hr = d3dDevice.As<ID3D11Device1>(&_d3dDevice);
+	if (FAILED(hr)) {
+		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("获取 ID3D11Device1 失败", hr));
+		return false;
+	}
+
+	hr = d3dDC.As<ID3D11DeviceContext1>(&_d3dDC);
+	if (FAILED(hr)) {
+		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("获取 ID3D11DeviceContext1 失败", hr));
+		return false;
+	}
+
+	hr = _d3dDevice.As<IDXGIDevice1>(&_dxgiDevice);
+	if (FAILED(hr)) {
+		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("获取 IDXGIDevice 失败", hr));
+		return false;
+	}
+
+	// 将 GPU 优先级设为最高，不一定有用
+	hr = _dxgiDevice->SetGPUThreadPriority(7);
+	if (FAILED(hr)) {
+		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("SetGPUThreadPriority", hr));
+	}
+
+	return true;
+}
+
+bool Renderer::_CreateSwapChain() {
+	const SIZE hostSize = App::GetInstance().GetHostWndSize();
+
+	DXGI_SWAP_CHAIN_DESC1 sd = {};
+	sd.Width = hostSize.cx;
+	sd.Height = hostSize.cy;
+	sd.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
+	sd.AlphaMode = DXGI_ALPHA_MODE_IGNORE;
+	sd.SampleDesc.Count = 1;
+	sd.SampleDesc.Quality = 0;
+	sd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT | DXGI_USAGE_SHADER_INPUT;
+	sd.BufferCount = App::GetInstance().IsDisableLowLatency() ? 3 : 2;
+	sd.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
+	sd.Flags = App::GetInstance().GetFrameRate() != 0 ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT;
+
+	ComPtr<IDXGISwapChain1> dxgiSwapChain = nullptr;
+	HRESULT hr = _dxgiFactory->CreateSwapChainForHwnd(
+		_d3dDevice.Get(),
+		App::GetInstance().GetHwndHost(),
+		&sd,
+		nullptr,
+		nullptr,
+		&dxgiSwapChain
+	);
+	if (FAILED(hr)) {
+		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("创建交换链失败", hr));
+		return false;
+	}
+
+	hr = dxgiSwapChain.As<IDXGISwapChain2>(&_dxgiSwapChain);
+	if (FAILED(hr)) {
+		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("获取 IDXGISwapChain2 失败", hr));
+		return false;
+	}
+
+	if (App::GetInstance().GetFrameRate() != 0) {
+		hr = _dxgiDevice->SetMaximumFrameLatency(1);
+		if (FAILED(hr)) {
+			SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("SetMaximumFrameLatency 失败", hr));
+		}
+	} else {
+		// 关闭低延迟模式时将最大延迟设为 2 以使 CPU 和 GPU 并行执行
+		_dxgiSwapChain->SetMaximumFrameLatency(App::GetInstance().IsDisableLowLatency() ? 2 : 1);
+
+		_frameLatencyWaitableObject.reset(_dxgiSwapChain->GetFrameLatencyWaitableObject());
+		if (!_frameLatencyWaitableObject) {
+			SPDLOG_LOGGER_ERROR(logger, "GetFrameLatencyWaitableObject 失败");
 			return false;
 		}
 	}
 
-	{
-		ComPtr<IDXGIFactory2> dxgiFactory;
+	hr = _dxgiFactory->MakeWindowAssociation(App::GetInstance().GetHwndHost(), DXGI_MWA_NO_ALT_ENTER);
+	if (FAILED(hr)) {
+		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("MakeWindowAssociation 失败", hr));
+	}
 
-		hr = _d3dDevice.As<IDXGIDevice1>(&_dxgiDevice);
+	// 检查 Multiplane Overlay 和 Hardware Composition 支持
+	BOOL supportMPO = FALSE;
+	BOOL supportHardwareComposition = FALSE;
+	ComPtr<IDXGIOutput> output;
+	hr = _dxgiSwapChain->GetContainingOutput(&output);
+	if (FAILED(hr)) {
+		SPDLOG_LOGGER_WARN(logger, MakeComErrorMsg("获取 IDXGIOutput 失败", hr));
+	} else {
+		ComPtr<IDXGIOutput2> output2;
+		hr = output.As<IDXGIOutput2>(&output2);
 		if (FAILED(hr)) {
-			SPDLOG_LOGGER_CRITICAL(logger, MakeComErrorMsg("获取 IDXGIDevice 失败", hr));
-			return false;
-		}
-
-		// 将 GPU 优先级设为最高，不一定有用
-		hr = _dxgiDevice->SetGPUThreadPriority(7);
-		if (FAILED(hr)) {
-			SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("SetGPUThreadPriority", hr));
-		}
-
-		ComPtr<IDXGIAdapter> dxgiAdapter;
-		hr = _dxgiDevice->GetAdapter(&dxgiAdapter);
-		if (FAILED(hr)) {
-			SPDLOG_LOGGER_CRITICAL(logger, MakeComErrorMsg("获取 IDXGIAdapter 失败", hr));
-			return false;
-		}
-
-		hr = dxgiAdapter->GetParent(IID_PPV_ARGS(&dxgiFactory));
-		if (FAILED(hr)) {
-			SPDLOG_LOGGER_CRITICAL(logger, MakeComErrorMsg("获取 IDXGIFactory2 失败", hr));
-			return false;
-		}
-
-		// 检查可变帧率支持
-		BOOL supportTearing = FALSE;
-		ComPtr<IDXGIFactory5> dxgiFactory5;
-		hr = dxgiFactory.As<IDXGIFactory5>(&dxgiFactory5);
-		if (FAILED(hr)) {
-			SPDLOG_LOGGER_WARN(logger, MakeComErrorMsg("获取 IDXGIFactory5 失败", hr));
+			SPDLOG_LOGGER_WARN(logger, MakeComErrorMsg("获取 IDXGIOutput2 失败", hr));
 		} else {
-			hr = dxgiFactory5->CheckFeatureSupport(DXGI_FEATURE_PRESENT_ALLOW_TEARING, &supportTearing, sizeof(supportTearing));
-			if (FAILED(hr)) {
-				SPDLOG_LOGGER_WARN(logger, MakeComErrorMsg("CheckFeatureSupport 失败", hr));
-			}
-		}
-		SPDLOG_LOGGER_INFO(logger, fmt::format("可变刷新率支持：{}", supportTearing ? "是" : "否"));
-
-		int frameRate = App::GetInstance().GetFrameRate();
-		if (frameRate != 0 && !supportTearing) {
-			SPDLOG_LOGGER_CRITICAL(logger, "当前显示器不支持可变刷新率，初始化失败");
-			App::GetInstance().SetErrorMsg(ErrorMessages::VSYNC_OFF_NOT_SUPPORTED);
-			return false;
-		}
-
-		DXGI_SWAP_CHAIN_DESC1 sd = {};
-		sd.Width = hostSize.cx;
-		sd.Height = hostSize.cy;
-		sd.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
-		sd.AlphaMode = DXGI_ALPHA_MODE_IGNORE;
-		sd.SampleDesc.Count = 1;
-		sd.SampleDesc.Quality = 0;
-		sd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT | DXGI_USAGE_SHADER_INPUT;
-		sd.BufferCount = App::GetInstance().IsDisableLowLatency() ? 3 : 2;
-		sd.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
-		sd.Flags = frameRate != 0 ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT;
-
-		ComPtr<IDXGISwapChain1> dxgiSwapChain = nullptr;
-		hr = dxgiFactory->CreateSwapChainForHwnd(
-			_d3dDevice.Get(),
-			App::GetInstance().GetHwndHost(),
-			&sd,
-			nullptr,
-			nullptr,
-			&dxgiSwapChain
-		);
-		if (FAILED(hr)) {
-			SPDLOG_LOGGER_CRITICAL(logger, MakeComErrorMsg("创建交换链失败", hr));
-			return false;
-		}
-
-		hr = dxgiSwapChain.As<IDXGISwapChain2>(&_dxgiSwapChain);
-		if (FAILED(hr)) {
-			SPDLOG_LOGGER_CRITICAL(logger, MakeComErrorMsg("获取 IDXGISwapChain2 失败", hr));
-			return false;
+			supportMPO = output2->SupportsOverlays();
 		}
 		
-		if (frameRate != 0) {
-			hr = _dxgiDevice->SetMaximumFrameLatency(1);
-			if (FAILED(hr)) {
-				SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("SetMaximumFrameLatency 失败", hr));
-			}
-		} else {
-			// 关闭低延迟模式时将最大延迟设为 2 以使 CPU 和 GPU 并行执行
-			_dxgiSwapChain->SetMaximumFrameLatency(App::GetInstance().IsDisableLowLatency() ? 2 : 1);
-
-			_frameLatencyWaitableObject.reset(_dxgiSwapChain->GetFrameLatencyWaitableObject());
-			if (!_frameLatencyWaitableObject) {
-				SPDLOG_LOGGER_ERROR(logger, "GetFrameLatencyWaitableObject 失败");
-				return false;
-			}
-		}
-		
-		hr = dxgiFactory->MakeWindowAssociation(App::GetInstance().GetHwndHost(), DXGI_MWA_NO_ALT_ENTER);
-		if (FAILED(hr)) {
-			SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("MakeWindowAssociation 失败", hr));
-		}
-
-		// 检查 Multiplane Overlay 支持
-		BOOL supportMPO = FALSE;
-		ComPtr<IDXGIOutput> output;
-		hr = _dxgiSwapChain->GetContainingOutput(&output);
-		if (FAILED(hr)) {
-			SPDLOG_LOGGER_WARN(logger, MakeComErrorMsg("获取 IDXGIOutput 失败", hr));
-		} else {
-			ComPtr<IDXGIOutput2> output2;
-			hr = output.As<IDXGIOutput2>(&output2);
-			if (FAILED(hr)) {
-				SPDLOG_LOGGER_WARN(logger, MakeComErrorMsg("获取 IDXGIOutput2 失败", hr));
-			} else {
-				supportMPO = output2->SupportsOverlays();
-			}
-		}
-		SPDLOG_LOGGER_INFO(logger, fmt::format("Multiplane Overlay 支持：{}", supportMPO ? "是" : "否"));
-
-		// 检查 Hardware Composition 支持
-		BOOL supportHardwareComposition = FALSE;
 		ComPtr<IDXGIOutput6> output6;
 		hr = output.As<IDXGIOutput6>(&output6);
 		if (FAILED(hr)) {
@@ -367,16 +464,17 @@ bool Renderer::_InitD3D() {
 				supportHardwareComposition = flags & DXGI_HARDWARE_COMPOSITION_SUPPORT_FLAG_WINDOWED;
 			}
 		}
-		SPDLOG_LOGGER_INFO(logger, fmt::format("Hardware Composition 支持：{}", supportHardwareComposition ? "是" : "否"));
 	}
 
-	hr = _dxgiSwapChain->GetBuffer(0, IID_PPV_ARGS(&_backBuffer));
+	SPDLOG_LOGGER_INFO(logger, fmt::format("Hardware Composition 支持：{}", supportHardwareComposition ? "是" : "否"));
+	SPDLOG_LOGGER_INFO(logger, fmt::format("Multiplane Overlay 支持：{}", supportMPO ? "是" : "否"));
+
+	hr = _dxgiSwapChain->GetBuffer(0, IID_PPV_ARGS(_backBuffer.ReleaseAndGetAddressOf()));
 	if (FAILED(hr)) {
-		SPDLOG_LOGGER_CRITICAL(logger, MakeComErrorMsg("获取后缓冲区失败", hr));
+		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("获取后缓冲区失败", hr));
 		return false;
 	}
 
-	SPDLOG_LOGGER_INFO(logger, "Renderer 初始化完成");
 	return true;
 }
 
@@ -410,7 +508,7 @@ void Renderer::_Render() {
 		_frameRateDrawer.Draw();
 	}
 
-	_cursorRenderer.Draw();
+	_cursorDrawer.Draw();
 
 	if (frameRate != 0) {
 		_dxgiSwapChain->Present(0, DXGI_PRESENT_ALLOW_TEARING);

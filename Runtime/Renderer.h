@@ -57,6 +57,8 @@ public:
 private:
 	bool _InitD3D();
 
+	bool _CreateSwapChain();
+
 	bool _CheckSrcState();
 
 	bool _ResolveEffectsJson(const std::string& effectsJson, RECT& destRect);
@@ -65,10 +67,13 @@ private:
 
 	D3D_FEATURE_LEVEL _featureLevel = D3D_FEATURE_LEVEL_10_0;
 
-	ComPtr<ID3D11Device1> _d3dDevice;
+	ComPtr<IDXGIFactory2> _dxgiFactory;
 	ComPtr<IDXGIDevice1> _dxgiDevice;
 	ComPtr<IDXGISwapChain2> _dxgiSwapChain;
+
+	ComPtr<ID3D11Device1> _d3dDevice;
 	ComPtr<ID3D11DeviceContext1> _d3dDC;
+
 	Utils::ScopedHandle _frameLatencyWaitableObject = NULL;
 	bool _waitingForNextFrame = false;
 
@@ -87,7 +92,7 @@ private:
 	ComPtr<ID3D11PixelShader> _copyPS;
 	std::vector<EffectDrawer> _effects;
 
-	CursorDrawer _cursorRenderer;
+	CursorDrawer _cursorDrawer;
 	FrameRateDrawer _frameRateDrawer;
 
 	StepTimer _timer;

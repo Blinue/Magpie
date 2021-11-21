@@ -14,6 +14,7 @@ const UINT WM_DESTORYHOST = RegisterWindowMessage(L"MAGPIE_WM_DESTORYHOST");
 
 static constexpr const wchar_t* HOST_WINDOW_CLASS_NAME = L"Window_Magpie_967EB565-6F73-4E94-AE53-00CC42592A22";
 static constexpr const wchar_t* DDF_WINDOW_CLASS_NAME = L"Window_Magpie_C322D752-C866-4630-91F5-32CB242A8930";
+static constexpr const wchar_t* HOST_WINDOW_TITLE = L"Magpie_Host";
 
 
 App::~App() {
@@ -58,6 +59,7 @@ bool App::Run(
 	int frameRate,
 	float cursorZoomFactor,
 	UINT cursorInterpolationMode,
+	UINT adapterIdx,
 	UINT flags
 ) {
 	_hwndSrc = hwndSrc;
@@ -65,9 +67,10 @@ bool App::Run(
 	_frameRate = frameRate;
 	_cursorZoomFactor = cursorZoomFactor;
 	_cursorInterpolationMode = cursorInterpolationMode;
+	_adapterIdx = adapterIdx;
 	_flags = flags;
 
-	SPDLOG_LOGGER_INFO(logger, fmt::format("运行时参数：\n\thwndSrc：{}\n\tcaptureMode：{}\n\tadjustCursorSpeed：{}\n\tshowFPS：{}\n\tdisableRoundCorner：{}\n\tframeRate：{}\n\tdisableLowLatency：{}\n\tbreakpointMode：{}\n\tdisableWindowResizing：{}\n\tdisableDirectFlip：{}\n\tConfineCursorIn3DGames：{}", (void*)hwndSrc, captureMode, IsAdjustCursorSpeed(), IsShowFPS(), IsDisableRoundCorner(), frameRate, IsDisableLowLatency(), IsBreakpointMode(), IsDisableWindowResizing(), IsDisableDirectFlip(), IsConfineCursorIn3DGames()));
+	SPDLOG_LOGGER_INFO(logger, fmt::format("运行时参数：\n\thwndSrc：{}\n\tcaptureMode：{}\n\tadjustCursorSpeed：{}\n\tshowFPS：{}\n\tdisableRoundCorner：{}\n\tframeRate：{}\n\tdisableLowLatency：{}\n\tbreakpointMode：{}\n\tdisableWindowResizing：{}\n\tdisableDirectFlip：{}\n\tConfineCursorIn3DGames：{}\n\tadapterIdx：{}", (void*)hwndSrc, captureMode, IsAdjustCursorSpeed(), IsShowFPS(), IsDisableRoundCorner(), frameRate, IsDisableLowLatency(), IsBreakpointMode(), IsDisableWindowResizing(), IsDisableDirectFlip(), IsConfineCursorIn3DGames(), adapterIdx));
 
 	// 每次进入全屏都要重置
 	_nextTimerId = 1;
@@ -300,7 +303,8 @@ bool App::_CreateHostWnd() {
 	_hwndHost = CreateWindowEx(
 		(IsBreakpointMode() ? 0 : WS_EX_TOPMOST) | WS_EX_NOACTIVATE | WS_EX_LAYERED | WS_EX_TRANSPARENT,
 		HOST_WINDOW_CLASS_NAME,
-		NULL, WS_CLIPCHILDREN | WS_POPUP | WS_VISIBLE,
+		HOST_WINDOW_TITLE,
+		WS_CLIPCHILDREN | WS_POPUP | WS_VISIBLE,
 		screenRect.left,
 		screenRect.top,
 		_hostWndSize.cx,

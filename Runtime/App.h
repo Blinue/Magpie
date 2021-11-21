@@ -22,6 +22,7 @@ public:
 		int frameRate,
 		float cursorZoomFactor,
 		UINT cursorInterpolationMode,
+		UINT adapterIdx,
 		UINT flags
 	);
 
@@ -69,6 +70,10 @@ public:
 
 	UINT GetCursorInterpolationMode() const {
 		return _cursorInterpolationMode;
+	}
+
+	UINT GetAdapterIdx() const {
+		return _adapterIdx;
 	}
 
 	bool IsNoCursor() const {
@@ -152,7 +157,8 @@ private:
 	UINT _captureMode = 0;
 	int _frameRate = 0;
 	float _cursorZoomFactor = 0;
-	UINT _cursorInterpolationMode = 02;
+	UINT _cursorInterpolationMode = 0;
+	UINT _adapterIdx = 0;
 	UINT _flags = 0;
 
 	enum class _FlagMasks : UINT {

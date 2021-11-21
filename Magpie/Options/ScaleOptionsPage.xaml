@@ -15,7 +15,12 @@
     </Page.Resources>
 
     <StackPanel HorizontalAlignment="Left" VerticalAlignment="Top">
+        <StackPanel Orientation="Horizontal">
+            <Label Content="{x:Static props:Resources.UI_Options_Scale_Adapter}" Padding="0" VerticalContentAlignment="Center" />
+            <ComboBox x:Name="cbbAdapter" Margin="10,0,0,0" SelectedIndex="{Binding Source={x:Static props:Settings.Default},Path=AdapterIdx,Mode=TwoWay}" />
+        </StackPanel>
         <CheckBox Content="{x:Static props:Resources.UI_Options_Scale_Restore_Full_Screen}" 
+                  Margin="0,15,0,0" 
                   IsChecked="{Binding Source={x:Static props:Settings.Default},Path=AutoRestore,Mode=TwoWay}" />
         <CheckBox Content="{x:Static props:Resources.UI_Options_Scale_Show_Frame_Rate}" 
                   Margin="0,15,0,0" 

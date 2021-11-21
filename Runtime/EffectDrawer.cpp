@@ -459,7 +459,7 @@ bool EffectDrawer::_Pass::Build(std::optional<SIZE> outputSize) {
 		InitData.pSysMem = vertices;
 		HRESULT hr = renderer.GetD3DDevice()->CreateBuffer(&bd, &InitData, &_vtxBuffer);
 		if (FAILED(hr)) {
-			SPDLOG_LOGGER_ERROR(logger, fmt::sprintf("创建顶点缓冲区失败\n\tHRESULT：0x%X", hr));
+			SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("创建顶点缓冲区失败", hr));
 			return false;
 		}
 	}

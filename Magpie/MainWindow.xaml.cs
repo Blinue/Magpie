@@ -257,6 +257,7 @@ namespace Magpie {
 				frameRate,
 				Settings.Default.CursorZoomFactor,
 				Settings.Default.CursorInterpolationMode,
+				Settings.Default.AdapterIdx,
 				Settings.Default.ShowFPS,
 				Settings.Default.NoCursor,
 				Settings.Default.AdjustCursorSpeed,

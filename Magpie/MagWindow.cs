@@ -34,6 +34,7 @@ namespace Magpie {
 			public volatile int frameRateOrLogLevel;
 			public volatile float cursorZoomFactor;
 			public volatile uint cursorInterpolationMode;
+			public volatile uint adapterIdx;
 			public volatile uint flags;
 			public volatile MagWindowCmd cmd = MagWindowCmd.Run;
 		}
@@ -108,6 +109,7 @@ namespace Magpie {
 							magWindowParams.frameRateOrLogLevel,
 							magWindowParams.cursorZoomFactor,
 							magWindowParams.cursorInterpolationMode,
+							magWindowParams.adapterIdx,
 							magWindowParams.flags
 						);
 
@@ -148,6 +150,7 @@ namespace Magpie {
 			int frameRate,
 			float cursorZoomFactor,
 			uint cursorInterpolationMode,
+			uint adapterIdx,
 			bool showFPS,
 			bool noCursor,
 			bool adjustCursorSpeed,
@@ -181,6 +184,7 @@ namespace Magpie {
 			magWindowParams.frameRateOrLogLevel = frameRate;
 			magWindowParams.cursorZoomFactor = cursorZoomFactor;
 			magWindowParams.cursorInterpolationMode = cursorInterpolationMode;
+			magWindowParams.adapterIdx = adapterIdx;
 			magWindowParams.flags = (showFPS ? (uint)FlagMasks.ShowFPS : 0) |
 				(noCursor ? (uint)FlagMasks.NoCursor : 0) |
 				(adjustCursorSpeed ? (uint)FlagMasks.AdjustCursorSpeed : 0) |
