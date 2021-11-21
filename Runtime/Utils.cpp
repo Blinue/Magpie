@@ -11,13 +11,19 @@ BOOL CALLBACK EnumChildProc(
 ) {
 	std::wstring className(256, 0);
 	int num = GetClassName(hwnd, &className[0], className.size());
+	if (num == 0) {
+		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetClassName 失败"));
+		return TRUE;
+	}
 	className.resize(num);
 
 	if (className == L"ApplicationFrameInputSinkWindow") {
 		RECT rect;
-		GetWindowRect(hwnd, &rect);
-
-		((std::vector<RECT>*)lParam)->push_back(rect);
+		if (GetWindowRect(hwnd, &rect)) {
+			((std::vector<RECT>*)lParam)->push_back(rect);
+		} else {
+			SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetWindowRect 失败"));
+		}
 	}
 	
 	return TRUE;
@@ -26,44 +32,45 @@ BOOL CALLBACK EnumChildProc(
 RECT Utils::GetClientScreenRect(HWND hWnd) {
 	std::wstring className(256, 0);
 	int num = GetClassName(hWnd, &className[0], className.size());
-	className.resize(num);
+	if (num > 0) {
+		className.resize(num);
+		if (className == L"ApplicationFrameWindow" || className == L"Windows.UI.Core.CoreWindow") {
+			// "Modern App"，无法使用 GetClientRect
+			std::vector<RECT> clientWindowRects;
+			// 查找所有窗口类名为 ApplicationFrameInputSinkWindow 的子窗口
+			// 该子窗口一般为客户区
+			EnumChildWindows(hWnd, EnumChildProc, (LPARAM)&clientWindowRects);
 
-	RECT clientRect{};
-
-	if (className == L"ApplicationFrameWindow" || className == L"Windows.UI.Core.CoreWindow") {
-		// "Modern App"，无法使用 GetClientRect
-		std::vector<RECT> clientWindowRects;
-		// 查找所有窗口类名为 ApplicationFrameInputSinkWindow 的子窗口
-		// 该子窗口一般为客户区
-		EnumChildWindows(hWnd, EnumChildProc, (LPARAM)&clientWindowRects);
-
-		if (!clientWindowRects.empty()) {
-			auto it = std::max_element(clientWindowRects.begin(), clientWindowRects.end(), [](const RECT& l, const RECT& r) {
-				return l.right - l.left + l.bottom - l.top < r.right - r.left + r.bottom - r.top;
-			});
-			clientRect = *it;
+			if (!clientWindowRects.empty()) {
+				// 如果有多个匹配的子窗口，取最大的（一般不会出现）
+				auto it = std::max_element(clientWindowRects.begin(), clientWindowRects.end(), [](const RECT& l, const RECT& r) {
+					return l.right - l.left + l.bottom - l.top < r.right - r.left + r.bottom - r.top;
+				});
+				return *it;
+			}
 		}
+	} else {
+		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetClassName 失败"));
 	}
 
-	if (clientRect == RECT{}) {
-		if (!GetClientRect(hWnd, &clientRect)) {
-			SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetClientRect 出错"));
-			assert(false);
-			return {};
-		}
-
-		POINT p{};
-		if (!ClientToScreen(hWnd, &p)) {
-			SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("ClientToScreen 出错"));
-			assert(false);
-			return {};
-		}
-
-		clientRect.bottom += p.y;
-		clientRect.left += p.x;
-		clientRect.right += p.x;
-		clientRect.top += p.y;
+	RECT clientRect;
+	if (!GetClientRect(hWnd, &clientRect)) {
+		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetClientRect 出错"));
+		assert(false);
+		return {};
 	}
+
+	POINT p{};
+	if (!ClientToScreen(hWnd, &p)) {
+		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("ClientToScreen 出错"));
+		assert(false);
+		return {};
+	}
+
+	clientRect.bottom += p.y;
+	clientRect.left += p.x;
+	clientRect.right += p.x;
+	clientRect.top += p.y;
 
 	return clientRect;
 }
