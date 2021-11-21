@@ -193,7 +193,7 @@ bool SdkLayersAvailable() noexcept {
 #endif
 
 inline void LogAdapter(const DXGI_ADAPTER_DESC1& adapterDesc) {
-	SPDLOG_LOGGER_INFO(logger, fmt::format("当前图形适配器：\n\VendorId：{:#x}\n\DeviceId：{:#x}\n\t描述：{}",
+	SPDLOG_LOGGER_INFO(logger, fmt::format("当前图形适配器：\n\tVendorId：{:#x}\n\tDeviceId：{:#x}\n\t描述：{}",
 		adapterDesc.VendorId, adapterDesc.DeviceId, StrUtils::UTF16ToUTF8(adapterDesc.Description)));
 }
 

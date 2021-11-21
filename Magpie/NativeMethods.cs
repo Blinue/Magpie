@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
-using System.Security;
 using System.Text;
+
 
 namespace Magpie {
 	internal class NativeMethods {
@@ -166,10 +166,12 @@ namespace Magpie {
 		[DllImport("Runtime", CallingConvention = CallingConvention.StdCall)]
 		public static extern void SetLogLevel(uint logLevel);
 
-		[DllImport("Runtime", EntryPoint = "Run", CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode)]
+		[DllImport("Runtime", EntryPoint = "Run", CallingConvention = CallingConvention.StdCall)]
 		private static extern IntPtr RunNative(
 			IntPtr hwndSrc,
-			[MarshalAs(UnmanagedType.LPStr)] string effectsJson,
+#pragma warning disable CA2101 // 指定对 P/Invoke 字符串参数进行封送处理
+			[MarshalAs(UnmanagedType.LPUTF8Str)] string effectsJson,
+#pragma warning restore CA2101 // 指定对 P/Invoke 字符串参数进行封送处理
 			uint captureMode,
 			int frameRate,
 			float cursorZoomFactor,

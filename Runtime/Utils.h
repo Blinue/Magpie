@@ -20,28 +20,7 @@ struct Utils {
 		return wp.showCmd;
 	}
 
-	static RECT GetClientScreenRect(HWND hWnd) {
-		RECT r;
-		if (!GetClientRect(hWnd, &r)) {
-			SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetClientRect 出错"));
-			assert(false);
-			return {};
-		}
-
-		POINT p{};
-		if (!ClientToScreen(hWnd, &p)) {
-			SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("ClientToScreen 出错"));
-			assert(false);
-			return {};
-		}
-
-		r.bottom += p.y;
-		r.left += p.x;
-		r.right += p.x;
-		r.top += p.y;
-
-		return r;
-	}
+	static RECT GetClientScreenRect(HWND hWnd);
 
 	static RECT GetScreenRect(HWND hWnd) {
 		HMONITOR hMonitor = MonitorFromWindow(hWnd, MONITOR_DEFAULTTONEAREST);
