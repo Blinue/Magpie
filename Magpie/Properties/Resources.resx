@@ -112,10 +112,10 @@
     <value>2.0</value>
   </resheader>
   <resheader name="reader">
-    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <resheader name="writer">
-    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="Msg_Error_Generic" xml:space="preserve">
     <value>An error occurred, please check logs for more information.</value>
@@ -243,6 +243,9 @@
   </data>
   <data name="UI_Options_Application_Always_Run_As_Admin" xml:space="preserve">
     <value>Always Run as Administrator</value>
+  </data>
+  <data name="UI_Options_Application_Crop_Title_Bar_Of_UWP" xml:space="preserve">
+    <value>Crop the Title Bar of UWP Windows</value>
   </data>
   <data name="UI_Options_Application_Language" xml:space="preserve">
     <value>Language</value>

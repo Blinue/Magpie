@@ -310,5 +310,17 @@ namespace Magpie.Properties {
                 this["AdapterIdx"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool CropTitleBarOfUWP {
+            get {
+                return ((bool)(this["CropTitleBarOfUWP"]));
+            }
+            set {
+                this["CropTitleBarOfUWP"] = value;
+            }
+        }
     }
 }

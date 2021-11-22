@@ -439,6 +439,15 @@ namespace Magpie.Properties {
         }
         
         /// <summary>
+        ///   查找类似 Crop the Title Bar of UWP Windows 的本地化字符串。
+        /// </summary>
+        public static string UI_Options_Application_Crop_Title_Bar_Of_UWP {
+            get {
+                return ResourceManager.GetString("UI_Options_Application_Crop_Title_Bar_Of_UWP", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Language 的本地化字符串。
         /// </summary>
         public static string UI_Options_Application_Language {

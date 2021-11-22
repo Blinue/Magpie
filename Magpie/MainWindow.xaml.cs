@@ -12,6 +12,7 @@ using System.Windows.Media.Imaging;
 using System.Linq;
 using Magpie.Options;
 
+
 namespace Magpie {
 	/// <summary>
 	/// Interaction logic for MainWindow.xaml
@@ -269,7 +270,8 @@ namespace Magpie {
 				Settings.Default.DisableLowLatency,
 				Settings.Default.DebugBreakpointMode,
 				Settings.Default.DisableDirectFlip,
-				Settings.Default.ConfineCursorIn3DGames
+				Settings.Default.ConfineCursorIn3DGames,
+				Settings.Default.CropTitleBarOfUWP
 			);
 
 			prevSrcWindow = magWindow.SrcWindow;

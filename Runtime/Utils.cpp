@@ -29,28 +29,30 @@ BOOL CALLBACK EnumChildProc(
 	return TRUE;
 }
 
-RECT Utils::GetClientScreenRect(HWND hWnd) {
-	std::wstring className(256, 0);
-	int num = GetClassName(hWnd, &className[0], className.size());
-	if (num > 0) {
-		className.resize(num);
-		if (className == L"ApplicationFrameWindow" || className == L"Windows.UI.Core.CoreWindow") {
-			// "Modern App"，无法使用 GetClientRect
-			std::vector<RECT> clientWindowRects;
-			// 查找所有窗口类名为 ApplicationFrameInputSinkWindow 的子窗口
-			// 该子窗口一般为客户区
-			EnumChildWindows(hWnd, EnumChildProc, (LPARAM)&clientWindowRects);
+RECT Utils::GetClientScreenRect(HWND hWnd, bool cropTitleBarOfUWP) {
+	if (cropTitleBarOfUWP) {
+		std::wstring className(256, 0);
+		int num = GetClassName(hWnd, &className[0], className.size());
+		if (num > 0) {
+			className.resize(num);
+			if (className == L"ApplicationFrameWindow" || className == L"Windows.UI.Core.CoreWindow") {
+				// "Modern App"，无法使用 GetClientRect
+				std::vector<RECT> clientWindowRects;
+				// 查找所有窗口类名为 ApplicationFrameInputSinkWindow 的子窗口
+				// 该子窗口一般为客户区
+				EnumChildWindows(hWnd, EnumChildProc, (LPARAM)&clientWindowRects);
 
-			if (!clientWindowRects.empty()) {
-				// 如果有多个匹配的子窗口，取最大的（一般不会出现）
-				auto it = std::max_element(clientWindowRects.begin(), clientWindowRects.end(), [](const RECT& l, const RECT& r) {
-					return l.right - l.left + l.bottom - l.top < r.right - r.left + r.bottom - r.top;
-				});
-				return *it;
+				if (!clientWindowRects.empty()) {
+					// 如果有多个匹配的子窗口，取最大的（一般不会出现）
+					auto it = std::max_element(clientWindowRects.begin(), clientWindowRects.end(), [](const RECT& l, const RECT& r) {
+						return l.right - l.left + l.bottom - l.top < r.right - r.left + r.bottom - r.top;
+					});
+					return *it;
+				}
 			}
+		} else {
+			SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetClassName 失败"));
 		}
-	} else {
-		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetClassName 失败"));
 	}
 
 	RECT clientRect;

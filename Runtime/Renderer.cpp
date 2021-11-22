@@ -523,7 +523,7 @@ bool Renderer::_CheckSrcState() {
 		return false;
 	}
 
-	RECT rect = Utils::GetClientScreenRect(hwndSrc);
+	RECT rect = Utils::GetClientScreenRect(hwndSrc, App::GetInstance().IsCropTitleBarOfUWP());
 	if (App::GetInstance().GetSrcClientRect() != rect) {
 		SPDLOG_LOGGER_INFO(logger, "源窗口位置或大小改变");
 		return false;

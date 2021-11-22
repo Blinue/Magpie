@@ -112,6 +112,10 @@ public:
 		return _flags & (UINT)_FlagMasks::ConfineCursorIn3DGames;
 	}
 
+	bool IsCropTitleBarOfUWP() const {
+		return _flags & (UINT)_FlagMasks::CropTitleBarOfUWP;
+	}
+
 	const char* GetErrorMsg() const {
 		return _errorMsg;
 	}
@@ -170,7 +174,8 @@ private:
 		BreakpointMode = 0x20,
 		DisableWindowResizing = 0x40,
 		DisableDirectFlip = 0x80,
-		ConfineCursorIn3DGames = 0x100
+		ConfineCursorIn3DGames = 0x100,
+		CropTitleBarOfUWP = 0x200
 	};
 
 	std::unique_ptr<Renderer> _renderer;

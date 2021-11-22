@@ -20,7 +20,7 @@ struct Utils {
 		return wp.showCmd;
 	}
 
-	static RECT GetClientScreenRect(HWND hWnd);
+	static RECT GetClientScreenRect(HWND hWnd, bool cropTitleBarOfUWP);
 
 	static RECT GetScreenRect(HWND hWnd) {
 		HMONITOR hMonitor = MonitorFromWindow(hWnd, MONITOR_DEFAULTTONEAREST);
