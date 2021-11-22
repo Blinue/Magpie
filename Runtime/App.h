@@ -44,8 +44,8 @@ public:
 		return _hwndHost;
 	}
 
-	SIZE GetHostWndSize() const {
-		return _hostWndSize;
+	RECT GetHostWndRect() const {
+		return _hostWndRect;
 	}
 
 	Renderer& GetRenderer() {
@@ -151,7 +151,7 @@ private:
 	// 关闭 DirectFlip 时的背景全屏窗口
 	HWND _hwndDDF = NULL;
 
-	SIZE _hostWndSize{};
+	RECT _hostWndRect{};
 	RECT _srcClientRect{};
 
 	UINT _captureMode = 0;

@@ -19,6 +19,7 @@
 		<OutputPath>..\build\$(Configuration)</OutputPath>
 		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 		<ProduceReferenceAssembly>false</ProduceReferenceAssembly>
+		<ApplicationHighDpiMode>PerMonitorV2</ApplicationHighDpiMode>
 	</PropertyGroup>
 
 	<PropertyGroup>

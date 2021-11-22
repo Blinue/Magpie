@@ -50,7 +50,9 @@ namespace Magpie {
 		};
 
 		private void Application_Closing() {
+			// 托盘图标不会主动消失
 			notifyIcon.Visible = false;
+
 			magWindow?.Dispose();
 			optionsWindow?.Close();
 		}

@@ -379,11 +379,11 @@ bool Renderer::_InitD3D() {
 }
 
 bool Renderer::_CreateSwapChain() {
-	const SIZE hostSize = App::GetInstance().GetHostWndSize();
+	const RECT& hostWndRect = App::GetInstance().GetHostWndRect();
 
 	DXGI_SWAP_CHAIN_DESC1 sd = {};
-	sd.Width = hostSize.cx;
-	sd.Height = hostSize.cy;
+	sd.Width = hostWndRect.right - hostWndRect.left;
+	sd.Height = hostWndRect.bottom - hostWndRect.top;
 	sd.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
 	sd.AlphaMode = DXGI_ALPHA_MODE_IGNORE;
 	sd.SampleDesc.Count = 1;
@@ -541,7 +541,8 @@ bool Renderer::_ResolveEffectsJson(const std::string& effectsJson, RECT& destRec
 	D3D11_TEXTURE2D_DESC inputDesc;
 	_effectInput->GetDesc(&inputDesc);
 
-	SIZE hostSize = App::GetInstance().GetHostWndSize();
+	const RECT& hostWndRect = App::GetInstance().GetHostWndRect();
+	SIZE hostSize = { hostWndRect.right - hostWndRect.left,hostWndRect.bottom - hostWndRect.top };
 
 	rapidjson::Document doc;
 	if (doc.Parse(effectsJson.c_str(), effectsJson.size()).HasParseError()) {

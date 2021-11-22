@@ -297,18 +297,17 @@ bool App::_CreateHostWnd() {
 		return false;
 	}
 
-	RECT screenRect = Utils::GetScreenRect(_hwndSrc);
-	_hostWndSize.cx = screenRect.right - screenRect.left;
-	_hostWndSize.cy = screenRect.bottom - screenRect.top;
+	_hostWndRect = Utils::GetScreenRect(_hwndSrc);
+
 	_hwndHost = CreateWindowEx(
 		(IsBreakpointMode() ? 0 : WS_EX_TOPMOST) | WS_EX_NOACTIVATE | WS_EX_LAYERED | WS_EX_TRANSPARENT,
 		HOST_WINDOW_CLASS_NAME,
 		HOST_WINDOW_TITLE,
 		WS_CLIPCHILDREN | WS_POPUP | WS_VISIBLE,
-		screenRect.left,
-		screenRect.top,
-		_hostWndSize.cx,
-		_hostWndSize.cy,
+		_hostWndRect.left,
+		_hostWndRect.top,
+		_hostWndRect.right - _hostWndRect.left,
+		_hostWndRect.bottom - _hostWndRect.top,
 		NULL,
 		NULL,
 		_hInst,
@@ -319,7 +318,8 @@ bool App::_CreateHostWnd() {
 		return false;
 	}
 
-	SPDLOG_LOGGER_INFO(logger, fmt::format("主窗口尺寸：{}x{}", _hostWndSize.cx, _hostWndSize.cy));
+	SPDLOG_LOGGER_INFO(logger, fmt::format("主窗口尺寸：{}x{}",
+		_hostWndRect.right - _hostWndRect.left, _hostWndRect.bottom - _hostWndRect.top));
 
 	// 设置窗口不透明
 	// 不完全透明时可关闭 DirectFlip
@@ -340,8 +340,17 @@ bool App::_DisableDirectFlip() {
 	// 将全屏窗口设为稍微透明，以灰色全屏窗口为背景
 	_hwndDDF = CreateWindowEx(
 		WS_EX_NOACTIVATE | WS_EX_LAYERED | WS_EX_TRANSPARENT,
-		DDF_WINDOW_CLASS_NAME, NULL, WS_CLIPCHILDREN | WS_POPUP | WS_VISIBLE,
-		0, 0, _hostWndSize.cx, _hostWndSize.cy, NULL, NULL, _hInst, NULL
+		DDF_WINDOW_CLASS_NAME,
+		NULL,
+		WS_CLIPCHILDREN | WS_POPUP | WS_VISIBLE,
+		0,
+		0,
+		_hostWndRect.right - _hostWndRect.left,
+		_hostWndRect.bottom - _hostWndRect.top,
+		NULL,
+		NULL,
+		_hInst,
+		NULL
 	);
 
 	if (!_hwndDDF) {
