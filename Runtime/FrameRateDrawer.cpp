@@ -42,10 +42,17 @@ void FrameRateDrawer::Draw() {
 	_d3dDC->RSSetViewports(1, &_vp);
 
 	_spriteBatch->Begin(SpriteSortMode::SpriteSortMode_Immediate);
-	_spriteFont->DrawString(
-		_spriteBatch.get(),
-		fmt::format("{} FPS", timer.GetFramesPerSecond()).c_str(),
-		XMFLOAT2(10, 10)
-	);
+
+	constexpr float posX = 10.0f, posY = 10.0f;
+	std::string fpsStr = fmt::format("{} FPS", timer.GetFramesPerSecond()).c_str();
+
+	// 右下角浓阴影，左上角淡阴影
+	_spriteFont->DrawString(_spriteBatch.get(), fpsStr.c_str(),
+		XMFLOAT2(posX + 1.0f, posY + 1.0f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.8f));
+	_spriteFont->DrawString(_spriteBatch.get(), fpsStr.c_str(),
+		XMFLOAT2(posX - 0.1f, posY - 0.1f), XMVectorSet(0.0f, 0.0f, 0.0f, 0.4f));
+	_spriteFont->DrawString(_spriteBatch.get(), fpsStr.c_str(),
+		XMFLOAT2(posX, posY), Colors::White);
+
 	_spriteBatch->End();
 }

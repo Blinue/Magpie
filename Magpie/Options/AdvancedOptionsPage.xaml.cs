@@ -11,9 +11,7 @@ namespace Magpie.Options {
 		public AdvancedOptionsPage() {
 			InitializeComponent();
 
-#if DEBUG
-			spDebug.Visibility = Visibility.Visible;
-#else
+#if !DEBUG
 			spDebug.Visibility = Visibility.Collapsed;
 #endif
 
