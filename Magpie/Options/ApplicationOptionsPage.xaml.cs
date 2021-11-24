@@ -86,7 +86,7 @@ namespace Magpie.Options {
 				CkbRunAsAdmin_Unchecked(ckbRunAsAdmin, new RoutedEventArgs());
 			}
 
-			if (NativeMethods.GetOSVersion() < new Version(10, 0, 22000)) {
+			if (!OperatingSystem.IsWindowsVersionAtLeast(10, 0, 22000)) {
 				ckbDisableRoundCorner.Visibility = Visibility.Collapsed;
 			}
 		}

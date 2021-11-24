@@ -98,40 +98,6 @@ namespace Magpie {
 			return len > 0 ? sb.ToString() : "";
 		}
 
-		[StructLayout(LayoutKind.Sequential)]
-		private struct OsVersionInfo {
-			public uint dwOSVersionInfoSize;
-
-			public uint dwMajorVersion;
-			public uint dwMinorVersion;
-
-			public uint dwBuildNumber;
-
-			public uint dwPlatformId;
-
-			[MarshalAs(UnmanagedType.ByValTStr, SizeConst = 128)]
-			public string szCSDVersion;
-		}
-
-		[DllImport("ntdll.dll", SetLastError = true)]
-		private static extern uint RtlGetVersion(ref OsVersionInfo versionInformation);
-
-		private static Version? version = null;
-		public static Version GetOSVersion() {
-			if (version == null) {
-				OsVersionInfo osVersionInfo = new();
-				osVersionInfo.dwOSVersionInfoSize = (uint)Marshal.SizeOf(osVersionInfo);
-				_ = RtlGetVersion(ref osVersionInfo);
-				version = new Version(
-					(int)osVersionInfo.dwMajorVersion,
-					(int)osVersionInfo.dwMinorVersion,
-					(int)osVersionInfo.dwBuildNumber
-				);
-			}
-
-			return version;
-		}
-
 		private static readonly int LOCALE_NAME_MAX_LENGTH = 85;
 
 		[DllImport("kernel32.dll", SetLastError = true)]

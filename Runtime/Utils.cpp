@@ -10,7 +10,7 @@ BOOL CALLBACK EnumChildProc(
 	_In_ LPARAM lParam
 ) {
 	std::wstring className(256, 0);
-	int num = GetClassName(hwnd, &className[0], className.size());
+	int num = GetClassName(hwnd, &className[0], (int)className.size());
 	if (num == 0) {
 		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetClassName 失败"));
 		return TRUE;

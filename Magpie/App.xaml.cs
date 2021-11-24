@@ -75,7 +75,7 @@ namespace Magpie {
 			InitNLog();
 			SetLogLevel(Settings.Default.LoggingLevel);
 
-			Logger.Info($"程序启动\n\t进程 ID：{Environment.ProcessId}\n\tMagpie 版本：{APP_VERSION}\n\tOS 版本：{NativeMethods.GetOSVersion()}");
+			Logger.Info($"程序启动\n\t进程 ID：{Environment.ProcessId}\n\tMagpie 版本：{APP_VERSION}\n\tOS 版本：{Environment.OSVersion.Version}");
 
 			if (!string.IsNullOrEmpty(Settings.Default.CultureName)) {
 				Thread.CurrentThread.CurrentCulture = Thread.CurrentThread.CurrentUICulture =
