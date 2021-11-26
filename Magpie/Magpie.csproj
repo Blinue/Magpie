@@ -19,20 +19,25 @@
 		<OutputPath>..\build\$(Configuration)</OutputPath>
 		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 		<ProduceReferenceAssembly>false</ProduceReferenceAssembly>
-		<ApplicationHighDpiMode>PerMonitorV2</ApplicationHighDpiMode>
 	</PropertyGroup>
 
 	<PropertyGroup>
 		<PublishReadyToRun>true</PublishReadyToRun>
 		<PublishSingleFile>true</PublishSingleFile>
 		<PublishDir>../publish</PublishDir>
+		<ApplicationManifest>app.manifest</ApplicationManifest>
 	</PropertyGroup>
 
 	<PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
 		<DebugType>Full</DebugType>
 	</PropertyGroup>
 
+	<PropertyGroup>
+	  <NoWarn>1701;1702;WFAC010</NoWarn>
+	</PropertyGroup>
+
 	<ItemGroup>
+		<None Remove="app.manifest" />
 		<None Remove="Resources\BuiltInScaleModels.json" />
 		<None Remove="Resources\Licenses.txt" />
 		<None Remove="Resources\Logo_Black.ico" />

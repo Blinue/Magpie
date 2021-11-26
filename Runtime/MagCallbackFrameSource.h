@@ -2,6 +2,8 @@
 #include "FrameSourceBase.h"
 
 
+// 使用 Magnification API 捕获窗口
+// 速度很慢，不支持多显示器
 class MagCallbackFrameSource : public FrameSourceBase {
 public:
 	MagCallbackFrameSource() {};

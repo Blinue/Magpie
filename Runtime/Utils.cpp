@@ -32,7 +32,7 @@ BOOL CALLBACK EnumChildProc(
 RECT Utils::GetClientScreenRect(HWND hWnd, bool cropTitleBarOfUWP) {
 	if (cropTitleBarOfUWP) {
 		std::wstring className(256, 0);
-		int num = GetClassName(hWnd, &className[0], className.size());
+		int num = GetClassName(hWnd, &className[0], (int)className.size());
 		if (num > 0) {
 			className.resize(num);
 			if (className == L"ApplicationFrameWindow" || className == L"Windows.UI.Core.CoreWindow") {

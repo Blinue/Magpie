@@ -44,7 +44,7 @@ void FrameRateDrawer::Draw() {
 	_spriteBatch->Begin(SpriteSortMode::SpriteSortMode_Immediate);
 
 	constexpr float posX = 10.0f, posY = 10.0f;
-	std::string fpsStr = fmt::format("{} FPS", timer.GetFramesPerSecond()).c_str();
+	std::string fpsStr = fmt::format("{} FPS", timer.GetFramesPerSecond());
 
 	// 右下角浓阴影，左上角淡阴影
 	_spriteFont->DrawString(_spriteBatch.get(), fpsStr.c_str(),
