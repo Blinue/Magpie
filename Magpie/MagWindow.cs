@@ -1,5 +1,7 @@
 using Magpie.Properties;
 using System;
+using System.IO;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows;
 using System.Windows.Interop;
@@ -80,8 +82,24 @@ namespace Magpie {
 				bool initSuccess = false;
 				try {
 					initSuccess = NativeMethods.Initialize(ResolveLogLevel(Settings.Default.LoggingLevel));
-					if (!initSuccess) {
-						Logger.Error("Initialize 失败");
+				} catch (DllNotFoundException e) {
+					// 解决某些 DllImport 失败的问题
+					Logger.Warn(e, "未找到 Runtime.dll，尝试设置 Dll 文件的查找路径");
+
+					Logger.Info(Directory.GetCurrentDirectory());
+					if (!NativeMethods.SetDllDirectory(Directory.GetCurrentDirectory())) {
+						Logger.Warn($"SetDllDirectory 失败\n\tLastErrorCode={Marshal.GetLastWin32Error()}");
+					}
+					// 显式加载 Runtime.dll，而不是通过 DllImport
+					if (NativeMethods.LoadLibrary("Runtime.dll") == IntPtr.Zero) {
+						Logger.Warn($"LoadLibrary 失败\n\tLastErrorCode={Marshal.GetLastWin32Error()}");
+					}
+
+					// 再次尝试
+					try {
+						initSuccess = NativeMethods.Initialize(ResolveLogLevel(Settings.Default.LoggingLevel));
+					} catch (Exception e1) {
+						Logger.Error(e1, "Initialize 失败");
 					}
 				} catch (Exception e) {
 					Logger.Error(e, "Initialize 失败");
@@ -89,7 +107,8 @@ namespace Magpie {
 
 				if (!initSuccess) {
 					// 初始化失败
-					CloseEvent("Msg_Error_Init");
+					Logger.Fatal("初始化 Runtime 失败");
+					CloseEvent?.Invoke("Msg_Error_Init");
 					parent.Dispatcher.Invoke(() => {
 						parent.Close();
 					});
