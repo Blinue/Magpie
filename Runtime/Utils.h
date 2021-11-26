@@ -77,8 +77,6 @@ struct Utils {
 		}
 	}
 
-	static bool IsWin10OrNewer();
-
 	static std::string Bin2Hex(BYTE* data, size_t len);
 
 	class Hasher {

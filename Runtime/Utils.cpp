@@ -164,16 +164,6 @@ const RTL_OSVERSIONINFOW& Utils::GetOSVersion() {
 	return version;
 }
 
-bool _IsWin10OrNewer() {
-	const RTL_OSVERSIONINFOW& osVer = Utils::GetOSVersion();
-	return osVer.dwMajorVersion >= 10;
-}
-
-bool Utils::IsWin10OrNewer() {
-	static bool value = _IsWin10OrNewer();
-	return value;
-}
-
 std::string Utils::Bin2Hex(BYTE* data, size_t len) {
 	if (!data || len == 0) {
 		return {};
