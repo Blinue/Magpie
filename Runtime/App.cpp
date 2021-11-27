@@ -94,12 +94,6 @@ bool App::Run(
 		return false;
 	}
 
-	if (IsDisableDirectFlip() && !IsBreakpointMode()) {
-		if (!_DisableDirectFlip()) {
-			SPDLOG_LOGGER_ERROR(logger, "_DisableDirectFlip 失败");
-		}
-	}
-
 	_renderer.reset(new Renderer());
 	if (!_renderer->Initialize()) {
 		SPDLOG_LOGGER_CRITICAL(logger, "初始化 Renderer 失败，正在清理");
@@ -126,21 +120,21 @@ bool App::Run(
 		break;
 	default:
 		SPDLOG_LOGGER_CRITICAL(logger, "未知的捕获模式，即将退出");
-		DestroyWindow(_hwndHost);
+		Close();
 		_Run();
 		return false;
 	}
 	
 	if (!_frameSource->Initialize()) {
 		SPDLOG_LOGGER_CRITICAL(logger, "初始化 FrameSource 失败，即将退出");
-		DestroyWindow(_hwndHost);
+		Close();
 		_Run();
 		return false;
 	}
 
 	if (!_renderer->InitializeEffectsAndCursor(effectsJson)) {
 		SPDLOG_LOGGER_CRITICAL(logger, "初始化效果失败，即将退出");
-		DestroyWindow(_hwndHost);
+		Close();
 		_Run();
 		return false;
 	}
@@ -162,6 +156,12 @@ bool App::Run(
 				SPDLOG_LOGGER_INFO(logger, "已禁用窗口圆角");
 				roundCornerDisabled = true;
 			}
+		}
+	}
+
+	if (!IsBreakpointMode() && IsDisableDirectFlip()) {
+		if (!_DisableDirectFlip()) {
+			SPDLOG_LOGGER_ERROR(logger, "_DisableDirectFlip 失败");
 		}
 	}
 
@@ -332,8 +332,8 @@ bool App::_DisableDirectFlip() {
 		DDF_WINDOW_CLASS_NAME,
 		NULL,
 		WS_CLIPCHILDREN | WS_POPUP | WS_VISIBLE,
-		0,
-		0,
+		_hostWndRect.left,
+		_hostWndRect.top,
 		_hostWndRect.right - _hostWndRect.left,
 		_hostWndRect.bottom - _hostWndRect.top,
 		NULL,
