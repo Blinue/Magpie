@@ -57,7 +57,7 @@ Magpie 可以将任意窗口放大至全屏，支持多种高级缩放算法，�
 2. GDI：使用 GDI 捕获源窗口。和 Graphics Capture 相比 CPU 占用更少。
 3. DwmSharedSurface：使用未公开的 DwmSharedSurface API 捕获窗口。
 
-### 系统需求
+## 系统需求
 
 1. Windows 10/11
 2. DirectX 功能级别 10
