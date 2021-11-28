@@ -29,11 +29,11 @@ Texture2D shEdgeMap;
 
 //!SAMPLER
 //!FILTER LINEAR
-SamplerState sam;
+SamplerState samLinear;
 
 //!SAMPLER
 //!FILTER POINT
-SamplerState sam1;
+SamplerState samPoint;
 
 //!CONSTANT
 //!DEFAULT 0.5
@@ -527,7 +527,7 @@ float4 Pass1(float2 pos) {
     for (int j = 0; j < 3; j++) {
         [unroll]
         for (int k = 0; k < 3; k++) {
-            const float3 px = INPUT.Sample(sam1, pos + float2(k - 1, j - 1) * float2(inputPtX, inputPtY)).xyz;
+            const float3 px = INPUT.Sample(samPoint, pos + float2(k - 1, j - 1) * float2(inputPtX, inputPtY)).xyz;
             p[j][k] = getY(px);
         }
     }
@@ -550,7 +550,7 @@ float4 Pass2(float2 pos) {
         for (int i = 0; i < 6; ++i) {
             [unroll]
             for (int j = 0; j < 6; ++j) {
-                p[i][j] = getY(INPUT.Sample(sam, (srcPosB + float2(j - 2, i - 2)) * float2(inputPtX, inputPtY)).rgb);
+                p[i][j] = getY(INPUT.Sample(samPoint, (srcPosB + float2(j - 2, i - 2) + 0.5f) * float2(inputPtX, inputPtY)).rgb);
             }
         }
     }
@@ -575,7 +575,7 @@ float4 Pass2(float2 pos) {
         [unroll]
         for (int j = 0; j < 2; j++) {
             // need to shift edge map sampling since it's a 2x2 centered inside 6x6 grid                
-            edge[i][j] = shEdgeMap.Sample(sam1, (srcPosB + float2(j, i)) * float2(inputPtX, inputPtY));
+            edge[i][j] = shEdgeMap.Sample(samPoint, (srcPosB + float2(j, i)) * float2(inputPtX, inputPtY));
         }
     }
     const float4 w = GetInterpEdgeMap(edge, f.x, f.y) * NIS_SCALE_INT;
@@ -585,7 +585,7 @@ float4 Pass2(float2 pos) {
         pixel_n * (NIS_SCALE_FLOAT - w.x - w.y - w.z - w.w)) * (1.0f / NIS_SCALE_FLOAT);
     // do bilinear tap for chroma upscaling
     
-    float4 op = INPUT.Sample(sam, pos);
+    float4 op = INPUT.Sample(samLinear, pos);
     
     const float corr = opY * (1.0f / NIS_SCALE_FLOAT) - getY(float3(op.x, op.y, op.z));
     op.x += corr;
