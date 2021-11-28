@@ -7,7 +7,6 @@
 		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
 		<UseWPF>true</UseWPF>
 		<UseWindowsForms>true</UseWindowsForms>
-		<SupportedOSPlatformVersion>7.0</SupportedOSPlatformVersion>
 		<PlatformTarget>x64</PlatformTarget>
 		<ApplicationIcon>logo.ico</ApplicationIcon>
 		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
