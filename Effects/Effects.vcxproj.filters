@@ -55,5 +55,7 @@
     <CopyFileToFolders Include="xBRZ_Freescale.hlsl" />
     <CopyFileToFolders Include="xBRZ_Freescale_MultiPass.hlsl" />
     <CopyFileToFolders Include="NIS.hlsl" />
+    <CopyFileToFolders Include="NIS_Coef_Scale.dds" />
+    <CopyFileToFolders Include="NIS_Coef_USM.dds" />
   </ItemGroup>
 </Project>

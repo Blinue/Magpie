@@ -253,6 +253,12 @@
       <FileType>Document</FileType>
     </CopyFileToFolders>
   </ItemGroup>
+  <ItemGroup>
+    <CopyFileToFolders Include="NIS_Coef_Scale.dds" />
+  </ItemGroup>
+  <ItemGroup>
+    <CopyFileToFolders Include="NIS_Coef_USM.dds" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
