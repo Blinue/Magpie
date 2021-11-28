@@ -259,6 +259,11 @@
   <ItemGroup>
     <CopyFileToFolders Include="NIS_Coef_USM.dds" />
   </ItemGroup>
+  <ItemGroup>
+    <CopyFileToFolders Include="NVSharpen.hlsl">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
