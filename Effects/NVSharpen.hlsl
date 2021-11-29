@@ -1,3 +1,5 @@
+// ÒÆÖ²×Ô https://github.com/NVIDIAGameWorks/NVIDIAImageScaling/blob/main/NIS/NIS_Scaler.h
+
 //!MAGPIE EFFECT
 //!VERSION 1
 

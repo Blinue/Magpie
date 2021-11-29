@@ -1,4 +1,4 @@
-// “∆÷≤◊‘ https://github.com/NVIDIAGameWorks/NVIDIAImageScaling/blob/main/NIS/NIS_Scaler.h
+// NIS + øπ’Ò¡Â
 
 //!MAGPIE EFFECT
 //!VERSION 1
@@ -51,6 +51,12 @@ SamplerState samPoint;
 //!MAX 1
 float sharpness;
 
+//!CONSTANT
+//!DEFAULT 0.5
+//!MIN 0
+//!MAX 1
+float ARStrength;
+
 
 //!COMMON
 
@@ -79,6 +85,8 @@ float sharpness;
 #define NIS_SCALE_FLOAT 1.0f
 #define NIS_SCALE_INT 1
 
+#define min4(a, b, c, d) min(min(a, b), min(c, d))
+#define max4(a, b, c, d) max(max(a, b), max(c, d))
 
 float getY(float3 rgba) {
 	return 0.2126f * rgba.x + 0.7152f * rgba.y + 0.0722f * rgba.z;
@@ -453,12 +461,24 @@ float4 Pass2(float2 pos) {
 		pixel_n * (NIS_SCALE_FLOAT - w.x - w.y - w.z - w.w)) * (1.0f / NIS_SCALE_FLOAT);
 	// do bilinear tap for chroma upscaling
 
-	float4 op = INPUT.Sample(samLinear, pos);
+	float3 op = INPUT.Sample(samLinear, pos).xyz;
 
 	const float corr = opY * (1.0f / NIS_SCALE_FLOAT) - getY(float3(op.x, op.y, op.z));
 	op.x += corr;
 	op.y += corr;
 	op.z += corr;
 
-	return op;
+	float3 neighbors[4] = {
+		INPUT.Sample(samPoint, float2(pos.x - inputPtX, pos.y)).rgb,
+		INPUT.Sample(samPoint, float2(pos.x + inputPtX, pos.y)).rgb,
+		INPUT.Sample(samPoint, float2(pos.x, pos.y - inputPtY)).rgb,
+		INPUT.Sample(samPoint, float2(pos.x, pos.y + inputPtY)).rgb
+	};
+
+	// øπ’Ò¡Â
+	float3 min_sample = min4(neighbors[0], neighbors[1], neighbors[2], neighbors[3]);
+	float3 max_sample = max4(neighbors[0], neighbors[1], neighbors[2], neighbors[3]);
+	op = lerp(op, clamp(op, min_sample, max_sample), ARStrength);
+
+	return float4(op, 1);
 }

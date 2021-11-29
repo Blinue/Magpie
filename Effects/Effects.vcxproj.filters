@@ -58,5 +58,6 @@
     <CopyFileToFolders Include="NIS_Coef_Scale.dds" />
     <CopyFileToFolders Include="NIS_Coef_USM.dds" />
     <CopyFileToFolders Include="NVSharpen.hlsl" />
+    <CopyFileToFolders Include="NIS_AR.hlsl" />
   </ItemGroup>
 </Project>
