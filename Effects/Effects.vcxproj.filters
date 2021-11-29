@@ -59,5 +59,6 @@
     <CopyFileToFolders Include="NIS_Coef_USM.dds" />
     <CopyFileToFolders Include="NVSharpen.hlsl" />
     <CopyFileToFolders Include="NIS_AR.hlsl" />
+    <CopyFileToFolders Include="CRT_Easymode.hlsl" />
   </ItemGroup>
 </Project>

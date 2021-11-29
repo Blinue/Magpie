@@ -1,4 +1,4 @@
-// NIS + ¿¹ÕñÁå
+// NIS + æŠ—æŒ¯é“ƒ
 
 //!MAGPIE EFFECT
 //!VERSION 1
@@ -475,7 +475,7 @@ float4 Pass2(float2 pos) {
 		INPUT.Sample(samPoint, float2(pos.x, pos.y + inputPtY)).rgb
 	};
 
-	// ¿¹ÕñÁå
+	// æŠ—æŒ¯é“ƒ
 	float3 min_sample = min4(neighbors[0], neighbors[1], neighbors[2], neighbors[3]);
 	float3 max_sample = max4(neighbors[0], neighbors[1], neighbors[2], neighbors[3]);
 	op = lerp(op, clamp(op, min_sample, max_sample), ARStrength);
