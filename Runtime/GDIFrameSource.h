@@ -18,10 +18,9 @@ public:
 		return false;
 	}
 
-private:
+protected:
 	ComPtr<ID3D11DeviceContext> _d3dDC;
 
-	HWND _hwndSrcClient = NULL;
 	SIZE _frameSize{};
 	ComPtr<IDXGISurface1> _dxgiSurface;
 	ComPtr<ID3D11Texture2D> _output;

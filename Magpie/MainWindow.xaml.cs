@@ -404,6 +404,9 @@ namespace Magpie {
 				_ = cbbCaptureMethod.Items.Add(new ComboBoxItem {
 					Content = "MagCallback"
 				});
+				_ = cbbCaptureMethod.Items.Add(new ComboBoxItem {
+					Content = "PrintWindow"
+				});
 			} else {
 				if (cbbCaptureMethod.Items.Count != 5) {
 					return;

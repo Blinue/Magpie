@@ -26,6 +26,7 @@ bool GraphicsCaptureFrameSource::Initialize() {
 	}
 
 	_d3dDC = App::GetInstance().GetRenderer().GetD3DDC();
+	// DwmGetWindowAttribute 和 Graphics.Capture 无法应用于子窗口
 	HWND hwndSrc = App::GetInstance().GetHwndSrc();
 
 	// 包含边框的窗口尺寸

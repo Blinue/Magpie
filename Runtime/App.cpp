@@ -6,7 +6,7 @@
 #include "DwmSharedSurfaceFrameSource.h"
 #include "LegacyGDIFrameSource.h"
 #include "MagCallbackFrameSource.h"
-
+#include "PrintWindowFrameSource.h"
 
 extern std::shared_ptr<spdlog::logger> logger;
 
@@ -176,6 +176,9 @@ bool App::Run(
 		break;
 	case 4:
 		_frameSource.reset(new MagCallbackFrameSource());
+		break;
+	case 5:
+		_frameSource.reset(new PrintWindowFrameSource());
 		break;
 	default:
 		SPDLOG_LOGGER_CRITICAL(logger, "未知的捕获模式，即将退出");
