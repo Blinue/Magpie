@@ -18,6 +18,8 @@
     <CopyFileToFolders Include="Anime4K_Upscale_L.hlsl" />
     <CopyFileToFolders Include="Anime4K_Upscale_S.hlsl" />
     <CopyFileToFolders Include="Anime4K_Upscale_S_Lite.hlsl" />
+    <CopyFileToFolders Include="Bicubic.hlsl" />
+    <CopyFileToFolders Include="Bicubic_Lite.hlsl" />
     <CopyFileToFolders Include="CAS.hlsl" />
     <CopyFileToFolders Include="FSR_EASU.hlsl" />
     <CopyFileToFolders Include="FSR_RCAS.hlsl" />
@@ -30,8 +32,6 @@
     <CopyFileToFolders Include="Jinc.hlsl" />
     <CopyFileToFolders Include="Lanczos.hlsl" />
     <CopyFileToFolders Include="Linear.hlsl" />
-    <CopyFileToFolders Include="Mitchell.hlsl" />
-    <CopyFileToFolders Include="Mitchell_Lite.hlsl" />
     <CopyFileToFolders Include="Nearest.hlsl" />
     <CopyFileToFolders Include="Pixellate.hlsl" />
     <CopyFileToFolders Include="RAVU_Lite_R3.hlsl" />
