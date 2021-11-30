@@ -101,7 +101,6 @@ struct Utils {
 		void* _hashObj = nullptr;	// 存储 hash 对象
 		DWORD _hashLen = 0;			// 哈希结果的大小
 		BCRYPT_HASH_HANDLE _hHash = NULL;
-		bool _supportReuse = false;
 	};
 
 	template<typename T>

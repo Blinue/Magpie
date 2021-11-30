@@ -194,7 +194,7 @@ Utils::Hasher::~Hasher() {
 	if (_hashObj) {
 		HeapFree(GetProcessHeap(), 0, _hashObj);
 	}
-	if (_supportReuse && _hHash) {
+	if (_hHash) {
 		BCryptDestroyHash(_hHash);
 	}
 }
@@ -227,10 +227,9 @@ bool Utils::Hasher::Initialize() {
 	}
 
 	status = BCryptCreateHash(_hAlg, &_hHash, (PUCHAR)_hashObj, _hashObjLen, NULL, 0, BCRYPT_HASH_REUSABLE_FLAG);
-	if (NT_SUCCESS(status)) {
-		_supportReuse = true;
-	} else {
-		SPDLOG_LOGGER_WARN(logger, fmt::format("BCryptCreateHash 失败：当前设备不支持 BCRYPT_HASH_REUSABLE_FLAG\n\tNTSTATUS={}", status));
+	if (!NT_SUCCESS(status)) {
+		SPDLOG_LOGGER_ERROR(logger, fmt::format("BCryptCreateHash 失败\n\tNTSTATUS={}", status));
+		return false;
 	}
 
 	SPDLOG_LOGGER_INFO(logger, "Utils::Hasher 初始化成功");
@@ -240,17 +239,7 @@ bool Utils::Hasher::Initialize() {
 bool Utils::Hasher::Hash(void* data, size_t len, std::vector<BYTE>& result) {
 	result.resize(_hashLen);
 
-	NTSTATUS status;
-
-	if (!_supportReuse) {
-		status = BCryptCreateHash(_hAlg, &_hHash, (PUCHAR)_hashObj, _hashObjLen, NULL, 0, BCRYPT_HASH_REUSABLE_FLAG);
-		if (!NT_SUCCESS(status)) {
-			SPDLOG_LOGGER_ERROR(logger, fmt::format("BCryptCreateHash 失败\n\tNTSTATUS={}", status));
-			return false;
-		}
-	}
-
-	status = BCryptHashData(_hHash, (PUCHAR)data, (ULONG)len, 0);
+	NTSTATUS status = BCryptHashData(_hHash, (PUCHAR)data, (ULONG)len, 0);
 	if (!NT_SUCCESS(status)) {
 		SPDLOG_LOGGER_ERROR(logger, fmt::format("BCryptCreateHash 失败\n\tNTSTATUS={}", status));
 		return false;
@@ -260,10 +249,6 @@ bool Utils::Hasher::Hash(void* data, size_t len, std::vector<BYTE>& result) {
 	if (!NT_SUCCESS(status)) {
 		SPDLOG_LOGGER_ERROR(logger, fmt::format("BCryptFinishHash 失败\n\tNTSTATUS={}", status));
 		return false;
-	}
-
-	if (!_supportReuse) {
-		BCryptDestroyHash(_hHash);
 	}
 
 	return true;
