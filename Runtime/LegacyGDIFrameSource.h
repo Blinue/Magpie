@@ -21,7 +21,7 @@ public:
 private:
 	ComPtr<ID3D11DeviceContext> _d3dDC;
 
-	HWND _hwndSrc = NULL;
+	HWND _hwndSrcClient = NULL;
 	ComPtr<ID3D11Texture2D> _output;
 
 	BITMAPINFO _bi{};

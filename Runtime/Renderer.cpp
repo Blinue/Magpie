@@ -523,13 +523,14 @@ bool Renderer::_CheckSrcState() {
 		return false;
 	}
 
-	RECT rect = Utils::GetClientScreenRect(hwndSrc, App::GetInstance().IsCropTitleBarOfUWP());
-	if (App::GetInstance().GetSrcClientRect() != rect) {
-		SPDLOG_LOGGER_INFO(logger, "源窗口位置或大小改变");
-		return false;
-	}
 	if (Utils::GetWindowShowCmd(hwndSrc) != SW_NORMAL) {
 		SPDLOG_LOGGER_INFO(logger, "源窗口显示状态改变");
+		return false;
+	}
+
+	RECT rect = Utils::GetClientScreenRect(App::GetInstance().GetHwndSrcClient());
+	if (App::GetInstance().GetSrcClientRect() != rect) {
+		SPDLOG_LOGGER_INFO(logger, "源窗口位置或大小改变");
 		return false;
 	}
 

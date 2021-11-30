@@ -8,13 +8,13 @@ extern std::shared_ptr<spdlog::logger> logger;
 
 
 bool LegacyGDIFrameSource::Initialize() {
-	_hwndSrc = App::GetInstance().GetHwndSrc();
+	_hwndSrcClient = App::GetInstance().GetHwndSrcClient();
 	_d3dDC = App::GetInstance().GetRenderer().GetD3DDC();
 
 	const RECT& srcClientRect = App::GetInstance().GetSrcClientRect();
 
 	RECT srcWndRect;
-	if (!GetWindowRect(_hwndSrc, &srcWndRect)) {
+	if (!GetWindowRect(_hwndSrcClient, &srcWndRect)) {
 		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetWindowRect 失败"));
 		return false;
 	}
@@ -23,7 +23,7 @@ bool LegacyGDIFrameSource::Initialize() {
 	float dpiScale;
 	bool success = true;
 
-	if (!_GetWindowDpiScale(_hwndSrc, dpiScale)) {
+	if (!_GetWindowDpiScale(_hwndSrcClient, dpiScale)) {
 		SPDLOG_LOGGER_ERROR(logger, "_GetWindowDpiScale 失败");
 		success = false;
 	}
@@ -35,7 +35,7 @@ bool LegacyGDIFrameSource::Initialize() {
 		success = false;
 	}
 
-	if (success && !_GetDpiAwareWindowClientOffset(_hwndSrc, clientOffset)) {
+	if (success && !_GetDpiAwareWindowClientOffset(_hwndSrcClient, clientOffset)) {
 		SPDLOG_LOGGER_ERROR(logger, "_GetDpiAwareWindowClientOffset 失败");
 		success = false;
 	}
@@ -101,7 +101,7 @@ ComPtr<ID3D11Texture2D> LegacyGDIFrameSource::GetOutput() {
 }
 
 bool LegacyGDIFrameSource::Update() {
-	HDC hdcSrc = GetWindowDC(_hwndSrc);
+	HDC hdcSrc = GetWindowDC(_hwndSrcClient);
 	if (!hdcSrc) {
 		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetWindowDC 失败"));
 		return false;
@@ -109,12 +109,12 @@ bool LegacyGDIFrameSource::Update() {
 	HDC hdcScreen = GetDC(NULL);
 	if (!hdcScreen) {
 		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetDC 失败"));
-		ReleaseDC(_hwndSrc, hdcSrc);
+		ReleaseDC(_hwndSrcClient, hdcSrc);
 		return false;
 	}
 
 	Utils::ScopeExit se([&]() {
-		ReleaseDC(_hwndSrc, hdcSrc);
+		ReleaseDC(_hwndSrcClient, hdcSrc);
 		ReleaseDC(NULL, hdcScreen);
 	});
 	

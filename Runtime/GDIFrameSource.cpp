@@ -6,11 +6,11 @@
 extern std::shared_ptr<spdlog::logger> logger;
 
 bool GDIFrameSource::Initialize() {
-	_hwndSrc = App::GetInstance().GetHwndSrc();
+	_hwndSrcClient = App::GetInstance().GetHwndSrcClient();
 	const RECT& srcClientRect = App::GetInstance().GetSrcClientRect();
 
 	float dpiScale = -1;
-	if (!_GetWindowDpiScale(_hwndSrc, dpiScale)) {
+	if (!_GetWindowDpiScale(_hwndSrcClient, dpiScale)) {
 		SPDLOG_LOGGER_ERROR(logger, "_GetWindowDpiScale 失败");
 	}
 
@@ -65,7 +65,7 @@ bool GDIFrameSource::Update() {
 		return false;
 	}
 
-	HDC hdcSrcClient = GetDCEx(_hwndSrc, NULL, DCX_LOCKWINDOWUPDATE);
+	HDC hdcSrcClient = GetDCEx(_hwndSrcClient, NULL, DCX_LOCKWINDOWUPDATE);
 	if (!hdcSrcClient) {
 		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetDC 失败"));
 		_dxgiSurface->ReleaseDC(nullptr);
@@ -76,7 +76,7 @@ bool GDIFrameSource::Update() {
 		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("BitBlt 失败"));
 	}
 
-	ReleaseDC(_hwndSrc, hdcSrcClient);
+	ReleaseDC(_hwndSrcClient, hdcSrcClient);
 	_dxgiSurface->ReleaseDC(nullptr);
 
     return true;

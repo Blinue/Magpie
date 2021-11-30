@@ -36,6 +36,10 @@ public:
 		return _hwndSrc;
 	}
 
+	HWND GetHwndSrcClient() const {
+		return _hwndSrcClient;
+	}
+
 	const RECT& GetSrcClientRect() const {
 		return _srcClientRect;
 	}
@@ -150,6 +154,7 @@ private:
 
 	HINSTANCE _hInst = NULL;
 	HWND _hwndSrc = NULL;
+	HWND _hwndSrcClient = NULL;
 	HWND _hwndHost = NULL;
 
 	// 关闭 DirectFlip 时的背景全屏窗口

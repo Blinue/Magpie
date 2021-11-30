@@ -41,6 +41,63 @@ bool App::Initialize(HINSTANCE hInst) {
 	return true;
 }
 
+BOOL CALLBACK EnumChildProc(
+	_In_ HWND   hwnd,
+	_In_ LPARAM lParam
+) {
+	std::wstring className(256, 0);
+	int num = GetClassName(hwnd, &className[0], (int)className.size());
+	if (num == 0) {
+		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetClassName 失败"));
+		return TRUE;
+	}
+	className.resize(num);
+
+	if (className == L"ApplicationFrameInputSinkWindow") {
+		((std::vector<HWND>*)lParam)->push_back(hwnd);
+	}
+
+	return TRUE;
+}
+
+HWND FindClientWindow(HWND hwndSrc) {
+	std::wstring className(256, 0);
+	int num = GetClassName(hwndSrc, &className[0], (int)className.size());
+	if (num > 0) {
+		className.resize(num);
+		if (className == L"ApplicationFrameWindow" || className == L"Windows.UI.Core.CoreWindow") {
+			// "Modern App"
+			std::vector<HWND> childWindows;
+			// 查找所有窗口类名为 ApplicationFrameInputSinkWindow 的子窗口
+			// 该子窗口一般为客户区
+			EnumChildWindows(hwndSrc, EnumChildProc, (LPARAM)&childWindows);
+
+			if (!childWindows.empty()) {
+				// 如果有多个匹配的子窗口，取最大的（一般不会出现）
+				int maxSize = 0, maxIdx = 0;
+				for (int i = 0; i < childWindows.size(); ++i) {
+					RECT rect;
+					if (!GetClientRect(childWindows[i], &rect)) {
+						continue;
+					}
+
+					int size = rect.right - rect.left + rect.bottom - rect.top;
+					if (size > maxSize) {
+						maxSize = size;
+						maxIdx = i;
+					}
+				}
+
+				return childWindows[maxIdx];
+			}
+		}
+	} else {
+		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetClassName 失败"));
+	}
+
+	return hwndSrc;
+}
+
 bool App::Run(
 	HWND hwndSrc,
 	const std::string& effectsJson,
@@ -80,7 +137,9 @@ bool App::Run(
 		}
 	}
 
-	_srcClientRect = Utils::GetClientScreenRect(_hwndSrc, IsCropTitleBarOfUWP());
+	_hwndSrcClient = FindClientWindow(hwndSrc);
+
+	_srcClientRect = Utils::GetClientScreenRect(IsCropTitleBarOfUWP() ? _hwndSrcClient : _hwndSrc);
 	if (_srcClientRect.right == 0 || _srcClientRect.bottom == 0) {
 		SPDLOG_LOGGER_CRITICAL(logger, "获取源窗口客户区失败");
 		return false;
