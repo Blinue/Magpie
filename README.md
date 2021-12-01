@@ -61,8 +61,8 @@ Magpie 可以将任意窗口放大至全屏，支持多种高级缩放算法，�
 
 1. Windows 10/11
 2. DirectX 功能级别 10
-3. .NET framework 4.7
-4. 最新版本的 MSVC 运行库
+3. [.NET framework 4.7 运行时](https://dotnet.microsoft.com/download/dotnet-framework/net472)
+4. [MSVC 2005-2022 运行时](https://docs.microsoft.com/cpp/windows/latest-supported-vc-redist?view=msvc-170)
 
 ## 使用提示
 
