@@ -3,9 +3,6 @@
 #include "App.h"
 #include "Utils.h"
 #include "StrUtils.h"
-#include "shaders/FillVS.h"
-#include "shaders/CopyPS.h"
-#include "shaders/SimpleVS.h"
 #include <VertexTypes.h>
 #include "EffectCompiler.h"
 #include <rapidjson/document.h>
@@ -108,7 +105,15 @@ bool Renderer::GetShaderResourceView(ID3D11Texture2D* texture, ID3D11ShaderResou
 
 bool Renderer::SetFillVS() {
 	if (!_fillVS) {
-		HRESULT hr = _d3dDevice->CreateVertexShader(FillVSShaderByteCode, sizeof(FillVSShaderByteCode), nullptr, &_fillVS);
+		const char* src = "void m(uint i:SV_VERTEXID,out float4 p:SV_POSITION,out float2 c:TEXCOORD){c=float2(i&1,i>>1)*2;p=float4(c.x*2-1,-c.y*2+1,0,1);}";
+
+		ComPtr<ID3DBlob> blob;
+		if (!CompileShader(true, src, "m", &blob, "FillVS")) {
+			SPDLOG_LOGGER_ERROR(logger, "编译 FillVS 失败");
+			return false;
+		}
+
+		HRESULT hr = _d3dDevice->CreateVertexShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, &_fillVS);
 		if (FAILED(hr)) {
 			SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("创建 FillVS 失败", hr));
 			return false;
@@ -125,7 +130,15 @@ bool Renderer::SetFillVS() {
 
 bool Renderer::SetCopyPS(ID3D11SamplerState* sampler, ID3D11ShaderResourceView* input) {
 	if (!_copyPS) {
-		HRESULT hr = _d3dDevice->CreatePixelShader(CopyPSShaderByteCode, sizeof(CopyPSShaderByteCode), nullptr, &_copyPS);
+		const char* src = "Texture2D t:register(t0);SamplerState s:register(s0);float4 m(float4 p:SV_POSITION,float2 c:TEXCOORD):SV_Target{return t.Sample(s,c);}";
+
+		ComPtr<ID3DBlob> blob;
+		if (!CompileShader(false, src, "m", &blob, "CopyPS")) {
+			SPDLOG_LOGGER_ERROR(logger, "编译 CopyPS 失败");
+			return false;
+		}
+
+		HRESULT hr = _d3dDevice->CreatePixelShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, &_copyPS);
 		if (FAILED(hr)) {
 			SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("创建 CopyPS 失败", hr));
 			return false;
@@ -142,7 +155,15 @@ bool Renderer::SetCopyPS(ID3D11SamplerState* sampler, ID3D11ShaderResourceView* 
 
 bool Renderer::SetSimpleVS(ID3D11Buffer* simpleVB) {
 	if (!_simpleVS) {
-		HRESULT hr = _d3dDevice->CreateVertexShader(SimpleVSShaderByteCode, sizeof(SimpleVSShaderByteCode), nullptr, &_simpleVS);
+		const char* src = "void m(float4 p:SV_POSITION,float2 c:TEXCOORD,out float4 q:SV_POSITION,out float2 d:TEXCOORD) {q=p;d=c;}";
+
+		ComPtr<ID3DBlob> blob;
+		if (!CompileShader(true, src, "m", &blob, "SimpleVS")) {
+			SPDLOG_LOGGER_ERROR(logger, "编译 SimpleVS 失败");
+			return false;
+		}
+
+		HRESULT hr = _d3dDevice->CreateVertexShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, &_simpleVS);
 		if (FAILED(hr)) {
 			SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("创建 SimpleVS 失败", hr));
 			return false;
@@ -151,8 +172,8 @@ bool Renderer::SetSimpleVS(ID3D11Buffer* simpleVB) {
 		hr = _d3dDevice->CreateInputLayout(
 			VertexPositionTexture::InputElements,
 			VertexPositionTexture::InputElementCount,
-			SimpleVSShaderByteCode,
-			sizeof(SimpleVSShaderByteCode),
+			blob->GetBufferPointer(),
+			blob->GetBufferSize(),
 			&_simpleIL
 		);
 		if (FAILED(hr)) {
@@ -244,6 +265,40 @@ bool GetGraphicsAdapter(IDXGIFactory1* dxgiFactory, UINT adapterIdx, ComPtr<IDXG
 	} else {
 		return false;
 	}
+}
+
+bool Renderer::CompileShader(bool isVS, std::string_view hlsl, const char* entryPoint,
+	ID3DBlob** blob, const char* sourceName, ID3DInclude* include
+) {
+	ComPtr<ID3DBlob> errorMsgs = nullptr;
+
+	UINT flags = D3DCOMPILE_ENABLE_STRICTNESS;
+	const char* target;
+	if (isVS) {
+		target = _featureLevel >= D3D_FEATURE_LEVEL_11_0 ? "vs_5_0" :
+			(_featureLevel == D3D_FEATURE_LEVEL_10_1 ? "vs_4_1" : "vs_4_0");
+	} else {
+		target = _featureLevel >= D3D_FEATURE_LEVEL_11_0 ? "ps_5_0" :
+			(_featureLevel == D3D_FEATURE_LEVEL_10_1 ? "ps_4_1" : "ps_4_0");
+	} 
+
+	HRESULT hr = D3DCompile(hlsl.data(), hlsl.size(), sourceName, nullptr, include,
+		entryPoint, target, flags, 0, blob, &errorMsgs);
+	if (FAILED(hr)) {
+		if (errorMsgs) {
+			SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg(fmt::format("编译{}着色器失败：{}",
+				isVS ? "顶点" : "像素", (const char*)errorMsgs->GetBufferPointer()), hr));
+		}
+		return false;
+	} else {
+		if (errorMsgs) {
+			// 显示警告消息
+			SPDLOG_LOGGER_WARN(logger, fmt::format("编译{}着色器时产生警告：{}",
+				isVS ? "顶点" : "像素", (const char*)errorMsgs->GetBufferPointer()));
+		}
+	}
+
+	return true;
 }
 
 bool Renderer::_InitD3D() {

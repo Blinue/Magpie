@@ -2,11 +2,34 @@
 #include "CursorDrawer.h"
 #include "App.h"
 #include "Utils.h"
-#include "shaders/MonochromeCursorPS.h"
 #include <VertexTypes.h>
 
 extern std::shared_ptr<spdlog::logger> logger;
 
+constexpr const char* monochromeCursorPS = R"(
+Texture2D originTex : register(t0);
+Texture2D maskTex : register(t1);
+SamplerState sam : register(s0);
+
+float4 main(float4 pos : SV_POSITION, float2 coord : TEXCOORD) : SV_Target{
+	float2 masks = maskTex.Sample(sam, coord).xy;
+	if (masks.x > 0.5) {
+		float3 origin = originTex.Sample(sam, coord).rgb;
+
+		if (masks.y > 0.5) {
+			return float4(1 - origin, 1);
+		} else {
+			return float4(origin, 1);
+		}
+	} else {
+		if (masks.y > 0.5) {
+			return float4(1, 1, 1, 1);
+		} else {
+			return float4(0, 0, 0, 1);
+		}
+	}
+}
+)";
 
 bool CursorDrawer::Initialize(ComPtr<ID3D11Texture2D> renderTarget, const RECT& destRect) {
 	App& app = App::GetInstance();
@@ -33,8 +56,14 @@ bool CursorDrawer::Initialize(ComPtr<ID3D11Texture2D> renderTarget, const RECT& 
 			return false;
 		}
 
+		ComPtr<ID3DBlob> blob;
+		if (!renderer.CompileShader(false, monochromeCursorPS, "main", &blob, "MonochromeCursorPS")) {
+			SPDLOG_LOGGER_ERROR(logger, "编译 MonochromeCursorPS 失败");
+			return false;
+		}
+
 		HRESULT hr = renderer.GetD3DDevice()->CreatePixelShader(
-			MonochromeCursorPSShaderByteCode, sizeof(MonochromeCursorPSShaderByteCode), nullptr, &_monoCursorPS);
+			blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, &_monoCursorPS);
 		if (FAILED(hr)) {
 			SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("创建 MonochromeCursorPS 失败", hr));
 			return false;

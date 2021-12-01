@@ -141,9 +141,6 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Filter Include="着色器">
-      <UniqueIdentifier>{0d12cfca-e0f7-451b-b3ce-713fb1202715}</UniqueIdentifier>
-    </Filter>
     <Filter Include="资源文件">
       <UniqueIdentifier>{f3740afe-3a7c-49d0-84ea-04d66feace50}</UniqueIdentifier>
     </Filter>
@@ -161,20 +158,6 @@
     <ResourceCompile Include="Runtime.rc">
       <Filter>资源文件</Filter>
     </ResourceCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <FxCompile Include="shaders\CopyPS.hlsl">
-      <Filter>着色器</Filter>
-    </FxCompile>
-    <FxCompile Include="shaders\FillVS.hlsl">
-      <Filter>着色器</Filter>
-    </FxCompile>
-    <FxCompile Include="shaders\SimpleVS.hlsl">
-      <Filter>着色器</Filter>
-    </FxCompile>
-    <FxCompile Include="shaders\MonochromeCursorPS.hlsl">
-      <Filter>着色器</Filter>
-    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <Text Include="conanfile.txt" />
