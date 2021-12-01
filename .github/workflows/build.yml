@@ -2,9 +2,9 @@ name: build
 
 on:
   push:
-    paths-ignore: [ 'docs/**', 'img/**', 'tools/**', '**.md' ]
+    paths-ignore: [ 'docs/**', 'img/**', 'tools/**' ]
   pull_request:
-    paths-ignore: [ 'docs/**', 'img/**', 'tools/**', '**.md' ]
+    paths-ignore: [ 'docs/**', 'img/**', 'tools/**' ]
 
 env:
   # Configuration type to build.
