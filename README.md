@@ -10,13 +10,13 @@ Magpie 可以将任意窗口放大至全屏，支持多种高级缩放算法，�
 
 使用中遇到问题请提交 issue。
 
-☛ [编译指南](https://github.com/Blinue/Magpie/wiki/编译指南)
+👉 [编译指南](https://github.com/Blinue/Magpie/wiki/编译指南)
 
-☛ [FAQ](https://github.com/Blinue/Magpie/wiki/FAQ)
+👉 [FAQ](https://github.com/Blinue/Magpie/wiki/FAQ)
 
-☛ [自定义缩放配置](https://github.com/Blinue/Magpie/wiki/自定义缩放配置)
+👉 [自定义缩放配置](https://github.com/Blinue/Magpie/wiki/自定义缩放配置)
 
-☛ [贡献指南](https://github.com/Blinue/Magpie/blob/master/CONTRIBUTING.md)
+👉 [贡献指南](https://github.com/Blinue/Magpie/blob/master/CONTRIBUTING.md)
 
 ## 使用方法
 
@@ -57,6 +57,13 @@ Magpie 可以将任意窗口放大至全屏，支持多种高级缩放算法，�
 2. GDI：使用 GDI 捕获源窗口。和 Graphics Capture 相比 CPU 占用更少。
 3. DwmSharedSurface：使用未公开的 DwmSharedSurface API 捕获窗口。
 
+## 系统需求
+
+1. Windows 10/11
+2. DirectX 功能级别 10
+3. [.NET framework 4.7 运行时](https://dotnet.microsoft.com/download/dotnet-framework/net472)
+4. [MSVC 2005-2022 运行时](https://docs.microsoft.com/cpp/windows/latest-supported-vc-redist?view=msvc-170)
+
 ## 使用提示
 
 1. 如果你设置了 DPI 缩放，而要放大的窗口不支持（表现为画面模糊），建议首先进入该程序的兼容性设置，将“高 DPI 缩放替代”设置为“应用程序”。
@@ -75,7 +82,7 @@ Magpie 可以将任意窗口放大至全屏，支持多种高级缩放算法，�
 <table>
   <tr>
     <td align="center"><a href="https://github.com/Blinue"><img src="https://avatars.githubusercontent.com/u/34770031?v=4?s=100" width="100px;" alt=""/><br /><sub><b>刘旭</b></sub></a><br /><a href="#maintenance-Blinue" title="Maintenance">🚧</a> <a href="https://github.com/Blinue/Magpie/commits?author=Blinue" title="Code">💻</a> <a href="https://github.com/Blinue/Magpie/pulls?q=is%3Apr+reviewed-by%3ABlinue" title="Reviewed Pull Requests">👀</a> <a href="https://github.com/Blinue/Magpie/commits?author=Blinue" title="Documentation">📖</a> <a href="#question-Blinue" title="Answering Questions">💬</a></td>
-    <td align="center"><a href="https://github.com/hooke007"><img src="https://avatars.githubusercontent.com/u/41094733?v=4?s=100" width="100px;" alt=""/><br /><sub><b>hooke007</b></sub></a><br /><a href="https://github.com/Blinue/Magpie/commits?author=hooke007" title="Documentation">📖</a> <a href="#question-hooke007" title="Answering Questions">💬</a> <a href="#userTesting-hooke007" title="User Testing">📓</a></td>
+    <td align="center"><a href="https://github.com/hooke007"><img src="https://avatars.githubusercontent.com/u/41094733?v=4?s=100" width="100px;" alt=""/><br /><sub><b>hooke007</b></sub></a><br /><a href="https://github.com/Blinue/Magpie/commits?author=hooke007" title="Documentation">📖</a> <a href="#question-hooke007" title="Answering Questions">💬</a> <a href="#userTesting-hooke007" title="User Testing">📓</a> <a href="https://github.com/Blinue/Magpie/commits?author=hooke007" title="Code">💻</a></td>
     <td align="center"><a href="http://palxex.ys168.com"><img src="https://avatars.githubusercontent.com/u/58222?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Pal Lockheart</b></sub></a><br /><a href="#userTesting-palxex" title="User Testing">📓</a></td>
     <td align="center"><a href="https://www.stevedonaghy.com/"><img src="https://avatars.githubusercontent.com/u/1029699?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Steve Donaghy</b></sub></a><br /><a href="https://github.com/Blinue/Magpie/commits?author=neoKushan" title="Code">💻</a> <a href="#translation-neoKushan" title="Translation">🌍</a></td>
     <td align="center"><a href="http://gyrojeff.top"><img src="https://avatars.githubusercontent.com/u/30655701?v=4?s=100" width="100px;" alt=""/><br /><sub><b>gyro永不抽风</b></sub></a><br /><a href="https://github.com/Blinue/Magpie/commits?author=JeffersonQin" title="Code">💻</a></td>
