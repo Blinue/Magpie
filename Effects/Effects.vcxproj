@@ -143,6 +143,12 @@
     <CopyFileToFolders Include="Anime4K_Upscale_S_Lite.hlsl">
       <FileType>Document</FileType>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="Bicubic.hlsl">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Bicubic_Lite.hlsl">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
     <CopyFileToFolders Include="CAS.hlsl">
       <FileType>Document</FileType>
     </CopyFileToFolders>
@@ -174,12 +180,6 @@
       <FileType>Document</FileType>
     </CopyFileToFolders>
     <CopyFileToFolders Include="Linear.hlsl">
-      <FileType>Document</FileType>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="Mitchell.hlsl">
-      <FileType>Document</FileType>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="Mitchell_Lite.hlsl">
       <FileType>Document</FileType>
     </CopyFileToFolders>
     <CopyFileToFolders Include="Nearest.hlsl">
