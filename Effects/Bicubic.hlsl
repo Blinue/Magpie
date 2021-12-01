@@ -15,14 +15,14 @@ float inputPtY;
 
 
 //!CONSTANT
-//!DEFAULT 1.0/3.0
+//!DEFAULT 0.333333
 //!MIN 0
 //!MAX 1
 
 float paramB;
 
 //!CONSTANT
-//!DEFAULT 1.0/3.0
+//!DEFAULT 0.333333
 //!MIN 0
 //!MAX 1
 
