@@ -53,7 +53,7 @@ float CRTGamma;
 //!DEFAULT 2.2
 //!MIN 0.1
 //!MAX 5
-int monitorGamma;
+float monitorGamma;
 
 //!CONSTANT
 //!DEFAULT 1.5
