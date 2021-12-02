@@ -419,7 +419,7 @@ float FilterNormal(const float p[6][6], int phase_x_frac_int, int phase_y_frac_i
 }
 
 float4 Pass2(float2 pos) {
-	float2 srcPos = pos / float2(inputPtX, inputPtY) - 0.5f;
+	float2 srcPos = pos / float2(inputPtX, inputPtY) + 0.5f;
 	float2 srcPosB = floor(srcPos);
 
 	// load 6x6 support to regs
@@ -429,7 +429,7 @@ float4 Pass2(float2 pos) {
 		for (int i = 0; i < 6; ++i) {
 			[unroll]
 			for (int j = 0; j < 6; ++j) {
-				p[i][j] = getY(INPUT.Sample(samPoint, (srcPosB + float2(j - 2, i - 2) + 0.5f) * float2(inputPtX, inputPtY)).rgb);
+				p[i][j] = getY(INPUT.Sample(samPoint, (srcPosB + float2(j - 2, i - 2) - 0.5f) * float2(inputPtX, inputPtY)).rgb);
 			}
 		}
 	}
