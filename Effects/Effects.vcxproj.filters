@@ -60,5 +60,6 @@
     <CopyFileToFolders Include="NVSharpen.hlsl" />
     <CopyFileToFolders Include="NIS_AR.hlsl" />
     <CopyFileToFolders Include="CRT_Easymode.hlsl" />
+    <CopyFileToFolders Include="CRT_Geom.hlsl" />
   </ItemGroup>
 </Project>
