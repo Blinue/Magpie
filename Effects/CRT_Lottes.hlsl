@@ -103,7 +103,7 @@ float hardBloomPix;
 float hardBloomScan;
 
 //!CONSTANT
-//!DEFAULT 0
+//!DEFAULT 0.15
 //!MIN 0
 //!MAX 1
 float bloomAmount;
