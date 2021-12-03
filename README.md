@@ -16,7 +16,7 @@ Magpie 可以将任意窗口放大至全屏，支持多种高级缩放算法，�
 
 👉 [自定义缩放配置](https://github.com/Blinue/Magpie/wiki/自定义缩放配置)
 
-👉 [贡献指南](https://github.com/Blinue/Magpie/blob/master/CONTRIBUTING.md)
+👉 [贡献指南](./CONTRIBUTING.md)
 
 ## 使用方法
 
