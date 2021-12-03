@@ -133,12 +133,6 @@ float scanlineWeight;
 //!MAX 1
 float lum;
 
-//!CONSTANT
-//!DEFAULT 1
-//!MIN 0
-//!MAX 1
-int interlaceToggle;
-
 
 //!TEXTURE
 Texture2D INPUT;
@@ -165,6 +159,7 @@ SamplerState sam;
 #define aspect float2(1.0, 0.75)
 
 #define frame_count 0
+#define interlaceToggle 0
 
 
 float intersect(float2 xy, float4 sin_cos_angle) {
