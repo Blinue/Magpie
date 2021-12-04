@@ -1,5 +1,5 @@
 // CRT-Lottes
-// ÒÆÖ²×Ô https://github.com/libretro/common-shaders/blob/master/crt/shaders/crt-lottes.cg
+// ç§»æ¤è‡ª https://github.com/libretro/common-shaders/blob/master/crt/shaders/crt-lottes.cg
 
 
 // PUBLIC DOMAIN CRT STYLED SCAN-LINE SHADER

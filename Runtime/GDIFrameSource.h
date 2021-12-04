@@ -18,7 +18,7 @@ public:
 		return false;
 	}
 
-protected:
+private:
 	ComPtr<ID3D11DeviceContext> _d3dDC;
 
 	SIZE _frameSize{};
