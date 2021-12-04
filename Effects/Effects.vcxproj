@@ -317,6 +317,21 @@
       <FileType>Document</FileType>
     </CopyFileToFolders>
   </ItemGroup>
+  <ItemGroup>
+    <CopyFileToFolders Include="CRT_Royale_bloom-functions.hlsli">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+  </ItemGroup>
+  <ItemGroup>
+    <CopyFileToFolders Include="CRT_Royale_blur-functions.hlsli">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+  </ItemGroup>
+  <ItemGroup>
+    <CopyFileToFolders Include="CRT_Royale_quad-pixel-communication.hlsli">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

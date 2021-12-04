@@ -13,6 +13,7 @@
 //  latter benefits from a higher bloom_approx_scale_x, so save both separately:
 static const float bloom_approx_size_x = 320.0;
 static const float bloom_approx_size_x_for_fake = 400.0;
+static const float bloom_approx_scale_x = 320;
 //  Copy the viewport-relative scales of the phosphor mask resize passes
 //  (MASK_RESIZE and the pass immediately preceding it):
 static const float2 mask_resize_viewport_scale = float2(0.0625, 0.0625);
@@ -52,6 +53,5 @@ static const float mask_shadow_avg_color = 41.0/255.0;
 #else
     static const float mask_grille_avg_color = mask_grille15_avg_color;
 #endif
-
 
 #endif  //  USER_CGP_CONSTANTS_H

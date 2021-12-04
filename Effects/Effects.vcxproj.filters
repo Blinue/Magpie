@@ -68,6 +68,9 @@
     <CopyFileToFolders Include="CRT_Royale_gamma-management.hlsli" />
     <CopyFileToFolders Include="CRT_Royale_derived-settings-and-constants.hlsli" />
     <CopyFileToFolders Include="CRT_Royale_special-functions.hlsli" />
+    <CopyFileToFolders Include="CRT_Royale_bloom-functions.hlsli" />
+    <CopyFileToFolders Include="CRT_Royale_blur-functions.hlsli" />
+    <CopyFileToFolders Include="CRT_Royale_quad-pixel-communication.hlsli" />
   </ItemGroup>
   <ItemGroup>
     <None Include="CRT_Royale_user-cgp-constants.hlsli" />

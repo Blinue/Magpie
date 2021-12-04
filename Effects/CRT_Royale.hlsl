@@ -1,7 +1,7 @@
 // CRT-Royale For Magpie
-// “∆÷≤◊‘ https://github.com/libretro/common-shaders/tree/master/crt/shaders/crt-royale
+// ÁßªÊ§çËá™ https://github.com/libretro/common-shaders/tree/master/crt/shaders/crt-royale
 // 
-// CRT-Royale µƒ–Ìø……˘√˜£∫
+// CRT-Royale ÁöÑËÆ∏ÂèØÂ£∞ÊòéÔºö
 // crt-royale: A full-featured CRT shader, with cheese.
 // Copyright (C) 2014 TroggleMonkey <trogglemonkey@gmx.com>
 //
@@ -45,6 +45,10 @@ float outputWidth;
 //!CONSTANT
 //!VALUE OUTPUT_WIDTH
 float outputHeight;
+
+//!CONSTANT
+//!VALUE 1 / SCALE_Y
+float rcpScaleY;
 
 //!CONSTANT
 //!DEFAULT 2.5
@@ -320,6 +324,24 @@ int interlace_1080i;
 //!TEXTURE
 Texture2D INPUT;
 
+//!TEXTURE
+//!WIDTH INPUT_WIDTH
+//!HEIGHT INPUT_HEIGHT
+//!FORMAT B8G8R8A8_UNORM
+Texture2D tex1;
+
+//!TEXTURE
+//!WIDTH INPUT_WIDTH
+//!HEIGHT INPUT_HEIGHT
+//!FORMAT B8G8R8A8_UNORM
+Texture2D tex2;
+
+//!TEXTURE
+//!WIDTH 320
+//!HEIGHT 240
+//!FORMAT B8G8R8A8_UNORM
+Texture2D texBloomApprox;
+
 //!SAMPLER
 //!FILTER POINT
 SamplerState samPoint;
@@ -332,6 +354,9 @@ SamplerState samLinear;
 //!COMMON
 
 #define frame_count 0
+
+#define BLOOM_APPROX_WIDTH 320
+#define BLOOM_APPROX_HEIGHT 240
 
 /////////////////////////////  DRIVER CAPABILITIES  ////////////////////////////
 
@@ -689,8 +714,10 @@ static const float border_compress_static = 2.5;        //  range [1, inf)
 
 //!PASS 1
 //!BIND INPUT
+//!SAVE tex1
 
-// “∆÷≤◊‘ https://github.com/libretro/common-shaders/blob/master/crt/shaders/crt-royale/src/crt-royale-first-pass-linearize-crt-gamma-bob-fields.cg
+// ÁßªÊ§çËá™ https://github.com/libretro/common-shaders/blob/master/crt/shaders/crt-royale/src/crt-royale-first-pass-linearize-crt-gamma-bob-fields.cg
+
 
 //  PASS SETTINGS:
 //  gamma-management.h needs to know what kind of pipeline we're using and
@@ -735,4 +762,435 @@ float4 Pass1(float2 pos) {
     } else {
         return encode_output(tex2D_linearize(INPUT, samPoint, pos));
     }
+}
+
+//!PASS 2
+//!BIND tex1
+//!SAVE tex2
+
+// ÁßªÊ§çËá™ https://github.com/libretro/common-shaders/blob/master/crt/shaders/crt-royale/src/crt-royale-scanlines-vertical-interlacing.cg
+
+#include "CRT_Royale_bind-shader-params.hlsli"
+#include "CRT_Royale_scanline-functions.hlsli"
+#include "CRT_Royale_gamma-management.hlsli"
+
+
+float4 Pass2(float2 pos) {
+    const float y_step = 1.0 + float(is_interlaced(inputHeight));
+    const float2 il_step_multiple = { 1.0, y_step };
+    //  Get the uv tex coords step between one texel (x) and scanline (y):
+    const float2 uv_step = il_step_multiple / float2(inputWidth, inputHeight);
+    //  We need the pixel height in scanlines for antialiased/integral sampling:
+    const float ph = rcpScaleY / il_step_multiple.y;
+
+    //  This pass: Sample multiple (misconverged?) scanlines to the final
+    //  vertical resolution.  Temporarily auto-dim the output to avoid clipping.
+
+    //  Read some attributes into local variables:
+    const float2 texture_size = { inputWidth, inputHeight };
+    const float2 texture_size_inv = { inputPtX, inputPtY };
+
+    //  Get the uv coords of the previous scanline (in this field), and the
+    //  scanline's distance from this sample, in scanlines.
+    float dist;
+    const float2 scanline_uv = get_last_scanline_uv(pos, texture_size,
+        texture_size_inv, il_step_multiple, frame_count, dist);
+    //  Consider 2, 3, 4, or 6 scanlines numbered 0-5: The previous and next
+    //  scanlines are numbered 2 and 3.  Get scanline colors colors (ignore
+    //  horizontal sampling, since since IN.output_size.x = video_size.x).
+    //  NOTE: Anisotropic filtering creates interlacing artifacts, which is why
+    //  ORIG_LINEARIZED bobbed any interlaced input before this pass.
+    const float2 v_step = float2(0.0, uv_step.y);
+    const float3 scanline2_color = tex2D_linearize(tex1, samLinear, scanline_uv).rgb;
+    const float3 scanline3_color =
+        tex2D_linearize(tex1, samLinear, scanline_uv + v_step).rgb;
+    float3 scanline0_color, scanline1_color, scanline4_color, scanline5_color,
+        scanline_outside_color;
+    float dist_round;
+    //  Use scanlines 0, 1, 4, and 5 for a total of 6 scanlines:
+    if (beam_num_scanlines > 5.5) {
+        scanline1_color =
+            tex2D_linearize(tex1, samLinear, scanline_uv - v_step).rgb;
+        scanline4_color =
+            tex2D_linearize(tex1, samLinear, scanline_uv + 2.0 * v_step).rgb;
+        scanline0_color =
+            tex2D_linearize(tex1, samLinear, scanline_uv - 2.0 * v_step).rgb;
+        scanline5_color =
+            tex2D_linearize(tex1, samLinear, scanline_uv + 3.0 * v_step).rgb;
+    }
+    //  Use scanlines 1, 4, and either 0 or 5 for a total of 5 scanlines:
+    else if (beam_num_scanlines > 4.5) {
+        scanline1_color =
+            tex2D_linearize(tex1, samLinear, scanline_uv - v_step).rgb;
+        scanline4_color =
+            tex2D_linearize(tex1, samLinear, scanline_uv + 2.0 * v_step).rgb;
+        //  dist is in [0, 1]
+        dist_round = round(dist);
+        const float2 sample_0_or_5_uv_off =
+            lerp(-2.0 * v_step, 3.0 * v_step, dist_round);
+        //  Call this "scanline_outside_color" to cope with the conditional
+        //  scanline number:
+        scanline_outside_color = tex2D_linearize(
+            tex1, samLinear, scanline_uv + sample_0_or_5_uv_off).rgb;
+    }
+    //  Use scanlines 1 and 4 for a total of 4 scanlines:
+    else if (beam_num_scanlines > 3.5) {
+        scanline1_color =
+            tex2D_linearize(tex1, samLinear, scanline_uv - v_step).rgb;
+        scanline4_color =
+            tex2D_linearize(tex1, samLinear, scanline_uv + 2.0 * v_step).rgb;
+    }
+    //  Use scanline 1 or 4 for a total of 3 scanlines:
+    else if (beam_num_scanlines > 2.5) {
+        //  dist is in [0, 1]
+        dist_round = round(dist);
+        const float2 sample_1or4_uv_off =
+            lerp(-v_step, 2.0 * v_step, dist_round);
+        scanline_outside_color = tex2D_linearize(
+            tex1, samLinear, scanline_uv + sample_1or4_uv_off).rgb;
+    }
+
+    //  Compute scanline contributions, accounting for vertical convergence.
+    //  Vertical convergence offsets are in units of current-field scanlines.
+    //  dist2 means "positive sample distance from scanline 2, in scanlines:"
+    float3 dist2 = dist;
+    if (beam_misconvergence) {
+        const float3 convergence_offsets_vert_rgb =
+            get_convergence_offsets_y_vector();
+        dist2 = dist-convergence_offsets_vert_rgb;
+    }
+    //  Calculate {sigma, shape}_range outside of scanline_contrib so it's only
+    //  done once per pixel (not 6 times) with runtime params.  Don't reuse the
+    //  vertex shader calculations, so static versions can be constant-folded.
+    const float sigma_range = max(beam_max_sigma, beam_min_sigma) -
+        beam_min_sigma;
+    const float shape_range = max(beam_max_shape, beam_min_shape) -
+        beam_min_shape;
+    //  Calculate and sum final scanline contributions, starting with lines 2/3.
+    //  There is no normalization step, because we're not interpolating a
+    //  continuous signal.  Instead, each scanline is an additive light source.
+    const float3 scanline2_contrib = scanline_contrib(dist2,
+        scanline2_color, ph, sigma_range, shape_range);
+    const float3 scanline3_contrib = scanline_contrib(abs(1.0 - dist2),
+        scanline3_color, ph, sigma_range, shape_range);
+    float3 scanline_intensity = scanline2_contrib + scanline3_contrib;
+    if (beam_num_scanlines > 5.5) {
+        const float3 scanline0_contrib =
+            scanline_contrib(dist2 + 2.0, scanline0_color,
+                ph, sigma_range, shape_range);
+        const float3 scanline1_contrib =
+            scanline_contrib(dist2 + 1.0, scanline1_color,
+                ph, sigma_range, shape_range);
+        const float3 scanline4_contrib =
+            scanline_contrib(abs(2.0 - dist2), scanline4_color,
+                ph, sigma_range, shape_range);
+        const float3 scanline5_contrib =
+            scanline_contrib(abs(3.0 - dist2), scanline5_color,
+                ph, sigma_range, shape_range);
+        scanline_intensity += scanline0_contrib + scanline1_contrib +
+            scanline4_contrib + scanline5_contrib;
+    } else if (beam_num_scanlines > 4.5) {
+        const float3 scanline1_contrib =
+            scanline_contrib(dist2 + 1.0, scanline1_color,
+                ph, sigma_range, shape_range);
+        const float3 scanline4_contrib =
+            scanline_contrib(abs(2.0 - dist2), scanline4_color,
+                ph, sigma_range, shape_range);
+        const float3 dist0or5 = lerp(
+            dist2 + 2.0, 3.0 - dist2, dist_round);
+        const float3 scanline0or5_contrib = scanline_contrib(
+            dist0or5, scanline_outside_color, ph, sigma_range, shape_range);
+        scanline_intensity += scanline1_contrib + scanline4_contrib +
+            scanline0or5_contrib;
+    } else if (beam_num_scanlines > 3.5) {
+        const float3 scanline1_contrib =
+            scanline_contrib(dist2 + 1.0, scanline1_color,
+                ph, sigma_range, shape_range);
+        const float3 scanline4_contrib =
+            scanline_contrib(abs(2.0 - dist2), scanline4_color,
+                ph, sigma_range, shape_range);
+        scanline_intensity += scanline1_contrib + scanline4_contrib;
+    } else if (beam_num_scanlines > 2.5) {
+        const float3 dist1or4 = lerp(
+            dist2 + 1.0, 2.0 - dist2, dist_round);
+        const float3 scanline1or4_contrib = scanline_contrib(
+            dist1or4, scanline_outside_color, ph, sigma_range, shape_range);
+        scanline_intensity += scanline1or4_contrib;
+    }
+
+    //  Auto-dim the image to avoid clipping, encode if necessary, and output.
+    //  My original idea was to compute a minimal auto-dim factor and put it in
+    //  the alpha channel, but it wasn't working, at least not reliably.  This
+    //  is faster anyway, levels_autodim_temp = 0.5 isn't causing banding.
+    return encode_output(float4(scanline_intensity * levels_autodim_temp, 1.0));
+}
+
+//!PASS 3
+//!BIND tex2
+
+// ÁßªÊ§çËá™ https://github.com/libretro/common-shaders/blob/master/crt/shaders/crt-royale/src/crt-royale-bloom-approx.cg
+
+#include "CRT_Royale_bind-shader-params.hlsli"
+#include "CRT_Royale_scanline-functions.hlsli"
+#include "CRT_Royale_gamma-management.hlsli"
+#include "CRT_Royale_blur-functions.hlsli"
+#include "CRT_Royale_bloom-functions.hlsli"
+
+
+float3 tex2Dresize_gaussian4x4(Texture2D tex, SamplerState sam, const float2 tex_uv,
+    const float2 dxdy, const float2 texture_size, const float2 texture_size_inv,
+    const float2 tex_uv_to_pixel_scale, const float sigma) {
+    //  Requires:   1.) All requirements of gamma-management.h must be satisfied!
+    //              2.) filter_linearN must == "true" in your .cgp preset.
+    //              3.) mipmap_inputN must == "true" in your .cgp preset if
+    //                  IN.output_size << SRC.video_size.
+    //              4.) dxdy should contain the uv pixel spacing:
+    //                      dxdy = max(float2(1.0),
+    //                          SRC.video_size/IN.output_size)/SRC.texture_size;
+    //              5.) texture_size == SRC.texture_size
+    //              6.) texture_size_inv == float2(1.0)/SRC.texture_size
+    //              7.) tex_uv_to_pixel_scale == IN.output_size *
+    //                      SRC.texture_size / SRC.video_size;
+    //              8.) sigma is the desired Gaussian standard deviation, in
+    //                  terms of output pixels.  It should be < ~0.66171875 to
+    //                  ensure the first unused sample (outside the 4x4 box) has
+    //                  a weight < 1.0/256.0.
+    //  Returns:    A true 4x4 Gaussian resize of the input.
+    //  Description:
+    //  Given correct inputs, this Gaussian resizer samples 4 pixel locations
+    //  along each downsized dimension and/or 4 texel locations along each
+    //  upsized dimension.  It computes dynamic weights based on the pixel-space
+    //  distance of each sample from the destination pixel.  It is arbitrarily
+    //  resizable and higher quality than tex2Dblur3x3_resize, but it's slower.
+    //  TODO: Move this to a more suitable file once there are others like it.
+    const float denom_inv = 0.5 / (sigma * sigma);
+    //  We're taking 4x4 samples, and we're snapping to texels for upsizing.
+    //  Find texture coords for sample 5 (second row, second column):
+    const float2 curr_texel = tex_uv * texture_size;
+    const float2 prev_texel =
+        floor(curr_texel - under_half) + 0.5;
+    const float2 prev_texel_uv = prev_texel * texture_size_inv;
+    const float2 snap = float2(dxdy <= texture_size_inv);
+    const float2 sample5_downsize_uv = tex_uv - 0.5 * dxdy;
+    const float2 sample5_uv = lerp(sample5_downsize_uv, prev_texel_uv, snap);
+    //  Compute texture coords for other samples:
+    const float2 dx = float2(dxdy.x, 0.0);
+    const float2 sample0_uv = sample5_uv - dxdy;
+    const float2 sample10_uv = sample5_uv + dxdy;
+    const float2 sample15_uv = sample5_uv + 2.0 * dxdy;
+    const float2 sample1_uv = sample0_uv + dx;
+    const float2 sample2_uv = sample0_uv + 2.0 * dx;
+    const float2 sample3_uv = sample0_uv + 3.0 * dx;
+    const float2 sample4_uv = sample5_uv - dx;
+    const float2 sample6_uv = sample5_uv + dx;
+    const float2 sample7_uv = sample5_uv + 2.0 * dx;
+    const float2 sample8_uv = sample10_uv - 2.0 * dx;
+    const float2 sample9_uv = sample10_uv - dx;
+    const float2 sample11_uv = sample10_uv + dx;
+    const float2 sample12_uv = sample15_uv - 3.0 * dx;
+    const float2 sample13_uv = sample15_uv - 2.0 * dx;
+    const float2 sample14_uv = sample15_uv - dx;
+    //  Load each sample:
+    const float3 sample0 = tex2D_linearize(tex, sam, sample0_uv).rgb;
+    const float3 sample1 = tex2D_linearize(tex, sam, sample1_uv).rgb;
+    const float3 sample2 = tex2D_linearize(tex, sam, sample2_uv).rgb;
+    const float3 sample3 = tex2D_linearize(tex, sam, sample3_uv).rgb;
+    const float3 sample4 = tex2D_linearize(tex, sam, sample4_uv).rgb;
+    const float3 sample5 = tex2D_linearize(tex, sam, sample5_uv).rgb;
+    const float3 sample6 = tex2D_linearize(tex, sam, sample6_uv).rgb;
+    const float3 sample7 = tex2D_linearize(tex, sam, sample7_uv).rgb;
+    const float3 sample8 = tex2D_linearize(tex, sam, sample8_uv).rgb;
+    const float3 sample9 = tex2D_linearize(tex, sam, sample9_uv).rgb;
+    const float3 sample10 = tex2D_linearize(tex, sam, sample10_uv).rgb;
+    const float3 sample11 = tex2D_linearize(tex, sam, sample11_uv).rgb;
+    const float3 sample12 = tex2D_linearize(tex, sam, sample12_uv).rgb;
+    const float3 sample13 = tex2D_linearize(tex, sam, sample13_uv).rgb;
+    const float3 sample14 = tex2D_linearize(tex, sam, sample14_uv).rgb;
+    const float3 sample15 = tex2D_linearize(tex, sam, sample15_uv).rgb;
+    //  Compute destination pixel offsets for each sample:
+    const float2 dest_pixel = tex_uv * tex_uv_to_pixel_scale;
+    const float2 sample0_offset = sample0_uv * tex_uv_to_pixel_scale - dest_pixel;
+    const float2 sample1_offset = sample1_uv * tex_uv_to_pixel_scale - dest_pixel;
+    const float2 sample2_offset = sample2_uv * tex_uv_to_pixel_scale - dest_pixel;
+    const float2 sample3_offset = sample3_uv * tex_uv_to_pixel_scale - dest_pixel;
+    const float2 sample4_offset = sample4_uv * tex_uv_to_pixel_scale - dest_pixel;
+    const float2 sample5_offset = sample5_uv * tex_uv_to_pixel_scale - dest_pixel;
+    const float2 sample6_offset = sample6_uv * tex_uv_to_pixel_scale - dest_pixel;
+    const float2 sample7_offset = sample7_uv * tex_uv_to_pixel_scale - dest_pixel;
+    const float2 sample8_offset = sample8_uv * tex_uv_to_pixel_scale - dest_pixel;
+    const float2 sample9_offset = sample9_uv * tex_uv_to_pixel_scale - dest_pixel;
+    const float2 sample10_offset = sample10_uv * tex_uv_to_pixel_scale - dest_pixel;
+    const float2 sample11_offset = sample11_uv * tex_uv_to_pixel_scale - dest_pixel;
+    const float2 sample12_offset = sample12_uv * tex_uv_to_pixel_scale - dest_pixel;
+    const float2 sample13_offset = sample13_uv * tex_uv_to_pixel_scale - dest_pixel;
+    const float2 sample14_offset = sample14_uv * tex_uv_to_pixel_scale - dest_pixel;
+    const float2 sample15_offset = sample15_uv * tex_uv_to_pixel_scale - dest_pixel;
+    //  Compute Gaussian sample weights:
+    const float w0 = exp(-LENGTH_SQ(sample0_offset) * denom_inv);
+    const float w1 = exp(-LENGTH_SQ(sample1_offset) * denom_inv);
+    const float w2 = exp(-LENGTH_SQ(sample2_offset) * denom_inv);
+    const float w3 = exp(-LENGTH_SQ(sample3_offset) * denom_inv);
+    const float w4 = exp(-LENGTH_SQ(sample4_offset) * denom_inv);
+    const float w5 = exp(-LENGTH_SQ(sample5_offset) * denom_inv);
+    const float w6 = exp(-LENGTH_SQ(sample6_offset) * denom_inv);
+    const float w7 = exp(-LENGTH_SQ(sample7_offset) * denom_inv);
+    const float w8 = exp(-LENGTH_SQ(sample8_offset) * denom_inv);
+    const float w9 = exp(-LENGTH_SQ(sample9_offset) * denom_inv);
+    const float w10 = exp(-LENGTH_SQ(sample10_offset) * denom_inv);
+    const float w11 = exp(-LENGTH_SQ(sample11_offset) * denom_inv);
+    const float w12 = exp(-LENGTH_SQ(sample12_offset) * denom_inv);
+    const float w13 = exp(-LENGTH_SQ(sample13_offset) * denom_inv);
+    const float w14 = exp(-LENGTH_SQ(sample14_offset) * denom_inv);
+    const float w15 = exp(-LENGTH_SQ(sample15_offset) * denom_inv);
+    const float weight_sum_inv = 1.0 / (
+        w0 + w1 + w2 + w3 + w4 + w5 + w6 + w7 +
+        w8 + w9 + w10 + w11 + w12 + w13 + w14 + w15);
+    //  Weight and sum the samples:
+    const float3 sum = w0 * sample0 + w1 * sample1 + w2 * sample2 + w3 * sample3 +
+        w4 * sample4 + w5 * sample5 + w6 * sample6 + w7 * sample7 +
+        w8 * sample8 + w9 * sample9 + w10 * sample10 + w11 * sample11 +
+        w12 * sample12 + w13 * sample13 + w14 * sample14 + w15 * sample15;
+    return sum * weight_sum_inv;
+}
+
+float4 Pass3(float2 pos) {
+    //  Get the uv sample distance between output pixels.  We're using a resize
+    //  blur, so arbitrary upsizing will be acceptable if filter_linearN =
+    //  "true," and arbitrary downsizing will be acceptable if mipmap_inputN =
+    //  "true" too.  The blur will be much more accurate if a true 4x4 Gaussian
+    //  resize is used instead of tex2Dblur3x3_resize (which samples between
+    //  texels even for upsizing).
+    const float2 texture_size = float2(inputWidth, inputHeight);
+    const float2 dxdy_min_scale = texture_size / float2(BLOOM_APPROX_WIDTH, BLOOM_APPROX_HEIGHT);
+    const float2 texture_size_inv = { inputPtX, inputPtY };
+
+    //  tex2Dresize_gaussian4x4 needs to know a bit more than the other filters:
+    float2 tex_uv_to_pixel_scale = float2(BLOOM_APPROX_WIDTH, BLOOM_APPROX_HEIGHT);
+
+    const float y_step = 1.0 + float(is_interlaced(inputHeight));
+    const float2 il_step_multiple = float2(1.0, y_step);
+    //  Get the uv distance between (texels, same-field scanlines):
+    float2 uv_scanline_step = il_step_multiple / texture_size;
+
+    //  The last pass (vertical scanlines) had a viewport y scale, so we can
+    //  use it to calculate a better runtime sigma:
+    float estimated_viewport_size_x = inputHeight * geom_aspect_ratio_x / geom_aspect_ratio_y;
+
+    float2 blur_dxdy;
+    if (bloom_approx_filter > 1.5)   //  4x4 true Gaussian resize
+    {
+        //  For upsizing, we'll snap to texels and sample the nearest 4.
+        const float2 dxdy_scale = max(dxdy_min_scale, 1.0);
+        blur_dxdy = dxdy_scale * texture_size_inv;
+    } else {
+        const float2 dxdy_scale = dxdy_min_scale;
+        blur_dxdy = dxdy_scale * texture_size_inv;
+    }
+
+    //  Would a viewport-relative size work better for this pass?  (No.)
+    //  PROS:
+    //  1.) Instead of writing an absolute size to user-cgp-constants.h, we'd
+    //      write a viewport scale.  That number could be used to directly scale
+    //      the viewport-resolution bloom sigma and/or triad size to a smaller
+    //      scale.  This way, we could calculate an optimal dynamic sigma no
+    //      matter how the dot pitch is specified.
+    //  CONS:
+    //  1.) Texel smearing would be much worse at small viewport sizes, but
+    //      performance would be much worse at large viewport sizes, so there
+    //      would be no easy way to calculate a decent scale.
+    //  2.) Worse, we could no longer get away with using a constant-size blur!
+    //      Instead, we'd have to face all the same difficulties as the real
+    //      phosphor bloom, which requires static #ifdefs to decide the blur
+    //      size based on the expected triad size...a dynamic value.
+    //  3.) Like the phosphor bloom, we'd have less control over making the blur
+    //      size correct for an optical blur.  That said, we likely overblur (to
+    //      maintain brightness) more than the eye would do by itself: 20/20
+    //      human vision distinguishes ~1 arc minute, or 1/60 of a degree.  The
+    //      highest viewing angle recommendation I know of is THX's 40.04 degree
+    //      recommendation, at which 20/20 vision can distinguish about 2402.4
+    //      lines.  Assuming the "TV lines" definition, that means 1201.2
+    //      distinct light lines and 1201.2 distinct dark lines can be told
+    //      apart, i.e. 1201.2 pairs of lines.  This would correspond to 1201.2
+    //      pairs of alternating lit/unlit phosphors, so 2402.4 phosphors total
+    //      (if they're alternately lit).  That's a max of 800.8 triads.  Using
+    //      a more popular 30 degree viewing angle recommendation, 20/20 vision
+    //      can distinguish 1800 lines, or 600 triads of alternately lit
+    //      phosphors.  In contrast, we currently blur phosphors all the way
+    //      down to 341.3 triads to ensure full brightness.
+    //  4.) Realistically speaking, we're usually just going to use bilinear
+    //      filtering in this pass anyway, but it only works well to limit
+    //      bandwidth if it's done at a small constant scale.
+
+    //  Get the constants we need to sample:
+    const float2 tex_uv = pos;
+    float2 tex_uv_r, tex_uv_g, tex_uv_b;
+    if (beam_misconvergence) {
+        const float2 convergence_offsets_r = get_convergence_offsets_r_vector();
+        const float2 convergence_offsets_g = get_convergence_offsets_g_vector();
+        const float2 convergence_offsets_b = get_convergence_offsets_b_vector();
+        tex_uv_r = tex_uv - convergence_offsets_r * uv_scanline_step;
+        tex_uv_g = tex_uv - convergence_offsets_g * uv_scanline_step;
+        tex_uv_b = tex_uv - convergence_offsets_b * uv_scanline_step;
+    }
+    //  Get the blur sigma:
+    const float bloom_approx_sigma = get_bloom_approx_sigma(BLOOM_APPROX_WIDTH,
+        estimated_viewport_size_x);
+
+    //  Sample the resized and blurred texture, and apply convergence offsets if
+    //  necessary.  Applying convergence offsets here triples our samples from
+    //  16/9/1 to 48/27/3, but faster and easier than sampling BLOOM_APPROX and
+    //  HALATION_BLUR 3 times at full resolution every time they're used.
+    float3 color_r, color_g, color_b, color;
+    if (bloom_approx_filter > 1.5) {
+        //  Use a 4x4 Gaussian resize.  This is slower but technically correct.
+        if (beam_misconvergence) {
+            color_r = tex2Dresize_gaussian4x4(tex2, samLinear, tex_uv_r,
+                blur_dxdy, texture_size, texture_size_inv,
+                tex_uv_to_pixel_scale, bloom_approx_sigma);
+            color_g = tex2Dresize_gaussian4x4(tex2, samLinear, tex_uv_g,
+                blur_dxdy, texture_size, texture_size_inv,
+                tex_uv_to_pixel_scale, bloom_approx_sigma);
+            color_b = tex2Dresize_gaussian4x4(tex2, samLinear, tex_uv_b,
+                blur_dxdy, texture_size, texture_size_inv,
+                tex_uv_to_pixel_scale, bloom_approx_sigma);
+        } else {
+            color = tex2Dresize_gaussian4x4(tex2, samLinear, tex_uv,
+                blur_dxdy, texture_size, texture_size_inv,
+                tex_uv_to_pixel_scale, bloom_approx_sigma);
+        }
+    } else if (bloom_approx_filter > 0.5) {
+        //  Use a 3x3 resize blur.  This is the softest option, because we're
+        //  blurring already blurry bilinear samples.  It doesn't play quite as
+        //  nicely with convergence offsets, but it has its charms.
+        if (beam_misconvergence) {
+            color_r = tex2Dblur3x3resize(tex2, samLinear, tex_uv_r,
+                blur_dxdy, bloom_approx_sigma);
+            color_g = tex2Dblur3x3resize(tex2, samLinear, tex_uv_g,
+                blur_dxdy, bloom_approx_sigma);
+            color_b = tex2Dblur3x3resize(tex2, samLinear, tex_uv_b,
+                blur_dxdy, bloom_approx_sigma);
+        } else {
+            color = tex2Dblur3x3resize(tex2, samLinear, tex_uv, blur_dxdy);
+        }
+    } else {
+        //  Use bilinear sampling.  This approximates a 4x4 Gaussian resize MUCH
+        //  better than tex2Dblur3x3_resize for the very small sigmas we're
+        //  likely to use at small output resolutions.  (This estimate becomes
+        //  too sharp above ~400x300, but the blurs break down above that
+        //  resolution too, unless min_allowed_viewport_triads is high enough to
+        //  keep bloom_approx_scale_x/min_allowed_viewport_triads < ~1.1658025.)
+        if (beam_misconvergence) {
+            color_r = tex2D_linearize(tex2, samLinear, tex_uv_r).rgb;
+            color_g = tex2D_linearize(tex2, samLinear, tex_uv_g).rgb;
+            color_b = tex2D_linearize(tex2, samLinear, tex_uv_b).rgb;
+        } else {
+            color = tex2D_linearize(tex2, samLinear, tex_uv).rgb;
+        }
+    }
+    //  Pack the colors from the red/green/blue beams into a single vector:
+    if (beam_misconvergence) {
+        color = float3(color_r.r, color_g.g, color_b.b);
+    }
+    //  Encode and output the blurred image:
+    return encode_output(float4(color, 1.0));
 }
