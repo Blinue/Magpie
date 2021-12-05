@@ -479,18 +479,6 @@ SamplerState samLinear;
 //  in this profile
 #define DRIVERS_ALLOW_TEX2DBIAS
 
-//  Integrated graphics compatibility: Integrated graphics like Intel HD 4000
-//  impose stricter limitations on register counts and instructions.  Enable
-//  INTEGRATED_GRAPHICS_COMPATIBILITY_MODE if you still see error C6001 or:
-//  error C6002: Instruction limit of 1024 exceeded: 1523 instructions needed
-//  to compile program.
-//  Enabling integrated graphics compatibility mode will automatically disable:
-//  1.) PHOSPHOR_MASK_MANUALLY_RESIZE: The phosphor mask will be softer.
-//      (This may be reenabled in a later release.)
-//  2.) RUNTIME_GEOMETRY_MODE
-//  3.) The high-quality 4x4 Gaussian resize for the bloom approximation
-	//#define INTEGRATED_GRAPHICS_COMPATIBILITY_MODE
-
 
 ////////////////////////////  USER CODEPATH OPTIONS  ///////////////////////////
 
@@ -549,42 +537,23 @@ SamplerState samLinear;
 //  parameters when those are enabled.  However, many others are static codepath
 //  options that were cleaner or more convert to code as static constants.
 
-//  GAMMA:
-static const float crt_gamma_static = 2.5;                  //  range [1, 5]
-static const float lcd_gamma_static = 2.2;                  //  range [1, 5]
 
-//  LEVELS MANAGEMENT:
-	//  Control the final multiplicative image contrast:
-static const float levels_contrast_static = 1.0;            //  range [0, 4)
 //  We auto-dim to avoid clipping between passes and restore brightness
 //  later.  Control the dim factor here: Lower values clip less but crush
 //  blacks more (static only for now).
 static const float levels_autodim_temp = 0.5;               //  range (0, 1]
 
-//  HALATION/DIFFUSION/BLOOM:
-	//  Halation weight: How much energy should be lost to electrons bounding
-	//  around under the CRT glass and exciting random phosphors?
-static const float halation_weight_static = 0.0;            //  range [0, 1]
-//  Refractive diffusion weight: How much light should spread/diffuse from
-//  refracting through the CRT glass?
-static const float diffusion_weight_static = 0.075;         //  range [0, 1]
-//  Underestimate brightness: Bright areas bloom more, but we can base the
-//  bloom brightpass on a lower brightness to sharpen phosphors, or a higher
-//  brightness to soften them.  Low values clip, but >= 0.8 looks okay.
-static const float bloom_underestimate_levels_static = 0.8; //  range [0, 5]
-//  Blur all colors more than necessary for a softer phosphor bloom?
-static const float bloom_excess_static = 0.0;               //  range [0, 1]
 //  The BLOOM_APPROX pass approximates a phosphor blur early on with a small
-//  blurred resize of the input (convergence offsets are applied as well).
-//  There are three filter options (static option only for now):
-//  0.) Bilinear resize: A fast, close approximation to a 4x4 resize
-//      if min_allowed_viewport_triads and the BLOOM_APPROX resolution are sane
-//      and beam_max_sigma is low.
-//  1.) 3x3 resize blur: Medium speed, soft/smeared from bilinear blurring,
-//      always uses a static sigma regardless of beam_max_sigma or
-//      mask_num_triads_desired.
-//  2.) True 4x4 Gaussian resize: Slowest, technically correct.
-//  These options are more pronounced for the fast, unbloomed shader version.
+	//  blurred resize of the input (convergence offsets are applied as well).
+	//  There are three filter options (static option only for now):
+	//  0.) Bilinear resize: A fast, close approximation to a 4x4 resize
+	//      if min_allowed_viewport_triads and the BLOOM_APPROX resolution are sane
+	//      and beam_max_sigma is low.
+	//  1.) 3x3 resize blur: Medium speed, soft/smeared from bilinear blurring,
+	//      always uses a static sigma regardless of beam_max_sigma or
+	//      mask_num_triads_desired.
+	//  2.) True 4x4 Gaussian resize: Slowest, technically correct.
+	//  These options are more pronounced for the fast, unbloomed shader version.
 static const float bloom_approx_filter_static = 2.0;
 
 //  ELECTRON BEAM SCANLINE DISTRIBUTION:
@@ -608,52 +577,19 @@ static const bool beam_generalized_gaussian = true;
 //  better than 3x antialiasing (static option only for now).
 static const float beam_antialias_level = 1.0;              //  range [0, 2]
 //  Min/max standard deviations for scanline beams: Higher values widen and
-//  soften scanlines.  Depending on other options, low min sigmas can alias.
+	//  soften scanlines.  Depending on other options, low min sigmas can alias.
 static const float beam_min_sigma_static = 0.02;            //  range (0, 1]
 static const float beam_max_sigma_static = 0.3;             //  range (0, 1]
 //  Beam width varies as a function of color: A power function (0) is more
 //  configurable, but a spherical function (1) gives the widest beam
 //  variability without aliasing (static option only for now).
 static const float beam_spot_shape_function = 0.0;
-//  Spot shape power: Powers <= 1 give smoother spot shapes but lower
-//  sharpness.  Powers >= 1.0 are awful unless mix/max sigmas are close.
-static const float beam_spot_power_static = 1.0 / 3.0;    //  range (0, 16]
-//  Generalized Gaussian max shape parameters: Higher values give flatter
-//  scanline plateaus and steeper dropoffs, simultaneously widening and
-//  sharpening scanlines at the cost of aliasing.  2.0 is pure Gaussian, and
-//  values > ~40.0 cause artifacts with integrals.
-static const float beam_min_shape_static = 2.0;         //  range [2, 32]
-static const float beam_max_shape_static = 4.0;         //  range [2, 32]
-//  Generalized Gaussian shape power: Affects how quickly the distribution
-//  changes shape from Gaussian to steep/plateaued as color increases from 0
-//  to 1.0.  Higher powers appear softer for most colors, and lower powers
-//  appear sharper for most colors.
-static const float beam_shape_power_static = 1.0 / 4.0;   //  range (0, 16]
-//  What filter should be used to sample scanlines horizontally?
-//  0: Quilez (fast), 1: Gaussian (configurable), 2: Lanczos2 (sharp)
-static const float beam_horiz_filter_static = 0.0;
-//  Standard deviation for horizontal Gaussian resampling:
-static const float beam_horiz_sigma_static = 0.35;      //  range (0, 2/3]
-//  Do horizontal scanline sampling in linear RGB (correct light mixing),
-//  gamma-encoded RGB (darker, hard spot shape, may better match bandwidth-
-//  limiting circuitry in some CRT's), or a weighted avg.?
-static const float beam_horiz_linear_rgb_weight_static = 1.0;   //  range [0, 1]
 //  Simulate scanline misconvergence?  This needs 3x horizontal texture
 //  samples and 3x texture samples of BLOOM_APPROX and HALATION_BLUR in
 //  later passes (static option only for now).
 static const bool beam_misconvergence = true;
-//  Convergence offsets in x/y directions for R/G/B scanline beams in units
-//  of scanlines.  Positive offsets go right/down; ranges [-2, 2]
-static const float2 convergence_offsets_r_static = float2(0.1, 0.2);
-static const float2 convergence_offsets_g_static = float2(0.3, 0.4);
-static const float2 convergence_offsets_b_static = float2(0.5, 0.6);
 //  Detect interlacing (static option only for now)?
 static const bool interlace_detect = true;
-//  Assume 1080-line sources are interlaced?
-static const bool interlace_1080i_static = false;
-//  For interlaced sources, assume TFF (top-field first) or BFF order?
-//  (Whether this matters depends on the nature of the interlaced input.)
-static const bool interlace_bff_static = false;
 
 //  ANTIALIASING:
 	//  What AA level do you want for curvature/overscan/subpixels?  Options:
@@ -724,15 +660,6 @@ static const float mask_sinc_lobes = 3.0;                   //  range [2, 4]
 static const float mask_min_allowed_triad_size = 2.0;
 
 //  GEOMETRY:
-	//  Geometry mode:
-	//  0: Off (default), 1: Spherical mapping (like cgwg's),
-	//  2: Alt. spherical mapping (more bulbous), 3: Cylindrical/Trinitron
-static const float geom_mode_static = 0.0;      //  range [0, 3]
-//  Radius of curvature: Measured in units of your viewport's diagonal size.
-static const float geom_radius_static = 2.0;    //  range [1/(2*pi), 1024]
-//  View dist is the distance from the player to their physical screen, in
-//  units of the viewport's diagonal size.  It controls the field of view.
-static const float geom_view_dist_static = 2.0; //  range [0.5, 1024]
 //  Tilt angle in radians (clockwise around up and right vectors):
 static const float2 geom_tilt_angle_static = float2(0.0, 0.0);  //  range [-pi, pi]
 //  Aspect ratio: When the true viewport size is unknown, this value is used
@@ -742,43 +669,416 @@ static const float2 geom_tilt_angle_static = float2(0.0, 0.0);  //  range [-pi, 
 //  range [1, geom_max_aspect_ratio from user-cgp-constants.h];
 //  default (256/224)*(54/47) = 1.313069909 (see below)
 static const float geom_aspect_ratio_static = 1.313069909;
-//  Before getting into overscan, here's some general aspect ratio info:
-//  - DAR = display aspect ratio = SAR * PAR; as in your Retroarch setting
-//  - SAR = storage aspect ratio = DAR / PAR; square pixel emulator frame AR
-//  - PAR = pixel aspect ratio   = DAR / SAR; holds regardless of cropping
-//  Geometry processing has to "undo" the screen-space 2D DAR to calculate
-//  3D view vectors, then reapplies the aspect ratio to the simulated CRT in
-//  uv-space.  To ensure the source SAR is intended for a ~4:3 DAR, either:
-//  a.) Enable Retroarch's "Crop Overscan"
-//  b.) Readd horizontal padding: Set overscan to e.g. N*(1.0, 240.0/224.0)
-//  Real consoles use horizontal black padding in the signal, but emulators
-//  often crop this without cropping the vertical padding; a 256x224 [S]NES
-//  frame (8:7 SAR) is intended for a ~4:3 DAR, but a 256x240 frame is not.
-//  The correct [S]NES PAR is 54:47, found by blargg and NewRisingSun:
-//      http://board.zsnes.com/phpBB3/viewtopic.php?f=22&t=11928&start=50
-//      http://forums.nesdev.com/viewtopic.php?p=24815#p24815
-//  For flat output, it's okay to set DAR = [existing] SAR * [correct] PAR
-//  without doing a. or b., but horizontal image borders will be tighter
-//  than vertical ones, messing up curvature and overscan.  Fixing the
-//  padding first corrects this.
-//  Overscan: Amount to "zoom in" before cropping.  You can zoom uniformly
-//  or adjust x/y independently to e.g. readd horizontal padding, as noted
-//  above: Values < 1.0 zoom out; range (0, inf)
-static const float2 geom_overscan_static = float2(1.0, 1.0);// * 1.005 * (1.0, 240/224.0)
 //  Compute a proper pixel-space to texture-space matrix even without ddx()/
 //  ddy()?  This is ~8.5% slower but improves antialiasing/subpixel filtering
 //  with strong curvature (static option only for now).
 static const bool geom_force_correct_tangent_matrix = true;
 
-//  BORDERS:
-	//  Rounded border size in texture uv coords:
-static const float border_size_static = 0.015;           //  range [0, 0.5]
-//  Border darkness: Moderate values darken the border smoothly, and high
-//  values make the image very dark just inside the border:
-static const float border_darkness_static = 2.0;        //  range [0, inf)
-//  Border compression: High numbers compress border transitions, narrowing
-//  the dark border area.
-static const float border_compress_static = 2.5;        //  range [1, inf)
+
+//  IMPORTANT:
+//  These constants MUST be set appropriately for the settings in crt-royale.cgp
+//  (or whatever related .cgp file you're using).  If they aren't, you're likely
+//  to get artifacts, the wrong phosphor mask size, etc.  I wish these could be
+//  set directly in the .cgp file to make things easier, but...they can't.
+
+//  PASS SCALES AND RELATED CONSTANTS:
+//  Copy the absolute scale_x for BLOOM_APPROX.  There are two major versions of
+//  this shader: One does a viewport-scale bloom, and the other skips it.  The
+//  latter benefits from a higher bloom_approx_scale_x, so save both separately:
+static const float bloom_approx_size_x = 320.0;
+static const float bloom_approx_size_x_for_fake = 400.0;
+static const float bloom_approx_scale_x = 320;
+//  Copy the viewport-relative scales of the phosphor mask resize passes
+//  (MASK_RESIZE and the pass immediately preceding it):
+static const float2 mask_resize_viewport_scale = float2(0.0625, 0.0625);
+//  Copy the geom_max_aspect_ratio used to calculate the MASK_RESIZE scales, etc.:
+static const float geom_max_aspect_ratio = 4.0 / 3.0;
+
+//  PHOSPHOR MASK TEXTURE CONSTANTS:
+//  Set the following constants to reflect the properties of the phosphor mask
+//  texture named in crt-royale.cgp.  The shader optionally resizes a mask tile
+//  based on user settings, then repeats a single tile until filling the screen.
+//  The shader must know the input texture size (default 64x64), and to manually
+//  resize, it must also know the horizontal triads per tile (default 8).
+static const float2 mask_texture_small_size = float2(64, 64);
+static const float2 mask_texture_large_size = float2(512, 512);
+static const float mask_triads_per_tile = 8.0;
+//  We need the average brightness of the phosphor mask to compensate for the
+//  dimming it causes.  The following four values are roughly correct for the
+//  masks included with the shader.  Update the value for any LUT texture you
+//  change.  [Un]comment "#define PHOSPHOR_MASK_GRILLE14" depending on whether
+//  the loaded aperture grille uses 14-pixel or 15-pixel stripes (default 15).
+//#define PHOSPHOR_MASK_GRILLE14
+static const float mask_grille14_avg_color = 50.6666666 / 255.0;
+//  TileableLinearApertureGrille14Wide7d33Spacing*.png
+//  TileableLinearApertureGrille14Wide10And6Spacing*.png
+static const float mask_grille15_avg_color = 53.0 / 255.0;
+//  TileableLinearApertureGrille15Wide6d33Spacing*.png
+//  TileableLinearApertureGrille15Wide8And5d5Spacing*.png
+static const float mask_slot_avg_color = 46.0 / 255.0;
+//  TileableLinearSlotMask15Wide9And4d5Horizontal8VerticalSpacing*.png
+//  TileableLinearSlotMaskTall15Wide9And4d5Horizontal9d14VerticalSpacing*.png
+static const float mask_shadow_avg_color = 41.0 / 255.0;
+//  TileableLinearShadowMask*.png
+//  TileableLinearShadowMaskEDP*.png
+
+#ifdef PHOSPHOR_MASK_GRILLE14
+static const float mask_grille_avg_color = mask_grille14_avg_color;
+#else
+static const float mask_grille_avg_color = mask_grille15_avg_color;
+#endif
+
+//  Avoid dividing by zero; using a macro overloads for float, float2, etc.:
+#define FIX_ZERO(c) (max(abs(c), 0.0000152587890625))   //  2^-16
+
+//  Ensure the first pass decodes CRT gamma and the last encodes LCD gamma.
+#ifndef SIMULATE_CRT_ON_LCD
+#define SIMULATE_CRT_ON_LCD
+#endif
+
+//  Manually tiling a manually resized texture creates texture coord derivative
+//  discontinuities and confuses anisotropic filtering, causing discolored tile
+//  seams in the phosphor mask.  Workarounds:
+//  a.) Using tex2Dlod disables anisotropic filtering for tiled masks.  It's
+//      downgraded to tex2Dbias without DRIVERS_ALLOW_TEX2DLOD #defined and
+//      disabled without DRIVERS_ALLOW_TEX2DBIAS #defined either.
+//  b.) "Tile flat twice" requires drawing two full tiles without border padding
+//      to the resized mask FBO, and it's incompatible with same-pass curvature.
+//      (Same-pass curvature isn't used but could be in the future...maybe.)
+//  c.) "Fix discontinuities" requires derivatives and drawing one tile with
+//      border padding to the resized mask FBO, but it works with same-pass
+//      curvature.  It's disabled without DRIVERS_ALLOW_DERIVATIVES #defined.
+//  Precedence: a, then, b, then c (if multiple strategies are #defined).
+#define ANISOTROPIC_TILING_COMPAT_TEX2DLOD              //  129.7 FPS, 4x, flat; 101.8 at fullscreen
+#define ANISOTROPIC_TILING_COMPAT_TILE_FLAT_TWICE       //  128.1 FPS, 4x, flat; 101.5 at fullscreen
+#define ANISOTROPIC_TILING_COMPAT_FIX_DISCONTINUITIES   //  124.4 FPS, 4x, flat; 97.4 at fullscreen
+//  Also, manually resampling the phosphor mask is slightly blurrier with
+//  anisotropic filtering.  (Resampling with mipmapping is even worse: It
+//  creates artifacts, but only with the fully bloomed shader.)  The difference
+//  is subtle with small triads, but you can fix it for a small cost.
+	//#define ANISOTROPIC_RESAMPLING_COMPAT_TEX2DLOD
+
+
+//////////////////////////////  DERIVED SETTINGS  //////////////////////////////
+static const float bloom_approx_filter = bloom_approx_filter_static;
+
+//  Disable slow runtime paths if static parameters are used.  Most of these
+//  won't be a problem anyway once the params are disabled, but some will.
+#ifndef RUNTIME_SHADER_PARAMS_ENABLE
+#ifdef RUNTIME_PHOSPHOR_BLOOM_SIGMA
+#undef RUNTIME_PHOSPHOR_BLOOM_SIGMA
+#endif
+#ifdef RUNTIME_ANTIALIAS_WEIGHTS
+#undef RUNTIME_ANTIALIAS_WEIGHTS
+#endif
+#ifdef RUNTIME_ANTIALIAS_SUBPIXEL_OFFSETS
+#undef RUNTIME_ANTIALIAS_SUBPIXEL_OFFSETS
+#endif
+#ifdef RUNTIME_SCANLINES_HORIZ_FILTER_COLORSPACE
+#undef RUNTIME_SCANLINES_HORIZ_FILTER_COLORSPACE
+#endif
+#ifdef RUNTIME_GEOMETRY_TILT
+#undef RUNTIME_GEOMETRY_TILT
+#endif
+#ifdef RUNTIME_GEOMETRY_MODE
+#undef RUNTIME_GEOMETRY_MODE
+#endif
+#ifdef FORCE_RUNTIME_PHOSPHOR_MASK_MODE_TYPE_SELECT
+#undef FORCE_RUNTIME_PHOSPHOR_MASK_MODE_TYPE_SELECT
+#endif
+#endif
+
+//  Make tex2Dbias a backup for tex2Dlod for wider compatibility.
+#ifdef ANISOTROPIC_TILING_COMPAT_TEX2DLOD
+#define ANISOTROPIC_TILING_COMPAT_TEX2DBIAS
+#endif
+#ifdef ANISOTROPIC_RESAMPLING_COMPAT_TEX2DLOD
+#define ANISOTROPIC_RESAMPLING_COMPAT_TEX2DBIAS
+#endif
+//  Rule out unavailable anisotropic compatibility strategies:
+#ifndef DRIVERS_ALLOW_DERIVATIVES
+#ifdef ANISOTROPIC_TILING_COMPAT_FIX_DISCONTINUITIES
+#undef ANISOTROPIC_TILING_COMPAT_FIX_DISCONTINUITIES
+#endif
+#endif
+#ifndef DRIVERS_ALLOW_TEX2DLOD
+#ifdef ANISOTROPIC_TILING_COMPAT_TEX2DLOD
+#undef ANISOTROPIC_TILING_COMPAT_TEX2DLOD
+#endif
+#ifdef ANISOTROPIC_RESAMPLING_COMPAT_TEX2DLOD
+#undef ANISOTROPIC_RESAMPLING_COMPAT_TEX2DLOD
+#endif
+#ifdef ANTIALIAS_DISABLE_ANISOTROPIC
+#undef ANTIALIAS_DISABLE_ANISOTROPIC
+#endif
+#endif
+#ifndef DRIVERS_ALLOW_TEX2DBIAS
+#ifdef ANISOTROPIC_TILING_COMPAT_TEX2DBIAS
+#undef ANISOTROPIC_TILING_COMPAT_TEX2DBIAS
+#endif
+#ifdef ANISOTROPIC_RESAMPLING_COMPAT_TEX2DBIAS
+#undef ANISOTROPIC_RESAMPLING_COMPAT_TEX2DBIAS
+#endif
+#endif
+//  Prioritize anisotropic tiling compatibility strategies by performance and
+//  disable unused strategies.  This concentrates all the nesting in one place.
+#ifdef ANISOTROPIC_TILING_COMPAT_TEX2DLOD
+#ifdef ANISOTROPIC_TILING_COMPAT_TEX2DBIAS
+#undef ANISOTROPIC_TILING_COMPAT_TEX2DBIAS
+#endif
+#ifdef ANISOTROPIC_TILING_COMPAT_TILE_FLAT_TWICE
+#undef ANISOTROPIC_TILING_COMPAT_TILE_FLAT_TWICE
+#endif
+#ifdef ANISOTROPIC_TILING_COMPAT_FIX_DISCONTINUITIES
+#undef ANISOTROPIC_TILING_COMPAT_FIX_DISCONTINUITIES
+#endif
+#else
+#ifdef ANISOTROPIC_TILING_COMPAT_TEX2DBIAS
+#ifdef ANISOTROPIC_TILING_COMPAT_TILE_FLAT_TWICE
+#undef ANISOTROPIC_TILING_COMPAT_TILE_FLAT_TWICE
+#endif
+#ifdef ANISOTROPIC_TILING_COMPAT_FIX_DISCONTINUITIES
+#undef ANISOTROPIC_TILING_COMPAT_FIX_DISCONTINUITIES
+#endif
+#else
+	//  ANISOTROPIC_TILING_COMPAT_TILE_FLAT_TWICE is only compatible with
+	//  flat texture coords in the same pass, but that's all we use.
+#ifdef ANISOTROPIC_TILING_COMPAT_TILE_FLAT_TWICE
+#ifdef ANISOTROPIC_TILING_COMPAT_FIX_DISCONTINUITIES
+#undef ANISOTROPIC_TILING_COMPAT_FIX_DISCONTINUITIES
+#endif
+#endif
+#endif
+#endif
+//  The tex2Dlod and tex2Dbias strategies share a lot in common, and we can
+//  reduce some #ifdef nesting in the next section by essentially OR'ing them:
+#ifdef ANISOTROPIC_TILING_COMPAT_TEX2DLOD
+#define ANISOTROPIC_TILING_COMPAT_TEX2DLOD_FAMILY
+#endif
+#ifdef ANISOTROPIC_TILING_COMPAT_TEX2DBIAS
+#define ANISOTROPIC_TILING_COMPAT_TEX2DLOD_FAMILY
+#endif
+//  Prioritize anisotropic resampling compatibility strategies the same way:
+#ifdef ANISOTROPIC_RESAMPLING_COMPAT_TEX2DLOD
+#ifdef ANISOTROPIC_RESAMPLING_COMPAT_TEX2DBIAS
+#undef ANISOTROPIC_RESAMPLING_COMPAT_TEX2DBIAS
+#endif
+#endif
+
+
+///////////////////////  DERIVED PHOSPHOR MASK CONSTANTS  //////////////////////
+
+//  If we can use the large mipmapped LUT without mipmapping artifacts, we
+//  should: It gives us more options for using fewer samples.
+#ifdef DRIVERS_ALLOW_TEX2DLOD
+#ifdef ANISOTROPIC_RESAMPLING_COMPAT_TEX2DLOD
+	//  TODO: Take advantage of this!
+#define PHOSPHOR_MASK_RESIZE_MIPMAPPED_LUT
+static const float2 mask_resize_src_lut_size = mask_texture_large_size;
+#else
+static const float2 mask_resize_src_lut_size = mask_texture_small_size;
+#endif
+#else
+static const float2 mask_resize_src_lut_size = mask_texture_small_size;
+#endif
+
+
+//  tex2D's sampler2D parameter MUST be a uniform global, a uniform input to
+//  main_fragment, or a static alias of one of the above.  This makes it hard
+//  to select the phosphor mask at runtime: We can't even assign to a uniform
+//  global in the vertex shader or select a sampler2D in the vertex shader and
+//  pass it to the fragment shader (even with explicit TEXUNIT# bindings),
+//  because it just gives us the input texture or a black screen.  However, we
+//  can get around these limitations by calling tex2D three times with different
+//  uniform samplers (or resizing the phosphor mask three times altogether).
+//  With dynamic branches, we can process only one of these branches on top of
+//  quickly discarding fragments we don't need (cgc seems able to overcome
+//  limitations around dependent texture fetches inside of branches).  Without
+//  dynamic branches, we have to process every branch for every fragment...which
+//  is slower.  Runtime sampling mode selection is slower without dynamic
+//  branches as well.  Let the user's static #defines decide if it's worth it.
+#ifdef DRIVERS_ALLOW_DYNAMIC_BRANCHES
+#define RUNTIME_PHOSPHOR_MASK_MODE_TYPE_SELECT
+#else
+#ifdef FORCE_RUNTIME_PHOSPHOR_MASK_MODE_TYPE_SELECT
+#define RUNTIME_PHOSPHOR_MASK_MODE_TYPE_SELECT
+#endif
+#endif
+
+//  We need to render some minimum number of tiles in the resize passes.
+//  We need at least 1.0 just to repeat a single tile, and we need extra
+//  padding beyond that for anisotropic filtering, discontinuitity fixing,
+//  antialiasing, same-pass curvature (not currently used), etc.  First
+//  determine how many border texels and tiles we need, based on how the result
+//  will be sampled:
+#ifdef GEOMETRY_EARLY
+static const float max_subpixel_offset = aa_subpixel_r_offset_static.x;
+//  Most antialiasing filters have a base radius of 4.0 pixels:
+static const float max_aa_base_pixel_border = 4.0 +
+max_subpixel_offset;
+#else
+static const float max_aa_base_pixel_border = 0.0;
+#endif
+//  Anisotropic filtering adds about 0.5 to the pixel border:
+#ifndef ANISOTROPIC_TILING_COMPAT_TEX2DLOD_FAMILY
+static const float max_aniso_pixel_border = max_aa_base_pixel_border + 0.5;
+#else
+static const float max_aniso_pixel_border = max_aa_base_pixel_border;
+#endif
+//  Fixing discontinuities adds 1.0 more to the pixel border:
+#ifdef ANISOTROPIC_TILING_COMPAT_FIX_DISCONTINUITIES
+static const float max_tiled_pixel_border = max_aniso_pixel_border + 1.0;
+#else
+static const float max_tiled_pixel_border = max_aniso_pixel_border;
+#endif
+//  Convert the pixel border to an integer texel border.  Assume same-pass
+//  curvature about triples the texel frequency:
+#ifdef GEOMETRY_EARLY
+static const float max_mask_texel_border =
+ceil(max_tiled_pixel_border * 3.0);
+#else
+static const float max_mask_texel_border = ceil(max_tiled_pixel_border);
+#endif
+//  Convert the texel border to a tile border using worst-case assumptions:
+static const float max_mask_tile_border = max_mask_texel_border /
+(mask_min_allowed_triad_size * mask_triads_per_tile);
+
+//  Finally, set the number of resized tiles to render to MASK_RESIZE, and set
+//  the starting texel (inside borders) for sampling it.
+#ifndef GEOMETRY_EARLY
+#ifdef ANISOTROPIC_TILING_COMPAT_TILE_FLAT_TWICE
+	//  Special case: Render two tiles without borders.  Anisotropic
+	//  filtering doesn't seem to be a problem here.
+static const float mask_resize_num_tiles = 1.0 + 1.0;
+static const float mask_start_texels = 0.0;
+#else
+static const float mask_resize_num_tiles = 1.0 +
+2.0 * max_mask_tile_border;
+static const float mask_start_texels = max_mask_texel_border;
+#endif
+#else
+static const float mask_resize_num_tiles = 1.0 + 2.0 * max_mask_tile_border;
+static const float mask_start_texels = max_mask_texel_border;
+#endif
+
+//  We have to fit mask_resize_num_tiles into an FBO with a viewport scale of
+//  mask_resize_viewport_scale.  This limits the maximum final triad size.
+//  Estimate the minimum number of triads we can split the screen into in each
+//  dimension (we'll be as correct as mask_resize_viewport_scale is):
+static const float mask_resize_num_triads =
+mask_resize_num_tiles * mask_triads_per_tile;
+static const float2 min_allowed_viewport_triads =
+float2(mask_resize_num_triads, mask_resize_num_triads) / mask_resize_viewport_scale;
+
+
+////////////////////////  COMMON MATHEMATICAL CONSTANTS  ///////////////////////
+
+static const float pi = 3.141592653589;
+//  We often want to find the location of the previous texel, e.g.:
+//      const float2 curr_texel = uv * texture_size;
+//      const float2 prev_texel = floor(curr_texel - float2(0.5)) + float2(0.5);
+//      const float2 prev_texel_uv = prev_texel / texture_size;
+//  However, many GPU drivers round incorrectly around exact texel locations.
+//  We need to subtract a little less than 0.5 before flooring, and some GPU's
+//  require this value to be farther from 0.5 than others; define it here.
+//      const float2 prev_texel =
+//          floor(curr_texel - float2(under_half)) + float2(0.5);
+static const float under_half = 0.4995;
+
+
+//  Override some parameters for gamma-management.h and tex2Dantialias.h:
+#define OVERRIDE_DEVICE_GAMMA
+static const float gba_gamma = 3.5; //  Irrelevant but necessary to define.
+#define ANTIALIAS_OVERRIDE_BASICS
+#define ANTIALIAS_OVERRIDE_PARAMETERS
+
+//  Disable runtime shader params if the user doesn't explicitly want them.
+//  Static constants will be defined in place of uniforms of the same name.
+#ifndef RUNTIME_SHADER_PARAMS_ENABLE
+#undef PARAMETER_UNIFORM
+#endif
+
+
+//  Provide accessors for vector constants that pack scalar uniforms:
+float2 get_aspect_vector(const float geom_aspect_ratio) {
+	//  Get an aspect ratio vector.  Enforce geom_max_aspect_ratio, and prevent
+	//  the absolute scale from affecting the uv-mapping for curvature:
+	const float geom_clamped_aspect_ratio =
+		min(geom_aspect_ratio, geom_max_aspect_ratio);
+	const float2 geom_aspect =
+		normalize(float2(geom_clamped_aspect_ratio, 1.0));
+	return geom_aspect;
+}
+
+float2 get_geom_overscan_vector() {
+	return float2(geom_overscan_x, geom_overscan_y);
+}
+
+float2 get_geom_tilt_angle_vector() {
+	return float2(geom_tilt_angle_x, geom_tilt_angle_y);
+}
+
+float3 get_convergence_offsets_x_vector() {
+	return float3(convergence_offset_x_r, convergence_offset_x_g,
+		convergence_offset_x_b);
+}
+
+float3 get_convergence_offsets_y_vector() {
+	return float3(convergence_offset_y_r, convergence_offset_y_g,
+		convergence_offset_y_b);
+}
+
+float2 get_convergence_offsets_r_vector() {
+	return float2(convergence_offset_x_r, convergence_offset_y_r);
+}
+
+float2 get_convergence_offsets_g_vector() {
+	return float2(convergence_offset_x_g, convergence_offset_y_g);
+}
+
+float2 get_convergence_offsets_b_vector() {
+	return float2(convergence_offset_x_b, convergence_offset_y_b);
+}
+
+float2 get_aa_subpixel_r_offset() {
+#ifdef RUNTIME_ANTIALIAS_WEIGHTS
+#ifdef RUNTIME_ANTIALIAS_SUBPIXEL_OFFSETS
+	//  WARNING: THIS IS EXTREMELY EXPENSIVE.
+	return float2(aa_subpixel_r_offset_x_runtime,
+		aa_subpixel_r_offset_y_runtime);
+#else
+	return aa_subpixel_r_offset_static;
+#endif
+#else
+	return aa_subpixel_r_offset_static;
+#endif
+}
+
+//  Provide accessors settings which still need "cooking:"
+float get_mask_amplify() {
+	static const float mask_grille_amplify = 1.0 / mask_grille_avg_color;
+	static const float mask_slot_amplify = 1.0 / mask_slot_avg_color;
+	static const float mask_shadow_amplify = 1.0 / mask_shadow_avg_color;
+	return mask_type < 0.5 ? mask_grille_amplify :
+		mask_type < 1.5 ? mask_slot_amplify :
+		mask_shadow_amplify;
+}
+
+float get_mask_sample_mode() {
+#ifdef RUNTIME_PHOSPHOR_MASK_MODE_TYPE_SELECT
+#ifdef PHOSPHOR_MASK_MANUALLY_RESIZE
+	return mask_sample_mode_desired;
+#else
+	return clamp(mask_sample_mode_desired, 1.0, 2.0);
+#endif
+#else
+#ifdef PHOSPHOR_MASK_MANUALLY_RESIZE
+	return mask_sample_mode_static;
+#else
+	return clamp(mask_sample_mode_static, 1.0, 2.0);
+#endif
+#endif
+}
 
 
 //!PASS 1
@@ -795,7 +1095,6 @@ static const float border_compress_static = 2.5;        //  range [1, inf)
 #define FIRST_PASS
 #define SIMULATE_CRT_ON_LCD
 
-#include "CRT_Royale_bind-shader-params.hlsli"
 #include "CRT_Royale_gamma-management.hlsli"
 #include "CRT_Royale_scanline-functions.hlsli"
 
@@ -839,7 +1138,6 @@ float4 Pass1(float2 pos) {
 
 // 移植自 https://github.com/libretro/common-shaders/blob/master/crt/shaders/crt-royale/src/crt-royale-scanlines-vertical-interlacing.cg
 
-#include "CRT_Royale_bind-shader-params.hlsli"
 #include "CRT_Royale_scanline-functions.hlsli"
 #include "CRT_Royale_gamma-management.hlsli"
 
@@ -1000,7 +1298,6 @@ float4 Pass2(float2 pos) {
 
 // 移植自 https://github.com/libretro/common-shaders/blob/master/crt/shaders/crt-royale/src/crt-royale-bloom-approx.cg
 
-#include "CRT_Royale_bind-shader-params.hlsli"
 #include "CRT_Royale_scanline-functions.hlsli"
 #include "CRT_Royale_gamma-management.hlsli"
 #include "CRT_Royale_blur-functions.hlsli"
@@ -1328,7 +1625,6 @@ float4 Pass5(float2 pos) {
 
 // 移植自 https://github.com/libretro/common-shaders/blob/master/crt/shaders/crt-royale/src/crt-royale-mask-resize-vertical.cg
 
-#include "CRT_Royale_bind-shader-params.hlsli"
 #include "CRT_Royale_phosphor-mask-resizing.hlsli"
 
 
@@ -1426,7 +1722,6 @@ float4 Pass6(float2 pos) {
 
 // 移植自 https://github.com/libretro/common-shaders/blob/master/crt/shaders/crt-royale/src/crt-royale-mask-resize-horizontal.cg
 
-#include "CRT_Royale_bind-shader-params.hlsli"
 #include "CRT_Royale_phosphor-mask-resizing.hlsli"
 
 
@@ -1498,7 +1793,6 @@ float4 Pass7(float2 pos) {
 
 // 移植自 https://github.com/libretro/common-shaders/blob/master/crt/shaders/crt-royale/src/crt-royale-scanlines-horizontal-apply-mask.cg
 
-#include "CRT_Royale_bind-shader-params.hlsli"
 #include "CRT_Royale_scanline-functions.hlsli"
 #include "CRT_Royale_phosphor-mask-resizing.hlsli"
 #include "CRT_Royale_bloom-functions.hlsli"
@@ -1701,7 +1995,6 @@ float4 Pass8(float2 pos) {
 
 // 移植自 https://github.com/libretro/common-shaders/blob/master/crt/shaders/crt-royale/src/crt-royale-brightpass.cg
 
-#include "CRT_Royale_bind-shader-params.hlsli"
 #include "CRT_Royale_gamma-management.hlsli"
 #include "CRT_Royale_phosphor-mask-resizing.hlsli"
 #include "CRT_Royale_scanline-functions.hlsli"
@@ -1779,7 +2072,6 @@ float4 Pass9(float2 pos) {
 
 // 移植自 https://github.com/libretro/common-shaders/blob/master/crt/shaders/crt-royale/src/crt-royale-bloom-vertical.cg
 
-#include "CRT_Royale_bind-shader-params.hlsli"
 #include "CRT_Royale_gamma-management.hlsli"
 #include "CRT_Royale_phosphor-mask-resizing.hlsli"
 #include "CRT_Royale_bloom-functions.hlsli"
@@ -1811,7 +2103,6 @@ float4 Pass10(float2 pos) {
 
 // 移植自 https://github.com/libretro/common-shaders/blob/master/crt/shaders/crt-royale/src/crt-royale-bloom-horizontal-reconstitute.cg
 
-#include "CRT_Royale_bind-shader-params.hlsli"
 #include "CRT_Royale_gamma-management.hlsli"
 #include "CRT_Royale_bloom-functions.hlsli"
 #include "CRT_Royale_phosphor-mask-resizing.hlsli"
@@ -1877,7 +2168,6 @@ float4 Pass11(float2 pos) {
 
 #define LAST_PASS
 #define SIMULATE_CRT_ON_LCD
-#include "CRT_Royale_bind-shader-params.hlsli"
 
 #ifndef RUNTIME_GEOMETRY_TILT
 	//  Create a local-to-global rotation matrix for the CRT's coordinate frame

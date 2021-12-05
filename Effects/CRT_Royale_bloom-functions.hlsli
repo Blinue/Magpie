@@ -29,7 +29,6 @@
 //////////////////////////////////  INCLUDES  //////////////////////////////////
 
 //  We need to calculate the correct blur sigma using some .cgp constants:
-#include "CRT_Royale_derived-settings-and-constants.hlsli"
 #include "CRT_Royale_blur-functions.hlsli"
 
 

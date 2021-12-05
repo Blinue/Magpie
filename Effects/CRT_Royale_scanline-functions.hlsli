@@ -22,7 +22,6 @@
 
 //////////////////////////////////  INCLUDES  //////////////////////////////////
 
-#include "CRT_Royale_derived-settings-and-constants.hlsli"
 #include "CRT_Royale_special-functions.hlsli"
 #include "CRT_Royale_gamma-management.hlsli"
 

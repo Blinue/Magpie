@@ -20,10 +20,6 @@
 //  Place, Suite 330, Boston, MA 02111-1307 USA
 
 
-//////////////////////////////////  INCLUDES  //////////////////////////////////
-
-#include "CRT_Royale_derived-settings-and-constants.hlsli"
-
 /////////////////////////////  CODEPATH SELECTION  /////////////////////////////
 
 //  Choose a looping strategy based on what's allowed:
