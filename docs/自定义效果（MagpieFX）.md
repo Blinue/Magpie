@@ -54,13 +54,17 @@ Texture2D INPUT;
 Texture2D tex1;
 
 // 采样器定义
+// FILTER 必需，ADDRESS 可选
+// ADDRESS 默认值为 CLAMP
 
 //!SAMPLER
 //!FILTER LINEAR
+//!ADDRESS CLAMP
 SamplerState sam1;
 
 //!SAMPLER
 //!FILTER POINT
+//!ADDRESS WRAP
 SamplerState sam2;
 
 // 所有 Pass 通用的部分
