@@ -308,14 +308,6 @@ float4 tex2D_linearize(Texture2D tex, SamplerState sam, const float2 tex_coords,
 	return decode_input(tex.Sample(sam, tex_coords, texel_off));
 }
 
-float4 tex2D_linearize(Texture2D tex, SamplerState sam, const float2 tex_coords, const float2 dx, const float2 dy) {
-	return decode_input(tex.SampleGrad(sam, tex_coords, dx, dy));
-}
-
-float4 tex2D_linearize(Texture2D tex, SamplerState sam, const float2 tex_coords, const float2 dx, const float2 dy, const int texel_off) {
-	return decode_input(tex.SampleGrad(sam, tex_coords, dx, dy, texel_off));
-}
-
 //  tex2Dbias:
 float4 tex2Dbias_linearize(Texture2D tex, SamplerState sam, const float4 tex_coords) {
 	return decode_input(tex.SampleBias(sam, tex_coords.xy, tex_coords.w));
@@ -323,15 +315,6 @@ float4 tex2Dbias_linearize(Texture2D tex, SamplerState sam, const float4 tex_coo
 
 float4 tex2Dbias_linearize(Texture2D tex, SamplerState sam, const float4 tex_coords, const int texel_off) {
 	return decode_input(tex.SampleBias(sam, tex_coords.xy, tex_coords.w, texel_off));
-}
-
-//  tex2Dfetch:
-float4 tex2Dfetch_linearize(Texture2D tex, const int4 tex_coords) {
-	return decode_input(tex.Load(tex_coords.xyw));
-}
-
-float4 tex2Dfetch_linearize(Texture2D tex, const int4 tex_coords, const int texel_off) {
-	return decode_input(tex.Load(tex_coords.xyw, texel_off));
 }
 
 //  tex2Dlod:

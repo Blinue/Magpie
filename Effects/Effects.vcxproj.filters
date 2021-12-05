@@ -68,7 +68,6 @@
     <CopyFileToFolders Include="CRT_Royale_special-functions.hlsli" />
     <CopyFileToFolders Include="CRT_Royale_bloom-functions.hlsli" />
     <CopyFileToFolders Include="CRT_Royale_blur-functions.hlsli" />
-    <CopyFileToFolders Include="CRT_Royale_quad-pixel-communication.hlsli" />
     <CopyFileToFolders Include="CRT_Royale_phosphor-mask-resizing.hlsli" />
     <CopyFileToFolders Include="CRT_Royale_TileableLinearApertureGrille15Wide8And5d5SpacingResizeTo64.png" />
     <CopyFileToFolders Include="CRT_Royale_TileableLinearShadowMaskEDPResizeTo64.png" />

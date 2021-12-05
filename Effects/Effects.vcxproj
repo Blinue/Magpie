@@ -315,11 +315,6 @@
     </CopyFileToFolders>
   </ItemGroup>
   <ItemGroup>
-    <CopyFileToFolders Include="CRT_Royale_quad-pixel-communication.hlsli">
-      <FileType>Document</FileType>
-    </CopyFileToFolders>
-  </ItemGroup>
-  <ItemGroup>
     <CopyFileToFolders Include="CRT_Royale_phosphor-mask-resizing.hlsli">
       <FileType>Document</FileType>
     </CopyFileToFolders>
