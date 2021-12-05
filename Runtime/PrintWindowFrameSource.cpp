@@ -132,6 +132,7 @@ bool PrintWindowFrameSource::Initialize() {
 	}
 
 	SPDLOG_LOGGER_INFO(logger, "PrintWindowFrameSource 初始化完成");
+	return true;
 }
 
 ComPtr<ID3D11Texture2D> PrintWindowFrameSource::GetOutput() {

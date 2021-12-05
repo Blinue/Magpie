@@ -419,6 +419,11 @@ SamplerState samPoint;
 //!FILTER LINEAR
 SamplerState samLinear;
 
+//!SAMPLER
+//!FILTER LINEAR
+//!ADDRESS WRAP
+SamplerState samLinearWrap;
+
 
 //!COMMON
 
@@ -1692,15 +1697,15 @@ float4 Pass6(float2 pos) {
 		//  If mask_type is static, this branch will be resolved statically.
 		if (mask_type < 0.5) {
 			pixel_color = downsample_vertical_sinc_tiled(
-				mask_grille_texture, samLinear, src_tex_uv, mask_resize_src_lut_size,
+				mask_grille_texture, samLinearWrap, src_tex_uv, mask_resize_src_lut_size,
 				src_dy, resize_magnification_scale, 1.0);
 		} else if (mask_type < 1.5) {
 			pixel_color = downsample_vertical_sinc_tiled(
-				mask_slot_texture, samLinear, src_tex_uv, mask_resize_src_lut_size,
+				mask_slot_texture, samLinearWrap, src_tex_uv, mask_resize_src_lut_size,
 				src_dy, resize_magnification_scale, 1.0);
 		} else {
 			pixel_color = downsample_vertical_sinc_tiled(
-				mask_shadow_texture, samLinear, src_tex_uv, mask_resize_src_lut_size,
+				mask_shadow_texture, samLinearWrap, src_tex_uv, mask_resize_src_lut_size,
 				src_dy, resize_magnification_scale, 1.0);
 		}
 		//  The input LUT was linear RGB, and so is our output:

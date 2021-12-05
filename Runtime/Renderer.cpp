@@ -444,7 +444,7 @@ bool Renderer::_CreateSwapChain() {
 	sd.SampleDesc.Count = 1;
 	sd.SampleDesc.Quality = 0;
 	sd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT | DXGI_USAGE_SHADER_INPUT;
-	sd.BufferCount = App::GetInstance().IsDisableLowLatency() ? 3 : 2;
+	sd.BufferCount = (App::GetInstance().IsDisableLowLatency() && App::GetInstance().GetFrameRate() == 0) ? 3 : 2;
 	sd.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
 	sd.Flags = App::GetInstance().GetFrameRate() != 0 ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT;
 
@@ -815,49 +815,49 @@ bool Renderer::SetAlphaBlend(bool enable) {
 	return true;
 }
 
-bool Renderer::GetSampler(EffectSamplerFilterType filterType, ID3D11SamplerState** result) {
+bool Renderer::GetSampler(EffectSamplerFilterType filterType, EffectSamplerAddressType addressType, ID3D11SamplerState** result) {
+	ID3D11SamplerState** sampler;
+	D3D11_TEXTURE_ADDRESS_MODE addressMode;
+	D3D11_FILTER filter;
+
 	if (filterType == EffectSamplerFilterType::Linear) {
-		if (!_linearSampler) {
-			D3D11_SAMPLER_DESC desc{};
-			desc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-			desc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-			desc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-			desc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
-			desc.ComparisonFunc = D3D11_COMPARISON_NEVER;
-			desc.MinLOD = 0;
-			desc.MaxLOD = 0;
-			HRESULT hr = _d3dDevice->CreateSamplerState(&desc, &_linearSampler);
-
-			if (FAILED(hr)) {
-				SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("创建 ID3D11SamplerState 出错", hr));
-				return false;
-			} else {
-				SPDLOG_LOGGER_INFO(logger, "已创建 ID3D11SamplerState\n\tFilter：D3D11_FILTER_MIN_MAG_MIP_LINEAR");
-			}
+		filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+		if (addressType == EffectSamplerAddressType::Clamp) {
+			sampler = _linearClampSampler.GetAddressOf();
+			addressMode = D3D11_TEXTURE_ADDRESS_CLAMP;
+		} else {
+			sampler = _linearWrapSampler.GetAddressOf();
+			addressMode = D3D11_TEXTURE_ADDRESS_WRAP;
 		}
-
-		*result = _linearSampler.Get();
 	} else {
-		if (!_pointSampler) {
-			D3D11_SAMPLER_DESC desc{};
-			desc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
-			desc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-			desc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-			desc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
-			desc.ComparisonFunc = D3D11_COMPARISON_NEVER;
-			desc.MinLOD = 0;
-			desc.MaxLOD = 0;
-			HRESULT hr = _d3dDevice->CreateSamplerState(&desc, &_pointSampler);
-
-			if (FAILED(hr)) {
-				SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("创建 ID3D11SamplerState 出错", hr));
-				return false;
-			} else {
-				SPDLOG_LOGGER_INFO(logger, "已创建 ID3D11SamplerState\n\tFilter：D3D11_FILTER_MIN_MAG_MIP_POINT");
-			}
+		filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
+		if (addressType == EffectSamplerAddressType::Clamp) {
+			sampler = _pointClampSampler.GetAddressOf();
+			addressMode = D3D11_TEXTURE_ADDRESS_CLAMP;
+		} else {
+			sampler = _pointWrapSampler.GetAddressOf();
+			addressMode = D3D11_TEXTURE_ADDRESS_WRAP;
 		}
+	}
+	
+	if (*sampler) {
+		*result = *sampler;
+		return true;
+	}
 
-		*result = _pointSampler.Get();
+	D3D11_SAMPLER_DESC desc{};
+	desc.Filter = filter;
+	desc.AddressU = addressMode;
+	desc.AddressV = addressMode;
+	desc.AddressW = addressMode;
+	desc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+	desc.MinLOD = 0;
+	desc.MaxLOD = 0;
+	HRESULT hr = _d3dDevice->CreateSamplerState(&desc, sampler);
+
+	if (FAILED(hr)) {
+		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("创建 ID3D11SamplerState 出错", hr));
+		return false;
 	}
 
 	return true;

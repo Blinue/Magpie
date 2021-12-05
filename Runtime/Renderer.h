@@ -16,7 +16,7 @@ public:
 
 	void Render();
 
-	bool GetSampler(EffectSamplerFilterType filterType, ID3D11SamplerState** result);
+	bool GetSampler(EffectSamplerFilterType filterType, EffectSamplerAddressType addressType, ID3D11SamplerState** result);
 
 	ComPtr<ID3D11Device1> GetD3DDevice() const{
 		return _d3dDevice;
@@ -80,8 +80,10 @@ private:
 	Utils::ScopedHandle _frameLatencyWaitableObject = NULL;
 	bool _waitingForNextFrame = false;
 
-	ComPtr<ID3D11SamplerState> _linearSampler;
-	ComPtr<ID3D11SamplerState> _pointSampler;
+	ComPtr<ID3D11SamplerState> _linearClampSampler;
+	ComPtr<ID3D11SamplerState> _pointClampSampler;
+	ComPtr<ID3D11SamplerState> _linearWrapSampler;
+	ComPtr<ID3D11SamplerState> _pointWrapSampler;
 	ComPtr<ID3D11BlendState> _alphaBlendState;
 
 	ComPtr<ID3D11Texture2D> _effectInput;

@@ -36,8 +36,14 @@ enum class EffectSamplerFilterType {
 	Point
 };
 
+enum class EffectSamplerAddressType {
+	Clamp,
+	Wrap
+};
+
 struct EffectSamplerDesc {
 	EffectSamplerFilterType filterType = EffectSamplerFilterType::Linear;
+	EffectSamplerAddressType addressType = EffectSamplerAddressType::Clamp;
 	std::string name;
 };
 

@@ -676,8 +676,11 @@ UINT ResolveTexture(std::string_view block, EffectDesc& desc) {
 
 UINT ResolveSampler(std::string_view block, EffectDesc& desc) {
 	// 必选项：FILTER
+	// 可选项：ADDRESS
 
 	EffectSamplerDesc& samDesc = desc.samplers.emplace_back();
+
+	std::bitset<2> processed;
 
 	std::string_view token;
 
@@ -692,29 +695,61 @@ UINT ResolveSampler(std::string_view block, EffectDesc& desc) {
 		return 1;
 	}
 
-	if (!CheckNextToken<true>(block, META_INDICATOR)) {
-		return 1;
+	while (true) {
+		if (!CheckNextToken<true>(block, META_INDICATOR)) {
+			break;
+		}
+
+		if (GetNextToken<false>(block, token)) {
+			return 1;
+		}
+
+		std::string t = StrUtils::ToUpperCase(token);
+
+		if (t == "FILTER") {
+			if (processed[0]) {
+				return 1;
+			}
+			processed[0] = true;
+
+			if (GetNextString(block, token)) {
+				return 1;
+			}
+
+			std::string filter = StrUtils::ToUpperCase(token);
+
+			if (filter == "LINEAR") {
+				samDesc.filterType = EffectSamplerFilterType::Linear;
+			} else if (filter == "POINT") {
+				samDesc.filterType = EffectSamplerFilterType::Point;
+			} else {
+				return 1;
+			}
+		} else if (t == "ADDRESS") {
+			if (processed[1]) {
+				return 1;
+			}
+			processed[1] = true;
+
+			if (GetNextString(block, token)) {
+				return 1;
+			}
+
+			std::string filter = StrUtils::ToUpperCase(token);
+
+			if (filter == "CLAMP") {
+				samDesc.addressType = EffectSamplerAddressType::Clamp;
+			} else if (filter == "WRAP") {
+				samDesc.addressType = EffectSamplerAddressType::Wrap;
+			} else {
+				return 1;
+			}
+		} else {
+			return 1;
+		}
 	}
 
-	if (GetNextToken<false>(block, token)) {
-		return 1;
-	}
-
-	if (StrUtils::ToUpperCase(token) != "FILTER") {
-		return 1;
-	}
-
-	if (GetNextString(block, token)) {
-		return 1;
-	}
-
-	std::string filter = StrUtils::ToUpperCase(token);
-
-	if (filter == "LINEAR") {
-		samDesc.filterType = EffectSamplerFilterType::Linear;
-	} else if (filter == "POINT") {
-		samDesc.filterType = EffectSamplerFilterType::Point;
-	} else {
+	if (!processed[0]) {
 		return 1;
 	}
 

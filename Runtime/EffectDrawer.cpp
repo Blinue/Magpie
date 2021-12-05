@@ -121,8 +121,9 @@ bool EffectDrawer::Initialize(const wchar_t* fileName) {
 
 	_samplers.resize(_effectDesc.samplers.size());
 	for (size_t i = 0; i < _samplers.size(); ++i) {
-		if (!renderer.GetSampler(_effectDesc.samplers[i].filterType, &_samplers[i])) {
-			SPDLOG_LOGGER_ERROR(logger, fmt::format("创建采样器 {} 失败", _effectDesc.samplers[i].name));
+		EffectSamplerDesc& desc = _effectDesc.samplers[i];
+		if (!renderer.GetSampler(desc.filterType, desc.addressType, &_samplers[i])) {
+			SPDLOG_LOGGER_ERROR(logger, fmt::format("创建采样器 {} 失败", desc.name));
 			return false;
 		}
 	}
