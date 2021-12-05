@@ -121,7 +121,7 @@ void serialize(Archive& ar, EffectIntermediateTextureDesc& o) {
 
 template<typename Archive>
 void serialize(Archive& ar, EffectSamplerDesc& o) {
-	ar& o.filterType& o.name;
+	ar& o.filterType & o.addressType & o.name;
 }
 
 template<typename Archive>

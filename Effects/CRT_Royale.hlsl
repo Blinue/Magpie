@@ -363,14 +363,14 @@ Texture2D tex4;
 Texture2D tex5;
 
 //!TEXTURE
-//!WIDTH 64
-//!HEIGHT 0.0625 * OUTPUT_HEIGHT
+//!WIDTH OUTPUT_WIDTH
+//!HEIGHT OUTPUT_HEIGHT
 //!FORMAT B8G8R8A8_UNORM
 Texture2D tex6;
 
 //!TEXTURE
-//!WIDTH 0.0625 * OUTPUT_WIDTH
-//!HEIGHT 0.0625 * OUTPUT_HEIGHT
+//!WIDTH OUTPUT_WIDTH
+//!HEIGHT OUTPUT_HEIGHT
 //!FORMAT B8G8R8A8_UNORM
 Texture2D tex7;
 
@@ -387,28 +387,16 @@ Texture2D tex8;
 Texture2D tex9;
 
 //!TEXTURE
-//!WIDTH OUTPUT_WIDTH
-//!HEIGHT OUTPUT_HEIGHT
-//!FORMAT B8G8R8A8_UNORM
-Texture2D tex10;
+//!SOURCE CRT_Royale_TileableLinearApertureGrille15Wide8And5d5Spacing.png
+Texture2D mask_grille_texture_large;
 
 //!TEXTURE
-//!WIDTH OUTPUT_WIDTH
-//!HEIGHT OUTPUT_HEIGHT
-//!FORMAT B8G8R8A8_UNORM
-Texture2D tex11;
+//!SOURCE CRT_Royale_TileableLinearSlotMaskTall15Wide9And4d5Horizontal9d14VerticalSpacing.png
+Texture2D mask_slot_texture_large;
 
 //!TEXTURE
-//!SOURCE CRT_Royale_TileableLinearApertureGrille15Wide8And5d5SpacingResizeTo64.png
-Texture2D mask_grille_texture_small;
-
-//!TEXTURE
-//!SOURCE CRT_Royale_TileableLinearSlotMaskTall15Wide9And4d5Horizontal9d14VerticalSpacingResizeTo64.png
-Texture2D mask_slot_texture_small;
-
-//!TEXTURE
-//!SOURCE CRT_Royale_TileableLinearShadowMaskEDPResizeTo64.png
-Texture2D mask_shadow_texture_small;
+//!SOURCE CRT_Royale_TileableLinearShadowMaskEDP.png
+Texture2D mask_shadow_texture_large;
 
 
 //!SAMPLER
@@ -508,23 +496,19 @@ SamplerState samLinearWrap;
 #define RUNTIME_GEOMETRY_TILT
 //  Specify the geometry mode at runtime?
 #define RUNTIME_GEOMETRY_MODE
-//  Specify the phosphor mask type (aperture grille, slot mask, shadow mask) and
-//  mode (Lanczos-resize, hardware resize, or tile 1:1) at runtime, even without
-//  dynamic branches?  This is cheap if mask_resize_viewport_scale is small.
-#define FORCE_RUNTIME_PHOSPHOR_MASK_MODE_TYPE_SELECT
 
 //  PHOSPHOR MASK:
 //  Manually resize the phosphor mask for best results (slower)?  Disabling this
 //  removes the option to do so, but it may be faster without dynamic branches.
-#define PHOSPHOR_MASK_MANUALLY_RESIZE
+// #define PHOSPHOR_MASK_MANUALLY_RESIZE
 //  If we sinc-resize the mask, should we Lanczos-window it (slower but better)?
 #define PHOSPHOR_MASK_RESIZE_LANCZOS_WINDOW
 //  Larger blurs are expensive, but we need them to blur larger triads.  We can
 //  detect the right blur if the triad size is static or our profile allows
 //  dynamic branches, but otherwise we use the largest blur the user indicates
 //  they might need:
-#define PHOSPHOR_BLOOM_TRIADS_LARGER_THAN_3_PIXELS
-//#define PHOSPHOR_BLOOM_TRIADS_LARGER_THAN_6_PIXELS
+//#define PHOSPHOR_BLOOM_TRIADS_LARGER_THAN_3_PIXELS
+#define PHOSPHOR_BLOOM_TRIADS_LARGER_THAN_6_PIXELS
 //#define PHOSPHOR_BLOOM_TRIADS_LARGER_THAN_9_PIXELS
 //#define PHOSPHOR_BLOOM_TRIADS_LARGER_THAN_12_PIXELS
 //  Here's a helpful chart:
@@ -623,23 +607,7 @@ static const float aa_cubic_c_static = 0.5;             //  range [0, 4]
 //  Standard deviation for Gaussian antialiasing: Try 0.5/aa_pixel_diameter.
 static const float aa_gauss_sigma_static = 0.5;     //  range [0.0625, 1.0]
 
-//  PHOSPHOR MASK:
-	//  Mask type: 0 = aperture grille, 1 = slot mask, 2 = EDP shadow mask
-static const float mask_type_static = 1.0;                  //  range [0, 2]
-//  We can sample the mask three ways.  Pick 2/3 from: Pretty/Fast/Flexible.
-//  0.) Sinc-resize to the desired dot pitch manually (pretty/slow/flexible).
-//      This requires PHOSPHOR_MASK_MANUALLY_RESIZE to be #defined.
-//  1.) Hardware-resize to the desired dot pitch (ugly/fast/flexible).  This
-//      is halfway decent with LUT mipmapping but atrocious without it.
-//  2.) Tile it without resizing at a 1:1 texel:pixel ratio for flat coords
-//      (pretty/fast/inflexible).  Each input LUT has a fixed dot pitch.
-//      This mode reuses the same masks, so triads will be enormous unless
-//      you change the mask LUT filenames in your .cgp file.
-static const float mask_sample_mode_static = 0.0;           //  range [0, 2]
-//  Prefer setting the triad size (0.0) or number on the screen (1.0)?
-//  If RUNTIME_PHOSPHOR_BLOOM_SIGMA isn't #defined, the specified triad size
-//  will always be used to calculate the full bloom sigma statically.
-static const float mask_specify_num_triads_static = 0.0;    //  range [0, 1]
+
 //  Specify the phosphor triad size, in pixels.  Each tile (usually with 8
 //  triads) will be rounded to the nearest integer tile size and clamped to
 //  obey minimum size constraints (imposed to reduce downsize taps) and
@@ -788,9 +756,6 @@ static const float bloom_approx_filter = bloom_approx_filter_static;
 #ifdef RUNTIME_GEOMETRY_MODE
 #undef RUNTIME_GEOMETRY_MODE
 #endif
-#ifdef FORCE_RUNTIME_PHOSPHOR_MASK_MODE_TYPE_SELECT
-#undef FORCE_RUNTIME_PHOSPHOR_MASK_MODE_TYPE_SELECT
-#endif
 #endif
 
 //  Make tex2Dbias a backup for tex2Dlod for wider compatibility.
@@ -887,28 +852,6 @@ static const float2 mask_resize_src_lut_size = mask_texture_small_size;
 static const float2 mask_resize_src_lut_size = mask_texture_small_size;
 #endif
 
-
-//  tex2D's sampler2D parameter MUST be a uniform global, a uniform input to
-//  main_fragment, or a static alias of one of the above.  This makes it hard
-//  to select the phosphor mask at runtime: We can't even assign to a uniform
-//  global in the vertex shader or select a sampler2D in the vertex shader and
-//  pass it to the fragment shader (even with explicit TEXUNIT# bindings),
-//  because it just gives us the input texture or a black screen.  However, we
-//  can get around these limitations by calling tex2D three times with different
-//  uniform samplers (or resizing the phosphor mask three times altogether).
-//  With dynamic branches, we can process only one of these branches on top of
-//  quickly discarding fragments we don't need (cgc seems able to overcome
-//  limitations around dependent texture fetches inside of branches).  Without
-//  dynamic branches, we have to process every branch for every fragment...which
-//  is slower.  Runtime sampling mode selection is slower without dynamic
-//  branches as well.  Let the user's static #defines decide if it's worth it.
-#ifdef DRIVERS_ALLOW_DYNAMIC_BRANCHES
-#define RUNTIME_PHOSPHOR_MASK_MODE_TYPE_SELECT
-#else
-#ifdef FORCE_RUNTIME_PHOSPHOR_MASK_MODE_TYPE_SELECT
-#define RUNTIME_PHOSPHOR_MASK_MODE_TYPE_SELECT
-#endif
-#endif
 
 //  We need to render some minimum number of tiles in the resize passes.
 //  We need at least 1.0 just to repeat a single tile, and we need extra
@@ -1070,19 +1013,7 @@ float get_mask_amplify() {
 }
 
 float get_mask_sample_mode() {
-#ifdef RUNTIME_PHOSPHOR_MASK_MODE_TYPE_SELECT
-#ifdef PHOSPHOR_MASK_MANUALLY_RESIZE
-	return mask_sample_mode_desired;
-#else
 	return clamp(mask_sample_mode_desired, 1.0, 2.0);
-#endif
-#else
-#ifdef PHOSPHOR_MASK_MANUALLY_RESIZE
-	return mask_sample_mode_static;
-#else
-	return clamp(mask_sample_mode_static, 1.0, 2.0);
-#endif
-#endif
 }
 
 
@@ -1625,176 +1556,8 @@ float4 Pass5(float2 pos) {
 }
 
 //!PASS 6
-//!BIND mask_grille_texture_small, mask_slot_texture_small, mask_shadow_texture_small
+//!BIND tex2, tex3, tex5, mask_grille_texture_large, mask_slot_texture_large, mask_shadow_texture_large
 //!SAVE tex6
-
-// 移植自 https://github.com/libretro/common-shaders/blob/master/crt/shaders/crt-royale/src/crt-royale-mask-resize-vertical.cg
-
-#include "CRT_Royale_phosphor-mask-resizing.hlsli"
-
-
-float4 Pass6(float2 pos) {
-	float2 output_size = { 64, 0.0625 * outputHeight };
-
-	//  First estimate the viewport size (the user will get the wrong number of
-	//  triads if it's wrong and mask_specify_num_triads is 1.0/true).
-	const float viewport_y = output_size.y / mask_resize_viewport_scale.y;
-	const float aspect_ratio = geom_aspect_ratio_x / geom_aspect_ratio_y;
-	const float2 estimated_viewport_size =
-		float2(viewport_y * aspect_ratio, viewport_y);
-	//  Estimate the output size of MASK_RESIZE (the next pass).  The estimated
-	//  x component shouldn't matter, because we're not using the x result, and
-	//  we're not swearing it's correct (if we did, the x result would influence
-	//  the y result to maintain the tile aspect ratio).
-	const float2 estimated_mask_resize_output_size =
-		float2(output_size.y * aspect_ratio, output_size.y);
-	//  Find the final intended [y] size of our resized phosphor mask tiles,
-	//  then the tile size for the current pass (resize y only):
-	const float2 mask_resize_tile_size = get_resized_mask_tile_size(
-		estimated_viewport_size, estimated_mask_resize_output_size, false);
-	const float2 pass_output_tile_size = float2(min(
-		mask_resize_src_lut_size.x, output_size.x), mask_resize_tile_size.y);
-
-	//  We'll render resized tiles until filling the output FBO or meeting a
-	//  limit, so compute [wrapped] tile uv coords based on the output uv coords
-	//  and the number of tiles that will fit in the FBO.
-	const float2 output_tiles_this_pass = output_size / pass_output_tile_size;
-	const float2 output_video_uv = pos;
-	const float2 tile_uv_wrap = output_video_uv * output_tiles_this_pass;
-
-	//  The input LUT is just a single mask tile, so texture uv coords are the
-	//  same as tile uv coords (save frac() for the fragment shader).  The
-	//  magnification scale is also straightforward:
-	const float2 src_tex_uv_wrap = tile_uv_wrap;
-	const float resize_magnification_scale =
-		pass_output_tile_size.y / mask_resize_src_lut_size.y;
-
-	//  Statically select small [non-mipmapped] or large [mipmapped] textures:
-#ifdef PHOSPHOR_MASK_RESIZE_MIPMAPPED_LUT
-	//Texture2D mask_grille_texture = mask_grille_texture_large;
-	//Texture2D mask_slot_texture = mask_slot_texture_large;
-	//Texture2D mask_shadow_texture = mask_shadow_texture_large;
-#else
-	Texture2D mask_grille_texture = mask_grille_texture_small;
-	Texture2D mask_slot_texture = mask_slot_texture_small;
-	Texture2D mask_shadow_texture = mask_shadow_texture_small;
-#endif
-
-	//  Resize the input phosphor mask tile to the final vertical size it will
-	//  appear on screen.  Keep 1x horizontal size if possible (IN.output_size
-	//  >= mask_resize_src_lut_size), and otherwise linearly sample horizontally
-	//  to fit exactly one tile.  Lanczos-resizing the phosphor mask achieves
-	//  much sharper results than mipmapping, and vertically resizing first
-	//  minimizes the total number of taps required.  We output a number of
-	//  resized tiles >= mask_resize_num_tiles for easier tiled sampling later.
-#ifdef PHOSPHOR_MASK_MANUALLY_RESIZE
-	//  Discard unneeded fragments in case our profile allows real branches.
-	if (get_mask_sample_mode() < 0.5 &&
-		tile_uv_wrap.y <= mask_resize_num_tiles) {
-		static const float src_dy = 1.0 / mask_resize_src_lut_size.y;
-		const float2 src_tex_uv = frac(src_tex_uv_wrap);
-		float3 pixel_color;
-		//  If mask_type is static, this branch will be resolved statically.
-		if (mask_type < 0.5) {
-			pixel_color = downsample_vertical_sinc_tiled(
-				mask_grille_texture, samLinearWrap, src_tex_uv, mask_resize_src_lut_size,
-				src_dy, resize_magnification_scale, 1.0);
-		} else if (mask_type < 1.5) {
-			pixel_color = downsample_vertical_sinc_tiled(
-				mask_slot_texture, samLinearWrap, src_tex_uv, mask_resize_src_lut_size,
-				src_dy, resize_magnification_scale, 1.0);
-		} else {
-			pixel_color = downsample_vertical_sinc_tiled(
-				mask_shadow_texture, samLinearWrap, src_tex_uv, mask_resize_src_lut_size,
-				src_dy, resize_magnification_scale, 1.0);
-		}
-		//  The input LUT was linear RGB, and so is our output:
-		return float4(pixel_color, 1.0);
-	} else {
-		discard;
-		return float4(0, 0, 0, 1);
-	}
-#else
-	discard;
-	return float4(0, 0, 0, 1);
-#endif
-}
-
-
-//!PASS 7
-//!BIND tex6
-//!SAVE tex7
-
-// 移植自 https://github.com/libretro/common-shaders/blob/master/crt/shaders/crt-royale/src/crt-royale-mask-resize-horizontal.cg
-
-#include "CRT_Royale_phosphor-mask-resizing.hlsli"
-
-
-float4 Pass7(float2 pos) {
-	float2 texture_size = { 64, 0.0625 * outputHeight };
-	float2 output_size = 0.0625 * float2(outputWidth, outputHeight);
-
-	//  First estimate the viewport size (the user will get the wrong number of
-	//  triads if it's wrong and mask_specify_num_triads is 1.0/true).
-	const float2 estimated_viewport_size =
-		output_size / mask_resize_viewport_scale;
-	//  Find the final size of our resized phosphor mask tiles.  We probably
-	//  estimated the viewport size and MASK_RESIZE output size differently last
-	//  pass, so do not swear they were the same. ;)
-	const float2 mask_resize_tile_size = get_resized_mask_tile_size(
-		estimated_viewport_size, output_size, false);
-
-	//  We'll render resized tiles until filling the output FBO or meeting a
-	//  limit, so compute [wrapped] tile uv coords based on the output uv coords
-	//  and the number of tiles that will fit in the FBO.
-	const float2 output_tiles_this_pass = output_size / mask_resize_tile_size;
-	const float2 output_video_uv = pos;
-	const float2 tile_uv_wrap = output_video_uv * output_tiles_this_pass;
-
-	//  Get the texel size of an input tile and related values:
-	const float2 input_tile_size = float2(min(
-		mask_resize_src_lut_size.x, texture_size.x), mask_resize_tile_size.y);
-	const float2 tile_size_uv = input_tile_size / texture_size;
-	const float2 input_tiles_per_texture = texture_size / input_tile_size;
-
-	//  Derive [wrapped] texture uv coords from [wrapped] tile uv coords and
-	//  the tile size in uv coords, and save frac() for the fragment shader.
-	const float2 src_tex_uv_wrap = tile_uv_wrap * tile_size_uv;
-
-	float2 src_dxdy = float2(1.0 / texture_size.x, 0.0);
-	float resize_magnification_scale = mask_resize_tile_size.x / input_tile_size.x;
-
-	//  The input contains one mask tile horizontally and a number vertically.
-	//  Resize the tile horizontally to its final screen size and repeat it
-	//  until drawing at least mask_resize_num_tiles, leaving it unchanged
-	//  vertically.  Lanczos-resizing the phosphor mask achieves much sharper
-	//  results than mipmapping, outputting >= mask_resize_num_tiles makes for
-	//  easier tiled sampling later.
-#ifdef PHOSPHOR_MASK_MANUALLY_RESIZE
-	//  Discard unneeded fragments in case our profile allows real branches.
-	if (get_mask_sample_mode() < 0.5 &&
-		max(tile_uv_wrap.x, tile_uv_wrap.y) <= mask_resize_num_tiles) {
-		const float src_dx = src_dxdy.x;
-		const float2 src_tex_uv = frac(src_tex_uv_wrap);
-		const float3 pixel_color = downsample_horizontal_sinc_tiled(tex6, samPoint,
-			src_tex_uv, texture_size, src_dxdy.x,
-			resize_magnification_scale, tile_size_uv.x);
-		//  The input LUT was linear RGB, and so is our output:
-		return float4(pixel_color, 1.0);
-	} else {
-		discard;
-		return float4(0, 0, 0, 1);
-	}
-#else
-	discard;
-	return float4(0, 0, 0, 1);
-#endif
-}
-
-
-//!PASS 8
-//!BIND tex2, tex3, tex5, tex7
-//!SAVE tex8
 
 // 移植自 https://github.com/libretro/common-shaders/blob/master/crt/shaders/crt-royale/src/crt-royale-scanlines-horizontal-apply-mask.cg
 
@@ -1823,7 +1586,7 @@ float4 tex2Dtiled_mask_linearize(Texture2D tex, SamplerState sam, const float2 t
 #endif
 }
 
-float4 Pass8(float2 pos) {
+float4 Pass6(float2 pos) {
 	//  Our various input textures use different coords.
 	const float2 scanline_texture_size_inv = float2(inputPtX, inputPtY);
 	float2 scanline_tex_uv = pos;
@@ -1866,27 +1629,17 @@ float4 Pass8(float2 pos) {
 	const float2 mask_tex_uv = convert_phosphor_tile_uv_wrap_to_tex_uv(
 		tile_uv_wrap, mask_tile_start_uv_and_size);
 	float3 phosphor_mask_sample;
-#ifdef PHOSPHOR_MASK_MANUALLY_RESIZE
-	const bool sample_orig_luts = get_mask_sample_mode() > 0.5;
-#else
-	static const bool sample_orig_luts = true;
-#endif
-	if (sample_orig_luts) {
-		//  If mask_type is static, this branch will be resolved statically.
-		/*if (mask_type < 0.5) {
-			phosphor_mask_sample = tex2D_linearize(
-				mask_grille_texture_large, mask_tex_uv).rgb;
-		} else if (mask_type < 1.5) {
-			phosphor_mask_sample = tex2D_linearize(
-				mask_slot_texture_large, mask_tex_uv).rgb;
-		} else {
-			phosphor_mask_sample = tex2D_linearize(
-				mask_shadow_texture_large, mask_tex_uv).rgb;
-		}*/
+
+	// If mask_type is static, this branch will be resolved statically.
+	if (mask_type < 0.5) {
+		phosphor_mask_sample = tex2D_linearize(
+			mask_grille_texture_large, samLinearWrap, mask_tex_uv).rgb;
+	} else if (mask_type < 1.5) {
+		phosphor_mask_sample = tex2D_linearize(
+			mask_slot_texture_large, samLinearWrap, mask_tex_uv).rgb;
 	} else {
-		//  Sample the resized mask, and avoid tiling artifacts:
-		phosphor_mask_sample = tex2Dtiled_mask_linearize(
-			tex7, samLinear, mask_tex_uv).rgb;
+		phosphor_mask_sample = tex2D_linearize(
+			mask_shadow_texture_large, samLinearWrap, mask_tex_uv).rgb;
 	}
 
 	//  Sample the halation texture (auto-dim to match the scanlines), and
@@ -1994,9 +1747,9 @@ float4 Pass8(float2 pos) {
 }
 
 
-//!PASS 9
-//!BIND tex3, tex8
-//!SAVE tex9
+//!PASS 7
+//!BIND tex3, tex6
+//!SAVE tex7
 
 // 移植自 https://github.com/libretro/common-shaders/blob/master/crt/shaders/crt-royale/src/crt-royale-brightpass.cg
 
@@ -2006,7 +1759,7 @@ float4 Pass8(float2 pos) {
 #include "CRT_Royale_bloom-functions.hlsli"
 
 
-float4 Pass9(float2 pos) {
+float4 Pass7(float2 pos) {
 	//  Our various input textures use different coords:
 	const float2 scanline_tex_uv = pos;
 	const float2 blur3x3_tex_uv = pos;
@@ -2019,7 +1772,7 @@ float4 Pass9(float2 pos) {
 
 	//  Sample the masked scanlines:
 	const float3 intensity_dim =
-		tex2D_linearize(tex8, samLinear, scanline_tex_uv).rgb;
+		tex2D_linearize(tex6, samLinear, scanline_tex_uv).rgb;
 	//  Get the full intensity, including auto-undimming, and mask compensation:
 	const float auto_dim_factor = levels_autodim_temp;
 	const float undim_factor = 1.0 / auto_dim_factor;
@@ -2071,9 +1824,9 @@ float4 Pass9(float2 pos) {
 }
 
 
-//!PASS 10
-//!BIND tex9
-//!SAVE tex10
+//!PASS 8
+//!BIND tex7
+//!SAVE tex8
 
 // 移植自 https://github.com/libretro/common-shaders/blob/master/crt/shaders/crt-royale/src/crt-royale-bloom-vertical.cg
 
@@ -2082,7 +1835,7 @@ float4 Pass9(float2 pos) {
 #include "CRT_Royale_bloom-functions.hlsli"
 
 
-float4 Pass10(float2 pos) {
+float4 Pass8(float2 pos) {
 	//  Get the uv sample distance between output pixels.  Calculate dxdy like
 	//  blurs/vertex-shader-blur-fast-vertical.h.
 	//  This blur is vertical-only, so zero out the vertical offset:
@@ -2096,15 +1849,15 @@ float4 Pass10(float2 pos) {
 
 	//  Blur the brightpass horizontally with a 9/17/25/43x blur:
 	const float bloom_sigma = get_final_bloom_sigma(bloom_sigma_runtime);
-	const float3 color = tex2DblurNfast(tex9, samLinear, pos,
+	const float3 color = tex2DblurNfast(tex7, samLinear, pos,
 		bloom_dxdy, bloom_sigma);
 	//  Encode and output the blurred image:
 	return encode_output(float4(color, 1.0));
 }
 
-//!PASS 11
-//!BIND tex5, tex8, tex9, tex10
-//!SAVE tex11
+//!PASS 9
+//!BIND tex5, tex6, tex7, tex8
+//!SAVE tex9
 
 // 移植自 https://github.com/libretro/common-shaders/blob/master/crt/shaders/crt-royale/src/crt-royale-bloom-horizontal-reconstitute.cg
 
@@ -2114,7 +1867,7 @@ float4 Pass10(float2 pos) {
 #include "CRT_Royale_scanline-functions.hlsli"
 
 
-float4 Pass11(float2 pos) {
+float4 Pass9(float2 pos) {
 	//  Our various input textures use different coords:
 	const float2 video_uv = pos;
 	const float2 scanline_tex_uv = video_uv;
@@ -2135,19 +1888,19 @@ float4 Pass11(float2 pos) {
 
 	//  Blur the vertically blurred brightpass horizontally by 9/17/25/43x:
 	const float bloom_sigma = get_final_bloom_sigma(bloom_sigma_runtime);
-	const float3 blurred_brightpass = tex2DblurNfast(tex10, samLinear,
+	const float3 blurred_brightpass = tex2DblurNfast(tex8, samLinear,
 		bloom_tex_uv, bloom_dxdy, bloom_sigma);
 
 	//  Sample the masked scanlines.  Alpha contains the auto-dim factor:
 	const float3 intensity_dim =
-		tex2D_linearize(tex8, samLinear, scanline_tex_uv).rgb;
+		tex2D_linearize(tex6, samLinear, scanline_tex_uv).rgb;
 	const float auto_dim_factor = levels_autodim_temp;
 	const float undim_factor = 1.0 / auto_dim_factor;
 
 	//  Calculate the mask dimpass, add it to the blurred brightpass, and
 	//  undim (from scanline auto-dim) and amplify (from mask dim) the result:
 	const float mask_amplify = get_mask_amplify();
-	const float3 brightpass = tex2D_linearize(tex9, samLinear,
+	const float3 brightpass = tex2D_linearize(tex7, samLinear,
 		brightpass_tex_uv).rgb;
 	const float3 dimpass = intensity_dim - brightpass;
 	const float3 phosphor_bloom = (dimpass + blurred_brightpass) *
@@ -2166,8 +1919,8 @@ float4 Pass11(float2 pos) {
 }
 
 
-//!PASS 12
-//!BIND tex11
+//!PASS 10
+//!BIND tex9
 
 // 移植自 https://github.com/libretro/common-shaders/blob/master/crt/shaders/crt-royale/src/crt-royale-geometry-aa-last-pass.cg
 
@@ -2201,7 +1954,7 @@ float2x2 mul_scale(float2 scale, float2x2 mat) {
 	return float2x2(float4(mat) * scale.xxyy);
 }
 
-float4 Pass12(float2 pos) {
+float4 Pass10(float2 pos) {
 	float2 output_size_inv = { outputPtX, outputPtY };
 
 	//  Get aspect/overscan vectors from scalar parameters (likely uniforms):
@@ -2296,13 +2049,13 @@ float4 Pass12(float2 pos) {
 	float3 color;
 	if (aa_level > 0.5 && (geom_mode > 0.5 || any(geom_overscan != 1.0))) {
 		//  Sample the input with antialiasing (due to sharp phosphors, etc.):
-		color = tex2Daa(tex11, samLinear, tex_uv, pixel_to_tex_uv, frame_count);
+		color = tex2Daa(tex9, samLinear, tex_uv, pixel_to_tex_uv, frame_count);
 	} else if (aa_level > 0.5 && need_subpixel_aa) {
 		//  Sample at each subpixel location:
 		color = tex2Daa_subpixel_weights_only(
-			tex11, samLinear, tex_uv, pixel_to_tex_uv);
+			tex9, samLinear, tex_uv, pixel_to_tex_uv);
 	} else {
-		color = tex2D_linearize(tex11, samLinear, tex_uv).rgb;
+		color = tex2D_linearize(tex9, samLinear, tex_uv).rgb;
 	}
 
 	//  Dim borders and output the final result:

@@ -69,10 +69,12 @@
     <CopyFileToFolders Include="CRT_Royale_bloom-functions.hlsli" />
     <CopyFileToFolders Include="CRT_Royale_blur-functions.hlsli" />
     <CopyFileToFolders Include="CRT_Royale_phosphor-mask-resizing.hlsli" />
-    <CopyFileToFolders Include="CRT_Royale_TileableLinearApertureGrille15Wide8And5d5SpacingResizeTo64.png" />
-    <CopyFileToFolders Include="CRT_Royale_TileableLinearShadowMaskEDPResizeTo64.png" />
-    <CopyFileToFolders Include="CRT_Royale_TileableLinearSlotMaskTall15Wide9And4d5Horizontal9d14VerticalSpacingResizeTo64.png" />
     <CopyFileToFolders Include="CRT_Royale_tex2Dantialias.hlsli" />
     <CopyFileToFolders Include="CRT_Royale_geometry-functions.hlsli" />
+    <CopyFileToFolders Include="CRT_Royale_TileableLinearApertureGrille15Wide8And5d5Spacing.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="CRT_Royale_TileableLinearShadowMaskEDP.png" />
+    <Image Include="CRT_Royale_TileableLinearSlotMaskTall15Wide9And4d5Horizontal9d14VerticalSpacing.png" />
   </ItemGroup>
 </Project>
