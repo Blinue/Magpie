@@ -860,5 +860,6 @@ bool Renderer::GetSampler(EffectSamplerFilterType filterType, EffectSamplerAddre
 		return false;
 	}
 
+	*result = *sampler;
 	return true;
 }
