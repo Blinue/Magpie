@@ -71,8 +71,17 @@
     <CopyFileToFolders Include="CRT_Royale_bloom-functions.hlsli" />
     <CopyFileToFolders Include="CRT_Royale_blur-functions.hlsli" />
     <CopyFileToFolders Include="CRT_Royale_quad-pixel-communication.hlsli" />
+    <CopyFileToFolders Include="CRT_Royale_phosphor-mask-resizing.hlsli" />
+    <CopyFileToFolders Include="CRT_Royale_user-cgp-constants.hlsli" />
+    <CopyFileToFolders Include="CRT_Royale_TileableLinearApertureGrille15Wide8And5d5Spacing.png" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="CRT_Royale_user-cgp-constants.hlsli" />
+    <Image Include="CRT_Royale_TileableLinearApertureGrille15Wide8And5d5SpacingResizeTo64.png" />
+    <Image Include="CRT_Royale_TileableLinearShadowMask.png" />
+    <Image Include="CRT_Royale_TileableLinearShadowMaskEDP.png" />
+    <Image Include="CRT_Royale_TileableLinearShadowMaskEDPResizeTo64.png" />
+    <Image Include="CRT_Royale_TileableLinearShadowMaskResizeTo64.png" />
+    <Image Include="CRT_Royale_TileableLinearSlotMaskTall15Wide9And4d5Horizontal9d14VerticalSpacing.png" />
+    <Image Include="CRT_Royale_TileableLinearSlotMaskTall15Wide9And4d5Horizontal9d14VerticalSpacingResizeTo64.png" />
   </ItemGroup>
 </Project>

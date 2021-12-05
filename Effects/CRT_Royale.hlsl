@@ -340,7 +340,50 @@ Texture2D tex2;
 //!WIDTH 320
 //!HEIGHT 240
 //!FORMAT B8G8R8A8_UNORM
-Texture2D texBloomApprox;
+Texture2D tex3;
+
+//!TEXTURE
+//!WIDTH 320
+//!HEIGHT 240
+//!FORMAT B8G8R8A8_UNORM
+Texture2D tex4;
+
+//!TEXTURE
+//!WIDTH 320
+//!HEIGHT 240
+//!FORMAT B8G8R8A8_UNORM
+Texture2D tex5;
+
+//!TEXTURE
+//!WIDTH 64
+//!HEIGHT 0.0625 * OUTPUT_HEIGHT
+//!FORMAT B8G8R8A8_UNORM
+Texture2D tex6;
+
+//!TEXTURE
+//!WIDTH 0.0625 * OUTPUT_WIDTH
+//!HEIGHT 0.0625 * OUTPUT_HEIGHT
+//!FORMAT B8G8R8A8_UNORM
+Texture2D tex7;
+
+//!TEXTURE
+//!WIDTH OUTPUT_WIDTH
+//!HEIGHT OUTPUT_HEIGHT
+//!FORMAT B8G8R8A8_UNORM
+Texture2D tex8;
+
+//!TEXTURE
+//!SOURCE CRT_Royale_TileableLinearApertureGrille15Wide8And5d5SpacingResizeTo64.png
+Texture2D mask_grille_texture_small;
+
+//!TEXTURE
+//!SOURCE CRT_Royale_TileableLinearSlotMaskTall15Wide9And4d5Horizontal9d14VerticalSpacingResizeTo64.png
+Texture2D mask_slot_texture_small;
+
+//!TEXTURE
+//!SOURCE CRT_Royale_TileableLinearShadowMaskEDPResizeTo64.png
+Texture2D mask_shadow_texture_small;
+
 
 //!SAMPLER
 //!FILTER POINT
@@ -388,7 +431,7 @@ SamplerState samLinear;
 //  This makes phosphor mask resampling faster in some cases.  Related errors:
 //  error C5013: profile does not support "for" statements and "for" could not
 //  be unrolled
-#define DRIVERS_ALLOW_DYNAMIC_BRANCHES
+//#define DRIVERS_ALLOW_DYNAMIC_BRANCHES
 
 //  Without DRIVERS_ALLOW_DYNAMIC_BRANCHES, we need to use unrollable loops.
 //  Using one static loop avoids overhead if the user is right, but if the user
@@ -396,7 +439,7 @@ SamplerState samLinear;
 //  binary search can potentially save some iterations.  However, it may fail:
 //  error C6001: Temporary register limit of 32 exceeded; 35 registers
 //  needed to compile program
-// #define ACCOMODATE_POSSIBLE_DYNAMIC_LOOPS
+#define ACCOMODATE_POSSIBLE_DYNAMIC_LOOPS
 
 //  tex2Dlod: Requires an fp40 or newer profile.  This can be used to disable
 //  anisotropic filtering, thereby fixing related artifacts.  Related errors:
@@ -927,6 +970,7 @@ float4 Pass2(float2 pos) {
 
 //!PASS 3
 //!BIND tex2
+//!SAVE tex3
 
 // 移植自 https://github.com/libretro/common-shaders/blob/master/crt/shaders/crt-royale/src/crt-royale-bloom-approx.cg
 
@@ -1193,4 +1237,433 @@ float4 Pass3(float2 pos) {
     }
     //  Encode and output the blurred image:
     return encode_output(float4(color, 1.0));
+}
+
+
+//!PASS 4
+//!BIND tex3
+//!SAVE tex4
+
+// 移植自 https://github.com/libretro/common-shaders/blob/master/blurs/blur9fast-vertical.cg
+
+#include "CRT_Royale_gamma-management.hlsli"
+#include "CRT_Royale_blur-functions.hlsli"
+
+float4 Pass4(float2 pos) {
+    //  Get the uv sample distance between output pixels.  Blurs are not generic
+    //  Gaussian resizers, and correct blurs require:
+    //  1.) IN.output_size == IN.video_size * 2^m, where m is an integer <= 0.
+    //  2.) mipmap_inputN = "true" for this pass in .cgp preset if m != 0
+    //  3.) filter_linearN = "true" except for 1x scale nearest neighbor blurs
+    //  Gaussian resizers would upsize using the distance between input texels
+    //  (not output pixels), but we avoid this and consistently blur at the
+    //  destination size.  Otherwise, combining statically calculated weights
+    //  with bilinear sample exploitation would result in terrible artifacts.
+
+    //  This blur is vertical-only, so zero out the horizontal offset:
+    float2 blur_dxdy = { 0.0, 1 / BLOOM_APPROX_HEIGHT };
+
+    float3 color = tex2Dblur9fast(tex3, samLinear, pos, blur_dxdy);
+    //  Encode and output the blurred image:
+    return encode_output(float4(color, 1.0));
+}
+
+//!PASS 5
+//!BIND tex4
+//!SAVE tex5
+
+// 移植自 https://github.com/libretro/common-shaders/blob/master/blurs/blur9fast-horizontal.cg
+
+#include "CRT_Royale_gamma-management.hlsli"
+#include "CRT_Royale_blur-functions.hlsli"
+
+float4 Pass5(float2 pos) {
+    //  Get the uv sample distance between output pixels.  Blurs are not generic
+    //  Gaussian resizers, and correct blurs require:
+    //  1.) IN.output_size == IN.video_size * 2^m, where m is an integer <= 0.
+    //  2.) mipmap_inputN = "true" for this pass in .cgp preset if m != 0
+    //  3.) filter_linearN = "true" except for 1x scale nearest neighbor blurs
+    //  Gaussian resizers would upsize using the distance between input texels
+    //  (not output pixels), but we avoid this and consistently blur at the
+    //  destination size.  Otherwise, combining statically calculated weights
+    //  with bilinear sample exploitation would result in terrible artifacts.
+
+    //  This blur is horizontal-only, so zero out the vertical offset:
+    float2 blur_dxdy = { 1 / BLOOM_APPROX_WIDTH, 0.0 };
+
+    float3 color = tex2Dblur9fast(tex4, samLinear, pos, blur_dxdy);
+    //  Encode and output the blurred image:
+    return encode_output(float4(color, 1.0));
+}
+
+//!PASS 6
+//!BIND mask_grille_texture_small, mask_slot_texture_small, mask_shadow_texture_small
+//!SAVE tex6
+
+// 移植自 https://github.com/libretro/common-shaders/blob/master/crt/shaders/crt-royale/src/crt-royale-mask-resize-vertical.cg
+
+#include "CRT_Royale_bind-shader-params.hlsli"
+#include "CRT_Royale_phosphor-mask-resizing.hlsli"
+
+
+float4 Pass6(float2 pos) {
+    float2 output_size = { 64, 0.0625 * outputHeight };
+
+    //  First estimate the viewport size (the user will get the wrong number of
+    //  triads if it's wrong and mask_specify_num_triads is 1.0/true).
+    const float viewport_y = output_size.y / mask_resize_viewport_scale.y;
+    const float aspect_ratio = geom_aspect_ratio_x / geom_aspect_ratio_y;
+    const float2 estimated_viewport_size =
+        float2(viewport_y * aspect_ratio, viewport_y);
+    //  Estimate the output size of MASK_RESIZE (the next pass).  The estimated
+    //  x component shouldn't matter, because we're not using the x result, and
+    //  we're not swearing it's correct (if we did, the x result would influence
+    //  the y result to maintain the tile aspect ratio).
+    const float2 estimated_mask_resize_output_size =
+        float2(output_size.y * aspect_ratio, output_size.y);
+    //  Find the final intended [y] size of our resized phosphor mask tiles,
+    //  then the tile size for the current pass (resize y only):
+    const float2 mask_resize_tile_size = get_resized_mask_tile_size(
+        estimated_viewport_size, estimated_mask_resize_output_size, false);
+    const float2 pass_output_tile_size = float2(min(
+        mask_resize_src_lut_size.x, output_size.x), mask_resize_tile_size.y);
+
+    //  We'll render resized tiles until filling the output FBO or meeting a
+    //  limit, so compute [wrapped] tile uv coords based on the output uv coords
+    //  and the number of tiles that will fit in the FBO.
+    const float2 output_tiles_this_pass = output_size / pass_output_tile_size;
+    const float2 output_video_uv = pos;
+    const float2 tile_uv_wrap = output_video_uv * output_tiles_this_pass;
+
+    //  The input LUT is just a single mask tile, so texture uv coords are the
+    //  same as tile uv coords (save frac() for the fragment shader).  The
+    //  magnification scale is also straightforward:
+    const float2 src_tex_uv_wrap = tile_uv_wrap;
+    const float resize_magnification_scale =
+        pass_output_tile_size.y / mask_resize_src_lut_size.y;
+
+    //  Statically select small [non-mipmapped] or large [mipmapped] textures:
+#ifdef PHOSPHOR_MASK_RESIZE_MIPMAPPED_LUT
+    //Texture2D mask_grille_texture = mask_grille_texture_large;
+    //Texture2D mask_slot_texture = mask_slot_texture_large;
+    //Texture2D mask_shadow_texture = mask_shadow_texture_large;
+#else
+    Texture2D mask_grille_texture = mask_grille_texture_small;
+    Texture2D mask_slot_texture = mask_slot_texture_small;
+    Texture2D mask_shadow_texture = mask_shadow_texture_small;
+#endif
+
+    //  Resize the input phosphor mask tile to the final vertical size it will
+    //  appear on screen.  Keep 1x horizontal size if possible (IN.output_size
+    //  >= mask_resize_src_lut_size), and otherwise linearly sample horizontally
+    //  to fit exactly one tile.  Lanczos-resizing the phosphor mask achieves
+    //  much sharper results than mipmapping, and vertically resizing first
+    //  minimizes the total number of taps required.  We output a number of
+    //  resized tiles >= mask_resize_num_tiles for easier tiled sampling later.
+#ifdef PHOSPHOR_MASK_MANUALLY_RESIZE
+    //  Discard unneeded fragments in case our profile allows real branches.
+    if (get_mask_sample_mode() < 0.5 &&
+        tile_uv_wrap.y <= mask_resize_num_tiles) {
+        static const float src_dy = 1.0 / mask_resize_src_lut_size.y;
+        const float2 src_tex_uv = frac(src_tex_uv_wrap);
+        float3 pixel_color;
+        //  If mask_type is static, this branch will be resolved statically.
+        if (mask_type < 0.5) {
+            pixel_color = downsample_vertical_sinc_tiled(
+                mask_grille_texture, samLinear, src_tex_uv, mask_resize_src_lut_size,
+                src_dy, resize_magnification_scale, 1.0);
+        } else if (mask_type < 1.5) {
+            pixel_color = downsample_vertical_sinc_tiled(
+                mask_slot_texture, samLinear, src_tex_uv, mask_resize_src_lut_size,
+                src_dy, resize_magnification_scale, 1.0);
+        } else {
+            pixel_color = downsample_vertical_sinc_tiled(
+                mask_shadow_texture, samLinear, src_tex_uv, mask_resize_src_lut_size,
+                src_dy, resize_magnification_scale, 1.0);
+        }
+        //  The input LUT was linear RGB, and so is our output:
+        return float4(pixel_color, 1.0);
+    } else {
+        discard;
+        return float4(0, 0, 0, 1);
+    }
+#else
+    discard;
+    return float4(0, 0, 0, 1);
+#endif
+}
+
+
+//!PASS 7
+//!BIND tex6
+//!SAVE tex7
+
+// 移植自 https://github.com/libretro/common-shaders/blob/master/crt/shaders/crt-royale/src/crt-royale-mask-resize-horizontal.cg
+
+#include "CRT_Royale_bind-shader-params.hlsli"
+#include "CRT_Royale_phosphor-mask-resizing.hlsli"
+
+
+float4 Pass7(float2 pos) {
+    float2 texture_size = { 64, 0.0625 * outputHeight };
+    float2 output_size = 0.0625 * float2(outputWidth, outputHeight);
+
+    //  First estimate the viewport size (the user will get the wrong number of
+    //  triads if it's wrong and mask_specify_num_triads is 1.0/true).
+    const float2 estimated_viewport_size =
+        output_size / mask_resize_viewport_scale;
+    //  Find the final size of our resized phosphor mask tiles.  We probably
+    //  estimated the viewport size and MASK_RESIZE output size differently last
+    //  pass, so do not swear they were the same. ;)
+    const float2 mask_resize_tile_size = get_resized_mask_tile_size(
+        estimated_viewport_size, output_size, false);
+
+    //  We'll render resized tiles until filling the output FBO or meeting a
+    //  limit, so compute [wrapped] tile uv coords based on the output uv coords
+    //  and the number of tiles that will fit in the FBO.
+    const float2 output_tiles_this_pass = output_size / mask_resize_tile_size;
+    const float2 output_video_uv = pos;
+    const float2 tile_uv_wrap = output_video_uv * output_tiles_this_pass;
+
+    //  Get the texel size of an input tile and related values:
+    const float2 input_tile_size = float2(min(
+        mask_resize_src_lut_size.x, texture_size.x), mask_resize_tile_size.y);
+    const float2 tile_size_uv = input_tile_size / texture_size;
+    const float2 input_tiles_per_texture = texture_size / input_tile_size;
+
+    //  Derive [wrapped] texture uv coords from [wrapped] tile uv coords and
+    //  the tile size in uv coords, and save frac() for the fragment shader.
+    const float2 src_tex_uv_wrap = tile_uv_wrap * tile_size_uv;
+
+    float2 src_dxdy = float2(1.0 / texture_size.x, 0.0);
+    float resize_magnification_scale = mask_resize_tile_size.x / input_tile_size.x;
+
+    //  The input contains one mask tile horizontally and a number vertically.
+    //  Resize the tile horizontally to its final screen size and repeat it
+    //  until drawing at least mask_resize_num_tiles, leaving it unchanged
+    //  vertically.  Lanczos-resizing the phosphor mask achieves much sharper
+    //  results than mipmapping, outputting >= mask_resize_num_tiles makes for
+    //  easier tiled sampling later.
+#ifdef PHOSPHOR_MASK_MANUALLY_RESIZE
+    //  Discard unneeded fragments in case our profile allows real branches.
+    if (get_mask_sample_mode() < 0.5 &&
+        max(tile_uv_wrap.x, tile_uv_wrap.y) <= mask_resize_num_tiles) {
+        const float src_dx = src_dxdy.x;
+        const float2 src_tex_uv = frac(src_tex_uv_wrap);
+        const float3 pixel_color = downsample_horizontal_sinc_tiled(tex6, samPoint,
+            src_tex_uv, texture_size, src_dxdy.x,
+            resize_magnification_scale, tile_size_uv.x);
+        //  The input LUT was linear RGB, and so is our output:
+        return float4(pixel_color, 1.0);
+    } else {
+        discard;
+        return float4(0, 0, 0, 1);
+    }
+#else
+    discard;
+    return float4(0, 0, 0, 1);
+#endif
+}
+
+
+//!PASS 8
+//!BIND tex2, tex3, tex5, tex7
+
+// 移植自 https://github.com/libretro/common-shaders/blob/master/crt/shaders/crt-royale/src/crt-royale-scanlines-horizontal-apply-mask.cg
+
+#include "CRT_Royale_bind-shader-params.hlsli"
+#include "CRT_Royale_scanline-functions.hlsli"
+#include "CRT_Royale_phosphor-mask-resizing.hlsli"
+#include "CRT_Royale_bloom-functions.hlsli"
+#include "CRT_Royale_gamma-management.hlsli"
+
+
+float4 tex2Dtiled_mask_linearize(Texture2D tex, SamplerState sam, const float2 tex_uv) {
+    //  If we're manually tiling a texture, anisotropic filtering can get
+    //  confused.  One workaround is to just select the lowest mip level:
+#ifdef PHOSPHOR_MASK_MANUALLY_RESIZE
+#ifdef ANISOTROPIC_TILING_COMPAT_TEX2DLOD
+    //  TODO: Use tex2Dlod_linearize with a calculated mip level.
+    return tex2Dlod_linearize(tex, sam, float4(tex_uv, 0.0, 0.0));
+#else
+#ifdef ANISOTROPIC_TILING_COMPAT_TEX2DBIAS
+    return tex2Dbias_linearize(tex, sam, float4(tex_uv, 0.0, -16.0));
+#else
+    return tex2D_linearize(tex, sam, tex_uv);
+#endif
+#endif
+#else
+    return tex2D_linearize(tex, sam, tex_uv);
+#endif
+}
+
+float4 Pass8(float2 pos) {
+    //  Our various input textures use different coords.
+    const float2 video_uv = pos;
+    const float2 scanline_texture_size_inv = float2(inputPtX, inputPtY);
+    float2 scanline_tex_uv = video_uv;
+    float2 blur3x3_tex_uv = video_uv;
+    float2 halation_tex_uv = video_uv;
+
+    //  Get a consistent name for the final mask texture size.  Sample mode 0
+    //  uses the manually resized mask, but ignore it if we never resized.
+#ifdef PHOSPHOR_MASK_MANUALLY_RESIZE
+    const float mask_sample_mode = get_mask_sample_mode();
+    const float2 MASK_RESIZE_video_size = 0.0625 * float2(outputWidth, outputHeight);
+    const float2 mask_resize_texture_size = mask_sample_mode < 0.5 ?
+        MASK_RESIZE_video_size : mask_texture_large_size;
+    const float2 mask_resize_video_size = mask_sample_mode < 0.5 ?
+        MASK_RESIZE_video_size : mask_texture_large_size;
+#else
+    const float2 mask_resize_texture_size = mask_texture_large_size;
+    const float2 mask_resize_video_size = mask_texture_large_size;
+#endif
+    //  Compute mask tile dimensions, starting points, etc.:
+    float2 mask_tiles_per_screen;
+    float4 mask_tile_start_uv_and_size = get_mask_sampling_parameters(
+        mask_resize_texture_size, mask_resize_video_size, float2(outputWidth, outputHeight),
+        mask_tiles_per_screen);
+
+    //  This pass: Sample (misconverged?) scanlines to the final horizontal
+    //  resolution, apply halation (bouncing electrons), and apply the phosphor
+    //  mask.  Fake a bloom if requested.  Unless we fake a bloom, the output
+    //  will be dim from the scanline auto-dim, mask dimming, and low gamma.
+
+    //  Horizontally sample the current row (a vertically interpolated scanline)
+    //  and account for horizontal convergence offsets, given in units of texels.
+    const float3 scanline_color_dim = sample_rgb_scanline_horizontal(
+        tex2, samLinear, scanline_tex_uv,
+        float2(inputWidth, inputHeight), scanline_texture_size_inv);
+    const float auto_dim_factor = levels_autodim_temp;
+
+    //  Sample the phosphor mask:
+    const float2 tile_uv_wrap = video_uv * mask_tiles_per_screen;
+    const float2 mask_tex_uv = convert_phosphor_tile_uv_wrap_to_tex_uv(
+        tile_uv_wrap, mask_tile_start_uv_and_size);
+    float3 phosphor_mask_sample;
+#ifdef PHOSPHOR_MASK_MANUALLY_RESIZE
+    const bool sample_orig_luts = get_mask_sample_mode() > 0.5;
+#else
+    static const bool sample_orig_luts = true;
+#endif
+    if (sample_orig_luts) {
+        //  If mask_type is static, this branch will be resolved statically.
+        /*if (mask_type < 0.5) {
+            phosphor_mask_sample = tex2D_linearize(
+                mask_grille_texture_large, mask_tex_uv).rgb;
+        } else if (mask_type < 1.5) {
+            phosphor_mask_sample = tex2D_linearize(
+                mask_slot_texture_large, mask_tex_uv).rgb;
+        } else {
+            phosphor_mask_sample = tex2D_linearize(
+                mask_shadow_texture_large, mask_tex_uv).rgb;
+        }*/
+    } else {
+        //  Sample the resized mask, and avoid tiling artifacts:
+        phosphor_mask_sample = tex2Dtiled_mask_linearize(
+            tex7, samLinear, mask_tex_uv).rgb;
+    }
+
+    //  Sample the halation texture (auto-dim to match the scanlines), and
+    //  account for both horizontal and vertical convergence offsets, given
+    //  in units of texels horizontally and same-field scanlines vertically:
+    const float3 halation_color = tex2D_linearize(
+        tex5, samLinear, halation_tex_uv).rgb;
+
+    //  Apply halation: Halation models electrons flying around under the glass
+    //  and hitting the wrong phosphors (of any color).  It desaturates, so
+    //  average the halation electrons to a scalar.  Reduce the local scanline
+    //  intensity accordingly to conserve energy.
+    const float3 halation_intensity_dim = dot(halation_color, auto_dim_factor / 3.0);
+    const float3 electron_intensity_dim = lerp(scanline_color_dim,
+        halation_intensity_dim, halation_weight);
+
+    //  Apply the phosphor mask:
+    const float3 phosphor_emission_dim = electron_intensity_dim *
+        phosphor_mask_sample;
+
+#ifdef PHOSPHOR_BLOOM_FAKE
+    //  The BLOOM_APPROX pass approximates a blurred version of a masked
+    //  and scanlined image.  It's usually used to compute the brightpass,
+    //  but we can also use it to fake the bloom stage entirely.  Caveats:
+    //  1.) A fake bloom is conceptually different, since we're mixing in a
+    //      fully blurred low-res image, and the biggest implication are:
+    //  2.) If mask_amplify is incorrect, results deteriorate more quickly.
+    //  3.) The inaccurate blurring hurts quality in high-contrast areas.
+    //  4.) The bloom_underestimate_levels parameter seems less sensitive.
+    //  Reverse the auto-dimming and amplify to compensate for mask dimming:
+#define PHOSPHOR_BLOOM_FAKE_WITH_SIMPLE_BLEND
+#ifdef PHOSPHOR_BLOOM_FAKE_WITH_SIMPLE_BLEND
+    static const float blur_contrast = 1.05;
+#else
+    static const float blur_contrast = 1.0;
+#endif
+    const float mask_amplify = get_mask_amplify();
+    const float undim_factor = 1.0 / auto_dim_factor;
+    const float3 phosphor_emission =
+        phosphor_emission_dim * undim_factor * mask_amplify;
+    //  Get a phosphor blur estimate, accounting for convergence offsets:
+    const float3 electron_intensity = electron_intensity_dim * undim_factor;
+    const float3 phosphor_blur_approx_soft = tex2D_linearize(
+        tex3, samLinear, blur3x3_tex_uv).rgb;
+    const float3 phosphor_blur_approx = lerp(phosphor_blur_approx_soft,
+        electron_intensity, 0.1) * blur_contrast;
+    //  We could blend between phosphor_emission and phosphor_blur_approx,
+    //  solving for the minimum blend_ratio that avoids clipping past 1.0:
+    //      1.0 >= total_intensity
+    //      1.0 >= phosphor_emission * (1.0 - blend_ratio) +
+    //              phosphor_blur_approx * blend_ratio
+    //      blend_ratio = (phosphor_emission - 1.0)/
+    //          (phosphor_emission - phosphor_blur_approx);
+    //  However, this blurs far more than necessary, because it aims for
+    //  full brightness, not minimal blurring.  To fix it, base blend_ratio
+    //  on a max area intensity only so it varies more smoothly:
+    const float3 phosphor_blur_underestimate =
+        phosphor_blur_approx * bloom_underestimate_levels;
+    const float3 area_max_underestimate =
+        phosphor_blur_underestimate * mask_amplify;
+#ifdef PHOSPHOR_BLOOM_FAKE_WITH_SIMPLE_BLEND
+    const float3 blend_ratio_temp =
+        (area_max_underestimate - 1.0) /
+        (area_max_underestimate - phosphor_blur_underestimate);
+#else
+    //  Try doing it like an area-based brightpass.  This is nearly
+    //  identical, but it's worth toying with the code in case I ever
+    //  find a way to make it look more like a real bloom.  (I've had
+    //  some promising textures from combining an area-based blend ratio
+    //  for the phosphor blur and a more brightpass-like blend-ratio for
+    //  the phosphor emission, but I haven't found a way to make the
+    //  brightness correct across the whole color range, especially with
+    //  different bloom_underestimate_levels values.)
+    const float desired_triad_size = lerp(mask_triad_size_desired,
+        outputWidth / mask_num_triads_desired,
+        mask_specify_num_triads);
+    const float bloom_sigma = get_min_sigma_to_blur_triad(
+        desired_triad_size, bloom_diff_thresh);
+    const float center_weight = get_center_weight(bloom_sigma);
+    const float3 max_area_contribution_approx =
+        max(0.0, phosphor_blur_approx -
+            center_weight * phosphor_emission);
+    const float3 area_contrib_underestimate =
+        bloom_underestimate_levels * max_area_contribution_approx;
+    const float3 blend_ratio_temp =
+        ((1.0 - area_contrib_underestimate) /
+            area_max_underestimate - 1.0) / (center_weight - 1.0);
+#endif
+    //  Clamp blend_ratio in case it's out-of-range, but be SUPER careful:
+    //  min/max/clamp are BIZARRELY broken with lerp (optimization bug?),
+    //  and this redundant sequence avoids bugs, at least on nVidia cards:
+    const float3 blend_ratio_clamped = max(clamp(blend_ratio_temp, 0.0, 1.0), 0.0);
+    const float3 blend_ratio = lerp(blend_ratio_clamped, 1.0, bloom_excess);
+    //  Blend the blurred and unblurred images:
+    const float3 phosphor_emission_unclipped =
+        lerp(phosphor_emission, phosphor_blur_approx, blend_ratio);
+    //  Simulate refractive diffusion by reusing the halation sample.
+    const float3 pixel_color = lerp(phosphor_emission_unclipped,
+        halation_color, diffusion_weight);
+#else
+    const float3 pixel_color = phosphor_emission_dim;
+#endif
+    //  Encode if necessary, and output.
+    return encode_output(float4(pixel_color, 1.0));
 }
