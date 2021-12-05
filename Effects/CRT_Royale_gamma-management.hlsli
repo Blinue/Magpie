@@ -303,34 +303,18 @@ float4 decode_gamma_input(const float4 color, const float3 gamma) {
 float4 tex2D_linearize(Texture2D tex, SamplerState sam, const float2 tex_coords) {
 	return decode_input(tex.Sample(sam, tex_coords));
 }
-/*
-float4 tex2D_linearize(Texture2D tex, SamplerState sam, const float3 tex_coords) {
-	return decode_input(tex.SampleCmp(sam, tex_coords.xy, tex_coords.z));
-}*/
 
 float4 tex2D_linearize(Texture2D tex, SamplerState sam, const float2 tex_coords, const int texel_off) {
 	return decode_input(tex.Sample(sam, tex_coords, texel_off));
 }
-/*
-float4 tex2D_linearize(Texture2D tex, SamplerState sam, const float3 tex_coords, const int texel_off) {
-	return decode_input(tex.SampleCmp(sam, tex_coords.xy, tex_coords.z, texel_off));
-}*/
 
 float4 tex2D_linearize(Texture2D tex, SamplerState sam, const float2 tex_coords, const float2 dx, const float2 dy) {
 	return decode_input(tex.SampleGrad(sam, tex_coords, dx, dy));
 }
-/*
-float4 tex2D_linearize(Texture2D tex, SamplerState sam, const float3 tex_coords, const float2 dx, const float2 dy) {
-	return decode_input(tex.SampleCmp(sam, tex_coords.xy, tex_coords.z, dx, dy));
-}*/
 
 float4 tex2D_linearize(Texture2D tex, SamplerState sam, const float2 tex_coords, const float2 dx, const float2 dy, const int texel_off) {
 	return decode_input(tex.SampleGrad(sam, tex_coords, dx, dy, texel_off));
 }
-/*
-float4 tex2D_linearize(Texture2D tex, SamplerState sam, const float3 tex_coords, const float2 dx, const float2 dy, const int texel_off) {
-	return decode_input(tex.SampleCmp(sam, tex_coords.xy, tex_coords.z, dx, dy, texel_off));
-}*/
 
 //  tex2Dbias:
 float4 tex2Dbias_linearize(Texture2D tex, SamplerState sam, const float4 tex_coords) {
@@ -359,23 +343,6 @@ float4 tex2Dlod_linearize(Texture2D tex, SamplerState sam, const float4 tex_coor
 	return decode_input(tex.SampleLevel(sam, tex_coords.xy, tex_coords.w, texel_off));
 }
 
-//  tex2Dproj:
-float4 tex2Dproj_linearize(Texture2D tex, SamplerState sam, const float3 tex_coords) {
-	return decode_input(tex.Sample(sam, tex_coords.xy / tex_coords.z));
-}
-/*
-float4 tex2Dproj_linearize(Texture2D tex, SamplerState sam, const float4 tex_coords) {
-	return decode_input(tex.SampleCmp(tex, tex_coords.xy / tex_coords.w, tex_coords.z));
-}*/
-
-float4 tex2Dproj_linearize(Texture2D tex, SamplerState sam, const float3 tex_coords, const int texel_off) {
-	return decode_input(tex.Sample(sam, tex_coords.xy / tex_coords.z, texel_off));
-}
-/*
-float4 tex2Dproj_linearize(Texture2D tex, SamplerState sam, const float4 tex_coords, const int texel_off) {
-	return decode_input(tex.SampleCmp(tex, tex_coords.xy / tex_coords.w, tex_coords.z, texel_off));
-}*/
-
 
 //  NONSTANDARD "SMART" LINEARIZING TEXTURE LOOKUP FUNCTIONS:
 //  This narrow selection of nonstandard tex2D* functions can be useful:
@@ -388,72 +355,5 @@ float4 tex2Dlod0_linearize(Texture2D tex, SamplerState sam, const float2 tex_coo
 float4 tex2Dlod0_linearize(Texture2D tex, SamplerState sam, const float2 tex_coords, const int texel_off) {
 	return decode_input(tex.SampleLevel(sam, tex_coords.xy, 0, texel_off));
 }
-
-
-//  MANUALLY LINEARIZING TEXTURE LOOKUP FUNCTIONS:
-//  Provide a narrower selection of tex2D* wrapper functions that decode an
-//  input sample with a specified gamma value.  These are useful for reading
-//  LUT's and for reading the input of pass0 in a later pass.
-
-//  tex2D:
-float4 tex2D_linearize_gamma(Texture2D tex, SamplerState sam, const float2 tex_coords, const float3 gamma) {
-	return decode_gamma_input(tex.Sample(sam, tex_coords), gamma);
-}
-/*
-float4 tex2D_linearize_gamma(Texture2D tex, SamplerState sam, const float3 tex_coords, const float3 gamma) {
-	return decode_gamma_input(tex.Sample(sam, tex_coords), gamma);
-}*/
-
-float4 tex2D_linearize_gamma(Texture2D tex, SamplerState sam, const float2 tex_coords, const int texel_off, const float3 gamma) {
-	return decode_gamma_input(tex.Sample(sam, tex_coords, texel_off), gamma);
-}
-/*
-float4 tex2D_linearize_gamma(Texture2D tex, SamplerState sam, const float3 tex_coords, const int texel_off, const float3 gamma) {
-	return decode_gamma_input(tex.Sample(sam, tex_coords, texel_off), gamma);
-}*/
-
-float4 tex2D_linearize_gamma(Texture2D tex, SamplerState sam, const float2 tex_coords, const float2 dx, const float2 dy, const float3 gamma) {
-	return decode_gamma_input(tex.SampleGrad(sam, tex_coords, dx, dy), gamma);
-}
-/*
-float4 tex2D_linearize_gamma(Texture2D tex, SamplerState sam, const float3 tex_coords, const float2 dx, const float2 dy, const float3 gamma) {
-	return decode_gamma_input(tex.Sample(sam, tex_coords, dx, dy), gamma);
-}*/
-
-float4 tex2D_linearize_gamma(Texture2D tex, SamplerState sam, const float2 tex_coords, const float2 dx, const float2 dy, const int texel_off, const float3 gamma) {
-	return decode_gamma_input(tex.SampleGrad(sam, tex_coords, dx, dy, texel_off), gamma);
-}
-/*
-float4 tex2D_linearize_gamma(Texture2D tex, SamplerState sam, const float3 tex_coords, const float2 dx, const float2 dy, const int texel_off, const float3 gamma) {
-	return decode_gamma_input(tex.Sample(sam, tex_coords, dx, dy, texel_off), gamma);
-}*/
-
-//  tex2Dbias:
-float4 tex2Dbias_linearize_gamma(Texture2D tex, SamplerState sam, const float4 tex_coords, const float3 gamma) {
-	return decode_gamma_input(tex.SampleBias(sam, tex_coords.xy, tex_coords.w), gamma);
-}
-
-float4 tex2Dbias_linearize_gamma(Texture2D tex, SamplerState sam, const float4 tex_coords, const int texel_off, const float3 gamma) {
-	return decode_gamma_input(tex.SampleBias(sam, tex_coords.xy, tex_coords.w, texel_off), gamma);
-}
-
-//  tex2Dfetch:
-float4 tex2Dfetch_linearize_gamma(Texture2D tex, const int4 tex_coords, const float3 gamma) {
-	return decode_gamma_input(tex.Load(tex_coords.xyw), gamma);
-}
-
-float4 tex2Dfetch_linearize_gamma(Texture2D tex, const int4 tex_coords, const int texel_off, const float3 gamma) {
-	return decode_gamma_input(tex.Load(tex_coords.xyw, texel_off), gamma);
-}
-
-//  tex2Dlod:
-float4 tex2Dlod_linearize_gamma(Texture2D tex, SamplerState sam, const float4 tex_coords, const float3 gamma) {
-	return decode_gamma_input(tex.SampleLevel(sam, tex_coords.xy, tex_coords.w), gamma);
-}
-
-float4 tex2Dlod_linearize_gamma(Texture2D tex, SamplerState sam, const float4 tex_coords, const int texel_off, const float3 gamma) {
-	return decode_gamma_input(tex.SampleLevel(sam, tex_coords.xy, tex_coords.w, texel_off), gamma);
-}
-
 
 #endif  //  GAMMA_MANAGEMENT_H

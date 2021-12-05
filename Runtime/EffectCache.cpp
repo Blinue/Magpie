@@ -242,7 +242,7 @@ void EffectCache::Save(const wchar_t* fileName, std::string_view hash, const Eff
 		yas::vector_ostream os(buf);
 		yas::binary_oarchive<yas::vector_ostream<BYTE>, yas::binary> oa(os);
 
-		oa& EffectCompiler::VERSION;
+		oa& _VERSION;
 		oa& desc;
 	} catch (...) {
 		SPDLOG_LOGGER_ERROR(logger, "序列化失败");
