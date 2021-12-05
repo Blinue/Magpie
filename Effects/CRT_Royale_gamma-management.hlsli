@@ -130,7 +130,7 @@
 
 //  Set standard gamma constants, but allow users to override them:
 #ifndef OVERRIDE_STANDARD_GAMMA
-    //  Standard encoding gammas:
+	//  Standard encoding gammas:
 static const float ntsc_gamma = 2.2;    //  Best to use NTSC for PAL too?
 static const float pal_gamma = 2.8;     //  Never actually 2.8 in practice
 //  Typical device decoding gammas (only use for emulating devices):
@@ -167,7 +167,7 @@ static const bool assume_opaque_alpha = false;
 
 //  Set device gamma constants, but allow users to override them:
 #ifdef OVERRIDE_DEVICE_GAMMA
-    //  The user promises to globally define the appropriate constants:
+	//  The user promises to globally define the appropriate constants:
 float get_crt_gamma() { return crt_gamma; }
 float get_gba_gamma() { return gba_gamma; }
 float get_lcd_gamma() { return lcd_gamma; }
@@ -179,13 +179,13 @@ float get_lcd_gamma() { return lcd_office_gamma; }
 
 //  Set decoding/encoding gammas for the first/lass passes, but allow overrides:
 #ifdef OVERRIDE_FINAL_GAMMA
-    //  The user promises to globally define the appropriate constants:
+	//  The user promises to globally define the appropriate constants:
 float get_intermediate_gamma() { return intermediate_gamma; }
 float get_input_gamma() { return input_gamma; }
 float get_output_gamma() { return output_gamma; }
 #else
-    //  If we gamma-correct every pass, always use ntsc_gamma between passes to
-    //  ensure middle passes don't need to care if anything is being simulated:
+	//  If we gamma-correct every pass, always use ntsc_gamma between passes to
+	//  ensure middle passes don't need to care if anything is being simulated:
 float get_intermediate_gamma() { return ntsc_gamma; }
 #ifdef SIMULATE_CRT_ON_LCD
 float get_input_gamma() { return get_crt_gamma(); }
@@ -251,35 +251,35 @@ static const bool gamma_aware_bilinear = !linearize_input;
 //////////////////////  COLOR ENCODING/DECODING FUNCTIONS  /////////////////////
 
 float4 encode_output(const float4 color) {
-    if (gamma_encode_output) {
-        if (assume_opaque_alpha) {
-            return float4(pow(color.rgb, 1.0 / get_pass_output_gamma()), 1.0);
-        } else {
-            return float4(pow(color.rgb, 1.0 / get_pass_output_gamma()), color.a);
-        }
-    } else {
-        return color;
-    }
+	if (gamma_encode_output) {
+		if (assume_opaque_alpha) {
+			return float4(pow(color.rgb, 1.0 / get_pass_output_gamma()), 1.0);
+		} else {
+			return float4(pow(color.rgb, 1.0 / get_pass_output_gamma()), color.a);
+		}
+	} else {
+		return color;
+	}
 }
 
 float4 decode_input(const float4 color) {
-    if (linearize_input) {
-        if (assume_opaque_alpha) {
-            return float4(pow(color.rgb, get_pass_input_gamma()), 1.0);
-        } else {
-            return float4(pow(color.rgb, get_pass_input_gamma()), color.a);
-        }
-    } else {
-        return color;
-    }
+	if (linearize_input) {
+		if (assume_opaque_alpha) {
+			return float4(pow(color.rgb, get_pass_input_gamma()), 1.0);
+		} else {
+			return float4(pow(color.rgb, get_pass_input_gamma()), color.a);
+		}
+	} else {
+		return color;
+	}
 }
 
 float4 decode_gamma_input(const float4 color, const float3 gamma) {
-    if (assume_opaque_alpha) {
-        return float4(pow(color.rgb, gamma), 1.0);
-    } else {
-        return float4(pow(color.rgb, gamma), color.a);
-    }
+	if (assume_opaque_alpha) {
+		return float4(pow(color.rgb, gamma), 1.0);
+	} else {
+		return float4(pow(color.rgb, gamma), color.a);
+	}
 }
 
 
@@ -301,79 +301,79 @@ float4 decode_gamma_input(const float4 color, const float3 gamma) {
 
 //  tex2D:
 float4 tex2D_linearize(Texture2D tex, SamplerState sam, const float2 tex_coords) {
-    return decode_input(tex.Sample(sam, tex_coords));
+	return decode_input(tex.Sample(sam, tex_coords));
 }
 /*
 float4 tex2D_linearize(Texture2D tex, SamplerState sam, const float3 tex_coords) {
-    return decode_input(tex.SampleCmp(sam, tex_coords.xy, tex_coords.z));
+	return decode_input(tex.SampleCmp(sam, tex_coords.xy, tex_coords.z));
 }*/
 
 float4 tex2D_linearize(Texture2D tex, SamplerState sam, const float2 tex_coords, const int texel_off) {
-    return decode_input(tex.Sample(sam, tex_coords, texel_off));
+	return decode_input(tex.Sample(sam, tex_coords, texel_off));
 }
 /*
 float4 tex2D_linearize(Texture2D tex, SamplerState sam, const float3 tex_coords, const int texel_off) {
-    return decode_input(tex.SampleCmp(sam, tex_coords.xy, tex_coords.z, texel_off));
+	return decode_input(tex.SampleCmp(sam, tex_coords.xy, tex_coords.z, texel_off));
 }*/
 
 float4 tex2D_linearize(Texture2D tex, SamplerState sam, const float2 tex_coords, const float2 dx, const float2 dy) {
-    return decode_input(tex.SampleGrad(sam, tex_coords, dx, dy));
+	return decode_input(tex.SampleGrad(sam, tex_coords, dx, dy));
 }
 /*
 float4 tex2D_linearize(Texture2D tex, SamplerState sam, const float3 tex_coords, const float2 dx, const float2 dy) {
-    return decode_input(tex.SampleCmp(sam, tex_coords.xy, tex_coords.z, dx, dy));
+	return decode_input(tex.SampleCmp(sam, tex_coords.xy, tex_coords.z, dx, dy));
 }*/
 
 float4 tex2D_linearize(Texture2D tex, SamplerState sam, const float2 tex_coords, const float2 dx, const float2 dy, const int texel_off) {
-    return decode_input(tex.SampleGrad(sam, tex_coords, dx, dy, texel_off));
+	return decode_input(tex.SampleGrad(sam, tex_coords, dx, dy, texel_off));
 }
 /*
 float4 tex2D_linearize(Texture2D tex, SamplerState sam, const float3 tex_coords, const float2 dx, const float2 dy, const int texel_off) {
-    return decode_input(tex.SampleCmp(sam, tex_coords.xy, tex_coords.z, dx, dy, texel_off));
+	return decode_input(tex.SampleCmp(sam, tex_coords.xy, tex_coords.z, dx, dy, texel_off));
 }*/
 
 //  tex2Dbias:
 float4 tex2Dbias_linearize(Texture2D tex, SamplerState sam, const float4 tex_coords) {
-    return decode_input(tex.SampleBias(sam, tex_coords.xy, tex_coords.w));
+	return decode_input(tex.SampleBias(sam, tex_coords.xy, tex_coords.w));
 }
 
 float4 tex2Dbias_linearize(Texture2D tex, SamplerState sam, const float4 tex_coords, const int texel_off) {
-    return decode_input(tex.SampleBias(sam, tex_coords.xy, tex_coords.w, texel_off));
+	return decode_input(tex.SampleBias(sam, tex_coords.xy, tex_coords.w, texel_off));
 }
 
 //  tex2Dfetch:
 float4 tex2Dfetch_linearize(Texture2D tex, const int4 tex_coords) {
-    return decode_input(tex.Load(tex_coords.xyw));
+	return decode_input(tex.Load(tex_coords.xyw));
 }
 
 float4 tex2Dfetch_linearize(Texture2D tex, const int4 tex_coords, const int texel_off) {
-    return decode_input(tex.Load(tex_coords.xyw, texel_off));
+	return decode_input(tex.Load(tex_coords.xyw, texel_off));
 }
 
 //  tex2Dlod:
 float4 tex2Dlod_linearize(Texture2D tex, SamplerState sam, const float4 tex_coords) {
-    return decode_input(tex.SampleLevel(sam, tex_coords.xy, tex_coords.w));
+	return decode_input(tex.SampleLevel(sam, tex_coords.xy, tex_coords.w));
 }
 
 float4 tex2Dlod_linearize(Texture2D tex, SamplerState sam, const float4 tex_coords, const int texel_off) {
-    return decode_input(tex.SampleLevel(sam, tex_coords.xy, tex_coords.w, texel_off));
+	return decode_input(tex.SampleLevel(sam, tex_coords.xy, tex_coords.w, texel_off));
 }
 
 //  tex2Dproj:
 float4 tex2Dproj_linearize(Texture2D tex, SamplerState sam, const float3 tex_coords) {
-    return decode_input(tex.Sample(sam, tex_coords.xy / tex_coords.z));
+	return decode_input(tex.Sample(sam, tex_coords.xy / tex_coords.z));
 }
 /*
 float4 tex2Dproj_linearize(Texture2D tex, SamplerState sam, const float4 tex_coords) {
-    return decode_input(tex.SampleCmp(tex, tex_coords.xy / tex_coords.w, tex_coords.z));
+	return decode_input(tex.SampleCmp(tex, tex_coords.xy / tex_coords.w, tex_coords.z));
 }*/
 
 float4 tex2Dproj_linearize(Texture2D tex, SamplerState sam, const float3 tex_coords, const int texel_off) {
-    return decode_input(tex.Sample(sam, tex_coords.xy / tex_coords.z, texel_off));
+	return decode_input(tex.Sample(sam, tex_coords.xy / tex_coords.z, texel_off));
 }
 /*
 float4 tex2Dproj_linearize(Texture2D tex, SamplerState sam, const float4 tex_coords, const int texel_off) {
-    return decode_input(tex.SampleCmp(tex, tex_coords.xy / tex_coords.w, tex_coords.z, texel_off));
+	return decode_input(tex.SampleCmp(tex, tex_coords.xy / tex_coords.w, tex_coords.z, texel_off));
 }*/
 
 
@@ -382,11 +382,11 @@ float4 tex2Dproj_linearize(Texture2D tex, SamplerState sam, const float4 tex_coo
 
 //  tex2Dlod0: Automatically fill in the tex2D LOD parameter for mip level 0.
 float4 tex2Dlod0_linearize(Texture2D tex, SamplerState sam, const float2 tex_coords) {
-    return decode_input(tex.SampleLevel(sam, tex_coords.xy, 0));
+	return decode_input(tex.SampleLevel(sam, tex_coords.xy, 0));
 }
 
 float4 tex2Dlod0_linearize(Texture2D tex, SamplerState sam, const float2 tex_coords, const int texel_off) {
-    return decode_input(tex.SampleLevel(sam, tex_coords.xy, 0, texel_off));
+	return decode_input(tex.SampleLevel(sam, tex_coords.xy, 0, texel_off));
 }
 
 
@@ -397,62 +397,62 @@ float4 tex2Dlod0_linearize(Texture2D tex, SamplerState sam, const float2 tex_coo
 
 //  tex2D:
 float4 tex2D_linearize_gamma(Texture2D tex, SamplerState sam, const float2 tex_coords, const float3 gamma) {
-    return decode_gamma_input(tex.Sample(sam, tex_coords), gamma);
+	return decode_gamma_input(tex.Sample(sam, tex_coords), gamma);
 }
 /*
 float4 tex2D_linearize_gamma(Texture2D tex, SamplerState sam, const float3 tex_coords, const float3 gamma) {
-    return decode_gamma_input(tex.Sample(sam, tex_coords), gamma);
+	return decode_gamma_input(tex.Sample(sam, tex_coords), gamma);
 }*/
 
 float4 tex2D_linearize_gamma(Texture2D tex, SamplerState sam, const float2 tex_coords, const int texel_off, const float3 gamma) {
-    return decode_gamma_input(tex.Sample(sam, tex_coords, texel_off), gamma);
+	return decode_gamma_input(tex.Sample(sam, tex_coords, texel_off), gamma);
 }
 /*
 float4 tex2D_linearize_gamma(Texture2D tex, SamplerState sam, const float3 tex_coords, const int texel_off, const float3 gamma) {
-    return decode_gamma_input(tex.Sample(sam, tex_coords, texel_off), gamma);
+	return decode_gamma_input(tex.Sample(sam, tex_coords, texel_off), gamma);
 }*/
 
 float4 tex2D_linearize_gamma(Texture2D tex, SamplerState sam, const float2 tex_coords, const float2 dx, const float2 dy, const float3 gamma) {
-    return decode_gamma_input(tex.SampleGrad(sam, tex_coords, dx, dy), gamma);
+	return decode_gamma_input(tex.SampleGrad(sam, tex_coords, dx, dy), gamma);
 }
 /*
 float4 tex2D_linearize_gamma(Texture2D tex, SamplerState sam, const float3 tex_coords, const float2 dx, const float2 dy, const float3 gamma) {
-    return decode_gamma_input(tex.Sample(sam, tex_coords, dx, dy), gamma);
+	return decode_gamma_input(tex.Sample(sam, tex_coords, dx, dy), gamma);
 }*/
 
 float4 tex2D_linearize_gamma(Texture2D tex, SamplerState sam, const float2 tex_coords, const float2 dx, const float2 dy, const int texel_off, const float3 gamma) {
-    return decode_gamma_input(tex.SampleGrad(sam, tex_coords, dx, dy, texel_off), gamma);
+	return decode_gamma_input(tex.SampleGrad(sam, tex_coords, dx, dy, texel_off), gamma);
 }
 /*
 float4 tex2D_linearize_gamma(Texture2D tex, SamplerState sam, const float3 tex_coords, const float2 dx, const float2 dy, const int texel_off, const float3 gamma) {
-    return decode_gamma_input(tex.Sample(sam, tex_coords, dx, dy, texel_off), gamma);
+	return decode_gamma_input(tex.Sample(sam, tex_coords, dx, dy, texel_off), gamma);
 }*/
 
 //  tex2Dbias:
 float4 tex2Dbias_linearize_gamma(Texture2D tex, SamplerState sam, const float4 tex_coords, const float3 gamma) {
-    return decode_gamma_input(tex.SampleBias(sam, tex_coords.xy, tex_coords.w), gamma);
+	return decode_gamma_input(tex.SampleBias(sam, tex_coords.xy, tex_coords.w), gamma);
 }
 
 float4 tex2Dbias_linearize_gamma(Texture2D tex, SamplerState sam, const float4 tex_coords, const int texel_off, const float3 gamma) {
-    return decode_gamma_input(tex.SampleBias(sam, tex_coords.xy, tex_coords.w, texel_off), gamma);
+	return decode_gamma_input(tex.SampleBias(sam, tex_coords.xy, tex_coords.w, texel_off), gamma);
 }
 
 //  tex2Dfetch:
 float4 tex2Dfetch_linearize_gamma(Texture2D tex, const int4 tex_coords, const float3 gamma) {
-    return decode_gamma_input(tex.Load(tex_coords.xyw), gamma);
+	return decode_gamma_input(tex.Load(tex_coords.xyw), gamma);
 }
 
 float4 tex2Dfetch_linearize_gamma(Texture2D tex, const int4 tex_coords, const int texel_off, const float3 gamma) {
-    return decode_gamma_input(tex.Load(tex_coords.xyw, texel_off), gamma);
+	return decode_gamma_input(tex.Load(tex_coords.xyw, texel_off), gamma);
 }
 
 //  tex2Dlod:
 float4 tex2Dlod_linearize_gamma(Texture2D tex, SamplerState sam, const float4 tex_coords, const float3 gamma) {
-    return decode_gamma_input(tex.SampleLevel(sam, tex_coords.xy, tex_coords.w), gamma);
+	return decode_gamma_input(tex.SampleLevel(sam, tex_coords.xy, tex_coords.w), gamma);
 }
 
 float4 tex2Dlod_linearize_gamma(Texture2D tex, SamplerState sam, const float4 tex_coords, const int texel_off, const float3 gamma) {
-    return decode_gamma_input(tex.SampleLevel(sam, tex_coords.xy, tex_coords.w, texel_off), gamma);
+	return decode_gamma_input(tex.SampleLevel(sam, tex_coords.xy, tex_coords.w, texel_off), gamma);
 }
 
 

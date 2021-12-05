@@ -49,11 +49,11 @@
 
 float4 erf6(float4 x)
 {
-    //  Requires:   x is the standard parameter to erf().
-    //  Returns:    Return an Abramowitz/Stegun approximation of erf(), where:
-    //                  erf(x) = 2/sqrt(pi) * integral(e**(-x**2))
-    //              This approximation has a max absolute error of 2.5*10**-5
-    //              with solid numerical robustness and efficiency.  See:
+	//  Requires:   x is the standard parameter to erf().
+	//  Returns:    Return an Abramowitz/Stegun approximation of erf(), where:
+	//                  erf(x) = 2/sqrt(pi) * integral(e**(-x**2))
+	//              This approximation has a max absolute error of 2.5*10**-5
+	//              with solid numerical robustness and efficiency.  See:
 	//                  https://en.wikipedia.org/wiki/Error_function#Approximation_with_elementary_functions
 	const float4 sign_x = sign(x);
 	const float4 t = 1/(1 + 0.47047*abs(x));
@@ -64,7 +64,7 @@ float4 erf6(float4 x)
 
 float3 erf6(const float3 x)
 {
-    //  Float3 version:
+	//  Float3 version:
 	const float3 sign_x = sign(x);
 	const float3 t = 1/(1 + 0.47047*abs(x));
 	const float3 result = 1 - t*(0.3480242 + t*(-0.0958798 + t*0.7478556))*
@@ -74,7 +74,7 @@ float3 erf6(const float3 x)
 
 float2 erf6(const float2 x)
 {
-    //  Float2 version:
+	//  Float2 version:
 	const float2 sign_x = sign(x);
 	const float2 t = 1/(1 + 0.47047*abs(x));
 	const float2 result = 1 - t*(0.3480242 + t*(-0.0958798 + t*0.7478556))*
@@ -84,7 +84,7 @@ float2 erf6(const float2 x)
 
 float erf6(const float x)
 {
-    //  Float version:
+	//  Float version:
 	const float sign_x = sign(x);
 	const float t = 1.0/(1.0 + 0.47047*abs(x));
 	const float result = 1.0 - t*(0.3480242 + t*(-0.0958798 + t*0.7478556))*
@@ -94,38 +94,38 @@ float erf6(const float x)
 
 float4 erft(const float4 x)
 {
-    //  Requires:   x is the standard parameter to erf().
-    //  Returns:    Approximate erf() with the hyperbolic tangent.  The error is
-    //              visually noticeable, but it's blazing fast and perceptually
-    //              close...at least on ATI hardware.  See:
-    //                  http://www.maplesoft.com/applications/view.aspx?SID=5525&view=html
-    //  Warning:    Only use this if your hardware drivers correctly implement
-    //              tanh(): My nVidia 8800GTS returns garbage output.
+	//  Requires:   x is the standard parameter to erf().
+	//  Returns:    Approximate erf() with the hyperbolic tangent.  The error is
+	//              visually noticeable, but it's blazing fast and perceptually
+	//              close...at least on ATI hardware.  See:
+	//                  http://www.maplesoft.com/applications/view.aspx?SID=5525&view=html
+	//  Warning:    Only use this if your hardware drivers correctly implement
+	//              tanh(): My nVidia 8800GTS returns garbage output.
 	return tanh(1.202760580 * x);
 }
 
 float3 erft(const float3 x)
 {
-    //  Float3 version:
+	//  Float3 version:
 	return tanh(1.202760580 * x);
 }
 
 float2 erft(const float2 x)
 {
-    //  Float2 version:
+	//  Float2 version:
 	return tanh(1.202760580 * x);
 }
 
 float erft(const float x)
 {
-    //  Float version:
+	//  Float version:
 	return tanh(1.202760580 * x);
 }
 
 inline float4 erf(const float4 x)
 {
-    //  Requires:   x is the standard parameter to erf().
-    //  Returns:    Some approximation of erf(x), depending on user settings.
+	//  Requires:   x is the standard parameter to erf().
+	//  Returns:    Some approximation of erf(x), depending on user settings.
 	#ifdef ERF_FAST_APPROXIMATION
 		return erft(x);
 	#else
@@ -135,7 +135,7 @@ inline float4 erf(const float4 x)
 
 inline float3 erf(const float3 x)
 {
-    //  Float3 version:
+	//  Float3 version:
 	#ifdef ERF_FAST_APPROXIMATION
 		return erft(x);
 	#else
@@ -145,7 +145,7 @@ inline float3 erf(const float3 x)
 
 inline float2 erf(const float2 x)
 {
-    //  Float2 version:
+	//  Float2 version:
 	#ifdef ERF_FAST_APPROXIMATION
 		return erft(x);
 	#else
@@ -155,7 +155,7 @@ inline float2 erf(const float2 x)
 
 inline float erf(const float x)
 {
-    //  Float version:
+	//  Float version:
 	#ifdef ERF_FAST_APPROXIMATION
 		return erft(x);
 	#else
@@ -168,20 +168,20 @@ inline float erf(const float x)
 
 float4 gamma_impl(const float4 s, const float4 s_inv)
 {
-    //  Requires:   1.) s is the standard parameter to the gamma function, and
-    //                  it should lie in the [0, 36] range.
-    //              2.) s_inv = 1.0/s.  This implementation function requires
-    //                  the caller to precompute this value, giving users the
-    //                  opportunity to reuse it.
-    //  Returns:    Return approximate gamma function (real-numbered factorial)
-    //              output using the Lanczos approximation with two coefficients
-    //              calculated using Paul Godfrey's method here:
-    //                  http://my.fit.edu/~gabdo/gamma.txt
-    //              An optimal g value for s in [0, 36] is ~1.12906830989, with
-    //              a maximum relative error of 0.000463 for 2**16 equally
-    //              evals.  We could use three coeffs (0.0000346 error) without
-    //              hurting latency, but this allows more parallelism with
-    //              outside instructions.
+	//  Requires:   1.) s is the standard parameter to the gamma function, and
+	//                  it should lie in the [0, 36] range.
+	//              2.) s_inv = 1.0/s.  This implementation function requires
+	//                  the caller to precompute this value, giving users the
+	//                  opportunity to reuse it.
+	//  Returns:    Return approximate gamma function (real-numbered factorial)
+	//              output using the Lanczos approximation with two coefficients
+	//              calculated using Paul Godfrey's method here:
+	//                  http://my.fit.edu/~gabdo/gamma.txt
+	//              An optimal g value for s in [0, 36] is ~1.12906830989, with
+	//              a maximum relative error of 0.000463 for 2**16 equally
+	//              evals.  We could use three coeffs (0.0000346 error) without
+	//              hurting latency, but this allows more parallelism with
+	//              outside instructions.
 	static const float4 g = 1.12906830989;
 	static const float4 c0 =  0.8109119309638332633713423362694399653724431;
 	static const float4 c1 = 0.4808354605142681877121661197951496120000040;
@@ -196,7 +196,7 @@ float4 gamma_impl(const float4 s, const float4 s_inv)
 
 float3 gamma_impl(const float3 s, const float3 s_inv)
 {
-    //  Float3 version:
+	//  Float3 version:
 	static const float3 g = 1.12906830989;
 	static const float3 c0 = 0.8109119309638332633713423362694399653724431;
 	static const float3 c1 = 0.4808354605142681877121661197951496120000040;
@@ -209,7 +209,7 @@ float3 gamma_impl(const float3 s, const float3 s_inv)
 
 float2 gamma_impl(const float2 s, const float2 s_inv)
 {
-    //  Float2 version:
+	//  Float2 version:
 	static const float2 g = 1.12906830989;
 	static const float2 c0 = 0.8109119309638332633713423362694399653724431;
 	static const float2 c1 = 0.4808354605142681877121661197951496120000040;
@@ -222,7 +222,7 @@ float2 gamma_impl(const float2 s, const float2 s_inv)
 
 float gamma_impl(const float s, const float s_inv)
 {
-    //  Float version:
+	//  Float version:
 	static const float g = 1.12906830989;
 	static const float c0 = 0.8109119309638332633713423362694399653724431;
 	static const float c1 = 0.4808354605142681877121661197951496120000040;
@@ -235,28 +235,28 @@ float gamma_impl(const float s, const float s_inv)
 
 float4 gamma(const float4 s)
 {
-    //  Requires:   s is the standard parameter to the gamma function, and it
-    //              should lie in the [0, 36] range.
-    //  Returns:    Return approximate gamma function output with a maximum
-    //              relative error of 0.000463.  See gamma_impl for details.
+	//  Requires:   s is the standard parameter to the gamma function, and it
+	//              should lie in the [0, 36] range.
+	//  Returns:    Return approximate gamma function output with a maximum
+	//              relative error of 0.000463.  See gamma_impl for details.
 	return gamma_impl(s, 1.0/s);
 }
 
 float3 gamma(const float3 s)
 {
-    //  Float3 version:
+	//  Float3 version:
 	return gamma_impl(s, 1.0/s);
 }
 
 float2 gamma(const float2 s)
 {
-    //  Float2 version:
+	//  Float2 version:
 	return gamma_impl(s, 1.0/s);
 }
 
 float gamma(const float s)
 {
-    //  Float version:
+	//  Float version:
 	return gamma_impl(s, 1.0/s);
 }
 
@@ -266,12 +266,12 @@ float gamma(const float s)
 //  Lower incomplete gamma function for small s and z (implementation):
 float4 ligamma_small_z_impl(const float4 s, const float4 z, const float4 s_inv)
 {
-    //  Requires:   1.) s < ~0.5
-    //              2.) z <= ~0.775075
-    //              3.) s_inv = 1.0/s (precomputed for outside reuse)
-    //  Returns:    A series representation for the lower incomplete gamma
-    //              function for small s and small z (4 terms).
-    //  The actual "rolled up" summation looks like:
+	//  Requires:   1.) s < ~0.5
+	//              2.) z <= ~0.775075
+	//              3.) s_inv = 1.0/s (precomputed for outside reuse)
+	//  Returns:    A series representation for the lower incomplete gamma
+	//              function for small s and small z (4 terms).
+	//  The actual "rolled up" summation looks like:
 	//      last_sign = 1.0; last_pow = 1.0; last_factorial = 1.0;
 	//      sum = last_sign * last_pow / ((s + k) * last_factorial)
 	//      for(int i = 0; i < 4; ++i)
@@ -298,7 +298,7 @@ float4 ligamma_small_z_impl(const float4 s, const float4 z, const float4 s_inv)
 
 float3 ligamma_small_z_impl(const float3 s, const float3 z, const float3 s_inv)
 {
-    //  Float3 version:
+	//  Float3 version:
 	const float3 scale = pow(z, s);
 	float3 sum = s_inv;
 	const float3 z_sq = z*z;
@@ -313,7 +313,7 @@ float3 ligamma_small_z_impl(const float3 s, const float3 z, const float3 s_inv)
 
 float2 ligamma_small_z_impl(const float2 s, const float2 z, const float2 s_inv)
 {
-    //  Float2 version:
+	//  Float2 version:
 	const float2 scale = pow(z, s);
 	float2 sum = s_inv;
 	const float2 z_sq = z*z;
@@ -328,7 +328,7 @@ float2 ligamma_small_z_impl(const float2 s, const float2 z, const float2 s_inv)
 
 float ligamma_small_z_impl(const float s, const float z, const float s_inv)
 {
-    //  Float version:
+	//  Float version:
 	const float scale = pow(z, s);
 	float sum = s_inv;
 	const float z_sq = z*z;
@@ -344,12 +344,12 @@ float ligamma_small_z_impl(const float s, const float z, const float s_inv)
 //  Upper incomplete gamma function for small s and large z (implementation):
 float4 uigamma_large_z_impl(const float4 s, const float4 z)
 {
-    //  Requires:   1.) s < ~0.5
-    //              2.) z > ~0.775075
-    //  Returns:    Gauss's continued fraction representation for the upper
-    //              incomplete gamma function (4 terms).
+	//  Requires:   1.) s < ~0.5
+	//              2.) z > ~0.775075
+	//  Returns:    Gauss's continued fraction representation for the upper
+	//              incomplete gamma function (4 terms).
 	//  The "rolled up" continued fraction looks like this.  The denominator
-    //  is truncated, and it's calculated "from the bottom up:"
+	//  is truncated, and it's calculated "from the bottom up:"
 	//      denom = float4('inf');
 	//      float4 one = float4(1.0);
 	//      for(int i = 4; i > 0; --i)
@@ -367,7 +367,7 @@ float4 uigamma_large_z_impl(const float4 s, const float4 z)
 
 float3 uigamma_large_z_impl(const float3 s, const float3 z)
 {
-    //  Float3 version:
+	//  Float3 version:
 	const float3 numerator = pow(z, s) * exp(-z);
 	float3 denom = 7.0 + z - s;
 	denom = 5.0 + z - s + (3.0*s - 9.0)/denom;
@@ -378,7 +378,7 @@ float3 uigamma_large_z_impl(const float3 s, const float3 z)
 
 float2 uigamma_large_z_impl(const float2 s, const float2 z)
 {
-    //  Float2 version:
+	//  Float2 version:
 	const float2 numerator = pow(z, s) * exp(-z);
 	float2 denom = 7.0 + z - s;
 	denom = 5.0 + z - s + (3.0*s - 9.0)/denom;
@@ -389,7 +389,7 @@ float2 uigamma_large_z_impl(const float2 s, const float2 z)
 
 float uigamma_large_z_impl(const float s, const float z)
 {
-    //  Float version:
+	//  Float version:
 	const float numerator = pow(z, s) * exp(-z);
 	float denom = 7.0 + z - s;
 	denom = 5.0 + z - s + (3.0*s - 9.0)/denom;
@@ -400,18 +400,18 @@ float uigamma_large_z_impl(const float s, const float z)
 
 //  Normalized lower incomplete gamma function for small s (implementation):
 float4 normalized_ligamma_impl(const float4 s, const float4 z,
-    const float4 s_inv, const float4 gamma_s_inv)
+	const float4 s_inv, const float4 gamma_s_inv)
 {
-    //  Requires:   1.) s < ~0.5
-    //              2.) s_inv = 1/s (precomputed for outside reuse)
-    //              3.) gamma_s_inv = 1/gamma(s) (precomputed for outside reuse)
-    //  Returns:    Approximate the normalized lower incomplete gamma function
-    //              for s < 0.5.  Since we only care about s < 0.5, we only need
-    //              to evaluate two branches (not four) based on z.  Each branch
-    //              uses four terms, with a max relative error of ~0.00182.  The
-    //              branch threshold and specifics were adapted for fewer terms
-    //              from Gil/Segura/Temme's paper here:
-    //                  http://oai.cwi.nl/oai/asset/20433/20433B.pdf
+	//  Requires:   1.) s < ~0.5
+	//              2.) s_inv = 1/s (precomputed for outside reuse)
+	//              3.) gamma_s_inv = 1/gamma(s) (precomputed for outside reuse)
+	//  Returns:    Approximate the normalized lower incomplete gamma function
+	//              for s < 0.5.  Since we only care about s < 0.5, we only need
+	//              to evaluate two branches (not four) based on z.  Each branch
+	//              uses four terms, with a max relative error of ~0.00182.  The
+	//              branch threshold and specifics were adapted for fewer terms
+	//              from Gil/Segura/Temme's paper here:
+	//                  http://oai.cwi.nl/oai/asset/20433/20433B.pdf
 	//  Evaluate both branches: Real branches test slower even when available.
 	static const float4 thresh = 0.775075;
 	const bool4 z_is_large = z > thresh;
@@ -422,9 +422,9 @@ float4 normalized_ligamma_impl(const float4 s, const float4 z,
 }
 
 float3 normalized_ligamma_impl(const float3 s, const float3 z,
-    const float3 s_inv, const float3 gamma_s_inv)
+	const float3 s_inv, const float3 gamma_s_inv)
 {
-    //  Float3 version:
+	//  Float3 version:
 	static const float3 thresh = 0.775075;
 	const bool3 z_is_large = z > thresh;
 	const float3 large_z = 1.0 - uigamma_large_z_impl(s, z) * gamma_s_inv;
@@ -433,9 +433,9 @@ float3 normalized_ligamma_impl(const float3 s, const float3 z,
 }
 
 float2 normalized_ligamma_impl(const float2 s, const float2 z,
-    const float2 s_inv, const float2 gamma_s_inv)
+	const float2 s_inv, const float2 gamma_s_inv)
 {
-    //  Float2 version:
+	//  Float2 version:
 	static const float2 thresh = 0.775075;
 	const bool2 z_is_large = z > thresh;
 	const float2 large_z = 1.0 - uigamma_large_z_impl(s, z) * gamma_s_inv;
@@ -444,9 +444,9 @@ float2 normalized_ligamma_impl(const float2 s, const float2 z,
 }
 
 float normalized_ligamma_impl(const float s, const float z,
-    const float s_inv, const float gamma_s_inv)
+	const float s_inv, const float gamma_s_inv)
 {
-    //  Float version:
+	//  Float version:
 	static const float thresh = 0.775075;
 	const bool z_is_large = z > thresh;
 	const float large_z = 1.0 - uigamma_large_z_impl(s, z) * gamma_s_inv;
@@ -457,9 +457,9 @@ float normalized_ligamma_impl(const float s, const float z,
 //  Normalized lower incomplete gamma function for small s:
 float4 normalized_ligamma(const float4 s, const float4 z)
 {
-    //  Requires:   s < ~0.5
-    //  Returns:    Approximate the normalized lower incomplete gamma function
-    //              for s < 0.5.  See normalized_ligamma_impl() for details.
+	//  Requires:   s < ~0.5
+	//  Returns:    Approximate the normalized lower incomplete gamma function
+	//              for s < 0.5.  See normalized_ligamma_impl() for details.
 	const float4 s_inv = 1.0/s;
 	const float4 gamma_s_inv = 1.0/gamma_impl(s, s_inv);
 	return normalized_ligamma_impl(s, z, s_inv, gamma_s_inv);
@@ -467,7 +467,7 @@ float4 normalized_ligamma(const float4 s, const float4 z)
 
 float3 normalized_ligamma(const float3 s, const float3 z)
 {
-    //  Float3 version:
+	//  Float3 version:
 	const float3 s_inv = 1.0/s;
 	const float3 gamma_s_inv = 1.0/gamma_impl(s, s_inv);
 	return normalized_ligamma_impl(s, z, s_inv, gamma_s_inv);
@@ -475,7 +475,7 @@ float3 normalized_ligamma(const float3 s, const float3 z)
 
 float2 normalized_ligamma(const float2 s, const float2 z)
 {
-    //  Float2 version:
+	//  Float2 version:
 	const float2 s_inv = 1.0/s;
 	const float2 gamma_s_inv = 1.0/gamma_impl(s, s_inv);
 	return normalized_ligamma_impl(s, z, s_inv, gamma_s_inv);
@@ -483,7 +483,7 @@ float2 normalized_ligamma(const float2 s, const float2 z)
 
 float normalized_ligamma(const float s, const float z)
 {
-    //  Float version:
+	//  Float version:
 	const float s_inv = 1.0/s;
 	const float gamma_s_inv = 1.0/gamma_impl(s, s_inv);
 	return normalized_ligamma_impl(s, z, s_inv, gamma_s_inv);

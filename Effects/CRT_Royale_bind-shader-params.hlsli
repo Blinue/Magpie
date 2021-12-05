@@ -40,81 +40,81 @@ static const float gba_gamma = 3.5; //  Irrelevant but necessary to define.
 
 //  Provide accessors for vector constants that pack scalar uniforms:
 float2 get_aspect_vector(const float geom_aspect_ratio) {
-    //  Get an aspect ratio vector.  Enforce geom_max_aspect_ratio, and prevent
-    //  the absolute scale from affecting the uv-mapping for curvature:
-    const float geom_clamped_aspect_ratio =
-        min(geom_aspect_ratio, geom_max_aspect_ratio);
-    const float2 geom_aspect =
-        normalize(float2(geom_clamped_aspect_ratio, 1.0));
-    return geom_aspect;
+	//  Get an aspect ratio vector.  Enforce geom_max_aspect_ratio, and prevent
+	//  the absolute scale from affecting the uv-mapping for curvature:
+	const float geom_clamped_aspect_ratio =
+		min(geom_aspect_ratio, geom_max_aspect_ratio);
+	const float2 geom_aspect =
+		normalize(float2(geom_clamped_aspect_ratio, 1.0));
+	return geom_aspect;
 }
 
 float2 get_geom_overscan_vector() {
-    return float2(geom_overscan_x, geom_overscan_y);
+	return float2(geom_overscan_x, geom_overscan_y);
 }
 
 float2 get_geom_tilt_angle_vector() {
-    return float2(geom_tilt_angle_x, geom_tilt_angle_y);
+	return float2(geom_tilt_angle_x, geom_tilt_angle_y);
 }
 
 float3 get_convergence_offsets_x_vector() {
-    return float3(convergence_offset_x_r, convergence_offset_x_g,
-        convergence_offset_x_b);
+	return float3(convergence_offset_x_r, convergence_offset_x_g,
+		convergence_offset_x_b);
 }
 
 float3 get_convergence_offsets_y_vector() {
-    return float3(convergence_offset_y_r, convergence_offset_y_g,
-        convergence_offset_y_b);
+	return float3(convergence_offset_y_r, convergence_offset_y_g,
+		convergence_offset_y_b);
 }
 
 float2 get_convergence_offsets_r_vector() {
-    return float2(convergence_offset_x_r, convergence_offset_y_r);
+	return float2(convergence_offset_x_r, convergence_offset_y_r);
 }
 
 float2 get_convergence_offsets_g_vector() {
-    return float2(convergence_offset_x_g, convergence_offset_y_g);
+	return float2(convergence_offset_x_g, convergence_offset_y_g);
 }
 
 float2 get_convergence_offsets_b_vector() {
-    return float2(convergence_offset_x_b, convergence_offset_y_b);
+	return float2(convergence_offset_x_b, convergence_offset_y_b);
 }
 
 float2 get_aa_subpixel_r_offset() {
 #ifdef RUNTIME_ANTIALIAS_WEIGHTS
 #ifdef RUNTIME_ANTIALIAS_SUBPIXEL_OFFSETS
-    //  WARNING: THIS IS EXTREMELY EXPENSIVE.
-    return float2(aa_subpixel_r_offset_x_runtime,
-        aa_subpixel_r_offset_y_runtime);
+	//  WARNING: THIS IS EXTREMELY EXPENSIVE.
+	return float2(aa_subpixel_r_offset_x_runtime,
+		aa_subpixel_r_offset_y_runtime);
 #else
-    return aa_subpixel_r_offset_static;
+	return aa_subpixel_r_offset_static;
 #endif
 #else
-    return aa_subpixel_r_offset_static;
+	return aa_subpixel_r_offset_static;
 #endif
 }
 
 //  Provide accessors settings which still need "cooking:"
 float get_mask_amplify() {
-    static const float mask_grille_amplify = 1.0 / mask_grille_avg_color;
-    static const float mask_slot_amplify = 1.0 / mask_slot_avg_color;
-    static const float mask_shadow_amplify = 1.0 / mask_shadow_avg_color;
-    return mask_type < 0.5 ? mask_grille_amplify :
-        mask_type < 1.5 ? mask_slot_amplify :
-        mask_shadow_amplify;
+	static const float mask_grille_amplify = 1.0 / mask_grille_avg_color;
+	static const float mask_slot_amplify = 1.0 / mask_slot_avg_color;
+	static const float mask_shadow_amplify = 1.0 / mask_shadow_avg_color;
+	return mask_type < 0.5 ? mask_grille_amplify :
+		mask_type < 1.5 ? mask_slot_amplify :
+		mask_shadow_amplify;
 }
 
 float get_mask_sample_mode() {
 #ifdef RUNTIME_PHOSPHOR_MASK_MODE_TYPE_SELECT
 #ifdef PHOSPHOR_MASK_MANUALLY_RESIZE
-    return mask_sample_mode_desired;
+	return mask_sample_mode_desired;
 #else
-    return clamp(mask_sample_mode_desired, 1.0, 2.0);
+	return clamp(mask_sample_mode_desired, 1.0, 2.0);
 #endif
 #else
 #ifdef PHOSPHOR_MASK_MANUALLY_RESIZE
-    return mask_sample_mode_static;
+	return mask_sample_mode_static;
 #else
-    return clamp(mask_sample_mode_static, 1.0, 2.0);
+	return clamp(mask_sample_mode_static, 1.0, 2.0);
 #endif
 #endif
 }

@@ -47,6 +47,14 @@ float outputWidth;
 float outputHeight;
 
 //!CONSTANT
+//!VALUE OUTPUT_PT_X
+float outputPtX;
+
+//!CONSTANT
+//!VALUE OUTPUT_PT_Y
+float outputPtY;
+
+//!CONSTANT
 //!VALUE 1 / SCALE_Y
 float rcpScaleY;
 
@@ -373,6 +381,24 @@ Texture2D tex7;
 Texture2D tex8;
 
 //!TEXTURE
+//!WIDTH OUTPUT_WIDTH
+//!HEIGHT OUTPUT_HEIGHT
+//!FORMAT B8G8R8A8_UNORM
+Texture2D tex9;
+
+//!TEXTURE
+//!WIDTH OUTPUT_WIDTH
+//!HEIGHT OUTPUT_HEIGHT
+//!FORMAT B8G8R8A8_UNORM
+Texture2D tex10;
+
+//!TEXTURE
+//!WIDTH OUTPUT_WIDTH
+//!HEIGHT OUTPUT_HEIGHT
+//!FORMAT B8G8R8A8_UNORM
+Texture2D tex11;
+
+//!TEXTURE
 //!SOURCE CRT_Royale_TileableLinearApertureGrille15Wide8And5d5SpacingResizeTo64.png
 Texture2D mask_grille_texture_small;
 
@@ -431,7 +457,7 @@ SamplerState samLinear;
 //  This makes phosphor mask resampling faster in some cases.  Related errors:
 //  error C5013: profile does not support "for" statements and "for" could not
 //  be unrolled
-//#define DRIVERS_ALLOW_DYNAMIC_BRANCHES
+// #define DRIVERS_ALLOW_DYNAMIC_BRANCHES
 
 //  Without DRIVERS_ALLOW_DYNAMIC_BRANCHES, we need to use unrollable loops.
 //  Using one static loop avoids overhead if the user is right, but if the user
@@ -463,7 +489,7 @@ SamplerState samLinear;
 //      (This may be reenabled in a later release.)
 //  2.) RUNTIME_GEOMETRY_MODE
 //  3.) The high-quality 4x4 Gaussian resize for the bloom approximation
-    //#define INTEGRATED_GRAPHICS_COMPATIBILITY_MODE
+	//#define INTEGRATED_GRAPHICS_COMPATIBILITY_MODE
 
 
 ////////////////////////////  USER CODEPATH OPTIONS  ///////////////////////////
@@ -528,7 +554,7 @@ static const float crt_gamma_static = 2.5;                  //  range [1, 5]
 static const float lcd_gamma_static = 2.2;                  //  range [1, 5]
 
 //  LEVELS MANAGEMENT:
-    //  Control the final multiplicative image contrast:
+	//  Control the final multiplicative image contrast:
 static const float levels_contrast_static = 1.0;            //  range [0, 4)
 //  We auto-dim to avoid clipping between passes and restore brightness
 //  later.  Control the dim factor here: Lower values clip less but crush
@@ -536,8 +562,8 @@ static const float levels_contrast_static = 1.0;            //  range [0, 4)
 static const float levels_autodim_temp = 0.5;               //  range (0, 1]
 
 //  HALATION/DIFFUSION/BLOOM:
-    //  Halation weight: How much energy should be lost to electrons bounding
-    //  around under the CRT glass and exciting random phosphors?
+	//  Halation weight: How much energy should be lost to electrons bounding
+	//  around under the CRT glass and exciting random phosphors?
 static const float halation_weight_static = 0.0;            //  range [0, 1]
 //  Refractive diffusion weight: How much light should spread/diffuse from
 //  refracting through the CRT glass?
@@ -562,16 +588,16 @@ static const float bloom_excess_static = 0.0;               //  range [0, 1]
 static const float bloom_approx_filter_static = 2.0;
 
 //  ELECTRON BEAM SCANLINE DISTRIBUTION:
-    //  How many scanlines should contribute light to each pixel?  Using more
-    //  scanlines is slower (especially for a generalized Gaussian) but less
-    //  distorted with larger beam sigmas (especially for a pure Gaussian).  The
-    //  max_beam_sigma at which the closest unused weight is guaranteed <
-    //  1.0/255.0 (for a 3x antialiased pure Gaussian) is:
-    //      2 scanlines: max_beam_sigma = 0.2089; distortions begin ~0.34; 141.7 FPS pure, 131.9 FPS generalized
-    //      3 scanlines, max_beam_sigma = 0.3879; distortions begin ~0.52; 137.5 FPS pure; 123.8 FPS generalized
-    //      4 scanlines, max_beam_sigma = 0.5723; distortions begin ~0.70; 134.7 FPS pure; 117.2 FPS generalized
-    //      5 scanlines, max_beam_sigma = 0.7591; distortions begin ~0.89; 131.6 FPS pure; 112.1 FPS generalized
-    //      6 scanlines, max_beam_sigma = 0.9483; distortions begin ~1.08; 127.9 FPS pure; 105.6 FPS generalized
+	//  How many scanlines should contribute light to each pixel?  Using more
+	//  scanlines is slower (especially for a generalized Gaussian) but less
+	//  distorted with larger beam sigmas (especially for a pure Gaussian).  The
+	//  max_beam_sigma at which the closest unused weight is guaranteed <
+	//  1.0/255.0 (for a 3x antialiased pure Gaussian) is:
+	//      2 scanlines: max_beam_sigma = 0.2089; distortions begin ~0.34; 141.7 FPS pure, 131.9 FPS generalized
+	//      3 scanlines, max_beam_sigma = 0.3879; distortions begin ~0.52; 137.5 FPS pure; 123.8 FPS generalized
+	//      4 scanlines, max_beam_sigma = 0.5723; distortions begin ~0.70; 134.7 FPS pure; 117.2 FPS generalized
+	//      5 scanlines, max_beam_sigma = 0.7591; distortions begin ~0.89; 131.6 FPS pure; 112.1 FPS generalized
+	//      6 scanlines, max_beam_sigma = 0.9483; distortions begin ~1.08; 127.9 FPS pure; 105.6 FPS generalized
 static const float beam_num_scanlines = 3.0;                //  range [2, 6]
 //  A generalized Gaussian beam varies shape with color too, now just width.
 //  It's slower but more flexible (static option only for now).
@@ -630,9 +656,9 @@ static const bool interlace_1080i_static = false;
 static const bool interlace_bff_static = false;
 
 //  ANTIALIASING:
-    //  What AA level do you want for curvature/overscan/subpixels?  Options:
-    //  0x (none), 1x (sample subpixels), 4x, 5x, 6x, 7x, 8x, 12x, 16x, 20x, 24x
-    //  (Static option only for now)
+	//  What AA level do you want for curvature/overscan/subpixels?  Options:
+	//  0x (none), 1x (sample subpixels), 4x, 5x, 6x, 7x, 8x, 12x, 16x, 20x, 24x
+	//  (Static option only for now)
 static const float aa_level = 12.0;                     //  range [0, 24]
 //  What antialiasing filter do you want (static option only)?  Options:
 //  0: Box (separable), 1: Box (cylindrical),
@@ -657,7 +683,7 @@ static const float aa_cubic_c_static = 0.5;             //  range [0, 4]
 static const float aa_gauss_sigma_static = 0.5;     //  range [0.0625, 1.0]
 
 //  PHOSPHOR MASK:
-    //  Mask type: 0 = aperture grille, 1 = slot mask, 2 = EDP shadow mask
+	//  Mask type: 0 = aperture grille, 1 = slot mask, 2 = EDP shadow mask
 static const float mask_type_static = 1.0;                  //  range [0, 2]
 //  We can sample the mask three ways.  Pick 2/3 from: Pretty/Fast/Flexible.
 //  0.) Sinc-resize to the desired dot pitch manually (pretty/slow/flexible).
@@ -698,9 +724,9 @@ static const float mask_sinc_lobes = 3.0;                   //  range [2, 4]
 static const float mask_min_allowed_triad_size = 2.0;
 
 //  GEOMETRY:
-    //  Geometry mode:
-    //  0: Off (default), 1: Spherical mapping (like cgwg's),
-    //  2: Alt. spherical mapping (more bulbous), 3: Cylindrical/Trinitron
+	//  Geometry mode:
+	//  0: Off (default), 1: Spherical mapping (like cgwg's),
+	//  2: Alt. spherical mapping (more bulbous), 3: Cylindrical/Trinitron
 static const float geom_mode_static = 0.0;      //  range [0, 3]
 //  Radius of curvature: Measured in units of your viewport's diagonal size.
 static const float geom_radius_static = 2.0;    //  range [1/(2*pi), 1024]
@@ -745,7 +771,7 @@ static const float2 geom_overscan_static = float2(1.0, 1.0);// * 1.005 * (1.0, 2
 static const bool geom_force_correct_tangent_matrix = true;
 
 //  BORDERS:
-    //  Rounded border size in texture uv coords:
+	//  Rounded border size in texture uv coords:
 static const float border_size_static = 0.015;           //  range [0, 0.5]
 //  Border darkness: Moderate values darken the border smoothly, and high
 //  values make the image very dark just inside the border:
@@ -775,36 +801,36 @@ static const float border_compress_static = 2.5;        //  range [1, inf)
 
 
 float4 Pass1(float2 pos) {
-    float interlaced = is_interlaced(inputHeight);
+	float interlaced = is_interlaced(inputHeight);
 
-    //  Linearize the input based on CRT gamma and bob interlaced fields.
-    //  Bobbing ensures we can immediately blur without getting artifacts.
-    //  Note: TFF/BFF won't matter for sources that double-weave or similar.
-    if (interlace_detect) {
-        //  Sample the current line and an average of the previous/next line;
-        //  tex2D_linearize will decode CRT gamma.  Don't bother branching:
-        const float2 v_step = float2(0, inputPtY);
-        const float3 curr_line = tex2D_linearize(
-            INPUT, samPoint, pos).rgb;
-        const float3 last_line = tex2D_linearize(
-            INPUT, samPoint, pos - v_step).rgb;
-        const float3 next_line = tex2D_linearize(
-            INPUT, samPoint, pos + v_step).rgb;
-        const float3 interpolated_line = 0.5 * (last_line + next_line);
-        //  If we're interlacing, determine which field curr_line is in:
-        const float modulus = interlaced + 1.0;
-        const float field_offset =
-            fmod(frame_count + float(interlace_bff), modulus);
-        const float curr_line_texel = pos.y * inputHeight;
-        //  Use under_half to fix a rounding bug around exact texel locations.
-        const float line_num_last = floor(curr_line_texel - under_half);
-        const float wrong_field = fmod(line_num_last + field_offset, modulus);
-        //  Select the correct color, and output the result:
-        const float3 color = lerp(curr_line, interpolated_line, wrong_field);
-        return encode_output(float4(color, 1.0));
-    } else {
-        return encode_output(tex2D_linearize(INPUT, samPoint, pos));
-    }
+	//  Linearize the input based on CRT gamma and bob interlaced fields.
+	//  Bobbing ensures we can immediately blur without getting artifacts.
+	//  Note: TFF/BFF won't matter for sources that double-weave or similar.
+	if (interlace_detect) {
+		//  Sample the current line and an average of the previous/next line;
+		//  tex2D_linearize will decode CRT gamma.  Don't bother branching:
+		const float2 v_step = float2(0, inputPtY);
+		const float3 curr_line = tex2D_linearize(
+			INPUT, samPoint, pos).rgb;
+		const float3 last_line = tex2D_linearize(
+			INPUT, samPoint, pos - v_step).rgb;
+		const float3 next_line = tex2D_linearize(
+			INPUT, samPoint, pos + v_step).rgb;
+		const float3 interpolated_line = 0.5 * (last_line + next_line);
+		//  If we're interlacing, determine which field curr_line is in:
+		const float modulus = interlaced + 1.0;
+		const float field_offset =
+			fmod(frame_count + float(interlace_bff), modulus);
+		const float curr_line_texel = pos.y * inputHeight;
+		//  Use under_half to fix a rounding bug around exact texel locations.
+		const float line_num_last = floor(curr_line_texel - under_half);
+		const float wrong_field = fmod(line_num_last + field_offset, modulus);
+		//  Select the correct color, and output the result:
+		const float3 color = lerp(curr_line, interpolated_line, wrong_field);
+		return encode_output(float4(color, 1.0));
+	} else {
+		return encode_output(tex2D_linearize(INPUT, samPoint, pos));
+	}
 }
 
 //!PASS 2
@@ -819,153 +845,153 @@ float4 Pass1(float2 pos) {
 
 
 float4 Pass2(float2 pos) {
-    const float y_step = 1.0 + float(is_interlaced(inputHeight));
-    const float2 il_step_multiple = { 1.0, y_step };
-    //  Get the uv tex coords step between one texel (x) and scanline (y):
-    const float2 uv_step = il_step_multiple / float2(inputWidth, inputHeight);
-    //  We need the pixel height in scanlines for antialiased/integral sampling:
-    const float ph = rcpScaleY / il_step_multiple.y;
+	const float y_step = 1.0 + float(is_interlaced(inputHeight));
+	const float2 il_step_multiple = { 1.0, y_step };
+	//  Get the uv tex coords step between one texel (x) and scanline (y):
+	const float2 uv_step = il_step_multiple / float2(inputWidth, inputHeight);
+	//  We need the pixel height in scanlines for antialiased/integral sampling:
+	const float ph = rcpScaleY / il_step_multiple.y;
 
-    //  This pass: Sample multiple (misconverged?) scanlines to the final
-    //  vertical resolution.  Temporarily auto-dim the output to avoid clipping.
+	//  This pass: Sample multiple (misconverged?) scanlines to the final
+	//  vertical resolution.  Temporarily auto-dim the output to avoid clipping.
 
-    //  Read some attributes into local variables:
-    const float2 texture_size = { inputWidth, inputHeight };
-    const float2 texture_size_inv = { inputPtX, inputPtY };
+	//  Read some attributes into local variables:
+	const float2 texture_size = { inputWidth, inputHeight };
+	const float2 texture_size_inv = { inputPtX, inputPtY };
 
-    //  Get the uv coords of the previous scanline (in this field), and the
-    //  scanline's distance from this sample, in scanlines.
-    float dist;
-    const float2 scanline_uv = get_last_scanline_uv(pos, texture_size,
-        texture_size_inv, il_step_multiple, frame_count, dist);
-    //  Consider 2, 3, 4, or 6 scanlines numbered 0-5: The previous and next
-    //  scanlines are numbered 2 and 3.  Get scanline colors colors (ignore
-    //  horizontal sampling, since since IN.output_size.x = video_size.x).
-    //  NOTE: Anisotropic filtering creates interlacing artifacts, which is why
-    //  ORIG_LINEARIZED bobbed any interlaced input before this pass.
-    const float2 v_step = float2(0.0, uv_step.y);
-    const float3 scanline2_color = tex2D_linearize(tex1, samLinear, scanline_uv).rgb;
-    const float3 scanline3_color =
-        tex2D_linearize(tex1, samLinear, scanline_uv + v_step).rgb;
-    float3 scanline0_color, scanline1_color, scanline4_color, scanline5_color,
-        scanline_outside_color;
-    float dist_round;
-    //  Use scanlines 0, 1, 4, and 5 for a total of 6 scanlines:
-    if (beam_num_scanlines > 5.5) {
-        scanline1_color =
-            tex2D_linearize(tex1, samLinear, scanline_uv - v_step).rgb;
-        scanline4_color =
-            tex2D_linearize(tex1, samLinear, scanline_uv + 2.0 * v_step).rgb;
-        scanline0_color =
-            tex2D_linearize(tex1, samLinear, scanline_uv - 2.0 * v_step).rgb;
-        scanline5_color =
-            tex2D_linearize(tex1, samLinear, scanline_uv + 3.0 * v_step).rgb;
-    }
-    //  Use scanlines 1, 4, and either 0 or 5 for a total of 5 scanlines:
-    else if (beam_num_scanlines > 4.5) {
-        scanline1_color =
-            tex2D_linearize(tex1, samLinear, scanline_uv - v_step).rgb;
-        scanline4_color =
-            tex2D_linearize(tex1, samLinear, scanline_uv + 2.0 * v_step).rgb;
-        //  dist is in [0, 1]
-        dist_round = round(dist);
-        const float2 sample_0_or_5_uv_off =
-            lerp(-2.0 * v_step, 3.0 * v_step, dist_round);
-        //  Call this "scanline_outside_color" to cope with the conditional
-        //  scanline number:
-        scanline_outside_color = tex2D_linearize(
-            tex1, samLinear, scanline_uv + sample_0_or_5_uv_off).rgb;
-    }
-    //  Use scanlines 1 and 4 for a total of 4 scanlines:
-    else if (beam_num_scanlines > 3.5) {
-        scanline1_color =
-            tex2D_linearize(tex1, samLinear, scanline_uv - v_step).rgb;
-        scanline4_color =
-            tex2D_linearize(tex1, samLinear, scanline_uv + 2.0 * v_step).rgb;
-    }
-    //  Use scanline 1 or 4 for a total of 3 scanlines:
-    else if (beam_num_scanlines > 2.5) {
-        //  dist is in [0, 1]
-        dist_round = round(dist);
-        const float2 sample_1or4_uv_off =
-            lerp(-v_step, 2.0 * v_step, dist_round);
-        scanline_outside_color = tex2D_linearize(
-            tex1, samLinear, scanline_uv + sample_1or4_uv_off).rgb;
-    }
+	//  Get the uv coords of the previous scanline (in this field), and the
+	//  scanline's distance from this sample, in scanlines.
+	float dist;
+	const float2 scanline_uv = get_last_scanline_uv(pos, texture_size,
+		texture_size_inv, il_step_multiple, frame_count, dist);
+	//  Consider 2, 3, 4, or 6 scanlines numbered 0-5: The previous and next
+	//  scanlines are numbered 2 and 3.  Get scanline colors colors (ignore
+	//  horizontal sampling, since since IN.output_size.x = video_size.x).
+	//  NOTE: Anisotropic filtering creates interlacing artifacts, which is why
+	//  ORIG_LINEARIZED bobbed any interlaced input before this pass.
+	const float2 v_step = float2(0.0, uv_step.y);
+	const float3 scanline2_color = tex2D_linearize(tex1, samLinear, scanline_uv).rgb;
+	const float3 scanline3_color =
+		tex2D_linearize(tex1, samLinear, scanline_uv + v_step).rgb;
+	float3 scanline0_color, scanline1_color, scanline4_color, scanline5_color,
+		scanline_outside_color;
+	float dist_round;
+	//  Use scanlines 0, 1, 4, and 5 for a total of 6 scanlines:
+	if (beam_num_scanlines > 5.5) {
+		scanline1_color =
+			tex2D_linearize(tex1, samLinear, scanline_uv - v_step).rgb;
+		scanline4_color =
+			tex2D_linearize(tex1, samLinear, scanline_uv + 2.0 * v_step).rgb;
+		scanline0_color =
+			tex2D_linearize(tex1, samLinear, scanline_uv - 2.0 * v_step).rgb;
+		scanline5_color =
+			tex2D_linearize(tex1, samLinear, scanline_uv + 3.0 * v_step).rgb;
+	}
+	//  Use scanlines 1, 4, and either 0 or 5 for a total of 5 scanlines:
+	else if (beam_num_scanlines > 4.5) {
+		scanline1_color =
+			tex2D_linearize(tex1, samLinear, scanline_uv - v_step).rgb;
+		scanline4_color =
+			tex2D_linearize(tex1, samLinear, scanline_uv + 2.0 * v_step).rgb;
+		//  dist is in [0, 1]
+		dist_round = round(dist);
+		const float2 sample_0_or_5_uv_off =
+			lerp(-2.0 * v_step, 3.0 * v_step, dist_round);
+		//  Call this "scanline_outside_color" to cope with the conditional
+		//  scanline number:
+		scanline_outside_color = tex2D_linearize(
+			tex1, samLinear, scanline_uv + sample_0_or_5_uv_off).rgb;
+	}
+	//  Use scanlines 1 and 4 for a total of 4 scanlines:
+	else if (beam_num_scanlines > 3.5) {
+		scanline1_color =
+			tex2D_linearize(tex1, samLinear, scanline_uv - v_step).rgb;
+		scanline4_color =
+			tex2D_linearize(tex1, samLinear, scanline_uv + 2.0 * v_step).rgb;
+	}
+	//  Use scanline 1 or 4 for a total of 3 scanlines:
+	else if (beam_num_scanlines > 2.5) {
+		//  dist is in [0, 1]
+		dist_round = round(dist);
+		const float2 sample_1or4_uv_off =
+			lerp(-v_step, 2.0 * v_step, dist_round);
+		scanline_outside_color = tex2D_linearize(
+			tex1, samLinear, scanline_uv + sample_1or4_uv_off).rgb;
+	}
 
-    //  Compute scanline contributions, accounting for vertical convergence.
-    //  Vertical convergence offsets are in units of current-field scanlines.
-    //  dist2 means "positive sample distance from scanline 2, in scanlines:"
-    float3 dist2 = dist;
-    if (beam_misconvergence) {
-        const float3 convergence_offsets_vert_rgb =
-            get_convergence_offsets_y_vector();
-        dist2 = dist-convergence_offsets_vert_rgb;
-    }
-    //  Calculate {sigma, shape}_range outside of scanline_contrib so it's only
-    //  done once per pixel (not 6 times) with runtime params.  Don't reuse the
-    //  vertex shader calculations, so static versions can be constant-folded.
-    const float sigma_range = max(beam_max_sigma, beam_min_sigma) -
-        beam_min_sigma;
-    const float shape_range = max(beam_max_shape, beam_min_shape) -
-        beam_min_shape;
-    //  Calculate and sum final scanline contributions, starting with lines 2/3.
-    //  There is no normalization step, because we're not interpolating a
-    //  continuous signal.  Instead, each scanline is an additive light source.
-    const float3 scanline2_contrib = scanline_contrib(dist2,
-        scanline2_color, ph, sigma_range, shape_range);
-    const float3 scanline3_contrib = scanline_contrib(abs(1.0 - dist2),
-        scanline3_color, ph, sigma_range, shape_range);
-    float3 scanline_intensity = scanline2_contrib + scanline3_contrib;
-    if (beam_num_scanlines > 5.5) {
-        const float3 scanline0_contrib =
-            scanline_contrib(dist2 + 2.0, scanline0_color,
-                ph, sigma_range, shape_range);
-        const float3 scanline1_contrib =
-            scanline_contrib(dist2 + 1.0, scanline1_color,
-                ph, sigma_range, shape_range);
-        const float3 scanline4_contrib =
-            scanline_contrib(abs(2.0 - dist2), scanline4_color,
-                ph, sigma_range, shape_range);
-        const float3 scanline5_contrib =
-            scanline_contrib(abs(3.0 - dist2), scanline5_color,
-                ph, sigma_range, shape_range);
-        scanline_intensity += scanline0_contrib + scanline1_contrib +
-            scanline4_contrib + scanline5_contrib;
-    } else if (beam_num_scanlines > 4.5) {
-        const float3 scanline1_contrib =
-            scanline_contrib(dist2 + 1.0, scanline1_color,
-                ph, sigma_range, shape_range);
-        const float3 scanline4_contrib =
-            scanline_contrib(abs(2.0 - dist2), scanline4_color,
-                ph, sigma_range, shape_range);
-        const float3 dist0or5 = lerp(
-            dist2 + 2.0, 3.0 - dist2, dist_round);
-        const float3 scanline0or5_contrib = scanline_contrib(
-            dist0or5, scanline_outside_color, ph, sigma_range, shape_range);
-        scanline_intensity += scanline1_contrib + scanline4_contrib +
-            scanline0or5_contrib;
-    } else if (beam_num_scanlines > 3.5) {
-        const float3 scanline1_contrib =
-            scanline_contrib(dist2 + 1.0, scanline1_color,
-                ph, sigma_range, shape_range);
-        const float3 scanline4_contrib =
-            scanline_contrib(abs(2.0 - dist2), scanline4_color,
-                ph, sigma_range, shape_range);
-        scanline_intensity += scanline1_contrib + scanline4_contrib;
-    } else if (beam_num_scanlines > 2.5) {
-        const float3 dist1or4 = lerp(
-            dist2 + 1.0, 2.0 - dist2, dist_round);
-        const float3 scanline1or4_contrib = scanline_contrib(
-            dist1or4, scanline_outside_color, ph, sigma_range, shape_range);
-        scanline_intensity += scanline1or4_contrib;
-    }
+	//  Compute scanline contributions, accounting for vertical convergence.
+	//  Vertical convergence offsets are in units of current-field scanlines.
+	//  dist2 means "positive sample distance from scanline 2, in scanlines:"
+	float3 dist2 = dist;
+	if (beam_misconvergence) {
+		const float3 convergence_offsets_vert_rgb =
+			get_convergence_offsets_y_vector();
+		dist2 = dist-convergence_offsets_vert_rgb;
+	}
+	//  Calculate {sigma, shape}_range outside of scanline_contrib so it's only
+	//  done once per pixel (not 6 times) with runtime params.  Don't reuse the
+	//  vertex shader calculations, so static versions can be constant-folded.
+	const float sigma_range = max(beam_max_sigma, beam_min_sigma) -
+		beam_min_sigma;
+	const float shape_range = max(beam_max_shape, beam_min_shape) -
+		beam_min_shape;
+	//  Calculate and sum final scanline contributions, starting with lines 2/3.
+	//  There is no normalization step, because we're not interpolating a
+	//  continuous signal.  Instead, each scanline is an additive light source.
+	const float3 scanline2_contrib = scanline_contrib(dist2,
+		scanline2_color, ph, sigma_range, shape_range);
+	const float3 scanline3_contrib = scanline_contrib(abs(1.0 - dist2),
+		scanline3_color, ph, sigma_range, shape_range);
+	float3 scanline_intensity = scanline2_contrib + scanline3_contrib;
+	if (beam_num_scanlines > 5.5) {
+		const float3 scanline0_contrib =
+			scanline_contrib(dist2 + 2.0, scanline0_color,
+				ph, sigma_range, shape_range);
+		const float3 scanline1_contrib =
+			scanline_contrib(dist2 + 1.0, scanline1_color,
+				ph, sigma_range, shape_range);
+		const float3 scanline4_contrib =
+			scanline_contrib(abs(2.0 - dist2), scanline4_color,
+				ph, sigma_range, shape_range);
+		const float3 scanline5_contrib =
+			scanline_contrib(abs(3.0 - dist2), scanline5_color,
+				ph, sigma_range, shape_range);
+		scanline_intensity += scanline0_contrib + scanline1_contrib +
+			scanline4_contrib + scanline5_contrib;
+	} else if (beam_num_scanlines > 4.5) {
+		const float3 scanline1_contrib =
+			scanline_contrib(dist2 + 1.0, scanline1_color,
+				ph, sigma_range, shape_range);
+		const float3 scanline4_contrib =
+			scanline_contrib(abs(2.0 - dist2), scanline4_color,
+				ph, sigma_range, shape_range);
+		const float3 dist0or5 = lerp(
+			dist2 + 2.0, 3.0 - dist2, dist_round);
+		const float3 scanline0or5_contrib = scanline_contrib(
+			dist0or5, scanline_outside_color, ph, sigma_range, shape_range);
+		scanline_intensity += scanline1_contrib + scanline4_contrib +
+			scanline0or5_contrib;
+	} else if (beam_num_scanlines > 3.5) {
+		const float3 scanline1_contrib =
+			scanline_contrib(dist2 + 1.0, scanline1_color,
+				ph, sigma_range, shape_range);
+		const float3 scanline4_contrib =
+			scanline_contrib(abs(2.0 - dist2), scanline4_color,
+				ph, sigma_range, shape_range);
+		scanline_intensity += scanline1_contrib + scanline4_contrib;
+	} else if (beam_num_scanlines > 2.5) {
+		const float3 dist1or4 = lerp(
+			dist2 + 1.0, 2.0 - dist2, dist_round);
+		const float3 scanline1or4_contrib = scanline_contrib(
+			dist1or4, scanline_outside_color, ph, sigma_range, shape_range);
+		scanline_intensity += scanline1or4_contrib;
+	}
 
-    //  Auto-dim the image to avoid clipping, encode if necessary, and output.
-    //  My original idea was to compute a minimal auto-dim factor and put it in
-    //  the alpha channel, but it wasn't working, at least not reliably.  This
-    //  is faster anyway, levels_autodim_temp = 0.5 isn't causing banding.
-    return encode_output(float4(scanline_intensity * levels_autodim_temp, 1.0));
+	//  Auto-dim the image to avoid clipping, encode if necessary, and output.
+	//  My original idea was to compute a minimal auto-dim factor and put it in
+	//  the alpha channel, but it wasn't working, at least not reliably.  This
+	//  is faster anyway, levels_autodim_temp = 0.5 isn't causing banding.
+	return encode_output(float4(scanline_intensity * levels_autodim_temp, 1.0));
 }
 
 //!PASS 3
@@ -982,261 +1008,261 @@ float4 Pass2(float2 pos) {
 
 
 float3 tex2Dresize_gaussian4x4(Texture2D tex, SamplerState sam, const float2 tex_uv,
-    const float2 dxdy, const float2 texture_size, const float2 texture_size_inv,
-    const float2 tex_uv_to_pixel_scale, const float sigma) {
-    //  Requires:   1.) All requirements of gamma-management.h must be satisfied!
-    //              2.) filter_linearN must == "true" in your .cgp preset.
-    //              3.) mipmap_inputN must == "true" in your .cgp preset if
-    //                  IN.output_size << SRC.video_size.
-    //              4.) dxdy should contain the uv pixel spacing:
-    //                      dxdy = max(float2(1.0),
-    //                          SRC.video_size/IN.output_size)/SRC.texture_size;
-    //              5.) texture_size == SRC.texture_size
-    //              6.) texture_size_inv == float2(1.0)/SRC.texture_size
-    //              7.) tex_uv_to_pixel_scale == IN.output_size *
-    //                      SRC.texture_size / SRC.video_size;
-    //              8.) sigma is the desired Gaussian standard deviation, in
-    //                  terms of output pixels.  It should be < ~0.66171875 to
-    //                  ensure the first unused sample (outside the 4x4 box) has
-    //                  a weight < 1.0/256.0.
-    //  Returns:    A true 4x4 Gaussian resize of the input.
-    //  Description:
-    //  Given correct inputs, this Gaussian resizer samples 4 pixel locations
-    //  along each downsized dimension and/or 4 texel locations along each
-    //  upsized dimension.  It computes dynamic weights based on the pixel-space
-    //  distance of each sample from the destination pixel.  It is arbitrarily
-    //  resizable and higher quality than tex2Dblur3x3_resize, but it's slower.
-    //  TODO: Move this to a more suitable file once there are others like it.
-    const float denom_inv = 0.5 / (sigma * sigma);
-    //  We're taking 4x4 samples, and we're snapping to texels for upsizing.
-    //  Find texture coords for sample 5 (second row, second column):
-    const float2 curr_texel = tex_uv * texture_size;
-    const float2 prev_texel =
-        floor(curr_texel - under_half) + 0.5;
-    const float2 prev_texel_uv = prev_texel * texture_size_inv;
-    const float2 snap = float2(dxdy <= texture_size_inv);
-    const float2 sample5_downsize_uv = tex_uv - 0.5 * dxdy;
-    const float2 sample5_uv = lerp(sample5_downsize_uv, prev_texel_uv, snap);
-    //  Compute texture coords for other samples:
-    const float2 dx = float2(dxdy.x, 0.0);
-    const float2 sample0_uv = sample5_uv - dxdy;
-    const float2 sample10_uv = sample5_uv + dxdy;
-    const float2 sample15_uv = sample5_uv + 2.0 * dxdy;
-    const float2 sample1_uv = sample0_uv + dx;
-    const float2 sample2_uv = sample0_uv + 2.0 * dx;
-    const float2 sample3_uv = sample0_uv + 3.0 * dx;
-    const float2 sample4_uv = sample5_uv - dx;
-    const float2 sample6_uv = sample5_uv + dx;
-    const float2 sample7_uv = sample5_uv + 2.0 * dx;
-    const float2 sample8_uv = sample10_uv - 2.0 * dx;
-    const float2 sample9_uv = sample10_uv - dx;
-    const float2 sample11_uv = sample10_uv + dx;
-    const float2 sample12_uv = sample15_uv - 3.0 * dx;
-    const float2 sample13_uv = sample15_uv - 2.0 * dx;
-    const float2 sample14_uv = sample15_uv - dx;
-    //  Load each sample:
-    const float3 sample0 = tex2D_linearize(tex, sam, sample0_uv).rgb;
-    const float3 sample1 = tex2D_linearize(tex, sam, sample1_uv).rgb;
-    const float3 sample2 = tex2D_linearize(tex, sam, sample2_uv).rgb;
-    const float3 sample3 = tex2D_linearize(tex, sam, sample3_uv).rgb;
-    const float3 sample4 = tex2D_linearize(tex, sam, sample4_uv).rgb;
-    const float3 sample5 = tex2D_linearize(tex, sam, sample5_uv).rgb;
-    const float3 sample6 = tex2D_linearize(tex, sam, sample6_uv).rgb;
-    const float3 sample7 = tex2D_linearize(tex, sam, sample7_uv).rgb;
-    const float3 sample8 = tex2D_linearize(tex, sam, sample8_uv).rgb;
-    const float3 sample9 = tex2D_linearize(tex, sam, sample9_uv).rgb;
-    const float3 sample10 = tex2D_linearize(tex, sam, sample10_uv).rgb;
-    const float3 sample11 = tex2D_linearize(tex, sam, sample11_uv).rgb;
-    const float3 sample12 = tex2D_linearize(tex, sam, sample12_uv).rgb;
-    const float3 sample13 = tex2D_linearize(tex, sam, sample13_uv).rgb;
-    const float3 sample14 = tex2D_linearize(tex, sam, sample14_uv).rgb;
-    const float3 sample15 = tex2D_linearize(tex, sam, sample15_uv).rgb;
-    //  Compute destination pixel offsets for each sample:
-    const float2 dest_pixel = tex_uv * tex_uv_to_pixel_scale;
-    const float2 sample0_offset = sample0_uv * tex_uv_to_pixel_scale - dest_pixel;
-    const float2 sample1_offset = sample1_uv * tex_uv_to_pixel_scale - dest_pixel;
-    const float2 sample2_offset = sample2_uv * tex_uv_to_pixel_scale - dest_pixel;
-    const float2 sample3_offset = sample3_uv * tex_uv_to_pixel_scale - dest_pixel;
-    const float2 sample4_offset = sample4_uv * tex_uv_to_pixel_scale - dest_pixel;
-    const float2 sample5_offset = sample5_uv * tex_uv_to_pixel_scale - dest_pixel;
-    const float2 sample6_offset = sample6_uv * tex_uv_to_pixel_scale - dest_pixel;
-    const float2 sample7_offset = sample7_uv * tex_uv_to_pixel_scale - dest_pixel;
-    const float2 sample8_offset = sample8_uv * tex_uv_to_pixel_scale - dest_pixel;
-    const float2 sample9_offset = sample9_uv * tex_uv_to_pixel_scale - dest_pixel;
-    const float2 sample10_offset = sample10_uv * tex_uv_to_pixel_scale - dest_pixel;
-    const float2 sample11_offset = sample11_uv * tex_uv_to_pixel_scale - dest_pixel;
-    const float2 sample12_offset = sample12_uv * tex_uv_to_pixel_scale - dest_pixel;
-    const float2 sample13_offset = sample13_uv * tex_uv_to_pixel_scale - dest_pixel;
-    const float2 sample14_offset = sample14_uv * tex_uv_to_pixel_scale - dest_pixel;
-    const float2 sample15_offset = sample15_uv * tex_uv_to_pixel_scale - dest_pixel;
-    //  Compute Gaussian sample weights:
-    const float w0 = exp(-LENGTH_SQ(sample0_offset) * denom_inv);
-    const float w1 = exp(-LENGTH_SQ(sample1_offset) * denom_inv);
-    const float w2 = exp(-LENGTH_SQ(sample2_offset) * denom_inv);
-    const float w3 = exp(-LENGTH_SQ(sample3_offset) * denom_inv);
-    const float w4 = exp(-LENGTH_SQ(sample4_offset) * denom_inv);
-    const float w5 = exp(-LENGTH_SQ(sample5_offset) * denom_inv);
-    const float w6 = exp(-LENGTH_SQ(sample6_offset) * denom_inv);
-    const float w7 = exp(-LENGTH_SQ(sample7_offset) * denom_inv);
-    const float w8 = exp(-LENGTH_SQ(sample8_offset) * denom_inv);
-    const float w9 = exp(-LENGTH_SQ(sample9_offset) * denom_inv);
-    const float w10 = exp(-LENGTH_SQ(sample10_offset) * denom_inv);
-    const float w11 = exp(-LENGTH_SQ(sample11_offset) * denom_inv);
-    const float w12 = exp(-LENGTH_SQ(sample12_offset) * denom_inv);
-    const float w13 = exp(-LENGTH_SQ(sample13_offset) * denom_inv);
-    const float w14 = exp(-LENGTH_SQ(sample14_offset) * denom_inv);
-    const float w15 = exp(-LENGTH_SQ(sample15_offset) * denom_inv);
-    const float weight_sum_inv = 1.0 / (
-        w0 + w1 + w2 + w3 + w4 + w5 + w6 + w7 +
-        w8 + w9 + w10 + w11 + w12 + w13 + w14 + w15);
-    //  Weight and sum the samples:
-    const float3 sum = w0 * sample0 + w1 * sample1 + w2 * sample2 + w3 * sample3 +
-        w4 * sample4 + w5 * sample5 + w6 * sample6 + w7 * sample7 +
-        w8 * sample8 + w9 * sample9 + w10 * sample10 + w11 * sample11 +
-        w12 * sample12 + w13 * sample13 + w14 * sample14 + w15 * sample15;
-    return sum * weight_sum_inv;
+	const float2 dxdy, const float2 texture_size, const float2 texture_size_inv,
+	const float2 tex_uv_to_pixel_scale, const float sigma) {
+	//  Requires:   1.) All requirements of gamma-management.h must be satisfied!
+	//              2.) filter_linearN must == "true" in your .cgp preset.
+	//              3.) mipmap_inputN must == "true" in your .cgp preset if
+	//                  IN.output_size << SRC.video_size.
+	//              4.) dxdy should contain the uv pixel spacing:
+	//                      dxdy = max(float2(1.0),
+	//                          SRC.video_size/IN.output_size)/SRC.texture_size;
+	//              5.) texture_size == SRC.texture_size
+	//              6.) texture_size_inv == float2(1.0)/SRC.texture_size
+	//              7.) tex_uv_to_pixel_scale == IN.output_size *
+	//                      SRC.texture_size / SRC.video_size;
+	//              8.) sigma is the desired Gaussian standard deviation, in
+	//                  terms of output pixels.  It should be < ~0.66171875 to
+	//                  ensure the first unused sample (outside the 4x4 box) has
+	//                  a weight < 1.0/256.0.
+	//  Returns:    A true 4x4 Gaussian resize of the input.
+	//  Description:
+	//  Given correct inputs, this Gaussian resizer samples 4 pixel locations
+	//  along each downsized dimension and/or 4 texel locations along each
+	//  upsized dimension.  It computes dynamic weights based on the pixel-space
+	//  distance of each sample from the destination pixel.  It is arbitrarily
+	//  resizable and higher quality than tex2Dblur3x3_resize, but it's slower.
+	//  TODO: Move this to a more suitable file once there are others like it.
+	const float denom_inv = 0.5 / (sigma * sigma);
+	//  We're taking 4x4 samples, and we're snapping to texels for upsizing.
+	//  Find texture coords for sample 5 (second row, second column):
+	const float2 curr_texel = tex_uv * texture_size;
+	const float2 prev_texel =
+		floor(curr_texel - under_half) + 0.5;
+	const float2 prev_texel_uv = prev_texel * texture_size_inv;
+	const float2 snap = float2(dxdy <= texture_size_inv);
+	const float2 sample5_downsize_uv = tex_uv - 0.5 * dxdy;
+	const float2 sample5_uv = lerp(sample5_downsize_uv, prev_texel_uv, snap);
+	//  Compute texture coords for other samples:
+	const float2 dx = float2(dxdy.x, 0.0);
+	const float2 sample0_uv = sample5_uv - dxdy;
+	const float2 sample10_uv = sample5_uv + dxdy;
+	const float2 sample15_uv = sample5_uv + 2.0 * dxdy;
+	const float2 sample1_uv = sample0_uv + dx;
+	const float2 sample2_uv = sample0_uv + 2.0 * dx;
+	const float2 sample3_uv = sample0_uv + 3.0 * dx;
+	const float2 sample4_uv = sample5_uv - dx;
+	const float2 sample6_uv = sample5_uv + dx;
+	const float2 sample7_uv = sample5_uv + 2.0 * dx;
+	const float2 sample8_uv = sample10_uv - 2.0 * dx;
+	const float2 sample9_uv = sample10_uv - dx;
+	const float2 sample11_uv = sample10_uv + dx;
+	const float2 sample12_uv = sample15_uv - 3.0 * dx;
+	const float2 sample13_uv = sample15_uv - 2.0 * dx;
+	const float2 sample14_uv = sample15_uv - dx;
+	//  Load each sample:
+	const float3 sample0 = tex2D_linearize(tex, sam, sample0_uv).rgb;
+	const float3 sample1 = tex2D_linearize(tex, sam, sample1_uv).rgb;
+	const float3 sample2 = tex2D_linearize(tex, sam, sample2_uv).rgb;
+	const float3 sample3 = tex2D_linearize(tex, sam, sample3_uv).rgb;
+	const float3 sample4 = tex2D_linearize(tex, sam, sample4_uv).rgb;
+	const float3 sample5 = tex2D_linearize(tex, sam, sample5_uv).rgb;
+	const float3 sample6 = tex2D_linearize(tex, sam, sample6_uv).rgb;
+	const float3 sample7 = tex2D_linearize(tex, sam, sample7_uv).rgb;
+	const float3 sample8 = tex2D_linearize(tex, sam, sample8_uv).rgb;
+	const float3 sample9 = tex2D_linearize(tex, sam, sample9_uv).rgb;
+	const float3 sample10 = tex2D_linearize(tex, sam, sample10_uv).rgb;
+	const float3 sample11 = tex2D_linearize(tex, sam, sample11_uv).rgb;
+	const float3 sample12 = tex2D_linearize(tex, sam, sample12_uv).rgb;
+	const float3 sample13 = tex2D_linearize(tex, sam, sample13_uv).rgb;
+	const float3 sample14 = tex2D_linearize(tex, sam, sample14_uv).rgb;
+	const float3 sample15 = tex2D_linearize(tex, sam, sample15_uv).rgb;
+	//  Compute destination pixel offsets for each sample:
+	const float2 dest_pixel = tex_uv * tex_uv_to_pixel_scale;
+	const float2 sample0_offset = sample0_uv * tex_uv_to_pixel_scale - dest_pixel;
+	const float2 sample1_offset = sample1_uv * tex_uv_to_pixel_scale - dest_pixel;
+	const float2 sample2_offset = sample2_uv * tex_uv_to_pixel_scale - dest_pixel;
+	const float2 sample3_offset = sample3_uv * tex_uv_to_pixel_scale - dest_pixel;
+	const float2 sample4_offset = sample4_uv * tex_uv_to_pixel_scale - dest_pixel;
+	const float2 sample5_offset = sample5_uv * tex_uv_to_pixel_scale - dest_pixel;
+	const float2 sample6_offset = sample6_uv * tex_uv_to_pixel_scale - dest_pixel;
+	const float2 sample7_offset = sample7_uv * tex_uv_to_pixel_scale - dest_pixel;
+	const float2 sample8_offset = sample8_uv * tex_uv_to_pixel_scale - dest_pixel;
+	const float2 sample9_offset = sample9_uv * tex_uv_to_pixel_scale - dest_pixel;
+	const float2 sample10_offset = sample10_uv * tex_uv_to_pixel_scale - dest_pixel;
+	const float2 sample11_offset = sample11_uv * tex_uv_to_pixel_scale - dest_pixel;
+	const float2 sample12_offset = sample12_uv * tex_uv_to_pixel_scale - dest_pixel;
+	const float2 sample13_offset = sample13_uv * tex_uv_to_pixel_scale - dest_pixel;
+	const float2 sample14_offset = sample14_uv * tex_uv_to_pixel_scale - dest_pixel;
+	const float2 sample15_offset = sample15_uv * tex_uv_to_pixel_scale - dest_pixel;
+	//  Compute Gaussian sample weights:
+	const float w0 = exp(-LENGTH_SQ(sample0_offset) * denom_inv);
+	const float w1 = exp(-LENGTH_SQ(sample1_offset) * denom_inv);
+	const float w2 = exp(-LENGTH_SQ(sample2_offset) * denom_inv);
+	const float w3 = exp(-LENGTH_SQ(sample3_offset) * denom_inv);
+	const float w4 = exp(-LENGTH_SQ(sample4_offset) * denom_inv);
+	const float w5 = exp(-LENGTH_SQ(sample5_offset) * denom_inv);
+	const float w6 = exp(-LENGTH_SQ(sample6_offset) * denom_inv);
+	const float w7 = exp(-LENGTH_SQ(sample7_offset) * denom_inv);
+	const float w8 = exp(-LENGTH_SQ(sample8_offset) * denom_inv);
+	const float w9 = exp(-LENGTH_SQ(sample9_offset) * denom_inv);
+	const float w10 = exp(-LENGTH_SQ(sample10_offset) * denom_inv);
+	const float w11 = exp(-LENGTH_SQ(sample11_offset) * denom_inv);
+	const float w12 = exp(-LENGTH_SQ(sample12_offset) * denom_inv);
+	const float w13 = exp(-LENGTH_SQ(sample13_offset) * denom_inv);
+	const float w14 = exp(-LENGTH_SQ(sample14_offset) * denom_inv);
+	const float w15 = exp(-LENGTH_SQ(sample15_offset) * denom_inv);
+	const float weight_sum_inv = 1.0 / (
+		w0 + w1 + w2 + w3 + w4 + w5 + w6 + w7 +
+		w8 + w9 + w10 + w11 + w12 + w13 + w14 + w15);
+	//  Weight and sum the samples:
+	const float3 sum = w0 * sample0 + w1 * sample1 + w2 * sample2 + w3 * sample3 +
+		w4 * sample4 + w5 * sample5 + w6 * sample6 + w7 * sample7 +
+		w8 * sample8 + w9 * sample9 + w10 * sample10 + w11 * sample11 +
+		w12 * sample12 + w13 * sample13 + w14 * sample14 + w15 * sample15;
+	return sum * weight_sum_inv;
 }
 
 float4 Pass3(float2 pos) {
-    //  Get the uv sample distance between output pixels.  We're using a resize
-    //  blur, so arbitrary upsizing will be acceptable if filter_linearN =
-    //  "true," and arbitrary downsizing will be acceptable if mipmap_inputN =
-    //  "true" too.  The blur will be much more accurate if a true 4x4 Gaussian
-    //  resize is used instead of tex2Dblur3x3_resize (which samples between
-    //  texels even for upsizing).
-    const float2 texture_size = float2(inputWidth, inputHeight);
-    const float2 dxdy_min_scale = texture_size / float2(BLOOM_APPROX_WIDTH, BLOOM_APPROX_HEIGHT);
-    const float2 texture_size_inv = { inputPtX, inputPtY };
+	//  Get the uv sample distance between output pixels.  We're using a resize
+	//  blur, so arbitrary upsizing will be acceptable if filter_linearN =
+	//  "true," and arbitrary downsizing will be acceptable if mipmap_inputN =
+	//  "true" too.  The blur will be much more accurate if a true 4x4 Gaussian
+	//  resize is used instead of tex2Dblur3x3_resize (which samples between
+	//  texels even for upsizing).
+	const float2 texture_size = float2(inputWidth, inputHeight);
+	const float2 dxdy_min_scale = texture_size / float2(BLOOM_APPROX_WIDTH, BLOOM_APPROX_HEIGHT);
+	const float2 texture_size_inv = { inputPtX, inputPtY };
 
-    //  tex2Dresize_gaussian4x4 needs to know a bit more than the other filters:
-    float2 tex_uv_to_pixel_scale = float2(BLOOM_APPROX_WIDTH, BLOOM_APPROX_HEIGHT);
+	//  tex2Dresize_gaussian4x4 needs to know a bit more than the other filters:
+	float2 tex_uv_to_pixel_scale = float2(BLOOM_APPROX_WIDTH, BLOOM_APPROX_HEIGHT);
 
-    const float y_step = 1.0 + float(is_interlaced(inputHeight));
-    const float2 il_step_multiple = float2(1.0, y_step);
-    //  Get the uv distance between (texels, same-field scanlines):
-    float2 uv_scanline_step = il_step_multiple / texture_size;
+	const float y_step = 1.0 + float(is_interlaced(inputHeight));
+	const float2 il_step_multiple = float2(1.0, y_step);
+	//  Get the uv distance between (texels, same-field scanlines):
+	float2 uv_scanline_step = il_step_multiple / texture_size;
 
-    //  The last pass (vertical scanlines) had a viewport y scale, so we can
-    //  use it to calculate a better runtime sigma:
-    float estimated_viewport_size_x = inputHeight * geom_aspect_ratio_x / geom_aspect_ratio_y;
+	//  The last pass (vertical scanlines) had a viewport y scale, so we can
+	//  use it to calculate a better runtime sigma:
+	float estimated_viewport_size_x = inputHeight * geom_aspect_ratio_x / geom_aspect_ratio_y;
 
-    float2 blur_dxdy;
-    if (bloom_approx_filter > 1.5)   //  4x4 true Gaussian resize
-    {
-        //  For upsizing, we'll snap to texels and sample the nearest 4.
-        const float2 dxdy_scale = max(dxdy_min_scale, 1.0);
-        blur_dxdy = dxdy_scale * texture_size_inv;
-    } else {
-        const float2 dxdy_scale = dxdy_min_scale;
-        blur_dxdy = dxdy_scale * texture_size_inv;
-    }
+	float2 blur_dxdy;
+	if (bloom_approx_filter > 1.5)   //  4x4 true Gaussian resize
+	{
+		//  For upsizing, we'll snap to texels and sample the nearest 4.
+		const float2 dxdy_scale = max(dxdy_min_scale, 1.0);
+		blur_dxdy = dxdy_scale * texture_size_inv;
+	} else {
+		const float2 dxdy_scale = dxdy_min_scale;
+		blur_dxdy = dxdy_scale * texture_size_inv;
+	}
 
-    //  Would a viewport-relative size work better for this pass?  (No.)
-    //  PROS:
-    //  1.) Instead of writing an absolute size to user-cgp-constants.h, we'd
-    //      write a viewport scale.  That number could be used to directly scale
-    //      the viewport-resolution bloom sigma and/or triad size to a smaller
-    //      scale.  This way, we could calculate an optimal dynamic sigma no
-    //      matter how the dot pitch is specified.
-    //  CONS:
-    //  1.) Texel smearing would be much worse at small viewport sizes, but
-    //      performance would be much worse at large viewport sizes, so there
-    //      would be no easy way to calculate a decent scale.
-    //  2.) Worse, we could no longer get away with using a constant-size blur!
-    //      Instead, we'd have to face all the same difficulties as the real
-    //      phosphor bloom, which requires static #ifdefs to decide the blur
-    //      size based on the expected triad size...a dynamic value.
-    //  3.) Like the phosphor bloom, we'd have less control over making the blur
-    //      size correct for an optical blur.  That said, we likely overblur (to
-    //      maintain brightness) more than the eye would do by itself: 20/20
-    //      human vision distinguishes ~1 arc minute, or 1/60 of a degree.  The
-    //      highest viewing angle recommendation I know of is THX's 40.04 degree
-    //      recommendation, at which 20/20 vision can distinguish about 2402.4
-    //      lines.  Assuming the "TV lines" definition, that means 1201.2
-    //      distinct light lines and 1201.2 distinct dark lines can be told
-    //      apart, i.e. 1201.2 pairs of lines.  This would correspond to 1201.2
-    //      pairs of alternating lit/unlit phosphors, so 2402.4 phosphors total
-    //      (if they're alternately lit).  That's a max of 800.8 triads.  Using
-    //      a more popular 30 degree viewing angle recommendation, 20/20 vision
-    //      can distinguish 1800 lines, or 600 triads of alternately lit
-    //      phosphors.  In contrast, we currently blur phosphors all the way
-    //      down to 341.3 triads to ensure full brightness.
-    //  4.) Realistically speaking, we're usually just going to use bilinear
-    //      filtering in this pass anyway, but it only works well to limit
-    //      bandwidth if it's done at a small constant scale.
+	//  Would a viewport-relative size work better for this pass?  (No.)
+	//  PROS:
+	//  1.) Instead of writing an absolute size to user-cgp-constants.h, we'd
+	//      write a viewport scale.  That number could be used to directly scale
+	//      the viewport-resolution bloom sigma and/or triad size to a smaller
+	//      scale.  This way, we could calculate an optimal dynamic sigma no
+	//      matter how the dot pitch is specified.
+	//  CONS:
+	//  1.) Texel smearing would be much worse at small viewport sizes, but
+	//      performance would be much worse at large viewport sizes, so there
+	//      would be no easy way to calculate a decent scale.
+	//  2.) Worse, we could no longer get away with using a constant-size blur!
+	//      Instead, we'd have to face all the same difficulties as the real
+	//      phosphor bloom, which requires static #ifdefs to decide the blur
+	//      size based on the expected triad size...a dynamic value.
+	//  3.) Like the phosphor bloom, we'd have less control over making the blur
+	//      size correct for an optical blur.  That said, we likely overblur (to
+	//      maintain brightness) more than the eye would do by itself: 20/20
+	//      human vision distinguishes ~1 arc minute, or 1/60 of a degree.  The
+	//      highest viewing angle recommendation I know of is THX's 40.04 degree
+	//      recommendation, at which 20/20 vision can distinguish about 2402.4
+	//      lines.  Assuming the "TV lines" definition, that means 1201.2
+	//      distinct light lines and 1201.2 distinct dark lines can be told
+	//      apart, i.e. 1201.2 pairs of lines.  This would correspond to 1201.2
+	//      pairs of alternating lit/unlit phosphors, so 2402.4 phosphors total
+	//      (if they're alternately lit).  That's a max of 800.8 triads.  Using
+	//      a more popular 30 degree viewing angle recommendation, 20/20 vision
+	//      can distinguish 1800 lines, or 600 triads of alternately lit
+	//      phosphors.  In contrast, we currently blur phosphors all the way
+	//      down to 341.3 triads to ensure full brightness.
+	//  4.) Realistically speaking, we're usually just going to use bilinear
+	//      filtering in this pass anyway, but it only works well to limit
+	//      bandwidth if it's done at a small constant scale.
 
-    //  Get the constants we need to sample:
-    const float2 tex_uv = pos;
-    float2 tex_uv_r, tex_uv_g, tex_uv_b;
-    if (beam_misconvergence) {
-        const float2 convergence_offsets_r = get_convergence_offsets_r_vector();
-        const float2 convergence_offsets_g = get_convergence_offsets_g_vector();
-        const float2 convergence_offsets_b = get_convergence_offsets_b_vector();
-        tex_uv_r = tex_uv - convergence_offsets_r * uv_scanline_step;
-        tex_uv_g = tex_uv - convergence_offsets_g * uv_scanline_step;
-        tex_uv_b = tex_uv - convergence_offsets_b * uv_scanline_step;
-    }
-    //  Get the blur sigma:
-    const float bloom_approx_sigma = get_bloom_approx_sigma(BLOOM_APPROX_WIDTH,
-        estimated_viewport_size_x);
+	//  Get the constants we need to sample:
+	const float2 tex_uv = pos;
+	float2 tex_uv_r, tex_uv_g, tex_uv_b;
+	if (beam_misconvergence) {
+		const float2 convergence_offsets_r = get_convergence_offsets_r_vector();
+		const float2 convergence_offsets_g = get_convergence_offsets_g_vector();
+		const float2 convergence_offsets_b = get_convergence_offsets_b_vector();
+		tex_uv_r = tex_uv - convergence_offsets_r * uv_scanline_step;
+		tex_uv_g = tex_uv - convergence_offsets_g * uv_scanline_step;
+		tex_uv_b = tex_uv - convergence_offsets_b * uv_scanline_step;
+	}
+	//  Get the blur sigma:
+	const float bloom_approx_sigma = get_bloom_approx_sigma(BLOOM_APPROX_WIDTH,
+		estimated_viewport_size_x);
 
-    //  Sample the resized and blurred texture, and apply convergence offsets if
-    //  necessary.  Applying convergence offsets here triples our samples from
-    //  16/9/1 to 48/27/3, but faster and easier than sampling BLOOM_APPROX and
-    //  HALATION_BLUR 3 times at full resolution every time they're used.
-    float3 color_r, color_g, color_b, color;
-    if (bloom_approx_filter > 1.5) {
-        //  Use a 4x4 Gaussian resize.  This is slower but technically correct.
-        if (beam_misconvergence) {
-            color_r = tex2Dresize_gaussian4x4(tex2, samLinear, tex_uv_r,
-                blur_dxdy, texture_size, texture_size_inv,
-                tex_uv_to_pixel_scale, bloom_approx_sigma);
-            color_g = tex2Dresize_gaussian4x4(tex2, samLinear, tex_uv_g,
-                blur_dxdy, texture_size, texture_size_inv,
-                tex_uv_to_pixel_scale, bloom_approx_sigma);
-            color_b = tex2Dresize_gaussian4x4(tex2, samLinear, tex_uv_b,
-                blur_dxdy, texture_size, texture_size_inv,
-                tex_uv_to_pixel_scale, bloom_approx_sigma);
-        } else {
-            color = tex2Dresize_gaussian4x4(tex2, samLinear, tex_uv,
-                blur_dxdy, texture_size, texture_size_inv,
-                tex_uv_to_pixel_scale, bloom_approx_sigma);
-        }
-    } else if (bloom_approx_filter > 0.5) {
-        //  Use a 3x3 resize blur.  This is the softest option, because we're
-        //  blurring already blurry bilinear samples.  It doesn't play quite as
-        //  nicely with convergence offsets, but it has its charms.
-        if (beam_misconvergence) {
-            color_r = tex2Dblur3x3resize(tex2, samLinear, tex_uv_r,
-                blur_dxdy, bloom_approx_sigma);
-            color_g = tex2Dblur3x3resize(tex2, samLinear, tex_uv_g,
-                blur_dxdy, bloom_approx_sigma);
-            color_b = tex2Dblur3x3resize(tex2, samLinear, tex_uv_b,
-                blur_dxdy, bloom_approx_sigma);
-        } else {
-            color = tex2Dblur3x3resize(tex2, samLinear, tex_uv, blur_dxdy);
-        }
-    } else {
-        //  Use bilinear sampling.  This approximates a 4x4 Gaussian resize MUCH
-        //  better than tex2Dblur3x3_resize for the very small sigmas we're
-        //  likely to use at small output resolutions.  (This estimate becomes
-        //  too sharp above ~400x300, but the blurs break down above that
-        //  resolution too, unless min_allowed_viewport_triads is high enough to
-        //  keep bloom_approx_scale_x/min_allowed_viewport_triads < ~1.1658025.)
-        if (beam_misconvergence) {
-            color_r = tex2D_linearize(tex2, samLinear, tex_uv_r).rgb;
-            color_g = tex2D_linearize(tex2, samLinear, tex_uv_g).rgb;
-            color_b = tex2D_linearize(tex2, samLinear, tex_uv_b).rgb;
-        } else {
-            color = tex2D_linearize(tex2, samLinear, tex_uv).rgb;
-        }
-    }
-    //  Pack the colors from the red/green/blue beams into a single vector:
-    if (beam_misconvergence) {
-        color = float3(color_r.r, color_g.g, color_b.b);
-    }
-    //  Encode and output the blurred image:
-    return encode_output(float4(color, 1.0));
+	//  Sample the resized and blurred texture, and apply convergence offsets if
+	//  necessary.  Applying convergence offsets here triples our samples from
+	//  16/9/1 to 48/27/3, but faster and easier than sampling BLOOM_APPROX and
+	//  HALATION_BLUR 3 times at full resolution every time they're used.
+	float3 color_r, color_g, color_b, color;
+	if (bloom_approx_filter > 1.5) {
+		//  Use a 4x4 Gaussian resize.  This is slower but technically correct.
+		if (beam_misconvergence) {
+			color_r = tex2Dresize_gaussian4x4(tex2, samLinear, tex_uv_r,
+				blur_dxdy, texture_size, texture_size_inv,
+				tex_uv_to_pixel_scale, bloom_approx_sigma);
+			color_g = tex2Dresize_gaussian4x4(tex2, samLinear, tex_uv_g,
+				blur_dxdy, texture_size, texture_size_inv,
+				tex_uv_to_pixel_scale, bloom_approx_sigma);
+			color_b = tex2Dresize_gaussian4x4(tex2, samLinear, tex_uv_b,
+				blur_dxdy, texture_size, texture_size_inv,
+				tex_uv_to_pixel_scale, bloom_approx_sigma);
+		} else {
+			color = tex2Dresize_gaussian4x4(tex2, samLinear, tex_uv,
+				blur_dxdy, texture_size, texture_size_inv,
+				tex_uv_to_pixel_scale, bloom_approx_sigma);
+		}
+	} else if (bloom_approx_filter > 0.5) {
+		//  Use a 3x3 resize blur.  This is the softest option, because we're
+		//  blurring already blurry bilinear samples.  It doesn't play quite as
+		//  nicely with convergence offsets, but it has its charms.
+		if (beam_misconvergence) {
+			color_r = tex2Dblur3x3resize(tex2, samLinear, tex_uv_r,
+				blur_dxdy, bloom_approx_sigma);
+			color_g = tex2Dblur3x3resize(tex2, samLinear, tex_uv_g,
+				blur_dxdy, bloom_approx_sigma);
+			color_b = tex2Dblur3x3resize(tex2, samLinear, tex_uv_b,
+				blur_dxdy, bloom_approx_sigma);
+		} else {
+			color = tex2Dblur3x3resize(tex2, samLinear, tex_uv, blur_dxdy);
+		}
+	} else {
+		//  Use bilinear sampling.  This approximates a 4x4 Gaussian resize MUCH
+		//  better than tex2Dblur3x3_resize for the very small sigmas we're
+		//  likely to use at small output resolutions.  (This estimate becomes
+		//  too sharp above ~400x300, but the blurs break down above that
+		//  resolution too, unless min_allowed_viewport_triads is high enough to
+		//  keep bloom_approx_scale_x/min_allowed_viewport_triads < ~1.1658025.)
+		if (beam_misconvergence) {
+			color_r = tex2D_linearize(tex2, samLinear, tex_uv_r).rgb;
+			color_g = tex2D_linearize(tex2, samLinear, tex_uv_g).rgb;
+			color_b = tex2D_linearize(tex2, samLinear, tex_uv_b).rgb;
+		} else {
+			color = tex2D_linearize(tex2, samLinear, tex_uv).rgb;
+		}
+	}
+	//  Pack the colors from the red/green/blue beams into a single vector:
+	if (beam_misconvergence) {
+		color = float3(color_r.r, color_g.g, color_b.b);
+	}
+	//  Encode and output the blurred image:
+	return encode_output(float4(color, 1.0));
 }
 
 
@@ -1250,22 +1276,22 @@ float4 Pass3(float2 pos) {
 #include "CRT_Royale_blur-functions.hlsli"
 
 float4 Pass4(float2 pos) {
-    //  Get the uv sample distance between output pixels.  Blurs are not generic
-    //  Gaussian resizers, and correct blurs require:
-    //  1.) IN.output_size == IN.video_size * 2^m, where m is an integer <= 0.
-    //  2.) mipmap_inputN = "true" for this pass in .cgp preset if m != 0
-    //  3.) filter_linearN = "true" except for 1x scale nearest neighbor blurs
-    //  Gaussian resizers would upsize using the distance between input texels
-    //  (not output pixels), but we avoid this and consistently blur at the
-    //  destination size.  Otherwise, combining statically calculated weights
-    //  with bilinear sample exploitation would result in terrible artifacts.
+	//  Get the uv sample distance between output pixels.  Blurs are not generic
+	//  Gaussian resizers, and correct blurs require:
+	//  1.) IN.output_size == IN.video_size * 2^m, where m is an integer <= 0.
+	//  2.) mipmap_inputN = "true" for this pass in .cgp preset if m != 0
+	//  3.) filter_linearN = "true" except for 1x scale nearest neighbor blurs
+	//  Gaussian resizers would upsize using the distance between input texels
+	//  (not output pixels), but we avoid this and consistently blur at the
+	//  destination size.  Otherwise, combining statically calculated weights
+	//  with bilinear sample exploitation would result in terrible artifacts.
 
-    //  This blur is vertical-only, so zero out the horizontal offset:
-    float2 blur_dxdy = { 0.0, 1 / BLOOM_APPROX_HEIGHT };
+	//  This blur is vertical-only, so zero out the horizontal offset:
+	float2 blur_dxdy = { 0.0, 1 / BLOOM_APPROX_HEIGHT };
 
-    float3 color = tex2Dblur9fast(tex3, samLinear, pos, blur_dxdy);
-    //  Encode and output the blurred image:
-    return encode_output(float4(color, 1.0));
+	float3 color = tex2Dblur9fast(tex3, samLinear, pos, blur_dxdy);
+	//  Encode and output the blurred image:
+	return encode_output(float4(color, 1.0));
 }
 
 //!PASS 5
@@ -1278,22 +1304,22 @@ float4 Pass4(float2 pos) {
 #include "CRT_Royale_blur-functions.hlsli"
 
 float4 Pass5(float2 pos) {
-    //  Get the uv sample distance between output pixels.  Blurs are not generic
-    //  Gaussian resizers, and correct blurs require:
-    //  1.) IN.output_size == IN.video_size * 2^m, where m is an integer <= 0.
-    //  2.) mipmap_inputN = "true" for this pass in .cgp preset if m != 0
-    //  3.) filter_linearN = "true" except for 1x scale nearest neighbor blurs
-    //  Gaussian resizers would upsize using the distance between input texels
-    //  (not output pixels), but we avoid this and consistently blur at the
-    //  destination size.  Otherwise, combining statically calculated weights
-    //  with bilinear sample exploitation would result in terrible artifacts.
+	//  Get the uv sample distance between output pixels.  Blurs are not generic
+	//  Gaussian resizers, and correct blurs require:
+	//  1.) IN.output_size == IN.video_size * 2^m, where m is an integer <= 0.
+	//  2.) mipmap_inputN = "true" for this pass in .cgp preset if m != 0
+	//  3.) filter_linearN = "true" except for 1x scale nearest neighbor blurs
+	//  Gaussian resizers would upsize using the distance between input texels
+	//  (not output pixels), but we avoid this and consistently blur at the
+	//  destination size.  Otherwise, combining statically calculated weights
+	//  with bilinear sample exploitation would result in terrible artifacts.
 
-    //  This blur is horizontal-only, so zero out the vertical offset:
-    float2 blur_dxdy = { 1 / BLOOM_APPROX_WIDTH, 0.0 };
+	//  This blur is horizontal-only, so zero out the vertical offset:
+	float2 blur_dxdy = { 1 / BLOOM_APPROX_WIDTH, 0.0 };
 
-    float3 color = tex2Dblur9fast(tex4, samLinear, pos, blur_dxdy);
-    //  Encode and output the blurred image:
-    return encode_output(float4(color, 1.0));
+	float3 color = tex2Dblur9fast(tex4, samLinear, pos, blur_dxdy);
+	//  Encode and output the blurred image:
+	return encode_output(float4(color, 1.0));
 }
 
 //!PASS 6
@@ -1307,89 +1333,89 @@ float4 Pass5(float2 pos) {
 
 
 float4 Pass6(float2 pos) {
-    float2 output_size = { 64, 0.0625 * outputHeight };
+	float2 output_size = { 64, 0.0625 * outputHeight };
 
-    //  First estimate the viewport size (the user will get the wrong number of
-    //  triads if it's wrong and mask_specify_num_triads is 1.0/true).
-    const float viewport_y = output_size.y / mask_resize_viewport_scale.y;
-    const float aspect_ratio = geom_aspect_ratio_x / geom_aspect_ratio_y;
-    const float2 estimated_viewport_size =
-        float2(viewport_y * aspect_ratio, viewport_y);
-    //  Estimate the output size of MASK_RESIZE (the next pass).  The estimated
-    //  x component shouldn't matter, because we're not using the x result, and
-    //  we're not swearing it's correct (if we did, the x result would influence
-    //  the y result to maintain the tile aspect ratio).
-    const float2 estimated_mask_resize_output_size =
-        float2(output_size.y * aspect_ratio, output_size.y);
-    //  Find the final intended [y] size of our resized phosphor mask tiles,
-    //  then the tile size for the current pass (resize y only):
-    const float2 mask_resize_tile_size = get_resized_mask_tile_size(
-        estimated_viewport_size, estimated_mask_resize_output_size, false);
-    const float2 pass_output_tile_size = float2(min(
-        mask_resize_src_lut_size.x, output_size.x), mask_resize_tile_size.y);
+	//  First estimate the viewport size (the user will get the wrong number of
+	//  triads if it's wrong and mask_specify_num_triads is 1.0/true).
+	const float viewport_y = output_size.y / mask_resize_viewport_scale.y;
+	const float aspect_ratio = geom_aspect_ratio_x / geom_aspect_ratio_y;
+	const float2 estimated_viewport_size =
+		float2(viewport_y * aspect_ratio, viewport_y);
+	//  Estimate the output size of MASK_RESIZE (the next pass).  The estimated
+	//  x component shouldn't matter, because we're not using the x result, and
+	//  we're not swearing it's correct (if we did, the x result would influence
+	//  the y result to maintain the tile aspect ratio).
+	const float2 estimated_mask_resize_output_size =
+		float2(output_size.y * aspect_ratio, output_size.y);
+	//  Find the final intended [y] size of our resized phosphor mask tiles,
+	//  then the tile size for the current pass (resize y only):
+	const float2 mask_resize_tile_size = get_resized_mask_tile_size(
+		estimated_viewport_size, estimated_mask_resize_output_size, false);
+	const float2 pass_output_tile_size = float2(min(
+		mask_resize_src_lut_size.x, output_size.x), mask_resize_tile_size.y);
 
-    //  We'll render resized tiles until filling the output FBO or meeting a
-    //  limit, so compute [wrapped] tile uv coords based on the output uv coords
-    //  and the number of tiles that will fit in the FBO.
-    const float2 output_tiles_this_pass = output_size / pass_output_tile_size;
-    const float2 output_video_uv = pos;
-    const float2 tile_uv_wrap = output_video_uv * output_tiles_this_pass;
+	//  We'll render resized tiles until filling the output FBO or meeting a
+	//  limit, so compute [wrapped] tile uv coords based on the output uv coords
+	//  and the number of tiles that will fit in the FBO.
+	const float2 output_tiles_this_pass = output_size / pass_output_tile_size;
+	const float2 output_video_uv = pos;
+	const float2 tile_uv_wrap = output_video_uv * output_tiles_this_pass;
 
-    //  The input LUT is just a single mask tile, so texture uv coords are the
-    //  same as tile uv coords (save frac() for the fragment shader).  The
-    //  magnification scale is also straightforward:
-    const float2 src_tex_uv_wrap = tile_uv_wrap;
-    const float resize_magnification_scale =
-        pass_output_tile_size.y / mask_resize_src_lut_size.y;
+	//  The input LUT is just a single mask tile, so texture uv coords are the
+	//  same as tile uv coords (save frac() for the fragment shader).  The
+	//  magnification scale is also straightforward:
+	const float2 src_tex_uv_wrap = tile_uv_wrap;
+	const float resize_magnification_scale =
+		pass_output_tile_size.y / mask_resize_src_lut_size.y;
 
-    //  Statically select small [non-mipmapped] or large [mipmapped] textures:
+	//  Statically select small [non-mipmapped] or large [mipmapped] textures:
 #ifdef PHOSPHOR_MASK_RESIZE_MIPMAPPED_LUT
-    //Texture2D mask_grille_texture = mask_grille_texture_large;
-    //Texture2D mask_slot_texture = mask_slot_texture_large;
-    //Texture2D mask_shadow_texture = mask_shadow_texture_large;
+	//Texture2D mask_grille_texture = mask_grille_texture_large;
+	//Texture2D mask_slot_texture = mask_slot_texture_large;
+	//Texture2D mask_shadow_texture = mask_shadow_texture_large;
 #else
-    Texture2D mask_grille_texture = mask_grille_texture_small;
-    Texture2D mask_slot_texture = mask_slot_texture_small;
-    Texture2D mask_shadow_texture = mask_shadow_texture_small;
+	Texture2D mask_grille_texture = mask_grille_texture_small;
+	Texture2D mask_slot_texture = mask_slot_texture_small;
+	Texture2D mask_shadow_texture = mask_shadow_texture_small;
 #endif
 
-    //  Resize the input phosphor mask tile to the final vertical size it will
-    //  appear on screen.  Keep 1x horizontal size if possible (IN.output_size
-    //  >= mask_resize_src_lut_size), and otherwise linearly sample horizontally
-    //  to fit exactly one tile.  Lanczos-resizing the phosphor mask achieves
-    //  much sharper results than mipmapping, and vertically resizing first
-    //  minimizes the total number of taps required.  We output a number of
-    //  resized tiles >= mask_resize_num_tiles for easier tiled sampling later.
+	//  Resize the input phosphor mask tile to the final vertical size it will
+	//  appear on screen.  Keep 1x horizontal size if possible (IN.output_size
+	//  >= mask_resize_src_lut_size), and otherwise linearly sample horizontally
+	//  to fit exactly one tile.  Lanczos-resizing the phosphor mask achieves
+	//  much sharper results than mipmapping, and vertically resizing first
+	//  minimizes the total number of taps required.  We output a number of
+	//  resized tiles >= mask_resize_num_tiles for easier tiled sampling later.
 #ifdef PHOSPHOR_MASK_MANUALLY_RESIZE
-    //  Discard unneeded fragments in case our profile allows real branches.
-    if (get_mask_sample_mode() < 0.5 &&
-        tile_uv_wrap.y <= mask_resize_num_tiles) {
-        static const float src_dy = 1.0 / mask_resize_src_lut_size.y;
-        const float2 src_tex_uv = frac(src_tex_uv_wrap);
-        float3 pixel_color;
-        //  If mask_type is static, this branch will be resolved statically.
-        if (mask_type < 0.5) {
-            pixel_color = downsample_vertical_sinc_tiled(
-                mask_grille_texture, samLinear, src_tex_uv, mask_resize_src_lut_size,
-                src_dy, resize_magnification_scale, 1.0);
-        } else if (mask_type < 1.5) {
-            pixel_color = downsample_vertical_sinc_tiled(
-                mask_slot_texture, samLinear, src_tex_uv, mask_resize_src_lut_size,
-                src_dy, resize_magnification_scale, 1.0);
-        } else {
-            pixel_color = downsample_vertical_sinc_tiled(
-                mask_shadow_texture, samLinear, src_tex_uv, mask_resize_src_lut_size,
-                src_dy, resize_magnification_scale, 1.0);
-        }
-        //  The input LUT was linear RGB, and so is our output:
-        return float4(pixel_color, 1.0);
-    } else {
-        discard;
-        return float4(0, 0, 0, 1);
-    }
+	//  Discard unneeded fragments in case our profile allows real branches.
+	if (get_mask_sample_mode() < 0.5 &&
+		tile_uv_wrap.y <= mask_resize_num_tiles) {
+		static const float src_dy = 1.0 / mask_resize_src_lut_size.y;
+		const float2 src_tex_uv = frac(src_tex_uv_wrap);
+		float3 pixel_color;
+		//  If mask_type is static, this branch will be resolved statically.
+		if (mask_type < 0.5) {
+			pixel_color = downsample_vertical_sinc_tiled(
+				mask_grille_texture, samLinear, src_tex_uv, mask_resize_src_lut_size,
+				src_dy, resize_magnification_scale, 1.0);
+		} else if (mask_type < 1.5) {
+			pixel_color = downsample_vertical_sinc_tiled(
+				mask_slot_texture, samLinear, src_tex_uv, mask_resize_src_lut_size,
+				src_dy, resize_magnification_scale, 1.0);
+		} else {
+			pixel_color = downsample_vertical_sinc_tiled(
+				mask_shadow_texture, samLinear, src_tex_uv, mask_resize_src_lut_size,
+				src_dy, resize_magnification_scale, 1.0);
+		}
+		//  The input LUT was linear RGB, and so is our output:
+		return float4(pixel_color, 1.0);
+	} else {
+		discard;
+		return float4(0, 0, 0, 1);
+	}
 #else
-    discard;
-    return float4(0, 0, 0, 1);
+	discard;
+	return float4(0, 0, 0, 1);
 #endif
 }
 
@@ -1405,69 +1431,70 @@ float4 Pass6(float2 pos) {
 
 
 float4 Pass7(float2 pos) {
-    float2 texture_size = { 64, 0.0625 * outputHeight };
-    float2 output_size = 0.0625 * float2(outputWidth, outputHeight);
+	float2 texture_size = { 64, 0.0625 * outputHeight };
+	float2 output_size = 0.0625 * float2(outputWidth, outputHeight);
 
-    //  First estimate the viewport size (the user will get the wrong number of
-    //  triads if it's wrong and mask_specify_num_triads is 1.0/true).
-    const float2 estimated_viewport_size =
-        output_size / mask_resize_viewport_scale;
-    //  Find the final size of our resized phosphor mask tiles.  We probably
-    //  estimated the viewport size and MASK_RESIZE output size differently last
-    //  pass, so do not swear they were the same. ;)
-    const float2 mask_resize_tile_size = get_resized_mask_tile_size(
-        estimated_viewport_size, output_size, false);
+	//  First estimate the viewport size (the user will get the wrong number of
+	//  triads if it's wrong and mask_specify_num_triads is 1.0/true).
+	const float2 estimated_viewport_size =
+		output_size / mask_resize_viewport_scale;
+	//  Find the final size of our resized phosphor mask tiles.  We probably
+	//  estimated the viewport size and MASK_RESIZE output size differently last
+	//  pass, so do not swear they were the same. ;)
+	const float2 mask_resize_tile_size = get_resized_mask_tile_size(
+		estimated_viewport_size, output_size, false);
 
-    //  We'll render resized tiles until filling the output FBO or meeting a
-    //  limit, so compute [wrapped] tile uv coords based on the output uv coords
-    //  and the number of tiles that will fit in the FBO.
-    const float2 output_tiles_this_pass = output_size / mask_resize_tile_size;
-    const float2 output_video_uv = pos;
-    const float2 tile_uv_wrap = output_video_uv * output_tiles_this_pass;
+	//  We'll render resized tiles until filling the output FBO or meeting a
+	//  limit, so compute [wrapped] tile uv coords based on the output uv coords
+	//  and the number of tiles that will fit in the FBO.
+	const float2 output_tiles_this_pass = output_size / mask_resize_tile_size;
+	const float2 output_video_uv = pos;
+	const float2 tile_uv_wrap = output_video_uv * output_tiles_this_pass;
 
-    //  Get the texel size of an input tile and related values:
-    const float2 input_tile_size = float2(min(
-        mask_resize_src_lut_size.x, texture_size.x), mask_resize_tile_size.y);
-    const float2 tile_size_uv = input_tile_size / texture_size;
-    const float2 input_tiles_per_texture = texture_size / input_tile_size;
+	//  Get the texel size of an input tile and related values:
+	const float2 input_tile_size = float2(min(
+		mask_resize_src_lut_size.x, texture_size.x), mask_resize_tile_size.y);
+	const float2 tile_size_uv = input_tile_size / texture_size;
+	const float2 input_tiles_per_texture = texture_size / input_tile_size;
 
-    //  Derive [wrapped] texture uv coords from [wrapped] tile uv coords and
-    //  the tile size in uv coords, and save frac() for the fragment shader.
-    const float2 src_tex_uv_wrap = tile_uv_wrap * tile_size_uv;
+	//  Derive [wrapped] texture uv coords from [wrapped] tile uv coords and
+	//  the tile size in uv coords, and save frac() for the fragment shader.
+	const float2 src_tex_uv_wrap = tile_uv_wrap * tile_size_uv;
 
-    float2 src_dxdy = float2(1.0 / texture_size.x, 0.0);
-    float resize_magnification_scale = mask_resize_tile_size.x / input_tile_size.x;
+	float2 src_dxdy = float2(1.0 / texture_size.x, 0.0);
+	float resize_magnification_scale = mask_resize_tile_size.x / input_tile_size.x;
 
-    //  The input contains one mask tile horizontally and a number vertically.
-    //  Resize the tile horizontally to its final screen size and repeat it
-    //  until drawing at least mask_resize_num_tiles, leaving it unchanged
-    //  vertically.  Lanczos-resizing the phosphor mask achieves much sharper
-    //  results than mipmapping, outputting >= mask_resize_num_tiles makes for
-    //  easier tiled sampling later.
+	//  The input contains one mask tile horizontally and a number vertically.
+	//  Resize the tile horizontally to its final screen size and repeat it
+	//  until drawing at least mask_resize_num_tiles, leaving it unchanged
+	//  vertically.  Lanczos-resizing the phosphor mask achieves much sharper
+	//  results than mipmapping, outputting >= mask_resize_num_tiles makes for
+	//  easier tiled sampling later.
 #ifdef PHOSPHOR_MASK_MANUALLY_RESIZE
-    //  Discard unneeded fragments in case our profile allows real branches.
-    if (get_mask_sample_mode() < 0.5 &&
-        max(tile_uv_wrap.x, tile_uv_wrap.y) <= mask_resize_num_tiles) {
-        const float src_dx = src_dxdy.x;
-        const float2 src_tex_uv = frac(src_tex_uv_wrap);
-        const float3 pixel_color = downsample_horizontal_sinc_tiled(tex6, samPoint,
-            src_tex_uv, texture_size, src_dxdy.x,
-            resize_magnification_scale, tile_size_uv.x);
-        //  The input LUT was linear RGB, and so is our output:
-        return float4(pixel_color, 1.0);
-    } else {
-        discard;
-        return float4(0, 0, 0, 1);
-    }
+	//  Discard unneeded fragments in case our profile allows real branches.
+	if (get_mask_sample_mode() < 0.5 &&
+		max(tile_uv_wrap.x, tile_uv_wrap.y) <= mask_resize_num_tiles) {
+		const float src_dx = src_dxdy.x;
+		const float2 src_tex_uv = frac(src_tex_uv_wrap);
+		const float3 pixel_color = downsample_horizontal_sinc_tiled(tex6, samPoint,
+			src_tex_uv, texture_size, src_dxdy.x,
+			resize_magnification_scale, tile_size_uv.x);
+		//  The input LUT was linear RGB, and so is our output:
+		return float4(pixel_color, 1.0);
+	} else {
+		discard;
+		return float4(0, 0, 0, 1);
+	}
 #else
-    discard;
-    return float4(0, 0, 0, 1);
+	discard;
+	return float4(0, 0, 0, 1);
 #endif
 }
 
 
 //!PASS 8
 //!BIND tex2, tex3, tex5, tex7
+//!SAVE tex8
 
 // 移植自 https://github.com/libretro/common-shaders/blob/master/crt/shaders/crt-royale/src/crt-royale-scanlines-horizontal-apply-mask.cg
 
@@ -1479,191 +1506,512 @@ float4 Pass7(float2 pos) {
 
 
 float4 tex2Dtiled_mask_linearize(Texture2D tex, SamplerState sam, const float2 tex_uv) {
-    //  If we're manually tiling a texture, anisotropic filtering can get
-    //  confused.  One workaround is to just select the lowest mip level:
+	//  If we're manually tiling a texture, anisotropic filtering can get
+	//  confused.  One workaround is to just select the lowest mip level:
 #ifdef PHOSPHOR_MASK_MANUALLY_RESIZE
 #ifdef ANISOTROPIC_TILING_COMPAT_TEX2DLOD
-    //  TODO: Use tex2Dlod_linearize with a calculated mip level.
-    return tex2Dlod_linearize(tex, sam, float4(tex_uv, 0.0, 0.0));
+	//  TODO: Use tex2Dlod_linearize with a calculated mip level.
+	return tex2Dlod_linearize(tex, sam, float4(tex_uv, 0.0, 0.0));
 #else
 #ifdef ANISOTROPIC_TILING_COMPAT_TEX2DBIAS
-    return tex2Dbias_linearize(tex, sam, float4(tex_uv, 0.0, -16.0));
+	return tex2Dbias_linearize(tex, sam, float4(tex_uv, 0.0, -16.0));
 #else
-    return tex2D_linearize(tex, sam, tex_uv);
+	return tex2D_linearize(tex, sam, tex_uv);
 #endif
 #endif
 #else
-    return tex2D_linearize(tex, sam, tex_uv);
+	return tex2D_linearize(tex, sam, tex_uv);
 #endif
 }
 
 float4 Pass8(float2 pos) {
-    //  Our various input textures use different coords.
-    const float2 video_uv = pos;
-    const float2 scanline_texture_size_inv = float2(inputPtX, inputPtY);
-    float2 scanline_tex_uv = video_uv;
-    float2 blur3x3_tex_uv = video_uv;
-    float2 halation_tex_uv = video_uv;
+	//  Our various input textures use different coords.
+	const float2 scanline_texture_size_inv = float2(inputPtX, inputPtY);
+	float2 scanline_tex_uv = pos;
+	float2 blur3x3_tex_uv = pos;
+	float2 halation_tex_uv = pos;
 
-    //  Get a consistent name for the final mask texture size.  Sample mode 0
-    //  uses the manually resized mask, but ignore it if we never resized.
+	//  Get a consistent name for the final mask texture size.  Sample mode 0
+	//  uses the manually resized mask, but ignore it if we never resized.
 #ifdef PHOSPHOR_MASK_MANUALLY_RESIZE
-    const float mask_sample_mode = get_mask_sample_mode();
-    const float2 MASK_RESIZE_video_size = 0.0625 * float2(outputWidth, outputHeight);
-    const float2 mask_resize_texture_size = mask_sample_mode < 0.5 ?
-        MASK_RESIZE_video_size : mask_texture_large_size;
-    const float2 mask_resize_video_size = mask_sample_mode < 0.5 ?
-        MASK_RESIZE_video_size : mask_texture_large_size;
+	const float mask_sample_mode = get_mask_sample_mode();
+	const float2 MASK_RESIZE_video_size = 0.0625 * float2(outputWidth, outputHeight);
+	const float2 mask_resize_texture_size = mask_sample_mode < 0.5 ?
+		MASK_RESIZE_video_size : mask_texture_large_size;
+	const float2 mask_resize_video_size = mask_sample_mode < 0.5 ?
+		MASK_RESIZE_video_size : mask_texture_large_size;
 #else
-    const float2 mask_resize_texture_size = mask_texture_large_size;
-    const float2 mask_resize_video_size = mask_texture_large_size;
+	const float2 mask_resize_texture_size = mask_texture_large_size;
+	const float2 mask_resize_video_size = mask_texture_large_size;
 #endif
-    //  Compute mask tile dimensions, starting points, etc.:
-    float2 mask_tiles_per_screen;
-    float4 mask_tile_start_uv_and_size = get_mask_sampling_parameters(
-        mask_resize_texture_size, mask_resize_video_size, float2(outputWidth, outputHeight),
-        mask_tiles_per_screen);
+	//  Compute mask tile dimensions, starting points, etc.:
+	float2 mask_tiles_per_screen;
+	float4 mask_tile_start_uv_and_size = get_mask_sampling_parameters(
+		mask_resize_texture_size, mask_resize_video_size, float2(outputWidth, outputHeight),
+		mask_tiles_per_screen);
 
-    //  This pass: Sample (misconverged?) scanlines to the final horizontal
-    //  resolution, apply halation (bouncing electrons), and apply the phosphor
-    //  mask.  Fake a bloom if requested.  Unless we fake a bloom, the output
-    //  will be dim from the scanline auto-dim, mask dimming, and low gamma.
+	//  This pass: Sample (misconverged?) scanlines to the final horizontal
+	//  resolution, apply halation (bouncing electrons), and apply the phosphor
+	//  mask.  Fake a bloom if requested.  Unless we fake a bloom, the output
+	//  will be dim from the scanline auto-dim, mask dimming, and low gamma.
 
-    //  Horizontally sample the current row (a vertically interpolated scanline)
-    //  and account for horizontal convergence offsets, given in units of texels.
-    const float3 scanline_color_dim = sample_rgb_scanline_horizontal(
-        tex2, samLinear, scanline_tex_uv,
-        float2(inputWidth, inputHeight), scanline_texture_size_inv);
-    const float auto_dim_factor = levels_autodim_temp;
+	//  Horizontally sample the current row (a vertically interpolated scanline)
+	//  and account for horizontal convergence offsets, given in units of texels.
+	const float3 scanline_color_dim = sample_rgb_scanline_horizontal(
+		tex2, samLinear, scanline_tex_uv,
+		float2(inputWidth, inputHeight), scanline_texture_size_inv);
+	const float auto_dim_factor = levels_autodim_temp;
 
-    //  Sample the phosphor mask:
-    const float2 tile_uv_wrap = video_uv * mask_tiles_per_screen;
-    const float2 mask_tex_uv = convert_phosphor_tile_uv_wrap_to_tex_uv(
-        tile_uv_wrap, mask_tile_start_uv_and_size);
-    float3 phosphor_mask_sample;
+	//  Sample the phosphor mask:
+	const float2 tile_uv_wrap = pos * mask_tiles_per_screen;
+	const float2 mask_tex_uv = convert_phosphor_tile_uv_wrap_to_tex_uv(
+		tile_uv_wrap, mask_tile_start_uv_and_size);
+	float3 phosphor_mask_sample;
 #ifdef PHOSPHOR_MASK_MANUALLY_RESIZE
-    const bool sample_orig_luts = get_mask_sample_mode() > 0.5;
+	const bool sample_orig_luts = get_mask_sample_mode() > 0.5;
 #else
-    static const bool sample_orig_luts = true;
+	static const bool sample_orig_luts = true;
 #endif
-    if (sample_orig_luts) {
-        //  If mask_type is static, this branch will be resolved statically.
-        /*if (mask_type < 0.5) {
-            phosphor_mask_sample = tex2D_linearize(
-                mask_grille_texture_large, mask_tex_uv).rgb;
-        } else if (mask_type < 1.5) {
-            phosphor_mask_sample = tex2D_linearize(
-                mask_slot_texture_large, mask_tex_uv).rgb;
-        } else {
-            phosphor_mask_sample = tex2D_linearize(
-                mask_shadow_texture_large, mask_tex_uv).rgb;
-        }*/
-    } else {
-        //  Sample the resized mask, and avoid tiling artifacts:
-        phosphor_mask_sample = tex2Dtiled_mask_linearize(
-            tex7, samLinear, mask_tex_uv).rgb;
-    }
+	if (sample_orig_luts) {
+		//  If mask_type is static, this branch will be resolved statically.
+		/*if (mask_type < 0.5) {
+			phosphor_mask_sample = tex2D_linearize(
+				mask_grille_texture_large, mask_tex_uv).rgb;
+		} else if (mask_type < 1.5) {
+			phosphor_mask_sample = tex2D_linearize(
+				mask_slot_texture_large, mask_tex_uv).rgb;
+		} else {
+			phosphor_mask_sample = tex2D_linearize(
+				mask_shadow_texture_large, mask_tex_uv).rgb;
+		}*/
+	} else {
+		//  Sample the resized mask, and avoid tiling artifacts:
+		phosphor_mask_sample = tex2Dtiled_mask_linearize(
+			tex7, samLinear, mask_tex_uv).rgb;
+	}
 
-    //  Sample the halation texture (auto-dim to match the scanlines), and
-    //  account for both horizontal and vertical convergence offsets, given
-    //  in units of texels horizontally and same-field scanlines vertically:
-    const float3 halation_color = tex2D_linearize(
-        tex5, samLinear, halation_tex_uv).rgb;
+	//  Sample the halation texture (auto-dim to match the scanlines), and
+	//  account for both horizontal and vertical convergence offsets, given
+	//  in units of texels horizontally and same-field scanlines vertically:
+	const float3 halation_color = tex2D_linearize(
+		tex5, samLinear, halation_tex_uv).rgb;
 
-    //  Apply halation: Halation models electrons flying around under the glass
-    //  and hitting the wrong phosphors (of any color).  It desaturates, so
-    //  average the halation electrons to a scalar.  Reduce the local scanline
-    //  intensity accordingly to conserve energy.
-    const float3 halation_intensity_dim = dot(halation_color, auto_dim_factor / 3.0);
-    const float3 electron_intensity_dim = lerp(scanline_color_dim,
-        halation_intensity_dim, halation_weight);
+	//  Apply halation: Halation models electrons flying around under the glass
+	//  and hitting the wrong phosphors (of any color).  It desaturates, so
+	//  average the halation electrons to a scalar.  Reduce the local scanline
+	//  intensity accordingly to conserve energy.
+	const float3 halation_intensity_dim = dot(halation_color, auto_dim_factor / 3.0);
+	const float3 electron_intensity_dim = lerp(scanline_color_dim,
+		halation_intensity_dim, halation_weight);
 
-    //  Apply the phosphor mask:
-    const float3 phosphor_emission_dim = electron_intensity_dim *
-        phosphor_mask_sample;
+	//  Apply the phosphor mask:
+	const float3 phosphor_emission_dim = electron_intensity_dim *
+		phosphor_mask_sample;
 
 #ifdef PHOSPHOR_BLOOM_FAKE
-    //  The BLOOM_APPROX pass approximates a blurred version of a masked
-    //  and scanlined image.  It's usually used to compute the brightpass,
-    //  but we can also use it to fake the bloom stage entirely.  Caveats:
-    //  1.) A fake bloom is conceptually different, since we're mixing in a
-    //      fully blurred low-res image, and the biggest implication are:
-    //  2.) If mask_amplify is incorrect, results deteriorate more quickly.
-    //  3.) The inaccurate blurring hurts quality in high-contrast areas.
-    //  4.) The bloom_underestimate_levels parameter seems less sensitive.
-    //  Reverse the auto-dimming and amplify to compensate for mask dimming:
+	//  The BLOOM_APPROX pass approximates a blurred version of a masked
+	//  and scanlined image.  It's usually used to compute the brightpass,
+	//  but we can also use it to fake the bloom stage entirely.  Caveats:
+	//  1.) A fake bloom is conceptually different, since we're mixing in a
+	//      fully blurred low-res image, and the biggest implication are:
+	//  2.) If mask_amplify is incorrect, results deteriorate more quickly.
+	//  3.) The inaccurate blurring hurts quality in high-contrast areas.
+	//  4.) The bloom_underestimate_levels parameter seems less sensitive.
+	//  Reverse the auto-dimming and amplify to compensate for mask dimming:
 #define PHOSPHOR_BLOOM_FAKE_WITH_SIMPLE_BLEND
 #ifdef PHOSPHOR_BLOOM_FAKE_WITH_SIMPLE_BLEND
-    static const float blur_contrast = 1.05;
+	static const float blur_contrast = 1.05;
 #else
-    static const float blur_contrast = 1.0;
+	static const float blur_contrast = 1.0;
 #endif
-    const float mask_amplify = get_mask_amplify();
-    const float undim_factor = 1.0 / auto_dim_factor;
-    const float3 phosphor_emission =
-        phosphor_emission_dim * undim_factor * mask_amplify;
-    //  Get a phosphor blur estimate, accounting for convergence offsets:
-    const float3 electron_intensity = electron_intensity_dim * undim_factor;
-    const float3 phosphor_blur_approx_soft = tex2D_linearize(
-        tex3, samLinear, blur3x3_tex_uv).rgb;
-    const float3 phosphor_blur_approx = lerp(phosphor_blur_approx_soft,
-        electron_intensity, 0.1) * blur_contrast;
-    //  We could blend between phosphor_emission and phosphor_blur_approx,
-    //  solving for the minimum blend_ratio that avoids clipping past 1.0:
-    //      1.0 >= total_intensity
-    //      1.0 >= phosphor_emission * (1.0 - blend_ratio) +
-    //              phosphor_blur_approx * blend_ratio
-    //      blend_ratio = (phosphor_emission - 1.0)/
-    //          (phosphor_emission - phosphor_blur_approx);
-    //  However, this blurs far more than necessary, because it aims for
-    //  full brightness, not minimal blurring.  To fix it, base blend_ratio
-    //  on a max area intensity only so it varies more smoothly:
-    const float3 phosphor_blur_underestimate =
-        phosphor_blur_approx * bloom_underestimate_levels;
-    const float3 area_max_underestimate =
-        phosphor_blur_underestimate * mask_amplify;
+	const float mask_amplify = get_mask_amplify();
+	const float undim_factor = 1.0 / auto_dim_factor;
+	const float3 phosphor_emission =
+		phosphor_emission_dim * undim_factor * mask_amplify;
+	//  Get a phosphor blur estimate, accounting for convergence offsets:
+	const float3 electron_intensity = electron_intensity_dim * undim_factor;
+	const float3 phosphor_blur_approx_soft = tex2D_linearize(
+		tex3, samLinear, blur3x3_tex_uv).rgb;
+	const float3 phosphor_blur_approx = lerp(phosphor_blur_approx_soft,
+		electron_intensity, 0.1) * blur_contrast;
+	//  We could blend between phosphor_emission and phosphor_blur_approx,
+	//  solving for the minimum blend_ratio that avoids clipping past 1.0:
+	//      1.0 >= total_intensity
+	//      1.0 >= phosphor_emission * (1.0 - blend_ratio) +
+	//              phosphor_blur_approx * blend_ratio
+	//      blend_ratio = (phosphor_emission - 1.0)/
+	//          (phosphor_emission - phosphor_blur_approx);
+	//  However, this blurs far more than necessary, because it aims for
+	//  full brightness, not minimal blurring.  To fix it, base blend_ratio
+	//  on a max area intensity only so it varies more smoothly:
+	const float3 phosphor_blur_underestimate =
+		phosphor_blur_approx * bloom_underestimate_levels;
+	const float3 area_max_underestimate =
+		phosphor_blur_underestimate * mask_amplify;
 #ifdef PHOSPHOR_BLOOM_FAKE_WITH_SIMPLE_BLEND
-    const float3 blend_ratio_temp =
-        (area_max_underestimate - 1.0) /
-        (area_max_underestimate - phosphor_blur_underestimate);
+	const float3 blend_ratio_temp =
+		(area_max_underestimate - 1.0) /
+		(area_max_underestimate - phosphor_blur_underestimate);
 #else
-    //  Try doing it like an area-based brightpass.  This is nearly
-    //  identical, but it's worth toying with the code in case I ever
-    //  find a way to make it look more like a real bloom.  (I've had
-    //  some promising textures from combining an area-based blend ratio
-    //  for the phosphor blur and a more brightpass-like blend-ratio for
-    //  the phosphor emission, but I haven't found a way to make the
-    //  brightness correct across the whole color range, especially with
-    //  different bloom_underestimate_levels values.)
-    const float desired_triad_size = lerp(mask_triad_size_desired,
-        outputWidth / mask_num_triads_desired,
-        mask_specify_num_triads);
-    const float bloom_sigma = get_min_sigma_to_blur_triad(
-        desired_triad_size, bloom_diff_thresh);
-    const float center_weight = get_center_weight(bloom_sigma);
-    const float3 max_area_contribution_approx =
-        max(0.0, phosphor_blur_approx -
-            center_weight * phosphor_emission);
-    const float3 area_contrib_underestimate =
-        bloom_underestimate_levels * max_area_contribution_approx;
-    const float3 blend_ratio_temp =
-        ((1.0 - area_contrib_underestimate) /
-            area_max_underestimate - 1.0) / (center_weight - 1.0);
+	//  Try doing it like an area-based brightpass.  This is nearly
+	//  identical, but it's worth toying with the code in case I ever
+	//  find a way to make it look more like a real bloom.  (I've had
+	//  some promising textures from combining an area-based blend ratio
+	//  for the phosphor blur and a more brightpass-like blend-ratio for
+	//  the phosphor emission, but I haven't found a way to make the
+	//  brightness correct across the whole color range, especially with
+	//  different bloom_underestimate_levels values.)
+	const float desired_triad_size = lerp(mask_triad_size_desired,
+		outputWidth / mask_num_triads_desired,
+		mask_specify_num_triads);
+	const float bloom_sigma = get_min_sigma_to_blur_triad(
+		desired_triad_size, bloom_diff_thresh);
+	const float center_weight = get_center_weight(bloom_sigma);
+	const float3 max_area_contribution_approx =
+		max(0.0, phosphor_blur_approx -
+			center_weight * phosphor_emission);
+	const float3 area_contrib_underestimate =
+		bloom_underestimate_levels * max_area_contribution_approx;
+	const float3 blend_ratio_temp =
+		((1.0 - area_contrib_underestimate) /
+			area_max_underestimate - 1.0) / (center_weight - 1.0);
 #endif
-    //  Clamp blend_ratio in case it's out-of-range, but be SUPER careful:
-    //  min/max/clamp are BIZARRELY broken with lerp (optimization bug?),
-    //  and this redundant sequence avoids bugs, at least on nVidia cards:
-    const float3 blend_ratio_clamped = max(clamp(blend_ratio_temp, 0.0, 1.0), 0.0);
-    const float3 blend_ratio = lerp(blend_ratio_clamped, 1.0, bloom_excess);
-    //  Blend the blurred and unblurred images:
-    const float3 phosphor_emission_unclipped =
-        lerp(phosphor_emission, phosphor_blur_approx, blend_ratio);
-    //  Simulate refractive diffusion by reusing the halation sample.
-    const float3 pixel_color = lerp(phosphor_emission_unclipped,
-        halation_color, diffusion_weight);
+	//  Clamp blend_ratio in case it's out-of-range, but be SUPER careful:
+	//  min/max/clamp are BIZARRELY broken with lerp (optimization bug?),
+	//  and this redundant sequence avoids bugs, at least on nVidia cards:
+	const float3 blend_ratio_clamped = max(clamp(blend_ratio_temp, 0.0, 1.0), 0.0);
+	const float3 blend_ratio = lerp(blend_ratio_clamped, 1.0, bloom_excess);
+	//  Blend the blurred and unblurred images:
+	const float3 phosphor_emission_unclipped =
+		lerp(phosphor_emission, phosphor_blur_approx, blend_ratio);
+	//  Simulate refractive diffusion by reusing the halation sample.
+	const float3 pixel_color = lerp(phosphor_emission_unclipped,
+		halation_color, diffusion_weight);
 #else
-    const float3 pixel_color = phosphor_emission_dim;
+	const float3 pixel_color = phosphor_emission_dim;
 #endif
-    //  Encode if necessary, and output.
-    return encode_output(float4(pixel_color, 1.0));
+	//  Encode if necessary, and output.
+	return encode_output(float4(pixel_color, 1.0));
+}
+
+
+//!PASS 9
+//!BIND tex3, tex8
+//!SAVE tex9
+
+// 移植自 https://github.com/libretro/common-shaders/blob/master/crt/shaders/crt-royale/src/crt-royale-brightpass.cg
+
+#include "CRT_Royale_bind-shader-params.hlsli"
+#include "CRT_Royale_gamma-management.hlsli"
+#include "CRT_Royale_phosphor-mask-resizing.hlsli"
+#include "CRT_Royale_scanline-functions.hlsli"
+#include "CRT_Royale_bloom-functions.hlsli"
+
+
+float4 Pass9(float2 pos) {
+	//  Our various input textures use different coords:
+	const float2 scanline_tex_uv = pos;
+	const float2 blur3x3_tex_uv = pos;
+
+	//  Calculate a runtime bloom_sigma in case it's needed:
+	const float mask_tile_size_x = get_resized_mask_tile_size(
+		float2(outputWidth, outputHeight), float2(outputWidth, outputHeight) * mask_resize_viewport_scale, false).x;
+	const float bloom_sigma_runtime = get_min_sigma_to_blur_triad(
+		mask_tile_size_x / mask_triads_per_tile, bloom_diff_thresh);
+
+	//  Sample the masked scanlines:
+	const float3 intensity_dim =
+		tex2D_linearize(tex8, samLinear, scanline_tex_uv).rgb;
+	//  Get the full intensity, including auto-undimming, and mask compensation:
+	const float auto_dim_factor = levels_autodim_temp;
+	const float undim_factor = 1.0 / auto_dim_factor;
+	const float mask_amplify = get_mask_amplify();
+	const float3 intensity = intensity_dim * undim_factor * mask_amplify *
+		levels_contrast;
+
+	//  Sample BLOOM_APPROX to estimate what a straight blur of masked scanlines
+	//  would look like, so we can estimate how much energy we'll receive from
+	//  blooming neighbors:
+	const float3 phosphor_blur_approx = levels_contrast * tex2D_linearize(
+		tex3, samLinear, blur3x3_tex_uv).rgb;
+
+	//  Compute the blur weight for the center texel and the maximum energy we
+	//  expect to receive from neighbors:
+	const float bloom_sigma = get_final_bloom_sigma(bloom_sigma_runtime);
+	const float center_weight = get_center_weight(bloom_sigma);
+	const float3 max_area_contribution_approx =
+		max(0.0, phosphor_blur_approx - center_weight * intensity);
+	//  Assume neighbors will blur 100% of their intensity (blur_ratio = 1.0),
+	//  because it actually gets better results (on top of being very simple),
+	//  but adjust all intensities for the user's desired underestimate factor:
+	const float3 area_contrib_underestimate =
+		bloom_underestimate_levels * max_area_contribution_approx;
+	const float3 intensity_underestimate =
+		bloom_underestimate_levels * intensity;
+	//  Calculate the blur_ratio, the ratio of intensity we want to blur:
+#ifdef BRIGHTPASS_AREA_BASED
+	//  This area-based version changes blur_ratio more smoothly and blurs
+	//  more, clipping less but offering less phosphor differentiation:
+	const float3 phosphor_blur_underestimate = bloom_underestimate_levels *
+		phosphor_blur_approx;
+	const float3 soft_intensity = max(intensity_underestimate,
+		phosphor_blur_underestimate * mask_amplify);
+	const float3 blur_ratio_temp =
+		((1.0 - area_contrib_underestimate) /
+			soft_intensity - 1.0) / (center_weight - 1.0);
+#else
+	const float3 blur_ratio_temp =
+		((1.0 - area_contrib_underestimate) /
+			intensity_underestimate - 1.0) / (center_weight - 1.0);
+#endif
+	const float3 blur_ratio = clamp(blur_ratio_temp, 0.0, 1.0);
+	//  Calculate the brightpass based on the auto-dimmed, unamplified, masked
+	//  scanlines, encode if necessary, and return!
+	const float3 brightpass = intensity_dim *
+		lerp(blur_ratio, 1.0, bloom_excess);
+	return encode_output(float4(brightpass, 1.0));
+}
+
+
+//!PASS 10
+//!BIND tex9
+//!SAVE tex10
+
+// 移植自 https://github.com/libretro/common-shaders/blob/master/crt/shaders/crt-royale/src/crt-royale-bloom-vertical.cg
+
+#include "CRT_Royale_bind-shader-params.hlsli"
+#include "CRT_Royale_gamma-management.hlsli"
+#include "CRT_Royale_phosphor-mask-resizing.hlsli"
+#include "CRT_Royale_bloom-functions.hlsli"
+
+
+float4 Pass10(float2 pos) {
+	//  Get the uv sample distance between output pixels.  Calculate dxdy like
+	//  blurs/vertex-shader-blur-fast-vertical.h.
+	//  This blur is vertical-only, so zero out the vertical offset:
+	const float2 bloom_dxdy = { 0, outputPtY };
+	
+	//  Calculate a runtime bloom_sigma in case it's needed:
+	const float mask_tile_size_x = get_resized_mask_tile_size(
+		float2(outputWidth, outputHeight), float2(outputWidth, outputHeight) * mask_resize_viewport_scale, false).x;
+	const float bloom_sigma_runtime = get_min_sigma_to_blur_triad(
+		mask_tile_size_x / mask_triads_per_tile, bloom_diff_thresh);
+
+	//  Blur the brightpass horizontally with a 9/17/25/43x blur:
+	const float bloom_sigma = get_final_bloom_sigma(bloom_sigma_runtime);
+	const float3 color = tex2DblurNfast(tex9, samLinear, pos,
+		bloom_dxdy, bloom_sigma);
+	//  Encode and output the blurred image:
+	return encode_output(float4(color, 1.0));
+}
+
+//!PASS 11
+//!BIND tex5, tex8, tex9, tex10
+//!SAVE tex11
+
+// 移植自 https://github.com/libretro/common-shaders/blob/master/crt/shaders/crt-royale/src/crt-royale-bloom-horizontal-reconstitute.cg
+
+#include "CRT_Royale_bind-shader-params.hlsli"
+#include "CRT_Royale_gamma-management.hlsli"
+#include "CRT_Royale_bloom-functions.hlsli"
+#include "CRT_Royale_phosphor-mask-resizing.hlsli"
+#include "CRT_Royale_scanline-functions.hlsli"
+
+
+float4 Pass11(float2 pos) {
+	//  Our various input textures use different coords:
+	const float2 video_uv = pos;
+	const float2 scanline_tex_uv = video_uv;
+	const float2 halation_tex_uv = video_uv;
+	const float2 brightpass_tex_uv = video_uv;
+	const float2 bloom_tex_uv = pos;
+
+	//  We're horizontally blurring the bloom input (vertically blurred
+	//  brightpass).  Get the uv distance between output pixels / input texels
+	//  in the horizontal direction (this pass must NOT resize):
+	const float2 bloom_dxdy = float2(outputPtX, 0.0);
+
+	//  Calculate a runtime bloom_sigma in case it's needed:
+	const float mask_tile_size_x = get_resized_mask_tile_size(
+		float2(outputWidth, outputHeight), float2(outputWidth, outputHeight) * mask_resize_viewport_scale, false).x;
+	const float bloom_sigma_runtime = get_min_sigma_to_blur_triad(
+		mask_tile_size_x / mask_triads_per_tile, bloom_diff_thresh);
+
+	//  Blur the vertically blurred brightpass horizontally by 9/17/25/43x:
+	const float bloom_sigma = get_final_bloom_sigma(bloom_sigma_runtime);
+	const float3 blurred_brightpass = tex2DblurNfast(tex10, samLinear,
+		bloom_tex_uv, bloom_dxdy, bloom_sigma);
+
+	//  Sample the masked scanlines.  Alpha contains the auto-dim factor:
+	const float3 intensity_dim =
+		tex2D_linearize(tex8, samLinear, scanline_tex_uv).rgb;
+	const float auto_dim_factor = levels_autodim_temp;
+	const float undim_factor = 1.0 / auto_dim_factor;
+
+	//  Calculate the mask dimpass, add it to the blurred brightpass, and
+	//  undim (from scanline auto-dim) and amplify (from mask dim) the result:
+	const float mask_amplify = get_mask_amplify();
+	const float3 brightpass = tex2D_linearize(tex9, samLinear,
+		brightpass_tex_uv).rgb;
+	const float3 dimpass = intensity_dim - brightpass;
+	const float3 phosphor_bloom = (dimpass + blurred_brightpass) *
+		mask_amplify * undim_factor * levels_contrast;
+
+	//  Sample the halation texture, and let some light bleed into refractive
+	//  diffusion.  Conceptually this occurs before the phosphor bloom, but
+	//  adding it in earlier passes causes black crush in the diffusion colors.
+	const float3 diffusion_color = levels_contrast * tex2D_linearize(
+		tex5, samLinear, halation_tex_uv).rgb;
+	const float3 final_bloom = lerp(phosphor_bloom,
+		diffusion_color, diffusion_weight);
+
+	//  Encode and output the bloomed image:
+	return encode_output(float4(final_bloom, 1.0));
+}
+
+
+//!PASS 12
+//!BIND tex11
+
+// 移植自 https://github.com/libretro/common-shaders/blob/master/crt/shaders/crt-royale/src/crt-royale-geometry-aa-last-pass.cg
+
+#define LAST_PASS
+#define SIMULATE_CRT_ON_LCD
+#include "CRT_Royale_bind-shader-params.hlsli"
+
+#ifndef RUNTIME_GEOMETRY_TILT
+	//  Create a local-to-global rotation matrix for the CRT's coordinate frame
+	//  and its global-to-local inverse.  See the vertex shader for details.
+	//  It's faster to compute these statically if possible.
+static const float2 sin_tilt = sin(geom_tilt_angle_static);
+static const float2 cos_tilt = cos(geom_tilt_angle_static);
+static const float3x3 geom_local_to_global_static = float3x3(
+	cos_tilt.x, sin_tilt.y * sin_tilt.x, cos_tilt.y * sin_tilt.x,
+	0.0, cos_tilt.y, -sin_tilt.y,
+	-sin_tilt.x, sin_tilt.y * cos_tilt.x, cos_tilt.y * cos_tilt.x);
+static const float3x3 geom_global_to_local_static = float3x3(
+	cos_tilt.x, 0.0, -sin_tilt.x,
+	sin_tilt.y * sin_tilt.x, cos_tilt.y, sin_tilt.y * cos_tilt.x,
+	cos_tilt.y * sin_tilt.x, -sin_tilt.y, cos_tilt.y * cos_tilt.x);
+#endif
+
+#include "CRT_Royale_gamma-management.hlsli"
+#include "CRT_Royale_tex2Dantialias.hlsli"
+#include "CRT_Royale_geometry-functions.hlsli"
+
+
+float2x2 mul_scale(float2 scale, float2x2 mat) {
+	//float2x2 scale_matrix = float2x2(scale.x, 0.0, 0.0, scale.y);
+	//return mul(scale_matrix, matrix);
+	return float2x2(float4(mat) * scale.xxyy);
+}
+
+float4 Pass12(float2 pos) {
+	float2 output_size_inv = { outputPtX, outputPtY };
+
+	//  Get aspect/overscan vectors from scalar parameters (likely uniforms):
+	const float viewport_aspect_ratio = outputWidth / outputHeight;
+	const float2 geom_aspect = get_aspect_vector(viewport_aspect_ratio);
+	const float2 geom_overscan = get_geom_overscan_vector();
+
+#ifdef RUNTIME_GEOMETRY_TILT
+	//  Create a local-to-global rotation matrix for the CRT's coordinate
+	//  frame and its global-to-local inverse.  Rotate around the x axis
+	//  first (pitch) and then the y axis (yaw) with yucky Euler angles.
+	//  Positive angles go clockwise around the right-vec and up-vec.
+	//  Runtime shader parameters prevent us from computing these globally,
+	//  but we can still combine the pitch/yaw matrices by hand to cut a
+	//  few instructions.  Note that cg matrices fill row1 first, then row2,
+	//  etc. (row-major order).
+	const float2 geom_tilt_angle = get_geom_tilt_angle_vector();
+	const float2 sin_tilt = sin(geom_tilt_angle);
+	const float2 cos_tilt = cos(geom_tilt_angle);
+	//  Conceptual breakdown:
+	//      static const float3x3 rot_x_matrix = float3x3(
+	//          1.0, 0.0, 0.0,
+	//          0.0, cos_tilt.y, -sin_tilt.y,
+	//          0.0, sin_tilt.y, cos_tilt.y);
+	//      static const float3x3 rot_y_matrix = float3x3(
+	//          cos_tilt.x, 0.0, sin_tilt.x,
+	//          0.0, 1.0, 0.0,
+	//          -sin_tilt.x, 0.0, cos_tilt.x);
+	//      static const float3x3 local_to_global =
+	//          mul(rot_y_matrix, rot_x_matrix);
+	//      static const float3x3 global_to_local =
+	//          transpose(local_to_global);
+	const float3x3 local_to_global = float3x3(
+		cos_tilt.x, sin_tilt.y * sin_tilt.x, cos_tilt.y * sin_tilt.x,
+		0.0, cos_tilt.y, -sin_tilt.y,
+		-sin_tilt.x, sin_tilt.y * cos_tilt.x, cos_tilt.y * cos_tilt.x);
+	//  This is a pure rotation, so transpose = inverse:
+	const float3x3 global_to_local = transpose(local_to_global);
+#else
+	static const float3x3 global_to_local = geom_global_to_local_static;
+	static const float3x3 local_to_global = geom_local_to_global_static;
+#endif
+
+	//  Get an optimal eye position based on geom_view_dist, viewport_aspect,
+	//  and CRT radius/rotation:
+#ifdef RUNTIME_GEOMETRY_MODE
+	const float geom_mode = geom_mode_runtime;
+#else
+	static const float geom_mode = geom_mode_static;
+#endif
+	const float3 eye_pos_global =
+		get_ideal_global_eye_pos(local_to_global, geom_aspect, geom_mode);
+	const float3 eye_pos_local = mul(global_to_local, eye_pos_global);
+
+	//  Localize some parameters:
+	const float2 video_size_inv = output_size_inv;
+	const float2 texture_size_inv = output_size_inv;
+
+	//  Get flat and curved texture coords for the current fragment point sample
+	//  and a pixel_to_tangent_video_uv matrix for transforming pixel offsets:
+	//  video_uv = relative position in video frame, mapped to [0.0, 1.0] range
+	//  tex_uv = relative position in padded texture, mapped to [0.0, 1.0] range
+	const float2 flat_video_uv = pos;
+	float2x2 pixel_to_video_uv;
+	float2 video_uv_no_geom_overscan;
+	if (geom_mode > 0.5) {
+		video_uv_no_geom_overscan =
+			get_curved_video_uv_coords_and_tangent_matrix(flat_video_uv,
+				eye_pos_local, output_size_inv, geom_aspect,
+				geom_mode, global_to_local, pixel_to_video_uv);
+	} else {
+		video_uv_no_geom_overscan = flat_video_uv;
+		pixel_to_video_uv = float2x2(
+			output_size_inv.x, 0.0, 0.0, output_size_inv.y);
+	}
+	//  Correct for overscan here (not in curvature code):
+	const float2 video_uv =
+		(video_uv_no_geom_overscan - 0.5) / geom_overscan + 0.5;
+	const float2 tex_uv = video_uv;
+
+	//  Get a matrix transforming pixel vectors to tex_uv vectors:
+	const float2x2 pixel_to_tex_uv =
+		mul_scale(1 / geom_overscan, pixel_to_video_uv);
+
+	//  Sample!  Skip antialiasing if aa_level < 0.5 or both of these hold:
+	//  1.) Geometry/curvature isn't used
+	//  2.) Overscan == float2(1.0)
+	//  Skipping AA is sharper, but it's only faster with dynamic branches.
+	const float2 abs_aa_r_offset = abs(get_aa_subpixel_r_offset());
+	// this next check seems to always return true, even when it shouldn't so disabling it for now
+	const bool need_subpixel_aa = false;//abs_aa_r_offset.x + abs_aa_r_offset.y > 0.0;
+	float3 color;
+	if (aa_level > 0.5 && (geom_mode > 0.5 || any(geom_overscan != 1.0))) {
+		//  Sample the input with antialiasing (due to sharp phosphors, etc.):
+		color = tex2Daa(tex11, samLinear, tex_uv, pixel_to_tex_uv, frame_count);
+	} else if (aa_level > 0.5 && need_subpixel_aa) {
+		//  Sample at each subpixel location:
+		color = tex2Daa_subpixel_weights_only(
+			tex11, samLinear, tex_uv, pixel_to_tex_uv);
+	} else {
+		color = tex2D_linearize(tex11, samLinear, tex_uv).rgb;
+	}
+
+	//  Dim borders and output the final result:
+	const float border_dim_factor = get_border_dim_factor(video_uv, geom_aspect);
+	const float3 final_color = color * border_dim_factor;
+	return encode_output(float4(final_color, 1.0));
 }
