@@ -63,241 +63,229 @@ float rcpScaleY;
 //!DEFAULT 2.5
 //!MIN 1
 //!MAX 5
-float crt_gamma;
+float crtGamma;
 
 //!CONSTANT
 //!DEFAULT 2.2
 //!MIN 1
 //!MAX 5
-float lcd_gamma;
+float lcdGamma;
 
 //!CONSTANT
 //!DEFAULT 1
 //!MIN 0
 //!MAX 4
-float levels_contrast;
+float levelsContrast;
 
 //!CONSTANT
 //!DEFAULT 0
 //!MIN 0
 //!MAX 1
-float halation_weight;
+float halationWeight;
 
 //!CONSTANT
 //!DEFAULT 0.075
 //!MIN 0
 //!MAX 1
-float diffusion_weight;
+float diffusionWeight;
 
 //!CONSTANT
 //!DEFAULT 0.8
 //!MIN 0
 //!MAX 5
-float bloom_underestimate_levels;
+float bloomUnderestimateLevels;
 
 //!CONSTANT
 //!DEFAULT 0
 //!MIN 0
 //!MAX 1
-float bloom_excess;
+float bloomExcess;
 
 //!CONSTANT
 //!DEFAULT 0.02
 //!MIN 0.005
 //!MAX 1
-float beam_min_sigma;
+float beamMinSigma;
 
 //!CONSTANT
 //!DEFAULT 0.3
 //!MIN 0.005
 //!MAX 1
-float beam_max_sigma;
+float beamMaxSigma;
 
 //!CONSTANT
 //!DEFAULT 0.33
 //!MIN 0.01
 //!MAX 16
-float beam_spot_power;
+float beamSpotPower;
 
 //!CONSTANT
 //!DEFAULT 2
 //!MIN 2
 //!MAX 32
-float beam_min_shape;
+float beamMinShape;
 
 //!CONSTANT
 //!DEFAULT 4
 //!MIN 2
 //!MAX 32
-float beam_max_shape;
+float beamMaxShape;
 
 //!CONSTANT
 //!DEFAULT 0.25
 //!MIN 0.01
 //!MAX 16
-float beam_shape_power;
+float beamShapePower;
 
 //!CONSTANT
 //!DEFAULT 0
 //!MIN 0
 //!MAX 2
-int beam_horiz_filter;
+int beamHorizFilter;
 
 //!CONSTANT
 //!DEFAULT 0.35
 //!MIN 0
 //!MAX 0.67
-float beam_horiz_sigma;
+float beamHorizSigma;
 
 //!CONSTANT
 //!DEFAULT 1
 //!MIN 0
 //!MAX 1
-float beam_horiz_linear_rgb_weight;
+float beamHorizLinearRgbWeight;
 
 //!CONSTANT
 //!DEFAULT 0
 //!MIN -4
 //!MAX 4
-float convergence_offset_x_r;
+float convergenceOffsetX_r;
 
 //!CONSTANT
 //!DEFAULT 0
 //!MIN -4
 //!MAX 4
-float convergence_offset_x_g;
+float convergenceOffsetX_g;
 
 //!CONSTANT
 //!DEFAULT 0
 //!MIN -4
 //!MAX 4
-float convergence_offset_x_b;
+float convergenceOffsetX_b;
 
 //!CONSTANT
 //!DEFAULT 0
 //!MIN -2
 //!MAX 2
-float convergence_offset_y_r;
+float convergenceOffsetY_r;
 
 //!CONSTANT
 //!DEFAULT 0
 //!MIN -2
 //!MAX 2
-float convergence_offset_y_g;
+float convergenceOffsetY_g;
 
 //!CONSTANT
 //!DEFAULT 0
 //!MIN -2
 //!MAX 2
-float convergence_offset_y_b;
+float convergenceOffsetY_b;
 
 //!CONSTANT
 //!DEFAULT 1
 //!MIN 0
 //!MAX 2
-int mask_type;
+int maskType;
 
 //!CONSTANT
 //!DEFAULT 0
 //!MIN 0
 //!MAX 1
-int mask_specify_num_triads;
+int maskSpecifyNumTriads;
 
 //!CONSTANT
 //!DEFAULT 3
 //!MIN 1
 //!MAX 18
-int mask_triad_size_desired;
+int maskTriadSizeDesired;
 
 //!CONSTANT
 //!DEFAULT 480
 //!MIN 342
 //!MAX 1920
-int mask_num_triads_desired;
+int maskNumTriadsDesired;
 
 //!CONSTANT
 //!DEFAULT 0.5
 //!MIN 0
 //!MAX 4
-float aa_cubic_c;
+float aaCubicC;
 
 //!CONSTANT
 //!DEFAULT 0.5
 //!MIN 0.0625
 //!MAX 1
-float aa_gauss_sigma;
+float aaGaussSigma;
 
 //!CONSTANT
 //!DEFAULT 0
 //!MIN 0
 //!MAX 3
-int geom_mode;
+int geomMode;
 
 //!CONSTANT
 //!DEFAULT 2
 //!MIN 0.16
 //!MAX 1024
-float geom_radius;
+float geomRadius;
 
 //!CONSTANT
 //!DEFAULT 2
 //!MIN 0.5
 //!MAX 1024
-float geom_view_dist;
+float geomViewDist;
 
 //!CONSTANT
 //!DEFAULT 0
 //!MIN -3.14159265
 //!MAX 3.14159265
-float geom_tilt_angle_x;
+float geomTiltAngleX;
 
 //!CONSTANT
 //!DEFAULT 0
 //!MIN -3.14159265
 //!MAX 3.14159265
-float geom_tilt_angle_y;
-
-//!CONSTANT
-//!DEFAULT 432
-//!MIN 1
-//!MAX 512
-int geom_aspect_ratio_x;
-
-//!CONSTANT
-//!DEFAULT 329
-//!MIN 1
-//!MAX 512
-int geom_aspect_ratio_y;
+float geomTiltAngleY;
 
 //!CONSTANT
 //!DEFAULT 1
 //!MIN 0.00390625
 //!MAX 4
-float geom_overscan_x;
+float geomOverscanX;
 
 //!CONSTANT
 //!DEFAULT 1
 //!MIN 0.00390625
 //!MAX 4
-float geom_overscan_y;
+float geomOverscanY;
 
 //!CONSTANT
 //!DEFAULT 0.015
 //!MIN 0.0000001
 //!MAX 0.5
-float border_size;
+float borderSize;
 
 //!CONSTANT
 //!DEFAULT 2
 //!MIN 0
 //!MAX 16
-float border_darkness;
+float borderDarkness;
 
 //!CONSTANT
 //!DEFAULT 2.5
 //!MIN 1
 //!MAX 64
-float border_compress;
+float borderCompress;
 
 //!TEXTURE
 Texture2D INPUT;
@@ -871,7 +859,6 @@ static const float under_half = 0.4995;
 #define OVERRIDE_DEVICE_GAMMA
 static const float gba_gamma = 3.5; //  Irrelevant but necessary to define.
 #define ANTIALIAS_OVERRIDE_BASICS
-#define ANTIALIAS_OVERRIDE_PARAMETERS
 
 
 //  Provide accessors for vector constants that pack scalar uniforms:
@@ -886,33 +873,33 @@ float2 get_aspect_vector(const float geom_aspect_ratio) {
 }
 
 float2 get_geom_overscan_vector() {
-	return float2(geom_overscan_x, geom_overscan_y);
+	return float2(geomOverscanX, geomOverscanY);
 }
 
 float2 get_geom_tilt_angle_vector() {
-	return float2(geom_tilt_angle_x, geom_tilt_angle_y);
+	return float2(geomTiltAngleX, geomTiltAngleY);
 }
 
 float3 get_convergence_offsets_x_vector() {
-	return float3(convergence_offset_x_r, convergence_offset_x_g,
-		convergence_offset_x_b);
+	return float3(convergenceOffsetX_r, convergenceOffsetX_g,
+		convergenceOffsetX_b);
 }
 
 float3 get_convergence_offsets_y_vector() {
-	return float3(convergence_offset_y_r, convergence_offset_y_g,
-		convergence_offset_y_b);
+	return float3(convergenceOffsetY_r, convergenceOffsetY_g,
+		convergenceOffsetY_b);
 }
 
 float2 get_convergence_offsets_r_vector() {
-	return float2(convergence_offset_x_r, convergence_offset_y_r);
+	return float2(convergenceOffsetX_r, convergenceOffsetY_r);
 }
 
 float2 get_convergence_offsets_g_vector() {
-	return float2(convergence_offset_x_g, convergence_offset_y_g);
+	return float2(convergenceOffsetX_g, convergenceOffsetY_g);
 }
 
 float2 get_convergence_offsets_b_vector() {
-	return float2(convergence_offset_x_b, convergence_offset_y_b);
+	return float2(convergenceOffsetX_b, convergenceOffsetY_b);
 }
 
 float2 get_aa_subpixel_r_offset() {
@@ -924,8 +911,8 @@ float get_mask_amplify() {
 	static const float mask_grille_amplify = 1.0 / mask_grille_avg_color;
 	static const float mask_slot_amplify = 1.0 / mask_slot_avg_color;
 	static const float mask_shadow_amplify = 1.0 / mask_shadow_avg_color;
-	return mask_type < 0.5 ? mask_grille_amplify :
-		mask_type < 1.5 ? mask_slot_amplify :
+	return maskType < 0.5 ? mask_grille_amplify :
+		maskType < 1.5 ? mask_slot_amplify :
 		mask_shadow_amplify;
 }
 
@@ -1079,10 +1066,10 @@ float4 Pass2(float2 pos) {
 	//  Calculate {sigma, shape}_range outside of scanline_contrib so it's only
 	//  done once per pixel (not 6 times) with runtime params.  Don't reuse the
 	//  vertex shader calculations, so static versions can be constant-folded.
-	const float sigma_range = max(beam_max_sigma, beam_min_sigma) -
-		beam_min_sigma;
-	const float shape_range = max(beam_max_shape, beam_min_shape) -
-		beam_min_shape;
+	const float sigma_range = max(beamMaxSigma, beamMinSigma) -
+		beamMinSigma;
+	const float shape_range = max(beamMaxShape, beamMinShape) -
+		beamMinShape;
 	//  Calculate and sum final scanline contributions, starting with lines 2/3.
 	//  There is no normalization step, because we're not interpolating a
 	//  continuous signal.  Instead, each scanline is an additive light source.
@@ -1291,7 +1278,7 @@ float4 Pass3(float2 pos) {
 
 	//  The last pass (vertical scanlines) had a viewport y scale, so we can
 	//  use it to calculate a better runtime sigma:
-	float estimated_viewport_size_x = inputHeight * float(geom_aspect_ratio_x) / geom_aspect_ratio_y;
+	float estimated_viewport_size_x = rcpScaleY * outputWidth;
 
 	float2 blur_dxdy;
 	if (bloom_approx_filter > 1.5)   //  4x4 true Gaussian resize
@@ -1483,10 +1470,9 @@ float4 Pass6(float2 pos) {
 
 	//  First estimate the viewport size (the user will get the wrong number of
 	//  triads if it's wrong and mask_specify_num_triads is 1.0/true).
-	const float viewport_y = output_size.y / mask_resize_viewport_scale.y;
-	const float aspect_ratio = float(geom_aspect_ratio_x) / geom_aspect_ratio_y;
+	const float aspect_ratio = outputWidth / outputHeight;
 	const float2 estimated_viewport_size =
-		float2(viewport_y * aspect_ratio, viewport_y);
+		float2(outputWidth, outputHeight);
 	//  Estimate the output size of MASK_RESIZE (the next pass).  The estimated
 	//  x component shouldn't matter, because we're not using the x result, and
 	//  we're not swearing it's correct (if we did, the x result would influence
@@ -1539,11 +1525,11 @@ float4 Pass6(float2 pos) {
 		const float2 src_tex_uv = frac(src_tex_uv_wrap);
 		float3 pixel_color;
 		//  If mask_type is static, this branch will be resolved statically.
-		if (mask_type < 0.5) {
+		if (maskType < 0.5) {
 			pixel_color = downsample_vertical_sinc_tiled(
 				mask_grille_texture, samLinearWrap, src_tex_uv, mask_resize_src_lut_size,
 				src_dy, resize_magnification_scale, 1.0);
-		} else if (mask_type < 1.5) {
+		} else if (maskType < 1.5) {
 			pixel_color = downsample_vertical_sinc_tiled(
 				mask_slot_texture, samLinearWrap, src_tex_uv, mask_resize_src_lut_size,
 				src_dy, resize_magnification_scale, 1.0);
@@ -1709,7 +1695,7 @@ float4 Pass8(float2 pos) {
 	//  intensity accordingly to conserve energy.
 	const float3 halation_intensity_dim = dot(halation_color, auto_dim_factor / 3.0);
 	const float3 electron_intensity_dim = lerp(scanline_color_dim,
-		halation_intensity_dim, halation_weight);
+		halation_intensity_dim, halationWeight);
 
 	//  Apply the phosphor mask:
 	const float3 phosphor_emission_dim = electron_intensity_dim *
@@ -1752,12 +1738,12 @@ float4 Pass9(float2 pos) {
 	const float undim_factor = 1.0 / auto_dim_factor;
 	const float mask_amplify = get_mask_amplify();
 	const float3 intensity = intensity_dim * undim_factor * mask_amplify *
-		levels_contrast;
+		levelsContrast;
 
 	//  Sample BLOOM_APPROX to estimate what a straight blur of masked scanlines
 	//  would look like, so we can estimate how much energy we'll receive from
 	//  blooming neighbors:
-	const float3 phosphor_blur_approx = levels_contrast * tex2D_linearize(
+	const float3 phosphor_blur_approx = levelsContrast * tex2D_linearize(
 		tex3, samLinear, blur3x3_tex_uv).rgb;
 
 	//  Compute the blur weight for the center texel and the maximum energy we
@@ -1770,14 +1756,14 @@ float4 Pass9(float2 pos) {
 	//  because it actually gets better results (on top of being very simple),
 	//  but adjust all intensities for the user's desired underestimate factor:
 	const float3 area_contrib_underestimate =
-		bloom_underestimate_levels * max_area_contribution_approx;
+		bloomUnderestimateLevels * max_area_contribution_approx;
 	const float3 intensity_underestimate =
-		bloom_underestimate_levels * intensity;
+		bloomUnderestimateLevels * intensity;
 	//  Calculate the blur_ratio, the ratio of intensity we want to blur:
 #ifdef BRIGHTPASS_AREA_BASED
 	//  This area-based version changes blur_ratio more smoothly and blurs
 	//  more, clipping less but offering less phosphor differentiation:
-	const float3 phosphor_blur_underestimate = bloom_underestimate_levels *
+	const float3 phosphor_blur_underestimate = bloomUnderestimateLevels *
 		phosphor_blur_approx;
 	const float3 soft_intensity = max(intensity_underestimate,
 		phosphor_blur_underestimate * mask_amplify);
@@ -1793,7 +1779,7 @@ float4 Pass9(float2 pos) {
 	//  Calculate the brightpass based on the auto-dimmed, unamplified, masked
 	//  scanlines, encode if necessary, and return!
 	const float3 brightpass = intensity_dim *
-		lerp(blur_ratio, 1.0, bloom_excess);
+		lerp(blur_ratio, 1.0, bloomExcess);
 	return encode_output(float4(brightpass, 1.0));
 }
 
@@ -1878,15 +1864,15 @@ float4 Pass11(float2 pos) {
 		brightpass_tex_uv).rgb;
 	const float3 dimpass = intensity_dim - brightpass;
 	const float3 phosphor_bloom = (dimpass + blurred_brightpass) *
-		mask_amplify * undim_factor * levels_contrast;
+		mask_amplify * undim_factor * levelsContrast;
 
 	//  Sample the halation texture, and let some light bleed into refractive
 	//  diffusion.  Conceptually this occurs before the phosphor bloom, but
 	//  adding it in earlier passes causes black crush in the diffusion colors.
-	const float3 diffusion_color = levels_contrast * tex2D_linearize(
+	const float3 diffusion_color = levelsContrast * tex2D_linearize(
 		tex5, samLinear, halation_tex_uv).rgb;
 	const float3 final_bloom = lerp(phosphor_bloom,
-		diffusion_color, diffusion_weight);
+		diffusion_color, diffusionWeight);
 
 	//  Encode and output the bloomed image:
 	return encode_output(float4(final_bloom, 1.0));
@@ -1955,7 +1941,7 @@ float4 Pass12(float2 pos) {
 	//  and CRT radius/rotation:
 
 	const float3 eye_pos_global =
-		get_ideal_global_eye_pos(local_to_global, geom_aspect, geom_mode);
+		get_ideal_global_eye_pos(local_to_global, geom_aspect, geomMode);
 	const float3 eye_pos_local = mul(global_to_local, eye_pos_global);
 
 	//  Localize some parameters:
@@ -1969,11 +1955,11 @@ float4 Pass12(float2 pos) {
 	const float2 flat_video_uv = pos;
 	float2x2 pixel_to_video_uv;
 	float2 video_uv_no_geom_overscan;
-	if (geom_mode > 0) {
+	if (geomMode > 0) {
 		video_uv_no_geom_overscan =
 			get_curved_video_uv_coords_and_tangent_matrix(flat_video_uv,
 				eye_pos_local, output_size_inv, geom_aspect,
-				geom_mode, global_to_local, pixel_to_video_uv);
+				geomMode, global_to_local, pixel_to_video_uv);
 	} else {
 		video_uv_no_geom_overscan = flat_video_uv;
 		pixel_to_video_uv = float2x2(
@@ -1996,7 +1982,7 @@ float4 Pass12(float2 pos) {
 	// this next check seems to always return true, even when it shouldn't so disabling it for now
 	const bool need_subpixel_aa = false;//abs_aa_r_offset.x + abs_aa_r_offset.y > 0.0;
 	float3 color;
-	if (aa_level > 0.5 && (geom_mode > 0 || any(geom_overscan != 1.0))) {
+	if (aa_level > 0.5 && (geomMode > 0 || any(geom_overscan != 1.0))) {
 		//  Sample the input with antialiasing (due to sharp phosphors, etc.):
 		color = tex2Daa(tex11, samLinear, tex_uv, pixel_to_tex_uv, frame_count);
 	} else if (aa_level > 0.5 && need_subpixel_aa) {

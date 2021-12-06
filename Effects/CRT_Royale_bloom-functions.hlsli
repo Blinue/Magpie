@@ -210,10 +210,10 @@ inline float get_bloom_approx_sigma(const float output_size_x_runtime,
 	static const float mask_num_triads_static =
 		max(min_allowed_viewport_triads.x, mask_num_triads_desired_static);
 	const float mask_num_triads_from_size =
-		estimated_viewport_size_x/mask_triad_size_desired;
+		estimated_viewport_size_x/maskTriadSizeDesired;
 	const float mask_num_triads_runtime = max(min_allowed_viewport_triads.x,
-		lerp(mask_num_triads_from_size, mask_num_triads_desired,
-			mask_specify_num_triads));
+		lerp(mask_num_triads_from_size, maskNumTriadsDesired,
+			maskSpecifyNumTriads));
 	//  Assume an extremely large viewport size for asymptotic results:
 	static const float max_viewport_size_x = 1080.0*1024.0*(4.0/3.0);
 	if(bloom_approx_filter > 1.5)   //  4x4 true Gaussian resize
@@ -228,7 +228,7 @@ inline float get_bloom_approx_sigma(const float output_size_x_runtime,
 		//  The BLOOM_APPROX input has to be ORIG_LINEARIZED to avoid moire, but
 		//  account for the Gaussian scanline sigma from the last pass too.
 		//  The bloom will be too wide horizontally but tall enough vertically.
-		return length(float2(bloom_approx_sigma, beam_max_sigma));
+		return length(float2(bloom_approx_sigma, beamMaxSigma));
 	}
 	else    //  3x3 blur resize (the bilinear resize doesn't need a sigma)
 	{

@@ -478,9 +478,9 @@ float2 get_resized_mask_tile_size(const float2 estimated_viewport_size,
 	//  If mask_specify_num_triads is 1.0/true and estimated_viewport_size.x is
 	//  wrong, the user preference will be misinterpreted:
 	const float desired_tile_size_x = mask_triads_per_tile * lerp(
-		mask_triad_size_desired,
-		estimated_viewport_size.x / mask_num_triads_desired,
-		mask_specify_num_triads);
+		maskTriadSizeDesired,
+		estimated_viewport_size.x / maskNumTriadsDesired,
+		maskSpecifyNumTriads);
 
 	//  Make sure we're not upsizing:
 	const float temp_tile_size_x =

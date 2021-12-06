@@ -168,9 +168,9 @@ static const bool assume_opaque_alpha = false;
 //  Set device gamma constants, but allow users to override them:
 #ifdef OVERRIDE_DEVICE_GAMMA
 	//  The user promises to globally define the appropriate constants:
-float get_crt_gamma() { return crt_gamma; }
+float get_crt_gamma() { return crtGamma; }
 float get_gba_gamma() { return gba_gamma; }
-float get_lcd_gamma() { return lcd_gamma; }
+float get_lcd_gamma() { return lcdGamma; }
 #else
 float get_crt_gamma() { return crt_reference_gamma_high; }
 float get_gba_gamma() { return 3.5; }   //  Game Boy Advance; in (3.0, 4.0)

@@ -78,12 +78,12 @@ float3 get_gaussian_sigma(const float3 color, const float sigma_range) {
 	//  Generalized Gaussians permit more leeway here as steepness increases.
 	if (beam_spot_shape_function < 0.5) {
 		//  Use a power function:
-		return beam_min_sigma+sigma_range *
-			pow(color, beam_spot_power);
+		return beamMinSigma+sigma_range *
+			pow(color, beamSpotPower);
 	} else {
 		//  Use a spherical function:
 		const float3 color_minus_1 = color - 1.0;
-		return beam_min_sigma+sigma_range *
+		return beamMinSigma+sigma_range *
 			sqrt(1.0 - color_minus_1 * color_minus_1);
 	}
 }
@@ -113,7 +113,7 @@ float3 get_generalized_gaussian_beta(const float3 color,
 	//      beta widen and sharpen peaks at the risk of aliasing.
 	//  Unlike high beam_spot_powers, high beam_shape_powers actually soften shape
 	//  transitions, whereas lower ones sharpen them (at the risk of aliasing).
-	return beam_min_shape + shape_range * pow(color, beam_shape_power);
+	return beamMinShape + shape_range * pow(color, beamShapePower);
 }
 
 float3 scanline_gaussian_integral_contrib(const float3 dist,
@@ -309,7 +309,7 @@ float3 get_interpolated_linear_color(const float3 color0, const float3 color1,
 #ifdef GAMMA_ENCODE_EVERY_FBO
 	const float3 gamma_mixed_color = pow(get_raw_interpolated_color(
 		color0, color1, color2, color3, weights), intermediate_gamma);
-	if (beam_horiz_linear_rgb_weight > 0.0) {
+	if (beamHorizLinearRgbWeight > 0.0) {
 		const float3 linear_mixed_color = get_raw_interpolated_color(
 			pow(color0, intermediate_gamma),
 			pow(color1, intermediate_gamma),
@@ -317,14 +317,14 @@ float3 get_interpolated_linear_color(const float3 color0, const float3 color1,
 			pow(color3, intermediate_gamma),
 			weights);
 		return lerp(gamma_mixed_color, linear_mixed_color,
-			beam_horiz_linear_rgb_weight);
+			beamHorizLinearRgbWeight);
 	} else {
 		return gamma_mixed_color;
 	}
 #else
 	const float3 linear_mixed_color = get_raw_interpolated_color(
 		color0, color1, color2, color3, weights);
-	if (beam_horiz_linear_rgb_weight < 1.0) {
+	if (beamHorizLinearRgbWeight < 1.0) {
 		const float3 gamma_mixed_color = get_raw_interpolated_color(
 			pow(color0, 1.0 / intermediate_gamma),
 			pow(color1, 1.0 / intermediate_gamma),
@@ -332,7 +332,7 @@ float3 get_interpolated_linear_color(const float3 color0, const float3 color1,
 			pow(color3, 1.0 / intermediate_gamma),
 			weights);
 		return lerp(gamma_mixed_color, linear_mixed_color,
-			beam_horiz_linear_rgb_weight);
+			beamHorizLinearRgbWeight);
 	} else {
 		return linear_mixed_color;
 	}
@@ -349,7 +349,7 @@ float3 get_interpolated_linear_color(const float3 color0, const float3 color1,
 		pow(color3, intermediate_gamma),
 		weights);
 	return lerp(gamma_mixed_color, linear_mixed_color,
-		beam_horiz_linear_rgb_weight);
+		beamHorizLinearRgbWeight);
 #else
 	//  Inputs: color0-3 are colors in linear RGB.
 	const float3 linear_mixed_color = get_raw_interpolated_color(
@@ -361,7 +361,7 @@ float3 get_interpolated_linear_color(const float3 color0, const float3 color1,
 		pow(color3, 1.0 / intermediate_gamma),
 		weights);
 	return lerp(gamma_mixed_color, linear_mixed_color,
-		beam_horiz_linear_rgb_weight);
+		beamHorizLinearRgbWeight);
 #endif  //  GAMMA_ENCODE_EVERY_FBO
 #endif  //  SCANLINES_BRANCH_FOR_LINEAR_RGB_WEIGHT
 }
@@ -384,7 +384,7 @@ float3 get_scanline_color(Texture2D tex, SamplerState sam, const float2 scanline
 	const float3 color2 = tex.Sample(sam, scanline_uv + uv_step_x).rgb;
 	float3 color0 = 0.0;
 	float3 color3 = 0.0;
-	if (beam_horiz_filter > 0.5) {
+	if (beamHorizFilter > 0.5) {
 		color0 = tex.Sample(sam, scanline_uv - uv_step_x).rgb;
 		color3 = tex.Sample(sam, scanline_uv + 2.0 * uv_step_x).rgb;
 	}
@@ -409,14 +409,14 @@ float3 sample_single_scanline_horizontal(Texture2D tex, SamplerState sam,
 		1.0 - prev_dist, 2.0 - prev_dist);
 	//  Get Quilez, Lanczos2, or Gaussian resize weights for 2/4 nearby texels:
 	float4 weights;
-	if (beam_horiz_filter < 0.5) {
+	if (beamHorizFilter < 0.5) {
 		//  Quilez:
 		const float x = sample_dists.y;
 		const float w2 = x * x * x * (x * (x * 6.0 - 15.0) + 10.0);
 		weights = float4(0.0, 1.0 - w2, w2, 0.0);
-	} else if (beam_horiz_filter < 1.5) {
+	} else if (beamHorizFilter < 1.5) {
 		//  Gaussian:
-		float inner_denom_inv = 1.0 / (2.0 * beam_horiz_sigma * beam_horiz_sigma);
+		float inner_denom_inv = 1.0 / (2.0 * beamHorizSigma * beamHorizSigma);
 		weights = exp(-(sample_dists * sample_dists) * inner_denom_inv);
 	} else {
 		//  Lanczos2:
