@@ -197,24 +197,23 @@ float convergence_offset_y_b;
 //!MAX 2
 int mask_type;
 
-
 //!CONSTANT
 //!DEFAULT 0
 //!MIN 0
 //!MAX 1
-float mask_specify_num_triads;
+int mask_specify_num_triads;
 
 //!CONSTANT
 //!DEFAULT 3
 //!MIN 1
 //!MAX 18
-float mask_triad_size_desired;
+int mask_triad_size_desired;
 
 //!CONSTANT
 //!DEFAULT 480
 //!MIN 342
 //!MAX 1920
-float mask_num_triads_desired;
+int mask_num_triads_desired;
 
 //!CONSTANT
 //!DEFAULT 0.5
@@ -232,7 +231,7 @@ float aa_gauss_sigma;
 //!DEFAULT 0
 //!MIN 0
 //!MAX 3
-float geom_mode_runtime;
+float geom_mode;
 
 //!CONSTANT
 //!DEFAULT 2
@@ -262,13 +261,13 @@ float geom_tilt_angle_y;
 //!DEFAULT 432
 //!MIN 1
 //!MAX 512
-float geom_aspect_ratio_x;
+int geom_aspect_ratio_x;
 
 //!CONSTANT
 //!DEFAULT 329
 //!MIN 1
 //!MAX 512
-float geom_aspect_ratio_y;
+int geom_aspect_ratio_y;
 
 //!CONSTANT
 //!DEFAULT 1
@@ -471,6 +470,8 @@ SamplerState samLinearWrap;
 //  Specify the geometry mode at runtime?
 #define RUNTIME_GEOMETRY_MODE
 
+#define RUNTIME_ANTIALIAS_WEIGHTS
+
 //  PHOSPHOR MASK:
 //  If we sinc-resize the mask, should we Lanczos-window it (slower but better)?
 #define PHOSPHOR_MASK_RESIZE_LANCZOS_WINDOW
@@ -538,7 +539,6 @@ static const bool beam_generalized_gaussian = true;
 static const float beam_antialias_level = 1.0;              //  range [0, 2]
 //  Min/max standard deviations for scanline beams: Higher values widen and
 	//  soften scanlines.  Depending on other options, low min sigmas can alias.
-static const float beam_min_sigma_static = 0.02;            //  range (0, 1]
 static const float beam_max_sigma_static = 0.3;             //  range (0, 1]
 //  Beam width varies as a function of color: A power function (0) is more
 //  configurable, but a spherical function (1) gives the widest beam
@@ -572,30 +572,7 @@ static const bool aa_temporal = false;
 //  Use RGB subpixel offsets for antialiasing?  The pixel is at green, and
 //  the blue offset is the negative r offset; range [0, 0.5]
 static const float2 aa_subpixel_r_offset_static = float2(-1.0 / 3.0, 0.0);//float2(0.0);
-//  Cubics: See http://www.imagemagick.org/Usage/filter/#mitchell
-//  1.) "Keys cubics" with B = 1 - 2C are considered the highest quality.
-//  2.) C = 0.5 (default) is Catmull-Rom; higher C's apply sharpening.
-//  3.) C = 1.0/3.0 is the Mitchell-Netravali filter.
-//  4.) C = 0.0 is a soft spline filter.
-static const float aa_cubic_c_static = 0.5;             //  range [0, 4]
-//  Standard deviation for Gaussian antialiasing: Try 0.5/aa_pixel_diameter.
-static const float aa_gauss_sigma_static = 0.5;     //  range [0.0625, 1.0]
 
-
-//  We can sample the mask three ways.  Pick 2/3 from: Pretty/Fast/Flexible.
-//  0.) Sinc-resize to the desired dot pitch manually (pretty/slow/flexible).
-//      This requires PHOSPHOR_MASK_MANUALLY_RESIZE to be #defined.
-//  1.) Hardware-resize to the desired dot pitch (ugly/fast/flexible).  This
-//      is halfway decent with LUT mipmapping but atrocious without it.
-//  2.) Tile it without resizing at a 1:1 texel:pixel ratio for flat coords
-//      (pretty/fast/inflexible).  Each input LUT has a fixed dot pitch.
-//      This mode reuses the same masks, so triads will be enormous unless
-//      you change the mask LUT filenames in your .cgp file.
-static const float mask_sample_mode_static = 0.0;           //  range [0, 2]
-//  Prefer setting the triad size (0.0) or number on the screen (1.0)?
-//  If RUNTIME_PHOSPHOR_BLOOM_SIGMA isn't #defined, the specified triad size
-//  will always be used to calculate the full bloom sigma statically.
-static const float mask_specify_num_triads_static = 0.0;    //  range [0, 1]
 //  Specify the phosphor triad size, in pixels.  Each tile (usually with 8
 //  triads) will be rounded to the nearest integer tile size and clamped to
 //  obey minimum size constraints (imposed to reduce downsize taps) and
@@ -638,7 +615,6 @@ static const bool geom_force_correct_tangent_matrix = true;
 //  this shader: One does a viewport-scale bloom, and the other skips it.  The
 //  latter benefits from a higher bloom_approx_scale_x, so save both separately:
 static const float bloom_approx_size_x = 320.0;
-static const float bloom_approx_size_x_for_fake = 400.0;
 static const float bloom_approx_scale_x = 320;
 //  Copy the viewport-relative scales of the phosphor mask resize passes
 //  (MASK_RESIZE and the pass immediately preceding it):
@@ -653,7 +629,6 @@ static const float geom_max_aspect_ratio = 4.0 / 3.0;
 //  The shader must know the input texture size (default 64x64), and to manually
 //  resize, it must also know the horizontal triads per tile (default 8).
 static const float2 mask_texture_small_size = float2(64, 64);
-static const float2 mask_texture_large_size = float2(512, 512);
 static const float mask_triads_per_tile = 8.0;
 //  We need the average brightness of the phosphor mask to compensate for the
 //  dimming it causes.  The following four values are roughly correct for the
@@ -714,31 +689,6 @@ static const float mask_grille_avg_color = mask_grille15_avg_color;
 //////////////////////////////  DERIVED SETTINGS  //////////////////////////////
 static const float bloom_approx_filter = bloom_approx_filter_static;
 
-//  Disable slow runtime paths if static parameters are used.  Most of these
-//  won't be a problem anyway once the params are disabled, but some will.
-#ifndef RUNTIME_SHADER_PARAMS_ENABLE
-#ifdef RUNTIME_PHOSPHOR_BLOOM_SIGMA
-#undef RUNTIME_PHOSPHOR_BLOOM_SIGMA
-#endif
-#ifdef RUNTIME_ANTIALIAS_WEIGHTS
-#undef RUNTIME_ANTIALIAS_WEIGHTS
-#endif
-#ifdef RUNTIME_ANTIALIAS_SUBPIXEL_OFFSETS
-#undef RUNTIME_ANTIALIAS_SUBPIXEL_OFFSETS
-#endif
-#ifdef RUNTIME_SCANLINES_HORIZ_FILTER_COLORSPACE
-#undef RUNTIME_SCANLINES_HORIZ_FILTER_COLORSPACE
-#endif
-#ifdef RUNTIME_GEOMETRY_TILT
-#undef RUNTIME_GEOMETRY_TILT
-#endif
-#ifdef RUNTIME_GEOMETRY_MODE
-#undef RUNTIME_GEOMETRY_MODE
-#endif
-#ifdef FORCE_RUNTIME_PHOSPHOR_MASK_MODE_TYPE_SELECT
-#undef FORCE_RUNTIME_PHOSPHOR_MASK_MODE_TYPE_SELECT
-#endif
-#endif
 
 //  Make tex2Dbias a backup for tex2Dlod for wider compatibility.
 #ifdef ANISOTROPIC_TILING_COMPAT_TEX2DLOD
@@ -835,27 +785,6 @@ static const float2 mask_resize_src_lut_size = mask_texture_small_size;
 #endif
 
 
-//  tex2D's sampler2D parameter MUST be a uniform global, a uniform input to
-//  main_fragment, or a static alias of one of the above.  This makes it hard
-//  to select the phosphor mask at runtime: We can't even assign to a uniform
-//  global in the vertex shader or select a sampler2D in the vertex shader and
-//  pass it to the fragment shader (even with explicit TEXUNIT# bindings),
-//  because it just gives us the input texture or a black screen.  However, we
-//  can get around these limitations by calling tex2D three times with different
-//  uniform samplers (or resizing the phosphor mask three times altogether).
-//  With dynamic branches, we can process only one of these branches on top of
-//  quickly discarding fragments we don't need (cgc seems able to overcome
-//  limitations around dependent texture fetches inside of branches).  Without
-//  dynamic branches, we have to process every branch for every fragment...which
-//  is slower.  Runtime sampling mode selection is slower without dynamic
-//  branches as well.  Let the user's static #defines decide if it's worth it.
-#ifdef DRIVERS_ALLOW_DYNAMIC_BRANCHES
-#define RUNTIME_PHOSPHOR_MASK_MODE_TYPE_SELECT
-#else
-#ifdef FORCE_RUNTIME_PHOSPHOR_MASK_MODE_TYPE_SELECT
-#define RUNTIME_PHOSPHOR_MASK_MODE_TYPE_SELECT
-#endif
-#endif
 
 //  We need to render some minimum number of tiles in the resize passes.
 //  We need at least 1.0 just to repeat a single tile, and we need extra
@@ -943,12 +872,6 @@ static const float under_half = 0.4995;
 static const float gba_gamma = 3.5; //  Irrelevant but necessary to define.
 #define ANTIALIAS_OVERRIDE_BASICS
 #define ANTIALIAS_OVERRIDE_PARAMETERS
-
-//  Disable runtime shader params if the user doesn't explicitly want them.
-//  Static constants will be defined in place of uniforms of the same name.
-#ifndef RUNTIME_SHADER_PARAMS_ENABLE
-#undef PARAMETER_UNIFORM
-#endif
 
 
 //  Provide accessors for vector constants that pack scalar uniforms:
@@ -1368,7 +1291,7 @@ float4 Pass3(float2 pos) {
 
 	//  The last pass (vertical scanlines) had a viewport y scale, so we can
 	//  use it to calculate a better runtime sigma:
-	float estimated_viewport_size_x = inputHeight * geom_aspect_ratio_x / geom_aspect_ratio_y;
+	float estimated_viewport_size_x = inputHeight * float(geom_aspect_ratio_x) / geom_aspect_ratio_y;
 
 	float2 blur_dxdy;
 	if (bloom_approx_filter > 1.5)   //  4x4 true Gaussian resize
@@ -1561,7 +1484,7 @@ float4 Pass6(float2 pos) {
 	//  First estimate the viewport size (the user will get the wrong number of
 	//  triads if it's wrong and mask_specify_num_triads is 1.0/true).
 	const float viewport_y = output_size.y / mask_resize_viewport_scale.y;
-	const float aspect_ratio = geom_aspect_ratio_x / geom_aspect_ratio_y;
+	const float aspect_ratio = float(geom_aspect_ratio_x) / geom_aspect_ratio_y;
 	const float2 estimated_viewport_size =
 		float2(viewport_y * aspect_ratio, viewport_y);
 	//  Estimate the output size of MASK_RESIZE (the next pass).  The estimated
@@ -1792,88 +1715,7 @@ float4 Pass8(float2 pos) {
 	const float3 phosphor_emission_dim = electron_intensity_dim *
 		phosphor_mask_sample;
 
-#ifdef PHOSPHOR_BLOOM_FAKE
-	//  The BLOOM_APPROX pass approximates a blurred version of a masked
-	//  and scanlined image.  It's usually used to compute the brightpass,
-	//  but we can also use it to fake the bloom stage entirely.  Caveats:
-	//  1.) A fake bloom is conceptually different, since we're mixing in a
-	//      fully blurred low-res image, and the biggest implication are:
-	//  2.) If mask_amplify is incorrect, results deteriorate more quickly.
-	//  3.) The inaccurate blurring hurts quality in high-contrast areas.
-	//  4.) The bloom_underestimate_levels parameter seems less sensitive.
-	//  Reverse the auto-dimming and amplify to compensate for mask dimming:
-#define PHOSPHOR_BLOOM_FAKE_WITH_SIMPLE_BLEND
-#ifdef PHOSPHOR_BLOOM_FAKE_WITH_SIMPLE_BLEND
-	static const float blur_contrast = 1.05;
-#else
-	static const float blur_contrast = 1.0;
-#endif
-	const float mask_amplify = get_mask_amplify();
-	const float undim_factor = 1.0 / auto_dim_factor;
-	const float3 phosphor_emission =
-		phosphor_emission_dim * undim_factor * mask_amplify;
-	//  Get a phosphor blur estimate, accounting for convergence offsets:
-	const float3 electron_intensity = electron_intensity_dim * undim_factor;
-	const float3 phosphor_blur_approx_soft = tex2D_linearize(
-		tex3, samLinear, blur3x3_tex_uv).rgb;
-	const float3 phosphor_blur_approx = lerp(phosphor_blur_approx_soft,
-		electron_intensity, 0.1) * blur_contrast;
-	//  We could blend between phosphor_emission and phosphor_blur_approx,
-	//  solving for the minimum blend_ratio that avoids clipping past 1.0:
-	//      1.0 >= total_intensity
-	//      1.0 >= phosphor_emission * (1.0 - blend_ratio) +
-	//              phosphor_blur_approx * blend_ratio
-	//      blend_ratio = (phosphor_emission - 1.0)/
-	//          (phosphor_emission - phosphor_blur_approx);
-	//  However, this blurs far more than necessary, because it aims for
-	//  full brightness, not minimal blurring.  To fix it, base blend_ratio
-	//  on a max area intensity only so it varies more smoothly:
-	const float3 phosphor_blur_underestimate =
-		phosphor_blur_approx * bloom_underestimate_levels;
-	const float3 area_max_underestimate =
-		phosphor_blur_underestimate * mask_amplify;
-#ifdef PHOSPHOR_BLOOM_FAKE_WITH_SIMPLE_BLEND
-	const float3 blend_ratio_temp =
-		(area_max_underestimate - 1.0) /
-		(area_max_underestimate - phosphor_blur_underestimate);
-#else
-	//  Try doing it like an area-based brightpass.  This is nearly
-	//  identical, but it's worth toying with the code in case I ever
-	//  find a way to make it look more like a real bloom.  (I've had
-	//  some promising textures from combining an area-based blend ratio
-	//  for the phosphor blur and a more brightpass-like blend-ratio for
-	//  the phosphor emission, but I haven't found a way to make the
-	//  brightness correct across the whole color range, especially with
-	//  different bloom_underestimate_levels values.)
-	const float desired_triad_size = lerp(mask_triad_size_desired,
-		outputWidth / mask_num_triads_desired,
-		mask_specify_num_triads);
-	const float bloom_sigma = get_min_sigma_to_blur_triad(
-		desired_triad_size, bloom_diff_thresh);
-	const float center_weight = get_center_weight(bloom_sigma);
-	const float3 max_area_contribution_approx =
-		max(0.0, phosphor_blur_approx -
-			center_weight * phosphor_emission);
-	const float3 area_contrib_underestimate =
-		bloom_underestimate_levels * max_area_contribution_approx;
-	const float3 blend_ratio_temp =
-		((1.0 - area_contrib_underestimate) /
-			area_max_underestimate - 1.0) / (center_weight - 1.0);
-#endif
-	//  Clamp blend_ratio in case it's out-of-range, but be SUPER careful:
-	//  min/max/clamp are BIZARRELY broken with lerp (optimization bug?),
-	//  and this redundant sequence avoids bugs, at least on nVidia cards:
-	const float3 blend_ratio_clamped = max(clamp(blend_ratio_temp, 0.0, 1.0), 0.0);
-	const float3 blend_ratio = lerp(blend_ratio_clamped, 1.0, bloom_excess);
-	//  Blend the blurred and unblurred images:
-	const float3 phosphor_emission_unclipped =
-		lerp(phosphor_emission, phosphor_blur_approx, blend_ratio);
-	//  Simulate refractive diffusion by reusing the halation sample.
-	const float3 pixel_color = lerp(phosphor_emission_unclipped,
-		halation_color, diffusion_weight);
-#else
 	const float3 pixel_color = phosphor_emission_dim;
-#endif
 	//  Encode if necessary, and output.
 	return encode_output(float4(pixel_color, 1.0));
 }
@@ -2111,7 +1953,6 @@ float4 Pass12(float2 pos) {
 
 	//  Get an optimal eye position based on geom_view_dist, viewport_aspect,
 	//  and CRT radius/rotation:
-	const float geom_mode = geom_mode_runtime;
 
 	const float3 eye_pos_global =
 		get_ideal_global_eye_pos(local_to_global, geom_aspect, geom_mode);

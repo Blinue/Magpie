@@ -235,12 +235,8 @@ inline float get_bloom_approx_sigma(const float output_size_x_runtime,
 		//  We're either using blur3x3 or bilinear filtering.  The biggest
 		//  reason to choose blur3x3 is to avoid dynamic weights, so use a
 		//  static calculation.
-		#ifdef PHOSPHOR_BLOOM_FAKE
-			static const float output_size_x_static =
-				bloom_approx_size_x_for_fake;
-		#else
-			static const float output_size_x_static = bloom_approx_size_x;
-		#endif
+
+		static const float output_size_x_static = bloom_approx_size_x;
 		static const float asymptotic_triad_size =
 			max_viewport_size_x/mask_num_triads_static;
 		const float asymptotic_sigma = get_min_sigma_to_blur_triad(
