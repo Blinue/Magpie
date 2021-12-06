@@ -4,7 +4,7 @@
 [![All Contributors](https://img.shields.io/github/all-contributors/Blinue/Magpie)](#%E8%B4%A1%E7%8C%AE%E8%80%85-)
 [![许可](https://img.shields.io/github/license/Blinue/Magpie)](./LICENSE)
 
-Magpie 可以将任意窗口放大至全屏，支持多种高级缩放算法，包括 Lanczos、[Anime4K](https://github.com/bloc97/Anime4K)、[FSR](https://github.com/GPUOpen-Effects/FidelityFX-FSR)、[FSRCNNX](https://github.com/igv/FSRCNN-TensorFlow)等。
+Magpie 可以将任意窗口放大至全屏，支持多种高级缩放算法，如 Lanczos、[Anime4K](https://github.com/bloc97/Anime4K)、[FSR](https://github.com/GPUOpen-Effects/FidelityFX-FSR)、[FSRCNNX](https://github.com/igv/FSRCNN-TensorFlow) 等。
 
 主要用于游戏窗口的放大显示，适用于不支持全屏模式，或者内置的全屏模式会使画面模糊的情况。
 
@@ -14,7 +14,7 @@ Magpie 可以将任意窗口放大至全屏，支持多种高级缩放算法，�
 
 👉 [FAQ](https://github.com/Blinue/Magpie/wiki/FAQ)
 
-👉 [自定义缩放配置](https://github.com/Blinue/Magpie/wiki/自定义缩放配置)
+👉 [自定义缩放配置](https://github.com/Blinue/Magpie/wiki/自定义缩放配置)（[示例](https://gist.github.com/hooke007/818ecc88f18e229bca743b7ae48947ad)）
 
 👉 [贡献指南](./CONTRIBUTING.md)
 
@@ -28,7 +28,7 @@ Magpie 可以将任意窗口放大至全屏，支持多种高级缩放算法，�
 
 #### 热键修改
 
-程序使用[globalmousekeyhook](https://github.com/gmamaladze/globalmousekeyhook)检测热键。
+程序使用 [globalmousekeyhook](https://github.com/gmamaladze/globalmousekeyhook) 检测热键。
 
 手动输入键值修改为你喜欢的键位（多个键位组合之间用 `+` 连接）
 
@@ -60,8 +60,8 @@ Magpie 可以将任意窗口放大至全屏，支持多种高级缩放算法，�
 ## 系统需求
 
 1. Windows 10/11
-2. DirectX 功能级别 10
-3. [.NET framework 4.7 运行时](https://dotnet.microsoft.com/download/dotnet-framework/net472)
+2. DirectX 功能级别 11
+3. [.NET 6 运行时](https://dotnet.microsoft.com/download)
 4. [MSVC 2005-2022 运行时](https://docs.microsoft.com/cpp/windows/latest-supported-vc-redist?view=msvc-170)
 
 ## 使用提示
