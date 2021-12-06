@@ -231,7 +231,7 @@ float aa_gauss_sigma;
 //!DEFAULT 0
 //!MIN 0
 //!MAX 3
-float geom_mode;
+int geom_mode;
 
 //!CONSTANT
 //!DEFAULT 2
@@ -1969,7 +1969,7 @@ float4 Pass12(float2 pos) {
 	const float2 flat_video_uv = pos;
 	float2x2 pixel_to_video_uv;
 	float2 video_uv_no_geom_overscan;
-	if (geom_mode > 0.5) {
+	if (geom_mode > 0) {
 		video_uv_no_geom_overscan =
 			get_curved_video_uv_coords_and_tangent_matrix(flat_video_uv,
 				eye_pos_local, output_size_inv, geom_aspect,
@@ -1996,7 +1996,7 @@ float4 Pass12(float2 pos) {
 	// this next check seems to always return true, even when it shouldn't so disabling it for now
 	const bool need_subpixel_aa = false;//abs_aa_r_offset.x + abs_aa_r_offset.y > 0.0;
 	float3 color;
-	if (aa_level > 0.5 && (geom_mode > 0.5 || any(geom_overscan != 1.0))) {
+	if (aa_level > 0.5 && (geom_mode > 0 || any(geom_overscan != 1.0))) {
 		//  Sample the input with antialiasing (due to sharp phosphors, etc.):
 		color = tex2Daa(tex11, samLinear, tex_uv, pixel_to_tex_uv, frame_count);
 	} else if (aa_level > 0.5 && need_subpixel_aa) {
