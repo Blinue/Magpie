@@ -1,6 +1,7 @@
 // CRT-Royale For Magpie
 // 移植自 https://github.com/libretro/common-shaders/tree/master/crt/shaders/crt-royale
-// 
+// 重要：要求输入长宽比为 4:3，320x240 最佳
+//
 // CRT-Royale 的许可声明：
 // crt-royale: A full-featured CRT shader, with cheese.
 // Copyright (C) 2014 TroggleMonkey <trogglemonkey@gmx.com>
@@ -196,17 +197,12 @@ float convergence_offset_y_b;
 //!MAX 2
 int mask_type;
 
-//!CONSTANT
-//!DEFAULT 0
-//!MIN 0
-//!MAX 2
-int mask_sample_mode_desired;
 
 //!CONSTANT
 //!DEFAULT 0
 //!MIN 0
 //!MAX 1
-int mask_specify_num_triads;
+float mask_specify_num_triads;
 
 //!CONSTANT
 //!DEFAULT 3
@@ -218,19 +214,7 @@ float mask_triad_size_desired;
 //!DEFAULT 480
 //!MIN 342
 //!MAX 1920
-int mask_num_triads_desired;
-
-//!CONSTANT
-//!DEFAULT -0.333333333
-//!MIN -0.333333333
-//!MAX 0.333333333
-float aa_subpixel_r_offset_x_runtime;
-
-//!CONSTANT
-//!DEFAULT 0
-//!MIN -0.333333333
-//!MAX 0.333333333
-float aa_subpixel_r_offset_y_runtime;
+float mask_num_triads_desired;
 
 //!CONSTANT
 //!DEFAULT 0.5
@@ -248,7 +232,7 @@ float aa_gauss_sigma;
 //!DEFAULT 0
 //!MIN 0
 //!MAX 3
-int geom_mode_runtime;
+float geom_mode_runtime;
 
 //!CONSTANT
 //!DEFAULT 2
@@ -278,13 +262,13 @@ float geom_tilt_angle_y;
 //!DEFAULT 432
 //!MIN 1
 //!MAX 512
-int geom_aspect_ratio_x;
+float geom_aspect_ratio_x;
 
 //!CONSTANT
 //!DEFAULT 329
 //!MIN 1
 //!MAX 512
-int geom_aspect_ratio_y;
+float geom_aspect_ratio_y;
 
 //!CONSTANT
 //!DEFAULT 1
@@ -315,19 +299,6 @@ float border_darkness;
 //!MIN 1
 //!MAX 64
 float border_compress;
-
-//!CONSTANT
-//!DEFAULT 0
-//!MIN 0
-//!MAX 1
-int interlace_bff;
-
-//!CONSTANT
-//!DEFAULT 0
-//!MIN 0
-//!MAX 1
-int interlace_1080i;
-
 
 //!TEXTURE
 Texture2D INPUT;
@@ -476,7 +447,7 @@ SamplerState samLinearWrap;
 //  anisotropic filtering, thereby fixing related artifacts.  Related errors:
 //  error C3004: function "float4 tex2Dlod(sampler2D, float4);" not supported in
 //  this profile
-#define DRIVERS_ALLOW_TEX2DLOD
+// #define DRIVERS_ALLOW_TEX2DLOD
 
 //  tex2Dbias: Requires an fp30 or newer profile.  This can be used to alleviate
 //  artifacts from anisotropic filtering and mipmapping.  Related errors:
@@ -489,18 +460,9 @@ SamplerState samLinearWrap;
 
 //  To disable a #define option, turn its line into a comment with "//."
 
-//  RUNTIME VS. COMPILE-TIME OPTIONS (Major Performance Implications):
-//  Enable runtime shader parameters in the Retroarch (etc.) GUI?  They override
-//  many of the options in this file and allow real-time tuning, but many of
-//  them are slower.  Disabling them and using this text file will boost FPS.
-#define RUNTIME_SHADER_PARAMS_ENABLE
 //  Specify the phosphor bloom sigma at runtime?  This option is 10% slower, but
 //  it's the only way to do a wide-enough full bloom with a runtime dot pitch.
 #define RUNTIME_PHOSPHOR_BLOOM_SIGMA
-//  Specify antialiasing weight parameters at runtime?  (Costs ~20% with cubics)
-#define RUNTIME_ANTIALIAS_WEIGHTS
-//  Specify subpixel offsets at runtime? (WARNING: EXTREMELY EXPENSIVE!)
-//#define RUNTIME_ANTIALIAS_SUBPIXEL_OFFSETS
 //  Make beam_horiz_filter and beam_horiz_linear_rgb_weight into runtime shader
 //  parameters?  This will require more math or dynamic branching.
 #define RUNTIME_SCANLINES_HORIZ_FILTER_COLORSPACE
@@ -508,23 +470,16 @@ SamplerState samLinearWrap;
 #define RUNTIME_GEOMETRY_TILT
 //  Specify the geometry mode at runtime?
 #define RUNTIME_GEOMETRY_MODE
-//  Specify the phosphor mask type (aperture grille, slot mask, shadow mask) and
-//  mode (Lanczos-resize, hardware resize, or tile 1:1) at runtime, even without
-//  dynamic branches?  This is cheap if mask_resize_viewport_scale is small.
-#define FORCE_RUNTIME_PHOSPHOR_MASK_MODE_TYPE_SELECT
 
 //  PHOSPHOR MASK:
-//  Manually resize the phosphor mask for best results (slower)?  Disabling this
-//  removes the option to do so, but it may be faster without dynamic branches.
-#define PHOSPHOR_MASK_MANUALLY_RESIZE
 //  If we sinc-resize the mask, should we Lanczos-window it (slower but better)?
 #define PHOSPHOR_MASK_RESIZE_LANCZOS_WINDOW
 //  Larger blurs are expensive, but we need them to blur larger triads.  We can
 //  detect the right blur if the triad size is static or our profile allows
 //  dynamic branches, but otherwise we use the largest blur the user indicates
 //  they might need:
-#define PHOSPHOR_BLOOM_TRIADS_LARGER_THAN_3_PIXELS
-//#define PHOSPHOR_BLOOM_TRIADS_LARGER_THAN_6_PIXELS
+//#define PHOSPHOR_BLOOM_TRIADS_LARGER_THAN_3_PIXELS
+#define PHOSPHOR_BLOOM_TRIADS_LARGER_THAN_6_PIXELS
 //#define PHOSPHOR_BLOOM_TRIADS_LARGER_THAN_9_PIXELS
 //#define PHOSPHOR_BLOOM_TRIADS_LARGER_THAN_12_PIXELS
 //  Here's a helpful chart:
@@ -594,7 +549,10 @@ static const float beam_spot_shape_function = 0.0;
 //  later passes (static option only for now).
 static const bool beam_misconvergence = true;
 //  Detect interlacing (static option only for now)?
-static const bool interlace_detect = true;
+// 目前 Magpie 不支持 frame_count，因此无法实现隔行扫描
+static const bool interlace_detect = false;
+static const int interlace_bff = 0;
+static const int interlace_1080i = 0;
 
 //  ANTIALIASING:
 	//  What AA level do you want for curvature/overscan/subpixels?  Options:
@@ -623,9 +581,7 @@ static const float aa_cubic_c_static = 0.5;             //  range [0, 4]
 //  Standard deviation for Gaussian antialiasing: Try 0.5/aa_pixel_diameter.
 static const float aa_gauss_sigma_static = 0.5;     //  range [0.0625, 1.0]
 
-//  PHOSPHOR MASK:
-	//  Mask type: 0 = aperture grille, 1 = slot mask, 2 = EDP shadow mask
-static const float mask_type_static = 1.0;                  //  range [0, 2]
+
 //  We can sample the mask three ways.  Pick 2/3 from: Pretty/Fast/Flexible.
 //  0.) Sinc-resize to the desired dot pitch manually (pretty/slow/flexible).
 //      This requires PHOSPHOR_MASK_MANUALLY_RESIZE to be #defined.
@@ -665,15 +621,6 @@ static const float mask_sinc_lobes = 3.0;                   //  range [2, 4]
 static const float mask_min_allowed_triad_size = 2.0;
 
 //  GEOMETRY:
-//  Tilt angle in radians (clockwise around up and right vectors):
-static const float2 geom_tilt_angle_static = float2(0.0, 0.0);  //  range [-pi, pi]
-//  Aspect ratio: When the true viewport size is unknown, this value is used
-//  to help convert between the phosphor triad size and count, along with
-//  the mask_resize_viewport_scale constant from user-cgp-constants.h.  Set
-//  this equal to Retroarch's display aspect ratio (DAR) for best results;
-//  range [1, geom_max_aspect_ratio from user-cgp-constants.h];
-//  default (256/224)*(54/47) = 1.313069909 (see below)
-static const float geom_aspect_ratio_static = 1.313069909;
 //  Compute a proper pixel-space to texture-space matrix even without ddx()/
 //  ddy()?  This is ~8.5% slower but improves antialiasing/subpixel filtering
 //  with strong curvature (static option only for now).
@@ -1046,17 +993,7 @@ float2 get_convergence_offsets_b_vector() {
 }
 
 float2 get_aa_subpixel_r_offset() {
-#ifdef RUNTIME_ANTIALIAS_WEIGHTS
-#ifdef RUNTIME_ANTIALIAS_SUBPIXEL_OFFSETS
-	//  WARNING: THIS IS EXTREMELY EXPENSIVE.
-	return float2(aa_subpixel_r_offset_x_runtime,
-		aa_subpixel_r_offset_y_runtime);
-#else
 	return aa_subpixel_r_offset_static;
-#endif
-#else
-	return aa_subpixel_r_offset_static;
-#endif
 }
 
 //  Provide accessors settings which still need "cooking:"
@@ -1069,21 +1006,6 @@ float get_mask_amplify() {
 		mask_shadow_amplify;
 }
 
-float get_mask_sample_mode() {
-#ifdef RUNTIME_PHOSPHOR_MASK_MODE_TYPE_SELECT
-#ifdef PHOSPHOR_MASK_MANUALLY_RESIZE
-	return mask_sample_mode_desired;
-#else
-	return clamp(mask_sample_mode_desired, 1.0, 2.0);
-#endif
-#else
-#ifdef PHOSPHOR_MASK_MANUALLY_RESIZE
-	return mask_sample_mode_static;
-#else
-	return clamp(mask_sample_mode_static, 1.0, 2.0);
-#endif
-#endif
-}
 
 
 //!PASS 1
@@ -1687,10 +1609,9 @@ float4 Pass6(float2 pos) {
 	//  much sharper results than mipmapping, and vertically resizing first
 	//  minimizes the total number of taps required.  We output a number of
 	//  resized tiles >= mask_resize_num_tiles for easier tiled sampling later.
-#ifdef PHOSPHOR_MASK_MANUALLY_RESIZE
+
 	//  Discard unneeded fragments in case our profile allows real branches.
-	if (get_mask_sample_mode() < 0.5 &&
-		tile_uv_wrap.y <= mask_resize_num_tiles) {
+	if (tile_uv_wrap.y <= mask_resize_num_tiles) {
 		static const float src_dy = 1.0 / mask_resize_src_lut_size.y;
 		const float2 src_tex_uv = frac(src_tex_uv_wrap);
 		float3 pixel_color;
@@ -1714,10 +1635,6 @@ float4 Pass6(float2 pos) {
 		discard;
 		return float4(0, 0, 0, 1);
 	}
-#else
-	discard;
-	return float4(0, 0, 0, 1);
-#endif
 }
 
 
@@ -1770,10 +1687,9 @@ float4 Pass7(float2 pos) {
 	//  vertically.  Lanczos-resizing the phosphor mask achieves much sharper
 	//  results than mipmapping, outputting >= mask_resize_num_tiles makes for
 	//  easier tiled sampling later.
-#ifdef PHOSPHOR_MASK_MANUALLY_RESIZE
+
 	//  Discard unneeded fragments in case our profile allows real branches.
-	if (get_mask_sample_mode() < 0.5 &&
-		max(tile_uv_wrap.x, tile_uv_wrap.y) <= mask_resize_num_tiles) {
+	if (max(tile_uv_wrap.x, tile_uv_wrap.y) <= mask_resize_num_tiles) {
 		const float src_dx = src_dxdy.x;
 		const float2 src_tex_uv = frac(src_tex_uv_wrap);
 		const float3 pixel_color = downsample_horizontal_sinc_tiled(tex6, samPoint,
@@ -1785,10 +1701,6 @@ float4 Pass7(float2 pos) {
 		discard;
 		return float4(0, 0, 0, 1);
 	}
-#else
-	discard;
-	return float4(0, 0, 0, 1);
-#endif
 }
 
 
@@ -1807,7 +1719,6 @@ float4 Pass7(float2 pos) {
 float4 tex2Dtiled_mask_linearize(Texture2D tex, SamplerState sam, const float2 tex_uv) {
 	//  If we're manually tiling a texture, anisotropic filtering can get
 	//  confused.  One workaround is to just select the lowest mip level:
-#ifdef PHOSPHOR_MASK_MANUALLY_RESIZE
 #ifdef ANISOTROPIC_TILING_COMPAT_TEX2DLOD
 	//  TODO: Use tex2Dlod_linearize with a calculated mip level.
 	return tex2Dlod_linearize(tex, sam, float4(tex_uv, 0.0, 0.0));
@@ -1817,9 +1728,6 @@ float4 tex2Dtiled_mask_linearize(Texture2D tex, SamplerState sam, const float2 t
 #else
 	return tex2D_linearize(tex, sam, tex_uv);
 #endif
-#endif
-#else
-	return tex2D_linearize(tex, sam, tex_uv);
 #endif
 }
 
@@ -1832,17 +1740,11 @@ float4 Pass8(float2 pos) {
 
 	//  Get a consistent name for the final mask texture size.  Sample mode 0
 	//  uses the manually resized mask, but ignore it if we never resized.
-#ifdef PHOSPHOR_MASK_MANUALLY_RESIZE
-	const float mask_sample_mode = get_mask_sample_mode();
+
 	const float2 MASK_RESIZE_video_size = 0.0625 * float2(outputWidth, outputHeight);
-	const float2 mask_resize_texture_size = mask_sample_mode < 0.5 ?
-		MASK_RESIZE_video_size : mask_texture_large_size;
-	const float2 mask_resize_video_size = mask_sample_mode < 0.5 ?
-		MASK_RESIZE_video_size : mask_texture_large_size;
-#else
-	const float2 mask_resize_texture_size = mask_texture_large_size;
-	const float2 mask_resize_video_size = mask_texture_large_size;
-#endif
+	const float2 mask_resize_texture_size = MASK_RESIZE_video_size;
+	const float2 mask_resize_video_size = MASK_RESIZE_video_size;
+
 	//  Compute mask tile dimensions, starting points, etc.:
 	float2 mask_tiles_per_screen;
 	float4 mask_tile_start_uv_and_size = get_mask_sampling_parameters(
@@ -1866,28 +1768,11 @@ float4 Pass8(float2 pos) {
 	const float2 mask_tex_uv = convert_phosphor_tile_uv_wrap_to_tex_uv(
 		tile_uv_wrap, mask_tile_start_uv_and_size);
 	float3 phosphor_mask_sample;
-#ifdef PHOSPHOR_MASK_MANUALLY_RESIZE
-	const bool sample_orig_luts = get_mask_sample_mode() > 0.5;
-#else
-	static const bool sample_orig_luts = true;
-#endif
-	if (sample_orig_luts) {
-		//  If mask_type is static, this branch will be resolved statically.
-		/*if (mask_type < 0.5) {
-			phosphor_mask_sample = tex2D_linearize(
-				mask_grille_texture_large, mask_tex_uv).rgb;
-		} else if (mask_type < 1.5) {
-			phosphor_mask_sample = tex2D_linearize(
-				mask_slot_texture_large, mask_tex_uv).rgb;
-		} else {
-			phosphor_mask_sample = tex2D_linearize(
-				mask_shadow_texture_large, mask_tex_uv).rgb;
-		}*/
-	} else {
-		//  Sample the resized mask, and avoid tiling artifacts:
-		phosphor_mask_sample = tex2Dtiled_mask_linearize(
-			tex7, samLinear, mask_tex_uv).rgb;
-	}
+
+
+	//  Sample the resized mask, and avoid tiling artifacts:
+	phosphor_mask_sample = tex2Dtiled_mask_linearize(
+		tex7, samLinear, mask_tex_uv).rgb;
 
 	//  Sample the halation texture (auto-dim to match the scanlines), and
 	//  account for both horizontal and vertical convergence offsets, given
@@ -2174,22 +2059,6 @@ float4 Pass11(float2 pos) {
 #define LAST_PASS
 #define SIMULATE_CRT_ON_LCD
 
-#ifndef RUNTIME_GEOMETRY_TILT
-	//  Create a local-to-global rotation matrix for the CRT's coordinate frame
-	//  and its global-to-local inverse.  See the vertex shader for details.
-	//  It's faster to compute these statically if possible.
-static const float2 sin_tilt = sin(geom_tilt_angle_static);
-static const float2 cos_tilt = cos(geom_tilt_angle_static);
-static const float3x3 geom_local_to_global_static = float3x3(
-	cos_tilt.x, sin_tilt.y * sin_tilt.x, cos_tilt.y * sin_tilt.x,
-	0.0, cos_tilt.y, -sin_tilt.y,
-	-sin_tilt.x, sin_tilt.y * cos_tilt.x, cos_tilt.y * cos_tilt.x);
-static const float3x3 geom_global_to_local_static = float3x3(
-	cos_tilt.x, 0.0, -sin_tilt.x,
-	sin_tilt.y * sin_tilt.x, cos_tilt.y, sin_tilt.y * cos_tilt.x,
-	cos_tilt.y * sin_tilt.x, -sin_tilt.y, cos_tilt.y * cos_tilt.x);
-#endif
-
 #include "CRT_Royale_gamma-management.hlsli"
 #include "CRT_Royale_tex2Dantialias.hlsli"
 #include "CRT_Royale_geometry-functions.hlsli"
@@ -2209,7 +2078,6 @@ float4 Pass12(float2 pos) {
 	const float2 geom_aspect = get_aspect_vector(viewport_aspect_ratio);
 	const float2 geom_overscan = get_geom_overscan_vector();
 
-#ifdef RUNTIME_GEOMETRY_TILT
 	//  Create a local-to-global rotation matrix for the CRT's coordinate
 	//  frame and its global-to-local inverse.  Rotate around the x axis
 	//  first (pitch) and then the y axis (yaw) with yucky Euler angles.
@@ -2240,18 +2108,11 @@ float4 Pass12(float2 pos) {
 		-sin_tilt.x, sin_tilt.y * cos_tilt.x, cos_tilt.y * cos_tilt.x);
 	//  This is a pure rotation, so transpose = inverse:
 	const float3x3 global_to_local = transpose(local_to_global);
-#else
-	static const float3x3 global_to_local = geom_global_to_local_static;
-	static const float3x3 local_to_global = geom_local_to_global_static;
-#endif
 
 	//  Get an optimal eye position based on geom_view_dist, viewport_aspect,
 	//  and CRT radius/rotation:
-#ifdef RUNTIME_GEOMETRY_MODE
 	const float geom_mode = geom_mode_runtime;
-#else
-	static const float geom_mode = geom_mode_static;
-#endif
+
 	const float3 eye_pos_global =
 		get_ideal_global_eye_pos(local_to_global, geom_aspect, geom_mode);
 	const float3 eye_pos_local = mul(global_to_local, eye_pos_global);

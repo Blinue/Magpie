@@ -481,11 +481,7 @@ float2 get_resized_mask_tile_size(const float2 estimated_viewport_size,
 		mask_triad_size_desired,
 		estimated_viewport_size.x / mask_num_triads_desired,
 		mask_specify_num_triads);
-	if(get_mask_sample_mode() > 0.5)
-	{
-		//  We don't need constraints unless we're sampling MASK_RESIZE.
-		return desired_tile_size_x * tile_aspect;
-	}
+
 	//  Make sure we're not upsizing:
 	const float temp_tile_size_x =
 		min(desired_tile_size_x, mask_resize_src_lut_size.x);
@@ -561,41 +557,18 @@ float4 get_mask_sampling_parameters(const float2 mask_resize_texture_size,
 	//  (We can better ensure a correct tile aspect ratio if the parameters are
 	//  guaranteed correct in all passes...but if we lie, we'll get inconsistent
 	//  sizes across passes, resulting in broken texture coordinates.)
-	const float mask_sample_mode = get_mask_sample_mode();
 	const float2 mask_resize_tile_size = get_resized_mask_tile_size(
 		true_viewport_size, mask_resize_video_size, false);
-	if(mask_sample_mode < 0.5)
-	{
-		//  Sample MASK_RESIZE: The resized tile is a fraction of the texture
-		//  size and starts at a nonzero offset to allow for border texels:
-		const float2 mask_tile_uv_size = mask_resize_tile_size /
-			mask_resize_texture_size;
-		const float2 skipped_tiles = mask_start_texels/mask_resize_tile_size;
-		const float2 mask_tile_start_uv = skipped_tiles * mask_tile_uv_size;
-		//  mask_tiles_per_screen must be based on the *true* viewport size:
-		mask_tiles_per_screen = true_viewport_size / mask_resize_tile_size;
-		return float4(mask_tile_start_uv, mask_tile_uv_size);
-	}
-	else
-	{
-		//  If we're tiling at the original size (1:1 pixel:texel), redefine a
-		//  "tile" to be the full texture containing many triads.  Otherwise,
-		//  we're hardware-resampling an LUT, and the texture truly contains a
-		//  single unresized phosphor mask tile anyway.
-		static const float2 mask_tile_uv_size = 1.0;
-		static const float2 mask_tile_start_uv = 0.0;
-		if(mask_sample_mode > 1.5)
-		{
-			//  Repeat the full LUT at a 1:1 pixel:texel ratio without resizing:
-			mask_tiles_per_screen = true_viewport_size/mask_texture_large_size;
-		}
-		else
-		{
-			//  Hardware-resize the original LUT:
-			mask_tiles_per_screen = true_viewport_size / mask_resize_tile_size;
-		}
-		return float4(mask_tile_start_uv, mask_tile_uv_size);
-	}
+
+	//  Sample MASK_RESIZE: The resized tile is a fraction of the texture
+	//  size and starts at a nonzero offset to allow for border texels:
+	const float2 mask_tile_uv_size = mask_resize_tile_size /
+		mask_resize_texture_size;
+	const float2 skipped_tiles = mask_start_texels/mask_resize_tile_size;
+	const float2 mask_tile_start_uv = skipped_tiles * mask_tile_uv_size;
+	//  mask_tiles_per_screen must be based on the *true* viewport size:
+	mask_tiles_per_screen = true_viewport_size / mask_resize_tile_size;
+	return float4(mask_tile_start_uv, mask_tile_uv_size);
 }
 
 float2 fix_tiling_discontinuities_normalized(const float2 tile_uv,
@@ -642,38 +615,27 @@ float2 convert_phosphor_tile_uv_wrap_to_tex_uv(const float2 tile_uv_wrap,
 	//                  tex_uv size of the embedded tile in the full texture.
 	//  Returns:    Return tex_uv coords (used for texture sampling)
 	//              corresponding to tile_uv_wrap.
-	if(get_mask_sample_mode() < 0.5)
-	{
-		//  Manually repeat the resized mask tile to fill the screen:
-		//  First get fractional tile_uv coords.  Using frac/fmod on coords
-		//  confuses anisotropic filtering; fix it as user options dictate.
-		//  derived-settings-and-constants.h disables incompatible options.
-		#ifdef ANISOTROPIC_TILING_COMPAT_TILE_FLAT_TWICE
-			float2 tile_uv = frac(tile_uv_wrap * 0.5) * 2.0;
-		#else
-			float2 tile_uv = frac(tile_uv_wrap);
-		#endif
-		#ifdef ANISOTROPIC_TILING_COMPAT_FIX_DISCONTINUITIES
-			const float2 tile_uv_dx = ddx(tile_uv);
-			const float2 tile_uv_dy = ddy(tile_uv);
-			tile_uv = fix_tiling_discontinuities_normalized(tile_uv,
-				tile_uv_dx, tile_uv_dy);
-		#endif
-		//  The tile is embedded in a padded FBO, and it may start at a
-		//  nonzero offset if border texels are used to avoid artifacts:
-		const float2 mask_tex_uv = mask_tile_start_uv_and_size.xy +
-			tile_uv * mask_tile_start_uv_and_size.zw;
-		return mask_tex_uv;
-	}
-	else
-	{
-		//  Sample from the input phosphor mask texture with hardware tiling.
-		//  If we're tiling at the original size (mode 2), the "tile" is the
-		//  whole texture, and it contains a large number of triads mapped with
-		//  a 1:1 pixel:texel ratio.  OTHERWISE, the texture contains a single
-		//  unresized tile.  tile_uv_wrap already has correct coords for both!
-		return tile_uv_wrap;
-	}
+
+	//  Manually repeat the resized mask tile to fill the screen:
+	//  First get fractional tile_uv coords.  Using frac/fmod on coords
+	//  confuses anisotropic filtering; fix it as user options dictate.
+	//  derived-settings-and-constants.h disables incompatible options.
+	#ifdef ANISOTROPIC_TILING_COMPAT_TILE_FLAT_TWICE
+		float2 tile_uv = frac(tile_uv_wrap * 0.5) * 2.0;
+	#else
+		float2 tile_uv = frac(tile_uv_wrap);
+	#endif
+	#ifdef ANISOTROPIC_TILING_COMPAT_FIX_DISCONTINUITIES
+		const float2 tile_uv_dx = ddx(tile_uv);
+		const float2 tile_uv_dy = ddy(tile_uv);
+		tile_uv = fix_tiling_discontinuities_normalized(tile_uv,
+			tile_uv_dx, tile_uv_dy);
+	#endif
+	//  The tile is embedded in a padded FBO, and it may start at a
+	//  nonzero offset if border texels are used to avoid artifacts:
+	const float2 mask_tex_uv = mask_tile_start_uv_and_size.xy +
+		tile_uv * mask_tile_start_uv_and_size.zw;
+	return mask_tex_uv;
 }
 
 
