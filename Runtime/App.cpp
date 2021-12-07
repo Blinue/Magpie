@@ -174,16 +174,16 @@ bool App::Run(
 		_frameSource.reset(new DwmSharedSurfaceFrameSource());
 		break;
 	case 3:
-		_frameSource.reset(new LegacyGDIFrameSource());
+		_frameSource.reset(new DesktopDuplicationFrameSource());
 		break;
 	case 4:
-		_frameSource.reset(new MagCallbackFrameSource());
+		_frameSource.reset(new LegacyGDIFrameSource());
 		break;
 	case 5:
-		_frameSource.reset(new PrintWindowFrameSource());
+		_frameSource.reset(new MagCallbackFrameSource());
 		break;
 	case 6:
-		_frameSource.reset(new DesktopDuplicationFrameSource());
+		_frameSource.reset(new PrintWindowFrameSource());
 		break;
 	default:
 		SPDLOG_LOGGER_CRITICAL(logger, "未知的捕获模式，即将退出");

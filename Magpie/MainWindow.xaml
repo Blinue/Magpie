@@ -57,6 +57,7 @@
                 <ComboBoxItem Content="GraphicsCapture" />
                 <ComboBoxItem Content="GDI" />
                 <ComboBoxItem Content="DwmSharedSurface" />
+                <ComboBoxItem Content="Desktop Duplication" />
             </ComboBox>
         </Grid>
 

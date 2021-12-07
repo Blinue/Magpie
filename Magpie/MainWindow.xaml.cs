@@ -407,21 +407,17 @@ namespace Magpie {
 				_ = cbbCaptureMethod.Items.Add(new ComboBoxItem {
 					Content = "PrintWindow"
 				});
-				_ = cbbCaptureMethod.Items.Add(new ComboBoxItem {
-					Content = "Desktop Duplication"
-				});
 			} else {
 				if (cbbCaptureMethod.Items.Count != 7) {
 					return;
 				}
 
-				if (cbbCaptureMethod.SelectedIndex >= 3) {
+				if (cbbCaptureMethod.SelectedIndex >= 4) {
 					cbbCaptureMethod.SelectedIndex = 0;
 				}
 				cbbCaptureMethod.Items.RemoveAt(6);
 				cbbCaptureMethod.Items.RemoveAt(5);
 				cbbCaptureMethod.Items.RemoveAt(4);
-				cbbCaptureMethod.Items.RemoveAt(3);
 			}
 		}
 		
