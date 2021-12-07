@@ -165,10 +165,7 @@
     <ClInclude Include="FrameSourceBase.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="GDIFrameSource.h" />
-    <ClInclude Include="LegacyGDIFrameSource.h" />
-    <ClInclude Include="MagCallbackFrameSource.h" />
     <ClInclude Include="pch.h" />
-    <ClInclude Include="PrintWindowFrameSource.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="DwmSharedSurfaceFrameSource.h" />
@@ -190,11 +187,8 @@
     <ClCompile Include="FrameRateDrawer.cpp" />
     <ClCompile Include="FrameSourceBase.cpp" />
     <ClCompile Include="GDIFrameSource.cpp" />
-    <ClCompile Include="LegacyGDIFrameSource.cpp" />
-    <ClCompile Include="MagCallbackFrameSource.cpp" />
     <ClCompile Include="pch.cpp" />
     <ClCompile Include="DllMain.cpp" />
-    <ClCompile Include="PrintWindowFrameSource.cpp" />
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="DwmSharedSurfaceFrameSource.cpp" />
     <ClCompile Include="StepTimer.cpp" />
