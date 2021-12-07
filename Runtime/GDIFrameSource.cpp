@@ -52,10 +52,6 @@ bool GDIFrameSource::Initialize() {
 	return true;
 }
 
-ComPtr<ID3D11Texture2D> GDIFrameSource::GetOutput() {
-	return _output;
-}
-
 bool GDIFrameSource::Update() {
 	HWND hwndSrcClient = App::GetInstance().GetHwndSrcClient();
 

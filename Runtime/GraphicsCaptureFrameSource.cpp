@@ -156,10 +156,6 @@ bool GraphicsCaptureFrameSource::Initialize() {
 	return true;
 }
 
-ComPtr<ID3D11Texture2D> GraphicsCaptureFrameSource::GetOutput() {
-	return _output;
-}
-
 bool GraphicsCaptureFrameSource::Update() {
 	winrt::Direct3D11CaptureFrame frame = _captureFramePool.TryGetNextFrame();
 	if (!frame) {

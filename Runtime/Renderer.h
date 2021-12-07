@@ -30,6 +30,10 @@ public:
 		return _dxgiDevice;
 	}
 
+	ComPtr<IDXGIAdapter1> GetGraphicsAdapter() const {
+		return _graphicsAdapter;
+	}
+
 	bool GetRenderTargetView(ID3D11Texture2D* texture, ID3D11RenderTargetView** result);
 
 	bool GetShaderResourceView(ID3D11Texture2D* texture, ID3D11ShaderResourceView** result);
@@ -73,7 +77,7 @@ private:
 	ComPtr<IDXGIFactory2> _dxgiFactory;
 	ComPtr<IDXGIDevice1> _dxgiDevice;
 	ComPtr<IDXGISwapChain2> _dxgiSwapChain;
-
+	ComPtr<IDXGIAdapter1> _graphicsAdapter;
 	ComPtr<ID3D11Device1> _d3dDevice;
 	ComPtr<ID3D11DeviceContext1> _d3dDC;
 

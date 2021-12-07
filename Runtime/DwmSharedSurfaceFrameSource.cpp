@@ -44,10 +44,6 @@ bool DwmSharedSurfaceFrameSource::Initialize() {
 	return true;
 }
 
-ComPtr<ID3D11Texture2D> DwmSharedSurfaceFrameSource::GetOutput() {
-	return _output;
-}
-
 bool DwmSharedSurfaceFrameSource::Update() {
 	HANDLE sharedTextureHandle = NULL;
 	if (!_dwmGetDxSharedSurface(_hwndSrc, &sharedTextureHandle, nullptr, nullptr, nullptr, nullptr)

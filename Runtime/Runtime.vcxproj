@@ -155,6 +155,7 @@
   <ItemGroup>
     <ClInclude Include="App.h" />
     <ClInclude Include="CursorDrawer.h" />
+    <ClInclude Include="DesktopDuplicationFrameSource.h" />
     <ClInclude Include="EffectCache.h" />
     <ClInclude Include="EffectDrawer.h" />
     <ClInclude Include="EffectCompiler.h" />
@@ -181,6 +182,7 @@
   <ItemGroup>
     <ClCompile Include="App.cpp" />
     <ClCompile Include="CursorDrawer.cpp" />
+    <ClCompile Include="DesktopDuplicationFrameSource.cpp" />
     <ClCompile Include="EffectCache.cpp" />
     <ClCompile Include="EffectDesc.cpp" />
     <ClCompile Include="EffectDrawer.cpp" />

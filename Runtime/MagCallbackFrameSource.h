@@ -11,7 +11,9 @@ public:
 
 	bool Initialize() override;
 
-	ComPtr<ID3D11Texture2D> GetOutput() override;
+	ComPtr<ID3D11Texture2D> GetOutput() override {
+		return _output;
+	}
 
 	bool Update() override;
 

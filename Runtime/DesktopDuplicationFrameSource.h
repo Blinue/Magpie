@@ -1,12 +1,11 @@
 #pragma once
-#include "pch.h"
 #include "FrameSourceBase.h"
 
 
-class GDIFrameSource : public FrameSourceBase {
+class DesktopDuplicationFrameSource : public FrameSourceBase {
 public:
-	GDIFrameSource() {};
-	virtual ~GDIFrameSource() {}
+	DesktopDuplicationFrameSource() {};
+	virtual ~DesktopDuplicationFrameSource() {}
 
 	bool Initialize() override;
 
@@ -21,9 +20,6 @@ public:
 	}
 
 private:
-	ComPtr<ID3D11DeviceContext> _d3dDC;
-
-	SIZE _frameSize{};
-	ComPtr<IDXGISurface1> _dxgiSurface;
 	ComPtr<ID3D11Texture2D> _output;
 };
+

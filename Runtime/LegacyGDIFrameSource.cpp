@@ -96,10 +96,6 @@ bool LegacyGDIFrameSource::Initialize() {
 	return true;
 }
 
-ComPtr<ID3D11Texture2D> LegacyGDIFrameSource::GetOutput() {
-	return _output;
-}
-
 bool LegacyGDIFrameSource::Update() {
 	HDC hdcSrc = GetWindowDC(_hwndSrcClient);
 	if (!hdcSrc) {

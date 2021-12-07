@@ -135,10 +135,6 @@ bool PrintWindowFrameSource::Initialize() {
 	return true;
 }
 
-ComPtr<ID3D11Texture2D> PrintWindowFrameSource::GetOutput() {
-	return _output;
-}
-
 bool PrintWindowFrameSource::Update() {
 	if (_clientRect.back == 0) {
 		HDC hdcDest;

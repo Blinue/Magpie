@@ -64,6 +64,9 @@
     <ClCompile Include="PrintWindowFrameSource.cpp">
       <Filter>捕获</Filter>
     </ClCompile>
+    <ClCompile Include="DesktopDuplicationFrameSource.cpp">
+      <Filter>捕获</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="resource.h">
@@ -136,6 +139,9 @@
       <Filter>渲染</Filter>
     </ClInclude>
     <ClInclude Include="PrintWindowFrameSource.h">
+      <Filter>捕获</Filter>
+    </ClInclude>
+    <ClInclude Include="DesktopDuplicationFrameSource.h">
       <Filter>捕获</Filter>
     </ClInclude>
   </ItemGroup>

@@ -218,17 +218,19 @@ inline void LogAdapter(const DXGI_ADAPTER_DESC1& adapterDesc) {
 		adapterDesc.VendorId, adapterDesc.DeviceId, StrUtils::UTF16ToUTF8(adapterDesc.Description)));
 }
 
-bool GetGraphicsAdapter(IDXGIFactory1* dxgiFactory, UINT adapterIdx, ComPtr<IDXGIAdapter1>& adapter) {
+ComPtr<IDXGIAdapter1> ObtainGraphicsAdapter(IDXGIFactory1* dxgiFactory, UINT adapterIdx) {
+	ComPtr<IDXGIAdapter1> adapter;
+
 	HRESULT hr = dxgiFactory->EnumAdapters1(adapterIdx, adapter.ReleaseAndGetAddressOf());
 	if (SUCCEEDED(hr)) {
 		DXGI_ADAPTER_DESC1 desc;
 		HRESULT hr = adapter->GetDesc1(&desc);
 		if (FAILED(hr)) {
-			return false;
+			return nullptr;
 		}
 
 		LogAdapter(desc);
-		return true;
+		return adapter;
 	}
 
 	// 指定 GPU 失败，回落到普通方式
@@ -243,7 +245,7 @@ bool GetGraphicsAdapter(IDXGIFactory1* dxgiFactory, UINT adapterIdx, ComPtr<IDXG
 		DXGI_ADAPTER_DESC1 desc;
 		HRESULT hr = adapter->GetDesc1(&desc);
 		if (FAILED(hr)) {
-			return false;
+			return nullptr;
 		}
 
 		if (desc.Flags == DXGI_ADAPTER_FLAG_SOFTWARE) {
@@ -253,17 +255,16 @@ bool GetGraphicsAdapter(IDXGIFactory1* dxgiFactory, UINT adapterIdx, ComPtr<IDXG
 		}
 
 		LogAdapter(desc);
-		return true;
+		return adapter;
 	}
 
 	// 回落到 Basic Render Driver Adapter（WARP）
 	// https://docs.microsoft.com/en-us/windows/win32/direct3darticles/directx-warp
 	if (warpAdapter) {
 		LogAdapter(warpDesc);
-		adapter = warpAdapter;
-		return true;
+		return warpAdapter;
 	} else {
-		return false;
+		return nullptr;
 	}
 }
 
@@ -351,8 +352,8 @@ bool Renderer::_InitD3D() {
 	};
 	UINT nFeatureLevels = ARRAYSIZE(featureLevels);
 
-	ComPtr<IDXGIAdapter1> adapter;
-	if (!GetGraphicsAdapter(_dxgiFactory.Get(), App::GetInstance().GetAdapterIdx(), adapter)) {
+	_graphicsAdapter = ObtainGraphicsAdapter(_dxgiFactory.Get(), App::GetInstance().GetAdapterIdx());
+	if (!_graphicsAdapter) {
 		SPDLOG_LOGGER_ERROR(logger, "找不到可用 Adapter");
 		return false;
 	}
@@ -360,7 +361,7 @@ bool Renderer::_InitD3D() {
 	ComPtr<ID3D11Device> d3dDevice;
 	ComPtr<ID3D11DeviceContext> d3dDC;
 	hr = D3D11CreateDevice(
-		adapter.Get(),
+		_graphicsAdapter.Get(),
 		D3D_DRIVER_TYPE_UNKNOWN,
 		nullptr,
 		createDeviceFlags,

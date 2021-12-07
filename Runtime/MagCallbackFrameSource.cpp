@@ -66,10 +66,6 @@ bool MagCallbackFrameSource::Initialize() {
 	return true;
 }
 
-ComPtr<ID3D11Texture2D> MagCallbackFrameSource::GetOutput() {
-	return _output;
-}
-
 bool MagCallbackFrameSource::Update() {
 	if (!MagSetWindowSource(_hwndMag, App::GetInstance().GetSrcClientRect())) {
 		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("MagSetWindowSource 失败"));
