@@ -165,6 +165,7 @@
     <ClInclude Include="FrameSourceBase.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="GDIFrameSource.h" />
+    <ClInclude Include="GDIScreenFrameSource.h" />
     <ClInclude Include="LegacyGDIFrameSource.h" />
     <ClInclude Include="MagCallbackFrameSource.h" />
     <ClInclude Include="pch.h" />
@@ -190,6 +191,7 @@
     <ClCompile Include="FrameRateDrawer.cpp" />
     <ClCompile Include="FrameSourceBase.cpp" />
     <ClCompile Include="GDIFrameSource.cpp" />
+    <ClCompile Include="GDIScreenFrameSource.cpp" />
     <ClCompile Include="LegacyGDIFrameSource.cpp" />
     <ClCompile Include="MagCallbackFrameSource.cpp" />
     <ClCompile Include="pch.cpp" />
