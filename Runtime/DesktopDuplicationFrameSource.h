@@ -20,6 +20,7 @@ public:
 	}
 
 private:
+	ComPtr<IDXGIResource> _dxgiRes;
 	ComPtr<ID3D11Texture2D> _output;
 	ComPtr<IDXGIOutputDuplication> _outputDup;
 

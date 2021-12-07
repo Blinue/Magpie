@@ -80,8 +80,11 @@ bool DesktopDuplicationFrameSource::Initialize() {
 
 bool DesktopDuplicationFrameSource::Update() {
 	DXGI_OUTDUPL_FRAME_INFO info;
-	ComPtr<IDXGIResource> dxgiRes;
-	HRESULT hr = _outputDup->AcquireNextFrame(0, &info, &dxgiRes);
+	
+	if (_dxgiRes) {
+		_outputDup->ReleaseFrame();
+	}
+	HRESULT hr = _outputDup->AcquireNextFrame(0, &info, _dxgiRes.ReleaseAndGetAddressOf());
 
 	if (hr == DXGI_ERROR_WAIT_TIMEOUT) {
 		return true;
@@ -92,7 +95,7 @@ bool DesktopDuplicationFrameSource::Update() {
 	}
 
 	ComPtr<ID3D11Resource> d3dRes;
-	dxgiRes.As<ID3D11Resource>(&d3dRes);
+	_dxgiRes.As<ID3D11Resource>(&d3dRes);
 
 	App::GetInstance().GetRenderer().GetD3DDC()->CopySubresourceRegion(
 		_output.Get(), 0, 0, 0, 0, d3dRes.Get(), 0, &_frameInMonitor);
