@@ -16,10 +16,13 @@ public:
 	bool Update() override;
 
 	bool HasRoundCornerInWin11() override {
-		return false;
+		return true;
 	}
 
 private:
 	ComPtr<ID3D11Texture2D> _output;
+	ComPtr<IDXGIOutputDuplication> _outputDup;
+
+	D3D11_BOX _frameInMonitor{};
 };
 

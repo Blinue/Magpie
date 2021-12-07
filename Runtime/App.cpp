@@ -7,6 +7,8 @@
 #include "LegacyGDIFrameSource.h"
 #include "MagCallbackFrameSource.h"
 #include "PrintWindowFrameSource.h"
+#include "DesktopDuplicationFrameSource.h"
+
 
 extern std::shared_ptr<spdlog::logger> logger;
 
