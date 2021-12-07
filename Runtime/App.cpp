@@ -182,6 +182,9 @@ bool App::Run(
 	case 5:
 		_frameSource.reset(new PrintWindowFrameSource());
 		break;
+	case 6:
+		_frameSource.reset(new DesktopDuplicationFrameSource());
+		break;
 	default:
 		SPDLOG_LOGGER_CRITICAL(logger, "未知的捕获模式，即将退出");
 		Close();

@@ -81,7 +81,11 @@ bool DesktopDuplicationFrameSource::Initialize() {
 bool DesktopDuplicationFrameSource::Update() {
 	DXGI_OUTDUPL_FRAME_INFO info;
 	ComPtr<IDXGIResource> dxgiRes;
-	HRESULT hr = _outputDup->AcquireNextFrame(1, &info, &dxgiRes);
+	HRESULT hr = _outputDup->AcquireNextFrame(0, &info, &dxgiRes);
+
+	if (hr == DXGI_ERROR_WAIT_TIMEOUT) {
+		return true;
+	}
 
 	if (FAILED(hr)) {
 		return false;
