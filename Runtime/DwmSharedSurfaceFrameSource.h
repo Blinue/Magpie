@@ -14,7 +14,7 @@ public:
 		return _output;
 	}
 
-	bool Update() override;
+	UpdateState Update() override;
 
 	bool HasRoundCornerInWin11() override {
 		return false;

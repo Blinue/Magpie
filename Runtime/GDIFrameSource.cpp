@@ -52,21 +52,21 @@ bool GDIFrameSource::Initialize() {
 	return true;
 }
 
-bool GDIFrameSource::Update() {
+FrameSourceBase::UpdateState GDIFrameSource::Update() {
 	HWND hwndSrcClient = App::GetInstance().GetHwndSrcClient();
 
 	HDC hdcDest;
 	HRESULT hr = _dxgiSurface->GetDC(TRUE, &hdcDest);
 	if (FAILED(hr)) {
 		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("从 Texture2D 获取 IDXGISurface1 失败", hr));
-		return false;
+		return UpdateState::Error;
 	}
 
 	HDC hdcSrcClient = GetDCEx(hwndSrcClient, NULL, DCX_LOCKWINDOWUPDATE);
 	if (!hdcSrcClient) {
 		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetDC 失败"));
 		_dxgiSurface->ReleaseDC(nullptr);
-		return false;
+		return UpdateState::Error;
 	}
 
 	if (!BitBlt(hdcDest, 0, 0, _frameSize.cx, _frameSize.cy, hdcSrcClient, 0, 0, SRCCOPY)) {
@@ -76,5 +76,5 @@ bool GDIFrameSource::Update() {
 	ReleaseDC(hwndSrcClient, hdcSrcClient);
 	_dxgiSurface->ReleaseDC(nullptr);
 
-    return true;
+    return UpdateState::NewFrame;
 }

@@ -156,11 +156,11 @@ bool GraphicsCaptureFrameSource::Initialize() {
 	return true;
 }
 
-bool GraphicsCaptureFrameSource::Update() {
+FrameSourceBase::UpdateState GraphicsCaptureFrameSource::Update() {
 	winrt::Direct3D11CaptureFrame frame = _captureFramePool.TryGetNextFrame();
 	if (!frame) {
 		// 缓冲池没有帧
-		return false;
+		return UpdateState::Waiting;
 	}
 
 	// 从帧获取 IDXGISurface
@@ -174,12 +174,12 @@ bool GraphicsCaptureFrameSource::Update() {
 	HRESULT hr = dxgiInterfaceAccess->GetInterface(IID_PPV_ARGS(&withFrame));
 	if (FAILED(hr)) {
 		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("从获取 IDirect3DSurface 获取 ID3D11Texture2D 失败", hr));
-		return false;
+		return UpdateState::Error;
 	}
 
 	_d3dDC->CopySubresourceRegion(_output.Get(), 0, 0, 0, 0, withFrame.Get(), 0, &_frameInWnd);
 
-	return true;
+	return UpdateState::NewFrame;
 }
 
 GraphicsCaptureFrameSource::~GraphicsCaptureFrameSource() {

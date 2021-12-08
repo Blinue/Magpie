@@ -375,7 +375,7 @@ bool EffectDrawer::Build(ComPtr<ID3D11Texture2D> input, ComPtr<ID3D11Texture2D> 
 	return true;
 }
 
-void EffectDrawer::Draw() {
+void EffectDrawer::Draw(bool noUpdate) {
 	ID3D11Buffer* t = _constantBuffer.Get();
 	if (t) {
 		_d3dDC->PSSetConstantBuffers(0, 1, &t);
@@ -385,8 +385,13 @@ void EffectDrawer::Draw() {
 
 	_d3dDC->PSSetSamplers(0, (UINT)_samplers.size(), _samplers.data());
 
-	for (_Pass& pass : _passes) {
-		pass.Draw();
+	if (noUpdate) {
+		// 此帧内容无变化，只渲染最后一个 pass
+		_passes.back().Draw();
+	} else {
+		for (_Pass& pass : _passes) {
+			pass.Draw();
+		}
 	}
 }
 

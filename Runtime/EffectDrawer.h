@@ -40,7 +40,7 @@ public:
 
 	bool Build(ComPtr<ID3D11Texture2D> input, ComPtr<ID3D11Texture2D> output);
 
-	void Draw();
+	void Draw(bool noUpdate = false);
 
 private:
 	class _Pass {

@@ -44,25 +44,25 @@ bool DwmSharedSurfaceFrameSource::Initialize() {
 	return true;
 }
 
-bool DwmSharedSurfaceFrameSource::Update() {
+FrameSourceBase::UpdateState DwmSharedSurfaceFrameSource::Update() {
 	HANDLE sharedTextureHandle = NULL;
 	if (!_dwmGetDxSharedSurface(_hwndSrc, &sharedTextureHandle, nullptr, nullptr, nullptr, nullptr)
 		|| !sharedTextureHandle
 	) {
 		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("DwmGetDxSharedSurface 失败"));
-		return false;
+		return UpdateState::Error;
 	}
 
 	ComPtr<ID3D11Texture2D> sharedTexture;
 	HRESULT hr = _d3dDevice->OpenSharedResource(sharedTextureHandle, IID_PPV_ARGS(&sharedTexture));
 	if (FAILED(hr)) {
 		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("OpenSharedResource 失败", hr));
-		return false;
+		return UpdateState::Error;
 	}
 	
 	_d3dDC->CopySubresourceRegion(_output.Get(), 0, 0, 0, 0, sharedTexture.Get(), 0, &_frameInWnd);
 
-	return true;
+	return UpdateState::NewFrame;
 }
 
 

@@ -546,7 +546,9 @@ void Renderer::_Render() {
 		return;
 	}
 
-	_waitingForNextFrame = !App::GetInstance().GetFrameSource().Update();
+	auto state = App::GetInstance().GetFrameSource().Update();
+	_waitingForNextFrame = state == FrameSourceBase::UpdateState::Waiting
+		|| state == FrameSourceBase::UpdateState::Error;
 	if (_waitingForNextFrame) {
 		return;
 	}
@@ -555,8 +557,13 @@ void Renderer::_Render() {
 	// 所有渲染都使用三角形带拓扑
 	_d3dDC->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 
-	for (EffectDrawer& effect : _effects) {
-		effect.Draw();
+	if (state == FrameSourceBase::UpdateState::NewFrame) {
+		for (EffectDrawer& effect : _effects) {
+			effect.Draw();
+		}
+	} else {
+		// 此帧内容无变化，只渲染最后一个 pass
+		_effects.back().Draw(true);
 	}
 
 	if (App::GetInstance().IsShowFPS()) {

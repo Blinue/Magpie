@@ -13,17 +13,20 @@ public:
 		return _output;
 	}
 
-	bool Update() override;
+	UpdateState Update() override;
 
 	bool HasRoundCornerInWin11() override {
 		return true;
 	}
 
 private:
+	bool _firstFrame = true;
 	ComPtr<IDXGIResource> _dxgiRes;
 	ComPtr<ID3D11Texture2D> _output;
 	ComPtr<IDXGIOutputDuplication> _outputDup;
+	std::vector<BYTE> _dupMetaData;
 
+	RECT _srcClientInMonitor{};
 	D3D11_BOX _frameInMonitor{};
 };
 
