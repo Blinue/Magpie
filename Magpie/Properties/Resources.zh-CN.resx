@@ -219,6 +219,9 @@
   <data name="UI_Options_Advanced_Debug" xml:space="preserve">
     <value>调试</value>
   </data>
+  <data name="UI_Options_Advanced_Disable_Effect_Cache" xml:space="preserve">
+    <value>禁用效果缓存</value>
+  </data>
   <data name="UI_Options_Advanced_Logging_Level" xml:space="preserve">
     <value>日志级别</value>
   </data>

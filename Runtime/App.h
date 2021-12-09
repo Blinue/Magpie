@@ -120,6 +120,10 @@ public:
 		return _flags & (UINT)_FlagMasks::CropTitleBarOfUWP;
 	}
 
+	bool IsDisableEffectCache() const {
+		return _flags & (UINT)_FlagMasks::DisableEffectCache;
+	}
+
 	const char* GetErrorMsg() const {
 		return _errorMsg;
 	}
@@ -180,7 +184,8 @@ private:
 		DisableWindowResizing = 0x40,
 		DisableDirectFlip = 0x80,
 		ConfineCursorIn3DGames = 0x100,
-		CropTitleBarOfUWP = 0x200
+		CropTitleBarOfUWP = 0x200,
+		DisableEffectCache = 0x400
 	};
 
 	std::unique_ptr<Renderer> _renderer;

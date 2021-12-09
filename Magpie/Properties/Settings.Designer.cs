@@ -322,5 +322,17 @@ namespace Magpie.Properties {
                 this["CropTitleBarOfUWP"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool DebugDisableEffectCache {
+            get {
+                return ((bool)(this["DebugDisableEffectCache"]));
+            }
+            set {
+                this["DebugDisableEffectCache"] = value;
+            }
+        }
     }
 }

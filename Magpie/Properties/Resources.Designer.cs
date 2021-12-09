@@ -367,6 +367,15 @@ namespace Magpie.Properties {
         }
         
         /// <summary>
+        ///   查找类似 Disable Effect Cache 的本地化字符串。
+        /// </summary>
+        public static string UI_Options_Advanced_Disable_Effect_Cache {
+            get {
+                return ResourceManager.GetString("UI_Options_Advanced_Disable_Effect_Cache", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Logging Level 的本地化字符串。
         /// </summary>
         public static string UI_Options_Advanced_Logging_Level {
