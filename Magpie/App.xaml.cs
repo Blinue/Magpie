@@ -5,6 +5,7 @@ using System;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Security.Principal;
 using System.Threading;
 using System.Windows;
@@ -115,8 +116,11 @@ namespace Magpie {
 				Logger.Info("已有实例，即将退出");
 
 				Current.Shutdown();
-				// 已存在实例时广播 WM_SHOWME，唤醒该实例
-				_ = NativeMethods.BroadcastMessage(NativeMethods.MAGPIE_WM_SHOWME);
+
+				if (!e.Args.Contains("-st")) {
+					// 已存在实例，且命令行参数不含 -st 则唤起已有实例
+					_ = NativeMethods.BroadcastMessage(NativeMethods.MAGPIE_WM_SHOWME);
+				}
 
 				mutex = null;
 				return;

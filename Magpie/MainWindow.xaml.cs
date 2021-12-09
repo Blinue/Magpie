@@ -313,14 +313,10 @@ namespace Magpie {
 			magWindow.Closed += MagWindow_Closed;
 
 			// 检查命令行参数
-			string[] args = Environment.GetCommandLineArgs();
-			foreach (string arg in args) {
-				if (arg == "-st") {
-					// 启动到系统托盘
-					Logger.Info("已指定启动时缩放到系统托盘");
-					WindowState = WindowState.Minimized;
-					break;
-				}
+			if (Environment.GetCommandLineArgs().Contains("-st")) {
+				// 启动到系统托盘
+				Logger.Info("已指定启动时缩放到系统托盘");
+				WindowState = WindowState.Minimized;
 			}
 		}
 		
