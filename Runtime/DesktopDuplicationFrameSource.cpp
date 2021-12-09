@@ -2,22 +2,30 @@
 #include "DesktopDuplicationFrameSource.h"
 #include "App.h"
 
-ComPtr<IDXGIOutput1> GetDXGIOutput(HMONITOR hMonitor) {
-	ComPtr<IDXGIAdapter1> curAdapter = App::GetInstance().GetRenderer().GetGraphicsAdapter();
 
-	// 首先在当前使用的图形适配器上查询显示器
+static ComPtr<IDXGIOutput1> FindMonitor(ComPtr<IDXGIAdapter1> adapter, HMONITOR hMonitor) {
 	ComPtr<IDXGIOutput> output;
+
 	for (UINT adapterIndex = 0;
-			SUCCEEDED(curAdapter->EnumOutputs(adapterIndex,
+			SUCCEEDED(adapter->EnumOutputs(adapterIndex,
 				output.ReleaseAndGetAddressOf()));
 			adapterIndex++
 	) {
 		DXGI_OUTPUT_DESC desc;
-		output->GetDesc(&desc);
+		HRESULT hr = output->GetDesc(&desc);
+		if (FAILED(hr)) {
+			SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("GetDesc 失败", hr));
+			continue;
+		}
 
 		if (desc.Monitor == hMonitor) {
 			ComPtr<IDXGIOutput1> output1;
-			output.As<IDXGIOutput1>(&output1);
+			hr = output.As<IDXGIOutput1>(&output1);
+			if (FAILED(hr)) {
+				SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("从 IDXGIOutput 获取 IDXGIOutput1 失败", hr));
+				return nullptr;
+			}
+
 			return output1;
 		}
 	}
@@ -25,16 +33,60 @@ ComPtr<IDXGIOutput1> GetDXGIOutput(HMONITOR hMonitor) {
 	return nullptr;
 }
 
+// 根据显示器句柄查找 IDXGIOutput1
+static ComPtr<IDXGIOutput1> GetDXGIOutput(HMONITOR hMonitor) {
+	const Renderer& renderer = App::GetInstance().GetRenderer();
+	ComPtr<IDXGIAdapter1> curAdapter = App::GetInstance().GetRenderer().GetGraphicsAdapter();
+
+	// 首先在当前使用的图形适配器上查询显示器
+	ComPtr<IDXGIOutput1> output = FindMonitor(curAdapter, hMonitor);
+	if (output) {
+		return output;
+	}
+
+	// 未找到则在所有图形适配器上查找
+	ComPtr<IDXGIAdapter1> adapter;
+	ComPtr<IDXGIFactory2> dxgiFactory = renderer.GetDXGIFactory();
+	for (UINT adapterIndex = 0;
+			SUCCEEDED(dxgiFactory->EnumAdapters1(adapterIndex,
+				adapter.ReleaseAndGetAddressOf()));
+			adapterIndex++
+	) {
+		if (adapter == curAdapter) {
+			continue;
+		}
+
+		output = FindMonitor(adapter, hMonitor);
+		if (output) {
+			return output;
+		}
+	}
+
+	return nullptr;
+}
+
 bool DesktopDuplicationFrameSource::Initialize() {
+	// WDA_EXCLUDEFROMCAPTURE 只在 Win10 v2004 及更新版本中可用
+	const RTL_OSVERSIONINFOW& version = Utils::GetOSVersion();
+	if (Utils::CompareVersion(version.dwMajorVersion, version.dwMinorVersion, version.dwBuildNumber, 10, 0, 19041) < 0) {
+		SPDLOG_LOGGER_ERROR(logger, "当前操作系统无法使用 Desktop Duplication");
+		return false;
+	}
+
 	HMONITOR hMonitor = MonitorFromWindow(App::GetInstance().GetHwndSrc(), MONITOR_DEFAULTTONEAREST);
 
 	ComPtr<IDXGIOutput1> output = GetDXGIOutput(hMonitor);
 	if (!output) {
+		SPDLOG_LOGGER_ERROR(logger, "无法找到 IDXGIOutput");
 		return false;
 	}
 
-	HRESULT hr = output->DuplicateOutput(App::GetInstance().GetRenderer().GetD3DDevice().Get(), _outputDup.ReleaseAndGetAddressOf());
+	HRESULT hr = output->DuplicateOutput(
+		App::GetInstance().GetRenderer().GetD3DDevice().Get(),
+		_outputDup.ReleaseAndGetAddressOf()
+	);
 	if (FAILED(hr)) {
+		SPDLOG_LOGGER_ERROR(logger, "DuplicateOutput 失败");
 		return false;
 	}
 
@@ -56,12 +108,15 @@ bool DesktopDuplicationFrameSource::Initialize() {
 		return false;
 	}
 
-	SetWindowDisplayAffinity(App::GetInstance().GetHwndHost(), WDA_EXCLUDEFROMCAPTURE);
+	// 使全屏窗口无法被捕获到
+	if (!SetWindowDisplayAffinity(App::GetInstance().GetHwndHost(), WDA_EXCLUDEFROMCAPTURE)) {
+		SPDLOG_LOGGER_ERROR(logger, "SetWindowDisplayAffinity 失败");
+	}
 
 	MONITORINFO mi{};
 	mi.cbSize = sizeof(mi);
 	if (!GetMonitorInfo(hMonitor, &mi)) {
-		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetMonitorInfo 出错"));
+		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetMonitorInfo 失败"));
 		return false;
 	}
 

@@ -21,7 +21,7 @@ bool GraphicsCaptureFrameSource::Initialize() {
 	// 只在 Win10 1903 及更新版本中可用
 	const RTL_OSVERSIONINFOW& version = Utils::GetOSVersion();
 	if (Utils::CompareVersion(version.dwMajorVersion, version.dwMinorVersion, version.dwBuildNumber, 10, 0, 18362) < 0) {
-		SPDLOG_LOGGER_ERROR(logger, "当前操作系统无法使用 GraphicsCapture");
+		SPDLOG_LOGGER_ERROR(logger, "当前操作系统无法使用 Graphics Capture");
 		return false;
 	}
 

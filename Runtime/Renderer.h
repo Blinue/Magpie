@@ -30,6 +30,10 @@ public:
 		return _dxgiDevice;
 	}
 
+	ComPtr<IDXGIFactory2> GetDXGIFactory() const {
+		return _dxgiFactory;
+	}
+
 	ComPtr<IDXGIAdapter1> GetGraphicsAdapter() const {
 		return _graphicsAdapter;
 	}

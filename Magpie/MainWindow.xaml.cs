@@ -37,6 +37,7 @@ namespace Magpie {
 		private const int DOWN_COUNT = 5;
 		private int countDownNum;
 
+		// MainWindow 的句柄
 		private IntPtr Handle;
 
 		// 不为零时表示全屏窗口不是因为Hotkey关闭的
@@ -85,8 +86,32 @@ namespace Magpie {
 
 			ShowAllCaptureMethods(Settings.Default.DebugShowAllCaptureMethods);
 
+			if (!OperatingSystem.IsWindowsVersionAtLeast(10, 0, 19041)) {
+				// Desktop Duplication 要求 v2004
+				cbbCaptureMethod.Items.RemoveAt(1);
+				if (!OperatingSystem.IsWindowsVersionAtLeast(10, 0, 18362)) {
+					// Graphics Capture 要求 v1903
+					cbbCaptureMethod.Items.RemoveAt(0);
+				}
+			}
+
+			// 捕获模式选择项对应的值存在 Tag 属性里
+			bool found = false;
+			foreach (object i in cbbCaptureMethod.Items) {
+				if((uint)((FrameworkElement)i).Tag == Settings.Default.CaptureMode) {
+					cbbCaptureMethod.SelectedItem = i;
+					found = true;
+					break;
+				}
+			}
+			if (!found) {
+				cbbCaptureMethod.SelectedIndex = 0;
+				Settings.Default.CaptureMode = (uint)((FrameworkElement)cbbCaptureMethod.SelectedItem).Tag;
+			}
+
 			// 延迟绑定，防止加载时改变设置
 			cbbScaleMode.SelectionChanged += CbbScaleMode_SelectionChanged;
+			cbbCaptureMethod.SelectionChanged += CbbCaptureMethod_SelectionChanged;
 		}
 		
 		void InitNotifyIcon() {
@@ -434,6 +459,15 @@ namespace Magpie {
 				notifyIcon.Icon = new System.Drawing.Icon(App.GetResourceStream(logoUri).Stream);
 				System.Windows.Application.Current.Resources["Logo"] = new BitmapImage(logoUri);
 			}
+		}
+
+		private void CbbCaptureMethod_SelectionChanged(object sender, SelectionChangedEventArgs e) {
+			FrameworkElement si = (FrameworkElement)cbbCaptureMethod.SelectedItem;
+			if(si == null) {
+				return;
+			}
+
+			Settings.Default.CaptureMode = (uint)si.Tag;
 		}
 	}
 }

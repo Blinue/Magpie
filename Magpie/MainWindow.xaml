@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:props="clr-namespace:Magpie.Properties"
+        xmlns:sys="clr-namespace:System;assembly=mscorlib"
         mc:Ignorable="d"
         Icon="{DynamicResource Logo}"
         Title="{x:Static props:Resources.UI_Main_Title}" ResizeMode="CanMinimize" WindowStartupLocation="CenterScreen"
@@ -53,11 +54,27 @@
             <ComboBox Name="cbbScaleMode" Grid.Row="0" Margin="5,20,0,0" />
 
             <Label Style="{StaticResource Col0}" Content="{x:Static props:Resources.UI_Main_Capture_Method}" Grid.Row="1" VerticalAlignment="Top" Margin="0,15,0,0" Padding="0,5,5,5"/>
-            <ComboBox Name="cbbCaptureMethod" Grid.Row="1" SelectedIndex="{Binding Source={x:Static props:Settings.Default},Path=CaptureMode,Mode=TwoWay}" Margin="5,15,0,0">
-                <ComboBoxItem Content="Graphics Capture" />
-                <ComboBoxItem Content="Desktop Duplication" />
-                <ComboBoxItem Content="GDI" />
-                <ComboBoxItem Content="DwmSharedSurface" />
+            <ComboBox Name="cbbCaptureMethod" Grid.Row="1" Margin="5,15,0,0">
+                <ComboBoxItem Content="Graphics Capture">
+                    <ComboBoxItem.Tag>
+                        <sys:UInt32>0</sys:UInt32>
+                    </ComboBoxItem.Tag>
+                </ComboBoxItem>
+                <ComboBoxItem Content="Desktop Duplication">
+                    <ComboBoxItem.Tag>
+                        <sys:UInt32>1</sys:UInt32>
+                    </ComboBoxItem.Tag>
+                </ComboBoxItem>
+                <ComboBoxItem Content="GDI">
+                    <ComboBoxItem.Tag>
+                        <sys:UInt32>2</sys:UInt32>
+                    </ComboBoxItem.Tag>
+                </ComboBoxItem>
+                <ComboBoxItem Content="DwmSharedSurface">
+                    <ComboBoxItem.Tag>
+                        <sys:UInt32>3</sys:UInt32>
+                    </ComboBoxItem.Tag>
+                </ComboBoxItem>
             </ComboBox>
         </Grid>
 
