@@ -8,6 +8,7 @@
 #include <yas/types/std/vector.hpp>
 #include "EffectCompiler.h"
 #include <regex>
+#include "App.h"
 
 
 template<typename Archive>
@@ -167,6 +168,10 @@ void EffectCache::_AddToMemCache(const std::wstring& cacheFileName, const Effect
 
 
 bool EffectCache::Load(const wchar_t* fileName, std::string_view hash, EffectDesc& desc) {
+	if (App::GetInstance().IsDisableEffectCache()) {
+		return false;
+	}
+
 	std::wstring cacheFileName = _GetCacheFileName(fileName, hash);
 
 	auto it = _memCache.find(cacheFileName);
@@ -232,6 +237,10 @@ bool EffectCache::Load(const wchar_t* fileName, std::string_view hash, EffectDes
 }
 
 void EffectCache::Save(const wchar_t* fileName, std::string_view hash, const EffectDesc& desc) {
+	if (App::GetInstance().IsDisableEffectCache()) {
+		return;
+	}
+
 	// 格式：HASH-VERSION-{BODY}
 
 	std::vector<BYTE> buf;

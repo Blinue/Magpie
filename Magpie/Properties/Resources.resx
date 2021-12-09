@@ -220,6 +220,9 @@
   <data name="UI_Options_Advanced_Debug" xml:space="preserve">
     <value>Debug</value>
   </data>
+  <data name="UI_Options_Advanced_Disable_Effect_Cache" xml:space="preserve">
+    <value>Disable Effect Cache</value>
+  </data>
   <data name="UI_Options_Advanced_Logging_Level" xml:space="preserve">
     <value>Logging Level</value>
   </data>

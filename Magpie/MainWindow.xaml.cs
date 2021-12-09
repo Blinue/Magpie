@@ -296,7 +296,8 @@ namespace Magpie {
 				Settings.Default.DebugBreakpointMode,
 				Settings.Default.DisableDirectFlip,
 				Settings.Default.ConfineCursorIn3DGames,
-				Settings.Default.CropTitleBarOfUWP
+				Settings.Default.CropTitleBarOfUWP,
+				Settings.Default.DebugDisableEffectCache
 			);
 
 			prevSrcWindow = magWindow.SrcWindow;

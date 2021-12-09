@@ -36,6 +36,10 @@
                       Content="{x:Static props:Resources.UI_Options_Advanced_Breakpoint_Mode}"
                       Margin="0,15,0,0"
                       IsChecked="{Binding Source={x:Static props:Settings.Default},Path=DebugBreakpointMode,Mode=TwoWay}" />
+            <CheckBox x:Name="ckbDisableEffectCache"
+                      Content="{x:Static props:Resources.UI_Options_Advanced_Disable_Effect_Cache}"
+                      Margin="0,15,0,0"
+                      IsChecked="{Binding Source={x:Static props:Settings.Default},Path=DebugDisableEffectCache,Mode=TwoWay}" />
         </StackPanel>
     </StackPanel>
 </Page>

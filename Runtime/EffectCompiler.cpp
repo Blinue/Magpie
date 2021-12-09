@@ -1094,7 +1094,7 @@ UINT EffectCompiler::Compile(const wchar_t* fileName, EffectDesc& desc) {
 	}
 
 	std::string md5;
-	{
+	if (!App::GetInstance().IsDisableEffectCache()) {
 		std::vector<BYTE> hash;
 		if (!Utils::Hasher::GetInstance().Hash(source.data(), source.size(), hash)) {
 			SPDLOG_LOGGER_ERROR(logger, "计算 hash 失败");
@@ -1107,7 +1107,6 @@ UINT EffectCompiler::Compile(const wchar_t* fileName, EffectDesc& desc) {
 			}
 		}
 	}
-
 
 	std::string_view sourceView(source);
 
