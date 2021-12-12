@@ -20,6 +20,7 @@ public:
 	}
 
 private:
+	// 消除刚进入全屏时短暂的黑屏
 	bool _firstFrame = true;
 	ComPtr<IDXGIResource> _dxgiRes;
 	ComPtr<ID3D11Texture2D> _output;

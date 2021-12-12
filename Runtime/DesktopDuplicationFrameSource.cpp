@@ -74,6 +74,10 @@ bool DesktopDuplicationFrameSource::Initialize() {
 	}
 
 	HMONITOR hMonitor = MonitorFromWindow(App::GetInstance().GetHwndSrc(), MONITOR_DEFAULTTONEAREST);
+	if (!hMonitor) {
+		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("MonitorFromWindow 失败"));
+		return false;
+	}
 
 	ComPtr<IDXGIOutput1> output = GetDXGIOutput(hMonitor);
 	if (!output) {
@@ -86,7 +90,7 @@ bool DesktopDuplicationFrameSource::Initialize() {
 		_outputDup.ReleaseAndGetAddressOf()
 	);
 	if (FAILED(hr)) {
-		SPDLOG_LOGGER_ERROR(logger, "DuplicateOutput 失败");
+		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("DuplicateOutput 失败", hr));
 		return false;
 	}
 
@@ -110,7 +114,7 @@ bool DesktopDuplicationFrameSource::Initialize() {
 
 	// 使全屏窗口无法被捕获到
 	if (!SetWindowDisplayAffinity(App::GetInstance().GetHwndHost(), WDA_EXCLUDEFROMCAPTURE)) {
-		SPDLOG_LOGGER_ERROR(logger, "SetWindowDisplayAffinity 失败");
+		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("SetWindowDisplayAffinity 失败"));
 	}
 
 	MONITORINFO mi{};
@@ -140,7 +144,7 @@ bool DesktopDuplicationFrameSource::Initialize() {
 	return true;
 }
 
-inline bool IsRectsOverlapped(const RECT& r1, const RECT& r2) {
+inline bool CheckOverlap(const RECT& r1, const RECT& r2) {
 	return r1.right > r2.left && r1.bottom > r2.top && r1.left < r2.right && r1.top < r2.bottom;
 }
 
@@ -158,6 +162,7 @@ FrameSourceBase::UpdateState DesktopDuplicationFrameSource::Update() {
 	}
 
 	if (FAILED(hr)) {
+		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("AcquireNextFrame 失败", hr));
 		return UpdateState::Error;
 	}
 
@@ -176,13 +181,14 @@ FrameSourceBase::UpdateState DesktopDuplicationFrameSource::Update() {
 			// move rects
 			hr = _outputDup->GetFrameMoveRects(bufSize, (DXGI_OUTDUPL_MOVE_RECT*)_dupMetaData.data(), &bufSize);
 			if (FAILED(hr)) {
+				SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("GetFrameMoveRects 失败", hr));
 				return UpdateState::Error;
 			}
 
 			UINT nRect = bufSize / sizeof(DXGI_OUTDUPL_MOVE_RECT);
 			for (UINT i = 0; i < nRect; ++i) {
 				const DXGI_OUTDUPL_MOVE_RECT& rect = ((DXGI_OUTDUPL_MOVE_RECT*)_dupMetaData.data())[i];
-				if (IsRectsOverlapped(_srcClientInMonitor, rect.DestinationRect)) {
+				if (CheckOverlap(_srcClientInMonitor, rect.DestinationRect)) {
 					noUpdate = false;
 					break;
 				}
@@ -194,13 +200,14 @@ FrameSourceBase::UpdateState DesktopDuplicationFrameSource::Update() {
 				// dirty rects
 				hr = _outputDup->GetFrameDirtyRects(bufSize, (RECT*)_dupMetaData.data(), &bufSize);
 				if (FAILED(hr)) {
+					SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("GetFrameDirtyRects 失败", hr));
 					return UpdateState::Error;
 				}
 
 				nRect = bufSize / sizeof(RECT);
 				for (UINT i = 0; i < nRect; ++i) {
 					const RECT& rect = ((RECT*)_dupMetaData.data())[i];
-					if (IsRectsOverlapped(_srcClientInMonitor, rect)) {
+					if (CheckOverlap(_srcClientInMonitor, rect)) {
 						noUpdate = false;
 						break;
 					}
@@ -214,12 +221,14 @@ FrameSourceBase::UpdateState DesktopDuplicationFrameSource::Update() {
 	}
 
 	ComPtr<ID3D11Resource> d3dRes;
-	_dxgiRes.As<ID3D11Resource>(&d3dRes);
+	hr = _dxgiRes.As<ID3D11Resource>(&d3dRes);
+	if (FAILED(hr)) {
+		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("从 IDXGIResource 检索 ID3D11Resource 失败", hr));
+		return UpdateState::NoUpdate;
+	}
 
 	App::GetInstance().GetRenderer().GetD3DDC()->CopySubresourceRegion(
 		_output.Get(), 0, 0, 0, 0, d3dRes.Get(), 0, &_frameInMonitor);
-
-	_outputDup->ReleaseFrame();
 
 	_firstFrame = false;
 	
