@@ -128,10 +128,16 @@ bool App::Run(
 		LONG_PTR style = GetWindowLongPtr(hwndSrc, GWL_STYLE);
 		if (style & WS_THICKFRAME) {
 			if (SetWindowLongPtr(hwndSrc, GWL_STYLE, style ^ WS_THICKFRAME)) {
+				// 不重绘边框，以防某些窗口状态不正确
+				// if (!SetWindowPos(hwndSrc, 0, 0, 0, 0, 0,
+				//	SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED)) {
+				//	SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("SetWindowPos 失败"));
+				// }
+
 				SPDLOG_LOGGER_INFO(logger, "已禁用窗口大小调整");
 				windowResizingDisabled = true;
 			} else {
-				SPDLOG_LOGGER_ERROR(logger, "禁用窗口大小调整失败");
+				SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("禁用窗口大小调整失败"));
 			}
 		}
 	}
@@ -178,6 +184,7 @@ bool App::Run(
 		return false;
 	}
 
+	// FrameSource 初始化完成后计算窗口边框，因为初始化过程中可能改变窗口位置
 	if (!Utils::GetClientScreenRect(_hwndSrcClient, _srcClientRect)) {
 		SPDLOG_LOGGER_ERROR(logger, "获取源窗口客户区失败");
 	}
@@ -204,7 +211,7 @@ bool App::Run(
 			INT attr = DWMWCP_DONOTROUND;
 			HRESULT hr = DwmSetWindowAttribute(hwndSrc, DWMWA_WINDOW_CORNER_PREFERENCE, &attr, sizeof(attr));
 			if (FAILED(hr)) {
-				SPDLOG_LOGGER_ERROR(logger, "禁用窗口圆角失败");
+				SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("禁用窗口圆角失败", hr));
 			} else {
 				SPDLOG_LOGGER_INFO(logger, "已禁用窗口圆角");
 				roundCornerDisabled = true;
@@ -225,7 +232,7 @@ bool App::Run(
 		INT attr = DWMWCP_DEFAULT;
 		HRESULT hr = DwmSetWindowAttribute(hwndSrc, DWMWA_WINDOW_CORNER_PREFERENCE, &attr, sizeof(attr));
 		if (FAILED(hr)) {
-			SPDLOG_LOGGER_INFO(logger, "取消禁用窗口圆角失败");
+			SPDLOG_LOGGER_INFO(logger, MakeComErrorMsg("取消禁用窗口圆角失败", hr));
 		} else {
 			SPDLOG_LOGGER_INFO(logger, "已取消禁用窗口圆角");
 		}
@@ -236,9 +243,14 @@ bool App::Run(
 		LONG_PTR style = GetWindowLongPtr(hwndSrc, GWL_STYLE);
 		if (!(style & WS_THICKFRAME)) {
 			if (SetWindowLongPtr(hwndSrc, GWL_STYLE, style | WS_THICKFRAME)) {
+				if (!SetWindowPos(hwndSrc, 0, 0, 0, 0, 0,
+					SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED)) {
+					SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("SetWindowPos 失败"));
+				}
+
 				SPDLOG_LOGGER_INFO(logger, "已取消禁用窗口大小调整");
 			} else {
-				SPDLOG_LOGGER_ERROR(logger, "取消禁用窗口大小调整失败");
+				SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("取消禁用窗口大小调整失败"));
 			}
 		}
 	}
