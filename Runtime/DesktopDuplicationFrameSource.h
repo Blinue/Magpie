@@ -20,7 +20,7 @@ public:
 	}
 
 private:
-	// Ïû³ı¸Õ½øÈëÈ«ÆÁÊ±¶ÌÔİµÄºÚÆÁ
+	// æ¶ˆé™¤åˆšè¿›å…¥å…¨å±æ—¶çŸ­æš‚çš„é»‘å±
 	bool _firstFrame = true;
 	ComPtr<IDXGIResource> _dxgiRes;
 	ComPtr<ID3D11Texture2D> _output;

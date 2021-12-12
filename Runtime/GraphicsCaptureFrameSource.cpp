@@ -37,16 +37,21 @@ bool GraphicsCaptureFrameSource::Initialize() {
 		return false;
 	}
 
-	const RECT& srcClient = App::GetInstance().GetSrcClientRect();
+	
+	RECT srcClientRect;
+	if (!Utils::GetClientScreenRect(App::GetInstance().GetHwndSrcClient(), srcClientRect)) {
+		SPDLOG_LOGGER_ERROR(logger, "GetClientScreenRect 失败");
+		return false;
+	}
 	
 	// 在源窗口存在 DPI 缩放时有时会有一像素的偏移（取决于窗口在屏幕上的位置）
 	// 可能是 DwmGetWindowAttribute 的 bug
 	_frameInWnd = {
-		UINT(srcClient.left - srcRect.left),
-		UINT(srcClient.top - srcRect.top),
+		UINT(srcClientRect.left - srcRect.left),
+		UINT(srcClientRect.top - srcRect.top),
 		0,
-		UINT(srcClient.right - srcRect.left),
-		UINT(srcClient.bottom - srcRect.top),
+		UINT(srcClientRect.right - srcRect.left),
+		UINT(srcClientRect.bottom - srcRect.top),
 		1
 	};
 

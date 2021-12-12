@@ -94,7 +94,11 @@ bool DesktopDuplicationFrameSource::Initialize() {
 		return false;
 	}
 
-	const RECT& srcClientRect = App::GetInstance().GetSrcClientRect();
+	RECT srcClientRect;
+	if (!Utils::GetClientScreenRect(App::GetInstance().GetHwndSrcClient(), srcClientRect)) {
+		SPDLOG_LOGGER_ERROR(logger, "GetClientScreenRect 失败");
+		return false;
+	}
 
 	D3D11_TEXTURE2D_DESC desc{};
 	desc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
@@ -150,7 +154,7 @@ inline bool CheckOverlap(const RECT& r1, const RECT& r2) {
 
 FrameSourceBase::UpdateState DesktopDuplicationFrameSource::Update() {
 	DXGI_OUTDUPL_FRAME_INFO info;
-	
+
 	if (_dxgiRes) {
 		_outputDup->ReleaseFrame();
 		_dxgiRes = nullptr;
@@ -166,58 +170,56 @@ FrameSourceBase::UpdateState DesktopDuplicationFrameSource::Update() {
 		return UpdateState::Error;
 	}
 
+	bool noUpdate = true;
+
 	// 检索 move rects 和 dirty rects
 	// 这些区域如果和窗口客户区有重叠则表明画面有变化
-	if (!_firstFrame) {
-		bool noUpdate = true;
+	if (info.TotalMetadataBufferSize) {
+		if (info.TotalMetadataBufferSize > _dupMetaData.size()) {
+			_dupMetaData.resize(info.TotalMetadataBufferSize);
+		}
 
-		if (info.TotalMetadataBufferSize) {
-			if (info.TotalMetadataBufferSize > _dupMetaData.size()) {
-				_dupMetaData.resize(info.TotalMetadataBufferSize);
+		UINT bufSize = info.TotalMetadataBufferSize;
+
+		// move rects
+		hr = _outputDup->GetFrameMoveRects(bufSize, (DXGI_OUTDUPL_MOVE_RECT*)_dupMetaData.data(), &bufSize);
+		if (FAILED(hr)) {
+			SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("GetFrameMoveRects 失败", hr));
+			return UpdateState::Error;
+		}
+
+		UINT nRect = bufSize / sizeof(DXGI_OUTDUPL_MOVE_RECT);
+		for (UINT i = 0; i < nRect; ++i) {
+			const DXGI_OUTDUPL_MOVE_RECT& rect = ((DXGI_OUTDUPL_MOVE_RECT*)_dupMetaData.data())[i];
+			if (CheckOverlap(_srcClientInMonitor, rect.DestinationRect)) {
+				noUpdate = false;
+				break;
 			}
+		}
 
-			UINT bufSize = info.TotalMetadataBufferSize;
+		if (noUpdate) {
+			bufSize = info.TotalMetadataBufferSize;
 
-			// move rects
-			hr = _outputDup->GetFrameMoveRects(bufSize, (DXGI_OUTDUPL_MOVE_RECT*)_dupMetaData.data(), &bufSize);
+			// dirty rects
+			hr = _outputDup->GetFrameDirtyRects(bufSize, (RECT*)_dupMetaData.data(), &bufSize);
 			if (FAILED(hr)) {
-				SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("GetFrameMoveRects 失败", hr));
+				SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("GetFrameDirtyRects 失败", hr));
 				return UpdateState::Error;
 			}
 
-			UINT nRect = bufSize / sizeof(DXGI_OUTDUPL_MOVE_RECT);
+			nRect = bufSize / sizeof(RECT);
 			for (UINT i = 0; i < nRect; ++i) {
-				const DXGI_OUTDUPL_MOVE_RECT& rect = ((DXGI_OUTDUPL_MOVE_RECT*)_dupMetaData.data())[i];
-				if (CheckOverlap(_srcClientInMonitor, rect.DestinationRect)) {
+				const RECT& rect = ((RECT*)_dupMetaData.data())[i];
+				if (CheckOverlap(_srcClientInMonitor, rect)) {
 					noUpdate = false;
 					break;
 				}
 			}
-
-			if (noUpdate) {
-				bufSize = info.TotalMetadataBufferSize;
-
-				// dirty rects
-				hr = _outputDup->GetFrameDirtyRects(bufSize, (RECT*)_dupMetaData.data(), &bufSize);
-				if (FAILED(hr)) {
-					SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("GetFrameDirtyRects 失败", hr));
-					return UpdateState::Error;
-				}
-
-				nRect = bufSize / sizeof(RECT);
-				for (UINT i = 0; i < nRect; ++i) {
-					const RECT& rect = ((RECT*)_dupMetaData.data())[i];
-					if (CheckOverlap(_srcClientInMonitor, rect)) {
-						noUpdate = false;
-						break;
-					}
-				}
-			}
 		}
-		
-		if (noUpdate) {
-			return UpdateState::NoUpdate;
-		}
+	}
+
+	if (noUpdate) {
+		return _firstFrame ? UpdateState::Waiting : UpdateState::NoUpdate;
 	}
 
 	ComPtr<ID3D11Resource> d3dRes;
@@ -231,6 +233,6 @@ FrameSourceBase::UpdateState DesktopDuplicationFrameSource::Update() {
 		_output.Get(), 0, 0, 0, 0, d3dRes.Get(), 0, &_frameInMonitor);
 
 	_firstFrame = false;
-	
+
 	return UpdateState::NewFrame;
 }

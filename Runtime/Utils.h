@@ -20,7 +20,7 @@ struct Utils {
 		return wp.showCmd;
 	}
 
-	static RECT GetClientScreenRect(HWND hWnd);
+	static bool GetClientScreenRect(HWND hWnd, RECT& rect);
 
 	static RECT GetScreenRect(HWND hWnd) {
 		HMONITOR hMonitor = MonitorFromWindow(hWnd, MONITOR_DEFAULTTONEAREST);

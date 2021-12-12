@@ -6,7 +6,10 @@
 extern std::shared_ptr<spdlog::logger> logger;
 
 bool GDIFrameSource::Initialize() {
-	const RECT& srcClientRect = App::GetInstance().GetSrcClientRect();
+	RECT srcClientRect;
+	if (!GetClientRect(App::GetInstance().GetHwndSrcClient(), &srcClientRect)) {
+		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetClientRect 失败"));
+	}
 
 	float dpiScale = -1;
 	if (!_GetWindowDpiScale(App::GetInstance().GetHwndSrcClient(), dpiScale)) {

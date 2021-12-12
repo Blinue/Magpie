@@ -591,7 +591,12 @@ bool Renderer::_CheckSrcState() {
 		return false;
 	}
 
-	RECT rect = Utils::GetClientScreenRect(App::GetInstance().GetHwndSrcClient());
+	RECT rect;
+	if (!Utils::GetClientScreenRect(App::GetInstance().GetHwndSrcClient(), rect)) {
+		SPDLOG_LOGGER_ERROR(logger, "GetClientScreenRect 失败");
+		return false;
+	}
+
 	if (App::GetInstance().GetSrcClientRect() != rect) {
 		SPDLOG_LOGGER_INFO(logger, "源窗口位置或大小改变");
 		return false;

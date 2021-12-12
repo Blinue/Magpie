@@ -5,27 +5,24 @@
 #include <winternl.h>
 
 
-RECT Utils::GetClientScreenRect(HWND hWnd) {
-	RECT clientRect;
-	if (!GetClientRect(hWnd, &clientRect)) {
+bool Utils::GetClientScreenRect(HWND hWnd, RECT& rect) {
+	if (!GetClientRect(hWnd, &rect)) {
 		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetClientRect 出错"));
-		assert(false);
-		return {};
+		return false;
 	}
 
 	POINT p{};
 	if (!ClientToScreen(hWnd, &p)) {
 		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("ClientToScreen 出错"));
-		assert(false);
-		return {};
+		return false;
 	}
 
-	clientRect.bottom += p.y;
-	clientRect.left += p.x;
-	clientRect.right += p.x;
-	clientRect.top += p.y;
+	rect.bottom += p.y;
+	rect.left += p.x;
+	rect.right += p.x;
+	rect.top += p.y;
 
-	return clientRect;
+	return true;
 }
 
 bool Utils::ReadFile(const wchar_t* fileName, std::vector<BYTE>& result) {

@@ -138,15 +138,6 @@ bool App::Run(
 
 	_hwndSrcClient = IsCropTitleBarOfUWP() ? FindClientWindow(hwndSrc) : hwndSrc;
 
-	_srcClientRect = Utils::GetClientScreenRect( _hwndSrcClient);
-	if (_srcClientRect.right == 0 || _srcClientRect.bottom == 0) {
-		SPDLOG_LOGGER_CRITICAL(logger, "获取源窗口客户区失败");
-		return false;
-	}
-
-	SPDLOG_LOGGER_INFO(logger, fmt::format("源窗口客户区尺寸：{}x{}",
-		_srcClientRect.right - _srcClientRect.left, _srcClientRect.bottom - _srcClientRect.top));
-
 	if (!_CreateHostWnd()) {
 		SPDLOG_LOGGER_CRITICAL(logger, "创建主窗口失败");
 		return false;
@@ -186,6 +177,13 @@ bool App::Run(
 		_Run();
 		return false;
 	}
+
+	if (!Utils::GetClientScreenRect(_hwndSrcClient, _srcClientRect)) {
+		SPDLOG_LOGGER_ERROR(logger, "获取源窗口客户区失败");
+	}
+
+	SPDLOG_LOGGER_INFO(logger, fmt::format("源窗口客户区尺寸：{}x{}",
+		_srcClientRect.right - _srcClientRect.left, _srcClientRect.bottom - _srcClientRect.top));
 
 	if (!_renderer->InitializeEffectsAndCursor(effectsJson)) {
 		SPDLOG_LOGGER_CRITICAL(logger, "初始化效果失败，即将退出");

@@ -73,7 +73,7 @@ bool DwmSharedSurfaceFrameSource::_CalcFrameSize(SIZE& frameSize) {
 	float dpiScale;
 	bool success = true;
 
-	if ( !_GetWindowDpiScale(_hwndSrc, dpiScale)) {
+	if (!_GetWindowDpiScale(_hwndSrc, dpiScale)) {
 		SPDLOG_LOGGER_ERROR(logger, "_GetWindowDpiScale 失败");
 		success = false;
 	}
@@ -90,8 +90,13 @@ bool DwmSharedSurfaceFrameSource::_CalcFrameSize(SIZE& frameSize) {
 		success = false;
 	}
 	
+	RECT srcClientRect;
+	if (!Utils::GetClientScreenRect(App::GetInstance().GetHwndSrcClient(), srcClientRect)) {
+		SPDLOG_LOGGER_ERROR(logger, "GetClientScreenRect 失败");
+		return false;
+	}
+
 	if (success) {
-		RECT srcClientRect = App::GetInstance().GetSrcClientRect();
 		frameSize = {
 			(LONG)ceilf((srcClientRect.right - srcClientRect.left) / dpiScale),
 			(LONG)ceilf((srcClientRect.bottom - srcClientRect.top) / dpiScale)
@@ -113,7 +118,6 @@ bool DwmSharedSurfaceFrameSource::_CalcFrameSize(SIZE& frameSize) {
 			return false;
 		}
 
-		const RECT srcClientRect = App::GetInstance().GetSrcClientRect();
 		_frameInWnd = {
 			UINT(srcClientRect.left - srcWindowRect.left),
 			UINT(srcClientRect.top - srcWindowRect.top),
