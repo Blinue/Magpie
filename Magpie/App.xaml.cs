@@ -4,7 +4,6 @@ using NLog.Config;
 using System;
 using System.Diagnostics;
 using System.Globalization;
-using System.IO;
 using System.Linq;
 using System.Security.Principal;
 using System.Threading;
@@ -19,7 +18,7 @@ namespace Magpie {
 	/// </summary>
 	public partial class App : Application {
 		public static readonly Version APP_VERSION = new("0.8.0.0");
-		public static readonly string SCALE_MODELS_JSON_PATH = Path.Combine(Directory.GetCurrentDirectory(), "ScaleModels.json");
+		public static readonly string SCALE_MODELS_JSON_PATH = ".\\ScaleModels.json";
 
 		private static Logger Logger { get; } = LogManager.GetCurrentClassLogger();
 
@@ -69,6 +68,8 @@ namespace Magpie {
 		}
 
 		private void Application_Startup(object sender, StartupEventArgs e) {
+			Environment.CurrentDirectory = AppDomain.CurrentDomain.BaseDirectory;
+
 			InitNLog();
 			SetLogLevel(Settings.Default.LoggingLevel);
 

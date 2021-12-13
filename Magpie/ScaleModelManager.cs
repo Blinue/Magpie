@@ -21,7 +21,7 @@ namespace Magpie {
 			LoadFromLocal();
 
 			// 监视ScaleModels.json的更改
-			scaleModelsWatcher.Path = Directory.GetCurrentDirectory();
+			scaleModelsWatcher.Path = AppDomain.CurrentDomain.BaseDirectory;
 			scaleModelsWatcher.NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName;
 			scaleModelsWatcher.Filter = App.SCALE_MODELS_JSON_PATH.Substring(App.SCALE_MODELS_JSON_PATH.LastIndexOf('\\') + 1);
 			scaleModelsWatcher.Changed += ScaleModelsWatcher_Changed;

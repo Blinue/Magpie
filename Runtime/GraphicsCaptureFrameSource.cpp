@@ -59,7 +59,7 @@ bool GraphicsCaptureFrameSource::Initialize() {
 	}
 
 	if (!_CaptureFromWindow(interop)) {
-		SPDLOG_LOGGER_INFO(logger, "源窗口无法使用窗口捕获，回落到屏幕捕获");
+	 	SPDLOG_LOGGER_INFO(logger, "源窗口无法使用窗口捕获，回落到屏幕捕获");
 		if (!_CaptureFromMonitor(interop)) {
 			SPDLOG_LOGGER_ERROR(logger, "屏幕捕获失败");
 			return false;
@@ -234,6 +234,7 @@ bool GraphicsCaptureFrameSource::_CaptureFromMonitor(winrt::impl::com_ref<IGraph
 		return false;
 	}
 
+	// 放在屏幕左上角而不是中间可以提高帧率，这里是为了和 DesktopDuplication 保持一致
 	if (!_CenterWindowIfNecessary(hwndSrc, mi.rcWork)) {
 		SPDLOG_LOGGER_ERROR(logger, "居中源窗口失败");
 		return false;

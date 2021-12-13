@@ -72,7 +72,7 @@ namespace Magpie.Options {
 			}
 
 			shortcut.TargetPath = Process.GetCurrentProcess().MainModule?.FileName;
-			shortcut.WorkingDirectory = AppDomain.CurrentDomain.SetupInformation.ApplicationBase;
+			shortcut.WorkingDirectory = AppDomain.CurrentDomain.BaseDirectory;
 
 			// 防止初始化时调用事件处理
 			ckbRunAtStartUp.Checked += CkbRunAtStartUp_Checked;

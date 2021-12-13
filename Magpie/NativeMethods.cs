@@ -122,9 +122,6 @@ namespace Magpie {
 		public static extern int RegQueryValueEx(IntPtr hKey, string lpValueName, IntPtr lpReserved, IntPtr lpType, byte[] lpData, ref int lpcbData);
 
 		[DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
-		public static extern bool SetDllDirectory(string lpPathName);
-
-		[DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
 		public static extern IntPtr LoadLibrary(string path);
 
 		/*
