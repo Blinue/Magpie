@@ -193,7 +193,7 @@ bool EffectCache::Load(const wchar_t* fileName, std::string_view hash, EffectDes
 		return false;
 	}
 	
-	// 格式：HASH-VERSION-{BODY}
+	// 格式：HASH-VERSION-FL-{BODY}
 
 	// 检查哈希
 	std::vector<BYTE> bufHash;
@@ -223,6 +223,15 @@ bool EffectCache::Load(const wchar_t* fileName, std::string_view hash, EffectDes
 			return false;
 		}
 
+		// 检查 Direct3D 功能级别
+		D3D_FEATURE_LEVEL fl;
+		ia& fl;
+		if (fl != App::GetInstance().GetRenderer().GetFeatureLevel()) {
+			SPDLOG_LOGGER_INFO(logger, "功能级别不匹配");
+			return false;
+		}
+
+
 		ia& desc;
 	} catch (...) {
 		SPDLOG_LOGGER_ERROR(logger, "反序列化失败");
@@ -241,7 +250,7 @@ void EffectCache::Save(const wchar_t* fileName, std::string_view hash, const Eff
 		return;
 	}
 
-	// 格式：HASH-VERSION-{BODY}
+	// 格式：HASH-VERSION-FL-{BODY}
 
 	std::vector<BYTE> buf;
 	buf.reserve(4096);
@@ -252,6 +261,7 @@ void EffectCache::Save(const wchar_t* fileName, std::string_view hash, const Eff
 		yas::binary_oarchive<yas::vector_ostream<BYTE>, yas::binary> oa(os);
 
 		oa& _VERSION;
+		oa& App::GetInstance().GetRenderer().GetFeatureLevel();
 		oa& desc;
 	} catch (...) {
 		SPDLOG_LOGGER_ERROR(logger, "序列化失败");
