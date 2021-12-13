@@ -79,5 +79,5 @@ FrameSourceBase::UpdateState GDIFrameSource::Update() {
 	ReleaseDC(hwndSrcClient, hdcSrcClient);
 	_dxgiSurface->ReleaseDC(nullptr);
 
-    return UpdateState::NewFrame;
+	return UpdateState::NewFrame;
 }

@@ -59,7 +59,7 @@ bool GraphicsCaptureFrameSource::Initialize() {
 	}
 
 	if (!_CaptureFromWindow(interop)) {
-	 	SPDLOG_LOGGER_INFO(logger, "源窗口无法使用窗口捕获，回落到屏幕捕获");
+		SPDLOG_LOGGER_INFO(logger, "源窗口无法使用窗口捕获，回落到屏幕捕获");
 		if (!_CaptureFromMonitor(interop)) {
 			SPDLOG_LOGGER_ERROR(logger, "屏幕捕获失败");
 			return false;
