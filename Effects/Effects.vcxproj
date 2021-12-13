@@ -284,56 +284,6 @@
       <FileType>Document</FileType>
     </CopyFileToFolders>
   </ItemGroup>
-  <ItemGroup>
-    <CopyFileToFolders Include="CRT_Royale.hlsl">
-      <FileType>Document</FileType>
-    </CopyFileToFolders>
-  </ItemGroup>
-  <ItemGroup>
-    <CopyFileToFolders Include="CRT_Royale_scanline-functions.hlsli">
-      <FileType>HLSLHeader</FileType>
-    </CopyFileToFolders>
-  </ItemGroup>
-  <ItemGroup>
-    <CopyFileToFolders Include="CRT_Royale_gamma-management.hlsli">
-      <FileType>HLSLHeader</FileType>
-    </CopyFileToFolders>
-  </ItemGroup>
-  <ItemGroup>
-    <CopyFileToFolders Include="CRT_Royale_special-functions.hlsli">
-      <FileType>Document</FileType>
-    </CopyFileToFolders>
-  </ItemGroup>
-  <ItemGroup>
-    <CopyFileToFolders Include="CRT_Royale_bloom-functions.hlsli">
-      <FileType>Document</FileType>
-    </CopyFileToFolders>
-  </ItemGroup>
-  <ItemGroup>
-    <CopyFileToFolders Include="CRT_Royale_blur-functions.hlsli">
-      <FileType>Document</FileType>
-    </CopyFileToFolders>
-  </ItemGroup>
-  <ItemGroup>
-    <CopyFileToFolders Include="CRT_Royale_phosphor-mask-resizing.hlsli">
-      <FileType>Document</FileType>
-    </CopyFileToFolders>
-  </ItemGroup>
-  <ItemGroup>
-    <CopyFileToFolders Include="CRT_Royale_TileableLinearApertureGrille15Wide8And5d5SpacingResizeTo64.png" />
-    <CopyFileToFolders Include="CRT_Royale_TileableLinearShadowMaskEDPResizeTo64.png" />
-    <CopyFileToFolders Include="CRT_Royale_TileableLinearSlotMaskTall15Wide9And4d5Horizontal9d14VerticalSpacingResizeTo64.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <CopyFileToFolders Include="CRT_Royale_tex2Dantialias.hlsli">
-      <FileType>Document</FileType>
-    </CopyFileToFolders>
-  </ItemGroup>
-  <ItemGroup>
-    <CopyFileToFolders Include="CRT_Royale_geometry-functions.hlsli">
-      <FileType>Document</FileType>
-    </CopyFileToFolders>
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

@@ -72,7 +72,19 @@
     "effects": [
       {
         "effect": "RAVU_Zoom_R3",
-        "scale": [-1, -1]
+        "scale": [ -1, -1 ]
+      }
+    ]
+  },
+  {
+    "name": "CRT-Geom",
+    "effects": [
+      {
+        "effect": "CRT_Geom",
+        "scale": [ -1, -1 ],
+        "curvature": 0,
+        "monitorGamma": 3,
+        "cornerSize": 0.001
       }
     ]
   },

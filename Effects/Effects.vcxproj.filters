@@ -62,17 +62,5 @@
     <CopyFileToFolders Include="CRT_Easymode.hlsl" />
     <CopyFileToFolders Include="CRT_Geom.hlsl" />
     <CopyFileToFolders Include="CRT_Lottes.hlsl" />
-    <CopyFileToFolders Include="CRT_Royale.hlsl" />
-    <CopyFileToFolders Include="CRT_Royale_scanline-functions.hlsli" />
-    <CopyFileToFolders Include="CRT_Royale_gamma-management.hlsli" />
-    <CopyFileToFolders Include="CRT_Royale_special-functions.hlsli" />
-    <CopyFileToFolders Include="CRT_Royale_bloom-functions.hlsli" />
-    <CopyFileToFolders Include="CRT_Royale_blur-functions.hlsli" />
-    <CopyFileToFolders Include="CRT_Royale_phosphor-mask-resizing.hlsli" />
-    <CopyFileToFolders Include="CRT_Royale_TileableLinearApertureGrille15Wide8And5d5SpacingResizeTo64.png" />
-    <CopyFileToFolders Include="CRT_Royale_TileableLinearShadowMaskEDPResizeTo64.png" />
-    <CopyFileToFolders Include="CRT_Royale_TileableLinearSlotMaskTall15Wide9And4d5Horizontal9d14VerticalSpacingResizeTo64.png" />
-    <CopyFileToFolders Include="CRT_Royale_tex2Dantialias.hlsli" />
-    <CopyFileToFolders Include="CRT_Royale_geometry-functions.hlsli" />
   </ItemGroup>
 </Project>
