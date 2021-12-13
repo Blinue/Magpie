@@ -80,7 +80,7 @@ bool FrameSourceBase::_GetDpiAwareWindowClientOffset(HWND hWnd, POINT& clientOff
 	return true;
 }
 
-bool FrameSourceBase::_CenterWindow(HWND hWnd, const RECT& rcWork) {
+bool FrameSourceBase::_CenterWindowIfNecessary(HWND hWnd, const RECT& rcWork) {
 	RECT srcRect;
 	if (!GetWindowRect(hWnd, &srcRect)) {
 		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetWindowRect 失败"));

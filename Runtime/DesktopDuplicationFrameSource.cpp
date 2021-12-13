@@ -87,7 +87,7 @@ bool DesktopDuplicationFrameSource::Initialize() {
 		return false;
 	}
 
-	if (!_CenterWindow(hwndSrc, mi.rcWork)) {
+	if (!_CenterWindowIfNecessary(hwndSrc, mi.rcWork)) {
 		SPDLOG_LOGGER_ERROR(logger, "居中源窗口失败");
 		return false;
 	}
@@ -132,6 +132,7 @@ bool DesktopDuplicationFrameSource::Initialize() {
 	// 使全屏窗口无法被捕获到
 	if (!SetWindowDisplayAffinity(App::GetInstance().GetHwndHost(), WDA_EXCLUDEFROMCAPTURE)) {
 		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("SetWindowDisplayAffinity 失败"));
+		return false;
 	}
 
 	// 计算源窗口客户区在该屏幕上的位置，用于计算新帧是否有更新
@@ -151,6 +152,7 @@ bool DesktopDuplicationFrameSource::Initialize() {
 		1
 	};
 
+	SPDLOG_LOGGER_INFO(logger, "DesktopDuplicationFrameSource 初始化完成");
 	return true;
 }
 

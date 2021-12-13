@@ -32,5 +32,5 @@ protected:
 
 	static bool _GetDpiAwareWindowClientOffset(HWND hWnd, POINT& clientOffset);
 
-	static bool _CenterWindow(HWND hWnd, const RECT& rcWork);
+	static bool _CenterWindowIfNecessary(HWND hWnd, const RECT& rcWork);
 };
