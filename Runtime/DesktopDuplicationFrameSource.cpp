@@ -87,34 +87,10 @@ bool DesktopDuplicationFrameSource::Initialize() {
 		return false;
 	}
 
-	RECT srcRect;
-	if (!GetWindowRect(hwndSrc, &srcRect)) {
-		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetWindowRect 失败"));
+	if (!_CenterWindow(hwndSrc, mi.rcWork)) {
+		SPDLOG_LOGGER_ERROR(logger, "居中源窗口失败");
+		return false;
 	}
-
-	if (srcRect.left < mi.rcWork.left || srcRect.top < mi.rcWork.top
-		|| srcRect.right > mi.rcWork.right || srcRect.bottom > mi.rcWork.bottom) {
-		// 源窗口超越边界，将源窗口移到屏幕中央
-		SIZE srcSize = { srcRect.right - srcRect.left, srcRect.bottom - srcRect.top };
-		SIZE rcWorkSize = { mi.rcWork.right - mi.rcWork.left, mi.rcWork.bottom - mi.rcWork.top };
-		if (srcSize.cx > rcWorkSize.cx || srcSize.cy > rcWorkSize.cy) {
-			// 源窗口无法被当前屏幕容纳，因此无法捕获
-			return false;
-		}
-
-		if (!SetWindowPos(
-			hwndSrc,
-			0,
-			mi.rcWork.left + (rcWorkSize.cx - srcSize.cx) / 2,
-			mi.rcWork.top + (rcWorkSize.cy - srcSize.cy) / 2,
-			0,
-			0,
-			SWP_NOSIZE | SWP_NOZORDER
-		)) {
-			SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("SetWindowPos 失败"));
-		}
-	}
-
 
 	ComPtr<IDXGIOutput1> output = GetDXGIOutput(hMonitor);
 	if (!output) {

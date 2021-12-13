@@ -31,4 +31,6 @@ protected:
 	static bool _GetWindowDpiScale(HWND hWnd, float& dpiScale);
 
 	static bool _GetDpiAwareWindowClientOffset(HWND hWnd, POINT& clientOffset);
+
+	static bool _CenterWindow(HWND hWnd, const RECT& rcWork);
 };

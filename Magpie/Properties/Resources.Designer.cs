@@ -106,6 +106,15 @@ namespace Magpie.Properties {
         }
         
         /// <summary>
+        ///   查找类似 This window is too large to capture. 的本地化字符串。
+        /// </summary>
+        public static string Msg_Error_Src_Too_Large {
+            get {
+                return ResourceManager.GetString("Msg_Error_Src_Too_Large", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 This monitor does not support turning off VSync. 的本地化字符串。
         /// </summary>
         public static string Msg_Error_Vsync_Off_Not_Supported {
