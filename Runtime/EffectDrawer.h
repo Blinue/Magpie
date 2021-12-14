@@ -42,6 +42,7 @@ public:
 
 	void Draw(bool noUpdate = false);
 
+	static bool UpdateExprDynamicVars();
 private:
 	class _Pass {
 	public:
@@ -77,7 +78,9 @@ private:
 
 	std::unordered_map<std::string_view, UINT> _constNamesMap;
 	std::vector<Constant32> _constants;
+	std::vector<Constant32> _dynamicConstants;
 	ComPtr<ID3D11Buffer> _constantBuffer;
+	ComPtr<ID3D11Buffer> _dynamicConstantBuffer;
 
 	ComPtr<ID3D11VertexShader> _vertexShader;
 

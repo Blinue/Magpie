@@ -44,6 +44,11 @@ float outputWidth;
 float rcpScaleY;
 
 //!CONSTANT
+//!DYNAMIC
+//!VALUE FRAME_COUNT
+int frameCount;
+
+//!CONSTANT
 //!DEFAULT 2.4
 //!MIN 0.1
 //!MAX 5
@@ -133,6 +138,12 @@ float scanlineWeight;
 //!MAX 1
 float lum;
 
+//!CONSTANT
+//!DEFAULT 0
+//!MIN 0
+//!MAX 1
+int interlaceToggle;
+
 
 //!TEXTURE
 Texture2D INPUT;
@@ -157,9 +168,6 @@ SamplerState sam;
 
 // aspect ratio
 #define aspect float2(1.0, 0.75)
-
-#define frame_count 0
-#define interlaceToggle 0
 
 
 float intersect(float2 xy, float4 sin_cos_angle) {
@@ -283,7 +291,7 @@ float4 Pass1(float2 pos) {
 
 	// Of all the pixels that are mapped onto the texel we are
 	// currently rendering, which pixel are we currently rendering?
-	float2 ilfloat = float2(0.0, ilfac.y > 1.5 ? fmod(float(frame_count), 2.0) : 0.0);
+	float2 ilfloat = float2(0.0, ilfac.y > 1.5 ? fmod(frameCount, 2.0) : 0.0);
 
 	float2 ratio_scale = (xy * TextureSize - 0.5 + ilfloat) / ilfac;
 

@@ -79,6 +79,7 @@ struct EffectDesc {
 
 	std::vector<EffectConstantDesc> constants;
 	std::vector<EffectValueConstantDesc> valueConstants;
+	std::vector<EffectValueConstantDesc> dynamicValueConstants;
 
 	std::vector<EffectIntermediateTextureDesc> textures;
 	std::vector<EffectSamplerDesc> samplers;

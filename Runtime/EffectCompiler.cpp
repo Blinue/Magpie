@@ -322,11 +322,11 @@ UINT ResolveHeader(std::string_view block, EffectDesc& desc) {
 }
 
 UINT ResolveConstant(std::string_view block, EffectDesc& desc) {
-	// 可选的选项：VALUE，DEFAULT，LABEL，MIN，MAX
+	// 可选的选项：VALUE，DEFAULT，LABEL，MIN，MAX, DYNAMIC
 	// VALUE 与其他选项互斥
 	// 如果无 VALUE 则必须有 DEFAULT
 
-	std::bitset<5> processed;
+	std::bitset<6> processed;
 
 	std::string_view token;
 
@@ -371,7 +371,7 @@ UINT ResolveConstant(std::string_view block, EffectDesc& desc) {
 				return 1;
 			}
 		} else if (t == "DEFAULT") {
-			if (processed[0] || processed[1]) {
+			if (processed[0] || processed[1] || processed[5]) {
 				return 1;
 			}
 			processed[1] = true;
@@ -391,7 +391,7 @@ UINT ResolveConstant(std::string_view block, EffectDesc& desc) {
 			}
 			desc1.label = t;
 		} else if (t == "MIN") {
-			if (processed[0] || processed[3]) {
+			if (processed[0] || processed[3] || processed[5]) {
 				return 1;
 			}
 			processed[3] = true;
@@ -400,7 +400,7 @@ UINT ResolveConstant(std::string_view block, EffectDesc& desc) {
 				return 1;
 			}
 		} else if (t == "MAX") {
-			if (processed[0] || processed[4]) {
+			if (processed[0] || processed[4] || processed[5]) {
 				return 1;
 			}
 			processed[4] = true;
@@ -408,9 +408,30 @@ UINT ResolveConstant(std::string_view block, EffectDesc& desc) {
 			if (GetNextString(block, maxValue)) {
 				return 1;
 			}
-		} else {
+		} else if (t == "DYNAMIC") {
+			for (int i = 1; i < 6; ++i) {
+				if (processed[i]) {
+					return 1;
+				}
+			}
+			processed[5] = true;
+
+			if (GetNextToken<false>(block, token) !=2) {
+				return 1;
+			}
+		} else{
 			return 1;
 		}
+	}
+
+	// DYNAMIC 必须和 VALUE 一起出现
+	if (!processed[0] && processed[5]) {
+		return 1;
+	}
+
+	// VALUE 或 DEFAULT 必须存在
+	if (processed[0] == processed[1]) {
+		return 1;
 	}
 
 	// 代码部分
@@ -504,10 +525,6 @@ UINT ResolveConstant(std::string_view block, EffectDesc& desc) {
 		return 1;
 	}
 
-	if (processed[0] == processed[1]) {
-		return 1;
-	}
-
 	if (GetNextToken<true>(block, token)) {
 		return 1;
 	}
@@ -522,7 +539,11 @@ UINT ResolveConstant(std::string_view block, EffectDesc& desc) {
 	}
 
 	if (processed[0]) {
-		desc.valueConstants.emplace_back(std::move(desc2));
+		if (processed[5]) {
+			desc.dynamicValueConstants.emplace_back(std::move(desc2));
+		} else {
+			desc.valueConstants.emplace_back(std::move(desc2));
+		}
 	} else {
 		desc.constants.emplace_back(std::move(desc1));
 	}
@@ -973,6 +994,16 @@ UINT ResolvePasses(const std::vector<std::string_view>& blocks, const std::vecto
 				.append(";");
 		}
 		for (const auto& d : desc.valueConstants) {
+			commonHlsl.append(d.type == EffectConstantType::Int ? "int " : "float ")
+				.append(d.name)
+				.append(";");
+		}
+		commonHlsl.append("};");
+	}
+	if (!desc.dynamicValueConstants.empty()) {
+		// 每帧更新的常量
+		commonHlsl.append("cbuffer __D:register(b1){");
+		for (const auto& d : desc.dynamicValueConstants) {
 			commonHlsl.append(d.type == EffectConstantType::Int ? "int " : "float ")
 				.append(d.name)
 				.append(";");
