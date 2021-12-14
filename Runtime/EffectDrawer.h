@@ -42,6 +42,10 @@ public:
 
 	void Draw(bool noUpdate = false);
 
+	bool HasDynamicConstants() const {
+		return !_dynamicConstants.empty();
+	}
+
 	static bool UpdateExprDynamicVars();
 private:
 	class _Pass {
