@@ -19,11 +19,15 @@ MagpieFX 语法
 // OUTPUT_PT_Y
 // SCALE_X
 // SCALE_Y
+// 含有 DYNAMIC 关键字的变量还可以使用下面的常量，不含 DYNAMIC 关键字则它们始终为 0
+// FRAME_COUNT：已呈现的总帧数
+// CURSOR_X 和 CURSOR_Y：光标位置，左上角为 0，右下角为 1
 
 
 // 变量定义
 // 含有 VALUE 关键字的变量会填充该表达式的值
 // 否则为在运行时可以改变的参数
+
 
 
 //!CONSTANT
@@ -33,6 +37,11 @@ int inputWidth;
 //!CONSTANT
 //!VALUE INPUT_HEIGHT
 int inputHeight;
+
+//!CONSTANT
+//!DYNAMIC
+//!VALUE FRAME_COUNT
+int frameCount;
 
 //!CONSTANT
 //!DEFAULT 0
