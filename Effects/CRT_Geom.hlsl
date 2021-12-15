@@ -139,10 +139,10 @@ float scanlineWeight;
 float lum;
 
 //!CONSTANT
-//!DEFAULT 0
+//!DEFAULT 1
 //!MIN 0
 //!MAX 1
-int interlaceToggle;
+int interlace;
 
 
 //!TEXTURE
@@ -247,7 +247,7 @@ float4 Pass1(float2 pos) {
 	float2 TextureSize = float2(sharper * inputWidth, inputHeight);
 	// Resulting X pixel-coordinate of the pixel we're drawing.
 	float mod_factor = pos.x * outputWidth;
-	float2 ilfac = { 1.0, clamp(floor(inputHeight / (200.0 * (-4 * interlaceToggle + 5))), 1.0, 2.0)};
+	float2 ilfac = { 1.0, clamp(floor(inputHeight / (200.0 * (-4 * interlace + 5))), 1.0, 2.0)};
 	float2 one = ilfac / TextureSize;
 
 	// Here's a helpful diagram to keep in mind while trying to
