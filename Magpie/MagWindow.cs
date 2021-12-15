@@ -67,6 +67,10 @@ namespace Magpie {
 			magThread = new Thread(() => {
 				Environment.CurrentDirectory = AppDomain.CurrentDomain.BaseDirectory;
 
+				const string logFileName = "logs/Runtime.log";
+				const int logArchiveAboveSize = 100000;
+				const int logMaxArchiveFiles = 1;
+
 				static uint ResolveLogLevel(uint logLevel) {
 					return logLevel switch {
 						1 => 2,
@@ -78,7 +82,12 @@ namespace Magpie {
 
 				bool initSuccess = false;
 				try {
-					initSuccess = NativeMethods.Initialize(ResolveLogLevel(Settings.Default.LoggingLevel));
+					initSuccess = NativeMethods.Initialize(
+						ResolveLogLevel(Settings.Default.LoggingLevel),
+						logFileName,
+						logArchiveAboveSize,
+						logMaxArchiveFiles
+					);
 				} catch (DllNotFoundException e) {
 					// 解决某些 DllImport 失败的问题
 					Logger.Warn(e, "未找到 Runtime.dll");
@@ -90,7 +99,12 @@ namespace Magpie {
 
 					// 再次尝试
 					try {
-						initSuccess = NativeMethods.Initialize(ResolveLogLevel(Settings.Default.LoggingLevel));
+						initSuccess = NativeMethods.Initialize(
+							ResolveLogLevel(Settings.Default.LoggingLevel),
+							logFileName,
+							logArchiveAboveSize,
+							logMaxArchiveFiles
+						);
 					} catch (Exception e1) {
 						Logger.Error(e1, "Initialize 失败");
 					}

@@ -58,10 +58,15 @@ API_DECLSPEC void WINAPI SetLogLevel(UINT logLevel) {
 }
 
 
-API_DECLSPEC BOOL WINAPI Initialize(UINT logLevel) {
+API_DECLSPEC BOOL WINAPI Initialize(
+	UINT logLevel,
+	const char* logFileName,
+	int logArchiveAboveSize,
+	int logMaxArchiveFiles
+) {
 	// 初始化日志
 	try {
-		logger = spdlog::rotating_logger_mt(".", "logs/Runtime.log", 100000, 1);
+		logger = spdlog::rotating_logger_mt(".", logFileName, logArchiveAboveSize, logMaxArchiveFiles);
 		logger->set_level((spdlog::level::level_enum)logLevel);
 		logger->set_pattern("%Y-%m-%d %H:%M:%S.%e|%l|%s:%!|%v");
 		logger->flush_on(spdlog::level::warn);
@@ -136,10 +141,10 @@ API_DECLSPEC const char* WINAPI Run(
 // 以下函数在用户界面的主线程上调用
 
 
-constexpr const char* ADAPTER_DELIMITER = "/$@\\";
 
-std::string InitGetAllGraphicsAdapters() {
-	std::string result;
+API_DECLSPEC const char* WINAPI GetAllGraphicsAdapters(const char* delimiter) {
+	static std::string result;
+	result.clear();
 
 	ComPtr<IDXGIFactory1> dxgiFactory;
 	HRESULT hr = CreateDXGIFactory1(IID_PPV_ARGS(&dxgiFactory));
@@ -154,7 +159,7 @@ std::string InitGetAllGraphicsAdapters() {
 			adapterIndex++
 	) {
 		if (adapterIndex > 0) {
-			result += ADAPTER_DELIMITER;
+			result += delimiter;
 		}
 
 		DXGI_ADAPTER_DESC1 desc;
@@ -166,10 +171,5 @@ std::string InitGetAllGraphicsAdapters() {
 		}
 	}
 
-	return result;
-}
-
-API_DECLSPEC const char* WINAPI GetAllGraphicsAdapters() {
-	static std::string result = InitGetAllGraphicsAdapters();
 	return result.c_str();
 }

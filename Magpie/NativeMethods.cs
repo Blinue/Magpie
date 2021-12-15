@@ -4,6 +4,7 @@ using System.Text;
 
 
 namespace Magpie {
+	[System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA2101:SpecifyMarshalingForPInvokeStringArguments")]
 	internal class NativeMethods {
 		public static readonly int MAGPIE_WM_SHOWME = RegisterWindowMessage("WM_SHOWME");
 		public static readonly int MAGPIE_WM_DESTORYHOST = RegisterWindowMessage("MAGPIE_WM_DESTORYHOST");
@@ -130,7 +131,12 @@ namespace Magpie {
 
 		[DllImport("Runtime", CallingConvention = CallingConvention.StdCall)]
 		[return: MarshalAs(UnmanagedType.Bool)]
-		public static extern bool Initialize(uint logLevel);
+		public static extern bool Initialize(
+			uint logLevel,
+			[MarshalAs(UnmanagedType.LPUTF8Str)] string logFileName,
+			int logArchiveAboveSize,
+			int logMaxArchiveFiles
+		);
 
 		[DllImport("Runtime", CallingConvention = CallingConvention.StdCall)]
 		public static extern void SetLogLevel(uint logLevel);
@@ -138,9 +144,7 @@ namespace Magpie {
 		[DllImport("Runtime", EntryPoint = "Run", CallingConvention = CallingConvention.StdCall)]
 		private static extern IntPtr RunNative(
 			IntPtr hwndSrc,
-#pragma warning disable CA2101 // 指定对 P/Invoke 字符串参数进行封送处理
 			[MarshalAs(UnmanagedType.LPUTF8Str)] string effectsJson,
-#pragma warning restore CA2101 // 指定对 P/Invoke 字符串参数进行封送处理
 			uint captureMode,
 			int frameRate,
 			float cursorZoomFactor,
@@ -175,11 +179,12 @@ namespace Magpie {
 		}
 
 		[DllImport("Runtime", EntryPoint = "GetAllGraphicsAdapters", CallingConvention = CallingConvention.StdCall)]
-		private static extern IntPtr GetAllGraphicsAdaptersNative();
+		private static extern IntPtr GetAllGraphicsAdaptersNative([MarshalAs(UnmanagedType.LPUTF8Str)] string delimiter);
 
 		public static string[] GetAllGraphicsAdapters() {
-			string result = PtrToUTF8String(GetAllGraphicsAdaptersNative())!;
-			return result.Split(@"/$@\", StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+			string delimiter = @"/$@\";
+			string result = PtrToUTF8String(GetAllGraphicsAdaptersNative(delimiter))!;
+			return result.Split(delimiter, StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
 		}
 	}
 }
