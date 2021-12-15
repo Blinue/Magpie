@@ -1,6 +1,6 @@
 // CRT-Hyllian
-// ÒÆÖ²×Ô https://github.com/libretro/common-shaders/blob/master/crt/shaders/crt-hyllian.cg
-// ÒªÇóÕûÊı±¶Ëõ·Å
+// ç§»æ¤è‡ª https://github.com/libretro/common-shaders/blob/master/crt/shaders/crt-hyllian.cg
+// è¦æ±‚æ•´æ•°å€ç¼©æ”¾
 
 /*
    Hyllian's CRT Shader

@@ -63,5 +63,6 @@
     <CopyFileToFolders Include="CRT_Geom.hlsl" />
     <CopyFileToFolders Include="CRT_Lottes.hlsl" />
     <CopyFileToFolders Include="CRT_Hyllian.hlsl" />
+    <CopyFileToFolders Include="GTU_v050.hlsl" />
   </ItemGroup>
 </Project>
