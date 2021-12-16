@@ -6,7 +6,6 @@ using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 using System.IO;
-using System.Diagnostics;
 
 
 namespace Magpie.Options {
@@ -16,7 +15,7 @@ namespace Magpie.Options {
 	public partial class ScaleOptionsPage : Page {
 		private static Logger Logger { get; } = LogManager.GetCurrentClassLogger();
 
-		private static readonly float[] cursorZoomFactors = { 0.5f, 0.75f, 1.0f, 1.5f, 2.0f, 2.5f, 3.0f, -1.0f };
+		private static readonly float[] cursorZoomFactors = { 0.5f, 0.75f, 1.0f, 1.25f, 1.5f, 2.0f, 2.5f, 3.0f, -1.0f };
 
 		private static readonly string[] graphicsAdapters = NativeMethods.GetAllGraphicsAdapters();
 

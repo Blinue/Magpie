@@ -152,7 +152,7 @@ bool App::Run(
 	_renderer.reset(new Renderer());
 	if (!_renderer->Initialize()) {
 		SPDLOG_LOGGER_CRITICAL(logger, "初始化 Renderer 失败，正在清理");
-		DestroyWindow(_hwndHost);
+		Close();
 		_Run();
 		return false;
 	}
@@ -478,5 +478,7 @@ void App::Close() {
 	if (_hwndDDF) {
 		DestroyWindow(_hwndDDF);
 	}
-	DestroyWindow(_hwndHost);
+	if (_hwndHost) {
+		DestroyWindow(_hwndHost);
+	}
 }
