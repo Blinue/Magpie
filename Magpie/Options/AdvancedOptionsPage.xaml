@@ -17,15 +17,20 @@
     </Page.Resources>
     
     <StackPanel>
-        <StackPanel Orientation="Horizontal">
-            <Label Content="{x:Static p:Resources.UI_Options_Advanced_Logging_Level}" Padding="0" VerticalContentAlignment="Center" />
-            <ComboBox x:Name="cbbLoggingLevel" Margin="10,0,0,0" SelectedIndex="{Binding Source={x:Static props:Settings.Default},Path=LoggingLevel,Mode=TwoWay}">
-                <ComboBoxItem Content="{x:Static p:Resources.UI_Options_Advanced_Logging_Level_Off}" />
-                <ComboBoxItem Content="{x:Static p:Resources.UI_Options_Advanced_Logging_Level_Info}" />
-                <ComboBoxItem Content="{x:Static p:Resources.UI_Options_Advanced_Logging_Level_Warn}" />
-                <ComboBoxItem Content="{x:Static p:Resources.UI_Options_Advanced_Logging_Level_Error}" />
-            </ComboBox>
+        <StackPanel>
+            <Label Content="{x:Static props:Resources.UI_Options_Advanced_Logging}" FontWeight="Bold" Padding="0" FontSize="15" />
+            <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                <Label Content="{x:Static p:Resources.UI_Options_Advanced_Logging_Level}" Padding="0" VerticalContentAlignment="Center" />
+                <ComboBox x:Name="cbbLoggingLevel" Margin="10,0,0,0" SelectedIndex="{Binding Source={x:Static props:Settings.Default},Path=LoggingLevel,Mode=TwoWay}">
+                    <ComboBoxItem Content="{x:Static p:Resources.UI_Options_Advanced_Logging_Level_Off}" />
+                    <ComboBoxItem Content="{x:Static p:Resources.UI_Options_Advanced_Logging_Level_Info}" />
+                    <ComboBoxItem Content="{x:Static p:Resources.UI_Options_Advanced_Logging_Level_Warn}" />
+                    <ComboBoxItem Content="{x:Static p:Resources.UI_Options_Advanced_Logging_Level_Error}" />
+                </ComboBox>
+            </StackPanel>
+            <Button Content="{x:Static p:Resources.UI_Options_Advanced_Open_Logs_Folder}" Click="BtnOpenLogsFolder_Click" HorizontalAlignment="Left" Margin="0,15,0,0" />
         </StackPanel>
+        
         <StackPanel x:Name="spDebug" Margin="0,20,0,0">
             <Label Content="{x:Static props:Resources.UI_Options_Advanced_Debug}" FontWeight="Bold" Padding="0" FontSize="15" />
             <CheckBox x:Name="ckbShowAllCaptureMethods"

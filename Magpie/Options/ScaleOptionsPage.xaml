@@ -16,7 +16,7 @@
 
     <StackPanel HorizontalAlignment="Left" VerticalAlignment="Top">
         <Button Content="{x:Static props:Resources.UI_Options_Scale_Open_Scale_Config}"
-                HorizontalAlignment="Left" Click="BtnScale_Click"/>
+                HorizontalAlignment="Left" Click="BtnOpenScaleConfig_Click"/>
         <StackPanel Orientation="Horizontal" Margin="0,15,0,0" >
             <Label Content="{x:Static props:Resources.UI_Options_Scale_Adapter}" Padding="0" VerticalContentAlignment="Center" />
             <ComboBox x:Name="cbbAdapter" Margin="10,0,0,0" SelectedIndex="{Binding Source={x:Static props:Settings.Default},Path=AdapterIdx,Mode=TwoWay}" />

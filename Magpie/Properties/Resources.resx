@@ -226,6 +226,9 @@
   <data name="UI_Options_Advanced_Disable_Effect_Cache" xml:space="preserve">
     <value>Disable Effect Cache</value>
   </data>
+  <data name="UI_Options_Advanced_Logging" xml:space="preserve">
+    <value>Logging</value>
+  </data>
   <data name="UI_Options_Advanced_Logging_Level" xml:space="preserve">
     <value>Logging Level</value>
   </data>
@@ -240,6 +243,9 @@
   </data>
   <data name="UI_Options_Advanced_Logging_Level_Warn" xml:space="preserve">
     <value>Warn</value>
+  </data>
+  <data name="UI_Options_Advanced_Open_Logs_Folder" xml:space="preserve">
+    <value>Open Logs Folder</value>
   </data>
   <data name="UI_Options_Advanced_Show_All_Capture_Methods" xml:space="preserve">
     <value>Show All Capture Methods</value>

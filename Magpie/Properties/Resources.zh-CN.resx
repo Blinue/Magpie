@@ -225,6 +225,9 @@
   <data name="UI_Options_Advanced_Disable_Effect_Cache" xml:space="preserve">
     <value>禁用效果缓存</value>
   </data>
+  <data name="UI_Options_Advanced_Logging" xml:space="preserve">
+    <value>日志</value>
+  </data>
   <data name="UI_Options_Advanced_Logging_Level" xml:space="preserve">
     <value>日志级别</value>
   </data>
@@ -239,6 +242,9 @@
   </data>
   <data name="UI_Options_Advanced_Logging_Level_Warn" xml:space="preserve">
     <value>警告</value>
+  </data>
+  <data name="UI_Options_Advanced_Open_Logs_Folder" xml:space="preserve">
+    <value>打开日志文件夹</value>
   </data>
   <data name="UI_Options_Advanced_Show_All_Capture_Methods" xml:space="preserve">
     <value>显示所有捕获模式</value>

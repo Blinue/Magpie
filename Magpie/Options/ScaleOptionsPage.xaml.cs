@@ -5,6 +5,8 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
+using System.IO;
+using System.Diagnostics;
 
 
 namespace Magpie.Options {
@@ -55,7 +57,13 @@ namespace Magpie.Options {
 			}
 		}
 
-		private void BtnScale_Click(object sender, RoutedEventArgs e) {
+		private void BtnOpenScaleConfig_Click(object sender, RoutedEventArgs e) {
+			if (!File.Exists(App.SCALE_MODELS_JSON_PATH)) {
+				Logger.Error("ScaleModels.json 不存在");
+				Debug.Assert(false);
+				return;
+			}
+
 			ProcessStartInfo psi = new(App.SCALE_MODELS_JSON_PATH) {
 				UseShellExecute = true
 			};

@@ -385,6 +385,15 @@ namespace Magpie.Properties {
         }
         
         /// <summary>
+        ///   查找类似 Logging 的本地化字符串。
+        /// </summary>
+        public static string UI_Options_Advanced_Logging {
+            get {
+                return ResourceManager.GetString("UI_Options_Advanced_Logging", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Logging Level 的本地化字符串。
         /// </summary>
         public static string UI_Options_Advanced_Logging_Level {
@@ -426,6 +435,15 @@ namespace Magpie.Properties {
         public static string UI_Options_Advanced_Logging_Level_Warn {
             get {
                 return ResourceManager.GetString("UI_Options_Advanced_Logging_Level_Warn", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Open Logs Folder 的本地化字符串。
+        /// </summary>
+        public static string UI_Options_Advanced_Open_Logs_Folder {
+            get {
+                return ResourceManager.GetString("UI_Options_Advanced_Open_Logs_Folder", resourceCulture);
             }
         }
         

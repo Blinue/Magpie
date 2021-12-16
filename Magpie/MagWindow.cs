@@ -67,7 +67,7 @@ namespace Magpie {
 			magThread = new Thread(() => {
 				Environment.CurrentDirectory = AppDomain.CurrentDomain.BaseDirectory;
 
-				const string logFileName = "logs/Runtime.log";
+				string logFileName = App.LOGS_FOLDER + "Runtime.log";
 				const int logArchiveAboveSize = 100000;
 				const int logMaxArchiveFiles = 1;
 

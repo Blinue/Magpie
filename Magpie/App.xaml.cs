@@ -19,6 +19,7 @@ namespace Magpie {
 	public partial class App : Application {
 		public static readonly Version APP_VERSION = new("0.8.0.0");
 		public static readonly string SCALE_MODELS_JSON_PATH = ".\\ScaleModels.json";
+		public static readonly string LOGS_FOLDER = ".\\logs\\";
 
 		private static Logger Logger { get; } = LogManager.GetCurrentClassLogger();
 
@@ -53,10 +54,10 @@ namespace Magpie {
 
 		private static void InitNLog() {
 			NLog.Targets.FileTarget logfile = new("logfile") {
-				FileName = "logs/Magpie.log",
+				FileName = LOGS_FOLDER + "Magpie.log",
 				ArchiveAboveSize= 100000,
 				MaxArchiveFiles = 1,
-				ArchiveFileName = "logs/Magpie.1.log",
+				ArchiveFileName = LOGS_FOLDER + "Magpie.1.log",
 				Encoding = System.Text.Encoding.UTF8,
 				KeepFileOpen = true,
 				Layout = "${longdate}|${level:uppercase=true}|${logger}|${message}${onexception:inner=|${exception}}"
