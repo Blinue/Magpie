@@ -58,11 +58,20 @@ bool GraphicsCaptureFrameSource::Initialize() {
 		return false;
 	}
 
+	// 有两层回落：
+	// 1. 首先使用常规的窗口捕获
+	// 2. 如果失败，尝试设置源窗口样式，因为 WGC 只能捕获位于 Alt+Tab 列表中的窗口
+	// 3. 如果再次失败，改为使用屏幕捕获
 	if (!_CaptureFromWindow(interop)) {
-		SPDLOG_LOGGER_INFO(logger, "源窗口无法使用窗口捕获，回落到屏幕捕获");
-		if (!_CaptureFromMonitor(interop)) {
-			SPDLOG_LOGGER_ERROR(logger, "屏幕捕获失败");
-			return false;
+		SPDLOG_LOGGER_INFO(logger, "窗口捕获失败，尝试设置源窗口样式");
+
+		if (!_CaptureFromStyledWindow(interop)) {
+			SPDLOG_LOGGER_INFO(logger, "窗口捕获失败，尝试使用屏幕捕获");
+
+			if (!_CaptureFromMonitor(interop)) {
+				SPDLOG_LOGGER_ERROR(logger, "屏幕捕获失败");
+				return false;
+			}
 		}
 	}
 
@@ -206,6 +215,40 @@ bool GraphicsCaptureFrameSource::_CaptureFromWindow(winrt::impl::com_ref<IGraphi
 	return true;
 }
 
+bool GraphicsCaptureFrameSource::_CaptureFromStyledWindow(winrt::impl::com_ref<IGraphicsCaptureItemInterop> interop) {
+	HWND hwndSrc = App::GetInstance().GetHwndSrc();
+
+	_srcWndStyle = GetWindowLongPtr(hwndSrc, GWL_EXSTYLE);
+	if (_srcWndStyle == 0) {
+		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetWindowLongPtr 失败"));
+		return false;
+	}
+
+	// 删除 WS_EX_TOOLWINDOW，添加 WS_EX_APPWINDOW 样式，确保源窗口可被 Alt+Tab 选中
+	LONG_PTR newStyle = (_srcWndStyle & !WS_EX_TOOLWINDOW) | WS_EX_APPWINDOW;
+
+	if (_srcWndStyle == newStyle) {
+		// 如果源窗口已经可被 Alt+Tab 选中，则回落到屏幕捕获
+		SPDLOG_LOGGER_INFO(logger, "源窗口无需改变样式");
+		return false;
+	}
+
+	if (!SetWindowLongPtr(hwndSrc, GWL_EXSTYLE, newStyle)) {
+		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("SetWindowLongPtr 失败"));
+		return false;
+	}
+
+	if (!_CaptureFromWindow(interop)) {
+		SPDLOG_LOGGER_ERROR(logger, "改变样式后捕获窗口失败");
+		// 还原源窗口样式
+		SetWindowLongPtr(hwndSrc, GWL_EXSTYLE, _srcWndStyle);
+		_srcWndStyle = 0;
+		return false;
+	}
+
+	return true;
+}
+
 bool GraphicsCaptureFrameSource::_CaptureFromMonitor(winrt::impl::com_ref<IGraphicsCaptureItemInterop> interop) {
 	// WDA_EXCLUDEFROMCAPTURE 只在 Win10 v2004 及更新版本中可用
 	const RTL_OSVERSIONINFOW& version = Utils::GetOSVersion();
@@ -281,5 +324,8 @@ GraphicsCaptureFrameSource::~GraphicsCaptureFrameSource() {
 		_captureFramePool.Close();
 	}
 
-	winrt::uninit_apartment();
+	// 还原源窗口样式
+	if (_srcWndStyle) {
+		SetWindowLongPtr(App::GetInstance().GetHwndSrc(), GWL_EXSTYLE, _srcWndStyle);
+	}
 }

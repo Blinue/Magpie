@@ -36,8 +36,11 @@ public:
 private:
 	bool _CaptureFromWindow(winrt::impl::com_ref<IGraphicsCaptureItemInterop> interop);
 
+	bool _CaptureFromStyledWindow(winrt::impl::com_ref<IGraphicsCaptureItemInterop> interop);
+
 	bool _CaptureFromMonitor(winrt::impl::com_ref<IGraphicsCaptureItemInterop> interop);
 
+	LONG_PTR _srcWndStyle = 0;
 	D3D11_BOX _frameBox{};
 
 	winrt::GraphicsCaptureItem _captureItem{ nullptr };

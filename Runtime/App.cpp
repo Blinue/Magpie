@@ -18,7 +18,7 @@ static constexpr const wchar_t* HOST_WINDOW_TITLE = L"Magpie_Host";
 
 App::~App() {
 	MagUninitialize();
-	Windows::Foundation::Uninitialize();
+	winrt::uninit_apartment();
 }
 
 bool App::Initialize(HINSTANCE hInst) {
