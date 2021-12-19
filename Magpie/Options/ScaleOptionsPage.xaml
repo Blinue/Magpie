@@ -24,6 +24,16 @@
         <CheckBox Content="{x:Static props:Resources.UI_Options_Scale_Show_Frame_Rate}"
                   Margin="0,15,0,0"
                   IsChecked="{Binding Source={x:Static props:Settings.Default},Path=ShowFPS,Mode=TwoWay}"/>
+        
+        <StackPanel Margin="0,20,0,0">
+            <Label Content="多显示器" FontWeight="Bold" Padding="0" FontSize="15" />
+            <RadioButton GroupName="Monitors" 
+                         Content="使用距离源窗口最近的显示器" Margin="0,10,0,0" />
+            <RadioButton GroupName="Monitors" 
+                         Content="使用源窗口所跨越的所有显示器" Margin="0,10,0,0" />
+            <RadioButton GroupName="Monitors" 
+                         Content="使用所有显示器" Margin="0,10,0,0" />
+        </StackPanel>
 
         <StackPanel Margin="0,20,0,0">
             <Label Content="{x:Static props:Resources.UI_Options_Scale_Cursor}" FontWeight="Bold" Padding="0" FontSize="15" />
@@ -57,19 +67,28 @@
             <RadioButton GroupName="FrameRate" 
                          IsChecked="{Binding Source={x:Static props:Settings.Default},Path=FrameRateType, Converter={StaticResource radioBoolToIntConverter},ConverterParameter=1,Mode=TwoWay}" 
                          Content="{x:Static props:Resources.UI_Options_Scale_Frame_Rate_Not_Limited}" Margin="0,10,0,0" />
-            <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+            <Grid Margin="0,10,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" MaxWidth="250" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
                 <RadioButton x:Name="rdbLimitFrameRate" GroupName="FrameRate" 
+                             Grid.Column="0"
                              IsChecked="{Binding Source={x:Static props:Settings.Default},Path=FrameRateType, Converter={StaticResource radioBoolToIntConverter},ConverterParameter=2,Mode=TwoWay}" 
                              Content="{x:Static props:Resources.UI_Options_Scale_Frame_Rate_Limiter}" VerticalAlignment="Center"  />
                 <Slider x:Name="sldFrameRate"
+                        Grid.Column="1"
                         IsEnabled="{Binding ElementName=rdbLimitFrameRate, Path=IsChecked,Mode=OneWay}" 
                         Value="{Binding Source={x:Static props:Settings.Default},Path=FrameRateLimit,Mode=TwoWay}" 
-                        Width="200" Minimum="30" Maximum="144" LargeChange="10" SmallChange="5" Margin="10,0,0,0" 
-                        TickFrequency="1" IsSnapToTickEnabled="True" />
+                        Minimum="30" Maximum="144" LargeChange="10" SmallChange="5" Margin="10,0,0,0" 
+                        TickFrequency="1" IsSnapToTickEnabled="True" HorizontalAlignment="Stretch" />
                 <Label IsEnabled="{Binding ElementName=rdbLimitFrameRate, Path=IsChecked,Mode=OneWay}"
+                       Grid.Column="2"
                        Content="{Binding ElementName=sldFrameRate,Path=Value,Mode=OneWay}"
                        Padding="0" Margin="10,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Center" />
-            </StackPanel>
+            </Grid>
         </StackPanel>
         <StackPanel Margin="0,20,0,0">
             <Label Content="{x:Static props:Resources.UI_Options_Scale_Performance}" FontWeight="Bold" Padding="0" FontSize="15" />

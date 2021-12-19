@@ -351,6 +351,12 @@ bool App::_CreateHostWnd() {
 		return false;
 	}
 
+	/*int vsWidth = GetSystemMetrics(SM_CXVIRTUALSCREEN);
+	int vsHeight = GetSystemMetrics(SM_CYVIRTUALSCREEN);
+	int vsX = GetSystemMetrics(SM_XVIRTUALSCREEN);
+	int vsY = GetSystemMetrics(SM_YVIRTUALSCREEN);
+	_hostWndRect = { vsX, vsY, vsX + vsWidth, vsY + vsHeight };*/
+
 	_hostWndRect = Utils::GetScreenRect(_hwndSrc);
 
 	_hwndHost = CreateWindowEx(
