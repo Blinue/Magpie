@@ -23,6 +23,7 @@ public:
 		float cursorZoomFactor,
 		UINT cursorInterpolationMode,
 		UINT adapterIdx,
+		UINT multiMonitorMode,
 		UINT flags
 	);
 
@@ -78,6 +79,10 @@ public:
 
 	UINT GetAdapterIdx() const {
 		return _adapterIdx;
+	}
+
+	UINT GetMultiMonitorMode() const {
+		return _multiMonitorMode;
 	}
 
 	bool IsNoCursor() const {
@@ -168,6 +173,7 @@ private:
 	float _cursorZoomFactor = 0;
 	UINT _cursorInterpolationMode = 0;
 	UINT _adapterIdx = 0;
+	UINT _multiMonitorMode = 0;
 	UINT _flags = 0;
 
 	enum class _FlagMasks : UINT {

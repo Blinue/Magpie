@@ -337,7 +337,7 @@
     <value>使用距离源窗口最近的显示器</value>
   </data>
   <data name="UI_Options_Scale_Multiple_Monitors_Intersect" xml:space="preserve">
-    <value>使用源窗口所跨越的所有显示器</value>
+    <value>使用源窗口跨越的所有显示器</value>
   </data>
   <data name="UI_Options_Scale_No_VSync" xml:space="preserve">
     <value>关闭垂直同步</value>

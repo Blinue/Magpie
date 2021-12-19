@@ -22,16 +22,8 @@ struct Utils {
 
 	static bool GetClientScreenRect(HWND hWnd, RECT& rect);
 
-	static RECT GetScreenRect(HWND hWnd) {
-		HMONITOR hMonitor = MonitorFromWindow(hWnd, MONITOR_DEFAULTTONEAREST);
-
-		MONITORINFO mi{};
-		mi.cbSize = sizeof(mi);
-		if (!GetMonitorInfo(hMonitor, &mi)) {
-			SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetMonitorInfo 出错"));
-			assert(false);
-		}
-		return mi.rcMonitor;
+	static bool CheckOverlap(const RECT& r1, const RECT& r2) {
+		return r1.right > r2.left && r1.bottom > r2.top && r1.left < r2.right&& r1.top < r2.bottom;
 	}
 
 	// 单位为微秒

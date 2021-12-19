@@ -40,7 +40,7 @@ bool App::Initialize(HINSTANCE hInst) {
 	return true;
 }
 
-BOOL CALLBACK EnumChildProc(
+static BOOL CALLBACK EnumChildProc(
 	_In_ HWND   hwnd,
 	_In_ LPARAM lParam
 ) {
@@ -105,6 +105,7 @@ bool App::Run(
 	float cursorZoomFactor,
 	UINT cursorInterpolationMode,
 	UINT adapterIdx,
+	UINT multiMonitorMode,
 	UINT flags
 ) {
 	_hwndSrc = hwndSrc;
@@ -113,9 +114,10 @@ bool App::Run(
 	_cursorZoomFactor = cursorZoomFactor;
 	_cursorInterpolationMode = cursorInterpolationMode;
 	_adapterIdx = adapterIdx;
+	_multiMonitorMode = multiMonitorMode;
 	_flags = flags;
 
-	SPDLOG_LOGGER_INFO(logger, fmt::format("运行时参数：\n\thwndSrc：{}\n\tcaptureMode：{}\n\tadjustCursorSpeed：{}\n\tshowFPS：{}\n\tframeRate：{}\n\tdisableLowLatency：{}\n\tbreakpointMode：{}\n\tdisableWindowResizing：{}\n\tdisableDirectFlip：{}\n\tConfineCursorIn3DGames：{}\n\tadapterIdx：{}\n\tCropTitleBarOfUWP：{}", (void*)hwndSrc, captureMode, IsAdjustCursorSpeed(), IsShowFPS(), frameRate, IsDisableLowLatency(), IsBreakpointMode(), IsDisableWindowResizing(), IsDisableDirectFlip(), IsConfineCursorIn3DGames(), adapterIdx, IsCropTitleBarOfUWP()));
+	SPDLOG_LOGGER_INFO(logger, fmt::format("运行时参数：\n\thwndSrc：{}\n\tcaptureMode：{}\n\tadjustCursorSpeed：{}\n\tshowFPS：{}\n\tframeRate：{}\n\tdisableLowLatency：{}\n\tbreakpointMode：{}\n\tdisableWindowResizing：{}\n\tdisableDirectFlip：{}\n\tConfineCursorIn3DGames：{}\n\tadapterIdx：{}\n\tCropTitleBarOfUWP：{}\n\tmultiMonitorMode: {}", (void*)hwndSrc, captureMode, IsAdjustCursorSpeed(), IsShowFPS(), frameRate, IsDisableLowLatency(), IsBreakpointMode(), IsDisableWindowResizing(), IsDisableDirectFlip(), IsConfineCursorIn3DGames(), adapterIdx, IsCropTitleBarOfUWP(), multiMonitorMode));
 
 	// 每次进入全屏都要重置
 	_nextTimerId = 1;
@@ -344,6 +346,80 @@ void App::_RegisterWndClasses() const {
 	}
 }
 
+static BOOL CALLBACK MonitorEnumProc(HMONITOR, HDC, LPRECT monitorRect, LPARAM data) {
+	RECT* params = (RECT*)data;
+
+	if (Utils::CheckOverlap(params[0], *monitorRect)) {
+		UnionRect(&params[1], monitorRect, &params[1]);
+	}
+	
+	return TRUE;
+}
+
+static bool CalcHostWndRect(HWND hWnd, UINT multiMonitorMode, RECT& result) {
+	switch (multiMonitorMode) {
+	case 0:
+	{
+		// 使用距离源窗口最近的显示器
+		HMONITOR hMonitor = MonitorFromWindow(hWnd, MONITOR_DEFAULTTONEAREST);
+		if (!hMonitor) {
+			SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("MonitorFromWindow 失败"));
+			return false;
+		}
+
+		MONITORINFO mi{};
+		mi.cbSize = sizeof(mi);
+		if (!GetMonitorInfo(hMonitor, &mi)) {
+			SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetMonitorInfo 失败"));
+			return false;
+		}
+		result = mi.rcMonitor;
+
+		break;
+	}
+	case 1:
+	{
+		// 使用源窗口跨越的所有显示器
+
+		// [0] 存储源窗口坐标，[1] 存储计算结果
+		RECT params[2]{};
+
+		if (!GetWindowRect(hWnd, &params[0])) {
+			SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetWindowRect 失败"));
+			return false;
+		}
+		
+		if (!EnumDisplayMonitors(NULL, NULL, MonitorEnumProc, (LPARAM)&params)) {
+			SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("EnumDisplayMonitors 失败"));
+			return false;
+		}
+		
+		result = params[1];
+		if (result.right - result.left <= 0 || result.bottom - result.top <= 0) {
+			SPDLOG_LOGGER_ERROR(logger, "计算主窗口坐标失败");
+			return false;
+		}
+
+		break;
+	}
+	case 2:
+	{
+		// 使用所有显示器（Virtual Screen）
+		int vsWidth = GetSystemMetrics(SM_CXVIRTUALSCREEN);
+		int vsHeight = GetSystemMetrics(SM_CYVIRTUALSCREEN);
+		int vsX = GetSystemMetrics(SM_XVIRTUALSCREEN);
+		int vsY = GetSystemMetrics(SM_YVIRTUALSCREEN);
+		result = { vsX, vsY, vsX + vsWidth, vsY + vsHeight };
+
+		break;
+	}
+	default:
+		return false;
+	}
+	
+	return true;
+}
+
 // 创建主窗口
 bool App::_CreateHostWnd() {
 	if (FindWindow(HOST_WINDOW_CLASS_NAME, nullptr)) {
@@ -351,13 +427,10 @@ bool App::_CreateHostWnd() {
 		return false;
 	}
 
-	/*int vsWidth = GetSystemMetrics(SM_CXVIRTUALSCREEN);
-	int vsHeight = GetSystemMetrics(SM_CYVIRTUALSCREEN);
-	int vsX = GetSystemMetrics(SM_XVIRTUALSCREEN);
-	int vsY = GetSystemMetrics(SM_YVIRTUALSCREEN);
-	_hostWndRect = { vsX, vsY, vsX + vsWidth, vsY + vsHeight };*/
-
-	_hostWndRect = Utils::GetScreenRect(_hwndSrc);
+	if (!CalcHostWndRect(_hwndSrc, GetMultiMonitorMode(), _hostWndRect)) {
+		SPDLOG_LOGGER_ERROR(logger, "CalcHostWndRect 失败");
+		return false;
+	}
 
 	_hwndHost = CreateWindowEx(
 		(IsBreakpointMode() ? 0 : WS_EX_TOPMOST) | WS_EX_NOACTIVATE | WS_EX_LAYERED | WS_EX_TRANSPARENT,

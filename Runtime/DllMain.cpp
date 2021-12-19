@@ -98,6 +98,7 @@ API_DECLSPEC const char* WINAPI Run(
 	float cursorZoomFactor,	// 负数和 0：和源原窗口相同，正数：缩放比例
 	UINT cursorInterpolationMode,	// 0：最近邻，1：双线性
 	UINT adapterIdx,
+	UINT multiMonitorMode,	// 0：最近 1：相交 2：所有
 	UINT flags
 ) {
 	if (!hwndSrc || !IsWindow(hwndSrc)) {
@@ -123,7 +124,7 @@ API_DECLSPEC const char* WINAPI Run(
 
 	App& app = App::GetInstance();
 	if (!app.Run(hwndSrc, effectsJson, captureMode, frameRate,
-		cursorZoomFactor, cursorInterpolationMode, adapterIdx, flags)
+		cursorZoomFactor, cursorInterpolationMode, adapterIdx, multiMonitorMode, flags)
 	) {
 		// 初始化失败
 		SPDLOG_LOGGER_INFO(logger, "App.Run 失败");

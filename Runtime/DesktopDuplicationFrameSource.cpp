@@ -156,10 +156,6 @@ bool DesktopDuplicationFrameSource::Initialize() {
 	return true;
 }
 
-inline bool CheckOverlap(const RECT& r1, const RECT& r2) {
-	return r1.right > r2.left && r1.bottom > r2.top && r1.left < r2.right && r1.top < r2.bottom;
-}
-
 FrameSourceBase::UpdateState DesktopDuplicationFrameSource::Update() {
 	DXGI_OUTDUPL_FRAME_INFO info;
 
@@ -199,7 +195,7 @@ FrameSourceBase::UpdateState DesktopDuplicationFrameSource::Update() {
 		UINT nRect = bufSize / sizeof(DXGI_OUTDUPL_MOVE_RECT);
 		for (UINT i = 0; i < nRect; ++i) {
 			const DXGI_OUTDUPL_MOVE_RECT& rect = ((DXGI_OUTDUPL_MOVE_RECT*)_dupMetaData.data())[i];
-			if (CheckOverlap(_srcClientInMonitor, rect.DestinationRect)) {
+			if (Utils::CheckOverlap(_srcClientInMonitor, rect.DestinationRect)) {
 				noUpdate = false;
 				break;
 			}
@@ -218,7 +214,7 @@ FrameSourceBase::UpdateState DesktopDuplicationFrameSource::Update() {
 			nRect = bufSize / sizeof(RECT);
 			for (UINT i = 0; i < nRect; ++i) {
 				const RECT& rect = ((RECT*)_dupMetaData.data())[i];
-				if (CheckOverlap(_srcClientInMonitor, rect)) {
+				if (Utils::CheckOverlap(_srcClientInMonitor, rect)) {
 					noUpdate = false;
 					break;
 				}
