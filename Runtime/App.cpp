@@ -115,7 +115,7 @@ bool App::Run(
 	_adapterIdx = adapterIdx;
 	_flags = flags;
 
-	SPDLOG_LOGGER_INFO(logger, fmt::format("运行时参数：\n\thwndSrc：{}\n\tcaptureMode：{}\n\tadjustCursorSpeed：{}\n\tshowFPS：{}\n\tdisableRoundCorner：{}\n\tframeRate：{}\n\tdisableLowLatency：{}\n\tbreakpointMode：{}\n\tdisableWindowResizing：{}\n\tdisableDirectFlip：{}\n\tConfineCursorIn3DGames：{}\n\tadapterIdx：{}\n\tCropTitleBarOfUWP：{}", (void*)hwndSrc, captureMode, IsAdjustCursorSpeed(), IsShowFPS(), IsDisableRoundCorner(), frameRate, IsDisableLowLatency(), IsBreakpointMode(), IsDisableWindowResizing(), IsDisableDirectFlip(), IsConfineCursorIn3DGames(), adapterIdx, IsCropTitleBarOfUWP()));
+	SPDLOG_LOGGER_INFO(logger, fmt::format("运行时参数：\n\thwndSrc：{}\n\tcaptureMode：{}\n\tadjustCursorSpeed：{}\n\tshowFPS：{}\n\tframeRate：{}\n\tdisableLowLatency：{}\n\tbreakpointMode：{}\n\tdisableWindowResizing：{}\n\tdisableDirectFlip：{}\n\tConfineCursorIn3DGames：{}\n\tadapterIdx：{}\n\tCropTitleBarOfUWP：{}", (void*)hwndSrc, captureMode, IsAdjustCursorSpeed(), IsShowFPS(), frameRate, IsDisableLowLatency(), IsBreakpointMode(), IsDisableWindowResizing(), IsDisableDirectFlip(), IsConfineCursorIn3DGames(), adapterIdx, IsCropTitleBarOfUWP()));
 
 	// 每次进入全屏都要重置
 	_nextTimerId = 1;
@@ -201,7 +201,7 @@ bool App::Run(
 
 	// 禁用窗口圆角
 	bool roundCornerDisabled = false;
-	if (IsDisableRoundCorner() && _frameSource->HasRoundCornerInWin11()) {
+	if (_frameSource->HasRoundCornerInWin11()) {
 		const auto& version = Utils::GetOSVersion();
 		bool isWin11 = Utils::CompareVersion(
 			version.dwMajorVersion, version.dwMinorVersion,

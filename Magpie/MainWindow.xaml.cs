@@ -290,7 +290,6 @@ namespace Magpie {
 				Settings.Default.ShowFPS,
 				Settings.Default.NoCursor,
 				Settings.Default.AdjustCursorSpeed,
-				Settings.Default.DisableRoundCorner,
 				Settings.Default.DisableWindowResizing,
 				Settings.Default.DisableLowLatency,
 				Settings.Default.DebugBreakpointMode,

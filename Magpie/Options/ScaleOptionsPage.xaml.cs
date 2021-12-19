@@ -6,7 +6,7 @@ using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 using System.IO;
-
+using System.Windows.Forms;
 
 namespace Magpie.Options {
 	/// <summary>
@@ -54,6 +54,8 @@ namespace Magpie.Options {
 				Settings.Default.CursorZoomFactor = 1.0f;
 				cbbCursorZoomFactor.SelectedIndex = 2;
 			}
+
+			spMutliMonitor.Visibility = Screen.AllScreens.Length > 1 ? Visibility.Visible : Visibility.Collapsed;
 		}
 
 		private void BtnOpenScaleConfig_Click(object sender, RoutedEventArgs e) {

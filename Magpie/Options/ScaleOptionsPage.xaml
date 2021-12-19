@@ -14,7 +14,7 @@
         </ResourceDictionary>
     </Page.Resources>
 
-    <StackPanel HorizontalAlignment="Left" VerticalAlignment="Top">
+    <StackPanel HorizontalAlignment="Stretch" VerticalAlignment="Top">
         <Button Content="{x:Static props:Resources.UI_Options_Scale_Open_Scale_Config}"
                 HorizontalAlignment="Left" Click="BtnOpenScaleConfig_Click"/>
         <StackPanel Orientation="Horizontal" Margin="0,15,0,0" >
@@ -25,14 +25,17 @@
                   Margin="0,15,0,0"
                   IsChecked="{Binding Source={x:Static props:Settings.Default},Path=ShowFPS,Mode=TwoWay}"/>
         
-        <StackPanel Margin="0,20,0,0">
-            <Label Content="多显示器" FontWeight="Bold" Padding="0" FontSize="15" />
+        <StackPanel x:Name="spMutliMonitor" Margin="0,20,0,0">
+            <Label Content="{x:Static props:Resources.UI_Options_Scale_Multiple_Monitors}" FontWeight="Bold" Padding="0" FontSize="15" />
             <RadioButton GroupName="Monitors" 
-                         Content="使用距离源窗口最近的显示器" Margin="0,10,0,0" />
+                         IsChecked="{Binding Source={x:Static props:Settings.Default},Path=MultiMonitorType, Converter={StaticResource radioBoolToUIntConverter},ConverterParameter=0,Mode=TwoWay}" 
+                         Content="{x:Static props:Resources.UI_Options_Scale_Multiple_Monitors_Nearest}" Margin="0,10,0,0" />
             <RadioButton GroupName="Monitors" 
-                         Content="使用源窗口所跨越的所有显示器" Margin="0,10,0,0" />
+                         IsChecked="{Binding Source={x:Static props:Settings.Default},Path=MultiMonitorType, Converter={StaticResource radioBoolToUIntConverter},ConverterParameter=1,Mode=TwoWay}" 
+                         Content="{x:Static props:Resources.UI_Options_Scale_Multiple_Monitors_Intersect}" Margin="0,10,0,0" />
             <RadioButton GroupName="Monitors" 
-                         Content="使用所有显示器" Margin="0,10,0,0" />
+                         IsChecked="{Binding Source={x:Static props:Settings.Default},Path=MultiMonitorType, Converter={StaticResource radioBoolToUIntConverter},ConverterParameter=2,Mode=TwoWay}" 
+                         Content="{x:Static props:Resources.UI_Options_Scale_Multiple_Monitors_All}" Margin="0,10,0,0" />
         </StackPanel>
 
         <StackPanel Margin="0,20,0,0">
@@ -62,10 +65,10 @@
         <StackPanel Margin="0,20,0,0">
             <Label Content="{x:Static props:Resources.UI_Options_Scale_Frame_Rate}" FontWeight="Bold" Padding="0" FontSize="15" />
             <RadioButton GroupName="FrameRate" 
-                         IsChecked="{Binding Source={x:Static props:Settings.Default},Path=FrameRateType, Converter={StaticResource radioBoolToIntConverter},ConverterParameter=0,Mode=TwoWay}" 
+                         IsChecked="{Binding Source={x:Static props:Settings.Default},Path=FrameRateType, Converter={StaticResource radioBoolToUIntConverter},ConverterParameter=0,Mode=TwoWay}" 
                          Content="{x:Static props:Resources.UI_Options_Scale_VSync}" Margin="0,10,0,0" />
             <RadioButton GroupName="FrameRate" 
-                         IsChecked="{Binding Source={x:Static props:Settings.Default},Path=FrameRateType, Converter={StaticResource radioBoolToIntConverter},ConverterParameter=1,Mode=TwoWay}" 
+                         IsChecked="{Binding Source={x:Static props:Settings.Default},Path=FrameRateType, Converter={StaticResource radioBoolToUIntConverter},ConverterParameter=1,Mode=TwoWay}" 
                          Content="{x:Static props:Resources.UI_Options_Scale_Frame_Rate_Not_Limited}" Margin="0,10,0,0" />
             <Grid Margin="0,10,0,0">
                 <Grid.ColumnDefinitions>
@@ -76,7 +79,7 @@
 
                 <RadioButton x:Name="rdbLimitFrameRate" GroupName="FrameRate" 
                              Grid.Column="0"
-                             IsChecked="{Binding Source={x:Static props:Settings.Default},Path=FrameRateType, Converter={StaticResource radioBoolToIntConverter},ConverterParameter=2,Mode=TwoWay}" 
+                             IsChecked="{Binding Source={x:Static props:Settings.Default},Path=FrameRateType, Converter={StaticResource radioBoolToUIntConverter},ConverterParameter=2,Mode=TwoWay}" 
                              Content="{x:Static props:Resources.UI_Options_Scale_Frame_Rate_Limiter}" VerticalAlignment="Center"  />
                 <Slider x:Name="sldFrameRate"
                         Grid.Column="1"

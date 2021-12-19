@@ -691,6 +691,42 @@ namespace Magpie.Properties {
         }
         
         /// <summary>
+        ///   查找类似 Multiple Monitors 的本地化字符串。
+        /// </summary>
+        public static string UI_Options_Scale_Multiple_Monitors {
+            get {
+                return ResourceManager.GetString("UI_Options_Scale_Multiple_Monitors", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Use All Monitors 的本地化字符串。
+        /// </summary>
+        public static string UI_Options_Scale_Multiple_Monitors_All {
+            get {
+                return ResourceManager.GetString("UI_Options_Scale_Multiple_Monitors_All", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Use the Monitors that the Source Window Intersects 的本地化字符串。
+        /// </summary>
+        public static string UI_Options_Scale_Multiple_Monitors_Intersect {
+            get {
+                return ResourceManager.GetString("UI_Options_Scale_Multiple_Monitors_Intersect", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Use the Monitor Nearest to the Source Window 的本地化字符串。
+        /// </summary>
+        public static string UI_Options_Scale_Multiple_Monitors_Nearest {
+            get {
+                return ResourceManager.GetString("UI_Options_Scale_Multiple_Monitors_Nearest", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Disable Vsync 的本地化字符串。
         /// </summary>
         public static string UI_Options_Scale_No_VSync {

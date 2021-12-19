@@ -96,10 +96,6 @@ public:
 		return _flags & (UINT)_FlagMasks::DisableLowLatency;
 	}
 
-	bool IsDisableRoundCorner() const {
-		return _flags & (UINT)_FlagMasks::DisableRoundCorner;
-	}
-
 	bool IsDisableWindowResizing() const {
 		return _flags & (UINT)_FlagMasks::DisableWindowResizing;
 	}
@@ -178,7 +174,7 @@ private:
 		NoCursor = 0x1,
 		AdjustCursorSpeed = 0x2,
 		ShowFPS = 0x4,
-		DisableRoundCorner = 0x8,
+		
 		DisableLowLatency = 0x10,
 		BreakpointMode = 0x20,
 		DisableWindowResizing = 0x40,

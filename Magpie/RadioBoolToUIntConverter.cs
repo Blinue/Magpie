@@ -5,9 +5,9 @@ using System.Windows.Data;
 
 
 namespace Magpie {
-	internal class RadioBoolToIntConverter : IValueConverter {
+	internal class RadioBoolToUIntConverter : IValueConverter {
 		public object Convert(object value, Type targetType, object parameter, CultureInfo culture) {
-			return value == null ? DependencyProperty.UnsetValue : (int)value == int.Parse(parameter.ToString() ?? "0");
+			return value == null ? DependencyProperty.UnsetValue : (uint)value == uint.Parse(parameter.ToString() ?? "0");
 		}
 
 		public object? ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) {

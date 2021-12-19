@@ -44,7 +44,6 @@ namespace Magpie {
 			NoCursor = 0x1,
 			AdjustCursorSpeed = 0x2,
 			ShowFPS = 0x4,
-			DisableRoundCorner = 0x8,
 			DisableLowLatency = 0x10,
 			BreakpointMode = 0x20,
 			DisableWindowResizing = 0x40,
@@ -186,7 +185,6 @@ namespace Magpie {
 			bool showFPS,
 			bool noCursor,
 			bool adjustCursorSpeed,
-			bool disableRoundCorner,
 			bool disableWindowResizing,
 			bool disableLowLatency,
 			bool breakpointMode,
@@ -222,7 +220,6 @@ namespace Magpie {
 			magWindowParams.flags = (showFPS ? (uint)FlagMasks.ShowFPS : 0) |
 				(noCursor ? (uint)FlagMasks.NoCursor : 0) |
 				(adjustCursorSpeed ? (uint)FlagMasks.AdjustCursorSpeed : 0) |
-				(disableRoundCorner ? (uint)FlagMasks.DisableRoundCorner : 0) |
 				(disableLowLatency ? (uint)FlagMasks.DisableLowLatency : 0) |
 				(breakpointMode ? (uint)FlagMasks.BreakpointMode : 0) |
 				(disableWindowResizing ? (uint)FlagMasks.DisableWindowResizing : 0) |

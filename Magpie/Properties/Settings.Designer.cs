@@ -158,24 +158,12 @@ namespace Magpie.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("0")]
-        public int FrameRateType {
+        public uint FrameRateType {
             get {
-                return ((int)(this["FrameRateType"]));
+                return ((uint)(this["FrameRateType"]));
             }
             set {
                 this["FrameRateType"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool DisableRoundCorner {
-            get {
-                return ((bool)(this["DisableRoundCorner"]));
-            }
-            set {
-                this["DisableRoundCorner"] = value;
             }
         }
         
@@ -332,6 +320,18 @@ namespace Magpie.Properties {
             }
             set {
                 this["DebugDisableEffectCache"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public uint MultiMonitorType {
+            get {
+                return ((uint)(this["MultiMonitorType"]));
+            }
+            set {
+                this["MultiMonitorType"] = value;
             }
         }
     }

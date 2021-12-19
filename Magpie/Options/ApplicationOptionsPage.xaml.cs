@@ -85,10 +85,6 @@ namespace Magpie.Options {
 			} else {
 				CkbRunAsAdmin_Unchecked(ckbRunAsAdmin, new RoutedEventArgs());
 			}
-
-			if (!OperatingSystem.IsWindowsVersionAtLeast(10, 0, 22000)) {
-				ckbDisableRoundCorner.Visibility = Visibility.Collapsed;
-			}
 		}
 
 		private void CbbLanguage_SelectionChanged(object sender, SelectionChangedEventArgs e) {
