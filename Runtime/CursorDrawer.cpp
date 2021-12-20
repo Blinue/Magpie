@@ -426,12 +426,6 @@ void CursorDrawer::_StopCapture(POINT cursorPt) {
 	//
 	// 在有黑边的情况下自动将光标调整到全屏窗口外
 
-	if (App::GetInstance().IsAdjustCursorSpeed()) {
-		SystemParametersInfo(SPI_SETMOUSESPEED, 0, (PVOID)(intptr_t)_cursorSpeed, 0);
-	}
-
-	MagShowSystemCursor(TRUE);
-
 	// 移动光标位置
 	const RECT& srcClientRect = App::GetInstance().GetSrcClientRect();
 	const RECT& hostRect = App::GetInstance().GetHostWndRect();
@@ -442,7 +436,7 @@ void CursorDrawer::_StopCapture(POINT cursorPt) {
 		cursorPt.x = hostRect.left + cursorPt.x - srcClientRect.left;
 	} else {
 		double pos = double(cursorPt.x - srcClientRect.left) / (srcClientRect.right - srcClientRect.left);
-		cursorPt.x = std::lround(pos * (_destRect.right - _destRect.left)) + _destRect.left;
+		cursorPt.x = std::lround(pos * (_destRect.right - _destRect.left)) + _destRect.left + hostRect.left;
 	}
 
 	if (cursorPt.y > srcClientRect.bottom) {
@@ -451,12 +445,23 @@ void CursorDrawer::_StopCapture(POINT cursorPt) {
 		cursorPt.y = hostRect.top + cursorPt.y - srcClientRect.top;
 	} else {
 		double pos = double(cursorPt.y - srcClientRect.top) / (srcClientRect.bottom - srcClientRect.top);
-		cursorPt.y = std::lround(pos * (_destRect.bottom - _destRect.top)) + _destRect.top;
+		cursorPt.y = std::lround(pos * (_destRect.bottom - _destRect.top)) + _destRect.top + hostRect.top;
 	}
 
-	SetCursorPos(cursorPt.x, cursorPt.y);
+	if (MonitorFromPoint(cursorPt, MONITOR_DEFAULTTONULL) != NULL) {
+		SetCursorPos(cursorPt.x, cursorPt.y);
 
-	_isUnderCapture = false;
+		if (App::GetInstance().IsAdjustCursorSpeed()) {
+			SystemParametersInfo(SPI_SETMOUSESPEED, 0, (PVOID)(intptr_t)_cursorSpeed, 0);
+		}
+
+		MagShowSystemCursor(TRUE);
+
+		_isUnderCapture = false;
+	} else {
+		ClipCursor(&srcClientRect);
+		ClipCursor(nullptr);
+	}
 }
 
 void CursorDrawer::Draw() {
