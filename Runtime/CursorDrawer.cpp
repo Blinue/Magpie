@@ -388,8 +388,6 @@ void CursorDrawer::_StartCapture(POINT cursorPt) {
 		} else {
 			SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("获取光标移速失败"));
 		}
-
-		SPDLOG_LOGGER_INFO(logger, "已调整光标移速");
 	}
 	
 	// 全局隐藏光标
@@ -449,12 +447,16 @@ void CursorDrawer::_StopCapture(POINT cursorPt) {
 	}
 
 	if (MonitorFromPoint(cursorPt, MONITOR_DEFAULTTONULL) != NULL) {
-		MagShowSystemCursor(TRUE);
+		if (!MagShowSystemCursor(TRUE)) {
+			SPDLOG_LOGGER_ERROR(logger, "MagShowSystemCursor 失败");
+		}
 
 		SetCursorPos(cursorPt.x, cursorPt.y);
 
 		if (App::GetInstance().IsAdjustCursorSpeed()) {
 			SystemParametersInfo(SPI_SETMOUSESPEED, 0, (PVOID)(intptr_t)_cursorSpeed, 0);
+			// WGC 捕获模式会随机使 MagShowSystemCursor(TRUE) 失效，重新加载光标可以解决这个问题
+			SystemParametersInfo(SPI_SETCURSORS, 0, 0, 0);
 		}
 
 		_isUnderCapture = false;
