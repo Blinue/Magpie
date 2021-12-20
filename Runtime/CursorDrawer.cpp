@@ -152,12 +152,11 @@ bool CursorDrawer::Initialize(ComPtr<ID3D11Texture2D> renderTarget, const RECT& 
 }
 
 CursorDrawer::~CursorDrawer() {
-	/*if (!App::GetInstance().IsBreakpointMode()) {
-		// CursorDrawer 析构时计时器已销毁
-		ClipCursor(nullptr);
-
-		
-	}*/
+	if (_isUnderCapture) {
+		POINT pt;
+		GetCursorPos(&pt);
+		_StopCapture(pt);
+	}
 
 	SPDLOG_LOGGER_INFO(logger, "CursorDrawer 已析构");
 }
