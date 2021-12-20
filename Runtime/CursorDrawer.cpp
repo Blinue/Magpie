@@ -377,6 +377,11 @@ void CursorDrawer::_StartCapture(POINT cursorPt) {
 	//
 	// 在有黑边的情况下自动将光标调整到画面内
 
+	// 全局隐藏光标
+	if (!MagShowSystemCursor(FALSE)) {
+		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("MagShowSystemCursor 失败"));
+	}
+
 	if (App::GetInstance().IsAdjustCursorSpeed()) {
 		// 设置鼠标移动速度
 		if (SystemParametersInfo(SPI_GETMOUSESPEED, 0, &_cursorSpeed, 0)) {
@@ -390,11 +395,6 @@ void CursorDrawer::_StartCapture(POINT cursorPt) {
 		}
 	}
 	
-	// 全局隐藏光标
-	if (!MagShowSystemCursor(FALSE)) {
-		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("MagShowSystemCursor 失败"));
-	}
-
 	// 移动光标位置
 	const RECT& srcClientRect = App::GetInstance().GetSrcClientRect();
 	const RECT& hostRect = App::GetInstance().GetHostWndRect();
@@ -424,7 +424,6 @@ void CursorDrawer::_StopCapture(POINT cursorPt) {
 	//
 	// 在有黑边的情况下自动将光标调整到全屏窗口外
 
-	// 移动光标位置
 	const RECT& srcClientRect = App::GetInstance().GetSrcClientRect();
 	const RECT& hostRect = App::GetInstance().GetHostWndRect();
 
@@ -446,24 +445,26 @@ void CursorDrawer::_StopCapture(POINT cursorPt) {
 		cursorPt.y = std::lround(pos * (_destRect.bottom - _destRect.top)) + _destRect.top + hostRect.top;
 	}
 
-	if (MonitorFromPoint(cursorPt, MONITOR_DEFAULTTONULL) != NULL) {
-		if (!MagShowSystemCursor(TRUE)) {
-			SPDLOG_LOGGER_ERROR(logger, "MagShowSystemCursor 失败");
-		}
-
-		SetCursorPos(cursorPt.x, cursorPt.y);
-
-		if (App::GetInstance().IsAdjustCursorSpeed()) {
-			SystemParametersInfo(SPI_SETMOUSESPEED, 0, (PVOID)(intptr_t)_cursorSpeed, 0);
-			// WGC 捕获模式会随机使 MagShowSystemCursor(TRUE) 失效，重新加载光标可以解决这个问题
-			SystemParametersInfo(SPI_SETCURSORS, 0, 0, 0);
-		}
-
-		_isUnderCapture = false;
-	} else {
+	if (MonitorFromPoint(cursorPt, MONITOR_DEFAULTTONULL) == NULL) {
+		// 边界之外无屏幕，则将光标限制在源窗口中
 		ClipCursor(&srcClientRect);
 		ClipCursor(nullptr);
+		return;
 	}
+
+	if (!MagShowSystemCursor(TRUE)) {
+		SPDLOG_LOGGER_ERROR(logger, "MagShowSystemCursor 失败");
+	}
+	// WGC 捕获模式会随机使 MagShowSystemCursor(TRUE) 失效，重新加载光标可以解决这个问题
+	SystemParametersInfo(SPI_SETCURSORS, 0, 0, 0);
+
+	SetCursorPos(cursorPt.x, cursorPt.y);
+
+	if (App::GetInstance().IsAdjustCursorSpeed()) {
+		SystemParametersInfo(SPI_SETMOUSESPEED, 0, (PVOID)(intptr_t)_cursorSpeed, 0);
+	}
+
+	_isUnderCapture = false;
 }
 
 void CursorDrawer::Draw() {

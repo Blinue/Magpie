@@ -607,9 +607,26 @@ bool Renderer::_CheckSrcState() {
 	HWND hwndSrc = App::GetInstance().GetHwndSrc();
 
 	if (!App::GetInstance().IsBreakpointMode()) {
-		if (GetForegroundWindow() != hwndSrc) {
-			SPDLOG_LOGGER_INFO(logger, "前台窗口已改变");
-			return false;
+		HWND hwndForeground = GetForegroundWindow();
+
+		if (hwndForeground && hwndForeground != hwndSrc) {
+			// 在多屏幕下放松限制，如果前台窗口和全屏窗口没有重叠部分则不退出全屏
+			
+			RECT rectForground{};
+			HRESULT hr = DwmGetWindowAttribute(hwndForeground,
+				DWMWA_EXTENDED_FRAME_BOUNDS, &rectForground, sizeof(rectForground));
+			if (FAILED(hr)) {
+				SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("DwmGetWindowAttribute 失败", hr));
+				return false;
+			}
+
+			IntersectRect(&rectForground, &App::GetInstance().GetHostWndRect(), &rectForground);
+
+			if (rectForground.right - rectForground.left > 10  && rectForground.right - rectForground.top > 10) {
+				// 允许稍微重叠，否则前台窗口最大化时会意外退出
+				SPDLOG_LOGGER_INFO(logger, "前台窗口已改变");
+				return false;
+			}
 		}
 	}
 

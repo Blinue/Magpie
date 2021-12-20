@@ -49,7 +49,7 @@ public:
 		return _hwndHost;
 	}
 
-	RECT GetHostWndRect() const {
+	const RECT& GetHostWndRect() const {
 		return _hostWndRect;
 	}
 
