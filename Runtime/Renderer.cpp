@@ -557,6 +557,8 @@ void Renderer::_Render() {
 	// 所有渲染都使用三角形带拓扑
 	_d3dDC->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 
+	_cursorDrawer.Update();
+
 	// 更新常量
 	if (!EffectDrawer::UpdateExprDynamicVars()) {
 		SPDLOG_LOGGER_ERROR(logger, "UpdateExprDynamicVars 失败");

@@ -130,7 +130,7 @@ bool CursorDrawer::Initialize(ComPtr<ID3D11Texture2D> renderTarget, const RECT& 
 	_clientScaleX = float(destRect.right - destRect.left) / srcSize.cx;
 	_clientScaleY = float(destRect.bottom - destRect.top) / srcSize.cy;
 	
-	if (!App::GetInstance().IsBreakpointMode()) {
+	/*if (!App::GetInstance().IsBreakpointMode()) {
 		// 限制光标在窗口内
 		if (App::GetInstance().IsConfineCursorIn3DGames()) {
 			// 为了在 3D 游戏中起作用，每隔一定时间执行一次
@@ -144,43 +144,40 @@ bool CursorDrawer::Initialize(ComPtr<ID3D11Texture2D> renderTarget, const RECT& 
 			SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("ClipCursor 失败"));
 		}
 
-		if (App::GetInstance().IsAdjustCursorSpeed()) {
-			// 设置鼠标移动速度
-			if (SystemParametersInfo(SPI_GETMOUSESPEED, 0, &_cursorSpeed, 0)) {
-				long newSpeed = std::clamp(lroundf(_cursorSpeed / (_clientScaleX + _clientScaleY) * 2), 1L, 20L);
-
-				if (!SystemParametersInfo(SPI_SETMOUSESPEED, 0, (PVOID)(intptr_t)newSpeed, 0)) {
-					SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("设置光标移速失败"));
-				}
-			} else {
-				SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("获取光标移速失败"));
-			}
-
-			SPDLOG_LOGGER_INFO(logger, "已调整光标移速");
-		}
-
-		if (!MagShowSystemCursor(FALSE)) {
-			SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("MagShowSystemCursor 失败"));
-		}
-	}
+		
+	}*/
 
 	SPDLOG_LOGGER_INFO(logger, "CursorDrawer 初始化完成");
 	return true;
 }
 
 CursorDrawer::~CursorDrawer() {
-	if (!App::GetInstance().IsBreakpointMode()) {
+	/*if (!App::GetInstance().IsBreakpointMode()) {
 		// CursorDrawer 析构时计时器已销毁
 		ClipCursor(nullptr);
 
-		if (App::GetInstance().IsAdjustCursorSpeed()) {
-			SystemParametersInfo(SPI_SETMOUSESPEED, 0, (PVOID)(intptr_t)_cursorSpeed, 0);
-		}
-
-		MagShowSystemCursor(TRUE);
-	}
+		
+	}*/
 
 	SPDLOG_LOGGER_INFO(logger, "CursorDrawer 已析构");
+}
+
+void CursorDrawer::Update() {
+	const RECT& srcClientRect = App::GetInstance().GetSrcClientRect();
+	const RECT& hostRect = App::GetInstance().GetHostWndRect();
+
+	CURSORINFO ci{ sizeof(CURSORINFO) };
+	GetCursorInfo(&ci);
+
+	if (_isUnderCapture) {
+		if (!PtInRect(&srcClientRect, ci.ptScreenPos)) {
+			_StopCapture(ci.ptScreenPos);
+		}
+	} else {
+		if (PtInRect(&hostRect, ci.ptScreenPos)) {
+			_StartCapture(ci.ptScreenPos);
+		}
+	}
 }
 
 bool GetHBmpBits32(HBITMAP hBmp, int& width, int& height, std::vector<BYTE>& pixels) {
@@ -370,8 +367,96 @@ bool CursorDrawer::_ResolveCursor(HCURSOR hCursor, _CursorInfo& result) const {
 	return true;
 }
 
+void CursorDrawer::_StartCapture(POINT cursorPt) {
+	// 在以下情况下进入捕获状态：
+	// 1. 当前未捕获
+	// 2. 光标进入全屏区域
+	// 
+	// 进入捕获状态时：
+	// 1. 调整光标速度，全局隐藏光标
+	// 2. 将光标移到源窗口的对应位置
+	//
+	// 在有黑边的情况下自动将光标调整到画面内
+
+	if (App::GetInstance().IsAdjustCursorSpeed()) {
+		// 设置鼠标移动速度
+		if (SystemParametersInfo(SPI_GETMOUSESPEED, 0, &_cursorSpeed, 0)) {
+			long newSpeed = std::clamp(lroundf(_cursorSpeed / (_clientScaleX + _clientScaleY) * 2), 1L, 20L);
+
+			if (!SystemParametersInfo(SPI_SETMOUSESPEED, 0, (PVOID)(intptr_t)newSpeed, 0)) {
+				SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("设置光标移速失败"));
+			}
+		} else {
+			SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("获取光标移速失败"));
+		}
+
+		SPDLOG_LOGGER_INFO(logger, "已调整光标移速");
+	}
+
+	// 全局隐藏光标
+	if (!MagShowSystemCursor(FALSE)) {
+		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("MagShowSystemCursor 失败"));
+	}
+
+	// 移动光标位置
+	const RECT& srcClientRect = App::GetInstance().GetSrcClientRect();
+	const RECT& hostRect = App::GetInstance().GetHostWndRect();
+	// 跳过黑边
+	cursorPt.x = std::clamp(cursorPt.x, hostRect.left + _destRect.left, hostRect.left + _destRect.right);
+	cursorPt.y = std::clamp(cursorPt.y, hostRect.top + _destRect.top, hostRect.top + _destRect.bottom);
+
+	double posX = double(cursorPt.x - hostRect.left) / (hostRect.right - hostRect.left);
+	double posY = double(cursorPt.y - hostRect.top) / (hostRect.bottom - hostRect.top);
+
+	SetCursorPos(
+		std::lround(posX * (srcClientRect.right - srcClientRect.left) + srcClientRect.left),
+		std::lround(posY * (srcClientRect.bottom - srcClientRect.top) + srcClientRect.top)
+	);
+
+	_isUnderCapture = true;
+}
+
+void CursorDrawer::_StopCapture(POINT cursorPt) {
+	// 在以下情况下离开捕获状态：
+	// 1. 当前处于捕获状态
+	// 2. 光标离开源窗口客户区
+	//
+	// 离开捕获状态时
+	// 1. 还原光标速度，全局显示光标
+	// 2. 将光标移到全屏窗口外的对应位置
+	//
+	// 在有黑边的情况下自动将光标调整到全屏窗口外
+
+	if (App::GetInstance().IsAdjustCursorSpeed()) {
+		SystemParametersInfo(SPI_SETMOUSESPEED, 0, (PVOID)(intptr_t)_cursorSpeed, 0);
+	}
+
+	MagShowSystemCursor(TRUE);
+
+	// 移动光标位置
+	const RECT& srcClientRect = App::GetInstance().GetSrcClientRect();
+	const RECT& hostRect = App::GetInstance().GetHostWndRect();
+
+	double posX = (cursorPt.x - srcClientRect.left) / double(srcClientRect.right - srcClientRect.left);
+	double posY = (cursorPt.y - srcClientRect.top) / double(srcClientRect.bottom - srcClientRect.top);
+
+	// 跳过黑边
+	/*cursorPt.x = std::clamp(cursorPt.x, hostRect.left + _destRect.left, hostRect.left + _destRect.right);
+	cursorPt.y = std::clamp(cursorPt.y, hostRect.top + _destRect.top, hostRect.top + _destRect.bottom);
+
+	double posX = double(cursorPt.x - hostRect.left - _destRect.left) / (hostRect.right - hostRect.left);
+	double posY = double(cursorPt.y - hostRect.top - _destRect.top) / (hostRect.bottom - hostRect.top);
+
+	SetCursorPos(
+		std::lround(posX * (srcClientRect.right - srcClientRect.left) + srcClientRect.left),
+		std::lround(posY * (srcClientRect.bottom - srcClientRect.top) + srcClientRect.top)
+	);*/
+
+	_isUnderCapture = false;
+}
+
 void CursorDrawer::Draw() {
-	if (App::GetInstance().IsNoCursor()) {
+	if (App::GetInstance().IsNoCursor() || !_isUnderCapture) {
 		// 不绘制光标
 		return;
 	}
