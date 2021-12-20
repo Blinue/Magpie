@@ -405,8 +405,8 @@ void CursorDrawer::_StartCapture(POINT cursorPt) {
 	cursorPt.x = std::clamp(cursorPt.x, hostRect.left + _destRect.left, hostRect.left + _destRect.right);
 	cursorPt.y = std::clamp(cursorPt.y, hostRect.top + _destRect.top, hostRect.top + _destRect.bottom);
 
-	double posX = double(cursorPt.x - hostRect.left) / (hostRect.right - hostRect.left);
-	double posY = double(cursorPt.y - hostRect.top) / (hostRect.bottom - hostRect.top);
+	double posX = double(cursorPt.x - hostRect.left - _destRect.left) / (_destRect.right - _destRect.left);
+	double posY = double(cursorPt.y - hostRect.top - _destRect.top) / (_destRect.bottom - _destRect.top);
 
 	SetCursorPos(
 		std::lround(posX * (srcClientRect.right - srcClientRect.left) + srcClientRect.left),
@@ -437,20 +437,25 @@ void CursorDrawer::_StopCapture(POINT cursorPt) {
 	const RECT& srcClientRect = App::GetInstance().GetSrcClientRect();
 	const RECT& hostRect = App::GetInstance().GetHostWndRect();
 
-	double posX = (cursorPt.x - srcClientRect.left) / double(srcClientRect.right - srcClientRect.left);
-	double posY = (cursorPt.y - srcClientRect.top) / double(srcClientRect.bottom - srcClientRect.top);
+	if (cursorPt.x > srcClientRect.right) {
+		cursorPt.x = hostRect.right + cursorPt.x - srcClientRect.right;
+	} else if (cursorPt.x < srcClientRect.left) {
+		cursorPt.x = hostRect.left + cursorPt.x - srcClientRect.left;
+	} else {
+		double pos = double(cursorPt.x - srcClientRect.left) / (srcClientRect.right - srcClientRect.left);
+		cursorPt.x = std::lround(pos * (_destRect.right - _destRect.left)) + _destRect.left;
+	}
 
-	// 跳过黑边
-	/*cursorPt.x = std::clamp(cursorPt.x, hostRect.left + _destRect.left, hostRect.left + _destRect.right);
-	cursorPt.y = std::clamp(cursorPt.y, hostRect.top + _destRect.top, hostRect.top + _destRect.bottom);
+	if (cursorPt.y > srcClientRect.bottom) {
+		cursorPt.y = hostRect.bottom + cursorPt.y - srcClientRect.bottom;
+	} else if (cursorPt.y < srcClientRect.top) {
+		cursorPt.y = hostRect.top + cursorPt.y - srcClientRect.top;
+	} else {
+		double pos = double(cursorPt.y - srcClientRect.top) / (srcClientRect.bottom - srcClientRect.top);
+		cursorPt.y = std::lround(pos * (_destRect.bottom - _destRect.top)) + _destRect.top;
+	}
 
-	double posX = double(cursorPt.x - hostRect.left - _destRect.left) / (hostRect.right - hostRect.left);
-	double posY = double(cursorPt.y - hostRect.top - _destRect.top) / (hostRect.bottom - hostRect.top);
-
-	SetCursorPos(
-		std::lround(posX * (srcClientRect.right - srcClientRect.left) + srcClientRect.left),
-		std::lround(posY * (srcClientRect.bottom - srcClientRect.top) + srcClientRect.top)
-	);*/
+	SetCursorPos(cursorPt.x, cursorPt.y);
 
 	_isUnderCapture = false;
 }
