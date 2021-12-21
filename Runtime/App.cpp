@@ -524,11 +524,6 @@ LRESULT App::_HostWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	}
 
 	switch (message) {
-	case WM_USER + 2:
-	{
-		SetCursorPos(wParam, lParam);
-		break;
-	}
 	case WM_DESTROY:
 	{
 		// 有两个退出路径：

@@ -42,13 +42,15 @@ LRESULT CALLBACK CursorDrawer::LowLevelMouseProc(int nCode, WPARAM wParam, LPARA
 		if (that._isUnderCapture) {
 			if (!PtInRect(&srcClientRect, info->pt)) {
 				that._StopCapture(info->pt);
-				PostMessage(App::GetInstance().GetHwndHost(), WM_USER + 2, info->pt.x, info->pt.y);
+				// 通常鼠标钩子里不能使用此函数，但放在这里出乎意料的可以工作
+				// 使用窗口消息似乎会随机丢掉一些调用
+				SetCursorPos(info->pt.x, info->pt.y);
 				return TRUE;
 			}
 		} else {
 			if (PtInRect(&hostRect, info->pt)) {
 				that._StartCapture(info->pt);
-				PostMessage(App::GetInstance().GetHwndHost(), WM_USER + 2, info->pt.x, info->pt.y);
+				SetCursorPos(info->pt.x, info->pt.y);
 				return TRUE;
 			}
 		}
@@ -157,6 +159,7 @@ bool CursorDrawer::Initialize(ComPtr<ID3D11Texture2D> renderTarget, const RECT& 
 	_clientScaleX = float(destRect.right - destRect.left) / srcSize.cx;
 	_clientScaleY = float(destRect.bottom - destRect.top) / srcSize.cy;
 	
+	// 此钩子会拖累光标移动流畅度！
 	_hCursorHook = SetWindowsHookEx(WH_MOUSE_LL, LowLevelMouseProc, NULL, 0);
 
 	/*if (!App::GetInstance().IsBreakpointMode()) {
