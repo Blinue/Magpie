@@ -432,6 +432,8 @@ bool App::_CreateHostWnd() {
 		return false;
 	}
 
+	_hostWndRect.right = _hostWndRect.left + (_hostWndRect.right - _hostWndRect.left) / 2;
+	_hostWndRect.bottom = _hostWndRect.top + (_hostWndRect.bottom - _hostWndRect.top) / 2;
 	
 	_hwndHost = CreateWindowEx(
 		(IsBreakpointMode() ? 0 : WS_EX_TOPMOST) | WS_EX_NOACTIVATE | WS_EX_LAYERED | WS_EX_TRANSPARENT,
@@ -522,6 +524,11 @@ LRESULT App::_HostWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	}
 
 	switch (message) {
+	case WM_USER + 2:
+	{
+		SetCursorPos(wParam, lParam);
+		break;
+	}
 	case WM_DESTROY:
 	{
 		// 有两个退出路径：

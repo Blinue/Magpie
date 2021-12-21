@@ -9,8 +9,6 @@ public:
 
 	~CursorDrawer();
 
-	void Update();
-
 	void Draw();
 
 private:
@@ -25,12 +23,15 @@ private:
 
 	bool _ResolveCursor(HCURSOR hCursor, _CursorInfo& result) const;
 
-	void _StartCapture(POINT cursorPt);
+	void _StartCapture(POINT& cursorPt);
 
-	void _StopCapture(POINT cursorPt);
+	void _StopCapture(POINT& cursorPt);
+
+	static LRESULT CALLBACK LowLevelMouseProc(int nCode, WPARAM wParam, LPARAM lParam);
 
 private:
-	bool _isUnderCapture = false;
+	HHOOK _hCursorHook = NULL;
+	std::atomic_bool _isUnderCapture = false;
 
 	SIZE _monoCursorSize{};
 	INT _cursorSpeed = 0;
