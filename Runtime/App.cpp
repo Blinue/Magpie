@@ -432,8 +432,6 @@ bool App::_CreateHostWnd() {
 		return false;
 	}
 
-	_hostWndRect.right = _hostWndRect.left + (_hostWndRect.right - _hostWndRect.left) / 2;
-	_hostWndRect.bottom = _hostWndRect.top + (_hostWndRect.bottom - _hostWndRect.top) / 2;
 	
 	_hwndHost = CreateWindowEx(
 		(IsBreakpointMode() ? 0 : WS_EX_TOPMOST) | WS_EX_NOACTIVATE | WS_EX_LAYERED | WS_EX_TRANSPARENT,

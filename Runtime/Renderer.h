@@ -58,10 +58,6 @@ public:
 		return _timer;
 	}
 
-	CursorDrawer& GetCursorDrawer() {
-		return _cursorDrawer;
-	}
-
 	D3D_FEATURE_LEVEL GetFeatureLevel() const {
 		return _featureLevel;
 	}
