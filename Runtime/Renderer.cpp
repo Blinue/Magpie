@@ -609,23 +609,28 @@ bool Renderer::_CheckSrcState() {
 	if (!App::GetInstance().IsBreakpointMode()) {
 		HWND hwndForeground = GetForegroundWindow();
 
+		// 在多屏幕下放松限制，如果前台窗口和全屏窗口没有重叠部分则不退出全屏
 		if (hwndForeground && hwndForeground != hwndSrc) {
-			// 在多屏幕下放松限制，如果前台窗口和全屏窗口没有重叠部分则不退出全屏
-			
-			RECT rectForground{};
-			HRESULT hr = DwmGetWindowAttribute(hwndForeground,
-				DWMWA_EXTENDED_FRAME_BOUNDS, &rectForground, sizeof(rectForground));
-			if (FAILED(hr)) {
-				SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("DwmGetWindowAttribute 失败", hr));
-				return false;
-			}
+			wchar_t className[256]{};
+			GetClassName(hwndForeground, (LPWSTR)className, 256);
 
-			IntersectRect(&rectForground, &App::GetInstance().GetHostWndRect(), &rectForground);
+			// 排除桌面窗口和 Alt+Tab 窗口
+			if (std::wcscmp(className, L"WorkerW") && std::wcscmp(className, L"ForegroundStaging") && std::wcscmp(className, L"MultitaskingViewFrame") && std::wcscmp(className, L"XamlExplorerHostIslandWindow")) {
+				RECT rectForground{};
+				HRESULT hr = DwmGetWindowAttribute(hwndForeground,
+					DWMWA_EXTENDED_FRAME_BOUNDS, &rectForground, sizeof(rectForground));
+				if (FAILED(hr)) {
+					SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("DwmGetWindowAttribute 失败", hr));
+					return false;
+				}
 
-			if (rectForground.right - rectForground.left > 10  && rectForground.right - rectForground.top > 10) {
+				IntersectRect(&rectForground, &App::GetInstance().GetHostWndRect(), &rectForground);
+
 				// 允许稍微重叠，否则前台窗口最大化时会意外退出
-				SPDLOG_LOGGER_INFO(logger, "前台窗口已改变");
-				return false;
+				if (rectForground.right - rectForground.left > 10 && rectForground.right - rectForground.top > 10) {
+					SPDLOG_LOGGER_INFO(logger, "前台窗口已改变");
+					return false;
+				}
 			}
 		}
 	}

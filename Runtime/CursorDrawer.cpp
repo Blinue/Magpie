@@ -165,16 +165,41 @@ void CursorDrawer::Update() {
 	const RECT& srcClientRect = App::GetInstance().GetSrcClientRect();
 	const RECT& hostRect = App::GetInstance().GetHostWndRect();
 
-	CURSORINFO ci{ sizeof(CURSORINFO) };
-	GetCursorInfo(&ci);
+	POINT cursorPt;
+	GetCursorPos(&cursorPt);
+
+	if (PtInRect(&srcClientRect, cursorPt) && _isUnderCapture) {
+		POINT hostPt{};
+
+		double t = double(cursorPt.x - srcClientRect.left) / (srcClientRect.right - srcClientRect.left);
+		hostPt.x = std::lround(t * (_destRect.right - _destRect.left)) + _destRect.left + hostRect.left;
+
+		t = double(cursorPt.y - srcClientRect.top) / (srcClientRect.bottom - srcClientRect.top);
+		hostPt.y = std::lround(t * (_destRect.bottom - _destRect.top)) + _destRect.top + hostRect.top;
+
+		bool leftClip = !MonitorFromPoint({ hostRect.left - 1, hostPt.y }, MONITOR_DEFAULTTONULL);
+		bool rightClip = !MonitorFromPoint({ hostRect.right, hostPt.y }, MONITOR_DEFAULTTONULL);
+		bool topClip = !MonitorFromPoint({ hostPt.x, hostRect.top - 1 }, MONITOR_DEFAULTTONULL);
+		bool bottomClip = !MonitorFromPoint({ hostPt.x, hostRect.bottom }, MONITOR_DEFAULTTONULL);
+
+		RECT clipRect = {
+			leftClip ? srcClientRect.left : LONG_MIN,
+			topClip ? srcClientRect.top : LONG_MIN,
+			rightClip ? srcClientRect.right : LONG_MAX,
+			bottomClip ? srcClientRect.bottom : LONG_MAX
+		};
+		ClipCursor(&clipRect);
+
+		GetCursorPos(&cursorPt);
+	}
 
 	if (_isUnderCapture) {
-		if (!PtInRect(&srcClientRect, ci.ptScreenPos)) {
-			_StopCapture(ci.ptScreenPos);
+		if (!PtInRect(&srcClientRect, cursorPt)) {
+			_StopCapture(cursorPt);
 		}
 	} else {
-		if (PtInRect(&hostRect, ci.ptScreenPos)) {
-			_StartCapture(ci.ptScreenPos);
+		if (PtInRect(&hostRect, cursorPt)) {
+			_StartCapture(cursorPt);
 		}
 	}
 }
@@ -424,6 +449,8 @@ void CursorDrawer::_StopCapture(POINT cursorPt) {
 	//
 	// 在有黑边的情况下自动将光标调整到全屏窗口外
 
+	ClipCursor(nullptr);
+
 	const RECT& srcClientRect = App::GetInstance().GetSrcClientRect();
 	const RECT& hostRect = App::GetInstance().GetHostWndRect();
 
@@ -445,11 +472,10 @@ void CursorDrawer::_StopCapture(POINT cursorPt) {
 		cursorPt.y = std::lround(pos * (_destRect.bottom - _destRect.top)) + _destRect.top + hostRect.top;
 	}
 
-	if (MonitorFromPoint(cursorPt, MONITOR_DEFAULTTONULL) == NULL) {
-		// 边界之外无屏幕，则将光标限制在源窗口中
-		ClipCursor(&srcClientRect);
-		ClipCursor(nullptr);
-		return;
+	SetCursorPos(cursorPt.x, cursorPt.y);
+
+	if (App::GetInstance().IsAdjustCursorSpeed()) {
+		SystemParametersInfo(SPI_SETMOUSESPEED, 0, (PVOID)(intptr_t)_cursorSpeed, 0);
 	}
 
 	if (!MagShowSystemCursor(TRUE)) {
@@ -457,13 +483,7 @@ void CursorDrawer::_StopCapture(POINT cursorPt) {
 	}
 	// WGC 捕获模式会随机使 MagShowSystemCursor(TRUE) 失效，重新加载光标可以解决这个问题
 	SystemParametersInfo(SPI_SETCURSORS, 0, 0, 0);
-
-	SetCursorPos(cursorPt.x, cursorPt.y);
-
-	if (App::GetInstance().IsAdjustCursorSpeed()) {
-		SystemParametersInfo(SPI_SETMOUSESPEED, 0, (PVOID)(intptr_t)_cursorSpeed, 0);
-	}
-
+	
 	_isUnderCapture = false;
 }
 
