@@ -6,7 +6,9 @@
 #include <VertexTypes.h>
 #include "EffectCompiler.h"
 #include <rapidjson/document.h>
+#include "psapi.h"
 
+#pragma comment(lib, "psapi.lib")
 
 extern std::shared_ptr<spdlog::logger> logger;
 
@@ -628,8 +630,35 @@ bool Renderer::_CheckSrcState() {
 
 				// 允许稍微重叠，否则前台窗口最大化时会意外退出
 				if (rectForground.right - rectForground.left > 10 && rectForground.right - rectForground.top > 10) {
-					SPDLOG_LOGGER_INFO(logger, "前台窗口已改变");
-					return false;
+					bool noCheck = false;
+					if (!std::wcscmp(className, L"Windows.UI.Core.CoreWindow")) {
+						// 对开始菜单的 hack
+						wchar_t buffer[MAX_PATH] = { 0 };
+						DWORD dwProcId = 0;
+
+						GetWindowThreadProcessId(hwndForeground, &dwProcId);
+
+						HANDLE hProc = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, dwProcId);
+						if (!GetModuleFileNameEx(hProc, NULL, buffer, MAX_PATH)) {
+							SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetModuleFileName 失败"));
+						}
+
+						std::wstring str = buffer;
+						str = str.substr(str.find_last_of(L'\\') + 1);
+						std::transform(str.begin(), str.end(), str.begin(), std::toupper);
+						if (str == L"SEARCHHOST.EXE" || str == L"STARTMENUEXPERIENCEHOST.EXE") {
+							noCheck = true;
+						} else {
+							OutputDebugString(L"tes");
+						}
+
+						CloseHandle(hProc);
+					}
+
+					if (!noCheck) {
+						SPDLOG_LOGGER_INFO(logger, "前台窗口已改变");
+						return false;
+					}
 				}
 			}
 		}
