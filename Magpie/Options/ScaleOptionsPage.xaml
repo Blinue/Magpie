@@ -25,16 +25,16 @@
                   Margin="0,15,0,0"
                   IsChecked="{Binding Source={x:Static props:Settings.Default},Path=ShowFPS,Mode=TwoWay}"/>
         
-        <StackPanel x:Name="spMutliMonitor" Margin="0,20,0,0">
+        <StackPanel x:Name="spMutliMonitorUsage" Margin="0,20,0,0">
             <Label Content="{x:Static props:Resources.UI_Options_Scale_Multiple_Monitors}" FontWeight="Bold" Padding="0" FontSize="15" />
             <RadioButton GroupName="Monitors" 
-                         IsChecked="{Binding Source={x:Static props:Settings.Default},Path=MultiMonitorMode, Converter={StaticResource radioBoolToUIntConverter},ConverterParameter=0,Mode=TwoWay}" 
+                         IsChecked="{Binding Source={x:Static props:Settings.Default},Path=MultiMonitorUsage, Converter={StaticResource radioBoolToUIntConverter},ConverterParameter=0,Mode=TwoWay}" 
                          Content="{x:Static props:Resources.UI_Options_Scale_Multiple_Monitors_Nearest}" Margin="0,10,0,0" />
             <RadioButton GroupName="Monitors" 
-                         IsChecked="{Binding Source={x:Static props:Settings.Default},Path=MultiMonitorMode, Converter={StaticResource radioBoolToUIntConverter},ConverterParameter=1,Mode=TwoWay}" 
+                         IsChecked="{Binding Source={x:Static props:Settings.Default},Path=MultiMonitorUsage, Converter={StaticResource radioBoolToUIntConverter},ConverterParameter=1,Mode=TwoWay}" 
                          Content="{x:Static props:Resources.UI_Options_Scale_Multiple_Monitors_Intersect}" Margin="0,10,0,0" />
             <RadioButton GroupName="Monitors" 
-                         IsChecked="{Binding Source={x:Static props:Settings.Default},Path=MultiMonitorMode, Converter={StaticResource radioBoolToUIntConverter},ConverterParameter=2,Mode=TwoWay}" 
+                         IsChecked="{Binding Source={x:Static props:Settings.Default},Path=MultiMonitorUsage, Converter={StaticResource radioBoolToUIntConverter},ConverterParameter=2,Mode=TwoWay}" 
                          Content="{x:Static props:Resources.UI_Options_Scale_Multiple_Monitors_All}" Margin="0,10,0,0" />
         </StackPanel>
 

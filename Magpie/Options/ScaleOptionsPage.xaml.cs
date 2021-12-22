@@ -55,7 +55,7 @@ namespace Magpie.Options {
 				cbbCursorZoomFactor.SelectedIndex = 2;
 			}
 
-			spMutliMonitor.Visibility = Screen.AllScreens.Length > 1 ? Visibility.Visible : Visibility.Collapsed;
+			spMutliMonitorUsage.Visibility = Screen.AllScreens.Length > 1 ? Visibility.Visible : Visibility.Collapsed;
 		}
 
 		private void BtnOpenScaleConfig_Click(object sender, RoutedEventArgs e) {

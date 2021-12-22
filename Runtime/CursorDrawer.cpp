@@ -130,8 +130,9 @@ bool CursorDrawer::Initialize(ComPtr<ID3D11Texture2D> renderTarget, const RECT& 
 	_clientScaleX = float(destRect.right - destRect.left) / srcSize.cx;
 	_clientScaleY = float(destRect.bottom - destRect.top) / srcSize.cy;
 	
-	/*if (!App::GetInstance().IsBreakpointMode()) {
-		// 限制光标在窗口内
+	if (!App::GetInstance().IsMultiMonitorMode() && !App::GetInstance().IsBreakpointMode()) {
+		// 非多屏幕模式下，将限制光标在窗口内
+
 		if (App::GetInstance().IsConfineCursorIn3DGames()) {
 			// 为了在 3D 游戏中起作用，每隔一定时间执行一次
 			if (!app.RegisterTimer(50, std::bind(ClipCursor, &App::GetInstance().GetSrcClientRect()))) {
@@ -144,24 +145,55 @@ bool CursorDrawer::Initialize(ComPtr<ID3D11Texture2D> renderTarget, const RECT& 
 			SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("ClipCursor 失败"));
 		}
 
-		
-	}*/
+		if (App::GetInstance().IsAdjustCursorSpeed()) {
+			// 设置鼠标移动速度
+			if (SystemParametersInfo(SPI_GETMOUSESPEED, 0, &_cursorSpeed, 0)) {
+				long newSpeed = std::clamp(lroundf(_cursorSpeed / (_clientScaleX + _clientScaleY) * 2), 1L, 20L);
+
+				if (!SystemParametersInfo(SPI_SETMOUSESPEED, 0, (PVOID)(intptr_t)newSpeed, 0)) {
+					SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("设置光标移速失败"));
+				}
+			} else {
+				SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("获取光标移速失败"));
+			}
+
+			SPDLOG_LOGGER_INFO(logger, "已调整光标移速");
+		}
+
+		if (!MagShowSystemCursor(FALSE)) {
+			SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("MagShowSystemCursor 失败"));
+		}
+	}
 
 	SPDLOG_LOGGER_INFO(logger, "CursorDrawer 初始化完成");
 	return true;
 }
 
 CursorDrawer::~CursorDrawer() {
-	if (_isUnderCapture) {
-		POINT pt;
-		GetCursorPos(&pt);
-		_StopCapture(pt);
+	if (App::GetInstance().IsMultiMonitorMode()) {
+		if (_isUnderCapture) {
+			POINT pt;
+			GetCursorPos(&pt);
+			_StopCapture(pt);
+		}
+	} else if (!App::GetInstance().IsBreakpointMode()) {
+		// CursorDrawer 析构时计时器已销毁
+		ClipCursor(nullptr);
+		if (App::GetInstance().IsAdjustCursorSpeed()) {
+			SystemParametersInfo(SPI_SETMOUSESPEED, 0, (PVOID)(intptr_t)_cursorSpeed, 0);
+		}
+
+		MagShowSystemCursor(TRUE);
 	}
 
 	SPDLOG_LOGGER_INFO(logger, "CursorDrawer 已析构");
 }
 
 void CursorDrawer::Update() {
+	if (!App::GetInstance().IsMultiMonitorMode()) {
+		return;
+	}
+
 	const RECT& srcClientRect = App::GetInstance().GetSrcClientRect();
 	const RECT& hostRect = App::GetInstance().GetHostWndRect();
 
@@ -189,8 +221,6 @@ void CursorDrawer::Update() {
 			bottomClip ? srcClientRect.bottom : LONG_MAX
 		};
 		ClipCursor(&clipRect);
-
-		GetCursorPos(&cursorPt);
 	}
 
 	if (_isUnderCapture) {
@@ -402,26 +432,24 @@ void CursorDrawer::_StartCapture(POINT cursorPt) {
 	//
 	// 在有黑边的情况下自动将光标调整到画面内
 
-	if (!App::GetInstance().IsBreakpointMode()) {
-		// 全局隐藏光标
-		if (!MagShowSystemCursor(FALSE)) {
-			SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("MagShowSystemCursor 失败"));
-		}
+	// 全局隐藏光标
+	if (!MagShowSystemCursor(FALSE)) {
+		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("MagShowSystemCursor 失败"));
+	}
 
-		if (App::GetInstance().IsAdjustCursorSpeed()) {
-			// 设置鼠标移动速度
-			if (SystemParametersInfo(SPI_GETMOUSESPEED, 0, &_cursorSpeed, 0)) {
-				long newSpeed = std::clamp(lroundf(_cursorSpeed / (_clientScaleX + _clientScaleY) * 2), 1L, 20L);
+	if (App::GetInstance().IsAdjustCursorSpeed()) {
+		// 设置鼠标移动速度
+		if (SystemParametersInfo(SPI_GETMOUSESPEED, 0, &_cursorSpeed, 0)) {
+			long newSpeed = std::clamp(lroundf(_cursorSpeed / (_clientScaleX + _clientScaleY) * 2), 1L, 20L);
 
-				if (!SystemParametersInfo(SPI_SETMOUSESPEED, 0, (PVOID)(intptr_t)newSpeed, 0)) {
-					SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("设置光标移速失败"));
-				}
-			} else {
-				SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("获取光标移速失败"));
+			if (!SystemParametersInfo(SPI_SETMOUSESPEED, 0, (PVOID)(intptr_t)newSpeed, 0)) {
+				SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("设置光标移速失败"));
 			}
+		} else {
+			SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("获取光标移速失败"));
 		}
 	}
-	
+
 	// 移动光标位置
 	const RECT& srcClientRect = App::GetInstance().GetSrcClientRect();
 	const RECT& hostRect = App::GetInstance().GetHostWndRect();
@@ -476,23 +504,23 @@ void CursorDrawer::_StopCapture(POINT cursorPt) {
 
 	SetCursorPos(cursorPt.x, cursorPt.y);
 
-	if (!App::GetInstance().IsBreakpointMode()) {
-		if (App::GetInstance().IsAdjustCursorSpeed()) {
-			SystemParametersInfo(SPI_SETMOUSESPEED, 0, (PVOID)(intptr_t)_cursorSpeed, 0);
-		}
-
-		if (!MagShowSystemCursor(TRUE)) {
-			SPDLOG_LOGGER_ERROR(logger, "MagShowSystemCursor 失败");
-		}
-		// WGC 捕获模式会随机使 MagShowSystemCursor(TRUE) 失效，重新加载光标可以解决这个问题
-		SystemParametersInfo(SPI_SETCURSORS, 0, 0, 0);
+	if (App::GetInstance().IsAdjustCursorSpeed()) {
+		SystemParametersInfo(SPI_SETMOUSESPEED, 0, (PVOID)(intptr_t)_cursorSpeed, 0);
 	}
-	
+
+	if (!MagShowSystemCursor(TRUE)) {
+		SPDLOG_LOGGER_ERROR(logger, "MagShowSystemCursor 失败");
+	}
+	// WGC 捕获模式会随机使 MagShowSystemCursor(TRUE) 失效，重新加载光标可以解决这个问题
+	SystemParametersInfo(SPI_SETCURSORS, 0, 0, 0);
+
 	_isUnderCapture = false;
 }
 
 void CursorDrawer::Draw() {
-	if (App::GetInstance().IsNoCursor() || !_isUnderCapture) {
+	if (App::GetInstance().IsNoCursor() || (App::GetInstance().IsMultiMonitorMode() &&
+		!_isUnderCapture && !App::GetInstance().IsBreakpointMode())
+	) {
 		// 不绘制光标
 		return;
 	}

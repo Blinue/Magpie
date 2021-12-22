@@ -326,12 +326,12 @@ namespace Magpie.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("0")]
-        public uint MultiMonitorMode {
+        public uint MultiMonitorUsage {
             get {
-                return ((uint)(this["MultiMonitorMode"]));
+                return ((uint)(this["MultiMonitorUsage"]));
             }
             set {
-                this["MultiMonitorMode"] = value;
+                this["MultiMonitorUsage"] = value;
             }
         }
     }

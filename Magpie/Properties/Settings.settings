@@ -77,7 +77,7 @@
     <Setting Name="DebugDisableEffectCache" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
-    <Setting Name="MultiMonitorMode" Type="System.UInt32" Scope="User">
+    <Setting Name="MultiMonitorUsage" Type="System.UInt32" Scope="User">
       <Value Profile="(Default)">0</Value>
     </Setting>
   </Settings>

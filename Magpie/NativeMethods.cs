@@ -173,11 +173,11 @@ namespace Magpie {
 			float cursorZoomFactor,
 			uint cursorInterpolationMode,
 			uint adapterIdx,
-			uint multiMonitorMode,
+			uint multiMonitorUsage,
 			uint flags
 		) {
 			return PtrToUTF8String(RunNative(hwndSrc, effectsJson, captureMode,
-				frameRate, cursorZoomFactor, cursorInterpolationMode, adapterIdx, multiMonitorMode, flags));
+				frameRate, cursorZoomFactor, cursorInterpolationMode, adapterIdx, multiMonitorUsage, flags));
 		}
 
 		[DllImport("Runtime", EntryPoint = "GetAllGraphicsAdapters", CallingConvention = CallingConvention.StdCall)]

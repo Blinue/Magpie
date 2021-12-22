@@ -617,6 +617,11 @@ bool CheckForeground(HWND hwndForeground) {
 		return true;
 	}
 
+	// 非多屏幕模式下退出全屏
+	if (!App::GetInstance().IsMultiMonitorMode()) {
+		return false;
+	}
+
 	RECT rectForground{};
 	HRESULT hr = DwmGetWindowAttribute(hwndForeground,
 		DWMWA_EXTENDED_FRAME_BOUNDS, &rectForground, sizeof(rectForground));
@@ -628,7 +633,7 @@ bool CheckForeground(HWND hwndForeground) {
 	IntersectRect(&rectForground, &App::GetInstance().GetHostWndRect(), &rectForground);
 
 	// 允许稍微重叠，否则前台窗口最大化时会意外退出
-	if (rectForground.right - rectForground.left < 10 && rectForground.right - rectForground.top < 10) {
+	if (rectForground.right - rectForground.left < 10 || rectForground.right - rectForground.top < 10) {
 		return true;
 	}
 

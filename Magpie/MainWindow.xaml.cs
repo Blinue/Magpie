@@ -287,7 +287,7 @@ namespace Magpie {
 				Settings.Default.CursorZoomFactor,
 				Settings.Default.CursorInterpolationMode,
 				Settings.Default.AdapterIdx,
-				Settings.Default.MultiMonitorMode,
+				Settings.Default.MultiMonitorUsage,
 				Settings.Default.ShowFPS,
 				Settings.Default.NoCursor,
 				Settings.Default.AdjustCursorSpeed,

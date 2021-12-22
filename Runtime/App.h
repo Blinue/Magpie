@@ -81,8 +81,12 @@ public:
 		return _adapterIdx;
 	}
 
-	UINT GetMultiMonitorMode() const {
-		return _multiMonitorMode;
+	UINT GetMultiMonitorUsage() const {
+		return _multiMonitorUsage;
+	}
+
+	bool IsMultiMonitorMode() const {
+		return _isMultiMonitorMode;
 	}
 
 	bool IsNoCursor() const {
@@ -173,7 +177,7 @@ private:
 	float _cursorZoomFactor = 0;
 	UINT _cursorInterpolationMode = 0;
 	UINT _adapterIdx = 0;
-	UINT _multiMonitorMode = 0;
+	UINT _multiMonitorUsage = 0;
 	UINT _flags = 0;
 
 	enum class _FlagMasks : UINT {
@@ -189,6 +193,9 @@ private:
 		CropTitleBarOfUWP = 0x200,
 		DisableEffectCache = 0x400
 	};
+
+	// 多屏幕模式下光标可以在屏幕间自由移动
+	bool _isMultiMonitorMode = false;
 
 	std::unique_ptr<Renderer> _renderer;
 	std::unique_ptr<FrameSourceBase> _frameSource;
