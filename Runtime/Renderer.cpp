@@ -6,9 +6,7 @@
 #include <VertexTypes.h>
 #include "EffectCompiler.h"
 #include <rapidjson/document.h>
-#include "psapi.h"
 
-#pragma comment(lib, "psapi.lib")
 
 extern std::shared_ptr<spdlog::logger> logger;
 
@@ -605,62 +603,69 @@ void Renderer::_Render() {
 	}
 }
 
+bool CheckForeground(HWND hwndForeground) {
+	wchar_t className[256]{};
+	if (!GetClassName(hwndForeground, (LPWSTR)className, 256)) {
+		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetClassName 失败"));
+		return false;
+	}
+
+	// 排除桌面窗口和 Alt+Tab 窗口
+	if (!std::wcscmp(className, L"WorkerW") || !std::wcscmp(className, L"ForegroundStaging") ||
+		!std::wcscmp(className, L"MultitaskingViewFrame") || !std::wcscmp(className, L"XamlExplorerHostIslandWindow")
+	) {
+		return true;
+	}
+
+	RECT rectForground{};
+	HRESULT hr = DwmGetWindowAttribute(hwndForeground,
+		DWMWA_EXTENDED_FRAME_BOUNDS, &rectForground, sizeof(rectForground));
+	if (FAILED(hr)) {
+		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("DwmGetWindowAttribute 失败", hr));
+		return false;
+	}
+
+	IntersectRect(&rectForground, &App::GetInstance().GetHostWndRect(), &rectForground);
+
+	// 允许稍微重叠，否则前台窗口最大化时会意外退出
+	if (rectForground.right - rectForground.left < 10 && rectForground.right - rectForground.top < 10) {
+		return true;
+	}
+
+	// 排除开始菜单
+	if (std::wcscmp(className, L"Windows.UI.Core.CoreWindow")) {
+		return false;
+	}
+
+	wchar_t buffer[MAX_PATH] = { 0 };
+	DWORD dwProcId = 0;
+
+	GetWindowThreadProcessId(hwndForeground, &dwProcId);
+
+	HANDLE hProc = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, dwProcId);
+	if (!GetModuleFileNameEx(hProc, NULL, buffer, MAX_PATH)) {
+		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetModuleFileName 失败"));
+		return false;
+	}
+	CloseHandle(hProc);
+
+	std::string str = StrUtils::UTF16ToUTF8(buffer);
+	str = str.substr(str.find_last_of(L'\\') + 1);
+	std::transform(str.begin(), str.end(), str.begin(), StrUtils::toupper);
+
+	// win10: SEARCHAPP.EXE 和 STARTMENUEXPERIENCEHOST.EXE
+	// win11: SEARCHHOST.EXE 和 STARTMENUEXPERIENCEHOST.EXE
+	return str == "SEARCHAPP.EXE" || str == "SEARCHHOST.EXE" || str == "STARTMENUEXPERIENCEHOST.EXE";
+}
+
 bool Renderer::_CheckSrcState() {
 	HWND hwndSrc = App::GetInstance().GetHwndSrc();
 
 	if (!App::GetInstance().IsBreakpointMode()) {
 		HWND hwndForeground = GetForegroundWindow();
-
-		// 在多屏幕下放松限制，如果前台窗口和全屏窗口没有重叠部分则不退出全屏
-		if (hwndForeground && hwndForeground != hwndSrc) {
-			wchar_t className[256]{};
-			GetClassName(hwndForeground, (LPWSTR)className, 256);
-
-			// 排除桌面窗口和 Alt+Tab 窗口
-			if (std::wcscmp(className, L"WorkerW") && std::wcscmp(className, L"ForegroundStaging") && std::wcscmp(className, L"MultitaskingViewFrame") && std::wcscmp(className, L"XamlExplorerHostIslandWindow")) {
-				RECT rectForground{};
-				HRESULT hr = DwmGetWindowAttribute(hwndForeground,
-					DWMWA_EXTENDED_FRAME_BOUNDS, &rectForground, sizeof(rectForground));
-				if (FAILED(hr)) {
-					SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("DwmGetWindowAttribute 失败", hr));
-					return false;
-				}
-
-				IntersectRect(&rectForground, &App::GetInstance().GetHostWndRect(), &rectForground);
-
-				// 允许稍微重叠，否则前台窗口最大化时会意外退出
-				if (rectForground.right - rectForground.left > 10 && rectForground.right - rectForground.top > 10) {
-					bool noCheck = false;
-					if (!std::wcscmp(className, L"Windows.UI.Core.CoreWindow")) {
-						// 对开始菜单的 hack
-						wchar_t buffer[MAX_PATH] = { 0 };
-						DWORD dwProcId = 0;
-
-						GetWindowThreadProcessId(hwndForeground, &dwProcId);
-
-						HANDLE hProc = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, dwProcId);
-						if (!GetModuleFileNameEx(hProc, NULL, buffer, MAX_PATH)) {
-							SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetModuleFileName 失败"));
-						}
-
-						std::wstring str = buffer;
-						str = str.substr(str.find_last_of(L'\\') + 1);
-						std::transform(str.begin(), str.end(), str.begin(), std::toupper);
-						if (str == L"SEARCHHOST.EXE" || str == L"STARTMENUEXPERIENCEHOST.EXE") {
-							noCheck = true;
-						} else {
-							OutputDebugString(L"tes");
-						}
-
-						CloseHandle(hProc);
-					}
-
-					if (!noCheck) {
-						SPDLOG_LOGGER_INFO(logger, "前台窗口已改变");
-						return false;
-					}
-				}
-			}
+		if (hwndForeground && hwndForeground != hwndSrc && !CheckForeground(hwndForeground)) {
+			SPDLOG_LOGGER_INFO(logger, "前台窗口已改变");
+			return false;
 		}
 	}
 

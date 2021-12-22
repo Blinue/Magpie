@@ -402,21 +402,23 @@ void CursorDrawer::_StartCapture(POINT cursorPt) {
 	//
 	// 在有黑边的情况下自动将光标调整到画面内
 
-	// 全局隐藏光标
-	if (!MagShowSystemCursor(FALSE)) {
-		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("MagShowSystemCursor 失败"));
-	}
+	if (!App::GetInstance().IsBreakpointMode()) {
+		// 全局隐藏光标
+		if (!MagShowSystemCursor(FALSE)) {
+			SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("MagShowSystemCursor 失败"));
+		}
 
-	if (App::GetInstance().IsAdjustCursorSpeed()) {
-		// 设置鼠标移动速度
-		if (SystemParametersInfo(SPI_GETMOUSESPEED, 0, &_cursorSpeed, 0)) {
-			long newSpeed = std::clamp(lroundf(_cursorSpeed / (_clientScaleX + _clientScaleY) * 2), 1L, 20L);
+		if (App::GetInstance().IsAdjustCursorSpeed()) {
+			// 设置鼠标移动速度
+			if (SystemParametersInfo(SPI_GETMOUSESPEED, 0, &_cursorSpeed, 0)) {
+				long newSpeed = std::clamp(lroundf(_cursorSpeed / (_clientScaleX + _clientScaleY) * 2), 1L, 20L);
 
-			if (!SystemParametersInfo(SPI_SETMOUSESPEED, 0, (PVOID)(intptr_t)newSpeed, 0)) {
-				SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("设置光标移速失败"));
+				if (!SystemParametersInfo(SPI_SETMOUSESPEED, 0, (PVOID)(intptr_t)newSpeed, 0)) {
+					SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("设置光标移速失败"));
+				}
+			} else {
+				SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("获取光标移速失败"));
 			}
-		} else {
-			SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("获取光标移速失败"));
 		}
 	}
 	
@@ -474,15 +476,17 @@ void CursorDrawer::_StopCapture(POINT cursorPt) {
 
 	SetCursorPos(cursorPt.x, cursorPt.y);
 
-	if (App::GetInstance().IsAdjustCursorSpeed()) {
-		SystemParametersInfo(SPI_SETMOUSESPEED, 0, (PVOID)(intptr_t)_cursorSpeed, 0);
-	}
+	if (!App::GetInstance().IsBreakpointMode()) {
+		if (App::GetInstance().IsAdjustCursorSpeed()) {
+			SystemParametersInfo(SPI_SETMOUSESPEED, 0, (PVOID)(intptr_t)_cursorSpeed, 0);
+		}
 
-	if (!MagShowSystemCursor(TRUE)) {
-		SPDLOG_LOGGER_ERROR(logger, "MagShowSystemCursor 失败");
+		if (!MagShowSystemCursor(TRUE)) {
+			SPDLOG_LOGGER_ERROR(logger, "MagShowSystemCursor 失败");
+		}
+		// WGC 捕获模式会随机使 MagShowSystemCursor(TRUE) 失效，重新加载光标可以解决这个问题
+		SystemParametersInfo(SPI_SETCURSORS, 0, 0, 0);
 	}
-	// WGC 捕获模式会随机使 MagShowSystemCursor(TRUE) 失效，重新加载光标可以解决这个问题
-	SystemParametersInfo(SPI_SETCURSORS, 0, 0, 0);
 	
 	_isUnderCapture = false;
 }
