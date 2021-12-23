@@ -200,31 +200,29 @@ void CursorDrawer::Update() {
 	POINT cursorPt;
 	GetCursorPos(&cursorPt);
 
-	if (PtInRect(&srcClientRect, cursorPt) && _isUnderCapture) {
-		POINT hostPt{};
-
-		double t = double(cursorPt.x - srcClientRect.left) / (srcClientRect.right - srcClientRect.left);
-		hostPt.x = std::lround(t * (_destRect.right - _destRect.left)) + _destRect.left + hostRect.left;
-
-		t = double(cursorPt.y - srcClientRect.top) / (srcClientRect.bottom - srcClientRect.top);
-		hostPt.y = std::lround(t * (_destRect.bottom - _destRect.top)) + _destRect.top + hostRect.top;
-
-		bool leftClip = !MonitorFromPoint({ hostRect.left - 1, hostPt.y }, MONITOR_DEFAULTTONULL);
-		bool rightClip = !MonitorFromPoint({ hostRect.right, hostPt.y }, MONITOR_DEFAULTTONULL);
-		bool topClip = !MonitorFromPoint({ hostPt.x, hostRect.top - 1 }, MONITOR_DEFAULTTONULL);
-		bool bottomClip = !MonitorFromPoint({ hostPt.x, hostRect.bottom }, MONITOR_DEFAULTTONULL);
-
-		RECT clipRect = {
-			leftClip ? srcClientRect.left : LONG_MIN,
-			topClip ? srcClientRect.top : LONG_MIN,
-			rightClip ? srcClientRect.right : LONG_MAX,
-			bottomClip ? srcClientRect.bottom : LONG_MAX
-		};
-		ClipCursor(&clipRect);
-	}
-
 	if (_isUnderCapture) {
-		if (!PtInRect(&srcClientRect, cursorPt)) {
+		if (PtInRect(&srcClientRect, cursorPt)) {
+			POINT hostPt{};
+
+			double t = double(cursorPt.x - srcClientRect.left) / (srcClientRect.right - srcClientRect.left);
+			hostPt.x = std::lround(t * (_destRect.right - _destRect.left)) + _destRect.left + hostRect.left;
+
+			t = double(cursorPt.y - srcClientRect.top) / (srcClientRect.bottom - srcClientRect.top);
+			hostPt.y = std::lround(t * (_destRect.bottom - _destRect.top)) + _destRect.top + hostRect.top;
+
+			bool leftClip = !MonitorFromPoint({ hostRect.left - 1, hostPt.y }, MONITOR_DEFAULTTONULL);
+			bool rightClip = !MonitorFromPoint({ hostRect.right, hostPt.y }, MONITOR_DEFAULTTONULL);
+			bool topClip = !MonitorFromPoint({ hostPt.x, hostRect.top - 1 }, MONITOR_DEFAULTTONULL);
+			bool bottomClip = !MonitorFromPoint({ hostPt.x, hostRect.bottom }, MONITOR_DEFAULTTONULL);
+
+			RECT clipRect = {
+				leftClip ? srcClientRect.left : LONG_MIN,
+				topClip ? srcClientRect.top : LONG_MIN,
+				rightClip ? srcClientRect.right : LONG_MAX,
+				bottomClip ? srcClientRect.bottom : LONG_MAX
+			};
+			ClipCursor(&clipRect);
+		} else {
 			_StopCapture(cursorPt);
 		}
 	} else {
@@ -457,13 +455,17 @@ void CursorDrawer::_StartCapture(POINT cursorPt) {
 	cursorPt.x = std::clamp(cursorPt.x, hostRect.left + _destRect.left, hostRect.left + _destRect.right - 1);
 	cursorPt.y = std::clamp(cursorPt.y, hostRect.top + _destRect.top, hostRect.top + _destRect.bottom - 1);
 
+	// 从全屏窗口映射到源窗口
 	double posX = double(cursorPt.x - hostRect.left - _destRect.left) / (_destRect.right - _destRect.left);
 	double posY = double(cursorPt.y - hostRect.top - _destRect.top) / (_destRect.bottom - _destRect.top);
 
-	SetCursorPos(
-		std::lround(posX * (srcClientRect.right - srcClientRect.left) + srcClientRect.left),
-		std::lround(posY * (srcClientRect.bottom - srcClientRect.top) + srcClientRect.top)
-	);
+	posX = posX * (srcClientRect.right - srcClientRect.left) + srcClientRect.left;
+	posY = posY * (srcClientRect.bottom - srcClientRect.top) + srcClientRect.top;
+
+	posX = std::clamp<double>(posX, srcClientRect.left, srcClientRect.right - 1);
+	posY = std::clamp<double>(posY, srcClientRect.top, srcClientRect.bottom - 1);
+
+	SetCursorPos(std::lround(posX), std::lround(posY));
 
 	_isUnderCapture = true;
 }
