@@ -435,7 +435,8 @@ bool App::_CreateHostWnd() {
 	}
 
 	// 主窗口没有覆盖 Virtual Screen 则使用多屏幕模式
-	_isMultiMonitorMode = GetMultiMonitorUsage() != 2 && !IsBreakpointMode() &&
+	// 打开断点模式时不使用多屏幕模式
+	_isMultiMonitorMode = !IsBreakpointMode() && GetMultiMonitorUsage() != 2 &&
 		((_hostWndRect.right - _hostWndRect.left) < GetSystemMetrics(SM_CXVIRTUALSCREEN) ||
 		(_hostWndRect.bottom - _hostWndRect.top) < GetSystemMetrics(SM_CYVIRTUALSCREEN));
 
