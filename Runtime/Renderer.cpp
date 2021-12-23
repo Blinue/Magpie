@@ -557,7 +557,9 @@ void Renderer::_Render() {
 	// 所有渲染都使用三角形带拓扑
 	_d3dDC->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 
-	_cursorDrawer.Update();
+	if (!_cursorDrawer.Update()) {
+		SPDLOG_LOGGER_ERROR(logger, "更新光标位置失败");
+	}
 
 	// 更新常量
 	if (!EffectDrawer::UpdateExprDynamicVars()) {

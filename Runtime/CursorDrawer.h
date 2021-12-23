@@ -9,7 +9,7 @@ public:
 
 	~CursorDrawer();
 
-	void Update();
+	bool Update();
 
 	void Draw();
 

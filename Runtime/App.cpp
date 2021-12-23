@@ -117,7 +117,7 @@ bool App::Run(
 	_multiMonitorUsage = multiMonitorUsage;
 	_flags = flags;
 
-	SPDLOG_LOGGER_INFO(logger, fmt::format("运行时参数：\n\thwndSrc：{}\n\tcaptureMode：{}\n\tadjustCursorSpeed：{}\n\tshowFPS：{}\n\tframeRate：{}\n\tdisableLowLatency：{}\n\tbreakpointMode：{}\n\tdisableWindowResizing：{}\n\tdisableDirectFlip：{}\n\tConfineCursorIn3DGames：{}\n\tadapterIdx：{}\n\tCropTitleBarOfUWP：{}\n\tmultiMonitorMode: {}", (void*)hwndSrc, captureMode, IsAdjustCursorSpeed(), IsShowFPS(), frameRate, IsDisableLowLatency(), IsBreakpointMode(), IsDisableWindowResizing(), IsDisableDirectFlip(), IsConfineCursorIn3DGames(), adapterIdx, IsCropTitleBarOfUWP(), multiMonitorUsage));
+	SPDLOG_LOGGER_INFO(logger, fmt::format("运行时参数：\n\thwndSrc：{}\n\tcaptureMode：{}\n\tadjustCursorSpeed：{}\n\tshowFPS：{}\n\tframeRate：{}\n\tdisableLowLatency：{}\n\tbreakpointMode：{}\n\tdisableWindowResizing：{}\n\tdisableDirectFlip：{}\n\tConfineCursorIn3DGames：{}\n\tadapterIdx：{}\n\tCropTitleBarOfUWP：{}\n\tmultiMonitorUsage: {}", (void*)hwndSrc, captureMode, IsAdjustCursorSpeed(), IsShowFPS(), frameRate, IsDisableLowLatency(), IsBreakpointMode(), IsDisableWindowResizing(), IsDisableDirectFlip(), IsConfineCursorIn3DGames(), adapterIdx, IsCropTitleBarOfUWP(), multiMonitorUsage));
 
 	// 每次进入全屏都要重置
 	_nextTimerId = 1;

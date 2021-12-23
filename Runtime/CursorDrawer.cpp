@@ -164,8 +164,10 @@ bool CursorDrawer::Initialize(ComPtr<ID3D11Texture2D> renderTarget, const RECT& 
 CursorDrawer::~CursorDrawer() {
 	if (App::GetInstance().IsMultiMonitorMode()) {
 		if (_isUnderCapture) {
-			POINT pt;
-			GetCursorPos(&pt);
+			POINT pt{};
+			if (!GetCursorPos(&pt)) {
+				SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetCursorPos 失败"));
+			}
 			_StopCapture(pt);
 		}
 	} else if (!App::GetInstance().IsBreakpointMode()) {
@@ -212,18 +214,19 @@ void CursorDrawer::_DynamicClip(POINT cursorPt) {
 			clips[3] ? srcClientRect.bottom : LONG_MAX
 		};
 		ClipCursor(&clipRect);
-
-		OutputDebugString(L"clip");
 	}
 }
 
-void CursorDrawer::Update() {
+bool CursorDrawer::Update() {
 	if (!App::GetInstance().IsMultiMonitorMode()) {
-		return;
+		return true;
 	}
 
 	POINT cursorPt;
-	GetCursorPos(&cursorPt);
+	if (!GetCursorPos(&cursorPt)) {
+		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetCursorPos 失败"));
+		return false;
+	}
 
 	if (_isUnderCapture) {
 		const RECT& srcClientRect = App::GetInstance().GetSrcClientRect();
@@ -241,6 +244,8 @@ void CursorDrawer::Update() {
 			_DynamicClip(cursorPt);
 		}
 	}
+
+	return true;
 }
 
 bool GetHBmpBits32(HBITMAP hBmp, int& width, int& height, std::vector<BYTE>& pixels) {
