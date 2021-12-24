@@ -1,5 +1,5 @@
 // Anime4K_Thin_HQ
-// ÒÆÖ²×Ô https://github.com/bloc97/Anime4K/blob/master/glsl/Experimental-Effects/Anime4K_Thin_HQ.glsl
+// ç§»æ¤è‡ª https://github.com/bloc97/Anime4K/blob/master/glsl/Experimental-Effects/Anime4K_Thin_HQ.glsl
 
 //!MAGPIE EFFECT
 //!VERSION 1

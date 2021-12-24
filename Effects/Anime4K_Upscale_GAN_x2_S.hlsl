@@ -1,5 +1,5 @@
 // Anime4K_Upscale_GAN_x2_S
-// “∆÷≤◊‘ https://github.com/bloc97/Anime4K/blob/master/glsl/Upscale/Anime4K_Upscale_GAN_x2_S.glsl
+// ÁßªÊ§çËá™ https://github.com/bloc97/Anime4K/blob/master/glsl/Upscale/Anime4K_Upscale_GAN_x2_S.glsl
 
 //!MAGPIE EFFECT
 //!VERSION 1
