@@ -13,10 +13,8 @@
     <CopyFileToFolders Include="Anime4K_Restore_Soft_L.hlsl" />
     <CopyFileToFolders Include="Anime4K_Restore_Soft_M.hlsl" />
     <CopyFileToFolders Include="Anime4K_Restore_VL.hlsl" />
-    <CopyFileToFolders Include="Anime4K_Upscale_Denoise_L.hlsl" />
     <CopyFileToFolders Include="Anime4K_Upscale_Denoise_S.hlsl" />
     <CopyFileToFolders Include="Anime4K_Upscale_L.hlsl" />
-    <CopyFileToFolders Include="Anime4K_Upscale_S.hlsl" />
     <CopyFileToFolders Include="Anime4K_Upscale_S_Lite.hlsl" />
     <CopyFileToFolders Include="Bicubic.hlsl" />
     <CopyFileToFolders Include="Bicubic_Lite.hlsl" />
@@ -64,5 +62,8 @@
     <CopyFileToFolders Include="CRT_Lottes.hlsl" />
     <CopyFileToFolders Include="CRT_Hyllian.hlsl" />
     <CopyFileToFolders Include="GTU_v050.hlsl" />
+    <CopyFileToFolders Include="Anime4K_Upscale_GAN_x2_S.hlsl" />
+    <CopyFileToFolders Include="Anime4K_Upscale_S.hlsl" />
+    <CopyFileToFolders Include="Anime4K_Upscale_Denoise_L.hlsl" />
   </ItemGroup>
 </Project>
