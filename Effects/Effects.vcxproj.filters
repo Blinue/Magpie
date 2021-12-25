@@ -65,5 +65,6 @@
     <CopyFileToFolders Include="Anime4K_Upscale_S.hlsl" />
     <CopyFileToFolders Include="Anime4K_Upscale_Denoise_L.hlsl" />
     <CopyFileToFolders Include="Anime4K_Thin_HQ.hlsl" />
+    <CopyFileToFolders Include="LumaSharpen.hlsl" />
   </ItemGroup>
 </Project>
