@@ -1,5 +1,5 @@
 // LumaSharpen
-// ÒÆÖ²×Ô https://github.com/CeeJayDK/SweetFX/blob/master/Shaders/LumaSharpen.fx
+// ç§»æ¤è‡ª https://github.com/CeeJayDK/SweetFX/blob/master/Shaders/LumaSharpen.fx
 
 /**
    LumaSharpen version 1.5.0

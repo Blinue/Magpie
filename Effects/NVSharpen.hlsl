@@ -72,6 +72,9 @@ float4 GetEdgeMap(float p[5][5], int i, int j) {
 	const float g_45_135_max = max(g_45, g_135);
 	const float g_45_135_min = min(g_45, g_135);
 
+	float e_0_90 = 0;
+	float e_45_135 = 0;
+
 	if ((g_0_90_max + g_45_135_max) != 0) {
 		e_0_90 = g_0_90_max / (g_0_90_max + g_45_135_max);
 		e_0_90 = min(e_0_90, 1.0f);
