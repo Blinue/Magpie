@@ -72,78 +72,35 @@ float4 GetEdgeMap(float p[5][5], int i, int j) {
 	const float g_45_135_max = max(g_45, g_135);
 	const float g_45_135_min = min(g_45, g_135);
 
-	float e_0_90 = 0;
-	float e_45_135 = 0;
-
-	float edge_0 = 0;
-	float edge_45 = 0;
-	float edge_90 = 0;
-	float edge_135 = 0;
-
-	if ((g_0_90_max + g_45_135_max) == 0) {
-		e_0_90 = 0;
-		e_45_135 = 0;
-	} else {
+	if ((g_0_90_max + g_45_135_max) != 0) {
 		e_0_90 = g_0_90_max / (g_0_90_max + g_45_135_max);
 		e_0_90 = min(e_0_90, 1.0f);
 		e_45_135 = 1.0f - e_0_90;
 	}
 
-	if ((g_0_90_max > (g_0_90_min * kDetectRatio)) && (g_0_90_max > kDetectThres) && (g_0_90_max > g_45_135_min)) {
-		if (g_0_90_max == g_0) {
-			edge_0 = 1.0f;
-			edge_90 = 0;
-		} else {
-			edge_0 = 0;
-			edge_90 = 1.0f;
-		}
-	} else {
-		edge_0 = 0;
-		edge_90 = 0;
-	}
+	float e = ((g_0_90_max > (g_0_90_min * kDetectRatio)) && (g_0_90_max > kDetectThres) && (g_0_90_max > g_45_135_min)) ? 1.f : 0.f;
+	float edge_0 = (g_0_90_max == g_0) ? e : 0.f;
+	float edge_90 = (g_0_90_max == g_0) ? 0.f : e;
 
-	if ((g_45_135_max > (g_45_135_min * kDetectRatio)) && (g_45_135_max > kDetectThres) &&
-		(g_45_135_max > g_0_90_min)) {
+	e = ((g_45_135_max > (g_45_135_min * kDetectRatio)) && (g_45_135_max > kDetectThres) && (g_45_135_max > g_0_90_min)) ? 1.f : 0.f;
+	float edge_45 = (g_45_135_max == g_45) ? e : 0.f;
+	float edge_135 = (g_45_135_max == g_45) ? 0.f : e;
 
-		if (g_45_135_max == g_45) {
-			edge_45 = 1.0f;
-			edge_135 = 0;
-		} else {
-			edge_45 = 0;
-			edge_135 = 1.0f;
-		}
-	} else {
-		edge_45 = 0;
-		edge_135 = 0;
-	}
-
-	float weight_0, weight_90, weight_45, weight_135;
+	float weight_0 = 0.f;
+	float weight_90 = 0.f;
+	float weight_45 = 0.f;
+	float weight_135 = 0.f;
 	if ((edge_0 + edge_90 + edge_45 + edge_135) >= 2.0f) {
-		if (edge_0 == 1.0f) {
-			weight_0 = e_0_90;
-			weight_90 = 0;
-		} else {
-			weight_0 = 0;
-			weight_90 = e_0_90;
-		}
+		weight_0 = (edge_0 == 1.0f) ? e_0_90 : 0.f;
+		weight_90 = (edge_0 == 1.0f) ? 0.f : e_0_90;
 
-		if (edge_45 == 1.0f) {
-			weight_45 = e_45_135;
-			weight_135 = 0;
-		} else {
-			weight_45 = 0;
-			weight_135 = e_45_135;
-		}
+		weight_45 = (edge_45 == 1.0f) ? e_45_135 : 0.f;
+		weight_135 = (edge_45 == 1.0f) ? 0.f : e_45_135;
 	} else if ((edge_0 + edge_90 + edge_45 + edge_135) >= 1.0f) {
 		weight_0 = edge_0;
 		weight_90 = edge_90;
 		weight_45 = edge_45;
 		weight_135 = edge_135;
-	} else {
-		weight_0 = 0;
-		weight_90 = 0;
-		weight_45 = 0;
-		weight_135 = 0;
 	}
 
 	return float4(weight_0, weight_90, weight_45, weight_135);

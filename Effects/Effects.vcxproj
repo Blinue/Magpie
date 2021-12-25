@@ -265,11 +265,6 @@
     </CopyFileToFolders>
   </ItemGroup>
   <ItemGroup>
-    <CopyFileToFolders Include="NIS_AR.hlsl">
-      <FileType>Document</FileType>
-    </CopyFileToFolders>
-  </ItemGroup>
-  <ItemGroup>
     <CopyFileToFolders Include="CRT_Easymode.hlsl">
       <FileType>Document</FileType>
     </CopyFileToFolders>

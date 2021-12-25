@@ -103,75 +103,35 @@ float4 GetEdgeMap(float p[3][3]) {
 	float e_0_90 = 0;
 	float e_45_135 = 0;
 
-	float edge_0 = 0;
-	float edge_45 = 0;
-	float edge_90 = 0;
-	float edge_135 = 0;
-
-	if ((g_0_90_max + g_45_135_max) == 0) {
-		e_0_90 = 0;
-		e_45_135 = 0;
-	} else {
+	if ((g_0_90_max + g_45_135_max) != 0) {
 		e_0_90 = g_0_90_max / (g_0_90_max + g_45_135_max);
 		e_0_90 = min(e_0_90, 1.0f);
 		e_45_135 = 1.0f - e_0_90;
 	}
 
-	if ((g_0_90_max > (g_0_90_min * kDetectRatio)) && (g_0_90_max > kDetectThres) && (g_0_90_max > g_45_135_min)) {
-		if (g_0_90_max == g_0) {
-			edge_0 = 1.0f;
-			edge_90 = 0;
-		} else {
-			edge_0 = 0;
-			edge_90 = 1.0f;
-		}
-	} else {
-		edge_0 = 0;
-		edge_90 = 0;
-	}
+	float e = ((g_0_90_max > (g_0_90_min * kDetectRatio)) && (g_0_90_max > kDetectThres) && (g_0_90_max > g_45_135_min)) ? 1.f : 0.f;
+	float edge_0 = (g_0_90_max == g_0) ? e : 0.f;
+	float edge_90 = (g_0_90_max == g_0) ? 0.f : e;
 
-	if ((g_45_135_max > (g_45_135_min * kDetectRatio)) && (g_45_135_max > kDetectThres) &&
-		(g_45_135_max > g_0_90_min)) {
+	e = ((g_45_135_max > (g_45_135_min * kDetectRatio)) && (g_45_135_max > kDetectThres) && (g_45_135_max > g_0_90_min)) ? 1.f : 0.f;
+	float edge_45 = (g_45_135_max == g_45) ? e : 0.f;
+	float edge_135 = (g_45_135_max == g_45) ? 0.f : e;
 
-		if (g_45_135_max == g_45) {
-			edge_45 = 1.0f;
-			edge_135 = 0;
-		} else {
-			edge_45 = 0;
-			edge_135 = 1.0f;
-		}
-	} else {
-		edge_45 = 0;
-		edge_135 = 0;
-	}
-
-	float weight_0, weight_90, weight_45, weight_135;
+	float weight_0 = 0.f;
+	float weight_90 = 0.f;
+	float weight_45 = 0.f;
+	float weight_135 = 0.f;
 	if ((edge_0 + edge_90 + edge_45 + edge_135) >= 2.0f) {
-		if (edge_0 == 1.0f) {
-			weight_0 = e_0_90;
-			weight_90 = 0;
-		} else {
-			weight_0 = 0;
-			weight_90 = e_0_90;
-		}
+		weight_0 = (edge_0 == 1.0f) ? e_0_90 : 0.f;
+		weight_90 = (edge_0 == 1.0f) ? 0.f : e_0_90;
 
-		if (edge_45 == 1.0f) {
-			weight_45 = e_45_135;
-			weight_135 = 0;
-		} else {
-			weight_45 = 0;
-			weight_135 = e_45_135;
-		}
+		weight_45 = (edge_45 == 1.0f) ? e_45_135 : 0.f;
+		weight_135 = (edge_45 == 1.0f) ? 0.f : e_45_135;
 	} else if ((edge_0 + edge_90 + edge_45 + edge_135) >= 1.0f) {
 		weight_0 = edge_0;
 		weight_90 = edge_90;
 		weight_45 = edge_45;
 		weight_135 = edge_135;
-	} else {
-		weight_0 = 0;
-		weight_90 = 0;
-		weight_45 = 0;
-		weight_135 = 0;
 	}
 
 	return float4(weight_0, weight_90, weight_45, weight_135);
@@ -197,27 +157,13 @@ float4 Pass1(float2 pos) {
 //!BIND INPUT, shEdgeMap, coefScale, coefUSM
 
 float CalcLTI(float p0, float p1, float p2, float p3, float p4, float p5, int phase_index) {
-	float y0, y1, y2, y3, y4;
-
-	if (phase_index <= kPhaseCount / 2) {
-		y0 = p0;
-		y1 = p1;
-		y2 = p2;
-		y3 = p3;
-		y4 = p4;
-	} else {
-		y0 = p1;
-		y1 = p2;
-		y2 = p3;
-		y3 = p4;
-		y4 = p5;
-	}
-
-	const float a_min = min(min(y0, y1), y2);
-	const float a_max = max(max(y0, y1), y2);
-
-	const float b_min = min(min(y2, y3), y4);
-	const float b_max = max(max(y2, y3), y4);
+	const bool selector = (phase_index <= kPhaseCount / 2);
+	float sel = selector ? p0 : p3;
+	const float a_min = min(min(p1, p2), sel);
+	const float a_max = max(max(p1, p2), sel);
+	sel = selector ? p2 : p5;
+	const float b_min = min(min(p3, p4), sel);
+	const float b_max = max(max(p3, p4), sel);
 
 	const float a_cont = a_max - a_min;
 	const float b_cont = b_max - b_min;
@@ -228,24 +174,9 @@ float CalcLTI(float p0, float p1, float p2, float p3, float p4, float p5, int ph
 
 
 float4 GetInterpEdgeMap(const float4 edge[2][2], float phase_frac_x, float phase_frac_y) {
-	float4 h0, h1, f;
-
-	h0.x = lerp(edge[0][0].x, edge[0][1].x, phase_frac_x);
-	h0.y = lerp(edge[0][0].y, edge[0][1].y, phase_frac_x);
-	h0.z = lerp(edge[0][0].z, edge[0][1].z, phase_frac_x);
-	h0.w = lerp(edge[0][0].w, edge[0][1].w, phase_frac_x);
-
-	h1.x = lerp(edge[1][0].x, edge[1][1].x, phase_frac_x);
-	h1.y = lerp(edge[1][0].y, edge[1][1].y, phase_frac_x);
-	h1.z = lerp(edge[1][0].z, edge[1][1].z, phase_frac_x);
-	h1.w = lerp(edge[1][0].w, edge[1][1].w, phase_frac_x);
-
-	f.x = lerp(h0.x, h1.x, phase_frac_y);
-	f.y = lerp(h0.y, h1.y, phase_frac_y);
-	f.z = lerp(h0.z, h1.z, phase_frac_y);
-	f.w = lerp(h0.w, h1.w, phase_frac_y);
-
-	return f;
+	float4 h0 = lerp(edge[0][0], edge[0][1], phase_frac_x);
+	float4 h1 = lerp(edge[1][0], edge[1][1], phase_frac_x);
+	return lerp(h0, h1, phase_frac_y);
 }
 
 float EvalPoly6(const float pxl[6], int phase_int) {
@@ -265,7 +196,7 @@ float EvalPoly6(const float pxl[6], int phase_int) {
 	}
 
 	// let's compute a piece-wise ramp based on luma
-	const float y_scale = 1.0f - saturate((y * (1.0f / 255) - kSharpStartY) * kSharpScaleY);
+	const float y_scale = 1.0f - saturate((y * (1.0f / NIS_SCALE_FLOAT) - kSharpStartY) * kSharpScaleY);
 
 	// scale the ramp to sharpen as a function of luma
 	const float y_sharpness = y_scale * kSharpStrengthScale + kSharpStrengthMin;
@@ -315,21 +246,16 @@ float4 GetDirFilters(float p[6][6], float phase_x_frac, float phase_y_frac, int 
 	temp_interp45Deg[1] = lerp(p[2][1], p[1][2], pphase_b45);
 	temp_interp45Deg[3] = lerp(p[3][2], p[2][3], pphase_b45);
 	temp_interp45Deg[5] = lerp(p[4][3], p[3][4], pphase_b45);
-
-	if (pphase_b45 >= 0.5f) {
+	{
 		pphase_b45 = pphase_b45 - 0.5f;
-
-		temp_interp45Deg[0] = lerp(p[1][1], p[0][2], pphase_b45);
-		temp_interp45Deg[2] = lerp(p[2][2], p[1][3], pphase_b45);
-		temp_interp45Deg[4] = lerp(p[3][3], p[2][4], pphase_b45);
-		temp_interp45Deg[6] = lerp(p[4][4], p[3][5], pphase_b45);
-	} else {
-		pphase_b45 = 0.5f - pphase_b45;
-
-		temp_interp45Deg[0] = lerp(p[1][1], p[2][0], pphase_b45);
-		temp_interp45Deg[2] = lerp(p[2][2], p[3][1], pphase_b45);
-		temp_interp45Deg[4] = lerp(p[3][3], p[4][2], pphase_b45);
-		temp_interp45Deg[6] = lerp(p[4][4], p[5][3], pphase_b45);
+		float a = (pphase_b45 >= 0.f) ? p[0][2] : p[2][0];
+		float b = (pphase_b45 >= 0.f) ? p[1][3] : p[3][1];
+		float c = (pphase_b45 >= 0.f) ? p[2][4] : p[4][2];
+		float d = (pphase_b45 >= 0.f) ? p[3][5] : p[5][3];
+		temp_interp45Deg[0] = lerp(p[1][1], a, abs(pphase_b45));
+		temp_interp45Deg[2] = lerp(p[2][2], b, abs(pphase_b45));
+		temp_interp45Deg[4] = lerp(p[3][3], c, abs(pphase_b45));
+		temp_interp45Deg[6] = lerp(p[4][4], d, abs(pphase_b45));
 	}
 
 	float interp45Deg[6];
@@ -359,20 +285,16 @@ float4 GetDirFilters(float p[6][6], float phase_x_frac, float phase_y_frac, int 
 	temp_interp135Deg[3] = lerp(p[2][2], p[3][3], pphase_b135);
 	temp_interp135Deg[5] = lerp(p[1][3], p[2][4], pphase_b135);
 
-	if (pphase_b135 >= 0.5f) {
+	{
 		pphase_b135 = pphase_b135 - 0.5f;
-
-		temp_interp135Deg[0] = lerp(p[4][1], p[5][2], pphase_b135);
-		temp_interp135Deg[2] = lerp(p[3][2], p[4][3], pphase_b135);
-		temp_interp135Deg[4] = lerp(p[2][3], p[3][4], pphase_b135);
-		temp_interp135Deg[6] = lerp(p[1][4], p[2][5], pphase_b135);
-	} else {
-		pphase_b135 = 0.5f - pphase_b135;
-
-		temp_interp135Deg[0] = lerp(p[4][1], p[3][0], pphase_b135);
-		temp_interp135Deg[2] = lerp(p[3][2], p[2][1], pphase_b135);
-		temp_interp135Deg[4] = lerp(p[2][3], p[1][2], pphase_b135);
-		temp_interp135Deg[6] = lerp(p[1][4], p[0][3], pphase_b135);
+		float a = (pphase_b135 >= 0.f) ? p[5][2] : p[3][0];
+		float b = (pphase_b135 >= 0.f) ? p[4][3] : p[2][1];
+		float c = (pphase_b135 >= 0.f) ? p[3][4] : p[1][2];
+		float d = (pphase_b135 >= 0.f) ? p[2][5] : p[0][3];
+		temp_interp135Deg[0] = lerp(p[4][1], a, abs(pphase_b135));
+		temp_interp135Deg[2] = lerp(p[3][2], b, abs(pphase_b135));
+		temp_interp135Deg[4] = lerp(p[2][3], c, abs(pphase_b135));
+		temp_interp135Deg[6] = lerp(p[1][4], d, abs(pphase_b135));
 	}
 
 	float interp135Deg[6];
