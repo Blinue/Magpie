@@ -118,14 +118,10 @@ bool App::Run(
 	_flags = flags;
 
 	SPDLOG_LOGGER_INFO(logger, fmt::format("运行时参数：\n\thwndSrc：{}\n\tcaptureMode：{}\n\tadjustCursorSpeed：{}\n\tshowFPS：{}\n\tframeRate：{}\n\tdisableLowLatency：{}\n\tbreakpointMode：{}\n\tdisableWindowResizing：{}\n\tdisableDirectFlip：{}\n\tConfineCursorIn3DGames：{}\n\tadapterIdx：{}\n\tCropTitleBarOfUWP：{}\n\tmultiMonitorUsage: {}", (void*)hwndSrc, captureMode, IsAdjustCursorSpeed(), IsShowFPS(), frameRate, IsDisableLowLatency(), IsBreakpointMode(), IsDisableWindowResizing(), IsDisableDirectFlip(), IsConfineCursorIn3DGames(), adapterIdx, IsCropTitleBarOfUWP(), multiMonitorUsage));
-
-	// 每次进入全屏都要重置
-	_nextTimerId = 1;
 	
 	SetErrorMsg(ErrorMessages::GENERIC);
 
 	// 禁用窗口大小调整
-	bool windowResizingDisabled = false;
 	if (IsDisableWindowResizing()) {
 		LONG_PTR style = GetWindowLongPtr(hwndSrc, GWL_STYLE);
 		if (style & WS_THICKFRAME) {
@@ -137,7 +133,7 @@ bool App::Run(
 				// }
 
 				SPDLOG_LOGGER_INFO(logger, "已禁用窗口大小调整");
-				windowResizingDisabled = true;
+				_windowResizingDisabled = true;
 			} else {
 				SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("禁用窗口大小调整失败"));
 			}
@@ -202,7 +198,6 @@ bool App::Run(
 	}
 
 	// 禁用窗口圆角
-	bool roundCornerDisabled = false;
 	if (_frameSource->HasRoundCornerInWin11()) {
 		const auto& version = Utils::GetOSVersion();
 		bool isWin11 = Utils::CompareVersion(
@@ -216,7 +211,7 @@ bool App::Run(
 				SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("禁用窗口圆角失败", hr));
 			} else {
 				SPDLOG_LOGGER_INFO(logger, "已禁用窗口圆角");
-				roundCornerDisabled = true;
+				_roundCornerDisabled = true;
 			}
 		}
 	}
@@ -229,34 +224,6 @@ bool App::Run(
 
 	_Run();
 
-	// 还原窗口圆角
-	if (roundCornerDisabled) {
-		INT attr = DWMWCP_DEFAULT;
-		HRESULT hr = DwmSetWindowAttribute(hwndSrc, DWMWA_WINDOW_CORNER_PREFERENCE, &attr, sizeof(attr));
-		if (FAILED(hr)) {
-			SPDLOG_LOGGER_INFO(logger, MakeComErrorMsg("取消禁用窗口圆角失败", hr));
-		} else {
-			SPDLOG_LOGGER_INFO(logger, "已取消禁用窗口圆角");
-		}
-	}
-
-	// 还原窗口大小调整
-	if (windowResizingDisabled) {
-		LONG_PTR style = GetWindowLongPtr(hwndSrc, GWL_STYLE);
-		if (!(style & WS_THICKFRAME)) {
-			if (SetWindowLongPtr(hwndSrc, GWL_STYLE, style | WS_THICKFRAME)) {
-				if (!SetWindowPos(hwndSrc, 0, 0, 0, 0, 0,
-					SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED)) {
-					SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("SetWindowPos 失败"));
-				}
-
-				SPDLOG_LOGGER_INFO(logger, "已取消禁用窗口大小调整");
-			} else {
-				SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("取消禁用窗口大小调整失败"));
-			}
-		}
-	}
-
 	return true;
 }
 
@@ -267,9 +234,7 @@ void App::_Run() {
 		MSG msg;
 		while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) {
 			if (msg.message == WM_QUIT) {
-				// 释放资源
-				_ReleaseResources();
-				SPDLOG_LOGGER_INFO(logger, "主窗口已销毁");
+				_OnClose();
 				return;
 			}
 
@@ -553,12 +518,48 @@ LRESULT App::_HostWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	return DefWindowProc(hWnd, message, wParam, lParam);
 }
 
-void App::_ReleaseResources() {
+void App::_OnClose() {
+	// 释放资源
 	_frameSource = nullptr;
 	_renderer = nullptr;
 
 	// 计时器资源在窗口销毁时自动释放
+	_nextTimerId = 1;
 	_timerCbs.clear();
+
+	// 还原窗口圆角
+	if (_roundCornerDisabled) {
+		_roundCornerDisabled = false;
+
+		INT attr = DWMWCP_DEFAULT;
+		HRESULT hr = DwmSetWindowAttribute(_hwndSrc, DWMWA_WINDOW_CORNER_PREFERENCE, &attr, sizeof(attr));
+		if (FAILED(hr)) {
+			SPDLOG_LOGGER_INFO(logger, MakeComErrorMsg("取消禁用窗口圆角失败", hr));
+		} else {
+			SPDLOG_LOGGER_INFO(logger, "已取消禁用窗口圆角");
+		}
+	}
+
+	// 还原窗口大小调整
+	if (_windowResizingDisabled) {
+		_windowResizingDisabled = false;
+
+		LONG_PTR style = GetWindowLongPtr(_hwndSrc, GWL_STYLE);
+		if (!(style & WS_THICKFRAME)) {
+			if (SetWindowLongPtr(_hwndSrc, GWL_STYLE, style | WS_THICKFRAME)) {
+				if (!SetWindowPos(_hwndSrc, 0, 0, 0, 0, 0,
+					SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED)) {
+					SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("SetWindowPos 失败"));
+				}
+
+				SPDLOG_LOGGER_INFO(logger, "已取消禁用窗口大小调整");
+			} else {
+				SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("取消禁用窗口大小调整失败"));
+			}
+		}
+	}
+
+	SPDLOG_LOGGER_INFO(logger, "主窗口已销毁");
 }
 
 void App::Close() {

@@ -157,7 +157,7 @@ private:
 
 	LRESULT _HostWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
-	void _ReleaseResources();
+	void _OnClose();
 
 	const char* _errorMsg = ErrorMessages::GENERIC;
 
@@ -196,6 +196,9 @@ private:
 
 	// 多屏幕模式下光标可以在屏幕间自由移动
 	bool _isMultiMonitorMode = false;
+
+	bool _windowResizingDisabled = false;
+	bool _roundCornerDisabled = false;
 
 	std::unique_ptr<Renderer> _renderer;
 	std::unique_ptr<FrameSourceBase> _frameSource;
