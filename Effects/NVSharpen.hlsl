@@ -2,6 +2,8 @@
 
 //!MAGPIE EFFECT
 //!VERSION 1
+//!OUTPUT_WIDTH INPUT_WIDTH
+//!OUTPUT_HEIGHT INPUT_HEIGHT
 
 
 //!CONSTANT
@@ -16,12 +18,8 @@ float inputPtY;
 Texture2D INPUT;
 
 //!SAMPLER
-//!FILTER LINEAR
-SamplerState samLinear;
-
-//!SAMPLER
 //!FILTER POINT
-SamplerState samPoint;
+SamplerState sam;
 
 //!CONSTANT
 //!DEFAULT 0.5
@@ -38,7 +36,7 @@ float sharpness;
 #define kEps 1.0f
 #define NIS_SCALE_FLOAT 1.0f
 #define kMinContrastRatio 2.0f
-#define kMaxContrastRatio 5.0f
+#define kMaxContrastRatio 10.0f
 #define kRatioNorm (1.0f / (kMaxContrastRatio - kMinContrastRatio))
 #define kContrastBoost 1.0f
 #define kSharpStartY 0.45f
@@ -47,14 +45,14 @@ float sharpness;
 #define sharpen_slider (sharpness - 0.5f)
 #define MinScale ((sharpen_slider >= 0.0f) ? 1.25f : 1.0f)
 #define MaxScale ((sharpen_slider >= 0.0f) ? 1.25f : 1.75f)
-#define kSharpStrengthMin max(0.0f, 0.4f + sharpen_slider * MinScale * 1.1f)
-#define kSharpStrengthMax (2.2f + sharpen_slider * MaxScale * 1.8f)
+#define kSharpStrengthMin max(0.0f, 0.4f + sharpen_slider * MinScale * 1.2f)
+#define kSharpStrengthMax (1.6f + sharpen_slider * 1.8f)
 #define kSharpStrengthScale (kSharpStrengthMax - kSharpStrengthMin)
-#define kSharpLimitMin max(0.06f, 0.10f + sharpen_slider * LimitScale * 0.28f)
-#define kSharpLimitMax (0.6f + sharpen_slider * LimitScale * 0.6f)
+#define kSharpLimitMin max(0.1f, 0.14f + sharpen_slider * LimitScale * 0.32f)
+#define kSharpLimitMax (0.5f + sharpen_slider * LimitScale * 0.6f)
 #define kSharpLimitScale (kSharpLimitMax - kSharpLimitMin)
 #define LimitScale ((sharpen_slider >= 0.0f) ? 1.25f : 1.0f)
-#define kSupportSize 6
+#define kSupportSize 5
 
 
 float getY(float3 rgba) {
@@ -148,6 +146,7 @@ float4 GetDirUSM(const float p[5][5]) {
 	// 0 deg filter
 	float interp0Deg[5];
 	{
+		[unroll]
 		for (int i = 0; i < 5; ++i) {
 			interp0Deg[i] = p[i][2];
 		}
@@ -158,6 +157,7 @@ float4 GetDirUSM(const float p[5][5]) {
 	// 90 deg filter
 	float interp90Deg[5];
 	{
+		[unroll]
 		for (int i = 0; i < 5; ++i) {
 			interp90Deg[i] = p[2][i];
 		}
@@ -194,20 +194,20 @@ float4 Pass1(float2 pos) {
 	for (int i = 0; i < 5; ++i) {
 		[unroll]
 		for (int j = 0; j < 5; ++j) {
-			p[i][j] = getY(INPUT.Sample(samPoint, pos + float2(j - 2, i - 2) * float2(inputPtX, inputPtY)).rgb);
+			p[i][j] = getY(INPUT.Sample(sam, pos + float2(j - 2, i - 2) * float2(inputPtX, inputPtY)).rgb);
 		}
 	}
 
 	// get directional filter bank output
 	const float4 dirUSM = GetDirUSM(p);
-
+	
 	// generate weights for directional filters
 	float4 w = GetEdgeMap(p, kSupportSize / 2 - 1, kSupportSize / 2 - 1);
-
+	
 	// final USM is a weighted sum filter outputs
 	const float usmY = (dirUSM.x * w.x + dirUSM.y * w.y + dirUSM.z * w.z + dirUSM.w * w.w);
 
-	float4 op = INPUT.Sample(samLinear, pos);
+	float4 op = INPUT.Sample(sam, pos);
 
 	op.x += usmY;
 	op.y += usmY;
