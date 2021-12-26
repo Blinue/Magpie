@@ -67,8 +67,6 @@
     <CopyFileToFolders Include="Anime4K_Thin_HQ.hlsl" />
     <CopyFileToFolders Include="LumaSharpen.hlsl" />
     <CopyFileToFolders Include="FineSharp.hlsl" />
-  </ItemGroup>
-  <ItemGroup>
-    <FxCompile Include="FSR_EASU_DX10.hlsl" />
+    <CopyFileToFolders Include="FSR_EASU_DX10.hlsl" />
   </ItemGroup>
 </Project>
