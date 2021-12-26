@@ -33,6 +33,10 @@ public:
 		return true;
 	}
 
+	bool CanCaputurePopup() override {
+		return _canCapturePopup;
+	}
+
 private:
 	bool _CaptureFromWindow(winrt::impl::com_ref<IGraphicsCaptureItemInterop> interop);
 
@@ -42,6 +46,8 @@ private:
 
 	LONG_PTR _srcWndStyle = 0;
 	D3D11_BOX _frameBox{};
+
+	bool _canCapturePopup = false;
 
 	winrt::GraphicsCaptureItem _captureItem{ nullptr };
 	winrt::Direct3D11CaptureFramePool _captureFramePool{ nullptr };

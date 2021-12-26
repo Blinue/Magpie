@@ -19,6 +19,10 @@ public:
 		return true;
 	}
 
+	bool CanCaputurePopup() override {
+		return true;
+	}
+
 private:
 	// 消除刚进入全屏时短暂的黑屏
 	bool _firstFrame = true;

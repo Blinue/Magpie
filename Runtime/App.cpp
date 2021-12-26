@@ -349,10 +349,8 @@ static bool CalcHostWndRect(HWND hWnd, UINT multiMonitorMode, RECT& result) {
 		// [0] 存储源窗口坐标，[1] 存储计算结果
 		RECT params[2]{};
 
-		HRESULT hr = DwmGetWindowAttribute(hWnd,
-			DWMWA_EXTENDED_FRAME_BOUNDS, &params[0], sizeof(RECT));
-		if (FAILED(hr)) {
-			SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("DwmGetWindowAttribute 失败", hr));
+		if (!Utils::GetWindowFrameRect(hWnd, params[0])) {
+			SPDLOG_LOGGER_ERROR(logger, "GetWindowFrameRect 失败");
 			return false;
 		}
 		

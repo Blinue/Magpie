@@ -71,6 +71,8 @@ bool GraphicsCaptureFrameSource::Initialize() {
 			if (!_CaptureFromMonitor(interop)) {
 				SPDLOG_LOGGER_ERROR(logger, "屏幕捕获失败");
 				return false;
+			} else {
+				_canCapturePopup = true;
 			}
 		}
 	}
@@ -174,9 +176,8 @@ bool GraphicsCaptureFrameSource::_CaptureFromWindow(winrt::impl::com_ref<IGraphi
 
 	// 包含边框的窗口尺寸
 	RECT srcRect{};
-	HRESULT hr = DwmGetWindowAttribute(hwndSrc, DWMWA_EXTENDED_FRAME_BOUNDS, &srcRect, sizeof(srcRect));
-	if (FAILED(hr)) {
-		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("DwmGetWindowAttribute 失败", hr));
+	if (!Utils::GetWindowFrameRect(hwndSrc, srcRect)) {
+		SPDLOG_LOGGER_ERROR(logger, "GetWindowFrameRect 失败");
 		return false;
 	}
 
@@ -198,7 +199,7 @@ bool GraphicsCaptureFrameSource::_CaptureFromWindow(winrt::impl::com_ref<IGraphi
 	};
 
 	try {
-		hr = interop->CreateForWindow(
+		HRESULT hr = interop->CreateForWindow(
 			hwndSrc,
 			winrt::guid_of<ABI::Windows::Graphics::Capture::IGraphicsCaptureItem>(),
 			winrt::put_abi(_captureItem)

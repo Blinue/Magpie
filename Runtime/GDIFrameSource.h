@@ -20,6 +20,10 @@ public:
 		return false;
 	}
 
+	bool CanCaputurePopup() override {
+		return false;
+	}
+
 private:
 	ComPtr<ID3D11DeviceContext> _d3dDC;
 

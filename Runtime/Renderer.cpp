@@ -619,17 +619,38 @@ bool CheckForeground(HWND hwndForeground) {
 		return true;
 	}
 
+	RECT rectForground{};
+
+	// 如果捕获模式可以捕获到弹窗，则允许小的弹窗
+	if (App::GetInstance().GetFrameSource().CanCaputurePopup() 
+		&& GetWindowStyle(hwndForeground) & (WS_POPUP | WS_CHILD)
+	) {
+		if (!Utils::GetWindowFrameRect(hwndForeground, rectForground)) {
+			SPDLOG_LOGGER_ERROR(logger, "GetWindowFrameRect 失败");
+			return false;
+		}
+
+		// 弹窗如果完全在源窗口客户区内则不退出全屏
+		const RECT& srcClientRect = App::GetInstance().GetSrcClientRect();
+		if (rectForground.left >= srcClientRect.left
+			&& rectForground.right <= srcClientRect.right
+			&& rectForground.top >= srcClientRect.top
+			&& rectForground.bottom <= srcClientRect.bottom
+		) {
+			return true;
+		}
+	}
+
 	// 非多屏幕模式下退出全屏
 	if (!App::GetInstance().IsMultiMonitorMode()) {
 		return false;
 	}
 
-	RECT rectForground{};
-	HRESULT hr = DwmGetWindowAttribute(hwndForeground,
-		DWMWA_EXTENDED_FRAME_BOUNDS, &rectForground, sizeof(rectForground));
-	if (FAILED(hr)) {
-		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("DwmGetWindowAttribute 失败", hr));
-		return false;
+	if (rectForground == RECT{}) {
+		if (!Utils::GetWindowFrameRect(hwndForeground, rectForground)) {
+			SPDLOG_LOGGER_ERROR(logger, "GetWindowFrameRect 失败");
+			return false;
+		}
 	}
 
 	IntersectRect(&rectForground, &App::GetInstance().GetHostWndRect(), &rectForground);
@@ -645,7 +666,7 @@ bool CheckForeground(HWND hwndForeground) {
 		SPDLOG_LOGGER_INFO(logger, fmt::format("新的前台窗口：\n\t类名：{}", StrUtils::UTF16ToUTF8(className)));
 		return false;
 	}
-	
+
 	DWORD dwProcId = 0;
 	if (!GetWindowThreadProcessId(hwndForeground, &dwProcId)) {
 		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetWindowThreadProcessId 失败"));
@@ -673,7 +694,7 @@ bool CheckForeground(HWND hwndForeground) {
 	if (exeName == "searchapp.exe" || exeName == "searchhost.exe" || exeName == "startmenuexperiencehost.exe") {
 		return true;
 	}
-	
+
 	return false;
 }
 

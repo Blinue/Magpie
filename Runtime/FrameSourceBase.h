@@ -27,6 +27,8 @@ public:
 
 	virtual bool HasRoundCornerInWin11() = 0;
 
+	virtual bool CanCaputurePopup() = 0;
+
 protected:
 	static bool _GetWindowDpiScale(HWND hWnd, float& dpiScale);
 

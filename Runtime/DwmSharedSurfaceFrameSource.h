@@ -20,6 +20,10 @@ public:
 		return false;
 	}
 
+	bool CanCaputurePopup() override {
+		return false;
+	}
+
 private:
 	bool _CalcFrameSize(SIZE& frameSize);
 

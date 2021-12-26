@@ -22,6 +22,17 @@ struct Utils {
 
 	static bool GetClientScreenRect(HWND hWnd, RECT& rect);
 
+	static bool GetWindowFrameRect(HWND hWnd, RECT& result) {
+		HRESULT hr = DwmGetWindowAttribute(hWnd,
+			DWMWA_EXTENDED_FRAME_BOUNDS, &result, sizeof(result));
+		if (FAILED(hr)) {
+			SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("DwmGetWindowAttribute 失败", hr));
+			return false;
+		}
+
+		return true;
+	}
+
 	static bool CheckOverlap(const RECT& r1, const RECT& r2) {
 		return r1.right > r2.left && r1.bottom > r2.top && r1.left < r2.right&& r1.top < r2.bottom;
 	}
