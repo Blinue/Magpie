@@ -149,13 +149,14 @@ float4 Pass3(float2 pos) {
 // Negative modes are not supported
 // XSharpen settings are in Part C
 
-#define SharpDiff(c) (t=c.a-c.x, sign(t) * (sstr/255.0f) * pow(abs(t)/(lstr/255.0f),1.0f/pstr)* ((t*t)/(t*t+ldmp/(255.0f*255.0f))))
-
+float SharpDiff(float4 c) {
+	float t = c.a - c.x;
+	return sign(t) * (sstr / 255.0f) * pow(abs(t) / (lstr / 255.0f), 1.0f / pstr) * ((t * t) / (t * t + ldmp / (255.0f * 255.0f)));
+}
 
 float4 Pass4(float2 pos) {
 	float4 o = Src(tex1, 0, 0);
 
-	float t;
 	float sd = SharpDiff(o);
 	o.x = o.a + sd;
 	sd += sd;
