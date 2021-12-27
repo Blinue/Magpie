@@ -17,8 +17,15 @@
     </Page.Resources>
     
     <StackPanel>
+        <CheckBox Content="{x:Static props:Resources.UI_Options_Advanced_Disable_DirectFlip}"
+                  IsChecked="{Binding Source={x:Static props:Settings.Default},Path=DisableDirectFlip,Mode=TwoWay}" />
         <CheckBox Content="{x:Static props:Resources.UI_Options_Advanced_Simulate_Exclusive_Fullscreen}"
+                  Margin="0,15,0,0"
                   IsChecked="{Binding Source={x:Static props:Settings.Default},Path=SimulateExclusiveFullscreen,Mode=TwoWay}"/>
+        <CheckBox x:Name="ckbShowDebuggingOptions"
+                  Content="{x:Static props:Resources.UI_Options_Advanced_Show_Debugging_Options}"
+                  Margin="0,15,0,0"
+                  IsChecked="{Binding Source={x:Static props:Settings.Default},Path=ShowDebuggingOptions,Mode=TwoWay}" />
         
         <StackPanel>
             <Label Content="{x:Static props:Resources.UI_Options_Advanced_Logging}"
@@ -38,8 +45,8 @@
             <Button Content="{x:Static p:Resources.UI_Options_Advanced_Open_Logs_Folder}" Click="BtnOpenLogsFolder_Click" HorizontalAlignment="Left" Margin="0,15,0,0" />
         </StackPanel>
         
-        <StackPanel x:Name="spDebug" Margin="0,20,0,0">
-            <Label Content="{x:Static props:Resources.UI_Options_Advanced_Debug}" FontWeight="Bold" Padding="0" FontSize="15" />
+        <StackPanel x:Name="spDebugging" Margin="0,20,0,0">
+            <Label Content="{x:Static props:Resources.UI_Options_Advanced_Debugging}" FontWeight="Bold" Padding="0" FontSize="15" />
             <CheckBox x:Name="ckbShowAllCaptureMethods"
                       Content="{x:Static props:Resources.UI_Options_Advanced_Show_All_Capture_Methods}"
                       Margin="0,10,0,0"

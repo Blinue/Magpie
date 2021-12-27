@@ -219,7 +219,7 @@
   <data name="UI_Options_Advanced_Breakpoint_Mode" xml:space="preserve">
     <value>断点模式</value>
   </data>
-  <data name="UI_Options_Advanced_Debug" xml:space="preserve">
+  <data name="UI_Options_Advanced_Debugging" xml:space="preserve">
     <value>调试</value>
   </data>
   <data name="UI_Options_Advanced_Disable_Effect_Cache" xml:space="preserve">
@@ -248,6 +248,9 @@
   </data>
   <data name="UI_Options_Advanced_Show_All_Capture_Methods" xml:space="preserve">
     <value>显示所有捕获模式</value>
+  </data>
+  <data name="UI_Options_Advanced_Show_Debugging_Options" xml:space="preserve">
+    <value>显示调试选项</value>
   </data>
   <data name="UI_Options_Advanced_Simulate_Exclusive_Fullscreen" xml:space="preserve">
     <value>模拟独占全屏</value>
@@ -309,7 +312,7 @@
   <data name="UI_Options_Scale_Cursor_Zoom_Factor" xml:space="preserve">
     <value>光标缩放系数</value>
   </data>
-  <data name="UI_Options_Scale_Disable_DirectFlip" xml:space="preserve">
+  <data name="UI_Options_Advanced_Disable_DirectFlip" xml:space="preserve">
     <value>禁用 DirectFlip</value>
   </data>
   <data name="UI_Options_Scale_Disable_Low_Latency" xml:space="preserve">
@@ -347,9 +350,6 @@
   </data>
   <data name="UI_Options_Scale_Open_Scale_Config" xml:space="preserve">
     <value>打开缩放配置</value>
-  </data>
-  <data name="UI_Options_Scale_Performance" xml:space="preserve">
-    <value>性能</value>
   </data>
   <data name="UI_Options_Scale_Restore_Full_Screen" xml:space="preserve">
     <value>源窗口重获焦点时自动恢复全屏</value>

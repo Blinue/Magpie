@@ -367,11 +367,20 @@ namespace Magpie.Properties {
         }
         
         /// <summary>
-        ///   查找类似 Debug 的本地化字符串。
+        ///   查找类似 Debugging 的本地化字符串。
         /// </summary>
-        public static string UI_Options_Advanced_Debug {
+        public static string UI_Options_Advanced_Debugging {
             get {
-                return ResourceManager.GetString("UI_Options_Advanced_Debug", resourceCulture);
+                return ResourceManager.GetString("UI_Options_Advanced_Debugging", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Disable DirectFlip 的本地化字符串。
+        /// </summary>
+        public static string UI_Options_Advanced_Disable_DirectFlip {
+            get {
+                return ResourceManager.GetString("UI_Options_Advanced_Disable_DirectFlip", resourceCulture);
             }
         }
         
@@ -453,6 +462,15 @@ namespace Magpie.Properties {
         public static string UI_Options_Advanced_Show_All_Capture_Methods {
             get {
                 return ResourceManager.GetString("UI_Options_Advanced_Show_All_Capture_Methods", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Show Debugging Options 的本地化字符串。
+        /// </summary>
+        public static string UI_Options_Advanced_Show_Debugging_Options {
+            get {
+                return ResourceManager.GetString("UI_Options_Advanced_Show_Debugging_Options", resourceCulture);
             }
         }
         
@@ -637,15 +655,6 @@ namespace Magpie.Properties {
         }
         
         /// <summary>
-        ///   查找类似 Disable DirectFlip 的本地化字符串。
-        /// </summary>
-        public static string UI_Options_Scale_Disable_DirectFlip {
-            get {
-                return ResourceManager.GetString("UI_Options_Scale_Disable_DirectFlip", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   查找类似 Allow Additional Latency to Improve Performance 的本地化字符串。
         /// </summary>
         public static string UI_Options_Scale_Disable_Low_Latency {
@@ -750,15 +759,6 @@ namespace Magpie.Properties {
         public static string UI_Options_Scale_Open_Scale_Config {
             get {
                 return ResourceManager.GetString("UI_Options_Scale_Open_Scale_Config", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   查找类似 Performance 的本地化字符串。
-        /// </summary>
-        public static string UI_Options_Scale_Performance {
-            get {
-                return ResourceManager.GetString("UI_Options_Scale_Performance", resourceCulture);
             }
         }
         

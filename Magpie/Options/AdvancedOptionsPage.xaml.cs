@@ -17,10 +17,10 @@ namespace Magpie.Options {
 		public AdvancedOptionsPage() {
 			InitializeComponent();
 
-#if !DEBUG
-			spDebug.Visibility = Visibility.Collapsed;
-#endif
+			spDebugging.Visibility = Settings.Default.ShowDebuggingOptions ? Visibility.Visible : Visibility.Collapsed;
 
+			ckbShowDebuggingOptions.Checked += CkbShowDebuggingOptions_Checked;
+			ckbShowDebuggingOptions.Unchecked += CkbShowDebuggingOptions_Unchecked;
 			ckbShowAllCaptureMethods.Checked += CkbShowAllCaptureMethods_Checked;
 			ckbShowAllCaptureMethods.Unchecked += CkbShowAllCaptureMethods_Unchecked;
 			cbbLoggingLevel.SelectionChanged += CbbLoggingLevel_SelectionChanged;
@@ -55,6 +55,14 @@ namespace Magpie.Options {
 			} catch (Exception ex) {
 				Logger.Error(ex, $"打开日志文件夹失败");
 			}
+		}
+
+		private void CkbShowDebuggingOptions_Checked(object sender, RoutedEventArgs e) {
+			spDebugging.Visibility = Visibility.Visible;
+		}
+
+		private void CkbShowDebuggingOptions_Unchecked(object sender, RoutedEventArgs e) {
+			spDebugging.Visibility = Visibility.Collapsed;
 		}
 	}
 }

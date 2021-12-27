@@ -346,5 +346,17 @@ namespace Magpie.Properties {
                 this["SimulateExclusiveFullscreen"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool ShowDebuggingOptions {
+            get {
+                return ((bool)(this["ShowDebuggingOptions"]));
+            }
+            set {
+                this["ShowDebuggingOptions"] = value;
+            }
+        }
     }
 }

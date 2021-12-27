@@ -1,4 +1,5 @@
 using Magpie.Properties;
+using NLog;
 using System;
 using System.Diagnostics;
 using System.Globalization;
@@ -12,6 +13,8 @@ namespace Magpie.Options {
 	/// ApplicationOptionsPage.xaml 的交互逻辑
 	/// </summary>
 	public partial class ApplicationOptionsPage : Page {
+		private static Logger Logger { get; } = LogManager.GetCurrentClassLogger();
+
 		private readonly IWshRuntimeLibrary.WshShell shell = new();
 		private readonly IWshRuntimeLibrary.IWshShortcut? shortcut = null;
 		private readonly string pathLink;
@@ -115,7 +118,11 @@ namespace Magpie.Options {
 
 		private void CkbRunAtStartUp_Unchecked(object sender, RoutedEventArgs e) {
 			if (File.Exists(pathLink)) {
-				File.Delete(pathLink);
+				try {
+					File.Delete(pathLink);
+				} catch (Exception ex) {
+					Logger.Error(ex, "删除快捷方式失败");
+				}
 			}
 		}
 
