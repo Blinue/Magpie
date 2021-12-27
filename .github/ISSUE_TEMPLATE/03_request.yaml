@@ -5,9 +5,9 @@ body:
 - type: markdown
   attributes:
     value: >
-      Make sure it hasn't been mentioned before.
+      Make sure it hasn't been mentioned before. If you are recommending a new effect, please provide its name and existing shader implementations (if any). A comparison with existing effects is very helpful.
 
-      确保此类请求之前尚未被其他人提出过。
+      确保此类请求之前尚未被其他人提出过。如果你想推荐一个新的效果，请明确说明它的名称，适用场景以及已有的着色器实现（如果有的话），另外强烈建议你附上和现有效果的对比图。
 
       https://github.com/Blinue/Magpie/labels/enhancement
 - type: textarea
