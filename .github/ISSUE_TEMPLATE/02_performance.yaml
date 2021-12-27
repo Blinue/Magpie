@@ -29,6 +29,9 @@ body:
 - type: textarea
   attributes:
     label: Log files 日志文件
-    description: Post the logs that in the `logs` folder, which will help analyse the causes. 上传logs目录中的文件有助于分析原因。
+    description: >
+      Post the logs that in the `logs` folder, which will help analyse the causes. 上传logs目录中的文件有助于分析原因。
+      
+      Please upload the logs as attachments, rather than copying the content of them. 请以附件的形式上传日志，而不是将其中的内容复制到正文中。
   validations:
     required: true
