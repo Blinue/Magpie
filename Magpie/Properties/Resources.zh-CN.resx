@@ -124,7 +124,7 @@
     <value>无法使用GraphicsCapture捕获该窗口。</value>
   </data>
   <data name="Msg_Error_Init" xml:space="preserve">
-    <value>初始化失败</value>
+    <value>初始化失败。</value>
   </data>
   <data name="Msg_Error_Invalid_Source_Window" xml:space="preserve">
     <value>非法的源窗口</value>
