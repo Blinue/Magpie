@@ -30,4 +30,7 @@ body:
 - type: textarea
   attributes:
     label: Logs files (optional) 日志文件（可选）
-    description: It's not necessary but if you want to post to help describe your problem. 不必上传日志，但是你想借此描述你的问题也可以。
+    description: >
+      It's not necessary but if you want to post to help describe your problem. 不必上传日志，但是你想借此描述你的问题也可以。
+      
+      Please upload the logs as attachments, rather than copying the content of them. 请以附件的形式上传日志，而不是将其中的内容复制到正文中。
