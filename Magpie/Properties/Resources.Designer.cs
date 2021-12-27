@@ -457,6 +457,15 @@ namespace Magpie.Properties {
         }
         
         /// <summary>
+        ///   查找类似 Simulate Exclusive Fullscreen 的本地化字符串。
+        /// </summary>
+        public static string UI_Options_Advanced_Simulate_Exclusive_Fullscreen {
+            get {
+                return ResourceManager.GetString("UI_Options_Advanced_Simulate_Exclusive_Fullscreen", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Application 的本地化字符串。
         /// </summary>
         public static string UI_Options_Application {

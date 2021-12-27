@@ -250,6 +250,9 @@
   <data name="UI_Options_Advanced_Show_All_Capture_Methods" xml:space="preserve">
     <value>Show All Capture Methods</value>
   </data>
+  <data name="UI_Options_Advanced_Simulate_Exclusive_Fullscreen" xml:space="preserve">
+    <value>Simulate Exclusive Fullscreen</value>
+  </data>
   <data name="UI_Options_Application" xml:space="preserve">
     <value>Application</value>
   </data>
@@ -334,11 +337,11 @@
   <data name="UI_Options_Scale_Multiple_Monitors_All" xml:space="preserve">
     <value>Use All Monitors</value>
   </data>
-  <data name="UI_Options_Scale_Multiple_Monitors_Nearest" xml:space="preserve">
-    <value>Use the Monitor Nearest to the Source Window</value>
-  </data>
   <data name="UI_Options_Scale_Multiple_Monitors_Intersect" xml:space="preserve">
     <value>Use the Monitors that the Source Window Intersects</value>
+  </data>
+  <data name="UI_Options_Scale_Multiple_Monitors_Nearest" xml:space="preserve">
+    <value>Use the Monitor Nearest to the Source Window</value>
   </data>
   <data name="UI_Options_Scale_No_VSync" xml:space="preserve">
     <value>Disable Vsync</value>

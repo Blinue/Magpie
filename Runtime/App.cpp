@@ -5,6 +5,7 @@
 #include "GDIFrameSource.h"
 #include "DwmSharedSurfaceFrameSource.h"
 #include "DesktopDuplicationFrameSource.h"
+#include "ExclModeHack.h"
 
 
 extern std::shared_ptr<spdlog::logger> logger;
@@ -142,8 +143,13 @@ bool App::Run(
 
 	_hwndSrcClient = IsCropTitleBarOfUWP() ? FindClientWindow(hwndSrc) : hwndSrc;
 
+	// 模拟独占全屏
+	// 必须在主窗口创建前，否则 SHQueryUserNotificationState 可能返回 QUNS_BUSY 而不是 QUNS_RUNNING_D3D_FULL_SCREEN
+	ExclModeHack exclMode;
+
 	if (!_CreateHostWnd()) {
 		SPDLOG_LOGGER_CRITICAL(logger, "创建主窗口失败");
+		_OnQuit();
 		return false;
 	}
 
@@ -234,7 +240,7 @@ void App::_Run() {
 		MSG msg;
 		while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) {
 			if (msg.message == WM_QUIT) {
-				_OnClose();
+				_OnQuit();
 				return;
 			}
 
@@ -516,7 +522,7 @@ LRESULT App::_HostWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	return DefWindowProc(hWnd, message, wParam, lParam);
 }
 
-void App::_OnClose() {
+void App::_OnQuit() {
 	// 释放资源
 	_frameSource = nullptr;
 	_renderer = nullptr;

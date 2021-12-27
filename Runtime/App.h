@@ -129,6 +129,10 @@ public:
 		return _flags & (UINT)_FlagMasks::DisableEffectCache;
 	}
 
+	bool IsSimulateExclusiveFullscreen() const {
+		return _flags & (UINT)_FlagMasks::SimulateExclusiveFullscreen;
+	}
+
 	const char* GetErrorMsg() const {
 		return _errorMsg;
 	}
@@ -157,7 +161,7 @@ private:
 
 	LRESULT _HostWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
-	void _OnClose();
+	void _OnQuit();
 
 	const char* _errorMsg = ErrorMessages::GENERIC;
 
@@ -184,7 +188,7 @@ private:
 		NoCursor = 0x1,
 		AdjustCursorSpeed = 0x2,
 		ShowFPS = 0x4,
-		
+		SimulateExclusiveFullscreen = 0x8,
 		DisableLowLatency = 0x10,
 		BreakpointMode = 0x20,
 		DisableWindowResizing = 0x40,

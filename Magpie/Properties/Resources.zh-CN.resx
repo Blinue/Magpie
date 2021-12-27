@@ -249,6 +249,9 @@
   <data name="UI_Options_Advanced_Show_All_Capture_Methods" xml:space="preserve">
     <value>显示所有捕获模式</value>
   </data>
+  <data name="UI_Options_Advanced_Simulate_Exclusive_Fullscreen" xml:space="preserve">
+    <value>模拟独占全屏</value>
+  </data>
   <data name="UI_Options_Application" xml:space="preserve">
     <value>应用程序</value>
   </data>
@@ -333,11 +336,11 @@
   <data name="UI_Options_Scale_Multiple_Monitors_All" xml:space="preserve">
     <value>使用所有显示器</value>
   </data>
-  <data name="UI_Options_Scale_Multiple_Monitors_Nearest" xml:space="preserve">
-    <value>使用距离源窗口最近的显示器</value>
-  </data>
   <data name="UI_Options_Scale_Multiple_Monitors_Intersect" xml:space="preserve">
     <value>使用源窗口跨越的所有显示器</value>
+  </data>
+  <data name="UI_Options_Scale_Multiple_Monitors_Nearest" xml:space="preserve">
+    <value>使用距离源窗口最近的显示器</value>
   </data>
   <data name="UI_Options_Scale_No_VSync" xml:space="preserve">
     <value>关闭垂直同步</value>

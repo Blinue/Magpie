@@ -1,5 +1,5 @@
-// ÊÊÓÃÓÚ DirectX ¹¦ÄÜ¼¶±ð 10 µÄ FSR_EASU
-// ±ÈÔ­Ê¼°æ±¾ÉÔÂý
+// é€‚ç”¨äºŽ DirectX åŠŸèƒ½çº§åˆ« 10 çš„ FSR_EASU
+// æ¯”åŽŸå§‹ç‰ˆæœ¬ç¨æ…¢
 
 //!MAGPIE EFFECT
 //!VERSION 1

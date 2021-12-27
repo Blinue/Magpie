@@ -45,6 +45,7 @@ namespace Magpie {
 			NoCursor = 0x1,
 			AdjustCursorSpeed = 0x2,
 			ShowFPS = 0x4,
+			SimulateExclusiveFullscreen = 0x8,
 			DisableLowLatency = 0x10,
 			BreakpointMode = 0x20,
 			DisableWindowResizing = 0x40,
@@ -194,7 +195,8 @@ namespace Magpie {
 			bool disableDirectFlip,
 			bool confineCursorIn3DGames,
 			bool cropTitleBarOfUWP,
-			bool disableEffectCache
+			bool disableEffectCache,
+			bool simulateExclusiveFullscreen
 		) {
 			if (Running) {
 				Logger.Info("已存在全屏窗口，取消进入全屏");
@@ -230,7 +232,8 @@ namespace Magpie {
 				(disableDirectFlip ? (uint)FlagMasks.DisableDirectFlip : 0) |
 				(confineCursorIn3DGames ? (uint)FlagMasks.ConfineCursorIn3DGames : 0) |
 				(cropTitleBarOfUWP ? (uint)FlagMasks.CropTitleBarOfUWP : 0) |
-				(disableEffectCache ? (uint)FlagMasks.DisableEffectCache : 0);
+				(disableEffectCache ? (uint)FlagMasks.DisableEffectCache : 0) |
+				(simulateExclusiveFullscreen ? (uint)FlagMasks.SimulateExclusiveFullscreen : 0);
 
 			_ = runEvent.Set();
 			Running = true;

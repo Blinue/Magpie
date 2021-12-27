@@ -148,6 +148,7 @@
     <ClInclude Include="EffectCompiler.h" />
     <ClInclude Include="EffectDesc.h" />
     <ClInclude Include="ErrorMessages.h" />
+    <ClInclude Include="ExclModeHack.h" />
     <ClInclude Include="FrameRateDrawer.h" />
     <ClInclude Include="FrameSourceBase.h" />
     <ClInclude Include="framework.h" />
@@ -171,6 +172,7 @@
     <ClCompile Include="EffectDesc.cpp" />
     <ClCompile Include="EffectDrawer.cpp" />
     <ClCompile Include="EffectCompiler.cpp" />
+    <ClCompile Include="ExclModeHack.cpp" />
     <ClCompile Include="FrameRateDrawer.cpp" />
     <ClCompile Include="FrameSourceBase.cpp" />
     <ClCompile Include="GDIFrameSource.cpp" />

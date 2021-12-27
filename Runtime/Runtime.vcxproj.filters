@@ -58,6 +58,9 @@
     <ClCompile Include="DesktopDuplicationFrameSource.cpp">
       <Filter>捕获</Filter>
     </ClCompile>
+    <ClCompile Include="ExclModeHack.cpp">
+      <Filter>应用程序</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="resource.h">
@@ -125,6 +128,9 @@
     </ClInclude>
     <ClInclude Include="DesktopDuplicationFrameSource.h">
       <Filter>捕获</Filter>
+    </ClInclude>
+    <ClInclude Include="ExclModeHack.h">
+      <Filter>应用程序</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
