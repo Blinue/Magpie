@@ -468,10 +468,6 @@ bool App::_DisableDirectFlip() {
 		return false;
 	}
 
-	if (!SetWindowPos(_hwndDDF, _hwndHost, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOREDRAW)) {
-		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("SetWindowPos 失败"));
-	}
-
 	// 设置窗口不透明
 	if (!SetLayeredWindowAttributes(_hwndDDF, 0, 255, LWA_ALPHA)) {
 		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("SetLayeredWindowAttributes 失败"));
@@ -479,6 +475,10 @@ bool App::_DisableDirectFlip() {
 
 	if (!ShowWindow(_hwndDDF, SW_NORMAL)) {
 		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("ShowWindow 失败"));
+	}
+
+	if (!SetWindowPos(_hwndDDF, _hwndHost, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOREDRAW)) {
+		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("SetWindowPos 失败"));
 	}
 
 	SPDLOG_LOGGER_INFO(logger, "已创建 DDF 主窗口");
