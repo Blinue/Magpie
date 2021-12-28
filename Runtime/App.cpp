@@ -473,6 +473,16 @@ bool App::_DisableDirectFlip() {
 		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("SetLayeredWindowAttributes 失败"));
 	}
 
+	if (_captureMode == 0 || _captureMode == 1) {
+		const RTL_OSVERSIONINFOW& version = Utils::GetOSVersion();
+		if (Utils::CompareVersion(version.dwMajorVersion, version.dwMinorVersion, version.dwBuildNumber, 10, 0, 19041) >= 0) {
+			// 使 DDF 窗口无法被捕获到
+			if (!SetWindowDisplayAffinity(_hwndDDF, WDA_EXCLUDEFROMCAPTURE)) {
+				SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("SetWindowDisplayAffinity 失败"));
+			}
+		}
+	}
+
 	if (!ShowWindow(_hwndDDF, SW_NORMAL)) {
 		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("ShowWindow 失败"));
 	}
