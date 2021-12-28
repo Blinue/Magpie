@@ -1,3 +1,5 @@
+# 自定义缩放效果（MagpieFX）
+
 MagpieFX 语法
 
 ``` hlsl

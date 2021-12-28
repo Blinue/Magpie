@@ -4,7 +4,7 @@
 [![All Contributors](https://img.shields.io/github/all-contributors/Blinue/Magpie)](#%E8%B4%A1%E7%8C%AE%E8%80%85-)
 [![许可](https://img.shields.io/github/license/Blinue/Magpie)](./LICENSE)
 
-Magpie 可以将任意窗口放大至全屏，支持大量缩放算法/滤镜。主要用于游戏窗口的放大显示，适用于不支持全屏模式，或者内置的全屏模式会使画面模糊的情况。
+Magpie 可以将任意窗口放大至全屏，内置大量缩放算法/滤镜。主要用于游戏窗口的放大显示，适用于不支持全屏模式，或者内置的全屏模式会使画面模糊的情况。
 
 使用中遇到问题请提交 issue。
 
@@ -24,17 +24,6 @@ Magpie 可以将任意窗口放大至全屏，支持大量缩放算法/滤镜。
 
 以下为配置说明：
 
-#### 热键修改
-
-程序使用 [globalmousekeyhook](https://github.com/gmamaladze/globalmousekeyhook) 检测热键。
-
-手动输入键值修改为你喜欢的键位（多个键位组合之间用 `+` 连接）
-
-1. 字母使用大写，如 `A` ；数字使用特殊格式，如 `D1` （小键盘数字则为 `NumPad1` ）
-2. 功能键的单词首字母大写，如 `Capital` （不能写 `Caps` ）， `F1` ， `PageUp`
-3. 个别键位不能作为单独的触发热键，必须与其它键位组合使用，如 `Control` ， `Shift` ， `Alt`
-4. 组合键按照前后顺序按下才能正确触发，如 `B+C` （先按住b不松手而后再按下c）
-
 #### 缩放模式
 
 程序预置了多种缩放模式，如果它们不符合你的需求，请[自定义缩放配置](https://github.com/Blinue/Magpie/wiki/自定义缩放配置)。
@@ -50,12 +39,23 @@ Magpie 可以将任意窗口放大至全屏，支持大量缩放算法/滤镜。
 
 #### 捕获模式
 
-指示程序如何捕获源窗口图像，它们的适用场景见[捕获模式对比](https://github.com/Blinue/Magpie/wiki/捕获模式对比)。
+指示程序如何捕获源窗口图像，它们的适用场景见[捕获模式对比](https://github.com/Blinue/Magpie/wiki/%E6%8D%95%E8%8E%B7%E6%A8%A1%E5%BC%8F%E5%AF%B9%E6%AF%94)。
 
 1. Graphics Capture：使用 [Screen Capture API](https://docs.microsoft.com/en-us/windows/uwp/audio-video-camera/screen-capture) 捕获窗口，最推荐的方法。此 API 从 Win10 v1903 开始提供。
 2. Desktop Duplication：使用 [Desktop Duplication API](https://docs.microsoft.com/en-us/windows/win32/direct3ddxgi/desktop-dup-api) 捕获窗口，相比 Graphics Capture 可以捕获到更多类型的窗口。此 API 从 Win10 v2004 开始提供。
 3. GDI：使用 GDI 捕获源窗口。和 Graphics Capture 相比 CPU 占用更少。
 4. DwmSharedSurface：使用未公开的 DwmSharedSurface API 捕获窗口。
+
+#### 热键修改
+
+程序使用 [globalmousekeyhook](https://github.com/gmamaladze/globalmousekeyhook) 检测热键。
+
+手动输入键值修改为你喜欢的键位（多个键位组合之间用 `+` 连接）
+
+1. 字母使用大写，如 `A` ；数字使用特殊格式，如 `D1` （小键盘数字则为 `NumPad1` ）
+2. 功能键的单词首字母大写，如 `Capital` （不能写 `Caps` ）， `F1` ， `PageUp`
+3. 个别键位不能作为单独的触发热键，必须与其它键位组合使用，如 `Control` ， `Shift` ， `Alt`
+4. 组合键按照前后顺序按下才能正确触发，如 `B+C` （先按住b不松手而后再按下c）
 
 ## 系统需求
 
