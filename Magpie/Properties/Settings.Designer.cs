@@ -13,7 +13,7 @@ namespace Magpie.Properties {
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "17.0.3.0")]
-    public sealed partial class Settings : global::System.Configuration.ApplicationSettingsBase {
+    internal sealed partial class Settings : global::System.Configuration.ApplicationSettingsBase {
         
         private static Settings defaultInstance = ((Settings)(global::System.Configuration.ApplicationSettingsBase.Synchronized(new Settings())));
         
@@ -158,24 +158,12 @@ namespace Magpie.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("0")]
-        public int FrameRateType {
+        public uint FrameRateType {
             get {
-                return ((int)(this["FrameRateType"]));
+                return ((uint)(this["FrameRateType"]));
             }
             set {
                 this["FrameRateType"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool DisableRoundCorner {
-            get {
-                return ((bool)(this["DisableRoundCorner"]));
-            }
-            set {
-                this["DisableRoundCorner"] = value;
             }
         }
         
@@ -308,6 +296,66 @@ namespace Magpie.Properties {
             }
             set {
                 this["AdapterIdx"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool CropTitleBarOfUWP {
+            get {
+                return ((bool)(this["CropTitleBarOfUWP"]));
+            }
+            set {
+                this["CropTitleBarOfUWP"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool DebugDisableEffectCache {
+            get {
+                return ((bool)(this["DebugDisableEffectCache"]));
+            }
+            set {
+                this["DebugDisableEffectCache"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public uint MultiMonitorUsage {
+            get {
+                return ((uint)(this["MultiMonitorUsage"]));
+            }
+            set {
+                this["MultiMonitorUsage"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool SimulateExclusiveFullscreen {
+            get {
+                return ((bool)(this["SimulateExclusiveFullscreen"]));
+            }
+            set {
+                this["SimulateExclusiveFullscreen"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool ShowDebuggingOptions {
+            get {
+                return ((bool)(this["ShowDebuggingOptions"]));
+            }
+            set {
+                this["ShowDebuggingOptions"] = value;
             }
         }
     }

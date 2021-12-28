@@ -65,6 +65,26 @@ void SetExprVars(SIZE inputSize, SIZE outputSize) {
 	scaleY = inputPtY * outputHeight;
 }
 
+void SetExprDynamicVars(int frameCount, double cursorX, double cursorY) {
+	static double frameCount_ = 0;
+	static double cursorX_ = 0;
+	static double cursorY_ = 0;
+
+	static bool init = false;
+
+	if (!init) {
+		init = true;
+
+		exprParser.DefineVar("FRAME_COUNT", &frameCount_);
+		exprParser.DefineVar("CURSOR_X", &cursorX_);
+		exprParser.DefineVar("CURSOR_Y", &cursorY_);
+	}
+
+	frameCount_ = frameCount;
+	cursorX_ = cursorX;
+	cursorY_ = cursorY;
+}
+
 
 EffectDrawer::EffectDrawer(const EffectDrawer& other) {
 	_d3dDevice = other._d3dDevice;
@@ -121,8 +141,9 @@ bool EffectDrawer::Initialize(const wchar_t* fileName) {
 
 	_samplers.resize(_effectDesc.samplers.size());
 	for (size_t i = 0; i < _samplers.size(); ++i) {
-		if (!renderer.GetSampler(_effectDesc.samplers[i].filterType, &_samplers[i])) {
-			SPDLOG_LOGGER_ERROR(logger, fmt::format("创建采样器 {} 失败", _effectDesc.samplers[i].name));
+		EffectSamplerDesc& desc = _effectDesc.samplers[i];
+		if (!renderer.GetSampler(desc.filterType, desc.addressType, &_samplers[i])) {
+			SPDLOG_LOGGER_ERROR(logger, fmt::format("创建采样器 {} 失败", desc.name));
 			return false;
 		}
 	}
@@ -137,6 +158,7 @@ bool EffectDrawer::Initialize(const wchar_t* fileName) {
 
 	// 大小必须为 4 的倍数
 	_constants.resize((_effectDesc.constants.size() + _effectDesc.valueConstants.size() + 3) / 4 * 4);
+	_dynamicConstants.resize((_effectDesc.dynamicValueConstants.size() + 3) / 4 * 4);
 
 	// 设置常量默认值
 	for (size_t i = 0; i < _effectDesc.constants.size(); ++i) {
@@ -263,6 +285,30 @@ void EffectDrawer::SetOutputSize(SIZE value) {
 	_outputSize = value;
 }
 
+
+bool EvalConstants(const std::vector<EffectValueConstantDesc>& descs, std::vector<Constant32>& constants, size_t base = 0) {
+	for (size_t i = 0; i < descs.size(); ++i) {
+		const auto& d = descs[i];
+
+		double value;
+		try {
+			exprParser.SetExpr(d.valueExpr);
+			value = exprParser.Eval();
+		} catch (...) {
+			SPDLOG_LOGGER_ERROR(logger, fmt::format("计算表达式 {} 失败", d.valueExpr));
+			return false;
+		}
+
+		if (descs[i].type == EffectConstantType::Float) {
+			constants[i + base].floatVal = (float)value;
+		} else {
+			constants[i + base].intVal = (int)std::lround(value);
+		}
+	}
+
+	return true;
+}
+
 bool EffectDrawer::Build(ComPtr<ID3D11Texture2D> input, ComPtr<ID3D11Texture2D> output) {
 	D3D11_TEXTURE2D_DESC inputDesc;
 	input->GetDesc(&inputDesc);
@@ -274,6 +320,7 @@ bool EffectDrawer::Build(ComPtr<ID3D11Texture2D> input, ComPtr<ID3D11Texture2D> 
 	}
 	
 	SetExprVars(inputSize, outputSize);
+	SetExprDynamicVars(0, 0, 0);
 
 	// 创建中间纹理
 	_textures.resize(_effectDesc.textures.size() + 1);
@@ -321,22 +368,16 @@ bool EffectDrawer::Build(ComPtr<ID3D11Texture2D> input, ComPtr<ID3D11Texture2D> 
 
 	_textures.back() = output;
 
-	for (size_t i = 0; i < _effectDesc.valueConstants.size(); ++i) {
-		const auto& d = _effectDesc.valueConstants[i];
+	
+	if (!EvalConstants(_effectDesc.valueConstants, _constants, _effectDesc.constants.size())) {
+		SPDLOG_LOGGER_ERROR(logger, "计算常量失败");
+		return false;
+	}
 
-		double value;
-		try {
-			exprParser.SetExpr(d.valueExpr);
-			value = exprParser.Eval();
-		} catch (...) {
-			return false;
-		}
-		
-		if (_effectDesc.valueConstants[i].type == EffectConstantType::Float) {
-			_constants[i + _effectDesc.constants.size()].floatVal = (float)value;
-		} else {
-			_constants[i + _effectDesc.constants.size()].intVal = (int)std::lround(value);
-		}
+	// 每帧更新的常量也计算一次，用于检测表达式语法错误
+	if (!EvalConstants(_effectDesc.dynamicValueConstants, _dynamicConstants)) {
+		SPDLOG_LOGGER_ERROR(logger, "计算动态常量失败");
+		return false;
 	}
 	
 	if (!_constants.empty()) {
@@ -350,6 +391,24 @@ bool EffectDrawer::Build(ComPtr<ID3D11Texture2D> input, ComPtr<ID3D11Texture2D> 
 		initData.pSysMem = _constants.data();
 
 		HRESULT hr = _d3dDevice->CreateBuffer(&bd, &initData, &_constantBuffer);
+		if (FAILED(hr)) {
+			SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("CreateBuffer 失败", hr));
+			return false;
+		}
+	}
+
+	if (!_dynamicConstants.empty()) {
+		// 创建每帧更新的常量缓冲区
+		D3D11_BUFFER_DESC bd{};
+		bd.Usage = D3D11_USAGE_DYNAMIC;
+		bd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+		bd.ByteWidth = 4 * (UINT)_dynamicConstants.size();
+		bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+
+		D3D11_SUBRESOURCE_DATA initData{};
+		initData.pSysMem = _dynamicConstants.data();
+		
+		HRESULT hr = _d3dDevice->CreateBuffer(&bd, &initData, &_dynamicConstantBuffer);
 		if (FAILED(hr)) {
 			SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("CreateBuffer 失败", hr));
 			return false;
@@ -374,19 +433,60 @@ bool EffectDrawer::Build(ComPtr<ID3D11Texture2D> input, ComPtr<ID3D11Texture2D> 
 	return true;
 }
 
-void EffectDrawer::Draw() {
-	ID3D11Buffer* t = _constantBuffer.Get();
-	if (t) {
-		_d3dDC->PSSetConstantBuffers(0, 1, &t);
+void EffectDrawer::Draw(bool noUpdate) {
+	if (_dynamicConstantBuffer) {
+		// 更新常量
+		if (!EvalConstants(_effectDesc.dynamicValueConstants, _dynamicConstants)) {
+			SPDLOG_LOGGER_ERROR(logger, "计算动态常量失败");
+		}
+
+		D3D11_MAPPED_SUBRESOURCE ms;
+		HRESULT hr = _d3dDC->Map(_dynamicConstantBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &ms);
+		if (SUCCEEDED(hr)) {
+			std::memcpy(ms.pData, _dynamicConstants.data(), _dynamicConstants.size() * 4);
+			_d3dDC->Unmap(_dynamicConstantBuffer.Get(), 0);
+		} else {
+			SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("Map 失败", hr));
+		}
+	}
+
+	ID3D11Buffer* t[2] = { _constantBuffer.Get(), _dynamicConstantBuffer.Get()};
+	if (t[0]) {
+		_d3dDC->PSSetConstantBuffers(0, t[1] ? 2 : 1, t);
 	} else {
 		_d3dDC->PSSetConstantBuffers(0, 0, nullptr);
 	}
 
 	_d3dDC->PSSetSamplers(0, (UINT)_samplers.size(), _samplers.data());
 
-	for (_Pass& pass : _passes) {
-		pass.Draw();
+	if (noUpdate) {
+		// 此帧内容无变化，只渲染最后一个 pass
+		_passes.back().Draw();
+	} else {
+		for (_Pass& pass : _passes) {
+			pass.Draw();
+		}
 	}
+}
+
+// 所有 Effect 共享 exprParser，每帧渲染前由 Renderer 调用一次
+bool EffectDrawer::UpdateExprDynamicVars() {
+	int frameCount = App::GetInstance().GetRenderer().GetTimer().GetFrameCount();
+
+	POINT pt;
+	if (!GetCursorPos(&pt)) {
+		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetCursorPos 失败"));
+		return false;
+	}
+
+	const RECT& srcClient = App::GetInstance().GetSrcClientRect();
+
+	SetExprDynamicVars(
+		frameCount,
+		double(pt.x - srcClient.left) / (srcClient.right - srcClient.left),
+		double(pt.y - srcClient.top) / (srcClient.bottom - srcClient.top)
+	);
+	return true;
 }
 
 

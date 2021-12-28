@@ -16,7 +16,7 @@ public:
 
 	void Render();
 
-	bool GetSampler(EffectSamplerFilterType filterType, ID3D11SamplerState** result);
+	bool GetSampler(EffectSamplerFilterType filterType, EffectSamplerAddressType addressType, ID3D11SamplerState** result);
 
 	ComPtr<ID3D11Device1> GetD3DDevice() const{
 		return _d3dDevice;
@@ -28,6 +28,14 @@ public:
 
 	ComPtr<IDXGIDevice1> GetDXGIDevice() const {
 		return _dxgiDevice;
+	}
+
+	ComPtr<IDXGIFactory2> GetDXGIFactory() const {
+		return _dxgiFactory;
+	}
+
+	ComPtr<IDXGIAdapter1> GetGraphicsAdapter() const {
+		return _graphicsAdapter;
 	}
 
 	bool GetRenderTargetView(ID3D11Texture2D* texture, ID3D11RenderTargetView** result);
@@ -73,15 +81,17 @@ private:
 	ComPtr<IDXGIFactory2> _dxgiFactory;
 	ComPtr<IDXGIDevice1> _dxgiDevice;
 	ComPtr<IDXGISwapChain2> _dxgiSwapChain;
-
+	ComPtr<IDXGIAdapter1> _graphicsAdapter;
 	ComPtr<ID3D11Device1> _d3dDevice;
 	ComPtr<ID3D11DeviceContext1> _d3dDC;
 
 	Utils::ScopedHandle _frameLatencyWaitableObject = NULL;
 	bool _waitingForNextFrame = false;
 
-	ComPtr<ID3D11SamplerState> _linearSampler;
-	ComPtr<ID3D11SamplerState> _pointSampler;
+	ComPtr<ID3D11SamplerState> _linearClampSampler;
+	ComPtr<ID3D11SamplerState> _pointClampSampler;
+	ComPtr<ID3D11SamplerState> _linearWrapSampler;
+	ComPtr<ID3D11SamplerState> _pointWrapSampler;
 	ComPtr<ID3D11BlendState> _alphaBlendState;
 
 	ComPtr<ID3D11Texture2D> _effectInput;

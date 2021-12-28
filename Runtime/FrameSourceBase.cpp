@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "FrameSourceBase.h"
 #include "Utils.h"
+#include "App.h"
 
 
 extern std::shared_ptr<spdlog::logger> logger;
@@ -76,5 +77,39 @@ bool FrameSourceBase::_GetDpiAwareWindowClientOffset(HWND hWnd, POINT& clientOff
 	}
 
 	clientOffset = { ptClient.x - ptWindow.x, ptClient.y - ptWindow.y };
+	return true;
+}
+
+bool FrameSourceBase::_CenterWindowIfNecessary(HWND hWnd, const RECT& rcWork) {
+	RECT srcRect;
+	if (!GetWindowRect(hWnd, &srcRect)) {
+		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetWindowRect 失败"));
+		return false;
+	}
+
+	if (srcRect.left < rcWork.left || srcRect.top < rcWork.top
+		|| srcRect.right > rcWork.right || srcRect.bottom > rcWork.bottom) {
+		// 源窗口超越边界，将源窗口移到屏幕中央
+		SIZE srcSize = { srcRect.right - srcRect.left, srcRect.bottom - srcRect.top };
+		SIZE rcWorkSize = { rcWork.right - rcWork.left, rcWork.bottom - rcWork.top };
+		if (srcSize.cx > rcWorkSize.cx || srcSize.cy > rcWorkSize.cy) {
+			// 源窗口无法被当前屏幕容纳，因此无法捕获
+			App::GetInstance().SetErrorMsg(ErrorMessages::SRC_TOO_LARGE);
+			return false;
+		}
+
+		if (!SetWindowPos(
+			hWnd,
+			0,
+			rcWork.left + (rcWorkSize.cx - srcSize.cx) / 2,
+			rcWork.top + (rcWorkSize.cy - srcSize.cy) / 2,
+			0,
+			0,
+			SWP_NOSIZE | SWP_NOZORDER
+		)) {
+			SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("SetWindowPos 失败"));
+		}
+	}
+
 	return true;
 }

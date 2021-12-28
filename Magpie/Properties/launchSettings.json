@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Magpie": {
+      "commandName": "Project",
+      "nativeDebugging": true
+    }
+  }
+}

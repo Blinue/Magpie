@@ -23,6 +23,7 @@ public:
 		float cursorZoomFactor,
 		UINT cursorInterpolationMode,
 		UINT adapterIdx,
+		UINT multiMonitorMode,
 		UINT flags
 	);
 
@@ -36,6 +37,10 @@ public:
 		return _hwndSrc;
 	}
 
+	HWND GetHwndSrcClient() const {
+		return _hwndSrcClient;
+	}
+
 	const RECT& GetSrcClientRect() const {
 		return _srcClientRect;
 	}
@@ -44,8 +49,8 @@ public:
 		return _hwndHost;
 	}
 
-	SIZE GetHostWndSize() const {
-		return _hostWndSize;
+	const RECT& GetHostWndRect() const {
+		return _hostWndRect;
 	}
 
 	Renderer& GetRenderer() {
@@ -76,6 +81,14 @@ public:
 		return _adapterIdx;
 	}
 
+	UINT GetMultiMonitorUsage() const {
+		return _multiMonitorUsage;
+	}
+
+	bool IsMultiMonitorMode() const {
+		return _isMultiMonitorMode;
+	}
+
 	bool IsNoCursor() const {
 		return _flags & (UINT)_FlagMasks::NoCursor;
 	}
@@ -92,10 +105,6 @@ public:
 		return _flags & (UINT)_FlagMasks::DisableLowLatency;
 	}
 
-	bool IsDisableRoundCorner() const {
-		return _flags & (UINT)_FlagMasks::DisableRoundCorner;
-	}
-
 	bool IsDisableWindowResizing() const {
 		return _flags & (UINT)_FlagMasks::DisableWindowResizing;
 	}
@@ -110,6 +119,18 @@ public:
 
 	bool IsConfineCursorIn3DGames() const {
 		return _flags & (UINT)_FlagMasks::ConfineCursorIn3DGames;
+	}
+
+	bool IsCropTitleBarOfUWP() const {
+		return _flags & (UINT)_FlagMasks::CropTitleBarOfUWP;
+	}
+
+	bool IsDisableEffectCache() const {
+		return _flags & (UINT)_FlagMasks::DisableEffectCache;
+	}
+
+	bool IsSimulateExclusiveFullscreen() const {
+		return _flags & (UINT)_FlagMasks::SimulateExclusiveFullscreen;
 	}
 
 	const char* GetErrorMsg() const {
@@ -140,18 +161,19 @@ private:
 
 	LRESULT _HostWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
-	void _ReleaseResources();
+	void _OnQuit();
 
 	const char* _errorMsg = ErrorMessages::GENERIC;
 
 	HINSTANCE _hInst = NULL;
 	HWND _hwndSrc = NULL;
+	HWND _hwndSrcClient = NULL;
 	HWND _hwndHost = NULL;
 
 	// 关闭 DirectFlip 时的背景全屏窗口
 	HWND _hwndDDF = NULL;
 
-	SIZE _hostWndSize{};
+	RECT _hostWndRect{};
 	RECT _srcClientRect{};
 
 	UINT _captureMode = 0;
@@ -159,19 +181,28 @@ private:
 	float _cursorZoomFactor = 0;
 	UINT _cursorInterpolationMode = 0;
 	UINT _adapterIdx = 0;
+	UINT _multiMonitorUsage = 0;
 	UINT _flags = 0;
 
 	enum class _FlagMasks : UINT {
 		NoCursor = 0x1,
 		AdjustCursorSpeed = 0x2,
 		ShowFPS = 0x4,
-		DisableRoundCorner = 0x8,
+		SimulateExclusiveFullscreen = 0x8,
 		DisableLowLatency = 0x10,
 		BreakpointMode = 0x20,
 		DisableWindowResizing = 0x40,
 		DisableDirectFlip = 0x80,
-		ConfineCursorIn3DGames = 0x100
+		ConfineCursorIn3DGames = 0x100,
+		CropTitleBarOfUWP = 0x200,
+		DisableEffectCache = 0x400
 	};
+
+	// 多屏幕模式下光标可以在屏幕间自由移动
+	bool _isMultiMonitorMode = false;
+
+	bool _windowResizingDisabled = false;
+	bool _roundCornerDisabled = false;
 
 	std::unique_ptr<Renderer> _renderer;
 	std::unique_ptr<FrameSourceBase> _frameSource;

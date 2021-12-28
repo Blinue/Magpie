@@ -112,10 +112,10 @@
     <value>2.0</value>
   </resheader>
   <resheader name="reader">
-    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <resheader name="writer">
-    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="Msg_Error_Generic" xml:space="preserve">
     <value>An error occurred, please check logs for more information.</value>
@@ -131,6 +131,9 @@
   </data>
   <data name="Msg_Error_Run_As_Admin" xml:space="preserve">
     <value>Failed to obtain administrator privileges.</value>
+  </data>
+  <data name="Msg_Error_Src_Too_Large" xml:space="preserve">
+    <value>This window is too large to capture.</value>
   </data>
   <data name="Msg_Error_Vsync_Off_Not_Supported" xml:space="preserve">
     <value>This monitor does not support turning off VSync.</value>
@@ -217,8 +220,14 @@
   <data name="UI_Options_Advanced_Breakpoint_Mode" xml:space="preserve">
     <value>Breakpoint Mode</value>
   </data>
-  <data name="UI_Options_Advanced_Debug" xml:space="preserve">
-    <value>Debug</value>
+  <data name="UI_Options_Advanced_Debugging" xml:space="preserve">
+    <value>Debugging</value>
+  </data>
+  <data name="UI_Options_Advanced_Disable_Effect_Cache" xml:space="preserve">
+    <value>Disable Effect Cache</value>
+  </data>
+  <data name="UI_Options_Advanced_Logging" xml:space="preserve">
+    <value>Logging</value>
   </data>
   <data name="UI_Options_Advanced_Logging_Level" xml:space="preserve">
     <value>Logging Level</value>
@@ -235,14 +244,26 @@
   <data name="UI_Options_Advanced_Logging_Level_Warn" xml:space="preserve">
     <value>Warn</value>
   </data>
+  <data name="UI_Options_Advanced_Open_Logs_Folder" xml:space="preserve">
+    <value>Open Logs Folder</value>
+  </data>
   <data name="UI_Options_Advanced_Show_All_Capture_Methods" xml:space="preserve">
     <value>Show All Capture Methods</value>
+  </data>
+  <data name="UI_Options_Advanced_Show_Debugging_Options" xml:space="preserve">
+    <value>Show Debugging Options</value>
+  </data>
+  <data name="UI_Options_Advanced_Simulate_Exclusive_Fullscreen" xml:space="preserve">
+    <value>Simulate Exclusive Fullscreen</value>
   </data>
   <data name="UI_Options_Application" xml:space="preserve">
     <value>Application</value>
   </data>
   <data name="UI_Options_Application_Always_Run_As_Admin" xml:space="preserve">
     <value>Always Run as Administrator</value>
+  </data>
+  <data name="UI_Options_Application_Crop_Title_Bar_Of_UWP" xml:space="preserve">
+    <value>Crop the Title Bar of UWP Windows</value>
   </data>
   <data name="UI_Options_Application_Language" xml:space="preserve">
     <value>Language</value>
@@ -292,7 +313,7 @@
   <data name="UI_Options_Scale_Cursor_Zoom_Factor" xml:space="preserve">
     <value>Zoom Factor of the Cursor</value>
   </data>
-  <data name="UI_Options_Scale_Disable_DirectFlip" xml:space="preserve">
+  <data name="UI_Options_Advanced_Disable_DirectFlip" xml:space="preserve">
     <value>Disable DirectFlip</value>
   </data>
   <data name="UI_Options_Scale_Disable_Low_Latency" xml:space="preserve">
@@ -313,14 +334,23 @@
   <data name="UI_Options_Scale_Frame_Rate_Not_Limited" xml:space="preserve">
     <value>Not Limited</value>
   </data>
+  <data name="UI_Options_Scale_Multiple_Monitors" xml:space="preserve">
+    <value>Multiple Monitors</value>
+  </data>
+  <data name="UI_Options_Scale_Multiple_Monitors_All" xml:space="preserve">
+    <value>Use All Monitors</value>
+  </data>
+  <data name="UI_Options_Scale_Multiple_Monitors_Intersect" xml:space="preserve">
+    <value>Use the Monitors that the Source Window Intersects</value>
+  </data>
+  <data name="UI_Options_Scale_Multiple_Monitors_Nearest" xml:space="preserve">
+    <value>Use the Monitor Nearest to the Source Window</value>
+  </data>
   <data name="UI_Options_Scale_No_VSync" xml:space="preserve">
     <value>Disable Vsync</value>
   </data>
   <data name="UI_Options_Scale_Open_Scale_Config" xml:space="preserve">
     <value>Open Scale Config</value>
-  </data>
-  <data name="UI_Options_Scale_Performance" xml:space="preserve">
-    <value>Performance</value>
   </data>
   <data name="UI_Options_Scale_Restore_Full_Screen" xml:space="preserve">
     <value>Restore Fullscreen when Source Window Regains Focus</value>

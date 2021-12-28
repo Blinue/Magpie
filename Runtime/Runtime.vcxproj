@@ -21,19 +21,6 @@
     <ProjectName>Runtime</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
-    <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
-    <CharacterSet>Unicode</CharacterSet>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
-    <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
-    <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CharacterSet>Unicode</CharacterSet>
-  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
@@ -155,17 +142,17 @@
   <ItemGroup>
     <ClInclude Include="App.h" />
     <ClInclude Include="CursorDrawer.h" />
+    <ClInclude Include="DesktopDuplicationFrameSource.h" />
     <ClInclude Include="EffectCache.h" />
     <ClInclude Include="EffectDrawer.h" />
     <ClInclude Include="EffectCompiler.h" />
     <ClInclude Include="EffectDesc.h" />
     <ClInclude Include="ErrorMessages.h" />
+    <ClInclude Include="ExclModeHack.h" />
     <ClInclude Include="FrameRateDrawer.h" />
     <ClInclude Include="FrameSourceBase.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="GDIFrameSource.h" />
-    <ClInclude Include="LegacyGDIFrameSource.h" />
-    <ClInclude Include="MagCallbackFrameSource.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="resource.h" />
@@ -180,15 +167,15 @@
   <ItemGroup>
     <ClCompile Include="App.cpp" />
     <ClCompile Include="CursorDrawer.cpp" />
+    <ClCompile Include="DesktopDuplicationFrameSource.cpp" />
     <ClCompile Include="EffectCache.cpp" />
     <ClCompile Include="EffectDesc.cpp" />
     <ClCompile Include="EffectDrawer.cpp" />
     <ClCompile Include="EffectCompiler.cpp" />
+    <ClCompile Include="ExclModeHack.cpp" />
     <ClCompile Include="FrameRateDrawer.cpp" />
     <ClCompile Include="FrameSourceBase.cpp" />
     <ClCompile Include="GDIFrameSource.cpp" />
-    <ClCompile Include="LegacyGDIFrameSource.cpp" />
-    <ClCompile Include="MagCallbackFrameSource.cpp" />
     <ClCompile Include="pch.cpp" />
     <ClCompile Include="DllMain.cpp" />
     <ClCompile Include="Renderer.cpp" />

@@ -213,22 +213,24 @@ bool SdkLayersAvailable() noexcept {
 }
 #endif
 
-inline void LogAdapter(const DXGI_ADAPTER_DESC1& adapterDesc) {
-	SPDLOG_LOGGER_INFO(logger, fmt::format("当前图形适配器：\n\tVID：{:#x}\n\tPID：{:#x}\n\t描述：{}",
+static inline void LogAdapter(const DXGI_ADAPTER_DESC1& adapterDesc) {
+	SPDLOG_LOGGER_INFO(logger, fmt::format("当前图形适配器：\n\tVendorId：{:#x}\n\tDeviceId：{:#x}\n\t描述：{}",
 		adapterDesc.VendorId, adapterDesc.DeviceId, StrUtils::UTF16ToUTF8(adapterDesc.Description)));
 }
 
-bool GetGraphicsAdapter(IDXGIFactory1* dxgiFactory, UINT adapterIdx, ComPtr<IDXGIAdapter1>& adapter) {
+static ComPtr<IDXGIAdapter1> ObtainGraphicsAdapter(IDXGIFactory1* dxgiFactory, UINT adapterIdx) {
+	ComPtr<IDXGIAdapter1> adapter;
+
 	HRESULT hr = dxgiFactory->EnumAdapters1(adapterIdx, adapter.ReleaseAndGetAddressOf());
 	if (SUCCEEDED(hr)) {
 		DXGI_ADAPTER_DESC1 desc;
 		HRESULT hr = adapter->GetDesc1(&desc);
 		if (FAILED(hr)) {
-			return false;
+			return nullptr;
 		}
 
 		LogAdapter(desc);
-		return true;
+		return adapter;
 	}
 
 	// 指定 GPU 失败，回落到普通方式
@@ -243,7 +245,7 @@ bool GetGraphicsAdapter(IDXGIFactory1* dxgiFactory, UINT adapterIdx, ComPtr<IDXG
 		DXGI_ADAPTER_DESC1 desc;
 		HRESULT hr = adapter->GetDesc1(&desc);
 		if (FAILED(hr)) {
-			return false;
+			return nullptr;
 		}
 
 		if (desc.Flags == DXGI_ADAPTER_FLAG_SOFTWARE) {
@@ -253,17 +255,16 @@ bool GetGraphicsAdapter(IDXGIFactory1* dxgiFactory, UINT adapterIdx, ComPtr<IDXG
 		}
 
 		LogAdapter(desc);
-		return true;
+		return adapter;
 	}
 
 	// 回落到 Basic Render Driver Adapter（WARP）
 	// https://docs.microsoft.com/en-us/windows/win32/direct3darticles/directx-warp
 	if (warpAdapter) {
 		LogAdapter(warpDesc);
-		adapter = warpAdapter;
-		return true;
+		return warpAdapter;
 	} else {
-		return false;
+		return nullptr;
 	}
 }
 
@@ -332,7 +333,7 @@ bool Renderer::_InitD3D() {
 #ifdef _DEBUG
 	createDeviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
 	if (SdkLayersAvailable()) {
-		// If the project is in a debug build, enable debugging via SDK Layers with this flag.
+		// 在 DEBUG 配置启用调试层
 		createDeviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
 	} else {
 		SPDLOG_LOGGER_INFO(logger, "D3D11 调试层不可用");
@@ -351,8 +352,8 @@ bool Renderer::_InitD3D() {
 	};
 	UINT nFeatureLevels = ARRAYSIZE(featureLevels);
 
-	ComPtr<IDXGIAdapter1> adapter;
-	if (!GetGraphicsAdapter(_dxgiFactory.Get(), App::GetInstance().GetAdapterIdx(), adapter)) {
+	_graphicsAdapter = ObtainGraphicsAdapter(_dxgiFactory.Get(), App::GetInstance().GetAdapterIdx());
+	if (!_graphicsAdapter) {
 		SPDLOG_LOGGER_ERROR(logger, "找不到可用 Adapter");
 		return false;
 	}
@@ -360,7 +361,7 @@ bool Renderer::_InitD3D() {
 	ComPtr<ID3D11Device> d3dDevice;
 	ComPtr<ID3D11DeviceContext> d3dDC;
 	hr = D3D11CreateDevice(
-		adapter.Get(),
+		_graphicsAdapter.Get(),
 		D3D_DRIVER_TYPE_UNKNOWN,
 		nullptr,
 		createDeviceFlags,
@@ -376,7 +377,6 @@ bool Renderer::_InitD3D() {
 		SPDLOG_LOGGER_WARN(logger, "D3D11CreateDevice 失败");
 		return false;
 	}
-
 
 	std::string_view fl;
 	switch (_featureLevel) {
@@ -435,17 +435,17 @@ bool Renderer::_InitD3D() {
 }
 
 bool Renderer::_CreateSwapChain() {
-	const SIZE hostSize = App::GetInstance().GetHostWndSize();
+	const RECT& hostWndRect = App::GetInstance().GetHostWndRect();
 
 	DXGI_SWAP_CHAIN_DESC1 sd = {};
-	sd.Width = hostSize.cx;
-	sd.Height = hostSize.cy;
+	sd.Width = hostWndRect.right - hostWndRect.left;
+	sd.Height = hostWndRect.bottom - hostWndRect.top;
 	sd.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
 	sd.AlphaMode = DXGI_ALPHA_MODE_IGNORE;
 	sd.SampleDesc.Count = 1;
 	sd.SampleDesc.Quality = 0;
 	sd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT | DXGI_USAGE_SHADER_INPUT;
-	sd.BufferCount = App::GetInstance().IsDisableLowLatency() ? 3 : 2;
+	sd.BufferCount = (App::GetInstance().IsDisableLowLatency() && App::GetInstance().GetFrameRate() == 0) ? 3 : 2;
 	sd.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
 	sd.Flags = App::GetInstance().GetFrameRate() != 0 ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT;
 
@@ -546,7 +546,9 @@ void Renderer::_Render() {
 		return;
 	}
 
-	_waitingForNextFrame = !App::GetInstance().GetFrameSource().Update();
+	auto state = App::GetInstance().GetFrameSource().Update();
+	_waitingForNextFrame = state == FrameSourceBase::UpdateState::Waiting
+		|| state == FrameSourceBase::UpdateState::Error;
 	if (_waitingForNextFrame) {
 		return;
 	}
@@ -555,8 +557,39 @@ void Renderer::_Render() {
 	// 所有渲染都使用三角形带拓扑
 	_d3dDC->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 
-	for (EffectDrawer& effect : _effects) {
-		effect.Draw();
+	if (!_cursorDrawer.Update()) {
+		SPDLOG_LOGGER_ERROR(logger, "更新光标位置失败");
+	}
+
+	// 更新常量
+	if (!EffectDrawer::UpdateExprDynamicVars()) {
+		SPDLOG_LOGGER_ERROR(logger, "UpdateExprDynamicVars 失败");
+	}
+
+	if (state == FrameSourceBase::UpdateState::NewFrame) {
+		for (EffectDrawer& effect : _effects) {
+			effect.Draw();
+		}
+	} else {
+		// 此帧内容无变化
+		// 从第一个有动态常量的 Effect 开始渲染
+		// 如果没有则只渲染最后一个 Effect 的最后一个 pass
+
+		size_t i = 0;
+		for (; i < _effects.size(); ++i) {
+			if (_effects[i].HasDynamicConstants()) {
+				break;
+			}
+		}
+
+		if (i == _effects.size()) {
+			// 只渲染最后一个 Effect 的最后一个 pass
+			_effects.back().Draw(true);
+		} else {
+			for (; i < _effects.size(); ++i) {
+				_effects[i].Draw();
+			}
+		}
 	}
 
 	if (App::GetInstance().IsShowFPS()) {
@@ -572,20 +605,123 @@ void Renderer::_Render() {
 	}
 }
 
-bool Renderer::_CheckSrcState() {
-	HWND hwndSrc = App::GetInstance().GetHwndSrc();
-	if (GetForegroundWindow() != hwndSrc) {
-		SPDLOG_LOGGER_INFO(logger, "前台窗口已改变");
+bool CheckForeground(HWND hwndForeground) {
+	wchar_t className[256]{};
+	if (!GetClassName(hwndForeground, (LPWSTR)className, 256)) {
+		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetClassName 失败"));
 		return false;
 	}
 
-	RECT rect = Utils::GetClientScreenRect(hwndSrc);
-	if (App::GetInstance().GetSrcClientRect() != rect) {
-		SPDLOG_LOGGER_INFO(logger, "源窗口位置或大小改变");
+	// 排除桌面窗口和 Alt+Tab 窗口
+	if (!std::wcscmp(className, L"WorkerW") || !std::wcscmp(className, L"ForegroundStaging") ||
+		!std::wcscmp(className, L"MultitaskingViewFrame") || !std::wcscmp(className, L"XamlExplorerHostIslandWindow")
+	) {
+		return true;
+	}
+
+	RECT rectForground{};
+
+	// 如果捕获模式可以捕获到弹窗，则允许小的弹窗
+	if (App::GetInstance().GetFrameSource().CanCaputurePopup() 
+		&& GetWindowStyle(hwndForeground) & (WS_POPUP | WS_CHILD)
+	) {
+		if (!Utils::GetWindowFrameRect(hwndForeground, rectForground)) {
+			SPDLOG_LOGGER_ERROR(logger, "GetWindowFrameRect 失败");
+			return false;
+		}
+
+		// 弹窗如果完全在源窗口客户区内则不退出全屏
+		const RECT& srcClientRect = App::GetInstance().GetSrcClientRect();
+		if (rectForground.left >= srcClientRect.left
+			&& rectForground.right <= srcClientRect.right
+			&& rectForground.top >= srcClientRect.top
+			&& rectForground.bottom <= srcClientRect.bottom
+		) {
+			return true;
+		}
+	}
+
+	// 非多屏幕模式下退出全屏
+	if (!App::GetInstance().IsMultiMonitorMode()) {
 		return false;
 	}
+
+	if (rectForground == RECT{}) {
+		if (!Utils::GetWindowFrameRect(hwndForeground, rectForground)) {
+			SPDLOG_LOGGER_ERROR(logger, "GetWindowFrameRect 失败");
+			return false;
+		}
+	}
+
+	IntersectRect(&rectForground, &App::GetInstance().GetHostWndRect(), &rectForground);
+
+	// 允许稍微重叠，否则前台窗口最大化时会意外退出
+	if (rectForground.right - rectForground.left < 10 || rectForground.right - rectForground.top < 10) {
+		return true;
+	}
+
+	// 排除开始菜单，它的类名是 CoreWindow
+	if (std::wcscmp(className, L"Windows.UI.Core.CoreWindow")) {
+		// 记录新的前台窗口
+		SPDLOG_LOGGER_INFO(logger, fmt::format("新的前台窗口：\n\t类名：{}", StrUtils::UTF16ToUTF8(className)));
+		return false;
+	}
+
+	DWORD dwProcId = 0;
+	if (!GetWindowThreadProcessId(hwndForeground, &dwProcId)) {
+		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetWindowThreadProcessId 失败"));
+		return false;
+	}
+
+	Utils::ScopedHandle hProc(Utils::SafeHandle(OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, dwProcId)));
+	if (!hProc) {
+		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("OpenProcess 失败"));
+		return false;
+	}
+
+	wchar_t fileName[MAX_PATH] = { 0 };
+	if (!GetModuleFileNameEx(hProc.get(), NULL, fileName, MAX_PATH)) {
+		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetModuleFileName 失败"));
+		return false;
+	}
+
+	std::string exeName = StrUtils::UTF16ToUTF8(fileName);
+	exeName = exeName.substr(exeName.find_last_of(L'\\') + 1);
+	StrUtils::ToLowerCase(exeName);
+
+	// win10: searchapp.exe 和 startmenuexperiencehost.exe
+	// win11: searchhost.exe 和 startmenuexperiencehost.exe
+	if (exeName == "searchapp.exe" || exeName == "searchhost.exe" || exeName == "startmenuexperiencehost.exe") {
+		return true;
+	}
+
+	return false;
+}
+
+bool Renderer::_CheckSrcState() {
+	HWND hwndSrc = App::GetInstance().GetHwndSrc();
+
+	if (!App::GetInstance().IsBreakpointMode()) {
+		HWND hwndForeground = GetForegroundWindow();
+		if (hwndForeground && hwndForeground != hwndSrc && !CheckForeground(hwndForeground)) {
+			SPDLOG_LOGGER_INFO(logger, "前台窗口已改变");
+			return false;
+		}
+	}
+
 	if (Utils::GetWindowShowCmd(hwndSrc) != SW_NORMAL) {
 		SPDLOG_LOGGER_INFO(logger, "源窗口显示状态改变");
+		return false;
+	}
+
+	RECT rect;
+	if (!Utils::GetClientScreenRect(App::GetInstance().GetHwndSrcClient(), rect)) {
+		SPDLOG_LOGGER_ERROR(logger, "GetClientScreenRect 失败");
+		return false;
+	}
+
+	if (App::GetInstance().GetSrcClientRect() != rect) {
+		SPDLOG_LOGGER_INFO(logger, "源窗口位置或大小改变");
 		return false;
 	}
 
@@ -597,7 +733,8 @@ bool Renderer::_ResolveEffectsJson(const std::string& effectsJson, RECT& destRec
 	D3D11_TEXTURE2D_DESC inputDesc;
 	_effectInput->GetDesc(&inputDesc);
 
-	SIZE hostSize = App::GetInstance().GetHostWndSize();
+	const RECT& hostWndRect = App::GetInstance().GetHostWndRect();
+	SIZE hostSize = { hostWndRect.right - hostWndRect.left,hostWndRect.bottom - hostWndRect.top };
 
 	rapidjson::Document doc;
 	if (doc.Parse(effectsJson.c_str(), effectsJson.size()).HasParseError()) {
@@ -814,50 +951,51 @@ bool Renderer::SetAlphaBlend(bool enable) {
 	return true;
 }
 
-bool Renderer::GetSampler(EffectSamplerFilterType filterType, ID3D11SamplerState** result) {
+bool Renderer::GetSampler(EffectSamplerFilterType filterType, EffectSamplerAddressType addressType, ID3D11SamplerState** result) {
+	ID3D11SamplerState** sampler;
+	D3D11_TEXTURE_ADDRESS_MODE addressMode;
+	D3D11_FILTER filter;
+
 	if (filterType == EffectSamplerFilterType::Linear) {
-		if (!_linearSampler) {
-			D3D11_SAMPLER_DESC desc{};
-			desc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-			desc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
-			desc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
-			desc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
-			desc.ComparisonFunc = D3D11_COMPARISON_NEVER;
-			desc.MinLOD = 0;
-			desc.MaxLOD = 0;
-			HRESULT hr = _d3dDevice->CreateSamplerState(&desc, &_linearSampler);
-
-			if (FAILED(hr)) {
-				SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("创建 ID3D11SamplerState 出错", hr));
-				return false;
-			} else {
-				SPDLOG_LOGGER_INFO(logger, "已创建 ID3D11SamplerState\n\tFilter：D3D11_FILTER_MIN_MAG_MIP_LINEAR");
-			}
+		filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+		if (addressType == EffectSamplerAddressType::Clamp) {
+			sampler = _linearClampSampler.GetAddressOf();
+			addressMode = D3D11_TEXTURE_ADDRESS_CLAMP;
+		} else {
+			sampler = _linearWrapSampler.GetAddressOf();
+			addressMode = D3D11_TEXTURE_ADDRESS_WRAP;
 		}
-
-		*result = _linearSampler.Get();
 	} else {
-		if (!_pointSampler) {
-			D3D11_SAMPLER_DESC desc{};
-			desc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
-			desc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
-			desc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
-			desc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
-			desc.ComparisonFunc = D3D11_COMPARISON_NEVER;
-			desc.MinLOD = 0;
-			desc.MaxLOD = 0;
-			HRESULT hr = _d3dDevice->CreateSamplerState(&desc, &_pointSampler);
-
-			if (FAILED(hr)) {
-				SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("创建 ID3D11SamplerState 出错", hr));
-				return false;
-			} else {
-				SPDLOG_LOGGER_INFO(logger, "已创建 ID3D11SamplerState\n\tFilter：D3D11_FILTER_MIN_MAG_MIP_POINT");
-			}
+		filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
+		if (addressType == EffectSamplerAddressType::Clamp) {
+			sampler = _pointClampSampler.GetAddressOf();
+			addressMode = D3D11_TEXTURE_ADDRESS_CLAMP;
+		} else {
+			sampler = _pointWrapSampler.GetAddressOf();
+			addressMode = D3D11_TEXTURE_ADDRESS_WRAP;
 		}
-
-		*result = _pointSampler.Get();
+	}
+	
+	if (*sampler) {
+		*result = *sampler;
+		return true;
 	}
 
+	D3D11_SAMPLER_DESC desc{};
+	desc.Filter = filter;
+	desc.AddressU = addressMode;
+	desc.AddressV = addressMode;
+	desc.AddressW = addressMode;
+	desc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+	desc.MinLOD = 0;
+	desc.MaxLOD = 0;
+	HRESULT hr = _d3dDevice->CreateSamplerState(&desc, sampler);
+
+	if (FAILED(hr)) {
+		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("创建 ID3D11SamplerState 出错", hr));
+		return false;
+	}
+
+	*result = *sampler;
 	return true;
 }

@@ -36,8 +36,14 @@ enum class EffectSamplerFilterType {
 	Point
 };
 
+enum class EffectSamplerAddressType {
+	Clamp,
+	Wrap
+};
+
 struct EffectSamplerDesc {
 	EffectSamplerFilterType filterType = EffectSamplerFilterType::Linear;
+	EffectSamplerAddressType addressType = EffectSamplerAddressType::Clamp;
 	std::string name;
 };
 
@@ -73,6 +79,7 @@ struct EffectDesc {
 
 	std::vector<EffectConstantDesc> constants;
 	std::vector<EffectValueConstantDesc> valueConstants;
+	std::vector<EffectValueConstantDesc> dynamicValueConstants;
 
 	std::vector<EffectIntermediateTextureDesc> textures;
 	std::vector<EffectSamplerDesc> samplers;

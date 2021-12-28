@@ -12,7 +12,7 @@ namespace Magpie.Options {
 	public partial class AboutOptionsPage : Page {
 		private static Logger Logger { get; } = LogManager.GetCurrentClassLogger();
 
-		private LicenseWindow licenseWindow = null;
+		private LicenseWindow? licenseWindow = null;
 
 		public AboutOptionsPage() {
 			InitializeComponent();
@@ -21,7 +21,7 @@ namespace Magpie.Options {
 		}
 
 		private void Hyperlink_RequestNavigate(object sender, RequestNavigateEventArgs e) {
-			ProcessStartInfo psi = new ProcessStartInfo(e.Uri.AbsoluteUri) {
+			ProcessStartInfo psi = new(e.Uri.AbsoluteUri) {
 				UseShellExecute = true
 			};
 
@@ -37,7 +37,7 @@ namespace Magpie.Options {
 		private void BtnLicense_Click(object sender, System.Windows.RoutedEventArgs e) {
 			if (licenseWindow == null) {
 				licenseWindow = new LicenseWindow();
-				licenseWindow.Closed += (object _, EventArgs _1) => {
+				licenseWindow.Closed += (object? _, EventArgs _) => {
 					licenseWindow = null;
 				};
 			}

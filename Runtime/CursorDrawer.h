@@ -9,6 +9,8 @@ public:
 
 	~CursorDrawer();
 
+	bool Update();
+
 	void Draw();
 
 private:
@@ -23,7 +25,16 @@ private:
 
 	bool _ResolveCursor(HCURSOR hCursor, _CursorInfo& result) const;
 
+	void _StartCapture(POINT cursorPt);
+
+	void _StopCapture(POINT cursorPt);
+
+	void _DynamicClip(POINT cursorPt);
+
 private:
+	bool _isUnderCapture = false;
+	std::array<bool, 4> _curClips{};
+
 	SIZE _monoCursorSize{};
 	INT _cursorSpeed = 0;
 	RECT _destRect{};

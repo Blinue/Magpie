@@ -3,7 +3,6 @@
 #include "App.h"
 #include "StrUtils.h"
 #include <Windows.Graphics.DirectX.Direct3D11.interop.h>
-#include <Windows.Graphics.Capture.Interop.h>
 #include <winrt/Windows.Foundation.Metadata.h>
 #include "Utils.h"
 
@@ -21,36 +20,14 @@ bool GraphicsCaptureFrameSource::Initialize() {
 	// 只在 Win10 1903 及更新版本中可用
 	const RTL_OSVERSIONINFOW& version = Utils::GetOSVersion();
 	if (Utils::CompareVersion(version.dwMajorVersion, version.dwMinorVersion, version.dwBuildNumber, 10, 0, 18362) < 0) {
-		SPDLOG_LOGGER_ERROR(logger, "当前操作系统无法使用 GraphicsCapture");
+		SPDLOG_LOGGER_ERROR(logger, "当前操作系统无法使用 Graphics Capture");
 		return false;
 	}
 
 	_d3dDC = App::GetInstance().GetRenderer().GetD3DDC();
-	HWND hwndSrc = App::GetInstance().GetHwndSrc();
-
-	// 包含边框的窗口尺寸
-	RECT srcRect{};
-	HRESULT hr = DwmGetWindowAttribute(hwndSrc, DWMWA_EXTENDED_FRAME_BOUNDS, &srcRect, sizeof(srcRect));
-	if (FAILED(hr)) {
-		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("DwmGetWindowAttribute 失败", hr));
-		return false;
-	}
-
-	const RECT& srcClient = App::GetInstance().GetSrcClientRect();
+	HRESULT hr;
 	
-	// 在源窗口存在 DPI 缩放时有时会有一像素的偏移（取决于窗口在屏幕上的位置）
-	// 可能是 DwmGetWindowAttribute 的 bug
-	_frameInWnd = {
-		UINT(srcClient.left - srcRect.left),
-		UINT(srcClient.top - srcRect.top),
-		0,
-		UINT(srcClient.right - srcRect.left),
-		UINT(srcClient.bottom - srcRect.top),
-		1
-	};
-
-	SIZE frameSize = { LONG(_frameInWnd.right - _frameInWnd.left), LONG(_frameInWnd.bottom - _frameInWnd.top) };
-
+	winrt::impl::com_ref<IGraphicsCaptureItemInterop> interop;
 	try {
 		if (!winrt::ApiInformation::IsTypePresent(L"Windows.Graphics.Capture.GraphicsCaptureSession")) {
 			SPDLOG_LOGGER_ERROR(logger, "不存在 GraphicsCaptureSession API");
@@ -71,34 +48,46 @@ bool GraphicsCaptureFrameSource::Initialize() {
 		}
 
 		// 从窗口句柄获取 GraphicsCaptureItem
-		auto interop = winrt::get_activation_factory<winrt::GraphicsCaptureItem, IGraphicsCaptureItemInterop>();
+		interop = winrt::get_activation_factory<winrt::GraphicsCaptureItem, IGraphicsCaptureItemInterop>();
 		if (!interop) {
 			SPDLOG_LOGGER_ERROR(logger, "获取 IGraphicsCaptureItemInterop 失败");
 			return false;
 		}
+	} catch (const winrt::hresult_error& e) {
+		SPDLOG_LOGGER_ERROR(logger, fmt::format("初始化 WinRT 失败：{}", StrUtils::UTF16ToUTF8(e.message())));
+		return false;
+	}
 
-		winrt::GraphicsCaptureItem captureItem{ nullptr };
-		hr = interop->CreateForWindow(
-			hwndSrc,
-			winrt::guid_of<ABI::Windows::Graphics::Capture::IGraphicsCaptureItem>(),
-			winrt::put_abi(captureItem)
-		);
-		if (FAILED(hr)) {
-			SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("创建 GraphicsCaptureItem 失败", hr));
-			return false;
+	// 有两层回落：
+	// 1. 首先使用常规的窗口捕获
+	// 2. 如果失败，尝试设置源窗口样式，因为 WGC 只能捕获位于 Alt+Tab 列表中的窗口
+	// 3. 如果再次失败，改为使用屏幕捕获
+	if (!_CaptureFromWindow(interop)) {
+		SPDLOG_LOGGER_INFO(logger, "窗口捕获失败，尝试设置源窗口样式");
+
+		if (!_CaptureFromStyledWindow(interop)) {
+			SPDLOG_LOGGER_INFO(logger, "窗口捕获失败，尝试使用屏幕捕获");
+
+			if (!_CaptureFromMonitor(interop)) {
+				SPDLOG_LOGGER_ERROR(logger, "屏幕捕获失败");
+				return false;
+			} else {
+				_canCapturePopup = true;
+			}
 		}
-		
+	}
+
+	try {
 		// 创建帧缓冲池
-		// 帧的尺寸为不含阴影的窗口尺寸，和 _captureItem.Size() 不同
+		// 帧的尺寸和 _captureItem.Size() 不同
 		_captureFramePool = winrt::Direct3D11CaptureFramePool::CreateFreeThreaded(
 			_wrappedD3DDevice,
 			winrt::DirectXPixelFormat::B8G8R8A8UIntNormalized,
 			1,	// 帧的缓存数量
-			{ srcRect.right - srcRect.left, srcRect.bottom - srcRect.top } // 帧的尺寸
+			{ (int)_frameBox.right, (int)_frameBox.bottom } // 帧的尺寸为包含源窗口的最小尺寸
 		);
 
-		// 开始捕获
-		_captureSession = _captureFramePool.CreateCaptureSession(captureItem);
+		_captureSession = _captureFramePool.CreateCaptureSession(_captureItem);
 
 		// 不捕获光标
 		if (winrt::ApiInformation::IsPropertyPresent(
@@ -116,7 +105,7 @@ bool GraphicsCaptureFrameSource::Initialize() {
 			L"Windows.Graphics.Capture.GraphicsCaptureSession",
 			L"IsBorderRequired"
 		)) {
-			// 从 Win11 开始提供
+			// 从 Win10 v2104 开始提供
 			// 先请求权限
 			auto status = winrt::GraphicsCaptureAccess::RequestAccessAsync(winrt::GraphicsCaptureAccessKind::Borderless).get();
 			if (status == decltype(status)::Allowed) {
@@ -128,17 +117,17 @@ bool GraphicsCaptureFrameSource::Initialize() {
 			SPDLOG_LOGGER_INFO(logger, "当前系统无 IsBorderRequired API");
 		}
 
+		// 开始捕获
 		_captureSession.StartCapture();
 	} catch (const winrt::hresult_error& e) {
-		SPDLOG_LOGGER_ERROR(logger, fmt::format("初始化 WinRT 失败：{}", StrUtils::UTF16ToUTF8(e.message())));
+		SPDLOG_LOGGER_INFO(logger, fmt::format("Graphics Capture 失败：", StrUtils::UTF16ToUTF8(e.message())));
 		return false;
 	}
 
-
 	D3D11_TEXTURE2D_DESC desc{};
 	desc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
-	desc.Width = frameSize.cx;
-	desc.Height = frameSize.cy;
+	desc.Width = _frameBox.right - _frameBox.left;
+	desc.Height = _frameBox.bottom - _frameBox.top;
 	desc.MipLevels = 1;
 	desc.ArraySize = 1;
 	desc.SampleDesc.Count = 1;
@@ -155,15 +144,11 @@ bool GraphicsCaptureFrameSource::Initialize() {
 	return true;
 }
 
-ComPtr<ID3D11Texture2D> GraphicsCaptureFrameSource::GetOutput() {
-	return _output;
-}
-
-bool GraphicsCaptureFrameSource::Update() {
+FrameSourceBase::UpdateState GraphicsCaptureFrameSource::Update() {
 	winrt::Direct3D11CaptureFrame frame = _captureFramePool.TryGetNextFrame();
 	if (!frame) {
 		// 缓冲池没有帧
-		return false;
+		return UpdateState::Waiting;
 	}
 
 	// 从帧获取 IDXGISurface
@@ -177,10 +162,157 @@ bool GraphicsCaptureFrameSource::Update() {
 	HRESULT hr = dxgiInterfaceAccess->GetInterface(IID_PPV_ARGS(&withFrame));
 	if (FAILED(hr)) {
 		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("从获取 IDirect3DSurface 获取 ID3D11Texture2D 失败", hr));
+		return UpdateState::Error;
+	}
+
+	_d3dDC->CopySubresourceRegion(_output.Get(), 0, 0, 0, 0, withFrame.Get(), 0, &_frameBox);
+
+	return UpdateState::NewFrame;
+}
+
+bool GraphicsCaptureFrameSource::_CaptureFromWindow(winrt::impl::com_ref<IGraphicsCaptureItemInterop> interop) {
+	// DwmGetWindowAttribute 和 Graphics.Capture 无法应用于子窗口
+	HWND hwndSrc = App::GetInstance().GetHwndSrc();
+
+	// 包含边框的窗口尺寸
+	RECT srcRect{};
+	if (!Utils::GetWindowFrameRect(hwndSrc, srcRect)) {
+		SPDLOG_LOGGER_ERROR(logger, "GetWindowFrameRect 失败");
 		return false;
 	}
 
-	_d3dDC->CopySubresourceRegion(_output.Get(), 0, 0, 0, 0, withFrame.Get(), 0, &_frameInWnd);
+	RECT srcClientRect;
+	if (!Utils::GetClientScreenRect(App::GetInstance().GetHwndSrcClient(), srcClientRect)) {
+		SPDLOG_LOGGER_ERROR(logger, "GetClientScreenRect 失败");
+		return false;
+	}
+
+	// 在源窗口存在 DPI 缩放时有时会有一像素的偏移（取决于窗口在屏幕上的位置）
+	// 可能是 DwmGetWindowAttribute 的 bug
+	_frameBox = {
+		UINT(srcClientRect.left - srcRect.left),
+		UINT(srcClientRect.top - srcRect.top),
+		0,
+		UINT(srcClientRect.right - srcRect.left),
+		UINT(srcClientRect.bottom - srcRect.top),
+		1
+	};
+
+	try {
+		HRESULT hr = interop->CreateForWindow(
+			hwndSrc,
+			winrt::guid_of<ABI::Windows::Graphics::Capture::IGraphicsCaptureItem>(),
+			winrt::put_abi(_captureItem)
+		);
+		if (FAILED(hr)) {
+			SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("创建 GraphicsCaptureItem 失败", hr));
+			return false;
+		}
+	} catch (const winrt::hresult_error& e) {
+		SPDLOG_LOGGER_INFO(logger, fmt::format("源窗口无法使用窗口捕获：", StrUtils::UTF16ToUTF8(e.message())));
+		return false;
+	}
+
+	return true;
+}
+
+bool GraphicsCaptureFrameSource::_CaptureFromStyledWindow(winrt::impl::com_ref<IGraphicsCaptureItemInterop> interop) {
+	HWND hwndSrc = App::GetInstance().GetHwndSrc();
+
+	_srcWndStyle = GetWindowLongPtr(hwndSrc, GWL_EXSTYLE);
+	if (_srcWndStyle == 0) {
+		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetWindowLongPtr 失败"));
+		return false;
+	}
+
+	// 删除 WS_EX_TOOLWINDOW，添加 WS_EX_APPWINDOW 样式，确保源窗口可被 Alt+Tab 选中
+	LONG_PTR newStyle = (_srcWndStyle & !WS_EX_TOOLWINDOW) | WS_EX_APPWINDOW;
+
+	if (_srcWndStyle == newStyle) {
+		// 如果源窗口已经可被 Alt+Tab 选中，则回落到屏幕捕获
+		SPDLOG_LOGGER_INFO(logger, "源窗口无需改变样式");
+		return false;
+	}
+
+	if (!SetWindowLongPtr(hwndSrc, GWL_EXSTYLE, newStyle)) {
+		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("SetWindowLongPtr 失败"));
+		return false;
+	}
+
+	if (!_CaptureFromWindow(interop)) {
+		SPDLOG_LOGGER_ERROR(logger, "改变样式后捕获窗口失败");
+		// 还原源窗口样式
+		SetWindowLongPtr(hwndSrc, GWL_EXSTYLE, _srcWndStyle);
+		_srcWndStyle = 0;
+		return false;
+	}
+
+	return true;
+}
+
+bool GraphicsCaptureFrameSource::_CaptureFromMonitor(winrt::impl::com_ref<IGraphicsCaptureItemInterop> interop) {
+	// WDA_EXCLUDEFROMCAPTURE 只在 Win10 v2004 及更新版本中可用
+	const RTL_OSVERSIONINFOW& version = Utils::GetOSVersion();
+	if (Utils::CompareVersion(version.dwMajorVersion, version.dwMinorVersion, version.dwBuildNumber, 10, 0, 19041) < 0) {
+		SPDLOG_LOGGER_ERROR(logger, "当前操作系统无法使用全屏捕获");
+		return false;
+	}
+
+	// 使全屏窗口无法被捕获到
+	if (!SetWindowDisplayAffinity(App::GetInstance().GetHwndHost(), WDA_EXCLUDEFROMCAPTURE)) {
+		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("SetWindowDisplayAffinity 失败"));
+		return false;
+	}
+
+	HWND hwndSrc = App::GetInstance().GetHwndSrc();
+	HMONITOR hMonitor = MonitorFromWindow(hwndSrc, MONITOR_DEFAULTTONEAREST);
+	if (!hMonitor) {
+		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("MonitorFromWindow 失败"));
+		return false;
+	}
+
+	MONITORINFO mi{};
+	mi.cbSize = sizeof(mi);
+	if (!GetMonitorInfo(hMonitor, &mi)) {
+		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetMonitorInfo 失败"));
+		return false;
+	}
+
+	// 放在屏幕左上角而不是中间可以提高帧率，这里是为了和 DesktopDuplication 保持一致
+	if (!_CenterWindowIfNecessary(hwndSrc, mi.rcWork)) {
+		SPDLOG_LOGGER_ERROR(logger, "居中源窗口失败");
+		return false;
+	}
+
+	RECT srcClientRect;
+	if (!Utils::GetClientScreenRect(App::GetInstance().GetHwndSrcClient(), srcClientRect)) {
+		SPDLOG_LOGGER_ERROR(logger, "GetClientScreenRect 失败");
+		return false;
+	}
+
+	_frameBox = {
+		UINT(srcClientRect.left - mi.rcMonitor.left),
+		UINT(srcClientRect.top - mi.rcMonitor.top),
+		0,
+		UINT(srcClientRect.right - mi.rcMonitor.left),
+		UINT(srcClientRect.bottom - mi.rcMonitor.top),
+		1
+	};
+
+	try {
+		HRESULT hr = interop->CreateForMonitor(
+			hMonitor,
+			winrt::guid_of<ABI::Windows::Graphics::Capture::IGraphicsCaptureItem>(),
+			winrt::put_abi(_captureItem)
+		);
+		if (FAILED(hr)) {
+			SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("创建 GraphicsCaptureItem 失败", hr));
+			return false;
+		}
+	} catch (const winrt::hresult_error& e) {
+		SPDLOG_LOGGER_INFO(logger, fmt::format("捕获屏幕失败：", StrUtils::UTF16ToUTF8(e.message())));
+		return false;
+	}
 
 	return true;
 }
@@ -193,5 +325,8 @@ GraphicsCaptureFrameSource::~GraphicsCaptureFrameSource() {
 		_captureFramePool.Close();
 	}
 
-	winrt::uninit_apartment();
+	// 还原源窗口样式
+	if (_srcWndStyle) {
+		SetWindowLongPtr(App::GetInstance().GetHwndSrc(), GWL_EXSTYLE, _srcWndStyle);
+	}
 }

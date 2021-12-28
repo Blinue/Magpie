@@ -1,8 +1,9 @@
 using Magpie.Properties;
+using NLog;
 using System;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
-using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -12,17 +13,18 @@ namespace Magpie.Options {
 	/// ApplicationOptionsPage.xaml 的交互逻辑
 	/// </summary>
 	public partial class ApplicationOptionsPage : Page {
-		private readonly IWshRuntimeLibrary.WshShell shell = new IWshRuntimeLibrary.WshShell();
-		private readonly IWshRuntimeLibrary.IWshShortcut shortcut = null;
+		private static Logger Logger { get; } = LogManager.GetCurrentClassLogger();
+
+		private readonly IWshRuntimeLibrary.WshShell shell = new();
+		private readonly IWshRuntimeLibrary.IWshShortcut? shortcut = null;
 		private readonly string pathLink;
 
 		private readonly CultureInfo[] supportedCultures = {
 			CultureInfo.GetCultureInfo("en-US"),
-			CultureInfo.GetCultureInfo("zh-CN"),
-			CultureInfo.GetCultureInfo("ru-RU")
+			CultureInfo.GetCultureInfo("zh-CN")
 		};
 
-		private static string originCulture = null;
+		private static string? originCulture = null;
 		private static bool originRunAsAdmin = false;
 
 		public ApplicationOptionsPage() {
@@ -71,8 +73,8 @@ namespace Magpie.Options {
 				}
 			}
 
-			shortcut.TargetPath = Assembly.GetExecutingAssembly().Location;
-			shortcut.WorkingDirectory = AppDomain.CurrentDomain.SetupInformation.ApplicationBase;
+			shortcut.TargetPath = Process.GetCurrentProcess().MainModule?.FileName;
+			shortcut.WorkingDirectory = AppDomain.CurrentDomain.BaseDirectory;
 
 			// 防止初始化时调用事件处理
 			ckbRunAtStartUp.Checked += CkbRunAtStartUp_Checked;
@@ -80,7 +82,7 @@ namespace Magpie.Options {
 			ckbRunAsAdmin.Checked += CkbRunAsAdmin_Checked;
 			ckbRunAsAdmin.Unchecked += CkbRunAsAdmin_Unchecked;
 
-			if (ckbRunAsAdmin.IsChecked.Value) {
+			if (ckbRunAsAdmin.IsChecked!.Value) {
 				CkbRunAsAdmin_Checked(ckbRunAsAdmin, new RoutedEventArgs());
 			} else {
 				CkbRunAsAdmin_Unchecked(ckbRunAsAdmin, new RoutedEventArgs());
@@ -106,7 +108,7 @@ namespace Magpie.Options {
 
 		// 在用户的“启动”文件夹创建快捷方式以实现开机启动
 		private void CreateShortCut() {
-			shortcut.Arguments = ckbMinimizeAtStartUp.IsChecked.GetValueOrDefault(false) ? "-st" : "";
+			shortcut!.Arguments = ckbMinimizeAtStartUp.IsChecked.GetValueOrDefault(false) ? "-st" : "";
 			shortcut.Save();
 		}
 
@@ -116,7 +118,11 @@ namespace Magpie.Options {
 
 		private void CkbRunAtStartUp_Unchecked(object sender, RoutedEventArgs e) {
 			if (File.Exists(pathLink)) {
-				File.Delete(pathLink);
+				try {
+					File.Delete(pathLink);
+				} catch (Exception ex) {
+					Logger.Error(ex, "删除快捷方式失败");
+				}
 			}
 		}
 

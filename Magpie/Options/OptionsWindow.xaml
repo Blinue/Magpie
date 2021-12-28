@@ -63,8 +63,8 @@
                 </Grid>
             </ListBoxItem>
         </ListBox>
-        <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
-            <Frame x:Name="contentFrame" NavigationUIVisibility="Hidden" Padding="20,20,20,20"/>
+        <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+            <Frame x:Name="contentFrame" NavigationUIVisibility="Hidden" Padding="20"/>
         </ScrollViewer>
     </DockPanel>
 </Window>

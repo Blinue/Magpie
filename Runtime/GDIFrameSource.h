@@ -10,18 +10,23 @@ public:
 
 	bool Initialize() override;
 
-	ComPtr<ID3D11Texture2D> GetOutput() override;
+	ComPtr<ID3D11Texture2D> GetOutput() override {
+		return _output;
+	}
 
-	bool Update() override;
+	UpdateState Update() override;
 
 	bool HasRoundCornerInWin11() override {
+		return false;
+	}
+
+	bool CanCaputurePopup() override {
 		return false;
 	}
 
 private:
 	ComPtr<ID3D11DeviceContext> _d3dDC;
 
-	HWND _hwndSrc = NULL;
 	SIZE _frameSize{};
 	ComPtr<IDXGISurface1> _dxgiSurface;
 	ComPtr<ID3D11Texture2D> _output;

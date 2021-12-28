@@ -6,11 +6,13 @@
 extern std::shared_ptr<spdlog::logger> logger;
 
 bool GDIFrameSource::Initialize() {
-	_hwndSrc = App::GetInstance().GetHwndSrc();
-	const RECT& srcClientRect = App::GetInstance().GetSrcClientRect();
+	RECT srcClientRect;
+	if (!GetClientRect(App::GetInstance().GetHwndSrcClient(), &srcClientRect)) {
+		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetClientRect 失败"));
+	}
 
 	float dpiScale = -1;
-	if (!_GetWindowDpiScale(_hwndSrc, dpiScale)) {
+	if (!_GetWindowDpiScale(App::GetInstance().GetHwndSrcClient(), dpiScale)) {
 		SPDLOG_LOGGER_ERROR(logger, "_GetWindowDpiScale 失败");
 	}
 
@@ -53,31 +55,29 @@ bool GDIFrameSource::Initialize() {
 	return true;
 }
 
-ComPtr<ID3D11Texture2D> GDIFrameSource::GetOutput() {
-	return _output;
-}
+FrameSourceBase::UpdateState GDIFrameSource::Update() {
+	HWND hwndSrcClient = App::GetInstance().GetHwndSrcClient();
 
-bool GDIFrameSource::Update() {
 	HDC hdcDest;
 	HRESULT hr = _dxgiSurface->GetDC(TRUE, &hdcDest);
 	if (FAILED(hr)) {
 		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("从 Texture2D 获取 IDXGISurface1 失败", hr));
-		return false;
+		return UpdateState::Error;
 	}
 
-	HDC hdcSrcClient = GetDCEx(_hwndSrc, NULL, DCX_LOCKWINDOWUPDATE);
+	HDC hdcSrcClient = GetDCEx(hwndSrcClient, NULL, DCX_LOCKWINDOWUPDATE);
 	if (!hdcSrcClient) {
 		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetDC 失败"));
 		_dxgiSurface->ReleaseDC(nullptr);
-		return false;
+		return UpdateState::Error;
 	}
 
 	if (!BitBlt(hdcDest, 0, 0, _frameSize.cx, _frameSize.cy, hdcSrcClient, 0, 0, SRCCOPY)) {
 		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("BitBlt 失败"));
 	}
 
-	ReleaseDC(_hwndSrc, hdcSrcClient);
+	ReleaseDC(hwndSrcClient, hdcSrcClient);
 	_dxgiSurface->ReleaseDC(nullptr);
 
-    return true;
+	return UpdateState::NewFrame;
 }

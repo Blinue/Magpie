@@ -1,8 +1,8 @@
 // 自适应锐化算法
-// 移植自 https://github.com/libretro/common-shaders/blob/master/sharpen/shaders/adaptive-sharpen-pass1.cg
+// 移植自 https://github.com/bacondither/Adaptive-sharpen/tree/master/shaders
 // 
-// Adaptive sharpen
-// Tuned for use post resize, EXPECTS FULL RANGE GAMMA LIGHT
+// Adaptive sharpen - version 2018-04-14 - (requires ps >= 3.0)
+// Tuned for use post-resize, EXPECTS FULL RANGE GAMMA LIGHT
 
 
 //!MAGPIE EFFECT

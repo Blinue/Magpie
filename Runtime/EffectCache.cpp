@@ -8,6 +8,7 @@
 #include <yas/types/std/vector.hpp>
 #include "EffectCompiler.h"
 #include <regex>
+#include "App.h"
 
 
 template<typename Archive>
@@ -121,7 +122,7 @@ void serialize(Archive& ar, EffectIntermediateTextureDesc& o) {
 
 template<typename Archive>
 void serialize(Archive& ar, EffectSamplerDesc& o) {
-	ar& o.filterType& o.name;
+	ar& o.filterType& o.addressType& o.name;
 }
 
 template<typename Archive>
@@ -131,7 +132,7 @@ void serialize(Archive& ar, EffectPassDesc& o) {
 
 template<typename Archive>
 void serialize(Archive& ar, EffectDesc& o) {
-	ar& o.outSizeExpr& o.constants& o.valueConstants& o.textures& o.samplers& o.passes;
+	ar& o.outSizeExpr& o.constants& o.valueConstants& o.dynamicValueConstants& o.textures& o.samplers& o.passes;
 }
 
 
@@ -167,6 +168,10 @@ void EffectCache::_AddToMemCache(const std::wstring& cacheFileName, const Effect
 
 
 bool EffectCache::Load(const wchar_t* fileName, std::string_view hash, EffectDesc& desc) {
+	if (App::GetInstance().IsDisableEffectCache()) {
+		return false;
+	}
+
 	std::wstring cacheFileName = _GetCacheFileName(fileName, hash);
 
 	auto it = _memCache.find(cacheFileName);
@@ -188,7 +193,7 @@ bool EffectCache::Load(const wchar_t* fileName, std::string_view hash, EffectDes
 		return false;
 	}
 	
-	// 格式：HASH-VERSION-{BODY}
+	// 格式：HASH-VERSION-FL-{BODY}
 
 	// 检查哈希
 	std::vector<BYTE> bufHash;
@@ -218,6 +223,15 @@ bool EffectCache::Load(const wchar_t* fileName, std::string_view hash, EffectDes
 			return false;
 		}
 
+		// 检查 Direct3D 功能级别
+		D3D_FEATURE_LEVEL fl;
+		ia& fl;
+		if (fl != App::GetInstance().GetRenderer().GetFeatureLevel()) {
+			SPDLOG_LOGGER_INFO(logger, "功能级别不匹配");
+			return false;
+		}
+
+
 		ia& desc;
 	} catch (...) {
 		SPDLOG_LOGGER_ERROR(logger, "反序列化失败");
@@ -232,7 +246,11 @@ bool EffectCache::Load(const wchar_t* fileName, std::string_view hash, EffectDes
 }
 
 void EffectCache::Save(const wchar_t* fileName, std::string_view hash, const EffectDesc& desc) {
-	// 格式：HASH-VERSION-{BODY}
+	if (App::GetInstance().IsDisableEffectCache()) {
+		return;
+	}
+
+	// 格式：HASH-VERSION-FL-{BODY}
 
 	std::vector<BYTE> buf;
 	buf.reserve(4096);
@@ -242,7 +260,8 @@ void EffectCache::Save(const wchar_t* fileName, std::string_view hash, const Eff
 		yas::vector_ostream os(buf);
 		yas::binary_oarchive<yas::vector_ostream<BYTE>, yas::binary> oa(os);
 
-		oa& EffectCompiler::VERSION;
+		oa& _VERSION;
+		oa& App::GetInstance().GetRenderer().GetFeatureLevel();
 		oa& desc;
 	} catch (...) {
 		SPDLOG_LOGGER_ERROR(logger, "序列化失败");

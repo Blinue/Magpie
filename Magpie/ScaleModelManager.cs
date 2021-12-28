@@ -6,21 +6,22 @@ using System.Threading;
 using System.Windows;
 using System.Windows.Resources;
 
+
 namespace Magpie {
 	internal class ScaleModelManager {
 		private static NLog.Logger Logger { get; } = NLog.LogManager.GetCurrentClassLogger();
 
-		private readonly FileSystemWatcher scaleModelsWatcher = new FileSystemWatcher();
+		private readonly FileSystemWatcher scaleModelsWatcher = new();
 
-		private ScaleModel[] scaleModels = null;
+		private ScaleModel[]? scaleModels = null;
 
-		public event Action ScaleModelsChanged;
+		public event Action? ScaleModelsChanged;
 
 		public ScaleModelManager() {
 			LoadFromLocal();
 
 			// 监视ScaleModels.json的更改
-			scaleModelsWatcher.Path = App.APPLICATION_DIR;
+			scaleModelsWatcher.Path = AppDomain.CurrentDomain.BaseDirectory;
 			scaleModelsWatcher.NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName;
 			scaleModelsWatcher.Filter = App.SCALE_MODELS_JSON_PATH.Substring(App.SCALE_MODELS_JSON_PATH.LastIndexOf('\\') + 1);
 			scaleModelsWatcher.Changed += ScaleModelsWatcher_Changed;
@@ -33,7 +34,7 @@ namespace Magpie {
 			}
 		}
 
-		public ScaleModel[] GetScaleModels() {
+		public ScaleModel[]? GetScaleModels() {
 			return scaleModels;
 		}
 
@@ -52,9 +53,9 @@ namespace Magpie {
 				}
 			} else {
 				try {
-					Uri uri = new Uri("pack://application:,,,/Magpie;component/Resources/BuiltInScaleModels.json", UriKind.Absolute);
+					Uri uri = new("pack://application:,,,/Magpie;component/Resources/BuiltInScaleModels.json", UriKind.Absolute);
 					StreamResourceInfo info = Application.GetResourceStream(uri);
-					using (StreamReader reader = new StreamReader(info.Stream)) {
+					using (StreamReader reader = new(info.Stream)) {
 						json = reader.ReadToEnd();
 					}
 					File.WriteAllText(App.SCALE_MODELS_JSON_PATH, json);
@@ -68,12 +69,12 @@ namespace Magpie {
 				// 解析缩放配置
 				scaleModels = JArray.Parse(json)
 					 .Select(t => {
-						 string name = t["name"]?.ToString(Newtonsoft.Json.Formatting.None);
-						 string effects = t["effects"]?.ToString(Newtonsoft.Json.Formatting.None);
+						 string? name = t["name"]?.ToString(Newtonsoft.Json.Formatting.None);
+						 string? effects = t["effects"]?.ToString(Newtonsoft.Json.Formatting.None);
 						 return name == null || effects == null
 							 ? throw new Exception("未找到 name 或 model 属性")
 							 : new ScaleModel {
-								 Name = name.Substring(1, name.Length - 2),
+								 Name = name[1..^1],
 								 Effects = effects
 							 };
 					 })
@@ -102,9 +103,9 @@ namespace Magpie {
 		}
 
 		public class ScaleModel {
-			public string Name { get; set; }
+			public string Name { get; set; } = "";
 
-			public string Effects { get; set; }
+			public string Effects { get; set; } = "";
 		}
 	}
 }

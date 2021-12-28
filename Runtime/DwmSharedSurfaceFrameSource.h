@@ -10,11 +10,17 @@ public:
 
 	bool Initialize() override;
 
-	ComPtr<ID3D11Texture2D> GetOutput() override;
+	ComPtr<ID3D11Texture2D> GetOutput() override {
+		return _output;
+	}
 
-	bool Update() override;
+	UpdateState Update() override;
 
 	bool HasRoundCornerInWin11() override {
+		return false;
+	}
+
+	bool CanCaputurePopup() override {
 		return false;
 	}
 

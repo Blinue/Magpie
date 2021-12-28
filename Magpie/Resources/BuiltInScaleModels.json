@@ -32,9 +32,10 @@
         "effect": "FSRCNNX"
       },
       {
-        "effect": "Mitchell",
+        "effect": "Bicubic",
         "scale": [ -1, -1 ],
-        "variant": 1
+        "paramB": 0.0,
+        "paramC": 0.5
       }
     ]
   },
@@ -45,9 +46,10 @@
         "effect": "ACNet"
       },
       {
-        "effect": "Mitchell",
+        "effect": "Bicubic",
         "scale": [ -1, -1 ],
-        "variant": 1
+        "paramB": 0.0,
+        "paramC": 0.5
       }
     ]
   },
@@ -58,9 +60,10 @@
         "effect": "Anime4K_Upscale_Denoise_L"
       },
       {
-        "effect": "Mitchell",
+        "effect": "Bicubic",
         "scale": [ -1, -1 ],
-        "variant": 1
+        "paramB": 0.0,
+        "paramC": 0.5
       }
     ]
   },
@@ -69,7 +72,19 @@
     "effects": [
       {
         "effect": "RAVU_Zoom_R3",
-        "scale": [-1, -1]
+        "scale": [ -1, -1 ]
+      }
+    ]
+  },
+  {
+    "name": "CRT-Geom",
+    "effects": [
+      {
+        "effect": "CRT_Geom",
+        "scale": [ -1, -1 ],
+        "curvature": 0,
+        "monitorGamma": 3,
+        "cornerSize": 0.001
       }
     ]
   },

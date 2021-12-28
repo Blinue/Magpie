@@ -81,8 +81,8 @@ bool CursorDrawer::Initialize(ComPtr<ID3D11Texture2D> renderTarget, const RECT& 
 			return false;
 		}
 
-		if (!renderer.GetSampler(EffectSamplerFilterType::Linear, &_linearSam)
-			|| !renderer.GetSampler(EffectSamplerFilterType::Point, &_pointSam)
+		if (!renderer.GetSampler(EffectSamplerFilterType::Linear, EffectSamplerAddressType::Clamp, &_linearSam)
+			|| !renderer.GetSampler(EffectSamplerFilterType::Point, EffectSamplerAddressType::Clamp, &_pointSam)
 		) {
 			SPDLOG_LOGGER_ERROR(logger, "GetSampler 失败");
 			return false;
@@ -130,15 +130,8 @@ bool CursorDrawer::Initialize(ComPtr<ID3D11Texture2D> renderTarget, const RECT& 
 	_clientScaleX = float(destRect.right - destRect.left) / srcSize.cx;
 	_clientScaleY = float(destRect.bottom - destRect.top) / srcSize.cy;
 	
-	if (!App::GetInstance().IsBreakpointMode()) {
-		// 限制光标在窗口内
-		if (App::GetInstance().IsConfineCursorIn3DGames()) {
-			// 为了在 3D 游戏中起作用，每隔一定时间执行一次
-			if (!app.RegisterTimer(50, std::bind(ClipCursor, &App::GetInstance().GetSrcClientRect()))) {
-				SPDLOG_LOGGER_ERROR(logger, "注册定时器失败");
-				// 注册定时器失败则仅尝试一次
-			}
-		}
+	if (!App::GetInstance().IsMultiMonitorMode() && !App::GetInstance().IsBreakpointMode()) {
+		// 非多屏幕模式下，限制光标在窗口内
 		
 		if (!ClipCursor(&App::GetInstance().GetSrcClientRect())) {
 			SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("ClipCursor 失败"));
@@ -169,10 +162,17 @@ bool CursorDrawer::Initialize(ComPtr<ID3D11Texture2D> renderTarget, const RECT& 
 }
 
 CursorDrawer::~CursorDrawer() {
-	if (!App::GetInstance().IsBreakpointMode()) {
+	if (App::GetInstance().IsMultiMonitorMode()) {
+		if (_isUnderCapture) {
+			POINT pt{};
+			if (!GetCursorPos(&pt)) {
+				SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetCursorPos 失败"));
+			}
+			_StopCapture(pt);
+		}
+	} else if (!App::GetInstance().IsBreakpointMode()) {
 		// CursorDrawer 析构时计时器已销毁
 		ClipCursor(nullptr);
-
 		if (App::GetInstance().IsAdjustCursorSpeed()) {
 			SystemParametersInfo(SPI_SETMOUSESPEED, 0, (PVOID)(intptr_t)_cursorSpeed, 0);
 		}
@@ -181,6 +181,71 @@ CursorDrawer::~CursorDrawer() {
 	}
 
 	SPDLOG_LOGGER_INFO(logger, "CursorDrawer 已析构");
+}
+
+void CursorDrawer::_DynamicClip(POINT cursorPt) {
+	const RECT& srcClientRect = App::GetInstance().GetSrcClientRect();
+	const RECT& hostRect = App::GetInstance().GetHostWndRect();
+
+	POINT hostPt{};
+
+	double t = double(cursorPt.x - srcClientRect.left) / (srcClientRect.right - srcClientRect.left);
+	hostPt.x = std::lround(t * (_destRect.right - _destRect.left)) + _destRect.left + hostRect.left;
+
+	t = double(cursorPt.y - srcClientRect.top) / (srcClientRect.bottom - srcClientRect.top);
+	hostPt.y = std::lround(t * (_destRect.bottom - _destRect.top)) + _destRect.top + hostRect.top;
+
+	// MonitorFromPoint 非常快，无需优化
+	std::array<bool, 4> clips = {
+		!MonitorFromPoint({ hostRect.left - 1, hostPt.y }, MONITOR_DEFAULTTONULL),	// left
+		!MonitorFromPoint({ hostPt.x, hostRect.top - 1 }, MONITOR_DEFAULTTONULL),	// top
+		!MonitorFromPoint({ hostRect.right, hostPt.y }, MONITOR_DEFAULTTONULL),		// right
+		!MonitorFromPoint({ hostPt.x, hostRect.bottom }, MONITOR_DEFAULTTONULL)		// bottom
+	};
+
+	// 开启“在 3D 游戏中限制光标”则每帧都限制一次光标
+	if (App::GetInstance().IsConfineCursorIn3DGames() || clips != _curClips) {
+		_curClips = clips;
+
+		RECT clipRect = {
+			clips[0] ? srcClientRect.left : LONG_MIN,
+			clips[1] ? srcClientRect.top : LONG_MIN,
+			clips[2] ? srcClientRect.right : LONG_MAX,
+			clips[3] ? srcClientRect.bottom : LONG_MAX
+		};
+		ClipCursor(&clipRect);
+	}
+}
+
+bool CursorDrawer::Update() {
+	if (!App::GetInstance().IsMultiMonitorMode()) {
+		return true;
+	}
+
+	POINT cursorPt;
+	if (!GetCursorPos(&cursorPt)) {
+		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetCursorPos 失败"));
+		return false;
+	}
+
+	if (_isUnderCapture) {
+		const RECT& srcClientRect = App::GetInstance().GetSrcClientRect();
+
+		if (PtInRect(&srcClientRect, cursorPt)) {
+			_DynamicClip(cursorPt);
+		} else {
+			_StopCapture(cursorPt);
+		}
+	} else {
+		const RECT& hostRect = App::GetInstance().GetHostWndRect();
+
+		if (PtInRect(&hostRect, cursorPt)) {
+			_StartCapture(cursorPt);
+			_DynamicClip(cursorPt);
+		}
+	}
+
+	return true;
 }
 
 bool GetHBmpBits32(HBITMAP hBmp, int& width, int& height, std::vector<BYTE>& pixels) {
@@ -370,10 +435,121 @@ bool CursorDrawer::_ResolveCursor(HCURSOR hCursor, _CursorInfo& result) const {
 	return true;
 }
 
+void CursorDrawer::_StartCapture(POINT cursorPt) {
+	// 在以下情况下进入捕获状态：
+	// 1. 当前未捕获
+	// 2. 光标进入全屏区域
+	// 
+	// 进入捕获状态时：
+	// 1. 调整光标速度，全局隐藏光标
+	// 2. 将光标移到源窗口的对应位置
+	//
+	// 在有黑边的情况下自动将光标调整到画面内
+
+	// 全局隐藏光标
+	if (!MagShowSystemCursor(FALSE)) {
+		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("MagShowSystemCursor 失败"));
+	}
+
+	if (App::GetInstance().IsAdjustCursorSpeed()) {
+		// 设置鼠标移动速度
+		if (SystemParametersInfo(SPI_GETMOUSESPEED, 0, &_cursorSpeed, 0)) {
+			long newSpeed = std::clamp(lroundf(_cursorSpeed / (_clientScaleX + _clientScaleY) * 2), 1L, 20L);
+
+			if (!SystemParametersInfo(SPI_SETMOUSESPEED, 0, (PVOID)(intptr_t)newSpeed, 0)) {
+				SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("设置光标移速失败"));
+			}
+		} else {
+			SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("获取光标移速失败"));
+		}
+	}
+
+	// 移动光标位置
+	const RECT& srcClientRect = App::GetInstance().GetSrcClientRect();
+	const RECT& hostRect = App::GetInstance().GetHostWndRect();
+	// 跳过黑边
+	cursorPt.x = std::clamp(cursorPt.x, hostRect.left + _destRect.left, hostRect.left + _destRect.right - 1);
+	cursorPt.y = std::clamp(cursorPt.y, hostRect.top + _destRect.top, hostRect.top + _destRect.bottom - 1);
+
+	// 从全屏窗口映射到源窗口
+	double posX = double(cursorPt.x - hostRect.left - _destRect.left) / (_destRect.right - _destRect.left);
+	double posY = double(cursorPt.y - hostRect.top - _destRect.top) / (_destRect.bottom - _destRect.top);
+
+	posX = posX * (srcClientRect.right - srcClientRect.left) + srcClientRect.left;
+	posY = posY * (srcClientRect.bottom - srcClientRect.top) + srcClientRect.top;
+
+	posX = std::clamp<double>(posX, srcClientRect.left, srcClientRect.right - 1);
+	posY = std::clamp<double>(posY, srcClientRect.top, srcClientRect.bottom - 1);
+
+	SetCursorPos(std::lround(posX), std::lround(posY));
+
+	_isUnderCapture = true;
+}
+
+void CursorDrawer::_StopCapture(POINT cursorPt) {
+	// 在以下情况下离开捕获状态：
+	// 1. 当前处于捕获状态
+	// 2. 光标离开源窗口客户区
+	//
+	// 离开捕获状态时
+	// 1. 还原光标速度，全局显示光标
+	// 2. 将光标移到全屏窗口外的对应位置
+	//
+	// 在有黑边的情况下自动将光标调整到全屏窗口外
+
+	ClipCursor(nullptr);
+	_curClips = {};
+
+	const RECT& srcClientRect = App::GetInstance().GetSrcClientRect();
+	const RECT& hostRect = App::GetInstance().GetHostWndRect();
+
+	if (cursorPt.x >= srcClientRect.right) {
+		cursorPt.x = hostRect.right + cursorPt.x - srcClientRect.right + 1;
+	} else if (cursorPt.x < srcClientRect.left) {
+		cursorPt.x = hostRect.left + cursorPt.x - srcClientRect.left;
+	} else {
+		double pos = double(cursorPt.x - srcClientRect.left) / (srcClientRect.right - srcClientRect.left);
+		cursorPt.x = std::lround(pos * (_destRect.right - _destRect.left)) + _destRect.left + hostRect.left;
+	}
+
+	if (cursorPt.y >= srcClientRect.bottom) {
+		cursorPt.y = hostRect.bottom + cursorPt.y - srcClientRect.bottom + 1;
+	} else if (cursorPt.y < srcClientRect.top) {
+		cursorPt.y = hostRect.top + cursorPt.y - srcClientRect.top;
+	} else {
+		double pos = double(cursorPt.y - srcClientRect.top) / (srcClientRect.bottom - srcClientRect.top);
+		cursorPt.y = std::lround(pos * (_destRect.bottom - _destRect.top)) + _destRect.top + hostRect.top;
+	}
+
+	SetCursorPos(cursorPt.x, cursorPt.y);
+
+	if (App::GetInstance().IsAdjustCursorSpeed()) {
+		SystemParametersInfo(SPI_SETMOUSESPEED, 0, (PVOID)(intptr_t)_cursorSpeed, 0);
+	}
+
+	if (!MagShowSystemCursor(TRUE)) {
+		SPDLOG_LOGGER_ERROR(logger, "MagShowSystemCursor 失败");
+	}
+	// WGC 捕获模式会随机使 MagShowSystemCursor(TRUE) 失效，重新加载光标可以解决这个问题
+	SystemParametersInfo(SPI_SETCURSORS, 0, 0, 0);
+
+	_isUnderCapture = false;
+}
+
 void CursorDrawer::Draw() {
 	if (App::GetInstance().IsNoCursor()) {
 		// 不绘制光标
 		return;
+	}
+
+	if (App::GetInstance().IsMultiMonitorMode()) {
+		// 多屏幕模式下不处于捕获状态则不绘制光标
+		if (!_isUnderCapture) {
+			return;
+		}
+	} else if (!App::GetInstance().IsBreakpointMode() && App::GetInstance().IsConfineCursorIn3DGames()) {
+		// 开启“在 3D 游戏中限制光标”则每帧都限制一次光标
+		ClipCursor(&App::GetInstance().GetSrcClientRect());
 	}
 
 	CURSORINFO ci{};

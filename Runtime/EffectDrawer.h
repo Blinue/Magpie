@@ -40,8 +40,13 @@ public:
 
 	bool Build(ComPtr<ID3D11Texture2D> input, ComPtr<ID3D11Texture2D> output);
 
-	void Draw();
+	void Draw(bool noUpdate = false);
 
+	bool HasDynamicConstants() const {
+		return !_dynamicConstants.empty();
+	}
+
+	static bool UpdateExprDynamicVars();
 private:
 	class _Pass {
 	public:
@@ -77,7 +82,9 @@ private:
 
 	std::unordered_map<std::string_view, UINT> _constNamesMap;
 	std::vector<Constant32> _constants;
+	std::vector<Constant32> _dynamicConstants;
 	ComPtr<ID3D11Buffer> _constantBuffer;
+	ComPtr<ID3D11Buffer> _dynamicConstantBuffer;
 
 	ComPtr<ID3D11VertexShader> _vertexShader;
 

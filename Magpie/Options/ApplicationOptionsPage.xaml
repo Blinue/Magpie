@@ -3,11 +3,10 @@
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-      xmlns:local="clr-namespace:Magpie.Options"
       xmlns:props="clr-namespace:Magpie.Properties"
       xmlns:p="clr-namespace:Magpie.Properties;assembly=Magpie"
       mc:Ignorable="d" 
-      d:DesignHeight="200" d:DesignWidth="400">
+      d:DesignHeight="500" d:DesignWidth="400">
     <Page.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -15,36 +14,47 @@
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Page.Resources>
-    
+
     <StackPanel HorizontalAlignment="Left" VerticalAlignment="Top">
         <StackPanel Orientation="Horizontal" VerticalAlignment="Top" HorizontalAlignment="Left">
             <Label Content="{x:Static p:Resources.UI_Options_Application_Language}" Padding="0" VerticalAlignment="Center"/>
             <ComboBox Name="cbbLanguage" Margin="10,0,0,0" VerticalAlignment="Center"/>
         </StackPanel>
+        
+
         <Label Name="lblRestartToApply1" Padding="10,10,0,0" Foreground="#FF318EBF" Visibility="Collapsed" />
-        <StackPanel>
-            <CheckBox x:Name="ckbRunAtStartUp" Content="{x:Static p:Resources.UI_Options_Application_Run_At_Startup}" Margin="0,15,0,0" Unchecked="CkbRunAtStartUp_Unchecked"/>
-            <CheckBox
+        <CheckBox x:Name="ckbRunAtStartUp" Content="{x:Static p:Resources.UI_Options_Application_Run_At_Startup}" Margin="0,15,0,0" Unchecked="CkbRunAtStartUp_Unchecked"/>
+        <CheckBox
                 x:Name="ckbMinimizeAtStartUp"
                 Content="{x:Static p:Resources.UI_Options_Application_Minimize_To_System_Tray}"
                 Margin="15,10,0,0"
                 Unchecked="CkbMinimizeAtStartUp_Unchecked"
                 IsChecked="{Binding Source={x:Static props:Settings.Default},Path=MinimizeAtWindowsStartUp,Mode=TwoWay}"
-                IsEnabled="{Binding ElementName=ckbRunAtStartUp, Path=IsChecked,Mode=OneWay}"
-            />
-            <CheckBox 
+                IsEnabled="{Binding ElementName=ckbRunAtStartUp, Path=IsChecked,Mode=OneWay}" />
+        <CheckBox 
                 x:Name="ckbMinimizeWhenClose"
                 Content="{x:Static p:Resources.UI_Options_Application_Minimize_When_Close}"
                 Margin="0,15,0,0"
-                IsChecked="{Binding Source={x:Static props:Settings.Default},Path=MinimizeWhenClose,Mode=TwoWay}"
-            />
-            <CheckBox 
+                IsChecked="{Binding Source={x:Static props:Settings.Default},Path=MinimizeWhenClose,Mode=TwoWay}" />
+        <CheckBox 
                 x:Name="ckbRunAsAdmin"
                 Content="{x:Static p:Resources.UI_Options_Application_Always_Run_As_Admin}"
                 Margin="0,15,0,0"
-                IsChecked="{Binding Source={x:Static props:Settings.Default},Path=RunAsAdmin,Mode=TwoWay}" 
-            />
-            <Label Name="lblRestartToApply2" Content="{x:Static p:Resources.UI_Options_Common_Restart_To_Apply}" Padding="10,10,0,0" Foreground="#FF318EBF" Visibility="Collapsed" />
+                IsChecked="{Binding Source={x:Static props:Settings.Default},Path=RunAsAdmin,Mode=TwoWay}" />
+        <Label Name="lblRestartToApply2" Content="{x:Static p:Resources.UI_Options_Common_Restart_To_Apply}" Padding="10,10,0,0" Foreground="#FF318EBF" Visibility="Collapsed" />
+
+        <CheckBox Content="{x:Static props:Resources.UI_Options_Scale_Restore_Full_Screen}" 
+                  Margin="0,15,0,0" 
+                  IsChecked="{Binding Source={x:Static props:Settings.Default},Path=AutoRestore,Mode=TwoWay}" />
+
+        <StackPanel Margin="0,20,0,0">
+            <Label Content="{x:Static props:Resources.UI_Options_Scale_Source_Window}" FontWeight="Bold" Padding="0" FontSize="15" />
+            <CheckBox Content="{x:Static props:Resources.UI_Options_Scale_Disable_Window_Resizing}"
+                      Margin="0,10,0,0"
+                      IsChecked="{Binding Source={x:Static props:Settings.Default},Path=DisableWindowResizing,Mode=TwoWay}"/>
+            <CheckBox Content="{x:Static props:Resources.UI_Options_Application_Crop_Title_Bar_Of_UWP}"
+                      Margin="0,15,0,0"
+                      IsChecked="{Binding Source={x:Static props:Settings.Default},Path=CropTitleBarOfUWP,Mode=TwoWay}" />
         </StackPanel>
     </StackPanel>
 </Page>

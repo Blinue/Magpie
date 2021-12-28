@@ -20,39 +20,21 @@ struct Utils {
 		return wp.showCmd;
 	}
 
-	static RECT GetClientScreenRect(HWND hWnd) {
-		RECT r;
-		if (!GetClientRect(hWnd, &r)) {
-			SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetClientRect 出错"));
-			assert(false);
-			return {};
+	static bool GetClientScreenRect(HWND hWnd, RECT& rect);
+
+	static bool GetWindowFrameRect(HWND hWnd, RECT& result) {
+		HRESULT hr = DwmGetWindowAttribute(hWnd,
+			DWMWA_EXTENDED_FRAME_BOUNDS, &result, sizeof(result));
+		if (FAILED(hr)) {
+			SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("DwmGetWindowAttribute 失败", hr));
+			return false;
 		}
 
-		POINT p{};
-		if (!ClientToScreen(hWnd, &p)) {
-			SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("ClientToScreen 出错"));
-			assert(false);
-			return {};
-		}
-
-		r.bottom += p.y;
-		r.left += p.x;
-		r.right += p.x;
-		r.top += p.y;
-
-		return r;
+		return true;
 	}
 
-	static RECT GetScreenRect(HWND hWnd) {
-		HMONITOR hMonitor = MonitorFromWindow(hWnd, MONITOR_DEFAULTTONEAREST);
-
-		MONITORINFO mi{};
-		mi.cbSize = sizeof(mi);
-		if (!GetMonitorInfo(hMonitor, &mi)) {
-			SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetMonitorInfo 出错"));
-			assert(false);
-		}
-		return mi.rcMonitor;
+	static bool CheckOverlap(const RECT& r1, const RECT& r2) {
+		return r1.right > r2.left && r1.bottom > r2.top && r1.left < r2.right&& r1.top < r2.bottom;
 	}
 
 	// 单位为微秒
@@ -122,7 +104,6 @@ struct Utils {
 		void* _hashObj = nullptr;	// 存储 hash 对象
 		DWORD _hashLen = 0;			// 哈希结果的大小
 		BCRYPT_HASH_HANDLE _hHash = NULL;
-		bool _supportReuse = false;
 	};
 
 	template<typename T>

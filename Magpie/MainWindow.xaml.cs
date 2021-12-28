@@ -1,20 +1,4 @@
-// Copyright (c) 2021 - present, Liu Xu
-//
-//  This program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
-
-using Gma.System.MouseKeyHook;
+﻿using Gma.System.MouseKeyHook;
 using System;
 using System.Collections.Generic;
 using System.Windows;
@@ -24,59 +8,60 @@ using System.Windows.Threading;
 using System.Windows.Media;
 using System.Windows.Forms;
 using Magpie.Properties;
-using Magpie.Options;
 using System.Windows.Media.Imaging;
 using System.Linq;
+using Magpie.Options;
 
 
 namespace Magpie {
 	/// <summary>
-	/// MainWindow.xaml 的交互逻辑
+	/// Interaction logic for MainWindow.xaml
 	/// </summary>
 	public partial class MainWindow : Window {
 		private static NLog.Logger Logger { get; } = NLog.LogManager.GetCurrentClassLogger();
 
-		private OptionsWindow optionsWindow = null;
-		private readonly DispatcherTimer timerScale = new DispatcherTimer {
+		private OptionsWindow? optionsWindow = null;
+		private readonly DispatcherTimer timerScale = new() {
 			Interval = new TimeSpan(0, 0, 1)
 		};
 
-		private IKeyboardMouseEvents keyboardEvents = null;
-		private readonly NotifyIcon notifyIcon = new NotifyIcon();
-		private ToolStripItem tsiHotkey;
-		private ToolStripItem tsiScale;
-		private MagWindow magWindow = null;
+		private IKeyboardMouseEvents? keyboardEvents = null;
+		private readonly NotifyIcon notifyIcon = new();
+		private ToolStripItem? tsiHotkey = null;
+		private ToolStripItem? tsiScale = null;
+		private MagWindow? magWindow = null;
 
-		private readonly ScaleModelManager scaleModelManager = new ScaleModelManager();
+		private readonly ScaleModelManager scaleModelManager = new();
 
 		// 倒计时时间
 		private const int DOWN_COUNT = 5;
 		private int countDownNum;
 
+		// MainWindow 的句柄
 		private IntPtr Handle;
 
 		// 不为零时表示全屏窗口不是因为Hotkey关闭的
 		private IntPtr prevSrcWindow = IntPtr.Zero;
-		private readonly DispatcherTimer timerRestore = new DispatcherTimer {
+		private readonly DispatcherTimer timerRestore = new() {
 			Interval = new TimeSpan(0, 0, 0, 0, 300)
 		};
 
 		// 每秒检查一次系统主题
-		private readonly DispatcherTimer timerCheckOSTheme = new DispatcherTimer {
+		private readonly DispatcherTimer timerCheckOSTheme = new() {
 			Interval = new TimeSpan(0, 0, 0, 1, 0),
 		};
 
 		private void Application_Closing() {
-			magWindow.Dispose();
+			// 托盘图标不会主动消失
+			notifyIcon.Visible = false;
 
-			if (optionsWindow != null) {
-				optionsWindow.Close();
-			}
+			magWindow?.Dispose();
+			optionsWindow?.Close();
 		}
 
 		public MainWindow() {
 			InitializeComponent();
-
+			
 			InitNotifyIcon();
 
 			CheckOSTheme();
@@ -101,17 +86,41 @@ namespace Magpie {
 
 			ShowAllCaptureMethods(Settings.Default.DebugShowAllCaptureMethods);
 
+			if (!OperatingSystem.IsWindowsVersionAtLeast(10, 0, 19041)) {
+				// Desktop Duplication 要求 v2004
+				cbbCaptureMethod.Items.RemoveAt(1);
+				if (!OperatingSystem.IsWindowsVersionAtLeast(10, 0, 18362)) {
+					// Graphics Capture 要求 v1903
+					cbbCaptureMethod.Items.RemoveAt(0);
+				}
+			}
+
+			// 捕获模式选择项对应的值存在 Tag 属性里
+			bool found = false;
+			foreach (object i in cbbCaptureMethod.Items) {
+				if((uint)((FrameworkElement)i).Tag == Settings.Default.CaptureMode) {
+					cbbCaptureMethod.SelectedItem = i;
+					found = true;
+					break;
+				}
+			}
+			if (!found) {
+				cbbCaptureMethod.SelectedIndex = 0;
+				Settings.Default.CaptureMode = (uint)((FrameworkElement)cbbCaptureMethod.SelectedItem).Tag;
+			}
+
 			// 延迟绑定，防止加载时改变设置
 			cbbScaleMode.SelectionChanged += CbbScaleMode_SelectionChanged;
+			cbbCaptureMethod.SelectionChanged += CbbCaptureMethod_SelectionChanged;
 		}
-
+		
 		void InitNotifyIcon() {
 			notifyIcon.Visible = false;
-			
+
 			notifyIcon.Text = Title;
 			notifyIcon.MouseClick += NotifyIcon_MouseClick;
 
-			ContextMenuStrip menu = new ContextMenuStrip();
+			ContextMenuStrip menu = new();
 
 			tsiHotkey = menu.Items.Add(Settings.Default.Hotkey, null);
 			tsiHotkey.Enabled = false;
@@ -135,7 +144,7 @@ namespace Magpie {
 			notifyIcon.ContextMenuStrip = menu;
 		}
 
-		private void NotifyIcon_MouseClick(object sender, MouseEventArgs e) {
+		private void NotifyIcon_MouseClick(object? sender, MouseEventArgs e) {
 			if (e.Button != MouseButtons.Left) {
 				return;
 			}
@@ -148,7 +157,7 @@ namespace Magpie {
 			int oldIdx = cbbScaleMode.SelectedIndex;
 			cbbScaleMode.Items.Clear();
 
-			ScaleModelManager.ScaleModel[] scaleModels = scaleModelManager.GetScaleModels();
+			ScaleModelManager.ScaleModel[]? scaleModels = scaleModelManager.GetScaleModels();
 			if (scaleModels == null || scaleModels.Length == 0) {
 				_ = cbbScaleMode.Items.Add($"<{Properties.Resources.UI_Main_Parse_Failure}>");
 				cbbScaleMode.SelectedIndex = 0;
@@ -164,7 +173,7 @@ namespace Magpie {
 			}
 		}
 
-		private void TimerRestore_Tick(object sender, EventArgs e) {
+		private void TimerRestore_Tick(object? sender, EventArgs e) {
 			if (!Settings.Default.AutoRestore || !NativeMethods.IsWindow(prevSrcWindow)) {
 				StopWaitingForRestore();
 				return;
@@ -181,9 +190,9 @@ namespace Magpie {
 			}
 		}
 
-		private void TimerScale_Tick(object sender, EventArgs e) {
+		private void TimerScale_Tick(object? sender, EventArgs e) {
 			if (--countDownNum != 0) {
-				btnScale.Content = tsiScale.Text = countDownNum.ToString();
+				btnScale.Content = tsiScale!.Text = countDownNum.ToString();
 				return;
 			}
 
@@ -192,11 +201,11 @@ namespace Magpie {
 
 			ToggleMagWindow();
 		}
-
-		private void BtnOptions_Click(object sender, RoutedEventArgs e) {
+		
+		private void BtnOptions_Click(object? sender, RoutedEventArgs e) {
 			if (optionsWindow == null) {
 				optionsWindow = new OptionsWindow();
-				optionsWindow.Closed += (object _, EventArgs _1) => {
+				optionsWindow.Closed += (object? _, EventArgs _) => {
 					optionsWindow = null;
 				};
 			}
@@ -205,7 +214,7 @@ namespace Magpie {
 			_ = optionsWindow.Focus();
 		}
 
-		private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e) {
+		private void Window_Closing(object? sender, System.ComponentModel.CancelEventArgs e) {
 			if (Settings.Default.MinimizeWhenClose) {
 				WindowState = WindowState.Minimized;
 				e.Cancel = true;
@@ -228,7 +237,7 @@ namespace Magpie {
 				txtHotkey.Foreground = Brushes.Black;
 				Settings.Default.Hotkey = hotkey;
 
-				tsiHotkey.Text = hotkey;
+				tsiHotkey!.Text = hotkey;
 
 				Logger.Info($"当前热键：{txtHotkey.Text}");
 			} catch (ArgumentException ex) {
@@ -236,7 +245,7 @@ namespace Magpie {
 				txtHotkey.Foreground = Brushes.Red;
 			}
 		}
-
+		
 		private void ToggleMagWindow() {
 			if (Settings.Default.AutoRestore) {
 				StopWaitingForRestore();
@@ -244,7 +253,7 @@ namespace Magpie {
 				UpdateLayout();
 			}
 
-			if (!scaleModelManager.IsValid()) {
+			if (!scaleModelManager.IsValid() || magWindow == null) {
 				return;
 			}
 
@@ -254,7 +263,7 @@ namespace Magpie {
 				return;
 			}
 
-			string effectsJson = scaleModelManager.GetScaleModels()[Settings.Default.ScaleMode].Effects;
+			string effectsJson = scaleModelManager.GetScaleModels()![Settings.Default.ScaleMode].Effects;
 
 			int frameRate = 0;
 			switch (Settings.Default.FrameRateType) {
@@ -278,20 +287,23 @@ namespace Magpie {
 				Settings.Default.CursorZoomFactor,
 				Settings.Default.CursorInterpolationMode,
 				Settings.Default.AdapterIdx,
+				Settings.Default.MultiMonitorUsage,
 				Settings.Default.ShowFPS,
 				Settings.Default.NoCursor,
 				Settings.Default.AdjustCursorSpeed,
-				Settings.Default.DisableRoundCorner,
 				Settings.Default.DisableWindowResizing,
 				Settings.Default.DisableLowLatency,
 				Settings.Default.DebugBreakpointMode,
 				Settings.Default.DisableDirectFlip,
-				Settings.Default.ConfineCursorIn3DGames
+				Settings.Default.ConfineCursorIn3DGames,
+				Settings.Default.CropTitleBarOfUWP,
+				Settings.Default.DebugDisableEffectCache,
+				Settings.Default.SimulateExclusiveFullscreen
 			);
 
 			prevSrcWindow = magWindow.SrcWindow;
 		}
-
+		
 		private void Window_SourceInitialized(object sender, EventArgs e) {
 			Handle = new WindowInteropHelper(this).Handle;
 
@@ -302,17 +314,13 @@ namespace Magpie {
 			magWindow.Closed += MagWindow_Closed;
 
 			// 检查命令行参数
-			string[] args = Environment.GetCommandLineArgs();
-			foreach (string arg in args) {
-				if (arg == "-st") {
-					// 启动到系统托盘
-					Logger.Info("已指定启动时缩放到系统托盘");
-					WindowState = WindowState.Minimized;
-					break;
-				}
+			if (Environment.GetCommandLineArgs().Contains("-st")) {
+				// 启动到系统托盘
+				Logger.Info("已指定启动时缩放到系统托盘");
+				WindowState = WindowState.Minimized;
 			}
 		}
-
+		
 		private void StopWaitingForRestore() {
 			if (WindowState == WindowState.Normal) {
 				btnForgetCurrentWnd.Visibility = gridCurWnd.Visibility = Visibility.Collapsed;
@@ -321,7 +329,7 @@ namespace Magpie {
 			prevSrcWindow = IntPtr.Zero;
 			timerRestore.Stop();
 		}
-
+		
 		private void MagWindow_Closed() {
 			// 不监视 Magpie 主窗口
 			if (!Settings.Default.AutoRestore || prevSrcWindow == Handle) {
@@ -338,7 +346,7 @@ namespace Magpie {
 				}
 			});
 		}
-
+		
 		private IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled) {
 			if (msg == NativeMethods.MAGPIE_WM_SHOWME) {
 				Logger.Info("收到 WM_SHOWME 消息");
@@ -354,23 +362,23 @@ namespace Magpie {
 			}
 			return IntPtr.Zero;
 		}
-
+		
 		private void CbbScaleMode_SelectionChanged(object sender, SelectionChangedEventArgs e) {
 			Settings.Default.ScaleMode = (uint)cbbScaleMode.SelectedIndex;
 		}
-
+		
 		private void StartScaleTimer() {
 			countDownNum = DOWN_COUNT;
-			btnScale.Content = tsiScale.Text = countDownNum.ToString();
+			btnScale.Content = tsiScale!.Text = countDownNum.ToString();
 
 			timerScale.Start();
 		}
 
 		private void StopScaleTimer() {
 			timerScale.Stop();
-			
+
 			btnScale.Content = Properties.Resources.UI_Main_Scale_After_5S;
-			tsiScale.Text = Properties.Resources.UI_SysTray_Scale_After_5S;
+			tsiScale!.Text = Properties.Resources.UI_SysTray_Scale_After_5S;
 		}
 
 		private void ToggleScaleTimer() {
@@ -380,7 +388,7 @@ namespace Magpie {
 				StartScaleTimer();
 			}
 		}
-
+		
 		private void Window_StateChanged(object sender, EventArgs e) {
 			if (WindowState == WindowState.Minimized) {
 				Hide();
@@ -400,7 +408,7 @@ namespace Magpie {
 		}
 
 		public void SetRuntimeLogLevel(uint logLevel) {
-			magWindow.SetLogLevel(logLevel);
+			magWindow?.SetLogLevel(logLevel);
 		}
 
 		private void Window_Deactivated(object sender, EventArgs e) {
@@ -408,30 +416,9 @@ namespace Magpie {
 		}
 
 		public void ShowAllCaptureMethods(bool isShow) {
-			if (isShow) {
-				if (cbbCaptureMethod.Items.Count != 3) {
-					return;
-				}
-
-				_ = cbbCaptureMethod.Items.Add(new ComboBoxItem {
-					Content = "Legacy GDI"
-				});
-				_ = cbbCaptureMethod.Items.Add(new ComboBoxItem {
-					Content = "MagCallback"
-				});
-			} else {
-				if (cbbCaptureMethod.Items.Count != 5) {
-					return;
-				}
-
-				if (cbbCaptureMethod.SelectedIndex >= 3) {
-					cbbCaptureMethod.SelectedIndex = 0;
-				}
-				cbbCaptureMethod.Items.RemoveAt(4);
-				cbbCaptureMethod.Items.RemoveAt(3);
-			}
+			_ = isShow;
+			_ = this;
 		}
-
 		private bool? isLightTheme = null;
 
 		private void CheckOSTheme() {
@@ -460,16 +447,25 @@ namespace Magpie {
 					newTheme = data.Any(b => { return b != 0; });
 				}
 
-				NativeMethods.RegCloseKey(hKey);
+				_ = NativeMethods.RegCloseKey(hKey);
 			}
 
 			if (!isLightTheme.HasValue || isLightTheme != newTheme) {
 				isLightTheme = newTheme;
-				Uri logoUri = new Uri($"pack://application:,,,/Magpie;component/Resources/Logo_{(isLightTheme.Value ? "Black" : "White")}.ico");
+				Uri logoUri = new($"pack://application:,,,/Magpie;component/Resources/Logo_{(isLightTheme.Value ? "Black" : "White")}.ico");
 
 				notifyIcon.Icon = new System.Drawing.Icon(App.GetResourceStream(logoUri).Stream);
 				System.Windows.Application.Current.Resources["Logo"] = new BitmapImage(logoUri);
 			}
+		}
+
+		private void CbbCaptureMethod_SelectionChanged(object sender, SelectionChangedEventArgs e) {
+			FrameworkElement si = (FrameworkElement)cbbCaptureMethod.SelectedItem;
+			if(si == null) {
+				return;
+			}
+
+			Settings.Default.CaptureMode = (uint)si.Tag;
 		}
 	}
 }

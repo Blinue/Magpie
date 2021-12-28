@@ -40,10 +40,28 @@ struct StrUtils {
 		return std::toupper(static_cast<unsigned char>(c));
 	}
 
+	static char tolower(char c) {
+		return std::tolower(static_cast<unsigned char>(c));
+	}
+
 	static std::string ToUpperCase(std::string_view str) {
 		std::string result(str);
-		std::transform(result.begin(), result.end(), result.begin(), toupper);
+		ToUpperCase(result);
 		return result;
+	}
+
+	static void ToUpperCase(std::string& str) {
+		std::transform(str.begin(), str.end(), str.begin(), toupper);
+	}
+
+	static std::string ToLowerCase(std::string_view str) {
+		std::string result(str);
+		ToLowerCase(result);
+		return result;
+	}
+
+	static void ToLowerCase(std::string& str) {
+		std::transform(str.begin(), str.end(), str.begin(), tolower);
 	}
 };
 

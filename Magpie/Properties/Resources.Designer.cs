@@ -106,6 +106,15 @@ namespace Magpie.Properties {
         }
         
         /// <summary>
+        ///   查找类似 This window is too large to capture. 的本地化字符串。
+        /// </summary>
+        public static string Msg_Error_Src_Too_Large {
+            get {
+                return ResourceManager.GetString("Msg_Error_Src_Too_Large", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 This monitor does not support turning off VSync. 的本地化字符串。
         /// </summary>
         public static string Msg_Error_Vsync_Off_Not_Supported {
@@ -358,11 +367,38 @@ namespace Magpie.Properties {
         }
         
         /// <summary>
-        ///   查找类似 Debug 的本地化字符串。
+        ///   查找类似 Debugging 的本地化字符串。
         /// </summary>
-        public static string UI_Options_Advanced_Debug {
+        public static string UI_Options_Advanced_Debugging {
             get {
-                return ResourceManager.GetString("UI_Options_Advanced_Debug", resourceCulture);
+                return ResourceManager.GetString("UI_Options_Advanced_Debugging", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Disable DirectFlip 的本地化字符串。
+        /// </summary>
+        public static string UI_Options_Advanced_Disable_DirectFlip {
+            get {
+                return ResourceManager.GetString("UI_Options_Advanced_Disable_DirectFlip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Disable Effect Cache 的本地化字符串。
+        /// </summary>
+        public static string UI_Options_Advanced_Disable_Effect_Cache {
+            get {
+                return ResourceManager.GetString("UI_Options_Advanced_Disable_Effect_Cache", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Logging 的本地化字符串。
+        /// </summary>
+        public static string UI_Options_Advanced_Logging {
+            get {
+                return ResourceManager.GetString("UI_Options_Advanced_Logging", resourceCulture);
             }
         }
         
@@ -412,11 +448,38 @@ namespace Magpie.Properties {
         }
         
         /// <summary>
+        ///   查找类似 Open Logs Folder 的本地化字符串。
+        /// </summary>
+        public static string UI_Options_Advanced_Open_Logs_Folder {
+            get {
+                return ResourceManager.GetString("UI_Options_Advanced_Open_Logs_Folder", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Show All Capture Methods 的本地化字符串。
         /// </summary>
         public static string UI_Options_Advanced_Show_All_Capture_Methods {
             get {
                 return ResourceManager.GetString("UI_Options_Advanced_Show_All_Capture_Methods", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Show Debugging Options 的本地化字符串。
+        /// </summary>
+        public static string UI_Options_Advanced_Show_Debugging_Options {
+            get {
+                return ResourceManager.GetString("UI_Options_Advanced_Show_Debugging_Options", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Simulate Exclusive Fullscreen 的本地化字符串。
+        /// </summary>
+        public static string UI_Options_Advanced_Simulate_Exclusive_Fullscreen {
+            get {
+                return ResourceManager.GetString("UI_Options_Advanced_Simulate_Exclusive_Fullscreen", resourceCulture);
             }
         }
         
@@ -435,6 +498,15 @@ namespace Magpie.Properties {
         public static string UI_Options_Application_Always_Run_As_Admin {
             get {
                 return ResourceManager.GetString("UI_Options_Application_Always_Run_As_Admin", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Crop the Title Bar of UWP Windows 的本地化字符串。
+        /// </summary>
+        public static string UI_Options_Application_Crop_Title_Bar_Of_UWP {
+            get {
+                return ResourceManager.GetString("UI_Options_Application_Crop_Title_Bar_Of_UWP", resourceCulture);
             }
         }
         
@@ -583,15 +655,6 @@ namespace Magpie.Properties {
         }
         
         /// <summary>
-        ///   查找类似 Disable DirectFlip 的本地化字符串。
-        /// </summary>
-        public static string UI_Options_Scale_Disable_DirectFlip {
-            get {
-                return ResourceManager.GetString("UI_Options_Scale_Disable_DirectFlip", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   查找类似 Allow Additional Latency to Improve Performance 的本地化字符串。
         /// </summary>
         public static string UI_Options_Scale_Disable_Low_Latency {
@@ -646,6 +709,42 @@ namespace Magpie.Properties {
         }
         
         /// <summary>
+        ///   查找类似 Multiple Monitors 的本地化字符串。
+        /// </summary>
+        public static string UI_Options_Scale_Multiple_Monitors {
+            get {
+                return ResourceManager.GetString("UI_Options_Scale_Multiple_Monitors", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Use All Monitors 的本地化字符串。
+        /// </summary>
+        public static string UI_Options_Scale_Multiple_Monitors_All {
+            get {
+                return ResourceManager.GetString("UI_Options_Scale_Multiple_Monitors_All", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Use the Monitors that the Source Window Intersects 的本地化字符串。
+        /// </summary>
+        public static string UI_Options_Scale_Multiple_Monitors_Intersect {
+            get {
+                return ResourceManager.GetString("UI_Options_Scale_Multiple_Monitors_Intersect", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Use the Monitor Nearest to the Source Window 的本地化字符串。
+        /// </summary>
+        public static string UI_Options_Scale_Multiple_Monitors_Nearest {
+            get {
+                return ResourceManager.GetString("UI_Options_Scale_Multiple_Monitors_Nearest", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Disable Vsync 的本地化字符串。
         /// </summary>
         public static string UI_Options_Scale_No_VSync {
@@ -660,15 +759,6 @@ namespace Magpie.Properties {
         public static string UI_Options_Scale_Open_Scale_Config {
             get {
                 return ResourceManager.GetString("UI_Options_Scale_Open_Scale_Config", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   查找类似 Performance 的本地化字符串。
-        /// </summary>
-        public static string UI_Options_Scale_Performance {
-            get {
-                return ResourceManager.GetString("UI_Options_Scale_Performance", resourceCulture);
             }
         }
         

@@ -44,29 +44,25 @@ bool DwmSharedSurfaceFrameSource::Initialize() {
 	return true;
 }
 
-ComPtr<ID3D11Texture2D> DwmSharedSurfaceFrameSource::GetOutput() {
-	return _output;
-}
-
-bool DwmSharedSurfaceFrameSource::Update() {
+FrameSourceBase::UpdateState DwmSharedSurfaceFrameSource::Update() {
 	HANDLE sharedTextureHandle = NULL;
 	if (!_dwmGetDxSharedSurface(_hwndSrc, &sharedTextureHandle, nullptr, nullptr, nullptr, nullptr)
 		|| !sharedTextureHandle
 	) {
 		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("DwmGetDxSharedSurface 失败"));
-		return false;
+		return UpdateState::Error;
 	}
 
 	ComPtr<ID3D11Texture2D> sharedTexture;
 	HRESULT hr = _d3dDevice->OpenSharedResource(sharedTextureHandle, IID_PPV_ARGS(&sharedTexture));
 	if (FAILED(hr)) {
 		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("OpenSharedResource 失败", hr));
-		return false;
+		return UpdateState::Error;
 	}
 	
 	_d3dDC->CopySubresourceRegion(_output.Get(), 0, 0, 0, 0, sharedTexture.Get(), 0, &_frameInWnd);
 
-	return true;
+	return UpdateState::NewFrame;
 }
 
 
@@ -77,7 +73,7 @@ bool DwmSharedSurfaceFrameSource::_CalcFrameSize(SIZE& frameSize) {
 	float dpiScale;
 	bool success = true;
 
-	if ( !_GetWindowDpiScale(_hwndSrc, dpiScale)) {
+	if (!_GetWindowDpiScale(_hwndSrc, dpiScale)) {
 		SPDLOG_LOGGER_ERROR(logger, "_GetWindowDpiScale 失败");
 		success = false;
 	}
@@ -94,8 +90,13 @@ bool DwmSharedSurfaceFrameSource::_CalcFrameSize(SIZE& frameSize) {
 		success = false;
 	}
 	
+	RECT srcClientRect;
+	if (!Utils::GetClientScreenRect(App::GetInstance().GetHwndSrcClient(), srcClientRect)) {
+		SPDLOG_LOGGER_ERROR(logger, "GetClientScreenRect 失败");
+		return false;
+	}
+
 	if (success) {
-		RECT srcClientRect = App::GetInstance().GetSrcClientRect();
 		frameSize = {
 			(LONG)ceilf((srcClientRect.right - srcClientRect.left) / dpiScale),
 			(LONG)ceilf((srcClientRect.bottom - srcClientRect.top) / dpiScale)
@@ -117,7 +118,6 @@ bool DwmSharedSurfaceFrameSource::_CalcFrameSize(SIZE& frameSize) {
 			return false;
 		}
 
-		const RECT srcClientRect = App::GetInstance().GetSrcClientRect();
 		_frameInWnd = {
 			UINT(srcClientRect.left - srcWindowRect.left),
 			UINT(srcClientRect.top - srcWindowRect.top),
