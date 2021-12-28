@@ -1,5 +1,3 @@
-# FAQ
-
 ## 如何自定义缩放（比如改变 FSR 的锐度）？
 
 请查阅[自定义缩放配置](https://github.com/Blinue/Magpie/wiki/%E8%87%AA%E5%AE%9A%E4%B9%89%E7%BC%A9%E6%94%BE%E9%85%8D%E7%BD%AE)。
