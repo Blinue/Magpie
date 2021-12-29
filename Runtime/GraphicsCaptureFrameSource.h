@@ -33,8 +33,8 @@ public:
 		return true;
 	}
 
-	bool CanCaputurePopup() override {
-		return _canCapturePopup;
+	bool IsScreenCapture() override {
+		return _isScreenCapture;
 	}
 
 private:
@@ -47,7 +47,7 @@ private:
 	LONG_PTR _srcWndStyle = 0;
 	D3D11_BOX _frameBox{};
 
-	bool _canCapturePopup = false;
+	bool _isScreenCapture = false;
 
 	winrt::GraphicsCaptureItem _captureItem{ nullptr };
 	winrt::Direct3D11CaptureFramePool _captureFramePool{ nullptr };

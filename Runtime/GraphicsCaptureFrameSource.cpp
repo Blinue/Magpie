@@ -72,7 +72,7 @@ bool GraphicsCaptureFrameSource::Initialize() {
 				SPDLOG_LOGGER_ERROR(logger, "屏幕捕获失败");
 				return false;
 			} else {
-				_canCapturePopup = true;
+				_isScreenCapture = true;
 			}
 		}
 	}

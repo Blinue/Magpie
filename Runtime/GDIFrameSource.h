@@ -20,7 +20,7 @@ public:
 		return false;
 	}
 
-	bool CanCaputurePopup() override {
+	bool IsScreenCapture() override {
 		return false;
 	}
 

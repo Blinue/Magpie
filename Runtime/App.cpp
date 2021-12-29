@@ -473,7 +473,7 @@ bool App::_DisableDirectFlip() {
 		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("SetLayeredWindowAttributes 失败"));
 	}
 
-	if (_captureMode == 0 || _captureMode == 1) {
+	if (_frameSource->IsScreenCapture()) {
 		const RTL_OSVERSIONINFOW& version = Utils::GetOSVersion();
 		if (Utils::CompareVersion(version.dwMajorVersion, version.dwMinorVersion, version.dwBuildNumber, 10, 0, 19041) >= 0) {
 			// 使 DDF 窗口无法被捕获到

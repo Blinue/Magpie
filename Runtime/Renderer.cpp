@@ -622,7 +622,7 @@ bool CheckForeground(HWND hwndForeground) {
 	RECT rectForground{};
 
 	// 如果捕获模式可以捕获到弹窗，则允许小的弹窗
-	if (App::GetInstance().GetFrameSource().CanCaputurePopup() 
+	if (App::GetInstance().GetFrameSource().IsScreenCapture()
 		&& GetWindowStyle(hwndForeground) & (WS_POPUP | WS_CHILD)
 	) {
 		if (!Utils::GetWindowFrameRect(hwndForeground, rectForground)) {
