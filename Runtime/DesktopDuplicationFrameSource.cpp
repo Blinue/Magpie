@@ -163,7 +163,7 @@ FrameSourceBase::UpdateState DesktopDuplicationFrameSource::Update() {
 		_outputDup->ReleaseFrame();
 		_dxgiRes = nullptr;
 	}
-	HRESULT hr = _outputDup->AcquireNextFrame(0, &info, &_dxgiRes);
+	HRESULT hr = _outputDup->AcquireNextFrame(1, &info, &_dxgiRes);
 
 	if (hr == DXGI_ERROR_WAIT_TIMEOUT) {
 		return _firstFrame ? UpdateState::Waiting : UpdateState::NoUpdate;
