@@ -87,6 +87,11 @@ bool GraphicsCaptureFrameSource::Initialize() {
 			{ (int)_frameBox.right, (int)_frameBox.bottom } // 帧的尺寸为包含源窗口的最小尺寸
 		);
 
+		_frameArrived = _captureFramePool.FrameArrived(
+			winrt::auto_revoke,
+			{ this, &GraphicsCaptureFrameSource::_OnFrameArrived }
+		);
+
 		_captureSession = _captureFramePool.CreateCaptureSession(_captureItem);
 
 		// 不捕获光标
@@ -139,35 +144,54 @@ bool GraphicsCaptureFrameSource::Initialize() {
 		return false;
 	}
 
+	InitializeConditionVariable(&_cv);
+	InitializeCriticalSection(&_cs);
+
 	App::GetInstance().SetErrorMsg(ErrorMessages::GENERIC);
 	SPDLOG_LOGGER_INFO(logger, "GraphicsCaptureFrameSource 初始化完成");
 	return true;
 }
 
 FrameSourceBase::UpdateState GraphicsCaptureFrameSource::Update() {
-	winrt::Direct3D11CaptureFrame frame = _captureFramePool.TryGetNextFrame();
-	if (!frame) {
-		// 缓冲池没有帧
+	// 每次睡眠 1 毫秒等待新帧到达，防止 CPU 占用过高
+	EnterCriticalSection(&_cs);
+
+	if (!_newFrameArrived) {
+		SleepConditionVariableCS(&_cv, &_cs, 1);
+	}
+
+	LeaveCriticalSection(&_cs);
+
+	if (_newFrameArrived) {
+		_newFrameArrived = false;
+
+		winrt::Direct3D11CaptureFrame frame = _captureFramePool.TryGetNextFrame();
+		if (!frame) {
+			// 缓冲池没有帧，不应发生此情况
+			assert(false);
+			return UpdateState::Waiting;
+		}
+
+		// 从帧获取 IDXGISurface
+		winrt::IDirect3DSurface d3dSurface = frame.Surface();
+
+		winrt::com_ptr<::Windows::Graphics::DirectX::Direct3D11::IDirect3DDxgiInterfaceAccess> dxgiInterfaceAccess(
+			d3dSurface.as<::Windows::Graphics::DirectX::Direct3D11::IDirect3DDxgiInterfaceAccess>()
+		);
+
+		ComPtr<ID3D11Texture2D> withFrame;
+		HRESULT hr = dxgiInterfaceAccess->GetInterface(IID_PPV_ARGS(&withFrame));
+		if (FAILED(hr)) {
+			SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("从获取 IDirect3DSurface 获取 ID3D11Texture2D 失败", hr));
+			return UpdateState::Error;
+		}
+
+		_d3dDC->CopySubresourceRegion(_output.Get(), 0, 0, 0, 0, withFrame.Get(), 0, &_frameBox);
+
+		return UpdateState::NewFrame;
+	} else {
 		return UpdateState::Waiting;
 	}
-
-	// 从帧获取 IDXGISurface
-	winrt::IDirect3DSurface d3dSurface = frame.Surface();
-
-	winrt::com_ptr<::Windows::Graphics::DirectX::Direct3D11::IDirect3DDxgiInterfaceAccess> dxgiInterfaceAccess(
-		d3dSurface.as<::Windows::Graphics::DirectX::Direct3D11::IDirect3DDxgiInterfaceAccess>()
-	);
-
-	ComPtr<ID3D11Texture2D> withFrame;
-	HRESULT hr = dxgiInterfaceAccess->GetInterface(IID_PPV_ARGS(&withFrame));
-	if (FAILED(hr)) {
-		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("从获取 IDirect3DSurface 获取 ID3D11Texture2D 失败", hr));
-		return UpdateState::Error;
-	}
-
-	_d3dDC->CopySubresourceRegion(_output.Get(), 0, 0, 0, 0, withFrame.Get(), 0, &_frameBox);
-
-	return UpdateState::NewFrame;
 }
 
 bool GraphicsCaptureFrameSource::_CaptureFromWindow(winrt::impl::com_ref<IGraphicsCaptureItemInterop> interop) {
@@ -317,7 +341,19 @@ bool GraphicsCaptureFrameSource::_CaptureFromMonitor(winrt::impl::com_ref<IGraph
 	return true;
 }
 
+void GraphicsCaptureFrameSource::_OnFrameArrived(winrt::Direct3D11CaptureFramePool const&, winrt::IInspectable const&) {
+	// 更改标志，如果主线程正在等待，唤醒主线程
+	EnterCriticalSection(&_cs);
+	_newFrameArrived = true;
+	LeaveCriticalSection(&_cs);
+
+	WakeConditionVariable(&_cv);
+}
+
 GraphicsCaptureFrameSource::~GraphicsCaptureFrameSource() {
+	if (_frameArrived) {
+		_frameArrived.revoke();
+	}
 	if (_captureSession) {
 		_captureSession.Close();
 	}

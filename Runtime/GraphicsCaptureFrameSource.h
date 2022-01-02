@@ -44,6 +44,8 @@ private:
 
 	bool _CaptureFromMonitor(winrt::impl::com_ref<IGraphicsCaptureItemInterop> interop);
 
+	void _OnFrameArrived(winrt::Direct3D11CaptureFramePool const&, winrt::IInspectable const&);
+
 	LONG_PTR _srcWndStyle = 0;
 	D3D11_BOX _frameBox{};
 
@@ -53,6 +55,12 @@ private:
 	winrt::Direct3D11CaptureFramePool _captureFramePool{ nullptr };
 	winrt::GraphicsCaptureSession _captureSession{ nullptr };
 	winrt::IDirect3DDevice _wrappedD3DDevice{ nullptr };
+	winrt::Direct3D11CaptureFramePool::FrameArrived_revoker _frameArrived;
+
+	// 用于线程同步
+	CONDITION_VARIABLE _cv{};
+	CRITICAL_SECTION _cs;
+	bool _newFrameArrived = false;
 
 	ComPtr<ID3D11DeviceContext> _d3dDC;
 
