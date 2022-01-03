@@ -130,7 +130,7 @@ template<bool AllowNewLine>
 static bool CheckNextToken(std::string_view& source, std::string_view token) {
 	RemoveLeadingBlanks<AllowNewLine>(source);
 
-	if (source.size() < token.size() || source.compare(0, token.size(), token) != 0) {
+	if (!source.starts_with(token)) {
 		return false;
 	}
 

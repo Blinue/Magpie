@@ -158,12 +158,9 @@ bool DesktopDuplicationFrameSource::Initialize() {
 
 FrameSourceBase::UpdateState DesktopDuplicationFrameSource::Update() {
 	DXGI_OUTDUPL_FRAME_INFO info;
-
-	if (_dxgiRes) {
-		_outputDup->ReleaseFrame();
-		_dxgiRes = nullptr;
-	}
-	HRESULT hr = _outputDup->AcquireNextFrame(1, &info, &_dxgiRes);
+	ComPtr<IDXGIResource> dxgiRes;
+	
+	HRESULT hr = _outputDup->AcquireNextFrame(0, &info, &dxgiRes);
 
 	if (hr == DXGI_ERROR_WAIT_TIMEOUT) {
 		return _firstFrame ? UpdateState::Waiting : UpdateState::NoUpdate;
@@ -173,6 +170,10 @@ FrameSourceBase::UpdateState DesktopDuplicationFrameSource::Update() {
 		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("AcquireNextFrame 失败", hr));
 		return UpdateState::Error;
 	}
+
+	Utils::ScopeExit se([this]() {
+		_outputDup->ReleaseFrame();
+	});
 
 	bool noUpdate = true;
 
@@ -227,7 +228,7 @@ FrameSourceBase::UpdateState DesktopDuplicationFrameSource::Update() {
 	}
 
 	ComPtr<ID3D11Resource> d3dRes;
-	hr = _dxgiRes.As<ID3D11Resource>(&d3dRes);
+	hr = dxgiRes.As<ID3D11Resource>(&d3dRes);
 	if (FAILED(hr)) {
 		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("从 IDXGIResource 检索 ID3D11Resource 失败", hr));
 		return UpdateState::NoUpdate;
