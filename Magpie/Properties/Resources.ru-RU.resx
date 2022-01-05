@@ -311,7 +311,7 @@
     <value>Как у исходного окна</value>
   </data>
   <data name="UI_Options_Scale_Cursor_Zoom_Factor" xml:space="preserve">
-    <value>Множитель увеличения курсора</value>
+    <value>Множитель увеличения указателя</value>
   </data>
   <data name="UI_Options_Advanced_Disable_DirectFlip" xml:space="preserve">
     <value>Выключить DirectFlip</value>
