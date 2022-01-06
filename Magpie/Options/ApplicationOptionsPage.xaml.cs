@@ -21,6 +21,7 @@ namespace Magpie.Options {
 
 		private readonly CultureInfo[] supportedCultures = {
 			CultureInfo.GetCultureInfo("en-US"),
+			CultureInfo.GetCultureInfo("ru-RU"),
 			CultureInfo.GetCultureInfo("zh-CN")
 		};
 
