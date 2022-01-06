@@ -66,6 +66,15 @@
       "contributions": [
         "translation"
       ]
+    },
+    {
+      "login": "0x4E69676874466F78",
+      "name": "NightFox",
+      "avatar_url": "https://avatars.githubusercontent.com/u/4449851?v=4",
+      "profile": "https://github.com/0x4E69676874466F78",
+      "contributions": [
+        "translation"
+      ]
     }
   ],
   "contributorsPerLine": 7,
