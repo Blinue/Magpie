@@ -19,6 +19,11 @@ jobs:
     steps:
     - uses: actions/checkout@v2.4.0
     
+    - uses: actions/cache@v2
+      with:
+        path: ./packages
+        key: ${{ runner.os }}-MagpieBuildCache-${{ hashFiles('**/packages.lock.json') }}
+    
     - name: Restore NuGet packages
       run: nuget restore
     
