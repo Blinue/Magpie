@@ -22,7 +22,12 @@ jobs:
     - uses: actions/cache@v2
       with:
         path: ./packages
-        key: ${{ runner.os }}-MagpieBuildCache-${{ hashFiles('**/packages.lock.json') }}
+        key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.lock.json') }}
+    
+    - uses: actions/cache@v2
+      with:
+        path: ./.conan/data
+        key: ${{ runner.os }}-conan-${{ hashFiles('**/conanfile.txt') }}
     
     - name: Restore NuGet packages
       run: nuget restore
