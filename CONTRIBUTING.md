@@ -86,6 +86,8 @@ Magpie 没有广泛的测试过，因此错误不可避免。希望你能向开�
 
 贡献新的翻译和修正现有翻译都是非常欢迎的。向 Magpie 贡献翻译非常简单，所有用户界面文本均存储在 resx 中，创建新的Resources.xx-xx.resx 文件并翻译所有字符串即可。和[贡献代码](#我想贡献代码-)一样，你需要提交 pull request。强烈推荐你定期维护自己的翻译，因为 Magpie 的用户界面经常会进行较大的更改。
 
+**推荐使用 [ResXManager](https://marketplace.visualstudio.com/items?itemName=TomEnglert.ResXManager) 插件。它提供了友好的用户界面，使你无需编写代码。**
+
 ### 我想贡献文档 📖
 
 因为开发者的懒惰，Magpie 的文档长期处于缺失/过时的状态，因此文档的贡献是非常欢迎的。Magpie 的 wiki 是从 main 分支的 docs 文件夹自动发布的，因此修改文档和[贡献代码](#我想贡献代码-)的方式相同。
