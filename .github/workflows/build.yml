@@ -25,12 +25,6 @@ jobs:
         path: ./.conan/data
         key: ${{ runner.os }}-conan-${{ hashFiles('**/conanfile.txt') }}
     
-    - name: Load Runtime build cache
-      uses: actions/cache@v2
-      with:
-        path: ./Runtime/Release
-        key: ${{ runner.os }}-runtime-${{ hashFiles('./Runtime/Runtime.vcxproj') }}
-    
     - name: Restore NuGet packages
       run: nuget restore
     
