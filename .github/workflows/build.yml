@@ -18,13 +18,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2.4.0
-    
-    - name: Load NuGet cache
-      uses: actions/cache@v2
-      with:
-        path: ./packages
-        key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.lock.json') }}
-    
+
     - name: Load Conan cache
       uses: actions/cache@v2
       with:
