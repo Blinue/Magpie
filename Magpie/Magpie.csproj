@@ -35,10 +35,6 @@
 		<NoWarn>1701;1702;WFAC010</NoWarn>
 	</PropertyGroup>
 
-	<PropertyGroup>
-		<RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
-	</PropertyGroup>
-
 	<ItemGroup>
 		<None Remove="app.manifest" />
 		<None Remove="Resources\BuiltInScaleModels.json" />
