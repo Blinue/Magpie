@@ -32,7 +32,11 @@
 	</PropertyGroup>
 
 	<PropertyGroup>
-	  <NoWarn>1701;1702;WFAC010</NoWarn>
+		<NoWarn>1701;1702;WFAC010</NoWarn>
+	</PropertyGroup>
+
+	<PropertyGroup>
+		<RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
 	</PropertyGroup>
 
 	<ItemGroup>
