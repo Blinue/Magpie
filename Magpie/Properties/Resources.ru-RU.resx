@@ -206,10 +206,10 @@
     <value>Благодарности</value>
   </data>
   <data name="UI_Options_About_Thanks_Contributors" xml:space="preserve">
-    <value>Все оставившие отзыв и внёсшие вклад в Magpie</value>
+    <value>Всем оставившим отзыв и внёсшим вклад в Magpie</value>
   </data>
   <data name="UI_Options_About_Thanks_Shaders" xml:space="preserve">
-    <value>Все шейдерные проекты поддерживаемые Magpie</value>
+    <value>Всем шейдерным проектам используемых Magpie</value>
   </data>
   <data name="UI_Options_About_Version" xml:space="preserve">
     <value>Версия</value>
