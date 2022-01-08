@@ -234,8 +234,10 @@ FrameSourceBase::UpdateState DesktopDuplicationFrameSource::Update() {
 		return UpdateState::NoUpdate;
 	}
 
-	App::GetInstance().GetRenderer().GetD3DDC()->CopySubresourceRegion(
-		_output.Get(), 0, 0, 0, 0, d3dRes.Get(), 0, &_frameInMonitor);
+	const auto& d3dDC = App::GetInstance().GetRenderer().GetD3DDC();
+	d3dDC->CopySubresourceRegion(_output.Get(), 0, 0, 0, 0, d3dRes.Get(), 0, &_frameInMonitor);
+	// 强制 GPU 立即复制，因为此函数退出后该纹理即失效
+	d3dDC->Flush();
 
 	_firstFrame = false;
 
