@@ -41,6 +41,11 @@ bool App::Initialize(HINSTANCE hInst) {
 	return true;
 }
 
+struct EnumChildWndParam {
+	const wchar_t* clientWndClassName = nullptr;
+	std::vector<HWND> childWindows;
+};
+
 static BOOL CALLBACK EnumChildProc(
 	_In_ HWND   hwnd,
 	_In_ LPARAM lParam
@@ -53,43 +58,59 @@ static BOOL CALLBACK EnumChildProc(
 	}
 	className.resize(num);
 
-	if (className == L"ApplicationFrameInputSinkWindow") {
-		((std::vector<HWND>*)lParam)->push_back(hwnd);
+	EnumChildWndParam* param = (EnumChildWndParam*)lParam;
+	if (className == param->clientWndClassName) {
+		param->childWindows.push_back(hwnd);
 	}
 
 	return TRUE;
 }
 
-HWND FindClientWindow(HWND hwndSrc) {
+static HWND FindClientWindow(HWND hwndSrc, const wchar_t* clientWndClassName) {
+	// 查找所有窗口类名为 ApplicationFrameInputSinkWindow 的子窗口
+	// 该子窗口一般为客户区
+	EnumChildWndParam param{};
+	param.clientWndClassName = clientWndClassName;
+	EnumChildWindows(hwndSrc, EnumChildProc, (LPARAM)&param);
+
+	if (param.childWindows.empty()) {
+		// 未找到符合条件的子窗口
+		return hwndSrc;
+	}
+
+	if (param.childWindows.size() == 1) {
+		return param.childWindows[0];
+	}
+
+	// 如果有多个匹配的子窗口，取最大的（一般不会出现）
+	int maxSize = 0, maxIdx = 0;
+	for (int i = 0; i < param.childWindows.size(); ++i) {
+		RECT rect;
+		if (!GetClientRect(param.childWindows[i], &rect)) {
+			continue;
+		}
+
+		int size = rect.right - rect.left + rect.bottom - rect.top;
+		if (size > maxSize) {
+			maxSize = size;
+			maxIdx = i;
+		}
+	}
+
+	return param.childWindows[maxIdx];
+}
+
+static HWND FindClientWindow(HWND hwndSrc) {
 	std::wstring className(256, 0);
 	int num = GetClassName(hwndSrc, &className[0], (int)className.size());
 	if (num > 0) {
 		className.resize(num);
-		if (className == L"ApplicationFrameWindow" || className == L"Windows.UI.Core.CoreWindow") {
+		if (App::GetInstance().IsCropTitleBarOfUWP() &&
+			(className == L"ApplicationFrameWindow" || className == L"Windows.UI.Core.CoreWindow")
+		) {
 			// "Modern App"
-			std::vector<HWND> childWindows;
-			// 查找所有窗口类名为 ApplicationFrameInputSinkWindow 的子窗口
-			// 该子窗口一般为客户区
-			EnumChildWindows(hwndSrc, EnumChildProc, (LPARAM)&childWindows);
-
-			if (!childWindows.empty()) {
-				// 如果有多个匹配的子窗口，取最大的（一般不会出现）
-				int maxSize = 0, maxIdx = 0;
-				for (int i = 0; i < childWindows.size(); ++i) {
-					RECT rect;
-					if (!GetClientRect(childWindows[i], &rect)) {
-						continue;
-					}
-
-					int size = rect.right - rect.left + rect.bottom - rect.top;
-					if (size > maxSize) {
-						maxSize = size;
-						maxIdx = i;
-					}
-				}
-
-				return childWindows[maxIdx];
-			}
+			// 客户区窗口类名为 ApplicationFrameInputSinkWindow
+			return FindClientWindow(hwndSrc, L"ApplicationFrameInputSinkWindow");
 		}
 	} else {
 		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetClassName 失败"));
@@ -141,7 +162,7 @@ bool App::Run(
 		}
 	}
 
-	_hwndSrcClient = IsCropTitleBarOfUWP() ? FindClientWindow(hwndSrc) : hwndSrc;
+	_hwndSrcClient = FindClientWindow(hwndSrc);
 
 	// 模拟独占全屏
 	// 必须在主窗口创建前，否则 SHQueryUserNotificationState 可能返回 QUNS_BUSY 而不是 QUNS_RUNNING_D3D_FULL_SCREEN
