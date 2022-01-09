@@ -69,8 +69,8 @@ static ComPtr<IDXGIOutput1> GetDXGIOutput(HMONITOR hMonitor) {
 HANDLE hSharedTex = NULL;
 
 DesktopDuplicationFrameSource::~DesktopDuplicationFrameSource() {
-	SetEvent(_hTerminateThreadEvent);
-	WaitForSingleObject(_hDDPThread, INFINITE);
+	_exiting = true;
+	WaitForSingleObject(_hDDPThread, 1000);
 }
 
 bool DesktopDuplicationFrameSource::Initialize() {
@@ -78,11 +78,6 @@ bool DesktopDuplicationFrameSource::Initialize() {
 	const RTL_OSVERSIONINFOW& version = Utils::GetOSVersion();
 	if (Utils::CompareVersion(version.dwMajorVersion, version.dwMinorVersion, version.dwBuildNumber, 10, 0, 19041) < 0) {
 		SPDLOG_LOGGER_ERROR(logger, "当前操作系统无法使用 Desktop Duplication");
-		return false;
-	}
-
-	_hTerminateThreadEvent = CreateEvent(nullptr, TRUE, FALSE, nullptr);
-	if (!_hTerminateThreadEvent) {
 		return false;
 	}
 
@@ -234,7 +229,7 @@ bool DesktopDuplicationFrameSource::Initialize() {
 	}
 	
 
-	_hDDPThread = CreateThread(nullptr, 0, _DDPThreadProc, nullptr, 0, nullptr);
+	_hDDPThread = CreateThread(nullptr, 0, _DDPThreadProc, this, 0, nullptr);
 	if (!_hDDPThread) {
 		return false;
 	}
@@ -243,21 +238,18 @@ bool DesktopDuplicationFrameSource::Initialize() {
 	return true;
 }
 
-std::atomic<UINT> frameCount = 0;
-bool waiting = true;
 
 FrameSourceBase::UpdateState DesktopDuplicationFrameSource::Update() {
-	static UINT f = 0;
-	UINT newF = frameCount.load();
-	if (f == newF) {
-		return waiting ? UpdateState::Waiting : UpdateState::NoUpdate;
+	UINT newFrameState = _newFrameState.load();
+	if (newFrameState == 2) {
+		// 第一帧之前不渲染
+		return UpdateState::Waiting;
+	} else if (newFrameState == 0) {
+		return UpdateState::NoUpdate;
 	}
 
-	f = newF;
-
-	HRESULT hr = _sharedTexMutex->AcquireSync(1, 100);
+	HRESULT hr = _sharedTexMutex->AcquireSync(1, 0);
 	if (hr == static_cast<HRESULT>(WAIT_TIMEOUT)) {
-		waiting = true;
 		return UpdateState::Waiting;
 	}
 	
@@ -266,7 +258,7 @@ FrameSourceBase::UpdateState DesktopDuplicationFrameSource::Update() {
 		return UpdateState::Error;
 	}
 
-	waiting = false;
+	_newFrameState.store(0);
 
 	const auto& dc = App::GetInstance().GetRenderer().GetD3DDC();
 	dc->CopyResource(_output.Get(), _sharedTex.Get());
@@ -277,7 +269,7 @@ FrameSourceBase::UpdateState DesktopDuplicationFrameSource::Update() {
 }
 
 DWORD WINAPI DesktopDuplicationFrameSource::_DDPThreadProc(LPVOID lpThreadParameter) {
-	DesktopDuplicationFrameSource& that = (DesktopDuplicationFrameSource&)App::GetInstance().GetFrameSource();
+	DesktopDuplicationFrameSource& that = *(DesktopDuplicationFrameSource*)lpThreadParameter;
 
 	DXGI_OUTDUPL_FRAME_INFO info{};
 	ComPtr<IDXGIResource> dxgiRes;
@@ -285,7 +277,7 @@ DWORD WINAPI DesktopDuplicationFrameSource::_DDPThreadProc(LPVOID lpThreadParame
 
 	bool waitToProcessCurrentFrame = false;
 
-	while ((WaitForSingleObjectEx(that._hTerminateThreadEvent, 0, FALSE) == WAIT_TIMEOUT)) {
+	while (!that._exiting.load()) {
 		if (!waitToProcessCurrentFrame) {
 			if (dxgiRes) {
 				that._outputDup->ReleaseFrame();
@@ -376,7 +368,7 @@ DWORD WINAPI DesktopDuplicationFrameSource::_DDPThreadProc(LPVOID lpThreadParame
 
 		that._ddpD3dDC->CopySubresourceRegion(that._ddpSharedTex.Get(), 0, 0, 0, 0, d3dRes.Get(), 0, &that._frameInMonitor);
 		that._ddpSharedTexMutex->ReleaseSync(1);
-		++frameCount;
+		that._newFrameState.store(1);
 	}
 
 	return 0;
