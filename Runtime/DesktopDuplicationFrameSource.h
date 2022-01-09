@@ -5,7 +5,7 @@
 class DesktopDuplicationFrameSource : public FrameSourceBase {
 public:
 	DesktopDuplicationFrameSource() {};
-	virtual ~DesktopDuplicationFrameSource() {}
+	virtual ~DesktopDuplicationFrameSource();
 
 	bool Initialize() override;
 
@@ -24,6 +24,8 @@ public:
 	}
 
 private:
+	static DWORD WINAPI _DDPThreadProc(LPVOID lpThreadParameter);
+
 	// 消除刚进入全屏时短暂的黑屏
 	bool _firstFrame = true;
 	ComPtr<ID3D11Texture2D> _output;
