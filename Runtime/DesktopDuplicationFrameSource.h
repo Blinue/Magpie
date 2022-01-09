@@ -26,11 +26,19 @@ public:
 private:
 	static DWORD WINAPI _DDPThreadProc(LPVOID lpThreadParameter);
 
-	// 消除刚进入全屏时短暂的黑屏
-	bool _firstFrame = true;
 	ComPtr<ID3D11Texture2D> _output;
 	ComPtr<IDXGIOutputDuplication> _outputDup;
 	std::vector<BYTE> _dupMetaData;
+
+	HANDLE _hDDPThread = NULL;
+	HANDLE _hTerminateThreadEvent = NULL;
+	ComPtr<ID3D11Device> _ddpD3dDevice;
+	ComPtr<ID3D11DeviceContext> _ddpD3dDC;
+
+	ComPtr<ID3D11Texture2D> _sharedTex;
+	ComPtr<IDXGIKeyedMutex> _sharedTexMutex;
+	ComPtr<ID3D11Texture2D> _ddpSharedTex;
+	ComPtr<IDXGIKeyedMutex> _ddpSharedTexMutex;
 
 	RECT _srcClientInMonitor{};
 	D3D11_BOX _frameInMonitor{};

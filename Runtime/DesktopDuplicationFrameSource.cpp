@@ -65,20 +65,12 @@ static ComPtr<IDXGIOutput1> GetDXGIOutput(HMONITOR hMonitor) {
 	return nullptr;
 }
 
-ComPtr<ID3D11Device> d3dDevice;
-ComPtr<ID3D11DeviceContext> d3dDC;
-HANDLE hDDPThread = NULL;
-HANDLE hTerminateThreadEvent = NULL;
-ComPtr<IDXGIKeyedMutex> sharedTexMutex;
-ComPtr<ID3D11Texture2D> sharedTex;
-ComPtr<ID3D11Texture2D> sharedTex1;
-ComPtr<IDXGIKeyedMutex> sharedTexMutex1;
+
 HANDLE hSharedTex = NULL;
 
 DesktopDuplicationFrameSource::~DesktopDuplicationFrameSource() {
-	SetEvent(hTerminateThreadEvent);
-	WaitForSingleObject(hDDPThread, INFINITE);
-	ResetEvent(hTerminateThreadEvent);
+	SetEvent(_hTerminateThreadEvent);
+	WaitForSingleObject(_hDDPThread, INFINITE);
 }
 
 bool DesktopDuplicationFrameSource::Initialize() {
@@ -89,8 +81,8 @@ bool DesktopDuplicationFrameSource::Initialize() {
 		return false;
 	}
 
-	hTerminateThreadEvent = CreateEvent(nullptr, TRUE, FALSE, nullptr);
-	if (!hTerminateThreadEvent) {
+	_hTerminateThreadEvent = CreateEvent(nullptr, TRUE, FALSE, nullptr);
+	if (!_hTerminateThreadEvent) {
 		return false;
 	}
 
@@ -116,20 +108,20 @@ bool DesktopDuplicationFrameSource::Initialize() {
 	}
 
 	desc.MiscFlags = D3D11_RESOURCE_MISC_SHARED_KEYEDMUTEX;
-	hr = App::GetInstance().GetRenderer().GetD3DDevice()->CreateTexture2D(&desc, nullptr, &sharedTex);
+	hr = App::GetInstance().GetRenderer().GetD3DDevice()->CreateTexture2D(&desc, nullptr, &_sharedTex);
 	if (FAILED(hr)) {
 		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("创建 Texture2D 失败", hr));
 		return false;
 	}
 
-	hr = sharedTex.As<IDXGIKeyedMutex>(&sharedTexMutex);
+	hr = _sharedTex.As<IDXGIKeyedMutex>(&_sharedTexMutex);
 	if (FAILED(hr)) {
 		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("检索 IDXGIKeyedMutex 失败", hr));
 		return false;
 	}
 
 	ComPtr<IDXGIResource> sharedDxgiRes;
-	hr = sharedTex.As<IDXGIResource>(&sharedDxgiRes);
+	hr = _sharedTex.As<IDXGIResource>(&sharedDxgiRes);
 	if (FAILED(hr)) {
 		return false;
 	}
@@ -138,60 +130,6 @@ bool DesktopDuplicationFrameSource::Initialize() {
 	if (FAILED(hr)) {
 		return false;
 	}
-
-	// 使全屏窗口无法被捕获到
-	if (!SetWindowDisplayAffinity(App::GetInstance().GetHwndHost(), WDA_EXCLUDEFROMCAPTURE)) {
-		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("SetWindowDisplayAffinity 失败"));
-		return false;
-	}
-
-	
-
-	hDDPThread = CreateThread(nullptr, 0, _DDPThreadProc, nullptr, 0, nullptr);
-	if (!hDDPThread) {
-		return false;
-	}
-
-	SPDLOG_LOGGER_INFO(logger, "DesktopDuplicationFrameSource 初始化完成");
-	return true;
-}
-
-std::atomic<UINT> frameCount = 0;
-
-FrameSourceBase::UpdateState DesktopDuplicationFrameSource::Update() {
-	static UINT f = 0;
-	UINT newF = frameCount.load();
-	if (f == newF) {
-		SPDLOG_LOGGER_INFO(logger, "NoUpdate");
-		return UpdateState::NoUpdate;
-	}
-
-	f = newF;
-
-	HRESULT hr = sharedTexMutex->AcquireSync(1, 1);
-	if (hr == static_cast<HRESULT>(WAIT_TIMEOUT)) {
-		return UpdateState::Waiting;
-	}
-
-	SPDLOG_LOGGER_INFO(logger, "NewFrame");
-	
-	if (FAILED(hr)) {
-		SPDLOG_LOGGER_ERROR(logger, "AcquireSync 失败");
-		return UpdateState::Error;
-	}
-
-	const auto& dc = App::GetInstance().GetRenderer().GetD3DDC();
-	dc->CopyResource(_output.Get(), sharedTex.Get());
-
-	sharedTexMutex->ReleaseSync(0);
-
-	_firstFrame = false;
-
-	return UpdateState::NewFrame;
-}
-
-DWORD WINAPI DesktopDuplicationFrameSource::_DDPThreadProc(LPVOID lpThreadParameter) {
-	DesktopDuplicationFrameSource& that = (DesktopDuplicationFrameSource&)App::GetInstance().GetFrameSource();
 
 	HWND hwndSrc = App::GetInstance().GetHwndSrc();
 	HMONITOR hMonitor = MonitorFromWindow(hwndSrc, MONITOR_DEFAULTTONEAREST);
@@ -233,7 +171,7 @@ DWORD WINAPI DesktopDuplicationFrameSource::_DDPThreadProc(LPVOID lpThreadParame
 
 	D3D_FEATURE_LEVEL fl;
 
-	HRESULT hr = D3D11CreateDevice(
+	hr = D3D11CreateDevice(
 		App::GetInstance().GetRenderer().GetGraphicsAdapter().Get(),
 		D3D_DRIVER_TYPE_UNKNOWN,
 		nullptr,
@@ -241,9 +179,9 @@ DWORD WINAPI DesktopDuplicationFrameSource::_DDPThreadProc(LPVOID lpThreadParame
 		featureLevels,
 		nFeatureLevels,
 		D3D11_SDK_VERSION,
-		&d3dDevice,
+		&_ddpD3dDevice,
 		&fl,
-		&d3dDC
+		&_ddpD3dDC
 	);
 
 	if (FAILED(hr)) {
@@ -251,43 +189,36 @@ DWORD WINAPI DesktopDuplicationFrameSource::_DDPThreadProc(LPVOID lpThreadParame
 		return false;
 	}
 
-	hr = d3dDevice->OpenSharedResource(hSharedTex, IID_PPV_ARGS(&sharedTex1));
+	hr = _ddpD3dDevice->OpenSharedResource(hSharedTex, IID_PPV_ARGS(&_ddpSharedTex));
 	if (FAILED(hr)) {
 		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("OpenSharedResource 失败", hr));
 		return 0;
 	}
 
-	hr = sharedTex1.As<IDXGIKeyedMutex>(&sharedTexMutex1);
+	hr = _ddpSharedTex.As<IDXGIKeyedMutex>(&_ddpSharedTexMutex);
 	if (FAILED(hr)) {
 		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("检索 IDXGIKeyedMutex 失败", hr));
 		return 0;
 	}
 
-	ComPtr<IDXGIOutputDuplication> outputDup;
 	hr = output->DuplicateOutput(
-		d3dDevice.Get(),
-		outputDup.ReleaseAndGetAddressOf()
+		_ddpD3dDevice.Get(),
+		_outputDup.ReleaseAndGetAddressOf()
 	);
 	if (FAILED(hr)) {
 		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("DuplicateOutput 失败", hr));
 		return false;
 	}
 
-	RECT srcClientRect;
-	if (!Utils::GetClientScreenRect(App::GetInstance().GetHwndSrcClient(), srcClientRect)) {
-		SPDLOG_LOGGER_ERROR(logger, "GetClientScreenRect 失败");
-		return false;
-	}
-
 	// 计算源窗口客户区在该屏幕上的位置，用于计算新帧是否有更新
-	RECT _srcClientInMonitor = {
+	_srcClientInMonitor = {
 		srcClientRect.left - mi.rcMonitor.left,
 		srcClientRect.top - mi.rcMonitor.top,
 		srcClientRect.right - mi.rcMonitor.left,
 		srcClientRect.bottom - mi.rcMonitor.top
 	};
 
-	D3D11_BOX _frameInMonitor = {
+	_frameInMonitor = {
 		(UINT)_srcClientInMonitor.left,
 		(UINT)_srcClientInMonitor.top,
 		0,
@@ -296,18 +227,70 @@ DWORD WINAPI DesktopDuplicationFrameSource::_DDPThreadProc(LPVOID lpThreadParame
 		1
 	};
 
+	// 使全屏窗口无法被捕获到
+	if (!SetWindowDisplayAffinity(App::GetInstance().GetHwndHost(), WDA_EXCLUDEFROMCAPTURE)) {
+		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("SetWindowDisplayAffinity 失败"));
+		return false;
+	}
+	
+
+	_hDDPThread = CreateThread(nullptr, 0, _DDPThreadProc, nullptr, 0, nullptr);
+	if (!_hDDPThread) {
+		return false;
+	}
+
+	SPDLOG_LOGGER_INFO(logger, "DesktopDuplicationFrameSource 初始化完成");
+	return true;
+}
+
+std::atomic<UINT> frameCount = 0;
+bool waiting = true;
+
+FrameSourceBase::UpdateState DesktopDuplicationFrameSource::Update() {
+	static UINT f = 0;
+	UINT newF = frameCount.load();
+	if (f == newF) {
+		return waiting ? UpdateState::Waiting : UpdateState::NoUpdate;
+	}
+
+	f = newF;
+
+	HRESULT hr = _sharedTexMutex->AcquireSync(1, 100);
+	if (hr == static_cast<HRESULT>(WAIT_TIMEOUT)) {
+		waiting = true;
+		return UpdateState::Waiting;
+	}
+	
+	if (FAILED(hr)) {
+		SPDLOG_LOGGER_ERROR(logger, "AcquireSync 失败");
+		return UpdateState::Error;
+	}
+
+	waiting = false;
+
+	const auto& dc = App::GetInstance().GetRenderer().GetD3DDC();
+	dc->CopyResource(_output.Get(), _sharedTex.Get());
+
+	_sharedTexMutex->ReleaseSync(0);
+
+	return UpdateState::NewFrame;
+}
+
+DWORD WINAPI DesktopDuplicationFrameSource::_DDPThreadProc(LPVOID lpThreadParameter) {
+	DesktopDuplicationFrameSource& that = (DesktopDuplicationFrameSource&)App::GetInstance().GetFrameSource();
+
 	DXGI_OUTDUPL_FRAME_INFO info{};
 	ComPtr<IDXGIResource> dxgiRes;
 	std::vector<BYTE> dupMetaData;
 
 	bool waitToProcessCurrentFrame = false;
 
-	while ((WaitForSingleObjectEx(hTerminateThreadEvent, 0, FALSE) == WAIT_TIMEOUT)) {
+	while ((WaitForSingleObjectEx(that._hTerminateThreadEvent, 0, FALSE) == WAIT_TIMEOUT)) {
 		if (!waitToProcessCurrentFrame) {
 			if (dxgiRes) {
-				outputDup->ReleaseFrame();
+				that._outputDup->ReleaseFrame();
 			}
-			HRESULT hr = outputDup->AcquireNextFrame(500, &info, &dxgiRes);
+			HRESULT hr = that._outputDup->AcquireNextFrame(500, &info, &dxgiRes);
 			if (hr == DXGI_ERROR_WAIT_TIMEOUT) {
 				continue;
 			}
@@ -329,7 +312,7 @@ DWORD WINAPI DesktopDuplicationFrameSource::_DDPThreadProc(LPVOID lpThreadParame
 				UINT bufSize = info.TotalMetadataBufferSize;
 
 				// move rects
-				hr = outputDup->GetFrameMoveRects(bufSize, (DXGI_OUTDUPL_MOVE_RECT*)dupMetaData.data(), &bufSize);
+				hr = that._outputDup->GetFrameMoveRects(bufSize, (DXGI_OUTDUPL_MOVE_RECT*)dupMetaData.data(), &bufSize);
 				if (FAILED(hr)) {
 					SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("GetFrameMoveRects 失败", hr));
 					continue;
@@ -338,7 +321,7 @@ DWORD WINAPI DesktopDuplicationFrameSource::_DDPThreadProc(LPVOID lpThreadParame
 				UINT nRect = bufSize / sizeof(DXGI_OUTDUPL_MOVE_RECT);
 				for (UINT i = 0; i < nRect; ++i) {
 					const DXGI_OUTDUPL_MOVE_RECT& rect = ((DXGI_OUTDUPL_MOVE_RECT*)dupMetaData.data())[i];
-					if (Utils::CheckOverlap(_srcClientInMonitor, rect.DestinationRect)) {
+					if (Utils::CheckOverlap(that._srcClientInMonitor, rect.DestinationRect)) {
 						noUpdate = false;
 						break;
 					}
@@ -348,7 +331,7 @@ DWORD WINAPI DesktopDuplicationFrameSource::_DDPThreadProc(LPVOID lpThreadParame
 					bufSize = info.TotalMetadataBufferSize;
 
 					// dirty rects
-					hr = outputDup->GetFrameDirtyRects(bufSize, (RECT*)dupMetaData.data(), &bufSize);
+					hr = that._outputDup->GetFrameDirtyRects(bufSize, (RECT*)dupMetaData.data(), &bufSize);
 					if (FAILED(hr)) {
 						SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("GetFrameDirtyRects 失败", hr));
 						continue;
@@ -357,8 +340,7 @@ DWORD WINAPI DesktopDuplicationFrameSource::_DDPThreadProc(LPVOID lpThreadParame
 					nRect = bufSize / sizeof(RECT);
 					for (UINT i = 0; i < nRect; ++i) {
 						const RECT& rect = ((RECT*)dupMetaData.data())[i];
-						OutputDebugString(fmt::format(L"{},{}\n", rect.right - rect.left, rect.bottom - rect.top).c_str());
-						if (Utils::CheckOverlap(_srcClientInMonitor, rect)) {
+						if (Utils::CheckOverlap(that._srcClientInMonitor, rect)) {
 							noUpdate = false;
 							break;
 						}
@@ -371,7 +353,7 @@ DWORD WINAPI DesktopDuplicationFrameSource::_DDPThreadProc(LPVOID lpThreadParame
 			}
 		}
 
-		HRESULT hr = sharedTexMutex1->AcquireSync(0, 100);
+		HRESULT hr = that._ddpSharedTexMutex->AcquireSync(0, 100);
 		if (hr == static_cast<HRESULT>(WAIT_TIMEOUT)) {
 			waitToProcessCurrentFrame = true;
 			continue;
@@ -384,18 +366,16 @@ DWORD WINAPI DesktopDuplicationFrameSource::_DDPThreadProc(LPVOID lpThreadParame
 			continue;
 		}
 
-		Utils::ScopeExit se([&]() {
-			sharedTexMutex1->ReleaseSync(1);
-		});
-
 		ComPtr<ID3D11Resource> d3dRes;
 		hr = dxgiRes.As<ID3D11Resource>(&d3dRes);
 		if (FAILED(hr)) {
 			SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("从 IDXGIResource 检索 ID3D11Resource 失败", hr));
+			that._ddpSharedTexMutex->ReleaseSync(1);
 			continue;
 		}
 
-		d3dDC->CopySubresourceRegion(sharedTex1.Get(), 0, 0, 0, 0, d3dRes.Get(), 0, &_frameInMonitor);
+		that._ddpD3dDC->CopySubresourceRegion(that._ddpSharedTex.Get(), 0, 0, 0, 0, d3dRes.Get(), 0, &that._frameInMonitor);
+		that._ddpSharedTexMutex->ReleaseSync(1);
 		++frameCount;
 	}
 

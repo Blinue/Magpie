@@ -425,12 +425,6 @@ bool Renderer::_InitD3D() {
 		return false;
 	}
 
-	// 将 GPU 优先级设为最高，不一定有用
-	hr = _dxgiDevice->SetGPUThreadPriority(7);
-	if (FAILED(hr)) {
-		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("SetGPUThreadPriority", hr));
-	}
-
 	return true;
 }
 
