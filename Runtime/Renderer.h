@@ -65,6 +65,9 @@ public:
 	bool CompileShader(bool isVS, std::string_view hlsl, const char* entryPoint,
 		ID3DBlob** blob, const char* sourceName = nullptr, ID3DInclude* include = nullptr);
 
+	// 测试 D3D 调试层是否可用
+	static bool IsDebugLayersAvailable();
+
 private:
 	bool _InitD3D();
 

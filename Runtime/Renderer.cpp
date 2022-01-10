@@ -193,26 +193,6 @@ bool Renderer::SetSimpleVS(ID3D11Buffer* simpleVB) {
 	return true;
 }
 
-#ifdef _DEBUG
-// Check for SDK Layer support.
-bool SdkLayersAvailable() noexcept {
-	HRESULT hr = D3D11CreateDevice(
-		nullptr,
-		D3D_DRIVER_TYPE_NULL,       // There is no need to create a real hardware device.
-		nullptr,
-		D3D11_CREATE_DEVICE_DEBUG,  // Check for the SDK layers.
-		nullptr,                    // Any feature level will do.
-		0,
-		D3D11_SDK_VERSION,
-		nullptr,                    // No need to keep the D3D device reference.
-		nullptr,                    // No need to know the feature level.
-		nullptr                     // No need to keep the D3D device context reference.
-	);
-
-	return SUCCEEDED(hr);
-}
-#endif
-
 static inline void LogAdapter(const DXGI_ADAPTER_DESC1& adapterDesc) {
 	SPDLOG_LOGGER_INFO(logger, fmt::format("当前图形适配器：\n\tVendorId：{:#x}\n\tDeviceId：{:#x}\n\t描述：{}",
 		adapterDesc.VendorId, adapterDesc.DeviceId, StrUtils::UTF16ToUTF8(adapterDesc.Description)));
@@ -302,6 +282,36 @@ bool Renderer::CompileShader(bool isVS, std::string_view hlsl, const char* entry
 	return true;
 }
 
+// 测试 D3D 调试层是否可用
+
+bool Renderer::IsDebugLayersAvailable() {
+#ifdef _DEBUG
+	static std::optional<bool> result = std::nullopt;
+
+	if (!result.has_value()) {
+		HRESULT hr = D3D11CreateDevice(
+			nullptr,
+			D3D_DRIVER_TYPE_NULL,       // There is no need to create a real hardware device.
+			nullptr,
+			D3D11_CREATE_DEVICE_DEBUG,  // Check for the SDK layers.
+			nullptr,                    // Any feature level will do.
+			0,
+			D3D11_SDK_VERSION,
+			nullptr,                    // No need to keep the D3D device reference.
+			nullptr,                    // No need to know the feature level.
+			nullptr                     // No need to keep the D3D device context reference.
+		);
+
+		result = SUCCEEDED(hr);
+	}
+
+	return result.value_or(false);
+#else
+	// Relaese 配置不使用调试层
+	return false;
+#endif
+}
+
 bool Renderer::_InitD3D() {
 	HRESULT hr = CreateDXGIFactory1(IID_PPV_ARGS(_dxgiFactory.ReleaseAndGetAddressOf()));
 	if (FAILED(hr)) {
@@ -330,15 +340,10 @@ bool Renderer::_InitD3D() {
 	}
 
 	UINT createDeviceFlags = D3D11_CREATE_DEVICE_BGRA_SUPPORT;
-#ifdef _DEBUG
-	createDeviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
-	if (SdkLayersAvailable()) {
+	if (IsDebugLayersAvailable()) {
 		// 在 DEBUG 配置启用调试层
 		createDeviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
-	} else {
-		SPDLOG_LOGGER_INFO(logger, "D3D11 调试层不可用");
 	}
-#endif
 
 	D3D_FEATURE_LEVEL featureLevels[] = {
 		D3D_FEATURE_LEVEL_11_1,
@@ -374,7 +379,7 @@ bool Renderer::_InitD3D() {
 	);
 
 	if (FAILED(hr)) {
-		SPDLOG_LOGGER_WARN(logger, "D3D11CreateDevice 失败");
+		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("D3D11CreateDevice 失败", hr));
 		return false;
 	}
 

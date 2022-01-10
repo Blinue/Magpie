@@ -2,6 +2,8 @@
 #include "FrameSourceBase.h"
 
 
+// 使用 Desktop Duplication API 捕获窗口
+// 在单独的线程中接收屏幕帧以避免丢帧
 class DesktopDuplicationFrameSource : public FrameSourceBase {
 public:
 	DesktopDuplicationFrameSource() {};
@@ -24,6 +26,8 @@ public:
 	}
 
 private:
+	bool _InitializeDdpD3D(HANDLE hSharedTex);
+
 	static DWORD WINAPI _DDPThreadProc(LPVOID lpThreadParameter);
 
 	ComPtr<ID3D11Texture2D> _output;
