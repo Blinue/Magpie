@@ -1,10 +1,10 @@
-using Newtonsoft.Json.Linq;
 using System;
 using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Windows;
 using System.Windows.Resources;
+using System.Text.Json;
 
 
 namespace Magpie {
@@ -67,18 +67,15 @@ namespace Magpie {
 
 			try {
 				// 解析缩放配置
-				scaleModels = JArray.Parse(json)
-					 .Select(t => {
-						 string? name = t["name"]?.ToString(Newtonsoft.Json.Formatting.None);
-						 string? effects = t["effects"]?.ToString(Newtonsoft.Json.Formatting.None);
-						 return name == null || effects == null
-							 ? throw new Exception("未找到 name 或 model 属性")
-							 : new ScaleModel {
-								 Name = name[1..^1],
-								 Effects = effects
-							 };
-					 })
-					 .ToArray();
+				scaleModels = JsonDocument
+					.Parse(json, new JsonDocumentOptions { CommentHandling = JsonCommentHandling.Skip })
+					.RootElement
+					.EnumerateArray()
+					.Select(e => new ScaleModel {
+						Name = e.GetProperty("name").GetRawText(),
+						Effects = e.GetProperty("effects").GetRawText()
+					})
+					.ToArray();
 
 				if (scaleModels.Length == 0) {
 					throw new Exception("数组为空");
