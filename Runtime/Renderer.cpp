@@ -282,8 +282,6 @@ bool Renderer::CompileShader(bool isVS, std::string_view hlsl, const char* entry
 	return true;
 }
 
-// 测试 D3D 调试层是否可用
-
 bool Renderer::IsDebugLayersAvailable() {
 #ifdef _DEBUG
 	static std::optional<bool> result = std::nullopt;

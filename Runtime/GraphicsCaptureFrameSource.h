@@ -59,7 +59,7 @@ private:
 
 	// 用于线程同步
 	CONDITION_VARIABLE _cv{};
-	CRITICAL_SECTION _cs;
+	CRITICAL_SECTION _cs{};
 	bool _newFrameArrived = false;
 
 	ComPtr<ID3D11DeviceContext> _d3dDC;
