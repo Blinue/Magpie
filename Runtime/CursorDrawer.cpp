@@ -195,13 +195,19 @@ void CursorDrawer::_DynamicClip(POINT cursorPt) {
 	t = double(cursorPt.y - srcClientRect.top) / (srcClientRect.bottom - srcClientRect.top);
 	hostPt.y = std::lround(t * (_destRect.bottom - _destRect.top)) + _destRect.top + hostRect.top;
 
-	// MonitorFromPoint 非常快，无需优化
-	std::array<bool, 4> clips = {
-		!MonitorFromPoint({ hostRect.left - 1, hostPt.y }, MONITOR_DEFAULTTONULL),	// left
-		!MonitorFromPoint({ hostPt.x, hostRect.top - 1 }, MONITOR_DEFAULTTONULL),	// top
-		!MonitorFromPoint({ hostRect.right, hostPt.y }, MONITOR_DEFAULTTONULL),		// right
-		!MonitorFromPoint({ hostPt.x, hostRect.bottom }, MONITOR_DEFAULTTONULL)		// bottom
-	};
+	std::array<bool, 4> clips{};
+	// left
+	RECT rect{ LONG_MIN, hostPt.y, hostRect.left, hostPt.y + 1 };
+	clips[0] = !MonitorFromRect(&rect, MONITOR_DEFAULTTONULL);
+	// top
+	rect = { hostPt.x, LONG_MIN, hostPt.x + 1,hostRect.top };
+	clips[1] = !MonitorFromRect(&rect, MONITOR_DEFAULTTONULL);
+	// right
+	rect = { hostRect.right, hostPt.y, LONG_MAX, hostPt.y + 1 };
+	clips[2] = !MonitorFromRect(&rect, MONITOR_DEFAULTTONULL);
+	// bottom
+	rect = { hostPt.x, hostRect.bottom, hostPt.x + 1, LONG_MAX };
+	clips[3] = !MonitorFromRect(&rect, MONITOR_DEFAULTTONULL);
 
 	// 开启“在 3D 游戏中限制光标”则每帧都限制一次光标
 	if (App::GetInstance().IsConfineCursorIn3DGames() || clips != _curClips) {
@@ -221,6 +227,10 @@ bool CursorDrawer::Update() {
 	if (!App::GetInstance().IsMultiMonitorMode()) {
 		return true;
 	}
+
+	// _DynamicClip 根据当前光标位置的四个方向有无屏幕来确定应该在哪些方向限制光标，但这无法
+	// 处理屏幕之间存在间隙的情况。解决办法是 _StopCapture 只在目标位置存在屏幕时才取消捕获，
+	// 当光标试图移动到间隙中时将被挡住。如果光标的速度足以跨越间隙，则它依然可以在屏幕间移动。
 
 	POINT cursorPt;
 	if (!GetCursorPos(&cursorPt)) {
@@ -490,6 +500,7 @@ void CursorDrawer::_StopCapture(POINT cursorPt) {
 	// 在以下情况下离开捕获状态：
 	// 1. 当前处于捕获状态
 	// 2. 光标离开源窗口客户区
+	// 3. 目标位置存在屏幕
 	//
 	// 离开捕获状态时
 	// 1. 还原光标速度，全局显示光标
@@ -497,43 +508,53 @@ void CursorDrawer::_StopCapture(POINT cursorPt) {
 	//
 	// 在有黑边的情况下自动将光标调整到全屏窗口外
 
-	ClipCursor(nullptr);
-	_curClips = {};
-
 	const RECT& srcClientRect = App::GetInstance().GetSrcClientRect();
 	const RECT& hostRect = App::GetInstance().GetHostWndRect();
 
+	POINT newCursorPt{};
+
 	if (cursorPt.x >= srcClientRect.right) {
-		cursorPt.x = hostRect.right + cursorPt.x - srcClientRect.right + 1;
+		newCursorPt.x = hostRect.right + cursorPt.x - srcClientRect.right + 1;
 	} else if (cursorPt.x < srcClientRect.left) {
-		cursorPt.x = hostRect.left + cursorPt.x - srcClientRect.left;
+		newCursorPt.x = hostRect.left + cursorPt.x - srcClientRect.left;
 	} else {
 		double pos = double(cursorPt.x - srcClientRect.left) / (srcClientRect.right - srcClientRect.left);
-		cursorPt.x = std::lround(pos * (_destRect.right - _destRect.left)) + _destRect.left + hostRect.left;
+		newCursorPt.x = std::lround(pos * (_destRect.right - _destRect.left)) + _destRect.left + hostRect.left;
 	}
 
 	if (cursorPt.y >= srcClientRect.bottom) {
-		cursorPt.y = hostRect.bottom + cursorPt.y - srcClientRect.bottom + 1;
+		newCursorPt.y = hostRect.bottom + cursorPt.y - srcClientRect.bottom + 1;
 	} else if (cursorPt.y < srcClientRect.top) {
-		cursorPt.y = hostRect.top + cursorPt.y - srcClientRect.top;
+		newCursorPt.y = hostRect.top + cursorPt.y - srcClientRect.top;
 	} else {
 		double pos = double(cursorPt.y - srcClientRect.top) / (srcClientRect.bottom - srcClientRect.top);
-		cursorPt.y = std::lround(pos * (_destRect.bottom - _destRect.top)) + _destRect.top + hostRect.top;
+		newCursorPt.y = std::lround(pos * (_destRect.bottom - _destRect.top)) + _destRect.top + hostRect.top;
 	}
 
-	SetCursorPos(cursorPt.x, cursorPt.y);
+	if (MonitorFromPoint(newCursorPt, MONITOR_DEFAULTTONULL)) {
+		ClipCursor(nullptr);
+		_curClips = {};
 
-	if (App::GetInstance().IsAdjustCursorSpeed()) {
-		SystemParametersInfo(SPI_SETMOUSESPEED, 0, (PVOID)(intptr_t)_cursorSpeed, 0);
+		SetCursorPos(newCursorPt.x, newCursorPt.y);
+
+		if (App::GetInstance().IsAdjustCursorSpeed()) {
+			SystemParametersInfo(SPI_SETMOUSESPEED, 0, (PVOID)(intptr_t)_cursorSpeed, 0);
+		}
+
+		if (!MagShowSystemCursor(TRUE)) {
+			SPDLOG_LOGGER_ERROR(logger, "MagShowSystemCursor 失败");
+		}
+		// WGC 捕获模式会随机使 MagShowSystemCursor(TRUE) 失效，重新加载光标可以解决这个问题
+		SystemParametersInfo(SPI_SETCURSORS, 0, 0, 0);
+
+		_isUnderCapture = false;
+	} else {
+		// 目标位置不存在屏幕，则将光标限制在源窗口内
+		SetCursorPos(
+		 std::clamp(cursorPt.x, srcClientRect.left, srcClientRect.right - 1),
+		 std::clamp(cursorPt.y, srcClientRect.top, srcClientRect.bottom - 1)
+		);
 	}
-
-	if (!MagShowSystemCursor(TRUE)) {
-		SPDLOG_LOGGER_ERROR(logger, "MagShowSystemCursor 失败");
-	}
-	// WGC 捕获模式会随机使 MagShowSystemCursor(TRUE) 失效，重新加载光标可以解决这个问题
-	SystemParametersInfo(SPI_SETCURSORS, 0, 0, 0);
-
-	_isUnderCapture = false;
 }
 
 void CursorDrawer::Draw() {
