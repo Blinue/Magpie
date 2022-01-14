@@ -125,11 +125,22 @@ namespace Magpie {
 		[DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
 		public static extern IntPtr LoadLibrary(string path);
 
+		[DllImport("kernel32.dll", CharSet = CharSet.Ansi, ExactSpelling = true)]
+		private static extern int lstrlenA(IntPtr ptr);
+
+		private static unsafe string? PtrToUTF8String(IntPtr ptr) {
+			if (ptr == IntPtr.Zero) {
+				return null;
+			}
+
+			return Encoding.UTF8.GetString((byte*)ptr, lstrlenA(ptr));
+		}
+
 		/*
 		 * Runtime.dll
 		 */
 
-		[DllImport("Runtime", CallingConvention = CallingConvention.StdCall)]
+		[DllImport("MagpieRT", CallingConvention = CallingConvention.StdCall)]
 		[return: MarshalAs(UnmanagedType.Bool)]
 		public static extern bool Initialize(
 			uint logLevel,
@@ -138,10 +149,10 @@ namespace Magpie {
 			int logMaxArchiveFiles
 		);
 
-		[DllImport("Runtime", CallingConvention = CallingConvention.StdCall)]
+		[DllImport("MagpieRT", CallingConvention = CallingConvention.StdCall)]
 		public static extern void SetLogLevel(uint logLevel);
 
-		[DllImport("Runtime", EntryPoint = "Run", CallingConvention = CallingConvention.StdCall)]
+		[DllImport("MagpieRT", EntryPoint = "Run", CallingConvention = CallingConvention.StdCall)]
 		private static extern IntPtr RunNative(
 			IntPtr hwndSrc,
 			[MarshalAs(UnmanagedType.LPUTF8Str)] string effectsJson,
@@ -154,15 +165,13 @@ namespace Magpie {
 			uint flags
 		);
 
-		[DllImport("kernel32.dll", CharSet = CharSet.Ansi, ExactSpelling = true)]
-		private static extern int lstrlenA(IntPtr ptr);
+		[DllImport("MagpieRT", EntryPoint = "GetAllGraphicsAdapters", CallingConvention = CallingConvention.StdCall)]
+		private static extern IntPtr GetAllGraphicsAdaptersNative([MarshalAs(UnmanagedType.LPUTF8Str)] string delimiter);
 
-		private static unsafe string? PtrToUTF8String(IntPtr ptr) {
-			if (ptr == IntPtr.Zero) {
-				return null;
-			}
-			
-			return Encoding.UTF8.GetString((byte*)ptr, lstrlenA(ptr));
+		public static string[] GetAllGraphicsAdapters() {
+			string delimiter = @"/$@\";
+			string result = PtrToUTF8String(GetAllGraphicsAdaptersNative(delimiter))!;
+			return result.Split(delimiter, StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
 		}
 
 		public static string? Run(
@@ -178,15 +187,6 @@ namespace Magpie {
 		) {
 			return PtrToUTF8String(RunNative(hwndSrc, effectsJson, captureMode,
 				frameRate, cursorZoomFactor, cursorInterpolationMode, adapterIdx, multiMonitorUsage, flags));
-		}
-
-		[DllImport("Runtime", EntryPoint = "GetAllGraphicsAdapters", CallingConvention = CallingConvention.StdCall)]
-		private static extern IntPtr GetAllGraphicsAdaptersNative([MarshalAs(UnmanagedType.LPUTF8Str)] string delimiter);
-
-		public static string[] GetAllGraphicsAdapters() {
-			string delimiter = @"/$@\";
-			string result = PtrToUTF8String(GetAllGraphicsAdaptersNative(delimiter))!;
-			return result.Split(delimiter, StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
 		}
 	}
 }
