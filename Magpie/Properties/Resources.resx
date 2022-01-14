@@ -223,6 +223,9 @@
   <data name="UI_Options_Advanced_Debugging" xml:space="preserve">
     <value>Debugging</value>
   </data>
+  <data name="UI_Options_Advanced_Disable_DirectFlip" xml:space="preserve">
+    <value>Disable DirectFlip</value>
+  </data>
   <data name="UI_Options_Advanced_Disable_Effect_Cache" xml:space="preserve">
     <value>Disable Effect Cache</value>
   </data>
@@ -313,9 +316,6 @@
   <data name="UI_Options_Scale_Cursor_Zoom_Factor" xml:space="preserve">
     <value>Zoom Factor of the Cursor</value>
   </data>
-  <data name="UI_Options_Advanced_Disable_DirectFlip" xml:space="preserve">
-    <value>Disable DirectFlip</value>
-  </data>
   <data name="UI_Options_Scale_Disable_Low_Latency" xml:space="preserve">
     <value>Allow Additional Latency to Improve Performance</value>
   </data>
@@ -381,5 +381,11 @@
   </data>
   <data name="UI_SysTray_Scale_After_5S" xml:space="preserve">
     <value>Scale after 5s</value>
+  </data>
+  <data name="UI_SysTray_Text" xml:space="preserve">
+    <value>Magpie
+Hotkey: {0}
+Scaling Mode: {1}
+Capture Method: {2}</value>
   </data>
 </root>

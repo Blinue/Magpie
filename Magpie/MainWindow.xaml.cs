@@ -113,11 +113,20 @@ namespace Magpie {
 			cbbScaleMode.SelectionChanged += CbbScaleMode_SelectionChanged;
 			cbbCaptureMethod.SelectionChanged += CbbCaptureMethod_SelectionChanged;
 		}
+
+		void UpdateNotifyIconText() {
+			notifyIcon.Text = string.Format(
+				Properties.Resources.UI_SysTray_Text,
+				Settings.Default.Hotkey,
+				cbbScaleMode.SelectedItem?.ToString(),
+				((ComboBoxItem)cbbCaptureMethod.SelectedItem)?.Content.ToString()
+			);
+		}
 		
 		void InitNotifyIcon() {
 			notifyIcon.Visible = false;
 
-			notifyIcon.Text = Title;
+			UpdateNotifyIconText();
 			notifyIcon.MouseClick += NotifyIcon_MouseClick;
 
 			ContextMenuStrip menu = new();
@@ -391,6 +400,7 @@ namespace Magpie {
 		
 		private void Window_StateChanged(object sender, EventArgs e) {
 			if (WindowState == WindowState.Minimized) {
+				UpdateNotifyIconText();
 				Hide();
 				notifyIcon.Visible = true;
 			} else {

@@ -851,5 +851,17 @@ namespace Magpie.Properties {
                 return ResourceManager.GetString("UI_SysTray_Scale_After_5S", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   查找类似 Magpie
+        ///Hotkey: {0}
+        ///Scaling Mode: {1}
+        ///Capture Method: {2} 的本地化字符串。
+        /// </summary>
+        public static string UI_SysTray_Text {
+            get {
+                return ResourceManager.GetString("UI_SysTray_Text", resourceCulture);
+            }
+        }
     }
 }

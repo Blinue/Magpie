@@ -222,6 +222,9 @@
   <data name="UI_Options_Advanced_Debugging" xml:space="preserve">
     <value>调试</value>
   </data>
+  <data name="UI_Options_Advanced_Disable_DirectFlip" xml:space="preserve">
+    <value>禁用 DirectFlip</value>
+  </data>
   <data name="UI_Options_Advanced_Disable_Effect_Cache" xml:space="preserve">
     <value>禁用效果缓存</value>
   </data>
@@ -312,9 +315,6 @@
   <data name="UI_Options_Scale_Cursor_Zoom_Factor" xml:space="preserve">
     <value>光标缩放系数</value>
   </data>
-  <data name="UI_Options_Advanced_Disable_DirectFlip" xml:space="preserve">
-    <value>禁用 DirectFlip</value>
-  </data>
   <data name="UI_Options_Scale_Disable_Low_Latency" xml:space="preserve">
     <value>允许额外的延迟以提高性能</value>
   </data>
@@ -380,5 +380,11 @@
   </data>
   <data name="UI_SysTray_Scale_After_5S" xml:space="preserve">
     <value>5秒后缩放</value>
+  </data>
+  <data name="UI_SysTray_Text" xml:space="preserve">
+    <value>Magpie
+热键：{0}
+缩放模式：{1}
+捕获模式：{2}</value>
   </data>
 </root>
