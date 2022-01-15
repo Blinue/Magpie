@@ -358,5 +358,53 @@ namespace Magpie.Properties {
                 this["ShowDebuggingOptions"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public uint ClipLeft {
+            get {
+                return ((uint)(this["ClipLeft"]));
+            }
+            set {
+                this["ClipLeft"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public uint ClipTop {
+            get {
+                return ((uint)(this["ClipTop"]));
+            }
+            set {
+                this["ClipTop"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public uint ClipRight {
+            get {
+                return ((uint)(this["ClipRight"]));
+            }
+            set {
+                this["ClipRight"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public uint ClipBottom {
+            get {
+                return ((uint)(this["ClipBottom"]));
+            }
+            set {
+                this["ClipBottom"] = value;
+            }
+        }
     }
 }

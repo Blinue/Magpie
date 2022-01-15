@@ -156,13 +156,17 @@ namespace Magpie {
 		private static extern IntPtr RunNative(
 			IntPtr hwndSrc,
 			[MarshalAs(UnmanagedType.LPUTF8Str)] string effectsJson,
+			uint flags,
 			uint captureMode,
 			int frameRate,
 			float cursorZoomFactor,
 			uint cursorInterpolationMode,
 			uint adapterIdx,
 			uint multiMonitorMode,
-			uint flags
+			uint clipLeft,
+			uint clipTop,
+			uint clipRight,
+			uint clipBottom
 		);
 
 		[DllImport("MagpieRT", EntryPoint = "GetAllGraphicsAdapters", CallingConvention = CallingConvention.StdCall)]
@@ -177,16 +181,21 @@ namespace Magpie {
 		public static string? Run(
 			IntPtr hwndSrc,
 			string effectsJson,
+			uint flags,
 			uint captureMode,
 			int frameRate,
 			float cursorZoomFactor,
 			uint cursorInterpolationMode,
 			uint adapterIdx,
 			uint multiMonitorUsage,
-			uint flags
+			uint clipLeft,
+			uint clipTop,
+			uint clipRight,
+			uint clipBottom
 		) {
-			return PtrToUTF8String(RunNative(hwndSrc, effectsJson, captureMode,
-				frameRate, cursorZoomFactor, cursorInterpolationMode, adapterIdx, multiMonitorUsage, flags));
+			return PtrToUTF8String(RunNative(hwndSrc, effectsJson, flags, captureMode,
+				frameRate, cursorZoomFactor, cursorInterpolationMode, adapterIdx, multiMonitorUsage,
+				clipLeft, clipTop, clipRight, clipBottom));
 		}
 	}
 }

@@ -263,41 +263,7 @@ namespace Magpie {
 
 			string effectsJson = scaleModelManager.GetScaleModels()![Settings.Default.ScaleMode].Effects;
 
-			int frameRate = 0;
-			switch (Settings.Default.FrameRateType) {
-				case 1:
-					// 不限帧率
-					frameRate = -1;
-					break;
-				case 2:
-					// 限制帧率
-					frameRate = (int)Settings.Default.FrameRateLimit;
-					break;
-				default:
-					// 垂直同步
-					break;
-			}
-
-			magWindow.Create(
-				effectsJson,
-				Settings.Default.CaptureMode,
-				frameRate,
-				Settings.Default.CursorZoomFactor,
-				Settings.Default.CursorInterpolationMode,
-				Settings.Default.AdapterIdx,
-				Settings.Default.MultiMonitorUsage,
-				Settings.Default.ShowFPS,
-				Settings.Default.NoCursor,
-				Settings.Default.AdjustCursorSpeed,
-				Settings.Default.DisableWindowResizing,
-				Settings.Default.DisableLowLatency,
-				Settings.Default.DebugBreakpointMode,
-				Settings.Default.DisableDirectFlip,
-				Settings.Default.ConfineCursorIn3DGames,
-				Settings.Default.CropTitleBarOfUWP,
-				Settings.Default.DebugDisableEffectCache,
-				Settings.Default.SimulateExclusiveFullscreen
-			);
+			magWindow.Create(effectsJson);
 
 			prevSrcWindow = magWindow.SrcWindow;
 		}

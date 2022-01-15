@@ -93,13 +93,17 @@ API_DECLSPEC BOOL WINAPI Initialize(
 API_DECLSPEC const char* WINAPI Run(
 	HWND hwndSrc,
 	const char* effectsJson,
+	UINT flags,
 	UINT captureMode,
 	int frameRate,	// 0：垂直同步，负数：不限帧率，正数：限制的帧率
 	float cursorZoomFactor,	// 负数和 0：和源原窗口相同，正数：缩放比例
 	UINT cursorInterpolationMode,	// 0：最近邻，1：双线性
 	UINT adapterIdx,
 	UINT multiMonitorUsage,	// 0：最近 1：相交 2：所有
-	UINT flags
+	UINT clipLeft,
+	UINT clipTop,
+	UINT clipRight,
+	UINT clipBottom
 ) {
 	if (!hwndSrc || !IsWindow(hwndSrc)) {
 		SPDLOG_LOGGER_CRITICAL(logger, "非法的源窗口句柄");

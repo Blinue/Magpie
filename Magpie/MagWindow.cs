@@ -22,6 +22,7 @@ namespace Magpie {
 		private readonly AutoResetEvent runEvent = new(false);
 
 		private enum MagWindowCmd {
+			None,
 			Run,
 			Exit,
 			SetLogLevel
@@ -30,15 +31,9 @@ namespace Magpie {
 		// 传递给 magThread 的参数
 		private class MagWindowParams {
 			public volatile IntPtr hwndSrc;
-			public volatile uint captureMode;
 			public volatile string effectsJson = "";
-			public volatile int frameRateOrLogLevel;
-			public volatile float cursorZoomFactor;
-			public volatile uint cursorInterpolationMode;
-			public volatile uint adapterIdx;
-			public volatile uint multiMonitorUsage;
-			public volatile uint flags;
-			public volatile MagWindowCmd cmd = MagWindowCmd.Run;
+			public volatile int logLevel;
+			public volatile MagWindowCmd cmd = MagWindowCmd.None;
 		}
 
 		private enum FlagMasks : uint {
@@ -126,25 +121,63 @@ namespace Magpie {
 				Logger.Info("初始化 Runtime 成功");
 
 				while (magWindowParams.cmd != MagWindowCmd.Exit) {
-					_ = runEvent.WaitOne();
+					_ = runEvent.WaitOne(1000);
 
-					if (magWindowParams.cmd == MagWindowCmd.Exit) {
+					MagWindowCmd cmd = magWindowParams.cmd;
+					magWindowParams.cmd = MagWindowCmd.None;
+
+					if (cmd == MagWindowCmd.Exit) {
 						break;
 					}
 
-					if (magWindowParams.cmd == MagWindowCmd.SetLogLevel) {
-						NativeMethods.SetLogLevel(ResolveLogLevel((uint)magWindowParams.frameRateOrLogLevel));
+					if(cmd == MagWindowCmd.None) {
+						continue;
+					}
+
+					if (cmd == MagWindowCmd.SetLogLevel) {
+						NativeMethods.SetLogLevel(ResolveLogLevel((uint)magWindowParams.logLevel));
 					} else {
+						int frameRate = 0;
+						switch (Settings.Default.FrameRateType) {
+							case 1:
+								// 不限帧率
+								frameRate = -1;
+								break;
+							case 2:
+								// 限制帧率
+								frameRate = (int)Settings.Default.FrameRateLimit;
+								break;
+							default:
+								// 垂直同步
+								break;
+						}
+
+						uint flags = (Settings.Default.ShowFPS ? (uint)FlagMasks.ShowFPS : 0) |
+							(Settings.Default.NoCursor ? (uint)FlagMasks.NoCursor : 0) |
+							(Settings.Default.AdjustCursorSpeed ? (uint)FlagMasks.AdjustCursorSpeed : 0) |
+							(Settings.Default.DisableLowLatency ? (uint)FlagMasks.DisableLowLatency : 0) |
+							(Settings.Default.DebugBreakpointMode ? (uint)FlagMasks.BreakpointMode : 0) |
+							(Settings.Default.DisableWindowResizing ? (uint)FlagMasks.DisableWindowResizing : 0) |
+							(Settings.Default.DisableDirectFlip ? (uint)FlagMasks.DisableDirectFlip : 0) |
+							(Settings.Default.ConfineCursorIn3DGames ? (uint)FlagMasks.ConfineCursorIn3DGames : 0) |
+							(Settings.Default.CropTitleBarOfUWP ? (uint)FlagMasks.CropTitleBarOfUWP : 0) |
+							(Settings.Default.DebugDisableEffectCache ? (uint)FlagMasks.DisableEffectCache : 0) |
+							(Settings.Default.SimulateExclusiveFullscreen ? (uint)FlagMasks.SimulateExclusiveFullscreen : 0);
+
 						string? msg = NativeMethods.Run(
 							magWindowParams.hwndSrc,
 							magWindowParams.effectsJson,
-							magWindowParams.captureMode,
-							magWindowParams.frameRateOrLogLevel,
-							magWindowParams.cursorZoomFactor,
-							magWindowParams.cursorInterpolationMode,
-							magWindowParams.adapterIdx,
-							magWindowParams.multiMonitorUsage,
-							magWindowParams.flags
+							flags,
+							Settings.Default.CaptureMode,
+							frameRate,
+							Settings.Default.CursorZoomFactor,
+							Settings.Default.CursorInterpolationMode,
+							Settings.Default.AdapterIdx,
+							Settings.Default.MultiMonitorUsage,
+							Settings.Default.ClipLeft,
+							Settings.Default.ClipTop,
+							Settings.Default.ClipRight,
+							Settings.Default.ClipBottom
 						);
 
 						CloseEvent?.Invoke(msg);
@@ -178,26 +211,7 @@ namespace Magpie {
 			};
 		}
 
-		public void Create(
-			string effectsJson,
-			uint captureMode,
-			int frameRate,
-			float cursorZoomFactor,
-			uint cursorInterpolationMode,
-			uint adapterIdx,
-			uint multiMonitorMode,
-			bool showFPS,
-			bool noCursor,
-			bool adjustCursorSpeed,
-			bool disableWindowResizing,
-			bool disableLowLatency,
-			bool breakpointMode,
-			bool disableDirectFlip,
-			bool confineCursorIn3DGames,
-			bool cropTitleBarOfUWP,
-			bool disableEffectCache,
-			bool simulateExclusiveFullscreen
-		) {
+		public void Create(string effectsJson) {
 			if (Running) {
 				Logger.Info("已存在全屏窗口，取消进入全屏");
 				return;
@@ -216,24 +230,7 @@ namespace Magpie {
 
 			magWindowParams.cmd = MagWindowCmd.Run;
 			magWindowParams.hwndSrc = hwndSrc;
-			magWindowParams.captureMode = captureMode;
 			magWindowParams.effectsJson = effectsJson;
-			magWindowParams.frameRateOrLogLevel = frameRate;
-			magWindowParams.cursorZoomFactor = cursorZoomFactor;
-			magWindowParams.cursorInterpolationMode = cursorInterpolationMode;
-			magWindowParams.adapterIdx = adapterIdx;
-			magWindowParams.multiMonitorUsage = multiMonitorMode;
-			magWindowParams.flags = (showFPS ? (uint)FlagMasks.ShowFPS : 0) |
-				(noCursor ? (uint)FlagMasks.NoCursor : 0) |
-				(adjustCursorSpeed ? (uint)FlagMasks.AdjustCursorSpeed : 0) |
-				(disableLowLatency ? (uint)FlagMasks.DisableLowLatency : 0) |
-				(breakpointMode ? (uint)FlagMasks.BreakpointMode : 0) |
-				(disableWindowResizing ? (uint)FlagMasks.DisableWindowResizing : 0) |
-				(disableDirectFlip ? (uint)FlagMasks.DisableDirectFlip : 0) |
-				(confineCursorIn3DGames ? (uint)FlagMasks.ConfineCursorIn3DGames : 0) |
-				(cropTitleBarOfUWP ? (uint)FlagMasks.CropTitleBarOfUWP : 0) |
-				(disableEffectCache ? (uint)FlagMasks.DisableEffectCache : 0) |
-				(simulateExclusiveFullscreen ? (uint)FlagMasks.SimulateExclusiveFullscreen : 0);
 
 			_ = runEvent.Set();
 			Running = true;
@@ -241,7 +238,7 @@ namespace Magpie {
 
 		public void SetLogLevel(uint logLevel) {
 			magWindowParams.cmd = MagWindowCmd.SetLogLevel;
-			magWindowParams.frameRateOrLogLevel = (int)logLevel;
+			magWindowParams.logLevel = (int)logLevel;
 
 			_ = runEvent.Set();
 		}
