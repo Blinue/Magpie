@@ -83,8 +83,9 @@
         "effect": "CRT_Geom",
         "scale": [ -1, -1 ],
         "curvature": 0,
-        "monitorGamma": 3,
-        "cornerSize": 0.001
+        "cornerSize": 0.001,
+        "CRTGamma": 1.5,
+        "monitorGamma": 2.2
       }
     ]
   },
