@@ -139,7 +139,7 @@
     <value>Этот монитор не поддерживает выключение верт. синхронизации.</value>
   </data>
   <data name="UI_Main_Capture_Method" xml:space="preserve">
-    <value>Метод захвата</value>
+    <value>Способ захвата</value>
   </data>
   <data name="UI_Main_Current_Window" xml:space="preserve">
     <value>Текущее окно: </value>
@@ -223,6 +223,9 @@
   <data name="UI_Options_Advanced_Debugging" xml:space="preserve">
     <value>Отладка</value>
   </data>
+  <data name="UI_Options_Advanced_Disable_DirectFlip" xml:space="preserve">
+    <value>Выключить DirectFlip</value>
+  </data>
   <data name="UI_Options_Advanced_Disable_Effect_Cache" xml:space="preserve">
     <value>Выключить кеш эффектов</value>
   </data>
@@ -248,7 +251,7 @@
     <value>Открыть папку журналов</value>
   </data>
   <data name="UI_Options_Advanced_Show_All_Capture_Methods" xml:space="preserve">
-    <value>Показать все методы захвата</value>
+    <value>Показать все способы захвата</value>
   </data>
   <data name="UI_Options_Advanced_Show_Debugging_Options" xml:space="preserve">
     <value>Показать отладочные настройки</value>
@@ -312,9 +315,6 @@
   </data>
   <data name="UI_Options_Scale_Cursor_Zoom_Factor" xml:space="preserve">
     <value>Множитель увеличения указателя</value>
-  </data>
-  <data name="UI_Options_Advanced_Disable_DirectFlip" xml:space="preserve">
-    <value>Выключить DirectFlip</value>
   </data>
   <data name="UI_Options_Scale_Disable_Low_Latency" xml:space="preserve">
     <value>Добавить задержку для повышения производительности</value>
@@ -381,5 +381,11 @@
   </data>
   <data name="UI_SysTray_Scale_After_5S" xml:space="preserve">
     <value>Увеличить после 5с</value>
+  </data>
+  <data name="UI_SysTray_Text" xml:space="preserve">
+    <value>Magpie
+Клавиша: {0}
+Режим увеличения: {1}
+Способ захвата: {2}</value>
   </data>
 </root>
