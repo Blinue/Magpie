@@ -164,6 +164,8 @@ namespace Magpie {
 							(Settings.Default.DebugDisableEffectCache ? (uint)FlagMasks.DisableEffectCache : 0) |
 							(Settings.Default.SimulateExclusiveFullscreen ? (uint)FlagMasks.SimulateExclusiveFullscreen : 0);
 
+						bool customCropping = Settings.Default.CustomCropping;
+
 						string? msg = NativeMethods.Run(
 							magWindowParams.hwndSrc,
 							magWindowParams.effectsJson,
@@ -174,10 +176,10 @@ namespace Magpie {
 							Settings.Default.CursorInterpolationMode,
 							Settings.Default.AdapterIdx,
 							Settings.Default.MultiMonitorUsage,
-							Settings.Default.ClipLeft,
-							Settings.Default.ClipTop,
-							Settings.Default.ClipRight,
-							Settings.Default.ClipBottom
+							customCropping ? Settings.Default.CropLeft : 0,
+							customCropping ? Settings.Default.CropTop : 0,
+							customCropping ? Settings.Default.CropRight : 0,
+							customCropping ? Settings.Default.CropBottom : 0
 						);
 
 						CloseEvent?.Invoke(msg);

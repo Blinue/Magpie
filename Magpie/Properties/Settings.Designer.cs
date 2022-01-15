@@ -362,48 +362,60 @@ namespace Magpie.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("0")]
-        public uint ClipLeft {
+        public uint CropLeft {
             get {
-                return ((uint)(this["ClipLeft"]));
+                return ((uint)(this["CropLeft"]));
             }
             set {
-                this["ClipLeft"] = value;
+                this["CropLeft"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("0")]
-        public uint ClipTop {
+        public uint CropTop {
             get {
-                return ((uint)(this["ClipTop"]));
+                return ((uint)(this["CropTop"]));
             }
             set {
-                this["ClipTop"] = value;
+                this["CropTop"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("0")]
-        public uint ClipRight {
+        public uint CropRight {
             get {
-                return ((uint)(this["ClipRight"]));
+                return ((uint)(this["CropRight"]));
             }
             set {
-                this["ClipRight"] = value;
+                this["CropRight"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("0")]
-        public uint ClipBottom {
+        public uint CropBottom {
             get {
-                return ((uint)(this["ClipBottom"]));
+                return ((uint)(this["CropBottom"]));
             }
             set {
-                this["ClipBottom"] = value;
+                this["CropBottom"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool CustomCropping {
+            get {
+                return ((bool)(this["CustomCropping"]));
+            }
+            set {
+                this["CustomCropping"] = value;
             }
         }
     }

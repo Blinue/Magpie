@@ -268,6 +268,24 @@
   <data name="UI_Options_Application_Crop_Title_Bar_Of_UWP" xml:space="preserve">
     <value>Crop the Title Bar of UWP Windows</value>
   </data>
+  <data name="UI_Options_Application_Custom_Cropping_Bottom" xml:space="preserve">
+    <value>Bottom</value>
+  </data>
+  <data name="UI_Options_Application_Custom_Cropping_Left" xml:space="preserve">
+    <value>Left</value>
+  </data>
+  <data name="UI_Options_Application_Custom_Cropping_Right" xml:space="preserve">
+    <value>Right</value>
+  </data>
+  <data name="UI_Options_Application_Custom_Cropping_Top" xml:space="preserve">
+    <value>Top</value>
+  </data>
+  <data name="UI_Options_Application_Custom_Cropping_Unit" xml:space="preserve">
+    <value>Unit: pixel</value>
+  </data>
+  <data name="UI_Options_Application_Enable_Custom_Cropping" xml:space="preserve">
+    <value>Enable Custom Cropping</value>
+  </data>
   <data name="UI_Options_Application_Language" xml:space="preserve">
     <value>Language</value>
   </data>

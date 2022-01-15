@@ -267,6 +267,24 @@
   <data name="UI_Options_Application_Crop_Title_Bar_Of_UWP" xml:space="preserve">
     <value>裁剪 UWP 窗口的标题栏</value>
   </data>
+  <data name="UI_Options_Application_Custom_Cropping_Bottom" xml:space="preserve">
+    <value>下</value>
+  </data>
+  <data name="UI_Options_Application_Custom_Cropping_Left" xml:space="preserve">
+    <value>左</value>
+  </data>
+  <data name="UI_Options_Application_Custom_Cropping_Right" xml:space="preserve">
+    <value>右</value>
+  </data>
+  <data name="UI_Options_Application_Custom_Cropping_Top" xml:space="preserve">
+    <value>上</value>
+  </data>
+  <data name="UI_Options_Application_Custom_Cropping_Unit" xml:space="preserve">
+    <value>单位：像素</value>
+  </data>
+  <data name="UI_Options_Application_Enable_Custom_Cropping" xml:space="preserve">
+    <value>启用自定义裁剪</value>
+  </data>
   <data name="UI_Options_Application_Language" xml:space="preserve">
     <value>语言</value>
   </data>

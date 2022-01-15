@@ -86,17 +86,20 @@
     <Setting Name="ShowDebuggingOptions" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
-    <Setting Name="ClipLeft" Type="System.UInt32" Scope="User">
+    <Setting Name="CropLeft" Type="System.UInt32" Scope="User">
       <Value Profile="(Default)">0</Value>
     </Setting>
-    <Setting Name="ClipTop" Type="System.UInt32" Scope="User">
+    <Setting Name="CropTop" Type="System.UInt32" Scope="User">
       <Value Profile="(Default)">0</Value>
     </Setting>
-    <Setting Name="ClipRight" Type="System.UInt32" Scope="User">
+    <Setting Name="CropRight" Type="System.UInt32" Scope="User">
       <Value Profile="(Default)">0</Value>
     </Setting>
-    <Setting Name="ClipBottom" Type="System.UInt32" Scope="User">
+    <Setting Name="CropBottom" Type="System.UInt32" Scope="User">
       <Value Profile="(Default)">0</Value>
+    </Setting>
+    <Setting Name="CustomCropping" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
     </Setting>
   </Settings>
 </SettingsFile>

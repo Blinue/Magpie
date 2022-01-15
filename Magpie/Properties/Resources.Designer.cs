@@ -511,6 +511,60 @@ namespace Magpie.Properties {
         }
         
         /// <summary>
+        ///   查找类似 Bottom 的本地化字符串。
+        /// </summary>
+        public static string UI_Options_Application_Custom_Cropping_Bottom {
+            get {
+                return ResourceManager.GetString("UI_Options_Application_Custom_Cropping_Bottom", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Left 的本地化字符串。
+        /// </summary>
+        public static string UI_Options_Application_Custom_Cropping_Left {
+            get {
+                return ResourceManager.GetString("UI_Options_Application_Custom_Cropping_Left", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Right 的本地化字符串。
+        /// </summary>
+        public static string UI_Options_Application_Custom_Cropping_Right {
+            get {
+                return ResourceManager.GetString("UI_Options_Application_Custom_Cropping_Right", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Top 的本地化字符串。
+        /// </summary>
+        public static string UI_Options_Application_Custom_Cropping_Top {
+            get {
+                return ResourceManager.GetString("UI_Options_Application_Custom_Cropping_Top", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Unit: pixel 的本地化字符串。
+        /// </summary>
+        public static string UI_Options_Application_Custom_Cropping_Unit {
+            get {
+                return ResourceManager.GetString("UI_Options_Application_Custom_Cropping_Unit", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Enable Custom Cropping 的本地化字符串。
+        /// </summary>
+        public static string UI_Options_Application_Enable_Custom_Cropping {
+            get {
+                return ResourceManager.GetString("UI_Options_Application_Enable_Custom_Cropping", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Language 的本地化字符串。
         /// </summary>
         public static string UI_Options_Application_Language {
