@@ -55,10 +55,11 @@
             <CheckBox Content="{x:Static props:Resources.UI_Options_Application_Crop_Title_Bar_Of_UWP}"
                       Margin="0,15,0,0"
                       IsChecked="{Binding Source={x:Static props:Settings.Default},Path=CropTitleBarOfUWP,Mode=TwoWay}" />
-            <CheckBox Content="{x:Static props:Resources.UI_Options_Application_Enable_Custom_Cropping}"
+            <CheckBox x:Name="ckbEnableCustomCropping"
+                      Content="{x:Static props:Resources.UI_Options_Application_Enable_Custom_Cropping}"
                       Margin="0,15,0,0"
                       IsChecked="{Binding Source={x:Static props:Settings.Default},Path=CustomCropping,Mode=TwoWay}" />
-            <Grid Margin="10,15,0,0">
+            <Grid Name="gridCustomCropping" Margin="10,15,0,0">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="Auto" />
@@ -69,22 +70,22 @@
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
-                <Label Content="{x:Static props:Resources.UI_Options_Application_Custom_Cropping_Unit}" Grid.Column="0" Grid.Row="0" Padding="0" HorizontalAlignment="Left" />
+                <Label Content="{x:Static props:Resources.UI_Options_Application_Custom_Cropping_Unit}" Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" Padding="0" HorizontalAlignment="Left" />
                 <Label Content="&#xE710;" FontFamily="Segoe MDL2 Assets" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Center" />
                 <StackPanel Orientation="Horizontal" Grid.Column="0" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center">
                     <Label Content="{x:Static props:Resources.UI_Options_Application_Custom_Cropping_Left}" Padding="0,0,10,0" VerticalContentAlignment="Center" />
-                    <TextBox Width="50" Padding="1,3" HorizontalContentAlignment="Center" />
+                    <TextBox x:Name="tbCropLeft" Width="55" Padding="1,3" HorizontalContentAlignment="Center" MaxLength="4" MaxLines="1" TextChanged="TbCropLeft_TextChanged" GotFocus="TbCropLeft_GotFocus" LostFocus="TbCropLeft_LostFocus" />
                 </StackPanel>
                 <StackPanel Orientation="Vertical" Grid.Column="1" Grid.Row="0" Margin="10,0,10,10" HorizontalAlignment="Center" VerticalAlignment="Center">
                     <Label Content="{x:Static props:Resources.UI_Options_Application_Custom_Cropping_Top}" Padding="0,0,0,5" HorizontalAlignment="Center" />
-                    <TextBox Width="50" Padding="1,3" HorizontalContentAlignment="Center" />
+                    <TextBox x:Name="tbCropTop" Width="55" Padding="1,3" HorizontalContentAlignment="Center" MaxLength="4" MaxLines="1" TextChanged="TbCropTop_TextChanged" GotFocus="TbCropTop_GotFocus" LostFocus="TbCropTop_LostFocus" />
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" Grid.Column="2" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center">
-                    <TextBox Width="50" Padding="1,3" HorizontalContentAlignment="Center" />
+                    <TextBox x:Name="tbCropRight" Width="55" Padding="1,3" HorizontalContentAlignment="Center" MaxLength="4" MaxLines="1" TextChanged="TbCropRight_TextChanged" GotFocus="TbCropRight_GotFocus" LostFocus="TbCropRight_LostFocus" />
                     <Label Content="{x:Static props:Resources.UI_Options_Application_Custom_Cropping_Right}" Padding="10,0,0,0" VerticalContentAlignment="Center" />
                 </StackPanel>
                 <StackPanel Orientation="Vertical" Grid.Column="1" Grid.Row="2" Margin="10,10,10,0" HorizontalAlignment="Center" VerticalAlignment="Center">
-                    <TextBox Width="50" Padding="1,3" HorizontalContentAlignment="Center" />
+                    <TextBox x:Name="tbCropBottom" Width="55" Padding="1,3" HorizontalContentAlignment="Center" MaxLength="4" MaxLines="1" TextChanged="TbCropBottom_TextChanged" GotFocus="TbCropBottom_GotFocus" LostFocus="TbCropBottom_LostFocus" />
                     <Label Content="{x:Static props:Resources.UI_Options_Application_Custom_Cropping_Bottom}" Padding="0,5,0,0" HorizontalAlignment="Center" />
                 </StackPanel>
             </Grid>

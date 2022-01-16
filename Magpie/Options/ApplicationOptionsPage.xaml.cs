@@ -88,6 +88,27 @@ namespace Magpie.Options {
 			} else {
 				CkbRunAsAdmin_Unchecked(ckbRunAsAdmin, new RoutedEventArgs());
 			}
+
+			ckbEnableCustomCropping.Checked += CkbEnableCustomCropping_Checked;
+			ckbEnableCustomCropping.Unchecked += CkbEnableCustomCropping_Unchecked;
+			if (ckbEnableCustomCropping.IsChecked!.Value) {
+				CkbEnableCustomCropping_Checked(ckbEnableCustomCropping, new RoutedEventArgs());
+			} else {
+				CkbEnableCustomCropping_Unchecked(ckbEnableCustomCropping, new RoutedEventArgs());
+			}
+		}
+
+		private void CkbEnableCustomCropping_Unchecked(object sender, RoutedEventArgs e) {
+			gridCustomCropping.Visibility = Visibility.Collapsed;
+		}
+
+		private void CkbEnableCustomCropping_Checked(object sender, RoutedEventArgs e) {
+			tbCropLeft.Text = Settings.Default.CropLeft.ToString();
+			tbCropTop.Text = Settings.Default.CropTop.ToString();
+			tbCropRight.Text = Settings.Default.CropRight.ToString();
+			tbCropBottom.Text = Settings.Default.CropBottom.ToString();
+
+			gridCustomCropping.Visibility = Visibility.Visible;
 		}
 
 		private void CbbLanguage_SelectionChanged(object sender, SelectionChangedEventArgs e) {
@@ -141,6 +162,106 @@ namespace Magpie.Options {
 
 		private void CkbRunAsAdmin_Unchecked(object sender, RoutedEventArgs e) {
 			lblRestartToApply2.Visibility = originRunAsAdmin ? Visibility.Visible : Visibility.Collapsed;
+		}
+
+		private void TbCropTop_TextChanged(object sender, TextChangedEventArgs e) {
+			if (string.IsNullOrEmpty(tbCropTop.Text)) {
+				Settings.Default.CropTop = 0;
+				return;
+			}
+
+			if (uint.TryParse(tbCropTop.Text, out uint result)) {
+				Settings.Default.CropTop = result;
+			} else {
+				tbCropTop.Text = Settings.Default.CropTop.ToString();
+			}
+		}
+
+		private void TbCropLeft_TextChanged(object sender, TextChangedEventArgs e) {
+			if (string.IsNullOrEmpty(tbCropLeft.Text)) {
+				Settings.Default.CropLeft = 0;
+				return;
+			}
+
+			if (uint.TryParse(tbCropLeft.Text, out uint result)) {
+				Settings.Default.CropLeft = result;
+			} else {
+				tbCropLeft.Text = Settings.Default.CropLeft.ToString();
+			}
+		}
+
+		private void TbCropRight_TextChanged(object sender, TextChangedEventArgs e) {
+			if (string.IsNullOrEmpty(tbCropRight.Text)) {
+				Settings.Default.CropRight = 0;
+				return;
+			}
+
+			if (uint.TryParse(tbCropRight.Text, out uint result)) {
+				Settings.Default.CropRight = result;
+			} else {
+				tbCropRight.Text = Settings.Default.CropRight.ToString();
+			}
+		}
+
+		private void TbCropBottom_TextChanged(object sender, TextChangedEventArgs e) {
+			if (string.IsNullOrEmpty(tbCropBottom.Text)) {
+				Settings.Default.CropBottom = 0;
+				return;
+			}
+
+			if (uint.TryParse(tbCropBottom.Text, out uint result)) {
+				Settings.Default.CropBottom = result;
+			} else {
+				tbCropBottom.Text = Settings.Default.CropBottom.ToString();
+			}
+		}
+
+		private void TbCropLeft_GotFocus(object sender, RoutedEventArgs e) {
+			if (tbCropLeft.Text == "0") {
+				tbCropLeft.Text = "";
+			}
+		}
+
+		private void TbCropLeft_LostFocus(object sender, RoutedEventArgs e) {
+			if (tbCropLeft.Text == "") {
+				tbCropLeft.Text = "0";
+			}
+		}
+
+		private void TbCropTop_GotFocus(object sender, RoutedEventArgs e) {
+			if (tbCropTop.Text == "0") {
+				tbCropTop.Text = "";
+			}
+		}
+
+		private void TbCropTop_LostFocus(object sender, RoutedEventArgs e) {
+			if (tbCropTop.Text == "") {
+				tbCropTop.Text = "0";
+			}
+		}
+
+		private void TbCropRight_GotFocus(object sender, RoutedEventArgs e) {
+			if (tbCropRight.Text == "0") {
+				tbCropRight.Text = "";
+			}
+		}
+
+		private void TbCropRight_LostFocus(object sender, RoutedEventArgs e) {
+			if (tbCropRight.Text == "") {
+				tbCropRight.Text = "0";
+			}
+		}
+
+		private void TbCropBottom_GotFocus(object sender, RoutedEventArgs e) {
+			if (tbCropBottom.Text == "0") {
+				tbCropBottom.Text = "";
+			}
+		}
+
+		private void TbCropBottom_LostFocus(object sender, RoutedEventArgs e) {
+			if (tbCropBottom.Text == "") {
+				tbCropBottom.Text = "0";
+			}
 		}
 	}
 }
