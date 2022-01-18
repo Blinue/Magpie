@@ -163,10 +163,10 @@ namespace Magpie {
 			uint cursorInterpolationMode,
 			uint adapterIdx,
 			uint multiMonitorMode,
-			uint clipLeft,
-			uint clipTop,
-			uint clipRight,
-			uint clipBottom
+			uint cropLeft,
+			uint cropTop,
+			uint cropRight,
+			uint cropBottom
 		);
 
 		[DllImport("MagpieRT", EntryPoint = "GetAllGraphicsAdapters", CallingConvention = CallingConvention.StdCall)]
@@ -188,14 +188,14 @@ namespace Magpie {
 			uint cursorInterpolationMode,
 			uint adapterIdx,
 			uint multiMonitorUsage,
-			uint clipLeft,
-			uint clipTop,
-			uint clipRight,
-			uint clipBottom
+			uint cropLeft,
+			uint cropTop,
+			uint cropRight,
+			uint cropBottom
 		) {
 			return PtrToUTF8String(RunNative(hwndSrc, effectsJson, flags, captureMode,
 				frameRate, cursorZoomFactor, cursorInterpolationMode, adapterIdx, multiMonitorUsage,
-				clipLeft, clipTop, clipRight, clipBottom));
+				cropLeft, cropTop, cropRight, cropBottom));
 		}
 	}
 }

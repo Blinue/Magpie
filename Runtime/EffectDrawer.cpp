@@ -479,12 +479,12 @@ bool EffectDrawer::UpdateExprDynamicVars() {
 		return false;
 	}
 
-	const RECT& srcClient = App::GetInstance().GetSrcClientRect();
+	const RECT& srcFrameRect = App::GetInstance().GetSrcFrameRect();
 
 	SetExprDynamicVars(
 		frameCount,
-		double(pt.x - srcClient.left) / (srcClient.right - srcClient.left),
-		double(pt.y - srcClient.top) / (srcClient.bottom - srcClient.top)
+		double(pt.x - srcFrameRect.left) / (srcFrameRect.right - srcFrameRect.left),
+		double(pt.y - srcFrameRect.top) / (srcFrameRect.bottom - srcFrameRect.top)
 	);
 	return true;
 }

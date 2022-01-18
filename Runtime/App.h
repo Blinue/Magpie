@@ -24,6 +24,7 @@ public:
 		UINT cursorInterpolationMode,
 		UINT adapterIdx,
 		UINT multiMonitorMode,
+		const RECT& cropBorders,
 		UINT flags
 	);
 
@@ -37,13 +38,11 @@ public:
 		return _hwndSrc;
 	}
 
-	HWND GetHwndSrcClient() const {
-		return _hwndSrcClient;
+	const RECT& GetSrcFrameRect() const {
+		return _srcFrameRect;
 	}
 
-	const RECT& GetSrcClientRect() const {
-		return _srcClientRect;
-	}
+	bool UpdateSrcFrameRect();
 
 	HWND GetHwndHost() const {
 		return _hwndHost;
@@ -167,14 +166,13 @@ private:
 
 	HINSTANCE _hInst = NULL;
 	HWND _hwndSrc = NULL;
-	HWND _hwndSrcClient = NULL;
 	HWND _hwndHost = NULL;
 
 	// 关闭 DirectFlip 时的背景全屏窗口
 	HWND _hwndDDF = NULL;
 
 	RECT _hostWndRect{};
-	RECT _srcClientRect{};
+	RECT _srcFrameRect{};
 
 	UINT _captureMode = 0;
 	int _frameRate = 0;
@@ -183,6 +181,7 @@ private:
 	UINT _adapterIdx = 0;
 	UINT _multiMonitorUsage = 0;
 	UINT _flags = 0;
+	RECT _cropBorders{};
 
 	enum class _FlagMasks : UINT {
 		NoCursor = 0x1,

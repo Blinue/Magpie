@@ -100,10 +100,10 @@ API_DECLSPEC const char* WINAPI Run(
 	UINT cursorInterpolationMode,	// 0：最近邻，1：双线性
 	UINT adapterIdx,
 	UINT multiMonitorUsage,	// 0：最近 1：相交 2：所有
-	UINT clipLeft,
-	UINT clipTop,
-	UINT clipRight,
-	UINT clipBottom
+	UINT cropLeft,
+	UINT cropTop,
+	UINT cropRight,
+	UINT cropBottom
 ) {
 	if (!hwndSrc || !IsWindow(hwndSrc)) {
 		SPDLOG_LOGGER_CRITICAL(logger, "非法的源窗口句柄");
@@ -128,7 +128,8 @@ API_DECLSPEC const char* WINAPI Run(
 
 	App& app = App::GetInstance();
 	if (!app.Run(hwndSrc, effectsJson, captureMode, frameRate,
-		cursorZoomFactor, cursorInterpolationMode, adapterIdx, multiMonitorUsage, flags)
+		cursorZoomFactor, cursorInterpolationMode, adapterIdx, multiMonitorUsage,
+		RECT{(LONG)cropLeft, (LONG)cropTop, (LONG)cropRight, (LONG)cropBottom}, flags)
 	) {
 		// 初始化失败
 		SPDLOG_LOGGER_INFO(logger, "App.Run 失败");

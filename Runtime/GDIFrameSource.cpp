@@ -6,32 +6,40 @@
 extern std::shared_ptr<spdlog::logger> logger;
 
 bool GDIFrameSource::Initialize() {
-	RECT srcClientRect;
-	if (!GetClientRect(App::GetInstance().GetHwndSrcClient(), &srcClientRect)) {
-		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetClientRect 失败"));
+	HWND hwndSrc = App::GetInstance().GetHwndSrc();
+
+	double a, bx, by;
+	if (!_GetMapToOriginDPI(hwndSrc, a, bx, by)) {
+		SPDLOG_LOGGER_ERROR(logger, "_GetMapToOriginDPI 失败");
+		return false;
 	}
 
-	float dpiScale = -1;
-	if (!_GetWindowDpiScale(App::GetInstance().GetHwndSrcClient(), dpiScale)) {
-		SPDLOG_LOGGER_ERROR(logger, "_GetWindowDpiScale 失败");
+	SPDLOG_LOGGER_INFO(logger, fmt::format("源窗口 DPI 缩放为 {}", 1 / a));
+
+	if (!App::GetInstance().UpdateSrcFrameRect()) {
+		SPDLOG_LOGGER_ERROR(logger, "UpdateSrcFrameRect 失败");
+		return false;
 	}
 
-	SPDLOG_LOGGER_INFO(logger, fmt::format("源窗口 DPI 缩放为 {}", dpiScale));
-
-	if (dpiScale > 0 && abs(dpiScale - 1.0f) > 1e-5f) {
-		// DPI 感知
-		_frameSize = {
-			(LONG)ceilf((srcClientRect.right - srcClientRect.left) / dpiScale),
-			(LONG)ceilf((srcClientRect.bottom - srcClientRect.top) / dpiScale)
-		};
-	} else {
-		_frameSize = { srcClientRect.right - srcClientRect.left, srcClientRect.bottom - srcClientRect.top };
+	RECT srcFrameRect = App::GetInstance().GetSrcFrameRect();
+	_frameRect = {
+		std::lround(srcFrameRect.left * a + bx),
+		std::lround(srcFrameRect.top * a + by),
+		std::lround(srcFrameRect.right * a + bx),
+		std::lround(srcFrameRect.bottom * a + by)
+	};
+	if (_frameRect.left < 0 || _frameRect.top < 0 || _frameRect.right < 0
+		|| _frameRect.bottom < 0 || _frameRect.right - _frameRect.left <= 0
+		|| _frameRect.bottom - _frameRect.top <= 0
+	) {
+		SPDLOG_LOGGER_ERROR(logger, "裁剪失败");
+		return false;
 	}
 
 	D3D11_TEXTURE2D_DESC desc{};
 	desc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
-	desc.Width = _frameSize.cx;
-	desc.Height = _frameSize.cy;
+	desc.Width = _frameRect.right - _frameRect.left;
+	desc.Height = _frameRect.bottom - _frameRect.top;
 	desc.Usage = D3D11_USAGE_DEFAULT;
 	desc.MipLevels = 1;
 	desc.ArraySize = 1;
@@ -56,7 +64,7 @@ bool GDIFrameSource::Initialize() {
 }
 
 FrameSourceBase::UpdateState GDIFrameSource::Update() {
-	HWND hwndSrcClient = App::GetInstance().GetHwndSrcClient();
+	HWND hwndSrc = App::GetInstance().GetHwndSrc();
 
 	HDC hdcDest;
 	HRESULT hr = _dxgiSurface->GetDC(TRUE, &hdcDest);
@@ -65,18 +73,20 @@ FrameSourceBase::UpdateState GDIFrameSource::Update() {
 		return UpdateState::Error;
 	}
 
-	HDC hdcSrcClient = GetDCEx(hwndSrcClient, NULL, DCX_LOCKWINDOWUPDATE);
-	if (!hdcSrcClient) {
+	HDC hdcSrc = GetDCEx(hwndSrc, NULL, DCX_LOCKWINDOWUPDATE | DCX_WINDOW);
+	if (!hdcSrc) {
 		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetDC 失败"));
 		_dxgiSurface->ReleaseDC(nullptr);
 		return UpdateState::Error;
 	}
 
-	if (!BitBlt(hdcDest, 0, 0, _frameSize.cx, _frameSize.cy, hdcSrcClient, 0, 0, SRCCOPY)) {
+	if (!BitBlt(hdcDest, 0, 0, _frameRect.right-_frameRect.left, _frameRect.bottom-_frameRect.top,
+		hdcSrc, _frameRect.left, _frameRect.top, SRCCOPY)
+	) {
 		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("BitBlt 失败"));
 	}
 
-	ReleaseDC(hwndSrcClient, hdcSrcClient);
+	ReleaseDC(hwndSrc, hdcSrc);
 	_dxgiSurface->ReleaseDC(nullptr);
 
 	return UpdateState::NewFrame;

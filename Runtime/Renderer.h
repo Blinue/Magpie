@@ -79,6 +79,8 @@ private:
 
 	void _Render();
 
+	RECT _srcWndRect{};
+
 	D3D_FEATURE_LEVEL _featureLevel = D3D_FEATURE_LEVEL_10_0;
 
 	ComPtr<IDXGIFactory2> _dxgiFactory;

@@ -124,8 +124,8 @@ bool CursorDrawer::Initialize(ComPtr<ID3D11Texture2D> renderTarget, const RECT& 
 		_destRect = destRect;
 	}
 
-	const RECT& srcClient = app.GetSrcClientRect();
-	SIZE srcSize = { srcClient.right - srcClient.left, srcClient.bottom - srcClient.top };
+	const RECT& srcFrameRect = app.GetSrcFrameRect();
+	SIZE srcSize = { srcFrameRect.right - srcFrameRect.left, srcFrameRect.bottom - srcFrameRect.top };
 
 	_clientScaleX = float(destRect.right - destRect.left) / srcSize.cx;
 	_clientScaleY = float(destRect.bottom - destRect.top) / srcSize.cy;
@@ -133,7 +133,7 @@ bool CursorDrawer::Initialize(ComPtr<ID3D11Texture2D> renderTarget, const RECT& 
 	if (!App::GetInstance().IsMultiMonitorMode() && !App::GetInstance().IsBreakpointMode()) {
 		// 非多屏幕模式下，限制光标在窗口内
 		
-		if (!ClipCursor(&App::GetInstance().GetSrcClientRect())) {
+		if (!ClipCursor(&srcFrameRect)) {
 			SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("ClipCursor 失败"));
 		}
 
@@ -184,15 +184,15 @@ CursorDrawer::~CursorDrawer() {
 }
 
 void CursorDrawer::_DynamicClip(POINT cursorPt) {
-	const RECT& srcClientRect = App::GetInstance().GetSrcClientRect();
+	const RECT& srcFrameRect = App::GetInstance().GetSrcFrameRect();
 	const RECT& hostRect = App::GetInstance().GetHostWndRect();
 
 	POINT hostPt{};
 
-	double t = double(cursorPt.x - srcClientRect.left) / (srcClientRect.right - srcClientRect.left);
+	double t = double(cursorPt.x - srcFrameRect.left) / (srcFrameRect.right - srcFrameRect.left);
 	hostPt.x = std::lround(t * (_destRect.right - _destRect.left)) + _destRect.left + hostRect.left;
 
-	t = double(cursorPt.y - srcClientRect.top) / (srcClientRect.bottom - srcClientRect.top);
+	t = double(cursorPt.y - srcFrameRect.top) / (srcFrameRect.bottom - srcFrameRect.top);
 	hostPt.y = std::lround(t * (_destRect.bottom - _destRect.top)) + _destRect.top + hostRect.top;
 
 	std::array<bool, 4> clips{};
@@ -214,10 +214,10 @@ void CursorDrawer::_DynamicClip(POINT cursorPt) {
 		_curClips = clips;
 
 		RECT clipRect = {
-			clips[0] ? srcClientRect.left : LONG_MIN,
-			clips[1] ? srcClientRect.top : LONG_MIN,
-			clips[2] ? srcClientRect.right : LONG_MAX,
-			clips[3] ? srcClientRect.bottom : LONG_MAX
+			clips[0] ? srcFrameRect.left : LONG_MIN,
+			clips[1] ? srcFrameRect.top : LONG_MIN,
+			clips[2] ? srcFrameRect.right : LONG_MAX,
+			clips[3] ? srcFrameRect.bottom : LONG_MAX
 		};
 		ClipCursor(&clipRect);
 	}
@@ -239,9 +239,9 @@ bool CursorDrawer::Update() {
 	}
 
 	if (_isUnderCapture) {
-		const RECT& srcClientRect = App::GetInstance().GetSrcClientRect();
+		const RECT& srcFrameRect = App::GetInstance().GetSrcFrameRect();
 
-		if (PtInRect(&srcClientRect, cursorPt)) {
+		if (PtInRect(&srcFrameRect, cursorPt)) {
 			_DynamicClip(cursorPt);
 		} else {
 			_StopCapture(cursorPt);
@@ -475,7 +475,7 @@ void CursorDrawer::_StartCapture(POINT cursorPt) {
 	}
 
 	// 移动光标位置
-	const RECT& srcClientRect = App::GetInstance().GetSrcClientRect();
+	const RECT& srcFrameRect = App::GetInstance().GetSrcFrameRect();
 	const RECT& hostRect = App::GetInstance().GetHostWndRect();
 	// 跳过黑边
 	cursorPt.x = std::clamp(cursorPt.x, hostRect.left + _destRect.left, hostRect.left + _destRect.right - 1);
@@ -485,11 +485,11 @@ void CursorDrawer::_StartCapture(POINT cursorPt) {
 	double posX = double(cursorPt.x - hostRect.left - _destRect.left) / (_destRect.right - _destRect.left);
 	double posY = double(cursorPt.y - hostRect.top - _destRect.top) / (_destRect.bottom - _destRect.top);
 
-	posX = posX * (srcClientRect.right - srcClientRect.left) + srcClientRect.left;
-	posY = posY * (srcClientRect.bottom - srcClientRect.top) + srcClientRect.top;
+	posX = posX * (srcFrameRect.right - srcFrameRect.left) + srcFrameRect.left;
+	posY = posY * (srcFrameRect.bottom - srcFrameRect.top) + srcFrameRect.top;
 
-	posX = std::clamp<double>(posX, srcClientRect.left, srcClientRect.right - 1);
-	posY = std::clamp<double>(posY, srcClientRect.top, srcClientRect.bottom - 1);
+	posX = std::clamp<double>(posX, srcFrameRect.left, srcFrameRect.right - 1);
+	posY = std::clamp<double>(posY, srcFrameRect.top, srcFrameRect.bottom - 1);
 
 	SetCursorPos(std::lround(posX), std::lround(posY));
 
@@ -508,26 +508,26 @@ void CursorDrawer::_StopCapture(POINT cursorPt) {
 	//
 	// 在有黑边的情况下自动将光标调整到全屏窗口外
 
-	const RECT& srcClientRect = App::GetInstance().GetSrcClientRect();
+	const RECT& srcFrameRect = App::GetInstance().GetSrcFrameRect();
 	const RECT& hostRect = App::GetInstance().GetHostWndRect();
 
 	POINT newCursorPt{};
 
-	if (cursorPt.x >= srcClientRect.right) {
-		newCursorPt.x = hostRect.right + cursorPt.x - srcClientRect.right + 1;
-	} else if (cursorPt.x < srcClientRect.left) {
-		newCursorPt.x = hostRect.left + cursorPt.x - srcClientRect.left;
+	if (cursorPt.x >= srcFrameRect.right) {
+		newCursorPt.x = hostRect.right + cursorPt.x - srcFrameRect.right + 1;
+	} else if (cursorPt.x < srcFrameRect.left) {
+		newCursorPt.x = hostRect.left + cursorPt.x - srcFrameRect.left;
 	} else {
-		double pos = double(cursorPt.x - srcClientRect.left) / (srcClientRect.right - srcClientRect.left);
+		double pos = double(cursorPt.x - srcFrameRect.left) / (srcFrameRect.right - srcFrameRect.left);
 		newCursorPt.x = std::lround(pos * (_destRect.right - _destRect.left)) + _destRect.left + hostRect.left;
 	}
 
-	if (cursorPt.y >= srcClientRect.bottom) {
-		newCursorPt.y = hostRect.bottom + cursorPt.y - srcClientRect.bottom + 1;
-	} else if (cursorPt.y < srcClientRect.top) {
-		newCursorPt.y = hostRect.top + cursorPt.y - srcClientRect.top;
+	if (cursorPt.y >= srcFrameRect.bottom) {
+		newCursorPt.y = hostRect.bottom + cursorPt.y - srcFrameRect.bottom + 1;
+	} else if (cursorPt.y < srcFrameRect.top) {
+		newCursorPt.y = hostRect.top + cursorPt.y - srcFrameRect.top;
 	} else {
-		double pos = double(cursorPt.y - srcClientRect.top) / (srcClientRect.bottom - srcClientRect.top);
+		double pos = double(cursorPt.y - srcFrameRect.top) / (srcFrameRect.bottom - srcFrameRect.top);
 		newCursorPt.y = std::lround(pos * (_destRect.bottom - _destRect.top)) + _destRect.top + hostRect.top;
 	}
 
@@ -551,8 +551,8 @@ void CursorDrawer::_StopCapture(POINT cursorPt) {
 	} else {
 		// 目标位置不存在屏幕，则将光标限制在源窗口内
 		SetCursorPos(
-		 std::clamp(cursorPt.x, srcClientRect.left, srcClientRect.right - 1),
-		 std::clamp(cursorPt.y, srcClientRect.top, srcClientRect.bottom - 1)
+		 std::clamp(cursorPt.x, srcFrameRect.left, srcFrameRect.right - 1),
+		 std::clamp(cursorPt.y, srcFrameRect.top, srcFrameRect.bottom - 1)
 		);
 	}
 }
@@ -570,7 +570,7 @@ void CursorDrawer::Draw() {
 		}
 	} else if (!App::GetInstance().IsBreakpointMode() && App::GetInstance().IsConfineCursorIn3DGames()) {
 		// 开启“在 3D 游戏中限制光标”则每帧都限制一次光标
-		ClipCursor(&App::GetInstance().GetSrcClientRect());
+		ClipCursor(&App::GetInstance().GetSrcFrameRect());
 	}
 
 	CURSORINFO ci{};
@@ -606,7 +606,7 @@ void CursorDrawer::Draw() {
 	SIZE cursorSize = { lroundf(info->width * _zoomFactorX), lroundf(info->height * _zoomFactorY) };
 
 	// 映射坐标
-	const RECT& srcClient = App::GetInstance().GetSrcClientRect();
+	const RECT& srcClient = App::GetInstance().GetSrcFrameRect();
 	POINT targetScreenPos = {
 		lroundf((ci.ptScreenPos.x - srcClient.left) * _clientScaleX - info->xHotSpot * _zoomFactorX),
 		lroundf((ci.ptScreenPos.y - srcClient.top) * _clientScaleY - info->yHotSpot * _zoomFactorY)

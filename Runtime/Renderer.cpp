@@ -12,6 +12,11 @@ extern std::shared_ptr<spdlog::logger> logger;
 
 
 bool Renderer::Initialize() {
+	if (!GetWindowRect(App::GetInstance().GetHwndSrc(), &_srcWndRect)) {
+		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetWindowRect 失败"));
+		return false;
+	}
+
 	if (!_InitD3D()) {
 		SPDLOG_LOGGER_ERROR(logger, "_InitD3D 失败");
 		return false;
@@ -628,11 +633,11 @@ bool CheckForeground(HWND hwndForeground) {
 		}
 
 		// 弹窗如果完全在源窗口客户区内则不退出全屏
-		const RECT& srcClientRect = App::GetInstance().GetSrcClientRect();
-		if (rectForground.left >= srcClientRect.left
-			&& rectForground.right <= srcClientRect.right
-			&& rectForground.top >= srcClientRect.top
-			&& rectForground.bottom <= srcClientRect.bottom
+		const RECT& srcFrameRect = App::GetInstance().GetSrcFrameRect();
+		if (rectForground.left >= srcFrameRect.left
+			&& rectForground.right <= srcFrameRect.right
+			&& rectForground.top >= srcFrameRect.top
+			&& rectForground.bottom <= srcFrameRect.bottom
 		) {
 			return true;
 		}
@@ -712,12 +717,12 @@ bool Renderer::_CheckSrcState() {
 	}
 
 	RECT rect;
-	if (!Utils::GetClientScreenRect(App::GetInstance().GetHwndSrcClient(), rect)) {
-		SPDLOG_LOGGER_ERROR(logger, "GetClientScreenRect 失败");
+	if (!GetWindowRect(hwndSrc, &rect)) {
+		SPDLOG_LOGGER_ERROR(logger, "GetWindowRect 失败");
 		return false;
 	}
 
-	if (App::GetInstance().GetSrcClientRect() != rect) {
+	if (_srcWndRect != rect) {
 		SPDLOG_LOGGER_INFO(logger, "源窗口位置或大小改变");
 		return false;
 	}

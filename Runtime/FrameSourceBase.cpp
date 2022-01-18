@@ -7,7 +7,7 @@
 extern std::shared_ptr<spdlog::logger> logger;
 
 
-bool FrameSourceBase::_GetWindowDpiScale(HWND hWnd, float& dpiScale) {
+bool FrameSourceBase::_GetMapToOriginDPI(HWND hWnd, double& a, double& bx, double& by) {
 	// HDC 中的 HBITMAP 尺寸为窗口的原始尺寸
 	// 通过 GetWindowRect 获得的尺寸为窗口的 DPI 缩放后尺寸
 	// 它们的商即为窗口的 DPI 缩放
@@ -16,9 +16,17 @@ bool FrameSourceBase::_GetWindowDpiScale(HWND hWnd, float& dpiScale) {
 		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetDCEx 失败"));
 		return false;
 	}
-	
-	Utils::ScopeExit se([hWnd, hdcWindow]() {
+
+	HDC hdcClient = GetDCEx(hWnd, NULL, DCX_LOCKWINDOWUPDATE);
+	if (!hdcClient) {
+		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetDCEx 失败"));
 		ReleaseDC(hWnd, hdcWindow);
+		return false;
+	}
+
+	Utils::ScopeExit se([hWnd, hdcWindow, hdcClient]() {
+		ReleaseDC(hWnd, hdcWindow);
+		ReleaseDC(hWnd, hdcClient);
 	});
 
 	HBITMAP hBmpWindow = (HBITMAP)GetCurrentObject(hdcWindow, OBJ_BITMAP);
@@ -33,38 +41,17 @@ bool FrameSourceBase::_GetWindowDpiScale(HWND hWnd, float& dpiScale) {
 		return false;
 	}
 
-	RECT rectWindow;
-	if (!GetWindowRect(hWnd, &rectWindow)) {
+	RECT rect;
+	if (!GetWindowRect(hWnd, &rect)) {
 		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetWindowRect 失败"));
 		return false;
 	}
 
-	dpiScale = float(rectWindow.right - rectWindow.left) / bmp.bmWidth;
-	return true;
-}
-
-bool FrameSourceBase::_GetDpiAwareWindowClientOffset(HWND hWnd, POINT& clientOffset) {
-	// 使用 DPI 缩放也无法可靠计算出窗口客户区的位置
+	a = bmp.bmWidth / double(rect.right - rect.left);
+	
+	// 使用 DPI 缩放无法可靠计算出窗口客户区的位置
 	// 这里使用窗口 HDC 和客户区 HDC 的原点坐标差值
 	// GetDCOrgEx 获得的是 DC 原点的屏幕坐标
-
-	HDC hdcClient = GetDCEx(hWnd, NULL, DCX_LOCKWINDOWUPDATE);
-	if (!hdcClient) {
-		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetDCEx 失败"));
-		return false;
-	}
-
-	HDC hdcWindow = GetDCEx(hWnd, NULL, DCX_LOCKWINDOWUPDATE | DCX_WINDOW);
-	if (!hdcWindow) {
-		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetDCEx 失败"));
-		ReleaseDC(hWnd, hdcClient);
-		return false;
-	}
-
-	Utils::ScopeExit se([hWnd, hdcClient, hdcWindow]() {
-		ReleaseDC(hWnd, hdcClient);
-		ReleaseDC(hWnd, hdcWindow);
-	});
 
 	POINT ptClient{}, ptWindow{};
 	if (!GetDCOrgEx(hdcClient, &ptClient)) {
@@ -76,7 +63,18 @@ bool FrameSourceBase::_GetDpiAwareWindowClientOffset(HWND hWnd, POINT& clientOff
 		return false;
 	}
 
-	clientOffset = { ptClient.x - ptWindow.x, ptClient.y - ptWindow.y };
+	if (!Utils::GetClientScreenRect(hWnd, rect)) {
+		SPDLOG_LOGGER_ERROR(logger, "GetClientScreenRect 失败");
+		return false;
+	}
+
+	// 以窗口的客户区左上角为基准
+	// 该点在坐标系 1 中坐标为 (rect.left, rect.top)
+	// 在坐标系 2 中坐标为 (ptClient.x - ptWindow.x, ptClient.y - ptWindow.y)
+	// 由此计算出 b
+	bx = ptClient.x - ptWindow.x - rect.left * a;
+	by = ptClient.y - ptWindow.y - rect.top * a;
+	
 	return true;
 }
 

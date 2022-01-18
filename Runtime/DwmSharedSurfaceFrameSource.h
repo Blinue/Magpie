@@ -25,8 +25,6 @@ public:
 	}
 
 private:
-	bool _CalcFrameSize(SIZE& frameSize);
-
 	using _DwmGetDxSharedSurfaceFunc = bool(
 		HWND hWnd,
 		HANDLE* phSurface,
@@ -38,9 +36,6 @@ private:
 	_DwmGetDxSharedSurfaceFunc *_dwmGetDxSharedSurface = nullptr;
 
 	D3D11_BOX _frameInWnd{};
-	HWND _hwndSrc = NULL;
-	ComPtr<ID3D11DeviceContext> _d3dDC;
-	ComPtr<ID3D11Device> _d3dDevice;
 	ComPtr<ID3D11Texture2D> _output;
 };
 
