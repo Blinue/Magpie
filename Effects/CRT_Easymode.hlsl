@@ -80,25 +80,25 @@ float maskStrength;
 //!DEFAULT 1
 //!MIN 1
 //!MAX 100
-float maskDotWidth;
+int maskDotWidth;
 
 //!CONSTANT
 //!DEFAULT 1
 //!MIN 1
 //!MAX 100
-float maskDotHeight;
+int maskDotHeight;
 
 //!CONSTANT
 //!DEFAULT 0
 //!MIN 0
 //!MAX 100
-float maskStagger;
+int maskStagger;
 
 //!CONSTANT
 //!DEFAULT 1
 //!MIN 1
 //!MAX 100
-float maskSize;
+int maskSize;
 
 //!CONSTANT
 //!DEFAULT 1
@@ -134,7 +134,7 @@ float scanlineBrightMax;
 //!DEFAULT 400
 //!MIN 1
 //!MAX 1000
-float scanlineCutoff;
+int scanlineCutoff;
 
 //!CONSTANT
 //!DEFAULT 2
@@ -158,7 +158,7 @@ float brightBoost;
 //!DEFAULT 1
 //!MIN 0
 //!MAX 1
-float dilation;
+int dilation;
 
 //!TEXTURE
 Texture2D INPUT;
@@ -243,7 +243,7 @@ float4 Pass1(float2 pos) {
 	float luma = dot(float3(0.2126, 0.7152, 0.0722), col);
 	float bright = (max(col.r, max(col.g, col.b)) + luma) / 2.0;
 	float scan_bright = clamp(bright, scanlineBrightMin, scanlineBrightMax);
-	float scan_beam = clamp(bright * scanlineBeamWidthMax, scanlineBrightMin, scanlineBeamWidthMax);
+	float scan_beam = clamp(bright * scanlineBeamWidthMax, scanlineBeamWidthMin, scanlineBeamWidthMax);
 	float scan_weight = 1.0 - pow(cos(pos.y * 2.0 * PI * inputHeight) * 0.5 + 0.5, scan_beam) * scanlineStrength;
 
 	float mask = 1.0 - maskStrength;
