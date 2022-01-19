@@ -25,8 +25,6 @@ public:
 	}
 
 private:
-	ComPtr<ID3D11DeviceContext> _d3dDC;
-
 	RECT _frameRect{};
 	ComPtr<IDXGISurface1> _dxgiSurface;
 	ComPtr<ID3D11Texture2D> _output;

@@ -120,9 +120,6 @@
   <data name="Msg_Error_Generic" xml:space="preserve">
     <value>Произошла ошибка, проверьте журналы для дополнительной информации.</value>
   </data>
-  <data name="Msg_Error_GraphicsCapture" xml:space="preserve">
-    <value>Окно не может быть захвачено с помощью GraphicsCapture.</value>
-  </data>
   <data name="Msg_Error_Init" xml:space="preserve">
     <value>Ошибка инициализации среды выполнения.</value>
   </data>

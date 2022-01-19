@@ -6,32 +6,48 @@
 extern std::shared_ptr<spdlog::logger> logger;
 
 bool GDIFrameSource::Initialize() {
-	HWND hwndSrc = App::GetInstance().GetHwndSrc();
-
-	double a, bx, by;
-	if (!_GetMapToOriginDPI(hwndSrc, a, bx, by)) {
-		SPDLOG_LOGGER_ERROR(logger, "_GetMapToOriginDPI 失败");
-		return false;
-	}
-
-	SPDLOG_LOGGER_INFO(logger, fmt::format("源窗口 DPI 缩放为 {}", 1 / a));
-
 	if (!App::GetInstance().UpdateSrcFrameRect()) {
 		SPDLOG_LOGGER_ERROR(logger, "UpdateSrcFrameRect 失败");
 		return false;
 	}
 
+	HWND hwndSrc = App::GetInstance().GetHwndSrc();
+
 	RECT srcFrameRect = App::GetInstance().GetSrcFrameRect();
-	_frameRect = {
-		std::lround(srcFrameRect.left * a + bx),
-		std::lround(srcFrameRect.top * a + by),
-		std::lround(srcFrameRect.right * a + bx),
-		std::lround(srcFrameRect.bottom * a + by)
-	};
+
+	double a, bx, by;
+	if (_GetMapToOriginDPI(hwndSrc, a, bx, by)) {
+		SPDLOG_LOGGER_INFO(logger, fmt::format("源窗口 DPI 缩放为 {}", 1 / a));
+
+		_frameRect = {
+			std::lround(srcFrameRect.left * a + bx),
+			std::lround(srcFrameRect.top * a + by),
+			std::lround(srcFrameRect.right * a + bx),
+			std::lround(srcFrameRect.bottom * a + by)
+		};
+	} else {
+		SPDLOG_LOGGER_ERROR(logger, "_GetMapToOriginDPI 失败");
+
+		// _GetMapToOriginDPI 失败则假设 DPI 缩放为 1
+		RECT srcWindowRect;
+		if (!GetWindowRect(hwndSrc, &srcWindowRect)) {
+			SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetWindowRect 失败"));
+			return false;
+		}
+
+		_frameRect = {
+			srcFrameRect.left - srcWindowRect.left,
+			srcFrameRect.top - srcWindowRect.top,
+			srcFrameRect.right - srcWindowRect.left,
+			srcFrameRect.bottom - srcWindowRect.top
+		};
+	}
+	
 	if (_frameRect.left < 0 || _frameRect.top < 0 || _frameRect.right < 0
 		|| _frameRect.bottom < 0 || _frameRect.right - _frameRect.left <= 0
 		|| _frameRect.bottom - _frameRect.top <= 0
 	) {
+		App::GetInstance().SetErrorMsg(ErrorMessages::FAILED_TO_CROP);
 		SPDLOG_LOGGER_ERROR(logger, "裁剪失败");
 		return false;
 	}

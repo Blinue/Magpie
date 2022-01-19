@@ -117,11 +117,17 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="Msg_Error_Caption" xml:space="preserve">
+    <value>Error</value>
+  </data>
+  <data name="Msg_Error_Failed_To_Capture" xml:space="preserve">
+    <value>Failed to capture, please change the capture method.</value>
+  </data>
+  <data name="Msg_Error_Failed_To_Crop" xml:space="preserve">
+    <value>This window is too small to crop.</value>
+  </data>
   <data name="Msg_Error_Generic" xml:space="preserve">
     <value>An error occurred, please check logs for more information.</value>
-  </data>
-  <data name="Msg_Error_GraphicsCapture" xml:space="preserve">
-    <value>The window cannot be captured using GraphicsCapture.</value>
   </data>
   <data name="Msg_Error_Init" xml:space="preserve">
     <value>Failed to initialize Runtime.</value>

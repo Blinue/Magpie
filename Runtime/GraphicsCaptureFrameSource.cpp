@@ -15,7 +15,7 @@ using namespace Windows::Foundation::Metadata;
 extern std::shared_ptr<spdlog::logger> logger;
 
 bool GraphicsCaptureFrameSource::Initialize() {
-	App::GetInstance().SetErrorMsg(ErrorMessages::GRAPHICS_CAPTURE);
+	App::GetInstance().SetErrorMsg(ErrorMessages::FAILED_TO_CAPTURE);
 
 	// 只在 Win10 1903 及更新版本中可用
 	const RTL_OSVERSIONINFOW& version = Utils::GetOSVersion();
@@ -24,7 +24,6 @@ bool GraphicsCaptureFrameSource::Initialize() {
 		return false;
 	}
 
-	_d3dDC = App::GetInstance().GetRenderer().GetD3DDC();
 	HRESULT hr;
 	
 	winrt::impl::com_ref<IGraphicsCaptureItemInterop> interop;
@@ -186,7 +185,8 @@ FrameSourceBase::UpdateState GraphicsCaptureFrameSource::Update() {
 			return UpdateState::Error;
 		}
 
-		_d3dDC->CopySubresourceRegion(_output.Get(), 0, 0, 0, 0, withFrame.Get(), 0, &_frameBox);
+		App::GetInstance().GetRenderer().GetD3DDC()
+			->CopySubresourceRegion(_output.Get(), 0, 0, 0, 0, withFrame.Get(), 0, &_frameBox);
 
 		return UpdateState::NewFrame;
 	} else {

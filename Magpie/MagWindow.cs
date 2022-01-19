@@ -207,7 +207,7 @@ namespace Magpie {
 						if (errorMsg == null) {
 							errorMsg = Resources.ResourceManager.GetString(Resources.Msg_Error_Generic);
 						}
-						_ = MessageBox.Show(errorMsg);
+						_ = MessageBox.Show(errorMsg, Resources.Msg_Error_Caption);
 					}));
 				}
 			};

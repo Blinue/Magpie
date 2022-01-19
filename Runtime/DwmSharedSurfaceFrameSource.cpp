@@ -25,6 +25,7 @@ bool DwmSharedSurfaceFrameSource::Initialize() {
 	double a, bx, by;
 	if (!_GetMapToOriginDPI(hwndSrc, a, bx, by)) {
 		SPDLOG_LOGGER_ERROR(logger, "_GetMapToOriginDPI 失败");
+		App::GetInstance().SetErrorMsg(ErrorMessages::FAILED_TO_CAPTURE);
 		return false;
 	}
 
@@ -42,6 +43,7 @@ bool DwmSharedSurfaceFrameSource::Initialize() {
 		|| frameRect.bottom - frameRect.top <= 0
 	) {
 		SPDLOG_LOGGER_ERROR(logger, "裁剪失败");
+		App::GetInstance().SetErrorMsg(ErrorMessages::FAILED_TO_CROP);
 		return false;
 	}
 

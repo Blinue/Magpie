@@ -117,11 +117,17 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="Msg_Error_Caption" xml:space="preserve">
+    <value>错误</value>
+  </data>
+  <data name="Msg_Error_Failed_To_Capture" xml:space="preserve">
+    <value>捕获失败，请更换捕获模式。</value>
+  </data>
+  <data name="Msg_Error_Failed_To_Crop" xml:space="preserve">
+    <value>窗口太小，无法裁剪。</value>
+  </data>
   <data name="Msg_Error_Generic" xml:space="preserve">
     <value>出现错误，请查看日志获取更多信息。</value>
-  </data>
-  <data name="Msg_Error_GraphicsCapture" xml:space="preserve">
-    <value>无法使用GraphicsCapture捕获该窗口。</value>
   </data>
   <data name="Msg_Error_Init" xml:space="preserve">
     <value>初始化失败。</value>

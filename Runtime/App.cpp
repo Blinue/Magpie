@@ -635,6 +635,7 @@ bool App::UpdateSrcFrameRect() {
 	};
 
 	if (_srcFrameRect.right - _srcFrameRect.left <= 0 || _srcFrameRect.bottom - _srcFrameRect.top <= 0) {
+		SetErrorMsg(ErrorMessages::FAILED_TO_CROP);
 		SPDLOG_LOGGER_ERROR(logger, "裁剪窗口失败");
 		return false;
 	}

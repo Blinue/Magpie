@@ -62,7 +62,5 @@ private:
 	CRITICAL_SECTION _cs{};
 	bool _newFrameArrived = false;
 
-	ComPtr<ID3D11DeviceContext> _d3dDC;
-
 	ComPtr<ID3D11Texture2D> _output;
 };

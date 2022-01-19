@@ -61,20 +61,38 @@ namespace Magpie.Properties {
         }
         
         /// <summary>
+        ///   查找类似 Error 的本地化字符串。
+        /// </summary>
+        public static string Msg_Error_Caption {
+            get {
+                return ResourceManager.GetString("Msg_Error_Caption", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Failed to capture, please change the capture method. 的本地化字符串。
+        /// </summary>
+        public static string Msg_Error_Failed_To_Capture {
+            get {
+                return ResourceManager.GetString("Msg_Error_Failed_To_Capture", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 This window is too small to crop. 的本地化字符串。
+        /// </summary>
+        public static string Msg_Error_Failed_To_Crop {
+            get {
+                return ResourceManager.GetString("Msg_Error_Failed_To_Crop", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 An error occurred, please check logs for more information. 的本地化字符串。
         /// </summary>
         public static string Msg_Error_Generic {
             get {
                 return ResourceManager.GetString("Msg_Error_Generic", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   查找类似 The window cannot be captured using GraphicsCapture. 的本地化字符串。
-        /// </summary>
-        public static string Msg_Error_GraphicsCapture {
-            get {
-                return ResourceManager.GetString("Msg_Error_GraphicsCapture", resourceCulture);
             }
         }
         
