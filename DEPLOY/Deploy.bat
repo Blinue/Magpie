@@ -15,10 +15,10 @@ IF %ERRORLEVEL% NEQ 0 (
 )
 
 REM 部署 .NET
-msbuild -t:restore /t:Publish /p:Configuration=Release;Platform=x64 ../Magpie/Magpie.csproj
+msbuild -t:restore /t:Publish /p:Configuration=Release;Platform=x64;PublishReadyToRun=true ../Magpie/Magpie.csproj
 
 REM 包含 .NET 运行时的部署版本
-REM msbuild -t:restore /t:Publish /p:Configuration=Release;Platform=x64;SelfContained=true;IncludeAllContentForSelfExtract=true;EnableCompressionInSingleFile=true ../Magpie/Magpie.csproj
+REM msbuild -t:restore /t:Publish /p:Configuration=Release;Platform=x64;SelfContained=true;IncludeAllContentForSelfExtract=true;EnableCompressionInSingleFile=true;PublishReadyToRun=true ../Magpie/Magpie.csproj
 
 IF %ERRORLEVEL% NEQ 0 (
     ECHO Error: Failed to build Magpie
