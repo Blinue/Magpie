@@ -29,9 +29,14 @@ bool FrameSourceBase::_GetMapToOriginDPI(HWND hWnd, double& a, double& bx, doubl
 		ReleaseDC(hWnd, hdcClient);
 	});
 
-	HBITMAP hBmpWindow = (HBITMAP)GetCurrentObject(hdcWindow, OBJ_BITMAP);
+	HGDIOBJ hBmpWindow = GetCurrentObject(hdcWindow, OBJ_BITMAP);
 	if (!hBmpWindow) {
 		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetCurrentObject 失败"));
+		return false;
+	}
+
+	if (GetObjectType(hBmpWindow) != OBJ_BITMAP) {
+		SPDLOG_LOGGER_ERROR(logger, "无法获取窗口的重定向表面");
 		return false;
 	}
 

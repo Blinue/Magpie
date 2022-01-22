@@ -741,10 +741,12 @@ bool Renderer::_ResolveEffectsJson(const std::string& effectsJson, RECT& destRec
 	rapidjson::Document doc;
 	if (doc.Parse(effectsJson.c_str(), effectsJson.size()).HasParseError()) {
 		// 解析 json 失败
+		SPDLOG_LOGGER_ERROR(logger, fmt::format("解析 json 失败\n\t错误码：{}", doc.GetParseError()));
 		return false;
 	}
 
 	if (!doc.IsArray()) {
+		SPDLOG_LOGGER_ERROR(logger, "解析 json 失败：根元素不为数组");
 		return false;
 	}
 
@@ -757,11 +759,13 @@ bool Renderer::_ResolveEffectsJson(const std::string& effectsJson, RECT& destRec
 
 	// 不得为空
 	if (effectsArr.Empty()) {
+		SPDLOG_LOGGER_ERROR(logger, "解析 json 失败：根元素为空");
 		return false;
 	}
 
 	for (const auto& effectJson : effectsArr) {
 		if (!effectJson.IsObject()) {
+			SPDLOG_LOGGER_ERROR(logger, "解析 json 失败：根数组中存在非法成员");
 			return false;
 		}
 
@@ -769,11 +773,12 @@ bool Renderer::_ResolveEffectsJson(const std::string& effectsJson, RECT& destRec
 
 		auto effectName = effectJson.FindMember("effect");
 		if (effectName == effectJson.MemberEnd() || !effectName->value.IsString()) {
-			// 未找到 effect 属性或该属性不合法
+			SPDLOG_LOGGER_ERROR(logger, "解析 json 失败：未找到 effect 属性或该属性的值不合法");
 			return false;
 		}
 
 		if (!effect.Initialize((L"effects\\" + StrUtils::UTF8ToUTF16(effectName->value.GetString()) + L".hlsl").c_str())) {
+			SPDLOG_LOGGER_ERROR(logger, fmt::format("初始化效果 {} 失败", effectName->value.GetString()));
 			return false;
 		}
 
@@ -782,6 +787,7 @@ bool Renderer::_ResolveEffectsJson(const std::string& effectsJson, RECT& destRec
 			auto scaleProp = effectJson.FindMember("scale");
 			if (scaleProp != effectJson.MemberEnd()) {
 				if (!scaleProp->value.IsArray()) {
+					SPDLOG_LOGGER_ERROR(logger, "解析 json 失败：非法的 scale 属性");
 					return false;
 				}
 
@@ -792,6 +798,7 @@ bool Renderer::_ResolveEffectsJson(const std::string& effectsJson, RECT& destRec
 
 				const auto& scale = scaleProp->value.GetArray();
 				if (scale.Size() != 2 || !scale[0].IsNumber() || !scale[1].IsNumber()) {
+					SPDLOG_LOGGER_ERROR(logger, "解析 json 失败：非法的 scale 属性");
 					return false;
 				}
 
@@ -804,18 +811,21 @@ bool Renderer::_ResolveEffectsJson(const std::string& effectsJson, RECT& destRec
 
 				if (scaleX >= DELTA) {
 					if (scaleY < DELTA) {
+						SPDLOG_LOGGER_ERROR(logger, "解析 json 失败：非法的 scale 属性");
 						return false;
 					}
 
 					outputSize = { std::lroundf(outputSize.cx * scaleX), std::lroundf(outputSize.cy * scaleY) };
 				} else if (std::abs(scaleX) < DELTA) {
 					if (std::abs(scaleY) >= DELTA) {
+						SPDLOG_LOGGER_ERROR(logger, "解析 json 失败：非法的 scale 属性");
 						return false;
 					}
 
 					outputSize = hostSize;
 				} else {
 					if (scaleY > -DELTA) {
+						SPDLOG_LOGGER_ERROR(logger, "解析 json 失败：非法的 scale 属性");
 						return false;
 					}
 
@@ -832,6 +842,7 @@ bool Renderer::_ResolveEffectsJson(const std::string& effectsJson, RECT& destRec
 
 		for (const auto& prop : effectJson.GetObject()) {
 			if (!prop.name.IsString()) {
+				SPDLOG_LOGGER_ERROR(logger, "解析 json 失败：非法的效果名");
 				return false;
 			}
 
@@ -843,10 +854,12 @@ bool Renderer::_ResolveEffectsJson(const std::string& effectsJson, RECT& destRec
 				auto type = effect.GetConstantType(name);
 				if (type == EffectDrawer::ConstantType::Float) {
 					if (!prop.value.IsNumber()) {
+						SPDLOG_LOGGER_ERROR(logger, fmt::format("解析 json 失败：成员 {} 的类型非法", name));
 						return false;
 					}
 
 					if (!effect.SetConstant(name, prop.value.GetFloat())) {
+						SPDLOG_LOGGER_ERROR(logger, fmt::format("解析 json 失败：成员 {} 的值非法", name));
 						return false;
 					}
 				} else if (type == EffectDrawer::ConstantType::Int) {
@@ -857,13 +870,16 @@ bool Renderer::_ResolveEffectsJson(const std::string& effectsJson, RECT& destRec
 						// bool 值视为 int
 						value = (int)prop.value.GetBool();
 					} else {
+						SPDLOG_LOGGER_ERROR(logger, fmt::format("解析 json 失败：成员 {} 的类型非法", name));
 						return false;
 					}
 
 					if (!effect.SetConstant(name, value)) {
+						SPDLOG_LOGGER_ERROR(logger, fmt::format("解析 json 失败：成员 {} 的值非法", name));
 						return false;
 					}
 				} else {
+					SPDLOG_LOGGER_ERROR(logger, fmt::format("解析 json 失败：非法成员 {}", name));
 					return false;
 				}
 			}
@@ -871,12 +887,14 @@ bool Renderer::_ResolveEffectsJson(const std::string& effectsJson, RECT& destRec
 
 		SIZE& outputSize = texSizes.emplace_back();
 		if (!effect.CalcOutputSize(texSizes[texSizes.size() - 2], outputSize)) {
+			SPDLOG_LOGGER_ERROR(logger, "CalcOutputSize 失败");
 			return false;
 		}
 	}
 
 	if (_effects.size() == 1) {
 		if (!_effects.back().Build(_effectInput, _backBuffer)) {
+			SPDLOG_LOGGER_ERROR(logger, "构建效果失败");
 			return false;
 		}
 	} else {
@@ -901,10 +919,12 @@ bool Renderer::_ResolveEffectsJson(const std::string& effectsJson, RECT& destRec
 			ComPtr<ID3D11Texture2D> outputTex;
 			HRESULT hr = _d3dDevice->CreateTexture2D(&desc, nullptr, &outputTex);
 			if (FAILED(hr)) {
+				SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("CreateTexture2D 失败", hr));
 				return false;
 			}
 
 			if (!_effects[i].Build(curTex, outputTex)) {
+				SPDLOG_LOGGER_ERROR(logger, "构建效果失败");
 				return false;
 			}
 
@@ -913,6 +933,7 @@ bool Renderer::_ResolveEffectsJson(const std::string& effectsJson, RECT& destRec
 
 		// 最后一个效果输出到后缓冲纹理
 		if (!_effects.back().Build(curTex, _backBuffer)) {
+			SPDLOG_LOGGER_ERROR(logger, "构建效果失败");
 			return false;
 		}
 	}

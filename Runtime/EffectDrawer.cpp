@@ -316,6 +316,7 @@ bool EffectDrawer::Build(ComPtr<ID3D11Texture2D> input, ComPtr<ID3D11Texture2D> 
 
 	SIZE outputSize;
 	if (!CalcOutputSize(inputSize, outputSize)) {
+		SPDLOG_LOGGER_ERROR(logger, "CalcOutputSize 失败");
 		return false;
 	}
 	
@@ -330,6 +331,7 @@ bool EffectDrawer::Build(ComPtr<ID3D11Texture2D> input, ComPtr<ID3D11Texture2D> 
 			// 从文件加载纹理
 			_textures[i] = TextureLoader::Load((L"effects\\" + StrUtils::UTF8ToUTF16(_effectDesc.textures[i].source)).c_str());
 			if (!_textures[i]) {
+				SPDLOG_LOGGER_ERROR(logger, fmt::format("加载纹理 {} 失败", _effectDesc.textures[i].source));
 				return false;
 			}
 		} else {
@@ -339,11 +341,13 @@ bool EffectDrawer::Build(ComPtr<ID3D11Texture2D> input, ComPtr<ID3D11Texture2D> 
 				texSize.cx = std::lround(exprParser.Eval());
 				exprParser.SetExpr(_effectDesc.textures[i].sizeExpr.second);
 				texSize.cy = std::lround(exprParser.Eval());
-			} catch (...) {
+			} catch (const mu::ParserError& e) {
+				SPDLOG_LOGGER_ERROR(logger, fmt::format("计算中间纹理尺寸失败：{}", e.GetMsg()));
 				return false;
 			}
 
 			if (texSize.cx <= 0 || texSize.cy <= 0) {
+				SPDLOG_LOGGER_ERROR(logger, "非法的中间纹理尺寸");
 				return false;
 			}
 
