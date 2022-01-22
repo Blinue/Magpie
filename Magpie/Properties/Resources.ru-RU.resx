@@ -121,7 +121,7 @@
     <value>Ошибка</value>
   </data>
   <data name="Msg_Error_Failed_To_Capture" xml:space="preserve">
-    <value>Не удалось захватить, попробуйте изменить метод захвата.</value>
+    <value>Не удалось захватить, попробуйте изменить способ захвата.</value>
   </data>
   <data name="Msg_Error_Failed_To_Crop" xml:space="preserve">
     <value>Это окно слишком маленькое для обрезки.</value>
