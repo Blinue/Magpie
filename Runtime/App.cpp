@@ -136,20 +136,13 @@ bool App::Run(
 	if (_srcFrameRect == RECT{}) {
 		// FrameSource 初始化完成后计算窗口边框，因为初始化过程中可能改变窗口位置
 		if (!UpdateSrcFrameRect()) {
-			SPDLOG_LOGGER_ERROR(logger, "UpdateSrcFrameRect 失败");
+			SPDLOG_LOGGER_CRITICAL(logger, "UpdateSrcFrameRect 失败");
 			return false;
 		}
 	}
 
 	SPDLOG_LOGGER_INFO(logger, fmt::format("源窗口尺寸：{}x{}",
 		_srcFrameRect.right - _srcFrameRect.left, _srcFrameRect.bottom - _srcFrameRect.top));
-
-	if (!_renderer->InitializeEffectsAndCursor(effectsJson)) {
-		SPDLOG_LOGGER_CRITICAL(logger, "初始化效果失败，即将退出");
-		Close();
-		_Run();
-		return false;
-	}
 
 	// 禁用窗口圆角
 	if (_frameSource->HasRoundCornerInWin11()) {
@@ -168,6 +161,24 @@ bool App::Run(
 				_roundCornerDisabled = true;
 			}
 		}
+	}
+
+	if (IsDisableDirectFlip() && !IsBreakpointMode()) {
+		// 在此处创建的 DDF 窗口不会立刻显示
+		if (!_DisableDirectFlip()) {
+			SPDLOG_LOGGER_ERROR(logger, "_DisableDirectFlip 失败");
+		}
+	}
+
+	if (!_renderer->InitializeEffectsAndCursor(effectsJson)) {
+		SPDLOG_LOGGER_CRITICAL(logger, "初始化效果失败，即将退出");
+		Close();
+		_Run();
+		return false;
+	}
+
+	if (!ShowWindow(_hwndHost, SW_NORMAL)) {
+		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("ShowWindow 失败"));
 	}
 
 	_Run();
@@ -192,12 +203,16 @@ void App::_Run() {
 
 		_renderer->Render();
 
-		// 第二帧（等待时或完成后）创建 DDF 窗口
+		// 第二帧（等待时或完成后）显示 DDF 窗口
 		// 如果在 Run 中创建会有短暂的灰屏
 		// 选择第二帧的原因：当 GetFrameCount() 返回 1 时第一帧可能处于等待状态而没有渲染，见 Renderer::Render()
-		if (_renderer->GetTimer().GetFrameCount() == 2 && !_hwndDDF && IsDisableDirectFlip() && !IsBreakpointMode()) {
-			if (!_DisableDirectFlip()) {
-				SPDLOG_LOGGER_ERROR(logger, "_DisableDirectFlip 失败");
+		if (_renderer->GetTimer().GetFrameCount() == 2 && _hwndDDF) {
+			if (!ShowWindow(_hwndDDF, SW_NORMAL)) {
+				SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("ShowWindow 失败"));
+			}
+
+			if (!SetWindowPos(_hwndDDF, _hwndHost, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOREDRAW)) {
+				SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("SetWindowPos 失败"));
 			}
 		}
 	}
@@ -364,7 +379,7 @@ bool App::_CreateHostWnd() {
 		(IsBreakpointMode() ? 0 : WS_EX_TOPMOST) | WS_EX_NOACTIVATE | WS_EX_LAYERED | WS_EX_TRANSPARENT,
 		HOST_WINDOW_CLASS_NAME,
 		HOST_WINDOW_TITLE,
-		WS_CLIPCHILDREN | WS_POPUP | WS_VISIBLE,
+		WS_POPUP,
 		_hostWndRect.left,
 		_hostWndRect.top,
 		_hostWndRect.right - _hostWndRect.left,
@@ -388,10 +403,6 @@ bool App::_CreateHostWnd() {
 		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("SetLayeredWindowAttributes 失败"));
 	}
 
-	if (!ShowWindow(_hwndHost, SW_NORMAL)) {
-		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("ShowWindow 失败"));
-	}
-
 	SPDLOG_LOGGER_INFO(logger, "已创建主窗口");
 	return true;
 }
@@ -403,7 +414,7 @@ bool App::_DisableDirectFlip() {
 		WS_EX_NOACTIVATE | WS_EX_LAYERED | WS_EX_TRANSPARENT,
 		DDF_WINDOW_CLASS_NAME,
 		NULL,
-		WS_CLIPCHILDREN | WS_POPUP | WS_VISIBLE,
+		WS_POPUP,
 		_hostWndRect.left,
 		_hostWndRect.top,
 		_hostWndRect.right - _hostWndRect.left,
@@ -432,14 +443,6 @@ bool App::_DisableDirectFlip() {
 				SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("SetWindowDisplayAffinity 失败"));
 			}
 		}
-	}
-
-	if (!ShowWindow(_hwndDDF, SW_NORMAL)) {
-		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("ShowWindow 失败"));
-	}
-
-	if (!SetWindowPos(_hwndDDF, _hwndHost, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOREDRAW)) {
-		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("SetWindowPos 失败"));
 	}
 
 	SPDLOG_LOGGER_INFO(logger, "已创建 DDF 主窗口");
