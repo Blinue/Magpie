@@ -11,7 +11,7 @@ Texture2D originTex : register(t0);
 Texture2D maskTex : register(t1);
 SamplerState sam : register(s0);
 
-float4 main(float4 pos : SV_POSITION, float2 coord : TEXCOORD) : SV_Target{
+float4 main(float2 coord : TEXCOORD) : SV_Target{
 	float2 masks = maskTex.Sample(sam, coord).xy;
 	if (masks.x > 0.5) {
 		float3 origin = originTex.Sample(sam, coord).rgb;

@@ -110,7 +110,7 @@ bool Renderer::GetShaderResourceView(ID3D11Texture2D* texture, ID3D11ShaderResou
 
 bool Renderer::SetFillVS() {
 	if (!_fillVS) {
-		const char* src = "void m(uint i:SV_VERTEXID,out float4 p:SV_POSITION,out float2 c:TEXCOORD){c=float2(i&1,i>>1)*2;p=float4(c.x*2-1,-c.y*2+1,0,1);}";
+		const char* src = "void m(uint i:SV_VERTEXID,out float2 c:TEXCOORD,out float4 p:SV_POSITION){c=float2(i&1,i>>1)*2;p=float4(c.x*2-1,-c.y*2+1,0,1);}";
 
 		ComPtr<ID3DBlob> blob;
 		if (!CompileShader(true, src, "m", &blob, "FillVS")) {
@@ -135,7 +135,7 @@ bool Renderer::SetFillVS() {
 
 bool Renderer::SetCopyPS(ID3D11SamplerState* sampler, ID3D11ShaderResourceView* input) {
 	if (!_copyPS) {
-		const char* src = "Texture2D t:register(t0);SamplerState s:register(s0);float4 m(float4 p:SV_POSITION,float2 c:TEXCOORD):SV_Target{return t.Sample(s,c);}";
+		const char* src = "Texture2D t:register(t0);SamplerState s:register(s0);float4 m(float2 c:TEXCOORD):SV_Target{return t.Sample(s,c);}";
 
 		ComPtr<ID3DBlob> blob;
 		if (!CompileShader(false, src, "m", &blob, "CopyPS")) {
@@ -160,7 +160,7 @@ bool Renderer::SetCopyPS(ID3D11SamplerState* sampler, ID3D11ShaderResourceView* 
 
 bool Renderer::SetSimpleVS(ID3D11Buffer* simpleVB) {
 	if (!_simpleVS) {
-		const char* src = "void m(float4 p:SV_POSITION,float2 c:TEXCOORD,out float4 q:SV_POSITION,out float2 d:TEXCOORD) {q=p;d=c;}";
+		const char* src = "void m(float4 p:SV_POSITION,float2 c:TEXCOORD,out float2 d:TEXCOORD,out float4 q:SV_POSITION) {q=p;d=c;}";
 
 		ComPtr<ID3DBlob> blob;
 		if (!CompileShader(true, src, "m", &blob, "SimpleVS")) {

@@ -30,5 +30,5 @@ private:
 
 	// 缓存版本
 	// 当缓存文件结构有更改时将更新它，使得所有旧缓存失效
-	static constexpr const UINT _VERSION = 2;
+	static constexpr const UINT _VERSION = 3;
 };
