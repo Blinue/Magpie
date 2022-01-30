@@ -82,6 +82,7 @@ private:
 	RECT _srcWndRect{};
 
 	D3D_FEATURE_LEVEL _featureLevel = D3D_FEATURE_LEVEL_10_0;
+	bool _supportTearing = false;
 
 	ComPtr<IDXGIFactory2> _dxgiFactory;
 	ComPtr<IDXGIDevice1> _dxgiDevice;

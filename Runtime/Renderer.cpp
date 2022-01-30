@@ -316,7 +316,13 @@ bool Renderer::IsDebugLayersAvailable() {
 }
 
 bool Renderer::_InitD3D() {
-	HRESULT hr = CreateDXGIFactory1(IID_PPV_ARGS(_dxgiFactory.ReleaseAndGetAddressOf()));
+#ifdef _DEBUG
+	UINT flag = DXGI_CREATE_FACTORY_DEBUG;
+#else
+	UINT flag = 0;
+#endif // _DEBUG
+	
+	HRESULT hr = CreateDXGIFactory2(flag, IID_PPV_ARGS(_dxgiFactory.ReleaseAndGetAddressOf()));
 	if (FAILED(hr)) {
 		return false;
 	}
@@ -333,6 +339,7 @@ bool Renderer::_InitD3D() {
 			SPDLOG_LOGGER_WARN(logger, MakeComErrorMsg("CheckFeatureSupport 失败", hr));
 		}
 	}
+	_supportTearing = !!supportTearing;
 
 	SPDLOG_LOGGER_INFO(logger, fmt::format("可变刷新率支持：{}", supportTearing ? "是" : "否"));
 
@@ -448,8 +455,13 @@ bool Renderer::_CreateSwapChain() {
 	sd.SampleDesc.Quality = 0;
 	sd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT | DXGI_USAGE_SHADER_INPUT;
 	sd.BufferCount = (App::GetInstance().IsDisableLowLatency() && App::GetInstance().GetFrameRate() == 0) ? 3 : 2;
-	sd.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
-	sd.Flags = App::GetInstance().GetFrameRate() != 0 ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT;
+	// 使用 DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL 而不是 DXGI_SWAP_EFFECT_FLIP_DISCARD
+	// 不渲染四周（可能存在的）黑边，因此必须保证交换链缓冲区不被改变
+	// 否则将不得不在每帧渲染前清空后缓冲区，这个操作在一些显卡上比较耗时
+	sd.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;
+	// 只要显卡支持始终启用 DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING
+	sd.Flags = (_supportTearing ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : 0) 
+		| (App::GetInstance().GetFrameRate() == 0 ? DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT : 0);
 
 	ComPtr<IDXGISwapChain1> dxgiSwapChain = nullptr;
 	HRESULT hr = _dxgiFactory->CreateSwapChainForHwnd(
