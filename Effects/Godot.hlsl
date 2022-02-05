@@ -23,7 +23,7 @@ Texture2D INPUT;
 SamplerState sam;
 
 //!CONSTANT
-//!DEFAULT 0.5
+//!DEFAULT 0.8
 //!MIN 0
 //!MAX 1
 float smoothness;
