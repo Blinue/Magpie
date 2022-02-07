@@ -43,7 +43,7 @@ float4 Pass1(float2 pos) {
 	float3 mxRGB = max(max(max(d, e), max(f, b)), h);
 
 	// Shaping amount of sharpening.
-	float3 wRGB = sqrt(min(mnRGB, 1.0 - mxRGB) / mxRGB) * -0.1305;
+	float3 wRGB = sqrt(min(mnRGB, 1.0 - mxRGB) / mxRGB) * -0.13665928043115600587312498717265825;
 
 	// Filter shape.
 	//    w  
