@@ -61,7 +61,7 @@ float4 Pass1(float2 pos) {
 	//  w 1 w
 	//    w   
 	// If is not edge
-	if(dot(0.0721f ,sum.g) <= 0.05)
+	if(dot(0.0721f ,sum.g) <= 0.1)
 		return float4(((((b + d) + (f + h)) * wRGB + e) / (1.0 + 4.0 * wRGB)).rgb, 1);
 	else
 		return float4(((((b + d) + (f + h)) * wRGB * (1 - sharpness) / 2 + e * (1 + sharpness) / 2) / (1.0 + 4.0 * wRGB * (1 - sharpness) / 2)).rgb, 1);
