@@ -56,9 +56,9 @@ float4 Pass1(float2 pos) {
 	//  w 1 w
 	//    w   
 	// If is not edge
-	if(dot(0.0721f ,sum.g) <= 0.05)
+	if(dot(0.0721f ,sum.g) <= 0.08)
 		return float4(((((b + d) + (f + h)) * wRGB + e) / (1.0 + 4.0 * wRGB)).rgb, 1);
 	else
-		return float4(((((b + d) + (f + h)) * wRGB * 2 + e) / (1.0 + 4.0 * wRGB * 2)).rgb, 1);
+		return float4(((((b + d) + (f + h)) * wRGB * 0.4 + e * 1.6) / (1.0 + 4.0 * wRGB * 0.4)).rgb, 1);
 	// If is edge
 }
