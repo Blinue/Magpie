@@ -19,7 +19,7 @@ Texture2D INPUT;
 SamplerState sam;
 
 //!CONSTANT
-//!DEFAULT 0.33
+//!DEFAULT 0.5
 //!MIN 0
 //!MAX 1
 float sharpness;
@@ -54,7 +54,7 @@ float4 Pass1(float2 pos) {
 	float3 mxRGB = max(max(max(d, e), max(f, b)), h);
 
 	// Shaping amount of sharpening.
-	float3 wRGB = sqrt(min(mnRGB, 1.0 - mxRGB) / mxRGB) * (- 0.125, - 0.15, sharpness);
+	float3 wRGB = sqrt(min(mnRGB, 1.0 - mxRGB) / mxRGB) * (- 0.125, - 0.175, sharpness);
 
 	// Filter shape.
 	//    w  
@@ -64,6 +64,6 @@ float4 Pass1(float2 pos) {
 	if(dot(0.0721f ,sum.g) <= 0.1)
 		return float4(((((b + d) + (f + h)) * wRGB + e) / (1.0 + 4.0 * wRGB)).rgb, 1);
 	else
-		return float4(((((b + d) + (f + h)) * wRGB * (1 - sharpness) / 2 + e * (1 + sharpness) / 2) / (1.0 + 4.0 * wRGB * (1 - sharpness) / 2)).rgb, 1);
+		return float4(saturate((((b + d) + (f + h)) * wRGB * (1 + sharpness) + e * (1 + sharpness)) / (1.0 + 4.0 * wRGB * (1 + sharpness))).rgb, 1);
 	// If is edge
 }
