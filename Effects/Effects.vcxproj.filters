@@ -68,5 +68,6 @@
     <CopyFileToFolders Include="LumaSharpen.hlsl" />
     <CopyFileToFolders Include="FineSharp.hlsl" />
     <CopyFileToFolders Include="FSR_EASU_DX10.hlsl" />
+    <CopyFileToFolders Include="LCAS.hlsl" />
   </ItemGroup>
 </Project>
