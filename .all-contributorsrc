@@ -75,6 +75,15 @@
       "contributions": [
         "translation"
       ]
+    },
+    {
+      "login": "Tzugimaa",
+      "name": "Tzugimaa",
+      "avatar_url": "https://avatars.githubusercontent.com/u/4981077?v=4",
+      "profile": "https://github.com/Tzugimaa",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,
