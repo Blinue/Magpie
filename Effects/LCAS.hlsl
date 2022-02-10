@@ -39,10 +39,8 @@ float4 Pass1(float2 pos) {
 	float3 h = INPUT.Sample(sam, pos + float2(0, inputPtY)).rgb;
         
 	// Edge checker
-        float3 sum = (abs(e - b) - 0.5f) * 1.2 + 0.5f;
-	sum += (abs(e - f) - 0.5f) * 1.2 + 0.5f;
-	sum += (abs(e - h) - 0.5f) * 1.2 + 0.5f;
-	sum += (abs(e - d) - 0.5f) * 1.2 + 0.5f;
+        float sum = ((abs(e.g - b.g) - 0.5f) * 1.2 + 0.5f) + ((abs(e.g - h.g) - 0.5f) * 1.2 + 0.5f);
+	sum += ((abs(e.g - d.g) - 0.5f) * 1.2 + 0.5f) + ((abs(e.g - f.g) - 0.5f) * 1.2 + 0.5f);
 	
 	// Soft min and max.
 	//    b
@@ -61,9 +59,9 @@ float4 Pass1(float2 pos) {
 	//  w 1 w
 	//    w   
 	// If is not edge
-	if ((0.72f * sum.g) <= 1)
+	if ((0.72f * sum) <= 1)
 		return float4(((((b + d) + (f + h)) * wRGB + e) / (1.0 + 4.0 * wRGB)).rgb, 1);
 	else
-		return float4(((((b + d) + (f + h)) * wRGB + e * (1 + sharpness) * 0.72f * sum.g) / (1.0 + 4.0 * wRGB)).rgb, 1);
+		return float4(((((b + d) + (f + h)) * wRGB + e * (1 + sharpness) * 0.72f * sum) / (1.0 + 4.0 * wRGB)).rgb, 1);
 	// If is edge
 }
