@@ -69,7 +69,7 @@
       <Value Profile="(Default)">False</Value>
     </Setting>
     <Setting Name="AdapterIdx" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">0</Value>
+      <Value Profile="(Default)">-1</Value>
     </Setting>
     <Setting Name="CropTitleBarOfUWP" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>

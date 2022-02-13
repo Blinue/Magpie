@@ -340,6 +340,9 @@
   <data name="UI_Options_Scale_Cursor_Zoom_Factor" xml:space="preserve">
     <value>Множитель увеличения указателя</value>
   </data>
+  <data name="UI_Options_Scale_Adapter_Default" xml:space="preserve">
+    <value>По умолчанию</value>
+  </data>
   <data name="UI_Options_Scale_Disable_Low_Latency" xml:space="preserve">
     <value>Добавить задержку для повышения производительности</value>
   </data>

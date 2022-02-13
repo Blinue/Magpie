@@ -23,13 +23,15 @@ namespace Magpie.Options {
 			InitializeComponent();
 
 			// 图形适配器
+			cbbAdapter.Items.Add(Properties.Resources.UI_Options_Scale_Adapter_Default);
 			foreach (string adapter in graphicsAdapters) {
 				cbbAdapter.Items.Add(adapter);
 			}
 
-			if (Settings.Default.AdapterIdx < 0 || Settings.Default.AdapterIdx >= graphicsAdapters.Length) {
-				Settings.Default.AdapterIdx = 0;
+			if (Settings.Default.AdapterIdx < -1 || Settings.Default.AdapterIdx >= graphicsAdapters.Length - 1) {
+				Settings.Default.AdapterIdx = -1;
 			}
+			cbbAdapter.SelectedIndex = Settings.Default.AdapterIdx + 1;
 
 			cbbCursorZoomFactor.Items.Clear();
 			for (int i = 0; i < cursorZoomFactors.Length - 1; ++i) {
@@ -92,6 +94,10 @@ namespace Magpie.Options {
 			}
 
 			Settings.Default.CursorZoomFactor = cursorZoomFactors[cbbCursorZoomFactor.SelectedIndex];
+		}
+
+		private void CbbAdapter_SelectionChanged(object sender, SelectionChangedEventArgs e) {
+			Settings.Default.AdapterIdx = cbbAdapter.SelectedIndex - 1;
 		}
 	}
 }

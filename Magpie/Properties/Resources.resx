@@ -340,6 +340,9 @@
   <data name="UI_Options_Scale_Cursor_Zoom_Factor" xml:space="preserve">
     <value>Zoom Factor of the Cursor</value>
   </data>
+  <data name="UI_Options_Scale_Adapter_Default" xml:space="preserve">
+    <value>Default</value>
+  </data>
   <data name="UI_Options_Scale_Disable_Low_Latency" xml:space="preserve">
     <value>Allow Additional Latency to Improve Performance</value>
   </data>
