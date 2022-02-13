@@ -19,7 +19,7 @@
     <ClCompile Include="Renderer.cpp">
       <Filter>渲染</Filter>
     </ClCompile>
-    <ClCompile Include="StepTimer.cpp">
+    <ClCompile Include="GPUTimer.cpp">
       <Filter>渲染</Filter>
     </ClCompile>
     <ClCompile Include="App.cpp">
@@ -87,7 +87,7 @@
     <ClInclude Include="Renderer.h">
       <Filter>渲染</Filter>
     </ClInclude>
-    <ClInclude Include="StepTimer.h">
+    <ClInclude Include="GPUTimer.h">
       <Filter>渲染</Filter>
     </ClInclude>
     <ClInclude Include="App.h">

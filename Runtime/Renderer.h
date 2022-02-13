@@ -4,7 +4,7 @@
 #include "CursorDrawer.h"
 #include "FrameRateDrawer.h"
 #include <CommonStates.h>
-#include "StepTimer.h"
+#include "GPUTimer.h"
 #include "Utils.h"
 
 
@@ -50,12 +50,12 @@ public:
 
 	bool SetAlphaBlend(bool enable);
 
-	StepTimer& GetTimer() {
-		return _timer;
+	GPUTimer& GetTimer() {
+		return _gpuTimer;
 	}
 
-	const StepTimer& GetTimer() const {
-		return _timer;
+	const GPUTimer& GetTimer() const {
+		return _gpuTimer;
 	}
 
 	D3D_FEATURE_LEVEL GetFeatureLevel() const {
@@ -76,8 +76,6 @@ private:
 	bool _CheckSrcState();
 
 	bool _ResolveEffectsJson(const std::string& effectsJson, RECT& destRect);
-
-	void _Render();
 
 	RECT _srcWndRect{};
 
@@ -114,5 +112,5 @@ private:
 	CursorDrawer _cursorDrawer;
 	FrameRateDrawer _frameRateDrawer;
 
-	StepTimer _timer;
+	GPUTimer _gpuTimer;
 };

@@ -28,8 +28,7 @@ bool Renderer::Initialize() {
 		return false;
 	}
 
-	_timer.SetFixedTimeStep(false);
-	_timer.ResetElapsedTime();
+	_gpuTimer.ResetElapsedTime();
 
 	return true;
 }
@@ -58,10 +57,74 @@ bool Renderer::InitializeEffectsAndCursor(const std::string& effectsJson) {
 
 
 void Renderer::Render() {
+	if (!_waitingForNextFrame) {
+		WaitForSingleObjectEx(_frameLatencyWaitableObject.get(), 1000, TRUE);
+	}
+
+	if (!_CheckSrcState()) {
+		SPDLOG_LOGGER_INFO(logger, "源窗口状态改变，退出全屏");
+		App::GetInstance().Quit();
+		return;
+	}
+
+	auto state = App::GetInstance().GetFrameSource().Update();
+	_waitingForNextFrame = state == FrameSourceBase::UpdateState::Waiting
+		|| state == FrameSourceBase::UpdateState::Error;
 	if (_waitingForNextFrame) {
-		_Render();
+		return;
+	}
+
+	_gpuTimer.BeginFrame();
+
+	_d3dDC->ClearState();
+	// 所有渲染都使用三角形带拓扑
+	_d3dDC->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+
+	if (!_cursorDrawer.Update()) {
+		SPDLOG_LOGGER_ERROR(logger, "更新光标位置失败");
+	}
+
+	// 更新常量
+	if (!EffectDrawer::UpdateExprDynamicVars()) {
+		SPDLOG_LOGGER_ERROR(logger, "UpdateExprDynamicVars 失败");
+	}
+
+	if (state == FrameSourceBase::UpdateState::NewFrame) {
+		for (EffectDrawer& effect : _effects) {
+			effect.Draw();
+		}
 	} else {
-		_timer.Tick(std::bind(&Renderer::_Render, this));
+		// 此帧内容无变化
+		// 从第一个有动态常量的 Effect 开始渲染
+		// 如果没有则只渲染最后一个 Effect 的最后一个 pass
+
+		size_t i = 0;
+		for (; i < _effects.size(); ++i) {
+			if (_effects[i].HasDynamicConstants()) {
+				break;
+			}
+		}
+
+		if (i == _effects.size()) {
+			// 只渲染最后一个 Effect 的最后一个 pass
+			_effects.back().Draw(true);
+		} else {
+			for (; i < _effects.size(); ++i) {
+				_effects[i].Draw();
+			}
+		}
+	}
+
+	if (App::GetInstance().IsShowFPS()) {
+		_frameRateDrawer.Draw();
+	}
+
+	_cursorDrawer.Draw();
+
+	if (App::GetInstance().IsDisableVSync()) {
+		_dxgiSwapChain->Present(0, DXGI_PRESENT_ALLOW_TEARING);
+	} else {
+		_dxgiSwapChain->Present(1, 0);
 	}
 }
 
@@ -551,76 +614,6 @@ bool Renderer::_CreateSwapChain() {
 	}
 
 	return true;
-}
-
-void Renderer::_Render() {
-	if (!_waitingForNextFrame) {
-		WaitForSingleObjectEx(_frameLatencyWaitableObject.get(), 1000, TRUE);
-	}
-
-	if (!_CheckSrcState()) {
-		SPDLOG_LOGGER_INFO(logger, "源窗口状态改变，退出全屏");
-		App::GetInstance().Quit();
-		return;
-	}
-
-	auto state = App::GetInstance().GetFrameSource().Update();
-	_waitingForNextFrame = state == FrameSourceBase::UpdateState::Waiting
-		|| state == FrameSourceBase::UpdateState::Error;
-	if (_waitingForNextFrame) {
-		return;
-	}
-
-	_d3dDC->ClearState();
-	// 所有渲染都使用三角形带拓扑
-	_d3dDC->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
-
-	if (!_cursorDrawer.Update()) {
-		SPDLOG_LOGGER_ERROR(logger, "更新光标位置失败");
-	}
-
-	// 更新常量
-	if (!EffectDrawer::UpdateExprDynamicVars()) {
-		SPDLOG_LOGGER_ERROR(logger, "UpdateExprDynamicVars 失败");
-	}
-
-	if (state == FrameSourceBase::UpdateState::NewFrame) {
-		for (EffectDrawer& effect : _effects) {
-			effect.Draw();
-		}
-	} else {
-		// 此帧内容无变化
-		// 从第一个有动态常量的 Effect 开始渲染
-		// 如果没有则只渲染最后一个 Effect 的最后一个 pass
-
-		size_t i = 0;
-		for (; i < _effects.size(); ++i) {
-			if (_effects[i].HasDynamicConstants()) {
-				break;
-			}
-		}
-
-		if (i == _effects.size()) {
-			// 只渲染最后一个 Effect 的最后一个 pass
-			_effects.back().Draw(true);
-		} else {
-			for (; i < _effects.size(); ++i) {
-				_effects[i].Draw();
-			}
-		}
-	}
-
-	if (App::GetInstance().IsShowFPS()) {
-		_frameRateDrawer.Draw();
-	}
-
-	_cursorDrawer.Draw();
-
-	if (App::GetInstance().IsDisableVSync()) {
-		_dxgiSwapChain->Present(0, DXGI_PRESENT_ALLOW_TEARING);
-	} else {
-		_dxgiSwapChain->Present(1, 0);
-	}
 }
 
 bool CheckForeground(HWND hwndForeground) {

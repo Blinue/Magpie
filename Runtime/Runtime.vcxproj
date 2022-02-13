@@ -159,7 +159,7 @@
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="DwmSharedSurfaceFrameSource.h" />
-    <ClInclude Include="StepTimer.h" />
+    <ClInclude Include="GPUTimer.h" />
     <ClInclude Include="StrUtils.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="TextureLoader.h" />
@@ -182,7 +182,7 @@
     <ClCompile Include="DllMain.cpp" />
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="DwmSharedSurfaceFrameSource.cpp" />
-    <ClCompile Include="StepTimer.cpp" />
+    <ClCompile Include="GPUTimer.cpp" />
     <ClCompile Include="StrUtils.cpp" />
     <ClCompile Include="TextureLoader.cpp" />
     <ClCompile Include="Utils.cpp" />

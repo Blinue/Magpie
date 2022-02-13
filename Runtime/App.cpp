@@ -171,9 +171,7 @@ bool App::Run(
 		return false;
 	}
 
-	if (!ShowWindow(_hwndHost, SW_NORMAL)) {
-		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("ShowWindow 失败"));
-	}
+	ShowWindow(_hwndHost, SW_NORMAL);
 
 	_Run();
 
@@ -201,9 +199,7 @@ void App::_Run() {
 		// 如果在 Run 中创建会有短暂的灰屏
 		// 选择第二帧的原因：当 GetFrameCount() 返回 1 时第一帧可能处于等待状态而没有渲染，见 Renderer::Render()
 		if (_renderer->GetTimer().GetFrameCount() == 2 && _hwndDDF) {
-			if (!ShowWindow(_hwndDDF, SW_NORMAL)) {
-				SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("ShowWindow 失败"));
-			}
+			ShowWindow(_hwndDDF, SW_NORMAL);
 
 			if (!SetWindowPos(_hwndDDF, _hwndHost, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOREDRAW)) {
 				SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("SetWindowPos 失败"));
