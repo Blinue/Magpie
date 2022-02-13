@@ -261,7 +261,7 @@ bool DeviceResources::_CreateSwapChain() {
 	sd.SampleDesc.Count = 1;
 	sd.SampleDesc.Quality = 0;
 	sd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT | DXGI_USAGE_SHADER_INPUT;
-	sd.BufferCount = App::GetInstance().IsDisableLowLatency() ? 3 : 2;
+	sd.BufferCount = (App::GetInstance().IsDisableLowLatency() || App::GetInstance().IsDisableVSync()) ? 3 : 2;
 	// 使用 DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL 而不是 DXGI_SWAP_EFFECT_FLIP_DISCARD
 	// 不渲染四周（可能存在的）黑边，因此必须保证交换链缓冲区不被改变
 	// 否则将不得不在每帧渲染前清空后缓冲区，这个操作在一些显卡上比较耗时
@@ -290,8 +290,9 @@ bool DeviceResources::_CreateSwapChain() {
 		return false;
 	}
 
-	// 关闭低延迟模式时将最大延迟设为 2 以使 CPU 和 GPU 并行执行
-	_swapChain->SetMaximumFrameLatency(App::GetInstance().IsDisableLowLatency() ? 2 : 1);
+	// 关闭低延迟模式或关闭垂直同步时将最大延迟设为 2 以使 CPU 和 GPU 并行执行
+	_swapChain->SetMaximumFrameLatency(
+		App::GetInstance().IsDisableLowLatency() || App::GetInstance().IsDisableVSync() ? 2 : 1);
 
 	_frameLatencyWaitableObject.reset(_swapChain->GetFrameLatencyWaitableObject());
 	if (!_frameLatencyWaitableObject) {

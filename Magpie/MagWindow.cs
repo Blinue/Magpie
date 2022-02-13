@@ -149,7 +149,7 @@ namespace Magpie {
 							(Settings.Default.CropTitleBarOfUWP ? (uint)FlagMasks.CropTitleBarOfUWP : 0) |
 							(Settings.Default.DebugDisableEffectCache ? (uint)FlagMasks.DisableEffectCache : 0) |
 							(Settings.Default.SimulateExclusiveFullscreen ? (uint)FlagMasks.SimulateExclusiveFullscreen : 0) |
-							(Settings.Default.DisableVSync ? (uint)FlagMasks.DisableVSync : 0);
+							(Settings.Default.VSync ? 0 : (uint)FlagMasks.DisableVSync);
 
 						bool customCropping = Settings.Default.CustomCropping;
 

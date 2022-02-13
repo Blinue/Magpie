@@ -421,13 +421,13 @@ namespace Magpie.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool DisableVSync {
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool VSync {
             get {
-                return ((bool)(this["DisableVSync"]));
+                return ((bool)(this["VSync"]));
             }
             set {
-                this["DisableVSync"] = value;
+                this["VSync"] = value;
             }
         }
     }

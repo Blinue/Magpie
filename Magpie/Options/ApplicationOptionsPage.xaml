@@ -24,8 +24,7 @@
 
         <Label Name="lblRestartToApply1" Padding="10,10,0,0" Foreground="#FF318EBF" Visibility="Collapsed" />
         <CheckBox x:Name="ckbRunAtStartUp" Content="{x:Static p:Resources.UI_Options_Application_Run_At_Startup}" Margin="0,15,0,0" Unchecked="CkbRunAtStartUp_Unchecked"/>
-        <CheckBox
-                x:Name="ckbMinimizeAtStartUp"
+        <CheckBox x:Name="ckbMinimizeAtStartUp"
                 Content="{x:Static p:Resources.UI_Options_Application_Minimize_To_System_Tray}"
                 Margin="15,10,0,0"
                 Unchecked="CkbMinimizeAtStartUp_Unchecked"

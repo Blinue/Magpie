@@ -799,15 +799,6 @@ namespace Magpie.Properties {
         }
         
         /// <summary>
-        ///   查找类似 Disable Vsync 的本地化字符串。
-        /// </summary>
-        public static string UI_Options_Scale_No_VSync {
-            get {
-                return ResourceManager.GetString("UI_Options_Scale_No_VSync", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   查找类似 Open Scale Config 的本地化字符串。
         /// </summary>
         public static string UI_Options_Scale_Open_Scale_Config {
@@ -840,6 +831,15 @@ namespace Magpie.Properties {
         public static string UI_Options_Scale_Source_Window {
             get {
                 return ResourceManager.GetString("UI_Options_Scale_Source_Window", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Vsync 的本地化字符串。
+        /// </summary>
+        public static string UI_Options_Scale_VSync {
+            get {
+                return ResourceManager.GetString("UI_Options_Scale_VSync", resourceCulture);
             }
         }
         

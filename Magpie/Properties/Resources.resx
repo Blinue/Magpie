@@ -364,8 +364,8 @@
   <data name="UI_Options_Scale_Multiple_Monitors_Nearest" xml:space="preserve">
     <value>Use the Monitor Nearest to the Source Window</value>
   </data>
-  <data name="UI_Options_Scale_No_VSync" xml:space="preserve">
-    <value>Disable Vsync</value>
+  <data name="UI_Options_Scale_VSync" xml:space="preserve">
+    <value>Vsync</value>
   </data>
   <data name="UI_Options_Scale_Open_Scale_Config" xml:space="preserve">
     <value>Open Scale Config</value>
