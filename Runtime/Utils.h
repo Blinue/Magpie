@@ -33,7 +33,7 @@ struct Utils {
 		return true;
 	}
 
-	static bool CheckOverlap(const RECT& r1, const RECT& r2) {
+	static bool CheckOverlap(const RECT& r1, const RECT& r2) noexcept {
 		return r1.right > r2.left && r1.bottom > r2.top && r1.left < r2.right&& r1.top < r2.bottom;
 	}
 
@@ -93,7 +93,7 @@ struct Utils {
 
 		bool Hash(void* data, size_t len, std::vector<BYTE>& result);
 
-		DWORD GetHashLength() {
+		DWORD GetHashLength() noexcept {
 			return _hashLen;
 		}
 	private:

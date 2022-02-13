@@ -18,23 +18,23 @@ public:
 
 	bool GetSampler(EffectSamplerFilterType filterType, EffectSamplerAddressType addressType, ID3D11SamplerState** result);
 
-	winrt::com_ptr<ID3D11Device1> GetD3DDevice() const{
+	winrt::com_ptr<ID3D11Device1> GetD3DDevice() const noexcept {
 		return _d3dDevice;
 	}
 
-	winrt::com_ptr<ID3D11DeviceContext1> GetD3DDC() const {
+	winrt::com_ptr<ID3D11DeviceContext1> GetD3DDC() const noexcept {
 		return _d3dDC;
 	}
 
-	winrt::com_ptr<IDXGIDevice1> GetDXGIDevice() const {
+	winrt::com_ptr<IDXGIDevice1> GetDXGIDevice() const noexcept {
 		return _dxgiDevice;
 	}
 
-	winrt::com_ptr<IDXGIFactory2> GetDXGIFactory() const {
+	winrt::com_ptr<IDXGIFactory2> GetDXGIFactory() const noexcept {
 		return _dxgiFactory;
 	}
 
-	winrt::com_ptr<IDXGIAdapter1> GetGraphicsAdapter() const {
+	winrt::com_ptr<IDXGIAdapter1> GetGraphicsAdapter() const noexcept {
 		return _graphicsAdapter;
 	}
 
@@ -54,11 +54,11 @@ public:
 		return _gpuTimer;
 	}
 
-	const GPUTimer& GetTimer() const {
+	const GPUTimer& GetTimer() const noexcept {
 		return _gpuTimer;
 	}
 
-	D3D_FEATURE_LEVEL GetFeatureLevel() const {
+	D3D_FEATURE_LEVEL GetFeatureLevel() const noexcept {
 		return _featureLevel;
 	}
 

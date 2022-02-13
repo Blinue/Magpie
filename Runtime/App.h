@@ -30,111 +30,111 @@ public:
 
 	void Quit();
 
-	HINSTANCE GetHInstance() const {
+	HINSTANCE GetHInstance() const noexcept {
 		return _hInst;
 	}
 
-	HWND GetHwndSrc() const {
+	HWND GetHwndSrc() const noexcept {
 		return _hwndSrc;
 	}
 
-	HWND GetHwndHost() const {
+	HWND GetHwndHost() const noexcept {
 		return _hwndHost;
 	}
 
-	const RECT& GetHostWndRect() const {
+	const RECT& GetHostWndRect() const noexcept {
 		return _hostWndRect;
 	}
 
-	Renderer& GetRenderer() {
+	Renderer& GetRenderer() noexcept {
 		return *_renderer;
 	}
 
-	FrameSourceBase& GetFrameSource() {
+	FrameSourceBase& GetFrameSource() noexcept {
 		return *_frameSource;
 	}
 
-	UINT GetCaptureMode() const {
+	UINT GetCaptureMode() const noexcept {
 		return _captureMode;
 	}
 
-	float GetCursorZoomFactor() const {
+	float GetCursorZoomFactor() const noexcept {
 		return _cursorZoomFactor;
 	}
 
-	UINT GetCursorInterpolationMode() const {
+	UINT GetCursorInterpolationMode() const noexcept {
 		return _cursorInterpolationMode;
 	}
 
-	int GetAdapterIdx() const {
+	int GetAdapterIdx() const noexcept {
 		return _adapterIdx;
 	}
 
-	UINT GetMultiMonitorUsage() const {
+	UINT GetMultiMonitorUsage() const noexcept {
 		return _multiMonitorUsage;
 	}
 
-	const RECT& GetCropBorders() const {
+	const RECT& GetCropBorders() const noexcept {
 		return _cropBorders;
 	}
 
-	bool IsMultiMonitorMode() const {
+	bool IsMultiMonitorMode() const noexcept {
 		return _isMultiMonitorMode;
 	}
 
-	bool IsNoCursor() const {
+	bool IsNoCursor() const noexcept {
 		return _flags & (UINT)_FlagMasks::NoCursor;
 	}
 
-	bool IsAdjustCursorSpeed() const {
+	bool IsAdjustCursorSpeed() const noexcept {
 		return _flags & (UINT)_FlagMasks::AdjustCursorSpeed;
 	}
 
-	bool IsShowFPS() const {
+	bool IsShowFPS() const noexcept {
 		return _flags & (UINT)_FlagMasks::ShowFPS;
 	}
 
-	bool IsDisableLowLatency() const {
+	bool IsDisableLowLatency() const noexcept {
 		return _flags & (UINT)_FlagMasks::DisableLowLatency;
 	}
 
-	bool IsDisableWindowResizing() const {
+	bool IsDisableWindowResizing() const noexcept {
 		return _flags & (UINT)_FlagMasks::DisableWindowResizing;
 	}
 
-	bool IsBreakpointMode() const {
+	bool IsBreakpointMode() const noexcept {
 		return _flags & (UINT)_FlagMasks::BreakpointMode;
 	}
 
-	bool IsDisableDirectFlip() const {
+	bool IsDisableDirectFlip() const noexcept {
 		return _flags & (UINT)_FlagMasks::DisableDirectFlip;
 	}
 
-	bool IsConfineCursorIn3DGames() const {
+	bool IsConfineCursorIn3DGames() const noexcept {
 		return _flags & (UINT)_FlagMasks::ConfineCursorIn3DGames;
 	}
 
-	bool IsCropTitleBarOfUWP() const {
+	bool IsCropTitleBarOfUWP() const noexcept {
 		return _flags & (UINT)_FlagMasks::CropTitleBarOfUWP;
 	}
 
-	bool IsDisableEffectCache() const {
+	bool IsDisableEffectCache() const noexcept {
 		return _flags & (UINT)_FlagMasks::DisableEffectCache;
 	}
 
-	bool IsSimulateExclusiveFullscreen() const {
+	bool IsSimulateExclusiveFullscreen() const noexcept {
 		return _flags & (UINT)_FlagMasks::SimulateExclusiveFullscreen;
 	}
 
-	bool IsDisableVSync() const {
+	bool IsDisableVSync() const noexcept {
 		return _flags & (UINT)_FlagMasks::DisableVSync;
 	}
 
-	const char* GetErrorMsg() const {
+	const char* GetErrorMsg() const noexcept {
 		return _errorMsg;
 	}
 
-	void SetErrorMsg(const char* errorMsg) {
+	void SetErrorMsg(const char* errorMsg) noexcept {
 		_errorMsg = errorMsg;
 	}
 
