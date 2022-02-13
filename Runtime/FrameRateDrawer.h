@@ -1,14 +1,20 @@
 #pragma once
 #include "pch.h"
-#include <SpriteFont.h>
-#include <chrono>
+
+
+namespace DirectX {
+class SpriteFont;
+class SpriteBatch;
+}
 
 
 class FrameRateDrawer {
 public:
-	FrameRateDrawer() = default;
+	FrameRateDrawer();
 	FrameRateDrawer(const FrameRateDrawer&) = delete;
 	FrameRateDrawer(FrameRateDrawer&&) = delete;
+
+	~FrameRateDrawer();;
 
 	bool Initialize(ID3D11Texture2D* renderTarget, const RECT& destRect);
 

@@ -7,6 +7,7 @@ class FrameRateDrawer;
 class GPUTimer;
 class CursorDrawer;
 
+
 class Renderer {
 public:
 	Renderer();

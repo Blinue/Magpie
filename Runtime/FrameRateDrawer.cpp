@@ -5,7 +5,12 @@
 #include "DeviceResources.h"
 #include "Renderer.h"
 #include "GPUTimer.h"
+#include <SpriteFont.h>
 
+
+FrameRateDrawer::FrameRateDrawer() {}
+
+FrameRateDrawer::~FrameRateDrawer() {}
 
 bool FrameRateDrawer::Initialize(ID3D11Texture2D* renderTarget, const RECT& destRect) {
 	auto& dr = App::GetInstance().GetDeviceResources();

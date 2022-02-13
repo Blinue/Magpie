@@ -25,7 +25,7 @@ public:
 
 	void ResetElapsedTime();
 
-	// Update timer state, calling the specified Update function the appropriate number of times.
+	// 在每帧开始时调用，用于记录帧率
 	void BeginFrame();
 
 private:
