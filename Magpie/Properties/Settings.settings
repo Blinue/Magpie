@@ -68,7 +68,7 @@
     <Setting Name="ConfineCursorIn3DGames" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
-    <Setting Name="AdapterIdx" Type="System.UInt32" Scope="User">
+    <Setting Name="AdapterIdx" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">0</Value>
     </Setting>
     <Setting Name="CropTitleBarOfUWP" Type="System.Boolean" Scope="User">
@@ -99,6 +99,9 @@
       <Value Profile="(Default)">0</Value>
     </Setting>
     <Setting Name="CustomCropping" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="DisableVSync" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
   </Settings>

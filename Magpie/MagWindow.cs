@@ -47,7 +47,8 @@ namespace Magpie {
 			DisableDirectFlip = 0x80,
 			ConfineCursorIn3DGames = 0x100,
 			CropTitleBarOfUWP = 0x200,
-			DisableEffectCache = 0x400
+			DisableEffectCache = 0x400,
+			DisableVSync = 0x800
 		}
 
 		private readonly MagWindowParams magWindowParams = new();
@@ -137,21 +138,6 @@ namespace Magpie {
 					if (cmd == MagWindowCmd.SetLogLevel) {
 						NativeMethods.SetLogLevel(ResolveLogLevel((uint)magWindowParams.logLevel));
 					} else {
-						int frameRate = 0;
-						switch (Settings.Default.FrameRateType) {
-							case 1:
-								// 不限帧率
-								frameRate = -1;
-								break;
-							case 2:
-								// 限制帧率
-								frameRate = (int)Settings.Default.FrameRateLimit;
-								break;
-							default:
-								// 垂直同步
-								break;
-						}
-
 						uint flags = (Settings.Default.ShowFPS ? (uint)FlagMasks.ShowFPS : 0) |
 							(Settings.Default.NoCursor ? (uint)FlagMasks.NoCursor : 0) |
 							(Settings.Default.AdjustCursorSpeed ? (uint)FlagMasks.AdjustCursorSpeed : 0) |
@@ -162,7 +148,8 @@ namespace Magpie {
 							(Settings.Default.ConfineCursorIn3DGames ? (uint)FlagMasks.ConfineCursorIn3DGames : 0) |
 							(Settings.Default.CropTitleBarOfUWP ? (uint)FlagMasks.CropTitleBarOfUWP : 0) |
 							(Settings.Default.DebugDisableEffectCache ? (uint)FlagMasks.DisableEffectCache : 0) |
-							(Settings.Default.SimulateExclusiveFullscreen ? (uint)FlagMasks.SimulateExclusiveFullscreen : 0);
+							(Settings.Default.SimulateExclusiveFullscreen ? (uint)FlagMasks.SimulateExclusiveFullscreen : 0) |
+							(Settings.Default.DisableVSync ? (uint)FlagMasks.DisableVSync : 0);
 
 						bool customCropping = Settings.Default.CustomCropping;
 
@@ -171,7 +158,6 @@ namespace Magpie {
 							magWindowParams.effectsJson,
 							flags,
 							Settings.Default.CaptureMode,
-							frameRate,
 							Settings.Default.CursorZoomFactor,
 							Settings.Default.CursorInterpolationMode,
 							Settings.Default.AdapterIdx,

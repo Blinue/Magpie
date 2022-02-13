@@ -84,7 +84,7 @@ private:
 	D3D_FEATURE_LEVEL _featureLevel = D3D_FEATURE_LEVEL_10_0;
 	bool _supportTearing = false;
 
-	ComPtr<IDXGIFactory2> _dxgiFactory;
+	ComPtr<IDXGIFactory4> _dxgiFactory;
 	ComPtr<IDXGIDevice1> _dxgiDevice;
 	ComPtr<IDXGISwapChain2> _dxgiSwapChain;
 	ComPtr<IDXGIAdapter1> _graphicsAdapter;

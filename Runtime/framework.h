@@ -2,6 +2,8 @@
 
 #include "targetver.h"
 
+// Windows 头文件
+
 // 从 Windows 头文件中排除极少使用的内容
 #define WIN32_LEAN_AND_MEAN
 // 使用标准库的 min 和 max 而不是宏
@@ -32,20 +34,18 @@
 #define NODEFERWINDOWPOS
 #define NOMCX
 
-
-// Windows 头文件
 #include <windows.h>
 #include <windowsx.h>
 #include <magnification.h>
-#include <d3d11.h>
-#include <d3d11_1.h>
-#include <d3dcompiler.h>
-#include <dxgi1_5.h>
-#include <dxgi1_6.h>
 #include <wrl/client.h>
 #include <dwmapi.h>
 #include <profileapi.h>
 #include <psapi.h>
+
+// DirectX 头文件
+#include <d3d11_1.h>
+#include <dxgi1_6.h>
+#include <d3dcompiler.h>
 
 // C++ 运行时头文件
 #include <string>

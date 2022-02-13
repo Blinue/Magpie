@@ -296,7 +296,7 @@ void EffectCache::Save(const wchar_t* fileName, std::string_view hash, const Eff
 		HANDLE hFind = Utils::SafeHandle(FindFirstFile(L".\\cache\\*", &findData));
 		if (hFind) {
 			while (FindNextFile(hFind, &findData)) {
-				if (lstrlenW(findData.cFileName) < 8) {
+				if (StrUtils::StrLen(findData.cFileName) < 8) {
 					continue;
 				}
 

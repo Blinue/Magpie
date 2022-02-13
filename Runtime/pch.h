@@ -11,8 +11,6 @@
 #include "ErrorMessages.h"
 
 
-#define XML(X) TEXT(#X)
-
 #define API_DECLSPEC extern "C" __declspec(dllexport)
 
 

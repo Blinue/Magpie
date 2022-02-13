@@ -28,15 +28,7 @@ bool Renderer::Initialize() {
 		return false;
 	}
 
-	int frameRate = App::GetInstance().GetFrameRate();
-	
-	if (frameRate > 0) {
-		_timer.SetFixedTimeStep(true);
-		_timer.SetTargetElapsedSeconds(1.0 / frameRate);
-	} else {
-		_timer.SetFixedTimeStep(false);
-	}
-	
+	_timer.SetFixedTimeStep(false);
 	_timer.ResetElapsedTime();
 
 	return true;
@@ -204,25 +196,24 @@ static inline void LogAdapter(const DXGI_ADAPTER_DESC1& adapterDesc) {
 		adapterDesc.VendorId, adapterDesc.DeviceId, StrUtils::UTF16ToUTF8(adapterDesc.Description)));
 }
 
-static ComPtr<IDXGIAdapter1> ObtainGraphicsAdapter(IDXGIFactory1* dxgiFactory, UINT adapterIdx) {
+static ComPtr<IDXGIAdapter1> ObtainGraphicsAdapter(IDXGIFactory4* dxgiFactory, int adapterIdx) {
 	ComPtr<IDXGIAdapter1> adapter;
 
-	HRESULT hr = dxgiFactory->EnumAdapters1(adapterIdx, adapter.ReleaseAndGetAddressOf());
-	if (SUCCEEDED(hr)) {
-		DXGI_ADAPTER_DESC1 desc;
-		HRESULT hr = adapter->GetDesc1(&desc);
-		if (FAILED(hr)) {
-			return nullptr;
+	if (adapterIdx >= 0) {
+		HRESULT hr = dxgiFactory->EnumAdapters1(adapterIdx, adapter.ReleaseAndGetAddressOf());
+		if (SUCCEEDED(hr)) {
+			DXGI_ADAPTER_DESC1 desc;
+			HRESULT hr = adapter->GetDesc1(&desc);
+			if (FAILED(hr)) {
+				return nullptr;
+			}
+
+			LogAdapter(desc);
+			return adapter;
 		}
-
-		LogAdapter(desc);
-		return adapter;
 	}
-
-	// 指定 GPU 失败，回落到普通方式
-	ComPtr<IDXGIAdapter1> warpAdapter;
-	DXGI_ADAPTER_DESC1 warpDesc;
-
+	
+	// 枚举查找第一个支持 D3D11 的图形适配器
 	for (UINT adapterIndex = 0;
 			SUCCEEDED(dxgiFactory->EnumAdapters1(adapterIndex,
 				adapter.ReleaseAndGetAddressOf()));
@@ -231,27 +222,52 @@ static ComPtr<IDXGIAdapter1> ObtainGraphicsAdapter(IDXGIFactory1* dxgiFactory, U
 		DXGI_ADAPTER_DESC1 desc;
 		HRESULT hr = adapter->GetDesc1(&desc);
 		if (FAILED(hr)) {
-			return nullptr;
-		}
-
-		if (desc.Flags == DXGI_ADAPTER_FLAG_SOFTWARE) {
-			warpAdapter = adapter;
-			warpDesc = desc;
 			continue;
 		}
 
-		LogAdapter(desc);
-		return adapter;
+		if (desc.Flags == DXGI_ADAPTER_FLAG_SOFTWARE) {
+			continue;
+		}
+
+		D3D_FEATURE_LEVEL featureLevels[] = {
+			D3D_FEATURE_LEVEL_11_1,
+			D3D_FEATURE_LEVEL_11_0,
+			D3D_FEATURE_LEVEL_10_1,
+			D3D_FEATURE_LEVEL_10_0,
+			// 不支持功能级别 9.x，但这里加上没坏处
+			D3D_FEATURE_LEVEL_9_3,
+			D3D_FEATURE_LEVEL_9_2,
+			D3D_FEATURE_LEVEL_9_1,
+		};
+		UINT nFeatureLevels = ARRAYSIZE(featureLevels);
+
+		hr = D3D11CreateDevice(
+			adapter.Get(),
+			D3D_DRIVER_TYPE_UNKNOWN,
+			nullptr,
+			0,
+			featureLevels,
+			nFeatureLevels,
+			D3D11_SDK_VERSION,
+			nullptr,
+			nullptr,
+			nullptr
+		);
+		if (SUCCEEDED(hr)) {
+			LogAdapter(desc);
+			return adapter;
+		}
 	}
 
 	// 回落到 Basic Render Driver Adapter（WARP）
 	// https://docs.microsoft.com/en-us/windows/win32/direct3darticles/directx-warp
-	if (warpAdapter) {
-		LogAdapter(warpDesc);
-		return warpAdapter;
-	} else {
+	HRESULT hr = dxgiFactory->EnumWarpAdapter(IID_PPV_ARGS(&adapter));
+	if (FAILED(hr)) {
+		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("创建 WARP 设备失败", hr));
 		return nullptr;
 	}
+
+	return adapter;
 }
 
 bool Renderer::CompileShader(bool isVS, std::string_view hlsl, const char* entryPoint,
@@ -344,7 +360,7 @@ bool Renderer::_InitD3D() {
 
 	SPDLOG_LOGGER_INFO(logger, fmt::format("可变刷新率支持：{}", supportTearing ? "是" : "否"));
 
-	if (App::GetInstance().GetFrameRate() != 0 && !supportTearing) {
+	if (App::GetInstance().IsDisableVSync() && !supportTearing) {
 		SPDLOG_LOGGER_ERROR(logger, "当前显示器不支持可变刷新率");
 		App::GetInstance().SetErrorMsg(ErrorMessages::VSYNC_OFF_NOT_SUPPORTED);
 		return false;
@@ -455,14 +471,14 @@ bool Renderer::_CreateSwapChain() {
 	sd.SampleDesc.Count = 1;
 	sd.SampleDesc.Quality = 0;
 	sd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT | DXGI_USAGE_SHADER_INPUT;
-	sd.BufferCount = (App::GetInstance().IsDisableLowLatency() && App::GetInstance().GetFrameRate() == 0) ? 3 : 2;
+	sd.BufferCount = App::GetInstance().IsDisableLowLatency() ? 3 : 2;
 	// 使用 DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL 而不是 DXGI_SWAP_EFFECT_FLIP_DISCARD
 	// 不渲染四周（可能存在的）黑边，因此必须保证交换链缓冲区不被改变
 	// 否则将不得不在每帧渲染前清空后缓冲区，这个操作在一些显卡上比较耗时
 	sd.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;
 	// 只要显卡支持始终启用 DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING
-	sd.Flags = (_supportTearing ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : 0) 
-		| (App::GetInstance().GetFrameRate() == 0 ? DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT : 0);
+	sd.Flags = (_supportTearing ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : 0)
+		| DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT;
 
 	ComPtr<IDXGISwapChain1> dxgiSwapChain = nullptr;
 	HRESULT hr = _dxgiFactory->CreateSwapChainForHwnd(
@@ -484,20 +500,13 @@ bool Renderer::_CreateSwapChain() {
 		return false;
 	}
 
-	if (App::GetInstance().GetFrameRate() != 0) {
-		hr = _dxgiDevice->SetMaximumFrameLatency(1);
-		if (FAILED(hr)) {
-			SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("SetMaximumFrameLatency 失败", hr));
-		}
-	} else {
-		// 关闭低延迟模式时将最大延迟设为 2 以使 CPU 和 GPU 并行执行
-		_dxgiSwapChain->SetMaximumFrameLatency(App::GetInstance().IsDisableLowLatency() ? 2 : 1);
+	// 关闭低延迟模式时将最大延迟设为 2 以使 CPU 和 GPU 并行执行
+	_dxgiSwapChain->SetMaximumFrameLatency(App::GetInstance().IsDisableLowLatency() ? 2 : 1);
 
-		_frameLatencyWaitableObject.reset(_dxgiSwapChain->GetFrameLatencyWaitableObject());
-		if (!_frameLatencyWaitableObject) {
-			SPDLOG_LOGGER_ERROR(logger, "GetFrameLatencyWaitableObject 失败");
-			return false;
-		}
+	_frameLatencyWaitableObject.reset(_dxgiSwapChain->GetFrameLatencyWaitableObject());
+	if (!_frameLatencyWaitableObject) {
+		SPDLOG_LOGGER_ERROR(logger, "GetFrameLatencyWaitableObject 失败");
+		return false;
 	}
 
 	hr = _dxgiFactory->MakeWindowAssociation(App::GetInstance().GetHwndHost(), DXGI_MWA_NO_ALT_ENTER);
@@ -520,7 +529,7 @@ bool Renderer::_CreateSwapChain() {
 		} else {
 			supportMPO = output2->SupportsOverlays();
 		}
-		
+
 		ComPtr<IDXGIOutput6> output6;
 		hr = output.As<IDXGIOutput6>(&output6);
 		if (FAILED(hr)) {
@@ -549,9 +558,7 @@ bool Renderer::_CreateSwapChain() {
 }
 
 void Renderer::_Render() {
-	int frameRate = App::GetInstance().GetFrameRate();
-
-	if (!_waitingForNextFrame && frameRate == 0) {
+	if (!_waitingForNextFrame) {
 		WaitForSingleObjectEx(_frameLatencyWaitableObject.get(), 1000, TRUE);
 	}
 
@@ -613,7 +620,7 @@ void Renderer::_Render() {
 
 	_cursorDrawer.Draw();
 
-	if (frameRate != 0) {
+	if (App::GetInstance().IsDisableVSync()) {
 		_dxgiSwapChain->Present(0, DXGI_PRESENT_ALLOW_TEARING);
 	} else {
 		_dxgiSwapChain->Present(1, 0);

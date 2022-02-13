@@ -348,15 +348,6 @@
   <data name="UI_Options_Scale_Disable_Window_Resizing" xml:space="preserve">
     <value>缩放时禁用窗口大小调整</value>
   </data>
-  <data name="UI_Options_Scale_Frame_Rate" xml:space="preserve">
-    <value>帧率</value>
-  </data>
-  <data name="UI_Options_Scale_Frame_Rate_Limiter" xml:space="preserve">
-    <value>限制帧率</value>
-  </data>
-  <data name="UI_Options_Scale_Frame_Rate_Not_Limited" xml:space="preserve">
-    <value>无限制</value>
-  </data>
   <data name="UI_Options_Scale_Multiple_Monitors" xml:space="preserve">
     <value>多显示器</value>
   </data>
@@ -383,9 +374,6 @@
   </data>
   <data name="UI_Options_Scale_Source_Window" xml:space="preserve">
     <value>源窗口</value>
-  </data>
-  <data name="UI_Options_Scale_VSync" xml:space="preserve">
-    <value>垂直同步</value>
   </data>
   <data name="UI_Options_Title" xml:space="preserve">
     <value>Magpie 选项</value>

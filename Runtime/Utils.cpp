@@ -28,11 +28,15 @@ bool Utils::GetClientScreenRect(HWND hWnd, RECT& rect) {
 bool Utils::ReadFile(const wchar_t* fileName, std::vector<BYTE>& result) {
 	SPDLOG_LOGGER_INFO(logger, fmt::format("读取文件：{}", StrUtils::UTF16ToUTF8(fileName)));
 
-#if (_WIN32_WINNT >= _WIN32_WINNT_WIN8)
-	ScopedHandle hFile(SafeHandle(CreateFile2(fileName, GENERIC_READ, FILE_SHARE_READ, OPEN_EXISTING, nullptr)));
-#else
-	ScopedHandle hFile(SafeHandle(CreateFile(fileName, GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN, nullptr)));
-#endif
+	CREATEFILE2_EXTENDED_PARAMETERS extendedParams = {};
+	extendedParams.dwSize = sizeof(CREATEFILE2_EXTENDED_PARAMETERS);
+	extendedParams.dwFileAttributes = FILE_ATTRIBUTE_NORMAL;
+	extendedParams.dwFileFlags = FILE_FLAG_SEQUENTIAL_SCAN;
+	extendedParams.dwSecurityQosFlags = SECURITY_ANONYMOUS;
+	extendedParams.lpSecurityAttributes = nullptr;
+	extendedParams.hTemplateFile = nullptr;
+
+	ScopedHandle hFile(SafeHandle(CreateFile2(fileName, GENERIC_READ, FILE_SHARE_READ, OPEN_EXISTING, &extendedParams)));
 
 	if (!hFile) {
 		SPDLOG_LOGGER_ERROR(logger, "打开文件失败");

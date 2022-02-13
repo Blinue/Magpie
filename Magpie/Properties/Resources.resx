@@ -349,15 +349,6 @@
   <data name="UI_Options_Scale_Disable_Window_Resizing" xml:space="preserve">
     <value>Disable Window Resizing while Zoomed</value>
   </data>
-  <data name="UI_Options_Scale_Frame_Rate" xml:space="preserve">
-    <value>Frame Rate</value>
-  </data>
-  <data name="UI_Options_Scale_Frame_Rate_Limiter" xml:space="preserve">
-    <value>Limiter</value>
-  </data>
-  <data name="UI_Options_Scale_Frame_Rate_Not_Limited" xml:space="preserve">
-    <value>Not Limited</value>
-  </data>
   <data name="UI_Options_Scale_Multiple_Monitors" xml:space="preserve">
     <value>Multiple Monitors</value>
   </data>
@@ -384,9 +375,6 @@
   </data>
   <data name="UI_Options_Scale_Source_Window" xml:space="preserve">
     <value>Source Window</value>
-  </data>
-  <data name="UI_Options_Scale_VSync" xml:space="preserve">
-    <value>VSync</value>
   </data>
   <data name="UI_Options_Title" xml:space="preserve">
     <value>Magpie Options</value>

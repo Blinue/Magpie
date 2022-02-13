@@ -158,10 +158,9 @@ namespace Magpie {
 			[MarshalAs(UnmanagedType.LPUTF8Str)] string effectsJson,
 			uint flags,
 			uint captureMode,
-			int frameRate,
 			float cursorZoomFactor,
 			uint cursorInterpolationMode,
-			uint adapterIdx,
+			int adapterIdx,
 			uint multiMonitorMode,
 			uint cropLeft,
 			uint cropTop,
@@ -183,18 +182,17 @@ namespace Magpie {
 			string effectsJson,
 			uint flags,
 			uint captureMode,
-			int frameRate,
 			float cursorZoomFactor,
 			uint cursorInterpolationMode,
-			uint adapterIdx,
+			int adapterIdx,
 			uint multiMonitorUsage,
 			uint cropLeft,
 			uint cropTop,
 			uint cropRight,
 			uint cropBottom
 		) {
-			return PtrToUTF8String(RunNative(hwndSrc, effectsJson, flags, captureMode,
-				frameRate, cursorZoomFactor, cursorInterpolationMode, adapterIdx, multiMonitorUsage,
+			return PtrToUTF8String(RunNative(hwndSrc, effectsJson, flags, captureMode, cursorZoomFactor,
+				cursorInterpolationMode, adapterIdx, multiMonitorUsage,
 				cropLeft, cropTop, cropRight, cropBottom));
 		}
 	}
