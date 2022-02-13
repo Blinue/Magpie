@@ -16,8 +16,8 @@ bool DwmSharedSurfaceFrameSource::Initialize() {
 		return false;
 	}
 
-	if (!App::GetInstance().UpdateSrcFrameRect()) {
-		SPDLOG_LOGGER_ERROR(logger, "UpdateSrcFrameRect 失败");
+	if (!_UpdateSrcFrameRect()) {
+		SPDLOG_LOGGER_ERROR(logger, "_UpdateSrcFrameRect 失败");
 		return false;
 	}
 	
@@ -32,12 +32,11 @@ bool DwmSharedSurfaceFrameSource::Initialize() {
 
 	SPDLOG_LOGGER_INFO(logger, fmt::format("源窗口 DPI 缩放为 {}", 1 / a));
 
-	RECT srcFrameRect = App::GetInstance().GetSrcFrameRect();
 	RECT frameRect = {
-		std::lround(srcFrameRect.left * a + bx),
-		std::lround(srcFrameRect.top * a + by),
-		std::lround(srcFrameRect.right * a + bx),
-		std::lround(srcFrameRect.bottom * a + by)
+		std::lround(_srcFrameRect.left * a + bx),
+		std::lround(_srcFrameRect.top * a + by),
+		std::lround(_srcFrameRect.right * a + bx),
+		std::lround(_srcFrameRect.bottom * a + by)
 	};
 	if (frameRect.left < 0 || frameRect.top < 0 || frameRect.right < 0 
 		|| frameRect.bottom < 0 || frameRect.right - frameRect.left <= 0

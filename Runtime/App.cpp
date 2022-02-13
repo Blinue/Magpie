@@ -101,7 +101,7 @@ bool App::Run(
 	_renderer.reset(new Renderer());
 	if (!_renderer->Initialize()) {
 		SPDLOG_LOGGER_CRITICAL(logger, "初始化 Renderer 失败");
-		Close();
+		Quit();
 		_Run();
 		return false;
 	}
@@ -123,24 +123,16 @@ bool App::Run(
 		break;
 	default:
 		SPDLOG_LOGGER_CRITICAL(logger, "未知的捕获模式");
-		Close();
+		Quit();
 		_Run();
 		return false;
 	}
 	
 	if (!_frameSource->Initialize()) {
 		SPDLOG_LOGGER_CRITICAL(logger, "初始化 FrameSource 失败");
-		Close();
+		Quit();
 		_Run();
 		return false;
-	}
-
-	if (_srcFrameRect == RECT{}) {
-		// FrameSource 初始化完成后计算窗口边框，因为初始化过程中可能改变窗口位置
-		if (!UpdateSrcFrameRect()) {
-			SPDLOG_LOGGER_CRITICAL(logger, "UpdateSrcFrameRect 失败");
-			return false;
-		}
 	}
 
 	SPDLOG_LOGGER_INFO(logger, fmt::format("源窗口尺寸：{}x{}",
@@ -174,7 +166,7 @@ bool App::Run(
 
 	if (!_renderer->InitializeEffectsAndCursor(effectsJson)) {
 		SPDLOG_LOGGER_CRITICAL(logger, "初始化效果失败");
-		Close();
+		Quit();
 		_Run();
 		return false;
 	}
@@ -449,7 +441,7 @@ LRESULT App::_HostWndProcStatic(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
 LRESULT App::_HostWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
 	if (message == WM_DESTORYHOST) {
 		SPDLOG_LOGGER_INFO(logger, "收到 MAGPIE_WM_DESTORYHOST 消息，即将销毁主窗口");
-		Close();
+		Quit();
 		return 0;
 	}
 
@@ -509,118 +501,11 @@ void App::_OnQuit() {
 	SPDLOG_LOGGER_INFO(logger, "主窗口已销毁");
 }
 
-void App::Close() {
+void App::Quit() {
 	if (_hwndDDF) {
 		DestroyWindow(_hwndDDF);
 	}
 	if (_hwndHost) {
 		DestroyWindow(_hwndHost);
 	}
-}
-
-struct EnumChildWndParam {
-	const wchar_t* clientWndClassName = nullptr;
-	std::vector<HWND> childWindows;
-};
-
-static BOOL CALLBACK EnumChildProc(
-	_In_ HWND   hwnd,
-	_In_ LPARAM lParam
-) {
-	std::wstring className(256, 0);
-	int num = GetClassName(hwnd, &className[0], (int)className.size());
-	if (num == 0) {
-		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetClassName 失败"));
-		return TRUE;
-	}
-	className.resize(num);
-
-	EnumChildWndParam* param = (EnumChildWndParam*)lParam;
-	if (className == param->clientWndClassName) {
-		param->childWindows.push_back(hwnd);
-	}
-
-	return TRUE;
-}
-
-static HWND FindClientWindow(HWND hwndSrc, const wchar_t* clientWndClassName) {
-	// 查找所有窗口类名为 ApplicationFrameInputSinkWindow 的子窗口
-	// 该子窗口一般为客户区
-	EnumChildWndParam param{};
-	param.clientWndClassName = clientWndClassName;
-	EnumChildWindows(hwndSrc, EnumChildProc, (LPARAM)&param);
-
-	if (param.childWindows.empty()) {
-		// 未找到符合条件的子窗口
-		return hwndSrc;
-	}
-
-	if (param.childWindows.size() == 1) {
-		return param.childWindows[0];
-	}
-
-	// 如果有多个匹配的子窗口，取最大的（一般不会出现）
-	int maxSize = 0, maxIdx = 0;
-	for (int i = 0; i < param.childWindows.size(); ++i) {
-		RECT rect;
-		if (!GetClientRect(param.childWindows[i], &rect)) {
-			continue;
-		}
-
-		int size = rect.right - rect.left + rect.bottom - rect.top;
-		if (size > maxSize) {
-			maxSize = size;
-			maxIdx = i;
-		}
-	}
-
-	return param.childWindows[maxIdx];
-}
-
-bool App::UpdateSrcFrameRect() {
-	_srcFrameRect = {};
-
-	if (IsCropTitleBarOfUWP()) {
-		std::wstring className(256, 0);
-		int num = GetClassName(_hwndSrc, &className[0], (int)className.size());
-		if (num > 0) {
-			className.resize(num);
-			if (App::GetInstance().IsCropTitleBarOfUWP() &&
-				(className == L"ApplicationFrameWindow" || className == L"Windows.UI.Core.CoreWindow")
-			) {
-				// "Modern App"
-				// 客户区窗口类名为 ApplicationFrameInputSinkWindow
-				HWND hwndClient = FindClientWindow(_hwndSrc, L"ApplicationFrameInputSinkWindow");
-				if (hwndClient) {
-					if (!Utils::GetClientScreenRect(hwndClient, _srcFrameRect)) {
-						SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetClientScreenRect 失败"));
-					}
-				}
-			}
-		} else {
-			SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetClassName 失败"));
-		}
-	}
-	
-	if (_srcFrameRect == RECT{}) {
-		if (!Utils::GetClientScreenRect(_hwndSrc, _srcFrameRect)) {
-			SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetClientScreenRect 失败"));
-			return false;
-		}
-	}
-
-	_srcFrameRect = {
-		_srcFrameRect.left + _cropBorders.left,
-		_srcFrameRect.top + _cropBorders.top,
-		_srcFrameRect.right - _cropBorders.right,
-		_srcFrameRect.bottom - _cropBorders.bottom
-	};
-
-	if (_srcFrameRect.right - _srcFrameRect.left <= 0 || _srcFrameRect.bottom - _srcFrameRect.top <= 0) {
-		SetErrorMsg(ErrorMessages::FAILED_TO_CROP);
-		SPDLOG_LOGGER_ERROR(logger, "裁剪窗口失败");
-		return false;
-	}
-
-	return true;
 }

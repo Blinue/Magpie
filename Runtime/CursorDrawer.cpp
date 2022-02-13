@@ -126,7 +126,7 @@ bool CursorDrawer::Initialize(winrt::com_ptr<ID3D11Texture2D> renderTarget, cons
 		_destRect = destRect;
 	}
 
-	const RECT& srcFrameRect = app.GetSrcFrameRect();
+	const RECT& srcFrameRect = app.GetFrameSource().GetSrcFrameRect();
 	SIZE srcSize = { srcFrameRect.right - srcFrameRect.left, srcFrameRect.bottom - srcFrameRect.top };
 
 	_clientScaleX = float(destRect.right - destRect.left) / srcSize.cx;
@@ -186,7 +186,7 @@ CursorDrawer::~CursorDrawer() {
 }
 
 void CursorDrawer::_DynamicClip(POINT cursorPt) {
-	const RECT& srcFrameRect = App::GetInstance().GetSrcFrameRect();
+	const RECT& srcFrameRect = App::GetInstance().GetFrameSource().GetSrcFrameRect();
 	const RECT& hostRect = App::GetInstance().GetHostWndRect();
 
 	POINT hostPt{};
@@ -241,7 +241,7 @@ bool CursorDrawer::Update() {
 	}
 
 	if (_isUnderCapture) {
-		const RECT& srcFrameRect = App::GetInstance().GetSrcFrameRect();
+		const RECT& srcFrameRect = App::GetInstance().GetFrameSource().GetSrcFrameRect();
 
 		if (PtInRect(&srcFrameRect, cursorPt)) {
 			_DynamicClip(cursorPt);
@@ -477,7 +477,7 @@ void CursorDrawer::_StartCapture(POINT cursorPt) {
 	}
 
 	// 移动光标位置
-	const RECT& srcFrameRect = App::GetInstance().GetSrcFrameRect();
+	const RECT& srcFrameRect = App::GetInstance().GetFrameSource().GetSrcFrameRect();
 	const RECT& hostRect = App::GetInstance().GetHostWndRect();
 	// 跳过黑边
 	cursorPt.x = std::clamp(cursorPt.x, hostRect.left + _destRect.left, hostRect.left + _destRect.right - 1);
@@ -510,7 +510,7 @@ void CursorDrawer::_StopCapture(POINT cursorPt) {
 	//
 	// 在有黑边的情况下自动将光标调整到全屏窗口外
 
-	const RECT& srcFrameRect = App::GetInstance().GetSrcFrameRect();
+	const RECT& srcFrameRect = App::GetInstance().GetFrameSource().GetSrcFrameRect();
 	const RECT& hostRect = App::GetInstance().GetHostWndRect();
 
 	POINT newCursorPt{};
@@ -572,7 +572,7 @@ void CursorDrawer::Draw() {
 		}
 	} else if (!App::GetInstance().IsBreakpointMode() && App::GetInstance().IsConfineCursorIn3DGames()) {
 		// 开启“在 3D 游戏中限制光标”则每帧都限制一次光标
-		ClipCursor(&App::GetInstance().GetSrcFrameRect());
+		ClipCursor(&App::GetInstance().GetFrameSource().GetSrcFrameRect());
 	}
 
 	CURSORINFO ci{};
@@ -608,7 +608,7 @@ void CursorDrawer::Draw() {
 	SIZE cursorSize = { lroundf(info->width * _zoomFactorX), lroundf(info->height * _zoomFactorY) };
 
 	// 映射坐标
-	const RECT& srcClient = App::GetInstance().GetSrcFrameRect();
+	const RECT& srcClient = App::GetInstance().GetFrameSource().GetSrcFrameRect();
 	POINT targetScreenPos = {
 		lroundf((ci.ptScreenPos.x - srcClient.left) * _clientScaleX - info->xHotSpot * _zoomFactorX),
 		lroundf((ci.ptScreenPos.y - srcClient.top) * _clientScaleY - info->yHotSpot * _zoomFactorY)

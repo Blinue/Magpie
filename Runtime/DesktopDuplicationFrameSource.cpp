@@ -98,16 +98,15 @@ bool DesktopDuplicationFrameSource::Initialize() {
 		return false;
 	}
 
-	if (!App::GetInstance().UpdateSrcFrameRect()) {
-		SPDLOG_LOGGER_ERROR(logger, "UpdateSrcFrameRect 失败");
+	if (!_UpdateSrcFrameRect()) {
+		SPDLOG_LOGGER_ERROR(logger, "_UpdateSrcFrameRect 失败");
 		return false;
 	}
-	const RECT& srcFrameRect = App::GetInstance().GetSrcFrameRect();
 
 	D3D11_TEXTURE2D_DESC desc{};
 	desc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
-	desc.Width = srcFrameRect.right - srcFrameRect.left;
-	desc.Height = srcFrameRect.bottom - srcFrameRect.top;
+	desc.Width = _srcFrameRect.right - _srcFrameRect.left;
+	desc.Height = _srcFrameRect.bottom - _srcFrameRect.top;
 	desc.Usage = D3D11_USAGE_DEFAULT;
 	desc.MipLevels = 1;
 	desc.ArraySize = 1;
@@ -165,10 +164,10 @@ bool DesktopDuplicationFrameSource::Initialize() {
 
 	// 计算源窗口客户区在该屏幕上的位置，用于计算新帧是否有更新
 	_srcClientInMonitor = {
-		srcFrameRect.left - mi.rcMonitor.left,
-		srcFrameRect.top - mi.rcMonitor.top,
-		srcFrameRect.right - mi.rcMonitor.left,
-		srcFrameRect.bottom - mi.rcMonitor.top
+		_srcFrameRect.left - mi.rcMonitor.left,
+		_srcFrameRect.top - mi.rcMonitor.top,
+		_srcFrameRect.right - mi.rcMonitor.left,
+		_srcFrameRect.bottom - mi.rcMonitor.top
 	};
 
 	_frameInMonitor = {

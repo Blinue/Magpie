@@ -28,7 +28,7 @@ public:
 		UINT flags
 	);
 
-	void Close();
+	void Quit();
 
 	HINSTANCE GetHInstance() const {
 		return _hInst;
@@ -37,12 +37,6 @@ public:
 	HWND GetHwndSrc() const {
 		return _hwndSrc;
 	}
-
-	const RECT& GetSrcFrameRect() const {
-		return _srcFrameRect;
-	}
-
-	bool UpdateSrcFrameRect();
 
 	HWND GetHwndHost() const {
 		return _hwndHost;
@@ -78,6 +72,10 @@ public:
 
 	UINT GetMultiMonitorUsage() const {
 		return _multiMonitorUsage;
+	}
+
+	const RECT& GetCropBorders() const {
+		return _cropBorders;
 	}
 
 	bool IsMultiMonitorMode() const {

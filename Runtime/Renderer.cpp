@@ -560,7 +560,7 @@ void Renderer::_Render() {
 
 	if (!_CheckSrcState()) {
 		SPDLOG_LOGGER_INFO(logger, "源窗口状态改变，退出全屏");
-		App::GetInstance().Close();
+		App::GetInstance().Quit();
 		return;
 	}
 
@@ -649,7 +649,7 @@ bool CheckForeground(HWND hwndForeground) {
 		}
 
 		// 弹窗如果完全在源窗口客户区内则不退出全屏
-		const RECT& srcFrameRect = App::GetInstance().GetSrcFrameRect();
+		const RECT& srcFrameRect = App::GetInstance().GetFrameSource().GetSrcFrameRect();
 		if (rectForground.left >= srcFrameRect.left
 			&& rectForground.right <= srcFrameRect.right
 			&& rectForground.top >= srcFrameRect.top

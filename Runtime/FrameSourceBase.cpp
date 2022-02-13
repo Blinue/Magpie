@@ -116,3 +116,113 @@ bool FrameSourceBase::_CenterWindowIfNecessary(HWND hWnd, const RECT& rcWork) {
 
 	return true;
 }
+
+struct EnumChildWndParam {
+	const wchar_t* clientWndClassName = nullptr;
+	std::vector<HWND> childWindows;
+};
+
+static BOOL CALLBACK EnumChildProc(
+	_In_ HWND   hwnd,
+	_In_ LPARAM lParam
+) {
+	std::wstring className(256, 0);
+	int num = GetClassName(hwnd, &className[0], (int)className.size());
+	if (num == 0) {
+		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetClassName 失败"));
+		return TRUE;
+	}
+	className.resize(num);
+
+	EnumChildWndParam* param = (EnumChildWndParam*)lParam;
+	if (className == param->clientWndClassName) {
+		param->childWindows.push_back(hwnd);
+	}
+
+	return TRUE;
+}
+
+static HWND FindClientWindow(HWND hwndSrc, const wchar_t* clientWndClassName) {
+	// 查找所有窗口类名为 ApplicationFrameInputSinkWindow 的子窗口
+	// 该子窗口一般为客户区
+	EnumChildWndParam param{};
+	param.clientWndClassName = clientWndClassName;
+	EnumChildWindows(hwndSrc, EnumChildProc, (LPARAM)&param);
+
+	if (param.childWindows.empty()) {
+		// 未找到符合条件的子窗口
+		return hwndSrc;
+	}
+
+	if (param.childWindows.size() == 1) {
+		return param.childWindows[0];
+	}
+
+	// 如果有多个匹配的子窗口，取最大的（一般不会出现）
+	int maxSize = 0, maxIdx = 0;
+	for (int i = 0; i < param.childWindows.size(); ++i) {
+		RECT rect;
+		if (!GetClientRect(param.childWindows[i], &rect)) {
+			continue;
+		}
+
+		int size = rect.right - rect.left + rect.bottom - rect.top;
+		if (size > maxSize) {
+			maxSize = size;
+			maxIdx = i;
+		}
+	}
+
+	return param.childWindows[maxIdx];
+}
+
+bool FrameSourceBase::_UpdateSrcFrameRect() {
+	_srcFrameRect = {};
+
+	HWND hwndSrc = App::GetInstance().GetHwndSrc();
+
+	if (App::GetInstance().IsCropTitleBarOfUWP()) {
+		std::wstring className(256, 0);
+		int num = GetClassName(hwndSrc, &className[0], (int)className.size());
+		if (num > 0) {
+			className.resize(num);
+			if (App::GetInstance().IsCropTitleBarOfUWP() &&
+				(className == L"ApplicationFrameWindow" || className == L"Windows.UI.Core.CoreWindow")
+				) {
+				// "Modern App"
+				// 客户区窗口类名为 ApplicationFrameInputSinkWindow
+				HWND hwndClient = FindClientWindow(hwndSrc, L"ApplicationFrameInputSinkWindow");
+				if (hwndClient) {
+					if (!Utils::GetClientScreenRect(hwndClient, _srcFrameRect)) {
+						SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetClientScreenRect 失败"));
+					}
+				}
+			}
+		} else {
+			SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetClassName 失败"));
+		}
+	}
+
+	if (_srcFrameRect == RECT{}) {
+		if (!Utils::GetClientScreenRect(hwndSrc, _srcFrameRect)) {
+			SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetClientScreenRect 失败"));
+			return false;
+		}
+	}
+
+	const RECT& cropBorders = App::GetInstance().GetCropBorders();
+	_srcFrameRect = {
+		_srcFrameRect.left + cropBorders.left,
+		_srcFrameRect.top + cropBorders.top,
+		_srcFrameRect.right - cropBorders.right,
+		_srcFrameRect.bottom - cropBorders.bottom
+	};
+
+	if (_srcFrameRect.right - _srcFrameRect.left <= 0 || _srcFrameRect.bottom - _srcFrameRect.top <= 0) {
+		App::GetInstance().SetErrorMsg(ErrorMessages::FAILED_TO_CROP);
+		SPDLOG_LOGGER_ERROR(logger, "裁剪窗口失败");
+		return false;
+	}
+
+	return true;
+}

@@ -206,20 +206,19 @@ bool GraphicsCaptureFrameSource::_CaptureFromWindow(winrt::impl::com_ref<IGraphi
 		return false;
 	}
 
-	if (!App::GetInstance().UpdateSrcFrameRect()) {
+	if (!_UpdateSrcFrameRect()) {
 		SPDLOG_LOGGER_ERROR(logger, "UpdateSrcFrameRect 失败");
 		return false;
 	}
-	RECT srcFrameRect = App::GetInstance().GetSrcFrameRect();
 
 	// 在源窗口存在 DPI 缩放时有时会有一像素的偏移（取决于窗口在屏幕上的位置）
 	// 可能是 DwmGetWindowAttribute 的 bug
 	_frameBox = {
-		UINT(srcFrameRect.left - srcRect.left),
-		UINT(srcFrameRect.top - srcRect.top),
+		UINT(_srcFrameRect.left - srcRect.left),
+		UINT(_srcFrameRect.top - srcRect.top),
 		0,
-		UINT(srcFrameRect.right - srcRect.left),
-		UINT(srcFrameRect.bottom - srcRect.top),
+		UINT(_srcFrameRect.right - srcRect.left),
+		UINT(_srcFrameRect.bottom - srcRect.top),
 		1
 	};
 
@@ -309,19 +308,17 @@ bool GraphicsCaptureFrameSource::_CaptureFromMonitor(winrt::impl::com_ref<IGraph
 		return false;
 	}
 
-	if (!App::GetInstance().UpdateSrcFrameRect()) {
+	if (!_UpdateSrcFrameRect()) {
 		SPDLOG_LOGGER_ERROR(logger, "UpdateSrcFrameRect 失败");
 		return false;
 	}
 
-	RECT srcFrameRect = App::GetInstance().GetSrcFrameRect();
-
 	_frameBox = {
-		UINT(srcFrameRect.left - mi.rcMonitor.left),
-		UINT(srcFrameRect.top - mi.rcMonitor.top),
+		UINT(_srcFrameRect.left - mi.rcMonitor.left),
+		UINT(_srcFrameRect.top - mi.rcMonitor.top),
 		0,
-		UINT(srcFrameRect.right - mi.rcMonitor.left),
-		UINT(srcFrameRect.bottom - mi.rcMonitor.top),
+		UINT(_srcFrameRect.right - mi.rcMonitor.left),
+		UINT(_srcFrameRect.bottom - mi.rcMonitor.top),
 		1
 	};
 

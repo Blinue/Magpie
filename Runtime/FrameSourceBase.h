@@ -29,6 +29,8 @@ public:
 
 	virtual bool IsScreenCapture() = 0;
 
+	const RECT& GetSrcFrameRect() const noexcept { return _srcFrameRect; }
+
 protected:
 
 	// 获取坐标系 1 到坐标系 2 的映射关系
@@ -41,4 +43,8 @@ protected:
 	static bool _GetMapToOriginDPI(HWND hWnd, double& a, double& bx, double& by);
 
 	static bool _CenterWindowIfNecessary(HWND hWnd, const RECT& rcWork);
+
+	bool _UpdateSrcFrameRect();
+
+	RECT _srcFrameRect{};
 };

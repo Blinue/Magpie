@@ -7,24 +7,22 @@
 extern std::shared_ptr<spdlog::logger> logger;
 
 bool GDIFrameSource::Initialize() {
-	if (!App::GetInstance().UpdateSrcFrameRect()) {
-		SPDLOG_LOGGER_ERROR(logger, "UpdateSrcFrameRect 失败");
+	if (!_UpdateSrcFrameRect()) {
+		SPDLOG_LOGGER_ERROR(logger, "_UpdateSrcFrameRect 失败");
 		return false;
 	}
 
 	HWND hwndSrc = App::GetInstance().GetHwndSrc();
-
-	RECT srcFrameRect = App::GetInstance().GetSrcFrameRect();
 
 	double a, bx, by;
 	if (_GetMapToOriginDPI(hwndSrc, a, bx, by)) {
 		SPDLOG_LOGGER_INFO(logger, fmt::format("源窗口 DPI 缩放为 {}", 1 / a));
 
 		_frameRect = {
-			std::lround(srcFrameRect.left * a + bx),
-			std::lround(srcFrameRect.top * a + by),
-			std::lround(srcFrameRect.right * a + bx),
-			std::lround(srcFrameRect.bottom * a + by)
+			std::lround(_srcFrameRect.left * a + bx),
+			std::lround(_srcFrameRect.top * a + by),
+			std::lround(_srcFrameRect.right * a + bx),
+			std::lround(_srcFrameRect.bottom * a + by)
 		};
 	} else {
 		SPDLOG_LOGGER_ERROR(logger, "_GetMapToOriginDPI 失败");
@@ -37,10 +35,10 @@ bool GDIFrameSource::Initialize() {
 		}
 
 		_frameRect = {
-			srcFrameRect.left - srcWindowRect.left,
-			srcFrameRect.top - srcWindowRect.top,
-			srcFrameRect.right - srcWindowRect.left,
-			srcFrameRect.bottom - srcWindowRect.top
+			_srcFrameRect.left - srcWindowRect.left,
+			_srcFrameRect.top - srcWindowRect.top,
+			_srcFrameRect.right - srcWindowRect.left,
+			_srcFrameRect.bottom - srcWindowRect.top
 		};
 	}
 	

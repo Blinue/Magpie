@@ -7,6 +7,7 @@
 #include "TextureLoader.h"
 #include "StrUtils.h"
 #include "Renderer.h"
+#include "FrameSourceBase.h"
 
 #ifdef _UNICODE
 #undef _UNICODE
@@ -484,7 +485,7 @@ bool EffectDrawer::UpdateExprDynamicVars() {
 		return false;
 	}
 
-	const RECT& srcFrameRect = App::GetInstance().GetSrcFrameRect();
+	const RECT& srcFrameRect = App::GetInstance().GetFrameSource().GetSrcFrameRect();
 
 	SetExprDynamicVars(
 		frameCount,
