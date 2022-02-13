@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "TextureLoader.h"
 #include <DDSTextureLoader.h>
+#include "Renderer.h"
 
 
 extern std::shared_ptr<spdlog::logger> logger;

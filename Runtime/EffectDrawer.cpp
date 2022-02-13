@@ -6,6 +6,7 @@
 #include "EffectCompiler.h"
 #include "TextureLoader.h"
 #include "StrUtils.h"
+#include "Renderer.h"
 
 #ifdef _UNICODE
 #undef _UNICODE

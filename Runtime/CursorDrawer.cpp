@@ -3,6 +3,8 @@
 #include "App.h"
 #include "Utils.h"
 #include <VertexTypes.h>
+#include "Renderer.h"
+#include "FrameSourceBase.h"
 
 extern std::shared_ptr<spdlog::logger> logger;
 

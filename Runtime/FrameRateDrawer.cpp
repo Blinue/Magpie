@@ -2,6 +2,7 @@
 #include "FrameRateDrawer.h"
 #include "App.h"
 #include "resource.h"
+#include "Renderer.h"
 
 
 bool FrameRateDrawer::Initialize(ComPtr<ID3D11Texture2D> renderTarget, const RECT& destRect) {

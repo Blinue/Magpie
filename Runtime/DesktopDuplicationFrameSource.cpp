@@ -1,7 +1,10 @@
 #include "pch.h"
 #include "DesktopDuplicationFrameSource.h"
 #include "App.h"
+#include "Renderer.h"
 
+
+extern std::shared_ptr<spdlog::logger> logger;
 
 static ComPtr<IDXGIOutput1> FindMonitor(ComPtr<IDXGIAdapter1> adapter, HMONITOR hMonitor) {
 	ComPtr<IDXGIOutput> output;

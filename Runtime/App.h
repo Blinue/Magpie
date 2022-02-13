@@ -1,8 +1,9 @@
 #pragma once
 #include "pch.h"
-#include "Renderer.h"
-#include "FrameSourceBase.h"
 
+
+class Renderer;
+class FrameSourceBase;
 
 class App {
 public:
@@ -142,10 +143,8 @@ public:
 
 	ComPtr<IWICImagingFactory2> GetWICImageFactory();
 
-	bool RegisterTimer(UINT uElapse, std::function<void()> cb);
-
 private:
-	App() {}
+	App();
 
 	void _Run();
 
@@ -206,8 +205,4 @@ private:
 	std::unique_ptr<Renderer> _renderer;
 	std::unique_ptr<FrameSourceBase> _frameSource;
 	ComPtr<IWICImagingFactory2> _wicImgFactory;
-
-	UINT _nextTimerId = 1;
-	// 存储所有计时器回调
-	std::vector<std::function<void()>> _timerCbs;
 };

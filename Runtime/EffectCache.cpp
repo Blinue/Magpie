@@ -9,6 +9,7 @@
 #include "EffectCompiler.h"
 #include <regex>
 #include "App.h"
+#include "Renderer.h"
 
 
 template<typename Archive>

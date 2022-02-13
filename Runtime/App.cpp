@@ -6,6 +6,8 @@
 #include "DwmSharedSurfaceFrameSource.h"
 #include "DesktopDuplicationFrameSource.h"
 #include "ExclModeHack.h"
+#include "Renderer.h"
+#include "FrameSourceBase.h"
 
 
 extern std::shared_ptr<spdlog::logger> logger;
@@ -16,6 +18,8 @@ static constexpr const wchar_t* HOST_WINDOW_CLASS_NAME = L"Window_Magpie_967EB56
 static constexpr const wchar_t* DDF_WINDOW_CLASS_NAME = L"Window_Magpie_C322D752-C866-4630-91F5-32CB242A8930";
 static constexpr const wchar_t* HOST_WINDOW_TITLE = L"Magpie_Host";
 
+
+App::App() {}
 
 App::~App() {
 	MagUninitialize();
@@ -98,7 +102,7 @@ bool App::Run(
 
 	_renderer.reset(new Renderer());
 	if (!_renderer->Initialize()) {
-		SPDLOG_LOGGER_CRITICAL(logger, "初始化 Renderer 失败，正在清理");
+		SPDLOG_LOGGER_CRITICAL(logger, "初始化 Renderer 失败");
 		Close();
 		_Run();
 		return false;
@@ -120,14 +124,14 @@ bool App::Run(
 		_frameSource.reset(new DwmSharedSurfaceFrameSource());
 		break;
 	default:
-		SPDLOG_LOGGER_CRITICAL(logger, "未知的捕获模式，即将退出");
+		SPDLOG_LOGGER_CRITICAL(logger, "未知的捕获模式");
 		Close();
 		_Run();
 		return false;
 	}
 	
 	if (!_frameSource->Initialize()) {
-		SPDLOG_LOGGER_CRITICAL(logger, "初始化 FrameSource 失败，即将退出");
+		SPDLOG_LOGGER_CRITICAL(logger, "初始化 FrameSource 失败");
 		Close();
 		_Run();
 		return false;
@@ -171,7 +175,7 @@ bool App::Run(
 	}
 
 	if (!_renderer->InitializeEffectsAndCursor(effectsJson)) {
-		SPDLOG_LOGGER_CRITICAL(logger, "初始化效果失败，即将退出");
+		SPDLOG_LOGGER_CRITICAL(logger, "初始化效果失败");
 		Close();
 		_Run();
 		return false;
@@ -234,18 +238,6 @@ ComPtr<IWICImagingFactory2> App::GetWICImageFactory() {
 	}
 
 	return _wicImgFactory;
-}
-
-bool App::RegisterTimer(UINT uElapse, std::function<void()> cb) {
-	if (!SetTimer(_hwndHost, _nextTimerId, uElapse, nullptr)) {
-		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("SetTimer 失败"));
-		return false;
-	}
-
-	++_nextTimerId;
-	_timerCbs.emplace_back(std::move(cb));
-
-	return true;
 }
 
 
@@ -470,15 +462,6 @@ LRESULT App::_HostWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		PostQuitMessage(0);
 		return 0;
 	}
-	case WM_TIMER:
-	{
-		if (hWnd != _hwndHost || wParam <= 0 || wParam > _timerCbs.size()) {
-			break;
-		}
-
-		_timerCbs[wParam - 1]();
-		return 0;
-	}
 	default:
 		break;
 	}
@@ -490,10 +473,6 @@ void App::_OnQuit() {
 	// 释放资源
 	_frameSource = nullptr;
 	_renderer = nullptr;
-
-	// 计时器资源在窗口销毁时自动释放
-	_nextTimerId = 1;
-	_timerCbs.clear();
 
 	// 还原窗口圆角
 	if (_roundCornerDisabled) {

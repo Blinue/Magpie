@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "GDIFrameSource.h"
 #include "App.h"
+#include "Renderer.h"
 
 
 extern std::shared_ptr<spdlog::logger> logger;

@@ -6,6 +6,7 @@
 #include <VertexTypes.h>
 #include "EffectCompiler.h"
 #include <rapidjson/document.h>
+#include "FrameSourceBase.h"
 
 
 extern std::shared_ptr<spdlog::logger> logger;

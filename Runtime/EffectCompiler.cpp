@@ -7,6 +7,7 @@
 #include "EffectCache.h"
 #include "StrUtils.h"
 #include "App.h"
+#include "Renderer.h"
 
 
 static constexpr const char* META_INDICATOR = "//!";

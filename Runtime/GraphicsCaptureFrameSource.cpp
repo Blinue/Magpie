@@ -5,6 +5,7 @@
 #include <Windows.Graphics.DirectX.Direct3D11.interop.h>
 #include <winrt/Windows.Foundation.Metadata.h>
 #include "Utils.h"
+#include "Renderer.h"
 
 
 namespace winrt {
