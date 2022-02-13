@@ -39,7 +39,7 @@ bool GraphicsCaptureFrameSource::Initialize() {
 		}
 
 		hr = CreateDirect3D11DeviceFromDXGIDevice(
-			App::GetInstance().GetRenderer().GetDXGIDevice().Get(),
+			App::GetInstance().GetRenderer().GetDXGIDevice().get(),
 			reinterpret_cast<::IInspectable**>(winrt::put_abi(_wrappedD3DDevice))
 		);
 		if (FAILED(hr)) {
@@ -138,7 +138,7 @@ bool GraphicsCaptureFrameSource::Initialize() {
 	desc.SampleDesc.Count = 1;
 	desc.SampleDesc.Quality = 0;
 	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
-	hr = App::GetInstance().GetRenderer().GetD3DDevice()->CreateTexture2D(&desc, nullptr, &_output);
+	hr = App::GetInstance().GetRenderer().GetD3DDevice()->CreateTexture2D(&desc, nullptr, _output.put());
 	if (FAILED(hr)) {
 		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("创建 Texture2D 失败", hr));
 		return false;
@@ -179,7 +179,7 @@ FrameSourceBase::UpdateState GraphicsCaptureFrameSource::Update() {
 			d3dSurface.as<::Windows::Graphics::DirectX::Direct3D11::IDirect3DDxgiInterfaceAccess>()
 		);
 
-		ComPtr<ID3D11Texture2D> withFrame;
+		winrt::com_ptr<ID3D11Texture2D> withFrame;
 		HRESULT hr = dxgiInterfaceAccess->GetInterface(IID_PPV_ARGS(&withFrame));
 		if (FAILED(hr)) {
 			SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("从获取 IDirect3DSurface 获取 ID3D11Texture2D 失败", hr));
@@ -187,7 +187,7 @@ FrameSourceBase::UpdateState GraphicsCaptureFrameSource::Update() {
 		}
 
 		App::GetInstance().GetRenderer().GetD3DDC()
-			->CopySubresourceRegion(_output.Get(), 0, 0, 0, 0, withFrame.Get(), 0, &_frameBox);
+			->CopySubresourceRegion(_output.get(), 0, 0, 0, 0, withFrame.get(), 0, &_frameBox);
 
 		return UpdateState::NewFrame;
 	} else {

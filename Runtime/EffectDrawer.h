@@ -38,7 +38,7 @@ public:
 
 	void SetOutputSize(SIZE value);
 
-	bool Build(ComPtr<ID3D11Texture2D> input, ComPtr<ID3D11Texture2D> output);
+	bool Build(winrt::com_ptr<ID3D11Texture2D> input, winrt::com_ptr<ID3D11Texture2D> output);
 
 	void Draw(bool noUpdate = false);
 
@@ -63,30 +63,30 @@ private:
 		EffectDrawer* _parent = nullptr;
 		size_t _index = 0;
 		
-		ComPtr<ID3D11PixelShader> _pixelShader;
+		winrt::com_ptr<ID3D11PixelShader> _pixelShader;
 
 		// 后半部分为空，用于解绑
 		std::vector<ID3D11ShaderResourceView*> _inputs;
 		std::vector<ID3D11RenderTargetView*> _outputs;
 		std::vector<ID3D11SamplerState*> _samplers;
 
-		ComPtr<ID3D11Buffer> _vtxBuffer;
+		winrt::com_ptr<ID3D11Buffer> _vtxBuffer;
 		D3D11_VIEWPORT _vp{};
 	};
 
-	ComPtr<ID3D11Device> _d3dDevice;
-	ComPtr<ID3D11DeviceContext> _d3dDC;
+	winrt::com_ptr<ID3D11Device> _d3dDevice;
+	winrt::com_ptr<ID3D11DeviceContext> _d3dDC;
 
 	std::vector<ID3D11SamplerState*> _samplers;
-	std::vector<ComPtr<ID3D11Texture2D>> _textures;
+	std::vector<winrt::com_ptr<ID3D11Texture2D>> _textures;
 
 	std::unordered_map<std::string_view, UINT> _constNamesMap;
 	std::vector<Constant32> _constants;
 	std::vector<Constant32> _dynamicConstants;
-	ComPtr<ID3D11Buffer> _constantBuffer;
-	ComPtr<ID3D11Buffer> _dynamicConstantBuffer;
+	winrt::com_ptr<ID3D11Buffer> _constantBuffer;
+	winrt::com_ptr<ID3D11Buffer> _dynamicConstantBuffer;
 
-	ComPtr<ID3D11VertexShader> _vertexShader;
+	winrt::com_ptr<ID3D11VertexShader> _vertexShader;
 
 	std::optional<SIZE> _outputSize;
 

@@ -10,7 +10,7 @@ public:
 
 	bool Initialize() override;
 
-	ComPtr<ID3D11Texture2D> GetOutput() override {
+	winrt::com_ptr<ID3D11Texture2D> GetOutput() override {
 		return _output;
 	}
 
@@ -26,6 +26,6 @@ public:
 
 private:
 	RECT _frameRect{};
-	ComPtr<IDXGISurface1> _dxgiSurface;
-	ComPtr<ID3D11Texture2D> _output;
+	winrt::com_ptr<IDXGISurface1> _dxgiSurface;
+	winrt::com_ptr<ID3D11Texture2D> _output;
 };

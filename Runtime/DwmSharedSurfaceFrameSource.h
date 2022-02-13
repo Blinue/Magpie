@@ -10,7 +10,7 @@ public:
 
 	bool Initialize() override;
 
-	ComPtr<ID3D11Texture2D> GetOutput() override {
+	winrt::com_ptr<ID3D11Texture2D> GetOutput() override {
 		return _output;
 	}
 
@@ -36,6 +36,6 @@ private:
 	_DwmGetDxSharedSurfaceFunc *_dwmGetDxSharedSurface = nullptr;
 
 	D3D11_BOX _frameInWnd{};
-	ComPtr<ID3D11Texture2D> _output;
+	winrt::com_ptr<ID3D11Texture2D> _output;
 };
 

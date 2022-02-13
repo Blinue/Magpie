@@ -15,7 +15,6 @@
 
 
 using namespace std::literals::string_literals;
-using namespace Microsoft::WRL;
 using namespace DirectX;
 
 

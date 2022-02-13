@@ -5,10 +5,10 @@
 #include "Renderer.h"
 
 
-bool FrameRateDrawer::Initialize(ComPtr<ID3D11Texture2D> renderTarget, const RECT& destRect) {
+bool FrameRateDrawer::Initialize(winrt::com_ptr<ID3D11Texture2D> renderTarget, const RECT& destRect) {
 	Renderer& renderer = App::GetInstance().GetRenderer();
 	_d3dDC = renderer.GetD3DDC();
-	if (!renderer.GetRenderTargetView(renderTarget.Get(), &_rtv)) {
+	if (!renderer.GetRenderTargetView(renderTarget.get(), &_rtv)) {
 		return false;
 	}
 
@@ -18,7 +18,7 @@ bool FrameRateDrawer::Initialize(ComPtr<ID3D11Texture2D> renderTarget, const REC
 	_vp.Width = FLOAT(destRect.right - destRect.left);
 	_vp.Height = FLOAT(destRect.bottom - destRect.top);
 
-	_spriteBatch.reset(new SpriteBatch(renderer.GetD3DDC().Get()));
+	_spriteBatch.reset(new SpriteBatch(renderer.GetD3DDC().get()));
 
 	// 从资源文件获取字体
 	HMODULE hInst = App::GetInstance().GetHInstance();
@@ -31,7 +31,7 @@ bool FrameRateDrawer::Initialize(ComPtr<ID3D11Texture2D> renderTarget, const REC
 		return false;
 	}
 
-	_spriteFont.reset(new SpriteFont(renderer.GetD3DDevice().Get(),
+	_spriteFont.reset(new SpriteFont(renderer.GetD3DDevice().get(),
 		(const uint8_t*)LockResource(hRes), SizeofResource(hInst, hRsrc)));
 	return true;
 }

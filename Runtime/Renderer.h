@@ -18,23 +18,23 @@ public:
 
 	bool GetSampler(EffectSamplerFilterType filterType, EffectSamplerAddressType addressType, ID3D11SamplerState** result);
 
-	ComPtr<ID3D11Device1> GetD3DDevice() const{
+	winrt::com_ptr<ID3D11Device1> GetD3DDevice() const{
 		return _d3dDevice;
 	}
 
-	ComPtr<ID3D11DeviceContext1> GetD3DDC() const {
+	winrt::com_ptr<ID3D11DeviceContext1> GetD3DDC() const {
 		return _d3dDC;
 	}
 
-	ComPtr<IDXGIDevice1> GetDXGIDevice() const {
+	winrt::com_ptr<IDXGIDevice1> GetDXGIDevice() const {
 		return _dxgiDevice;
 	}
 
-	ComPtr<IDXGIFactory2> GetDXGIFactory() const {
+	winrt::com_ptr<IDXGIFactory2> GetDXGIFactory() const {
 		return _dxgiFactory;
 	}
 
-	ComPtr<IDXGIAdapter1> GetGraphicsAdapter() const {
+	winrt::com_ptr<IDXGIAdapter1> GetGraphicsAdapter() const {
 		return _graphicsAdapter;
 	}
 
@@ -84,31 +84,31 @@ private:
 	D3D_FEATURE_LEVEL _featureLevel = D3D_FEATURE_LEVEL_10_0;
 	bool _supportTearing = false;
 
-	ComPtr<IDXGIFactory4> _dxgiFactory;
-	ComPtr<IDXGIDevice1> _dxgiDevice;
-	ComPtr<IDXGISwapChain2> _dxgiSwapChain;
-	ComPtr<IDXGIAdapter1> _graphicsAdapter;
-	ComPtr<ID3D11Device1> _d3dDevice;
-	ComPtr<ID3D11DeviceContext1> _d3dDC;
+	winrt::com_ptr<IDXGIFactory4> _dxgiFactory;
+	winrt::com_ptr<IDXGIDevice1> _dxgiDevice;
+	winrt::com_ptr<IDXGISwapChain2> _dxgiSwapChain;
+	winrt::com_ptr<IDXGIAdapter1> _graphicsAdapter;
+	winrt::com_ptr<ID3D11Device1> _d3dDevice;
+	winrt::com_ptr<ID3D11DeviceContext1> _d3dDC;
 
 	Utils::ScopedHandle _frameLatencyWaitableObject = NULL;
 	bool _waitingForNextFrame = false;
 
-	ComPtr<ID3D11SamplerState> _linearClampSampler;
-	ComPtr<ID3D11SamplerState> _pointClampSampler;
-	ComPtr<ID3D11SamplerState> _linearWrapSampler;
-	ComPtr<ID3D11SamplerState> _pointWrapSampler;
-	ComPtr<ID3D11BlendState> _alphaBlendState;
+	winrt::com_ptr<ID3D11SamplerState> _linearClampSampler;
+	winrt::com_ptr<ID3D11SamplerState> _pointClampSampler;
+	winrt::com_ptr<ID3D11SamplerState> _linearWrapSampler;
+	winrt::com_ptr<ID3D11SamplerState> _pointWrapSampler;
+	winrt::com_ptr<ID3D11BlendState> _alphaBlendState;
 
-	ComPtr<ID3D11Texture2D> _effectInput;
-	ComPtr<ID3D11Texture2D> _backBuffer;
-	std::unordered_map<ID3D11Texture2D*, ComPtr<ID3D11RenderTargetView>> _rtvMap;
-	std::unordered_map<ID3D11Texture2D*, ComPtr<ID3D11ShaderResourceView>> _srvMap;
+	winrt::com_ptr<ID3D11Texture2D> _effectInput;
+	winrt::com_ptr<ID3D11Texture2D> _backBuffer;
+	std::unordered_map<ID3D11Texture2D*, winrt::com_ptr<ID3D11RenderTargetView>> _rtvMap;
+	std::unordered_map<ID3D11Texture2D*, winrt::com_ptr<ID3D11ShaderResourceView>> _srvMap;
 
-	ComPtr<ID3D11VertexShader> _fillVS;
-	ComPtr<ID3D11VertexShader> _simpleVS;
-	ComPtr<ID3D11InputLayout> _simpleIL;
-	ComPtr<ID3D11PixelShader> _copyPS;
+	winrt::com_ptr<ID3D11VertexShader> _fillVS;
+	winrt::com_ptr<ID3D11VertexShader> _simpleVS;
+	winrt::com_ptr<ID3D11InputLayout> _simpleIL;
+	winrt::com_ptr<ID3D11PixelShader> _copyPS;
 	std::vector<EffectDrawer> _effects;
 
 	CursorDrawer _cursorDrawer;

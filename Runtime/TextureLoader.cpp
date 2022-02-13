@@ -7,23 +7,23 @@
 extern std::shared_ptr<spdlog::logger> logger;
 
 
-ComPtr<ID3D11Texture2D> LoadImg(const wchar_t* fileName) {
-	ComPtr<IWICImagingFactory2> factory = App::GetInstance().GetWICImageFactory();
+winrt::com_ptr<ID3D11Texture2D> LoadImg(const wchar_t* fileName) {
+	winrt::com_ptr<IWICImagingFactory2> factory = App::GetInstance().GetWICImageFactory();
 	if (!factory) {
 		SPDLOG_LOGGER_ERROR(logger, "GetWICImageFactory 失败");
 		return nullptr;
 	}
 
 	// 读取图像文件
-	ComPtr<IWICBitmapDecoder> decoder;
-	HRESULT hr = factory->CreateDecoderFromFilename(fileName, nullptr, GENERIC_READ, WICDecodeMetadataCacheOnDemand, &decoder);
+	winrt::com_ptr<IWICBitmapDecoder> decoder;
+	HRESULT hr = factory->CreateDecoderFromFilename(fileName, nullptr, GENERIC_READ, WICDecodeMetadataCacheOnDemand, decoder.put());
 	if (FAILED(hr)) {
 		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("CreateDecoderFromFilename 失败", hr));
 		return nullptr;
 	}
 
-	ComPtr<IWICBitmapFrameDecode> frame;
-	hr = decoder->GetFrame(0, &frame);
+	winrt::com_ptr<IWICBitmapFrameDecode> frame;
+	hr = decoder->GetFrame(0, frame.put());
 	if (FAILED(hr)) {
 		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("IWICBitmapFrameDecode::GetFrame 失败", hr));
 		return nullptr;
@@ -38,16 +38,15 @@ ComPtr<ID3D11Texture2D> LoadImg(const wchar_t* fileName) {
 			return nullptr;
 		}
 
-		ComPtr<IWICComponentInfo> cInfo;
-		hr = factory->CreateComponentInfo(sourceFormat, &cInfo);
+		winrt::com_ptr<IWICComponentInfo> cInfo;
+		hr = factory->CreateComponentInfo(sourceFormat, cInfo.put());
 		if (FAILED(hr)) {
 			SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("CreateComponentInfo", hr));
 			return nullptr;
 		}
-		ComPtr<IWICPixelFormatInfo2> formatInfo;
-		hr = cInfo.As<IWICPixelFormatInfo2>(&formatInfo);
-		if (FAILED(hr)) {
-			SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("IWICComponentInfo 转换为 IWICPixelFormatInfo2 时失败", hr));
+		winrt::com_ptr<IWICPixelFormatInfo2> formatInfo = cInfo.try_as<IWICPixelFormatInfo2>();
+		if (!formatInfo) {
+			SPDLOG_LOGGER_ERROR(logger, "IWICComponentInfo 转换为 IWICPixelFormatInfo2 时失败");
 			return nullptr;
 		}
 
@@ -68,15 +67,15 @@ ComPtr<ID3D11Texture2D> LoadImg(const wchar_t* fileName) {
 	}
 
 	// 转换格式
-	ComPtr<IWICFormatConverter> formatConverter;
-	hr = factory->CreateFormatConverter(&formatConverter);
+	winrt::com_ptr<IWICFormatConverter> formatConverter;
+	hr = factory->CreateFormatConverter(formatConverter.put());
 	if (FAILED(hr)) {
 		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("CreateFormatConverter 失败", hr));
 		return nullptr;
 	}
 
 	WICPixelFormatGUID targetFormat = useFloatFormat ? GUID_WICPixelFormat64bppRGBAHalf : GUID_WICPixelFormat32bppBGRA;
-	hr = formatConverter->Initialize(frame.Get(), targetFormat, WICBitmapDitherTypeNone, nullptr, 0, WICBitmapPaletteTypeCustom);
+	hr = formatConverter->Initialize(frame.get(), targetFormat, WICBitmapDitherTypeNone, nullptr, 0, WICBitmapPaletteTypeCustom);
 	if (FAILED(hr)) {
 		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("IWICFormatConverter::Initialize 失败", hr));
 		return nullptr;
@@ -130,8 +129,8 @@ ComPtr<ID3D11Texture2D> LoadImg(const wchar_t* fileName) {
 	initData.pSysMem = buf.get();
 	initData.SysMemPitch = stride;
 
-	ComPtr<ID3D11Texture2D> result;
-	hr = App::GetInstance().GetRenderer().GetD3DDevice()->CreateTexture2D(&desc, &initData, &result);
+	winrt::com_ptr<ID3D11Texture2D> result;
+	hr = App::GetInstance().GetRenderer().GetD3DDevice()->CreateTexture2D(&desc, &initData, result.put());
 	if (FAILED(hr)) {
 		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("CreateTexture2D 失败", hr));
 		return nullptr;
@@ -140,12 +139,12 @@ ComPtr<ID3D11Texture2D> LoadImg(const wchar_t* fileName) {
 	return result;
 }
 
-ComPtr<ID3D11Texture2D> LoadDDS(const wchar_t* fileName) {
-	ComPtr<ID3D11Resource> result;
+winrt::com_ptr<ID3D11Texture2D> LoadDDS(const wchar_t* fileName) {
+	winrt::com_ptr<ID3D11Resource> result;
 
 	DirectX::DDS_ALPHA_MODE alphaMode = DirectX::DDS_ALPHA_MODE_STRAIGHT;
 	HRESULT hr = DirectX::CreateDDSTextureFromFileEx(
-		App::GetInstance().GetRenderer().GetD3DDevice().Get(),
+		App::GetInstance().GetRenderer().GetD3DDevice().get(),
 		fileName,
 		0,
 		D3D11_USAGE_DEFAULT,
@@ -153,7 +152,7 @@ ComPtr<ID3D11Texture2D> LoadDDS(const wchar_t* fileName) {
 		0,
 		0,
 		false,
-		&result,
+		result.put(),
 		nullptr,
 		&alphaMode
 	);
@@ -162,7 +161,7 @@ ComPtr<ID3D11Texture2D> LoadDDS(const wchar_t* fileName) {
 
 		// 第二次尝试，不作为渲染目标
 		hr = DirectX::CreateDDSTextureFromFileEx(
-			App::GetInstance().GetRenderer().GetD3DDevice().Get(),
+			App::GetInstance().GetRenderer().GetD3DDevice().get(),
 			fileName,
 			0,
 			D3D11_USAGE_DEFAULT,
@@ -170,7 +169,7 @@ ComPtr<ID3D11Texture2D> LoadDDS(const wchar_t* fileName) {
 			0,
 			0,
 			false,
-			&result,
+			result.put(),
 			nullptr,
 			&alphaMode
 		);
@@ -181,17 +180,16 @@ ComPtr<ID3D11Texture2D> LoadDDS(const wchar_t* fileName) {
 		}
 	}
 
-	ComPtr<ID3D11Texture2D> tex;
-	hr = result.As<ID3D11Texture2D>(&tex);
-	if (FAILED(hr)) {
-		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("从 ID3D11Resource 获取 ID3D11Texture2D 失败", hr));
+	winrt::com_ptr<ID3D11Texture2D> tex = result.try_as<ID3D11Texture2D>();
+	if (!tex) {
+		SPDLOG_LOGGER_ERROR(logger, "从 ID3D11Resource 获取 ID3D11Texture2D 失败");
 		return nullptr;
 	}
 
 	return tex;
 }
 
-ComPtr<ID3D11Texture2D> TextureLoader::Load(const wchar_t* fileName) {
+winrt::com_ptr<ID3D11Texture2D> TextureLoader::Load(const wchar_t* fileName) {
 	std::wstring_view sv(fileName);
 	size_t npos = sv.find_last_of(L'.');
 	if (npos == std::wstring_view::npos) {
@@ -201,7 +199,7 @@ ComPtr<ID3D11Texture2D> TextureLoader::Load(const wchar_t* fileName) {
 
 	std::wstring_view suffix = sv.substr(npos + 1);
 	
-	static std::unordered_map<std::wstring_view, ComPtr<ID3D11Texture2D>(*)(const wchar_t*)> funcs = {
+	static std::unordered_map<std::wstring_view, winrt::com_ptr<ID3D11Texture2D>(*)(const wchar_t*)> funcs = {
 		{L"bmp", LoadImg},
 		{L"jpg", LoadImg},
 		{L"jpeg", LoadImg},

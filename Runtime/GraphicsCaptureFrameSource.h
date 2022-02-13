@@ -23,7 +23,7 @@ public:
 
 	bool Initialize() override;
 
-	ComPtr<ID3D11Texture2D> GetOutput() override {
+	winrt::com_ptr<ID3D11Texture2D> GetOutput() override {
 		return _output;
 	}
 
@@ -62,5 +62,5 @@ private:
 	CRITICAL_SECTION _cs{};
 	bool _newFrameArrived = false;
 
-	ComPtr<ID3D11Texture2D> _output;
+	winrt::com_ptr<ID3D11Texture2D> _output;
 };

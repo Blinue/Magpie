@@ -64,15 +64,15 @@ bool GDIFrameSource::Initialize() {
 	desc.SampleDesc.Quality = 0;
 	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
 	desc.MiscFlags = D3D11_RESOURCE_MISC_GDI_COMPATIBLE;
-	HRESULT hr = App::GetInstance().GetRenderer().GetD3DDevice()->CreateTexture2D(&desc, nullptr, &_output);
+	HRESULT hr = App::GetInstance().GetRenderer().GetD3DDevice()->CreateTexture2D(&desc, nullptr, _output.put());
 	if (FAILED(hr)) {
 		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("创建 Texture2D 失败", hr));
 		return false;
 	}
 
-	hr = _output.As<IDXGISurface1>(&_dxgiSurface);
-	if (FAILED(hr)) {
-		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("从 Texture2D 获取 IDXGISurface1 失败", hr));
+	_dxgiSurface = _output.try_as<IDXGISurface1>();
+	if (!_dxgiSurface) {
+		SPDLOG_LOGGER_ERROR(logger, "从 Texture2D 获取 IDXGISurface1 失败");
 		return false;
 	}
 

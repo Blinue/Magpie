@@ -5,6 +5,6 @@
 
 class TextureLoader {
 public:
-	static ComPtr<ID3D11Texture2D> Load(const wchar_t* fileName);
+	static winrt::com_ptr<ID3D11Texture2D> Load(const wchar_t* fileName);
 };
 

@@ -6,12 +6,12 @@
 
 class FrameRateDrawer {
 public:
-	bool Initialize(ComPtr<ID3D11Texture2D> renderTarget, const RECT& destRect);
+	bool Initialize(winrt::com_ptr<ID3D11Texture2D> renderTarget, const RECT& destRect);
 
 	void Draw();
 
 private:
-	ComPtr<ID3D11DeviceContext> _d3dDC;
+	winrt::com_ptr<ID3D11DeviceContext> _d3dDC;
 	D3D11_VIEWPORT _vp{};
 
 	ID3D11RenderTargetView* _rtv = nullptr;

@@ -220,13 +220,15 @@ void App::_Run() {
 	}
 }
 
-ComPtr<IWICImagingFactory2> App::GetWICImageFactory() {
-	if (_wicImgFactory == nullptr) {
+winrt::com_ptr<IWICImagingFactory2> App::GetWICImageFactory() {
+	static winrt::com_ptr<IWICImagingFactory2> wicImgFactory;
+
+	if (wicImgFactory == nullptr) {
 		HRESULT hr = CoCreateInstance(
 			CLSID_WICImagingFactory,
 			NULL,
 			CLSCTX_INPROC_SERVER,
-			IID_PPV_ARGS(&_wicImgFactory)
+			IID_PPV_ARGS(wicImgFactory.put())
 		);
 
 		if (FAILED(hr)) {
@@ -235,7 +237,7 @@ ComPtr<IWICImagingFactory2> App::GetWICImageFactory() {
 		}
 	}
 
-	return _wicImgFactory;
+	return wicImgFactory;
 }
 
 

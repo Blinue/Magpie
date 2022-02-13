@@ -140,7 +140,7 @@ public:
 		_errorMsg = errorMsg;
 	}
 
-	ComPtr<IWICImagingFactory2> GetWICImageFactory();
+	winrt::com_ptr<IWICImagingFactory2> GetWICImageFactory();
 
 private:
 	App();
@@ -203,5 +203,4 @@ private:
 
 	std::unique_ptr<Renderer> _renderer;
 	std::unique_ptr<FrameSourceBase> _frameSource;
-	ComPtr<IWICImagingFactory2> _wicImgFactory;
 };

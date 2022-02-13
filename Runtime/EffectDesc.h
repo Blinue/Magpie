@@ -70,7 +70,7 @@ struct EffectConstantDesc {
 struct EffectPassDesc {
 	std::vector<UINT> inputs;
 	std::vector<UINT> outputs;
-	ComPtr<ID3DBlob> cso;
+	winrt::com_ptr<ID3DBlob> cso;
 };
 
 struct EffectDesc {

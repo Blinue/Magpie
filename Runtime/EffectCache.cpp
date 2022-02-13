@@ -13,10 +13,10 @@
 
 
 template<typename Archive>
-void serialize(Archive& ar, ComPtr<ID3DBlob>& o) {
+void serialize(Archive& ar, winrt::com_ptr<ID3DBlob>& o) {
 	SIZE_T size = 0;
 	ar& size;
-	HRESULT hr = D3DCreateBlob(size, o.ReleaseAndGetAddressOf());
+	HRESULT hr = D3DCreateBlob(size, o.put());
 	if (FAILED(hr)) {
 		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("D3DCreateBlob 失败", hr));
 		throw new std::exception();
@@ -29,7 +29,7 @@ void serialize(Archive& ar, ComPtr<ID3DBlob>& o) {
 }
 
 template<typename Archive>
-void serialize(Archive& ar, const ComPtr<ID3DBlob>& o) {
+void serialize(Archive& ar, const winrt::com_ptr<ID3DBlob>& o) {
 	SIZE_T size = o->GetBufferSize();
 	ar& size;
 

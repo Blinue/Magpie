@@ -830,7 +830,7 @@ void NTAPI TPWork(PTP_CALLBACK_INSTANCE, PVOID Context, PTP_WORK) {
 	ULONG index = InterlockedIncrement(&con->index);
 	
 	if (!App::GetInstance().GetRenderer().CompileShader(false, con->passSources[index],
-		"__M", con->passes[index].cso.ReleaseAndGetAddressOf(), fmt::format("Pass{}", index + 1).c_str(), &passInclude)) {
+		"__M", con->passes[index].cso.put(), fmt::format("Pass{}", index + 1).c_str(), &passInclude)) {
 		con->passes[index].cso = nullptr;
 	}
 }
@@ -1058,7 +1058,7 @@ UINT ResolvePasses(const std::vector<std::string_view>& blocks, const std::vecto
 	Renderer& renderer = App::GetInstance().GetRenderer();
 
 	if (passSources.size() == 1) {
-		if (!renderer.CompileShader(false, passSources[0], "__M", desc.passes[0].cso.ReleaseAndGetAddressOf(), "Pass1", &passInclude)) {
+		if (!renderer.CompileShader(false, passSources[0], "__M", desc.passes[0].cso.put(), "Pass1", &passInclude)) {
 			SPDLOG_LOGGER_ERROR(logger, "编译 Pass1 失败");
 			return 1;
 		}
@@ -1077,7 +1077,7 @@ UINT ResolvePasses(const std::vector<std::string_view>& blocks, const std::vecto
 				SubmitThreadpoolWork(work);
 			}
 
-			renderer.CompileShader(false, passSources[0], "__M", desc.passes[0].cso.ReleaseAndGetAddressOf(), "Pass1", &passInclude);
+			renderer.CompileShader(false, passSources[0], "__M", desc.passes[0].cso.put(), "Pass1", &passInclude);
 
 			WaitForThreadpoolWorkCallbacks(work, FALSE);
 			CloseThreadpoolWork(work);
@@ -1093,7 +1093,7 @@ UINT ResolvePasses(const std::vector<std::string_view>& blocks, const std::vecto
 
 			// 回退到单线程
 			for (size_t i = 0; i < passSources.size(); ++i) {
-				if (!renderer.CompileShader(false, passSources[i], "__M", desc.passes[i].cso.ReleaseAndGetAddressOf(), fmt::format("Pass{}", i + 1).c_str(), &passInclude)) {
+				if (!renderer.CompileShader(false, passSources[i], "__M", desc.passes[i].cso.put(), fmt::format("Pass{}", i + 1).c_str(), &passInclude)) {
 					SPDLOG_LOGGER_ERROR(logger, fmt::format("编译 Pass{} 失败", i + 1));
 					return 1;
 				}

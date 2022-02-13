@@ -14,7 +14,7 @@ public:
 
 	virtual bool Initialize() = 0;
 
-	virtual ComPtr<ID3D11Texture2D> GetOutput() = 0;
+	virtual winrt::com_ptr<ID3D11Texture2D> GetOutput() = 0;
 
 	enum class UpdateState {
 		NewFrame,

@@ -310,7 +310,7 @@ bool EvalConstants(const std::vector<EffectValueConstantDesc>& descs, std::vecto
 	return true;
 }
 
-bool EffectDrawer::Build(ComPtr<ID3D11Texture2D> input, ComPtr<ID3D11Texture2D> output) {
+bool EffectDrawer::Build(winrt::com_ptr<ID3D11Texture2D> input, winrt::com_ptr<ID3D11Texture2D> output) {
 	D3D11_TEXTURE2D_DESC inputDesc;
 	input->GetDesc(&inputDesc);
 	SIZE inputSize = { (long)inputDesc.Width, (long)inputDesc.Height };
@@ -363,7 +363,7 @@ bool EffectDrawer::Build(ComPtr<ID3D11Texture2D> input, ComPtr<ID3D11Texture2D> 
 			desc.SampleDesc.Quality = 0;
 			desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
 			HRESULT hr = App::GetInstance().GetRenderer().GetD3DDevice()->CreateTexture2D(
-				&desc, nullptr, _textures[i].ReleaseAndGetAddressOf());
+				&desc, nullptr, _textures[i].put());
 			if (FAILED(hr)) {
 				SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("创建 Texture2D 失败", hr));
 				return false;
@@ -395,7 +395,7 @@ bool EffectDrawer::Build(ComPtr<ID3D11Texture2D> input, ComPtr<ID3D11Texture2D> 
 		D3D11_SUBRESOURCE_DATA initData{};
 		initData.pSysMem = _constants.data();
 
-		HRESULT hr = _d3dDevice->CreateBuffer(&bd, &initData, &_constantBuffer);
+		HRESULT hr = _d3dDevice->CreateBuffer(&bd, &initData, _constantBuffer.put());
 		if (FAILED(hr)) {
 			SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("CreateBuffer 失败", hr));
 			return false;
@@ -413,7 +413,7 @@ bool EffectDrawer::Build(ComPtr<ID3D11Texture2D> input, ComPtr<ID3D11Texture2D> 
 		D3D11_SUBRESOURCE_DATA initData{};
 		initData.pSysMem = _dynamicConstants.data();
 		
-		HRESULT hr = _d3dDevice->CreateBuffer(&bd, &initData, &_dynamicConstantBuffer);
+		HRESULT hr = _d3dDevice->CreateBuffer(&bd, &initData, _dynamicConstantBuffer.put());
 		if (FAILED(hr)) {
 			SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("CreateBuffer 失败", hr));
 			return false;
@@ -446,16 +446,16 @@ void EffectDrawer::Draw(bool noUpdate) {
 		}
 
 		D3D11_MAPPED_SUBRESOURCE ms;
-		HRESULT hr = _d3dDC->Map(_dynamicConstantBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &ms);
+		HRESULT hr = _d3dDC->Map(_dynamicConstantBuffer.get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &ms);
 		if (SUCCEEDED(hr)) {
 			std::memcpy(ms.pData, _dynamicConstants.data(), _dynamicConstants.size() * 4);
-			_d3dDC->Unmap(_dynamicConstantBuffer.Get(), 0);
+			_d3dDC->Unmap(_dynamicConstantBuffer.get(), 0);
 		} else {
 			SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("Map 失败", hr));
 		}
 	}
 
-	ID3D11Buffer* t[2] = { _constantBuffer.Get(), _dynamicConstantBuffer.Get()};
+	ID3D11Buffer* t[2] = { _constantBuffer.get(), _dynamicConstantBuffer.get()};
 	if (t[0]) {
 		_d3dDC->PSSetConstantBuffers(0, t[1] ? 2 : 1, t);
 	} else {
@@ -502,7 +502,7 @@ bool EffectDrawer::_Pass::Initialize(EffectDrawer* parent, size_t index) {
 
 	const EffectPassDesc& passDesc = _parent->_effectDesc.passes[index];
 	HRESULT hr = renderer.GetD3DDevice()->CreatePixelShader(
-		passDesc.cso->GetBufferPointer(), passDesc.cso->GetBufferSize(), nullptr, &_pixelShader);
+		passDesc.cso->GetBufferPointer(), passDesc.cso->GetBufferSize(), nullptr, _pixelShader.put());
 	if (FAILED(hr)) {
 		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("创建像素着色器失败", hr));
 		return false;
@@ -518,7 +518,7 @@ bool EffectDrawer::_Pass::Build(std::optional<SIZE> outputSize) {
 	_inputs.resize(passDesc.inputs.size() * 2);
 	// 后半部分留空
 	for (size_t i = 0; i < passDesc.inputs.size(); ++i) {
-		if (!renderer.GetShaderResourceView(_parent->_textures[passDesc.inputs[i]].Get(), &_inputs[i])) {
+		if (!renderer.GetShaderResourceView(_parent->_textures[passDesc.inputs[i]].get(), &_inputs[i])) {
 			SPDLOG_LOGGER_ERROR(logger,"获取 ShaderResourceView 失败");
 			return false;
 		}
@@ -526,7 +526,7 @@ bool EffectDrawer::_Pass::Build(std::optional<SIZE> outputSize) {
 
 	_outputs.resize(passDesc.outputs.size());
 	for (size_t i = 0; i < _outputs.size(); ++i) {
-		if (!App::GetInstance().GetRenderer().GetRenderTargetView(_parent->_textures[passDesc.outputs[i]].Get(), &_outputs[i])) {
+		if (!App::GetInstance().GetRenderer().GetRenderTargetView(_parent->_textures[passDesc.outputs[i]].get(), &_outputs[i])) {
 			SPDLOG_LOGGER_ERROR(logger, "获取 RenderTargetView 失败");
 			return false;
 		}
@@ -562,7 +562,7 @@ bool EffectDrawer::_Pass::Build(std::optional<SIZE> outputSize) {
 
 		D3D11_SUBRESOURCE_DATA InitData = {};
 		InitData.pSysMem = vertices;
-		HRESULT hr = renderer.GetD3DDevice()->CreateBuffer(&bd, &InitData, &_vtxBuffer);
+		HRESULT hr = renderer.GetD3DDevice()->CreateBuffer(&bd, &InitData, _vtxBuffer.put());
 		if (FAILED(hr)) {
 			SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("创建顶点缓冲区失败", hr));
 			return false;
@@ -573,18 +573,18 @@ bool EffectDrawer::_Pass::Build(std::optional<SIZE> outputSize) {
 }
 
 void EffectDrawer::_Pass::Draw() {
-	ComPtr<ID3D11DeviceContext> d3dDC = _parent->_d3dDC;
+	winrt::com_ptr<ID3D11DeviceContext> d3dDC = _parent->_d3dDC;
 
 	d3dDC->OMSetRenderTargets((UINT)_outputs.size(), _outputs.data(), nullptr);
 	d3dDC->RSSetViewports(1, &_vp);
 
-	d3dDC->PSSetShader(_pixelShader.Get(), nullptr, 0);
+	d3dDC->PSSetShader(_pixelShader.get(), nullptr, 0);
 
 	UINT nInputs = (UINT)(_inputs.size() / 2);
 	d3dDC->PSSetShaderResources(0, nInputs, _inputs.data());
 
 	if (_vtxBuffer) {
-		App::GetInstance().GetRenderer().SetSimpleVS(_vtxBuffer.Get());
+		App::GetInstance().GetRenderer().SetSimpleVS(_vtxBuffer.get());
 		d3dDC->Draw(4, 0);
 	} else {
 		App::GetInstance().GetRenderer().SetFillVS();

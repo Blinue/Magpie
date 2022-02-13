@@ -151,17 +151,16 @@ API_DECLSPEC const char* WINAPI GetAllGraphicsAdapters(const char* delimiter) {
 	static std::string result;
 	result.clear();
 
-	ComPtr<IDXGIFactory1> dxgiFactory;
+	winrt::com_ptr<IDXGIFactory1> dxgiFactory;
 	HRESULT hr = CreateDXGIFactory1(IID_PPV_ARGS(&dxgiFactory));
 	if (FAILED(hr)) {
 		return "";
 	}
 
-	ComPtr<IDXGIAdapter1> adapter;
+	winrt::com_ptr<IDXGIAdapter1> adapter;
 	for (UINT adapterIndex = 0;
-			SUCCEEDED(dxgiFactory->EnumAdapters1(adapterIndex,
-				adapter.ReleaseAndGetAddressOf()));
-			adapterIndex++
+		SUCCEEDED(dxgiFactory->EnumAdapters1(adapterIndex,adapter.put()));
+		++adapterIndex
 	) {
 		if (adapterIndex > 0) {
 			result += delimiter;
