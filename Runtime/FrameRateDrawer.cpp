@@ -2,13 +2,16 @@
 #include "FrameRateDrawer.h"
 #include "App.h"
 #include "resource.h"
+#include "DeviceResources.h"
 #include "Renderer.h"
+#include "GPUTimer.h"
 
 
-bool FrameRateDrawer::Initialize(winrt::com_ptr<ID3D11Texture2D> renderTarget, const RECT& destRect) {
-	Renderer& renderer = App::GetInstance().GetRenderer();
-	_d3dDC = renderer.GetD3DDC();
-	if (!renderer.GetRenderTargetView(renderTarget.get(), &_rtv)) {
+bool FrameRateDrawer::Initialize(ID3D11Texture2D* renderTarget, const RECT& destRect) {
+	auto& dr = App::GetInstance().GetDeviceResources();
+	auto d3dDC = dr.GetD3DDC();
+
+	if (!dr.GetRenderTargetView(renderTarget, &_rtv)) {
 		return false;
 	}
 
@@ -18,7 +21,7 @@ bool FrameRateDrawer::Initialize(winrt::com_ptr<ID3D11Texture2D> renderTarget, c
 	_vp.Width = FLOAT(destRect.right - destRect.left);
 	_vp.Height = FLOAT(destRect.bottom - destRect.top);
 
-	_spriteBatch.reset(new SpriteBatch(renderer.GetD3DDC().get()));
+	_spriteBatch.reset(new SpriteBatch(d3dDC));
 
 	// 从资源文件获取字体
 	HMODULE hInst = App::GetInstance().GetHInstance();
@@ -31,16 +34,19 @@ bool FrameRateDrawer::Initialize(winrt::com_ptr<ID3D11Texture2D> renderTarget, c
 		return false;
 	}
 
-	_spriteFont.reset(new SpriteFont(renderer.GetD3DDevice().get(),
-		(const uint8_t*)LockResource(hRes), SizeofResource(hInst, hRsrc)));
+	_spriteFont.reset(
+		new SpriteFont(dr.GetD3DDevice(),
+		(const uint8_t*)LockResource(hRes), SizeofResource(hInst, hRsrc))
+	);
 	return true;
 }
 
 void FrameRateDrawer::Draw() {
-	const GPUTimer& timer = App::GetInstance().GetRenderer().GetTimer();
+	const GPUTimer& timer = App::GetInstance().GetRenderer().GetGPUTimer();
+	auto d3dDC = App::GetInstance().GetDeviceResources().GetD3DDC();
 
-	_d3dDC->OMSetRenderTargets(1, &_rtv, nullptr);
-	_d3dDC->RSSetViewports(1, &_vp);
+	d3dDC->OMSetRenderTargets(1, &_rtv, nullptr);
+	d3dDC->RSSetViewports(1, &_vp);
 
 	_spriteBatch->Begin(SpriteSortMode::SpriteSortMode_Immediate);
 

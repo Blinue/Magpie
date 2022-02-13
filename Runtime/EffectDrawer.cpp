@@ -8,15 +8,14 @@
 #include "StrUtils.h"
 #include "Renderer.h"
 #include "FrameSourceBase.h"
+#include "DeviceResources.h"
+#include "GPUTimer.h"
 
-#ifdef _UNICODE
+#pragma push_macro("_UNICODE")
 #undef _UNICODE
 // Conan 的 muparser 不含 UNICODE 支持
 #include <muParser.h>
-#define _UNICODE
-#else
-#include <muParser.h>
-#endif
+#pragma pop_macro("_UNICODE")
 
 
 extern std::shared_ptr<spdlog::logger> logger;
@@ -89,8 +88,6 @@ void SetExprDynamicVars(int frameCount, double cursorX, double cursorY) {
 
 
 EffectDrawer::EffectDrawer(const EffectDrawer& other) {
-	_d3dDevice = other._d3dDevice;
-	_d3dDC = other._d3dDC;
 	_samplers = other._samplers;
 	_textures = other._textures;
 	_constNamesMap = other._constNamesMap;
@@ -107,8 +104,6 @@ EffectDrawer::EffectDrawer(const EffectDrawer& other) {
 }
 
 EffectDrawer::EffectDrawer(EffectDrawer&& other) noexcept {
-	_d3dDevice = std::move(other._d3dDevice);
-	_d3dDC = std::move(other._d3dDC);
 	_samplers = std::move(other._samplers);
 	_textures = std::move(other._textures);
 	_constNamesMap = std::move(other._constNamesMap);
@@ -137,14 +132,16 @@ bool EffectDrawer::Initialize(const wchar_t* fileName) {
 		SPDLOG_LOGGER_INFO(logger, fmt::format("编译 {} 用时 {} 毫秒", StrUtils::UTF16ToUTF8(fileName), duration / 1000.0f));
 	}
 
-	Renderer& renderer = App::GetInstance().GetRenderer();
-	_d3dDevice = renderer.GetD3DDevice();
-	_d3dDC = renderer.GetD3DDC();
+	auto& dr = App::GetInstance().GetDeviceResources();
 
 	_samplers.resize(_effectDesc.samplers.size());
 	for (size_t i = 0; i < _samplers.size(); ++i) {
 		EffectSamplerDesc& desc = _effectDesc.samplers[i];
-		if (!renderer.GetSampler(desc.filterType, desc.addressType, &_samplers[i])) {
+		if (!dr.GetSampler(
+			desc.filterType == EffectSamplerFilterType::Linear ? D3D11_FILTER_MIN_MAG_MIP_LINEAR : D3D11_FILTER_MIN_MAG_MIP_POINT,
+			desc.addressType == EffectSamplerAddressType::Clamp ? D3D11_TEXTURE_ADDRESS_CLAMP : D3D11_TEXTURE_ADDRESS_WRAP,
+			&_samplers[i])
+		) {
 			SPDLOG_LOGGER_ERROR(logger, fmt::format("创建采样器 {} 失败", desc.name));
 			return false;
 		}
@@ -311,7 +308,7 @@ bool EvalConstants(const std::vector<EffectValueConstantDesc>& descs, std::vecto
 	return true;
 }
 
-bool EffectDrawer::Build(winrt::com_ptr<ID3D11Texture2D> input, winrt::com_ptr<ID3D11Texture2D> output) {
+bool EffectDrawer::Build(ID3D11Texture2D* input, ID3D11Texture2D* output) {
 	D3D11_TEXTURE2D_DESC inputDesc;
 	input->GetDesc(&inputDesc);
 	SIZE inputSize = { (long)inputDesc.Width, (long)inputDesc.Height };
@@ -325,9 +322,11 @@ bool EffectDrawer::Build(winrt::com_ptr<ID3D11Texture2D> input, winrt::com_ptr<I
 	SetExprVars(inputSize, outputSize);
 	SetExprDynamicVars(0, 0, 0);
 
+	auto d3dDevice = App::GetInstance().GetDeviceResources().GetD3DDevice();
+
 	// 创建中间纹理
 	_textures.resize(_effectDesc.textures.size() + 1);
-	_textures[0] = input;
+	_textures[0].copy_from(input);
 	for (size_t i = 1; i < _effectDesc.textures.size(); ++i) {
 		if (!_effectDesc.textures[i].source.empty()) {
 			// 从文件加载纹理
@@ -363,8 +362,7 @@ bool EffectDrawer::Build(winrt::com_ptr<ID3D11Texture2D> input, winrt::com_ptr<I
 			desc.SampleDesc.Count = 1;
 			desc.SampleDesc.Quality = 0;
 			desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
-			HRESULT hr = App::GetInstance().GetRenderer().GetD3DDevice()->CreateTexture2D(
-				&desc, nullptr, _textures[i].put());
+			HRESULT hr = d3dDevice->CreateTexture2D(&desc, nullptr, _textures[i].put());
 			if (FAILED(hr)) {
 				SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("创建 Texture2D 失败", hr));
 				return false;
@@ -372,8 +370,7 @@ bool EffectDrawer::Build(winrt::com_ptr<ID3D11Texture2D> input, winrt::com_ptr<I
 		}
 	}
 
-	_textures.back() = output;
-
+	_textures.back().copy_from(output);
 	
 	if (!EvalConstants(_effectDesc.valueConstants, _constants, _effectDesc.constants.size())) {
 		SPDLOG_LOGGER_ERROR(logger, "计算常量失败");
@@ -396,7 +393,7 @@ bool EffectDrawer::Build(winrt::com_ptr<ID3D11Texture2D> input, winrt::com_ptr<I
 		D3D11_SUBRESOURCE_DATA initData{};
 		initData.pSysMem = _constants.data();
 
-		HRESULT hr = _d3dDevice->CreateBuffer(&bd, &initData, _constantBuffer.put());
+		HRESULT hr = d3dDevice->CreateBuffer(&bd, &initData, _constantBuffer.put());
 		if (FAILED(hr)) {
 			SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("CreateBuffer 失败", hr));
 			return false;
@@ -414,7 +411,7 @@ bool EffectDrawer::Build(winrt::com_ptr<ID3D11Texture2D> input, winrt::com_ptr<I
 		D3D11_SUBRESOURCE_DATA initData{};
 		initData.pSysMem = _dynamicConstants.data();
 		
-		HRESULT hr = _d3dDevice->CreateBuffer(&bd, &initData, _dynamicConstantBuffer.put());
+		HRESULT hr = d3dDevice->CreateBuffer(&bd, &initData, _dynamicConstantBuffer.put());
 		if (FAILED(hr)) {
 			SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("CreateBuffer 失败", hr));
 			return false;
@@ -440,6 +437,8 @@ bool EffectDrawer::Build(winrt::com_ptr<ID3D11Texture2D> input, winrt::com_ptr<I
 }
 
 void EffectDrawer::Draw(bool noUpdate) {
+	auto d3dDC = App::GetInstance().GetDeviceResources().GetD3DDC();
+
 	if (_dynamicConstantBuffer) {
 		// 更新常量
 		if (!EvalConstants(_effectDesc.dynamicValueConstants, _dynamicConstants)) {
@@ -447,10 +446,10 @@ void EffectDrawer::Draw(bool noUpdate) {
 		}
 
 		D3D11_MAPPED_SUBRESOURCE ms;
-		HRESULT hr = _d3dDC->Map(_dynamicConstantBuffer.get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &ms);
+		HRESULT hr = d3dDC->Map(_dynamicConstantBuffer.get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &ms);
 		if (SUCCEEDED(hr)) {
 			std::memcpy(ms.pData, _dynamicConstants.data(), _dynamicConstants.size() * 4);
-			_d3dDC->Unmap(_dynamicConstantBuffer.get(), 0);
+			d3dDC->Unmap(_dynamicConstantBuffer.get(), 0);
 		} else {
 			SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("Map 失败", hr));
 		}
@@ -458,12 +457,12 @@ void EffectDrawer::Draw(bool noUpdate) {
 
 	ID3D11Buffer* t[2] = { _constantBuffer.get(), _dynamicConstantBuffer.get()};
 	if (t[0]) {
-		_d3dDC->PSSetConstantBuffers(0, t[1] ? 2 : 1, t);
+		d3dDC->PSSetConstantBuffers(0, t[1] ? 2 : 1, t);
 	} else {
-		_d3dDC->PSSetConstantBuffers(0, 0, nullptr);
+		d3dDC->PSSetConstantBuffers(0, 0, nullptr);
 	}
 
-	_d3dDC->PSSetSamplers(0, (UINT)_samplers.size(), _samplers.data());
+	d3dDC->PSSetSamplers(0, (UINT)_samplers.size(), _samplers.data());
 
 	if (noUpdate) {
 		// 此帧内容无变化，只渲染最后一个 pass
@@ -477,7 +476,7 @@ void EffectDrawer::Draw(bool noUpdate) {
 
 // 所有 Effect 共享 exprParser，每帧渲染前由 Renderer 调用一次
 bool EffectDrawer::UpdateExprDynamicVars() {
-	int frameCount = App::GetInstance().GetRenderer().GetTimer().GetFrameCount();
+	int frameCount = App::GetInstance().GetRenderer().GetGPUTimer().GetFrameCount();
 
 	POINT pt;
 	if (!GetCursorPos(&pt)) {
@@ -497,12 +496,11 @@ bool EffectDrawer::UpdateExprDynamicVars() {
 
 
 bool EffectDrawer::_Pass::Initialize(EffectDrawer* parent, size_t index) {
-	Renderer& renderer = App::GetInstance().GetRenderer();
 	_parent = parent;
 	_index = index;
 
 	const EffectPassDesc& passDesc = _parent->_effectDesc.passes[index];
-	HRESULT hr = renderer.GetD3DDevice()->CreatePixelShader(
+	HRESULT hr = App::GetInstance().GetDeviceResources().GetD3DDevice()->CreatePixelShader(
 		passDesc.cso->GetBufferPointer(), passDesc.cso->GetBufferSize(), nullptr, _pixelShader.put());
 	if (FAILED(hr)) {
 		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("创建像素着色器失败", hr));
@@ -513,13 +511,13 @@ bool EffectDrawer::_Pass::Initialize(EffectDrawer* parent, size_t index) {
 }
 
 bool EffectDrawer::_Pass::Build(std::optional<SIZE> outputSize) {
-	Renderer& renderer = App::GetInstance().GetRenderer();
+	auto& dr = App::GetInstance().GetDeviceResources();
 	const EffectPassDesc& passDesc = _parent->_effectDesc.passes[_index];
 
 	_inputs.resize(passDesc.inputs.size() * 2);
 	// 后半部分留空
 	for (size_t i = 0; i < passDesc.inputs.size(); ++i) {
-		if (!renderer.GetShaderResourceView(_parent->_textures[passDesc.inputs[i]].get(), &_inputs[i])) {
+		if (!dr.GetShaderResourceView(_parent->_textures[passDesc.inputs[i]].get(), &_inputs[i])) {
 			SPDLOG_LOGGER_ERROR(logger,"获取 ShaderResourceView 失败");
 			return false;
 		}
@@ -527,7 +525,7 @@ bool EffectDrawer::_Pass::Build(std::optional<SIZE> outputSize) {
 
 	_outputs.resize(passDesc.outputs.size());
 	for (size_t i = 0; i < _outputs.size(); ++i) {
-		if (!App::GetInstance().GetRenderer().GetRenderTargetView(_parent->_textures[passDesc.outputs[i]].get(), &_outputs[i])) {
+		if (!dr.GetRenderTargetView(_parent->_textures[passDesc.outputs[i]].get(), &_outputs[i])) {
 			SPDLOG_LOGGER_ERROR(logger, "获取 RenderTargetView 失败");
 			return false;
 		}
@@ -563,7 +561,7 @@ bool EffectDrawer::_Pass::Build(std::optional<SIZE> outputSize) {
 
 		D3D11_SUBRESOURCE_DATA InitData = {};
 		InitData.pSysMem = vertices;
-		HRESULT hr = renderer.GetD3DDevice()->CreateBuffer(&bd, &InitData, _vtxBuffer.put());
+		HRESULT hr = dr.GetD3DDevice()->CreateBuffer(&bd, &InitData, _vtxBuffer.put());
 		if (FAILED(hr)) {
 			SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("创建顶点缓冲区失败", hr));
 			return false;
@@ -574,7 +572,7 @@ bool EffectDrawer::_Pass::Build(std::optional<SIZE> outputSize) {
 }
 
 void EffectDrawer::_Pass::Draw() {
-	winrt::com_ptr<ID3D11DeviceContext> d3dDC = _parent->_d3dDC;
+	auto d3dDC = App::GetInstance().GetDeviceResources().GetD3DDC();
 
 	d3dDC->OMSetRenderTargets((UINT)_outputs.size(), _outputs.data(), nullptr);
 	d3dDC->RSSetViewports(1, &_vp);

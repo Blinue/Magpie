@@ -1,12 +1,12 @@
 #include "pch.h"
 #include "DesktopDuplicationFrameSource.h"
 #include "App.h"
-#include "Renderer.h"
+#include "DeviceResources.h"
 
 
 extern std::shared_ptr<spdlog::logger> logger;
 
-static winrt::com_ptr<IDXGIOutput1> FindMonitor(winrt::com_ptr<IDXGIAdapter1> adapter, HMONITOR hMonitor) {
+static winrt::com_ptr<IDXGIOutput1> FindMonitor(IDXGIAdapter1* adapter, HMONITOR hMonitor) {
 	winrt::com_ptr<IDXGIOutput> output;
 
 	for (UINT adapterIndex = 0;
@@ -36,8 +36,8 @@ static winrt::com_ptr<IDXGIOutput1> FindMonitor(winrt::com_ptr<IDXGIAdapter1> ad
 
 // 根据显示器句柄查找 IDXGIOutput1
 static winrt::com_ptr<IDXGIOutput1> GetDXGIOutput(HMONITOR hMonitor) {
-	const Renderer& renderer = App::GetInstance().GetRenderer();
-	winrt::com_ptr<IDXGIAdapter1> curAdapter = App::GetInstance().GetRenderer().GetGraphicsAdapter();
+	auto& dr = App::GetInstance().GetDeviceResources();
+	IDXGIAdapter1* curAdapter = dr.GetGraphicsAdapter();
 
 	// 首先在当前使用的图形适配器上查询显示器
 	winrt::com_ptr<IDXGIOutput1> output = FindMonitor(curAdapter, hMonitor);
@@ -47,16 +47,16 @@ static winrt::com_ptr<IDXGIOutput1> GetDXGIOutput(HMONITOR hMonitor) {
 
 	// 未找到则在所有图形适配器上查找
 	winrt::com_ptr<IDXGIAdapter1> adapter;
-	winrt::com_ptr<IDXGIFactory2> dxgiFactory = renderer.GetDXGIFactory();
+	IDXGIFactory5* dxgiFactory = dr.GetDXGIFactory();
 	for (UINT adapterIndex = 0;
 		SUCCEEDED(dxgiFactory->EnumAdapters1(adapterIndex,adapter.put()));
-		adapterIndex++
+		++adapterIndex
 	) {
-		if (adapter == curAdapter) {
+		if (adapter.get() == curAdapter) {
 			continue;
 		}
 
-		output = FindMonitor(adapter, hMonitor);
+		output = FindMonitor(adapter.get(), hMonitor);
 		if (output) {
 			return output;
 		}
@@ -103,6 +103,8 @@ bool DesktopDuplicationFrameSource::Initialize() {
 		return false;
 	}
 
+	auto d3dDevice = App::GetInstance().GetDeviceResources().GetD3DDevice();
+
 	D3D11_TEXTURE2D_DESC desc{};
 	desc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
 	desc.Width = _srcFrameRect.right - _srcFrameRect.left;
@@ -112,7 +114,7 @@ bool DesktopDuplicationFrameSource::Initialize() {
 	desc.ArraySize = 1;
 	desc.SampleDesc.Count = 1;
 	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
-	HRESULT hr = App::GetInstance().GetRenderer().GetD3DDevice()->CreateTexture2D(&desc, nullptr, _output.put());
+	HRESULT hr = d3dDevice->CreateTexture2D(&desc, nullptr, _output.put());
 	if (FAILED(hr)) {
 		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("创建 Texture2D 失败", hr));
 		return false;
@@ -120,7 +122,7 @@ bool DesktopDuplicationFrameSource::Initialize() {
 
 	// 创建共享纹理
 	desc.MiscFlags = D3D11_RESOURCE_MISC_SHARED_KEYEDMUTEX;
-	hr = App::GetInstance().GetRenderer().GetD3DDevice()->CreateTexture2D(&desc, nullptr, _sharedTex.put());
+	hr = d3dDevice->CreateTexture2D(&desc, nullptr, _sharedTex.put());
 	if (FAILED(hr)) {
 		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("创建 Texture2D 失败", hr));
 		return false;
@@ -218,8 +220,7 @@ FrameSourceBase::UpdateState DesktopDuplicationFrameSource::Update() {
 
 	_newFrameState.store(0);
 
-	const auto& dc = App::GetInstance().GetRenderer().GetD3DDC();
-	dc->CopyResource(_output.get(), _sharedTex.get());
+	App::GetInstance().GetDeviceResources().GetD3DDC()->CopyResource(_output.get(), _sharedTex.get());
 
 	_sharedTexMutex->ReleaseSync(0);
 
@@ -228,7 +229,7 @@ FrameSourceBase::UpdateState DesktopDuplicationFrameSource::Update() {
 
 bool DesktopDuplicationFrameSource::_InitializeDdpD3D(HANDLE hSharedTex) {
 	UINT createDeviceFlags = D3D11_CREATE_DEVICE_BGRA_SUPPORT;
-	if (Renderer::IsDebugLayersAvailable()) {
+	if (DeviceResources::IsDebugLayersAvailable()) {
 		// 在 DEBUG 配置启用调试层
 		createDeviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
 	}
@@ -247,7 +248,7 @@ bool DesktopDuplicationFrameSource::_InitializeDdpD3D(HANDLE hSharedTex) {
 
 	// 使用和 Renderer 相同的图像适配器以避免 GPU 间的纹理拷贝
 	HRESULT hr = D3D11CreateDevice(
-		App::GetInstance().GetRenderer().GetGraphicsAdapter().get(),
+		App::GetInstance().GetDeviceResources().GetGraphicsAdapter(),
 		D3D_DRIVER_TYPE_UNKNOWN,
 		nullptr,
 		createDeviceFlags,

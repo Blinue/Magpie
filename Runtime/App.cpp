@@ -7,7 +7,8 @@
 #include "DesktopDuplicationFrameSource.h"
 #include "ExclModeHack.h"
 #include "Renderer.h"
-#include "FrameSourceBase.h"
+#include "DeviceResources.h"
+#include "GPUTimer.h"
 
 
 extern std::shared_ptr<spdlog::logger> logger;
@@ -98,9 +99,9 @@ bool App::Run(
 		return false;
 	}
 
-	_renderer.reset(new Renderer());
-	if (!_renderer->Initialize()) {
-		SPDLOG_LOGGER_CRITICAL(logger, "初始化 Renderer 失败");
+	_deviceResources.reset(new DeviceResources());
+	if (!_deviceResources->Initialize()) {
+		SPDLOG_LOGGER_CRITICAL(logger, "初始化 DeviceResources 失败");
 		Quit();
 		_Run();
 		return false;
@@ -164,8 +165,9 @@ bool App::Run(
 		}
 	}
 
-	if (!_renderer->InitializeEffectsAndCursor(effectsJson)) {
-		SPDLOG_LOGGER_CRITICAL(logger, "初始化效果失败");
+	_renderer.reset(new Renderer());
+	if (!_renderer->Initialize(effectsJson)) {
+		SPDLOG_LOGGER_CRITICAL(logger, "初始化 Renderer 失败");
 		Quit();
 		_Run();
 		return false;
@@ -198,7 +200,7 @@ void App::_Run() {
 		// 第二帧（等待时或完成后）显示 DDF 窗口
 		// 如果在 Run 中创建会有短暂的灰屏
 		// 选择第二帧的原因：当 GetFrameCount() 返回 1 时第一帧可能处于等待状态而没有渲染，见 Renderer::Render()
-		if (_renderer->GetTimer().GetFrameCount() == 2 && _hwndDDF) {
+		if (_renderer->GetGPUTimer().GetFrameCount() == 2 && _hwndDDF) {
 			ShowWindow(_hwndDDF, SW_NORMAL);
 
 			if (!SetWindowPos(_hwndDDF, _hwndHost, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOREDRAW)) {
@@ -459,8 +461,9 @@ LRESULT App::_HostWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 void App::_OnQuit() {
 	// 释放资源
-	_frameSource = nullptr;
 	_renderer = nullptr;
+	_frameSource = nullptr;
+	_deviceResources = nullptr;
 
 	// 还原窗口圆角
 	if (_roundCornerDisabled) {

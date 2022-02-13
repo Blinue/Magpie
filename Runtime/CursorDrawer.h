@@ -5,7 +5,7 @@
 // 处理光标的渲染
 class CursorDrawer {
 public:
-	bool Initialize(winrt::com_ptr<ID3D11Texture2D> renderTarget, const RECT& destRect);
+	bool Initialize(ID3D11Texture2D* renderTarget, const RECT& destRect);
 
 	~CursorDrawer();
 
@@ -44,9 +44,6 @@ private:
 	float _clientScaleX = 0;
 	float _clientScaleY = 0;
 	std::unordered_map<HCURSOR, _CursorInfo> _cursorMap;
-
-	winrt::com_ptr<ID3D11DeviceContext> _d3dDC;
-	winrt::com_ptr<ID3D11Device> _d3dDevice;
 
 	ID3D11ShaderResourceView* _renderTargetSrv = nullptr;
 	ID3D11RenderTargetView* _rtv = nullptr;

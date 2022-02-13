@@ -2,6 +2,7 @@
 #include "pch.h"
 
 
+class DeviceResources;
 class Renderer;
 class FrameSourceBase;
 
@@ -44,6 +45,10 @@ public:
 
 	const RECT& GetHostWndRect() const noexcept {
 		return _hostWndRect;
+	}
+
+	DeviceResources& GetDeviceResources() noexcept {
+		return *_deviceResources;
 	}
 
 	Renderer& GetRenderer() noexcept {
@@ -199,6 +204,7 @@ private:
 	bool _windowResizingDisabled = false;
 	bool _roundCornerDisabled = false;
 
+	std::unique_ptr<DeviceResources> _deviceResources;
 	std::unique_ptr<Renderer> _renderer;
 	std::unique_ptr<FrameSourceBase> _frameSource;
 };

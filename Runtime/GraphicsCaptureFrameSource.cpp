@@ -5,7 +5,7 @@
 #include <Windows.Graphics.DirectX.Direct3D11.interop.h>
 #include <winrt/Windows.Foundation.Metadata.h>
 #include "Utils.h"
-#include "Renderer.h"
+#include "DeviceResources.h"
 
 
 namespace winrt {
@@ -39,7 +39,7 @@ bool GraphicsCaptureFrameSource::Initialize() {
 		}
 
 		hr = CreateDirect3D11DeviceFromDXGIDevice(
-			App::GetInstance().GetRenderer().GetDXGIDevice().get(),
+			App::GetInstance().GetDeviceResources().GetDXGIDevice(),
 			reinterpret_cast<::IInspectable**>(winrt::put_abi(_wrappedD3DDevice))
 		);
 		if (FAILED(hr)) {
@@ -138,7 +138,7 @@ bool GraphicsCaptureFrameSource::Initialize() {
 	desc.SampleDesc.Count = 1;
 	desc.SampleDesc.Quality = 0;
 	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
-	hr = App::GetInstance().GetRenderer().GetD3DDevice()->CreateTexture2D(&desc, nullptr, _output.put());
+	hr = App::GetInstance().GetDeviceResources().GetD3DDevice()->CreateTexture2D(&desc, nullptr, _output.put());
 	if (FAILED(hr)) {
 		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("创建 Texture2D 失败", hr));
 		return false;
@@ -186,7 +186,7 @@ FrameSourceBase::UpdateState GraphicsCaptureFrameSource::Update() {
 			return UpdateState::Error;
 		}
 
-		App::GetInstance().GetRenderer().GetD3DDC()
+		App::GetInstance().GetDeviceResources().GetD3DDC()
 			->CopySubresourceRegion(_output.get(), 0, 0, 0, 0, withFrame.get(), 0, &_frameBox);
 
 		return UpdateState::NewFrame;

@@ -9,7 +9,8 @@
 #include "EffectCompiler.h"
 #include <regex>
 #include "App.h"
-#include "Renderer.h"
+#include "DeviceResources.h"
+#include "StrUtils.h"
 
 
 template<typename Archive>
@@ -227,7 +228,7 @@ bool EffectCache::Load(const wchar_t* fileName, std::string_view hash, EffectDes
 		// 检查 Direct3D 功能级别
 		D3D_FEATURE_LEVEL fl;
 		ia& fl;
-		if (fl != App::GetInstance().GetRenderer().GetFeatureLevel()) {
+		if (fl != App::GetInstance().GetDeviceResources().GetFeatureLevel()) {
 			SPDLOG_LOGGER_INFO(logger, "功能级别不匹配");
 			return false;
 		}
@@ -262,7 +263,7 @@ void EffectCache::Save(const wchar_t* fileName, std::string_view hash, const Eff
 		yas::binary_oarchive<yas::vector_ostream<BYTE>, yas::binary> oa(os);
 
 		oa& _VERSION;
-		oa& App::GetInstance().GetRenderer().GetFeatureLevel();
+		oa& App::GetInstance().GetDeviceResources().GetFeatureLevel();
 		oa& desc;
 	} catch (...) {
 		SPDLOG_LOGGER_ERROR(logger, "序列化失败");

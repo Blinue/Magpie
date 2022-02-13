@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "DwmSharedSurfaceFrameSource.h"
 #include "App.h"
-#include "Renderer.h"
+#include "DeviceResources.h"
 
 
 extern std::shared_ptr<spdlog::logger> logger;
@@ -65,7 +65,7 @@ bool DwmSharedSurfaceFrameSource::Initialize() {
 	desc.SampleDesc.Count = 1;
 	desc.SampleDesc.Quality = 0;
 	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
-	HRESULT hr = App::GetInstance().GetRenderer().GetD3DDevice()->CreateTexture2D(&desc, nullptr, _output.put());
+	HRESULT hr = App::GetInstance().GetDeviceResources().GetD3DDevice()->CreateTexture2D(&desc, nullptr, _output.put());
 	if (FAILED(hr)) {
 		SPDLOG_LOGGER_CRITICAL(logger, MakeComErrorMsg("创建 Texture2D 失败", hr));
 		return false;
@@ -86,14 +86,14 @@ FrameSourceBase::UpdateState DwmSharedSurfaceFrameSource::Update() {
 	}
 
 	winrt::com_ptr<ID3D11Texture2D> sharedTexture;
-	HRESULT hr = App::GetInstance().GetRenderer().GetD3DDevice()
+	HRESULT hr = App::GetInstance().GetDeviceResources().GetD3DDevice()
 		->OpenSharedResource(sharedTextureHandle, IID_PPV_ARGS(&sharedTexture));
 	if (FAILED(hr)) {
 		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("OpenSharedResource 失败", hr));
 		return UpdateState::Error;
 	}
 	
-	App::GetInstance().GetRenderer().GetD3DDC()
+	App::GetInstance().GetDeviceResources().GetD3DDC()
 		->CopySubresourceRegion(_output.get(), 0, 0, 0, 0, sharedTexture.get(), 0, &_frameInWnd);
 
 	return UpdateState::NewFrame;

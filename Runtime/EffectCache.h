@@ -1,6 +1,5 @@
 #pragma once
 #include "pch.h"
-#include "StrUtils.h"
 #include "Utils.h"
 #include "EffectDesc.h"
 

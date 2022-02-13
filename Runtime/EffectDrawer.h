@@ -13,9 +13,7 @@ union Constant32 {
 class EffectDrawer {
 public:
 	EffectDrawer() = default;
-
 	EffectDrawer(const EffectDrawer& other);
-
 	EffectDrawer(EffectDrawer&& other) noexcept;
 
 	bool Initialize(const wchar_t* fileName);
@@ -38,7 +36,7 @@ public:
 
 	void SetOutputSize(SIZE value);
 
-	bool Build(winrt::com_ptr<ID3D11Texture2D> input, winrt::com_ptr<ID3D11Texture2D> output);
+	bool Build(ID3D11Texture2D* input, ID3D11Texture2D* output);
 
 	void Draw(bool noUpdate = false);
 
@@ -68,14 +66,10 @@ private:
 		// 后半部分为空，用于解绑
 		std::vector<ID3D11ShaderResourceView*> _inputs;
 		std::vector<ID3D11RenderTargetView*> _outputs;
-		std::vector<ID3D11SamplerState*> _samplers;
 
 		winrt::com_ptr<ID3D11Buffer> _vtxBuffer;
 		D3D11_VIEWPORT _vp{};
 	};
-
-	winrt::com_ptr<ID3D11Device> _d3dDevice;
-	winrt::com_ptr<ID3D11DeviceContext> _d3dDC;
 
 	std::vector<ID3D11SamplerState*> _samplers;
 	std::vector<winrt::com_ptr<ID3D11Texture2D>> _textures;

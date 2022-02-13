@@ -1,8 +1,8 @@
 #include "pch.h"
 #include "TextureLoader.h"
 #include <DDSTextureLoader.h>
-#include "Renderer.h"
-
+#include "DeviceResources.h"
+#include "App.h"
 
 extern std::shared_ptr<spdlog::logger> logger;
 
@@ -89,7 +89,7 @@ winrt::com_ptr<ID3D11Texture2D> LoadImg(const wchar_t* fileName) {
 		return nullptr;
 	}
 
-	switch (App::GetInstance().GetRenderer().GetFeatureLevel()) {
+	switch (App::GetInstance().GetDeviceResources().GetFeatureLevel()) {
 	case D3D_FEATURE_LEVEL_10_0:
 	case D3D_FEATURE_LEVEL_10_1:
 		if (width > 8192 || height > 8192) {
@@ -130,7 +130,7 @@ winrt::com_ptr<ID3D11Texture2D> LoadImg(const wchar_t* fileName) {
 	initData.SysMemPitch = stride;
 
 	winrt::com_ptr<ID3D11Texture2D> result;
-	hr = App::GetInstance().GetRenderer().GetD3DDevice()->CreateTexture2D(&desc, &initData, result.put());
+	hr = App::GetInstance().GetDeviceResources().GetD3DDevice()->CreateTexture2D(&desc, &initData, result.put());
 	if (FAILED(hr)) {
 		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("CreateTexture2D 失败", hr));
 		return nullptr;
@@ -144,7 +144,7 @@ winrt::com_ptr<ID3D11Texture2D> LoadDDS(const wchar_t* fileName) {
 
 	DirectX::DDS_ALPHA_MODE alphaMode = DirectX::DDS_ALPHA_MODE_STRAIGHT;
 	HRESULT hr = DirectX::CreateDDSTextureFromFileEx(
-		App::GetInstance().GetRenderer().GetD3DDevice().get(),
+		App::GetInstance().GetDeviceResources().GetD3DDevice(),
 		fileName,
 		0,
 		D3D11_USAGE_DEFAULT,
@@ -161,7 +161,7 @@ winrt::com_ptr<ID3D11Texture2D> LoadDDS(const wchar_t* fileName) {
 
 		// 第二次尝试，不作为渲染目标
 		hr = DirectX::CreateDDSTextureFromFileEx(
-			App::GetInstance().GetRenderer().GetD3DDevice().get(),
+			App::GetInstance().GetDeviceResources().GetD3DDevice(),
 			fileName,
 			0,
 			D3D11_USAGE_DEFAULT,

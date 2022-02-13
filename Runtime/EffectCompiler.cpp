@@ -7,7 +7,7 @@
 #include "EffectCache.h"
 #include "StrUtils.h"
 #include "App.h"
-#include "Renderer.h"
+#include "DeviceResources.h"
 
 
 static constexpr const char* META_INDICATOR = "//!";
@@ -829,7 +829,7 @@ void NTAPI TPWork(PTP_CALLBACK_INSTANCE, PVOID Context, PTP_WORK) {
 	TPContext* con = (TPContext*)Context;
 	ULONG index = InterlockedIncrement(&con->index);
 	
-	if (!App::GetInstance().GetRenderer().CompileShader(false, con->passSources[index],
+	if (!App::GetInstance().GetDeviceResources().CompileShader(false, con->passSources[index],
 		"__M", con->passes[index].cso.put(), fmt::format("Pass{}", index + 1).c_str(), &passInclude)) {
 		con->passes[index].cso = nullptr;
 	}
@@ -1055,10 +1055,10 @@ UINT ResolvePasses(const std::vector<std::string_view>& blocks, const std::vecto
 
 	// 编译生成的 hlsl
 	assert(!passSources.empty());
-	Renderer& renderer = App::GetInstance().GetRenderer();
+	auto& dr = App::GetInstance().GetDeviceResources();
 
 	if (passSources.size() == 1) {
-		if (!renderer.CompileShader(false, passSources[0], "__M", desc.passes[0].cso.put(), "Pass1", &passInclude)) {
+		if (!dr.CompileShader(false, passSources[0], "__M", desc.passes[0].cso.put(), "Pass1", &passInclude)) {
 			SPDLOG_LOGGER_ERROR(logger, "编译 Pass1 失败");
 			return 1;
 		}
@@ -1077,7 +1077,7 @@ UINT ResolvePasses(const std::vector<std::string_view>& blocks, const std::vecto
 				SubmitThreadpoolWork(work);
 			}
 
-			renderer.CompileShader(false, passSources[0], "__M", desc.passes[0].cso.put(), "Pass1", &passInclude);
+			dr.CompileShader(false, passSources[0], "__M", desc.passes[0].cso.put(), "Pass1", &passInclude);
 
 			WaitForThreadpoolWorkCallbacks(work, FALSE);
 			CloseThreadpoolWork(work);
@@ -1093,7 +1093,7 @@ UINT ResolvePasses(const std::vector<std::string_view>& blocks, const std::vecto
 
 			// 回退到单线程
 			for (size_t i = 0; i < passSources.size(); ++i) {
-				if (!renderer.CompileShader(false, passSources[i], "__M", desc.passes[i].cso.put(), fmt::format("Pass{}", i + 1).c_str(), &passInclude)) {
+				if (!dr.CompileShader(false, passSources[i], "__M", desc.passes[i].cso.put(), fmt::format("Pass{}", i + 1).c_str(), &passInclude)) {
 					SPDLOG_LOGGER_ERROR(logger, fmt::format("编译 Pass{} 失败", i + 1));
 					return 1;
 				}
