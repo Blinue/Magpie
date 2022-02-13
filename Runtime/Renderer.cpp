@@ -852,7 +852,10 @@ bool Renderer::_ResolveEffectsJson(const std::string& effectsJson, RECT& destRec
 			}
 		}
 
+#pragma push_macro("GetObject")
+#undef GetObject
 		for (const auto& prop : effectJson.GetObject()) {
+#pragma pop_macro("GetObject")
 			if (!prop.name.IsString()) {
 				SPDLOG_LOGGER_ERROR(logger, "解析 json 失败：非法的效果名");
 				return false;
