@@ -4,6 +4,11 @@ spdlog/1.9.2
 muparser/2.3.2
 yas/7.1.0
 rapidjson/cci.20211112
+imgui/1.86
 
 [generators]
 visual_studio
+
+[imports]
+./res/bindings, imgui_impl_dx11.* -> ../../../Runtime/imgui/backends
+./res/bindings, imgui_impl_win32.* -> ../../../Runtime/imgui/backends

@@ -64,6 +64,15 @@
     <ClCompile Include="DeviceResources.cpp">
       <Filter>渲染</Filter>
     </ClCompile>
+    <ClCompile Include="UIDrawer.cpp">
+      <Filter>渲染</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui\backends\imgui_impl_dx11.cpp">
+      <Filter>渲染\ImGUI</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui\backends\imgui_impl_win32.cpp">
+      <Filter>渲染\ImGUI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="resource.h">
@@ -138,6 +147,15 @@
     <ClInclude Include="DeviceResources.h">
       <Filter>渲染</Filter>
     </ClInclude>
+    <ClInclude Include="UIDrawer.h">
+      <Filter>渲染</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui\backends\imgui_impl_dx11.h">
+      <Filter>渲染\ImGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui\backends\imgui_impl_win32.h">
+      <Filter>渲染\ImGUI</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />
@@ -158,6 +176,9 @@
     </Filter>
     <Filter Include="应用程序">
       <UniqueIdentifier>{03b14d85-c703-4e07-94ac-d7ef17b18cf1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="渲染\ImGUI">
+      <UniqueIdentifier>{ef35c9fa-9c8f-4e2d-ad82-8b4325837b1b}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
