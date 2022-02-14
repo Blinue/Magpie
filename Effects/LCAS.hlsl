@@ -24,6 +24,12 @@ SamplerState sam;
 //!MAX 1
 float sharpness;
 
+//!CONSTANT
+//!DEFAULT 0.2
+//!MIN 0
+//!MAX 1.5
+float threshold;
+
 //!PASS 1
 //!BIND INPUT
 
@@ -58,7 +64,7 @@ float4 Pass1(float2 pos) {
 	//  w 1 w
 	//    w   
 	// If is edge
-	if(edge >= 0.2)
+	if(edge >= threshold)
 		return float4(((((b + d) + (f + h)) * wRGB + (e * 2 - (b + d + f + h) * 0.25)) / (1.0 + 4.0 * wRGB)).rgb, 1);
 	else
 		return float4(((((b + d) + (f + h)) * wRGB + e) / (1.0 + 4.0 * wRGB)).rgb, 1);
