@@ -68,7 +68,7 @@ static void ImGui_ImplMagpie_UpdateMousePos() {
     io.MousePos = ImVec2((float)pos.x, (float)pos.y);
 }
 
-void    ImGui_ImplMagpie_NewFrame() {
+void ImGui_ImplMagpie_NewFrame() {
     ImGuiIO& io = ImGui::GetIO();
     ImGui_ImplMagpie_Data* bd = ImGui_ImplMagpie_GetBackendData();
     IM_ASSERT(bd != NULL && "Did you call ImGui_ImplMagpie_Init()?");

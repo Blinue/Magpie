@@ -92,10 +92,6 @@ public:
 		return _flags & (UINT)_FlagMasks::AdjustCursorSpeed;
 	}
 
-	bool IsShowFPS() const noexcept {
-		return _flags & (UINT)_FlagMasks::ShowFPS;
-	}
-
 	bool IsDisableLowLatency() const noexcept {
 		return _flags & (UINT)_FlagMasks::DisableLowLatency;
 	}
@@ -186,7 +182,6 @@ private:
 	enum class _FlagMasks : UINT {
 		NoCursor = 0x1,
 		AdjustCursorSpeed = 0x2,
-		ShowFPS = 0x4,
 		SimulateExclusiveFullscreen = 0x8,
 		DisableLowLatency = 0x10,
 		BreakpointMode = 0x20,

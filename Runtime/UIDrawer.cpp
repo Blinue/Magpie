@@ -7,7 +7,7 @@
 #include "imgui_impl_dx11.h"
 #include "Renderer.h"
 #include "CursorDrawer.h"
-
+#include "GPUTimer.h"
 
 
 UIDrawer::~UIDrawer() {
@@ -41,14 +41,28 @@ bool UIDrawer::Initialize(ID3D11Texture2D* renderTarget) {
 	return true;
 }
 
-void UIDrawer::Draw() {
-	auto& io = ImGui::GetIO();
+void DrawUI() {
+	const ImGuiViewport* main_viewport = ImGui::GetMainViewport();
+	ImGui::SetNextWindowPos(ImVec2(main_viewport->WorkPos.x + 650, main_viewport->WorkPos.y + 20), ImGuiCond_FirstUseEver);
+	ImGui::SetNextWindowSize(ImVec2(200, 100), ImGuiCond_FirstUseEver);
 
+	if (!ImGui::Begin("Debug", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoNav)) {
+		// Early out if the window is collapsed, as an optimization.
+		ImGui::End();
+		return;
+	}
+
+	ImGui::Text(fmt::format("FPS: {}", App::GetInstance().GetRenderer().GetGPUTimer().GetFramesPerSecond()).c_str());
+
+	ImGui::End();
+}
+
+void UIDrawer::Draw() {
 	ImGui_ImplMagpie_NewFrame();
 	ImGui_ImplDX11_NewFrame();
 	ImGui::NewFrame();
 
-	if (io.WantCaptureMouse) {
+	if (ImGui::GetIO().WantCaptureMouse) {
 		if (!_cursorOnUI) {
 			HWND hwndHost = App::GetInstance().GetHwndHost();
 			LONG_PTR style = GetWindowLongPtr(hwndHost, GWL_EXSTYLE);
@@ -67,11 +81,9 @@ void UIDrawer::Draw() {
 	}
 
 	bool show = true;
-	ImGui::ShowDemoWindow(&show);
+	DrawUI();
 
 	ImGui::Render();
-
-	auto& dr = App::GetInstance().GetDeviceResources();
 
 	App::GetInstance().GetDeviceResources().GetD3DDC()->OMSetRenderTargets(1, &_rtv, NULL);
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());

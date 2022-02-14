@@ -13,9 +13,6 @@
     <ClCompile Include="CursorDrawer.cpp">
       <Filter>渲染</Filter>
     </ClCompile>
-    <ClCompile Include="FrameRateDrawer.cpp">
-      <Filter>渲染</Filter>
-    </ClCompile>
     <ClCompile Include="Renderer.cpp">
       <Filter>渲染</Filter>
     </ClCompile>
@@ -75,9 +72,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="resource.h">
-      <Filter>资源文件</Filter>
-    </ClInclude>
     <ClInclude Include="GraphicsCaptureFrameSource.h">
       <Filter>捕获</Filter>
     </ClInclude>
@@ -91,9 +85,6 @@
       <Filter>捕获</Filter>
     </ClInclude>
     <ClInclude Include="CursorDrawer.h">
-      <Filter>渲染</Filter>
-    </ClInclude>
-    <ClInclude Include="FrameRateDrawer.h">
       <Filter>渲染</Filter>
     </ClInclude>
     <ClInclude Include="Renderer.h">
@@ -159,9 +150,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />
-    <None Include="assets\OpenSans.spritefont">
-      <Filter>资源文件</Filter>
-    </None>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

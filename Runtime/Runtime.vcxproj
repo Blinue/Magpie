@@ -152,7 +152,6 @@
     <ClInclude Include="EffectDesc.h" />
     <ClInclude Include="ErrorMessages.h" />
     <ClInclude Include="ExclModeHack.h" />
-    <ClInclude Include="FrameRateDrawer.h" />
     <ClInclude Include="FrameSourceBase.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="GDIFrameSource.h" />
@@ -160,7 +159,6 @@
     <ClInclude Include="imgui_impl_magpie.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Renderer.h" />
-    <ClInclude Include="resource.h" />
     <ClInclude Include="DwmSharedSurfaceFrameSource.h" />
     <ClInclude Include="GPUTimer.h" />
     <ClInclude Include="StrUtils.h" />
@@ -180,7 +178,6 @@
     <ClCompile Include="EffectDrawer.cpp" />
     <ClCompile Include="EffectCompiler.cpp" />
     <ClCompile Include="ExclModeHack.cpp" />
-    <ClCompile Include="FrameRateDrawer.cpp" />
     <ClCompile Include="FrameSourceBase.cpp" />
     <ClCompile Include="GDIFrameSource.cpp" />
     <ClCompile Include="imgui_impl_dx11.cpp">
@@ -199,11 +196,6 @@
     <ClCompile Include="GraphicsCaptureFrameSource.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="assets\OpenSans.spritefont">
-      <FileType>Document</FileType>
-      <DestinationFolders Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)assets</DestinationFolders>
-      <DestinationFolders Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)assets</DestinationFolders>
-    </None>
     <None Include="cpp.hint" />
     <None Include="packages.config" />
   </ItemGroup>

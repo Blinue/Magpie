@@ -39,7 +39,6 @@ namespace Magpie {
 		private enum FlagMasks : uint {
 			NoCursor = 0x1,
 			AdjustCursorSpeed = 0x2,
-			ShowFPS = 0x4,
 			SimulateExclusiveFullscreen = 0x8,
 			DisableLowLatency = 0x10,
 			BreakpointMode = 0x20,
@@ -138,8 +137,7 @@ namespace Magpie {
 					if (cmd == MagWindowCmd.SetLogLevel) {
 						NativeMethods.SetLogLevel(ResolveLogLevel((uint)magWindowParams.logLevel));
 					} else {
-						uint flags = (Settings.Default.ShowFPS ? (uint)FlagMasks.ShowFPS : 0) |
-							(Settings.Default.NoCursor ? (uint)FlagMasks.NoCursor : 0) |
+						uint flags = (Settings.Default.NoCursor ? (uint)FlagMasks.NoCursor : 0) |
 							(Settings.Default.AdjustCursorSpeed ? (uint)FlagMasks.AdjustCursorSpeed : 0) |
 							(Settings.Default.DisableLowLatency ? (uint)FlagMasks.DisableLowLatency : 0) |
 							(Settings.Default.DebugBreakpointMode ? (uint)FlagMasks.BreakpointMode : 0) |

@@ -373,9 +373,6 @@
   <data name="UI_Options_Scale_Restore_Full_Screen" xml:space="preserve">
     <value>Restore Fullscreen when Source Window Regains Focus</value>
   </data>
-  <data name="UI_Options_Scale_Show_Frame_Rate" xml:space="preserve">
-    <value>Show Frame Rate</value>
-  </data>
   <data name="UI_Options_Scale_Source_Window" xml:space="preserve">
     <value>Source Window</value>
   </data>

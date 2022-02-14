@@ -8,7 +8,6 @@
 #include <rapidjson/document.h>
 #include "FrameSourceBase.h"
 #include "DeviceResources.h"
-#include "FrameRateDrawer.h"
 #include "GPUTimer.h"
 #include "CursorDrawer.h"
 #include "EffectDrawer.h"
@@ -34,14 +33,7 @@ bool Renderer::Initialize(const std::string& effectsJson) {
 	}
 
 	ID3D11Texture2D* backBuffer = App::GetInstance().GetDeviceResources().GetBackBuffer();
-	
-	if (App::GetInstance().IsShowFPS()) {
-		_frameRateDrawer.reset(new FrameRateDrawer());
-		if (!_frameRateDrawer->Initialize(backBuffer, destRect)) {
-			SPDLOG_LOGGER_ERROR(logger, "初始化 FrameRateDrawer 失败");
-			return false;
-		}
-	}
+
 
 	_UIDrawer.reset(new UIDrawer());
 	if (!_UIDrawer->Initialize(backBuffer)) {
@@ -117,10 +109,6 @@ void Renderer::Render() {
 				_effects[i]->Draw();
 			}
 		}
-	}
-
-	if (App::GetInstance().IsShowFPS()) {
-		_frameRateDrawer->Draw();
 	}
 
 	_UIDrawer->Draw();

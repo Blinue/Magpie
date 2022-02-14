@@ -21,9 +21,6 @@
             <Label Content="{x:Static props:Resources.UI_Options_Scale_Adapter}" Padding="0" VerticalContentAlignment="Center" />
             <ComboBox x:Name="cbbAdapter" Margin="10,0,0,0" SelectionChanged="CbbAdapter_SelectionChanged" />
         </StackPanel>
-        <CheckBox Content="{x:Static props:Resources.UI_Options_Scale_Show_Frame_Rate}"
-                  Margin="0,15,0,0"
-                  IsChecked="{Binding Source={x:Static props:Settings.Default},Path=ShowFPS,Mode=TwoWay}"/>
         <CheckBox x:Name="ckbVSync" Content="{x:Static props:Resources.UI_Options_Scale_VSync}"
                   Margin="0,10,0,0"
                   IsChecked="{Binding Source={x:Static props:Settings.Default},Path=VSync,Mode=TwoWay}" />
