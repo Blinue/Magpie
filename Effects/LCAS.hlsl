@@ -24,6 +24,12 @@ SamplerState sam;
 //!MAX 1
 float sharpness;
 
+//!CONSTANT
+//!DEFAULT 0.2
+//!MIN 0
+//!MAX 1
+float threshold;
+
 //!PASS 1
 //!BIND INPUT
 
@@ -39,8 +45,7 @@ float4 Pass1(float2 pos) {
 	float3 h = INPUT.Sample(sam, pos + float2(0, inputPtY)).rgb;
         
 	// Edge checker
-        float sum = ((abs(e.g - b.g) - 0.5f) * 1.2 + 0.5f) + ((abs(e.g - h.g) - 0.5f) * 1.2 + 0.5f);
-	sum += ((abs(e.g - d.g) - 0.5f) * 1.2 + 0.5f) + ((abs(e.g - f.g) - 0.5f) * 1.2 + 0.5f);
+        float edge = length(abs(d - f) + abs(b - h)) / 2 + length(abs(d + b - f - h) + abs(b + f - h - d)) / 4;
 	
 	// Soft min and max.
 	//    b
@@ -58,10 +63,10 @@ float4 Pass1(float2 pos) {
 	//    w  
 	//  w 1 w
 	//    w   
-	// If is not edge
-	if ((0.72f * sum) <= 1)
-		return float4(((((b + d) + (f + h)) * wRGB + e) / (1.0 + 4.0 * wRGB)).rgb, 1);
-	else
-		return float4(((((b + d) + (f + h)) * wRGB + e * (1 + sharpness) * 0.72f * sum) / (1.0 + 4.0 * wRGB)).rgb, 1);
 	// If is edge
+	if(edge >= threshold)
+		return float4(((((b + d) + (f + h)) * wRGB + (e * 2 - (b + d + f + h) * 0.25)) / (1.0 + 4.0 * wRGB)).rgb, 1);
+	else
+		return float4(((((b + d) + (f + h)) * wRGB + e) / (1.0 + 4.0 * wRGB)).rgb, 1);
+	// If is not edge
 }
