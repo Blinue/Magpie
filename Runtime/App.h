@@ -1,5 +1,6 @@
 #pragma once
 #include "pch.h"
+#include <unordered_map>
 
 
 class DeviceResources;
@@ -141,6 +142,9 @@ public:
 
 	winrt::com_ptr<IWICImagingFactory2> GetWICImageFactory();
 
+	UINT RegisterWndProcHandler(std::function<bool(HWND, UINT, WPARAM, LPARAM)> handler);
+	void UnregisterWndProcHandler(UINT id);
+
 private:
 	App();
 
@@ -203,4 +207,7 @@ private:
 	std::unique_ptr<DeviceResources> _deviceResources;
 	std::unique_ptr<Renderer> _renderer;
 	std::unique_ptr<FrameSourceBase> _frameSource;
+
+	std::map<UINT, std::function<bool(HWND, UINT, WPARAM, LPARAM)>> _wndProcHandlers;
+	UINT _nextWndProcHandlerID = 1;
 };

@@ -6,6 +6,7 @@ class EffectDrawer;
 class FrameRateDrawer;
 class GPUTimer;
 class CursorDrawer;
+class UIDrawer;
 
 
 class Renderer {
@@ -55,8 +56,9 @@ private:
 	winrt::com_ptr<ID3D11PixelShader> _copyPS;
 	std::vector<std::unique_ptr<EffectDrawer>> _effects;
 
-	std::unique_ptr<CursorDrawer> _cursorDrawer;
 	std::unique_ptr<FrameRateDrawer> _frameRateDrawer;
+	std::unique_ptr<UIDrawer> _UIDrawer;
+	std::unique_ptr<CursorDrawer> _cursorDrawer;
 
 	std::unique_ptr<GPUTimer> _gpuTimer;
 };

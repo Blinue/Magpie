@@ -166,6 +166,15 @@ winrt::com_ptr<IWICImagingFactory2> App::GetWICImageFactory() {
 	return wicImgFactory;
 }
 
+UINT App::RegisterWndProcHandler(std::function<bool(HWND, UINT, WPARAM, LPARAM)> handler) {
+	UINT id = _nextWndProcHandlerID++;
+	return _wndProcHandlers.emplace(id, handler).second ? id : 0;
+}
+
+void App::UnregisterWndProcHandler(UINT id) {
+	_wndProcHandlers.erase(id);
+}
+
 
 LRESULT DDFWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 	if (msg == WM_DESTROY) {
@@ -181,6 +190,7 @@ void App::_RegisterWndClasses() const {
 	wcex.cbSize = sizeof(WNDCLASSEX);
 	wcex.lpfnWndProc = _HostWndProcStatic;
 	wcex.hInstance = _hInst;
+	wcex.hCursor = LoadCursor(NULL, IDC_ARROW);
 	wcex.lpszClassName = HOST_WINDOW_CLASS_NAME;
 
 	if (!RegisterClassEx(&wcex)) {
@@ -294,7 +304,7 @@ bool App::_CreateHostWnd() {
 		(_hostWndRect.bottom - _hostWndRect.top) < GetSystemMetrics(SM_CYVIRTUALSCREEN));
 
 	_hwndHost = CreateWindowEx(
-		(IsBreakpointMode() ? 0 : WS_EX_TOPMOST) | WS_EX_NOACTIVATE | WS_EX_LAYERED | WS_EX_TRANSPARENT,
+		(IsBreakpointMode() ? 0 : WS_EX_TOPMOST) | WS_EX_NOACTIVATE | WS_EX_LAYERED /*| WS_EX_TRANSPARENT*/,
 		HOST_WINDOW_CLASS_NAME,
 		HOST_WINDOW_TITLE,
 		WS_POPUP,
@@ -404,6 +414,12 @@ LRESULT App::_HostWndProcStatic(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
 
 
 LRESULT App::_HostWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
+	for (auto& pair : _wndProcHandlers) {
+		if (pair.second(hWnd, message, wParam, lParam)) {
+			return TRUE;
+		}
+	}
+
 	if (message == WM_DESTORYHOST) {
 		SPDLOG_LOGGER_INFO(logger, "收到 MAGPIE_WM_DESTORYHOST 消息，即将销毁主窗口");
 		Quit();
@@ -431,6 +447,9 @@ void App::_OnQuit() {
 	_renderer = nullptr;
 	_frameSource = nullptr;
 	_deviceResources = nullptr;
+
+	_nextWndProcHandlerID = 1;
+	_wndProcHandlers.clear();
 }
 
 void App::Quit() {

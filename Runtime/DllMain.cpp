@@ -34,7 +34,6 @@ BOOL APIENTRY DllMain(
 		hInst = hModule;
 		break;
 	case DLL_PROCESS_DETACH:
-		App::GetInstance().~App();
 		break;
 	case DLL_THREAD_ATTACH:
 		break;
