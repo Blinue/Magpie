@@ -27,7 +27,7 @@ float sharpness;
 //!CONSTANT
 //!DEFAULT 0.2
 //!MIN 0
-//!MAX 1.5
+//!MAX 1
 float threshold;
 
 //!PASS 1
