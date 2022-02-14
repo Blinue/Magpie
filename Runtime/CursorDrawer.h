@@ -13,6 +13,8 @@ public:
 
 	void Draw();
 
+	POINT MapCursorPos(POINT pos);
+
 private:
 	struct _CursorInfo {
 		winrt::com_ptr<ID3D11ShaderResourceView> texture = nullptr;

@@ -756,3 +756,12 @@ void CursorDrawer::Draw() {
 		d3dDC->Draw(4, 0);
 	}
 }
+
+POINT CursorDrawer::MapCursorPos(POINT pos) {
+	const RECT& srcClient = App::GetInstance().GetFrameSource().GetSrcFrameRect();
+
+	return {
+		lroundf((pos.x - srcClient.left) * _clientScaleX) + _destRect.left,
+		lroundf((pos.y - srcClient.top) * _clientScaleY) + _destRect.top
+	};
+}

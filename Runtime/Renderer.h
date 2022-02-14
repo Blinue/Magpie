@@ -33,6 +33,10 @@ public:
 		return *_gpuTimer;
 	}
 
+	CursorDrawer& GetCursorDrawer() noexcept {
+		return *_cursorDrawer;
+	}
+
 private:
 	bool _CheckSrcState();
 

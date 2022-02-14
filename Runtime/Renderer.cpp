@@ -49,10 +49,10 @@ bool Renderer::Initialize(const std::string& effectsJson) {
 	}
 
 	_cursorDrawer.reset(new CursorDrawer());
-	/*if (!_cursorDrawer->Initialize(backBuffer, destRect)) {
+	if (!_cursorDrawer->Initialize(backBuffer, destRect)) {
 		SPDLOG_LOGGER_ERROR(logger, "初始化 CursorDrawer 失败");
 		return false;
-	}*/
+	}
 
 	return true;
 }
@@ -84,9 +84,9 @@ void Renderer::Render() {
 	// 所有渲染都使用三角形带拓扑
 	d3dDC->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 
-	/*if (!_cursorDrawer->Update()) {
+	if (!_cursorDrawer->Update()) {
 		SPDLOG_LOGGER_ERROR(logger, "更新光标位置失败");
-	}*/
+	}
 
 	// 更新常量
 	if (!EffectDrawer::UpdateExprDynamicVars()) {
@@ -124,7 +124,7 @@ void Renderer::Render() {
 	}
 
 	_UIDrawer->Draw();
-	//_cursorDrawer->Draw();
+	_cursorDrawer->Draw();
 
 	dr.EndFrame();
 }
@@ -326,7 +326,7 @@ bool CheckForeground(HWND hwndForeground) {
 bool Renderer::_CheckSrcState() {
 	HWND hwndSrc = App::GetInstance().GetHwndSrc();
 
-	/*if (!App::GetInstance().IsBreakpointMode()) {
+	if (!App::GetInstance().IsBreakpointMode()) {
 		HWND hwndForeground = GetForegroundWindow();
 		if (hwndForeground && hwndForeground != hwndSrc && !CheckForeground(hwndForeground)) {
 			SPDLOG_LOGGER_INFO(logger, "前台窗口已改变");
@@ -337,7 +337,7 @@ bool Renderer::_CheckSrcState() {
 	if (Utils::GetWindowShowCmd(hwndSrc) != SW_NORMAL) {
 		SPDLOG_LOGGER_INFO(logger, "源窗口显示状态改变");
 		return false;
-	}*/
+	}
 
 	RECT rect;
 	if (!GetWindowRect(hwndSrc, &rect)) {

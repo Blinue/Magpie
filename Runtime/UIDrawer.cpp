@@ -3,8 +3,11 @@
 #include "App.h"
 #include "DeviceResources.h"
 #include <imgui.h>
-#include "imgui/backends/imgui_impl_win32.h"
-#include "imgui/backends/imgui_impl_dx11.h"
+#include "imgui_impl_magpie.h"
+#include "imgui_impl_dx11.h"
+#include "Renderer.h"
+#include "CursorDrawer.h"
+
 
 
 UIDrawer::~UIDrawer() {
@@ -13,7 +16,7 @@ UIDrawer::~UIDrawer() {
 	}
 
 	ImGui_ImplDX11_Shutdown();
-	ImGui_ImplWin32_Shutdown();
+	ImGui_ImplMagpie_Shutdown();
 	ImGui::DestroyContext();
 }
 
@@ -22,11 +25,13 @@ bool UIDrawer::Initialize(ID3D11Texture2D* renderTarget) {
 
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
+
 	ImGuiIO& io = ImGui::GetIO();
+	io.ConfigFlags |= ImGuiConfigFlags_NavNoCaptureKeyboard | ImGuiConfigFlags_NoMouseCursorChange;
 
 	ImGui::StyleColorsDark();
 
-	ImGui_ImplWin32_Init(App::GetInstance().GetHwndHost());
+	ImGui_ImplMagpie_Init(App::GetInstance().GetHwndHost());
 	ImGui_ImplDX11_Init(dr.GetD3DDevice(), dr.GetD3DDC());
 
 	dr.GetRenderTargetView(renderTarget, &_rtv);
@@ -37,9 +42,29 @@ bool UIDrawer::Initialize(ID3D11Texture2D* renderTarget) {
 }
 
 void UIDrawer::Draw() {
-	ImGui_ImplWin32_NewFrame();
+	auto& io = ImGui::GetIO();
+
+	ImGui_ImplMagpie_NewFrame();
 	ImGui_ImplDX11_NewFrame();
 	ImGui::NewFrame();
+
+	if (io.WantCaptureMouse) {
+		if (!_cursorOnUI) {
+			HWND hwndHost = App::GetInstance().GetHwndHost();
+			LONG_PTR style = GetWindowLongPtr(hwndHost, GWL_EXSTYLE);
+			SetWindowLongPtr(hwndHost, GWL_EXSTYLE, style & ~WS_EX_TRANSPARENT);
+
+			_cursorOnUI = true;
+		}
+	} else {
+		if (_cursorOnUI) {
+			HWND hwndHost = App::GetInstance().GetHwndHost();
+			LONG_PTR style = GetWindowLongPtr(hwndHost, GWL_EXSTYLE);
+			SetWindowLongPtr(hwndHost, GWL_EXSTYLE, style | WS_EX_TRANSPARENT);
+
+			_cursorOnUI = false;
+		}
+	}
 
 	bool show = true;
 	ImGui::ShowDemoWindow(&show);
@@ -52,9 +77,7 @@ void UIDrawer::Draw() {
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 }
 
-extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
-
 bool UIDrawer::_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
-	ImGui_ImplWin32_WndProcHandler(hWnd, msg, wParam, lParam);
+	ImGui_ImplMagpie_WndProcHandler(hWnd, msg, wParam, lParam);
 	return false;
 }

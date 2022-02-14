@@ -67,10 +67,10 @@
     <ClCompile Include="UIDrawer.cpp">
       <Filter>渲染</Filter>
     </ClCompile>
-    <ClCompile Include="imgui\backends\imgui_impl_dx11.cpp">
+    <ClCompile Include="imgui_impl_dx11.cpp">
       <Filter>渲染\ImGUI</Filter>
     </ClCompile>
-    <ClCompile Include="imgui\backends\imgui_impl_win32.cpp">
+    <ClCompile Include="imgui_impl_magpie.cpp">
       <Filter>渲染\ImGUI</Filter>
     </ClCompile>
   </ItemGroup>
@@ -150,10 +150,10 @@
     <ClInclude Include="UIDrawer.h">
       <Filter>渲染</Filter>
     </ClInclude>
-    <ClInclude Include="imgui\backends\imgui_impl_dx11.h">
+    <ClInclude Include="imgui_impl_dx11.h">
       <Filter>渲染\ImGUI</Filter>
     </ClInclude>
-    <ClInclude Include="imgui\backends\imgui_impl_win32.h">
+    <ClInclude Include="imgui_impl_magpie.h">
       <Filter>渲染\ImGUI</Filter>
     </ClInclude>
   </ItemGroup>

@@ -19,4 +19,6 @@ private:
 	UINT _handlerID = 0;
 
 	ID3D11RenderTargetView* _rtv = nullptr;
+
+	bool _cursorOnUI = false;
 };

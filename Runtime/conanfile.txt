@@ -10,5 +10,4 @@ imgui/1.86
 visual_studio
 
 [imports]
-./res/bindings, imgui_impl_dx11.* -> ../../../Runtime/imgui/backends
-./res/bindings, imgui_impl_win32.* -> ../../../Runtime/imgui/backends
+./res/bindings, imgui_impl_dx11.* -> ../../../Runtime
