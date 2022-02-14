@@ -32,8 +32,7 @@ bool UIDrawer::Initialize(ID3D11Texture2D* renderTarget) {
 
 	ImGuiIO& io = ImGui::GetIO();
 	io.ConfigFlags |= ImGuiConfigFlags_NavNoCaptureKeyboard | ImGuiConfigFlags_NoMouseCursorChange;
-	//io.IniFilename = nullptr;
-
+	
 	float dpiScale = GetDpiScale();
 
 	ImGui::StyleColorsDark();
@@ -42,11 +41,8 @@ bool UIDrawer::Initialize(ID3D11Texture2D* renderTarget) {
 	ImGui::GetStyle().ScaleAllSizes(dpiScale);
 
 	io.Fonts->AddFontFromFileTTF(".\\assets\\NotoSansSC-Regular.otf", std::floor(20.0f * dpiScale), NULL);
-	//ImFont* font = io.Fonts->AddFontFromMemoryTTF(();
-	//font->FontSize = std::floor(ImGui::GetFont()->FontSize * 1.5f);
-	//ImGui::PushFont(font);
 
-	ImGui_ImplMagpie_Init(App::GetInstance().GetHwndHost());
+	ImGui_ImplMagpie_Init();
 	ImGui_ImplDX11_Init(dr.GetD3DDevice(), dr.GetD3DDC());
 
 	dr.GetRenderTargetView(renderTarget, &_rtv);
@@ -100,7 +96,12 @@ void UIDrawer::Draw() {
 
 	ImGui::Render();
 
-	App::GetInstance().GetDeviceResources().GetD3DDC()->OMSetRenderTargets(1, &_rtv, NULL);
+	const RECT& outputRect = App::GetInstance().GetRenderer().GetOutputRect();
+	ImGui::GetDrawData()->DisplayPos = ImVec2(-outputRect.left, -outputRect.top);
+	
+	auto d3dDC = App::GetInstance().GetDeviceResources().GetD3DDC();
+	d3dDC->OMSetRenderTargets(1, &_rtv, NULL);
+	
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 }
 

@@ -36,12 +36,17 @@ public:
 		return *_cursorDrawer;
 	}
 
+	const RECT& GetOutputRect() const noexcept {
+		return _outputRect;
+	}
+
 private:
 	bool _CheckSrcState();
 
-	bool _ResolveEffectsJson(const std::string& effectsJson, RECT& destRect);
+	bool _ResolveEffectsJson(const std::string& effectsJson);
 
 	RECT _srcWndRect{};
+	RECT _outputRect{};
 
 	bool _waitingForNextFrame = false;
 

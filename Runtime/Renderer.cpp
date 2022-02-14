@@ -26,14 +26,12 @@ bool Renderer::Initialize(const std::string& effectsJson) {
 		return false;
 	}
 
-	RECT destRect;
-	if (!_ResolveEffectsJson(effectsJson, destRect)) {
+	if (!_ResolveEffectsJson(effectsJson)) {
 		SPDLOG_LOGGER_ERROR(logger, "_ResolveEffectsJson 失败");
 		return false;
 	}
 
 	ID3D11Texture2D* backBuffer = App::GetInstance().GetDeviceResources().GetBackBuffer();
-
 
 	_UIDrawer.reset(new UIDrawer());
 	if (!_UIDrawer->Initialize(backBuffer)) {
@@ -41,7 +39,7 @@ bool Renderer::Initialize(const std::string& effectsJson) {
 	}
 
 	_cursorDrawer.reset(new CursorDrawer());
-	if (!_cursorDrawer->Initialize(backBuffer, destRect)) {
+	if (!_cursorDrawer->Initialize(backBuffer)) {
 		SPDLOG_LOGGER_ERROR(logger, "初始化 CursorDrawer 失败");
 		return false;
 	}
@@ -341,7 +339,7 @@ bool Renderer::_CheckSrcState() {
 	return true;
 }
 
-bool Renderer::_ResolveEffectsJson(const std::string& effectsJson, RECT& destRect) {
+bool Renderer::_ResolveEffectsJson(const std::string& effectsJson) {
 	_effectInput = App::GetInstance().GetFrameSource().GetOutput();
 	D3D11_TEXTURE2D_DESC inputDesc;
 	_effectInput->GetDesc(&inputDesc);
@@ -556,10 +554,10 @@ bool Renderer::_ResolveEffectsJson(const std::string& effectsJson, RECT& destRec
 	}
 
 	SIZE outputSize = texSizes.back();
-	destRect.left = (hostSize.cx - outputSize.cx) / 2;
-	destRect.right = destRect.left + outputSize.cx;
-	destRect.top = (hostSize.cy - outputSize.cy) / 2;
-	destRect.bottom = destRect.top + outputSize.cy;
+	_outputRect.left = (hostSize.cx - outputSize.cx) / 2;
+	_outputRect.right = _outputRect.left + outputSize.cx;
+	_outputRect.top = (hostSize.cy - outputSize.cy) / 2;
+	_outputRect.bottom = _outputRect.top + outputSize.cy;
 
 	return true;
 }

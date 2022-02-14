@@ -2,7 +2,7 @@
 #include "pch.h"
 
 
-bool ImGui_ImplMagpie_Init(void* hwnd);
+bool ImGui_ImplMagpie_Init();
 void ImGui_ImplMagpie_Shutdown();
 void ImGui_ImplMagpie_NewFrame();
 

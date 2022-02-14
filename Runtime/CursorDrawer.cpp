@@ -35,9 +35,11 @@ float4 main(float4 pos : SV_POSITION, float2 coord : TEXCOORD) : SV_Target{
 }
 )";
 
-bool CursorDrawer::Initialize(ID3D11Texture2D* renderTarget, const RECT& destRect) {
+bool CursorDrawer::Initialize(ID3D11Texture2D* renderTarget) {
 	App& app = App::GetInstance();
 	auto& dr = app.GetDeviceResources();
+
+	const RECT& outputRect = App::GetInstance().GetRenderer().GetOutputRect();
 
 	if (!app.IsNoCursor()) {
 		Renderer& renderer = app.GetRenderer();
@@ -48,8 +50,8 @@ bool CursorDrawer::Initialize(ID3D11Texture2D* renderTarget, const RECT& destRec
 		if (_zoomFactorX <= 0) {
 			D3D11_TEXTURE2D_DESC desc{};
 			app.GetFrameSource().GetOutput()->GetDesc(&desc);
-			_zoomFactorX = float(destRect.right - destRect.left) / desc.Width;
-			_zoomFactorY = float(destRect.bottom - destRect.top) / desc.Height;
+			_zoomFactorX = float(outputRect.right - outputRect.left) / desc.Width;
+			_zoomFactorY = float(outputRect.bottom - outputRect.top) / desc.Height;
 		}
 
 		if (!dr.GetRenderTargetView(renderTarget, &_rtv)) {
@@ -127,14 +129,13 @@ bool CursorDrawer::Initialize(ID3D11Texture2D* renderTarget, const RECT& destRec
 		renderTarget->GetDesc(&rtDesc);
 
 		_renderTargetSize = { (long)rtDesc.Width, (long)rtDesc.Height };
-		_destRect = destRect;
 	}
 
 	const RECT& srcFrameRect = app.GetFrameSource().GetSrcFrameRect();
 	SIZE srcSize = { srcFrameRect.right - srcFrameRect.left, srcFrameRect.bottom - srcFrameRect.top };
 
-	_clientScaleX = float(destRect.right - destRect.left) / srcSize.cx;
-	_clientScaleY = float(destRect.bottom - destRect.top) / srcSize.cy;
+	_clientScaleX = float(outputRect.right - outputRect.left) / srcSize.cx;
+	_clientScaleY = float(outputRect.bottom - outputRect.top) / srcSize.cy;
 	
 	if (!App::GetInstance().IsMultiMonitorMode() && !App::GetInstance().IsBreakpointMode()) {
 		// 非多屏幕模式下，限制光标在窗口内
@@ -192,14 +193,15 @@ CursorDrawer::~CursorDrawer() {
 void CursorDrawer::_DynamicClip(POINT cursorPt) {
 	const RECT& srcFrameRect = App::GetInstance().GetFrameSource().GetSrcFrameRect();
 	const RECT& hostRect = App::GetInstance().GetHostWndRect();
+	const RECT& outputRect = App::GetInstance().GetRenderer().GetOutputRect();
 
 	POINT hostPt{};
 
 	double t = double(cursorPt.x - srcFrameRect.left) / (srcFrameRect.right - srcFrameRect.left);
-	hostPt.x = std::lround(t * (_destRect.right - _destRect.left)) + _destRect.left + hostRect.left;
+	hostPt.x = std::lround(t * (outputRect.right - outputRect.left)) + outputRect.left + hostRect.left;
 
 	t = double(cursorPt.y - srcFrameRect.top) / (srcFrameRect.bottom - srcFrameRect.top);
-	hostPt.y = std::lround(t * (_destRect.bottom - _destRect.top)) + _destRect.top + hostRect.top;
+	hostPt.y = std::lround(t * (outputRect.bottom - outputRect.top)) + outputRect.top + hostRect.top;
 
 	std::array<bool, 4> clips{};
 	// left
@@ -484,13 +486,14 @@ void CursorDrawer::_StartCapture(POINT cursorPt) {
 	// 移动光标位置
 	const RECT& srcFrameRect = App::GetInstance().GetFrameSource().GetSrcFrameRect();
 	const RECT& hostRect = App::GetInstance().GetHostWndRect();
+	const RECT& outputRect = App::GetInstance().GetRenderer().GetOutputRect();
 	// 跳过黑边
-	cursorPt.x = std::clamp(cursorPt.x, hostRect.left + _destRect.left, hostRect.left + _destRect.right - 1);
-	cursorPt.y = std::clamp(cursorPt.y, hostRect.top + _destRect.top, hostRect.top + _destRect.bottom - 1);
+	cursorPt.x = std::clamp(cursorPt.x, hostRect.left + outputRect.left, hostRect.left + outputRect.right - 1);
+	cursorPt.y = std::clamp(cursorPt.y, hostRect.top + outputRect.top, hostRect.top + outputRect.bottom - 1);
 
 	// 从全屏窗口映射到源窗口
-	double posX = double(cursorPt.x - hostRect.left - _destRect.left) / (_destRect.right - _destRect.left);
-	double posY = double(cursorPt.y - hostRect.top - _destRect.top) / (_destRect.bottom - _destRect.top);
+	double posX = double(cursorPt.x - hostRect.left - outputRect.left) / (outputRect.right - outputRect.left);
+	double posY = double(cursorPt.y - hostRect.top - outputRect.top) / (outputRect.bottom - outputRect.top);
 
 	posX = posX * (srcFrameRect.right - srcFrameRect.left) + srcFrameRect.left;
 	posY = posY * (srcFrameRect.bottom - srcFrameRect.top) + srcFrameRect.top;
@@ -517,6 +520,7 @@ void CursorDrawer::_StopCapture(POINT cursorPt) {
 
 	const RECT& srcFrameRect = App::GetInstance().GetFrameSource().GetSrcFrameRect();
 	const RECT& hostRect = App::GetInstance().GetHostWndRect();
+	const RECT& outputRect = App::GetInstance().GetRenderer().GetOutputRect();
 
 	POINT newCursorPt{};
 
@@ -526,7 +530,7 @@ void CursorDrawer::_StopCapture(POINT cursorPt) {
 		newCursorPt.x = hostRect.left + cursorPt.x - srcFrameRect.left;
 	} else {
 		double pos = double(cursorPt.x - srcFrameRect.left) / (srcFrameRect.right - srcFrameRect.left);
-		newCursorPt.x = std::lround(pos * (_destRect.right - _destRect.left)) + _destRect.left + hostRect.left;
+		newCursorPt.x = std::lround(pos * (outputRect.right - outputRect.left)) + outputRect.left + hostRect.left;
 	}
 
 	if (cursorPt.y >= srcFrameRect.bottom) {
@@ -535,7 +539,7 @@ void CursorDrawer::_StopCapture(POINT cursorPt) {
 		newCursorPt.y = hostRect.top + cursorPt.y - srcFrameRect.top;
 	} else {
 		double pos = double(cursorPt.y - srcFrameRect.top) / (srcFrameRect.bottom - srcFrameRect.top);
-		newCursorPt.y = std::lround(pos * (_destRect.bottom - _destRect.top)) + _destRect.top + hostRect.top;
+		newCursorPt.y = std::lround(pos * (outputRect.bottom - outputRect.top)) + outputRect.top + hostRect.top;
 	}
 
 	if (MonitorFromPoint(newCursorPt, MONITOR_DEFAULTTONULL)) {
@@ -619,25 +623,27 @@ void CursorDrawer::Draw() {
 		lroundf((ci.ptScreenPos.y - srcClient.top) * _clientScaleY - info->yHotSpot * _zoomFactorY)
 	};
 
+	const RECT& outputRect = App::GetInstance().GetRenderer().GetOutputRect();
+
 	RECT cursorRect{
-		targetScreenPos.x + _destRect.left,
-		targetScreenPos.y + _destRect.top,
-		targetScreenPos.x + cursorSize.cx + _destRect.left,
-		targetScreenPos.y + cursorSize.cy + _destRect.top
+		targetScreenPos.x + outputRect.left,
+		targetScreenPos.y + outputRect.top,
+		targetScreenPos.x + cursorSize.cx + outputRect.left,
+		targetScreenPos.y + cursorSize.cy + outputRect.top
 	};
 
-	if (cursorRect.right <= _destRect.left || cursorRect.bottom <= _destRect.top
-		|| cursorRect.left >= _destRect.right || cursorRect.top >= _destRect.bottom
+	if (cursorRect.right <= outputRect.left || cursorRect.bottom <= outputRect.top
+		|| cursorRect.left >= outputRect.right || cursorRect.top >= outputRect.bottom
 	) {
 		// 光标在窗口外
 		return;
 	}
 
 
-	float left = targetScreenPos.x / FLOAT(_destRect.right - _destRect.left) * 2 - 1.0f;
-	float top = 1.0f - targetScreenPos.y / FLOAT(_destRect.bottom - _destRect.top) * 2;
-	float right = left + cursorSize.cx / FLOAT(_destRect.right - _destRect.left) * 2;
-	float bottom = top - cursorSize.cy / FLOAT(_destRect.bottom - _destRect.top) * 2;
+	float left = targetScreenPos.x / FLOAT(outputRect.right - outputRect.left) * 2 - 1.0f;
+	float top = 1.0f - targetScreenPos.y / FLOAT(outputRect.bottom - outputRect.top) * 2;
+	float right = left + cursorSize.cx / FLOAT(outputRect.right - outputRect.left) * 2;
+	float bottom = top - cursorSize.cy / FLOAT(outputRect.bottom - outputRect.top) * 2;
 
 	Renderer& renderer = App::GetInstance().GetRenderer();
 	renderer.SetSimpleVS(_vtxBuffer.get());
@@ -648,10 +654,10 @@ void CursorDrawer::Draw() {
 	if (!info->hasInv) {
 		d3dDC->OMSetRenderTargets(1, &_rtv, nullptr);
 		D3D11_VIEWPORT vp{
-			(FLOAT)_destRect.left,
-			(FLOAT)_destRect.top,
-			FLOAT(_destRect.right - _destRect.left),
-			FLOAT(_destRect.bottom - _destRect.top),
+			(FLOAT)outputRect.left,
+			(FLOAT)outputRect.top,
+			FLOAT(outputRect.right - outputRect.left),
+			FLOAT(outputRect.bottom - outputRect.top),
 			0.0f,
 			1.0f
 		};
@@ -747,21 +753,12 @@ void CursorDrawer::Draw() {
 		d3dDC->PSSetSamplers(0, 1, App::GetInstance().GetCursorInterpolationMode() == 0 ? &_pointSam : &_linearSam);
 
 		d3dDC->OMSetRenderTargets(1, &_rtv, nullptr);
-		vp.TopLeftX = (FLOAT)_destRect.left;
-		vp.TopLeftY = (FLOAT)_destRect.top;
-		vp.Width = FLOAT(_destRect.right - _destRect.left);
-		vp.Height = FLOAT(_destRect.bottom - _destRect.top);
+		vp.TopLeftX = (FLOAT)outputRect.left;
+		vp.TopLeftY = (FLOAT)outputRect.top;
+		vp.Width = FLOAT(outputRect.right - outputRect.left);
+		vp.Height = FLOAT(outputRect.bottom - outputRect.top);
 		d3dDC->RSSetViewports(1, &vp);
 
 		d3dDC->Draw(4, 0);
 	}
-}
-
-POINT CursorDrawer::MapCursorPos(POINT pos) {
-	const RECT& srcClient = App::GetInstance().GetFrameSource().GetSrcFrameRect();
-
-	return {
-		lroundf((pos.x - srcClient.left) * _clientScaleX) + _destRect.left,
-		lroundf((pos.y - srcClient.top) * _clientScaleY) + _destRect.top
-	};
 }

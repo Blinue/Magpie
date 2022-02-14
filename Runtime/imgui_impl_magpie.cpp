@@ -4,10 +4,10 @@
 #include "imgui_impl_magpie.h"
 #include "Renderer.h"
 #include "CursorDrawer.h"
+#include "FrameSourceBase.h"
 
 
 struct ImGui_ImplMagpie_Data {
-    HWND                        hWnd;
     INT64                       Time;
     INT64                       TicksPerSecond;
 
@@ -23,7 +23,7 @@ static ImGui_ImplMagpie_Data* ImGui_ImplMagpie_GetBackendData() {
 }
 
 // Functions
-bool ImGui_ImplMagpie_Init(void* hwnd) {
+bool ImGui_ImplMagpie_Init() {
     ImGuiIO& io = ImGui::GetIO();
     IM_ASSERT(io.BackendPlatformUserData == NULL && "Already initialized a platform backend!");
 
@@ -38,11 +38,10 @@ bool ImGui_ImplMagpie_Init(void* hwnd) {
     io.BackendPlatformUserData = (void*)bd;
     io.BackendPlatformName = "imgui_impl_magpie";
 
-    bd->hWnd = (HWND)hwnd;
     bd->TicksPerSecond = perf_frequency;
     bd->Time = perf_counter;
 
-    io.ImeWindowHandle = hwnd;
+    io.ImeWindowHandle = App::GetInstance().GetHwndHost();
 
     return true;
 }
@@ -60,12 +59,20 @@ void ImGui_ImplMagpie_Shutdown() {
 static void ImGui_ImplMagpie_UpdateMousePos() {
     ImGui_ImplMagpie_Data* bd = ImGui_ImplMagpie_GetBackendData();
     ImGuiIO& io = ImGui::GetIO();
-    IM_ASSERT(bd->hWnd != 0);
+
+    const RECT& srcFrameRect = App::GetInstance().GetFrameSource().GetSrcFrameRect();
+    const RECT& outputRect = App::GetInstance().GetRenderer().GetOutputRect();
+
+    SIZE srcFrameSize = { srcFrameRect.right - srcFrameRect.left, srcFrameRect.bottom - srcFrameRect.top };
+    SIZE outputSize = { outputRect.right - outputRect.left, outputRect.bottom - outputRect.top };
 
     POINT pos{};
     GetCursorPos(&pos);
-    pos = App::GetInstance().GetRenderer().GetCursorDrawer().MapCursorPos(pos);
-    io.MousePos = ImVec2((float)pos.x, (float)pos.y);
+    
+    io.MousePos = ImVec2(
+        lroundf((pos.x - srcFrameRect.left) * outputSize.cx / (float)srcFrameSize.cx),
+        lroundf((pos.y - srcFrameRect.top) * outputSize.cy / (float)srcFrameSize.cy)
+    );
 }
 
 void ImGui_ImplMagpie_NewFrame() {
@@ -74,9 +81,9 @@ void ImGui_ImplMagpie_NewFrame() {
     IM_ASSERT(bd != NULL && "Did you call ImGui_ImplMagpie_Init()?");
 
     // Setup display size (every frame to accommodate for window resizing)
-    RECT rect = { 0, 0, 0, 0 };
-    ::GetClientRect(bd->hWnd, &rect);
-    io.DisplaySize = ImVec2((float)(rect.right - rect.left), (float)(rect.bottom - rect.top));
+    const RECT& hostRect = App::GetInstance().GetHostWndRect();
+    const RECT& outputRect = App::GetInstance().GetRenderer().GetOutputRect();
+    io.DisplaySize = ImVec2((float)(hostRect.right - outputRect.left), (float)(hostRect.bottom - outputRect.top));
 
     // Setup time step
     INT64 current_time = 0;

@@ -5,15 +5,13 @@
 // 处理光标的渲染
 class CursorDrawer {
 public:
-	bool Initialize(ID3D11Texture2D* renderTarget, const RECT& destRect);
+	bool Initialize(ID3D11Texture2D* renderTarget);
 
 	~CursorDrawer();
 
 	bool Update();
 
 	void Draw();
-
-	POINT MapCursorPos(POINT pos);
 
 private:
 	struct _CursorInfo {
@@ -39,7 +37,6 @@ private:
 
 	SIZE _monoCursorSize{};
 	INT _cursorSpeed = 0;
-	RECT _destRect{};
 	float _zoomFactorX = 1;
 	float _zoomFactorY = 1;
 	SIZE _renderTargetSize{};
