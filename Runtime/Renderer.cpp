@@ -20,7 +20,6 @@ Renderer::~Renderer() {}
 
 bool Renderer::Initialize(const std::string& effectsJson) {
 	_gpuTimer.reset(new GPUTimer());
-	_gpuTimer->ResetElapsedTime();
 
 	if (!GetWindowRect(App::GetInstance().GetHwndSrc(), &_srcWndRect)) {
 		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetWindowRect 失败"));

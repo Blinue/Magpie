@@ -58,7 +58,6 @@ bool App::Run(
 	UINT flags
 ) {
 	_hwndSrc = hwndSrc;
-	_captureMode = captureMode;
 	_cursorZoomFactor = cursorZoomFactor;
 	_cursorInterpolationMode = cursorInterpolationMode;
 	_adapterIdx = adapterIdx;
@@ -88,42 +87,11 @@ bool App::Run(
 		return false;
 	}
 	
-	switch (captureMode) {
-	case 0:
-		_frameSource.reset(new GraphicsCaptureFrameSource());
-		break;
-	case 1:
-		_frameSource.reset(new DesktopDuplicationFrameSource());
-		break;
-	case 2:
-		_frameSource.reset(new GDIFrameSource());
-		break;
-	case 3:
-		_frameSource.reset(new DwmSharedSurfaceFrameSource());
-		break;
-	default:
-		SPDLOG_LOGGER_CRITICAL(logger, "未知的捕获模式");
+	if (!_InitFrameSource(captureMode)) {
+		SPDLOG_LOGGER_CRITICAL(logger, "_InitFrameSource 失败");
 		Quit();
 		_RunMessageLoop();
 		return false;
-	}
-	
-	if (!_frameSource->Initialize()) {
-		SPDLOG_LOGGER_CRITICAL(logger, "初始化 FrameSource 失败");
-		Quit();
-		_RunMessageLoop();
-		return false;
-	}
-
-	const RECT& frameRect = _frameSource->GetSrcFrameRect();
-	SPDLOG_LOGGER_INFO(logger, fmt::format("源窗口尺寸：{}x{}",
-		frameRect.right - frameRect.left, frameRect.bottom - frameRect.top));
-
-	if (IsDisableDirectFlip() && !IsBreakpointMode()) {
-		// 在此处创建的 DDF 窗口不会立刻显示
-		if (!_DisableDirectFlip()) {
-			SPDLOG_LOGGER_ERROR(logger, "_DisableDirectFlip 失败");
-		}
 	}
 
 	_renderer.reset(new Renderer());
@@ -132,6 +100,13 @@ bool App::Run(
 		Quit();
 		_RunMessageLoop();
 		return false;
+	}
+
+	if (IsDisableDirectFlip() && !IsBreakpointMode()) {
+		// 在此处创建的 DDF 窗口不会立刻显示
+		if (!_DisableDirectFlip()) {
+			SPDLOG_LOGGER_ERROR(logger, "_DisableDirectFlip 失败");
+		}
 	}
 
 	ShowWindow(_hwndHost, SW_NORMAL);
@@ -347,6 +322,37 @@ bool App::_CreateHostWnd() {
 	}
 
 	SPDLOG_LOGGER_INFO(logger, "已创建主窗口");
+	return true;
+}
+
+bool App::_InitFrameSource(int captureMode) {
+	switch (captureMode) {
+	case 0:
+		_frameSource.reset(new GraphicsCaptureFrameSource());
+		break;
+	case 1:
+		_frameSource.reset(new DesktopDuplicationFrameSource());
+		break;
+	case 2:
+		_frameSource.reset(new GDIFrameSource());
+		break;
+	case 3:
+		_frameSource.reset(new DwmSharedSurfaceFrameSource());
+		break;
+	default:
+		SPDLOG_LOGGER_CRITICAL(logger, "未知的捕获模式");
+		return false;
+	}
+
+	if (!_frameSource->Initialize()) {
+		SPDLOG_LOGGER_CRITICAL(logger, "初始化 FrameSource 失败");
+		return false;
+	}
+
+	const RECT& frameRect = _frameSource->GetSrcFrameRect();
+	SPDLOG_LOGGER_INFO(logger, fmt::format("源窗口尺寸：{}x{}",
+		frameRect.right - frameRect.left, frameRect.bottom - frameRect.top));
+
 	return true;
 }
 
