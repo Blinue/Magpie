@@ -16,6 +16,11 @@ using namespace Windows::Foundation::Metadata;
 extern std::shared_ptr<spdlog::logger> logger;
 
 bool GraphicsCaptureFrameSource::Initialize() {
+	if (!FrameSourceBase::Initialize()) {
+		SPDLOG_LOGGER_ERROR(logger, "初始化 FrameSourceBase 失败");
+		return false;
+	}
+
 	App::GetInstance().SetErrorMsg(ErrorMessages::FAILED_TO_CAPTURE);
 
 	// 只在 Win10 1903 及更新版本中可用

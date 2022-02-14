@@ -71,6 +71,11 @@ DesktopDuplicationFrameSource::~DesktopDuplicationFrameSource() {
 }
 
 bool DesktopDuplicationFrameSource::Initialize() {
+	if (!FrameSourceBase::Initialize()) {
+		SPDLOG_LOGGER_ERROR(logger, "初始化 FrameSourceBase 失败");
+		return false;
+	}
+
 	// WDA_EXCLUDEFROMCAPTURE 只在 Win10 v2004 及更新版本中可用
 	const RTL_OSVERSIONINFOW& version = Utils::GetOSVersion();
 	if (Utils::CompareVersion(version.dwMajorVersion, version.dwMinorVersion, version.dwBuildNumber, 10, 0, 19041) < 0) {

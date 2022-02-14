@@ -10,17 +10,14 @@ public:
 
 	bool Initialize() override;
 
-	winrt::com_ptr<ID3D11Texture2D> GetOutput() override {
-		return _output;
-	}
-
 	UpdateState Update() override;
 
-	bool HasRoundCornerInWin11() override {
+	bool IsScreenCapture() override {
 		return false;
 	}
 
-	bool IsScreenCapture() override {
+protected:
+	bool _HasRoundCornerInWin11() override {
 		return false;
 	}
 
@@ -36,6 +33,6 @@ private:
 	_DwmGetDxSharedSurfaceFunc *_dwmGetDxSharedSurface = nullptr;
 
 	D3D11_BOX _frameInWnd{};
-	winrt::com_ptr<ID3D11Texture2D> _output;
+	
 };
 

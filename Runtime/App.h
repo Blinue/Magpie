@@ -148,7 +148,7 @@ public:
 private:
 	App();
 
-	void _Run();
+	void _RunMessageLoop();
 
 	void _RegisterWndClasses() const;
 
@@ -173,7 +173,6 @@ private:
 	HWND _hwndDDF = NULL;
 
 	RECT _hostWndRect{};
-	RECT _srcFrameRect{};
 
 	UINT _captureMode = 0;
 	float _cursorZoomFactor = 0;

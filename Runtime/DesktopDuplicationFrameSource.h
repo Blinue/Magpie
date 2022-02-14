@@ -11,17 +11,14 @@ public:
 
 	bool Initialize() override;
 
-	winrt::com_ptr<ID3D11Texture2D> GetOutput() override {
-		return _output;
-	}
-
 	UpdateState Update() override;
 
-	bool HasRoundCornerInWin11() override {
+	bool IsScreenCapture() override {
 		return true;
 	}
 
-	bool IsScreenCapture() override {
+protected:
+	bool _HasRoundCornerInWin11() override {
 		return true;
 	}
 
@@ -30,7 +27,6 @@ private:
 
 	static DWORD WINAPI _DDPThreadProc(LPVOID lpThreadParameter);
 
-	winrt::com_ptr<ID3D11Texture2D> _output;
 	winrt::com_ptr<IDXGIOutputDuplication> _outputDup;
 	std::vector<BYTE> _dupMetaData;
 

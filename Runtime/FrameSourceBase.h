@@ -6,15 +6,13 @@ class FrameSourceBase {
 public:
 	FrameSourceBase() {}
 
-	virtual ~FrameSourceBase() {}
+	virtual ~FrameSourceBase();
 
 	// 不可复制，不可移动
 	FrameSourceBase(const FrameSourceBase&) = delete;
 	FrameSourceBase(FrameSourceBase&&) = delete;
 
-	virtual bool Initialize() = 0;
-
-	virtual winrt::com_ptr<ID3D11Texture2D> GetOutput() = 0;
+	virtual bool Initialize();
 
 	enum class UpdateState {
 		NewFrame,
@@ -25,13 +23,16 @@ public:
 
 	virtual UpdateState Update() = 0;
 
-	virtual bool HasRoundCornerInWin11() = 0;
-
 	virtual bool IsScreenCapture() = 0;
 
 	const RECT& GetSrcFrameRect() const noexcept { return _srcFrameRect; }
 
+	winrt::com_ptr<ID3D11Texture2D> GetOutput() {
+		return _output;
+	}
+
 protected:
+	virtual bool _HasRoundCornerInWin11() = 0;
 
 	// 获取坐标系 1 到坐标系 2 的映射关系
 	// 坐标系 1：屏幕坐标系，即虚拟化后的坐标系。原点为屏幕左上角
@@ -47,4 +48,9 @@ protected:
 	bool _UpdateSrcFrameRect();
 
 	RECT _srcFrameRect{};
+
+	winrt::com_ptr<ID3D11Texture2D> _output;
+
+	bool _roundCornerDisabled = false;
+	bool _windowResizingDisabled = false;
 };

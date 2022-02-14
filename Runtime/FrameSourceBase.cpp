@@ -7,6 +7,86 @@
 extern std::shared_ptr<spdlog::logger> logger;
 
 
+FrameSourceBase::~FrameSourceBase() {
+	HWND hwndSrc = App::GetInstance().GetHwndSrc();
+
+	// 还原窗口圆角
+	if (_roundCornerDisabled) {
+		_roundCornerDisabled = false;
+
+		INT attr = DWMWCP_DEFAULT;
+		HRESULT hr = DwmSetWindowAttribute(hwndSrc, DWMWA_WINDOW_CORNER_PREFERENCE, &attr, sizeof(attr));
+		if (FAILED(hr)) {
+			SPDLOG_LOGGER_INFO(logger, MakeComErrorMsg("取消禁用窗口圆角失败", hr));
+		} else {
+			SPDLOG_LOGGER_INFO(logger, "已取消禁用窗口圆角");
+		}
+	}
+
+	// 还原窗口大小调整
+	if (_windowResizingDisabled) {
+		_windowResizingDisabled = false;
+
+		LONG_PTR style = GetWindowLongPtr(hwndSrc, GWL_STYLE);
+		if (!(style & WS_THICKFRAME)) {
+			if (SetWindowLongPtr(hwndSrc, GWL_STYLE, style | WS_THICKFRAME)) {
+				if (!SetWindowPos(hwndSrc, 0, 0, 0, 0, 0,
+					SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED)) {
+					SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("SetWindowPos 失败"));
+				}
+
+				SPDLOG_LOGGER_INFO(logger, "已取消禁用窗口大小调整");
+			} else {
+				SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("取消禁用窗口大小调整失败"));
+			}
+		}
+	}
+}
+
+bool FrameSourceBase::Initialize() {
+	HWND hwndSrc = App::GetInstance().GetHwndSrc();
+
+	// 禁用窗口大小调整
+	if (App::GetInstance().IsDisableWindowResizing()) {
+		LONG_PTR style = GetWindowLongPtr(hwndSrc, GWL_STYLE);
+		if (style & WS_THICKFRAME) {
+			if (SetWindowLongPtr(hwndSrc, GWL_STYLE, style ^ WS_THICKFRAME)) {
+				// 不重绘边框，以防某些窗口状态不正确
+				// if (!SetWindowPos(hwndSrc, 0, 0, 0, 0, 0,
+				//	SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED)) {
+				//	SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("SetWindowPos 失败"));
+				// }
+
+				SPDLOG_LOGGER_INFO(logger, "已禁用窗口大小调整");
+				_windowResizingDisabled = true;
+			} else {
+				SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("禁用窗口大小调整失败"));
+			}
+		}
+	}
+
+	// 禁用窗口圆角
+	if (_HasRoundCornerInWin11()) {
+		const auto& version = Utils::GetOSVersion();
+		bool isWin11 = Utils::CompareVersion(
+			version.dwMajorVersion, version.dwMinorVersion,
+			version.dwBuildNumber, 10, 0, 22000) >= 0;
+
+		if (isWin11) {
+			INT attr = DWMWCP_DONOTROUND;
+			HRESULT hr = DwmSetWindowAttribute(hwndSrc, DWMWA_WINDOW_CORNER_PREFERENCE, &attr, sizeof(attr));
+			if (FAILED(hr)) {
+				SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("禁用窗口圆角失败", hr));
+			} else {
+				SPDLOG_LOGGER_INFO(logger, "已禁用窗口圆角");
+				_roundCornerDisabled = true;
+			}
+		}
+	}
+
+	return true;
+}
+
 bool FrameSourceBase::_GetMapToOriginDPI(HWND hWnd, double& a, double& bx, double& by) {
 	// HDC 中的 HBITMAP 尺寸为窗口的原始尺寸
 	// 通过 GetWindowRect 获得的尺寸为窗口的 DPI 缩放后尺寸

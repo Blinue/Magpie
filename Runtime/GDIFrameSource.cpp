@@ -7,6 +7,11 @@
 extern std::shared_ptr<spdlog::logger> logger;
 
 bool GDIFrameSource::Initialize() {
+	if (!FrameSourceBase::Initialize()) {
+		SPDLOG_LOGGER_ERROR(logger, "初始化 FrameSourceBase 失败");
+		return false;
+	}
+
 	if (!_UpdateSrcFrameRect()) {
 		SPDLOG_LOGGER_ERROR(logger, "_UpdateSrcFrameRect 失败");
 		return false;

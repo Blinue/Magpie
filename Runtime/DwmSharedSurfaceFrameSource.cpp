@@ -8,6 +8,11 @@ extern std::shared_ptr<spdlog::logger> logger;
 
 
 bool DwmSharedSurfaceFrameSource::Initialize() {
+	if (!FrameSourceBase::Initialize()) {
+		SPDLOG_LOGGER_ERROR(logger, "初始化 FrameSourceBase 失败");
+		return false;
+	}
+
 	_dwmGetDxSharedSurface = (_DwmGetDxSharedSurfaceFunc*)GetProcAddress(
 		GetModuleHandle(L"user32.dll"), "DwmGetDxSharedSurface");
 

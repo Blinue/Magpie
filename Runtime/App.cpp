@@ -70,25 +70,6 @@ bool App::Run(
 	
 	SetErrorMsg(ErrorMessages::GENERIC);
 
-	// 禁用窗口大小调整
-	if (IsDisableWindowResizing()) {
-		LONG_PTR style = GetWindowLongPtr(hwndSrc, GWL_STYLE);
-		if (style & WS_THICKFRAME) {
-			if (SetWindowLongPtr(hwndSrc, GWL_STYLE, style ^ WS_THICKFRAME)) {
-				// 不重绘边框，以防某些窗口状态不正确
-				// if (!SetWindowPos(hwndSrc, 0, 0, 0, 0, 0,
-				//	SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED)) {
-				//	SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("SetWindowPos 失败"));
-				// }
-
-				SPDLOG_LOGGER_INFO(logger, "已禁用窗口大小调整");
-				_windowResizingDisabled = true;
-			} else {
-				SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("禁用窗口大小调整失败"));
-			}
-		}
-	}
-
 	// 模拟独占全屏
 	// 必须在主窗口创建前，否则 SHQueryUserNotificationState 可能返回 QUNS_BUSY 而不是 QUNS_RUNNING_D3D_FULL_SCREEN
 	ExclModeHack exclMode;
@@ -103,11 +84,9 @@ bool App::Run(
 	if (!_deviceResources->Initialize()) {
 		SPDLOG_LOGGER_CRITICAL(logger, "初始化 DeviceResources 失败");
 		Quit();
-		_Run();
+		_RunMessageLoop();
 		return false;
 	}
-
-	_srcFrameRect = {};
 	
 	switch (captureMode) {
 	case 0:
@@ -125,38 +104,20 @@ bool App::Run(
 	default:
 		SPDLOG_LOGGER_CRITICAL(logger, "未知的捕获模式");
 		Quit();
-		_Run();
+		_RunMessageLoop();
 		return false;
 	}
 	
 	if (!_frameSource->Initialize()) {
 		SPDLOG_LOGGER_CRITICAL(logger, "初始化 FrameSource 失败");
 		Quit();
-		_Run();
+		_RunMessageLoop();
 		return false;
 	}
 
+	const RECT& frameRect = _frameSource->GetSrcFrameRect();
 	SPDLOG_LOGGER_INFO(logger, fmt::format("源窗口尺寸：{}x{}",
-		_srcFrameRect.right - _srcFrameRect.left, _srcFrameRect.bottom - _srcFrameRect.top));
-
-	// 禁用窗口圆角
-	if (_frameSource->HasRoundCornerInWin11()) {
-		const auto& version = Utils::GetOSVersion();
-		bool isWin11 = Utils::CompareVersion(
-			version.dwMajorVersion, version.dwMinorVersion,
-			version.dwBuildNumber, 10, 0, 22000) >= 0;
-
-		if (isWin11) {
-			INT attr = DWMWCP_DONOTROUND;
-			HRESULT hr = DwmSetWindowAttribute(hwndSrc, DWMWA_WINDOW_CORNER_PREFERENCE, &attr, sizeof(attr));
-			if (FAILED(hr)) {
-				SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("禁用窗口圆角失败", hr));
-			} else {
-				SPDLOG_LOGGER_INFO(logger, "已禁用窗口圆角");
-				_roundCornerDisabled = true;
-			}
-		}
-	}
+		frameRect.right - frameRect.left, frameRect.bottom - frameRect.top));
 
 	if (IsDisableDirectFlip() && !IsBreakpointMode()) {
 		// 在此处创建的 DDF 窗口不会立刻显示
@@ -169,18 +130,18 @@ bool App::Run(
 	if (!_renderer->Initialize(effectsJson)) {
 		SPDLOG_LOGGER_CRITICAL(logger, "初始化 Renderer 失败");
 		Quit();
-		_Run();
+		_RunMessageLoop();
 		return false;
 	}
 
 	ShowWindow(_hwndHost, SW_NORMAL);
 
-	_Run();
+	_RunMessageLoop();
 
 	return true;
 }
 
-void App::_Run() {
+void App::_RunMessageLoop() {
 	SPDLOG_LOGGER_INFO(logger, "开始接收窗口消息");
 
 	while (true) {
@@ -464,40 +425,6 @@ void App::_OnQuit() {
 	_renderer = nullptr;
 	_frameSource = nullptr;
 	_deviceResources = nullptr;
-
-	// 还原窗口圆角
-	if (_roundCornerDisabled) {
-		_roundCornerDisabled = false;
-
-		INT attr = DWMWCP_DEFAULT;
-		HRESULT hr = DwmSetWindowAttribute(_hwndSrc, DWMWA_WINDOW_CORNER_PREFERENCE, &attr, sizeof(attr));
-		if (FAILED(hr)) {
-			SPDLOG_LOGGER_INFO(logger, MakeComErrorMsg("取消禁用窗口圆角失败", hr));
-		} else {
-			SPDLOG_LOGGER_INFO(logger, "已取消禁用窗口圆角");
-		}
-	}
-
-	// 还原窗口大小调整
-	if (_windowResizingDisabled) {
-		_windowResizingDisabled = false;
-
-		LONG_PTR style = GetWindowLongPtr(_hwndSrc, GWL_STYLE);
-		if (!(style & WS_THICKFRAME)) {
-			if (SetWindowLongPtr(_hwndSrc, GWL_STYLE, style | WS_THICKFRAME)) {
-				if (!SetWindowPos(_hwndSrc, 0, 0, 0, 0, 0,
-					SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED)) {
-					SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("SetWindowPos 失败"));
-				}
-
-				SPDLOG_LOGGER_INFO(logger, "已取消禁用窗口大小调整");
-			} else {
-				SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("取消禁用窗口大小调整失败"));
-			}
-		}
-	}
-
-	SPDLOG_LOGGER_INFO(logger, "主窗口已销毁");
 }
 
 void App::Quit() {
