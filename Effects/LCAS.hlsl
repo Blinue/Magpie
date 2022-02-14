@@ -25,7 +25,7 @@ SamplerState sam;
 float sharpness;
 
 //!CONSTANT
-//!DEFAULT 0.2
+//!DEFAULT 0.5
 //!MIN 0
 //!MAX 1.5
 float threshold;
