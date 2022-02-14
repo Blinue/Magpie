@@ -20,6 +20,10 @@ UIDrawer::~UIDrawer() {
 	ImGui::DestroyContext();
 }
 
+float GetDpiScale() {
+	return GetDpiForWindow(App::GetInstance().GetHwndHost()) / 96.0f;
+}
+
 bool UIDrawer::Initialize(ID3D11Texture2D* renderTarget) {
 	auto& dr = App::GetInstance().GetDeviceResources();
 
@@ -28,8 +32,19 @@ bool UIDrawer::Initialize(ID3D11Texture2D* renderTarget) {
 
 	ImGuiIO& io = ImGui::GetIO();
 	io.ConfigFlags |= ImGuiConfigFlags_NavNoCaptureKeyboard | ImGuiConfigFlags_NoMouseCursorChange;
+	//io.IniFilename = nullptr;
+
+	float dpiScale = GetDpiScale();
 
 	ImGui::StyleColorsDark();
+	ImGui::GetStyle().WindowRounding = 6;
+	ImGui::GetStyle().FrameBorderSize = 1;
+	ImGui::GetStyle().ScaleAllSizes(dpiScale);
+
+	io.Fonts->AddFontFromFileTTF(".\\assets\\NotoSansSC-Regular.otf", std::floor(20.0f * dpiScale), NULL);
+	//ImFont* font = io.Fonts->AddFontFromMemoryTTF(();
+	//font->FontSize = std::floor(ImGui::GetFont()->FontSize * 1.5f);
+	//ImGui::PushFont(font);
 
 	ImGui_ImplMagpie_Init(App::GetInstance().GetHwndHost());
 	ImGui_ImplDX11_Init(dr.GetD3DDevice(), dr.GetD3DDC());
@@ -46,7 +61,7 @@ void DrawUI() {
 	ImGui::SetNextWindowPos(ImVec2(main_viewport->WorkPos.x + 650, main_viewport->WorkPos.y + 20), ImGuiCond_FirstUseEver);
 	ImGui::SetNextWindowSize(ImVec2(200, 100), ImGuiCond_FirstUseEver);
 
-	if (!ImGui::Begin("Debug", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoNav)) {
+	if (!ImGui::Begin("Debug", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoNav)) {
 		// Early out if the window is collapsed, as an optimization.
 		ImGui::End();
 		return;
