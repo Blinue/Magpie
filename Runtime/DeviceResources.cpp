@@ -43,13 +43,7 @@ static winrt::com_ptr<IDXGIAdapter3> ObtainGraphicsAdapter(IDXGIFactory4* dxgiFa
 
 		D3D_FEATURE_LEVEL featureLevels[] = {
 			D3D_FEATURE_LEVEL_11_1,
-			D3D_FEATURE_LEVEL_11_0,
-			D3D_FEATURE_LEVEL_10_1,
-			D3D_FEATURE_LEVEL_10_0,
-			// 不支持功能级别 9.x，但这里加上没坏处
-			D3D_FEATURE_LEVEL_9_3,
-			D3D_FEATURE_LEVEL_9_2,
-			D3D_FEATURE_LEVEL_9_1,
+			D3D_FEATURE_LEVEL_11_0
 		};
 		UINT nFeatureLevels = ARRAYSIZE(featureLevels);
 
@@ -119,13 +113,7 @@ bool DeviceResources::Initialize() {
 
 	D3D_FEATURE_LEVEL featureLevels[] = {
 		D3D_FEATURE_LEVEL_11_1,
-		D3D_FEATURE_LEVEL_11_0,
-		D3D_FEATURE_LEVEL_10_1,
-		D3D_FEATURE_LEVEL_10_0,
-		// 不支持功能级别 9.x，但这里加上没坏处
-		D3D_FEATURE_LEVEL_9_3,
-		D3D_FEATURE_LEVEL_9_2,
-		D3D_FEATURE_LEVEL_9_1,
+		D3D_FEATURE_LEVEL_11_0
 	};
 	UINT nFeatureLevels = ARRAYSIZE(featureLevels);
 
@@ -162,21 +150,6 @@ bool DeviceResources::Initialize() {
 		break;
 	case D3D_FEATURE_LEVEL_11_0:
 		fl = "11.0";
-		break;
-	case D3D_FEATURE_LEVEL_10_1:
-		fl = "10.1";
-		break;
-	case D3D_FEATURE_LEVEL_10_0:
-		fl = "10.0";
-		break;
-	case D3D_FEATURE_LEVEL_9_3:
-		fl = "9.3";
-		break;
-	case D3D_FEATURE_LEVEL_9_2:
-		fl = "9.2";
-		break;
-	case D3D_FEATURE_LEVEL_9_1:
-		fl = "9.1";
 		break;
 	default:
 		fl = "未知";
@@ -260,7 +233,7 @@ bool DeviceResources::_CreateSwapChain() {
 	sd.AlphaMode = DXGI_ALPHA_MODE_IGNORE;
 	sd.SampleDesc.Count = 1;
 	sd.SampleDesc.Quality = 0;
-	sd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT | DXGI_USAGE_SHADER_INPUT;
+	sd.BufferUsage = DXGI_USAGE_UNORDERED_ACCESS;
 	sd.BufferCount = (App::GetInstance().IsDisableLowLatency() || App::GetInstance().IsDisableVSync()) ? 3 : 2;
 	// 使用 DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL 而不是 DXGI_SWAP_EFFECT_FLIP_DISCARD
 	// 不渲染四周（可能存在的）黑边，因此必须保证交换链缓冲区不被改变
@@ -364,22 +337,36 @@ bool DeviceResources::GetShaderResourceView(ID3D11Texture2D* texture, ID3D11Shad
 	}
 }
 
+bool DeviceResources::GetUnorderedAccessView(ID3D11Texture2D* texture, ID3D11UnorderedAccessView** result) {
+	auto it = _uavMap.find(texture);
+	if (it != _uavMap.end()) {
+		*result = it->second.get();
+		return true;
+	}
+
+	winrt::com_ptr<ID3D11UnorderedAccessView>& r = _uavMap[texture];
+
+	D3D11_UNORDERED_ACCESS_VIEW_DESC desc{};
+	desc.ViewDimension = D3D11_UAV_DIMENSION_TEXTURE2D;
+	desc.Texture2D.MipSlice = 0;
+
+	HRESULT hr = _d3dDevice->CreateUnorderedAccessView(texture, &desc, r.put());
+	if (FAILED(hr)) {
+		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("CreateUnorderedAccessView 失败", hr));
+		return false;
+	} else {
+		*result = r.get();
+		return true;
+	}
+}
+
 bool DeviceResources::CompileShader(bool isVS, std::string_view hlsl, const char* entryPoint, ID3DBlob** blob, const char* sourceName, ID3DInclude* include) {
 	winrt::com_ptr<ID3DBlob> errorMsgs = nullptr;
 
 	UINT flags = D3DCOMPILE_ENABLE_STRICTNESS;
-	const char* target;
-	
-	if (isVS) {
-		target = _featureLevel >= D3D_FEATURE_LEVEL_11_0 ? "vs_5_0" :
-			(_featureLevel == D3D_FEATURE_LEVEL_10_1 ? "vs_4_1" : "vs_4_0");
-	} else {
-		target = _featureLevel >= D3D_FEATURE_LEVEL_11_0 ? "ps_5_0" :
-			(_featureLevel == D3D_FEATURE_LEVEL_10_1 ? "ps_4_1" : "ps_4_0");
-	}
 
 	HRESULT hr = D3DCompile(hlsl.data(), hlsl.size(), sourceName, nullptr, include,
-		entryPoint, target, flags, 0, blob, errorMsgs.put());
+		entryPoint, isVS ? "vs_5_0" : "ps_5_0", flags, 0, blob, errorMsgs.put());
 	if (FAILED(hr)) {
 		if (errorMsgs) {
 			SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg(fmt::format("编译{}着色器失败：{}",
@@ -391,6 +378,30 @@ bool DeviceResources::CompileShader(bool isVS, std::string_view hlsl, const char
 			// 显示警告消息
 			SPDLOG_LOGGER_WARN(logger, fmt::format("编译{}着色器时产生警告：{}",
 				isVS ? "顶点" : "像素", (const char*)errorMsgs->GetBufferPointer()));
+		}
+	}
+
+	return true;
+}
+
+bool DeviceResources::CompileShader(std::string_view hlsl, const char* entryPoint, ID3DBlob** blob, const char* sourceName, ID3DInclude* include) {
+	winrt::com_ptr<ID3DBlob> errorMsgs = nullptr;
+
+	UINT flags = D3DCOMPILE_ENABLE_STRICTNESS;
+
+	HRESULT hr = D3DCompile(hlsl.data(), hlsl.size(), sourceName, nullptr, include,
+		entryPoint, "cs_5_0", flags, 0, blob, errorMsgs.put());
+	if (FAILED(hr)) {
+		if (errorMsgs) {
+			SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg(fmt::format("编译计算着色器失败：{}",
+				(const char*)errorMsgs->GetBufferPointer()), hr));
+		}
+		return false;
+	} else {
+		if (errorMsgs) {
+			// 显示警告消息
+			SPDLOG_LOGGER_WARN(logger, fmt::format("编译计算着色器时产生警告：{}",
+				(const char*)errorMsgs->GetBufferPointer()));
 		}
 	}
 

@@ -1,32 +1,16 @@
-//!MAGPIE EFFECT
-//!VERSION 1
-//!OUTPUT_WIDTH INPUT_WIDTH
-//!OUTPUT_HEIGHT INPUT_HEIGHT
+cbuffer cb : register(b0) {
+	float inputWidth;
+	float inputHeight;
+	float sharpness;
 
+	uint4 viewport;
+};
 
-//!CONSTANT
-//!VALUE INPUT_WIDTH
-float inputWidth;
+SamplerState sam : register(s0);
 
-//!CONSTANT
-//!VALUE INPUT_HEIGHT
-float inputHeight;
+Texture2D INPUT : register(t0);
+RWTexture2D<float4> OUTPUT : register(u0);
 
-//!CONSTANT
-//!DEFAULT 0.87
-//!MIN 1e-5
-float sharpness;
-
-//!TEXTURE
-Texture2D INPUT;
-
-//!SAMPLER
-//!FILTER POINT
-SamplerState sam;
-
-
-//!PASS 1
-//!BIND INPUT
 
 #define min3(a, b, c) min(a, min(b, c))
 #define max3(a, b, c) max(a, max(b, c))
@@ -35,18 +19,16 @@ SamplerState sam;
 #define FSR_RCAS_LIMIT (0.25-(1.0/16.0))
 
 
-float4 Pass1(float2 pos) {
-	int2 sp = floor(pos * float2(inputWidth, inputHeight));
-
+float3 FsrRcasF(uint2 pos) {
 	// Algorithm uses minimal 3x3 pixel neighborhood.
 	//    b 
 	//  d e f
 	//    h
-	float3 b = INPUT.Load(int3(sp.x, sp.y - 1, 0)).rgb;
-	float3 d = INPUT.Load(int3(sp.x - 1, sp.y, 0)).rgb;
-	float3 e = INPUT.Load(int3(sp, 0)).rgb;
-	float3 f = INPUT.Load(int3(sp.x + 1, sp.y, 0)).rgb;
-	float3 h = INPUT.Load(int3(sp.x, sp.y + 1, 0)).rgb;
+	float3 b = INPUT.Load(int3(pos.x, pos.y - 1, 0)).rgb;
+	float3 d = INPUT.Load(int3(pos.x - 1, pos.y, 0)).rgb;
+	float3 e = INPUT.Load(int3(pos, 0)).rgb;
+	float3 f = INPUT.Load(int3(pos.x + 1, pos.y, 0)).rgb;
+	float3 h = INPUT.Load(int3(pos.x, pos.y + 1, 0)).rgb;
 	// Rename (32-bit) or regroup (16-bit).
 	float bR = b.r;
 	float bG = b.g;
@@ -110,5 +92,46 @@ float4 Pass1(float2 pos) {
 		(lobe * bB + lobe * dB + lobe * hB + lobe * fB + eB) * rcpL
 	};
 
-	return float4(c, 1.0f);
+	return c;
+}
+
+
+uint ABfe(uint src, uint off, uint bits) {
+	uint mask = (1u << bits) - 1;
+	return (src >> off) & mask;
+}
+uint ABfiM(uint src, uint ins, uint bits) {
+	uint mask = (1u << bits) - 1;
+	return (ins & mask) | (src & (~mask));
+}
+uint2 ARmp8x8(uint a) {
+	return uint2(ABfe(a, 1u, 3u), ABfiM(ABfe(a, 3u, 3u), a, 1u));
+}
+
+[numthreads(64, 1, 1)]
+void main(uint3 LocalThreadId : SV_GroupThreadID, uint3 WorkGroupId : SV_GroupID, uint3 Dtid : SV_DispatchThreadID) {
+	uint2 gxy = ARmp8x8(LocalThreadId.x) + uint2(WorkGroupId.x << 4u, WorkGroupId.y << 4u);
+	uint2 gxy_viewport = gxy + viewport.xy;
+
+	OUTPUT[gxy_viewport] = float4(FsrRcasF(gxy), 1);
+	gxy.x += 8u;
+	gxy_viewport.x += 8u;
+
+	if (gxy_viewport.x < viewport.z) {
+		OUTPUT[gxy_viewport] = float4(FsrRcasF(gxy), 1);
+	}
+	
+	gxy.y += 8u;
+	gxy_viewport.y += 8u;
+
+	if (gxy_viewport.x < viewport.z && gxy_viewport.y < viewport.w) {
+		OUTPUT[gxy_viewport] = float4(FsrRcasF(gxy), 1);
+	}
+
+	gxy.x -= 8u;
+	gxy_viewport.x -= 8u;
+
+	if (gxy_viewport.y < viewport.w) {
+		OUTPUT[gxy_viewport] = float4(FsrRcasF(gxy), 1);
+	}
 }

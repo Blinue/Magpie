@@ -154,6 +154,7 @@
     <ClInclude Include="ExclModeHack.h" />
     <ClInclude Include="FrameSourceBase.h" />
     <ClInclude Include="framework.h" />
+    <ClInclude Include="FSRFilter.h" />
     <ClInclude Include="GDIFrameSource.h" />
     <ClInclude Include="imgui_impl_dx11.h" />
     <ClInclude Include="imgui_impl_magpie.h" />
@@ -179,6 +180,7 @@
     <ClCompile Include="EffectCompiler.cpp" />
     <ClCompile Include="ExclModeHack.cpp" />
     <ClCompile Include="FrameSourceBase.cpp" />
+    <ClCompile Include="FSRFilter.cpp" />
     <ClCompile Include="GDIFrameSource.cpp" />
     <ClCompile Include="imgui_impl_dx11.cpp">
       <PrecompiledHeader>NotUsing</PrecompiledHeader>

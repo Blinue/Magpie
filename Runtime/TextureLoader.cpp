@@ -89,19 +89,9 @@ winrt::com_ptr<ID3D11Texture2D> LoadImg(const wchar_t* fileName) {
 		return nullptr;
 	}
 
-	switch (App::GetInstance().GetDeviceResources().GetFeatureLevel()) {
-	case D3D_FEATURE_LEVEL_10_0:
-	case D3D_FEATURE_LEVEL_10_1:
-		if (width > 8192 || height > 8192) {
-			SPDLOG_LOGGER_ERROR(logger, "图像尺寸超出限制");
-			return nullptr;
-		}
-		break;
-	default:
-		if (width > D3D11_REQ_TEXTURE2D_U_OR_V_DIMENSION || height > D3D11_REQ_TEXTURE2D_U_OR_V_DIMENSION) {
-			SPDLOG_LOGGER_ERROR(logger, "图像尺寸超出限制");
-			return nullptr;
-		}
+	if (width > D3D11_REQ_TEXTURE2D_U_OR_V_DIMENSION || height > D3D11_REQ_TEXTURE2D_U_OR_V_DIMENSION) {
+		SPDLOG_LOGGER_ERROR(logger, "图像尺寸超出限制");
+		return nullptr;
 	}
 
 	UINT stride = width * (useFloatFormat ? 8 : 4);

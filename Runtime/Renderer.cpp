@@ -12,6 +12,7 @@
 #include "CursorDrawer.h"
 #include "EffectDrawer.h"
 #include "UIDrawer.h"
+#include "FSRFilter.h"
 
 
 Renderer::Renderer() {}
@@ -26,7 +27,7 @@ bool Renderer::Initialize(const std::string& effectsJson) {
 		return false;
 	}
 
-	if (!_ResolveEffectsJson(effectsJson)) {
+	/*if (!_ResolveEffectsJson(effectsJson)) {
 		SPDLOG_LOGGER_ERROR(logger, "_ResolveEffectsJson 失败");
 		return false;
 	}
@@ -41,6 +42,11 @@ bool Renderer::Initialize(const std::string& effectsJson) {
 	_cursorDrawer.reset(new CursorDrawer());
 	if (!_cursorDrawer->Initialize(backBuffer)) {
 		SPDLOG_LOGGER_ERROR(logger, "初始化 CursorDrawer 失败");
+		return false;
+	}*/
+
+	_fsrFilter.reset(new FSRFilter());
+	if (!_fsrFilter->Initialize()) {
 		return false;
 	}
 
@@ -71,9 +77,15 @@ void Renderer::Render() {
 	}
 
 	d3dDC->ClearState();
-	// 所有渲染都使用三角形带拓扑
-	d3dDC->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 
+	ID3D11RenderTargetView* rtv = nullptr;
+	//dr.GetRenderTargetView()
+	//d3dDC->ClearRenderTargetView()
+	// 所有渲染都使用三角形带拓扑
+	//d3dDC->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+
+	_fsrFilter->Draw();
+	/*
 	if (!_cursorDrawer->Update()) {
 		SPDLOG_LOGGER_ERROR(logger, "更新光标位置失败");
 	}
@@ -110,7 +122,8 @@ void Renderer::Render() {
 	}
 
 	_UIDrawer->Draw();
-	_cursorDrawer->Draw();
+	_cursorDrawer->Draw();*/
+
 
 	dr.EndFrame();
 }

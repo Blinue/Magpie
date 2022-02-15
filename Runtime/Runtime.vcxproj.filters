@@ -70,6 +70,7 @@
     <ClCompile Include="imgui_impl_magpie.cpp">
       <Filter>渲染\ImGUI</Filter>
     </ClCompile>
+    <ClCompile Include="FSRFilter.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GraphicsCaptureFrameSource.h">
@@ -147,6 +148,7 @@
     <ClInclude Include="imgui_impl_magpie.h">
       <Filter>渲染\ImGUI</Filter>
     </ClInclude>
+    <ClInclude Include="FSRFilter.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />

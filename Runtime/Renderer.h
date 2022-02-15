@@ -6,6 +6,7 @@ class EffectDrawer;
 class GPUTimer;
 class CursorDrawer;
 class UIDrawer;
+class FSRFilter;
 
 
 class Renderer {
@@ -66,6 +67,7 @@ private:
 
 	std::unique_ptr<UIDrawer> _UIDrawer;
 	std::unique_ptr<CursorDrawer> _cursorDrawer;
+	std::unique_ptr<FSRFilter> _fsrFilter;
 
 	std::unique_ptr<GPUTimer> _gpuTimer;
 };

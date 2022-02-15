@@ -1,33 +1,15 @@
-//!MAGPIE EFFECT
-//!VERSION 1
+cbuffer cb : register(b0) {
+	float inputWidth;
+	float inputHeight;
+	float outputWidth;
+	float outputHeight;
+};
 
+SamplerState sam : register(s0);
 
-//!CONSTANT
-//!VALUE INPUT_WIDTH
-float inputWidth;
+Texture2D INPUT : register(t0);
+RWTexture2D<float4> OUTPUT : register(u0);
 
-//!CONSTANT
-//!VALUE INPUT_HEIGHT
-float inputHeight;
-
-//!CONSTANT
-//!VALUE OUTPUT_WIDTH
-float outputWidth;
-
-//!CONSTANT
-//!VALUE OUTPUT_HEIGHT
-float outputHeight;
-
-//!TEXTURE
-Texture2D INPUT;
-
-//!SAMPLER
-//!FILTER POINT
-SamplerState sam;
-
-
-//!PASS 1
-//!BIND INPUT
 
 #define min3(a, b, c) min(a, min(b, c))
 #define max3(a, b, c) max(a, max(b, c))
@@ -41,7 +23,7 @@ void FsrEasuTap(
 	float2 len, // Length.
 	float lob, // Negative lobe strength.
 	float clp, // Clipping point.
-	float3 c  // Tap color.
+	float3 c // Tap color.
 ) {
 	// Rotate offset by direction.
 	float2 v;
@@ -67,7 +49,8 @@ void FsrEasuTap(
 	wB = 25.0f / 16.0f * wB - (25.0f / 16.0f - 1.0f);
 	float w = wB * wA;
 	// Do weighted average.
-	aC += c * w; aW += w;
+	aC += c * w;
+	aW += w;
 }
 
 // Accumulate direction and length.
@@ -81,10 +64,14 @@ void FsrEasuSet(
 	//  s t
 	//  u v
 	float w = 0;
-	if (biS)w = (1 - pp.x) * (1 - pp.y);
-	if (biT)w = pp.x * (1 - pp.y);
-	if (biU)w = (1.0 - pp.x) * pp.y;
-	if (biV)w = pp.x * pp.y;
+	if (biS)
+		w = (1 - pp.x) * (1 - pp.y);
+	if (biT)
+		w = pp.x * (1 - pp.y);
+	if (biU)
+		w = (1.0 - pp.x) * pp.y;
+	if (biV)
+		w = pp.x * pp.y;
 	// Direction is the '+' diff.
 	//    a
 	//  b c d
@@ -112,13 +99,13 @@ void FsrEasuSet(
 	len += lenY * w;
 }
 
-float4 Pass1(float2 pos) {
+float3 FsrEasuF(float2 pos) {
 	float2 inputSize = { inputWidth, inputHeight };
 	float2 outputSize = { outputWidth, outputHeight };
 
 	//------------------------------------------------------------------------------------------------------------------------------
 	  // Get position of 'f'.
-	float2 pp = (floor(pos * outputSize) + 0.5f) / outputSize * inputSize - 0.5f;
+	float2 pp = (pos + 0.5f) / outputSize * inputSize - 0.5f;
 	float2 fp = floor(pp);
 	pp -= fp;
 	//------------------------------------------------------------------------------------------------------------------------------
@@ -237,7 +224,30 @@ float4 Pass1(float2 pos) {
 	FsrEasuTap(aC, aW, float2(0.0, 2.0) - pp, dir, len2, lob, clp, float3(zzonR.w, zzonG.w, zzonB.w)); // n
   //------------------------------------------------------------------------------------------------------------------------------
 	// Normalize and dering.
-	float3 c = min(max4, max(min4, aC * rcp(aW)));
+	return min(max4, max(min4, aC * rcp(aW)));
+}
 
-	return float4(c, 1.0f);
+
+uint ABfe(uint src, uint off, uint bits) {
+	uint mask = (1u << bits) - 1;
+	return (src >> off) & mask;
+}
+uint ABfiM(uint src, uint ins, uint bits) {
+	uint mask = (1u << bits) - 1;
+	return (ins & mask) | (src & (~mask));
+}
+uint2 ARmp8x8(uint a) {
+	return uint2(ABfe(a, 1u, 3u), ABfiM(ABfe(a, 3u, 3u), a, 1u));
+}
+
+[numthreads(64, 1, 1)]
+void main(uint3 LocalThreadId : SV_GroupThreadID, uint3 WorkGroupId : SV_GroupID, uint3 Dtid : SV_DispatchThreadID) {
+	uint2 gxy = ARmp8x8(LocalThreadId.x) + uint2(WorkGroupId.x << 4u, WorkGroupId.y << 4u);
+	OUTPUT[gxy] = float4(FsrEasuF(gxy), 1);
+	gxy.x += 8u;
+	OUTPUT[gxy] = float4(FsrEasuF(gxy), 1);
+	gxy.y += 8u;
+	OUTPUT[gxy] = float4(FsrEasuF(gxy), 1);
+	gxy.x -= 8u;
+	OUTPUT[gxy] = float4(FsrEasuF(gxy), 1);
 }
