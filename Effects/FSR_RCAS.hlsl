@@ -1,12 +1,7 @@
 cbuffer cb : register(b0) {
-	float inputWidth;
-	float inputHeight;
 	float sharpness;
-
 	uint4 viewport;
 };
-
-SamplerState sam : register(s0);
 
 Texture2D INPUT : register(t0);
 RWTexture2D<float4> OUTPUT : register(u0);
@@ -19,12 +14,16 @@ RWTexture2D<float4> OUTPUT : register(u0);
 #define FSR_RCAS_LIMIT (0.25-(1.0/16.0))
 
 
-float3 FsrRcasF(float3 b, float3 d, float3 e, float3 f, float3 h) {
+float3 FsrRcasF(uint2 pos) {
 	// Algorithm uses minimal 3x3 pixel neighborhood.
 	//    b 
 	//  d e f
 	//    h
-
+	float3 b = INPUT.Load(int3(pos.x, pos.y - 1, 0)).rgb;
+	float3 d = INPUT.Load(int3(pos.x - 1, pos.y, 0)).rgb;
+	float3 e = INPUT.Load(int3(pos, 0)).rgb;
+	float3 f = INPUT.Load(int3(pos.x + 1, pos.y, 0)).rgb;
+	float3 h = INPUT.Load(int3(pos.x, pos.y + 1, 0)).rgb;
 	// Rename (32-bit) or regroup (16-bit).
 	float bR = b.r;
 	float bG = b.g;
@@ -92,50 +91,42 @@ float3 FsrRcasF(float3 b, float3 d, float3 e, float3 f, float3 h) {
 }
 
 
-#define THREAD_GROUP_SIZE 128
-#define BLOCK_WIDTH 32
-#define BLOCK_HEIGHT 32
-#define SH_PIXELS_WIDTH (BLOCK_WIDTH + 2)
-#define SH_PIXELS_HEIGHT (BLOCK_HEIGHT + 2)
-groupshared float3 shPixels[SH_PIXELS_HEIGHT][SH_PIXELS_WIDTH];
+uint ABfe(uint src, uint off, uint bits) {
+	uint mask = (1u << bits) - 1;
+	return (src >> off) & mask;
+}
+uint ABfiM(uint src, uint ins, uint bits) {
+	uint mask = (1u << bits) - 1;
+	return (ins & mask) | (src & (~mask));
+}
+uint2 ARmp8x8(uint a) {
+	return uint2(ABfe(a, 1u, 3u), ABfiM(ABfe(a, 3u, 3u), a, 1u));
+}
 
-
-[numthreads(THREAD_GROUP_SIZE, 1, 1)]
+[numthreads(64, 1, 1)]
 void main(uint3 LocalThreadId : SV_GroupThreadID, uint3 WorkGroupId : SV_GroupID, uint3 Dtid : SV_DispatchThreadID) {
-	const uint dstBlockX = BLOCK_WIDTH * WorkGroupId.x;
-	const uint dstBlockY = BLOCK_HEIGHT * WorkGroupId.y;
+	uint2 gxy = ARmp8x8(LocalThreadId.x) + uint2(WorkGroupId.x << 4u, WorkGroupId.y << 4u);
+	uint2 gxy_viewport = gxy + viewport.xy;
 
-	for (uint i = LocalThreadId.x * 2; i < SH_PIXELS_WIDTH * SH_PIXELS_HEIGHT / 2; i += THREAD_GROUP_SIZE * 2) {
-		const uint2 pos = uint2(i % SH_PIXELS_WIDTH, i / SH_PIXELS_WIDTH * 2);
+	OUTPUT[gxy_viewport] = float4(FsrRcasF(gxy), 1);
+	gxy.x += 8u;
+	gxy_viewport.x += 8u;
 
-		const float tx = (dstBlockX + pos.x) / inputWidth;
-		const float ty = (dstBlockY + pos.y) / inputHeight;
-
-		const float4 sr = INPUT.GatherRed(sam, float2(tx, ty));
-		const float4 sg = INPUT.GatherGreen(sam, float2(tx, ty));
-		const float4 sb = INPUT.GatherBlue(sam, float2(tx, ty));
-
-		shPixels[pos.y][pos.x] = float3(sr.w, sg.w, sb.w);
-		shPixels[pos.y][pos.x + 1] = float3(sr.z, sg.z, sb.z);
-		shPixels[pos.y + 1][pos.x] = float3(sr.x, sg.x, sb.x);
-		shPixels[pos.y + 1][pos.x + 1] = float3(sr.y, sg.y, sb.y);
+	if (gxy_viewport.x < viewport.z) {
+		OUTPUT[gxy_viewport] = float4(FsrRcasF(gxy), 1);
 	}
 
-	GroupMemoryBarrierWithGroupSync();
+	gxy.y += 8u;
+	gxy_viewport.y += 8u;
 
-	for (i = LocalThreadId.x; i < BLOCK_WIDTH * BLOCK_HEIGHT; i += THREAD_GROUP_SIZE) {
-		const uint2 pos = uint2(i % BLOCK_WIDTH, i / BLOCK_WIDTH);
+	if (gxy_viewport.x < viewport.z && gxy_viewport.y < viewport.w) {
+		OUTPUT[gxy_viewport] = float4(FsrRcasF(gxy), 1);
+	}
 
-		const uint2 outputPos = uint2(dstBlockX, dstBlockY) + pos + viewport.xy;
-		if (outputPos.x >= viewport.z || outputPos.y >= viewport.w) {
-			continue;
-		}
+	gxy.x -= 8u;
+	gxy_viewport.x -= 8u;
 
-		float3 b = shPixels[pos.y][pos.x + 1];
-		float3 d = shPixels[pos.y + 1][pos.x];
-		float3 e = shPixels[pos.y + 1][pos.x + 1];
-		float3 f = shPixels[pos.y + 1][pos.x + 2];
-		float3 h = shPixels[pos.y + 2][pos.x + 1];
-		OUTPUT[outputPos] = float4(FsrRcasF(b, d, e, f, h), 1);
+	if (gxy_viewport.y < viewport.w) {
+		OUTPUT[gxy_viewport] = float4(FsrRcasF(gxy), 1);
 	}
 }
