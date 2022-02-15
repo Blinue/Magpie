@@ -99,42 +99,34 @@ void FsrEasuSet(
 	len += lenY * w;
 }
 
-float3 FsrEasuF(float2 pos) {
-	float2 inputSize = { inputWidth, inputHeight };
-	float2 outputSize = { outputWidth, outputHeight };
-
-	//------------------------------------------------------------------------------------------------------------------------------
-	  // Get position of 'f'.
-	float2 pp = (pos + 0.5f) / outputSize * inputSize - 0.5f;
+float3 FsrEasuF(uint2 pos, float4 con0, float4 con1, float4 con2, float2 con3) {
+//------------------------------------------------------------------------------------------------------------------------------
+	// Get position of 'f'.
+	float2 pp = pos * con0.xy + con0.zw;
 	float2 fp = floor(pp);
 	pp -= fp;
-	//------------------------------------------------------------------------------------------------------------------------------
-	  // 12-tap kernel.
-	  //    b c
-	  //  e f g h
-	  //  i j k l
-	  //    n o
-	  // Gather 4 ordering.
-	  //  a b
-	  //  r g
-	  // For packed FP16, need either {rg} or {ab} so using the following setup for gather in all versions,
-	  //    a b    <- unused (z)
-	  //    r g
-	  //  a b a b
-	  //  r g r g
-	  //    a b
-	  //    r g    <- unused (z)
-	  // Allowing dead-code removal to remove the 'z's.
-	float2 p0 = fp + float2(1, -1);
-	// These are from p0 to avoid pulling two constants on pre-Navi hardware.
-	float2 p1 = p0 + float2(-1, 2);
-	float2 p2 = p0 + float2(1, 2);
-	float2 p3 = p0 + float2(0, 4);
-
-	p0 /= inputSize;
-	p1 /= inputSize;
-	p2 /= inputSize;
-	p3 /= inputSize;
+//------------------------------------------------------------------------------------------------------------------------------
+	// 12-tap kernel.
+	//    b c
+	//  e f g h
+	//  i j k l
+	//    n o
+	// Gather 4 ordering.
+	//  a b
+	//  r g
+	// For packed FP16, need either {rg} or {ab} so using the following setup for gather in all versions,
+	//    a b    <- unused (z)
+	//    r g
+	//  a b a b
+	//  r g r g
+	//    a b
+	//    r g    <- unused (z)
+	// Allowing dead-code removal to remove the 'z's.
+	float2 p0 = fp * con1.xy + con1.zw;
+    // These are from p0 to avoid pulling two constants on pre-Navi hardware.
+	float2 p1 = p0 + con2.xy;
+	float2 p2 = p0 + con2.zw;
+	float2 p3 = p0 + con3;
 
 	float4 bczzR = INPUT.GatherRed(sam, p0);
 	float4 bczzG = INPUT.GatherGreen(sam, p0);
@@ -148,8 +140,8 @@ float3 FsrEasuF(float2 pos) {
 	float4 zzonR = INPUT.GatherRed(sam, p3);
 	float4 zzonG = INPUT.GatherGreen(sam, p3);
 	float4 zzonB = INPUT.GatherBlue(sam, p3);
-	//------------------------------------------------------------------------------------------------------------------------------
-	  // Simplest multi-channel approximate luma possible (luma times 2, in 2 FMA/MAD).
+//------------------------------------------------------------------------------------------------------------------------------
+	// Simplest multi-channel approximate luma possible (luma times 2, in 2 FMA/MAD).
 	float4 bczzL = bczzB * 0.5 + (bczzR * 0.5 + bczzG);
 	float4 ijfeL = ijfeB * 0.5 + (ijfeR * 0.5 + ijfeG);
 	float4 klhgL = klhgB * 0.5 + (klhgR * 0.5 + klhgG);
@@ -174,8 +166,8 @@ float3 FsrEasuF(float2 pos) {
 	FsrEasuSet(dir, len, pp, false, true, false, false, cL, fL, gL, hL, kL);
 	FsrEasuSet(dir, len, pp, false, false, true, false, fL, iL, jL, kL, nL);
 	FsrEasuSet(dir, len, pp, false, false, false, true, gL, jL, kL, lL, oL);
-	//------------------------------------------------------------------------------------------------------------------------------
-	  // Normalize with approximation, and cleanup close to zero.
+//------------------------------------------------------------------------------------------------------------------------------
+	// Normalize with approximation, and cleanup close to zero.
 	float2 dir2 = dir * dir;
 	float dirR = dir2.x + dir2.y;
 	bool zro = dirR < 1.0f / 32768.0f;
@@ -197,12 +189,12 @@ float3 FsrEasuF(float2 pos) {
 	float lob = 0.5 + ((1.0 / 4.0 - 0.04) - 0.5) * len;
 	// Set distance^2 clipping point to the end of the adjustable window.
 	float clp = rcp(lob);
-	//------------------------------------------------------------------------------------------------------------------------------
-	  // Accumulation mixed with min/max of 4 nearest.
-	  //    b c
-	  //  e f g h
-	  //  i j k l
-	  //    n o
+//------------------------------------------------------------------------------------------------------------------------------
+	// Accumulation mixed with min/max of 4 nearest.
+	//    b c
+	//  e f g h
+	//  i j k l
+	//    n o
 	float3 min4 = min(min3(float3(ijfeR.z, ijfeG.z, ijfeB.z), float3(klhgR.w, klhgG.w, klhgB.w), float3(ijfeR.y, ijfeG.y, ijfeB.y)),
 		float3(klhgR.x, klhgG.x, klhgB.x));
 	float3 max4 = max(max3(float3(ijfeR.z, ijfeG.z, ijfeB.z), float3(klhgR.w, klhgG.w, klhgB.w), float3(ijfeR.y, ijfeG.y, ijfeB.y)),
@@ -222,7 +214,7 @@ float3 FsrEasuF(float2 pos) {
 	FsrEasuTap(aC, aW, float2(1.0, 0.0) - pp, dir, len2, lob, clp, float3(klhgR.w, klhgG.w, klhgB.w)); // g
 	FsrEasuTap(aC, aW, float2(1.0, 2.0) - pp, dir, len2, lob, clp, float3(zzonR.z, zzonG.z, zzonB.z)); // o
 	FsrEasuTap(aC, aW, float2(0.0, 2.0) - pp, dir, len2, lob, clp, float3(zzonR.w, zzonG.w, zzonB.w)); // n
-  //------------------------------------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------------------------------------------------------
 	// Normalize and dering.
 	return min(max4, max(min4, aC * rcp(aW)));
 }
@@ -242,12 +234,47 @@ uint2 ARmp8x8(uint a) {
 
 [numthreads(64, 1, 1)]
 void main(uint3 LocalThreadId : SV_GroupThreadID, uint3 WorkGroupId : SV_GroupID, uint3 Dtid : SV_DispatchThreadID) {
+	float4 con0, con1, con2;
+	float2 con3;
+	// Output integer position to a pixel position in viewport.
+	con0[0] = inputWidth / outputWidth;
+	con0[1] = inputHeight / outputHeight;
+	con0[2] = 0.5 * inputWidth / outputWidth - 0.5;
+	con0[3] = 0.5 * inputHeight / outputHeight - 0.5;
+ // Viewport pixel position to normalized image space.
+ // This is used to get upper-left of 'F' tap.
+	con1[0] = rcp(inputWidth);
+	con1[1] = rcp(inputHeight);
+ // Centers of gather4, first offset from upper-left of 'F'.
+ //      +---+---+
+ //      |   |   |
+ //      +--(0)--+
+ //      | b | c |
+ //  +---F---+---+---+
+ //  | e | f | g | h |
+ //  +--(1)--+--(2)--+
+ //  | i | j | k | l |
+ //  +---+---+---+---+
+ //      | n | o |
+ //      +--(3)--+
+ //      |   |   |
+ //      +---+---+
+	con1[2] = 1.0 * con1[0];
+	con1[3] = -1.0 * con1[1];
+ // These are from (0) instead of 'F'.
+	con2[0] = -1.0 * con1[0];
+	con2[1] = 2.0 * con1[1];
+	con2[2] = 1.0 * con1[0];
+	con2[3] = 2.0 * con1[1];
+	con3[0] = 0.0 * con1[0];
+	con3[1] = 4.0 * con1[1];
+
 	uint2 gxy = ARmp8x8(LocalThreadId.x) + uint2(WorkGroupId.x << 4u, WorkGroupId.y << 4u);
-	OUTPUT[gxy] = float4(FsrEasuF(gxy), 1);
+	OUTPUT[gxy] = float4(FsrEasuF(gxy, con0, con1, con2, con3), 1);
 	gxy.x += 8u;
-	OUTPUT[gxy] = float4(FsrEasuF(gxy), 1);
+	OUTPUT[gxy] = float4(FsrEasuF(gxy, con0, con1, con2, con3), 1);
 	gxy.y += 8u;
-	OUTPUT[gxy] = float4(FsrEasuF(gxy), 1);
+	OUTPUT[gxy] = float4(FsrEasuF(gxy, con0, con1, con2, con3), 1);
 	gxy.x -= 8u;
-	OUTPUT[gxy] = float4(FsrEasuF(gxy), 1);
+	OUTPUT[gxy] = float4(FsrEasuF(gxy, con0, con1, con2, con3), 1);
 }

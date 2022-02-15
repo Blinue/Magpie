@@ -21,9 +21,9 @@ bool FSRFilter::Initialize() {
 	SIZE outputSize = { hostRect.right - hostRect.left,hostRect.bottom - hostRect.top };
 
 	if (frameSize.cx / (double)frameSize.cy < outputSize.cx / (double)outputSize.cy) {
-		outputSize.cx = outputSize.cy * frameSize.cx / (double)frameSize.cy;
+		outputSize.cx = std::lround(outputSize.cy * frameSize.cx / (double)frameSize.cy);
 	} else {
-		outputSize.cy = outputSize.cx * frameSize.cy / (double)frameSize.cx;
+		outputSize.cy = std::lround(outputSize.cx * frameSize.cy / (double)frameSize.cx);
 	}
 	
 
