@@ -97,7 +97,7 @@ void UIDrawer::Draw() {
 	ImGui::Render();
 
 	const RECT& outputRect = App::GetInstance().GetRenderer().GetOutputRect();
-	ImGui::GetDrawData()->DisplayPos = ImVec2(-outputRect.left, -outputRect.top);
+	ImGui::GetDrawData()->DisplayPos = ImVec2(float(-outputRect.left), float(-outputRect.top));
 	
 	auto d3dDC = App::GetInstance().GetDeviceResources().GetD3DDC();
 	d3dDC->OMSetRenderTargets(1, &_rtv, NULL);

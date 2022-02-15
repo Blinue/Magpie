@@ -20,7 +20,5 @@ private:
 	ID3D11UnorderedAccessView* _uav2 = nullptr;
 
 	winrt::com_ptr<ID3D11Texture2D> _tex;
-
-	UINT _dispatchX = 0;
-	UINT _dispatchY = 0;
+	SIZE _outputSize{};
 };

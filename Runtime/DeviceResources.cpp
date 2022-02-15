@@ -387,7 +387,13 @@ bool DeviceResources::CompileShader(bool isVS, std::string_view hlsl, const char
 bool DeviceResources::CompileShader(std::string_view hlsl, const char* entryPoint, ID3DBlob** blob, const char* sourceName, ID3DInclude* include) {
 	winrt::com_ptr<ID3DBlob> errorMsgs = nullptr;
 
-	UINT flags = D3DCOMPILE_ENABLE_STRICTNESS;
+	UINT flags = D3DCOMPILE_ENABLE_STRICTNESS | D3DCOMPILE_ALL_RESOURCES_BOUND;
+#ifdef _DEBUG
+	flags |= D3DCOMPILE_SKIP_OPTIMIZATION;
+#else
+	flags |= D3DCOMPILE_OPTIMIZATION_LEVEL3;
+#endif // _DEBUG
+
 
 	HRESULT hr = D3DCompile(hlsl.data(), hlsl.size(), sourceName, nullptr, include,
 		entryPoint, "cs_5_0", flags, 0, blob, errorMsgs.put());

@@ -18,12 +18,12 @@ bool FSRFilter::Initialize() {
 	const RECT& hostRect = App::GetInstance().GetHostWndRect();
 
 	SIZE frameSize = { srcFrameRect.right - srcFrameRect.left,srcFrameRect.bottom - srcFrameRect.top };
-	SIZE outputSize = { hostRect.right - hostRect.left,hostRect.bottom - hostRect.top };
+	_outputSize = { hostRect.right - hostRect.left,hostRect.bottom - hostRect.top };
 
-	if (frameSize.cx / (double)frameSize.cy < outputSize.cx / (double)outputSize.cy) {
-		outputSize.cx = std::lround(outputSize.cy * frameSize.cx / (double)frameSize.cy);
+	if (frameSize.cx / (double)frameSize.cy < _outputSize.cx / (double)_outputSize.cy) {
+		_outputSize.cx = std::lround(_outputSize.cy * frameSize.cx / (double)frameSize.cy);
 	} else {
-		outputSize.cy = std::lround(outputSize.cx * frameSize.cy / (double)frameSize.cx);
+		_outputSize.cy = std::lround(_outputSize.cx * frameSize.cy / (double)frameSize.cx);
 	}
 	
 
@@ -41,8 +41,8 @@ bool FSRFilter::Initialize() {
 	Constant32 data[8]{};
 	data[0].floatVal = (FLOAT)frameSize.cx;
 	data[1].floatVal = (FLOAT)frameSize.cy;
-	data[2].floatVal = (FLOAT)outputSize.cx;
-	data[3].floatVal = (FLOAT)outputSize.cy;
+	data[2].floatVal = (FLOAT)_outputSize.cx;
+	data[3].floatVal = (FLOAT)_outputSize.cy;
 
 	D3D11_SUBRESOURCE_DATA initData{};
 	initData.pSysMem = data;
@@ -54,11 +54,13 @@ bool FSRFilter::Initialize() {
 	}
 
 	bd.ByteWidth = 4 * 8;
+	data[0] = data[2];
+	data[1] = data[3];
 	data[2].floatVal = 0.87f;
-	data[4].uintVal = (hostRect.right - hostRect.left - outputSize.cx) / 2;
-	data[5].uintVal = (hostRect.bottom - hostRect.top - outputSize.cy) / 2;
-	data[6].uintVal = data[4].uintVal + outputSize.cx;
-	data[7].uintVal = data[5].uintVal + outputSize.cy;
+	data[4].uintVal = (hostRect.right - hostRect.left - _outputSize.cx) / 2;
+	data[5].uintVal = (hostRect.bottom - hostRect.top - _outputSize.cy) / 2;
+	data[6].uintVal = data[4].uintVal + _outputSize.cx;
+	data[7].uintVal = data[5].uintVal + _outputSize.cy;
 
 	d3dDevice->CreateBuffer(&bd, &initData, _rcasCB.put());
 	
@@ -83,8 +85,8 @@ bool FSRFilter::Initialize() {
 	desc.SampleDesc.Count = 1;
 	desc.SampleDesc.Quality = 0;
 	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_UNORDERED_ACCESS;
-	desc.Width = outputSize.cx;
-	desc.Height = outputSize.cy;
+	desc.Width = _outputSize.cx;
+	desc.Height = _outputSize.cy;
 
 	d3dDevice->CreateTexture2D(&desc, nullptr, _tex.put());
 
@@ -93,10 +95,6 @@ bool FSRFilter::Initialize() {
 
 	dr.GetUnorderedAccessView(_tex.get(), &_uav1);
 	dr.GetUnorderedAccessView(dr.GetBackBuffer(), &_uav2);
-
-	static const int threadGroupWorkRegionDim = 16;
-	_dispatchX = (outputSize.cx + (threadGroupWorkRegionDim - 1)) / threadGroupWorkRegionDim;
-	_dispatchY = (outputSize.cy + (threadGroupWorkRegionDim - 1)) / threadGroupWorkRegionDim;
 
 	return true;
 }
@@ -113,7 +111,11 @@ void FSRFilter::Draw() {
 	d3dDC->CSSetShaderResources(0, 1, &_srv1);
 	d3dDC->CSSetUnorderedAccessViews(0, 1, &_uav1, nullptr);
 
-	d3dDC->Dispatch(_dispatchX, _dispatchY, 1);
+	int threadGroupWorkRegionDim = 16;
+	int dispatchX = (_outputSize.cx + (threadGroupWorkRegionDim - 1)) / threadGroupWorkRegionDim;
+	int dispatchY = (_outputSize.cy + (threadGroupWorkRegionDim - 1)) / threadGroupWorkRegionDim;
+
+	d3dDC->Dispatch(dispatchX, dispatchY, 1);
 
 	ID3D11UnorderedAccessView* uav = nullptr;
 	d3dDC->CSSetUnorderedAccessViews(0, 1, &uav, nullptr);
@@ -123,5 +125,9 @@ void FSRFilter::Draw() {
 	d3dDC->CSSetShaderResources(0, 1, &_srv2);
 	d3dDC->CSSetUnorderedAccessViews(0, 1, &_uav2, nullptr);
 
-	d3dDC->Dispatch(_dispatchX, _dispatchY, 1);
+	int threadGroupWorkRegionDimX = 32;
+	int threadGroupWorkRegionDimY = 32;
+	dispatchX = (_outputSize.cx + (threadGroupWorkRegionDimX - 1)) / threadGroupWorkRegionDimX;
+	dispatchY = (_outputSize.cy + (threadGroupWorkRegionDimY - 1)) / threadGroupWorkRegionDimY;
+	d3dDC->Dispatch(dispatchX, dispatchY, 1);
 }
