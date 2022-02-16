@@ -142,6 +142,7 @@
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="A4KSFilter.h" />
     <ClInclude Include="App.h" />
     <ClInclude Include="CursorDrawer.h" />
     <ClInclude Include="DesktopDuplicationFrameSource.h" />
@@ -170,6 +171,7 @@
     <ClInclude Include="GraphicsCaptureFrameSource.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="A4KSFilter.cpp" />
     <ClCompile Include="App.cpp" />
     <ClCompile Include="CursorDrawer.cpp" />
     <ClCompile Include="DesktopDuplicationFrameSource.cpp" />

@@ -71,6 +71,7 @@
       <Filter>渲染\ImGUI</Filter>
     </ClCompile>
     <ClCompile Include="FSRFilter.cpp" />
+    <ClCompile Include="A4KSFilter.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GraphicsCaptureFrameSource.h">
@@ -149,6 +150,7 @@
       <Filter>渲染\ImGUI</Filter>
     </ClInclude>
     <ClInclude Include="FSRFilter.h" />
+    <ClInclude Include="A4KSFilter.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />

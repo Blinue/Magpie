@@ -7,7 +7,7 @@ class GPUTimer;
 class CursorDrawer;
 class UIDrawer;
 class FSRFilter;
-
+class A4KSFilter;
 
 class Renderer {
 public:
@@ -68,6 +68,7 @@ private:
 	std::unique_ptr<UIDrawer> _UIDrawer;
 	std::unique_ptr<CursorDrawer> _cursorDrawer;
 	std::unique_ptr<FSRFilter> _fsrFilter;
+	std::unique_ptr<A4KSFilter> _a4ksFilter;
 
 	std::unique_ptr<GPUTimer> _gpuTimer;
 };

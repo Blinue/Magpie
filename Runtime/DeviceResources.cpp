@@ -389,7 +389,7 @@ bool DeviceResources::CompileShader(std::string_view hlsl, const char* entryPoin
 
 	UINT flags = D3DCOMPILE_ENABLE_STRICTNESS | D3DCOMPILE_ALL_RESOURCES_BOUND;
 #ifdef _DEBUG
-	flags |= D3DCOMPILE_SKIP_OPTIMIZATION;
+	flags |= D3DCOMPILE_SKIP_OPTIMIZATION | D3DCOMPILE_DEBUG;
 #else
 	flags |= D3DCOMPILE_OPTIMIZATION_LEVEL3;
 #endif // _DEBUG

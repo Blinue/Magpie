@@ -69,5 +69,11 @@
     <CopyFileToFolders Include="FineSharp.hlsl" />
     <CopyFileToFolders Include="FSR_EASU_DX10.hlsl" />
     <CopyFileToFolders Include="LCAS.hlsl" />
+    <CopyFileToFolders Include="A4KS1.hlsl" />
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="A4KS2.hlsl" />
+    <FxCompile Include="A4KS3.hlsl" />
+    <FxCompile Include="A4KS4.hlsl" />
   </ItemGroup>
 </Project>

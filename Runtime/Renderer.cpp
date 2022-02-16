@@ -13,6 +13,7 @@
 #include "EffectDrawer.h"
 #include "UIDrawer.h"
 #include "FSRFilter.h"
+#include "A4KSFilter.h"
 
 
 Renderer::Renderer() {}
@@ -45,8 +46,12 @@ bool Renderer::Initialize(const std::string& effectsJson) {
 		return false;
 	}*/
 
-	_fsrFilter.reset(new FSRFilter());
+	/*_fsrFilter.reset(new FSRFilter());
 	if (!_fsrFilter->Initialize()) {
+		return false;
+	}*/
+	_a4ksFilter.reset(new A4KSFilter());
+	if (!_a4ksFilter->Initialize()) {
 		return false;
 	}
 
@@ -84,7 +89,8 @@ void Renderer::Render() {
 	// 所有渲染都使用三角形带拓扑
 	//d3dDC->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 
-	_fsrFilter->Draw();
+	//_fsrFilter->Draw();
+	_a4ksFilter->Draw();
 	/*
 	if (!_cursorDrawer->Update()) {
 		SPDLOG_LOGGER_ERROR(logger, "更新光标位置失败");
