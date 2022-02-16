@@ -122,8 +122,8 @@ void A4KSFilter::Draw() {
 
 
 	int threadGroupWorkRegionDim = 16;
-	int dispatchX = (frameSize.cx + (8 - 1)) / 8;
-	int dispatchY = (frameSize.cy + (8 - 1)) / 8;
+	int dispatchX = (frameSize.cx + (threadGroupWorkRegionDim - 1)) / threadGroupWorkRegionDim;
+	int dispatchY = (frameSize.cy + (threadGroupWorkRegionDim - 1)) / threadGroupWorkRegionDim;
 
 	ID3D11Buffer* buf = _CB.get();
 	d3dDC->CSSetConstantBuffers(0, 1, &buf);

@@ -230,9 +230,10 @@ bool DeviceResources::_CreateSwapChain() {
 	sd.Width = hostWndRect.right - hostWndRect.left;
 	sd.Height = hostWndRect.bottom - hostWndRect.top;
 	sd.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
-	sd.AlphaMode = DXGI_ALPHA_MODE_IGNORE;
+	sd.AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED;
 	sd.SampleDesc.Count = 1;
 	sd.SampleDesc.Quality = 0;
+	sd.Scaling = DXGI_SCALING_NONE;
 	sd.BufferUsage = DXGI_USAGE_UNORDERED_ACCESS;
 	sd.BufferCount = (App::GetInstance().IsDisableLowLatency() || App::GetInstance().IsDisableVSync()) ? 3 : 2;
 	// 使用 DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL 而不是 DXGI_SWAP_EFFECT_FLIP_DISCARD
