@@ -171,7 +171,7 @@ void EffectCache::_AddToMemCache(const std::wstring& cacheFileName, const Effect
 
 
 bool EffectCache::Load(const wchar_t* fileName, std::string_view hash, EffectDesc& desc) {
-	if (App::GetInstance().IsDisableEffectCache()) {
+	if (App::Get().IsDisableEffectCache()) {
 		return false;
 	}
 
@@ -200,9 +200,9 @@ bool EffectCache::Load(const wchar_t* fileName, std::string_view hash, EffectDes
 
 	// 检查哈希
 	std::vector<BYTE> bufHash;
-	if (!Utils::Hasher::GetInstance().Hash(
-		buf.data() + Utils::Hasher::GetInstance().GetHashLength(),
-		buf.size() - Utils::Hasher::GetInstance().GetHashLength(),
+	if (!Utils::Hasher::Get().Hash(
+		buf.data() + Utils::Hasher::Get().GetHashLength(),
+		buf.size() - Utils::Hasher::Get().GetHashLength(),
 		bufHash
 	)) {
 		Logger::Get().Error("计算哈希失败");
@@ -229,7 +229,7 @@ bool EffectCache::Load(const wchar_t* fileName, std::string_view hash, EffectDes
 		// 检查 Direct3D 功能级别
 		D3D_FEATURE_LEVEL fl;
 		ia& fl;
-		if (fl != App::GetInstance().GetDeviceResources().GetFeatureLevel()) {
+		if (fl != App::Get().GetDeviceResources().GetFeatureLevel()) {
 			Logger::Get().Info("功能级别不匹配");
 			return false;
 		}
@@ -249,7 +249,7 @@ bool EffectCache::Load(const wchar_t* fileName, std::string_view hash, EffectDes
 }
 
 void EffectCache::Save(const wchar_t* fileName, std::string_view hash, const EffectDesc& desc) {
-	if (App::GetInstance().IsDisableEffectCache()) {
+	if (App::Get().IsDisableEffectCache()) {
 		return;
 	}
 
@@ -257,14 +257,14 @@ void EffectCache::Save(const wchar_t* fileName, std::string_view hash, const Eff
 
 	std::vector<BYTE> buf;
 	buf.reserve(4096);
-	buf.resize(Utils::Hasher::GetInstance().GetHashLength());
+	buf.resize(Utils::Hasher::Get().GetHashLength());
 
 	try {
 		yas::vector_ostream os(buf);
 		yas::binary_oarchive<yas::vector_ostream<BYTE>, yas::binary> oa(os);
 
 		oa& _VERSION;
-		oa& App::GetInstance().GetDeviceResources().GetFeatureLevel();
+		oa& App::Get().GetDeviceResources().GetFeatureLevel();
 		oa& desc;
 	} catch (...) {
 		Logger::Get().Error("序列化失败");
@@ -273,9 +273,9 @@ void EffectCache::Save(const wchar_t* fileName, std::string_view hash, const Eff
 
 	// 填充 HASH
 	std::vector<BYTE> bufHash;
-	if (!Utils::Hasher::GetInstance().Hash(
-		buf.data() + Utils::Hasher::GetInstance().GetHashLength(),
-		buf.size() - Utils::Hasher::GetInstance().GetHashLength(),
+	if (!Utils::Hasher::Get().Hash(
+		buf.data() + Utils::Hasher::Get().GetHashLength(),
+		buf.size() - Utils::Hasher::Get().GetHashLength(),
 		bufHash
 	)) {
 		Logger::Get().Error("计算哈希失败");
@@ -292,7 +292,7 @@ void EffectCache::Save(const wchar_t* fileName, std::string_view hash, const Eff
 	} else {
 		// 删除所有该文件的缓存
 		std::wregex regex(fmt::format(L"^{}_[0-9,a-f]{{{}}}.{}$", ConvertFileName(fileName),
-				Utils::Hasher::GetInstance().GetHashLength() * 2, _SUFFIX), std::wregex::optimize | std::wregex::nosubs);
+				Utils::Hasher::Get().GetHashLength() * 2, _SUFFIX), std::wregex::optimize | std::wregex::nosubs);
 
 		WIN32_FIND_DATA findData;
 		HANDLE hFind = Utils::SafeHandle(FindFirstFile(L".\\cache\\*", &findData));

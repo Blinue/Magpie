@@ -35,7 +35,7 @@ static winrt::com_ptr<IDXGIOutput1> FindMonitor(IDXGIAdapter1* adapter, HMONITOR
 
 // 根据显示器句柄查找 IDXGIOutput1
 static winrt::com_ptr<IDXGIOutput1> GetDXGIOutput(HMONITOR hMonitor) {
-	auto& dr = App::GetInstance().GetDeviceResources();
+	auto& dr = App::Get().GetDeviceResources();
 	IDXGIAdapter1* curAdapter = dr.GetGraphicsAdapter();
 
 	// 首先在当前使用的图形适配器上查询显示器
@@ -82,7 +82,7 @@ bool DesktopDuplicationFrameSource::Initialize() {
 		return false;
 	}
 
-	HWND hwndSrc = App::GetInstance().GetHwndSrc();
+	HWND hwndSrc = App::Get().GetHwndSrc();
 
 	HMONITOR hMonitor = MonitorFromWindow(hwndSrc, MONITOR_DEFAULTTONEAREST);
 	if (!hMonitor) {
@@ -107,7 +107,7 @@ bool DesktopDuplicationFrameSource::Initialize() {
 		return false;
 	}
 
-	auto d3dDevice = App::GetInstance().GetDeviceResources().GetD3DDevice();
+	auto d3dDevice = App::Get().GetDeviceResources().GetD3DDevice();
 
 	D3D11_TEXTURE2D_DESC desc{};
 	desc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
@@ -186,7 +186,7 @@ bool DesktopDuplicationFrameSource::Initialize() {
 	};
 
 	// 使全屏窗口无法被捕获到
-	if (!SetWindowDisplayAffinity(App::GetInstance().GetHwndHost(), WDA_EXCLUDEFROMCAPTURE)) {
+	if (!SetWindowDisplayAffinity(App::Get().GetHwndHost(), WDA_EXCLUDEFROMCAPTURE)) {
 		Logger::Get().Win32Error("SetWindowDisplayAffinity 失败");
 		return false;
 	}
@@ -224,7 +224,7 @@ FrameSourceBase::UpdateState DesktopDuplicationFrameSource::Update() {
 
 	_newFrameState.store(0);
 
-	App::GetInstance().GetDeviceResources().GetD3DDC()->CopyResource(_output.get(), _sharedTex.get());
+	App::Get().GetDeviceResources().GetD3DDC()->CopyResource(_output.get(), _sharedTex.get());
 
 	_sharedTexMutex->ReleaseSync(0);
 
@@ -246,7 +246,7 @@ bool DesktopDuplicationFrameSource::_InitializeDdpD3D(HANDLE hSharedTex) {
 
 	// 使用和 Renderer 相同的图像适配器以避免 GPU 间的纹理拷贝
 	HRESULT hr = D3D11CreateDevice(
-		App::GetInstance().GetDeviceResources().GetGraphicsAdapter(),
+		App::Get().GetDeviceResources().GetGraphicsAdapter(),
 		D3D_DRIVER_TYPE_UNKNOWN,
 		nullptr,
 		createDeviceFlags,

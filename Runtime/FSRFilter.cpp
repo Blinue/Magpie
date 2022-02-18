@@ -9,12 +9,12 @@
 
 
 bool FSRFilter::Initialize() {
-	auto& dr = App::GetInstance().GetDeviceResources();
-	auto& renderer = App::GetInstance().GetRenderer();
+	auto& dr = App::Get().GetDeviceResources();
+	auto& renderer = App::Get().GetRenderer();
 	auto d3dDevice = dr.GetD3DDevice();
 
-	const RECT& srcFrameRect = App::GetInstance().GetFrameSource().GetSrcFrameRect();
-	const RECT& hostRect = App::GetInstance().GetHostWndRect();
+	const RECT& srcFrameRect = App::Get().GetFrameSource().GetSrcFrameRect();
+	const RECT& hostRect = App::Get().GetHostWndRect();
 
 	SIZE frameSize = { srcFrameRect.right - srcFrameRect.left,srcFrameRect.bottom - srcFrameRect.top };
 	SIZE outputSize = { hostRect.right - hostRect.left,hostRect.bottom - hostRect.top };
@@ -87,7 +87,7 @@ bool FSRFilter::Initialize() {
 
 	d3dDevice->CreateTexture2D(&desc, nullptr, _tex.put());
 
-	dr.GetShaderResourceView(App::GetInstance().GetFrameSource().GetOutput().get(), &_srv1);
+	dr.GetShaderResourceView(App::Get().GetFrameSource().GetOutput().get(), &_srv1);
 	dr.GetShaderResourceView(_tex.get(), &_srv2);
 
 	dr.GetUnorderedAccessView(_tex.get(), &_uav1);
@@ -101,7 +101,7 @@ bool FSRFilter::Initialize() {
 }
 
 void FSRFilter::Draw() {
-	auto& dr = App::GetInstance().GetDeviceResources();
+	auto& dr = App::Get().GetDeviceResources();
 	auto d3dDC = dr.GetD3DDC();
 	auto d3dDevice = dr.GetD3DDevice();
 

@@ -24,7 +24,7 @@ Renderer::~Renderer() {}
 bool Renderer::Initialize(const std::string& effectsJson) {
 	_gpuTimer.reset(new GPUTimer());
 
-	if (!GetWindowRect(App::GetInstance().GetHwndSrc(), &_srcWndRect)) {
+	if (!GetWindowRect(App::Get().GetHwndSrc(), &_srcWndRect)) {
 		Logger::Get().Win32Error("GetWindowRect 失败");
 		return false;
 	}
@@ -34,7 +34,7 @@ bool Renderer::Initialize(const std::string& effectsJson) {
 		return false;
 	}
 
-	ID3D11Texture2D* backBuffer = App::GetInstance().GetDeviceResources().GetBackBuffer();
+	ID3D11Texture2D* backBuffer = App::Get().GetDeviceResources().GetBackBuffer();
 
 	_UIDrawer.reset(new UIDrawer());
 	if (!_UIDrawer->Initialize(backBuffer)) {
@@ -63,11 +63,11 @@ bool Renderer::Initialize(const std::string& effectsJson) {
 void Renderer::Render() {
 	if (!_CheckSrcState()) {
 		Logger::Get().Info("源窗口状态改变，退出全屏");
-		App::GetInstance().Quit();
+		App::Get().Quit();
 		return;
 	}
 
-	DeviceResources& dr = App::GetInstance().GetDeviceResources();
+	DeviceResources& dr = App::Get().GetDeviceResources();
 	ID3D11DeviceContext3* d3dDC = dr.GetD3DDC();
 
 	if (!_waitingForNextFrame) {
@@ -75,7 +75,7 @@ void Renderer::Render() {
 		_gpuTimer->BeginFrame();
 	}
 
-	auto state = App::GetInstance().GetFrameSource().Update();
+	auto state = App::Get().GetFrameSource().Update();
 	_waitingForNextFrame = state == FrameSourceBase::UpdateState::Waiting
 		|| state == FrameSourceBase::UpdateState::Error;
 	if (_waitingForNextFrame) {
@@ -136,7 +136,7 @@ void Renderer::Render() {
 }
 
 bool Renderer::SetFillVS() {
-	auto& dr = App::GetInstance().GetDeviceResources();
+	auto& dr = App::Get().GetDeviceResources();
 
 	if (!_fillVS) {
 		const char* src = "void m(uint i:SV_VERTEXID,out float4 p:SV_POSITION,out float2 c:TEXCOORD){c=float2(i&1,i>>1)*2;p=float4(c.x*2-1,-c.y*2+1,0,1);}";
@@ -164,7 +164,7 @@ bool Renderer::SetFillVS() {
 
 
 bool Renderer::SetCopyPS(ID3D11SamplerState* sampler, ID3D11ShaderResourceView* input) {
-	auto& dr = App::GetInstance().GetDeviceResources();
+	auto& dr = App::Get().GetDeviceResources();
 
 	if (!_copyPS) {
 		const char* src = "Texture2D t:register(t0);SamplerState s:register(s0);float4 m(float4 p:SV_POSITION,float2 c:TEXCOORD):SV_Target{return t.Sample(s,c);}";
@@ -192,7 +192,7 @@ bool Renderer::SetCopyPS(ID3D11SamplerState* sampler, ID3D11ShaderResourceView* 
 }
 
 bool Renderer::SetSimpleVS(ID3D11Buffer* simpleVB) {
-	auto& dr = App::GetInstance().GetDeviceResources();
+	auto& dr = App::Get().GetDeviceResources();
 
 	if (!_simpleVS) {
 		const char* src = "void m(float4 p:SV_POSITION,float2 c:TEXCOORD,out float4 q:SV_POSITION,out float2 d:TEXCOORD) {q=p;d=c;}";
@@ -253,7 +253,7 @@ bool CheckForeground(HWND hwndForeground) {
 	RECT rectForground{};
 
 	// 如果捕获模式可以捕获到弹窗，则允许小的弹窗
-	if (App::GetInstance().GetFrameSource().IsScreenCapture()
+	if (App::Get().GetFrameSource().IsScreenCapture()
 		&& GetWindowStyle(hwndForeground) & (WS_POPUP | WS_CHILD)
 	) {
 		if (!Utils::GetWindowFrameRect(hwndForeground, rectForground)) {
@@ -262,7 +262,7 @@ bool CheckForeground(HWND hwndForeground) {
 		}
 
 		// 弹窗如果完全在源窗口客户区内则不退出全屏
-		const RECT& srcFrameRect = App::GetInstance().GetFrameSource().GetSrcFrameRect();
+		const RECT& srcFrameRect = App::Get().GetFrameSource().GetSrcFrameRect();
 		if (rectForground.left >= srcFrameRect.left
 			&& rectForground.right <= srcFrameRect.right
 			&& rectForground.top >= srcFrameRect.top
@@ -273,7 +273,7 @@ bool CheckForeground(HWND hwndForeground) {
 	}
 
 	// 非多屏幕模式下退出全屏
-	if (!App::GetInstance().IsMultiMonitorMode()) {
+	if (!App::Get().IsMultiMonitorMode()) {
 		return false;
 	}
 
@@ -284,7 +284,7 @@ bool CheckForeground(HWND hwndForeground) {
 		}
 	}
 
-	IntersectRect(&rectForground, &App::GetInstance().GetHostWndRect(), &rectForground);
+	IntersectRect(&rectForground, &App::Get().GetHostWndRect(), &rectForground);
 
 	// 允许稍微重叠，否则前台窗口最大化时会意外退出
 	if (rectForground.right - rectForground.left < 10 || rectForground.right - rectForground.top < 10) {
@@ -330,9 +330,9 @@ bool CheckForeground(HWND hwndForeground) {
 }
 
 bool Renderer::_CheckSrcState() {
-	HWND hwndSrc = App::GetInstance().GetHwndSrc();
+	HWND hwndSrc = App::Get().GetHwndSrc();
 
-	if (!App::GetInstance().IsBreakpointMode()) {
+	if (!App::Get().IsBreakpointMode()) {
 		HWND hwndForeground = GetForegroundWindow();
 		if (hwndForeground && hwndForeground != hwndSrc && !CheckForeground(hwndForeground)) {
 			Logger::Get().Info("前台窗口已改变");
@@ -360,11 +360,11 @@ bool Renderer::_CheckSrcState() {
 }
 
 bool Renderer::_ResolveEffectsJson(const std::string& effectsJson) {
-	_effectInput = App::GetInstance().GetFrameSource().GetOutput();
+	_effectInput = App::Get().GetFrameSource().GetOutput();
 	D3D11_TEXTURE2D_DESC inputDesc;
 	_effectInput->GetDesc(&inputDesc);
 
-	const RECT& hostWndRect = App::GetInstance().GetHostWndRect();
+	const RECT& hostWndRect = App::Get().GetHostWndRect();
 	SIZE hostSize = { hostWndRect.right - hostWndRect.left,hostWndRect.bottom - hostWndRect.top };
 
 	rapidjson::Document doc;
@@ -524,7 +524,7 @@ bool Renderer::_ResolveEffectsJson(const std::string& effectsJson) {
 		}
 	}
 
-	auto& dr = App::GetInstance().GetDeviceResources();
+	auto& dr = App::Get().GetDeviceResources();
 	auto d3dDevice = dr.GetD3DDevice();
 
 	if (_effects.size() == 1) {
@@ -583,7 +583,7 @@ bool Renderer::_ResolveEffectsJson(const std::string& effectsJson) {
 }
 
 bool Renderer::SetAlphaBlend(bool enable) {
-	auto& dr = App::GetInstance().GetDeviceResources();
+	auto& dr = App::Get().GetDeviceResources();
 
 	if (!enable) {
 		dr.GetD3DDC()->OMSetBlendState(nullptr, nullptr, 0xffffffff);

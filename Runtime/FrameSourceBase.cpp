@@ -6,7 +6,7 @@
 
 
 FrameSourceBase::~FrameSourceBase() {
-	HWND hwndSrc = App::GetInstance().GetHwndSrc();
+	HWND hwndSrc = App::Get().GetHwndSrc();
 
 	// 还原窗口圆角
 	if (_roundCornerDisabled) {
@@ -42,10 +42,10 @@ FrameSourceBase::~FrameSourceBase() {
 }
 
 bool FrameSourceBase::Initialize() {
-	HWND hwndSrc = App::GetInstance().GetHwndSrc();
+	HWND hwndSrc = App::Get().GetHwndSrc();
 
 	// 禁用窗口大小调整
-	if (App::GetInstance().IsDisableWindowResizing()) {
+	if (App::Get().IsDisableWindowResizing()) {
 		LONG_PTR style = GetWindowLongPtr(hwndSrc, GWL_STYLE);
 		if (style & WS_THICKFRAME) {
 			if (SetWindowLongPtr(hwndSrc, GWL_STYLE, style ^ WS_THICKFRAME)) {
@@ -175,7 +175,7 @@ bool FrameSourceBase::_CenterWindowIfNecessary(HWND hWnd, const RECT& rcWork) {
 		SIZE rcWorkSize = { rcWork.right - rcWork.left, rcWork.bottom - rcWork.top };
 		if (srcSize.cx > rcWorkSize.cx || srcSize.cy > rcWorkSize.cy) {
 			// 源窗口无法被当前屏幕容纳，因此无法捕获
-			App::GetInstance().SetErrorMsg(ErrorMessages::SRC_TOO_LARGE);
+			App::Get().SetErrorMsg(ErrorMessages::SRC_TOO_LARGE);
 			return false;
 		}
 
@@ -257,14 +257,14 @@ static HWND FindClientWindow(HWND hwndSrc, const wchar_t* clientWndClassName) {
 bool FrameSourceBase::_UpdateSrcFrameRect() {
 	_srcFrameRect = {};
 
-	HWND hwndSrc = App::GetInstance().GetHwndSrc();
+	HWND hwndSrc = App::Get().GetHwndSrc();
 
-	if (App::GetInstance().IsCropTitleBarOfUWP()) {
+	if (App::Get().IsCropTitleBarOfUWP()) {
 		std::wstring className(256, 0);
 		int num = GetClassName(hwndSrc, &className[0], (int)className.size());
 		if (num > 0) {
 			className.resize(num);
-			if (App::GetInstance().IsCropTitleBarOfUWP() &&
+			if (App::Get().IsCropTitleBarOfUWP() &&
 				(className == L"ApplicationFrameWindow" || className == L"Windows.UI.Core.CoreWindow")
 				) {
 				// "Modern App"
@@ -288,7 +288,7 @@ bool FrameSourceBase::_UpdateSrcFrameRect() {
 		}
 	}
 
-	const RECT& cropBorders = App::GetInstance().GetCropBorders();
+	const RECT& cropBorders = App::Get().GetCropBorders();
 	_srcFrameRect = {
 		_srcFrameRect.left + cropBorders.left,
 		_srcFrameRect.top + cropBorders.top,
@@ -297,7 +297,7 @@ bool FrameSourceBase::_UpdateSrcFrameRect() {
 	};
 
 	if (_srcFrameRect.right - _srcFrameRect.left <= 0 || _srcFrameRect.bottom - _srcFrameRect.top <= 0) {
-		App::GetInstance().SetErrorMsg(ErrorMessages::FAILED_TO_CROP);
+		App::Get().SetErrorMsg(ErrorMessages::FAILED_TO_CROP);
 		Logger::Get().Error("裁剪窗口失败");
 		return false;
 	}

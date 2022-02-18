@@ -61,7 +61,7 @@ struct Utils {
 
 	class Hasher {
 	public:
-		static Hasher& GetInstance() {
+		static Hasher& Get() {
 			static Hasher instance;
 			return instance;
 		}

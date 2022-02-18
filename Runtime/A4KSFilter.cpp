@@ -9,11 +9,11 @@
 static SIZE outputSize;
 
 bool A4KSFilter::Initialize() {
-	auto& dr = App::GetInstance().GetDeviceResources();
+	auto& dr = App::Get().GetDeviceResources();
 	auto d3dDevice = dr.GetD3DDevice();
 
-	const RECT& srcFrameRect = App::GetInstance().GetFrameSource().GetSrcFrameRect();
-	const RECT& hostRect = App::GetInstance().GetHostWndRect();
+	const RECT& srcFrameRect = App::Get().GetFrameSource().GetSrcFrameRect();
+	const RECT& hostRect = App::Get().GetHostWndRect();
 
 	SIZE frameSize = { srcFrameRect.right - srcFrameRect.left,srcFrameRect.bottom - srcFrameRect.top };
 	SIZE hostWndSize = { hostRect.right - hostRect.left,hostRect.bottom - hostRect.top };
@@ -101,7 +101,7 @@ bool A4KSFilter::Initialize() {
 	d3dDevice->CreateTexture2D(&desc, nullptr, _tex2.put());
 	d3dDevice->CreateTexture2D(&desc, nullptr, _tex3.put());
 
-	dr.GetShaderResourceView(App::GetInstance().GetFrameSource().GetOutput().get(), &_srv1);
+	dr.GetShaderResourceView(App::Get().GetFrameSource().GetOutput().get(), &_srv1);
 	dr.GetShaderResourceView(_tex1.get(), &_srv2);
 	dr.GetShaderResourceView(_tex2.get(), &_srv3);
 	dr.GetShaderResourceView(_tex3.get(), &_srv4);
@@ -115,11 +115,11 @@ bool A4KSFilter::Initialize() {
 }
 
 void A4KSFilter::Draw() {
-	auto& dr = App::GetInstance().GetDeviceResources();
+	auto& dr = App::Get().GetDeviceResources();
 	auto d3dDC = dr.GetD3DDC();
 	auto d3dDevice = dr.GetD3DDevice();
 
-	const RECT& srcFrameRect = App::GetInstance().GetFrameSource().GetSrcFrameRect();
+	const RECT& srcFrameRect = App::Get().GetFrameSource().GetSrcFrameRect();
 	SIZE frameSize = { srcFrameRect.right - srcFrameRect.left,srcFrameRect.bottom - srcFrameRect.top };
 
 

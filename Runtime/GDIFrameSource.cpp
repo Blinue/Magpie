@@ -16,7 +16,7 @@ bool GDIFrameSource::Initialize() {
 		return false;
 	}
 
-	HWND hwndSrc = App::GetInstance().GetHwndSrc();
+	HWND hwndSrc = App::Get().GetHwndSrc();
 
 	double a, bx, by;
 	if (_GetMapToOriginDPI(hwndSrc, a, bx, by)) {
@@ -50,7 +50,7 @@ bool GDIFrameSource::Initialize() {
 		|| _frameRect.bottom < 0 || _frameRect.right - _frameRect.left <= 0
 		|| _frameRect.bottom - _frameRect.top <= 0
 	) {
-		App::GetInstance().SetErrorMsg(ErrorMessages::FAILED_TO_CROP);
+		App::Get().SetErrorMsg(ErrorMessages::FAILED_TO_CROP);
 		Logger::Get().Error("裁剪失败");
 		return false;
 	}
@@ -66,7 +66,7 @@ bool GDIFrameSource::Initialize() {
 	desc.SampleDesc.Quality = 0;
 	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
 	desc.MiscFlags = D3D11_RESOURCE_MISC_GDI_COMPATIBLE;
-	HRESULT hr = App::GetInstance().GetDeviceResources().GetD3DDevice()->CreateTexture2D(&desc, nullptr, _output.put());
+	HRESULT hr = App::Get().GetDeviceResources().GetD3DDevice()->CreateTexture2D(&desc, nullptr, _output.put());
 	if (FAILED(hr)) {
 		Logger::Get().ComError("创建 Texture2D 失败", hr);
 		return false;
@@ -83,7 +83,7 @@ bool GDIFrameSource::Initialize() {
 }
 
 FrameSourceBase::UpdateState GDIFrameSource::Update() {
-	HWND hwndSrc = App::GetInstance().GetHwndSrc();
+	HWND hwndSrc = App::Get().GetHwndSrc();
 
 	HDC hdcDest;
 	HRESULT hr = _dxgiSurface->GetDC(TRUE, &hdcDest);

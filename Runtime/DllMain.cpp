@@ -65,12 +65,12 @@ API_DECLSPEC BOOL WINAPI Initialize(
 	}
 
 	// 初始化 App
-	if (!App::GetInstance().Initialize(hInst)) {
+	if (!App::Get().Initialize(hInst)) {
 		return FALSE;
 	}
 
 	// 初始化 Hasher
-	if (!Utils::Hasher::GetInstance().Initialize()) {
+	if (!Utils::Hasher::Get().Initialize()) {
 		return FALSE;
 	}
 
@@ -114,7 +114,7 @@ API_DECLSPEC const char* WINAPI Run(
 		}
 	}
 
-	App& app = App::GetInstance();
+	App& app = App::Get();
 	if (!app.Run(hwndSrc, effectsJson, captureMode,
 		cursorZoomFactor, cursorInterpolationMode, adapterIdx, multiMonitorUsage,
 		RECT{(LONG)cropLeft, (LONG)cropTop, (LONG)cropRight, (LONG)cropBottom}, flags)

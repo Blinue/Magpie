@@ -20,7 +20,7 @@ bool GraphicsCaptureFrameSource::Initialize() {
 		return false;
 	}
 
-	App::GetInstance().SetErrorMsg(ErrorMessages::FAILED_TO_CAPTURE);
+	App::Get().SetErrorMsg(ErrorMessages::FAILED_TO_CAPTURE);
 
 	// 只在 Win10 1903 及更新版本中可用
 	const RTL_OSVERSIONINFOW& version = Utils::GetOSVersion();
@@ -43,7 +43,7 @@ bool GraphicsCaptureFrameSource::Initialize() {
 		}
 
 		hr = CreateDirect3D11DeviceFromDXGIDevice(
-			App::GetInstance().GetDeviceResources().GetDXGIDevice(),
+			App::Get().GetDeviceResources().GetDXGIDevice(),
 			reinterpret_cast<::IInspectable**>(winrt::put_abi(_wrappedD3DDevice))
 		);
 		if (FAILED(hr)) {
@@ -142,7 +142,7 @@ bool GraphicsCaptureFrameSource::Initialize() {
 	desc.SampleDesc.Count = 1;
 	desc.SampleDesc.Quality = 0;
 	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
-	hr = App::GetInstance().GetDeviceResources().GetD3DDevice()->CreateTexture2D(&desc, nullptr, _output.put());
+	hr = App::Get().GetDeviceResources().GetD3DDevice()->CreateTexture2D(&desc, nullptr, _output.put());
 	if (FAILED(hr)) {
 		Logger::Get().ComError("创建 Texture2D 失败", hr);
 		return false;
@@ -151,7 +151,7 @@ bool GraphicsCaptureFrameSource::Initialize() {
 	InitializeConditionVariable(&_cv);
 	InitializeCriticalSection(&_cs);
 
-	App::GetInstance().SetErrorMsg(ErrorMessages::GENERIC);
+	App::Get().SetErrorMsg(ErrorMessages::GENERIC);
 	Logger::Get().Info("GraphicsCaptureFrameSource 初始化完成");
 	return true;
 }
@@ -190,7 +190,7 @@ FrameSourceBase::UpdateState GraphicsCaptureFrameSource::Update() {
 			return UpdateState::Error;
 		}
 
-		App::GetInstance().GetDeviceResources().GetD3DDC()
+		App::Get().GetDeviceResources().GetD3DDC()
 			->CopySubresourceRegion(_output.get(), 0, 0, 0, 0, withFrame.get(), 0, &_frameBox);
 
 		return UpdateState::NewFrame;
@@ -201,7 +201,7 @@ FrameSourceBase::UpdateState GraphicsCaptureFrameSource::Update() {
 
 bool GraphicsCaptureFrameSource::_CaptureFromWindow(winrt::impl::com_ref<IGraphicsCaptureItemInterop> interop) {
 	// DwmGetWindowAttribute 和 Graphics.Capture 无法应用于子窗口
-	HWND hwndSrc = App::GetInstance().GetHwndSrc();
+	HWND hwndSrc = App::Get().GetHwndSrc();
 
 	// 包含边框的窗口尺寸
 	RECT srcRect{};
@@ -245,7 +245,7 @@ bool GraphicsCaptureFrameSource::_CaptureFromWindow(winrt::impl::com_ref<IGraphi
 }
 
 bool GraphicsCaptureFrameSource::_CaptureFromStyledWindow(winrt::impl::com_ref<IGraphicsCaptureItemInterop> interop) {
-	HWND hwndSrc = App::GetInstance().GetHwndSrc();
+	HWND hwndSrc = App::Get().GetHwndSrc();
 
 	_srcWndStyle = GetWindowLongPtr(hwndSrc, GWL_EXSTYLE);
 	if (_srcWndStyle == 0) {
@@ -287,12 +287,12 @@ bool GraphicsCaptureFrameSource::_CaptureFromMonitor(winrt::impl::com_ref<IGraph
 	}
 
 	// 使全屏窗口无法被捕获到
-	if (!SetWindowDisplayAffinity(App::GetInstance().GetHwndHost(), WDA_EXCLUDEFROMCAPTURE)) {
+	if (!SetWindowDisplayAffinity(App::Get().GetHwndHost(), WDA_EXCLUDEFROMCAPTURE)) {
 		Logger::Get().Win32Error("SetWindowDisplayAffinity 失败");
 		return false;
 	}
 
-	HWND hwndSrc = App::GetInstance().GetHwndSrc();
+	HWND hwndSrc = App::Get().GetHwndSrc();
 	HMONITOR hMonitor = MonitorFromWindow(hwndSrc, MONITOR_DEFAULTTONEAREST);
 	if (!hMonitor) {
 		Logger::Get().Win32Error("MonitorFromWindow 失败");
@@ -366,6 +366,6 @@ GraphicsCaptureFrameSource::~GraphicsCaptureFrameSource() {
 
 	// 还原源窗口样式
 	if (_srcWndStyle) {
-		SetWindowLongPtr(App::GetInstance().GetHwndSrc(), GWL_EXSTYLE, _srcWndStyle);
+		SetWindowLongPtr(App::Get().GetHwndSrc(), GWL_EXSTYLE, _srcWndStyle);
 	}
 }

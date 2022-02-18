@@ -12,7 +12,7 @@
 
 UIDrawer::~UIDrawer() {
 	if (_handlerID != 0) {
-		App::GetInstance().UnregisterWndProcHandler(_handlerID);
+		App::Get().UnregisterWndProcHandler(_handlerID);
 	}
 
 	ImGui_ImplDX11_Shutdown();
@@ -21,11 +21,11 @@ UIDrawer::~UIDrawer() {
 }
 
 float GetDpiScale() {
-	return GetDpiForWindow(App::GetInstance().GetHwndHost()) / 96.0f;
+	return GetDpiForWindow(App::Get().GetHwndHost()) / 96.0f;
 }
 
 bool UIDrawer::Initialize(ID3D11Texture2D* renderTarget) {
-	auto& dr = App::GetInstance().GetDeviceResources();
+	auto& dr = App::Get().GetDeviceResources();
 
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
@@ -47,7 +47,7 @@ bool UIDrawer::Initialize(ID3D11Texture2D* renderTarget) {
 
 	dr.GetRenderTargetView(renderTarget, &_rtv);
 
-	_handlerID = App::GetInstance().RegisterWndProcHandler(_WndProcHandler);
+	_handlerID = App::Get().RegisterWndProcHandler(_WndProcHandler);
 
 	return true;
 }
@@ -63,7 +63,7 @@ void DrawUI() {
 		return;
 	}
 
-	ImGui::Text(fmt::format("FPS: {}", App::GetInstance().GetRenderer().GetGPUTimer().GetFramesPerSecond()).c_str());
+	ImGui::Text(fmt::format("FPS: {}", App::Get().GetRenderer().GetGPUTimer().GetFramesPerSecond()).c_str());
 
 	ImGui::End();
 }
@@ -75,7 +75,7 @@ void UIDrawer::Draw() {
 
 	if (ImGui::GetIO().WantCaptureMouse) {
 		if (!_cursorOnUI) {
-			HWND hwndHost = App::GetInstance().GetHwndHost();
+			HWND hwndHost = App::Get().GetHwndHost();
 			LONG_PTR style = GetWindowLongPtr(hwndHost, GWL_EXSTYLE);
 			SetWindowLongPtr(hwndHost, GWL_EXSTYLE, style & ~WS_EX_TRANSPARENT);
 
@@ -83,7 +83,7 @@ void UIDrawer::Draw() {
 		}
 	} else {
 		if (_cursorOnUI) {
-			HWND hwndHost = App::GetInstance().GetHwndHost();
+			HWND hwndHost = App::Get().GetHwndHost();
 			LONG_PTR style = GetWindowLongPtr(hwndHost, GWL_EXSTYLE);
 			SetWindowLongPtr(hwndHost, GWL_EXSTYLE, style | WS_EX_TRANSPARENT);
 
@@ -96,10 +96,10 @@ void UIDrawer::Draw() {
 
 	ImGui::Render();
 
-	const RECT& outputRect = App::GetInstance().GetRenderer().GetOutputRect();
+	const RECT& outputRect = App::Get().GetRenderer().GetOutputRect();
 	ImGui::GetDrawData()->DisplayPos = ImVec2(float(-outputRect.left), float(-outputRect.top));
 	
-	auto d3dDC = App::GetInstance().GetDeviceResources().GetD3DDC();
+	auto d3dDC = App::Get().GetDeviceResources().GetD3DDC();
 	d3dDC->OMSetRenderTargets(1, &_rtv, NULL);
 	
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());

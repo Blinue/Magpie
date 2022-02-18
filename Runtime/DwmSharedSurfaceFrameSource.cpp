@@ -24,12 +24,12 @@ bool DwmSharedSurfaceFrameSource::Initialize() {
 		return false;
 	}
 	
-	HWND hwndSrc = App::GetInstance().GetHwndSrc();
+	HWND hwndSrc = App::Get().GetHwndSrc();
 
 	double a, bx, by;
 	if (!_GetMapToOriginDPI(hwndSrc, a, bx, by)) {
 		Logger::Get().Error("_GetMapToOriginDPI 失败");
-		App::GetInstance().SetErrorMsg(ErrorMessages::FAILED_TO_CAPTURE);
+		App::Get().SetErrorMsg(ErrorMessages::FAILED_TO_CAPTURE);
 		return false;
 	}
 
@@ -46,7 +46,7 @@ bool DwmSharedSurfaceFrameSource::Initialize() {
 		|| frameRect.bottom - frameRect.top <= 0
 	) {
 		Logger::Get().Error("裁剪失败");
-		App::GetInstance().SetErrorMsg(ErrorMessages::FAILED_TO_CROP);
+		App::Get().SetErrorMsg(ErrorMessages::FAILED_TO_CROP);
 		return false;
 	}
 
@@ -68,7 +68,7 @@ bool DwmSharedSurfaceFrameSource::Initialize() {
 	desc.SampleDesc.Count = 1;
 	desc.SampleDesc.Quality = 0;
 	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
-	HRESULT hr = App::GetInstance().GetDeviceResources().GetD3DDevice()->CreateTexture2D(&desc, nullptr, _output.put());
+	HRESULT hr = App::Get().GetDeviceResources().GetD3DDevice()->CreateTexture2D(&desc, nullptr, _output.put());
 	if (FAILED(hr)) {
 		Logger::Get().ComError("创建 Texture2D 失败", hr);
 		return false;
@@ -80,7 +80,7 @@ bool DwmSharedSurfaceFrameSource::Initialize() {
 
 FrameSourceBase::UpdateState DwmSharedSurfaceFrameSource::Update() {
 	HANDLE sharedTextureHandle = NULL;
-	if (!_dwmGetDxSharedSurface(App::GetInstance().GetHwndSrc(),
+	if (!_dwmGetDxSharedSurface(App::Get().GetHwndSrc(),
 		&sharedTextureHandle, nullptr, nullptr, nullptr, nullptr)
 		|| !sharedTextureHandle
 	) {
@@ -89,14 +89,14 @@ FrameSourceBase::UpdateState DwmSharedSurfaceFrameSource::Update() {
 	}
 
 	winrt::com_ptr<ID3D11Texture2D> sharedTexture;
-	HRESULT hr = App::GetInstance().GetDeviceResources().GetD3DDevice()
+	HRESULT hr = App::Get().GetDeviceResources().GetD3DDevice()
 		->OpenSharedResource(sharedTextureHandle, IID_PPV_ARGS(&sharedTexture));
 	if (FAILED(hr)) {
 		Logger::Get().ComError("OpenSharedResource 失败", hr);
 		return UpdateState::Error;
 	}
 	
-	App::GetInstance().GetDeviceResources().GetD3DDC()
+	App::Get().GetDeviceResources().GetD3DDC()
 		->CopySubresourceRegion(_output.get(), 0, 0, 0, 0, sharedTexture.get(), 0, &_frameInWnd);
 
 	return UpdateState::NewFrame;

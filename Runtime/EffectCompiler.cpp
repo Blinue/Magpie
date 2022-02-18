@@ -828,7 +828,7 @@ void NTAPI TPWork(PTP_CALLBACK_INSTANCE, PVOID Context, PTP_WORK) {
 	TPContext* con = (TPContext*)Context;
 	ULONG index = InterlockedIncrement(&con->index);
 	
-	if (!App::GetInstance().GetDeviceResources().CompileShader(false, con->passSources[index],
+	if (!App::Get().GetDeviceResources().CompileShader(false, con->passSources[index],
 		"__M", con->passes[index].cso.put(), fmt::format("Pass{}", index + 1).c_str(), &passInclude)) {
 		con->passes[index].cso = nullptr;
 	}
@@ -1054,7 +1054,7 @@ UINT ResolvePasses(const std::vector<std::string_view>& blocks, const std::vecto
 
 	// 编译生成的 hlsl
 	assert(!passSources.empty());
-	auto& dr = App::GetInstance().GetDeviceResources();
+	auto& dr = App::Get().GetDeviceResources();
 
 	if (passSources.size() == 1) {
 		if (!dr.CompileShader(false, passSources[0], "__M", desc.passes[0].cso.put(), "Pass1", &passInclude)) {
@@ -1125,14 +1125,14 @@ UINT EffectCompiler::Compile(const wchar_t* fileName, EffectDesc& desc) {
 	}
 
 	std::string md5;
-	if (!App::GetInstance().IsDisableEffectCache()) {
+	if (!App::Get().IsDisableEffectCache()) {
 		std::vector<BYTE> hash;
-		if (!Utils::Hasher::GetInstance().Hash(source.data(), source.size(), hash)) {
+		if (!Utils::Hasher::Get().Hash(source.data(), source.size(), hash)) {
 			Logger::Get().Error("计算 hash 失败");
 		} else {
 			md5 = Utils::Bin2Hex(hash.data(), hash.size());
 
-			if (EffectCache::GetInstance().Load(fileName, md5, desc)) {
+			if (EffectCache::Get().Load(fileName, md5, desc)) {
 				// 已从缓存中读取
 				return 0;
 			}
@@ -1307,7 +1307,7 @@ UINT EffectCompiler::Compile(const wchar_t* fileName, EffectDesc& desc) {
 		return 1;
 	}
 
-	EffectCache::GetInstance().Save(fileName, md5, desc);
+	EffectCache::Get().Save(fileName, md5, desc);
 
 	return 0;
 }

@@ -131,7 +131,7 @@ bool EffectDrawer::Initialize(const wchar_t* fileName) {
 		Logger::Get().Info(fmt::format("编译 {} 用时 {} 毫秒", StrUtils::UTF16ToUTF8(fileName), duration / 1000.0f));
 	}
 
-	auto& dr = App::GetInstance().GetDeviceResources();
+	auto& dr = App::Get().GetDeviceResources();
 
 	_samplers.resize(_effectDesc.samplers.size());
 	for (size_t i = 0; i < _samplers.size(); ++i) {
@@ -321,7 +321,7 @@ bool EffectDrawer::Build(ID3D11Texture2D* input, ID3D11Texture2D* output) {
 	SetExprVars(inputSize, outputSize);
 	SetExprDynamicVars(0, 0, 0);
 
-	auto d3dDevice = App::GetInstance().GetDeviceResources().GetD3DDevice();
+	auto d3dDevice = App::Get().GetDeviceResources().GetD3DDevice();
 
 	// 创建中间纹理
 	_textures.resize(_effectDesc.textures.size() + 1);
@@ -436,7 +436,7 @@ bool EffectDrawer::Build(ID3D11Texture2D* input, ID3D11Texture2D* output) {
 }
 
 void EffectDrawer::Draw(bool noUpdate) {
-	auto d3dDC = App::GetInstance().GetDeviceResources().GetD3DDC();
+	auto d3dDC = App::Get().GetDeviceResources().GetD3DDC();
 
 	if (_dynamicConstantBuffer) {
 		// 更新常量
@@ -475,7 +475,7 @@ void EffectDrawer::Draw(bool noUpdate) {
 
 // 所有 Effect 共享 exprParser，每帧渲染前由 Renderer 调用一次
 bool EffectDrawer::UpdateExprDynamicVars() {
-	int frameCount = App::GetInstance().GetRenderer().GetGPUTimer().GetFrameCount();
+	int frameCount = App::Get().GetRenderer().GetGPUTimer().GetFrameCount();
 
 	POINT pt;
 	if (!GetCursorPos(&pt)) {
@@ -483,7 +483,7 @@ bool EffectDrawer::UpdateExprDynamicVars() {
 		return false;
 	}
 
-	const RECT& srcFrameRect = App::GetInstance().GetFrameSource().GetSrcFrameRect();
+	const RECT& srcFrameRect = App::Get().GetFrameSource().GetSrcFrameRect();
 
 	SetExprDynamicVars(
 		frameCount,
@@ -499,7 +499,7 @@ bool EffectDrawer::_Pass::Initialize(EffectDrawer* parent, size_t index) {
 	_index = index;
 
 	const EffectPassDesc& passDesc = _parent->_effectDesc.passes[index];
-	HRESULT hr = App::GetInstance().GetDeviceResources().GetD3DDevice()->CreatePixelShader(
+	HRESULT hr = App::Get().GetDeviceResources().GetD3DDevice()->CreatePixelShader(
 		passDesc.cso->GetBufferPointer(), passDesc.cso->GetBufferSize(), nullptr, _pixelShader.put());
 	if (FAILED(hr)) {
 		Logger::Get().ComError("创建像素着色器失败", hr);
@@ -510,7 +510,7 @@ bool EffectDrawer::_Pass::Initialize(EffectDrawer* parent, size_t index) {
 }
 
 bool EffectDrawer::_Pass::Build(std::optional<SIZE> outputSize) {
-	auto& dr = App::GetInstance().GetDeviceResources();
+	auto& dr = App::Get().GetDeviceResources();
 	const EffectPassDesc& passDesc = _parent->_effectDesc.passes[_index];
 
 	_inputs.resize(passDesc.inputs.size() * 2);
@@ -573,7 +573,7 @@ bool EffectDrawer::_Pass::Build(std::optional<SIZE> outputSize) {
 }
 
 void EffectDrawer::_Pass::Draw() {
-	auto d3dDC = App::GetInstance().GetDeviceResources().GetD3DDC();
+	auto d3dDC = App::Get().GetDeviceResources().GetD3DDC();
 
 	d3dDC->OMSetRenderTargets((UINT)_outputs.size(), _outputs.data(), nullptr);
 	d3dDC->RSSetViewports(1, &_vp);
@@ -584,10 +584,10 @@ void EffectDrawer::_Pass::Draw() {
 	d3dDC->PSSetShaderResources(0, nInputs, _inputs.data());
 
 	if (_vtxBuffer) {
-		App::GetInstance().GetRenderer().SetSimpleVS(_vtxBuffer.get());
+		App::Get().GetRenderer().SetSimpleVS(_vtxBuffer.get());
 		d3dDC->Draw(4, 0);
 	} else {
-		App::GetInstance().GetRenderer().SetFillVS();
+		App::Get().GetRenderer().SetFillVS();
 		d3dDC->Draw(3, 0);
 	}
 

@@ -100,9 +100,9 @@ bool DeviceResources::Initialize() {
 
 	Logger::Get().Info(fmt::format("可变刷新率支持：{}", supportTearing ? "是" : "否"));
 
-	if (App::GetInstance().IsDisableVSync() && !supportTearing) {
+	if (App::Get().IsDisableVSync() && !supportTearing) {
 		Logger::Get().Error("当前显示器不支持可变刷新率");
-		App::GetInstance().SetErrorMsg(ErrorMessages::VSYNC_OFF_NOT_SUPPORTED);
+		App::Get().SetErrorMsg(ErrorMessages::VSYNC_OFF_NOT_SUPPORTED);
 		return false;
 	}
 
@@ -118,7 +118,7 @@ bool DeviceResources::Initialize() {
 	};
 	UINT nFeatureLevels = ARRAYSIZE(featureLevels);
 
-	_graphicsAdapter = ObtainGraphicsAdapter(_dxgiFactory.get(), App::GetInstance().GetAdapterIdx());
+	_graphicsAdapter = ObtainGraphicsAdapter(_dxgiFactory.get(), App::Get().GetAdapterIdx());
 	if (!_graphicsAdapter) {
 		Logger::Get().Error("找不到可用 Adapter");
 		return false;
@@ -217,7 +217,7 @@ void DeviceResources::BeginFrame() {
 }
 
 void DeviceResources::EndFrame() {
-	if (App::GetInstance().IsDisableVSync()) {
+	if (App::Get().IsDisableVSync()) {
 		_swapChain->Present(0, DXGI_PRESENT_ALLOW_TEARING);
 	} else {
 		_swapChain->Present(1, 0);
@@ -225,7 +225,7 @@ void DeviceResources::EndFrame() {
 }
 
 bool DeviceResources::_CreateSwapChain() {
-	const RECT& hostWndRect = App::GetInstance().GetHostWndRect();
+	const RECT& hostWndRect = App::Get().GetHostWndRect();
 
 	DXGI_SWAP_CHAIN_DESC1 sd = {};
 	sd.Width = hostWndRect.right - hostWndRect.left;
@@ -236,7 +236,7 @@ bool DeviceResources::_CreateSwapChain() {
 	sd.SampleDesc.Quality = 0;
 	sd.Scaling = DXGI_SCALING_NONE;
 	sd.BufferUsage = DXGI_USAGE_UNORDERED_ACCESS;
-	sd.BufferCount = (App::GetInstance().IsDisableLowLatency() || App::GetInstance().IsDisableVSync()) ? 3 : 2;
+	sd.BufferCount = (App::Get().IsDisableLowLatency() || App::Get().IsDisableVSync()) ? 3 : 2;
 	// 使用 DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL 而不是 DXGI_SWAP_EFFECT_FLIP_DISCARD
 	// 不渲染四周（可能存在的）黑边，因此必须保证交换链缓冲区不被改变
 	// 否则将不得不在每帧渲染前清空后缓冲区，这个操作在一些显卡上比较耗时
@@ -248,7 +248,7 @@ bool DeviceResources::_CreateSwapChain() {
 	winrt::com_ptr<IDXGISwapChain1> dxgiSwapChain = nullptr;
 	HRESULT hr = _dxgiFactory->CreateSwapChainForHwnd(
 		_d3dDevice.get(),
-		App::GetInstance().GetHwndHost(),
+		App::Get().GetHwndHost(),
 		&sd,
 		nullptr,
 		nullptr,
@@ -267,7 +267,7 @@ bool DeviceResources::_CreateSwapChain() {
 
 	// 关闭低延迟模式或关闭垂直同步时将最大延迟设为 2 以使 CPU 和 GPU 并行执行
 	_swapChain->SetMaximumFrameLatency(
-		App::GetInstance().IsDisableLowLatency() || App::GetInstance().IsDisableVSync() ? 2 : 1);
+		App::Get().IsDisableLowLatency() || App::Get().IsDisableVSync() ? 2 : 1);
 
 	_frameLatencyWaitableObject.reset(_swapChain->GetFrameLatencyWaitableObject());
 	if (!_frameLatencyWaitableObject) {
@@ -275,7 +275,7 @@ bool DeviceResources::_CreateSwapChain() {
 		return false;
 	}
 
-	hr = _dxgiFactory->MakeWindowAssociation(App::GetInstance().GetHwndHost(), DXGI_MWA_NO_ALT_ENTER);
+	hr = _dxgiFactory->MakeWindowAssociation(App::Get().GetHwndHost(), DXGI_MWA_NO_ALT_ENTER);
 	if (FAILED(hr)) {
 		Logger::Get().ComError("MakeWindowAssociation 失败", hr);
 	}
@@ -401,15 +401,13 @@ bool DeviceResources::CompileShader(std::string_view hlsl, const char* entryPoin
 		entryPoint, "cs_5_0", flags, 0, blob, errorMsgs.put());
 	if (FAILED(hr)) {
 		if (errorMsgs) {
-			SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg(fmt::format("编译计算着色器失败：{}",
-				(const char*)errorMsgs->GetBufferPointer()), hr));
+			Logger::Get().ComError(fmt::format("编译计算着色器失败：{}", (const char*)errorMsgs->GetBufferPointer()), hr);
 		}
 		return false;
 	} else {
+		// 警告消息
 		if (errorMsgs) {
-			// 显示警告消息
-			SPDLOG_LOGGER_WARN(logger, fmt::format("编译计算着色器时产生警告：{}",
-				(const char*)errorMsgs->GetBufferPointer()));
+			Logger::Get().Warn(fmt::format("编译计算着色器时产生警告：{}", (const char*)errorMsgs->GetBufferPointer()));
 		}
 	}
 

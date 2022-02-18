@@ -35,17 +35,17 @@ float4 main(float4 pos : SV_POSITION, float2 coord : TEXCOORD) : SV_Target{
 )";
 
 bool CursorDrawer::Initialize(ID3D11Texture2D* renderTarget) {
-	App& app = App::GetInstance();
+	App& app = App::Get();
 	auto& dr = app.GetDeviceResources();
 
-	const RECT& outputRect = App::GetInstance().GetRenderer().GetOutputRect();
+	const RECT& outputRect = App::Get().GetRenderer().GetOutputRect();
 
 	if (!app.IsNoCursor()) {
 		Renderer& renderer = app.GetRenderer();
 		auto d3dDC = dr.GetD3DDC();
 		auto d3dDevice = dr.GetD3DDevice();
 
-		_zoomFactorX = _zoomFactorY = App::GetInstance().GetCursorZoomFactor();
+		_zoomFactorX = _zoomFactorY = App::Get().GetCursorZoomFactor();
 		if (_zoomFactorX <= 0) {
 			D3D11_TEXTURE2D_DESC desc{};
 			app.GetFrameSource().GetOutput()->GetDesc(&desc);
@@ -136,14 +136,14 @@ bool CursorDrawer::Initialize(ID3D11Texture2D* renderTarget) {
 	_clientScaleX = float(outputRect.right - outputRect.left) / srcSize.cx;
 	_clientScaleY = float(outputRect.bottom - outputRect.top) / srcSize.cy;
 	
-	if (!App::GetInstance().IsMultiMonitorMode() && !App::GetInstance().IsBreakpointMode()) {
+	if (!App::Get().IsMultiMonitorMode() && !App::Get().IsBreakpointMode()) {
 		// 非多屏幕模式下，限制光标在窗口内
 		
 		if (!ClipCursor(&srcFrameRect)) {
 			Logger::Get().Win32Error("ClipCursor 失败");
 		}
 
-		if (App::GetInstance().IsAdjustCursorSpeed()) {
+		if (App::Get().IsAdjustCursorSpeed()) {
 			// 设置鼠标移动速度
 			if (SystemParametersInfo(SPI_GETMOUSESPEED, 0, &_cursorSpeed, 0)) {
 				long newSpeed = std::clamp(lroundf(_cursorSpeed / (_clientScaleX + _clientScaleY) * 2), 1L, 20L);
@@ -168,7 +168,7 @@ bool CursorDrawer::Initialize(ID3D11Texture2D* renderTarget) {
 }
 
 CursorDrawer::~CursorDrawer() {
-	if (App::GetInstance().IsMultiMonitorMode()) {
+	if (App::Get().IsMultiMonitorMode()) {
 		if (_isUnderCapture) {
 			POINT pt{};
 			if (!GetCursorPos(&pt)) {
@@ -176,10 +176,10 @@ CursorDrawer::~CursorDrawer() {
 			}
 			_StopCapture(pt);
 		}
-	} else if (!App::GetInstance().IsBreakpointMode()) {
+	} else if (!App::Get().IsBreakpointMode()) {
 		// CursorDrawer 析构时计时器已销毁
 		ClipCursor(nullptr);
-		if (App::GetInstance().IsAdjustCursorSpeed()) {
+		if (App::Get().IsAdjustCursorSpeed()) {
 			SystemParametersInfo(SPI_SETMOUSESPEED, 0, (PVOID)(intptr_t)_cursorSpeed, 0);
 		}
 
@@ -190,9 +190,9 @@ CursorDrawer::~CursorDrawer() {
 }
 
 void CursorDrawer::_DynamicClip(POINT cursorPt) {
-	const RECT& srcFrameRect = App::GetInstance().GetFrameSource().GetSrcFrameRect();
-	const RECT& hostRect = App::GetInstance().GetHostWndRect();
-	const RECT& outputRect = App::GetInstance().GetRenderer().GetOutputRect();
+	const RECT& srcFrameRect = App::Get().GetFrameSource().GetSrcFrameRect();
+	const RECT& hostRect = App::Get().GetHostWndRect();
+	const RECT& outputRect = App::Get().GetRenderer().GetOutputRect();
 
 	POINT hostPt{};
 
@@ -217,7 +217,7 @@ void CursorDrawer::_DynamicClip(POINT cursorPt) {
 	clips[3] = !MonitorFromRect(&rect, MONITOR_DEFAULTTONULL);
 
 	// 开启“在 3D 游戏中限制光标”则每帧都限制一次光标
-	if (App::GetInstance().IsConfineCursorIn3DGames() || clips != _curClips) {
+	if (App::Get().IsConfineCursorIn3DGames() || clips != _curClips) {
 		_curClips = clips;
 
 		RECT clipRect = {
@@ -231,7 +231,7 @@ void CursorDrawer::_DynamicClip(POINT cursorPt) {
 }
 
 bool CursorDrawer::Update() {
-	if (!App::GetInstance().IsMultiMonitorMode()) {
+	if (!App::Get().IsMultiMonitorMode()) {
 		return true;
 	}
 
@@ -246,7 +246,7 @@ bool CursorDrawer::Update() {
 	}
 
 	if (_isUnderCapture) {
-		const RECT& srcFrameRect = App::GetInstance().GetFrameSource().GetSrcFrameRect();
+		const RECT& srcFrameRect = App::Get().GetFrameSource().GetSrcFrameRect();
 
 		if (PtInRect(&srcFrameRect, cursorPt)) {
 			_DynamicClip(cursorPt);
@@ -254,7 +254,7 @@ bool CursorDrawer::Update() {
 			_StopCapture(cursorPt);
 		}
 	} else {
-		const RECT& hostRect = App::GetInstance().GetHostWndRect();
+		const RECT& hostRect = App::Get().GetHostWndRect();
 
 		if (PtInRect(&hostRect, cursorPt)) {
 			_StartCapture(cursorPt);
@@ -316,7 +316,7 @@ bool CursorDrawer::_ResolveCursor(HCURSOR hCursor, _CursorInfo& result) const {
 		DeleteBitmap(ii.hbmMask);
 	});
 
-	auto d3dDevice = App::GetInstance().GetDeviceResources().GetD3DDevice();
+	auto d3dDevice = App::Get().GetDeviceResources().GetD3DDevice();
 	winrt::com_ptr<ID3D11Texture2D> texture;
 
 	if(ii.hbmColor == NULL) {
@@ -396,7 +396,7 @@ bool CursorDrawer::_ResolveCursor(HCURSOR hCursor, _CursorInfo& result) const {
 
 	if(!result.hasInv) {
 		// 光标无反色部分，使用 WIC 将光标转换为带 Alpha 通道的图像
-		winrt::com_ptr<IWICImagingFactory2> wicFactory = App::GetInstance().GetWICImageFactory();
+		winrt::com_ptr<IWICImagingFactory2> wicFactory = App::Get().GetWICImageFactory();
 		if (!wicFactory) {
 			Logger::Get().Error("获取 WICImageFactory 失败");
 			return false;
@@ -469,7 +469,7 @@ void CursorDrawer::_StartCapture(POINT cursorPt) {
 		Logger::Get().Win32Error("MagShowSystemCursor 失败");
 	}
 
-	if (App::GetInstance().IsAdjustCursorSpeed()) {
+	if (App::Get().IsAdjustCursorSpeed()) {
 		// 设置鼠标移动速度
 		if (SystemParametersInfo(SPI_GETMOUSESPEED, 0, &_cursorSpeed, 0)) {
 			long newSpeed = std::clamp(lroundf(_cursorSpeed / (_clientScaleX + _clientScaleY) * 2), 1L, 20L);
@@ -483,9 +483,9 @@ void CursorDrawer::_StartCapture(POINT cursorPt) {
 	}
 
 	// 移动光标位置
-	const RECT& srcFrameRect = App::GetInstance().GetFrameSource().GetSrcFrameRect();
-	const RECT& hostRect = App::GetInstance().GetHostWndRect();
-	const RECT& outputRect = App::GetInstance().GetRenderer().GetOutputRect();
+	const RECT& srcFrameRect = App::Get().GetFrameSource().GetSrcFrameRect();
+	const RECT& hostRect = App::Get().GetHostWndRect();
+	const RECT& outputRect = App::Get().GetRenderer().GetOutputRect();
 	// 跳过黑边
 	cursorPt.x = std::clamp(cursorPt.x, hostRect.left + outputRect.left, hostRect.left + outputRect.right - 1);
 	cursorPt.y = std::clamp(cursorPt.y, hostRect.top + outputRect.top, hostRect.top + outputRect.bottom - 1);
@@ -517,9 +517,9 @@ void CursorDrawer::_StopCapture(POINT cursorPt) {
 	//
 	// 在有黑边的情况下自动将光标调整到全屏窗口外
 
-	const RECT& srcFrameRect = App::GetInstance().GetFrameSource().GetSrcFrameRect();
-	const RECT& hostRect = App::GetInstance().GetHostWndRect();
-	const RECT& outputRect = App::GetInstance().GetRenderer().GetOutputRect();
+	const RECT& srcFrameRect = App::Get().GetFrameSource().GetSrcFrameRect();
+	const RECT& hostRect = App::Get().GetHostWndRect();
+	const RECT& outputRect = App::Get().GetRenderer().GetOutputRect();
 
 	POINT newCursorPt{};
 
@@ -547,7 +547,7 @@ void CursorDrawer::_StopCapture(POINT cursorPt) {
 
 		SetCursorPos(newCursorPt.x, newCursorPt.y);
 
-		if (App::GetInstance().IsAdjustCursorSpeed()) {
+		if (App::Get().IsAdjustCursorSpeed()) {
 			SystemParametersInfo(SPI_SETMOUSESPEED, 0, (PVOID)(intptr_t)_cursorSpeed, 0);
 		}
 
@@ -568,19 +568,19 @@ void CursorDrawer::_StopCapture(POINT cursorPt) {
 }
 
 void CursorDrawer::Draw() {
-	if (App::GetInstance().IsNoCursor()) {
+	if (App::Get().IsNoCursor()) {
 		// 不绘制光标
 		return;
 	}
 
-	if (App::GetInstance().IsMultiMonitorMode()) {
+	if (App::Get().IsMultiMonitorMode()) {
 		// 多屏幕模式下不处于捕获状态则不绘制光标
 		if (!_isUnderCapture) {
 			return;
 		}
-	} else if (!App::GetInstance().IsBreakpointMode() && App::GetInstance().IsConfineCursorIn3DGames()) {
+	} else if (!App::Get().IsBreakpointMode() && App::Get().IsConfineCursorIn3DGames()) {
 		// 开启“在 3D 游戏中限制光标”则每帧都限制一次光标
-		ClipCursor(&App::GetInstance().GetFrameSource().GetSrcFrameRect());
+		ClipCursor(&App::Get().GetFrameSource().GetSrcFrameRect());
 	}
 
 	CURSORINFO ci{};
@@ -616,13 +616,13 @@ void CursorDrawer::Draw() {
 	SIZE cursorSize = { lroundf(info->width * _zoomFactorX), lroundf(info->height * _zoomFactorY) };
 
 	// 映射坐标
-	const RECT& srcClient = App::GetInstance().GetFrameSource().GetSrcFrameRect();
+	const RECT& srcClient = App::Get().GetFrameSource().GetSrcFrameRect();
 	POINT targetScreenPos = {
 		lroundf((ci.ptScreenPos.x - srcClient.left) * _clientScaleX - info->xHotSpot * _zoomFactorX),
 		lroundf((ci.ptScreenPos.y - srcClient.top) * _clientScaleY - info->yHotSpot * _zoomFactorY)
 	};
 
-	const RECT& outputRect = App::GetInstance().GetRenderer().GetOutputRect();
+	const RECT& outputRect = App::Get().GetRenderer().GetOutputRect();
 
 	RECT cursorRect{
 		targetScreenPos.x + outputRect.left,
@@ -644,9 +644,9 @@ void CursorDrawer::Draw() {
 	float right = left + cursorSize.cx / FLOAT(outputRect.right - outputRect.left) * 2;
 	float bottom = top - cursorSize.cy / FLOAT(outputRect.bottom - outputRect.top) * 2;
 
-	Renderer& renderer = App::GetInstance().GetRenderer();
+	Renderer& renderer = App::Get().GetRenderer();
 	renderer.SetSimpleVS(_vtxBuffer.get());
-	auto d3dDC = App::GetInstance().GetDeviceResources().GetD3DDC();
+	auto d3dDC = App::Get().GetDeviceResources().GetD3DDC();
 
 	d3dDC->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 	
@@ -680,7 +680,7 @@ void CursorDrawer::Draw() {
 		d3dDC->Unmap(_vtxBuffer.get(), 0);
 
 		if (!renderer.SetCopyPS(
-			App::GetInstance().GetCursorInterpolationMode() == 0 ? _pointSam : _linearSam,
+			App::Get().GetCursorInterpolationMode() == 0 ? _pointSam : _linearSam,
 			info->texture.get())
 		) {
 			Logger::Get().Error("SetCopyPS 失败");
@@ -751,7 +751,7 @@ void CursorDrawer::Draw() {
 		d3dDC->OMSetRenderTargets(0, nullptr, nullptr);
 		ID3D11ShaderResourceView* srv[2] = { _monoTmpSrv, info->texture.get() };
 		d3dDC->PSSetShaderResources(0, 2, srv);
-		d3dDC->PSSetSamplers(0, 1, App::GetInstance().GetCursorInterpolationMode() == 0 ? &_pointSam : &_linearSam);
+		d3dDC->PSSetSamplers(0, 1, App::Get().GetCursorInterpolationMode() == 0 ? &_pointSam : &_linearSam);
 
 		d3dDC->OMSetRenderTargets(1, &_rtv, nullptr);
 		vp.TopLeftX = (FLOAT)outputRect.left;

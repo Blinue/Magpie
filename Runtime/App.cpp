@@ -408,7 +408,7 @@ bool App::_DisableDirectFlip() {
 }
 
 LRESULT App::_HostWndProcStatic(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
-	return GetInstance()._HostWndProc(hWnd, msg, wParam, lParam);
+	return Get()._HostWndProc(hWnd, msg, wParam, lParam);
 }
 
 

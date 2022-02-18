@@ -12,7 +12,7 @@ class App {
 public:
 	~App();
 
-	static App& GetInstance() noexcept {
+	static App& Get() noexcept {
 		static App instance;
 		return instance;
 	}

@@ -41,7 +41,7 @@ bool ImGui_ImplMagpie_Init() {
     bd->TicksPerSecond = perf_frequency;
     bd->Time = perf_counter;
 
-    io.ImeWindowHandle = App::GetInstance().GetHwndHost();
+    io.ImeWindowHandle = App::Get().GetHwndHost();
 
     return true;
 }
@@ -60,8 +60,8 @@ static void ImGui_ImplMagpie_UpdateMousePos() {
     ImGui_ImplMagpie_Data* bd = ImGui_ImplMagpie_GetBackendData();
     ImGuiIO& io = ImGui::GetIO();
 
-    const RECT& srcFrameRect = App::GetInstance().GetFrameSource().GetSrcFrameRect();
-    const RECT& outputRect = App::GetInstance().GetRenderer().GetOutputRect();
+    const RECT& srcFrameRect = App::Get().GetFrameSource().GetSrcFrameRect();
+    const RECT& outputRect = App::Get().GetRenderer().GetOutputRect();
 
     SIZE srcFrameSize = { srcFrameRect.right - srcFrameRect.left, srcFrameRect.bottom - srcFrameRect.top };
     SIZE outputSize = { outputRect.right - outputRect.left, outputRect.bottom - outputRect.top };
@@ -81,8 +81,8 @@ void ImGui_ImplMagpie_NewFrame() {
     IM_ASSERT(bd != NULL && "Did you call ImGui_ImplMagpie_Init()?");
 
     // Setup display size (every frame to accommodate for window resizing)
-    const RECT& hostRect = App::GetInstance().GetHostWndRect();
-    const RECT& outputRect = App::GetInstance().GetRenderer().GetOutputRect();
+    const RECT& hostRect = App::Get().GetHostWndRect();
+    const RECT& outputRect = App::Get().GetRenderer().GetOutputRect();
     io.DisplaySize = ImVec2((float)(hostRect.right - outputRect.left), (float)(hostRect.bottom - outputRect.top));
 
     // Setup time step

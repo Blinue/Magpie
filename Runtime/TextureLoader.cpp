@@ -7,7 +7,7 @@
 
 
 winrt::com_ptr<ID3D11Texture2D> LoadImg(const wchar_t* fileName) {
-	winrt::com_ptr<IWICImagingFactory2> factory = App::GetInstance().GetWICImageFactory();
+	winrt::com_ptr<IWICImagingFactory2> factory = App::Get().GetWICImageFactory();
 	if (!factory) {
 		Logger::Get().Error("GetWICImageFactory 失败");
 		return nullptr;
@@ -119,7 +119,7 @@ winrt::com_ptr<ID3D11Texture2D> LoadImg(const wchar_t* fileName) {
 	initData.SysMemPitch = stride;
 
 	winrt::com_ptr<ID3D11Texture2D> result;
-	hr = App::GetInstance().GetDeviceResources().GetD3DDevice()->CreateTexture2D(&desc, &initData, result.put());
+	hr = App::Get().GetDeviceResources().GetD3DDevice()->CreateTexture2D(&desc, &initData, result.put());
 	if (FAILED(hr)) {
 		Logger::Get().ComError("CreateTexture2D 失败", hr);
 		return nullptr;
@@ -133,7 +133,7 @@ winrt::com_ptr<ID3D11Texture2D> LoadDDS(const wchar_t* fileName) {
 
 	DirectX::DDS_ALPHA_MODE alphaMode = DirectX::DDS_ALPHA_MODE_STRAIGHT;
 	HRESULT hr = DirectX::CreateDDSTextureFromFileEx(
-		App::GetInstance().GetDeviceResources().GetD3DDevice(),
+		App::Get().GetDeviceResources().GetD3DDevice(),
 		fileName,
 		0,
 		D3D11_USAGE_DEFAULT,
@@ -150,7 +150,7 @@ winrt::com_ptr<ID3D11Texture2D> LoadDDS(const wchar_t* fileName) {
 
 		// 第二次尝试，不作为渲染目标
 		hr = DirectX::CreateDDSTextureFromFileEx(
-			App::GetInstance().GetDeviceResources().GetD3DDevice(),
+			App::Get().GetDeviceResources().GetD3DDevice(),
 			fileName,
 			0,
 			D3D11_USAGE_DEFAULT,

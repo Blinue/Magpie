@@ -6,7 +6,7 @@
 
 class EffectCache {
 public:
-	static EffectCache& GetInstance() {
+	static EffectCache& Get() {
 		static EffectCache instance;
 		return instance;
 	}
