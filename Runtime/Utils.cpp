@@ -1,19 +1,33 @@
 #include "pch.h"
 #include "Utils.h"
 #include <io.h>
-#include "StrUtils.h"
 #include <winternl.h>
+#include "StrUtils.h"
+#include "Logger.h"
 
+
+UINT Utils::GetWindowShowCmd(HWND hwnd) {
+	assert(hwnd != NULL);
+
+	WINDOWPLACEMENT wp{};
+	wp.length = sizeof(wp);
+	if (!GetWindowPlacement(hwnd, &wp)) {
+		Logger::Get().Win32Error("GetWindowPlacement 出错");
+		assert(false);
+	}
+
+	return wp.showCmd;
+}
 
 bool Utils::GetClientScreenRect(HWND hWnd, RECT& rect) {
 	if (!GetClientRect(hWnd, &rect)) {
-		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetClientRect 出错"));
+		Logger::Get().Win32Error("GetClientRect 出错");
 		return false;
 	}
 
 	POINT p{};
 	if (!ClientToScreen(hWnd, &p)) {
-		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("ClientToScreen 出错"));
+		Logger::Get().Win32Error("ClientToScreen 出错");
 		return false;
 	}
 
@@ -25,8 +39,19 @@ bool Utils::GetClientScreenRect(HWND hWnd, RECT& rect) {
 	return true;
 }
 
+bool Utils::GetWindowFrameRect(HWND hWnd, RECT& result) {
+	HRESULT hr = DwmGetWindowAttribute(hWnd,
+		DWMWA_EXTENDED_FRAME_BOUNDS, &result, sizeof(result));
+	if (FAILED(hr)) {
+		Logger::Get().ComError("DwmGetWindowAttribute 失败", hr);
+		return false;
+	}
+
+	return true;
+}
+
 bool Utils::ReadFile(const wchar_t* fileName, std::vector<BYTE>& result) {
-	SPDLOG_LOGGER_INFO(logger, fmt::format("读取文件：{}", StrUtils::UTF16ToUTF8(fileName)));
+	Logger::Get().Info(fmt::format("读取文件：{}", StrUtils::UTF16ToUTF8(fileName)));
 
 	CREATEFILE2_EXTENDED_PARAMETERS extendedParams = {};
 	extendedParams.dwSize = sizeof(CREATEFILE2_EXTENDED_PARAMETERS);
@@ -39,7 +64,7 @@ bool Utils::ReadFile(const wchar_t* fileName, std::vector<BYTE>& result) {
 	ScopedHandle hFile(SafeHandle(CreateFile2(fileName, GENERIC_READ, FILE_SHARE_READ, OPEN_EXISTING, &extendedParams)));
 
 	if (!hFile) {
-		SPDLOG_LOGGER_ERROR(logger, "打开文件失败");
+		Logger::Get().Error("打开文件失败");
 		return false;
 	}
 	
@@ -48,7 +73,7 @@ bool Utils::ReadFile(const wchar_t* fileName, std::vector<BYTE>& result) {
 
 	DWORD readed;
 	if (!::ReadFile(hFile.get(), result.data(), size, &readed, nullptr)) {
-		SPDLOG_LOGGER_ERROR(logger, "读取文件失败");
+		Logger::Get().Error("读取文件失败");
 		return false;
 	}
 
@@ -58,7 +83,7 @@ bool Utils::ReadFile(const wchar_t* fileName, std::vector<BYTE>& result) {
 bool Utils::ReadTextFile(const wchar_t* fileName, std::string& result) {
 	FILE* hFile;
 	if (_wfopen_s(&hFile, fileName, L"rt") || !hFile) {
-		SPDLOG_LOGGER_ERROR(logger, fmt::format("打开文件{}失败", StrUtils::UTF16ToUTF8(fileName)));
+		Logger::Get().Error(fmt::format("打开文件{}失败", StrUtils::UTF16ToUTF8(fileName)));
 		return false;
 	}
 
@@ -79,7 +104,7 @@ bool Utils::ReadTextFile(const wchar_t* fileName, std::string& result) {
 bool Utils::WriteFile(const wchar_t* fileName, const void* buffer, size_t bufferSize) {
 	FILE* hFile;
 	if (_wfopen_s(&hFile, fileName, L"wb") || !hFile) {
-		SPDLOG_LOGGER_ERROR(logger, fmt::format("打开文件{}失败", StrUtils::UTF16ToUTF8(fileName)));
+		Logger::Get().Error(fmt::format("打开文件{}失败", StrUtils::UTF16ToUTF8(fileName)));
 		return false;
 	}
 
@@ -93,13 +118,13 @@ bool Utils::WriteFile(const wchar_t* fileName, const void* buffer, size_t buffer
 RTL_OSVERSIONINFOW _GetOSVersion() {
 	HMODULE hNtDll = GetModuleHandle(L"ntdll.dll");
 	if (!hNtDll) {
-		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("获取 ntdll.dll 句柄失败"));
+		Logger::Get().Win32Error("获取 ntdll.dll 句柄失败");
 		return {};
 	}
 	
 	auto rtlGetVersion = (LONG(WINAPI*)(PRTL_OSVERSIONINFOW))GetProcAddress(hNtDll, "RtlGetVersion");
 	if (rtlGetVersion == nullptr) {
-		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("获取 RtlGetVersion 地址失败"));
+		Logger::Get().Win32Error("获取 RtlGetVersion 地址失败");
 		assert(false);
 		return {};
 	}
@@ -154,7 +179,7 @@ Utils::Hasher::~Hasher() {
 bool Utils::Hasher::Initialize() {
 	NTSTATUS status = BCryptOpenAlgorithmProvider(&_hAlg, BCRYPT_SHA1_ALGORITHM, NULL, 0);
 	if (!NT_SUCCESS(status)) {
-		SPDLOG_LOGGER_ERROR(logger, fmt::format("BCryptOpenAlgorithmProvider 失败\n\tNTSTATUS={}", status));
+		Logger::Get().Error(fmt::format("BCryptOpenAlgorithmProvider 失败\n\tNTSTATUS={}", status));
 		return false;
 	}
 
@@ -162,29 +187,29 @@ bool Utils::Hasher::Initialize() {
 
 	status = BCryptGetProperty(_hAlg, BCRYPT_OBJECT_LENGTH, (PBYTE)&_hashObjLen, sizeof(_hashObjLen), &result, 0);
 	if (!NT_SUCCESS(status)) {
-		SPDLOG_LOGGER_ERROR(logger, fmt::format("BCryptGetProperty 失败\n\tNTSTATUS={}", status));
+		Logger::Get().Error(fmt::format("BCryptGetProperty 失败\n\tNTSTATUS={}", status));
 		return false;
 	}
 
 	_hashObj = HeapAlloc(GetProcessHeap(), 0, _hashObjLen);
 	if (!_hashObj) {
-		SPDLOG_LOGGER_ERROR(logger, "HeapAlloc 失败");
+		Logger::Get().Error("HeapAlloc 失败");
 		return false;
 	}
 
 	status = BCryptGetProperty(_hAlg, BCRYPT_HASH_LENGTH, (PBYTE)&_hashLen, sizeof(_hashLen), &result, 0);
 	if (!NT_SUCCESS(status)) {
-		SPDLOG_LOGGER_ERROR(logger, fmt::format("BCryptGetProperty 失败\n\tNTSTATUS={}", status));
+		Logger::Get().Error(fmt::format("BCryptGetProperty 失败\n\tNTSTATUS={}", status));
 		return false;
 	}
 
 	status = BCryptCreateHash(_hAlg, &_hHash, (PUCHAR)_hashObj, _hashObjLen, NULL, 0, BCRYPT_HASH_REUSABLE_FLAG);
 	if (!NT_SUCCESS(status)) {
-		SPDLOG_LOGGER_ERROR(logger, fmt::format("BCryptCreateHash 失败\n\tNTSTATUS={}", status));
+		Logger::Get().Error(fmt::format("BCryptCreateHash 失败\n\tNTSTATUS={}", status));
 		return false;
 	}
 
-	SPDLOG_LOGGER_INFO(logger, "Utils::Hasher 初始化成功");
+	Logger::Get().Error("Utils::Hasher 初始化成功");
 	return true;
 }
 
@@ -193,13 +218,13 @@ bool Utils::Hasher::Hash(void* data, size_t len, std::vector<BYTE>& result) {
 
 	NTSTATUS status = BCryptHashData(_hHash, (PUCHAR)data, (ULONG)len, 0);
 	if (!NT_SUCCESS(status)) {
-		SPDLOG_LOGGER_ERROR(logger, fmt::format("BCryptCreateHash 失败\n\tNTSTATUS={}", status));
+		Logger::Get().Error(fmt::format("BCryptCreateHash 失败\n\tNTSTATUS={}", status));
 		return false;
 	}
 
 	status = BCryptFinishHash(_hHash, result.data(), (ULONG)result.size(), 0);
 	if (!NT_SUCCESS(status)) {
-		SPDLOG_LOGGER_ERROR(logger, fmt::format("BCryptFinishHash 失败\n\tNTSTATUS={}", status));
+		Logger::Get().Error(fmt::format("BCryptFinishHash 失败\n\tNTSTATUS={}", status));
 		return false;
 	}
 

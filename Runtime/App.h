@@ -1,6 +1,7 @@
 #pragma once
 #include "pch.h"
 #include <unordered_map>
+#include "ErrorMessages.h"
 
 
 class DeviceResources;

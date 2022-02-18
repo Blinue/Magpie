@@ -9,9 +9,8 @@
 #include "Renderer.h"
 #include "DeviceResources.h"
 #include "GPUTimer.h"
+#include "Logger.h"
 
-
-extern std::shared_ptr<spdlog::logger> logger;
 
 const UINT WM_DESTORYHOST = RegisterWindowMessage(L"MAGPIE_WM_DESTORYHOST");
 
@@ -28,7 +27,7 @@ App::~App() {
 }
 
 bool App::Initialize(HINSTANCE hInst) {
-	SPDLOG_LOGGER_INFO(logger, "正在初始化 App");
+	Logger::Get().Info("正在初始化 App");
 
 	_hInst = hInst;
 
@@ -39,10 +38,10 @@ bool App::Initialize(HINSTANCE hInst) {
 
 	// 供隐藏光标和 MagCallback 抓取模式使用
 	if (!MagInitialize()) {
-		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("MagInitialize 失败"));
+		Logger::Get().Win32Error("MagInitialize 失败");
 	}
 
-	SPDLOG_LOGGER_INFO(logger, "App 初始化成功");
+	Logger::Get().Info("App 初始化成功");
 	return true;
 }
 
@@ -65,7 +64,7 @@ bool App::Run(
 	_cropBorders = cropBorders;
 	_flags = flags;
 
-	SPDLOG_LOGGER_INFO(logger, fmt::format("运行时参数：\n\thwndSrc：{}\n\tcaptureMode：{}\n\tadjustCursorSpeed：{}\n\tdisableLowLatency：{}\n\tbreakpointMode：{}\n\tdisableWindowResizing：{}\n\tdisableDirectFlip：{}\n\tconfineCursorIn3DGames：{}\n\tadapterIdx：{}\n\tcropTitleBarOfUWP：{}\n\tmultiMonitorUsage: {}\n\tnoCursor: {}\n\tdisableEffectCache: {}\n\tsimulateExclusiveFullscreen: {}\n\tcursorInterpolationMode: {}\n\tcropLeft: {}\n\tcropTop: {}\n\tcropRight: {}\n\tcropBottom: {}", (void*)hwndSrc, captureMode, IsAdjustCursorSpeed(), IsDisableLowLatency(), IsBreakpointMode(), IsDisableWindowResizing(), IsDisableDirectFlip(), IsConfineCursorIn3DGames(), adapterIdx, IsCropTitleBarOfUWP(), multiMonitorUsage, IsNoCursor(), IsDisableEffectCache(), IsSimulateExclusiveFullscreen(), cursorInterpolationMode, cropBorders.left, cropBorders.top, cropBorders.right, cropBorders.bottom));
+	Logger::Get().Info(fmt::format("运行时参数：\n\thwndSrc：{}\n\tcaptureMode：{}\n\tadjustCursorSpeed：{}\n\tdisableLowLatency：{}\n\tbreakpointMode：{}\n\tdisableWindowResizing：{}\n\tdisableDirectFlip：{}\n\tconfineCursorIn3DGames：{}\n\tadapterIdx：{}\n\tcropTitleBarOfUWP：{}\n\tmultiMonitorUsage: {}\n\tnoCursor: {}\n\tdisableEffectCache: {}\n\tsimulateExclusiveFullscreen: {}\n\tcursorInterpolationMode: {}\n\tcropLeft: {}\n\tcropTop: {}\n\tcropRight: {}\n\tcropBottom: {}", (void*)hwndSrc, captureMode, IsAdjustCursorSpeed(), IsDisableLowLatency(), IsBreakpointMode(), IsDisableWindowResizing(), IsDisableDirectFlip(), IsConfineCursorIn3DGames(), adapterIdx, IsCropTitleBarOfUWP(), multiMonitorUsage, IsNoCursor(), IsDisableEffectCache(), IsSimulateExclusiveFullscreen(), cursorInterpolationMode, cropBorders.left, cropBorders.top, cropBorders.right, cropBorders.bottom));
 	
 	SetErrorMsg(ErrorMessages::GENERIC);
 
@@ -74,21 +73,21 @@ bool App::Run(
 	ExclModeHack exclMode;
 
 	if (!_CreateHostWnd()) {
-		SPDLOG_LOGGER_CRITICAL(logger, "创建主窗口失败");
+		Logger::Get().Critical("创建主窗口失败");
 		_OnQuit();
 		return false;
 	}
 
 	_deviceResources.reset(new DeviceResources());
 	if (!_deviceResources->Initialize()) {
-		SPDLOG_LOGGER_CRITICAL(logger, "初始化 DeviceResources 失败");
+		Logger::Get().Critical("初始化 DeviceResources 失败");
 		Quit();
 		_RunMessageLoop();
 		return false;
 	}
 	
 	if (!_InitFrameSource(captureMode)) {
-		SPDLOG_LOGGER_CRITICAL(logger, "_InitFrameSource 失败");
+		Logger::Get().Critical("_InitFrameSource 失败");
 		Quit();
 		_RunMessageLoop();
 		return false;
@@ -96,7 +95,7 @@ bool App::Run(
 
 	_renderer.reset(new Renderer());
 	if (!_renderer->Initialize(effectsJson)) {
-		SPDLOG_LOGGER_CRITICAL(logger, "初始化 Renderer 失败");
+		Logger::Get().Critical("初始化 Renderer 失败");
 		Quit();
 		_RunMessageLoop();
 		return false;
@@ -105,7 +104,7 @@ bool App::Run(
 	if (IsDisableDirectFlip() && !IsBreakpointMode()) {
 		// 在此处创建的 DDF 窗口不会立刻显示
 		if (!_DisableDirectFlip()) {
-			SPDLOG_LOGGER_ERROR(logger, "_DisableDirectFlip 失败");
+			Logger::Get().Error("_DisableDirectFlip 失败");
 		}
 	}
 
@@ -117,7 +116,7 @@ bool App::Run(
 }
 
 void App::_RunMessageLoop() {
-	SPDLOG_LOGGER_INFO(logger, "开始接收窗口消息");
+	Logger::Get().Info("开始接收窗口消息");
 
 	while (true) {
 		MSG msg;
@@ -140,7 +139,7 @@ void App::_RunMessageLoop() {
 			ShowWindow(_hwndDDF, SW_NORMAL);
 
 			if (!SetWindowPos(_hwndDDF, _hwndHost, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOREDRAW)) {
-				SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("SetWindowPos 失败"));
+				Logger::Get().Win32Error("SetWindowPos 失败");
 			}
 		}
 	}
@@ -158,7 +157,7 @@ winrt::com_ptr<IWICImagingFactory2> App::GetWICImageFactory() {
 		);
 
 		if (FAILED(hr)) {
-			SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("创建 WICImagingFactory 失败", hr));
+			Logger::Get().ComError("创建 WICImagingFactory 失败", hr);
 			return nullptr;
 		}
 	}
@@ -195,9 +194,9 @@ void App::_RegisterWndClasses() const {
 
 	if (!RegisterClassEx(&wcex)) {
 		// 忽略此错误，因为可能是重复注册产生的错误
-		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("注册主窗口类失败"));
+		Logger::Get().Win32Error("注册主窗口类失败");
 	} else {
-		SPDLOG_LOGGER_INFO(logger, "已注册主窗口类");
+		Logger::Get().Info("已注册主窗口类");
 	}
 
 	wcex.lpfnWndProc = DDFWndProc;
@@ -205,9 +204,9 @@ void App::_RegisterWndClasses() const {
 	wcex.lpszClassName = DDF_WINDOW_CLASS_NAME;
 
 	if (!RegisterClassEx(&wcex)) {
-		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("注册 DDF 窗口类失败"));
+		Logger::Get().Win32Error("注册 DDF 窗口类失败");
 	} else {
-		SPDLOG_LOGGER_INFO(logger, "已注册 DDF 窗口类");
+		Logger::Get().Info("已注册 DDF 窗口类");
 	}
 }
 
@@ -228,14 +227,14 @@ static bool CalcHostWndRect(HWND hWnd, UINT multiMonitorMode, RECT& result) {
 		// 使用距离源窗口最近的显示器
 		HMONITOR hMonitor = MonitorFromWindow(hWnd, MONITOR_DEFAULTTONEAREST);
 		if (!hMonitor) {
-			SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("MonitorFromWindow 失败"));
+			Logger::Get().Win32Error("MonitorFromWindow 失败");
 			return false;
 		}
 
 		MONITORINFO mi{};
 		mi.cbSize = sizeof(mi);
 		if (!GetMonitorInfo(hMonitor, &mi)) {
-			SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetMonitorInfo 失败"));
+			Logger::Get().Win32Error("GetMonitorInfo 失败");
 			return false;
 		}
 		result = mi.rcMonitor;
@@ -250,18 +249,18 @@ static bool CalcHostWndRect(HWND hWnd, UINT multiMonitorMode, RECT& result) {
 		RECT params[2]{};
 
 		if (!Utils::GetWindowFrameRect(hWnd, params[0])) {
-			SPDLOG_LOGGER_ERROR(logger, "GetWindowFrameRect 失败");
+			Logger::Get().Error("GetWindowFrameRect 失败");
 			return false;
 		}
 		
 		if (!EnumDisplayMonitors(NULL, NULL, MonitorEnumProc, (LPARAM)&params)) {
-			SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("EnumDisplayMonitors 失败"));
+			Logger::Get().Win32Error("EnumDisplayMonitors 失败");
 			return false;
 		}
 		
 		result = params[1];
 		if (result.right - result.left <= 0 || result.bottom - result.top <= 0) {
-			SPDLOG_LOGGER_ERROR(logger, "计算主窗口坐标失败");
+			Logger::Get().Error("计算主窗口坐标失败");
 			return false;
 		}
 
@@ -288,12 +287,12 @@ static bool CalcHostWndRect(HWND hWnd, UINT multiMonitorMode, RECT& result) {
 // 创建主窗口
 bool App::_CreateHostWnd() {
 	if (FindWindow(HOST_WINDOW_CLASS_NAME, nullptr)) {
-		SPDLOG_LOGGER_CRITICAL(logger, "已存在主窗口");
+		Logger::Get().Error("已存在主窗口");
 		return false;
 	}
 
 	if (!CalcHostWndRect(_hwndSrc, GetMultiMonitorUsage(), _hostWndRect)) {
-		SPDLOG_LOGGER_ERROR(logger, "CalcHostWndRect 失败");
+		Logger::Get().Error("CalcHostWndRect 失败");
 		return false;
 	}
 
@@ -318,20 +317,20 @@ bool App::_CreateHostWnd() {
 		NULL
 	);
 	if (!_hwndHost) {
-		SPDLOG_LOGGER_CRITICAL(logger, MakeWin32ErrorMsg("创建主窗口失败"));
+		Logger::Get().Win32Error("创建主窗口失败");
 		return false;
 	}
 
-	SPDLOG_LOGGER_INFO(logger, fmt::format("主窗口尺寸：{}x{}",
+	Logger::Get().Info(fmt::format("主窗口尺寸：{}x{}",
 		_hostWndRect.right - _hostWndRect.left, _hostWndRect.bottom - _hostWndRect.top));
 
 	// 设置窗口不透明
 	// 不完全透明时可关闭 DirectFlip
 	if (!SetLayeredWindowAttributes(_hwndHost, 0, IsDisableDirectFlip() ? 254 : 255, LWA_ALPHA)) {
-		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("SetLayeredWindowAttributes 失败"));
+		Logger::Get().Win32Error("SetLayeredWindowAttributes 失败");
 	}
 
-	SPDLOG_LOGGER_INFO(logger, "已创建主窗口");
+	Logger::Get().Info("已创建主窗口");
 	return true;
 }
 
@@ -350,17 +349,17 @@ bool App::_InitFrameSource(int captureMode) {
 		_frameSource.reset(new DwmSharedSurfaceFrameSource());
 		break;
 	default:
-		SPDLOG_LOGGER_CRITICAL(logger, "未知的捕获模式");
+		Logger::Get().Critical("未知的捕获模式");
 		return false;
 	}
 
 	if (!_frameSource->Initialize()) {
-		SPDLOG_LOGGER_CRITICAL(logger, "初始化 FrameSource 失败");
+		Logger::Get().Critical("初始化 FrameSource 失败");
 		return false;
 	}
 
 	const RECT& frameRect = _frameSource->GetSrcFrameRect();
-	SPDLOG_LOGGER_INFO(logger, fmt::format("源窗口尺寸：{}x{}",
+	Logger::Get().Info(fmt::format("源窗口尺寸：{}x{}",
 		frameRect.right - frameRect.left, frameRect.bottom - frameRect.top));
 
 	return true;
@@ -385,13 +384,13 @@ bool App::_DisableDirectFlip() {
 	);
 
 	if (!_hwndDDF) {
-		SPDLOG_LOGGER_CRITICAL(logger, MakeWin32ErrorMsg("创建 DDF 窗口失败"));
+		Logger::Get().Win32Error("创建 DDF 窗口失败");
 		return false;
 	}
 
 	// 设置窗口不透明
 	if (!SetLayeredWindowAttributes(_hwndDDF, 0, 255, LWA_ALPHA)) {
-		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("SetLayeredWindowAttributes 失败"));
+		Logger::Get().Win32Error("SetLayeredWindowAttributes 失败");
 	}
 
 	if (_frameSource->IsScreenCapture()) {
@@ -399,12 +398,12 @@ bool App::_DisableDirectFlip() {
 		if (Utils::CompareVersion(version.dwMajorVersion, version.dwMinorVersion, version.dwBuildNumber, 10, 0, 19041) >= 0) {
 			// 使 DDF 窗口无法被捕获到
 			if (!SetWindowDisplayAffinity(_hwndDDF, WDA_EXCLUDEFROMCAPTURE)) {
-				SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("SetWindowDisplayAffinity 失败"));
+				Logger::Get().Win32Error("SetWindowDisplayAffinity 失败");
 			}
 		}
 	}
 
-	SPDLOG_LOGGER_INFO(logger, "已创建 DDF 主窗口");
+	Logger::Get().Info("已创建 DDF 主窗口");
 	return true;
 }
 
@@ -421,7 +420,7 @@ LRESULT App::_HostWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	}
 
 	if (message == WM_DESTORYHOST) {
-		SPDLOG_LOGGER_INFO(logger, "收到 MAGPIE_WM_DESTORYHOST 消息，即将销毁主窗口");
+		Logger::Get().Info("收到 MAGPIE_WM_DESTORYHOST 消息，即将销毁主窗口");
 		Quit();
 		return 0;
 	}

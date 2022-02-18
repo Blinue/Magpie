@@ -2,14 +2,12 @@
 #include "DwmSharedSurfaceFrameSource.h"
 #include "App.h"
 #include "DeviceResources.h"
-
-
-extern std::shared_ptr<spdlog::logger> logger;
+#include "Logger.h"
 
 
 bool DwmSharedSurfaceFrameSource::Initialize() {
 	if (!FrameSourceBase::Initialize()) {
-		SPDLOG_LOGGER_ERROR(logger, "初始化 FrameSourceBase 失败");
+		Logger::Get().Error("初始化 FrameSourceBase 失败");
 		return false;
 	}
 
@@ -17,12 +15,12 @@ bool DwmSharedSurfaceFrameSource::Initialize() {
 		GetModuleHandle(L"user32.dll"), "DwmGetDxSharedSurface");
 
 	if (!_dwmGetDxSharedSurface) {
-		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("获取函数 DwmGetDxSharedSurface 地址失败"));
+		Logger::Get().Win32Error("获取函数 DwmGetDxSharedSurface 地址失败");
 		return false;
 	}
 
 	if (!_UpdateSrcFrameRect()) {
-		SPDLOG_LOGGER_ERROR(logger, "_UpdateSrcFrameRect 失败");
+		Logger::Get().Error("_UpdateSrcFrameRect 失败");
 		return false;
 	}
 	
@@ -30,12 +28,12 @@ bool DwmSharedSurfaceFrameSource::Initialize() {
 
 	double a, bx, by;
 	if (!_GetMapToOriginDPI(hwndSrc, a, bx, by)) {
-		SPDLOG_LOGGER_ERROR(logger, "_GetMapToOriginDPI 失败");
+		Logger::Get().Error("_GetMapToOriginDPI 失败");
 		App::GetInstance().SetErrorMsg(ErrorMessages::FAILED_TO_CAPTURE);
 		return false;
 	}
 
-	SPDLOG_LOGGER_INFO(logger, fmt::format("源窗口 DPI 缩放为 {}", 1 / a));
+	Logger::Get().Info(fmt::format("源窗口 DPI 缩放为 {}", 1 / a));
 
 	RECT frameRect = {
 		std::lround(_srcFrameRect.left * a + bx),
@@ -47,7 +45,7 @@ bool DwmSharedSurfaceFrameSource::Initialize() {
 		|| frameRect.bottom < 0 || frameRect.right - frameRect.left <= 0
 		|| frameRect.bottom - frameRect.top <= 0
 	) {
-		SPDLOG_LOGGER_ERROR(logger, "裁剪失败");
+		Logger::Get().Error("裁剪失败");
 		App::GetInstance().SetErrorMsg(ErrorMessages::FAILED_TO_CROP);
 		return false;
 	}
@@ -72,11 +70,11 @@ bool DwmSharedSurfaceFrameSource::Initialize() {
 	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
 	HRESULT hr = App::GetInstance().GetDeviceResources().GetD3DDevice()->CreateTexture2D(&desc, nullptr, _output.put());
 	if (FAILED(hr)) {
-		SPDLOG_LOGGER_CRITICAL(logger, MakeComErrorMsg("创建 Texture2D 失败", hr));
+		Logger::Get().ComError("创建 Texture2D 失败", hr);
 		return false;
 	}
 
-	SPDLOG_LOGGER_INFO(logger, "DwmSharedSurfaceFrameSource 初始化完成");
+	Logger::Get().Info("DwmSharedSurfaceFrameSource 初始化完成");
 	return true;
 }
 
@@ -86,7 +84,7 @@ FrameSourceBase::UpdateState DwmSharedSurfaceFrameSource::Update() {
 		&sharedTextureHandle, nullptr, nullptr, nullptr, nullptr)
 		|| !sharedTextureHandle
 	) {
-		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("DwmGetDxSharedSurface 失败"));
+		Logger::Get().Win32Error("DwmGetDxSharedSurface 失败");
 		return UpdateState::Error;
 	}
 
@@ -94,7 +92,7 @@ FrameSourceBase::UpdateState DwmSharedSurfaceFrameSource::Update() {
 	HRESULT hr = App::GetInstance().GetDeviceResources().GetD3DDevice()
 		->OpenSharedResource(sharedTextureHandle, IID_PPV_ARGS(&sharedTexture));
 	if (FAILED(hr)) {
-		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("OpenSharedResource 失败", hr));
+		Logger::Get().ComError("OpenSharedResource 失败", hr);
 		return UpdateState::Error;
 	}
 	

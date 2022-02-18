@@ -11,6 +11,7 @@
 #include "App.h"
 #include "DeviceResources.h"
 #include "StrUtils.h"
+#include "Logger.h"
 
 
 template<typename Archive>
@@ -19,7 +20,7 @@ void serialize(Archive& ar, winrt::com_ptr<ID3DBlob>& o) {
 	ar& size;
 	HRESULT hr = D3DCreateBlob(size, o.put());
 	if (FAILED(hr)) {
-		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("D3DCreateBlob 失败", hr));
+		Logger::Get().ComError("D3DCreateBlob 失败", hr);
 		throw new std::exception();
 	}
 
@@ -164,7 +165,7 @@ void EffectCache::_AddToMemCache(const std::wstring& cacheFileName, const Effect
 		std::advance(it, _memCache.size() / 2);
 		_memCache.erase(_memCache.begin(), it);
 
-		SPDLOG_LOGGER_INFO(logger, "已清理内存缓存");
+		Logger::Get().Info("已清理内存缓存");
 	}
 }
 
@@ -204,12 +205,12 @@ bool EffectCache::Load(const wchar_t* fileName, std::string_view hash, EffectDes
 		buf.size() - Utils::Hasher::GetInstance().GetHashLength(),
 		bufHash
 	)) {
-		SPDLOG_LOGGER_ERROR(logger, "计算哈希失败");
+		Logger::Get().Error("计算哈希失败");
 		return false;
 	}
 
 	if (std::memcmp(buf.data(), bufHash.data(), bufHash.size()) != 0) {
-		SPDLOG_LOGGER_ERROR(logger, "缓存文件校验失败");
+		Logger::Get().Error("缓存文件校验失败");
 		return false;
 	}
 
@@ -221,7 +222,7 @@ bool EffectCache::Load(const wchar_t* fileName, std::string_view hash, EffectDes
 		UINT version;
 		ia& version;
 		if (version != _VERSION) {
-			SPDLOG_LOGGER_INFO(logger, "缓存版本不匹配");
+			Logger::Get().Info("缓存版本不匹配");
 			return false;
 		}
 
@@ -229,21 +230,21 @@ bool EffectCache::Load(const wchar_t* fileName, std::string_view hash, EffectDes
 		D3D_FEATURE_LEVEL fl;
 		ia& fl;
 		if (fl != App::GetInstance().GetDeviceResources().GetFeatureLevel()) {
-			SPDLOG_LOGGER_INFO(logger, "功能级别不匹配");
+			Logger::Get().Info("功能级别不匹配");
 			return false;
 		}
 
 
 		ia& desc;
 	} catch (...) {
-		SPDLOG_LOGGER_ERROR(logger, "反序列化失败");
+		Logger::Get().Error("反序列化失败");
 		desc = {};
 		return false;
 	}
 
 	_AddToMemCache(cacheFileName, desc);
 	
-	SPDLOG_LOGGER_INFO(logger, "已读取缓存 " + StrUtils::UTF16ToUTF8(cacheFileName));
+	Logger::Get().Info("已读取缓存 " + StrUtils::UTF16ToUTF8(cacheFileName));
 	return true;
 }
 
@@ -266,7 +267,7 @@ void EffectCache::Save(const wchar_t* fileName, std::string_view hash, const Eff
 		oa& App::GetInstance().GetDeviceResources().GetFeatureLevel();
 		oa& desc;
 	} catch (...) {
-		SPDLOG_LOGGER_ERROR(logger, "序列化失败");
+		Logger::Get().Error("序列化失败");
 		return;
 	}
 
@@ -277,7 +278,7 @@ void EffectCache::Save(const wchar_t* fileName, std::string_view hash, const Eff
 		buf.size() - Utils::Hasher::GetInstance().GetHashLength(),
 		bufHash
 	)) {
-		SPDLOG_LOGGER_ERROR(logger, "计算哈希失败");
+		Logger::Get().Error("计算哈希失败");
 		return;
 	}
 	std::memcpy(buf.data(), bufHash.data(), bufHash.size());
@@ -285,7 +286,7 @@ void EffectCache::Save(const wchar_t* fileName, std::string_view hash, const Eff
 
 	if (!Utils::DirExists(L".\\cache")) {
 		if (!CreateDirectory(L".\\cache", nullptr)) {
-			SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("创建 cache 文件夹失败"));
+			Logger::Get().Win32Error("创建 cache 文件夹失败");
 			return;
 		}
 	} else {
@@ -307,22 +308,22 @@ void EffectCache::Save(const wchar_t* fileName, std::string_view hash, const Eff
 				}
 
 				if (!DeleteFile((L".\\cache\\"s + findData.cFileName).c_str())) {
-					SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg(fmt::format("删除缓存文件 {} 失败",
-						StrUtils::UTF16ToUTF8(findData.cFileName))));
+					Logger::Get().Win32Error(fmt::format("删除缓存文件 {} 失败",
+						StrUtils::UTF16ToUTF8(findData.cFileName)));
 				}
 			}
 			FindClose(hFind);
 		} else {
-			SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("查找缓存文件失败"));
+			Logger::Get().Win32Error("查找缓存文件失败");
 		}
 	}
 	
 	std::wstring cacheFileName = _GetCacheFileName(fileName, hash);
 	if (!Utils::WriteFile(cacheFileName.c_str(), buf.data(), buf.size())) {
-		SPDLOG_LOGGER_ERROR(logger, "保存缓存失败");
+		Logger::Get().Error("保存缓存失败");
 	}
 
 	_AddToMemCache(cacheFileName, desc);
 
-	SPDLOG_LOGGER_INFO(logger, "已保存缓存 " + StrUtils::UTF16ToUTF8(cacheFileName));
+	Logger::Get().Info("已保存缓存 " + StrUtils::UTF16ToUTF8(cacheFileName));
 }

@@ -154,11 +154,11 @@
     <ClInclude Include="ErrorMessages.h" />
     <ClInclude Include="ExclModeHack.h" />
     <ClInclude Include="FrameSourceBase.h" />
-    <ClInclude Include="framework.h" />
     <ClInclude Include="FSRFilter.h" />
     <ClInclude Include="GDIFrameSource.h" />
     <ClInclude Include="imgui_impl_dx11.h" />
     <ClInclude Include="imgui_impl_magpie.h" />
+    <ClInclude Include="Logger.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="DwmSharedSurfaceFrameSource.h" />
@@ -188,6 +188,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="imgui_impl_magpie.cpp" />
+    <ClCompile Include="Logger.cpp" />
     <ClCompile Include="pch.cpp" />
     <ClCompile Include="DllMain.cpp" />
     <ClCompile Include="Renderer.cpp" />

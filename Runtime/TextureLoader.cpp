@@ -3,14 +3,13 @@
 #include <DDSTextureLoader.h>
 #include "DeviceResources.h"
 #include "App.h"
-
-extern std::shared_ptr<spdlog::logger> logger;
+#include "Logger.h"
 
 
 winrt::com_ptr<ID3D11Texture2D> LoadImg(const wchar_t* fileName) {
 	winrt::com_ptr<IWICImagingFactory2> factory = App::GetInstance().GetWICImageFactory();
 	if (!factory) {
-		SPDLOG_LOGGER_ERROR(logger, "GetWICImageFactory 失败");
+		Logger::Get().Error("GetWICImageFactory 失败");
 		return nullptr;
 	}
 
@@ -18,14 +17,14 @@ winrt::com_ptr<ID3D11Texture2D> LoadImg(const wchar_t* fileName) {
 	winrt::com_ptr<IWICBitmapDecoder> decoder;
 	HRESULT hr = factory->CreateDecoderFromFilename(fileName, nullptr, GENERIC_READ, WICDecodeMetadataCacheOnDemand, decoder.put());
 	if (FAILED(hr)) {
-		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("CreateDecoderFromFilename 失败", hr));
+		Logger::Get().ComError("CreateDecoderFromFilename 失败", hr);
 		return nullptr;
 	}
 
 	winrt::com_ptr<IWICBitmapFrameDecode> frame;
 	hr = decoder->GetFrame(0, frame.put());
 	if (FAILED(hr)) {
-		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("IWICBitmapFrameDecode::GetFrame 失败", hr));
+		Logger::Get().ComError("IWICBitmapFrameDecode::GetFrame 失败", hr);
 		return nullptr;
 	}
 
@@ -34,19 +33,19 @@ winrt::com_ptr<ID3D11Texture2D> LoadImg(const wchar_t* fileName) {
 		WICPixelFormatGUID sourceFormat;
 		hr = frame->GetPixelFormat(&sourceFormat);
 		if (FAILED(hr)) {
-			SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("GetPixelFormat 失败", hr));
+			Logger::Get().ComError("GetPixelFormat 失败", hr);
 			return nullptr;
 		}
 
 		winrt::com_ptr<IWICComponentInfo> cInfo;
 		hr = factory->CreateComponentInfo(sourceFormat, cInfo.put());
 		if (FAILED(hr)) {
-			SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("CreateComponentInfo", hr));
+			Logger::Get().ComError("CreateComponentInfo", hr);
 			return nullptr;
 		}
 		winrt::com_ptr<IWICPixelFormatInfo2> formatInfo = cInfo.try_as<IWICPixelFormatInfo2>();
 		if (!formatInfo) {
-			SPDLOG_LOGGER_ERROR(logger, "IWICComponentInfo 转换为 IWICPixelFormatInfo2 时失败");
+			Logger::Get().Error("IWICComponentInfo 转换为 IWICPixelFormatInfo2 时失败");
 			return nullptr;
 		}
 
@@ -54,12 +53,12 @@ winrt::com_ptr<ID3D11Texture2D> LoadImg(const wchar_t* fileName) {
 		WICPixelFormatNumericRepresentation type;
 		hr = formatInfo->GetBitsPerPixel(&bitsPerPixel);
 		if (FAILED(hr)) {
-			SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("GetBitsPerPixel", hr));
+			Logger::Get().ComError("GetBitsPerPixel", hr);
 			return nullptr;
 		}
 		hr = formatInfo->GetNumericRepresentation(&type);
 		if (FAILED(hr)) {
-			SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("GetNumericRepresentation", hr));
+			Logger::Get().ComError("GetNumericRepresentation", hr);
 			return nullptr;
 		}
 
@@ -70,14 +69,14 @@ winrt::com_ptr<ID3D11Texture2D> LoadImg(const wchar_t* fileName) {
 	winrt::com_ptr<IWICFormatConverter> formatConverter;
 	hr = factory->CreateFormatConverter(formatConverter.put());
 	if (FAILED(hr)) {
-		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("CreateFormatConverter 失败", hr));
+		Logger::Get().ComError("CreateFormatConverter 失败", hr);
 		return nullptr;
 	}
 
 	WICPixelFormatGUID targetFormat = useFloatFormat ? GUID_WICPixelFormat64bppRGBAHalf : GUID_WICPixelFormat32bppBGRA;
 	hr = formatConverter->Initialize(frame.get(), targetFormat, WICBitmapDitherTypeNone, nullptr, 0, WICBitmapPaletteTypeCustom);
 	if (FAILED(hr)) {
-		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("IWICFormatConverter::Initialize 失败", hr));
+		Logger::Get().ComError("IWICFormatConverter::Initialize 失败", hr);
 		return nullptr;
 	}
 
@@ -85,12 +84,12 @@ winrt::com_ptr<ID3D11Texture2D> LoadImg(const wchar_t* fileName) {
 	UINT width, height;
 	hr = formatConverter->GetSize(&width, &height);
 	if (FAILED(hr)) {
-		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("GetSize 失败", hr));
+		Logger::Get().ComError("GetSize 失败", hr);
 		return nullptr;
 	}
 
 	if (width > D3D11_REQ_TEXTURE2D_U_OR_V_DIMENSION || height > D3D11_REQ_TEXTURE2D_U_OR_V_DIMENSION) {
-		SPDLOG_LOGGER_ERROR(logger, "图像尺寸超出限制");
+		Logger::Get().Error("图像尺寸超出限制");
 		return nullptr;
 	}
 
@@ -100,7 +99,7 @@ winrt::com_ptr<ID3D11Texture2D> LoadImg(const wchar_t* fileName) {
 
 	hr = formatConverter->CopyPixels(nullptr, stride, size, buf.get());
 	if (FAILED(hr)) {
-		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("CopyPixels 失败", hr));
+		Logger::Get().ComError("CopyPixels 失败", hr);
 		return nullptr;
 	}
 
@@ -122,7 +121,7 @@ winrt::com_ptr<ID3D11Texture2D> LoadImg(const wchar_t* fileName) {
 	winrt::com_ptr<ID3D11Texture2D> result;
 	hr = App::GetInstance().GetDeviceResources().GetD3DDevice()->CreateTexture2D(&desc, &initData, result.put());
 	if (FAILED(hr)) {
-		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("CreateTexture2D 失败", hr));
+		Logger::Get().ComError("CreateTexture2D 失败", hr);
 		return nullptr;
 	}
 
@@ -147,7 +146,7 @@ winrt::com_ptr<ID3D11Texture2D> LoadDDS(const wchar_t* fileName) {
 		&alphaMode
 	);
 	if (FAILED(hr)) {
-		SPDLOG_LOGGER_INFO(logger, MakeComErrorMsg("CreateDDSTextureFromFile 失败，将尝试不作为渲染目标", hr));
+		Logger::Get().ComInfo("CreateDDSTextureFromFile 失败，将尝试不作为渲染目标", hr);
 
 		// 第二次尝试，不作为渲染目标
 		hr = DirectX::CreateDDSTextureFromFileEx(
@@ -165,14 +164,14 @@ winrt::com_ptr<ID3D11Texture2D> LoadDDS(const wchar_t* fileName) {
 		);
 
 		if (FAILED(hr)) {
-			SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("CreateDDSTextureFromFile 失败", hr));
+			Logger::Get().ComError("CreateDDSTextureFromFile 失败", hr);
 			return nullptr;
 		}
 	}
 
 	winrt::com_ptr<ID3D11Texture2D> tex = result.try_as<ID3D11Texture2D>();
 	if (!tex) {
-		SPDLOG_LOGGER_ERROR(logger, "从 ID3D11Resource 获取 ID3D11Texture2D 失败");
+		Logger::Get().Error("从 ID3D11Resource 获取 ID3D11Texture2D 失败");
 		return nullptr;
 	}
 
@@ -183,7 +182,7 @@ winrt::com_ptr<ID3D11Texture2D> TextureLoader::Load(const wchar_t* fileName) {
 	std::wstring_view sv(fileName);
 	size_t npos = sv.find_last_of(L'.');
 	if (npos == std::wstring_view::npos) {
-		SPDLOG_LOGGER_ERROR(logger, "文件名无后缀名");
+		Logger::Get().Error("文件名无后缀名");
 		return nullptr;
 	}
 
@@ -201,7 +200,7 @@ winrt::com_ptr<ID3D11Texture2D> TextureLoader::Load(const wchar_t* fileName) {
 
 	auto it = funcs.find(suffix);
 	if (it == funcs.end()) {
-		SPDLOG_LOGGER_ERROR(logger, "不支持读取该格式");
+		Logger::Get().Error("不支持读取该格式");
 		return nullptr;
 	}
 

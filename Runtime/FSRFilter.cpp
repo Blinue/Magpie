@@ -5,9 +5,8 @@
 #include "Renderer.h"
 #include "FrameSourceBase.h"
 #include "Utils.h"
+#include "Logger.h"
 
-
-extern std::shared_ptr<spdlog::logger> logger;
 
 bool FSRFilter::Initialize() {
 	auto& dr = App::GetInstance().GetDeviceResources();
@@ -49,7 +48,7 @@ bool FSRFilter::Initialize() {
 
 	HRESULT hr = d3dDevice->CreateBuffer(&bd, &initData, _easuCB.put());
 	if (FAILED(hr)) {
-		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("CreateBuffer 失败", hr));
+		Logger::Get().ComError("CreateBuffer 失败", hr);
 		return false;
 	}
 

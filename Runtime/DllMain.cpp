@@ -18,10 +18,13 @@
 #include "App.h"
 #include "Utils.h"
 #include "StrUtils.h"
+#include "Logger.h"
 
+
+#define API_DECLSPEC extern "C" __declspec(dllexport)
 
 static HINSTANCE hInst = NULL;
-std::shared_ptr<spdlog::logger> logger = nullptr;
+
 
 // DLL 入口
 BOOL APIENTRY DllMain(
@@ -46,14 +49,7 @@ BOOL APIENTRY DllMain(
 // 日志级别：
 // 0：TRACE，1：DEBUG，...，6：OFF
 API_DECLSPEC void WINAPI SetLogLevel(UINT logLevel) {
-	assert(logger);
-
-	logger->flush();
-	logger->set_level((spdlog::level::level_enum)logLevel);
-	static const char* LOG_LEVELS[7] = {
-		"TRACE", "DEBUG", "INFO", "WARN", "ERROR", "CRITICAL", "OFF"
-	};
-	SPDLOG_LOGGER_INFO(logger, fmt::format("当前日志级别：{}", LOG_LEVELS[logLevel]));
+	Logger::Get().SetLevel((spdlog::level::level_enum)logLevel);
 }
 
 
@@ -64,17 +60,9 @@ API_DECLSPEC BOOL WINAPI Initialize(
 	int logMaxArchiveFiles
 ) {
 	// 初始化日志
-	try {
-		logger = spdlog::rotating_logger_mt(".", logFileName, logArchiveAboveSize, logMaxArchiveFiles);
-		logger->set_level((spdlog::level::level_enum)logLevel);
-		logger->set_pattern("%Y-%m-%d %H:%M:%S.%e|%l|%s:%!|%v");
-		logger->flush_on(spdlog::level::warn);
-		spdlog::flush_every(std::chrono::seconds(5));
-	} catch (const spdlog::spdlog_ex&) {
+	if (!Logger::Get().Initialize(logLevel, logFileName, logArchiveAboveSize, logMaxArchiveFiles)) {
 		return FALSE;
 	}
-
-	SetLogLevel(logLevel);
 
 	// 初始化 App
 	if (!App::GetInstance().Initialize(hInst)) {
@@ -103,24 +91,26 @@ API_DECLSPEC const char* WINAPI Run(
 	UINT cropRight,
 	UINT cropBottom
 ) {
+	Logger& logger = Logger::Get();
+
 	if (!hwndSrc || !IsWindow(hwndSrc)) {
-		SPDLOG_LOGGER_CRITICAL(logger, "非法的源窗口句柄");
+		logger.Critical("非法的源窗口句柄");
 		return ErrorMessages::GENERIC;
 	}
 
 	const auto& version = Utils::GetOSVersion();
-	SPDLOG_LOGGER_INFO(logger, fmt::format("OS 版本：{}.{}.{}",
+	logger.Info(fmt::format("OS 版本：{}.{}.{}",
 		version.dwMajorVersion, version.dwMinorVersion, version.dwBuildNumber));
 
 	int len = GetWindowTextLength(hwndSrc);
 	if (len <= 0) {
-		SPDLOG_LOGGER_INFO(logger, "源窗口无标题");
+		logger.Info("源窗口无标题");
 	} else {
 		std::wstring title(len, 0);
 		if (!GetWindowText(hwndSrc, &title[0], int(title.size() + 1))) {
-			SPDLOG_LOGGER_ERROR(logger, "获取源窗口标题失败");
+			Logger::Get().Error("获取源窗口标题失败");
 		} else {
-			SPDLOG_LOGGER_INFO(logger, "源窗口标题：" + StrUtils::UTF16ToUTF8(title));
+			Logger::Get().Info("源窗口标题：" + StrUtils::UTF16ToUTF8(title));
 		}
 	}
 
@@ -130,12 +120,12 @@ API_DECLSPEC const char* WINAPI Run(
 		RECT{(LONG)cropLeft, (LONG)cropTop, (LONG)cropRight, (LONG)cropBottom}, flags)
 	) {
 		// 初始化失败
-		SPDLOG_LOGGER_INFO(logger, "App.Run 失败");
+		Logger::Get().Info("App.Run 失败");
 		return app.GetErrorMsg();
 	}
 
-	SPDLOG_LOGGER_INFO(logger, "即将退出");
-	logger->flush();
+	logger.Info("即将退出");
+	logger.Flush();
 
 	return nullptr;
 }

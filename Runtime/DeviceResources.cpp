@@ -2,10 +2,11 @@
 #include "DeviceResources.h"
 #include "App.h"
 #include "StrUtils.h"
+#include "Logger.h"
 
 
 static inline void LogAdapter(const DXGI_ADAPTER_DESC1& adapterDesc) {
-	SPDLOG_LOGGER_INFO(logger, fmt::format("当前图形适配器：\n\tVendorId：{:#x}\n\tDeviceId：{:#x}\n\t描述：{}",
+	Logger::Get().Info(fmt::format("当前图形适配器：\n\tVendorId：{:#x}\n\tDeviceId：{:#x}\n\t描述：{}",
 		adapterDesc.VendorId, adapterDesc.DeviceId, StrUtils::UTF16ToUTF8(adapterDesc.Description)));
 }
 
@@ -69,7 +70,7 @@ static winrt::com_ptr<IDXGIAdapter3> ObtainGraphicsAdapter(IDXGIFactory4* dxgiFa
 	// https://docs.microsoft.com/en-us/windows/win32/direct3darticles/directx-warp
 	HRESULT hr = dxgiFactory->EnumWarpAdapter(IID_PPV_ARGS(&adapter));
 	if (FAILED(hr)) {
-		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("创建 WARP 设备失败", hr));
+		Logger::Get().ComError("创建 WARP 设备失败", hr);
 		return nullptr;
 	}
 
@@ -93,14 +94,14 @@ bool DeviceResources::Initialize() {
 
 	hr = _dxgiFactory->CheckFeatureSupport(DXGI_FEATURE_PRESENT_ALLOW_TEARING, &supportTearing, sizeof(supportTearing));
 	if (FAILED(hr)) {
-		SPDLOG_LOGGER_WARN(logger, MakeComErrorMsg("CheckFeatureSupport 失败", hr));
+		Logger::Get().ComWarn("CheckFeatureSupport 失败", hr);
 	}
 	_supportTearing = !!supportTearing;
 
-	SPDLOG_LOGGER_INFO(logger, fmt::format("可变刷新率支持：{}", supportTearing ? "是" : "否"));
+	Logger::Get().Info(fmt::format("可变刷新率支持：{}", supportTearing ? "是" : "否"));
 
 	if (App::GetInstance().IsDisableVSync() && !supportTearing) {
-		SPDLOG_LOGGER_ERROR(logger, "当前显示器不支持可变刷新率");
+		Logger::Get().Error("当前显示器不支持可变刷新率");
 		App::GetInstance().SetErrorMsg(ErrorMessages::VSYNC_OFF_NOT_SUPPORTED);
 		return false;
 	}
@@ -119,7 +120,7 @@ bool DeviceResources::Initialize() {
 
 	_graphicsAdapter = ObtainGraphicsAdapter(_dxgiFactory.get(), App::GetInstance().GetAdapterIdx());
 	if (!_graphicsAdapter) {
-		SPDLOG_LOGGER_ERROR(logger, "找不到可用 Adapter");
+		Logger::Get().Error("找不到可用 Adapter");
 		return false;
 	}
 
@@ -139,7 +140,7 @@ bool DeviceResources::Initialize() {
 	);
 
 	if (FAILED(hr)) {
-		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("D3D11CreateDevice 失败", hr));
+		Logger::Get().ComError("D3D11CreateDevice 失败", hr);
 		return false;
 	}
 
@@ -155,28 +156,28 @@ bool DeviceResources::Initialize() {
 		fl = "未知";
 		break;
 	}
-	SPDLOG_LOGGER_INFO(logger, fmt::format("已创建 D3D Device\n\t功能级别：{}", fl));
+	Logger::Get().Info(fmt::format("已创建 D3D Device\n\t功能级别：{}", fl));
 
 	_d3dDevice = d3dDevice.try_as<ID3D11Device3>();
 	if (!_d3dDevice) {
-		SPDLOG_LOGGER_ERROR(logger, "获取 ID3D11Device1 失败");
+		Logger::Get().Error("获取 ID3D11Device1 失败");
 		return false;
 	}
 
 	_d3dDC = d3dDC.try_as<ID3D11DeviceContext3>();
 	if (!_d3dDC) {
-		SPDLOG_LOGGER_ERROR(logger, "获取 ID3D11DeviceContext1 失败");
+		Logger::Get().Error("获取 ID3D11DeviceContext1 失败");
 		return false;
 	}
 
 	_dxgiDevice = _d3dDevice.try_as<IDXGIDevice4>();
 	if (!_dxgiDevice) {
-		SPDLOG_LOGGER_ERROR(logger, "获取 IDXGIDevice 失败");
+		Logger::Get().Error("获取 IDXGIDevice 失败");
 		return false;
 	}
 
 	if (!_CreateSwapChain()) {
-		SPDLOG_LOGGER_ERROR(logger, "_CreateSwapChain 失败");
+		Logger::Get().Error("_CreateSwapChain 失败");
 		return false;
 	}
 
@@ -254,13 +255,13 @@ bool DeviceResources::_CreateSwapChain() {
 		dxgiSwapChain.put()
 	);
 	if (FAILED(hr)) {
-		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("创建交换链失败", hr));
+		Logger::Get().ComError("创建交换链失败", hr);
 		return false;
 	}
 
 	_swapChain = dxgiSwapChain.try_as<IDXGISwapChain4>();
 	if (!_swapChain) {
-		SPDLOG_LOGGER_ERROR(logger, "获取 IDXGISwapChain2 失败");
+		Logger::Get().Error("获取 IDXGISwapChain2 失败");
 		return false;
 	}
 
@@ -270,13 +271,13 @@ bool DeviceResources::_CreateSwapChain() {
 
 	_frameLatencyWaitableObject.reset(_swapChain->GetFrameLatencyWaitableObject());
 	if (!_frameLatencyWaitableObject) {
-		SPDLOG_LOGGER_ERROR(logger, "GetFrameLatencyWaitableObject 失败");
+		Logger::Get().Error("GetFrameLatencyWaitableObject 失败");
 		return false;
 	}
 
 	hr = _dxgiFactory->MakeWindowAssociation(App::GetInstance().GetHwndHost(), DXGI_MWA_NO_ALT_ENTER);
 	if (FAILED(hr)) {
-		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("MakeWindowAssociation 失败", hr));
+		Logger::Get().ComError("MakeWindowAssociation 失败", hr);
 	}
 
 	// 检查 Multiplane Overlay 和 Hardware Composition 支持
@@ -285,35 +286,35 @@ bool DeviceResources::_CreateSwapChain() {
 	winrt::com_ptr<IDXGIOutput> output;
 	hr = _swapChain->GetContainingOutput(output.put());
 	if (FAILED(hr)) {
-		SPDLOG_LOGGER_WARN(logger, MakeComErrorMsg("获取 IDXGIOutput 失败", hr));
+		Logger::Get().ComError("获取 IDXGIOutput 失败", hr);
 	} else {
 		winrt::com_ptr<IDXGIOutput2> output2 = output.try_as<IDXGIOutput2>();
 		if (!output2) {
-			SPDLOG_LOGGER_WARN(logger, "获取 IDXGIOutput2 失败");
+			Logger::Get().Info("获取 IDXGIOutput2 失败");
 		} else {
 			supportMPO = output2->SupportsOverlays();
 		}
 
 		winrt::com_ptr<IDXGIOutput6> output6 = output.try_as<IDXGIOutput6>();
 		if (!output6) {
-			SPDLOG_LOGGER_WARN(logger, "获取 IDXGIOutput6 失败");
+			Logger::Get().Info("获取 IDXGIOutput6 失败");
 		} else {
 			UINT flags;
 			hr = output6->CheckHardwareCompositionSupport(&flags);
 			if (FAILED(hr)) {
-				SPDLOG_LOGGER_WARN(logger, MakeComErrorMsg("CheckHardwareCompositionSupport 失败", hr));
+				Logger::Get().ComError("CheckHardwareCompositionSupport 失败", hr);
 			} else {
 				supportHardwareComposition = flags & DXGI_HARDWARE_COMPOSITION_SUPPORT_FLAG_WINDOWED;
 			}
 		}
 	}
 
-	SPDLOG_LOGGER_INFO(logger, fmt::format("Hardware Composition 支持：{}", supportHardwareComposition ? "是" : "否"));
-	SPDLOG_LOGGER_INFO(logger, fmt::format("Multiplane Overlay 支持：{}", supportMPO ? "是" : "否"));
+	Logger::Get().Info(fmt::format("Hardware Composition 支持：{}", supportHardwareComposition ? "是" : "否"));
+	Logger::Get().Info(fmt::format("Multiplane Overlay 支持：{}", supportMPO ? "是" : "否"));
 
 	hr = _swapChain->GetBuffer(0, IID_PPV_ARGS(_backBuffer.put()));
 	if (FAILED(hr)) {
-		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("获取后缓冲区失败", hr));
+		Logger::Get().ComError("获取后缓冲区失败", hr);
 		return false;
 	}
 
@@ -330,7 +331,7 @@ bool DeviceResources::GetShaderResourceView(ID3D11Texture2D* texture, ID3D11Shad
 	winrt::com_ptr<ID3D11ShaderResourceView>& r = _srvMap[texture];
 	HRESULT hr = _d3dDevice->CreateShaderResourceView(texture, nullptr, r.put());
 	if (FAILED(hr)) {
-		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("CreateShaderResourceView 失败", hr));
+		Logger::Get().ComError("CreateShaderResourceView 失败", hr);
 		return false;
 	} else {
 		*result = r.get();
@@ -353,7 +354,7 @@ bool DeviceResources::GetUnorderedAccessView(ID3D11Texture2D* texture, ID3D11Uno
 
 	HRESULT hr = _d3dDevice->CreateUnorderedAccessView(texture, &desc, r.put());
 	if (FAILED(hr)) {
-		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("CreateUnorderedAccessView 失败", hr));
+		Logger::Get().ComError("CreateUnorderedAccessView 失败", hr);
 		return false;
 	} else {
 		*result = r.get();
@@ -370,14 +371,14 @@ bool DeviceResources::CompileShader(bool isVS, std::string_view hlsl, const char
 		entryPoint, isVS ? "vs_5_0" : "ps_5_0", flags, 0, blob, errorMsgs.put());
 	if (FAILED(hr)) {
 		if (errorMsgs) {
-			SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg(fmt::format("编译{}着色器失败：{}",
-				isVS ? "顶点" : "像素", (const char*)errorMsgs->GetBufferPointer()), hr));
+			Logger::Get().ComError(fmt::format("编译{}着色器失败：{}",
+				isVS ? "顶点" : "像素", (const char*)errorMsgs->GetBufferPointer()), hr);
 		}
 		return false;
 	} else {
 		if (errorMsgs) {
 			// 显示警告消息
-			SPDLOG_LOGGER_WARN(logger, fmt::format("编译{}着色器时产生警告：{}",
+			Logger::Get().Warn(fmt::format("编译{}着色器时产生警告：{}",
 				isVS ? "顶点" : "像素", (const char*)errorMsgs->GetBufferPointer()));
 		}
 	}
@@ -425,7 +426,7 @@ bool DeviceResources::GetRenderTargetView(ID3D11Texture2D* texture, ID3D11Render
 	winrt::com_ptr<ID3D11RenderTargetView>& r = _rtvMap[texture];
 	HRESULT hr = _d3dDevice->CreateRenderTargetView(texture, nullptr, r.put());
 	if (FAILED(hr)) {
-		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("CreateRenderTargetView 失败", hr));
+		Logger::Get().ComError("CreateRenderTargetView 失败", hr);
 		return false;
 	} else {
 		*result = r.get();
@@ -453,7 +454,7 @@ bool DeviceResources::GetSampler(D3D11_FILTER filterMode, D3D11_TEXTURE_ADDRESS_
 	desc.MaxLOD = 0;
 	HRESULT hr = _d3dDevice->CreateSamplerState(&desc, sam.put());
 	if (FAILED(hr)) {
-		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("创建 ID3D11SamplerState 出错", hr));
+		Logger::Get().ComError("创建 ID3D11SamplerState 出错", hr);
 		return false;
 	}
 

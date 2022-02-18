@@ -2,18 +2,17 @@
 #include "GDIFrameSource.h"
 #include "App.h"
 #include "DeviceResources.h"
+#include "Logger.h"
 
-
-extern std::shared_ptr<spdlog::logger> logger;
 
 bool GDIFrameSource::Initialize() {
 	if (!FrameSourceBase::Initialize()) {
-		SPDLOG_LOGGER_ERROR(logger, "初始化 FrameSourceBase 失败");
+		Logger::Get().Error("初始化 FrameSourceBase 失败");
 		return false;
 	}
 
 	if (!_UpdateSrcFrameRect()) {
-		SPDLOG_LOGGER_ERROR(logger, "_UpdateSrcFrameRect 失败");
+		Logger::Get().Error("_UpdateSrcFrameRect 失败");
 		return false;
 	}
 
@@ -21,7 +20,7 @@ bool GDIFrameSource::Initialize() {
 
 	double a, bx, by;
 	if (_GetMapToOriginDPI(hwndSrc, a, bx, by)) {
-		SPDLOG_LOGGER_INFO(logger, fmt::format("源窗口 DPI 缩放为 {}", 1 / a));
+		Logger::Get().Error(fmt::format("源窗口 DPI 缩放为 {}", 1 / a));
 
 		_frameRect = {
 			std::lround(_srcFrameRect.left * a + bx),
@@ -30,12 +29,12 @@ bool GDIFrameSource::Initialize() {
 			std::lround(_srcFrameRect.bottom * a + by)
 		};
 	} else {
-		SPDLOG_LOGGER_ERROR(logger, "_GetMapToOriginDPI 失败");
+		Logger::Get().Error("_GetMapToOriginDPI 失败");
 
 		// _GetMapToOriginDPI 失败则假设 DPI 缩放为 1
 		RECT srcWindowRect;
 		if (!GetWindowRect(hwndSrc, &srcWindowRect)) {
-			SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetWindowRect 失败"));
+			Logger::Get().Win32Error("GetWindowRect 失败");
 			return false;
 		}
 
@@ -52,7 +51,7 @@ bool GDIFrameSource::Initialize() {
 		|| _frameRect.bottom - _frameRect.top <= 0
 	) {
 		App::GetInstance().SetErrorMsg(ErrorMessages::FAILED_TO_CROP);
-		SPDLOG_LOGGER_ERROR(logger, "裁剪失败");
+		Logger::Get().Error("裁剪失败");
 		return false;
 	}
 
@@ -69,17 +68,17 @@ bool GDIFrameSource::Initialize() {
 	desc.MiscFlags = D3D11_RESOURCE_MISC_GDI_COMPATIBLE;
 	HRESULT hr = App::GetInstance().GetDeviceResources().GetD3DDevice()->CreateTexture2D(&desc, nullptr, _output.put());
 	if (FAILED(hr)) {
-		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("创建 Texture2D 失败", hr));
+		Logger::Get().ComError("创建 Texture2D 失败", hr);
 		return false;
 	}
 
 	_dxgiSurface = _output.try_as<IDXGISurface1>();
 	if (!_dxgiSurface) {
-		SPDLOG_LOGGER_ERROR(logger, "从 Texture2D 获取 IDXGISurface1 失败");
+		Logger::Get().Error("从 Texture2D 获取 IDXGISurface1 失败");
 		return false;
 	}
 
-	SPDLOG_LOGGER_INFO(logger, "GDIFrameSource 初始化完成");
+	Logger::Get().Info("GDIFrameSource 初始化完成");
 	return true;
 }
 
@@ -89,13 +88,13 @@ FrameSourceBase::UpdateState GDIFrameSource::Update() {
 	HDC hdcDest;
 	HRESULT hr = _dxgiSurface->GetDC(TRUE, &hdcDest);
 	if (FAILED(hr)) {
-		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("从 Texture2D 获取 IDXGISurface1 失败", hr));
+		Logger::Get().ComError("从 Texture2D 获取 IDXGISurface1 失败", hr);
 		return UpdateState::Error;
 	}
 
 	HDC hdcSrc = GetDCEx(hwndSrc, NULL, DCX_LOCKWINDOWUPDATE | DCX_WINDOW);
 	if (!hdcSrc) {
-		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetDC 失败"));
+		Logger::Get().Win32Error("GetDC 失败");
 		_dxgiSurface->ReleaseDC(nullptr);
 		return UpdateState::Error;
 	}
@@ -103,7 +102,7 @@ FrameSourceBase::UpdateState GDIFrameSource::Update() {
 	if (!BitBlt(hdcDest, 0, 0, _frameRect.right-_frameRect.left, _frameRect.bottom-_frameRect.top,
 		hdcSrc, _frameRect.left, _frameRect.top, SRCCOPY)
 	) {
-		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("BitBlt 失败"));
+		Logger::Get().Win32Error("BitBlt 失败");
 	}
 
 	ReleaseDC(hwndSrc, hdcSrc);

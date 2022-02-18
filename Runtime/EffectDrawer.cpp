@@ -10,6 +10,7 @@
 #include "FrameSourceBase.h"
 #include "DeviceResources.h"
 #include "GPUTimer.h"
+#include "Logger.h"
 
 #pragma push_macro("_UNICODE")
 #undef _UNICODE
@@ -17,8 +18,6 @@
 #include <muParser.h>
 #pragma pop_macro("_UNICODE")
 
-
-extern std::shared_ptr<spdlog::logger> logger;
 
 // 所有 EffectDrawer 共享一个实例
 static mu::Parser exprParser;
@@ -126,10 +125,10 @@ bool EffectDrawer::Initialize(const wchar_t* fileName) {
 	});
 
 	if (!result) {
-		SPDLOG_LOGGER_ERROR(logger, fmt::format("编译 {} 失败", StrUtils::UTF16ToUTF8(fileName)));
+		Logger::Get().Error(fmt::format("编译 {} 失败", StrUtils::UTF16ToUTF8(fileName)));
 		return false;
 	} else {
-		SPDLOG_LOGGER_INFO(logger, fmt::format("编译 {} 用时 {} 毫秒", StrUtils::UTF16ToUTF8(fileName), duration / 1000.0f));
+		Logger::Get().Info(fmt::format("编译 {} 用时 {} 毫秒", StrUtils::UTF16ToUTF8(fileName), duration / 1000.0f));
 	}
 
 	auto& dr = App::GetInstance().GetDeviceResources();
@@ -142,7 +141,7 @@ bool EffectDrawer::Initialize(const wchar_t* fileName) {
 			desc.addressType == EffectSamplerAddressType::Clamp ? D3D11_TEXTURE_ADDRESS_CLAMP : D3D11_TEXTURE_ADDRESS_WRAP,
 			&_samplers[i])
 		) {
-			SPDLOG_LOGGER_ERROR(logger, fmt::format("创建采样器 {} 失败", desc.name));
+			Logger::Get().Error(fmt::format("创建采样器 {} 失败", desc.name));
 			return false;
 		}
 	}
@@ -150,7 +149,7 @@ bool EffectDrawer::Initialize(const wchar_t* fileName) {
 	_passes.resize(_effectDesc.passes.size());
 	for (size_t i = 0; i < _passes.size(); ++i) {
 		if (!_passes[i].Initialize(this, i)) {
-			SPDLOG_LOGGER_ERROR(logger, fmt::format("Pass{} 初始化失败", i + 1));
+			Logger::Get().Error(fmt::format("Pass{} 初始化失败", i + 1));
 			return false;
 		}
 	}
@@ -294,7 +293,7 @@ bool EvalConstants(const std::vector<EffectValueConstantDesc>& descs, std::vecto
 			exprParser.SetExpr(d.valueExpr);
 			value = exprParser.Eval();
 		} catch (...) {
-			SPDLOG_LOGGER_ERROR(logger, fmt::format("计算表达式 {} 失败", d.valueExpr));
+			Logger::Get().Error(fmt::format("计算表达式 {} 失败", d.valueExpr));
 			return false;
 		}
 
@@ -315,7 +314,7 @@ bool EffectDrawer::Build(ID3D11Texture2D* input, ID3D11Texture2D* output) {
 
 	SIZE outputSize;
 	if (!CalcOutputSize(inputSize, outputSize)) {
-		SPDLOG_LOGGER_ERROR(logger, "CalcOutputSize 失败");
+		Logger::Get().Error("CalcOutputSize 失败");
 		return false;
 	}
 	
@@ -332,7 +331,7 @@ bool EffectDrawer::Build(ID3D11Texture2D* input, ID3D11Texture2D* output) {
 			// 从文件加载纹理
 			_textures[i] = TextureLoader::Load((L"effects\\" + StrUtils::UTF8ToUTF16(_effectDesc.textures[i].source)).c_str());
 			if (!_textures[i]) {
-				SPDLOG_LOGGER_ERROR(logger, fmt::format("加载纹理 {} 失败", _effectDesc.textures[i].source));
+				Logger::Get().Error(fmt::format("加载纹理 {} 失败", _effectDesc.textures[i].source));
 				return false;
 			}
 		} else {
@@ -343,12 +342,12 @@ bool EffectDrawer::Build(ID3D11Texture2D* input, ID3D11Texture2D* output) {
 				exprParser.SetExpr(_effectDesc.textures[i].sizeExpr.second);
 				texSize.cy = std::lround(exprParser.Eval());
 			} catch (const mu::ParserError& e) {
-				SPDLOG_LOGGER_ERROR(logger, fmt::format("计算中间纹理尺寸失败：{}", e.GetMsg()));
+				Logger::Get().Error(fmt::format("计算中间纹理尺寸失败：{}", e.GetMsg()));
 				return false;
 			}
 
 			if (texSize.cx <= 0 || texSize.cy <= 0) {
-				SPDLOG_LOGGER_ERROR(logger, "非法的中间纹理尺寸");
+				Logger::Get().Error("非法的中间纹理尺寸");
 				return false;
 			}
 
@@ -364,7 +363,7 @@ bool EffectDrawer::Build(ID3D11Texture2D* input, ID3D11Texture2D* output) {
 			desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
 			HRESULT hr = d3dDevice->CreateTexture2D(&desc, nullptr, _textures[i].put());
 			if (FAILED(hr)) {
-				SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("创建 Texture2D 失败", hr));
+				Logger::Get().ComError("创建 Texture2D 失败", hr);
 				return false;
 			}
 		}
@@ -373,13 +372,13 @@ bool EffectDrawer::Build(ID3D11Texture2D* input, ID3D11Texture2D* output) {
 	_textures.back().copy_from(output);
 	
 	if (!EvalConstants(_effectDesc.valueConstants, _constants, _effectDesc.constants.size())) {
-		SPDLOG_LOGGER_ERROR(logger, "计算常量失败");
+		Logger::Get().Error("计算常量失败");
 		return false;
 	}
 
 	// 每帧更新的常量也计算一次，用于检测表达式语法错误
 	if (!EvalConstants(_effectDesc.dynamicValueConstants, _dynamicConstants)) {
-		SPDLOG_LOGGER_ERROR(logger, "计算动态常量失败");
+		Logger::Get().Error("计算动态常量失败");
 		return false;
 	}
 	
@@ -395,7 +394,7 @@ bool EffectDrawer::Build(ID3D11Texture2D* input, ID3D11Texture2D* output) {
 
 		HRESULT hr = d3dDevice->CreateBuffer(&bd, &initData, _constantBuffer.put());
 		if (FAILED(hr)) {
-			SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("CreateBuffer 失败", hr));
+			Logger::Get().ComError("CreateBuffer 失败", hr);
 			return false;
 		}
 	}
@@ -413,7 +412,7 @@ bool EffectDrawer::Build(ID3D11Texture2D* input, ID3D11Texture2D* output) {
 		
 		HRESULT hr = d3dDevice->CreateBuffer(&bd, &initData, _dynamicConstantBuffer.put());
 		if (FAILED(hr)) {
-			SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("CreateBuffer 失败", hr));
+			Logger::Get().ComError("CreateBuffer 失败", hr);
 			return false;
 		}
 	}
@@ -428,7 +427,7 @@ bool EffectDrawer::Build(ID3D11Texture2D* input, ID3D11Texture2D* output) {
 
 		if (!_passes[i].Build(i < _passes.size() - 1 ? std::optional<SIZE>() : outputSize)
 		) {
-			SPDLOG_LOGGER_ERROR(logger, fmt::format("构建 Pass{} 时出错", i + 1));
+			Logger::Get().Error(fmt::format("构建 Pass{} 时出错", i + 1));
 			return false;
 		}
 	}
@@ -442,7 +441,7 @@ void EffectDrawer::Draw(bool noUpdate) {
 	if (_dynamicConstantBuffer) {
 		// 更新常量
 		if (!EvalConstants(_effectDesc.dynamicValueConstants, _dynamicConstants)) {
-			SPDLOG_LOGGER_ERROR(logger, "计算动态常量失败");
+			Logger::Get().Error("计算动态常量失败");
 		}
 
 		D3D11_MAPPED_SUBRESOURCE ms;
@@ -451,7 +450,7 @@ void EffectDrawer::Draw(bool noUpdate) {
 			std::memcpy(ms.pData, _dynamicConstants.data(), _dynamicConstants.size() * 4);
 			d3dDC->Unmap(_dynamicConstantBuffer.get(), 0);
 		} else {
-			SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("Map 失败", hr));
+			Logger::Get().ComError("Map 失败", hr);
 		}
 	}
 
@@ -480,7 +479,7 @@ bool EffectDrawer::UpdateExprDynamicVars() {
 
 	POINT pt;
 	if (!GetCursorPos(&pt)) {
-		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetCursorPos 失败"));
+		Logger::Get().Win32Error("GetCursorPos 失败");
 		return false;
 	}
 
@@ -503,7 +502,7 @@ bool EffectDrawer::_Pass::Initialize(EffectDrawer* parent, size_t index) {
 	HRESULT hr = App::GetInstance().GetDeviceResources().GetD3DDevice()->CreatePixelShader(
 		passDesc.cso->GetBufferPointer(), passDesc.cso->GetBufferSize(), nullptr, _pixelShader.put());
 	if (FAILED(hr)) {
-		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("创建像素着色器失败", hr));
+		Logger::Get().ComError("创建像素着色器失败", hr);
 		return false;
 	}
 
@@ -518,7 +517,7 @@ bool EffectDrawer::_Pass::Build(std::optional<SIZE> outputSize) {
 	// 后半部分留空
 	for (size_t i = 0; i < passDesc.inputs.size(); ++i) {
 		if (!dr.GetShaderResourceView(_parent->_textures[passDesc.inputs[i]].get(), &_inputs[i])) {
-			SPDLOG_LOGGER_ERROR(logger,"获取 ShaderResourceView 失败");
+			Logger::Get().Error("获取 ShaderResourceView 失败");
 			return false;
 		}
 	}
@@ -526,7 +525,7 @@ bool EffectDrawer::_Pass::Build(std::optional<SIZE> outputSize) {
 	_outputs.resize(passDesc.outputs.size());
 	for (size_t i = 0; i < _outputs.size(); ++i) {
 		if (!dr.GetRenderTargetView(_parent->_textures[passDesc.outputs[i]].get(), &_outputs[i])) {
-			SPDLOG_LOGGER_ERROR(logger, "获取 RenderTargetView 失败");
+			Logger::Get().Error("获取 RenderTargetView 失败");
 			return false;
 		}
 	}
@@ -548,6 +547,8 @@ bool EffectDrawer::_Pass::Build(std::optional<SIZE> outputSize) {
 		outputRight = outputLeft + 2 * outputSize->cx / (float)outputTextureSize.cx;
 		outputBottom = outputTop - 2 * outputSize->cy / (float)outputTextureSize.cy;
 
+		using namespace DirectX;
+
 		VertexPositionTexture vertices[] = {
 			{ XMFLOAT3(outputLeft, outputTop, 0.5f), XMFLOAT2(0.0f, 0.0f) },
 			{ XMFLOAT3(outputRight, outputTop, 0.5f), XMFLOAT2(1.0f, 0.0f) },
@@ -563,7 +564,7 @@ bool EffectDrawer::_Pass::Build(std::optional<SIZE> outputSize) {
 		InitData.pSysMem = vertices;
 		HRESULT hr = dr.GetD3DDevice()->CreateBuffer(&bd, &InitData, _vtxBuffer.put());
 		if (FAILED(hr)) {
-			SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("创建顶点缓冲区失败", hr));
+			Logger::Get().ComError("创建顶点缓冲区失败", hr);
 			return false;
 		}
 	}

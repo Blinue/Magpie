@@ -70,8 +70,8 @@ static void ImGui_ImplMagpie_UpdateMousePos() {
     GetCursorPos(&pos);
     
     io.MousePos = ImVec2(
-        lroundf((pos.x - srcFrameRect.left) * outputSize.cx / (float)srcFrameSize.cx),
-        lroundf((pos.y - srcFrameRect.top) * outputSize.cy / (float)srcFrameSize.cy)
+        std::roundf((pos.x - srcFrameRect.left) * outputSize.cx / (float)srcFrameSize.cx),
+        std::roundf((pos.y - srcFrameRect.top) * outputSize.cy / (float)srcFrameSize.cy)
     );
 }
 

@@ -2,9 +2,7 @@
 #include "FrameSourceBase.h"
 #include "Utils.h"
 #include "App.h"
-
-
-extern std::shared_ptr<spdlog::logger> logger;
+#include "Logger.h"
 
 
 FrameSourceBase::~FrameSourceBase() {
@@ -17,9 +15,9 @@ FrameSourceBase::~FrameSourceBase() {
 		INT attr = DWMWCP_DEFAULT;
 		HRESULT hr = DwmSetWindowAttribute(hwndSrc, DWMWA_WINDOW_CORNER_PREFERENCE, &attr, sizeof(attr));
 		if (FAILED(hr)) {
-			SPDLOG_LOGGER_INFO(logger, MakeComErrorMsg("取消禁用窗口圆角失败", hr));
+			Logger::Get().ComError("取消禁用窗口圆角失败", hr);
 		} else {
-			SPDLOG_LOGGER_INFO(logger, "已取消禁用窗口圆角");
+			Logger::Get().Info("已取消禁用窗口圆角");
 		}
 	}
 
@@ -32,12 +30,12 @@ FrameSourceBase::~FrameSourceBase() {
 			if (SetWindowLongPtr(hwndSrc, GWL_STYLE, style | WS_THICKFRAME)) {
 				if (!SetWindowPos(hwndSrc, 0, 0, 0, 0, 0,
 					SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED)) {
-					SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("SetWindowPos 失败"));
+					Logger::Get().Win32Error("SetWindowPos 失败");
 				}
 
-				SPDLOG_LOGGER_INFO(logger, "已取消禁用窗口大小调整");
+				Logger::Get().Info("已取消禁用窗口大小调整");
 			} else {
-				SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("取消禁用窗口大小调整失败"));
+				Logger::Get().Win32Error("取消禁用窗口大小调整失败");
 			}
 		}
 	}
@@ -57,10 +55,10 @@ bool FrameSourceBase::Initialize() {
 				//	SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("SetWindowPos 失败"));
 				// }
 
-				SPDLOG_LOGGER_INFO(logger, "已禁用窗口大小调整");
+				Logger::Get().Info("已禁用窗口大小调整");
 				_windowResizingDisabled = true;
 			} else {
-				SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("禁用窗口大小调整失败"));
+				Logger::Get().Win32Error("禁用窗口大小调整失败");
 			}
 		}
 	}
@@ -76,9 +74,9 @@ bool FrameSourceBase::Initialize() {
 			INT attr = DWMWCP_DONOTROUND;
 			HRESULT hr = DwmSetWindowAttribute(hwndSrc, DWMWA_WINDOW_CORNER_PREFERENCE, &attr, sizeof(attr));
 			if (FAILED(hr)) {
-				SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("禁用窗口圆角失败", hr));
+				Logger::Get().ComError("禁用窗口圆角失败", hr);
 			} else {
-				SPDLOG_LOGGER_INFO(logger, "已禁用窗口圆角");
+				Logger::Get().Info("已禁用窗口圆角");
 				_roundCornerDisabled = true;
 			}
 		}
@@ -93,13 +91,13 @@ bool FrameSourceBase::_GetMapToOriginDPI(HWND hWnd, double& a, double& bx, doubl
 	// 它们的商即为窗口的 DPI 缩放
 	HDC hdcWindow = GetDCEx(hWnd, NULL, DCX_LOCKWINDOWUPDATE | DCX_WINDOW);
 	if (!hdcWindow) {
-		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetDCEx 失败"));
+		Logger::Get().Win32Error("GetDCEx 失败");
 		return false;
 	}
 
 	HDC hdcClient = GetDCEx(hWnd, NULL, DCX_LOCKWINDOWUPDATE);
 	if (!hdcClient) {
-		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetDCEx 失败"));
+		Logger::Get().Win32Error("GetDCEx 失败");
 		ReleaseDC(hWnd, hdcWindow);
 		return false;
 	}
@@ -111,24 +109,24 @@ bool FrameSourceBase::_GetMapToOriginDPI(HWND hWnd, double& a, double& bx, doubl
 
 	HGDIOBJ hBmpWindow = GetCurrentObject(hdcWindow, OBJ_BITMAP);
 	if (!hBmpWindow) {
-		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetCurrentObject 失败"));
+		Logger::Get().Win32Error("GetCurrentObject 失败");
 		return false;
 	}
 
 	if (GetObjectType(hBmpWindow) != OBJ_BITMAP) {
-		SPDLOG_LOGGER_ERROR(logger, "无法获取窗口的重定向表面");
+		Logger::Get().Error("无法获取窗口的重定向表面");
 		return false;
 	}
 
 	BITMAP bmp{};
 	if (!GetObject(hBmpWindow, sizeof(bmp), &bmp)) {
-		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetObject 失败"));
+		Logger::Get().Win32Error("GetObject 失败");
 		return false;
 	}
 
 	RECT rect;
 	if (!GetWindowRect(hWnd, &rect)) {
-		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetWindowRect 失败"));
+		Logger::Get().Win32Error("GetWindowRect 失败");
 		return false;
 	}
 
@@ -140,16 +138,16 @@ bool FrameSourceBase::_GetMapToOriginDPI(HWND hWnd, double& a, double& bx, doubl
 
 	POINT ptClient{}, ptWindow{};
 	if (!GetDCOrgEx(hdcClient, &ptClient)) {
-		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetDCOrgEx 失败"));
+		Logger::Get().Win32Error("GetDCOrgEx 失败");
 		return false;
 	}
 	if (!GetDCOrgEx(hdcWindow, &ptWindow)) {
-		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetDCOrgEx 失败"));
+		Logger::Get().Win32Error("GetDCOrgEx 失败");
 		return false;
 	}
 
 	if (!Utils::GetClientScreenRect(hWnd, rect)) {
-		SPDLOG_LOGGER_ERROR(logger, "GetClientScreenRect 失败");
+		Logger::Get().Error("GetClientScreenRect 失败");
 		return false;
 	}
 
@@ -166,7 +164,7 @@ bool FrameSourceBase::_GetMapToOriginDPI(HWND hWnd, double& a, double& bx, doubl
 bool FrameSourceBase::_CenterWindowIfNecessary(HWND hWnd, const RECT& rcWork) {
 	RECT srcRect;
 	if (!GetWindowRect(hWnd, &srcRect)) {
-		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetWindowRect 失败"));
+		Logger::Get().Win32Error("GetWindowRect 失败");
 		return false;
 	}
 
@@ -190,7 +188,7 @@ bool FrameSourceBase::_CenterWindowIfNecessary(HWND hWnd, const RECT& rcWork) {
 			0,
 			SWP_NOSIZE | SWP_NOZORDER
 		)) {
-			SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("SetWindowPos 失败"));
+			Logger::Get().Win32Error("SetWindowPos 失败");
 		}
 	}
 
@@ -209,7 +207,7 @@ static BOOL CALLBACK EnumChildProc(
 	std::wstring className(256, 0);
 	int num = GetClassName(hwnd, &className[0], (int)className.size());
 	if (num == 0) {
-		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetClassName 失败"));
+		Logger::Get().Win32Error("GetClassName 失败");
 		return TRUE;
 	}
 	className.resize(num);
@@ -274,18 +272,18 @@ bool FrameSourceBase::_UpdateSrcFrameRect() {
 				HWND hwndClient = FindClientWindow(hwndSrc, L"ApplicationFrameInputSinkWindow");
 				if (hwndClient) {
 					if (!Utils::GetClientScreenRect(hwndClient, _srcFrameRect)) {
-						SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetClientScreenRect 失败"));
+						Logger::Get().Win32Error("GetClientScreenRect 失败");
 					}
 				}
 			}
 		} else {
-			SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetClassName 失败"));
+			Logger::Get().Win32Error("GetClassName 失败");
 		}
 	}
 
 	if (_srcFrameRect == RECT{}) {
 		if (!Utils::GetClientScreenRect(hwndSrc, _srcFrameRect)) {
-			SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetClientScreenRect 失败"));
+			Logger::Get().Win32Error("GetClientScreenRect 失败");
 			return false;
 		}
 	}
@@ -300,7 +298,7 @@ bool FrameSourceBase::_UpdateSrcFrameRect() {
 
 	if (_srcFrameRect.right - _srcFrameRect.left <= 0 || _srcFrameRect.bottom - _srcFrameRect.top <= 0) {
 		App::GetInstance().SetErrorMsg(ErrorMessages::FAILED_TO_CROP);
-		SPDLOG_LOGGER_ERROR(logger, "裁剪窗口失败");
+		Logger::Get().Error("裁剪窗口失败");
 		return false;
 	}
 

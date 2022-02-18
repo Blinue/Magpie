@@ -72,6 +72,9 @@
     </ClCompile>
     <ClCompile Include="FSRFilter.cpp" />
     <ClCompile Include="A4KSFilter.cpp" />
+    <ClCompile Include="Logger.cpp">
+      <Filter>应用程序</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GraphicsCaptureFrameSource.h">
@@ -105,9 +108,6 @@
       <Filter>应用程序</Filter>
     </ClInclude>
     <ClInclude Include="ErrorMessages.h">
-      <Filter>应用程序</Filter>
-    </ClInclude>
-    <ClInclude Include="framework.h">
       <Filter>应用程序</Filter>
     </ClInclude>
     <ClInclude Include="pch.h">
@@ -151,6 +151,9 @@
     </ClInclude>
     <ClInclude Include="FSRFilter.h" />
     <ClInclude Include="A4KSFilter.h" />
+    <ClInclude Include="Logger.h">
+      <Filter>应用程序</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />

@@ -3,35 +3,12 @@
 #include <bcrypt.h>
 
 
-extern std::shared_ptr<spdlog::logger> logger;
-
-
 struct Utils {
-	static UINT GetWindowShowCmd(HWND hwnd) {
-		assert(hwnd != NULL);
-
-		WINDOWPLACEMENT wp{};
-		wp.length = sizeof(wp);
-		if (!GetWindowPlacement(hwnd, &wp)) {
-			SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetWindowPlacement 出错"));
-			assert(false);
-		}
-
-		return wp.showCmd;
-	}
+	static UINT GetWindowShowCmd(HWND hwnd);
 
 	static bool GetClientScreenRect(HWND hWnd, RECT& rect);
 
-	static bool GetWindowFrameRect(HWND hWnd, RECT& result) {
-		HRESULT hr = DwmGetWindowAttribute(hWnd,
-			DWMWA_EXTENDED_FRAME_BOUNDS, &result, sizeof(result));
-		if (FAILED(hr)) {
-			SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("DwmGetWindowAttribute 失败", hr));
-			return false;
-		}
-
-		return true;
-	}
+	static bool GetWindowFrameRect(HWND hWnd, RECT& result);
 
 	static bool CheckOverlap(const RECT& r1, const RECT& r2) noexcept {
 		return r1.right > r2.left && r1.bottom > r2.top && r1.left < r2.right&& r1.top < r2.bottom;

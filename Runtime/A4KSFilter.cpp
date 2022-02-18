@@ -3,6 +3,8 @@
 #include "App.h"
 #include "DeviceResources.h"
 #include "FrameSourceBase.h"
+#include "Logger.h"
+
 
 static SIZE outputSize;
 
@@ -58,7 +60,7 @@ bool A4KSFilter::Initialize() {
 
 	HRESULT hr = d3dDevice->CreateBuffer(&bd, &initData, _CB.put());
 	if (FAILED(hr)) {
-		SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("CreateBuffer 失败", hr));
+		Logger::Get().ComError("CreateBuffer 失败", hr);
 		return false;
 	}
 

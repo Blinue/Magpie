@@ -8,12 +8,11 @@
 #include "StrUtils.h"
 #include "App.h"
 #include "DeviceResources.h"
+#include "Logger.h"
 
 
 static constexpr const char* META_INDICATOR = "//!";
 
-
-extern std::shared_ptr<spdlog::logger> logger;
 
 class PassInclude : public ID3DInclude {
 public:
@@ -1034,7 +1033,7 @@ UINT ResolvePasses(const std::vector<std::string_view>& blocks, const std::vecto
 
 	for (size_t i = 0; i < blocks.size(); ++i) {
 		if (ResolvePass(blocks[i], desc, passSources, commonHlsl)) {
-			SPDLOG_LOGGER_ERROR(logger, fmt::format("解析 Pass{} 失败", i + 1));
+			Logger::Get().Error(fmt::format("解析 Pass{} 失败", i + 1));
 			return 1;
 		}
 	}
@@ -1042,14 +1041,14 @@ UINT ResolvePasses(const std::vector<std::string_view>& blocks, const std::vecto
 	// 确保每个 PASS 都存在
 	for (size_t i = 0; i < passSources.size(); ++i) {
 		if (passSources[i].empty()) {
-			SPDLOG_LOGGER_ERROR(logger, fmt::format("Pass{} 为空", i + 1));
+			Logger::Get().Error(fmt::format("Pass{} 为空", i + 1));
 			return 1;
 		}
 	}
 
 	// 最后一个 PASS 必须输出到 OUTPUT
 	if (!desc.passes.back().outputs.empty()) {
-		SPDLOG_LOGGER_ERROR(logger, "最后一个 Pass 不能有 SAVE 指令");
+		Logger::Get().Error("最后一个 Pass 不能有 SAVE 指令");
 		return 1;
 	}
 
@@ -1059,7 +1058,7 @@ UINT ResolvePasses(const std::vector<std::string_view>& blocks, const std::vecto
 
 	if (passSources.size() == 1) {
 		if (!dr.CompileShader(false, passSources[0], "__M", desc.passes[0].cso.put(), "Pass1", &passInclude)) {
-			SPDLOG_LOGGER_ERROR(logger, "编译 Pass1 失败");
+			Logger::Get().Error("编译 Pass1 失败");
 			return 1;
 		}
 	} else {
@@ -1084,17 +1083,17 @@ UINT ResolvePasses(const std::vector<std::string_view>& blocks, const std::vecto
 
 			for (size_t i = 0; i < passSources.size(); ++i) {
 				if (!desc.passes[i].cso) {
-					SPDLOG_LOGGER_ERROR(logger, fmt::format("编译 Pass{} 失败", i + 1));
+					Logger::Get().Error(fmt::format("编译 Pass{} 失败", i + 1));
 					return 1;
 				}
 			}
 		} else {
-			SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("CreateThreadpoolWork 失败，回退到单线程编译"));
+			Logger::Get().Win32Error("CreateThreadpoolWork 失败，回退到单线程编译");
 
 			// 回退到单线程
 			for (size_t i = 0; i < passSources.size(); ++i) {
 				if (!dr.CompileShader(false, passSources[i], "__M", desc.passes[i].cso.put(), fmt::format("Pass{}", i + 1).c_str(), &passInclude)) {
-					SPDLOG_LOGGER_ERROR(logger, fmt::format("编译 Pass{} 失败", i + 1));
+					Logger::Get().Error(fmt::format("编译 Pass{} 失败", i + 1));
 					return 1;
 				}
 			}
@@ -1110,18 +1109,18 @@ UINT EffectCompiler::Compile(const wchar_t* fileName, EffectDesc& desc) {
 
 	std::string source;
 	if (!Utils::ReadTextFile(fileName, source)) {
-		SPDLOG_LOGGER_ERROR(logger, "读取源文件失败");
+		Logger::Get().Error("读取源文件失败");
 		return 1;
 	}
 
 	if (source.empty()) {
-		SPDLOG_LOGGER_ERROR(logger, "源文件为空");
+		Logger::Get().Error("源文件为空");
 		return 1;
 	}
 
 	// 移除注释
 	if (RemoveComments(source)) {
-		SPDLOG_LOGGER_ERROR(logger, "删除注释失败");
+		Logger::Get().Error("删除注释失败");
 		return 1;
 	}
 
@@ -1129,7 +1128,7 @@ UINT EffectCompiler::Compile(const wchar_t* fileName, EffectDesc& desc) {
 	if (!App::GetInstance().IsDisableEffectCache()) {
 		std::vector<BYTE> hash;
 		if (!Utils::Hasher::GetInstance().Hash(source.data(), source.size(), hash)) {
-			SPDLOG_LOGGER_ERROR(logger, "计算 hash 失败");
+			Logger::Get().Error("计算 hash 失败");
 		} else {
 			md5 = Utils::Bin2Hex(hash.data(), hash.size());
 
@@ -1144,7 +1143,7 @@ UINT EffectCompiler::Compile(const wchar_t* fileName, EffectDesc& desc) {
 
 	// 检查头
 	if (!CheckMagic(sourceView)) {
-		SPDLOG_LOGGER_ERROR(logger, "检查 MagpieFX 头失败");
+		Logger::Get().Error("检查 MagpieFX 头失败");
 		return 2;
 	}
 
@@ -1237,18 +1236,18 @@ UINT EffectCompiler::Compile(const wchar_t* fileName, EffectDesc& desc) {
 
 	// 必须有 PASS 块
 	if (passBlocks.empty()) {
-		SPDLOG_LOGGER_ERROR(logger, "无 PASS 块");
+		Logger::Get().Error("无 PASS 块");
 		return 1;
 	}
 
 	if (ResolveHeader(headerBlock, desc)) {
-		SPDLOG_LOGGER_ERROR(logger, "解析 Header 块失败");
+		Logger::Get().Error("解析 Header 块失败");
 		return 1;
 	}
 
 	for (size_t i = 0; i < constantBlocks.size(); ++i) {
 		if (ResolveConstant(constantBlocks[i], desc)) {
-			SPDLOG_LOGGER_ERROR(logger, fmt::format("解析 Constant#{} 块失败", i + 1));
+			Logger::Get().Error(fmt::format("解析 Constant#{} 块失败", i + 1));
 			return 1;
 		}
 	}
@@ -1258,14 +1257,14 @@ UINT EffectCompiler::Compile(const wchar_t* fileName, EffectDesc& desc) {
 	inputTex.name = "INPUT";
 	for (size_t i = 0; i < textureBlocks.size(); ++i) {
 		if (ResolveTexture(textureBlocks[i], desc)) {
-			SPDLOG_LOGGER_ERROR(logger, fmt::format("解析 Texture#{} 块失败", i + 1));
+			Logger::Get().Error(fmt::format("解析 Texture#{} 块失败", i + 1));
 			return 1;
 		}
 	}
 
 	for (size_t i = 0; i < samplerBlocks.size(); ++i) {
 		if (ResolveSampler(samplerBlocks[i], desc)) {
-			SPDLOG_LOGGER_ERROR(logger, fmt::format("解析 Sampler#{} 块失败", i + 1));
+			Logger::Get().Error(fmt::format("解析 Sampler#{} 块失败", i + 1));
 			return 1;
 		}
 	}
@@ -1275,21 +1274,21 @@ UINT EffectCompiler::Compile(const wchar_t* fileName, EffectDesc& desc) {
 		std::unordered_set<std::string> names;
 		for (const auto& d : desc.constants) {
 			if (names.find(d.name) != names.end()) {
-				SPDLOG_LOGGER_ERROR(logger, "标识符重复");
+				Logger::Get().Error("标识符重复");
 				return 1;
 			}
 			names.insert(d.name);
 		}
 		for (const auto& d : desc.textures) {
 			if (names.find(d.name) != names.end()) {
-				SPDLOG_LOGGER_ERROR(logger, "标识符重复");
+				Logger::Get().Error("标识符重复");
 				return 1;
 			}
 			names.insert(d.name);
 		}
 		for (const auto& d : desc.samplers) {
 			if (names.find(d.name) != names.end()) {
-				SPDLOG_LOGGER_ERROR(logger, "标识符重复");
+				Logger::Get().Error("标识符重复");
 				return 1;
 			}
 			names.insert(d.name);
@@ -1298,13 +1297,13 @@ UINT EffectCompiler::Compile(const wchar_t* fileName, EffectDesc& desc) {
 
 	for (size_t i = 0; i < commonBlocks.size(); ++i) {
 		if (ResolveCommon(commonBlocks[i])) {
-			SPDLOG_LOGGER_ERROR(logger, fmt::format("解析 Common#{} 块失败", i + 1));
+			Logger::Get().Error(fmt::format("解析 Common#{} 块失败", i + 1));
 			return 1;
 		}
 	}
 
 	if (ResolvePasses(passBlocks, commonBlocks, desc)) {
-		SPDLOG_LOGGER_ERROR(logger, "解析 Pass 块失败");
+		Logger::Get().Error("解析 Pass 块失败");
 		return 1;
 	}
 

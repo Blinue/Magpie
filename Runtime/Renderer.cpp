@@ -14,6 +14,7 @@
 #include "UIDrawer.h"
 #include "FSRFilter.h"
 #include "A4KSFilter.h"
+#include "Logger.h"
 
 
 Renderer::Renderer() {}
@@ -24,7 +25,7 @@ bool Renderer::Initialize(const std::string& effectsJson) {
 	_gpuTimer.reset(new GPUTimer());
 
 	if (!GetWindowRect(App::GetInstance().GetHwndSrc(), &_srcWndRect)) {
-		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetWindowRect 失败"));
+		Logger::Get().Win32Error("GetWindowRect 失败");
 		return false;
 	}
 
@@ -61,7 +62,7 @@ bool Renderer::Initialize(const std::string& effectsJson) {
 
 void Renderer::Render() {
 	if (!_CheckSrcState()) {
-		SPDLOG_LOGGER_INFO(logger, "源窗口状态改变，退出全屏");
+		Logger::Get().Info("源窗口状态改变，退出全屏");
 		App::GetInstance().Quit();
 		return;
 	}
@@ -142,13 +143,13 @@ bool Renderer::SetFillVS() {
 
 		winrt::com_ptr<ID3DBlob> blob;
 		if (!dr.CompileShader(true, src, "m", blob.put(), "FillVS")) {
-			SPDLOG_LOGGER_ERROR(logger, "编译 FillVS 失败");
+			Logger::Get().Error("编译 FillVS 失败");
 			return false;
 		}
 
 		HRESULT hr = dr.GetD3DDevice()->CreateVertexShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, _fillVS.put());
 		if (FAILED(hr)) {
-			SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("创建 FillVS 失败", hr));
+			Logger::Get().ComError("创建 FillVS 失败", hr);
 			return false;
 		}
 	}
@@ -170,13 +171,13 @@ bool Renderer::SetCopyPS(ID3D11SamplerState* sampler, ID3D11ShaderResourceView* 
 
 		winrt::com_ptr<ID3DBlob> blob;
 		if (!dr.CompileShader(false, src, "m", blob.put(), "CopyPS")) {
-			SPDLOG_LOGGER_ERROR(logger, "编译 CopyPS 失败");
+			Logger::Get().Error("编译 CopyPS 失败");
 			return false;
 		}
 
 		HRESULT hr = dr.GetD3DDevice()->CreatePixelShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, _copyPS.put());
 		if (FAILED(hr)) {
-			SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("创建 CopyPS 失败", hr));
+			Logger::Get().ComError("创建 CopyPS 失败", hr);
 			return false;
 		}
 	}
@@ -198,7 +199,7 @@ bool Renderer::SetSimpleVS(ID3D11Buffer* simpleVB) {
 
 		winrt::com_ptr<ID3DBlob> blob;
 		if (!dr.CompileShader(true, src, "m", blob.put(), "SimpleVS")) {
-			SPDLOG_LOGGER_ERROR(logger, "编译 SimpleVS 失败");
+			Logger::Get().Error("编译 SimpleVS 失败");
 			return false;
 		}
 
@@ -206,19 +207,19 @@ bool Renderer::SetSimpleVS(ID3D11Buffer* simpleVB) {
 
 		HRESULT hr = d3dDevice->CreateVertexShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, _simpleVS.put());
 		if (FAILED(hr)) {
-			SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("创建 SimpleVS 失败", hr));
+			Logger::Get().ComError("创建 SimpleVS 失败", hr);
 			return false;
 		}
 
 		hr = d3dDevice->CreateInputLayout(
-			VertexPositionTexture::InputElements,
-			VertexPositionTexture::InputElementCount,
+			DirectX::VertexPositionTexture::InputElements,
+			DirectX::VertexPositionTexture::InputElementCount,
 			blob->GetBufferPointer(),
 			blob->GetBufferSize(),
 			_simpleIL.put()
 		);
 		if (FAILED(hr)) {
-			SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("创建 SimpleVS 输入布局失败", hr));
+			Logger::Get().ComError("创建 SimpleVS 输入布局失败", hr);
 			return false;
 		}
 	}
@@ -226,7 +227,7 @@ bool Renderer::SetSimpleVS(ID3D11Buffer* simpleVB) {
 	auto d3dDC = dr.GetD3DDC();
 	d3dDC->IASetInputLayout(_simpleIL.get());
 
-	UINT stride = sizeof(VertexPositionTexture);
+	UINT stride = sizeof(DirectX::VertexPositionTexture);
 	UINT offset = 0;
 	d3dDC->IASetVertexBuffers(0, 1, &simpleVB, &stride, &offset);
 
@@ -238,7 +239,7 @@ bool Renderer::SetSimpleVS(ID3D11Buffer* simpleVB) {
 bool CheckForeground(HWND hwndForeground) {
 	wchar_t className[256]{};
 	if (!GetClassName(hwndForeground, (LPWSTR)className, 256)) {
-		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetClassName 失败"));
+		Logger::Get().Win32Error("GetClassName 失败");
 		return false;
 	}
 
@@ -256,7 +257,7 @@ bool CheckForeground(HWND hwndForeground) {
 		&& GetWindowStyle(hwndForeground) & (WS_POPUP | WS_CHILD)
 	) {
 		if (!Utils::GetWindowFrameRect(hwndForeground, rectForground)) {
-			SPDLOG_LOGGER_ERROR(logger, "GetWindowFrameRect 失败");
+			Logger::Get().Error("GetWindowFrameRect 失败");
 			return false;
 		}
 
@@ -278,7 +279,7 @@ bool CheckForeground(HWND hwndForeground) {
 
 	if (rectForground == RECT{}) {
 		if (!Utils::GetWindowFrameRect(hwndForeground, rectForground)) {
-			SPDLOG_LOGGER_ERROR(logger, "GetWindowFrameRect 失败");
+			Logger::Get().Error("GetWindowFrameRect 失败");
 			return false;
 		}
 	}
@@ -293,25 +294,25 @@ bool CheckForeground(HWND hwndForeground) {
 	// 排除开始菜单，它的类名是 CoreWindow
 	if (std::wcscmp(className, L"Windows.UI.Core.CoreWindow")) {
 		// 记录新的前台窗口
-		SPDLOG_LOGGER_INFO(logger, fmt::format("新的前台窗口：\n\t类名：{}", StrUtils::UTF16ToUTF8(className)));
+		Logger::Get().Info(fmt::format("新的前台窗口：\n\t类名：{}", StrUtils::UTF16ToUTF8(className)));
 		return false;
 	}
 
 	DWORD dwProcId = 0;
 	if (!GetWindowThreadProcessId(hwndForeground, &dwProcId)) {
-		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetWindowThreadProcessId 失败"));
+		Logger::Get().Win32Error("GetWindowThreadProcessId 失败");
 		return false;
 	}
 
 	Utils::ScopedHandle hProc(Utils::SafeHandle(OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, dwProcId)));
 	if (!hProc) {
-		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("OpenProcess 失败"));
+		Logger::Get().Win32Error("OpenProcess 失败");
 		return false;
 	}
 
 	wchar_t fileName[MAX_PATH] = { 0 };
 	if (!GetModuleFileNameEx(hProc.get(), NULL, fileName, MAX_PATH)) {
-		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetModuleFileName 失败"));
+		Logger::Get().Win32Error("GetModuleFileName 失败");
 		return false;
 	}
 
@@ -334,24 +335,24 @@ bool Renderer::_CheckSrcState() {
 	if (!App::GetInstance().IsBreakpointMode()) {
 		HWND hwndForeground = GetForegroundWindow();
 		if (hwndForeground && hwndForeground != hwndSrc && !CheckForeground(hwndForeground)) {
-			SPDLOG_LOGGER_INFO(logger, "前台窗口已改变");
+			Logger::Get().Info("前台窗口已改变");
 			return false;
 		}
 	}
 
 	if (Utils::GetWindowShowCmd(hwndSrc) != SW_NORMAL) {
-		SPDLOG_LOGGER_INFO(logger, "源窗口显示状态改变");
+		Logger::Get().Info("源窗口显示状态改变");
 		return false;
 	}
 
 	RECT rect;
 	if (!GetWindowRect(hwndSrc, &rect)) {
-		SPDLOG_LOGGER_ERROR(logger, "GetWindowRect 失败");
+		Logger::Get().Error("GetWindowRect 失败");
 		return false;
 	}
 
 	if (_srcWndRect != rect) {
-		SPDLOG_LOGGER_INFO(logger, "源窗口位置或大小改变");
+		Logger::Get().Info("源窗口位置或大小改变");
 		return false;
 	}
 
@@ -369,12 +370,12 @@ bool Renderer::_ResolveEffectsJson(const std::string& effectsJson) {
 	rapidjson::Document doc;
 	if (doc.Parse(effectsJson.c_str(), effectsJson.size()).HasParseError()) {
 		// 解析 json 失败
-		SPDLOG_LOGGER_ERROR(logger, fmt::format("解析 json 失败\n\t错误码：{}", doc.GetParseError()));
+		Logger::Get().Error(fmt::format("解析 json 失败\n\t错误码：{}", doc.GetParseError()));
 		return false;
 	}
 
 	if (!doc.IsArray()) {
-		SPDLOG_LOGGER_ERROR(logger, "解析 json 失败：根元素不为数组");
+		Logger::Get().Error("解析 json 失败：根元素不为数组");
 		return false;
 	}
 
@@ -387,13 +388,13 @@ bool Renderer::_ResolveEffectsJson(const std::string& effectsJson) {
 
 	// 不得为空
 	if (effectsArr.Empty()) {
-		SPDLOG_LOGGER_ERROR(logger, "解析 json 失败：根元素为空");
+		Logger::Get().Error("解析 json 失败：根元素为空");
 		return false;
 	}
 
 	for (const auto& effectJson : effectsArr) {
 		if (!effectJson.IsObject()) {
-			SPDLOG_LOGGER_ERROR(logger, "解析 json 失败：根数组中存在非法成员");
+			Logger::Get().Error("解析 json 失败：根数组中存在非法成员");
 			return false;
 		}
 
@@ -401,12 +402,12 @@ bool Renderer::_ResolveEffectsJson(const std::string& effectsJson) {
 
 		auto effectName = effectJson.FindMember("effect");
 		if (effectName == effectJson.MemberEnd() || !effectName->value.IsString()) {
-			SPDLOG_LOGGER_ERROR(logger, "解析 json 失败：未找到 effect 属性或该属性的值不合法");
+			Logger::Get().Error("解析 json 失败：未找到 effect 属性或该属性的值不合法");
 			return false;
 		}
 
 		if (!effect.Initialize((L"effects\\" + StrUtils::UTF8ToUTF16(effectName->value.GetString()) + L".hlsl").c_str())) {
-			SPDLOG_LOGGER_ERROR(logger, fmt::format("初始化效果 {} 失败", effectName->value.GetString()));
+			Logger::Get().Error(fmt::format("初始化效果 {} 失败", effectName->value.GetString()));
 			return false;
 		}
 
@@ -415,7 +416,7 @@ bool Renderer::_ResolveEffectsJson(const std::string& effectsJson) {
 			auto scaleProp = effectJson.FindMember("scale");
 			if (scaleProp != effectJson.MemberEnd()) {
 				if (!scaleProp->value.IsArray()) {
-					SPDLOG_LOGGER_ERROR(logger, "解析 json 失败：非法的 scale 属性");
+					Logger::Get().Error("解析 json 失败：非法的 scale 属性");
 					return false;
 				}
 
@@ -426,7 +427,7 @@ bool Renderer::_ResolveEffectsJson(const std::string& effectsJson) {
 
 				const auto& scale = scaleProp->value.GetArray();
 				if (scale.Size() != 2 || !scale[0].IsNumber() || !scale[1].IsNumber()) {
-					SPDLOG_LOGGER_ERROR(logger, "解析 json 失败：非法的 scale 属性");
+					Logger::Get().Error("解析 json 失败：非法的 scale 属性");
 					return false;
 				}
 
@@ -439,21 +440,21 @@ bool Renderer::_ResolveEffectsJson(const std::string& effectsJson) {
 
 				if (scaleX >= DELTA) {
 					if (scaleY < DELTA) {
-						SPDLOG_LOGGER_ERROR(logger, "解析 json 失败：非法的 scale 属性");
+						Logger::Get().Error("解析 json 失败：非法的 scale 属性");
 						return false;
 					}
 
 					outputSize = { std::lroundf(outputSize.cx * scaleX), std::lroundf(outputSize.cy * scaleY) };
 				} else if (std::abs(scaleX) < DELTA) {
 					if (std::abs(scaleY) >= DELTA) {
-						SPDLOG_LOGGER_ERROR(logger, "解析 json 失败：非法的 scale 属性");
+						Logger::Get().Error("解析 json 失败：非法的 scale 属性");
 						return false;
 					}
 
 					outputSize = hostSize;
 				} else {
 					if (scaleY > -DELTA) {
-						SPDLOG_LOGGER_ERROR(logger, "解析 json 失败：非法的 scale 属性");
+						Logger::Get().Error("解析 json 失败：非法的 scale 属性");
 						return false;
 					}
 
@@ -473,7 +474,7 @@ bool Renderer::_ResolveEffectsJson(const std::string& effectsJson) {
 		for (const auto& prop : effectJson.GetObject()) {
 #pragma pop_macro("GetObject")
 			if (!prop.name.IsString()) {
-				SPDLOG_LOGGER_ERROR(logger, "解析 json 失败：非法的效果名");
+				Logger::Get().Error("解析 json 失败：非法的效果名");
 				return false;
 			}
 
@@ -485,12 +486,12 @@ bool Renderer::_ResolveEffectsJson(const std::string& effectsJson) {
 				auto type = effect.GetConstantType(name);
 				if (type == EffectDrawer::ConstantType::Float) {
 					if (!prop.value.IsNumber()) {
-						SPDLOG_LOGGER_ERROR(logger, fmt::format("解析 json 失败：成员 {} 的类型非法", name));
+						Logger::Get().Error(fmt::format("解析 json 失败：成员 {} 的类型非法", name));
 						return false;
 					}
 
 					if (!effect.SetConstant(name, prop.value.GetFloat())) {
-						SPDLOG_LOGGER_ERROR(logger, fmt::format("解析 json 失败：成员 {} 的值非法", name));
+						Logger::Get().Error(fmt::format("解析 json 失败：成员 {} 的值非法", name));
 						return false;
 					}
 				} else if (type == EffectDrawer::ConstantType::Int) {
@@ -501,16 +502,16 @@ bool Renderer::_ResolveEffectsJson(const std::string& effectsJson) {
 						// bool 值视为 int
 						value = (int)prop.value.GetBool();
 					} else {
-						SPDLOG_LOGGER_ERROR(logger, fmt::format("解析 json 失败：成员 {} 的类型非法", name));
+						Logger::Get().Error(fmt::format("解析 json 失败：成员 {} 的类型非法", name));
 						return false;
 					}
 
 					if (!effect.SetConstant(name, value)) {
-						SPDLOG_LOGGER_ERROR(logger, fmt::format("解析 json 失败：成员 {} 的值非法", name));
+						Logger::Get().Error(fmt::format("解析 json 失败：成员 {} 的值非法", name));
 						return false;
 					}
 				} else {
-					SPDLOG_LOGGER_ERROR(logger, fmt::format("解析 json 失败：非法成员 {}", name));
+					Logger::Get().Error(fmt::format("解析 json 失败：非法成员 {}", name));
 					return false;
 				}
 			}
@@ -518,7 +519,7 @@ bool Renderer::_ResolveEffectsJson(const std::string& effectsJson) {
 
 		SIZE& outputSize = texSizes.emplace_back();
 		if (!effect.CalcOutputSize(texSizes[texSizes.size() - 2], outputSize)) {
-			SPDLOG_LOGGER_ERROR(logger, "CalcOutputSize 失败");
+			Logger::Get().Error("CalcOutputSize 失败");
 			return false;
 		}
 	}
@@ -528,7 +529,7 @@ bool Renderer::_ResolveEffectsJson(const std::string& effectsJson) {
 
 	if (_effects.size() == 1) {
 		if (!_effects.back()->Build(_effectInput.get(), dr.GetBackBuffer())) {
-			SPDLOG_LOGGER_ERROR(logger, "构建效果失败");
+			Logger::Get().Error("构建效果失败");
 			return false;
 		}
 	} else {
@@ -553,12 +554,12 @@ bool Renderer::_ResolveEffectsJson(const std::string& effectsJson) {
 			winrt::com_ptr<ID3D11Texture2D> outputTex;
 			HRESULT hr = d3dDevice->CreateTexture2D(&desc, nullptr, outputTex.put());
 			if (FAILED(hr)) {
-				SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("CreateTexture2D 失败", hr));
+				Logger::Get().ComError("CreateTexture2D 失败", hr);
 				return false;
 			}
 
 			if (!_effects[i]->Build(curTex.get(), outputTex.get())) {
-				SPDLOG_LOGGER_ERROR(logger, "构建效果失败");
+				Logger::Get().Error("构建效果失败");
 				return false;
 			}
 
@@ -567,7 +568,7 @@ bool Renderer::_ResolveEffectsJson(const std::string& effectsJson) {
 
 		// 最后一个效果输出到后缓冲纹理
 		if (!_effects.back()->Build(curTex.get(), dr.GetBackBuffer())) {
-			SPDLOG_LOGGER_ERROR(logger, "构建效果失败");
+			Logger::Get().Error("构建效果失败");
 			return false;
 		}
 	}
@@ -601,7 +602,7 @@ bool Renderer::SetAlphaBlend(bool enable) {
 
 		HRESULT hr = dr.GetD3DDevice()->CreateBlendState(&desc, _alphaBlendState.put());
 		if (FAILED(hr)) {
-			SPDLOG_LOGGER_CRITICAL(logger, MakeComErrorMsg("CreateBlendState 失败", hr));
+			Logger::Get().ComError("CreateBlendState 失败", hr);
 			return false;
 		}
 	}
