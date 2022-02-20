@@ -71,6 +71,7 @@ float sharpness;
 // R32G32B32A32_FLOAT
 
 //!TEXTURE
+// 无需定义 FORMAT，INPUT 的格式始终是 B8G8R8A8_UNORM
 Texture2D INPUT;
 
 //!TEXTURE
@@ -115,7 +116,7 @@ float4 Pass1(float2 pos) {
     return float4(1, 1, 1, 1);
 }
 
-// 没有 SAVE 表示此 Pass 为 Effect 的输出
+// 没有 OUT 表示此 Pass 为 Effect 的输出
 
 //!PASS 2
 //!STYLE CS
