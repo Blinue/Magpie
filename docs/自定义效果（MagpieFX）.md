@@ -52,6 +52,23 @@ float sharpness;
 // INPUT 是特殊关键字
 // INPUT 可以作为 Pass 的输出
 // 定义 INPUT 是可选的，但为了保持语义的完整性，建议显式定义
+// 支持的纹理格式：
+// R8_UNORM
+// R16_UNORM
+// R16_FLOAT
+// R8G8_UNORM
+// B5G6R5_UNORM
+// R16G16_UNORM
+// R16G16_FLOAT
+// R8G8B8A8_UNORM
+// B8G8R8A8_UNORM
+// R10G10B10A2_UNORM
+// R32_FLOAT
+// R11G11B10_FLOAT
+// R32G32_FLOAT
+// R16G16B16A16_UNORM
+// R16G16B16A16_FLOAT
+// R32G32B32A32_FLOAT
 
 //!TEXTURE
 Texture2D INPUT;
@@ -109,7 +126,7 @@ float4 Pass1(float2 pos) {
 void Pass2(uint2 blockStart, uint3 threadId) {
     // 向 OUPUT 写入的同时处理视口和光标渲染
     // 只在最后一个 Pass 中可用，且必须使用此函数写入到输出纹理
-    WriteToOutput(blockStart, float4(1,1,1));
+    WriteToOutput(blockStart, float3(1,1,1));
 }
 ```
 
