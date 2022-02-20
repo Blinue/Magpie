@@ -16,7 +16,7 @@ public:
 	EffectDrawer(const EffectDrawer& other);
 	EffectDrawer(EffectDrawer&& other) noexcept;
 
-	bool Initialize(const wchar_t* fileName);
+	bool Initialize(const wchar_t* fileName, bool lastEffect = false);
 
 	enum class ConstantType {
 		Float,
@@ -61,7 +61,7 @@ private:
 		EffectDrawer* _parent = nullptr;
 		size_t _index = 0;
 		
-		winrt::com_ptr<ID3D11PixelShader> _pixelShader;
+		winrt::com_ptr<ID3D11ComputeShader> _computeShader;
 
 		// 后半部分为空，用于解绑
 		std::vector<ID3D11ShaderResourceView*> _inputs;

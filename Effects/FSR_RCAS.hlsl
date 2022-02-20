@@ -1,22 +1,45 @@
-cbuffer cb : register(b0) {
+/*cbuffer cb : register(b0) {
+	uint4 __off;
+	uint __vx;
+	uint __vy;
+
 	float sharpness;
-	
-	uint2 inputOffset;
-	uint2 outputOffset;
-	uint2 viewport;
 };
 
 cbuffer cb1 : register(b1) {
-	int4 cursorRect;
-	float2 cursorPt;
-	uint cursorType;	// 0: Color, 1: Masked Color, 2: Monochrome
+	int4 __cr;
+	float2 __cp;
+	uint __ct;	// 0: Color, 1: Masked Color, 2: Monochrome
 }
 
 Texture2D INPUT : register(t0);
 Texture2D CURSOR : register(t1);
 RWTexture2D<float4> OUTPUT : register(u0);
 
-SamplerState sam : register(s0);
+SamplerState sam : register(s0);*/
+
+//!MAGPIE EFFECT
+//!VERSION 2
+//!OUTPUT_WIDTH INPUT_WIDTH * 2
+//!OUTPUT_HEIGHT INPUT_HEIGHT * 2
+
+
+//!CONSTANT
+//!DEFAULT 0.87
+//!MIN 1e-5
+float sharpness;
+
+//!TEXTURE
+Texture2D INPUT;
+
+//!SAMPLER
+//!FILTER POINT
+SamplerState sam;
+
+//!PASS 1
+//!IN INPUT
+//!BLOCK_SIZE 16, 16
+//!NUM_THREADS 64, 1, 1
 
 #define min3(a, b, c) min(a, min(b, c))
 #define max3(a, b, c) max(a, max(b, c))
@@ -101,17 +124,17 @@ float3 FsrRcasF(uint2 pos) {
 	return c;
 }
 
-
+/*
 void __WriteToOutput(uint2 pos, float3 color) {
-	pos += outputOffset;
+	pos += __off.zw;
 
-	if ((int)pos.x >= cursorRect.x && (int)pos.y >= cursorRect.y && (int)pos.x < cursorRect.z && (int)pos.y < cursorRect.w) {
+	if ((int)pos.x >= __cr.x && (int)pos.y >= __cr.y && (int)pos.x < __cr.z && (int)pos.y < __cr.w) {
 		// »æÖÆ¹â±ê
-		float4 mask = CURSOR.SampleLevel(sam, (pos - cursorRect.xy + 0.5f) * cursorPt, 0);
+		float4 mask = CURSOR.SampleLevel(sam, (pos - __cr.xy + 0.5f) * __cp, 0);
 
-		if (cursorType == 0) {
+		if (__ct == 0) {
 			color = color * mask.a + mask.rgb;
-		} else if (cursorType == 1) {
+		} else if (__ct == 1) {
 			if (mask.a < 0.5f) {
 				color = mask.rgb;
 			} else {
@@ -135,8 +158,9 @@ void __WriteToOutput(uint2 pos, float3 color) {
 	OUTPUT[pos] = float4(color, 1);
 }
 
-#define WriteToOutput(pos, color) if(pos.x < viewport.x && pos.y < viewport.y)__WriteToOutput(pos,color)
+#define WriteToOutput(pos, color) if(pos.x < __vx && pos.y < __vy)__WriteToOutput(pos,color)
 
+*/
 
 uint ABfe(uint src, uint off, uint bits) {
 	uint mask = (1u << bits) - 1;
@@ -150,7 +174,8 @@ uint2 ARmp8x8(uint a) {
 	return uint2(ABfe(a, 1u, 3u), ABfiM(ABfe(a, 3u, 3u), a, 1u));
 }
 
-void Pass2(uint2 blockStart, uint3 threadId) {
+
+void Pass1(uint2 blockStart, uint3 threadId) {
 	uint2 gxy = blockStart + ARmp8x8(threadId.x);
 
 	WriteToOutput(gxy, FsrRcasF(gxy));
@@ -164,8 +189,8 @@ void Pass2(uint2 blockStart, uint3 threadId) {
 	gxy.x -= 8u;
 	WriteToOutput(gxy, FsrRcasF(gxy));
 }
-
+/*
 [numthreads(64, 1, 1)]
 void main(uint3 LocalThreadId : SV_GroupThreadID, uint3 WorkGroupId : SV_GroupID, uint3 Dtid : SV_DispatchThreadID) {
-	Pass2(uint2(WorkGroupId.x << 4u, WorkGroupId.y << 4u) + inputOffset, LocalThreadId);
-}
+	Pass2(uint2(WorkGroupId.x << 4u, WorkGroupId.y << 4u) + __off.xy, LocalThreadId);
+}*/

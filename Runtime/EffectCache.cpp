@@ -130,7 +130,7 @@ void serialize(Archive& ar, EffectSamplerDesc& o) {
 
 template<typename Archive>
 void serialize(Archive& ar, EffectPassDesc& o) {
-	ar& o.inputs& o.outputs& o.cso;
+	ar& o.inputs& o.outputs& o.cso& o.blockSize.cx& o.blockSize.cy;
 }
 
 template<typename Archive>

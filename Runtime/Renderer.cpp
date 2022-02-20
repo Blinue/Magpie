@@ -29,11 +29,11 @@ bool Renderer::Initialize(const std::string& effectsJson) {
 		return false;
 	}
 
-	/*if (!_ResolveEffectsJson(effectsJson)) {
-		SPDLOG_LOGGER_ERROR(logger, "_ResolveEffectsJson 失败");
+	if (!_ResolveEffectsJson(effectsJson)) {
+		Logger::Get().Error("_ResolveEffectsJson 失败");
 		return false;
 	}
-
+	/*
 	ID3D11Texture2D* backBuffer = App::Get().GetDeviceResources().GetBackBuffer();
 
 	_UIDrawer.reset(new UIDrawer());
@@ -129,107 +129,6 @@ void Renderer::Render() {
 
 
 	dr.EndFrame();
-}
-
-bool Renderer::SetFillVS() {
-	auto& dr = App::Get().GetDeviceResources();
-
-	if (!_fillVS) {
-		const char* src = "void m(uint i:SV_VERTEXID,out float4 p:SV_POSITION,out float2 c:TEXCOORD){c=float2(i&1,i>>1)*2;p=float4(c.x*2-1,-c.y*2+1,0,1);}";
-
-		winrt::com_ptr<ID3DBlob> blob;
-		if (!dr.CompileShader(true, src, "m", blob.put(), "FillVS")) {
-			Logger::Get().Error("编译 FillVS 失败");
-			return false;
-		}
-
-		HRESULT hr = dr.GetD3DDevice()->CreateVertexShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, _fillVS.put());
-		if (FAILED(hr)) {
-			Logger::Get().ComError("创建 FillVS 失败", hr);
-			return false;
-		}
-	}
-	
-	auto d3dDC = dr.GetD3DDC();
-	d3dDC->IASetInputLayout(nullptr);
-	d3dDC->IASetVertexBuffers(0, 0, nullptr, nullptr, nullptr);
-	d3dDC->VSSetShader(_fillVS.get(), nullptr, 0);
-
-	return true;
-}
-
-
-bool Renderer::SetCopyPS(ID3D11SamplerState* sampler, ID3D11ShaderResourceView* input) {
-	auto& dr = App::Get().GetDeviceResources();
-
-	if (!_copyPS) {
-		const char* src = "Texture2D t:register(t0);SamplerState s:register(s0);float4 m(float4 p:SV_POSITION,float2 c:TEXCOORD):SV_Target{return t.Sample(s,c);}";
-
-		winrt::com_ptr<ID3DBlob> blob;
-		if (!dr.CompileShader(false, src, "m", blob.put(), "CopyPS")) {
-			Logger::Get().Error("编译 CopyPS 失败");
-			return false;
-		}
-
-		HRESULT hr = dr.GetD3DDevice()->CreatePixelShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, _copyPS.put());
-		if (FAILED(hr)) {
-			Logger::Get().ComError("创建 CopyPS 失败", hr);
-			return false;
-		}
-	}
-
-	auto d3dDC = dr.GetD3DDC();
-	d3dDC->PSSetShader(_copyPS.get(), nullptr, 0);
-	d3dDC->PSSetConstantBuffers(0, 0, nullptr);
-	d3dDC->PSSetShaderResources(0, 1, &input);
-	d3dDC->PSSetSamplers(0, 1, &sampler);
-
-	return true;
-}
-
-bool Renderer::SetSimpleVS(ID3D11Buffer* simpleVB) {
-	auto& dr = App::Get().GetDeviceResources();
-
-	if (!_simpleVS) {
-		const char* src = "void m(float4 p:SV_POSITION,float2 c:TEXCOORD,out float4 q:SV_POSITION,out float2 d:TEXCOORD) {q=p;d=c;}";
-
-		winrt::com_ptr<ID3DBlob> blob;
-		if (!dr.CompileShader(true, src, "m", blob.put(), "SimpleVS")) {
-			Logger::Get().Error("编译 SimpleVS 失败");
-			return false;
-		}
-
-		auto d3dDevice = dr.GetD3DDevice();
-
-		HRESULT hr = d3dDevice->CreateVertexShader(blob->GetBufferPointer(), blob->GetBufferSize(), nullptr, _simpleVS.put());
-		if (FAILED(hr)) {
-			Logger::Get().ComError("创建 SimpleVS 失败", hr);
-			return false;
-		}
-
-		hr = d3dDevice->CreateInputLayout(
-			DirectX::VertexPositionTexture::InputElements,
-			DirectX::VertexPositionTexture::InputElementCount,
-			blob->GetBufferPointer(),
-			blob->GetBufferSize(),
-			_simpleIL.put()
-		);
-		if (FAILED(hr)) {
-			Logger::Get().ComError("创建 SimpleVS 输入布局失败", hr);
-			return false;
-		}
-	}
-
-	auto d3dDC = dr.GetD3DDC();
-	d3dDC->IASetInputLayout(_simpleIL.get());
-
-	UINT stride = sizeof(DirectX::VertexPositionTexture);
-	UINT offset = 0;
-	d3dDC->IASetVertexBuffers(0, 1, &simpleVB, &stride, &offset);
-
-	d3dDC->VSSetShader(_simpleVS.get(), nullptr, 0);
-
-	return true;
 }
 
 bool CheckForeground(HWND hwndForeground) {
@@ -356,9 +255,9 @@ bool Renderer::_CheckSrcState() {
 }
 
 bool Renderer::_ResolveEffectsJson(const std::string& effectsJson) {
-	_effectInput = App::Get().GetFrameSource().GetOutput();
+	winrt::com_ptr<ID3D11Texture2D> srcFrame = App::Get().GetFrameSource().GetOutput();
 	D3D11_TEXTURE2D_DESC inputDesc;
-	_effectInput->GetDesc(&inputDesc);
+	srcFrame->GetDesc(&inputDesc);
 
 	const RECT& hostWndRect = App::Get().GetHostWndRect();
 	SIZE hostSize = { hostWndRect.right - hostWndRect.left,hostWndRect.bottom - hostWndRect.top };
@@ -388,7 +287,9 @@ bool Renderer::_ResolveEffectsJson(const std::string& effectsJson) {
 		return false;
 	}
 
-	for (const auto& effectJson : effectsArr) {
+	for (int i = 0, end = effectsArr.Size(); i < end; ++i) {
+		const auto& effectJson = effectsArr[i];
+
 		if (!effectJson.IsObject()) {
 			Logger::Get().Error("解析 json 失败：根数组中存在非法成员");
 			return false;
@@ -402,7 +303,7 @@ bool Renderer::_ResolveEffectsJson(const std::string& effectsJson) {
 			return false;
 		}
 
-		if (!effect.Initialize((L"effects\\" + StrUtils::UTF8ToUTF16(effectName->value.GetString()) + L".hlsl").c_str())) {
+		if (!effect.Initialize((L"effects\\" + StrUtils::UTF8ToUTF16(effectName->value.GetString()) + L".hlsl").c_str(), i == end - 1)) {
 			Logger::Get().Error(fmt::format("初始化效果 {} 失败", effectName->value.GetString()));
 			return false;
 		}
@@ -524,13 +425,13 @@ bool Renderer::_ResolveEffectsJson(const std::string& effectsJson) {
 	auto d3dDevice = dr.GetD3DDevice();
 
 	if (_effects.size() == 1) {
-		if (!_effects.back()->Build(_effectInput.get(), dr.GetBackBuffer())) {
+		if (!_effects.back()->Build(srcFrame.get(), dr.GetBackBuffer())) {
 			Logger::Get().Error("构建效果失败");
 			return false;
 		}
 	} else {
 		// 创建效果间的中间纹理
-		winrt::com_ptr<ID3D11Texture2D> curTex = _effectInput;
+		winrt::com_ptr<ID3D11Texture2D> curTex = srcFrame;
 
 		D3D11_TEXTURE2D_DESC desc{};
 		desc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
@@ -575,34 +476,5 @@ bool Renderer::_ResolveEffectsJson(const std::string& effectsJson) {
 	_outputRect.top = (hostSize.cy - outputSize.cy) / 2;
 	_outputRect.bottom = _outputRect.top + outputSize.cy;
 
-	return true;
-}
-
-bool Renderer::SetAlphaBlend(bool enable) {
-	auto& dr = App::Get().GetDeviceResources();
-
-	if (!enable) {
-		dr.GetD3DDC()->OMSetBlendState(nullptr, nullptr, 0xffffffff);
-		return true;
-	}
-	
-	if (!_alphaBlendState) {
-		D3D11_BLEND_DESC desc{};
-		desc.RenderTarget[0].BlendEnable = TRUE;
-		desc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
-		desc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
-		desc.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
-		desc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
-		desc.RenderTarget[0].BlendOp = desc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
-		desc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
-
-		HRESULT hr = dr.GetD3DDevice()->CreateBlendState(&desc, _alphaBlendState.put());
-		if (FAILED(hr)) {
-			Logger::Get().ComError("CreateBlendState 失败", hr);
-			return false;
-		}
-	}
-	
-	dr.GetD3DDC()->OMSetBlendState(_alphaBlendState.get(), nullptr, 0xffffffff);
 	return true;
 }

@@ -118,10 +118,10 @@ EffectDrawer::EffectDrawer(EffectDrawer&& other) noexcept {
 	}
 }
 
-bool EffectDrawer::Initialize(const wchar_t* fileName) {
+bool EffectDrawer::Initialize(const wchar_t* fileName, bool lastEffect) {
 	bool result = false;
 	int duration = Utils::Measure([&]() {
-		result = !EffectCompiler::Compile(fileName, _effectDesc);
+		result = !EffectCompiler::Compile(fileName, _effectDesc, lastEffect ? EffectCompiler::COMPILE_FLAG_LAST_EFFECT : 0);
 	});
 
 	if (!result) {
@@ -499,10 +499,10 @@ bool EffectDrawer::_Pass::Initialize(EffectDrawer* parent, size_t index) {
 	_index = index;
 
 	const EffectPassDesc& passDesc = _parent->_effectDesc.passes[index];
-	HRESULT hr = App::Get().GetDeviceResources().GetD3DDevice()->CreatePixelShader(
-		passDesc.cso->GetBufferPointer(), passDesc.cso->GetBufferSize(), nullptr, _pixelShader.put());
+	HRESULT hr = App::Get().GetDeviceResources().GetD3DDevice()->CreateComputeShader(
+		passDesc.cso->GetBufferPointer(), passDesc.cso->GetBufferSize(), nullptr, _computeShader.put());
 	if (FAILED(hr)) {
-		Logger::Get().ComError("创建像素着色器失败", hr);
+		Logger::Get().ComError("创建计算着色器失败", hr);
 		return false;
 	}
 
@@ -578,16 +578,16 @@ void EffectDrawer::_Pass::Draw() {
 	d3dDC->OMSetRenderTargets((UINT)_outputs.size(), _outputs.data(), nullptr);
 	d3dDC->RSSetViewports(1, &_vp);
 
-	d3dDC->PSSetShader(_pixelShader.get(), nullptr, 0);
+	//d3dDC->PSSetShader(_computeShader.get(), nullptr, 0);
 
 	UINT nInputs = (UINT)(_inputs.size() / 2);
 	d3dDC->PSSetShaderResources(0, nInputs, _inputs.data());
 
 	if (_vtxBuffer) {
-		App::Get().GetRenderer().SetSimpleVS(_vtxBuffer.get());
+		//App::Get().GetRenderer().SetSimpleVS(_vtxBuffer.get());
 		d3dDC->Draw(4, 0);
 	} else {
-		App::Get().GetRenderer().SetFillVS();
+		//App::Get().GetRenderer().SetFillVS();
 		d3dDC->Draw(3, 0);
 	}
 

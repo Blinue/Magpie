@@ -363,30 +363,6 @@ bool DeviceResources::GetUnorderedAccessView(ID3D11Texture2D* texture, ID3D11Uno
 	}
 }
 
-bool DeviceResources::CompileShader(bool isVS, std::string_view hlsl, const char* entryPoint, ID3DBlob** blob, const char* sourceName, ID3DInclude* include) {
-	winrt::com_ptr<ID3DBlob> errorMsgs = nullptr;
-
-	UINT flags = D3DCOMPILE_ENABLE_STRICTNESS;
-
-	HRESULT hr = D3DCompile(hlsl.data(), hlsl.size(), sourceName, nullptr, include,
-		entryPoint, isVS ? "vs_5_0" : "ps_5_0", flags, 0, blob, errorMsgs.put());
-	if (FAILED(hr)) {
-		if (errorMsgs) {
-			Logger::Get().ComError(fmt::format("编译{}着色器失败：{}",
-				isVS ? "顶点" : "像素", (const char*)errorMsgs->GetBufferPointer()), hr);
-		}
-		return false;
-	} else {
-		if (errorMsgs) {
-			// 显示警告消息
-			Logger::Get().Warn(fmt::format("编译{}着色器时产生警告：{}",
-				isVS ? "顶点" : "像素", (const char*)errorMsgs->GetBufferPointer()));
-		}
-	}
-
-	return true;
-}
-
 bool DeviceResources::CompileShader(std::string_view hlsl, const char* entryPoint, ID3DBlob** blob, const char* sourceName, ID3DInclude* include) {
 	winrt::com_ptr<ID3DBlob> errorMsgs = nullptr;
 

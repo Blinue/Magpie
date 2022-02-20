@@ -68,9 +68,10 @@ struct EffectConstantDesc {
 };
 
 struct EffectPassDesc {
+	winrt::com_ptr<ID3DBlob> cso;
 	std::vector<UINT> inputs;
 	std::vector<UINT> outputs;
-	winrt::com_ptr<ID3DBlob> cso;
+	SIZE blockSize{};
 };
 
 struct EffectDesc {

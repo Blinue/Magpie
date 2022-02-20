@@ -21,8 +21,6 @@ public:
 
 	bool GetUnorderedAccessView(ID3D11Texture2D* texture, ID3D11UnorderedAccessView** result);
 
-	bool CompileShader(bool isVS, std::string_view hlsl, const char* entryPoint,
-		ID3DBlob** blob, const char* sourceName = nullptr, ID3DInclude* include = nullptr);
 	bool CompileShader(std::string_view hlsl, const char* entryPoint,
 		ID3DBlob** blob, const char* sourceName = nullptr, ID3DInclude* include = nullptr);
 

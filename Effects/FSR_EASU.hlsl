@@ -1,4 +1,4 @@
-cbuffer cb : register(b0) {
+/*cbuffer cb : register(b0) {
 	float inputWidth;
 	float inputHeight;
 	float outputWidth;
@@ -9,7 +9,39 @@ SamplerState sam : register(s0);
 
 Texture2D INPUT : register(t0);
 RWTexture2D<float4> OUTPUT : register(u0);
+*/
 
+//!MAGPIE EFFECT
+//!VERSION 2
+
+//!CONSTANT
+//!VALUE INPUT_WIDTH
+float inputWidth;
+
+//!CONSTANT
+//!VALUE INPUT_HEIGHT
+float inputHeight;
+
+//!CONSTANT
+//!VALUE OUTPUT_WIDTH
+float outputWidth;
+
+//!CONSTANT
+//!VALUE OUTPUT_HEIGHT
+float outputHeight;
+
+//!TEXTURE
+Texture2D INPUT;
+
+//!SAMPLER
+//!FILTER POINT
+SamplerState sam;
+
+
+//!PASS 1
+//!IN INPUT
+//!BLOCK_SIZE 16, 16
+//!NUM_THREADS 64, 1, 1
 
 #define min3(a, b, c) min(a, min(b, c))
 #define max3(a, b, c) max(a, max(b, c))
@@ -231,9 +263,9 @@ uint ABfiM(uint src, uint ins, uint bits) {
 uint2 ARmp8x8(uint a) {
 	return uint2(ABfe(a, 1u, 3u), ABfiM(ABfe(a, 3u, 3u), a, 1u));
 }
-
+/*
 [numthreads(64, 1, 1)]
-void main(uint3 LocalThreadId : SV_GroupThreadID, uint3 WorkGroupId : SV_GroupID, uint3 Dtid : SV_DispatchThreadID) {
+void main(uint3 LocalThreadId : SV_GroupThreadID, uint3 WorkGroupId : SV_GroupID) {
 	float4 con0, con1, con2;
 	float2 con3;
 	// Output integer position to a pixel position in viewport.
@@ -277,4 +309,55 @@ void main(uint3 LocalThreadId : SV_GroupThreadID, uint3 WorkGroupId : SV_GroupID
 	OUTPUT[gxy] = float4(FsrEasuF(gxy, con0, con1, con2, con3), 1);
 	gxy.x -= 8u;
 	OUTPUT[gxy] = float4(FsrEasuF(gxy, con0, con1, con2, con3), 1);
+}*/
+
+
+void Pass1(uint2 blockStart, uint3 threadId) {
+	uint2 gxy = blockStart + ARmp8x8(threadId.x);
+
+	float4 con0, con1, con2;
+	float2 con3;
+	// Output integer position to a pixel position in viewport.
+	con0[0] = inputWidth / outputWidth;
+	con0[1] = inputHeight / outputHeight;
+	con0[2] = 0.5 * inputWidth / outputWidth - 0.5;
+	con0[3] = 0.5 * inputHeight / outputHeight - 0.5;
+	// Viewport pixel position to normalized image space.
+	// This is used to get upper-left of 'F' tap.
+	con1[0] = rcp(inputWidth);
+	con1[1] = rcp(inputHeight);
+	// Centers of gather4, first offset from upper-left of 'F'.
+	//      +---+---+
+	//      |   |   |
+	//      +--(0)--+
+	//      | b | c |
+	//  +---F---+---+---+
+	//  | e | f | g | h |
+	//  +--(1)--+--(2)--+
+	//  | i | j | k | l |
+	//  +---+---+---+---+
+	//      | n | o |
+	//      +--(3)--+
+	//      |   |   |
+	//      +---+---+
+	con1[2] = 1.0 * con1[0];
+	con1[3] = -1.0 * con1[1];
+	// These are from (0) instead of 'F'.
+	con2[0] = -1.0 * con1[0];
+	con2[1] = 2.0 * con1[1];
+	con2[2] = 1.0 * con1[0];
+	con2[3] = 2.0 * con1[1];
+	con3[0] = 0.0 * con1[0];
+	con3[1] = 4.0 * con1[1];
+
+	WriteToOutput(gxy, FsrEasuF(gxy, con0, con1, con2, con3));
+
+	gxy.x += 8u;
+	WriteToOutput(gxy, FsrEasuF(gxy, con0, con1, con2, con3));
+
+	gxy.y += 8u;
+	WriteToOutput(gxy, FsrEasuF(gxy, con0, con1, con2, con3));
+
+	gxy.x -= 8u;
+	WriteToOutput(gxy, FsrEasuF(gxy, con0, con1, con2, con3));
 }
