@@ -446,9 +446,9 @@ bool CursorManager::_ResolveCursor(HCURSOR hCursor, bool resolveTexture) {
 		for (size_t i = 0; i < bi.bmiHeader.biSizeImage; i += 4) {
 			// 预乘 Alpha 通道
 			double alpha = pixels[i + 3] / 255.0f;
-			pixels[i + 0] = std::lround(pixels[i + 0] * alpha);
-			pixels[i + 1] = std::lround(pixels[i + 1] * alpha);
-			pixels[i + 2] = std::lround(pixels[i + 2] * alpha);
+			pixels[i + 0] = (BYTE)std::lround(pixels[i + 0] * alpha);
+			pixels[i + 1] = (BYTE)std::lround(pixels[i + 1] * alpha);
+			pixels[i + 2] = (BYTE)std::lround(pixels[i + 2] * alpha);
 			
 			pixels[i + 3] = 255 - pixels[i + 3];
 		}

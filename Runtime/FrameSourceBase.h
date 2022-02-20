@@ -25,6 +25,7 @@ public:
 
 	virtual bool IsScreenCapture() = 0;
 
+	// 注意：此函数返回源窗口作为输入部分的位置，但可能和 GetOutput 获取到的纹理尺寸不同
 	const RECT& GetSrcFrameRect() const noexcept { return _srcFrameRect; }
 
 	winrt::com_ptr<ID3D11Texture2D> GetOutput() {

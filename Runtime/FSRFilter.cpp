@@ -43,9 +43,12 @@ bool FSRFilter::Initialize(RECT& outputRect) {
 	bd.ByteWidth = 4 * 4;
 	bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 
+	D3D11_TEXTURE2D_DESC desc1{};
+	App::Get().GetFrameSource().GetOutput()->GetDesc(&desc1);
+
 	Constant32 data[8]{};
-	data[0].floatVal = (FLOAT)frameSize.cx;
-	data[1].floatVal = (FLOAT)frameSize.cy;
+	data[0].floatVal = (FLOAT)desc1.Width;
+	data[1].floatVal = (FLOAT)desc1.Height;
 	data[2].floatVal = (FLOAT)outputSize.cx;
 	data[3].floatVal = (FLOAT)outputSize.cy;
 
