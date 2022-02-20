@@ -2,7 +2,7 @@ MagpieFX 语法
 
 ``` hlsl
 //!MAGPIE EFFECT
-//!VERSION 1
+//!VERSION 2
 //!OUTPUT_WIDTH INPUT_WIDTH * 2
 //!OUTPUT_HEIGHT INPUT_HEIGHT * 2
 
@@ -50,7 +50,7 @@ float sharpness;
 
 // 纹理定义
 // INPUT 是特殊关键字
-// INPUT 不能作为 Pass 的输出
+// INPUT 可以作为 Pass 的输出
 // 定义 INPUT 是可选的，但为了保持语义的完整性，建议显式定义
 
 //!TEXTURE
@@ -82,31 +82,43 @@ SamplerState sam2;
 #define PI 3.14159265359
 
 // Pass 定义
-// 使用纹理时需要绑定
 
 //!PASS 1
-//!BIND INPUT
-//!SAVE tex1
+// 可选 PS 风格，依然用 CS 实现
+// STYLE 默认为 CS
+//!STYLE PS
+//!IN INPUT
+// 支持多渲染目标，最多 8 个
+//!OUT tex1
+
 float func1() {
 }
 
 float4 Pass1(float2 pos) {
+    return float4(1, 1, 1, 1);
 }
 
 // 没有 SAVE 表示此 Pass 为 Effect 的输出
 
 //!PASS 2
-//!BIND tex1
-float4 Pass2(float2 pos) {
+//!STYLE CS
+//!IN INPUT, tex1
+//!BLOCK_SIZE 16, 16
+//!NUM_THREADS 64, 1, 1
+
+void Pass2(uint2 blockStart, uint3 threadId) {
+    // 向 OUPUT 写入的同时处理视口和光标渲染
+    // 只在最后一个 Pass 中可用，且必须使用此函数写入到输出纹理
+    WriteToOutput(blockStart, float4(1,1,1));
 }
 ```
 
 
 **多渲染目标（MRT）**
 
-SAVE 指令可指定多个输出（DirectX 限制最多 8 个）：
+PS 风格下 OUT 指令可指定多个输出（DirectX 限制最多 8 个）：
 ``` hlsl
-//!SAVE tex1, tex2
+//!OUT tex1, tex2
 ```
 
 这时 Pass 函数有不同的签名：
