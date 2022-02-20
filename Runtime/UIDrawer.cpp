@@ -6,7 +6,6 @@
 #include "imgui_impl_magpie.h"
 #include "imgui_impl_dx11.h"
 #include "Renderer.h"
-#include "CursorDrawer.h"
 #include "GPUTimer.h"
 
 

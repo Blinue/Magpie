@@ -1,11 +1,22 @@
 cbuffer cb : register(b0) {
 	float sharpness;
-	uint4 viewport;
+	
+	uint2 inputOffset;
+	uint2 outputOffset;
+	uint2 viewport;
 };
 
+cbuffer cb1 : register(b1) {
+	int4 cursorRect;
+	float2 cursorPt;
+	uint cursorType;	// 0: Color, 1: Masked Color, 2: Monochrome
+}
+
 Texture2D INPUT : register(t0);
+Texture2D CURSOR : register(t1);
 RWTexture2D<float4> OUTPUT : register(u0);
 
+SamplerState sam : register(s0);
 
 #define min3(a, b, c) min(a, min(b, c))
 #define max3(a, b, c) max(a, max(b, c))
@@ -91,6 +102,42 @@ float3 FsrRcasF(uint2 pos) {
 }
 
 
+void __WriteToOutput(uint2 pos, float3 color) {
+	pos += outputOffset;
+
+	if ((int)pos.x >= cursorRect.x && (int)pos.y >= cursorRect.y && (int)pos.x < cursorRect.z && (int)pos.y < cursorRect.w) {
+		// »æÖÆ¹â±ê
+		float4 mask = CURSOR.SampleLevel(sam, (pos - cursorRect.xy + 0.5f) * cursorPt, 0);
+
+		if (cursorType == 0) {
+			color = color * mask.a + mask.rgb;
+		} else if (cursorType == 1) {
+			if (mask.a < 0.5f) {
+				color = mask.rgb;
+			} else {
+				color = (uint3(round(color * 255)) ^ uint3(mask.rgb * 255)) / 255.0f;
+			}
+		} else {
+			if (mask.x > 0.5f) {
+				if (mask.y > 0.5f) {
+					color = 1 - color;
+				}
+			} else {
+				if (mask.y > 0.5f) {
+					color = float3(1, 1, 1);
+				} else {
+					color = float3(0, 0, 0);
+				}
+			}
+		}
+	}
+
+	OUTPUT[pos] = float4(color, 1);
+}
+
+#define WriteToOutput(pos, color) if(pos.x < viewport.x && pos.y < viewport.y)__WriteToOutput(pos,color)
+
+
 uint ABfe(uint src, uint off, uint bits) {
 	uint mask = (1u << bits) - 1;
 	return (src >> off) & mask;
@@ -103,30 +150,22 @@ uint2 ARmp8x8(uint a) {
 	return uint2(ABfe(a, 1u, 3u), ABfiM(ABfe(a, 3u, 3u), a, 1u));
 }
 
-[numthreads(64, 1, 1)]
-void main(uint3 LocalThreadId : SV_GroupThreadID, uint3 WorkGroupId : SV_GroupID, uint3 Dtid : SV_DispatchThreadID) {
-	uint2 gxy = ARmp8x8(LocalThreadId.x) + uint2(WorkGroupId.x << 4u, WorkGroupId.y << 4u);
-	uint2 gxy_viewport = gxy + viewport.xy;
+void Pass2(uint2 blockStart, uint3 threadId) {
+	uint2 gxy = blockStart + ARmp8x8(threadId.x);
 
-	OUTPUT[gxy_viewport] = float4(FsrRcasF(gxy), 1);
+	WriteToOutput(gxy, FsrRcasF(gxy));
+
 	gxy.x += 8u;
-	gxy_viewport.x += 8u;
-
-	if (gxy_viewport.x < viewport.z) {
-		OUTPUT[gxy_viewport] = float4(FsrRcasF(gxy), 1);
-	}
+	WriteToOutput(gxy, FsrRcasF(gxy));
 
 	gxy.y += 8u;
-	gxy_viewport.y += 8u;
-
-	if (gxy_viewport.x < viewport.z && gxy_viewport.y < viewport.w) {
-		OUTPUT[gxy_viewport] = float4(FsrRcasF(gxy), 1);
-	}
+	WriteToOutput(gxy, FsrRcasF(gxy));
 
 	gxy.x -= 8u;
-	gxy_viewport.x -= 8u;
+	WriteToOutput(gxy, FsrRcasF(gxy));
+}
 
-	if (gxy_viewport.y < viewport.w) {
-		OUTPUT[gxy_viewport] = float4(FsrRcasF(gxy), 1);
-	}
+[numthreads(64, 1, 1)]
+void main(uint3 LocalThreadId : SV_GroupThreadID, uint3 WorkGroupId : SV_GroupID, uint3 Dtid : SV_DispatchThreadID) {
+	Pass2(uint2(WorkGroupId.x << 4u, WorkGroupId.y << 4u) + inputOffset, LocalThreadId);
 }

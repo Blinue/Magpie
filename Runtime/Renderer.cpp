@@ -9,12 +9,12 @@
 #include "FrameSourceBase.h"
 #include "DeviceResources.h"
 #include "GPUTimer.h"
-#include "CursorDrawer.h"
 #include "EffectDrawer.h"
 #include "UIDrawer.h"
 #include "FSRFilter.h"
 #include "A4KSFilter.h"
 #include "Logger.h"
+#include "CursorManager.h"
 
 
 Renderer::Renderer() {}
@@ -23,7 +23,7 @@ Renderer::~Renderer() {}
 
 bool Renderer::Initialize(const std::string& effectsJson) {
 	_gpuTimer.reset(new GPUTimer());
-
+	
 	if (!GetWindowRect(App::Get().GetHwndSrc(), &_srcWndRect)) {
 		Logger::Get().Win32Error("GetWindowRect 失败");
 		return false;
@@ -39,20 +39,20 @@ bool Renderer::Initialize(const std::string& effectsJson) {
 	_UIDrawer.reset(new UIDrawer());
 	if (!_UIDrawer->Initialize(backBuffer)) {
 		return false;
+	}*/
+
+	_fsrFilter.reset(new FSRFilter());
+	if (!_fsrFilter->Initialize(_outputRect)) {
+		return false;
 	}
-
-	_cursorDrawer.reset(new CursorDrawer());
-	if (!_cursorDrawer->Initialize(backBuffer)) {
-		SPDLOG_LOGGER_ERROR(logger, "初始化 CursorDrawer 失败");
-		return false;
-	}*/
-
-	/*_fsrFilter.reset(new FSRFilter());
-	if (!_fsrFilter->Initialize()) {
-		return false;
-	}*/
-	_a4ksFilter.reset(new A4KSFilter());
+	/*_a4ksFilter.reset(new A4KSFilter());
 	if (!_a4ksFilter->Initialize()) {
+		return false;
+	}*/
+
+	_cursorManager.reset(new CursorManager());
+	if (!_cursorManager->Initialize()) {
+		Logger::Get().Error("初始化 CursorManager 失败");
 		return false;
 	}
 
@@ -72,7 +72,6 @@ void Renderer::Render() {
 
 	if (!_waitingForNextFrame) {
 		dr.BeginFrame();
-		_gpuTimer->BeginFrame();
 	}
 
 	auto state = App::Get().GetFrameSource().Update();
@@ -82,7 +81,8 @@ void Renderer::Render() {
 		return;
 	}
 
-	d3dDC->ClearState();
+	_gpuTimer->BeginFrame();
+	_cursorManager->BeginFrame();
 
 	ID3D11RenderTargetView* rtv = nullptr;
 	//dr.GetRenderTargetView()
@@ -90,12 +90,9 @@ void Renderer::Render() {
 	// 所有渲染都使用三角形带拓扑
 	//d3dDC->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 
-	//_fsrFilter->Draw();
-	_a4ksFilter->Draw();
+	_fsrFilter->Draw();
+	//_a4ksFilter->Draw();
 	/*
-	if (!_cursorDrawer->Update()) {
-		SPDLOG_LOGGER_ERROR(logger, "更新光标位置失败");
-	}
 
 	// 更新常量
 	if (!EffectDrawer::UpdateExprDynamicVars()) {
@@ -128,8 +125,7 @@ void Renderer::Render() {
 		}
 	}
 
-	_UIDrawer->Draw();
-	_cursorDrawer->Draw();*/
+	_UIDrawer->Draw();*/
 
 
 	dr.EndFrame();

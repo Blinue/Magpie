@@ -3,7 +3,6 @@
 #include <imgui.h>
 #include "imgui_impl_magpie.h"
 #include "Renderer.h"
-#include "CursorDrawer.h"
 #include "FrameSourceBase.h"
 
 

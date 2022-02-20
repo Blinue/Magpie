@@ -14,6 +14,10 @@ struct Utils {
 		return r1.right > r2.left && r1.bottom > r2.top && r1.left < r2.right&& r1.top < r2.bottom;
 	}
 
+	static SIZE GetSizeOfRect(const RECT& rect) {
+		return { rect.right - rect.left, rect.bottom - rect.top };
+	}
+
 	// 单位为微秒
 	template<typename Fn>
 	static int Measure(const Fn& func) {

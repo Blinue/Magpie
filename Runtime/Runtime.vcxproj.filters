@@ -10,9 +10,6 @@
     <ClCompile Include="GDIFrameSource.cpp">
       <Filter>捕获</Filter>
     </ClCompile>
-    <ClCompile Include="CursorDrawer.cpp">
-      <Filter>渲染</Filter>
-    </ClCompile>
     <ClCompile Include="Renderer.cpp">
       <Filter>渲染</Filter>
     </ClCompile>
@@ -75,6 +72,9 @@
     <ClCompile Include="Logger.cpp">
       <Filter>应用程序</Filter>
     </ClCompile>
+    <ClCompile Include="CursorManager.cpp">
+      <Filter>渲染</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GraphicsCaptureFrameSource.h">
@@ -88,9 +88,6 @@
     </ClInclude>
     <ClInclude Include="GDIFrameSource.h">
       <Filter>捕获</Filter>
-    </ClInclude>
-    <ClInclude Include="CursorDrawer.h">
-      <Filter>渲染</Filter>
     </ClInclude>
     <ClInclude Include="Renderer.h">
       <Filter>渲染</Filter>
@@ -153,6 +150,9 @@
     <ClInclude Include="A4KSFilter.h" />
     <ClInclude Include="Logger.h">
       <Filter>应用程序</Filter>
+    </ClInclude>
+    <ClInclude Include="CursorManager.h">
+      <Filter>渲染</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

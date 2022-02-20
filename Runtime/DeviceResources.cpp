@@ -214,6 +214,7 @@ bool DeviceResources::IsDebugLayersAvailable() {
 
 void DeviceResources::BeginFrame() {
 	WaitForSingleObjectEx(_frameLatencyWaitableObject.get(), 1000, TRUE);
+	_d3dDC->ClearState();
 }
 
 void DeviceResources::EndFrame() {
