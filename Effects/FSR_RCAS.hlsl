@@ -7,9 +7,10 @@
 };
 
 cbuffer cb1 : register(b1) {
-	int4 __cr;
-	float2 __cp;
-	uint __ct;	// 0: Color, 1: Masked Color, 2: Monochrome
+	int4 __cursorRect;
+	float2 __cursorPos;
+	uint __cursorType;	// 0: Color, 1: Masked Color, 2: Monochrome
+	uint __frameCount;
 }
 
 Texture2D INPUT : register(t0);
@@ -24,7 +25,7 @@ SamplerState sam : register(s0);*/
 //!OUTPUT_HEIGHT INPUT_HEIGHT * 2
 
 
-//!CONSTANT
+//!PARAMETER
 //!DEFAULT 0.87
 //!MIN 1e-5
 float sharpness;

@@ -42,7 +42,7 @@ void serialize(Archive& ar, const winrt::com_ptr<ID3DBlob>& o) {
 }
 
 template<typename Archive>
-void serialize(Archive& ar, const EffectConstantDesc& o) {
+void serialize(Archive& ar, const EffectParameterDesc& o) {
 	size_t index = o.defaultValue.index();
 	ar& index;
 	
@@ -74,7 +74,7 @@ void serialize(Archive& ar, const EffectConstantDesc& o) {
 }
 
 template<typename Archive>
-void serialize(Archive& ar, EffectConstantDesc& o) {
+void serialize(Archive& ar, EffectParameterDesc& o) {
 	size_t index = 0;
 	ar& index;
 
@@ -114,11 +114,6 @@ void serialize(Archive& ar, EffectConstantDesc& o) {
 }
 
 template<typename Archive>
-void serialize(Archive& ar, EffectValueConstantDesc& o) {
-	ar& o.name& o.type& o.valueExpr;
-}
-
-template<typename Archive>
 void serialize(Archive& ar, EffectIntermediateTextureDesc& o) {
 	ar& o.format& o.name & o.source & o.sizeExpr;
 }
@@ -135,7 +130,7 @@ void serialize(Archive& ar, EffectPassDesc& o) {
 
 template<typename Archive>
 void serialize(Archive& ar, EffectDesc& o) {
-	ar& o.outSizeExpr& o.constants& o.valueConstants& o.dynamicValueConstants& o.textures& o.samplers& o.passes;
+	ar& o.outSizeExpr& o.params& o.textures& o.samplers& o.passes;
 }
 
 

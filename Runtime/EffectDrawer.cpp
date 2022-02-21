@@ -155,7 +155,7 @@ bool EffectDrawer::Initialize(const wchar_t* fileName, bool lastEffect) {
 	}
 
 	// 大小必须为 4 的倍数
-	_constants.resize((_effectDesc.constants.size() + _effectDesc.valueConstants.size() + 3) / 4 * 4);
+	/*_constants.resize((_effectDesc.constants.size() + _effectDesc.valueConstants.size() + 3) / 4 * 4);
 	_dynamicConstants.resize((_effectDesc.dynamicValueConstants.size() + 3) / 4 * 4);
 
 	// 设置常量默认值
@@ -171,7 +171,7 @@ bool EffectDrawer::Initialize(const wchar_t* fileName, bool lastEffect) {
 	// 用于快速查找常量名
 	for (UINT i = 0; i < _effectDesc.constants.size(); ++i) {
 		_constNamesMap.emplace(_effectDesc.constants[i].name, i);
-	}
+	}*/
 	
 	return true;
 }
@@ -182,7 +182,7 @@ EffectDrawer::ConstantType EffectDrawer::GetConstantType(std::string_view name) 
 		return ConstantType::NotFound;
 	}
 
-	return _effectDesc.constants[it->second].type == EffectConstantType::Float ?
+	return _effectDesc.params[it->second].type == EffectConstantType::Float ?
 		ConstantType::Float : ConstantType::Int;
 }
 
@@ -193,7 +193,7 @@ bool EffectDrawer::SetConstant(std::string_view name, float value) {
 	}
 	UINT index = it->second;
 
-	const auto& desc = _effectDesc.constants[index];
+	const auto& desc = _effectDesc.params[index];
 	if (desc.type != EffectConstantType::Float) {
 		return false;
 	}
@@ -227,7 +227,7 @@ bool EffectDrawer::SetConstant(std::string_view name, int value) {
 	}
 	UINT index = it->second;
 
-	const auto& desc = _effectDesc.constants[index];
+	const auto& desc = _effectDesc.params[index];
 	if (desc.type != EffectConstantType::Int) {
 		return false;
 	}
@@ -283,29 +283,6 @@ void EffectDrawer::SetOutputSize(SIZE value) {
 	_outputSize = value;
 }
 
-
-bool EvalConstants(const std::vector<EffectValueConstantDesc>& descs, std::vector<Constant32>& constants, size_t base = 0) {
-	for (size_t i = 0; i < descs.size(); ++i) {
-		const auto& d = descs[i];
-
-		double value;
-		try {
-			exprParser.SetExpr(d.valueExpr);
-			value = exprParser.Eval();
-		} catch (...) {
-			Logger::Get().Error(fmt::format("计算表达式 {} 失败", d.valueExpr));
-			return false;
-		}
-
-		if (descs[i].type == EffectConstantType::Float) {
-			constants[i + base].floatVal = (float)value;
-		} else {
-			constants[i + base].intVal = (int)std::lround(value);
-		}
-	}
-
-	return true;
-}
 
 bool EffectDrawer::Build(ID3D11Texture2D* input, ID3D11Texture2D* output) {
 	D3D11_TEXTURE2D_DESC inputDesc;
@@ -371,17 +348,6 @@ bool EffectDrawer::Build(ID3D11Texture2D* input, ID3D11Texture2D* output) {
 
 	_textures.back().copy_from(output);
 	
-	if (!EvalConstants(_effectDesc.valueConstants, _constants, _effectDesc.constants.size())) {
-		Logger::Get().Error("计算常量失败");
-		return false;
-	}
-
-	// 每帧更新的常量也计算一次，用于检测表达式语法错误
-	if (!EvalConstants(_effectDesc.dynamicValueConstants, _dynamicConstants)) {
-		Logger::Get().Error("计算动态常量失败");
-		return false;
-	}
-	
 	if (!_constants.empty()) {
 		// 创建常量缓冲区
 		D3D11_BUFFER_DESC bd{};
@@ -438,21 +404,7 @@ bool EffectDrawer::Build(ID3D11Texture2D* input, ID3D11Texture2D* output) {
 void EffectDrawer::Draw(bool noUpdate) {
 	auto d3dDC = App::Get().GetDeviceResources().GetD3DDC();
 
-	if (_dynamicConstantBuffer) {
-		// 更新常量
-		if (!EvalConstants(_effectDesc.dynamicValueConstants, _dynamicConstants)) {
-			Logger::Get().Error("计算动态常量失败");
-		}
-
-		D3D11_MAPPED_SUBRESOURCE ms;
-		HRESULT hr = d3dDC->Map(_dynamicConstantBuffer.get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &ms);
-		if (SUCCEEDED(hr)) {
-			std::memcpy(ms.pData, _dynamicConstants.data(), _dynamicConstants.size() * 4);
-			d3dDC->Unmap(_dynamicConstantBuffer.get(), 0);
-		} else {
-			Logger::Get().ComError("Map 失败", hr);
-		}
-	}
+	
 
 	ID3D11Buffer* t[2] = { _constantBuffer.get(), _dynamicConstantBuffer.get()};
 	if (t[0]) {

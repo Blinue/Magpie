@@ -321,12 +321,11 @@ UINT ResolveHeader(std::string_view block, EffectDesc& desc) {
 	return 0;
 }
 
-UINT ResolveConstant(std::string_view block, EffectDesc& desc) {
-	// 可选的选项：VALUE，DEFAULT，LABEL，MIN，MAX, DYNAMIC
-	// VALUE 与其他选项互斥
-	// 如果无 VALUE 则必须有 DEFAULT
+UINT ResolveParameter(std::string_view block, EffectDesc& desc) {
+	// 必需的选项：DEFAULT
+	// 可选的选项：LABEL，MIN，MAX
 
-	std::bitset<6> processed;
+	std::bitset<4> processed;
 
 	std::string_view token;
 
@@ -334,15 +333,14 @@ UINT ResolveConstant(std::string_view block, EffectDesc& desc) {
 		return 1;
 	}
 
-	if (!CheckNextToken<false>(block, "CONSTANT")) {
+	if (!CheckNextToken<false>(block, "PARAMETER")) {
 		return 1;
 	}
 	if (GetNextToken<false>(block, token) != 2) {
 		return 1;
 	}
 
-	EffectConstantDesc desc1{};
-	EffectValueConstantDesc desc2{};
+	EffectParameterDesc& paramDesc = desc.params.emplace_back();
 
 	std::string_view defaultValue;
 	std::string_view minValue;
@@ -359,78 +357,51 @@ UINT ResolveConstant(std::string_view block, EffectDesc& desc) {
 
 		std::string t = StrUtils::ToUpperCase(token);
 
-		if (t == "VALUE") {
-			for (int i = 0; i < 5; ++i) {
-				if (processed[i]) {
-					return 1;
-				}
+		if (t == "DEFAULT") {
+			if (processed[0]) {
+				return 1;
 			}
 			processed[0] = true;
-
-			if (GetNextExpr(block, desc2.valueExpr)) {
-				return 1;
-			}
-		} else if (t == "DEFAULT") {
-			if (processed[0] || processed[1] || processed[5]) {
-				return 1;
-			}
-			processed[1] = true;
 
 			if (GetNextString(block, defaultValue)) {
 				return 1;
 			}
 		} else if (t == "LABEL") {
-			if (processed[0] || processed[2]) {
+			if (processed[1]) {
 				return 1;
 			}
-			processed[2] = true;
+			processed[1] = true;
 
 			std::string_view t;
 			if (GetNextString(block, t)) {
 				return 1;
 			}
-			desc1.label = t;
+			paramDesc.label = t;
 		} else if (t == "MIN") {
-			if (processed[0] || processed[3] || processed[5]) {
+			if (processed[2]) {
 				return 1;
 			}
-			processed[3] = true;
+			processed[2] = true;
 
 			if (GetNextString(block, minValue)) {
 				return 1;
 			}
 		} else if (t == "MAX") {
-			if (processed[0] || processed[4] || processed[5]) {
+			if (processed[3]) {
 				return 1;
 			}
-			processed[4] = true;
+			processed[3] = true;
 
 			if (GetNextString(block, maxValue)) {
 				return 1;
 			}
-		} else if (t == "DYNAMIC") {
-			for (int i = 1; i < 6; ++i) {
-				if (processed[i]) {
-					return 1;
-				}
-			}
-			processed[5] = true;
-
-			if (GetNextToken<false>(block, token) !=2) {
-				return 1;
-			}
-		} else{
+		} else {
 			return 1;
 		}
 	}
 
-	// DYNAMIC 必须和 VALUE 一起出现
-	if (!processed[0] && processed[5]) {
-		return 1;
-	}
-
-	// VALUE 或 DEFAULT 必须存在
-	if (processed[0] == processed[1]) {
+	// DEFAULT 必须存在
+	if (!processed[0]) {
 		return 1;
 	}
 
@@ -440,86 +411,76 @@ UINT ResolveConstant(std::string_view block, EffectDesc& desc) {
 	}
 
 	if (token == "float") {
-		if (processed[0]) {
-			desc2.type = EffectConstantType::Float;
-		} else {
-			desc1.type = EffectConstantType::Float;
+		paramDesc.type = EffectConstantType::Float;
 
-			if (!defaultValue.empty()) {
-				desc1.defaultValue = 0.0f;
-				if (GetNextNumber(defaultValue, std::get<float>(desc1.defaultValue))) {
-					return 1;
-				}
-			}
-			if (!minValue.empty()) {
-				float value;
-				if (GetNextNumber(minValue, value)) {
-					return 1;
-				}
-
-				if (!defaultValue.empty() && std::get<float>(desc1.defaultValue) < value) {
-					return 1;
-				}
-
-				desc1.minValue = value;
-			}
-			if (!maxValue.empty()) {
-				float value;
-				if (GetNextNumber(maxValue, value)) {
-					return 1;
-				}
-
-				if (!defaultValue.empty() && std::get<float>(desc1.defaultValue) > value) {
-					return 1;
-				}
-
-				if (!minValue.empty() && std::get<float>(desc1.minValue) > value) {
-					return 1;
-				}
-
-				desc1.maxValue = value;
+		if (!defaultValue.empty()) {
+			paramDesc.defaultValue = 0.0f;
+			if (GetNextNumber(defaultValue, std::get<float>(paramDesc.defaultValue))) {
+				return 1;
 			}
 		}
+		if (!minValue.empty()) {
+			float value;
+			if (GetNextNumber(minValue, value)) {
+				return 1;
+			}
+
+			if (!defaultValue.empty() && std::get<float>(paramDesc.defaultValue) < value) {
+				return 1;
+			}
+
+			paramDesc.minValue = value;
+		}
+		if (!maxValue.empty()) {
+			float value;
+			if (GetNextNumber(maxValue, value)) {
+				return 1;
+			}
+
+			if (!defaultValue.empty() && std::get<float>(paramDesc.defaultValue) > value) {
+				return 1;
+			}
+
+			if (!minValue.empty() && std::get<float>(paramDesc.minValue) > value) {
+				return 1;
+			}
+
+			paramDesc.maxValue = value;
+		}
 	} else if (token == "int") {
-		if (processed[0]) {
-			desc2.type = EffectConstantType::Int;
-		} else {
-			desc1.type = EffectConstantType::Int;
-
-			if (!defaultValue.empty()) {
-				desc1.defaultValue = 0;
-				if (GetNextNumber(defaultValue, std::get<int>(desc1.defaultValue))) {
-					return 1;
-				}
+		if (!defaultValue.empty()) {
+			paramDesc.defaultValue = 0;
+			if (GetNextNumber(defaultValue, std::get<int>(paramDesc.defaultValue))) {
+				return 1;
 			}
-			if (!minValue.empty()) {
-				int value;
-				if (GetNextNumber(minValue, value)) {
-					return 1;
-				}
-
-				if (!defaultValue.empty() && std::get<int>(desc1.defaultValue) < value) {
-					return 1;
-				}
-
-				desc1.minValue = value;
+		}
+		if (!minValue.empty()) {
+			int value;
+			if (GetNextNumber(minValue, value)) {
+				return 1;
 			}
-			if (!maxValue.empty()) {
-				int value;
-				if (GetNextNumber(maxValue, value)) {
-					return 1;
-				}
 
-				if (!defaultValue.empty() && std::get<int>(desc1.defaultValue) > value) {
-					return 1;
-				}
-
-				if (!minValue.empty() && std::get<int>(desc1.minValue) > value) {
-					return 1;
-				}
-
-				desc1.maxValue = value;
+			if (!defaultValue.empty() && std::get<int>(paramDesc.defaultValue) < value) {
+				return 1;
 			}
+
+			paramDesc.minValue = value;
+		}
+		if (!maxValue.empty()) {
+			int value;
+			if (GetNextNumber(maxValue, value)) {
+				return 1;
+			}
+
+			if (!defaultValue.empty() && std::get<int>(paramDesc.defaultValue) > value) {
+				return 1;
+			}
+
+			if (!minValue.empty() && std::get<int>(paramDesc.minValue) > value) {
+				return 1;
+			}
+
+			paramDesc.maxValue = value;
 		}
 	} else {
 		return 1;
@@ -528,7 +489,7 @@ UINT ResolveConstant(std::string_view block, EffectDesc& desc) {
 	if (GetNextToken<true>(block, token)) {
 		return 1;
 	}
-	(processed[0] ? desc2.name : desc1.name) = token;
+	paramDesc.name = token;
 
 	if (!CheckNextToken<true>(block, ";")) {
 		return 1;
@@ -536,16 +497,6 @@ UINT ResolveConstant(std::string_view block, EffectDesc& desc) {
 
 	if (GetNextToken<true>(block, token) != 2) {
 		return 1;
-	}
-
-	if (processed[0]) {
-		if (processed[5]) {
-			desc.dynamicValueConstants.emplace_back(std::move(desc2));
-		} else {
-			desc.valueConstants.emplace_back(std::move(desc2));
-		}
-	} else {
-		desc.constants.emplace_back(std::move(desc1));
 	}
 
 	return 0;
@@ -896,6 +847,7 @@ UINT ResolvePass(
 	std::string_view token;
 
 	std::array<UINT, 3> numThreads{};
+	bool isPSStyle = false;
 
 	// 用于检查输入和输出中重复的纹理
 	std::unordered_map<std::string_view, UINT> texNames;
@@ -903,7 +855,7 @@ UINT ResolvePass(
 		texNames.emplace(desc.textures[i].name, (UINT)i);
 	}
 
-	std::bitset<4> processed;
+	std::bitset<5> processed;
 
 	while (true) {
 		if (!CheckNextToken<true>(block, META_INDICATOR)) {
@@ -922,13 +874,15 @@ UINT ResolvePass(
 			}
 			processed[0] = true;
 
-			std::string binds;
-			if (GetNextExpr(block, binds)) {
+			std::string_view binds;
+			if (GetNextString(block, binds)) {
 				return 1;
 			}
 
 			std::vector<std::string_view> inputs = StrUtils::Split(binds, ',');
-			for (const std::string_view& input : inputs) {
+			for (std::string_view& input : inputs) {
+				StrUtils::Trim(input);
+
 				auto it = texNames.find(input);
 				if (it == texNames.end()) {
 					// 未找到纹理名称
@@ -944,8 +898,8 @@ UINT ResolvePass(
 			}
 			processed[1] = true;
 
-			std::string saves;
-			if (GetNextExpr(block, saves)) {
+			std::string_view saves;
+			if (GetNextString(block, saves)) {
 				return 1;
 			}
 
@@ -955,7 +909,9 @@ UINT ResolvePass(
 				return 1;
 			}
 
-			for (const std::string_view& output : outputs) {
+			for (std::string_view& output : outputs) {
+				StrUtils::Trim(output);
+
 				auto it = texNames.find(output);
 				if (it == texNames.end()) {
 					// 未找到纹理名称
@@ -966,17 +922,17 @@ UINT ResolvePass(
 				texNames.erase(it);
 			}
 		} else if (t == "BLOCK_SIZE") {
-			if (processed[2]) {
+			if (processed[2] || processed[4]) {
 				return 1;
 			}
 			processed[2] = true;
 
-			std::string expr;
-			if (GetNextExpr(block, expr)) {
+			std::string_view val;
+			if (GetNextString(block, val)) {
 				return 1;
 			}
 
-			std::vector<std::string_view> blockSize = StrUtils::Split(expr, ',');
+			std::vector<std::string_view> blockSize = StrUtils::Split(val, ',');
 			if (blockSize.size() != 2) {
 				return 1;
 			}
@@ -1002,17 +958,17 @@ UINT ResolvePass(
 
 			passDesc.blockSize.cy = num;
 		} else if (t == "NUM_THREADS") {
-			if (processed[3]) {
+			if (processed[3] || processed[4]) {
 				return 1;
 			}
 			processed[3] = true;
 
-			std::string expr;
-			if (GetNextExpr(block, expr)) {
+			std::string_view val;
+			if (GetNextString(block, val)) {
 				return 1;
 			}
 
-			std::vector<std::string_view> split = StrUtils::Split(expr, ',');
+			std::vector<std::string_view> split = StrUtils::Split(val, ',');
 			if (split.size() != 3) {
 				return 1;
 			}
@@ -1029,18 +985,36 @@ UINT ResolvePass(
 
 				numThreads[i] = num;
 			}
+		} else if (t == "STYLE") {
+			if (processed[4] || processed[2] || processed[3]) {
+				return 1;
+			}
+			processed[4] = true;
+
+			std::string_view val;
+			if (GetNextString(block, val)) {
+				return 1;
+			}
+
+			if (val == "PS") {
+				isPSStyle = true;
+			} else if (val != "CS") {
+				return 1;
+			}
 		} else {
 			return 1;
 		}
 	}
 
+	passHlsl.append(resHlsl);
+
 	// SRV
 	for (int i = 0; i < passDesc.inputs.size(); ++i) {
-		passHlsl.append(fmt::format("Texture2D {}:register(t{});", desc.textures[passDesc.inputs[i]].name, i));
+		passHlsl.append(fmt::format("Texture2D {} : register(t{});\n", desc.textures[passDesc.inputs[i]].name, i));
 	}
 
 	if (lastEffect && lastPass) {
-		passHlsl.append(fmt::format("Texture2D __CURSOR:register(t{});", passDesc.inputs.size()));
+		passHlsl.append(fmt::format("Texture2D __CURSOR : register(t{});\n", passDesc.inputs.size()));
 	}
 
 	// UAV
@@ -1049,24 +1023,53 @@ UINT ResolvePass(
 			return 1;
 		}
 
-		passHlsl.append("RWTexture2D<float4> __OUTPUT:register(u0);");
+		passHlsl.append("RWTexture2D<float4> __OUTPUT : register(u0);\n");
 	} else {
 		if (lastPass) {
 			return 1;
 		}
 
 		for (int i = 0; i < passDesc.outputs.size(); ++i) {
-			passHlsl.append(fmt::format("RWTexture2D<float4> {}:register(u{});", desc.textures[passDesc.outputs[i]].name, i));
+			passHlsl.append(fmt::format("RWTexture2D<float4> {} : register(u{});\n", desc.textures[passDesc.outputs[i]].name, i));
 		}
 	}
 
-	passHlsl.append(resHlsl);
-
 	if (lastPass) {
 		if (lastEffect) {
-			passHlsl.append("void __WriteToOutput(uint2 pos,float3 color) {pos+=__off.zw;if((int)pos.x>=__cr.x &&(int)pos.y>=__cr.y&&(int)pos.x<__cr.z&&(int)pos.y<__cr.w){float4 mask=__CURSOR.SampleLevel(sam,(pos-__cr.xy+0.5f)*__cp,0);if(__ct==0){color=color*mask.a+mask.rgb;}else if(__ct==1){if(mask.a<0.5f){color=mask.rgb;}else{color=(uint3(round(color*255))^uint3(mask.rgb*255))/255.0f;}}else{if(mask.x>0.5f){if(mask.y>0.5f){color=1-color;}}else{if(mask.y>0.5f){color=float3(1,1,1);}else{color=float3(0,0,0);}}}}__OUTPUT[pos]=float4(color,1);}\n#define WriteToOutput(pos,color) if(pos.x<__vx&&pos.y<__vy)__WriteToOutput(pos,color)\n");
+			passHlsl.append(R"(
+void __WriteToOutput(uint2 pos, float3 color) {
+	pos += __offset.zw;
+	if ((int)pos.x >= __cursorRect.x && (int)pos.y >= __cursorRect.y && (int)pos.x < __cursorRect.z && (int)pos.y < __cursorRect.w) {
+		float4 mask = __CURSOR.SampleLevel(sam, (pos - __cursorRect.xy + 0.5f) * __cursorPt, 0);
+		if (__cursorType == 0){
+			color = color * mask.a + mask.rgb;
+		} else if (__cursorType == 1) {
+			if (mask.a < 0.5f){
+				color = mask.rgb;
+			} else {
+				color = (uint3(round(color * 255)) ^ uint3(mask.rgb * 255)) / 255.0f;
+			}
 		} else {
-			passHlsl.append("#define WriteToOutput(pos,color) __OUTPUT[pos]=float4(color, 1)\n");
+			if( mask.x > 0.5f) {
+				if (mask.y > 0.5f) {
+					color = 1 - color;
+				}
+			} else {
+				if (mask.y > 0.5f) {
+					color = float3(1, 1, 1);
+				} else {
+					color = float3(0, 0, 0);
+				}
+			}
+		}
+	}
+	__OUTPUT[pos] = float4(color, 1);
+}
+
+#define WriteToOutput(pos, color) if(pos.x < __viewport.x && pos.y < __viewport.y) __WriteToOutput(pos, color)
+)");
+		} else {
+			passHlsl.append("#define WriteToOutput(pos,color) __OUTPUT[pos] = float4(color, 1)\n");
 		}
 	}
 
@@ -1076,8 +1079,84 @@ UINT ResolvePass(
 		passHlsl.push_back('\n');
 	}
 
-	// main 函数
-	/*if (passDesc.outputs.size() <= 1) {
+	// 入口
+	if (isPSStyle) {
+		if (passDesc.outputs.size() <= 1) {
+			if (lastPass) {
+				passHlsl.append(fmt::format(R"([numthreads(64, 1, 1)]
+void __M(uint3 tid : SV_GroupThreadID, uint3 gid : SV_GroupID) {{
+	uint2 gxy = Rmp8x8(tid.x) + gid.xy << 4u;
+	float2 pos = (gxy + 0.5f) * __outputPt;
+	float2 step = 8 * __outputPt;
+
+	WriteToOutput(gxy, Pass{0}(pos).rgb);
+	gxy.x += 8u;
+	pos.x += step.x;
+	WriteToOutput(gxy, Pass{0}(pos).rgb);
+	gxy.y += 8u;
+	pos.y += step.y;
+	WriteToOutput(gxy, Pass{0}(pos).rgb);
+	gxy.x -= 8u;
+	pos.x -= step.x;
+	WriteToOutput(gxy, Pass{0}(pos).rgb);
+}})", passIndex));
+			} else {
+				passHlsl.append(fmt::format(R"([numthreads(64, 1, 1)]
+void __M(uint3 tid : SV_GroupThreadID, uint3 gid : SV_GroupID) {{
+	uint2 gxy = Rmp8x8(tid.x) + gid.xy << 4u;
+	float2 pos = (gxy + 0.5f) * __outputPt;
+	float2 step = 8 * __outputPt;
+
+	{0}[gxy] = Pass{1}(pos);
+	gxy.x += 8u;
+	pos.x += step.x;
+	{0}[gxy] = Pass{1}(pos);
+	gxy.y += 8u;
+	pos.y += step.y;
+	{0}[gxy] = Pass{1}(pos);
+	gxy.x -= 8u;
+	pos.x -= step.x;
+	{0}[gxy] = Pass{1}(pos);
+}})", desc.textures[passDesc.outputs[0]].name, passIndex));
+			}
+		} else {
+			// 多渲染目标
+			if (lastPass) {
+				return 1;
+			}
+
+			passHlsl.append(R"([numthreads(64, 1, 1)]
+void __M(uint3 tid : SV_GroupThreadID, uint3 gid : SV_GroupID) {
+	uint2 gxy = Rmp8x8(tid.x) + gid.xy << 4u;
+	float2 pos = (gxy + 0.5f) * __outputPt;
+	float2 step = 8 * __outputPt;
+
+)");
+			for (int i = 0; i < passDesc.outputs.size(); ++i) {
+				passHlsl.append(fmt::format("\tfloat4 c{};\n", i));
+			}
+
+			std::string callPass = fmt::format("\tPass{}(pos, ", passIndex);
+
+			for (int i = 0; i < passDesc.outputs.size() - 1; ++i) {
+				callPass.append(fmt::format("c{}, ", i));
+			}
+			callPass.append(fmt::format("c{});\n", passDesc.outputs.size() - 1));
+			for (int i = 0; i < passDesc.outputs.size(); ++i) {
+				callPass.append(fmt::format("\t{}[gxy] = c{};\n", desc.textures[passDesc.outputs[i]].name, i));
+			}
+
+			passHlsl.append(callPass);
+			passHlsl.append("\tgxy.x += 8u;\n\tpos.x += step.x;\n");
+			passHlsl.append(callPass);
+			passHlsl.append("\tgxy.y += 8u;\n\tpos.y += step.y;\n");
+			passHlsl.append(callPass);
+			passHlsl.append("\tgxy.x -= 8u;\n\tpos.x -= step.x;\n");
+			passHlsl.append(callPass);
+
+			passHlsl.append("}\n");
+		}
+		/*if (passDesc.outputs.size() <= 1) {
 		passHlsl.append(fmt::format("float4 __M(float4 p:SV_POSITION,float2 c:TEXCOORD):SV_TARGET"
 			"{{return Pass{}(c);}}", passIndex));
 	} else {
@@ -1092,8 +1171,13 @@ UINT ResolvePass(
 		}
 		passHlsl.append(");}");
 	}*/
-
-	passHlsl.append(fmt::format("[numthreads({},{},{})]\nvoid __M(uint3 tid:SV_GroupThreadID,uint3 gid:SV_GroupID){{Pass{}(gid.xy*uint2({},{}){},tid);}}", numThreads[0], numThreads[1], numThreads[2], passIndex, passDesc.blockSize.cx, passDesc.blockSize.cy, lastEffect&& lastPass ? "+__off.xy" : ""));
+	} else {
+		passHlsl.append(fmt::format(R"([numthreads({}, {}, {})]
+void __M(uint3 tid : SV_GroupThreadID, uint3 gid : SV_GroupID) {{
+	Pass{}(gid.xy * uint2({}, {}){}, tid);
+}}
+)", numThreads[0], numThreads[1], numThreads[2], passIndex, passDesc.blockSize.cx, passDesc.blockSize.cy, lastEffect&& lastPass ? " + __offset.xy" : ""));
+	}
 
 	return 0;
 }
@@ -1101,56 +1185,45 @@ UINT ResolvePass(
 UINT ResolvePasses(std::vector<std::string_view>& blocks, std::string_view commonHlsl, EffectDesc& desc, UINT flags) {
 	// 可选项：BIND，SAVE
 
-	std::string resHlsl;
-
 	bool lastEffect = flags & EffectCompiler::COMPILE_FLAG_LAST_EFFECT;
 
-	if (!desc.constants.empty() || !desc.valueConstants.empty() || lastEffect) {
-		// 常量缓冲区
-		resHlsl.append("cbuffer __C:register(b0){");
+	std::string resHlsl = R"(cbuffer __CB1 : register(b0) {
+	uint2 __inputSize;
+	uint2 __outputSize;
+	float2 __inputPt;
+	float2 __outputPt;
+	float2 __scale;
+)";
 
-		if (lastEffect) {
-			resHlsl.append("uint4 __off;uint __vx;uint __vy;");
-		}
-
-		for (const auto& d : desc.constants) {
-			resHlsl.append(d.type == EffectConstantType::Int ? "int " : "float ")
-				.append(d.name)
-				.append(";");
-		}
-
-		for (const auto& d : desc.valueConstants) {
-			resHlsl.append(d.type == EffectConstantType::Int ? "int " : "float ")
-				.append(d.name)
-				.append(";");
-		}
-
-		resHlsl.append("};");
+	if (lastEffect) {
+		resHlsl.append("\tuint2 __viewport;\n\tint4 __offset;\n");
 	}
+
+	if (!desc.params.empty()) {
+		for (const auto& d : desc.params) {
+			resHlsl.append("\t")
+				.append(d.type == EffectConstantType::Int ? "int " : "float ")
+				.append(d.name)
+				.append(";\n");
+		}
+	}
+
+	resHlsl.append(R"(};
+cbuffer __CB2 : register(b1) {
+	int4 __cursorRect;
+	float2 __cursorPt;
+	uint2 __cursorPos;
+	uint __cursorType;
+	uint __frameCount;
+};
+)");
 	
-	if (!desc.dynamicValueConstants.empty() || lastEffect) {
-		// 每帧更新的常量
-		resHlsl.append("cbuffer __D:register(b1){");
-
-		if (lastEffect) {
-			resHlsl.append("int4 __cr;float2 __cp;uint __ct;");
-		}
-
-		for (const auto& d : desc.dynamicValueConstants) {
-			resHlsl.append(d.type == EffectConstantType::Int ? "int " : "float ")
-				.append(d.name)
-				.append(";");
-		}
-
-		resHlsl.append("};");
-	}
 	if (!desc.samplers.empty()) {
 		// 采样器
 		for (int i = 0; i < desc.samplers.size(); ++i) {
-			resHlsl.append(fmt::format("SamplerState {}:register(s{});", desc.samplers[i].name, i));
+			resHlsl.append(fmt::format("SamplerState {} : register(s{});\n", desc.samplers[i].name, i));
 		}
 	}
-	resHlsl.push_back('\n');
 
 	if (ResolvePassNumbers(blocks)) {
 		Logger::Get().Error("解析 Pass 序号失败");
@@ -1275,7 +1348,7 @@ UINT EffectCompiler::Compile(const wchar_t* fileName, EffectDesc& desc, UINT fla
 	};
 
 	std::string_view headerBlock;
-	std::vector<std::string_view> constantBlocks;
+	std::vector<std::string_view> paramBlocks;
 	std::vector<std::string_view> textureBlocks;
 	std::vector<std::string_view> samplerBlocks;
 	std::vector<std::string_view> commonBlocks;
@@ -1290,7 +1363,7 @@ UINT EffectCompiler::Compile(const wchar_t* fileName, EffectDesc& desc, UINT fla
 			headerBlock = sourceView.substr(curBlockOff, len);
 			break;
 		case BlockType::Constant:
-			constantBlocks.push_back(sourceView.substr(curBlockOff, len));
+			paramBlocks.push_back(sourceView.substr(curBlockOff, len));
 			break;
 		case BlockType::Texture:
 			textureBlocks.push_back(sourceView.substr(curBlockOff, len));
@@ -1327,7 +1400,7 @@ UINT EffectCompiler::Compile(const wchar_t* fileName, EffectDesc& desc, UINT fla
 				}
 				std::string blockType = StrUtils::ToUpperCase(token);
 
-				if (blockType == "CONSTANT") {
+				if (blockType == "PARAMETER") {
 					completeCurrentBlock(len, BlockType::Constant);
 				} else if (blockType == "TEXTURE") {
 					completeCurrentBlock(len, BlockType::Texture);
@@ -1363,8 +1436,8 @@ UINT EffectCompiler::Compile(const wchar_t* fileName, EffectDesc& desc, UINT fla
 		return 1;
 	}
 
-	for (size_t i = 0; i < constantBlocks.size(); ++i) {
-		if (ResolveConstant(constantBlocks[i], desc)) {
+	for (size_t i = 0; i < paramBlocks.size(); ++i) {
+		if (ResolveParameter(paramBlocks[i], desc)) {
 			Logger::Get().Error(fmt::format("解析 Constant#{} 块失败", i + 1));
 			return 1;
 		}
@@ -1390,7 +1463,7 @@ UINT EffectCompiler::Compile(const wchar_t* fileName, EffectDesc& desc, UINT fla
 	{
 		// 确保没有重复的名字
 		std::unordered_set<std::string> names;
-		for (const auto& d : desc.constants) {
+		for (const auto& d : desc.params) {
 			if (names.find(d.name) != names.end()) {
 				Logger::Get().Error("标识符重复");
 				return 1;
@@ -1413,7 +1486,17 @@ UINT EffectCompiler::Compile(const wchar_t* fileName, EffectDesc& desc, UINT fla
 		}
 	}
 
-	std::string commonHlsl;
+	std::string commonHlsl = R"(uint __Bfe(uint src, uint off, uint bits) { uint mask = (1u << bits) - 1; return (src >> off) & mask; }
+uint __BfiM(uint src, uint ins, uint bits) { uint mask = (1u << bits) - 1; return (ins & mask) | (src & (~mask)); }
+uint2 Rmp8x8(uint a) { return uint2(__Bfe(a, 1u, 3u), __BfiM(__Bfe(a, 3u, 3u), a, 1u)); }
+uint2 GetInputSize() { return __inputSize; }
+float2 GetInputPt() { return __inputPt; }
+uint2 GetOutputSize() { return __outputSize; }
+float2 GetOutputPt() { return __outputPt; }
+float2 GetScale() { return __scale; }
+uint GetFrameCount() { return __frameCount; }
+uint2 GetCursorPos() { return __cursorPos; }
+)";
 
 	for (size_t i = 0; i < commonBlocks.size(); ++i) {
 		if (ResolveCommon(commonBlocks[i], commonHlsl)) {

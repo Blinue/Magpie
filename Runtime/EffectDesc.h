@@ -52,13 +52,7 @@ enum class EffectConstantType {
 	Int
 };
 
-struct EffectValueConstantDesc {
-	std::string name;
-	EffectConstantType type = EffectConstantType::Float;
-	std::string valueExpr;
-};
-
-struct EffectConstantDesc {
+struct EffectParameterDesc {
 	std::string name;
 	std::string label;
 	EffectConstantType type = EffectConstantType::Float;
@@ -78,10 +72,7 @@ struct EffectDesc {
 	// 用于计算效果的输出，空值表示支持任意大小的输出
 	std::pair<std::string, std::string> outSizeExpr;
 
-	std::vector<EffectConstantDesc> constants;
-	std::vector<EffectValueConstantDesc> valueConstants;
-	std::vector<EffectValueConstantDesc> dynamicValueConstants;
-
+	std::vector<EffectParameterDesc> params;
 	std::vector<EffectIntermediateTextureDesc> textures;
 	std::vector<EffectSamplerDesc> samplers;
 
