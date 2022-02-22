@@ -102,7 +102,7 @@ bool FSRFilter::Initialize(RECT& outputRect) {
 
 	d3dDevice->CreateTexture2D(&desc, nullptr, _tex.put());
 
-	dr.GetShaderResourceView(App::Get().GetFrameSource().GetOutput().get(), &_srv1);
+	dr.GetShaderResourceView(App::Get().GetFrameSource().GetOutput(), &_srv1);
 	dr.GetShaderResourceView(_tex.get(), &_srv2);
 
 	dr.GetUnorderedAccessView(_tex.get(), &_uav1);

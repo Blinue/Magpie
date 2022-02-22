@@ -2,12 +2,11 @@
 #include "pch.h"
 
 
-class EffectDrawer;
+class NewEffectDrawer;
 class GPUTimer;
 class UIDrawer;
-class FSRFilter;
-class A4KSFilter;
 class CursorManager;
+
 
 class Renderer {
 public:
@@ -43,11 +42,9 @@ private:
 
 	bool _waitingForNextFrame = false;
 
-	std::vector<std::unique_ptr<EffectDrawer>> _effects;
+	std::vector<std::unique_ptr<NewEffectDrawer>> _effects;
 
 	std::unique_ptr<UIDrawer> _UIDrawer;
-	std::unique_ptr<FSRFilter> _fsrFilter;
-	std::unique_ptr<A4KSFilter> _a4ksFilter;
 
 	std::unique_ptr<GPUTimer> _gpuTimer;
 	std::unique_ptr<CursorManager> _cursorManager;

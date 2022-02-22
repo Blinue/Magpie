@@ -28,7 +28,24 @@ struct EffectIntermediateTextureDesc {
 	std::string name;
 	std::string source;
 
-	static const DXGI_FORMAT DXGI_FORMAT_MAP[16];
+	inline static const DXGI_FORMAT DXGI_FORMAT_MAP[16]{
+		DXGI_FORMAT_R8_UNORM,
+		DXGI_FORMAT_R16_UNORM,
+		DXGI_FORMAT_R16_FLOAT,
+		DXGI_FORMAT_R8G8_UNORM,
+		DXGI_FORMAT_B5G6R5_UNORM,
+		DXGI_FORMAT_R16G16_UNORM,
+		DXGI_FORMAT_R16G16_FLOAT,
+		DXGI_FORMAT_R8G8B8A8_UNORM,
+		DXGI_FORMAT_B8G8R8A8_UNORM,
+		DXGI_FORMAT_R10G10B10A2_UNORM,
+		DXGI_FORMAT_R32_FLOAT,
+		DXGI_FORMAT_R11G11B10_FLOAT,
+		DXGI_FORMAT_R32G32_FLOAT,
+		DXGI_FORMAT_R16G16B16A16_UNORM,
+		DXGI_FORMAT_R16G16B16A16_FLOAT,
+		DXGI_FORMAT_R32G32B32A32_FLOAT
+	};
 };
 
 enum class EffectSamplerFilterType {
@@ -68,6 +85,10 @@ struct EffectPassDesc {
 	SIZE blockSize{};
 };
 
+enum EffectFlags {
+	EFFECT_FLAG_LAST_EFFECT = 1
+};
+
 struct EffectDesc {
 	// 用于计算效果的输出，空值表示支持任意大小的输出
 	std::pair<std::string, std::string> outSizeExpr;
@@ -77,4 +98,17 @@ struct EffectDesc {
 	std::vector<EffectSamplerDesc> samplers;
 
 	std::vector<EffectPassDesc> passes;
+
+	UINT Flags = 0;
+};
+
+union EffectConstant32 {
+	FLOAT floatVal;
+	UINT uintVal;
+	INT intVal;
+};
+
+struct EffectParams{
+	std::pair<float, float> scale;
+	std::map<UINT, EffectConstant32> params;
 };

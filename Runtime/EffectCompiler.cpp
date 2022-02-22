@@ -1156,21 +1156,6 @@ void __M(uint3 tid : SV_GroupThreadID, uint3 gid : SV_GroupID) {
 
 			passHlsl.append("}\n");
 		}
-		/*if (passDesc.outputs.size() <= 1) {
-		passHlsl.append(fmt::format("float4 __M(float4 p:SV_POSITION,float2 c:TEXCOORD):SV_TARGET"
-			"{{return Pass{}(c);}}", passIndex));
-	} else {
-		// 多渲染目标
-		passHlsl.append("void __M(float4 p:SV_POSITION,float2 c:TEXCOORD,out float4 t0:SV_TARGET0,out float4 t1:SV_TARGET1");
-		for (int i = 2; i < passDesc.outputs.size(); ++i) {
-			passHlsl.append(fmt::format(",out float4 t{0}:SV_TARGET{0}", i));
-		}
-		passHlsl.append(fmt::format("){{Pass{}(c,t0,t1", passIndex));
-		for (int i = 2; i < passDesc.outputs.size(); ++i) {
-			passHlsl.append(fmt::format(",t{}", i));
-		}
-		passHlsl.append(");}");
-	}*/
 	} else {
 		passHlsl.append(fmt::format(R"([numthreads({}, {}, {})]
 void __M(uint3 tid : SV_GroupThreadID, uint3 gid : SV_GroupID) {{
@@ -1183,17 +1168,24 @@ void __M(uint3 tid : SV_GroupThreadID, uint3 gid : SV_GroupID) {{
 }
 
 UINT ResolvePasses(std::vector<std::string_view>& blocks, std::string_view commonHlsl, EffectDesc& desc, UINT flags) {
-	// 可选项：BIND，SAVE
-
-	bool lastEffect = flags & EffectCompiler::COMPILE_FLAG_LAST_EFFECT;
+	bool lastEffect = flags & EFFECT_FLAG_LAST_EFFECT;
 
 	std::string resHlsl = R"(cbuffer __CB1 : register(b0) {
+	int4 __cursorRect;
+	float2 __cursorPt;
+	uint2 __cursorPos;
+	uint __cursorType;
+	uint __frameCount;
+};)";
+
+	resHlsl.append(R"(
+cbuffer __CB2 : register(b1) {
 	uint2 __inputSize;
 	uint2 __outputSize;
 	float2 __inputPt;
 	float2 __outputPt;
 	float2 __scale;
-)";
+)");
 
 	if (lastEffect) {
 		resHlsl.append("\tuint2 __viewport;\n\tint4 __offset;\n");
@@ -1208,15 +1200,7 @@ UINT ResolvePasses(std::vector<std::string_view>& blocks, std::string_view commo
 		}
 	}
 
-	resHlsl.append(R"(};
-cbuffer __CB2 : register(b1) {
-	int4 __cursorRect;
-	float2 __cursorPt;
-	uint2 __cursorPos;
-	uint __cursorType;
-	uint __frameCount;
-};
-)");
+	resHlsl.append("};\n");
 	
 	if (!desc.samplers.empty()) {
 		// 采样器
@@ -1297,6 +1281,7 @@ cbuffer __CB2 : register(b1) {
 
 UINT EffectCompiler::Compile(const wchar_t* fileName, EffectDesc& desc, UINT flags) {
 	desc = {};
+	desc.Flags = flags;
 
 	std::string source;
 	if (!Utils::ReadTextFile(fileName, source)) {

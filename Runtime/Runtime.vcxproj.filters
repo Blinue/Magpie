@@ -40,9 +40,6 @@
     <ClCompile Include="EffectCache.cpp">
       <Filter>渲染</Filter>
     </ClCompile>
-    <ClCompile Include="EffectDesc.cpp">
-      <Filter>渲染</Filter>
-    </ClCompile>
     <ClCompile Include="TextureLoader.cpp">
       <Filter>渲染</Filter>
     </ClCompile>
@@ -73,6 +70,9 @@
       <Filter>应用程序</Filter>
     </ClCompile>
     <ClCompile Include="CursorManager.cpp">
+      <Filter>渲染</Filter>
+    </ClCompile>
+    <ClCompile Include="NewEffectDrawer.cpp">
       <Filter>渲染</Filter>
     </ClCompile>
   </ItemGroup>
@@ -152,6 +152,9 @@
       <Filter>应用程序</Filter>
     </ClInclude>
     <ClInclude Include="CursorManager.h">
+      <Filter>渲染</Filter>
+    </ClInclude>
+    <ClInclude Include="NewEffectDrawer.h">
       <Filter>渲染</Filter>
     </ClInclude>
   </ItemGroup>

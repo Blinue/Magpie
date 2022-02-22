@@ -121,7 +121,7 @@ EffectDrawer::EffectDrawer(EffectDrawer&& other) noexcept {
 bool EffectDrawer::Initialize(const wchar_t* fileName, bool lastEffect) {
 	bool result = false;
 	int duration = Utils::Measure([&]() {
-		result = !EffectCompiler::Compile(fileName, _effectDesc, lastEffect ? EffectCompiler::COMPILE_FLAG_LAST_EFFECT : 0);
+		result = !EffectCompiler::Compile(fileName, _effectDesc, lastEffect ? EFFECT_FLAG_LAST_EFFECT : 0);
 	});
 
 	if (!result) {

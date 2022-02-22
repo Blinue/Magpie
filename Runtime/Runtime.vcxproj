@@ -159,6 +159,7 @@
     <ClInclude Include="imgui_impl_dx11.h" />
     <ClInclude Include="imgui_impl_magpie.h" />
     <ClInclude Include="Logger.h" />
+    <ClInclude Include="NewEffectDrawer.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="DwmSharedSurfaceFrameSource.h" />
@@ -177,7 +178,6 @@
     <ClCompile Include="DesktopDuplicationFrameSource.cpp" />
     <ClCompile Include="DeviceResources.cpp" />
     <ClCompile Include="EffectCache.cpp" />
-    <ClCompile Include="EffectDesc.cpp" />
     <ClCompile Include="EffectDrawer.cpp" />
     <ClCompile Include="EffectCompiler.cpp" />
     <ClCompile Include="ExclModeHack.cpp" />
@@ -189,6 +189,7 @@
     </ClCompile>
     <ClCompile Include="imgui_impl_magpie.cpp" />
     <ClCompile Include="Logger.cpp" />
+    <ClCompile Include="NewEffectDrawer.cpp" />
     <ClCompile Include="pch.cpp" />
     <ClCompile Include="DllMain.cpp" />
     <ClCompile Include="Renderer.cpp" />

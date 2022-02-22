@@ -101,7 +101,7 @@ bool A4KSFilter::Initialize() {
 	d3dDevice->CreateTexture2D(&desc, nullptr, _tex2.put());
 	d3dDevice->CreateTexture2D(&desc, nullptr, _tex3.put());
 
-	dr.GetShaderResourceView(App::Get().GetFrameSource().GetOutput().get(), &_srv1);
+	dr.GetShaderResourceView(App::Get().GetFrameSource().GetOutput(), &_srv1);
 	dr.GetShaderResourceView(_tex1.get(), &_srv2);
 	dr.GetShaderResourceView(_tex2.get(), &_srv3);
 	dr.GetShaderResourceView(_tex3.get(), &_srv4);

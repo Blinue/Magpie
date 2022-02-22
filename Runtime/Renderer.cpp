@@ -9,7 +9,7 @@
 #include "FrameSourceBase.h"
 #include "DeviceResources.h"
 #include "GPUTimer.h"
-#include "EffectDrawer.h"
+#include "NewEffectDrawer.h"
 #include "UIDrawer.h"
 #include "FSRFilter.h"
 #include "A4KSFilter.h"
@@ -38,15 +38,6 @@ bool Renderer::Initialize(const std::string& effectsJson) {
 
 	_UIDrawer.reset(new UIDrawer());
 	if (!_UIDrawer->Initialize(backBuffer)) {
-		return false;
-	}*/
-
-	_fsrFilter.reset(new FSRFilter());
-	if (!_fsrFilter->Initialize(_outputRect)) {
-		return false;
-	}
-	/*_a4ksFilter.reset(new A4KSFilter());
-	if (!_a4ksFilter->Initialize()) {
 		return false;
 	}*/
 
@@ -84,25 +75,18 @@ void Renderer::Render() {
 	_gpuTimer->BeginFrame();
 	_cursorManager->BeginFrame();
 
-	ID3D11RenderTargetView* rtv = nullptr;
-	//dr.GetRenderTargetView()
-	//d3dDC->ClearRenderTargetView()
-	// 所有渲染都使用三角形带拓扑
-	//d3dDC->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+	for (auto& effect : _effects) {
+		effect->Draw();
+	}
 
-	_fsrFilter->Draw();
-	//_a4ksFilter->Draw();
 	/*
-
 	// 更新常量
 	if (!EffectDrawer::UpdateExprDynamicVars()) {
 		SPDLOG_LOGGER_ERROR(logger, "UpdateExprDynamicVars 失败");
 	}
 
 	if (state == FrameSourceBase::UpdateState::NewFrame) {
-		for (auto& effect : _effects) {
-			effect->Draw();
-		}
+		
 	} else {
 		// 此帧内容无变化
 		// 从第一个有动态常量的 Effect 开始渲染
@@ -255,13 +239,6 @@ bool Renderer::_CheckSrcState() {
 }
 
 bool Renderer::_ResolveEffectsJson(const std::string& effectsJson) {
-	winrt::com_ptr<ID3D11Texture2D> srcFrame = App::Get().GetFrameSource().GetOutput();
-	D3D11_TEXTURE2D_DESC inputDesc;
-	srcFrame->GetDesc(&inputDesc);
-
-	const RECT& hostWndRect = App::Get().GetHostWndRect();
-	SIZE hostSize = { hostWndRect.right - hostWndRect.left,hostWndRect.bottom - hostWndRect.top };
-
 	rapidjson::Document doc;
 	if (doc.Parse(effectsJson.c_str(), effectsJson.size()).HasParseError()) {
 		// 解析 json 失败
@@ -274,18 +251,17 @@ bool Renderer::_ResolveEffectsJson(const std::string& effectsJson) {
 		return false;
 	}
 
-	std::vector<SIZE> texSizes;
-	texSizes.push_back({ (LONG)inputDesc.Width, (LONG)inputDesc.Height });
-
 	const auto& effectsArr = doc.GetArray();
 	_effects.reserve(effectsArr.Size());
-	texSizes.reserve(static_cast<size_t>(effectsArr.Size()) + 1);
 
 	// 不得为空
 	if (effectsArr.Empty()) {
 		Logger::Get().Error("解析 json 失败：根元素为空");
 		return false;
 	}
+
+	ID3D11Texture2D* effectInput = App::Get().GetFrameSource().GetOutput();
+	SIZE outputSize{};
 
 	for (int i = 0, end = effectsArr.Size(); i < end; ++i) {
 		const auto& effectJson = effectsArr[i];
@@ -295,7 +271,7 @@ bool Renderer::_ResolveEffectsJson(const std::string& effectsJson) {
 			return false;
 		}
 
-		EffectDrawer& effect = *_effects.emplace_back(new EffectDrawer());
+		NewEffectDrawer& effect = *_effects.emplace_back(new NewEffectDrawer());
 
 		auto effectName = effectJson.FindMember("effect");
 		if (effectName == effectJson.MemberEnd() || !effectName->value.IsString()) {
@@ -303,67 +279,24 @@ bool Renderer::_ResolveEffectsJson(const std::string& effectsJson) {
 			return false;
 		}
 
-		if (!effect.Initialize((L"effects\\" + StrUtils::UTF8ToUTF16(effectName->value.GetString()) + L".hlsl").c_str(), i == end - 1)) {
-			Logger::Get().Error(fmt::format("初始化效果 {} 失败", effectName->value.GetString()));
+		EffectDesc effectDesc;
+		EffectParams effectParams;
+		std::wstring fileName = (L"effects\\" + StrUtils::UTF8ToUTF16(effectName->value.GetString()) + L".hlsl");
+
+		bool result = false;
+		int duration = Utils::Measure([&]() {
+			result = !EffectCompiler::Compile(
+				fileName.c_str(),
+				effectDesc,
+				(i == end - 1) ? EFFECT_FLAG_LAST_EFFECT : 0
+			);
+		});
+
+		if (!result) {
+			Logger::Get().Error(fmt::format("编译 {} 失败", StrUtils::UTF16ToUTF8(fileName)));
 			return false;
-		}
-
-		if (effect.CanSetOutputSize()) {
-			// scale 属性可用
-			auto scaleProp = effectJson.FindMember("scale");
-			if (scaleProp != effectJson.MemberEnd()) {
-				if (!scaleProp->value.IsArray()) {
-					Logger::Get().Error("解析 json 失败：非法的 scale 属性");
-					return false;
-				}
-
-				// scale 属性的值为两个元素组成的数组
-				// [+, +]：缩放比例
-				// [0, 0]：非等比例缩放到屏幕大小
-				// [-, -]：相对于屏幕能容纳的最大等比缩放的比例
-
-				const auto& scale = scaleProp->value.GetArray();
-				if (scale.Size() != 2 || !scale[0].IsNumber() || !scale[1].IsNumber()) {
-					Logger::Get().Error("解析 json 失败：非法的 scale 属性");
-					return false;
-				}
-
-				float scaleX = scale[0].GetFloat();
-				float scaleY = scale[1].GetFloat();
-
-				static float DELTA = 1e-5f;
-
-				SIZE outputSize = texSizes.back();;
-
-				if (scaleX >= DELTA) {
-					if (scaleY < DELTA) {
-						Logger::Get().Error("解析 json 失败：非法的 scale 属性");
-						return false;
-					}
-
-					outputSize = { std::lroundf(outputSize.cx * scaleX), std::lroundf(outputSize.cy * scaleY) };
-				} else if (std::abs(scaleX) < DELTA) {
-					if (std::abs(scaleY) >= DELTA) {
-						Logger::Get().Error("解析 json 失败：非法的 scale 属性");
-						return false;
-					}
-
-					outputSize = hostSize;
-				} else {
-					if (scaleY > -DELTA) {
-						Logger::Get().Error("解析 json 失败：非法的 scale 属性");
-						return false;
-					}
-
-					float fillScale = std::min(float(hostSize.cx) / outputSize.cx, float(hostSize.cy) / outputSize.cy);
-					outputSize = {
-						std::lroundf(outputSize.cx * fillScale * -scaleX),
-						std::lroundf(outputSize.cy * fillScale * -scaleY)
-					};
-				}
-
-				effect.SetOutputSize(outputSize);
-			}
+		} else {
+			Logger::Get().Info(fmt::format("编译 {} 用时 {} 毫秒", StrUtils::UTF16ToUTF8(fileName), duration / 1000.0f));
 		}
 
 #pragma push_macro("GetObject")
@@ -377,104 +310,72 @@ bool Renderer::_ResolveEffectsJson(const std::string& effectsJson) {
 
 			std::string_view name = prop.name.GetString();
 
-			if (name == "effect" || (effect.CanSetOutputSize() && name == "scale")) {
+			if (name == "effect") {
 				continue;
+			} else if (name == "scale" && effectDesc.outSizeExpr.first.empty()) {
+				auto scaleProp = effectJson.FindMember("scale");
+				if (scaleProp != effectJson.MemberEnd()) {
+					if (!scaleProp->value.IsArray()) {
+						Logger::Get().Error("解析 json 失败：非法的 scale 属性");
+						return false;
+					}
+
+					const auto& scale = scaleProp->value.GetArray();
+					if (scale.Size() != 2 || !scale[0].IsNumber() || !scale[1].IsNumber()) {
+						Logger::Get().Error("解析 json 失败：非法的 scale 属性");
+						return false;
+					}
+
+					effectParams.scale.first = scale[0].GetFloat();
+					effectParams.scale.second = scale[1].GetFloat();
+				}
 			} else {
-				auto type = effect.GetConstantType(name);
-				if (type == EffectDrawer::ConstantType::Float) {
+				auto it = std::find_if(
+					effectDesc.params.begin(),
+					effectDesc.params.end(),
+					[name](const EffectParameterDesc& desc) { return desc.name == name; }
+				);
+
+				if (it == effectDesc.params.end()) {
+					Logger::Get().Error(fmt::format("解析 json 失败：非法成员 {}", name));
+					return false;
+				}
+
+				auto pair = effectParams.params.emplace(UINT(it - effectDesc.params.begin()), EffectConstant32{});
+				if (pair.second) {
+					Logger::Get().Error(fmt::format("重复的成员：{}", name));
+					return false;
+				}
+
+				EffectConstant32& value = pair.first->second;
+
+				auto type = it->type;
+				if (type == EffectConstantType::Float) {
 					if (!prop.value.IsNumber()) {
 						Logger::Get().Error(fmt::format("解析 json 失败：成员 {} 的类型非法", name));
 						return false;
 					}
 
-					if (!effect.SetConstant(name, prop.value.GetFloat())) {
-						Logger::Get().Error(fmt::format("解析 json 失败：成员 {} 的值非法", name));
-						return false;
-					}
-				} else if (type == EffectDrawer::ConstantType::Int) {
-					int value;
+					value.floatVal = prop.value.GetFloat();
+				} else {
 					if (prop.value.IsInt()) {
-						value = prop.value.GetInt();
+						value.intVal = prop.value.GetInt();
 					} else if (prop.value.IsBool()) {
 						// bool 值视为 int
-						value = (int)prop.value.GetBool();
+						value.intVal = (int)prop.value.GetBool();
 					} else {
 						Logger::Get().Error(fmt::format("解析 json 失败：成员 {} 的类型非法", name));
 						return false;
 					}
-
-					if (!effect.SetConstant(name, value)) {
-						Logger::Get().Error(fmt::format("解析 json 失败：成员 {} 的值非法", name));
-						return false;
-					}
-				} else {
-					Logger::Get().Error(fmt::format("解析 json 失败：非法成员 {}", name));
-					return false;
 				}
 			}
 		}
 
-		SIZE& outputSize = texSizes.emplace_back();
-		if (!effect.CalcOutputSize(texSizes[texSizes.size() - 2], outputSize)) {
-			Logger::Get().Error("CalcOutputSize 失败");
+		if (!effect.Initialize(effectDesc, effectParams, effectInput, &effectInput, i == end - 1 ? &_outputRect : nullptr)) {
+			Logger::Get().Error("初始化效果失败");
 			return false;
 		}
 	}
-
-	auto& dr = App::Get().GetDeviceResources();
-	auto d3dDevice = dr.GetD3DDevice();
-
-	if (_effects.size() == 1) {
-		if (!_effects.back()->Build(srcFrame.get(), dr.GetBackBuffer())) {
-			Logger::Get().Error("构建效果失败");
-			return false;
-		}
-	} else {
-		// 创建效果间的中间纹理
-		winrt::com_ptr<ID3D11Texture2D> curTex = srcFrame;
-
-		D3D11_TEXTURE2D_DESC desc{};
-		desc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
-		desc.Usage = D3D11_USAGE_DEFAULT;
-		desc.MipLevels = 1;
-		desc.ArraySize = 1;
-		desc.SampleDesc.Count = 1;
-		desc.SampleDesc.Quality = 0;
-		desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
-
-		assert(texSizes.size() == _effects.size() + 1);
-		for (size_t i = 0, end = _effects.size() - 1; i < end; ++i) {
-			SIZE texSize = texSizes[i + 1];
-			desc.Width = texSize.cx;
-			desc.Height = texSize.cy;
-
-			winrt::com_ptr<ID3D11Texture2D> outputTex;
-			HRESULT hr = d3dDevice->CreateTexture2D(&desc, nullptr, outputTex.put());
-			if (FAILED(hr)) {
-				Logger::Get().ComError("CreateTexture2D 失败", hr);
-				return false;
-			}
-
-			if (!_effects[i]->Build(curTex.get(), outputTex.get())) {
-				Logger::Get().Error("构建效果失败");
-				return false;
-			}
-
-			curTex = outputTex;
-		}
-
-		// 最后一个效果输出到后缓冲纹理
-		if (!_effects.back()->Build(curTex.get(), dr.GetBackBuffer())) {
-			Logger::Get().Error("构建效果失败");
-			return false;
-		}
-	}
-
-	SIZE outputSize = texSizes.back();
-	_outputRect.left = (hostSize.cx - outputSize.cx) / 2;
-	_outputRect.right = _outputRect.left + outputSize.cx;
-	_outputRect.top = (hostSize.cy - outputSize.cy) / 2;
-	_outputRect.bottom = _outputRect.top + outputSize.cy;
 
 	return true;
 }
