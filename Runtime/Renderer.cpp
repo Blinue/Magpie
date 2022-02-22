@@ -11,8 +11,6 @@
 #include "GPUTimer.h"
 #include "EffectDrawer.h"
 #include "UIDrawer.h"
-#include "FSRFilter.h"
-#include "A4KSFilter.h"
 #include "Logger.h"
 #include "CursorManager.h"
 
@@ -47,6 +45,20 @@ bool Renderer::Initialize(const std::string& effectsJson) {
 		return false;
 	}
 
+	// 初始化所有效果共用的动态常量缓冲区
+	D3D11_BUFFER_DESC bd{};
+	bd.Usage = D3D11_USAGE_DYNAMIC;
+	bd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	bd.ByteWidth = 4 * (UINT)_dynamicConstants.size();
+	bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+
+	HRESULT hr = App::Get().GetDeviceResources().GetD3DDevice()
+		->CreateBuffer(&bd, nullptr, _dynamicCB.put());
+	if (FAILED(hr)) {
+		Logger::Get().ComError("CreateBuffer 失败", hr);
+		return false;
+	}
+
 	return true;
 }
 
@@ -75,10 +87,20 @@ void Renderer::Render() {
 	_gpuTimer->BeginFrame();
 	_cursorManager->BeginFrame();
 
+	if (!_UpdateDynamicConstants()) {
+		Logger::Get().Error("_UpdateDynamicConstants 失败");
+	}
+
+	{
+		ID3D11Buffer* t = _dynamicCB.get();
+		d3dDC->CSSetConstantBuffers(0, 1, &t);
+	}
+
 	for (auto& effect : _effects) {
 		effect->Draw();
 	}
 
+	
 	/*
 	// 更新常量
 	if (!EffectDrawer::UpdateExprDynamicVars()) {
@@ -371,10 +393,73 @@ bool Renderer::_ResolveEffectsJson(const std::string& effectsJson) {
 			}
 		}
 
-		if (!effect.Initialize(effectDesc, effectParams, effectInput, &effectInput, i == end - 1 ? &_outputRect : nullptr)) {
+		bool isLastEffect = i == end - 1;
+		if (!effect.Initialize(
+			effectDesc, effectParams, effectInput, &effectInput,
+			isLastEffect ? &_outputRect : nullptr,
+			isLastEffect ? &_virtualOutputRect : nullptr
+		)) {
 			Logger::Get().Error(fmt::format("初始化效果#{} ({}) 失败", i, effectName->value.GetString()));
 			return false;
 		}
+	}
+
+	return true;
+}
+
+bool Renderer::_UpdateDynamicConstants() {
+	// cbuffer __CB1 : register(b0) {
+	//     int4 __cursorRect;
+	//     float2 __cursorPt;
+	//     uint2 __cursorPos;
+	//     uint __cursorType;
+	//     uint __frameCount;
+	// };
+
+	if (_cursorManager->HasCursor()) {
+		const POINT* pos = _cursorManager->GetCursorPos();
+		const CursorManager::CursorInfo* ci = _cursorManager->GetCursorInfo();
+
+		ID3D11Texture2D* cursorTex;
+		CursorManager::CursorType cursorType = CursorManager::CursorType::Color;
+		if (!_cursorManager->GetCursorTexture(&cursorTex, cursorType)) {
+			Logger::Get().Error("GetCursorTexture 失败");
+		}
+		assert(pos && ci);
+
+		_dynamicConstants[0].intVal = pos->x - ci->hotSpot.x;
+		_dynamicConstants[1].intVal = pos->y - ci->hotSpot.y;
+		_dynamicConstants[2].intVal = _dynamicConstants[0].intVal + ci->size.cx;
+		_dynamicConstants[3].intVal = _dynamicConstants[1].intVal + ci->size.cy;
+
+		_dynamicConstants[4].floatVal = 1.0f / ci->size.cx;
+		_dynamicConstants[5].floatVal = 1.0f / ci->size.cy;
+
+		_dynamicConstants[6].uintVal = pos->x;
+		_dynamicConstants[7].uintVal = pos->y;
+
+		_dynamicConstants[8].uintVal = (UINT)cursorType;
+	} else {
+		_dynamicConstants[0].intVal = INT_MAX;
+		_dynamicConstants[1].intVal = INT_MAX;
+		_dynamicConstants[2].intVal = INT_MAX;
+		_dynamicConstants[3].intVal = INT_MAX;
+		_dynamicConstants[6].uintVal = UINT_MAX;
+		_dynamicConstants[7].uintVal = UINT_MAX;
+	}
+
+	_dynamicConstants[9].uintVal = _gpuTimer->GetFrameCount();
+
+	auto d3dDC = App::Get().GetDeviceResources().GetD3DDC();
+
+	D3D11_MAPPED_SUBRESOURCE ms;
+	HRESULT hr = d3dDC->Map(_dynamicCB.get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &ms);
+	if (SUCCEEDED(hr)) {
+		std::memcpy(ms.pData, _dynamicConstants.data(), _dynamicConstants.size() * 4);
+		d3dDC->Unmap(_dynamicCB.get(), 0);
+	} else {
+		Logger::Get().ComError("Map 失败", hr);
+		return false;
 	}
 
 	return true;

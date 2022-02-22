@@ -49,11 +49,11 @@ void GPUTimer::BeginFrame() {
 	// Variable timestep update logic.
 	m_elapsedTicks = timeDelta;
 	m_totalTicks += timeDelta;
-	m_frameCount++;
+	++m_frameCount;
 
 	// Track the current framerate.
 	if (m_frameCount != lastFrameCount) {
-		m_framesThisSecond++;
+		++m_framesThisSecond;
 	}
 
 	if (m_qpcSecondCounter >= static_cast<uint64_t>(m_qpcFrequency.QuadPart)) {

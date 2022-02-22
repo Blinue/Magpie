@@ -61,8 +61,6 @@
     <ClCompile Include="imgui_impl_magpie.cpp">
       <Filter>渲染\ImGUI</Filter>
     </ClCompile>
-    <ClCompile Include="FSRFilter.cpp" />
-    <ClCompile Include="A4KSFilter.cpp" />
     <ClCompile Include="Logger.cpp">
       <Filter>应用程序</Filter>
     </ClCompile>
@@ -140,8 +138,6 @@
     <ClInclude Include="imgui_impl_magpie.h">
       <Filter>渲染\ImGUI</Filter>
     </ClInclude>
-    <ClInclude Include="FSRFilter.h" />
-    <ClInclude Include="A4KSFilter.h" />
     <ClInclude Include="Logger.h">
       <Filter>应用程序</Filter>
     </ClInclude>

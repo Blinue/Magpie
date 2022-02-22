@@ -1,5 +1,6 @@
 #pragma once
 #include "pch.h"
+#include "EffectDesc.h"
 
 
 class EffectDrawer;
@@ -32,17 +33,27 @@ public:
 		return _outputRect;
 	}
 
+	const RECT& GetVirtualOutputRect() const noexcept {
+		return _virtualOutputRect;
+	}
+
 private:
 	bool _CheckSrcState();
 
 	bool _ResolveEffectsJson(const std::string& effectsJson);
 
+	bool _UpdateDynamicConstants();
+
 	RECT _srcWndRect{};
 	RECT _outputRect{};
+	// 尺寸可能大于主窗口
+	RECT _virtualOutputRect{};
 
 	bool _waitingForNextFrame = false;
 
 	std::vector<std::unique_ptr<EffectDrawer>> _effects;
+	std::array<EffectConstant32, 12> _dynamicConstants;
+	winrt::com_ptr<ID3D11Buffer> _dynamicCB;
 
 	std::unique_ptr<UIDrawer> _UIDrawer;
 

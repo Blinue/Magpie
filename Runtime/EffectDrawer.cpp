@@ -6,6 +6,8 @@
 #include "DeviceResources.h"
 #include "TextureLoader.h"
 #include "StrUtils.h"
+#include "Renderer.h"
+#include "CursorManager.h"
 
 #pragma push_macro("_UNICODE")
 #undef _UNICODE
@@ -19,7 +21,8 @@ bool EffectDrawer::Initialize(
 	const EffectParams& params,
 	ID3D11Texture2D* inputTex,
 	ID3D11Texture2D** outputTex,
-	RECT* outputRect
+	RECT* outputRect,
+	RECT* virtualOutputRect
 ) {
 	_desc = desc;
 
@@ -31,7 +34,7 @@ bool EffectDrawer::Initialize(
 	}
 
 	const SIZE hostSize = Utils::GetSizeOfRect(App::Get().GetHostWndRect());;
-	bool _isLastEffect = desc.Flags & EFFECT_FLAG_LAST_EFFECT;
+	_isLastEffect = desc.Flags & EFFECT_FLAG_LAST_EFFECT;
 
 	DeviceResources& dr = App::Get().GetDeviceResources();
 	auto d3dDevice = dr.GetD3DDevice();
@@ -95,14 +98,14 @@ bool EffectDrawer::Initialize(
 	size_t builtinConstantCount = _isLastEffect ? 16 : 10 ;
 	_constants.resize((builtinConstantCount + desc.params.size() + 3) / 4 * 4);
 	// cbuffer __CB2 : register(b1) {
-	// uint2 __inputSize;
-	// uint2 __outputSize;
-	// float2 __inputPt;
-	// float2 __outputPt;
-	// float2 __scale;
-	// [uint2 __viewport;]
-	// [uint4 __offset;]
-	// [PARAMETERS]
+	//     uint2 __inputSize;
+	//     uint2 __outputSize;
+	//     float2 __inputPt;
+	//     float2 __outputPt;
+	//     float2 __scale;
+	//     [uint2 __viewport;]
+	//     [uint4 __offset;]
+	//     [PARAMETERS...]
 	// );
 	_constants[0].uintVal = inputSize.cx;
 	_constants[1].uintVal = inputSize.cy;
@@ -115,35 +118,39 @@ bool EffectDrawer::Initialize(
 	_constants[8].floatVal = outputSize.cx / (FLOAT)inputSize.cx;
 	_constants[9].floatVal = outputSize.cy / (FLOAT)inputSize.cy;
 
-	if (_isLastEffect) {
-		// 输出尺寸可能比主窗口更大
-		RECT virtualOutputRect{};
-		virtualOutputRect.left = (hostSize.cx - outputSize.cx) / 2;
-		virtualOutputRect.top = (hostSize.cy - hostSize.cy) / 2;
-		virtualOutputRect.right = virtualOutputRect.left + outputSize.cx;
-		virtualOutputRect.bottom = virtualOutputRect.top + outputSize.cy;
+	// 输出尺寸可能比主窗口更大
+	RECT virtualOutputRect1{};
+	RECT outputRect1{};
 
-		RECT realOutputRect = {
-			std::max(0L, virtualOutputRect.left),
-			std::max(0L, virtualOutputRect.top),
-			std::min(hostSize.cx, virtualOutputRect.right),
-			std::min(hostSize.cy, virtualOutputRect.bottom)
+	if (_isLastEffect) {
+		virtualOutputRect1.left = (hostSize.cx - outputSize.cx) / 2;
+		virtualOutputRect1.top = (hostSize.cy - hostSize.cy) / 2;
+		virtualOutputRect1.right = virtualOutputRect1.left + outputSize.cx;
+		virtualOutputRect1.bottom = virtualOutputRect1.top + outputSize.cy;
+
+		outputRect1 = RECT{
+			std::max(0L, virtualOutputRect1.left),
+			std::max(0L, virtualOutputRect1.top),
+			std::min(hostSize.cx, virtualOutputRect1.right),
+			std::min(hostSize.cy, virtualOutputRect1.bottom)
 		};
 
-		if (outputRect) {
-			*outputRect = realOutputRect;
-		}
-		
-		_constants[10].uintVal = realOutputRect.right - realOutputRect.left;
-		_constants[11].uintVal = realOutputRect.bottom - realOutputRect.top;
-		_constants[12].uintVal = -std::min(0L, virtualOutputRect.left);
-		_constants[13].uintVal = -std::min(0L, virtualOutputRect.top);
-		_constants[14].uintVal = realOutputRect.left;
-		_constants[15].uintVal = realOutputRect.top;
+		_constants[10].uintVal = outputRect1.right - outputRect1.left;
+		_constants[11].uintVal = outputRect1.bottom - outputRect1.top;
+		_constants[12].uintVal = -std::min(0L, virtualOutputRect1.left);
+		_constants[13].uintVal = -std::min(0L, virtualOutputRect1.top);
+		_constants[14].uintVal = outputRect1.left;
+		_constants[15].uintVal = outputRect1.top;
 	} else {
-		if (outputRect) {
-			*outputRect = RECT{ 0,0,outputSize.cx, outputSize.cy };
-		}
+		outputRect1 = RECT{ 0, 0, outputSize.cx, outputSize.cy };
+		virtualOutputRect1 = outputRect1;
+	}
+
+	if (outputRect) {
+		*outputRect = outputRect1;
+	}
+	if (virtualOutputRect) {
+		*virtualOutputRect = virtualOutputRect1;
 	}
 
 	// 填入参数
@@ -300,7 +307,7 @@ bool EffectDrawer::Initialize(
 			return false;
 		}
 
-		_srvs[i].resize(passDesc.inputs.size() * 2);
+		_srvs[i].resize(passDesc.inputs.size());
 		for (UINT j = 0; j < passDesc.inputs.size(); ++j) {
 			if (!dr.GetShaderResourceView(_textures[passDesc.inputs[j]].get(), &_srvs[i][j])) {
 				Logger::Get().Error("GetShaderResourceView 失败");
@@ -309,31 +316,79 @@ bool EffectDrawer::Initialize(
 		}
 		
 		if (!passDesc.outputs.empty()) {
-			_uavs[i].resize(passDesc.outputs.size());
+			_uavs[i].resize(passDesc.outputs.size() * 2);
 			for (UINT j = 0; j < passDesc.outputs.size(); ++j) {
-				if (!dr.GetUnorderedAccessView(_textures[passDesc.outputs[j]].get(), &_uavs[i][0])) {
+				if (!dr.GetUnorderedAccessView(_textures[passDesc.outputs[j]].get(), &_uavs[i][j])) {
 					Logger::Get().Error("GetUnorderedAccessView 失败");
 					return false;
 				}
 			}
+
+			D3D11_TEXTURE2D_DESC desc;
+			_textures[passDesc.outputs[0]]->GetDesc(&desc);
+			_dispatches.emplace_back(
+				(desc.Width + passDesc.blockSize.cx - 1) / passDesc.blockSize.cx,
+				(desc.Height + passDesc.blockSize.cy - 1) / passDesc.blockSize.cy
+			);
 		} else {
 			// 最后一个 pass 输出到 OUTPUT
-			_uavs[i].resize(1);
+			_uavs[i].resize(2);
 			if (!dr.GetUnorderedAccessView(_textures.back().get(), &_uavs[i][0])) {
 				Logger::Get().Error("GetUnorderedAccessView 失败");
 				return false;
 			}
+
+			D3D11_TEXTURE2D_DESC desc;
+			_textures.back()->GetDesc(&desc);
+			_dispatches.emplace_back(
+				(desc.Width + passDesc.blockSize.cx - 1) / passDesc.blockSize.cx,
+				(desc.Height + passDesc.blockSize.cy - 1) / passDesc.blockSize.cy
+			);
 		}
 	}
 
 	if (_isLastEffect) {
 		// 为光标纹理预留空间
-		_srvs.back().resize(_srvs.back().size() + 2);
+		_srvs.back().resize(_srvs.back().size() + 1);
 	}
 	
 	return true;
 }
 
-void EffectDrawer::Draw()
-{
+void EffectDrawer::Draw() {
+	auto d3dDC = App::Get().GetDeviceResources().GetD3DDC();
+
+	{
+		ID3D11Buffer* t = _constantBuffer.get();
+		d3dDC->CSSetConstantBuffers(1, 1, &t);
+	}
+	d3dDC->CSSetSamplers(0, (UINT)_samplers.size(), _samplers.data());
+	
+	for (UINT i = 0; i < _dispatches.size(); ++i) {
+		d3dDC->CSSetShader(_shaders[i].get(), nullptr, 0);
+
+		if (_isLastEffect && i == _dispatches.size() - 1) {
+			// 光标纹理
+			CursorManager& cm = App::Get().GetRenderer().GetCursorManager();
+			if (cm.HasCursor()) {
+				ID3D11Texture2D* cursorTex;
+				CursorManager::CursorType ct;
+				if (cm.GetCursorTexture(&cursorTex, ct)) {
+					if (!App::Get().GetDeviceResources().GetShaderResourceView(cursorTex, &_srvs[i].back())) {
+						Logger::Get().Error("GetShaderResourceView 出错");
+					}
+				} else {
+					Logger::Get().Error("GetCursorTexture 出错");
+				}
+			}
+		}
+		
+		d3dDC->CSSetShaderResources(0, (UINT)_srvs[i].size(), _srvs[i].data());
+		UINT uavCount = (UINT)_uavs[i].size() / 2;
+		d3dDC->CSSetUnorderedAccessViews(0, uavCount, _uavs[i].data(), nullptr);
+
+		d3dDC->Dispatch(_dispatches[i].first, _dispatches[i].second, 1);
+
+		d3dDC->CSSetUnorderedAccessViews(0, uavCount, _uavs[i].data() + uavCount, nullptr);
+	}
 }

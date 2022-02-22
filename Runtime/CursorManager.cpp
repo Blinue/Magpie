@@ -132,21 +132,37 @@ void CursorManager::BeginFrame() {
 		return;
 	}
 
-	_curCursor = ci.hCursor;
-
 	const RECT& srcFrameRect = App::Get().GetFrameSource().GetSrcFrameRect();
 	const RECT& outputRect = App::Get().GetRenderer().GetOutputRect();
+	const RECT& virtualOutputRect = App::Get().GetRenderer().GetVirtualOutputRect();
 
 	double pos = double(ci.ptScreenPos.x - srcFrameRect.left) / (srcFrameRect.right - srcFrameRect.left);
-	_curCursorPos.x = std::lround(pos * (outputRect.right - outputRect.left)) + outputRect.left;
+	_curCursorPos.x = std::lround(pos * (virtualOutputRect.right - virtualOutputRect.left)) + virtualOutputRect.left;
 
 	pos = double(ci.ptScreenPos.y - srcFrameRect.top) / (srcFrameRect.bottom - srcFrameRect.top);
-	_curCursorPos.y = std::lround(pos * (outputRect.bottom - outputRect.top)) + outputRect.top;
+	_curCursorPos.y = std::lround(pos * (virtualOutputRect.bottom - virtualOutputRect.top)) + virtualOutputRect.top;
+
+	POINT cursorLeftTop = {
+		_curCursorPos.x - _curCursorInfo->hotSpot.x,
+		_curCursorPos.y - _curCursorInfo->hotSpot.y
+	};
+
+	if (cursorLeftTop.x > outputRect.right
+		|| cursorLeftTop.y > outputRect.bottom
+		|| cursorLeftTop.x + _curCursorInfo->size.cx < outputRect.left
+		|| cursorLeftTop.y + _curCursorInfo->size.cy < outputRect.top
+	) {
+		// 光标的渲染位置不在屏幕内
+		_curCursor = NULL;
+		return;
+	}
+
+	_curCursor = ci.hCursor;
 }
 
-bool CursorManager::GetCursorTexture(ID3D11Texture2D*& texture, CursorManager::CursorType& cursorType) {
+bool CursorManager::GetCursorTexture(ID3D11Texture2D** texture, CursorManager::CursorType& cursorType) {
 	if (_curCursorInfo->texture) {
-		texture = _curCursorInfo->texture.get();
+		*texture = _curCursorInfo->texture.get();
 		cursorType = _curCursorInfo->type;
 		return true;
 	}
@@ -159,7 +175,7 @@ bool CursorManager::GetCursorTexture(ID3D11Texture2D*& texture, CursorManager::C
 			(void*)_curCursor, cursorTypes[(int)_curCursorInfo->type]));
 	}
 
-	texture = _curCursorInfo->texture.get();
+	*texture = _curCursorInfo->texture.get();
 	cursorType = _curCursorInfo->type;
 	return true;
 }

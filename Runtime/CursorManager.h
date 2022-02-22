@@ -42,7 +42,7 @@ public:
 		// RG 通道的值只能是 0 或 255
 		Monochrome
 	};
-	bool GetCursorTexture(ID3D11Texture2D*& texture, CursorManager::CursorType& cursorType);
+	bool GetCursorTexture(ID3D11Texture2D** texture, CursorManager::CursorType& cursorType);
 
 private:
 	void _StartCapture(POINT cursorPt);
