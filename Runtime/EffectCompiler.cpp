@@ -1192,7 +1192,7 @@ cbuffer __CB2 : register(b1) {
 )");
 
 	if (lastEffect) {
-		resHlsl.append("\tuint2 __viewport;\n\tuint4 __offset;\n");
+		resHlsl.append("\tuint2 __viewport;\n\tint4 __offset;\n");
 	}
 
 	if (!desc.params.empty()) {

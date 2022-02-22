@@ -270,22 +270,23 @@ float4 A4KS4(float2 pos) {
 void Pass4(uint2 blockStart, uint3 threadId) {
 	uint2 gxy = Rmp8x8(threadId.x) * 2 + blockStart;
 	float2 inputPt = GetInputPt();
+	float2 outputPt = GetOutputPt();
 
 	float2 pos = (gxy / 2 + 0.5f) * inputPt;
 	float4 c = A4KS4(pos);
 
-	pos -= 0.25f * inputPt;
+	pos -= 0.5f * outputPt;
 	WriteToOutput(gxy, c.x + INPUT.SampleLevel(sam1, pos, 0).rgb);
 	
 	gxy.x += 1u;
-	pos.x += 0.5f * inputPt.x;
+	pos.x += outputPt.x;
 	WriteToOutput(gxy, c.y + INPUT.SampleLevel(sam1, pos, 0).rgb);
 	
 	gxy.y += 1u;
-	pos.y += 0.5f * inputPt.y;
+	pos.y += outputPt.y;
 	WriteToOutput(gxy, c.w + INPUT.SampleLevel(sam1, pos, 0).rgb);
 	
 	gxy.x -= 1u;
-	pos.x -= 0.5f * inputPt.x;
+	pos.x -= outputPt.x;
 	WriteToOutput(gxy, c.z + INPUT.SampleLevel(sam1, pos, 0).rgb);
 }

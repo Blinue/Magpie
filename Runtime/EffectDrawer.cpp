@@ -135,12 +135,12 @@ bool EffectDrawer::Initialize(
 			std::min(hostSize.cy, virtualOutputRect1.bottom)
 		};
 
-		_constants[10].uintVal = outputRect1.right - outputRect1.left;
-		_constants[11].uintVal = outputRect1.bottom - outputRect1.top;
-		_constants[12].uintVal = -std::min(0L, virtualOutputRect1.left);
-		_constants[13].uintVal = -std::min(0L, virtualOutputRect1.top);
-		_constants[14].uintVal = outputRect1.left;
-		_constants[15].uintVal = outputRect1.top;
+		_constants[12].intVal = -std::min(0L, virtualOutputRect1.left);
+		_constants[13].intVal = -std::min(0L, virtualOutputRect1.top);
+		_constants[10].uintVal = outputRect1.right - outputRect1.left + _constants[12].intVal;
+		_constants[11].uintVal = outputRect1.bottom - outputRect1.top + _constants[13].intVal;
+		_constants[14].intVal = outputRect1.left - _constants[12].intVal;
+		_constants[15].intVal = outputRect1.top - _constants[13].intVal;
 	} else {
 		outputRect1 = RECT{ 0, 0, outputSize.cx, outputSize.cy };
 		virtualOutputRect1 = outputRect1;
