@@ -1161,7 +1161,7 @@ void __M(uint3 tid : SV_GroupThreadID, uint3 gid : SV_GroupID) {
 void __M(uint3 tid : SV_GroupThreadID, uint3 gid : SV_GroupID) {{
 	Pass{}(gid.xy * uint2({}, {}){}, tid);
 }}
-)", numThreads[0], numThreads[1], numThreads[2], passIndex, passDesc.blockSize.cx, passDesc.blockSize.cy, lastEffect&& lastPass ? " + __offset.xy" : ""));
+)", numThreads[0], numThreads[1], numThreads[2], passIndex, passDesc.blockSize.cx, passDesc.blockSize.cy, lastEffect && lastPass ? " + __offset.xy" : ""));
 	}
 
 	return 0;
@@ -1188,7 +1188,7 @@ cbuffer __CB2 : register(b1) {
 )");
 
 	if (lastEffect) {
-		resHlsl.append("\tuint2 __viewport;\n\tint4 __offset;\n");
+		resHlsl.append("\tuint2 __viewport;\n\tuint4 __offset;\n");
 	}
 
 	if (!desc.params.empty()) {

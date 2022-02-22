@@ -4,33 +4,13 @@
 //!TEXTURE
 Texture2D INPUT;
 
-//!TEXTURE
-//!WIDTH INPUT_WIDTH
-//!HEIGHT INPUT_HEIGHT
-//!FORMAT B8G8R8A8_UNORM
-Texture2D tex1;
-
-//!TEXTURE
-//!WIDTH INPUT_WIDTH
-//!HEIGHT INPUT_HEIGHT
-//!FORMAT B8G8R8A8_UNORM
-Texture2D tex2;
-
 
 //!SAMPLER
 //!FILTER POINT
 SamplerState sam;
 
-//!PASS 1
-//!STYLE PS
-//!IN INPUT
-//!OUT tex1, tex2
-void Pass1(float2 pos, out float4 target1, out float4 target2) {
-	target1 = float4(0, 0, 0, 1);
-	target2 = float4(1, 1, 1, 1);
-}
 
-//!PASS 2
+//!PASS 1
 //!IN INPUT
 //!BLOCK_SIZE 16, 16
 //!NUM_THREADS 64, 1, 1
@@ -243,7 +223,7 @@ float3 FsrEasuF(uint2 pos, float4 con0, float4 con1, float4 con2, float2 con3) {
 	return min(max4, max(min4, aC * rcp(aW)));
 }
 
-void Pass2(uint2 blockStart, uint3 threadId) {
+void Pass1(uint2 blockStart, uint3 threadId) {
 	uint2 gxy = blockStart + Rmp8x8(threadId.x);
 
 	float2 inputSize = GetInputSize();
@@ -296,21 +276,3 @@ void Pass2(uint2 blockStart, uint3 threadId) {
 	gxy.x -= 8u;
 	WriteToOutput(gxy, FsrEasuF(gxy, con0, con1, con2, con3));
 }
-/*
-[numthreads(64, 1, 1)]
-void main(uint3 LocalThreadId : SV_GroupThreadID, uint3 WorkGroupId : SV_GroupID) {
-	uint2 gxy = ARmp8x8(LocalThreadId.x) + WorkGroupId.xy << 4u;
-	float2 pos = (gxy + 0.5f) * __outputPt;
-	float2 step = 8 * __outputPt;
-
-	OUTPUT[gxy] = float4(Pass1(pos).rgb, 1);
-	gxy.x += 8u;
-	pos.x += step.x;
-	OUTPUT[gxy] = float4(Pass1(pos).rgb, 1);
-	gxy.y += 8u;
-	pos.y += step.y;
-	OUTPUT[gxy] = float4(Pass1(pos).rgb, 1);
-	gxy.x -= 8u;
-	pos.x -= step.x;
-	OUTPUT[gxy] = float4(Pass1(pos).rgb, 1);
-}*/

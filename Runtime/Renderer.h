@@ -2,7 +2,7 @@
 #include "pch.h"
 
 
-class NewEffectDrawer;
+class EffectDrawer;
 class GPUTimer;
 class UIDrawer;
 class CursorManager;
@@ -42,7 +42,7 @@ private:
 
 	bool _waitingForNextFrame = false;
 
-	std::vector<std::unique_ptr<NewEffectDrawer>> _effects;
+	std::vector<std::unique_ptr<EffectDrawer>> _effects;
 
 	std::unique_ptr<UIDrawer> _UIDrawer;
 

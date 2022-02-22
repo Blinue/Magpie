@@ -1,28 +1,7 @@
-/*cbuffer cb : register(b0) {
-	uint4 __off;
-	uint __vx;
-	uint __vy;
-
-	float sharpness;
-};
-
-cbuffer cb1 : register(b1) {
-	int4 __cursorRect;
-	float2 __cursorPos;
-	uint __cursorType;	// 0: Color, 1: Masked Color, 2: Monochrome
-	uint __frameCount;
-}
-
-Texture2D INPUT : register(t0);
-Texture2D CURSOR : register(t1);
-RWTexture2D<float4> OUTPUT : register(u0);
-
-SamplerState sam : register(s0);*/
-
 //!MAGPIE EFFECT
 //!VERSION 2
-//!OUTPUT_WIDTH INPUT_WIDTH * 2
-//!OUTPUT_HEIGHT INPUT_HEIGHT * 2
+//!OUTPUT_WIDTH INPUT_WIDTH
+//!OUTPUT_HEIGHT INPUT_HEIGHT
 
 
 //!PARAMETER
@@ -125,44 +104,6 @@ float3 FsrRcasF(uint2 pos) {
 	return c;
 }
 
-/*
-void __WriteToOutput(uint2 pos, float3 color) {
-	pos += __off.zw;
-
-	if ((int)pos.x >= __cr.x && (int)pos.y >= __cr.y && (int)pos.x < __cr.z && (int)pos.y < __cr.w) {
-		// »æÖÆ¹â±ê
-		float4 mask = CURSOR.SampleLevel(sam, (pos - __cr.xy + 0.5f) * __cp, 0);
-
-		if (__ct == 0) {
-			color = color * mask.a + mask.rgb;
-		} else if (__ct == 1) {
-			if (mask.a < 0.5f) {
-				color = mask.rgb;
-			} else {
-				color = (uint3(round(color * 255)) ^ uint3(mask.rgb * 255)) / 255.0f;
-			}
-		} else {
-			if (mask.x > 0.5f) {
-				if (mask.y > 0.5f) {
-					color = 1 - color;
-				}
-			} else {
-				if (mask.y > 0.5f) {
-					color = float3(1, 1, 1);
-				} else {
-					color = float3(0, 0, 0);
-				}
-			}
-		}
-	}
-
-	OUTPUT[pos] = float4(color, 1);
-}
-
-#define WriteToOutput(pos, color) if(pos.x < __vx && pos.y < __vy)__WriteToOutput(pos,color)
-
-*/
-
 uint ABfe(uint src, uint off, uint bits) {
 	uint mask = (1u << bits) - 1;
 	return (src >> off) & mask;
@@ -190,8 +131,3 @@ void Pass1(uint2 blockStart, uint3 threadId) {
 	gxy.x -= 8u;
 	WriteToOutput(gxy, FsrRcasF(gxy));
 }
-/*
-[numthreads(64, 1, 1)]
-void main(uint3 LocalThreadId : SV_GroupThreadID, uint3 WorkGroupId : SV_GroupID, uint3 Dtid : SV_DispatchThreadID) {
-	Pass2(uint2(WorkGroupId.x << 4u, WorkGroupId.y << 4u) + __off.xy, LocalThreadId);
-}*/

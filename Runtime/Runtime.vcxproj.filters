@@ -31,9 +31,6 @@
     <ClCompile Include="StrUtils.cpp">
       <Filter>应用程序</Filter>
     </ClCompile>
-    <ClCompile Include="EffectDrawer.cpp">
-      <Filter>渲染</Filter>
-    </ClCompile>
     <ClCompile Include="EffectCompiler.cpp">
       <Filter>渲染</Filter>
     </ClCompile>
@@ -72,7 +69,7 @@
     <ClCompile Include="CursorManager.cpp">
       <Filter>渲染</Filter>
     </ClCompile>
-    <ClCompile Include="NewEffectDrawer.cpp">
+    <ClCompile Include="EffectDrawer.cpp">
       <Filter>渲染</Filter>
     </ClCompile>
   </ItemGroup>
@@ -113,9 +110,6 @@
     <ClInclude Include="StrUtils.h">
       <Filter>应用程序</Filter>
     </ClInclude>
-    <ClInclude Include="EffectDrawer.h">
-      <Filter>渲染</Filter>
-    </ClInclude>
     <ClInclude Include="EffectDesc.h">
       <Filter>渲染</Filter>
     </ClInclude>
@@ -154,7 +148,7 @@
     <ClInclude Include="CursorManager.h">
       <Filter>渲染</Filter>
     </ClInclude>
-    <ClInclude Include="NewEffectDrawer.h">
+    <ClInclude Include="EffectDrawer.h">
       <Filter>渲染</Filter>
     </ClInclude>
   </ItemGroup>

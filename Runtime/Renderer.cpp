@@ -9,7 +9,7 @@
 #include "FrameSourceBase.h"
 #include "DeviceResources.h"
 #include "GPUTimer.h"
-#include "NewEffectDrawer.h"
+#include "EffectDrawer.h"
 #include "UIDrawer.h"
 #include "FSRFilter.h"
 #include "A4KSFilter.h"
@@ -271,7 +271,7 @@ bool Renderer::_ResolveEffectsJson(const std::string& effectsJson) {
 			return false;
 		}
 
-		NewEffectDrawer& effect = *_effects.emplace_back(new NewEffectDrawer());
+		EffectDrawer& effect = *_effects.emplace_back(new EffectDrawer());
 
 		auto effectName = effectJson.FindMember("effect");
 		if (effectName == effectJson.MemberEnd() || !effectName->value.IsString()) {
@@ -342,7 +342,7 @@ bool Renderer::_ResolveEffectsJson(const std::string& effectsJson) {
 				}
 
 				auto pair = effectParams.params.emplace(UINT(it - effectDesc.params.begin()), EffectConstant32{});
-				if (pair.second) {
+				if (!pair.second) {
 					Logger::Get().Error(fmt::format("重复的成员：{}", name));
 					return false;
 				}
@@ -372,7 +372,7 @@ bool Renderer::_ResolveEffectsJson(const std::string& effectsJson) {
 		}
 
 		if (!effect.Initialize(effectDesc, effectParams, effectInput, &effectInput, i == end - 1 ? &_outputRect : nullptr)) {
-			Logger::Get().Error("初始化效果失败");
+			Logger::Get().Error(fmt::format("初始化效果#{} ({}) 失败", i, effectName->value.GetString()));
 			return false;
 		}
 	}
