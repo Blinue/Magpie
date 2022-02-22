@@ -922,7 +922,7 @@ UINT ResolvePass(
 				texNames.erase(it);
 			}
 		} else if (t == "BLOCK_SIZE") {
-			if (processed[2] || processed[4]) {
+			if (processed[2]) {
 				return 1;
 			}
 			processed[2] = true;
@@ -958,7 +958,7 @@ UINT ResolvePass(
 
 			passDesc.blockSize.cy = num;
 		} else if (t == "NUM_THREADS") {
-			if (processed[3] || processed[4]) {
+			if (processed[3]) {
 				return 1;
 			}
 			processed[3] = true;
@@ -986,7 +986,7 @@ UINT ResolvePass(
 				numThreads[i] = num;
 			}
 		} else if (t == "STYLE") {
-			if (processed[4] || processed[2] || processed[3]) {
+			if (processed[4]) {
 				return 1;
 			}
 			processed[4] = true;
@@ -1004,6 +1004,10 @@ UINT ResolvePass(
 		} else {
 			return 1;
 		}
+	}
+
+	if (isPSStyle && (processed[2] || processed[3])) {
+		return 1;
 	}
 
 	passHlsl.append(resHlsl);

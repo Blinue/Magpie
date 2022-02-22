@@ -124,7 +124,7 @@ bool EffectDrawer::Initialize(
 
 	if (_isLastEffect) {
 		virtualOutputRect1.left = (hostSize.cx - outputSize.cx) / 2;
-		virtualOutputRect1.top = (hostSize.cy - hostSize.cy) / 2;
+		virtualOutputRect1.top = (hostSize.cy - outputSize.cy) / 2;
 		virtualOutputRect1.right = virtualOutputRect1.left + outputSize.cx;
 		virtualOutputRect1.bottom = virtualOutputRect1.top + outputSize.cy;
 
