@@ -939,7 +939,7 @@ UINT ResolvePass(
 			}
 			
 			UINT num;
-			if (GetNextNumber(blockSize[0], num)) {
+			if (GetNextNumber(blockSize[0], num) || num == 0) {
 				return 1;
 			}
 
@@ -947,9 +947,9 @@ UINT ResolvePass(
 				return false;
 			}
 
-			passDesc.blockSize.cx = num;
+			passDesc.blockSize.first = num;
 			
-			if (GetNextNumber(blockSize[1], num)) {
+			if (GetNextNumber(blockSize[1], num) || num == 0) {
 				return 1;
 			}
 
@@ -957,7 +957,7 @@ UINT ResolvePass(
 				return false;
 			}
 
-			passDesc.blockSize.cy = num;
+			passDesc.blockSize.second = num;
 		} else if (t == "NUM_THREADS") {
 			if (processed[3]) {
 				return 1;
@@ -1162,11 +1162,20 @@ void __M(uint3 tid : SV_GroupThreadID, uint3 gid : SV_GroupID) {
 			passHlsl.append("}\n");
 		}
 	} else {
+		// 大部分情况下 BLOCK_SIZE 都是 2 的整数次幂，这时将乘法转换为位移
+		std::string blockStartExpr;
+		if (passDesc.blockSize.first == passDesc.blockSize.second && std::has_single_bit(passDesc.blockSize.first)) {
+			UINT nShift = std::lroundf(std::log2f(passDesc.blockSize.first));
+			blockStartExpr = fmt::format("<< {}", nShift);
+		} else {
+			blockStartExpr = fmt::format("* uint2({}, {})", passDesc.blockSize.first, passDesc.blockSize.second);
+		}
+		
 		passHlsl.append(fmt::format(R"([numthreads({}, {}, {})]
 void __M(uint3 tid : SV_GroupThreadID, uint3 gid : SV_GroupID) {{
-	Pass{}(gid.xy * uint2({}, {}){}, tid);
+	Pass{}(gid.xy {}{}, tid);
 }}
-)", numThreads[0], numThreads[1], numThreads[2], passIndex, passDesc.blockSize.cx, passDesc.blockSize.cy, lastEffect && lastPass ? " + __offset.xy" : ""));
+)", numThreads[0], numThreads[1], numThreads[2], passIndex, blockStartExpr, lastEffect && lastPass ? " + __offset.xy" : ""));
 	}
 
 	return 0;

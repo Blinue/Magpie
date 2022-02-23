@@ -82,7 +82,7 @@ struct EffectPassDesc {
 	winrt::com_ptr<ID3DBlob> cso;
 	std::vector<UINT> inputs;
 	std::vector<UINT> outputs;
-	SIZE blockSize{};
+	std::pair<UINT, UINT> blockSize{};
 };
 
 enum EffectFlags {

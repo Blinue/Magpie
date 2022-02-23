@@ -327,8 +327,8 @@ bool EffectDrawer::Initialize(
 			D3D11_TEXTURE2D_DESC desc;
 			_textures[passDesc.outputs[0]]->GetDesc(&desc);
 			_dispatches.emplace_back(
-				(desc.Width + passDesc.blockSize.cx - 1) / passDesc.blockSize.cx,
-				(desc.Height + passDesc.blockSize.cy - 1) / passDesc.blockSize.cy
+				(desc.Width + passDesc.blockSize.first - 1) / passDesc.blockSize.first,
+				(desc.Height + passDesc.blockSize.second - 1) / passDesc.blockSize.second
 			);
 		} else {
 			// 最后一个 pass 输出到 OUTPUT
@@ -341,8 +341,8 @@ bool EffectDrawer::Initialize(
 			D3D11_TEXTURE2D_DESC desc;
 			_textures.back()->GetDesc(&desc);
 			_dispatches.emplace_back(
-				(desc.Width + passDesc.blockSize.cx - 1) / passDesc.blockSize.cx,
-				(desc.Height + passDesc.blockSize.cy - 1) / passDesc.blockSize.cy
+				(desc.Width + passDesc.blockSize.first - 1) / passDesc.blockSize.first,
+				(desc.Height + passDesc.blockSize.second - 1) / passDesc.blockSize.second
 			);
 		}
 	}
