@@ -1,3 +1,6 @@
+// FidelityFX-FSR 中 RCAS 通道
+// 移植自 https://github.com/GPUOpen-Effects/FidelityFX-FSR/blob/master/ffx-fsr/ffx_fsr1.h
+
 //!MAGPIE EFFECT
 //!VERSION 2
 //!OUTPUT_WIDTH INPUT_WIDTH

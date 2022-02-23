@@ -19,12 +19,12 @@ public:
 	);
 
 	void Draw();
+
 private:
 	EffectDesc _desc;
 
 	std::vector<ID3D11SamplerState*> _samplers;
 	std::vector<winrt::com_ptr<ID3D11Texture2D>> _textures;
-	// 后半部分为空，用于解绑
 	std::vector<std::vector<ID3D11ShaderResourceView*>> _srvs;
 	// 后半部分为空，用于解绑
 	std::vector<std::vector<ID3D11UnorderedAccessView*>> _uavs;

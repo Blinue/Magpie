@@ -9,6 +9,7 @@
 #include "App.h"
 #include "DeviceResources.h"
 #include "Logger.h"
+#include <bit>	// std::has_single_bit
 
 
 static constexpr const char* META_INDICATOR = "//!";
@@ -1044,7 +1045,7 @@ UINT ResolvePass(
 void __WriteToOutput(uint2 pos, float3 color) {
 	pos += __offset.zw;
 	if ((int)pos.x >= __cursorRect.x && (int)pos.y >= __cursorRect.y && (int)pos.x < __cursorRect.z && (int)pos.y < __cursorRect.w) {
-		float4 mask = __CURSOR.SampleLevel(sam, (pos - __cursorRect.xy + 0.5f) * __cursorPt, 0);
+		float4 mask = __CURSOR.SampleLevel(__CURSOR_SAMPLER, (pos - __cursorRect.xy + 0.5f) * __cursorPt, 0);
 		if (__cursorType == 0){
 			color = color * mask.a + mask.rgb;
 		} else if (__cursorType == 1) {
@@ -1070,7 +1071,7 @@ void __WriteToOutput(uint2 pos, float3 color) {
 	__OUTPUT[pos] = float4(color, 1);
 }
 
-#define WriteToOutput(pos, color) if(pos.x < __viewport.x && pos.y < __viewport.y) __WriteToOutput(pos, color)
+#define WriteToOutput(pos, color) if (pos.x < __viewport.x && pos.y < __viewport.y) __WriteToOutput(pos, color)
 )");
 		} else {
 			passHlsl.append("#define WriteToOutput(pos,color) __OUTPUT[pos] = float4(color, 1)\n");
@@ -1211,6 +1212,11 @@ cbuffer __CB2 : register(b1) {
 		for (int i = 0; i < desc.samplers.size(); ++i) {
 			resHlsl.append(fmt::format("SamplerState {} : register(s{});\n", desc.samplers[i].name, i));
 		}
+	}
+
+	if (lastEffect) {
+		// 绘制光标使用的采样器
+		resHlsl.append(fmt::format("SamplerState __CURSOR_SAMPLER : register(s{});\n", desc.samplers.size()));
 	}
 
 	if (ResolvePassNumbers(blocks)) {

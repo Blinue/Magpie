@@ -348,8 +348,17 @@ bool EffectDrawer::Initialize(
 	}
 
 	if (_isLastEffect) {
-		// 为光标纹理预留空间
-		_srvs.back().resize(_srvs.back().size() + 1);
+		// 为光标渲染预留空间
+		_srvs.back().push_back(nullptr);
+
+		if (!dr.GetSampler(
+			App::Get().GetCursorInterpolationMode() == 0 ? D3D11_FILTER_MIN_MAG_MIP_POINT : D3D11_FILTER_MIN_MAG_MIP_LINEAR,
+			D3D11_TEXTURE_ADDRESS_CLAMP,
+			&_samplers.emplace_back(nullptr)
+		)) {
+			Logger::Get().Error("GetSampler 失败");
+			return false;
+		}
 	}
 	
 	return true;
@@ -368,6 +377,8 @@ void EffectDrawer::Draw() {
 		d3dDC->CSSetShader(_shaders[i].get(), nullptr, 0);
 
 		if (_isLastEffect && i == _dispatches.size() - 1) {
+			// 最后一个效果的最后一个通道负责渲染光标
+			
 			// 光标纹理
 			CursorManager& cm = App::Get().GetRenderer().GetCursorManager();
 			if (cm.HasCursor()) {

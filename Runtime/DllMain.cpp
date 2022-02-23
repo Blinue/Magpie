@@ -82,7 +82,7 @@ API_DECLSPEC const char* WINAPI Run(
 	const char* effectsJson,
 	UINT flags,
 	UINT captureMode,
-	float cursorZoomFactor,	// 负数和 0：和源原窗口相同，正数：缩放比例
+	float cursorZoomFactor,	// 负数和 0：和源窗口相同，正数：缩放比例
 	UINT cursorInterpolationMode,	// 0：最近邻，1：双线性
 	int adapterIdx,
 	UINT multiMonitorUsage,	// 0：最近 1：相交 2：所有

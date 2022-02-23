@@ -1,3 +1,6 @@
+// FidelityFX-FSR 中 EASU 通道
+// 移植自 https://github.com/GPUOpen-Effects/FidelityFX-FSR/blob/master/ffx-fsr/ffx_fsr1.h
+
 //!MAGPIE EFFECT
 //!VERSION 2
 
@@ -127,7 +130,7 @@ float3 FsrEasuF(uint2 pos, float4 con0, float4 con1, float4 con2, float2 con3) {
 	//    r g    <- unused (z)
 	// Allowing dead-code removal to remove the 'z's.
 	float2 p0 = fp * con1.xy + con1.zw;
-    // These are from p0 to avoid pulling two constants on pre-Navi hardware.
+	// These are from p0 to avoid pulling two constants on pre-Navi hardware.
 	float2 p1 = p0 + con2.xy;
 	float2 p2 = p0 + con2.zw;
 	float2 p3 = p0 + con3;
@@ -226,17 +229,17 @@ float3 FsrEasuF(uint2 pos, float4 con0, float4 con1, float4 con2, float2 con3) {
 void Pass1(uint2 blockStart, uint3 threadId) {
 	uint2 gxy = blockStart + Rmp8x8(threadId.x);
 
-	float2 inputSize = GetInputSize();
+	uint2 inputSize = GetInputSize();
+	uint2 outputSize = GetOutputSize();
 	float2 inputPt = GetInputPt();
-	float2 outputSize = GetOutputSize();
 
 	float4 con0, con1, con2;
 	float2 con3;
 	// Output integer position to a pixel position in viewport.
-	con0[0] = inputSize.x / outputSize.x;
-	con0[1] = inputSize.y / outputSize.y;
-	con0[2] = 0.5 * con0[0] - 0.5;
-	con0[3] = 0.5 * con0[1] - 0.5;
+	con0[0] = (float)inputSize.x / (float)outputSize.x;
+	con0[1] = (float)inputSize.y / (float)outputSize.y;
+	con0[2] = 0.5f * con0[0] - 0.5f;
+	con0[3] = 0.5f * con0[1] - 0.5f;
 	// Viewport pixel position to normalized image space.
 	// This is used to get upper-left of 'F' tap.
 	con1[0] = inputPt.x;
@@ -255,15 +258,15 @@ void Pass1(uint2 blockStart, uint3 threadId) {
 	//      +--(3)--+
 	//      |   |   |
 	//      +---+---+
-	con1[2] = 1.0 * con1[0];
-	con1[3] = -1.0 * con1[1];
+	con1[2] = inputPt.x;
+	con1[3] = -inputPt.y;
 	// These are from (0) instead of 'F'.
-	con2[0] = -1.0 * con1[0];
-	con2[1] = 2.0 * con1[1];
-	con2[2] = 1.0 * con1[0];
-	con2[3] = 2.0 * con1[1];
-	con3[0] = 0.0 * con1[0];
-	con3[1] = 4.0 * con1[1];
+	con2[0] = -inputPt.x;
+	con2[1] = 2.0f * inputPt.y;
+	con2[2] = inputPt.x;
+	con2[3] = 2.0f * inputPt.y;
+	con3[0] = 0;
+	con3[1] = 4.0f * inputPt.y;
 
 	WriteToOutput(gxy, FsrEasuF(gxy, con0, con1, con2, con3));
 

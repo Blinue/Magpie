@@ -427,13 +427,26 @@ bool Renderer::_UpdateDynamicConstants() {
 		}
 		assert(pos && ci);
 
-		_dynamicConstants[0].intVal = pos->x - ci->hotSpot.x;
-		_dynamicConstants[1].intVal = pos->y - ci->hotSpot.y;
-		_dynamicConstants[2].intVal = _dynamicConstants[0].intVal + ci->size.cx;
-		_dynamicConstants[3].intVal = _dynamicConstants[1].intVal + ci->size.cy;
+		float cursorZoomFactor = App::Get().GetCursorZoomFactor();
+		if (cursorZoomFactor < 1e-5) {
+			SIZE srcFrameSize = Utils::GetSizeOfRect(App::Get().GetFrameSource().GetSrcFrameRect());
+			SIZE virtualOutputSize = Utils::GetSizeOfRect(_virtualOutputRect);
+			cursorZoomFactor = (((float)virtualOutputSize.cx / srcFrameSize.cx) 
+				+ ((float)virtualOutputSize.cy / srcFrameSize.cy)) / 2;
+		}
 
-		_dynamicConstants[4].floatVal = 1.0f / ci->size.cx;
-		_dynamicConstants[5].floatVal = 1.0f / ci->size.cy;
+		SIZE cursorSize = {
+			std::lroundf(ci->size.cx * cursorZoomFactor),
+			std::lroundf(ci->size.cy * cursorZoomFactor)
+		};
+
+		_dynamicConstants[0].intVal = pos->x - std::lroundf(ci->hotSpot.x * cursorZoomFactor);
+		_dynamicConstants[1].intVal = pos->y - std::lroundf(ci->hotSpot.y * cursorZoomFactor);
+		_dynamicConstants[2].intVal = _dynamicConstants[0].intVal + cursorSize.cx;
+		_dynamicConstants[3].intVal = _dynamicConstants[1].intVal + cursorSize.cy;
+
+		_dynamicConstants[4].floatVal = 1.0f / cursorSize.cx;
+		_dynamicConstants[5].floatVal = 1.0f / cursorSize.cy;
 
 		_dynamicConstants[6].uintVal = pos->x;
 		_dynamicConstants[7].uintVal = pos->y;
