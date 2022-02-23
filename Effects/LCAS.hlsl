@@ -25,7 +25,7 @@ SamplerState sam;
 float sharpness;
 
 //!CONSTANT
-//!DEFAULT 0.1
+//!DEFAULT 0.2
 //!MIN 0
 //!MAX 1
 float threshold;
@@ -45,7 +45,7 @@ float4 Pass1(float2 pos) {
 	float3 h = INPUT.Sample(sam, pos + float2(0, inputPtY)).rgb;
         
 	// Edge checker
-        float edge = length(abs(d - f) + abs(b - h)) / 2;
+        float edge = length(abs(d - f) + abs(b - h));
 	
 	// Soft min and max.
 	//    b
