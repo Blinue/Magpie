@@ -1007,8 +1007,12 @@ UINT ResolvePass(
 		}
 	}
 
-	if (isPSStyle && (processed[2] || processed[3])) {
-		return 1;
+	if (isPSStyle) {
+		if (processed[2] || processed[3]) {
+			return 1;
+		}
+		passDesc.blockSize.first = 16;
+		passDesc.blockSize.second = 16;
 	}
 
 	passHlsl.append(resHlsl);
@@ -1090,25 +1094,25 @@ void __WriteToOutput(uint2 pos, float3 color) {
 			if (lastPass) {
 				passHlsl.append(fmt::format(R"([numthreads(64, 1, 1)]
 void __M(uint3 tid : SV_GroupThreadID, uint3 gid : SV_GroupID) {{
-	uint2 gxy = Rmp8x8(tid.x) + gid.xy << 4u;
+	uint2 gxy = Rmp8x8(tid.x) + (gid.xy << 4u){0};
 	float2 pos = (gxy + 0.5f) * __outputPt;
 	float2 step = 8 * __outputPt;
 
-	WriteToOutput(gxy, Pass{0}(pos).rgb);
+	WriteToOutput(gxy, Pass{1}(pos).rgb);
 	gxy.x += 8u;
 	pos.x += step.x;
-	WriteToOutput(gxy, Pass{0}(pos).rgb);
+	WriteToOutput(gxy, Pass{1}(pos).rgb);
 	gxy.y += 8u;
 	pos.y += step.y;
-	WriteToOutput(gxy, Pass{0}(pos).rgb);
+	WriteToOutput(gxy, Pass{1}(pos).rgb);
 	gxy.x -= 8u;
 	pos.x -= step.x;
-	WriteToOutput(gxy, Pass{0}(pos).rgb);
-}})", passIndex));
+	WriteToOutput(gxy, Pass{1}(pos).rgb);
+}})", lastEffect ? " + __offset.xy" : "", passIndex));
 			} else {
 				passHlsl.append(fmt::format(R"([numthreads(64, 1, 1)]
 void __M(uint3 tid : SV_GroupThreadID, uint3 gid : SV_GroupID) {{
-	uint2 gxy = Rmp8x8(tid.x) + gid.xy << 4u;
+	uint2 gxy = Rmp8x8(tid.x) + (gid.xy << 4u);
 	float2 pos = (gxy + 0.5f) * __outputPt;
 	float2 step = 8 * __outputPt;
 
@@ -1132,7 +1136,7 @@ void __M(uint3 tid : SV_GroupThreadID, uint3 gid : SV_GroupID) {{
 
 			passHlsl.append(R"([numthreads(64, 1, 1)]
 void __M(uint3 tid : SV_GroupThreadID, uint3 gid : SV_GroupID) {
-	uint2 gxy = Rmp8x8(tid.x) + gid.xy << 4u;
+	uint2 gxy = Rmp8x8(tid.x) + (gid.xy << 4u);
 	float2 pos = (gxy + 0.5f) * __outputPt;
 	float2 step = 8 * __outputPt;
 
@@ -1165,15 +1169,15 @@ void __M(uint3 tid : SV_GroupThreadID, uint3 gid : SV_GroupID) {
 		// 大部分情况下 BLOCK_SIZE 都是 2 的整数次幂，这时将乘法转换为位移
 		std::string blockStartExpr;
 		if (passDesc.blockSize.first == passDesc.blockSize.second && std::has_single_bit(passDesc.blockSize.first)) {
-			UINT nShift = std::lroundf(std::log2f(passDesc.blockSize.first));
-			blockStartExpr = fmt::format("<< {}", nShift);
+			UINT nShift = std::lroundf(std::log2f((float)passDesc.blockSize.first));
+			blockStartExpr = fmt::format("(gid.xy << {})", nShift);
 		} else {
-			blockStartExpr = fmt::format("* uint2({}, {})", passDesc.blockSize.first, passDesc.blockSize.second);
+			blockStartExpr = fmt::format("gid.xy * uint2({}, {})", passDesc.blockSize.first, passDesc.blockSize.second);
 		}
 		
 		passHlsl.append(fmt::format(R"([numthreads({}, {}, {})]
 void __M(uint3 tid : SV_GroupThreadID, uint3 gid : SV_GroupID) {{
-	Pass{}(gid.xy {}{}, tid);
+	Pass{}({}{}, tid);
 }}
 )", numThreads[0], numThreads[1], numThreads[2], passIndex, blockStartExpr, lastEffect && lastPass ? " + __offset.xy" : ""));
 	}

@@ -2,26 +2,17 @@
 // 移植自 https://github.com/libretro/common-shaders/blob/master/bicubic/shaders/bicubic-normal.cg
 
 //!MAGPIE EFFECT
-//!VERSION 1
+//!VERSION 2
 
 
-//!CONSTANT
-//!VALUE INPUT_PT_X
-float inputPtX;
-
-//!CONSTANT
-//!VALUE INPUT_PT_Y
-float inputPtY;
-
-
-//!CONSTANT
+//!PARAMETER
 //!DEFAULT 0.333333
 //!MIN 0
 //!MAX 1
 
 float paramB;
 
-//!CONSTANT
+//!PARAMETER
 //!DEFAULT 0.333333
 //!MIN 0
 //!MAX 1
@@ -37,7 +28,8 @@ SamplerState sam;
 
 
 //!PASS 1
-//!BIND INPUT
+//!STYLE PS
+//!IN INPUT
 
 
 float weight(float x, float B, float C) {
@@ -66,15 +58,17 @@ float4 weight4(float x) {
 }
 
 float3 line_run(float ypos, float4 xpos, float4 linetaps) {
-	return INPUT.Sample(sam, float2(xpos.r, ypos)).rgb * linetaps.r
-		+ INPUT.Sample(sam, float2(xpos.g, ypos)).rgb * linetaps.g
-		+ INPUT.Sample(sam, float2(xpos.b, ypos)).rgb * linetaps.b
-		+ INPUT.Sample(sam, float2(xpos.a, ypos)).rgb * linetaps.a;
+	return INPUT.SampleLevel(sam, float2(xpos.r, ypos), 0).rgb * linetaps.r
+		+ INPUT.SampleLevel(sam, float2(xpos.g, ypos), 0).rgb * linetaps.g
+		+ INPUT.SampleLevel(sam, float2(xpos.b, ypos), 0).rgb * linetaps.b
+		+ INPUT.SampleLevel(sam, float2(xpos.a, ypos), 0).rgb * linetaps.a;
 }
 
 
 float4 Pass1(float2 pos) {
-	float2 f = frac(pos / float2(inputPtX, inputPtY) + 0.5);
+	float2 inputSize = GetInputSize();
+	float2 inputPt = GetInputPt();
+	float2 f = frac(pos * inputSize + 0.5);
 
 	float4 linetaps = weight4(1.0 - f.x);
 	float4 columntaps = weight4(1.0 - f.y);
@@ -84,14 +78,14 @@ float4 Pass1(float2 pos) {
 	columntaps /= columntaps.r + columntaps.g + columntaps.b + columntaps.a;
 
 	// !!!改变当前坐标
-	pos -= (f + 1) * float2(inputPtX, inputPtY);
+	pos -= (f + 1) * float2(inputPt.x, inputPt.y);
 
-	float4 xpos = float4(pos.x, pos.x + inputPtX, pos.x + 2 * inputPtX, pos.x + 3 * inputPtX);
+	float4 xpos = float4(pos.x, pos.x + inputPt.x, pos.x + 2 * inputPt.x, pos.x + 3 * inputPt.x);
 
 	// final sum and weight normalization
 	return float4(line_run(pos.y, xpos, linetaps) * columntaps.r
-		+ line_run(pos.y + inputPtY, xpos, linetaps) * columntaps.g
-		+ line_run(pos.y + 2 * inputPtY, xpos, linetaps) * columntaps.b
-		+ line_run(pos.y + 3 * inputPtY, xpos, linetaps) * columntaps.a,
+		+ line_run(pos.y + inputPt.y, xpos, linetaps) * columntaps.g
+		+ line_run(pos.y + 2 * inputPt.y, xpos, linetaps) * columntaps.b
+		+ line_run(pos.y + 3 * inputPt.y, xpos, linetaps) * columntaps.a,
 		1);
 }
