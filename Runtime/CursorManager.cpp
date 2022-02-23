@@ -9,14 +9,9 @@
 
 
 CursorManager::~CursorManager() {
-	if (!App::Get().IsBreakpointMode()) {
+	if (!App::Get().IsMultiMonitorMode()) {
 		// CursorDrawer 析构时计时器已销毁
 		ClipCursor(nullptr);
-		if (App::Get().IsAdjustCursorSpeed()) {
-			SystemParametersInfo(SPI_SETMOUSESPEED, 0, (PVOID)(intptr_t)_cursorSpeed, 0);
-		}
-
-		MagShowSystemCursor(TRUE);
 	}
 
 	if (_isUnderCapture) {
@@ -127,13 +122,12 @@ void CursorManager::OnBeginFrame() {
 		return;
 	}
 
-	if (App::Get().IsMultiMonitorMode()) {
-		// 多屏幕模式下不处于捕获状态则不绘制光标
-		if (!_isUnderCapture) {
-			_curCursor = NULL;
-			return;
-		}
-	} else if (!App::Get().IsBreakpointMode() && App::Get().IsConfineCursorIn3DGames()) {
+	if (!_isUnderCapture) {
+		_curCursor = NULL;
+		return;
+	}
+
+	if (!App::Get().IsBreakpointMode() && App::Get().IsConfineCursorIn3DGames()) {
 		// 开启“在 3D 游戏中限制光标”则每帧都限制一次光标
 		ClipCursor(&App::Get().GetFrameSource().GetSrcFrameRect());
 	}

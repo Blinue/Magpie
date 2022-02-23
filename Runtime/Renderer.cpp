@@ -166,25 +166,6 @@ bool CheckForeground(HWND hwndForeground) {
 		}
 	}
 
-	// 非多屏幕模式下退出全屏
-	if (!App::Get().IsMultiMonitorMode()) {
-		return false;
-	}
-
-	if (rectForground == RECT{}) {
-		if (!Utils::GetWindowFrameRect(hwndForeground, rectForground)) {
-			Logger::Get().Error("GetWindowFrameRect 失败");
-			return false;
-		}
-	}
-
-	IntersectRect(&rectForground, &App::Get().GetHostWndRect(), &rectForground);
-
-	// 允许稍微重叠，否则前台窗口最大化时会意外退出
-	if (rectForground.right - rectForground.left < 10 || rectForground.right - rectForground.top < 10) {
-		return true;
-	}
-
 	// 排除开始菜单，它的类名是 CoreWindow
 	if (std::wcscmp(className, L"Windows.UI.Core.CoreWindow")) {
 		// 记录新的前台窗口
@@ -219,6 +200,27 @@ bool CheckForeground(HWND hwndForeground) {
 	if (exeName == "searchapp.exe" || exeName == "searchhost.exe" || exeName == "startmenuexperiencehost.exe") {
 		return true;
 	}
+
+	// 非多屏幕模式下退出全屏
+	if (!App::Get().IsMultiMonitorMode()) {
+		return false;
+	}
+
+	if (rectForground == RECT{}) {
+		if (!Utils::GetWindowFrameRect(hwndForeground, rectForground)) {
+			Logger::Get().Error("GetWindowFrameRect 失败");
+			return false;
+		}
+	}
+
+	IntersectRect(&rectForground, &App::Get().GetHostWndRect(), &rectForground);
+
+	// 允许稍微重叠，否则前台窗口最大化时会意外退出
+	if (rectForground.right - rectForground.left < 10 || rectForground.right - rectForground.top < 10) {
+		return true;
+	}
+
+	
 
 	return false;
 }
