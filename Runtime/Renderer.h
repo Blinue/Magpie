@@ -6,7 +6,6 @@
 class EffectDrawer;
 class GPUTimer;
 class UIDrawer;
-class CursorManager;
 
 
 class Renderer {
@@ -25,9 +24,7 @@ public:
 		return *_gpuTimer;
 	}
 
-	CursorManager& GetCursorManager() noexcept {
-		return *_cursorManager;
-	}
+	
 
 	const RECT& GetOutputRect() const noexcept {
 		return _outputRect;
@@ -58,5 +55,4 @@ private:
 	std::unique_ptr<UIDrawer> _UIDrawer;
 
 	std::unique_ptr<GPUTimer> _gpuTimer;
-	std::unique_ptr<CursorManager> _cursorManager;
 };

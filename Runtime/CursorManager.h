@@ -12,7 +12,7 @@ public:
 
 	bool Initialize();
 
-	void BeginFrame();
+	void OnBeginFrame();
 
 	bool HasCursor() const {
 		return !!_curCursor;
@@ -43,6 +43,10 @@ public:
 		Monochrome
 	};
 	bool GetCursorTexture(ID3D11Texture2D** texture, CursorManager::CursorType& cursorType);
+
+	void StartCapture();
+
+	void StopCapture();
 
 private:
 	void _StartCapture(POINT cursorPt);

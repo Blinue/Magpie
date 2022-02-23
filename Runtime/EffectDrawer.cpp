@@ -380,7 +380,7 @@ void EffectDrawer::Draw() {
 			// 最后一个效果的最后一个通道负责渲染光标
 			
 			// 光标纹理
-			CursorManager& cm = App::Get().GetRenderer().GetCursorManager();
+			CursorManager& cm = App::Get().GetCursorManager();
 			if (cm.HasCursor()) {
 				ID3D11Texture2D* cursorTex;
 				CursorManager::CursorType ct;

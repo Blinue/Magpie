@@ -10,6 +10,7 @@
 #include "DeviceResources.h"
 #include "GPUTimer.h"
 #include "Logger.h"
+#include "CursorManager.h"
 
 
 const UINT WM_DESTORYHOST = RegisterWindowMessage(L"MAGPIE_WM_DESTORYHOST");
@@ -98,6 +99,12 @@ bool App::Run(
 		Logger::Get().Critical("初始化 Renderer 失败");
 		Quit();
 		_RunMessageLoop();
+		return false;
+	}
+
+	_cursorManager.reset(new CursorManager());
+	if (!_cursorManager->Initialize()) {
+		Logger::Get().Error("初始化 CursorManager 失败");
 		return false;
 	}
 
@@ -443,6 +450,7 @@ LRESULT App::_HostWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 void App::_OnQuit() {
 	// 释放资源
+	_cursorManager = nullptr;
 	_renderer = nullptr;
 	_frameSource = nullptr;
 	_deviceResources = nullptr;

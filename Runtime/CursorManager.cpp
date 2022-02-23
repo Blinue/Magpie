@@ -9,15 +9,7 @@
 
 
 CursorManager::~CursorManager() {
-	if (App::Get().IsMultiMonitorMode()) {
-		if (_isUnderCapture) {
-			POINT pt{};
-			if (!::GetCursorPos(&pt)) {
-				Logger::Get().Win32Error("GetCursorPos 失败");
-			}
-			_StopCapture(pt);
-		}
-	} else if (!App::Get().IsBreakpointMode()) {
+	if (!App::Get().IsBreakpointMode()) {
 		// CursorDrawer 析构时计时器已销毁
 		ClipCursor(nullptr);
 		if (App::Get().IsAdjustCursorSpeed()) {
@@ -25,6 +17,14 @@ CursorManager::~CursorManager() {
 		}
 
 		MagShowSystemCursor(TRUE);
+	}
+
+	if (_isUnderCapture) {
+		POINT pt{};
+		if (!::GetCursorPos(&pt)) {
+			Logger::Get().Win32Error("GetCursorPos 失败");
+		}
+		_StopCapture(pt);
 	}
 
 	Logger::Get().Info("CursorDrawer 已析构");
@@ -37,7 +37,7 @@ bool CursorManager::Initialize() {
 		if (!ClipCursor(&srcFrameRect)) {
 			Logger::Get().Win32Error("ClipCursor 失败");
 		}
-
+		/*
 		if (App::Get().IsAdjustCursorSpeed()) {
 			// 设置鼠标移动速度
 			if (SystemParametersInfo(SPI_GETMOUSESPEED, 0, &_cursorSpeed, 0)) {
@@ -59,43 +59,67 @@ bool CursorManager::Initialize() {
 
 		if (!MagShowSystemCursor(FALSE)) {
 			Logger::Get().Win32Error("MagShowSystemCursor 失败");
-		}
+		}*/
 	}
 
 	Logger::Get().Info("CursorManager 初始化完成");
 	return true;
 }
 
-void CursorManager::BeginFrame() {
+void CursorManager::OnBeginFrame() {
+	POINT cursorPos;
+	if (!::GetCursorPos(&cursorPos)) {
+		Logger::Get().Win32Error("GetCursorPos 失败");
+		return;
+	}
+
+	HWND hwndCurWin = WindowFromPoint(cursorPos);
+	HWND hwndSrc = App::Get().GetHwndSrc();
+
+	if (_isUnderCapture) {
+		const RECT& srcFrameRect = App::Get().GetFrameSource().GetSrcFrameRect();
+
+		if (hwndCurWin == hwndSrc) {
+			if (App::Get().IsMultiMonitorMode()) {
+				_DynamicClip(cursorPos);
+			}
+		} else {
+			_StopCapture(cursorPos);
+		}
+	} else {
+		if (hwndCurWin == hwndSrc) {
+			_StartCapture(cursorPos);
+			if (App::Get().IsMultiMonitorMode()) {
+				_DynamicClip(cursorPos);
+			} else {
+				const RECT& srcFrameRect = App::Get().GetFrameSource().GetSrcFrameRect();
+				if (!ClipCursor(&srcFrameRect)) {
+					Logger::Get().Win32Error("ClipCursor 失败");
+				}
+			}
+		}
+	}
+	/*
 	// 多屏幕模式下光标可以在屏幕间移动
 	if (App::Get().IsMultiMonitorMode()) {
 		// _DynamicClip 根据当前光标位置的四个方向有无屏幕来确定应该在哪些方向限制光标，但这无法
 		// 处理屏幕之间存在间隙的情况。解决办法是 _StopCapture 只在目标位置存在屏幕时才取消捕获，
 		// 当光标试图移动到间隙中时将被挡住。如果光标的速度足以跨越间隙，则它依然可以在屏幕间移动。
 
-		POINT cursorPt;
-		if (!::GetCursorPos(&cursorPt)) {
-			Logger::Get().Win32Error("GetCursorPos 失败");
-			return;
-		}
-
+		
+	} else {
+		HWND hwndCurWin = WindowFromPoint(cursorPos);
+		HWND hwndSrc = App::Get().GetHwndSrc();
 		if (_isUnderCapture) {
-			const RECT& srcFrameRect = App::Get().GetFrameSource().GetSrcFrameRect();
-
-			if (PtInRect(&srcFrameRect, cursorPt)) {
-				_DynamicClip(cursorPt);
-			} else {
-				_StopCapture(cursorPt);
+			if (hwndCurWin != hwndSrc) {
+				_StopCapture(cursorPos);
 			}
 		} else {
-			const RECT& hostRect = App::Get().GetHostWndRect();
-
-			if (PtInRect(&hostRect, cursorPt)) {
-				_StartCapture(cursorPt);
-				_DynamicClip(cursorPt);
+			if (hwndCurWin == hwndSrc) {
+				_StartCapture(cursorPos);
 			}
 		}
-	}
+	}*/
 
 	if (App::Get().IsNoCursor()) {
 		// 不绘制光标
@@ -180,7 +204,31 @@ bool CursorManager::GetCursorTexture(ID3D11Texture2D** texture, CursorManager::C
 	return true;
 }
 
+void CursorManager::StartCapture() {
+	POINT cursorPt;
+	if (!::GetCursorPos(&cursorPt)) {
+		Logger::Get().Win32Error("GetCursorPos 失败");
+		return;
+	}
+
+	_StartCapture(cursorPt);
+}
+
+void CursorManager::StopCapture() {
+	POINT cursorPt;
+	if (!::GetCursorPos(&cursorPt)) {
+		Logger::Get().Win32Error("GetCursorPos 失败");
+		return;
+	}
+
+	_StopCapture(cursorPt);
+}
+
 void CursorManager::_StartCapture(POINT cursorPt) {
+	if (_isUnderCapture) {
+		return;
+	}
+
 	// 在以下情况下进入捕获状态：
 	// 1. 当前未捕获
 	// 2. 光标进入全屏区域
@@ -239,6 +287,10 @@ void CursorManager::_StartCapture(POINT cursorPt) {
 }
 
 void CursorManager::_StopCapture(POINT cursorPt) {
+	if (!_isUnderCapture) {
+		return;
+	}
+
 	// 在以下情况下离开捕获状态：
 	// 1. 当前处于捕获状态
 	// 2. 光标离开源窗口客户区

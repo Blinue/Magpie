@@ -39,12 +39,6 @@ bool Renderer::Initialize(const std::string& effectsJson) {
 		return false;
 	}*/
 
-	_cursorManager.reset(new CursorManager());
-	if (!_cursorManager->Initialize()) {
-		Logger::Get().Error("初始化 CursorManager 失败");
-		return false;
-	}
-
 	// 初始化所有效果共用的动态常量缓冲区
 	D3D11_BUFFER_DESC bd{};
 	bd.Usage = D3D11_USAGE_DYNAMIC;
@@ -84,8 +78,8 @@ void Renderer::Render() {
 		return;
 	}
 
-	_gpuTimer->BeginFrame();
-	_cursorManager->BeginFrame();
+	_gpuTimer->OnBeginFrame();
+	App::Get().GetCursorManager().OnBeginFrame();
 
 	if (!_UpdateDynamicConstants()) {
 		Logger::Get().Error("_UpdateDynamicConstants 失败");
@@ -416,13 +410,15 @@ bool Renderer::_UpdateDynamicConstants() {
 	//     uint __frameCount;
 	// };
 
-	if (_cursorManager->HasCursor()) {
-		const POINT* pos = _cursorManager->GetCursorPos();
-		const CursorManager::CursorInfo* ci = _cursorManager->GetCursorInfo();
+	CursorManager& cm = App::Get().GetCursorManager();
+
+	if (cm.HasCursor()) {
+		const POINT* pos = cm.GetCursorPos();
+		const CursorManager::CursorInfo* ci = cm.GetCursorInfo();
 
 		ID3D11Texture2D* cursorTex;
 		CursorManager::CursorType cursorType = CursorManager::CursorType::Color;
-		if (!_cursorManager->GetCursorTexture(&cursorTex, cursorType)) {
+		if (!cm.GetCursorTexture(&cursorTex, cursorType)) {
 			Logger::Get().Error("GetCursorTexture 失败");
 		}
 		assert(pos && ci);

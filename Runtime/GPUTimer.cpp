@@ -23,7 +23,7 @@ void GPUTimer::ResetElapsedTime() {
 	m_qpcSecondCounter = 0;
 }
 
-void GPUTimer::BeginFrame() {
+void GPUTimer::OnBeginFrame() {
 	// Query the current time.
 	LARGE_INTEGER currentTime;
 
