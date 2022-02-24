@@ -68,6 +68,5 @@
     <CopyFileToFolders Include="LumaSharpen.hlsl" />
     <CopyFileToFolders Include="FineSharp.hlsl" />
     <CopyFileToFolders Include="LCAS.hlsl" />
-    <CopyFileToFolders Include="Anime4K_Upscale_S_L.hlsl" />
   </ItemGroup>
 </Project>
