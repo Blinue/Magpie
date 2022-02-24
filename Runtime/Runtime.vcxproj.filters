@@ -37,9 +37,6 @@
     <ClCompile Include="EffectCache.cpp">
       <Filter>渲染</Filter>
     </ClCompile>
-    <ClCompile Include="TextureLoader.cpp">
-      <Filter>渲染</Filter>
-    </ClCompile>
     <ClCompile Include="FrameSourceBase.cpp">
       <Filter>捕获</Filter>
     </ClCompile>
@@ -69,6 +66,9 @@
     </ClCompile>
     <ClCompile Include="EffectDrawer.cpp">
       <Filter>渲染</Filter>
+    </ClCompile>
+    <ClCompile Include="TextureLoader.cpp">
+      <Filter>渲染\TextureLodader</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -117,9 +117,6 @@
     <ClInclude Include="EffectCache.h">
       <Filter>渲染</Filter>
     </ClInclude>
-    <ClInclude Include="TextureLoader.h">
-      <Filter>渲染</Filter>
-    </ClInclude>
     <ClInclude Include="DesktopDuplicationFrameSource.h">
       <Filter>捕获</Filter>
     </ClInclude>
@@ -147,6 +144,15 @@
     <ClInclude Include="EffectDrawer.h">
       <Filter>渲染</Filter>
     </ClInclude>
+    <ClInclude Include="DDS.h">
+      <Filter>渲染\TextureLodader</Filter>
+    </ClInclude>
+    <ClInclude Include="DDSLoderHelpers.h">
+      <Filter>渲染\TextureLodader</Filter>
+    </ClInclude>
+    <ClInclude Include="TextureLoader.h">
+      <Filter>渲染\TextureLodader</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />
@@ -167,6 +173,9 @@
     </Filter>
     <Filter Include="渲染\ImGUI">
       <UniqueIdentifier>{ef35c9fa-9c8f-4e2d-ad82-8b4325837b1b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="渲染\TextureLodader">
+      <UniqueIdentifier>{b749971a-72bd-48bb-9e78-9ae7fc2438d7}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

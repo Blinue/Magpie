@@ -3,7 +3,6 @@
 #include "App.h"
 #include "Utils.h"
 #include "StrUtils.h"
-#include <VertexTypes.h>
 #include "EffectCompiler.h"
 #include <rapidjson/document.h>
 #include "FrameSourceBase.h"
