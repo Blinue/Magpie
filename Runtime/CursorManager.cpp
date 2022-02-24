@@ -26,12 +26,17 @@ CursorManager::~CursorManager() {
 }
 
 bool CursorManager::Initialize() {
-	if (!App::Get().IsMultiMonitorMode() && !App::Get().IsBreakpointMode()) {
+	POINT cursorPos;
+	if (!::GetCursorPos(&cursorPos)) {
+		Logger::Get().Win32Error("GetCursorPos 失败");
+		return false;
+	}
+
+	//if (!App::Get().IsMultiMonitorMode() && !App::Get().IsBreakpointMode()) {
+	//	_StartCapture(cursorPos);
+		
+
 		// 非多屏幕模式下，限制光标在窗口内
-		const RECT& srcFrameRect = App::Get().GetFrameSource().GetSrcFrameRect();
-		if (!ClipCursor(&srcFrameRect)) {
-			Logger::Get().Win32Error("ClipCursor 失败");
-		}
 		/*
 		if (App::Get().IsAdjustCursorSpeed()) {
 			// 设置鼠标移动速度
@@ -55,7 +60,7 @@ bool CursorManager::Initialize() {
 		if (!MagShowSystemCursor(FALSE)) {
 			Logger::Get().Win32Error("MagShowSystemCursor 失败");
 		}*/
-	}
+	//}
 
 	Logger::Get().Info("CursorManager 初始化完成");
 	return true;
@@ -68,30 +73,48 @@ void CursorManager::OnBeginFrame() {
 		return;
 	}
 
-	HWND hwndCurWin = WindowFromPoint(cursorPos);
-	HWND hwndSrc = App::Get().GetHwndSrc();
+	HWND hwndHost = App::Get().GetHwndHost();
+	const RECT& srcFrameRect = App::Get().GetFrameSource().GetSrcFrameRect();
+	const RECT& outputRect = App::Get().GetRenderer().GetOutputRect();
+	const RECT& virtualOutputRect = App::Get().GetRenderer().GetVirtualOutputRect();
+
+	SIZE outputSize = Utils::GetSizeOfRect(outputRect);
+
 
 	if (_isUnderCapture) {
-		const RECT& srcFrameRect = App::Get().GetFrameSource().GetSrcFrameRect();
+		POINT newCursorPt{};
+		double pos = double(cursorPos.x - srcFrameRect.left) / (srcFrameRect.right - srcFrameRect.left);
+		newCursorPt.x = std::lround(pos * (virtualOutputRect.right - virtualOutputRect.left)) + virtualOutputRect.left;
 
-		if (hwndCurWin == hwndSrc) {
-			if (App::Get().IsMultiMonitorMode()) {
-				_DynamicClip(cursorPos);
-			}
-		} else {
+		pos = double(cursorPos.y - srcFrameRect.top) / (srcFrameRect.bottom - srcFrameRect.top);
+		newCursorPt.y = std::lround(pos * (virtualOutputRect.bottom - virtualOutputRect.top)) + virtualOutputRect.top;
+
+		bool b = false;
+
+		LONG_PTR style = GetWindowLongPtr(hwndHost, GWL_EXSTYLE);
+		SetWindowLongPtr(hwndHost, GWL_EXSTYLE, style & ~WS_EX_TRANSPARENT);
+		HWND hwndCur = WindowFromPoint(newCursorPt);
+		if (hwndCur != hwndHost) {
+			b = true;
+		}
+		SetWindowLongPtr(hwndHost, GWL_EXSTYLE, style);
+
+		if (b) {
 			_StopCapture(cursorPos);
 		}
 	} else {
-		if (hwndCurWin == hwndSrc) {
+		bool b = false;
+
+		LONG_PTR style = GetWindowLongPtr(hwndHost, GWL_EXSTYLE);
+		SetWindowLongPtr(hwndHost, GWL_EXSTYLE, style & ~WS_EX_TRANSPARENT);
+		HWND hwndCur = WindowFromPoint(cursorPos);
+		if (hwndCur == hwndHost) {
+			b = true;
+		}
+		SetWindowLongPtr(hwndHost, GWL_EXSTYLE, style);
+
+		if (b) {
 			_StartCapture(cursorPos);
-			if (App::Get().IsMultiMonitorMode()) {
-				_DynamicClip(cursorPos);
-			} else {
-				const RECT& srcFrameRect = App::Get().GetFrameSource().GetSrcFrameRect();
-				if (!ClipCursor(&srcFrameRect)) {
-					Logger::Get().Win32Error("ClipCursor 失败");
-				}
-			}
 		}
 	}
 	/*
@@ -149,10 +172,6 @@ void CursorManager::OnBeginFrame() {
 		_curCursor = NULL;
 		return;
 	}
-
-	const RECT& srcFrameRect = App::Get().GetFrameSource().GetSrcFrameRect();
-	const RECT& outputRect = App::Get().GetRenderer().GetOutputRect();
-	const RECT& virtualOutputRect = App::Get().GetRenderer().GetVirtualOutputRect();
 
 	double pos = double(ci.ptScreenPos.x - srcFrameRect.left) / (srcFrameRect.right - srcFrameRect.left);
 	_curCursorPos.x = std::lround(pos * (virtualOutputRect.right - virtualOutputRect.left)) + virtualOutputRect.left;
@@ -277,12 +296,22 @@ void CursorManager::_StartCapture(POINT cursorPt) {
 
 	SetCursorPos(std::lround(posX), std::lround(posY));
 
+	if (!App::Get().IsMultiMonitorMode() && !App::Get().IsBreakpointMode()) {
+		if (!ClipCursor(&srcFrameRect)) {
+			Logger::Get().Win32Error("ClipCursor 失败");
+		}
+	}
+
 	_isUnderCapture = true;
 }
 
 void CursorManager::_StopCapture(POINT cursorPt) {
 	if (!_isUnderCapture) {
 		return;
+	}
+
+	if (!App::Get().IsMultiMonitorMode() && !App::Get().IsBreakpointMode()) {
+		ClipCursor(nullptr);
 	}
 
 	// 在以下情况下离开捕获状态：
