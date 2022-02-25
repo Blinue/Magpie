@@ -135,7 +135,7 @@ PS 风格下 OUT 指令可指定多个输出（DirectX 限制最多 8 个）：
 //!OUT tex1, tex2
 ```
 
-这时 Pass 函数有不同的签名：
+这时通道入口有不同的签名：
 ``` hlsl
 void Main(float2 pos, out float4 target1, out float4 target2);
 ```
