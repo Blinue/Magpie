@@ -19,7 +19,7 @@ Texture2D INPUT;
 SamplerState sam;
 
 //!CONSTANT
-//!DEFAULT 0.33
+//!DEFAULT 0.2
 //!MIN 0
 //!MAX 1
 float sharpness;
@@ -67,6 +67,6 @@ float4 Pass1(float2 pos) {
 	if(edge >= threshold)
 		return float4((((b + d + f + h) * wRGB + (e * 2 - (b + d + f + h) * 0.25)) / (1.0 + 4.0 * wRGB)).rgb, 1);
 	else
-		return float4((((b + d + f + h) * wRGB + e) / (1.0 + 4.0 * wRGB)).rgb, 1);
+		return float4((((b + d + f + h) * wRGB + (e * 3 - (b + d + f + h + e * 2) / 3)) / (1.0 + 4.0 * wRGB)).rgb, 1);
 	// If is not edge
 }
