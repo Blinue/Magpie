@@ -60,6 +60,8 @@ private:
 	bool _isUnderCapture = false;
 	std::array<bool, 4> _curClips{};
 
+	bool _isClickThrough = true;
+
 	INT _cursorSpeed = 0;
 
 	// 当前帧的光标，光标不可见则为 NULL

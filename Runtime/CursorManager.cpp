@@ -74,47 +74,118 @@ void CursorManager::OnBeginFrame() {
 	}
 
 	HWND hwndHost = App::Get().GetHwndHost();
+	const RECT& hostRect = App::Get().GetHostWndRect();
 	const RECT& srcFrameRect = App::Get().GetFrameSource().GetSrcFrameRect();
 	const RECT& outputRect = App::Get().GetRenderer().GetOutputRect();
 	const RECT& virtualOutputRect = App::Get().GetRenderer().GetVirtualOutputRect();
 
 	SIZE outputSize = Utils::GetSizeOfRect(outputRect);
-
+	SIZE srcFrameSize = Utils::GetSizeOfRect(srcFrameRect);
+	SIZE virtualOutputSize = Utils::GetSizeOfRect(virtualOutputRect);
 
 	if (_isUnderCapture) {
 		POINT newCursorPt{};
 		double pos = double(cursorPos.x - srcFrameRect.left) / (srcFrameRect.right - srcFrameRect.left);
-		newCursorPt.x = std::lround(pos * (virtualOutputRect.right - virtualOutputRect.left)) + virtualOutputRect.left;
+		newCursorPt.x = std::lround(pos * virtualOutputSize.cx) + virtualOutputRect.left;
 
 		pos = double(cursorPos.y - srcFrameRect.top) / (srcFrameRect.bottom - srcFrameRect.top);
-		newCursorPt.y = std::lround(pos * (virtualOutputRect.bottom - virtualOutputRect.top)) + virtualOutputRect.top;
-
-		bool b = false;
+		newCursorPt.y = std::lround(pos * virtualOutputSize.cy) + virtualOutputRect.top;
 
 		LONG_PTR style = GetWindowLongPtr(hwndHost, GWL_EXSTYLE);
-		SetWindowLongPtr(hwndHost, GWL_EXSTYLE, style & ~WS_EX_TRANSPARENT);
-		HWND hwndCur = WindowFromPoint(newCursorPt);
-		if (hwndCur != hwndHost) {
-			b = true;
-		}
-		SetWindowLongPtr(hwndHost, GWL_EXSTYLE, style);
 
-		if (b) {
-			_StopCapture(cursorPos);
+		if (_isClickThrough) {
+			SetWindowLongPtr(hwndHost, GWL_EXSTYLE, style & ~WS_EX_TRANSPARENT);
 		}
-	} else {
-		bool b = false;
 
-		LONG_PTR style = GetWindowLongPtr(hwndHost, GWL_EXSTYLE);
-		SetWindowLongPtr(hwndHost, GWL_EXSTYLE, style & ~WS_EX_TRANSPARENT);
 		HWND hwndCur = WindowFromPoint(cursorPos);
-		if (hwndCur == hwndHost) {
-			b = true;
-		}
-		SetWindowLongPtr(hwndHost, GWL_EXSTYLE, style);
 
-		if (b) {
-			_StartCapture(cursorPos);
+		if (_isClickThrough) {
+			SetWindowLongPtr(hwndHost, GWL_EXSTYLE, style | WS_EX_TRANSPARENT);
+		}
+
+		if (hwndCur != hwndHost) {
+			// 主窗口被遮挡
+			_StopCapture(cursorPos);
+			OutputDebugString(L"stop\n");
+		} else {
+			// 主窗口未被遮挡
+			if (!_isClickThrough) {
+				SetWindowLongPtr(hwndHost, GWL_EXSTYLE, style | WS_EX_TRANSPARENT);
+			}
+			hwndCur = WindowFromPoint(cursorPos);
+			if (!_isClickThrough) {
+				SetWindowLongPtr(hwndHost, GWL_EXSTYLE, style & ~WS_EX_TRANSPARENT);
+			}
+
+			if (hwndCur != App::Get().GetHwndSrc()) {
+				// 源窗口被遮挡
+				if (_isClickThrough) {
+					_isClickThrough = false;
+					SetWindowLongPtr(hwndHost, GWL_EXSTYLE, style & ~WS_EX_TRANSPARENT);
+				}
+			} else {
+				// 源窗口未被遮挡
+				if (!_isClickThrough) {
+					_isClickThrough = true;
+					SetWindowLongPtr(hwndHost, GWL_EXSTYLE, style | WS_EX_TRANSPARENT);
+				}
+			}
+		}
+		
+	} else {
+		LONG_PTR style = GetWindowLongPtr(hwndHost, GWL_EXSTYLE);
+
+		if (_isClickThrough) {
+			SetWindowLongPtr(hwndHost, GWL_EXSTYLE, style & ~WS_EX_TRANSPARENT);
+		}
+
+		HWND hwndCur = WindowFromPoint(cursorPos);
+
+		if (_isClickThrough) {
+			SetWindowLongPtr(hwndHost, GWL_EXSTYLE, style | WS_EX_TRANSPARENT);
+		}
+
+		if (hwndCur == hwndHost) {
+			// 主窗口未被遮挡
+			POINT newCursorPt{};
+			// 从全屏窗口映射到源窗口
+			double posX = double(cursorPos.x - hostRect.left - virtualOutputRect.left) / virtualOutputSize.cx;
+			double posY = double(cursorPos.y - hostRect.top - virtualOutputRect.top) / virtualOutputSize.cy;
+
+			newCursorPt.x = std::lround(posX * srcFrameSize.cx + srcFrameRect.left);
+			newCursorPt.y = std::lround(posY * srcFrameSize.cy + srcFrameRect.top);
+
+			if (!PtInRect(&srcFrameRect, newCursorPt)) {
+				if (_isClickThrough) {
+					_isClickThrough = false;
+					SetWindowLongPtr(hwndHost, GWL_EXSTYLE, style & ~WS_EX_TRANSPARENT);
+				}
+			} else {
+				if (!_isClickThrough) {
+					SetWindowLongPtr(hwndHost, GWL_EXSTYLE, style | WS_EX_TRANSPARENT);
+				}
+				hwndCur = WindowFromPoint(newCursorPt);
+				if (!_isClickThrough) {
+					SetWindowLongPtr(hwndHost, GWL_EXSTYLE, style & ~WS_EX_TRANSPARENT);
+				}
+
+				if (hwndCur == App::Get().GetHwndSrc()) {
+					// 源窗口未被遮挡
+					if (!_isClickThrough) {
+						_isClickThrough = true;
+						SetWindowLongPtr(hwndHost, GWL_EXSTYLE, style | WS_EX_TRANSPARENT);
+					}
+				} else {
+					// 源窗口被遮挡
+					if (_isClickThrough) {
+						_isClickThrough = false;
+						SetWindowLongPtr(hwndHost, GWL_EXSTYLE, style & ~WS_EX_TRANSPARENT);
+					}
+				}
+
+				_StartCapture(cursorPos);
+				OutputDebugString(L"start\n");
+			}
 		}
 	}
 	/*
