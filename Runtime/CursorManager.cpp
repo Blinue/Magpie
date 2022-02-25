@@ -74,6 +74,7 @@ void CursorManager::OnBeginFrame() {
 	}
 
 	HWND hwndHost = App::Get().GetHwndHost();
+	HWND hwndSrc = App::Get().GetHwndSrc();
 	const RECT& hostRect = App::Get().GetHostWndRect();
 	const RECT& srcFrameRect = App::Get().GetFrameSource().GetSrcFrameRect();
 	const RECT& outputRect = App::Get().GetRenderer().GetOutputRect();
@@ -117,7 +118,7 @@ void CursorManager::OnBeginFrame() {
 				SetWindowLongPtr(hwndHost, GWL_EXSTYLE, style & ~WS_EX_TRANSPARENT);
 			}
 
-			if (hwndCur != App::Get().GetHwndSrc()) {
+			if (hwndCur != hwndSrc && (!IsChild(hwndCur, hwndSrc) || !((GetWindowStyle(hwndCur) & WS_CHILD)))) {
 				// 源窗口被遮挡
 				if (_isClickThrough) {
 					_isClickThrough = false;
@@ -169,7 +170,7 @@ void CursorManager::OnBeginFrame() {
 					SetWindowLongPtr(hwndHost, GWL_EXSTYLE, style & ~WS_EX_TRANSPARENT);
 				}
 
-				if (hwndCur == App::Get().GetHwndSrc()) {
+				if (hwndCur == App::Get().GetHwndSrc() || ((IsChild(hwndCur, hwndSrc) && (GetWindowStyle(hwndCur) & WS_CHILD)))) {
 					// 源窗口未被遮挡
 					if (!_isClickThrough) {
 						_isClickThrough = true;
