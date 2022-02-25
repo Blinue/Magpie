@@ -7,46 +7,22 @@ MagpieFX 语法
 //!OUTPUT_HEIGHT INPUT_HEIGHT * 2
 
 // 如果不定义 OUTPUT_WIDTH 和 OUTPUT_HEIGHT 表示此 Effect 可以接受任何大小的输出
-
-// 计算表达式时有一些预定义常量
+// 计算纹理尺寸时可以使用一些预定义常量
 // INPUT_WIDTH
 // INPUT_HEIGHT
-// INPUT_PT_X
-// INPUT_PT_Y
 // OUTPUT_WIDTH
 // OUTPUT_HEIGHT
-// OUTPUT_PT_X
-// OUTPUT_PT_Y
-// SCALE_X
-// SCALE_Y
-// 含有 DYNAMIC 关键字的变量还可以使用下面的常量，不含 DYNAMIC 关键字则它们始终为 0
-// FRAME_COUNT：已呈现的总帧数
-// CURSOR_X 和 CURSOR_Y：光标位置，左上角为 0，右下角为 1
 
 
-// 变量定义
+// 参数定义
 // 含有 VALUE 关键字的变量会填充该表达式的值
 // 否则为在运行时可以改变的参数
-
-
-
-//!CONSTANT
-//!VALUE INPUT_WIDTH
-int inputWidth;
-
-//!CONSTANT
-//!VALUE INPUT_HEIGHT
-int inputHeight;
-
-//!CONSTANT
-//!DYNAMIC
-//!VALUE FRAME_COUNT
-int frameCount;
-
-//!CONSTANT
+//!PARAMETER
 //!DEFAULT 0
+// LABEL 可选，暂时不使用
 //!LABEL 锐度
 float sharpness;
+
 
 // 纹理定义
 // INPUT 是特殊关键字
@@ -94,12 +70,12 @@ SamplerState sam1;
 //!ADDRESS WRAP
 SamplerState sam2;
 
-// 所有 Pass 通用的部分
+// 所有通道通用的部分
 
 //!COMMON
 #define PI 3.14159265359
 
-// Pass 定义
+// 通道定义
 
 //!PASS 1
 // 可选 PS 风格，依然用 CS 实现
@@ -112,11 +88,12 @@ SamplerState sam2;
 float func1() {
 }
 
-float4 Pass1(float2 pos) {
+// Main 为通道入口点
+float4 Main(float2 pos) {
     return float4(1, 1, 1, 1);
 }
 
-// 没有 OUT 表示此 Pass 为 Effect 的输出
+// 没有 OUT 表示此通道为 Effect 的输出
 
 //!PASS 2
 //!STYLE CS
@@ -124,15 +101,34 @@ float4 Pass1(float2 pos) {
 //!BLOCK_SIZE 16, 16
 //!NUM_THREADS 64, 1, 1
 
-void Pass2(uint2 blockStart, uint3 threadId) {
+void Main(uint2 blockStart, uint3 threadId) {
     // 向 OUPUT 写入的同时处理视口和光标渲染
-    // 只在最后一个 Pass 中可用，且必须使用此函数写入到输出纹理
+    // 只在最后一个通道中可用，且必须使用此函数写入到输出纹理
     WriteToOutput(blockStart, float3(1,1,1));
 }
 ```
 
+### 内置函数
 
-**多渲染目标（MRT）**
+**void WriteToOutput(uint2 pos, float3 color)**：只在最后一个通道（Pass）中可用，用于将结果写入到输出纹理。
+
+**uint2 GetInputSize()**：获取输入纹理尺寸。
+
+**float2 GetInputPt()**：获取输入纹理每个像素的尺寸。
+
+**uint2 GetOutputSize()**：获取输出纹理尺寸。
+
+**float2 GetOutputPt()**：获取输出纹理每个像素的尺寸。
+
+**float2 GetScale()**：获取输出纹理相对于输入纹理的缩放。
+
+**uint GetFrameCount()**：获取当前总计帧数。
+
+**uint2 GetCursorPos()**：获取当前光标位置。
+
+**uint2 Rmp8x8(uint id)**：将 0~63 的值以 swizzle 顺序映射到 8x8 的正方形内的坐标，用以提高纹理缓存的命中率。
+
+### 多渲染目标（MRT）
 
 PS 风格下 OUT 指令可指定多个输出（DirectX 限制最多 8 个）：
 ``` hlsl
@@ -141,10 +137,10 @@ PS 风格下 OUT 指令可指定多个输出（DirectX 限制最多 8 个）：
 
 这时 Pass 函数有不同的签名：
 ``` hlsl
-void Pass[n](float2 pos, out float4 target1, out float4 target2);
+void Main(float2 pos, out float4 target1, out float4 target2);
 ```
 
-**从文件加载纹理**
+### 从文件加载纹理
 
 TEXTURE 指令可从文件加载纹理
 
