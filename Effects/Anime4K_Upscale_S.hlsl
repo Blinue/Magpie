@@ -51,7 +51,7 @@ float4 A4KS1(float3 src[4][4], uint i, uint j) {
 	return result;
 }
 
-void Pass1(uint2 blockStart, uint3 threadId) {
+void Main(uint2 blockStart, uint3 threadId) {
 	uint2 gxy = Rmp8x8(threadId.x) * 2 + blockStart;
 	float2 inputPt = GetInputPt();
 
@@ -73,7 +73,7 @@ void Pass1(uint2 blockStart, uint3 threadId) {
 			src[i + 1][j + 1] = float3(sr.y, sg.y, sb.y);
 		}
 	}
-
+	
 	tex1[gxy] = A4KS1(src, 0, 0);
 	++gxy.x;
 	tex1[gxy] = A4KS1(src, 1, 0);
@@ -118,7 +118,7 @@ float4 A4KS2(float4 src[4][4], uint i, uint j) {
 }
 
 
-void Pass2(uint2 blockStart, uint3 threadId) {
+void Main(uint2 blockStart, uint3 threadId) {
 	uint2 gxy = Rmp8x8(threadId.x) * 2 + blockStart;
 	float2 inputPt = GetInputPt();
 
@@ -184,7 +184,7 @@ float4 A4KS3(float4 src[4][4], uint i, uint j) {
 	return result;
 }
 
-void Pass3(uint2 blockStart, uint3 threadId) {
+void Main(uint2 blockStart, uint3 threadId) {
 	uint2 gxy = Rmp8x8(threadId.x) * 2 + blockStart;
 	float2 inputPt = GetInputPt();
 
@@ -267,7 +267,7 @@ float4 A4KS4(float2 pos) {
 	return result;
 }
 
-void Pass4(uint2 blockStart, uint3 threadId) {
+void Main(uint2 blockStart, uint3 threadId) {
 	uint2 gxy = Rmp8x8(threadId.x) * 2 + blockStart;
 	float2 inputPt = GetInputPt();
 	float2 outputPt = GetOutputPt();

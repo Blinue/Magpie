@@ -1094,21 +1094,21 @@ void __WriteToOutput(uint2 pos, float3 color) {
 			if (lastPass) {
 				passHlsl.append(fmt::format(R"([numthreads(64, 1, 1)]
 void __M(uint3 tid : SV_GroupThreadID, uint3 gid : SV_GroupID) {{
-	uint2 gxy = Rmp8x8(tid.x) + (gid.xy << 4u){0};
+	uint2 gxy = Rmp8x8(tid.x) + (gid.xy << 4u){};
 	float2 pos = (gxy + 0.5f) * __outputPt;
 	float2 step = 8 * __outputPt;
 
-	WriteToOutput(gxy, Pass{1}(pos).rgb);
+	WriteToOutput(gxy, Main(pos).rgb);
 	gxy.x += 8u;
 	pos.x += step.x;
-	WriteToOutput(gxy, Pass{1}(pos).rgb);
+	WriteToOutput(gxy, Main(pos).rgb);
 	gxy.y += 8u;
 	pos.y += step.y;
-	WriteToOutput(gxy, Pass{1}(pos).rgb);
+	WriteToOutput(gxy, Main(pos).rgb);
 	gxy.x -= 8u;
 	pos.x -= step.x;
-	WriteToOutput(gxy, Pass{1}(pos).rgb);
-}})", lastEffect ? " + __offset.xy" : "", passIndex));
+	WriteToOutput(gxy, Main(pos).rgb);
+}})", lastEffect ? " + __offset.xy" : ""));
 			} else {
 				passHlsl.append(fmt::format(R"([numthreads(64, 1, 1)]
 void __M(uint3 tid : SV_GroupThreadID, uint3 gid : SV_GroupID) {{
@@ -1116,17 +1116,17 @@ void __M(uint3 tid : SV_GroupThreadID, uint3 gid : SV_GroupID) {{
 	float2 pos = (gxy + 0.5f) * __outputPt;
 	float2 step = 8 * __outputPt;
 
-	{0}[gxy] = Pass{1}(pos);
+	{0}[gxy] = Main(pos);
 	gxy.x += 8u;
 	pos.x += step.x;
-	{0}[gxy] = Pass{1}(pos);
+	{0}[gxy] = Main(pos);
 	gxy.y += 8u;
 	pos.y += step.y;
-	{0}[gxy] = Pass{1}(pos);
+	{0}[gxy] = Main(pos);
 	gxy.x -= 8u;
 	pos.x -= step.x;
-	{0}[gxy] = Pass{1}(pos);
-}})", desc.textures[passDesc.outputs[0]].name, passIndex));
+	{0}[gxy] = Main(pos);
+}})", desc.textures[passDesc.outputs[0]].name));
 			}
 		} else {
 			// 多渲染目标
@@ -1145,7 +1145,7 @@ void __M(uint3 tid : SV_GroupThreadID, uint3 gid : SV_GroupID) {
 				passHlsl.append(fmt::format("\tfloat4 c{};\n", i));
 			}
 
-			std::string callPass = fmt::format("\tPass{}(pos, ", passIndex);
+			std::string callPass = "\tMain(pos, ";
 
 			for (int i = 0; i < passDesc.outputs.size() - 1; ++i) {
 				callPass.append(fmt::format("c{}, ", i));
@@ -1177,9 +1177,9 @@ void __M(uint3 tid : SV_GroupThreadID, uint3 gid : SV_GroupID) {
 		
 		passHlsl.append(fmt::format(R"([numthreads({}, {}, {})]
 void __M(uint3 tid : SV_GroupThreadID, uint3 gid : SV_GroupID) {{
-	Pass{}({}{}, tid);
+	Main({}{}, tid);
 }}
-)", numThreads[0], numThreads[1], numThreads[2], passIndex, blockStartExpr, lastEffect && lastPass ? " + __offset.xy" : ""));
+)", numThreads[0], numThreads[1], numThreads[2], blockStartExpr, lastEffect && lastPass ? " + __offset.xy" : ""));
 	}
 
 	return 0;

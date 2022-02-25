@@ -65,7 +65,7 @@ float3 line_run(float ypos, float4 xpos, float4 linetaps) {
 }
 
 
-float4 Pass1(float2 pos) {
+float4 Main(float2 pos) {
 	float2 inputSize = GetInputSize();
 	float2 inputPt = GetInputPt();
 	float2 f = frac(pos * inputSize + 0.5);

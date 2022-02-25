@@ -120,7 +120,7 @@ uint2 ARmp8x8(uint a) {
 }
 
 
-void Pass1(uint2 blockStart, uint3 threadId) {
+void Main(uint2 blockStart, uint3 threadId) {
 	uint2 gxy = blockStart + ARmp8x8(threadId.x);
 
 	WriteToOutput(gxy, FsrRcasF(gxy));
