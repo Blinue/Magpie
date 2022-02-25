@@ -1,5 +1,5 @@
-// Bicubic µÄÌØ»¯£¬µÈ¼ÛÓÚ paramB = 0, paramC = 0.5£¬ÎªËÙ¶ÈÓÅ»¯
-// ÒÆÖ²×Ô https://gist.github.com/TheRealMJP/c83b8c0f46b63f3a88a5986f4fa982b1
+// Bicubic çš„ç‰¹åŒ–ï¼Œç­‰ä»·äº paramB = 0, paramC = 0.5ï¼Œä¸ºé€Ÿåº¦ä¼˜åŒ–
+// ç§»æ¤è‡ª https://gist.github.com/TheRealMJP/c83b8c0f46b63f3a88a5986f4fa982b1
 
 
 //!MAGPIE EFFECT

@@ -68,5 +68,6 @@
     <CopyFileToFolders Include="LumaSharpen.hlsl" />
     <CopyFileToFolders Include="FineSharp.hlsl" />
     <CopyFileToFolders Include="LCAS.hlsl" />
+    <CopyFileToFolders Include="CatmullRom.hlsl" />
   </ItemGroup>
 </Project>
