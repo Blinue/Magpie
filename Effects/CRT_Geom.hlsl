@@ -24,121 +24,100 @@
 */
 
 //!MAGPIE EFFECT
-//!VERSION 1
+//!VERSION 2
 
 
-//!CONSTANT
-//!VALUE INPUT_WIDTH
-float inputWidth;
-
-//!CONSTANT
-//!VALUE INPUT_HEIGHT
-float inputHeight;
-
-//!CONSTANT
-//!VALUE OUTPUT_WIDTH
-float outputWidth;
-
-//!CONSTANT
-//!VALUE 1 / SCALE_Y
-float rcpScaleY;
-
-//!CONSTANT
-//!DYNAMIC
-//!VALUE FRAME_COUNT
-int frameCount;
-
-//!CONSTANT
+//!PARAMETER
 //!DEFAULT 2.4
 //!MIN 0.1
 //!MAX 5
 float CRTGamma;
 
-//!CONSTANT
+//!PARAMETER
 //!DEFAULT 2.2
 //!MIN 0.1
 //!MAX 5
 float monitorGamma;
 
-//!CONSTANT
+//!PARAMETER
 //!DEFAULT 1.5
 //!MIN 0.1
 //!MAX 3.0
 float distance;
 
-//!CONSTANT
+//!PARAMETER
 //!DEFAULT 1
 //!MIN 0
 //!MAX 1
 int curvature;
 
-//!CONSTANT
+//!PARAMETER
 //!DEFAULT 2
 //!MIN 0.1
 //!MAX 10
 float radius;
 
-//!CONSTANT
+//!PARAMETER
 //!DEFAULT 0.03
 //!MIN 0.001
 //!MAX 1.0
 float cornerSize;
 
-//!CONSTANT
+//!PARAMETER
 //!DEFAULT 1000
 //!MIN 80
 //!MAX 2000
 int cornerSmooth;
 
-//!CONSTANT
+//!PARAMETER
 //!DEFAULT 0
 //!MIN -0.5
 //!MAX 0.5
 float xTilt;
 
-//!CONSTANT
+//!PARAMETER
 //!DEFAULT 0
 //!MIN -0.5
 //!MAX 0.5
 float yTilt;
 
-//!CONSTANT
+//!PARAMETER
 //!DEFAULT 100
 //!MIN -125
 //!MAX 125
 int overScanX;
 
-//!CONSTANT
+//!PARAMETER
 //!DEFAULT 100
 //!MIN -125
 //!MAX 125
 int overScanY;
 
-//!CONSTANT
+//!PARAMETER
 //!DEFAULT 0.3
 //!MIN 0
 //!MAX 0.3
 float dotMask;
 
-//!CONSTANT
+//!PARAMETER
 //!DEFAULT 1
 //!MIN 1
 //!MAX 3
 int sharper;
 
-//!CONSTANT
+//!PARAMETER
 //!DEFAULT 0.3
 //!MIN 0.1
 //!MAX 0.5
 float scanlineWeight;
 
-//!CONSTANT
+//!PARAMETER
 //!DEFAULT 0
 //!MIN 0
 //!MAX 1
 float lum;
 
-//!CONSTANT
+//!PARAMETER
 //!DEFAULT 1
 //!MIN 0
 //!MAX 1
@@ -154,7 +133,8 @@ SamplerState sam;
 
 
 //!PASS 1
-//!BIND INPUT
+//!STYLE PS
+//!IN INPUT
 
 // Use the older, purely gaussian beam profile; uncomment for speed
 // #define USEGAUSSIAN
@@ -163,7 +143,7 @@ SamplerState sam;
 #define FIX(c) max(abs(c), 1e-5)
 #define PI 3.141592653589
 
-#define TEX2D(c) pow(INPUT.Sample(sam, (c)), CRTGamma)
+#define TEX2D(c) pow(INPUT.SampleLevel(sam, (c), 0), CRTGamma)
 
 
 // aspect ratio
@@ -241,13 +221,17 @@ float4 scanlineWeights(float distance1, float4 color) {
 #endif
 }
 
-float4 Pass1(float2 pos) {
+float4 Main(uint2 pos) {
+	const float2 ppos = (pos + 0.5f) * GetOutputPt();
+	const uint2 outputSize = GetOutputSize();
+	const uint2 inputSize = GetInputSize();
+
 	float4 sin_cos_angle = { sin(float2(xTilt, yTilt)), cos(float2(xTilt, yTilt)) };
 	float3 stretch = maxscale(sin_cos_angle);
-	float2 TextureSize = float2(sharper * inputWidth, inputHeight);
+	float2 TextureSize = float2(sharper * inputSize.x, inputSize.y);
 	// Resulting X pixel-coordinate of the pixel we're drawing.
-	float mod_factor = pos.x * outputWidth;
-	float2 ilfac = { 1.0, clamp(floor(inputHeight / (200.0 * (-4 * interlace + 5))), 1.0, 2.0)};
+	float mod_factor = ppos.x * outputSize.x;
+	float2 ilfac = { 1.0, clamp(floor(inputSize.y / (200.0 * (-4 * interlace + 5))), 1.0, 2.0)};
 	float2 one = ilfac / TextureSize;
 
 	// Here's a helpful diagram to keep in mind while trying to
@@ -274,11 +258,11 @@ float4 Pass1(float2 pos) {
 	// Texture coordinates of the texel containing the active pixel.
 	float2 xy = 0.0;
 	if (curvature > 0) {
-		float2 cd = pos;
+		float2 cd = ppos;
 		cd = (cd - 0.5) * aspect * stretch.z + stretch.xy;
 		xy = bkwtrans(cd, sin_cos_angle) / float2(overScanX / 100.0, overScanY / 100.0) / aspect + float2(0.5, 0.5);
 	} else {
-		xy = pos;
+		xy = ppos;
 	}
 
 	float2 cd2 = xy;
@@ -291,11 +275,11 @@ float4 Pass1(float2 pos) {
 
 	// Of all the pixels that are mapped onto the texel we are
 	// currently rendering, which pixel are we currently rendering?
-	float2 ilfloat = float2(0.0, ilfac.y > 1.5 ? fmod(frameCount, 2.0) : 0.0);
+	float2 ilfloat = float2(0.0, ilfac.y > 1.5 ? fmod(GetFrameCount(), 2.0) : 0.0);
 
 	float2 ratio_scale = (xy * TextureSize - 0.5 + ilfloat) / ilfac;
 
-	float filter = rcpScaleY;
+	float filter = rcp(GetScale().y);
 	float2 uv_ratio = frac(ratio_scale);
 
 	// Snap to the center of the underlying texel.
