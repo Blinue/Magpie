@@ -211,6 +211,14 @@ void Main(uint2 blockStart, uint3 threadId) {
 	for (int k = int(threadIdx); k < NIS_BLOCK_WIDTH * NIS_BLOCK_HEIGHT; k += NIS_THREAD_GROUP_SIZE) {
 		const int2 pos = int2(uint(k) % uint(NIS_BLOCK_WIDTH), uint(k) / uint(NIS_BLOCK_WIDTH));
 
+		// do bilinear tap and correct rgb texel so it produces new sharpened luma
+		const int dstX = dstBlockX + pos.x;
+		const int dstY = dstBlockY + pos.y;
+
+		if (!CheckViewport(int2(dstX, dstY))) {
+			continue;
+		}
+
 		// load 5x5 support to regs
 		float p[5][5];
 		[unroll]
@@ -229,10 +237,6 @@ void Main(uint2 blockStart, uint3 threadId) {
 
 		// final USM is a weighted sum filter outputs
 		const float usmY = (dirUSM.x * w.x + dirUSM.y * w.y + dirUSM.z * w.z + dirUSM.w * w.w);
-
-		// do bilinear tap and correct rgb texel so it produces new sharpened luma
-		const int dstX = dstBlockX + pos.x;
-		const int dstY = dstBlockY + pos.y;
 
 		float3 op = INPUT.SampleLevel(samplerLinearClamp, float2((dstX + 0.5f) * kSrcNormX, (dstY + 0.5f) * kSrcNormY), 0).rgb;
 		op += usmY;
