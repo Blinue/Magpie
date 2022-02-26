@@ -46,33 +46,42 @@ bool EffectDrawer::Initialize(
 	SIZE outputSize{};
 
 	if (desc.outSizeExpr.first.empty()) {
-		outputSize = hostSize;
+		if (params.scale.has_value()) {
+			outputSize = hostSize;
 
-		// scale 属性
-		// [+, +]：缩放比例
-		// [0, 0]：非等比例缩放到屏幕大小
-		// [-, -]：相对于屏幕能容纳的最大等比缩放的比例
+			// scale 属性
+			// [+, +]：缩放比例
+			// [0, 0]：非等比例缩放到屏幕大小
+			// [-, -]：相对于屏幕能容纳的最大等比缩放的比例
 
-		static float DELTA = 1e-5f;
+			static float DELTA = 1e-5f;
 
-		float scaleX = params.scale.first;
-		float scaleY = params.scale.second;
+			float scaleX = params.scale.value().first;
+			float scaleY = params.scale.value().second;
 
-		float fillScale = std::min(float(outputSize.cx) / inputSize.cx, float(outputSize.cy) / inputSize.cy);
+			float fillScale = std::min(float(outputSize.cx) / inputSize.cx, float(outputSize.cy) / inputSize.cy);
 
-		if (scaleX >= DELTA) {
-			outputSize.cx = std::lroundf(inputSize.cx * scaleX);
-		} else if (scaleX < -DELTA) {
-			outputSize.cx = std::lroundf(inputSize.cx * fillScale * -scaleX);
-		}
+			if (scaleX >= DELTA) {
+				outputSize.cx = std::lroundf(inputSize.cx * scaleX);
+			} else if (scaleX < -DELTA) {
+				outputSize.cx = std::lroundf(inputSize.cx * fillScale * -scaleX);
+			}
 
-		if (scaleY >= DELTA) {
-			outputSize.cy = std::lroundf(inputSize.cy * scaleY);
-		} else if (scaleY < -DELTA) {
-			outputSize.cy = std::lroundf(inputSize.cy * fillScale * -scaleY);
+			if (scaleY >= DELTA) {
+				outputSize.cy = std::lroundf(inputSize.cy * scaleY);
+			} else if (scaleY < -DELTA) {
+				outputSize.cy = std::lroundf(inputSize.cy * fillScale * -scaleY);
+			}
+		} else {
+			outputSize = inputSize;
 		}
 	} else {
 		assert(!desc.outSizeExpr.second.empty());
+
+		if (params.scale.has_value()) {
+			Logger::Get().Error("无法指定缩放");
+			return false;
+		}
 
 		try {
 			exprParser.SetExpr(desc.outSizeExpr.first);
@@ -103,7 +112,7 @@ bool EffectDrawer::Initialize(
 	//     float2 __inputPt;
 	//     float2 __outputPt;
 	//     float2 __scale;
-	//     uint2 __viewport;
+	//     int2 __viewport;
 	//     [uint4 __offset;]
 	//     [PARAMETERS...]
 	// );
@@ -137,16 +146,16 @@ bool EffectDrawer::Initialize(
 
 		_constants[12].intVal = -std::min(0L, virtualOutputRect1.left);
 		_constants[13].intVal = -std::min(0L, virtualOutputRect1.top);
-		_constants[10].uintVal = outputRect1.right - outputRect1.left + _constants[12].intVal;
-		_constants[11].uintVal = outputRect1.bottom - outputRect1.top + _constants[13].intVal;
+		_constants[10].intVal = outputRect1.right - outputRect1.left + _constants[12].intVal;
+		_constants[11].intVal = outputRect1.bottom - outputRect1.top + _constants[13].intVal;
 		_constants[14].intVal = outputRect1.left - _constants[12].intVal;
 		_constants[15].intVal = outputRect1.top - _constants[13].intVal;
 	} else {
 		outputRect1 = RECT{ 0, 0, outputSize.cx, outputSize.cy };
 		virtualOutputRect1 = outputRect1;
 
-		_constants[10].uintVal = outputSize.cx;
-		_constants[11].uintVal = outputSize.cy;
+		_constants[10].intVal = outputSize.cx;
+		_constants[11].intVal = outputSize.cy;
 	}
 
 	if (outputRect) {

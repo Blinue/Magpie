@@ -1044,7 +1044,7 @@ UINT ResolvePass(
 	}
 
 	if (lastPass) {
-		passHlsl.append("bool CheckViewport(uint2 pos) { return pos.x < __viewport.x && pos.y < __viewport.y; }\n");
+		passHlsl.append("bool CheckViewport(int2 pos) { return pos.x < __viewport.x && pos.y < __viewport.y; }\n");
 
 		if (lastEffect) {
 			passHlsl.append(R"(
@@ -1098,25 +1098,27 @@ void __M(uint3 tid : SV_GroupThreadID, uint3 gid : SV_GroupID) {{
 	float2 pos = (gxy + 0.5f) * __outputPt;
 	float2 step = 8 * __outputPt;
 	
-	if (CheckViewport(pos)) {{
-		WriteToOutput(gxy, Main(pos).rgb);
+	if (!CheckViewport(gxy)) {{
+		return;
 	}};
+
+	WriteToOutput(gxy, Main(pos).rgb);
 
 	gxy.x += 8u;
 	pos.x += step.x;
-	if (CheckViewport(pos)) {{
+	if (CheckViewport(gxy)) {{
 		WriteToOutput(gxy, Main(pos).rgb);
 	}};
 
 	gxy.y += 8u;
 	pos.y += step.y;
-	if (CheckViewport(pos)) {{
+	if (CheckViewport(gxy)) {{
 		WriteToOutput(gxy, Main(pos).rgb);
 	}};
 
 	gxy.x -= 8u;
 	pos.x -= step.x;
-	if (CheckViewport(pos)) {{
+	if (CheckViewport(gxy)) {{
 		WriteToOutput(gxy, Main(pos).rgb);
 	}};
 }})", lastEffect ? " + __offset.xy" : ""));
@@ -1214,7 +1216,7 @@ cbuffer __CB2 : register(b1) {
 	float2 __inputPt;
 	float2 __outputPt;
 	float2 __scale;
-	uint2 __viewport;
+	int2 __viewport;
 )");
 
 	if (lastEffect) {

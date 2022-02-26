@@ -431,6 +431,9 @@ void Main(uint2 blockStart, uint3 threadId) {
 	for (int k = 0; k < NIS_BLOCK_WIDTH * NIS_BLOCK_HEIGHT / NIS_THREAD_GROUP_SIZE; ++k) {
 		// y coord inside the output image
 		const int dstY = dstBlockY + pos.y + k * (NIS_THREAD_GROUP_SIZE / NIS_BLOCK_WIDTH);
+		if (!CheckViewport(int2(dstX, dstY))) {
+			return;
+		}
 		// y coord inside the input image
 		const float srcY = (0.5f + dstY) * kScaleY - 0.5f;
 

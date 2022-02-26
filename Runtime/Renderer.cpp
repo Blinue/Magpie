@@ -347,8 +347,7 @@ bool Renderer::_ResolveEffectsJson(const std::string& effectsJson) {
 						return false;
 					}
 
-					effectParams.scale.first = scale[0].GetFloat();
-					effectParams.scale.second = scale[1].GetFloat();
+					effectParams.scale = std::make_pair(scale[0].GetFloat(), scale[1].GetFloat());
 				}
 			} else {
 				auto it = std::find_if(

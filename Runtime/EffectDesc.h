@@ -109,6 +109,6 @@ union EffectConstant32 {
 };
 
 struct EffectParams{
-	std::pair<float, float> scale;
+	std::optional<std::pair<float, float>> scale;
 	std::map<UINT, EffectConstant32> params;
 };

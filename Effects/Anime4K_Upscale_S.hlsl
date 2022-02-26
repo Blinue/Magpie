@@ -269,6 +269,11 @@ float4 A4KS4(float2 pos) {
 
 void Main(uint2 blockStart, uint3 threadId) {
 	uint2 gxy = Rmp8x8(threadId.x) * 2 + blockStart;
+
+	if (!CheckViewport(gxy)) {
+		return;
+	}
+
 	float2 inputPt = GetInputPt();
 	float2 outputPt = GetOutputPt();
 
@@ -280,13 +285,19 @@ void Main(uint2 blockStart, uint3 threadId) {
 	
 	gxy.x += 1u;
 	pos.x += outputPt.x;
-	WriteToOutput(gxy, c.y + INPUT.SampleLevel(sam1, pos, 0).rgb);
+	if (CheckViewport(gxy)) {
+		WriteToOutput(gxy, c.y + INPUT.SampleLevel(sam1, pos, 0).rgb);
+	}
 	
 	gxy.y += 1u;
 	pos.y += outputPt.y;
-	WriteToOutput(gxy, c.w + INPUT.SampleLevel(sam1, pos, 0).rgb);
+	if (CheckViewport(gxy)) {
+		WriteToOutput(gxy, c.w + INPUT.SampleLevel(sam1, pos, 0).rgb);
+	}
 	
 	gxy.x -= 1u;
 	pos.x -= outputPt.x;
-	WriteToOutput(gxy, c.z + INPUT.SampleLevel(sam1, pos, 0).rgb);
+	if (CheckViewport(gxy)) {
+		WriteToOutput(gxy, c.z + INPUT.SampleLevel(sam1, pos, 0).rgb);
+	}
 }
