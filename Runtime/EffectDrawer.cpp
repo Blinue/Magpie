@@ -95,7 +95,7 @@ bool EffectDrawer::Initialize(
 	exprParser.DefineConst("OUTPUT_HEIGHT", outputSize.cy);
 
 	// 大小必须为 4 的倍数
-	size_t builtinConstantCount = _isLastEffect ? 16 : 10 ;
+	size_t builtinConstantCount = _isLastEffect ? 16 : 12 ;
 	_constants.resize((builtinConstantCount + desc.params.size() + 3) / 4 * 4);
 	// cbuffer __CB2 : register(b1) {
 	//     uint2 __inputSize;
@@ -103,7 +103,7 @@ bool EffectDrawer::Initialize(
 	//     float2 __inputPt;
 	//     float2 __outputPt;
 	//     float2 __scale;
-	//     [uint2 __viewport;]
+	//     uint2 __viewport;
 	//     [uint4 __offset;]
 	//     [PARAMETERS...]
 	// );
@@ -144,6 +144,9 @@ bool EffectDrawer::Initialize(
 	} else {
 		outputRect1 = RECT{ 0, 0, outputSize.cx, outputSize.cy };
 		virtualOutputRect1 = outputRect1;
+
+		_constants[10].uintVal = outputSize.cx;
+		_constants[11].uintVal = outputSize.cy;
 	}
 
 	if (outputRect) {

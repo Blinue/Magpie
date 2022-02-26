@@ -268,14 +268,22 @@ void Main(uint2 blockStart, uint3 threadId) {
 	con3[0] = 0;
 	con3[1] = 4.0f * inputPt.y;
 
-	WriteToOutput(gxy, FsrEasuF(gxy, con0, con1, con2, con3));
+	if (CheckViewport(gxy)) {
+		WriteToOutput(gxy, FsrEasuF(gxy, con0, con1, con2, con3));
+	}
 
 	gxy.x += 8u;
-	WriteToOutput(gxy, FsrEasuF(gxy, con0, con1, con2, con3));
+	if (CheckViewport(gxy)) {
+		WriteToOutput(gxy, FsrEasuF(gxy, con0, con1, con2, con3));
+	}
 
 	gxy.y += 8u;
-	WriteToOutput(gxy, FsrEasuF(gxy, con0, con1, con2, con3));
+	if (CheckViewport(gxy)) {
+		WriteToOutput(gxy, FsrEasuF(gxy, con0, con1, con2, con3));
+	}
 
 	gxy.x -= 8u;
-	WriteToOutput(gxy, FsrEasuF(gxy, con0, con1, con2, con3));
+	if (CheckViewport(gxy)) {
+		WriteToOutput(gxy, FsrEasuF(gxy, con0, con1, con2, con3));
+	}
 }

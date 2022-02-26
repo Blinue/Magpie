@@ -1044,9 +1044,11 @@ UINT ResolvePass(
 	}
 
 	if (lastPass) {
+		passHlsl.append("bool CheckViewport(uint2 pos) { return pos.x < __viewport.x && pos.y < __viewport.y; }\n");
+
 		if (lastEffect) {
 			passHlsl.append(R"(
-void __WriteToOutput(uint2 pos, float3 color) {
+void WriteToOutput(uint2 pos, float3 color) {
 	pos += __offset.zw;
 	if ((int)pos.x >= __cursorRect.x && (int)pos.y >= __cursorRect.y && (int)pos.x < __cursorRect.z && (int)pos.y < __cursorRect.w) {
 		float4 mask = __CURSOR.SampleLevel(__CURSOR_SAMPLER, (pos - __cursorRect.xy + 0.5f) * __cursorPt, 0);
@@ -1074,8 +1076,6 @@ void __WriteToOutput(uint2 pos, float3 color) {
 	}
 	__OUTPUT[pos] = float4(color, 1);
 }
-
-#define WriteToOutput(pos, color) if (pos.x < __viewport.x && pos.y < __viewport.y) __WriteToOutput(pos, color)
 )");
 		} else {
 			passHlsl.append("#define WriteToOutput(pos,color) __OUTPUT[pos] = float4(color, 1)\n");
@@ -1097,17 +1097,28 @@ void __M(uint3 tid : SV_GroupThreadID, uint3 gid : SV_GroupID) {{
 	uint2 gxy = Rmp8x8(tid.x) + (gid.xy << 4u){};
 	float2 pos = (gxy + 0.5f) * __outputPt;
 	float2 step = 8 * __outputPt;
+	
+	if (CheckViewport(pos)) {{
+		WriteToOutput(gxy, Main(pos).rgb);
+	}};
 
-	WriteToOutput(gxy, Main(pos).rgb);
 	gxy.x += 8u;
 	pos.x += step.x;
-	WriteToOutput(gxy, Main(pos).rgb);
+	if (CheckViewport(pos)) {{
+		WriteToOutput(gxy, Main(pos).rgb);
+	}};
+
 	gxy.y += 8u;
 	pos.y += step.y;
-	WriteToOutput(gxy, Main(pos).rgb);
+	if (CheckViewport(pos)) {{
+		WriteToOutput(gxy, Main(pos).rgb);
+	}};
+
 	gxy.x -= 8u;
 	pos.x -= step.x;
-	WriteToOutput(gxy, Main(pos).rgb);
+	if (CheckViewport(pos)) {{
+		WriteToOutput(gxy, Main(pos).rgb);
+	}};
 }})", lastEffect ? " + __offset.xy" : ""));
 			} else {
 				passHlsl.append(fmt::format(R"([numthreads(64, 1, 1)]
@@ -1203,10 +1214,11 @@ cbuffer __CB2 : register(b1) {
 	float2 __inputPt;
 	float2 __outputPt;
 	float2 __scale;
+	uint2 __viewport;
 )");
 
 	if (lastEffect) {
-		resHlsl.append("\tuint2 __viewport;\n\tint4 __offset;\n");
+		resHlsl.append("\tint4 __offset;\n");
 	}
 
 	if (!desc.params.empty()) {

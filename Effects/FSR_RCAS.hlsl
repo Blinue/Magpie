@@ -107,30 +107,25 @@ float3 FsrRcasF(uint2 pos) {
 	return c;
 }
 
-uint ABfe(uint src, uint off, uint bits) {
-	uint mask = (1u << bits) - 1;
-	return (src >> off) & mask;
-}
-uint ABfiM(uint src, uint ins, uint bits) {
-	uint mask = (1u << bits) - 1;
-	return (ins & mask) | (src & (~mask));
-}
-uint2 ARmp8x8(uint a) {
-	return uint2(ABfe(a, 1u, 3u), ABfiM(ABfe(a, 3u, 3u), a, 1u));
-}
-
-
 void Main(uint2 blockStart, uint3 threadId) {
-	uint2 gxy = blockStart + ARmp8x8(threadId.x);
+	uint2 gxy = blockStart + Rmp8x8(threadId.x);
 
-	WriteToOutput(gxy, FsrRcasF(gxy));
+	if (CheckViewport(gxy)) {
+		WriteToOutput(gxy, FsrRcasF(gxy));
+	}
 
 	gxy.x += 8u;
-	WriteToOutput(gxy, FsrRcasF(gxy));
+	if (CheckViewport(gxy)) {
+		WriteToOutput(gxy, FsrRcasF(gxy));
+	}
 
 	gxy.y += 8u;
-	WriteToOutput(gxy, FsrRcasF(gxy));
+	if (CheckViewport(gxy)) {
+		WriteToOutput(gxy, FsrRcasF(gxy));
+	}
 
 	gxy.x -= 8u;
-	WriteToOutput(gxy, FsrRcasF(gxy));
+	if (CheckViewport(gxy)) {
+		WriteToOutput(gxy, FsrRcasF(gxy));
+	}
 }
