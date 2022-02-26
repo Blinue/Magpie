@@ -43,8 +43,6 @@ float4 Pass1(float2 pos) {
 	float3 e = INPUT.Sample(sam, pos).rgb;
 	float3 f = INPUT.Sample(sam, pos + float2(inputPtX, 0)).rgb;
 	float3 h = INPUT.Sample(sam, pos + float2(0, inputPtY)).rgb;
-        
-	e = (b + d + f + h) * 0.05 + e * 0.8;
 	
 	// Edge checker
         float edge = length(abs(d - f) + abs(b - h));
@@ -57,6 +55,8 @@ float4 Pass1(float2 pos) {
 	float3 mnRGB = min(min(min(d, e), min(f, b)), h);
 
 	float3 mxRGB = max(max(max(d, e), max(f, b)), h);
+	
+	e = clamp(e, mnRGB, mxRGB);
 
 	// Shaping amount of sharpening.
 	float3 wRGB = sqrt(min(mnRGB, 1.0 - mxRGB) / mxRGB) * lerp(- 0.125, - 0.2, sharpness);
