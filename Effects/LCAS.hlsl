@@ -44,6 +44,8 @@ float4 Pass1(float2 pos) {
 	float3 f = INPUT.Sample(sam, pos + float2(inputPtX, 0)).rgb;
 	float3 h = INPUT.Sample(sam, pos + float2(0, inputPtY)).rgb;
         
+	e = (b + d + f + h) * 0.05 + e * 0.8;
+	
 	// Edge checker
         float edge = length(abs(d - f) + abs(b - h));
 	
