@@ -48,8 +48,8 @@ float sharpness;
 #define kSharpLimitScale (kSharpLimitMax - kSharpLimitMin)
 #define LimitScale ((sharpen_slider >= 0.0f) ? 1.25f : 1.0f)
 #define kSupportSize 5
-#define kNumPixelsX  (NIS_BLOCK_WIDTH + kSupportSize + 1)
-#define kNumPixelsY  (NIS_BLOCK_HEIGHT + kSupportSize + 1)
+#define kNumPixelsX  (NIS_BLOCK_WIDTH + kSupportSize - 1)
+#define kNumPixelsY  (NIS_BLOCK_HEIGHT + kSupportSize - 1)
 
 #define NIS_BLOCK_WIDTH 32
 #define NIS_BLOCK_HEIGHT 32
