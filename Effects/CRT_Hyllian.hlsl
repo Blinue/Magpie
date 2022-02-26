@@ -28,98 +28,82 @@
 */
 
 //!MAGPIE EFFECT
-//!VERSION 1
+//!VERSION 2
 
 
-//!CONSTANT
-//!VALUE INPUT_WIDTH
-float inputWidth;
-
-//!CONSTANT
-//!VALUE INPUT_HEIGHT
-float inputHeight;
-
-//!CONSTANT
-//!VALUE OUTPUT_WIDTH
-float outputWidth;
-
-//!CONSTANT
-//!VALUE OUTPUT_HEIGHT
-float outputHeight;
-
-//!CONSTANT
+//!PARAMETER
 //!DEFAULT 1
 //!MIN 0
 //!MAX 1
 int phosphor;
 
-//!CONSTANT
+//!PARAMETER
 //!DEFAULT 0
 //!MIN 0
 //!MAX 1
 int vScanlines;
 
-//!CONSTANT
+//!PARAMETER
 //!DEFAULT 2.5
 //!MIN 0
 //!MAX 5
 float inputGamma;
 
-//!CONSTANT
+//!PARAMETER
 //!DEFAULT 2.2
 //!MIN 0
 //!MAX 5
 float outputGamma;
 
-//!CONSTANT
+//!PARAMETER
 //!DEFAULT 1
 //!MIN 1
 //!MAX 5
 int sharpness;
 
-//!CONSTANT
+//!PARAMETER
 //!DEFAULT 1.5
 //!MIN 1
 //!MAX 2
 float colorBoost;
 
-//!CONSTANT
+//!PARAMETER
 //!DEFAULT 1
 //!MIN 1
 //!MAX 2
 float redBoost;
 
-//!CONSTANT
+//!PARAMETER
 //!DEFAULT 1
 //!MIN 1
 //!MAX 2
 float greenBoost;
 
-//!CONSTANT
+//!PARAMETER
 //!DEFAULT 1
 //!MIN 1
 //!MAX 2
 float blueBoost;
 
-//!CONSTANT
+//!PARAMETER
 //!DEFAULT 0.5
 //!MIN 0
 //!MAX 1
 float scanlinesStrength;
 
-//!CONSTANT
+//!PARAMETER
 //!DEFAULT 0.86
 //!MIN 0
 //!MAX 1
 float beamMinWidth;
 
-//!CONSTANT
+//!PARAMETER
 //!DEFAULT 1
 //!MIN 0
 //!MAX 1
 float beamMaxWidth;
 
-//!CONSTANT
+//!PARAMETER
 //!DEFAULT 0.8
 //!MIN 0
 //!MAX 1
@@ -134,7 +118,8 @@ SamplerState sam;
 
 
 //!PASS 1
-//!BIND INPUT
+//!STYLE PS
+//!IN INPUT
 
 #define GAMMA_IN(color)     pow(color, float3(inputGamma, inputGamma, inputGamma))
 #define GAMMA_OUT(color)    pow(color, float3(1.0 / outputGamma, 1.0 / outputGamma, 1.0 / outputGamma))
@@ -163,28 +148,31 @@ const static float4x4 invX = float4x4((-B - 6.0 * C) / 6.0, (3.0 * B + 12.0 * C)
     -(12.0 - 9.0 * B - 6.0 * C) / 6.0, (18.0 - 15.0 * B - 12.0 * C) / 6.0, (3.0 * B + 6.0 * C) / 6.0, B / 6.0,
     (B + 6.0 * C) / 6.0, -C, 0.0, 0.0);
 
-float4 Pass1(float2 pos) {
+float4 Main(uint2 pos) {
+    uint2 inputSize = GetInputSize();
+    uint2 outputSize = GetOutputSize();
+    float2 ppos = (pos + 0.5f) * GetOutputPt();
     float3 color;
 
-    float2 TextureSize = float2(sharpness * inputWidth, inputHeight);
+    float2 TextureSize = float2(sharpness * inputSize.x, inputSize.y);
 
     float2 dx = lerp(float2(1.0 / TextureSize.x, 0.0), float2(0.0, 1.0 / TextureSize.y), vScanlines);
     float2 dy = lerp(float2(0.0, 1.0 / TextureSize.y), float2(1.0 / TextureSize.x, 0.0), vScanlines);
 
-    float2 pix_coord = pos * TextureSize + float2(-0.5, 0.5);
+    float2 pix_coord = ppos * TextureSize + float2(-0.5, 0.5);
 
     float2 tc = lerp((floor(pix_coord) + float2(0.5, 0.5)) / TextureSize, (floor(pix_coord) + float2(1.0, -0.5)) / TextureSize, vScanlines);
 
     float2 fp = lerp(frac(pix_coord), frac(pix_coord.yx), vScanlines);
 
-    float3 c00 = GAMMA_IN(INPUT.Sample(sam, tc - dx - dy).xyz);
-    float3 c01 = GAMMA_IN(INPUT.Sample(sam, tc - dy).xyz);
-    float3 c02 = GAMMA_IN(INPUT.Sample(sam, tc + dx - dy).xyz);
-    float3 c03 = GAMMA_IN(INPUT.Sample(sam, tc + 2.0 * dx - dy).xyz);
-    float3 c10 = GAMMA_IN(INPUT.Sample(sam, tc - dx).xyz);
-    float3 c11 = GAMMA_IN(INPUT.Sample(sam, tc).xyz);
-    float3 c12 = GAMMA_IN(INPUT.Sample(sam, tc + dx).xyz);
-    float3 c13 = GAMMA_IN(INPUT.Sample(sam, tc + 2.0 * dx).xyz);
+    float3 c00 = GAMMA_IN(INPUT.SampleLevel(sam, tc - dx - dy, 0).xyz);
+    float3 c01 = GAMMA_IN(INPUT.SampleLevel(sam, tc - dy, 0).xyz);
+    float3 c02 = GAMMA_IN(INPUT.SampleLevel(sam, tc + dx - dy, 0).xyz);
+    float3 c03 = GAMMA_IN(INPUT.SampleLevel(sam, tc + 2.0 * dx - dy, 0).xyz);
+    float3 c10 = GAMMA_IN(INPUT.SampleLevel(sam, tc - dx, 0).xyz);
+    float3 c11 = GAMMA_IN(INPUT.SampleLevel(sam, tc, 0).xyz);
+    float3 c12 = GAMMA_IN(INPUT.SampleLevel(sam, tc + dx, 0).xyz);
+    float3 c13 = GAMMA_IN(INPUT.SampleLevel(sam, tc + 2.0 * dx, 0).xyz);
 
     //  Get min/max samples
     float3 min_sample = min(min(c01, c11), min(c02, c12));
@@ -221,7 +209,7 @@ float4 Pass1(float2 pos) {
 
     color *= colorBoost * float3(redBoost, greenBoost, blueBoost);
 
-    float mod_factor = lerp(pos.x * outputWidth, pos.y * outputHeight, vScanlines);
+    float mod_factor = lerp(ppos.x * outputSize.x, ppos.y * outputSize.y, vScanlines);
 
     float3 dotMaskWeights = lerp(
         float3(1.0, 0.7, 1.0),
