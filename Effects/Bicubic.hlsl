@@ -48,7 +48,6 @@ float4 weight4(float x) {
 	float B = paramB;
 	float C = paramC;
 
-
 	return float4(
 		weight(x - 2.0, B, C),
 		weight(x - 1.0, B, C),

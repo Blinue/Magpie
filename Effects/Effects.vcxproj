@@ -146,9 +146,6 @@
     <CopyFileToFolders Include="Bicubic.hlsl">
       <FileType>Document</FileType>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="Bicubic_Lite.hlsl">
-      <FileType>Document</FileType>
-    </CopyFileToFolders>
     <CopyFileToFolders Include="CAS.hlsl">
       <FileType>Document</FileType>
     </CopyFileToFolders>

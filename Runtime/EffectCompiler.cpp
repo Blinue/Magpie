@@ -449,6 +449,8 @@ UINT ResolveParameter(std::string_view block, EffectDesc& desc) {
 			paramDesc.maxValue = value;
 		}
 	} else if (token == "int") {
+		paramDesc.type = EffectConstantType::Int;
+
 		if (!defaultValue.empty()) {
 			paramDesc.defaultValue = 0;
 			if (GetNextNumber(defaultValue, std::get<int>(paramDesc.defaultValue))) {
