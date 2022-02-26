@@ -55,8 +55,6 @@ float4 Pass1(float2 pos) {
 	float3 mnRGB = min(min(min(d, e), min(f, b)), h);
 
 	float3 mxRGB = max(max(max(d, e), max(f, b)), h);
-	
-	e = clamp(e, mnRGB, mxRGB);
 
 	// Shaping amount of sharpening.
 	float3 wRGB = sqrt(min(mnRGB, 1.0 - mxRGB) / mxRGB) * lerp(- 0.125, - 0.2, sharpness);
@@ -66,9 +64,15 @@ float4 Pass1(float2 pos) {
 	//  w 1 w
 	//    w   
 	// If is edge
-	if(edge >= threshold)
-		return float4((((b + d + f + h) * wRGB + (e * 2 - (b + d + f + h) * 0.25)) / (1.0 + 4.0 * wRGB)).rgb, 1);
-	else
-		return float4((((b + d + f + h) * wRGB + (e * 3 - (b + d + f + h + e * 2) / 3)) / (1.0 + 4.0 * wRGB)).rgb, 1);
+	if (edge >= threshold) {
+		float3 c = ((b + d + f + h) * wRGB + (e * 2 - (b + d + f + h) * 0.25)) / (1.0 + 4.0 * wRGB);
+		float3 t = clamp(c, mnRGB, mxRGB);
+		return float4(((c + t) / 2).rgb, 1);
+	}
+	else {
+		float3 c = ((b + d + f + h) * wRGB + (e * 3 - (b + d + f + h + e * 2) / 3)) / (1.0 + 4.0 * wRGB);
+		float3 t = clamp(c, mnRGB, mxRGB);
+		return float4(((c + t ) / 2).rgb, 1);
+	}
 	// If is not edge
 }
