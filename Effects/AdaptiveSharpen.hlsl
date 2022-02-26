@@ -1,26 +1,19 @@
 // 自适应锐化算法
-// 移植自 https://github.com/bacondither/Adaptive-sharpen/tree/master/shaders
+// 移植自 https://github.com/libretro/slang-shaders/blob/master/sharpen/shaders/adaptive-sharpen.slang
 // 
-// Adaptive sharpen - version 2018-04-14 - (requires ps >= 3.0)
-// Tuned for use post-resize, EXPECTS FULL RANGE GAMMA LIGHT
+// Adaptive sharpen - version 2015-05-15 - (requires ps >= 3.0)
+// Tuned for use post resize, EXPECTS FULL RANGE GAMMA LIGHT
 
 
 //!MAGPIE EFFECT
-//!VERSION 1
+//!VERSION 2
 //!OUTPUT_WIDTH INPUT_WIDTH
 //!OUTPUT_HEIGHT INPUT_HEIGHT
 
 
-//!CONSTANT
-//!VALUE INPUT_PT_X
-float inputPtX;
 
-//!CONSTANT
-//!VALUE INPUT_PT_Y
-float inputPtY;
-
-//!CONSTANT
-//!DEFAULT 1.0
+//!PARAMETER
+//!DEFAULT 0.8
 //!MIN 1e-5
 
 // Main control of sharpening strength [>0]
@@ -30,130 +23,39 @@ float curveHeight;
 //!TEXTURE
 Texture2D INPUT;
 
-//!TEXTURE
-//!WIDTH OUTPUT_WIDTH
-//!HEIGHT OUTPUT_HEIGHT
-//!FORMAT R16G16B16A16_FLOAT
-Texture2D tex1;
-
 //!SAMPLER
 //!FILTER POINT
 SamplerState sam;
 
 
 //!PASS 1
-//!BIND INPUT
-//!SAVE tex1
-
-//---------------------------------------------------------------------------------
-#define a_offset 2.0         // Edge channel offset, MUST BE THE SAME IN ALL PASSES
-//---------------------------------------------------------------------------------
-
-// Get destination pixel values
-#define get(x,y)    (INPUT.Sample(sam, float2(inputPtX, inputPtY)*float2(x, y) + pos).rgb)
-
-// Component-wise distance
-#define b_diff(pix) ( abs(blur - c[pix]) )
+//!STYLE PS
+//!IN INPUT
 
 
-float4 Pass1(float2 pos) {
-	// Get points and clip out of range values (BTB & WTW)
-	// [                c9                ]
-	// [           c1,  c2,  c3           ]
-	// [      c10, c4,  c0,  c5, c11      ]
-	// [           c6,  c7,  c8           ]
-	// [                c12               ]
-	float3 c[13] = { get(0, 0), get(-1,-1), get(0,-1), get(1,-1), get(-1, 0),
-					 get(1, 0), get(-1, 1), get(0, 1), get(1, 1), get(0,-2),
-					 get(-2, 0), get(2, 0), get(0, 2) };
+#define curve_height    curveHeight         // Main sharpening strength, POSITIVE VALUE ONLY!
+											 // 0.3 <-> 1.5 is a reasonable range of values
 
-	// Blur, gauss 3x3
-	float3 blur = (2 * (c[2] + c[4] + c[5] + c[7]) + (c[1] + c[3] + c[6] + c[8]) + 4 * c[0]) / 16;
 
-	// Contrast compression, center = 0.5, scaled to 1/3
-	float c_comp = saturate(4.0 / 15.0 + 0.9 * exp2(dot(blur, -37.0 / 15.0)));
-
-	// Edge detection
-	// Relative matrix weights
-	// [          1          ]
-	// [      4,  5,  4      ]
-	// [  1,  5,  6,  5,  1  ]
-	// [      4,  5,  4      ]
-	// [          1          ]
-	float edge = length(1.38 * (b_diff(0))
-		+ 1.15 * (b_diff(2) + b_diff(4) + b_diff(5) + b_diff(7))
-		+ 0.92 * (b_diff(1) + b_diff(3) + b_diff(6) + b_diff(8))
-		+ 0.23 * (b_diff(9) + b_diff(10) + b_diff(11) + b_diff(12)));
-
-	return float4(c[0], edge * c_comp + a_offset);
-}
-
-//!PASS 2
-//!BIND tex1
-
-//--------------------------------------- Settings ------------------------------------------------              
-
-#define video_level_out false                // True to preserve BTB & WTW (minor summation error)
-											 // Normally it should be set to false
-
-//-------------------------------------------------------------------------------------------------
 // Defined values under this row are "optimal" DO NOT CHANGE IF YOU DO NOT KNOW WHAT YOU ARE DOING!
 
-#define curveslope      0.5                  // Sharpening curve slope, high edge values
+#define curveslope      (curve_height*1.5)   // Sharpening curve slope, edge region
+#define D_overshoot     0.016                // Max dark overshoot before max compression
+#define D_comp_ratio    0.250                // Max compression ratio, dark overshoot (1/0.25=4x)
+#define L_overshoot     0.004                // Max light overshoot before max compression
+#define L_comp_ratio    0.167                // Max compression ratio, light overshoot (1/0.167=6x)
+#define max_scale_lim   10.0                 // Abs change before max compression (1/10=±10%)
 
-#define L_overshoot     0.003                // Max light overshoot before compression [>0.001]
-#define L_compr_low     0.167                // Light compression, default (0.167=~6x)
-#define L_compr_high    0.334                // Light compression, surrounded by edges (0.334=~3x)
+// Colour to greyscale, fast approx gamma
+float CtG(float3 RGB) { return  sqrt((1.0 / 3.0) * ((RGB * RGB).r + (RGB * RGB).g + (RGB * RGB).b)); }
 
-#define D_overshoot     0.009                // Max dark overshoot before compression [>0.001]
-#define D_compr_low     0.250                // Dark compression, default (0.250=4x)
-#define D_compr_high    0.500                // Dark compression, surrounded by edges (0.500=2x)
 
-#define scale_lim       0.1                  // Abs max change before compression [>0.01]
-#define scale_cs        0.056                // Compression slope above scale_lim
+float4 Main(float2 pos) {
+	float2 inputPt = GetInputPt();
+	float	px = inputPt.x;
+	float	py = inputPt.y;
 
-#define dW_lothr        0.3                  // Start interpolating between W1 and W2
-#define dW_hithr        0.8                  // When dW is equal to W2
-
-#define lowthr_mxw      0.1                  // Edge value for max lowthr weight [>0.01]
-
-#define pm_p            0.7                  // Power mean p-value [>0-1.0]
-
-#define alpha_out       1.0                  // MPDN requires the alpha channel output to be 1.0
-
-//-------------------------------------------------------------------------------------------------
-#define a_offset        2.0                  // Edge channel offset, MUST BE THE SAME IN ALL PASSES
-//-------------------------------------------------------------------------------------------------
-
-// Soft if, fast linear approx
-#define soft_if(a,b,c) ( saturate((a + b + c - 3*a_offset + 0.056)/(abs(maxedge) + 0.03) - 0.85) )
-
-// Soft limit, modified tanh
-#define soft_lim(v,s)  ( (exp(2*min(abs(v), s*24)/s) - 1)/(exp(2*min(abs(v), s*24)/s) + 1)*s )
-
-// Weighted power mean
-#define wpmean(a,b,w)  ( pow(w*pow(abs(a), pm_p) + abs(1-w)*pow(abs(b), pm_p), (1.0/pm_p)) )
-
-// Get destination pixel values
-#define get(x,y)       (tex1.Sample(sam, float2(inputPtX, inputPtY)*float2(x, y) + pos))
-#define sat(var)       ( float4(saturate((var).rgb), (var).a) )
-
-// Maximum of four values
-#define max4(a,b,c,d)  ( max(max(a, b), max(c, d)) )
-
-// Colour to luma, fast approx gamma, avg of rec. 709 & 601 luma coeffs
-#define CtL(RGB)       ( sqrt(dot(float3(0.2558, 0.6511, 0.0931), saturate((RGB)*abs(RGB)).rgb)) )
-
-// Center pixel diff
-#define mdiff(a,b,c,d,e,f,g) ( abs(luma[g] - luma[a]) + abs(luma[g] - luma[b])       \
-                             + abs(luma[g] - luma[c]) + abs(luma[g] - luma[d])       \
-                             + 0.5*(abs(luma[g] - luma[e]) + abs(luma[g] - luma[f])) )
-
-float4 Pass2(float2 pos) {
-	float4 orig = get(0, 0);
-	float c_edge = orig.a - a_offset;
-
-	// Get points, clip out of range colour data in c[0]
+	// Get points and saturate out of range values (BTB & WTW)
 	// [                c22               ]
 	// [           c24, c9,  c23          ]
 	// [      c21, c1,  c2,  c3, c18      ]
@@ -161,133 +63,130 @@ float4 Pass2(float2 pos) {
 	// [      c20, c6,  c7,  c8, c17      ]
 	// [           c15, c12, c14          ]
 	// [                c13               ]
-	float4 c[25] = { sat(orig), get(-1,-1), get(0,-1), get(1,-1), get(-1, 0),
-					 get(1, 0), get(-1, 1), get(0, 1), get(1, 1), get(0,-2),
-					 get(-2, 0), get(2, 0), get(0, 2), get(0, 3), get(1, 2),
-					 get(-1, 2), get(3, 0), get(2, 1), get(2,-1), get(-3, 0),
-					 get(-2, 1), get(-2,-1), get(0,-3), get(1,-2), get(-1,-2) };
+	float3	 c19 = INPUT.SampleLevel(sam, pos + float2(-3 * px, 0), 0).rgb;
+	float3	 c21 = INPUT.SampleLevel(sam, pos + float2(-2 * px, -py), 0).rgb;
+	float3	 c10 = INPUT.SampleLevel(sam, pos + float2(-2 * px, 0), 0).rgb;
+	float3	 c20 = INPUT.SampleLevel(sam, pos + float2(-2 * px, py), 0).rgb;
+	float3	 c24 = INPUT.SampleLevel(sam, pos + float2(-px, -2 * py), 0).rgb;
+	float3	 c1 = INPUT.SampleLevel(sam, pos + float2(-px, -py), 0).rgb;
+	float3	 c4 = INPUT.SampleLevel(sam, pos + float2(-px, 0), 0).rgb;
+	float3	 c6 = INPUT.SampleLevel(sam, pos + float2(-px, py), 0).rgb;
+	float3	 c15 = INPUT.SampleLevel(sam, pos + float2(-px, 2 * py), 0).rgb;
+	float3	 c22 = INPUT.SampleLevel(sam, pos + float2(0, -3 * py), 0).rgb;
+	float3	 c9 = INPUT.SampleLevel(sam, pos + float2(0, -2 * py), 0).rgb;
+	float3	 c2 = INPUT.SampleLevel(sam, pos + float2(0, -py), 0).rgb;
+	float3	 c0 = INPUT.SampleLevel(sam, pos, 0).rgb;
+	float3	 c7 = INPUT.SampleLevel(sam, pos + float2(0, py), 0).rgb;
+	float3	 c12 = INPUT.SampleLevel(sam, pos + float2(0, 2 * py), 0).rgb;
+	float3	 c13 = INPUT.SampleLevel(sam, pos + float2(0, 3 * py), 0).rgb;
+	float3	 c23 = INPUT.SampleLevel(sam, pos + float2(px, -2 * py), 0).rgb;
+	float3	 c3 = INPUT.SampleLevel(sam, pos + float2(px, -py), 0).rgb;
+	float3	 c5 = INPUT.SampleLevel(sam, pos + float2(px, 0), 0).rgb;
+	float3	 c8 = INPUT.SampleLevel(sam, pos + float2(px, py), 0).rgb;
+	float3	 c14 = INPUT.SampleLevel(sam, pos + float2(px, 2 * py), 0).rgb;
+	float3	 c18 = INPUT.SampleLevel(sam, pos + float2(2 * px, -py), 0).rgb;
+	float3	 c11 = INPUT.SampleLevel(sam, pos + float2(2 * px, 0), 0).rgb;
+	float3	 c17 = INPUT.SampleLevel(sam, pos + float2(2 * px, py), 0).rgb;
+	float3	 c16 = INPUT.SampleLevel(sam, pos + float2(3 * px, 0), 0).rgb;
 
-	// Allow for higher overshoot if the current edge pixel is surrounded by similar edge pixels
-	float maxedge = max4(max4(c[1].a, c[2].a, c[3].a, c[4].a), max4(c[5].a, c[6].a, c[7].a, c[8].a),
-		max4(c[9].a, c[10].a, c[11].a, c[12].a), c[0].a) - a_offset;
+	// Blur, gauss 3x3
+	float3	blur = (2 * (c2 + c4 + c5 + c7) + (c1 + c3 + c6 + c8) + 4 * c0) / 16;
+	float	blur_Y = (blur.r * (1.0 / 3.0) + blur.g * (1.0 / 3.0) + blur.b * (1.0 / 3.0));
 
-	// [          x          ]
-	// [       z, x, w       ]
-	// [    z, z, x, w, w    ]
-	// [ y, y, y, 0, y, y, y ]
-	// [    w, w, x, z, z    ]
-	// [       w, x, z       ]
-	// [          x          ]
-	float sbe = soft_if(c[2].a, c[9].a, c[22].a) * soft_if(c[7].a, c[12].a, c[13].a)  // x dir
-		+ soft_if(c[4].a, c[10].a, c[19].a) * soft_if(c[5].a, c[11].a, c[16].a)  // y dir
-		+ soft_if(c[1].a, c[24].a, c[21].a) * soft_if(c[8].a, c[14].a, c[17].a)  // z dir
-		+ soft_if(c[3].a, c[23].a, c[18].a) * soft_if(c[6].a, c[20].a, c[15].a); // w dir
+	// Edge detection
+	// Matrix, relative weights
+	// [           1          ]
+	// [       4,  4,  4      ]
+	// [   1,  4,  4,  4,  1  ]
+	// [       4,  4,  4      ]
+	// [           1          ]
+	float	edge = length(abs(blur - c0) + abs(blur - c1) + abs(blur - c2) + abs(blur - c3)
+		+ abs(blur - c4) + abs(blur - c5) + abs(blur - c6) + abs(blur - c7) + abs(blur - c8)
+		+ 0.25 * (abs(blur - c9) + abs(blur - c10) + abs(blur - c11) + abs(blur - c12))) * (1.0 / 3.0);
 
-	float2 cs = lerp(float2(L_compr_low, D_compr_low),
-		float2(L_compr_high, D_compr_high), smoothstep(2, 3.1, sbe));
+	// Edge detect contrast compression, center = 0.5
+	edge *= min((0.8 + 2.7 * pow(2, (-7.4 * blur_Y))), 3.2);
 
-	// RGB to luma
-	float c0_Y = CtL(c[0]);
+	// RGB to greyscale
+	float	c0_Y = CtG(c0);
 
-	float luma[25] = { c0_Y, CtL(c[1]), CtL(c[2]), CtL(c[3]), CtL(c[4]), CtL(c[5]), CtL(c[6]),
-					   CtL(c[7]),  CtL(c[8]),  CtL(c[9]),  CtL(c[10]), CtL(c[11]), CtL(c[12]),
-					   CtL(c[13]), CtL(c[14]), CtL(c[15]), CtL(c[16]), CtL(c[17]), CtL(c[18]),
-					   CtL(c[19]), CtL(c[20]), CtL(c[21]), CtL(c[22]), CtL(c[23]), CtL(c[24]) };
+	float	kernel[25] = { c0_Y,  CtG(c1), CtG(c2), CtG(c3), CtG(c4), CtG(c5), CtG(c6), CtG(c7), CtG(c8),
+							CtG(c9), CtG(c10), CtG(c11), CtG(c12), CtG(c13), CtG(c14), CtG(c15), CtG(c16),
+							CtG(c17), CtG(c18), CtG(c19), CtG(c20), CtG(c21), CtG(c22), CtG(c23), CtG(c24) };
 
-	// Pre-calculated default squared kernel weights
-	const float3 W1 = float3(0.5, 1.0, 1.41421356237); // 0.25, 1.0, 2.0
-	const float3 W2 = float3(0.86602540378, 1.0, 0.54772255751); // 0.75, 1.0, 0.3
+	// Partial laplacian outer pixel weighting scheme
+	float	mdiff_c0 = 0.03 + 4 * (abs(kernel[0] - kernel[2]) + abs(kernel[0] - kernel[4])
+		+ abs(kernel[0] - kernel[5]) + abs(kernel[0] - kernel[7])
+		+ 0.25 * (abs(kernel[0] - kernel[1]) + abs(kernel[0] - kernel[3])
+			+ abs(kernel[0] - kernel[6]) + abs(kernel[0] - kernel[8])));
 
-	// Transition to a concave kernel if the center edge val is above thr
-	float3 dW = pow(lerp(W1, W2, smoothstep(dW_lothr, dW_hithr, c_edge)), 2);
+	float	mdiff_c9 = (abs(kernel[9] - kernel[2]) + abs(kernel[9] - kernel[24])
+		+ abs(kernel[9] - kernel[23]) + abs(kernel[9] - kernel[22])
+		+ 0.5 * (abs(kernel[9] - kernel[1]) + abs(kernel[9] - kernel[3])));
 
-	float mdiff_c0 = 0.02 + 3 * (abs(luma[0] - luma[2]) + abs(luma[0] - luma[4])
-		+ abs(luma[0] - luma[5]) + abs(luma[0] - luma[7])
-		+ 0.25 * (abs(luma[0] - luma[1]) + abs(luma[0] - luma[3])
-			+ abs(luma[0] - luma[6]) + abs(luma[0] - luma[8])));
+	float	mdiff_c10 = (abs(kernel[10] - kernel[20]) + abs(kernel[10] - kernel[19])
+		+ abs(kernel[10] - kernel[21]) + abs(kernel[10] - kernel[4])
+		+ 0.5 * (abs(kernel[10] - kernel[1]) + abs(kernel[10] - kernel[6])));
 
-	// Use lower weights for pixels in a more active area relative to center pixel area
-	// This results in narrower and less visible overshoots around sharp edges
-	float weights[12] = { (min(mdiff_c0 / mdiff(24, 21, 2,  4,  9,  10, 1),  dW.y)),   // c1
-						  (dW.x),                                                    // c2
-						  (min(mdiff_c0 / mdiff(23, 18, 5,  2,  9,  11, 3),  dW.y)),   // c3
-						  (dW.x),                                                    // c4
-						  (dW.x),                                                    // c5
-						  (min(mdiff_c0 / mdiff(4,  20, 15, 7,  10, 12, 6),  dW.y)),   // c6
-						  (dW.x),                                                    // c7
-						  (min(mdiff_c0 / mdiff(5,  7,  17, 14, 12, 11, 8),  dW.y)),   // c8
-						  (min(mdiff_c0 / mdiff(2,  24, 23, 22, 1,  3,  9),  dW.z)),   // c9
-						  (min(mdiff_c0 / mdiff(20, 19, 21, 4,  1,  6,  10), dW.z)),   // c10
-						  (min(mdiff_c0 / mdiff(17, 5,  18, 16, 3,  8,  11), dW.z)),   // c11
-						  (min(mdiff_c0 / mdiff(13, 15, 7,  14, 6,  8,  12), dW.z)) }; // c12
+	float	mdiff_c11 = (abs(kernel[11] - kernel[17]) + abs(kernel[11] - kernel[5])
+		+ abs(kernel[11] - kernel[18]) + abs(kernel[11] - kernel[16])
+		+ 0.5 * (abs(kernel[11] - kernel[3]) + abs(kernel[11] - kernel[8])));
 
-	weights[0] = (max(max((weights[8] + weights[9]) / 4, weights[0]), 0.25) + weights[0]) / 2;
-	weights[2] = (max(max((weights[8] + weights[10]) / 4, weights[2]), 0.25) + weights[2]) / 2;
-	weights[5] = (max(max((weights[9] + weights[11]) / 4, weights[5]), 0.25) + weights[5]) / 2;
-	weights[7] = (max(max((weights[10] + weights[11]) / 4, weights[7]), 0.25) + weights[7]) / 2;
+	float	mdiff_c12 = (abs(kernel[12] - kernel[13]) + abs(kernel[12] - kernel[15])
+		+ abs(kernel[12] - kernel[7]) + abs(kernel[12] - kernel[14])
+		+ 0.5 * (abs(kernel[12] - kernel[6]) + abs(kernel[12] - kernel[8])));
 
-	// Calculate the negative part of the laplace kernel and the low threshold weight
-	float lowthrsum = 0;
-	float weightsum = 0;
-	float neg_laplace = 0;
+	float4	weights = float4((min((mdiff_c0 / mdiff_c9), 2.0)), (min((mdiff_c0 / mdiff_c10), 2.0)),
+		(min((mdiff_c0 / mdiff_c11), 2.0)), (min((mdiff_c0 / mdiff_c12), 2.0)));
 
-	[unroll] for (int pix = 0; pix < 12; ++pix) {
-		float t = saturate((c[pix + 1].a - a_offset - 0.01) / (lowthr_mxw - 0.01));
-		float lowthr = t * t * (2.97 - 1.98 * t) + 0.01; // t*t*(3 - a*3 - (2 - a*2)*t) + a
+	// Negative laplace matrix
+	 // Matrix, relative weights, *Varying 0<->8
+	 // [          8*         ]
+	 // [      4,  1,  4      ]
+	 // [  8*, 1,      1,  8* ]
+	 // [      4,  1,  4      ]
+	 // [          8*         ]
+	float	neg_laplace = (0.25 * (kernel[2] + kernel[4] + kernel[5] + kernel[7])
+		+ (kernel[1] + kernel[3] + kernel[6] + kernel[8])
+		+ ((kernel[9] * weights.x) + (kernel[10] * weights.y)
+			+ (kernel[11] * weights.z) + (kernel[12] * weights.w)))
+		/ (5 + weights.x + weights.y + weights.z + weights.w);
 
-		neg_laplace += pow(luma[pix + 1] + 0.06, 2.4) * (weights[pix] * lowthr);
-		weightsum += weights[pix] * lowthr;
-		lowthrsum += lowthr / 12;
-	}
-
-	neg_laplace = pow(abs(neg_laplace / weightsum), (1.0 / 2.4)) - 0.06;
-
-	// Compute sharpening magnitude function
-	float sharpen_val = curveHeight / (curveHeight * curveslope * pow(abs(c_edge), 3.5) + 0.625);
+	// Compute sharpening magnitude function, x = edge mag, y = laplace operator mag
+	float	sharpen_val = 0.01 + (curve_height / (curveslope * pow(edge, 3.5) + 0.5))
+		- (curve_height / (8192 * pow((edge * 2.2), 4.5) + 0.5));
 
 	// Calculate sharpening diff and scale
-	float sharpdiff = (c0_Y - neg_laplace) * (lowthrsum * sharpen_val + 0.01);
+	float	sharpdiff = (c0_Y - neg_laplace) * (sharpen_val * 0.8);
 
-	// Calculate local near min & max, partial sort
-	[unroll] for (int i = 0; i < 3; ++i) {
-		float temp;
-
-		for (int j = i; j < 24 - i; j += 2) {
-			temp = luma[j];
-			luma[j] = min(luma[j], luma[j + 1]);
-			luma[j + 1] = max(temp, luma[j + 1]);
+	// Calculate local near min & max, partial cocktail sort (No branching!)
+	[unroll]
+	for (int i = 0; i < 2; ++i) {
+		[unroll]
+		for (int i1 = 1 + i; i1 < 25 - i; ++i1) {
+			float temp = kernel[i1 - 1];
+			kernel[i1 - 1] = min(kernel[i1 - 1], kernel[i1]);
+			kernel[i1] = max(temp, kernel[i1]);
 		}
 
-		for (int jj = 24 - i; jj > i; jj -= 2) {
-			temp = luma[i];
-			luma[i] = min(luma[i], luma[jj]);
-			luma[jj] = max(temp, luma[jj]);
-
-			temp = luma[24 - i];
-			luma[24 - i] = max(luma[24 - i], luma[jj - 1]);
-			luma[jj - 1] = min(temp, luma[jj - 1]);
+		[unroll]
+		for (int i2 = 23 - i; i2 > i; --i2) {
+			float temp = kernel[i2 - 1];
+			kernel[i2 - 1] = min(kernel[i2 - 1], kernel[i2]);
+			kernel[i2] = max(temp, kernel[i2]);
 		}
 	}
 
-	float nmax = (max(luma[22] + luma[23] * 2, c0_Y * 3) + luma[24]) / 4;
-	float nmin = (min(luma[2] + luma[1] * 2, c0_Y * 3) + luma[0]) / 4;
+	float	nmax = max(((kernel[23] + kernel[24]) / 2), c0_Y);
+	float	nmin = min(((kernel[0] + kernel[1]) / 2), c0_Y);
 
-	// Calculate tanh scale factors
-	float min_dist = min(abs(nmax - c0_Y), abs(c0_Y - nmin));
-	float pos_scale = min_dist + min(L_overshoot, 1.0001 - min_dist - c0_Y);
-	float neg_scale = min_dist + min(D_overshoot, 0.0001 + c0_Y - min_dist);
+	// Calculate tanh scale factor, pos/neg
+	float	nmax_scale = max((1 / ((nmax - c0_Y) + L_overshoot)), max_scale_lim);
+	float	nmin_scale = max((1 / ((c0_Y - nmin) + D_overshoot)), max_scale_lim);
 
-	pos_scale = min(pos_scale, scale_lim * (1 - scale_cs) + pos_scale * scale_cs);
-	neg_scale = min(neg_scale, scale_lim * (1 - scale_cs) + neg_scale * scale_cs);
+	// Soft limit sharpening with tanh, mix to control maximum compression
+	sharpdiff = lerp((tanh((max(sharpdiff, 0.0)) * nmax_scale) / nmax_scale), (max(sharpdiff, 0.0)), L_comp_ratio)
+		+ lerp((tanh((min(sharpdiff, 0.0)) * nmin_scale) / nmin_scale), (min(sharpdiff, 0.0)), D_comp_ratio);
 
-	// Soft limited anti-ringing with tanh, wpmean to control compression slope
-	sharpdiff = wpmean(max(sharpdiff, 0), soft_lim(max(sharpdiff, 0), pos_scale), cs.x)
-		- wpmean(min(sharpdiff, 0), soft_lim(min(sharpdiff, 0), neg_scale), cs.y);
-
-	// Compensate for saturation loss/gain while making pixels brighter/darker
-	float sharpdiff_lim = saturate(c0_Y + sharpdiff) - c0_Y;
-	float satmul = (c0_Y + max(sharpdiff_lim * 0.9, sharpdiff_lim) * 1.03 + 0.03) / (c0_Y + 0.03);
-	float3 res = c0_Y + (sharpdiff_lim * 3 + sharpdiff) / 4 + (c[0].rgb - c0_Y) * satmul;
-
-	return float4((video_level_out == true ? res + orig.rgb - c[0].rgb : res), alpha_out);
+	return float4(c0.rgbb + sharpdiff);
 }
