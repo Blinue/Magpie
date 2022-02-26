@@ -63,30 +63,47 @@ float4 Main(float2 pos) {
 	// [      c20, c6,  c7,  c8, c17      ]
 	// [           c15, c12, c14          ]
 	// [                c13               ]
+	float2 gpos = pos + float2(-1.5, -0.5) * inputPt;
+	float4 r10_4_1_21 = INPUT.GatherRed(sam, gpos);
+	float4 g10_4_1_21 = INPUT.GatherGreen(sam, gpos);
+	float4 b10_4_1_21 = INPUT.GatherBlue(sam, gpos);
+	gpos = pos + float2(0.5, -1.5) * inputPt;
+	float4 r2_3_23_9 = INPUT.GatherRed(sam, gpos);
+	float4 g2_3_23_9 = INPUT.GatherGreen(sam, gpos);
+	float4 b2_3_23_9 = INPUT.GatherBlue(sam, gpos);
+	gpos = pos + float2(1.5, 0.5) * inputPt;
+	float4 r8_17_11_5 = INPUT.GatherRed(sam, gpos);
+	float4 g8_17_11_5 = INPUT.GatherGreen(sam, gpos);
+	float4 b8_17_11_5 = INPUT.GatherBlue(sam, gpos);
+	gpos = pos + float2(-0.5, 1.5) * inputPt;
+	float4 r15_12_7_6 = INPUT.GatherRed(sam, gpos);
+	float4 g15_12_7_6 = INPUT.GatherGreen(sam, gpos);
+	float4 b15_12_7_6 = INPUT.GatherBlue(sam, gpos);
+
 	float3	 c19 = INPUT.SampleLevel(sam, pos + float2(-3 * px, 0), 0).rgb;
-	float3	 c21 = INPUT.SampleLevel(sam, pos + float2(-2 * px, -py), 0).rgb;
-	float3	 c10 = INPUT.SampleLevel(sam, pos + float2(-2 * px, 0), 0).rgb;
+	float3	 c21 = float3(r10_4_1_21.w, g10_4_1_21.w, b10_4_1_21.w);
+	float3	 c10 = float3(r10_4_1_21.x, g10_4_1_21.x, b10_4_1_21.x);
 	float3	 c20 = INPUT.SampleLevel(sam, pos + float2(-2 * px, py), 0).rgb;
 	float3	 c24 = INPUT.SampleLevel(sam, pos + float2(-px, -2 * py), 0).rgb;
-	float3	 c1 = INPUT.SampleLevel(sam, pos + float2(-px, -py), 0).rgb;
-	float3	 c4 = INPUT.SampleLevel(sam, pos + float2(-px, 0), 0).rgb;
-	float3	 c6 = INPUT.SampleLevel(sam, pos + float2(-px, py), 0).rgb;
-	float3	 c15 = INPUT.SampleLevel(sam, pos + float2(-px, 2 * py), 0).rgb;
+	float3	 c1 = float3(r10_4_1_21.z, g10_4_1_21.z, b10_4_1_21.z);
+	float3	 c4 = float3(r10_4_1_21.y, g10_4_1_21.y, b10_4_1_21.y);
+	float3	 c6 = float3(r15_12_7_6.w, g15_12_7_6.w, b15_12_7_6.w);
+	float3	 c15 = float3(r15_12_7_6.x, g15_12_7_6.x, b15_12_7_6.x);
 	float3	 c22 = INPUT.SampleLevel(sam, pos + float2(0, -3 * py), 0).rgb;
-	float3	 c9 = INPUT.SampleLevel(sam, pos + float2(0, -2 * py), 0).rgb;
-	float3	 c2 = INPUT.SampleLevel(sam, pos + float2(0, -py), 0).rgb;
+	float3	 c9 = float3(r2_3_23_9.w, g2_3_23_9.w, b2_3_23_9.w);
+	float3	 c2 = float3(r2_3_23_9.x, g2_3_23_9.x, b2_3_23_9.x);
 	float3	 c0 = INPUT.SampleLevel(sam, pos, 0).rgb;
-	float3	 c7 = INPUT.SampleLevel(sam, pos + float2(0, py), 0).rgb;
-	float3	 c12 = INPUT.SampleLevel(sam, pos + float2(0, 2 * py), 0).rgb;
+	float3	 c7 = float3(r15_12_7_6.z, g15_12_7_6.z, b15_12_7_6.z);
+	float3	 c12 = float3(r15_12_7_6.y, g15_12_7_6.y, b15_12_7_6.y);
 	float3	 c13 = INPUT.SampleLevel(sam, pos + float2(0, 3 * py), 0).rgb;
-	float3	 c23 = INPUT.SampleLevel(sam, pos + float2(px, -2 * py), 0).rgb;
-	float3	 c3 = INPUT.SampleLevel(sam, pos + float2(px, -py), 0).rgb;
-	float3	 c5 = INPUT.SampleLevel(sam, pos + float2(px, 0), 0).rgb;
-	float3	 c8 = INPUT.SampleLevel(sam, pos + float2(px, py), 0).rgb;
+	float3	 c23 = float3(r2_3_23_9.z, g2_3_23_9.z, b2_3_23_9.z);
+	float3	 c3 = float3(r2_3_23_9.y, g2_3_23_9.y, b2_3_23_9.y);
+	float3	 c5 = float3(r8_17_11_5.w, g8_17_11_5.w, b8_17_11_5.w);
+	float3	 c8 = float3(r8_17_11_5.x, g8_17_11_5.x, b8_17_11_5.x);
 	float3	 c14 = INPUT.SampleLevel(sam, pos + float2(px, 2 * py), 0).rgb;
 	float3	 c18 = INPUT.SampleLevel(sam, pos + float2(2 * px, -py), 0).rgb;
-	float3	 c11 = INPUT.SampleLevel(sam, pos + float2(2 * px, 0), 0).rgb;
-	float3	 c17 = INPUT.SampleLevel(sam, pos + float2(2 * px, py), 0).rgb;
+	float3	 c11 = float3(r8_17_11_5.z, g8_17_11_5.z, b8_17_11_5.z);
+	float3	 c17 = float3(r8_17_11_5.y, g8_17_11_5.y, b8_17_11_5.y);
 	float3	 c16 = INPUT.SampleLevel(sam, pos + float2(3 * px, 0), 0).rgb;
 
 	// Blur, gauss 3x3
