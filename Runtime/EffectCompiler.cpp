@@ -1097,50 +1097,40 @@ void WriteToOutput(uint2 pos, float3 color) {
 				passHlsl.append(fmt::format(R"([numthreads(64, 1, 1)]
 void __M(uint3 tid : SV_GroupThreadID, uint3 gid : SV_GroupID) {{
 	uint2 gxy = Rmp8x8(tid.x) + (gid.xy << 4u){};
-	float2 pos = (gxy + 0.5f) * __outputPt;
-	float2 step = 8 * __outputPt;
 	
 	if (!CheckViewport(gxy)) {{
 		return;
 	}};
 
-	WriteToOutput(gxy, Main(pos).rgb);
+	WriteToOutput(gxy, Main(gxy).rgb);
 
 	gxy.x += 8u;
-	pos.x += step.x;
 	if (CheckViewport(gxy)) {{
-		WriteToOutput(gxy, Main(pos).rgb);
+		WriteToOutput(gxy, Main(gxy).rgb);
 	}};
 
 	gxy.y += 8u;
-	pos.y += step.y;
 	if (CheckViewport(gxy)) {{
-		WriteToOutput(gxy, Main(pos).rgb);
+		WriteToOutput(gxy, Main(gxy).rgb);
 	}};
 
 	gxy.x -= 8u;
-	pos.x -= step.x;
 	if (CheckViewport(gxy)) {{
-		WriteToOutput(gxy, Main(pos).rgb);
+		WriteToOutput(gxy, Main(gxy).rgb);
 	}};
 }})", lastEffect ? " + __offset.xy" : ""));
 			} else {
 				passHlsl.append(fmt::format(R"([numthreads(64, 1, 1)]
 void __M(uint3 tid : SV_GroupThreadID, uint3 gid : SV_GroupID) {{
 	uint2 gxy = Rmp8x8(tid.x) + (gid.xy << 4u);
-	float2 pos = (gxy + 0.5f) * __outputPt;
-	float2 step = 8 * __outputPt;
 
-	{0}[gxy] = Main(pos);
+	{0}[gxy] = Main(gxy);
 	gxy.x += 8u;
-	pos.x += step.x;
-	{0}[gxy] = Main(pos);
+	{0}[gxy] = Main(gxy);
 	gxy.y += 8u;
-	pos.y += step.y;
-	{0}[gxy] = Main(pos);
+	{0}[gxy] = Main(gxy);
 	gxy.x -= 8u;
-	pos.x -= step.x;
-	{0}[gxy] = Main(pos);
+	{0}[gxy] = Main(gxy);
 }})", desc.textures[passDesc.outputs[0]].name));
 			}
 		} else {
@@ -1152,15 +1142,13 @@ void __M(uint3 tid : SV_GroupThreadID, uint3 gid : SV_GroupID) {{
 			passHlsl.append(R"([numthreads(64, 1, 1)]
 void __M(uint3 tid : SV_GroupThreadID, uint3 gid : SV_GroupID) {
 	uint2 gxy = Rmp8x8(tid.x) + (gid.xy << 4u);
-	float2 pos = (gxy + 0.5f) * __outputPt;
-	float2 step = 8 * __outputPt;
 
 )");
 			for (int i = 0; i < passDesc.outputs.size(); ++i) {
 				passHlsl.append(fmt::format("\tfloat4 c{};\n", i));
 			}
 
-			std::string callPass = "\tMain(pos, ";
+			std::string callPass = "\tMain(gxy, ";
 
 			for (int i = 0; i < passDesc.outputs.size() - 1; ++i) {
 				callPass.append(fmt::format("c{}, ", i));
@@ -1171,11 +1159,11 @@ void __M(uint3 tid : SV_GroupThreadID, uint3 gid : SV_GroupID) {
 			}
 
 			passHlsl.append(callPass);
-			passHlsl.append("\tgxy.x += 8u;\n\tpos.x += step.x;\n");
+			passHlsl.append("\tgxy.x += 8u;\n");
 			passHlsl.append(callPass);
-			passHlsl.append("\tgxy.y += 8u;\n\tpos.y += step.y;\n");
+			passHlsl.append("\tgxy.y += 8u;\n");
 			passHlsl.append(callPass);
-			passHlsl.append("\tgxy.x -= 8u;\n\tpos.x -= step.x;\n");
+			passHlsl.append("\tgxy.x -= 8u;\n");
 			passHlsl.append(callPass);
 
 			passHlsl.append("}\n");

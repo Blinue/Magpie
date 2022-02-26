@@ -190,12 +190,15 @@ float3 filter_lanczos(float4 coeffs, float4x4 color_matrix) {
 	return col.rgb;
 }
 
-float4 Main(float2 pos) {
+float4 Main(uint2 pos) {
 	float2 inputPt = GetInputPt();
 	int2 inputSize = GetInputSize();
 	int2 outputSize = GetOutputSize();
+	float2 outputPt = GetOutputPt();
 
-	float2 pix_co = pos * inputSize - float2(0.5, 0.5);
+	float2 ppos = (pos + 0.5f) * outputPt;
+	float2 pix_co = ppos * inputSize - 0.5f;
+	
 	float2 tex_co = (floor(pix_co) + 0.5) * inputPt;
 	float2 dist = frac(pix_co);
 	float curve_x;
@@ -226,10 +229,10 @@ float4 Main(float2 pos) {
 	float bright = (max(col.r, max(col.g, col.b)) + luma) / 2.0;
 	float scan_bright = clamp(bright, scanlineBrightMin, scanlineBrightMax);
 	float scan_beam = clamp(bright * scanlineBeamWidthMax, scanlineBeamWidthMin, scanlineBeamWidthMax);
-	float scan_weight = 1.0 - pow(cos(pos.y * 2.0 * PI * inputSize.y) * 0.5 + 0.5, scan_beam) * scanlineStrength;
+	float scan_weight = 1.0 - pow(cos(ppos.y * 2.0 * PI * inputSize.y) * 0.5 + 0.5, scan_beam) * scanlineStrength;
 
 	float mask = 1.0 - maskStrength;
-	float2 mod_fac = floor(pos * outputSize / float2(maskSize, maskDotHeight * maskSize));
+	float2 mod_fac = floor(ppos * outputSize / float2(maskSize, maskDotHeight * maskSize));
 	int dot_no = int(mod((mod_fac.x + mod(mod_fac.y, 2.0) * maskStagger) / maskDotWidth, 3.0));
 	float3 mask_weight;
 
