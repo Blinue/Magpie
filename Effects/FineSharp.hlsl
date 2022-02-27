@@ -62,29 +62,75 @@ SamplerState sam;
 
 
 //!PASS 1
-//!STYLE PS
 //!IN INPUT
 //!OUT tex1
+//!BLOCK_SIZE 16, 16
+//!NUM_THREADS 64, 1, 1
+
 
 #define RGBtoYUV(Kb,Kr) float3x3(float3(Kr, 1 - Kr - Kb, Kb), float3(-Kr, Kr + Kb - 1, 1 - Kb) / (2*(1 - Kb)), float3(1 - Kr, Kr + Kb - 1, -Kb) / (2*(1 - Kr)))
-
 static const float3x3 RGBtoYUV = GetInputSize().y <= 576 ? RGBtoYUV(0.114, 0.299) : RGBtoYUV(0.0722, 0.2126);
 
-float4 Main(uint2 pos) {
-	uint2 outputSize = GetOutputSize();
-	if (pos.x >= outputSize.x || pos.y >= outputSize.y) {
-		return float4(0, 0, 0, 1);
+void Main(uint2 blockStart, uint3 threadId) {
+	uint2 gxy = Rmp8x8(threadId.x) * 2 + blockStart;
+	uint2 inputSize = GetInputSize();
+	if (gxy.x >= inputSize.x || gxy.y >= inputSize.y) {
+		return;
 	}
 
-	float3 yuv = mul(RGBtoYUV, INPUT.SampleLevel(sam, (pos + 0.5f) * GetOutputPt(), 0).rgb) + float3(0.0, 0.5, 0.5);
-	return float4(yuv, yuv.x);
+	float2 inputPt = GetInputPt();
+	uint i, j;
+
+	float3 src[4][4];
+	[unroll]
+	for (i = 0; i < 3; i += 2) {
+		[unroll]
+		for (j = 0; j < 3; j += 2) {
+			float2 tpos = (gxy + uint2(i, j)) * inputPt;
+			const float4 sr = INPUT.GatherRed(sam, tpos);
+			const float4 sg = INPUT.GatherGreen(sam, tpos);
+			const float4 sb = INPUT.GatherBlue(sam, tpos);
+
+			// w z
+			// x y
+			src[i][j] = mul(RGBtoYUV, float3(sr.w, sg.w, sb.w)) + float3(0, 0.5, 0.5);
+			src[i][j + 1] = mul(RGBtoYUV, float3(sr.x, sg.x, sb.x)) + float3(0, 0.5, 0.5);
+			src[i + 1][j] = mul(RGBtoYUV, float3(sr.z, sg.z, sb.z)) + float3(0, 0.5, 0.5);
+			src[i + 1][j + 1] = mul(RGBtoYUV, float3(sr.y, sg.y, sb.y)) + float3(0, 0.5, 0.5);
+		}
+	}
+
+	[unroll]
+	for (i = 1; i <= 2; ++i) {
+		[unroll]
+		for (j = 1; j <= 2; ++j) {
+			float4 o = src[i][j].rgbr;
+
+			o.x += o.x;
+			o.x += src[i][j - 1].x + src[i - 1][j].x + src[i + 1][j].x + src[i][j + 1].x;
+			o.x += o.x;
+			o.x += src[i - 1][j - 1].x + src[i + 1][j - 1].x + src[i - 1][j + 1].x + src[i + 1][j + 1].x;
+			o.x *= 0.0625f;
+
+			tex1[gxy + uint2(i - 1, j - 1)] = o;
+		}
+	}
 }
+
 
 //!PASS 2
 //!IN tex1
 //!OUT tex2
 //!BLOCK_SIZE 16, 16
 //!NUM_THREADS 64, 1, 1
+
+// The variables passed to these median macros will be swapped around as part of the process. A temporary variable t of the same type is also required.
+#define sort(a1,a2)                         (t=min(a1,a2),a2=max(a1,a2),a1=t)
+#define median3(a1,a2,a3)                   (sort(a2,a3),sort(a1,a2),min(a2,a3))
+#define median5(a1,a2,a3,a4,a5)             (sort(a1,a2),sort(a3,a4),sort(a1,a3),sort(a2,a4),median3(a2,a3,a5))
+#define median9(a1,a2,a3,a4,a5,a6,a7,a8,a9) (sort(a1,a2),sort(a3,a4),sort(a5,a6),sort(a7,a8),\
+											 sort(a1,a3),sort(a5,a7),sort(a1,a5),sort(a3,a5),sort(a3,a7),\
+											 sort(a2,a4),sort(a6,a8),sort(a4,a8),sort(a4,a6),sort(a2,a6),median5(a2,a4,a5,a7,a9))
 
 void Main(uint2 blockStart, uint3 threadId) {
 	uint2 gxy = Rmp8x8(threadId.x) * 2 + blockStart;
@@ -134,74 +180,6 @@ void Main(uint2 blockStart, uint3 threadId) {
 			o.x += src[i - 1][j - 1].x + src[i + 1][j - 1].x + src[i - 1][j + 1].x + src[i + 1][j + 1].x;
 			o.x *= 0.0625f;
 
-			tex2[gxy + uint2(i - 1, j - 1)] = o;
-		}
-	}
-}
-
-
-//!PASS 3
-//!IN tex2
-//!OUT tex1
-//!BLOCK_SIZE 16, 16
-//!NUM_THREADS 64, 1, 1
-
-// The variables passed to these median macros will be swapped around as part of the process. A temporary variable t of the same type is also required.
-#define sort(a1,a2)                         (t=min(a1,a2),a2=max(a1,a2),a1=t)
-#define median3(a1,a2,a3)                   (sort(a2,a3),sort(a1,a2),min(a2,a3))
-#define median5(a1,a2,a3,a4,a5)             (sort(a1,a2),sort(a3,a4),sort(a1,a3),sort(a2,a4),median3(a2,a3,a5))
-#define median9(a1,a2,a3,a4,a5,a6,a7,a8,a9) (sort(a1,a2),sort(a3,a4),sort(a5,a6),sort(a7,a8),\
-											 sort(a1,a3),sort(a5,a7),sort(a1,a5),sort(a3,a5),sort(a3,a7),\
-											 sort(a2,a4),sort(a6,a8),sort(a4,a8),sort(a4,a6),sort(a2,a6),median5(a2,a4,a5,a7,a9))
-
-void Main(uint2 blockStart, uint3 threadId) {
-	uint2 gxy = Rmp8x8(threadId.x) * 2 + blockStart;
-	uint2 inputSize = GetInputSize();
-	if (gxy.x >= inputSize.x || gxy.y >= inputSize.y) {
-		return;
-	}
-
-	float2 inputPt = GetInputPt();
-	uint i, j;
-
-	float4 src[4][4];
-	[unroll]
-	for (i = 0; i < 3; i += 2) {
-		[unroll]
-		for (j = 0; j < 3; j += 2) {
-			float2 tpos = (gxy + uint2(i, j)) * inputPt;
-			const float4 sr = tex2.GatherRed(sam, tpos);
-
-			// w z
-			// x y
-			src[i][j].r = sr.w;
-			src[i][j + 1].r = sr.x;
-			src[i + 1][j].r = sr.z;
-			src[i + 1][j + 1].r = sr.y;
-		}
-	}
-
-	float2 tpos = (gxy + 1) * inputPt;
-	const float4 sg = tex2.GatherGreen(sam, tpos);
-	const float4 sb = tex2.GatherBlue(sam, tpos);
-	const float4 sa = tex2.GatherAlpha(sam, tpos);
-	src[1][1].gba = float3(sg.w, sb.w, sa.w);
-	src[1][2].gba = float3(sg.x, sb.x, sa.x);
-	src[2][1].gba = float3(sg.z, sb.z, sa.z);
-	src[2][2].gba = float3(sg.y, sb.y, sa.y);
-
-	[unroll]
-	for (i = 1; i <= 2; ++i) {
-		[unroll]
-		for (j = 1; j <= 2; ++j) {
-			float4 o = src[i][j];
-
-			o.x += o.x;
-			o.x += src[i][j - 1].x + src[i - 1][j].x + src[i + 1][j].x + src[i][j + 1].x;
-			o.x += o.x;
-			o.x += src[i - 1][j - 1].x + src[i + 1][j - 1].x + src[i - 1][j + 1].x + src[i + 1][j + 1].x;
-			o.x *= 0.0625f;
-
 			float t;
 			float t1 = src[i - 1][j - 1].x;
 			float t2 = src[i][j - 1].x;
@@ -214,14 +192,14 @@ void Main(uint2 blockStart, uint3 threadId) {
 			float t9 = src[i + 1][j + 1].x;
 			o.x = median9(t1, t2, t3, t4, t5, t6, t7, t8, t9);
 
-			tex1[gxy + uint2(i - 1, j - 1)] = o;
+			tex2[gxy + uint2(i - 1, j - 1)] = o;
 		}
 	}
 }
 
-//!PASS 4
-//!IN tex1
-//!OUT tex2
+//!PASS 3
+//!IN tex2
+//!OUT tex1
 //!BLOCK_SIZE 16, 16
 //!NUM_THREADS 64, 1, 1
 
@@ -256,8 +234,8 @@ void Main(uint2 blockStart, uint3 threadId) {
 		[unroll]
 		for (j = 0; j < 3; j += 2) {
 			float2 tpos = (gxy + uint2(i, j)) * inputPt;
-			const float4 sr = tex1.GatherRed(sam, tpos);
-			const float4 sa = tex1.GatherAlpha(sam, tpos);
+			const float4 sr = tex2.GatherRed(sam, tpos);
+			const float4 sa = tex2.GatherAlpha(sam, tpos);
 
 			// w z
 			// x y
@@ -274,8 +252,8 @@ void Main(uint2 blockStart, uint3 threadId) {
 	}
 
 	float2 tpos = (gxy + 1) * inputPt;
-	const float4 sg = tex1.GatherGreen(sam, tpos);
-	const float4 sb = tex1.GatherBlue(sam, tpos);
+	const float4 sg = tex2.GatherGreen(sam, tpos);
+	const float4 sb = tex2.GatherBlue(sam, tpos);
 	src[1][1].gb = float2(sg.w, sb.w);
 	src[1][2].gb = float2(sg.x, sb.x);
 	src[2][1].gb = float2(sg.z, sb.z);
@@ -297,15 +275,15 @@ void Main(uint2 blockStart, uint3 threadId) {
 			o.x -= cstr * sd;
 			o.a = o.x;
 
-			tex2[gxy + uint2(i - 1, j - 1)] = o;
+			tex1[gxy + uint2(i - 1, j - 1)] = o;
 		}
 	}
 }
 
 
-//!PASS 5
-//!IN tex2
-//!OUT tex1
+//!PASS 4
+//!IN tex1
+//!OUT tex2
 //!BLOCK_SIZE 16, 16
 //!NUM_THREADS 64, 1, 1
 
@@ -338,7 +316,7 @@ void Main(uint2 blockStart, uint3 threadId) {
 		[unroll]
 		for (j = 0; j < 3; j += 2) {
 			float2 tpos = (gxy + uint2(i, j)) * inputPt;
-			const float4 sa = tex2.GatherAlpha(sam, tpos);
+			const float4 sa = tex1.GatherAlpha(sam, tpos);
 
 			// w z
 			// x y
@@ -350,9 +328,9 @@ void Main(uint2 blockStart, uint3 threadId) {
 	}
 
 	float2 tpos = (gxy + 1) * inputPt;
-	const float4 sr = tex2.GatherRed(sam, tpos);
-	const float4 sg = tex2.GatherGreen(sam, tpos);
-	const float4 sb = tex2.GatherBlue(sam, tpos);
+	const float4 sr = tex1.GatherRed(sam, tpos);
+	const float4 sg = tex1.GatherGreen(sam, tpos);
+	const float4 sb = tex1.GatherBlue(sam, tpos);
 	src[1][1].rgb = float3(sr.w, sg.w, sb.w);
 	src[1][2].rgb = float3(sr.x, sg.x, sb.x);
 	src[2][1].rgb = float3(sr.z, sg.z, sb.z);
@@ -383,20 +361,19 @@ void Main(uint2 blockStart, uint3 threadId) {
 			o.x = max(o.x, min(t2, o.a));
 			o.x = min(o.x, max(t8, o.a));
 
-			tex1[gxy + uint2(i - 1, j - 1)] = o;
+			tex2[gxy + uint2(i - 1, j - 1)] = o;
 		}
 	}
 }
 
 
-//!PASS 6
-//!IN tex1
+//!PASS 5
+//!IN tex2
 //!BLOCK_SIZE 16, 16
 //!NUM_THREADS 64, 1, 1
 
 
 #define YUVtoRGB(Kb,Kr) float3x3(float3(1, 0, 2*(1 - Kr)), float3(Kb + Kr - 1, 2*(1 - Kb)*Kb, 2*Kr*(1 - Kr)) / (Kb + Kr - 1), float3(1, 2*(1 - Kb),0))
-
 static const float3x3 YUVtoRGB = GetInputSize().y <= 576 ? YUVtoRGB(0.114, 0.299) : YUVtoRGB(0.0722, 0.2126);
 
 
@@ -415,7 +392,7 @@ void Main(uint2 blockStart, uint3 threadId) {
 		[unroll]
 		for (j = 0; j < 3; j += 2) {
 			float2 tpos = (gxy + uint2(i, j)) * inputPt;
-			const float4 sr = tex1.GatherRed(sam, tpos);
+			const float4 sr = tex2.GatherRed(sam, tpos);
 
 			// w z
 			// x y
@@ -427,9 +404,9 @@ void Main(uint2 blockStart, uint3 threadId) {
 	}
 
 	float2 tpos = (gxy + 1) * inputPt;
-	const float4 sg = tex1.GatherGreen(sam, tpos);
-	const float4 sb = tex1.GatherBlue(sam, tpos);
-	const float4 sa = tex1.GatherAlpha(sam, tpos);
+	const float4 sg = tex2.GatherGreen(sam, tpos);
+	const float4 sb = tex2.GatherBlue(sam, tpos);
+	const float4 sa = tex2.GatherAlpha(sam, tpos);
 	src[1][1].gba = float3(sg.w, sb.w, sa.w);
 	src[1][2].gba = float3(sg.x, sb.x, sa.x);
 	src[2][1].gba = float3(sg.z, sb.z, sa.z);
