@@ -109,10 +109,11 @@ float3 FsrRcasF(uint2 pos) {
 
 void Main(uint2 blockStart, uint3 threadId) {
 	uint2 gxy = blockStart + Rmp8x8(threadId.x);
-
-	if (CheckViewport(gxy)) {
-		WriteToOutput(gxy, FsrRcasF(gxy));
+	if (!CheckViewport(gxy)) {
+		return;
 	}
+
+	WriteToOutput(gxy, FsrRcasF(gxy));
 
 	gxy.x += 8u;
 	if (CheckViewport(gxy)) {

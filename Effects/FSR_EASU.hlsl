@@ -228,6 +228,9 @@ float3 FsrEasuF(uint2 pos, float4 con0, float4 con1, float4 con2, float2 con3) {
 
 void Main(uint2 blockStart, uint3 threadId) {
 	uint2 gxy = blockStart + Rmp8x8(threadId.x);
+	if (!CheckViewport(gxy)) {
+		return;
+	}
 
 	uint2 inputSize = GetInputSize();
 	uint2 outputSize = GetOutputSize();
@@ -268,9 +271,7 @@ void Main(uint2 blockStart, uint3 threadId) {
 	con3[0] = 0;
 	con3[1] = 4.0f * inputPt.y;
 
-	if (CheckViewport(gxy)) {
-		WriteToOutput(gxy, FsrEasuF(gxy, con0, con1, con2, con3));
-	}
+	WriteToOutput(gxy, FsrEasuF(gxy, con0, con1, con2, con3));
 
 	gxy.x += 8u;
 	if (CheckViewport(gxy)) {

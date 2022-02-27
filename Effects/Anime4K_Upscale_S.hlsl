@@ -53,6 +53,11 @@ float4 A4KS1(float3 src[4][4], int i, int j) {
 
 void Main(uint2 blockStart, uint3 threadId) {
 	uint2 gxy = Rmp8x8(threadId.x) * 2 + blockStart;
+	uint2 inputSize = GetInputSize();
+	if (gxy.x >= inputSize.x || gxy.y >= inputSize.y) {
+		return;
+	}
+
 	float2 inputPt = GetInputPt();
 
 	float3 src[4][4];
@@ -120,6 +125,10 @@ float4 A4KS2(float4 src[4][4], int i, int j) {
 
 void Main(uint2 blockStart, uint3 threadId) {
 	uint2 gxy = Rmp8x8(threadId.x) * 2 + blockStart;
+	uint2 inputSize = GetInputSize();
+	if (gxy.x >= inputSize.x || gxy.y >= inputSize.y) {
+		return;
+	}
 	float2 inputPt = GetInputPt();
 
 	float4 src[4][4];
@@ -186,6 +195,10 @@ float4 A4KS3(float4 src[4][4], int i, int j) {
 
 void Main(uint2 blockStart, uint3 threadId) {
 	uint2 gxy = Rmp8x8(threadId.x) * 2 + blockStart;
+	uint2 inputSize = GetInputSize();
+	if (gxy.x >= inputSize.x || gxy.y >= inputSize.y) {
+		return;
+	}
 	float2 inputPt = GetInputPt();
 
 	float4 src[4][4];
