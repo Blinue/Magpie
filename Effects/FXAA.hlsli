@@ -80,44 +80,34 @@ float3 FxaaLerp3(float3 a, float3 b, float amountOfA) {
 }
 
 
-float4 FXAA(Texture2D INPUT, SamplerState sam, float2 pos, float2 inputPt) {
-	float3 rgbN = INPUT.Sample(sam, pos + float2(0, -inputPt.y)).xyz;
-	float3 rgbW = INPUT.Sample(sam, pos + float2(-inputPt.x, 0)).xyz;
-	float3 rgbM = INPUT.Sample(sam, pos).xyz;
-	float3 rgbE = INPUT.Sample(sam, pos + float2(inputPt.x, 0)).xyz;
-	float3 rgbS = INPUT.Sample(sam, pos + float2(0, inputPt.y)).xyz;
-
-	float lumaN = FxaaLuma(rgbN);
-	float lumaW = FxaaLuma(rgbW);
-	float lumaM = FxaaLuma(rgbM);
-	float lumaE = FxaaLuma(rgbE);
-	float lumaS = FxaaLuma(rgbS);
+float4 FXAA(float3 src[4][4], uint i, uint j, Texture2D INPUT, SamplerState sam, float2 pos, float2 inputPt) {
+	float lumaN = FxaaLuma(src[i][j - 1]);
+	float lumaW = FxaaLuma(src[i - 1][j]);
+	float lumaM = FxaaLuma(src[i][j]);
+	float lumaE = FxaaLuma(src[i + 1][j]);
+	float lumaS = FxaaLuma(src[i][j + 1]);
 	float rangeMin = min(lumaM, min(min(lumaN, lumaW), min(lumaS, lumaE)));
 	float rangeMax = max(lumaM, max(max(lumaN, lumaW), max(lumaS, lumaE)));
 
 	float range = rangeMax - rangeMin;
 	if (range < max(FXAA_EDGE_THRESHOLD_MIN, rangeMax * FXAA_EDGE_THRESHOLD)) {
-		return float4(rgbM, 1);
+		return float4(src[i][j], 1);
 	}
 
-	float3 rgbL = rgbN + rgbW + rgbM + rgbE + rgbS;
+	float3 rgbL = src[i][j - 1] + src[i - 1][j] + src[i][j] + src[i + 1][j] + src[i][j + 1];
 
 	float lumaL = (lumaN + lumaW + lumaE + lumaS) * 0.25;
 	float rangeL = abs(lumaL - lumaM);
 	float blendL = max(0.0, (rangeL / range) - FXAA_SUBPIX_TRIM) * FXAA_SUBPIX_TRIM_SCALE;
 	blendL = min(FXAA_SUBPIX_CAP, blendL);
 
-	float3 rgbNW = INPUT.Sample(sam, pos + float2(-inputPt.x, -inputPt.y)).xyz;
-	float3 rgbNE = INPUT.Sample(sam, pos + float2(inputPt.x, -inputPt.y)).xyz;
-	float3 rgbSW = INPUT.Sample(sam, pos + float2(-inputPt.x, inputPt.y)).xyz;
-	float3 rgbSE = INPUT.Sample(sam, pos + float2(inputPt.x, inputPt.y)).xyz;
-	rgbL += (rgbNW + rgbNE + rgbSW + rgbSE);
+	rgbL += (src[i - 1][j - 1] + src[i + 1][j - 1] + src[i - 1][j + 1] + src[i + 1][j + 1]);
 	rgbL *= 1.0 / 9.0;
 
-	float lumaNW = FxaaLuma(rgbNW);
-	float lumaNE = FxaaLuma(rgbNE);
-	float lumaSW = FxaaLuma(rgbSW);
-	float lumaSE = FxaaLuma(rgbSE);
+	float lumaNW = FxaaLuma(src[i - 1][j - 1]);
+	float lumaNE = FxaaLuma(src[i + 1][j - 1]);
+	float lumaSW = FxaaLuma(src[i - 1][j + 1]);
+	float lumaSE = FxaaLuma(src[i + 1][j + 1]);
 
 	float edgeVert =
 		abs((0.25 * lumaNW) + (-0.5 * lumaN) + (0.25 * lumaNE)) +
@@ -165,10 +155,10 @@ float4 FXAA(Texture2D INPUT, SamplerState sam, float2 pos, float2 inputPt) {
 
 	for (int i = 0; i < FXAA_SEARCH_STEPS; i++) {
 		if (!doneN) {
-			lumaEndN = FxaaLuma(INPUT.Sample(sam, posN.xy).xyz);
+			lumaEndN = FxaaLuma(INPUT.SampleLevel(sam, posN.xy, 0).xyz);
 		}
 		if (!doneP) {
-			lumaEndP = FxaaLuma(INPUT.Sample(sam, posP.xy).xyz);
+			lumaEndP = FxaaLuma(INPUT.SampleLevel(sam, posP.xy, 0).xyz);
 		}
 
 		doneN = doneN || (abs(lumaEndN - lumaN) >= gradientN);
@@ -198,8 +188,8 @@ float4 FXAA(Texture2D INPUT, SamplerState sam, float2 pos, float2 inputPt) {
 	float spanLength = (dstP + dstN);
 	dstN = directionN ? dstN : dstP;
 	float subPixelOffset = (0.5 + (dstN * (-1.0 / spanLength))) * lengthSign;
-	float3 rgbF = INPUT.Sample(sam, float2(
+	float3 rgbF = INPUT.SampleLevel(sam, float2(
 		pos.x + (horzSpan ? 0.0 : subPixelOffset),
-		pos.y + (horzSpan ? subPixelOffset : 0.0))).xyz;
+		pos.y + (horzSpan ? subPixelOffset : 0.0)), 0).xyz;
 	return float4(FxaaLerp3(rgbL, rgbF, blendL), 1);
 }
