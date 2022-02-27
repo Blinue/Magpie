@@ -93,8 +93,12 @@ float STU(float x, float b) {
 }
 
 float4 Main(uint2 pos) {
-	float2 inputPt = GetInputPt();
 	float2 inputSize = GetInputSize();
+	if (pos.x >= GetOutputSize().x || pos.y >= inputSize.y) {
+		return float4(0, 0, 0, 1);
+	}
+
+	float2 inputPt = GetInputPt();
 	float2 ppos = (pos + 0.5f) * float2(GetOutputPt().x, inputPt.y);
 
 	float offset = frac((ppos.x * inputSize.x) - 0.5);

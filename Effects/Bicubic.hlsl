@@ -78,9 +78,9 @@ float4 Main(uint2 pos) {
 	float3 src[4][4];
 
 	[unroll]
-	for (i = 0; i < 4; i += 2) {
+	for (i = 0; i <= 2; i += 2) {
 		[unroll]
-		for (j = 0; j < 4; j += 2) {
+		for (j = 0; j <= 2; j += 2) {
 			float2 tpos = (ppos + uint2(i, j)) * inputPt;
 			const float4 sr = INPUT.GatherRed(sam, tpos);
 			const float4 sg = INPUT.GatherGreen(sam, tpos);
