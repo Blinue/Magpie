@@ -176,7 +176,7 @@
     <CopyFileToFolders Include="Lanczos.hlsl">
       <FileType>Document</FileType>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="Linear.hlsl">
+    <CopyFileToFolders Include="Bilinear.hlsl">
       <FileType>Document</FileType>
     </CopyFileToFolders>
     <CopyFileToFolders Include="Nearest.hlsl">
