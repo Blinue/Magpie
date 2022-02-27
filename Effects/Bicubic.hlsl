@@ -98,7 +98,7 @@ float4 Main(uint2 pos) {
 	float3 result = float3(0, 0, 0);
 	[unroll]
 	for (i = 0; i < 4; ++i) {
-		result += (src[0][i] * linetaps.x + src[1][i] * linetaps.y + src[2][i] * linetaps.z + src[3][i] * linetaps.w) * columntaps[i];
+		result += mul(linetaps, float4x3(src[0][i], src[1][i], src[2][i], src[3][i])) * columntaps[i];
 	}
 
 	return float4(result, 1);

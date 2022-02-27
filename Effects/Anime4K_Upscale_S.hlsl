@@ -290,7 +290,7 @@ void Main(uint2 blockStart, uint3 threadId) {
 	float2 inputPt = GetInputPt();
 	float2 outputPt = GetOutputPt();
 
-	float2 pos = (gxy / 2 + 0.5f) * inputPt;
+	float2 pos = ((gxy >> 1) + 0.5f) * inputPt;
 	float4 c = A4KS4(pos);
 
 	pos -= 0.5f * outputPt;

@@ -83,8 +83,7 @@ float4 Main(uint2 pos) {
 	float3 color = float3(0, 0, 0);
 	[unroll]
 	for (i = 0; i <= 4; i += 2) {
-		color += (src[0][i] * linetaps1.r + src[1][i] * linetaps2.r + src[2][i] * linetaps1.g + src[3][i] * linetaps2.g + src[4][i] * linetaps1.b + src[5][i] * linetaps2.b) * columntaps1[i / 2];
-		color += (src[0][i + 1] * linetaps1.r + src[1][i + 1] * linetaps2.r + src[2][i + 1] * linetaps1.g + src[3][i + 1] * linetaps2.g + src[4][i + 1] * linetaps1.b + src[5][i + 1] * linetaps2.b) * columntaps2[i / 2];
+		color += (mul(linetaps1, float3x3(src[0][i], src[2][i], src[4][i])) + mul(linetaps2, float3x3(src[1][i], src[3][i], src[5][i]))) * columntaps1[i / 2] + (mul(linetaps1, float3x3(src[0][i + 1], src[2][i + 1], src[4][i + 1])) + mul(linetaps2, float3x3(src[1][i + 1], src[3][i + 1], src[5][i + 1]))) * columntaps2[i / 2];
 	}
 
 	// 抗振铃
