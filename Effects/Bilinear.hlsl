@@ -6,7 +6,7 @@
 Texture2D INPUT;
 
 //!SAMPLER
-//!FILTER POINT
+//!FILTER LINEAR
 SamplerState sam;
 
 
