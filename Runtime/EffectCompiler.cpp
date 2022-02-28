@@ -837,15 +837,14 @@ void NTAPI TPWork(PTP_CALLBACK_INSTANCE, PVOID Context, PTP_WORK) {
 }
 
 UINT ResolvePass(
-	std::string_view block,
+	std::string_view srcBlock,
 	EffectDesc& desc,
 	UINT passIndex,
 	EffectPassDesc& passDesc,
-	std::string& passHlsl,
-	std::string_view resHlsl,
-	std::string_view commonHlsl,
-	bool lastEffect,
-	bool lastPass
+	std::string_view defBlock,
+	std::string_view codeBlock,
+	bool lastPass,
+	std::string& passHlsl
 ) {
 	std::string_view token;
 
@@ -861,11 +860,11 @@ UINT ResolvePass(
 	std::bitset<5> processed;
 
 	while (true) {
-		if (!CheckNextToken<true>(block, META_INDICATOR)) {
+		if (!CheckNextToken<true>(srcBlock, META_INDICATOR)) {
 			break;
 		}
 
-		if (GetNextToken<false>(block, token)) {
+		if (GetNextToken<false>(srcBlock, token)) {
 			return 1;
 		}
 
@@ -878,7 +877,7 @@ UINT ResolvePass(
 			processed[0] = true;
 
 			std::string_view binds;
-			if (GetNextString(block, binds)) {
+			if (GetNextString(srcBlock, binds)) {
 				return 1;
 			}
 
@@ -902,7 +901,7 @@ UINT ResolvePass(
 			processed[1] = true;
 
 			std::string_view saves;
-			if (GetNextString(block, saves)) {
+			if (GetNextString(srcBlock, saves)) {
 				return 1;
 			}
 
@@ -931,7 +930,7 @@ UINT ResolvePass(
 			processed[2] = true;
 
 			std::string_view val;
-			if (GetNextString(block, val)) {
+			if (GetNextString(srcBlock, val)) {
 				return 1;
 			}
 
@@ -967,7 +966,7 @@ UINT ResolvePass(
 			processed[3] = true;
 
 			std::string_view val;
-			if (GetNextString(block, val)) {
+			if (GetNextString(srcBlock, val)) {
 				return 1;
 			}
 
@@ -995,7 +994,7 @@ UINT ResolvePass(
 			processed[4] = true;
 
 			std::string_view val;
-			if (GetNextString(block, val)) {
+			if (GetNextString(srcBlock, val)) {
 				return 1;
 			}
 
@@ -1017,7 +1016,39 @@ UINT ResolvePass(
 		passDesc.blockSize.second = 16;
 	}
 
-	passHlsl.append(resHlsl);
+	passHlsl = R"(cbuffer __CB1 : register(b0) {
+	int4 __cursorRect;
+	float2 __cursorPt;
+	uint2 __cursorPos;
+	uint __cursorType;
+	uint __frameCount;
+};
+cbuffer __CB2 : register(b1) {
+	uint2 __inputSize;
+	uint2 __outputSize;
+	float2 __inputPt;
+	float2 __outputPt;
+	float2 __scale;
+	int2 __viewport;
+)";
+
+	bool lastEffect = desc.Flags & EFFECT_FLAG_LAST_EFFECT;
+	if (lastEffect) {
+		passHlsl.append("\tint4 __offset;\n");
+	}
+
+	bool isInlineParams = desc.Flags & EFFECT_FLAG_INLINE_PARAMETERS;
+
+	if (!isInlineParams) {
+		for (const auto& d : desc.params) {
+			passHlsl.append("\t")
+				.append(d.type == EffectConstantType::Int ? "int " : "float ")
+				.append(d.name)
+				.append(";\n");
+		}
+	}
+
+	passHlsl.append("};\n");
 
 	// SRV
 	for (int i = 0; i < passDesc.inputs.size(); ++i) {
@@ -1044,6 +1075,8 @@ UINT ResolvePass(
 			passHlsl.append(fmt::format("RWTexture2D<float4> {} : register(u{});\n", desc.textures[passDesc.outputs[i]].name, i));
 		}
 	}
+
+	passHlsl.append(defBlock);
 
 	if (lastPass) {
 		passHlsl.append("bool CheckViewport(int2 pos) { return pos.x < __viewport.x && pos.y < __viewport.y; }\n");
@@ -1084,7 +1117,7 @@ void WriteToOutput(uint2 pos, float3 color) {
 		}
 	}
 
-	passHlsl.append(commonHlsl).append(block);
+	passHlsl.append(codeBlock).append(srcBlock);
 
 	if (passHlsl.back() != '\n') {
 		passHlsl.push_back('\n');
@@ -1189,49 +1222,13 @@ void __M(uint3 tid : SV_GroupThreadID, uint3 gid : SV_GroupID) {{
 }
 
 UINT ResolvePasses(
-	std::vector<std::string_view>& blocks,
-	std::string_view commonHlsl,
+	std::vector<std::string_view>& srcblocks,
+	std::string_view codeBlock,
 	const std::map<std::string, std::variant<float, int>>& inlineParams,
 	EffectDesc& desc
 ) {
-	bool lastEffect = desc.Flags & EFFECT_FLAG_LAST_EFFECT;
-
-	std::string resHlsl = R"(cbuffer __CB1 : register(b0) {
-	int4 __cursorRect;
-	float2 __cursorPt;
-	uint2 __cursorPos;
-	uint __cursorType;
-	uint __frameCount;
-};)";
-
-	resHlsl.append(R"(
-cbuffer __CB2 : register(b1) {
-	uint2 __inputSize;
-	uint2 __outputSize;
-	float2 __inputPt;
-	float2 __outputPt;
-	float2 __scale;
-	int2 __viewport;
-)");
-
-	if (lastEffect) {
-		resHlsl.append("\tint4 __offset;\n");
-	}
-
-	bool isInlineParams = desc.Flags & EFFECT_FLAG_INLINE_PARAMETERS;
-
-	if (!isInlineParams) {
-		for (const auto& d : desc.params) {
-			resHlsl.append("\t")
-				.append(d.type == EffectConstantType::Int ? "int " : "float ")
-				.append(d.name)
-				.append(";\n");
-		}
-	}
-
-	resHlsl.append("};\n");
-
-	if (isInlineParams) {
+	std::string defBlock;
+	if (desc.Flags & EFFECT_FLAG_INLINE_PARAMETERS) {
 		std::unordered_set<std::string_view> paramNames;
 		for (const auto& d : desc.params) {
 			paramNames.emplace(d.name);
@@ -1239,19 +1236,19 @@ cbuffer __CB2 : register(b1) {
 			auto it = inlineParams.find(d.name);
 			if (it == inlineParams.end()) {
 				if (d.type == EffectConstantType::Float) {
-					resHlsl.append(fmt::format("#define {} {}\n", d.name, std::get<float>(d.defaultValue)));
+					defBlock.append(fmt::format("#define {} {}\n", d.name, std::get<float>(d.defaultValue)));
 				} else {
-					resHlsl.append(fmt::format("#define {} {}\n", d.name, std::get<int>(d.defaultValue)));
+					defBlock.append(fmt::format("#define {} {}\n", d.name, std::get<int>(d.defaultValue)));
 				}
 			} else {
 				if (it->second.index() == 1) {
-					resHlsl.append(fmt::format("#define {} {}\n", d.name, std::get<int>(it->second)));
+					defBlock.append(fmt::format("#define {} {}\n", d.name, std::get<int>(it->second)));
 				} else {
 					if (d.type == EffectConstantType::Int) {
 						return 1;
 					}
 
-					resHlsl.append(fmt::format("#define {} {}\n", d.name, std::get<float>(it->second)));
+					defBlock.append(fmt::format("#define {} {}\n", d.name, std::get<float>(it->second)));
 				}
 			}
 		}
@@ -1266,27 +1263,26 @@ cbuffer __CB2 : register(b1) {
 	if (!desc.samplers.empty()) {
 		// 采样器
 		for (int i = 0; i < desc.samplers.size(); ++i) {
-			resHlsl.append(fmt::format("SamplerState {} : register(s{});\n", desc.samplers[i].name, i));
+			defBlock.append(fmt::format("SamplerState {} : register(s{});\n", desc.samplers[i].name, i));
 		}
 	}
 
-	if (lastEffect) {
+	if (desc.Flags & EFFECT_FLAG_LAST_EFFECT) {
 		// 绘制光标使用的采样器
-		resHlsl.append(fmt::format("SamplerState __CURSOR_SAMPLER : register(s{});\n", desc.samplers.size()));
+		defBlock.append(fmt::format("SamplerState __CURSOR_SAMPLER : register(s{});\n", desc.samplers.size()));
 	}
 
-	if (ResolvePassNumbers(blocks)) {
+	if (ResolvePassNumbers(srcblocks)) {
 		Logger::Get().Error("解析 Pass 序号失败");
 		return 1;
 	}
 
-	std::vector<std::string> passSources(blocks.size());
-	desc.passes.resize(blocks.size());
+	std::vector<std::string> passSources(srcblocks.size());
+	desc.passes.resize(srcblocks.size());
 
-	for (UINT i = 0; i < blocks.size(); ++i) {
-		if (ResolvePass(
-			blocks[i], desc, i + 1, desc.passes[i], passSources[i],
-			resHlsl, commonHlsl, lastEffect, i == blocks.size() - 1)
+	for (UINT i = 0; i < srcblocks.size(); ++i) {
+		if (ResolvePass(srcblocks[i], desc, i + 1, desc.passes[i],
+			defBlock, codeBlock, i == srcblocks.size() - 1, passSources[i])
 		) {
 			Logger::Get().Error(fmt::format("解析 Pass{} 失败", i + 1));
 			return 1;
