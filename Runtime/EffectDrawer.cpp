@@ -35,6 +35,7 @@ bool EffectDrawer::Initialize(
 
 	const SIZE hostSize = Utils::GetSizeOfRect(App::Get().GetHostWndRect());;
 	_isLastEffect = desc.Flags & EFFECT_FLAG_LAST_EFFECT;
+	bool isInlineParams = desc.Flags & EFFECT_FLAG_INLINE_PARAMETERS;
 
 	DeviceResources& dr = App::Get().GetDeviceResources();
 	auto d3dDevice = dr.GetD3DDevice();
@@ -105,7 +106,7 @@ bool EffectDrawer::Initialize(
 
 	// 大小必须为 4 的倍数
 	size_t builtinConstantCount = _isLastEffect ? 16 : 12 ;
-	_constants.resize((builtinConstantCount + desc.params.size() + 3) / 4 * 4);
+	_constants.resize((builtinConstantCount + (isInlineParams ? 0 : desc.params.size()) + 3) / 4 * 4);
 	// cbuffer __CB2 : register(b1) {
 	//     uint2 __inputSize;
 	//     uint2 __outputSize;
@@ -165,45 +166,55 @@ bool EffectDrawer::Initialize(
 		*virtualOutputRect = virtualOutputRect1;
 	}
 
-	// 填入参数
-	for (UINT i = 0; i < desc.params.size(); ++i) {
-		const auto& paramDesc = desc.params[i];
-		auto it = params.params.find(i);
+	if (!isInlineParams) {
+		// 填入参数
+		for (UINT i = 0; i < desc.params.size(); ++i) {
+			const auto& paramDesc = desc.params[i];
+			auto it = params.params.find(paramDesc.name);
 
-		if (paramDesc.type == EffectConstantType::Float) {
-			float value;
+			if (paramDesc.type == EffectConstantType::Float) {
+				float value;
 
-			if (it == params.params.end()) {
-				value = std::get<float>(paramDesc.defaultValue);
-			} else {
-				value= it->second.floatVal;
+				if (it == params.params.end()) {
+					value = std::get<float>(paramDesc.defaultValue);
+				} else {
+					if (it->second.index() == 0) {
+						value = std::get<0>(it->second);
+					} else {
+						value = std::get<1>(it->second);
+					}
 
-				if ((paramDesc.minValue.index() == 1 && value < std::get<float>(paramDesc.minValue))
-					|| (paramDesc.maxValue.index() == 1 && value > std::get<float>(paramDesc.maxValue))
-				) {
-					Logger::Get().Error(fmt::format("参数 {} 的值非法", paramDesc.name));
-					return false;
+					if ((paramDesc.minValue.index() == 1 && value < std::get<float>(paramDesc.minValue))
+						|| (paramDesc.maxValue.index() == 1 && value > std::get<float>(paramDesc.maxValue))
+					) {
+						Logger::Get().Error(fmt::format("参数 {} 的值非法", paramDesc.name));
+						return false;
+					}
 				}
-			}
 
-			_constants[builtinConstantCount + i].floatVal = value;
-		} else {
-			int value;
-
-			if (it == params.params.end()) {
-				value = std::get<int>(paramDesc.defaultValue);
+				_constants[builtinConstantCount + i].floatVal = value;
 			} else {
-				value = it->second.intVal;
+				int value;
 
-				if ((paramDesc.minValue.index() == 2 && value < std::get<int>(paramDesc.minValue))
-					|| (paramDesc.maxValue.index() == 2 && value > std::get<int>(paramDesc.maxValue))
-				) {
-					Logger::Get().Error(fmt::format("参数 {} 的值非法", paramDesc.name));
-					return false;
+				if (it == params.params.end()) {
+					value = std::get<int>(paramDesc.defaultValue);
+				} else {
+					if (it->second.index() == 0) {
+						return false;
+					} else {
+						value = std::get<int>(it->second);
+					}
+
+					if ((paramDesc.minValue.index() == 2 && value < std::get<int>(paramDesc.minValue))
+						|| (paramDesc.maxValue.index() == 2 && value > std::get<int>(paramDesc.maxValue))
+					) {
+						Logger::Get().Error(fmt::format("参数 {} 的值非法", paramDesc.name));
+						return false;
+					}
 				}
-			}
 
-			_constants[builtinConstantCount + i].intVal = value;
+				_constants[builtinConstantCount + i].intVal = value;
+			}
 		}
 	}
 

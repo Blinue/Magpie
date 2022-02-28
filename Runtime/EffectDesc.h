@@ -86,7 +86,8 @@ struct EffectPassDesc {
 };
 
 enum EffectFlags {
-	EFFECT_FLAG_LAST_EFFECT = 1
+	EFFECT_FLAG_LAST_EFFECT = 0x1,
+	EFFECT_FLAG_INLINE_PARAMETERS = 0x2
 };
 
 struct EffectDesc {
@@ -102,13 +103,14 @@ struct EffectDesc {
 	UINT Flags = 0;
 };
 
+struct EffectParams {
+	std::optional<std::pair<float, float>> scale;
+	std::map<std::string, std::variant<float, int>> params;
+};
+
 union EffectConstant32 {
 	FLOAT floatVal;
 	UINT uintVal;
 	INT intVal;
 };
 
-struct EffectParams{
-	std::optional<std::pair<float, float>> scale;
-	std::map<UINT, EffectConstant32> params;
-};

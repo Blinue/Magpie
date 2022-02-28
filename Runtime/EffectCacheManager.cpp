@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "EffectCache.h"
+#include "EffectCacheManager.h"
 #include <yas/mem_streams.hpp>
 #include <yas/binary_oarchive.hpp>
 #include <yas/binary_iarchive.hpp>
@@ -12,6 +12,7 @@
 #include "DeviceResources.h"
 #include "StrUtils.h"
 #include "Logger.h"
+#include <zstd.h>
 
 
 template<typename Archive>
@@ -147,11 +148,11 @@ std::wstring ConvertFileName(const wchar_t* fileName) {
 	return file;
 }
 
-std::wstring EffectCache::_GetCacheFileName(const wchar_t* fileName, std::string_view hash) {
+std::wstring EffectCacheManager::_GetCacheFileName(const wchar_t* fileName, std::string_view hash) {
 	return fmt::format(L".\\cache\\{}_{}.{}", ConvertFileName(fileName), StrUtils::UTF8ToUTF16(hash), _SUFFIX);
 }
 
-void EffectCache::_AddToMemCache(const std::wstring& cacheFileName, const EffectDesc& desc) {
+void EffectCacheManager::_AddToMemCache(const std::wstring& cacheFileName, const EffectDesc& desc) {
 	_memCache[cacheFileName] = desc;
 
 	if (_memCache.size() > _MAX_CACHE_COUNT) {
@@ -165,7 +166,7 @@ void EffectCache::_AddToMemCache(const std::wstring& cacheFileName, const Effect
 }
 
 
-bool EffectCache::Load(const wchar_t* fileName, std::string_view hash, EffectDesc& desc) {
+bool EffectCacheManager::Load(const wchar_t* fileName, std::string_view hash, EffectDesc& desc) {
 	if (App::Get().IsDisableEffectCache()) {
 		return false;
 	}
@@ -243,7 +244,7 @@ bool EffectCache::Load(const wchar_t* fileName, std::string_view hash, EffectDes
 	return true;
 }
 
-void EffectCache::Save(const wchar_t* fileName, std::string_view hash, const EffectDesc& desc) {
+void EffectCacheManager::Save(const wchar_t* fileName, std::string_view hash, const EffectDesc& desc) {
 	if (App::Get().IsDisableEffectCache()) {
 		return;
 	}

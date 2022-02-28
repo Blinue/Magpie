@@ -4,10 +4,10 @@
 #include "EffectDesc.h"
 
 
-class EffectCache {
+class EffectCacheManager {
 public:
-	static EffectCache& Get() {
-		static EffectCache instance;
+	static EffectCacheManager& Get() {
+		static EffectCacheManager instance;
 		return instance;
 	}
 

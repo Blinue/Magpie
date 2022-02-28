@@ -7,7 +7,12 @@ class EffectCompiler {
 public:
 	EffectCompiler() = default;
 
-	static UINT Compile(const wchar_t* fileName, EffectDesc& desc, UINT flags = 0);
+	static UINT Compile(
+		const wchar_t* fileName,
+		UINT flags,
+		const std::map<std::string, std::variant<float, int>>& inlineParams,
+		EffectDesc& desc
+	);
 
 	// 当前 MagpieFX 版本
 	static constexpr UINT VERSION = 2;

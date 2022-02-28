@@ -4,7 +4,6 @@
 #include "Utils.h"
 #include "StrUtils.h"
 #include "EffectCompiler.h"
-#include <rapidjson/document.h>
 #include "FrameSourceBase.h"
 #include "DeviceResources.h"
 #include "GPUTimer.h"
@@ -12,6 +11,12 @@
 #include "UIDrawer.h"
 #include "Logger.h"
 #include "CursorManager.h"
+
+#pragma push_macro("GetObject")
+#undef GetObject
+#include <rapidjson/document.h>
+#include <rapidjson/stringbuffer.h>
+#include <rapidjson/writer.h>
 
 
 Renderer::Renderer() {}
@@ -300,30 +305,11 @@ bool Renderer::_ResolveEffectsJson(const std::string& effectsJson) {
 			return false;
 		}
 
-		EffectDesc effectDesc;
+		
 		EffectParams effectParams;
-		std::wstring fileName = (L"effects\\" + StrUtils::UTF8ToUTF16(effectName->value.GetString()) + L".hlsl");
+		UINT effectFlags = (i == end - 1) ? EFFECT_FLAG_LAST_EFFECT : 0;
 
-		bool result = false;
-		int duration = Utils::Measure([&]() {
-			result = !EffectCompiler::Compile(
-				fileName.c_str(),
-				effectDesc,
-				(i == end - 1) ? EFFECT_FLAG_LAST_EFFECT : 0
-			);
-		});
-
-		if (!result) {
-			Logger::Get().Error(fmt::format("编译 {} 失败", StrUtils::UTF16ToUTF8(fileName)));
-			return false;
-		} else {
-			Logger::Get().Info(fmt::format("编译 {} 用时 {} 毫秒", StrUtils::UTF16ToUTF8(fileName), duration / 1000.0f));
-		}
-
-#pragma push_macro("GetObject")
-#undef GetObject
 		for (const auto& prop : effectJson.GetObject()) {
-#pragma pop_macro("GetObject")
 			if (!prop.name.IsString()) {
 				Logger::Get().Error("解析 json 失败：非法的效果名");
 				return false;
@@ -333,7 +319,17 @@ bool Renderer::_ResolveEffectsJson(const std::string& effectsJson) {
 
 			if (name == "effect") {
 				continue;
-			} else if (name == "scale" && effectDesc.outSizeExpr.first.empty()) {
+			} else if (name == "inlineParams") {
+				if (!prop.value.IsBool()) {
+					Logger::Get().Error(fmt::format("解析 json 失败：成员 inlineParams 必须为 bool 类型", name));
+					return false;
+				}
+
+				if (prop.value.GetBool()) {
+					effectFlags |= EFFECT_FLAG_INLINE_PARAMETERS;
+				}
+				continue;
+			} else if (name == "scale") {
 				auto scaleProp = effectJson.FindMember("scale");
 				if (scaleProp != effectJson.MemberEnd()) {
 					if (!scaleProp->value.IsArray()) {
@@ -350,45 +346,35 @@ bool Renderer::_ResolveEffectsJson(const std::string& effectsJson) {
 					effectParams.scale = std::make_pair(scale[0].GetFloat(), scale[1].GetFloat());
 				}
 			} else {
-				auto it = std::find_if(
-					effectDesc.params.begin(),
-					effectDesc.params.end(),
-					[name](const EffectParameterDesc& desc) { return desc.name == name; }
-				);
+				auto& paramValue = effectParams.params[std::string(name)];
 
-				if (it == effectDesc.params.end()) {
-					Logger::Get().Error(fmt::format("解析 json 失败：非法成员 {}", name));
-					return false;
-				}
-
-				auto pair = effectParams.params.emplace(UINT(it - effectDesc.params.begin()), EffectConstant32{});
-				if (!pair.second) {
-					Logger::Get().Error(fmt::format("重复的成员：{}", name));
-					return false;
-				}
-
-				EffectConstant32& value = pair.first->second;
-
-				auto type = it->type;
-				if (type == EffectConstantType::Float) {
-					if (!prop.value.IsNumber()) {
-						Logger::Get().Error(fmt::format("解析 json 失败：成员 {} 的类型非法", name));
-						return false;
-					}
-
-					value.floatVal = prop.value.GetFloat();
+				if (prop.value.IsFloat()) {
+					paramValue = prop.value.GetFloat();
+				} else if (prop.value.IsInt()) {
+					paramValue = prop.value.GetInt();
+				} else if (prop.value.IsBool()) {
+					// bool 值视为 int
+					paramValue = (int)prop.value.GetBool();
 				} else {
-					if (prop.value.IsInt()) {
-						value.intVal = prop.value.GetInt();
-					} else if (prop.value.IsBool()) {
-						// bool 值视为 int
-						value.intVal = (int)prop.value.GetBool();
-					} else {
-						Logger::Get().Error(fmt::format("解析 json 失败：成员 {} 的类型非法", name));
-						return false;
-					}
+					Logger::Get().Error(fmt::format("解析 json 失败：成员 {} 的类型非法", name));
+					return false;
 				}
 			}
+		}
+
+		EffectDesc effectDesc;
+		std::wstring fileName = (L"effects\\" + StrUtils::UTF8ToUTF16(effectName->value.GetString()) + L".hlsl");
+
+		bool result = false;
+		int duration = Utils::Measure([&]() {
+			result = !EffectCompiler::Compile(fileName.c_str(), effectFlags, effectParams.params, effectDesc);
+		});
+
+		if (!result) {
+			Logger::Get().Error(fmt::format("编译 {} 失败", StrUtils::UTF16ToUTF8(fileName)));
+			return false;
+		} else {
+			Logger::Get().Info(fmt::format("编译 {} 用时 {} 毫秒", StrUtils::UTF16ToUTF8(fileName), duration / 1000.0f));
 		}
 
 		bool isLastEffect = i == end - 1;
@@ -475,3 +461,5 @@ bool Renderer::_UpdateDynamicConstants() {
 
 	return true;
 }
+
+#pragma pop_macro("GetObject")

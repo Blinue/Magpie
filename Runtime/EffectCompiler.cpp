@@ -4,7 +4,7 @@
 #include "Utils.h"
 #include <bitset>
 #include <charconv>
-#include "EffectCache.h"
+#include "EffectCacheManager.h"
 #include "StrUtils.h"
 #include "App.h"
 #include "DeviceResources.h"
@@ -1188,8 +1188,13 @@ void __M(uint3 tid : SV_GroupThreadID, uint3 gid : SV_GroupID) {{
 	return 0;
 }
 
-UINT ResolvePasses(std::vector<std::string_view>& blocks, std::string_view commonHlsl, EffectDesc& desc, UINT flags) {
-	bool lastEffect = flags & EFFECT_FLAG_LAST_EFFECT;
+UINT ResolvePasses(
+	std::vector<std::string_view>& blocks,
+	std::string_view commonHlsl,
+	const std::map<std::string, std::variant<float, int>>& inlineParams,
+	EffectDesc& desc
+) {
+	bool lastEffect = desc.Flags & EFFECT_FLAG_LAST_EFFECT;
 
 	std::string resHlsl = R"(cbuffer __CB1 : register(b0) {
 	int4 __cursorRect;
@@ -1213,7 +1218,9 @@ cbuffer __CB2 : register(b1) {
 		resHlsl.append("\tint4 __offset;\n");
 	}
 
-	if (!desc.params.empty()) {
+	bool isInlineParams = desc.Flags & EFFECT_FLAG_INLINE_PARAMETERS;
+
+	if (!isInlineParams) {
 		for (const auto& d : desc.params) {
 			resHlsl.append("\t")
 				.append(d.type == EffectConstantType::Int ? "int " : "float ")
@@ -1223,6 +1230,38 @@ cbuffer __CB2 : register(b1) {
 	}
 
 	resHlsl.append("};\n");
+
+	if (isInlineParams) {
+		std::unordered_set<std::string_view> paramNames;
+		for (const auto& d : desc.params) {
+			paramNames.emplace(d.name);
+
+			auto it = inlineParams.find(d.name);
+			if (it == inlineParams.end()) {
+				if (d.type == EffectConstantType::Float) {
+					resHlsl.append(fmt::format("#define {} {}\n", d.name, std::get<float>(d.defaultValue)));
+				} else {
+					resHlsl.append(fmt::format("#define {} {}\n", d.name, std::get<int>(d.defaultValue)));
+				}
+			} else {
+				if (it->second.index() == 1) {
+					resHlsl.append(fmt::format("#define {} {}\n", d.name, std::get<int>(it->second)));
+				} else {
+					if (d.type == EffectConstantType::Int) {
+						return 1;
+					}
+
+					resHlsl.append(fmt::format("#define {} {}\n", d.name, std::get<float>(it->second)));
+				}
+			}
+		}
+
+		for (const auto& pair : inlineParams) {
+			if (!paramNames.contains(pair.first)) {
+				return 1;
+			}
+		}
+	}
 	
 	if (!desc.samplers.empty()) {
 		// 采样器
@@ -1306,7 +1345,12 @@ cbuffer __CB2 : register(b1) {
 }
 
 
-UINT EffectCompiler::Compile(const wchar_t* fileName, EffectDesc& desc, UINT flags) {
+UINT EffectCompiler::Compile(
+	const wchar_t* fileName,
+	UINT flags,
+	const std::map<std::string, std::variant<float, int>>& inlineParams,
+	EffectDesc& desc
+) {
 	desc = {};
 	desc.Flags = flags;
 
@@ -1327,15 +1371,15 @@ UINT EffectCompiler::Compile(const wchar_t* fileName, EffectDesc& desc, UINT fla
 		return 1;
 	}
 
-	std::string md5;
+	std::string hash;
 	if (!App::Get().IsDisableEffectCache()) {
-		std::vector<BYTE> hash;
-		if (!Utils::Hasher::Get().Hash(source.data(), source.size(), hash)) {
+		std::vector<BYTE> hashBytes;
+		if (!Utils::Hasher::Get().Hash(source.data(), source.size(), hashBytes)) {
 			Logger::Get().Error("计算 hash 失败");
 		} else {
-			md5 = Utils::Bin2Hex(hash.data(), hash.size());
+			hash = Utils::Bin2Hex(hashBytes.data(), hashBytes.size());
 
-			if (EffectCache::Get().Load(fileName, md5, desc)) {
+			if (EffectCacheManager::Get().Load(fileName, hash, desc)) {
 				// 已从缓存中读取
 				return 0;
 			}
@@ -1517,12 +1561,12 @@ uint2 GetCursorPos() { return __cursorPos; }
 		}
 	}
 
-	if (ResolvePasses(passBlocks, commonHlsl, desc, flags)) {
+	if (ResolvePasses(passBlocks, commonHlsl, inlineParams, desc)) {
 		Logger::Get().Error("解析 Pass 块失败");
 		return 1;
 	}
 
-	EffectCache::Get().Save(fileName, md5, desc);
+	EffectCacheManager::Get().Save(fileName, hash, desc);
 
 	return 0;
 }

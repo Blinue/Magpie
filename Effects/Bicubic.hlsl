@@ -32,28 +32,25 @@ SamplerState sam;
 //!IN INPUT
 
 
-float weight(float x, float B, float C) {
+float weight(float x) {
 	float ax = abs(x);
 
 	if (ax < 1.0) {
-		return (x * x * ((12.0 - 9.0 * B - 6.0 * C) * ax + (-18.0 + 12.0 * B + 6.0 * C)) + (6.0 - 2.0 * B)) / 6.0;
+		return (x * x * ((12.0 - 9.0 * paramB - 6.0 * paramC) * ax + (-18.0 + 12.0 * paramB + 6.0 * paramC)) + (6.0 - 2.0 * paramB)) / 6.0;
 	} else if (ax >= 1.0 && ax < 2.0) {
-		return (x * x * ((-B - 6.0 * C) * ax + (6.0 * B + 30.0 * C)) + (-12.0 * B - 48.0 * C) * ax + (8.0 * B + 24.0 * C)) / 6.0;
+		return (x * x * ((-paramB - 6.0 * paramC) * ax + (6.0 * paramB + 30.0 * paramC)) + (-12.0 * paramB - 48.0 * paramC) * ax + (8.0 * paramB + 24.0 * paramC)) / 6.0;
 	} else {
 		return 0.0;
 	}
 }
 
 float4 weight4(float x) {
-	float B = paramB;
-	float C = paramC;
-
 	return float4(
-		weight(x - 2.0, B, C),
-		weight(x - 1.0, B, C),
-		weight(x, B, C),
-		weight(x + 1.0, B, C)
-		);
+		weight(x - 2.0),
+		weight(x - 1.0),
+		weight(x),
+		weight(x + 1.0)
+	);
 }
 
 
