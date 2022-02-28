@@ -1257,7 +1257,7 @@ cbuffer __CB2 : register(b1) {
 		}
 
 		for (const auto& pair : inlineParams) {
-			if (!paramNames.contains(pair.first)) {
+			if (!paramNames.contains(std::string_view(pair.first))) {
 				return 1;
 			}
 		}

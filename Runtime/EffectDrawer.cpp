@@ -8,6 +8,7 @@
 #include "StrUtils.h"
 #include "Renderer.h"
 #include "CursorManager.h"
+#include <unordered_set>
 
 #pragma push_macro("_UNICODE")
 #undef _UNICODE
@@ -168,8 +169,12 @@ bool EffectDrawer::Initialize(
 
 	if (!isInlineParams) {
 		// 填入参数
+		std::unordered_set<std::string_view> paramNames;
+
 		for (UINT i = 0; i < desc.params.size(); ++i) {
 			const auto& paramDesc = desc.params[i];
+			paramNames.emplace(paramDesc.name);
+
 			auto it = params.params.find(paramDesc.name);
 
 			if (paramDesc.type == EffectConstantType::Float) {
@@ -214,6 +219,13 @@ bool EffectDrawer::Initialize(
 				}
 
 				_constants[builtinConstantCount + i].intVal = value;
+			}
+		}
+
+		for (const auto& pair : params.params) {
+			if (!paramNames.contains(std::string_view(pair.first))) {
+				Logger::Get().Error(fmt::format("非法参数 {}", pair.first));
+				return false;
 			}
 		}
 	}
