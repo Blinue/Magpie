@@ -186,7 +186,7 @@ bool EffectDrawer::Initialize(
 					if (it->second.index() == 0) {
 						value = std::get<0>(it->second);
 					} else {
-						value = std::get<1>(it->second);
+						value = (float)std::get<1>(it->second);
 					}
 
 					if ((paramDesc.minValue.index() == 1 && value < std::get<float>(paramDesc.minValue))
