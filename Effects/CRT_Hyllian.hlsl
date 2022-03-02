@@ -148,10 +148,9 @@ const static float4x4 invX = float4x4((-B - 6.0 * C) / 6.0, (3.0 * B + 12.0 * C)
     -(12.0 - 9.0 * B - 6.0 * C) / 6.0, (18.0 - 15.0 * B - 12.0 * C) / 6.0, (3.0 * B + 6.0 * C) / 6.0, B / 6.0,
     (B + 6.0 * C) / 6.0, -C, 0.0, 0.0);
 
-float4 Main(uint2 pos) {
+float4 Main(float2 pos) {
     uint2 inputSize = GetInputSize();
     uint2 outputSize = GetOutputSize();
-    float2 ppos = (pos + 0.5f) * GetOutputPt();
     float3 color;
 
     float2 TextureSize = float2(sharpness * inputSize.x, inputSize.y);
@@ -159,7 +158,7 @@ float4 Main(uint2 pos) {
     float2 dx = lerp(float2(1.0 / TextureSize.x, 0.0), float2(0.0, 1.0 / TextureSize.y), vScanlines);
     float2 dy = lerp(float2(0.0, 1.0 / TextureSize.y), float2(1.0 / TextureSize.x, 0.0), vScanlines);
 
-    float2 pix_coord = ppos * TextureSize + float2(-0.5, 0.5);
+    float2 pix_coord = pos * TextureSize + float2(-0.5, 0.5);
 
     float2 tc = lerp((floor(pix_coord) + float2(0.5, 0.5)) / TextureSize, (floor(pix_coord) + float2(1.0, -0.5)) / TextureSize, vScanlines);
 
@@ -209,7 +208,7 @@ float4 Main(uint2 pos) {
 
     color *= colorBoost * float3(redBoost, greenBoost, blueBoost);
 
-    float mod_factor = lerp(ppos.x * outputSize.x, ppos.y * outputSize.y, vScanlines);
+    float mod_factor = lerp(pos.x * outputSize.x, pos.y * outputSize.y, vScanlines);
 
     float3 dotMaskWeights = lerp(
         float3(1.0, 0.7, 1.0),

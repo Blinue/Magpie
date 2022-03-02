@@ -323,9 +323,9 @@ float3 Mask(float2 pos) {
 	return mask;
 }
 
-float4 Main(uint2 pos) {
+float4 Main(float2 pos) {
 	uint2 inputSize = GetInputSize();
-	float2 pos1 = Warp((pos + 0.5f) * GetOutputPt());
+	float2 pos1 = Warp(pos);
 	float3 outColor = Tri(pos1, inputSize);
 
 #ifdef DO_BLOOM
@@ -334,7 +334,7 @@ float4 Main(uint2 pos) {
 #endif
 
 	if (shadowMask)
-		outColor.rgb *= Mask(pos + 0.5f);
+		outColor.rgb *= Mask(pos * GetOutputSize());
 
 	return float4(ToSrgb(outColor.rgb), 1.0);
 }

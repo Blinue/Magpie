@@ -92,16 +92,11 @@ float STU(float x, float b) {
 	return ((d(x, b) + sin(d(x, b)) - e(x, b) - sin(e(x, b))) / (2.0 * pi));
 }
 
-float4 Main(uint2 pos) {
+float4 Main(float2 pos) {
 	float2 inputSize = GetInputSize();
-	if (pos.x >= GetOutputSize().x || pos.y >= inputSize.y) {
-		return float4(0, 0, 0, 1);
-	}
-
 	float2 inputPt = GetInputPt();
-	float2 ppos = (pos + 0.5f) * float2(GetOutputPt().x, inputPt.y);
 
-	float offset = frac((ppos.x * inputSize.x) - 0.5);
+	float offset = frac((pos.x * inputSize.x) - 0.5);
 	float3   tempColor = 0;
 	float    X;
 	float3   c;
@@ -113,7 +108,7 @@ float4 Main(uint2 pos) {
 
 		for (i = -range; i < range + 2.0; i++) {
 			X = (offset - (i));
-			c = INPUT.SampleLevel(sam, float2(ppos.x - X * inputPt.x, ppos.y), 0).rgb;
+			c = INPUT.SampleLevel(sam, float2(pos.x - X * inputPt.x, pos.y), 0).rgb;
 			c = mul(RGB_to_YIQ, c);
 			tempColor += float3((c.x * STU(X, (signalResolution * inputPt.x))), (c.y * STU(X, (signalResolutionI * inputPt.x))), (c.z * STU(X, (signalResolutionQ * inputPt.x))));
 		}
@@ -124,7 +119,7 @@ float4 Main(uint2 pos) {
 
 		for (i = -range; i < range + 2.0; i++) {
 			X = (offset - (i));
-			c = INPUT.SampleLevel(sam, float2(ppos.x - X * inputPt.x, ppos.y), 0).rgb;
+			c = INPUT.SampleLevel(sam, float2(pos.x - X * inputPt.x, pos.y), 0).rgb;
 			tempColor += (c * STU(X, (signalResolution * inputPt.x)));
 		}
 
@@ -182,12 +177,11 @@ float STU(float x, float b) {
 	return ((d(x, b) + sin(d(x, b)) - e(x, b) - sin(e(x, b))) / (2.0 * pi));
 }
 
-float4 Main(uint2 pos) {
-	float2 ppos = (pos + 0.5f) * GetOutputPt();
+float4 Main(float2 pos) {
 	uint2 inputSize = GetInputSize();
 	float2 inputPt = GetInputPt();
 
-	float2   offset = frac((ppos * uint2(GetOutputSize().x, inputSize.y)) - 0.5);
+	float2   offset = frac((pos * uint2(GetOutputSize().x, inputSize.y)) - 0.5);
 	float3   tempColor = 0;
 	float3	Cj;
 
@@ -197,12 +191,12 @@ float4 Main(uint2 pos) {
 
 	if (noScanlines) {
 		for (i = -range; i < range + 2.0; i++) {
-			Cj = tex1.SampleLevel(sam, float2(ppos.x, ppos.y - (offset.y - (i)) * inputPt.y), 0).xyz;
+			Cj = tex1.SampleLevel(sam, float2(pos.x, pos.y - (offset.y - (i)) * inputPt.y), 0).xyz;
 			tempColor += Cj * STU(offset.y - (i), (tvVerticalResolution * inputPt.y));
 		}
 	} else {
 		for (i = -range; i < range + 2.0; i++) {
-			Cj = tex1.SampleLevel(sam, float2(ppos.x, ppos.y - (offset.y - (i)) * inputPt.y), 0).xyz;
+			Cj = tex1.SampleLevel(sam, float2(pos.x, pos.y - (offset.y - (i)) * inputPt.y), 0).xyz;
 			tempColor += scanlines(offset.y - (i), Cj);
 		}
 	}

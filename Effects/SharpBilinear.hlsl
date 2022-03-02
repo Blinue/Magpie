@@ -18,11 +18,11 @@ SamplerState sam;
 //!STYLE PS
 //!IN INPUT
 
-float4 Main(uint2 pos) {
+float4 Main(float2 pos) {
 	float2 inputPt = GetInputPt();
 	float2 scale = GetScale();
 
-	float2 texel = (pos + 0.5f) * GetOutputPt() * GetInputSize();
+	float2 texel = pos * GetInputSize();
 //   float2 texel_floored = floor(texel);
 //   float scale = (AUTO_PRESCALE > 0.5) ? floor(output_size.y / video_size.y) : SHARP_BILINEAR_PRE_SCALE;
 	float2 texel_floored = floor(texel);

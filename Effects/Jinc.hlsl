@@ -58,13 +58,13 @@ float4 resampler(float4 x, float wa, float wb) {
 		: sin(x * wa) * sin(x * wb) * rcp(x * x);
 }
 
-float4 Main(uint2 pos) {
+float4 Main(float2 pos) {
 	float2 inputPt = GetInputPt();
 
 	float2 dx = float2(1.0, 0.0);
 	float2 dy = float2(0.0, 1.0);
 
-	float2 pc = (pos + 0.5f) * GetOutputPt() * GetInputSize();
+	float2 pc = pos * GetInputSize();
 	float2 tc = floor(pc - 0.5f) + 0.5f;
 
 	float wa = windowSinc * PI;

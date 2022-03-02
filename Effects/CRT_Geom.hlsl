@@ -221,8 +221,7 @@ float4 scanlineWeights(float distance1, float4 color) {
 #endif
 }
 
-float4 Main(uint2 pos) {
-	const float2 ppos = (pos + 0.5f) * GetOutputPt();
+float4 Main(float2 pos) {
 	const uint2 outputSize = GetOutputSize();
 	const uint2 inputSize = GetInputSize();
 
@@ -230,7 +229,7 @@ float4 Main(uint2 pos) {
 	float3 stretch = maxscale(sin_cos_angle);
 	float2 TextureSize = float2(sharper * inputSize.x, inputSize.y);
 	// Resulting X pixel-coordinate of the pixel we're drawing.
-	float mod_factor = ppos.x * outputSize.x;
+	float mod_factor = pos.x * outputSize.x;
 	float2 ilfac = { 1.0, clamp(floor(inputSize.y / (200.0 * (-4 * interlace + 5))), 1.0, 2.0)};
 	float2 one = ilfac / TextureSize;
 
@@ -258,11 +257,11 @@ float4 Main(uint2 pos) {
 	// Texture coordinates of the texel containing the active pixel.
 	float2 xy = 0.0;
 	if (curvature > 0) {
-		float2 cd = ppos;
+		float2 cd = pos;
 		cd = (cd - 0.5) * aspect * stretch.z + stretch.xy;
 		xy = bkwtrans(cd, sin_cos_angle) / float2(overScanX / 100.0, overScanY / 100.0) / aspect + float2(0.5, 0.5);
 	} else {
-		xy = ppos;
+		xy = pos;
 	}
 
 	float2 cd2 = xy;

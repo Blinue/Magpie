@@ -35,13 +35,13 @@ float3 weight3(float x) {
 	return /*radius **/ sin(s) * sin(s * rcpRadius) * rcp(s * s);
 }
 
-float4 Main(uint2 pos) {
-	float2 ppos = (pos + 0.5f) * GetOutputPt() * GetInputSize();
+float4 Main(float2 pos) {
+	pos *= GetInputSize();
 	float2 inputPt = GetInputPt();
 
 	uint i, j;
 
-	float2 f = frac(ppos.xy + 0.5f);
+	float2 f = frac(pos.xy + 0.5f);
 	float3 linetaps1 = weight3(0.5f - f.x * 0.5f);
 	float3 linetaps2 = weight3(1.0f - f.x * 0.5f);
 	float3 columntaps1 = weight3(0.5f - f.y * 0.5f);
@@ -56,7 +56,7 @@ float4 Main(uint2 pos) {
 	columntaps1 /= sumc;
 	columntaps2 /= sumc;
 
-	ppos -= f + 1.5f;
+	pos -= f + 1.5f;
 
 	float3 src[6][6];
 
@@ -64,7 +64,7 @@ float4 Main(uint2 pos) {
 	for (i = 0; i <= 4; i += 2) {
 		[unroll]
 		for (j = 0; j <= 4; j += 2) {
-			float2 tpos = (ppos + uint2(i, j)) * inputPt;
+			float2 tpos = (pos + uint2(i, j)) * inputPt;
 			const float4 sr = INPUT.GatherRed(sam, tpos);
 			const float4 sg = INPUT.GatherGreen(sam, tpos);
 			const float4 sb = INPUT.GatherBlue(sam, tpos);

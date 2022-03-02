@@ -21,15 +21,14 @@ SamplerState sam;
 
 // Samples a texture with Catmull-Rom filtering, using 9 texture fetches instead of 16.
 // See http://vec3.ca/bicubic-filtering-in-fewer-taps/ for more details
-float4 Main(uint2 pos) {
+float4 Main(float2 pos) {
 	float2 inputSize = GetInputSize();
 	float2 inputPt = GetInputPt();
-    float2 outputPt = GetOutputPt();
 
     // We're going to sample a a 4x4 grid of texels surrounding the target UV coordinate. We'll do this by rounding
     // down the sample location to get the exact center of our "starting" texel. The starting texel will be at
     // location [1, 1] in the grid, where [0, 0] is the top left corner.
-    float2 samplePos = (pos + 0.5f) * outputPt * inputSize;
+    float2 samplePos = pos * inputSize;
     float2 texPos1 = floor(samplePos - 0.5f) + 0.5f;
 
     // Compute the fractional offset from our starting texel to our original sample location, which we'll

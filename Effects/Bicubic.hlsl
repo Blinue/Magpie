@@ -55,12 +55,10 @@ float4 weight4(float x) {
 
 
 float4 Main(float2 pos) {
-	float2 inputSize = GetInputSize();
 	float2 inputPt = GetInputPt();
-	float2 outputPt = GetOutputPt();
 	uint i, j;
 
-	pos *= inputSize;
+	pos *= GetInputSize();
 	float2 f = frac(pos + 0.5f);
 
 	float4 linetaps = weight4(1.0 - f.x);

@@ -72,12 +72,11 @@ SamplerState sam;
   //#define CoefLuma float3(0.299, 0.587, 0.114)       // BT.601 luma coefficient (SD Television)
   //#define CoefLuma float3(1.0/3.0, 1.0/3.0, 1.0/3.0) // Equal weight coefficient
 
-float4 Main(uint2 pos) {
+float4 Main(float2 pos) {
 	float2 BUFFER_PIXEL_SIZE = GetInputPt();
-	float2 ppos = (pos + 0.5f) * BUFFER_PIXEL_SIZE;
 
 	// -- Get the original pixel --
-	float3 ori = INPUT.SampleLevel(sam, ppos, 0).rgb; // ori = original pixel
+	float3 ori = INPUT.SampleLevel(sam, pos, 0).rgb; // ori = original pixel
 
 	// -- Combining the strength and luma multipliers --
 	float3 sharp_strength_luma = (CoefLuma * sharpStrength); //I'll be combining even more multipliers with it later on
@@ -98,8 +97,8 @@ float4 Main(uint2 pos) {
 		//   [ 2/9, 8/9, 2/9]  =  [ 2 , 8 , 2 ]
 		//   [    , 2/9, 1/9]     [   , 2 , 1 ]
 
-		blur_ori = INPUT.SampleLevel(sam, ppos + (BUFFER_PIXEL_SIZE / 3.0) * offsetBias, 0).rgb;  // North West
-		blur_ori += INPUT.SampleLevel(sam, ppos + (-BUFFER_PIXEL_SIZE / 3.0) * offsetBias, 0).rgb; // South East
+		blur_ori = INPUT.SampleLevel(sam, pos + (BUFFER_PIXEL_SIZE / 3.0) * offsetBias, 0).rgb;  // North West
+		blur_ori += INPUT.SampleLevel(sam, pos + (-BUFFER_PIXEL_SIZE / 3.0) * offsetBias, 0).rgb; // South East
 
 		//blur_ori += tex2D(ReShade::BackBuffer, tex + (BUFFER_PIXEL_SIZE / 3.0) * offsetBias); // North East
 		//blur_ori += tex2D(ReShade::BackBuffer, tex + (-BUFFER_PIXEL_SIZE / 3.0) * offsetBias); // South West
@@ -116,10 +115,10 @@ float4 Main(uint2 pos) {
 		//   [ .50,   1, .50]  =  [ 2 , 4 , 2 ]
 		//   [ .25, .50, .25]     [ 1 , 2 , 1 ]
 
-		blur_ori = INPUT.SampleLevel(sam, ppos + float2(BUFFER_PIXEL_SIZE.x, -BUFFER_PIXEL_SIZE.y) * 0.5 * offsetBias, 0).rgb; // South East
-		blur_ori += INPUT.SampleLevel(sam, ppos - BUFFER_PIXEL_SIZE * 0.5 * offsetBias, 0).rgb;  // South West
-		blur_ori += INPUT.SampleLevel(sam, ppos + BUFFER_PIXEL_SIZE * 0.5 * offsetBias, 0).rgb; // North East
-		blur_ori += INPUT.SampleLevel(sam, ppos - float2(BUFFER_PIXEL_SIZE.x, -BUFFER_PIXEL_SIZE.y) * 0.5 * offsetBias, 0).rgb; // North West
+		blur_ori = INPUT.SampleLevel(sam, pos + float2(BUFFER_PIXEL_SIZE.x, -BUFFER_PIXEL_SIZE.y) * 0.5 * offsetBias, 0).rgb; // South East
+		blur_ori += INPUT.SampleLevel(sam, pos - BUFFER_PIXEL_SIZE * 0.5 * offsetBias, 0).rgb;  // South West
+		blur_ori += INPUT.SampleLevel(sam, pos + BUFFER_PIXEL_SIZE * 0.5 * offsetBias, 0).rgb; // North East
+		blur_ori += INPUT.SampleLevel(sam, pos - float2(BUFFER_PIXEL_SIZE.x, -BUFFER_PIXEL_SIZE.y) * 0.5 * offsetBias, 0).rgb; // North West
 
 		blur_ori *= 0.25;  // ( /= 4) Divide by the number of texture fetches
 	}
@@ -133,10 +132,10 @@ float4 Main(uint2 pos) {
 		//   [ 4 ,16 ,24 ,16 ,   ]
 		//   [   ,   , 6 , 4 ,   ]
 
-		blur_ori = INPUT.SampleLevel(sam, ppos + BUFFER_PIXEL_SIZE * float2(0.4, -1.2) * offsetBias, 0).rgb;  // South South East
-		blur_ori += INPUT.SampleLevel(sam, ppos - BUFFER_PIXEL_SIZE * float2(1.2, 0.4) * offsetBias, 0).rgb; // West South West
-		blur_ori += INPUT.SampleLevel(sam, ppos + BUFFER_PIXEL_SIZE * float2(1.2, 0.4) * offsetBias, 0).rgb; // East North East
-		blur_ori += INPUT.SampleLevel(sam, ppos - BUFFER_PIXEL_SIZE * float2(0.4, -1.2) * offsetBias, 0).rgb; // North North West
+		blur_ori = INPUT.SampleLevel(sam, pos + BUFFER_PIXEL_SIZE * float2(0.4, -1.2) * offsetBias, 0).rgb;  // South South East
+		blur_ori += INPUT.SampleLevel(sam, pos - BUFFER_PIXEL_SIZE * float2(1.2, 0.4) * offsetBias, 0).rgb; // West South West
+		blur_ori += INPUT.SampleLevel(sam, pos + BUFFER_PIXEL_SIZE * float2(1.2, 0.4) * offsetBias, 0).rgb; // East North East
+		blur_ori += INPUT.SampleLevel(sam, pos - BUFFER_PIXEL_SIZE * float2(0.4, -1.2) * offsetBias, 0).rgb; // North North West
 
 		blur_ori *= 0.25;  // ( /= 4) Divide by the number of texture fetches
 
@@ -150,10 +149,10 @@ float4 Main(uint2 pos) {
 		//   [ .50,    , .50]  =  [ 1 ,   , 1 ]
 		//   [ .50, .50, .50]     [ 1 , 1 , 1 ]
 
-		blur_ori = INPUT.SampleLevel(sam, ppos + float2(0.5 * BUFFER_PIXEL_SIZE.x, -BUFFER_PIXEL_SIZE.y * offsetBias), 0).rgb;  // South South East
-		blur_ori += INPUT.SampleLevel(sam, ppos + float2(offsetBias * -BUFFER_PIXEL_SIZE.x, 0.5 * -BUFFER_PIXEL_SIZE.y), 0).rgb; // West South West
-		blur_ori += INPUT.SampleLevel(sam, ppos + float2(offsetBias * BUFFER_PIXEL_SIZE.x, 0.5 * BUFFER_PIXEL_SIZE.y), 0).rgb; // East North East
-		blur_ori += INPUT.SampleLevel(sam, ppos + float2(0.5 * -BUFFER_PIXEL_SIZE.x, BUFFER_PIXEL_SIZE.y * offsetBias), 0).rgb; // North North West
+		blur_ori = INPUT.SampleLevel(sam, pos + float2(0.5 * BUFFER_PIXEL_SIZE.x, -BUFFER_PIXEL_SIZE.y * offsetBias), 0).rgb;  // South South East
+		blur_ori += INPUT.SampleLevel(sam, pos + float2(offsetBias * -BUFFER_PIXEL_SIZE.x, 0.5 * -BUFFER_PIXEL_SIZE.y), 0).rgb; // West South West
+		blur_ori += INPUT.SampleLevel(sam, pos + float2(offsetBias * BUFFER_PIXEL_SIZE.x, 0.5 * BUFFER_PIXEL_SIZE.y), 0).rgb; // East North East
+		blur_ori += INPUT.SampleLevel(sam, pos + float2(0.5 * -BUFFER_PIXEL_SIZE.x, BUFFER_PIXEL_SIZE.y * offsetBias), 0).rgb; // North North West
 
 		//blur_ori += (2 * ori); // Probably not needed. Only serves to lessen the effect.
 
