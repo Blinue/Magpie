@@ -1288,11 +1288,10 @@ void __M(uint3 tid : SV_GroupThreadID, uint3 gid : SV_GroupID) {{
 			}
 			callPass.append(fmt::format("c{});\n", passDesc.outputs.size() - 1));
 			for (int i = 0; i < passDesc.outputs.size(); ++i) {
-				callPass.append(fmt::format("\t{}[gxy] = c{};\n", desc.textures[passDesc.outputs[i]].name, i));
+				callPass.append(fmt::format("\t\t\t{}[gxy] = c{};\n", desc.textures[passDesc.outputs[i]].name, i));
 			}
 
 			result.append(fmt::format(R"({0}
-	
 	gxy.x += 8u;
 	pos.x += step.x;
 	if (gxy.x < __pass{1}OutputSize.x && gxy.y < __pass{1}OutputSize.y) {{
