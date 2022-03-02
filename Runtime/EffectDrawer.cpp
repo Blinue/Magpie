@@ -107,7 +107,13 @@ bool EffectDrawer::Initialize(
 
 	// 大小必须为 4 的倍数
 	size_t builtinConstantCount = _isLastEffect ? 16 : 12 ;
-	_constants.resize((builtinConstantCount + (isInlineParams ? 0 : desc.params.size()) + 3) / 4 * 4);
+	size_t psStylePassParams = 0;
+	for (UINT i = 0, end = desc.passes.size() - 1; i < end; ++i) {
+		if (desc.passes[i].isPSStyle) {
+			psStylePassParams += 2;
+		}
+	}
+	_constants.resize((builtinConstantCount + psStylePassParams + (isInlineParams ? 0 : desc.params.size()) + 3) / 4 * 4);
 	// cbuffer __CB2 : register(b1) {
 	//     uint2 __inputSize;
 	//     uint2 __outputSize;
@@ -167,6 +173,21 @@ bool EffectDrawer::Initialize(
 		*virtualOutputRect = virtualOutputRect1;
 	}
 
+	// PS 样式的通道需要的参数
+	EffectConstant32* pCurParam = _constants.data() + builtinConstantCount;
+	if (psStylePassParams > 0) {
+		for (UINT i = 0, end = desc.passes.size() - 1; i < end; ++i) {
+			if (desc.passes[i].isPSStyle) {
+				D3D11_TEXTURE2D_DESC outputDesc;
+				_textures[desc.passes[i].outputs[0]]->GetDesc(&outputDesc);
+				pCurParam->uintVal = outputDesc.Width;
+				++pCurParam;
+				pCurParam->uintVal = outputDesc.Height;
+				++pCurParam;
+			}
+		}
+	}
+
 	if (!isInlineParams) {
 		// 填入参数
 		std::unordered_set<std::string_view> paramNames;
@@ -197,7 +218,7 @@ bool EffectDrawer::Initialize(
 					}
 				}
 
-				_constants[builtinConstantCount + i].floatVal = value;
+				pCurParam->floatVal = value;
 			} else {
 				int value;
 
@@ -218,8 +239,10 @@ bool EffectDrawer::Initialize(
 					}
 				}
 
-				_constants[builtinConstantCount + i].intVal = value;
+				pCurParam->intVal = value;
 			}
+
+			++pCurParam;
 		}
 
 		for (const auto& pair : params.params) {

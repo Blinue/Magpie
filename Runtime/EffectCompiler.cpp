@@ -1014,21 +1014,22 @@ void NTAPI TPWork(PTP_CALLBACK_INSTANCE, PVOID Context, PTP_WORK) {
 
 UINT GeneratePassSource(
 	const EffectDesc& desc,
-	UINT passIdx,
+	size_t passIdx,
+	std::string_view cbHlsl,
 	const std::vector<std::string_view>& commonBlocks,
 	std::string_view passBlock,
 	const std::map<std::string, std::variant<float, int>>& inlineParams,
 	std::string& result
 ) {
 	bool isLastEffect = desc.Flags & EFFECT_FLAG_LAST_EFFECT;
-	bool isLastPass = passIdx == desc.passes.size() - 1;
+	bool isLastPass = passIdx == desc.passes.size();
 	bool isInlineParams = desc.Flags & EFFECT_FLAG_INLINE_PARAMETERS;
 
-	const EffectPassDesc& passDesc = desc.passes[passIdx];
+	const EffectPassDesc& passDesc = desc.passes[passIdx - 1];
 
 	{
 		// 估算需要的空间
-		size_t reservedSize = 2048 + passBlock.size();
+		size_t reservedSize = 2048 + cbHlsl.size() + passBlock.size();
 		for (std::string_view commonBlock : commonBlocks) {
 			reservedSize += commonBlock.size();
 		}
@@ -1036,42 +1037,8 @@ UINT GeneratePassSource(
 		result.reserve(reservedSize);
 	}
 
-	////////////////////////////////////////////////////////////////////////////////////////////////////////
-	//
 	// 常量缓冲区
-	// 
-	////////////////////////////////////////////////////////////////////////////////////////////////////////
-	
-	result = R"(cbuffer __CB1 : register(b0) {
-	int4 __cursorRect;
-	float2 __cursorPt;
-	uint2 __cursorPos;
-	uint __cursorType;
-	uint __frameCount;
-};
-cbuffer __CB2 : register(b1) {
-	uint2 __inputSize;
-	uint2 __outputSize;
-	float2 __inputPt;
-	float2 __outputPt;
-	float2 __scale;
-	int2 __viewport;
-)";
-	
-	if (isLastEffect) {
-		result.append("\tint4 __offset;\n");
-	}
-
-	if (!isInlineParams) {
-		for (const auto& d : desc.params) {
-			result.append("\t")
-				.append(d.type == EffectConstantType::Int ? "int " : "float ")
-				.append(d.name)
-				.append(";\n");
-		}
-	}
-
-	result.append("};\n\n");
+	result.append(cbHlsl);
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////
 	//
@@ -1236,42 +1203,64 @@ uint2 GetCursorPos() { return __cursorPos; }
 			if (isLastPass) {
 				result.append(fmt::format(R"([numthreads(64, 1, 1)]
 void __M(uint3 tid : SV_GroupThreadID, uint3 gid : SV_GroupID) {{
-	uint2 gxy = Rmp8x8(tid.x) + (gid.xy << 4u){};
+	uint2 gxy = Rmp8x8(tid.x) + (gid.xy << 4u){0};
+	float2 pos = (gxy + 0.5f) * __outputPt;
+	float2 step = 8 * __outputPt;
 	
 	if (!CheckViewport(gxy)) {{
 		return;
 	}};
 
-	WriteToOutput(gxy, Main(gxy).rgb);
+	WriteToOutput(gxy, Main(pos).rgb);
 
 	gxy.x += 8u;
+	pos.x += step.x;
 	if (CheckViewport(gxy)) {{
-		WriteToOutput(gxy, Main(gxy).rgb);
+		WriteToOutput(gxy, Main(pos).rgb);
 	}};
 
 	gxy.y += 8u;
+	pos.y += step.y;
 	if (CheckViewport(gxy)) {{
-		WriteToOutput(gxy, Main(gxy).rgb);
+		WriteToOutput(gxy, Main(pos).rgb);
 	}};
 
 	gxy.x -= 8u;
+	pos.x -= step.x;
 	if (CheckViewport(gxy)) {{
-		WriteToOutput(gxy, Main(gxy).rgb);
+		WriteToOutput(gxy, Main(pos).rgb);
 	}};
 }})", isLastEffect ? " + __offset.xy" : ""));
 			} else {
 				result.append(fmt::format(R"([numthreads(64, 1, 1)]
 void __M(uint3 tid : SV_GroupThreadID, uint3 gid : SV_GroupID) {{
 	uint2 gxy = Rmp8x8(tid.x) + (gid.xy << 4u);
+	if (gxy.x >= __pass{0}OutputPt.x || gxy.y >= __pass{0}OutputPt.y) {{
+		return;
+	}}
+	float2 pos = (gxy + 0.5f) * __pass{0}OutputPt;
+	float2 step = 8 * __pass{0}OutputPt;
 
-	{0}[gxy] = Main(gxy);
+	{1}[gxy] = Main(pos);
+
 	gxy.x += 8u;
-	{0}[gxy] = Main(gxy);
+	pos.x += step.x;
+	if (gxy.x < __pass{0}OutputPt.x && gxy.y < __pass{0}OutputPt.y) {{
+		{1}[gxy] = Main(pos);
+	}}
+	
 	gxy.y += 8u;
-	{0}[gxy] = Main(gxy);
+	pos.y += step.y;
+	if (gxy.x < __pass{0}OutputPt.x && gxy.y < __pass{0}OutputPt.y) {{
+		{1}[gxy] = Main(pos);
+	}}
+	
 	gxy.x -= 8u;
-	{0}[gxy] = Main(gxy);
-}})", desc.textures[passDesc.outputs[0]].name));
+	pos.x -= step.x;
+	if (gxy.x < __pass{0}OutputPt.x && gxy.y < __pass{0}OutputPt.y) {{
+		{1}[gxy] = Main(pos);
+	}}
+}})", passIdx, desc.textures[passDesc.outputs[0]].name));
 			}
 		} else {
 			// 多渲染目标
@@ -1279,16 +1268,20 @@ void __M(uint3 tid : SV_GroupThreadID, uint3 gid : SV_GroupID) {{
 				return 1;
 			}
 
-			result.append(R"([numthreads(64, 1, 1)]
-void __M(uint3 tid : SV_GroupThreadID, uint3 gid : SV_GroupID) {
+			result.append(fmt::format(R"([numthreads(64, 1, 1)]
+void __M(uint3 tid : SV_GroupThreadID, uint3 gid : SV_GroupID) {{
 	uint2 gxy = Rmp8x8(tid.x) + (gid.xy << 4u);
-
-)");
+	if (gxy.x >= __pass{0}OutputPt.x || gxy.y >= __pass{0}OutputPt.y) {{
+		return;
+	}}
+	float2 pos = (gxy + 0.5f) * __pass{0}OutputPt;
+	float2 step = 8 * __pass{0}OutputPt;
+)", passIdx));
 			for (int i = 0; i < passDesc.outputs.size(); ++i) {
 				result.append(fmt::format("\tfloat4 c{};\n", i));
 			}
 
-			std::string callPass = "\tMain(gxy, ";
+			std::string callPass = "\tMain(pos, ";
 
 			for (int i = 0; i < passDesc.outputs.size() - 1; ++i) {
 				callPass.append(fmt::format("c{}, ", i));
@@ -1298,15 +1291,27 @@ void __M(uint3 tid : SV_GroupThreadID, uint3 gid : SV_GroupID) {
 				callPass.append(fmt::format("\t{}[gxy] = c{};\n", desc.textures[passDesc.outputs[i]].name, i));
 			}
 
-			result.append(callPass);
-			result.append("\tgxy.x += 8u;\n");
-			result.append(callPass);
-			result.append("\tgxy.y += 8u;\n");
-			result.append(callPass);
-			result.append("\tgxy.x -= 8u;\n");
-			result.append(callPass);
-
-			result.append("}\n");
+			result.append(fmt::format(R"({0}
+	
+	gxy.x += 8u;
+	pos.x += step.x;
+	if (gxy.x < __pass{1}OutputPt.x && gxy.y < __pass{1}OutputPt.y) {{
+		{0}
+	}}
+	
+	gxy.y += 8u;
+	pos.y += step.y;
+	if (gxy.x < __pass{1}OutputPt.x && gxy.y < __pass{1}OutputPt.y) {{
+		{0}
+	}}
+	
+	gxy.x -= 8u;
+	pos.x -= step.x;
+	if (gxy.x < __pass{1}OutputPt.x && gxy.y < __pass{1}OutputPt.y) {{
+		{0}
+	}}
+}}
+)", callPass, passIdx));
 		}
 	} else {
 		// 大部分情况下 BLOCK_SIZE 都是 2 的整数次幂，这时将乘法转换为位移
@@ -1334,9 +1339,55 @@ UINT CompilePasses(
 	const std::vector<std::string_view>& passBlocks,
 	const std::map<std::string, std::variant<float, int>>& inlineParams
 ) {
+	////////////////////////////////////////////////////////////////////////////////////////////////////////
+	//
+	// 常量缓冲区
+	// 
+	////////////////////////////////////////////////////////////////////////////////////////////////////////
+	
+	std::string cbHlsl = R"(cbuffer __CB1 : register(b0) {
+	int4 __cursorRect;
+	float2 __cursorPt;
+	uint2 __cursorPos;
+	uint __cursorType;
+	uint __frameCount;
+};
+cbuffer __CB2 : register(b1) {
+	uint2 __inputSize;
+	uint2 __outputSize;
+	float2 __inputPt;
+	float2 __outputPt;
+	float2 __scale;
+	int2 __viewport;
+)";
+
+	if (desc.Flags & EFFECT_FLAG_LAST_EFFECT) {
+		// 指定输出到屏幕的位置
+		cbHlsl.append("\tint4 __offset;\n");
+	}
+
+	// PS 样式需要获知输出纹理的尺寸
+	// 最后一个通道不需要
+	for (UINT i = 0, end = desc.passes.size() - 1; i < end; ++i) {
+		if (desc.passes[i].isPSStyle) {
+			cbHlsl.append(fmt::format("\tuint2 __pass{}OutputPt", i + 1));
+		}
+	}
+
+	if (!(desc.Flags & EFFECT_FLAG_INLINE_PARAMETERS)) {
+		for (const auto& d : desc.params) {
+			cbHlsl.append("\t")
+				.append(d.type == EffectConstantType::Int ? "int " : "float ")
+				.append(d.name)
+				.append(";\n");
+		}
+	}
+
+	cbHlsl.append("};\n\n");
+
 	std::vector<std::string> passSources(passBlocks.size());
-	for (UINT i = 0; i < passBlocks.size(); ++i) {
-		if (GeneratePassSource(desc, i, commonBlocks, passBlocks[i], inlineParams, passSources[i])) {
+	for (size_t i = 0; i < passBlocks.size(); ++i) {
+		if (GeneratePassSource(desc, i + 1, cbHlsl, commonBlocks, passBlocks[i], inlineParams, passSources[i])) {
 			Logger::Get().Error(fmt::format("生成 Pass{} 失败", i + 1));
 			return 1;
 		}

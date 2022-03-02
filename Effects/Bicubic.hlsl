@@ -54,14 +54,14 @@ float4 weight4(float x) {
 }
 
 
-float4 Main(uint2 pos) {
+float4 Main(float2 pos) {
 	float2 inputSize = GetInputSize();
 	float2 inputPt = GetInputPt();
 	float2 outputPt = GetOutputPt();
 	uint i, j;
 
-	float2 ppos = (pos + 0.5f) * outputPt * inputSize;
-	float2 f = frac(ppos + 0.5f);
+	pos *= inputSize;
+	float2 f = frac(pos + 0.5f);
 
 	float4 linetaps = weight4(1.0 - f.x);
 	float4 columntaps = weight4(1.0 - f.y);
@@ -70,7 +70,7 @@ float4 Main(uint2 pos) {
 	linetaps /= linetaps.r + linetaps.g + linetaps.b + linetaps.a;
 	columntaps /= columntaps.r + columntaps.g + columntaps.b + columntaps.a;
 
-	ppos -= f + 0.5f;
+	pos -= f + 0.5f;
 
 	float3 src[4][4];
 
@@ -78,7 +78,7 @@ float4 Main(uint2 pos) {
 	for (i = 0; i <= 2; i += 2) {
 		[unroll]
 		for (j = 0; j <= 2; j += 2) {
-			float2 tpos = (ppos + uint2(i, j)) * inputPt;
+			float2 tpos = (pos + uint2(i, j)) * inputPt;
 			const float4 sr = INPUT.GatherRed(sam, tpos);
 			const float4 sg = INPUT.GatherGreen(sam, tpos);
 			const float4 sb = INPUT.GatherBlue(sam, tpos);
