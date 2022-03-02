@@ -1235,7 +1235,7 @@ void __M(uint3 tid : SV_GroupThreadID, uint3 gid : SV_GroupID) {{
 				result.append(fmt::format(R"([numthreads(64, 1, 1)]
 void __M(uint3 tid : SV_GroupThreadID, uint3 gid : SV_GroupID) {{
 	uint2 gxy = Rmp8x8(tid.x) + (gid.xy << 4u);
-	if (gxy.x >= __pass{0}OutputPt.x || gxy.y >= __pass{0}OutputPt.y) {{
+	if (gxy.x >= __pass{0}OutputSize.x || gxy.y >= __pass{0}OutputSize.y) {{
 		return;
 	}}
 	float2 pos = (gxy + 0.5f) * __pass{0}OutputPt;
@@ -1245,19 +1245,19 @@ void __M(uint3 tid : SV_GroupThreadID, uint3 gid : SV_GroupID) {{
 
 	gxy.x += 8u;
 	pos.x += step.x;
-	if (gxy.x < __pass{0}OutputPt.x && gxy.y < __pass{0}OutputPt.y) {{
+	if (gxy.x < __pass{0}OutputSize.x && gxy.y < __pass{0}OutputSize.y) {{
 		{1}[gxy] = Main(pos);
 	}}
 	
 	gxy.y += 8u;
 	pos.y += step.y;
-	if (gxy.x < __pass{0}OutputPt.x && gxy.y < __pass{0}OutputPt.y) {{
+	if (gxy.x < __pass{0}OutputSize.x && gxy.y < __pass{0}OutputSize.y) {{
 		{1}[gxy] = Main(pos);
 	}}
 	
 	gxy.x -= 8u;
 	pos.x -= step.x;
-	if (gxy.x < __pass{0}OutputPt.x && gxy.y < __pass{0}OutputPt.y) {{
+	if (gxy.x < __pass{0}OutputSize.x && gxy.y < __pass{0}OutputSize.y) {{
 		{1}[gxy] = Main(pos);
 	}}
 }})", passIdx, desc.textures[passDesc.outputs[0]].name));
@@ -1271,7 +1271,7 @@ void __M(uint3 tid : SV_GroupThreadID, uint3 gid : SV_GroupID) {{
 			result.append(fmt::format(R"([numthreads(64, 1, 1)]
 void __M(uint3 tid : SV_GroupThreadID, uint3 gid : SV_GroupID) {{
 	uint2 gxy = Rmp8x8(tid.x) + (gid.xy << 4u);
-	if (gxy.x >= __pass{0}OutputPt.x || gxy.y >= __pass{0}OutputPt.y) {{
+	if (gxy.x >= __pass{0}OutputSize.x || gxy.y >= __pass{0}OutputSize.y) {{
 		return;
 	}}
 	float2 pos = (gxy + 0.5f) * __pass{0}OutputPt;
@@ -1295,19 +1295,19 @@ void __M(uint3 tid : SV_GroupThreadID, uint3 gid : SV_GroupID) {{
 	
 	gxy.x += 8u;
 	pos.x += step.x;
-	if (gxy.x < __pass{1}OutputPt.x && gxy.y < __pass{1}OutputPt.y) {{
+	if (gxy.x < __pass{1}OutputSize.x && gxy.y < __pass{1}OutputSize.y) {{
 		{0}
 	}}
 	
 	gxy.y += 8u;
 	pos.y += step.y;
-	if (gxy.x < __pass{1}OutputPt.x && gxy.y < __pass{1}OutputPt.y) {{
+	if (gxy.x < __pass{1}OutputSize.x && gxy.y < __pass{1}OutputSize.y) {{
 		{0}
 	}}
 	
 	gxy.x -= 8u;
 	pos.x -= step.x;
-	if (gxy.x < __pass{1}OutputPt.x && gxy.y < __pass{1}OutputPt.y) {{
+	if (gxy.x < __pass{1}OutputSize.x && gxy.y < __pass{1}OutputSize.y) {{
 		{0}
 	}}
 }}
@@ -1370,7 +1370,7 @@ cbuffer __CB2 : register(b1) {
 	// 最后一个通道不需要
 	for (UINT i = 0, end = desc.passes.size() - 1; i < end; ++i) {
 		if (desc.passes[i].isPSStyle) {
-			cbHlsl.append(fmt::format("\tuint2 __pass{}OutputPt", i + 1));
+			cbHlsl.append(fmt::format("\tuint2 __pass{0}OutputSize;\n\tfloat2 __pass{0}OutputPt;\n", i + 1));
 		}
 	}
 

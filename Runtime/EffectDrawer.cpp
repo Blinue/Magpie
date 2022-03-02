@@ -105,168 +105,6 @@ bool EffectDrawer::Initialize(
 	exprParser.DefineConst("OUTPUT_WIDTH", outputSize.cx);
 	exprParser.DefineConst("OUTPUT_HEIGHT", outputSize.cy);
 
-	// 大小必须为 4 的倍数
-	size_t builtinConstantCount = _isLastEffect ? 16 : 12 ;
-	size_t psStylePassParams = 0;
-	for (UINT i = 0, end = desc.passes.size() - 1; i < end; ++i) {
-		if (desc.passes[i].isPSStyle) {
-			psStylePassParams += 2;
-		}
-	}
-	_constants.resize((builtinConstantCount + psStylePassParams + (isInlineParams ? 0 : desc.params.size()) + 3) / 4 * 4);
-	// cbuffer __CB2 : register(b1) {
-	//     uint2 __inputSize;
-	//     uint2 __outputSize;
-	//     float2 __inputPt;
-	//     float2 __outputPt;
-	//     float2 __scale;
-	//     int2 __viewport;
-	//     [uint4 __offset;]
-	//     [PARAMETERS...]
-	// );
-	_constants[0].uintVal = inputSize.cx;
-	_constants[1].uintVal = inputSize.cy;
-	_constants[2].uintVal = outputSize.cx;
-	_constants[3].uintVal = outputSize.cy;
-	_constants[4].floatVal = 1.0f / inputSize.cx;
-	_constants[5].floatVal = 1.0f / inputSize.cy;
-	_constants[6].floatVal = 1.0f / outputSize.cx;
-	_constants[7].floatVal = 1.0f / outputSize.cy;
-	_constants[8].floatVal = outputSize.cx / (FLOAT)inputSize.cx;
-	_constants[9].floatVal = outputSize.cy / (FLOAT)inputSize.cy;
-
-	// 输出尺寸可能比主窗口更大
-	RECT virtualOutputRect1{};
-	RECT outputRect1{};
-
-	if (_isLastEffect) {
-		virtualOutputRect1.left = (hostSize.cx - outputSize.cx) / 2;
-		virtualOutputRect1.top = (hostSize.cy - outputSize.cy) / 2;
-		virtualOutputRect1.right = virtualOutputRect1.left + outputSize.cx;
-		virtualOutputRect1.bottom = virtualOutputRect1.top + outputSize.cy;
-
-		outputRect1 = RECT{
-			std::max(0L, virtualOutputRect1.left),
-			std::max(0L, virtualOutputRect1.top),
-			std::min(hostSize.cx, virtualOutputRect1.right),
-			std::min(hostSize.cy, virtualOutputRect1.bottom)
-		};
-
-		_constants[12].intVal = -std::min(0L, virtualOutputRect1.left);
-		_constants[13].intVal = -std::min(0L, virtualOutputRect1.top);
-		_constants[10].intVal = outputRect1.right - outputRect1.left + _constants[12].intVal;
-		_constants[11].intVal = outputRect1.bottom - outputRect1.top + _constants[13].intVal;
-		_constants[14].intVal = outputRect1.left - _constants[12].intVal;
-		_constants[15].intVal = outputRect1.top - _constants[13].intVal;
-	} else {
-		outputRect1 = RECT{ 0, 0, outputSize.cx, outputSize.cy };
-		virtualOutputRect1 = outputRect1;
-
-		_constants[10].intVal = outputSize.cx;
-		_constants[11].intVal = outputSize.cy;
-	}
-
-	if (outputRect) {
-		*outputRect = outputRect1;
-	}
-	if (virtualOutputRect) {
-		*virtualOutputRect = virtualOutputRect1;
-	}
-
-	// PS 样式的通道需要的参数
-	EffectConstant32* pCurParam = _constants.data() + builtinConstantCount;
-	if (psStylePassParams > 0) {
-		for (UINT i = 0, end = desc.passes.size() - 1; i < end; ++i) {
-			if (desc.passes[i].isPSStyle) {
-				D3D11_TEXTURE2D_DESC outputDesc;
-				_textures[desc.passes[i].outputs[0]]->GetDesc(&outputDesc);
-				pCurParam->uintVal = outputDesc.Width;
-				++pCurParam;
-				pCurParam->uintVal = outputDesc.Height;
-				++pCurParam;
-			}
-		}
-	}
-
-	if (!isInlineParams) {
-		// 填入参数
-		std::unordered_set<std::string_view> paramNames;
-
-		for (UINT i = 0; i < desc.params.size(); ++i) {
-			const auto& paramDesc = desc.params[i];
-			paramNames.emplace(paramDesc.name);
-
-			auto it = params.params.find(paramDesc.name);
-
-			if (paramDesc.type == EffectConstantType::Float) {
-				float value;
-
-				if (it == params.params.end()) {
-					value = std::get<float>(paramDesc.defaultValue);
-				} else {
-					if (it->second.index() == 0) {
-						value = std::get<0>(it->second);
-					} else {
-						value = (float)std::get<1>(it->second);
-					}
-
-					if ((paramDesc.minValue.index() == 1 && value < std::get<float>(paramDesc.minValue))
-						|| (paramDesc.maxValue.index() == 1 && value > std::get<float>(paramDesc.maxValue))
-					) {
-						Logger::Get().Error(fmt::format("参数 {} 的值非法", paramDesc.name));
-						return false;
-					}
-				}
-
-				pCurParam->floatVal = value;
-			} else {
-				int value;
-
-				if (it == params.params.end()) {
-					value = std::get<int>(paramDesc.defaultValue);
-				} else {
-					if (it->second.index() == 0) {
-						return false;
-					} else {
-						value = std::get<int>(it->second);
-					}
-
-					if ((paramDesc.minValue.index() == 2 && value < std::get<int>(paramDesc.minValue))
-						|| (paramDesc.maxValue.index() == 2 && value > std::get<int>(paramDesc.maxValue))
-					) {
-						Logger::Get().Error(fmt::format("参数 {} 的值非法", paramDesc.name));
-						return false;
-					}
-				}
-
-				pCurParam->intVal = value;
-			}
-
-			++pCurParam;
-		}
-
-		for (const auto& pair : params.params) {
-			if (!paramNames.contains(std::string_view(pair.first))) {
-				Logger::Get().Error(fmt::format("非法参数 {}", pair.first));
-				return false;
-			}
-		}
-	}
-
-	D3D11_BUFFER_DESC bd{};
-	bd.Usage = D3D11_USAGE_DEFAULT;
-	bd.ByteWidth = 4 * (UINT)_constants.size();
-	bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-
-	D3D11_SUBRESOURCE_DATA initData{};
-	initData.pSysMem = _constants.data();
-
-	HRESULT hr = d3dDevice->CreateBuffer(&bd, &initData, _constantBuffer.put());
-	if (FAILED(hr)) {
-		Logger::Get().ComError("CreateBuffer 失败", hr);
-		return false;
-	}
-
 	_samplers.resize(desc.samplers.size());
 	for (UINT i = 0; i < _samplers.size(); ++i) {
 		const EffectSamplerDesc& samDesc = desc.samplers[i];
@@ -417,6 +255,172 @@ bool EffectDrawer::Initialize(
 			Logger::Get().Error("GetSampler 失败");
 			return false;
 		}
+	}
+
+	// 大小必须为 4 的倍数
+	size_t builtinConstantCount = _isLastEffect ? 16 : 12;
+	size_t psStylePassParams = 0;
+	for (UINT i = 0, end = desc.passes.size() - 1; i < end; ++i) {
+		if (desc.passes[i].isPSStyle) {
+			psStylePassParams += 4;
+		}
+	}
+	_constants.resize((builtinConstantCount + psStylePassParams + (isInlineParams ? 0 : desc.params.size()) + 3) / 4 * 4);
+	// cbuffer __CB2 : register(b1) {
+	//     uint2 __inputSize;
+	//     uint2 __outputSize;
+	//     float2 __inputPt;
+	//     float2 __outputPt;
+	//     float2 __scale;
+	//     int2 __viewport;
+	//     [uint4 __offset;]
+	//     [PARAMETERS...]
+	// );
+	_constants[0].uintVal = inputSize.cx;
+	_constants[1].uintVal = inputSize.cy;
+	_constants[2].uintVal = outputSize.cx;
+	_constants[3].uintVal = outputSize.cy;
+	_constants[4].floatVal = 1.0f / inputSize.cx;
+	_constants[5].floatVal = 1.0f / inputSize.cy;
+	_constants[6].floatVal = 1.0f / outputSize.cx;
+	_constants[7].floatVal = 1.0f / outputSize.cy;
+	_constants[8].floatVal = outputSize.cx / (FLOAT)inputSize.cx;
+	_constants[9].floatVal = outputSize.cy / (FLOAT)inputSize.cy;
+
+	// 输出尺寸可能比主窗口更大
+	RECT virtualOutputRect1{};
+	RECT outputRect1{};
+
+	if (_isLastEffect) {
+		virtualOutputRect1.left = (hostSize.cx - outputSize.cx) / 2;
+		virtualOutputRect1.top = (hostSize.cy - outputSize.cy) / 2;
+		virtualOutputRect1.right = virtualOutputRect1.left + outputSize.cx;
+		virtualOutputRect1.bottom = virtualOutputRect1.top + outputSize.cy;
+
+		outputRect1 = RECT{
+			std::max(0L, virtualOutputRect1.left),
+			std::max(0L, virtualOutputRect1.top),
+			std::min(hostSize.cx, virtualOutputRect1.right),
+			std::min(hostSize.cy, virtualOutputRect1.bottom)
+		};
+
+		_constants[12].intVal = -std::min(0L, virtualOutputRect1.left);
+		_constants[13].intVal = -std::min(0L, virtualOutputRect1.top);
+		_constants[10].intVal = outputRect1.right - outputRect1.left + _constants[12].intVal;
+		_constants[11].intVal = outputRect1.bottom - outputRect1.top + _constants[13].intVal;
+		_constants[14].intVal = outputRect1.left - _constants[12].intVal;
+		_constants[15].intVal = outputRect1.top - _constants[13].intVal;
+	} else {
+		outputRect1 = RECT{ 0, 0, outputSize.cx, outputSize.cy };
+		virtualOutputRect1 = outputRect1;
+
+		_constants[10].intVal = outputSize.cx;
+		_constants[11].intVal = outputSize.cy;
+	}
+
+	if (outputRect) {
+		*outputRect = outputRect1;
+	}
+	if (virtualOutputRect) {
+		*virtualOutputRect = virtualOutputRect1;
+	}
+
+	// PS 样式的通道需要的参数
+	EffectConstant32* pCurParam = _constants.data() + builtinConstantCount;
+	if (psStylePassParams > 0) {
+		for (UINT i = 0, end = desc.passes.size() - 1; i < end; ++i) {
+			if (desc.passes[i].isPSStyle) {
+				D3D11_TEXTURE2D_DESC outputDesc;
+				_textures[desc.passes[i].outputs[0]]->GetDesc(&outputDesc);
+				pCurParam->uintVal = outputDesc.Width;
+				++pCurParam;
+				pCurParam->uintVal = outputDesc.Height;
+				++pCurParam;
+				pCurParam->floatVal = 1.0f / outputDesc.Width;
+				++pCurParam;
+				pCurParam->floatVal = 1.0f / outputDesc.Height;
+				++pCurParam;
+			}
+		}
+	}
+
+	if (!isInlineParams) {
+		// 填入参数
+		std::unordered_set<std::string_view> paramNames;
+
+		for (UINT i = 0; i < desc.params.size(); ++i) {
+			const auto& paramDesc = desc.params[i];
+			paramNames.emplace(paramDesc.name);
+
+			auto it = params.params.find(paramDesc.name);
+
+			if (paramDesc.type == EffectConstantType::Float) {
+				float value;
+
+				if (it == params.params.end()) {
+					value = std::get<float>(paramDesc.defaultValue);
+				} else {
+					if (it->second.index() == 0) {
+						value = std::get<0>(it->second);
+					} else {
+						value = (float)std::get<1>(it->second);
+					}
+
+					if ((paramDesc.minValue.index() == 1 && value < std::get<float>(paramDesc.minValue))
+						|| (paramDesc.maxValue.index() == 1 && value > std::get<float>(paramDesc.maxValue))
+					) {
+						Logger::Get().Error(fmt::format("参数 {} 的值非法", paramDesc.name));
+						return false;
+					}
+				}
+
+				pCurParam->floatVal = value;
+			} else {
+				int value;
+
+				if (it == params.params.end()) {
+					value = std::get<int>(paramDesc.defaultValue);
+				} else {
+					if (it->second.index() == 0) {
+						return false;
+					} else {
+						value = std::get<int>(it->second);
+					}
+
+					if ((paramDesc.minValue.index() == 2 && value < std::get<int>(paramDesc.minValue))
+						|| (paramDesc.maxValue.index() == 2 && value > std::get<int>(paramDesc.maxValue))
+					) {
+						Logger::Get().Error(fmt::format("参数 {} 的值非法", paramDesc.name));
+						return false;
+					}
+				}
+
+				pCurParam->intVal = value;
+			}
+
+			++pCurParam;
+		}
+
+		for (const auto& pair : params.params) {
+			if (!paramNames.contains(std::string_view(pair.first))) {
+				Logger::Get().Error(fmt::format("非法参数 {}", pair.first));
+				return false;
+			}
+		}
+	}
+
+	D3D11_BUFFER_DESC bd{};
+	bd.Usage = D3D11_USAGE_DEFAULT;
+	bd.ByteWidth = 4 * (UINT)_constants.size();
+	bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+
+	D3D11_SUBRESOURCE_DATA initData{};
+	initData.pSysMem = _constants.data();
+
+	HRESULT hr = d3dDevice->CreateBuffer(&bd, &initData, _constantBuffer.put());
+	if (FAILED(hr)) {
+		Logger::Get().ComError("CreateBuffer 失败", hr);
+		return false;
 	}
 	
 	return true;
