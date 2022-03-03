@@ -16,6 +16,8 @@ Magpie 可以将任意窗口放大至全屏，内置大量缩放算法/滤镜。
 
 👉 [贡献指南](./CONTRIBUTING.md)
 
+[README in English](README_EN.md)
+
 ## 使用方法
 
 ![窗口截图](img/窗口截图.png)
