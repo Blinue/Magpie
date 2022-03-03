@@ -260,7 +260,7 @@ bool EffectDrawer::Initialize(
 	// 大小必须为 4 的倍数
 	size_t builtinConstantCount = _isLastEffect ? 16 : 12;
 	size_t psStylePassParams = 0;
-	for (UINT i = 0, end = desc.passes.size() - 1; i < end; ++i) {
+	for (UINT i = 0, end = (UINT)desc.passes.size() - 1; i < end; ++i) {
 		if (desc.passes[i].isPSStyle) {
 			psStylePassParams += 4;
 		}
@@ -328,7 +328,7 @@ bool EffectDrawer::Initialize(
 	// PS 样式的通道需要的参数
 	EffectConstant32* pCurParam = _constants.data() + builtinConstantCount;
 	if (psStylePassParams > 0) {
-		for (UINT i = 0, end = desc.passes.size() - 1; i < end; ++i) {
+		for (UINT i = 0, end = (UINT)desc.passes.size() - 1; i < end; ++i) {
 			if (desc.passes[i].isPSStyle) {
 				D3D11_TEXTURE2D_DESC outputDesc;
 				_textures[desc.passes[i].outputs[0]]->GetDesc(&outputDesc);

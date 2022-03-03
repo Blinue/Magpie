@@ -998,7 +998,7 @@ UINT ResolvePasses(
 
 UINT GeneratePassSource(
 	const EffectDesc& desc,
-	size_t passIdx,
+	UINT passIdx,
 	std::string_view cbHlsl,
 	const std::vector<std::string_view>& commonBlocks,
 	std::string_view passBlock,
@@ -1009,7 +1009,7 @@ UINT GeneratePassSource(
 	bool isLastPass = passIdx == desc.passes.size();
 	bool isInlineParams = desc.Flags & EFFECT_FLAG_INLINE_PARAMETERS;
 
-	const EffectPassDesc& passDesc = desc.passes[passIdx - 1];
+	const EffectPassDesc& passDesc = desc.passes[(size_t)passIdx - 1];
 
 	{
 		// 估算需要的空间
@@ -1324,7 +1324,7 @@ UINT CompilePasses(
 ) {
 	////////////////////////////////////////////////////////////////////////////////////////////////////////
 	//
-	// 常量缓冲区
+	// 所有通道共用的常量缓冲区
 	// 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////
 	
@@ -1351,7 +1351,7 @@ cbuffer __CB2 : register(b1) {
 
 	// PS 样式需要获知输出纹理的尺寸
 	// 最后一个通道不需要
-	for (UINT i = 0, end = desc.passes.size() - 1; i < end; ++i) {
+	for (UINT i = 0, end = (UINT)desc.passes.size() - 1; i < end; ++i) {
 		if (desc.passes[i].isPSStyle) {
 			cbHlsl.append(fmt::format("\tuint2 __pass{0}OutputSize;\n\tfloat2 __pass{0}OutputPt;\n", i + 1));
 		}
@@ -1368,22 +1368,21 @@ cbuffer __CB2 : register(b1) {
 
 	cbHlsl.append("};\n\n");
 
-	std::vector<std::string> passSources(passBlocks.size());
-	for (size_t i = 0; i < passBlocks.size(); ++i) {
-		if (GeneratePassSource(desc, i + 1, cbHlsl, commonBlocks, passBlocks[i], inlineParams, passSources[i])) {
-			Logger::Get().Error(fmt::format("生成 Pass{} 失败", i + 1));
-			return 1;
-		}
-	}
 
-	// 并行编译
+	// 并行生成代码和编译
 	Utils::RunParallel([&](UINT id) {
-		if (!App::Get().GetDeviceResources().CompileShader(passSources[id], "__M", desc.passes[id].cso.put(),
+		std::string source;
+		if (GeneratePassSource(desc, id + 1, cbHlsl, commonBlocks, passBlocks[id], inlineParams, source)) {
+			Logger::Get().Error(fmt::format("生成 Pass{} 失败", id + 1));
+			return;
+		}
+
+		if (!App::Get().GetDeviceResources().CompileShader(source, "__M", desc.passes[id].cso.put(),
 			fmt::format("Pass{}", id + 1).c_str(), &passInclude)
 		) {
 			Logger::Get().Error(fmt::format("编译 Pass{} 失败", id + 1));
 		}
-	}, passSources.size());
+	}, (UINT)passBlocks.size());
 
 	// 检查编译结果
 	for (const EffectPassDesc& d : desc.passes) {
