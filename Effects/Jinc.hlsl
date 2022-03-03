@@ -38,8 +38,9 @@ SamplerState sam;
 
 
 //!PASS 1
-//!STYLE PS
 //!IN INPUT
+//!BLOCK_SIZE 8,8
+//!NUM_THREADS 64,1,1
 
 #define PI 3.1415926535897932384626433832795
 
@@ -58,13 +59,18 @@ float4 resampler(float4 x, float wa, float wb) {
 		: sin(x * wa) * sin(x * wb) * rcp(x * x);
 }
 
-float4 Main(float2 pos) {
+void Main(uint2 blockStart, uint3 threadId) {
+	uint2 gxy = Rmp8x8(threadId.x) + blockStart;
+	if (!CheckViewport(gxy)) {
+		return;
+	}
+
 	float2 inputPt = GetInputPt();
 
 	float2 dx = float2(1.0, 0.0);
 	float2 dy = float2(0.0, 1.0);
 
-	float2 pc = pos * GetInputSize();
+	float2 pc = (gxy + 0.5f) * GetOutputPt() * GetInputSize();
 	float2 tc = floor(pc - 0.5f) + 0.5f;
 
 	float wa = windowSinc * PI;
@@ -111,5 +117,5 @@ float4 Main(float2 pos) {
 	color = lerp(color, clamp(color, min_sample, max_sample), ARStrength);
 
 	// final sum and weight normalization
-	return float4(color.rgb, 1);
+	WriteToOutput(gxy, color);
 }

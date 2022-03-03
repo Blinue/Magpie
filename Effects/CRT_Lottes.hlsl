@@ -107,8 +107,9 @@ SamplerState sam;
 
 
 //!PASS 1
-//!STYLE PS
 //!IN INPUT
+//!BLOCK_SIZE 8,8
+//!NUM_THREADS 64,1,1
 
 // Uncomment to reduce instructions with simpler linearization (fixes HD3000 Sandy Bridge IGP)
 // 注释此行将使运行速度降低 50%
@@ -323,7 +324,14 @@ float3 Mask(float2 pos) {
 	return mask;
 }
 
-float4 Main(float2 pos) {
+void Main(uint2 blockStart, uint3 threadId) {
+	uint2 gxy = Rmp8x8(threadId.x) + blockStart;
+	if (!CheckViewport(gxy)) {
+		return;
+	}
+
+	float2 pos = (gxy + 0.5f) * GetOutputPt();
+
 	uint2 inputSize = GetInputSize();
 	float2 pos1 = Warp(pos);
 	float3 outColor = Tri(pos1, inputSize);
@@ -336,5 +344,5 @@ float4 Main(float2 pos) {
 	if (shadowMask)
 		outColor.rgb *= Mask(pos * GetOutputSize());
 
-	return float4(ToSrgb(outColor.rgb), 1.0);
+	WriteToOutput(gxy, ToSrgb(outColor.rgb));
 }
