@@ -52,8 +52,7 @@ float CtG(float3 RGB) { return  sqrt((1.0 / 3.0) * ((RGB * RGB).r + (RGB * RGB).
 
 void Main(uint2 blockStart, uint3 threadId) {
 	uint2 gxy = Rmp8x8(threadId.x) + blockStart;
-	uint2 outputSize = GetOutputSize();
-	if (gxy.x >= outputSize.x || gxy.y >= outputSize.y) {
+	if (!CheckViewport(gxy)) {
 		return;
 	}
 
