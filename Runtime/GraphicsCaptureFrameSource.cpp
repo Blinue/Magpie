@@ -144,7 +144,7 @@ bool GraphicsCaptureFrameSource::Initialize() {
 	}
 
 	InitializeConditionVariable(&_cv);
-	InitializeCriticalSection(&_cs);
+	InitializeCriticalSectionEx(&_cs, 4000, CRITICAL_SECTION_NO_DEBUG_INFO);
 
 	App::GetInstance().SetErrorMsg(ErrorMessages::GENERIC);
 	SPDLOG_LOGGER_INFO(logger, "GraphicsCaptureFrameSource 初始化完成");
@@ -372,4 +372,6 @@ GraphicsCaptureFrameSource::~GraphicsCaptureFrameSource() {
 	if (_srcWndStyle) {
 		SetWindowLongPtr(App::GetInstance().GetHwndSrc(), GWL_EXSTYLE, _srcWndStyle);
 	}
+
+	DeleteCriticalSection(&_cs);
 }
