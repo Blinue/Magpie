@@ -996,22 +996,6 @@ UINT ResolvePasses(
 	return 0;
 }
 
-struct TPContext {
-	std::atomic<UINT> index;
-	std::vector<std::string>& passSources;
-	std::vector<EffectPassDesc>& passes;
-};
-
-void NTAPI TPWork(PTP_CALLBACK_INSTANCE, PVOID Context, PTP_WORK) {
-	TPContext* con = (TPContext*)Context;
-	UINT index = ++con->index;
-
-	if (!App::Get().GetDeviceResources().CompileShader(con->passSources[index],
-		"__M", con->passes[index].cso.put(), fmt::format("Pass{}", index + 1).c_str(), &passInclude)) {
-		con->passes[index].cso = nullptr;
-	}
-}
-
 UINT GeneratePassSource(
 	const EffectDesc& desc,
 	size_t passIdx,
@@ -1392,49 +1376,19 @@ cbuffer __CB2 : register(b1) {
 		}
 	}
 
-	auto& dr = App::Get().GetDeviceResources();
-
-	if (passSources.size() == 1) {
-		if (!dr.CompileShader(passSources[0], "__M", desc.passes[0].cso.put(), "Pass1", &passInclude)) {
-			Logger::Get().Error("编译 Pass1 失败");
-			return 1;
+	// 并行编译
+	Utils::RunParallel([&](UINT id) {
+		if (!App::Get().GetDeviceResources().CompileShader(passSources[id], "__M", desc.passes[id].cso.put(),
+			fmt::format("Pass{}", id + 1).c_str(), &passInclude)
+		) {
+			Logger::Get().Error(fmt::format("编译 Pass{} 失败", id + 1));
 		}
-	} else {
-		// 有多个 Pass，使用线程池加速编译
-		TPContext context = {
-			0,
-			passSources,
-			desc.passes
-		};
+	}, passSources.size());
 
-		PTP_WORK work = CreateThreadpoolWork(TPWork, &context, nullptr);
-
-		if (work) {
-			for (size_t i = 1; i < passSources.size(); ++i) {
-				SubmitThreadpoolWork(work);
-			}
-
-			dr.CompileShader(passSources[0], "__M", desc.passes[0].cso.put(), "Pass1", &passInclude);
-
-			WaitForThreadpoolWorkCallbacks(work, FALSE);
-			CloseThreadpoolWork(work);
-
-			for (size_t i = 0; i < passSources.size(); ++i) {
-				if (!desc.passes[i].cso) {
-					Logger::Get().Error(fmt::format("编译 Pass{} 失败", i + 1));
-					return 1;
-				}
-			}
-		} else {
-			Logger::Get().Win32Error("CreateThreadpoolWork 失败，回退到单线程编译");
-
-			// 回退到单线程
-			for (size_t i = 0; i < passSources.size(); ++i) {
-				if (!dr.CompileShader(passSources[i], "__M", desc.passes[i].cso.put(), fmt::format("Pass{}", i + 1).c_str(), &passInclude)) {
-					Logger::Get().Error(fmt::format("编译 Pass{} 失败", i + 1));
-					return 1;
-				}
-			}
+	// 检查编译结果
+	for (const EffectPassDesc& d : desc.passes) {
+		if (!d.cso) {
+			return 1;
 		}
 	}
 

@@ -164,6 +164,49 @@ std::string Utils::Bin2Hex(BYTE* data, size_t len) {
 }
 
 
+struct TPContext {
+	std::function<void(UINT)> func;
+	std::atomic<UINT> id;
+};
+
+static void CALLBACK TPCallback(PTP_CALLBACK_INSTANCE, PVOID context, PTP_WORK) {
+	TPContext* ctxt = (TPContext*)context;
+	UINT id = ++ctxt->id;
+	ctxt->func(id);
+}
+
+void Utils::RunParallel(std::function<void(UINT)> func, UINT times) {
+	if (times == 0) {
+		return;
+	}
+	
+	if (times == 1) {
+		return func(0);
+	}
+
+	TPContext ctxt = { func, 0 };
+	PTP_WORK work = CreateThreadpoolWork(TPCallback, &ctxt, nullptr);
+	if (work) {
+		// 在线程池中执行 times - 1 次
+		for (UINT i = 1; i < times; ++i) {
+			SubmitThreadpoolWork(work);
+		}
+
+		func(0);
+
+		WaitForThreadpoolWorkCallbacks(work, FALSE);
+		CloseThreadpoolWork(work);
+	} else {
+		Logger::Get().Win32Error("CreateThreadpoolWork 失败，回退到单线程");
+
+		// 回退到单线程
+		for (UINT i = 0; i < times; ++i) {
+			func(i);
+		}
+	}
+}
+
+
 Utils::Hasher::~Hasher() {
 	if (_hAlg) {
 		BCryptCloseAlgorithmProvider(_hAlg, 0);
