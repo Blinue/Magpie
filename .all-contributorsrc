@@ -84,6 +84,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "WHMHammer",
+      "name": "WHMHammer",
+      "avatar_url": "https://avatars.githubusercontent.com/u/35433952?v=4",
+      "profile": "https://github.com/WHMHammer",
+      "contributions": [
+        "translation"
+      ]
     }
   ],
   "contributorsPerLine": 7,
