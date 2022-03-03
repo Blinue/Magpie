@@ -66,13 +66,13 @@ bool GraphicsCaptureFrameSource::Initialize() {
 	// 1. 首先使用常规的窗口捕获
 	// 2. 如果失败，尝试设置源窗口样式，因为 WGC 只能捕获位于 Alt+Tab 列表中的窗口
 	// 3. 如果再次失败，改为使用屏幕捕获
-	if (!_CaptureFromWindow(interop)) {
+	if (!_CaptureFromWindow(interop.get())) {
 		Logger::Get().Info("窗口捕获失败，尝试设置源窗口样式");
 
-		if (!_CaptureFromStyledWindow(interop)) {
+		if (!_CaptureFromStyledWindow(interop.get())) {
 			Logger::Get().Info("窗口捕获失败，尝试使用屏幕捕获");
 
-			if (!_CaptureFromMonitor(interop)) {
+			if (!_CaptureFromMonitor(interop.get())) {
 				Logger::Get().Error("屏幕捕获失败");
 				return false;
 			} else {
@@ -199,7 +199,7 @@ FrameSourceBase::UpdateState GraphicsCaptureFrameSource::Update() {
 	}
 }
 
-bool GraphicsCaptureFrameSource::_CaptureFromWindow(winrt::com_ptr<IGraphicsCaptureItemInterop> interop) {
+bool GraphicsCaptureFrameSource::_CaptureFromWindow(IGraphicsCaptureItemInterop* interop) {
 	// DwmGetWindowAttribute 和 Graphics.Capture 无法应用于子窗口
 	HWND hwndSrc = App::Get().GetHwndSrc();
 
@@ -244,7 +244,7 @@ bool GraphicsCaptureFrameSource::_CaptureFromWindow(winrt::com_ptr<IGraphicsCapt
 	return true;
 }
 
-bool GraphicsCaptureFrameSource::_CaptureFromStyledWindow(winrt::com_ptr<IGraphicsCaptureItemInterop> interop) {
+bool GraphicsCaptureFrameSource::_CaptureFromStyledWindow(IGraphicsCaptureItemInterop* interop) {
 	HWND hwndSrc = App::Get().GetHwndSrc();
 
 	_srcWndStyle = GetWindowLongPtr(hwndSrc, GWL_EXSTYLE);
@@ -278,7 +278,7 @@ bool GraphicsCaptureFrameSource::_CaptureFromStyledWindow(winrt::com_ptr<IGraphi
 	return true;
 }
 
-bool GraphicsCaptureFrameSource::_CaptureFromMonitor(winrt::com_ptr<IGraphicsCaptureItemInterop> interop) {
+bool GraphicsCaptureFrameSource::_CaptureFromMonitor(IGraphicsCaptureItemInterop* interop) {
 	// WDA_EXCLUDEFROMCAPTURE 只在 Win10 v2004 及更新版本中可用
 	const RTL_OSVERSIONINFOW& version = Utils::GetOSVersion();
 	if (Utils::CompareVersion(version.dwMajorVersion, version.dwMinorVersion, version.dwBuildNumber, 10, 0, 19041) < 0) {

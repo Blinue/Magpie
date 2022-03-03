@@ -8,7 +8,7 @@ public:
 	EffectCompiler() = default;
 
 	static UINT Compile(
-		const wchar_t* fileName,
+		std::string_view effectName,
 		UINT flags,
 		const std::map<std::string, std::variant<float, int>>& inlineParams,
 		EffectDesc& desc

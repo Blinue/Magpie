@@ -141,8 +141,8 @@ const RTL_OSVERSIONINFOW& Utils::GetOSVersion() {
 	return version;
 }
 
-std::string Utils::Bin2Hex(BYTE* data, size_t len) {
-	if (!data || len == 0) {
+std::string Utils::Bin2Hex(std::span<const BYTE> data) {
+	if (data.size() == 0) {
 		return {};
 	}
 
@@ -151,11 +151,10 @@ std::string Utils::Bin2Hex(BYTE* data, size_t len) {
 		'8','9','a','b','c','d','e','f'
 	};
 
-	std::string result(len * 2, 0);
+	std::string result(data.size() * 2, 0);
 	char* pResult = &result[0];
 
-	for (size_t i = 0; i < len; ++i) {
-		BYTE b = *data++;
+	for (BYTE b : data) {
 		*pResult++ = oct2Hex[(b >> 4) & 0xf];
 		*pResult++ = oct2Hex[b & 0xf];
 	}
@@ -263,10 +262,10 @@ bool Utils::Hasher::Initialize() {
 	return true;
 }
 
-bool Utils::Hasher::Hash(void* data, size_t len, std::vector<BYTE>& result) {
+bool Utils::Hasher::Hash(std::span<const BYTE> data, std::vector<BYTE>& result) {
 	result.resize(_hashLen);
 
-	NTSTATUS status = BCryptHashData(_hHash, (PUCHAR)data, (ULONG)len, 0);
+	NTSTATUS status = BCryptHashData(_hHash, (PUCHAR)data.data(), (ULONG)data.size(), 0);
 	if (!NT_SUCCESS(status)) {
 		Logger::Get().Error(fmt::format("BCryptCreateHash 失败\n\tNTSTATUS={}", status));
 		return false;

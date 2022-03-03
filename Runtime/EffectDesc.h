@@ -102,7 +102,7 @@ struct EffectDesc {
 
 	std::vector<EffectPassDesc> passes;
 
-	UINT Flags = 0;
+	UINT flags = 0;
 };
 
 struct EffectParams {

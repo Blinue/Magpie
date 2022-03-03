@@ -35,8 +35,8 @@ bool EffectDrawer::Initialize(
 	}
 
 	const SIZE hostSize = Utils::GetSizeOfRect(App::Get().GetHostWndRect());;
-	_isLastEffect = desc.Flags & EFFECT_FLAG_LAST_EFFECT;
-	bool isInlineParams = desc.Flags & EFFECT_FLAG_INLINE_PARAMETERS;
+	_isLastEffect = desc.flags & EFFECT_FLAG_LAST_EFFECT;
+	bool isInlineParams = desc.flags & EFFECT_FLAG_INLINE_PARAMETERS;
 
 	DeviceResources& dr = App::Get().GetDeviceResources();
 	auto d3dDevice = dr.GetD3DDevice();

@@ -61,7 +61,7 @@ struct Utils {
 		}
 	}
 
-	static std::string Bin2Hex(BYTE* data, size_t len);
+	static std::string Bin2Hex(std::span<const BYTE> data);
 
 	class Hasher {
 	public:
@@ -72,7 +72,7 @@ struct Utils {
 
 		bool Initialize();
 
-		bool Hash(void* data, size_t len, std::vector<BYTE>& result);
+		bool Hash(std::span<const BYTE> data, std::vector<BYTE>& result);
 
 		DWORD GetHashLength() noexcept {
 			return _hashLen;

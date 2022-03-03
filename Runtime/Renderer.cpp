@@ -285,12 +285,11 @@ bool Renderer::_ResolveEffectsJson(const std::string& effectsJson) {
 		return false;
 	}
 
+	// 并行编译所有效果
+
 	UINT effectCount = effectsArr.Size();
 	std::vector<const char*> effectNames(effectCount);
 	std::vector<EffectParams> effectParams(effectCount);
-
-	// 并行编译所有效果
-
 	std::vector<EffectDesc> effectDescs(effectCount);
 	bool allSuccess = true;
 
@@ -378,7 +377,7 @@ bool Renderer::_ResolveEffectsJson(const std::string& effectsJson) {
 
 			bool success = true;
 			int duration = Utils::Measure([&]() {
-				success = !EffectCompiler::Compile(fileName.c_str(), effectFlag, effectParams[id].params, effectDescs[id]);
+				success = !EffectCompiler::Compile(effectNames[id], effectFlag, effectParams[id].params, effectDescs[id]);
 			});
 
 			if (success) {

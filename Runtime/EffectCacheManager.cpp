@@ -126,30 +126,17 @@ void serialize(Archive& ar, EffectSamplerDesc& o) {
 
 template<typename Archive>
 void serialize(Archive& ar, EffectPassDesc& o) {
-	ar& o.inputs& o.outputs& o.cso& o.blockSize.first& o.blockSize.second;
+	ar& o.cso& o.inputs& o.outputs& o.numThreads[0] & o.numThreads[1] & o.numThreads[2] & o.blockSize& o.isPSStyle;
 }
 
 template<typename Archive>
 void serialize(Archive& ar, EffectDesc& o) {
-	ar& o.outSizeExpr& o.params& o.textures& o.samplers& o.passes;
+	ar& o.outSizeExpr& o.params& o.textures& o.samplers& o.passes& o.flags;
 }
 
 
-std::wstring ConvertFileName(const wchar_t* fileName) {
-	std::wstring file(fileName);
-
-	// 删除文件名中的路径
-	size_t pos = file.find_last_of('\\');
-	if (pos != std::wstring::npos) {
-		file.erase(0, pos + 1);
-	}
-
-	std::replace(file.begin(), file.end(), '.', '_');
-	return file;
-}
-
-std::wstring EffectCacheManager::_GetCacheFileName(const wchar_t* fileName, std::string_view hash) {
-	return fmt::format(L".\\cache\\{}_{}.{}", ConvertFileName(fileName), StrUtils::UTF8ToUTF16(hash), _SUFFIX);
+std::wstring EffectCacheManager::_GetCacheFileName(std::string_view effectName, std::string_view hash) {
+	return fmt::format(L".\\cache\\{}_{}.{}", StrUtils::UTF8ToUTF16(effectName), StrUtils::UTF8ToUTF16(hash), _SUFFIX);
 }
 
 void EffectCacheManager::_AddToMemCache(const std::wstring& cacheFileName, const EffectDesc& desc) {
@@ -166,12 +153,10 @@ void EffectCacheManager::_AddToMemCache(const std::wstring& cacheFileName, const
 }
 
 
-bool EffectCacheManager::Load(const wchar_t* fileName, std::string_view hash, EffectDesc& desc) {
-	if (App::Get().IsDisableEffectCache()) {
-		return false;
-	}
+bool EffectCacheManager::Load(std::string_view effectName, std::string_view hash, EffectDesc& desc) {
+	assert(!effectName.empty() && !hash.empty());
 
-	std::wstring cacheFileName = _GetCacheFileName(fileName, hash);
+	std::wstring cacheFileName = _GetCacheFileName(effectName, hash);
 
 	auto it = _memCache.find(cacheFileName);
 	if (it != _memCache.end()) {
@@ -191,45 +176,10 @@ bool EffectCacheManager::Load(const wchar_t* fileName, std::string_view hash, Ef
 	if (buf.size() < 100) {
 		return false;
 	}
-	
-	// 格式：HASH-VERSION-FL-{BODY}
-
-	// 检查哈希
-	std::vector<BYTE> bufHash;
-	if (!Utils::Hasher::Get().Hash(
-		buf.data() + Utils::Hasher::Get().GetHashLength(),
-		buf.size() - Utils::Hasher::Get().GetHashLength(),
-		bufHash
-	)) {
-		Logger::Get().Error("计算哈希失败");
-		return false;
-	}
-
-	if (std::memcmp(buf.data(), bufHash.data(), bufHash.size()) != 0) {
-		Logger::Get().Error("缓存文件校验失败");
-		return false;
-	}
 
 	try {
-		yas::mem_istream mi(buf.data() + bufHash.size(), buf.size() - bufHash.size());
+		yas::mem_istream mi(buf.data(), buf.size());
 		yas::binary_iarchive<yas::mem_istream, yas::binary> ia(mi);
-
-		// 检查版本
-		UINT version;
-		ia& version;
-		if (version != _VERSION) {
-			Logger::Get().Info("缓存版本不匹配");
-			return false;
-		}
-
-		// 检查 Direct3D 功能级别
-		D3D_FEATURE_LEVEL fl;
-		ia& fl;
-		if (fl != App::Get().GetDeviceResources().GetFeatureLevel()) {
-			Logger::Get().Info("功能级别不匹配");
-			return false;
-		}
-
 
 		ia& desc;
 	} catch (...) {
@@ -244,41 +194,19 @@ bool EffectCacheManager::Load(const wchar_t* fileName, std::string_view hash, Ef
 	return true;
 }
 
-void EffectCacheManager::Save(const wchar_t* fileName, std::string_view hash, const EffectDesc& desc) {
-	if (App::Get().IsDisableEffectCache()) {
-		return;
-	}
-
-	// 格式：HASH-VERSION-FL-{BODY}
-
+void EffectCacheManager::Save(std::string_view fileName, std::string_view hash, const EffectDesc& desc) {
 	std::vector<BYTE> buf;
 	buf.reserve(4096);
-	buf.resize(Utils::Hasher::Get().GetHashLength());
 
 	try {
 		yas::vector_ostream os(buf);
 		yas::binary_oarchive<yas::vector_ostream<BYTE>, yas::binary> oa(os);
 
-		oa& _VERSION;
-		oa& App::Get().GetDeviceResources().GetFeatureLevel();
 		oa& desc;
 	} catch (...) {
 		Logger::Get().Error("序列化失败");
 		return;
 	}
-
-	// 填充 HASH
-	std::vector<BYTE> bufHash;
-	if (!Utils::Hasher::Get().Hash(
-		buf.data() + Utils::Hasher::Get().GetHashLength(),
-		buf.size() - Utils::Hasher::Get().GetHashLength(),
-		bufHash
-	)) {
-		Logger::Get().Error("计算哈希失败");
-		return;
-	}
-	std::memcpy(buf.data(), bufHash.data(), bufHash.size());
-
 
 	if (!Utils::DirExists(L".\\cache")) {
 		if (!CreateDirectory(L".\\cache", nullptr)) {
@@ -287,7 +215,7 @@ void EffectCacheManager::Save(const wchar_t* fileName, std::string_view hash, co
 		}
 	} else {
 		// 删除所有该文件的缓存
-		std::wregex regex(fmt::format(L"^{}_[0-9,a-f]{{{}}}.{}$", ConvertFileName(fileName),
+		std::wregex regex(fmt::format(L"^{}_[0-9,a-f]{{{}}}.{}$", StrUtils::UTF8ToUTF16(fileName),
 				Utils::Hasher::Get().GetHashLength() * 2, _SUFFIX), std::wregex::optimize | std::wregex::nosubs);
 
 		WIN32_FIND_DATA findData;
@@ -322,4 +250,59 @@ void EffectCacheManager::Save(const wchar_t* fileName, std::string_view hash, co
 	_AddToMemCache(cacheFileName, desc);
 
 	Logger::Get().Info("已保存缓存 " + StrUtils::UTF16ToUTF8(cacheFileName));
+}
+
+std::string EffectCacheManager::GetHash(
+	std::string_view source,
+	const std::map<std::string, std::variant<float, int>>* inlineParams
+) {
+	std::string str;
+	str.reserve(source.size() + 128);
+	str = source;
+
+	str.append(fmt::format("CACHE_VERSION:{}\n", _VERSION));
+	if (inlineParams) {
+		for (const auto& pair : *inlineParams) {
+			if (pair.second.index() == 0) {
+				str.append(fmt::format("{}:{}\n", pair.first, std::get<0>(pair.second)));
+			} else {
+				str.append(fmt::format("{}:{}\n", pair.first, std::get<1>(pair.second)));
+			}
+		}
+	}
+
+	std::vector<BYTE> hashBytes;
+	if (!Utils::Hasher::Get().Hash(std::span((const BYTE*)source.data(), source.size()), hashBytes)) {
+		Logger::Get().Error("计算 hash 失败");
+		return "";
+	}
+
+	return Utils::Bin2Hex(hashBytes);
+}
+
+std::string EffectCacheManager::GetHash(std::string& source, const std::map<std::string, std::variant<float, int>>* inlineParams) {
+	size_t originSize = source.size();
+
+	source.reserve(originSize + 128);
+
+	source.append(fmt::format("CACHE_VERSION:{}\n", _VERSION));
+	if (inlineParams) {
+		for (const auto& pair : *inlineParams) {
+			if (pair.second.index() == 0) {
+				source.append(fmt::format("{}:{}\n", pair.first, std::get<0>(pair.second)));
+			} else {
+				source.append(fmt::format("{}:{}\n", pair.first, std::get<1>(pair.second)));
+			}
+		}
+	}
+
+	std::vector<BYTE> hashBytes;
+	bool success = Utils::Hasher::Get().Hash(std::span((const BYTE*)source.data(), source.size()), hashBytes);
+	if (!success) {
+		Logger::Get().Error("计算 hash 失败");
+	}
+
+	source.resize(originSize);
+
+	return success ? Utils::Bin2Hex(hashBytes) : "";
 }

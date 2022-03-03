@@ -1005,9 +1005,9 @@ UINT GeneratePassSource(
 	const std::map<std::string, std::variant<float, int>>& inlineParams,
 	std::string& result
 ) {
-	bool isLastEffect = desc.Flags & EFFECT_FLAG_LAST_EFFECT;
+	bool isLastEffect = desc.flags & EFFECT_FLAG_LAST_EFFECT;
 	bool isLastPass = passIdx == desc.passes.size();
-	bool isInlineParams = desc.Flags & EFFECT_FLAG_INLINE_PARAMETERS;
+	bool isInlineParams = desc.flags & EFFECT_FLAG_INLINE_PARAMETERS;
 
 	const EffectPassDesc& passDesc = desc.passes[(size_t)passIdx - 1];
 
@@ -1344,7 +1344,7 @@ cbuffer __CB2 : register(b1) {
 	int2 __viewport;
 )";
 
-	if (desc.Flags & EFFECT_FLAG_LAST_EFFECT) {
+	if (desc.flags & EFFECT_FLAG_LAST_EFFECT) {
 		// 指定输出到屏幕的位置
 		cbHlsl.append("\tint4 __offset;\n");
 	}
@@ -1357,7 +1357,7 @@ cbuffer __CB2 : register(b1) {
 		}
 	}
 
-	if (!(desc.Flags & EFFECT_FLAG_INLINE_PARAMETERS)) {
+	if (!(desc.flags & EFFECT_FLAG_INLINE_PARAMETERS)) {
 		for (const auto& d : desc.params) {
 			cbHlsl.append("\t")
 				.append(d.type == EffectConstantType::Int ? "int " : "float ")
@@ -1396,16 +1396,18 @@ cbuffer __CB2 : register(b1) {
 
 
 UINT EffectCompiler::Compile(
-	const wchar_t* fileName,
+	std::string_view effectName,
 	UINT flags,
 	const std::map<std::string, std::variant<float, int>>& inlineParams,
 	EffectDesc& desc
 ) {
 	desc = {};
-	desc.Flags = flags;
+	desc.flags = flags;
+
+	std::wstring fileName = (L"effects\\" + StrUtils::UTF8ToUTF16(effectName) + L".hlsl");
 
 	std::string source;
-	if (!Utils::ReadTextFile(fileName, source)) {
+	if (!Utils::ReadTextFile(fileName.c_str(), source)) {
 		Logger::Get().Error("读取源文件失败");
 		return 1;
 	}
@@ -1423,13 +1425,9 @@ UINT EffectCompiler::Compile(
 
 	std::string hash;
 	if (!App::Get().IsDisableEffectCache()) {
-		std::vector<BYTE> hashBytes;
-		if (!Utils::Hasher::Get().Hash(source.data(), source.size(), hashBytes)) {
-			Logger::Get().Error("计算 hash 失败");
-		} else {
-			hash = Utils::Bin2Hex(hashBytes.data(), hashBytes.size());
-
-			if (EffectCacheManager::Get().Load(fileName, hash, desc)) {
+		hash = EffectCacheManager::GetHash(source, flags & EFFECT_FLAG_INLINE_PARAMETERS ? &inlineParams : nullptr);
+		if (!hash.empty()) {
+			if (EffectCacheManager::Get().Load(effectName, hash, desc)) {
 				// 已从缓存中读取
 				return 0;
 			}
@@ -1609,7 +1607,9 @@ UINT EffectCompiler::Compile(
 		return 1;
 	}
 
-	EffectCacheManager::Get().Save(fileName, hash, desc);
+	if (!App::Get().IsDisableEffectCache() && !hash.empty()) {
+		EffectCacheManager::Get().Save(effectName, hash, desc);
+	}
 
 	return 0;
 }
