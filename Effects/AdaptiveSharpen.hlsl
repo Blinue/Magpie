@@ -29,9 +29,9 @@ SamplerState sam;
 
 
 //!PASS 1
-//!STYLE PS
 //!IN INPUT
-
+//!BLOCK_SIZE 8,8
+//!NUM_THREADS 64,1,1
 
 #define curve_height    curveHeight         // Main sharpening strength, POSITIVE VALUE ONLY!
 											 // 0.3 <-> 1.5 is a reasonable range of values
@@ -50,8 +50,15 @@ SamplerState sam;
 float CtG(float3 RGB) { return  sqrt((1.0 / 3.0) * ((RGB * RGB).r + (RGB * RGB).g + (RGB * RGB).b)); }
 
 
-float4 Main(float2 pos) {
+void Main(uint2 blockStart, uint3 threadId) {
+	uint2 gxy = Rmp8x8(threadId.x) + blockStart;
+	uint2 outputSize = GetOutputSize();
+	if (gxy.x >= outputSize.x || gxy.y >= outputSize.y) {
+		return;
+	}
+
 	float2 inputPt = GetInputPt();
+	float2 pos = (gxy + 0.5f) * inputPt;
 
 	// Get points and saturate out of range values (BTB & WTW)
 	// [                c22               ]
@@ -203,5 +210,5 @@ float4 Main(float2 pos) {
 	sharpdiff = lerp((tanh((max(sharpdiff, 0.0)) * nmax_scale) / nmax_scale), (max(sharpdiff, 0.0)), L_comp_ratio)
 		+ lerp((tanh((min(sharpdiff, 0.0)) * nmin_scale) / nmin_scale), (min(sharpdiff, 0.0)), D_comp_ratio);
 
-	return float4(c0.rgbb + sharpdiff);
+	WriteToOutput(gxy, c0.rgb + sharpdiff);
 }
