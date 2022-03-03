@@ -4,6 +4,8 @@
 [![All Contributors](https://img.shields.io/github/all-contributors/Blinue/Magpie)](#%E8%B4%A1%E7%8C%AE%E8%80%85-)
 [![许可](https://img.shields.io/github/license/Blinue/Magpie)](./LICENSE)
 
+:globe_with_meridians: [简体中文](./README.md) | **English**
+
 Magpie magnifies any window to fullscreen with a handful of algorithms/filter. The main goal is to tackle the situations where the games either do not natively support fullscreen or display blurry images under fullscreen modes.
 
 Please raise an issue if you are having trouble running the app.
