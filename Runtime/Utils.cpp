@@ -176,10 +176,16 @@ static void CALLBACK TPCallback(PTP_CALLBACK_INSTANCE, PVOID context, PTP_WORK) 
 }
 
 void Utils::RunParallel(std::function<void(UINT)> func, UINT times) {
+#ifdef _DEBUG
+	// 为了便于调试，DEBUG 模式下不使用线程池
+	for (UINT i = 0; i < times; ++i) {
+		func(i);
+	}
+#else
 	if (times == 0) {
 		return;
-	}
-	
+}
+
 	if (times == 1) {
 		return func(0);
 	}
@@ -204,6 +210,7 @@ void Utils::RunParallel(std::function<void(UINT)> func, UINT times) {
 			func(i);
 		}
 	}
+#endif // _DEBUG
 }
 
 

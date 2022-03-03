@@ -35,11 +35,11 @@ protected:
 	}
 
 private:
-	bool _CaptureFromWindow(winrt::impl::com_ref<IGraphicsCaptureItemInterop> interop);
+	bool _CaptureFromWindow(winrt::com_ptr<IGraphicsCaptureItemInterop> interop);
 
-	bool _CaptureFromStyledWindow(winrt::impl::com_ref<IGraphicsCaptureItemInterop> interop);
+	bool _CaptureFromStyledWindow(winrt::com_ptr<IGraphicsCaptureItemInterop> interop);
 
-	bool _CaptureFromMonitor(winrt::impl::com_ref<IGraphicsCaptureItemInterop> interop);
+	bool _CaptureFromMonitor(winrt::com_ptr<IGraphicsCaptureItemInterop> interop);
 
 	void _OnFrameArrived(winrt::Direct3D11CaptureFramePool const&, winrt::IInspectable const&);
 

@@ -31,7 +31,7 @@ bool GraphicsCaptureFrameSource::Initialize() {
 
 	HRESULT hr;
 	
-	winrt::impl::com_ref<IGraphicsCaptureItemInterop> interop;
+	winrt::com_ptr<IGraphicsCaptureItemInterop> interop;
 	try {
 		if (!winrt::ApiInformation::IsTypePresent(L"Windows.Graphics.Capture.GraphicsCaptureSession")) {
 			Logger::Get().Error("不存在 GraphicsCaptureSession API");
@@ -199,7 +199,7 @@ FrameSourceBase::UpdateState GraphicsCaptureFrameSource::Update() {
 	}
 }
 
-bool GraphicsCaptureFrameSource::_CaptureFromWindow(winrt::impl::com_ref<IGraphicsCaptureItemInterop> interop) {
+bool GraphicsCaptureFrameSource::_CaptureFromWindow(winrt::com_ptr<IGraphicsCaptureItemInterop> interop) {
 	// DwmGetWindowAttribute 和 Graphics.Capture 无法应用于子窗口
 	HWND hwndSrc = App::Get().GetHwndSrc();
 
@@ -244,7 +244,7 @@ bool GraphicsCaptureFrameSource::_CaptureFromWindow(winrt::impl::com_ref<IGraphi
 	return true;
 }
 
-bool GraphicsCaptureFrameSource::_CaptureFromStyledWindow(winrt::impl::com_ref<IGraphicsCaptureItemInterop> interop) {
+bool GraphicsCaptureFrameSource::_CaptureFromStyledWindow(winrt::com_ptr<IGraphicsCaptureItemInterop> interop) {
 	HWND hwndSrc = App::Get().GetHwndSrc();
 
 	_srcWndStyle = GetWindowLongPtr(hwndSrc, GWL_EXSTYLE);
@@ -278,7 +278,7 @@ bool GraphicsCaptureFrameSource::_CaptureFromStyledWindow(winrt::impl::com_ref<I
 	return true;
 }
 
-bool GraphicsCaptureFrameSource::_CaptureFromMonitor(winrt::impl::com_ref<IGraphicsCaptureItemInterop> interop) {
+bool GraphicsCaptureFrameSource::_CaptureFromMonitor(winrt::com_ptr<IGraphicsCaptureItemInterop> interop) {
 	// WDA_EXCLUDEFROMCAPTURE 只在 Win10 v2004 及更新版本中可用
 	const RTL_OSVERSIONINFOW& version = Utils::GetOSVersion();
 	if (Utils::CompareVersion(version.dwMajorVersion, version.dwMinorVersion, version.dwBuildNumber, 10, 0, 19041) < 0) {

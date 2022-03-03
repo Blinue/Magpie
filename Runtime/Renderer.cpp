@@ -278,7 +278,6 @@ bool Renderer::_ResolveEffectsJson(const std::string& effectsJson) {
 	}
 
 	const auto& effectsArr = doc.GetArray();
-	_effects.reserve(effectsArr.Size());
 
 	// 不得为空
 	if (effectsArr.Empty()) {
@@ -286,104 +285,132 @@ bool Renderer::_ResolveEffectsJson(const std::string& effectsJson) {
 		return false;
 	}
 
-	ID3D11Texture2D* effectInput = App::Get().GetFrameSource().GetOutput();
-	SIZE outputSize{};
+	UINT effectCount = effectsArr.Size();
+	std::vector<const char*> effectNames(effectCount);
+	std::vector<EffectParams> effectParams(effectCount);
 
-	for (int i = 0, end = effectsArr.Size(); i < end; ++i) {
-		const auto& effectJson = effectsArr[i];
+	// 并行编译所有效果
 
-		if (!effectJson.IsObject()) {
-			Logger::Get().Error("解析 json 失败：根数组中存在非法成员");
-			return false;
-		}
+	std::vector<EffectDesc> effectDescs(effectCount);
+	bool allSuccess = true;
 
-		EffectDrawer& effect = *_effects.emplace_back(new EffectDrawer());
+	int duration = Utils::Measure([&]() {
+		Utils::RunParallel([&](UINT id) {
+			const auto& effectJson = effectsArr[id];
+			UINT effectFlag = (id == effectCount - 1) ? EFFECT_FLAG_LAST_EFFECT : 0;
+			EffectParams& params = effectParams[id];
 
-		auto effectName = effectJson.FindMember("effect");
-		if (effectName == effectJson.MemberEnd() || !effectName->value.IsString()) {
-			Logger::Get().Error("解析 json 失败：未找到 effect 属性或该属性的值不合法");
-			return false;
-		}
-
-		
-		EffectParams effectParams;
-		UINT effectFlags = (i == end - 1) ? EFFECT_FLAG_LAST_EFFECT : 0;
-
-		for (const auto& prop : effectJson.GetObject()) {
-			if (!prop.name.IsString()) {
-				Logger::Get().Error("解析 json 失败：非法的效果名");
-				return false;
+			if (!effectJson.IsObject()) {
+				Logger::Get().Error("解析 json 失败：根数组中存在非法成员");
+				allSuccess = false;
+				return;
 			}
 
-			std::string_view name = prop.name.GetString();
+			{
+				auto effectName = effectJson.FindMember("effect");
+				if (effectName == effectJson.MemberEnd() || !effectName->value.IsString()) {
+					Logger::Get().Error(fmt::format("解析效果#{}失败：未找到 effect 属性或该属性的值不合法", id));
+					allSuccess = false;
+					return;
+				}
+				effectNames[id] = effectName->value.GetString();
+			}
 
-			if (name == "effect") {
-				continue;
-			} else if (name == "inlineParams") {
-				if (!prop.value.IsBool()) {
-					Logger::Get().Error(fmt::format("解析 json 失败：成员 inlineParams 必须为 bool 类型", name));
-					return false;
+			for (const auto& prop : effectJson.GetObject()) {
+				if (!prop.name.IsString()) {
+					Logger::Get().Error(fmt::format("解析效果#{}失败：非法的效果名", id));
+					allSuccess = false;
+					return;
 				}
 
-				if (prop.value.GetBool()) {
-					effectFlags |= EFFECT_FLAG_INLINE_PARAMETERS;
-				}
-				continue;
-			} else if (name == "scale") {
-				auto scaleProp = effectJson.FindMember("scale");
-				if (scaleProp != effectJson.MemberEnd()) {
-					if (!scaleProp->value.IsArray()) {
-						Logger::Get().Error("解析 json 失败：非法的 scale 属性");
-						return false;
+				std::string_view name = prop.name.GetString();
+
+				if (name == "effect") {
+					continue;
+				} else if (name == "inlineParams") {
+					if (!prop.value.IsBool()) {
+						Logger::Get().Error(fmt::format("解析效果#{}（{}）失败：成员 inlineParams 必须为 bool 类型", id, effectNames[id]));
+						allSuccess = false;
+						return;
 					}
 
-					const auto& scale = scaleProp->value.GetArray();
-					if (scale.Size() != 2 || !scale[0].IsNumber() || !scale[1].IsNumber()) {
-						Logger::Get().Error("解析 json 失败：非法的 scale 属性");
-						return false;
+					if (prop.value.GetBool()) {
+						effectFlag |= EFFECT_FLAG_INLINE_PARAMETERS;
 					}
+					continue;
+				} else if (name == "scale") {
+					auto scaleProp = effectJson.FindMember("scale");
+					if (scaleProp != effectJson.MemberEnd()) {
+						if (!scaleProp->value.IsArray()) {
+							Logger::Get().Error(fmt::format("解析效果#{}（{}）失败：成员 scale 必须为数组类型", id, effectNames[id]));
+							allSuccess = false;
+							return;
+						}
 
-					effectParams.scale = std::make_pair(scale[0].GetFloat(), scale[1].GetFloat());
-				}
-			} else {
-				auto& paramValue = effectParams.params[std::string(name)];
+						const auto& scale = scaleProp->value.GetArray();
+						if (scale.Size() != 2 || !scale[0].IsNumber() || !scale[1].IsNumber()) {
+							Logger::Get().Error(fmt::format("解析效果#{}（{}）失败：成员 scale 格式非法", id, effectNames[id]));
+							allSuccess = false;
+							return;
+						}
 
-				if (prop.value.IsFloat()) {
-					paramValue = prop.value.GetFloat();
-				} else if (prop.value.IsInt()) {
-					paramValue = prop.value.GetInt();
-				} else if (prop.value.IsBool()) {
-					// bool 值视为 int
-					paramValue = (int)prop.value.GetBool();
+						params.scale = std::make_pair(scale[0].GetFloat(), scale[1].GetFloat());
+					}
 				} else {
-					Logger::Get().Error(fmt::format("解析 json 失败：成员 {} 的类型非法", name));
-					return false;
+					auto& paramValue = params.params[std::string(name)];
+
+					if (prop.value.IsFloat()) {
+						paramValue = prop.value.GetFloat();
+					} else if (prop.value.IsInt()) {
+						paramValue = prop.value.GetInt();
+					} else if (prop.value.IsBool()) {
+						// bool 值视为 int
+						paramValue = (int)prop.value.GetBool();
+					} else {
+						Logger::Get().Error(fmt::format("解析效果#{}（{}）失败：成员 {} 的类型非法", id, effectNames[id], name));
+						allSuccess = false;
+						return;
+					}
 				}
 			}
+
+			std::wstring fileName = (L"effects\\" + StrUtils::UTF8ToUTF16(effectNames[id]) + L".hlsl");
+
+			bool success = true;
+			int duration = Utils::Measure([&]() {
+				success = !EffectCompiler::Compile(fileName.c_str(), effectFlag, effectParams[id].params, effectDescs[id]);
+			});
+
+			if (success) {
+				Logger::Get().Info(fmt::format("编译 {} 用时 {} 毫秒", StrUtils::UTF16ToUTF8(fileName), duration / 1000.0f));
+			} else {
+				Logger::Get().Error(fmt::format("编译 {} 失败", StrUtils::UTF16ToUTF8(fileName)));
+				allSuccess = false;
+			}
+		}, effectCount);
+	});
+
+	if (allSuccess) {
+		if (effectCount > 1) {
+			Logger::Get().Info(fmt::format("编译着色器总计用时 {} 毫秒", duration / 1000.0f));
 		}
+	} else {
+		return false;
+	}
 
-		EffectDesc effectDesc;
-		std::wstring fileName = (L"effects\\" + StrUtils::UTF8ToUTF16(effectName->value.GetString()) + L".hlsl");
+	ID3D11Texture2D* effectInput = App::Get().GetFrameSource().GetOutput();
+	_effects.resize(effectCount);
 
-		bool result = false;
-		int duration = Utils::Measure([&]() {
-			result = !EffectCompiler::Compile(fileName.c_str(), effectFlags, effectParams.params, effectDesc);
-		});
+	for (UINT i = 0; i < effectCount; ++i) {
+		bool isLastEffect = i == effectCount - 1;
 
-		if (!result) {
-			Logger::Get().Error(fmt::format("编译 {} 失败", StrUtils::UTF16ToUTF8(fileName)));
-			return false;
-		} else {
-			Logger::Get().Info(fmt::format("编译 {} 用时 {} 毫秒", StrUtils::UTF16ToUTF8(fileName), duration / 1000.0f));
-		}
-
-		bool isLastEffect = i == end - 1;
-		if (!effect.Initialize(
-			effectDesc, effectParams, effectInput, &effectInput,
+		_effects[i].reset(new EffectDrawer());
+		if (!_effects[i]->Initialize(
+			effectDescs[i], effectParams[i], effectInput, &effectInput,
 			isLastEffect ? &_outputRect : nullptr,
 			isLastEffect ? &_virtualOutputRect : nullptr
 		)) {
-			Logger::Get().Error(fmt::format("初始化效果#{} ({}) 失败", i, effectName->value.GetString()));
+			Logger::Get().Error(fmt::format("初始化效果#{} ({}) 失败", i, effectNames[i]));
 			return false;
 		}
 	}
