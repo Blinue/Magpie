@@ -155,11 +155,19 @@ void EffectCacheManager::_AddToMemCache(const std::wstring& cacheFileName, const
 	_memCache[cacheFileName] = { desc, ++_lastAccess };
 
 	if (_memCache.size() > MAX_CACHE_COUNT) {
-		// 清理一半内存缓存
-		UINT barrier = _lastAccess - MAX_CACHE_COUNT / 2;
+		// 清理一半较旧的内存缓存
+		std::vector<UINT> access;
+		access.reserve(_memCache.size());
+		for (const auto& pair : _memCache) {
+			access.push_back(pair.second.second);
+		}
+
+		auto midIt = access.begin() + access.size() / 2;
+		std::nth_element(access.begin(), midIt, access.end());
+		UINT mid = *midIt;
 
 		for (auto it = _memCache.begin(); it != _memCache.end();) {
-			if (it->second.second < barrier) {
+			if (it->second.second < mid) {
 				it = _memCache.erase(it);
 			} else {
 				++it;
