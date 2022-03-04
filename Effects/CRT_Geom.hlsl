@@ -221,7 +221,7 @@ float4 scanlineWeights(float distance1, float4 color) {
 #endif
 }
 
-float4 Main(float2 pos) {
+float4 Pass1(float2 pos) {
 	const uint2 outputSize = GetOutputSize();
 	const uint2 inputSize = GetInputSize();
 

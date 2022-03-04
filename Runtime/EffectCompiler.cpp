@@ -1195,26 +1195,26 @@ void __M(uint3 tid : SV_GroupThreadID, uint3 gid : SV_GroupID) {{
 		return;
 	}};
 
-	WriteToOutput(gxy, Main(pos).rgb);
+	WriteToOutput(gxy, Pass{1}(pos).rgb);
 
 	gxy.x += 8u;
 	pos.x += step.x;
 	if (CheckViewport(gxy)) {{
-		WriteToOutput(gxy, Main(pos).rgb);
+		WriteToOutput(gxy, Pass{1}(pos).rgb);
 	}};
 
 	gxy.y += 8u;
 	pos.y += step.y;
 	if (CheckViewport(gxy)) {{
-		WriteToOutput(gxy, Main(pos).rgb);
+		WriteToOutput(gxy, Pass{1}(pos).rgb);
 	}};
 
 	gxy.x -= 8u;
 	pos.x -= step.x;
 	if (CheckViewport(gxy)) {{
-		WriteToOutput(gxy, Main(pos).rgb);
+		WriteToOutput(gxy, Pass{1}(pos).rgb);
 	}};
-}})", isLastEffect ? " + __offset.xy" : ""));
+}})", isLastEffect ? " + __offset.xy" : "", passIdx));
 			} else {
 				result.append(fmt::format(R"([numthreads(64, 1, 1)]
 void __M(uint3 tid : SV_GroupThreadID, uint3 gid : SV_GroupID) {{
@@ -1225,24 +1225,24 @@ void __M(uint3 tid : SV_GroupThreadID, uint3 gid : SV_GroupID) {{
 	float2 pos = (gxy + 0.5f) * __pass{0}OutputPt;
 	float2 step = 8 * __pass{0}OutputPt;
 
-	{1}[gxy] = Main(pos);
+	{1}[gxy] = Pass{0}(pos);
 
 	gxy.x += 8u;
 	pos.x += step.x;
 	if (gxy.x < __pass{0}OutputSize.x && gxy.y < __pass{0}OutputSize.y) {{
-		{1}[gxy] = Main(pos);
+		{1}[gxy] = Pass{0}(pos);
 	}}
 	
 	gxy.y += 8u;
 	pos.y += step.y;
 	if (gxy.x < __pass{0}OutputSize.x && gxy.y < __pass{0}OutputSize.y) {{
-		{1}[gxy] = Main(pos);
+		{1}[gxy] = Pass{0}(pos);
 	}}
 	
 	gxy.x -= 8u;
 	pos.x -= step.x;
 	if (gxy.x < __pass{0}OutputSize.x && gxy.y < __pass{0}OutputSize.y) {{
-		{1}[gxy] = Main(pos);
+		{1}[gxy] = Pass{0}(pos);
 	}}
 }})", passIdx, desc.textures[passDesc.outputs[0]].name));
 			}
@@ -1265,7 +1265,7 @@ void __M(uint3 tid : SV_GroupThreadID, uint3 gid : SV_GroupID) {{
 				result.append(fmt::format("\tfloat4 c{};\n", i));
 			}
 
-			std::string callPass = "\tMain(pos, ";
+			std::string callPass = fmt::format("\tPass{}(pos, ", passIdx);
 
 			for (int i = 0; i < passDesc.outputs.size() - 1; ++i) {
 				callPass.append(fmt::format("c{}, ", i));
@@ -1308,9 +1308,9 @@ void __M(uint3 tid : SV_GroupThreadID, uint3 gid : SV_GroupID) {{
 
 		result.append(fmt::format(R"([numthreads({}, {}, {})]
 void __M(uint3 tid : SV_GroupThreadID, uint3 gid : SV_GroupID) {{
-	Main({}{}, tid);
+	Pass{}({}{}, tid);
 }}
-)", passDesc.numThreads[0], passDesc.numThreads[1], passDesc.numThreads[2], blockStartExpr, isLastEffect && isLastPass ? " + __offset.xy" : ""));
+)", passDesc.numThreads[0], passDesc.numThreads[1], passDesc.numThreads[2], passIdx, blockStartExpr, isLastEffect && isLastPass ? " + __offset.xy" : ""));
 	}
 
 	return 0;

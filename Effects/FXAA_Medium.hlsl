@@ -23,7 +23,7 @@ SamplerState sam;
 #include "FXAA.hlsli"
 
 
-void Main(uint2 blockStart, uint3 threadId) {
+void Pass1(uint2 blockStart, uint3 threadId) {
 	uint2 gxy = Rmp8x8(threadId.x) * 2 + blockStart;
 	if (!CheckViewport(gxy)) {
 		return;

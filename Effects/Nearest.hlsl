@@ -14,6 +14,6 @@ SamplerState sam;
 //!STYLE PS
 //!IN INPUT
 
-float4 Main(float2 pos) {
+float4 Pass1(float2 pos) {
 	return INPUT.SampleLevel(sam, pos, 0);
 }

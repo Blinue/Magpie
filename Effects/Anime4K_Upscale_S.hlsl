@@ -51,7 +51,7 @@ float4 A4KS1(float3 src[4][4], int i, int j) {
 	return result;
 }
 
-void Main(uint2 blockStart, uint3 threadId) {
+void Pass1(uint2 blockStart, uint3 threadId) {
 	uint2 gxy = Rmp8x8(threadId.x) * 2 + blockStart;
 	uint2 inputSize = GetInputSize();
 	if (gxy.x >= inputSize.x || gxy.y >= inputSize.y) {
@@ -123,7 +123,7 @@ float4 A4KS2(float4 src[4][4], int i, int j) {
 }
 
 
-void Main(uint2 blockStart, uint3 threadId) {
+void Pass2(uint2 blockStart, uint3 threadId) {
 	uint2 gxy = Rmp8x8(threadId.x) * 2 + blockStart;
 	uint2 inputSize = GetInputSize();
 	if (gxy.x >= inputSize.x || gxy.y >= inputSize.y) {
@@ -193,7 +193,7 @@ float4 A4KS3(float4 src[4][4], int i, int j) {
 	return result;
 }
 
-void Main(uint2 blockStart, uint3 threadId) {
+void Pass3(uint2 blockStart, uint3 threadId) {
 	uint2 gxy = Rmp8x8(threadId.x) * 2 + blockStart;
 	uint2 inputSize = GetInputSize();
 	if (gxy.x >= inputSize.x || gxy.y >= inputSize.y) {
@@ -280,7 +280,7 @@ float4 A4KS4(float2 pos) {
 	return result;
 }
 
-void Main(uint2 blockStart, uint3 threadId) {
+void Pass4(uint2 blockStart, uint3 threadId) {
 	uint2 gxy = Rmp8x8(threadId.x) * 2 + blockStart;
 
 	if (!CheckViewport(gxy)) {

@@ -50,7 +50,7 @@ SamplerState sam;
 float CtG(float3 RGB) { return  sqrt((1.0 / 3.0) * ((RGB * RGB).r + (RGB * RGB).g + (RGB * RGB).b)); }
 
 
-void Main(uint2 blockStart, uint3 threadId) {
+void Pass1(uint2 blockStart, uint3 threadId) {
 	uint2 gxy = Rmp8x8(threadId.x) + blockStart;
 	if (!CheckViewport(gxy)) {
 		return;

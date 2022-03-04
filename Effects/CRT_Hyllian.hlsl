@@ -148,7 +148,7 @@ const static float4x4 invX = float4x4((-B - 6.0 * C) / 6.0, (3.0 * B + 12.0 * C)
     -(12.0 - 9.0 * B - 6.0 * C) / 6.0, (18.0 - 15.0 * B - 12.0 * C) / 6.0, (3.0 * B + 6.0 * C) / 6.0, B / 6.0,
     (B + 6.0 * C) / 6.0, -C, 0.0, 0.0);
 
-float4 Main(float2 pos) {
+float4 Pass1(float2 pos) {
     uint2 inputSize = GetInputSize();
     uint2 outputSize = GetOutputSize();
     float3 color;

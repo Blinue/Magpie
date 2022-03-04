@@ -35,7 +35,7 @@ float3 weight3(float x) {
 	return /*radius **/ sin(s) * sin(s * rcpRadius) * rcp(s * s);
 }
 
-float4 Main(float2 pos) {
+float4 Pass1(float2 pos) {
 	pos *= GetInputSize();
 	float2 inputPt = GetInputPt();
 

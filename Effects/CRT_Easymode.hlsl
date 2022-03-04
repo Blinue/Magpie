@@ -190,7 +190,7 @@ float3 filter_lanczos(float4 coeffs, float4x4 color_matrix) {
 	return col.rgb;
 }
 
-float4 Main(float2 pos) {
+float4 Pass1(float2 pos) {
 	float2 inputPt = GetInputPt();
 	int2 inputSize = GetInputSize();
 	int2 outputSize = GetOutputSize();

@@ -59,7 +59,7 @@ float4 resampler(float4 x, float wa, float wb) {
 		: sin(x * wa) * sin(x * wb) * rcp(x * x);
 }
 
-void Main(uint2 blockStart, uint3 threadId) {
+void Pass1(uint2 blockStart, uint3 threadId) {
 	uint2 gxy = Rmp8x8(threadId.x) + blockStart;
 	if (!CheckViewport(gxy)) {
 		return;

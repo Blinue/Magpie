@@ -226,7 +226,7 @@ float3 FsrEasuF(uint2 pos, float4 con0, float4 con1, float4 con2, float2 con3) {
 	return min(max4, max(min4, aC * rcp(aW)));
 }
 
-void Main(uint2 blockStart, uint3 threadId) {
+void Pass1(uint2 blockStart, uint3 threadId) {
 	uint2 gxy = blockStart + Rmp8x8(threadId.x);
 	if (!CheckViewport(gxy)) {
 		return;

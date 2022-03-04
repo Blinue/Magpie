@@ -54,7 +54,7 @@ float4 weight4(float x) {
 }
 
 
-float4 Main(float2 pos) {
+float4 Pass1(float2 pos) {
 	float2 inputPt = GetInputPt();
 	uint i, j;
 

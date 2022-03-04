@@ -324,7 +324,7 @@ float3 Mask(float2 pos) {
 	return mask;
 }
 
-void Main(uint2 blockStart, uint3 threadId) {
+void Pass1(uint2 blockStart, uint3 threadId) {
 	uint2 gxy = Rmp8x8(threadId.x) + blockStart;
 	if (!CheckViewport(gxy)) {
 		return;

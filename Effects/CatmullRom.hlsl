@@ -21,7 +21,7 @@ SamplerState sam;
 
 // Samples a texture with Catmull-Rom filtering, using 9 texture fetches instead of 16.
 // See http://vec3.ca/bicubic-filtering-in-fewer-taps/ for more details
-float4 Main(float2 pos) {
+float4 Pass1(float2 pos) {
 	float2 inputSize = GetInputSize();
 	float2 inputPt = GetInputPt();
 

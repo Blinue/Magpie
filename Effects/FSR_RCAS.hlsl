@@ -107,7 +107,7 @@ float3 FsrRcasF(uint2 pos) {
 	return c;
 }
 
-void Main(uint2 blockStart, uint3 threadId) {
+void Pass1(uint2 blockStart, uint3 threadId) {
 	uint2 gxy = blockStart + Rmp8x8(threadId.x);
 	if (!CheckViewport(gxy)) {
 		return;

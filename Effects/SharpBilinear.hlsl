@@ -18,7 +18,7 @@ SamplerState sam;
 //!STYLE PS
 //!IN INPUT
 
-float4 Main(float2 pos) {
+float4 Pass1(float2 pos) {
 	float2 inputPt = GetInputPt();
 	float2 scale = GetScale();
 

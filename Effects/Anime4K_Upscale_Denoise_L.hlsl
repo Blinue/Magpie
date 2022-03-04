@@ -49,7 +49,7 @@ Texture2D tex4;
 //!BLOCK_SIZE 8,8
 //!NUM_THREADS 64,1,1
 
-void Main(uint2 blockStart, uint3 threadId) {
+void Pass1(uint2 blockStart, uint3 threadId) {
 	uint2 gxy = Rmp8x8(threadId.x) + blockStart;
 	uint2 inputSize = GetInputSize();
 	if (gxy.x >= inputSize.x || gxy.y >= inputSize.y) {
@@ -105,7 +105,7 @@ void Main(uint2 blockStart, uint3 threadId) {
 //!BLOCK_SIZE 8,8
 //!NUM_THREADS 64,1,1
 
-void Main(uint2 blockStart, uint3 threadId) {
+void Pass2(uint2 blockStart, uint3 threadId) {
 	uint2 gxy = Rmp8x8(threadId.x) + blockStart;
 	uint2 inputSize = GetInputSize();
 	if (gxy.x >= inputSize.x || gxy.y >= inputSize.y) {
@@ -265,7 +265,7 @@ void Main(uint2 blockStart, uint3 threadId) {
 //!BLOCK_SIZE 8,8
 //!NUM_THREADS 64,1,1
 
-void Main(uint2 blockStart, uint3 threadId) {
+void Pass3(uint2 blockStart, uint3 threadId) {
 	uint2 gxy = Rmp8x8(threadId.x) + blockStart;
 	uint2 inputSize = GetInputSize();
 	if (gxy.x >= inputSize.x || gxy.y >= inputSize.y) {
@@ -424,7 +424,7 @@ void Main(uint2 blockStart, uint3 threadId) {
 //!BLOCK_SIZE 16,16
 //!NUM_THREADS 64,1,1
 
-void Main(uint2 blockStart, uint3 threadId) {
+void Pass4(uint2 blockStart, uint3 threadId) {
 	uint2 gxy = (Rmp8x8(threadId.x) << 1) + blockStart;
 	if (!CheckViewport(gxy)) {
 		return;

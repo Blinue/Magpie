@@ -178,7 +178,7 @@ float4 GetDirUSM(const float p[5][5]) {
 	return rval;
 }
 
-void Main(uint2 blockStart, uint3 threadId) {
+void Pass1(uint2 blockStart, uint3 threadId) {
 	float2 inputPt = GetInputPt();
 	float kSrcNormX = inputPt.x;
 	float kSrcNormY = inputPt.y;

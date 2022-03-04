@@ -321,7 +321,7 @@ float AddDirFilters(float p[6][6], float phase_x_frac, float phase_y_frac, int p
 	return f;
 }
 
-void Main(uint2 blockStart, uint3 threadId) {
+void Pass1(uint2 blockStart, uint3 threadId) {
 	float2 scale = GetScale();
 	float2 inputPt = GetInputPt();
 

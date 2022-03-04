@@ -72,7 +72,7 @@ SamplerState sam;
   //#define CoefLuma float3(0.299, 0.587, 0.114)       // BT.601 luma coefficient (SD Television)
   //#define CoefLuma float3(1.0/3.0, 1.0/3.0, 1.0/3.0) // Equal weight coefficient
 
-float4 Main(float2 pos) {
+float4 Pass1(float2 pos) {
 	float2 BUFFER_PIXEL_SIZE = GetInputPt();
 
 	// -- Get the original pixel --

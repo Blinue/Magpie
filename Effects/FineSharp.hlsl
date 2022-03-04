@@ -71,7 +71,7 @@ SamplerState sam;
 #define RGBtoYUV(Kb,Kr) float3x3(float3(Kr, 1 - Kr - Kb, Kb), float3(-Kr, Kr + Kb - 1, 1 - Kb) / (2*(1 - Kb)), float3(1 - Kr, Kr + Kb - 1, -Kb) / (2*(1 - Kr)))
 static const float3x3 RGBtoYUV = GetInputSize().y <= 576 ? RGBtoYUV(0.114, 0.299) : RGBtoYUV(0.0722, 0.2126);
 
-void Main(uint2 blockStart, uint3 threadId) {
+void Pass1(uint2 blockStart, uint3 threadId) {
 	uint2 gxy = Rmp8x8(threadId.x) * 2 + blockStart;
 	uint2 inputSize = GetInputSize();
 	if (gxy.x >= inputSize.x || gxy.y >= inputSize.y) {
@@ -132,7 +132,7 @@ void Main(uint2 blockStart, uint3 threadId) {
 											 sort(a1,a3),sort(a5,a7),sort(a1,a5),sort(a3,a5),sort(a3,a7),\
 											 sort(a2,a4),sort(a6,a8),sort(a4,a8),sort(a4,a6),sort(a2,a6),median5(a2,a4,a5,a7,a9))
 
-void Main(uint2 blockStart, uint3 threadId) {
+void Pass2(uint2 blockStart, uint3 threadId) {
 	uint2 gxy = Rmp8x8(threadId.x) * 2 + blockStart;
 	uint2 inputSize = GetInputSize();
 	if (gxy.x >= inputSize.x || gxy.y >= inputSize.y) {
@@ -216,7 +216,7 @@ float SharpDiff(float4 c) {
 	return sign(t) * (sstr / 255.0f) * pow(abs(t) / (lstr / 255.0f), 1.0f / pstr) * ((t * t) / (t * t + ldmp / (255.0f * 255.0f)));
 }
 
-void Main(uint2 blockStart, uint3 threadId) {
+void Pass3(uint2 blockStart, uint3 threadId) {
 	uint2 gxy = Rmp8x8(threadId.x) * 2 + blockStart;
 	uint2 inputSize = GetInputSize();
 	if (gxy.x >= inputSize.x || gxy.y >= inputSize.y) {
@@ -300,7 +300,7 @@ void Main(uint2 blockStart, uint3 threadId) {
 #define sort9(a1,a2,a3,a4,a5,a6,a7,a8,a9)          (sort_min_max9(a1,a2,a3,a4,a5,a6,a7,a8,a9),sort_min_max7(a2,a3,a4,a5,a6,a7,a8),sort_min_max5(a3,a4,a5,a6,a7),sort_min_max3(a4,a5,a6))
 
 
-void Main(uint2 blockStart, uint3 threadId) {
+void Pass4(uint2 blockStart, uint3 threadId) {
 	uint2 gxy = Rmp8x8(threadId.x) * 2 + blockStart;
 	uint2 inputSize = GetInputSize();
 	if (gxy.x >= inputSize.x || gxy.y >= inputSize.y) {
@@ -377,7 +377,7 @@ void Main(uint2 blockStart, uint3 threadId) {
 static const float3x3 YUVtoRGB = GetInputSize().y <= 576 ? YUVtoRGB(0.114, 0.299) : YUVtoRGB(0.0722, 0.2126);
 
 
-void Main(uint2 blockStart, uint3 threadId) {
+void Pass5(uint2 blockStart, uint3 threadId) {
 	uint2 gxy = Rmp8x8(threadId.x) * 2 + blockStart;
 	if (!CheckViewport(gxy)) {
 		return;
