@@ -30,6 +30,9 @@ private:
 	void _AddToMemCache(const std::wstring& cacheFileName, const EffectDesc& desc);
 	bool _LoadFromMemCache(const std::wstring& cacheFileName, EffectDesc& desc);
 
-	Utils::CSMutex _cs;	// 用于同步对 _memCache 的访问
-	std::unordered_map<std::wstring, EffectDesc> _memCache;
+	// 用于同步对 _memCache 的访问
+	Utils::CSMutex _cs;
+	// cacheFileName -> (EffectDesc, lastAccess)
+	std::unordered_map<std::wstring, std::pair<EffectDesc, UINT>> _memCache;
+	UINT _lastAccess = 0;
 };

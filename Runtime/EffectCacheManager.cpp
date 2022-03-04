@@ -16,9 +16,6 @@
 
 static constexpr const size_t MAX_CACHE_COUNT = 128;
 
-// 缓存文件后缀名：Compiled MagpieFX
-static constexpr const wchar_t* CACHE_SUFFIX = L"cmfx";
-
 // 缓存版本
 // 当缓存文件结构有更改时将更新它，使得所有旧缓存失效
 static constexpr const UINT CACHE_VERSION = 3;
@@ -28,7 +25,8 @@ static constexpr const int CACHE_COMPRESSION_LEVEL = 1;
 
 
 std::wstring GetCacheFileName(std::string_view effectName, std::string_view hash, UINT flags) {
-	return fmt::format(L".\\cache\\{}_{:x}{}.{}", StrUtils::UTF8ToUTF16(effectName), flags, StrUtils::UTF8ToUTF16(hash), CACHE_SUFFIX);
+	// 缓存文件的命名：{效果名}_{标志位（16进制）}{哈希}
+	return fmt::format(L".\\cache\\{}_{:02x}{}", StrUtils::UTF8ToUTF16(effectName), flags, StrUtils::UTF8ToUTF16(hash));
 }
 
 
@@ -154,13 +152,19 @@ void serialize(Archive& ar, EffectDesc& o) {
 void EffectCacheManager::_AddToMemCache(const std::wstring& cacheFileName, const EffectDesc& desc) {
 	std::scoped_lock lk(_cs);
 
-	_memCache[cacheFileName] = desc;
+	_memCache[cacheFileName] = { desc, ++_lastAccess };
 
 	if (_memCache.size() > MAX_CACHE_COUNT) {
 		// 清理一半内存缓存
-		auto it = _memCache.begin();
-		std::advance(it, _memCache.size() / 2);
-		_memCache.erase(_memCache.begin(), it);
+		UINT barrier = _lastAccess - MAX_CACHE_COUNT / 2;
+
+		for (auto it = _memCache.begin(); it != _memCache.end();) {
+			if (it->second.second < barrier) {
+				it = _memCache.erase(it);
+			} else {
+				++it;
+			}
+		}
 
 		Logger::Get().Info("已清理内存缓存");
 	}
@@ -171,7 +175,9 @@ bool EffectCacheManager::_LoadFromMemCache(const std::wstring& cacheFileName, Ef
 	
 	auto it = _memCache.find(cacheFileName);
 	if (it != _memCache.end()) {
-		desc = it->second;
+		desc = it->second.first;
+		it->second.second = ++_lastAccess;
+		Logger::Get().Info(fmt::format("已读取缓存 {}", StrUtils::UTF16ToUTF8(cacheFileName)));
 		return true;
 	}
 	return false;
@@ -250,8 +256,8 @@ void EffectCacheManager::Save(std::string_view effectName, std::string_view hash
 		}
 	} else {
 		// 删除所有该效果（flags 相同）的缓存
-		std::wregex regex(fmt::format(L"^{}_{:x}[0-9,a-f]{{{}}}.{}$", StrUtils::UTF8ToUTF16(effectName), desc.flags,
-				Utils::Hasher::Get().GetHashLength() * 2, CACHE_SUFFIX), std::wregex::optimize | std::wregex::nosubs);
+		std::wregex regex(fmt::format(L"^{}_{:02x}[0-9,a-f]{{{}}}$", StrUtils::UTF8ToUTF16(effectName), desc.flags,
+				Utils::Hasher::Get().GetHashLength() * 2), std::wregex::optimize | std::wregex::nosubs);
 
 		WIN32_FIND_DATA findData;
 		HANDLE hFind = Utils::SafeHandle(FindFirstFile(L".\\cache\\*", &findData));
