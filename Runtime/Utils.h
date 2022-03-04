@@ -138,6 +138,9 @@ struct Utils {
 	// 并行执行 times 次 func，并行失败时回退到单线程
 	// 执行完毕后返回
 	static void RunParallel(std::function<void(UINT)> func, UINT times);
+
+	static bool ZstdCompress(std::span<const BYTE> src, std::vector<BYTE>& dest, int compressionLevel);
+	static bool ZstdDecompress(std::span<const BYTE> src, std::vector<BYTE>& dest);
 };
 
 namespace std {

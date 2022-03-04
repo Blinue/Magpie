@@ -12,7 +12,24 @@
 #include "DeviceResources.h"
 #include "StrUtils.h"
 #include "Logger.h"
-#include <zstd.h>
+
+
+static constexpr const size_t MAX_CACHE_COUNT = 128;
+
+// 缓存文件后缀名：Compiled MagpieFX
+static constexpr const wchar_t* CACHE_SUFFIX = L"cmfx";
+
+// 缓存版本
+// 当缓存文件结构有更改时将更新它，使得所有旧缓存失效
+static constexpr const UINT CACHE_VERSION = 3;
+
+// 缓存的压缩等级
+static constexpr const int CACHE_COMPRESSION_LEVEL = 1;
+
+
+std::wstring GetCacheFileName(std::string_view effectName, std::string_view hash, UINT flags) {
+	return fmt::format(L".\\cache\\{}_{:x}{}.{}", StrUtils::UTF8ToUTF16(effectName), flags, StrUtils::UTF8ToUTF16(hash), CACHE_SUFFIX);
+}
 
 
 template<typename Archive>
@@ -134,17 +151,12 @@ void serialize(Archive& ar, EffectDesc& o) {
 	ar& o.outSizeExpr& o.params& o.textures& o.samplers& o.passes& o.flags;
 }
 
-
-std::wstring EffectCacheManager::_GetCacheFileName(std::string_view effectName, std::string_view hash, UINT flags) {
-	return fmt::format(L".\\cache\\{}_{:x}{}.{}", StrUtils::UTF8ToUTF16(effectName), flags, StrUtils::UTF8ToUTF16(hash), _SUFFIX);
-}
-
 void EffectCacheManager::_AddToMemCache(const std::wstring& cacheFileName, const EffectDesc& desc) {
 	std::scoped_lock lk(_cs);
 
 	_memCache[cacheFileName] = desc;
 
-	if (_memCache.size() > _MAX_CACHE_COUNT) {
+	if (_memCache.size() > MAX_CACHE_COUNT) {
 		// 清理一半内存缓存
 		auto it = _memCache.begin();
 		std::advance(it, _memCache.size() / 2);
@@ -168,7 +180,7 @@ bool EffectCacheManager::_LoadFromMemCache(const std::wstring& cacheFileName, Ef
 bool EffectCacheManager::Load(std::string_view effectName, std::string_view hash, EffectDesc& desc) {
 	assert(!effectName.empty() && !hash.empty());
 
-	std::wstring cacheFileName = _GetCacheFileName(effectName, hash, desc.flags);
+	std::wstring cacheFileName = GetCacheFileName(effectName, hash, desc.flags);
 
 	if (_LoadFromMemCache(cacheFileName, desc)) {
 		return true;
@@ -179,12 +191,16 @@ bool EffectCacheManager::Load(std::string_view effectName, std::string_view hash
 	}
 	
 	std::vector<BYTE> buf;
-	if (!Utils::ReadFile(cacheFileName.c_str(), buf) || buf.empty()) {
-		return false;
-	}
-
-	if (buf.size() < 100) {
-		return false;
+	{
+		std::vector<BYTE> compressedBuf;
+		if (!Utils::ReadFile(cacheFileName.c_str(), compressedBuf) || compressedBuf.empty()) {
+			return false;
+		}
+		
+		if (!Utils::ZstdDecompress(compressedBuf, buf)) {
+			Logger::Get().Error("解压缓存失败");
+			return false;
+		}
 	}
 
 	try {
@@ -205,19 +221,28 @@ bool EffectCacheManager::Load(std::string_view effectName, std::string_view hash
 }
 
 void EffectCacheManager::Save(std::string_view effectName, std::string_view hash, const EffectDesc& desc) {
-	std::vector<BYTE> buf;
-	buf.reserve(4096);
+	std::vector<BYTE> compressedBuf;
+	{
+		std::vector<BYTE> buf;
+		buf.reserve(4096);
 
-	try {
-		yas::vector_ostream os(buf);
-		yas::binary_oarchive<yas::vector_ostream<BYTE>, yas::binary> oa(os);
+		try {
+			yas::vector_ostream os(buf);
+			yas::binary_oarchive<yas::vector_ostream<BYTE>, yas::binary> oa(os);
 
-		oa& desc;
-	} catch (...) {
-		Logger::Get().Error("序列化失败");
-		return;
+			oa& desc;
+		} catch (...) {
+			Logger::Get().Error("序列化失败");
+			return;
+		}
+
+		
+		if (!Utils::ZstdCompress(buf, compressedBuf, CACHE_COMPRESSION_LEVEL)) {
+			Logger::Get().Error("压缩缓存失败");
+			return;
+		}
 	}
-
+	
 	if (!Utils::DirExists(L".\\cache")) {
 		if (!CreateDirectory(L".\\cache", nullptr)) {
 			Logger::Get().Win32Error("创建 cache 文件夹失败");
@@ -226,7 +251,7 @@ void EffectCacheManager::Save(std::string_view effectName, std::string_view hash
 	} else {
 		// 删除所有该效果（flags 相同）的缓存
 		std::wregex regex(fmt::format(L"^{}_{:x}[0-9,a-f]{{{}}}.{}$", StrUtils::UTF8ToUTF16(effectName), desc.flags,
-				Utils::Hasher::Get().GetHashLength() * 2, _SUFFIX), std::wregex::optimize | std::wregex::nosubs);
+				Utils::Hasher::Get().GetHashLength() * 2, CACHE_SUFFIX), std::wregex::optimize | std::wregex::nosubs);
 
 		WIN32_FIND_DATA findData;
 		HANDLE hFind = Utils::SafeHandle(FindFirstFile(L".\\cache\\*", &findData));
@@ -252,8 +277,8 @@ void EffectCacheManager::Save(std::string_view effectName, std::string_view hash
 		}
 	}
 	
-	std::wstring cacheFileName = _GetCacheFileName(effectName, hash, desc.flags);
-	if (!Utils::WriteFile(cacheFileName.c_str(), buf.data(), buf.size())) {
+	std::wstring cacheFileName = GetCacheFileName(effectName, hash, desc.flags);
+	if (!Utils::WriteFile(cacheFileName.c_str(), compressedBuf.data(), compressedBuf.size())) {
 		Logger::Get().Error("保存缓存失败");
 	}
 
@@ -270,7 +295,7 @@ std::string EffectCacheManager::GetHash(
 	str.reserve(source.size() + 128);
 	str = source;
 
-	str.append(fmt::format("CACHE_VERSION:{}\n", _VERSION));
+	str.append(fmt::format("CACHE_VERSION:{}\n", CACHE_VERSION));
 	if (inlineParams) {
 		for (const auto& pair : *inlineParams) {
 			if (pair.second.index() == 0) {
@@ -295,7 +320,7 @@ std::string EffectCacheManager::GetHash(std::string& source, const std::map<std:
 
 	source.reserve(originSize + 128);
 
-	source.append(fmt::format("CACHE_VERSION:{}\n", _VERSION));
+	source.append(fmt::format("CACHE_VERSION:{}\n", CACHE_VERSION));
 	if (inlineParams) {
 		for (const auto& pair : *inlineParams) {
 			if (pair.second.index() == 0) {

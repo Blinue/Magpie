@@ -32,15 +32,4 @@ private:
 
 	Utils::CSMutex _cs;	// 用于同步对 _memCache 的访问
 	std::unordered_map<std::wstring, EffectDesc> _memCache;
-
-	static constexpr const size_t _MAX_CACHE_COUNT = 128;
-
-	static std::wstring _GetCacheFileName(std::string_view effectName, std::string_view hash, UINT flags);
-
-	// 缓存文件后缀名：Compiled MagpieFX
-	static constexpr const wchar_t* _SUFFIX = L"cmfx";
-
-	// 缓存版本
-	// 当缓存文件结构有更改时将更新它，使得所有旧缓存失效
-	static constexpr const UINT _VERSION = 3;
 };

@@ -4,6 +4,7 @@
 #include <winternl.h>
 #include "StrUtils.h"
 #include "Logger.h"
+#include <zstd.h>
 
 
 UINT Utils::GetWindowShowCmd(HWND hwnd) {
@@ -212,6 +213,38 @@ void Utils::RunParallel(std::function<void(UINT)> func, UINT times) {
 #endif // _DEBUG
 }
 
+bool Utils::ZstdCompress(std::span<const BYTE> src, std::vector<BYTE>& dest, int compressionLevel) {
+	dest.resize(ZSTD_compressBound(src.size()));
+	size_t size = ZSTD_compress(dest.data(), dest.size(), src.data(), src.size(), compressionLevel);
+
+	if (ZSTD_isError(size)) {
+		Logger::Get().Error(fmt::format("压缩失败：{}", ZSTD_getErrorName(size)));
+		return false;
+	}
+
+	dest.resize(size);
+	return true;
+}
+
+bool Utils::ZstdDecompress(std::span<const BYTE> src, std::vector<BYTE>& dest) {
+	auto size = ZSTD_getFrameContentSize(src.data(), src.size());
+	if (size == ZSTD_CONTENTSIZE_UNKNOWN || size == ZSTD_CONTENTSIZE_ERROR) {
+		Logger::Get().Error("ZSTD_getFrameContentSize 失败");
+		return false;
+	}
+
+	dest.resize(size);
+	size = ZSTD_decompress(dest.data(), dest.size(), src.data(), src.size());
+	if (ZSTD_isError(size)) {
+		Logger::Get().Error(fmt::format("解压失败：{}", ZSTD_getErrorName(size)));
+		return false;
+	}
+
+	dest.resize(size);
+
+	return true;
+}
+
 
 Utils::Hasher::~Hasher() {
 	if (_hAlg) {
@@ -263,6 +296,7 @@ bool Utils::Hasher::Initialize() {
 }
 
 bool Utils::Hasher::Hash(std::span<const BYTE> data, std::vector<BYTE>& result) {
+	// BCrypt API 内部保存状态，因此需要同步对它们访问
 	std::scoped_lock lk(_cs);
 
 	result.resize(_hashLen);
@@ -281,4 +315,3 @@ bool Utils::Hasher::Hash(std::span<const BYTE> data, std::vector<BYTE>& result) 
 
 	return true;
 }
-
