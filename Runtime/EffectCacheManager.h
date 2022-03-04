@@ -33,7 +33,7 @@ private:
 
 	static constexpr const size_t _MAX_CACHE_COUNT = 100;
 
-	static std::wstring _GetCacheFileName(std::string_view effectName, std::string_view hash);
+	static std::wstring _GetCacheFileName(std::string_view effectName, std::string_view hash, UINT flags);
 
 	// 缓存文件后缀名：Compiled MagpieFX
 	static constexpr const wchar_t* _SUFFIX = L"cmfx";

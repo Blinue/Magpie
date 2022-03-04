@@ -135,8 +135,8 @@ void serialize(Archive& ar, EffectDesc& o) {
 }
 
 
-std::wstring EffectCacheManager::_GetCacheFileName(std::string_view effectName, std::string_view hash) {
-	return fmt::format(L".\\cache\\{}_{}.{}", StrUtils::UTF8ToUTF16(effectName), StrUtils::UTF8ToUTF16(hash), _SUFFIX);
+std::wstring EffectCacheManager::_GetCacheFileName(std::string_view effectName, std::string_view hash, UINT flags) {
+	return fmt::format(L".\\cache\\{}_{:x}{}.{}", StrUtils::UTF8ToUTF16(effectName), flags, StrUtils::UTF8ToUTF16(hash), _SUFFIX);
 }
 
 void EffectCacheManager::_AddToMemCache(const std::wstring& cacheFileName, const EffectDesc& desc) {
@@ -156,7 +156,7 @@ void EffectCacheManager::_AddToMemCache(const std::wstring& cacheFileName, const
 bool EffectCacheManager::Load(std::string_view effectName, std::string_view hash, EffectDesc& desc) {
 	assert(!effectName.empty() && !hash.empty());
 
-	std::wstring cacheFileName = _GetCacheFileName(effectName, hash);
+	std::wstring cacheFileName = _GetCacheFileName(effectName, hash, desc.flags);
 
 	auto it = _memCache.find(cacheFileName);
 	if (it != _memCache.end()) {
@@ -194,7 +194,7 @@ bool EffectCacheManager::Load(std::string_view effectName, std::string_view hash
 	return true;
 }
 
-void EffectCacheManager::Save(std::string_view fileName, std::string_view hash, const EffectDesc& desc) {
+void EffectCacheManager::Save(std::string_view effectName, std::string_view hash, const EffectDesc& desc) {
 	std::vector<BYTE> buf;
 	buf.reserve(4096);
 
@@ -214,8 +214,8 @@ void EffectCacheManager::Save(std::string_view fileName, std::string_view hash, 
 			return;
 		}
 	} else {
-		// 删除所有该文件的缓存
-		std::wregex regex(fmt::format(L"^{}_[0-9,a-f]{{{}}}.{}$", StrUtils::UTF8ToUTF16(fileName),
+		// 删除所有该效果（flags 相同）的缓存
+		std::wregex regex(fmt::format(L"^{}_{:x}[0-9,a-f]{{{}}}.{}$", StrUtils::UTF8ToUTF16(effectName), desc.flags,
 				Utils::Hasher::Get().GetHashLength() * 2, _SUFFIX), std::wregex::optimize | std::wregex::nosubs);
 
 		WIN32_FIND_DATA findData;
@@ -242,7 +242,7 @@ void EffectCacheManager::Save(std::string_view fileName, std::string_view hash, 
 		}
 	}
 	
-	std::wstring cacheFileName = _GetCacheFileName(fileName, hash);
+	std::wstring cacheFileName = _GetCacheFileName(effectName, hash, desc.flags);
 	if (!Utils::WriteFile(cacheFileName.c_str(), buf.data(), buf.size())) {
 		Logger::Get().Error("保存缓存失败");
 	}
