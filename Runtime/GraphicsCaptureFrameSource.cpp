@@ -149,7 +149,7 @@ bool GraphicsCaptureFrameSource::Initialize() {
 	}
 
 	InitializeConditionVariable(&_cv);
-	InitializeCriticalSection(&_cs);
+	InitializeCriticalSectionEx(&_cs, 4000, CRITICAL_SECTION_NO_DEBUG_INFO);
 
 	App::Get().SetErrorMsg(ErrorMessages::GENERIC);
 	Logger::Get().Info("GraphicsCaptureFrameSource 初始化完成");
@@ -158,21 +158,27 @@ bool GraphicsCaptureFrameSource::Initialize() {
 
 FrameSourceBase::UpdateState GraphicsCaptureFrameSource::Update() {
 	// 每次睡眠 1 毫秒等待新帧到达，防止 CPU 占用过高
+	BOOL update = FALSE;
+
 	EnterCriticalSection(&_cs);
 
 	if (!_newFrameArrived) {
 		SleepConditionVariableCS(&_cv, &_cs, 1);
 	}
 
-	LeaveCriticalSection(&_cs);
-
 	if (_newFrameArrived) {
 		_newFrameArrived = false;
+		update = TRUE;
+	}
 
+	LeaveCriticalSection(&_cs);
+
+	if (update) {
 		winrt::Direct3D11CaptureFrame frame = _captureFramePool.TryGetNextFrame();
 		if (!frame) {
 			// 缓冲池没有帧，不应发生此情况
 			assert(false);
+
 			return UpdateState::Waiting;
 		}
 
@@ -368,4 +374,6 @@ GraphicsCaptureFrameSource::~GraphicsCaptureFrameSource() {
 	if (_srcWndStyle) {
 		SetWindowLongPtr(App::Get().GetHwndSrc(), GWL_EXSTYLE, _srcWndStyle);
 	}
+
+	DeleteCriticalSection(&_cs);
 }
