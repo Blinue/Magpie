@@ -64,7 +64,7 @@ bool GDIFrameSource::Initialize() {
 	desc.ArraySize = 1;
 	desc.SampleDesc.Count = 1;
 	desc.SampleDesc.Quality = 0;
-	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_UNORDERED_ACCESS;
+	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET | D3D11_BIND_UNORDERED_ACCESS;
 	desc.MiscFlags = D3D11_RESOURCE_MISC_GDI_COMPATIBLE;
 	HRESULT hr = App::Get().GetDeviceResources().GetD3DDevice()->CreateTexture2D(&desc, nullptr, _output.put());
 	if (FAILED(hr)) {
