@@ -63,6 +63,33 @@ struct Utils {
 
 	static std::string Bin2Hex(std::span<const BYTE> data);
 
+	// CRITICAL_SECTION 的封装，满足基本可锁定要求（BasicLockable）
+	// 因此可用于 std::scoped_lock 等
+	class CSMutex {
+	public:
+		CSMutex() {
+			InitializeCriticalSectionEx(&_cs, 4000, CRITICAL_SECTION_NO_DEBUG_INFO);
+		}
+
+		~CSMutex() {
+			DeleteCriticalSection(&_cs);
+		}
+
+		void lock() {
+			EnterCriticalSection(&_cs);
+		}
+
+		void unlock() {
+			LeaveCriticalSection(&_cs);
+		}
+
+		CRITICAL_SECTION* get() {
+			return &_cs;
+		}
+	private:
+		CRITICAL_SECTION _cs{};
+	};
+
 	class Hasher {
 	public:
 		static Hasher& Get() {
@@ -79,6 +106,8 @@ struct Utils {
 		}
 	private:
 		~Hasher();
+
+		CSMutex _cs;	// 同步对 Hash() 的访问
 
 		BCRYPT_ALG_HANDLE _hAlg = NULL;
 		DWORD _hashObjLen = 0;		// hash 对象的大小

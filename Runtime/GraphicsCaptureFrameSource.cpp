@@ -149,7 +149,6 @@ bool GraphicsCaptureFrameSource::Initialize() {
 	}
 
 	InitializeConditionVariable(&_cv);
-	InitializeCriticalSectionEx(&_cs, 4000, CRITICAL_SECTION_NO_DEBUG_INFO);
 
 	App::Get().SetErrorMsg(ErrorMessages::GENERIC);
 	Logger::Get().Info("GraphicsCaptureFrameSource 初始化完成");
@@ -160,18 +159,17 @@ FrameSourceBase::UpdateState GraphicsCaptureFrameSource::Update() {
 	// 每次睡眠 1 毫秒等待新帧到达，防止 CPU 占用过高
 	BOOL update = FALSE;
 
-	EnterCriticalSection(&_cs);
+	{
+		std::scoped_lock lk(_cs);
+		if (!_newFrameArrived) {
+			SleepConditionVariableCS(&_cv, _cs.get(), 1);
+		}
 
-	if (!_newFrameArrived) {
-		SleepConditionVariableCS(&_cv, &_cs, 1);
+		if (_newFrameArrived) {
+			_newFrameArrived = false;
+			update = TRUE;
+		}
 	}
-
-	if (_newFrameArrived) {
-		_newFrameArrived = false;
-		update = TRUE;
-	}
-
-	LeaveCriticalSection(&_cs);
 
 	if (update) {
 		winrt::Direct3D11CaptureFrame frame = _captureFramePool.TryGetNextFrame();
@@ -352,9 +350,10 @@ bool GraphicsCaptureFrameSource::_CaptureFromMonitor(IGraphicsCaptureItemInterop
 
 void GraphicsCaptureFrameSource::_OnFrameArrived(winrt::Direct3D11CaptureFramePool const&, winrt::IInspectable const&) {
 	// 更改标志，如果主线程正在等待，唤醒主线程
-	EnterCriticalSection(&_cs);
-	_newFrameArrived = true;
-	LeaveCriticalSection(&_cs);
+	{
+		std::scoped_lock lk(_cs);
+		_newFrameArrived = true;
+	}
 
 	WakeConditionVariable(&_cv);
 }
@@ -374,6 +373,4 @@ GraphicsCaptureFrameSource::~GraphicsCaptureFrameSource() {
 	if (_srcWndStyle) {
 		SetWindowLongPtr(App::Get().GetHwndSrc(), GWL_EXSTYLE, _srcWndStyle);
 	}
-
-	DeleteCriticalSection(&_cs);
 }

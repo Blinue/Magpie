@@ -263,6 +263,8 @@ bool Utils::Hasher::Initialize() {
 }
 
 bool Utils::Hasher::Hash(std::span<const BYTE> data, std::vector<BYTE>& result) {
+	std::scoped_lock lk(_cs);
+
 	result.resize(_hashLen);
 
 	NTSTATUS status = BCryptHashData(_hHash, (PUCHAR)data.data(), (ULONG)data.size(), 0);

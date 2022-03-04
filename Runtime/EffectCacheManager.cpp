@@ -140,6 +140,8 @@ std::wstring EffectCacheManager::_GetCacheFileName(std::string_view effectName, 
 }
 
 void EffectCacheManager::_AddToMemCache(const std::wstring& cacheFileName, const EffectDesc& desc) {
+	std::scoped_lock lk(_cs);
+
 	_memCache[cacheFileName] = desc;
 
 	if (_memCache.size() > _MAX_CACHE_COUNT) {
@@ -152,15 +154,23 @@ void EffectCacheManager::_AddToMemCache(const std::wstring& cacheFileName, const
 	}
 }
 
+bool EffectCacheManager::_LoadFromMemCache(const std::wstring& cacheFileName, EffectDesc& desc) {
+	std::scoped_lock lk(_cs);
+	
+	auto it = _memCache.find(cacheFileName);
+	if (it != _memCache.end()) {
+		desc = it->second;
+		return true;
+	}
+	return false;
+}
 
 bool EffectCacheManager::Load(std::string_view effectName, std::string_view hash, EffectDesc& desc) {
 	assert(!effectName.empty() && !hash.empty());
 
 	std::wstring cacheFileName = _GetCacheFileName(effectName, hash, desc.flags);
 
-	auto it = _memCache.find(cacheFileName);
-	if (it != _memCache.end()) {
-		desc = it->second;
+	if (_LoadFromMemCache(cacheFileName, desc)) {
 		return true;
 	}
 

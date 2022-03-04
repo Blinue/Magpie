@@ -28,10 +28,12 @@ public:
 
 private:
 	void _AddToMemCache(const std::wstring& cacheFileName, const EffectDesc& desc);
+	bool _LoadFromMemCache(const std::wstring& cacheFileName, EffectDesc& desc);
 
+	Utils::CSMutex _cs;	// 用于同步对 _memCache 的访问
 	std::unordered_map<std::wstring, EffectDesc> _memCache;
 
-	static constexpr const size_t _MAX_CACHE_COUNT = 100;
+	static constexpr const size_t _MAX_CACHE_COUNT = 128;
 
 	static std::wstring _GetCacheFileName(std::string_view effectName, std::string_view hash, UINT flags);
 

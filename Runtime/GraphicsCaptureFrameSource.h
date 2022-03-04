@@ -3,6 +3,7 @@
 #include "FrameSourceBase.h"
 #include <winrt/Windows.Graphics.Capture.h>
 #include <Windows.Graphics.Capture.Interop.h>
+#include "Utils.h"
 
 
 namespace winrt {
@@ -56,6 +57,6 @@ private:
 
 	// 用于线程同步
 	CONDITION_VARIABLE _cv{};
-	CRITICAL_SECTION _cs{};
+	Utils::CSMutex _cs;
 	bool _newFrameArrived = false;
 };
