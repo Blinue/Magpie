@@ -420,7 +420,7 @@ void Pass5(uint2 blockStart, uint3 threadId) {
 
 			if (i != 1 && j != 1) {
 				if (!CheckViewport(gxy)) {
-					return;
+					continue;
 				}
 			}
 			
