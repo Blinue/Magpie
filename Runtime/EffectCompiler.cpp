@@ -988,8 +988,14 @@ UINT ResolvePasses(
 			}
 		}
 
-		if (passDesc.isPSStyle && (processed[2] || processed[3])) {
-			return 1;
+		if (passDesc.isPSStyle) {
+			if (processed[2] || processed[3]) {
+				return 1;
+			}
+		} else {
+			if (!processed[2] || !processed[3]) {
+				return 1;
+			}
 		}
 	}
 

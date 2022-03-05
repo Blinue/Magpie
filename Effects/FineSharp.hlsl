@@ -419,7 +419,7 @@ void Pass5(uint2 blockStart, uint3 threadId) {
 			uint2 destPos = gxy + uint2(i - 1, j - 1);
 
 			if (i != 1 && j != 1) {
-				if (!CheckViewport(gxy)) {
+				if (!CheckViewport(destPos)) {
 					continue;
 				}
 			}
