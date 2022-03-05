@@ -2,19 +2,12 @@
 
 
 //!MAGPIE EFFECT
-//!VERSION 1
+//!VERSION 2
 //!OUTPUT_WIDTH INPUT_WIDTH
 //!OUTPUT_HEIGHT INPUT_HEIGHT
 
-//!CONSTANT
-//!VALUE INPUT_PT_X
-float inputPtX;
 
-//!CONSTANT
-//!VALUE INPUT_PT_Y
-float inputPtY;
-
-//!CONSTANT
+//!PARAMETER
 //!MIN 1e-5
 //!DEFAULT 0.1
 float intensitySigma;
@@ -28,7 +21,9 @@ SamplerState sam;
 
 
 //!PASS 1
-//!BIND INPUT
+//!IN INPUT
+//!BLOCK_SIZE 8,8
+//!NUM_THREADS 64,1,1
 
 #define INTENSITY_SIGMA intensitySigma //Intensity window size, higher is stronger denoise, must be a positive real number
 #define SPATIAL_SIGMA 1.0 //Spatial window size, higher is stronger denoise, must be a positive real number.
@@ -52,22 +47,31 @@ float gaussian(float x, float s, float m) {
 }
 
 
-float4 Pass1(float2 pos) {
+void Pass1(uint2 blockStart, uint3 threadId) {
+	uint2 gxy = Rmp8x8(threadId.x) + blockStart;
+	if (!CheckViewport(gxy)) {
+		return;
+	}
+
+	float2 inputPt = GetInputPt();
+	float2 pos = (gxy + 0.5f) * inputPt;
+
 	float3 sum = 0;
 	float3 n = 0;
 
-	float3 vc = INPUT.Sample(sam, pos).rgb;
+	float3 vc = INPUT.SampleLevel(sam, pos, 0).rgb;
 
 	float3 is = pow(vc + 0.0001, INTENSITY_POWER_CURVE) * INTENSITY_SIGMA;
 	float ss = SPATIAL_SIGMA;
 
+	[unroll]
 	for (uint i = 0; i < KERNELLEN; i++) {
-		float2 ipos = pos + GETOFFSET(i) * float2(inputPtX, inputPtY);
-		float3 v = INPUT.Sample(sam, ipos).rgb;
+		float2 ipos = pos + GETOFFSET(i) * inputPt;
+		float3 v = INPUT.SampleLevel(sam, ipos, 0).rgb;
 		float3 d = gaussian_vec(v, is, vc) * gaussian(length(ipos), ss, 0.0);
 		sum += d * v;
 		n += d;
 	}
 
-	return float4(sum / n, 1);
+	WriteToOutput(gxy, sum / n);
 }
