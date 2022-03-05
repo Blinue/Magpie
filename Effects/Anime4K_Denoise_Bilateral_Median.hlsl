@@ -50,9 +50,11 @@ float gaussian(float x, float s, float m) {
 }
 
 float3 getMedian(float3 v[KERNELLEN], float w[KERNELLEN], float n) {
+	[unroll]
 	for (uint i = 0; i < KERNELLEN; i++) {
 		float w_above = 0.0;
 		float w_below = 0.0;
+		[unroll]
 		for (uint j = 0; j < KERNELLEN; j++) {
 			if (v[j].x > v[i].x) {
 				w_above += w[j];
@@ -91,9 +93,9 @@ void Pass1(uint2 blockStart, uint3 threadId) {
 	uint i;
 
 	[unroll]
-	for (i = 0; i < KERNELLEN; i++) {
-		float2 ipos = pos + GETOFFSET(i) * inputPt;
-		histogram_v[i] = INPUT.SampleLevel(sam, ipos, 0).rgb;
+	for (i = 0; i < (int)KERNELLEN; i++) {
+		int2 ipos = GETOFFSET(i);
+		histogram_v[i] = INPUT.SampleLevel(sam, pos + ipos * inputPt, 0).rgb;
 		histogram_l[i] = get_luma(histogram_v[i]);
 		histogram_w[i] = gaussian(histogram_l[i], is, vc) * gaussian(length(ipos), ss, 0.0);
 		n += histogram_w[i];

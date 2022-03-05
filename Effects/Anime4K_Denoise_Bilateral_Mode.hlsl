@@ -62,8 +62,8 @@ float4 Pass1(float2 pos) {
 
 	[unroll]
 	for (i = 0; i < KERNELLEN; i++) {
-		float2 ipos = pos + GETOFFSET(i) * inputPt;
-		histogram_v[i] = INPUT.SampleLevel(sam, ipos, 0).rgb;
+		float2 ipos = GETOFFSET(i);
+		histogram_v[i] = INPUT.SampleLevel(sam, pos + ipos * inputPt, 0).rgb;
 		histogram_l[i] = get_luma(histogram_v[i]);
 		histogram_w[i] = gaussian(histogram_l[i], is, vc) * gaussian(length(ipos), ss, 0.0);
 		histogram_wn[i] = 0.0;

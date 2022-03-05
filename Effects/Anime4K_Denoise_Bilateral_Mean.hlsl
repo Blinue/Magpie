@@ -37,12 +37,12 @@ SamplerState sam;
 #define GETOFFSET(i) int2(int(i % KERNELSIZE) - KERNELHALFSIZE, int(i / KERNELSIZE) - KERNELHALFSIZE)
 
 float3 gaussian_vec(float3 x, float3 s, float3 m) {
-	float3 scaled = (x - m) / s;
+	float3 scaled = (x - m) * s;
 	return exp(-0.5 * scaled * scaled);
 }
 
 float gaussian(float x, float s, float m) {
-	float scaled = (x - m) / s;
+	float scaled = (x - m) * s;
 	return exp(-0.5 * scaled * scaled);
 }
 
@@ -59,18 +59,32 @@ void Pass1(uint2 blockStart, uint3 threadId) {
 	float3 sum = 0;
 	float3 n = 0;
 
-	float3 vc = INPUT.SampleLevel(sam, pos, 0).rgb;
+	int i, j;
 
-	float3 is = pow(vc + 0.0001, INTENSITY_POWER_CURVE) * INTENSITY_SIGMA;
-	float ss = SPATIAL_SIGMA;
-
+	float4 src[KERNELSIZE][KERNELSIZE];
 	[unroll]
-	for (uint i = 0; i < KERNELLEN; i++) {
-		float2 ipos = pos + GETOFFSET(i) * inputPt;
-		float3 v = INPUT.SampleLevel(sam, ipos, 0).rgb;
-		float3 d = gaussian_vec(v, is, vc) * gaussian(length(ipos), ss, 0.0);
-		sum += d * v;
-		n += d;
+	for (i = -KERNELHALFSIZE; i <= KERNELHALFSIZE; ++i) {
+		[unroll]
+		for (j = -KERNELHALFSIZE; j <= KERNELHALFSIZE; ++j) {
+			src[i + KERNELHALFSIZE][j + KERNELHALFSIZE] = 
+				float4(INPUT.SampleLevel(sam, pos + float2(i, j) * inputPt, 0).rgb, length(float2(i, j)));
+		}
+	}
+
+	float3 vc = src[KERNELHALFSIZE][KERNELHALFSIZE].rgb;
+
+	float3 rcpIs = rcp(pow(vc + 0.0001, INTENSITY_POWER_CURVE) * INTENSITY_SIGMA);
+	float rcpSs = rcp(SPATIAL_SIGMA);
+	
+	[unroll]
+	for (i = 0; i < (int)KERNELSIZE; ++i) {
+		[unroll]
+		for (j = 0; j < (int)KERNELSIZE; ++j) {
+			float3 v = src[i][j].rgb;
+			float3 d = gaussian_vec(v, rcpIs, vc) * gaussian(src[i][j].a, rcpSs, 0);
+			sum += d * v;
+			n += d;
+		}
 	}
 
 	WriteToOutput(gxy, sum / n);
