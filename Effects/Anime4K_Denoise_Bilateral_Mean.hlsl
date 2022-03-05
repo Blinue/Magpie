@@ -62,8 +62,8 @@ float4 Pass1(float2 pos) {
 	float ss = SPATIAL_SIGMA;
 
 	for (uint i = 0; i < KERNELLEN; i++) {
-		float2 ipos = pos + GETOFFSET(i) * float2(inputPtX, inputPtY);
-		float3 v = INPUT.Sample(sam, ipos).rgb;
+		int2 ipos = GETOFFSET(i);
+		float3 v = INPUT.Sample(sam, pos + ipos * float2(inputPtX, inputPtY)).rgb;
 		float3 d = gaussian_vec(v, is, vc) * gaussian(length(ipos), ss, 0.0);
 		sum += d * v;
 		n += d;

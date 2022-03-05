@@ -82,9 +82,10 @@ float4 Pass2(float2 pos) {
 	uint i;
 
 	for (i = 0; i < KERNELLEN; i++) {
-		float2 ipos = pos + GETOFFSET(i) * float2(inputPtX, inputPtY);
-		histogram_v[i] = INPUT.Sample(sam, ipos).rgb;
-		histogram_l[i] = lumaTex.Sample(sam, ipos).x;
+		int2 ipos = GETOFFSET(i);
+		float2 ppos = pos + ipos * float2(inputPtX, inputPtY);
+		histogram_v[i] = INPUT.Sample(sam, ppos).rgb;
+		histogram_l[i] = lumaTex.Sample(sam, ppos).x;
 		histogram_w[i] = gaussian(histogram_l[i], is, vc) * gaussian(length(ipos), ss, 0.0);
 		histogram_wn[i] = 0.0;
 	}
