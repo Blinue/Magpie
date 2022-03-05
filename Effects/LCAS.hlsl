@@ -1,15 +1,19 @@
 // This is a combination of linear interpolation and light version of cas
 
 //!MAGPIE EFFECT
-//!VERSION 1
+//!VERSION 2
 
-//!CONSTANT
-//!VALUE INPUT_PT_X
-float inputPtX;
+//!PARAMETER
+//!DEFAULT 0.4
+//!MIN 0
+//!MAX 1
+float sharpness;
 
-//!CONSTANT
-//!VALUE INPUT_PT_Y
-float inputPtY;
+//!PARAMETER
+//!DEFAULT 0.2
+//!MIN 0
+//!MAX 1
+float threshold;
 
 //!TEXTURE
 Texture2D INPUT;
@@ -18,33 +22,31 @@ Texture2D INPUT;
 //!FILTER LINEAR
 SamplerState sam;
 
-//!CONSTANT
-//!DEFAULT 0.4
-//!MIN 0
-//!MAX 1
-float sharpness;
-
-//!CONSTANT
-//!DEFAULT 0.2
-//!MIN 0
-//!MAX 1
-float threshold;
-
 //!PASS 1
-//!BIND INPUT
+//!IN INPUT
+//!BLOCK_SIZE 8,8
+//!NUM_THREADS 64,1,1
+	
+void Pass1(uint2 blockStart, uint3 threadId) {
+	uint2 gxy = Rmp8x8(threadId.x) + blockStart;
+	if (!CheckViewport(gxy)) {
+		return;
+	}
 
-float4 Pass1(float2 pos) {
+	float2 ppos = (gxy + 0.5f) * GetOutputPt();
+
+        float2 inputPt = GetInputPt();
 	// fetch a 4 neighborhood pixels around the pixel 'e',
 	//	  b 
 	//	d(e)f
 	//	  h 
-	float3 b = INPUT.Sample(sam, pos + float2(0, -inputPtY)).rgb;
-	float3 d = INPUT.Sample(sam, pos + float2(-inputPtX, 0)).rgb;
-	float3 e = INPUT.Sample(sam, pos).rgb;
-	float3 f = INPUT.Sample(sam, pos + float2(inputPtX, 0)).rgb;
-	float3 h = INPUT.Sample(sam, pos + float2(0, inputPtY)).rgb;
-	
-	// Edge checker
+	float3 b = INPUT.SampleLevel(sam, ppos + float2(0, -inputPt.y), 0).rgb;
+	float3 d = INPUT.SampleLevel(sam, ppos + float2(-inputPt.x, 0), 0).rgb;
+	float3 e = INPUT.SampleLevel(sam, ppos, 0).rgb;
+	float3 f = INPUT.SampleLevel(sam, ppos + float2(inputPt.x, 0), 0).rgb;
+	float3 h = INPUT.SampleLevel(sam, ppos + float2(0, inputPt.y), 0).rgb;
+
+	// Edge checker.
         float edge = length(abs(d - f) + abs(b - h));
 	
 	// Soft min and max.
@@ -58,21 +60,14 @@ float4 Pass1(float2 pos) {
 
 	// Shaping amount of sharpening.
 	float3 wRGB = sqrt(min(mnRGB, 1.0 - mxRGB) / mxRGB) * lerp(- 0.125, - 0.2, sharpness);
+	
+	// Sharpen edge and mask.
+	e = lerp((e * 3 - (b + d + f + h + e * 2) / 3) , (e * 2 - (b + d + f + h) * 0.25), (edge >= threshold));
 
 	// Filter shape.
 	//    w  
 	//  w 1 w
 	//    w   
-	// If is edge
-	if (edge >= threshold) {
-		float3 c = ((b + d + f + h) * wRGB + (e * 2 - (b + d + f + h) * 0.25)) / (1.0 + 4.0 * wRGB);
-		float3 t = clamp(c, mnRGB, mxRGB);
-		return float4(((c + t * 2) / 3).rgb, 1);
-	}
-	else {
-		float3 c = ((b + d + f + h) * wRGB + (e * 3 - (b + d + f + h + e * 2) / 3)) / (1.0 + 4.0 * wRGB);
-		float3 t = clamp(c, mnRGB, mxRGB);
-		return float4(((c + t * 2) / 3).rgb, 1);
-	}
-	// If is not edge
+	float3 c = ((b + d + f + h) * wRGB + e) / (1.0 + 4.0 * wRGB);
+        WriteToOutput(gxy, (c + clamp(c, mnRGB, mxRGB) * 2) / 3);
 }
