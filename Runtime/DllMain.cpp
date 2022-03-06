@@ -110,7 +110,7 @@ API_DECLSPEC const char* WINAPI Run(
 		if (!GetWindowText(hwndSrc, &title[0], int(title.size() + 1))) {
 			Logger::Get().Error("获取源窗口标题失败");
 		} else {
-			Logger::Get().Info("源窗口标题：" + StrUtils::UTF16ToUTF8(title));
+			Logger::Get().Info(StrUtils::Concat("源窗口标题：", StrUtils::UTF16ToUTF8(title)));
 		}
 	}
 

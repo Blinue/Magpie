@@ -199,7 +199,7 @@ bool CheckForeground(HWND hwndForeground) {
 	// 排除开始菜单，它的类名是 CoreWindow
 	if (std::wcscmp(className, L"Windows.UI.Core.CoreWindow")) {
 		// 记录新的前台窗口
-		Logger::Get().Info(fmt::format("新的前台窗口：\n\t类名：{}", StrUtils::UTF16ToUTF8(className)));
+		Logger::Get().Info(StrUtils::Concat("新的前台窗口：\n\t类名：", StrUtils::UTF16ToUTF8(className)));
 		return false;
 	}
 
@@ -383,7 +383,7 @@ bool Renderer::_ResolveEffectsJson(const std::string& effectsJson) {
 			if (success) {
 				Logger::Get().Info(fmt::format("编译 {} 用时 {} 毫秒", StrUtils::UTF16ToUTF8(fileName), duration / 1000.0f));
 			} else {
-				Logger::Get().Error(fmt::format("编译 {} 失败", StrUtils::UTF16ToUTF8(fileName)));
+				Logger::Get().Error(StrUtils::Concat("编译 ", StrUtils::UTF16ToUTF8(fileName), " 失败"));
 				allSuccess = false;
 			}
 		}, effectCount);

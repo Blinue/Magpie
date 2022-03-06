@@ -72,13 +72,13 @@ struct StrUtils {
 	}
 
 	template<typename... AV>
-	static std::string Concat(const AV&... args){
-		return _Concat(static_cast<const std::string_view&>(args)...);
+	static std::string Concat(std::string_view s1, std::string_view s2, const AV&... args){
+		return _Concat(s1, s2, static_cast<const std::string_view&>(args)...);
 	}
 
 	template<typename... AV>
-	static std::wstring ConcatW(const AV&... args) {
-		return _Concat(static_cast<const std::wstring_view&>(args)...);
+	static std::wstring ConcatW(std::wstring_view s1, std::wstring_view s2, const AV&... args) {
+		return _Concat(s1, s2, static_cast<const std::wstring_view&>(args)...);
 	}
 
 private:

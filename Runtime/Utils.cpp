@@ -52,7 +52,7 @@ bool Utils::GetWindowFrameRect(HWND hWnd, RECT& result) {
 }
 
 bool Utils::ReadFile(const wchar_t* fileName, std::vector<BYTE>& result) {
-	Logger::Get().Info(fmt::format("读取文件：{}", StrUtils::UTF16ToUTF8(fileName)));
+	Logger::Get().Info(StrUtils::Concat("读取文件：", StrUtils::UTF16ToUTF8(fileName)));
 
 	CREATEFILE2_EXTENDED_PARAMETERS extendedParams = {};
 	extendedParams.dwSize = sizeof(CREATEFILE2_EXTENDED_PARAMETERS);
@@ -84,7 +84,7 @@ bool Utils::ReadFile(const wchar_t* fileName, std::vector<BYTE>& result) {
 bool Utils::ReadTextFile(const wchar_t* fileName, std::string& result) {
 	FILE* hFile;
 	if (_wfopen_s(&hFile, fileName, L"rt") || !hFile) {
-		Logger::Get().Error(fmt::format("打开文件{}失败", StrUtils::UTF16ToUTF8(fileName)));
+		Logger::Get().Error(StrUtils::Concat("打开文件 ", StrUtils::UTF16ToUTF8(fileName), " 失败"));
 		return false;
 	}
 
@@ -105,7 +105,7 @@ bool Utils::ReadTextFile(const wchar_t* fileName, std::string& result) {
 bool Utils::WriteFile(const wchar_t* fileName, const void* buffer, size_t bufferSize) {
 	FILE* hFile;
 	if (_wfopen_s(&hFile, fileName, L"wb") || !hFile) {
-		Logger::Get().Error(fmt::format("打开文件{}失败", StrUtils::UTF16ToUTF8(fileName)));
+		Logger::Get().Error(StrUtils::Concat("打开文件 ", StrUtils::UTF16ToUTF8(fileName), " 失败"));
 		return false;
 	}
 
@@ -218,7 +218,7 @@ bool Utils::ZstdCompress(std::span<const BYTE> src, std::vector<BYTE>& dest, int
 	size_t size = ZSTD_compress(dest.data(), dest.size(), src.data(), src.size(), compressionLevel);
 
 	if (ZSTD_isError(size)) {
-		Logger::Get().Error(fmt::format("压缩失败：{}", ZSTD_getErrorName(size)));
+		Logger::Get().Error(StrUtils::Concat("压缩失败：", ZSTD_getErrorName(size)));
 		return false;
 	}
 
@@ -236,7 +236,7 @@ bool Utils::ZstdDecompress(std::span<const BYTE> src, std::vector<BYTE>& dest) {
 	dest.resize(size);
 	size = ZSTD_decompress(dest.data(), dest.size(), src.data(), src.size());
 	if (ZSTD_isError(size)) {
-		Logger::Get().Error(fmt::format("解压失败：{}", ZSTD_getErrorName(size)));
+		Logger::Get().Error(StrUtils::Concat("解压失败：", ZSTD_getErrorName(size)));
 		return false;
 	}
 

@@ -390,7 +390,7 @@ bool EffectDrawer::Initialize(
 					if ((paramDesc.minValue.index() == 2 && value < std::get<int>(paramDesc.minValue))
 						|| (paramDesc.maxValue.index() == 2 && value > std::get<int>(paramDesc.maxValue))
 					) {
-						Logger::Get().Error(fmt::format("参数 {} 的值非法", paramDesc.name));
+						Logger::Get().Error(StrUtils::Concat("参数 ", paramDesc.name," 的值非法"));
 						return false;
 					}
 				}
@@ -403,7 +403,7 @@ bool EffectDrawer::Initialize(
 
 		for (const auto& pair : params.params) {
 			if (!paramNames.contains(std::string_view(pair.first))) {
-				Logger::Get().Error(fmt::format("非法参数 {}", pair.first));
+				Logger::Get().Error(StrUtils::Concat("非法参数 ", pair.first));
 				return false;
 			}
 		}

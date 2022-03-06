@@ -129,7 +129,7 @@ bool GraphicsCaptureFrameSource::Initialize() {
 		// 开始捕获
 		_captureSession.StartCapture();
 	} catch (const winrt::hresult_error& e) {
-		Logger::Get().Info(fmt::format("Graphics Capture 失败：", StrUtils::UTF16ToUTF8(e.message())));
+		Logger::Get().Info(StrUtils::Concat("Graphics Capture 失败：", StrUtils::UTF16ToUTF8(e.message())));
 		return false;
 	}
 
@@ -241,7 +241,7 @@ bool GraphicsCaptureFrameSource::_CaptureFromWindow(IGraphicsCaptureItemInterop*
 			return false;
 		}
 	} catch (const winrt::hresult_error& e) {
-		Logger::Get().Info(fmt::format("源窗口无法使用窗口捕获：", StrUtils::UTF16ToUTF8(e.message())));
+		Logger::Get().Info(StrUtils::Concat("源窗口无法使用窗口捕获：", StrUtils::UTF16ToUTF8(e.message())));
 		return false;
 	}
 
@@ -341,7 +341,7 @@ bool GraphicsCaptureFrameSource::_CaptureFromMonitor(IGraphicsCaptureItemInterop
 			return false;
 		}
 	} catch (const winrt::hresult_error& e) {
-		Logger::Get().Info(fmt::format("捕获屏幕失败：", StrUtils::UTF16ToUTF8(e.message())));
+		Logger::Get().Info(StrUtils::Concat("捕获屏幕失败：", StrUtils::UTF16ToUTF8(e.message())));
 		return false;
 	}
 

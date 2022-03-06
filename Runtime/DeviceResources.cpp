@@ -310,8 +310,8 @@ bool DeviceResources::_CreateSwapChain() {
 		}
 	}
 
-	Logger::Get().Info(fmt::format("Hardware Composition 支持：{}", supportHardwareComposition ? "是" : "否"));
-	Logger::Get().Info(fmt::format("Multiplane Overlay 支持：{}", supportMPO ? "是" : "否"));
+	Logger::Get().Info(StrUtils::Concat("Hardware Composition 支持：", supportHardwareComposition ? "是" : "否"));
+	Logger::Get().Info(StrUtils::Concat("Multiplane Overlay 支持：", supportMPO ? "是" : "否"));
 
 	hr = _swapChain->GetBuffer(0, IID_PPV_ARGS(_backBuffer.put()));
 	if (FAILED(hr)) {
@@ -378,13 +378,13 @@ bool DeviceResources::CompileShader(std::string_view hlsl, const char* entryPoin
 		entryPoint, "cs_5_0", flags, 0, blob, errorMsgs.put());
 	if (FAILED(hr)) {
 		if (errorMsgs) {
-			Logger::Get().ComError(fmt::format("编译计算着色器失败：{}", (const char*)errorMsgs->GetBufferPointer()), hr);
+			Logger::Get().ComError(StrUtils::Concat("编译计算着色器失败：", (const char*)errorMsgs->GetBufferPointer()), hr);
 		}
 		return false;
 	} else {
 		// 警告消息
 		if (errorMsgs) {
-			Logger::Get().Warn(fmt::format("编译计算着色器时产生警告：{}", (const char*)errorMsgs->GetBufferPointer()));
+			Logger::Get().Warn(StrUtils::Concat("编译计算着色器时产生警告：", (const char*)errorMsgs->GetBufferPointer()));
 		}
 	}
 

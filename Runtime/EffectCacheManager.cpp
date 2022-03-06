@@ -187,7 +187,7 @@ bool EffectCacheManager::_LoadFromMemCache(const std::wstring& cacheFileName, Ef
 	if (it != _memCache.end()) {
 		desc = it->second.first;
 		it->second.second = ++_lastAccess;
-		Logger::Get().Info(fmt::format("已读取缓存 {}", StrUtils::UTF16ToUTF8(cacheFileName)));
+		Logger::Get().Info(StrUtils::Concat("已读取缓存 ", StrUtils::UTF16ToUTF8(cacheFileName)));
 		return true;
 	}
 	return false;
@@ -232,7 +232,7 @@ bool EffectCacheManager::Load(std::string_view effectName, std::string_view hash
 
 	_AddToMemCache(cacheFileName, desc);
 	
-	Logger::Get().Info("已读取缓存 " + StrUtils::UTF16ToUTF8(cacheFileName));
+	Logger::Get().Info(StrUtils::Concat("已读取缓存 ", StrUtils::UTF16ToUTF8(cacheFileName)));
 	return true;
 }
 
@@ -270,7 +270,7 @@ void EffectCacheManager::Save(std::string_view effectName, std::string_view hash
 				Utils::Hasher::Get().GetHashLength() * 2), std::wregex::optimize | std::wregex::nosubs);
 
 		WIN32_FIND_DATA findData;
-		HANDLE hFind = Utils::SafeHandle(FindFirstFile(L".\\cache\\*", &findData));
+		HANDLE hFind = Utils::SafeHandle(FindFirstFile(StrUtils::ConcatW(CACHE_DIR, L"\\*").c_str(), &findData));
 		if (hFind) {
 			while (FindNextFile(hFind, &findData)) {
 				if (StrUtils::StrLen(findData.cFileName) < 8) {
@@ -300,7 +300,7 @@ void EffectCacheManager::Save(std::string_view effectName, std::string_view hash
 
 	_AddToMemCache(cacheFileName, desc);
 
-	Logger::Get().Info("已保存缓存 " + StrUtils::UTF16ToUTF8(cacheFileName));
+	Logger::Get().Info(StrUtils::Concat("已保存缓存 ", StrUtils::UTF16ToUTF8(cacheFileName)));
 }
 
 std::string EffectCacheManager::GetHash(
