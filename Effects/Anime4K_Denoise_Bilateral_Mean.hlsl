@@ -1,3 +1,4 @@
+// Anime4K_Denoise_Bilateral_Mean
 // 移植自 https://github.com/bloc97/Anime4K/blob/master/glsl/Denoise/Anime4K_Denoise_Bilateral_Mean.glsl
 
 
@@ -22,7 +23,7 @@ SamplerState sam;
 
 //!PASS 1
 //!IN INPUT
-//!BLOCK_SIZE 8,8
+//!BLOCK_SIZE 16,16
 //!NUM_THREADS 64,1,1
 
 #define INTENSITY_SIGMA intensitySigma //Intensity window size, higher is stronger denoise, must be a positive real number
@@ -31,61 +32,90 @@ SamplerState sam;
 #define INTENSITY_POWER_CURVE 1.0 //Intensity window power curve. Setting it to 0 will make the intensity window treat all intensities equally, while increasing it will make the window narrower in darker intensities and wider in brighter intensities.
 
 #define KERNELSIZE (max(uint(ceil(SPATIAL_SIGMA * 2.0)), 1) * 2 + 1) //Kernel size, must be an positive odd integer.
-#define KERNELHALFSIZE (int(KERNELSIZE/2)) //Half of the kernel size without remainder. Must be equal to trunc(KERNELSIZE/2).
+#define KERNELHALFSIZE (uint(KERNELSIZE/2)) //Half of the kernel size without remainder. Must be equal to trunc(KERNELSIZE/2).
 #define KERNELLEN (KERNELSIZE * KERNELSIZE) //Total area of kernel. Must be equal to KERNELSIZE * KERNELSIZE.
 
-#define GETOFFSET(i) int2(int(i % KERNELSIZE) - KERNELHALFSIZE, int(i / KERNELSIZE) - KERNELHALFSIZE)
 
-float3 gaussian_vec(float3 x, float3 s, float3 m) {
-	float3 scaled = (x - m) * s;
+float3 gaussian_vec(float3 x, float3 rcpS, float3 m) {
+	float3 scaled = (x - m) * rcpS;
 	return exp(-0.5 * scaled * scaled);
 }
 
-float gaussian(float x, float s, float m) {
-	float scaled = (x - m) * s;
+float gaussian(float x, float rcpS, float m) {
+	float scaled = (x - m) * rcpS;
 	return exp(-0.5 * scaled * scaled);
 }
 
 
 void Pass1(uint2 blockStart, uint3 threadId) {
-	uint2 gxy = Rmp8x8(threadId.x) + blockStart;
+	uint2 gxy = (Rmp8x8(threadId.x) << 1) + blockStart;
 	if (!CheckViewport(gxy)) {
 		return;
 	}
 
 	float2 inputPt = GetInputPt();
-	float2 pos = (gxy + 0.5f) * inputPt;
+	uint i, j;
 
-	float3 sum = 0;
-	float3 n = 0;
-
-	int i, j;
-
-	float4 src[KERNELSIZE][KERNELSIZE];
+	float3 src[KERNELSIZE + 1][KERNELSIZE + 1];
 	[unroll]
-	for (i = -KERNELHALFSIZE; i <= KERNELHALFSIZE; ++i) {
+	for (i = 0; i <= KERNELSIZE - 1; i += 2) {
 		[unroll]
-		for (j = -KERNELHALFSIZE; j <= KERNELHALFSIZE; ++j) {
-			src[i + KERNELHALFSIZE][j + KERNELHALFSIZE] = 
-				float4(INPUT.SampleLevel(sam, pos + float2(i, j) * inputPt, 0).rgb, length(float2(i, j)));
+		for (j = 0; j <= KERNELSIZE - 1; j += 2) {
+			float2 tpos = (gxy + int2(i, j) - KERNELHALFSIZE + 1) * inputPt;
+			const float4 sr = INPUT.GatherRed(sam, tpos);
+			const float4 sg = INPUT.GatherGreen(sam, tpos);
+			const float4 sb = INPUT.GatherBlue(sam, tpos);
+
+			// w z
+			// x y
+			src[i][j] = float3(sr.w, sg.w, sb.w);
+			src[i][j + 1] = float3(sr.x, sg.x, sb.x);
+			src[i + 1][j] = float3(sr.z, sg.z, sb.z);
+			src[i + 1][j + 1] = float3(sr.y, sg.y, sb.y);
 		}
 	}
 
-	float3 vc = src[KERNELHALFSIZE][KERNELHALFSIZE].rgb;
-
-	float3 rcpIs = rcp(pow(vc + 0.0001, INTENSITY_POWER_CURVE) * INTENSITY_SIGMA);
-	float rcpSs = rcp(SPATIAL_SIGMA);
-	
+	float len[KERNELSIZE][KERNELSIZE];
 	[unroll]
-	for (i = 0; i < (int)KERNELSIZE; ++i) {
+	for (i = 0; i < KERNELSIZE; ++i) {
 		[unroll]
-		for (j = 0; j < (int)KERNELSIZE; ++j) {
-			float3 v = src[i][j].rgb;
-			float3 d = gaussian_vec(v, rcpIs, vc) * gaussian(src[i][j].a, rcpSs, 0);
-			sum += d * v;
-			n += d;
+		for (j = 0; j < KERNELSIZE; ++j) {
+			len[i][j] = length(float2((int)i - KERNELHALFSIZE, (int)j - KERNELHALFSIZE));
 		}
 	}
 
-	WriteToOutput(gxy, sum / n);
+	[unroll]
+	for (i = 0; i <= 1; ++i) {
+		[unroll]
+		for (j = 0; j <= 1; ++j) {
+			uint2 destPos = gxy + uint2(i, j);
+
+			if (i != 0 && j != 0) {
+				if (!CheckViewport(gxy)) {
+					continue;
+				}
+			}
+
+			float3 sum = 0;
+			float3 n = 0;
+
+			float3 vc = src[KERNELHALFSIZE + i][KERNELHALFSIZE + j].rgb;
+
+			float3 rcpIs = rcp(pow(vc + 0.0001, INTENSITY_POWER_CURVE) * INTENSITY_SIGMA);
+			float rcpSs = rcp(SPATIAL_SIGMA);
+
+			[unroll]
+			for (uint k = 0; k < KERNELSIZE; ++k) {
+				[unroll]
+				for (uint m = 0; m < KERNELSIZE; ++m) {
+					float3 v = src[k + i][m + j];
+					float3 d = gaussian_vec(v, rcpIs, vc) * gaussian(len[k][m], rcpSs, 0);
+					sum += d * v;
+					n += d;
+				}
+			}
+
+			WriteToOutput(destPos, sum / n);
+		}
+	}
 }
