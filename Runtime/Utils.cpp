@@ -291,7 +291,7 @@ bool Utils::Hasher::Initialize() {
 		return false;
 	}
 
-	Logger::Get().Error("Utils::Hasher 初始化成功");
+	Logger::Get().Info("Utils::Hasher 初始化成功");
 	return true;
 }
 

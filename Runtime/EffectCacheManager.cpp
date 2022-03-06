@@ -23,10 +23,12 @@ static constexpr const UINT CACHE_VERSION = 3;
 // 缓存的压缩等级
 static constexpr const int CACHE_COMPRESSION_LEVEL = 1;
 
+static const wchar_t* CACHE_DIR = L".\\cache";
+
 
 std::wstring GetCacheFileName(std::string_view effectName, std::string_view hash, UINT flags) {
 	// 缓存文件的命名：{效果名}_{标志位（16进制）}{哈希}
-	return fmt::format(L".\\cache\\{}_{:02x}{}", StrUtils::UTF8ToUTF16(effectName), flags, StrUtils::UTF8ToUTF16(hash));
+	return fmt::format(L"{}\\{}_{:02x}{}", CACHE_DIR, StrUtils::UTF8ToUTF16(effectName), flags, StrUtils::UTF8ToUTF16(hash));
 }
 
 
@@ -257,8 +259,8 @@ void EffectCacheManager::Save(std::string_view effectName, std::string_view hash
 		}
 	}
 	
-	if (!Utils::DirExists(L".\\cache")) {
-		if (!CreateDirectory(L".\\cache", nullptr)) {
+	if (!Utils::DirExists(CACHE_DIR)) {
+		if (!CreateDirectory(CACHE_DIR, nullptr)) {
 			Logger::Get().Win32Error("创建 cache 文件夹失败");
 			return;
 		}
@@ -280,9 +282,9 @@ void EffectCacheManager::Save(std::string_view effectName, std::string_view hash
 					continue;
 				}
 
-				if (!DeleteFile((L".\\cache\\"s + findData.cFileName).c_str())) {
-					Logger::Get().Win32Error(fmt::format("删除缓存文件 {} 失败",
-						StrUtils::UTF16ToUTF8(findData.cFileName)));
+				if (!DeleteFile(StrUtils::ConcatW(CACHE_DIR, L"\\", findData.cFileName).c_str())) {
+					Logger::Get().Win32Error(StrUtils::Concat("删除缓存文件 ",
+						StrUtils::UTF16ToUTF8(findData.cFileName), " 失败"));
 				}
 			}
 			FindClose(hFind);

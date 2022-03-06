@@ -58,7 +58,7 @@ bool GraphicsCaptureFrameSource::Initialize() {
 			return false;
 		}
 	} catch (const winrt::hresult_error& e) {
-		Logger::Get().Error(fmt::format("初始化 WinRT 失败：{}", StrUtils::UTF16ToUTF8(e.message())));
+		Logger::Get().Error(StrUtils::Concat("初始化 WinRT 失败：", StrUtils::UTF16ToUTF8(e.message())));
 		return false;
 	}
 

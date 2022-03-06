@@ -1374,6 +1374,14 @@ cbuffer __CB2 : register(b1) {
 
 	cbHlsl.append("};\n\n");
 
+	if (App::Get().IsSavePassSources()) {
+		if (Utils::DirExists(L".\\sources")) {
+			if (!CreateDirectory(L".\\sources", nullptr)) {
+				Logger::Get().Win32Error("创建 sources 文件夹失败");
+				return 1;
+			}
+		}
+	}
 
 	// 并行生成代码和编译
 	Utils::RunParallel([&](UINT id) {
