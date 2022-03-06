@@ -93,6 +93,8 @@ enum EffectFlags {
 };
 
 struct EffectDesc {
+	std::string name;
+
 	// 用于计算效果的输出，空值表示支持任意大小的输出
 	std::pair<std::string, std::string> outSizeExpr;
 

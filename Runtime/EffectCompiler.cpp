@@ -12,7 +12,9 @@
 #include <bit>	// std::has_single_bit
 
 
-static constexpr const char* META_INDICATOR = "//!";
+static const char* META_INDICATOR = "//!";
+
+static const wchar_t* SAVE_SOURCE_DIR = L".\\sources";
 
 
 class PassInclude : public ID3DInclude {
@@ -24,7 +26,7 @@ public:
 		LPCVOID* ppData,
 		UINT* pBytes
 	) override {
-		std::wstring relativePath = L"effects\\" + StrUtils::UTF8ToUTF16(pFileName);
+		std::wstring relativePath = StrUtils::ConcatW(L"effects\\", StrUtils::UTF8ToUTF16(pFileName));
 
 		std::string file;
 		if (!Utils::ReadTextFile(relativePath.c_str(), file)) {
@@ -1220,7 +1222,8 @@ void __M(uint3 tid : SV_GroupThreadID, uint3 gid : SV_GroupID) {{
 	if (CheckViewport(gxy)) {{
 		WriteToOutput(gxy, Pass{1}(pos).rgb);
 	}};
-}})", isLastEffect ? " + __offset.xy" : "", passIdx));
+}}
+)", isLastEffect ? " + __offset.xy" : "", passIdx));
 			} else {
 				result.append(fmt::format(R"([numthreads(64, 1, 1)]
 void __M(uint3 tid : SV_GroupThreadID, uint3 gid : SV_GroupID) {{
@@ -1250,7 +1253,8 @@ void __M(uint3 tid : SV_GroupThreadID, uint3 gid : SV_GroupID) {{
 	if (gxy.x < __pass{0}OutputSize.x && gxy.y < __pass{0}OutputSize.y) {{
 		{1}[gxy] = Pass{0}(pos);
 	}}
-}})", passIdx, desc.textures[passDesc.outputs[0]].name));
+}}
+)", passIdx, desc.textures[passDesc.outputs[0]].name));
 			}
 		} else {
 			// 多渲染目标
@@ -1374,12 +1378,9 @@ cbuffer __CB2 : register(b1) {
 
 	cbHlsl.append("};\n\n");
 
-	if (App::Get().IsSavePassSources()) {
-		if (Utils::DirExists(L".\\sources")) {
-			if (!CreateDirectory(L".\\sources", nullptr)) {
-				Logger::Get().Win32Error("创建 sources 文件夹失败");
-				return 1;
-			}
+	if (App::Get().IsSavePassSources() && !Utils::DirExists(SAVE_SOURCE_DIR)) {
+		if (!CreateDirectory(SAVE_SOURCE_DIR, nullptr)) {
+			Logger::Get().Win32Error("创建 sources 文件夹失败");
 		}
 	}
 
@@ -1389,6 +1390,16 @@ cbuffer __CB2 : register(b1) {
 		if (GeneratePassSource(desc, id + 1, cbHlsl, commonBlocks, passBlocks[id], inlineParams, source)) {
 			Logger::Get().Error(fmt::format("生成 Pass{} 失败", id + 1));
 			return;
+		}
+
+		if (App::Get().IsSavePassSources()) {
+			if (!Utils::WriteFile(
+				fmt::format(L"{}\\{}_Pass{}.hlsl", SAVE_SOURCE_DIR, StrUtils::UTF8ToUTF16(desc.name), id + 1).c_str(),
+				source.data(),
+				source.size()
+			)) {
+				Logger::Get().Error(fmt::format("保存 Pass{} 源码失败", id + 1));
+			}
 		}
 
 		if (!App::Get().GetDeviceResources().CompileShader(source, "__M", desc.passes[id].cso.put(),
@@ -1416,6 +1427,7 @@ UINT EffectCompiler::Compile(
 	EffectDesc& desc
 ) {
 	desc = {};
+	desc.name = effectName;
 	desc.flags = flags;
 
 	std::wstring fileName = (L"effects\\" + StrUtils::UTF8ToUTF16(effectName) + L".hlsl");

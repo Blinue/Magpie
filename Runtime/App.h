@@ -118,7 +118,7 @@ public:
 	}
 
 	bool IsDisableEffectCache() const noexcept {
-		return _flags & (UINT)_FlagMasks::DisableEffectCache;
+		return _flags & ((UINT)_FlagMasks::DisableEffectCache | (UINT)_FlagMasks::SavePassSources);
 	}
 
 	bool IsSimulateExclusiveFullscreen() const noexcept {
@@ -130,7 +130,7 @@ public:
 	}
 
 	bool IsSavePassSources() const noexcept {
-		return _flags * (UINT)_FlagMasks::SavePassSources;
+		return _flags & (UINT)_FlagMasks::SavePassSources;
 	}
 
 	const char* GetErrorMsg() const noexcept {
