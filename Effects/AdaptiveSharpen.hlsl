@@ -30,8 +30,8 @@ SamplerState sam;
 
 //!PASS 1
 //!IN INPUT
-//!BLOCK_SIZE 8,8
-//!NUM_THREADS 64,1,1
+//!BLOCK_SIZE 8
+//!NUM_THREADS 64
 
 #define curve_height    curveHeight         // Main sharpening strength, POSITIVE VALUE ONLY!
 											 // 0.3 <-> 1.5 is a reasonable range of values

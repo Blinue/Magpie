@@ -15,8 +15,8 @@ SamplerState sam;
 
 //!PASS 1
 //!IN INPUT
-//!BLOCK_SIZE 16, 16
-//!NUM_THREADS 64, 1, 1
+//!BLOCK_SIZE 16
+//!NUM_THREADS 64
 
 #define min3(a, b, c) min(a, min(b, c))
 #define max3(a, b, c) max(a, max(b, c))

@@ -108,8 +108,8 @@ SamplerState sam;
 
 //!PASS 1
 //!IN INPUT
-//!BLOCK_SIZE 8,8
-//!NUM_THREADS 64,1,1
+//!BLOCK_SIZE 8
+//!NUM_THREADS 64
 
 // Uncomment to reduce instructions with simpler linearization (fixes HD3000 Sandy Bridge IGP)
 // 注释此行将使运行速度降低 50%

@@ -22,8 +22,8 @@ float sharpness;
 
 //!PASS 1
 //!IN INPUT
-//!BLOCK_SIZE 32,32
-//!NUM_THREADS 256,1,1
+//!BLOCK_SIZE 32, 32
+//!NUM_THREADS 256
 
 
 #define kDetectRatio (2 * 1127.f / 1024.f)

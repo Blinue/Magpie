@@ -23,8 +23,8 @@ SamplerState sam;
 
 //!PASS 1
 //!IN INPUT
-//!BLOCK_SIZE 16,16
-//!NUM_THREADS 64,1,1
+//!BLOCK_SIZE 16
+//!NUM_THREADS 64
 
 #define INTENSITY_SIGMA intensitySigma //Intensity window size, higher is stronger denoise, must be a positive real number
 #define SPATIAL_SIGMA 1.0 //Spatial window size, higher is stronger denoise, must be a positive real number.

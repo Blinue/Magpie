@@ -35,8 +35,8 @@ Texture2D tex2;
 //!PASS 1
 //!IN INPUT
 //!OUT tex1
-//!BLOCK_SIZE 16, 16
-//!NUM_THREADS 64, 1, 1
+//!BLOCK_SIZE 16
+//!NUM_THREADS 64
 
 void Pass1(uint2 blockStart, uint3 threadId) {
 	uint2 gxy = (Rmp8x8(threadId.x) << 1) + blockStart;
@@ -99,8 +99,8 @@ void Pass1(uint2 blockStart, uint3 threadId) {
 //!PASS 2
 //!IN tex1
 //!OUT tex2
-//!BLOCK_SIZE 16, 16
-//!NUM_THREADS 64, 1, 1
+//!BLOCK_SIZE 16
+//!NUM_THREADS 64
 
 void Pass2(uint2 blockStart, uint3 threadId) {
 	uint2 gxy = (Rmp8x8(threadId.x) << 1) + blockStart;
@@ -172,8 +172,8 @@ void Pass2(uint2 blockStart, uint3 threadId) {
 
 //!PASS 3
 //!IN INPUT, tex2
-//!BLOCK_SIZE 16, 16
-//!NUM_THREADS 64, 1, 1
+//!BLOCK_SIZE 16
+//!NUM_THREADS 64
 
 void Pass3(uint2 blockStart, uint3 threadId) {
 	uint2 gxy = (Rmp8x8(threadId.x) << 1) + blockStart;

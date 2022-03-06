@@ -29,7 +29,7 @@ SamplerState samplerLinearClamp;
 //!PASS 1
 //!IN INPUT, coef_scaler, coef_usm
 //!BLOCK_SIZE 32,24
-//!NUM_THREADS 256,1,1
+//!NUM_THREADS 256
 
 
 #define kDetectRatio (2 * 1127.f / 1024.f)

@@ -16,8 +16,8 @@ SamplerState sam;
 
 //!PASS 1
 //!IN INPUT
-//!BLOCK_SIZE 16, 16
-//!NUM_THREADS 64, 1, 1
+//!BLOCK_SIZE 16
+//!NUM_THREADS 64
 
 #define FXAA_PRESET 5
 #include "FXAA.hlsli"

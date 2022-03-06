@@ -48,8 +48,8 @@ SamplerState sam;
 //!PASS 1
 //!IN INPUT
 //!OUT tex1, tex2
-//!BLOCK_SIZE 16,16
-//!NUM_THREADS 64,1,1
+//!BLOCK_SIZE 16
+//!NUM_THREADS 64
 
 float GetLuma(float3 color) {
 	return 0.299f * color.r + 0.587f * color.g + 0.114f * color.b;
@@ -177,8 +177,8 @@ void Pass1(uint2 blockStart, uint3 threadId) {
 //!PASS 2
 //!IN tex1, tex2
 //!OUT tex3, tex4
-//!BLOCK_SIZE 8,8
-//!NUM_THREADS 64,1,1
+//!BLOCK_SIZE 8
+//!NUM_THREADS 64
 
 const static float kernelsLA[9 * 8 * 4] = {
 	 2.0611e-01,  6.6865e-02, -9.9123e-02,
@@ -683,8 +683,8 @@ void Pass2(uint2 blockStart, uint3 threadId) {
 //!PASS 3
 //!IN tex3, tex4
 //!OUT tex1, tex2
-//!BLOCK_SIZE 8,8
-//!NUM_THREADS 64,1,1
+//!BLOCK_SIZE 8
+//!NUM_THREADS 64
 
 const static float kernelsLA[9 * 8 * 4] = {
 	-4.2606e-02, -8.9001e-02, -6.4006e-02,
@@ -1190,8 +1190,8 @@ void Pass3(uint2 blockStart, uint3 threadId) {
 //!PASS 4
 //!IN tex1, tex2
 //!OUT tex3, tex4
-//!BLOCK_SIZE 8,8
-//!NUM_THREADS 64,1,1
+//!BLOCK_SIZE 8
+//!NUM_THREADS 64
 
 const static float kernelsLA[9 * 8 * 4] = {
 	 2.3898e-02,  1.2411e-02, -3.2770e-02,
@@ -1697,8 +1697,8 @@ void Pass4(uint2 blockStart, uint3 threadId) {
 //!PASS 5
 //!IN tex3, tex4
 //!OUT tex1, tex2
-//!BLOCK_SIZE 8,8
-//!NUM_THREADS 64,1,1
+//!BLOCK_SIZE 8
+//!NUM_THREADS 64
 
 const static float kernelsLA[9 * 8 * 4] = {
 	 1.3625e-02, -8.5594e-02, -1.9901e-01,
@@ -2205,8 +2205,8 @@ void Pass5(uint2 blockStart, uint3 threadId) {
 //!PASS 6
 //!IN tex1, tex2
 //!OUT tex3, tex4
-//!BLOCK_SIZE 8,8
-//!NUM_THREADS 64,1,1
+//!BLOCK_SIZE 8
+//!NUM_THREADS 64
 
 const static float kernelsLA[9 * 8 * 4] = {
 	 5.6253e-02,  1.0118e-02, -8.2749e-02,
@@ -2712,8 +2712,8 @@ void Pass6(uint2 blockStart, uint3 threadId) {
 //!PASS 7
 //!IN tex3, tex4
 //!OUT tex1, tex2
-//!BLOCK_SIZE 8,8
-//!NUM_THREADS 64,1,1
+//!BLOCK_SIZE 8
+//!NUM_THREADS 64
 
 const static float kernelsLA[9 * 8 * 4] = {
 	 2.5042e-02, -5.3266e-02,  3.8484e-02,
@@ -3219,8 +3219,8 @@ void Pass7(uint2 blockStart, uint3 threadId) {
 //!PASS 8
 //!IN tex1, tex2
 //!OUT tex3, tex4
-//!BLOCK_SIZE 8,8
-//!NUM_THREADS 64,1,1
+//!BLOCK_SIZE 8
+//!NUM_THREADS 64
 
 const static float kernelsLA[9 * 8 * 4] = {
 	-5.3430e-40,  2.5717e-41,  5.7504e-40,
@@ -3725,8 +3725,8 @@ void Pass8(uint2 blockStart, uint3 threadId) {
 
 //!PASS 9
 //!IN INPUT, tex3, tex4
-//!BLOCK_SIZE 16, 16
-//!NUM_THREADS 64, 1, 1
+//!BLOCK_SIZE 16
+//!NUM_THREADS 64
 
 const static float kernelsLA[9 * 8 * 4] = {
 	-3.6751e-40, -5.4562e-41,  6.1860e-40,

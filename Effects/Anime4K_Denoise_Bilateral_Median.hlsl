@@ -23,8 +23,8 @@ SamplerState sam;
 
 //!PASS 1
 //!IN INPUT
-//!BLOCK_SIZE 8,8
-//!NUM_THREADS 64,1,1
+//!BLOCK_SIZE 8
+//!NUM_THREADS 64
 
 #pragma warning(disable: 3557)
 

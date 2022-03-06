@@ -64,8 +64,8 @@ SamplerState sam;
 //!PASS 1
 //!IN INPUT
 //!OUT tex1
-//!BLOCK_SIZE 16, 16
-//!NUM_THREADS 64, 1, 1
+//!BLOCK_SIZE 16
+//!NUM_THREADS 64
 
 
 #define RGBtoYUV(Kb,Kr) float3x3(float3(Kr, 1 - Kr - Kb, Kb), float3(-Kr, Kr + Kb - 1, 1 - Kb) / (2*(1 - Kb)), float3(1 - Kr, Kr + Kb - 1, -Kb) / (2*(1 - Kr)))
@@ -121,8 +121,8 @@ void Pass1(uint2 blockStart, uint3 threadId) {
 //!PASS 2
 //!IN tex1
 //!OUT tex2
-//!BLOCK_SIZE 16, 16
-//!NUM_THREADS 64, 1, 1
+//!BLOCK_SIZE 16
+//!NUM_THREADS 64
 
 // The variables passed to these median macros will be swapped around as part of the process. A temporary variable t of the same type is also required.
 #define sort(a1,a2)                         (t=min(a1,a2),a2=max(a1,a2),a1=t)
@@ -200,8 +200,8 @@ void Pass2(uint2 blockStart, uint3 threadId) {
 //!PASS 3
 //!IN tex2
 //!OUT tex1
-//!BLOCK_SIZE 16, 16
-//!NUM_THREADS 64, 1, 1
+//!BLOCK_SIZE 16
+//!NUM_THREADS 64
 
 #define lstr 1.49  // Modifier for non-linear sharpening
 #define pstr 1.272 // Exponent for non-linear sharpening
@@ -284,8 +284,8 @@ void Pass3(uint2 blockStart, uint3 threadId) {
 //!PASS 4
 //!IN tex1
 //!OUT tex2
-//!BLOCK_SIZE 16, 16
-//!NUM_THREADS 64, 1, 1
+//!BLOCK_SIZE 16
+//!NUM_THREADS 64
 
 // The variables passed to these sorting macros will be swapped around as part of the process. A temporary variable t of the same type is also required.
 #define sort(a1,a2)                               (t=min(a1,a2),a2=max(a1,a2),a1=t)
@@ -369,8 +369,8 @@ void Pass4(uint2 blockStart, uint3 threadId) {
 
 //!PASS 5
 //!IN tex2
-//!BLOCK_SIZE 16, 16
-//!NUM_THREADS 64, 1, 1
+//!BLOCK_SIZE 16
+//!NUM_THREADS 64
 
 
 #define YUVtoRGB(Kb,Kr) float3x3(float3(1, 0, 2*(1 - Kr)), float3(Kb + Kr - 1, 2*(1 - Kb)*Kb, 2*Kr*(1 - Kr)) / (Kb + Kr - 1), float3(1, 2*(1 - Kb),0))

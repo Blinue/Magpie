@@ -34,8 +34,8 @@ SamplerState sam1;
 //!PASS 1
 //!IN INPUT
 //!OUT tex1
-//!BLOCK_SIZE 16, 16
-//!NUM_THREADS 64, 1, 1
+//!BLOCK_SIZE 16
+//!NUM_THREADS 64
 
 float4 A4KS1(float3 src[4][4], int i, int j) {
 	float4 result = mul(src[i - 1][j - 1], float3x4(-0.0057322932, 0.12928207, -0.056848746, 0.18680117, -0.0306273, 0.25602463, 0.053723164, 0.20419341, 0.0018709862, 0.022848232, -0.04105527, 0.101690340));
@@ -92,8 +92,8 @@ void Pass1(uint2 blockStart, uint3 threadId) {
 //!PASS 2
 //!IN tex1
 //!OUT tex2
-//!BLOCK_SIZE 16, 16
-//!NUM_THREADS 64, 1, 1
+//!BLOCK_SIZE 16
+//!NUM_THREADS 64
 
 float4 A4KS2(float4 src[4][4], int i, int j) {
 	// [ a, d, g ]
@@ -163,8 +163,8 @@ void Pass2(uint2 blockStart, uint3 threadId) {
 //!PASS 3
 //!IN tex2
 //!OUT tex1
-//!BLOCK_SIZE 16, 16
-//!NUM_THREADS 64, 1, 1
+//!BLOCK_SIZE 16
+//!NUM_THREADS 64
 
 float4 A4KS3(float4 src[4][4], int i, int j) {
 	// [ a, d, g ]
@@ -233,8 +233,8 @@ void Pass3(uint2 blockStart, uint3 threadId) {
 
 //!PASS 4
 //!IN INPUT, tex1
-//!BLOCK_SIZE 16, 16
-//!NUM_THREADS 64, 1, 1
+//!BLOCK_SIZE 16
+//!NUM_THREADS 64
 
 float4 A4KS4(float2 pos) {
 	float2 inputPt = GetInputPt();

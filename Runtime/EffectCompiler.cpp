@@ -914,7 +914,7 @@ UINT ResolvePasses(
 				}
 
 				std::vector<std::string_view> blockSize = StrUtils::Split(val, ',');
-				if (blockSize.size() != 2) {
+				if (blockSize.size() > 2) {
 					return 1;
 				}
 
@@ -929,12 +929,15 @@ UINT ResolvePasses(
 
 				passDesc.blockSize.first = num;
 
-				if (GetNextNumber(blockSize[1], num) || num == 0) {
-					return 1;
-				}
+				// 如果只有一个数字，则它同时指定长和高
+				if (blocks.size() == 2) {
+					if (GetNextNumber(blockSize[1], num) || num == 0) {
+						return 1;
+					}
 
-				if (GetNextToken<false>(blockSize[1], token) != 2) {
-					return false;
+					if (GetNextToken<false>(blockSize[1], token) != 2) {
+						return false;
+					}
 				}
 
 				passDesc.blockSize.second = num;
@@ -950,18 +953,20 @@ UINT ResolvePasses(
 				}
 
 				std::vector<std::string_view> split = StrUtils::Split(val, ',');
-				if (split.size() != 3) {
+				if (split.size() > 3) {
 					return 1;
 				}
 
 				for (int i = 0; i < 3; ++i) {
-					UINT num;
-					if (GetNextNumber(split[i], num)) {
-						return 1;
-					}
+					UINT num = 1;
+					if (split.size() > i) {
+						if (GetNextNumber(split[i], num)) {
+							return 1;
+						}
 
-					if (GetNextToken<false>(split[i], token) != 2) {
-						return false;
+						if (GetNextToken<false>(split[i], token) != 2) {
+							return false;
+						}
 					}
 
 					passDesc.numThreads[i] = num;
