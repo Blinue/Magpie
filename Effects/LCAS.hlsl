@@ -84,7 +84,7 @@ void Pass1(uint2 blockStart, uint3 threadId) {
 			//  w 1 w
 			//    w   
 			float3 c = ((b + d + f + h) * wRGB + e) / (1.0 + 4.0 * wRGB);
-			WriteToOutput(destPos, (c + clamp(c, mnRGB, mxRGB)) / 2);
+			WriteToOutput(destPos, (c * 8 + b + d + f + h) / 12);
 		}
 	}
 }
