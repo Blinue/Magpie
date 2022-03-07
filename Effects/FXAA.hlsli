@@ -80,7 +80,7 @@ float3 FxaaLerp3(float3 a, float3 b, float amountOfA) {
 }
 
 
-float4 FXAA(float3 src[4][4], uint i, uint j, Texture2D INPUT, SamplerState sam, float2 pos, float2 inputPt) {
+float3 FXAA(float3 src[4][4], uint i, uint j, Texture2D INPUT, SamplerState sam, float2 pos, float2 inputPt) {
 	float lumaN = FxaaLuma(src[i][j - 1]);
 	float lumaW = FxaaLuma(src[i - 1][j]);
 	float lumaM = FxaaLuma(src[i][j]);
@@ -91,7 +91,7 @@ float4 FXAA(float3 src[4][4], uint i, uint j, Texture2D INPUT, SamplerState sam,
 
 	float range = rangeMax - rangeMin;
 	if (range < max(FXAA_EDGE_THRESHOLD_MIN, rangeMax * FXAA_EDGE_THRESHOLD)) {
-		return float4(src[i][j], 1);
+		return src[i][j];
 	}
 
 	float3 rgbL = src[i][j - 1] + src[i - 1][j] + src[i][j] + src[i + 1][j] + src[i][j + 1];
@@ -191,5 +191,5 @@ float4 FXAA(float3 src[4][4], uint i, uint j, Texture2D INPUT, SamplerState sam,
 	float3 rgbF = INPUT.SampleLevel(sam, float2(
 		pos.x + (horzSpan ? 0.0 : subPixelOffset),
 		pos.y + (horzSpan ? subPixelOffset : 0.0)), 0).xyz;
-	return float4(FxaaLerp3(rgbL, rgbF, blendL), 1);
+	return FxaaLerp3(rgbL, rgbF, blendL);
 }

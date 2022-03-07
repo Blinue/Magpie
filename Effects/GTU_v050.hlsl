@@ -177,7 +177,7 @@ float STU(float x, float b) {
 	return ((d(x, b) + sin(d(x, b)) - e(x, b) - sin(e(x, b))) / (2.0 * pi));
 }
 
-float4 Main(float2 pos) {
+float4 Pass2(float2 pos) {
 	uint2 inputSize = GetInputSize();
 	float2 inputPt = GetInputPt();
 

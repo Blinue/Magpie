@@ -84,7 +84,7 @@ float4 Pass1(float2 pos) {
 	/*-----------------------------------------------------------.
 	/                       Sampling patterns                     /
 	'-----------------------------------------------------------*/
-	float3 blur_ori;
+	float3 blur_ori = { 0,0,0 };
 
 	//   [ NW,   , NE ] Each texture lookup (except ori)
 	//   [   ,ori,    ] samples 4 pixels

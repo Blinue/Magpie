@@ -91,7 +91,7 @@ void Pass1(uint2 blockStart, uint3 threadId) {
 	uint i;
 
 	[unroll]
-	for (i = 0; i < (int)KERNELLEN; i++) {
+	for (i = 0; i < KERNELLEN; i++) {
 		int2 ipos = GETOFFSET(i);
 		histogram_v[i] = INPUT.SampleLevel(sam, pos + ipos * inputPt, 0).rgb;
 		histogram_l[i] = get_luma(histogram_v[i]);

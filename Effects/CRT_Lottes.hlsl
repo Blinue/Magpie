@@ -105,6 +105,7 @@ SamplerState sam;
 //!BLOCK_SIZE 8
 //!NUM_THREADS 64
 
+#pragma warning(disable: 3571) // X3571: pow(f, e) will not work for negative f, use abs(f) or conditionally handle negative values if you expect them
 
 #define DO_BLOOM 1
 #define warp float2(warpX, warpY)
