@@ -26,8 +26,6 @@ SamplerState sam;
 //!BLOCK_SIZE 8
 //!NUM_THREADS 64
 
-#pragma warning(disable: 3557)
-
 #define INTENSITY_SIGMA intensitySigma //Intensity window size, higher is stronger denoise, must be a positive real number
 #define SPATIAL_SIGMA 1.0 //Spatial window size, higher is stronger denoise, must be a positive real number.
 #define HISTOGRAM_REGULARIZATION 0.0 //Histogram regularization window size, higher values approximate a bilateral "closest-to-mean" filter.

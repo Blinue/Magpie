@@ -118,7 +118,7 @@ public:
 	}
 
 	bool IsDisableEffectCache() const noexcept {
-		return _flags & ((UINT)_FlagMasks::DisableEffectCache | (UINT)_FlagMasks::SaveEffectSources);
+		return _flags & (UINT)_FlagMasks::DisableEffectCache;
 	}
 
 	bool IsSimulateExclusiveFullscreen() const noexcept {
