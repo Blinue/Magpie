@@ -913,29 +913,29 @@ UINT ResolvePasses(
 					return 1;
 				}
 
-				std::vector<std::string_view> blockSize = StrUtils::Split(val, ',');
-				if (blockSize.size() > 2) {
+				std::vector<std::string_view> split = StrUtils::Split(val, ',');
+				if (split.size() > 2) {
 					return 1;
 				}
 
 				UINT num;
-				if (GetNextNumber(blockSize[0], num) || num == 0) {
+				if (GetNextNumber(split[0], num) || num == 0) {
 					return 1;
 				}
 
-				if (GetNextToken<false>(blockSize[0], token) != 2) {
+				if (GetNextToken<false>(split[0], token) != 2) {
 					return false;
 				}
 
 				passDesc.blockSize.first = num;
 
 				// 如果只有一个数字，则它同时指定长和高
-				if (blocks.size() == 2) {
-					if (GetNextNumber(blockSize[1], num) || num == 0) {
+				if (split.size() == 2) {
+					if (GetNextNumber(split[1], num) || num == 0) {
 						return 1;
 					}
 
-					if (GetNextToken<false>(blockSize[1], token) != 2) {
+					if (GetNextToken<false>(split[1], token) != 2) {
 						return false;
 					}
 				}
