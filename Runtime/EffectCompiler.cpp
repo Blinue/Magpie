@@ -1383,7 +1383,7 @@ cbuffer __CB2 : register(b1) {
 
 	cbHlsl.append("};\n\n");
 
-	if (App::Get().IsSavePassSources() && !Utils::DirExists(SAVE_SOURCE_DIR)) {
+	if (App::Get().IsSaveEffectSources() && !Utils::DirExists(SAVE_SOURCE_DIR)) {
 		if (!CreateDirectory(SAVE_SOURCE_DIR, nullptr)) {
 			Logger::Get().Win32Error("创建 sources 文件夹失败");
 		}
@@ -1397,7 +1397,7 @@ cbuffer __CB2 : register(b1) {
 			return;
 		}
 
-		if (App::Get().IsSavePassSources()) {
+		if (App::Get().IsSaveEffectSources()) {
 			if (!Utils::WriteFile(
 				fmt::format(L"{}\\{}_Pass{}.hlsl", SAVE_SOURCE_DIR, StrUtils::UTF8ToUTF16(desc.name), id + 1).c_str(),
 				source.data(),

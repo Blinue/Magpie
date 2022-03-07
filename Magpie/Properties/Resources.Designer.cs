@@ -511,6 +511,15 @@ namespace Magpie.Properties {
         }
         
         /// <summary>
+        ///   查找类似 Treat Warnings as Errors when Compiling Shaders 的本地化字符串。
+        /// </summary>
+        public static string UI_Options_Advanced_Warnings_Are_Errors {
+            get {
+                return ResourceManager.GetString("UI_Options_Advanced_Warnings_Are_Errors", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Application 的本地化字符串。
         /// </summary>
         public static string UI_Options_Application {

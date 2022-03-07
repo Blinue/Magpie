@@ -267,6 +267,9 @@
   <data name="UI_Options_Advanced_Simulate_Exclusive_Fullscreen" xml:space="preserve">
     <value>模拟独占全屏</value>
   </data>
+  <data name="UI_Options_Advanced_Warnings_Are_Errors" xml:space="preserve">
+    <value>编译着色器时将警告视为错误</value>
+  </data>
   <data name="UI_Options_Application" xml:space="preserve">
     <value>应用程序</value>
   </data>

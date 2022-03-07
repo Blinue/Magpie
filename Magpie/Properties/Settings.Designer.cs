@@ -422,12 +422,24 @@ namespace Magpie.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool DebugSavePassSources {
+        public bool DebugSaveEffectSources {
             get {
-                return ((bool)(this["DebugSavePassSources"]));
+                return ((bool)(this["DebugSaveEffectSources"]));
             }
             set {
-                this["DebugSavePassSources"] = value;
+                this["DebugSaveEffectSources"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool DebugWarningsAreErrors {
+            get {
+                return ((bool)(this["DebugWarningsAreErrors"]));
+            }
+            set {
+                this["DebugWarningsAreErrors"] = value;
             }
         }
     }

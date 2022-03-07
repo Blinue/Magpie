@@ -59,7 +59,10 @@
                       IsChecked="{Binding Source={x:Static props:Settings.Default},Path=DebugDisableEffectCache,Mode=TwoWay}" />
             <CheckBox Content="{x:Static props:Resources.UI_Options_Advanced_Save_Effect_Sources}"
                       Margin="0,15,0,0"
-                      IsChecked="{Binding Source={x:Static props:Settings.Default},Path=DebugSavePassSources,Mode=TwoWay}" />
+                      IsChecked="{Binding Source={x:Static props:Settings.Default},Path=DebugSaveEffectSources,Mode=TwoWay}" />
+            <CheckBox Content="{x:Static props:Resources.UI_Options_Advanced_Warnings_Are_Errors}"
+                      Margin="0,15,0,0"
+                      IsChecked="{Binding Source={x:Static props:Settings.Default},Path=DebugWarningsAreErrors,Mode=TwoWay}" />
         </StackPanel>
     </StackPanel>
 </Page>
