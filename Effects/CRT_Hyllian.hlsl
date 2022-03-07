@@ -121,6 +121,8 @@ SamplerState sam;
 //!STYLE PS
 //!IN INPUT
 
+#pragma warning(disable: 3571) // X3571: pow(f, e) will not work for negative f, use abs(f) or conditionally handle negative values if you expect them
+
 #define GAMMA_IN(color)     pow(color, float3(inputGamma, inputGamma, inputGamma))
 #define GAMMA_OUT(color)    pow(color, float3(1.0 / outputGamma, 1.0 / outputGamma, 1.0 / outputGamma))
 

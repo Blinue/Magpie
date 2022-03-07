@@ -136,6 +136,8 @@ SamplerState sam;
 //!STYLE PS
 //!IN INPUT
 
+#pragma warning(disable: 3571) // X3571: pow(f, e) will not work for negative f, use abs(f) or conditionally handle negative values if you expect them
+
 // Use the older, purely gaussian beam profile; uncomment for speed
 // #define USEGAUSSIAN
 

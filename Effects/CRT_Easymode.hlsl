@@ -148,6 +148,8 @@ SamplerState sam;
 //!STYLE PS
 //!IN INPUT
 
+#pragma warning(disable: 3571) // X3571: pow(f, e) will not work for negative f, use abs(f) or conditionally handle negative values if you expect them
+
 #define FIX(c) max(abs(c), 1e-5)
 #define PI 3.141592653589
 #define TEX2D(c) dilate(INPUT.SampleLevel(sam, c, 0))

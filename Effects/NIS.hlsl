@@ -33,7 +33,7 @@ SamplerState samplerLinearClamp;
 
 
 
-#pragma warning(disable: 4714)	// sum of temp registers and indexable temp registers times 256 threads exceeds the recommended total 16384.  Performance may be reduced
+#pragma warning(disable: 4714)	// X4714: sum of temp registers and indexable temp registers times 256 threads exceeds the recommended total 16384.  Performance may be reduced
 
 #define kDetectRatio (2 * 1127.f / 1024.f)
 #define kDetectThres (64.0f / 1024.0f)

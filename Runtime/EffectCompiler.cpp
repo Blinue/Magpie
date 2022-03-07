@@ -1408,7 +1408,7 @@ cbuffer __CB2 : register(b1) {
 		}
 
 		if (!App::Get().GetDeviceResources().CompileShader(source, "__M", desc.passes[id].cso.put(),
-			fmt::format("Pass{}", id + 1).c_str(), &passInclude)
+			fmt::format("{}_Pass{}.hlsl", desc.name, id + 1).c_str(), &passInclude)
 		) {
 			Logger::Get().Error(fmt::format("编译 Pass{} 失败", id + 1));
 		}
