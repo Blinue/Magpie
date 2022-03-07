@@ -56,12 +56,6 @@ float maskDark;
 float maskLight;
 
 //!PARAMETER
-//!DEFAULT 0
-//!MIN 0
-//!MAX 1
-int scaleInLinearGamma;
-
-//!PARAMETER
 //!DEFAULT 3
 //!MIN 0
 //!MAX 4
@@ -111,58 +105,16 @@ SamplerState sam;
 //!BLOCK_SIZE 8
 //!NUM_THREADS 64
 
-// Uncomment to reduce instructions with simpler linearization (fixes HD3000 Sandy Bridge IGP)
-// 注释此行将使运行速度降低 50%
-#define SIMPLE_LINEAR_GAMMA
-#define DO_BLOOM 1
 
+#define DO_BLOOM 1
 #define warp float2(warpX, warpY)
 
-// sRGB to Linear.
-// Assuing using sRGB typed textures this should not be needed.
-#ifdef SIMPLE_LINEAR_GAMMA
-float ToLinear1(float c) {
-	return c;
-}
-float3 ToLinear(float3 c) {
-	return c;
-}
-
-float3 ToSrgb(float3 c) {
-	return pow(c, 1.0 / 2.2);
-}
-#else
-float ToLinear1(float c) {
-	if (scaleInLinearGamma == 0) return c;
-	return(c <= 0.04045) ? c / 12.92 : pow((c + 0.055) / 1.055, 2.4);
-}
-float3 ToLinear(float3 c) {
-	if (scaleInLinearGamma == 0) return c;
-	return float3(ToLinear1(c.r), ToLinear1(c.g), ToLinear1(c.b));
-}
-
-// Linear to sRGB.
-// Assuming using sRGB typed textures this should not be needed.
-float ToSrgb1(float c) {
-	if (scaleInLinearGamma == 0) return c;
-	return(c < 0.0031308 ? c * 12.92 : 1.055 * pow(c, 0.41666) - 0.055);
-}
-
-float3 ToSrgb(float3 c) {
-	if (scaleInLinearGamma == 0) return c;
-	return float3(ToSrgb1(c.r), ToSrgb1(c.g), ToSrgb1(c.b));
-}
-#endif
 
 // Nearest emulated sample given floating point position and texel offset.
 // Also zero's off screen.
 float3 Fetch(float2 pos, float2 off, float2 texture_size) {
 	pos = (floor(pos * texture_size.xy + off) + float2(0.5, 0.5)) / texture_size.xy;
-#ifdef SIMPLE_LINEAR_GAMMA
-	return ToLinear(brightBoost * pow(INPUT.SampleLevel(sam, pos, 0).rgb, 2.2));
-#else
-	return ToLinear(brightBoost * INPUT.SampleLevel(sam, pos, 0).rgb);
-#endif
+	return brightBoost * pow(INPUT.SampleLevel(sam, pos, 0).rgb, 2.2f);
 }
 
 // Distance in emulated pixels to nearest texel.
@@ -342,7 +294,7 @@ void Pass1(uint2 blockStart, uint3 threadId) {
 #endif
 
 	if (shadowMask)
-		outColor.rgb *= Mask(pos * GetOutputSize());
+		outColor.rgb *= Mask(gxy + 0.5f);
 
-	WriteToOutput(gxy, ToSrgb(outColor.rgb));
+	WriteToOutput(gxy, pow(outColor.rgb, 1.0f / 2.2f));
 }
