@@ -34,7 +34,7 @@ void Pass1(uint2 blockStart, uint3 threadId) {
 		return;
 	}
 
-        float2 inputPt = GetInputPt();
+      float2 inputPt = GetInputPt();
 	float2 OutputPt = GetOutputPt();
 	uint i, j;
 
@@ -64,8 +64,6 @@ void Pass1(uint2 blockStart, uint3 threadId) {
 
 			// Edge checker.
 			float edge = length(abs(d - f) + abs(b - h));
-			
-			e = (e * 8 + b + d + f + h) / 12;
 
 			// Soft min and max.
 			//    b
@@ -79,14 +77,14 @@ void Pass1(uint2 blockStart, uint3 threadId) {
 			float3 wRGB = sqrt(min(mnRGB, 1.0 - mxRGB) / mxRGB) * lerp(-0.125, -0.2, sharpness);
 
 			// Sharpen edge and mask.
-			e = lerp((e * 3 - (b + d + f + h + e * 2) / 3), (e * 3 - (b + d + f + h) * 0.5), (edge >= threshold));
+			float3 c = lerp((e * 3 - (b + d + f + h + e * 2) / 3), (e * 2 - (b + d + f + h) * 0.25), (edge >= threshold));
 
 			// Filter shape.
 			//    w  
 			//  w 1 w
 			//    w   
-			float3 c = ((b + d + f + h) * wRGB + e) / (1.0 + 4.0 * wRGB);
-			WriteToOutput(destPos, (c + clamp(c, mnRGB, mxRGB)) / 2);
+			c = ((b + d + f + h) * wRGB + c) / (1.0 + 4.0 * wRGB);
+			WriteToOutput(destPos, (c + e * 2) / 3);
 		}
 	}
 }
