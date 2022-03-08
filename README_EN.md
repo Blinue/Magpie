@@ -20,7 +20,7 @@ Please raise an issue if you are having trouble running the app.
 
 ## How to use the app
 
-![Screenshot](img/窗口截图.png)
+![Screenshot](img/Main_Window.png)
 
 The the window to be magnified is at foreground, you can press the hot keys to make it fullscreen. Pressing the hot keys again or shift another window to foreground will exit the fullscreen mode.
 
@@ -70,7 +70,7 @@ You need to manually type in your preferred hot keys (concatenate multiple keys 
 
 1. If you have set DPI scaling, but the window to be magnifies doesn't support high DPI: Go to the compatibility settings of the target application, and set the "Alternative High DPI Scaling" option to "Application".
 
-   ![High DPI Setting](img/高DPI设置.png)
+   ![High DPI Setting](img/High_DPI_Settings.png)
 
 2. Some games support zooming the window, but with extremely naive algorithms. Please set the resolution to the built-in (best) option.
 
