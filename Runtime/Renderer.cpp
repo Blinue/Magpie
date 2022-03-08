@@ -291,7 +291,7 @@ bool Renderer::_ResolveEffectsJson(const std::string& effectsJson) {
 	std::vector<const char*> effectNames(effectCount);
 	std::vector<EffectParams> effectParams(effectCount);
 	std::vector<EffectDesc> effectDescs(effectCount);
-	bool allSuccess = true;
+	std::atomic<bool> allSuccess = true;
 
 	int duration = Utils::Measure([&]() {
 		Utils::RunParallel([&](UINT id) {
