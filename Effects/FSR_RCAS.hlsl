@@ -31,16 +31,12 @@ SamplerState sam;
 #define FSR_RCAS_LIMIT (0.25-(1.0/16.0))
 
 
-float3 FsrRcasF(uint2 pos) {
+float3 FsrRcasF(float3 b, float3 d, float3 e, float3 f, float3 h) {
 	// Algorithm uses minimal 3x3 pixel neighborhood.
 	//    b 
 	//  d e f
 	//    h
-	float3 b = INPUT.Load(int3(pos.x, pos.y - 1, 0)).rgb;
-	float3 d = INPUT.Load(int3(pos.x - 1, pos.y, 0)).rgb;
-	float3 e = INPUT.Load(int3(pos, 0)).rgb;
-	float3 f = INPUT.Load(int3(pos.x + 1, pos.y, 0)).rgb;
-	float3 h = INPUT.Load(int3(pos.x, pos.y + 1, 0)).rgb;
+
 	// Rename (32-bit) or regroup (16-bit).
 	float bR = b.r;
 	float bG = b.g;
@@ -108,25 +104,39 @@ float3 FsrRcasF(uint2 pos) {
 }
 
 void Pass1(uint2 blockStart, uint3 threadId) {
-	uint2 gxy = blockStart + Rmp8x8(threadId.x);
+	uint2 gxy = blockStart + (Rmp8x8(threadId.x) << 1);
 	if (!CheckViewport(gxy)) {
 		return;
 	}
 
-	WriteToOutput(gxy, FsrRcasF(gxy));
-
-	gxy.x += 8u;
-	if (CheckViewport(gxy)) {
-		WriteToOutput(gxy, FsrRcasF(gxy));
+	float3 src[4][4];
+	[unroll]
+	for (uint i = 1; i < 3; ++i) {
+		[unroll]
+		for (uint j = 0; j < 4; ++j) {
+			src[i][j] = INPUT.Load(int3(gxy.x + i - 1, gxy.y + j - 1, 0)).rgb;
+		}
 	}
 
-	gxy.y += 8u;
+	src[0][1] = INPUT.Load(int3(gxy.x - 1, gxy.y, 0)).rgb;
+	src[0][2] = INPUT.Load(int3(gxy.x - 1, gxy.y + 1, 0)).rgb;
+	src[3][1] = INPUT.Load(int3(gxy.x + 2, gxy.y, 0)).rgb;
+	src[3][2] = INPUT.Load(int3(gxy.x + 2, gxy.y + 1, 0)).rgb;
+
+	WriteToOutput(gxy, FsrRcasF(src[1][0], src[0][1], src[1][1], src[2][1], src[1][2]));
+
+	++gxy.x;
 	if (CheckViewport(gxy)) {
-		WriteToOutput(gxy, FsrRcasF(gxy));
+		WriteToOutput(gxy, FsrRcasF(src[2][0], src[1][1], src[2][1], src[3][1], src[2][2]));
 	}
 
-	gxy.x -= 8u;
+	++gxy.y;
 	if (CheckViewport(gxy)) {
-		WriteToOutput(gxy, FsrRcasF(gxy));
+		WriteToOutput(gxy, FsrRcasF(src[2][1], src[1][2], src[2][2], src[3][2], src[2][3]));
+	}
+
+	--gxy.x;
+	if (CheckViewport(gxy)) {
+		WriteToOutput(gxy, FsrRcasF(src[1][1], src[0][2], src[1][2], src[2][2], src[1][3]));
 	}
 }
