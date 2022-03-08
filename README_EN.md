@@ -68,7 +68,7 @@ You need to manually type in your preferred hot keys (concatenate multiple keys 
 
 ## Hints
 
-1. If you have set DPI scaling, but the window to be magnifies doesn't support high DPI: Go to the compatibility settings of the target application, and set the "Alternative High DPI Scaling" option to "Application".
+1. If you have set DPI scaling, but the window to be magnifies doesn't support high DPI: Go to the compatibility settings of the target application, and set the "High DPI scaling override" option to "Application".
 
    ![High DPI Setting](img/High_DPI_Settings.png)
 
