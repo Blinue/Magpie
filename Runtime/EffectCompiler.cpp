@@ -1131,6 +1131,7 @@ UINT GeneratePassSource(
 		result.append("bool CheckViewport(int2 pos) { return pos.x < __viewport.x && pos.y < __viewport.y; }\n");
 
 		if (isLastEffect) {
+			// 255.001953 的由来见 https://stackoverflow.com/questions/52103720/why-does-d3dcolortoubyte4-multiplies-components-by-255-001953f
 			result.append(R"(void WriteToOutput(uint2 pos, float3 color) {
 	pos += __offset.zw;
 	if ((int)pos.x >= __cursorRect.x && (int)pos.y >= __cursorRect.y && (int)pos.x < __cursorRect.z && (int)pos.y < __cursorRect.w) {
@@ -1141,7 +1142,7 @@ UINT GeneratePassSource(
 			if (mask.a < 0.5f){
 				color = mask.rgb;
 			} else {
-				color = (uint3(round(color * 255)) ^ uint3(mask.rgb * 255)) / 255.0f;
+				color = (uint3(round(color * 255.0f)) ^ uint3(mask.rgb * 255.001953f)) / 255.0f;
 			}
 		} else {
 			if( mask.x > 0.5f) {

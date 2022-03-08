@@ -28,14 +28,14 @@ SamplerState samplerLinearClamp;
 
 //!PASS 1
 //!IN INPUT, coef_scaler, coef_usm
-//!BLOCK_SIZE 32,24
+//!BLOCK_SIZE 32,32
 //!NUM_THREADS 256
 
 
 
 #pragma warning(disable: 4714)	// X4714: sum of temp registers and indexable temp registers times 256 threads exceeds the recommended total 16384.  Performance may be reduced
 
-#define kDetectRatio (2 * 1127.f / 1024.f)
+#define kDetectRatio (2.0f * 1127.f / 1024.f)
 #define kDetectThres (64.0f / 1024.0f)
 #define kEps (1.0f / 255.0f)
 #define kMinContrastRatio 2.0f
@@ -60,7 +60,7 @@ SamplerState samplerLinearClamp;
 #define NIS_SCALE_INT 1
 
 #define NIS_BLOCK_WIDTH 32
-#define NIS_BLOCK_HEIGHT 24
+#define NIS_BLOCK_HEIGHT 32
 #define NIS_THREAD_GROUP_SIZE 256
 #define kPhaseCount  64
 #define kFilterSize  6
