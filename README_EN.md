@@ -63,7 +63,7 @@ You need to manually type in your preferred hot keys (concatenate multiple keys 
 
 1. Windows 10/11
 2. DirectX feature level 10
-3. [.NET 6 Desktop Runtime](https://dotnet.microsoft.com/en-us/download/dotnet/6.0)
+3. [.NET 6 Desktop Runtime](https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/runtime-desktop-6.0.2-windows-x64-installer)
 4. [MSVC 2015-2022 Runtime](https://docs.microsoft.com/cpp/windows/latest-supported-vc-redist)
 
 ## Hints
@@ -102,4 +102,4 @@ Thanks go to these wonderful people ([emoji key](https://allcontributors.org/doc
 
 <!-- ALL-CONTRIBUTORS-LIST:END -->
 
-This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) format. We welcome any form of contribution!
+This project follows the [all-contributors](https://allcontributors.org/) specification. Contributions of any kind are welcome!
