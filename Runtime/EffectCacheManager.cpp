@@ -18,7 +18,7 @@ static constexpr const size_t MAX_CACHE_COUNT = 128;
 
 // 缓存版本
 // 当缓存文件结构有更改时将更新它，使得所有旧缓存失效
-static constexpr const UINT CACHE_VERSION = 4;
+static constexpr const UINT CACHE_VERSION = 5;
 
 // 缓存的压缩等级
 static constexpr const int CACHE_COMPRESSION_LEVEL = 1;
