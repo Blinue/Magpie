@@ -20,7 +20,7 @@ bool GDIFrameSource::Initialize() {
 
 	double a, bx, by;
 	if (_GetMapToOriginDPI(hwndSrc, a, bx, by)) {
-		Logger::Get().Error(fmt::format("源窗口 DPI 缩放为 {}", 1 / a));
+		Logger::Get().Info(fmt::format("源窗口 DPI 缩放为 {}", 1 / a));
 
 		_frameRect = {
 			std::lround(_srcFrameRect.left * a + bx),
@@ -55,20 +55,16 @@ bool GDIFrameSource::Initialize() {
 		return false;
 	}
 
-	D3D11_TEXTURE2D_DESC desc{};
-	desc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
-	desc.Width = _frameRect.right - _frameRect.left;
-	desc.Height = _frameRect.bottom - _frameRect.top;
-	desc.Usage = D3D11_USAGE_DEFAULT;
-	desc.MipLevels = 1;
-	desc.ArraySize = 1;
-	desc.SampleDesc.Count = 1;
-	desc.SampleDesc.Quality = 0;
-	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
-	desc.MiscFlags = D3D11_RESOURCE_MISC_GDI_COMPATIBLE;
-	HRESULT hr = App::Get().GetDeviceResources().GetD3DDevice()->CreateTexture2D(&desc, nullptr, _output.put());
-	if (FAILED(hr)) {
-		Logger::Get().ComError("创建 Texture2D 失败", hr);
+	_output = App::Get().GetDeviceResources().CreateTexture2D(
+		DXGI_FORMAT_B8G8R8A8_UNORM,
+		_frameRect.right - _frameRect.left,
+		_frameRect.bottom - _frameRect.top,
+		D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET,
+		D3D11_USAGE_DEFAULT,
+		D3D11_RESOURCE_MISC_GDI_COMPATIBLE
+	);
+	if (!_output) {
+		Logger::Get().Error("创建纹理失败");
 		return false;
 	}
 

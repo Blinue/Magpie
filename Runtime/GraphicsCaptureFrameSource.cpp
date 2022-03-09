@@ -133,18 +133,14 @@ bool GraphicsCaptureFrameSource::Initialize() {
 		return false;
 	}
 
-	D3D11_TEXTURE2D_DESC desc{};
-	desc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
-	desc.Width = _frameBox.right - _frameBox.left;
-	desc.Height = _frameBox.bottom - _frameBox.top;
-	desc.MipLevels = 1;
-	desc.ArraySize = 1;
-	desc.SampleDesc.Count = 1;
-	desc.SampleDesc.Quality = 0;
-	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
-	hr = App::Get().GetDeviceResources().GetD3DDevice()->CreateTexture2D(&desc, nullptr, _output.put());
-	if (FAILED(hr)) {
-		Logger::Get().ComError("创建 Texture2D 失败", hr);
+	_output = App::Get().GetDeviceResources().CreateTexture2D(
+		DXGI_FORMAT_B8G8R8A8_UNORM,
+		_frameBox.right - _frameBox.left,
+		_frameBox.bottom - _frameBox.top,
+		D3D11_BIND_SHADER_RESOURCE
+	);
+	if (!_output) {
+		Logger::Get().Error("创建纹理失败");
 		return false;
 	}
 

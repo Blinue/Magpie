@@ -212,6 +212,37 @@ bool DeviceResources::IsDebugLayersAvailable() {
 #endif
 }
 
+winrt::com_ptr<ID3D11Texture2D> DeviceResources::CreateTexture2D(
+	DXGI_FORMAT format,
+	UINT width,
+	UINT height,
+	UINT bindFlags,
+	D3D11_USAGE usage,
+	UINT miscFlags,
+	const D3D11_SUBRESOURCE_DATA* pInitialData
+) {
+	D3D11_TEXTURE2D_DESC desc{};
+	desc.Format = format;
+	desc.Width = width;
+	desc.Height = height;
+	desc.MipLevels = 1;
+	desc.ArraySize = 1;
+	desc.SampleDesc.Count = 1;
+	desc.SampleDesc.Quality = 0;
+	desc.BindFlags = bindFlags;
+	desc.Usage = usage;
+	desc.MiscFlags = miscFlags;
+
+	winrt::com_ptr<ID3D11Texture2D> result;
+	HRESULT hr = _d3dDevice->CreateTexture2D(&desc, pInitialData, result.put());
+	if (FAILED(hr)) {
+		Logger::Get().ComError("CreateTexture2D 失败", hr);
+		return nullptr;
+	}
+
+	return result;
+}
+
 void DeviceResources::BeginFrame() {
 	WaitForSingleObjectEx(_frameLatencyWaitableObject.get(), 1000, TRUE);
 	_d3dDC->ClearState();

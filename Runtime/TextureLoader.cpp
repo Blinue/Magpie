@@ -798,25 +798,21 @@ winrt::com_ptr<ID3D11Texture2D> LoadImg(const wchar_t* fileName) {
 		return nullptr;
 	}
 
-	D3D11_TEXTURE2D_DESC desc{};
-	desc.Width = width;
-	desc.Height = height;
-	desc.MipLevels = 1;
-	desc.ArraySize = 1;
-	desc.Format = useFloatFormat ? DXGI_FORMAT_R16G16B16A16_FLOAT : DXGI_FORMAT_R8G8B8A8_UNORM;
-	desc.SampleDesc.Count = 1;
-	desc.SampleDesc.Quality = 0;
-	desc.Usage = D3D11_USAGE_DEFAULT;
-	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
-
 	D3D11_SUBRESOURCE_DATA initData{};
 	initData.pSysMem = buf.get();
 	initData.SysMemPitch = stride;
 
-	winrt::com_ptr<ID3D11Texture2D> result;
-	hr = App::Get().GetDeviceResources().GetD3DDevice()->CreateTexture2D(&desc, &initData, result.put());
-	if (FAILED(hr)) {
-		Logger::Get().ComError("CreateTexture2D 失败", hr);
+	winrt::com_ptr<ID3D11Texture2D> result = App::Get().GetDeviceResources().CreateTexture2D(
+        useFloatFormat ? DXGI_FORMAT_R16G16B16A16_FLOAT : DXGI_FORMAT_R8G8B8A8_UNORM,
+        width,
+        height,
+        D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_UNORDERED_ACCESS,
+        D3D11_USAGE_DEFAULT,
+        0,
+        &initData
+    );
+	if (!result) {
+		Logger::Get().Error("创建纹理失败");
 		return nullptr;
 	}
 

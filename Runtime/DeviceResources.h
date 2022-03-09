@@ -13,6 +13,16 @@ public:
 
 	static bool IsDebugLayersAvailable();
 
+	winrt::com_ptr<ID3D11Texture2D> CreateTexture2D(
+		DXGI_FORMAT format,
+		UINT width,
+		UINT height,
+		UINT bindFlags,
+		D3D11_USAGE usage = D3D11_USAGE_DEFAULT,
+		UINT miscFlags = 0,
+		const D3D11_SUBRESOURCE_DATA* pInitialData = nullptr
+	);
+
 	bool GetSampler(D3D11_FILTER filterMode, D3D11_TEXTURE_ADDRESS_MODE addressMode, ID3D11SamplerState** result);
 
 	bool GetRenderTargetView(ID3D11Texture2D* texture, ID3D11RenderTargetView** result);
