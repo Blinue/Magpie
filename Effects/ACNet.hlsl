@@ -42,6 +42,8 @@ SamplerState sam;
 
 //!COMMON
 
+#pragma warning(disable: 4714)	// X4714: sum of temp registers and indexable temp registers times 256 threads exceeds the recommended total 16384.  Performance may be reduced
+
 #define RELU(x) max(x, 0)
 
 

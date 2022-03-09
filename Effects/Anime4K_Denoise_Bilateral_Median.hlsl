@@ -48,6 +48,8 @@ float gaussian(float x, float s, float m) {
 }
 
 float3 getMedian(float3 v[KERNELLEN], float w[KERNELLEN], float n) {
+	float3 result = float3(0, 0, 0);
+
 	[unroll]
 	for (uint i = 0; i < KERNELLEN; i++) {
 		float w_above = 0.0;
@@ -62,11 +64,12 @@ float3 getMedian(float3 v[KERNELLEN], float w[KERNELLEN], float n) {
 		}
 
 		if ((n - w_above) / n >= 0.5 && w_below / n <= 0.5) {
-			return v[i];
+			result = v[i];
+			break;
 		}
 	}
 
-	return float3(0, 0, 0);
+	return result;
 }
 
 void Pass1(uint2 blockStart, uint3 threadId) {

@@ -1014,6 +1014,74 @@ UINT ResolvePasses(
 	return 0;
 }
 
+UINT GetChannelCount(EffectIntermediateTextureFormat format) {
+	switch (format) {
+	case EffectIntermediateTextureFormat::R32G32B32A32_FLOAT:
+	case EffectIntermediateTextureFormat::R16G16B16A16_FLOAT:
+	case EffectIntermediateTextureFormat::R16G16B16A16_UNORM:
+	case EffectIntermediateTextureFormat::R10G10B10A2_UNORM:
+	case EffectIntermediateTextureFormat::R8G8B8A8_UNORM:
+	case EffectIntermediateTextureFormat::R16G16B16A16_SNORM:
+	case EffectIntermediateTextureFormat::R8G8B8A8_SNORM:
+		return 4;
+	case EffectIntermediateTextureFormat::R11G11B10_FLOAT:
+		return 3;
+	case EffectIntermediateTextureFormat::R32G32_FLOAT:
+	case EffectIntermediateTextureFormat::R16G16_FLOAT:
+	case EffectIntermediateTextureFormat::R16G16_UNORM:
+	case EffectIntermediateTextureFormat::R8G8_UNORM:
+	case EffectIntermediateTextureFormat::R16G16_SNORM:
+	case EffectIntermediateTextureFormat::R8G8_SNORM:
+		return 2;
+	case EffectIntermediateTextureFormat::R32_FLOAT:
+	case EffectIntermediateTextureFormat::R16_FLOAT:
+	case EffectIntermediateTextureFormat::R16_UNORM:
+	case EffectIntermediateTextureFormat::R8_UNORM:
+	case EffectIntermediateTextureFormat::R16_SNORM:
+	case EffectIntermediateTextureFormat::R8_SNORM:
+		return 1;
+	default:
+		return 4;
+	}
+}
+
+const char* GetTexelType(EffectIntermediateTextureFormat format) {
+	switch (format) {
+	case EffectIntermediateTextureFormat::R32G32B32A32_FLOAT:
+	case EffectIntermediateTextureFormat::R16G16B16A16_FLOAT:
+		return "float4";
+	case EffectIntermediateTextureFormat::R16G16B16A16_UNORM:
+	case EffectIntermediateTextureFormat::R10G10B10A2_UNORM:
+	case EffectIntermediateTextureFormat::R8G8B8A8_UNORM:
+		return "unorm float4";
+	case EffectIntermediateTextureFormat::R16G16B16A16_SNORM:
+	case EffectIntermediateTextureFormat::R8G8B8A8_SNORM:
+		return "snorm float4";
+	case EffectIntermediateTextureFormat::R11G11B10_FLOAT:
+		return "float3";
+	case EffectIntermediateTextureFormat::R32G32_FLOAT:
+	case EffectIntermediateTextureFormat::R16G16_FLOAT:
+		return "float2";
+	case EffectIntermediateTextureFormat::R16G16_UNORM:
+	case EffectIntermediateTextureFormat::R8G8_UNORM:
+		return "unorm float2";
+	case EffectIntermediateTextureFormat::R16G16_SNORM:
+	case EffectIntermediateTextureFormat::R8G8_SNORM:
+		return "snorm float2";
+	case EffectIntermediateTextureFormat::R32_FLOAT:
+	case EffectIntermediateTextureFormat::R16_FLOAT:
+		return "float";
+	case EffectIntermediateTextureFormat::R16_UNORM:
+	case EffectIntermediateTextureFormat::R8_UNORM:
+		return "unorm float";
+	case EffectIntermediateTextureFormat::R16_SNORM:
+	case EffectIntermediateTextureFormat::R8_SNORM:
+		return "snorm float";
+	default:
+		return "float4";
+	}
+}
+
 UINT GeneratePassSource(
 	const EffectDesc& desc,
 	UINT passIdx,
@@ -1050,7 +1118,8 @@ UINT GeneratePassSource(
 	
 	// SRV
 	for (int i = 0; i < passDesc.inputs.size(); ++i) {
-		result.append(fmt::format("Texture2D {} : register(t{});\n", desc.textures[passDesc.inputs[i]].name, i));
+		auto& texDesc = desc.textures[passDesc.inputs[i]];
+		result.append(fmt::format("Texture2D<{}> {} : register(t{});\n", GetTexelType(texDesc.format), texDesc.name, i));
 	}
 
 	if (isLastEffect && isLastPass) {
@@ -1063,14 +1132,15 @@ UINT GeneratePassSource(
 			return 1;
 		}
 
-		result.append("RWTexture2D<float4> __OUTPUT : register(u0);\n");
+		result.append("RWTexture2D<unorm float4> __OUTPUT : register(u0);\n");
 	} else {
 		if (isLastPass) {
 			return 1;
 		}
 
 		for (int i = 0; i < passDesc.outputs.size(); ++i) {
-			result.append(fmt::format("RWTexture2D<float4> {} : register(u{});\n", desc.textures[passDesc.outputs[i]].name, i));
+			auto& texDesc = desc.textures[passDesc.outputs[i]];
+			result.append(fmt::format("RWTexture2D<{}> {} : register(u{});\n", GetTexelType(texDesc.format), texDesc.name, i));
 		}
 	}
 
@@ -1283,7 +1353,8 @@ void __M(uint3 tid : SV_GroupThreadID, uint3 gid : SV_GroupID) {{
 	float2 step = 8 * __pass{0}OutputPt;
 )", passIdx));
 			for (int i = 0; i < passDesc.outputs.size(); ++i) {
-				result.append(fmt::format("\tfloat4 c{};\n", i));
+				result.append(fmt::format("\tfloat{} c{};\n",
+					GetChannelCount(desc.textures[passDesc.outputs[i]].format), i));
 			}
 
 			std::string callPass = fmt::format("\tPass{}(pos, ", passIdx);
