@@ -170,7 +170,7 @@ bool EffectDrawer::Initialize(
 	if (!_isLastEffect) {
 		// 创建输出纹理
 		D3D11_TEXTURE2D_DESC desc{};
-		desc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
+		desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 		desc.Width = outputSize.cx;
 		desc.Height = outputSize.cy;
 		desc.Usage = D3D11_USAGE_DEFAULT;

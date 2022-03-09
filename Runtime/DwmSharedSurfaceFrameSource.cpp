@@ -67,7 +67,7 @@ bool DwmSharedSurfaceFrameSource::Initialize() {
 	desc.ArraySize = 1;
 	desc.SampleDesc.Count = 1;
 	desc.SampleDesc.Quality = 0;
-	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_UNORDERED_ACCESS;
+	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
 	HRESULT hr = App::Get().GetDeviceResources().GetD3DDevice()->CreateTexture2D(&desc, nullptr, _output.put());
 	if (FAILED(hr)) {
 		Logger::Get().ComError("创建 Texture2D 失败", hr);

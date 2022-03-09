@@ -19,12 +19,12 @@ enum class EffectIntermediateTextureFormat {
 	R32G32_FLOAT,
 	R16G16B16A16_UNORM,
 	R16G16B16A16_FLOAT,
-	R32G32B32A32_FLOAT	// 功能级别 10.0 可能不支持采样
+	R32G32B32A32_FLOAT
 };
 
 struct EffectIntermediateTextureDesc {
 	std::pair<std::string, std::string> sizeExpr;
-	EffectIntermediateTextureFormat format = EffectIntermediateTextureFormat::B8G8R8A8_UNORM;
+	EffectIntermediateTextureFormat format = EffectIntermediateTextureFormat::R8G8B8A8_UNORM;
 	std::string name;
 	std::string source;
 

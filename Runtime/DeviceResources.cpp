@@ -231,7 +231,7 @@ bool DeviceResources::_CreateSwapChain() {
 	DXGI_SWAP_CHAIN_DESC1 sd = {};
 	sd.Width = hostWndRect.right - hostWndRect.left;
 	sd.Height = hostWndRect.bottom - hostWndRect.top;
-	sd.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
+	sd.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 	sd.AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED;
 	sd.SampleDesc.Count = 1;
 	sd.SampleDesc.Quality = 0;

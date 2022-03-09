@@ -117,7 +117,7 @@ bool DesktopDuplicationFrameSource::Initialize() {
 	desc.MipLevels = 1;
 	desc.ArraySize = 1;
 	desc.SampleDesc.Count = 1;
-	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_UNORDERED_ACCESS;
+	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
 	HRESULT hr = d3dDevice->CreateTexture2D(&desc, nullptr, _output.put());
 	if (FAILED(hr)) {
 		Logger::Get().ComError("创建 Texture2D 失败", hr);
