@@ -1154,7 +1154,7 @@ UINT GeneratePassSource(
 	}
 
 	if (isLastEffect && isLastPass) {
-		result.append(fmt::format("Texture2D<unorm float4> __CURSOR : register(t{});\n", passDesc.inputs.size()));
+		result.append(fmt::format("Texture2D<float4> __CURSOR : register(t{});\n", passDesc.inputs.size()));
 	}
 
 	// UAV
