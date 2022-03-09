@@ -562,27 +562,29 @@ UINT ResolveTexture(std::string_view block, EffectDesc& desc) {
 				return 1;
 			}
 
+			using enum EffectIntermediateTextureFormat;
+
 			static std::unordered_map<std::string, EffectIntermediateTextureFormat> formatMap = {
-				{"R32G32B32A32_FLOAT", EffectIntermediateTextureFormat::R32G32B32A32_FLOAT},
-				{"R16G16B16A16_FLOAT", EffectIntermediateTextureFormat::R16G16B16A16_FLOAT},
-				{"R16G16B16A16_UNORM", EffectIntermediateTextureFormat::R16G16B16A16_UNORM},
-				{"R16G16B16A16_SNORM", EffectIntermediateTextureFormat::R16G16B16A16_SNORM},
-				{"R32G32_FLOAT", EffectIntermediateTextureFormat::R32G32_FLOAT},
-				{"R10G10B10A2_UNORM", EffectIntermediateTextureFormat::R10G10B10A2_UNORM},
-				{"R11G11B10_FLOAT", EffectIntermediateTextureFormat::R11G11B10_FLOAT},
-				{"R8G8B8A8_UNORM", EffectIntermediateTextureFormat::R8G8B8A8_UNORM},
-				{"R8G8B8A8_SNORM", EffectIntermediateTextureFormat::R8G8B8A8_SNORM},
-				{"R16G16_FLOAT", EffectIntermediateTextureFormat::R16G16_FLOAT},
-				{"R16G16_UNORM", EffectIntermediateTextureFormat::R16G16_UNORM},
-				{"R16G16_SNORM", EffectIntermediateTextureFormat::R16G16_SNORM},
-				{"R32_FLOAT", EffectIntermediateTextureFormat::R32_FLOAT},
-				{"R8G8_UNORM", EffectIntermediateTextureFormat::R8G8_UNORM},
-				{"R8G8_SNORM", EffectIntermediateTextureFormat::R8G8_SNORM},
-				{"R16_FLOAT", EffectIntermediateTextureFormat::R16_FLOAT},
-				{"R16_UNORM", EffectIntermediateTextureFormat::R16_UNORM},
-				{"R16_SNORM", EffectIntermediateTextureFormat::R16_SNORM},
-				{"R8_UNORM", EffectIntermediateTextureFormat::R8_UNORM},
-				{"R8_SNORM", EffectIntermediateTextureFormat::R8_SNORM}
+				{"R32G32B32A32_FLOAT", R32G32B32A32_FLOAT},
+				{"R16G16B16A16_FLOAT", R16G16B16A16_FLOAT},
+				{"R16G16B16A16_UNORM", R16G16B16A16_UNORM},
+				{"R16G16B16A16_SNORM", R16G16B16A16_SNORM},
+				{"R32G32_FLOAT", R32G32_FLOAT},
+				{"R10G10B10A2_UNORM", R10G10B10A2_UNORM},
+				{"R11G11B10_FLOAT", R11G11B10_FLOAT},
+				{"R8G8B8A8_UNORM", R8G8B8A8_UNORM},
+				{"R8G8B8A8_SNORM", R8G8B8A8_SNORM},
+				{"R16G16_FLOAT", R16G16_FLOAT},
+				{"R16G16_UNORM", R16G16_UNORM},
+				{"R16G16_SNORM", R16G16_SNORM},
+				{"R32_FLOAT", R32_FLOAT},
+				{"R8G8_UNORM", R8G8_UNORM},
+				{"R8G8_SNORM", R8G8_SNORM},
+				{"R16_FLOAT", R16_FLOAT},
+				{"R16_UNORM", R16_UNORM},
+				{"R16_SNORM", R16_SNORM},
+				{"R8_UNORM", R8_UNORM},
+				{"R8_SNORM", R8_SNORM}
 				// UNKNOWN 不可用
 			};
 
@@ -1015,30 +1017,32 @@ UINT ResolvePasses(
 }
 
 static UINT GetChannelCount(EffectIntermediateTextureFormat format) {
+	using enum EffectIntermediateTextureFormat;
+
 	switch (format) {
-	case EffectIntermediateTextureFormat::R32G32B32A32_FLOAT:
-	case EffectIntermediateTextureFormat::R16G16B16A16_FLOAT:
-	case EffectIntermediateTextureFormat::R16G16B16A16_UNORM:
-	case EffectIntermediateTextureFormat::R10G10B10A2_UNORM:
-	case EffectIntermediateTextureFormat::R8G8B8A8_UNORM:
-	case EffectIntermediateTextureFormat::R16G16B16A16_SNORM:
-	case EffectIntermediateTextureFormat::R8G8B8A8_SNORM:
+	case R32G32B32A32_FLOAT:
+	case R16G16B16A16_FLOAT:
+	case R16G16B16A16_UNORM:
+	case R10G10B10A2_UNORM:
+	case R8G8B8A8_UNORM:
+	case R16G16B16A16_SNORM:
+	case R8G8B8A8_SNORM:
 		return 4;
-	case EffectIntermediateTextureFormat::R11G11B10_FLOAT:
+	case R11G11B10_FLOAT:
 		return 3;
-	case EffectIntermediateTextureFormat::R32G32_FLOAT:
-	case EffectIntermediateTextureFormat::R16G16_FLOAT:
-	case EffectIntermediateTextureFormat::R16G16_UNORM:
-	case EffectIntermediateTextureFormat::R8G8_UNORM:
-	case EffectIntermediateTextureFormat::R16G16_SNORM:
-	case EffectIntermediateTextureFormat::R8G8_SNORM:
+	case R32G32_FLOAT:
+	case R16G16_FLOAT:
+	case R16G16_UNORM:
+	case R8G8_UNORM:
+	case R16G16_SNORM:
+	case R8G8_SNORM:
 		return 2;
-	case EffectIntermediateTextureFormat::R32_FLOAT:
-	case EffectIntermediateTextureFormat::R16_FLOAT:
-	case EffectIntermediateTextureFormat::R16_UNORM:
-	case EffectIntermediateTextureFormat::R8_UNORM:
-	case EffectIntermediateTextureFormat::R16_SNORM:
-	case EffectIntermediateTextureFormat::R8_SNORM:
+	case R32_FLOAT:
+	case R16_FLOAT:
+	case R16_UNORM:
+	case R8_UNORM:
+	case R16_SNORM:
+	case R8_SNORM:
 		return 1;
 	default:
 		return 4;
@@ -1046,30 +1050,32 @@ static UINT GetChannelCount(EffectIntermediateTextureFormat format) {
 }
 
 static const char* GetSRVTexelType(EffectIntermediateTextureFormat format) {
+	using enum EffectIntermediateTextureFormat;
+
 	switch (format) {
-	case EffectIntermediateTextureFormat::R32G32B32A32_FLOAT:
-	case EffectIntermediateTextureFormat::R16G16B16A16_FLOAT:
-	case EffectIntermediateTextureFormat::R16G16B16A16_UNORM:
-	case EffectIntermediateTextureFormat::R10G10B10A2_UNORM:
-	case EffectIntermediateTextureFormat::R8G8B8A8_UNORM:
-	case EffectIntermediateTextureFormat::R16G16B16A16_SNORM:
-	case EffectIntermediateTextureFormat::R8G8B8A8_SNORM:
+	case R32G32B32A32_FLOAT:
+	case R16G16B16A16_FLOAT:
+	case R16G16B16A16_UNORM:
+	case R10G10B10A2_UNORM:
+	case R8G8B8A8_UNORM:
+	case R16G16B16A16_SNORM:
+	case R8G8B8A8_SNORM:
 		return "float4";
-	case EffectIntermediateTextureFormat::R11G11B10_FLOAT:
+	case R11G11B10_FLOAT:
 		return "float3";
-	case EffectIntermediateTextureFormat::R32G32_FLOAT:
-	case EffectIntermediateTextureFormat::R16G16_FLOAT:
-	case EffectIntermediateTextureFormat::R16G16_UNORM:
-	case EffectIntermediateTextureFormat::R8G8_UNORM:
-	case EffectIntermediateTextureFormat::R16G16_SNORM:
-	case EffectIntermediateTextureFormat::R8G8_SNORM:
+	case R32G32_FLOAT:
+	case R16G16_FLOAT:
+	case R16G16_UNORM:
+	case R8G8_UNORM:
+	case R16G16_SNORM:
+	case R8G8_SNORM:
 		return "float2";
-	case EffectIntermediateTextureFormat::R32_FLOAT:
-	case EffectIntermediateTextureFormat::R16_FLOAT:
-	case EffectIntermediateTextureFormat::R16_UNORM:
-	case EffectIntermediateTextureFormat::R8_UNORM:
-	case EffectIntermediateTextureFormat::R16_SNORM:
-	case EffectIntermediateTextureFormat::R8_SNORM:
+	case R32_FLOAT:
+	case R16_FLOAT:
+	case R16_UNORM:
+	case R8_UNORM:
+	case R16_SNORM:
+	case R8_SNORM:
 		return "float";
 	default:
 		return "float4";
@@ -1077,36 +1083,38 @@ static const char* GetSRVTexelType(EffectIntermediateTextureFormat format) {
 }
 
 static const char* GetUAVTexelType(EffectIntermediateTextureFormat format) {
+	using enum EffectIntermediateTextureFormat;
+
 	switch (format) {
-	case EffectIntermediateTextureFormat::R32G32B32A32_FLOAT:
-	case EffectIntermediateTextureFormat::R16G16B16A16_FLOAT:
+	case R32G32B32A32_FLOAT:
+	case R16G16B16A16_FLOAT:
 		return "float4";
-	case EffectIntermediateTextureFormat::R16G16B16A16_UNORM:
-	case EffectIntermediateTextureFormat::R10G10B10A2_UNORM:
-	case EffectIntermediateTextureFormat::R8G8B8A8_UNORM:
+	case R16G16B16A16_UNORM:
+	case R10G10B10A2_UNORM:
+	case R8G8B8A8_UNORM:
 		return "unorm float4";
-	case EffectIntermediateTextureFormat::R16G16B16A16_SNORM:
-	case EffectIntermediateTextureFormat::R8G8B8A8_SNORM:
+	case R16G16B16A16_SNORM:
+	case R8G8B8A8_SNORM:
 		return "snorm float4";
-	case EffectIntermediateTextureFormat::R11G11B10_FLOAT:
+	case R11G11B10_FLOAT:
 		return "float3";
-	case EffectIntermediateTextureFormat::R32G32_FLOAT:
-	case EffectIntermediateTextureFormat::R16G16_FLOAT:
+	case R32G32_FLOAT:
+	case R16G16_FLOAT:
 		return "float2";
-	case EffectIntermediateTextureFormat::R16G16_UNORM:
-	case EffectIntermediateTextureFormat::R8G8_UNORM:
+	case R16G16_UNORM:
+	case R8G8_UNORM:
 		return "unorm float2";
-	case EffectIntermediateTextureFormat::R16G16_SNORM:
-	case EffectIntermediateTextureFormat::R8G8_SNORM:
+	case R16G16_SNORM:
+	case R8G8_SNORM:
 		return "snorm float2";
-	case EffectIntermediateTextureFormat::R32_FLOAT:
-	case EffectIntermediateTextureFormat::R16_FLOAT:
+	case R32_FLOAT:
+	case R16_FLOAT:
 		return "float";
-	case EffectIntermediateTextureFormat::R16_UNORM:
-	case EffectIntermediateTextureFormat::R8_UNORM:
+	case R16_UNORM:
+	case R8_UNORM:
 		return "unorm float";
-	case EffectIntermediateTextureFormat::R16_SNORM:
-	case EffectIntermediateTextureFormat::R8_SNORM:
+	case R16_SNORM:
+	case R8_SNORM:
 		return "snorm float";
 	default:
 		return "float4";
