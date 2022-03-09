@@ -80,7 +80,7 @@ float3 FxaaLerp3(float3 a, float3 b, float amountOfA) {
 }
 
 
-float3 FXAA(float3 src[4][4], uint i, uint j, Texture2D<unorm float4> INPUT, SamplerState sam, float2 pos, float2 inputPt) {
+float3 FXAA(float3 src[4][4], uint i, uint j, Texture2D<float4> INPUT, SamplerState sam, float2 pos, float2 inputPt) {
 	float lumaN = FxaaLuma(src[i][j - 1]);
 	float lumaW = FxaaLuma(src[i - 1][j]);
 	float lumaM = FxaaLuma(src[i][j]);

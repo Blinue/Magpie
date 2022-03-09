@@ -1014,7 +1014,7 @@ UINT ResolvePasses(
 	return 0;
 }
 
-UINT GetChannelCount(EffectIntermediateTextureFormat format) {
+static UINT GetChannelCount(EffectIntermediateTextureFormat format) {
 	switch (format) {
 	case EffectIntermediateTextureFormat::R32G32B32A32_FLOAT:
 	case EffectIntermediateTextureFormat::R16G16B16A16_FLOAT:
@@ -1045,7 +1045,38 @@ UINT GetChannelCount(EffectIntermediateTextureFormat format) {
 	}
 }
 
-const char* GetTexelType(EffectIntermediateTextureFormat format) {
+static const char* GetSRVTexelType(EffectIntermediateTextureFormat format) {
+	switch (format) {
+	case EffectIntermediateTextureFormat::R32G32B32A32_FLOAT:
+	case EffectIntermediateTextureFormat::R16G16B16A16_FLOAT:
+	case EffectIntermediateTextureFormat::R16G16B16A16_UNORM:
+	case EffectIntermediateTextureFormat::R10G10B10A2_UNORM:
+	case EffectIntermediateTextureFormat::R8G8B8A8_UNORM:
+	case EffectIntermediateTextureFormat::R16G16B16A16_SNORM:
+	case EffectIntermediateTextureFormat::R8G8B8A8_SNORM:
+		return "float4";
+	case EffectIntermediateTextureFormat::R11G11B10_FLOAT:
+		return "float3";
+	case EffectIntermediateTextureFormat::R32G32_FLOAT:
+	case EffectIntermediateTextureFormat::R16G16_FLOAT:
+	case EffectIntermediateTextureFormat::R16G16_UNORM:
+	case EffectIntermediateTextureFormat::R8G8_UNORM:
+	case EffectIntermediateTextureFormat::R16G16_SNORM:
+	case EffectIntermediateTextureFormat::R8G8_SNORM:
+		return "float2";
+	case EffectIntermediateTextureFormat::R32_FLOAT:
+	case EffectIntermediateTextureFormat::R16_FLOAT:
+	case EffectIntermediateTextureFormat::R16_UNORM:
+	case EffectIntermediateTextureFormat::R8_UNORM:
+	case EffectIntermediateTextureFormat::R16_SNORM:
+	case EffectIntermediateTextureFormat::R8_SNORM:
+		return "float";
+	default:
+		return "float4";
+	}
+}
+
+static const char* GetUAVTexelType(EffectIntermediateTextureFormat format) {
 	switch (format) {
 	case EffectIntermediateTextureFormat::R32G32B32A32_FLOAT:
 	case EffectIntermediateTextureFormat::R16G16B16A16_FLOAT:
@@ -1119,7 +1150,7 @@ UINT GeneratePassSource(
 	// SRV
 	for (int i = 0; i < passDesc.inputs.size(); ++i) {
 		auto& texDesc = desc.textures[passDesc.inputs[i]];
-		result.append(fmt::format("Texture2D<{}> {} : register(t{});\n", GetTexelType(texDesc.format), texDesc.name, i));
+		result.append(fmt::format("Texture2D<{}> {} : register(t{});\n", GetSRVTexelType(texDesc.format), texDesc.name, i));
 	}
 
 	if (isLastEffect && isLastPass) {
@@ -1140,7 +1171,7 @@ UINT GeneratePassSource(
 
 		for (int i = 0; i < passDesc.outputs.size(); ++i) {
 			auto& texDesc = desc.textures[passDesc.outputs[i]];
-			result.append(fmt::format("RWTexture2D<{}> {} : register(u{});\n", GetTexelType(texDesc.format), texDesc.name, i));
+			result.append(fmt::format("RWTexture2D<{}> {} : register(u{});\n", GetUAVTexelType(texDesc.format), texDesc.name, i));
 		}
 	}
 
