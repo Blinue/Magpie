@@ -899,6 +899,11 @@ UINT ResolvePasses(
 						return 1;
 					}
 
+					if (it->second == 0 || !desc.textures[it->second].source.empty()) {
+						// INPUT 和从文件读取的纹理不能作为输出
+						return 1;
+					}
+
 					passDesc.outputs.push_back(it->second);
 					texNames.erase(it);
 				}
@@ -1580,8 +1585,7 @@ UINT EffectCompiler::Compile(
 	}
 
 	// 纹理第一个元素为 INPUT
-	EffectIntermediateTextureDesc& inputTex = desc.textures.emplace_back();
-	inputTex.name = "INPUT";
+	desc.textures.emplace_back().name = "INPUT";
 	for (size_t i = 0; i < textureBlocks.size(); ++i) {
 		if (ResolveTexture(textureBlocks[i], desc)) {
 			Logger::Get().Error(fmt::format("解析 Texture#{} 块失败", i + 1));
