@@ -542,7 +542,7 @@ UINT ResolveTexture(std::string_view block, EffectDesc& desc) {
 		std::string t = StrUtils::ToUpperCase(token);
 
 		if (t == "SOURCE") {
-			if (processed.any()) {
+			if (processed[0] || processed[2] || processed[3]) {
 				return 1;
 			}
 			processed[0] = true;
@@ -553,7 +553,7 @@ UINT ResolveTexture(std::string_view block, EffectDesc& desc) {
 
 			texDesc.source = token;
 		} else if (t == "FORMAT") {
-			if (processed[0] || processed[1]) {
+			if (processed[1]) {
 				return 1;
 			}
 			processed[1] = true;
@@ -583,6 +583,7 @@ UINT ResolveTexture(std::string_view block, EffectDesc& desc) {
 				{"R16_SNORM", EffectIntermediateTextureFormat::R16_SNORM},
 				{"R8_UNORM", EffectIntermediateTextureFormat::R8_UNORM},
 				{"R8_SNORM", EffectIntermediateTextureFormat::R8_SNORM}
+				// UNKNOWN 不可用
 			};
 
 			auto it = formatMap.find(std::string(token));
@@ -636,11 +637,6 @@ UINT ResolveTexture(std::string_view block, EffectDesc& desc) {
 		// INPUT 已为第一个元素
 		desc.textures.pop_back();
 	} else {
-		// 否则 FORMAT 和 SOURCE 必须二选一
-		if (processed[0] == processed[1]) {
-			return 1;
-		}
-
 		texDesc.name = token;
 	}
 
@@ -1058,7 +1054,7 @@ UINT GeneratePassSource(
 	}
 
 	if (isLastEffect && isLastPass) {
-		result.append(fmt::format("Texture2D __CURSOR : register(t{});\n", passDesc.inputs.size()));
+		result.append(fmt::format("Texture2D<unorm float4> __CURSOR : register(t{});\n", passDesc.inputs.size()));
 	}
 
 	// UAV
@@ -1589,7 +1585,14 @@ UINT EffectCompiler::Compile(
 	}
 
 	// 纹理第一个元素为 INPUT
-	desc.textures.emplace_back().name = "INPUT";
+	{
+		auto& texDesc = desc.textures.emplace_back();
+		texDesc.name = "INPUT";
+		texDesc.format = EffectIntermediateTextureFormat::R8G8B8A8_UNORM;
+		texDesc.sizeExpr.first = "INPUT_WIDTH";
+		texDesc.sizeExpr.second = "INPUT_HEIGHT";
+	}
+	
 	for (size_t i = 0; i < textureBlocks.size(); ++i) {
 		if (ResolveTexture(textureBlocks[i], desc)) {
 			Logger::Get().Error(fmt::format("解析 Texture#{} 块失败", i + 1));

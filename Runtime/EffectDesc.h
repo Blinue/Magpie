@@ -24,15 +24,16 @@ enum class EffectIntermediateTextureFormat {
 	R16_SNORM,
 	R8_UNORM,
 	R8_SNORM,
+	UNKNOWN
 };
 
 struct EffectIntermediateTextureDesc {
 	std::pair<std::string, std::string> sizeExpr;
-	EffectIntermediateTextureFormat format = EffectIntermediateTextureFormat::R8G8B8A8_UNORM;
+	EffectIntermediateTextureFormat format = EffectIntermediateTextureFormat::UNKNOWN;
 	std::string name;
 	std::string source;
 
-	inline static const DXGI_FORMAT DXGI_FORMAT_MAP[20] {
+	inline static const DXGI_FORMAT DXGI_FORMAT_MAP[] {
 		DXGI_FORMAT_R32G32B32A32_FLOAT,
 		DXGI_FORMAT_R16G16B16A16_FLOAT,
 		DXGI_FORMAT_R16G16B16A16_UNORM,
@@ -52,7 +53,8 @@ struct EffectIntermediateTextureDesc {
 		DXGI_FORMAT_R16_UNORM,
 		DXGI_FORMAT_R16_SNORM,
 		DXGI_FORMAT_R8_UNORM,
-		DXGI_FORMAT_R8_SNORM
+		DXGI_FORMAT_R8_SNORM,
+		DXGI_FORMAT_UNKNOWN
 	};
 };
 

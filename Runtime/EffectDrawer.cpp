@@ -132,6 +132,17 @@ bool EffectDrawer::Initialize(
 				Logger::Get().Error(fmt::format("加载纹理 {} 失败", texDesc.source));
 				return false;
 			}
+
+			if (texDesc.format != EffectIntermediateTextureFormat::UNKNOWN) {
+				// 检查纹理格式是否匹配
+				D3D11_TEXTURE2D_DESC desc{};
+				_textures[i]->GetDesc(&desc);
+				if (desc.Format != EffectIntermediateTextureDesc::DXGI_FORMAT_MAP[(UINT)texDesc.format]) {
+					Logger::Get().Error("SOURCE 纹理格式不匹配");
+					return false;
+				}
+			}
+			
 		} else {
 			SIZE texSize{};
 			try {
