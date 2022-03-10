@@ -584,7 +584,7 @@ float2 SMAACalculateDiagWeights(Texture2D<float2> edgesTex, Texture2D<float4> ar
  * @PSEUDO_GATHER4), and adds 0, 1 or 2, depending on which edges and
  * crossing edges are active.
  */
-float SMAASearchLength(Texture2D<float4> searchTex, float2 e, float offset) {
+float SMAASearchLength(Texture2D<float> searchTex, float2 e, float offset) {
 	// The texture is flipped vertically, with left and right cases taking half
 	// of the space horizontally:
 	float2 scale = SMAA_SEARCHTEX_SIZE * float2(0.5, -1.0);
@@ -606,7 +606,7 @@ float SMAASearchLength(Texture2D<float4> searchTex, float2 e, float offset) {
 /**
  * Horizontal/vertical search functions for the 2nd pass.
  */
-float SMAASearchXLeft(Texture2D<float2> edgesTex, Texture2D<float4> searchTex, float2 texcoord, float end) {
+float SMAASearchXLeft(Texture2D<float2> edgesTex, Texture2D<float> searchTex, float2 texcoord, float end) {
 	/**
 	 * @PSEUDO_GATHER4
 	 * This texcoord has been offset by (-0.25, -0.125) in the vertex shader to
@@ -638,7 +638,7 @@ float SMAASearchXLeft(Texture2D<float2> edgesTex, Texture2D<float4> searchTex, f
 	// return mad(SMAA_RT_METRICS.x, offset, texcoord.x);
 }
 
-float SMAASearchXRight(Texture2D<float2> edgesTex, Texture2D<float4> searchTex, float2 texcoord, float end) {
+float SMAASearchXRight(Texture2D<float2> edgesTex, Texture2D<float> searchTex, float2 texcoord, float end) {
 	float2 e = float2(0.0, 1.0);
 	while (texcoord.x < end &&
 		e.g > 0.8281 && // Is there some edge not activated?
@@ -650,7 +650,7 @@ float SMAASearchXRight(Texture2D<float2> edgesTex, Texture2D<float4> searchTex, 
 	return mad(-SMAA_RT_METRICS.x, offset, texcoord.x);
 }
 
-float SMAASearchYUp(Texture2D<float2> edgesTex, Texture2D<float4> searchTex, float2 texcoord, float end) {
+float SMAASearchYUp(Texture2D<float2> edgesTex, Texture2D<float> searchTex, float2 texcoord, float end) {
 	float2 e = float2(1.0, 0.0);
 	while (texcoord.y > end &&
 		e.r > 0.8281 && // Is there some edge not activated?
@@ -662,7 +662,7 @@ float SMAASearchYUp(Texture2D<float2> edgesTex, Texture2D<float4> searchTex, flo
 	return mad(SMAA_RT_METRICS.y, offset, texcoord.y);
 }
 
-float SMAASearchYDown(Texture2D<float2> edgesTex, Texture2D<float4> searchTex, float2 texcoord, float end) {
+float SMAASearchYDown(Texture2D<float2> edgesTex, Texture2D<float> searchTex, float2 texcoord, float end) {
 	float2 e = float2(1.0, 0.0);
 	while (texcoord.y < end &&
 		e.r > 0.8281 && // Is there some edge not activated?
@@ -736,7 +736,7 @@ float4 SMAABlendingWeightCalculationPS(
 	float2 texcoord,
 	Texture2D<float2> edgesTex,
 	Texture2D<float4> areaTex,
-	Texture2D<float4> searchTex,
+	Texture2D<float> searchTex,
 	float4 subsampleIndices	// Just pass zero for SMAA 1x, see @SUBSAMPLE_INDICES.
 ) {
 	float2 pixcoord = texcoord * SMAA_RT_METRICS.zw;

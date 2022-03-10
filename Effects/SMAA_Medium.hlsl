@@ -19,10 +19,12 @@ Texture2D blendTex;
 
 //!TEXTURE
 //!SOURCE SMAA_AreaTex.dds
+//!FORMAT R8G8B8A8_UNORM
 Texture2D areaTex;
 
 //!TEXTURE
 //!SOURCE SMAA_SearchTex.dds
+//!FORMAT R8_UNORM
 Texture2D searchTex;
 
 //!SAMPLER
