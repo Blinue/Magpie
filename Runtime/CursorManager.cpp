@@ -459,9 +459,11 @@ bool CursorManager::_ResolveCursor(HCURSOR hCursor, bool resolveTexture) {
 		for (size_t i = 0; i < bi.bmiHeader.biSizeImage; i += 4) {
 			// 预乘 Alpha 通道
 			double alpha = pixels[i + 3] / 255.0f;
-			pixels[i + 0] = (BYTE)std::lround(pixels[i + 0] * alpha);
+
+			BYTE b = (BYTE)std::lround(pixels[i] * alpha);
+			pixels[i] = (BYTE)std::lround(pixels[i + 2] * alpha);
 			pixels[i + 1] = (BYTE)std::lround(pixels[i + 1] * alpha);
-			pixels[i + 2] = (BYTE)std::lround(pixels[i + 2] * alpha);
+			pixels[i + 2] = b;
 			
 			pixels[i + 3] = 255 - pixels[i + 3];
 		}
@@ -480,6 +482,7 @@ bool CursorManager::_ResolveCursor(HCURSOR hCursor, bool resolveTexture) {
 
 		// 将 XOR 掩码复制到透明通道中
 		for (size_t i = 0; i < bi.bmiHeader.biSizeImage; i += 4) {
+			std::swap(pixels[i], pixels[i + 2]);
 			pixels[i + 3] = maskPixels[i];
 		}
 	}
