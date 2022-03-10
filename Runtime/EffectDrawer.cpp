@@ -137,7 +137,7 @@ bool EffectDrawer::Initialize(
 				// 检查纹理格式是否匹配
 				D3D11_TEXTURE2D_DESC desc{};
 				_textures[i]->GetDesc(&desc);
-				if (desc.Format != EffectIntermediateTextureDesc::DXGI_FORMAT_MAP[(UINT)texDesc.format]) {
+				if (desc.Format != EffectIntermediateTextureDesc::FORMAT_DESCS[(UINT)texDesc.format].dxgiFormat) {
 					Logger::Get().Error("SOURCE 纹理格式不匹配");
 					return false;
 				}
@@ -161,7 +161,7 @@ bool EffectDrawer::Initialize(
 			}
 
 			_textures[i] = dr.CreateTexture2D(
-				EffectIntermediateTextureDesc::DXGI_FORMAT_MAP[(UINT)texDesc.format],
+				EffectIntermediateTextureDesc::FORMAT_DESCS[(UINT)texDesc.format].dxgiFormat,
 				texSize.cx,
 				texSize.cy,
 				D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_UNORDERED_ACCESS

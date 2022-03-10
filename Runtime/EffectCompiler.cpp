@@ -564,29 +564,14 @@ UINT ResolveTexture(std::string_view block, EffectDesc& desc) {
 
 			using enum EffectIntermediateTextureFormat;
 
-			static std::unordered_map<std::string, EffectIntermediateTextureFormat> formatMap = {
-				{"R32G32B32A32_FLOAT", R32G32B32A32_FLOAT},
-				{"R16G16B16A16_FLOAT", R16G16B16A16_FLOAT},
-				{"R16G16B16A16_UNORM", R16G16B16A16_UNORM},
-				{"R16G16B16A16_SNORM", R16G16B16A16_SNORM},
-				{"R32G32_FLOAT", R32G32_FLOAT},
-				{"R10G10B10A2_UNORM", R10G10B10A2_UNORM},
-				{"R11G11B10_FLOAT", R11G11B10_FLOAT},
-				{"R8G8B8A8_UNORM", R8G8B8A8_UNORM},
-				{"R8G8B8A8_SNORM", R8G8B8A8_SNORM},
-				{"R16G16_FLOAT", R16G16_FLOAT},
-				{"R16G16_UNORM", R16G16_UNORM},
-				{"R16G16_SNORM", R16G16_SNORM},
-				{"R32_FLOAT", R32_FLOAT},
-				{"R8G8_UNORM", R8G8_UNORM},
-				{"R8G8_SNORM", R8G8_SNORM},
-				{"R16_FLOAT", R16_FLOAT},
-				{"R16_UNORM", R16_UNORM},
-				{"R16_SNORM", R16_SNORM},
-				{"R8_UNORM", R8_UNORM},
-				{"R8_SNORM", R8_SNORM}
+			static auto formatMap = []() {
+				std::unordered_map<std::string, EffectIntermediateTextureFormat> result;
 				// UNKNOWN 不可用
-			};
+				for (UINT i = 0, end = (UINT)std::size(EffectIntermediateTextureDesc::FORMAT_DESCS) - 1; i < end; ++i) {
+					result.emplace(EffectIntermediateTextureDesc::FORMAT_DESCS[i].name, (EffectIntermediateTextureFormat)i);
+				}
+				return result;
+			}();
 
 			auto it = formatMap.find(std::string(token));
 			if (it == formatMap.end()) {
@@ -1016,110 +1001,6 @@ UINT ResolvePasses(
 	return 0;
 }
 
-static UINT GetChannelCount(EffectIntermediateTextureFormat format) {
-	using enum EffectIntermediateTextureFormat;
-
-	switch (format) {
-	case R32G32B32A32_FLOAT:
-	case R16G16B16A16_FLOAT:
-	case R16G16B16A16_UNORM:
-	case R10G10B10A2_UNORM:
-	case R8G8B8A8_UNORM:
-	case R16G16B16A16_SNORM:
-	case R8G8B8A8_SNORM:
-		return 4;
-	case R11G11B10_FLOAT:
-		return 3;
-	case R32G32_FLOAT:
-	case R16G16_FLOAT:
-	case R16G16_UNORM:
-	case R8G8_UNORM:
-	case R16G16_SNORM:
-	case R8G8_SNORM:
-		return 2;
-	case R32_FLOAT:
-	case R16_FLOAT:
-	case R16_UNORM:
-	case R8_UNORM:
-	case R16_SNORM:
-	case R8_SNORM:
-		return 1;
-	default:
-		return 4;
-	}
-}
-
-static const char* GetSRVTexelType(EffectIntermediateTextureFormat format) {
-	using enum EffectIntermediateTextureFormat;
-
-	switch (format) {
-	case R32G32B32A32_FLOAT:
-	case R16G16B16A16_FLOAT:
-	case R16G16B16A16_UNORM:
-	case R10G10B10A2_UNORM:
-	case R8G8B8A8_UNORM:
-	case R16G16B16A16_SNORM:
-	case R8G8B8A8_SNORM:
-		return "float4";
-	case R11G11B10_FLOAT:
-		return "float3";
-	case R32G32_FLOAT:
-	case R16G16_FLOAT:
-	case R16G16_UNORM:
-	case R8G8_UNORM:
-	case R16G16_SNORM:
-	case R8G8_SNORM:
-		return "float2";
-	case R32_FLOAT:
-	case R16_FLOAT:
-	case R16_UNORM:
-	case R8_UNORM:
-	case R16_SNORM:
-	case R8_SNORM:
-		return "float";
-	default:
-		return "float4";
-	}
-}
-
-static const char* GetUAVTexelType(EffectIntermediateTextureFormat format) {
-	using enum EffectIntermediateTextureFormat;
-
-	switch (format) {
-	case R32G32B32A32_FLOAT:
-	case R16G16B16A16_FLOAT:
-		return "float4";
-	case R16G16B16A16_UNORM:
-	case R10G10B10A2_UNORM:
-	case R8G8B8A8_UNORM:
-		return "unorm float4";
-	case R16G16B16A16_SNORM:
-	case R8G8B8A8_SNORM:
-		return "snorm float4";
-	case R11G11B10_FLOAT:
-		return "float3";
-	case R32G32_FLOAT:
-	case R16G16_FLOAT:
-		return "float2";
-	case R16G16_UNORM:
-	case R8G8_UNORM:
-		return "unorm float2";
-	case R16G16_SNORM:
-	case R8G8_SNORM:
-		return "snorm float2";
-	case R32_FLOAT:
-	case R16_FLOAT:
-		return "float";
-	case R16_UNORM:
-	case R8_UNORM:
-		return "unorm float";
-	case R16_SNORM:
-	case R8_SNORM:
-		return "snorm float";
-	default:
-		return "float4";
-	}
-}
 
 UINT GeneratePassSource(
 	const EffectDesc& desc,
@@ -1158,7 +1039,7 @@ UINT GeneratePassSource(
 	// SRV
 	for (int i = 0; i < passDesc.inputs.size(); ++i) {
 		auto& texDesc = desc.textures[passDesc.inputs[i]];
-		result.append(fmt::format("Texture2D<{}> {} : register(t{});\n", GetSRVTexelType(texDesc.format), texDesc.name, i));
+		result.append(fmt::format("Texture2D<{}> {} : register(t{});\n", EffectIntermediateTextureDesc::FORMAT_DESCS[(UINT)texDesc.format].srvTexelType, texDesc.name, i));
 	}
 
 	if (isLastEffect && isLastPass) {
@@ -1179,7 +1060,7 @@ UINT GeneratePassSource(
 
 		for (int i = 0; i < passDesc.outputs.size(); ++i) {
 			auto& texDesc = desc.textures[passDesc.outputs[i]];
-			result.append(fmt::format("RWTexture2D<{}> {} : register(u{});\n", GetUAVTexelType(texDesc.format), texDesc.name, i));
+			result.append(fmt::format("RWTexture2D<{}> {} : register(u{});\n", EffectIntermediateTextureDesc::FORMAT_DESCS[(UINT)texDesc.format].uavTexelType, texDesc.name, i));
 		}
 	}
 
@@ -1392,8 +1273,9 @@ void __M(uint3 tid : SV_GroupThreadID, uint3 gid : SV_GroupID) {{
 	float2 step = 8 * __pass{0}OutputPt;
 )", passIdx));
 			for (int i = 0; i < passDesc.outputs.size(); ++i) {
-				result.append(fmt::format("\tfloat{} c{};\n",
-					GetChannelCount(desc.textures[passDesc.outputs[i]].format), i));
+				auto& texDesc = desc.textures[passDesc.outputs[i]];
+				result.append(fmt::format("\t{} c{};\n",
+					EffectIntermediateTextureDesc::FORMAT_DESCS[(UINT)texDesc.format].srvTexelType, i));
 			}
 
 			std::string callPass = fmt::format("\tPass{}(pos, ", passIdx);
