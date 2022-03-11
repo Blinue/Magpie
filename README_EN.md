@@ -20,7 +20,7 @@ Please raise an issue if you are having trouble running the app.
 
 ## How to use the app
 
-![Screenshot](img/窗口截图.png)
+![Screenshot](img/Main_Window.png)
 
 The the window to be magnified is at foreground, you can press the hot keys to make it fullscreen. Pressing the hot keys again or shift another window to foreground will exit the fullscreen mode.
 
@@ -63,14 +63,14 @@ You need to manually type in your preferred hot keys (concatenate multiple keys 
 
 1. Windows 10/11
 2. DirectX feature level 10
-3. [.NET 6 Desktop Runtime](https://dotnet.microsoft.com/en-us/download/dotnet/6.0)
+3. [.NET 6 Desktop Runtime](https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/runtime-desktop-6.0.2-windows-x64-installer)
 4. [MSVC 2015-2022 Runtime](https://docs.microsoft.com/cpp/windows/latest-supported-vc-redist)
 
 ## Hints
 
-1. If you have set DPI scaling, but the window to be magnifies doesn't support high DPI: Go to the compatibility settings of the target application, and set the "Alternative High DPI Scaling" option to "Application".
+1. If you have set DPI scaling, but the window to be magnifies doesn't support high DPI: Go to the compatibility settings of the target application, and set the "High DPI scaling override" option to "Application".
 
-   ![High DPI Setting](img/高DPI设置.png)
+   ![High DPI Setting](img/High_DPI_Settings.png)
 
 2. Some games support zooming the window, but with extremely naive algorithms. Please set the resolution to the built-in (best) option.
 
@@ -102,4 +102,4 @@ Thanks go to these wonderful people ([emoji key](https://allcontributors.org/doc
 
 <!-- ALL-CONTRIBUTORS-LIST:END -->
 
-This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) format. We welcome any form of contribution!
+This project follows the [all-contributors](https://allcontributors.org/) specification. Contributions of any kind are welcome!
