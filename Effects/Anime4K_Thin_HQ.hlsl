@@ -154,13 +154,13 @@ float4 Pass4(float2 pos) {
 }
 
 //!PASS 5
-//!BIND tex1
-//!SAVE tex2
+//!BIND tex2
+//!SAVE tex1
 
 float4 Pass5(float2 pos) {
-	float l = tex1.Sample(sam, float2(pos.x - inputPtX, pos.y)).x;
-	float c = tex1.Sample(sam, pos).x;
-	float r = tex1.Sample(sam, float2(pos.x + inputPtX, pos.y)).x;
+	float l = tex2.Sample(sam, float2(pos.x - inputPtX, pos.y)).x;
+	float c = tex2.Sample(sam, pos).x;
+	float r = tex2.Sample(sam, float2(pos.x + inputPtX, pos.y)).x;
 
 	float xgrad = (-l + r);
 	float ygrad = (l + c + c + r);
@@ -169,13 +169,13 @@ float4 Pass5(float2 pos) {
 }
 
 //!PASS 6
-//!BIND tex2
-//!SAVE tex1
+//!BIND tex1
+//!SAVE tex2
 
 float4 Pass6(float2 pos) {
-	float2 t = tex2.Sample(sam, float2(pos.x, pos.y - inputPtY)).xy;
-	float cx = tex2.Sample(sam, pos).x;
-	float2 b = tex2.Sample(sam, float2(pos.x, pos.y + inputPtY)).xy;
+	float2 t = tex1.Sample(sam, float2(pos.x, pos.y - inputPtY)).xy;
+	float cx = tex1.Sample(sam, pos).x;
+	float2 b = tex1.Sample(sam, float2(pos.x, pos.y + inputPtY)).xy;
 
 	float xgrad = (t.x + cx + cx + b.x) / 8.0;
 
@@ -186,18 +186,18 @@ float4 Pass6(float2 pos) {
 }
 
 //!PASS 7
-//!BIND tex1, INPUT
+//!BIND tex2, INPUT
 
 #define STRENGTH strength 
 #define ITERATIONS iterations 
 
 float4 Pass7(float2 pos) {
-	float2 d = {inputPtX, inputPtY};
+	float2 d = { inputPtX, inputPtY };
 
 	float relstr = inputHeight / 1080.0 * STRENGTH;
 
 	for (int i = 0; i < ITERATIONS; i++) {
-		float2 dn = tex1.SampleLevel(sam1, pos, 0).xy;
+		float2 dn = tex2.SampleLevel(sam1, pos, 0).xy;
 		float2 dd = (dn / (length(dn) + 0.01)) * d * relstr; //Quasi-normalization for large vectors, avoids divide by zero
 		pos -= dd;
 	}
