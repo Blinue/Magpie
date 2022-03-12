@@ -44,6 +44,10 @@ SamplerState sam;
 //!FILTER LINEAR
 SamplerState sam1;
 
+//!COMMON
+
+#pragma warning(disable: 3557) // X3557: loop only executes for 1 iteration(s), forcing loop to unroll
+
 //!PASS 1
 //!IN INPUT
 //!OUT tex2
@@ -101,69 +105,115 @@ void Pass1(uint2 blockStart, uint3 threadId) {
 
 
 //!PASS 2
-//!STYLE PS
 //!IN tex2
 //!OUT tex1
-
-#define KERNELSIZE (max(uint(ceil(SPATIAL_SIGMA * 2.0)), 1) * 2 + 1) //Kernel size, must be an positive odd integer.
-#define KERNELHALFSIZE (uint(KERNELSIZE/2)) //Half of the kernel size without remainder. Must be equal to trunc(KERNELSIZE/2).
-#define KERNELLEN (KERNELSIZE * KERNELSIZE) //Total area of kernel. Must be equal to KERNELSIZE * KERNELSIZE.
+//!BLOCK_SIZE 16
+//!NUM_THREADS 64
 
 float gaussian(float x, float s, float m) {
 	float scaled = (x - m) / s;
 	return exp(-0.5 * scaled * scaled);
 }
 
-float2 Pass2(float2 pos) {
-	float2 inputPt = GetInputPt();
-	float g = 0.0;
-	float gn = 0.0;
+void Pass2(uint2 blockStart, uint3 threadId) {
+	const uint2 gxy = (Rmp8x8(threadId.x) << 1) + blockStart;
+	const uint2 inputSize = GetInputSize();
+	if (gxy.x >= inputSize.x || gxy.y >= inputSize.y) {
+		return;
+	}
+	const float2 inputPt = GetInputPt();
 
 	// Spatial window size, must be a positive real number.
-	float SPATIAL_SIGMA = 2.0f * GetInputSize().y / 1080.0f;
+	const float SPATIAL_SIGMA = 2.0f * GetInputSize().y / 1080.0f;
+	// Kernel size, must be an positive odd integer.
+	const uint KERNELSIZE = max(uint(ceil(SPATIAL_SIGMA * 2.0)), 1) * 2 + 1;
+	//Half of the kernel size without remainder. Must be equal to trunc(KERNELSIZE/2).
+	const uint KERNELHALFSIZE = KERNELSIZE / 2;
 
-	for (uint i = 0; i < KERNELSIZE; i++) {
-		int di = (int)i - (int)KERNELHALFSIZE;
-		float gf = gaussian(di, SPATIAL_SIGMA, 0.0);
+	[unroll]
+	for (uint i = 0; i <= 1; ++i) {
+		[unroll]
+		for (uint j = 0; j <= 1; ++j) {
+			const uint2 destPos = gxy + uint2(i, j);
 
-		g = g + tex2.SampleLevel(sam, pos + float2(di * inputPt.x, 0.0), 0).x * gf;
-		gn = gn + gf;
+			if (i != 0 && j != 0) {
+				if (destPos.x >= inputSize.x || destPos.y >= inputSize.y) {
+					continue;
+				}
+			}
+
+			const float2 pos = (destPos + 0.5f) * inputPt;
+
+			float g = 0.0;
+			float gn = 0.0;
+
+			for (uint k = 0; k < KERNELSIZE; ++k) {
+				int di = (int)k - (int)KERNELHALFSIZE;
+				float gf = gaussian(di, SPATIAL_SIGMA, 0.0);
+				g = g + tex2.SampleLevel(sam, pos + float2(di * inputPt.x, 0.0), 0).x * gf;
+				gn = gn + gf;
+			}
+
+			tex1[destPos] = float2(g / gn, 0);
+		}
 	}
-
-	return float2(g / gn, 0);
 }
+
 
 //!PASS 3
-//!STYLE PS
 //!IN tex1
 //!OUT tex2
-
-#define KERNELSIZE (max(uint(ceil(SPATIAL_SIGMA * 2.0)), 1) * 2 + 1) //Kernel size, must be an positive odd integer.
-#define KERNELHALFSIZE (uint(KERNELSIZE/2)) //Half of the kernel size without remainder. Must be equal to trunc(KERNELSIZE/2).
-#define KERNELLEN (KERNELSIZE * KERNELSIZE) //Total area of kernel. Must be equal to KERNELSIZE * KERNELSIZE.
+//!BLOCK_SIZE 16
+//!NUM_THREADS 64
 
 float gaussian(float x, float s, float m) {
 	float scaled = (x - m) / s;
 	return exp(-0.5 * scaled * scaled);
 }
 
-float2 Pass3(float2 pos) {
-	float2 inputPt = GetInputPt();
-	float g = 0.0;
-	float gn = 0.0;
+void Pass3(uint2 blockStart, uint3 threadId) {
+	const uint2 gxy = (Rmp8x8(threadId.x) << 1) + blockStart;
+	const uint2 inputSize = GetInputSize();
+	if (gxy.x >= inputSize.x || gxy.y >= inputSize.y) {
+		return;
+	}
+	const float2 inputPt = GetInputPt();
 
 	// Spatial window size, must be a positive real number.
-	float SPATIAL_SIGMA = 2.0f * GetInputSize().y / 1080.0f;
+	const float SPATIAL_SIGMA = 2.0f * GetInputSize().y / 1080.0f;
+	// Kernel size, must be an positive odd integer.
+	const uint KERNELSIZE = max(uint(ceil(SPATIAL_SIGMA * 2.0)), 1) * 2 + 1;
+	//Half of the kernel size without remainder. Must be equal to trunc(KERNELSIZE/2).
+	const uint KERNELHALFSIZE = KERNELSIZE / 2;
 
-	for (uint i = 0; i < KERNELSIZE; i++) {
-		int di = (int)i - (int)KERNELHALFSIZE;
-		float gf = gaussian(di, SPATIAL_SIGMA, 0.0);
+	[unroll]
+	for (uint i = 0; i <= 1; ++i) {
+		[unroll]
+		for (uint j = 0; j <= 1; ++j) {
+			const uint2 destPos = gxy + uint2(i, j);
 
-		g = g + tex1.SampleLevel(sam, pos + float2(0, di * inputPt.y), 0).x * gf;
-		gn = gn + gf;
+			if (i != 0 && j != 0) {
+				if (destPos.x >= inputSize.x || destPos.y >= inputSize.y) {
+					continue;
+				}
+			}
+
+			const float2 pos = (destPos + 0.5f) * inputPt;
+
+			float g = 0.0;
+			float gn = 0.0;
+
+			for (uint k = 0; k < KERNELSIZE; ++k) {
+				int di = (int)k - (int)KERNELHALFSIZE;
+				float gf = gaussian(di, SPATIAL_SIGMA, 0.0);
+
+				g = g + tex1.SampleLevel(sam, pos + float2(0, di * inputPt.y), 0).x * gf;
+				gn = gn + gf;
+			}
+
+			tex2[destPos] = float2(g / gn, 0);
+		}
 	}
-
-	return float2(g / gn, 0);
 }
 
 //!PASS 4
@@ -173,12 +223,12 @@ float2 Pass3(float2 pos) {
 //!NUM_THREADS 64
 
 void Pass4(uint2 blockStart, uint3 threadId) {
-	uint2 gxy = (Rmp8x8(threadId.x) << 1) + blockStart;
-	uint2 inputSize = GetInputSize();
+	const uint2 gxy = (Rmp8x8(threadId.x) << 1) + blockStart;
+	const uint2 inputSize = GetInputSize();
 	if (gxy.x >= inputSize.x || gxy.y >= inputSize.y) {
 		return;
 	}
-	float2 inputPt = GetInputPt();
+	const float2 inputPt = GetInputPt();
 
 	uint i, j;
 
@@ -217,16 +267,13 @@ void Pass4(uint2 blockStart, uint3 threadId) {
 
 //!PASS 5
 //!STYLE PS
-//!IN tex1, INPUT
-
-#define STRENGTH strength 
-#define ITERATIONS iterations 
+//!IN tex1, INPUT 
 
 float4 Pass5(float2 pos) {
 	float2 inputPt = GetInputPt();
-	float relstr = GetInputSize().y / 1080.0f * STRENGTH;
+	float relstr = GetInputSize().y / 1080.0f * strength;
 
-	for (int i = 0; i < ITERATIONS; i++) {
+	for (int i = 0; i < iterations; ++i) {
 		float2 dn = tex1.SampleLevel(sam1, pos, 0).xy;
 		float2 dd = (dn / (length(dn) + 0.01f)) * inputPt * relstr; //Quasi-normalization for large vectors, avoids divide by zero
 		pos -= dd;
