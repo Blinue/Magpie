@@ -72,7 +72,7 @@ SamplerState sam;
 static const float3x3 RGBtoYUV = GetInputSize().y <= 576 ? RGBtoYUV(0.114, 0.299) : RGBtoYUV(0.0722, 0.2126);
 
 void Pass1(uint2 blockStart, uint3 threadId) {
-	uint2 gxy = Rmp8x8(threadId.x) * 2 + blockStart;
+	uint2 gxy = (Rmp8x8(threadId.x) << 1) + blockStart;
 	uint2 inputSize = GetInputSize();
 	if (gxy.x >= inputSize.x || gxy.y >= inputSize.y) {
 		return;
@@ -133,7 +133,7 @@ void Pass1(uint2 blockStart, uint3 threadId) {
 											 sort(a2,a4),sort(a6,a8),sort(a4,a8),sort(a4,a6),sort(a2,a6),median5(a2,a4,a5,a7,a9))
 
 void Pass2(uint2 blockStart, uint3 threadId) {
-	uint2 gxy = Rmp8x8(threadId.x) * 2 + blockStart;
+	uint2 gxy = (Rmp8x8(threadId.x) << 1) + blockStart;
 	uint2 inputSize = GetInputSize();
 	if (gxy.x >= inputSize.x || gxy.y >= inputSize.y) {
 		return;
@@ -217,7 +217,7 @@ float SharpDiff(float4 c) {
 }
 
 void Pass3(uint2 blockStart, uint3 threadId) {
-	uint2 gxy = Rmp8x8(threadId.x) * 2 + blockStart;
+	uint2 gxy = (Rmp8x8(threadId.x) << 1) + blockStart;
 	uint2 inputSize = GetInputSize();
 	if (gxy.x >= inputSize.x || gxy.y >= inputSize.y) {
 		return;
@@ -301,7 +301,7 @@ void Pass3(uint2 blockStart, uint3 threadId) {
 
 
 void Pass4(uint2 blockStart, uint3 threadId) {
-	uint2 gxy = Rmp8x8(threadId.x) * 2 + blockStart;
+	uint2 gxy = (Rmp8x8(threadId.x) << 1) + blockStart;
 	uint2 inputSize = GetInputSize();
 	if (gxy.x >= inputSize.x || gxy.y >= inputSize.y) {
 		return;
@@ -378,7 +378,7 @@ static const float3x3 YUVtoRGB = GetInputSize().y <= 576 ? YUVtoRGB(0.114, 0.299
 
 
 void Pass5(uint2 blockStart, uint3 threadId) {
-	uint2 gxy = Rmp8x8(threadId.x) * 2 + blockStart;
+	uint2 gxy = (Rmp8x8(threadId.x) << 1) + blockStart;
 	if (!CheckViewport(gxy)) {
 		return;
 	}

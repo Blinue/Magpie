@@ -24,7 +24,7 @@ SamplerState sam;
 
 
 void Pass1(uint2 blockStart, uint3 threadId) {
-	uint2 gxy = Rmp8x8(threadId.x) * 2 + blockStart;
+	uint2 gxy = (Rmp8x8(threadId.x) << 1) + blockStart;
 	if (!CheckViewport(gxy)) {
 		return;
 	}
