@@ -15,7 +15,6 @@
     <CopyFileToFolders Include="Anime4K_Restore_VL.hlsl" />
     <CopyFileToFolders Include="Anime4K_Upscale_Denoise_S.hlsl" />
     <CopyFileToFolders Include="Anime4K_Upscale_L.hlsl" />
-    <CopyFileToFolders Include="Anime4K_Upscale_S_Lite.hlsl" />
     <CopyFileToFolders Include="Bicubic.hlsl" />
     <CopyFileToFolders Include="CAS.hlsl" />
     <CopyFileToFolders Include="FSR_EASU.hlsl" />

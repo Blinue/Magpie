@@ -140,9 +140,6 @@
     <CopyFileToFolders Include="Anime4K_Upscale_S.hlsl">
       <FileType>Document</FileType>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="Anime4K_Upscale_S_Lite.hlsl">
-      <FileType>Document</FileType>
-    </CopyFileToFolders>
     <CopyFileToFolders Include="Bicubic.hlsl">
       <FileType>Document</FileType>
     </CopyFileToFolders>
