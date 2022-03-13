@@ -266,18 +266,41 @@ void Pass4(uint2 blockStart, uint3 threadId) {
 
 
 //!PASS 5
-//!STYLE PS
 //!IN tex1, INPUT 
+//!BLOCK_SIZE 16
+//!NUM_THREADS 64
 
-float4 Pass5(float2 pos) {
-	float2 inputPt = GetInputPt();
-	float relstr = GetInputSize().y / 1080.0f * strength;
-
-	for (int i = 0; i < iterations; ++i) {
-		float2 dn = tex1.SampleLevel(sam1, pos, 0).xy;
-		float2 dd = (dn / (length(dn) + 0.01f)) * inputPt * relstr; //Quasi-normalization for large vectors, avoids divide by zero
-		pos -= dd;
+void Pass5(uint2 blockStart, uint3 threadId) {
+	const uint2 gxy = (Rmp8x8(threadId.x) << 1) + blockStart;
+	const uint2 inputSize = GetInputSize();
+	if (!CheckViewport(gxy)) {
+		return;
 	}
 
-	return INPUT.SampleLevel(sam1, pos, 0);
+	const float2 inputPt = GetInputPt();
+	const float relstr = GetInputSize().y / 1080.0f * strength;
+
+	[unroll]
+	for (uint i = 0; i <= 1; ++i) {
+		[unroll]
+		for (uint j = 0; j <= 1; ++j) {
+			const uint2 destPos = gxy + uint2(i, j);
+
+			if (i != 0 && j != 0) {
+				if (!CheckViewport(destPos)) {
+					continue;
+				}
+			}
+
+			float2 pos = (destPos + 0.5f) * inputPt;
+
+			for (int i = 0; i < iterations; ++i) {
+				float2 dn = tex1.SampleLevel(sam1, pos, 0).xy;
+				float2 dd = (dn / (length(dn) + 0.01f)) * inputPt * relstr; //Quasi-normalization for large vectors, avoids divide by zero
+				pos -= dd;
+			}
+
+			WriteToOutput(destPos, INPUT.SampleLevel(sam1, pos, 0).rgb);
+		}
+	}
 }
