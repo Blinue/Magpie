@@ -83,12 +83,6 @@ Texture2D tex7;
 //!FORMAT R16G16B16A16_FLOAT
 Texture2D tex8;
 
-//!TEXTURE
-//!WIDTH INPUT_WIDTH
-//!HEIGHT INPUT_HEIGHT
-//!FORMAT R16G16B16A16_FLOAT
-Texture2D tex9;
-
 
 //!PASS 1
 //!BIND INPUT
@@ -480,7 +474,7 @@ void Pass5(float2 pos, out float4 target1, out float4 target2, out float4 target
 
 //!PASS 6
 //!BIND tex7, tex1, tex3, tex2, tex4, tex5
-//!SAVE tex8, tex9
+//!SAVE tex6, tex8
 
 void Pass6(float2 pos, out float4 target1, out float4 target2) {
 	// [ a, d, g ]
@@ -591,21 +585,21 @@ void Pass6(float2 pos, out float4 target1, out float4 target2) {
 
 
 //!PASS 7
-//!BIND tex8, tex9, INPUT
+//!BIND tex6, tex8, INPUT
 
 float4 Pass7(float2 pos) {
 	// [ a, d, g ]
 	// [ b, e, h ]
 	// [ c, f, i ]
-	float4 a1 = tex8.Sample(sam1, pos + float2(-outputPtX, -outputPtY));
-	float4 b1 = tex8.Sample(sam1, pos + float2(-outputPtX, 0));
-	float4 c1 = tex8.Sample(sam1, pos + float2(-outputPtX, outputPtY));
-	float4 d1 = tex8.Sample(sam1, pos + float2(0, -outputPtY));
-	float4 e1 = tex8.Sample(sam1, pos);
-	float4 f1 = tex8.Sample(sam1, pos + float2(0, outputPtY));
-	float4 g1 = tex8.Sample(sam1, pos + float2(outputPtX, -outputPtY));
-	float4 h1 = tex8.Sample(sam1, pos + float2(outputPtX, 0));
-	float4 i1 = tex8.Sample(sam1, pos + float2(outputPtX, outputPtY));
+	float4 a1 = tex6.Sample(sam1, pos + float2(-outputPtX, -outputPtY));
+	float4 b1 = tex6.Sample(sam1, pos + float2(-outputPtX, 0));
+	float4 c1 = tex6.Sample(sam1, pos + float2(-outputPtX, outputPtY));
+	float4 d1 = tex6.Sample(sam1, pos + float2(0, -outputPtY));
+	float4 e1 = tex6.Sample(sam1, pos);
+	float4 f1 = tex6.Sample(sam1, pos + float2(0, outputPtY));
+	float4 g1 = tex6.Sample(sam1, pos + float2(outputPtX, -outputPtY));
+	float4 h1 = tex6.Sample(sam1, pos + float2(outputPtX, 0));
+	float4 i1 = tex6.Sample(sam1, pos + float2(outputPtX, outputPtY));
 
 	float4 na1 = max(-a1, 0);
 	float4 nb1 = max(-b1, 0);
@@ -627,15 +621,15 @@ float4 Pass7(float2 pos) {
 	h1 = max(h1, 0);
 	i1 = max(i1, 0);
 
-	float4 a2 = tex9.Sample(sam1, pos + float2(-outputPtX, -outputPtY));
-	float4 b2 = tex9.Sample(sam1, pos + float2(-outputPtX, 0));
-	float4 c2 = tex9.Sample(sam1, pos + float2(-outputPtX, outputPtY));
-	float4 d2 = tex9.Sample(sam1, pos + float2(0, -outputPtY));
-	float4 e2 = tex9.Sample(sam1, pos);
-	float4 f2 = tex9.Sample(sam1, pos + float2(0, outputPtY));
-	float4 g2 = tex9.Sample(sam1, pos + float2(outputPtX, -outputPtY));
-	float4 h2 = tex9.Sample(sam1, pos + float2(outputPtX, 0));
-	float4 i2 = tex9.Sample(sam1, pos + float2(outputPtX, outputPtY));
+	float4 a2 = tex8.Sample(sam1, pos + float2(-outputPtX, -outputPtY));
+	float4 b2 = tex8.Sample(sam1, pos + float2(-outputPtX, 0));
+	float4 c2 = tex8.Sample(sam1, pos + float2(-outputPtX, outputPtY));
+	float4 d2 = tex8.Sample(sam1, pos + float2(0, -outputPtY));
+	float4 e2 = tex8.Sample(sam1, pos);
+	float4 f2 = tex8.Sample(sam1, pos + float2(0, outputPtY));
+	float4 g2 = tex8.Sample(sam1, pos + float2(outputPtX, -outputPtY));
+	float4 h2 = tex8.Sample(sam1, pos + float2(outputPtX, 0));
+	float4 i2 = tex8.Sample(sam1, pos + float2(outputPtX, outputPtY));
 
 	float4 na2 = max(-a2, 0);
 	float4 nb2 = max(-b2, 0);
