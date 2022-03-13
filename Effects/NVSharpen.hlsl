@@ -27,6 +27,10 @@ float sharpness;
 
 #pragma warning(disable: 4714)	// X4714: sum of temp registers and indexable temp registers times 256 threads exceeds the recommended total 16384.  Performance may be reduced
 
+#define NIS_BLOCK_WIDTH MP_BLOCK_WIDTH
+#define NIS_BLOCK_HEIGHT MP_BLOCK_HEIGHT
+#define NIS_THREAD_GROUP_SIZE MP_NUM_THREADS_X
+
 #define kDetectRatio (2 * 1127.f / 1024.f)
 #define kDetectThres (64.0f / 1024.0f)
 #define kEps (1.0f / 255.0f)
@@ -51,10 +55,6 @@ float sharpness;
 #define kSupportSize 5
 #define kNumPixelsX  (NIS_BLOCK_WIDTH + kSupportSize - 1)
 #define kNumPixelsY  (NIS_BLOCK_HEIGHT + kSupportSize - 1)
-
-#define NIS_BLOCK_WIDTH 32
-#define NIS_BLOCK_HEIGHT 32
-#define NIS_THREAD_GROUP_SIZE 256
 
 groupshared float shPixelsY[kNumPixelsY][kNumPixelsX];
 

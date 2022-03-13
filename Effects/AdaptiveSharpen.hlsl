@@ -53,7 +53,7 @@ void Pass1(uint2 blockStart, uint3 threadId) {
 	}
 
 	float2 inputPt = GetInputPt();
-	uint i, j;
+	int i, j;
 
 	float4 src[8][8];
 	[unroll]
@@ -65,7 +65,7 @@ void Pass1(uint2 blockStart, uint3 threadId) {
 				continue;
 			}
 
-			float2 tpos = (gxy + uint2(i, j) - 2) * inputPt;
+			float2 tpos = ((int2)gxy + int2(i, j) - 2) * inputPt;
 			const float4 sr = INPUT.GatherRed(sam, tpos);
 			const float4 sg = INPUT.GatherGreen(sam, tpos);
 			const float4 sb = INPUT.GatherBlue(sam, tpos);

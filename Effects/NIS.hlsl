@@ -60,9 +60,9 @@ SamplerState samplerLinearClamp;
 #define NIS_SCALE_FLOAT 1.0f
 #define NIS_SCALE_INT 1
 
-#define NIS_BLOCK_WIDTH 32
-#define NIS_BLOCK_HEIGHT 32
-#define NIS_THREAD_GROUP_SIZE 256
+#define NIS_BLOCK_WIDTH MP_BLOCK_WIDTH
+#define NIS_BLOCK_HEIGHT MP_BLOCK_HEIGHT
+#define NIS_THREAD_GROUP_SIZE MP_NUM_THREADS_X
 #define kPhaseCount  64
 #define kFilterSize  6
 #define kSupportSize 6

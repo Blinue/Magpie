@@ -54,7 +54,7 @@ SamplerState sam;
 //!NUM_THREADS 64
 
 float GetLuma(float3 color) {
-	return 0.299f * color.r + 0.587f * color.g + 0.114f * color.b;
+	return dot(float3(0.299f, 0.587f, 0.114f), color);
 }
 
 const static float kernelsL1A[9 * 4] = {
