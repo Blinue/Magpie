@@ -242,17 +242,11 @@ float4 A4KS4(float2 pos) {
 	// [ a, d, g ]
 	// [ b, e, h ]
 	// [ c, f, i ]
-	float2 tpos = pos - 0.5f * inputPt;
-	const float4 sr = tex1.GatherRed(sam, tpos);
-	const float4 sg = tex1.GatherGreen(sam, tpos);
-	const float4 sb = tex1.GatherBlue(sam, tpos);
-	const float4 sa = tex1.GatherAlpha(sam, tpos);
-
-	float4 a = float4(sr.w, sg.w, sb.w, sa.w);
-	float4 b = float4(sr.x, sg.x, sb.x, sa.x);
+	float4 a = tex1.SampleLevel(sam, pos - inputPt, 0);
+	float4 b = tex1.SampleLevel(sam, pos + float2(-inputPt.x, 0), 0);
 	float4 c = tex1.SampleLevel(sam, pos + float2(-inputPt.x, inputPt.y), 0);
-	float4 d = float4(sr.z, sg.z, sb.z, sa.z);
-	float4 e = float4(sr.y, sg.y, sb.y, sa.y);
+	float4 d = tex1.SampleLevel(sam, pos + float2(0, -inputPt.y), 0);
+	float4 e = tex1.SampleLevel(sam, pos, 0);
 	float4 f = tex1.SampleLevel(sam, pos + float2(0, inputPt.y), 0);
 	float4 g = tex1.SampleLevel(sam, pos + float2(inputPt.x, -inputPt.y), 0);
 	float4 h = tex1.SampleLevel(sam, pos + float2(inputPt.x, 0), 0);
