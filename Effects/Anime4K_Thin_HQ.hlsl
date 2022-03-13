@@ -46,7 +46,9 @@ SamplerState sam1;
 
 //!COMMON
 
+#ifdef MP_INLINE_PARAMS
 #pragma warning(disable: 3557) // X3557: loop only executes for 1 iteration(s), forcing loop to unroll
+#endif
 
 //!PASS 1
 //!IN INPUT
@@ -54,7 +56,7 @@ SamplerState sam1;
 //!BLOCK_SIZE 16
 //!NUM_THREADS 64
 
-float get_luma(float3 rgb) {
+float GetLuma(float3 rgb) {
 	return dot(float3(0.299, 0.587, 0.114), rgb);
 }
 
@@ -80,10 +82,10 @@ void Pass1(uint2 blockStart, uint3 threadId) {
 
 			// w z
 			// x y
-			src[i][j] = get_luma(float3(sr.w, sg.w, sb.w));
-			src[i][j + 1] = get_luma(float3(sr.x, sg.x, sb.x));
-			src[i + 1][j] = get_luma(float3(sr.z, sg.z, sb.z));
-			src[i + 1][j + 1] = get_luma(float3(sr.y, sg.y, sb.y));
+			src[i][j] = GetLuma(float3(sr.w, sg.w, sb.w));
+			src[i][j + 1] = GetLuma(float3(sr.x, sg.x, sb.x));
+			src[i + 1][j] = GetLuma(float3(sr.z, sg.z, sb.z));
+			src[i + 1][j + 1] = GetLuma(float3(sr.y, sg.y, sb.y));
 		}
 	}
 
