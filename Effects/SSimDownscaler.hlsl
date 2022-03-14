@@ -1,36 +1,11 @@
 // 基于感知的图像缩小算法
 // 移植自 https://gist.github.com/igv/36508af3ffc84410fe39761d6969be10
+// 原始文件使用了大量 mpv 的“特性”，因此可能存在移植错误。如果你熟悉 mpv hook，请帮助我们改进
+
 
 //!MAGPIE EFFECT
-//!VERSION 1
+//!VERSION 2
 
-
-//!CONSTANT
-//!VALUE INPUT_PT_X
-float inputPtX;
-
-//!CONSTANT
-//!VALUE INPUT_PT_Y
-float inputPtY;
-
-//!CONSTANT
-//!VALUE OUTPUT_PT_X
-float outputPtX;
-
-//!CONSTANT
-//!VALUE OUTPUT_PT_Y
-float outputPtY;
-
-
-//!CONSTANT
-//!DEFAULT 1
-//!MIN 0
-//!MAX 2
-
-// 0：Mitchell
-// 1：Catrom
-// 2：Sharper
-int variant;
 
 //!TEXTURE
 Texture2D INPUT;
@@ -56,7 +31,7 @@ Texture2D MR;
 //!TEXTURE
 //!WIDTH OUTPUT_WIDTH
 //!HEIGHT OUTPUT_HEIGHT
-//!FORMAT B8G8R8A8_UNORM
+//!FORMAT R8G8B8A8_UNORM
 Texture2D scaleTex;
 
 //!SAMPLER
@@ -65,105 +40,92 @@ SamplerState sam;
 
 
 //!PASS 1
-//!BIND INPUT
-//!SAVE scaleTex
+//!STYLE PS
+//!IN INPUT
+//!OUT scaleTex
 
-float weight(float x, float B, float C) {
-	float ax = abs(x);
-
-	if (ax < 1.0) {
-		return (x * x * ((12.0 - 9.0 * B - 6.0 * C) * ax + (-18.0 + 12.0 * B + 6.0 * C)) + (6.0 - 2.0 * B)) / 6.0;
-	} else if (ax >= 1.0 && ax < 2.0) {
-		return (x * x * ((-B - 6.0 * C) * ax + (6.0 * B + 30.0 * C)) + (-12.0 * B - 48.0 * C) * ax + (8.0 * B + 24.0 * C)) / 6.0;
-	} else {
-		return 0.0;
-	}
-}
-
-float4 weight4(float x) {
-	float B = 0.0;
-	float C = 0.0;
-
-	if (variant == 0) {
-		// Mitchell
-		B = 1.0 / 3.0;
-		C = 1.0 / 3.0;
-	} else if (variant == 1) {
-		// Catrom
-		B = 0.0;
-		C = 0.5;
-	} else {
-		// Sharper
-		// Photoshop 使用的参数
-		B = 0.0;
-		C = 0.75;
-	}
-	// Hermite: B = 0; C = 0;
-	// Spline: B = 1; C = 0;
-	// Robidoux: B = 0.3782; C = 0.3109;
-	// Robidoux Sharp: B = 0.2620; C = 0.3690;
-	// Robidoux Soft: B = 0.6796; C = 0.1602;
-
-	return float4(
-		weight(x - 2.0, B, C),
-		weight(x - 1.0, B, C),
-		weight(x, B, C),
-		weight(x + 1.0, B, C)
-		);
-}
-
-float3 line_run(float ypos, float4 xpos, float4 linetaps) {
-	return INPUT.Sample(sam, float2(xpos.r, ypos)).rgb * linetaps.r
-		+ INPUT.Sample(sam, float2(xpos.g, ypos)).rgb * linetaps.g
-		+ INPUT.Sample(sam, float2(xpos.b, ypos)).rgb * linetaps.b
-		+ INPUT.Sample(sam, float2(xpos.a, ypos)).rgb * linetaps.a;
-}
-
-
+// 模拟 mpv 的内置缩放（CatmullRom）
+// Samples a texture with Catmull-Rom filtering, using 9 texture fetches instead of 16.
+// See http://vec3.ca/bicubic-filtering-in-fewer-taps/ for more details
 float4 Pass1(float2 pos) {
-	float2 f = frac(pos / float2(inputPtX, inputPtY) + 0.5);
+	float2 inputSize = GetInputSize();
+	float2 inputPt = GetInputPt();
 
-	float4 linetaps = weight4(1.0 - f.x);
-	float4 columntaps = weight4(1.0 - f.y);
+    // We're going to sample a a 4x4 grid of texels surrounding the target UV coordinate. We'll do this by rounding
+    // down the sample location to get the exact center of our "starting" texel. The starting texel will be at
+    // location [1, 1] in the grid, where [0, 0] is the top left corner.
+	float2 samplePos = pos * inputSize;
+	float2 texPos1 = floor(samplePos - 0.5f) + 0.5f;
 
-	// make sure all taps added together is exactly 1.0, otherwise some (very small) distortion can occur
-	linetaps /= linetaps.r + linetaps.g + linetaps.b + linetaps.a;
-	columntaps /= columntaps.r + columntaps.g + columntaps.b + columntaps.a;
+    // Compute the fractional offset from our starting texel to our original sample location, which we'll
+    // feed into the Catmull-Rom spline function to get our filter weights.
+	float2 f = samplePos - texPos1;
 
-	// !!!改变当前坐标
-	pos -= (f + 1) * float2(inputPtX, inputPtY);
+    // Compute the Catmull-Rom weights using the fractional offset that we calculated earlier.
+    // These equations are pre-expanded based on our knowledge of where the texels will be located,
+    // which lets us avoid having to evaluate a piece-wise function.
+	float2 w0 = f * (-0.5f + f * (1.0f - 0.5f * f));
+	float2 w1 = 1.0f + f * f * (-2.5f + 1.5f * f);
+	float2 w2 = f * (0.5f + f * (2.0f - 1.5f * f));
+	float2 w3 = f * f * (-0.5f + 0.5f * f);
 
-	float4 xpos = float4(pos.x, pos.x + inputPtX, pos.x + 2 * inputPtX, pos.x + 3 * inputPtX);
+    // Work out weighting factors and sampling offsets that will let us use bilinear filtering to
+    // simultaneously evaluate the middle 2 samples from the 4x4 grid.
+	float2 w12 = w1 + w2;
+	float2 offset12 = w2 / (w1 + w2);
 
-	// final sum and weight normalization
-	return float4(line_run(pos.y, xpos, linetaps) * columntaps.r
-		+ line_run(pos.y + inputPtY, xpos, linetaps) * columntaps.g
-		+ line_run(pos.y + 2 * inputPtY, xpos, linetaps) * columntaps.b
-		+ line_run(pos.y + 3 * inputPtY, xpos, linetaps) * columntaps.a,
-		1);
+    // Compute the final UV coordinates we'll use for sampling the texture
+	float2 texPos0 = texPos1 - 1;
+	float2 texPos3 = texPos1 + 2;
+	float2 texPos12 = texPos1 + offset12;
+
+	texPos0 *= inputPt;
+	texPos3 *= inputPt;
+	texPos12 *= inputPt;
+
+	float4 result = 0.0f;
+	result += INPUT.SampleLevel(sam, float2(texPos0.x, texPos0.y), 0.0f) * w0.x * w0.y;
+	result += INPUT.SampleLevel(sam, float2(texPos12.x, texPos0.y), 0.0f) * w12.x * w0.y;
+	result += INPUT.SampleLevel(sam, float2(texPos3.x, texPos0.y), 0.0f) * w3.x * w0.y;
+
+	result += INPUT.SampleLevel(sam, float2(texPos0.x, texPos12.y), 0.0f) * w0.x * w12.y;
+	result += INPUT.SampleLevel(sam, float2(texPos12.x, texPos12.y), 0.0f) * w12.x * w12.y;
+	result += INPUT.SampleLevel(sam, float2(texPos3.x, texPos12.y), 0.0f) * w3.x * w12.y;
+
+	result += INPUT.SampleLevel(sam, float2(texPos0.x, texPos3.y), 0.0f) * w0.x * w3.y;
+	result += INPUT.SampleLevel(sam, float2(texPos12.x, texPos3.y), 0.0f) * w12.x * w3.y;
+	result += INPUT.SampleLevel(sam, float2(texPos3.x, texPos3.y), 0.0f) * w3.x * w3.y;
+
+	return result;
 }
 
 //!PASS 2
-//!BIND INPUT
-//!SAVE L2
+//!STYLE PS
+//!IN INPUT
+//!OUT L2
 
 #define MN(B,C,x)   (x < 1.0 ? ((2.-1.5*B-(C))*x + (-3.+2.*B+C))*x*x + (1.-(B)/3.) : (((-(B)/6.-(C))*x + (B+5.*C))*x + (-2.*B-8.*C))*x+((4./3.)*B+4.*C))
-#define Kernel(x)   MN(0.0, 0.5, abs(x))
-#define taps        2.0
+#define Kernel(x)   MN(0.0f, 0.5f, abs(x))
+#define taps        2.0f
 
 
 float4 Pass2(float2 pos) {
+	const float inputPtY = GetInputPt().y;
+	const uint inputHeight = GetInputSize().y;
+	const float outputPtY = GetOutputPt().y;
+	const uint outputHeight = GetOutputSize().y;
+
 	float baseY = pos.y;
 
-	float low = ceil((pos.y - taps * outputPtY) / inputPtY - 0.5);
-	float high = floor((pos.y + taps * outputPtY) / inputPtY - 0.5);
+	int low = (int)ceil((pos.y - taps * outputPtY) * inputHeight - 0.5f);
+	int high = (int)floor((pos.y + taps * outputPtY) * inputHeight - 0.5f);
 
 	float W = 0;
 	float3 avg = 0;
 
-	for (float k = low; k <= high; k++) {
-		pos.y = inputPtY * (k + 0.5);
-		float rel = (pos.y - baseY) / outputPtY;
+	for (int k = low; k <= high; k++) {
+		pos.y = inputPtY * (k + 0.5f);
+		float rel = (pos.y - baseY) * outputHeight;
 		float w = Kernel(rel);
 
 		float3 t = INPUT.SampleLevel(sam, pos, 0).rgb;
@@ -177,8 +139,9 @@ float4 Pass2(float2 pos) {
 
 
 //!PASS 3
-//!BIND L2
-//!SAVE L2_2
+//!STYLE PS
+//!IN L2
+//!OUT L2_2
 
 #define MN(B,C,x)   (x < 1.0 ? ((2.-1.5*B-(C))*x + (-3.+2.*B+C))*x*x + (1.-(B)/3.) : (((-(B)/6.-(C))*x + (B+5.*C))*x + (-2.*B-8.*C))*x+((4./3.)*B+4.*C))
 #define Kernel(x)   MN(0.0, 0.5, abs(x))
@@ -186,17 +149,22 @@ float4 Pass2(float2 pos) {
 
 
 float4 Pass3(float2 pos) {
+	const float inputPtX = GetInputPt().x;
+	const uint inputWidth = GetInputSize().x;
+	const float outputPtX = GetOutputPt().x;
+	const uint outputWidth = GetOutputSize().x;
+
 	float baseX = pos.x;
 
-	float low = ceil((pos.x - taps * outputPtX) / inputPtX - 0.5);
-	float high = floor((pos.x + taps * outputPtX) / inputPtX - 0.5);
+	int low = (int)ceil((pos.x - taps * outputPtX) * inputWidth - 0.5);
+	int high = (int)floor((pos.x + taps * outputPtX) * inputWidth - 0.5);
 
 	float W = 0;
 	float3 avg = 0;
 
-	for (float k = low; k <= high; k++) {
-		pos.x = inputPtX * (k + 0.5);
-		float rel = (pos.x - baseX) / outputPtX;
+	for (int k = low; k <= high; k++) {
+		pos.x = inputPtX * (k + 0.5f);
+		float rel = (pos.x - baseX) * outputWidth;
 		float w = Kernel(rel);
 
 		avg += w * L2.SampleLevel(sam, pos, 0).rgb;
@@ -209,8 +177,9 @@ float4 Pass3(float2 pos) {
 
 
 //!PASS 4
-//!BIND L2_2, scaleTex
-//!SAVE MR
+//!STYLE PS
+//!IN L2_2, scaleTex
+//!OUT MR
 
 #define sigma_nsq   49. / (255.*255.)
 #define locality    2.0
@@ -222,20 +191,21 @@ float4 Pass3(float2 pos) {
 
 
 float3x3 ScaleH(float2 pos) {
-	float low = ceil(-0.5 * taps);
-	float high = floor(0.5 * taps);
+	const float outputPtX = GetOutputPt().x;
+	const int low = (int)ceil(-0.5 * taps);
+	const int high = (int)floor(0.5 * taps);
 
 	float W = 0;
 	float3x3 avg = 0;
 	float baseX = pos.x;
 
-	for (float k = low; k <= high; k++) {
+	[unroll]
+	for (int k = low; k <= high; k++) {
 		pos.x = baseX + outputPtX * k;
-		float rel = k;
-		float w = Kernel(rel);
+		float w = Kernel(k);
 
-		float3 L = scaleTex.Sample(sam, pos).rgb;
-		avg += w * float3x3(L, L * L, L2_2.Sample(sam, pos).rgb);
+		float3 L = scaleTex.SampleLevel(sam, pos, 0).rgb;
+		avg += w * float3x3(L, L * L, L2_2.SampleLevel(sam, pos, 0).rgb);
 		W += w;
 	}
 	avg /= W;
@@ -244,17 +214,18 @@ float3x3 ScaleH(float2 pos) {
 }
 
 float4 Pass4(float2 pos) {
-	float low = ceil(-0.5 * taps);
-	float high = floor(0.5 * taps);
+	const float outputPtY = GetOutputPt().y;
+	const int low = (int)ceil(-0.5 * taps);
+	const int high = (int)floor(0.5 * taps);
 
 	float W = 0.0;
 	float3x3 avg = 0;
 	float baseY = pos.y;
 
-	for (float k = low; k <= high; k++) {
+	[unroll]
+	for (int k = low; k <= high; k++) {
 		pos.y = baseY + outputPtY * k;
-		float rel = k;
-		float w = Kernel(rel);
+		float w = Kernel(k);
 
 		avg += w * ScaleH(pos);
 		W += w;
@@ -268,7 +239,8 @@ float4 Pass4(float2 pos) {
 
 
 //!PASS 5
-//!BIND MR, scaleTex
+//!STYLE PS
+//!IN MR, scaleTex
 
 #define locality    2.0
 
@@ -279,19 +251,20 @@ float4 Pass4(float2 pos) {
 #define GammaInv(x) ( pow(clamp(x, 0.0, 1.0), 2.0) )
 
 float3x3 ScaleH(float2 pos) {
-	float low = ceil(-0.5 * taps);
-	float high = floor(0.5 * taps);
+	const float outputPtX = GetOutputPt().x;
+	const int low = (int)ceil(-0.5 * taps);
+	const int high = (int)floor(0.5 * taps);
 
 	float W = 0;
 	float3x3 avg = 0;
 	float baseX = pos.x;
 
-	for (float k = low; k <= high; k++) {
+	[unroll]
+	for (int k = low; k <= high; k++) {
 		pos.x = baseX + outputPtX * k;
-		float rel = k;
-		float w = Kernel(rel);
+		float w = Kernel(k);
 
-		float4 MRc = MR.Sample(sam, pos);
+		float4 MRc = MR.SampleLevel(sam, pos, 0);
 		float3 M = Gamma(MRc.rgb);
 		avg += w * float3x3(MRc.a * M, M, MRc.aaa);
 		W += w;
@@ -302,22 +275,23 @@ float3x3 ScaleH(float2 pos) {
 }
 
 float4 Pass5(float2 pos) {
-	float low = ceil(-0.5 * taps);
-	float high = floor(0.5 * taps);
+	const float outputPtY = GetOutputPt().y;
+	const int low = (int)ceil(-0.5 * taps);
+	const int high = (int)floor(0.5 * taps);
 
 	float W = 0;
 	float3x3 avg = 0;
 	float2 base = pos;
 
-	for (float k = low; k <= high; k++) {
+	[unroll]
+	for (int k = low; k <= high; k++) {
 		pos.y = base.y + outputPtY * k;
-		float rel = k;
-		float w = Kernel(rel);
+		float w = Kernel(k);
 
 		avg += w * ScaleH(pos);
 		W += w;
 	}
 	avg /= W;
-	float3 L = scaleTex.Sample(sam, base).rgb;
+	float3 L = scaleTex.SampleLevel(sam, base, 0).rgb;
 	return float4(GammaInv(avg[1] + avg[2] * Gamma(L) - avg[0]), 1);
 }
