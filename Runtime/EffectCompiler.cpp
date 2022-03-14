@@ -1093,9 +1093,22 @@ UINT GeneratePassSource(
 	if (passDesc.isPSStyle) {
 		result.append("#define MP_PS_STYLE\n");
 	}
+
 	if (isInlineParams) {
 		result.append("#define MP_INLINE_PARAMS\n");
 	}
+
+	if (isLastPass) {
+		result.append("#define MP_LAST_PASS\n");
+	}
+
+	if (isLastEffect) {
+		result.append("#define MP_LAST_EFFECT\n");
+	}
+
+#ifdef _DEBUG
+	result.append("#define MP_DEBUG\n");
+#endif
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////
 	//
