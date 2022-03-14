@@ -32,17 +32,21 @@ Texture2D MR;
 //!WIDTH OUTPUT_WIDTH
 //!HEIGHT OUTPUT_HEIGHT
 //!FORMAT R8G8B8A8_UNORM
-Texture2D scaleTex;
+Texture2D POSTKERNEL;
 
 //!SAMPLER
 //!FILTER POINT
 SamplerState sam;
 
+//!SAMPLER
+//!FILTER LINEAR
+SamplerState sam1;
+
 
 //!PASS 1
 //!STYLE PS
 //!IN INPUT
-//!OUT scaleTex
+//!OUT POSTKERNEL
 
 // 模拟 mpv 的内置缩放（CatmullRom）
 // Samples a texture with Catmull-Rom filtering, using 9 texture fetches instead of 16.
@@ -84,17 +88,17 @@ float4 Pass1(float2 pos) {
 	texPos12 *= inputPt;
 
 	float4 result = 0.0f;
-	result += INPUT.SampleLevel(sam, float2(texPos0.x, texPos0.y), 0.0f) * w0.x * w0.y;
-	result += INPUT.SampleLevel(sam, float2(texPos12.x, texPos0.y), 0.0f) * w12.x * w0.y;
-	result += INPUT.SampleLevel(sam, float2(texPos3.x, texPos0.y), 0.0f) * w3.x * w0.y;
+	result += INPUT.SampleLevel(sam1, float2(texPos0.x, texPos0.y), 0.0f) * w0.x * w0.y;
+	result += INPUT.SampleLevel(sam1, float2(texPos12.x, texPos0.y), 0.0f) * w12.x * w0.y;
+	result += INPUT.SampleLevel(sam1, float2(texPos3.x, texPos0.y), 0.0f) * w3.x * w0.y;
 
-	result += INPUT.SampleLevel(sam, float2(texPos0.x, texPos12.y), 0.0f) * w0.x * w12.y;
-	result += INPUT.SampleLevel(sam, float2(texPos12.x, texPos12.y), 0.0f) * w12.x * w12.y;
-	result += INPUT.SampleLevel(sam, float2(texPos3.x, texPos12.y), 0.0f) * w3.x * w12.y;
+	result += INPUT.SampleLevel(sam1, float2(texPos0.x, texPos12.y), 0.0f) * w0.x * w12.y;
+	result += INPUT.SampleLevel(sam1, float2(texPos12.x, texPos12.y), 0.0f) * w12.x * w12.y;
+	result += INPUT.SampleLevel(sam1, float2(texPos3.x, texPos12.y), 0.0f) * w3.x * w12.y;
 
-	result += INPUT.SampleLevel(sam, float2(texPos0.x, texPos3.y), 0.0f) * w0.x * w3.y;
-	result += INPUT.SampleLevel(sam, float2(texPos12.x, texPos3.y), 0.0f) * w12.x * w3.y;
-	result += INPUT.SampleLevel(sam, float2(texPos3.x, texPos3.y), 0.0f) * w3.x * w3.y;
+	result += INPUT.SampleLevel(sam1, float2(texPos0.x, texPos3.y), 0.0f) * w0.x * w3.y;
+	result += INPUT.SampleLevel(sam1, float2(texPos12.x, texPos3.y), 0.0f) * w12.x * w3.y;
+	result += INPUT.SampleLevel(sam1, float2(texPos3.x, texPos3.y), 0.0f) * w3.x * w3.y;
 
 	return result;
 }
@@ -115,21 +119,20 @@ float4 Pass2(float2 pos) {
 	const float outputPtY = GetOutputPt().y;
 	const uint outputHeight = GetOutputSize().y;
 
-	float baseY = pos.y;
-
-	int low = (int)ceil((pos.y - taps * outputPtY) * inputHeight - 0.5f);
-	int high = (int)floor((pos.y + taps * outputPtY) * inputHeight - 0.5f);
+	const int low = (int)ceil((pos.y - taps * outputPtY) * inputHeight - 0.5f);
+	const int high = (int)floor((pos.y + taps * outputPtY) * inputHeight - 0.5f);
 
 	float W = 0;
 	float3 avg = 0;
+	const float baseY = pos.y;
 
 	for (int k = low; k <= high; k++) {
 		pos.y = inputPtY * (k + 0.5f);
 		float rel = (pos.y - baseY) * outputHeight;
 		float w = Kernel(rel);
 
-		float3 t = INPUT.SampleLevel(sam, pos, 0).rgb;
-		avg += w * t * t;
+		float3 tex = INPUT.SampleLevel(sam, pos, 0).rgb;
+		avg += w * tex * tex;
 		W += w;
 	}
 	avg /= W;
@@ -154,13 +157,12 @@ float4 Pass3(float2 pos) {
 	const float outputPtX = GetOutputPt().x;
 	const uint outputWidth = GetOutputSize().x;
 
-	float baseX = pos.x;
-
-	int low = (int)ceil((pos.x - taps * outputPtX) * inputWidth - 0.5);
-	int high = (int)floor((pos.x + taps * outputPtX) * inputWidth - 0.5);
+	const int low = (int)ceil((pos.x - taps * outputPtX) * inputWidth - 0.5f);
+	const int high = (int)floor((pos.x + taps * outputPtX) * inputWidth - 0.5f);
 
 	float W = 0;
 	float3 avg = 0;
+	const float baseX = pos.x;
 
 	for (int k = low; k <= high; k++) {
 		pos.x = inputPtX * (k + 0.5f);
@@ -178,7 +180,7 @@ float4 Pass3(float2 pos) {
 
 //!PASS 4
 //!STYLE PS
-//!IN L2_2, scaleTex
+//!IN L2_2, POSTKERNEL
 //!OUT MR
 
 #define sigma_nsq   49. / (255.*255.)
@@ -197,15 +199,15 @@ float3x3 ScaleH(float2 pos) {
 
 	float W = 0;
 	float3x3 avg = 0;
-	float baseX = pos.x;
+	const float baseX = pos.x;
 
 	[unroll]
 	for (int k = low; k <= high; k++) {
 		pos.x = baseX + outputPtX * k;
 		float w = Kernel(k);
 
-		float3 L = scaleTex.SampleLevel(sam, pos, 0).rgb;
-		avg += w * float3x3(L, L * L, L2_2.SampleLevel(sam, pos, 0).rgb);
+		float3 L = POSTKERNEL.SampleLevel(sam, pos, 0).rgb;
+		avg += w * float3x3(L, L * L, L2_2.SampleLevel(sam, pos, 0.0f).rgb);
 		W += w;
 	}
 	avg /= W;
@@ -215,8 +217,8 @@ float3x3 ScaleH(float2 pos) {
 
 float4 Pass4(float2 pos) {
 	const float outputPtY = GetOutputPt().y;
-	const int low = (int)ceil(-0.5 * taps);
-	const int high = (int)floor(0.5 * taps);
+	const int low = (int)ceil(-0.5f * taps);
+	const int high = (int)floor(0.5f * taps);
 
 	float W = 0.0;
 	float3x3 avg = 0;
@@ -240,24 +242,21 @@ float4 Pass4(float2 pos) {
 
 //!PASS 5
 //!STYLE PS
-//!IN MR, scaleTex
+//!IN MR, POSTKERNEL
 
-#define locality    2.0
+#define locality    2.0f
 
-#define Kernel(x)   pow(1.0 / locality, abs(x))
-#define taps        3.0
-
-#define Gamma(x)    ( pow(x, 0.5) )
-#define GammaInv(x) ( pow(clamp(x, 0.0, 1.0), 2.0) )
+#define Kernel(x)   pow(1.0f / locality, abs(x))
+#define taps        3.0f
 
 float3x3 ScaleH(float2 pos) {
 	const float outputPtX = GetOutputPt().x;
-	const int low = (int)ceil(-0.5 * taps);
-	const int high = (int)floor(0.5 * taps);
+	const int low = (int)ceil(-0.5f * taps);
+	const int high = (int)floor(0.5f * taps);
 
 	float W = 0;
 	float3x3 avg = 0;
-	float baseX = pos.x;
+	const float baseX = pos.x;
 
 	[unroll]
 	for (int k = low; k <= high; k++) {
@@ -265,8 +264,7 @@ float3x3 ScaleH(float2 pos) {
 		float w = Kernel(k);
 
 		float4 MRc = MR.SampleLevel(sam, pos, 0);
-		float3 M = Gamma(MRc.rgb);
-		avg += w * float3x3(MRc.a * M, M, MRc.aaa);
+		avg += w * float3x3(MRc.a * MRc.rgb, MRc.rgb, MRc.aaa);
 		W += w;
 	}
 	avg /= W;
@@ -276,12 +274,12 @@ float3x3 ScaleH(float2 pos) {
 
 float4 Pass5(float2 pos) {
 	const float outputPtY = GetOutputPt().y;
-	const int low = (int)ceil(-0.5 * taps);
-	const int high = (int)floor(0.5 * taps);
+	const int low = (int)ceil(-0.5f * taps);
+	const int high = (int)floor(0.5f * taps);
 
 	float W = 0;
 	float3x3 avg = 0;
-	float2 base = pos;
+	const float2 base = pos;
 
 	[unroll]
 	for (int k = low; k <= high; k++) {
@@ -292,6 +290,6 @@ float4 Pass5(float2 pos) {
 		W += w;
 	}
 	avg /= W;
-	float3 L = scaleTex.SampleLevel(sam, base, 0).rgb;
-	return float4(GammaInv(avg[1] + avg[2] * Gamma(L) - avg[0]), 1);
+	float3 L = POSTKERNEL.SampleLevel(sam, base, 0).rgb;
+	return float4(avg[1] + avg[2] * L - avg[0], 1);
 }
