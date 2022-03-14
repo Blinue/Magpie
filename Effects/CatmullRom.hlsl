@@ -58,17 +58,17 @@ float4 Pass1(float2 pos) {
     texPos12 *= inputPt;
 
     float4 result = 0.0f;
-    result += INPUT.SampleLevel(sam, float2(texPos0.x, texPos0.y), 0.0f) * w0.x * w0.y;
-    result += INPUT.SampleLevel(sam, float2(texPos12.x, texPos0.y), 0.0f) * w12.x * w0.y;
-    result += INPUT.SampleLevel(sam, float2(texPos3.x, texPos0.y), 0.0f) * w3.x * w0.y;
+    result += INPUT.SampleLevel(sam, float2(texPos0.x, texPos0.y), 0) * w0.x * w0.y;
+    result += INPUT.SampleLevel(sam, float2(texPos12.x, texPos0.y), 0) * w12.x * w0.y;
+    result += INPUT.SampleLevel(sam, float2(texPos3.x, texPos0.y), 0) * w3.x * w0.y;
 
-    result += INPUT.SampleLevel(sam, float2(texPos0.x, texPos12.y), 0.0f) * w0.x * w12.y;
-    result += INPUT.SampleLevel(sam, float2(texPos12.x, texPos12.y), 0.0f) * w12.x * w12.y;
-    result += INPUT.SampleLevel(sam, float2(texPos3.x, texPos12.y), 0.0f) * w3.x * w12.y;
+    result += INPUT.SampleLevel(sam, float2(texPos0.x, texPos12.y), 0) * w0.x * w12.y;
+    result += INPUT.SampleLevel(sam, float2(texPos12.x, texPos12.y), 0) * w12.x * w12.y;
+    result += INPUT.SampleLevel(sam, float2(texPos3.x, texPos12.y), 0) * w3.x * w12.y;
 
-    result += INPUT.SampleLevel(sam, float2(texPos0.x, texPos3.y), 0.0f) * w0.x * w3.y;
-    result += INPUT.SampleLevel(sam, float2(texPos12.x, texPos3.y), 0.0f) * w12.x * w3.y;
-    result += INPUT.SampleLevel(sam, float2(texPos3.x, texPos3.y), 0.0f) * w3.x * w3.y;
+    result += INPUT.SampleLevel(sam, float2(texPos0.x, texPos3.y), 0) * w0.x * w3.y;
+    result += INPUT.SampleLevel(sam, float2(texPos12.x, texPos3.y), 0) * w12.x * w3.y;
+    result += INPUT.SampleLevel(sam, float2(texPos3.x, texPos3.y), 0) * w3.x * w3.y;
 
     return result;
 }
