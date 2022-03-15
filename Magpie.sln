@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.1.32228.430
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "XamlHost", "src\XamlHost\XamlHost.vcxproj", "{1801171B-65B6-400F-92FF-73EAF499CFB3}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{1801171B-65B6-400F-92FF-73EAF499CFB3}.Debug|x64.ActiveCfg = Debug|x64
+		{1801171B-65B6-400F-92FF-73EAF499CFB3}.Debug|x64.Build.0 = Debug|x64
+		{1801171B-65B6-400F-92FF-73EAF499CFB3}.Release|x64.ActiveCfg = Release|x64
+		{1801171B-65B6-400F-92FF-73EAF499CFB3}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {0114F74A-3B0C-43A4-AA0E-AB36FD4935F8}
+	EndGlobalSection
+EndGlobal
