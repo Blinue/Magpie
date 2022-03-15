@@ -84,7 +84,7 @@ void Pass1(uint2 blockStart, uint3 threadId) {
 			//  w 1 w
 			//    w   
 			c = ((b + d + f + h) * wRGB + c) / (1.0 + 4.0 * wRGB);
-			WriteToOutput(destPos, (c + e * 2) / 3);
+			WriteToOutput(destPos, c * sharpness + e * (1 - sharpness));
 		}
 	}
 }
