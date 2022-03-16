@@ -10,7 +10,9 @@
 #include <winrt/Windows.ui.xaml.media.h>
 #include <winrt/Windows.UI.Core.h>
 #include <winrt/Magpie.h>
+#include <dwmapi.h>
 
+#pragma comment(lib, "dwmapi.lib")
 
 using namespace winrt;
 using namespace Windows::UI;
@@ -89,6 +91,24 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
 	return RegisterClassEx(&wcex);
 }
 
+RTL_OSVERSIONINFOW GetOSVersion() {
+	HMODULE hNtDll = GetModuleHandle(L"ntdll.dll");
+	if (!hNtDll) {
+		return {};
+	}
+
+	auto rtlGetVersion = (LONG(WINAPI*)(PRTL_OSVERSIONINFOW))GetProcAddress(hNtDll, "RtlGetVersion");
+	if (rtlGetVersion == nullptr) {
+		return {};
+	}
+
+	RTL_OSVERSIONINFOW version{};
+	version.dwOSVersionInfoSize = sizeof(version);
+	rtlGetVersion(&version);
+
+	return version;
+}
+
 //
 //   函数: InitInstance(HINSTANCE, int)
 //
@@ -102,11 +122,21 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
 BOOL InitInstance(HINSTANCE hInstance, int nCmdShow) {
 	hInst = hInstance; // Store instance handle in our global variable
 
-	HWND hWnd = CreateWindow(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
+	auto osVersion = GetOSVersion();
+	bool isWin11 = osVersion.dwMajorVersion == 10 && osVersion.dwMinorVersion == 0 && osVersion.dwBuildNumber >= 22000;
+
+	HWND hWnd = CreateWindowEx(isWin11 ? WS_EX_NOREDIRECTIONBITMAP | WS_EX_DLGMODALFRAME : 0, szWindowClass, isWin11 ? L"" : szTitle, WS_OVERLAPPEDWINDOW,
 		CW_USEDEFAULT, CW_USEDEFAULT, 1000, 700, nullptr, nullptr, hInstance, nullptr);
 
 	if (!hWnd) {
 		return FALSE;
+	}
+
+	if (isWin11) {
+		constexpr const DWORD DWMWA_MICA_EFFECT = 1029;
+
+		BOOL value = TRUE;
+		DwmSetWindowAttribute(hWnd, DWMWA_MICA_EFFECT, &value, sizeof(value));
 	}
 
 	// Begin XAML Islands walkthrough code.

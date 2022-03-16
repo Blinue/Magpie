@@ -6,9 +6,10 @@
     xmlns:winui="using:Microsoft.UI.Xaml.Controls"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    winui:BackdropMaterial.ApplyToRootOrPageBackground="True"
     mc:Ignorable="d">
 
-    <winui:NavigationView PaneTitle="Welcome">
+    <winui:NavigationView PaneTitle="Welcome" IsBackButtonVisible="Collapsed">
         <StackPanel HorizontalAlignment="Center" Spacing="10" 
                 Padding="20" VerticalAlignment="Center">
             <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" 
