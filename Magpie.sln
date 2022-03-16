@@ -4,17 +4,69 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 17.1.32228.430
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "XamlHost", "src\XamlHost\XamlHost.vcxproj", "{1801171B-65B6-400F-92FF-73EAF499CFB3}"
+	ProjectSection(ProjectDependencies) = postProject
+		{1239537C-E5B8-427A-9E7F-EA443D1F3529} = {1239537C-E5B8-427A-9E7F-EA443D1F3529}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Magpie", "src\Magpie\Magpie.vcxproj", "{1239537C-E5B8-427A-9E7F-EA443D1F3529}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{00AB63C3-0CD3-4944-B8E6-58C86138618D}"
+	ProjectSection(SolutionItems) = preProject
+		src\Solution.props = src\Solution.props
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|ARM = Debug|ARM
+		Debug|ARM64 = Debug|ARM64
 		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|ARM = Release|ARM
+		Release|ARM64 = Release|ARM64
 		Release|x64 = Release|x64
+		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{1801171B-65B6-400F-92FF-73EAF499CFB3}.Debug|ARM.ActiveCfg = Debug|x64
+		{1801171B-65B6-400F-92FF-73EAF499CFB3}.Debug|ARM.Build.0 = Debug|x64
+		{1801171B-65B6-400F-92FF-73EAF499CFB3}.Debug|ARM64.ActiveCfg = Debug|x64
+		{1801171B-65B6-400F-92FF-73EAF499CFB3}.Debug|ARM64.Build.0 = Debug|x64
 		{1801171B-65B6-400F-92FF-73EAF499CFB3}.Debug|x64.ActiveCfg = Debug|x64
 		{1801171B-65B6-400F-92FF-73EAF499CFB3}.Debug|x64.Build.0 = Debug|x64
+		{1801171B-65B6-400F-92FF-73EAF499CFB3}.Debug|x86.ActiveCfg = Debug|x64
+		{1801171B-65B6-400F-92FF-73EAF499CFB3}.Debug|x86.Build.0 = Debug|x64
+		{1801171B-65B6-400F-92FF-73EAF499CFB3}.Release|ARM.ActiveCfg = Release|x64
+		{1801171B-65B6-400F-92FF-73EAF499CFB3}.Release|ARM.Build.0 = Release|x64
+		{1801171B-65B6-400F-92FF-73EAF499CFB3}.Release|ARM64.ActiveCfg = Release|x64
+		{1801171B-65B6-400F-92FF-73EAF499CFB3}.Release|ARM64.Build.0 = Release|x64
 		{1801171B-65B6-400F-92FF-73EAF499CFB3}.Release|x64.ActiveCfg = Release|x64
 		{1801171B-65B6-400F-92FF-73EAF499CFB3}.Release|x64.Build.0 = Release|x64
+		{1801171B-65B6-400F-92FF-73EAF499CFB3}.Release|x86.ActiveCfg = Release|x64
+		{1801171B-65B6-400F-92FF-73EAF499CFB3}.Release|x86.Build.0 = Release|x64
+		{1239537C-E5B8-427A-9E7F-EA443D1F3529}.Debug|ARM.ActiveCfg = Debug|ARM
+		{1239537C-E5B8-427A-9E7F-EA443D1F3529}.Debug|ARM.Build.0 = Debug|ARM
+		{1239537C-E5B8-427A-9E7F-EA443D1F3529}.Debug|ARM.Deploy.0 = Debug|ARM
+		{1239537C-E5B8-427A-9E7F-EA443D1F3529}.Debug|ARM64.ActiveCfg = Debug|ARM64
+		{1239537C-E5B8-427A-9E7F-EA443D1F3529}.Debug|ARM64.Build.0 = Debug|ARM64
+		{1239537C-E5B8-427A-9E7F-EA443D1F3529}.Debug|ARM64.Deploy.0 = Debug|ARM64
+		{1239537C-E5B8-427A-9E7F-EA443D1F3529}.Debug|x64.ActiveCfg = Debug|x64
+		{1239537C-E5B8-427A-9E7F-EA443D1F3529}.Debug|x64.Build.0 = Debug|x64
+		{1239537C-E5B8-427A-9E7F-EA443D1F3529}.Debug|x64.Deploy.0 = Debug|x64
+		{1239537C-E5B8-427A-9E7F-EA443D1F3529}.Debug|x86.ActiveCfg = Debug|Win32
+		{1239537C-E5B8-427A-9E7F-EA443D1F3529}.Debug|x86.Build.0 = Debug|Win32
+		{1239537C-E5B8-427A-9E7F-EA443D1F3529}.Debug|x86.Deploy.0 = Debug|Win32
+		{1239537C-E5B8-427A-9E7F-EA443D1F3529}.Release|ARM.ActiveCfg = Release|ARM
+		{1239537C-E5B8-427A-9E7F-EA443D1F3529}.Release|ARM.Build.0 = Release|ARM
+		{1239537C-E5B8-427A-9E7F-EA443D1F3529}.Release|ARM.Deploy.0 = Release|ARM
+		{1239537C-E5B8-427A-9E7F-EA443D1F3529}.Release|ARM64.ActiveCfg = Release|ARM64
+		{1239537C-E5B8-427A-9E7F-EA443D1F3529}.Release|ARM64.Build.0 = Release|ARM64
+		{1239537C-E5B8-427A-9E7F-EA443D1F3529}.Release|ARM64.Deploy.0 = Release|ARM64
+		{1239537C-E5B8-427A-9E7F-EA443D1F3529}.Release|x64.ActiveCfg = Release|x64
+		{1239537C-E5B8-427A-9E7F-EA443D1F3529}.Release|x64.Build.0 = Release|x64
+		{1239537C-E5B8-427A-9E7F-EA443D1F3529}.Release|x64.Deploy.0 = Release|x64
+		{1239537C-E5B8-427A-9E7F-EA443D1F3529}.Release|x86.ActiveCfg = Release|Win32
+		{1239537C-E5B8-427A-9E7F-EA443D1F3529}.Release|x86.Build.0 = Release|Win32
+		{1239537C-E5B8-427A-9E7F-EA443D1F3529}.Release|x86.Deploy.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

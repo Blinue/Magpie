@@ -2,17 +2,36 @@
 //
 
 #include "framework.h"
+#include <winrt/Windows.Foundation.Collections.h>
+#include <winrt/Windows.system.h>
+#include <winrt/windows.ui.xaml.hosting.h>
+#include <windows.ui.xaml.hosting.desktopwindowxamlsource.h>
+#include <winrt/windows.ui.xaml.controls.h>
+#include <winrt/Windows.ui.xaml.media.h>
+#include <winrt/Windows.UI.Core.h>
+#include <winrt/Magpie.h>
 
+
+using namespace winrt;
+using namespace Windows::UI;
+using namespace Windows::UI::Composition;
+using namespace Windows::UI::Xaml::Hosting;
+using namespace Windows::Foundation::Numerics;
+using namespace Windows::UI::Xaml::Controls;
 
 // 全局变量:
 HINSTANCE hInst;                                // 当前实例
 const wchar_t* szTitle = L"Magpie";                  // 标题栏文本
 const wchar_t* szWindowClass = L"Magpie_XamlHost";            // 主窗口类名
+winrt::Magpie::App hostApp{ nullptr };
+winrt::Windows::UI::Xaml::Hosting::DesktopWindowXamlSource _desktopWindowXamlSource{ nullptr };
+winrt::Magpie::MainPage _myUserControl{ nullptr };
 
 // 此代码模块中包含的函数的前向声明:
 ATOM                MyRegisterClass(HINSTANCE hInstance);
 BOOL                InitInstance(HINSTANCE, int);
 LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
+void AdjustLayout(HWND);
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 					 _In_opt_ HINSTANCE hPrevInstance,
@@ -20,6 +39,10 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 					 _In_ int       nCmdShow) {
 	UNREFERENCED_PARAMETER(hPrevInstance);
 	UNREFERENCED_PARAMETER(lpCmdLine);
+
+	winrt::init_apartment(winrt::apartment_type::single_threaded);
+	hostApp = winrt::Magpie::App{};
+	_desktopWindowXamlSource = winrt::Windows::UI::Xaml::Hosting::DesktopWindowXamlSource{};
 
 	MyRegisterClass(hInstance);
 
@@ -76,22 +99,34 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
 //        在此函数中，我们在全局变量中保存实例句柄并
 //        创建和显示主程序窗口。
 //
-BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
-{
-   hInst = hInstance; // 将实例句柄存储在全局变量中
+BOOL InitInstance(HINSTANCE hInstance, int nCmdShow) {
+	hInst = hInstance; // Store instance handle in our global variable
 
-   HWND hWnd = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
-	  CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, nullptr, nullptr, hInstance, nullptr);
+	HWND hWnd = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
+		CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, nullptr, nullptr, hInstance, nullptr);
 
-   if (!hWnd)
-   {
-	  return FALSE;
-   }
+	if (!hWnd) {
+		return FALSE;
+	}
 
-   ShowWindow(hWnd, nCmdShow);
-   UpdateWindow(hWnd);
+	// Begin XAML Islands walkthrough code.
+	if (_desktopWindowXamlSource != nullptr) {
+		auto interop = _desktopWindowXamlSource.as<IDesktopWindowXamlSourceNative>();
+		check_hresult(interop->AttachToWindow(hWnd));
+		HWND hWndXamlIsland = nullptr;
+		interop->get_WindowHandle(&hWndXamlIsland);
+		RECT windowRect;
+		::GetWindowRect(hWnd, &windowRect);
+		::SetWindowPos(hWndXamlIsland, NULL, 0, 0, windowRect.right - windowRect.left, windowRect.bottom - windowRect.top, SWP_SHOWWINDOW);
+		_myUserControl = winrt::Magpie::MainPage();
+		_desktopWindowXamlSource.Content(_myUserControl);
+	}
+	// End XAML Islands walkthrough code.
 
-   return TRUE;
+	ShowWindow(hWnd, nCmdShow);
+	UpdateWindow(hWnd);
+
+	return TRUE;
 }
 
 //
@@ -118,10 +153,28 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		break;
 	case WM_DESTROY:
 		PostQuitMessage(0);
+		if (_desktopWindowXamlSource != nullptr) {
+			_desktopWindowXamlSource.Close();
+			_desktopWindowXamlSource = nullptr;
+		}
+		break;
+	case WM_SIZE:
+		AdjustLayout(hWnd);
 		break;
 	default:
 		return DefWindowProc(hWnd, message, wParam, lParam);
 	}
 	return 0;
+}
+
+void AdjustLayout(HWND hWnd) {
+	if (_desktopWindowXamlSource != nullptr) {
+		auto interop = _desktopWindowXamlSource.as<IDesktopWindowXamlSourceNative>();
+		HWND xamlHostHwnd = NULL;
+		check_hresult(interop->get_WindowHandle(&xamlHostHwnd));
+		RECT windowRect;
+		::GetWindowRect(hWnd, &windowRect);
+		::SetWindowPos(xamlHostHwnd, NULL, 0, 0, windowRect.right - windowRect.left, windowRect.bottom - windowRect.top, SWP_SHOWWINDOW);
+	}
 }
 
