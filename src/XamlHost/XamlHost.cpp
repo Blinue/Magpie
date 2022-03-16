@@ -70,7 +70,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 //
 ATOM MyRegisterClass(HINSTANCE hInstance)
 {
-	WNDCLASSEXW wcex;
+	WNDCLASSEXW wcex{};
 
 	wcex.cbSize = sizeof(WNDCLASSEX);
 
@@ -116,7 +116,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow) {
 		HWND hWndXamlIsland = nullptr;
 		interop->get_WindowHandle(&hWndXamlIsland);
 		RECT windowRect;
-		::GetWindowRect(hWnd, &windowRect);
+		::GetClientRect(hWnd, &windowRect);
 		::SetWindowPos(hWndXamlIsland, NULL, 0, 0, windowRect.right - windowRect.left, windowRect.bottom - windowRect.top, SWP_SHOWWINDOW);
 		_myUserControl = winrt::Magpie::MainPage();
 		_desktopWindowXamlSource.Content(_myUserControl);
@@ -173,7 +173,7 @@ void AdjustLayout(HWND hWnd) {
 		HWND xamlHostHwnd = NULL;
 		check_hresult(interop->get_WindowHandle(&xamlHostHwnd));
 		RECT windowRect;
-		::GetWindowRect(hWnd, &windowRect);
+		::GetClientRect(hWnd, &windowRect);
 		::SetWindowPos(xamlHostHwnd, NULL, 0, 0, windowRect.right - windowRect.left, windowRect.bottom - windowRect.top, SWP_SHOWWINDOW);
 	}
 }

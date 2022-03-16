@@ -3,17 +3,20 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:Magpie"
+    xmlns:winui="using:Microsoft.UI.Xaml.Controls"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
-    <StackPanel HorizontalAlignment="Center" Spacing="10" 
+    <winui:NavigationView PaneTitle="Welcome">
+        <StackPanel HorizontalAlignment="Center" Spacing="10" 
                 Padding="20" VerticalAlignment="Center">
-        <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" 
+            <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" 
                        Text="Hello from XAML Islands" FontSize="30" />
-        <TextBlock HorizontalAlignment="Center" Margin="15" TextWrapping="Wrap"
+            <TextBlock HorizontalAlignment="Center" Margin="15" TextWrapping="Wrap"
                        Text="😍❤💋🌹🎉😎🐱‍👤" FontSize="16" />
-        <Button HorizontalAlignment="Center" 
+            <Button HorizontalAlignment="Center" 
                 x:Name="Button" Click="ClickHandler">Click Me</Button>
-    </StackPanel>
+        </StackPanel>
+    </winui:NavigationView>
 </UserControl>
