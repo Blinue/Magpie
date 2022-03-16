@@ -102,8 +102,8 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
 BOOL InitInstance(HINSTANCE hInstance, int nCmdShow) {
 	hInst = hInstance; // Store instance handle in our global variable
 
-	HWND hWnd = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
-		CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, nullptr, nullptr, hInstance, nullptr);
+	HWND hWnd = CreateWindow(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
+		CW_USEDEFAULT, CW_USEDEFAULT, 1000, 700, nullptr, nullptr, hInstance, nullptr);
 
 	if (!hWnd) {
 		return FALSE;
@@ -115,9 +115,6 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow) {
 		check_hresult(interop->AttachToWindow(hWnd));
 		HWND hWndXamlIsland = nullptr;
 		interop->get_WindowHandle(&hWndXamlIsland);
-		RECT windowRect;
-		::GetClientRect(hWnd, &windowRect);
-		::SetWindowPos(hWndXamlIsland, NULL, 0, 0, windowRect.right - windowRect.left, windowRect.bottom - windowRect.top, SWP_SHOWWINDOW);
 		_myUserControl = winrt::Magpie::MainPage();
 		_desktopWindowXamlSource.Content(_myUserControl);
 	}
