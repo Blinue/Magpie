@@ -1,6 +1,6 @@
 #pragma once
 
-namespace winrt::Magpie::implementation {
+namespace winrt::Magpie::App::implementation {
 template <typename D, typename... I>
 struct App_baseWithProvider : public App_base<D, ::winrt::Windows::UI::Xaml::Markup::IXamlMetadataProvider> {
     using IXamlType = ::winrt::Windows::UI::Xaml::Markup::IXamlType;

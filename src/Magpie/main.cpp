@@ -9,7 +9,7 @@
 #include <winrt/windows.ui.xaml.controls.h>
 #include <winrt/Windows.ui.xaml.media.h>
 #include <winrt/Windows.UI.Core.h>
-#include <winrt/Magpie.h>
+#include <winrt/Magpie.App.h>
 #include <dwmapi.h>
 
 #pragma comment(lib, "dwmapi.lib")
@@ -25,9 +25,9 @@ using namespace Windows::UI::Xaml::Controls;
 HINSTANCE hInst;                                // 当前实例
 const wchar_t* szTitle = L"Magpie";                  // 标题栏文本
 const wchar_t* szWindowClass = L"Magpie_XamlHost";            // 主窗口类名
-winrt::Magpie::App hostApp{ nullptr };
+winrt::Magpie::App::App hostApp{ nullptr };
 winrt::Windows::UI::Xaml::Hosting::DesktopWindowXamlSource _desktopWindowXamlSource{ nullptr };
-winrt::Magpie::MainPage _myUserControl{ nullptr };
+winrt::Magpie::App::MainPage _myUserControl{ nullptr };
 
 // 此代码模块中包含的函数的前向声明:
 ATOM                MyRegisterClass(HINSTANCE hInstance);
@@ -43,7 +43,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	UNREFERENCED_PARAMETER(lpCmdLine);
 
 	winrt::init_apartment(winrt::apartment_type::single_threaded);
-	hostApp = winrt::Magpie::App{};
+	hostApp = winrt::Magpie::App::App{};
 	_desktopWindowXamlSource = winrt::Windows::UI::Xaml::Hosting::DesktopWindowXamlSource{};
 
 	MyRegisterClass(hInstance);
@@ -145,7 +145,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow) {
 		check_hresult(interop->AttachToWindow(hWnd));
 		HWND hWndXamlIsland = nullptr;
 		interop->get_WindowHandle(&hWndXamlIsland);
-		_myUserControl = winrt::Magpie::MainPage();
+		_myUserControl = winrt::Magpie::App::MainPage();
 		_desktopWindowXamlSource.Content(_myUserControl);
 	}
 	// End XAML Islands walkthrough code.

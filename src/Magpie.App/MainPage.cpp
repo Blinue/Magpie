@@ -7,7 +7,7 @@
 using namespace winrt;
 using namespace Windows::UI::Xaml;
 
-namespace winrt::Magpie::implementation
+namespace winrt::Magpie::App::implementation
 {
     MainPage::MainPage()
     {
