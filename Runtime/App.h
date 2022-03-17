@@ -7,6 +7,8 @@
 class DeviceResources;
 class Renderer;
 class FrameSourceBase;
+class CursorManager;
+
 
 class App {
 public:
@@ -55,6 +57,10 @@ public:
 
 	Renderer& GetRenderer() noexcept {
 		return *_renderer;
+	}
+
+	CursorManager& GetCursorManager() noexcept {
+		return *_cursorManager;
 	}
 
 	FrameSourceBase& GetFrameSource() noexcept {
@@ -213,6 +219,7 @@ private:
 	std::unique_ptr<DeviceResources> _deviceResources;
 	std::unique_ptr<Renderer> _renderer;
 	std::unique_ptr<FrameSourceBase> _frameSource;
+	std::unique_ptr<CursorManager> _cursorManager;
 
 	std::map<UINT, std::function<bool(HWND, UINT, WPARAM, LPARAM)>> _wndProcHandlers;
 	UINT _nextWndProcHandlerID = 1;
