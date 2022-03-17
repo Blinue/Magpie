@@ -14,16 +14,6 @@ namespace winrt::Magpie::App::implementation
         InitializeComponent();
     }
 
-    int32_t MainPage::MyProperty()
-    {
-        throw hresult_not_implemented();
-    }
-
-    void MainPage::MyProperty(int32_t /* value */)
-    {
-        throw hresult_not_implemented();
-    }
-
     void MainPage::ClickHandler(IInspectable const&, RoutedEventArgs const&)
     {
         Button().Content(box_value(L"Clicked"));

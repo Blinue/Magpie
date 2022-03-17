@@ -2,7 +2,7 @@
 //
 
 #include "pch.h"
-#include <windows.ui.xaml.hosting.desktopwindowxamlsource.h>
+#include "XamlHost.h"
 
 
 // 全局变量:
@@ -10,14 +10,14 @@ HINSTANCE hInst;                                // 当前实例
 const wchar_t* szTitle = L"Magpie";                  // 标题栏文本
 const wchar_t* szWindowClass = L"Magpie_XamlHost";            // 主窗口类名
 winrt::Magpie::App::App hostApp{ nullptr };
-winrt::Windows::UI::Xaml::Hosting::DesktopWindowXamlSource _desktopWindowXamlSource{ nullptr };
 winrt::Magpie::App::MainPage _myUserControl{ nullptr };
+XamlHost xamlHost;
+
 
 // 此代码模块中包含的函数的前向声明:
 ATOM                MyRegisterClass(HINSTANCE hInstance);
 BOOL                InitInstance(HINSTANCE, int);
 LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
-void AdjustLayout(HWND);
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 					 _In_opt_ HINSTANCE hPrevInstance,
@@ -28,7 +28,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
 	winrt::init_apartment(winrt::apartment_type::single_threaded);
 	hostApp = winrt::Magpie::App::App{};
-	_desktopWindowXamlSource = winrt::Windows::UI::Xaml::Hosting::DesktopWindowXamlSource{};
 
 	MyRegisterClass(hInstance);
 
@@ -41,6 +40,10 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
 	// 主消息循环:
 	while (GetMessage(&msg, nullptr, 0, 0)) {
+		if (xamlHost.PreHandleMessage(msg)) {
+			continue;
+		}
+
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);
 	}
@@ -123,16 +126,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow) {
 		DwmSetWindowAttribute(hWnd, DWMWA_MICA_EFFECT, &value, sizeof(value));
 	}
 
-	// Begin XAML Islands walkthrough code.
-	if (_desktopWindowXamlSource != nullptr) {
-		auto interop = _desktopWindowXamlSource.as<IDesktopWindowXamlSourceNative>();
-		winrt::check_hresult(interop->AttachToWindow(hWnd));
-		HWND hWndXamlIsland = nullptr;
-		interop->get_WindowHandle(&hWndXamlIsland);
-		_myUserControl = winrt::Magpie::App::MainPage();
-		_desktopWindowXamlSource.Content(_myUserControl);
-	}
-	// End XAML Islands walkthrough code.
+	xamlHost.Attach(hWnd, winrt::Magpie::App::MainPage());
 
 	ShowWindow(hWnd, nCmdShow);
 	UpdateWindow(hWnd);
@@ -152,40 +146,22 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow) {
 //
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
+	xamlHost.HandleMessage(hWnd, message, wParam, lParam);
+
 	switch (message)
 	{
 	case WM_PAINT:
-		{
-			PAINTSTRUCT ps;
-			HDC hdc = BeginPaint(hWnd, &ps);
-			// TODO: 在此处添加使用 hdc 的任何绘图代码...
-			EndPaint(hWnd, &ps);
-		}
+	{
+		PAINTSTRUCT ps;
+		HDC hdc = BeginPaint(hWnd, &ps);
+		EndPaint(hWnd, &ps);
 		break;
+	}
 	case WM_DESTROY:
 		PostQuitMessage(0);
-		if (_desktopWindowXamlSource != nullptr) {
-			_desktopWindowXamlSource.Close();
-			_desktopWindowXamlSource = nullptr;
-		}
-		break;
-	case WM_SIZE:
-		AdjustLayout(hWnd);
 		break;
 	default:
 		return DefWindowProc(hWnd, message, wParam, lParam);
 	}
 	return 0;
 }
-
-void AdjustLayout(HWND hWnd) {
-	if (_desktopWindowXamlSource != nullptr) {
-		auto interop = _desktopWindowXamlSource.as<IDesktopWindowXamlSourceNative>();
-		HWND xamlHostHwnd = NULL;
-		winrt::check_hresult(interop->get_WindowHandle(&xamlHostHwnd));
-		RECT windowRect;
-		::GetClientRect(hWnd, &windowRect);
-		::SetWindowPos(xamlHostHwnd, NULL, 0, 0, windowRect.right - windowRect.left, windowRect.bottom - windowRect.top, SWP_SHOWWINDOW);
-	}
-}
-

@@ -4,6 +4,5 @@ namespace Magpie.App
     runtimeclass MainPage : Windows.UI.Xaml.Controls.UserControl
     {
         MainPage();
-        Int32 MyProperty;
     }
 }
