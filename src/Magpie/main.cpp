@@ -1,25 +1,9 @@
 // Magpie.cpp : 定义应用程序的入口点。
 //
 
-#include "framework.h"
-#include <winrt/Windows.Foundation.Collections.h>
-#include <winrt/Windows.system.h>
-#include <winrt/windows.ui.xaml.hosting.h>
+#include "pch.h"
 #include <windows.ui.xaml.hosting.desktopwindowxamlsource.h>
-#include <winrt/windows.ui.xaml.controls.h>
-#include <winrt/Windows.ui.xaml.media.h>
-#include <winrt/Windows.UI.Core.h>
-#include <winrt/Magpie.App.h>
-#include <dwmapi.h>
 
-#pragma comment(lib, "dwmapi.lib")
-
-using namespace winrt;
-using namespace Windows::UI;
-using namespace Windows::UI::Composition;
-using namespace Windows::UI::Xaml::Hosting;
-using namespace Windows::Foundation::Numerics;
-using namespace Windows::UI::Xaml::Controls;
 
 // 全局变量:
 HINSTANCE hInst;                                // 当前实例
@@ -142,7 +126,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow) {
 	// Begin XAML Islands walkthrough code.
 	if (_desktopWindowXamlSource != nullptr) {
 		auto interop = _desktopWindowXamlSource.as<IDesktopWindowXamlSourceNative>();
-		check_hresult(interop->AttachToWindow(hWnd));
+		winrt::check_hresult(interop->AttachToWindow(hWnd));
 		HWND hWndXamlIsland = nullptr;
 		interop->get_WindowHandle(&hWndXamlIsland);
 		_myUserControl = winrt::Magpie::App::MainPage();
@@ -198,7 +182,7 @@ void AdjustLayout(HWND hWnd) {
 	if (_desktopWindowXamlSource != nullptr) {
 		auto interop = _desktopWindowXamlSource.as<IDesktopWindowXamlSourceNative>();
 		HWND xamlHostHwnd = NULL;
-		check_hresult(interop->get_WindowHandle(&xamlHostHwnd));
+		winrt::check_hresult(interop->get_WindowHandle(&xamlHostHwnd));
 		RECT windowRect;
 		::GetClientRect(hWnd, &windowRect);
 		::SetWindowPos(xamlHostHwnd, NULL, 0, 0, windowRect.right - windowRect.left, windowRect.bottom - windowRect.top, SWP_SHOWWINDOW);
