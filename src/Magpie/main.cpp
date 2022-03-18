@@ -62,8 +62,6 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
 	WNDCLASSEXW wcex{};
 
 	wcex.cbSize = sizeof(WNDCLASSEX);
-
-	wcex.style          = CS_HREDRAW | CS_VREDRAW;
 	wcex.lpfnWndProc    = WndProc;
 	wcex.cbClsExtra     = 0;
 	wcex.cbWndExtra     = 0;
@@ -144,24 +142,16 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow) {
 //  WM_DESTROY  - 发送退出消息并返回
 //
 //
-LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
-{
+LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
 	xamlHost.HandleMessage(hWnd, message, wParam, lParam);
 
-	switch (message)
-	{
-	case WM_PAINT:
-	{
-		PAINTSTRUCT ps;
-		HDC hdc = BeginPaint(hWnd, &ps);
-		EndPaint(hWnd, &ps);
-		break;
-	}
+	switch (message) {
 	case WM_DESTROY:
 		PostQuitMessage(0);
 		break;
 	default:
 		return DefWindowProc(hWnd, message, wParam, lParam);
 	}
+
 	return 0;
 }

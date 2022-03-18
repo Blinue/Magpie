@@ -20,10 +20,6 @@ void XamlHost::Attach(HWND parent, winrt::Windows::UI::Xaml::UIElement xamlEleme
 
 	interop->get_WindowHandle(&_hwndXamlIsland);
 	_xamlSource.Content(xamlElement);
-
-	ShowWindow(_hwndXamlIsland, SW_SHOW);
-
-	_OnResize();
 }
 
 void XamlHost::Detach() {
@@ -70,6 +66,13 @@ void XamlHost::HandleMessage(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 	case WM_DESTROY:
 		Detach();
 		break;
+	case WM_PAINT:
+	{
+		PAINTSTRUCT ps;
+		HDC hdc = BeginPaint(hWnd, &ps);
+		EndPaint(hWnd, &ps);
+		break;
+	}
 	default:
 		break;
 	}
