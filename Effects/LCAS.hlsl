@@ -9,12 +9,6 @@
 //!MAX 1
 float sharpness;
 
-//!PARAMETER
-//!DEFAULT 0.2
-//!MIN 0
-//!MAX 1
-float threshold;
-
 //!TEXTURE
 Texture2D INPUT;
 
@@ -60,15 +54,12 @@ void Pass1(uint2 blockStart, uint3 threadId) {
 			float3 d = INPUT.SampleLevel(sam, pos + float2(-inputPt.x, 0), 0).rgb;
 			float3 f = INPUT.SampleLevel(sam, pos + float2(inputPt.x, 0), 0).rgb;
 			float3 h = INPUT.SampleLevel(sam, pos + float2(0, inputPt.y), 0).rgb;
-
+	
 			float3 e = INPUT.SampleLevel(sam, pos + float2(inputPt.x, 0) * 0.36 + float2(0, inputPt.y) * 0.36, 0).rgb;
 			e += INPUT.SampleLevel(sam, pos - float2(inputPt.x, 0) * 0.36 - float2(0, inputPt.y) * 0.36, 0).rgb;
 			e += INPUT.SampleLevel(sam, pos + float2(inputPt.x, 0) * 0.36 - float2(0, inputPt.y) * 0.36, 0).rgb;
 			e += INPUT.SampleLevel(sam, pos - float2(inputPt.x, 0) * 0.36 + float2(0, inputPt.y) * 0.36, 0).rgb;
 			e /= 4;
-
-			// Edge checker.
-			float edge = length(abs(d - f) + abs(b - h));
 
 			// Soft min and max.
 			//    b
@@ -81,14 +72,11 @@ void Pass1(uint2 blockStart, uint3 threadId) {
 			// Shaping amount of sharpening.
 			float3 wRGB = sqrt(min(mnRGB, 1.0 - mxRGB) / mxRGB) * lerp(-0.125, -0.2, sharpness);
 
-			// Sharpen edge and mask.
-			float3 c = lerp((e * 3 - (b + d + f + h + e * 2) / 3), (e * 2 - (b + d + f + h) * 0.25), (edge >= threshold));
-
 			// Filter shape.
 			//    w  
 			//  w 1 w
 			//    w   
-			c = ((b + d + f + h) * wRGB + c) / (1.0 + 4.0 * wRGB);
+			float3 c = ((b + d + f + h) * wRGB + (e * 3 - (b + d + f + h + e * 2) / 3)) / (1.0 + 4.0 * wRGB);
 			WriteToOutput(destPos, (c + clamp(c, mnRGB, mxRGB) * 3) / 4);
 		}
 	}
