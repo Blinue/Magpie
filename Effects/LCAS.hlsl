@@ -4,7 +4,7 @@
 //!VERSION 2
 
 //!PARAMETER
-//!DEFAULT 0.4
+//!DEFAULT 0.8
 //!MIN 0
 //!MAX 1
 float sharpness;
@@ -89,7 +89,7 @@ void Pass1(uint2 blockStart, uint3 threadId) {
 			//  w 1 w
 			//    w   
 			c = ((b + d + f + h) * wRGB + c) / (1.0 + 4.0 * wRGB);
-			WriteToOutput(destPos, c);
+			WriteToOutput(destPos, (c + clamp(c, mnRGB, mxRGB) * 3) / 4);
 		}
 	}
 }
