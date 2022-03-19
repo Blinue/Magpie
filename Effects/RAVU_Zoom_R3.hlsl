@@ -24,11 +24,11 @@ SamplerState sam1;
 
 //!PASS 1
 //!IN INPUT, ravu_zoom_lut3
-//!BLOCK_SIZE 32, 8
-//!NUM_THREADS 32, 8
+//!BLOCK_SIZE 16, 16
+//!NUM_THREADS 16, 16
 
-#define NUM_PIXELS_X (MP_BLOCK_WIDTH + 6)
-#define NUM_PIXELS_Y (MP_BLOCK_HEIGHT + 4)
+#define NUM_PIXELS_X (MP_BLOCK_WIDTH + 5)
+#define NUM_PIXELS_Y (MP_BLOCK_HEIGHT + 5)
 
 groupshared float samples[NUM_PIXELS_X * NUM_PIXELS_Y];
 
@@ -87,44 +87,44 @@ void Pass1(uint2 blockStart, uint3 threadId) {
 	float2 subpix_inv = 1.0 - subpix;
 	subpix /= float2(5.0, 288.0);
 	subpix_inv /= float2(5.0, 288.0);
-	uint2 ipos = uint2(floor(pos)) - rectl;
-	int lpos = ipos.x + ipos.y * NUM_PIXELS_X;
-	float sample0 = samples[-78 + lpos];
-	float sample1 = samples[-40 + lpos];
-	float sample2 = samples[-2 + lpos];
-	float sample3 = samples[36 + lpos];
-	float sample4 = samples[74 + lpos];
-	float sample5 = samples[112 + lpos];
-	float sample6 = samples[-77 + lpos];
-	float sample7 = samples[-39 + lpos];
-	float sample8 = samples[-1 + lpos];
-	float sample9 = samples[37 + lpos];
-	float sample10 = samples[75 + lpos];
-	float sample11 = samples[113 + lpos];
-	float sample12 = samples[-76 + lpos];
-	float sample13 = samples[-38 + lpos];
-	float sample14 = samples[0 + lpos];
-	float sample15 = samples[38 + lpos];
-	float sample16 = samples[76 + lpos];
-	float sample17 = samples[114 + lpos];
-	float sample18 = samples[-75 + lpos];
-	float sample19 = samples[-37 + lpos];
-	float sample20 = samples[1 + lpos];
-	float sample21 = samples[39 + lpos];
-	float sample22 = samples[77 + lpos];
-	float sample23 = samples[115 + lpos];
-	float sample24 = samples[-74 + lpos];
-	float sample25 = samples[-36 + lpos];
-	float sample26 = samples[2 + lpos];
-	float sample27 = samples[40 + lpos];
-	float sample28 = samples[78 + lpos];
-	float sample29 = samples[116 + lpos];
-	float sample30 = samples[-73 + lpos];
-	float sample31 = samples[-35 + lpos];
-	float sample32 = samples[3 + lpos];
-	float sample33 = samples[41 + lpos];
-	float sample34 = samples[79 + lpos];
-	float sample35 = samples[117 + lpos];
+	uint2 ipos = uint2(floor(pos) - rectl);
+	uint lpos = ipos.x + ipos.y * NUM_PIXELS_X;
+	float sample0 = samples[lpos - 2 * NUM_PIXELS_X - 2];
+	float sample1 = samples[lpos - NUM_PIXELS_X - 2];
+	float sample2 = samples[lpos - 2];
+	float sample3 = samples[lpos + NUM_PIXELS_X - 2];
+	float sample4 = samples[lpos + 2 * NUM_PIXELS_X - 2];
+	float sample5 = samples[lpos + 3 * NUM_PIXELS_X - 2];
+	float sample6 = samples[lpos - 2 * NUM_PIXELS_X - 1];
+	float sample7 = samples[lpos - NUM_PIXELS_X - 1];
+	float sample8 = samples[lpos - 1];
+	float sample9 = samples[lpos + NUM_PIXELS_X - 1];
+	float sample10 = samples[lpos + 2 * NUM_PIXELS_X - 1];
+	float sample11 = samples[lpos + 3 * NUM_PIXELS_X - 1];
+	float sample12 = samples[lpos - 2 * NUM_PIXELS_X];
+	float sample13 = samples[lpos - NUM_PIXELS_X];
+	float sample14 = samples[lpos];
+	float sample15 = samples[lpos + NUM_PIXELS_X];
+	float sample16 = samples[lpos + 2 * NUM_PIXELS_X];
+	float sample17 = samples[lpos + 3 * NUM_PIXELS_X];
+	float sample18 = samples[lpos - 2 * NUM_PIXELS_X + 1];
+	float sample19 = samples[lpos - NUM_PIXELS_X + 1];
+	float sample20 = samples[lpos + 1];
+	float sample21 = samples[lpos + NUM_PIXELS_X + 1];
+	float sample22 = samples[lpos + 2 * NUM_PIXELS_X + 1];
+	float sample23 = samples[lpos + 3 * NUM_PIXELS_X + 1];
+	float sample24 = samples[lpos - 2 * NUM_PIXELS_X + 2];
+	float sample25 = samples[lpos - NUM_PIXELS_X + 2];
+	float sample26 = samples[lpos + 2];
+	float sample27 = samples[lpos + NUM_PIXELS_X + 2];
+	float sample28 = samples[lpos + 2 * NUM_PIXELS_X + 2];
+	float sample29 = samples[lpos + 3 * NUM_PIXELS_X + 2];
+	float sample30 = samples[lpos - 2 * NUM_PIXELS_X + 3];
+	float sample31 = samples[lpos - NUM_PIXELS_X + 3];
+	float sample32 = samples[lpos + 3];
+	float sample33 = samples[lpos + NUM_PIXELS_X + 3];
+	float sample34 = samples[lpos + 2 * NUM_PIXELS_X + 3];
+	float sample35 = samples[lpos + 3 * NUM_PIXELS_X + 3];
 	float3 abd = 0;
 	float gx, gy;
 	gx = (sample13 - sample1) / 2.0;
