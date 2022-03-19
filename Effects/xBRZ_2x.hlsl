@@ -91,10 +91,10 @@ void Pass1(uint2 blockStart, uint3 threadId) {
 		return;
 	}
 
-	float2 inputPt = GetInputPt();
-	float2 outputPt = GetOutputPt();
+	const float2 inputPt = GetInputPt();
+	const float2 outputPt = GetOutputPt();
 
-	float2 pos = ((gxy >> 1) + 0.5f) * inputPt;
+	const float2 pos = ((gxy >> 1) + 0.5f) * inputPt;
 
 	//    A1 B1 C1
 	// A0 A  B  C  C4
@@ -102,13 +102,13 @@ void Pass1(uint2 blockStart, uint3 threadId) {
 	// G0 G  H  I  I4
 	//    G5 H5 I5
 
-	float4 t1 = pos.xxxy + float4(-inputPt.x, 0, inputPt.x, -2.0 * inputPt.y); // A1 B1 C1
-	float4 t2 = pos.xxxy + float4(-inputPt.x, 0, inputPt.x, -inputPt.y);		// A  B  C
-	float4 t3 = pos.xxxy + float4(-inputPt.x, 0, inputPt.x, 0);				// D  E  F
-	float4 t4 = pos.xxxy + float4(-inputPt.x, 0, inputPt.x, inputPt.y);		// G  H  I
-	float4 t5 = pos.xxxy + float4(-inputPt.x, 0, inputPt.x, 2.0 * inputPt.y);	// G5 H5 I5
-	float4 t6 = pos.xyyy + float4(-2.0 * inputPt.x, -inputPt.y, 0, inputPt.y);	// A0 D0 G0
-	float4 t7 = pos.xyyy + float4(2.0 * inputPt.x, -inputPt.y, 0, inputPt.y);	// C4 F4 I4
+	const float4 t1 = pos.xxxy + float4(-inputPt.x, 0, inputPt.x, -2.0 * inputPt.y); // A1 B1 C1
+	const float4 t2 = pos.xxxy + float4(-inputPt.x, 0, inputPt.x, -inputPt.y);		// A  B  C
+	const float4 t3 = pos.xxxy + float4(-inputPt.x, 0, inputPt.x, 0);				// D  E  F
+	const float4 t4 = pos.xxxy + float4(-inputPt.x, 0, inputPt.x, inputPt.y);		// G  H  I
+	const float4 t5 = pos.xxxy + float4(-inputPt.x, 0, inputPt.x, 2.0 * inputPt.y);	// G5 H5 I5
+	const float4 t6 = pos.xyyy + float4(-2.0 * inputPt.x, -inputPt.y, 0, inputPt.y);	// A0 D0 G0
+	const float4 t7 = pos.xyyy + float4(2.0 * inputPt.x, -inputPt.y, 0, inputPt.y);	// C4 F4 I4
 
 	//---------------------------------------
 	// Input Pixel Mapping:  20|21|22|23|24
