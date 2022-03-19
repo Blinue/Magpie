@@ -58,9 +58,14 @@ void Pass1(uint2 blockStart, uint3 threadId) {
 			//	  h 
 			float3 b = INPUT.SampleLevel(sam, pos + float2(0, -inputPt.y), 0).rgb;
 			float3 d = INPUT.SampleLevel(sam, pos + float2(-inputPt.x, 0), 0).rgb;
-			float3 e = INPUT.SampleLevel(sam, pos, 0).rgb;
 			float3 f = INPUT.SampleLevel(sam, pos + float2(inputPt.x, 0), 0).rgb;
 			float3 h = INPUT.SampleLevel(sam, pos + float2(0, inputPt.y), 0).rgb;
+
+			float3 e = INPUT.SampleLevel(sam, pos + float2(inputPt.x, 0) * 0.36 + float2(0, inputPt.y) * 0.36, 0).rgb;
+			e += INPUT.SampleLevel(sam, pos - float2(inputPt.x, 0) * 0.36 - float2(0, inputPt.y) * 0.36, 0).rgb;
+			e += INPUT.SampleLevel(sam, pos + float2(inputPt.x, 0) * 0.36 - float2(0, inputPt.y) * 0.36, 0).rgb;
+			e += INPUT.SampleLevel(sam, pos - float2(inputPt.x, 0) * 0.36 + float2(0, inputPt.y) * 0.36, 0).rgb;
+			e /= 4;
 
 			// Edge checker.
 			float edge = length(abs(d - f) + abs(b - h));
@@ -84,7 +89,7 @@ void Pass1(uint2 blockStart, uint3 threadId) {
 			//  w 1 w
 			//    w   
 			c = ((b + d + f + h) * wRGB + c) / (1.0 + 4.0 * wRGB);
-			WriteToOutput(destPos, lerp(e, c, sharpness));
+			WriteToOutput(destPos, c);
 		}
 	}
 }
