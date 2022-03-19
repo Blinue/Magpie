@@ -103,8 +103,6 @@ void Pass1(uint2 blockStart, uint3 threadId) {
 	}
 
 	const float2 inputPt = GetInputPt();
-	const float2 outputPt = GetOutputPt();
-
 	const float2 pos = ((gxy / 3) + 0.5f) * inputPt;
 
 	//    A1 B1 C1
