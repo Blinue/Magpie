@@ -210,7 +210,7 @@ void Pass4(uint2 blockStart, uint3 threadId) {
 	for (i = 0; i < taps; i += 2) {
 		[unroll]
 		for (j = 0; j < taps; j += 2) {
-			const float2 tpos = (gxy + uint2(i, j) - taps / 2 + 1) * outputPt;
+			const float2 tpos = (int2(gxy + uint2(i, j)) - taps / 2 + 1) * outputPt;
 			float4 sr = POSTKERNEL.GatherRed(sam, tpos);
 			float4 sg = POSTKERNEL.GatherGreen(sam, tpos);
 			float4 sb = POSTKERNEL.GatherBlue(sam, tpos);
@@ -306,7 +306,7 @@ void Pass5(uint2 blockStart, uint3 threadId) {
 	for (i = 0; i < taps; i += 2) {
 		[unroll]
 		for (j = 0; j < taps; j += 2) {
-			const float2 tpos = (gxy + uint2(i, j) - taps / 2 + 1) * outputPt;
+			const float2 tpos = (int2(gxy + uint2(i, j)) - taps / 2 + 1) * outputPt;
 			const float4 sr = MR.GatherRed(sam, tpos);
 			const float4 sg = MR.GatherGreen(sam, tpos);
 			const float4 sb = MR.GatherBlue(sam, tpos);

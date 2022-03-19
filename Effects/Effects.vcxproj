@@ -224,9 +224,6 @@
     <CopyFileToFolders Include="xBRZ_Freescale.hlsl">
       <FileType>Document</FileType>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="xBRZ_Freescale_MultiPass.hlsl">
-      <FileType>Document</FileType>
-    </CopyFileToFolders>
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="FXAA.hlsli">
