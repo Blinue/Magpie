@@ -82,8 +82,8 @@ void Renderer::Render() {
 		return;
 	}
 
-	_gpuTimer->BeginFrame();
-	App::Get().GetCursorManager().BeginFrame();
+	_gpuTimer->OnBeginFrame();
+	App::Get().GetCursorManager().OnBeginFrame();
 
 	if (!_UpdateDynamicConstants()) {
 		Logger::Get().Error("_UpdateDynamicConstants 失败");
@@ -172,9 +172,9 @@ bool CheckForeground(HWND hwndForeground) {
 	}
 
 	// 非多屏幕模式下退出全屏
-	if (!App::Get().IsMultiMonitorMode()) {
-		return false;
-	}
+	//if (!App::Get().IsMultiMonitorMode()) {
+	//	return false;
+	//}
 
 	if (rectForground == RECT{}) {
 		if (!Utils::GetWindowFrameRect(hwndForeground, rectForground)) {

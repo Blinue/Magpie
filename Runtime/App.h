@@ -59,10 +59,6 @@ public:
 		return *_renderer;
 	}
 
-	CursorManager& GetCursorManager() noexcept {
-		return *_cursorManager;
-	}
-
 	FrameSourceBase& GetFrameSource() noexcept {
 		return *_frameSource;
 	}
