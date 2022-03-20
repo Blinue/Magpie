@@ -104,7 +104,9 @@ bool App::Run(
 
 	_cursorManager.reset(new CursorManager());
 	if (!_cursorManager->Initialize()) {
-		Logger::Get().Error("初始化 CursorManager 失败");
+		Logger::Get().Critical("初始化 CursorManager 失败");
+		Quit();
+		_RunMessageLoop();
 		return false;
 	}
 

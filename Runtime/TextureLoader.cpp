@@ -768,7 +768,7 @@ winrt::com_ptr<ID3D11Texture2D> LoadImg(const wchar_t* fileName) {
 		return nullptr;
 	}
 
-	WICPixelFormatGUID targetFormat = useFloatFormat ? GUID_WICPixelFormat64bppRGBAHalf : GUID_WICPixelFormat32bppBGRA;
+	WICPixelFormatGUID targetFormat = useFloatFormat ? GUID_WICPixelFormat64bppRGBAHalf : GUID_WICPixelFormat32bppRGBA;
 	hr = formatConverter->Initialize(frame.get(), targetFormat, WICBitmapDitherTypeNone, nullptr, 0, WICBitmapPaletteTypeCustom);
 	if (FAILED(hr)) {
 		Logger::Get().ComError("IWICFormatConverter::Initialize 失败", hr);
@@ -798,25 +798,21 @@ winrt::com_ptr<ID3D11Texture2D> LoadImg(const wchar_t* fileName) {
 		return nullptr;
 	}
 
-	D3D11_TEXTURE2D_DESC desc{};
-	desc.Width = width;
-	desc.Height = height;
-	desc.MipLevels = 1;
-	desc.ArraySize = 1;
-	desc.Format = useFloatFormat ? DXGI_FORMAT_R16G16B16A16_FLOAT : DXGI_FORMAT_B8G8R8A8_UNORM;
-	desc.SampleDesc.Count = 1;
-	desc.SampleDesc.Quality = 0;
-	desc.Usage = D3D11_USAGE_DEFAULT;
-	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
-
 	D3D11_SUBRESOURCE_DATA initData{};
 	initData.pSysMem = buf.get();
 	initData.SysMemPitch = stride;
 
-	winrt::com_ptr<ID3D11Texture2D> result;
-	hr = App::Get().GetDeviceResources().GetD3DDevice()->CreateTexture2D(&desc, &initData, result.put());
-	if (FAILED(hr)) {
-		Logger::Get().ComError("CreateTexture2D 失败", hr);
+	winrt::com_ptr<ID3D11Texture2D> result = App::Get().GetDeviceResources().CreateTexture2D(
+        useFloatFormat ? DXGI_FORMAT_R16G16B16A16_FLOAT : DXGI_FORMAT_R8G8B8A8_UNORM,
+        width,
+        height,
+        D3D11_BIND_SHADER_RESOURCE,
+        D3D11_USAGE_IMMUTABLE,
+        0,
+        &initData
+    );
+	if (!result) {
+		Logger::Get().Error("创建纹理失败");
 		return nullptr;
 	}
 
@@ -831,8 +827,8 @@ winrt::com_ptr<ID3D11Texture2D> LoadDDS(const wchar_t* fileName) {
 		App::Get().GetDeviceResources().GetD3DDevice(),
 		fileName,
 		0,
-		D3D11_USAGE_DEFAULT,
-		D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_UNORDERED_ACCESS,
+        D3D11_USAGE_IMMUTABLE,
+		D3D11_BIND_SHADER_RESOURCE,
 		0,
 		0,
 		false,
@@ -840,29 +836,10 @@ winrt::com_ptr<ID3D11Texture2D> LoadDDS(const wchar_t* fileName) {
 		nullptr,
 		&alphaMode
 	);
-	if (FAILED(hr)) {
-		Logger::Get().ComInfo("CreateDDSTextureFromFile 失败，将尝试不作为渲染目标", hr);
-
-		// 第二次尝试，不作为渲染目标
-		hr = CreateDDSTextureFromFileEx(
-			App::Get().GetDeviceResources().GetD3DDevice(),
-			fileName,
-			0,
-			D3D11_USAGE_DEFAULT,
-			D3D11_BIND_SHADER_RESOURCE,
-			0,
-			0,
-			false,
-			result.put(),
-			nullptr,
-			&alphaMode
-		);
-
-		if (FAILED(hr)) {
-			Logger::Get().ComError("CreateDDSTextureFromFile 失败", hr);
-			return nullptr;
-		}
-	}
+    if (FAILED(hr)) {
+        Logger::Get().ComError("CreateDDSTextureFromFile 失败", hr);
+        return nullptr;
+    }
 
 	winrt::com_ptr<ID3D11Texture2D> tex = result.try_as<ID3D11Texture2D>();
 	if (!tex) {

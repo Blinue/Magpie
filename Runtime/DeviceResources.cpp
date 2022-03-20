@@ -212,6 +212,37 @@ bool DeviceResources::IsDebugLayersAvailable() {
 #endif
 }
 
+winrt::com_ptr<ID3D11Texture2D> DeviceResources::CreateTexture2D(
+	DXGI_FORMAT format,
+	UINT width,
+	UINT height,
+	UINT bindFlags,
+	D3D11_USAGE usage,
+	UINT miscFlags,
+	const D3D11_SUBRESOURCE_DATA* pInitialData
+) {
+	D3D11_TEXTURE2D_DESC desc{};
+	desc.Format = format;
+	desc.Width = width;
+	desc.Height = height;
+	desc.MipLevels = 1;
+	desc.ArraySize = 1;
+	desc.SampleDesc.Count = 1;
+	desc.SampleDesc.Quality = 0;
+	desc.BindFlags = bindFlags;
+	desc.Usage = usage;
+	desc.MiscFlags = miscFlags;
+
+	winrt::com_ptr<ID3D11Texture2D> result;
+	HRESULT hr = _d3dDevice->CreateTexture2D(&desc, pInitialData, result.put());
+	if (FAILED(hr)) {
+		Logger::Get().ComError("CreateTexture2D 失败", hr);
+		return nullptr;
+	}
+
+	return result;
+}
+
 void DeviceResources::BeginFrame() {
 	WaitForSingleObjectEx(_frameLatencyWaitableObject.get(), 1000, TRUE);
 	_d3dDC->ClearState();
@@ -231,7 +262,7 @@ bool DeviceResources::_CreateSwapChain() {
 	DXGI_SWAP_CHAIN_DESC1 sd = {};
 	sd.Width = hostWndRect.right - hostWndRect.left;
 	sd.Height = hostWndRect.bottom - hostWndRect.top;
-	sd.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
+	sd.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 	sd.AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED;
 	sd.SampleDesc.Count = 1;
 	sd.SampleDesc.Quality = 0;
@@ -310,8 +341,8 @@ bool DeviceResources::_CreateSwapChain() {
 		}
 	}
 
-	Logger::Get().Info(fmt::format("Hardware Composition 支持：{}", supportHardwareComposition ? "是" : "否"));
-	Logger::Get().Info(fmt::format("Multiplane Overlay 支持：{}", supportMPO ? "是" : "否"));
+	Logger::Get().Info(StrUtils::Concat("Hardware Composition 支持：", supportHardwareComposition ? "是" : "否"));
+	Logger::Get().Info(StrUtils::Concat("Multiplane Overlay 支持：", supportMPO ? "是" : "否"));
 
 	hr = _swapChain->GetBuffer(0, IID_PPV_ARGS(_backBuffer.put()));
 	if (FAILED(hr)) {
@@ -363,28 +394,37 @@ bool DeviceResources::GetUnorderedAccessView(ID3D11Texture2D* texture, ID3D11Uno
 	}
 }
 
-bool DeviceResources::CompileShader(std::string_view hlsl, const char* entryPoint, ID3DBlob** blob, const char* sourceName, ID3DInclude* include) {
+bool DeviceResources::CompileShader(std::string_view hlsl, const char* entryPoint, ID3DBlob** blob, const char* sourceName, ID3DInclude* include, const std::vector<std::pair<std::string, std::string>>& macros) {
 	winrt::com_ptr<ID3DBlob> errorMsgs = nullptr;
 
 	UINT flags = D3DCOMPILE_ENABLE_STRICTNESS | D3DCOMPILE_ALL_RESOURCES_BOUND;
+	if (App::Get().IsTreatWarningsAsErrors()) {
+		flags |= D3DCOMPILE_WARNINGS_ARE_ERRORS;
+	}
+
 #ifdef _DEBUG
 	flags |= D3DCOMPILE_SKIP_OPTIMIZATION | D3DCOMPILE_DEBUG;
 #else
 	flags |= D3DCOMPILE_OPTIMIZATION_LEVEL3;
 #endif // _DEBUG
 
+	std::vector<D3D_SHADER_MACRO> mc(macros.size() + 1);
+	for (UINT i = 0; i < macros.size(); ++i) {
+		mc[i] = { macros[i].first.c_str(), macros[i].second.c_str() };
+	}
+	mc.back() = { nullptr,nullptr };
 
-	HRESULT hr = D3DCompile(hlsl.data(), hlsl.size(), sourceName, nullptr, include,
+	HRESULT hr = D3DCompile(hlsl.data(), hlsl.size(), sourceName, mc.data(), include,
 		entryPoint, "cs_5_0", flags, 0, blob, errorMsgs.put());
 	if (FAILED(hr)) {
 		if (errorMsgs) {
-			Logger::Get().ComError(fmt::format("编译计算着色器失败：{}", (const char*)errorMsgs->GetBufferPointer()), hr);
+			Logger::Get().ComError(StrUtils::Concat("编译计算着色器失败：", (const char*)errorMsgs->GetBufferPointer()), hr);
 		}
 		return false;
 	} else {
 		// 警告消息
 		if (errorMsgs) {
-			Logger::Get().Warn(fmt::format("编译计算着色器时产生警告：{}", (const char*)errorMsgs->GetBufferPointer()));
+			Logger::Get().Warn(StrUtils::Concat("编译计算着色器时产生警告：", (const char*)errorMsgs->GetBufferPointer()));
 		}
 	}
 

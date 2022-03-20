@@ -6,6 +6,7 @@
 class EffectDrawer;
 class GPUTimer;
 class UIDrawer;
+class CursorManager;
 
 
 class Renderer {
@@ -23,8 +24,6 @@ public:
 	GPUTimer& GetGPUTimer() {
 		return *_gpuTimer;
 	}
-
-	
 
 	const RECT& GetOutputRect() const noexcept {
 		return _outputRect;

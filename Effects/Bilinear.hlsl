@@ -1,5 +1,5 @@
 //!MAGPIE EFFECT
-//!VERSION 1
+//!VERSION 2
 
 
 //!TEXTURE
@@ -11,8 +11,9 @@ SamplerState sam;
 
 
 //!PASS 1
-//!BIND INPUT
+//!STYLE PS
+//!IN INPUT
 
 float4 Pass1(float2 pos) {
-	return INPUT.Sample(sam, pos);
+	return INPUT.SampleLevel(sam, pos, 0);
 }

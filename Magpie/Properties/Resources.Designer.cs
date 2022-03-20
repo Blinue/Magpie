@@ -475,6 +475,15 @@ namespace Magpie.Properties {
         }
         
         /// <summary>
+        ///   查找类似 Save Sources when Resolving Effects 的本地化字符串。
+        /// </summary>
+        public static string UI_Options_Advanced_Save_Effect_Sources {
+            get {
+                return ResourceManager.GetString("UI_Options_Advanced_Save_Effect_Sources", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Show All Capture Methods 的本地化字符串。
         /// </summary>
         public static string UI_Options_Advanced_Show_All_Capture_Methods {
@@ -498,6 +507,15 @@ namespace Magpie.Properties {
         public static string UI_Options_Advanced_Simulate_Exclusive_Fullscreen {
             get {
                 return ResourceManager.GetString("UI_Options_Advanced_Simulate_Exclusive_Fullscreen", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Treat Warnings as Errors when Compiling Shaders 的本地化字符串。
+        /// </summary>
+        public static string UI_Options_Advanced_Warnings_Are_Errors {
+            get {
+                return ResourceManager.GetString("UI_Options_Advanced_Warnings_Are_Errors", resourceCulture);
             }
         }
         

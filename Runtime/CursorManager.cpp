@@ -524,7 +524,7 @@ bool CursorManager::_ResolveCursor(HCURSOR hCursor, bool resolveTexture) {
 		return true;
 	}
 
-	auto d3dDevice = App::Get().GetDeviceResources().GetD3DDevice();
+	auto& dr = App::Get().GetDeviceResources();
 
 	BITMAPINFO bi{};
 	bi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
@@ -560,24 +560,21 @@ bool CursorManager::_ResolveCursor(HCURSOR hCursor, bool resolveTexture) {
 			downPtr += 4;
 		}
 
-		D3D11_TEXTURE2D_DESC desc{};
-		desc.Width = bmp.bmWidth;
-		desc.Height = bmp.bmHeight / 2;
-		desc.MipLevels = 1;
-		desc.ArraySize = 1;
-		desc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
-		desc.SampleDesc.Count = 1;
-		desc.SampleDesc.Quality = 0;
-		desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
-		desc.Usage = D3D11_USAGE_DEFAULT;
-
 		D3D11_SUBRESOURCE_DATA initData{};
 		initData.pSysMem = &pixels[0];
 		initData.SysMemPitch = bmp.bmWidth * 4;
 
-		HRESULT hr = d3dDevice->CreateTexture2D(&desc, &initData, _curCursorInfo->texture.put());
-		if (FAILED(hr)) {
-			Logger::Get().ComError("创建 Texture2D 失败", hr);
+		_curCursorInfo->texture = dr.CreateTexture2D(
+			DXGI_FORMAT_R8G8B8A8_UNORM,
+			bmp.bmWidth,
+			bmp.bmHeight / 2,
+			D3D11_BIND_SHADER_RESOURCE,
+			D3D11_USAGE_IMMUTABLE,
+			0,
+			&initData
+		);
+		if (!_curCursorInfo->texture) {
+			Logger::Get().Error("创建纹理失败");
 			return false;
 		}
 
@@ -609,9 +606,11 @@ bool CursorManager::_ResolveCursor(HCURSOR hCursor, bool resolveTexture) {
 		for (size_t i = 0; i < bi.bmiHeader.biSizeImage; i += 4) {
 			// 预乘 Alpha 通道
 			double alpha = pixels[i + 3] / 255.0f;
-			pixels[i + 0] = (BYTE)std::lround(pixels[i + 0] * alpha);
+
+			BYTE b = (BYTE)std::lround(pixels[i] * alpha);
+			pixels[i] = (BYTE)std::lround(pixels[i + 2] * alpha);
 			pixels[i + 1] = (BYTE)std::lround(pixels[i + 1] * alpha);
-			pixels[i + 2] = (BYTE)std::lround(pixels[i + 2] * alpha);
+			pixels[i + 2] = b;
 			
 			pixels[i + 3] = 255 - pixels[i + 3];
 		}
@@ -630,28 +629,26 @@ bool CursorManager::_ResolveCursor(HCURSOR hCursor, bool resolveTexture) {
 
 		// 将 XOR 掩码复制到透明通道中
 		for (size_t i = 0; i < bi.bmiHeader.biSizeImage; i += 4) {
+			std::swap(pixels[i], pixels[i + 2]);
 			pixels[i + 3] = maskPixels[i];
 		}
 	}
-
-	D3D11_TEXTURE2D_DESC desc{};
-	desc.Width = bmp.bmWidth;
-	desc.Height = bmp.bmHeight;
-	desc.MipLevels = 1;
-	desc.ArraySize = 1;
-	desc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
-	desc.SampleDesc.Count = 1;
-	desc.SampleDesc.Quality = 0;
-	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
-	desc.Usage = D3D11_USAGE_IMMUTABLE;
 
 	D3D11_SUBRESOURCE_DATA initData{};
 	initData.pSysMem = &pixels[0];
 	initData.SysMemPitch = bmp.bmWidth * 4;
 
-	HRESULT hr = d3dDevice->CreateTexture2D(&desc, &initData, _curCursorInfo->texture.put());
-	if (FAILED(hr)) {
-		Logger::Get().ComError("创建 Texture2D 失败", hr);
+	_curCursorInfo->texture = dr.CreateTexture2D(
+		DXGI_FORMAT_R8G8B8A8_UNORM,
+		bmp.bmWidth,
+		bmp.bmHeight,
+		D3D11_BIND_SHADER_RESOURCE,
+		D3D11_USAGE_IMMUTABLE,
+		0,
+		&initData
+	);
+	if (!_curCursorInfo->texture) {
+		Logger::Get().Error("创建纹理失败");
 		return false;
 	}
 

@@ -4,7 +4,7 @@
 #include "Utils.h"
 #include <bitset>
 #include <charconv>
-#include "EffectCache.h"
+#include "EffectCacheManager.h"
 #include "StrUtils.h"
 #include "App.h"
 #include "DeviceResources.h"
@@ -12,7 +12,9 @@
 #include <bit>	// std::has_single_bit
 
 
-static constexpr const char* META_INDICATOR = "//!";
+static const char* META_INDICATOR = "//!";
+
+static const wchar_t* SAVE_SOURCE_DIR = L".\\sources";
 
 
 class PassInclude : public ID3DInclude {
@@ -24,7 +26,7 @@ public:
 		LPCVOID* ppData,
 		UINT* pBytes
 	) override {
-		std::wstring relativePath = L"effects\\" + StrUtils::UTF8ToUTF16(pFileName);
+		std::wstring relativePath = StrUtils::ConcatW(L"effects\\", StrUtils::UTF8ToUTF16(pFileName));
 
 		std::string file;
 		if (!Utils::ReadTextFile(relativePath.c_str(), file)) {
@@ -45,8 +47,6 @@ public:
 		return S_OK;
 	}
 };
-
-static PassInclude passInclude;
 
 UINT RemoveComments(std::string& source) {
 	// 确保以换行符结尾
@@ -449,6 +449,8 @@ UINT ResolveParameter(std::string_view block, EffectDesc& desc) {
 			paramDesc.maxValue = value;
 		}
 	} else if (token == "int") {
+		paramDesc.type = EffectConstantType::Int;
+
 		if (!defaultValue.empty()) {
 			paramDesc.defaultValue = 0;
 			if (GetNextNumber(defaultValue, std::get<int>(paramDesc.defaultValue))) {
@@ -538,7 +540,7 @@ UINT ResolveTexture(std::string_view block, EffectDesc& desc) {
 		std::string t = StrUtils::ToUpperCase(token);
 
 		if (t == "SOURCE") {
-			if (processed.any()) {
+			if (processed[0] || processed[2] || processed[3]) {
 				return 1;
 			}
 			processed[0] = true;
@@ -549,7 +551,7 @@ UINT ResolveTexture(std::string_view block, EffectDesc& desc) {
 
 			texDesc.source = token;
 		} else if (t == "FORMAT") {
-			if (processed[0] || processed[1]) {
+			if (processed[1]) {
 				return 1;
 			}
 			processed[1] = true;
@@ -558,24 +560,16 @@ UINT ResolveTexture(std::string_view block, EffectDesc& desc) {
 				return 1;
 			}
 
-			static std::unordered_map<std::string, EffectIntermediateTextureFormat> formatMap = {
-				{"R8_UNORM", EffectIntermediateTextureFormat::R8_UNORM},
-				{"R16_UNORM", EffectIntermediateTextureFormat::R16_UNORM},
-				{"R16_FLOAT", EffectIntermediateTextureFormat::R16_FLOAT},
-				{"R8G8_UNORM", EffectIntermediateTextureFormat::R8G8_UNORM},
-				{"B5G6R5_UNORM", EffectIntermediateTextureFormat::B5G6R5_UNORM},
-				{"R16G16_UNORM", EffectIntermediateTextureFormat::R16G16_UNORM},
-				{"R16G16_FLOAT", EffectIntermediateTextureFormat::R16G16_FLOAT},
-				{"R8G8B8A8_UNORM", EffectIntermediateTextureFormat::R8G8B8A8_UNORM},
-				{"B8G8R8A8_UNORM", EffectIntermediateTextureFormat::B8G8R8A8_UNORM},
-				{"R10G10B10A2_UNORM", EffectIntermediateTextureFormat::R10G10B10A2_UNORM},
-				{"R32_FLOAT", EffectIntermediateTextureFormat::R32_FLOAT},
-				{"R11G11B10_FLOAT", EffectIntermediateTextureFormat::R11G11B10_FLOAT},
-				{"R32G32_FLOAT", EffectIntermediateTextureFormat::R32G32_FLOAT},
-				{"R16G16B16A16_UNORM", EffectIntermediateTextureFormat::R16G16B16A16_UNORM},
-				{"R16G16B16A16_FLOAT", EffectIntermediateTextureFormat::R16G16B16A16_FLOAT},
-				{"R32G32B32A32_FLOAT", EffectIntermediateTextureFormat::R32G32B32A32_FLOAT}
-			};
+			using enum EffectIntermediateTextureFormat;
+
+			static auto formatMap = []() {
+				std::unordered_map<std::string, EffectIntermediateTextureFormat> result;
+				// UNKNOWN 不可用
+				for (UINT i = 0, end = (UINT)std::size(EffectIntermediateTextureDesc::FORMAT_DESCS) - 1; i < end; ++i) {
+					result.emplace(EffectIntermediateTextureDesc::FORMAT_DESCS[i].name, (EffectIntermediateTextureFormat)i);
+				}
+				return result;
+			}();
 
 			auto it = formatMap.find(std::string(token));
 			if (it == formatMap.end()) {
@@ -628,11 +622,6 @@ UINT ResolveTexture(std::string_view block, EffectDesc& desc) {
 		// INPUT 已为第一个元素
 		desc.textures.pop_back();
 	} else {
-		// 否则 FORMAT 和 SOURCE 必须二选一
-		if (processed[0] == processed[1]) {
-			return 1;
-		}
-
 		texDesc.name = token;
 	}
 
@@ -748,7 +737,7 @@ UINT ResolveSampler(std::string_view block, EffectDesc& desc) {
 	return 0;
 }
 
-UINT ResolveCommon(std::string_view& block, std::string& commonHlsl) {
+UINT ResolveCommon(std::string_view& block) {
 	// 无选项
 
 	if (!CheckNextToken<true>(block, META_INDICATOR)) {
@@ -763,20 +752,25 @@ UINT ResolveCommon(std::string_view& block, std::string& commonHlsl) {
 		return 1;
 	}
 
-	commonHlsl.append(block);
-	if (commonHlsl.back() != '\n') {
-		commonHlsl.push_back('\n');
-	}
-
 	return 0;
 }
 
-UINT ResolvePassNumbers(std::vector<std::string_view>& blocks) {
+UINT ResolvePasses(
+	std::vector<std::string_view>& blocks,
+	EffectDesc& desc
+) {
+	// 必选项：IN
+	// 可选项：OUT, BLOCK_SIZE, NUM_THREADS, STYLE
+	// STYLE 为 PS 时不能有 BLOCK_SIZE 或 NUM_THREADS
+
+	std::string_view token;
+
+	// 首先解析通道序号
+
 	// first 为 Pass 序号，second 为在 blocks 中的位置
 	std::vector<std::pair<UINT, UINT>> passNumbers;
 	passNumbers.reserve(blocks.size());
 
-	std::string_view token;
 	for (UINT i = 0; i < blocks.size(); ++i) {
 		std::string_view& block = blocks[i];
 
@@ -815,238 +809,381 @@ UINT ResolvePassNumbers(std::vector<std::string_view>& blocks) {
 		blocks[i] = temp[passNumbers[i].second];
 	}
 
-	return 0;
-}
+	desc.passes.resize(blocks.size());
 
-struct TPContext {
-	ULONG index;
-	std::vector<std::string>& passSources;
-	std::vector<EffectPassDesc>& passes;
-};
+	for (UINT i = 0; i < blocks.size(); ++i) {
+		std::string_view& block = blocks[i];
+		auto& passDesc = desc.passes[i];
 
-void NTAPI TPWork(PTP_CALLBACK_INSTANCE, PVOID Context, PTP_WORK) {
-	TPContext* con = (TPContext*)Context;
-	ULONG index = InterlockedIncrement(&con->index);
-	
-	if (!App::Get().GetDeviceResources().CompileShader(con->passSources[index],
-		"__M", con->passes[index].cso.put(), fmt::format("Pass{}", index + 1).c_str(), &passInclude)) {
-		con->passes[index].cso = nullptr;
-	}
-}
-
-UINT ResolvePass(
-	std::string_view block,
-	EffectDesc& desc,
-	UINT passIndex,
-	EffectPassDesc& passDesc,
-	std::string& passHlsl,
-	std::string_view resHlsl,
-	std::string_view commonHlsl,
-	bool lastEffect,
-	bool lastPass
-) {
-	std::string_view token;
-
-	std::array<UINT, 3> numThreads{};
-	bool isPSStyle = false;
-
-	// 用于检查输入和输出中重复的纹理
-	std::unordered_map<std::string_view, UINT> texNames;
-	for (size_t i = 0; i < desc.textures.size(); ++i) {
-		texNames.emplace(desc.textures[i].name, (UINT)i);
-	}
-
-	std::bitset<5> processed;
-
-	while (true) {
-		if (!CheckNextToken<true>(block, META_INDICATOR)) {
-			break;
+		// 用于检查输入和输出中重复的纹理
+		std::unordered_map<std::string_view, UINT> texNames;
+		for (size_t i = 0; i < desc.textures.size(); ++i) {
+			texNames.emplace(desc.textures[i].name, (UINT)i);
 		}
 
-		if (GetNextToken<false>(block, token)) {
-			return 1;
-		}
+		std::bitset<5> processed;
 
-		std::string t = StrUtils::ToUpperCase(token);
-
-		if (t == "IN") {
-			if (processed[0]) {
-				return 1;
+		while (true) {
+			if (!CheckNextToken<true>(block, META_INDICATOR)) {
+				break;
 			}
-			processed[0] = true;
 
-			std::string_view binds;
-			if (GetNextString(block, binds)) {
+			if (GetNextToken<false>(block, token)) {
 				return 1;
 			}
 
-			std::vector<std::string_view> inputs = StrUtils::Split(binds, ',');
-			for (std::string_view& input : inputs) {
-				StrUtils::Trim(input);
+			std::string t = StrUtils::ToUpperCase(token);
 
-				auto it = texNames.find(input);
-				if (it == texNames.end()) {
-					// 未找到纹理名称
+			if (t == "IN") {
+				if (processed[0]) {
+					return 1;
+				}
+				processed[0] = true;
+
+				std::string_view binds;
+				if (GetNextString(block, binds)) {
 					return 1;
 				}
 
-				passDesc.inputs.push_back(it->second);
-				texNames.erase(it);
-			}
-		} else if (t == "OUT") {
-			if (processed[1]) {
-				return 1;
-			}
-			processed[1] = true;
+				std::vector<std::string_view> inputs = StrUtils::Split(binds, ',');
+				for (std::string_view& input : inputs) {
+					StrUtils::Trim(input);
 
-			std::string_view saves;
-			if (GetNextString(block, saves)) {
-				return 1;
-			}
+					auto it = texNames.find(input);
+					if (it == texNames.end()) {
+						// 未找到纹理名称
+						return 1;
+					}
 
-			std::vector<std::string_view> outputs = StrUtils::Split(saves, ',');
-			if (outputs.size() > 8) {
-				// 最多 8 个输出
-				return 1;
-			}
+					passDesc.inputs.push_back(it->second);
+					texNames.erase(it);
+				}
+			} else if (t == "OUT") {
+				if (processed[1]) {
+					return 1;
+				}
+				processed[1] = true;
 
-			for (std::string_view& output : outputs) {
-				StrUtils::Trim(output);
-
-				auto it = texNames.find(output);
-				if (it == texNames.end()) {
-					// 未找到纹理名称
+				std::string_view saves;
+				if (GetNextString(block, saves)) {
 					return 1;
 				}
 
-				passDesc.outputs.push_back(it->second);
-				texNames.erase(it);
-			}
-		} else if (t == "BLOCK_SIZE") {
-			if (processed[2]) {
-				return 1;
-			}
-			processed[2] = true;
+				std::vector<std::string_view> outputs = StrUtils::Split(saves, ',');
+				if (outputs.size() > 8) {
+					// 最多 8 个输出
+					return 1;
+				}
 
-			std::string_view val;
-			if (GetNextString(block, val)) {
-				return 1;
-			}
+				for (std::string_view& output : outputs) {
+					StrUtils::Trim(output);
 
-			std::vector<std::string_view> blockSize = StrUtils::Split(val, ',');
-			if (blockSize.size() != 2) {
-				return 1;
-			}
-			
-			UINT num;
-			if (GetNextNumber(blockSize[0], num) || num == 0) {
-				return 1;
-			}
+					auto it = texNames.find(output);
+					if (it == texNames.end()) {
+						// 未找到纹理名称
+						return 1;
+					}
 
-			if (GetNextToken<false>(blockSize[0], token) != 2) {
-				return false;
-			}
+					if (it->second == 0 || !desc.textures[it->second].source.empty()) {
+						// INPUT 和从文件读取的纹理不能作为输出
+						return 1;
+					}
 
-			passDesc.blockSize.first = num;
-			
-			if (GetNextNumber(blockSize[1], num) || num == 0) {
-				return 1;
-			}
+					passDesc.outputs.push_back(it->second);
+					texNames.erase(it);
+				}
+			} else if (t == "BLOCK_SIZE") {
+				if (processed[2]) {
+					return 1;
+				}
+				processed[2] = true;
 
-			if (GetNextToken<false>(blockSize[1], token) != 2) {
-				return false;
-			}
+				std::string_view val;
+				if (GetNextString(block, val)) {
+					return 1;
+				}
 
-			passDesc.blockSize.second = num;
-		} else if (t == "NUM_THREADS") {
-			if (processed[3]) {
-				return 1;
-			}
-			processed[3] = true;
+				std::vector<std::string_view> split = StrUtils::Split(val, ',');
+				if (split.size() > 2) {
+					return 1;
+				}
 
-			std::string_view val;
-			if (GetNextString(block, val)) {
-				return 1;
-			}
-
-			std::vector<std::string_view> split = StrUtils::Split(val, ',');
-			if (split.size() != 3) {
-				return 1;
-			}
-
-			for (int i = 0; i < 3; ++i) {
 				UINT num;
-				if (GetNextNumber(split[i], num)) {
+				if (GetNextNumber(split[0], num) || num == 0) {
 					return 1;
 				}
 
-				if (GetNextToken<false>(split[i], token) != 2) {
+				if (GetNextToken<false>(split[0], token) != 2) {
 					return false;
 				}
 
-				numThreads[i] = num;
-			}
-		} else if (t == "STYLE") {
-			if (processed[4]) {
+				passDesc.blockSize.first = num;
+
+				// 如果只有一个数字，则它同时指定长和高
+				if (split.size() == 2) {
+					if (GetNextNumber(split[1], num) || num == 0) {
+						return 1;
+					}
+
+					if (GetNextToken<false>(split[1], token) != 2) {
+						return false;
+					}
+				}
+
+				passDesc.blockSize.second = num;
+			} else if (t == "NUM_THREADS") {
+				if (processed[3]) {
+					return 1;
+				}
+				processed[3] = true;
+
+				std::string_view val;
+				if (GetNextString(block, val)) {
+					return 1;
+				}
+
+				std::vector<std::string_view> split = StrUtils::Split(val, ',');
+				if (split.size() > 3) {
+					return 1;
+				}
+
+				for (int i = 0; i < 3; ++i) {
+					UINT num = 1;
+					if (split.size() > i) {
+						if (GetNextNumber(split[i], num)) {
+							return 1;
+						}
+
+						if (GetNextToken<false>(split[i], token) != 2) {
+							return false;
+						}
+					}
+
+					passDesc.numThreads[i] = num;
+				}
+			} else if (t == "STYLE") {
+				if (processed[4]) {
+					return 1;
+				}
+				processed[4] = true;
+
+				std::string_view val;
+				if (GetNextString(block, val)) {
+					return 1;
+				}
+
+				if (val == "PS") {
+					passDesc.isPSStyle = true;
+					passDesc.blockSize.first = 16;
+					passDesc.blockSize.second = 16;
+					passDesc.numThreads = { 64,1,1 };
+				} else if (val != "CS") {
+					return 1;
+				}
+			} else {
 				return 1;
 			}
-			processed[4] = true;
+		}
 
-			std::string_view val;
-			if (GetNextString(block, val)) {
-				return 1;
-			}
-
-			if (val == "PS") {
-				isPSStyle = true;
-			} else if (val != "CS") {
+		if (passDesc.isPSStyle) {
+			if (processed[2] || processed[3]) {
 				return 1;
 			}
 		} else {
-			return 1;
+			if (!processed[2] || !processed[3]) {
+				return 1;
+			}
 		}
 	}
 
-	if (isPSStyle) {
-		if (processed[2] || processed[3]) {
-			return 1;
+	return 0;
+}
+
+
+UINT GeneratePassSource(
+	const EffectDesc& desc,
+	UINT passIdx,
+	std::string_view cbHlsl,
+	const std::vector<std::string_view>& commonBlocks,
+	std::string_view passBlock,
+	const std::map<std::string, std::variant<float, int>>& inlineParams,
+	std::string& result,
+	std::vector<std::pair<std::string, std::string>>& macros
+) {
+	bool isLastEffect = desc.flags & EFFECT_FLAG_LAST_EFFECT;
+	bool isLastPass = passIdx == desc.passes.size();
+	bool isInlineParams = desc.flags & EFFECT_FLAG_INLINE_PARAMETERS;
+
+	const EffectPassDesc& passDesc = desc.passes[(size_t)passIdx - 1];
+
+	{
+		// 估算需要的空间
+		size_t reservedSize = 2048 + cbHlsl.size() + passBlock.size();
+		for (std::string_view commonBlock : commonBlocks) {
+			reservedSize += commonBlock.size();
 		}
-		passDesc.blockSize.first = 16;
-		passDesc.blockSize.second = 16;
+
+		result.reserve(reservedSize);
 	}
 
-	passHlsl.append(resHlsl);
+	// 常量缓冲区
+	result.append(cbHlsl);
 
+	////////////////////////////////////////////////////////////////////////////////////////////////////////
+	//
+	// SRV、UAV 和采样器
+	// 
+	////////////////////////////////////////////////////////////////////////////////////////////////////////
+	
 	// SRV
 	for (int i = 0; i < passDesc.inputs.size(); ++i) {
-		passHlsl.append(fmt::format("Texture2D {} : register(t{});\n", desc.textures[passDesc.inputs[i]].name, i));
+		auto& texDesc = desc.textures[passDesc.inputs[i]];
+		result.append(fmt::format("Texture2D<{}> {} : register(t{});\n", EffectIntermediateTextureDesc::FORMAT_DESCS[(UINT)texDesc.format].srvTexelType, texDesc.name, i));
 	}
 
-	if (lastEffect && lastPass) {
-		passHlsl.append(fmt::format("Texture2D __CURSOR : register(t{});\n", passDesc.inputs.size()));
+	if (isLastEffect && isLastPass) {
+		result.append(fmt::format("Texture2D<float4> __CURSOR : register(t{});\n", passDesc.inputs.size()));
 	}
 
 	// UAV
 	if (passDesc.outputs.empty()) {
-		if (!lastPass) {
+		if (!isLastPass) {
 			return 1;
 		}
 
-		passHlsl.append("RWTexture2D<float4> __OUTPUT : register(u0);\n");
+		result.append("RWTexture2D<unorm float4> __OUTPUT : register(u0);\n");
 	} else {
-		if (lastPass) {
+		if (isLastPass) {
 			return 1;
 		}
 
 		for (int i = 0; i < passDesc.outputs.size(); ++i) {
-			passHlsl.append(fmt::format("RWTexture2D<float4> {} : register(u{});\n", desc.textures[passDesc.outputs[i]].name, i));
+			auto& texDesc = desc.textures[passDesc.outputs[i]];
+			result.append(fmt::format("RWTexture2D<{}> {} : register(u{});\n", EffectIntermediateTextureDesc::FORMAT_DESCS[(UINT)texDesc.format].uavTexelType, texDesc.name, i));
 		}
 	}
 
-	if (lastPass) {
-		if (lastEffect) {
-			passHlsl.append(R"(
-void __WriteToOutput(uint2 pos, float3 color) {
+	if (!desc.samplers.empty()) {
+		// 采样器
+		for (int i = 0; i < desc.samplers.size(); ++i) {
+			result.append(fmt::format("SamplerState {} : register(s{});\n", desc.samplers[i].name, i));
+		}
+	}
+
+	if (isLastEffect) {
+		// 绘制光标使用的采样器
+		result.append(fmt::format("SamplerState __CURSOR_SAMPLER : register(s{});\n", desc.samplers.size()));
+	}
+
+	result.push_back('\n');
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////////
+	//
+	// 内置宏
+	// 
+	////////////////////////////////////////////////////////////////////////////////////////////////////////
+	macros.reserve(64);
+	macros.emplace_back("MP_BLOCK_WIDTH", std::to_string(passDesc.blockSize.first));
+	macros.emplace_back("MP_BLOCK_HEIGHT", std::to_string(passDesc.blockSize.second));
+	macros.emplace_back("MP_NUM_THREADS_X", std::to_string(passDesc.numThreads[0]));
+	macros.emplace_back("MP_NUM_THREADS_Y", std::to_string(passDesc.numThreads[1]));
+	macros.emplace_back("MP_NUM_THREADS_Z", std::to_string(passDesc.numThreads[2]));
+
+	if (passDesc.isPSStyle) {
+		macros.emplace_back("MP_PS_STYLE", "");
+	}
+
+	if (isInlineParams) {
+		macros.emplace_back("MP_INLINE_PARAMS", "");
+	}
+
+	if (isLastPass) {
+		macros.emplace_back("MP_LAST_PASS", "");
+	}
+
+	if (isLastEffect) {
+		macros.emplace_back("MP_LAST_EFFECT", "");
+	}
+
+#ifdef _DEBUG
+	macros.emplace_back("MP_DEBUG", "");
+#endif
+
+	// 用于在 FP32 和 FP16 间切换的宏
+	static const char* numbers[] = { "1","2","3","4" };
+	if (desc.flags & EFFECT_FLAG_FP16) {
+		macros.emplace_back("MP_FP16", "");
+		macros.emplace_back("MF", "min16float");
+
+		for (UINT i = 0; i < 4; ++i) {
+			macros.emplace_back(StrUtils::Concat("MF", numbers[i]), StrUtils::Concat("min16float", numbers[i]));
+
+			for (UINT j = 0; j < 4; ++j) {
+				macros.emplace_back(StrUtils::Concat("MF", numbers[i], "x", numbers[j]), StrUtils::Concat("min16float", numbers[i], "x", numbers[j]));
+			}
+		}
+	} else {
+		macros.emplace_back("MF", "float");
+
+		for (UINT i = 0; i < 4; ++i) {
+			macros.emplace_back(StrUtils::Concat("MF", numbers[i]), StrUtils::Concat("float", numbers[i]));
+
+			for (UINT j = 0; j < 4; ++j) {
+				macros.emplace_back(StrUtils::Concat("MF", numbers[i], "x", numbers[j]), StrUtils::Concat("float", numbers[i], "x", numbers[j]));
+			}
+		}
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////////
+	//
+	// 内联常量
+	// 
+	////////////////////////////////////////////////////////////////////////////////////////////////////////
+	if (isInlineParams) {
+		std::unordered_set<std::string_view> paramNames;
+		for (const auto& d : desc.params) {
+			paramNames.emplace(d.name);
+
+			auto it = inlineParams.find(d.name);
+			if (it == inlineParams.end()) {
+				if (d.type == EffectConstantType::Float) {
+					macros.emplace_back(d.name, std::to_string(std::get<float>(d.defaultValue)));
+				} else {
+					macros.emplace_back(d.name, std::to_string(std::get<int>(d.defaultValue)));
+				}
+			} else {
+				if (it->second.index() == 1) {
+					macros.emplace_back(d.name, std::to_string(std::get<int>(it->second)));
+				} else {
+					if (d.type == EffectConstantType::Int) {
+						return 1;
+					}
+
+					macros.emplace_back(d.name, std::to_string(std::get<float>(it->second)));
+				}
+			}
+		}
+
+		for (const auto& pair : inlineParams) {
+			if (!paramNames.contains(std::string_view(pair.first))) {
+				return 1;
+			}
+		}
+
+		result.push_back('\n');
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////////
+	//
+	// 内置函数
+	// 
+	////////////////////////////////////////////////////////////////////////////////////////////////////////
+	if (isLastPass) {
+		result.append("bool CheckViewport(int2 pos) { return pos.x < __viewport.x && pos.y < __viewport.y; }\n");
+
+		if (isLastEffect) {
+			// 255.001953 的由来见 https://stackoverflow.com/questions/52103720/why-does-d3dcolortoubyte4-multiplies-components-by-255-001953f
+			result.append(R"(void WriteToOutput(uint2 pos, float3 color) {
 	pos += __offset.zw;
 	if ((int)pos.x >= __cursorRect.x && (int)pos.y >= __cursorRect.y && (int)pos.x < __cursorRect.z && (int)pos.y < __cursorRect.w) {
 		float4 mask = __CURSOR.SampleLevel(__CURSOR_SAMPLER, (pos - __cursorRect.xy + 0.5f) * __cursorPt, 0);
@@ -1056,7 +1193,7 @@ void __WriteToOutput(uint2 pos, float3 color) {
 			if (mask.a < 0.5f){
 				color = mask.rgb;
 			} else {
-				color = (uint3(round(color * 255)) ^ uint3(mask.rgb * 255)) / 255.0f;
+				color = (uint3(round(color * 255.0f)) ^ uint3(mask.rgb * 255.001953f)) / 255.0f;
 			}
 		} else {
 			if( mask.x > 0.5f) {
@@ -1074,96 +1211,159 @@ void __WriteToOutput(uint2 pos, float3 color) {
 	}
 	__OUTPUT[pos] = float4(color, 1);
 }
-
-#define WriteToOutput(pos, color) if (pos.x < __viewport.x && pos.y < __viewport.y) __WriteToOutput(pos, color)
 )");
 		} else {
-			passHlsl.append("#define WriteToOutput(pos,color) __OUTPUT[pos] = float4(color, 1)\n");
+			result.append("#define WriteToOutput(pos,color) __OUTPUT[pos] = float4(color, 1)\n");
 		}
 	}
 
-	passHlsl.append(commonHlsl).append(block);
+	result.append(R"(uint __Bfe(uint src, uint off, uint bits) { uint mask = (1u << bits) - 1; return (src >> off) & mask; }
+uint __BfiM(uint src, uint ins, uint bits) { uint mask = (1u << bits) - 1; return (ins & mask) | (src & (~mask)); }
+uint2 Rmp8x8(uint a) { return uint2(__Bfe(a, 1u, 3u), __BfiM(__Bfe(a, 3u, 3u), a, 1u)); }
+uint2 GetInputSize() { return __inputSize; }
+float2 GetInputPt() { return __inputPt; }
+uint2 GetOutputSize() { return __outputSize; }
+float2 GetOutputPt() { return __outputPt; }
+float2 GetScale() { return __scale; }
+uint GetFrameCount() { return __frameCount; }
+uint2 GetCursorPos() { return __cursorPos; }
 
-	if (passHlsl.back() != '\n') {
-		passHlsl.push_back('\n');
+)");
+
+	for (std::string_view commonBlock : commonBlocks) {
+		result.append(commonBlock);
+		result.push_back('\n');
 	}
 
-	// 入口
-	if (isPSStyle) {
+	result.append(passBlock);
+	if (result.back() == '\n') {
+		result.push_back('\n');
+	} else {
+		result.append("\n\n");
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////////
+	//
+	// 着色器入口
+	// 
+	////////////////////////////////////////////////////////////////////////////////////////////////////////
+	if (passDesc.isPSStyle) {
 		if (passDesc.outputs.size() <= 1) {
-			if (lastPass) {
-				passHlsl.append(fmt::format(R"([numthreads(64, 1, 1)]
+			if (isLastPass) {
+				result.append(fmt::format(R"([numthreads(64, 1, 1)]
 void __M(uint3 tid : SV_GroupThreadID, uint3 gid : SV_GroupID) {{
 	uint2 gxy = Rmp8x8(tid.x) + (gid.xy << 4u){0};
 	float2 pos = (gxy + 0.5f) * __outputPt;
 	float2 step = 8 * __outputPt;
+	
+	if (!CheckViewport(gxy)) {{
+		return;
+	}};
 
 	WriteToOutput(gxy, Pass{1}(pos).rgb);
+
 	gxy.x += 8u;
 	pos.x += step.x;
-	WriteToOutput(gxy, Pass{1}(pos).rgb);
+	if (CheckViewport(gxy)) {{
+		WriteToOutput(gxy, Pass{1}(pos).rgb);
+	}};
+
 	gxy.y += 8u;
 	pos.y += step.y;
-	WriteToOutput(gxy, Pass{1}(pos).rgb);
+	if (CheckViewport(gxy)) {{
+		WriteToOutput(gxy, Pass{1}(pos).rgb);
+	}};
+
 	gxy.x -= 8u;
 	pos.x -= step.x;
-	WriteToOutput(gxy, Pass{1}(pos).rgb);
-}})", lastEffect ? " + __offset.xy" : "", passIndex));
+	if (CheckViewport(gxy)) {{
+		WriteToOutput(gxy, Pass{1}(pos).rgb);
+	}};
+}}
+)", isLastEffect ? " + __offset.xy" : "", passIdx));
 			} else {
-				passHlsl.append(fmt::format(R"([numthreads(64, 1, 1)]
+				result.append(fmt::format(R"([numthreads(64, 1, 1)]
 void __M(uint3 tid : SV_GroupThreadID, uint3 gid : SV_GroupID) {{
 	uint2 gxy = Rmp8x8(tid.x) + (gid.xy << 4u);
-	float2 pos = (gxy + 0.5f) * __outputPt;
-	float2 step = 8 * __outputPt;
+	if (gxy.x >= __pass{0}OutputSize.x || gxy.y >= __pass{0}OutputSize.y) {{
+		return;
+	}}
+	float2 pos = (gxy + 0.5f) * __pass{0}OutputPt;
+	float2 step = 8 * __pass{0}OutputPt;
 
-	{0}[gxy] = Pass{1}(pos);
+	{1}[gxy] = Pass{0}(pos);
+
 	gxy.x += 8u;
 	pos.x += step.x;
-	{0}[gxy] = Pass{1}(pos);
+	if (gxy.x < __pass{0}OutputSize.x && gxy.y < __pass{0}OutputSize.y) {{
+		{1}[gxy] = Pass{0}(pos);
+	}}
+	
 	gxy.y += 8u;
 	pos.y += step.y;
-	{0}[gxy] = Pass{1}(pos);
+	if (gxy.x < __pass{0}OutputSize.x && gxy.y < __pass{0}OutputSize.y) {{
+		{1}[gxy] = Pass{0}(pos);
+	}}
+	
 	gxy.x -= 8u;
 	pos.x -= step.x;
-	{0}[gxy] = Pass{1}(pos);
-}})", desc.textures[passDesc.outputs[0]].name, passIndex));
+	if (gxy.x < __pass{0}OutputSize.x && gxy.y < __pass{0}OutputSize.y) {{
+		{1}[gxy] = Pass{0}(pos);
+	}}
+}}
+)", passIdx, desc.textures[passDesc.outputs[0]].name));
 			}
 		} else {
 			// 多渲染目标
-			if (lastPass) {
+			if (isLastPass) {
 				return 1;
 			}
 
-			passHlsl.append(R"([numthreads(64, 1, 1)]
-void __M(uint3 tid : SV_GroupThreadID, uint3 gid : SV_GroupID) {
+			result.append(fmt::format(R"([numthreads(64, 1, 1)]
+void __M(uint3 tid : SV_GroupThreadID, uint3 gid : SV_GroupID) {{
 	uint2 gxy = Rmp8x8(tid.x) + (gid.xy << 4u);
-	float2 pos = (gxy + 0.5f) * __outputPt;
-	float2 step = 8 * __outputPt;
-
-)");
+	if (gxy.x >= __pass{0}OutputSize.x || gxy.y >= __pass{0}OutputSize.y) {{
+		return;
+	}}
+	float2 pos = (gxy + 0.5f) * __pass{0}OutputPt;
+	float2 step = 8 * __pass{0}OutputPt;
+)", passIdx));
 			for (int i = 0; i < passDesc.outputs.size(); ++i) {
-				passHlsl.append(fmt::format("\tfloat4 c{};\n", i));
+				auto& texDesc = desc.textures[passDesc.outputs[i]];
+				result.append(fmt::format("\t{} c{};\n",
+					EffectIntermediateTextureDesc::FORMAT_DESCS[(UINT)texDesc.format].srvTexelType, i));
 			}
 
-			std::string callPass = fmt::format("\tPass{}(pos, ", passIndex);
+			std::string callPass = fmt::format("\tPass{}(pos, ", passIdx);
 
 			for (int i = 0; i < passDesc.outputs.size() - 1; ++i) {
 				callPass.append(fmt::format("c{}, ", i));
 			}
 			callPass.append(fmt::format("c{});\n", passDesc.outputs.size() - 1));
 			for (int i = 0; i < passDesc.outputs.size(); ++i) {
-				callPass.append(fmt::format("\t{}[gxy] = c{};\n", desc.textures[passDesc.outputs[i]].name, i));
+				callPass.append(fmt::format("\t\t\t{}[gxy] = c{};\n", desc.textures[passDesc.outputs[i]].name, i));
 			}
 
-			passHlsl.append(callPass);
-			passHlsl.append("\tgxy.x += 8u;\n\tpos.x += step.x;\n");
-			passHlsl.append(callPass);
-			passHlsl.append("\tgxy.y += 8u;\n\tpos.y += step.y;\n");
-			passHlsl.append(callPass);
-			passHlsl.append("\tgxy.x -= 8u;\n\tpos.x -= step.x;\n");
-			passHlsl.append(callPass);
-
-			passHlsl.append("}\n");
+			result.append(fmt::format(R"({0}
+	gxy.x += 8u;
+	pos.x += step.x;
+	if (gxy.x < __pass{1}OutputSize.x && gxy.y < __pass{1}OutputSize.y) {{
+		{0}
+	}}
+	
+	gxy.y += 8u;
+	pos.y += step.y;
+	if (gxy.x < __pass{1}OutputSize.x && gxy.y < __pass{1}OutputSize.y) {{
+		{0}
+	}}
+	
+	gxy.x -= 8u;
+	pos.x -= step.x;
+	if (gxy.x < __pass{1}OutputSize.x && gxy.y < __pass{1}OutputSize.y) {{
+		{0}
+	}}
+}}
+)", callPass, passIdx));
 		}
 	} else {
 		// 大部分情况下 BLOCK_SIZE 都是 2 的整数次幂，这时将乘法转换为位移
@@ -1174,127 +1374,107 @@ void __M(uint3 tid : SV_GroupThreadID, uint3 gid : SV_GroupID) {
 		} else {
 			blockStartExpr = fmt::format("gid.xy * uint2({}, {})", passDesc.blockSize.first, passDesc.blockSize.second);
 		}
-		
-		passHlsl.append(fmt::format(R"([numthreads({}, {}, {})]
+
+		result.append(fmt::format(R"([numthreads({}, {}, {})]
 void __M(uint3 tid : SV_GroupThreadID, uint3 gid : SV_GroupID) {{
 	Pass{}({}{}, tid);
 }}
-)", numThreads[0], numThreads[1], numThreads[2], passIndex, blockStartExpr, lastEffect && lastPass ? " + __offset.xy" : ""));
+)", passDesc.numThreads[0], passDesc.numThreads[1], passDesc.numThreads[2], passIdx, blockStartExpr, isLastEffect && isLastPass ? " + __offset.xy" : ""));
 	}
 
 	return 0;
 }
 
-UINT ResolvePasses(std::vector<std::string_view>& blocks, std::string_view commonHlsl, EffectDesc& desc, UINT flags) {
-	bool lastEffect = flags & EFFECT_FLAG_LAST_EFFECT;
-
-	std::string resHlsl = R"(cbuffer __CB1 : register(b0) {
+UINT CompilePasses(
+	EffectDesc& desc,
+	const std::vector<std::string_view>& commonBlocks,
+	const std::vector<std::string_view>& passBlocks,
+	const std::map<std::string, std::variant<float, int>>& inlineParams
+) {
+	////////////////////////////////////////////////////////////////////////////////////////////////////////
+	//
+	// 所有通道共用的常量缓冲区
+	// 
+	////////////////////////////////////////////////////////////////////////////////////////////////////////
+	
+	std::string cbHlsl = R"(cbuffer __CB1 : register(b0) {
 	int4 __cursorRect;
 	float2 __cursorPt;
 	uint2 __cursorPos;
 	uint __cursorType;
 	uint __frameCount;
-};)";
-
-	resHlsl.append(R"(
+};
 cbuffer __CB2 : register(b1) {
 	uint2 __inputSize;
 	uint2 __outputSize;
 	float2 __inputPt;
 	float2 __outputPt;
 	float2 __scale;
-)");
+	int2 __viewport;
+)";
 
-	if (lastEffect) {
-		resHlsl.append("\tuint2 __viewport;\n\tint4 __offset;\n");
+	if (desc.flags & EFFECT_FLAG_LAST_EFFECT) {
+		// 指定输出到屏幕的位置
+		cbHlsl.append("\tint4 __offset;\n");
 	}
 
-	if (!desc.params.empty()) {
+	// PS 样式需要获知输出纹理的尺寸
+	// 最后一个通道不需要
+	for (UINT i = 0, end = (UINT)desc.passes.size() - 1; i < end; ++i) {
+		if (desc.passes[i].isPSStyle) {
+			cbHlsl.append(fmt::format("\tuint2 __pass{0}OutputSize;\n\tfloat2 __pass{0}OutputPt;\n", i + 1));
+		}
+	}
+
+	if (!(desc.flags & EFFECT_FLAG_INLINE_PARAMETERS)) {
 		for (const auto& d : desc.params) {
-			resHlsl.append("\t")
+			cbHlsl.append("\t")
 				.append(d.type == EffectConstantType::Int ? "int " : "float ")
 				.append(d.name)
 				.append(";\n");
 		}
 	}
 
-	resHlsl.append("};\n");
-	
-	if (!desc.samplers.empty()) {
-		// 采样器
-		for (int i = 0; i < desc.samplers.size(); ++i) {
-			resHlsl.append(fmt::format("SamplerState {} : register(s{});\n", desc.samplers[i].name, i));
+	cbHlsl.append("};\n\n");
+
+	if (App::Get().IsSaveEffectSources() && !Utils::DirExists(SAVE_SOURCE_DIR)) {
+		if (!CreateDirectory(SAVE_SOURCE_DIR, nullptr)) {
+			Logger::Get().Win32Error("创建 sources 文件夹失败");
 		}
 	}
 
-	if (lastEffect) {
-		// 绘制光标使用的采样器
-		resHlsl.append(fmt::format("SamplerState __CURSOR_SAMPLER : register(s{});\n", desc.samplers.size()));
-	}
+	// 并行生成代码和编译
+	Utils::RunParallel([&](UINT id) {
+		std::string source;
+		std::vector<std::pair<std::string, std::string>> macros;
+		if (GeneratePassSource(desc, id + 1, cbHlsl, commonBlocks, passBlocks[id], inlineParams, source, macros)) {
+			Logger::Get().Error(fmt::format("生成 Pass{} 失败", id + 1));
+			return;
+		}
 
-	if (ResolvePassNumbers(blocks)) {
-		Logger::Get().Error("解析 Pass 序号失败");
-		return 1;
-	}
+		if (App::Get().IsSaveEffectSources()) {
+			if (!Utils::WriteFile(
+				fmt::format(L"{}\\{}_Pass{}.hlsl", SAVE_SOURCE_DIR, StrUtils::UTF8ToUTF16(desc.name), id + 1).c_str(),
+				source.data(),
+				source.size()
+			)) {
+				Logger::Get().Error(fmt::format("保存 Pass{} 源码失败", id + 1));
+			}
+		}
 
-	std::vector<std::string> passSources(blocks.size());
-	desc.passes.resize(blocks.size());
+		static PassInclude passInclude;
 
-	for (UINT i = 0; i < blocks.size(); ++i) {
-		if (ResolvePass(
-			blocks[i], desc, i + 1, desc.passes[i], passSources[i],
-			resHlsl, commonHlsl, lastEffect, i == blocks.size() - 1)
+		if (!App::Get().GetDeviceResources().CompileShader(source, "__M", desc.passes[id].cso.put(),
+			fmt::format("{}_Pass{}.hlsl", desc.name, id + 1).c_str(), &passInclude, macros)
 		) {
-			Logger::Get().Error(fmt::format("解析 Pass{} 失败", i + 1));
-			return 1;
+			Logger::Get().Error(fmt::format("编译 Pass{} 失败", id + 1));
 		}
-	}
+	}, (UINT)passBlocks.size());
 
-	// 编译生成的 hlsl
-	assert(!passSources.empty());
-	auto& dr = App::Get().GetDeviceResources();
-
-	if (passSources.size() == 1) {
-		if (!dr.CompileShader(passSources[0], "__M", desc.passes[0].cso.put(), "Pass1", &passInclude)) {
-			Logger::Get().Error("编译 Pass1 失败");
+	// 检查编译结果
+	for (const EffectPassDesc& d : desc.passes) {
+		if (!d.cso) {
 			return 1;
-		}
-	} else {
-		// 有多个 Pass，使用线程池加速编译
-		TPContext context = {
-			0,
-			passSources,
-			desc.passes
-		};
-
-		PTP_WORK work = CreateThreadpoolWork(TPWork, &context, nullptr);
-
-		if (work) {
-			for (size_t i = 1; i < passSources.size(); ++i) {
-				SubmitThreadpoolWork(work);
-			}
-
-			dr.CompileShader(passSources[0], "__M", desc.passes[0].cso.put(), "Pass1", &passInclude);
-
-			WaitForThreadpoolWorkCallbacks(work, FALSE);
-			CloseThreadpoolWork(work);
-
-			for (size_t i = 0; i < passSources.size(); ++i) {
-				if (!desc.passes[i].cso) {
-					Logger::Get().Error(fmt::format("编译 Pass{} 失败", i + 1));
-					return 1;
-				}
-			}
-		} else {
-			Logger::Get().Win32Error("CreateThreadpoolWork 失败，回退到单线程编译");
-
-			// 回退到单线程
-			for (size_t i = 0; i < passSources.size(); ++i) {
-				if (!dr.CompileShader(passSources[i], "__M", desc.passes[i].cso.put(), fmt::format("Pass{}", i + 1).c_str(), &passInclude)) {
-					Logger::Get().Error(fmt::format("编译 Pass{} 失败", i + 1));
-					return 1;
-				}
-			}
 		}
 	}
 
@@ -1302,12 +1482,20 @@ cbuffer __CB2 : register(b1) {
 }
 
 
-UINT EffectCompiler::Compile(const wchar_t* fileName, EffectDesc& desc, UINT flags) {
+UINT EffectCompiler::Compile(
+	std::string_view effectName,
+	UINT flags,
+	const std::map<std::string, std::variant<float, int>>& inlineParams,
+	EffectDesc& desc
+) {
 	desc = {};
-	desc.Flags = flags;
+	desc.name = effectName;
+	desc.flags = flags;
+
+	std::wstring fileName = (L"effects\\" + StrUtils::UTF8ToUTF16(effectName) + L".hlsl");
 
 	std::string source;
-	if (!Utils::ReadTextFile(fileName, source)) {
+	if (!Utils::ReadTextFile(fileName.c_str(), source)) {
 		Logger::Get().Error("读取源文件失败");
 		return 1;
 	}
@@ -1323,15 +1511,11 @@ UINT EffectCompiler::Compile(const wchar_t* fileName, EffectDesc& desc, UINT fla
 		return 1;
 	}
 
-	std::string md5;
+	std::string hash;
 	if (!App::Get().IsDisableEffectCache()) {
-		std::vector<BYTE> hash;
-		if (!Utils::Hasher::Get().Hash(source.data(), source.size(), hash)) {
-			Logger::Get().Error("计算 hash 失败");
-		} else {
-			md5 = Utils::Bin2Hex(hash.data(), hash.size());
-
-			if (EffectCache::Get().Load(fileName, md5, desc)) {
+		hash = EffectCacheManager::GetHash(source, flags & EFFECT_FLAG_INLINE_PARAMETERS ? &inlineParams : nullptr);
+		if (!hash.empty()) {
+			if (EffectCacheManager::Get().Load(effectName, hash, desc)) {
 				// 已从缓存中读取
 				return 0;
 			}
@@ -1452,8 +1636,14 @@ UINT EffectCompiler::Compile(const wchar_t* fileName, EffectDesc& desc, UINT fla
 	}
 
 	// 纹理第一个元素为 INPUT
-	EffectIntermediateTextureDesc& inputTex = desc.textures.emplace_back();
-	inputTex.name = "INPUT";
+	{
+		auto& texDesc = desc.textures.emplace_back();
+		texDesc.name = "INPUT";
+		texDesc.format = EffectIntermediateTextureFormat::R8G8B8A8_UNORM;
+		texDesc.sizeExpr.first = "INPUT_WIDTH";
+		texDesc.sizeExpr.second = "INPUT_HEIGHT";
+	}
+	
 	for (size_t i = 0; i < textureBlocks.size(); ++i) {
 		if (ResolveTexture(textureBlocks[i], desc)) {
 			Logger::Get().Error(fmt::format("解析 Texture#{} 块失败", i + 1));
@@ -1494,31 +1684,26 @@ UINT EffectCompiler::Compile(const wchar_t* fileName, EffectDesc& desc, UINT fla
 		}
 	}
 
-	std::string commonHlsl = R"(uint __Bfe(uint src, uint off, uint bits) { uint mask = (1u << bits) - 1; return (src >> off) & mask; }
-uint __BfiM(uint src, uint ins, uint bits) { uint mask = (1u << bits) - 1; return (ins & mask) | (src & (~mask)); }
-uint2 Rmp8x8(uint a) { return uint2(__Bfe(a, 1u, 3u), __BfiM(__Bfe(a, 3u, 3u), a, 1u)); }
-uint2 GetInputSize() { return __inputSize; }
-float2 GetInputPt() { return __inputPt; }
-uint2 GetOutputSize() { return __outputSize; }
-float2 GetOutputPt() { return __outputPt; }
-float2 GetScale() { return __scale; }
-uint GetFrameCount() { return __frameCount; }
-uint2 GetCursorPos() { return __cursorPos; }
-)";
-
 	for (size_t i = 0; i < commonBlocks.size(); ++i) {
-		if (ResolveCommon(commonBlocks[i], commonHlsl)) {
+		if (ResolveCommon(commonBlocks[i])) {
 			Logger::Get().Error(fmt::format("解析 Common#{} 块失败", i + 1));
 			return 1;
 		}
 	}
 
-	if (ResolvePasses(passBlocks, commonHlsl, desc, flags)) {
+	if (ResolvePasses(passBlocks, desc)) {
 		Logger::Get().Error("解析 Pass 块失败");
 		return 1;
 	}
 
-	EffectCache::Get().Save(fileName, md5, desc);
+	if (CompilePasses(desc, commonBlocks, passBlocks, inlineParams)) {
+		Logger::Get().Error("编译着色器失败");
+		return 1;
+	}
+
+	if (!App::Get().IsDisableEffectCache() && !hash.empty()) {
+		EffectCacheManager::Get().Save(effectName, hash, desc);
+	}
 
 	return 0;
 }

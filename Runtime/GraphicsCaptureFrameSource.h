@@ -3,6 +3,7 @@
 #include "FrameSourceBase.h"
 #include <winrt/Windows.Graphics.Capture.h>
 #include <Windows.Graphics.Capture.Interop.h>
+#include "Utils.h"
 
 
 namespace winrt {
@@ -35,11 +36,11 @@ protected:
 	}
 
 private:
-	bool _CaptureFromWindow(winrt::impl::com_ref<IGraphicsCaptureItemInterop> interop);
+	bool _CaptureFromWindow(IGraphicsCaptureItemInterop* interop);
 
-	bool _CaptureFromStyledWindow(winrt::impl::com_ref<IGraphicsCaptureItemInterop> interop);
+	bool _CaptureFromStyledWindow(IGraphicsCaptureItemInterop* interop);
 
-	bool _CaptureFromMonitor(winrt::impl::com_ref<IGraphicsCaptureItemInterop> interop);
+	bool _CaptureFromMonitor(IGraphicsCaptureItemInterop* interop);
 
 	void _OnFrameArrived(winrt::Direct3D11CaptureFramePool const&, winrt::IInspectable const&);
 
@@ -56,6 +57,6 @@ private:
 
 	// 用于线程同步
 	CONDITION_VARIABLE _cv{};
-	CRITICAL_SECTION _cs{};
+	Utils::CSMutex _cs;
 	bool _newFrameArrived = false;
 };

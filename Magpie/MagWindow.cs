@@ -39,6 +39,7 @@ namespace Magpie {
 		private enum FlagMasks : uint {
 			NoCursor = 0x1,
 			AdjustCursorSpeed = 0x2,
+			SaveEffectSources = 0x4,
 			SimulateExclusiveFullscreen = 0x8,
 			DisableLowLatency = 0x10,
 			BreakpointMode = 0x20,
@@ -47,7 +48,8 @@ namespace Magpie {
 			ConfineCursorIn3DGames = 0x100,
 			CropTitleBarOfUWP = 0x200,
 			DisableEffectCache = 0x400,
-			DisableVSync = 0x800
+			DisableVSync = 0x800,
+			WarningsAreErrors = 0x1000
 		}
 
 		private readonly MagWindowParams magWindowParams = new();
@@ -139,6 +141,7 @@ namespace Magpie {
 					} else {
 						uint flags = (Settings.Default.NoCursor ? (uint)FlagMasks.NoCursor : 0) |
 							(Settings.Default.AdjustCursorSpeed ? (uint)FlagMasks.AdjustCursorSpeed : 0) |
+							(Settings.Default.DebugSaveEffectSources ? (uint)FlagMasks.SaveEffectSources : 0) |
 							(Settings.Default.DisableLowLatency ? (uint)FlagMasks.DisableLowLatency : 0) |
 							(Settings.Default.DebugBreakpointMode ? (uint)FlagMasks.BreakpointMode : 0) |
 							(Settings.Default.DisableWindowResizing ? (uint)FlagMasks.DisableWindowResizing : 0) |
@@ -147,6 +150,7 @@ namespace Magpie {
 							(Settings.Default.CropTitleBarOfUWP ? (uint)FlagMasks.CropTitleBarOfUWP : 0) |
 							(Settings.Default.DebugDisableEffectCache ? (uint)FlagMasks.DisableEffectCache : 0) |
 							(Settings.Default.SimulateExclusiveFullscreen ? (uint)FlagMasks.SimulateExclusiveFullscreen : 0) |
+							(Settings.Default.DebugWarningsAreErrors ? (uint)FlagMasks.WarningsAreErrors : 0) |
 							(Settings.Default.VSync ? 0 : (uint)FlagMasks.DisableVSync);
 
 						bool customCropping = Settings.Default.CustomCropping;

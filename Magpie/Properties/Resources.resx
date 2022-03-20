@@ -256,6 +256,9 @@
   <data name="UI_Options_Advanced_Open_Logs_Folder" xml:space="preserve">
     <value>Open Logs Folder</value>
   </data>
+  <data name="UI_Options_Advanced_Save_Effect_Sources" xml:space="preserve">
+    <value>Save Sources when Resolving Effects</value>
+  </data>
   <data name="UI_Options_Advanced_Show_All_Capture_Methods" xml:space="preserve">
     <value>Show All Capture Methods</value>
   </data>
@@ -264,6 +267,9 @@
   </data>
   <data name="UI_Options_Advanced_Simulate_Exclusive_Fullscreen" xml:space="preserve">
     <value>Simulate Exclusive Fullscreen</value>
+  </data>
+  <data name="UI_Options_Advanced_Warnings_Are_Errors" xml:space="preserve">
+    <value>Treat Warnings as Errors when Compiling Shaders</value>
   </data>
   <data name="UI_Options_Application" xml:space="preserve">
     <value>Application</value>
@@ -313,6 +319,9 @@
   <data name="UI_Options_Scale_Adapter" xml:space="preserve">
     <value>Graphics Adapter</value>
   </data>
+  <data name="UI_Options_Scale_Adapter_Default" xml:space="preserve">
+    <value>Default</value>
+  </data>
   <data name="UI_Options_Scale_Adjust_Cursor_Speed" xml:space="preserve">
     <value>Adjust Cursor Speed while Zoomed</value>
   </data>
@@ -340,9 +349,6 @@
   <data name="UI_Options_Scale_Cursor_Zoom_Factor" xml:space="preserve">
     <value>Zoom Factor of the Cursor</value>
   </data>
-  <data name="UI_Options_Scale_Adapter_Default" xml:space="preserve">
-    <value>Default</value>
-  </data>
   <data name="UI_Options_Scale_Disable_Low_Latency" xml:space="preserve">
     <value>Allow Additional Latency to Improve Performance</value>
   </data>
@@ -364,9 +370,6 @@
   <data name="UI_Options_Scale_Multiple_Monitors_Nearest" xml:space="preserve">
     <value>Use the Monitor Nearest to the Source Window</value>
   </data>
-  <data name="UI_Options_Scale_VSync" xml:space="preserve">
-    <value>Vsync</value>
-  </data>
   <data name="UI_Options_Scale_Open_Scale_Config" xml:space="preserve">
     <value>Open Scale Config</value>
   </data>
@@ -375,6 +378,9 @@
   </data>
   <data name="UI_Options_Scale_Source_Window" xml:space="preserve">
     <value>Source Window</value>
+  </data>
+  <data name="UI_Options_Scale_VSync" xml:space="preserve">
+    <value>Vsync</value>
   </data>
   <data name="UI_Options_Title" xml:space="preserve">
     <value>Magpie Options</value>

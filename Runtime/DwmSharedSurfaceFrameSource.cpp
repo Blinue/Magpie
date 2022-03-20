@@ -11,8 +11,12 @@ bool DwmSharedSurfaceFrameSource::Initialize() {
 		return false;
 	}
 
-	_dwmGetDxSharedSurface = (_DwmGetDxSharedSurfaceFunc*)GetProcAddress(
-		GetModuleHandle(L"user32.dll"), "DwmGetDxSharedSurface");
+	HMODULE hUser32 = GetModuleHandle(L"user32.dll");
+	if (!hUser32) {
+		Logger::Get().Win32Error("获取 User32.dll 模块句柄失败");
+		return false;
+	}
+	_dwmGetDxSharedSurface = (_DwmGetDxSharedSurfaceFunc*)GetProcAddress(hUser32, "DwmGetDxSharedSurface");
 
 	if (!_dwmGetDxSharedSurface) {
 		Logger::Get().Win32Error("获取函数 DwmGetDxSharedSurface 地址失败");
@@ -59,18 +63,14 @@ bool DwmSharedSurfaceFrameSource::Initialize() {
 		1
 	};
 
-	D3D11_TEXTURE2D_DESC desc{};
-	desc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
-	desc.Width = frameRect.right - frameRect.left;
-	desc.Height = frameRect.bottom - frameRect.top;
-	desc.MipLevels = 1;
-	desc.ArraySize = 1;
-	desc.SampleDesc.Count = 1;
-	desc.SampleDesc.Quality = 0;
-	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_UNORDERED_ACCESS;
-	HRESULT hr = App::Get().GetDeviceResources().GetD3DDevice()->CreateTexture2D(&desc, nullptr, _output.put());
-	if (FAILED(hr)) {
-		Logger::Get().ComError("创建 Texture2D 失败", hr);
+	_output = App::Get().GetDeviceResources().CreateTexture2D(
+		DXGI_FORMAT_B8G8R8A8_UNORM,
+		frameRect.right - frameRect.left,
+		frameRect.bottom - frameRect.top,
+		D3D11_BIND_SHADER_RESOURCE
+	);
+	if (!_output) {
+		Logger::Get().Error("创建 Texture2D 失败");
 		return false;
 	}
 

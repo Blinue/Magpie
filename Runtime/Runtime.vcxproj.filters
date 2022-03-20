@@ -34,9 +34,6 @@
     <ClCompile Include="EffectCompiler.cpp">
       <Filter>渲染</Filter>
     </ClCompile>
-    <ClCompile Include="EffectCache.cpp">
-      <Filter>渲染</Filter>
-    </ClCompile>
     <ClCompile Include="FrameSourceBase.cpp">
       <Filter>捕获</Filter>
     </ClCompile>
@@ -69,6 +66,9 @@
     </ClCompile>
     <ClCompile Include="TextureLoader.cpp">
       <Filter>渲染\TextureLodader</Filter>
+    </ClCompile>
+    <ClCompile Include="EffectCacheManager.cpp">
+      <Filter>渲染</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -114,9 +114,6 @@
     <ClInclude Include="EffectCompiler.h">
       <Filter>渲染</Filter>
     </ClInclude>
-    <ClInclude Include="EffectCache.h">
-      <Filter>渲染</Filter>
-    </ClInclude>
     <ClInclude Include="DesktopDuplicationFrameSource.h">
       <Filter>捕获</Filter>
     </ClInclude>
@@ -152,6 +149,9 @@
     </ClInclude>
     <ClInclude Include="TextureLoader.h">
       <Filter>渲染\TextureLodader</Filter>
+    </ClInclude>
+    <ClInclude Include="EffectCacheManager.h">
+      <Filter>渲染</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

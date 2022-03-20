@@ -4,7 +4,8 @@ spdlog/1.9.2
 muparser/2.3.2
 yas/7.1.0
 rapidjson/cci.20211112
-imgui/1.86
+imgui/1.87
+zstd/1.5.2
 
 [generators]
 visual_studio

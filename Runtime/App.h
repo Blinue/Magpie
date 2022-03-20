@@ -59,6 +59,10 @@ public:
 		return *_renderer;
 	}
 
+	CursorManager& GetCursorManager() noexcept {
+		return *_cursorManager;
+	}
+
 	FrameSourceBase& GetFrameSource() noexcept {
 		return *_frameSource;
 	}
@@ -135,6 +139,14 @@ public:
 		return _flags & (UINT)_FlagMasks::DisableVSync;
 	}
 
+	bool IsSaveEffectSources() const noexcept {
+		return _flags & (UINT)_FlagMasks::SaveEffectSources;
+	}
+
+	bool IsTreatWarningsAsErrors() const noexcept {
+		return _flags & (UINT)_FlagMasks::WarningsAreErrors;
+	}
+
 	const char* GetErrorMsg() const noexcept {
 		return _errorMsg;
 	}
@@ -189,6 +201,7 @@ private:
 	enum class _FlagMasks : UINT {
 		NoCursor = 0x1,
 		AdjustCursorSpeed = 0x2,
+		SaveEffectSources = 0x4,
 		SimulateExclusiveFullscreen = 0x8,
 		DisableLowLatency = 0x10,
 		BreakpointMode = 0x20,
@@ -197,7 +210,8 @@ private:
 		ConfineCursorIn3DGames = 0x100,
 		CropTitleBarOfUWP = 0x200,
 		DisableEffectCache = 0x400,
-		DisableVSync = 0x800
+		DisableVSync = 0x800,
+		WarningsAreErrors = 0x1000
 	};
 
 	// 多屏幕模式下光标可以在屏幕间自由移动

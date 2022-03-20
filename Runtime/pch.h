@@ -11,11 +11,9 @@
 
 // Windows 头文件
 
-// 从 Windows 头文件中排除极少使用的内容
-#define WIN32_LEAN_AND_MEAN
-// 使用标准库的 min 和 max 而不是宏
-#define NOMINMAX
-// 排除不需要的 API
+// 从 windows.h 里排除不需要的 API
+#define WIN32_LEAN_AND_MEAN	// 排除极少使用的内容
+#define NOMINMAX	// 使用 std::min 和 std::max 而不是宏
 #define NOGDICAPMASKS
 #define NOMENUS
 #define NOICONS
@@ -61,6 +59,7 @@
 #include <functional>
 #include <algorithm>
 #include <string_view>
+#include <span>
 
 // C++/WinRT 头文件
 #include <winrt/base.h>
@@ -84,3 +83,4 @@
 
 
 using namespace std::literals::string_literals;
+using namespace std::literals::string_view_literals;

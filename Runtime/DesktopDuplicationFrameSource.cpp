@@ -107,28 +107,30 @@ bool DesktopDuplicationFrameSource::Initialize() {
 		return false;
 	}
 
-	auto d3dDevice = App::Get().GetDeviceResources().GetD3DDevice();
+	auto& dr = App::Get().GetDeviceResources();
 
-	D3D11_TEXTURE2D_DESC desc{};
-	desc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
-	desc.Width = _srcFrameRect.right - _srcFrameRect.left;
-	desc.Height = _srcFrameRect.bottom - _srcFrameRect.top;
-	desc.Usage = D3D11_USAGE_DEFAULT;
-	desc.MipLevels = 1;
-	desc.ArraySize = 1;
-	desc.SampleDesc.Count = 1;
-	desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_UNORDERED_ACCESS;
-	HRESULT hr = d3dDevice->CreateTexture2D(&desc, nullptr, _output.put());
-	if (FAILED(hr)) {
-		Logger::Get().ComError("创建 Texture2D 失败", hr);
+	_output = dr.CreateTexture2D(
+		DXGI_FORMAT_B8G8R8A8_UNORM,
+		_srcFrameRect.right - _srcFrameRect.left,
+		_srcFrameRect.bottom - _srcFrameRect.top,
+		D3D11_BIND_SHADER_RESOURCE
+	);
+	if (!_output) {
+		Logger::Get().Error("创建 Texture2D 失败");
 		return false;
 	}
 
 	// 创建共享纹理
-	desc.MiscFlags = D3D11_RESOURCE_MISC_SHARED_KEYEDMUTEX;
-	hr = d3dDevice->CreateTexture2D(&desc, nullptr, _sharedTex.put());
-	if (FAILED(hr)) {
-		Logger::Get().ComError("创建 Texture2D 失败", hr);
+	_sharedTex = dr.CreateTexture2D(
+		DXGI_FORMAT_B8G8R8A8_UNORM,
+		_srcFrameRect.right - _srcFrameRect.left,
+		_srcFrameRect.bottom - _srcFrameRect.top,
+		D3D11_BIND_SHADER_RESOURCE,
+		D3D11_USAGE_DEFAULT,
+		D3D11_RESOURCE_MISC_SHARED_KEYEDMUTEX
+	);
+	if (!_sharedTex) {
+		Logger::Get().Error("创建 Texture2D 失败");
 		return false;
 	}
 
@@ -145,7 +147,7 @@ bool DesktopDuplicationFrameSource::Initialize() {
 	}
 
 	HANDLE hSharedTex = NULL;
-	hr = sharedDxgiRes->GetSharedHandle(&hSharedTex);
+	HRESULT hr = sharedDxgiRes->GetSharedHandle(&hSharedTex);
 	if (FAILED(hr)) {
 		Logger::Get().Error("GetSharedHandle 失败");
 		return false;

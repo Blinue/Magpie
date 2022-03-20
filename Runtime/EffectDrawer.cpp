@@ -8,6 +8,7 @@
 #include "StrUtils.h"
 #include "Renderer.h"
 #include "CursorManager.h"
+#include <unordered_set>
 
 #pragma push_macro("_UNICODE")
 #undef _UNICODE
@@ -34,7 +35,8 @@ bool EffectDrawer::Initialize(
 	}
 
 	const SIZE hostSize = Utils::GetSizeOfRect(App::Get().GetHostWndRect());;
-	_isLastEffect = desc.Flags & EFFECT_FLAG_LAST_EFFECT;
+	_isLastEffect = desc.flags & EFFECT_FLAG_LAST_EFFECT;
+	bool isInlineParams = desc.flags & EFFECT_FLAG_INLINE_PARAMETERS;
 
 	DeviceResources& dr = App::Get().GetDeviceResources();
 	auto d3dDevice = dr.GetD3DDevice();
@@ -46,33 +48,42 @@ bool EffectDrawer::Initialize(
 	SIZE outputSize{};
 
 	if (desc.outSizeExpr.first.empty()) {
-		outputSize = hostSize;
+		if (params.scale.has_value()) {
+			outputSize = hostSize;
 
-		// scale 属性
-		// [+, +]：缩放比例
-		// [0, 0]：非等比例缩放到屏幕大小
-		// [-, -]：相对于屏幕能容纳的最大等比缩放的比例
+			// scale 属性
+			// [+, +]：缩放比例
+			// [0, 0]：非等比例缩放到屏幕大小
+			// [-, -]：相对于屏幕能容纳的最大等比缩放的比例
 
-		static float DELTA = 1e-5f;
+			static float DELTA = 1e-5f;
 
-		float scaleX = params.scale.first;
-		float scaleY = params.scale.second;
+			float scaleX = params.scale.value().first;
+			float scaleY = params.scale.value().second;
 
-		float fillScale = std::min(float(outputSize.cx) / inputSize.cx, float(outputSize.cy) / inputSize.cy);
+			float fillScale = std::min(float(outputSize.cx) / inputSize.cx, float(outputSize.cy) / inputSize.cy);
 
-		if (scaleX >= DELTA) {
-			outputSize.cx = std::lroundf(inputSize.cx * scaleX);
-		} else if (scaleX < -DELTA) {
-			outputSize.cx = std::lroundf(inputSize.cx * fillScale * -scaleX);
-		}
+			if (scaleX >= DELTA) {
+				outputSize.cx = std::lroundf(inputSize.cx * scaleX);
+			} else if (scaleX < -DELTA) {
+				outputSize.cx = std::lroundf(inputSize.cx * fillScale * -scaleX);
+			}
 
-		if (scaleY >= DELTA) {
-			outputSize.cy = std::lroundf(inputSize.cy * scaleY);
-		} else if (scaleY < -DELTA) {
-			outputSize.cy = std::lroundf(inputSize.cy * fillScale * -scaleY);
+			if (scaleY >= DELTA) {
+				outputSize.cy = std::lroundf(inputSize.cy * scaleY);
+			} else if (scaleY < -DELTA) {
+				outputSize.cy = std::lroundf(inputSize.cy * fillScale * -scaleY);
+			}
+		} else {
+			outputSize = inputSize;
 		}
 	} else {
 		assert(!desc.outSizeExpr.second.empty());
+
+		if (params.scale.has_value()) {
+			Logger::Get().Error("无法指定缩放");
+			return false;
+		}
 
 		try {
 			exprParser.SetExpr(desc.outSizeExpr.first);
@@ -93,121 +104,6 @@ bool EffectDrawer::Initialize(
 
 	exprParser.DefineConst("OUTPUT_WIDTH", outputSize.cx);
 	exprParser.DefineConst("OUTPUT_HEIGHT", outputSize.cy);
-
-	// 大小必须为 4 的倍数
-	size_t builtinConstantCount = _isLastEffect ? 16 : 10 ;
-	_constants.resize((builtinConstantCount + desc.params.size() + 3) / 4 * 4);
-	// cbuffer __CB2 : register(b1) {
-	//     uint2 __inputSize;
-	//     uint2 __outputSize;
-	//     float2 __inputPt;
-	//     float2 __outputPt;
-	//     float2 __scale;
-	//     [uint2 __viewport;]
-	//     [uint4 __offset;]
-	//     [PARAMETERS...]
-	// );
-	_constants[0].uintVal = inputSize.cx;
-	_constants[1].uintVal = inputSize.cy;
-	_constants[2].uintVal = outputSize.cx;
-	_constants[3].uintVal = outputSize.cy;
-	_constants[4].floatVal = 1.0f / inputSize.cx;
-	_constants[5].floatVal = 1.0f / inputSize.cy;
-	_constants[6].floatVal = 1.0f / outputSize.cx;
-	_constants[7].floatVal = 1.0f / outputSize.cy;
-	_constants[8].floatVal = outputSize.cx / (FLOAT)inputSize.cx;
-	_constants[9].floatVal = outputSize.cy / (FLOAT)inputSize.cy;
-
-	// 输出尺寸可能比主窗口更大
-	RECT virtualOutputRect1{};
-	RECT outputRect1{};
-
-	if (_isLastEffect) {
-		virtualOutputRect1.left = (hostSize.cx - outputSize.cx) / 2;
-		virtualOutputRect1.top = (hostSize.cy - outputSize.cy) / 2;
-		virtualOutputRect1.right = virtualOutputRect1.left + outputSize.cx;
-		virtualOutputRect1.bottom = virtualOutputRect1.top + outputSize.cy;
-
-		outputRect1 = RECT{
-			std::max(0L, virtualOutputRect1.left),
-			std::max(0L, virtualOutputRect1.top),
-			std::min(hostSize.cx, virtualOutputRect1.right),
-			std::min(hostSize.cy, virtualOutputRect1.bottom)
-		};
-
-		_constants[12].intVal = -std::min(0L, virtualOutputRect1.left);
-		_constants[13].intVal = -std::min(0L, virtualOutputRect1.top);
-		_constants[10].uintVal = outputRect1.right - outputRect1.left + _constants[12].intVal;
-		_constants[11].uintVal = outputRect1.bottom - outputRect1.top + _constants[13].intVal;
-		_constants[14].intVal = outputRect1.left - _constants[12].intVal;
-		_constants[15].intVal = outputRect1.top - _constants[13].intVal;
-	} else {
-		outputRect1 = RECT{ 0, 0, outputSize.cx, outputSize.cy };
-		virtualOutputRect1 = outputRect1;
-	}
-
-	if (outputRect) {
-		*outputRect = outputRect1;
-	}
-	if (virtualOutputRect) {
-		*virtualOutputRect = virtualOutputRect1;
-	}
-
-	// 填入参数
-	for (UINT i = 0; i < desc.params.size(); ++i) {
-		const auto& paramDesc = desc.params[i];
-		auto it = params.params.find(i);
-
-		if (paramDesc.type == EffectConstantType::Float) {
-			float value;
-
-			if (it == params.params.end()) {
-				value = std::get<float>(paramDesc.defaultValue);
-			} else {
-				value= it->second.floatVal;
-
-				if ((paramDesc.minValue.index() == 1 && value < std::get<float>(paramDesc.minValue))
-					|| (paramDesc.maxValue.index() == 1 && value > std::get<float>(paramDesc.maxValue))
-				) {
-					Logger::Get().Error(fmt::format("参数 {} 的值非法", paramDesc.name));
-					return false;
-				}
-			}
-
-			_constants[builtinConstantCount + i].floatVal = value;
-		} else {
-			int value;
-
-			if (it == params.params.end()) {
-				value = std::get<int>(paramDesc.defaultValue);
-			} else {
-				value = it->second.intVal;
-
-				if ((paramDesc.minValue.index() == 2 && value < std::get<int>(paramDesc.minValue))
-					|| (paramDesc.maxValue.index() == 2 && value > std::get<int>(paramDesc.maxValue))
-				) {
-					Logger::Get().Error(fmt::format("参数 {} 的值非法", paramDesc.name));
-					return false;
-				}
-			}
-
-			_constants[builtinConstantCount + i].intVal = value;
-		}
-	}
-
-	D3D11_BUFFER_DESC bd{};
-	bd.Usage = D3D11_USAGE_DEFAULT;
-	bd.ByteWidth = 4 * (UINT)_constants.size();
-	bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-
-	D3D11_SUBRESOURCE_DATA initData{};
-	initData.pSysMem = _constants.data();
-
-	HRESULT hr = d3dDevice->CreateBuffer(&bd, &initData, _constantBuffer.put());
-	if (FAILED(hr)) {
-		Logger::Get().ComError("CreateBuffer 失败", hr);
-		return false;
-	}
 
 	_samplers.resize(desc.samplers.size());
 	for (UINT i = 0; i < _samplers.size(); ++i) {
@@ -236,6 +132,17 @@ bool EffectDrawer::Initialize(
 				Logger::Get().Error(fmt::format("加载纹理 {} 失败", texDesc.source));
 				return false;
 			}
+
+			if (texDesc.format != EffectIntermediateTextureFormat::UNKNOWN) {
+				// 检查纹理格式是否匹配
+				D3D11_TEXTURE2D_DESC desc{};
+				_textures[i]->GetDesc(&desc);
+				if (desc.Format != EffectIntermediateTextureDesc::FORMAT_DESCS[(UINT)texDesc.format].dxgiFormat) {
+					Logger::Get().Error("SOURCE 纹理格式不匹配");
+					return false;
+				}
+			}
+			
 		} else {
 			SIZE texSize{};
 			try {
@@ -253,19 +160,14 @@ bool EffectDrawer::Initialize(
 				return false;
 			}
 
-			D3D11_TEXTURE2D_DESC desc{};
-			desc.Format = EffectIntermediateTextureDesc::DXGI_FORMAT_MAP[(UINT)texDesc.format];
-			desc.Width = texSize.cx;
-			desc.Height = texSize.cy;
-			desc.Usage = D3D11_USAGE_DEFAULT;
-			desc.MipLevels = 1;
-			desc.ArraySize = 1;
-			desc.SampleDesc.Count = 1;
-			desc.SampleDesc.Quality = 0;
-			desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_UNORDERED_ACCESS;
-			HRESULT hr = d3dDevice->CreateTexture2D(&desc, nullptr, _textures[i].put());
-			if (FAILED(hr)) {
-				Logger::Get().ComError("创建 Texture2D 失败", hr);
+			_textures[i] = dr.CreateTexture2D(
+				EffectIntermediateTextureDesc::FORMAT_DESCS[(UINT)texDesc.format].dxgiFormat,
+				texSize.cx,
+				texSize.cy,
+				D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_UNORDERED_ACCESS
+			);
+			if (!_textures[i]) {
+				Logger::Get().Error("创建纹理失败");
 				return false;
 			}
 		}
@@ -273,19 +175,15 @@ bool EffectDrawer::Initialize(
 
 	if (!_isLastEffect) {
 		// 创建输出纹理
-		D3D11_TEXTURE2D_DESC desc{};
-		desc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
-		desc.Width = outputSize.cx;
-		desc.Height = outputSize.cy;
-		desc.Usage = D3D11_USAGE_DEFAULT;
-		desc.MipLevels = 1;
-		desc.ArraySize = 1;
-		desc.SampleDesc.Count = 1;
-		desc.SampleDesc.Quality = 0;
-		desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_UNORDERED_ACCESS;
-		HRESULT hr = d3dDevice->CreateTexture2D(&desc, nullptr, _textures.back().put());
-		if (FAILED(hr)) {
-			Logger::Get().ComError("创建 Texture2D 失败", hr);
+		_textures.back() = dr.CreateTexture2D(
+			DXGI_FORMAT_R8G8B8A8_UNORM,
+			outputSize.cx,
+			outputSize.cy,
+			D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_UNORDERED_ACCESS
+		);
+		
+		if (!_textures.back()) {
+			Logger::Get().Error("创建纹理失败");
 			return false;
 		}
 	} else {
@@ -359,6 +257,172 @@ bool EffectDrawer::Initialize(
 			Logger::Get().Error("GetSampler 失败");
 			return false;
 		}
+	}
+
+	// 大小必须为 4 的倍数
+	size_t builtinConstantCount = _isLastEffect ? 16 : 12;
+	size_t psStylePassParams = 0;
+	for (UINT i = 0, end = (UINT)desc.passes.size() - 1; i < end; ++i) {
+		if (desc.passes[i].isPSStyle) {
+			psStylePassParams += 4;
+		}
+	}
+	_constants.resize((builtinConstantCount + psStylePassParams + (isInlineParams ? 0 : desc.params.size()) + 3) / 4 * 4);
+	// cbuffer __CB2 : register(b1) {
+	//     uint2 __inputSize;
+	//     uint2 __outputSize;
+	//     float2 __inputPt;
+	//     float2 __outputPt;
+	//     float2 __scale;
+	//     int2 __viewport;
+	//     [uint4 __offset;]
+	//     [PARAMETERS...]
+	// );
+	_constants[0].uintVal = inputSize.cx;
+	_constants[1].uintVal = inputSize.cy;
+	_constants[2].uintVal = outputSize.cx;
+	_constants[3].uintVal = outputSize.cy;
+	_constants[4].floatVal = 1.0f / inputSize.cx;
+	_constants[5].floatVal = 1.0f / inputSize.cy;
+	_constants[6].floatVal = 1.0f / outputSize.cx;
+	_constants[7].floatVal = 1.0f / outputSize.cy;
+	_constants[8].floatVal = outputSize.cx / (FLOAT)inputSize.cx;
+	_constants[9].floatVal = outputSize.cy / (FLOAT)inputSize.cy;
+
+	// 输出尺寸可能比主窗口更大
+	RECT virtualOutputRect1{};
+	RECT outputRect1{};
+
+	if (_isLastEffect) {
+		virtualOutputRect1.left = (hostSize.cx - outputSize.cx) / 2;
+		virtualOutputRect1.top = (hostSize.cy - outputSize.cy) / 2;
+		virtualOutputRect1.right = virtualOutputRect1.left + outputSize.cx;
+		virtualOutputRect1.bottom = virtualOutputRect1.top + outputSize.cy;
+
+		outputRect1 = RECT{
+			std::max(0L, virtualOutputRect1.left),
+			std::max(0L, virtualOutputRect1.top),
+			std::min(hostSize.cx, virtualOutputRect1.right),
+			std::min(hostSize.cy, virtualOutputRect1.bottom)
+		};
+
+		_constants[12].intVal = -std::min(0L, virtualOutputRect1.left);
+		_constants[13].intVal = -std::min(0L, virtualOutputRect1.top);
+		_constants[10].intVal = outputRect1.right - outputRect1.left + _constants[12].intVal;
+		_constants[11].intVal = outputRect1.bottom - outputRect1.top + _constants[13].intVal;
+		_constants[14].intVal = outputRect1.left - _constants[12].intVal;
+		_constants[15].intVal = outputRect1.top - _constants[13].intVal;
+	} else {
+		outputRect1 = RECT{ 0, 0, outputSize.cx, outputSize.cy };
+		virtualOutputRect1 = outputRect1;
+
+		_constants[10].intVal = outputSize.cx;
+		_constants[11].intVal = outputSize.cy;
+	}
+
+	if (outputRect) {
+		*outputRect = outputRect1;
+	}
+	if (virtualOutputRect) {
+		*virtualOutputRect = virtualOutputRect1;
+	}
+
+	// PS 样式的通道需要的参数
+	EffectConstant32* pCurParam = _constants.data() + builtinConstantCount;
+	if (psStylePassParams > 0) {
+		for (UINT i = 0, end = (UINT)desc.passes.size() - 1; i < end; ++i) {
+			if (desc.passes[i].isPSStyle) {
+				D3D11_TEXTURE2D_DESC outputDesc;
+				_textures[desc.passes[i].outputs[0]]->GetDesc(&outputDesc);
+				pCurParam->uintVal = outputDesc.Width;
+				++pCurParam;
+				pCurParam->uintVal = outputDesc.Height;
+				++pCurParam;
+				pCurParam->floatVal = 1.0f / outputDesc.Width;
+				++pCurParam;
+				pCurParam->floatVal = 1.0f / outputDesc.Height;
+				++pCurParam;
+			}
+		}
+	}
+
+	if (!isInlineParams) {
+		// 填入参数
+		std::unordered_set<std::string_view> paramNames;
+
+		for (UINT i = 0; i < desc.params.size(); ++i) {
+			const auto& paramDesc = desc.params[i];
+			paramNames.emplace(paramDesc.name);
+
+			auto it = params.params.find(paramDesc.name);
+
+			if (paramDesc.type == EffectConstantType::Float) {
+				float value;
+
+				if (it == params.params.end()) {
+					value = std::get<float>(paramDesc.defaultValue);
+				} else {
+					if (it->second.index() == 0) {
+						value = std::get<0>(it->second);
+					} else {
+						value = (float)std::get<1>(it->second);
+					}
+
+					if ((paramDesc.minValue.index() == 1 && value < std::get<float>(paramDesc.minValue))
+						|| (paramDesc.maxValue.index() == 1 && value > std::get<float>(paramDesc.maxValue))
+					) {
+						Logger::Get().Error(fmt::format("参数 {} 的值非法", paramDesc.name));
+						return false;
+					}
+				}
+
+				pCurParam->floatVal = value;
+			} else {
+				int value;
+
+				if (it == params.params.end()) {
+					value = std::get<int>(paramDesc.defaultValue);
+				} else {
+					if (it->second.index() == 0) {
+						return false;
+					} else {
+						value = std::get<int>(it->second);
+					}
+
+					if ((paramDesc.minValue.index() == 2 && value < std::get<int>(paramDesc.minValue))
+						|| (paramDesc.maxValue.index() == 2 && value > std::get<int>(paramDesc.maxValue))
+					) {
+						Logger::Get().Error(StrUtils::Concat("参数 ", paramDesc.name," 的值非法"));
+						return false;
+					}
+				}
+
+				pCurParam->intVal = value;
+			}
+
+			++pCurParam;
+		}
+
+		for (const auto& pair : params.params) {
+			if (!paramNames.contains(std::string_view(pair.first))) {
+				Logger::Get().Error(StrUtils::Concat("非法参数 ", pair.first));
+				return false;
+			}
+		}
+	}
+
+	D3D11_BUFFER_DESC bd{};
+	bd.Usage = D3D11_USAGE_DEFAULT;
+	bd.ByteWidth = 4 * (UINT)_constants.size();
+	bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+
+	D3D11_SUBRESOURCE_DATA initData{};
+	initData.pSysMem = _constants.data();
+
+	HRESULT hr = dr.GetD3DDevice()->CreateBuffer(&bd, &initData, _constantBuffer.put());
+	if (FAILED(hr)) {
+		Logger::Get().ComError("CreateBuffer 失败", hr);
+		return false;
 	}
 	
 	return true;

@@ -61,7 +61,34 @@ struct Utils {
 		}
 	}
 
-	static std::string Bin2Hex(BYTE* data, size_t len);
+	static std::string Bin2Hex(std::span<const BYTE> data);
+
+	// CRITICAL_SECTION 的封装，满足基本可锁定要求（BasicLockable）
+	// 因此可用于 std::scoped_lock 等
+	class CSMutex {
+	public:
+		CSMutex() {
+			InitializeCriticalSectionEx(&_cs, 4000, CRITICAL_SECTION_NO_DEBUG_INFO);
+		}
+
+		~CSMutex() {
+			DeleteCriticalSection(&_cs);
+		}
+
+		void lock() {
+			EnterCriticalSection(&_cs);
+		}
+
+		void unlock() {
+			LeaveCriticalSection(&_cs);
+		}
+
+		CRITICAL_SECTION* get() {
+			return &_cs;
+		}
+	private:
+		CRITICAL_SECTION _cs{};
+	};
 
 	class Hasher {
 	public:
@@ -72,13 +99,15 @@ struct Utils {
 
 		bool Initialize();
 
-		bool Hash(void* data, size_t len, std::vector<BYTE>& result);
+		bool Hash(std::span<const BYTE> data, std::vector<BYTE>& result);
 
 		DWORD GetHashLength() noexcept {
 			return _hashLen;
 		}
 	private:
 		~Hasher();
+
+		CSMutex _cs;	// 同步对 Hash() 的访问
 
 		BCRYPT_ALG_HANDLE _hAlg = NULL;
 		DWORD _hashObjLen = 0;		// hash 对象的大小
@@ -105,6 +134,13 @@ struct Utils {
 	using ScopedHandle = std::unique_ptr<std::remove_pointer<HANDLE>::type, HandleCloser>;
 
 	static HANDLE SafeHandle(HANDLE h) noexcept { return (h == INVALID_HANDLE_VALUE) ? nullptr : h; }
+
+	// 并行执行 times 次 func，并行失败时回退到单线程
+	// 执行完毕后返回
+	static void RunParallel(std::function<void(UINT)> func, UINT times);
+
+	static bool ZstdCompress(std::span<const BYTE> src, std::vector<BYTE>& dest, int compressionLevel);
+	static bool ZstdDecompress(std::span<const BYTE> src, std::vector<BYTE>& dest);
 };
 
 namespace std {

@@ -15,8 +15,8 @@ SamplerState sam;
 
 //!PASS 1
 //!IN INPUT
-//!BLOCK_SIZE 16, 16
-//!NUM_THREADS 64, 1, 1
+//!BLOCK_SIZE 16
+//!NUM_THREADS 64
 
 #define min3(a, b, c) min(a, min(b, c))
 #define max3(a, b, c) max(a, max(b, c))
@@ -228,6 +228,9 @@ float3 FsrEasuF(uint2 pos, float4 con0, float4 con1, float4 con2, float2 con3) {
 
 void Pass1(uint2 blockStart, uint3 threadId) {
 	uint2 gxy = blockStart + Rmp8x8(threadId.x);
+	if (!CheckViewport(gxy)) {
+		return;
+	}
 
 	uint2 inputSize = GetInputSize();
 	uint2 outputSize = GetOutputSize();
@@ -271,11 +274,17 @@ void Pass1(uint2 blockStart, uint3 threadId) {
 	WriteToOutput(gxy, FsrEasuF(gxy, con0, con1, con2, con3));
 
 	gxy.x += 8u;
-	WriteToOutput(gxy, FsrEasuF(gxy, con0, con1, con2, con3));
+	if (CheckViewport(gxy)) {
+		WriteToOutput(gxy, FsrEasuF(gxy, con0, con1, con2, con3));
+	}
 
 	gxy.y += 8u;
-	WriteToOutput(gxy, FsrEasuF(gxy, con0, con1, con2, con3));
+	if (CheckViewport(gxy)) {
+		WriteToOutput(gxy, FsrEasuF(gxy, con0, con1, con2, con3));
+	}
 
 	gxy.x -= 8u;
-	WriteToOutput(gxy, FsrEasuF(gxy, con0, con1, con2, con3));
+	if (CheckViewport(gxy)) {
+		WriteToOutput(gxy, FsrEasuF(gxy, con0, con1, con2, con3));
+	}
 }

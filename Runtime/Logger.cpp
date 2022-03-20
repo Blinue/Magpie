@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "Logger.h"
+#include "StrUtils.h"
 
 
 bool Logger::Initialize(UINT logLevel, const char* logFileName, int logArchiveAboveSize, int logMaxArchiveFiles) {
@@ -27,3 +28,23 @@ void Logger::SetLevel(spdlog::level::level_enum logLevel) {
 	};
 	Info(fmt::format("当前日志级别：{}", LOG_LEVELS[logLevel]));
 }
+
+void Logger::_Log(spdlog::level::level_enum logLevel, std::string_view msg, const std::source_location& location) {
+	assert(!msg.empty());
+
+	if (logLevel >= spdlog::level::warn) {
+		// 警告或更高等级的日志也记录到调试器（VS 中的“即时窗口”）
+		if (msg.back() == '\n') {
+			OutputDebugString(StrUtils::ConcatW(L"[LOG] ", StrUtils::UTF8ToUTF16(msg)).c_str());
+		} else {
+			OutputDebugString(StrUtils::ConcatW(L"[LOG] ", StrUtils::UTF8ToUTF16(msg), L"\n").c_str());
+		}
+	}
+
+	_logger->log(
+		spdlog::source_loc{ location.file_name(), (int)location.line(), location.function_name() },
+		logLevel,
+		msg
+	);
+}
+
