@@ -55,10 +55,10 @@ void Pass1(uint2 blockStart, uint3 threadId) {
 			float3 f = INPUT.SampleLevel(sam, pos + float2(inputPt.x, 0), 0).rgb;
 			float3 h = INPUT.SampleLevel(sam, pos + float2(0, inputPt.y), 0).rgb;
 	
-			float3 e = INPUT.SampleLevel(sam, pos + float2(inputPt.x, 0) * 0.36 + float2(0, inputPt.y) * 0.36, 0).rgb;
-			e += INPUT.SampleLevel(sam, pos - float2(inputPt.x, 0) * 0.36 - float2(0, inputPt.y) * 0.36, 0).rgb;
-			e += INPUT.SampleLevel(sam, pos + float2(inputPt.x, 0) * 0.36 - float2(0, inputPt.y) * 0.36, 0).rgb;
-			e += INPUT.SampleLevel(sam, pos - float2(inputPt.x, 0) * 0.36 + float2(0, inputPt.y) * 0.36, 0).rgb;
+			float3 e = INPUT.SampleLevel(sam, pos + float2(inputPt.x, inputPt.y) * 0.36, 0).rgb;
+			e += INPUT.SampleLevel(sam, pos + float2(-inputPt.x, -inputPt.y) * 0.36, 0).rgb;
+			e += INPUT.SampleLevel(sam, pos + float2(inputPt.x, -inputPt.y) * 0.36, 0).rgb;
+			e += INPUT.SampleLevel(sam, pos + float2(-inputPt.x, inputPt.y) * 0.36, 0).rgb;
 			e /= 4;
 
 			// Soft min and max.
@@ -77,7 +77,7 @@ void Pass1(uint2 blockStart, uint3 threadId) {
 			//  w 1 w
 			//    w   
 			float3 c = ((b + d + f + h) * wRGB + (e * 3 - (b + d + f + h + e * 2) / 3)) / (1.0 + 4.0 * wRGB);
-			WriteToOutput(destPos, (c + clamp(c, mnRGB, mxRGB) * 3) / 4);
+			WriteToOutput(destPos, (c + clamp(c, mnRGB, mxRGB) * 2) / 3);
 		}
 	}
 }
