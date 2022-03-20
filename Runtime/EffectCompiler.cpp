@@ -48,8 +48,6 @@ public:
 	}
 };
 
-static PassInclude passInclude;
-
 UINT RemoveComments(std::string& source) {
 	// 确保以换行符结尾
 	if (source.back() != '\n') {
@@ -1009,7 +1007,8 @@ UINT GeneratePassSource(
 	const std::vector<std::string_view>& commonBlocks,
 	std::string_view passBlock,
 	const std::map<std::string, std::variant<float, int>>& inlineParams,
-	std::string& result
+	std::string& result,
+	std::vector<std::pair<std::string, std::string>>& macros
 ) {
 	bool isLastEffect = desc.flags & EFFECT_FLAG_LAST_EFFECT;
 	bool isLastPass = passIdx == desc.passes.size();
@@ -1080,35 +1079,53 @@ UINT GeneratePassSource(
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////
 	//
-	// 内置 define
+	// 内置宏
 	// 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////
-	result.append(fmt::format(R"(#define MP_BLOCK_WIDTH {}
-#define MP_BLOCK_HEIGHT {}
-#define MP_NUM_THREADS_X {}
-#define MP_NUM_THREADS_Y {}
-#define MP_NUM_THREADS_Z {}
-)", passDesc.blockSize.first, passDesc.blockSize.second, passDesc.numThreads[0], passDesc.numThreads[1], passDesc.numThreads[2]));
+	macros.reserve(20);
+	macros.emplace_back("MP_BLOCK_WIDTH", std::to_string(passDesc.blockSize.first));
+	macros.emplace_back("MP_BLOCK_HEIGHT", std::to_string(passDesc.blockSize.second));
+	macros.emplace_back("MP_NUM_THREADS_X", std::to_string(passDesc.numThreads[0]));
+	macros.emplace_back("MP_NUM_THREADS_Y", std::to_string(passDesc.numThreads[1]));
+	macros.emplace_back("MP_NUM_THREADS_Z", std::to_string(passDesc.numThreads[2]));
 
 	if (passDesc.isPSStyle) {
-		result.append("#define MP_PS_STYLE\n");
+		macros.emplace_back("MP_PS_STYLE", "");
 	}
 
 	if (isInlineParams) {
-		result.append("#define MP_INLINE_PARAMS\n");
+		macros.emplace_back("MP_INLINE_PARAMS", "");
 	}
 
 	if (isLastPass) {
-		result.append("#define MP_LAST_PASS\n");
+		macros.emplace_back("MP_LAST_PASS", "");
 	}
 
 	if (isLastEffect) {
-		result.append("#define MP_LAST_EFFECT\n");
+		macros.emplace_back("MP_LAST_EFFECT", "");
 	}
 
 #ifdef _DEBUG
-	result.append("#define MP_DEBUG\n");
+	macros.emplace_back("MP_DEBUG", "");
 #endif
+
+	// 用于在 FP32 和 FP16 间切换的宏
+	if (desc.flags & EFFECT_FLAG_FP16) {
+		macros.emplace_back("MP_FP16", "");
+		macros.emplace_back("MF", "min16float");
+		macros.emplace_back("MF1", "min16float1");
+		macros.emplace_back("MF2", "min16float2");
+		macros.emplace_back("MF3", "min16float3");
+		macros.emplace_back("MF4", "min16float4");
+		macros.emplace_back("MF4x3", "min16float4x3");
+	} else {
+		macros.emplace_back("MF", "float");
+		macros.emplace_back("MF1", "float1");
+		macros.emplace_back("MF2", "float2");
+		macros.emplace_back("MF3", "float3");
+		macros.emplace_back("MF4", "float4");
+		macros.emplace_back("MF4x3", "float4x3");
+	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////
 	//
@@ -1123,19 +1140,19 @@ UINT GeneratePassSource(
 			auto it = inlineParams.find(d.name);
 			if (it == inlineParams.end()) {
 				if (d.type == EffectConstantType::Float) {
-					result.append(fmt::format("#define {} {}\n", d.name, std::get<float>(d.defaultValue)));
+					macros.emplace_back(d.name, std::to_string(std::get<float>(d.defaultValue)));
 				} else {
-					result.append(fmt::format("#define {} {}\n", d.name, std::get<int>(d.defaultValue)));
+					macros.emplace_back(d.name, std::to_string(std::get<int>(d.defaultValue)));
 				}
 			} else {
 				if (it->second.index() == 1) {
-					result.append(fmt::format("#define {} {}\n", d.name, std::get<int>(it->second)));
+					macros.emplace_back(d.name, std::to_string(std::get<int>(it->second)));
 				} else {
 					if (d.type == EffectConstantType::Int) {
 						return 1;
 					}
 
-					result.append(fmt::format("#define {} {}\n", d.name, std::get<float>(it->second)));
+					macros.emplace_back(d.name, std::to_string(std::get<float>(it->second)));
 				}
 			}
 		}
@@ -1422,7 +1439,8 @@ cbuffer __CB2 : register(b1) {
 	// 并行生成代码和编译
 	Utils::RunParallel([&](UINT id) {
 		std::string source;
-		if (GeneratePassSource(desc, id + 1, cbHlsl, commonBlocks, passBlocks[id], inlineParams, source)) {
+		std::vector<std::pair<std::string, std::string>> macros;
+		if (GeneratePassSource(desc, id + 1, cbHlsl, commonBlocks, passBlocks[id], inlineParams, source, macros)) {
 			Logger::Get().Error(fmt::format("生成 Pass{} 失败", id + 1));
 			return;
 		}
@@ -1437,8 +1455,10 @@ cbuffer __CB2 : register(b1) {
 			}
 		}
 
+		static PassInclude passInclude;
+
 		if (!App::Get().GetDeviceResources().CompileShader(source, "__M", desc.passes[id].cso.put(),
-			fmt::format("{}_Pass{}.hlsl", desc.name, id + 1).c_str(), &passInclude)
+			fmt::format("{}_Pass{}.hlsl", desc.name, id + 1).c_str(), &passInclude, macros)
 		) {
 			Logger::Get().Error(fmt::format("编译 Pass{} 失败", id + 1));
 		}

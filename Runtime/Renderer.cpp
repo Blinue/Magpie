@@ -331,6 +331,17 @@ bool Renderer::_ResolveEffectsJson(const std::string& effectsJson) {
 						effectFlag |= EFFECT_FLAG_INLINE_PARAMETERS;
 					}
 					continue;
+				} else if (name == "fp16") {
+					if (!prop.value.IsBool()) {
+						Logger::Get().Error(fmt::format("解析效果#{}（{}）失败：成员 fp16 必须为 bool 类型", id, effectNames[id]));
+						allSuccess = false;
+						return;
+					}
+
+					if (prop.value.GetBool()) {
+						effectFlag |= EFFECT_FLAG_FP16;
+					}
+					continue;
 				} else if (name == "scale") {
 					auto scaleProp = effectJson.FindMember("scale");
 					if (scaleProp != effectJson.MemberEnd()) {

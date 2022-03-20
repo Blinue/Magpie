@@ -394,7 +394,7 @@ bool DeviceResources::GetUnorderedAccessView(ID3D11Texture2D* texture, ID3D11Uno
 	}
 }
 
-bool DeviceResources::CompileShader(std::string_view hlsl, const char* entryPoint, ID3DBlob** blob, const char* sourceName, ID3DInclude* include) {
+bool DeviceResources::CompileShader(std::string_view hlsl, const char* entryPoint, ID3DBlob** blob, const char* sourceName, ID3DInclude* include, const std::vector<std::pair<std::string, std::string>>& macros) {
 	winrt::com_ptr<ID3DBlob> errorMsgs = nullptr;
 
 	UINT flags = D3DCOMPILE_ENABLE_STRICTNESS | D3DCOMPILE_ALL_RESOURCES_BOUND;
@@ -408,8 +408,13 @@ bool DeviceResources::CompileShader(std::string_view hlsl, const char* entryPoin
 	flags |= D3DCOMPILE_OPTIMIZATION_LEVEL3;
 #endif // _DEBUG
 
+	std::vector<D3D_SHADER_MACRO> mc(macros.size() + 1);
+	for (UINT i = 0; i < macros.size(); ++i) {
+		mc[i] = { macros[i].first.c_str(), macros[i].second.c_str() };
+	}
+	mc.back() = { nullptr,nullptr };
 
-	HRESULT hr = D3DCompile(hlsl.data(), hlsl.size(), sourceName, nullptr, include,
+	HRESULT hr = D3DCompile(hlsl.data(), hlsl.size(), sourceName, mc.data(), include,
 		entryPoint, "cs_5_0", flags, 0, blob, errorMsgs.put());
 	if (FAILED(hr)) {
 		if (errorMsgs) {

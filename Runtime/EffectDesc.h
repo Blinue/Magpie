@@ -107,7 +107,8 @@ struct EffectPassDesc {
 
 enum EffectFlags {
 	EFFECT_FLAG_LAST_EFFECT = 0x1,
-	EFFECT_FLAG_INLINE_PARAMETERS = 0x2
+	EFFECT_FLAG_INLINE_PARAMETERS = 0x2,
+	EFFECT_FLAG_FP16 = 0x4
 };
 
 struct EffectDesc {
