@@ -1082,7 +1082,7 @@ UINT GeneratePassSource(
 	// 内置宏
 	// 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////
-	macros.reserve(20);
+	macros.reserve(64);
 	macros.emplace_back("MP_BLOCK_WIDTH", std::to_string(passDesc.blockSize.first));
 	macros.emplace_back("MP_BLOCK_HEIGHT", std::to_string(passDesc.blockSize.second));
 	macros.emplace_back("MP_NUM_THREADS_X", std::to_string(passDesc.numThreads[0]));
@@ -1110,21 +1110,28 @@ UINT GeneratePassSource(
 #endif
 
 	// 用于在 FP32 和 FP16 间切换的宏
+	static const char* numbers[] = { "1","2","3","4" };
 	if (desc.flags & EFFECT_FLAG_FP16) {
 		macros.emplace_back("MP_FP16", "");
 		macros.emplace_back("MF", "min16float");
-		macros.emplace_back("MF1", "min16float1");
-		macros.emplace_back("MF2", "min16float2");
-		macros.emplace_back("MF3", "min16float3");
-		macros.emplace_back("MF4", "min16float4");
-		macros.emplace_back("MF4x3", "min16float4x3");
+
+		for (UINT i = 0; i < 4; ++i) {
+			macros.emplace_back(StrUtils::Concat("MF", numbers[i]), StrUtils::Concat("min16float", numbers[i]));
+
+			for (UINT j = 0; j < 4; ++j) {
+				macros.emplace_back(StrUtils::Concat("MF", numbers[i], "x", numbers[j]), StrUtils::Concat("min16float", numbers[i], "x", numbers[j]));
+			}
+		}
 	} else {
 		macros.emplace_back("MF", "float");
-		macros.emplace_back("MF1", "float1");
-		macros.emplace_back("MF2", "float2");
-		macros.emplace_back("MF3", "float3");
-		macros.emplace_back("MF4", "float4");
-		macros.emplace_back("MF4x3", "float4x3");
+
+		for (UINT i = 0; i < 4; ++i) {
+			macros.emplace_back(StrUtils::Concat("MF", numbers[i]), StrUtils::Concat("float", numbers[i]));
+
+			for (UINT j = 0; j < 4; ++j) {
+				macros.emplace_back(StrUtils::Concat("MF", numbers[i], "x", numbers[j]), StrUtils::Concat("float", numbers[i], "x", numbers[j]));
+			}
+		}
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////
