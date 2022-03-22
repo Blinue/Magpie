@@ -59,7 +59,7 @@ void Pass1(uint2 blockStart, uint3 threadId) {
 	float3 mxRGB = max(max(max(max(d, e), max(f, b)), h), max(max(a, i), max(c, g)));
 
 	// Shaping amount of sharpening.
-	float3 wRGB = sqrt(min(mnRGB, 1.0 - mxRGB) / mxRGB) * lerp(-0.0625, -0.1, sharpness);
+	float3 wRGB = sqrt(min(mnRGB, 1.0 - mxRGB) / mxRGB) * lerp(0, -0.1111111111111111, sharpness);
 
 	// Filter shape.
 	//  w w w 
