@@ -79,9 +79,9 @@ SamplerState samplerLinearClamp;
 #define kEdgeMapSize            (kEdgeMapPitch * (NIS_BLOCK_HEIGHT + 2))
 
 groupshared float shPixelsY[kTileSize];
-groupshared float shCoefScaler[kPhaseCount][kFilterSize];
-groupshared float shCoefUSM[kPhaseCount][kFilterSize];
-groupshared float4 shEdgeMap[kEdgeMapSize];
+groupshared MF shCoefScaler[kPhaseCount][kFilterSize];
+groupshared MF shCoefUSM[kPhaseCount][kFilterSize];
+groupshared MF4 shEdgeMap[kEdgeMapSize];
 
 float getY(float3 rgba) {
 	return 0.2126f * rgba.x + 0.7152f * rgba.y + 0.0722f * rgba.z;
@@ -128,7 +128,7 @@ void LoadFilterBanksSh(int i0, int di) {
 		int phase = i >> 1;
 		int vIdx = i & 1;
 
-		float4 v = float4(coef_scaler[int2(vIdx, phase)]);
+		MF4 v = MF4(coef_scaler[int2(vIdx, phase)]);
 		int filterOffset = vIdx * 4;
 		shCoefScaler[phase][filterOffset + 0] = v.x;
 		shCoefScaler[phase][filterOffset + 1] = v.y;
@@ -137,7 +137,7 @@ void LoadFilterBanksSh(int i0, int di) {
 			shCoefScaler[phase][3] = v.w;
 		}
 
-		v = float4(coef_usm[int2(vIdx, phase)]);
+		v = MF4(coef_usm[int2(vIdx, phase)]);
 		shCoefUSM[phase][filterOffset + 0] = v.x;
 		shCoefUSM[phase][filterOffset + 1] = v.y;
 		if (vIdx == 0) {
@@ -382,10 +382,10 @@ void Pass1(uint2 blockStart, uint3 threadId) {
 			}
 
 			const uint idx = py * kTilePitch + px;
-			shPixelsY[idx] = float(p[0][0]);
-			shPixelsY[idx + 1] = float(p[0][1]);
-			shPixelsY[idx + kTilePitch] = float(p[1][0]);
-			shPixelsY[idx + kTilePitch + 1] = float(p[1][1]);
+			shPixelsY[idx] = MF(p[0][0]);
+			shPixelsY[idx + 1] = MF(p[0][1]);
+			shPixelsY[idx + kTilePitch] = MF(p[1][0]);
+			shPixelsY[idx + kTilePitch + 1] = MF(p[1][1]);
 		}
 	}
 	GroupMemoryBarrierWithGroupSync();
@@ -407,10 +407,10 @@ void Pass1(uint2 blockStart, uint3 threadId) {
 				}
 			}
 
-			shEdgeMap[edgeMapIdx] = float4(GetEdgeMap(p, 0, 0));
-			shEdgeMap[edgeMapIdx + 1] = float4(GetEdgeMap(p, 0, 1));
-			shEdgeMap[edgeMapIdx + kEdgeMapPitch] = float4(GetEdgeMap(p, 1, 0));
-			shEdgeMap[edgeMapIdx + kEdgeMapPitch + 1] = float4(GetEdgeMap(p, 1, 1));
+			shEdgeMap[edgeMapIdx] = MF4(GetEdgeMap(p, 0, 0));
+			shEdgeMap[edgeMapIdx + 1] = MF4(GetEdgeMap(p, 0, 1));
+			shEdgeMap[edgeMapIdx + kEdgeMapPitch] = MF4(GetEdgeMap(p, 1, 0));
+			shEdgeMap[edgeMapIdx + kEdgeMapPitch + 1] = MF4(GetEdgeMap(p, 1, 1));
 		}
 	}
 	LoadFilterBanksSh(int(threadIdx), NIS_THREAD_GROUP_SIZE);
