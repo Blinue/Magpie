@@ -4,7 +4,7 @@
 //!VERSION 2
 
 //!PARAMETER
-//!DEFAULT 0.4
+//!DEFAULT 0.8
 //!MIN 0
 //!MAX 1
 float sharpness;
@@ -28,8 +28,8 @@ void Pass1(uint2 blockStart, uint3 threadId) {
 		return;
 	}
 			
-      float2 pos = (gxy + 0.5f) * GetOutputPt();
-      float2 inputPt = GetInputPt();
+        float2 pos = (gxy + 0.5f) * GetOutputPt();
+        float2 inputPt = GetInputPt();
 
 	// fetch a 3x3 neighborhood around the pixel 'e',
 	//	a b c
