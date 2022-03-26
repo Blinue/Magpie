@@ -22,7 +22,21 @@ CursorManager::~CursorManager() {
 	Logger::Get().Info("CursorDrawer 已析构");
 }
 
+static std::optional<LRESULT> HostWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
+	if (message == WM_LBUTTONDOWN) {
+		// 主窗口会在非常特定的情况下收到光标消息：
+		// 1. 未处于捕获状态
+		// 2. 缩放后的位置未被遮挡而缩放前的位置被遮挡
+		SetForegroundWindow(App::Get().GetHwndSrc());
+		return 0;
+	}
+
+	return std::nullopt;
+}
+
 bool CursorManager::Initialize() {
+	App::Get().RegisterWndProcHandler(HostWndProc);
+
 	Logger::Get().Info("CursorManager 初始化完成");
 	return true;
 }
@@ -141,6 +155,10 @@ void CursorManager::OnBeginFrame() {
 				};
 
 				if (WindowFromPoint(style, clampedPos, false) == hwndHost) {
+					if (!(style & WS_EX_TRANSPARENT)) {
+						SetWindowLongPtr(hwndHost, GWL_EXSTYLE, style | WS_EX_TRANSPARENT);
+					}
+
 					_StartCapture(cursorPos);
 				} else {
 					// 要跳跃的位置被遮挡
@@ -441,7 +459,7 @@ void CursorManager::_DynamicClip(POINT cursorPt) {
 	clips[3] = !MonitorFromRect(&rect, MONITOR_DEFAULTTONULL);
 
 	// 开启“在 3D 游戏中限制光标”则每帧都限制一次光标
-	if (App::Get().IsConfineCursorIn3DGames() || clips != _curClips) {
+	if (clips != _curClips) {
 		_curClips = clips;
 
 		RECT clipRect = {

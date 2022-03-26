@@ -174,7 +174,7 @@ winrt::com_ptr<IWICImagingFactory2> App::GetWICImageFactory() {
 	return wicImgFactory;
 }
 
-UINT App::RegisterWndProcHandler(std::function<bool(HWND, UINT, WPARAM, LPARAM)> handler) {
+UINT App::RegisterWndProcHandler(std::function<std::optional<LRESULT>(HWND, UINT, WPARAM, LPARAM)> handler) {
 	UINT id = _nextWndProcHandlerID++;
 	return _wndProcHandlers.emplace(id, handler).second ? id : 0;
 }
@@ -417,8 +417,9 @@ LRESULT App::_HostWndProcStatic(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
 
 LRESULT App::_HostWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
 	for (auto& pair : _wndProcHandlers) {
-		if (pair.second(hWnd, message, wParam, lParam)) {
-			return TRUE;
+		const auto& result = pair.second(hWnd, message, wParam, lParam);
+		if (result.has_value()) {
+			return result.value();
 		}
 	}
 
@@ -430,15 +431,11 @@ LRESULT App::_HostWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 	switch (message) {
 	case WM_DESTROY:
-	{
 		// 有两个退出路径：
 		// 1. 前台窗口发生改变
 		// 2. 收到_WM_DESTORYMAG 消息
 		PostQuitMessage(0);
 		return 0;
-	}
-	default:
-		break;
 	}
 
 	return DefWindowProc(hWnd, message, wParam, lParam);

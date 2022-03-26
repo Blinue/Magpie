@@ -149,7 +149,8 @@ public:
 
 	winrt::com_ptr<IWICImagingFactory2> GetWICImageFactory();
 
-	UINT RegisterWndProcHandler(std::function<bool(HWND, UINT, WPARAM, LPARAM)> handler);
+	// 注册消息回调，回调函数如果不阻断消息应返回空
+	UINT RegisterWndProcHandler(std::function<std::optional<LRESULT>(HWND, UINT, WPARAM, LPARAM)> handler);
 	void UnregisterWndProcHandler(UINT id);
 
 private:
@@ -214,6 +215,6 @@ private:
 	std::unique_ptr<FrameSourceBase> _frameSource;
 	std::unique_ptr<CursorManager> _cursorManager;
 
-	std::map<UINT, std::function<bool(HWND, UINT, WPARAM, LPARAM)>> _wndProcHandlers;
+	std::map<UINT, std::function<std::optional<LRESULT>(HWND, UINT, WPARAM, LPARAM)>> _wndProcHandlers;
 	UINT _nextWndProcHandlerID = 1;
 };
