@@ -10,6 +10,6 @@ Welcome to the Magpie Wiki. Please read the [Contribution Guide](https://github.
 
 [Customized Effects (MagpieFX)](https://github.com/Blinue/Magpie/wiki/customized_effects)
 
-[Performance Improvements Guides](https://github.com/Blinue/Magpie/wiki/performance_improvements)
+[Performance Improvements Guides](https://github.com/Blinue/Magpie/wiki/performance)
 
 [Capture Modes Comparison](https://github.com/Blinue/Magpie/wiki/capture_modes)

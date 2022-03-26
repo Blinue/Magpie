@@ -96,4 +96,4 @@ Please merge to the `main` branch if you are improving the documentations of exi
 
 ### I'd like to fund Magpie 💰
 
-The developers spend a lot of time to implement new features without getting paid. Currently there is no way to fund Magpie. Staring, forking, and advertising are the best ways to support us!
+The developers spend a lot of time every week to implement new features without getting paid. Currently there is no way to fund Magpie. Staring, forking, and advertising are the best ways to support us!
