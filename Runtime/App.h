@@ -87,10 +87,6 @@ public:
 		return _cropBorders;
 	}
 
-	bool IsMultiMonitorMode() const noexcept {
-		return _isMultiMonitorMode;
-	}
-
 	bool IsNoCursor() const noexcept {
 		return _flags & (UINT)_FlagMasks::NoCursor;
 	}
@@ -209,9 +205,6 @@ private:
 		DisableVSync = 0x800,
 		WarningsAreErrors = 0x1000
 	};
-
-	// 多屏幕模式下光标可以在屏幕间自由移动
-	bool _isMultiMonitorMode = false;
 
 	bool _windowResizingDisabled = false;
 	bool _roundCornerDisabled = false;

@@ -9,11 +9,8 @@
 
 
 CursorManager::~CursorManager() {
-	if (!App::Get().IsMultiMonitorMode()) {
-		// CursorDrawer 析构时计时器已销毁
-		ClipCursor(nullptr);
-	}
-
+	ClipCursor(nullptr);
+	
 	if (_isUnderCapture) {
 		POINT pt{};
 		if (!::GetCursorPos(&pt)) {
@@ -26,42 +23,6 @@ CursorManager::~CursorManager() {
 }
 
 bool CursorManager::Initialize() {
-	POINT cursorPos;
-	if (!::GetCursorPos(&cursorPos)) {
-		Logger::Get().Win32Error("GetCursorPos 失败");
-		return false;
-	}
-
-	//if (!App::Get().IsMultiMonitorMode() && !App::Get().IsBreakpointMode()) {
-	//	_StartCapture(cursorPos);
-		
-
-		// 非多屏幕模式下，限制光标在窗口内
-		/*
-		if (App::Get().IsAdjustCursorSpeed()) {
-			// 设置鼠标移动速度
-			if (SystemParametersInfo(SPI_GETMOUSESPEED, 0, &_cursorSpeed, 0)) {
-				SIZE srcFrameSize = Utils::GetSizeOfRect(App::Get().GetFrameSource().GetSrcFrameRect());
-				SIZE outputSize = Utils::GetSizeOfRect(App::Get().GetRenderer().GetOutputRect());
-
-				double speedScale = ((double)outputSize.cx / srcFrameSize.cx + (double)outputSize.cy / srcFrameSize.cy) / 2;
-				long newSpeed = std::clamp(lround(_cursorSpeed / speedScale), 1L, 20L);
-
-				if (!SystemParametersInfo(SPI_SETMOUSESPEED, 0, (PVOID)(intptr_t)newSpeed, 0)) {
-					Logger::Get().Win32Error("设置光标移速失败");
-				}
-			} else {
-				Logger::Get().Win32Error("获取光标移速失败");
-			}
-
-			Logger::Get().Info("已调整光标移速");
-		}
-
-		if (!MagShowSystemCursor(FALSE)) {
-			Logger::Get().Win32Error("MagShowSystemCursor 失败");
-		}*/
-	//}
-
 	Logger::Get().Info("CursorManager 初始化完成");
 	return true;
 }
@@ -117,10 +78,10 @@ void CursorManager::OnBeginFrame() {
 
 		POINT newCursorPos{};
 		double pos = double(cursorPos.x - srcFrameRect.left) / (srcFrameRect.right - srcFrameRect.left);
-		newCursorPos.x = std::lround(pos * virtualOutputSize.cx) + virtualOutputRect.left;
+		newCursorPos.x = hostRect.left + std::lround(pos * virtualOutputSize.cx) + virtualOutputRect.left;
 
 		pos = double(cursorPos.y - srcFrameRect.top) / (srcFrameRect.bottom - srcFrameRect.top);
-		newCursorPos.y = std::lround(pos * virtualOutputSize.cy) + virtualOutputRect.top;
+		newCursorPos.y = hostRect.top + std::lround(pos * virtualOutputSize.cy) + virtualOutputRect.top;
 
 		HWND hwndCur = WindowFromPoint(style, newCursorPos, false);
 
@@ -195,27 +156,6 @@ void CursorManager::OnBeginFrame() {
 			}
 		}
 	}
-	/*
-	// 多屏幕模式下光标可以在屏幕间移动
-	if (App::Get().IsMultiMonitorMode()) {
-		// _DynamicClip 根据当前光标位置的四个方向有无屏幕来确定应该在哪些方向限制光标，但这无法
-		// 处理屏幕之间存在间隙的情况。解决办法是 _StopCapture 只在目标位置存在屏幕时才取消捕获，
-		// 当光标试图移动到间隙中时将被挡住。如果光标的速度足以跨越间隙，则它依然可以在屏幕间移动。
-
-		
-	} else {
-		HWND hwndCurWin = WindowFromPoint(cursorPos);
-		HWND hwndSrc = App::Get().GetHwndSrc();
-		if (_isUnderCapture) {
-			if (hwndCurWin != hwndSrc) {
-				_StopCapture(cursorPos);
-			}
-		} else {
-			if (hwndCurWin == hwndSrc) {
-				_StartCapture(cursorPos);
-			}
-		}
-	}*/
 
 	if (App::Get().IsNoCursor()) {
 		// 不绘制光标
@@ -228,9 +168,20 @@ void CursorManager::OnBeginFrame() {
 		return;
 	}
 
-	if (!App::Get().IsBreakpointMode() && App::Get().IsConfineCursorIn3DGames()) {
-		// 开启“在 3D 游戏中限制光标”则每帧都限制一次光标
-		ClipCursor(&App::Get().GetFrameSource().GetSrcFrameRect());
+	if (!App::Get().IsBreakpointMode()) {
+		if (App::Get().IsConfineCursorIn3DGames()) {
+			// 开启“在 3D 游戏中限制光标”则每帧都限制一次光标
+			ClipCursor(&App::Get().GetFrameSource().GetSrcFrameRect());
+		} else {
+			if (::GetCursorPos(&cursorPos)) {
+				// _DynamicClip 根据当前光标位置的四个方向有无屏幕来确定应该在哪些方向限制光标，但这无法
+				// 处理屏幕之间存在间隙的情况。解决办法是 _StopCapture 只在目标位置存在屏幕时才取消捕获，
+				// 当光标试图移动到间隙中时将被挡住。如果光标的速度足以跨越间隙，则它依然可以在屏幕间移动。
+				_DynamicClip(cursorPos);
+			} else {
+				Logger::Get().Win32Error("GetCursorPos 失败");
+			}
+		}
 	}
 
 	CURSORINFO ci{};
@@ -374,7 +325,7 @@ void CursorManager::_StartCapture(POINT cursorPt) {
 
 	SetCursorPos(std::lround(posX), std::lround(posY));
 
-	if (!App::Get().IsMultiMonitorMode() && !App::Get().IsBreakpointMode()) {
+	if (!App::Get().IsBreakpointMode()) {
 		if (!ClipCursor(&srcFrameRect)) {
 			Logger::Get().Win32Error("ClipCursor 失败");
 		}
@@ -388,9 +339,7 @@ void CursorManager::_StopCapture(POINT cursorPt) {
 		return;
 	}
 
-	if (!App::Get().IsMultiMonitorMode() && !App::Get().IsBreakpointMode()) {
-		ClipCursor(nullptr);
-	}
+	ClipCursor(nullptr);
 
 	// 在以下情况下离开捕获状态：
 	// 1. 当前处于捕获状态

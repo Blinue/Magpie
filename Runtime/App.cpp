@@ -305,14 +305,8 @@ bool App::_CreateHostWnd() {
 		return false;
 	}
 
-	// 主窗口没有覆盖 Virtual Screen 则使用多屏幕模式
-	// 启用“在 3D 游戏中限制光标”或断点模式时不使用多屏幕模式
-	_isMultiMonitorMode = !IsConfineCursorIn3DGames() && !IsBreakpointMode() && GetMultiMonitorUsage() != 2 &&
-		((_hostWndRect.right - _hostWndRect.left) < GetSystemMetrics(SM_CXVIRTUALSCREEN) ||
-		(_hostWndRect.bottom - _hostWndRect.top) < GetSystemMetrics(SM_CYVIRTUALSCREEN));
-
 	_hwndHost = CreateWindowEx(
-		(IsBreakpointMode() ? 0 : WS_EX_TOPMOST) | WS_EX_NOACTIVATE | WS_EX_LAYERED | WS_EX_TRANSPARENT,
+		(IsBreakpointMode() ? 0 : WS_EX_TOPMOST) | WS_EX_NOACTIVATE | WS_EX_LAYERED,
 		HOST_WINDOW_CLASS_NAME,
 		HOST_WINDOW_TITLE,
 		WS_POPUP,
