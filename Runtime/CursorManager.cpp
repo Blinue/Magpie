@@ -114,11 +114,6 @@ void CursorManager::OnBeginFrame() {
 		if (hwndCur != hwndHost) {
 			// 主窗口被遮挡
 			_StopCapture(cursorPos);
-
-			WCHAR str[128]{};
-			GetWindowText(hwndCur, str, 128);
-			
-			OutputDebugString(fmt::format(L"stop：{}\n", str).c_str());
 		} else {
 			// 主窗口未被遮挡
 			hwndCur = WindowFromPoint(style, cursorPos, true);
@@ -128,6 +123,8 @@ void CursorManager::OnBeginFrame() {
 				if (style | WS_EX_TRANSPARENT) {
 					SetWindowLongPtr(hwndHost, GWL_EXSTYLE, style & ~WS_EX_TRANSPARENT);
 				}
+
+				_StopCapture(cursorPos);
 			} else {
 				// 源窗口未被遮挡
 				if (!(style & WS_EX_TRANSPARENT)) {
@@ -154,22 +151,21 @@ void CursorManager::OnBeginFrame() {
 					SetWindowLongPtr(hwndHost, GWL_EXSTYLE, style & ~WS_EX_TRANSPARENT);
 				}
 			} else {
-				hwndCur = WindowFromPoint(style, cursorPos, true);
+				hwndCur = WindowFromPoint(style, newCursorPos, true);
 
 				if (hwndCur == App::Get().GetHwndSrc() || ((IsChild(hwndCur, hwndSrc) && (GetWindowStyle(hwndCur) & WS_CHILD)))) {
 					// 源窗口未被遮挡
 					if (!(style & WS_EX_TRANSPARENT)) {
 						SetWindowLongPtr(hwndHost, GWL_EXSTYLE, style | WS_EX_TRANSPARENT);
 					}
+
+					_StartCapture(cursorPos);
 				} else {
 					// 源窗口被遮挡
 					if (style | WS_EX_TRANSPARENT) {
 						SetWindowLongPtr(hwndHost, GWL_EXSTYLE, style & ~WS_EX_TRANSPARENT);
 					}
 				}
-
-				_StartCapture(cursorPos);
-				OutputDebugString(L"start\n");
 			}
 		}
 	}
