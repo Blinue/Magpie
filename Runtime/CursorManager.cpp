@@ -48,10 +48,10 @@ static HWND WindowFromPoint(INT_PTR style, POINT pt, bool clickThrough) {
 		return WindowFromPoint(pt);
 	}
 
-
 	if (!clickThrough) {
-		return hwndHost;
+		return ChildWindowFromPointEx(GetDesktopWindow(), pt, CWP_SKIPDISABLED | CWP_SKIPINVISIBLE);
 	}
+
 	SetWindowLongPtr(hwndHost, GWL_EXSTYLE,
 		clickThrough ? (style | WS_EX_TRANSPARENT) : (style & ~WS_EX_TRANSPARENT));
 	HWND hwndCur = WindowFromPoint(pt);
