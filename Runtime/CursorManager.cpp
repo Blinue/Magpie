@@ -9,90 +9,179 @@
 
 
 CursorManager::~CursorManager() {
-	if (App::Get().IsMultiMonitorMode()) {
-		if (_isUnderCapture) {
-			POINT pt{};
-			if (!::GetCursorPos(&pt)) {
-				Logger::Get().Win32Error("GetCursorPos 失败");
-			}
-			_StopCapture(pt);
+	ClipCursor(nullptr);
+	
+	if (_isUnderCapture) {
+		POINT pt{};
+		if (!::GetCursorPos(&pt)) {
+			Logger::Get().Win32Error("GetCursorPos 失败");
 		}
-	} else if (!App::Get().IsBreakpointMode()) {
-		// CursorDrawer 析构时计时器已销毁
-		ClipCursor(nullptr);
-		if (App::Get().IsAdjustCursorSpeed()) {
-			SystemParametersInfo(SPI_SETMOUSESPEED, 0, (PVOID)(intptr_t)_cursorSpeed, 0);
-		}
-
-		MagShowSystemCursor(TRUE);
+		_StopCapture(pt);
 	}
 
 	Logger::Get().Info("CursorDrawer 已析构");
 }
 
-bool CursorManager::Initialize() {
-	if (!App::Get().IsMultiMonitorMode() && !App::Get().IsBreakpointMode()) {
-		// 非多屏幕模式下，限制光标在窗口内
-		const RECT& srcFrameRect = App::Get().GetFrameSource().GetSrcFrameRect();
-		if (!ClipCursor(&srcFrameRect)) {
-			Logger::Get().Win32Error("ClipCursor 失败");
-		}
-
-		if (App::Get().IsAdjustCursorSpeed()) {
-			// 设置鼠标移动速度
-			if (SystemParametersInfo(SPI_GETMOUSESPEED, 0, &_cursorSpeed, 0)) {
-				SIZE srcFrameSize = Utils::GetSizeOfRect(App::Get().GetFrameSource().GetSrcFrameRect());
-				SIZE outputSize = Utils::GetSizeOfRect(App::Get().GetRenderer().GetOutputRect());
-
-				double speedScale = ((double)outputSize.cx / srcFrameSize.cx + (double)outputSize.cy / srcFrameSize.cy) / 2;
-				long newSpeed = std::clamp(lround(_cursorSpeed / speedScale), 1L, 20L);
-
-				if (!SystemParametersInfo(SPI_SETMOUSESPEED, 0, (PVOID)(intptr_t)newSpeed, 0)) {
-					Logger::Get().Win32Error("设置光标移速失败");
-				}
-			} else {
-				Logger::Get().Win32Error("获取光标移速失败");
-			}
-
-			Logger::Get().Info("已调整光标移速");
-		}
-
-		if (!MagShowSystemCursor(FALSE)) {
-			Logger::Get().Win32Error("MagShowSystemCursor 失败");
-		}
+static std::optional<LRESULT> HostWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
+	if (message == WM_LBUTTONDOWN) {
+		// 主窗口会在非常特定的情况下收到光标消息：
+		// 1. 未处于捕获状态
+		// 2. 缩放后的位置未被遮挡而缩放前的位置被遮挡
+		SetForegroundWindow(App::Get().GetHwndSrc());
+		return 0;
 	}
+
+	return std::nullopt;
+}
+
+bool CursorManager::Initialize() {
+	App::Get().RegisterWndProcHandler(HostWndProc);
 
 	Logger::Get().Info("CursorManager 初始化完成");
 	return true;
 }
 
-void CursorManager::BeginFrame() {
-	// 多屏幕模式下光标可以在屏幕间移动
-	if (App::Get().IsMultiMonitorMode()) {
-		// _DynamicClip 根据当前光标位置的四个方向有无屏幕来确定应该在哪些方向限制光标，但这无法
-		// 处理屏幕之间存在间隙的情况。解决办法是 _StopCapture 只在目标位置存在屏幕时才取消捕获，
-		// 当光标试图移动到间隙中时将被挡住。如果光标的速度足以跨越间隙，则它依然可以在屏幕间移动。
+static HWND WindowFromPoint(INT_PTR style, POINT pt, bool clickThrough) {
+	HWND hwndHost = App::Get().GetHwndHost();
 
-		POINT cursorPt;
-		if (!::GetCursorPos(&cursorPt)) {
-			Logger::Get().Win32Error("GetCursorPos 失败");
-			return;
-		}
+	if (bool(style & WS_EX_TRANSPARENT) ^ !clickThrough) {
+		return WindowFromPoint(pt);
+	}
 
-		if (_isUnderCapture) {
-			const RECT& srcFrameRect = App::Get().GetFrameSource().GetSrcFrameRect();
+	SetWindowLongPtr(hwndHost, GWL_EXSTYLE,
+		clickThrough ? (style | WS_EX_TRANSPARENT) : (style & ~WS_EX_TRANSPARENT));
+	HWND hwndCur = WindowFromPoint(pt);
+	SetWindowLongPtr(hwndHost, GWL_EXSTYLE, style);
 
-			if (PtInRect(&srcFrameRect, cursorPt)) {
-				_DynamicClip(cursorPt);
-			} else {
-				_StopCapture(cursorPt);
-			}
+	return hwndCur;
+}
+
+void CursorManager::OnBeginFrame() {
+	POINT cursorPos;
+	if (!::GetCursorPos(&cursorPos)) {
+		Logger::Get().Win32Error("GetCursorPos 失败");
+		return;
+	}
+
+	HWND hwndHost = App::Get().GetHwndHost();
+	HWND hwndSrc = App::Get().GetHwndSrc();
+	const RECT& hostRect = App::Get().GetHostWndRect();
+	const RECT& srcFrameRect = App::Get().GetFrameSource().GetSrcFrameRect();
+	const RECT& outputRect = App::Get().GetRenderer().GetOutputRect();
+	const RECT& virtualOutputRect = App::Get().GetRenderer().GetVirtualOutputRect();
+
+	SIZE outputSize = Utils::GetSizeOfRect(outputRect);
+	SIZE srcFrameSize = Utils::GetSizeOfRect(srcFrameRect);
+	SIZE virtualOutputSize = Utils::GetSizeOfRect(virtualOutputRect);
+
+	INT_PTR style = GetWindowLongPtr(hwndHost, GWL_EXSTYLE);
+
+	if (_isUnderCapture) {
+		///////////////////////////////////////////////////////////
+		// 
+		// 处于捕获状态
+		// --------------------------------------------------------
+		//					|  虚拟位置被遮挡	|    虚拟位置未被遮挡
+		// --------------------------------------------------------
+		// 实际位置被遮挡		|    退出捕获	| 退出捕获，主窗口不透明
+		// --------------------------------------------------------
+		// 实际位置未被遮挡	|    退出捕获	|        无操作
+		// --------------------------------------------------------
+		// 
+		///////////////////////////////////////////////////////////
+
+		POINT newCursorPos{};
+		double pos = double(cursorPos.x - srcFrameRect.left) / (srcFrameRect.right - srcFrameRect.left);
+		newCursorPos.x = hostRect.left + std::lround(pos * virtualOutputSize.cx) + virtualOutputRect.left;
+
+		pos = double(cursorPos.y - srcFrameRect.top) / (srcFrameRect.bottom - srcFrameRect.top);
+		newCursorPos.y = hostRect.top + std::lround(pos * virtualOutputSize.cy) + virtualOutputRect.top;
+
+		HWND hwndCur = WindowFromPoint(style, newCursorPos, false);
+
+		if (hwndCur != hwndHost) {
+			// 主窗口被遮挡
+			_StopCapture(cursorPos);
 		} else {
-			const RECT& hostRect = App::Get().GetHostWndRect();
+			// 主窗口未被遮挡
+			hwndCur = WindowFromPoint(style, cursorPos, true);
 
-			if (PtInRect(&hostRect, cursorPt)) {
-				_StartCapture(cursorPt);
-				_DynamicClip(cursorPt);
+			if (hwndCur != hwndSrc && (!IsChild(hwndSrc, hwndCur) || !((GetWindowStyle(hwndCur) & WS_CHILD)))) {
+				// 源窗口被遮挡
+				if (style | WS_EX_TRANSPARENT) {
+					SetWindowLongPtr(hwndHost, GWL_EXSTYLE, style & ~WS_EX_TRANSPARENT);
+				}
+
+				_StopCapture(cursorPos);
+			} else {
+				// 源窗口未被遮挡
+				if (!(style & WS_EX_TRANSPARENT)) {
+					SetWindowLongPtr(hwndHost, GWL_EXSTYLE, style | WS_EX_TRANSPARENT);
+				}
+			}
+		}
+		
+	} else {
+		/////////////////////////////////////////////////////////
+		// 
+		// 未处于捕获状态
+		// -----------------------------------------------------
+		//					|  虚拟位置被遮挡	|  虚拟位置未被遮挡
+		// ------------------------------------------------------
+		// 实际位置被遮挡		|    无操作		|    主窗口不透明
+		// ------------------------------------------------------
+		// 实际位置未被遮挡	|    无操作		| 开始捕获，主窗口透明
+		// ------------------------------------------------------
+		// 
+		/////////////////////////////////////////////////////////
+
+		HWND hwndCur = WindowFromPoint(style, cursorPos, false);
+
+		if (hwndCur == hwndHost) {
+			// 主窗口未被遮挡
+			POINT newCursorPos{};
+			// 从全屏窗口映射到源窗口
+			double posX = double(cursorPos.x - hostRect.left - virtualOutputRect.left) / virtualOutputSize.cx;
+			double posY = double(cursorPos.y - hostRect.top - virtualOutputRect.top) / virtualOutputSize.cy;
+
+			newCursorPos.x = std::lround(posX * srcFrameSize.cx + srcFrameRect.left);
+			newCursorPos.y = std::lround(posY * srcFrameSize.cy + srcFrameRect.top);
+
+			if (!PtInRect(&srcFrameRect, newCursorPos)) {
+				// 跳过黑边
+				POINT clampedPos = {
+					std::clamp(newCursorPos.x, hostRect.left + outputRect.left, hostRect.left + outputRect.right - 1),
+					std::clamp(newCursorPos.y, hostRect.top + outputRect.top, hostRect.top + outputRect.bottom - 1)
+				};
+
+				if (WindowFromPoint(style, clampedPos, false) == hwndHost) {
+					if (!(style & WS_EX_TRANSPARENT)) {
+						SetWindowLongPtr(hwndHost, GWL_EXSTYLE, style | WS_EX_TRANSPARENT);
+					}
+
+					_StartCapture(cursorPos);
+				} else {
+					// 要跳跃的位置被遮挡
+					if (style | WS_EX_TRANSPARENT) {
+						SetWindowLongPtr(hwndHost, GWL_EXSTYLE, style & ~WS_EX_TRANSPARENT);
+					}
+				}
+			} else {
+				hwndCur = WindowFromPoint(style, newCursorPos, true);
+
+				if (hwndCur == App::Get().GetHwndSrc() || ((IsChild(hwndSrc, hwndCur) && (GetWindowStyle(hwndCur) & WS_CHILD)))) {
+					// 源窗口未被遮挡
+					if (!(style & WS_EX_TRANSPARENT)) {
+						SetWindowLongPtr(hwndHost, GWL_EXSTYLE, style | WS_EX_TRANSPARENT);
+					}
+
+					_StartCapture(cursorPos);
+				} else {
+					// 源窗口被遮挡
+					if (style | WS_EX_TRANSPARENT) {
+						SetWindowLongPtr(hwndHost, GWL_EXSTYLE, style & ~WS_EX_TRANSPARENT);
+					}
+				}
 			}
 		}
 	}
@@ -103,15 +192,25 @@ void CursorManager::BeginFrame() {
 		return;
 	}
 
-	if (App::Get().IsMultiMonitorMode()) {
-		// 多屏幕模式下不处于捕获状态则不绘制光标
-		if (!_isUnderCapture) {
-			_curCursor = NULL;
-			return;
+	if (!_isUnderCapture) {
+		_curCursor = NULL;
+		return;
+	}
+
+	if (!App::Get().IsBreakpointMode()) {
+		if (App::Get().IsConfineCursorIn3DGames()) {
+			// 开启“在 3D 游戏中限制光标”则每帧都限制一次光标
+			ClipCursor(&App::Get().GetFrameSource().GetSrcFrameRect());
+		} else {
+			if (::GetCursorPos(&cursorPos)) {
+				// _DynamicClip 根据当前光标位置的四个方向有无屏幕来确定应该在哪些方向限制光标，但这无法
+				// 处理屏幕之间存在间隙的情况。解决办法是 _StopCapture 只在目标位置存在屏幕时才取消捕获，
+				// 当光标试图移动到间隙中时将被挡住。如果光标的速度足以跨越间隙，则它依然可以在屏幕间移动。
+				_DynamicClip(cursorPos);
+			} else {
+				Logger::Get().Win32Error("GetCursorPos 失败");
+			}
 		}
-	} else if (!App::Get().IsBreakpointMode() && App::Get().IsConfineCursorIn3DGames()) {
-		// 开启“在 3D 游戏中限制光标”则每帧都限制一次光标
-		ClipCursor(&App::Get().GetFrameSource().GetSrcFrameRect());
 	}
 
 	CURSORINFO ci{};
@@ -131,10 +230,6 @@ void CursorManager::BeginFrame() {
 		_curCursor = NULL;
 		return;
 	}
-
-	const RECT& srcFrameRect = App::Get().GetFrameSource().GetSrcFrameRect();
-	const RECT& outputRect = App::Get().GetRenderer().GetOutputRect();
-	const RECT& virtualOutputRect = App::Get().GetRenderer().GetVirtualOutputRect();
 
 	double pos = double(ci.ptScreenPos.x - srcFrameRect.left) / (srcFrameRect.right - srcFrameRect.left);
 	_curCursorPos.x = std::lround(pos * (virtualOutputRect.right - virtualOutputRect.left)) + virtualOutputRect.left;
@@ -180,7 +275,31 @@ bool CursorManager::GetCursorTexture(ID3D11Texture2D** texture, CursorManager::C
 	return true;
 }
 
+void CursorManager::StartCapture() {
+	POINT cursorPt;
+	if (!::GetCursorPos(&cursorPt)) {
+		Logger::Get().Win32Error("GetCursorPos 失败");
+		return;
+	}
+
+	_StartCapture(cursorPt);
+}
+
+void CursorManager::StopCapture() {
+	POINT cursorPt;
+	if (!::GetCursorPos(&cursorPt)) {
+		Logger::Get().Win32Error("GetCursorPos 失败");
+		return;
+	}
+
+	_StopCapture(cursorPt);
+}
+
 void CursorManager::_StartCapture(POINT cursorPt) {
+	if (_isUnderCapture) {
+		return;
+	}
+
 	// 在以下情况下进入捕获状态：
 	// 1. 当前未捕获
 	// 2. 光标进入全屏区域
@@ -235,10 +354,22 @@ void CursorManager::_StartCapture(POINT cursorPt) {
 
 	SetCursorPos(std::lround(posX), std::lround(posY));
 
+	if (!App::Get().IsBreakpointMode()) {
+		if (!ClipCursor(&srcFrameRect)) {
+			Logger::Get().Win32Error("ClipCursor 失败");
+		}
+	}
+
 	_isUnderCapture = true;
 }
 
 void CursorManager::_StopCapture(POINT cursorPt) {
+	if (!_isUnderCapture) {
+		return;
+	}
+
+	ClipCursor(nullptr);
+
 	// 在以下情况下离开捕获状态：
 	// 1. 当前处于捕获状态
 	// 2. 光标离开源窗口客户区
@@ -328,7 +459,7 @@ void CursorManager::_DynamicClip(POINT cursorPt) {
 	clips[3] = !MonitorFromRect(&rect, MONITOR_DEFAULTTONULL);
 
 	// 开启“在 3D 游戏中限制光标”则每帧都限制一次光标
-	if (App::Get().IsConfineCursorIn3DGames() || clips != _curClips) {
+	if (clips != _curClips) {
 		_curClips = clips;
 
 		RECT clipRect = {

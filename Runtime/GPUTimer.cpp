@@ -23,7 +23,7 @@ void GPUTimer::ResetElapsedTime() {
 	m_qpcSecondCounter = 0;
 }
 
-void GPUTimer::BeginFrame() {
+void GPUTimer::OnBeginFrame() {
 	// Query the current time.
 	LARGE_INTEGER currentTime;
 
@@ -60,7 +60,5 @@ void GPUTimer::BeginFrame() {
 		m_framesPerSecond = m_framesThisSecond;
 		m_framesThisSecond = 0;
 		m_qpcSecondCounter %= static_cast<uint64_t>(m_qpcFrequency.QuadPart);
-
-		OutputDebugString(fmt::format(L"{}\n", m_framesPerSecond).c_str());
 	}
 }

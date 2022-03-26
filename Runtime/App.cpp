@@ -174,7 +174,7 @@ winrt::com_ptr<IWICImagingFactory2> App::GetWICImageFactory() {
 	return wicImgFactory;
 }
 
-UINT App::RegisterWndProcHandler(std::function<bool(HWND, UINT, WPARAM, LPARAM)> handler) {
+UINT App::RegisterWndProcHandler(std::function<std::optional<LRESULT>(HWND, UINT, WPARAM, LPARAM)> handler) {
 	UINT id = _nextWndProcHandlerID++;
 	return _wndProcHandlers.emplace(id, handler).second ? id : 0;
 }
@@ -305,14 +305,8 @@ bool App::_CreateHostWnd() {
 		return false;
 	}
 
-	// 主窗口没有覆盖 Virtual Screen 则使用多屏幕模式
-	// 启用“在 3D 游戏中限制光标”或断点模式时不使用多屏幕模式
-	_isMultiMonitorMode = !IsConfineCursorIn3DGames() && !IsBreakpointMode() && GetMultiMonitorUsage() != 2 &&
-		((_hostWndRect.right - _hostWndRect.left) < GetSystemMetrics(SM_CXVIRTUALSCREEN) ||
-		(_hostWndRect.bottom - _hostWndRect.top) < GetSystemMetrics(SM_CYVIRTUALSCREEN));
-
 	_hwndHost = CreateWindowEx(
-		(IsBreakpointMode() ? 0 : WS_EX_TOPMOST) | WS_EX_NOACTIVATE | WS_EX_LAYERED | WS_EX_TRANSPARENT,
+		(IsBreakpointMode() ? 0 : WS_EX_TOPMOST) | WS_EX_NOACTIVATE | WS_EX_LAYERED,
 		HOST_WINDOW_CLASS_NAME,
 		HOST_WINDOW_TITLE,
 		WS_POPUP,
@@ -423,8 +417,9 @@ LRESULT App::_HostWndProcStatic(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
 
 LRESULT App::_HostWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
 	for (auto& pair : _wndProcHandlers) {
-		if (pair.second(hWnd, message, wParam, lParam)) {
-			return TRUE;
+		const auto& result = pair.second(hWnd, message, wParam, lParam);
+		if (result.has_value()) {
+			return result.value();
 		}
 	}
 
@@ -436,15 +431,11 @@ LRESULT App::_HostWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 	switch (message) {
 	case WM_DESTROY:
-	{
 		// 有两个退出路径：
 		// 1. 前台窗口发生改变
 		// 2. 收到_WM_DESTORYMAG 消息
 		PostQuitMessage(0);
 		return 0;
-	}
-	default:
-		break;
 	}
 
 	return DefWindowProc(hWnd, message, wParam, lParam);

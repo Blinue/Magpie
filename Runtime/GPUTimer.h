@@ -26,7 +26,7 @@ public:
 	void ResetElapsedTime();
 
 	// 在每帧开始时调用，用于记录帧率
-	void BeginFrame();
+	void OnBeginFrame();
 
 private:
 	// Integer format represents time using 10,000,000 ticks per second.

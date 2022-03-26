@@ -59,12 +59,12 @@ public:
 		return *_renderer;
 	}
 
-	CursorManager& GetCursorManager() noexcept {
-		return *_cursorManager;
-	}
-
 	FrameSourceBase& GetFrameSource() noexcept {
 		return *_frameSource;
+	}
+
+	CursorManager& GetCursorManager() noexcept {
+		return *_cursorManager;
 	}
 
 	float GetCursorZoomFactor() const noexcept {
@@ -85,10 +85,6 @@ public:
 
 	const RECT& GetCropBorders() const noexcept {
 		return _cropBorders;
-	}
-
-	bool IsMultiMonitorMode() const noexcept {
-		return _isMultiMonitorMode;
 	}
 
 	bool IsNoCursor() const noexcept {
@@ -153,7 +149,8 @@ public:
 
 	winrt::com_ptr<IWICImagingFactory2> GetWICImageFactory();
 
-	UINT RegisterWndProcHandler(std::function<bool(HWND, UINT, WPARAM, LPARAM)> handler);
+	// 注册消息回调，回调函数如果不阻断消息应返回空
+	UINT RegisterWndProcHandler(std::function<std::optional<LRESULT>(HWND, UINT, WPARAM, LPARAM)> handler);
 	void UnregisterWndProcHandler(UINT id);
 
 private:
@@ -210,9 +207,6 @@ private:
 		WarningsAreErrors = 0x1000
 	};
 
-	// 多屏幕模式下光标可以在屏幕间自由移动
-	bool _isMultiMonitorMode = false;
-
 	bool _windowResizingDisabled = false;
 	bool _roundCornerDisabled = false;
 
@@ -221,6 +215,6 @@ private:
 	std::unique_ptr<FrameSourceBase> _frameSource;
 	std::unique_ptr<CursorManager> _cursorManager;
 
-	std::map<UINT, std::function<bool(HWND, UINT, WPARAM, LPARAM)>> _wndProcHandlers;
+	std::map<UINT, std::function<std::optional<LRESULT>(HWND, UINT, WPARAM, LPARAM)>> _wndProcHandlers;
 	UINT _nextWndProcHandlerID = 1;
 };
