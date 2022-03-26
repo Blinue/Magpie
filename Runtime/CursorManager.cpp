@@ -134,8 +134,19 @@ void CursorManager::OnBeginFrame() {
 			newCursorPos.y = std::lround(posY * srcFrameSize.cy + srcFrameRect.top);
 
 			if (!PtInRect(&srcFrameRect, newCursorPos)) {
-				if (style | WS_EX_TRANSPARENT) {
-					SetWindowLongPtr(hwndHost, GWL_EXSTYLE, style & ~WS_EX_TRANSPARENT);
+				// 跳过黑边
+				POINT clampedPos = {
+					std::clamp(newCursorPos.x, hostRect.left + outputRect.left, hostRect.left + outputRect.right - 1),
+					std::clamp(newCursorPos.y, hostRect.top + outputRect.top, hostRect.top + outputRect.bottom - 1)
+				};
+
+				if (WindowFromPoint(style, clampedPos, false) == hwndHost) {
+					_StartCapture(cursorPos);
+				} else {
+					// 要跳跃的位置被遮挡
+					if (style | WS_EX_TRANSPARENT) {
+						SetWindowLongPtr(hwndHost, GWL_EXSTYLE, style & ~WS_EX_TRANSPARENT);
+					}
 				}
 			} else {
 				hwndCur = WindowFromPoint(style, newCursorPos, true);
