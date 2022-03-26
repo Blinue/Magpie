@@ -118,7 +118,7 @@ void CursorManager::OnBeginFrame() {
 			// 主窗口未被遮挡
 			hwndCur = WindowFromPoint(style, cursorPos, true);
 
-			if (hwndCur != hwndSrc && (!IsChild(hwndCur, hwndSrc) || !((GetWindowStyle(hwndCur) & WS_CHILD)))) {
+			if (hwndCur != hwndSrc && (!IsChild(hwndSrc, hwndCur) || !((GetWindowStyle(hwndCur) & WS_CHILD)))) {
 				// 源窗口被遮挡
 				if (style | WS_EX_TRANSPARENT) {
 					SetWindowLongPtr(hwndHost, GWL_EXSTYLE, style & ~WS_EX_TRANSPARENT);
@@ -153,7 +153,7 @@ void CursorManager::OnBeginFrame() {
 			} else {
 				hwndCur = WindowFromPoint(style, newCursorPos, true);
 
-				if (hwndCur == App::Get().GetHwndSrc() || ((IsChild(hwndCur, hwndSrc) && (GetWindowStyle(hwndCur) & WS_CHILD)))) {
+				if (hwndCur == App::Get().GetHwndSrc() || ((IsChild(hwndSrc, hwndCur) && (GetWindowStyle(hwndCur) & WS_CHILD)))) {
 					// 源窗口未被遮挡
 					if (!(style & WS_EX_TRANSPARENT)) {
 						SetWindowLongPtr(hwndHost, GWL_EXSTYLE, style | WS_EX_TRANSPARENT);
