@@ -10,13 +10,13 @@ Magpie magnifies any window to fullscreen with a handful of algorithms/filter. T
 
 Please raise an issue if you are having trouble running the app.
 
-👉 [Compilation Guidance (in Chinese)](https://github.com/Blinue/Magpie/wiki/编译指南)
+👉 [Compilation Guides](https://github.com/Blinue/Magpie/wiki/compilation)
 
-👉 [FAQ (in Chinese)](https://github.com/Blinue/Magpie/wiki/FAQ)
+👉 [FAQ](https://github.com/Blinue/Magpie/wiki/FAQ_EN)
 
-👉 [Customized Scaling Configurations (in Chinese)](https://github.com/Blinue/Magpie/wiki/自定义缩放配置)（[Samples](https://gist.github.com/hooke007/818ecc88f18e229bca743b7ae48947ad)）
+👉 [Customizing Scaling Configurations](https://github.com/Blinue/Magpie/wiki/customizing_scaling_configurations) ([Samples](https://gist.github.com/hooke007/818ecc88f18e229bca743b7ae48947ad))
 
-👉 [Contribution Guides (in Chinese)](./CONTRIBUTING.md)
+👉 [Contribution Guides](./CONTRIBUTING_EN.md)
 
 ## How to use the app
 
