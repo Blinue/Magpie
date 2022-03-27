@@ -31,11 +31,9 @@ Support starts from v0.8.
 
 Please check the [Performance Guides](https://github.com/Blinue/Magpie/wiki/performance_guides).
 
-## 我想对 Magpie 做一些喜闻乐见的事情，需要获得许可吗？
-
 ## I'd like to do something with Magpie. Do I need to get approval?
 
-There is no need for approval as long as you are followi
+There is no need for approval as long as you are follow its [License](https://github.com/Blinue/Magpie/blob/main/LICENSE) (GPLv3).
 ## Will using Magpie in multi-player games be detected as cheating?
 
 Magpie is designed to be non-intrusive, so it will not likely to be detected as a cheating tool. Currently there is no banning report for using Magpie. Nevertheless, you need to take the risks of using this software on your own.
