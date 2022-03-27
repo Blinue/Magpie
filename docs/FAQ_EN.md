@@ -38,7 +38,7 @@ There is no need for approval as long as you are follow its [License](https://gi
 
 Magpie is designed to be non-intrusive, so it will not likely to be detected as a cheating tool. Currently there is no banning report for using Magpie. Nevertheless, you need to take the risks of using this software on your own.
 
-## What is "disallowing DirectFlip?"
+## What is "Disable DirectFlip?"
 
 DirectFlip is a technology to reduce input lags, but it may cause troubles in some circumstances. Please turn on this option when you are in the following situationsL:
 
@@ -46,7 +46,7 @@ DirectFlip is a technology to reduce input lags, but it may cause troubles in so
 2. Abnormal low frame rates.
 3. The screen freezes when streaming.
 
-## What is "Emulating dedicated fullscreen?"
+## What is "Simulate Exclusive Fullscreen?"
 
 A lot of software checks whether there are games running under dedicated fullscreen mode before popping up windows. Turn on this option if you'd like to play in fullscreen without being disturbed,
 
