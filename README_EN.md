@@ -10,13 +10,13 @@ Magpie magnifies any window to fullscreen with a handful of algorithms/filter. T
 
 Please raise an issue if you are having trouble running the app.
 
-👉 [Compilation Guides](https://github.com/Blinue/Magpie/wiki/compilation)
+👉 [Compiling](https://github.com/Blinue/Magpie/wiki/Compiling)
 
 👉 [FAQ](https://github.com/Blinue/Magpie/wiki/FAQ_EN)
 
-👉 [Customizing Scaling Configurations](https://github.com/Blinue/Magpie/wiki/customizing_scaling_configurations) ([Samples](https://gist.github.com/hooke007/818ecc88f18e229bca743b7ae48947ad))
+👉 [Customizing Scaling Configurations](https://github.com/Blinue/Magpie/wiki/Customizing_Scaling_Configurations) ([Examples](https://gist.github.com/hooke007/818ecc88f18e229bca743b7ae48947ad))
 
-👉 [Contribution Guides](./CONTRIBUTING_EN.md)
+👉 [Contributing](./CONTRIBUTING_EN.md)
 
 ## How to use the app
 
@@ -28,7 +28,7 @@ Below are config guides:
 
 #### Scaling Modes
 
-The application ships with multiple scaling modes. If they don't fit your needs, please goto the [Customized Scaling Configurations](https://github.com/Blinue/Magpie/wiki/自定义缩放配置) page.
+The application ships with multiple scaling modes. If they don't fit your needs, please check the [Customized Scaling Configurations](https://github.com/Blinue/Magpie/wiki/Customizing_Scaling_Configurations) page.
 
 1. Lanczos：A common, traditional interpolation algorithm. It does well in keeping sharp edges.
 2. FSR：A transplantation of [FidelityFX-FSR](https://github.com/GPUOpen-Effects/FidelityFX-FSR), good for 3D games.
@@ -41,7 +41,7 @@ The application ships with multiple scaling modes. If they don't fit your needs,
 
 #### Capture Modes
 
-This section introduces how Magpie captures the source window. See [Capture Modes Comparison](https://github.com/Blinue/Magpie/wiki/%E6%8D%95%E8%8E%B7%E6%A8%A1%E5%BC%8F%E5%AF%B9%E6%AF%94) for their use cases.
+This section introduces how Magpie captures the source window. Check the [Capture Modes](https://github.com/Blinue/Magpie/wiki/Capture_Modes) page for their use cases.
 
 1. Graphics Capture：Captures with [Screen Capture API](https://docs.microsoft.com/en-us/windows/uwp/audio-video-camera/screen-capture). The recommended way. Available since Win10 v1903.
 2. Desktop Duplication：Captures with [Desktop Duplication API](https://docs.microsoft.com/en-us/windows/win32/direct3ddxgi/desktop-dup-api). It is able to capture more types of windows compared with Graphics Capture. Available since Win10 v2004.
@@ -102,4 +102,4 @@ Thanks go to these wonderful people ([emoji key](https://allcontributors.org/doc
 
 <!-- ALL-CONTRIBUTORS-LIST:END -->
 
-This project follows the [all-contributors](https://allcontributors.org/) specification. Contributions of any kind are welcome!
+This project follows the [all-contributors](https://allcontributors.org/) protocol. Contributions of any kind are welcome!
