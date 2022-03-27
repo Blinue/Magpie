@@ -40,7 +40,7 @@ Click [here](https://github.com/Blinue/Magpie/blob/main/Magpie/Resources/BuiltIn
 
 The root element of the configuration file is an array. Each element in the array represents one "scaling mode." The scaling modes are collections of "effects." Magpie will apply the effects in sequence when scaling. *The configuration file supports json comments, including inline comment `//` and block comment `/**/`.*
 
-Magpie ships with a handful of effect that an be used in combinations. Most of the effects have parameters that can be customized. All effects are stored in the `effects` folder. You can easily add effects if you are familiar with HLSL. Check [Customized Effects](https://github.com/Blinue/Magpie/wiki/customized_effects).
+Magpie ships with a handful of effect that an be used in combinations. Most of the effects have parameters that can be customized. All effects are stored in the `effects` folder. You can easily add effects if you are familiar with HLSL. Check the [Customizing Effects](https://github.com/Blinue/Magpie/wiki/Customizing_Effects) page.
 
 Many effects supports the `scale` parameter, which has to be an array with 2 elements. When they are positive, they mean the scaling factors of the width and the height. Negative numbers indicate the maximum ratio that fits in the screen. 0 mean to stretch and fit the screen. The default value of all `scale` parameters is `[1, 1]`, meaning exactly the same as the input. Check [Examples](#Examples) for their applications.
 

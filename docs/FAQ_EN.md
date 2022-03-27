@@ -1,6 +1,6 @@
 ## How to customize scaling effects (e.g. to change the sharpness of FSR)?
 
-Please check the [Customize Scaling Configurations](https://github.com/Blinue/Magpie/wiki/customizing_scaling_configurations) page.
+Please check the [Customize Scaling Configurations](https://github.com/Blinue/Magpie/wiki/Customizing_Scaling_Configurations) page.
 
 ## There are 2 cursors on the screen
 
@@ -29,11 +29,12 @@ Support starts from v0.8.
 
 ## Lagging/latency
 
-Please check the [Performance Guides](https://github.com/Blinue/Magpie/wiki/performance_guides).
+Please check the [Performance Improvements](https://github.com/Blinue/Magpie/wiki/Performance_Improvements) page.
 
 ## I'd like to do something with Magpie. Do I need to get approval?
 
 There is no need for approval as long as you are follow its [License](https://github.com/Blinue/Magpie/blob/main/LICENSE) (GPLv3).
+
 ## Will using Magpie in multi-player games be detected as cheating?
 
 Magpie is designed to be non-intrusive, so it will not likely to be detected as a cheating tool. Currently there is no banning report for using Magpie. Nevertheless, you need to take the risks of using this software on your own.
