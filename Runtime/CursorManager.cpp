@@ -41,6 +41,10 @@ bool CursorManager::Initialize() {
 	return true;
 }
 
+// 检测光标在哪个窗口上
+// 此实现存在缺陷，包括被禁用窗口、透明窗口、UWP窗口的处理以及可能会有光标闪烁的问题
+// 当实现窗口化时，此函数需要重写
+// 请帮助我们改进！
 static HWND WindowFromPoint(INT_PTR style, POINT pt, bool clickThrough) {
 	HWND hwndHost = App::Get().GetHwndHost();
 
