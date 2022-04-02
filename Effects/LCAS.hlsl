@@ -4,7 +4,7 @@
 //!VERSION 2
 
 //!PARAMETER
-//!DEFAULT 0.8
+//!DEFAULT 0.5
 //!MIN 0
 //!MAX 1
 float sharpness;
@@ -65,6 +65,6 @@ void Pass1(uint2 blockStart, uint3 threadId) {
 	//  w w w 
 	//  w 1 w
 	//  w w w 
-	float3 color = ((a + b + c + d + f + g + h + i) * wRGB + (e * 3 - (a + c + g + i + (b + d + f + h) * 2 + e * 4) / 8)) / (1.0 + 8.0 * wRGB);
+	float3 color = ((a + b + c + d + f + g + h + i) * wRGB + (e * 5 - (a + c + g + i + (b + d + f + h) * 2 + e * 4) / 4)) / (1.0 + 8.0 * wRGB);
 	WriteToOutput(gxy, (color + clamp(color, mnRGB, mxRGB) * 3) / 4);
 }
