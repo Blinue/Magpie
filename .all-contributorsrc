@@ -1,6 +1,7 @@
 {
   "files": [
-    "README.md"
+    "README.md",
+    "README_EN.md"
   ],
   "imageSize": 100,
   "commit": false,
@@ -72,6 +73,24 @@
       "name": "NightFox",
       "avatar_url": "https://avatars.githubusercontent.com/u/4449851?v=4",
       "profile": "https://github.com/0x4E69676874466F78",
+      "contributions": [
+        "translation"
+      ]
+    },
+    {
+      "login": "Tzugimaa",
+      "name": "Tzugimaa",
+      "avatar_url": "https://avatars.githubusercontent.com/u/4981077?v=4",
+      "profile": "https://github.com/Tzugimaa",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "WHMHammer",
+      "name": "WHMHammer",
+      "avatar_url": "https://avatars.githubusercontent.com/u/35433952?v=4",
+      "profile": "https://github.com/WHMHammer",
       "contributions": [
         "translation"
       ]
