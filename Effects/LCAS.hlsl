@@ -18,17 +18,12 @@ SamplerState sam;
 
 //!PASS 1
 //!IN INPUT
-//!BLOCK_SIZE 8
+//!BLOCK_SIZE 16
 //!NUM_THREADS 64
 
-void Pass1(uint2 blockStart, uint3 threadId) {
-	uint2 gxy = Rmp8x8(threadId.x) + blockStart;
+float3 LCAS(uint2 ip, float2 OutputPt, float peak) {
 
-	if (!CheckViewport(gxy)) {
-		return;
-	}
-			
-        float2 pos = (gxy + 0.5f) * GetOutputPt();
+	float2 pos = (ip + 0.5f) * OutputPt;
         float2 inputPt = GetInputPt();
 
 	// fetch a 3x3 neighborhood around the pixel 'e',
@@ -59,12 +54,39 @@ void Pass1(uint2 blockStart, uint3 threadId) {
 	float3 mxRGB = max(max(max(max(d, e), max(f, b)), h), max(max(a, i), max(c, g)));
 
 	// Shaping amount of sharpening.
-	float3 wRGB = sqrt(min(mnRGB, 1.0 - mxRGB) / mxRGB) * lerp(0, -0.1111111111111111, sharpness);
+	float3 wRGB = sqrt(min(mnRGB, 1.0 - mxRGB) / mxRGB) * peak;
 
 	// Filter shape.
 	//  w w w 
 	//  w 1 w
 	//  w w w 
-	float3 color = ((a + b + c + d + f + g + h + i) * wRGB + (e * 5 - (a + c + g + i + (b + d + f + h) * 2 + e * 4) / 4)) / (1.0 + 8.0 * wRGB);
-	WriteToOutput(gxy, (color + clamp(color, mnRGB, mxRGB) * 4) / 5);
+	float3 color = ((a + b + c + d + f + g + h + i) * wRGB + (e * 5.0 - (a + c + g + i + (b + d + f + h) * 2.0 + e * 4.0) / 4.0)) / (1.0 + 8.0 * wRGB);
+	return (color + clamp(color, mnRGB, mxRGB) * 4.0) / 5.0;
+}
+
+void Pass1(uint2 blockStart, uint3 threadId) {
+	uint2 gxy = blockStart + Rmp8x8(threadId.x);
+	if (!CheckViewport(gxy)) {
+		return;
+	}
+
+	const float2 OutputPt = GetOutputPt();
+	const float peak = lerp(0, -0.1111111111111111, sharpness);
+
+	WriteToOutput(gxy, LCAS(gxy, OutputPt, peak));
+
+	gxy.x += 8u;
+	if (CheckViewport(gxy)) {
+		WriteToOutput(gxy, LCAS(gxy, OutputPt, peak));
+	}
+
+	gxy.y += 8u;
+	if (CheckViewport(gxy)) {
+		WriteToOutput(gxy, LCAS(gxy, OutputPt, peak));
+	}
+
+	gxy.x -= 8u;
+	if (CheckViewport(gxy)) {
+		WriteToOutput(gxy, LCAS(gxy, OutputPt, peak));
+	}
 }
