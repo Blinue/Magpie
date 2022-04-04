@@ -35,13 +35,13 @@ bool Renderer::Initialize(const std::string& effectsJson) {
 		Logger::Get().Error("_ResolveEffectsJson 失败");
 		return false;
 	}
-	/*
+	
 	ID3D11Texture2D* backBuffer = App::Get().GetDeviceResources().GetBackBuffer();
 
 	_UIDrawer.reset(new UIDrawer());
 	if (!_UIDrawer->Initialize(backBuffer)) {
 		return false;
-	}*/
+	}
 
 	// 初始化所有效果共用的动态常量缓冲区
 	D3D11_BUFFER_DESC bd{};
@@ -101,10 +101,6 @@ void Renderer::Render() {
 	
 	/*
 	// 更新常量
-	if (!EffectDrawer::UpdateExprDynamicVars()) {
-		SPDLOG_LOGGER_ERROR(logger, "UpdateExprDynamicVars 失败");
-	}
-
 	if (state == FrameSourceBase::UpdateState::NewFrame) {
 		
 	} else {
@@ -127,10 +123,9 @@ void Renderer::Render() {
 				_effects[i]->Draw();
 			}
 		}
-	}
+	}*/
 
-	_UIDrawer->Draw();*/
-
+	_UIDrawer->Draw();
 
 	dr.EndFrame();
 }

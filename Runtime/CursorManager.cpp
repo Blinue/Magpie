@@ -6,6 +6,7 @@
 #include "Logger.h"
 #include "Utils.h"
 #include "DeviceResources.h"
+#include "UIDrawer.h"
 
 
 CursorManager::~CursorManager() {
@@ -27,8 +28,11 @@ static std::optional<LRESULT> HostWndProc(HWND hWnd, UINT message, WPARAM wParam
 		// 主窗口会在非常特定的情况下收到光标消息：
 		// 1. 未处于捕获状态
 		// 2. 缩放后的位置未被遮挡而缩放前的位置被遮挡
-		SetForegroundWindow(App::Get().GetHwndSrc());
-		return 0;
+		// 或用户操作 UI 时
+		HWND hwndSrc = App::Get().GetHwndSrc();
+		if (GetForegroundWindow() != hwndSrc) {
+			SetForegroundWindow(hwndSrc);
+		}
 	}
 
 	return std::nullopt;
@@ -112,23 +116,31 @@ void CursorManager::OnBeginFrame() {
 			_StopCapture(cursorPos);
 		} else {
 			// 主窗口未被遮挡
-			hwndCur = WindowFromPoint(style, cursorPos, true);
+			bool stopCapture = false;
 
-			if (hwndCur != hwndSrc && (!IsChild(hwndSrc, hwndCur) || !((GetWindowStyle(hwndCur) & WS_CHILD)))) {
-				// 源窗口被遮挡
+			UIDrawer* uiDrawer = App::Get().GetRenderer().GetUIDrawer();
+			if (uiDrawer && uiDrawer->IsWantCaptureMouse()) {
+				stopCapture = true;
+			}
+			
+			if (!stopCapture) {
+				// 判断源窗口是否被遮挡
+				hwndCur = WindowFromPoint(style, cursorPos, true);
+				stopCapture = hwndCur != hwndSrc && (!IsChild(hwndSrc, hwndCur) || !((GetWindowStyle(hwndCur) & WS_CHILD)));
+			}
+
+			if (stopCapture) {
 				if (style | WS_EX_TRANSPARENT) {
 					SetWindowLongPtr(hwndHost, GWL_EXSTYLE, style & ~WS_EX_TRANSPARENT);
 				}
 
 				_StopCapture(cursorPos);
 			} else {
-				// 源窗口未被遮挡
 				if (!(style & WS_EX_TRANSPARENT)) {
 					SetWindowLongPtr(hwndHost, GWL_EXSTYLE, style | WS_EX_TRANSPARENT);
 				}
 			}
 		}
-		
 	} else {
 		/////////////////////////////////////////////////////////
 		// 
@@ -175,17 +187,26 @@ void CursorManager::OnBeginFrame() {
 					}
 				}
 			} else {
-				hwndCur = WindowFromPoint(style, newCursorPos, true);
+				bool startCapture = true;
 
-				if (hwndCur == App::Get().GetHwndSrc() || ((IsChild(hwndSrc, hwndCur) && (GetWindowStyle(hwndCur) & WS_CHILD)))) {
-					// 源窗口未被遮挡
+				UIDrawer* uiDrawer = App::Get().GetRenderer().GetUIDrawer();
+				if (uiDrawer && uiDrawer->IsWantCaptureMouse()) {
+					startCapture = false;
+				}
+
+				if (startCapture) {
+					// 判断源窗口是否被遮挡
+					hwndCur = WindowFromPoint(style, newCursorPos, true);
+					startCapture = hwndCur == hwndSrc || ((IsChild(hwndSrc, hwndCur) && (GetWindowStyle(hwndCur) & WS_CHILD)));
+				}
+
+				if (startCapture) {
 					if (!(style & WS_EX_TRANSPARENT)) {
 						SetWindowLongPtr(hwndHost, GWL_EXSTYLE, style | WS_EX_TRANSPARENT);
 					}
 
 					_StartCapture(cursorPos);
 				} else {
-					// 源窗口被遮挡
 					if (style | WS_EX_TRANSPARENT) {
 						SetWindowLongPtr(hwndHost, GWL_EXSTYLE, style & ~WS_EX_TRANSPARENT);
 					}

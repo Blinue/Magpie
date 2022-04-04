@@ -23,6 +23,11 @@ float GetDpiScale() {
 	return GetDpiForWindow(App::Get().GetHwndHost()) / 96.0f;
 }
 
+static std::optional<LRESULT> WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
+	ImGui_ImplMagpie_WndProcHandler(hWnd, msg, wParam, lParam);
+	return std::nullopt;
+}
+
 bool UIDrawer::Initialize(ID3D11Texture2D* renderTarget) {
 	auto& dr = App::Get().GetDeviceResources();
 
@@ -46,7 +51,7 @@ bool UIDrawer::Initialize(ID3D11Texture2D* renderTarget) {
 
 	dr.GetRenderTargetView(renderTarget, &_rtv);
 
-	_handlerID = App::Get().RegisterWndProcHandler(_WndProcHandler);
+	_handlerID = App::Get().RegisterWndProcHandler(WndProcHandler);
 
 	return true;
 }
@@ -71,26 +76,7 @@ void UIDrawer::Draw() {
 	ImGui_ImplMagpie_NewFrame();
 	ImGui_ImplDX11_NewFrame();
 	ImGui::NewFrame();
-
-	if (ImGui::GetIO().WantCaptureMouse) {
-		if (!_cursorOnUI) {
-			HWND hwndHost = App::Get().GetHwndHost();
-			LONG_PTR style = GetWindowLongPtr(hwndHost, GWL_EXSTYLE);
-			SetWindowLongPtr(hwndHost, GWL_EXSTYLE, style & ~WS_EX_TRANSPARENT);
-
-			_cursorOnUI = true;
-		}
-	} else {
-		if (_cursorOnUI) {
-			HWND hwndHost = App::Get().GetHwndHost();
-			LONG_PTR style = GetWindowLongPtr(hwndHost, GWL_EXSTYLE);
-			SetWindowLongPtr(hwndHost, GWL_EXSTYLE, style | WS_EX_TRANSPARENT);
-
-			_cursorOnUI = false;
-		}
-	}
-
-	bool show = true;
+	
 	DrawUI();
 
 	ImGui::Render();
@@ -104,7 +90,6 @@ void UIDrawer::Draw() {
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 }
 
-bool UIDrawer::_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
-	ImGui_ImplMagpie_WndProcHandler(hWnd, msg, wParam, lParam);
-	return false;
+bool UIDrawer::IsWantCaptureMouse() const {
+	return ImGui::GetIO().WantCaptureMouse;
 }

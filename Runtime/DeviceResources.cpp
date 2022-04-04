@@ -267,7 +267,7 @@ bool DeviceResources::_CreateSwapChain() {
 	sd.SampleDesc.Count = 1;
 	sd.SampleDesc.Quality = 0;
 	sd.Scaling = DXGI_SCALING_NONE;
-	sd.BufferUsage = DXGI_USAGE_UNORDERED_ACCESS;
+	sd.BufferUsage = DXGI_USAGE_UNORDERED_ACCESS | DXGI_USAGE_RENDER_TARGET_OUTPUT;
 	sd.BufferCount = (App::Get().IsDisableLowLatency() || App::Get().IsDisableVSync()) ? 3 : 2;
 	// 使用 DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL 而不是 DXGI_SWAP_EFFECT_FLIP_DISCARD
 	// 不渲染四周（可能存在的）黑边，因此必须保证交换链缓冲区不被改变

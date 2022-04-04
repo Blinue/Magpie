@@ -4,6 +4,7 @@
 #include "imgui_impl_magpie.h"
 #include "Renderer.h"
 #include "FrameSourceBase.h"
+#include "CursorManager.h"
 
 
 struct ImGui_ImplMagpie_Data {
@@ -59,19 +60,19 @@ static void ImGui_ImplMagpie_UpdateMousePos() {
     ImGui_ImplMagpie_Data* bd = ImGui_ImplMagpie_GetBackendData();
     ImGuiIO& io = ImGui::GetIO();
 
-    const RECT& srcFrameRect = App::Get().GetFrameSource().GetSrcFrameRect();
-    const RECT& outputRect = App::Get().GetRenderer().GetOutputRect();
+    POINT pos;
+    CursorManager& cm = App::Get().GetCursorManager();
+    if (cm.HasCursor()) {
+        pos = *cm.GetCursorPos();
+    } else {
+        GetCursorPos(&pos);
+    }
 
-    SIZE srcFrameSize = { srcFrameRect.right - srcFrameRect.left, srcFrameRect.bottom - srcFrameRect.top };
-    SIZE outputSize = { outputRect.right - outputRect.left, outputRect.bottom - outputRect.top };
-
-    POINT pos{};
-    GetCursorPos(&pos);
+    const RECT& outputRect = App::Get().GetRenderer().GetVirtualOutputRect();
+    pos.x -= outputRect.left;
+    pos.y -= outputRect.top;
     
-    io.MousePos = ImVec2(
-        std::roundf((pos.x - srcFrameRect.left) * outputSize.cx / (float)srcFrameSize.cx),
-        std::roundf((pos.y - srcFrameRect.top) * outputSize.cy / (float)srcFrameSize.cy)
-    );
+    io.MousePos = ImVec2(pos.x, pos.y);
 }
 
 void ImGui_ImplMagpie_NewFrame() {
@@ -89,7 +90,7 @@ void ImGui_ImplMagpie_NewFrame() {
     ::QueryPerformanceCounter((LARGE_INTEGER*)&current_time);
     io.DeltaTime = (float)(current_time - bd->Time) / bd->TicksPerSecond;
     bd->Time = current_time;
-
+    
     // Update OS mouse position
     ImGui_ImplMagpie_UpdateMousePos();
 }

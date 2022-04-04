@@ -25,6 +25,11 @@ public:
 		return *_gpuTimer;
 	}
 
+	// 可能为空
+	UIDrawer* GetUIDrawer() {
+		return _UIDrawer.get();
+	}
+
 	const RECT& GetOutputRect() const noexcept {
 		return _outputRect;
 	}

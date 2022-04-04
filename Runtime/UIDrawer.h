@@ -14,8 +14,9 @@ public:
 
 	void Draw();
 
+	bool IsWantCaptureMouse() const;
+
 private:
-	static bool _WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 	UINT _handlerID = 0;
 
 	ID3D11RenderTargetView* _rtv = nullptr;
