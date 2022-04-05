@@ -48,17 +48,28 @@ public:
 
 	void StopCapture();
 
+	void OnCursorCapturedOnUI();
+
+	void OnCursorReleasedOnUI();
+
+	void OnCursorHoverUI();
+
+	void OnCursorLeaveUI();
+
 private:
 	void _StartCapture(POINT cursorPt);
 
 	void _StopCapture(POINT cursorPt);
 
-	void _DynamicClip(POINT cursorPt);
+	void _DynamicClip(POINT cursorPt, bool isCursorOnUI);
 
 	bool _ResolveCursor(HCURSOR hCursor, bool resolveTexture);
 
 	bool _isUnderCapture = false;
-	std::array<bool, 4> _curClips{};
+	RECT _curClips{};
+
+	bool _isCapturedOnUI = false;
+	bool _isOnUI = false;
 
 	INT _cursorSpeed = 0;
 

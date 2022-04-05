@@ -6,7 +6,6 @@
 #include "Logger.h"
 #include "Utils.h"
 #include "DeviceResources.h"
-#include "UIDrawer.h"
 
 
 CursorManager::~CursorManager() {
@@ -33,7 +32,10 @@ static std::optional<LRESULT> HostWndProc(HWND hWnd, UINT message, WPARAM wParam
 		if (GetForegroundWindow() != hwndSrc) {
 			SetForegroundWindow(hwndSrc);
 		}
-		BringWindowToTop(App::Get().GetHwndHost());
+
+		if (!App::Get().IsBreakpointMode()) {
+			SetWindowPos(App::Get().GetHwndHost(), HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOREDRAW);
+		}
 	}
 
 	return std::nullopt;
@@ -119,8 +121,7 @@ void CursorManager::OnBeginFrame() {
 			// 主窗口未被遮挡
 			bool stopCapture = false;
 
-			UIDrawer* uiDrawer = App::Get().GetRenderer().GetUIDrawer();
-			if (uiDrawer && uiDrawer->IsWantCaptureMouse()) {
+			if (_isOnUI) {
 				stopCapture = true;
 			}
 			
@@ -157,8 +158,7 @@ void CursorManager::OnBeginFrame() {
 		/////////////////////////////////////////////////////////
 
 		// 用户正在拖动 UI 时不捕获
-		UIDrawer* uiDrawer = App::Get().GetRenderer().GetUIDrawer();
-		if (!uiDrawer || !uiDrawer->IsCursorCaptured()) {
+		if (!_isCapturedOnUI) {
 			HWND hwndCur = WindowFromPoint(style, cursorPos, false);
 
 			if (hwndCur == hwndHost) {
@@ -193,8 +193,7 @@ void CursorManager::OnBeginFrame() {
 				} else {
 					bool startCapture = true;
 
-					UIDrawer* uiDrawer = App::Get().GetRenderer().GetUIDrawer();
-					if (uiDrawer && uiDrawer->IsWantCaptureMouse()) {
+					if (_isOnUI) {
 						startCapture = false;
 					}
 
@@ -236,14 +235,11 @@ void CursorManager::OnBeginFrame() {
 			// 开启“在 3D 游戏中限制光标”则每帧都限制一次光标
 			ClipCursor(&App::Get().GetFrameSource().GetSrcFrameRect());
 		} else {
-			if (::GetCursorPos(&cursorPos)) {
-				// _DynamicClip 根据当前光标位置的四个方向有无屏幕来确定应该在哪些方向限制光标，但这无法
-				// 处理屏幕之间存在间隙的情况。解决办法是 _StopCapture 只在目标位置存在屏幕时才取消捕获，
-				// 当光标试图移动到间隙中时将被挡住。如果光标的速度足以跨越间隙，则它依然可以在屏幕间移动。
-				_DynamicClip(cursorPos);
-			} else {
-				Logger::Get().Win32Error("GetCursorPos 失败");
-			}
+			::GetCursorPos(&cursorPos);
+			// _DynamicClip 根据当前光标位置的四个方向有无屏幕来确定应该在哪些方向限制光标，但这无法
+			// 处理屏幕之间存在间隙的情况。解决办法是 _StopCapture 只在目标位置存在屏幕时才取消捕获，
+			// 当光标试图移动到间隙中时将被挡住。如果光标的速度足以跨越间隙，则它依然可以在屏幕间移动。
+			_DynamicClip(cursorPos, _isOnUI);
 		}
 	}
 
@@ -327,6 +323,31 @@ void CursorManager::StopCapture() {
 	}
 
 	_StopCapture(cursorPt);
+}
+
+void CursorManager::OnCursorCapturedOnUI() {
+	_isCapturedOnUI = true;
+	ClipCursor(&App::Get().GetRenderer().GetOutputRect());
+}
+
+void CursorManager::OnCursorReleasedOnUI() {
+	_isCapturedOnUI = false;
+}
+
+void CursorManager::OnCursorHoverUI() {
+	_isOnUI = true;
+
+	POINT cursorPos;
+	::GetCursorPos(&cursorPos);
+	_DynamicClip(cursorPos, true);
+}
+
+void CursorManager::OnCursorLeaveUI() {
+	_isOnUI = false;
+
+	/*POINT cursorPos;
+	::GetCursorPos(&cursorPos);
+	_DynamicClip(cursorPos, false);*/
 }
 
 void CursorManager::_StartCapture(POINT cursorPt) {
@@ -465,7 +486,7 @@ void CursorManager::_StopCapture(POINT cursorPt) {
 	}
 }
 
-void CursorManager::_DynamicClip(POINT cursorPt) {
+void CursorManager::_DynamicClip(POINT cursorPt, bool isCursorOnUI) {
 	const RECT& srcFrameRect = App::Get().GetFrameSource().GetSrcFrameRect();
 	const RECT& hostRect = App::Get().GetHostWndRect();
 	const RECT& outputRect = App::Get().GetRenderer().GetOutputRect();
@@ -478,31 +499,36 @@ void CursorManager::_DynamicClip(POINT cursorPt) {
 	t = double(cursorPt.y - srcFrameRect.top) / (srcFrameRect.bottom - srcFrameRect.top);
 	hostPt.y = std::lround(t * (outputRect.bottom - outputRect.top)) + outputRect.top + hostRect.top;
 
-	std::array<bool, 4> clips{};
+	RECT clips{ LONG_MIN, LONG_MIN, LONG_MAX, LONG_MAX};
+
 	// left
 	RECT rect{ LONG_MIN, hostPt.y, hostRect.left, hostPt.y + 1 };
-	clips[0] = !MonitorFromRect(&rect, MONITOR_DEFAULTTONULL);
+	if (!MonitorFromRect(&rect, MONITOR_DEFAULTTONULL)) {
+		clips.left = isCursorOnUI ? outputRect.left : srcFrameRect.left;
+	}
+
 	// top
 	rect = { hostPt.x, LONG_MIN, hostPt.x + 1,hostRect.top };
-	clips[1] = !MonitorFromRect(&rect, MONITOR_DEFAULTTONULL);
+	if (!MonitorFromRect(&rect, MONITOR_DEFAULTTONULL)) {
+		clips.top = isCursorOnUI ? outputRect.top : srcFrameRect.top;
+	}
+
 	// right
 	rect = { hostRect.right, hostPt.y, LONG_MAX, hostPt.y + 1 };
-	clips[2] = !MonitorFromRect(&rect, MONITOR_DEFAULTTONULL);
+	if (!MonitorFromRect(&rect, MONITOR_DEFAULTTONULL)) {
+		clips.right = isCursorOnUI ? outputRect.right : srcFrameRect.right;
+	}
+
 	// bottom
 	rect = { hostPt.x, hostRect.bottom, hostPt.x + 1, LONG_MAX };
-	clips[3] = !MonitorFromRect(&rect, MONITOR_DEFAULTTONULL);
+	if (!MonitorFromRect(&rect, MONITOR_DEFAULTTONULL)) {
+		clips.bottom = isCursorOnUI ? outputRect.bottom : srcFrameRect.bottom;
+	}
 
 	// 开启“在 3D 游戏中限制光标”则每帧都限制一次光标
 	if (clips != _curClips) {
 		_curClips = clips;
-
-		RECT clipRect = {
-			clips[0] ? srcFrameRect.left : LONG_MIN,
-			clips[1] ? srcFrameRect.top : LONG_MIN,
-			clips[2] ? srcFrameRect.right : LONG_MAX,
-			clips[3] ? srcFrameRect.bottom : LONG_MAX
-		};
-		ClipCursor(&clipRect);
+		ClipCursor(&clips);
 	}
 }
 

@@ -11,7 +11,6 @@
 struct ImGui_ImplMagpie_Data {
     INT64 time = 0;
     INT64 ticksPerSecond = 0;
-    bool isCursorCaptured = false;
 };
 
 // Backend data stored in io.BackendPlatformUserData to allow support for multiple Dear ImGui contexts
@@ -93,12 +92,6 @@ void ImGui_ImplMagpie_NewFrame() {
     
     // Update OS mouse position
     ImGui_ImplMagpie_UpdateMousePos();
-
-    // 为了解决这样的情况：源窗口不是前台窗口时用户拖动 UI
-    // 此时应在前台窗口改变后再次限制光标
-    if (bd->isCursorCaptured) {
-        ClipCursor(&App::Get().GetRenderer().GetOutputRect());
-    }
 }
 
 // Win32 message handler (process Win32 mouse/keyboard inputs, etc.)
@@ -114,8 +107,7 @@ IMGUI_IMPL_API LRESULT ImGui_ImplMagpie_WndProcHandler(HWND hwnd, UINT msg, WPAR
     if (ImGui::GetCurrentContext() == NULL)
         return 0;
 
-    UIDrawer* uiDrawer = App::Get().GetRenderer().GetUIDrawer();
-    if (!uiDrawer || !uiDrawer->IsWantCaptureMouse()) {
+    if (!ImGui::GetIO().WantCaptureMouse) {
         return 0;
     }
 
@@ -138,8 +130,7 @@ IMGUI_IMPL_API LRESULT ImGui_ImplMagpie_WndProcHandler(HWND hwnd, UINT msg, WPAR
                 SetCapture(hwnd);
             }
 
-            bd->isCursorCaptured = true;
-            ClipCursor(&App::Get().GetRenderer().GetOutputRect());
+            App::Get().GetCursorManager().OnCursorCapturedOnUI();
         }
 
         io.MouseDown[button] = true;
@@ -160,7 +151,7 @@ IMGUI_IMPL_API LRESULT ImGui_ImplMagpie_WndProcHandler(HWND hwnd, UINT msg, WPAR
             if (GetCapture() == hwnd) {
                 ReleaseCapture();
             }
-            bd->isCursorCaptured = false;
+            App::Get().GetCursorManager().OnCursorReleasedOnUI();
         }
         return 0;
     }
@@ -172,11 +163,4 @@ IMGUI_IMPL_API LRESULT ImGui_ImplMagpie_WndProcHandler(HWND hwnd, UINT msg, WPAR
         return 0;
     }
     return 0;
-}
-
-bool ImGui_ImplMagpie_IsCursorCaptured() {
-    ImGui_ImplMagpie_Data* bd = ImGui_ImplMagpie_GetBackendData();
-    assert(bd && "是不是忘了调用 ImGui_ImplMagpie_Init() ？");
-
-    return bd->isCursorCaptured;
 }

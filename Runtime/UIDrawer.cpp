@@ -7,6 +7,7 @@
 #include "imgui_impl_dx11.h"
 #include "Renderer.h"
 #include "GPUTimer.h"
+#include "CursorManager.h"
 
 
 UIDrawer::~UIDrawer() {
@@ -73,9 +74,23 @@ void DrawUI() {
 }
 
 void UIDrawer::Draw() {
+	ImGuiIO& io = ImGui::GetIO();
+
+	bool originWantCaptureMouse = io.WantCaptureMouse;
+
 	ImGui_ImplMagpie_NewFrame();
 	ImGui_ImplDX11_NewFrame();
 	ImGui::NewFrame();
+
+	if (io.WantCaptureMouse) {
+		if (!originWantCaptureMouse) {
+			App::Get().GetCursorManager().OnCursorHoverUI();
+		}
+	} else {
+		if (originWantCaptureMouse) {
+			App::Get().GetCursorManager().OnCursorLeaveUI();
+		}
+	}
 	
 	DrawUI();
 
@@ -88,12 +103,4 @@ void UIDrawer::Draw() {
 	d3dDC->OMSetRenderTargets(1, &_rtv, NULL);
 	
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
-}
-
-bool UIDrawer::IsWantCaptureMouse() const {
-	return ImGui::GetIO().WantCaptureMouse;
-}
-
-bool UIDrawer::IsCursorCaptured() const {
-	return ImGui_ImplMagpie_IsCursorCaptured();
 }
