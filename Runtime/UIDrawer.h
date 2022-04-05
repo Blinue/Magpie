@@ -16,6 +16,8 @@ public:
 
 	bool IsWantCaptureMouse() const;
 
+	bool IsCursorCaptured() const;
+
 private:
 	UINT _handlerID = 0;
 

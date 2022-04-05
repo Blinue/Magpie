@@ -33,6 +33,7 @@ static std::optional<LRESULT> HostWndProc(HWND hWnd, UINT message, WPARAM wParam
 		if (GetForegroundWindow() != hwndSrc) {
 			SetForegroundWindow(hwndSrc);
 		}
+		BringWindowToTop(App::Get().GetHwndHost());
 	}
 
 	return std::nullopt;
@@ -155,60 +156,64 @@ void CursorManager::OnBeginFrame() {
 		// 
 		/////////////////////////////////////////////////////////
 
-		HWND hwndCur = WindowFromPoint(style, cursorPos, false);
+		// 用户正在拖动 UI 时不捕获
+		UIDrawer* uiDrawer = App::Get().GetRenderer().GetUIDrawer();
+		if (!uiDrawer || !uiDrawer->IsCursorCaptured()) {
+			HWND hwndCur = WindowFromPoint(style, cursorPos, false);
 
-		if (hwndCur == hwndHost) {
-			// 主窗口未被遮挡
-			POINT newCursorPos{};
-			// 从全屏窗口映射到源窗口
-			double posX = double(cursorPos.x - hostRect.left - virtualOutputRect.left) / virtualOutputSize.cx;
-			double posY = double(cursorPos.y - hostRect.top - virtualOutputRect.top) / virtualOutputSize.cy;
+			if (hwndCur == hwndHost) {
+				// 主窗口未被遮挡
+				POINT newCursorPos{};
+				// 从全屏窗口映射到源窗口
+				double posX = double(cursorPos.x - hostRect.left - virtualOutputRect.left) / virtualOutputSize.cx;
+				double posY = double(cursorPos.y - hostRect.top - virtualOutputRect.top) / virtualOutputSize.cy;
 
-			newCursorPos.x = std::lround(posX * srcFrameSize.cx + srcFrameRect.left);
-			newCursorPos.y = std::lround(posY * srcFrameSize.cy + srcFrameRect.top);
+				newCursorPos.x = std::lround(posX * srcFrameSize.cx + srcFrameRect.left);
+				newCursorPos.y = std::lround(posY * srcFrameSize.cy + srcFrameRect.top);
 
-			if (!PtInRect(&srcFrameRect, newCursorPos)) {
-				// 跳过黑边
-				POINT clampedPos = {
-					std::clamp(newCursorPos.x, hostRect.left + outputRect.left, hostRect.left + outputRect.right - 1),
-					std::clamp(newCursorPos.y, hostRect.top + outputRect.top, hostRect.top + outputRect.bottom - 1)
-				};
+				if (!PtInRect(&srcFrameRect, newCursorPos)) {
+					// 跳过黑边
+					POINT clampedPos = {
+						std::clamp(newCursorPos.x, hostRect.left + outputRect.left, hostRect.left + outputRect.right - 1),
+						std::clamp(newCursorPos.y, hostRect.top + outputRect.top, hostRect.top + outputRect.bottom - 1)
+					};
 
-				if (WindowFromPoint(style, clampedPos, false) == hwndHost) {
-					if (!(style & WS_EX_TRANSPARENT)) {
-						SetWindowLongPtr(hwndHost, GWL_EXSTYLE, style | WS_EX_TRANSPARENT);
+					if (WindowFromPoint(style, clampedPos, false) == hwndHost) {
+						if (!(style & WS_EX_TRANSPARENT)) {
+							SetWindowLongPtr(hwndHost, GWL_EXSTYLE, style | WS_EX_TRANSPARENT);
+						}
+
+						_StartCapture(cursorPos);
+					} else {
+						// 要跳跃的位置被遮挡
+						if (style | WS_EX_TRANSPARENT) {
+							SetWindowLongPtr(hwndHost, GWL_EXSTYLE, style & ~WS_EX_TRANSPARENT);
+						}
 					}
-
-					_StartCapture(cursorPos);
 				} else {
-					// 要跳跃的位置被遮挡
-					if (style | WS_EX_TRANSPARENT) {
-						SetWindowLongPtr(hwndHost, GWL_EXSTYLE, style & ~WS_EX_TRANSPARENT);
-					}
-				}
-			} else {
-				bool startCapture = true;
+					bool startCapture = true;
 
-				UIDrawer* uiDrawer = App::Get().GetRenderer().GetUIDrawer();
-				if (uiDrawer && uiDrawer->IsWantCaptureMouse()) {
-					startCapture = false;
-				}
-
-				if (startCapture) {
-					// 判断源窗口是否被遮挡
-					hwndCur = WindowFromPoint(style, newCursorPos, true);
-					startCapture = hwndCur == hwndSrc || ((IsChild(hwndSrc, hwndCur) && (GetWindowStyle(hwndCur) & WS_CHILD)));
-				}
-
-				if (startCapture) {
-					if (!(style & WS_EX_TRANSPARENT)) {
-						SetWindowLongPtr(hwndHost, GWL_EXSTYLE, style | WS_EX_TRANSPARENT);
+					UIDrawer* uiDrawer = App::Get().GetRenderer().GetUIDrawer();
+					if (uiDrawer && uiDrawer->IsWantCaptureMouse()) {
+						startCapture = false;
 					}
 
-					_StartCapture(cursorPos);
-				} else {
-					if (style | WS_EX_TRANSPARENT) {
-						SetWindowLongPtr(hwndHost, GWL_EXSTYLE, style & ~WS_EX_TRANSPARENT);
+					if (startCapture) {
+						// 判断源窗口是否被遮挡
+						hwndCur = WindowFromPoint(style, newCursorPos, true);
+						startCapture = hwndCur == hwndSrc || ((IsChild(hwndSrc, hwndCur) && (GetWindowStyle(hwndCur) & WS_CHILD)));
+					}
+
+					if (startCapture) {
+						if (!(style & WS_EX_TRANSPARENT)) {
+							SetWindowLongPtr(hwndHost, GWL_EXSTYLE, style | WS_EX_TRANSPARENT);
+						}
+
+						_StartCapture(cursorPos);
+					} else {
+						if (style | WS_EX_TRANSPARENT) {
+							SetWindowLongPtr(hwndHost, GWL_EXSTYLE, style & ~WS_EX_TRANSPARENT);
+						}
 					}
 				}
 			}

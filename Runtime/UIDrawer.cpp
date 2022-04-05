@@ -93,3 +93,7 @@ void UIDrawer::Draw() {
 bool UIDrawer::IsWantCaptureMouse() const {
 	return ImGui::GetIO().WantCaptureMouse;
 }
+
+bool UIDrawer::IsCursorCaptured() const {
+	return ImGui_ImplMagpie_IsCursorCaptured();
+}

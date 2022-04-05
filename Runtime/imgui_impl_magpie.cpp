@@ -5,13 +5,13 @@
 #include "Renderer.h"
 #include "FrameSourceBase.h"
 #include "CursorManager.h"
+#include "UIDrawer.h"
 
 
 struct ImGui_ImplMagpie_Data {
-    INT64                       Time;
-    INT64                       TicksPerSecond;
-
-    ImGui_ImplMagpie_Data() { memset(this, 0, sizeof(*this)); }
+    INT64 time = 0;
+    INT64 ticksPerSecond = 0;
+    bool isCursorCaptured = false;
 };
 
 // Backend data stored in io.BackendPlatformUserData to allow support for multiple Dear ImGui contexts
@@ -27,7 +27,7 @@ bool ImGui_ImplMagpie_Init() {
     ImGuiIO& io = ImGui::GetIO();
     IM_ASSERT(io.BackendPlatformUserData == NULL && "Already initialized a platform backend!");
 
-    INT64 perf_frequency, perf_counter;
+    INT64 perf_frequency = 0, perf_counter = 0;
     if (!::QueryPerformanceFrequency((LARGE_INTEGER*)&perf_frequency))
         return false;
     if (!::QueryPerformanceCounter((LARGE_INTEGER*)&perf_counter))
@@ -38,8 +38,8 @@ bool ImGui_ImplMagpie_Init() {
     io.BackendPlatformUserData = (void*)bd;
     io.BackendPlatformName = "imgui_impl_magpie";
 
-    bd->TicksPerSecond = perf_frequency;
-    bd->Time = perf_counter;
+    bd->ticksPerSecond = perf_frequency;
+    bd->time = perf_counter;
 
     io.ImeWindowHandle = App::Get().GetHwndHost();
 
@@ -88,11 +88,17 @@ void ImGui_ImplMagpie_NewFrame() {
     // Setup time step
     INT64 current_time = 0;
     ::QueryPerformanceCounter((LARGE_INTEGER*)&current_time);
-    io.DeltaTime = (float)(current_time - bd->Time) / bd->TicksPerSecond;
-    bd->Time = current_time;
+    io.DeltaTime = (float)(current_time - bd->time) / bd->ticksPerSecond;
+    bd->time = current_time;
     
     // Update OS mouse position
     ImGui_ImplMagpie_UpdateMousePos();
+
+    // 为了解决这样的情况：源窗口不是前台窗口时用户拖动 UI
+    // 此时应在前台窗口改变后再次限制光标
+    if (bd->isCursorCaptured) {
+        ClipCursor(&App::Get().GetRenderer().GetOutputRect());
+    }
 }
 
 // Win32 message handler (process Win32 mouse/keyboard inputs, etc.)
@@ -108,6 +114,11 @@ IMGUI_IMPL_API LRESULT ImGui_ImplMagpie_WndProcHandler(HWND hwnd, UINT msg, WPAR
     if (ImGui::GetCurrentContext() == NULL)
         return 0;
 
+    UIDrawer* uiDrawer = App::Get().GetRenderer().GetUIDrawer();
+    if (!uiDrawer || !uiDrawer->IsWantCaptureMouse()) {
+        return 0;
+    }
+
     ImGuiIO& io = ImGui::GetIO();
     ImGui_ImplMagpie_Data* bd = ImGui_ImplMagpie_GetBackendData();
 
@@ -122,8 +133,15 @@ IMGUI_IMPL_API LRESULT ImGui_ImplMagpie_WndProcHandler(HWND hwnd, UINT msg, WPAR
         if (msg == WM_RBUTTONDOWN || msg == WM_RBUTTONDBLCLK) { button = 1; }
         if (msg == WM_MBUTTONDOWN || msg == WM_MBUTTONDBLCLK) { button = 2; }
         if (msg == WM_XBUTTONDOWN || msg == WM_XBUTTONDBLCLK) { button = (GET_XBUTTON_WPARAM(wParam) == XBUTTON1) ? 3 : 4; }
-        if (!ImGui::IsAnyMouseDown() && ::GetCapture() == NULL)
-            ::SetCapture(hwnd);
+        if (!ImGui::IsAnyMouseDown()) {
+            if (!GetCapture()) {
+                SetCapture(hwnd);
+            }
+
+            bd->isCursorCaptured = true;
+            ClipCursor(&App::Get().GetRenderer().GetOutputRect());
+        }
+
         io.MouseDown[button] = true;
         return 0;
     }
@@ -138,8 +156,12 @@ IMGUI_IMPL_API LRESULT ImGui_ImplMagpie_WndProcHandler(HWND hwnd, UINT msg, WPAR
         if (msg == WM_MBUTTONUP) { button = 2; }
         if (msg == WM_XBUTTONUP) { button = (GET_XBUTTON_WPARAM(wParam) == XBUTTON1) ? 3 : 4; }
         io.MouseDown[button] = false;
-        if (!ImGui::IsAnyMouseDown() && ::GetCapture() == hwnd)
-            ::ReleaseCapture();
+        if (!ImGui::IsAnyMouseDown()) {
+            if (GetCapture() == hwnd) {
+                ReleaseCapture();
+            }
+            bd->isCursorCaptured = false;
+        }
         return 0;
     }
     case WM_MOUSEWHEEL:
@@ -150,4 +172,11 @@ IMGUI_IMPL_API LRESULT ImGui_ImplMagpie_WndProcHandler(HWND hwnd, UINT msg, WPAR
         return 0;
     }
     return 0;
+}
+
+bool ImGui_ImplMagpie_IsCursorCaptured() {
+    ImGui_ImplMagpie_Data* bd = ImGui_ImplMagpie_GetBackendData();
+    assert(bd && "是不是忘了调用 ImGui_ImplMagpie_Init() ？");
+
+    return bd->isCursorCaptured;
 }
