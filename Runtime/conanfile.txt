@@ -1,6 +1,6 @@
 [requires]
 fmt/8.1.1
-spdlog/1.9.2
+spdlog/1.10.0
 muparser/2.3.2
 yas/7.1.0
 rapidjson/cci.20211112
