@@ -378,17 +378,7 @@ void CursorManager::_StartCapture(POINT cursorPt) {
 	SIZE outputSize = Utils::GetSizeOfRect(outputRect);
 
 	if (App::Get().IsAdjustCursorSpeed()) {
-		// 设置鼠标移动速度
-		if (SystemParametersInfo(SPI_GETMOUSESPEED, 0, &_cursorSpeed, 0)) {
-			double speedScale = ((double)outputSize.cx / srcFrameSize.cx + (double)outputSize.cy / srcFrameSize.cy) / 2;
-			long newSpeed = std::clamp(lround(_cursorSpeed / speedScale), 1L, 20L);
-
-			if (!SystemParametersInfo(SPI_SETMOUSESPEED, 0, (PVOID)(intptr_t)newSpeed, 0)) {
-				Logger::Get().Win32Error("设置光标移速失败");
-			}
-		} else {
-			Logger::Get().Win32Error("获取光标移速失败");
-		}
+		_AdjustCursorSpeed();
 	}
 
 	// 移动光标位置
@@ -697,4 +687,56 @@ bool CursorManager::_ResolveCursor(HCURSOR hCursor, bool resolveTexture) {
 	}
 
 	return true;
+}
+
+void CursorManager::_AdjustCursorSpeed() {
+	if (!SystemParametersInfo(SPI_GETMOUSESPEED, 0, &_cursorSpeed, 0)) {
+		Logger::Get().Win32Error("获取光标移速失败");
+		return;
+	}
+
+	// 鼠标加速默认打开
+	bool isMouseAccelerationOn = true;
+	{
+		std::array<INT, 3> values{};
+		if (SystemParametersInfo(SPI_GETMOUSE, 0, values.data(), 0)) {
+			isMouseAccelerationOn = values[2];
+		} else {
+			Logger::Get().Win32Error("检索鼠标加速失败");
+		}
+	}
+
+	SIZE srcFrameSize = Utils::GetSizeOfRect(App::Get().GetFrameSource().GetSrcFrameRect());
+	SIZE outputSize = Utils::GetSizeOfRect(App::Get().GetRenderer().GetOutputRect());
+	double scale = ((double)outputSize.cx / srcFrameSize.cx + (double)outputSize.cy / srcFrameSize.cy) / 2;
+
+	INT newSpeed = 0;
+
+	// “提高指针精确度”（鼠标加速）打开时光标移速的调整为线性，否则为非线性
+	// 参见 https://liquipedia.net/counterstrike/Mouse_Settings#Windows_Sensitivity
+	if (isMouseAccelerationOn) {
+		newSpeed = std::clamp((INT)lround(_cursorSpeed / scale), 1, 20);
+	} else {
+		static constexpr std::array<double, 20> SENSITIVITIES = {
+			0.03125, 0.0625, 0.125, 0.25, 0.375, 0.5, 0.625, 0.75, 0.875,
+			1.0, 1.25, 1.5, 1.75, 2, 2.25, 2.5, 2.75, 3, 3.25, 3.5
+		};
+
+		_cursorSpeed = std::clamp(_cursorSpeed, 1, 20);
+		double newSensitivity = SENSITIVITIES[static_cast<size_t>(_cursorSpeed) - 1] / scale;
+
+		auto it = std::lower_bound(SENSITIVITIES.begin(), SENSITIVITIES.end(), newSensitivity - 1e-6);
+		newSpeed = INT(it - SENSITIVITIES.begin()) + 1;
+
+		if (it != SENSITIVITIES.begin() && it != SENSITIVITIES.end()) {
+			// 找到两侧最接近的数值
+			if (std::abs(*it - newSensitivity) > std::abs(*(it - 1) - newSensitivity)) {
+				--newSpeed;
+			}
+		}
+	}
+
+	if (!SystemParametersInfo(SPI_SETMOUSESPEED, 0, (PVOID)(intptr_t)newSpeed, 0)) {
+		Logger::Get().Win32Error("设置光标移速失败");
+	}
 }

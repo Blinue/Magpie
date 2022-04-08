@@ -65,6 +65,8 @@ private:
 
 	bool _ResolveCursor(HCURSOR hCursor, bool resolveTexture);
 
+	void _AdjustCursorSpeed();
+
 	bool _isUnderCapture = false;
 	RECT _curClips{};
 

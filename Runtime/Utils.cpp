@@ -116,7 +116,7 @@ bool Utils::WriteFile(const wchar_t* fileName, const void* buffer, size_t buffer
 	return true;
 }
 
-RTL_OSVERSIONINFOW _GetOSVersion() {
+RTL_OSVERSIONINFOW _GetOSVersion() noexcept {
 	HMODULE hNtDll = GetModuleHandle(L"ntdll.dll");
 	if (!hNtDll) {
 		Logger::Get().Win32Error("获取 ntdll.dll 句柄失败");
@@ -137,7 +137,7 @@ RTL_OSVERSIONINFOW _GetOSVersion() {
 	return version;
 }
 
-const RTL_OSVERSIONINFOW& Utils::GetOSVersion() {
+const RTL_OSVERSIONINFOW& Utils::GetOSVersion() noexcept {
 	static RTL_OSVERSIONINFOW version = _GetOSVersion();
 	return version;
 }
