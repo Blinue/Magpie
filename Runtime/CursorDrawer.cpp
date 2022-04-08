@@ -221,8 +221,8 @@ void CursorDrawer::_AdjustCursorSpeed() {
 	// 鼠标加速默认打开
 	bool isMouseAccelerationOn = true;
 	{
-		INT values[3]{ 0,0,1 };
-		if (SystemParametersInfo(SPI_GETMOUSE, 0, &values, 0)) {
+		std::array<INT, 3> values{};
+		if (SystemParametersInfo(SPI_GETMOUSE, 0, values.data(), 0)) {
 			isMouseAccelerationOn = values[2];
 		} else {
 			SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("检索鼠标加速失败"));
