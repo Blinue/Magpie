@@ -44,10 +44,6 @@ public:
 	};
 	bool GetCursorTexture(ID3D11Texture2D** texture, CursorManager::CursorType& cursorType);
 
-	void StartCapture();
-
-	void StopCapture();
-
 	void OnCursorCapturedOnUI();
 
 	void OnCursorReleasedOnUI();
@@ -61,11 +57,11 @@ private:
 
 	void _StopCapture(POINT cursorPt);
 
-	void _DynamicClip(POINT cursorPt, bool isCursorOnUI);
-
 	bool _ResolveCursor(HCURSOR hCursor, bool resolveTexture);
 
 	void _AdjustCursorSpeed();
+
+	void _UpdateCursorClip();
 
 	bool _isUnderCapture = false;
 	RECT _curClips{};
