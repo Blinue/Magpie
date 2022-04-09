@@ -6,8 +6,60 @@
 #include "Logger.h"
 #include "Utils.h"
 #include "DeviceResources.h"
-#include "GraphicsCaptureFrameSource.h"
 
+
+// 将源窗口的光标位置映射到缩放后的光标位置
+// 当光标位于源窗口之外，与源窗口的距离不会缩放
+static POINT SrcToHost(POINT pt, bool screenCoord) {
+	const RECT& srcFrameRect = App::Get().GetFrameSource().GetSrcFrameRect();
+	const RECT& virtualOutputRect = App::Get().GetRenderer().GetVirtualOutputRect();
+	const RECT& hostRect = App::Get().GetHostWndRect();
+
+	POINT result;
+	if (screenCoord) {
+		result = { hostRect.left, hostRect.top };
+	} else {
+		result = {};
+	}
+
+	if (pt.x >= srcFrameRect.right) {
+		result.x += hostRect.right - hostRect.left + pt.x - srcFrameRect.right;
+	} else if (pt.x < srcFrameRect.left) {
+		result.x += pt.x - srcFrameRect.left;
+	} else {
+		double pos = double(pt.x - srcFrameRect.left) / (srcFrameRect.right - srcFrameRect.left - 1);
+		result.x += std::lround(pos * (virtualOutputRect.right - virtualOutputRect.left - 1)) + virtualOutputRect.left;
+	}
+
+	if (pt.y >= srcFrameRect.bottom) {
+		result.y += hostRect.bottom - hostRect.top + pt.y - srcFrameRect.bottom;
+	} else if (pt.y < srcFrameRect.top) {
+		result.y += pt.y - srcFrameRect.top;
+	} else {
+		double pos = double(pt.y - srcFrameRect.top) / (srcFrameRect.bottom - srcFrameRect.top - 1);
+		result.y += std::lround(pos * (virtualOutputRect.bottom - virtualOutputRect.top - 1)) + virtualOutputRect.top;
+	}
+
+	return result;
+}
+
+// 将缩放后的光标位置映射到源窗口
+static POINT HostToSrc(POINT pt) {
+	const RECT& srcFrameRect = App::Get().GetFrameSource().GetSrcFrameRect();
+	const RECT& hostRect = App::Get().GetHostWndRect();
+	const RECT& virtualOutputRect = App::Get().GetRenderer().GetVirtualOutputRect();
+
+	const SIZE srcFrameSize = Utils::GetSizeOfRect(srcFrameRect);
+	const SIZE virtualOutputSize = Utils::GetSizeOfRect(virtualOutputRect);
+
+	double posX = double(pt.x - hostRect.left - virtualOutputRect.left) / (virtualOutputSize.cx - 1);
+	double posY = double(pt.y - hostRect.top - virtualOutputRect.top) / (virtualOutputSize.cy - 1);
+
+	return {
+		std::lround(posX * (srcFrameSize.cx - 1) + srcFrameRect.left),
+		std::lround(posY * (srcFrameSize.cy - 1) + srcFrameRect.top)
+	};
+}
 
 CursorManager::~CursorManager() {
 	if (_curClips != RECT{}) {
@@ -107,24 +159,14 @@ void CursorManager::OnBeginFrame() {
 		return;
 	}
 
-	const RECT& srcFrameRect = App::Get().GetFrameSource().GetSrcFrameRect();
-	const RECT& outputRect = App::Get().GetRenderer().GetOutputRect();
-	const RECT& virtualOutputRect = App::Get().GetRenderer().GetVirtualOutputRect();
-
-	SIZE srcFrameSize = Utils::GetSizeOfRect(srcFrameRect);
-	SIZE virtualOutputSize = Utils::GetSizeOfRect(App::Get().GetRenderer().GetVirtualOutputRect());
-
-	double pos = double(ci.ptScreenPos.x - srcFrameRect.left) / srcFrameSize.cx;
-	_curCursorPos.x = std::lround(pos * virtualOutputSize.cx) + virtualOutputRect.left;
-
-	pos = double(ci.ptScreenPos.y - srcFrameRect.top) / srcFrameSize.cy;
-	_curCursorPos.y = std::lround(pos * virtualOutputSize.cy) + virtualOutputRect.top;
+	_curCursorPos = SrcToHost(ci.ptScreenPos, false);
 
 	POINT cursorLeftTop = {
 		_curCursorPos.x - _curCursorInfo->hotSpot.x,
 		_curCursorPos.y - _curCursorInfo->hotSpot.y
 	};
 
+	const RECT& outputRect = App::Get().GetRenderer().GetOutputRect();
 	if (cursorLeftTop.x > outputRect.right
 		|| cursorLeftTop.y > outputRect.bottom
 		|| cursorLeftTop.x + _curCursorInfo->size.cx < outputRect.left
@@ -218,22 +260,13 @@ void CursorManager::_StartCapture(POINT cursorPt) {
 	cursorPt.x = std::clamp(cursorPt.x, hostRect.left + outputRect.left, hostRect.left + outputRect.right - 1);
 	cursorPt.y = std::clamp(cursorPt.y, hostRect.top + outputRect.top, hostRect.top + outputRect.bottom - 1);
 
-	// 从全屏窗口映射到源窗口
-	double posX = double(cursorPt.x - hostRect.left - outputRect.left) / (outputRect.right - outputRect.left);
-	double posY = double(cursorPt.y - hostRect.top - outputRect.top) / (outputRect.bottom - outputRect.top);
-
-	posX = posX * srcFrameSize.cx + srcFrameRect.left;
-	posY = posY * srcFrameSize.cy + srcFrameRect.top;
-
-	SetCursorPos(
-		std::clamp(std::lround(posX), srcFrameRect.left, srcFrameRect.right - 1),
-		std::clamp(std::lround(posY), srcFrameRect.top, srcFrameRect.bottom - 1)
-	);
+	POINT newCursorPos = HostToSrc(cursorPt);
+	SetCursorPos(newCursorPos.x, newCursorPos.y);
 
 	_isUnderCapture = true;
 }
 
-void CursorManager::_StopCapture(POINT cursorPt) {
+void CursorManager::_StopCapture(POINT cursorPos) {
 	if (!_isUnderCapture) {
 		return;
 	}
@@ -254,35 +287,10 @@ void CursorManager::_StopCapture(POINT cursorPt) {
 	//
 	// 在有黑边的情况下自动将光标调整到全屏窗口外
 
-	const RECT& srcFrameRect = App::Get().GetFrameSource().GetSrcFrameRect();
-	const RECT& hostRect = App::Get().GetHostWndRect();
-	const RECT& outputRect = App::Get().GetRenderer().GetOutputRect();
+	POINT newCursorPos = SrcToHost(cursorPos, true);
 
-	const SIZE srcFrameSize = Utils::GetSizeOfRect(srcFrameRect);
-	const SIZE outputSize = Utils::GetSizeOfRect(outputRect);
-
-	POINT newCursorPt{};
-
-	if (cursorPt.x >= srcFrameRect.right) {
-		newCursorPt.x = hostRect.right + cursorPt.x - srcFrameRect.right + 1;
-	} else if (cursorPt.x < srcFrameRect.left) {
-		newCursorPt.x = hostRect.left + cursorPt.x - srcFrameRect.left;
-	} else {
-		double pos = double(cursorPt.x - srcFrameRect.left) / srcFrameSize.cx;
-		newCursorPt.x = std::lround(pos * outputSize.cx) + outputRect.left + hostRect.left;
-	}
-
-	if (cursorPt.y >= srcFrameRect.bottom) {
-		newCursorPt.y = hostRect.bottom + cursorPt.y - srcFrameRect.bottom + 1;
-	} else if (cursorPt.y < srcFrameRect.top) {
-		newCursorPt.y = hostRect.top + cursorPt.y - srcFrameRect.top;
-	} else {
-		double pos = double(cursorPt.y - srcFrameRect.top) / srcFrameSize.cy;
-		newCursorPt.y = std::lround(pos * outputSize.cy) + outputRect.top + hostRect.top;
-	}
-
-	if (MonitorFromPoint(newCursorPt, MONITOR_DEFAULTTONULL)) {
-		SetCursorPos(newCursorPt.x, newCursorPt.y);
+	if (MonitorFromPoint(newCursorPos, MONITOR_DEFAULTTONULL)) {
+		SetCursorPos(newCursorPos.x, newCursorPos.y);
 
 		if (App::Get().IsAdjustCursorSpeed()) {
 			SystemParametersInfo(SPI_SETMOUSESPEED, 0, (PVOID)(intptr_t)_cursorSpeed, 0);
@@ -292,17 +300,16 @@ void CursorManager::_StopCapture(POINT cursorPt) {
 			Logger::Get().Error("MagShowSystemCursor 失败");
 		}
 		
-		if (typeid(App::Get().GetFrameSource()) == typeid(GraphicsCaptureFrameSource)) {
-			// WGC 捕获模式会随机使 MagShowSystemCursor(TRUE) 失效，重新加载光标可以解决这个问题
-			SystemParametersInfo(SPI_SETCURSORS, 0, 0, 0);
-		}
+		// 解决有时 MagShowSystemCursor(TRUE) 不会立即生效的问题
+		SystemParametersInfo(SPI_SETCURSORS, 0, 0, 0);
 
 		_isUnderCapture = false;
 	} else {
 		// 目标位置不存在屏幕，则将光标限制在源窗口内
+		const RECT& srcFrameRect = App::Get().GetFrameSource().GetSrcFrameRect();
 		SetCursorPos(
-			std::clamp(cursorPt.x, srcFrameRect.left, srcFrameRect.right - 1),
-			std::clamp(cursorPt.y, srcFrameRect.top, srcFrameRect.bottom - 1)
+			std::clamp(cursorPos.x, srcFrameRect.left, srcFrameRect.right - 1),
+			std::clamp(cursorPos.y, srcFrameRect.top, srcFrameRect.bottom - 1)
 		);
 	}
 }
@@ -579,25 +586,15 @@ void CursorManager::_UpdateCursorClip() {
 		// 
 		///////////////////////////////////////////////////////////
 
-		POINT newCursorPos{};
-		double pos = double(cursorPos.x - srcFrameRect.left) / (srcFrameRect.right - srcFrameRect.left);
-		newCursorPos.x = hostRect.left + std::lround(pos * virtualOutputSize.cx) + virtualOutputRect.left;
 
-		pos = double(cursorPos.y - srcFrameRect.top) / (srcFrameRect.bottom - srcFrameRect.top);
-		newCursorPos.y = hostRect.top + std::lround(pos * virtualOutputSize.cy) + virtualOutputRect.top;
-
-		HWND hwndCur = WindowFromPoint(style, newCursorPos, false);
+		HWND hwndCur = WindowFromPoint(style, SrcToHost(cursorPos, true), false);
 
 		if (hwndCur != hwndHost) {
 			// 主窗口被遮挡
 			_StopCapture(cursorPos);
 		} else {
 			// 主窗口未被遮挡
-			bool stopCapture = false;
-
-			if (_isOnUI) {
-				stopCapture = true;
-			}
+			bool stopCapture = _isOnUI;
 
 			if (!stopCapture) {
 				// 判断源窗口是否被遮挡
@@ -635,19 +632,13 @@ void CursorManager::_UpdateCursorClip() {
 
 		if (hwndCur == hwndHost) {
 			// 主窗口未被遮挡
-			POINT newCursorPos{};
-			// 从全屏窗口映射到源窗口
-			double posX = double(cursorPos.x - hostRect.left - virtualOutputRect.left) / virtualOutputSize.cx;
-			double posY = double(cursorPos.y - hostRect.top - virtualOutputRect.top) / virtualOutputSize.cy;
-
-			newCursorPos.x = std::lround(posX * srcFrameSize.cx + srcFrameRect.left);
-			newCursorPos.y = std::lround(posY * srcFrameSize.cy + srcFrameRect.top);
+			POINT newCursorPos = HostToSrc(cursorPos);
 
 			if (!PtInRect(&srcFrameRect, newCursorPos)) {
 				// 跳过黑边
 				POINT clampedPos = {
-					std::clamp(newCursorPos.x, hostRect.left + outputRect.left, hostRect.left + outputRect.right - 1),
-					std::clamp(newCursorPos.y, hostRect.top + outputRect.top, hostRect.top + outputRect.bottom - 1)
+					std::clamp(cursorPos.x, hostRect.left + outputRect.left, hostRect.left + outputRect.right - 1),
+					std::clamp(cursorPos.y, hostRect.top + outputRect.top, hostRect.top + outputRect.bottom - 1)
 				};
 
 				if (WindowFromPoint(style, clampedPos, false) == hwndHost) {
@@ -663,11 +654,7 @@ void CursorManager::_UpdateCursorClip() {
 					}
 				}
 			} else {
-				bool startCapture = true;
-
-				if (_isOnUI) {
-					startCapture = false;
-				}
+				bool startCapture = !_isOnUI;
 
 				if (startCapture) {
 					// 判断源窗口是否被遮挡
@@ -702,13 +689,7 @@ void CursorManager::_UpdateCursorClip() {
 	// 处理屏幕之间存在间隙的情况。解决办法是 _StopCapture 只在目标位置存在屏幕时才取消捕获，
 	// 当光标试图移动到间隙中时将被挡住。如果光标的速度足以跨越间隙，则它依然可以在屏幕间移动。
 	::GetCursorPos(&cursorPos);
-
-	POINT hostPos{};
-	double t = double(cursorPos.x - srcFrameRect.left) / srcFrameSize.cx;
-	hostPos.x = std::lround(t * outputSize.cx) + outputRect.left + hostRect.left;
-
-	t = double(cursorPos.y - srcFrameRect.top) / srcFrameSize.cy;
-	hostPos.y = std::lround(t * outputSize.cy) + outputRect.top + hostRect.top;
+	POINT hostPos = SrcToHost(cursorPos, true);
 
 	RECT clips{ LONG_MIN, LONG_MIN, LONG_MAX, LONG_MAX };
 
@@ -736,7 +717,6 @@ void CursorManager::_UpdateCursorClip() {
 		clips.bottom = _isOnUI ? outputRect.bottom : srcFrameRect.bottom;
 	}
 
-	// 开启“在 3D 游戏中限制光标”则每帧都限制一次光标
 	if (clips != _curClips) {
 		_curClips = clips;
 		ClipCursor(&clips);

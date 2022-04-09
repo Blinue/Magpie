@@ -53,9 +53,9 @@ public:
 	void OnCursorLeaveUI();
 
 private:
-	void _StartCapture(POINT cursorPt);
+	void _StartCapture(POINT cursorPos);
 
-	void _StopCapture(POINT cursorPt);
+	void _StopCapture(POINT cursorPos);
 
 	bool _ResolveCursor(HCURSOR hCursor, bool resolveTexture);
 
