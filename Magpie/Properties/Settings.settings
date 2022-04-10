@@ -107,5 +107,8 @@
     <Setting Name="DebugWarningsAreErrors" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
+    <Setting Name="OverlayHotkey" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Control+Alt+D</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

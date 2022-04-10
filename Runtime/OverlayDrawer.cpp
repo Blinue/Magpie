@@ -75,6 +75,10 @@ void DrawUI() {
 }
 
 void OverlayDrawer::Draw() {
+	if (!_isVisiable) {
+		return;
+	}
+
 	ImGuiIO& io = ImGui::GetIO();
 	CursorManager& cm = App::Get().GetCursorManager();
 
@@ -94,17 +98,20 @@ void OverlayDrawer::Draw() {
 		}
 	}
 
-	if (App::Get().GetRenderer().GetGPUTimer().GetFrameCount() == 2) {
-		// 第一帧时从配置文件中读取窗口位置，防止读入的位置位于屏幕外
+	if (ImGui::GetFrameCount() == 2) {
+		// 防止从配置文件读入的窗口位置位于屏幕外
+		// 选择第二帧的原因：
+		// 1. 第一帧无法获取到窗口
+		// 2. 因为第一帧 UI 不可见（ImGUI 的特性），所以用户不会看到窗口位置改变
 		SIZE outputSize = Utils::GetSizeOfRect(App::Get().GetRenderer().GetOutputRect());
 		for (ImGuiWindow* window : ImGui::GetCurrentContext()->Windows) {
-			if (outputSize.cx - window->Size.x > 0) {
+			if (outputSize.cx > window->Size.x) {
 				window->Pos.x = std::clamp(window->Pos.x, 0.0f, outputSize.cx - window->Size.x);
 			} else {
 				window->Pos.x = 0;
 			}
 			
-			if (outputSize.cy - window->Size.y > 0) {
+			if (outputSize.cy > window->Size.y) {
 				window->Pos.y = std::clamp(window->Pos.y, 0.0f, outputSize.cy - window->Size.y);
 			} else {
 				window->Pos.y = 0;
@@ -113,18 +120,20 @@ void OverlayDrawer::Draw() {
 	} else if(cm.IsCursorCapturedOnOverlay()) {
 		// 防止将 UI 窗口拖到屏幕外
 		ImGuiWindow* window = ImGui::GetCurrentContext()->HoveredWindow;
-		SIZE outputSize = Utils::GetSizeOfRect(App::Get().GetRenderer().GetOutputRect());
+		if (window) {
+			SIZE outputSize = Utils::GetSizeOfRect(App::Get().GetRenderer().GetOutputRect());
 
-		if (outputSize.cx - window->Size.x > 0) {
-			window->Pos.x = std::clamp(window->Pos.x, 0.0f, outputSize.cx - window->Size.x);
-		} else {
-			window->Pos.x = 0;
-		}
+			if (outputSize.cx > window->Size.x) {
+				window->Pos.x = std::clamp(window->Pos.x, 0.0f, outputSize.cx - window->Size.x);
+			} else {
+				window->Pos.x = 0;
+			}
 
-		if (outputSize.cy - window->Size.y) {
-			window->Pos.y = std::clamp(window->Pos.y, 0.0f, outputSize.cy - window->Size.y);
-		} else {
-			window->Pos.y = 0;
+			if (outputSize.cy > window->Size.y) {
+				window->Pos.y = std::clamp(window->Pos.y, 0.0f, outputSize.cy - window->Size.y);
+			} else {
+				window->Pos.y = 0;
+			}
 		}
 	}
 	
@@ -139,4 +148,15 @@ void OverlayDrawer::Draw() {
 	d3dDC->OMSetRenderTargets(1, &_rtv, NULL);
 	
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+}
+
+void OverlayDrawer::SetVisibility(bool value) {
+	if (_isVisiable == value) {
+		return;
+	}
+	_isVisiable = value;
+
+	if (!value) {
+		ImGui_ImplMagpie_ClearStates();
+	}
 }

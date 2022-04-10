@@ -442,5 +442,17 @@ namespace Magpie.Properties {
                 this["DebugWarningsAreErrors"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Control+Alt+D")]
+        public string OverlayHotkey {
+            get {
+                return ((string)(this["OverlayHotkey"]));
+            }
+            set {
+                this["OverlayHotkey"] = value;
+            }
+        }
     }
 }

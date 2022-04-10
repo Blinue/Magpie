@@ -19,9 +19,25 @@
 #include <rapidjson/writer.h>
 
 
+static const UINT WM_TOGGLE_OVERLAY = RegisterWindowMessage(L"MAGPIE_WM_TOGGLE_OVERLAY");
+
+static std::optional<LRESULT> WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
+	if (msg == WM_TOGGLE_OVERLAY && !App::Get().IsConfineCursorIn3DGames()) {
+		Renderer& renderer = App::Get().GetRenderer();
+		renderer.SetOverlayVisibility(!renderer.IsOverlayVisiable());
+		return 0;
+	}
+
+	return std::nullopt;
+}
+
 Renderer::Renderer() {}
 
-Renderer::~Renderer() {}
+Renderer::~Renderer() {
+	if (_handlerID != 0) {
+		App::Get().UnregisterWndProcHandler(_handlerID);
+	}
+}
 
 bool Renderer::Initialize(const std::string& effectsJson) {
 	_gpuTimer.reset(new GPUTimer());
@@ -36,12 +52,12 @@ bool Renderer::Initialize(const std::string& effectsJson) {
 		return false;
 	}
 	
-	ID3D11Texture2D* backBuffer = App::Get().GetDeviceResources().GetBackBuffer();
-
-	_overlayDrawer.reset(new OverlayDrawer());
-	if (!_overlayDrawer->Initialize(backBuffer)) {
-		return false;
-	}
+	//ID3D11Texture2D* backBuffer = App::Get().GetDeviceResources().GetBackBuffer();
+	//
+	//_overlayDrawer.reset(new OverlayDrawer());
+	//if (!_overlayDrawer->Initialize(backBuffer)) {
+	//	return false;
+	//}
 
 	// 初始化所有效果共用的动态常量缓冲区
 	D3D11_BUFFER_DESC bd{};
@@ -56,6 +72,8 @@ bool Renderer::Initialize(const std::string& effectsJson) {
 		Logger::Get().ComError("CreateBuffer 失败", hr);
 		return false;
 	}
+
+	_handlerID = App::Get().RegisterWndProcHandler(WndProcHandler);
 
 	return true;
 }
@@ -120,9 +138,34 @@ void Renderer::Render() {
 		}
 	}
 
-	_overlayDrawer->Draw();
+	if (_overlayDrawer) {
+		_overlayDrawer->Draw();
+	}
 
 	dr.EndFrame();
+}
+
+bool Renderer::IsOverlayVisiable() const noexcept {
+	return _overlayDrawer ? _overlayDrawer->IsVisiable() : false;
+}
+
+void Renderer::SetOverlayVisibility(bool value) {
+	if (!value) {
+		if (_overlayDrawer && _overlayDrawer->IsVisiable()) {
+			_overlayDrawer->SetVisibility(false);
+		}
+		return;
+	}
+
+	if (_overlayDrawer) {
+		if (!_overlayDrawer->IsVisiable()) {
+			_overlayDrawer->SetVisibility(true);
+		}
+		return;
+	}
+
+	_overlayDrawer.reset(new OverlayDrawer());
+	_overlayDrawer->Initialize(App::Get().GetDeviceResources().GetBackBuffer());
 }
 
 bool CheckForeground(HWND hwndForeground) {

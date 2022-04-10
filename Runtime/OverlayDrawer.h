@@ -14,10 +14,14 @@ public:
 
 	void Draw();
 
+	bool IsVisiable() const noexcept {
+		return _isVisiable;
+	}
+
+	void SetVisibility(bool value);
+
 private:
 	UINT _handlerID = 0;
-
 	ID3D11RenderTargetView* _rtv = nullptr;
-
-	bool _cursorOnUI = false;
+	bool _isVisiable = true;
 };

@@ -95,6 +95,41 @@ void ImGui_ImplMagpie_NewFrame() {
 	ImGui_ImplMagpie_UpdateMousePos();
 }
 
+void ImGui_ImplMagpie_ClearStates() {
+	ImGui_ImplMagpie_Data* bd = ImGui_ImplMagpie_GetBackendData();
+	IM_ASSERT(bd != NULL && "Did you call ImGui_ImplMagpie_Init()?");
+
+	ImGuiIO& io = ImGui::GetIO();
+	io.MousePos = ImVec2(-FLT_MAX, -FLT_MAX);
+	std::fill(std::begin(io.MouseDown), std::end(io.MouseDown), false);
+
+	auto& cm = App::Get().GetCursorManager();
+	if (cm.IsCursorCapturedOnOverlay()) {
+		if (GetCapture() == App::Get().GetHwndHost()) {
+			ReleaseCapture();
+		}
+		cm.OnCursorReleasedOnOverlay();
+	}
+
+	if (cm.IsCursorOnOverlay()) {
+		cm.OnCursorLeaveOverlay();
+	}
+
+	// 更新状态
+	ImGui::NewFrame();
+	ImGui::EndFrame();
+
+	if (io.WantCaptureMouse) {
+		// 拖拽时隐藏 UI 需渲染两帧才能重置 WantCaptureMouse
+		ImGui::NewFrame();
+		ImGui::EndFrame();
+	}
+
+	if (io.WantCaptureMouse) {
+		OutputDebugString(L"err\n");
+	}
+}
+
 // Win32 message handler (process Win32 mouse/keyboard inputs, etc.)
 // Call from your application's message handler.
 // When implementing your own backend, you can read the io.WantCaptureMouse, io.WantCaptureKeyboard flags to tell if Dear ImGui wants to use your inputs.

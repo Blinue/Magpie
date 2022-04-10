@@ -30,6 +30,10 @@ public:
 		return _overlayDrawer.get();
 	}
 
+	bool IsOverlayVisiable() const noexcept;
+
+	void SetOverlayVisibility(bool value);
+
 	const RECT& GetOutputRect() const noexcept {
 		return _outputRect;
 	}
@@ -57,6 +61,7 @@ private:
 	winrt::com_ptr<ID3D11Buffer> _dynamicCB;
 
 	std::unique_ptr<OverlayDrawer> _overlayDrawer;
+	UINT _handlerID = 0;
 
 	std::unique_ptr<GPUTimer> _gpuTimer;
 };

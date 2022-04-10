@@ -228,9 +228,10 @@ namespace Magpie {
 			string hotkey = txtHotkey.Text.Trim();
 
 			try {
-				keyboardEvents.OnCombination(new Dictionary<Combination, Action> {{
-					Combination.FromString(hotkey), () => ToggleMagWindow()
-				}});
+				keyboardEvents.OnCombination(new Dictionary<Combination, Action> {
+					{Combination.FromString(hotkey), () => ToggleMagWindow()},
+					{Combination.FromString(Settings.Default.OverlayHotkey), () => ToggleOverlay()}
+				});
 
 				txtHotkey.Foreground = Brushes.Black;
 				Settings.Default.Hotkey = hotkey;
@@ -242,6 +243,10 @@ namespace Magpie {
 				Logger.Error(ex, $"解析快捷键失败：{txtHotkey.Text}");
 				txtHotkey.Foreground = Brushes.Red;
 			}
+		}
+
+		private static void ToggleOverlay() {
+			NativeMethods.BroadcastMessage(NativeMethods.MAGPIE_WM_TOGGLE_OVERLAY);
 		}
 		
 		private void ToggleMagWindow() {
