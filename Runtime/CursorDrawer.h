@@ -31,6 +31,8 @@ private:
 
 	void _DynamicClip(POINT cursorPt);
 
+	void _AdjustCursorSpeed();
+
 private:
 	bool _isUnderCapture = false;
 	std::array<bool, 4> _curClips{};
