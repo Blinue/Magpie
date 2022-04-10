@@ -223,7 +223,14 @@ void CursorManager::OnCursorCapturedOnOverlay() {
 	_isCapturedOnOverlay = true;
 
 	// 用户拖动 UI 时将光标限制在输出区域内
-	_curClips = App::Get().GetRenderer().GetOutputRect();
+	const RECT& outputRect = App::Get().GetRenderer().GetOutputRect();
+	const RECT& hostRect = App::Get().GetHostWndRect();
+	_curClips = {
+		outputRect.left + hostRect.left,
+		outputRect.top + hostRect.top,
+		outputRect.right + hostRect.left,
+		outputRect.bottom + hostRect.top
+	};
 	ClipCursor(&_curClips);
 }
 
@@ -744,25 +751,25 @@ void CursorManager::_UpdateCursorClip() {
 	// left
 	RECT rect{ LONG_MIN, hostPos.y, hostRect.left, hostPos.y + 1 };
 	if (!MonitorFromRect(&rect, MONITOR_DEFAULTTONULL)) {
-		clips.left = _isOnOverlay ? outputRect.left : srcFrameRect.left;
+		clips.left = _isOnOverlay ? outputRect.left + hostRect.left : srcFrameRect.left;
 	}
 
 	// top
 	rect = { hostPos.x, LONG_MIN, hostPos.x + 1,hostRect.top };
 	if (!MonitorFromRect(&rect, MONITOR_DEFAULTTONULL)) {
-		clips.top = _isOnOverlay ? outputRect.top : srcFrameRect.top;
+		clips.top = _isOnOverlay ? outputRect.top + hostRect.top : srcFrameRect.top;
 	}
 
 	// right
 	rect = { hostRect.right, hostPos.y, LONG_MAX, hostPos.y + 1 };
 	if (!MonitorFromRect(&rect, MONITOR_DEFAULTTONULL)) {
-		clips.right = _isOnOverlay ? outputRect.right : srcFrameRect.right;
+		clips.right = _isOnOverlay ? outputRect.right + hostRect.left : srcFrameRect.right;
 	}
 
 	// bottom
 	rect = { hostPos.x, hostRect.bottom, hostPos.x + 1, LONG_MAX };
 	if (!MonitorFromRect(&rect, MONITOR_DEFAULTTONULL)) {
-		clips.bottom = _isOnOverlay ? outputRect.bottom : srcFrameRect.bottom;
+		clips.bottom = _isOnOverlay ? outputRect.bottom + hostRect.top : srcFrameRect.bottom;
 	}
 
 	if (clips != _curClips) {

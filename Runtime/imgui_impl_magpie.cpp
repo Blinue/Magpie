@@ -62,6 +62,10 @@ static void ImGui_ImplMagpie_UpdateMousePos() {
 		pos = *cm.GetCursorPos();
 	} else {
 		GetCursorPos(&pos);
+
+		const RECT& hostRect = App::Get().GetHostWndRect();
+		pos.x -= hostRect.left;
+		pos.y -= hostRect.top;
 	}
 
 	const RECT& outputRect = App::Get().GetRenderer().GetOutputRect();
