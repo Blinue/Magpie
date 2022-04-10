@@ -94,19 +94,38 @@ void OverlayDrawer::Draw() {
 		}
 	}
 
-	if (App::Get().GetRenderer().GetGPUTimer().GetFrameCount() == 1) {
+	if (App::Get().GetRenderer().GetGPUTimer().GetFrameCount() == 2) {
 		// 第一帧时从配置文件中读取窗口位置，防止读入的位置位于屏幕外
 		SIZE outputSize = Utils::GetSizeOfRect(App::Get().GetRenderer().GetOutputRect());
 		for (ImGuiWindow* window : ImGui::GetCurrentContext()->Windows) {
-			window->Pos.x = std::clamp(window->Pos.x, 0.0f, outputSize.cx - window->Size.x);
-			window->Pos.y = std::clamp(window->Pos.y, 0.0f, outputSize.cy - window->Size.y);
+			if (outputSize.cx - window->Size.x > 0) {
+				window->Pos.x = std::clamp(window->Pos.x, 0.0f, outputSize.cx - window->Size.x);
+			} else {
+				window->Pos.x = 0;
+			}
+			
+			if (outputSize.cy - window->Size.y > 0) {
+				window->Pos.y = std::clamp(window->Pos.y, 0.0f, outputSize.cy - window->Size.y);
+			} else {
+				window->Pos.y = 0;
+			}
 		}
 	} else if(cm.IsCursorCapturedOnOverlay()) {
 		// 防止将 UI 窗口拖到屏幕外
 		ImGuiWindow* window = ImGui::GetCurrentContext()->HoveredWindow;
 		SIZE outputSize = Utils::GetSizeOfRect(App::Get().GetRenderer().GetOutputRect());
-		window->Pos.x = std::clamp(window->Pos.x, 0.0f, outputSize.cx - window->Size.x);
-		window->Pos.y = std::clamp(window->Pos.y, 0.0f, outputSize.cy - window->Size.y);
+
+		if (outputSize.cx - window->Size.x > 0) {
+			window->Pos.x = std::clamp(window->Pos.x, 0.0f, outputSize.cx - window->Size.x);
+		} else {
+			window->Pos.x = 0;
+		}
+
+		if (outputSize.cy - window->Size.y) {
+			window->Pos.y = std::clamp(window->Pos.y, 0.0f, outputSize.cy - window->Size.y);
+		} else {
+			window->Pos.y = 0;
+		}
 	}
 	
 	DrawUI();

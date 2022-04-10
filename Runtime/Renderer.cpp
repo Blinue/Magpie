@@ -94,23 +94,14 @@ void Renderer::Render() {
 		d3dDC->CSSetConstantBuffers(0, 1, &t);
 	}
 
-	for (auto& effect : _effects) {
-		effect->Draw();
-	}
-
-	
-	/*
-	// 更新常量
-	if (state == FrameSourceBase::UpdateState::NewFrame) {
-		
-	} else {
+	if (state == FrameSourceBase::UpdateState::NoUpdate) {
 		// 此帧内容无变化
-		// 从第一个有动态常量的 Effect 开始渲染
-		// 如果没有则只渲染最后一个 Effect 的最后一个 pass
+		// 从第一个使用动态常量的效果开始渲染
+		// 如果没有则只渲染最后一个效果的最后一个通道
 
 		size_t i = 0;
 		for (; i < _effects.size(); ++i) {
-			if (_effects[i]->HasDynamicConstants()) {
+			if (_effects[i]->IsUseDynamic()) {
 				break;
 			}
 		}
@@ -123,7 +114,11 @@ void Renderer::Render() {
 				_effects[i]->Draw();
 			}
 		}
-	}*/
+	} else {
+		for (auto& effect : _effects) {
+			effect->Draw();
+		}
+	}
 
 	_overlayDrawer->Draw();
 

@@ -124,6 +124,7 @@ struct EffectDesc {
 	std::vector<EffectPassDesc> passes;
 
 	UINT flags = 0;
+	bool isUseDynamic = false;
 };
 
 struct EffectParams {

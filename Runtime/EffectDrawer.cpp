@@ -35,7 +35,7 @@ bool EffectDrawer::Initialize(
 	}
 
 	const SIZE hostSize = Utils::GetSizeOfRect(App::Get().GetHostWndRect());;
-	_isLastEffect = desc.flags & EFFECT_FLAG_LAST_EFFECT;
+	bool isLastEffect = desc.flags & EFFECT_FLAG_LAST_EFFECT;
 	bool isInlineParams = desc.flags & EFFECT_FLAG_INLINE_PARAMETERS;
 
 	DeviceResources& dr = App::Get().GetDeviceResources();
@@ -173,7 +173,7 @@ bool EffectDrawer::Initialize(
 		}
 	}
 
-	if (!_isLastEffect) {
+	if (!isLastEffect) {
 		// 创建输出纹理
 		_textures.back() = dr.CreateTexture2D(
 			DXGI_FORMAT_R8G8B8A8_UNORM,
@@ -245,7 +245,7 @@ bool EffectDrawer::Initialize(
 		}
 	}
 
-	if (_isLastEffect) {
+	if (isLastEffect) {
 		// 为光标渲染预留空间
 		_srvs.back().push_back(nullptr);
 
@@ -260,7 +260,7 @@ bool EffectDrawer::Initialize(
 	}
 
 	// 大小必须为 4 的倍数
-	size_t builtinConstantCount = _isLastEffect ? 16 : 12;
+	size_t builtinConstantCount = isLastEffect ? 16 : 12;
 	size_t psStylePassParams = 0;
 	for (UINT i = 0, end = (UINT)desc.passes.size() - 1; i < end; ++i) {
 		if (desc.passes[i].isPSStyle) {
@@ -293,7 +293,7 @@ bool EffectDrawer::Initialize(
 	RECT virtualOutputRect1{};
 	RECT outputRect1{};
 
-	if (_isLastEffect) {
+	if (isLastEffect) {
 		virtualOutputRect1.left = (hostSize.cx - outputSize.cx) / 2;
 		virtualOutputRect1.top = (hostSize.cy - outputSize.cy) / 2;
 		virtualOutputRect1.right = virtualOutputRect1.left + outputSize.cx;
@@ -428,7 +428,7 @@ bool EffectDrawer::Initialize(
 	return true;
 }
 
-void EffectDrawer::Draw() {
+void EffectDrawer::Draw(bool noUpdate) {
 	auto d3dDC = App::Get().GetDeviceResources().GetD3DDC();
 
 	{
@@ -436,34 +436,44 @@ void EffectDrawer::Draw() {
 		d3dDC->CSSetConstantBuffers(1, 1, &t);
 	}
 	d3dDC->CSSetSamplers(0, (UINT)_samplers.size(), _samplers.data());
-	
-	for (UINT i = 0; i < _dispatches.size(); ++i) {
-		d3dDC->CSSetShader(_shaders[i].get(), nullptr, 0);
 
-		if (_isLastEffect && i == _dispatches.size() - 1) {
-			// 最后一个效果的最后一个通道负责渲染光标
-			
-			// 光标纹理
-			CursorManager& cm = App::Get().GetCursorManager();
-			if (cm.HasCursor()) {
-				ID3D11Texture2D* cursorTex;
-				CursorManager::CursorType ct;
-				if (cm.GetCursorTexture(&cursorTex, ct)) {
-					if (!App::Get().GetDeviceResources().GetShaderResourceView(cursorTex, &_srvs[i].back())) {
-						Logger::Get().Error("GetShaderResourceView 出错");
-					}
-				} else {
-					Logger::Get().Error("GetCursorTexture 出错");
+	if (noUpdate) {
+		// 只渲染最后一个通道
+		_DrawPass((UINT)_dispatches.size() - 1);
+	} else {
+		for (UINT i = 0; i < _dispatches.size(); ++i) {
+			_DrawPass(i);
+		}
+	}
+}
+
+void EffectDrawer::_DrawPass(UINT i) {
+	auto d3dDC = App::Get().GetDeviceResources().GetD3DDC();
+	d3dDC->CSSetShader(_shaders[i].get(), nullptr, 0);
+
+	if ((_desc.flags & EFFECT_FLAG_LAST_EFFECT) && i == _dispatches.size() - 1) {
+		// 最后一个效果的最后一个通道负责渲染光标
+
+		// 光标纹理
+		CursorManager& cm = App::Get().GetCursorManager();
+		if (cm.HasCursor()) {
+			ID3D11Texture2D* cursorTex;
+			CursorManager::CursorType ct;
+			if (cm.GetCursorTexture(&cursorTex, ct)) {
+				if (!App::Get().GetDeviceResources().GetShaderResourceView(cursorTex, &_srvs[i].back())) {
+					Logger::Get().Error("GetShaderResourceView 出错");
 				}
+			} else {
+				Logger::Get().Error("GetCursorTexture 出错");
 			}
 		}
-		
-		d3dDC->CSSetShaderResources(0, (UINT)_srvs[i].size(), _srvs[i].data());
-		UINT uavCount = (UINT)_uavs[i].size() / 2;
-		d3dDC->CSSetUnorderedAccessViews(0, uavCount, _uavs[i].data(), nullptr);
-
-		d3dDC->Dispatch(_dispatches[i].first, _dispatches[i].second, 1);
-
-		d3dDC->CSSetUnorderedAccessViews(0, uavCount, _uavs[i].data() + uavCount, nullptr);
 	}
+
+	d3dDC->CSSetShaderResources(0, (UINT)_srvs[i].size(), _srvs[i].data());
+	UINT uavCount = (UINT)_uavs[i].size() / 2;
+	d3dDC->CSSetUnorderedAccessViews(0, uavCount, _uavs[i].data(), nullptr);
+
+	d3dDC->Dispatch(_dispatches[i].first, _dispatches[i].second, 1);
+
+	d3dDC->CSSetUnorderedAccessViews(0, uavCount, _uavs[i].data() + uavCount, nullptr);
 }

@@ -253,9 +253,9 @@ UINT GetNextExpr(std::string_view& source, std::string& expr) {
 
 UINT ResolveHeader(std::string_view block, EffectDesc& desc) {
 	// 必需的选项：VERSION
-	// 可选的选项：OUTPUT_WIDTH，OUTPUT_HEIGHT
+	// 可选的选项：OUTPUT_WIDTH，OUTPUT_HEIGHT，USE_DYNAMIC
 
-	std::bitset<3> processed;
+	std::bitset<4> processed;
 
 	std::string_view token;
 
@@ -305,6 +305,17 @@ UINT ResolveHeader(std::string_view block, EffectDesc& desc) {
 			if (GetNextExpr(block, desc.outSizeExpr.second)) {
 				return 1;
 			}
+		} else if (t == "USE_DYNAMIC") {
+			if (processed[3]) {
+				return 1;
+			}
+			processed[3] = true;
+
+			if (GetNextToken<false>(block, token) != 2) {
+				return 1;
+			}
+
+			desc.isUseDynamic = true;
 		} else {
 			return 1;
 		}
@@ -1225,10 +1236,17 @@ float2 GetInputPt() { return __inputPt; }
 uint2 GetOutputSize() { return __outputSize; }
 float2 GetOutputPt() { return __outputPt; }
 float2 GetScale() { return __scale; }
-uint GetFrameCount() { return __frameCount; }
+)");
+
+	if (desc.isUseDynamic) {
+		result.append(R"(uint GetFrameCount() { return __frameCount; }
 uint2 GetCursorPos() { return __cursorPos; }
 
 )");
+	} else {
+		result.push_back('\n');
+	}
+
 
 	for (std::string_view commonBlock : commonBlocks) {
 		result.append(commonBlock);
