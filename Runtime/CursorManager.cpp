@@ -48,17 +48,36 @@ static POINT HostToSrc(POINT pt) {
 	const RECT& srcFrameRect = App::Get().GetFrameSource().GetSrcFrameRect();
 	const RECT& hostRect = App::Get().GetHostWndRect();
 	const RECT& virtualOutputRect = App::Get().GetRenderer().GetVirtualOutputRect();
+	RECT outputRect = App::Get().GetRenderer().GetOutputRect();
 
 	const SIZE srcFrameSize = Utils::GetSizeOfRect(srcFrameRect);
 	const SIZE virtualOutputSize = Utils::GetSizeOfRect(virtualOutputRect);
+	const SIZE outputSize = Utils::GetSizeOfRect(outputRect);
 
-	double posX = double(pt.x - hostRect.left - virtualOutputRect.left) / (virtualOutputSize.cx - 1);
-	double posY = double(pt.y - hostRect.top - virtualOutputRect.top) / (virtualOutputSize.cy - 1);
+	pt.x -= hostRect.left;
+	pt.y -= hostRect.top;
 
-	return {
-		std::lround(posX * (srcFrameSize.cx - 1) + srcFrameRect.left),
-		std::lround(posY * (srcFrameSize.cy - 1) + srcFrameRect.top)
-	};
+	POINT result = { srcFrameRect.left, srcFrameRect.top };
+
+	if (pt.x >= outputRect.right) {
+		result.x += srcFrameSize.cx + pt.x - outputRect.right;
+	} else if (pt.x < outputRect.left) {
+		result.x += pt.x - outputRect.left;
+	} else {
+		double pos = double(pt.x - virtualOutputRect.left) / (virtualOutputSize.cx - 1);
+		result.x += std::lround(pos * (srcFrameSize.cx - 1));
+	}
+
+	if (pt.y >= outputRect.bottom) {
+		result.y += srcFrameSize.cx + pt.y - outputRect.bottom;
+	} else if (pt.y < outputRect.top) {
+		result.y += pt.y - outputRect.top;
+	} else {
+		double pos = double(pt.y - virtualOutputRect.top) / (virtualOutputSize.cy - 1);
+		result.y += std::lround(pos * (srcFrameSize.cy - 1));
+	}
+
+	return result;
 }
 
 CursorManager::~CursorManager() {
@@ -689,7 +708,7 @@ void CursorManager::_UpdateCursorClip() {
 	// 处理屏幕之间存在间隙的情况。解决办法是 _StopCapture 只在目标位置存在屏幕时才取消捕获，
 	// 当光标试图移动到间隙中时将被挡住。如果光标的速度足以跨越间隙，则它依然可以在屏幕间移动。
 	::GetCursorPos(&cursorPos);
-	POINT hostPos = SrcToHost(cursorPos, true);
+	POINT hostPos = _isOnOverlay ? cursorPos : SrcToHost(cursorPos, true);
 
 	RECT clips{ LONG_MIN, LONG_MIN, LONG_MAX, LONG_MAX };
 

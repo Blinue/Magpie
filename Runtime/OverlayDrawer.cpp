@@ -60,7 +60,7 @@ bool OverlayDrawer::Initialize(ID3D11Texture2D* renderTarget) {
 
 void DrawUI() {
 	const ImGuiViewport* main_viewport = ImGui::GetMainViewport();
-	ImGui::SetNextWindowPos(ImVec2(main_viewport->WorkPos.x + 650, main_viewport->WorkPos.y + 20), ImGuiCond_FirstUseEver);
+	ImGui::SetNextWindowPos(ImVec2(20, 20), ImGuiCond_FirstUseEver);
 	ImGui::SetNextWindowSize(ImVec2(200, 100), ImGuiCond_FirstUseEver);
 
 	if (!ImGui::Begin("Debug", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoNav)) {
@@ -94,8 +94,15 @@ void OverlayDrawer::Draw() {
 		}
 	}
 
-	if (cm.IsCursorCapturedOnOverlay()) {
-		// ½« UI ´°¿ÚÏÞÖÆÔÚÖ÷´°¿ÚÄÚ
+	if (App::Get().GetRenderer().GetGPUTimer().GetFrameCount() == 1) {
+		// ç¬¬ä¸€å¸§æ—¶ä»Žé…ç½®æ–‡ä»¶ä¸­è¯»å–çª—å£ä½ç½®ï¼Œé˜²æ­¢è¯»å…¥çš„ä½ç½®ä½äºŽå±å¹•å¤–
+		SIZE outputSize = Utils::GetSizeOfRect(App::Get().GetRenderer().GetOutputRect());
+		for (ImGuiWindow* window : ImGui::GetCurrentContext()->Windows) {
+			window->Pos.x = std::clamp(window->Pos.x, 0.0f, outputSize.cx - window->Size.x);
+			window->Pos.y = std::clamp(window->Pos.y, 0.0f, outputSize.cy - window->Size.y);
+		}
+	} else if(cm.IsCursorCapturedOnOverlay()) {
+		// é˜²æ­¢å°† UI çª—å£æ‹–åˆ°å±å¹•å¤–
 		ImGuiWindow* window = ImGui::GetCurrentContext()->HoveredWindow;
 		SIZE outputSize = Utils::GetSizeOfRect(App::Get().GetRenderer().GetOutputRect());
 		window->Pos.x = std::clamp(window->Pos.x, 0.0f, outputSize.cx - window->Size.x);
