@@ -5,6 +5,8 @@ MagpieFX 语法
 //!VERSION 2
 //!OUTPUT_WIDTH INPUT_WIDTH * 2
 //!OUTPUT_HEIGHT INPUT_HEIGHT * 2
+// 若要使用 GetFrameCount 或 GetCursorPos 需指定 USE_DYNAMIC
+//!USE_DYNAMIC
 
 // 如果不定义 OUTPUT_WIDTH 和 OUTPUT_HEIGHT 表示此 Effect 可以接受任何大小的输出
 // 计算纹理尺寸时可以使用一些预定义常量
@@ -133,9 +135,9 @@ void Pass2(uint2 blockStart, uint3 threadId) {
 
 **float2 GetScale()**：获取输出纹理相对于输入纹理的缩放。
 
-**uint GetFrameCount()**：获取当前总计帧数。
+**uint GetFrameCount()**：获取当前总计帧数。使用此函数时必须指定 USE_DYNAMIC。
 
-**uint2 GetCursorPos()**：获取当前光标位置。
+**uint2 GetCursorPos()**：获取当前光标位置。使用此函数时必须指定 USE_DYNAMIC。
 
 **uint2 Rmp8x8(uint id)**：将 0~63 的值以 swizzle 顺序映射到 8x8 的正方形内的坐标，用以提高纹理缓存的命中率。
 
