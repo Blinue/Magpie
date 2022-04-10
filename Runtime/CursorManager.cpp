@@ -499,8 +499,8 @@ void CursorManager::_AdjustCursorSpeed() {
 	}
 
 	SIZE srcFrameSize = Utils::GetSizeOfRect(App::Get().GetFrameSource().GetSrcFrameRect());
-	SIZE outputSize = Utils::GetSizeOfRect(App::Get().GetRenderer().GetOutputRect());
-	double scale = ((double)outputSize.cx / srcFrameSize.cx + (double)outputSize.cy / srcFrameSize.cy) / 2;
+	SIZE virtualOutputSize = Utils::GetSizeOfRect(App::Get().GetRenderer().GetVirtualOutputRect());
+	double scale = ((double)virtualOutputSize.cx / srcFrameSize.cx + (double)virtualOutputSize.cy / srcFrameSize.cy) / 2;
 
 	INT newSpeed = 0;
 

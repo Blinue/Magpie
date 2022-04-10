@@ -6,6 +6,10 @@
 //!MAGPIE EFFECT
 //!VERSION 2
 
+//!PARAMETER
+//!DEFAULT 1
+//!MIN 1
+float oversharp;
 
 //!TEXTURE
 Texture2D INPUT;
@@ -274,7 +278,7 @@ void Pass4(uint2 blockStart, uint3 threadId) {
 
 			float Sl = Luma(max(avg[1] - avg[0] * avg[0], 0.)) + sigma_nsq;
 			float Sh = Luma(max(avg[2] - avg[0] * avg[0], 0.)) + sigma_nsq;
-			MR[destPos] = float4(avg[0], sqrt(Sh / Sl));
+			MR[destPos] = float4(avg[0], sqrt(Sh / Sl) * oversharp);
 		}
 	}
 }
