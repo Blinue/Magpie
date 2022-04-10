@@ -166,7 +166,7 @@
     <ClInclude Include="StrUtils.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="TextureLoader.h" />
-    <ClInclude Include="UIDrawer.h" />
+    <ClInclude Include="OverlayDrawer.h" />
     <ClInclude Include="Utils.h" />
     <ClInclude Include="GraphicsCaptureFrameSource.h" />
   </ItemGroup>
@@ -193,7 +193,7 @@
     <ClCompile Include="GPUTimer.cpp" />
     <ClCompile Include="StrUtils.cpp" />
     <ClCompile Include="TextureLoader.cpp" />
-    <ClCompile Include="UIDrawer.cpp" />
+    <ClCompile Include="OverlayDrawer.cpp" />
     <ClCompile Include="Utils.cpp" />
     <ClCompile Include="GraphicsCaptureFrameSource.cpp" />
   </ItemGroup>

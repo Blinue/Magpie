@@ -44,13 +44,21 @@ public:
 	};
 	bool GetCursorTexture(ID3D11Texture2D** texture, CursorManager::CursorType& cursorType);
 
-	void OnCursorCapturedOnUI();
+	void OnCursorCapturedOnOverlay();
 
-	void OnCursorReleasedOnUI();
+	void OnCursorReleasedOnOverlay();
 
-	void OnCursorHoverUI();
+	void OnCursorHoverOverlay();
 
-	void OnCursorLeaveUI();
+	void OnCursorLeaveOverlay();
+
+	bool IsCursorCapturedOnOverlay() const noexcept {
+		return _isCapturedOnOverlay;
+	}
+
+	bool IsCursorOnOverlay() const noexcept {
+		return _isOnOverlay;
+	}
 
 private:
 	void _StartCapture(POINT cursorPos);
@@ -66,8 +74,8 @@ private:
 	bool _isUnderCapture = false;
 	RECT _curClips{};
 
-	bool _isCapturedOnUI = false;
-	bool _isOnUI = false;
+	bool _isCapturedOnOverlay = false;
+	bool _isOnOverlay = false;
 
 	INT _cursorSpeed = 0;
 

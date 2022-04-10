@@ -200,26 +200,26 @@ bool CursorManager::GetCursorTexture(ID3D11Texture2D** texture, CursorManager::C
 	return true;
 }
 
-void CursorManager::OnCursorCapturedOnUI() {
-	_isCapturedOnUI = true;
+void CursorManager::OnCursorCapturedOnOverlay() {
+	_isCapturedOnOverlay = true;
 
 	// 用户拖动 UI 时将光标限制在输出区域内
 	_curClips = App::Get().GetRenderer().GetOutputRect();
 	ClipCursor(&_curClips);
 }
 
-void CursorManager::OnCursorReleasedOnUI() {
-	_isCapturedOnUI = false;
+void CursorManager::OnCursorReleasedOnOverlay() {
+	_isCapturedOnOverlay = false;
 	_UpdateCursorClip();
 }
 
-void CursorManager::OnCursorHoverUI() {
-	_isOnUI = true;
+void CursorManager::OnCursorHoverOverlay() {
+	_isOnOverlay = true;
 	_UpdateCursorClip();
 }
 
-void CursorManager::OnCursorLeaveUI() {
-	_isOnUI = false;
+void CursorManager::OnCursorLeaveOverlay() {
+	_isOnOverlay = false;
 	_UpdateCursorClip();
 }
 
@@ -548,8 +548,8 @@ void CursorManager::_UpdateCursorClip() {
 		return;
 	}
 
-	if (_isCapturedOnUI) {
-		// 已在 OnCursorCapturedOnUI 中限制光标
+	if (_isCapturedOnOverlay) {
+		// 已在 OnCursorCapturedOnOverlay 中限制光标
 		return;
 	}
 
@@ -594,7 +594,7 @@ void CursorManager::_UpdateCursorClip() {
 			_StopCapture(cursorPos);
 		} else {
 			// 主窗口未被遮挡
-			bool stopCapture = _isOnUI;
+			bool stopCapture = _isOnOverlay;
 
 			if (!stopCapture) {
 				// 判断源窗口是否被遮挡
@@ -654,7 +654,7 @@ void CursorManager::_UpdateCursorClip() {
 					}
 				}
 			} else {
-				bool startCapture = !_isOnUI;
+				bool startCapture = !_isOnOverlay;
 
 				if (startCapture) {
 					// 判断源窗口是否被遮挡
@@ -681,7 +681,7 @@ void CursorManager::_UpdateCursorClip() {
 		return;
 	}
 
-	if (!_isOnUI && !_isUnderCapture) {
+	if (!_isOnOverlay && !_isUnderCapture) {
 		return;
 	}
 	
@@ -696,25 +696,25 @@ void CursorManager::_UpdateCursorClip() {
 	// left
 	RECT rect{ LONG_MIN, hostPos.y, hostRect.left, hostPos.y + 1 };
 	if (!MonitorFromRect(&rect, MONITOR_DEFAULTTONULL)) {
-		clips.left = _isOnUI ? outputRect.left : srcFrameRect.left;
+		clips.left = _isOnOverlay ? outputRect.left : srcFrameRect.left;
 	}
 
 	// top
 	rect = { hostPos.x, LONG_MIN, hostPos.x + 1,hostRect.top };
 	if (!MonitorFromRect(&rect, MONITOR_DEFAULTTONULL)) {
-		clips.top = _isOnUI ? outputRect.top : srcFrameRect.top;
+		clips.top = _isOnOverlay ? outputRect.top : srcFrameRect.top;
 	}
 
 	// right
 	rect = { hostRect.right, hostPos.y, LONG_MAX, hostPos.y + 1 };
 	if (!MonitorFromRect(&rect, MONITOR_DEFAULTTONULL)) {
-		clips.right = _isOnUI ? outputRect.right : srcFrameRect.right;
+		clips.right = _isOnOverlay ? outputRect.right : srcFrameRect.right;
 	}
 
 	// bottom
 	rect = { hostPos.x, hostRect.bottom, hostPos.x + 1, LONG_MAX };
 	if (!MonitorFromRect(&rect, MONITOR_DEFAULTTONULL)) {
-		clips.bottom = _isOnUI ? outputRect.bottom : srcFrameRect.bottom;
+		clips.bottom = _isOnOverlay ? outputRect.bottom : srcFrameRect.bottom;
 	}
 
 	if (clips != _curClips) {

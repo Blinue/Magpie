@@ -2,13 +2,13 @@
 #include "pch.h"
 
 
-class UIDrawer {
+class OverlayDrawer {
 public:
-	UIDrawer() = default;
-	UIDrawer(const UIDrawer&) = delete;
-	UIDrawer(UIDrawer&&) = delete;
+	OverlayDrawer() = default;
+	OverlayDrawer(const OverlayDrawer&) = delete;
+	OverlayDrawer(OverlayDrawer&&) = delete;
 
-	~UIDrawer();
+	~OverlayDrawer();
 
 	bool Initialize(ID3D11Texture2D* renderTarget);
 

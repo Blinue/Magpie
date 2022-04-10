@@ -1,8 +1,9 @@
 #include "pch.h"
-#include "UIDrawer.h"
+#include "OverlayDrawer.h"
 #include "App.h"
 #include "DeviceResources.h"
 #include <imgui.h>
+#include <imgui_internal.h>
 #include "imgui_impl_magpie.h"
 #include "imgui_impl_dx11.h"
 #include "Renderer.h"
@@ -10,7 +11,7 @@
 #include "CursorManager.h"
 
 
-UIDrawer::~UIDrawer() {
+OverlayDrawer::~OverlayDrawer() {
 	if (_handlerID != 0) {
 		App::Get().UnregisterWndProcHandler(_handlerID);
 	}
@@ -29,7 +30,7 @@ static std::optional<LRESULT> WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam,
 	return std::nullopt;
 }
 
-bool UIDrawer::Initialize(ID3D11Texture2D* renderTarget) {
+bool OverlayDrawer::Initialize(ID3D11Texture2D* renderTarget) {
 	auto& dr = App::Get().GetDeviceResources();
 
 	IMGUI_CHECKVERSION();
@@ -67,14 +68,15 @@ void DrawUI() {
 		ImGui::End();
 		return;
 	}
-
+	
 	ImGui::Text(fmt::format("FPS: {}", App::Get().GetRenderer().GetGPUTimer().GetFramesPerSecond()).c_str());
 
 	ImGui::End();
 }
 
-void UIDrawer::Draw() {
+void OverlayDrawer::Draw() {
 	ImGuiIO& io = ImGui::GetIO();
+	CursorManager& cm = App::Get().GetCursorManager();
 
 	bool originWantCaptureMouse = io.WantCaptureMouse;
 
@@ -84,12 +86,20 @@ void UIDrawer::Draw() {
 
 	if (io.WantCaptureMouse) {
 		if (!originWantCaptureMouse) {
-			App::Get().GetCursorManager().OnCursorHoverUI();
+			cm.OnCursorHoverOverlay();
 		}
 	} else {
 		if (originWantCaptureMouse) {
-			App::Get().GetCursorManager().OnCursorLeaveUI();
+			cm.OnCursorLeaveOverlay();
 		}
+	}
+
+	if (cm.IsCursorCapturedOnOverlay()) {
+		// 将 UI 窗口限制在主窗口内
+		ImGuiWindow* window = ImGui::GetCurrentContext()->HoveredWindow;
+		SIZE outputSize = Utils::GetSizeOfRect(App::Get().GetRenderer().GetOutputRect());
+		window->Pos.x = std::clamp(window->Pos.x, 0.0f, outputSize.cx - window->Size.x);
+		window->Pos.y = std::clamp(window->Pos.y, 0.0f, outputSize.cy - window->Size.y);
 	}
 	
 	DrawUI();

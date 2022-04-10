@@ -8,7 +8,7 @@
 #include "DeviceResources.h"
 #include "GPUTimer.h"
 #include "EffectDrawer.h"
-#include "UIDrawer.h"
+#include "OverlayDrawer.h"
 #include "Logger.h"
 #include "CursorManager.h"
 
@@ -38,8 +38,8 @@ bool Renderer::Initialize(const std::string& effectsJson) {
 	
 	ID3D11Texture2D* backBuffer = App::Get().GetDeviceResources().GetBackBuffer();
 
-	_UIDrawer.reset(new UIDrawer());
-	if (!_UIDrawer->Initialize(backBuffer)) {
+	_overlayDrawer.reset(new OverlayDrawer());
+	if (!_overlayDrawer->Initialize(backBuffer)) {
 		return false;
 	}
 
@@ -125,7 +125,7 @@ void Renderer::Render() {
 		}
 	}*/
 
-	_UIDrawer->Draw();
+	_overlayDrawer->Draw();
 
 	dr.EndFrame();
 }

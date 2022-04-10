@@ -5,7 +5,7 @@
 
 class EffectDrawer;
 class GPUTimer;
-class UIDrawer;
+class OverlayDrawer;
 class CursorManager;
 
 
@@ -26,8 +26,8 @@ public:
 	}
 
 	// 可能为空
-	UIDrawer* GetUIDrawer() {
-		return _UIDrawer.get();
+	OverlayDrawer* GetOverlayDrawer() {
+		return _overlayDrawer.get();
 	}
 
 	const RECT& GetOutputRect() const noexcept {
@@ -56,7 +56,7 @@ private:
 	std::array<EffectConstant32, 12> _dynamicConstants;
 	winrt::com_ptr<ID3D11Buffer> _dynamicCB;
 
-	std::unique_ptr<UIDrawer> _UIDrawer;
+	std::unique_ptr<OverlayDrawer> _overlayDrawer;
 
 	std::unique_ptr<GPUTimer> _gpuTimer;
 };

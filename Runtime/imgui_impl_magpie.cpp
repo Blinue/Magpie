@@ -5,12 +5,11 @@
 #include "Renderer.h"
 #include "FrameSourceBase.h"
 #include "CursorManager.h"
-#include "UIDrawer.h"
 
 
 struct ImGui_ImplMagpie_Data {
-    INT64 time = 0;
-    INT64 ticksPerSecond = 0;
+	INT64 time = 0;
+	INT64 ticksPerSecond = 0;
 };
 
 // Backend data stored in io.BackendPlatformUserData to allow support for multiple Dear ImGui contexts
@@ -18,80 +17,78 @@ struct ImGui_ImplMagpie_Data {
 // FIXME: multi-context support is not well tested and probably dysfunctional in this backend.
 // FIXME: some shared resources (mouse cursor shape, gamepad) are mishandled when using multi-context.
 static ImGui_ImplMagpie_Data* ImGui_ImplMagpie_GetBackendData() {
-    return ImGui::GetCurrentContext() ? (ImGui_ImplMagpie_Data*)ImGui::GetIO().BackendPlatformUserData : NULL;
+	return ImGui::GetCurrentContext() ? (ImGui_ImplMagpie_Data*)ImGui::GetIO().BackendPlatformUserData : NULL;
 }
 
 // Functions
 bool ImGui_ImplMagpie_Init() {
-    ImGuiIO& io = ImGui::GetIO();
-    IM_ASSERT(io.BackendPlatformUserData == NULL && "Already initialized a platform backend!");
+	ImGuiIO& io = ImGui::GetIO();
+	IM_ASSERT(io.BackendPlatformUserData == NULL && "Already initialized a platform backend!");
 
-    INT64 perf_frequency = 0, perf_counter = 0;
-    if (!::QueryPerformanceFrequency((LARGE_INTEGER*)&perf_frequency))
-        return false;
-    if (!::QueryPerformanceCounter((LARGE_INTEGER*)&perf_counter))
-        return false;
+	INT64 perf_frequency = 0, perf_counter = 0;
+	QueryPerformanceFrequency((LARGE_INTEGER*)&perf_frequency);
+	QueryPerformanceCounter((LARGE_INTEGER*)&perf_counter);
 
-    // Setup backend capabilities flags
-    ImGui_ImplMagpie_Data* bd = IM_NEW(ImGui_ImplMagpie_Data)();
-    io.BackendPlatformUserData = (void*)bd;
-    io.BackendPlatformName = "imgui_impl_magpie";
+	// Setup backend capabilities flags
+	ImGui_ImplMagpie_Data* bd = IM_NEW(ImGui_ImplMagpie_Data)();
+	io.BackendPlatformUserData = (void*)bd;
+	io.BackendPlatformName = "imgui_impl_magpie";
 
-    bd->ticksPerSecond = perf_frequency;
-    bd->time = perf_counter;
+	bd->ticksPerSecond = perf_frequency;
+	bd->time = perf_counter;
 
-    io.ImeWindowHandle = App::Get().GetHwndHost();
+	io.ImeWindowHandle = App::Get().GetHwndHost();
 
-    return true;
+	return true;
 }
 
 void ImGui_ImplMagpie_Shutdown() {
-    ImGui_ImplMagpie_Data* bd = ImGui_ImplMagpie_GetBackendData();
-    IM_ASSERT(bd != NULL && "No platform backend to shutdown, or already shutdown?");
-    ImGuiIO& io = ImGui::GetIO();
+	ImGui_ImplMagpie_Data* bd = ImGui_ImplMagpie_GetBackendData();
+	IM_ASSERT(bd != NULL && "No platform backend to shutdown, or already shutdown?");
+	ImGuiIO& io = ImGui::GetIO();
 
-    io.BackendPlatformName = NULL;
-    io.BackendPlatformUserData = NULL;
-    IM_DELETE(bd);
+	io.BackendPlatformName = NULL;
+	io.BackendPlatformUserData = NULL;
+	IM_DELETE(bd);
 }
 
 static void ImGui_ImplMagpie_UpdateMousePos() {
-    ImGui_ImplMagpie_Data* bd = ImGui_ImplMagpie_GetBackendData();
-    ImGuiIO& io = ImGui::GetIO();
+	ImGui_ImplMagpie_Data* bd = ImGui_ImplMagpie_GetBackendData();
+	ImGuiIO& io = ImGui::GetIO();
 
-    POINT pos;
-    CursorManager& cm = App::Get().GetCursorManager();
-    if (cm.HasCursor()) {
-        pos = *cm.GetCursorPos();
-    } else {
-        GetCursorPos(&pos);
-    }
+	POINT pos;
+	CursorManager& cm = App::Get().GetCursorManager();
+	if (cm.HasCursor()) {
+		pos = *cm.GetCursorPos();
+	} else {
+		GetCursorPos(&pos);
+	}
 
-    const RECT& outputRect = App::Get().GetRenderer().GetVirtualOutputRect();
-    pos.x -= outputRect.left;
-    pos.y -= outputRect.top;
-    
-    io.MousePos = ImVec2(pos.x, pos.y);
+	const RECT& outputRect = App::Get().GetRenderer().GetOutputRect();
+	pos.x -= outputRect.left;
+	pos.y -= outputRect.top;
+	
+	io.MousePos = ImVec2(pos.x, pos.y);
 }
 
 void ImGui_ImplMagpie_NewFrame() {
-    ImGuiIO& io = ImGui::GetIO();
-    ImGui_ImplMagpie_Data* bd = ImGui_ImplMagpie_GetBackendData();
-    IM_ASSERT(bd != NULL && "Did you call ImGui_ImplMagpie_Init()?");
+	ImGuiIO& io = ImGui::GetIO();
+	ImGui_ImplMagpie_Data* bd = ImGui_ImplMagpie_GetBackendData();
+	IM_ASSERT(bd != NULL && "Did you call ImGui_ImplMagpie_Init()?");
 
-    // Setup display size (every frame to accommodate for window resizing)
-    const RECT& hostRect = App::Get().GetHostWndRect();
-    const RECT& outputRect = App::Get().GetRenderer().GetOutputRect();
-    io.DisplaySize = ImVec2((float)(hostRect.right - outputRect.left), (float)(hostRect.bottom - outputRect.top));
+	// Setup display size (every frame to accommodate for window resizing)
+	const RECT& hostRect = App::Get().GetHostWndRect();
+	const RECT& outputRect = App::Get().GetRenderer().GetOutputRect();
+	io.DisplaySize = ImVec2((float)(hostRect.right - outputRect.left), (float)(hostRect.bottom - outputRect.top));
 
-    // Setup time step
-    INT64 current_time = 0;
-    ::QueryPerformanceCounter((LARGE_INTEGER*)&current_time);
-    io.DeltaTime = (float)(current_time - bd->time) / bd->ticksPerSecond;
-    bd->time = current_time;
-    
-    // Update OS mouse position
-    ImGui_ImplMagpie_UpdateMousePos();
+	// Setup time step
+	INT64 current_time = 0;
+	::QueryPerformanceCounter((LARGE_INTEGER*)&current_time);
+	io.DeltaTime = (float)(current_time - bd->time) / bd->ticksPerSecond;
+	bd->time = current_time;
+	
+	// Update OS mouse position
+	ImGui_ImplMagpie_UpdateMousePos();
 }
 
 // Win32 message handler (process Win32 mouse/keyboard inputs, etc.)
@@ -104,63 +101,62 @@ void ImGui_ImplMagpie_NewFrame() {
 // PS: We treat DBLCLK messages as regular mouse down messages, so this code will work on windows classes that have the CS_DBLCLKS flag set. Our own example app code doesn't set this flag.
 
 IMGUI_IMPL_API LRESULT ImGui_ImplMagpie_WndProcHandler(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
-    if (ImGui::GetCurrentContext() == NULL)
-        return 0;
+	if (ImGui::GetCurrentContext() == NULL)
+		return 0;
 
-    if (!ImGui::GetIO().WantCaptureMouse) {
-        return 0;
-    }
+	if (!ImGui::GetIO().WantCaptureMouse) {
+		return 0;
+	}
 
-    ImGuiIO& io = ImGui::GetIO();
-    ImGui_ImplMagpie_Data* bd = ImGui_ImplMagpie_GetBackendData();
+	ImGuiIO& io = ImGui::GetIO();
+	ImGui_ImplMagpie_Data* bd = ImGui_ImplMagpie_GetBackendData();
 
-    switch (msg) {
-    case WM_LBUTTONDOWN: case WM_LBUTTONDBLCLK:
-    case WM_RBUTTONDOWN: case WM_RBUTTONDBLCLK:
-    case WM_MBUTTONDOWN: case WM_MBUTTONDBLCLK:
-    case WM_XBUTTONDOWN: case WM_XBUTTONDBLCLK:
-    {
-        int button = 0;
-        if (msg == WM_LBUTTONDOWN || msg == WM_LBUTTONDBLCLK) { button = 0; }
-        if (msg == WM_RBUTTONDOWN || msg == WM_RBUTTONDBLCLK) { button = 1; }
-        if (msg == WM_MBUTTONDOWN || msg == WM_MBUTTONDBLCLK) { button = 2; }
-        if (msg == WM_XBUTTONDOWN || msg == WM_XBUTTONDBLCLK) { button = (GET_XBUTTON_WPARAM(wParam) == XBUTTON1) ? 3 : 4; }
-        if (!ImGui::IsAnyMouseDown()) {
-            if (!GetCapture()) {
-                SetCapture(hwnd);
-            }
+	switch (msg) {
+	case WM_LBUTTONDOWN: case WM_LBUTTONDBLCLK:
+	case WM_RBUTTONDOWN: case WM_RBUTTONDBLCLK:
+	case WM_MBUTTONDOWN: case WM_MBUTTONDBLCLK:
+	case WM_XBUTTONDOWN: case WM_XBUTTONDBLCLK:
+	{
+		int button = 0;
+		if (msg == WM_LBUTTONDOWN || msg == WM_LBUTTONDBLCLK) { button = 0; }
+		if (msg == WM_RBUTTONDOWN || msg == WM_RBUTTONDBLCLK) { button = 1; }
+		if (msg == WM_MBUTTONDOWN || msg == WM_MBUTTONDBLCLK) { button = 2; }
+		if (msg == WM_XBUTTONDOWN || msg == WM_XBUTTONDBLCLK) { button = (GET_XBUTTON_WPARAM(wParam) == XBUTTON1) ? 3 : 4; }
+		if (!ImGui::IsAnyMouseDown()) {
+			if (!GetCapture()) {
+				SetCapture(hwnd);
+			}
+			App::Get().GetCursorManager().OnCursorCapturedOnOverlay();
+		}
 
-            App::Get().GetCursorManager().OnCursorCapturedOnUI();
-        }
-
-        io.MouseDown[button] = true;
-        return 0;
-    }
-    case WM_LBUTTONUP:
-    case WM_RBUTTONUP:
-    case WM_MBUTTONUP:
-    case WM_XBUTTONUP:
-    {
-        int button = 0;
-        if (msg == WM_LBUTTONUP) { button = 0; }
-        if (msg == WM_RBUTTONUP) { button = 1; }
-        if (msg == WM_MBUTTONUP) { button = 2; }
-        if (msg == WM_XBUTTONUP) { button = (GET_XBUTTON_WPARAM(wParam) == XBUTTON1) ? 3 : 4; }
-        io.MouseDown[button] = false;
-        if (!ImGui::IsAnyMouseDown()) {
-            if (GetCapture() == hwnd) {
-                ReleaseCapture();
-            }
-            App::Get().GetCursorManager().OnCursorReleasedOnUI();
-        }
-        return 0;
-    }
-    case WM_MOUSEWHEEL:
-        io.MouseWheel += (float)GET_WHEEL_DELTA_WPARAM(wParam) / (float)WHEEL_DELTA;
-        return 0;
-    case WM_MOUSEHWHEEL:
-        io.MouseWheelH += (float)GET_WHEEL_DELTA_WPARAM(wParam) / (float)WHEEL_DELTA;
-        return 0;
-    }
-    return 0;
+		io.MouseDown[button] = true;
+		return 0;
+	}
+	case WM_LBUTTONUP:
+	case WM_RBUTTONUP:
+	case WM_MBUTTONUP:
+	case WM_XBUTTONUP:
+	{
+		int button = 0;
+		if (msg == WM_LBUTTONUP) { button = 0; }
+		if (msg == WM_RBUTTONUP) { button = 1; }
+		if (msg == WM_MBUTTONUP) { button = 2; }
+		if (msg == WM_XBUTTONUP) { button = (GET_XBUTTON_WPARAM(wParam) == XBUTTON1) ? 3 : 4; }
+		io.MouseDown[button] = false;
+		if (!ImGui::IsAnyMouseDown()) {
+			if (GetCapture() == hwnd) {
+				ReleaseCapture();
+			}
+			App::Get().GetCursorManager().OnCursorReleasedOnOverlay();
+		}
+		return 0;
+	}
+	case WM_MOUSEWHEEL:
+		io.MouseWheel += (float)GET_WHEEL_DELTA_WPARAM(wParam) / (float)WHEEL_DELTA;
+		return 0;
+	case WM_MOUSEHWHEEL:
+		io.MouseWheelH += (float)GET_WHEEL_DELTA_WPARAM(wParam) / (float)WHEEL_DELTA;
+		return 0;
+	}
+	return 0;
 }

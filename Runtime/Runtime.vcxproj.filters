@@ -46,7 +46,7 @@
     <ClCompile Include="DeviceResources.cpp">
       <Filter>渲染</Filter>
     </ClCompile>
-    <ClCompile Include="UIDrawer.cpp">
+    <ClCompile Include="OverlayDrawer.cpp">
       <Filter>渲染</Filter>
     </ClCompile>
     <ClCompile Include="imgui_impl_dx11.cpp">
@@ -123,7 +123,7 @@
     <ClInclude Include="DeviceResources.h">
       <Filter>渲染</Filter>
     </ClInclude>
-    <ClInclude Include="UIDrawer.h">
+    <ClInclude Include="OverlayDrawer.h">
       <Filter>渲染</Filter>
     </ClInclude>
     <ClInclude Include="imgui_impl_dx11.h">
