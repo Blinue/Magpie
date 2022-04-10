@@ -655,21 +655,50 @@ void CursorManager::_UpdateCursorClip() {
 
 			if (!PtInRect(&srcFrameRect, newCursorPos)) {
 				// 跳过黑边
-				POINT clampedPos = {
-					std::clamp(cursorPos.x, hostRect.left + outputRect.left, hostRect.left + outputRect.right - 1),
-					std::clamp(cursorPos.y, hostRect.top + outputRect.top, hostRect.top + outputRect.bottom - 1)
-				};
-
-				if (WindowFromPoint(style, clampedPos, false) == hwndHost) {
-					if (!(style & WS_EX_TRANSPARENT)) {
-						SetWindowLongPtr(hwndHost, GWL_EXSTYLE, style | WS_EX_TRANSPARENT);
+				if (_isOnOverlay) {
+					// 从内部移到外部
+					// 此时有 UI 贴边
+					if (newCursorPos.x >= srcFrameRect.right) {
+						cursorPos.x += hostRect.right - hostRect.left - outputRect.right;
+					} else if (newCursorPos.x < srcFrameRect.left) {
+						cursorPos.x -= outputRect.left;
 					}
 
-					_StartCapture(cursorPos);
+					if (newCursorPos.y >= srcFrameRect.bottom) {
+						cursorPos.y += hostRect.bottom - hostRect.top - outputRect.bottom;
+					} else if (newCursorPos.y < srcFrameRect.top) {
+						cursorPos.y -= outputRect.top;
+					}
+
+					if (MonitorFromPoint(cursorPos, MONITOR_DEFAULTTONULL)) {
+						SetCursorPos(cursorPos.x, cursorPos.y);
+					} else {
+						// 目标位置不存在屏幕，则将光标限制在输出区域内
+						const RECT& outputRect = App::Get().GetRenderer().GetOutputRect();
+						SetCursorPos(
+							std::clamp(cursorPos.x, hostRect.left + outputRect.left, hostRect.left + outputRect.right - 1),
+							std::clamp(cursorPos.y, hostRect.top + outputRect.top, hostRect.top + outputRect.bottom - 1)
+						);
+					}
 				} else {
-					// 要跳跃的位置被遮挡
-					if (style | WS_EX_TRANSPARENT) {
-						SetWindowLongPtr(hwndHost, GWL_EXSTYLE, style & ~WS_EX_TRANSPARENT);
+					// 从外部移到内部
+					
+					POINT clampedPos = {
+						std::clamp(cursorPos.x, hostRect.left + outputRect.left, hostRect.left + outputRect.right - 1),
+						std::clamp(cursorPos.y, hostRect.top + outputRect.top, hostRect.top + outputRect.bottom - 1)
+					};
+
+					if (WindowFromPoint(style, clampedPos, false) == hwndHost) {
+						if (!(style & WS_EX_TRANSPARENT)) {
+							SetWindowLongPtr(hwndHost, GWL_EXSTYLE, style | WS_EX_TRANSPARENT);
+						}
+
+						_StartCapture(cursorPos);
+					} else {
+						// 要跳跃的位置被遮挡
+						if (style | WS_EX_TRANSPARENT) {
+							SetWindowLongPtr(hwndHost, GWL_EXSTYLE, style & ~WS_EX_TRANSPARENT);
+						}
 					}
 				}
 			} else {
