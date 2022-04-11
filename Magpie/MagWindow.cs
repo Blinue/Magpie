@@ -49,7 +49,8 @@ namespace Magpie {
 			CropTitleBarOfUWP = 0x200,
 			DisableEffectCache = 0x400,
 			DisableVSync = 0x800,
-			WarningsAreErrors = 0x1000
+			WarningsAreErrors = 0x1000,
+			ShowFPS = 0x2000
 		}
 
 		private readonly MagWindowParams magWindowParams = new();
@@ -151,7 +152,8 @@ namespace Magpie {
 							(Settings.Default.DebugDisableEffectCache ? (uint)FlagMasks.DisableEffectCache : 0) |
 							(Settings.Default.SimulateExclusiveFullscreen ? (uint)FlagMasks.SimulateExclusiveFullscreen : 0) |
 							(Settings.Default.DebugWarningsAreErrors ? (uint)FlagMasks.WarningsAreErrors : 0) |
-							(Settings.Default.VSync ? 0 : (uint)FlagMasks.DisableVSync);
+							(Settings.Default.VSync ? 0 : (uint)FlagMasks.DisableVSync) |
+							(Settings.Default.ShowFPS ? (uint)FlagMasks.ShowFPS : 0);
 
 						bool customCropping = Settings.Default.CustomCropping;
 

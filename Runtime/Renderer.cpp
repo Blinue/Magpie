@@ -53,12 +53,12 @@ bool Renderer::Initialize(const std::string& effectsJson) {
 		return false;
 	}
 	
-	//ID3D11Texture2D* backBuffer = App::Get().GetDeviceResources().GetBackBuffer();
-	//
-	//_overlayDrawer.reset(new OverlayDrawer());
-	//if (!_overlayDrawer->Initialize(backBuffer)) {
-	//	return false;
-	//}
+	if (App::Get().GetConfig().IsShowFPS()) {
+		if (!_InitializeOverlayDrawer()) {
+			Logger::Get().Error("初始化 OverlayDrawer 失败");
+			return false;
+		}
+	}
 
 	// 初始化所有效果共用的动态常量缓冲区
 	D3D11_BUFFER_DESC bd{};
@@ -75,6 +75,10 @@ bool Renderer::Initialize(const std::string& effectsJson) {
 	}
 
 	_handlerID = App::Get().RegisterWndProcHandler(WndProcHandler);
+
+	App::Get().GetConfig().OnShowFPS([]() {
+
+	});
 
 	return true;
 }
@@ -93,6 +97,9 @@ void Renderer::Render() {
 	if (!_waitingForNextFrame) {
 		dr.BeginFrame();
 	}
+
+	// 首先处理配置改变产生的回调
+	App::Get().GetConfig().OnBeginFrame();
 
 	auto state = App::Get().GetFrameSource().Update();
 	_waitingForNextFrame = state == FrameSourceBase::UpdateState::Waiting
@@ -165,8 +172,7 @@ void Renderer::SetOverlayVisibility(bool value) {
 		return;
 	}
 
-	_overlayDrawer.reset(new OverlayDrawer());
-	_overlayDrawer->Initialize(App::Get().GetDeviceResources().GetBackBuffer());
+	_InitializeOverlayDrawer();
 }
 
 bool CheckForeground(HWND hwndForeground) {
@@ -260,6 +266,11 @@ bool CheckForeground(HWND hwndForeground) {
 	}
 
 	return false;
+}
+
+bool Renderer::_InitializeOverlayDrawer() {
+	_overlayDrawer.reset(new OverlayDrawer());
+	return _overlayDrawer->Initialize(App::Get().GetDeviceResources().GetBackBuffer());
 }
 
 bool Renderer::_CheckSrcState() {

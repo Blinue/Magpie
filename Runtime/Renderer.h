@@ -43,6 +43,8 @@ public:
 	}
 
 private:
+	bool _InitializeOverlayDrawer();
+
 	bool _CheckSrcState();
 
 	bool _ResolveEffectsJson(const std::string& effectsJson);

@@ -1,5 +1,6 @@
 #pragma once
 #include "pch.h"
+#include <deque>
 
 
 class Config {
@@ -83,6 +84,10 @@ public:
 		return _isDisableVSync;
 	}
 
+	void SetDisableVSync(bool value) noexcept {
+		_isDisableVSync = value;
+	}
+
 	bool IsSaveEffectSources() const noexcept {
 		return _isSaveEffectSources;
 	}
@@ -90,6 +95,18 @@ public:
 	bool IsTreatWarningsAsErrors() const noexcept {
 		return _isTreatWarningsAsErrors;
 	}
+
+	bool IsShowFPS() const noexcept {
+		return _isShowFPS;
+	}
+
+	void SetShowFPS(bool value) noexcept;
+
+	void OnShowFPS(std::function<void()> cb) {
+		_showFPSCbs.emplace_back(std::move(cb));
+	}
+
+	void OnBeginFrame();
 
 private:
 	RECT _cropBorders{};
@@ -108,11 +125,16 @@ private:
 	bool _isCropTitleBarOfUWP = false;
 	bool _isSimulateExclusiveFullscreen = false;
 	bool _isDisableVSync = false;
+	bool _isShowFPS = false;
 
 	// 用于调试
 	bool _isBreakpointMode = false;
 	bool _isDisableEffectCache = false;
 	bool _isSaveEffectSources = false;
 	bool _isTreatWarningsAsErrors = false;
+
+	std::vector<std::function<void()>> _showFPSCbs;
+
+	std::deque<std::function<void()>> _queuedCbs;
 };
 

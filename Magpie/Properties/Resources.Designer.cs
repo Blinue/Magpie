@@ -835,6 +835,15 @@ namespace Magpie.Properties {
         }
         
         /// <summary>
+        ///   查找类似 Show FPS 的本地化字符串。
+        /// </summary>
+        public static string UI_Options_Scale_Show_FPS {
+            get {
+                return ResourceManager.GetString("UI_Options_Scale_Show_FPS", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Source Window 的本地化字符串。
         /// </summary>
         public static string UI_Options_Scale_Source_Window {
