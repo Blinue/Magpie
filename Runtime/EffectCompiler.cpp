@@ -10,6 +10,7 @@
 #include "DeviceResources.h"
 #include "Logger.h"
 #include <bit>	// std::has_single_bit
+#include "Config.h"
 
 
 static const char* META_INDICATOR = "//!";
@@ -1455,7 +1456,7 @@ cbuffer __CB2 : register(b1) {
 
 	cbHlsl.append("};\n\n");
 
-	if (App::Get().IsSaveEffectSources() && !Utils::DirExists(SAVE_SOURCE_DIR)) {
+	if (App::Get().GetConfig().IsSaveEffectSources() && !Utils::DirExists(SAVE_SOURCE_DIR)) {
 		if (!CreateDirectory(SAVE_SOURCE_DIR, nullptr)) {
 			Logger::Get().Win32Error("创建 sources 文件夹失败");
 		}
@@ -1470,7 +1471,7 @@ cbuffer __CB2 : register(b1) {
 			return;
 		}
 
-		if (App::Get().IsSaveEffectSources()) {
+		if (App::Get().GetConfig().IsSaveEffectSources()) {
 			if (!Utils::WriteFile(
 				fmt::format(L"{}\\{}_Pass{}.hlsl", SAVE_SOURCE_DIR, StrUtils::UTF8ToUTF16(desc.name), id + 1).c_str(),
 				source.data(),
@@ -1530,7 +1531,7 @@ UINT EffectCompiler::Compile(
 	}
 
 	std::string hash;
-	if (!App::Get().IsDisableEffectCache()) {
+	if (!App::Get().GetConfig().IsDisableEffectCache()) {
 		hash = EffectCacheManager::GetHash(source, flags & EFFECT_FLAG_INLINE_PARAMETERS ? &inlineParams : nullptr);
 		if (!hash.empty()) {
 			if (EffectCacheManager::Get().Load(effectName, hash, desc)) {
@@ -1719,7 +1720,7 @@ UINT EffectCompiler::Compile(
 		return 1;
 	}
 
-	if (!App::Get().IsDisableEffectCache() && !hash.empty()) {
+	if (!App::Get().GetConfig().IsDisableEffectCache() && !hash.empty()) {
 		EffectCacheManager::Get().Save(effectName, hash, desc);
 	}
 

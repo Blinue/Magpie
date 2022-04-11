@@ -6,6 +6,7 @@
 #include "Logger.h"
 #include "Utils.h"
 #include "DeviceResources.h"
+#include "Config.h"
 
 
 // 将源窗口的光标位置映射到缩放后的光标位置
@@ -107,7 +108,7 @@ static std::optional<LRESULT> HostWndProc(HWND hWnd, UINT message, WPARAM wParam
 			SetForegroundWindow(hwndSrc);
 		}
 
-		if (!App::Get().IsBreakpointMode()) {
+		if (!App::Get().GetConfig().IsBreakpointMode()) {
 			SetWindowPos(App::Get().GetHwndHost(), HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOREDRAW);
 		}
 	}
@@ -118,7 +119,7 @@ static std::optional<LRESULT> HostWndProc(HWND hWnd, UINT message, WPARAM wParam
 bool CursorManager::Initialize() {
 	App::Get().RegisterWndProcHandler(HostWndProc);
 
-	if (App::Get().IsConfineCursorIn3DGames()) {
+	if (App::Get().GetConfig().IsConfineCursorIn3DGames()) {
 		POINT cursorPos;
 		::GetCursorPos(&cursorPos);
 		_StartCapture(cursorPos);
@@ -154,7 +155,7 @@ static HWND WindowFromPoint(INT_PTR style, POINT pt, bool clickThrough) {
 void CursorManager::OnBeginFrame() {
 	_UpdateCursorClip();
 
-	if (App::Get().IsNoCursor() || !_isUnderCapture) {
+	if (App::Get().GetConfig().IsNoCursor() || !_isUnderCapture) {
 		// 不绘制光标
 		_curCursor = NULL;
 		return;
@@ -276,7 +277,7 @@ void CursorManager::_StartCapture(POINT cursorPt) {
 	SIZE srcFrameSize = Utils::GetSizeOfRect(srcFrameRect);
 	SIZE outputSize = Utils::GetSizeOfRect(outputRect);
 
-	if (App::Get().IsAdjustCursorSpeed()) {
+	if (App::Get().GetConfig().IsAdjustCursorSpeed()) {
 		_AdjustCursorSpeed();
 	}
 
@@ -318,7 +319,7 @@ void CursorManager::_StopCapture(POINT cursorPos) {
 	if (MonitorFromPoint(newCursorPos, MONITOR_DEFAULTTONULL)) {
 		SetCursorPos(newCursorPos.x, newCursorPos.y);
 
-		if (App::Get().IsAdjustCursorSpeed()) {
+		if (App::Get().GetConfig().IsAdjustCursorSpeed()) {
 			SystemParametersInfo(SPI_SETMOUSESPEED, 0, (PVOID)(intptr_t)_cursorSpeed, 0);
 		}
 
@@ -567,7 +568,7 @@ void CursorManager::_UpdateCursorClip() {
 
 	const RECT& srcFrameRect = App::Get().GetFrameSource().GetSrcFrameRect();
 
-	if (!App::Get().IsBreakpointMode() && App::Get().IsConfineCursorIn3DGames()) {
+	if (!App::Get().GetConfig().IsBreakpointMode() && App::Get().GetConfig().IsConfineCursorIn3DGames()) {
 		// 开启“在 3D 游戏中限制光标”则每帧都限制一次光标
 		_curClips = srcFrameRect;
 		ClipCursor(&srcFrameRect);
@@ -732,7 +733,7 @@ void CursorManager::_UpdateCursorClip() {
 		}
 	}
 
-	if (App::Get().IsBreakpointMode()) {
+	if (App::Get().GetConfig().IsBreakpointMode()) {
 		return;
 	}
 

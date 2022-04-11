@@ -143,6 +143,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="App.h" />
+    <ClInclude Include="Config.h" />
     <ClInclude Include="CursorManager.h" />
     <ClInclude Include="DDS.h" />
     <ClInclude Include="DDSLoderHelpers.h" />
@@ -172,6 +173,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App.cpp" />
+    <ClCompile Include="Config.cpp" />
     <ClCompile Include="CursorManager.cpp" />
     <ClCompile Include="DesktopDuplicationFrameSource.cpp" />
     <ClCompile Include="DeviceResources.cpp" />

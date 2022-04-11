@@ -11,6 +11,8 @@
 #include "GPUTimer.h"
 #include "Logger.h"
 #include "CursorManager.h"
+#include "Config.h"
+#include "StrUtils.h"
 
 
 static const UINT WM_DESTORYHOST = RegisterWindowMessage(L"MAGPIE_WM_DESTORYHOST");
@@ -58,14 +60,8 @@ bool App::Run(
 	UINT flags
 ) {
 	_hwndSrc = hwndSrc;
-	_cursorZoomFactor = cursorZoomFactor;
-	_cursorInterpolationMode = cursorInterpolationMode;
-	_adapterIdx = adapterIdx;
-	_multiMonitorUsage = multiMonitorUsage;
-	_cropBorders = cropBorders;
-	_flags = flags;
-
-	Logger::Get().Info(fmt::format("运行时参数：\n\thwndSrc：{}\n\tcaptureMode：{}\n\tadjustCursorSpeed：{}\n\tdisableLowLatency：{}\n\tbreakpointMode：{}\n\tdisableWindowResizing：{}\n\tdisableDirectFlip：{}\n\tconfineCursorIn3DGames：{}\n\tadapterIdx：{}\n\tcropTitleBarOfUWP：{}\n\tmultiMonitorUsage: {}\n\tnoCursor: {}\n\tdisableEffectCache: {}\n\tsimulateExclusiveFullscreen: {}\n\tcursorInterpolationMode: {}\n\tcropLeft: {}\n\tcropTop: {}\n\tcropRight: {}\n\tcropBottom: {}", (void*)hwndSrc, captureMode, IsAdjustCursorSpeed(), IsDisableLowLatency(), IsBreakpointMode(), IsDisableWindowResizing(), IsDisableDirectFlip(), IsConfineCursorIn3DGames(), adapterIdx, IsCropTitleBarOfUWP(), multiMonitorUsage, IsNoCursor(), IsDisableEffectCache(), IsSimulateExclusiveFullscreen(), cursorInterpolationMode, cropBorders.left, cropBorders.top, cropBorders.right, cropBorders.bottom));
+	_config.reset(new Config());
+	_config->Initialize(cursorZoomFactor, cursorInterpolationMode, adapterIdx, multiMonitorUsage, cropBorders, flags);
 	
 	SetErrorMsg(ErrorMessages::GENERIC);
 
@@ -110,7 +106,7 @@ bool App::Run(
 		return false;
 	}
 
-	if (IsDisableDirectFlip() && !IsBreakpointMode()) {
+	if (_config->IsDisableDirectFlip() && !_config->IsBreakpointMode()) {
 		// 在此处创建的 DDF 窗口不会立刻显示
 		if (!_DisableDirectFlip()) {
 			Logger::Get().Error("_DisableDirectFlip 失败");
@@ -300,13 +296,13 @@ bool App::_CreateHostWnd() {
 		return false;
 	}
 
-	if (!CalcHostWndRect(_hwndSrc, GetMultiMonitorUsage(), _hostWndRect)) {
+	if (!CalcHostWndRect(_hwndSrc, _config->GetMultiMonitorUsage(), _hostWndRect)) {
 		Logger::Get().Error("CalcHostWndRect 失败");
 		return false;
 	}
 
 	_hwndHost = CreateWindowEx(
-		(IsBreakpointMode() ? 0 : WS_EX_TOPMOST) | WS_EX_NOACTIVATE | WS_EX_LAYERED | WS_EX_TRANSPARENT,
+		(_config->IsBreakpointMode() ? 0 : WS_EX_TOPMOST) | WS_EX_NOACTIVATE | WS_EX_LAYERED | WS_EX_TRANSPARENT,
 		HOST_WINDOW_CLASS_NAME,
 		HOST_WINDOW_TITLE,
 		WS_POPUP,
@@ -329,7 +325,7 @@ bool App::_CreateHostWnd() {
 
 	// 设置窗口不透明
 	// 不完全透明时可关闭 DirectFlip
-	if (!SetLayeredWindowAttributes(_hwndHost, 0, IsDisableDirectFlip() ? 254 : 255, LWA_ALPHA)) {
+	if (!SetLayeredWindowAttributes(_hwndHost, 0, _config->IsDisableDirectFlip() ? 254 : 255, LWA_ALPHA)) {
 		Logger::Get().Win32Error("SetLayeredWindowAttributes 失败");
 	}
 
@@ -340,15 +336,19 @@ bool App::_CreateHostWnd() {
 bool App::_InitFrameSource(int captureMode) {
 	switch (captureMode) {
 	case 0:
+		Logger::Get().Info("当前捕获模式：Graphics Capture");
 		_frameSource.reset(new GraphicsCaptureFrameSource());
 		break;
 	case 1:
+		Logger::Get().Info("当前捕获模式：Desktop Duplication");
 		_frameSource.reset(new DesktopDuplicationFrameSource());
 		break;
 	case 2:
+		Logger::Get().Info("当前捕获模式：GDI");
 		_frameSource.reset(new GDIFrameSource());
 		break;
 	case 3:
+		Logger::Get().Info("当前捕获模式：DwmSharedSurface");
 		_frameSource.reset(new DwmSharedSurfaceFrameSource());
 		break;
 	default:
@@ -447,6 +447,7 @@ void App::_OnQuit() {
 	_renderer = nullptr;
 	_frameSource = nullptr;
 	_deviceResources = nullptr;
+	_config = nullptr;
 
 	_nextWndProcHandlerID = 1;
 	_wndProcHandlers.clear();

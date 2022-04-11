@@ -101,48 +101,27 @@ void OverlayDrawer::Draw() {
 		}
 	}
 
-	if (ImGui::GetFrameCount() == 2) {
-		// 防止从配置文件读入的窗口位置位于屏幕外
-		// 选择第二帧的原因：
-		// 1. 第一帧无法获取到窗口
-		// 2. 因为第一帧 UI 不可见（ImGUI 的特性），所以用户不会看到窗口位置改变
-		SIZE outputSize = Utils::GetSizeOfRect(App::Get().GetRenderer().GetOutputRect());
-		for (ImGuiWindow* window : ImGui::GetCurrentContext()->Windows) {
-			if (outputSize.cx > window->Size.x) {
-				window->Pos.x = std::clamp(window->Pos.x, 0.0f, outputSize.cx - window->Size.x);
-			} else {
-				window->Pos.x = 0;
-			}
-			
-			if (outputSize.cy > window->Size.y) {
-				window->Pos.y = std::clamp(window->Pos.y, 0.0f, outputSize.cy - window->Size.y);
-			} else {
-				window->Pos.y = 0;
-			}
+	// 将所有 ImGUI 窗口限制在视口内
+	SIZE outputSize = Utils::GetSizeOfRect(App::Get().GetRenderer().GetOutputRect());
+	for (ImGuiWindow* window : ImGui::GetCurrentContext()->Windows) {
+		if (outputSize.cx > window->Size.x) {
+			window->Pos.x = std::clamp(window->Pos.x, 0.0f, outputSize.cx - window->Size.x);
+		} else {
+			window->Pos.x = 0;
 		}
-	} else if(cm.IsCursorCapturedOnOverlay()) {
-		// 防止将 UI 窗口拖到屏幕外
-		ImGuiWindow* window = ImGui::GetCurrentContext()->HoveredWindow;
-		if (window) {
-			SIZE outputSize = Utils::GetSizeOfRect(App::Get().GetRenderer().GetOutputRect());
 
-			if (outputSize.cx > window->Size.x) {
-				window->Pos.x = std::clamp(window->Pos.x, 0.0f, outputSize.cx - window->Size.x);
-			} else {
-				window->Pos.x = 0;
-			}
-
-			if (outputSize.cy > window->Size.y) {
-				window->Pos.y = std::clamp(window->Pos.y, 0.0f, outputSize.cy - window->Size.y);
-			} else {
-				window->Pos.y = 0;
-			}
+		if (outputSize.cy > window->Size.y) {
+			window->Pos.y = std::clamp(window->Pos.y, 0.0f, outputSize.cy - window->Size.y);
+		} else {
+			window->Pos.y = 0;
 		}
 	}
 
 	ImGui::PushFont(_fontSmall);
 	
 	_DrawUI();
+
+	ImGui::ShowDemoWindow();
 
 	ImGui::PopFont();
 

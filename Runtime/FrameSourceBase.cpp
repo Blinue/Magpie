@@ -3,6 +3,7 @@
 #include "Utils.h"
 #include "App.h"
 #include "Logger.h"
+#include "Config.h"
 
 
 FrameSourceBase::~FrameSourceBase() {
@@ -45,7 +46,7 @@ bool FrameSourceBase::Initialize() {
 	HWND hwndSrc = App::Get().GetHwndSrc();
 
 	// 禁用窗口大小调整
-	if (App::Get().IsDisableWindowResizing()) {
+	if (App::Get().GetConfig().IsDisableWindowResizing()) {
 		LONG_PTR style = GetWindowLongPtr(hwndSrc, GWL_STYLE);
 		if (style & WS_THICKFRAME) {
 			if (SetWindowLongPtr(hwndSrc, GWL_STYLE, style ^ WS_THICKFRAME)) {
@@ -259,12 +260,12 @@ bool FrameSourceBase::_UpdateSrcFrameRect() {
 
 	HWND hwndSrc = App::Get().GetHwndSrc();
 
-	if (App::Get().IsCropTitleBarOfUWP()) {
+	if (App::Get().GetConfig().IsCropTitleBarOfUWP()) {
 		std::wstring className(256, 0);
 		int num = GetClassName(hwndSrc, &className[0], (int)className.size());
 		if (num > 0) {
 			className.resize(num);
-			if (App::Get().IsCropTitleBarOfUWP() &&
+			if (App::Get().GetConfig().IsCropTitleBarOfUWP() &&
 				(className == L"ApplicationFrameWindow" || className == L"Windows.UI.Core.CoreWindow")
 				) {
 				// "Modern App"
@@ -288,7 +289,7 @@ bool FrameSourceBase::_UpdateSrcFrameRect() {
 		}
 	}
 
-	const RECT& cropBorders = App::Get().GetCropBorders();
+	const RECT& cropBorders = App::Get().GetConfig().GetCropBorders();
 	_srcFrameRect = {
 		_srcFrameRect.left + cropBorders.left,
 		_srcFrameRect.top + cropBorders.top,

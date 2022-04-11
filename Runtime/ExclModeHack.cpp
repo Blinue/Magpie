@@ -3,6 +3,7 @@
 #include <shellapi.h>
 #include "App.h"
 #include "Logger.h"
+#include "Config.h"
 
 
 // 模拟 D3D 独占全屏模式，以起到免打扰的效果
@@ -10,7 +11,7 @@
 // 此函数内部使用名为 __DDrawExclMode__ 的 mutex 检测独占全屏，因此这里直接获取该 mutex 以模拟独占全屏
 // 感谢 @codehz 提供的思路 https://github.com/Blinue/Magpie/issues/245
 ExclModeHack::ExclModeHack() {
-	if (!App::Get().IsSimulateExclusiveFullscreen()) {
+	if (!App::Get().GetConfig().IsSimulateExclusiveFullscreen()) {
 		return;
 	}
 

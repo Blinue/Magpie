@@ -11,6 +11,7 @@
 #include "OverlayDrawer.h"
 #include "Logger.h"
 #include "CursorManager.h"
+#include "Config.h"
 
 #pragma push_macro("GetObject")
 #undef GetObject
@@ -22,7 +23,7 @@
 static const UINT WM_TOGGLE_OVERLAY = RegisterWindowMessage(L"MAGPIE_WM_TOGGLE_OVERLAY");
 
 static std::optional<LRESULT> WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
-	if (msg == WM_TOGGLE_OVERLAY && !App::Get().IsConfineCursorIn3DGames()) {
+	if (msg == WM_TOGGLE_OVERLAY && !App::Get().GetConfig().IsConfineCursorIn3DGames()) {
 		Renderer& renderer = App::Get().GetRenderer();
 		renderer.SetOverlayVisibility(!renderer.IsOverlayVisiable());
 		return 0;
@@ -264,7 +265,7 @@ bool CheckForeground(HWND hwndForeground) {
 bool Renderer::_CheckSrcState() {
 	HWND hwndSrc = App::Get().GetHwndSrc();
 
-	if (!App::Get().IsBreakpointMode()) {
+	if (!App::Get().GetConfig().IsBreakpointMode()) {
 		HWND hwndForeground = GetForegroundWindow();
 		if (hwndForeground && hwndForeground != hwndSrc && !CheckForeground(hwndForeground)) {
 			Logger::Get().Info("前台窗口已改变");
@@ -476,7 +477,7 @@ bool Renderer::_UpdateDynamicConstants() {
 		}
 		assert(pos && ci);
 
-		float cursorZoomFactor = App::Get().GetCursorZoomFactor();
+		float cursorZoomFactor = App::Get().GetConfig().GetCursorZoomFactor();
 		if (cursorZoomFactor < 1e-5) {
 			SIZE srcFrameSize = Utils::GetSizeOfRect(App::Get().GetFrameSource().GetSrcFrameRect());
 			SIZE virtualOutputSize = Utils::GetSizeOfRect(_virtualOutputRect);

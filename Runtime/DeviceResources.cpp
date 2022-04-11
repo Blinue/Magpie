@@ -3,6 +3,7 @@
 #include "App.h"
 #include "StrUtils.h"
 #include "Logger.h"
+#include "Config.h"
 
 
 static inline void LogAdapter(const DXGI_ADAPTER_DESC1& adapterDesc) {
@@ -100,7 +101,7 @@ bool DeviceResources::Initialize() {
 
 	Logger::Get().Info(fmt::format("可变刷新率支持：{}", supportTearing ? "是" : "否"));
 
-	if (App::Get().IsDisableVSync() && !supportTearing) {
+	if (App::Get().GetConfig().IsDisableVSync() && !supportTearing) {
 		Logger::Get().Error("当前显示器不支持可变刷新率");
 		App::Get().SetErrorMsg(ErrorMessages::VSYNC_OFF_NOT_SUPPORTED);
 		return false;
@@ -118,7 +119,7 @@ bool DeviceResources::Initialize() {
 	};
 	UINT nFeatureLevels = ARRAYSIZE(featureLevels);
 
-	_graphicsAdapter = ObtainGraphicsAdapter(_dxgiFactory.get(), App::Get().GetAdapterIdx());
+	_graphicsAdapter = ObtainGraphicsAdapter(_dxgiFactory.get(), App::Get().GetConfig().GetAdapterIdx());
 	if (!_graphicsAdapter) {
 		Logger::Get().Error("找不到可用 Adapter");
 		return false;
@@ -249,7 +250,7 @@ void DeviceResources::BeginFrame() {
 }
 
 void DeviceResources::EndFrame() {
-	if (App::Get().IsDisableVSync()) {
+	if (App::Get().GetConfig().IsDisableVSync()) {
 		_swapChain->Present(0, DXGI_PRESENT_ALLOW_TEARING);
 	} else {
 		_swapChain->Present(1, 0);
@@ -258,6 +259,7 @@ void DeviceResources::EndFrame() {
 
 bool DeviceResources::_CreateSwapChain() {
 	const RECT& hostWndRect = App::Get().GetHostWndRect();
+	const Config& config = App::Get().GetConfig();
 
 	DXGI_SWAP_CHAIN_DESC1 sd = {};
 	sd.Width = hostWndRect.right - hostWndRect.left;
@@ -268,7 +270,7 @@ bool DeviceResources::_CreateSwapChain() {
 	sd.SampleDesc.Quality = 0;
 	sd.Scaling = DXGI_SCALING_NONE;
 	sd.BufferUsage = DXGI_USAGE_UNORDERED_ACCESS | DXGI_USAGE_RENDER_TARGET_OUTPUT;
-	sd.BufferCount = (App::Get().IsDisableLowLatency() || App::Get().IsDisableVSync()) ? 3 : 2;
+	sd.BufferCount = (config.IsDisableLowLatency() || config.IsDisableVSync()) ? 3 : 2;
 	// 使用 DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL 而不是 DXGI_SWAP_EFFECT_FLIP_DISCARD
 	// 不渲染四周（可能存在的）黑边，因此必须保证交换链缓冲区不被改变
 	// 否则将不得不在每帧渲染前清空后缓冲区，这个操作在一些显卡上比较耗时
@@ -298,8 +300,7 @@ bool DeviceResources::_CreateSwapChain() {
 	}
 
 	// 关闭低延迟模式或关闭垂直同步时将最大延迟设为 2 以使 CPU 和 GPU 并行执行
-	_swapChain->SetMaximumFrameLatency(
-		App::Get().IsDisableLowLatency() || App::Get().IsDisableVSync() ? 2 : 1);
+	_swapChain->SetMaximumFrameLatency(config.IsDisableLowLatency() || config.IsDisableVSync() ? 2 : 1);
 
 	_frameLatencyWaitableObject.reset(_swapChain->GetFrameLatencyWaitableObject());
 	if (!_frameLatencyWaitableObject) {
@@ -398,7 +399,7 @@ bool DeviceResources::CompileShader(std::string_view hlsl, const char* entryPoin
 	winrt::com_ptr<ID3DBlob> errorMsgs = nullptr;
 
 	UINT flags = D3DCOMPILE_ENABLE_STRICTNESS | D3DCOMPILE_ALL_RESOURCES_BOUND;
-	if (App::Get().IsTreatWarningsAsErrors()) {
+	if (App::Get().GetConfig().IsTreatWarningsAsErrors()) {
 		flags |= D3DCOMPILE_WARNINGS_ARE_ERRORS;
 	}
 

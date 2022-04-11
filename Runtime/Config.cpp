@@ -1,0 +1,47 @@
+#include "pch.h"
+#include "Config.h"
+#include "Logger.h"
+
+
+enum class FlagMasks : UINT {
+	NoCursor = 0x1,
+	AdjustCursorSpeed = 0x2,
+	SaveEffectSources = 0x4,
+	SimulateExclusiveFullscreen = 0x8,
+	DisableLowLatency = 0x10,
+	BreakpointMode = 0x20,
+	DisableWindowResizing = 0x40,
+	DisableDirectFlip = 0x80,
+	ConfineCursorIn3DGames = 0x100,
+	CropTitleBarOfUWP = 0x200,
+	DisableEffectCache = 0x400,
+	DisableVSync = 0x800,
+	WarningsAreErrors = 0x1000
+};
+
+
+bool Config::Initialize(float cursorZoomFactor, UINT cursorInterpolationMode, int adapterIdx, UINT multiMonitorUsage, const RECT& cropBorders, UINT flags) {
+	_cursorZoomFactor = cursorZoomFactor;
+	_cursorInterpolationMode = cursorInterpolationMode;
+	_adapterIdx = adapterIdx;
+	_multiMonitorUsage = multiMonitorUsage;
+	_cropBorders = cropBorders;
+
+	_isNoCursor = flags & (UINT)FlagMasks::NoCursor;
+	_isAdjustCursorSpeed = flags & (UINT)FlagMasks::AdjustCursorSpeed;
+	_isSaveEffectSources = flags & (UINT)FlagMasks::SaveEffectSources;
+	_isSimulateExclusiveFullscreen = flags & (UINT)FlagMasks::SimulateExclusiveFullscreen;
+	_isDisableLowLatency = flags & (UINT)FlagMasks::DisableLowLatency;
+	_isBreakpointMode = flags & (UINT)FlagMasks::BreakpointMode;
+	_isDisableWindowResizing = flags & (UINT)FlagMasks::DisableWindowResizing;
+	_isDisableDirectFlip = flags & (UINT)FlagMasks::DisableDirectFlip;
+	_isConfineCursorIn3DGames = flags & (UINT)FlagMasks::ConfineCursorIn3DGames;
+	_isCropTitleBarOfUWP = flags & (UINT)FlagMasks::CropTitleBarOfUWP;
+	_isDisableEffectCache = flags & (UINT)FlagMasks::DisableEffectCache;
+	_isDisableVSync = flags & (UINT)FlagMasks::DisableVSync;
+	_isTreatWarningsAsErrors = flags & (UINT)FlagMasks::WarningsAreErrors;
+
+	Logger::Get().Info(fmt::format("运行时配置：\n\tadjustCursorSpeed：{}\n\tdisableLowLatency：{}\n\tbreakpointMode：{}\n\tdisableWindowResizing：{}\n\tdisableDirectFlip：{}\n\tconfineCursorIn3DGames：{}\n\tadapterIdx：{}\n\tcropTitleBarOfUWP：{}\n\tmultiMonitorUsage: {}\n\tnoCursor: {}\n\tdisableEffectCache: {}\n\tsimulateExclusiveFullscreen: {}\n\tcursorInterpolationMode: {}\n\tcropLeft: {}\n\tcropTop: {}\n\tcropRight: {}\n\tcropBottom: {}", IsAdjustCursorSpeed(), IsDisableLowLatency(), IsBreakpointMode(), IsDisableWindowResizing(), IsDisableDirectFlip(), IsConfineCursorIn3DGames(), adapterIdx, IsCropTitleBarOfUWP(), multiMonitorUsage, IsNoCursor(), IsDisableEffectCache(), IsSimulateExclusiveFullscreen(), cursorInterpolationMode, cropBorders.left, cropBorders.top, cropBorders.right, cropBorders.bottom));
+
+	return true;
+}

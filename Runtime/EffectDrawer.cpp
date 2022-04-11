@@ -9,6 +9,7 @@
 #include "Renderer.h"
 #include "CursorManager.h"
 #include <unordered_set>
+#include "Config.h"
 
 #pragma push_macro("_UNICODE")
 #undef _UNICODE
@@ -250,7 +251,7 @@ bool EffectDrawer::Initialize(
 		_srvs.back().push_back(nullptr);
 
 		if (!dr.GetSampler(
-			App::Get().GetCursorInterpolationMode() == 0 ? D3D11_FILTER_MIN_MAG_MIP_POINT : D3D11_FILTER_MIN_MAG_MIP_LINEAR,
+			App::Get().GetConfig().GetCursorInterpolationMode() == 0 ? D3D11_FILTER_MIN_MAG_MIP_POINT : D3D11_FILTER_MIN_MAG_MIP_LINEAR,
 			D3D11_TEXTURE_ADDRESS_CLAMP,
 			&_samplers.emplace_back(nullptr)
 		)) {

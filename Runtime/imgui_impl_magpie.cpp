@@ -72,7 +72,7 @@ static void ImGui_ImplMagpie_UpdateMousePos() {
 	pos.x -= outputRect.left;
 	pos.y -= outputRect.top;
 	
-	io.MousePos = ImVec2(pos.x, pos.y);
+	io.MousePos = ImVec2((float)pos.x, (float)pos.y);
 }
 
 void ImGui_ImplMagpie_NewFrame() {
