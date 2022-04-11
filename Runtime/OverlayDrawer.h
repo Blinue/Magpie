@@ -1,6 +1,7 @@
 #pragma once
 #include "pch.h"
 
+struct ImFont;
 
 class OverlayDrawer {
 public:
@@ -21,7 +22,12 @@ public:
 	void SetVisibility(bool value);
 
 private:
+	void _DrawUI();
+
 	UINT _handlerID = 0;
 	ID3D11RenderTargetView* _rtv = nullptr;
 	bool _isVisiable = true;
+
+	ImFont* _fontSmall = nullptr;
+	ImFont* _fontLarge = nullptr;
 };

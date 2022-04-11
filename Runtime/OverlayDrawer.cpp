@@ -9,6 +9,7 @@
 #include "Renderer.h"
 #include "GPUTimer.h"
 #include "CursorManager.h"
+#include "Logger.h"
 
 
 OverlayDrawer::~OverlayDrawer() {
@@ -46,7 +47,17 @@ bool OverlayDrawer::Initialize(ID3D11Texture2D* renderTarget) {
 	ImGui::GetStyle().FrameBorderSize = 1;
 	ImGui::GetStyle().ScaleAllSizes(dpiScale);
 
-	io.Fonts->AddFontFromFileTTF(".\\assets\\NotoSansSC-Regular.otf", std::floor(20.0f * dpiScale), NULL);
+	std::vector<BYTE> fontData;
+	if (!Utils::ReadFile(L".\\assets\\NotoSansSC-Regular.otf", fontData)) {
+		Logger::Get().Error("读取字体文件失败");
+		return false;
+	}
+
+	ImFontConfig config;
+	config.FontDataOwnedByAtlas = false;
+	_fontSmall = io.Fonts->AddFontFromMemoryTTF(fontData.data(), (int)fontData.size(), std::floor(20 * dpiScale), &config);
+	_fontLarge = io.Fonts->AddFontFromMemoryTTF(fontData.data(), (int)fontData.size(), std::floor(30 * dpiScale), &config);
+	io.Fonts->Build();
 
 	ImGui_ImplMagpie_Init();
 	ImGui_ImplDX11_Init(dr.GetD3DDevice(), dr.GetD3DDC());
@@ -56,22 +67,6 @@ bool OverlayDrawer::Initialize(ID3D11Texture2D* renderTarget) {
 	_handlerID = App::Get().RegisterWndProcHandler(WndProcHandler);
 
 	return true;
-}
-
-void DrawUI() {
-	const ImGuiViewport* main_viewport = ImGui::GetMainViewport();
-	ImGui::SetNextWindowPos(ImVec2(20, 20), ImGuiCond_FirstUseEver);
-	ImGui::SetNextWindowSize(ImVec2(200, 100), ImGuiCond_FirstUseEver);
-
-	if (!ImGui::Begin("Debug", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoNav)) {
-		// Early out if the window is collapsed, as an optimization.
-		ImGui::End();
-		return;
-	}
-	
-	ImGui::Text(fmt::format("FPS: {}", App::Get().GetRenderer().GetGPUTimer().GetFramesPerSecond()).c_str());
-
-	ImGui::End();
 }
 
 void OverlayDrawer::Draw() {
@@ -136,8 +131,14 @@ void OverlayDrawer::Draw() {
 			}
 		}
 	}
+
+	ImGui::PushFont(_fontSmall);
 	
-	DrawUI();
+	_DrawUI();
+
+	ImGui::ShowDemoWindow();
+
+	ImGui::PopFont();
 
 	ImGui::Render();
 
@@ -159,4 +160,44 @@ void OverlayDrawer::SetVisibility(bool value) {
 	if (!value) {
 		ImGui_ImplMagpie_ClearStates();
 	}
+}
+
+void OverlayDrawer::_DrawUI() {
+	static float fontSize = 0.0f;
+	static float opacity = 0.5f;
+
+	const ImGuiViewport* main_viewport = ImGui::GetMainViewport();
+	ImGui::SetNextWindowPos(ImVec2(20, 20), ImGuiCond_FirstUseEver);
+	// ImGui::SetNextWindowSize(ImVec2(200, 100), ImGuiCond_FirstUseEver);
+	ImGui::SetNextWindowBgAlpha(opacity);
+
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+	if (!ImGui::Begin("FPS", nullptr, ImGuiWindowFlags_NoNav | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav)) {
+		// Early out if the window is collapsed, as an optimization.
+		ImGui::End();
+		return;
+	}
+
+	/*if (fontSize == 1) {
+		ImGui::PushFont(_fontLarge);
+	}*/
+	_fontLarge->Scale = 0.5f + fontSize / 2;
+	ImGui::PushFont(_fontLarge);
+	ImGui::Text(fmt::format("{} FPS", App::Get().GetRenderer().GetGPUTimer().GetFramesPerSecond()).c_str());
+	/*if (fontSize == 1) {
+		ImGui::PopFont();
+	}*/
+	ImGui::PopFont();
+	_fontLarge->Scale = 1.0f;
+
+	if (ImGui::BeginPopupContextWindow()) {
+		ImGui::PushItemWidth(200);
+		ImGui::SliderFloat("Opacity", &opacity, 0.0f, 1.0f);
+		ImGui::SliderFloat("Font Size", &fontSize, 0.0f, 1.0f);
+		ImGui::PopItemWidth();
+		ImGui::EndPopup();
+	}
+
+	ImGui::End();
+	ImGui::PopStyleVar();
 }
