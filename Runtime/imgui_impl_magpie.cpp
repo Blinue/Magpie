@@ -93,6 +93,12 @@ void ImGui_ImplMagpie_NewFrame() {
 	
 	// Update OS mouse position
 	ImGui_ImplMagpie_UpdateMousePos();
+
+	// ä¸æ¥å—é”®ç›˜è¾“å…¥
+	if (io.WantCaptureKeyboard) {
+		io.AddKeyEvent(ImGuiKey_Enter, true);
+		io.AddKeyEvent(ImGuiKey_Enter, false);
+	}
 }
 
 void ImGui_ImplMagpie_ClearStates() {
@@ -115,18 +121,14 @@ void ImGui_ImplMagpie_ClearStates() {
 		cm.OnCursorLeaveOverlay();
 	}
 
-	// ¸üĞÂ×´Ì¬
+	// æ›´æ–°çŠ¶æ€
 	ImGui::NewFrame();
 	ImGui::EndFrame();
 
 	if (io.WantCaptureMouse) {
-		// ÍÏ×§Ê±Òş²Ø UI ĞèäÖÈ¾Á½Ö¡²ÅÄÜÖØÖÃ WantCaptureMouse
+		// æ‹–æ‹½æ—¶éšè— UI éœ€æ¸²æŸ“ä¸¤å¸§æ‰èƒ½é‡ç½® WantCaptureMouse
 		ImGui::NewFrame();
 		ImGui::EndFrame();
-	}
-
-	if (io.WantCaptureMouse) {
-		OutputDebugString(L"err\n");
 	}
 }
 

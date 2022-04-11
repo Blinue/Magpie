@@ -171,13 +171,14 @@ void OverlayDrawer::SetVisibility(bool value) {
 void OverlayDrawer::_DrawUI() {
 	static float fontSize = 0.5f;
 	static float opacity = 0.5f;
+	static ImVec4 fpsColor(1, 1, 1, 1);
 
 	const ImGuiViewport* main_viewport = ImGui::GetMainViewport();
 	ImGui::SetNextWindowPos(ImVec2(20, 20), ImGuiCond_FirstUseEver);
 	ImGui::SetNextWindowBgAlpha(opacity);
 
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
-	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(2 + 6 * fontSize, 2 + 6 * fontSize));
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(2 + 6 * fontSize, 2));
 	if (!ImGui::Begin("FPS", nullptr, ImGuiWindowFlags_NoNav | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav)) {
 		// Early out if the window is collapsed, as an optimization.
 		ImGui::End();
@@ -194,7 +195,7 @@ void OverlayDrawer::_DrawUI() {
 	}
 
 	ImGui::PushFont(font);
-	ImGui::Text(fmt::format("{} FPS", App::Get().GetRenderer().GetGPUTimer().GetFramesPerSecond()).c_str());
+	ImGui::TextColored(fpsColor, fmt::format("{} FPS", App::Get().GetRenderer().GetGPUTimer().GetFramesPerSecond()).c_str());
 	ImGui::PopFont();
 	font->Scale = 1.0f;
 
@@ -210,6 +211,7 @@ void OverlayDrawer::_DrawUI() {
 		ImGui::PushItemWidth(200);
 		ImGui::SliderFloat("Opacity", &opacity, 0.0f, 1.0f);
 		ImGui::SliderFloat("Size", &fontSize, 0.0f, 1.0f);
+		ImGui::ColorEdit4("Text Color", &fpsColor.x, ImGuiColorEditFlags_AlphaBar | ImGuiColorEditFlags_DisplayRGB);
 		ImGui::PopItemWidth();
 		ImGui::EndPopup();
 	}
