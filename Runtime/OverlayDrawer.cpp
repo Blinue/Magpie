@@ -43,9 +43,11 @@ bool OverlayDrawer::Initialize(ID3D11Texture2D* renderTarget) {
 	float dpiScale = GetDpiScale();
 
 	ImGui::StyleColorsDark();
-	ImGui::GetStyle().WindowRounding = 6;
-	ImGui::GetStyle().FrameBorderSize = 1;
-	ImGui::GetStyle().ScaleAllSizes(dpiScale);
+	ImGuiStyle& style = ImGui::GetStyle();
+	style.WindowRounding = 6;
+	style.FrameBorderSize = 1;
+	style.WindowMinSize = ImVec2(10, 10);
+	style.ScaleAllSizes(dpiScale);
 
 	std::vector<BYTE> fontData;
 	if (!Utils::ReadFile(L".\\assets\\NotoSansSC-Regular.otf", fontData)) {
@@ -55,8 +57,14 @@ bool OverlayDrawer::Initialize(ID3D11Texture2D* renderTarget) {
 
 	ImFontConfig config;
 	config.FontDataOwnedByAtlas = false;
-	_fontSmall = io.Fonts->AddFontFromMemoryTTF(fontData.data(), (int)fontData.size(), std::floor(20 * dpiScale), &config);
-	_fontLarge = io.Fonts->AddFontFromMemoryTTF(fontData.data(), (int)fontData.size(), std::floor(30 * dpiScale), &config);
+	_fontSmall = io.Fonts->AddFontFromMemoryTTF(fontData.data(), (int)fontData.size(), std::floor(18 * dpiScale), &config, io.Fonts->GetGlyphRangesDefault());
+
+	ImVector<ImWchar> fpsRanges;
+	ImFontGlyphRangesBuilder builder;
+	builder.AddText("0123456789 FPS");
+	builder.BuildRanges(&fpsRanges);
+	_fontLarge = io.Fonts->AddFontFromMemoryTTF(fontData.data(), (int)fontData.size(), std::floor(36 * dpiScale), &config, fpsRanges.Data);
+
 	io.Fonts->Build();
 
 	ImGui_ImplMagpie_Init();
@@ -136,8 +144,6 @@ void OverlayDrawer::Draw() {
 	
 	_DrawUI();
 
-	ImGui::ShowDemoWindow();
-
 	ImGui::PopFont();
 
 	ImGui::Render();
@@ -163,37 +169,47 @@ void OverlayDrawer::SetVisibility(bool value) {
 }
 
 void OverlayDrawer::_DrawUI() {
-	static float fontSize = 0.0f;
+	static float fontSize = 0.5f;
 	static float opacity = 0.5f;
 
 	const ImGuiViewport* main_viewport = ImGui::GetMainViewport();
 	ImGui::SetNextWindowPos(ImVec2(20, 20), ImGuiCond_FirstUseEver);
-	// ImGui::SetNextWindowSize(ImVec2(200, 100), ImGuiCond_FirstUseEver);
 	ImGui::SetNextWindowBgAlpha(opacity);
 
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(2 + 6 * fontSize, 2 + 6 * fontSize));
 	if (!ImGui::Begin("FPS", nullptr, ImGuiWindowFlags_NoNav | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav)) {
 		// Early out if the window is collapsed, as an optimization.
 		ImGui::End();
 		return;
 	}
 
-	/*if (fontSize == 1) {
-		ImGui::PushFont(_fontLarge);
-	}*/
-	_fontLarge->Scale = 0.5f + fontSize / 2;
-	ImGui::PushFont(_fontLarge);
+	ImFont* font = nullptr;
+	if (fontSize <= 1.0f / 3.0f) {
+		_fontSmall->Scale = fontSize * 1.5f + 0.5f;
+		font = _fontSmall;
+	} else {
+		_fontLarge->Scale = fontSize * 0.75f + 0.25f;
+		font = _fontLarge;
+	}
+
+	ImGui::PushFont(font);
 	ImGui::Text(fmt::format("{} FPS", App::Get().GetRenderer().GetGPUTimer().GetFramesPerSecond()).c_str());
-	/*if (fontSize == 1) {
-		ImGui::PopFont();
-	}*/
 	ImGui::PopFont();
-	_fontLarge->Scale = 1.0f;
+	font->Scale = 1.0f;
+
+	if (font == _fontSmall) {
+		// 还原字体
+		ImGui::PushFont(_fontSmall);
+		ImGui::PopFont();
+	}
+
+	ImGui::PopStyleVar();
 
 	if (ImGui::BeginPopupContextWindow()) {
 		ImGui::PushItemWidth(200);
 		ImGui::SliderFloat("Opacity", &opacity, 0.0f, 1.0f);
-		ImGui::SliderFloat("Font Size", &fontSize, 0.0f, 1.0f);
+		ImGui::SliderFloat("Size", &fontSize, 0.0f, 1.0f);
 		ImGui::PopItemWidth();
 		ImGui::EndPopup();
 	}
