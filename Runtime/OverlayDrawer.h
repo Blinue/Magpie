@@ -15,18 +15,20 @@ public:
 
 	void Draw();
 
-	bool IsVisiable() const noexcept {
-		return _isVisiable;
+	bool IsUIVisiable() const noexcept {
+		return _isUIVisiable;
 	}
 
-	void SetVisibility(bool value);
+	void SetUIVisibility(bool value);
 
 private:
+	void _DrawFPS();
+
 	void _DrawUI();
 
 	UINT _handlerID = 0;
 	ID3D11RenderTargetView* _rtv = nullptr;
-	bool _isVisiable = true;
+	bool _isUIVisiable = false;
 
 	ImFont* _fontSmall = nullptr;
 	ImFont* _fontLarge = nullptr;

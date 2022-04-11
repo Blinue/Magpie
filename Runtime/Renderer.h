@@ -30,9 +30,9 @@ public:
 		return _overlayDrawer.get();
 	}
 
-	bool IsOverlayVisiable() const noexcept;
+	bool IsUIVisiable() const noexcept;
 
-	void SetOverlayVisibility(bool value);
+	void SetUIVisibility(bool value);
 
 	const RECT& GetOutputRect() const noexcept {
 		return _outputRect;

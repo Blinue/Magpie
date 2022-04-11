@@ -25,7 +25,7 @@ static const UINT WM_TOGGLE_OVERLAY = RegisterWindowMessage(L"MAGPIE_WM_TOGGLE_O
 static std::optional<LRESULT> WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 	if (msg == WM_TOGGLE_OVERLAY && !App::Get().GetConfig().IsConfineCursorIn3DGames()) {
 		Renderer& renderer = App::Get().GetRenderer();
-		renderer.SetOverlayVisibility(!renderer.IsOverlayVisiable());
+		renderer.SetUIVisibility(!renderer.IsUIVisiable());
 		return 0;
 	}
 
@@ -153,26 +153,25 @@ void Renderer::Render() {
 	dr.EndFrame();
 }
 
-bool Renderer::IsOverlayVisiable() const noexcept {
-	return _overlayDrawer ? _overlayDrawer->IsVisiable() : false;
+bool Renderer::IsUIVisiable() const noexcept {
+	return _overlayDrawer ? _overlayDrawer->IsUIVisiable() : false;
 }
 
-void Renderer::SetOverlayVisibility(bool value) {
+void Renderer::SetUIVisibility(bool value) {
 	if (!value) {
-		if (_overlayDrawer && _overlayDrawer->IsVisiable()) {
-			_overlayDrawer->SetVisibility(false);
+		if (_overlayDrawer && _overlayDrawer->IsUIVisiable()) {
+			_overlayDrawer->SetUIVisibility(false);
 		}
 		return;
 	}
 
-	if (_overlayDrawer) {
-		if (!_overlayDrawer->IsVisiable()) {
-			_overlayDrawer->SetVisibility(true);
-		}
-		return;
+	if (!_overlayDrawer) {
+		_InitializeOverlayDrawer();
 	}
 
-	_InitializeOverlayDrawer();
+	if (!_overlayDrawer->IsUIVisiable()) {
+		_overlayDrawer->SetUIVisibility(true);
+	}
 }
 
 bool CheckForeground(HWND hwndForeground) {

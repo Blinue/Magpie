@@ -10,6 +10,7 @@
 #include "GPUTimer.h"
 #include "CursorManager.h"
 #include "Logger.h"
+#include "Config.h"
 
 
 OverlayDrawer::~OverlayDrawer() {
@@ -78,7 +79,9 @@ bool OverlayDrawer::Initialize(ID3D11Texture2D* renderTarget) {
 }
 
 void OverlayDrawer::Draw() {
-	if (!_isVisiable) {
+	bool isShowFPS = App::Get().GetConfig().IsShowFPS();
+
+	if (!_isUIVisiable && !isShowFPS) {
 		return;
 	}
 
@@ -118,10 +121,14 @@ void OverlayDrawer::Draw() {
 	}
 
 	ImGui::PushFont(_fontSmall);
-	
-	_DrawUI();
 
-	ImGui::ShowDemoWindow();
+	if (isShowFPS) {
+		_DrawFPS();
+	}
+	
+	if (_isUIVisiable) {
+		_DrawUI();
+	}
 
 	ImGui::PopFont();
 
@@ -136,18 +143,18 @@ void OverlayDrawer::Draw() {
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 }
 
-void OverlayDrawer::SetVisibility(bool value) {
-	if (_isVisiable == value) {
+void OverlayDrawer::SetUIVisibility(bool value) {
+	if (_isUIVisiable == value) {
 		return;
 	}
-	_isVisiable = value;
+	_isUIVisiable = value;
 
-	if (!value) {
+	if (!value && !App::Get().GetConfig().IsShowFPS()) {
 		ImGui_ImplMagpie_ClearStates();
 	}
 }
 
-void OverlayDrawer::_DrawUI() {
+void OverlayDrawer::_DrawFPS() {
 	static float fontSize = 0.5f;
 	static float opacity = 0.5f;
 	static ImVec4 fpsColor(1, 1, 1, 1);
@@ -197,4 +204,8 @@ void OverlayDrawer::_DrawUI() {
 
 	ImGui::End();
 	ImGui::PopStyleVar();
+}
+
+void OverlayDrawer::_DrawUI() {
+	ImGui::ShowDemoWindow();
 }
