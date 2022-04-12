@@ -32,4 +32,7 @@ private:
 
 	ImFont* _fontSmall = nullptr;
 	ImFont* _fontLarge = nullptr;
+
+	std::vector<float> _frameTimes;
+	UINT _validFrames = 0;
 };

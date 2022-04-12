@@ -4,23 +4,23 @@
 
 GPUTimer::GPUTimer() {
 	// 这两个函数不会失败
-	BOOL success = QueryPerformanceFrequency(&m_qpcFrequency);
+	BOOL success = QueryPerformanceFrequency(&_qpcFrequency);
 	assert(success);
 
-	success = QueryPerformanceCounter(&m_qpcLastTime);
+	success = QueryPerformanceCounter(&_qpcLastTime);
 	assert(success);
 
 	// Initialize max delta to 1/10 of a second.
-	m_qpcMaxDelta = static_cast<uint64_t>(m_qpcFrequency.QuadPart / 10);
+	_qpcMaxDelta = static_cast<uint64_t>(_qpcFrequency.QuadPart / 10);
 }
 
 void GPUTimer::ResetElapsedTime() {
-	BOOL success = QueryPerformanceCounter(&m_qpcLastTime);
+	BOOL success = QueryPerformanceCounter(&_qpcLastTime);
 	assert(success);
 
-	m_framesPerSecond = 0;
-	m_framesThisSecond = 0;
-	m_qpcSecondCounter = 0;
+	_framesPerSecond = 0;
+	_framesThisSecond = 0;
+	_qpcSecondCounter = 0;
 }
 
 void GPUTimer::OnBeginFrame() {
@@ -30,35 +30,35 @@ void GPUTimer::OnBeginFrame() {
 	BOOL result = QueryPerformanceCounter(&currentTime);
 	assert(result);
 
-	uint64_t timeDelta = static_cast<uint64_t>(currentTime.QuadPart - m_qpcLastTime.QuadPart);
+	uint64_t timeDelta = static_cast<uint64_t>(currentTime.QuadPart - _qpcLastTime.QuadPart);
 
-	m_qpcLastTime = currentTime;
-	m_qpcSecondCounter += timeDelta;
+	_qpcLastTime = currentTime;
+	_qpcSecondCounter += timeDelta;
 
 	// Clamp excessively large time deltas (e.g. after paused in the debugger).
-	if (timeDelta > m_qpcMaxDelta) {
-		timeDelta = m_qpcMaxDelta;
+	if (timeDelta > _qpcMaxDelta) {
+		timeDelta = _qpcMaxDelta;
 	}
 
 	// Convert QPC units into a canonical tick format. This cannot overflow due to the previous clamp.
 	timeDelta *= _TICKS_PER_SECOND;
-	timeDelta /= static_cast<uint64_t>(m_qpcFrequency.QuadPart);
+	timeDelta /= static_cast<uint64_t>(_qpcFrequency.QuadPart);
 
-	uint32_t lastFrameCount = m_frameCount;
+	uint32_t lastFrameCount = _frameCount;
 
 	// Variable timestep update logic.
-	m_elapsedTicks = timeDelta;
-	m_totalTicks += timeDelta;
-	++m_frameCount;
+	_elapsedTicks = timeDelta;
+	_totalTicks += timeDelta;
+	++_frameCount;
 
 	// Track the current framerate.
-	if (m_frameCount != lastFrameCount) {
-		++m_framesThisSecond;
+	if (_frameCount != lastFrameCount) {
+		++_framesThisSecond;
 	}
 
-	if (m_qpcSecondCounter >= static_cast<uint64_t>(m_qpcFrequency.QuadPart)) {
-		m_framesPerSecond = m_framesThisSecond;
-		m_framesThisSecond = 0;
-		m_qpcSecondCounter %= static_cast<uint64_t>(m_qpcFrequency.QuadPart);
+	if (_qpcSecondCounter >= static_cast<uint64_t>(_qpcFrequency.QuadPart)) {
+		_framesPerSecond = _framesThisSecond;
+		_framesThisSecond = 0;
+		_qpcSecondCounter %= static_cast<uint64_t>(_qpcFrequency.QuadPart);
 	}
 }

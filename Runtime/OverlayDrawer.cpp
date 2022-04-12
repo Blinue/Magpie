@@ -11,6 +11,7 @@
 #include "CursorManager.h"
 #include "Logger.h"
 #include "Config.h"
+#include "StrUtils.h"
 
 
 OverlayDrawer::~OverlayDrawer() {
@@ -149,8 +150,13 @@ void OverlayDrawer::SetUIVisibility(bool value) {
 	}
 	_isUIVisiable = value;
 
-	if (!value && !App::Get().GetConfig().IsShowFPS()) {
-		ImGui_ImplMagpie_ClearStates();
+	if (!value) {
+		_validFrames = 0;
+		std::fill(_frameTimes.begin(), _frameTimes.end(), 0);
+
+		if (!App::Get().GetConfig().IsShowFPS()) {
+			ImGui_ImplMagpie_ClearStates();
+		}
 	}
 }
 
@@ -159,13 +165,12 @@ void OverlayDrawer::_DrawFPS() {
 	static float opacity = 0.5f;
 	static ImVec4 fpsColor(1, 1, 1, 1);
 
-	const ImGuiViewport* main_viewport = ImGui::GetMainViewport();
 	ImGui::SetNextWindowPos(ImVec2(20, 20), ImGuiCond_FirstUseEver);
 	ImGui::SetNextWindowBgAlpha(opacity);
 
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(2 + 6 * fontSize, 2));
-	if (!ImGui::Begin("FPS", nullptr, ImGuiWindowFlags_NoNav | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav)) {
+	if (!ImGui::Begin("FPS", nullptr, ImGuiWindowFlags_NoNav | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoFocusOnAppearing)) {
 		// Early out if the window is collapsed, as an optimization.
 		ImGui::End();
 		return;
@@ -208,4 +213,79 @@ void OverlayDrawer::_DrawFPS() {
 
 void OverlayDrawer::_DrawUI() {
 	ImGui::ShowDemoWindow();
+
+	static float initPosX = []() {
+		return (float)(Utils::GetSizeOfRect(App::Get().GetRenderer().GetOutputRect()).cx - 450);
+	}();
+
+	ImGui::SetNextWindowSize(ImVec2(350, 500), ImGuiCond_FirstUseEver);
+	ImGui::SetNextWindowPos(ImVec2(initPosX, 20), ImGuiCond_FirstUseEver);
+
+	if (!ImGui::Begin("Profiler", nullptr, ImGuiWindowFlags_NoNav)) {
+		ImGui::End();
+		return;
+	}
+
+	auto& dr = App::Get().GetDeviceResources();
+	auto& config = App::Get().GetConfig();
+	auto& gpuTimer = App::Get().GetRenderer().GetGPUTimer();
+
+	DXGI_ADAPTER_DESC desc{};
+	dr.GetGraphicsAdapter()->GetDesc(&desc);
+	ImGui::Text(StrUtils::Concat("GPU: ", StrUtils::UTF16ToUTF8(desc.Description)).c_str());
+
+	ImGui::Text(StrUtils::Concat("VSync: ", config.IsDisableVSync() ? "OFF" : "ON").c_str());
+	ImGui::Spacing();
+
+	static UINT nSamples = 120;
+
+	if (_frameTimes.size() >= nSamples) {
+		_frameTimes.erase(_frameTimes.begin(), _frameTimes.begin() + (_frameTimes.size() - nSamples + 1));
+	} else if (_frameTimes.size() < nSamples) {
+		_frameTimes.insert(_frameTimes.begin(), nSamples - _frameTimes.size() - 1, 0);
+	}
+	_frameTimes.push_back((float)gpuTimer.GetElapsedSeconds() * 1000);
+	_validFrames = std::min(_validFrames + 1, nSamples);
+
+	if (ImGui::CollapsingHeader("Frame Statistics", ImGuiTreeNodeFlags_DefaultOpen)) {
+		static bool showFPS = false;
+
+		if (showFPS) {
+			float totalTime = 0;
+			float minTime = FLT_MAX;
+			for (UINT i = nSamples - _validFrames; i < nSamples; ++i) {
+				totalTime += _frameTimes[i];
+				minTime = std::min(_frameTimes[i], minTime);
+			}
+			
+			ImGui::PlotLines("", [](void* data, int idx) {
+				float time = ((float*)data)[idx];
+				return time < 1e-6 ? 0 : 1000 / time;
+			}, _frameTimes.data(), _frameTimes.size(), 0, fmt::format("avg: {:.3f} FPS", _validFrames * 1000 / totalTime).c_str(), 0, 1000 / minTime * 1.5f, ImVec2(250, 80));
+		} else {
+			float totalTime = 0;
+			float maxTime = 0;
+			for (UINT i = nSamples - _validFrames; i < nSamples; ++i) {
+				totalTime += _frameTimes[i];
+				maxTime = std::max(_frameTimes[i], maxTime);
+			}
+
+			ImGui::PlotLines("", _frameTimes.data(), _frameTimes.size(), 0,
+				fmt::format("avg: {:.3f} ms", totalTime / _validFrames).c_str(), 0, maxTime * 1.5f, ImVec2(250, 80));
+		}
+
+		ImGui::Spacing();
+
+		if (ImGui::Button(showFPS ? "Switch to timings" : "Switch to FPS")) {
+			showFPS = !showFPS;
+		}
+
+		int value = nSamples;
+		ImGui::PushItemWidth(200);
+		ImGui::SliderInt("Sample size", &value, 60, 180, "%d");
+		ImGui::PopItemWidth();
+		nSamples = value;
+	}
+
+	ImGui::End();
 }
