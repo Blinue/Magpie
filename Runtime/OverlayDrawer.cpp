@@ -12,6 +12,7 @@
 #include "Logger.h"
 #include "Config.h"
 #include "StrUtils.h"
+#include "EffectDrawer.h"
 
 
 OverlayDrawer::~OverlayDrawer() {
@@ -212,7 +213,9 @@ void OverlayDrawer::_DrawFPS() {
 }
 
 void OverlayDrawer::_DrawUI() {
+#ifdef _DEBUG
 	ImGui::ShowDemoWindow();
+#endif
 
 	static float initPosX = []() {
 		return (float)(Utils::GetSizeOfRect(App::Get().GetRenderer().GetOutputRect()).cx - 450);
@@ -228,7 +231,8 @@ void OverlayDrawer::_DrawUI() {
 
 	auto& dr = App::Get().GetDeviceResources();
 	auto& config = App::Get().GetConfig();
-	auto& gpuTimer = App::Get().GetRenderer().GetGPUTimer();
+	auto& renderer = App::Get().GetRenderer();
+	auto& gpuTimer = renderer.GetGPUTimer();
 
 	DXGI_ADAPTER_DESC desc{};
 	dr.GetGraphicsAdapter()->GetDesc(&desc);
@@ -247,6 +251,7 @@ void OverlayDrawer::_DrawUI() {
 	_frameTimes.push_back((float)gpuTimer.GetElapsedSeconds() * 1000);
 	_validFrames = std::min(_validFrames + 1, nSamples);
 
+	// 帧率统计，支持在渲染时间和 FPS 间切换
 	if (ImGui::CollapsingHeader("Frame Statistics", ImGuiTreeNodeFlags_DefaultOpen)) {
 		static bool showFPS = false;
 
@@ -285,6 +290,15 @@ void OverlayDrawer::_DrawUI() {
 		ImGui::SliderInt("Sample size", &value, 60, 180, "%d");
 		ImGui::PopItemWidth();
 		nSamples = value;
+	}
+
+	ImGui::Spacing();
+	if (ImGui::CollapsingHeader("Effects", ImGuiTreeNodeFlags_DefaultOpen)) {
+		UINT nEffects = (UINT)renderer.GetEffectCount();
+		for (UINT i = 0; i < nEffects; ++i) {
+			const auto& effect = renderer.GetEffect(i);
+			ImGui::Text(effect.GetDesc().name.c_str());
+		}
 	}
 
 	ImGui::End();

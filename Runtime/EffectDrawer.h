@@ -24,6 +24,10 @@ public:
 		return _desc.isUseDynamic;
 	}
 
+	const EffectDesc& GetDesc() const noexcept {
+		return _desc;
+	}
+
 private:
 	void _DrawPass(UINT i);
 

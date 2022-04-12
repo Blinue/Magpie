@@ -42,6 +42,15 @@ public:
 		return _virtualOutputRect;
 	}
 
+	size_t GetEffectCount() const noexcept {
+		return _effects.size();
+	}
+
+	const EffectDrawer& GetEffect(size_t idx) const noexcept {
+		assert(idx < _effects.size());
+		return *_effects[idx];
+	}
+
 private:
 	bool _InitializeOverlayDrawer();
 
