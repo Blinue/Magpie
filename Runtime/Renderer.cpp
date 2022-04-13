@@ -55,7 +55,6 @@ bool Renderer::Initialize(const std::string& effectsJson) {
 	
 	if (App::Get().GetConfig().IsShowFPS()) {
 		if (!_InitializeOverlayDrawer()) {
-			Logger::Get().Error("初始化 OverlayDrawer 失败");
 			return false;
 		}
 	}
@@ -75,10 +74,6 @@ bool Renderer::Initialize(const std::string& effectsJson) {
 	}
 
 	_handlerID = App::Get().RegisterWndProcHandler(WndProcHandler);
-
-	App::Get().GetConfig().OnShowFPS([]() {
-
-	});
 
 	return true;
 }
@@ -267,9 +262,37 @@ bool CheckForeground(HWND hwndForeground) {
 	return false;
 }
 
+const EffectDesc& Renderer::GetEffectDesc(size_t idx) const noexcept {
+	assert(idx < _effects.size());
+	return _effects[idx]->GetDesc();
+}
+
 bool Renderer::_InitializeOverlayDrawer() {
 	_overlayDrawer.reset(new OverlayDrawer());
-	return _overlayDrawer->Initialize(App::Get().GetDeviceResources().GetBackBuffer());
+	if (!_overlayDrawer->Initialize(App::Get().GetDeviceResources().GetBackBuffer())) {
+		Logger::Get().Error("初始化 OverlayDrawer 失败");
+		return false;
+	}
+
+	DeviceResources& dr = App::Get().GetDeviceResources();
+	DXGI_SWAP_CHAIN_DESC desc;
+	HRESULT hr = dr.GetSwapChain()->GetDesc(&desc);
+	if (FAILED(hr)) {
+		Logger::Get().ComError("IDXGISwapChain::GetDesc 失败", hr);
+		return false;
+	}
+	_queries.resize(desc.BufferCount);
+
+	UINT queryCount = 1;
+	for (const std::unique_ptr<EffectDrawer>& effect : _effects) {
+		queryCount += effect->GetDesc().passes.size();
+	}
+
+	for (auto& frameQueries : _queries) {
+		frameQueries.second.resize(queryCount);
+	}
+
+	return true;
 }
 
 bool Renderer::_CheckSrcState() {

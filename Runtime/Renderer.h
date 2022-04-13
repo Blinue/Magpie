@@ -2,7 +2,6 @@
 #include "pch.h"
 #include "EffectDesc.h"
 
-
 class EffectDrawer;
 class GPUTimer;
 class OverlayDrawer;
@@ -46,10 +45,7 @@ public:
 		return _effects.size();
 	}
 
-	const EffectDrawer& GetEffect(size_t idx) const noexcept {
-		assert(idx < _effects.size());
-		return *_effects[idx];
-	}
+	const EffectDesc& GetEffectDesc(size_t idx) const noexcept;
 
 private:
 	bool _InitializeOverlayDrawer();
@@ -75,4 +71,7 @@ private:
 	UINT _handlerID = 0;
 
 	std::unique_ptr<GPUTimer> _gpuTimer;
+
+	// [(disjoint, [timestamp])]
+	std::vector<std::pair<winrt::com_ptr<ID3D11Query>, std::vector<winrt::com_ptr<ID3D11Query>>>> _queries;
 };

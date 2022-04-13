@@ -13,6 +13,7 @@
 #include "Config.h"
 #include "StrUtils.h"
 #include "EffectDrawer.h"
+#include <bit>	// std::bit_ceil
 
 
 OverlayDrawer::~OverlayDrawer() {
@@ -253,7 +254,7 @@ void OverlayDrawer::_DrawUI() {
 
 	// 帧率统计，支持在渲染时间和 FPS 间切换
 	if (ImGui::CollapsingHeader("Frame Statistics", ImGuiTreeNodeFlags_DefaultOpen)) {
-		static bool showFPS = false;
+		static bool showFPS = true;
 
 		if (showFPS) {
 			float totalTime = 0;
@@ -262,11 +263,14 @@ void OverlayDrawer::_DrawUI() {
 				totalTime += _frameTimes[i];
 				minTime = std::min(_frameTimes[i], minTime);
 			}
+
+			// 减少抖动
+			const float maxFPS = std::bit_ceil(UINT((1000 / minTime - 1) / 30)) * 30 * 1.7f;
 			
 			ImGui::PlotLines("", [](void* data, int idx) {
 				float time = ((float*)data)[idx];
 				return time < 1e-6 ? 0 : 1000 / time;
-			}, _frameTimes.data(), _frameTimes.size(), 0, fmt::format("avg: {:.3f} FPS", _validFrames * 1000 / totalTime).c_str(), 0, 1000 / minTime * 1.5f, ImVec2(250, 80));
+			}, _frameTimes.data(), _frameTimes.size(), 0, fmt::format("avg: {:.3f} FPS", _validFrames * 1000 / totalTime).c_str(), 0, maxFPS, ImVec2(250, 80));
 		} else {
 			float totalTime = 0;
 			float maxTime = 0;
@@ -276,7 +280,7 @@ void OverlayDrawer::_DrawUI() {
 			}
 
 			ImGui::PlotLines("", _frameTimes.data(), _frameTimes.size(), 0,
-				fmt::format("avg: {:.3f} ms", totalTime / _validFrames).c_str(), 0, maxTime * 1.5f, ImVec2(250, 80));
+				fmt::format("avg: {:.3f} ms", totalTime / _validFrames).c_str(), 0, maxTime * 1.7f, ImVec2(250, 80));
 		}
 
 		ImGui::Spacing();
@@ -296,8 +300,7 @@ void OverlayDrawer::_DrawUI() {
 	if (ImGui::CollapsingHeader("Effects", ImGuiTreeNodeFlags_DefaultOpen)) {
 		UINT nEffects = (UINT)renderer.GetEffectCount();
 		for (UINT i = 0; i < nEffects; ++i) {
-			const auto& effect = renderer.GetEffect(i);
-			ImGui::Text(effect.GetDesc().name.c_str());
+			ImGui::Text(renderer.GetEffectDesc(i).name.c_str());
 		}
 	}
 
