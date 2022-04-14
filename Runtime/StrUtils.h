@@ -9,6 +9,18 @@ struct StrUtils {
 
 	static void Trim(std::string_view& str);
 
+	static void Trim(std::string& str) {
+		std::string_view sv(str);
+		Trim(sv);
+		str = sv;
+	}
+
+	static std::string Trim(const std::string& str) {
+		std::string result = str;
+		Trim(result);
+		return result;
+	}
+
 	static std::vector<std::string_view> Split(std::string_view str, char delimiter) {
 		std::vector<std::string_view> result;
 		while (!str.empty()) {

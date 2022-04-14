@@ -26,6 +26,8 @@ private:
 
 	void _DrawUI();
 
+	float _dpiScale = 1.0f;
+
 	UINT _handlerID = 0;
 	ID3D11RenderTargetView* _rtv = nullptr;
 	bool _isUIVisiable = false;

@@ -14,6 +14,10 @@
 #include "StrUtils.h"
 #include "EffectDrawer.h"
 #include <bit>	// std::bit_ceil
+#include <Wbemidl.h>
+#include <comdef.h>
+
+#pragma comment(lib, "wbemuuid.lib")
 
 
 OverlayDrawer::~OverlayDrawer() {
@@ -24,10 +28,6 @@ OverlayDrawer::~OverlayDrawer() {
 	ImGui_ImplDX11_Shutdown();
 	ImGui_ImplMagpie_Shutdown();
 	ImGui::DestroyContext();
-}
-
-float GetDpiScale() {
-	return GetDpiForWindow(App::Get().GetHwndHost()) / 96.0f;
 }
 
 static std::optional<LRESULT> WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
@@ -44,14 +44,14 @@ bool OverlayDrawer::Initialize(ID3D11Texture2D* renderTarget) {
 	ImGuiIO& io = ImGui::GetIO();
 	io.ConfigFlags |= ImGuiConfigFlags_NavNoCaptureKeyboard | ImGuiConfigFlags_NoMouseCursorChange;
 	
-	float dpiScale = GetDpiScale();
+	_dpiScale = GetDpiForWindow(App::Get().GetHwndHost()) / 96.0f;
 
 	ImGui::StyleColorsDark();
 	ImGuiStyle& style = ImGui::GetStyle();
 	style.WindowRounding = 6;
 	style.FrameBorderSize = 1;
 	style.WindowMinSize = ImVec2(10, 10);
-	style.ScaleAllSizes(dpiScale);
+	style.ScaleAllSizes(_dpiScale);
 
 	std::vector<BYTE> fontData;
 	if (!Utils::ReadFile(L".\\assets\\NotoSansSC-Regular.otf", fontData)) {
@@ -61,13 +61,13 @@ bool OverlayDrawer::Initialize(ID3D11Texture2D* renderTarget) {
 
 	ImFontConfig config;
 	config.FontDataOwnedByAtlas = false;
-	_fontSmall = io.Fonts->AddFontFromMemoryTTF(fontData.data(), (int)fontData.size(), std::floor(18 * dpiScale), &config, io.Fonts->GetGlyphRangesDefault());
+	_fontSmall = io.Fonts->AddFontFromMemoryTTF(fontData.data(), (int)fontData.size(), std::floor(18 * _dpiScale), &config, io.Fonts->GetGlyphRangesDefault());
 
 	ImVector<ImWchar> fpsRanges;
 	ImFontGlyphRangesBuilder builder;
 	builder.AddText("0123456789 FPS");
 	builder.BuildRanges(&fpsRanges);
-	_fontLarge = io.Fonts->AddFontFromMemoryTTF(fontData.data(), (int)fontData.size(), std::floor(36 * dpiScale), &config, fpsRanges.Data);
+	_fontLarge = io.Fonts->AddFontFromMemoryTTF(fontData.data(), (int)fontData.size(), std::floor(36 * _dpiScale), &config, fpsRanges.Data);
 
 	io.Fonts->Build();
 
@@ -213,16 +213,141 @@ void OverlayDrawer::_DrawFPS() {
 	ImGui::PopStyleVar();
 }
 
+// 只在 x86 和 x64 可用
+static std::string _GetCPUNameViaCPUID() {
+	int nIDs = 0;
+	int nExIDs = 0;
+
+	char strCPUName[0x40] = { };
+
+	std::array<int, 4> cpuInfo{};
+	std::vector<std::array<int, 4>> extData;
+
+	__cpuid(cpuInfo.data(), 0);
+
+	// Calling __cpuid with 0x80000000 as the function_id argument
+	// gets the number of the highest valid extended ID.
+	__cpuid(cpuInfo.data(), 0x80000000);
+
+	nExIDs = cpuInfo[0];
+	for (int i = 0x80000000; i <= nExIDs; ++i) {
+		__cpuidex(cpuInfo.data(), i, 0);
+		extData.push_back(cpuInfo);
+	}
+
+	// Interpret CPU strCPUName string if reported
+	if (nExIDs >= 0x80000004) {
+		memcpy(strCPUName, extData[2].data(), sizeof(cpuInfo));
+		memcpy(strCPUName + 16, extData[3].data(), sizeof(cpuInfo));
+		memcpy(strCPUName + 32, extData[4].data(), sizeof(cpuInfo));
+	}
+
+	return StrUtils::Trim(strCPUName);
+}
+
+// 非常慢，需要大约 1 秒钟
+static std::string _GetCPUNameViaWMI() {
+	winrt::com_ptr<IWbemLocator> wbemLocator;
+	winrt::com_ptr<IWbemServices> wbemServices;
+	winrt::com_ptr<IEnumWbemClassObject> enumWbemClassObject;
+	winrt::com_ptr<IWbemClassObject> wbemClassObject;
+
+	HRESULT hr = CoCreateInstance(
+		CLSID_WbemLocator,
+		0,
+		CLSCTX_INPROC_SERVER,
+		IID_PPV_ARGS(&wbemLocator)
+	);
+	if (FAILED(hr)) {
+		return "";
+	}
+
+	hr = wbemLocator->ConnectServer(
+		_bstr_t(L"ROOT\\CIMV2"),
+		nullptr,
+		nullptr,
+		nullptr,
+		0,
+		nullptr,
+		nullptr,
+		wbemServices.put()
+	);
+	if (hr != WBEM_S_NO_ERROR) {
+		return "";
+	}
+
+	hr = CoSetProxyBlanket(
+	   wbemServices.get(),
+	   RPC_C_AUTHN_WINNT,
+	   RPC_C_AUTHZ_NONE,
+	   nullptr,
+	   RPC_C_AUTHN_LEVEL_CALL,
+	   RPC_C_IMP_LEVEL_IMPERSONATE,
+	   NULL,
+	   EOAC_NONE
+	);
+	if (FAILED(hr)) {
+		return "";
+	}
+
+	hr = wbemServices->ExecQuery(
+		_bstr_t(L"WQL"),
+		_bstr_t(L"SELECT * FROM Win32_Processor"),
+		WBEM_FLAG_FORWARD_ONLY | WBEM_FLAG_RETURN_IMMEDIATELY,
+		nullptr,
+		enumWbemClassObject.put()
+	);
+	if (hr != WBEM_S_NO_ERROR) {
+		return "";
+	}
+
+	ULONG uReturn = 0;
+	hr = enumWbemClassObject->Next(WBEM_INFINITE, 1, wbemClassObject.put(), &uReturn);
+	if (hr != WBEM_S_NO_ERROR || uReturn <= 0) {
+		return "";
+	}
+
+	VARIANT value{};
+	VariantInit(&value);
+	hr = wbemClassObject->Get(_bstr_t(L"Name"), 0, &value, 0, 0);
+	if (hr != WBEM_S_NO_ERROR || value.vt != VT_BSTR) {
+		return "";
+	}
+
+	return StrUtils::Trim(_com_util::ConvertBSTRToString(value.bstrVal));
+}
+
+static std::string GetCPUName() {
+	static std::string result;
+	if (!result.empty()) {
+		return result;
+	}
+
+#ifdef _M_X64
+	result = _GetCPUNameViaCPUID();
+	if (!result.empty()) {
+		return result;
+	}
+#endif // _M_X64
+
+	result = _GetCPUNameViaWMI();
+	return result.empty() ? "UNAVAILABLE" : result;
+}
+
 void OverlayDrawer::_DrawUI() {
 #ifdef _DEBUG
 	ImGui::ShowDemoWindow();
 #endif
 
-	static float initPosX = []() {
-		return (float)(Utils::GetSizeOfRect(App::Get().GetRenderer().GetOutputRect()).cx - 450);
+	static ImVec2 initSize = [this] {
+		return ImVec2(350 * _dpiScale, 500 * _dpiScale);
 	}();
 
-	ImGui::SetNextWindowSize(ImVec2(350, 500), ImGuiCond_FirstUseEver);
+	static float initPosX = [this] {
+		return (float)(Utils::GetSizeOfRect(App::Get().GetRenderer().GetOutputRect()).cx - 350 * _dpiScale - 100);
+	}();
+
+	ImGui::SetNextWindowSize(initSize, ImGuiCond_FirstUseEver);
 	ImGui::SetNextWindowPos(ImVec2(initPosX, 20), ImGuiCond_FirstUseEver);
 
 	if (!ImGui::Begin("Profiler", nullptr, ImGuiWindowFlags_NoNav)) {
@@ -238,6 +363,7 @@ void OverlayDrawer::_DrawUI() {
 	DXGI_ADAPTER_DESC desc{};
 	dr.GetGraphicsAdapter()->GetDesc(&desc);
 	ImGui::Text(StrUtils::Concat("GPU: ", StrUtils::UTF16ToUTF8(desc.Description)).c_str());
+	ImGui::Text(StrUtils::Concat("CPU: ", GetCPUName()).c_str());
 
 	ImGui::Text(StrUtils::Concat("VSync: ", config.IsDisableVSync() ? "OFF" : "ON").c_str());
 	ImGui::Spacing();
@@ -270,7 +396,7 @@ void OverlayDrawer::_DrawUI() {
 			ImGui::PlotLines("", [](void* data, int idx) {
 				float time = ((float*)data)[idx];
 				return time < 1e-6 ? 0 : 1000 / time;
-			}, _frameTimes.data(), _frameTimes.size(), 0, fmt::format("avg: {:.3f} FPS", _validFrames * 1000 / totalTime).c_str(), 0, maxFPS, ImVec2(250, 80));
+			}, _frameTimes.data(), _frameTimes.size(), 0, fmt::format("avg: {:.3f} FPS", _validFrames * 1000 / totalTime).c_str(), 0, maxFPS, ImVec2(250 * _dpiScale, 80 * _dpiScale));
 		} else {
 			float totalTime = 0;
 			float maxTime = 0;
@@ -280,7 +406,8 @@ void OverlayDrawer::_DrawUI() {
 			}
 
 			ImGui::PlotLines("", _frameTimes.data(), _frameTimes.size(), 0,
-				fmt::format("avg: {:.3f} ms", totalTime / _validFrames).c_str(), 0, maxTime * 1.7f, ImVec2(250, 80));
+				fmt::format("avg: {:.3f} ms", totalTime / _validFrames).c_str(),
+				0, maxTime * 1.7f, ImVec2(250 * _dpiScale, 80 * _dpiScale));
 		}
 
 		ImGui::Spacing();
