@@ -18,7 +18,7 @@ public:
 		RECT* virtualOutputRect = nullptr
 	);
 
-	void Draw(bool noUpdate = false);
+	void Draw(bool noUpdate = false, std::span<winrt::com_ptr<ID3D11Query>> queies = {});
 
 	bool IsUseDynamic() const noexcept {
 		return _desc.isUseDynamic;

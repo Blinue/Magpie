@@ -429,7 +429,7 @@ bool EffectDrawer::Initialize(
 	return true;
 }
 
-void EffectDrawer::Draw(bool noUpdate) {
+void EffectDrawer::Draw(bool noUpdate, std::span<winrt::com_ptr<ID3D11Query>> queies) {
 	auto d3dDC = App::Get().GetDeviceResources().GetD3DDC();
 
 	{
@@ -444,6 +444,10 @@ void EffectDrawer::Draw(bool noUpdate) {
 	} else {
 		for (UINT i = 0; i < _dispatches.size(); ++i) {
 			_DrawPass(i);
+
+			if (!queies.empty()) {
+				d3dDC->End(queies[i].get());
+			}
 		}
 	}
 }

@@ -340,11 +340,11 @@ void OverlayDrawer::_DrawUI() {
 #endif
 
 	static ImVec2 initSize = [this] {
-		return ImVec2(320 * _dpiScale, 500 * _dpiScale);
+		return ImVec2(350 * _dpiScale, 500 * _dpiScale);
 	}();
 
 	static float initPosX = [this] {
-		return (float)(Utils::GetSizeOfRect(App::Get().GetRenderer().GetOutputRect()).cx - 320 * _dpiScale - 100);
+		return (float)(Utils::GetSizeOfRect(App::Get().GetRenderer().GetOutputRect()).cx - 350 * _dpiScale - 100);
 	}();
 
 	ImGui::SetNextWindowSize(initSize, ImGuiCond_FirstUseEver);
@@ -425,9 +425,23 @@ void OverlayDrawer::_DrawUI() {
 
 	ImGui::Spacing();
 	if (ImGui::CollapsingHeader("Effects", ImGuiTreeNodeFlags_DefaultOpen)) {
+		const std::vector<float>& effectTimings = renderer.GetEffectTimings();
+		UINT idx = 0;
+
 		UINT nEffects = (UINT)renderer.GetEffectCount();
 		for (UINT i = 0; i < nEffects; ++i) {
-			ImGui::Text(renderer.GetEffectDesc(i).name.c_str());
+			const EffectDesc& effectDesc = renderer.GetEffectDesc(i);
+			if (effectDesc.passes.size() == 1) {
+				ImGui::Text(fmt::format("{} : {:.3f} ms",
+					renderer.GetEffectDesc(i).name, effectTimings.empty() ? 0.0f : effectTimings[idx]).c_str());
+				++idx;
+			} else {
+				for (UINT j = 0; j < effectDesc.passes.size(); ++j) {
+					ImGui::Text(fmt::format("{}/Pass{} : {:.3f} ms", renderer.GetEffectDesc(i).name,
+						j + 1, effectTimings.empty() ? 0.0f : effectTimings[idx]).c_str());
+					++idx;
+				}
+			}
 		}
 	}
 
