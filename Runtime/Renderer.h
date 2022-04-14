@@ -73,5 +73,7 @@ private:
 	std::unique_ptr<GPUTimer> _gpuTimer;
 
 	// [(disjoint, [timestamp])]
-	std::vector<std::pair<winrt::com_ptr<ID3D11Query>, std::vector<winrt::com_ptr<ID3D11Query>>>> _queries;
+	// 允许额外的延迟时需保存两帧的数据
+	std::array<std::pair<winrt::com_ptr<ID3D11Query>, std::vector<winrt::com_ptr<ID3D11Query>>>, 2> _queries;
+	UINT _curQueryIdx = 0;
 };

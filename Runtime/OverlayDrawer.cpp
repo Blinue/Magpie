@@ -245,7 +245,7 @@ static std::string _GetCPUNameViaCPUID() {
 	return StrUtils::Trim(strCPUName);
 }
 
-// 非常慢，需要大约 1 秒钟
+// 非常慢，需要大约 18 ms
 static std::string _GetCPUNameViaWMI() {
 	winrt::com_ptr<IWbemLocator> wbemLocator;
 	winrt::com_ptr<IWbemServices> wbemServices;
@@ -292,7 +292,7 @@ static std::string _GetCPUNameViaWMI() {
 
 	hr = wbemServices->ExecQuery(
 		_bstr_t(L"WQL"),
-		_bstr_t(L"SELECT * FROM Win32_Processor"),
+		_bstr_t(L"SELECT NAME FROM Win32_Processor"),
 		WBEM_FLAG_FORWARD_ONLY | WBEM_FLAG_RETURN_IMMEDIATELY,
 		nullptr,
 		enumWbemClassObject.put()
@@ -307,7 +307,7 @@ static std::string _GetCPUNameViaWMI() {
 		return "";
 	}
 
-	VARIANT value{};
+	VARIANT value;
 	VariantInit(&value);
 	hr = wbemClassObject->Get(_bstr_t(L"Name"), 0, &value, 0, 0);
 	if (hr != WBEM_S_NO_ERROR || value.vt != VT_BSTR) {
@@ -322,7 +322,7 @@ static std::string GetCPUName() {
 	if (!result.empty()) {
 		return result;
 	}
-
+	
 #ifdef _M_X64
 	result = _GetCPUNameViaCPUID();
 	if (!result.empty()) {
@@ -340,11 +340,11 @@ void OverlayDrawer::_DrawUI() {
 #endif
 
 	static ImVec2 initSize = [this] {
-		return ImVec2(350 * _dpiScale, 500 * _dpiScale);
+		return ImVec2(320 * _dpiScale, 500 * _dpiScale);
 	}();
 
 	static float initPosX = [this] {
-		return (float)(Utils::GetSizeOfRect(App::Get().GetRenderer().GetOutputRect()).cx - 350 * _dpiScale - 100);
+		return (float)(Utils::GetSizeOfRect(App::Get().GetRenderer().GetOutputRect()).cx - 320 * _dpiScale - 100);
 	}();
 
 	ImGui::SetNextWindowSize(initSize, ImGuiCond_FirstUseEver);
@@ -391,7 +391,7 @@ void OverlayDrawer::_DrawUI() {
 			}
 
 			// 减少抖动
-			const float maxFPS = std::bit_ceil(UINT((1000 / minTime - 1) / 30)) * 30 * 1.7f;
+			const float maxFPS = std::bit_ceil((UINT)std::ceilf((1000 / minTime - 10) / 30)) * 30 * 1.7f;
 			
 			ImGui::PlotLines("", [](void* data, int idx) {
 				float time = ((float*)data)[idx];

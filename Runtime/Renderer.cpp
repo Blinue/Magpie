@@ -16,8 +16,6 @@
 #pragma push_macro("GetObject")
 #undef GetObject
 #include <rapidjson/document.h>
-#include <rapidjson/stringbuffer.h>
-#include <rapidjson/writer.h>
 
 
 static const UINT WM_TOGGLE_OVERLAY = RegisterWindowMessage(L"MAGPIE_WM_TOGGLE_OVERLAY");
@@ -88,9 +86,11 @@ void Renderer::Render() {
 
 	DeviceResources& dr = App::Get().GetDeviceResources();
 	ID3D11DeviceContext3* d3dDC = dr.GetD3DDC();
+	const bool isDisableLowLatency = App::Get().GetConfig().IsDisableLowLatency();
 
 	if (!_waitingForNextFrame) {
 		dr.BeginFrame();
+		_gpuTimer->OnBeginFrame();
 	}
 
 	// 首先处理配置改变产生的回调
@@ -102,8 +102,7 @@ void Renderer::Render() {
 	if (_waitingForNextFrame) {
 		return;
 	}
-
-	_gpuTimer->OnBeginFrame();
+	
 	App::Get().GetCursorManager().OnBeginFrame();
 
 	if (!_UpdateDynamicConstants()) {
@@ -274,23 +273,16 @@ bool Renderer::_InitializeOverlayDrawer() {
 		return false;
 	}
 
-	DeviceResources& dr = App::Get().GetDeviceResources();
-	DXGI_SWAP_CHAIN_DESC desc;
-	HRESULT hr = dr.GetSwapChain()->GetDesc(&desc);
-	if (FAILED(hr)) {
-		Logger::Get().ComError("IDXGISwapChain::GetDesc 失败", hr);
-		return false;
-	}
-	_queries.resize(desc.BufferCount);
-
 	UINT queryCount = 1;
 	for (const std::unique_ptr<EffectDrawer>& effect : _effects) {
 		queryCount += effect->GetDesc().passes.size();
 	}
 
-	for (auto& frameQueries : _queries) {
-		frameQueries.second.resize(queryCount);
+	_queries[0].second.resize(queryCount);
+	if (App::Get().GetConfig().IsDisableLowLatency()) {
+		_queries[1].second.resize(queryCount);
 	}
+	_curQueryIdx = 0;
 
 	return true;
 }
