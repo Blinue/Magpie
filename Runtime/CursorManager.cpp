@@ -618,6 +618,10 @@ void CursorManager::_UpdateCursorClip() {
 
 		if (hwndCur != hwndHost) {
 			// 主窗口被遮挡
+			if (style | WS_EX_TRANSPARENT) {
+				SetWindowLongPtr(hwndHost, GWL_EXSTYLE, style & ~WS_EX_TRANSPARENT);
+			}
+
 			_StopCapture(cursorPos);
 		} else {
 			// 主窗口未被遮挡

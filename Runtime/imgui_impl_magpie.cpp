@@ -63,6 +63,11 @@ static void ImGui_ImplMagpie_UpdateMousePos() {
 	} else {
 		GetCursorPos(&pos);
 
+		if (WindowFromPoint(pos) != App::Get().GetHwndHost()) {
+			io.MousePos = ImVec2(-FLT_MAX, -FLT_MAX);
+			return;
+		}
+
 		const RECT& hostRect = App::Get().GetHostWndRect();
 		pos.x -= hostRect.left;
 		pos.y -= hostRect.top;

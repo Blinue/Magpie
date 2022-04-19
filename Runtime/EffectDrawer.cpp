@@ -10,6 +10,7 @@
 #include "CursorManager.h"
 #include <unordered_set>
 #include "Config.h"
+#include "GPUTimer.h"
 
 #pragma push_macro("_UNICODE")
 #undef _UNICODE
@@ -429,8 +430,9 @@ bool EffectDrawer::Initialize(
 	return true;
 }
 
-void EffectDrawer::Draw(bool noUpdate, std::span<winrt::com_ptr<ID3D11Query>> queies) {
+void EffectDrawer::Draw(UINT& idx, bool noUpdate) {
 	auto d3dDC = App::Get().GetDeviceResources().GetD3DDC();
+	auto& gpuTimer = App::Get().GetRenderer().GetGPUTimer();
 
 	{
 		ID3D11Buffer* t = _constantBuffer.get();
@@ -438,17 +440,14 @@ void EffectDrawer::Draw(bool noUpdate, std::span<winrt::com_ptr<ID3D11Query>> qu
 	}
 	d3dDC->CSSetSamplers(0, (UINT)_samplers.size(), _samplers.data());
 
-	if (noUpdate) {
-		// 只渲染最后一个通道
-		_DrawPass((UINT)_dispatches.size() - 1);
-	} else {
-		for (UINT i = 0; i < _dispatches.size(); ++i) {
+	for (UINT i = 0; i < _dispatches.size(); ++i) {
+		// noUpdate 为真则只渲染最后一个通道
+		if (!noUpdate || i == UINT(_dispatches.size() - 1)) {
 			_DrawPass(i);
-
-			if (!queies.empty()) {
-				d3dDC->End(queies[i].get());
-			}
 		}
+
+		// 不渲染的通道也在 GPUTimer 中记录
+		gpuTimer.OnEndPass(idx++);
 	}
 }
 

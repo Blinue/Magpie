@@ -336,25 +336,23 @@ bool App::_CreateHostWnd() {
 bool App::_InitFrameSource(int captureMode) {
 	switch (captureMode) {
 	case 0:
-		Logger::Get().Info("当前捕获模式：Graphics Capture");
 		_frameSource.reset(new GraphicsCaptureFrameSource());
 		break;
 	case 1:
-		Logger::Get().Info("当前捕获模式：Desktop Duplication");
 		_frameSource.reset(new DesktopDuplicationFrameSource());
 		break;
 	case 2:
-		Logger::Get().Info("当前捕获模式：GDI");
 		_frameSource.reset(new GDIFrameSource());
 		break;
 	case 3:
-		Logger::Get().Info("当前捕获模式：DwmSharedSurface");
 		_frameSource.reset(new DwmSharedSurfaceFrameSource());
 		break;
 	default:
 		Logger::Get().Critical("未知的捕获模式");
 		return false;
 	}
+
+	Logger::Get().Info(StrUtils::Concat("当前捕获模式：", _frameSource->GetName()));
 
 	if (!_frameSource->Initialize()) {
 		Logger::Get().Critical("初始化 FrameSource 失败");

@@ -13,6 +13,7 @@
 #include "Config.h"
 #include "StrUtils.h"
 #include "EffectDrawer.h"
+#include "FrameSourceBase.h"
 #include <bit>	// std::bit_ceil
 #include <Wbemidl.h>
 #include <comdef.h>
@@ -156,7 +157,7 @@ void OverlayDrawer::SetUIVisibility(bool value) {
 
 	if (!value) {
 		_validFrames = 0;
-		std::fill(_frameTimes.begin(), _frameTimes.end(), 0);
+		std::fill(_frameTimes.begin(), _frameTimes.end(), 0.0f);
 
 		if (!App::Get().GetConfig().IsShowFPS()) {
 			ImGui_ImplMagpie_ClearStates();
@@ -333,6 +334,14 @@ static std::string GetCPUName() {
 }
 
 void OverlayDrawer::_DrawUI() {
+	auto& config = App::Get().GetConfig();
+	auto& renderer = App::Get().GetRenderer();
+	auto& gpuTimer = renderer.GetGPUTimer();
+
+	if (!gpuTimer.IsProfiling()) {
+		return;
+	}
+
 #ifdef _DEBUG
 	ImGui::ShowDemoWindow();
 #endif
@@ -348,10 +357,6 @@ void OverlayDrawer::_DrawUI() {
 		return;
 	}
 
-	auto& config = App::Get().GetConfig();
-	auto& renderer = App::Get().GetRenderer();
-	auto& gpuTimer = renderer.GetGPUTimer();
-
 	ImGui::Text(StrUtils::Concat("GPU: ", _hardwareInfo.gpuName).c_str());
 	ImGui::Text(StrUtils::Concat("CPU: ", _hardwareInfo.cpuName).c_str());
 
@@ -365,7 +370,7 @@ void OverlayDrawer::_DrawUI() {
 	} else if (_frameTimes.size() < nSamples) {
 		_frameTimes.insert(_frameTimes.begin(), nSamples - _frameTimes.size() - 1, 0);
 	}
-	_frameTimes.push_back((float)gpuTimer.GetElapsedSeconds() * 1000);
+	_frameTimes.push_back(std::chrono::duration_cast<std::chrono::duration<float, std::milli>>(gpuTimer.GetElapsedTime()).count());
 	_validFrames = std::min(_validFrames + 1, nSamples);
 
 	// 帧率统计，支持在渲染时间和 FPS 间切换
@@ -386,7 +391,7 @@ void OverlayDrawer::_DrawUI() {
 			ImGui::PlotLines("", [](void* data, int idx) {
 				float time = (*(std::deque<float>*)data)[idx];
 				return time < 1e-6 ? 0 : 1000 / time;
-			}, &_frameTimes, _frameTimes.size(), 0, fmt::format("avg: {:.3f} FPS", _validFrames * 1000 / totalTime).c_str(), 0, maxFPS, ImVec2(250 * _dpiScale, 80 * _dpiScale));
+			}, &_frameTimes, (int)_frameTimes.size(), 0, fmt::format("avg: {:.3f} FPS", _validFrames * 1000 / totalTime).c_str(), 0, maxFPS, ImVec2(250 * _dpiScale, 80 * _dpiScale));
 		} else {
 			float totalTime = 0;
 			float maxTime = 0;
@@ -397,7 +402,7 @@ void OverlayDrawer::_DrawUI() {
 
 			ImGui::PlotLines("", [](void* data, int idx) {
 				return (*(std::deque<float>*)data)[idx];
-			}, &_frameTimes, _frameTimes.size(), 0,
+			}, &_frameTimes, (int)_frameTimes.size(), 0,
 				fmt::format("avg: {:.3f} ms", totalTime / _validFrames).c_str(),
 				0, maxTime * 1.7f, ImVec2(250 * _dpiScale, 80 * _dpiScale));
 		}
@@ -416,8 +421,12 @@ void OverlayDrawer::_DrawUI() {
 	}
 
 	ImGui::Spacing();
-	if (ImGui::CollapsingHeader("Effects", ImGuiTreeNodeFlags_DefaultOpen)) {
-		const std::vector<float>& effectTimings = renderer.GetEffectTimings();
+	if (ImGui::CollapsingHeader("GPU Timings", ImGuiTreeNodeFlags_DefaultOpen)) {
+		const auto& gpuTimings = gpuTimer.GetGPUTimings();
+
+		ImGui::Text(fmt::format("{} : {:.3f} ms",
+			App::Get().GetFrameSource().GetName(), gpuTimings.capture).c_str());
+
 		UINT idx = 0;
 
 		UINT nEffects = (UINT)renderer.GetEffectCount();
@@ -425,16 +434,18 @@ void OverlayDrawer::_DrawUI() {
 			const EffectDesc& effectDesc = renderer.GetEffectDesc(i);
 			if (effectDesc.passes.size() == 1) {
 				ImGui::Text(fmt::format("{} : {:.3f} ms",
-					renderer.GetEffectDesc(i).name, effectTimings.empty() ? 0.0f : effectTimings[idx]).c_str());
+					renderer.GetEffectDesc(i).name, gpuTimings.passes[idx]).c_str());
 				++idx;
 			} else {
 				for (UINT j = 0; j < effectDesc.passes.size(); ++j) {
 					ImGui::Text(fmt::format("{}/Pass{} : {:.3f} ms", renderer.GetEffectDesc(i).name,
-						j + 1, effectTimings.empty() ? 0.0f : effectTimings[idx]).c_str());
+						j + 1, gpuTimings.passes[idx]).c_str());
 					++idx;
 				}
 			}
 		}
+
+		ImGui::Text(fmt::format("Overlay : {:.3f} ms", gpuTimings.overlay).c_str());
 	}
 
 	ImGui::End();

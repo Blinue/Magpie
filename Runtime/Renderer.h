@@ -47,13 +47,6 @@ public:
 
 	const EffectDesc& GetEffectDesc(size_t idx) const noexcept;
 
-	// 所有通道的处理时间，单位为 ms
-	// 不可用返回空
-	// 对于 Desktop Duplication 捕获模式未执行的通道为 0
-	const std::vector<float>& GetEffectTimings() const  noexcept {
-		return _effectTimings;
-	}
-
 private:
 	bool _InitializeOverlayDrawer();
 
@@ -62,10 +55,6 @@ private:
 	bool _ResolveEffectsJson(const std::string& effectsJson);
 
 	bool _UpdateDynamicConstants();
-
-	void _UpdateEffectTimings();
-
-	bool _InitQueries(UINT idx);
 
 	RECT _srcWndRect{};
 	RECT _outputRect{};
@@ -82,10 +71,4 @@ private:
 	UINT _handlerID = 0;
 
 	std::unique_ptr<GPUTimer> _gpuTimer;
-
-	// [(disjoint, [timestamp])]
-	// 允许额外的延迟时需保存两帧的数据
-	std::array<std::pair<winrt::com_ptr<ID3D11Query>, std::vector<winrt::com_ptr<ID3D11Query>>>, 2> _queries;
-	UINT _curQueryIdx = 0;
-	std::vector<float> _effectTimings;
 };

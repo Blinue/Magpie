@@ -32,6 +32,8 @@ public:
 		return _output.get();
 	}
 
+	virtual const char* GetName() const noexcept = 0;
+
 protected:
 	virtual bool _HasRoundCornerInWin11() = 0;
 

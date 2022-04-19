@@ -30,6 +30,10 @@ public:
 		return _isScreenCapture;
 	}
 
+	const char* GetName() const noexcept override {
+		return "Graphics Capture";
+	}
+
 protected:
 	bool _HasRoundCornerInWin11() override {
 		return true;

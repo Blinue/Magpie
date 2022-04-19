@@ -86,15 +86,21 @@ void Renderer::Render() {
 	}
 
 	DeviceResources& dr = App::Get().GetDeviceResources();
-	bool isUIVisiable = IsUIVisiable();
 
 	if (!_waitingForNextFrame) {
 		dr.BeginFrame();
-		_gpuTimer->OnBeginFrame();
 
-		if (isUIVisiable) {
-			_UpdateEffectTimings();
+		if (IsUIVisiable() && !_gpuTimer->IsProfiling()) {
+			UINT passCount = 0;
+			for (const auto& effect : _effects) {
+				passCount += (UINT)effect->GetDesc().passes.size();
+			}
+
+			// StartProfiling 必须在 OnBeginFrame 之前调用
+			_gpuTimer->StartProfiling(std::chrono::milliseconds(500), passCount);
 		}
+		
+		_gpuTimer->OnBeginFrame();
 	}
 
 	// 首先处理配置改变产生的回调
@@ -113,6 +119,9 @@ void Renderer::Render() {
 		Logger::Get().Error("_UpdateDynamicConstants 失败");
 	}
 
+	// 更新动态常量的时间并入捕获中
+	_gpuTimer->OnEndCapture();
+
 	auto d3dDC = dr.GetD3DDC();
 
 	{
@@ -120,57 +129,41 @@ void Renderer::Render() {
 		d3dDC->CSSetConstantBuffers(0, 1, &t);
 	}
 
+	UINT idx = 0;
+
 	if (state == FrameSourceBase::UpdateState::NoUpdate) {
 		// 此帧内容无变化
 		// 从第一个使用动态常量的效果开始渲染
 		// 如果没有则只渲染最后一个效果的最后一个通道
 
 		size_t i = 0;
-		for (; i < _effects.size(); ++i) {
+		for (size_t end = _effects.size() - 1; i < end; ++i) {
 			if (_effects[i]->IsUseDynamic()) {
 				break;
+			} else {
+				for (UINT j = (UINT)_effects[i]->GetDesc().passes.size(); j > 0; --j) {
+					_gpuTimer->OnEndPass(idx++);
+				}
 			}
 		}
 
 		if (i == _effects.size()) {
 			// 只渲染最后一个 Effect 的最后一个 pass
-			_effects.back()->Draw(true);
+			_effects.back()->Draw(idx, true);
 		} else {
 			for (; i < _effects.size(); ++i) {
-				_effects[i]->Draw();
+				_effects[i]->Draw(idx);
 			}
 		}
 	} else {
-		if (isUIVisiable) {
-			if (!_queries[_curQueryIdx].first) {
-				_InitQueries(_curQueryIdx);
-			}
-
-			d3dDC->Begin(_queries[_curQueryIdx].first.get());
-			d3dDC->End(_queries[_curQueryIdx].second[0].get());
-
-			size_t idx = 1;
-
-			for (auto& effect : _effects) {
-				UINT nPass = effect->GetDesc().passes.size();
-
-				auto begin = _queries[_curQueryIdx].second.begin();
-				std::span effectQueries(begin + idx, begin + idx + nPass);
-				idx += nPass;
-
-				effect->Draw(false, effectQueries);
-			}
-
-			d3dDC->End(_queries[_curQueryIdx].first.get());
-		} else {
-			for (auto& effect : _effects) {
-				effect->Draw();
-			}
+		for (auto& effect : _effects) {
+			effect->Draw(idx);
 		}
 	}
 
 	if (_overlayDrawer) {
 		_overlayDrawer->Draw();
+		_gpuTimer->OnEndOverlay();
 	}
 
 	dr.EndFrame();
@@ -184,12 +177,7 @@ void Renderer::SetUIVisibility(bool value) {
 	if (!value) {
 		if (_overlayDrawer && _overlayDrawer->IsUIVisiable()) {
 			_overlayDrawer->SetUIVisibility(false);
-
-			_curQueryIdx = 0;
-			_queries[0].first = nullptr;
-			_queries[0].second.clear();
-			_queries[1].first = nullptr;
-			_queries[1].second.clear();
+			_gpuTimer->StopProfiling();
 		}
 		return;
 	}
@@ -565,78 +553,6 @@ bool Renderer::_UpdateDynamicConstants() {
 	} else {
 		Logger::Get().ComError("Map 失败", hr);
 		return false;
-	}
-
-	return true;
-}
-
-
-void Renderer::_UpdateEffectTimings() {
-	if (_queries[_curQueryIdx].first) {
-		auto d3dDC = App::Get().GetDeviceResources().GetD3DDC();
-
-		D3D11_QUERY_DATA_TIMESTAMP_DISJOINT disjointData;
-		while (S_OK != d3dDC->GetData(_queries[_curQueryIdx].first.get(), &disjointData, sizeof(disjointData), 0)) {
-		}
-
-		if (!disjointData.Disjoint) {
-			auto& queries = _queries[_curQueryIdx].second;
-
-			UINT64 startTimestamp;
-			while (S_OK != d3dDC->GetData(queries[0].get(), &startTimestamp, sizeof(startTimestamp), 0)) {
-			}
-
-			_effectTimings.resize(queries.size() - 1);
-			for (size_t i = 1; i < queries.size(); ++i) {
-				UINT64 timestamp;
-				while (S_OK != d3dDC->GetData(queries[i].get(), &timestamp, sizeof(timestamp), 0)) {
-				}
-
-				_effectTimings[i - 1] = 1000 * float(timestamp - startTimestamp) / disjointData.Frequency;
-				startTimestamp = timestamp;
-			}
-		} else {
-			// 查询的值不可靠
-			_effectTimings.clear();
-		}
-	} else {
-		_effectTimings.clear();
-	}
-
-	if (App::Get().GetConfig().IsDisableLowLatency()) {
-		_curQueryIdx = 1 - _curQueryIdx;
-	}
-}
-
-bool Renderer::_InitQueries(UINT idx) {
-	auto d3dDevice = App::Get().GetDeviceResources().GetD3DDevice();
-
-	D3D11_QUERY_DESC desc{ D3D11_QUERY_TIMESTAMP_DISJOINT, 0 };
-	HRESULT hr = d3dDevice->CreateQuery(&desc, _queries[idx].first.put());
-	if (FAILED(hr)) {
-		return false;
-	}
-
-	// 计算需要的 ID3D11Query 数量
-	UINT queryCount = 1;
-	if (App::Get().GetConfig().IsDisableLowLatency() && _queries[size_t(1) - idx].first) {
-		queryCount = _queries[size_t(1) - idx].second.size();
-	} else {
-		for (const std::unique_ptr<EffectDrawer>& effect : _effects) {
-			queryCount += effect->GetDesc().passes.size();
-		}
-	}
-
-	_queries[idx].second.resize(queryCount);
-
-	desc.Query = D3D11_QUERY_TIMESTAMP;
-	for (auto& query : _queries[idx].second) {
-		hr = d3dDevice->CreateQuery(&desc, query.put());
-		if (FAILED(hr)) {
-			_queries[idx].first = nullptr;
-			_queries[idx].second.clear();
-			return false;
-		}
 	}
 
 	return true;

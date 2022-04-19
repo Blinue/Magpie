@@ -16,6 +16,10 @@ public:
 		return false;
 	}
 
+	const char* GetName() const noexcept override {
+		return "GDI";
+	}
+
 protected:
 	bool _HasRoundCornerInWin11() override {
 		return false;
