@@ -41,8 +41,8 @@ public:
 		return _virtualOutputRect;
 	}
 
-	size_t GetEffectCount() const noexcept {
-		return _effects.size();
+	UINT GetEffectCount() const noexcept {
+		return (UINT)_effects.size();
 	}
 
 	const EffectDesc& GetEffectDesc(size_t idx) const noexcept;

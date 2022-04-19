@@ -89,17 +89,6 @@ void Renderer::Render() {
 
 	if (!_waitingForNextFrame) {
 		dr.BeginFrame();
-
-		if (IsUIVisiable() && !_gpuTimer->IsProfiling()) {
-			UINT passCount = 0;
-			for (const auto& effect : _effects) {
-				passCount += (UINT)effect->GetDesc().passes.size();
-			}
-
-			// StartProfiling 必须在 OnBeginFrame 之前调用
-			_gpuTimer->StartProfiling(std::chrono::milliseconds(500), passCount);
-		}
-		
 		_gpuTimer->OnBeginFrame();
 	}
 
@@ -119,9 +108,6 @@ void Renderer::Render() {
 		Logger::Get().Error("_UpdateDynamicConstants 失败");
 	}
 
-	// 更新动态常量的时间并入捕获中
-	_gpuTimer->OnEndCapture();
-
 	auto d3dDC = dr.GetD3DDC();
 
 	{
@@ -129,8 +115,9 @@ void Renderer::Render() {
 		d3dDC->CSSetConstantBuffers(0, 1, &t);
 	}
 
-	UINT idx = 0;
+	_gpuTimer->OnBeginEffects();
 
+	UINT idx = 0;
 	if (state == FrameSourceBase::UpdateState::NoUpdate) {
 		// 此帧内容无变化
 		// 从第一个使用动态常量的效果开始渲染
@@ -191,6 +178,14 @@ void Renderer::SetUIVisibility(bool value) {
 
 	if (!_overlayDrawer->IsUIVisiable()) {
 		_overlayDrawer->SetUIVisibility(true);
+
+		UINT passCount = 0;
+		for (const auto& effect : _effects) {
+			passCount += (UINT)effect->GetDesc().passes.size();
+		}
+
+		// StartProfiling 必须在 OnBeginFrame 之前调用
+		_gpuTimer->StartProfiling(std::chrono::milliseconds(500), passCount);
 	}
 }
 

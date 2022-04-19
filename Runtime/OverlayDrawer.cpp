@@ -338,10 +338,6 @@ void OverlayDrawer::_DrawUI() {
 	auto& renderer = App::Get().GetRenderer();
 	auto& gpuTimer = renderer.GetGPUTimer();
 
-	if (!gpuTimer.IsProfiling()) {
-		return;
-	}
-
 #ifdef _DEBUG
 	ImGui::ShowDemoWindow();
 #endif
@@ -361,6 +357,7 @@ void OverlayDrawer::_DrawUI() {
 	ImGui::Text(StrUtils::Concat("CPU: ", _hardwareInfo.cpuName).c_str());
 
 	ImGui::Text(StrUtils::Concat("VSync: ", config.IsDisableVSync() ? "OFF" : "ON").c_str());
+	ImGui::Text(StrUtils::Concat("Capture Method: ", App::Get().GetFrameSource().GetName()).c_str());
 	ImGui::Spacing();
 
 	static UINT nSamples = 120;
@@ -424,13 +421,8 @@ void OverlayDrawer::_DrawUI() {
 	if (ImGui::CollapsingHeader("GPU Timings", ImGuiTreeNodeFlags_DefaultOpen)) {
 		const auto& gpuTimings = gpuTimer.GetGPUTimings();
 
-		ImGui::Text(fmt::format("{} : {:.3f} ms",
-			App::Get().GetFrameSource().GetName(), gpuTimings.capture).c_str());
-
 		UINT idx = 0;
-
-		UINT nEffects = (UINT)renderer.GetEffectCount();
-		for (UINT i = 0; i < nEffects; ++i) {
+		for (UINT i = 0; i < renderer.GetEffectCount(); ++i) {
 			const EffectDesc& effectDesc = renderer.GetEffectDesc(i);
 			if (effectDesc.passes.size() == 1) {
 				ImGui::Text(fmt::format("{} : {:.3f} ms",

@@ -26,14 +26,6 @@ void GPUTimer::OnBeginFrame() {
 		_framesThisSecond = 0;
 		_fpsCounter %= 1s;
 	}
-
-	_UpdateGPUTimings();
-
-	if (_curQueryIdx >= 0) {
-		auto d3dDC = App::Get().GetDeviceResources().GetD3DDC();
-		d3dDC->Begin(_queries[_curQueryIdx].disjoint.get());
-		d3dDC->End(_queries[_curQueryIdx].start.get());
-	}
 }
 
 void GPUTimer::StartProfiling(std::chrono::microseconds updateInterval, UINT passCount) {
@@ -61,12 +53,16 @@ void GPUTimer::StopProfiling() {
 	_gpuTimings = {};
 }
 
-void GPUTimer::OnEndCapture() {
+void GPUTimer::OnBeginEffects() {
 	if (_curQueryIdx < 0) {
 		return;
 	}
 
-	App::Get().GetDeviceResources().GetD3DDC()->End(_queries[_curQueryIdx].capture.get());
+	_UpdateGPUTimings();
+
+	auto d3dDC = App::Get().GetDeviceResources().GetD3DDC();
+	d3dDC->Begin(_queries[_curQueryIdx].disjoint.get());
+	d3dDC->End(_queries[_curQueryIdx].start.get());
 }
 
 void GPUTimer::OnEndPass(UINT idx) {
@@ -118,14 +114,8 @@ void GPUTimer::_UpdateGPUTimings() {
 
 			UINT64 startTimestamp = GetQueryData<UINT64>(d3dDC, curQueryInfo.start.get());
 
-			UINT64 timestamp = GetQueryData<UINT64>(d3dDC, curQueryInfo.capture.get());
-			_captureTimings.first += (timestamp - startTimestamp) * toMS;
-			++_captureTimings.second;
-			
-			startTimestamp = timestamp;
-
 			for (size_t i = 0; i < curQueryInfo.passes.size(); ++i) {
-				timestamp = GetQueryData<UINT64>(d3dDC, curQueryInfo.passes[i].get());
+				UINT64 timestamp = GetQueryData<UINT64>(d3dDC, curQueryInfo.passes[i].get());
 
 				float t = (timestamp - startTimestamp) * toMS;
 				if (t > 0.01) {
@@ -135,7 +125,7 @@ void GPUTimer::_UpdateGPUTimings() {
 				startTimestamp = timestamp;
 			}
 
-			timestamp = GetQueryData<UINT64>(d3dDC, curQueryInfo.overlay.get());
+			UINT64 timestamp = GetQueryData<UINT64>(d3dDC, curQueryInfo.overlay.get());
 			_overlayTimings.first += (timestamp - startTimestamp) * toMS;
 			++_overlayTimings.second;
 		} else {
@@ -144,7 +134,6 @@ void GPUTimer::_UpdateGPUTimings() {
 #ifdef _DEBUG
 			// 依然执行查询，否则调试层将发出警告
 			GetQueryData<D3D11_QUERY_DATA_TIMESTAMP_DISJOINT>(d3dDC, curQueryInfo.disjoint.get());
-			GetQueryData<UINT64>(d3dDC, curQueryInfo.capture.get());
 			for (auto& query : curQueryInfo.passes) {
 				GetQueryData<UINT64>(d3dDC, query.get());
 			}
@@ -155,14 +144,12 @@ void GPUTimer::_UpdateGPUTimings() {
 		_profilingCounter += _elapsedTime;
 		if (_profilingCounter >= _updateProfilingTime) {
 			// 更新渲染用时
-			_gpuTimings.capture = _captureTimings.second == 0 ? 0.0f : _captureTimings.first / _captureTimings.second;
 			for (UINT i = 0; i < _passesTimings.size(); ++i) {
 				_gpuTimings.passes[i] = _passesTimings[i].second == 0 ?
 					0.0f : _passesTimings[i].first / _passesTimings[i].second;
 			}
 			_gpuTimings.overlay = _overlayTimings.second == 0 ? 0.0f : _overlayTimings.first / _overlayTimings.second;
 
-			_captureTimings = {};
 			std::fill(_passesTimings.begin(), _passesTimings.end(), std::pair<float, UINT>());
 			_overlayTimings = {};
 
@@ -176,7 +163,6 @@ void GPUTimer::_UpdateGPUTimings() {
 
 		desc.Query = D3D11_QUERY_TIMESTAMP;
 		d3dDevice->CreateQuery(&desc, curQueryInfo.start.put());
-		d3dDevice->CreateQuery(&desc, curQueryInfo.capture.put());
 		for (UINT j = 0; j < curQueryInfo.passes.size(); ++j) {
 			d3dDevice->CreateQuery(&desc, curQueryInfo.passes[j].put());
 		}

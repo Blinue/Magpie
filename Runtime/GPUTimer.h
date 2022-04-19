@@ -22,7 +22,6 @@ public:
 
 	struct GPUTimings {
 		std::vector<float> passes;
-		float capture = 0.0f;
 		float overlay = 0.0f;
 	};
 
@@ -41,7 +40,7 @@ public:
 		return _curQueryIdx >= 0;
 	}
 
-	void OnEndCapture();
+	void OnBeginEffects();
 
 	// 每个通道结束后调用
 	void OnEndPass(UINT idx);
@@ -69,7 +68,6 @@ private:
 	struct _QueryInfo {
 		winrt::com_ptr<ID3D11Query> disjoint;
 		winrt::com_ptr<ID3D11Query> start;
-		winrt::com_ptr<ID3D11Query> capture;
 		std::vector<winrt::com_ptr<ID3D11Query>> passes;
 		winrt::com_ptr<ID3D11Query> overlay;
 	};
@@ -83,6 +81,5 @@ private:
 	// 用于保存渲染时间
 	// (总计用时, 已统计帧数)
 	std::vector<std::pair<float, UINT>> _passesTimings;
-	std::pair<float, UINT> _captureTimings;
 	std::pair<float, UINT> _overlayTimings;
 };
