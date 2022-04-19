@@ -78,6 +78,8 @@ bool OverlayDrawer::Initialize(ID3D11Texture2D* renderTarget) {
 
 	_handlerID = App::Get().RegisterWndProcHandler(WndProcHandler);
 
+	_RetrieveHardwareInfo();
+
 	return true;
 }
 
@@ -214,7 +216,7 @@ void OverlayDrawer::_DrawFPS() {
 }
 
 // 只在 x86 和 x64 可用
-static std::string _GetCPUNameViaCPUID() {
+static std::string GetCPUNameViaCPUID() {
 	int nIDs = 0;
 	int nExIDs = 0;
 
@@ -246,7 +248,7 @@ static std::string _GetCPUNameViaCPUID() {
 }
 
 // 非常慢，需要大约 18 ms
-static std::string _GetCPUNameViaWMI() {
+static std::string GetCPUNameViaWMI() {
 	winrt::com_ptr<IWbemLocator> wbemLocator;
 	winrt::com_ptr<IWbemServices> wbemServices;
 	winrt::com_ptr<IEnumWbemClassObject> enumWbemClassObject;
@@ -318,20 +320,16 @@ static std::string _GetCPUNameViaWMI() {
 }
 
 static std::string GetCPUName() {
-	static std::string result;
-	if (!result.empty()) {
-		return result;
-	}
+	std::string result;
 	
 #ifdef _M_X64
-	result = _GetCPUNameViaCPUID();
+	result = GetCPUNameViaCPUID();
 	if (!result.empty()) {
 		return result;
 	}
 #endif // _M_X64
 
-	result = _GetCPUNameViaWMI();
-	return result.empty() ? "UNAVAILABLE" : result;
+	return GetCPUNameViaWMI();
 }
 
 void OverlayDrawer::_DrawUI() {
@@ -339,13 +337,8 @@ void OverlayDrawer::_DrawUI() {
 	ImGui::ShowDemoWindow();
 #endif
 
-	static ImVec2 initSize = [this] {
-		return ImVec2(350 * _dpiScale, 500 * _dpiScale);
-	}();
-
-	static float initPosX = [this] {
-		return (float)(Utils::GetSizeOfRect(App::Get().GetRenderer().GetOutputRect()).cx - 350 * _dpiScale - 100);
-	}();
+	static ImVec2 initSize(350 * _dpiScale, 500 * _dpiScale);
+	static float initPosX = Utils::GetSizeOfRect(App::Get().GetRenderer().GetOutputRect()).cx - 350 * _dpiScale - 100.0f;
 
 	ImGui::SetNextWindowSize(initSize, ImGuiCond_FirstUseEver);
 	ImGui::SetNextWindowPos(ImVec2(initPosX, 20), ImGuiCond_FirstUseEver);
@@ -355,15 +348,12 @@ void OverlayDrawer::_DrawUI() {
 		return;
 	}
 
-	auto& dr = App::Get().GetDeviceResources();
 	auto& config = App::Get().GetConfig();
 	auto& renderer = App::Get().GetRenderer();
 	auto& gpuTimer = renderer.GetGPUTimer();
 
-	DXGI_ADAPTER_DESC desc{};
-	dr.GetGraphicsAdapter()->GetDesc(&desc);
-	ImGui::Text(StrUtils::Concat("GPU: ", StrUtils::UTF16ToUTF8(desc.Description)).c_str());
-	ImGui::Text(StrUtils::Concat("CPU: ", GetCPUName()).c_str());
+	ImGui::Text(StrUtils::Concat("GPU: ", _hardwareInfo.gpuName).c_str());
+	ImGui::Text(StrUtils::Concat("CPU: ", _hardwareInfo.cpuName).c_str());
 
 	ImGui::Text(StrUtils::Concat("VSync: ", config.IsDisableVSync() ? "OFF" : "ON").c_str());
 	ImGui::Spacing();
@@ -394,9 +384,9 @@ void OverlayDrawer::_DrawUI() {
 			const float maxFPS = std::bit_ceil((UINT)std::ceilf((1000 / minTime - 10) / 30)) * 30 * 1.7f;
 			
 			ImGui::PlotLines("", [](void* data, int idx) {
-				float time = ((float*)data)[idx];
+				float time = (*(std::deque<float>*)data)[idx];
 				return time < 1e-6 ? 0 : 1000 / time;
-			}, _frameTimes.data(), _frameTimes.size(), 0, fmt::format("avg: {:.3f} FPS", _validFrames * 1000 / totalTime).c_str(), 0, maxFPS, ImVec2(250 * _dpiScale, 80 * _dpiScale));
+			}, &_frameTimes, _frameTimes.size(), 0, fmt::format("avg: {:.3f} FPS", _validFrames * 1000 / totalTime).c_str(), 0, maxFPS, ImVec2(250 * _dpiScale, 80 * _dpiScale));
 		} else {
 			float totalTime = 0;
 			float maxTime = 0;
@@ -405,7 +395,9 @@ void OverlayDrawer::_DrawUI() {
 				maxTime = std::max(_frameTimes[i], maxTime);
 			}
 
-			ImGui::PlotLines("", _frameTimes.data(), _frameTimes.size(), 0,
+			ImGui::PlotLines("", [](void* data, int idx) {
+				return (*(std::deque<float>*)data)[idx];
+			}, &_frameTimes, _frameTimes.size(), 0,
 				fmt::format("avg: {:.3f} ms", totalTime / _validFrames).c_str(),
 				0, maxTime * 1.7f, ImVec2(250 * _dpiScale, 80 * _dpiScale));
 		}
@@ -446,4 +438,13 @@ void OverlayDrawer::_DrawUI() {
 	}
 
 	ImGui::End();
+}
+
+void OverlayDrawer::_RetrieveHardwareInfo() {
+	DXGI_ADAPTER_DESC desc{};
+	HRESULT hr = App::Get().GetDeviceResources().GetGraphicsAdapter()->GetDesc(&desc);
+	_hardwareInfo.gpuName = SUCCEEDED(hr) ? StrUtils::UTF16ToUTF8(desc.Description) : "UNAVAILABLE";
+
+	std::string cpuName = GetCPUName();
+	_hardwareInfo.cpuName = !cpuName.empty() ? std::move(cpuName) : "UNAVAILABLE";
 }

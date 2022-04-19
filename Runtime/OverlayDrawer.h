@@ -1,5 +1,6 @@
 #pragma once
 #include "pch.h"
+#include <deque>
 
 struct ImFont;
 
@@ -26,6 +27,8 @@ private:
 
 	void _DrawUI();
 
+	void _RetrieveHardwareInfo();
+
 	float _dpiScale = 1.0f;
 
 	UINT _handlerID = 0;
@@ -35,6 +38,11 @@ private:
 	ImFont* _fontSmall = nullptr;
 	ImFont* _fontLarge = nullptr;
 
-	std::vector<float> _frameTimes;
+	std::deque<float> _frameTimes;
 	UINT _validFrames = 0;
+
+	struct {
+		std::string gpuName;
+		std::string cpuName;
+	} _hardwareInfo;
 };
