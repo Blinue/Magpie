@@ -48,6 +48,7 @@ SamplerState sam;
 
 
 //!PASS 1
+//!DESC L1
 //!IN INPUT
 //!OUT tex1, tex2
 //!BLOCK_SIZE 16
@@ -177,6 +178,7 @@ void Pass1(uint2 blockStart, uint3 threadId) {
 
 
 //!PASS 2
+//!DESC L2
 //!IN tex1, tex2
 //!OUT tex3, tex4
 //!BLOCK_SIZE 8
@@ -683,6 +685,7 @@ void Pass2(uint2 blockStart, uint3 threadId) {
 
 
 //!PASS 3
+//!DESC L3
 //!IN tex3, tex4
 //!OUT tex1, tex2
 //!BLOCK_SIZE 8
@@ -1190,6 +1193,7 @@ void Pass3(uint2 blockStart, uint3 threadId) {
 
 
 //!PASS 4
+//!DESC L4
 //!IN tex1, tex2
 //!OUT tex3, tex4
 //!BLOCK_SIZE 8
@@ -1697,6 +1701,7 @@ void Pass4(uint2 blockStart, uint3 threadId) {
 
 
 //!PASS 5
+//!DESC L5
 //!IN tex3, tex4
 //!OUT tex1, tex2
 //!BLOCK_SIZE 8
@@ -2205,6 +2210,7 @@ void Pass5(uint2 blockStart, uint3 threadId) {
 
 
 //!PASS 6
+//!DESC L6
 //!IN tex1, tex2
 //!OUT tex3, tex4
 //!BLOCK_SIZE 8
@@ -2712,6 +2718,7 @@ void Pass6(uint2 blockStart, uint3 threadId) {
 
 
 //!PASS 7
+//!DESC L7
 //!IN tex3, tex4
 //!OUT tex1, tex2
 //!BLOCK_SIZE 8
@@ -3219,6 +3226,7 @@ void Pass7(uint2 blockStart, uint3 threadId) {
 
 
 //!PASS 8
+//!DESC L8
 //!IN tex1, tex2
 //!OUT tex3, tex4
 //!BLOCK_SIZE 8
@@ -3726,6 +3734,7 @@ void Pass8(uint2 blockStart, uint3 threadId) {
 
 
 //!PASS 9
+//!DESC L9, L10
 //!IN INPUT, tex3, tex4
 //!BLOCK_SIZE 16
 //!NUM_THREADS 64

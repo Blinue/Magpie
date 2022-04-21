@@ -833,7 +833,7 @@ UINT ResolvePasses(
 			texNames.emplace(desc.textures[i].name, (UINT)i);
 		}
 
-		std::bitset<5> processed;
+		std::bitset<6> processed;
 
 		while (true) {
 			if (!CheckNextToken<true>(block, META_INDICATOR)) {
@@ -992,6 +992,19 @@ UINT ResolvePasses(
 				} else if (val != "CS") {
 					return 1;
 				}
+			} else if (t == "DESC") {
+				if (processed[5]) {
+					return 1;
+				}
+				processed[5] = true;
+
+				std::string_view val;
+				if (GetNextString(block, val)) {
+					return 1;
+				}
+
+				StrUtils::Trim(val);
+				passDesc.desc = val;
 			} else {
 				return 1;
 			}

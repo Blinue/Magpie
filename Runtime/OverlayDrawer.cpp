@@ -173,11 +173,14 @@ void OverlayDrawer::_DrawFPS() {
 	// 背景透明时绘制阴影
 	const bool drawShadow = opacity < 1e-5f;
 
+	static constexpr float PADDING_X = 5;
+	static constexpr float PADDING_Y = 1;
+
 	ImGui::SetNextWindowPos(ImVec2(10, 10), ImGuiCond_FirstUseEver);
 	ImGui::SetNextWindowBgAlpha(opacity);
 
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
-	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, drawShadow ? ImVec2() : ImVec2(5, 1));
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, drawShadow ? ImVec2() : ImVec2(PADDING_X, PADDING_Y));
 	if (!ImGui::Begin("FPS", nullptr, ImGuiWindowFlags_NoNav | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoFocusOnAppearing | (isLocked ? ImGuiWindowFlags_NoMove : 0) | (drawShadow ? ImGuiWindowFlags_NoBackground : 0))) {
 		// Early out if the window is collapsed, as an optimization.
 		ImGui::End();
@@ -185,16 +188,16 @@ void OverlayDrawer::_DrawFPS() {
 	}
 
 	if (oldOpacity != opacity) {
-		// 透明时无边框，确保 FPS 位置不变
+		// 透明时无边距，确保文字位置不变
 		if (oldOpacity < 1e-5f) {
 			if (opacity >= 1e-5f) {
 				ImVec2 windowPos = ImGui::GetWindowPos();
-				ImGui::SetWindowPos(ImVec2(windowPos.x - 5, windowPos.y - 1));
+				ImGui::SetWindowPos(ImVec2(windowPos.x - PADDING_X, windowPos.y - PADDING_Y));
 			}
 		} else {
 			if (opacity < 1e-5f) {
 				ImVec2 windowPos = ImGui::GetWindowPos();
-				ImGui::SetWindowPos(ImVec2(windowPos.x + 5, windowPos.y + 1));
+				ImGui::SetWindowPos(ImVec2(windowPos.x + PADDING_X, windowPos.y + PADDING_Y));
 			}
 		}
 		oldOpacity = opacity;
@@ -471,13 +474,19 @@ void OverlayDrawer::_DrawUI() {
 				++idx;
 			} else {
 				for (UINT j = 0; j < effectDesc.passes.size(); ++j) {
-					ImGui::TextUnformatted(fmt::format("{}/Pass{} : {:.3f} ms", renderer.GetEffectDesc(i).name,
-						j + 1, gpuTimings.passes[idx]).c_str());
+					std::string desc = effectDesc.passes[j].desc;
+					if (desc.empty()) {
+						desc = fmt::format("Pass{}", j + 1);
+					}
+
+					ImGui::TextUnformatted(fmt::format("{}/{} : {:.3f} ms", renderer.GetEffectDesc(i).name,
+						desc, gpuTimings.passes[idx]).c_str());
 					++idx;
 				}
 			}
 		}
 
+		ImGui::Separator();
 		ImGui::TextUnformatted(fmt::format("Overlay : {:.3f} ms", gpuTimings.overlay).c_str());
 	}
 

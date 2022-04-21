@@ -102,6 +102,7 @@ struct EffectPassDesc {
 	std::vector<UINT> outputs;
 	std::array<UINT, 3> numThreads{};
 	std::pair<UINT, UINT> blockSize{};
+	std::string desc;
 	bool isPSStyle = false;
 };
 
