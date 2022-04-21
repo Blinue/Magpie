@@ -10,8 +10,7 @@ using namespace std::chrono_literals;
 void GPUTimer::OnBeginFrame() {
 	auto now = std::chrono::high_resolution_clock::now();
 
-	// 平滑过大的时间差
-	_elapsedTime = std::min<std::chrono::nanoseconds>(now - _lastTimePoint, 100ms);
+	_elapsedTime = now - _lastTimePoint;
 	_lastTimePoint = now;
 
 	_totalTime += _elapsedTime;

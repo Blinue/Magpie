@@ -36,10 +36,6 @@ public:
 
 	void StopProfiling();
 
-	bool IsProfiling() const noexcept {
-		return _curQueryIdx >= 0;
-	}
-
 	void OnBeginEffects();
 
 	// 每个通道结束后调用

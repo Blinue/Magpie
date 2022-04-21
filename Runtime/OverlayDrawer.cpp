@@ -62,13 +62,14 @@ bool OverlayDrawer::Initialize(ID3D11Texture2D* renderTarget) {
 
 	ImFontConfig config;
 	config.FontDataOwnedByAtlas = false;
-	_fontSmall = io.Fonts->AddFontFromMemoryTTF(fontData.data(), (int)fontData.size(), std::floor(18 * _dpiScale), &config, io.Fonts->GetGlyphRangesDefault());
+	_fontUI = io.Fonts->AddFontFromMemoryTTF(fontData.data(), (int)fontData.size(), std::floor(18 * _dpiScale), &config, io.Fonts->GetGlyphRangesDefault());
 
 	ImVector<ImWchar> fpsRanges;
 	ImFontGlyphRangesBuilder builder;
 	builder.AddText("0123456789 FPS");
 	builder.BuildRanges(&fpsRanges);
-	_fontLarge = io.Fonts->AddFontFromMemoryTTF(fontData.data(), (int)fontData.size(), std::floor(36 * _dpiScale), &config, fpsRanges.Data);
+	// FPS 的字体尺寸不跟随系统缩放
+	_fontFPS = io.Fonts->AddFontFromMemoryTTF(fontData.data(), (int)fontData.size(), 32, &config, fpsRanges.Data);
 
 	io.Fonts->Build();
 
@@ -126,7 +127,7 @@ void OverlayDrawer::Draw() {
 		}
 	}
 
-	ImGui::PushFont(_fontSmall);
+	ImGui::PushFont(_fontUI);
 
 	if (isShowFPS) {
 		_DrawFPS();
@@ -166,48 +167,47 @@ void OverlayDrawer::SetUIVisibility(bool value) {
 }
 
 void OverlayDrawer::_DrawFPS() {
-	static float fontSize = 0.5f;
-	static float opacity = 0.5f;
-	static ImVec4 fpsColor(1, 1, 1, 1);
+	static float opacity = 0.0f;
+	// 背景透明时绘制阴影
+	const bool hasShadow = opacity < 1e-5f;
 
-	ImGui::SetNextWindowPos(ImVec2(20, 20), ImGuiCond_FirstUseEver);
+	ImGui::SetNextWindowPos(ImVec2(10, 10), ImGuiCond_FirstUseEver);
 	ImGui::SetNextWindowBgAlpha(opacity);
 
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
-	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(2 + 6 * fontSize, 2));
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, hasShadow ? ImVec2() : ImVec2(5, 1));
 	if (!ImGui::Begin("FPS", nullptr, ImGuiWindowFlags_NoNav | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoFocusOnAppearing)) {
 		// Early out if the window is collapsed, as an optimization.
 		ImGui::End();
 		return;
 	}
 
-	ImFont* font = nullptr;
-	if (fontSize <= 1.0f / 3.0f) {
-		_fontSmall->Scale = fontSize * 1.5f + 0.5f;
-		font = _fontSmall;
-	} else {
-		_fontLarge->Scale = fontSize * 0.75f + 0.25f;
-		font = _fontLarge;
-	}
+	ImGui::PushFont(_fontFPS);
 
-	ImGui::PushFont(font);
-	ImGui::TextColored(fpsColor, fmt::format("{} FPS", App::Get().GetRenderer().GetGPUTimer().GetFramesPerSecond()).c_str());
+	ImVec2 cursorPos = ImGui::GetCursorPos();
+	// 不知为何文字无法竖直居中，因此这里调整位置
+	cursorPos.y -= 3;
+	ImGui::SetCursorPosY(cursorPos.y);
+
+	std::string fps = fmt::format("{} FPS", App::Get().GetRenderer().GetGPUTimer().GetFramesPerSecond());
+	if (hasShadow) {
+		ImGui::SetCursorPos(ImVec2(cursorPos.x + 1.0f, cursorPos.y + 1.0f));
+		ImGui::TextColored(ImVec4(0.0f, 0.0f, 0.0f, 0.8f), fps.c_str());
+
+		ImGui::SetCursorPos(cursorPos);
+		ImGui::TextColored(ImVec4(0.0f, 0.0f, 0.0f, 0.6f), fps.c_str());
+
+		ImGui::SetCursorPos(cursorPos);
+	}
+	ImGui::TextUnformatted(fps.c_str());
+
 	ImGui::PopFont();
-	font->Scale = 1.0f;
-
-	if (font == _fontSmall) {
-		// 还原字体
-		ImGui::PushFont(_fontSmall);
-		ImGui::PopFont();
-	}
 
 	ImGui::PopStyleVar();
 
 	if (ImGui::BeginPopupContextWindow()) {
 		ImGui::PushItemWidth(200);
 		ImGui::SliderFloat("Opacity", &opacity, 0.0f, 1.0f);
-		ImGui::SliderFloat("Size", &fontSize, 0.0f, 1.0f);
-		ImGui::ColorEdit4("Text Color", &fpsColor.x, ImGuiColorEditFlags_AlphaBar | ImGuiColorEditFlags_DisplayRGB);
 		ImGui::PopItemWidth();
 		ImGui::EndPopup();
 	}
@@ -353,14 +353,14 @@ void OverlayDrawer::_DrawUI() {
 		return;
 	}
 
-	ImGui::Text(StrUtils::Concat("GPU: ", _hardwareInfo.gpuName).c_str());
-	ImGui::Text(StrUtils::Concat("CPU: ", _hardwareInfo.cpuName).c_str());
+	ImGui::TextWrapped(StrUtils::Concat("GPU: ", _hardwareInfo.gpuName).c_str());
+	ImGui::TextWrapped(StrUtils::Concat("CPU: ", _hardwareInfo.cpuName).c_str());
 
-	ImGui::Text(StrUtils::Concat("VSync: ", config.IsDisableVSync() ? "OFF" : "ON").c_str());
-	ImGui::Text(StrUtils::Concat("Capture Method: ", App::Get().GetFrameSource().GetName()).c_str());
+	ImGui::TextWrapped(StrUtils::Concat("VSync: ", config.IsDisableVSync() ? "OFF" : "ON").c_str());
+	ImGui::TextWrapped(StrUtils::Concat("Capture Method: ", App::Get().GetFrameSource().GetName()).c_str());
 	ImGui::Spacing();
 
-	static UINT nSamples = 120;
+	static constexpr UINT nSamples = 180;
 
 	if (_frameTimes.size() >= nSamples) {
 		_frameTimes.erase(_frameTimes.begin(), _frameTimes.begin() + (_frameTimes.size() - nSamples + 1));
@@ -377,13 +377,26 @@ void OverlayDrawer::_DrawUI() {
 		if (showFPS) {
 			float totalTime = 0;
 			float minTime = FLT_MAX;
+			float minTime2 = FLT_MAX;
 			for (UINT i = nSamples - _validFrames; i < nSamples; ++i) {
 				totalTime += _frameTimes[i];
-				minTime = std::min(_frameTimes[i], minTime);
+
+				if (_frameTimes[i] <= minTime) {
+					minTime2 = minTime;
+					minTime = _frameTimes[i];
+				} else if (_frameTimes[i] < minTime2) {
+					minTime2 = _frameTimes[i];
+				}
+			}
+
+			if (minTime2 == FLT_MAX) {
+				minTime2 = minTime;
 			}
 
 			// 减少抖动
-			const float maxFPS = std::bit_ceil((UINT)std::ceilf((1000 / minTime - 10) / 30)) * 30 * 1.7f;
+			// 1. 使用第二小的值以缓解尖峰导致的抖动
+			// 2. 以 30 为最小变化单位
+			const float maxFPS = std::bit_ceil((UINT)std::ceilf((1000 / minTime2 - 10) / 30)) * 30 * 1.7f;
 			
 			ImGui::PlotLines("", [](void* data, int idx) {
 				float time = (*(std::deque<float>*)data)[idx];
@@ -392,16 +405,28 @@ void OverlayDrawer::_DrawUI() {
 		} else {
 			float totalTime = 0;
 			float maxTime = 0;
+			float maxTime2 = 0;
 			for (UINT i = nSamples - _validFrames; i < nSamples; ++i) {
 				totalTime += _frameTimes[i];
-				maxTime = std::max(_frameTimes[i], maxTime);
+
+				if (_frameTimes[i] >= maxTime) {
+					maxTime2 = maxTime;
+					maxTime = _frameTimes[i];
+				} else if (_frameTimes[i] > maxTime2) {
+					maxTime2 = _frameTimes[i];
+				}
 			}
 
+			if (maxTime2 == 0) {
+				maxTime2 = maxTime;
+			}
+
+			// 使用第二大的值以缓解尖峰导致的抖动
 			ImGui::PlotLines("", [](void* data, int idx) {
 				return (*(std::deque<float>*)data)[idx];
 			}, &_frameTimes, (int)_frameTimes.size(), 0,
 				fmt::format("avg: {:.3f} ms", totalTime / _validFrames).c_str(),
-				0, maxTime * 1.7f, ImVec2(250 * _dpiScale, 80 * _dpiScale));
+				0, maxTime2 * 1.7f, ImVec2(250 * _dpiScale, 80 * _dpiScale));
 		}
 
 		ImGui::Spacing();
@@ -409,12 +434,6 @@ void OverlayDrawer::_DrawUI() {
 		if (ImGui::Button(showFPS ? "Switch to timings" : "Switch to FPS")) {
 			showFPS = !showFPS;
 		}
-
-		int value = nSamples;
-		ImGui::PushItemWidth(200);
-		ImGui::SliderInt("Sample size", &value, 60, 180, "%d");
-		ImGui::PopItemWidth();
-		nSamples = value;
 	}
 
 	ImGui::Spacing();
@@ -425,19 +444,19 @@ void OverlayDrawer::_DrawUI() {
 		for (UINT i = 0; i < renderer.GetEffectCount(); ++i) {
 			const EffectDesc& effectDesc = renderer.GetEffectDesc(i);
 			if (effectDesc.passes.size() == 1) {
-				ImGui::Text(fmt::format("{} : {:.3f} ms",
+				ImGui::TextUnformatted(fmt::format("{} : {:.3f} ms",
 					renderer.GetEffectDesc(i).name, gpuTimings.passes[idx]).c_str());
 				++idx;
 			} else {
 				for (UINT j = 0; j < effectDesc.passes.size(); ++j) {
-					ImGui::Text(fmt::format("{}/Pass{} : {:.3f} ms", renderer.GetEffectDesc(i).name,
+					ImGui::TextUnformatted(fmt::format("{}/Pass{} : {:.3f} ms", renderer.GetEffectDesc(i).name,
 						j + 1, gpuTimings.passes[idx]).c_str());
 					++idx;
 				}
 			}
 		}
 
-		ImGui::Text(fmt::format("Overlay : {:.3f} ms", gpuTimings.overlay).c_str());
+		ImGui::TextUnformatted(fmt::format("Overlay : {:.3f} ms", gpuTimings.overlay).c_str());
 	}
 
 	ImGui::End();

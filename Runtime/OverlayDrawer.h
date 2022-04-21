@@ -35,8 +35,8 @@ private:
 	ID3D11RenderTargetView* _rtv = nullptr;
 	bool _isUIVisiable = false;
 
-	ImFont* _fontSmall = nullptr;
-	ImFont* _fontLarge = nullptr;
+	ImFont* _fontUI = nullptr;
+	ImFont* _fontFPS = nullptr;
 
 	std::deque<float> _frameTimes;
 	UINT _validFrames = 0;
