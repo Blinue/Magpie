@@ -167,19 +167,37 @@ void OverlayDrawer::SetUIVisibility(bool value) {
 }
 
 void OverlayDrawer::_DrawFPS() {
+	static float oldOpacity = 0.0f;
 	static float opacity = 0.0f;
+	static bool isLocked = false;
 	// 背景透明时绘制阴影
-	const bool hasShadow = opacity < 1e-5f;
+	const bool drawShadow = opacity < 1e-5f;
 
 	ImGui::SetNextWindowPos(ImVec2(10, 10), ImGuiCond_FirstUseEver);
 	ImGui::SetNextWindowBgAlpha(opacity);
 
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
-	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, hasShadow ? ImVec2() : ImVec2(5, 1));
-	if (!ImGui::Begin("FPS", nullptr, ImGuiWindowFlags_NoNav | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoFocusOnAppearing)) {
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, drawShadow ? ImVec2() : ImVec2(5, 1));
+	if (!ImGui::Begin("FPS", nullptr, ImGuiWindowFlags_NoNav | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoFocusOnAppearing | (isLocked ? ImGuiWindowFlags_NoMove : 0) | (drawShadow ? ImGuiWindowFlags_NoBackground : 0))) {
 		// Early out if the window is collapsed, as an optimization.
 		ImGui::End();
 		return;
+	}
+
+	if (oldOpacity != opacity) {
+		// 透明时无边框，确保 FPS 位置不变
+		if (oldOpacity < 1e-5f) {
+			if (opacity >= 1e-5f) {
+				ImVec2 windowPos = ImGui::GetWindowPos();
+				ImGui::SetWindowPos(ImVec2(windowPos.x - 5, windowPos.y - 1));
+			}
+		} else {
+			if (opacity < 1e-5f) {
+				ImVec2 windowPos = ImGui::GetWindowPos();
+				ImGui::SetWindowPos(ImVec2(windowPos.x + 5, windowPos.y + 1));
+			}
+		}
+		oldOpacity = opacity;
 	}
 
 	ImGui::PushFont(_fontFPS);
@@ -190,7 +208,7 @@ void OverlayDrawer::_DrawFPS() {
 	ImGui::SetCursorPosY(cursorPos.y);
 
 	std::string fps = fmt::format("{} FPS", App::Get().GetRenderer().GetGPUTimer().GetFramesPerSecond());
-	if (hasShadow) {
+	if (drawShadow) {
 		ImGui::SetCursorPos(ImVec2(cursorPos.x + 1.0f, cursorPos.y + 1.0f));
 		ImGui::TextColored(ImVec4(0.0f, 0.0f, 0.0f, 0.8f), fps.c_str());
 
@@ -208,6 +226,10 @@ void OverlayDrawer::_DrawFPS() {
 	if (ImGui::BeginPopupContextWindow()) {
 		ImGui::PushItemWidth(200);
 		ImGui::SliderFloat("Opacity", &opacity, 0.0f, 1.0f);
+		ImGui::Separator();
+		if (ImGui::MenuItem(isLocked ? "Unlock" : "Lock", nullptr, nullptr)) {
+			isLocked = !isLocked;
+		}
 		ImGui::PopItemWidth();
 		ImGui::EndPopup();
 	}
