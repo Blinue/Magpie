@@ -52,6 +52,7 @@ Texture2D tex6;
 
 
 //!PASS 1
+//!DESC Conv-4x3x3x3
 //!IN INPUT
 //!OUT tex1, tex2
 //!BLOCK_SIZE 16
@@ -128,6 +129,7 @@ void Pass1(uint2 blockStart, uint3 threadId) {
 
 
 //!PASS 2
+//!DESC Conv-4x3x3x16
 //!IN tex1, tex2
 //!OUT tex3, tex4
 //!BLOCK_SIZE 8
@@ -288,6 +290,7 @@ void Pass2(uint2 blockStart, uint3 threadId) {
 
 
 //!PASS 3
+//!DESC Conv-4x3x3x16
 //!IN tex3, tex4
 //!OUT tex1, tex2, tex5
 //!BLOCK_SIZE 8
@@ -454,6 +457,7 @@ void Pass3(uint2 blockStart, uint3 threadId) {
 
 
 //!PASS 4
+//!DESC Conv-4x3x3x16
 //!IN tex1, tex2, tex5
 //!OUT tex3, tex4, tex6
 //!BLOCK_SIZE 8
@@ -621,6 +625,7 @@ void Pass4(uint2 blockStart, uint3 threadId) {
 
 
 //!PASS 5
+//!DESC Conv-4x3x3x16
 //!IN tex3, tex4, tex6
 //!OUT tex1, tex2, tex5
 //!BLOCK_SIZE 8
@@ -788,6 +793,7 @@ void Pass5(uint2 blockStart, uint3 threadId) {
 
 
 //!PASS 6
+//!DESC Conv-4x3x3x16
 //!IN tex1, tex2, tex5
 //!OUT tex3, tex4, tex6
 //!BLOCK_SIZE 8
@@ -955,6 +961,7 @@ void Pass6(uint2 blockStart, uint3 threadId) {
 
 
 //!PASS 7
+//!DESC Conv-4x3x3x16
 //!IN tex3, tex4, tex6
 //!OUT tex1, tex2, tex5
 //!BLOCK_SIZE 8
@@ -1122,6 +1129,7 @@ void Pass7(uint2 blockStart, uint3 threadId) {
 
 
 //!PASS 8
+//!DESC Conv-4x3x3x16, Conv-3x1x1x112
 //!IN INPUT, tex1, tex2, tex5
 //!BLOCK_SIZE 8
 //!NUM_THREADS 64
