@@ -1,4 +1,4 @@
-// FSRCNNX_LineArt
+// FSRCNNX_x2_8-0-4-1_LineArt
 // 移植自 https://github.com/igv/FSRCNN-TensorFlow
 
 //!MAGPIE EFFECT
@@ -53,6 +53,7 @@ SamplerState sam;
 
 
 //!PASS 1
+//!DESC feature map
 //!IN INPUT
 //!OUT featureMap1, featureMap2
 //!BLOCK_SIZE 32, 24
@@ -166,6 +167,7 @@ void Pass1(uint2 blockStart, uint3 threadId) {
 
 
 //!PASS 2
+//!DESC mapping 1
 //!IN featureMap1, featureMap2
 //!OUT tex1, tex2
 //!BLOCK_SIZE 8
@@ -252,6 +254,7 @@ void Pass2(uint2 blockStart, uint3 threadId) {
 
 
 //!PASS 3
+//!DESC mapping 2
 //!IN tex1, tex2
 //!OUT tex3, tex4
 //!BLOCK_SIZE 8
@@ -338,6 +341,7 @@ void Pass3(uint2 blockStart, uint3 threadId) {
 
 
 //!PASS 4
+//!DESC mapping 3
 //!IN tex3, tex4
 //!OUT tex1, tex2
 //!BLOCK_SIZE 8
@@ -424,6 +428,7 @@ void Pass4(uint2 blockStart, uint3 threadId) {
 
 
 //!PASS 5
+//!DESC mapping 4, sub-band residuals
 //!IN tex1, tex2, featureMap1, featureMap2
 //!OUT tex3, tex4
 //!BLOCK_SIZE 8
@@ -522,6 +527,7 @@ void Pass5(uint2 blockStart, uint3 threadId) {
 
 
 //!PASS 6
+//!DESC sub-pixel convolution, aggregation
 //!IN tex3, tex4, INPUT
 //!BLOCK_SIZE 16
 //!NUM_THREADS 64

@@ -476,7 +476,7 @@ void OverlayDrawer::_DrawUI() {
 				for (UINT j = 0; j < effectDesc.passes.size(); ++j) {
 					std::string desc = effectDesc.passes[j].desc;
 					if (desc.empty()) {
-						desc = fmt::format("Pass{}", j + 1);
+						desc = fmt::format("Pass {}", j + 1);
 					}
 
 					ImGui::TextUnformatted(fmt::format("{}/{} : {:.3f} ms", renderer.GetEffectDesc(i).name,

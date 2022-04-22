@@ -48,6 +48,7 @@ SamplerState sam1;
 
 
 //!PASS 1
+//!DESC CatumllRom
 //!STYLE PS
 //!IN INPUT
 //!OUT POSTKERNEL
@@ -108,6 +109,7 @@ float4 Pass1(float2 pos) {
 }
 
 //!PASS 2
+//!DESC L2 pass 1
 //!STYLE PS
 //!IN INPUT
 //!OUT L2
@@ -146,6 +148,7 @@ float4 Pass2(float2 pos) {
 
 
 //!PASS 3
+//!DESC L2 pass 2
 //!STYLE PS
 //!IN L2
 //!OUT L2_2
@@ -183,6 +186,7 @@ float4 Pass3(float2 pos) {
 
 
 //!PASS 4
+//!DESC mean & R
 //!IN L2_2, POSTKERNEL
 //!OUT MR
 //!BLOCK_SIZE 16
@@ -285,6 +289,7 @@ void Pass4(uint2 blockStart, uint3 threadId) {
 
 
 //!PASS 5
+//!DESC final pass
 //!IN MR, POSTKERNEL
 //!BLOCK_SIZE 16
 //!NUM_THREADS 64
