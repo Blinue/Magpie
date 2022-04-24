@@ -91,7 +91,7 @@ CursorManager::~CursorManager() {
 		if (!::GetCursorPos(&pt)) {
 			Logger::Get().Win32Error("GetCursorPos 失败");
 		}
-		_StopCapture(pt);
+		_StopCapture(pt, true);
 	}
 
 	Logger::Get().Info("CursorDrawer 已析构");
@@ -187,8 +187,8 @@ void CursorManager::OnBeginFrame() {
 	};
 
 	const RECT& outputRect = App::Get().GetRenderer().GetOutputRect();
-	if (cursorLeftTop.x > outputRect.right
-		|| cursorLeftTop.y > outputRect.bottom
+	if (cursorLeftTop.x >= outputRect.right
+		|| cursorLeftTop.y >= outputRect.bottom
 		|| cursorLeftTop.x + _curCursorInfo->size.cx < outputRect.left
 		|| cursorLeftTop.y + _curCursorInfo->size.cy < outputRect.top
 	) {
@@ -293,7 +293,7 @@ void CursorManager::_StartCapture(POINT cursorPt) {
 	_isUnderCapture = true;
 }
 
-void CursorManager::_StopCapture(POINT cursorPos) {
+void CursorManager::_StopCapture(POINT cursorPos, bool onDestroy) {
 	if (!_isUnderCapture) {
 		return;
 	}
@@ -316,7 +316,7 @@ void CursorManager::_StopCapture(POINT cursorPos) {
 
 	POINT newCursorPos = SrcToHost(cursorPos, true);
 
-	if (MonitorFromPoint(newCursorPos, MONITOR_DEFAULTTONULL)) {
+	if (onDestroy || MonitorFromPoint(newCursorPos, MONITOR_DEFAULTTONULL)) {
 		SetCursorPos(newCursorPos.x, newCursorPos.y);
 
 		if (App::Get().GetConfig().IsAdjustCursorSpeed()) {
@@ -612,7 +612,6 @@ void CursorManager::_UpdateCursorClip() {
 		// --------------------------------------------------------
 		// 
 		///////////////////////////////////////////////////////////
-
 
 		HWND hwndCur = WindowFromPoint(style, SrcToHost(cursorPos, true), false);
 

@@ -63,7 +63,7 @@ public:
 private:
 	void _StartCapture(POINT cursorPos);
 
-	void _StopCapture(POINT cursorPos);
+	void _StopCapture(POINT cursorPos, bool onDestroy = false);
 
 	bool _ResolveCursor(HCURSOR hCursor, bool resolveTexture);
 

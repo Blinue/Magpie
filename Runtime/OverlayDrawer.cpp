@@ -491,10 +491,8 @@ void OverlayDrawer::_DrawUI() {
 	ImGui::Spacing();
 	if (ImGui::CollapsingHeader("Effects", ImGuiTreeNodeFlags_DefaultOpen)) {
 		const auto& gpuTimings = gpuTimer.GetGPUTimings();
+		const UINT nEffect = renderer.GetEffectCount();
 
-		UINT nEffect = renderer.GetEffectCount();
-
-		
 		static std::vector<EffectTimings> effectTimings;
 		effectTimings.clear();
 		effectTimings.resize(nEffect);
