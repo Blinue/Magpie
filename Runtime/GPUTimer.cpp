@@ -72,14 +72,12 @@ void GPUTimer::OnEndPass(UINT idx) {
 	App::Get().GetDeviceResources().GetD3DDC()->End(_queries[_curQueryIdx].passes[idx].get());
 }
 
-void GPUTimer::OnEndOverlay() {
+void GPUTimer::OnEndEffects() {
 	if (_curQueryIdx < 0) {
 		return;
 	}
 
-	auto d3dDC = App::Get().GetDeviceResources().GetD3DDC();
-	d3dDC->End(_queries[_curQueryIdx].overlay.get());
-	d3dDC->End(_queries[_curQueryIdx].disjoint.get());
+	App::Get().GetDeviceResources().GetD3DDC()->End(_queries[_curQueryIdx].disjoint.get());
 }
 
 template<typename T>
@@ -123,10 +121,6 @@ void GPUTimer::_UpdateGPUTimings() {
 				}
 				startTimestamp = timestamp;
 			}
-
-			UINT64 timestamp = GetQueryData<UINT64>(d3dDC, curQueryInfo.overlay.get());
-			_overlayTimings.first += (timestamp - startTimestamp) * toMS;
-			++_overlayTimings.second;
 		} else {
 			// 查询的值不可靠
 
@@ -136,7 +130,6 @@ void GPUTimer::_UpdateGPUTimings() {
 			for (auto& query : curQueryInfo.passes) {
 				GetQueryData<UINT64>(d3dDC, query.get());
 			}
-			GetQueryData<UINT64>(d3dDC, curQueryInfo.overlay.get());
 #endif // _DEBUG
 		}
 
@@ -147,10 +140,8 @@ void GPUTimer::_UpdateGPUTimings() {
 				_gpuTimings.passes[i] = _passesTimings[i].second == 0 ?
 					0.0f : _passesTimings[i].first / _passesTimings[i].second;
 			}
-			_gpuTimings.overlay = _overlayTimings.second == 0 ? 0.0f : _overlayTimings.first / _overlayTimings.second;
 
 			std::fill(_passesTimings.begin(), _passesTimings.end(), std::pair<float, UINT>());
-			_overlayTimings = {};
 
 			_profilingCounter %= _updateProfilingTime;
 		}
@@ -165,6 +156,5 @@ void GPUTimer::_UpdateGPUTimings() {
 		for (UINT j = 0; j < curQueryInfo.passes.size(); ++j) {
 			d3dDevice->CreateQuery(&desc, curQueryInfo.passes[j].put());
 		}
-		d3dDevice->CreateQuery(&desc, curQueryInfo.overlay.put());
 	}
 }

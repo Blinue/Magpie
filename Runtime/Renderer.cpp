@@ -148,9 +148,10 @@ void Renderer::Render() {
 		}
 	}
 
+	_gpuTimer->OnEndEffects();
+
 	if (_overlayDrawer) {
 		_overlayDrawer->Draw();
-		_gpuTimer->OnEndOverlay();
 	}
 
 	dr.EndFrame();

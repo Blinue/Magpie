@@ -22,7 +22,7 @@ public:
 
 	struct GPUTimings {
 		std::vector<float> passes;
-		float overlay = 0.0f;
+		// float overlay = 0.0f;
 	};
 
 	// 所有元素的处理时间，单位为 ms
@@ -41,7 +41,7 @@ public:
 	// 每个通道结束后调用
 	void OnEndPass(UINT idx);
 
-	void OnEndOverlay();
+	void OnEndEffects();
 
 private:
 	void _UpdateGPUTimings();
@@ -65,7 +65,6 @@ private:
 		winrt::com_ptr<ID3D11Query> disjoint;
 		winrt::com_ptr<ID3D11Query> start;
 		std::vector<winrt::com_ptr<ID3D11Query>> passes;
-		winrt::com_ptr<ID3D11Query> overlay;
 	};
 	// [(disjoint, [timestamp])]
 	// 允许额外的延迟时需保存两帧的数据
@@ -77,5 +76,4 @@ private:
 	// 用于保存渲染时间
 	// (总计用时, 已统计帧数)
 	std::vector<std::pair<float, UINT>> _passesTimings;
-	std::pair<float, UINT> _overlayTimings;
 };

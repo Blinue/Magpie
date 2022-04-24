@@ -358,6 +358,35 @@ static std::string GetCPUName() {
 	return GetCPUNameViaWMI();
 }
 
+struct EffectTimings {
+	const EffectDesc* desc = nullptr;
+	std::span<const float> passTimings;
+	float totalTime = 0.0f;
+};
+
+static void DrawEffectTimings(const EffectTimings& et, float totalTime, bool singleEffect) {
+	if (singleEffect) {
+		ImGui::TextUnformatted(fmt::format("{} : {:.3f} ms", et.desc->name, et.totalTime).c_str());
+	} else {
+		ImGui::TextUnformatted(fmt::format("[{:04.1f}%] {} : {:.3f} ms",
+			totalTime == 0.0f ? 0.0f : et.totalTime / totalTime * 100,
+			et.desc->name, et.totalTime).c_str());
+	}
+
+	if (et.passTimings.size() > 1) {
+		for (UINT j = 0; j < et.passTimings.size(); ++j) {
+			std::string desc = et.desc->passes[j].desc;
+			if (desc.empty()) {
+				desc = fmt::format("Pass {}", j + 1);
+			}
+
+			ImGui::TextUnformatted(fmt::format("    [{:04.1f}%] {} : {:.3f} ms",
+				totalTime == 0.0f ? 0.0f : et.passTimings[j] / totalTime * 100,
+				desc, et.passTimings[j]).c_str());
+		}
+	}
+}
+
 void OverlayDrawer::_DrawUI() {
 	auto& config = App::Get().GetConfig();
 	auto& renderer = App::Get().GetRenderer();
@@ -367,10 +396,8 @@ void OverlayDrawer::_DrawUI() {
 	ImGui::ShowDemoWindow();
 #endif
 
-	static ImVec2 initSize(350 * _dpiScale, 500 * _dpiScale);
+	ImGui::SetNextWindowSize(ImVec2(350 * _dpiScale, 500 * _dpiScale), ImGuiCond_Always);
 	static float initPosX = Utils::GetSizeOfRect(App::Get().GetRenderer().GetOutputRect()).cx - 350 * _dpiScale - 100.0f;
-
-	ImGui::SetNextWindowSize(initSize, ImGuiCond_FirstUseEver);
 	ImGui::SetNextWindowPos(ImVec2(initPosX, 20), ImGuiCond_FirstUseEver);
 
 	if (!ImGui::Begin("Profiler", nullptr, ImGuiWindowFlags_NoNav)) {
@@ -462,32 +489,46 @@ void OverlayDrawer::_DrawUI() {
 	}
 
 	ImGui::Spacing();
-	if (ImGui::CollapsingHeader("GPU Timings", ImGuiTreeNodeFlags_DefaultOpen)) {
+	if (ImGui::CollapsingHeader("Effects", ImGuiTreeNodeFlags_DefaultOpen)) {
 		const auto& gpuTimings = gpuTimer.GetGPUTimings();
 
-		UINT idx = 0;
-		for (UINT i = 0; i < renderer.GetEffectCount(); ++i) {
-			const EffectDesc& effectDesc = renderer.GetEffectDesc(i);
-			if (effectDesc.passes.size() == 1) {
-				ImGui::TextUnformatted(fmt::format("{} : {:.3f} ms",
-					renderer.GetEffectDesc(i).name, gpuTimings.passes[idx]).c_str());
-				++idx;
-			} else {
-				for (UINT j = 0; j < effectDesc.passes.size(); ++j) {
-					std::string desc = effectDesc.passes[j].desc;
-					if (desc.empty()) {
-						desc = fmt::format("Pass {}", j + 1);
-					}
+		UINT nEffect = renderer.GetEffectCount();
 
-					ImGui::TextUnformatted(fmt::format("{}/{} : {:.3f} ms", renderer.GetEffectDesc(i).name,
-						desc, gpuTimings.passes[idx]).c_str());
-					++idx;
-				}
+		
+		static std::vector<EffectTimings> effectTimings;
+		effectTimings.clear();
+		effectTimings.resize(nEffect);
+
+		UINT idx = 0;
+		for (UINT i = 0; i < nEffect; ++i) {
+			auto& effectTiming = effectTimings[i];
+			effectTiming.desc = &renderer.GetEffectDesc(i);
+
+			UINT nPass = (UINT)effectTiming.desc->passes.size();
+			effectTiming.passTimings = { gpuTimings.passes.begin() + idx, nPass };
+			idx += nPass;
+
+			for (float t : effectTiming.passTimings) {
+				effectTiming.totalTime += t;
 			}
 		}
 
-		ImGui::Separator();
-		ImGui::TextUnformatted(fmt::format("Overlay : {:.3f} ms", gpuTimings.overlay).c_str());
+		if (nEffect == 1) {
+			const auto& et = effectTimings[0];
+			DrawEffectTimings(effectTimings[0], effectTimings[0].totalTime, true);
+		} else {
+			float effectsTotalTime = 0.0f;
+			for (const auto& et : effectTimings) {
+				effectsTotalTime += et.totalTime;
+			}
+
+			for (const auto& et : effectTimings) {
+				DrawEffectTimings(et, effectsTotalTime, false);
+			}
+
+			ImGui::Separator();
+			ImGui::TextUnformatted(fmt::format("Total : {:.3f} ms", effectsTotalTime).c_str());
+		}
 	}
 
 	ImGui::End();
