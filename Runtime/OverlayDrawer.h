@@ -3,16 +3,17 @@
 #include <deque>
 
 struct ImFont;
+class ImGuiImpl;
 
 class OverlayDrawer {
 public:
-	OverlayDrawer() = default;
+	OverlayDrawer();
 	OverlayDrawer(const OverlayDrawer&) = delete;
 	OverlayDrawer(OverlayDrawer&&) = delete;
 
 	~OverlayDrawer();
 
-	bool Initialize(ID3D11Texture2D* renderTarget);
+	bool Initialize();
 
 	void Draw();
 
@@ -31,8 +32,6 @@ private:
 
 	float _dpiScale = 1.0f;
 
-	UINT _handlerID = 0;
-	ID3D11RenderTargetView* _rtv = nullptr;
 	bool _isUIVisiable = false;
 
 	ImFont* _fontUI = nullptr;
@@ -45,4 +44,6 @@ private:
 		std::string gpuName;
 		std::string cpuName;
 	} _hardwareInfo;
+
+	std::unique_ptr<ImGuiImpl> _imguiImpl;
 };

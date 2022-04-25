@@ -13,9 +13,8 @@
 #include "CursorManager.h"
 #include "Config.h"
 #include "StrUtils.h"
+#include "WindowsMessages.h"
 
-
-static const UINT WM_DESTORYHOST = RegisterWindowMessage(L"MAGPIE_WM_DESTORYHOST");
 
 static constexpr const wchar_t* HOST_WINDOW_CLASS_NAME = L"Window_Magpie_967EB565-6F73-4E94-AE53-00CC42592A22";
 static constexpr const wchar_t* DDF_WINDOW_CLASS_NAME = L"Window_Magpie_C322D752-C866-4630-91F5-32CB242A8930";
@@ -421,7 +420,7 @@ LRESULT App::_HostWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		}
 	}
 
-	if (message == WM_DESTORYHOST) {
+	if (message == WindowsMessages::WM_DESTORYHOST) {
 		Logger::Get().Info("收到 MAGPIE_WM_DESTORYHOST 消息，即将销毁主窗口");
 		Quit();
 		return 0;

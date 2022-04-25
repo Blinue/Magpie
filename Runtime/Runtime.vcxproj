@@ -156,8 +156,8 @@
     <ClInclude Include="ExclModeHack.h" />
     <ClInclude Include="FrameSourceBase.h" />
     <ClInclude Include="GDIFrameSource.h" />
+    <ClInclude Include="ImGuiImpl.h" />
     <ClInclude Include="imgui_impl_dx11.h" />
-    <ClInclude Include="imgui_impl_magpie.h" />
     <ClInclude Include="Logger.h" />
     <ClInclude Include="EffectDrawer.h" />
     <ClInclude Include="pch.h" />
@@ -170,6 +170,7 @@
     <ClInclude Include="OverlayDrawer.h" />
     <ClInclude Include="Utils.h" />
     <ClInclude Include="GraphicsCaptureFrameSource.h" />
+    <ClInclude Include="WindowsMessages.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App.cpp" />
@@ -182,10 +183,10 @@
     <ClCompile Include="ExclModeHack.cpp" />
     <ClCompile Include="FrameSourceBase.cpp" />
     <ClCompile Include="GDIFrameSource.cpp" />
+    <ClCompile Include="ImGuiImpl.cpp" />
     <ClCompile Include="imgui_impl_dx11.cpp">
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="imgui_impl_magpie.cpp" />
     <ClCompile Include="Logger.cpp" />
     <ClCompile Include="EffectDrawer.cpp" />
     <ClCompile Include="pch.cpp" />

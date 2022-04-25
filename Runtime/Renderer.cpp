@@ -12,16 +12,15 @@
 #include "Logger.h"
 #include "CursorManager.h"
 #include "Config.h"
+#include "WindowsMessages.h"
 
 #pragma push_macro("GetObject")
 #undef GetObject
 #include <rapidjson/document.h>
 
 
-static const UINT WM_TOGGLE_OVERLAY = RegisterWindowMessage(L"MAGPIE_WM_TOGGLE_OVERLAY");
-
 static std::optional<LRESULT> WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
-	if (msg == WM_TOGGLE_OVERLAY && !App::Get().GetConfig().IsConfineCursorIn3DGames()) {
+	if (msg == WindowsMessages::WM_TOGGLE_OVERLAY && !App::Get().GetConfig().IsConfineCursorIn3DGames()) {
 		Renderer& renderer = App::Get().GetRenderer();
 		renderer.SetUIVisibility(!renderer.IsUIVisiable());
 		return 0;
@@ -285,7 +284,7 @@ const EffectDesc& Renderer::GetEffectDesc(size_t idx) const noexcept {
 
 bool Renderer::_InitializeOverlayDrawer() {
 	_overlayDrawer.reset(new OverlayDrawer());
-	return _overlayDrawer->Initialize(App::Get().GetDeviceResources().GetBackBuffer());
+	return _overlayDrawer->Initialize();
 }
 
 bool Renderer::_CheckSrcState() {

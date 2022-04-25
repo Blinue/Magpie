@@ -52,9 +52,6 @@
     <ClCompile Include="imgui_impl_dx11.cpp">
       <Filter>渲染\ImGUI</Filter>
     </ClCompile>
-    <ClCompile Include="imgui_impl_magpie.cpp">
-      <Filter>渲染\ImGUI</Filter>
-    </ClCompile>
     <ClCompile Include="Logger.cpp">
       <Filter>应用程序</Filter>
     </ClCompile>
@@ -72,6 +69,9 @@
     </ClCompile>
     <ClCompile Include="Config.cpp">
       <Filter>应用程序</Filter>
+    </ClCompile>
+    <ClCompile Include="ImGuiImpl.cpp">
+      <Filter>渲染\ImGUI</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -132,9 +132,6 @@
     <ClInclude Include="imgui_impl_dx11.h">
       <Filter>渲染\ImGUI</Filter>
     </ClInclude>
-    <ClInclude Include="imgui_impl_magpie.h">
-      <Filter>渲染\ImGUI</Filter>
-    </ClInclude>
     <ClInclude Include="Logger.h">
       <Filter>应用程序</Filter>
     </ClInclude>
@@ -157,6 +154,12 @@
       <Filter>渲染</Filter>
     </ClInclude>
     <ClInclude Include="Config.h">
+      <Filter>应用程序</Filter>
+    </ClInclude>
+    <ClInclude Include="ImGuiImpl.h">
+      <Filter>渲染\ImGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="WindowsMessages.h">
       <Filter>应用程序</Filter>
     </ClInclude>
   </ItemGroup>
