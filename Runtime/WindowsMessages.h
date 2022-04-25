@@ -9,5 +9,4 @@ struct WindowsMessages {
 	inline static const UINT WM_TOGGLE_OVERLAY = RegisterWindowMessage(L"MAGPIE_WM_TOGGLE_OVERLAY");
 
 	// 下面的消息内部使用
-	static constexpr UINT WM_MYMOUSEWHEEL = WM_USER;
 };

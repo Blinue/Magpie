@@ -6,11 +6,9 @@
 #include "ImGuiImpl.h"
 #include "Renderer.h"
 #include "GPUTimer.h"
-#include "CursorManager.h"
 #include "Logger.h"
 #include "Config.h"
 #include "StrUtils.h"
-#include "EffectDrawer.h"
 #include "FrameSourceBase.h"
 #include <bit>	// std::bit_ceil
 #include <Wbemidl.h>
@@ -26,6 +24,7 @@ OverlayDrawer::~OverlayDrawer() {}
 bool OverlayDrawer::Initialize() {
 	_imguiImpl.reset(new ImGuiImpl());
 	if (!_imguiImpl->Initialize()) {
+		Logger::Get().Error("初始化 ImGuiImpl 失败");
 		return false;
 	}
 
@@ -100,6 +99,10 @@ void OverlayDrawer::SetUIVisibility(bool value) {
 		if (!App::Get().GetConfig().IsShowFPS()) {
 			_imguiImpl->ClearStates();
 		}
+
+		Logger::Get().Info("已关闭覆盖层");
+	} else {
+		Logger::Get().Info("已开启覆盖层");
 	}
 }
 
@@ -333,11 +336,11 @@ void OverlayDrawer::_DrawUI() {
 	ImGui::ShowDemoWindow();
 #endif
 
-	ImGui::SetNextWindowSize(ImVec2(350 * _dpiScale, 500 * _dpiScale), ImGuiCond_Always);
+	ImGui::SetNextWindowSize(ImVec2(350 * _dpiScale, 450 * _dpiScale), ImGuiCond_Always);
 	static float initPosX = Utils::GetSizeOfRect(App::Get().GetRenderer().GetOutputRect()).cx - 350 * _dpiScale - 100.0f;
 	ImGui::SetNextWindowPos(ImVec2(initPosX, 20), ImGuiCond_FirstUseEver);
 
-	if (!ImGui::Begin("Profiler", nullptr, ImGuiWindowFlags_NoNav)) {
+	if (!ImGui::Begin("Profiler", nullptr, ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoResize)) {
 		ImGui::End();
 		return;
 	}

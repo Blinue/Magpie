@@ -28,15 +28,8 @@ ImGuiImpl::~ImGuiImpl() {
 	ImGui::DestroyContext();
 }
 
-static std::optional<LRESULT> ImGui_ImplMagpie_WndProcHandler(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
+static std::optional<LRESULT> WndProcHandler(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 	ImGuiIO& io = ImGui::GetIO();
-
-	if (msg == WindowsMessages::WM_MYMOUSEWHEEL) {
-		if (io.WantCaptureMouse) {
-			io.MouseWheel += GET_WHEEL_DELTA_WPARAM(wParam) / (float)WHEEL_DELTA;
-		}
-		return 0;
-	}
 
 	if (!io.WantCaptureMouse) {
 		return std::nullopt;
@@ -87,9 +80,7 @@ static std::optional<LRESULT> ImGui_ImplMagpie_WndProcHandler(HWND hwnd, UINT ms
 		break;
 	}
 	case WM_MOUSEWHEEL:
-		if (App::Get().GetConfig().IsBreakpointMode()) {
-			io.MouseWheel += (float)GET_WHEEL_DELTA_WPARAM(wParam) / (float)WHEEL_DELTA;
-		}
+		io.MouseWheel += (float)GET_WHEEL_DELTA_WPARAM(wParam) / (float)WHEEL_DELTA;
 		break;
 	}
 
@@ -118,18 +109,20 @@ bool ImGuiImpl::Initialize() {
 	ImGui_ImplDX11_Init(dr.GetD3DDevice(), dr.GetD3DDC());
 
 	if (!dr.GetRenderTargetView(dr.GetBackBuffer(), &_rtv)) {
+		Logger::Get().Error("GetRenderTargetView 失败");
 		return false;
 	}
 
-	_handlerId = App::Get().RegisterWndProcHandler(ImGui_ImplMagpie_WndProcHandler);
+	_handlerId = App::Get().RegisterWndProcHandler(WndProcHandler);
 	if (_handlerId == 0) {
+		Logger::Get().Error("RegisterWndProcHandler 失败");
 		return false;
 	}
 
 	return true;
 }
 
-static void ImGui_ImplMagpie_UpdateMousePos() {
+static void UpdateMousePos() {
 	ImGuiIO& io = ImGui::GetIO();
 
 	POINT pos;
@@ -165,7 +158,7 @@ void ImGuiImpl::NewFrame() {
 	io.DisplaySize = ImVec2((float)(hostRect.right - outputRect.left), (float)(hostRect.bottom - outputRect.top));
 
 	// Update OS mouse position
-	ImGui_ImplMagpie_UpdateMousePos();
+	UpdateMousePos();
 
 	// 不接受键盘输入
 	if (io.WantCaptureKeyboard) {
@@ -207,6 +200,7 @@ void ImGuiImpl::NewFrame() {
 	}
 }
 
+// 鼠标钩子用于拦截滚轮消息
 static LRESULT CALLBACK LowLevelMouseProc(
   _In_ int    nCode,
   _In_ WPARAM wParam,
@@ -218,10 +212,13 @@ static LRESULT CALLBACK LowLevelMouseProc(
 
 	auto window = ImGui::GetCurrentContext()->HoveredWindow;
 	if (!window || window->ScrollMax.y == 0.0f || window->Collapsed) {
+		// 当前窗口没有滚动条，则不拦截
 		return CallNextHookEx(NULL, nCode, wParam, lParam);
 	}
 
-	PostMessage(App::Get().GetHwndHost(), WindowsMessages::WM_MYMOUSEWHEEL, ((MSLLHOOKSTRUCT*)lParam)->mouseData, 0);
+	// 向主线程发送滚动数据
+	// 使用 Windows 消息进行线程同步
+	PostMessage(App::Get().GetHwndHost(), WM_MOUSEWHEEL, ((MSLLHOOKSTRUCT*)lParam)->mouseData, 0);
 
 	// 阻断滚轮消息，防止传给源窗口
 	return -1;
@@ -229,7 +226,14 @@ static LRESULT CALLBACK LowLevelMouseProc(
 
 static DWORD WINAPI ThreadProc(LPVOID lpThreadParameter) {
 	HHOOK hook = SetWindowsHookEx(WH_MOUSE_LL, LowLevelMouseProc, NULL, 0);
+	if (!hook) {
+		Logger::Get().Win32Error("注册鼠标钩子失败");
+		return 1;
+	}
 
+	Logger::Get().Info("已注册鼠标钩子");
+
+	// 鼠标钩子需要消息循环
 	MSG msg;
 	while (GetMessage(&msg, nullptr, 0, 0)) {
 		TranslateMessage(&msg);
@@ -237,6 +241,7 @@ static DWORD WINAPI ThreadProc(LPVOID lpThreadParameter) {
 	}
 
 	UnhookWindowsHookEx(hook);
+	Logger::Get().Info("已销毁鼠标钩子");
 	return 0;
 }
 
@@ -248,10 +253,14 @@ void ImGuiImpl::EndFrame() {
 	d3dDC->OMSetRenderTargets(1, &_rtv, NULL);
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
+	// 断点模式下不注册鼠标钩子，否则调试时鼠标无法使用
 	if (!_hHookThread && !App::Get().GetConfig().IsBreakpointMode()) {
 		auto window = ImGui::GetCurrentContext()->HoveredWindow;
 		if (window && window->ScrollMax.y > 0.0f && !window->Collapsed) {
 			_hHookThread = CreateThread(nullptr, 0, ThreadProc, nullptr, 0, &_hookThreadId);
+			if (!_hHookThread) {
+				Logger::Get().Win32Error("创建线程失败");
+			}
 		}
 	}
 }
