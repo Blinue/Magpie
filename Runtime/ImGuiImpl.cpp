@@ -82,9 +82,65 @@ static std::optional<LRESULT> WndProcHandler(HWND hwnd, UINT msg, WPARAM wParam,
 	case WM_MOUSEWHEEL:
 		io.MouseWheel += (float)GET_WHEEL_DELTA_WPARAM(wParam) / (float)WHEEL_DELTA;
 		break;
+	case WM_MOUSEHWHEEL:
+		io.MouseWheelH += (float)GET_WHEEL_DELTA_WPARAM(wParam) / (float)WHEEL_DELTA;
+		return 0;
 	}
 
 	return std::nullopt;
+}
+
+static LRESULT CALLBACK LowLevelMouseProc(
+  _In_ int    nCode,
+  _In_ WPARAM wParam,
+  _In_ LPARAM lParam
+) {
+	if (nCode != HC_ACTION || !ImGui::GetIO().WantCaptureMouse) {
+		return CallNextHookEx(NULL, nCode, wParam, lParam);
+	}
+
+	if (wParam == WM_MOUSEWHEEL || wParam == WM_MOUSEHWHEEL) {
+		auto window = ImGui::GetCurrentContext()->HoveredWindow;
+		if (!window || window->ScrollMax.y == 0.0f || window->Collapsed) {
+			// 当前窗口没有滚动条，则不拦截
+			return CallNextHookEx(NULL, nCode, wParam, lParam);
+		}
+
+		// 向主线程发送滚动数据
+		// 使用 Windows 消息进行线程同步
+		PostMessage(App::Get().GetHwndHost(), wParam, ((MSLLHOOKSTRUCT*)lParam)->mouseData, 0);
+
+		// 阻断滚轮消息，防止传给源窗口
+		return -1;
+	} else if (wParam >= WM_LBUTTONDOWN && wParam <= WM_RBUTTONUP) {
+		PostMessage(App::Get().GetHwndHost(), wParam, 0, 0);
+
+		// 阻断点击消息，防止传给源窗口
+		return -1;
+	} else {
+		return CallNextHookEx(NULL, nCode, wParam, lParam);
+	}
+}
+
+static DWORD WINAPI ThreadProc(LPVOID lpThreadParameter) {
+	HHOOK hook = SetWindowsHookEx(WH_MOUSE_LL, LowLevelMouseProc, NULL, 0);
+	if (!hook) {
+		Logger::Get().Win32Error("注册鼠标钩子失败");
+		return 1;
+	}
+
+	Logger::Get().Info("已注册鼠标钩子");
+
+	// 鼠标钩子需要消息循环
+	MSG msg;
+	while (GetMessage(&msg, nullptr, 0, 0)) {
+		TranslateMessage(&msg);
+		DispatchMessage(&msg);
+	}
+
+	UnhookWindowsHookEx(hook);
+	Logger::Get().Info("已销毁鼠标钩子");
+	return 0;
 }
 
 bool ImGuiImpl::Initialize() {
@@ -117,6 +173,14 @@ bool ImGuiImpl::Initialize() {
 	if (_handlerId == 0) {
 		Logger::Get().Error("RegisterWndProcHandler 失败");
 		return false;
+	}
+
+	// 断点模式下不注册鼠标钩子，否则调试时鼠标无法使用
+	if (!App::Get().GetConfig().IsBreakpointMode()) {
+		_hHookThread = CreateThread(nullptr, 0, ThreadProc, nullptr, 0, &_hookThreadId);
+		if (!_hHookThread) {
+			Logger::Get().Win32Error("创建线程失败");
+		}
 	}
 
 	return true;
@@ -200,51 +264,6 @@ void ImGuiImpl::NewFrame() {
 	}
 }
 
-// 鼠标钩子用于拦截滚轮消息
-static LRESULT CALLBACK LowLevelMouseProc(
-  _In_ int    nCode,
-  _In_ WPARAM wParam,
-  _In_ LPARAM lParam
-) {
-	if (nCode != HC_ACTION || wParam != WM_MOUSEWHEEL || !ImGui::GetIO().WantCaptureMouse) {
-		return CallNextHookEx(NULL, nCode, wParam, lParam);
-	}
-
-	auto window = ImGui::GetCurrentContext()->HoveredWindow;
-	if (!window || window->ScrollMax.y == 0.0f || window->Collapsed) {
-		// 当前窗口没有滚动条，则不拦截
-		return CallNextHookEx(NULL, nCode, wParam, lParam);
-	}
-
-	// 向主线程发送滚动数据
-	// 使用 Windows 消息进行线程同步
-	PostMessage(App::Get().GetHwndHost(), WM_MOUSEWHEEL, ((MSLLHOOKSTRUCT*)lParam)->mouseData, 0);
-
-	// 阻断滚轮消息，防止传给源窗口
-	return -1;
-}
-
-static DWORD WINAPI ThreadProc(LPVOID lpThreadParameter) {
-	HHOOK hook = SetWindowsHookEx(WH_MOUSE_LL, LowLevelMouseProc, NULL, 0);
-	if (!hook) {
-		Logger::Get().Win32Error("注册鼠标钩子失败");
-		return 1;
-	}
-
-	Logger::Get().Info("已注册鼠标钩子");
-
-	// 鼠标钩子需要消息循环
-	MSG msg;
-	while (GetMessage(&msg, nullptr, 0, 0)) {
-		TranslateMessage(&msg);
-		DispatchMessage(&msg);
-	}
-
-	UnhookWindowsHookEx(hook);
-	Logger::Get().Info("已销毁鼠标钩子");
-	return 0;
-}
-
 void ImGuiImpl::EndFrame() {
 	const RECT& outputRect = App::Get().GetRenderer().GetOutputRect();
 	ImGui::GetDrawData()->DisplayPos = ImVec2(float(-outputRect.left), float(-outputRect.top));
@@ -252,17 +271,6 @@ void ImGuiImpl::EndFrame() {
 	auto d3dDC = App::Get().GetDeviceResources().GetD3DDC();
 	d3dDC->OMSetRenderTargets(1, &_rtv, NULL);
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
-
-	// 断点模式下不注册鼠标钩子，否则调试时鼠标无法使用
-	if (!_hHookThread && !App::Get().GetConfig().IsBreakpointMode()) {
-		auto window = ImGui::GetCurrentContext()->HoveredWindow;
-		if (window && window->ScrollMax.y > 0.0f && !window->Collapsed) {
-			_hHookThread = CreateThread(nullptr, 0, ThreadProc, nullptr, 0, &_hookThreadId);
-			if (!_hHookThread) {
-				Logger::Get().Win32Error("创建线程失败");
-			}
-		}
-	}
 }
 
 void ImGuiImpl::ClearStates() {
