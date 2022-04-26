@@ -36,6 +36,7 @@ bool OverlayDrawer::Initialize() {
 	ImGuiStyle& style = ImGui::GetStyle();
 	style.WindowRounding = 6;
 	style.FrameBorderSize = 1;
+	style.FrameRounding = 2;
 	style.WindowMinSize = ImVec2(10, 10);
 	style.ScaleAllSizes(_dpiScale);
 
@@ -304,27 +305,61 @@ struct EffectTimings {
 	float totalTime = 0.0f;
 };
 
-static void DrawEffectTimings(const EffectTimings& et, float totalTime, bool singleEffect) {
-	if (singleEffect) {
-		ImGui::TextUnformatted(fmt::format("{} : {:.3f} ms", et.desc->name, et.totalTime).c_str());
-	} else {
-		ImGui::TextUnformatted(fmt::format("[{:04.1f}%] {} : {:.3f} ms",
-			totalTime == 0.0f ? 0.0f : et.totalTime / totalTime * 100,
-			et.desc->name, et.totalTime).c_str());
-	}
+static void DrawPercentage(float percentage, bool gray = false) {
+	std::string text = fmt::format("[{:04.1f}%]", percentage);
 
+	ImGui::SameLine(ImGui::GetWindowContentRegionMax().x - ImGui::CalcTextSize(text.c_str()).x - 3);
+	if (gray) {
+		text.insert(text.end() - 1, '%');
+		ImGui::TextColored(ImVec4(1, 1, 1, 0.5f), text.c_str());
+	} else {
+		ImGui::TextUnformatted(text.c_str());
+	}
+}
+
+static void DrawEffectTimings(const EffectTimings& et, float totalTime, bool singleEffect) {
 	if (et.passTimings.size() > 1) {
-		for (UINT j = 0; j < et.passTimings.size(); ++j) {
-			std::string desc = et.desc->passes[j].desc;
-			if (desc.empty()) {
-				desc = fmt::format("Pass {}", j + 1);
+		if (ImGui::TreeNodeEx(fmt::format("{0} : {1:.3f} ms###{0}",
+			et.desc->name, et.totalTime).c_str(), ImGuiTreeNodeFlags_SpanAvailWidth)) {
+			if (totalTime != 0.0f && !singleEffect) {
+				DrawPercentage(et.totalTime / totalTime * 100, true);
 			}
 
-			ImGui::TextUnformatted(fmt::format("    [{:04.1f}%] {} : {:.3f} ms",
-				totalTime == 0.0f ? 0.0f : et.passTimings[j] / totalTime * 100,
-				desc, et.passTimings[j]).c_str());
+			float indent = ImGui::GetTreeNodeToLabelSpacing() - ImGui::GetStyle().IndentSpacing + 10;
+			ImGui::Indent(indent);
+
+			for (UINT j = 0; j < et.passTimings.size(); ++j) {
+				std::string desc = et.desc->passes[j].desc;
+				if (desc.empty()) {
+					desc = fmt::format("Pass {}", j + 1);
+				}
+
+				ImGui::TextUnformatted(fmt::format("{} : {:.3f} ms", desc, et.passTimings[j]).c_str());
+
+				if (totalTime != 0.0f) {
+					DrawPercentage(et.passTimings[j] / totalTime * 100);
+				}
+			}
+
+			ImGui::Unindent(indent);
+
+			ImGui::TreePop();
+		} else {
+			if (totalTime != 0.0f && !singleEffect) {
+				DrawPercentage(et.totalTime / totalTime * 100);
+			}
 		}
+	} else {
+		ImGui::Indent(ImGui::GetTreeNodeToLabelSpacing());
+		
+		ImGui::TextUnformatted(fmt::format("{} : {:.3f} ms", et.desc->name, et.totalTime).c_str());
+		if (totalTime != 0.0f && !singleEffect) {
+			DrawPercentage(et.totalTime / totalTime * 100);
+		}
+
+		ImGui::Unindent(ImGui::GetTreeNodeToLabelSpacing());
 	}
+	
 }
 
 void OverlayDrawer::_DrawUI() {
@@ -336,11 +371,12 @@ void OverlayDrawer::_DrawUI() {
 	ImGui::ShowDemoWindow();
 #endif
 
-	ImGui::SetNextWindowSize(ImVec2(350 * _dpiScale, 450 * _dpiScale), ImGuiCond_Always);
 	static float initPosX = Utils::GetSizeOfRect(App::Get().GetRenderer().GetOutputRect()).cx - 350 * _dpiScale - 100.0f;
 	ImGui::SetNextWindowPos(ImVec2(initPosX, 20), ImGuiCond_FirstUseEver);
 
-	if (!ImGui::Begin("Profiler", nullptr, ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoResize)) {
+	ImGui::SetNextWindowSizeConstraints(ImVec2(350 * _dpiScale, 10), ImVec2(350 * _dpiScale, 500 * _dpiScale));
+
+	if (!ImGui::Begin("Profiler", nullptr, ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize)) {
 		ImGui::End();
 		return;
 	}
@@ -465,7 +501,10 @@ void OverlayDrawer::_DrawUI() {
 			}
 
 			ImGui::Separator();
+
+			ImGui::Indent(ImGui::GetTreeNodeToLabelSpacing());
 			ImGui::TextUnformatted(fmt::format("Total : {:.3f} ms", effectsTotalTime).c_str());
+			ImGui::Unindent(ImGui::GetTreeNodeToLabelSpacing());
 		}
 	}
 
