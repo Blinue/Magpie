@@ -305,28 +305,28 @@ struct EffectTimings {
 	float totalTime = 0.0f;
 };
 
-static void DrawPercentage(float percentage, bool gray = false) {
-	std::string text = fmt::format("[{:04.1f}%]", percentage);
+static void DrawTime(float time, bool gray = false) {
+	std::string text = fmt::format("{:.3f} ms", time);
 
 	ImGui::SameLine(ImGui::GetWindowContentRegionMax().x - ImGui::CalcTextSize(text.c_str()).x - 3);
 	if (gray) {
-		text.insert(text.end() - 1, '%');
 		ImGui::TextColored(ImVec4(1, 1, 1, 0.5f), text.c_str());
 	} else {
 		ImGui::TextUnformatted(text.c_str());
 	}
 }
 
-static void DrawEffectTimings(const EffectTimings& et, float totalTime, bool singleEffect) {
+static void DrawEffectTimings(const EffectTimings& et, float totalTime, bool showPasses) {
 	if (et.passTimings.size() > 1) {
-		if (ImGui::TreeNodeEx(fmt::format("{0} : {1:.3f} ms###{0}",
-			et.desc->name, et.totalTime).c_str(), ImGuiTreeNodeFlags_SpanAvailWidth)) {
-			if (totalTime != 0.0f && !singleEffect) {
-				DrawPercentage(et.totalTime / totalTime * 100, true);
-			}
 
-			float indent = ImGui::GetTreeNodeToLabelSpacing() - ImGui::GetStyle().IndentSpacing + 10;
-			ImGui::Indent(indent);
+		ImGui::TextUnformatted(et.desc->name.c_str());
+
+		if (totalTime != 0.0f) {
+			DrawTime(et.totalTime, showPasses);
+		}
+
+		if (showPasses) {
+			ImGui::Indent(20);
 
 			for (UINT j = 0; j < et.passTimings.size(); ++j) {
 				std::string desc = et.desc->passes[j].desc;
@@ -334,30 +334,20 @@ static void DrawEffectTimings(const EffectTimings& et, float totalTime, bool sin
 					desc = fmt::format("Pass {}", j + 1);
 				}
 
-				ImGui::TextUnformatted(fmt::format("{} : {:.3f} ms", desc, et.passTimings[j]).c_str());
+				ImGui::TextUnformatted(desc.c_str());
 
 				if (totalTime != 0.0f) {
-					DrawPercentage(et.passTimings[j] / totalTime * 100);
+					DrawTime(et.passTimings[j]);
 				}
 			}
 
-			ImGui::Unindent(indent);
-
-			ImGui::TreePop();
-		} else {
-			if (totalTime != 0.0f && !singleEffect) {
-				DrawPercentage(et.totalTime / totalTime * 100);
-			}
+			ImGui::Unindent(20);
 		}
 	} else {
-		ImGui::Indent(ImGui::GetTreeNodeToLabelSpacing());
-		
-		ImGui::TextUnformatted(fmt::format("{} : {:.3f} ms", et.desc->name, et.totalTime).c_str());
-		if (totalTime != 0.0f && !singleEffect) {
-			DrawPercentage(et.totalTime / totalTime * 100);
+		ImGui::TextUnformatted(et.desc->name.c_str());
+		if (totalTime != 0.0f) {
+			DrawTime(et.totalTime);
 		}
-
-		ImGui::Unindent(ImGui::GetTreeNodeToLabelSpacing());
 	}
 	
 }
@@ -371,21 +361,25 @@ void OverlayDrawer::_DrawUI() {
 	ImGui::ShowDemoWindow();
 #endif
 
-	static float initPosX = Utils::GetSizeOfRect(App::Get().GetRenderer().GetOutputRect()).cx - 350 * _dpiScale - 100.0f;
-	ImGui::SetNextWindowPos(ImVec2(initPosX, 20), ImGuiCond_FirstUseEver);
+	const float maxWindowWidth = 350 * _dpiScale;
+	ImGui::SetNextWindowSizeConstraints(ImVec2(), ImVec2(maxWindowWidth, 500 * _dpiScale));
 
-	ImGui::SetNextWindowSizeConstraints(ImVec2(350 * _dpiScale, 10), ImVec2(350 * _dpiScale, 500 * _dpiScale));
+	static float initPosX = Utils::GetSizeOfRect(App::Get().GetRenderer().GetOutputRect()).cx - maxWindowWidth;
+	ImGui::SetNextWindowPos(ImVec2(initPosX, 20), ImGuiCond_FirstUseEver);
 
 	if (!ImGui::Begin("Profiler", nullptr, ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize)) {
 		ImGui::End();
 		return;
 	}
+	
+	// 始终为滚动条预留空间
+	ImGui::PushTextWrapPos(maxWindowWidth - ImGui::GetStyle().WindowPadding.x - ImGui::GetStyle().ScrollbarSize);
+	ImGui::TextUnformatted(StrUtils::Concat("GPU: ", _hardwareInfo.gpuName).c_str());
+	ImGui::TextUnformatted(StrUtils::Concat("CPU: ", _hardwareInfo.cpuName).c_str());
+	ImGui::TextUnformatted(StrUtils::Concat("VSync: ", config.IsDisableVSync() ? "OFF" : "ON").c_str());
+	ImGui::TextUnformatted(StrUtils::Concat("Capture Method: ", App::Get().GetFrameSource().GetName()).c_str());
+	ImGui::PopTextWrapPos();
 
-	ImGui::TextWrapped(StrUtils::Concat("GPU: ", _hardwareInfo.gpuName).c_str());
-	ImGui::TextWrapped(StrUtils::Concat("CPU: ", _hardwareInfo.cpuName).c_str());
-
-	ImGui::TextWrapped(StrUtils::Concat("VSync: ", config.IsDisableVSync() ? "OFF" : "ON").c_str());
-	ImGui::TextWrapped(StrUtils::Concat("Capture Method: ", App::Get().GetFrameSource().GetName()).c_str());
 	ImGui::Spacing();
 
 	static constexpr UINT nSamples = 180;
@@ -465,7 +459,7 @@ void OverlayDrawer::_DrawUI() {
 	}
 
 	ImGui::Spacing();
-	if (ImGui::CollapsingHeader("Effects", ImGuiTreeNodeFlags_DefaultOpen)) {
+	if (ImGui::CollapsingHeader("Timings", ImGuiTreeNodeFlags_DefaultOpen)) {
 		const auto& gpuTimings = gpuTimer.GetGPUTimings();
 		const UINT nEffect = renderer.GetEffectCount();
 
@@ -489,22 +483,32 @@ void OverlayDrawer::_DrawUI() {
 
 		if (nEffect == 1) {
 			const auto& et = effectTimings[0];
-			DrawEffectTimings(effectTimings[0], effectTimings[0].totalTime, true);
+			DrawEffectTimings(et, et.totalTime, et.passTimings.size() > 1);
 		} else {
+			static bool showPasses = false;
+			for (const auto& et : effectTimings) {
+				// 某个效果有多个通道，显示切换按钮
+				if (et.passTimings.size() > 1) {
+					if (ImGui::Button(showPasses ? "Switch to effects" : "Switch to passes")) {
+						showPasses = !showPasses;
+					}
+					break;
+				}
+			}
+
 			float effectsTotalTime = 0.0f;
 			for (const auto& et : effectTimings) {
 				effectsTotalTime += et.totalTime;
 			}
 
 			for (const auto& et : effectTimings) {
-				DrawEffectTimings(et, effectsTotalTime, false);
+				DrawEffectTimings(et, effectsTotalTime, showPasses);
 			}
 
 			ImGui::Separator();
 
-			ImGui::Indent(ImGui::GetTreeNodeToLabelSpacing());
-			ImGui::TextUnformatted(fmt::format("Total : {:.3f} ms", effectsTotalTime).c_str());
-			ImGui::Unindent(ImGui::GetTreeNodeToLabelSpacing());
+			ImGui::TextUnformatted("Total");
+			DrawTime(effectsTotalTime);
 		}
 	}
 
