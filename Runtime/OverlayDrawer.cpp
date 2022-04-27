@@ -154,10 +154,14 @@ void OverlayDrawer::_DrawFPS() {
 	std::string fps = fmt::format("{} FPS", App::Get().GetRenderer().GetGPUTimer().GetFramesPerSecond());
 	if (drawShadow) {
 		ImGui::SetCursorPos(ImVec2(cursorPos.x + 1.0f, cursorPos.y + 1.0f));
-		ImGui::TextColored(ImVec4(0.0f, 0.0f, 0.0f, 0.8f), fps.c_str());
+		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 0.0f, 0.0f, 0.8f));
+		ImGui::TextUnformatted(fps.c_str());
+		ImGui::PopStyleColor();
 
 		ImGui::SetCursorPos(cursorPos);
-		ImGui::TextColored(ImVec4(0.0f, 0.0f, 0.0f, 0.6f), fps.c_str());
+		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 0.0f, 0.0f, 0.6f));
+		ImGui::TextUnformatted(fps.c_str());
+		ImGui::PopStyleColor();
 
 		ImGui::SetCursorPos(cursorPos);
 	}
@@ -305,51 +309,54 @@ struct EffectTimings {
 	float totalTime = 0.0f;
 };
 
-static void DrawTime(float time, bool gray = false) {
-	std::string text = fmt::format("{:.3f} ms", time);
+static void DrawEffectTimings(const EffectTimings& et, float totalTime, bool showPasses, float maxWindowWidth) {
+	ImGui::TableNextRow();
+	ImGui::TableNextColumn();
+	ImGui::TextUnformatted(et.desc->name.c_str());
+	ImGui::TableNextColumn();
 
-	ImGui::SameLine(ImGui::GetWindowContentRegionMax().x - ImGui::CalcTextSize(text.c_str()).x - 3);
-	if (gray) {
-		ImGui::TextColored(ImVec4(1, 1, 1, 0.5f), text.c_str());
-	} else {
-		ImGui::TextUnformatted(text.c_str());
-	}
-}
-
-static void DrawEffectTimings(const EffectTimings& et, float totalTime, bool showPasses) {
 	if (et.passTimings.size() > 1) {
-
-		ImGui::TextUnformatted(et.desc->name.c_str());
-
-		if (totalTime != 0.0f) {
-			DrawTime(et.totalTime, showPasses);
+		if (showPasses) {
+			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1, 1, 1, 0.5f));
+		}
+		ImGui::TextUnformatted(fmt::format("{:.3f} ms", et.totalTime).c_str());
+		if (showPasses) {
+			ImGui::PopStyleColor();
 		}
 
 		if (showPasses) {
-			ImGui::Indent(20);
-
 			for (UINT j = 0; j < et.passTimings.size(); ++j) {
+				ImGui::TableNextRow();
+				ImGui::TableNextColumn();
+
+				std::string time = fmt::format("{:.3f} ms", et.passTimings[j]);
+
 				std::string desc = et.desc->passes[j].desc;
 				if (desc.empty()) {
 					desc = fmt::format("Pass {}", j + 1);
 				}
 
+				ImGui::Indent(20);
+				ImGui::PushTextWrapPos(maxWindowWidth - ImGui::CalcTextSize(time.c_str()).x - ImGui::GetStyle().WindowPadding.x - (ImGui::GetScrollMaxY() > 0 ? ImGui::GetStyle().ScrollbarSize : 0.0f) - ImGui::GetStyle().CellPadding.x);
 				ImGui::TextUnformatted(desc.c_str());
+				ImGui::PopTextWrapPos();
+				ImGui::Unindent(20);
 
-				if (totalTime != 0.0f) {
-					DrawTime(et.passTimings[j]);
+				float textHeight = ImGui::GetItemRectSize().y;
+
+				ImGui::TableNextColumn();
+				// 描述过长导致换行时竖直居中时间
+				float fontHeight = ImGui::GetFont()->FontSize;
+				if (textHeight >= fontHeight * 2) {
+					ImGui::SetCursorPosY(ImGui::GetCursorPosY() + (textHeight - fontHeight) / 2);
 				}
-			}
 
-			ImGui::Unindent(20);
+				ImGui::TextUnformatted(time.c_str());
+			}
 		}
 	} else {
-		ImGui::TextUnformatted(et.desc->name.c_str());
-		if (totalTime != 0.0f) {
-			DrawTime(et.totalTime);
-		}
+		ImGui::TextUnformatted(fmt::format("{:.3f} ms", et.totalTime).c_str());
 	}
-	
 }
 
 void OverlayDrawer::_DrawUI() {
@@ -361,13 +368,13 @@ void OverlayDrawer::_DrawUI() {
 	ImGui::ShowDemoWindow();
 #endif
 
-	const float maxWindowWidth = 350 * _dpiScale;
+	const float maxWindowWidth = 400 * _dpiScale;
 	ImGui::SetNextWindowSizeConstraints(ImVec2(), ImVec2(maxWindowWidth, 500 * _dpiScale));
 
 	static float initPosX = Utils::GetSizeOfRect(App::Get().GetRenderer().GetOutputRect()).cx - maxWindowWidth;
 	ImGui::SetNextWindowPos(ImVec2(initPosX, 20), ImGuiCond_FirstUseEver);
 
-	if (!ImGui::Begin("Profiler", nullptr, ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize)) {
+	if (!ImGui::Begin("Profiler", nullptr, ImGuiWindowFlags_NoNav | ImGuiWindowFlags_AlwaysAutoResize)) {
 		ImGui::End();
 		return;
 	}
@@ -457,7 +464,7 @@ void OverlayDrawer::_DrawUI() {
 			showFPS = !showFPS;
 		}
 	}
-
+	
 	ImGui::Spacing();
 	if (ImGui::CollapsingHeader("Timings", ImGuiTreeNodeFlags_DefaultOpen)) {
 		const auto& gpuTimings = gpuTimer.GetGPUTimings();
@@ -481,11 +488,15 @@ void OverlayDrawer::_DrawUI() {
 			}
 		}
 
+		float effectsTotalTime = 0.0f;
+		for (const auto& et : effectTimings) {
+			effectsTotalTime += et.totalTime;
+		}
+
+		static bool showPasses = false;
 		if (nEffect == 1) {
-			const auto& et = effectTimings[0];
-			DrawEffectTimings(et, et.totalTime, et.passTimings.size() > 1);
+			showPasses = effectTimings[0].passTimings.size() > 1;
 		} else {
-			static bool showPasses = false;
 			for (const auto& et : effectTimings) {
 				// 某个效果有多个通道，显示切换按钮
 				if (et.passTimings.size() > 1) {
@@ -495,20 +506,39 @@ void OverlayDrawer::_DrawUI() {
 					break;
 				}
 			}
+		}
 
-			float effectsTotalTime = 0.0f;
-			for (const auto& et : effectTimings) {
-				effectsTotalTime += et.totalTime;
+		if (ImGui::BeginTable("timings", 2)) {
+			ImGui::TableSetupColumn("name", ImGuiTableColumnFlags_WidthStretch | ImGuiTableColumnFlags_NoResize | ImGuiTableColumnFlags_NoReorder);
+			ImGui::TableSetupColumn("time", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoResize | ImGuiTableColumnFlags_NoReorder);
+
+			if (nEffect == 1) {
+				const auto& et = effectTimings[0];
+				DrawEffectTimings(et, effectsTotalTime, et.passTimings.size() > 1, maxWindowWidth);
+			} else {
+				for (const auto& et : effectTimings) {
+					DrawEffectTimings(et, effectsTotalTime, showPasses, maxWindowWidth);
+				}
 			}
 
-			for (const auto& et : effectTimings) {
-				DrawEffectTimings(et, effectsTotalTime, showPasses);
-			}
+			ImGui::EndTable();
+		}
 
+		if (nEffect > 1) {
 			ImGui::Separator();
 
-			ImGui::TextUnformatted("Total");
-			DrawTime(effectsTotalTime);
+			if (ImGui::BeginTable("total", 2)) {
+				ImGui::TableSetupColumn("name", ImGuiTableColumnFlags_WidthStretch | ImGuiTableColumnFlags_NoResize | ImGuiTableColumnFlags_NoReorder);
+				ImGui::TableSetupColumn("time", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoResize | ImGuiTableColumnFlags_NoReorder);
+
+				ImGui::TableNextRow();
+				ImGui::TableNextColumn();
+				ImGui::TextUnformatted("Total");
+				ImGui::TableNextColumn();
+				ImGui::TextUnformatted(fmt::format("{:.3f} ms", effectsTotalTime).c_str());
+				
+				ImGui::EndTable();
+			}
 		}
 	}
 
