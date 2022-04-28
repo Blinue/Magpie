@@ -359,6 +359,31 @@ static void DrawEffectTimings(const EffectTimings& et, float totalTime, bool sho
 	}
 }
 
+static void DrawTimelineItem(ImU32 color, float dpiScale, std::string name, float time, float effectsTotalTime) {
+	ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, color);
+	ImGui::PushStyleColor(ImGuiCol_HeaderActive, color);
+	ImGui::PushStyleColor(ImGuiCol_HeaderHovered, color);
+	ImGui::Selectable("");
+	ImGui::PopStyleColor(2);
+
+	if (ImGui::IsItemHovered() || ImGui::IsItemClicked()) {
+		ImGui::BeginTooltip();
+		ImGui::PushTextWrapPos(500 * dpiScale);
+		ImGui::TextUnformatted(fmt::format("{}\n{:.3f} ms\n{:.1f}%", name, time, time / effectsTotalTime * 100).c_str());
+		ImGui::PopTextWrapPos();
+		ImGui::EndTooltip();
+	}
+
+	// 空间足够时显示名字
+	float textWidth = ImGui::CalcTextSize(name.c_str()).x;
+	float itemWidth = ImGui::GetItemRectSize().x;
+	if (itemWidth - 5 > textWidth) {
+		ImGui::SameLine(0, 0);
+		ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (itemWidth - textWidth - 5) / 2);
+		ImGui::TextUnformatted(name.c_str());
+	}
+}
+
 void OverlayDrawer::_DrawUI() {
 	auto& config = App::Get().GetConfig();
 	auto& renderer = App::Get().GetRenderer();
@@ -522,6 +547,7 @@ void OverlayDrawer::_DrawUI() {
 			ImGui::PushStyleVar(ImGuiStyleVar_CellPadding, ImVec2(0, 0));
 			ImGui::PushStyleVar(ImGuiStyleVar_SelectableTextAlign, ImVec2(0.5f, 0.5f));
 			ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(5, 5));
+			ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0, 0));
 
 			if (effectsTotalTime > 0) {
 				if (showPasses) {
@@ -541,23 +567,9 @@ void OverlayDrawer::_DrawUI() {
 							for (UINT j = 0, end = et.passTimings.size(); j < end; ++j) {
 								ImGui::TableNextColumn();
 
-								ImU32 color = COLORS[i % std::size(COLORS)];
-								ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, color);
-								ImGui::PushStyleColor(ImGuiCol_HeaderActive, color);
-								ImGui::PushStyleColor(ImGuiCol_HeaderHovered, color);
-								ImGui::Selectable("");
-								ImGui::PopStyleColor(2);
-								if (ImGui::IsItemHovered()) {
-									ImGui::BeginTooltip();
-									ImGui::PushTextWrapPos(500 * _dpiScale);
-
-									std::string text = et.passTimings.size() == 1 ? fmt::format("{}\n{:.3f} ms\n{:.1f}%",
-										et.desc->name, et.passTimings[j], et.passTimings[j] / effectsTotalTime * 100) : fmt::format("{}/{}\n{:.3f} ms\n{:.1f}%",
-										et.desc->name, et.desc->passes[j].desc, et.passTimings[j], et.passTimings[j] / effectsTotalTime * 100);
-									ImGui::TextUnformatted(text.c_str());
-									ImGui::PopTextWrapPos();
-									ImGui::EndTooltip();
-								}
+								std::string name = et.passTimings.size() == 1 ? 
+									et.desc->name : StrUtils::Concat(et.desc->name, "/", et.desc->passes[j].desc);
+								DrawTimelineItem(COLORS[i % std::size(COLORS)], _dpiScale, name, et.passTimings[j], effectsTotalTime);
 
 								++i;
 							}
@@ -581,18 +593,7 @@ void OverlayDrawer::_DrawUI() {
 							ImGui::TableNextColumn();
 							auto& et = effectTimings[i];
 
-							ImU32 color = COLORS[i % std::size(COLORS)];
-							ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, color);
-							ImGui::PushStyleColor(ImGuiCol_HeaderActive, color);
-							ImGui::PushStyleColor(ImGuiCol_HeaderHovered, color);
-							ImGui::Selectable(et.desc->name.c_str());
-							ImGui::PopStyleColor(2);
-							if (ImGui::IsItemHovered()) {
-								ImGui::BeginTooltip();
-								ImGui::TextUnformatted(fmt::format("{}\n{:.3f} ms\n{:.1f}%",
-									et.desc->name, et.totalTime, et.totalTime / effectsTotalTime * 100).c_str());
-								ImGui::EndTooltip();
-							}
+							DrawTimelineItem(COLORS[i % std::size(COLORS)], _dpiScale, et.desc->name, et.totalTime, effectsTotalTime);
 						}
 
 						ImGui::EndTable();
@@ -615,7 +616,7 @@ void OverlayDrawer::_DrawUI() {
 				}
 			}
 
-			ImGui::PopStyleVar(3);
+			ImGui::PopStyleVar(4);
 
 			ImGui::Spacing();
 		}
