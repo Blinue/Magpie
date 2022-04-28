@@ -13,6 +13,7 @@
 #include <bit>	// std::bit_ceil
 #include <Wbemidl.h>
 #include <comdef.h>
+#include <random>
 
 #pragma comment(lib, "wbemuuid.lib")
 
@@ -331,14 +332,9 @@ static void DrawEffectTimings(const EffectTimings& et, float totalTime, bool sho
 
 				std::string time = fmt::format("{:.3f} ms", et.passTimings[j]);
 
-				std::string desc = et.desc->passes[j].desc;
-				if (desc.empty()) {
-					desc = fmt::format("Pass {}", j + 1);
-				}
-
 				ImGui::Indent(20);
 				ImGui::PushTextWrapPos(maxWindowWidth - ImGui::CalcTextSize(time.c_str()).x - ImGui::GetStyle().WindowPadding.x - (ImGui::GetScrollMaxY() > 0 ? ImGui::GetStyle().ScrollbarSize : 0.0f) - ImGui::GetStyle().CellPadding.x);
-				ImGui::TextUnformatted(desc.c_str());
+				ImGui::TextUnformatted(et.desc->passes[j].desc.c_str());
 				ImGui::PopTextWrapPos();
 				ImGui::Unindent(20);
 
@@ -377,9 +373,10 @@ static void DrawTimelineItem(ImU32 color, float dpiScale, std::string name, floa
 	// 空间足够时显示名字
 	float textWidth = ImGui::CalcTextSize(name.c_str()).x;
 	float itemWidth = ImGui::GetItemRectSize().x;
-	if (itemWidth - 5 > textWidth) {
+	float itemSpacing = ImGui::GetStyle().ItemSpacing.x;
+	if (itemWidth - itemSpacing - 2 > textWidth) {
 		ImGui::SameLine(0, 0);
-		ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (itemWidth - textWidth - 5) / 2);
+		ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (itemWidth - textWidth - itemSpacing) / 2);
 		ImGui::TextUnformatted(name.c_str());
 	}
 }
@@ -533,14 +530,121 @@ void OverlayDrawer::_DrawUI() {
 			}
 		}
 
-		static const ImColor COLORS[] = {
-			{194,24,91,255},
-			{123,31,162,255},
-			{81,45,168,255},
-			{0,121,107,255},
-			{93,64,55,255},
-			{69,90,100,255}
-		};
+		std::vector<ImColor> colors;
+		if (nEffect > 1) {
+			static const ImColor COLORS[] = {
+				{194,24,91,255},
+				{136,14,79,255},
+				{171,71,188,255},
+				{106,27,154,255},
+				{92,107,192,255},
+				{40,53,147,255},
+				{21,101,192,255},
+				{0,121,107,255},
+				{141,110,99,255},
+				{97,97,97,255}
+			};
+
+			UINT totalColors = nEffect;
+			for (const auto& et : effectTimings) {
+				if (et.passTimings.size() > 1) {
+					totalColors += (UINT)et.passTimings.size();
+				}
+			}
+			// 存储序号
+			std::vector<UINT> tempColors;
+
+			std::default_random_engine randomEngine(totalColors);
+
+			if (totalColors <= std::size(COLORS)) {
+				tempColors.resize(std::size(COLORS));
+				for (UINT i = 0; i < std::size(COLORS); ++i) {
+					tempColors[i] = i;
+				}
+				std::shuffle(tempColors.begin(), tempColors.end(), randomEngine);
+				
+				tempColors.resize(totalColors);
+			} else {
+				// 相邻通道颜色不同，相邻效果颜色不同
+				tempColors.reserve(totalColors);
+				std::uniform_int_distribution<int> uniformDst(0, std::size(COLORS) - 1);
+
+				for (UINT i = 0; i < effectTimings.size(); ++i) {
+					const auto& et = effectTimings[i];
+					if (et.passTimings.size() == 1) {
+						UINT c = uniformDst(randomEngine);
+
+						if (i > 0) {
+							const auto& prevEt = effectTimings[(size_t)i - 1];
+							if (prevEt.passTimings.size() == 1) {
+								while (c == tempColors.back()) {
+									c = uniformDst(randomEngine);
+								}
+							} else {
+								UINT prevEffectColor = tempColors[tempColors.size() - prevEt.passTimings.size() - 1];
+								while (c == tempColors.back() || c == prevEffectColor) {
+									c = uniformDst(randomEngine);
+								}
+							}
+						}
+
+						tempColors.push_back(c);
+					} else {
+						UINT c = uniformDst(randomEngine);
+						if (i > 0) {
+							const auto& prevEt = effectTimings[(size_t)i - 1];
+							UINT prevEffectColor = prevEt.passTimings.size() == 1 ? tempColors.back() : tempColors[tempColors.size() - prevEt.passTimings.size() - 1];
+
+							while (c == prevEffectColor) {
+								c = uniformDst(randomEngine);
+							}
+						}
+						tempColors.push_back(c);
+
+						for (UINT j = 0; j < effectTimings[i].passTimings.size(); ++j) {
+							c = uniformDst(randomEngine);
+
+							if (i != 0 || j != 0) {
+								UINT prevColor = (i > 0 && j == 0) ? tempColors[tempColors.size() - 2] : tempColors.back();
+								while (c == prevColor) {
+									c = uniformDst(randomEngine);
+								}
+							}
+
+							tempColors.push_back(c);
+						}
+					}
+				}
+			}
+			
+			colors.reserve(totalColors);
+			if (showPasses) {
+				UINT i = 0;
+				for (const auto& et : effectTimings) {
+					if (et.passTimings.size() == 1) {
+						colors.push_back(COLORS[tempColors[i]]);
+						++i;
+						continue;
+					}
+
+					++i;
+					for (UINT j = 0; j < et.passTimings.size(); ++j) {
+						colors.push_back(COLORS[tempColors[i]]);
+						++i;
+					}
+				}
+			} else {
+				UINT i = 0;
+				for (const auto& et : effectTimings) {
+					colors.push_back(COLORS[tempColors[i]]);
+
+					++i;
+					if (et.passTimings.size() > 1) {
+						i += et.passTimings.size();
+					}
+				}
+			}
+		}
 
 		if (nEffect > 1 || showPasses) {
 			ImGui::Spacing();
@@ -567,9 +671,14 @@ void OverlayDrawer::_DrawUI() {
 							for (UINT j = 0, end = et.passTimings.size(); j < end; ++j) {
 								ImGui::TableNextColumn();
 
-								std::string name = et.passTimings.size() == 1 ? 
-									et.desc->name : StrUtils::Concat(et.desc->name, "/", et.desc->passes[j].desc);
-								DrawTimelineItem(COLORS[i % std::size(COLORS)], _dpiScale, name, et.passTimings[j], effectsTotalTime);
+								std::string name;
+								if (et.passTimings.size() == 1) {
+									name = et.desc->name;
+								} else {
+									name = StrUtils::Concat(et.desc->name, "/", et.desc->passes[j].desc);
+								}
+
+								DrawTimelineItem(colors[i], _dpiScale, name, et.passTimings[j], effectsTotalTime);
 
 								++i;
 							}
@@ -593,7 +702,7 @@ void OverlayDrawer::_DrawUI() {
 							ImGui::TableNextColumn();
 							auto& et = effectTimings[i];
 
-							DrawTimelineItem(COLORS[i % std::size(COLORS)], _dpiScale, et.desc->name, et.totalTime, effectsTotalTime);
+							DrawTimelineItem(colors[i], _dpiScale, et.desc->name, et.totalTime, effectsTotalTime);
 						}
 
 						ImGui::EndTable();

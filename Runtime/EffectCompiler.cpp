@@ -1019,6 +1019,10 @@ UINT ResolvePasses(
 				return 1;
 			}
 		}
+
+		if (passDesc.desc.empty()) {
+			passDesc.desc = fmt::format("Pass {}", i + 1);
+		}
 	}
 
 	return 0;
