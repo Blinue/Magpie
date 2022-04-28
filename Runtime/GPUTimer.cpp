@@ -40,6 +40,7 @@ void GPUTimer::StartProfiling(std::chrono::microseconds updateInterval, UINT pas
 	}
 	_passesTimings.resize(passCount);
 	_gpuTimings.passes.resize(passCount);
+	_firstProfilingFrame = true;
 }
 
 void GPUTimer::StopProfiling() {
@@ -134,7 +135,15 @@ void GPUTimer::_UpdateGPUTimings() {
 		}
 
 		_profilingCounter += _elapsedTime;
-		if (_profilingCounter >= _updateProfilingTime) {
+
+		if (_firstProfilingFrame) {
+			_firstProfilingFrame = false;
+
+			// 在第一帧更新一次
+			for (UINT i = 0; i < _passesTimings.size(); ++i) {
+				_gpuTimings.passes[i] = _passesTimings[i].first;
+			}
+		} else if (_profilingCounter >= _updateProfilingTime) {
 			// 更新渲染用时
 			for (UINT i = 0; i < _passesTimings.size(); ++i) {
 				_gpuTimings.passes[i] = _passesTimings[i].second == 0 ?

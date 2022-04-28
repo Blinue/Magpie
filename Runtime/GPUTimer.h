@@ -57,6 +57,8 @@ private:
 	std::chrono::nanoseconds _fpsCounter{};
 
 	GPUTimings _gpuTimings;
+	// 记录的第一帧首先更新一次，而不是等待更新间隔
+	bool _firstProfilingFrame = true;
 	// 更新渲染用时的间隔
 	std::chrono::nanoseconds _updateProfilingTime{};
 	std::chrono::nanoseconds _profilingCounter{};

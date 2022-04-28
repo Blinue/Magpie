@@ -250,6 +250,10 @@ void ImGuiImpl::NewFrame() {
 	// 将所有 ImGUI 窗口限制在视口内
 	SIZE outputSize = Utils::GetSizeOfRect(App::Get().GetRenderer().GetOutputRect());
 	for (ImGuiWindow* window : ImGui::GetCurrentContext()->Windows) {
+		if (window->Flags & ImGuiWindowFlags_Tooltip) {
+			continue;
+		}
+
 		if (outputSize.cx > window->Size.x) {
 			window->Pos.x = std::clamp(window->Pos.x, 0.0f, outputSize.cx - window->Size.x);
 		} else {

@@ -508,6 +508,118 @@ void OverlayDrawer::_DrawUI() {
 			}
 		}
 
+		static const ImColor COLORS[] = {
+			{194,24,91,255},
+			{123,31,162,255},
+			{81,45,168,255},
+			{0,121,107,255},
+			{93,64,55,255},
+			{69,90,100,255}
+		};
+
+		if (nEffect > 1 || showPasses) {
+			ImGui::Spacing();
+			ImGui::PushStyleVar(ImGuiStyleVar_CellPadding, ImVec2(0, 0));
+			ImGui::PushStyleVar(ImGuiStyleVar_SelectableTextAlign, ImVec2(0.5f, 0.5f));
+			ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(5, 5));
+
+			if (effectsTotalTime > 0) {
+				if (showPasses) {
+					if (ImGui::BeginTable("timeline", gpuTimings.passes.size())) {
+						for (UINT i = 0; i < gpuTimings.passes.size(); ++i) {
+							ImGui::TableSetupColumn(
+								std::to_string(i).c_str(),
+								ImGuiTableColumnFlags_WidthStretch | ImGuiTableColumnFlags_NoResize | ImGuiTableColumnFlags_NoReorder,
+								gpuTimings.passes[i] / effectsTotalTime
+							);
+						}
+
+						ImGui::TableNextRow();
+
+						UINT i = 0;
+						for (const EffectTimings& et : effectTimings) {
+							for (UINT j = 0, end = et.passTimings.size(); j < end; ++j) {
+								ImGui::TableNextColumn();
+
+								ImU32 color = COLORS[i % std::size(COLORS)];
+								ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, color);
+								ImGui::PushStyleColor(ImGuiCol_HeaderActive, color);
+								ImGui::PushStyleColor(ImGuiCol_HeaderHovered, color);
+								ImGui::Selectable("");
+								ImGui::PopStyleColor(2);
+								if (ImGui::IsItemHovered()) {
+									ImGui::BeginTooltip();
+									ImGui::PushTextWrapPos(500 * _dpiScale);
+
+									std::string text = et.passTimings.size() == 1 ? fmt::format("{}\n{:.3f} ms\n{:.1f}%",
+										et.desc->name, et.passTimings[j], et.passTimings[j] / effectsTotalTime * 100) : fmt::format("{}/{}\n{:.3f} ms\n{:.1f}%",
+										et.desc->name, et.desc->passes[j].desc, et.passTimings[j], et.passTimings[j] / effectsTotalTime * 100);
+									ImGui::TextUnformatted(text.c_str());
+									ImGui::PopTextWrapPos();
+									ImGui::EndTooltip();
+								}
+
+								++i;
+							}
+						}
+
+						ImGui::EndTable();
+					}
+				} else {
+					if (ImGui::BeginTable("timeline", nEffect)) {
+						for (UINT i = 0; i < nEffect; ++i) {
+							ImGui::TableSetupColumn(
+								std::to_string(i).c_str(),
+								ImGuiTableColumnFlags_WidthStretch | ImGuiTableColumnFlags_NoResize | ImGuiTableColumnFlags_NoReorder,
+								effectTimings[i].totalTime / effectsTotalTime
+							);
+						}
+
+						ImGui::TableNextRow();
+
+						for (UINT i = 0; i < nEffect; ++i) {
+							ImGui::TableNextColumn();
+							auto& et = effectTimings[i];
+
+							ImU32 color = COLORS[i % std::size(COLORS)];
+							ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, color);
+							ImGui::PushStyleColor(ImGuiCol_HeaderActive, color);
+							ImGui::PushStyleColor(ImGuiCol_HeaderHovered, color);
+							ImGui::Selectable(et.desc->name.c_str());
+							ImGui::PopStyleColor(2);
+							if (ImGui::IsItemHovered()) {
+								ImGui::BeginTooltip();
+								ImGui::TextUnformatted(fmt::format("{}\n{:.3f} ms\n{:.1f}%",
+									et.desc->name, et.totalTime, et.totalTime / effectsTotalTime * 100).c_str());
+								ImGui::EndTooltip();
+							}
+						}
+
+						ImGui::EndTable();
+					}
+				}
+			} else {
+				// 还未统计出时间时渲染占位
+				if (ImGui::BeginTable("timeline", 1)) {
+					ImGui::TableSetupColumn("0", ImGuiTableColumnFlags_WidthStretch | ImGuiTableColumnFlags_NoResize | ImGuiTableColumnFlags_NoReorder);
+					ImGui::TableNextRow();
+					ImGui::TableNextColumn();
+
+					ImU32 color = ImColor();
+					ImGui::PushStyleColor(ImGuiCol_HeaderActive, color);
+					ImGui::PushStyleColor(ImGuiCol_HeaderHovered, color);
+					ImGui::Selectable("");
+					ImGui::PopStyleColor(2);
+
+					ImGui::EndTable();
+				}
+			}
+
+			ImGui::PopStyleVar(3);
+
+			ImGui::Spacing();
+		}
+
 		if (ImGui::BeginTable("timings", 2)) {
 			ImGui::TableSetupColumn("name", ImGuiTableColumnFlags_WidthStretch | ImGuiTableColumnFlags_NoResize | ImGuiTableColumnFlags_NoReorder);
 			ImGui::TableSetupColumn("time", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoResize | ImGuiTableColumnFlags_NoReorder);
