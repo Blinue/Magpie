@@ -104,8 +104,27 @@ static std::optional<LRESULT> HostWndProc(HWND hWnd, UINT message, WPARAM wParam
 		// 2. 缩放后的位置未被遮挡而缩放前的位置被遮挡
 		// 或用户操作 UI 时
 		HWND hwndSrc = App::Get().GetHwndSrc();
-		if (GetForegroundWindow() != hwndSrc) {
-			SetForegroundWindow(hwndSrc);
+		HWND hwndForground = GetForegroundWindow();
+		if (hwndForground != hwndSrc) {
+			if (!SetForegroundWindow(hwndSrc)) {
+				// 设置前台窗口失败，可能是因为前台窗口是开始菜单
+				if (Utils::IsStartMenu(hwndForground)) {
+					// 模拟按键关闭开始菜单
+					INPUT inputs[4]{};
+					inputs[0].type = INPUT_KEYBOARD;
+					inputs[0].ki.wVk = VK_LWIN;
+					inputs[1].type = INPUT_KEYBOARD;
+					inputs[1].ki.wVk = VK_LWIN;
+					inputs[1].ki.dwFlags = KEYEVENTF_KEYUP;
+					SendInput((UINT)std::size(inputs), inputs, sizeof(INPUT));
+
+					// 等待系统处理
+					Sleep(1);
+
+					// 再次尝试设置前台窗口（通常没有必要）
+					SetForegroundWindow(hwndSrc);
+				}
+			}
 		}
 
 		if (!App::Get().GetConfig().IsBreakpointMode()) {

@@ -141,6 +141,8 @@ struct Utils {
 
 	static bool ZstdCompress(std::span<const BYTE> src, std::vector<BYTE>& dest, int compressionLevel);
 	static bool ZstdDecompress(std::span<const BYTE> src, std::vector<BYTE>& dest);
+
+	static bool IsStartMenu(HWND hwnd);
 };
 
 namespace std {

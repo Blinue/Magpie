@@ -239,42 +239,8 @@ bool CheckForeground(HWND hwndForeground) {
 		return true;
 	}
 
-	// 排除开始菜单，它的类名是 CoreWindow
-	if (std::wcscmp(className, L"Windows.UI.Core.CoreWindow")) {
-		// 记录新的前台窗口
-		Logger::Get().Info(StrUtils::Concat("新的前台窗口：\n\t类名：", StrUtils::UTF16ToUTF8(className)));
-		return false;
-	}
-
-	DWORD dwProcId = 0;
-	if (!GetWindowThreadProcessId(hwndForeground, &dwProcId)) {
-		Logger::Get().Win32Error("GetWindowThreadProcessId 失败");
-		return false;
-	}
-
-	Utils::ScopedHandle hProc(Utils::SafeHandle(OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, dwProcId)));
-	if (!hProc) {
-		Logger::Get().Win32Error("OpenProcess 失败");
-		return false;
-	}
-
-	wchar_t fileName[MAX_PATH] = { 0 };
-	if (!GetModuleFileNameEx(hProc.get(), NULL, fileName, MAX_PATH)) {
-		Logger::Get().Win32Error("GetModuleFileName 失败");
-		return false;
-	}
-
-	std::string exeName = StrUtils::UTF16ToUTF8(fileName);
-	exeName = exeName.substr(exeName.find_last_of(L'\\') + 1);
-	StrUtils::ToLowerCase(exeName);
-
-	// win10: searchapp.exe 和 startmenuexperiencehost.exe
-	// win11: searchhost.exe 和 startmenuexperiencehost.exe
-	if (exeName == "searchapp.exe" || exeName == "searchhost.exe" || exeName == "startmenuexperiencehost.exe") {
-		return true;
-	}
-
-	return false;
+	// 排除开始菜单
+	return Utils::IsStartMenu(hwndForeground);
 }
 
 const EffectDesc& Renderer::GetEffectDesc(size_t idx) const noexcept {
