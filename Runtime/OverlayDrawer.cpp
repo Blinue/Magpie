@@ -405,11 +405,8 @@ static void DrawTimelineItem(ImU32 color, float dpiScale, std::string name, floa
 	ImGui::PopStyleColor(2);
 	
 	if (ImGui::IsItemHovered() || ImGui::IsItemClicked()) {
-		ImGui::BeginTooltip();
-		ImGui::PushTextWrapPos(500 * dpiScale);
-		ImGui::TextUnformatted(fmt::format("{}\n{:.3f} ms\n{:.1f}%", name, time, time / effectsTotalTime * 100).c_str());
-		ImGui::PopTextWrapPos();
-		ImGui::EndTooltip();
+		std::string content = fmt::format("{}\n{:.3f} ms\n{:.1f}%", name, time, time / effectsTotalTime * 100);
+		ImGuiImpl::Tooltip(content.c_str(), 500 * dpiScale);
 	}
 
 	// 空间足够时显示名字
@@ -421,6 +418,37 @@ static void DrawTimelineItem(ImU32 color, float dpiScale, std::string name, floa
 		ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (itemWidth - textWidth - itemSpacing) / 2);
 		ImGui::TextUnformatted(name.c_str());
 	}
+}
+
+// 自定义提示
+static void MyPlotLines(float(*values_getter)(void* data, int idx), void* data, int values_count, int values_offset, const char* overlay_text, float scale_min, float scale_max, ImVec2 graph_size) {
+	// 通过改变光标位置避免绘制提示窗口
+	const ImVec2 mousePos = ImGui::GetIO().MousePos;
+	ImGui::GetIO().MousePos = ImVec2(-FLT_MAX, -FLT_MAX);
+	ImGui::PlotLines("", values_getter, data, values_count, values_offset, overlay_text, scale_min, scale_max, graph_size);
+	ImGui::GetIO().MousePos = mousePos;
+
+	ImVec2 framePadding = ImGui::GetStyle().FramePadding;
+	ImVec2 graphRectMin = ImGui::GetItemRectMin();
+	ImVec2 graphRectMax = ImGui::GetItemRectMax();
+	
+	float innerRectLeft = graphRectMin.x + framePadding.x;
+	float innerRectTop = graphRectMin.y + framePadding.y;
+	float innerRectRight = graphRectMax.x - framePadding.x;
+	float innerRectBottom = graphRectMax.y - framePadding.y;
+
+	// 检查光标是否在图表上
+	if (mousePos.x < innerRectLeft || mousePos.y < innerRectTop ||
+		mousePos.x >= innerRectRight || mousePos.y >= innerRectBottom) {
+		return;
+	}
+
+	// 获取光标位置对应的值
+	float t = std::clamp((mousePos.x - innerRectLeft) / (innerRectRight - innerRectLeft), 0.0f, 0.9999f);
+	int v_idx = (int)(t * values_count);
+	float v0 = values_getter(data, (v_idx + values_offset) % values_count);
+
+	ImGuiImpl::Tooltip(fmt::format("{:.3f}", v0).c_str());
 }
 
 void OverlayDrawer::_DrawUI() {
@@ -491,7 +519,7 @@ void OverlayDrawer::_DrawUI() {
 			// 2. 以 30 为最小变化单位
 			const float maxFPS = std::bit_ceil((UINT)std::ceilf((1000 / minTime2 - 10) / 30)) * 30 * 1.7f;
 			
-			ImGui::PlotLines("", [](void* data, int idx) {
+			MyPlotLines([](void* data, int idx) {
 				float time = (*(std::deque<float>*)data)[idx];
 				return time < 1e-6 ? 0 : 1000 / time;
 			}, &_frameTimes, (int)_frameTimes.size(), 0, fmt::format("avg: {:.3f} FPS", _validFrames * 1000 / totalTime).c_str(), 0, maxFPS, ImVec2(250 * _dpiScale, 80 * _dpiScale));
@@ -515,7 +543,7 @@ void OverlayDrawer::_DrawUI() {
 			}
 
 			// 使用第二大的值以缓解尖峰导致的抖动
-			ImGui::PlotLines("", [](void* data, int idx) {
+			MyPlotLines([](void* data, int idx) {
 				return (*(std::deque<float>*)data)[idx];
 			}, &_frameTimes, (int)_frameTimes.size(), 0,
 				fmt::format("avg: {:.3f} ms", totalTime / _validFrames).c_str(),
@@ -609,7 +637,7 @@ void OverlayDrawer::_DrawUI() {
 			} else {
 				// 相邻通道颜色不同，相邻效果颜色不同
 				tempColors.reserve(totalColors);
-				std::uniform_int_distribution<int> uniformDst(0, std::size(COLORS) - 1);
+				std::uniform_int_distribution<UINT> uniformDst(0, UINT(std::size(COLORS)) - 1);
 
 				for (UINT i = 0; i < effectTimings.size(); ++i) {
 					const auto& et = effectTimings[i];
@@ -681,7 +709,7 @@ void OverlayDrawer::_DrawUI() {
 					}
 				}
 			} else {
-				UINT i = 0;
+				size_t i = 0;
 				for (const auto& et : effectTimings) {
 					colors.push_back(COLORS[tempColors[i]]);
 
@@ -702,7 +730,7 @@ void OverlayDrawer::_DrawUI() {
 
 			if (effectsTotalTime > 0) {
 				if (showPasses) {
-					if (ImGui::BeginTable("timeline", gpuTimings.passes.size())) {
+					if (ImGui::BeginTable("timeline", (int)gpuTimings.passes.size())) {
 						for (UINT i = 0; i < gpuTimings.passes.size(); ++i) {
 							ImGui::TableSetupColumn(
 								std::to_string(i).c_str(),
@@ -715,7 +743,7 @@ void OverlayDrawer::_DrawUI() {
 
 						UINT i = 0;
 						for (const EffectTimings& et : effectTimings) {
-							for (UINT j = 0, end = et.passTimings.size(); j < end; ++j) {
+							for (UINT j = 0, end = (UINT)et.passTimings.size(); j < end; ++j) {
 								ImGui::TableNextColumn();
 
 								std::string name;
@@ -786,7 +814,7 @@ void OverlayDrawer::_DrawUI() {
 				const auto& et = effectTimings[0];
 				DrawEffectTimings(et, effectsTotalTime, true, maxWindowWidth, colors, true);
 			} else {
-				UINT idx = 0;
+				size_t idx = 0;
 				for (const auto& et : effectTimings) {
 					std::span<const ImColor> colorSpan;
 					if (!showPasses || et.passTimings.size() == 1) {

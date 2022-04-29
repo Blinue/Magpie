@@ -108,12 +108,12 @@ static LRESULT CALLBACK LowLevelMouseProc(
 
 		// 向主线程发送滚动数据
 		// 使用 Windows 消息进行线程同步
-		PostMessage(App::Get().GetHwndHost(), wParam, ((MSLLHOOKSTRUCT*)lParam)->mouseData, 0);
+		PostMessage(App::Get().GetHwndHost(), (UINT)wParam, ((MSLLHOOKSTRUCT*)lParam)->mouseData, 0);
 
 		// 阻断滚轮消息，防止传给源窗口
 		return -1;
 	} else if (wParam >= WM_LBUTTONDOWN && wParam <= WM_RBUTTONUP) {
-		PostMessage(App::Get().GetHwndHost(), wParam, 0, 0);
+		PostMessage(App::Get().GetHwndHost(), (UINT)wParam, 0, 0);
 
 		// 阻断点击消息，防止传给源窗口
 		return -1;
@@ -275,6 +275,33 @@ void ImGuiImpl::EndFrame() {
 	auto d3dDC = App::Get().GetDeviceResources().GetD3DDC();
 	d3dDC->OMSetRenderTargets(1, &_rtv, NULL);
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+}
+
+void ImGuiImpl::Tooltip(const char* content, float maxWidth) {
+	ImVec2 padding = ImGui::GetStyle().WindowPadding;
+	ImVec2 contentSize = ImGui::CalcTextSize(content, nullptr, false, maxWidth - 2 * padding.x);
+	ImVec2 windowSize(contentSize.x + 2 * padding.x, contentSize.y + 2 * padding.y);
+	ImGui::SetNextWindowSize(windowSize);
+
+	ImVec2 windowPos = ImGui::GetMousePos();
+	windowPos.x += 16 * ImGui::GetStyle().MouseCursorScale;
+	windowPos.y += 8 * ImGui::GetStyle().MouseCursorScale;
+
+	SIZE outputSize = Utils::GetSizeOfRect(App::Get().GetRenderer().GetOutputRect());
+	windowPos.x = std::clamp(windowPos.x, 0.0f, outputSize.cx - windowSize.x);
+	windowPos.y = std::clamp(windowPos.y, 0.0f, outputSize.cy - windowSize.y);
+
+	ImGui::SetNextWindowPos(windowPos);
+
+	ImGui::SetNextWindowBgAlpha(ImGui::GetStyle().Colors[ImGuiCol_PopupBg].w);
+	ImGui::Begin("tooltip", NULL, ImGuiWindowFlags_NoInputs | ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoFocusOnAppearing);
+
+	ImGui::PushTextWrapPos(maxWidth - padding.x);
+	ImGui::TextUnformatted(content);
+	ImGui::PopTextWrapPos();
+
+	ImGui::BringWindowToDisplayFront(ImGui::GetCurrentWindow());
+	ImGui::End();
 }
 
 void ImGuiImpl::ClearStates() {
