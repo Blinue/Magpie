@@ -317,13 +317,13 @@ struct EffectTimings {
 	float totalTime = 0.0f;
 };
 
-static void DrawEffectTimings(const EffectTimings& et, float totalTime, bool showPasses, float maxWindowWidth, std::span<const ImColor> colors) {
+static void DrawEffectTimings(const EffectTimings& et, float totalTime, bool showPasses, float maxWindowWidth, std::span<const ImColor> colors, bool singleEffect) {
 	float fontSize = ImGui::GetFont()->FontSize;
 
 	ImGui::TableNextRow();
 	ImGui::TableNextColumn();
 	
-	if (!showPasses || et.passTimings.size() == 1) {
+	if (!singleEffect && (!showPasses || et.passTimings.size() == 1)) {
 		ImGui::PushStyleColor(ImGuiCol_Text, (ImU32)colors[0]);
 		ImGui::TextUnformatted("■");
 		ImGui::PopStyleColor();
@@ -558,7 +558,7 @@ void OverlayDrawer::_DrawUI() {
 		}
 
 		std::vector<ImColor> colors;
-		if (nEffect > 1) {
+		if (nEffect > 1 || effectTimings[0].passTimings.size() > 1) {
 			static const ImColor COLORS[] = {
 				{194,24,91,255},
 				{136,14,79,255},
@@ -572,7 +572,7 @@ void OverlayDrawer::_DrawUI() {
 				{97,97,97,255}
 			};
 
-			UINT totalColors = nEffect;
+			UINT totalColors = nEffect > 1 ? nEffect : 0;
 			for (const auto& et : effectTimings) {
 				if (et.passTimings.size() > 1) {
 					totalColors += (UINT)et.passTimings.size();
@@ -598,7 +598,7 @@ void OverlayDrawer::_DrawUI() {
 
 				for (UINT i = 0; i < effectTimings.size(); ++i) {
 					const auto& et = effectTimings[i];
-					if (et.passTimings.size() == 1) {
+					if (nEffect > 1 && et.passTimings.size() == 1) {
 						UINT c = uniformDst(randomEngine);
 
 						if (i > 0) {
@@ -645,7 +645,12 @@ void OverlayDrawer::_DrawUI() {
 			}
 			
 			colors.reserve(totalColors);
-			if (showPasses) {
+			if (nEffect == 1) {
+				colors.resize(totalColors);
+				for (UINT i = 0; i < effectTimings[0].passTimings.size(); ++i) {
+					colors[i] = COLORS[tempColors[i]];
+				}
+			} else if (showPasses) {
 				UINT i = 0;
 				for (const auto& et : effectTimings) {
 					if (et.passTimings.size() == 1) {
@@ -763,7 +768,7 @@ void OverlayDrawer::_DrawUI() {
 
 			if (nEffect == 1) {
 				const auto& et = effectTimings[0];
-				DrawEffectTimings(et, effectsTotalTime, et.passTimings.size() > 1, maxWindowWidth, {});
+				DrawEffectTimings(et, effectsTotalTime, true, maxWindowWidth, colors, true);
 			} else {
 				UINT idx = 0;
 				for (const auto& et : effectTimings) {
@@ -776,7 +781,7 @@ void OverlayDrawer::_DrawUI() {
 						idx += et.passTimings.size();
 					}
 					
-					DrawEffectTimings(et, effectsTotalTime, showPasses, maxWindowWidth, colorSpan);
+					DrawEffectTimings(et, effectsTotalTime, showPasses, maxWindowWidth, colorSpan, false);
 				}
 			}
 
