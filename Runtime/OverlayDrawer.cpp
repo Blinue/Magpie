@@ -318,10 +318,11 @@ struct EffectTimings {
 };
 
 static void DrawEffectTimings(const EffectTimings& et, float totalTime, bool showPasses, float maxWindowWidth, std::span<const ImColor> colors, bool singleEffect) {
-	float fontSize = ImGui::GetFont()->FontSize;
-
 	ImGui::TableNextRow();
 	ImGui::TableNextColumn();
+
+	ImGui::Selectable("", false, ImGuiSelectableFlags_SpanAllColumns);
+	ImGui::SameLine(0, 0);
 	
 	if (!singleEffect && (!showPasses || et.passTimings.size() == 1)) {
 		ImGui::PushStyleColor(ImGuiCol_Text, (ImU32)colors[0]);
@@ -331,8 +332,7 @@ static void DrawEffectTimings(const EffectTimings& et, float totalTime, bool sho
 	}
 	
 	ImGui::TextUnformatted(et.desc->name.c_str());
-	ImGui::SameLine();
-	ImGui::Selectable("", false, ImGuiSelectableFlags_SpanAllColumns);
+
 	ImGui::TableNextColumn();
 
 	if (et.passTimings.size() > 1) {
@@ -349,29 +349,44 @@ static void DrawEffectTimings(const EffectTimings& et, float totalTime, bool sho
 				ImGui::TableNextRow();
 				ImGui::TableNextColumn();
 
-				std::string time = fmt::format("{:.3f} ms", et.passTimings[j]);
-
 				ImGui::Indent(20);
 
+				float fontHeight = ImGui::GetFont()->FontSize;
+				std::string time = fmt::format("{:.3f} ms", et.passTimings[j]);
+				// 手动计算布局
+				// 运行到此处时还无法确定是否需要滚动条，这里始终减去滚动条的宽度，否则展开时可能会有一帧的跳跃
+				float descWrap = maxWindowWidth - ImGui::CalcTextSize(time.c_str()).x - ImGui::GetStyle().WindowPadding.x - ImGui::GetStyle().ScrollbarSize - ImGui::GetStyle().CellPadding.x * 2;
+				float descHeight = ImGui::CalcTextSize(et.desc->passes[j].desc.c_str(), nullptr, false, descWrap - ImGui::GetCursorPos().x - ImGui::CalcTextSize("■").x - 3).y;
+
 				ImGui::PushStyleColor(ImGuiCol_Text, (ImU32)colors[j]);
-				ImGui::TextUnformatted("■");
+				if (descHeight >= fontHeight * 2) {
+					// 不知为何 SetCursorPos 不起作用
+					// 所以这里使用占位竖直居中颜色框
+					ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2());
+					ImGui::BeginGroup();
+					ImGui::Dummy(ImVec2(0, (descHeight - fontHeight) / 2));
+					ImGui::TextUnformatted("■");
+					ImGui::EndGroup();
+					ImGui::PopStyleVar();
+				} else {
+					ImGui::TextUnformatted("■");
+				}
+				
 				ImGui::PopStyleColor();
 				ImGui::SameLine(0, 3);
 
-				ImGui::PushTextWrapPos(maxWindowWidth - ImGui::CalcTextSize(time.c_str()).x - ImGui::GetStyle().WindowPadding.x - (ImGui::GetScrollMaxY() > 0 ? ImGui::GetStyle().ScrollbarSize : 0.0f) - ImGui::GetStyle().CellPadding.x);
+				ImGui::PushTextWrapPos(descWrap);
 				ImGui::TextUnformatted(et.desc->passes[j].desc.c_str());
 				ImGui::PopTextWrapPos();
 				ImGui::Unindent(20);
-				ImGui::SameLine();
 
-				float textHeight = ImGui::GetItemRectSize().y;
-				ImGui::Selectable("", false, ImGuiSelectableFlags_SpanAllColumns, ImVec2(0, textHeight));
+				ImGui::SameLine(0, 0);
+				ImGui::Selectable("", false, ImGuiSelectableFlags_SpanAllColumns, ImVec2(0, descHeight));
 
 				ImGui::TableNextColumn();
 				// 描述过长导致换行时竖直居中时间
-				float fontHeight = ImGui::GetFont()->FontSize;
-				if (textHeight >= fontHeight * 2) {
-					ImGui::SetCursorPosY(ImGui::GetCursorPosY() + (textHeight - fontHeight) / 2);
+				if (descHeight >= fontHeight * 2) {
+					ImGui::SetCursorPosY(ImGui::GetCursorPosY() + (descHeight - fontHeight) / 2);
 				}
 
 				ImGui::TextUnformatted(time.c_str());
@@ -761,7 +776,8 @@ void OverlayDrawer::_DrawUI() {
 
 			ImGui::Spacing();
 		}
-
+		
+		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(ImGui::GetStyle().ItemSpacing.x, ImGui::GetStyle().CellPadding.y * 2));
 		if (ImGui::BeginTable("timings", 2, ImGuiTableFlags_PadOuterX)) {
 			ImGui::TableSetupColumn("name", ImGuiTableColumnFlags_WidthStretch | ImGuiTableColumnFlags_NoResize | ImGuiTableColumnFlags_NoReorder);
 			ImGui::TableSetupColumn("time", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoResize | ImGuiTableColumnFlags_NoReorder);
@@ -804,6 +820,7 @@ void OverlayDrawer::_DrawUI() {
 				ImGui::EndTable();
 			}
 		}
+		ImGui::PopStyleVar();
 	}
 
 	ImGui::End();
