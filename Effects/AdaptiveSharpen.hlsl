@@ -89,7 +89,7 @@ void Pass1(uint2 blockStart, uint3 threadId) {
 		for (j = 0; j <= 1; ++j) {
 			const uint2 destPos = gxy + uint2(i, j);
 
-			if (i != 0 && j != 0) {
+			if (i != 0 || j != 0) {
 				if (!CheckViewport(destPos)) {
 					continue;
 				}

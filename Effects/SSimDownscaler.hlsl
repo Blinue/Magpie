@@ -253,7 +253,7 @@ void Pass4(uint2 blockStart, uint3 threadId) {
 		for (j = 0; j <= 1; ++j) {
 			uint2 destPos = gxy + uint2(i, j);
 
-			if (i != 1 && j != 1) {
+			if (i != 0 || j != 0) {
 				if (destPos.x >= outputSize.x || destPos.y >= outputSize.y) {
 					continue;
 				}
@@ -302,7 +302,7 @@ void Pass4(uint2 blockStart, uint3 threadId) {
 
 
 void Pass5(uint2 blockStart, uint3 threadId) {
-	uint2 gxy = (Rmp8x8(threadId.x) << 1) + blockStart;
+	const uint2 gxy = (Rmp8x8(threadId.x) << 1) + blockStart;
 	if (!CheckViewport(gxy)) {
 		return;
 	}
@@ -355,7 +355,7 @@ void Pass5(uint2 blockStart, uint3 threadId) {
 		for (j = 0; j <= 1; ++j) {
 			uint2 destPos = gxy + uint2(i, j);
 
-			if (i != 1 && j != 1) {
+			if (i != 0 || j != 0) {
 				if (!CheckViewport(destPos)) {
 					continue;
 				}
