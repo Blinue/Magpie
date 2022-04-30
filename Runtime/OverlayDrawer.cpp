@@ -580,12 +580,12 @@ void OverlayDrawer::_DrawUI() {
 				fmt::format("avg: {:.3f} ms", totalTime / _validFrames).c_str(),
 				0, maxTime2 * 1.7f, ImVec2(250 * _dpiScale, 80 * _dpiScale));
 		}
-
+		/*
 		ImGui::Spacing();
 
 		if (ImGui::Button(showFPS ? "Switch to timings" : "Switch to FPS")) {
 			showFPS = !showFPS;
-		}
+		}*/
 	}
 	
 	ImGui::Spacing();
