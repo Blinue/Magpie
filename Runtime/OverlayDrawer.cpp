@@ -398,7 +398,7 @@ static int DrawEffectTimings(const EffectTimings& et, float totalTime, bool show
 				ImGui::SameLine(0, 0);
 				ImGui::Selectable("", false, ImGuiSelectableFlags_SpanAllColumns, ImVec2(0, descHeight));
 				if (ImGui::IsItemHovered()) {
-					result = j;
+					result = (int)j;
 				}
 
 				ImGui::TableNextColumn();
