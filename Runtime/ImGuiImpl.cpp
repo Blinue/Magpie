@@ -100,12 +100,6 @@ static LRESULT CALLBACK LowLevelMouseProc(
 	}
 
 	if (wParam == WM_MOUSEWHEEL || wParam == WM_MOUSEHWHEEL) {
-		auto window = ImGui::GetCurrentContext()->HoveredWindow;
-		if (!window || window->ScrollMax.y == 0.0f || window->Collapsed) {
-			// 当前窗口没有滚动条，则不拦截
-			return CallNextHookEx(NULL, nCode, wParam, lParam);
-		}
-
 		// 向主线程发送滚动数据
 		// 使用 Windows 消息进行线程同步
 		PostMessage(App::Get().GetHwndHost(), (UINT)wParam, ((MSLLHOOKSTRUCT*)lParam)->mouseData, 0);

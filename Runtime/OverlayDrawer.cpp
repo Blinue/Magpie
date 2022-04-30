@@ -321,8 +321,10 @@ static void DrawEffectTimings(const EffectTimings& et, float totalTime, bool sho
 	ImGui::TableNextRow();
 	ImGui::TableNextColumn();
 
-	ImGui::Selectable("", false, ImGuiSelectableFlags_SpanAllColumns);
-	ImGui::SameLine(0, 0);
+	if (et.passTimings.size() == 1 || !showPasses) {
+		ImGui::Selectable("", false, ImGuiSelectableFlags_SpanAllColumns);
+		ImGui::SameLine(0, 0);
+	}
 	
 	if (!singleEffect && (!showPasses || et.passTimings.size() == 1)) {
 		ImGui::PushStyleColor(ImGuiCol_Text, (ImU32)colors[0]);
@@ -335,11 +337,20 @@ static void DrawEffectTimings(const EffectTimings& et, float totalTime, bool sho
 
 	ImGui::TableNextColumn();
 
+	const float rightAlignSpace = ImGui::CalcTextSize("0").x;
+
 	if (et.passTimings.size() > 1) {
 		if (showPasses) {
 			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1, 1, 1, 0.5f));
 		}
+
+		if (et.totalTime < 10) {
+			// 右对齐
+			ImGui::Dummy(ImVec2(rightAlignSpace, 0));
+			ImGui::SameLine(0, 0);
+		}
 		ImGui::TextUnformatted(fmt::format("{:.3f} ms", et.totalTime).c_str());
+
 		if (showPasses) {
 			ImGui::PopStyleColor();
 		}
@@ -389,10 +400,18 @@ static void DrawEffectTimings(const EffectTimings& et, float totalTime, bool sho
 					ImGui::SetCursorPosY(ImGui::GetCursorPosY() + (descHeight - fontHeight) / 2);
 				}
 
+				if (et.passTimings[j] < 10) {
+					ImGui::Dummy(ImVec2(rightAlignSpace, 0));
+					ImGui::SameLine(0, 0);
+				}
 				ImGui::TextUnformatted(time.c_str());
 			}
 		}
 	} else {
+		if (et.totalTime < 10) {
+			ImGui::Dummy(ImVec2(rightAlignSpace, 0));
+			ImGui::SameLine(0, 0);
+		}
 		ImGui::TextUnformatted(fmt::format("{:.3f} ms", et.totalTime).c_str());
 	}
 }
@@ -405,7 +424,7 @@ static void DrawTimelineItem(ImU32 color, float dpiScale, std::string name, floa
 	ImGui::PopStyleColor(2);
 	
 	if (ImGui::IsItemHovered() || ImGui::IsItemClicked()) {
-		std::string content = fmt::format("{}\n{:.3f} ms\n{:.1f}%", name, time, time / effectsTotalTime * 100);
+		std::string content = fmt::format("{}\n{:.3f} ms\n{}%", name, time, std::lroundf(time / effectsTotalTime * 100));
 		ImGuiImpl::Tooltip(content.c_str(), 500 * dpiScale);
 	}
 
@@ -841,7 +860,7 @@ void OverlayDrawer::_DrawUI() {
 
 				ImGui::TableNextRow();
 				ImGui::TableNextColumn();
-				ImGui::Selectable("Total", false, ImGuiSelectableFlags_SpanAllColumns);
+				ImGui::TextUnformatted("Total");
 				ImGui::TableNextColumn();
 				ImGui::TextUnformatted(fmt::format("{:.3f} ms", effectsTotalTime).c_str());
 				
