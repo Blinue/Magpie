@@ -317,16 +317,20 @@ struct EffectTimings {
 	float totalTime = 0.0f;
 };
 
-static void DrawEffectTimings(const EffectTimings& et, float totalTime, bool showPasses, float maxWindowWidth, std::span<const ImColor> colors, bool singleEffect) {
+// 返回鼠标悬停的项的序号，未悬停于任何项返回 -1
+static int DrawEffectTimings(const EffectTimings& et, float totalTime, bool showPasses, float maxWindowWidth, std::span<const ImColor> colors, bool singleEffect) {
 	ImGui::TableNextRow();
 	ImGui::TableNextColumn();
 
-	if (et.passTimings.size() == 1 || !showPasses) {
+	int result = -1;
+
+	if (!singleEffect && (et.passTimings.size() == 1 || !showPasses)) {
 		ImGui::Selectable("", false, ImGuiSelectableFlags_SpanAllColumns);
+		if (ImGui::IsItemHovered()) {
+			result = 0;
+		}
 		ImGui::SameLine(0, 0);
-	}
-	
-	if (!singleEffect && (!showPasses || et.passTimings.size() == 1)) {
+
 		ImGui::PushStyleColor(ImGuiCol_Text, (ImU32)colors[0]);
 		ImGui::TextUnformatted("■");
 		ImGui::PopStyleColor();
@@ -393,6 +397,9 @@ static void DrawEffectTimings(const EffectTimings& et, float totalTime, bool sho
 
 				ImGui::SameLine(0, 0);
 				ImGui::Selectable("", false, ImGuiSelectableFlags_SpanAllColumns, ImVec2(0, descHeight));
+				if (ImGui::IsItemHovered()) {
+					result = j;
+				}
 
 				ImGui::TableNextColumn();
 				// 描述过长导致换行时竖直居中时间
@@ -414,28 +421,33 @@ static void DrawEffectTimings(const EffectTimings& et, float totalTime, bool sho
 		}
 		ImGui::TextUnformatted(fmt::format("{:.3f} ms", et.totalTime).c_str());
 	}
+
+	return result;
 }
 
-static void DrawTimelineItem(ImU32 color, float dpiScale, std::string name, float time, float effectsTotalTime) {
+static void DrawTimelineItem(ImU32 color, float dpiScale, const std::string& name,
+	float time, float effectsTotalTime, bool selected = false) {
 	ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, color);
 	ImGui::PushStyleColor(ImGuiCol_HeaderActive, color);
 	ImGui::PushStyleColor(ImGuiCol_HeaderHovered, color);
-	ImGui::Selectable("");
-	ImGui::PopStyleColor(2);
-	
+	ImGui::PushStyleColor(ImGuiCol_Header, color);
+	ImGui::Selectable("", selected);
+	ImGui::PopStyleColor(3);
+
 	if (ImGui::IsItemHovered() || ImGui::IsItemClicked()) {
 		std::string content = fmt::format("{}\n{:.3f} ms\n{}%", name, time, std::lroundf(time / effectsTotalTime * 100));
 		ImGuiImpl::Tooltip(content.c_str(), 500 * dpiScale);
 	}
 
-	// 空间足够时显示名字
-	float textWidth = ImGui::CalcTextSize(name.c_str()).x;
+	// 空间足够时显示文字
+	std::string text = selected ? fmt::format("{}%", std::lroundf(time / effectsTotalTime * 100)) : name;
+	float textWidth = ImGui::CalcTextSize(text.c_str()).x;
 	float itemWidth = ImGui::GetItemRectSize().x;
 	float itemSpacing = ImGui::GetStyle().ItemSpacing.x;
-	if (itemWidth - itemSpacing - 2 > textWidth) {
+	if (itemWidth - (selected ? 0 : itemSpacing - 2) > textWidth) {
 		ImGui::SameLine(0, 0);
 		ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (itemWidth - textWidth - itemSpacing) / 2);
-		ImGui::TextUnformatted(name.c_str());
+		ImGui::TextUnformatted(text.c_str());
 	}
 }
 
@@ -740,6 +752,8 @@ void OverlayDrawer::_DrawUI() {
 			}
 		}
 
+		static int selectedIdx = -1;
+
 		if (nEffect > 1 || showPasses) {
 			ImGui::Spacing();
 			ImGui::PushStyleVar(ImGuiStyleVar_CellPadding, ImVec2(0, 0));
@@ -772,7 +786,7 @@ void OverlayDrawer::_DrawUI() {
 									name = StrUtils::Concat(et.desc->name, "/", et.desc->passes[j].desc);
 								}
 
-								DrawTimelineItem(colors[i], _dpiScale, name, et.passTimings[j], effectsTotalTime);
+								DrawTimelineItem(colors[i], _dpiScale, name, et.passTimings[j], effectsTotalTime, selectedIdx == i);
 
 								++i;
 							}
@@ -796,7 +810,7 @@ void OverlayDrawer::_DrawUI() {
 							ImGui::TableNextColumn();
 							auto& et = effectTimings[i];
 
-							DrawTimelineItem(colors[i], _dpiScale, et.desc->name, et.totalTime, effectsTotalTime);
+							DrawTimelineItem(colors[i], _dpiScale, et.desc->name, et.totalTime, effectsTotalTime, selectedIdx == i);
 						}
 
 						ImGui::EndTable();
@@ -823,6 +837,8 @@ void OverlayDrawer::_DrawUI() {
 
 			ImGui::Spacing();
 		}
+
+		selectedIdx = -1;
 		
 		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(ImGui::GetStyle().ItemSpacing.x, ImGui::GetStyle().CellPadding.y * 2));
 		if (ImGui::BeginTable("timings", 2, ImGuiTableFlags_PadOuterX)) {
@@ -835,6 +851,8 @@ void OverlayDrawer::_DrawUI() {
 			} else {
 				size_t idx = 0;
 				for (const auto& et : effectTimings) {
+					int idxBegin = (int)idx;
+
 					std::span<const ImColor> colorSpan;
 					if (!showPasses || et.passTimings.size() == 1) {
 						colorSpan = std::span(colors.begin() + idx, colors.begin() + idx + 1);
@@ -844,7 +862,10 @@ void OverlayDrawer::_DrawUI() {
 						idx += et.passTimings.size();
 					}
 					
-					DrawEffectTimings(et, effectsTotalTime, showPasses, maxWindowWidth, colorSpan, false);
+					int hovered = DrawEffectTimings(et, effectsTotalTime, showPasses, maxWindowWidth, colorSpan, false);
+					if (hovered >= 0) {
+						selectedIdx = idxBegin + hovered;
+					}
 				}
 			}
 
