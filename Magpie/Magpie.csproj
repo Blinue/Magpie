@@ -63,7 +63,7 @@
 		<PackageReference Include="MouseKeyHook" Version="5.6.0">
 			<NoWarn>NU1701</NoWarn>
 		</PackageReference>
-		<PackageReference Include="NLog" Version="4.7.12" />
+		<PackageReference Include="NLog" Version="4.7.15" />
 	</ItemGroup>
 
 	<ItemGroup>

@@ -7,6 +7,9 @@
 #include "EffectCompiler.h"
 #include <rapidjson/document.h>
 
+#pragma push_macro("GetObject")
+#undef GetObject
+#include <rapidjson/document.h>
 
 extern std::shared_ptr<spdlog::logger> logger;
 
@@ -1034,3 +1037,5 @@ bool Renderer::GetSampler(EffectSamplerFilterType filterType, EffectSamplerAddre
 	*result = *sampler;
 	return true;
 }
+
+#pragma pop_macro("GetObject")
