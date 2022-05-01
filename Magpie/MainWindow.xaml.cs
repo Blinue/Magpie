@@ -1,16 +1,16 @@
 ﻿using Gma.System.MouseKeyHook;
+using Magpie.Options;
+using Magpie.Properties;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Interop;
-using System.Windows.Threading;
-using System.Windows.Media;
 using System.Windows.Forms;
-using Magpie.Properties;
+using System.Windows.Interop;
+using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Linq;
-using Magpie.Options;
+using System.Windows.Threading;
 
 
 namespace Magpie {
@@ -98,7 +98,7 @@ namespace Magpie {
 			// 捕获模式选择项对应的值存在 Tag 属性里
 			bool found = false;
 			foreach (object i in cbbCaptureMethod.Items) {
-				if((uint)((FrameworkElement)i).Tag == Settings.Default.CaptureMode) {
+				if ((uint)((FrameworkElement)i).Tag == Settings.Default.CaptureMode) {
 					cbbCaptureMethod.SelectedItem = i;
 					found = true;
 					break;
@@ -438,11 +438,17 @@ namespace Magpie {
 
 		private void CbbCaptureMethod_SelectionChanged(object sender, SelectionChangedEventArgs e) {
 			FrameworkElement si = (FrameworkElement)cbbCaptureMethod.SelectedItem;
-			if(si == null) {
+			if (si == null) {
 				return;
 			}
 
 			Settings.Default.CaptureMode = (uint)si.Tag;
+		}
+
+		private void Window_KeyDown(object sender, System.Windows.Input.KeyEventArgs e) {
+			if (e.Key == System.Windows.Input.Key.System) {
+				e.Handled = true;
+			}
 		}
 	}
 }

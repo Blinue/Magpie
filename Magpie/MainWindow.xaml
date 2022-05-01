@@ -8,6 +8,7 @@
         mc:Ignorable="d"
         Icon="{DynamicResource Logo}"
         Title="{x:Static props:Resources.UI_Main_Title}" ResizeMode="CanMinimize" WindowStartupLocation="CenterScreen"
+        KeyDown="Window_KeyDown"
         Closing="Window_Closing" SourceInitialized="Window_SourceInitialized" StateChanged="Window_StateChanged" HorizontalAlignment="Left" VerticalAlignment="Top" SizeToContent="WidthAndHeight" Deactivated="Window_Deactivated">
     <StackPanel Margin="19.5,19,19.5,19">
         <Grid>
@@ -18,7 +19,7 @@
             </Grid.ColumnDefinitions>
 
             <Label Margin="0" Content="{x:Static props:Resources.UI_Main_Hotkey}" HorizontalAlignment="Right" VerticalAlignment="Center" Padding="0,5,5,5"/>
-            <TextBox x:Name="txtHotkey" Grid.Column="1" Margin="10,0" VerticalAlignment="Center" Padding="1,3" TextChanged="TxtHotkey_TextChanged" MinWidth="100" >
+            <TextBox x:Name="txtHotkey" Grid.Column="1" Margin="10,0" VerticalAlignment="Center" Padding="1,3" TextChanged="TxtHotkey_TextChanged" MinWidth="100">
                 <TextBox.ContextMenu>
                     <ContextMenu/>
                 </TextBox.ContextMenu>
