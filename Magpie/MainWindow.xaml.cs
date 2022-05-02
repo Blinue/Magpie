@@ -221,26 +221,22 @@ namespace Magpie {
 			}
 		}
 
+		private static string RemoveWhiteSpaces(string str) {
+			return new string(str.Where(c=>!char.IsWhiteSpace(c)).ToArray());
+		}
+
 		private void TxtHotkey_TextChanged(object sender, TextChangedEventArgs e) {
-			keyboardEvents?.Dispose();
-			keyboardEvents = Hook.GlobalEvents();
+			string oldHotkey = Settings.Default.Hotkey;
+			
+			Settings.Default.Hotkey = txtHotkey.Text = RemoveWhiteSpaces(txtHotkey.Text);
 
-			string hotkey = txtHotkey.Text.Trim();
-
-			try {
-				keyboardEvents.OnCombination(new Dictionary<Combination, Action> {
-					{Combination.FromString(hotkey), () => ToggleMagWindow()},
-					{Combination.FromString(Settings.Default.OverlayHotkey), () => ToggleOverlay()}
-				});
-
+			if (OnHotkeyChanged()) {
 				txtHotkey.Foreground = Brushes.Black;
-				Settings.Default.Hotkey = hotkey;
-
-				tsiHotkey!.Text = hotkey;
+				tsiHotkey!.Text = Settings.Default.Hotkey;
 
 				Logger.Info($"当前热键：{txtHotkey.Text}");
-			} catch (ArgumentException ex) {
-				Logger.Error(ex, $"解析快捷键失败：{txtHotkey.Text}");
+			} else {
+				Settings.Default.Hotkey = oldHotkey;
 				txtHotkey.Foreground = Brushes.Red;
 			}
 		}
@@ -449,6 +445,28 @@ namespace Magpie {
 			if (e.Key == System.Windows.Input.Key.System) {
 				e.Handled = true;
 			}
+		}
+
+		public bool OnHotkeyChanged() {
+			if (Settings.Default.Hotkey == Settings.Default.OverlayHotkey) {
+				Logger.Error("缩放热键和游戏内覆盖热键冲突");
+				return false;
+			}
+
+			keyboardEvents?.Dispose();
+			keyboardEvents = Hook.GlobalEvents();
+
+			try {
+				keyboardEvents.OnCombination(new Dictionary<Combination, Action> {
+					{Combination.FromString(Settings.Default.Hotkey), () => ToggleMagWindow()},
+					{Combination.FromString(Settings.Default.OverlayHotkey), () => ToggleOverlay()}
+				});
+			} catch (ArgumentException e) {
+				Logger.Error(e, "解析快捷键失败");
+				return false;
+			}
+
+			return true;
 		}
 	}
 }

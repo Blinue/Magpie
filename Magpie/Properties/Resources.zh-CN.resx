@@ -372,11 +372,17 @@
   <data name="UI_Options_Scale_Open_Scale_Config" xml:space="preserve">
     <value>打开缩放配置</value>
   </data>
+  <data name="UI_Options_Scale_Overlay" xml:space="preserve">
+    <value>游戏内覆盖</value>
+  </data>
+  <data name="UI_Options_Scale_Overlay_FPS" xml:space="preserve">
+    <value>显示帧率</value>
+  </data>
+  <data name="UI_Options_Scale_Overlay_Hotkey" xml:space="preserve">
+    <value>热键</value>
+  </data>
   <data name="UI_Options_Scale_Restore_Full_Screen" xml:space="preserve">
     <value>源窗口重获焦点时自动恢复全屏</value>
-  </data>
-  <data name="UI_Options_Scale_Show_FPS" xml:space="preserve">
-    <value>显示帧率</value>
   </data>
   <data name="UI_Options_Scale_Source_Window" xml:space="preserve">
     <value>源窗口</value>

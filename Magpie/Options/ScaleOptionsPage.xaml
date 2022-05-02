@@ -21,9 +21,7 @@
             <Label Content="{x:Static props:Resources.UI_Options_Scale_Adapter}" Padding="0" VerticalContentAlignment="Center" />
             <ComboBox x:Name="cbbAdapter" Margin="10,0,0,0" SelectionChanged="CbbAdapter_SelectionChanged" />
         </StackPanel>
-        <CheckBox Content="{x:Static props:Resources.UI_Options_Scale_Show_FPS}"
-                  Margin="0,15,0,0"
-                  IsChecked="{Binding Source={x:Static props:Settings.Default},Path=ShowFPS,Mode=TwoWay}"/>
+        
         <CheckBox x:Name="ckbVSync" Content="{x:Static props:Resources.UI_Options_Scale_VSync}"
                   Margin="0,10,0,0"
                   IsChecked="{Binding Source={x:Static props:Settings.Default},Path=VSync,Mode=TwoWay}" />
@@ -31,7 +29,18 @@
                   Margin="15,10,0,0"
                   IsChecked="{Binding Source={x:Static props:Settings.Default},Path=DisableLowLatency,Mode=TwoWay}"
                   IsEnabled="{Binding ElementName=ckbVSync, Path=IsChecked,Mode=OneWay}" />
-        
+
+        <StackPanel Margin="0,20,0,0">
+            <Label Content="{x:Static props:Resources.UI_Options_Scale_Overlay}" FontWeight="Bold" Padding="0" FontSize="15" />
+            <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                <Label Content="{x:Static props:Resources.UI_Options_Scale_Overlay_Hotkey}" Padding="0" VerticalContentAlignment="Center" />
+                <TextBox x:Name="txtOverlayHotkey" Margin="10,0" Padding="1,3" Width="150" TextChanged="TxtOverlayHotkey_TextChanged"/>
+            </StackPanel>
+            <CheckBox Content="{x:Static props:Resources.UI_Options_Scale_Overlay_FPS}"
+                  Margin="0,10,0,0"
+                  IsChecked="{Binding Source={x:Static props:Settings.Default},Path=ShowFPS,Mode=TwoWay}"/>
+        </StackPanel>
+
         <StackPanel x:Name="spMutliMonitorUsage" Margin="0,20,0,0">
             <Label Content="{x:Static props:Resources.UI_Options_Scale_Multiple_Monitors}" FontWeight="Bold" Padding="0" FontSize="15" />
             <RadioButton GroupName="Monitors" 

@@ -370,7 +370,7 @@
   <data name="UI_Options_Scale_Restore_Full_Screen" xml:space="preserve">
     <value>Восстановить полноэкранный режим при фокусе исходного окна</value>
   </data>
-  <data name="UI_Options_Scale_Show_FPS" xml:space="preserve">
+  <data name="UI_Options_Scale_Overlay_FPS" xml:space="preserve">
     <value>Показать частоту кадров</value>
   </data>
   <data name="UI_Options_Scale_Source_Window" xml:space="preserve">

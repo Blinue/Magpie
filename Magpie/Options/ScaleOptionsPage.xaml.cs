@@ -7,6 +7,9 @@ using System.Windows;
 using System.Windows.Controls;
 using System.IO;
 using System.Windows.Forms;
+using System.Windows.Media;
+using System.Linq;
+
 
 namespace Magpie.Options {
 	/// <summary>
@@ -32,6 +35,8 @@ namespace Magpie.Options {
 				Settings.Default.AdapterIdx = -1;
 			}
 			cbbAdapter.SelectedIndex = Settings.Default.AdapterIdx + 1;
+
+			txtOverlayHotkey.Text = Settings.Default.OverlayHotkey;
 
 			cbbCursorZoomFactor.Items.Clear();
 			for (int i = 0; i < cursorZoomFactors.Length - 1; ++i) {
@@ -98,6 +103,25 @@ namespace Magpie.Options {
 
 		private void CbbAdapter_SelectionChanged(object sender, SelectionChangedEventArgs e) {
 			Settings.Default.AdapterIdx = cbbAdapter.SelectedIndex - 1;
+		}
+
+		private static string RemoveWhiteSpaces(string str) {
+			return new string(str.Where(c => !char.IsWhiteSpace(c)).ToArray());
+		}
+
+		private void TxtOverlayHotkey_TextChanged(object sender, TextChangedEventArgs e) {
+			string oldHotkey = Settings.Default.OverlayHotkey;
+			Settings.Default.OverlayHotkey = txtOverlayHotkey.Text = RemoveWhiteSpaces(txtOverlayHotkey.Text);
+
+			if (((MainWindow)System.Windows.Application.Current.MainWindow).OnHotkeyChanged()) {
+				txtOverlayHotkey.Foreground = Brushes.Black;
+				txtOverlayHotkey!.Text = Settings.Default.OverlayHotkey;
+
+				Logger.Info($"当前游戏内覆盖热键：{txtOverlayHotkey.Text}");
+			} else {
+				Settings.Default.OverlayHotkey = oldHotkey;
+				txtOverlayHotkey.Foreground = Brushes.Red;
+			}
 		}
 	}
 }

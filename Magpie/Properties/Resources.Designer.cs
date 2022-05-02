@@ -826,20 +826,38 @@ namespace Magpie.Properties {
         }
         
         /// <summary>
-        ///   查找类似 Restore Fullscreen when Source Window Regains Focus 的本地化字符串。
+        ///   查找类似 In-Game Overlay 的本地化字符串。
         /// </summary>
-        public static string UI_Options_Scale_Restore_Full_Screen {
+        public static string UI_Options_Scale_Overlay {
             get {
-                return ResourceManager.GetString("UI_Options_Scale_Restore_Full_Screen", resourceCulture);
+                return ResourceManager.GetString("UI_Options_Scale_Overlay", resourceCulture);
             }
         }
         
         /// <summary>
         ///   查找类似 Show FPS 的本地化字符串。
         /// </summary>
-        public static string UI_Options_Scale_Show_FPS {
+        public static string UI_Options_Scale_Overlay_FPS {
             get {
-                return ResourceManager.GetString("UI_Options_Scale_Show_FPS", resourceCulture);
+                return ResourceManager.GetString("UI_Options_Scale_Overlay_FPS", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Hotkey 的本地化字符串。
+        /// </summary>
+        public static string UI_Options_Scale_Overlay_Hotkey {
+            get {
+                return ResourceManager.GetString("UI_Options_Scale_Overlay_Hotkey", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Restore Fullscreen when Source Window Regains Focus 的本地化字符串。
+        /// </summary>
+        public static string UI_Options_Scale_Restore_Full_Screen {
+            get {
+                return ResourceManager.GetString("UI_Options_Scale_Restore_Full_Screen", resourceCulture);
             }
         }
         
