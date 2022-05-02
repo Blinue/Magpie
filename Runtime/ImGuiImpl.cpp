@@ -213,7 +213,7 @@ void ImGuiImpl::NewFrame() {
 	// Setup display size (every frame to accommodate for window resizing)
 	const RECT& hostRect = App::Get().GetHostWndRect();
 	const RECT& outputRect = App::Get().GetRenderer().GetOutputRect();
-	io.DisplaySize = ImVec2((float)(hostRect.right - outputRect.left), (float)(hostRect.bottom - outputRect.top));
+	io.DisplaySize = ImVec2((float)(outputRect.right - outputRect.left), (float)(outputRect.bottom - outputRect.top));
 
 	// Update OS mouse position
 	UpdateMousePos();
@@ -229,6 +229,30 @@ void ImGuiImpl::NewFrame() {
 	ImGui_ImplDX11_NewFrame();
 	ImGui::NewFrame();
 
+	// 将所有 ImGUI 窗口限制在视口内
+	SIZE outputSize = Utils::GetSizeOfRect(App::Get().GetRenderer().GetOutputRect());
+	for (ImGuiWindow* window : ImGui::GetCurrentContext()->Windows) {
+		if (window->Flags & ImGuiWindowFlags_Tooltip) {
+			continue;
+		}
+
+		ImVec2 pos = window->Pos;
+
+		if (outputSize.cx > window->Size.x) {
+			pos.x = std::clamp(pos.x, 0.0f, outputSize.cx - window->Size.x);
+		} else {
+			pos.x = 0;
+		}
+
+		if (outputSize.cy > window->Size.y) {
+			pos.y = std::clamp(pos.y, 0.0f, outputSize.cy - window->Size.y);
+		} else {
+			pos.y = 0;
+		}
+
+		ImGui::SetWindowPos(window, pos);
+	}
+
 	CursorManager& cm = App::Get().GetCursorManager();
 
 	if (io.WantCaptureMouse) {
@@ -240,31 +264,12 @@ void ImGuiImpl::NewFrame() {
 			cm.OnCursorLeaveOverlay();
 		}
 	}
-
-	// 将所有 ImGUI 窗口限制在视口内
-	SIZE outputSize = Utils::GetSizeOfRect(App::Get().GetRenderer().GetOutputRect());
-	for (ImGuiWindow* window : ImGui::GetCurrentContext()->Windows) {
-		if (window->Flags & ImGuiWindowFlags_Tooltip) {
-			continue;
-		}
-
-		if (outputSize.cx > window->Size.x) {
-			window->Pos.x = std::clamp(window->Pos.x, 0.0f, outputSize.cx - window->Size.x);
-		} else {
-			window->Pos.x = 0;
-		}
-
-		if (outputSize.cy > window->Size.y) {
-			window->Pos.y = std::clamp(window->Pos.y, 0.0f, outputSize.cy - window->Size.y);
-		} else {
-			window->Pos.y = 0;
-		}
-	}
 }
 
 void ImGuiImpl::EndFrame() {
 	const RECT& outputRect = App::Get().GetRenderer().GetOutputRect();
 	ImGui::GetDrawData()->DisplayPos = ImVec2(float(-outputRect.left), float(-outputRect.top));
+	ImGui::GetDrawData()->DisplaySize = ImVec2((float)(outputRect.right), (float)(outputRect.bottom));
 
 	auto d3dDC = App::Get().GetDeviceResources().GetD3DDC();
 	d3dDC->OMSetRenderTargets(1, &_rtv, NULL);
