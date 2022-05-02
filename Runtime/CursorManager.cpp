@@ -98,7 +98,7 @@ CursorManager::~CursorManager() {
 }
 
 static std::optional<LRESULT> HostWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
-	if (message == WM_LBUTTONDOWN) {
+	if (message == WM_LBUTTONDOWN || message == WM_RBUTTONDOWN) {
 		// 主窗口会在非常特定的情况下收到光标消息：
 		// 1. 未处于捕获状态
 		// 2. 缩放后的位置未被遮挡而缩放前的位置被遮挡
@@ -109,22 +109,30 @@ static std::optional<LRESULT> HostWndProc(HWND hWnd, UINT message, WPARAM wParam
 			if (!SetForegroundWindow(hwndSrc)) {
 				// 设置前台窗口失败，可能是因为前台窗口是开始菜单
 				if (Utils::IsStartMenu(hwndForground)) {
-					// 模拟按键关闭开始菜单
-					INPUT inputs[4]{};
-					inputs[0].type = INPUT_KEYBOARD;
-					inputs[0].ki.wVk = VK_LWIN;
-					inputs[1].type = INPUT_KEYBOARD;
-					inputs[1].ki.wVk = VK_LWIN;
-					inputs[1].ki.dwFlags = KEYEVENTF_KEYUP;
-					SendInput((UINT)std::size(inputs), inputs, sizeof(INPUT));
+					// 限制触发频率
+					static std::chrono::steady_clock::time_point prevTimePoint{};
+					auto now = std::chrono::steady_clock::now();
+					if (std::chrono::duration_cast<std::chrono::milliseconds>(now - prevTimePoint).count() >= 1000) {
+						prevTimePoint = now;
 
-					// 等待系统处理
-					Sleep(1);
+						// 模拟按键关闭开始菜单
+						INPUT inputs[4]{};
+						inputs[0].type = INPUT_KEYBOARD;
+						inputs[0].ki.wVk = VK_LWIN;
+						inputs[1].type = INPUT_KEYBOARD;
+						inputs[1].ki.wVk = VK_LWIN;
+						inputs[1].ki.dwFlags = KEYEVENTF_KEYUP;
+						SendInput((UINT)std::size(inputs), inputs, sizeof(INPUT));
 
-					// 再次尝试设置前台窗口（通常没有必要）
+						// 等待系统处理
+						Sleep(1);
+					}
+
 					SetForegroundWindow(hwndSrc);
 				}
 			}
+
+			return 0;
 		}
 
 		if (!App::Get().GetConfig().IsBreakpointMode()) {
