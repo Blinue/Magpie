@@ -40,6 +40,8 @@ private:
 	std::deque<float> _frameTimes;
 	UINT _validFrames = 0;
 
+	std::vector<UINT> _timelineColors;
+
 	struct {
 		std::string gpuName;
 		std::string cpuName;

@@ -22,6 +22,144 @@ OverlayDrawer::OverlayDrawer() {}
 
 OverlayDrawer::~OverlayDrawer() {}
 
+static const ImColor TIMELINE_COLORS[] = {
+	{229,57,53,255},
+	{156,39,176,255},
+	{63,81,181,255},
+	{33,150,243,255},
+	{0,150,136,255},
+	{121,85,72,255},
+	{117,117,117,255}
+};
+
+static UINT GetSeed() {
+	Renderer& renderer = App::Get().GetRenderer();
+	UINT nEffect = renderer.GetEffectCount();
+
+	UINT result = 0;
+	for (UINT i = 0; i < nEffect; ++i) {
+		result ^= (UINT)std::hash<std::string>()(renderer.GetEffectDesc(i).name);
+	}
+	return result;
+}
+
+static std::vector<UINT> GenerateTimelineColors() {
+	Renderer& renderer = App::Get().GetRenderer();
+
+	const UINT nEffect = renderer.GetEffectCount();
+	UINT totalColors = nEffect > 1 ? nEffect : 0;
+	for (UINT i = 0; i < nEffect; ++i) {
+		UINT nPass = (UINT)renderer.GetEffectDesc(i).passes.size();
+		if (nPass > 1) {
+			totalColors += nPass;
+		}
+	}
+
+	if (totalColors == 0) {
+		return {};
+	}
+
+	constexpr UINT nColors = (UINT)std::size(TIMELINE_COLORS);
+
+	std::default_random_engine randomEngine(GetSeed());
+	std::vector<UINT> result;
+
+	if (totalColors <= nColors) {
+		result.resize(nColors);
+		for (UINT i = 0; i < nColors; ++i) {
+			result[i] = i;
+		}
+		std::shuffle(result.begin(), result.end(), randomEngine);
+
+		result.resize(totalColors);
+	} else {
+		// 相邻通道颜色不同，相邻效果颜色不同
+		result.resize(totalColors);
+		std::uniform_int_distribution<UINT> uniformDst(0, nColors - 1);
+
+		if (nEffect <= nColors) {
+			if (nEffect > 1) {
+				// 确保效果的颜色不重复
+				std::vector<UINT> effectColors(nColors, 0);
+				for (UINT i = 0; i < nColors; ++i) {
+					effectColors[i] = i;
+				}
+				std::shuffle(effectColors.begin(), effectColors.end(), randomEngine);
+
+				UINT i = 0;
+				for (UINT j = 0; j < nEffect; ++j) {
+					result[i] = effectColors[j];
+					++i;
+
+					UINT nPass = (UINT)renderer.GetEffectDesc(j).passes.size();
+					if (nPass > 1) {
+						i += nPass;
+					}
+				}
+			}
+		} else {
+			// 仅确保与前一个效果颜色不同
+			UINT prevColor = UINT_MAX;
+			UINT i = 0;
+			for (UINT j = 0; j < nEffect; ++j) {
+				UINT c = uniformDst(randomEngine);
+				while (c == prevColor) {
+					c = uniformDst(randomEngine);
+				}
+
+				result[i] = c;
+				prevColor = c;
+				++i;
+
+				UINT nPass = (UINT)renderer.GetEffectDesc(j).passes.size();
+				if (nPass > 1) {
+					i += nPass;
+				}
+			}
+		}
+
+		// 生成通道的颜色
+		size_t idx = 0;
+		for (UINT i = 0; i < nEffect; ++i) {
+			UINT nPass = (UINT)renderer.GetEffectDesc(i).passes.size();
+
+			if (nEffect > 1) {
+				++idx;
+
+				if (nPass == 1) {
+					continue;
+				}
+			}
+
+			for (UINT j = 0; j < nPass; ++j) {
+				UINT c = uniformDst(randomEngine);
+
+				if (i != 0 || j != 0) {
+					UINT prevColor = (i > 0 && j == 0) ? result[idx - 2] : result[idx - 1];
+					
+					if (j + 1 == nPass && i + 1 != nEffect &&
+							renderer.GetEffectDesc(i + 1).passes.size() == 1) {
+						// 当前效果的最后一个通道且下一个效果只有一个通道
+						UINT nextColor = result[idx + 1];
+						while (c == prevColor || c == nextColor) {
+							c = uniformDst(randomEngine);
+						}
+					} else {
+						while (c == prevColor) {
+							c = uniformDst(randomEngine);
+						}
+					}
+				}
+
+				result[idx] = c;
+				++idx;
+			}
+		}
+	}
+
+	return result;
+}
+
 bool OverlayDrawer::Initialize() {
 	_imguiImpl.reset(new ImGuiImpl());
 	if (!_imguiImpl->Initialize()) {
@@ -68,6 +206,7 @@ bool OverlayDrawer::Initialize() {
 	io.Fonts->Build();
 
 	_RetrieveHardwareInfo();
+	_timelineColors = GenerateTimelineColors();
 
 	return true;
 }
@@ -593,9 +732,7 @@ void OverlayDrawer::_DrawUI() {
 		const auto& gpuTimings = gpuTimer.GetGPUTimings();
 		const UINT nEffect = renderer.GetEffectCount();
 
-		static std::vector<EffectTimings> effectTimings;
-		effectTimings.clear();
-		effectTimings.resize(nEffect);
+		std::vector<EffectTimings> effectTimings(nEffect);
 
 		UINT idx = 0;
 		for (UINT i = 0; i < nEffect; ++i) {
@@ -632,122 +769,35 @@ void OverlayDrawer::_DrawUI() {
 		}
 
 		std::vector<ImColor> colors;
-		if (nEffect > 1 || effectTimings[0].passTimings.size() > 1) {
-			static const ImColor COLORS[] = {
-				{194,24,91,255},
-				{136,14,79,255},
-				{171,71,188,255},
-				{106,27,154,255},
-				{92,107,192,255},
-				{40,53,147,255},
-				{21,101,192,255},
-				{0,121,107,255},
-				{141,110,99,255},
-				{97,97,97,255}
-			};
-
-			UINT totalColors = nEffect > 1 ? nEffect : 0;
-			for (const auto& et : effectTimings) {
-				if (et.passTimings.size() > 1) {
-					totalColors += (UINT)et.passTimings.size();
-				}
-			}
-			// 存储序号
-			std::vector<UINT> tempColors;
-
-			std::default_random_engine randomEngine(totalColors);
-
-			if (totalColors <= std::size(COLORS)) {
-				tempColors.resize(std::size(COLORS));
-				for (UINT i = 0; i < std::size(COLORS); ++i) {
-					tempColors[i] = i;
-				}
-				std::shuffle(tempColors.begin(), tempColors.end(), randomEngine);
-				
-				tempColors.resize(totalColors);
-			} else {
-				// 相邻通道颜色不同，相邻效果颜色不同
-				tempColors.reserve(totalColors);
-				std::uniform_int_distribution<UINT> uniformDst(0, UINT(std::size(COLORS)) - 1);
-
-				for (UINT i = 0; i < effectTimings.size(); ++i) {
-					const auto& et = effectTimings[i];
-					if (nEffect > 1 && et.passTimings.size() == 1) {
-						UINT c = uniformDst(randomEngine);
-
-						if (i > 0) {
-							const auto& prevEt = effectTimings[(size_t)i - 1];
-							if (prevEt.passTimings.size() == 1) {
-								while (c == tempColors.back()) {
-									c = uniformDst(randomEngine);
-								}
-							} else {
-								UINT prevEffectColor = tempColors[tempColors.size() - prevEt.passTimings.size() - 1];
-								while (c == tempColors.back() || c == prevEffectColor) {
-									c = uniformDst(randomEngine);
-								}
-							}
-						}
-
-						tempColors.push_back(c);
-					} else {
-						UINT c = uniformDst(randomEngine);
-						if (i > 0) {
-							const auto& prevEt = effectTimings[(size_t)i - 1];
-							UINT prevEffectColor = prevEt.passTimings.size() == 1 ? tempColors.back() : tempColors[tempColors.size() - prevEt.passTimings.size() - 1];
-
-							while (c == prevEffectColor) {
-								c = uniformDst(randomEngine);
-							}
-						}
-						tempColors.push_back(c);
-
-						for (UINT j = 0; j < effectTimings[i].passTimings.size(); ++j) {
-							c = uniformDst(randomEngine);
-
-							if (i != 0 || j != 0) {
-								UINT prevColor = (i > 0 && j == 0) ? tempColors[tempColors.size() - 2] : tempColors.back();
-								while (c == prevColor) {
-									c = uniformDst(randomEngine);
-								}
-							}
-
-							tempColors.push_back(c);
-						}
-					}
-				}
-			}
-			
-			colors.reserve(totalColors);
-			if (nEffect == 1) {
-				colors.resize(totalColors);
+		if (nEffect == 1) {
+			if (effectTimings[0].passTimings.size() > 1) {
 				for (UINT i = 0; i < effectTimings[0].passTimings.size(); ++i) {
-					colors[i] = COLORS[tempColors[i]];
+					colors.push_back(TIMELINE_COLORS[_timelineColors[i]]);
 				}
-			} else if (showPasses) {
-				UINT i = 0;
-				for (const auto& et : effectTimings) {
-					if (et.passTimings.size() == 1) {
-						colors.push_back(COLORS[tempColors[i]]);
-						++i;
-						continue;
-					}
-
+			}
+		} else if (showPasses) {
+			UINT i = 0;
+			for (const auto& et : effectTimings) {
+				if (et.passTimings.size() == 1) {
+					colors.push_back(TIMELINE_COLORS[_timelineColors[i]]);
 					++i;
-					for (UINT j = 0; j < et.passTimings.size(); ++j) {
-						colors.push_back(COLORS[tempColors[i]]);
-						++i;
-					}
+					continue;
 				}
-			} else {
-				size_t i = 0;
-				for (const auto& et : effectTimings) {
-					colors.push_back(COLORS[tempColors[i]]);
 
+				++i;
+				for (UINT j = 0; j < et.passTimings.size(); ++j) {
+					colors.push_back(TIMELINE_COLORS[_timelineColors[i]]);
 					++i;
-					if (et.passTimings.size() > 1) {
-						i += et.passTimings.size();
-					}
+				}
+			}
+		} else {
+			size_t i = 0;
+			for (const auto& et : effectTimings) {
+				colors.push_back(TIMELINE_COLORS[_timelineColors[i]]);
+
+				++i;
+				if (et.passTimings.size() > 1) {
+					i += et.passTimings.size();
 				}
 			}
 		}
@@ -847,7 +897,10 @@ void OverlayDrawer::_DrawUI() {
 
 			if (nEffect == 1) {
 				const auto& et = effectTimings[0];
-				DrawEffectTimings(et, effectsTotalTime, true, maxWindowWidth, colors, true);
+				int hovered = DrawEffectTimings(et, effectsTotalTime, true, maxWindowWidth, colors, true);
+				if (hovered >= 0) {
+					selectedIdx = hovered;
+				}
 			} else {
 				size_t idx = 0;
 				for (const auto& et : effectTimings) {

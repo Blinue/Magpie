@@ -243,7 +243,7 @@ bool CheckForeground(HWND hwndForeground) {
 	return Utils::IsStartMenu(hwndForeground);
 }
 
-const EffectDesc& Renderer::GetEffectDesc(size_t idx) const noexcept {
+const EffectDesc& Renderer::GetEffectDesc(UINT idx) const noexcept {
 	assert(idx < _effects.size());
 	return _effects[idx]->GetDesc();
 }
