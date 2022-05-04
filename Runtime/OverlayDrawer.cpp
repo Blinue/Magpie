@@ -26,8 +26,8 @@ static const ImColor TIMELINE_COLORS[] = {
 	{229,57,53,255},
 	{156,39,176,255},
 	{63,81,181,255},
-	{33,150,243,255},
-	{0,150,136,255},
+	{30,136,229,255},
+	{0,137,123,255},
 	{121,85,72,255},
 	{117,117,117,255}
 };
@@ -134,7 +134,7 @@ static std::vector<UINT> GenerateTimelineColors() {
 			for (UINT j = 0; j < nPass; ++j) {
 				UINT c = uniformDst(randomEngine);
 
-				if (i != 0 || j != 0) {
+				if (i > 0 || j > 0) {
 					UINT prevColor = (i > 0 && j == 0) ? result[idx - 2] : result[idx - 1];
 					
 					if (j + 1 == nPass && i + 1 != nEffect &&
@@ -770,10 +770,9 @@ void OverlayDrawer::_DrawUI() {
 
 		std::vector<ImColor> colors;
 		if (nEffect == 1) {
-			if (effectTimings[0].passTimings.size() > 1) {
-				for (UINT i = 0; i < effectTimings[0].passTimings.size(); ++i) {
-					colors.push_back(TIMELINE_COLORS[_timelineColors[i]]);
-				}
+			colors.resize(_timelineColors.size());
+			for (size_t i = 0; i < _timelineColors.size(); ++i) {
+				colors[i] = TIMELINE_COLORS[_timelineColors[i]];
 			}
 		} else if (showPasses) {
 			UINT i = 0;
@@ -832,6 +831,8 @@ void OverlayDrawer::_DrawUI() {
 								std::string name;
 								if (et.passTimings.size() == 1) {
 									name = et.desc->name;
+								} else if (nEffect == 1) {
+									name = et.desc->passes[j].desc;
 								} else {
 									name = StrUtils::Concat(et.desc->name, "/", et.desc->passes[j].desc);
 								}
