@@ -45,7 +45,7 @@ namespace Magpie {
 			BreakpointMode = 0x20,
 			DisableWindowResizing = 0x40,
 			DisableDirectFlip = 0x80,
-			ConfineCursorIn3DGames = 0x100,
+			Is3DMode = 0x100,
 			CropTitleBarOfUWP = 0x200,
 			DisableEffectCache = 0x400,
 			DisableVSync = 0x800,
@@ -147,7 +147,7 @@ namespace Magpie {
 							(Settings.Default.DebugBreakpointMode ? (uint)FlagMasks.BreakpointMode : 0) |
 							(Settings.Default.DisableWindowResizing ? (uint)FlagMasks.DisableWindowResizing : 0) |
 							(Settings.Default.DisableDirectFlip ? (uint)FlagMasks.DisableDirectFlip : 0) |
-							(Settings.Default.ConfineCursorIn3DGames ? (uint)FlagMasks.ConfineCursorIn3DGames : 0) |
+							(Settings.Default.Is3DMode ? (uint)FlagMasks.Is3DMode : 0) |
 							(Settings.Default.CropTitleBarOfUWP ? (uint)FlagMasks.CropTitleBarOfUWP : 0) |
 							(Settings.Default.DebugDisableEffectCache ? (uint)FlagMasks.DisableEffectCache : 0) |
 							(Settings.Default.SimulateExclusiveFullscreen ? (uint)FlagMasks.SimulateExclusiveFullscreen : 0) |

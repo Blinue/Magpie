@@ -273,6 +273,9 @@
   <data name="UI_Options_Application" xml:space="preserve">
     <value>应用程序</value>
   </data>
+  <data name="UI_Options_Application_3D_Mode" xml:space="preserve">
+    <value>3D 游戏模式</value>
+  </data>
   <data name="UI_Options_Application_Always_Run_As_Admin" xml:space="preserve">
     <value>始终以管理员权限运行</value>
   </data>
@@ -327,9 +330,6 @@
   <data name="UI_Options_Scale_Cursor" xml:space="preserve">
     <value>光标</value>
   </data>
-  <data name="UI_Options_Scale_Cursor_Confine_In_3D_Games" xml:space="preserve">
-    <value>在 3D 游戏中限制光标</value>
-  </data>
   <data name="UI_Options_Scale_Cursor_Do_Not_Draw" xml:space="preserve">
     <value>不绘制光标</value>
   </data>
@@ -381,7 +381,7 @@
   <data name="UI_Options_Scale_Overlay_Hotkey" xml:space="preserve">
     <value>热键</value>
   </data>
-  <data name="UI_Options_Scale_Restore_Full_Screen" xml:space="preserve">
+  <data name="UI_Options_Application_Restore_Full_Screen" xml:space="preserve">
     <value>源窗口重获焦点时自动恢复全屏</value>
   </data>
   <data name="UI_Options_Scale_Source_Window" xml:space="preserve">

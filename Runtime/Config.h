@@ -64,8 +64,8 @@ public:
 		return _isDisableDirectFlip;
 	}
 
-	bool IsConfineCursorIn3DGames() const noexcept {
-		return _isConfineCursorIn3DGames;
+	bool Is3DMode() const noexcept {
+		return _is3DMode;
 	}
 
 	bool IsCropTitleBarOfUWP() const noexcept {
@@ -121,7 +121,7 @@ private:
 	bool _isDisableLowLatency = false;
 	bool _isDisableWindowResizing = false;
 	bool _isDisableDirectFlip = false;
-	bool _isConfineCursorIn3DGames = false;
+	bool _is3DMode = false;
 	bool _isCropTitleBarOfUWP = false;
 	bool _isSimulateExclusiveFullscreen = false;
 	bool _isDisableVSync = false;

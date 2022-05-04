@@ -274,6 +274,9 @@
   <data name="UI_Options_Application" xml:space="preserve">
     <value>Application</value>
   </data>
+  <data name="UI_Options_Application_3D_Mode" xml:space="preserve">
+    <value>3D Game Mode</value>
+  </data>
   <data name="UI_Options_Application_Always_Run_As_Admin" xml:space="preserve">
     <value>Always Run as Administrator</value>
   </data>
@@ -328,9 +331,6 @@
   <data name="UI_Options_Scale_Cursor" xml:space="preserve">
     <value>Cursor</value>
   </data>
-  <data name="UI_Options_Scale_Cursor_Confine_In_3D_Games" xml:space="preserve">
-    <value>Confine the Cursor in 3D Games</value>
-  </data>
   <data name="UI_Options_Scale_Cursor_Do_Not_Draw" xml:space="preserve">
     <value>Do not Draw the Cursor</value>
   </data>
@@ -382,7 +382,7 @@
   <data name="UI_Options_Scale_Overlay_Hotkey" xml:space="preserve">
     <value>Hotkey</value>
   </data>
-  <data name="UI_Options_Scale_Restore_Full_Screen" xml:space="preserve">
+  <data name="UI_Options_Application_Restore_Full_Screen" xml:space="preserve">
     <value>Restore Fullscreen when Source Window Regains Focus</value>
   </data>
   <data name="UI_Options_Scale_Source_Window" xml:space="preserve">

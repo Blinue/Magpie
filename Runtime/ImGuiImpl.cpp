@@ -32,6 +32,9 @@ static std::optional<LRESULT> WndProcHandler(HWND hwnd, UINT msg, WPARAM wParam,
 	ImGuiIO& io = ImGui::GetIO();
 
 	if (!io.WantCaptureMouse) {
+		if (msg == WM_LBUTTONDOWN && App::Get().GetConfig().Is3DMode()) {
+			App::Get().GetRenderer().SetUIVisibility(false);
+		}
 		return std::nullopt;
 	}
 
@@ -182,6 +185,11 @@ bool ImGuiImpl::Initialize() {
 
 static void UpdateMousePos() {
 	ImGuiIO& io = ImGui::GetIO();
+
+	if (App::Get().GetConfig().Is3DMode() && !App::Get().GetRenderer().IsUIVisiable()) {
+		io.MousePos = ImVec2(-FLT_MAX, -FLT_MAX);
+		return;
+	}
 
 	POINT pos;
 	CursorManager& cm = App::Get().GetCursorManager();

@@ -20,7 +20,11 @@
 
 OverlayDrawer::OverlayDrawer() {}
 
-OverlayDrawer::~OverlayDrawer() {}
+OverlayDrawer::~OverlayDrawer() {
+	if (App::Get().GetConfig().Is3DMode() && IsUIVisiable()) {
+		EnableWindow(App::Get().GetHwndSrc(), TRUE);
+	}
+}
 
 static const ImColor TIMELINE_COLORS[] = {
 	{229,57,53,255},
@@ -239,8 +243,25 @@ void OverlayDrawer::SetUIVisibility(bool value) {
 		return;
 	}
 	_isUIVisiable = value;
+	
+	if (value) {
+		if (App::Get().GetConfig().Is3DMode()) {
+			HWND hwndHost = App::Get().GetHwndHost();
+			INT_PTR style = GetWindowLongPtr(hwndHost, GWL_EXSTYLE);
 
-	if (!value) {
+			// 使全屏窗口不透明
+			if (style & WS_EX_TRANSPARENT) {
+				SetWindowLongPtr(hwndHost, GWL_EXSTYLE, style & ~WS_EX_TRANSPARENT);
+			}
+
+			// 使源窗口无法接收键盘和鼠标消息
+			EnableWindow(App::Get().GetHwndSrc(), FALSE);
+
+			ImGui::GetIO().MouseDrawCursor = true;
+		}
+
+		Logger::Get().Info("已开启覆盖层");
+	} else {
 		_validFrames = 0;
 		std::fill(_frameTimes.begin(), _frameTimes.end(), 0.0f);
 
@@ -248,9 +269,20 @@ void OverlayDrawer::SetUIVisibility(bool value) {
 			_imguiImpl->ClearStates();
 		}
 
+		if (App::Get().GetConfig().Is3DMode()) {
+			HWND hwndHost = App::Get().GetHwndHost();
+			INT_PTR style = GetWindowLongPtr(hwndHost, GWL_EXSTYLE);
+
+			if (!(style & WS_EX_TRANSPARENT)) {
+				SetWindowLongPtr(hwndHost, GWL_EXSTYLE, style | WS_EX_TRANSPARENT);
+			}
+
+			EnableWindow(App::Get().GetHwndSrc(), TRUE);
+
+			ImGui::GetIO().MouseDrawCursor = false;
+		}
+
 		Logger::Get().Info("已关闭覆盖层");
-	} else {
-		Logger::Get().Info("已开启覆盖层");
 	}
 }
 
@@ -817,7 +849,7 @@ void OverlayDrawer::_DrawUI() {
 							ImGui::TableSetupColumn(
 								std::to_string(i).c_str(),
 								ImGuiTableColumnFlags_WidthStretch | ImGuiTableColumnFlags_NoResize | ImGuiTableColumnFlags_NoReorder,
-								gpuTimings.passes[i] / effectsTotalTime
+								std::max(1e-5f, gpuTimings.passes[i] / effectsTotalTime)
 							);
 						}
 
@@ -851,7 +883,7 @@ void OverlayDrawer::_DrawUI() {
 							ImGui::TableSetupColumn(
 								std::to_string(i).c_str(),
 								ImGuiTableColumnFlags_WidthStretch | ImGuiTableColumnFlags_NoResize | ImGuiTableColumnFlags_NoReorder,
-								effectTimings[i].totalTime / effectsTotalTime
+								std::max(1e-5f, effectTimings[i].totalTime / effectsTotalTime)
 							);
 						}
 

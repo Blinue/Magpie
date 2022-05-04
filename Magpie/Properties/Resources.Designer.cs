@@ -529,6 +529,15 @@ namespace Magpie.Properties {
         }
         
         /// <summary>
+        ///   查找类似 3D Game Mode 的本地化字符串。
+        /// </summary>
+        public static string UI_Options_Application_3D_Mode {
+            get {
+                return ResourceManager.GetString("UI_Options_Application_3D_Mode", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Always Run as Administrator 的本地化字符串。
         /// </summary>
         public static string UI_Options_Application_Always_Run_As_Admin {
@@ -637,6 +646,15 @@ namespace Magpie.Properties {
         }
         
         /// <summary>
+        ///   查找类似 Restore Fullscreen when Source Window Regains Focus 的本地化字符串。
+        /// </summary>
+        public static string UI_Options_Application_Restore_Full_Screen {
+            get {
+                return ResourceManager.GetString("UI_Options_Application_Restore_Full_Screen", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Run at Startup 的本地化字符串。
         /// </summary>
         public static string UI_Options_Application_Run_At_Startup {
@@ -687,15 +705,6 @@ namespace Magpie.Properties {
         public static string UI_Options_Scale_Cursor {
             get {
                 return ResourceManager.GetString("UI_Options_Scale_Cursor", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   查找类似 Confine the Cursor in 3D Games 的本地化字符串。
-        /// </summary>
-        public static string UI_Options_Scale_Cursor_Confine_In_3D_Games {
-            get {
-                return ResourceManager.GetString("UI_Options_Scale_Cursor_Confine_In_3D_Games", resourceCulture);
             }
         }
         
@@ -849,15 +858,6 @@ namespace Magpie.Properties {
         public static string UI_Options_Scale_Overlay_Hotkey {
             get {
                 return ResourceManager.GetString("UI_Options_Scale_Overlay_Hotkey", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   查找类似 Restore Fullscreen when Source Window Regains Focus 的本地化字符串。
-        /// </summary>
-        public static string UI_Options_Scale_Restore_Full_Screen {
-            get {
-                return ResourceManager.GetString("UI_Options_Scale_Restore_Full_Screen", resourceCulture);
             }
         }
         

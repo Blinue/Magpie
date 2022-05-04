@@ -266,12 +266,12 @@ namespace Magpie.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool ConfineCursorIn3DGames {
+        public bool Is3DMode {
             get {
-                return ((bool)(this["ConfineCursorIn3DGames"]));
+                return ((bool)(this["Is3DMode"]));
             }
             set {
-                this["ConfineCursorIn3DGames"] = value;
+                this["Is3DMode"] = value;
             }
         }
         

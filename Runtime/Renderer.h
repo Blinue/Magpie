@@ -48,8 +48,6 @@ public:
 	const EffectDesc& GetEffectDesc(UINT idx) const noexcept;
 
 private:
-	bool _InitializeOverlayDrawer();
-
 	bool _CheckSrcState();
 
 	bool _ResolveEffectsJson(const std::string& effectsJson);

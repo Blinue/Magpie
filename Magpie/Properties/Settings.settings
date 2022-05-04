@@ -62,7 +62,7 @@
     <Setting Name="DisableDirectFlip" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
-    <Setting Name="ConfineCursorIn3DGames" Type="System.Boolean" Scope="User">
+    <Setting Name="Is3DMode" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
     <Setting Name="AdapterIdx" Type="System.Int32" Scope="User">

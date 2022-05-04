@@ -146,7 +146,7 @@ static std::optional<LRESULT> HostWndProc(HWND hWnd, UINT message, WPARAM wParam
 bool CursorManager::Initialize() {
 	App::Get().RegisterWndProcHandler(HostWndProc);
 
-	if (App::Get().GetConfig().IsConfineCursorIn3DGames()) {
+	if (App::Get().GetConfig().Is3DMode()) {
 		POINT cursorPos;
 		::GetCursorPos(&cursorPos);
 		_StartCapture(cursorPos);
@@ -207,23 +207,6 @@ void CursorManager::OnBeginFrame() {
 	}
 
 	_curCursorPos = SrcToHost(ci.ptScreenPos, false);
-
-	POINT cursorLeftTop = {
-		_curCursorPos.x - _curCursorInfo->hotSpot.x,
-		_curCursorPos.y - _curCursorInfo->hotSpot.y
-	};
-
-	const RECT& outputRect = App::Get().GetRenderer().GetOutputRect();
-	if (cursorLeftTop.x >= outputRect.right
-		|| cursorLeftTop.y >= outputRect.bottom
-		|| cursorLeftTop.x + _curCursorInfo->size.cx < outputRect.left
-		|| cursorLeftTop.y + _curCursorInfo->size.cy < outputRect.top
-	) {
-		// 光标的渲染位置不在屏幕内
-		_curCursor = NULL;
-		return;
-	}
-
 	_curCursor = ci.hCursor;
 }
 
@@ -595,7 +578,7 @@ void CursorManager::_UpdateCursorClip() {
 
 	const RECT& srcFrameRect = App::Get().GetFrameSource().GetSrcFrameRect();
 
-	if (!App::Get().GetConfig().IsBreakpointMode() && App::Get().GetConfig().IsConfineCursorIn3DGames()) {
+	if (!App::Get().GetConfig().IsBreakpointMode() && App::Get().GetConfig().Is3DMode()) {
 		// 开启“在 3D 游戏中限制光标”则每帧都限制一次光标
 		_curClips = srcFrameRect;
 		ClipCursor(&srcFrameRect);

@@ -20,7 +20,7 @@
 
 
 static std::optional<LRESULT> WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
-	if (msg == WindowsMessages::WM_TOGGLE_OVERLAY && !App::Get().GetConfig().IsConfineCursorIn3DGames()) {
+	if (msg == WindowsMessages::WM_TOGGLE_OVERLAY) {
 		Renderer& renderer = App::Get().GetRenderer();
 		renderer.SetUIVisibility(!renderer.IsUIVisiable());
 		return 0;
@@ -51,7 +51,8 @@ bool Renderer::Initialize(const std::string& effectsJson) {
 	}
 	
 	if (App::Get().GetConfig().IsShowFPS()) {
-		if (!_InitializeOverlayDrawer()) {
+		_overlayDrawer.reset(new OverlayDrawer());
+		if (!_overlayDrawer->Initialize()) {
 			Logger::Get().Error("初始化 OverlayDrawer 失败");
 			return false;
 		}
@@ -170,7 +171,8 @@ void Renderer::SetUIVisibility(bool value) {
 	}
 
 	if (!_overlayDrawer) {
-		if (!_InitializeOverlayDrawer()) {
+		_overlayDrawer.reset(new OverlayDrawer());
+		if (!_overlayDrawer->Initialize()) {
 			Logger::Get().Error("初始化 OverlayDrawer 失败");
 			return;
 		}
@@ -246,11 +248,6 @@ bool CheckForeground(HWND hwndForeground) {
 const EffectDesc& Renderer::GetEffectDesc(UINT idx) const noexcept {
 	assert(idx < _effects.size());
 	return _effects[idx]->GetDesc();
-}
-
-bool Renderer::_InitializeOverlayDrawer() {
-	_overlayDrawer.reset(new OverlayDrawer());
-	return _overlayDrawer->Initialize();
 }
 
 bool Renderer::_CheckSrcState() {
@@ -457,7 +454,7 @@ bool Renderer::_UpdateDynamicConstants() {
 	// };
 
 	CursorManager& cursorManager = App::Get().GetCursorManager();
-	if (cursorManager.HasCursor()) {
+	if (cursorManager.HasCursor() && !(App::Get().GetConfig().Is3DMode() && IsUIVisiable())) {
 		const POINT* pos = cursorManager.GetCursorPos();
 		const CursorManager::CursorInfo* ci = cursorManager.GetCursorInfo();
 
