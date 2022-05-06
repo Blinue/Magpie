@@ -255,9 +255,12 @@ bool Renderer::_CheckSrcState() {
 
 	if (!App::Get().GetConfig().IsBreakpointMode()) {
 		HWND hwndForeground = GetForegroundWindow();
-		if (hwndForeground && hwndForeground != hwndSrc && !CheckForeground(hwndForeground)) {
-			Logger::Get().Info("前台窗口已改变");
-			return false;
+		// 在 3D 游戏模式下打开游戏内覆盖则全屏窗口可以接收焦点
+		if (!App::Get().GetConfig().Is3DMode() || !IsUIVisiable() || hwndForeground != App::Get().GetHwndHost()) {
+			if (hwndForeground && hwndForeground != hwndSrc && !CheckForeground(hwndForeground)) {
+				Logger::Get().Info("前台窗口已改变");
+				return false;
+			}
 		}
 	}
 

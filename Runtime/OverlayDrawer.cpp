@@ -246,16 +246,15 @@ void OverlayDrawer::SetUIVisibility(bool value) {
 	
 	if (value) {
 		if (App::Get().GetConfig().Is3DMode()) {
+			// 使全屏窗口不透明且可以接收焦点
+			// 添加 WS_EX_TOOLWINDOW 以在任务栏和 Alt+Tab 窗口中隐藏全屏窗口
 			HWND hwndHost = App::Get().GetHwndHost();
 			INT_PTR style = GetWindowLongPtr(hwndHost, GWL_EXSTYLE);
-
-			// 使全屏窗口不透明
-			if (style & WS_EX_TRANSPARENT) {
-				SetWindowLongPtr(hwndHost, GWL_EXSTYLE, style & ~WS_EX_TRANSPARENT);
-			}
-
-			// 使源窗口无法接收键盘和鼠标消息
+			SetWindowLongPtr(hwndHost, GWL_EXSTYLE, (style & ~(WS_EX_TRANSPARENT | WS_EX_NOACTIVATE)) | WS_EX_TOOLWINDOW);
+			
+			// 使源窗口无法接收用户输入
 			EnableWindow(App::Get().GetHwndSrc(), FALSE);
+			SetForegroundWindow(hwndHost);
 
 			ImGui::GetIO().MouseDrawCursor = true;
 		}
@@ -270,14 +269,15 @@ void OverlayDrawer::SetUIVisibility(bool value) {
 		}
 
 		if (App::Get().GetConfig().Is3DMode()) {
+			// 还原全屏窗口样式
 			HWND hwndHost = App::Get().GetHwndHost();
 			INT_PTR style = GetWindowLongPtr(hwndHost, GWL_EXSTYLE);
-
-			if (!(style & WS_EX_TRANSPARENT)) {
-				SetWindowLongPtr(hwndHost, GWL_EXSTYLE, style | WS_EX_TRANSPARENT);
-			}
-
-			EnableWindow(App::Get().GetHwndSrc(), TRUE);
+			SetWindowLongPtr(hwndHost, GWL_EXSTYLE, (style & ~WS_EX_TOOLWINDOW) | (WS_EX_TRANSPARENT | WS_EX_NOACTIVATE));
+			
+			// 重新激活源窗口
+			HWND hwndSrc = App::Get().GetHwndSrc();
+			EnableWindow(hwndSrc, TRUE);
+			SetForegroundWindow(hwndSrc);
 
 			ImGui::GetIO().MouseDrawCursor = false;
 		}
