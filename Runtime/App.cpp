@@ -413,8 +413,9 @@ LRESULT App::_HostWndProcStatic(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
 
 
 LRESULT App::_HostWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
-	for (auto& pair : _wndProcHandlers) {
-		const auto& result = pair.second(hWnd, message, wParam, lParam);
+	// 以反向调用回调
+	for (auto it = _wndProcHandlers.rbegin(); it != _wndProcHandlers.rend(); ++it) {
+		const auto& result = it->second(hWnd, message, wParam, lParam);
 		if (result.has_value()) {
 			return result.value();
 		}

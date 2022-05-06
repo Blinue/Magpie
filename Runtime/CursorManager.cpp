@@ -110,7 +110,7 @@ static std::optional<LRESULT> HostWndProc(HWND hWnd, UINT message, WPARAM wParam
 		HWND hwndSrc = App::Get().GetHwndSrc();
 		HWND hwndForground = GetForegroundWindow();
 		if (hwndForground != hwndSrc) {
-			if (!SetForegroundWindow(hwndSrc)) {
+			if (!Utils::SetForegroundWindow(hwndSrc)) {
 				// 设置前台窗口失败，可能是因为前台窗口是开始菜单
 				if (Utils::IsStartMenu(hwndForground)) {
 					// 限制触发频率
@@ -190,6 +190,14 @@ void CursorManager::OnBeginFrame() {
 		// 不绘制光标
 		_curCursor = NULL;
 		return;
+	}
+
+	if (App::Get().GetConfig().Is3DMode()) {
+		HWND hwndFore = GetForegroundWindow();
+		if (hwndFore != App::Get().GetHwndHost() && hwndFore != App::Get().GetHwndSrc()) {
+			_curCursor = NULL;
+			return;
+		}
 	}
 
 	CURSORINFO ci{};

@@ -22,7 +22,9 @@ OverlayDrawer::OverlayDrawer() {}
 
 OverlayDrawer::~OverlayDrawer() {
 	if (App::Get().GetConfig().Is3DMode() && IsUIVisiable()) {
-		EnableWindow(App::Get().GetHwndSrc(), TRUE);
+		HWND hwndSrc = App::Get().GetHwndSrc();
+		EnableWindow(hwndSrc, TRUE);
+		SetForegroundWindow(hwndSrc);
 	}
 }
 
