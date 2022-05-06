@@ -286,21 +286,26 @@ bool Utils::IsStartMenu(HWND hwnd) {
 }
 
 bool Utils::SetForegroundWindow(HWND hWnd) {
-	if (!::SetForegroundWindow(hWnd)) {
-		// 强制切换前台窗口
-		// 来自 https://pinvoke.net/default.aspx/user32.SetForegroundWindow
-		DWORD foreThreadId = GetWindowThreadProcessId(GetForegroundWindow(), nullptr);
-		DWORD curThreadId = GetCurrentThreadId();
+	if (::SetForegroundWindow(hWnd)) {
+		return true;
+	}
 
-		if (foreThreadId != curThreadId) {
-			AttachThreadInput(foreThreadId, curThreadId, true);
-			BringWindowToTop(hWnd);
-			ShowWindow(hWnd, SW_SHOW);
-			AttachThreadInput(foreThreadId, curThreadId, false);
-		} else {
-			BringWindowToTop(hWnd);
-			ShowWindow(hWnd, SW_SHOW);
+	// 有多种原因会导致 SetForegroundWindow 失败，因此使用一个 trick 强制切换前台窗口
+	// 来自 https://pinvoke.net/default.aspx/user32.SetForegroundWindow
+	DWORD foreThreadId = GetWindowThreadProcessId(GetForegroundWindow(), nullptr);
+	DWORD curThreadId = GetCurrentThreadId();
+
+	if (foreThreadId != curThreadId) {
+		if (!AttachThreadInput(foreThreadId, curThreadId, TRUE)) {
+			Logger::Get().Win32Error("AttachThreadInput 失败");
+			return false;
 		}
+		BringWindowToTop(hWnd);
+		ShowWindow(hWnd, SW_SHOW);
+		AttachThreadInput(foreThreadId, curThreadId, FALSE);
+	} else {
+		BringWindowToTop(hWnd);
+		ShowWindow(hWnd, SW_SHOW);
 	}
 
 	return true;
