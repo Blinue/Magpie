@@ -143,6 +143,9 @@ struct Utils {
 	static bool ZstdDecompress(std::span<const BYTE> src, std::vector<BYTE>& dest);
 
 	static bool IsStartMenu(HWND hwnd);
+
+	// 强制切换前台窗口
+	static bool SetForegroundWindow(HWND hWnd);
 };
 
 namespace std {

@@ -98,6 +98,10 @@ CursorManager::~CursorManager() {
 }
 
 static std::optional<LRESULT> HostWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
+	if (App::Get().GetConfig().Is3DMode() && App::Get().GetRenderer().IsUIVisiable()) {
+		return std::nullopt;
+	}
+
 	if (message == WM_LBUTTONDOWN || message == WM_RBUTTONDOWN) {
 		// 主窗口会在非常特定的情况下收到光标消息：
 		// 1. 未处于捕获状态

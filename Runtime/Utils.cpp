@@ -285,6 +285,26 @@ bool Utils::IsStartMenu(HWND hwnd) {
 	return exeName == "searchapp.exe" || exeName == "searchhost.exe" || exeName == "startmenuexperiencehost.exe";
 }
 
+bool Utils::SetForegroundWindow(HWND hWnd) {
+	if (!::SetForegroundWindow(hWnd)) {
+		// 强制切换前台窗口
+		// 来自 https://pinvoke.net/default.aspx/user32.SetForegroundWindow
+		DWORD foreThreadId = GetWindowThreadProcessId(GetForegroundWindow(), nullptr);
+		DWORD curThreadId = GetCurrentThreadId();
+
+		if (foreThreadId != curThreadId) {
+			AttachThreadInput(foreThreadId, curThreadId, true);
+			BringWindowToTop(hWnd);
+			ShowWindow(hWnd, SW_SHOW);
+			AttachThreadInput(foreThreadId, curThreadId, false);
+		} else {
+			BringWindowToTop(hWnd);
+			ShowWindow(hWnd, SW_SHOW);
+		}
+	}
+
+	return true;
+}
 
 Utils::Hasher::~Hasher() {
 	if (_hAlg) {
