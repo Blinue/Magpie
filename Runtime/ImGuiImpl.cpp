@@ -173,7 +173,7 @@ bool ImGuiImpl::Initialize() {
 	}
 
 	// 断点模式下不注册鼠标钩子，否则调试时鼠标无法使用
-	if (!App::Get().GetConfig().IsBreakpointMode()) {
+	if (!App::Get().GetConfig().IsBreakpointMode() && !App::Get().GetConfig().Is3DMode()) {
 		_hHookThread = CreateThread(nullptr, 0, ThreadProc, nullptr, 0, &_hookThreadId);
 		if (!_hHookThread) {
 			Logger::Get().Win32Error("创建线程失败");

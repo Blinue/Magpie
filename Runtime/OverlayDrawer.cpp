@@ -185,10 +185,12 @@ bool OverlayDrawer::Initialize() {
 	style.WindowMinSize = ImVec2(10, 10);
 	style.ScaleAllSizes(_dpiScale);
 
-	std::vector<BYTE> fontData;
-	if (!Utils::ReadFile(L".\\assets\\NotoSansSC-Regular.otf", fontData)) {
-		Logger::Get().Error("读取字体文件失败");
-		return false;
+	static std::vector<BYTE> fontData;
+	if (fontData.empty()) {
+		if (!Utils::ReadFile(L".\\assets\\NotoSansSC-Regular.otf", fontData)) {
+			Logger::Get().Error("读取字体文件失败");
+			return false;
+		}
 	}
 
 	ImFontConfig config;
