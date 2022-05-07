@@ -67,5 +67,6 @@
     <CopyFileToFolders Include="LCAS.hlsl" />
     <CopyFileToFolders Include="CatmullRom.hlsl" />
     <CopyFileToFolders Include="CAS_Scaling.hlsl" />
+    <CopyFileToFolders Include="MMPX.hlsl" />
   </ItemGroup>
 </Project>
