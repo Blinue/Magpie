@@ -86,6 +86,8 @@ SamplerState sam2;
 // 通道定义
 
 //!PASS 1
+// 描述此通道以便于调试
+//!DESC First Pass
 // 可选 PS 风格，依然用 CS 实现
 // STYLE 默认为 CS
 //!STYLE PS
