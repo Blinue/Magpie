@@ -69,5 +69,6 @@
     <CopyFileToFolders Include="CAS_Scaling.hlsl" />
     <CopyFileToFolders Include="MMPX.hlsl" />
     <CopyFileToFolders Include="NNEDI3_nns16_win8x4.hlsl" />
+    <CopyFileToFolders Include="NNEDI3_nns64_win8x6.hlsl" />
   </ItemGroup>
 </Project>
