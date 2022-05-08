@@ -80,9 +80,9 @@ groupshared float inp[429];
 void Pass1(uint2 blockStart, uint3 threadId) {
 	const float2 inputPt = GetInputPt();
 
-    const int2 group_base = int2(blockStart.x, blockStart.y / 2);
-    for (int id = int(threadId.x * MP_NUM_THREADS_Y + threadId.y); id < 429; id += int(MP_NUM_THREADS_X * MP_NUM_THREADS_Y)) {
-        int x = id / 11, y = id % 11;
+    const uint2 group_base = uint2(blockStart.x, blockStart.y >> 1);
+    for (int id = threadId.x * MP_NUM_THREADS_Y + threadId.y; id < 429; id += MP_NUM_THREADS_X * MP_NUM_THREADS_Y) {
+        uint x = (uint)id / 11, y = (uint)id % 11;
         inp[id] = GetLuma(INPUT.SampleLevel(sam, inputPt * float2(group_base.x + x - 3 + 0.5, group_base.y + y - 1 + 0.5), 0).rgb);
     }
 
@@ -91,39 +91,14 @@ void Pass1(uint2 blockStart, uint3 threadId) {
     float4 ret = 0.0;
     float4 ret0 = 0.0;
     float4 samples[8];
-    const int local_pos = threadId.x * 11 + int(threadId.y);
-    samples[0][0] = inp[local_pos + 0];
-    samples[0][1] = inp[local_pos + 1];
-    samples[0][2] = inp[local_pos + 2];
-    samples[0][3] = inp[local_pos + 3];
-    samples[1][0] = inp[local_pos + 11];
-    samples[1][1] = inp[local_pos + 12];
-    samples[1][2] = inp[local_pos + 13];
-    samples[1][3] = inp[local_pos + 14];
-    samples[2][0] = inp[local_pos + 22];
-    samples[2][1] = inp[local_pos + 23];
-    samples[2][2] = inp[local_pos + 24];
-    samples[2][3] = inp[local_pos + 25];
-    samples[3][0] = inp[local_pos + 33];
-    samples[3][1] = inp[local_pos + 34];
-    samples[3][2] = inp[local_pos + 35];
-    samples[3][3] = inp[local_pos + 36];
-    samples[4][0] = inp[local_pos + 44];
-    samples[4][1] = inp[local_pos + 45];
-    samples[4][2] = inp[local_pos + 46];
-    samples[4][3] = inp[local_pos + 47];
-    samples[5][0] = inp[local_pos + 55];
-    samples[5][1] = inp[local_pos + 56];
-    samples[5][2] = inp[local_pos + 57];
-    samples[5][3] = inp[local_pos + 58];
-    samples[6][0] = inp[local_pos + 66];
-    samples[6][1] = inp[local_pos + 67];
-    samples[6][2] = inp[local_pos + 68];
-    samples[6][3] = inp[local_pos + 69];
-    samples[7][0] = inp[local_pos + 77];
-    samples[7][1] = inp[local_pos + 78];
-    samples[7][2] = inp[local_pos + 79];
-    samples[7][3] = inp[local_pos + 80];
+    const uint local_pos = threadId.x * 11 + threadId.y;
+    [unroll]
+    for (int i = 0; i < 8; ++i) {
+        [unroll]
+        for (int j = 0; j < 4; ++j) {
+            samples[i][j] = inp[local_pos + i * 11 + j];
+        }
+    }
 
     const uint2 destPos = blockStart + uint2(threadId.x, threadId.y * 2);
     tex1[destPos] = samples[3][1];
@@ -188,9 +163,9 @@ groupshared float inp[525];
 void Pass2(uint2 blockStart, uint3 threadId) {
     const float2 inputPt = GetInputPt();
 
-    const int2 group_base = int2(blockStart.x / 2, blockStart.y);
-    for (int id = int(threadId.x * MP_NUM_THREADS_Y + threadId.y); id < 525; id += int(MP_NUM_THREADS_X * MP_NUM_THREADS_Y)) {
-        int x = id / 15, y = id % 15;
+    const uint2 group_base = uint2(blockStart.x >> 1, blockStart.y);
+    for (int id = threadId.x * MP_NUM_THREADS_Y + threadId.y; id < 525; id += MP_NUM_THREADS_X * MP_NUM_THREADS_Y) {
+        uint x = (uint)id / 15, y = (uint)id % 15;
         inp[id] = tex1.SampleLevel(sam, inputPt * float2(group_base.x + x - 1 + 0.5, (group_base.y + y - 3 + 0.5) * 0.5), 0).r;
     }
 
@@ -204,39 +179,14 @@ void Pass2(uint2 blockStart, uint3 threadId) {
     float4 ret = 0.0;
     float4 ret0 = 0.0;
     float4 samples[8];
-    const int local_pos = threadId.x * 15 + int(threadId.y);
-    samples[0][0] = inp[local_pos + 0];
-    samples[0][1] = inp[local_pos + 1];
-    samples[0][2] = inp[local_pos + 2];
-    samples[0][3] = inp[local_pos + 3];
-    samples[1][0] = inp[local_pos + 4];
-    samples[1][1] = inp[local_pos + 5];
-    samples[1][2] = inp[local_pos + 6];
-    samples[1][3] = inp[local_pos + 7];
-    samples[2][0] = inp[local_pos + 15];
-    samples[2][1] = inp[local_pos + 16];
-    samples[2][2] = inp[local_pos + 17];
-    samples[2][3] = inp[local_pos + 18];
-    samples[3][0] = inp[local_pos + 19];
-    samples[3][1] = inp[local_pos + 20];
-    samples[3][2] = inp[local_pos + 21];
-    samples[3][3] = inp[local_pos + 22];
-    samples[4][0] = inp[local_pos + 30];
-    samples[4][1] = inp[local_pos + 31];
-    samples[4][2] = inp[local_pos + 32];
-    samples[4][3] = inp[local_pos + 33];
-    samples[5][0] = inp[local_pos + 34];
-    samples[5][1] = inp[local_pos + 35];
-    samples[5][2] = inp[local_pos + 36];
-    samples[5][3] = inp[local_pos + 37];
-    samples[6][0] = inp[local_pos + 45];
-    samples[6][1] = inp[local_pos + 46];
-    samples[6][2] = inp[local_pos + 47];
-    samples[6][3] = inp[local_pos + 48];
-    samples[7][0] = inp[local_pos + 49];
-    samples[7][1] = inp[local_pos + 50];
-    samples[7][2] = inp[local_pos + 51];
-    samples[7][3] = inp[local_pos + 52];
+    const uint local_pos = threadId.x * 15 + threadId.y;
+    [unroll]
+    for (int i = 0; i < 8; ++i) {
+        [unroll]
+        for (int j = 0; j < 4; ++j) {
+            samples[i][j] = inp[local_pos + (i / 2) * 15 + (i % 2) * 4 + j];
+        }
+    }
     
     float2 originUV = mul(rgb2uv, INPUT.SampleLevel(sam, inputPt * (destPos / 2 + 0.5f), 0).rgb);
 
