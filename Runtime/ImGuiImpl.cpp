@@ -87,7 +87,7 @@ static std::optional<LRESULT> WndProcHandler(HWND hwnd, UINT msg, WPARAM wParam,
 		break;
 	case WM_MOUSEHWHEEL:
 		io.MouseWheelH += (float)GET_WHEEL_DELTA_WPARAM(wParam) / (float)WHEEL_DELTA;
-		return 0;
+		break;
 	}
 
 	return std::nullopt;
