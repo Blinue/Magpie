@@ -238,9 +238,12 @@ bool EffectDrawer::Initialize(
 				return false;
 			}
 
+			D3D11_TEXTURE2D_DESC desc;
+			_textures.back()->GetDesc(&desc);
+
 			_dispatches.emplace_back(
-				(outputSize.cx + passDesc.blockSize.first - 1) / passDesc.blockSize.first,
-				(outputSize.cy + passDesc.blockSize.second - 1) / passDesc.blockSize.second
+				(std::min(desc.Width, (UINT)outputSize.cx) + passDesc.blockSize.first - 1) / passDesc.blockSize.first,
+				(std::min(desc.Height, (UINT)outputSize.cy) + passDesc.blockSize.second - 1) / passDesc.blockSize.second
 			);
 		}
 	}
