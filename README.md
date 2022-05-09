@@ -63,7 +63,7 @@ Magpie 可以将任意窗口放大至全屏，内置大量缩放算法/滤镜。
 ## 系统需求
 
 1. Windows 10/11
-2. DirectX 功能级别 10
+2. DirectX 功能级别 11
 3. [.NET 6.0.4 Desktop 运行时](https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/runtime-desktop-6.0.4-windows-x64-installer)
 4. [MSVC 2015-2022 运行时](https://docs.microsoft.com/cpp/windows/latest-supported-vc-redist)
 

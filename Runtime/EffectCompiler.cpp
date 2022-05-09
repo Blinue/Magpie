@@ -1493,7 +1493,7 @@ cbuffer __CB2 : register(b1) {
 				? fmt::format(L"{}\\{}.hlsl", SAVE_SOURCE_DIR, StrUtils::UTF8ToUTF16(desc.name))
 				: fmt::format(L"{}\\{}_Pass{}.hlsl", SAVE_SOURCE_DIR, StrUtils::UTF8ToUTF16(desc.name), id + 1);
 
-			if (!Utils::WriteFile(fileName.c_str(), source.data(),source.size())) {
+			if (!Utils::WriteFile(fileName.c_str(), source.data(), source.size())) {
 				Logger::Get().Error(fmt::format("保存 Pass{} 源码失败", id + 1));
 			}
 		}
