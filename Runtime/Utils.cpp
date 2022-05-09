@@ -184,7 +184,7 @@ void Utils::RunParallel(std::function<void(UINT)> func, UINT times) {
 #else
 	if (times == 0) {
 		return;
-}
+	}
 
 	if (times == 1) {
 		return func(0);

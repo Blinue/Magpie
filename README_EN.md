@@ -35,9 +35,8 @@ The application ships with multiple scaling modes. If they don't fit your needs,
 3. FSRCNNX：Transplantation of [FSRCNNX](https://github.com/igv/FSRCNN-TensorFlow).
 4. ACNet：Transplantation of [ACNetGLSL](https://github.com/TianZerL/ACNetGLSL). Good for Anime-style images or videos.
 5. Anime4K：Transplantation of [Anime4K](https://github.com/bloc97/Anime4K). We use the Anime4K_Upscale_Denoise_L variant.
-6. RAVU：See [About RAVU](https://github.com/bjin/mpv-prescalers#about-ravu).
-7. CRT-Geom：One of the most popular CRT filters. We recommend you to customize your configurations. See [Emulation General Wiki](https://emulation.gametechwiki.com/index.php/CRT_Geom).
-8. Integer Scale：Magnifies each pixel with integer factors. It completely keeps the visual effects of the original views. 2x and 3x are shipped with the Magpie.
+6. CRT-Geom：One of the most popular CRT filters. We recommend you to customize your configurations. See [Emulation General Wiki](https://emulation.gametechwiki.com/index.php/CRT_Geom).
+7. Integer Scale：Magnifies each pixel with integer factors. It completely keeps the visual effects of the original views. 2x and 3x are shipped with the Magpie.
 
 #### Capture Modes
 

@@ -36,9 +36,8 @@ Magpie 可以将任意窗口放大至全屏，内置大量缩放算法/滤镜。
 3. FSRCNNX：[FSRCNNX](https://github.com/igv/FSRCNN-TensorFlow) 的移植。
 4. ACNet：[ACNetGLSL](https://github.com/TianZerL/ACNetGLSL)的移植。适合动画风格的图像和视频放大。
 5. Anime4K：[Anime4K](https://github.com/bloc97/Anime4K) 的移植。此预置使用 Anime4K_Upscale_Denoise_L 变体。
-6. RAVU：见 [About RAVU](https://github.com/bjin/mpv-prescalers#about-ravu)。
-7. CRT-Geom：最流行的 CRT 滤镜之一，推荐自行配置参数。见 [Emulation General Wiki](https://emulation.gametechwiki.com/index.php/CRT_Geom)。
-8. Integer Scale：将每个像素放大整数倍，可以完整保留原图像的视觉效果。预置了2x和3x两种放大倍率。
+6. CRT-Geom：最流行的 CRT 滤镜之一，推荐自行配置参数。见 [Emulation General Wiki](https://emulation.gametechwiki.com/index.php/CRT_Geom)。
+7. Integer Scale：将每个像素放大整数倍，可以完整保留原图像的视觉效果。预置了2x和3x两种放大倍率。
 
 #### 捕获模式
 
