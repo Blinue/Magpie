@@ -35,9 +35,8 @@ The application ships with multiple scaling modes. If they don't fit your needs,
 3. FSRCNNX：Transplantation of [FSRCNNX](https://github.com/igv/FSRCNN-TensorFlow).
 4. ACNet：Transplantation of [ACNetGLSL](https://github.com/TianZerL/ACNetGLSL). Good for Anime-style images or videos.
 5. Anime4K：Transplantation of [Anime4K](https://github.com/bloc97/Anime4K). We use the Anime4K_Upscale_Denoise_L variant.
-6. RAVU：See [About RAVU](https://github.com/bjin/mpv-prescalers#about-ravu).
-7. CRT-Geom：One of the most popular CRT filters. We recommend you to customize your configurations. See [Emulation General Wiki](https://emulation.gametechwiki.com/index.php/CRT_Geom).
-8. Integer Scale：Magnifies each pixel with integer factors. It completely keeps the visual effects of the original views. 2x and 3x are shipped with the Magpie.
+6. CRT-Geom：One of the most popular CRT filters. We recommend you to customize your configurations. See [Emulation General Wiki](https://emulation.gametechwiki.com/index.php/CRT_Geom).
+7. Integer Scale：Magnifies each pixel with integer factors. It completely keeps the visual effects of the original views. 2x and 3x are shipped with the Magpie.
 
 #### Capture Modes
 
@@ -62,8 +61,8 @@ You need to manually type in your preferred hot keys (concatenate multiple keys 
 ## System Requirements
 
 1. Windows 10/11
-2. DirectX feature level 10
-3. [.NET 6 Desktop Runtime](https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/runtime-desktop-6.0.2-windows-x64-installer)
+2. DirectX feature level 11
+3. [.NET 6.0.4 Desktop Runtime](https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/runtime-desktop-6.0.4-windows-x64-installer)
 4. [MSVC 2015-2022 Runtime](https://docs.microsoft.com/cpp/windows/latest-supported-vc-redist)
 
 ## Hints

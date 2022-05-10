@@ -1,18 +1,13 @@
+// FidelityFX-FSR 中 RCAS 通道
+// 移植自 https://github.com/GPUOpen-Effects/FidelityFX-FSR/blob/master/ffx-fsr/ffx_fsr1.h
+
 //!MAGPIE EFFECT
-//!VERSION 1
+//!VERSION 2
 //!OUTPUT_WIDTH INPUT_WIDTH
 //!OUTPUT_HEIGHT INPUT_HEIGHT
 
 
-//!CONSTANT
-//!VALUE INPUT_WIDTH
-float inputWidth;
-
-//!CONSTANT
-//!VALUE INPUT_HEIGHT
-float inputHeight;
-
-//!CONSTANT
+//!PARAMETER
 //!DEFAULT 0.87
 //!MIN 1e-5
 float sharpness;
@@ -24,9 +19,10 @@ Texture2D INPUT;
 //!FILTER POINT
 SamplerState sam;
 
-
 //!PASS 1
-//!BIND INPUT
+//!IN INPUT
+//!BLOCK_SIZE 16
+//!NUM_THREADS 64
 
 #define min3(a, b, c) min(a, min(b, c))
 #define max3(a, b, c) max(a, max(b, c))
@@ -35,18 +31,12 @@ SamplerState sam;
 #define FSR_RCAS_LIMIT (0.25-(1.0/16.0))
 
 
-float4 Pass1(float2 pos) {
-	int2 sp = floor(pos * float2(inputWidth, inputHeight));
-
+float3 FsrRcasF(float3 b, float3 d, float3 e, float3 f, float3 h) {
 	// Algorithm uses minimal 3x3 pixel neighborhood.
 	//    b 
 	//  d e f
 	//    h
-	float3 b = INPUT.Load(int3(sp.x, sp.y - 1, 0)).rgb;
-	float3 d = INPUT.Load(int3(sp.x - 1, sp.y, 0)).rgb;
-	float3 e = INPUT.Load(int3(sp, 0)).rgb;
-	float3 f = INPUT.Load(int3(sp.x + 1, sp.y, 0)).rgb;
-	float3 h = INPUT.Load(int3(sp.x, sp.y + 1, 0)).rgb;
+
 	// Rename (32-bit) or regroup (16-bit).
 	float bR = b.r;
 	float bG = b.g;
@@ -110,5 +100,43 @@ float4 Pass1(float2 pos) {
 		(lobe * bB + lobe * dB + lobe * hB + lobe * fB + eB) * rcpL
 	};
 
-	return float4(c, 1.0f);
+	return c;
+}
+
+void Pass1(uint2 blockStart, uint3 threadId) {
+	uint2 gxy = blockStart + (Rmp8x8(threadId.x) << 1);
+	if (!CheckViewport(gxy)) {
+		return;
+	}
+
+	float3 src[4][4];
+	[unroll]
+	for (uint i = 1; i < 3; ++i) {
+		[unroll]
+		for (uint j = 0; j < 4; ++j) {
+			src[i][j] = INPUT.Load(int3(gxy.x + i - 1, gxy.y + j - 1, 0)).rgb;
+		}
+	}
+
+	src[0][1] = INPUT.Load(int3(gxy.x - 1, gxy.y, 0)).rgb;
+	src[0][2] = INPUT.Load(int3(gxy.x - 1, gxy.y + 1, 0)).rgb;
+	src[3][1] = INPUT.Load(int3(gxy.x + 2, gxy.y, 0)).rgb;
+	src[3][2] = INPUT.Load(int3(gxy.x + 2, gxy.y + 1, 0)).rgb;
+
+	WriteToOutput(gxy, FsrRcasF(src[1][0], src[0][1], src[1][1], src[2][1], src[1][2]));
+
+	++gxy.x;
+	if (CheckViewport(gxy)) {
+		WriteToOutput(gxy, FsrRcasF(src[2][0], src[1][1], src[2][1], src[3][1], src[2][2]));
+	}
+
+	++gxy.y;
+	if (CheckViewport(gxy)) {
+		WriteToOutput(gxy, FsrRcasF(src[2][1], src[1][2], src[2][2], src[3][2], src[2][3]));
+	}
+
+	--gxy.x;
+	if (CheckViewport(gxy)) {
+		WriteToOutput(gxy, FsrRcasF(src[1][1], src[0][2], src[1][2], src[2][2], src[1][3]));
+	}
 }

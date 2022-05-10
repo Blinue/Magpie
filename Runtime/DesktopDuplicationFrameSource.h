@@ -17,6 +17,10 @@ public:
 		return true;
 	}
 
+	const char* GetName() const noexcept override {
+		return "Desktop Duplication";
+	}
+
 protected:
 	bool _HasRoundCornerInWin11() override {
 		return true;

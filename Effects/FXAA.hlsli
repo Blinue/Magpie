@@ -80,126 +80,115 @@ float3 FxaaLerp3(float3 a, float3 b, float amountOfA) {
 }
 
 
-float4 FXAA(Texture2D INPUT, SamplerState sam, float2 pos, float2 inputPt) {
-	float3 rgbN = INPUT.Sample(sam, pos + float2(0, -inputPt.y)).xyz;
-	float3 rgbW = INPUT.Sample(sam, pos + float2(-inputPt.x, 0)).xyz;
-	float3 rgbM = INPUT.Sample(sam, pos).xyz;
-	float3 rgbE = INPUT.Sample(sam, pos + float2(inputPt.x, 0)).xyz;
-	float3 rgbS = INPUT.Sample(sam, pos + float2(0, inputPt.y)).xyz;
-
-	float lumaN = FxaaLuma(rgbN);
-	float lumaW = FxaaLuma(rgbW);
-	float lumaM = FxaaLuma(rgbM);
-	float lumaE = FxaaLuma(rgbE);
-	float lumaS = FxaaLuma(rgbS);
+float3 FXAA(float3 src[4][4], uint i, uint j, Texture2D<float4> INPUT, SamplerState sam, float2 pos, float2 inputPt) {
+	float lumaN = FxaaLuma(src[i][j - 1]);
+	float lumaW = FxaaLuma(src[i - 1][j]);
+	float lumaM = FxaaLuma(src[i][j]);
+	float lumaE = FxaaLuma(src[i + 1][j]);
+	float lumaS = FxaaLuma(src[i][j + 1]);
 	float rangeMin = min(lumaM, min(min(lumaN, lumaW), min(lumaS, lumaE)));
 	float rangeMax = max(lumaM, max(max(lumaN, lumaW), max(lumaS, lumaE)));
 
 	float range = rangeMax - rangeMin;
 	if (range < max(FXAA_EDGE_THRESHOLD_MIN, rangeMax * FXAA_EDGE_THRESHOLD)) {
-		return float4(rgbM, 1);
-	}
+		return src[i][j];
+	} else {
+		float3 rgbL = src[i][j - 1] + src[i - 1][j] + src[i][j] + src[i + 1][j] + src[i][j + 1];
 
-	float3 rgbL = rgbN + rgbW + rgbM + rgbE + rgbS;
+		float lumaL = (lumaN + lumaW + lumaE + lumaS) * 0.25;
+		float rangeL = abs(lumaL - lumaM);
+		float blendL = max(0.0, (rangeL / range) - FXAA_SUBPIX_TRIM) * FXAA_SUBPIX_TRIM_SCALE;
+		blendL = min(FXAA_SUBPIX_CAP, blendL);
 
-	float lumaL = (lumaN + lumaW + lumaE + lumaS) * 0.25;
-	float rangeL = abs(lumaL - lumaM);
-	float blendL = max(0.0, (rangeL / range) - FXAA_SUBPIX_TRIM) * FXAA_SUBPIX_TRIM_SCALE;
-	blendL = min(FXAA_SUBPIX_CAP, blendL);
+		rgbL += (src[i - 1][j - 1] + src[i + 1][j - 1] + src[i - 1][j + 1] + src[i + 1][j + 1]);
+		rgbL *= 1.0 / 9.0;
 
-	float3 rgbNW = INPUT.Sample(sam, pos + float2(-inputPt.x, -inputPt.y)).xyz;
-	float3 rgbNE = INPUT.Sample(sam, pos + float2(inputPt.x, -inputPt.y)).xyz;
-	float3 rgbSW = INPUT.Sample(sam, pos + float2(-inputPt.x, inputPt.y)).xyz;
-	float3 rgbSE = INPUT.Sample(sam, pos + float2(inputPt.x, inputPt.y)).xyz;
-	rgbL += (rgbNW + rgbNE + rgbSW + rgbSE);
-	rgbL *= 1.0 / 9.0;
+		float lumaNW = FxaaLuma(src[i - 1][j - 1]);
+		float lumaNE = FxaaLuma(src[i + 1][j - 1]);
+		float lumaSW = FxaaLuma(src[i - 1][j + 1]);
+		float lumaSE = FxaaLuma(src[i + 1][j + 1]);
 
-	float lumaNW = FxaaLuma(rgbNW);
-	float lumaNE = FxaaLuma(rgbNE);
-	float lumaSW = FxaaLuma(rgbSW);
-	float lumaSE = FxaaLuma(rgbSE);
+		float edgeVert =
+			abs((0.25 * lumaNW) + (-0.5 * lumaN) + (0.25 * lumaNE)) +
+			abs((0.50 * lumaW) + (-1.0 * lumaM) + (0.50 * lumaE)) +
+			abs((0.25 * lumaSW) + (-0.5 * lumaS) + (0.25 * lumaSE));
+		float edgeHorz =
+			abs((0.25 * lumaNW) + (-0.5 * lumaW) + (0.25 * lumaSW)) +
+			abs((0.50 * lumaN) + (-1.0 * lumaM) + (0.50 * lumaS)) +
+			abs((0.25 * lumaNE) + (-0.5 * lumaE) + (0.25 * lumaSE));
 
-	float edgeVert =
-		abs((0.25 * lumaNW) + (-0.5 * lumaN) + (0.25 * lumaNE)) +
-		abs((0.50 * lumaW) + (-1.0 * lumaM) + (0.50 * lumaE)) +
-		abs((0.25 * lumaSW) + (-0.5 * lumaS) + (0.25 * lumaSE));
-	float edgeHorz =
-		abs((0.25 * lumaNW) + (-0.5 * lumaW) + (0.25 * lumaSW)) +
-		abs((0.50 * lumaN) + (-1.0 * lumaM) + (0.50 * lumaS)) +
-		abs((0.25 * lumaNE) + (-0.5 * lumaE) + (0.25 * lumaSE));
+		bool horzSpan = edgeHorz >= edgeVert;
+		float lengthSign = horzSpan ? -inputPt.y : -inputPt.x;
 
-	bool horzSpan = edgeHorz >= edgeVert;
-	float lengthSign = horzSpan ? -inputPt.y : -inputPt.x;
-
-	if (!horzSpan) {
-		lumaN = lumaW;
-		lumaS = lumaE;
-	}
-
-	float gradientN = abs(lumaN - lumaM);
-	float gradientS = abs(lumaS - lumaM);
-	lumaN = (lumaN + lumaM) * 0.5;
-	lumaS = (lumaS + lumaM) * 0.5;
-
-	if (gradientN < gradientS) {
-		lumaN = lumaS;
-		lumaN = lumaS;
-		gradientN = gradientS;
-		lengthSign *= -1.0;
-	}
-
-	float2 posN;
-	posN.x = pos.x + (horzSpan ? 0.0 : lengthSign * 0.5);
-	posN.y = pos.y + (horzSpan ? lengthSign * 0.5 : 0.0);
-
-	gradientN *= FXAA_SEARCH_THRESHOLD;
-
-	float2 posP = posN;
-	float2 offNP = horzSpan ? float2(inputPt.x, 0.0) : float2(0.0, inputPt.y);
-	float lumaEndN = lumaN;
-	float lumaEndP = lumaN;
-	bool doneN = false;
-	bool doneP = false;
-	posN += offNP * float2(-1.0, -1.0);
-	posP += offNP * float2(1.0, 1.0);
-
-	for (int i = 0; i < FXAA_SEARCH_STEPS; i++) {
-		if (!doneN) {
-			lumaEndN = FxaaLuma(INPUT.Sample(sam, posN.xy).xyz);
-		}
-		if (!doneP) {
-			lumaEndP = FxaaLuma(INPUT.Sample(sam, posP.xy).xyz);
+		if (!horzSpan) {
+			lumaN = lumaW;
+			lumaS = lumaE;
 		}
 
-		doneN = doneN || (abs(lumaEndN - lumaN) >= gradientN);
-		doneP = doneP || (abs(lumaEndP - lumaN) >= gradientN);
+		float gradientN = abs(lumaN - lumaM);
+		float gradientS = abs(lumaS - lumaM);
+		lumaN = (lumaN + lumaM) * 0.5;
+		lumaS = (lumaS + lumaM) * 0.5;
 
-		if (doneN && doneP) {
-			break;
+		if (gradientN < gradientS) {
+			lumaN = lumaS;
+			lumaN = lumaS;
+			gradientN = gradientS;
+			lengthSign *= -1.0;
 		}
-		if (!doneN) {
-			posN -= offNP;
+
+		float2 posN;
+		posN.x = pos.x + (horzSpan ? 0.0 : lengthSign * 0.5);
+		posN.y = pos.y + (horzSpan ? lengthSign * 0.5 : 0.0);
+
+		gradientN *= FXAA_SEARCH_THRESHOLD;
+
+		float2 posP = posN;
+		float2 offNP = horzSpan ? float2(inputPt.x, 0.0) : float2(0.0, inputPt.y);
+		float lumaEndN = lumaN;
+		float lumaEndP = lumaN;
+		bool doneN = false;
+		bool doneP = false;
+		posN += offNP * float2(-1.0, -1.0);
+		posP += offNP * float2(1.0, 1.0);
+
+		for (int i = 0; i < FXAA_SEARCH_STEPS; i++) {
+			if (!doneN) {
+				lumaEndN = FxaaLuma(INPUT.SampleLevel(sam, posN.xy, 0).xyz);
+			}
+			if (!doneP) {
+				lumaEndP = FxaaLuma(INPUT.SampleLevel(sam, posP.xy, 0).xyz);
+			}
+
+			doneN = doneN || (abs(lumaEndN - lumaN) >= gradientN);
+			doneP = doneP || (abs(lumaEndP - lumaN) >= gradientN);
+
+			if (doneN && doneP) {
+				break;
+			}
+			if (!doneN) {
+				posN -= offNP;
+			}
+			if (!doneP) {
+				posP += offNP;
+			}
 		}
-		if (!doneP) {
-			posP += offNP;
+
+		float dstN = horzSpan ? pos.x - posN.x : pos.y - posN.y;
+		float dstP = horzSpan ? posP.x - pos.x : posP.y - pos.y;
+		bool directionN = dstN < dstP;
+		lumaEndN = directionN ? lumaEndN : lumaEndP;
+
+		if (((lumaM - lumaN) < 0.0) == ((lumaEndN - lumaN) < 0.0)) {
+			lengthSign = 0.0;
 		}
+
+		float spanLength = (dstP + dstN);
+		dstN = directionN ? dstN : dstP;
+		float subPixelOffset = (0.5 + (dstN * (-1.0 / spanLength))) * lengthSign;
+		float3 rgbF = INPUT.SampleLevel(sam, float2(
+			pos.x + (horzSpan ? 0.0 : subPixelOffset),
+			pos.y + (horzSpan ? subPixelOffset : 0.0)), 0).xyz;
+		return FxaaLerp3(rgbL, rgbF, blendL);
 	}
-
-	float dstN = horzSpan ? pos.x - posN.x : pos.y - posN.y;
-	float dstP = horzSpan ? posP.x - pos.x : posP.y - pos.y;
-	bool directionN = dstN < dstP;
-	lumaEndN = directionN ? lumaEndN : lumaEndP;
-
-	if (((lumaM - lumaN) < 0.0) == ((lumaEndN - lumaN) < 0.0)) {
-		lengthSign = 0.0;
-	}
-
-
-	float spanLength = (dstP + dstN);
-	dstN = directionN ? dstN : dstP;
-	float subPixelOffset = (0.5 + (dstN * (-1.0 / spanLength))) * lengthSign;
-	float3 rgbF = INPUT.Sample(sam, float2(
-		pos.x + (horzSpan ? 0.0 : subPixelOffset),
-		pos.y + (horzSpan ? subPixelOffset : 0.0))).xyz;
-	return float4(FxaaLerp3(rgbL, rgbF, blendL), 1);
 }

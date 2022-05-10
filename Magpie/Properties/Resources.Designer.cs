@@ -475,6 +475,15 @@ namespace Magpie.Properties {
         }
         
         /// <summary>
+        ///   查找类似 Save Sources when Resolving Effects 的本地化字符串。
+        /// </summary>
+        public static string UI_Options_Advanced_Save_Effect_Sources {
+            get {
+                return ResourceManager.GetString("UI_Options_Advanced_Save_Effect_Sources", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Show All Capture Methods 的本地化字符串。
         /// </summary>
         public static string UI_Options_Advanced_Show_All_Capture_Methods {
@@ -502,11 +511,29 @@ namespace Magpie.Properties {
         }
         
         /// <summary>
+        ///   查找类似 Treat Warnings as Errors when Compiling Shaders 的本地化字符串。
+        /// </summary>
+        public static string UI_Options_Advanced_Warnings_Are_Errors {
+            get {
+                return ResourceManager.GetString("UI_Options_Advanced_Warnings_Are_Errors", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Application 的本地化字符串。
         /// </summary>
         public static string UI_Options_Application {
             get {
                 return ResourceManager.GetString("UI_Options_Application", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 3D Game Mode 的本地化字符串。
+        /// </summary>
+        public static string UI_Options_Application_3D_Mode {
+            get {
+                return ResourceManager.GetString("UI_Options_Application_3D_Mode", resourceCulture);
             }
         }
         
@@ -619,6 +646,15 @@ namespace Magpie.Properties {
         }
         
         /// <summary>
+        ///   查找类似 Restore Fullscreen when Source Window Regains Focus 的本地化字符串。
+        /// </summary>
+        public static string UI_Options_Application_Restore_Full_Screen {
+            get {
+                return ResourceManager.GetString("UI_Options_Application_Restore_Full_Screen", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 Run at Startup 的本地化字符串。
         /// </summary>
         public static string UI_Options_Application_Run_At_Startup {
@@ -669,15 +705,6 @@ namespace Magpie.Properties {
         public static string UI_Options_Scale_Cursor {
             get {
                 return ResourceManager.GetString("UI_Options_Scale_Cursor", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   查找类似 Confine the Cursor in 3D Games 的本地化字符串。
-        /// </summary>
-        public static string UI_Options_Scale_Cursor_Confine_In_3D_Games {
-            get {
-                return ResourceManager.GetString("UI_Options_Scale_Cursor_Confine_In_3D_Games", resourceCulture);
             }
         }
         
@@ -808,20 +835,29 @@ namespace Magpie.Properties {
         }
         
         /// <summary>
-        ///   查找类似 Restore Fullscreen when Source Window Regains Focus 的本地化字符串。
+        ///   查找类似 In-Game Overlay 的本地化字符串。
         /// </summary>
-        public static string UI_Options_Scale_Restore_Full_Screen {
+        public static string UI_Options_Scale_Overlay {
             get {
-                return ResourceManager.GetString("UI_Options_Scale_Restore_Full_Screen", resourceCulture);
+                return ResourceManager.GetString("UI_Options_Scale_Overlay", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   查找类似 Show Frame Rate 的本地化字符串。
+        ///   查找类似 Show FPS 的本地化字符串。
         /// </summary>
-        public static string UI_Options_Scale_Show_Frame_Rate {
+        public static string UI_Options_Scale_Overlay_FPS {
             get {
-                return ResourceManager.GetString("UI_Options_Scale_Show_Frame_Rate", resourceCulture);
+                return ResourceManager.GetString("UI_Options_Scale_Overlay_FPS", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 Hotkey 的本地化字符串。
+        /// </summary>
+        public static string UI_Options_Scale_Overlay_Hotkey {
+            get {
+                return ResourceManager.GetString("UI_Options_Scale_Overlay_Hotkey", resourceCulture);
             }
         }
         

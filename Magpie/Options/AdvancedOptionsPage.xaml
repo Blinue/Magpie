@@ -51,14 +51,18 @@
                       Content="{x:Static props:Resources.UI_Options_Advanced_Show_All_Capture_Methods}"
                       Margin="0,10,0,0"
                       IsChecked="{Binding Source={x:Static props:Settings.Default},Path=DebugShowAllCaptureMethods,Mode=TwoWay}" />
-            <CheckBox x:Name="ckbBreakpointMode"
-                      Content="{x:Static props:Resources.UI_Options_Advanced_Breakpoint_Mode}"
+            <CheckBox Content="{x:Static props:Resources.UI_Options_Advanced_Breakpoint_Mode}"
                       Margin="0,15,0,0"
                       IsChecked="{Binding Source={x:Static props:Settings.Default},Path=DebugBreakpointMode,Mode=TwoWay}" />
-            <CheckBox x:Name="ckbDisableEffectCache"
-                      Content="{x:Static props:Resources.UI_Options_Advanced_Disable_Effect_Cache}"
+            <CheckBox Content="{x:Static props:Resources.UI_Options_Advanced_Disable_Effect_Cache}"
                       Margin="0,15,0,0"
                       IsChecked="{Binding Source={x:Static props:Settings.Default},Path=DebugDisableEffectCache,Mode=TwoWay}" />
+            <CheckBox Content="{x:Static props:Resources.UI_Options_Advanced_Save_Effect_Sources}"
+                      Margin="0,15,0,0"
+                      IsChecked="{Binding Source={x:Static props:Settings.Default},Path=DebugSaveEffectSources,Mode=TwoWay}" />
+            <CheckBox Content="{x:Static props:Resources.UI_Options_Advanced_Warnings_Are_Errors}"
+                      Margin="0,15,0,0"
+                      IsChecked="{Binding Source={x:Static props:Settings.Default},Path=DebugWarningsAreErrors,Mode=TwoWay}" />
         </StackPanel>
     </StackPanel>
 </Page>

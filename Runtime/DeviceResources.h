@@ -13,14 +13,26 @@ public:
 
 	static bool IsDebugLayersAvailable();
 
+	winrt::com_ptr<ID3D11Texture2D> CreateTexture2D(
+		DXGI_FORMAT format,
+		UINT width,
+		UINT height,
+		UINT bindFlags,
+		D3D11_USAGE usage = D3D11_USAGE_DEFAULT,
+		UINT miscFlags = 0,
+		const D3D11_SUBRESOURCE_DATA* pInitialData = nullptr
+	);
+
 	bool GetSampler(D3D11_FILTER filterMode, D3D11_TEXTURE_ADDRESS_MODE addressMode, ID3D11SamplerState** result);
 
 	bool GetRenderTargetView(ID3D11Texture2D* texture, ID3D11RenderTargetView** result);
 
 	bool GetShaderResourceView(ID3D11Texture2D* texture, ID3D11ShaderResourceView** result);
 
-	bool CompileShader(bool isVS, std::string_view hlsl, const char* entryPoint,
-		ID3DBlob** blob, const char* sourceName = nullptr, ID3DInclude* include = nullptr);
+	bool GetUnorderedAccessView(ID3D11Texture2D* texture, ID3D11UnorderedAccessView** result);
+
+	bool CompileShader(std::string_view hlsl, const char* entryPoint,
+		ID3DBlob** blob, const char* sourceName = nullptr, ID3DInclude* include = nullptr, const std::vector<std::pair<std::string, std::string>>& macros = {});
 
 	ID3D11Device3* GetD3DDevice() const noexcept { return _d3dDevice.get(); }
 	D3D_FEATURE_LEVEL GetFeatureLevel() const noexcept { return _featureLevel; }
@@ -53,6 +65,7 @@ private:
 
 	std::unordered_map<ID3D11Texture2D*, winrt::com_ptr<ID3D11RenderTargetView>> _rtvMap;
 	std::unordered_map<ID3D11Texture2D*, winrt::com_ptr<ID3D11ShaderResourceView>> _srvMap;
+	std::unordered_map<ID3D11Texture2D*, winrt::com_ptr<ID3D11UnorderedAccessView>> _uavMap;
 
 	std::unordered_map<
 		std::pair<D3D11_FILTER, D3D11_TEXTURE_ADDRESS_MODE>,

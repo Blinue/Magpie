@@ -313,14 +313,14 @@
   <data name="UI_Options_Scale_Adapter" xml:space="preserve">
     <value>Графический адаптер</value>
   </data>
+  <data name="UI_Options_Scale_Adapter_Default" xml:space="preserve">
+    <value>По умолчанию</value>
+  </data>
   <data name="UI_Options_Scale_Adjust_Cursor_Speed" xml:space="preserve">
     <value>Подтянуть скорость указателя при увеличении</value>
   </data>
   <data name="UI_Options_Scale_Cursor" xml:space="preserve">
     <value>Указатель</value>
-  </data>
-  <data name="UI_Options_Scale_Cursor_Confine_In_3D_Games" xml:space="preserve">
-    <value>Ограничить указатель в 3D-играх</value>
   </data>
   <data name="UI_Options_Scale_Cursor_Do_Not_Draw" xml:space="preserve">
     <value>Не рисовать указатель</value>
@@ -339,9 +339,6 @@
   </data>
   <data name="UI_Options_Scale_Cursor_Zoom_Factor" xml:space="preserve">
     <value>Множитель увеличения указателя</value>
-  </data>
-  <data name="UI_Options_Scale_Adapter_Default" xml:space="preserve">
-    <value>По умолчанию</value>
   </data>
   <data name="UI_Options_Scale_Disable_Low_Latency" xml:space="preserve">
     <value>Добавить задержку для повышения производительности</value>
@@ -367,10 +364,10 @@
   <data name="UI_Options_Scale_Open_Scale_Config" xml:space="preserve">
     <value>Открыть конфиг увеличения</value>
   </data>
-  <data name="UI_Options_Scale_Restore_Full_Screen" xml:space="preserve">
+  <data name="UI_Options_Application_Restore_Full_Screen" xml:space="preserve">
     <value>Восстановить полноэкранный режим при фокусе исходного окна</value>
   </data>
-  <data name="UI_Options_Scale_Show_Frame_Rate" xml:space="preserve">
+  <data name="UI_Options_Scale_Overlay_FPS" xml:space="preserve">
     <value>Показать частоту кадров</value>
   </data>
   <data name="UI_Options_Scale_Source_Window" xml:space="preserve">

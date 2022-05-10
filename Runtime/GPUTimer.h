@@ -5,48 +5,77 @@
 // 用于记录帧率和 GPU 时间
 class GPUTimer {
 public:
-	GPUTimer();
+	// 上一帧的渲染时间
+	std::chrono::nanoseconds GetElapsedTime() const noexcept { return _elapsedTime; }
 
-	// Get elapsed time since the previous Update call.
-	double GetElapsedSeconds() const noexcept { return _TicksToSeconds(m_elapsedTicks); }
+	// 经过的总时间
+	std::chrono::nanoseconds GetTotalTime() const noexcept { return _totalTime; }
 
-	// Get total time since the start of the program.
-	double GetTotalSeconds() const noexcept { return _TicksToSeconds(m_totalTicks); }
+	// 经过的总帧数
+	UINT GetFrameCount() const noexcept { return _frameCount; }
 
-	// Get total number of updates since start of the program.
-	uint32_t GetFrameCount() const noexcept { return m_frameCount; }
+	// 上一秒的帧数
+	UINT GetFramesPerSecond() const noexcept { return _framesPerSecond; }
 
-	// Get the current framerate.
-	uint32_t GetFramesPerSecond() const noexcept { return m_framesPerSecond; }
+	// 在每帧开始时调用，用于记录帧率和检索渲染用时
+	void OnBeginFrame();
 
-	// After an intentional timing discontinuity (for instance a blocking IO operation)
-	// call this to avoid having the fixed timestep logic attempt a set of catch-up
-	// Update calls.
+	struct GPUTimings {
+		std::vector<float> passes;
+		// float overlay = 0.0f;
+	};
 
-	void ResetElapsedTime();
+	// 所有元素的处理时间，单位为 ms
+	const GPUTimings& GetGPUTimings() const noexcept {
+		return _gpuTimings;
+	}
 
-	// 在每帧开始时调用，用于记录帧率
-	void BeginFrame();
+	// updateInterval 为更新渲染用时的间隔
+	// 可为 0，即每帧都更新
+	void StartProfiling(std::chrono::microseconds updateInterval, UINT passCount);
+
+	void StopProfiling();
+
+	void OnBeginEffects();
+
+	// 每个通道结束后调用
+	void OnEndPass(UINT idx);
+
+	void OnEndEffects();
 
 private:
-	// Integer format represents time using 10,000,000 ticks per second.
-	static constexpr uint64_t _TICKS_PER_SECOND = 10000000;
+	void _UpdateGPUTimings();
 
-	static constexpr double _TicksToSeconds(uint64_t ticks) noexcept { return static_cast<double>(ticks) / _TICKS_PER_SECOND; }
-	static constexpr uint64_t _SecondsToTicks(double seconds) noexcept { return static_cast<uint64_t>(seconds * _TICKS_PER_SECOND); }
+	std::chrono::time_point<std::chrono::steady_clock> _lastTimePoint;
 
-	// Source timing data uses QPC units.
-	LARGE_INTEGER m_qpcFrequency{};
-	LARGE_INTEGER m_qpcLastTime{};
-	uint64_t m_qpcMaxDelta = 0;
+	std::chrono::nanoseconds _elapsedTime{};
+	std::chrono::nanoseconds _totalTime{};
 
-	// Derived timing data uses a canonical tick format.
-	uint64_t m_elapsedTicks = 0;
-	uint64_t m_totalTicks = 0;
+	UINT _frameCount = 0;
+	UINT _framesPerSecond = 0;
+	UINT _framesThisSecond = 0;
+	std::chrono::nanoseconds _fpsCounter{};
 
-	// Members for tracking the framerate.
-	uint32_t m_frameCount = 0;
-	uint32_t m_framesPerSecond = 0;
-	uint32_t m_framesThisSecond = 0;
-	uint64_t m_qpcSecondCounter = 0;
+	GPUTimings _gpuTimings;
+	// 记录的第一帧首先更新一次，而不是等待更新间隔
+	bool _firstProfilingFrame = true;
+	// 更新渲染用时的间隔
+	std::chrono::nanoseconds _updateProfilingTime{};
+	std::chrono::nanoseconds _profilingCounter{};
+
+	struct _QueryInfo {
+		winrt::com_ptr<ID3D11Query> disjoint;
+		winrt::com_ptr<ID3D11Query> start;
+		std::vector<winrt::com_ptr<ID3D11Query>> passes;
+	};
+	// [(disjoint, [timestamp])]
+	// 允许额外的延迟时需保存两帧的数据
+	std::array<_QueryInfo, 2> _queries;
+	// -1：无需统计渲染时间
+	// 否则为当前帧在 _queries 中的位置
+	int _curQueryIdx = -1;
+
+	// 用于保存渲染时间
+	// (总计用时, 已统计帧数)
+	std::vector<std::pair<float, UINT>> _passesTimings;
 };

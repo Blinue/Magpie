@@ -8,6 +8,7 @@ namespace Magpie {
 	internal class NativeMethods {
 		public static readonly int MAGPIE_WM_SHOWME = RegisterWindowMessage("WM_SHOWME");
 		public static readonly int MAGPIE_WM_DESTORYHOST = RegisterWindowMessage("MAGPIE_WM_DESTORYHOST");
+		public static readonly int MAGPIE_WM_TOGGLE_OVERLAY = RegisterWindowMessage("MAGPIE_WM_TOGGLE_OVERLAY");
 		public static readonly int SW_NORMAL = 1;
 
 		[DllImport("user32", CharSet = CharSet.Unicode)]

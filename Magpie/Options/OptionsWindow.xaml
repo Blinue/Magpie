@@ -7,7 +7,8 @@
         xmlns:p="clr-namespace:Magpie.Properties;assembly=Magpie"
         mc:Ignorable="d"
         Icon="{DynamicResource Logo}"
-        Title="{x:Static p:Resources.UI_Options_Title}" Height="400" Width="650" Deactivated="Window_Deactivated">
+        Title="{x:Static p:Resources.UI_Options_Title}" Height="400" Width="650" Deactivated="Window_Deactivated"
+        KeyDown="Window_KeyDown">
     <DockPanel>
         <ListBox x:Name="lbxOptionsPage" Margin="0" SelectionChanged="LxbOptionsPage_SelectionChanged" Padding="0" BorderThickness="0,0,1,0" Grid.IsSharedSizeScope="True">
             <ListBox.Resources>
