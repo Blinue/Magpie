@@ -140,13 +140,7 @@
     <CopyFileToFolders Include="Anime4K_Upscale_S.hlsl">
       <FileType>Document</FileType>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="Anime4K_Upscale_S_Lite.hlsl">
-      <FileType>Document</FileType>
-    </CopyFileToFolders>
     <CopyFileToFolders Include="Bicubic.hlsl">
-      <FileType>Document</FileType>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="Bicubic_Lite.hlsl">
       <FileType>Document</FileType>
     </CopyFileToFolders>
     <CopyFileToFolders Include="CAS.hlsl">
@@ -179,7 +173,7 @@
     <CopyFileToFolders Include="Lanczos.hlsl">
       <FileType>Document</FileType>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="Linear.hlsl">
+    <CopyFileToFolders Include="Bilinear.hlsl">
       <FileType>Document</FileType>
     </CopyFileToFolders>
     <CopyFileToFolders Include="Nearest.hlsl">
@@ -228,9 +222,6 @@
       <FileType>Document</FileType>
     </CopyFileToFolders>
     <CopyFileToFolders Include="xBRZ_Freescale.hlsl">
-      <FileType>Document</FileType>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="xBRZ_Freescale_MultiPass.hlsl">
       <FileType>Document</FileType>
     </CopyFileToFolders>
   </ItemGroup>
@@ -310,7 +301,32 @@
     </CopyFileToFolders>
   </ItemGroup>
   <ItemGroup>
-    <CopyFileToFolders Include="FSR_EASU_DX10.hlsl">
+    <CopyFileToFolders Include="LCAS.hlsl">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+  </ItemGroup>
+  <ItemGroup>
+    <CopyFileToFolders Include="CatmullRom.hlsl">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+  </ItemGroup>
+  <ItemGroup>
+    <CopyFileToFolders Include="CAS_Scaling.hlsl">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+  </ItemGroup>
+  <ItemGroup>
+    <CopyFileToFolders Include="MMPX.hlsl">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+  </ItemGroup>
+  <ItemGroup>
+    <CopyFileToFolders Include="NNEDI3_nns16_win8x4.hlsl">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+  </ItemGroup>
+  <ItemGroup>
+    <CopyFileToFolders Include="NNEDI3_nns64_win8x6.hlsl">
       <FileType>Document</FileType>
     </CopyFileToFolders>
   </ItemGroup>

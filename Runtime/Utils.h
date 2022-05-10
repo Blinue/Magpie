@@ -3,38 +3,19 @@
 #include <bcrypt.h>
 
 
-extern std::shared_ptr<spdlog::logger> logger;
-
-
 struct Utils {
-	static UINT GetWindowShowCmd(HWND hwnd) {
-		assert(hwnd != NULL);
-
-		WINDOWPLACEMENT wp{};
-		wp.length = sizeof(wp);
-		if (!GetWindowPlacement(hwnd, &wp)) {
-			SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("GetWindowPlacement 出错"));
-			assert(false);
-		}
-
-		return wp.showCmd;
-	}
+	static UINT GetWindowShowCmd(HWND hwnd);
 
 	static bool GetClientScreenRect(HWND hWnd, RECT& rect);
 
-	static bool GetWindowFrameRect(HWND hWnd, RECT& result) {
-		HRESULT hr = DwmGetWindowAttribute(hWnd,
-			DWMWA_EXTENDED_FRAME_BOUNDS, &result, sizeof(result));
-		if (FAILED(hr)) {
-			SPDLOG_LOGGER_ERROR(logger, MakeComErrorMsg("DwmGetWindowAttribute 失败", hr));
-			return false;
-		}
+	static bool GetWindowFrameRect(HWND hWnd, RECT& result);
 
-		return true;
+	static bool CheckOverlap(const RECT& r1, const RECT& r2) noexcept {
+		return r1.right > r2.left && r1.bottom > r2.top && r1.left < r2.right&& r1.top < r2.bottom;
 	}
 
-	static bool CheckOverlap(const RECT& r1, const RECT& r2) {
-		return r1.right > r2.left && r1.bottom > r2.top && r1.left < r2.right&& r1.top < r2.bottom;
+	static SIZE GetSizeOfRect(const RECT& rect) noexcept {
+		return { rect.right - rect.left, rect.bottom - rect.top };
 	}
 
 	// 单位为微秒
@@ -55,20 +36,20 @@ struct Utils {
 
 	static bool WriteFile(const wchar_t* fileName, const void* buffer, size_t bufferSize);
 
-	static bool FileExists(const wchar_t* fileName) {
-		DWORD attrs = GetFileAttributesW(fileName);
+	static bool FileExists(const wchar_t* fileName) noexcept {
+		DWORD attrs = GetFileAttributes(fileName);
 		// 排除文件夹
 		return (attrs != INVALID_FILE_ATTRIBUTES) && !(attrs & FILE_ATTRIBUTE_DIRECTORY);
 	}
 
-	static bool DirExists(const wchar_t* fileName) {
-		DWORD attrs = GetFileAttributesW(fileName);
+	static bool DirExists(const wchar_t* fileName) noexcept {
+		DWORD attrs = GetFileAttributes(fileName);
 		return (attrs != INVALID_FILE_ATTRIBUTES) && (attrs & FILE_ATTRIBUTE_DIRECTORY);
 	}
 
-	static const RTL_OSVERSIONINFOW& GetOSVersion();
+	static const RTL_OSVERSIONINFOW& GetOSVersion() noexcept;
 
-	static int CompareVersion(int major1, int minor1, int build1, int major2, int minor2, int build2) {
+	static int CompareVersion(int major1, int minor1, int build1, int major2, int minor2, int build2) noexcept {
 		if (major1 != major2) {
 			return major1 - major2;
 		}
@@ -80,24 +61,53 @@ struct Utils {
 		}
 	}
 
-	static std::string Bin2Hex(BYTE* data, size_t len);
+	static std::string Bin2Hex(std::span<const BYTE> data);
+
+	// CRITICAL_SECTION 的封装，满足基本可锁定要求（BasicLockable）
+	// 因此可用于 std::scoped_lock 等
+	class CSMutex {
+	public:
+		CSMutex() noexcept {
+			InitializeCriticalSectionEx(&_cs, 4000, CRITICAL_SECTION_NO_DEBUG_INFO);
+		}
+
+		~CSMutex() noexcept {
+			DeleteCriticalSection(&_cs);
+		}
+
+		void lock() noexcept {
+			EnterCriticalSection(&_cs);
+		}
+
+		void unlock() noexcept {
+			LeaveCriticalSection(&_cs);
+		}
+
+		CRITICAL_SECTION* get() noexcept {
+			return &_cs;
+		}
+	private:
+		CRITICAL_SECTION _cs{};
+	};
 
 	class Hasher {
 	public:
-		static Hasher& GetInstance() {
+		static Hasher& Get() noexcept {
 			static Hasher instance;
 			return instance;
 		}
 
 		bool Initialize();
 
-		bool Hash(void* data, size_t len, std::vector<BYTE>& result);
+		bool Hash(std::span<const BYTE> data, std::vector<BYTE>& result);
 
-		DWORD GetHashLength() {
+		DWORD GetHashLength() noexcept {
 			return _hashLen;
 		}
 	private:
 		~Hasher();
+
+		CSMutex _cs;	// 同步对 Hash() 的访问
 
 		BCRYPT_ALG_HANDLE _hAlg = NULL;
 		DWORD _hashObjLen = 0;		// hash 对象的大小
@@ -124,4 +134,32 @@ struct Utils {
 	using ScopedHandle = std::unique_ptr<std::remove_pointer<HANDLE>::type, HandleCloser>;
 
 	static HANDLE SafeHandle(HANDLE h) noexcept { return (h == INVALID_HANDLE_VALUE) ? nullptr : h; }
+
+	// 并行执行 times 次 func，并行失败时回退到单线程
+	// 执行完毕后返回
+	static void RunParallel(std::function<void(UINT)> func, UINT times);
+
+	static bool ZstdCompress(std::span<const BYTE> src, std::vector<BYTE>& dest, int compressionLevel);
+	static bool ZstdDecompress(std::span<const BYTE> src, std::vector<BYTE>& dest);
+
+	static bool IsStartMenu(HWND hwnd);
+
+	// 强制切换前台窗口
+	static bool SetForegroundWindow(HWND hWnd);
 };
+
+namespace std {
+
+// std::hash 的 std::pair 特化
+template<typename T1, typename T2>
+struct hash<std::pair<T1, T2>> {
+	typedef std::pair<T1, T2> argument_type;
+	typedef std::size_t result_type;
+	result_type operator()(argument_type const& s) const noexcept {
+		result_type const h1(std::hash<T1>()(s.first));
+		result_type const h2(std::hash<T2>{}(s.second));
+		return h1 ^ (h2 << 1);
+	}
+};
+
+}

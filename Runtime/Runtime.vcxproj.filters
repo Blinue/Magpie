@@ -10,16 +10,10 @@
     <ClCompile Include="GDIFrameSource.cpp">
       <Filter>捕获</Filter>
     </ClCompile>
-    <ClCompile Include="CursorDrawer.cpp">
-      <Filter>渲染</Filter>
-    </ClCompile>
-    <ClCompile Include="FrameRateDrawer.cpp">
-      <Filter>渲染</Filter>
-    </ClCompile>
     <ClCompile Include="Renderer.cpp">
       <Filter>渲染</Filter>
     </ClCompile>
-    <ClCompile Include="StepTimer.cpp">
+    <ClCompile Include="GPUTimer.cpp">
       <Filter>渲染</Filter>
     </ClCompile>
     <ClCompile Include="App.cpp">
@@ -37,19 +31,7 @@
     <ClCompile Include="StrUtils.cpp">
       <Filter>应用程序</Filter>
     </ClCompile>
-    <ClCompile Include="EffectDrawer.cpp">
-      <Filter>渲染</Filter>
-    </ClCompile>
     <ClCompile Include="EffectCompiler.cpp">
-      <Filter>渲染</Filter>
-    </ClCompile>
-    <ClCompile Include="EffectCache.cpp">
-      <Filter>渲染</Filter>
-    </ClCompile>
-    <ClCompile Include="EffectDesc.cpp">
-      <Filter>渲染</Filter>
-    </ClCompile>
-    <ClCompile Include="TextureLoader.cpp">
       <Filter>渲染</Filter>
     </ClCompile>
     <ClCompile Include="FrameSourceBase.cpp">
@@ -61,11 +43,38 @@
     <ClCompile Include="ExclModeHack.cpp">
       <Filter>应用程序</Filter>
     </ClCompile>
+    <ClCompile Include="DeviceResources.cpp">
+      <Filter>渲染</Filter>
+    </ClCompile>
+    <ClCompile Include="OverlayDrawer.cpp">
+      <Filter>渲染</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui_impl_dx11.cpp">
+      <Filter>渲染\ImGUI</Filter>
+    </ClCompile>
+    <ClCompile Include="Logger.cpp">
+      <Filter>应用程序</Filter>
+    </ClCompile>
+    <ClCompile Include="CursorManager.cpp">
+      <Filter>渲染</Filter>
+    </ClCompile>
+    <ClCompile Include="EffectDrawer.cpp">
+      <Filter>渲染</Filter>
+    </ClCompile>
+    <ClCompile Include="TextureLoader.cpp">
+      <Filter>渲染\TextureLodader</Filter>
+    </ClCompile>
+    <ClCompile Include="EffectCacheManager.cpp">
+      <Filter>渲染</Filter>
+    </ClCompile>
+    <ClCompile Include="Config.cpp">
+      <Filter>应用程序</Filter>
+    </ClCompile>
+    <ClCompile Include="ImGuiImpl.cpp">
+      <Filter>渲染\ImGUI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="resource.h">
-      <Filter>资源文件</Filter>
-    </ClInclude>
     <ClInclude Include="GraphicsCaptureFrameSource.h">
       <Filter>捕获</Filter>
     </ClInclude>
@@ -78,16 +87,10 @@
     <ClInclude Include="GDIFrameSource.h">
       <Filter>捕获</Filter>
     </ClInclude>
-    <ClInclude Include="CursorDrawer.h">
-      <Filter>渲染</Filter>
-    </ClInclude>
-    <ClInclude Include="FrameRateDrawer.h">
-      <Filter>渲染</Filter>
-    </ClInclude>
     <ClInclude Include="Renderer.h">
       <Filter>渲染</Filter>
     </ClInclude>
-    <ClInclude Include="StepTimer.h">
+    <ClInclude Include="GPUTimer.h">
       <Filter>渲染</Filter>
     </ClInclude>
     <ClInclude Include="App.h">
@@ -102,28 +105,16 @@
     <ClInclude Include="ErrorMessages.h">
       <Filter>应用程序</Filter>
     </ClInclude>
-    <ClInclude Include="framework.h">
-      <Filter>应用程序</Filter>
-    </ClInclude>
     <ClInclude Include="pch.h">
       <Filter>应用程序</Filter>
     </ClInclude>
     <ClInclude Include="StrUtils.h">
       <Filter>应用程序</Filter>
     </ClInclude>
-    <ClInclude Include="EffectDrawer.h">
-      <Filter>渲染</Filter>
-    </ClInclude>
     <ClInclude Include="EffectDesc.h">
       <Filter>渲染</Filter>
     </ClInclude>
     <ClInclude Include="EffectCompiler.h">
-      <Filter>渲染</Filter>
-    </ClInclude>
-    <ClInclude Include="EffectCache.h">
-      <Filter>渲染</Filter>
-    </ClInclude>
-    <ClInclude Include="TextureLoader.h">
       <Filter>渲染</Filter>
     </ClInclude>
     <ClInclude Include="DesktopDuplicationFrameSource.h">
@@ -132,12 +123,48 @@
     <ClInclude Include="ExclModeHack.h">
       <Filter>应用程序</Filter>
     </ClInclude>
+    <ClInclude Include="DeviceResources.h">
+      <Filter>渲染</Filter>
+    </ClInclude>
+    <ClInclude Include="OverlayDrawer.h">
+      <Filter>渲染</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui_impl_dx11.h">
+      <Filter>渲染\ImGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="Logger.h">
+      <Filter>应用程序</Filter>
+    </ClInclude>
+    <ClInclude Include="CursorManager.h">
+      <Filter>渲染</Filter>
+    </ClInclude>
+    <ClInclude Include="EffectDrawer.h">
+      <Filter>渲染</Filter>
+    </ClInclude>
+    <ClInclude Include="DDS.h">
+      <Filter>渲染\TextureLodader</Filter>
+    </ClInclude>
+    <ClInclude Include="DDSLoderHelpers.h">
+      <Filter>渲染\TextureLodader</Filter>
+    </ClInclude>
+    <ClInclude Include="TextureLoader.h">
+      <Filter>渲染\TextureLodader</Filter>
+    </ClInclude>
+    <ClInclude Include="EffectCacheManager.h">
+      <Filter>渲染</Filter>
+    </ClInclude>
+    <ClInclude Include="Config.h">
+      <Filter>应用程序</Filter>
+    </ClInclude>
+    <ClInclude Include="ImGuiImpl.h">
+      <Filter>渲染\ImGUI</Filter>
+    </ClInclude>
+    <ClInclude Include="WindowsMessages.h">
+      <Filter>应用程序</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />
-    <None Include="assets\OpenSans.spritefont">
-      <Filter>资源文件</Filter>
-    </None>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
@@ -153,6 +180,12 @@
     <Filter Include="应用程序">
       <UniqueIdentifier>{03b14d85-c703-4e07-94ac-d7ef17b18cf1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="渲染\ImGUI">
+      <UniqueIdentifier>{ef35c9fa-9c8f-4e2d-ad82-8b4325837b1b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="渲染\TextureLodader">
+      <UniqueIdentifier>{b749971a-72bd-48bb-9e78-9ae7fc2438d7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Runtime.rc">
@@ -161,5 +194,10 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="conanfile.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <CopyFileToFolders Include="NotoSansSC-Regular.otf">
+      <Filter>资源文件</Filter>
+    </CopyFileToFolders>
   </ItemGroup>
 </Project>

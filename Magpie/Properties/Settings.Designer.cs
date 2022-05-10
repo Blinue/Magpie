@@ -12,7 +12,7 @@ namespace Magpie.Properties {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "17.0.3.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "17.1.0.0")]
     internal sealed partial class Settings : global::System.Configuration.ApplicationSettingsBase {
         
         private static Settings defaultInstance = ((Settings)(global::System.Configuration.ApplicationSettingsBase.Synchronized(new Settings())));
@@ -44,18 +44,6 @@ namespace Magpie.Properties {
             }
             set {
                 this["ScaleMode"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool ShowFPS {
-            get {
-                return ((bool)(this["ShowFPS"]));
-            }
-            set {
-                this["ShowFPS"] = value;
             }
         }
         
@@ -278,21 +266,21 @@ namespace Magpie.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool ConfineCursorIn3DGames {
+        public bool Is3DMode {
             get {
-                return ((bool)(this["ConfineCursorIn3DGames"]));
+                return ((bool)(this["Is3DMode"]));
             }
             set {
-                this["ConfineCursorIn3DGames"] = value;
+                this["Is3DMode"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("0")]
-        public uint AdapterIdx {
+        [global::System.Configuration.DefaultSettingValueAttribute("-1")]
+        public int AdapterIdx {
             get {
-                return ((uint)(this["AdapterIdx"]));
+                return ((int)(this["AdapterIdx"]));
             }
             set {
                 this["AdapterIdx"] = value;
@@ -416,6 +404,66 @@ namespace Magpie.Properties {
             }
             set {
                 this["CustomCropping"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool VSync {
+            get {
+                return ((bool)(this["VSync"]));
+            }
+            set {
+                this["VSync"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool DebugSaveEffectSources {
+            get {
+                return ((bool)(this["DebugSaveEffectSources"]));
+            }
+            set {
+                this["DebugSaveEffectSources"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool DebugWarningsAreErrors {
+            get {
+                return ((bool)(this["DebugWarningsAreErrors"]));
+            }
+            set {
+                this["DebugWarningsAreErrors"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Control+Alt+D")]
+        public string OverlayHotkey {
+            get {
+                return ((string)(this["OverlayHotkey"]));
+            }
+            set {
+                this["OverlayHotkey"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool ShowFPS {
+            get {
+                return ((bool)(this["ShowFPS"]));
+            }
+            set {
+                this["ShowFPS"] = value;
             }
         }
     }

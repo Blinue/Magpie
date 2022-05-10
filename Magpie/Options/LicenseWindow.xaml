@@ -8,15 +8,20 @@
         xmlns:resx="clr-namespace:Magpie.Properties"
         mc:Ignorable="d"
         Icon="{DynamicResource Logo}"
-        Title="{x:Static p:Resources.UI_Options_About_Licenses_Title}" Height="400" Width="550" ResizeMode="NoResize">
+        Title="{x:Static p:Resources.UI_Options_About_Licenses_Title}" Height="400" Width="550" ResizeMode="NoResize"
+        KeyDown="Window_KeyDown">
     <Grid Margin="10">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="171*"/>
+            <ColumnDefinition Width="359*"/>
+        </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
-        <TextBlock Text="{x:Static p:Resources.UI_Options_About_Licenses_Header}" />
-        <TextBox x:Name="tbLicenses" VerticalScrollBarVisibility="Auto" UndoLimit="0" Grid.Row="1" AllowDrop="False" IsTabStop="False" Margin="0,10,0,0" TextWrapping="Wrap" IsUndoEnabled="False" IsReadOnly="True" />
-        <Button Content="{x:Static p:Resources.UI_Options_About_Licenses_Close}" Grid.Row="2" HorizontalAlignment="Right" Margin="0,10,0,0" Padding="10,5" IsDefault="True" Click="BtnOK_Click" />
+        <TextBlock Text="{x:Static p:Resources.UI_Options_About_Licenses_Header}" Grid.ColumnSpan="2" />
+        <TextBox x:Name="tbLicenses" VerticalScrollBarVisibility="Auto" UndoLimit="0" Grid.Row="1" AllowDrop="False" IsTabStop="False" Margin="0,10,0,37" TextWrapping="Wrap" IsUndoEnabled="False" IsReadOnly="True" Grid.ColumnSpan="2" Grid.RowSpan="2" />
+        <Button Content="{x:Static p:Resources.UI_Options_About_Licenses_Close}" Grid.Row="2" HorizontalAlignment="Right" Margin="0,10,0,0" Padding="10,5" IsDefault="True" Click="BtnOK_Click" Grid.Column="1" />
     </Grid>
 </Window>

@@ -33,7 +33,7 @@ namespace Magpie {
 	/// Interaction logic for App.xaml
 	/// </summary>
 	public partial class App : Application {
-		public static readonly Version APP_VERSION = new("0.8.1.0");
+		public static readonly Version APP_VERSION = new("0.9.0.0");
 		public static readonly string SCALE_MODELS_JSON_PATH = ".\\ScaleModels.json";
 		public static readonly string LOGS_FOLDER = ".\\logs\\";
 

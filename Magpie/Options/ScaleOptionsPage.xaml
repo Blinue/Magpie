@@ -19,15 +19,28 @@
                 HorizontalAlignment="Left" Click="BtnOpenScaleConfig_Click"/>
         <StackPanel Orientation="Horizontal" Margin="0,15,0,0" >
             <Label Content="{x:Static props:Resources.UI_Options_Scale_Adapter}" Padding="0" VerticalContentAlignment="Center" />
-            <ComboBox x:Name="cbbAdapter" Margin="10,0,0,0" SelectedIndex="{Binding Source={x:Static props:Settings.Default},Path=AdapterIdx,Mode=TwoWay}" />
+            <ComboBox x:Name="cbbAdapter" Margin="10,0,0,0" SelectionChanged="CbbAdapter_SelectionChanged" />
         </StackPanel>
-        <CheckBox Content="{x:Static props:Resources.UI_Options_Scale_Show_Frame_Rate}"
-                  Margin="0,15,0,0"
-                  IsChecked="{Binding Source={x:Static props:Settings.Default},Path=ShowFPS,Mode=TwoWay}"/>
-        <CheckBox Content="{x:Static props:Resources.UI_Options_Scale_Disable_Low_Latency}"
-                  Margin="0,10,0,0"
-                  IsChecked="{Binding Source={x:Static props:Settings.Default},Path=DisableLowLatency,Mode=TwoWay}" />
         
+        <CheckBox x:Name="ckbVSync" Content="{x:Static props:Resources.UI_Options_Scale_VSync}"
+                  Margin="0,10,0,0"
+                  IsChecked="{Binding Source={x:Static props:Settings.Default},Path=VSync,Mode=TwoWay}" />
+        <CheckBox Content="{x:Static props:Resources.UI_Options_Scale_Disable_Low_Latency}"
+                  Margin="15,10,0,0"
+                  IsChecked="{Binding Source={x:Static props:Settings.Default},Path=DisableLowLatency,Mode=TwoWay}"
+                  IsEnabled="{Binding ElementName=ckbVSync, Path=IsChecked,Mode=OneWay}" />
+
+        <StackPanel Margin="0,20,0,0">
+            <Label Content="{x:Static props:Resources.UI_Options_Scale_Overlay}" FontWeight="Bold" Padding="0" FontSize="15" />
+            <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                <Label Content="{x:Static props:Resources.UI_Options_Scale_Overlay_Hotkey}" Padding="0" VerticalContentAlignment="Center" />
+                <TextBox x:Name="txtOverlayHotkey" Margin="10,0" Padding="1,3" Width="150" TextChanged="TxtOverlayHotkey_TextChanged"/>
+            </StackPanel>
+            <CheckBox Content="{x:Static props:Resources.UI_Options_Scale_Overlay_FPS}"
+                  Margin="0,10,0,0"
+                  IsChecked="{Binding Source={x:Static props:Settings.Default},Path=ShowFPS,Mode=TwoWay}"/>
+        </StackPanel>
+
         <StackPanel x:Name="spMutliMonitorUsage" Margin="0,20,0,0">
             <Label Content="{x:Static props:Resources.UI_Options_Scale_Multiple_Monitors}" FontWeight="Bold" Padding="0" FontSize="15" />
             <RadioButton GroupName="Monitors" 
@@ -49,9 +62,6 @@
             <CheckBox Content="{x:Static props:Resources.UI_Options_Scale_Adjust_Cursor_Speed}" 
                       Margin="0,15,0,0" 
                       IsChecked="{Binding Source={x:Static props:Settings.Default},Path=AdjustCursorSpeed,Mode=TwoWay}"/>
-            <CheckBox Content="{x:Static props:Resources.UI_Options_Scale_Cursor_Confine_In_3D_Games}"
-                      Margin="0,15,0,0" 
-                      IsChecked="{Binding Source={x:Static props:Settings.Default},Path=ConfineCursorIn3DGames,Mode=TwoWay}"/>
             <StackPanel Orientation="Horizontal" Margin="0,15,0,0">
                 <Label Content="{x:Static props:Resources.UI_Options_Scale_Cursor_Zoom_Factor}" Padding="0" VerticalContentAlignment="Center" />
                 <ComboBox x:Name="cbbCursorZoomFactor" Margin="10,0,0,0" SelectionChanged="CbbCursorZoomFactor_SelectionChanged" />
@@ -63,38 +73,6 @@
                     <ComboBoxItem Content="{x:Static props:Resources.UI_Options_Scale_Cursor_Interpolation_Mode_Bilinear}" />
                 </ComboBox>
             </StackPanel>
-        </StackPanel>
-
-        <StackPanel Margin="0,20,0,0">
-            <Label Content="{x:Static props:Resources.UI_Options_Scale_Frame_Rate}" FontWeight="Bold" Padding="0" FontSize="15" />
-            <RadioButton GroupName="FrameRate" 
-                         IsChecked="{Binding Source={x:Static props:Settings.Default},Path=FrameRateType, Converter={StaticResource radioBoolToUIntConverter},ConverterParameter=0,Mode=TwoWay}" 
-                         Content="{x:Static props:Resources.UI_Options_Scale_VSync}" Margin="0,10,0,0" />
-            <RadioButton GroupName="FrameRate" 
-                         IsChecked="{Binding Source={x:Static props:Settings.Default},Path=FrameRateType, Converter={StaticResource radioBoolToUIntConverter},ConverterParameter=1,Mode=TwoWay}" 
-                         Content="{x:Static props:Resources.UI_Options_Scale_Frame_Rate_Not_Limited}" Margin="0,10,0,0" />
-            <Grid Margin="0,10,0,0">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="*" MaxWidth="250" />
-                    <ColumnDefinition Width="Auto" />
-                </Grid.ColumnDefinitions>
-
-                <RadioButton x:Name="rdbLimitFrameRate" GroupName="FrameRate" 
-                             Grid.Column="0"
-                             IsChecked="{Binding Source={x:Static props:Settings.Default},Path=FrameRateType, Converter={StaticResource radioBoolToUIntConverter},ConverterParameter=2,Mode=TwoWay}" 
-                             Content="{x:Static props:Resources.UI_Options_Scale_Frame_Rate_Limiter}" VerticalAlignment="Center"  />
-                <Slider x:Name="sldFrameRate"
-                        Grid.Column="1"
-                        IsEnabled="{Binding ElementName=rdbLimitFrameRate, Path=IsChecked,Mode=OneWay}" 
-                        Value="{Binding Source={x:Static props:Settings.Default},Path=FrameRateLimit,Mode=TwoWay}" 
-                        Minimum="30" Maximum="144" LargeChange="10" SmallChange="5" Margin="10,0,0,0" 
-                        TickFrequency="1" IsSnapToTickEnabled="True" HorizontalAlignment="Stretch" />
-                <Label IsEnabled="{Binding ElementName=rdbLimitFrameRate, Path=IsChecked,Mode=OneWay}"
-                       Grid.Column="2"
-                       Content="{Binding ElementName=sldFrameRate,Path=Value,Mode=OneWay}"
-                       Padding="0" Margin="10,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Center" />
-            </Grid>
         </StackPanel>
     </StackPanel>
 </Page>

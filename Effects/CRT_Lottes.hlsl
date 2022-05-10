@@ -17,98 +17,75 @@
 
 
 //!MAGPIE EFFECT
-//!VERSION 1
+//!VERSION 2
 
-
-//!CONSTANT
-//!VALUE INPUT_WIDTH
-float inputWidth;
-
-//!CONSTANT
-//!VALUE INPUT_HEIGHT
-float inputHeight;
-
-//!CONSTANT
-//!VALUE OUTPUT_WIDTH
-float outputWidth;
-
-//!CONSTANT
-//!VALUE OUTPUT_HEIGHT
-float outputHeight;
-
-//!CONSTANT
+//!PARAMETER
 //!DEFAULT -8
 //!MIN -20
 //!MAX 0
 int hardScan;
 
-//!CONSTANT
+//!PARAMETER
 //!DEFAULT -3
 //!MIN -20
 //!MAX 0
 int hardPix;
 
-//!CONSTANT
+//!PARAMETER
 //!DEFAULT 0.031
 //!MIN 0
 //!MAX 0.125
 float warpX;
 
-//!CONSTANT
+//!PARAMETER
 //!DEFAULT 0.041
 //!MIN 0
 //!MAX 0.125
 float warpY;
 
-//!CONSTANT
+//!PARAMETER
 //!DEFAULT 0.5
 //!MIN 0
 //!MAX 2
 float maskDark;
 
-//!CONSTANT
+//!PARAMETER
 //!DEFAULT 1.5
 //!MIN 0
 //!MAX 2
 float maskLight;
 
-//!CONSTANT
-//!DEFAULT 1
-//!MIN 0
-//!MAX 1
-int scaleInLinearGamma;
-
-//!CONSTANT
+//!PARAMETER
 //!DEFAULT 3
 //!MIN 0
 //!MAX 4
 int shadowMask;
 
-//!CONSTANT
+//!PARAMETER
 //!DEFAULT 1
 //!MIN 0
 //!MAX 2
 float brightBoost;
 
-//!CONSTANT
+//!PARAMETER
 //!DEFAULT -1.5
 //!MIN -2
 //!MAX -0.5
 float hardBloomPix;
 
-//!CONSTANT
+//!PARAMETER
 //!DEFAULT -2
 //!MIN -4
 //!MAX -1
 float hardBloomScan;
 
-//!CONSTANT
+//!PARAMETER
 //!DEFAULT 0.15
 //!MIN 0
 //!MAX 1
 float bloomAmount;
 
-//!CONSTANT
+//!PARAMETER
 //!DEFAULT 2
 //!MIN 0
 //!MAX 10
@@ -124,59 +101,21 @@ SamplerState sam;
 
 
 //!PASS 1
-//!BIND INPUT
+//!IN INPUT
+//!BLOCK_SIZE 8
+//!NUM_THREADS 64
 
-// Uncomment to reduce instructions with simpler linearization (fixes HD3000 Sandy Bridge IGP)
-// #define SIMPLE_LINEAR_GAMMA
+#pragma warning(disable: 3571) // X3571: pow(f, e) will not work for negative f, use abs(f) or conditionally handle negative values if you expect them
+
 #define DO_BLOOM 1
-
 #define warp float2(warpX, warpY)
 
-// sRGB to Linear.
-// Assuing using sRGB typed textures this should not be needed.
-#ifdef SIMPLE_LINEAR_GAMMA
-float ToLinear1(float c) {
-	return c;
-}
-float3 ToLinear(float3 c) {
-	return c;
-}
-
-float3 ToSrgb(float3 c) {
-	return pow(c, 1.0 / 2.2);
-}
-#else
-float ToLinear1(float c) {
-	if (scaleInLinearGamma == 0) return c;
-	return(c <= 0.04045) ? c / 12.92 : pow((c + 0.055) / 1.055, 2.4);
-}
-float3 ToLinear(float3 c) {
-	if (scaleInLinearGamma == 0) return c;
-	return float3(ToLinear1(c.r), ToLinear1(c.g), ToLinear1(c.b));
-}
-
-// Linear to sRGB.
-// Assuming using sRGB typed textures this should not be needed.
-float ToSrgb1(float c) {
-	if (scaleInLinearGamma == 0) return c;
-	return(c < 0.0031308 ? c * 12.92 : 1.055 * pow(c, 0.41666) - 0.055);
-}
-
-float3 ToSrgb(float3 c) {
-	if (scaleInLinearGamma == 0) return c;
-	return float3(ToSrgb1(c.r), ToSrgb1(c.g), ToSrgb1(c.b));
-}
-#endif
 
 // Nearest emulated sample given floating point position and texel offset.
 // Also zero's off screen.
 float3 Fetch(float2 pos, float2 off, float2 texture_size) {
 	pos = (floor(pos * texture_size.xy + off) + float2(0.5, 0.5)) / texture_size.xy;
-#ifdef SIMPLE_LINEAR_GAMMA
-	return ToLinear(brightBoost * pow(INPUT.Sample(sam, pos).rgb, 2.2));
-#else
-	return ToLinear(brightBoost * INPUT.Sample(sam, pos).rgb);
-#endif
+	return brightBoost * pow(INPUT.SampleLevel(sam, pos, 0).rgb, 2.2f);
 }
 
 // Distance in emulated pixels to nearest texel.
@@ -338,17 +277,25 @@ float3 Mask(float2 pos) {
 	return mask;
 }
 
-float4 Pass1(float2 pos) {
+void Pass1(uint2 blockStart, uint3 threadId) {
+	uint2 gxy = Rmp8x8(threadId.x) + blockStart;
+	if (!CheckViewport(gxy)) {
+		return;
+	}
+
+	float2 pos = (gxy + 0.5f) * GetOutputPt();
+
+	uint2 inputSize = GetInputSize();
 	float2 pos1 = Warp(pos);
-	float3 outColor = Tri(pos1, float2(inputWidth, inputHeight));
+	float3 outColor = Tri(pos1, inputSize);
 
 #ifdef DO_BLOOM
 	//Add Bloom
-	outColor.rgb += Bloom(pos1, float2(inputWidth, inputHeight)) * bloomAmount;
+	outColor.rgb += Bloom(pos1, inputSize) * bloomAmount;
 #endif
 
 	if (shadowMask)
-		outColor.rgb *= Mask(floor(pos * float2(outputWidth, outputHeight)) + 0.5);
+		outColor.rgb *= Mask(gxy + 0.5f);
 
-	return float4(ToSrgb(outColor.rgb), 1.0);
+	WriteToOutput(gxy, pow(outColor.rgb, 1.0f / 2.2f));
 }

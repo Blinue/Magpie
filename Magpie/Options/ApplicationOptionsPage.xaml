@@ -24,8 +24,7 @@
 
         <Label Name="lblRestartToApply1" Padding="10,10,0,0" Foreground="#FF318EBF" Visibility="Collapsed" />
         <CheckBox x:Name="ckbRunAtStartUp" Content="{x:Static p:Resources.UI_Options_Application_Run_At_Startup}" Margin="0,15,0,0" Unchecked="CkbRunAtStartUp_Unchecked"/>
-        <CheckBox
-                x:Name="ckbMinimizeAtStartUp"
+        <CheckBox x:Name="ckbMinimizeAtStartUp"
                 Content="{x:Static p:Resources.UI_Options_Application_Minimize_To_System_Tray}"
                 Margin="15,10,0,0"
                 Unchecked="CkbMinimizeAtStartUp_Unchecked"
@@ -43,9 +42,12 @@
                 IsChecked="{Binding Source={x:Static props:Settings.Default},Path=RunAsAdmin,Mode=TwoWay}" />
         <Label Name="lblRestartToApply2" Content="{x:Static p:Resources.UI_Options_Common_Restart_To_Apply}" Padding="10,10,0,0" Foreground="#FF318EBF" Visibility="Collapsed" />
 
-        <CheckBox Content="{x:Static props:Resources.UI_Options_Scale_Restore_Full_Screen}" 
+        <CheckBox Content="{x:Static props:Resources.UI_Options_Application_Restore_Full_Screen}" 
                   Margin="0,15,0,0" 
                   IsChecked="{Binding Source={x:Static props:Settings.Default},Path=AutoRestore,Mode=TwoWay}" />
+        <CheckBox Content="{x:Static props:Resources.UI_Options_Application_3D_Mode}"
+                  Margin="0,15,0,0" 
+                  IsChecked="{Binding Source={x:Static props:Settings.Default},Path=Is3DMode,Mode=TwoWay}"/>
 
         <StackPanel Margin="0,20,0,0">
             <Label Content="{x:Static props:Resources.UI_Options_Scale_Source_Window}" FontWeight="Bold" Padding="0" FontSize="15" />

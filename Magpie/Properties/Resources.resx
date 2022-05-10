@@ -256,6 +256,9 @@
   <data name="UI_Options_Advanced_Open_Logs_Folder" xml:space="preserve">
     <value>Open Logs Folder</value>
   </data>
+  <data name="UI_Options_Advanced_Save_Effect_Sources" xml:space="preserve">
+    <value>Save Sources when Resolving Effects</value>
+  </data>
   <data name="UI_Options_Advanced_Show_All_Capture_Methods" xml:space="preserve">
     <value>Show All Capture Methods</value>
   </data>
@@ -265,8 +268,14 @@
   <data name="UI_Options_Advanced_Simulate_Exclusive_Fullscreen" xml:space="preserve">
     <value>Simulate Exclusive Fullscreen</value>
   </data>
+  <data name="UI_Options_Advanced_Warnings_Are_Errors" xml:space="preserve">
+    <value>Treat Warnings as Errors when Compiling Shaders</value>
+  </data>
   <data name="UI_Options_Application" xml:space="preserve">
     <value>Application</value>
+  </data>
+  <data name="UI_Options_Application_3D_Mode" xml:space="preserve">
+    <value>3D Game Mode</value>
   </data>
   <data name="UI_Options_Application_Always_Run_As_Admin" xml:space="preserve">
     <value>Always Run as Administrator</value>
@@ -313,14 +322,14 @@
   <data name="UI_Options_Scale_Adapter" xml:space="preserve">
     <value>Graphics Adapter</value>
   </data>
+  <data name="UI_Options_Scale_Adapter_Default" xml:space="preserve">
+    <value>Default</value>
+  </data>
   <data name="UI_Options_Scale_Adjust_Cursor_Speed" xml:space="preserve">
     <value>Adjust Cursor Speed while Zoomed</value>
   </data>
   <data name="UI_Options_Scale_Cursor" xml:space="preserve">
     <value>Cursor</value>
-  </data>
-  <data name="UI_Options_Scale_Cursor_Confine_In_3D_Games" xml:space="preserve">
-    <value>Confine the Cursor in 3D Games</value>
   </data>
   <data name="UI_Options_Scale_Cursor_Do_Not_Draw" xml:space="preserve">
     <value>Do not Draw the Cursor</value>
@@ -349,15 +358,6 @@
   <data name="UI_Options_Scale_Disable_Window_Resizing" xml:space="preserve">
     <value>Disable Window Resizing while Zoomed</value>
   </data>
-  <data name="UI_Options_Scale_Frame_Rate" xml:space="preserve">
-    <value>Frame Rate</value>
-  </data>
-  <data name="UI_Options_Scale_Frame_Rate_Limiter" xml:space="preserve">
-    <value>Limiter</value>
-  </data>
-  <data name="UI_Options_Scale_Frame_Rate_Not_Limited" xml:space="preserve">
-    <value>Not Limited</value>
-  </data>
   <data name="UI_Options_Scale_Multiple_Monitors" xml:space="preserve">
     <value>Multiple Monitors</value>
   </data>
@@ -370,23 +370,26 @@
   <data name="UI_Options_Scale_Multiple_Monitors_Nearest" xml:space="preserve">
     <value>Use the Monitor Nearest to the Source Window</value>
   </data>
-  <data name="UI_Options_Scale_No_VSync" xml:space="preserve">
-    <value>Disable Vsync</value>
-  </data>
   <data name="UI_Options_Scale_Open_Scale_Config" xml:space="preserve">
     <value>Open Scale Config</value>
   </data>
-  <data name="UI_Options_Scale_Restore_Full_Screen" xml:space="preserve">
-    <value>Restore Fullscreen when Source Window Regains Focus</value>
+  <data name="UI_Options_Scale_Overlay" xml:space="preserve">
+    <value>In-Game Overlay</value>
   </data>
-  <data name="UI_Options_Scale_Show_Frame_Rate" xml:space="preserve">
-    <value>Show Frame Rate</value>
+  <data name="UI_Options_Scale_Overlay_FPS" xml:space="preserve">
+    <value>Show FPS</value>
+  </data>
+  <data name="UI_Options_Scale_Overlay_Hotkey" xml:space="preserve">
+    <value>Hotkey</value>
+  </data>
+  <data name="UI_Options_Application_Restore_Full_Screen" xml:space="preserve">
+    <value>Restore Fullscreen when Source Window Regains Focus</value>
   </data>
   <data name="UI_Options_Scale_Source_Window" xml:space="preserve">
     <value>Source Window</value>
   </data>
   <data name="UI_Options_Scale_VSync" xml:space="preserve">
-    <value>VSync</value>
+    <value>Vsync</value>
   </data>
   <data name="UI_Options_Title" xml:space="preserve">
     <value>Magpie Options</value>

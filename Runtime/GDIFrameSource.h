@@ -10,22 +10,22 @@ public:
 
 	bool Initialize() override;
 
-	ComPtr<ID3D11Texture2D> GetOutput() override {
-		return _output;
-	}
-
 	UpdateState Update() override;
-
-	bool HasRoundCornerInWin11() override {
-		return false;
-	}
 
 	bool IsScreenCapture() override {
 		return false;
 	}
 
+	const char* GetName() const noexcept override {
+		return "GDI";
+	}
+
+protected:
+	bool _HasRoundCornerInWin11() override {
+		return false;
+	}
+
 private:
 	RECT _frameRect{};
-	ComPtr<IDXGISurface1> _dxgiSurface;
-	ComPtr<ID3D11Texture2D> _output;
+	winrt::com_ptr<IDXGISurface1> _dxgiSurface;
 };

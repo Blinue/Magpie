@@ -6,15 +6,13 @@ class FrameSourceBase {
 public:
 	FrameSourceBase() {}
 
-	virtual ~FrameSourceBase() {}
+	virtual ~FrameSourceBase();
 
 	// 不可复制，不可移动
 	FrameSourceBase(const FrameSourceBase&) = delete;
 	FrameSourceBase(FrameSourceBase&&) = delete;
 
-	virtual bool Initialize() = 0;
-
-	virtual ComPtr<ID3D11Texture2D> GetOutput() = 0;
+	virtual bool Initialize();
 
 	enum class UpdateState {
 		NewFrame,
@@ -25,11 +23,19 @@ public:
 
 	virtual UpdateState Update() = 0;
 
-	virtual bool HasRoundCornerInWin11() = 0;
-
 	virtual bool IsScreenCapture() = 0;
 
+	// 注意：此函数返回源窗口作为输入部分的位置，但可能和 GetOutput 获取到的纹理尺寸不同
+	const RECT& GetSrcFrameRect() const noexcept { return _srcFrameRect; }
+
+	ID3D11Texture2D* GetOutput() {
+		return _output.get();
+	}
+
+	virtual const char* GetName() const noexcept = 0;
+
 protected:
+	virtual bool _HasRoundCornerInWin11() = 0;
 
 	// 获取坐标系 1 到坐标系 2 的映射关系
 	// 坐标系 1：屏幕坐标系，即虚拟化后的坐标系。原点为屏幕左上角
@@ -41,4 +47,13 @@ protected:
 	static bool _GetMapToOriginDPI(HWND hWnd, double& a, double& bx, double& by);
 
 	static bool _CenterWindowIfNecessary(HWND hWnd, const RECT& rcWork);
+
+	bool _UpdateSrcFrameRect();
+
+	RECT _srcFrameRect{};
+
+	winrt::com_ptr<ID3D11Texture2D> _output;
+
+	bool _roundCornerDisabled = false;
+	bool _windowResizingDisabled = false;
 };

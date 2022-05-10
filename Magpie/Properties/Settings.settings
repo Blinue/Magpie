@@ -8,9 +8,6 @@
     <Setting Name="ScaleMode" Type="System.UInt32" Scope="User">
       <Value Profile="(Default)">0</Value>
     </Setting>
-    <Setting Name="ShowFPS" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">False</Value>
-    </Setting>
     <Setting Name="CaptureMode" Type="System.UInt32" Scope="User">
       <Value Profile="(Default)">0</Value>
     </Setting>
@@ -65,11 +62,11 @@
     <Setting Name="DisableDirectFlip" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
-    <Setting Name="ConfineCursorIn3DGames" Type="System.Boolean" Scope="User">
+    <Setting Name="Is3DMode" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
-    <Setting Name="AdapterIdx" Type="System.UInt32" Scope="User">
-      <Value Profile="(Default)">0</Value>
+    <Setting Name="AdapterIdx" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">-1</Value>
     </Setting>
     <Setting Name="CropTitleBarOfUWP" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
@@ -99,6 +96,21 @@
       <Value Profile="(Default)">0</Value>
     </Setting>
     <Setting Name="CustomCropping" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="VSync" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="DebugSaveEffectSources" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="DebugWarningsAreErrors" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="OverlayHotkey" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Control+Alt+D</Value>
+    </Setting>
+    <Setting Name="ShowFPS" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
   </Settings>

@@ -1,32 +1,20 @@
+// Anime4K_Denoise_Bilateral_Mode
 // 移植自 https://github.com/bloc97/Anime4K/blob/master/glsl/Denoise/Anime4K_Denoise_Bilateral_Mode.glsl
 
 
 //!MAGPIE EFFECT
-//!VERSION 1
+//!VERSION 2
 //!OUTPUT_WIDTH INPUT_WIDTH
 //!OUTPUT_HEIGHT INPUT_HEIGHT
 
-//!CONSTANT
-//!VALUE INPUT_PT_X
-float inputPtX;
-
-//!CONSTANT
-//!VALUE INPUT_PT_Y
-float inputPtY;
 
 //!TEXTURE
 Texture2D INPUT;
 
-//!CONSTANT
+//!PARAMETER
 //!MIN 1e-5
 //!DEFAULT 0.1
 float intensitySigma;
-
-//!TEXTURE
-//!WIDTH INPUT_WIDTH
-//!HEIGHT INPUT_HEIGHT
-//!FORMAT R16_FLOAT
-Texture2D lumaTex;
 
 //!SAMPLER
 //!FILTER POINT
@@ -34,22 +22,9 @@ SamplerState sam;
 
 
 //!PASS 1
-//!BIND INPUT
-//!SAVE lumaTex
-
-float get_luma(float3 rgba) {
-	return dot(float3(0.299, 0.587, 0.114), rgba);
-}
-
-float4 Pass1(float2 pos) {
-	return float4(get_luma(INPUT.Sample(sam, pos).rgb), 0.0, 0.0, 0.0);
-}
-
-
-//!PASS 2
-//!BIND INPUT, lumaTex
-
-#pragma warning(disable: 3557)
+//!IN INPUT
+//!BLOCK_SIZE 16
+//!NUM_THREADS 64
 
 #define INTENSITY_SIGMA intensitySigma //Intensity window size, higher is stronger denoise, must be a positive real number
 #define SPATIAL_SIGMA 1.0 //Spatial window size, higher is stronger denoise, must be a positive real number.
@@ -63,50 +38,98 @@ float4 Pass1(float2 pos) {
 
 #define GETOFFSET(i) int2(int(i % KERNELSIZE) - KERNELHALFSIZE, int(i / KERNELSIZE) - KERNELHALFSIZE)
 
+float get_luma(float3 rgba) {
+	return dot(float3(0.299, 0.587, 0.114), rgba);
+}
+
 float gaussian(float x, float s, float m) {
 	float scaled = (x - m) / s;
 	return exp(-0.5 * scaled * scaled);
 }
 
-float4 Pass2(float2 pos) {
-	float3 histogram_v[KERNELLEN];
-	float histogram_l[KERNELLEN];
-	float histogram_w[KERNELLEN];
-	float histogram_wn[KERNELLEN];
-
-	float vc = lumaTex.Sample(sam, pos).x;
-
-	float is = pow(vc + 0.0001, INTENSITY_POWER_CURVE) * INTENSITY_SIGMA;
-	float ss = SPATIAL_SIGMA;
-
-	uint i;
-
-	for (i = 0; i < KERNELLEN; i++) {
-		float2 ipos = pos + GETOFFSET(i) * float2(inputPtX, inputPtY);
-		histogram_v[i] = INPUT.Sample(sam, ipos).rgb;
-		histogram_l[i] = lumaTex.Sample(sam, ipos).x;
-		histogram_w[i] = gaussian(histogram_l[i], is, vc) * gaussian(length(ipos), ss, 0.0);
-		histogram_wn[i] = 0.0;
+void Pass1(uint2 blockStart, uint3 threadId) {
+	uint2 gxy = (Rmp8x8(threadId.x) << 1) + blockStart;
+	if (!CheckViewport(gxy)) {
+		return;
 	}
 
-	for (i = 0; i < KERNELLEN; i++) {
-		histogram_wn[i] += gaussian(0.0, HISTOGRAM_REGULARIZATION, 0.0) * histogram_w[i];
-		for (uint j = (i + 1); j < KERNELLEN; j++) {
-			float d = gaussian(histogram_l[j], HISTOGRAM_REGULARIZATION, histogram_l[i]);
-			histogram_wn[j] += d * histogram_w[i];
-			histogram_wn[i] += d * histogram_w[j];
+	float2 inputPt = GetInputPt();
+	uint i, j, k, m;
+
+	float4 src[KERNELSIZE + 1][KERNELSIZE + 1];
+	[unroll]
+	for (i = 0; i <= KERNELSIZE - 1; i += 2) {
+		[unroll]
+		for (j = 0; j <= KERNELSIZE - 1; j += 2) {
+			float2 tpos = (gxy + int2(i, j) - KERNELHALFSIZE + 1) * inputPt;
+			const float4 sr = INPUT.GatherRed(sam, tpos);
+			const float4 sg = INPUT.GatherGreen(sam, tpos);
+			const float4 sb = INPUT.GatherBlue(sam, tpos);
+
+			// w z
+			// x y
+			src[i][j] = float4(sr.w, sg.w, sb.w, get_luma(float3(sr.w, sg.w, sb.w)));
+			src[i][j + 1] = float4(sr.x, sg.x, sb.x, get_luma(float3(sr.x, sg.x, sb.x)));
+			src[i + 1][j] = float4(sr.z, sg.z, sb.z, get_luma(float3(sr.z, sg.z, sb.z)));
+			src[i + 1][j + 1] = float4(sr.y, sg.y, sb.y, get_luma(float3(sr.y, sg.y, sb.y)));
 		}
 	}
 
-	float3 maxv = 0;
-	float maxw = 0;
+	[unroll]
+	for (i = 0; i <= 1; ++i) {
+		[unroll]
+		for (j = 0; j <= 1; ++j) {
+			const uint2 destPos = gxy + uint2(i, j);
 
-	for (i = 0; i < KERNELLEN; ++i) {
-		if (histogram_wn[i] >= maxw) {
-			maxw = histogram_wn[i];
-			maxv = histogram_v[i];
+			if (i != 0 || j != 0) {
+				if (!CheckViewport(gxy)) {
+					continue;
+				}
+			}
+
+			float3 histogram_v[KERNELLEN];
+			float histogram_l[KERNELLEN];
+			float histogram_w[KERNELLEN];
+			float histogram_wn[KERNELLEN];
+
+			float vc = src[KERNELHALFSIZE + i][KERNELHALFSIZE + j].a;
+
+			float is = pow(vc + 0.0001, INTENSITY_POWER_CURVE) * INTENSITY_SIGMA;
+			float ss = SPATIAL_SIGMA;
+
+			[unroll]
+			for (k = 0; k < KERNELLEN; k++) {
+				const int2 ipos = GETOFFSET(k);
+				const uint2 idx = uint2(i, j) + ipos.yx + KERNELHALFSIZE;
+				histogram_v[k] = src[idx.x][idx.y].rgb;
+				histogram_l[k] = src[idx.x][idx.y].a;
+				histogram_w[k] = gaussian(histogram_l[k], is, vc) * gaussian(length(ipos), ss, 0.0);
+				histogram_wn[k] = 0.0;
+			}
+
+			[unroll]
+			for (k = 0; k < KERNELLEN; k++) {
+				histogram_wn[k] += gaussian(0.0, HISTOGRAM_REGULARIZATION, 0.0) * histogram_w[k];
+				[unroll]
+				for (uint m = (k + 1); m < KERNELLEN; m++) {
+					float d = gaussian(histogram_l[m], HISTOGRAM_REGULARIZATION, histogram_l[k]);
+					histogram_wn[m] += d * histogram_w[k];
+					histogram_wn[k] += d * histogram_w[m];
+				}
+			}
+
+			float3 maxv = 0;
+			float maxw = 0;
+
+			[unroll]
+			for (k = 0; k < KERNELLEN; ++k) {
+				if (histogram_wn[k] >= maxw) {
+					maxw = histogram_wn[k];
+					maxv = histogram_v[k];
+				}
+			}
+
+			WriteToOutput(destPos, maxv);
 		}
 	}
-
-	return float4(maxv, 1);
 }

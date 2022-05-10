@@ -3,28 +3,12 @@
 
 
 //!MAGPIE EFFECT
-//!VERSION 1
+//!VERSION 2
 //!OUTPUT_WIDTH INPUT_WIDTH * 2
 //!OUTPUT_HEIGHT INPUT_HEIGHT * 2
 
-
-//!CONSTANT
-//!VALUE INPUT_PT_X
-float inputPtX;
-
-//!CONSTANT
-//!VALUE INPUT_PT_Y
-float inputPtY;
-
-
 //!TEXTURE
 Texture2D INPUT;
-
-//!TEXTURE
-//!WIDTH INPUT_WIDTH
-//!HEIGHT INPUT_HEIGHT
-//!FORMAT B8G8R8A8_UNORM
-Texture2D yuvTex;
 
 //!TEXTURE
 //!WIDTH INPUT_WIDTH
@@ -58,29 +42,21 @@ SamplerState sam;
 
 //!COMMON
 
+#pragma warning(disable: 4714)	// X4714: sum of temp registers and indexable temp registers times 256 threads exceeds the recommended total 16384.  Performance may be reduced
 
 #define RELU(x) max(x, 0)
 
 
 //!PASS 1
-//!BIND INPUT
-//!SAVE yuvTex
+//!DESC L1
+//!IN INPUT
+//!OUT tex1, tex2
+//!BLOCK_SIZE 16
+//!NUM_THREADS 64
 
-const static float3x3 _rgb2yuv = {
-	0.299, 0.587, 0.114,
-	-0.169, -0.331, 0.5,
-	0.5, -0.419, -0.081
-};
-
-float4 Pass1(float2 pos) {
-	float3 color = INPUT.Sample(sam, pos).rgb;
-	return float4(mul(_rgb2yuv, color) + float3(0, 0.5, 0.5), 1);
+float GetLuma(float3 color) {
+	return dot(float3(0.299f, 0.587f, 0.114f), color);
 }
-
-
-//!PASS 2
-//!BIND yuvTex
-//!SAVE tex1, tex2
 
 const static float kernelsL1A[9 * 4] = {
 	 0.0609,  0.1027, -0.0447,
@@ -117,61 +93,96 @@ const static float kernelsL1B[9 * 4] = {
 const static float4 biasL1B = { 0.0223,  0.0340,  0.0150, -0.0044 };
 
 
-void Pass2(float2 pos, out float4 target1, out float4 target2) {
-	// [tl, tc, tr]
-	// [ml, mc, mr]
-	// [bl, bc, br]
-	float tl = yuvTex.Sample(sam, pos + float2(-inputPtX, -inputPtY)).x;
-	float ml = yuvTex.Sample(sam, pos + float2(-inputPtX, 0)).x;
-	float bl = yuvTex.Sample(sam, pos + float2(-inputPtX, inputPtY)).x;
-	float tc = yuvTex.Sample(sam, pos + float2(0, -inputPtY)).x;
-	float mc = yuvTex.Sample(sam, pos).x;
-	float bc = yuvTex.Sample(sam, pos + float2(0, inputPtY)).x;
-	float tr = yuvTex.Sample(sam, pos + float2(inputPtX, -inputPtY)).x;
-	float mr = yuvTex.Sample(sam, pos + float2(inputPtX, 0)).x;
-	float br = yuvTex.Sample(sam, pos + float2(inputPtX, inputPtY)).x;
+void Pass1(uint2 blockStart, uint3 threadId) {
+	uint2 gxy = (Rmp8x8(threadId.x) << 1) + blockStart;
+	uint2 inputSize = GetInputSize();
+	if (gxy.x >= inputSize.x || gxy.y >= inputSize.y) {
+		return;
+	}
+	float2 inputPt = GetInputPt();
 
-	target1 = RELU(float4(
-		tl * kernelsL1A[0 * 9 + 0] + tc * kernelsL1A[0 * 9 + 1] + tr * kernelsL1A[0 * 9 + 2] +
-		ml * kernelsL1A[0 * 9 + 3] + mc * kernelsL1A[0 * 9 + 4] + mr * kernelsL1A[0 * 9 + 5] +
-		bl * kernelsL1A[0 * 9 + 6] + bc * kernelsL1A[0 * 9 + 7] + br * kernelsL1A[0 * 9 + 8] + biasL1A.x,
+	uint i, j;
 
-		tl * kernelsL1A[1 * 9 + 0] + tc * kernelsL1A[1 * 9 + 1] + tr * kernelsL1A[1 * 9 + 2] +
-		ml * kernelsL1A[1 * 9 + 3] + mc * kernelsL1A[1 * 9 + 4] + mr * kernelsL1A[1 * 9 + 5] +
-		bl * kernelsL1A[1 * 9 + 6] + bc * kernelsL1A[1 * 9 + 7] + br * kernelsL1A[1 * 9 + 8] + biasL1A.y,
+	float src[4][4];
+	[unroll]
+	for (i = 0; i <= 2; i += 2) {
+		[unroll]
+		for (j = 0; j <= 2; j += 2) {
+			float2 tpos = (gxy + uint2(i, j)) * inputPt;
+			const float4 sr = INPUT.GatherRed(sam, tpos, 0);
+			const float4 sg = INPUT.GatherGreen(sam, tpos, 0);
+			const float4 sb = INPUT.GatherBlue(sam, tpos, 0);
 
-		tl * kernelsL1A[2 * 9 + 0] + tc * kernelsL1A[2 * 9 + 1] + tr * kernelsL1A[2 * 9 + 2] +
-		ml * kernelsL1A[2 * 9 + 3] + mc * kernelsL1A[2 * 9 + 4] + mr * kernelsL1A[2 * 9 + 5] +
-		bl * kernelsL1A[2 * 9 + 6] + bc * kernelsL1A[2 * 9 + 7] + br * kernelsL1A[2 * 9 + 8] + biasL1A.z,
+			// w z
+			// x y
+			src[i][j] = GetLuma(float3(sr.w, sg.w, sb.w));
+			src[i][j + 1] = GetLuma(float3(sr.x, sg.x, sb.x));
+			src[i + 1][j] = GetLuma(float3(sr.z, sg.z, sb.z));
+			src[i + 1][j + 1] = GetLuma(float3(sr.y, sg.y, sb.y));
+		}
+	}
 
-		tl * kernelsL1A[3 * 9 + 0] + tc * kernelsL1A[3 * 9 + 1] + tr * kernelsL1A[3 * 9 + 2] +
-		ml * kernelsL1A[3 * 9 + 3] + mc * kernelsL1A[3 * 9 + 4] + mr * kernelsL1A[3 * 9 + 5] +
-		bl * kernelsL1A[3 * 9 + 6] + bc * kernelsL1A[3 * 9 + 7] + br * kernelsL1A[3 * 9 + 8] + biasL1A.w
-		));
+	[unroll]
+	for (i = 1; i <= 2; ++i) {
+		[unroll]
+		for (j = 1; j <= 2; ++j) {
+			uint2 destPos = gxy + uint2(i - 1, j - 1);
 
-	target2 = RELU(float4(
-		tl * kernelsL1B[0 * 9 + 0] + tc * kernelsL1B[0 * 9 + 1] + tr * kernelsL1B[0 * 9 + 2] +
-		ml * kernelsL1B[0 * 9 + 3] + mc * kernelsL1B[0 * 9 + 4] + mr * kernelsL1B[0 * 9 + 5] +
-		bl * kernelsL1B[0 * 9 + 6] + bc * kernelsL1B[0 * 9 + 7] + br * kernelsL1B[0 * 9 + 8] + biasL1B.x,
+			if (i != 1 || j != 1) {
+				if (destPos.x >= inputSize.x || destPos.y >= inputSize.y) {
+					continue;
+				}
+			}
 
-		tl * kernelsL1B[1 * 9 + 0] + tc * kernelsL1B[1 * 9 + 1] + tr * kernelsL1B[1 * 9 + 2] +
-		ml * kernelsL1B[1 * 9 + 3] + mc * kernelsL1B[1 * 9 + 4] + mr * kernelsL1B[1 * 9 + 5] +
-		bl * kernelsL1B[1 * 9 + 6] + bc * kernelsL1B[1 * 9 + 7] + br * kernelsL1B[1 * 9 + 8] + biasL1B.y,
+			float4 target1 = RELU(float4(
+				src[i - 1][j - 1] * kernelsL1A[0 * 9 + 0] + src[i][j - 1] * kernelsL1A[0 * 9 + 1] + src[i + 1][j - 1] * kernelsL1A[0 * 9 + 2] +
+				src[i - 1][j] * kernelsL1A[0 * 9 + 3] + src[i][j] * kernelsL1A[0 * 9 + 4] + src[i + 1][j] * kernelsL1A[0 * 9 + 5] +
+				src[i - 1][j + 1] * kernelsL1A[0 * 9 + 6] + src[i][j + 1] * kernelsL1A[0 * 9 + 7] + src[i + 1][j + 1] * kernelsL1A[0 * 9 + 8] + biasL1A.x,
 
-		tl * kernelsL1B[2 * 9 + 0] + tc * kernelsL1B[2 * 9 + 1] + tr * kernelsL1B[2 * 9 + 2] +
-		ml * kernelsL1B[2 * 9 + 3] + mc * kernelsL1B[2 * 9 + 4] + mr * kernelsL1B[2 * 9 + 5] +
-		bl * kernelsL1B[2 * 9 + 6] + bc * kernelsL1B[2 * 9 + 7] + br * kernelsL1B[2 * 9 + 8] + biasL1B.z,
+				src[i - 1][j - 1] * kernelsL1A[1 * 9 + 0] + src[i][j - 1] * kernelsL1A[1 * 9 + 1] + src[i + 1][j - 1] * kernelsL1A[1 * 9 + 2] +
+				src[i - 1][j] * kernelsL1A[1 * 9 + 3] + src[i][j] * kernelsL1A[1 * 9 + 4] + src[i + 1][j] * kernelsL1A[1 * 9 + 5] +
+				src[i - 1][j + 1] * kernelsL1A[1 * 9 + 6] + src[i][j + 1] * kernelsL1A[1 * 9 + 7] + src[i + 1][j + 1] * kernelsL1A[1 * 9 + 8] + biasL1A.y,
 
-		tl * kernelsL1B[3 * 9 + 0] + tc * kernelsL1B[3 * 9 + 1] + tr * kernelsL1B[3 * 9 + 2] +
-		ml * kernelsL1B[3 * 9 + 3] + mc * kernelsL1B[3 * 9 + 4] + mr * kernelsL1B[3 * 9 + 5] +
-		bl * kernelsL1B[3 * 9 + 6] + bc * kernelsL1B[3 * 9 + 7] + br * kernelsL1B[3 * 9 + 8] + biasL1B.w
-		));
+				src[i - 1][j - 1] * kernelsL1A[2 * 9 + 0] + src[i][j - 1] * kernelsL1A[2 * 9 + 1] + src[i + 1][j - 1] * kernelsL1A[2 * 9 + 2] +
+				src[i - 1][j] * kernelsL1A[2 * 9 + 3] + src[i][j] * kernelsL1A[2 * 9 + 4] + src[i + 1][j] * kernelsL1A[2 * 9 + 5] +
+				src[i - 1][j + 1] * kernelsL1A[2 * 9 + 6] + src[i][j + 1] * kernelsL1A[2 * 9 + 7] + src[i + 1][j + 1] * kernelsL1A[2 * 9 + 8] + biasL1A.z,
+
+				src[i - 1][j - 1] * kernelsL1A[3 * 9 + 0] + src[i][j - 1] * kernelsL1A[3 * 9 + 1] + src[i + 1][j - 1] * kernelsL1A[3 * 9 + 2] +
+				src[i - 1][j] * kernelsL1A[3 * 9 + 3] + src[i][j] * kernelsL1A[3 * 9 + 4] + src[i + 1][j] * kernelsL1A[3 * 9 + 5] +
+				src[i + 1][j + 1] * kernelsL1A[3 * 9 + 6] + src[i][j + 1] * kernelsL1A[3 * 9 + 7] + src[i + 1][j + 1] * kernelsL1A[3 * 9 + 8] + biasL1A.w
+				));
+
+			float4 target2 = RELU(float4(
+				src[i - 1][j - 1] * kernelsL1B[0 * 9 + 0] + src[i][j - 1] * kernelsL1B[0 * 9 + 1] + src[i + 1][j - 1] * kernelsL1B[0 * 9 + 2] +
+				src[i - 1][j] * kernelsL1B[0 * 9 + 3] + src[i][j] * kernelsL1B[0 * 9 + 4] + src[i + 1][j] * kernelsL1B[0 * 9 + 5] +
+				src[i - 1][j + 1] * kernelsL1B[0 * 9 + 6] + src[i][j + 1] * kernelsL1B[0 * 9 + 7] + src[i + 1][j + 1] * kernelsL1B[0 * 9 + 8] + biasL1B.x,
+
+				src[i - 1][j - 1] * kernelsL1B[1 * 9 + 0] + src[i][j - 1] * kernelsL1B[1 * 9 + 1] + src[i + 1][j - 1] * kernelsL1B[1 * 9 + 2] +
+				src[i - 1][j] * kernelsL1B[1 * 9 + 3] + src[i][j] * kernelsL1B[1 * 9 + 4] + src[i + 1][j] * kernelsL1B[1 * 9 + 5] +
+				src[i - 1][j + 1] * kernelsL1B[1 * 9 + 6] + src[i][j + 1] * kernelsL1B[1 * 9 + 7] + src[i + 1][j + 1] * kernelsL1B[1 * 9 + 8] + biasL1B.y,
+
+				src[i - 1][j - 1] * kernelsL1B[2 * 9 + 0] + src[i][j - 1] * kernelsL1B[2 * 9 + 1] + src[i + 1][j - 1] * kernelsL1B[2 * 9 + 2] +
+				src[i - 1][j] * kernelsL1B[2 * 9 + 3] + src[i][j] * kernelsL1B[2 * 9 + 4] + src[i + 1][j] * kernelsL1B[2 * 9 + 5] +
+				src[i - 1][j + 1] * kernelsL1B[2 * 9 + 6] + src[i][j + 1] * kernelsL1B[2 * 9 + 7] + src[i + 1][j + 1] * kernelsL1B[2 * 9 + 8] + biasL1B.z,
+
+				src[i - 1][j - 1] * kernelsL1B[3 * 9 + 0] + src[i][j - 1] * kernelsL1B[3 * 9 + 1] + src[i + 1][j - 1] * kernelsL1B[3 * 9 + 2] +
+				src[i - 1][j] * kernelsL1B[3 * 9 + 3] + src[i][j] * kernelsL1B[3 * 9 + 4] + src[i + 1][j] * kernelsL1B[3 * 9 + 5] +
+				src[i - 1][j + 1] * kernelsL1B[3 * 9 + 6] + src[i][j + 1] * kernelsL1B[3 * 9 + 7] + src[i + 1][j + 1] * kernelsL1B[3 * 9 + 8] + biasL1B.w
+				));
+
+			tex1[destPos] = target1;
+			tex2[destPos] = target2;
+		}
+	}
 }
 
 
-//!PASS 3
-//!BIND tex1, tex2
-//!SAVE tex3, tex4
+//!PASS 2
+//!DESC L2
+//!IN tex1, tex2
+//!OUT tex3, tex4
+//!BLOCK_SIZE 8
+//!NUM_THREADS 64
 
 const static float kernelsLA[9 * 8 * 4] = {
 	 2.0611e-01,  6.6865e-02, -9.9123e-02,
@@ -375,32 +386,40 @@ const static float kernelsLB[9 * 8 * 4] = {
 
 const static float4 biasLB = { 0.0082, -0.0263, -0.0048, -0.0167 };
 
-void Pass3(float2 pos, out float4 target1, out float4 target2) {
+void Pass2(uint2 blockStart, uint3 threadId) {
+	uint2 gxy = Rmp8x8(threadId.x) + blockStart;
+	uint2 inputSize = GetInputSize();
+	if (gxy.x >= inputSize.x || gxy.y >= inputSize.y) {
+		return;
+	}
+
+	float2 inputPt = GetInputPt();
+	float2 pos = (gxy + 0.5f) * inputPt;
+
 	// [tl, tc, tr]
 	// [ml, mc, mr]
 	// [bl, bc, br]
-	float4 tl1 = tex1.Sample(sam, pos + float2(-inputPtX, -inputPtY));
-	float4 ml1 = tex1.Sample(sam, pos + float2(-inputPtX, 0));
-	float4 bl1 = tex1.Sample(sam, pos + float2(-inputPtX, inputPtY));
-	float4 tc1 = tex1.Sample(sam, pos + float2(0, -inputPtY));
-	float4 mc1 = tex1.Sample(sam, pos);
-	float4 bc1 = tex1.Sample(sam, pos + float2(0, inputPtY));
-	float4 tr1 = tex1.Sample(sam, pos + float2(inputPtX, -inputPtY));
-	float4 mr1 = tex1.Sample(sam, pos + float2(inputPtX, 0));
-	float4 br1 = tex1.Sample(sam, pos + float2(inputPtX, inputPtY));
+	float4 tl1 = tex1.SampleLevel(sam, pos + float2(-inputPt.x, -inputPt.y), 0);
+	float4 ml1 = tex1.SampleLevel(sam, pos + float2(-inputPt.x, 0), 0);
+	float4 bl1 = tex1.SampleLevel(sam, pos + float2(-inputPt.x, inputPt.y), 0);
+	float4 tc1 = tex1.SampleLevel(sam, pos + float2(0, -inputPt.y), 0);
+	float4 mc1 = tex1.SampleLevel(sam, pos, 0);
+	float4 bc1 = tex1.SampleLevel(sam, pos + float2(0, inputPt.y), 0);
+	float4 tr1 = tex1.SampleLevel(sam, pos + float2(inputPt.x, -inputPt.y), 0);
+	float4 mr1 = tex1.SampleLevel(sam, pos + float2(inputPt.x, 0), 0);
+	float4 br1 = tex1.SampleLevel(sam, pos + float2(inputPt.x, inputPt.y), 0);
 
-	float4 tl2 = tex2.Sample(sam, pos + float2(-inputPtX, -inputPtY));
-	float4 ml2 = tex2.Sample(sam, pos + float2(-inputPtX, 0));
-	float4 bl2 = tex2.Sample(sam, pos + float2(-inputPtX, inputPtY));
-	float4 tc2 = tex2.Sample(sam, pos + float2(0, -inputPtY));
-	float4 mc2 = tex2.Sample(sam, pos);
-	float4 bc2 = tex2.Sample(sam, pos + float2(0, inputPtY));
-	float4 tr2 = tex2.Sample(sam, pos + float2(inputPtX, -inputPtY));
-	float4 mr2 = tex2.Sample(sam, pos + float2(inputPtX, 0));
-	float4 br2 = tex2.Sample(sam, pos + float2(inputPtX, inputPtY));
+	float4 tl2 = tex2.SampleLevel(sam, pos + float2(-inputPt.x, -inputPt.y), 0);
+	float4 ml2 = tex2.SampleLevel(sam, pos + float2(-inputPt.x, 0), 0);
+	float4 bl2 = tex2.SampleLevel(sam, pos + float2(-inputPt.x, inputPt.y), 0);
+	float4 tc2 = tex2.SampleLevel(sam, pos + float2(0, -inputPt.y), 0);
+	float4 mc2 = tex2.SampleLevel(sam, pos, 0);
+	float4 bc2 = tex2.SampleLevel(sam, pos + float2(0, inputPt.y), 0);
+	float4 tr2 = tex2.SampleLevel(sam, pos + float2(inputPt.x, -inputPt.y), 0);
+	float4 mr2 = tex2.SampleLevel(sam, pos + float2(inputPt.x, 0), 0);
+	float4 br2 = tex2.SampleLevel(sam, pos + float2(inputPt.x, inputPt.y), 0);
 
-
-	target1 = RELU(float4(
+	float4 target1 = RELU(float4(
 		tl1.x * kernelsLA[0 * 72 + 0 * 9 + 0] + tc1.x * kernelsLA[0 * 72 + 0 * 9 + 1] + tr1.x * kernelsLA[0 * 72 + 0 * 9 + 2] +
 		ml1.x * kernelsLA[0 * 72 + 0 * 9 + 3] + mc1.x * kernelsLA[0 * 72 + 0 * 9 + 4] + mr1.x * kernelsLA[0 * 72 + 0 * 9 + 5] +
 		bl1.x * kernelsLA[0 * 72 + 0 * 9 + 6] + bc1.x * kernelsLA[0 * 72 + 0 * 9 + 7] + br1.x * kernelsLA[0 * 72 + 0 * 9 + 8] +
@@ -528,9 +547,9 @@ void Pass3(float2 pos, out float4 target1, out float4 target2) {
 		tl2.w * kernelsLA[3 * 72 + 7 * 9 + 0] + tc2.w * kernelsLA[3 * 72 + 7 * 9 + 1] + tr2.w * kernelsLA[3 * 72 + 7 * 9 + 2] +
 		ml2.w * kernelsLA[3 * 72 + 7 * 9 + 3] + mc2.w * kernelsLA[3 * 72 + 7 * 9 + 4] + mr2.w * kernelsLA[3 * 72 + 7 * 9 + 5] +
 		bl2.w * kernelsLA[3 * 72 + 7 * 9 + 6] + bc2.w * kernelsLA[3 * 72 + 7 * 9 + 7] + br2.w * kernelsLA[3 * 72 + 7 * 9 + 8] + biasLA.w
-		));
+	));
 
-	target2 = RELU(float4(
+	float4 target2 = RELU(float4(
 		tl1.x * kernelsLB[0 * 72 + 0 * 9 + 0] + tc1.x * kernelsLB[0 * 72 + 0 * 9 + 1] + tr1.x * kernelsLB[0 * 72 + 0 * 9 + 2] +
 		ml1.x * kernelsLB[0 * 72 + 0 * 9 + 3] + mc1.x * kernelsLB[0 * 72 + 0 * 9 + 4] + mr1.x * kernelsLB[0 * 72 + 0 * 9 + 5] +
 		bl1.x * kernelsLB[0 * 72 + 0 * 9 + 6] + bc1.x * kernelsLB[0 * 72 + 0 * 9 + 7] + br1.x * kernelsLB[0 * 72 + 0 * 9 + 8] +
@@ -658,13 +677,19 @@ void Pass3(float2 pos, out float4 target1, out float4 target2) {
 		tl2.w * kernelsLB[3 * 72 + 7 * 9 + 0] + tc2.w * kernelsLB[3 * 72 + 7 * 9 + 1] + tr2.w * kernelsLB[3 * 72 + 7 * 9 + 2] +
 		ml2.w * kernelsLB[3 * 72 + 7 * 9 + 3] + mc2.w * kernelsLB[3 * 72 + 7 * 9 + 4] + mr2.w * kernelsLB[3 * 72 + 7 * 9 + 5] +
 		bl2.w * kernelsLB[3 * 72 + 7 * 9 + 6] + bc2.w * kernelsLB[3 * 72 + 7 * 9 + 7] + br2.w * kernelsLB[3 * 72 + 7 * 9 + 8] + biasLB.w
-		));
+	));
+
+	tex3[gxy] = target1;
+	tex4[gxy] = target2;
 }
 
 
-//!PASS 4
-//!BIND tex3, tex4
-//!SAVE tex1, tex2
+//!PASS 3
+//!DESC L3
+//!IN tex3, tex4
+//!OUT tex1, tex2
+//!BLOCK_SIZE 8
+//!NUM_THREADS 64
 
 const static float kernelsLA[9 * 8 * 4] = {
 	-4.2606e-02, -8.9001e-02, -6.4006e-02,
@@ -869,32 +894,40 @@ const static float kernelsLB[9 * 8 * 4] = {
 const static float4 biasLB = { -0.0225,  0.0082, -0.0191, -0.0185 };
 
 
-void Pass4(float2 pos, out float4 target1, out float4 target2) {
+void Pass3(uint2 blockStart, uint3 threadId) {
+	uint2 gxy = Rmp8x8(threadId.x) + blockStart;
+	uint2 inputSize = GetInputSize();
+	if (gxy.x >= inputSize.x || gxy.y >= inputSize.y) {
+		return;
+	}
+
+	float2 inputPt = GetInputPt();
+	float2 pos = (gxy + 0.5f) * inputPt;
+
 	// [tl, tc, tr]
 	// [ml, mc, mr]
 	// [bl, bc, br]
-	float4 tl1 = tex3.Sample(sam, pos + float2(-inputPtX, -inputPtY));
-	float4 ml1 = tex3.Sample(sam, pos + float2(-inputPtX, 0));
-	float4 bl1 = tex3.Sample(sam, pos + float2(-inputPtX, inputPtY));
-	float4 tc1 = tex3.Sample(sam, pos + float2(0, -inputPtY));
-	float4 mc1 = tex3.Sample(sam, pos);
-	float4 bc1 = tex3.Sample(sam, pos + float2(0, inputPtY));
-	float4 tr1 = tex3.Sample(sam, pos + float2(inputPtX, -inputPtY));
-	float4 mr1 = tex3.Sample(sam, pos + float2(inputPtX, 0));
-	float4 br1 = tex3.Sample(sam, pos + float2(inputPtX, inputPtY));
+	float4 tl1 = tex3.SampleLevel(sam, pos + float2(-inputPt.x, -inputPt.y), 0);
+	float4 ml1 = tex3.SampleLevel(sam, pos + float2(-inputPt.x, 0), 0);
+	float4 bl1 = tex3.SampleLevel(sam, pos + float2(-inputPt.x, inputPt.y), 0);
+	float4 tc1 = tex3.SampleLevel(sam, pos + float2(0, -inputPt.y), 0);
+	float4 mc1 = tex3.SampleLevel(sam, pos, 0);
+	float4 bc1 = tex3.SampleLevel(sam, pos + float2(0, inputPt.y), 0);
+	float4 tr1 = tex3.SampleLevel(sam, pos + float2(inputPt.x, -inputPt.y), 0);
+	float4 mr1 = tex3.SampleLevel(sam, pos + float2(inputPt.x, 0), 0);
+	float4 br1 = tex3.SampleLevel(sam, pos + float2(inputPt.x, inputPt.y), 0);
 
-	float4 tl2 = tex4.Sample(sam, pos + float2(-inputPtX, -inputPtY));
-	float4 ml2 = tex4.Sample(sam, pos + float2(-inputPtX, 0));
-	float4 bl2 = tex4.Sample(sam, pos + float2(-inputPtX, inputPtY));
-	float4 tc2 = tex4.Sample(sam, pos + float2(0, -inputPtY));
-	float4 mc2 = tex4.Sample(sam, pos);
-	float4 bc2 = tex4.Sample(sam, pos + float2(0, inputPtY));
-	float4 tr2 = tex4.Sample(sam, pos + float2(inputPtX, -inputPtY));
-	float4 mr2 = tex4.Sample(sam, pos + float2(inputPtX, 0));
-	float4 br2 = tex4.Sample(sam, pos + float2(inputPtX, inputPtY));
+	float4 tl2 = tex4.SampleLevel(sam, pos + float2(-inputPt.x, -inputPt.y), 0);
+	float4 ml2 = tex4.SampleLevel(sam, pos + float2(-inputPt.x, 0), 0);
+	float4 bl2 = tex4.SampleLevel(sam, pos + float2(-inputPt.x, inputPt.y), 0);
+	float4 tc2 = tex4.SampleLevel(sam, pos + float2(0, -inputPt.y), 0);
+	float4 mc2 = tex4.SampleLevel(sam, pos, 0);
+	float4 bc2 = tex4.SampleLevel(sam, pos + float2(0, inputPt.y), 0);
+	float4 tr2 = tex4.SampleLevel(sam, pos + float2(inputPt.x, -inputPt.y), 0);
+	float4 mr2 = tex4.SampleLevel(sam, pos + float2(inputPt.x, 0), 0);
+	float4 br2 = tex4.SampleLevel(sam, pos + float2(inputPt.x, inputPt.y), 0);
 
-
-	target1 = RELU(float4(
+	float4 target1 = RELU(float4(
 		tl1.x * kernelsLA[0 * 72 + 0 * 9 + 0] + tc1.x * kernelsLA[0 * 72 + 0 * 9 + 1] + tr1.x * kernelsLA[0 * 72 + 0 * 9 + 2] +
 		ml1.x * kernelsLA[0 * 72 + 0 * 9 + 3] + mc1.x * kernelsLA[0 * 72 + 0 * 9 + 4] + mr1.x * kernelsLA[0 * 72 + 0 * 9 + 5] +
 		bl1.x * kernelsLA[0 * 72 + 0 * 9 + 6] + bc1.x * kernelsLA[0 * 72 + 0 * 9 + 7] + br1.x * kernelsLA[0 * 72 + 0 * 9 + 8] +
@@ -1022,9 +1055,9 @@ void Pass4(float2 pos, out float4 target1, out float4 target2) {
 		tl2.w * kernelsLA[3 * 72 + 7 * 9 + 0] + tc2.w * kernelsLA[3 * 72 + 7 * 9 + 1] + tr2.w * kernelsLA[3 * 72 + 7 * 9 + 2] +
 		ml2.w * kernelsLA[3 * 72 + 7 * 9 + 3] + mc2.w * kernelsLA[3 * 72 + 7 * 9 + 4] + mr2.w * kernelsLA[3 * 72 + 7 * 9 + 5] +
 		bl2.w * kernelsLA[3 * 72 + 7 * 9 + 6] + bc2.w * kernelsLA[3 * 72 + 7 * 9 + 7] + br2.w * kernelsLA[3 * 72 + 7 * 9 + 8] + biasLA.w
-		));
+	));
 
-	target2 = RELU(float4(
+	float4 target2 = RELU(float4(
 		tl1.x * kernelsLB[0 * 72 + 0 * 9 + 0] + tc1.x * kernelsLB[0 * 72 + 0 * 9 + 1] + tr1.x * kernelsLB[0 * 72 + 0 * 9 + 2] +
 		ml1.x * kernelsLB[0 * 72 + 0 * 9 + 3] + mc1.x * kernelsLB[0 * 72 + 0 * 9 + 4] + mr1.x * kernelsLB[0 * 72 + 0 * 9 + 5] +
 		bl1.x * kernelsLB[0 * 72 + 0 * 9 + 6] + bc1.x * kernelsLB[0 * 72 + 0 * 9 + 7] + br1.x * kernelsLB[0 * 72 + 0 * 9 + 8] +
@@ -1152,12 +1185,19 @@ void Pass4(float2 pos, out float4 target1, out float4 target2) {
 		tl2.w * kernelsLB[3 * 72 + 7 * 9 + 0] + tc2.w * kernelsLB[3 * 72 + 7 * 9 + 1] + tr2.w * kernelsLB[3 * 72 + 7 * 9 + 2] +
 		ml2.w * kernelsLB[3 * 72 + 7 * 9 + 3] + mc2.w * kernelsLB[3 * 72 + 7 * 9 + 4] + mr2.w * kernelsLB[3 * 72 + 7 * 9 + 5] +
 		bl2.w * kernelsLB[3 * 72 + 7 * 9 + 6] + bc2.w * kernelsLB[3 * 72 + 7 * 9 + 7] + br2.w * kernelsLB[3 * 72 + 7 * 9 + 8] + biasLB.w
-		));
+	));
+
+	tex1[gxy] = target1;
+	tex2[gxy] = target2;
 }
 
-//!PASS 5
-//!BIND tex1, tex2
-//!SAVE tex3, tex4
+
+//!PASS 4
+//!DESC L4
+//!IN tex1, tex2
+//!OUT tex3, tex4
+//!BLOCK_SIZE 8
+//!NUM_THREADS 64
 
 const static float kernelsLA[9 * 8 * 4] = {
 	 2.3898e-02,  1.2411e-02, -3.2770e-02,
@@ -1362,32 +1402,40 @@ const static float kernelsLB[9 * 8 * 4] = {
 const static float4 biasLB = { -8.1892e-04, 3.3171e-03, -1.1582e-02, -4.1205e-40 };
 
 
-void Pass5(float2 pos, out float4 target1, out float4 target2) {
+void Pass4(uint2 blockStart, uint3 threadId) {
+	uint2 gxy = Rmp8x8(threadId.x) + blockStart;
+	uint2 inputSize = GetInputSize();
+	if (gxy.x >= inputSize.x || gxy.y >= inputSize.y) {
+		return;
+	}
+
+	float2 inputPt = GetInputPt();
+	float2 pos = (gxy + 0.5f) * inputPt;
+
 	// [tl, tc, tr]
 	// [ml, mc, mr]
 	// [bl, bc, br]
-	float4 tl1 = tex1.Sample(sam, pos + float2(-inputPtX, -inputPtY));
-	float4 ml1 = tex1.Sample(sam, pos + float2(-inputPtX, 0));
-	float4 bl1 = tex1.Sample(sam, pos + float2(-inputPtX, inputPtY));
-	float4 tc1 = tex1.Sample(sam, pos + float2(0, -inputPtY));
-	float4 mc1 = tex1.Sample(sam, pos);
-	float4 bc1 = tex1.Sample(sam, pos + float2(0, inputPtY));
-	float4 tr1 = tex1.Sample(sam, pos + float2(inputPtX, -inputPtY));
-	float4 mr1 = tex1.Sample(sam, pos + float2(inputPtX, 0));
-	float4 br1 = tex1.Sample(sam, pos + float2(inputPtX, inputPtY));
+	float4 tl1 = tex1.SampleLevel(sam, pos + float2(-inputPt.x, -inputPt.y), 0);
+	float4 ml1 = tex1.SampleLevel(sam, pos + float2(-inputPt.x, 0), 0);
+	float4 bl1 = tex1.SampleLevel(sam, pos + float2(-inputPt.x, inputPt.y), 0);
+	float4 tc1 = tex1.SampleLevel(sam, pos + float2(0, -inputPt.y), 0);
+	float4 mc1 = tex1.SampleLevel(sam, pos, 0);
+	float4 bc1 = tex1.SampleLevel(sam, pos + float2(0, inputPt.y), 0);
+	float4 tr1 = tex1.SampleLevel(sam, pos + float2(inputPt.x, -inputPt.y), 0);
+	float4 mr1 = tex1.SampleLevel(sam, pos + float2(inputPt.x, 0), 0);
+	float4 br1 = tex1.SampleLevel(sam, pos + float2(inputPt.x, inputPt.y), 0);
 
-	float4 tl2 = tex2.Sample(sam, pos + float2(-inputPtX, -inputPtY));
-	float4 ml2 = tex2.Sample(sam, pos + float2(-inputPtX, 0));
-	float4 bl2 = tex2.Sample(sam, pos + float2(-inputPtX, inputPtY));
-	float4 tc2 = tex2.Sample(sam, pos + float2(0, -inputPtY));
-	float4 mc2 = tex2.Sample(sam, pos);
-	float4 bc2 = tex2.Sample(sam, pos + float2(0, inputPtY));
-	float4 tr2 = tex2.Sample(sam, pos + float2(inputPtX, -inputPtY));
-	float4 mr2 = tex2.Sample(sam, pos + float2(inputPtX, 0));
-	float4 br2 = tex2.Sample(sam, pos + float2(inputPtX, inputPtY));
+	float4 tl2 = tex2.SampleLevel(sam, pos + float2(-inputPt.x, -inputPt.y), 0);
+	float4 ml2 = tex2.SampleLevel(sam, pos + float2(-inputPt.x, 0), 0);
+	float4 bl2 = tex2.SampleLevel(sam, pos + float2(-inputPt.x, inputPt.y), 0);
+	float4 tc2 = tex2.SampleLevel(sam, pos + float2(0, -inputPt.y), 0);
+	float4 mc2 = tex2.SampleLevel(sam, pos, 0);
+	float4 bc2 = tex2.SampleLevel(sam, pos + float2(0, inputPt.y), 0);
+	float4 tr2 = tex2.SampleLevel(sam, pos + float2(inputPt.x, -inputPt.y), 0);
+	float4 mr2 = tex2.SampleLevel(sam, pos + float2(inputPt.x, 0), 0);
+	float4 br2 = tex2.SampleLevel(sam, pos + float2(inputPt.x, inputPt.y), 0);
 
-
-	target1 = RELU(float4(
+	float4 target1 = RELU(float4(
 		tl1.x * kernelsLA[0 * 72 + 0 * 9 + 0] + tc1.x * kernelsLA[0 * 72 + 0 * 9 + 1] + tr1.x * kernelsLA[0 * 72 + 0 * 9 + 2] +
 		ml1.x * kernelsLA[0 * 72 + 0 * 9 + 3] + mc1.x * kernelsLA[0 * 72 + 0 * 9 + 4] + mr1.x * kernelsLA[0 * 72 + 0 * 9 + 5] +
 		bl1.x * kernelsLA[0 * 72 + 0 * 9 + 6] + bc1.x * kernelsLA[0 * 72 + 0 * 9 + 7] + br1.x * kernelsLA[0 * 72 + 0 * 9 + 8] +
@@ -1515,9 +1563,9 @@ void Pass5(float2 pos, out float4 target1, out float4 target2) {
 		tl2.w * kernelsLA[3 * 72 + 7 * 9 + 0] + tc2.w * kernelsLA[3 * 72 + 7 * 9 + 1] + tr2.w * kernelsLA[3 * 72 + 7 * 9 + 2] +
 		ml2.w * kernelsLA[3 * 72 + 7 * 9 + 3] + mc2.w * kernelsLA[3 * 72 + 7 * 9 + 4] + mr2.w * kernelsLA[3 * 72 + 7 * 9 + 5] +
 		bl2.w * kernelsLA[3 * 72 + 7 * 9 + 6] + bc2.w * kernelsLA[3 * 72 + 7 * 9 + 7] + br2.w * kernelsLA[3 * 72 + 7 * 9 + 8] + biasLA.w
-		));
+	));
 
-	target2 = RELU(float4(
+	float4 target2 = RELU(float4(
 		tl1.x * kernelsLB[0 * 72 + 0 * 9 + 0] + tc1.x * kernelsLB[0 * 72 + 0 * 9 + 1] + tr1.x * kernelsLB[0 * 72 + 0 * 9 + 2] +
 		ml1.x * kernelsLB[0 * 72 + 0 * 9 + 3] + mc1.x * kernelsLB[0 * 72 + 0 * 9 + 4] + mr1.x * kernelsLB[0 * 72 + 0 * 9 + 5] +
 		bl1.x * kernelsLB[0 * 72 + 0 * 9 + 6] + bc1.x * kernelsLB[0 * 72 + 0 * 9 + 7] + br1.x * kernelsLB[0 * 72 + 0 * 9 + 8] +
@@ -1645,12 +1693,19 @@ void Pass5(float2 pos, out float4 target1, out float4 target2) {
 		tl2.w * kernelsLB[3 * 72 + 7 * 9 + 0] + tc2.w * kernelsLB[3 * 72 + 7 * 9 + 1] + tr2.w * kernelsLB[3 * 72 + 7 * 9 + 2] +
 		ml2.w * kernelsLB[3 * 72 + 7 * 9 + 3] + mc2.w * kernelsLB[3 * 72 + 7 * 9 + 4] + mr2.w * kernelsLB[3 * 72 + 7 * 9 + 5] +
 		bl2.w * kernelsLB[3 * 72 + 7 * 9 + 6] + bc2.w * kernelsLB[3 * 72 + 7 * 9 + 7] + br2.w * kernelsLB[3 * 72 + 7 * 9 + 8] + biasLB.w
-		));
+	));
+
+	tex3[gxy] = target1;
+	tex4[gxy] = target2;
 }
 
-//!PASS 6
-//!BIND tex3, tex4
-//!SAVE tex1, tex2
+
+//!PASS 5
+//!DESC L5
+//!IN tex3, tex4
+//!OUT tex1, tex2
+//!BLOCK_SIZE 8
+//!NUM_THREADS 64
 
 const static float kernelsLA[9 * 8 * 4] = {
 	 1.3625e-02, -8.5594e-02, -1.9901e-01,
@@ -1855,32 +1910,41 @@ const static float kernelsLB[9 * 8 * 4] = {
 const static float4 biasLB = { -0.0039, -0.0426,  0.0053, -0.0017 };
 
 
-void Pass6(float2 pos, out float4 target1, out float4 target2) {
+void Pass5(uint2 blockStart, uint3 threadId) {
+	uint2 gxy = Rmp8x8(threadId.x) + blockStart;
+	uint2 inputSize = GetInputSize();
+	if (gxy.x >= inputSize.x || gxy.y >= inputSize.y) {
+		return;
+	}
+
+	float2 inputPt = GetInputPt();
+	float2 pos = (gxy + 0.5f) * inputPt;
+
 	// [tl, tc, tr]
 	// [ml, mc, mr]
 	// [bl, bc, br]
-	float4 tl1 = tex3.Sample(sam, pos + float2(-inputPtX, -inputPtY));
-	float4 ml1 = tex3.Sample(sam, pos + float2(-inputPtX, 0));
-	float4 bl1 = tex3.Sample(sam, pos + float2(-inputPtX, inputPtY));
-	float4 tc1 = tex3.Sample(sam, pos + float2(0, -inputPtY));
-	float4 mc1 = tex3.Sample(sam, pos);
-	float4 bc1 = tex3.Sample(sam, pos + float2(0, inputPtY));
-	float4 tr1 = tex3.Sample(sam, pos + float2(inputPtX, -inputPtY));
-	float4 mr1 = tex3.Sample(sam, pos + float2(inputPtX, 0));
-	float4 br1 = tex3.Sample(sam, pos + float2(inputPtX, inputPtY));
+	float4 tl1 = tex3.SampleLevel(sam, pos + float2(-inputPt.x, -inputPt.y), 0);
+	float4 ml1 = tex3.SampleLevel(sam, pos + float2(-inputPt.x, 0), 0);
+	float4 bl1 = tex3.SampleLevel(sam, pos + float2(-inputPt.x, inputPt.y), 0);
+	float4 tc1 = tex3.SampleLevel(sam, pos + float2(0, -inputPt.y), 0);
+	float4 mc1 = tex3.SampleLevel(sam, pos, 0);
+	float4 bc1 = tex3.SampleLevel(sam, pos + float2(0, inputPt.y), 0);
+	float4 tr1 = tex3.SampleLevel(sam, pos + float2(inputPt.x, -inputPt.y), 0);
+	float4 mr1 = tex3.SampleLevel(sam, pos + float2(inputPt.x, 0), 0);
+	float4 br1 = tex3.SampleLevel(sam, pos + float2(inputPt.x, inputPt.y), 0);
 
-	float4 tl2 = tex4.Sample(sam, pos + float2(-inputPtX, -inputPtY));
-	float4 ml2 = tex4.Sample(sam, pos + float2(-inputPtX, 0));
-	float4 bl2 = tex4.Sample(sam, pos + float2(-inputPtX, inputPtY));
-	float4 tc2 = tex4.Sample(sam, pos + float2(0, -inputPtY));
-	float4 mc2 = tex4.Sample(sam, pos);
-	float4 bc2 = tex4.Sample(sam, pos + float2(0, inputPtY));
-	float4 tr2 = tex4.Sample(sam, pos + float2(inputPtX, -inputPtY));
-	float4 mr2 = tex4.Sample(sam, pos + float2(inputPtX, 0));
-	float4 br2 = tex4.Sample(sam, pos + float2(inputPtX, inputPtY));
+	float4 tl2 = tex4.SampleLevel(sam, pos + float2(-inputPt.x, -inputPt.y), 0);
+	float4 ml2 = tex4.SampleLevel(sam, pos + float2(-inputPt.x, 0), 0);
+	float4 bl2 = tex4.SampleLevel(sam, pos + float2(-inputPt.x, inputPt.y), 0);
+	float4 tc2 = tex4.SampleLevel(sam, pos + float2(0, -inputPt.y), 0);
+	float4 mc2 = tex4.SampleLevel(sam, pos, 0);
+	float4 bc2 = tex4.SampleLevel(sam, pos + float2(0, inputPt.y), 0);
+	float4 tr2 = tex4.SampleLevel(sam, pos + float2(inputPt.x, -inputPt.y), 0);
+	float4 mr2 = tex4.SampleLevel(sam, pos + float2(inputPt.x, 0), 0);
+	float4 br2 = tex4.SampleLevel(sam, pos + float2(inputPt.x, inputPt.y), 0);
 
 
-	target1 = RELU(float4(
+	float4 target1 = RELU(float4(
 		tl1.x * kernelsLA[0 * 72 + 0 * 9 + 0] + tc1.x * kernelsLA[0 * 72 + 0 * 9 + 1] + tr1.x * kernelsLA[0 * 72 + 0 * 9 + 2] +
 		ml1.x * kernelsLA[0 * 72 + 0 * 9 + 3] + mc1.x * kernelsLA[0 * 72 + 0 * 9 + 4] + mr1.x * kernelsLA[0 * 72 + 0 * 9 + 5] +
 		bl1.x * kernelsLA[0 * 72 + 0 * 9 + 6] + bc1.x * kernelsLA[0 * 72 + 0 * 9 + 7] + br1.x * kernelsLA[0 * 72 + 0 * 9 + 8] +
@@ -2008,9 +2072,9 @@ void Pass6(float2 pos, out float4 target1, out float4 target2) {
 		tl2.w * kernelsLA[3 * 72 + 7 * 9 + 0] + tc2.w * kernelsLA[3 * 72 + 7 * 9 + 1] + tr2.w * kernelsLA[3 * 72 + 7 * 9 + 2] +
 		ml2.w * kernelsLA[3 * 72 + 7 * 9 + 3] + mc2.w * kernelsLA[3 * 72 + 7 * 9 + 4] + mr2.w * kernelsLA[3 * 72 + 7 * 9 + 5] +
 		bl2.w * kernelsLA[3 * 72 + 7 * 9 + 6] + bc2.w * kernelsLA[3 * 72 + 7 * 9 + 7] + br2.w * kernelsLA[3 * 72 + 7 * 9 + 8] + biasLA.w
-		));
+	));
 
-	target2 = RELU(float4(
+	float4 target2 = RELU(float4(
 		tl1.x * kernelsLB[0 * 72 + 0 * 9 + 0] + tc1.x * kernelsLB[0 * 72 + 0 * 9 + 1] + tr1.x * kernelsLB[0 * 72 + 0 * 9 + 2] +
 		ml1.x * kernelsLB[0 * 72 + 0 * 9 + 3] + mc1.x * kernelsLB[0 * 72 + 0 * 9 + 4] + mr1.x * kernelsLB[0 * 72 + 0 * 9 + 5] +
 		bl1.x * kernelsLB[0 * 72 + 0 * 9 + 6] + bc1.x * kernelsLB[0 * 72 + 0 * 9 + 7] + br1.x * kernelsLB[0 * 72 + 0 * 9 + 8] +
@@ -2138,13 +2202,19 @@ void Pass6(float2 pos, out float4 target1, out float4 target2) {
 		tl2.w * kernelsLB[3 * 72 + 7 * 9 + 0] + tc2.w * kernelsLB[3 * 72 + 7 * 9 + 1] + tr2.w * kernelsLB[3 * 72 + 7 * 9 + 2] +
 		ml2.w * kernelsLB[3 * 72 + 7 * 9 + 3] + mc2.w * kernelsLB[3 * 72 + 7 * 9 + 4] + mr2.w * kernelsLB[3 * 72 + 7 * 9 + 5] +
 		bl2.w * kernelsLB[3 * 72 + 7 * 9 + 6] + bc2.w * kernelsLB[3 * 72 + 7 * 9 + 7] + br2.w * kernelsLB[3 * 72 + 7 * 9 + 8] + biasLB.w
-		));
+	));
+
+	tex1[gxy] = target1;
+	tex2[gxy] = target2;
 }
 
 
-//!PASS 7
-//!BIND tex1, tex2
-//!SAVE tex3, tex4
+//!PASS 6
+//!DESC L6
+//!IN tex1, tex2
+//!OUT tex3, tex4
+//!BLOCK_SIZE 8
+//!NUM_THREADS 64
 
 const static float kernelsLA[9 * 8 * 4] = {
 	 5.6253e-02,  1.0118e-02, -8.2749e-02,
@@ -2349,32 +2419,40 @@ const static float kernelsLB[9 * 8 * 4] = {
 const static float4 biasLB = { 0.1077,  0.0347, -0.0165,  0.7296 };
 
 
-void Pass7(float2 pos, out float4 target1, out float4 target2) {
+void Pass6(uint2 blockStart, uint3 threadId) {
+	uint2 gxy = Rmp8x8(threadId.x) + blockStart;
+	uint2 inputSize = GetInputSize();
+	if (gxy.x >= inputSize.x || gxy.y >= inputSize.y) {
+		return;
+	}
+
+	float2 inputPt = GetInputPt();
+	float2 pos = (gxy + 0.5f) * inputPt;
+
 	// [tl, tc, tr]
 	// [ml, mc, mr]
 	// [bl, bc, br]
-	float4 tl1 = tex1.Sample(sam, pos + float2(-inputPtX, -inputPtY));
-	float4 ml1 = tex1.Sample(sam, pos + float2(-inputPtX, 0));
-	float4 bl1 = tex1.Sample(sam, pos + float2(-inputPtX, inputPtY));
-	float4 tc1 = tex1.Sample(sam, pos + float2(0, -inputPtY));
-	float4 mc1 = tex1.Sample(sam, pos);
-	float4 bc1 = tex1.Sample(sam, pos + float2(0, inputPtY));
-	float4 tr1 = tex1.Sample(sam, pos + float2(inputPtX, -inputPtY));
-	float4 mr1 = tex1.Sample(sam, pos + float2(inputPtX, 0));
-	float4 br1 = tex1.Sample(sam, pos + float2(inputPtX, inputPtY));
+	float4 tl1 = tex1.SampleLevel(sam, pos + float2(-inputPt.x, -inputPt.y), 0);
+	float4 ml1 = tex1.SampleLevel(sam, pos + float2(-inputPt.x, 0), 0);
+	float4 bl1 = tex1.SampleLevel(sam, pos + float2(-inputPt.x, inputPt.y), 0);
+	float4 tc1 = tex1.SampleLevel(sam, pos + float2(0, -inputPt.y), 0);
+	float4 mc1 = tex1.SampleLevel(sam, pos, 0);
+	float4 bc1 = tex1.SampleLevel(sam, pos + float2(0, inputPt.y), 0);
+	float4 tr1 = tex1.SampleLevel(sam, pos + float2(inputPt.x, -inputPt.y), 0);
+	float4 mr1 = tex1.SampleLevel(sam, pos + float2(inputPt.x, 0), 0);
+	float4 br1 = tex1.SampleLevel(sam, pos + float2(inputPt.x, inputPt.y), 0);
 
-	float4 tl2 = tex2.Sample(sam, pos + float2(-inputPtX, -inputPtY));
-	float4 ml2 = tex2.Sample(sam, pos + float2(-inputPtX, 0));
-	float4 bl2 = tex2.Sample(sam, pos + float2(-inputPtX, inputPtY));
-	float4 tc2 = tex2.Sample(sam, pos + float2(0, -inputPtY));
-	float4 mc2 = tex2.Sample(sam, pos);
-	float4 bc2 = tex2.Sample(sam, pos + float2(0, inputPtY));
-	float4 tr2 = tex2.Sample(sam, pos + float2(inputPtX, -inputPtY));
-	float4 mr2 = tex2.Sample(sam, pos + float2(inputPtX, 0));
-	float4 br2 = tex2.Sample(sam, pos + float2(inputPtX, inputPtY));
+	float4 tl2 = tex2.SampleLevel(sam, pos + float2(-inputPt.x, -inputPt.y), 0);
+	float4 ml2 = tex2.SampleLevel(sam, pos + float2(-inputPt.x, 0), 0);
+	float4 bl2 = tex2.SampleLevel(sam, pos + float2(-inputPt.x, inputPt.y), 0);
+	float4 tc2 = tex2.SampleLevel(sam, pos + float2(0, -inputPt.y), 0);
+	float4 mc2 = tex2.SampleLevel(sam, pos, 0);
+	float4 bc2 = tex2.SampleLevel(sam, pos + float2(0, inputPt.y), 0);
+	float4 tr2 = tex2.SampleLevel(sam, pos + float2(inputPt.x, -inputPt.y), 0);
+	float4 mr2 = tex2.SampleLevel(sam, pos + float2(inputPt.x, 0), 0);
+	float4 br2 = tex2.SampleLevel(sam, pos + float2(inputPt.x, inputPt.y), 0);
 
-
-	target1 = RELU(float4(
+	float4 target1 = RELU(float4(
 		tl1.x * kernelsLA[0 * 72 + 0 * 9 + 0] + tc1.x * kernelsLA[0 * 72 + 0 * 9 + 1] + tr1.x * kernelsLA[0 * 72 + 0 * 9 + 2] +
 		ml1.x * kernelsLA[0 * 72 + 0 * 9 + 3] + mc1.x * kernelsLA[0 * 72 + 0 * 9 + 4] + mr1.x * kernelsLA[0 * 72 + 0 * 9 + 5] +
 		bl1.x * kernelsLA[0 * 72 + 0 * 9 + 6] + bc1.x * kernelsLA[0 * 72 + 0 * 9 + 7] + br1.x * kernelsLA[0 * 72 + 0 * 9 + 8] +
@@ -2502,9 +2580,9 @@ void Pass7(float2 pos, out float4 target1, out float4 target2) {
 		tl2.w * kernelsLA[3 * 72 + 7 * 9 + 0] + tc2.w * kernelsLA[3 * 72 + 7 * 9 + 1] + tr2.w * kernelsLA[3 * 72 + 7 * 9 + 2] +
 		ml2.w * kernelsLA[3 * 72 + 7 * 9 + 3] + mc2.w * kernelsLA[3 * 72 + 7 * 9 + 4] + mr2.w * kernelsLA[3 * 72 + 7 * 9 + 5] +
 		bl2.w * kernelsLA[3 * 72 + 7 * 9 + 6] + bc2.w * kernelsLA[3 * 72 + 7 * 9 + 7] + br2.w * kernelsLA[3 * 72 + 7 * 9 + 8] + biasLA.w
-		));
+	));
 
-	target2 = RELU(float4(
+	float4 target2 = RELU(float4(
 		tl1.x * kernelsLB[0 * 72 + 0 * 9 + 0] + tc1.x * kernelsLB[0 * 72 + 0 * 9 + 1] + tr1.x * kernelsLB[0 * 72 + 0 * 9 + 2] +
 		ml1.x * kernelsLB[0 * 72 + 0 * 9 + 3] + mc1.x * kernelsLB[0 * 72 + 0 * 9 + 4] + mr1.x * kernelsLB[0 * 72 + 0 * 9 + 5] +
 		bl1.x * kernelsLB[0 * 72 + 0 * 9 + 6] + bc1.x * kernelsLB[0 * 72 + 0 * 9 + 7] + br1.x * kernelsLB[0 * 72 + 0 * 9 + 8] +
@@ -2632,12 +2710,19 @@ void Pass7(float2 pos, out float4 target1, out float4 target2) {
 		tl2.w * kernelsLB[3 * 72 + 7 * 9 + 0] + tc2.w * kernelsLB[3 * 72 + 7 * 9 + 1] + tr2.w * kernelsLB[3 * 72 + 7 * 9 + 2] +
 		ml2.w * kernelsLB[3 * 72 + 7 * 9 + 3] + mc2.w * kernelsLB[3 * 72 + 7 * 9 + 4] + mr2.w * kernelsLB[3 * 72 + 7 * 9 + 5] +
 		bl2.w * kernelsLB[3 * 72 + 7 * 9 + 6] + bc2.w * kernelsLB[3 * 72 + 7 * 9 + 7] + br2.w * kernelsLB[3 * 72 + 7 * 9 + 8] + biasLB.w
-		));
+	));
+
+	tex3[gxy] = target1;
+	tex4[gxy] = target2;
 }
 
-//!PASS 8
-//!BIND tex3, tex4
-//!SAVE tex1, tex2
+
+//!PASS 7
+//!DESC L7
+//!IN tex3, tex4
+//!OUT tex1, tex2
+//!BLOCK_SIZE 8
+//!NUM_THREADS 64
 
 const static float kernelsLA[9 * 8 * 4] = {
 	 2.5042e-02, -5.3266e-02,  3.8484e-02,
@@ -2842,32 +2927,40 @@ const static float kernelsLB[9 * 8 * 4] = {
 const static float4 biasLB = { 2.3381e-02, -1.2136e-40, -5.6040e-39,  3.7100e-02 };
 
 
-void Pass8(float2 pos, out float4 target1, out float4 target2) {
+void Pass7(uint2 blockStart, uint3 threadId) {
+	uint2 gxy = Rmp8x8(threadId.x) + blockStart;
+	uint2 inputSize = GetInputSize();
+	if (gxy.x >= inputSize.x || gxy.y >= inputSize.y) {
+		return;
+	}
+
+	float2 inputPt = GetInputPt();
+	float2 pos = (gxy + 0.5f) * inputPt;
+
 	// [tl, tc, tr]
 	// [ml, mc, mr]
 	// [bl, bc, br]
-	float4 tl1 = tex3.Sample(sam, pos + float2(-inputPtX, -inputPtY));
-	float4 ml1 = tex3.Sample(sam, pos + float2(-inputPtX, 0));
-	float4 bl1 = tex3.Sample(sam, pos + float2(-inputPtX, inputPtY));
-	float4 tc1 = tex3.Sample(sam, pos + float2(0, -inputPtY));
-	float4 mc1 = tex3.Sample(sam, pos);
-	float4 bc1 = tex3.Sample(sam, pos + float2(0, inputPtY));
-	float4 tr1 = tex3.Sample(sam, pos + float2(inputPtX, -inputPtY));
-	float4 mr1 = tex3.Sample(sam, pos + float2(inputPtX, 0));
-	float4 br1 = tex3.Sample(sam, pos + float2(inputPtX, inputPtY));
+	float4 tl1 = tex3.SampleLevel(sam, pos + float2(-inputPt.x, -inputPt.y), 0);
+	float4 ml1 = tex3.SampleLevel(sam, pos + float2(-inputPt.x, 0), 0);
+	float4 bl1 = tex3.SampleLevel(sam, pos + float2(-inputPt.x, inputPt.y), 0);
+	float4 tc1 = tex3.SampleLevel(sam, pos + float2(0, -inputPt.y), 0);
+	float4 mc1 = tex3.SampleLevel(sam, pos, 0);
+	float4 bc1 = tex3.SampleLevel(sam, pos + float2(0, inputPt.y), 0);
+	float4 tr1 = tex3.SampleLevel(sam, pos + float2(inputPt.x, -inputPt.y), 0);
+	float4 mr1 = tex3.SampleLevel(sam, pos + float2(inputPt.x, 0), 0);
+	float4 br1 = tex3.SampleLevel(sam, pos + float2(inputPt.x, inputPt.y), 0);
 
-	float4 tl2 = tex4.Sample(sam, pos + float2(-inputPtX, -inputPtY));
-	float4 ml2 = tex4.Sample(sam, pos + float2(-inputPtX, 0));
-	float4 bl2 = tex4.Sample(sam, pos + float2(-inputPtX, inputPtY));
-	float4 tc2 = tex4.Sample(sam, pos + float2(0, -inputPtY));
-	float4 mc2 = tex4.Sample(sam, pos);
-	float4 bc2 = tex4.Sample(sam, pos + float2(0, inputPtY));
-	float4 tr2 = tex4.Sample(sam, pos + float2(inputPtX, -inputPtY));
-	float4 mr2 = tex4.Sample(sam, pos + float2(inputPtX, 0));
-	float4 br2 = tex4.Sample(sam, pos + float2(inputPtX, inputPtY));
+	float4 tl2 = tex4.SampleLevel(sam, pos + float2(-inputPt.x, -inputPt.y), 0);
+	float4 ml2 = tex4.SampleLevel(sam, pos + float2(-inputPt.x, 0), 0);
+	float4 bl2 = tex4.SampleLevel(sam, pos + float2(-inputPt.x, inputPt.y), 0);
+	float4 tc2 = tex4.SampleLevel(sam, pos + float2(0, -inputPt.y), 0);
+	float4 mc2 = tex4.SampleLevel(sam, pos, 0);
+	float4 bc2 = tex4.SampleLevel(sam, pos + float2(0, inputPt.y), 0);
+	float4 tr2 = tex4.SampleLevel(sam, pos + float2(inputPt.x, -inputPt.y), 0);
+	float4 mr2 = tex4.SampleLevel(sam, pos + float2(inputPt.x, 0), 0);
+	float4 br2 = tex4.SampleLevel(sam, pos + float2(inputPt.x, inputPt.y), 0);
 
-
-	target1 = RELU(float4(
+	float4 target1 = RELU(float4(
 		tl1.x * kernelsLA[0 * 72 + 0 * 9 + 0] + tc1.x * kernelsLA[0 * 72 + 0 * 9 + 1] + tr1.x * kernelsLA[0 * 72 + 0 * 9 + 2] +
 		ml1.x * kernelsLA[0 * 72 + 0 * 9 + 3] + mc1.x * kernelsLA[0 * 72 + 0 * 9 + 4] + mr1.x * kernelsLA[0 * 72 + 0 * 9 + 5] +
 		bl1.x * kernelsLA[0 * 72 + 0 * 9 + 6] + bc1.x * kernelsLA[0 * 72 + 0 * 9 + 7] + br1.x * kernelsLA[0 * 72 + 0 * 9 + 8] +
@@ -2995,9 +3088,9 @@ void Pass8(float2 pos, out float4 target1, out float4 target2) {
 		tl2.w * kernelsLA[3 * 72 + 7 * 9 + 0] + tc2.w * kernelsLA[3 * 72 + 7 * 9 + 1] + tr2.w * kernelsLA[3 * 72 + 7 * 9 + 2] +
 		ml2.w * kernelsLA[3 * 72 + 7 * 9 + 3] + mc2.w * kernelsLA[3 * 72 + 7 * 9 + 4] + mr2.w * kernelsLA[3 * 72 + 7 * 9 + 5] +
 		bl2.w * kernelsLA[3 * 72 + 7 * 9 + 6] + bc2.w * kernelsLA[3 * 72 + 7 * 9 + 7] + br2.w * kernelsLA[3 * 72 + 7 * 9 + 8] + biasLA.w
-		));
+	));
 
-	target2 = RELU(float4(
+	float4 target2 = RELU(float4(
 		tl1.x * kernelsLB[0 * 72 + 0 * 9 + 0] + tc1.x * kernelsLB[0 * 72 + 0 * 9 + 1] + tr1.x * kernelsLB[0 * 72 + 0 * 9 + 2] +
 		ml1.x * kernelsLB[0 * 72 + 0 * 9 + 3] + mc1.x * kernelsLB[0 * 72 + 0 * 9 + 4] + mr1.x * kernelsLB[0 * 72 + 0 * 9 + 5] +
 		bl1.x * kernelsLB[0 * 72 + 0 * 9 + 6] + bc1.x * kernelsLB[0 * 72 + 0 * 9 + 7] + br1.x * kernelsLB[0 * 72 + 0 * 9 + 8] +
@@ -3125,13 +3218,19 @@ void Pass8(float2 pos, out float4 target1, out float4 target2) {
 		tl2.w * kernelsLB[3 * 72 + 7 * 9 + 0] + tc2.w * kernelsLB[3 * 72 + 7 * 9 + 1] + tr2.w * kernelsLB[3 * 72 + 7 * 9 + 2] +
 		ml2.w * kernelsLB[3 * 72 + 7 * 9 + 3] + mc2.w * kernelsLB[3 * 72 + 7 * 9 + 4] + mr2.w * kernelsLB[3 * 72 + 7 * 9 + 5] +
 		bl2.w * kernelsLB[3 * 72 + 7 * 9 + 6] + bc2.w * kernelsLB[3 * 72 + 7 * 9 + 7] + br2.w * kernelsLB[3 * 72 + 7 * 9 + 8] + biasLB.w
-		));
+	));
+
+	tex1[gxy] = target1;
+	tex2[gxy] = target2;
 }
 
 
-//!PASS 9
-//!BIND tex1, tex2
-//!SAVE tex3, tex4
+//!PASS 8
+//!DESC L8
+//!IN tex1, tex2
+//!OUT tex3, tex4
+//!BLOCK_SIZE 8
+//!NUM_THREADS 64
 
 const static float kernelsLA[9 * 8 * 4] = {
 	-5.3430e-40,  2.5717e-41,  5.7504e-40,
@@ -3336,32 +3435,40 @@ const static float kernelsLB[9 * 8 * 4] = {
 const static float4 biasLB = { 7.9956e-02, 3.0679e-04, -1.0257e-02, -1.2037e-02 };
 
 
-void Pass9(float2 pos, out float4 target1, out float4 target2) {
+void Pass8(uint2 blockStart, uint3 threadId) {
+	uint2 gxy = Rmp8x8(threadId.x) + blockStart;
+	uint2 inputSize = GetInputSize();
+	if (gxy.x >= inputSize.x || gxy.y >= inputSize.y) {
+		return;
+	}
+
+	float2 inputPt = GetInputPt();
+	float2 pos = (gxy + 0.5f) * inputPt;
+
 	// [tl, tc, tr]
 	// [ml, mc, mr]
 	// [bl, bc, br]
-	float4 tl1 = tex1.Sample(sam, pos + float2(-inputPtX, -inputPtY));
-	float4 ml1 = tex1.Sample(sam, pos + float2(-inputPtX, 0));
-	float4 bl1 = tex1.Sample(sam, pos + float2(-inputPtX, inputPtY));
-	float4 tc1 = tex1.Sample(sam, pos + float2(0, -inputPtY));
-	float4 mc1 = tex1.Sample(sam, pos);
-	float4 bc1 = tex1.Sample(sam, pos + float2(0, inputPtY));
-	float4 tr1 = tex1.Sample(sam, pos + float2(inputPtX, -inputPtY));
-	float4 mr1 = tex1.Sample(sam, pos + float2(inputPtX, 0));
-	float4 br1 = tex1.Sample(sam, pos + float2(inputPtX, inputPtY));
+	float4 tl1 = tex1.SampleLevel(sam, pos + float2(-inputPt.x, -inputPt.y), 0);
+	float4 ml1 = tex1.SampleLevel(sam, pos + float2(-inputPt.x, 0), 0);
+	float4 bl1 = tex1.SampleLevel(sam, pos + float2(-inputPt.x, inputPt.y), 0);
+	float4 tc1 = tex1.SampleLevel(sam, pos + float2(0, -inputPt.y), 0);
+	float4 mc1 = tex1.SampleLevel(sam, pos, 0);
+	float4 bc1 = tex1.SampleLevel(sam, pos + float2(0, inputPt.y), 0);
+	float4 tr1 = tex1.SampleLevel(sam, pos + float2(inputPt.x, -inputPt.y), 0);
+	float4 mr1 = tex1.SampleLevel(sam, pos + float2(inputPt.x, 0), 0);
+	float4 br1 = tex1.SampleLevel(sam, pos + float2(inputPt.x, inputPt.y), 0);
 
-	float4 tl2 = tex2.Sample(sam, pos + float2(-inputPtX, -inputPtY));
-	float4 ml2 = tex2.Sample(sam, pos + float2(-inputPtX, 0));
-	float4 bl2 = tex2.Sample(sam, pos + float2(-inputPtX, inputPtY));
-	float4 tc2 = tex2.Sample(sam, pos + float2(0, -inputPtY));
-	float4 mc2 = tex2.Sample(sam, pos);
-	float4 bc2 = tex2.Sample(sam, pos + float2(0, inputPtY));
-	float4 tr2 = tex2.Sample(sam, pos + float2(inputPtX, -inputPtY));
-	float4 mr2 = tex2.Sample(sam, pos + float2(inputPtX, 0));
-	float4 br2 = tex2.Sample(sam, pos + float2(inputPtX, inputPtY));
+	float4 tl2 = tex2.SampleLevel(sam, pos + float2(-inputPt.x, -inputPt.y), 0);
+	float4 ml2 = tex2.SampleLevel(sam, pos + float2(-inputPt.x, 0), 0);
+	float4 bl2 = tex2.SampleLevel(sam, pos + float2(-inputPt.x, inputPt.y), 0);
+	float4 tc2 = tex2.SampleLevel(sam, pos + float2(0, -inputPt.y), 0);
+	float4 mc2 = tex2.SampleLevel(sam, pos, 0);
+	float4 bc2 = tex2.SampleLevel(sam, pos + float2(0, inputPt.y), 0);
+	float4 tr2 = tex2.SampleLevel(sam, pos + float2(inputPt.x, -inputPt.y), 0);
+	float4 mr2 = tex2.SampleLevel(sam, pos + float2(inputPt.x, 0), 0);
+	float4 br2 = tex2.SampleLevel(sam, pos + float2(inputPt.x, inputPt.y), 0);
 
-
-	target1 = RELU(float4(
+	float4 target1 = RELU(float4(
 		tl1.x * kernelsLA[0 * 72 + 0 * 9 + 0] + tc1.x * kernelsLA[0 * 72 + 0 * 9 + 1] + tr1.x * kernelsLA[0 * 72 + 0 * 9 + 2] +
 		ml1.x * kernelsLA[0 * 72 + 0 * 9 + 3] + mc1.x * kernelsLA[0 * 72 + 0 * 9 + 4] + mr1.x * kernelsLA[0 * 72 + 0 * 9 + 5] +
 		bl1.x * kernelsLA[0 * 72 + 0 * 9 + 6] + bc1.x * kernelsLA[0 * 72 + 0 * 9 + 7] + br1.x * kernelsLA[0 * 72 + 0 * 9 + 8] +
@@ -3491,7 +3598,7 @@ void Pass9(float2 pos, out float4 target1, out float4 target2) {
 		bl2.w * kernelsLA[3 * 72 + 7 * 9 + 6] + bc2.w * kernelsLA[3 * 72 + 7 * 9 + 7] + br2.w * kernelsLA[3 * 72 + 7 * 9 + 8] + biasLA.w
 		));
 
-	target2 = RELU(float4(
+	float4 target2 = RELU(float4(
 		tl1.x * kernelsLB[0 * 72 + 0 * 9 + 0] + tc1.x * kernelsLB[0 * 72 + 0 * 9 + 1] + tr1.x * kernelsLB[0 * 72 + 0 * 9 + 2] +
 		ml1.x * kernelsLB[0 * 72 + 0 * 9 + 3] + mc1.x * kernelsLB[0 * 72 + 0 * 9 + 4] + mr1.x * kernelsLB[0 * 72 + 0 * 9 + 5] +
 		bl1.x * kernelsLB[0 * 72 + 0 * 9 + 6] + bc1.x * kernelsLB[0 * 72 + 0 * 9 + 7] + br1.x * kernelsLB[0 * 72 + 0 * 9 + 8] +
@@ -3619,13 +3726,18 @@ void Pass9(float2 pos, out float4 target1, out float4 target2) {
 		tl2.w * kernelsLB[3 * 72 + 7 * 9 + 0] + tc2.w * kernelsLB[3 * 72 + 7 * 9 + 1] + tr2.w * kernelsLB[3 * 72 + 7 * 9 + 2] +
 		ml2.w * kernelsLB[3 * 72 + 7 * 9 + 3] + mc2.w * kernelsLB[3 * 72 + 7 * 9 + 4] + mr2.w * kernelsLB[3 * 72 + 7 * 9 + 5] +
 		bl2.w * kernelsLB[3 * 72 + 7 * 9 + 6] + bc2.w * kernelsLB[3 * 72 + 7 * 9 + 7] + br2.w * kernelsLB[3 * 72 + 7 * 9 + 8] + biasLB.w
-		));
+	));
+
+	tex3[gxy] = target1;
+	tex4[gxy] = target2;
 }
 
 
-//!PASS 10
-//!BIND tex3, tex4
-//!SAVE tex1, tex2
+//!PASS 9
+//!DESC L9, L10
+//!IN INPUT, tex3, tex4
+//!BLOCK_SIZE 16
+//!NUM_THREADS 64
 
 const static float kernelsLA[9 * 8 * 4] = {
 	-3.6751e-40, -5.4562e-41,  6.1860e-40,
@@ -3829,33 +3941,72 @@ const static float kernelsLB[9 * 8 * 4] = {
 
 const static float4 biasLB = { -0.0046,  0.0015, -0.0076,  0.0079 };
 
+const static float kernelsL10[4 * 8] = {
+	 0.4908, -0.0457,
+	-0.1716, -0.2115,
+	-0.0015, -0.3152,
+	 0.3045,  0.0330,
+	-0.2981,  0.0912,
+	 0.0122,  0.2281,
+	 0.3331,  0.2853,
+	 0.2210,  0.2611,
+	 0.2364,  0.0792,
+	 0.2885, -0.7122,
+	-0.3715,  0.1404,
+	-0.0260,  0.2144,
+	 0.2378,  0.1570,
+	-0.5734,  0.2077,
+	-0.0851,  0.2771,
+	 0.0415, -0.1858
+};
 
-void Pass10(float2 pos, out float4 target1, out float4 target2) {
+const static float2x3 rgb2uv = {
+	-0.169, -0.331, 0.5,
+	0.5, -0.419, -0.081
+};
+
+const static float3x3 yuv2rgb = {
+	1, -0.00093, 1.401687,
+	1, -0.3437, -0.71417,
+	1, 1.77216, 0.00099
+};
+
+void Pass9(uint2 blockStart, uint3 threadId) {
+	uint2 gxy = (Rmp8x8(threadId.x) << 1) + blockStart;
+
+	if (!CheckViewport(gxy)) {
+		return;
+	}
+
+	float2 inputPt = GetInputPt();
+	float2 outputPt = GetOutputPt();
+
+	float2 pos = ((gxy >> 1) + 0.5f) * inputPt;
+
 	// [tl, tc, tr]
 	// [ml, mc, mr]
 	// [bl, bc, br]
-	float4 tl1 = tex3.Sample(sam, pos + float2(-inputPtX, -inputPtY));
-	float4 ml1 = tex3.Sample(sam, pos + float2(-inputPtX, 0));
-	float4 bl1 = tex3.Sample(sam, pos + float2(-inputPtX, inputPtY));
-	float4 tc1 = tex3.Sample(sam, pos + float2(0, -inputPtY));
-	float4 mc1 = tex3.Sample(sam, pos);
-	float4 bc1 = tex3.Sample(sam, pos + float2(0, inputPtY));
-	float4 tr1 = tex3.Sample(sam, pos + float2(inputPtX, -inputPtY));
-	float4 mr1 = tex3.Sample(sam, pos + float2(inputPtX, 0));
-	float4 br1 = tex3.Sample(sam, pos + float2(inputPtX, inputPtY));
+	float4 tl1 = tex3.SampleLevel(sam, pos + float2(-inputPt.x, -inputPt.y), 0);
+	float4 ml1 = tex3.SampleLevel(sam, pos + float2(-inputPt.x, 0), 0);
+	float4 bl1 = tex3.SampleLevel(sam, pos + float2(-inputPt.x, inputPt.y), 0);
+	float4 tc1 = tex3.SampleLevel(sam, pos + float2(0, -inputPt.y), 0);
+	float4 mc1 = tex3.SampleLevel(sam, pos, 0);
+	float4 bc1 = tex3.SampleLevel(sam, pos + float2(0, inputPt.y), 0);
+	float4 tr1 = tex3.SampleLevel(sam, pos + float2(inputPt.x, -inputPt.y), 0);
+	float4 mr1 = tex3.SampleLevel(sam, pos + float2(inputPt.x, 0), 0);
+	float4 br1 = tex3.SampleLevel(sam, pos + float2(inputPt.x, inputPt.y), 0);
 
-	float4 tl2 = tex4.Sample(sam, pos + float2(-inputPtX, -inputPtY));
-	float4 ml2 = tex4.Sample(sam, pos + float2(-inputPtX, 0));
-	float4 bl2 = tex4.Sample(sam, pos + float2(-inputPtX, inputPtY));
-	float4 tc2 = tex4.Sample(sam, pos + float2(0, -inputPtY));
-	float4 mc2 = tex4.Sample(sam, pos);
-	float4 bc2 = tex4.Sample(sam, pos + float2(0, inputPtY));
-	float4 tr2 = tex4.Sample(sam, pos + float2(inputPtX, -inputPtY));
-	float4 mr2 = tex4.Sample(sam, pos + float2(inputPtX, 0));
-	float4 br2 = tex4.Sample(sam, pos + float2(inputPtX, inputPtY));
+	float4 tl2 = tex4.SampleLevel(sam, pos + float2(-inputPt.x, -inputPt.y), 0);
+	float4 ml2 = tex4.SampleLevel(sam, pos + float2(-inputPt.x, 0), 0);
+	float4 bl2 = tex4.SampleLevel(sam, pos + float2(-inputPt.x, inputPt.y), 0);
+	float4 tc2 = tex4.SampleLevel(sam, pos + float2(0, -inputPt.y), 0);
+	float4 mc2 = tex4.SampleLevel(sam, pos, 0);
+	float4 bc2 = tex4.SampleLevel(sam, pos + float2(0, inputPt.y), 0);
+	float4 tr2 = tex4.SampleLevel(sam, pos + float2(inputPt.x, -inputPt.y), 0);
+	float4 mr2 = tex4.SampleLevel(sam, pos + float2(inputPt.x, 0), 0);
+	float4 br2 = tex4.SampleLevel(sam, pos + float2(inputPt.x, inputPt.y), 0);
 
-
-	target1 = RELU(float4(
+	float4 target1 = RELU(float4(
 		tl1.x * kernelsLA[0 * 72 + 0 * 9 + 0] + tc1.x * kernelsLA[0 * 72 + 0 * 9 + 1] + tr1.x * kernelsLA[0 * 72 + 0 * 9 + 2] +
 		ml1.x * kernelsLA[0 * 72 + 0 * 9 + 3] + mc1.x * kernelsLA[0 * 72 + 0 * 9 + 4] + mr1.x * kernelsLA[0 * 72 + 0 * 9 + 5] +
 		bl1.x * kernelsLA[0 * 72 + 0 * 9 + 6] + bc1.x * kernelsLA[0 * 72 + 0 * 9 + 7] + br1.x * kernelsLA[0 * 72 + 0 * 9 + 8] +
@@ -3983,9 +4134,9 @@ void Pass10(float2 pos, out float4 target1, out float4 target2) {
 		tl2.w * kernelsLA[3 * 72 + 7 * 9 + 0] + tc2.w * kernelsLA[3 * 72 + 7 * 9 + 1] + tr2.w * kernelsLA[3 * 72 + 7 * 9 + 2] +
 		ml2.w * kernelsLA[3 * 72 + 7 * 9 + 3] + mc2.w * kernelsLA[3 * 72 + 7 * 9 + 4] + mr2.w * kernelsLA[3 * 72 + 7 * 9 + 5] +
 		bl2.w * kernelsLA[3 * 72 + 7 * 9 + 6] + bc2.w * kernelsLA[3 * 72 + 7 * 9 + 7] + br2.w * kernelsLA[3 * 72 + 7 * 9 + 8] + biasLA.w
-		));
+	));
 
-	target2 = RELU(float4(
+	float4 target2 = RELU(float4(
 		tl1.x * kernelsLB[0 * 72 + 0 * 9 + 0] + tc1.x * kernelsLB[0 * 72 + 0 * 9 + 1] + tr1.x * kernelsLB[0 * 72 + 0 * 9 + 2] +
 		ml1.x * kernelsLB[0 * 72 + 0 * 9 + 3] + mc1.x * kernelsLB[0 * 72 + 0 * 9 + 4] + mr1.x * kernelsLB[0 * 72 + 0 * 9 + 5] +
 		bl1.x * kernelsLB[0 * 72 + 0 * 9 + 6] + bc1.x * kernelsLB[0 * 72 + 0 * 9 + 7] + br1.x * kernelsLB[0 * 72 + 0 * 9 + 8] +
@@ -4113,63 +4264,34 @@ void Pass10(float2 pos, out float4 target1, out float4 target2) {
 		tl2.w * kernelsLB[3 * 72 + 7 * 9 + 0] + tc2.w * kernelsLB[3 * 72 + 7 * 9 + 1] + tr2.w * kernelsLB[3 * 72 + 7 * 9 + 2] +
 		ml2.w * kernelsLB[3 * 72 + 7 * 9 + 3] + mc2.w * kernelsLB[3 * 72 + 7 * 9 + 4] + mr2.w * kernelsLB[3 * 72 + 7 * 9 + 5] +
 		bl2.w * kernelsLB[3 * 72 + 7 * 9 + 6] + bc2.w * kernelsLB[3 * 72 + 7 * 9 + 7] + br2.w * kernelsLB[3 * 72 + 7 * 9 + 8] + biasLB.w
-		));
-}
+	));
 
+	float2 originUV = mul(rgb2uv, INPUT.SampleLevel(sam, pos, 0).rgb);
 
-//!PASS 11
-//!BIND yuvTex, tex1, tex2
+	[unroll]
+	for (uint i = 0; i <= 1; ++i) {
+		[unroll]
+		for (uint j = 0; j <= 1; ++j) {
+			uint2 destPos = gxy + uint2(i, j);
 
+			if (i != 0 || j != 0) {
+				if (!CheckViewport(destPos)) {
+					continue;
+				}
+			}
 
-#define noise_threshold 0.02
+			uint index = j * 2 + i;
+			float luma = clamp(
+				target1.x * kernelsL10[0 + index] +
+				target1.y * kernelsL10[4 + index] +
+				target1.z * kernelsL10[8 + index] +
+				target1.w * kernelsL10[12 + index] +
+				target2.x * kernelsL10[16 + index] +
+				target2.y * kernelsL10[20 + index] +
+				target2.z * kernelsL10[24 + index] +
+				target2.w * kernelsL10[28 + index], 0.0f, 1.0f);
 
-
-const static float kernelsL10[4 * 8] = {
-	 0.4908, -0.0457,
-	-0.1716, -0.2115,
-	-0.0015, -0.3152,
-	 0.3045,  0.0330,
-	-0.2981,  0.0912,
-	 0.0122,  0.2281,
-	 0.3331,  0.2853,
-	 0.2210,  0.2611,
-	 0.2364,  0.0792,
-	 0.2885, -0.7122,
-	-0.3715,  0.1404,
-	-0.0260,  0.2144,
-	 0.2378,  0.1570,
-	-0.5734,  0.2077,
-	-0.0851,  0.2771,
-	 0.0415, -0.1858
-};
-
-
-const static float3x3 _yuv2rgb = {
-	1, -0.00093, 1.401687,
-	1, -0.3437, -0.71417,
-	1, 1.77216, 0.00099
-};
-
-
-float4 Pass11(float2 pos) {
-	float2 f = frac(pos / float2(inputPtX, inputPtY));
-	int2 i = int2(f * 2);
-	int index = i.y * 2 + i.x;
-	float2 pos1 = pos + (0.5 - f) * float2(inputPtX, inputPtY);
-
-	float4 mc1 = tex1.Sample(sam, pos1);
-	float4 mc2 = tex2.Sample(sam, pos1);
-
-	float luma = clamp(
-		mc1.x * kernelsL10[0 + index] +
-		mc1.y * kernelsL10[4 + index] +
-		mc1.z * kernelsL10[8 + index] +
-		mc1.w * kernelsL10[12 + index] +
-		mc2.x * kernelsL10[16 + index] +
-		mc2.y * kernelsL10[20 + index] +
-		mc2.z * kernelsL10[24 + index] +
-		mc2.w * kernelsL10[28 + index], 0.0f, 1.0f);
-
-	float3 yuv = yuvTex.Sample(sam, pos).xyz;
-	return float4(mul(_yuv2rgb, float3(luma, yuv.yz) - float3(0, 0.5, 0.5)), 1);
+			WriteToOutput(destPos, mul(yuv2rgb, float3(luma, originUV)));
+		}
+	}
 }

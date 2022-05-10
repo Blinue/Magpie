@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="..\packages\Microsoft.Windows.CppWinRT.2.0.211028.7\build\native\Microsoft.Windows.CppWinRT.props" Condition="Exists('..\packages\Microsoft.Windows.CppWinRT.2.0.211028.7\build\native\Microsoft.Windows.CppWinRT.props')" />
+  <Import Project="..\packages\Microsoft.Windows.CppWinRT.2.0.220418.1\build\native\Microsoft.Windows.CppWinRT.props" Condition="Exists('..\packages\Microsoft.Windows.CppWinRT.2.0.220418.1\build\native\Microsoft.Windows.CppWinRT.props')" />
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|x64">
       <Configuration>Debug</Configuration>
@@ -75,7 +75,7 @@
       <PrecompiledHeader>Create</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalOptions>/utf-8 /Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/utf-8 /Zc:__cplusplus /volatile:iso %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -114,7 +114,7 @@
       <LanguageStandard>stdcpp20</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalOptions>/utf-8 /Zc:__cplusplus %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/utf-8 /Zc:__cplusplus /volatile:iso %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -143,57 +143,64 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="App.h" />
-    <ClInclude Include="CursorDrawer.h" />
+    <ClInclude Include="Config.h" />
+    <ClInclude Include="CursorManager.h" />
+    <ClInclude Include="DDS.h" />
+    <ClInclude Include="DDSLoderHelpers.h" />
     <ClInclude Include="DesktopDuplicationFrameSource.h" />
-    <ClInclude Include="EffectCache.h" />
-    <ClInclude Include="EffectDrawer.h" />
+    <ClInclude Include="DeviceResources.h" />
+    <ClInclude Include="EffectCacheManager.h" />
     <ClInclude Include="EffectCompiler.h" />
     <ClInclude Include="EffectDesc.h" />
     <ClInclude Include="ErrorMessages.h" />
     <ClInclude Include="ExclModeHack.h" />
-    <ClInclude Include="FrameRateDrawer.h" />
     <ClInclude Include="FrameSourceBase.h" />
-    <ClInclude Include="framework.h" />
     <ClInclude Include="GDIFrameSource.h" />
+    <ClInclude Include="ImGuiImpl.h" />
+    <ClInclude Include="imgui_impl_dx11.h" />
+    <ClInclude Include="Logger.h" />
+    <ClInclude Include="EffectDrawer.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Renderer.h" />
-    <ClInclude Include="resource.h" />
     <ClInclude Include="DwmSharedSurfaceFrameSource.h" />
-    <ClInclude Include="StepTimer.h" />
+    <ClInclude Include="GPUTimer.h" />
     <ClInclude Include="StrUtils.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="TextureLoader.h" />
+    <ClInclude Include="OverlayDrawer.h" />
     <ClInclude Include="Utils.h" />
     <ClInclude Include="GraphicsCaptureFrameSource.h" />
+    <ClInclude Include="WindowsMessages.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App.cpp" />
-    <ClCompile Include="CursorDrawer.cpp" />
+    <ClCompile Include="Config.cpp" />
+    <ClCompile Include="CursorManager.cpp" />
     <ClCompile Include="DesktopDuplicationFrameSource.cpp" />
-    <ClCompile Include="EffectCache.cpp" />
-    <ClCompile Include="EffectDesc.cpp" />
-    <ClCompile Include="EffectDrawer.cpp" />
+    <ClCompile Include="DeviceResources.cpp" />
+    <ClCompile Include="EffectCacheManager.cpp" />
     <ClCompile Include="EffectCompiler.cpp" />
     <ClCompile Include="ExclModeHack.cpp" />
-    <ClCompile Include="FrameRateDrawer.cpp" />
     <ClCompile Include="FrameSourceBase.cpp" />
     <ClCompile Include="GDIFrameSource.cpp" />
+    <ClCompile Include="ImGuiImpl.cpp" />
+    <ClCompile Include="imgui_impl_dx11.cpp">
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="Logger.cpp" />
+    <ClCompile Include="EffectDrawer.cpp" />
     <ClCompile Include="pch.cpp" />
     <ClCompile Include="DllMain.cpp" />
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="DwmSharedSurfaceFrameSource.cpp" />
-    <ClCompile Include="StepTimer.cpp" />
+    <ClCompile Include="GPUTimer.cpp" />
     <ClCompile Include="StrUtils.cpp" />
     <ClCompile Include="TextureLoader.cpp" />
+    <ClCompile Include="OverlayDrawer.cpp" />
     <ClCompile Include="Utils.cpp" />
     <ClCompile Include="GraphicsCaptureFrameSource.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="assets\OpenSans.spritefont">
-      <FileType>Document</FileType>
-      <DestinationFolders Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)assets</DestinationFolders>
-      <DestinationFolders Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)assets</DestinationFolders>
-    </None>
     <None Include="cpp.hint" />
     <None Include="packages.config" />
   </ItemGroup>
@@ -203,19 +210,22 @@
   <ItemGroup>
     <Text Include="conanfile.txt" />
   </ItemGroup>
+  <ItemGroup>
+    <CopyFileToFolders Include="NotoSansSC-Regular.otf">
+      <FileType>Document</FileType>
+      <DestinationFolders Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)assets</DestinationFolders>
+      <DestinationFolders Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)assets</DestinationFolders>
+    </CopyFileToFolders>
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
-    <Import Project="..\packages\Microsoft.Windows.CppWinRT.2.0.211028.7\build\native\Microsoft.Windows.CppWinRT.targets" Condition="Exists('..\packages\Microsoft.Windows.CppWinRT.2.0.211028.7\build\native\Microsoft.Windows.CppWinRT.targets')" />
-    <Import Project="..\packages\Microsoft.XAudio2.Redist.1.2.8\build\native\Microsoft.XAudio2.Redist.targets" Condition="Exists('..\packages\Microsoft.XAudio2.Redist.1.2.8\build\native\Microsoft.XAudio2.Redist.targets')" />
-    <Import Project="..\packages\directxtk_desktop_2017.2021.11.8.1\build\native\directxtk_desktop_2017.targets" Condition="Exists('..\packages\directxtk_desktop_2017.2021.11.8.1\build\native\directxtk_desktop_2017.targets')" />
+    <Import Project="..\packages\Microsoft.Windows.CppWinRT.2.0.220418.1\build\native\Microsoft.Windows.CppWinRT.targets" Condition="Exists('..\packages\Microsoft.Windows.CppWinRT.2.0.220418.1\build\native\Microsoft.Windows.CppWinRT.targets')" />
   </ImportGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>这台计算机上缺少此项目引用的 NuGet 程序包。使用“NuGet 程序包还原”可下载这些程序包。有关更多信息，请参见 http://go.microsoft.com/fwlink/?LinkID=322105。缺少的文件是 {0}。</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('..\packages\Microsoft.Windows.CppWinRT.2.0.211028.7\build\native\Microsoft.Windows.CppWinRT.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Windows.CppWinRT.2.0.211028.7\build\native\Microsoft.Windows.CppWinRT.props'))" />
-    <Error Condition="!Exists('..\packages\Microsoft.Windows.CppWinRT.2.0.211028.7\build\native\Microsoft.Windows.CppWinRT.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Windows.CppWinRT.2.0.211028.7\build\native\Microsoft.Windows.CppWinRT.targets'))" />
-    <Error Condition="!Exists('..\packages\Microsoft.XAudio2.Redist.1.2.8\build\native\Microsoft.XAudio2.Redist.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.XAudio2.Redist.1.2.8\build\native\Microsoft.XAudio2.Redist.targets'))" />
-    <Error Condition="!Exists('..\packages\directxtk_desktop_2017.2021.11.8.1\build\native\directxtk_desktop_2017.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\directxtk_desktop_2017.2021.11.8.1\build\native\directxtk_desktop_2017.targets'))" />
+    <Error Condition="!Exists('..\packages\Microsoft.Windows.CppWinRT.2.0.220418.1\build\native\Microsoft.Windows.CppWinRT.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Windows.CppWinRT.2.0.220418.1\build\native\Microsoft.Windows.CppWinRT.props'))" />
+    <Error Condition="!Exists('..\packages\Microsoft.Windows.CppWinRT.2.0.220418.1\build\native\Microsoft.Windows.CppWinRT.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Windows.CppWinRT.2.0.220418.1\build\native\Microsoft.Windows.CppWinRT.targets'))" />
   </Target>
 </Project>

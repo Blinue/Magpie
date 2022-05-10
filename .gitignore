@@ -10,6 +10,7 @@
 *.userosscache
 *.sln.docstates
 .conan/
+my_*/
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs

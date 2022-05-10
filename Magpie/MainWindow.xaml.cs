@@ -1,16 +1,16 @@
 ﻿using Gma.System.MouseKeyHook;
+using Magpie.Options;
+using Magpie.Properties;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Interop;
-using System.Windows.Threading;
-using System.Windows.Media;
 using System.Windows.Forms;
-using Magpie.Properties;
+using System.Windows.Interop;
+using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Linq;
-using Magpie.Options;
+using System.Windows.Threading;
 
 
 namespace Magpie {
@@ -98,7 +98,7 @@ namespace Magpie {
 			// 捕获模式选择项对应的值存在 Tag 属性里
 			bool found = false;
 			foreach (object i in cbbCaptureMethod.Items) {
-				if((uint)((FrameworkElement)i).Tag == Settings.Default.CaptureMode) {
+				if ((uint)((FrameworkElement)i).Tag == Settings.Default.CaptureMode) {
 					cbbCaptureMethod.SelectedItem = i;
 					found = true;
 					break;
@@ -221,27 +221,28 @@ namespace Magpie {
 			}
 		}
 
+		private static string RemoveWhiteSpaces(string str) {
+			return new string(str.Where(c=>!char.IsWhiteSpace(c)).ToArray());
+		}
+
 		private void TxtHotkey_TextChanged(object sender, TextChangedEventArgs e) {
-			keyboardEvents?.Dispose();
-			keyboardEvents = Hook.GlobalEvents();
+			string oldHotkey = Settings.Default.Hotkey;
+			
+			Settings.Default.Hotkey = txtHotkey.Text = RemoveWhiteSpaces(txtHotkey.Text);
 
-			string hotkey = txtHotkey.Text.Trim();
-
-			try {
-				keyboardEvents.OnCombination(new Dictionary<Combination, Action> {{
-					Combination.FromString(hotkey), () => ToggleMagWindow()
-				}});
-
+			if (OnHotkeyChanged()) {
 				txtHotkey.Foreground = Brushes.Black;
-				Settings.Default.Hotkey = hotkey;
-
-				tsiHotkey!.Text = hotkey;
+				tsiHotkey!.Text = Settings.Default.Hotkey;
 
 				Logger.Info($"当前热键：{txtHotkey.Text}");
-			} catch (ArgumentException ex) {
-				Logger.Error(ex, $"解析快捷键失败：{txtHotkey.Text}");
+			} else {
+				Settings.Default.Hotkey = oldHotkey;
 				txtHotkey.Foreground = Brushes.Red;
 			}
+		}
+
+		private static void ToggleOverlay() {
+			NativeMethods.BroadcastMessage(NativeMethods.MAGPIE_WM_TOGGLE_OVERLAY);
 		}
 		
 		private void ToggleMagWindow() {
@@ -433,11 +434,39 @@ namespace Magpie {
 
 		private void CbbCaptureMethod_SelectionChanged(object sender, SelectionChangedEventArgs e) {
 			FrameworkElement si = (FrameworkElement)cbbCaptureMethod.SelectedItem;
-			if(si == null) {
+			if (si == null) {
 				return;
 			}
 
 			Settings.Default.CaptureMode = (uint)si.Tag;
+		}
+
+		private void Window_KeyDown(object sender, System.Windows.Input.KeyEventArgs e) {
+			if (e.Key == System.Windows.Input.Key.System) {
+				e.Handled = true;
+			}
+		}
+
+		public bool OnHotkeyChanged() {
+			if (Settings.Default.Hotkey == Settings.Default.OverlayHotkey) {
+				Logger.Error("缩放热键和游戏内覆盖热键冲突");
+				return false;
+			}
+
+			keyboardEvents?.Dispose();
+			keyboardEvents = Hook.GlobalEvents();
+
+			try {
+				keyboardEvents.OnCombination(new Dictionary<Combination, Action> {
+					{Combination.FromString(Settings.Default.Hotkey), () => ToggleMagWindow()},
+					{Combination.FromString(Settings.Default.OverlayHotkey), () => ToggleOverlay()}
+				});
+			} catch (ArgumentException e) {
+				Logger.Error(e, "解析快捷键失败");
+				return false;
+			}
+
+			return true;
 		}
 	}
 }

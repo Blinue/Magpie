@@ -5,10 +5,6 @@
       {
         "effect": "Lanczos",
         "scale": [ -1, -1 ]
-      },
-      {
-        "effect": "AdaptiveSharpen",
-        "curveHeight": 0.3
       }
     ]
   },
@@ -32,10 +28,8 @@
         "effect": "FSRCNNX"
       },
       {
-        "effect": "Bicubic",
-        "scale": [ -1, -1 ],
-        "paramB": 0.0,
-        "paramC": 0.5
+        "effect": "CatmullRom",
+        "scale": [ -1, -1 ]
       }
     ]
   },
@@ -46,10 +40,8 @@
         "effect": "ACNet"
       },
       {
-        "effect": "Bicubic",
-        "scale": [ -1, -1 ],
-        "paramB": 0.0,
-        "paramC": 0.5
+        "effect": "CatmullRom",
+        "scale": [ -1, -1 ]
       }
     ]
   },
@@ -60,18 +52,7 @@
         "effect": "Anime4K_Upscale_Denoise_L"
       },
       {
-        "effect": "Bicubic",
-        "scale": [ -1, -1 ],
-        "paramB": 0.0,
-        "paramC": 0.5
-      }
-    ]
-  },
-  {
-    "name": "RAVU",
-    "effects": [
-      {
-        "effect": "RAVU_Zoom_R3",
+        "effect": "CatmullRom",
         "scale": [ -1, -1 ]
       }
     ]
@@ -85,7 +66,8 @@
         "curvature": 0,
         "cornerSize": 0.001,
         "CRTGamma": 1.5,
-        "monitorGamma": 2.2
+        "monitorGamma": 2.2,
+        "interlace": false
       }
     ]
   },

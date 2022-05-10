@@ -255,6 +255,9 @@
   <data name="UI_Options_Advanced_Open_Logs_Folder" xml:space="preserve">
     <value>打开日志文件夹</value>
   </data>
+  <data name="UI_Options_Advanced_Save_Effect_Sources" xml:space="preserve">
+    <value>解析效果时保存源代码</value>
+  </data>
   <data name="UI_Options_Advanced_Show_All_Capture_Methods" xml:space="preserve">
     <value>显示所有捕获模式</value>
   </data>
@@ -264,8 +267,14 @@
   <data name="UI_Options_Advanced_Simulate_Exclusive_Fullscreen" xml:space="preserve">
     <value>模拟独占全屏</value>
   </data>
+  <data name="UI_Options_Advanced_Warnings_Are_Errors" xml:space="preserve">
+    <value>编译着色器时将警告视为错误</value>
+  </data>
   <data name="UI_Options_Application" xml:space="preserve">
     <value>应用程序</value>
+  </data>
+  <data name="UI_Options_Application_3D_Mode" xml:space="preserve">
+    <value>3D 游戏模式</value>
   </data>
   <data name="UI_Options_Application_Always_Run_As_Admin" xml:space="preserve">
     <value>始终以管理员权限运行</value>
@@ -312,14 +321,14 @@
   <data name="UI_Options_Scale_Adapter" xml:space="preserve">
     <value>图形适配器</value>
   </data>
+  <data name="UI_Options_Scale_Adapter_Default" xml:space="preserve">
+    <value>默认</value>
+  </data>
   <data name="UI_Options_Scale_Adjust_Cursor_Speed" xml:space="preserve">
     <value>缩放时调整光标速度</value>
   </data>
   <data name="UI_Options_Scale_Cursor" xml:space="preserve">
     <value>光标</value>
-  </data>
-  <data name="UI_Options_Scale_Cursor_Confine_In_3D_Games" xml:space="preserve">
-    <value>在 3D 游戏中限制光标</value>
   </data>
   <data name="UI_Options_Scale_Cursor_Do_Not_Draw" xml:space="preserve">
     <value>不绘制光标</value>
@@ -348,15 +357,6 @@
   <data name="UI_Options_Scale_Disable_Window_Resizing" xml:space="preserve">
     <value>缩放时禁用窗口大小调整</value>
   </data>
-  <data name="UI_Options_Scale_Frame_Rate" xml:space="preserve">
-    <value>帧率</value>
-  </data>
-  <data name="UI_Options_Scale_Frame_Rate_Limiter" xml:space="preserve">
-    <value>限制帧率</value>
-  </data>
-  <data name="UI_Options_Scale_Frame_Rate_Not_Limited" xml:space="preserve">
-    <value>无限制</value>
-  </data>
   <data name="UI_Options_Scale_Multiple_Monitors" xml:space="preserve">
     <value>多显示器</value>
   </data>
@@ -369,17 +369,20 @@
   <data name="UI_Options_Scale_Multiple_Monitors_Nearest" xml:space="preserve">
     <value>使用距离源窗口最近的显示器</value>
   </data>
-  <data name="UI_Options_Scale_No_VSync" xml:space="preserve">
-    <value>关闭垂直同步</value>
-  </data>
   <data name="UI_Options_Scale_Open_Scale_Config" xml:space="preserve">
     <value>打开缩放配置</value>
   </data>
-  <data name="UI_Options_Scale_Restore_Full_Screen" xml:space="preserve">
-    <value>源窗口重获焦点时自动恢复全屏</value>
+  <data name="UI_Options_Scale_Overlay" xml:space="preserve">
+    <value>游戏内覆盖</value>
   </data>
-  <data name="UI_Options_Scale_Show_Frame_Rate" xml:space="preserve">
+  <data name="UI_Options_Scale_Overlay_FPS" xml:space="preserve">
     <value>显示帧率</value>
+  </data>
+  <data name="UI_Options_Scale_Overlay_Hotkey" xml:space="preserve">
+    <value>热键</value>
+  </data>
+  <data name="UI_Options_Application_Restore_Full_Screen" xml:space="preserve">
+    <value>源窗口重获焦点时自动恢复全屏</value>
   </data>
   <data name="UI_Options_Scale_Source_Window" xml:space="preserve">
     <value>源窗口</value>

@@ -313,14 +313,14 @@
   <data name="UI_Options_Scale_Adapter" xml:space="preserve">
     <value>Графический адаптер</value>
   </data>
+  <data name="UI_Options_Scale_Adapter_Default" xml:space="preserve">
+    <value>По умолчанию</value>
+  </data>
   <data name="UI_Options_Scale_Adjust_Cursor_Speed" xml:space="preserve">
     <value>Подтянуть скорость указателя при увеличении</value>
   </data>
   <data name="UI_Options_Scale_Cursor" xml:space="preserve">
     <value>Указатель</value>
-  </data>
-  <data name="UI_Options_Scale_Cursor_Confine_In_3D_Games" xml:space="preserve">
-    <value>Ограничить указатель в 3D-играх</value>
   </data>
   <data name="UI_Options_Scale_Cursor_Do_Not_Draw" xml:space="preserve">
     <value>Не рисовать указатель</value>
@@ -349,15 +349,6 @@
   <data name="UI_Options_Scale_Disable_Window_Resizing" xml:space="preserve">
     <value>Не изменять размер окна при увеличении</value>
   </data>
-  <data name="UI_Options_Scale_Frame_Rate" xml:space="preserve">
-    <value>Частота кадров</value>
-  </data>
-  <data name="UI_Options_Scale_Frame_Rate_Limiter" xml:space="preserve">
-    <value>Ограничитель</value>
-  </data>
-  <data name="UI_Options_Scale_Frame_Rate_Not_Limited" xml:space="preserve">
-    <value>Без ограничений</value>
-  </data>
   <data name="UI_Options_Scale_Multiple_Monitors" xml:space="preserve">
     <value>Несколько мониторов</value>
   </data>
@@ -370,23 +361,17 @@
   <data name="UI_Options_Scale_Multiple_Monitors_Nearest" xml:space="preserve">
     <value>Использовать монитор ближайший к окну источника</value>
   </data>
-  <data name="UI_Options_Scale_No_VSync" xml:space="preserve">
-    <value>Выключить Верт. синхронизацию</value>
-  </data>
   <data name="UI_Options_Scale_Open_Scale_Config" xml:space="preserve">
     <value>Открыть конфиг увеличения</value>
   </data>
-  <data name="UI_Options_Scale_Restore_Full_Screen" xml:space="preserve">
+  <data name="UI_Options_Application_Restore_Full_Screen" xml:space="preserve">
     <value>Восстановить полноэкранный режим при фокусе исходного окна</value>
   </data>
-  <data name="UI_Options_Scale_Show_Frame_Rate" xml:space="preserve">
+  <data name="UI_Options_Scale_Overlay_FPS" xml:space="preserve">
     <value>Показать частоту кадров</value>
   </data>
   <data name="UI_Options_Scale_Source_Window" xml:space="preserve">
     <value>Исходное окно</value>
-  </data>
-  <data name="UI_Options_Scale_VSync" xml:space="preserve">
-    <value>Верт. синхронизация</value>
   </data>
   <data name="UI_Options_Title" xml:space="preserve">
     <value>Настройки Magpie</value>

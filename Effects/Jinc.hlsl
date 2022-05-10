@@ -10,28 +10,20 @@
 // B = 0.825 to get rid of dithering. Increase B to get a fine sharpness, though dithering returns.
 
 //!MAGPIE EFFECT
-//!VERSION 1
+//!VERSION 2
 
 
-//!CONSTANT
-//!VALUE INPUT_PT_X
-float inputPtX;
-
-//!CONSTANT
-//!VALUE INPUT_PT_Y
-float inputPtY;
-
-//!CONSTANT
+//!PARAMETER
 //!DEFAULT 0.5
 //!MIN 1e-5
 float windowSinc;
 
-//!CONSTANT
+//!PARAMETER
 //!DEFAULT 0.825
 //!MIN 1e-5
 float sinc;
 
-//!CONSTANT
+//!PARAMETER
 //!DEFAULT 0.5
 //!MIN 0
 //!MAX 1
@@ -46,7 +38,9 @@ SamplerState sam;
 
 
 //!PASS 1
-//!BIND INPUT
+//!IN INPUT
+//!BLOCK_SIZE 8
+//!NUM_THREADS 64
 
 #define PI 3.1415926535897932384626433832795
 
@@ -62,15 +56,22 @@ float d(float2 pt1, float2 pt2) {
 float4 resampler(float4 x, float wa, float wb) {
 	return (x == float4(0.0, 0.0, 0.0, 0.0))
 		? float4(wa * wb, wa * wb, wa * wb, wa * wb)
-		: sin(x * wa) * sin(x * wb) / (x * x);
+		: sin(x * wa) * sin(x * wb) * rcp(x * x);
 }
 
-float4 Pass1(float2 pos) {
+void Pass1(uint2 blockStart, uint3 threadId) {
+	uint2 gxy = Rmp8x8(threadId.x) + blockStart;
+	if (!CheckViewport(gxy)) {
+		return;
+	}
+
+	float2 inputPt = GetInputPt();
+
 	float2 dx = float2(1.0, 0.0);
 	float2 dy = float2(0.0, 1.0);
 
-	float2 pc = pos / float2(inputPtX, inputPtY);
-	float2 tc = floor(pc - float2(0.5, 0.5)) + float2(0.5, 0.5);
+	float2 pc = (gxy + 0.5f) * GetOutputPt() * GetInputSize();
+	float2 tc = floor(pc - 0.5f) + 0.5f;
 
 	float wa = windowSinc * PI;
 	float wb = sinc * PI;
@@ -81,45 +82,40 @@ float4 Pass1(float2 pos) {
 		resampler(float4(d(pc, tc - dx + 2.0 * dy), d(pc, tc + 2.0 * dy), d(pc, tc + dx + 2.0 * dy), d(pc, tc + 2.0 * dx + 2.0 * dy)), wa, wb)
 	};
 
-	dx *= float2(inputPtX, inputPtY);
-	dy *= float2(inputPtX, inputPtY);
-	tc *= float2(inputPtX, inputPtY);
+	tc -= 0.5f;
 
-	// reading the texels
-	// [ c00, c10, c20, c30 ]
-	// [ c01, c11, c21, c31 ]
-	// [ c02, c12, c22, c32 ]
-	// [ c03, c13, c23, c33 ]
-	float3 c00 = INPUT.Sample(sam, tc - dx - dy).rgb;
-	float3 c10 = INPUT.Sample(sam, tc - dy).rgb;
-	float3 c20 = INPUT.Sample(sam, tc + dx - dy).rgb;
-	float3 c30 = INPUT.Sample(sam, tc + 2.0 * dx - dy).rgb;
-	float3 c01 = INPUT.Sample(sam, tc - dx).rgb;
-	float3 c11 = INPUT.Sample(sam, tc).rgb;
-	float3 c21 = INPUT.Sample(sam, tc + dx).rgb;
-	float3 c31 = INPUT.Sample(sam, tc + 2.0 * dx).rgb;
-	float3 c02 = INPUT.Sample(sam, tc - dx + dy).rgb;
-	float3 c12 = INPUT.Sample(sam, tc + dy).rgb;
-	float3 c22 = INPUT.Sample(sam, tc + dx + dy).rgb;
-	float3 c32 = INPUT.Sample(sam, tc + 2.0 * dx + dy).rgb;
-	float3 c03 = INPUT.Sample(sam, tc - dx + 2.0 * dy).rgb;
-	float3 c13 = INPUT.Sample(sam, tc + 2.0 * dy).rgb;
-	float3 c23 = INPUT.Sample(sam, tc + dx + 2.0 * dy).rgb;
-	float3 c33 = INPUT.Sample(sam, tc + 2.0 * dx + 2.0 * dy).rgb;
+	float3 src[4][4];
 
+	[unroll]
+	for (uint i = 0; i <= 2; i += 2) {
+		[unroll]
+		for (uint j = 0; j <= 2; j += 2) {
+			float2 tpos = (tc + uint2(i, j)) * inputPt;
+			const float4 sr = INPUT.GatherRed(sam, tpos);
+			const float4 sg = INPUT.GatherGreen(sam, tpos);
+			const float4 sb = INPUT.GatherBlue(sam, tpos);
 
-	float3 color = mul(weights[0], float4x3(c00, c10, c20, c30));
-	color += mul(weights[1], float4x3(c01, c11, c21, c31));
-	color += mul(weights[2], float4x3(c02, c12, c22, c32));
-	color += mul(weights[3], float4x3(c03, c13, c23, c33));
-	color /= dot(mul(weights, float4(1, 1, 1, 1)), 1);
+			// w z
+			// x y
+			src[i][j] = float3(sr.w, sg.w, sb.w);
+			src[i][j + 1] = float3(sr.x, sg.x, sb.x);
+			src[i + 1][j] = float3(sr.z, sg.z, sb.z);
+			src[i + 1][j + 1] = float3(sr.y, sg.y, sb.y);
+		}
+	}
+
+	float3 color = mul(weights[0], float4x3(src[0][0], src[1][0], src[2][0], src[3][0]));
+	color += mul(weights[1], float4x3(src[0][1], src[1][1], src[2][1], src[3][1]));
+	color += mul(weights[2], float4x3(src[0][2], src[1][2], src[2][2], src[3][2]));
+	color += mul(weights[3], float4x3(src[0][3], src[2][3], src[2][3], src[3][3]));
+	color *= rcp(dot(mul(weights, float4(1, 1, 1, 1)), 1));
 
 	// 抗振铃
 	// Get min/max samples
-	float3 min_sample = min4(c11, c21, c12, c22);
-	float3 max_sample = max4(c11, c21, c12, c22);
+	float3 min_sample = min4(src[1][1], src[2][1], src[1][2], src[2][2]);
+	float3 max_sample = max4(src[1][1], src[2][1], src[1][2], src[2][2]);
 	color = lerp(color, clamp(color, min_sample, max_sample), ARStrength);
 
 	// final sum and weight normalization
-	return float4(color.rgb, 1);
+	WriteToOutput(gxy, color);
 }

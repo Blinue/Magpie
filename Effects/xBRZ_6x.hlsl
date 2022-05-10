@@ -1,18 +1,9 @@
 // 移植自 https://github.com/libretro/common-shaders/blob/master/xbrz/shaders/6xbrz.cg
 
 //!MAGPIE EFFECT
-//!VERSION 1
+//!VERSION 2
 //!OUTPUT_WIDTH INPUT_WIDTH * 6
 //!OUTPUT_HEIGHT INPUT_HEIGHT * 6
-
-
-//!CONSTANT
-//!VALUE INPUT_PT_X
-float inputPtX;
-
-//!CONSTANT
-//!VALUE INPUT_PT_Y
-float inputPtY;
 
 
 //!TEXTURE
@@ -24,7 +15,9 @@ SamplerState sam;
 
 
 //!PASS 1
-//!BIND INPUT
+//!IN INPUT
+//!BLOCK_SIZE 48
+//!NUM_THREADS 64
 
 #define BLEND_NONE 0
 #define BLEND_NORMAL 1
@@ -62,6 +55,15 @@ bool IsBlendingNeeded(const int4 blend) {
 	return any(!(blend == int4(BLEND_NONE, BLEND_NONE, BLEND_NONE, BLEND_NONE)));
 }
 
+const static uint destIdx[6][6] = {
+	{20, 21, 22, 23, 24, 25},
+	{19,  6,  7,  8,  9, 26},
+	{18,  5,  0,  1, 10, 27},
+	{17,  4,  3,  2, 11, 28},
+	{16, 15, 14, 13, 12, 29},
+	{35, 34, 33, 32, 31, 30}
+};
+
 //---------------------------------------
 // Input Pixel Mapping:    --|21|22|23|--
 //                         19|06|07|08|09
@@ -75,20 +77,29 @@ bool IsBlendingNeeded(const int4 blend) {
 //                       17|04|03|02|11|28
 //                       16|15|14|13|12|29
 //                       35|34|33|32|31|30
-float4 Pass1(float2 pos) {
+void Pass1(uint2 blockStart, uint3 threadId) {
+	uint2 gxy = (Rmp8x8(threadId.x) * 6) + blockStart;
+
+	if (!CheckViewport(gxy)) {
+		return;
+	}
+
+	const float2 inputPt = GetInputPt();
+	const float2 pos = ((gxy / 6) + 0.5f) * inputPt;
+
 	//    A1 B1 C1
 	// A0 A  B  C  C4
 	// D0 D  E  F  F4
 	// G0 G  H  I  I4
 	//    G5 H5 I5
 
-	float4 t1 = pos.xxxy + float4(-inputPtX, 0, inputPtX, -2.0 * inputPtY); // A1 B1 C1
-	float4 t2 = pos.xxxy + float4(-inputPtX, 0, inputPtX, -inputPtY);		// A  B  C
-	float4 t3 = pos.xxxy + float4(-inputPtX, 0, inputPtX, 0);				// D  E  F
-	float4 t4 = pos.xxxy + float4(-inputPtX, 0, inputPtX, inputPtY);		// G  H  I
-	float4 t5 = pos.xxxy + float4(-inputPtX, 0, inputPtX, 2.0 * inputPtY);	// G5 H5 I5
-	float4 t6 = pos.xyyy + float4(-2.0 * inputPtX, -inputPtY, 0, inputPtY);	// A0 D0 G0
-	float4 t7 = pos.xyyy + float4(2.0 * inputPtX, -inputPtY, 0, inputPtY);	// C4 F4 I4
+	float4 t1 = pos.xxxy + float4(-inputPt.x, 0, inputPt.x, -2.0 * inputPt.y); // A1 B1 C1
+	float4 t2 = pos.xxxy + float4(-inputPt.x, 0, inputPt.x, -inputPt.y);		// A  B  C
+	float4 t3 = pos.xxxy + float4(-inputPt.x, 0, inputPt.x, 0);				// D  E  F
+	float4 t4 = pos.xxxy + float4(-inputPt.x, 0, inputPt.x, inputPt.y);		// G  H  I
+	float4 t5 = pos.xxxy + float4(-inputPt.x, 0, inputPt.x, 2.0 * inputPt.y);	// G5 H5 I5
+	float4 t6 = pos.xyyy + float4(-2.0 * inputPt.x, -inputPt.y, 0, inputPt.y);	// A0 D0 G0
+	float4 t7 = pos.xyyy + float4(2.0 * inputPt.x, -inputPt.y, 0, inputPt.y);	// C4 F4 I4
 
 	//---------------------------------------
 	// Input Pixel Mapping:  20|21|22|23|24
@@ -99,27 +110,27 @@ float4 Pass1(float2 pos) {
 
 	float3 src[25];
 
-	src[21] = INPUT.Sample(sam, t1.xw).rgb;
-	src[22] = INPUT.Sample(sam, t1.yw).rgb;
-	src[23] = INPUT.Sample(sam, t1.zw).rgb;
-	src[6] = INPUT.Sample(sam, t2.xw).rgb;
-	src[7] = INPUT.Sample(sam, t2.yw).rgb;
-	src[8] = INPUT.Sample(sam, t2.zw).rgb;
-	src[5] = INPUT.Sample(sam, t3.xw).rgb;
-	src[0] = INPUT.Sample(sam, t3.yw).rgb;
-	src[1] = INPUT.Sample(sam, t3.zw).rgb;
-	src[4] = INPUT.Sample(sam, t4.xw).rgb;
-	src[3] = INPUT.Sample(sam, t4.yw).rgb;
-	src[2] = INPUT.Sample(sam, t4.zw).rgb;
-	src[15] = INPUT.Sample(sam, t5.xw).rgb;
-	src[14] = INPUT.Sample(sam, t5.yw).rgb;
-	src[13] = INPUT.Sample(sam, t5.zw).rgb;
-	src[19] = INPUT.Sample(sam, t6.xy).rgb;
-	src[18] = INPUT.Sample(sam, t6.xz).rgb;
-	src[17] = INPUT.Sample(sam, t6.xw).rgb;
-	src[9] = INPUT.Sample(sam, t7.xy).rgb;
-	src[10] = INPUT.Sample(sam, t7.xz).rgb;
-	src[11] = INPUT.Sample(sam, t7.xw).rgb;
+	src[21] = INPUT.SampleLevel(sam, t1.xw, 0).rgb;
+	src[22] = INPUT.SampleLevel(sam, t1.yw, 0).rgb;
+	src[23] = INPUT.SampleLevel(sam, t1.zw, 0).rgb;
+	src[6] = INPUT.SampleLevel(sam, t2.xw, 0).rgb;
+	src[7] = INPUT.SampleLevel(sam, t2.yw, 0).rgb;
+	src[8] = INPUT.SampleLevel(sam, t2.zw, 0).rgb;
+	src[5] = INPUT.SampleLevel(sam, t3.xw, 0).rgb;
+	src[0] = INPUT.SampleLevel(sam, t3.yw, 0).rgb;
+	src[1] = INPUT.SampleLevel(sam, t3.zw, 0).rgb;
+	src[4] = INPUT.SampleLevel(sam, t4.xw, 0).rgb;
+	src[3] = INPUT.SampleLevel(sam, t4.yw, 0).rgb;
+	src[2] = INPUT.SampleLevel(sam, t4.zw, 0).rgb;
+	src[15] = INPUT.SampleLevel(sam, t5.xw, 0).rgb;
+	src[14] = INPUT.SampleLevel(sam, t5.yw, 0).rgb;
+	src[13] = INPUT.SampleLevel(sam, t5.zw, 0).rgb;
+	src[19] = INPUT.SampleLevel(sam, t6.xy, 0).rgb;
+	src[18] = INPUT.SampleLevel(sam, t6.xz, 0).rgb;
+	src[17] = INPUT.SampleLevel(sam, t6.xw, 0).rgb;
+	src[9] = INPUT.SampleLevel(sam, t7.xy, 0).rgb;
+	src[10] = INPUT.SampleLevel(sam, t7.xz, 0).rgb;
+	src[11] = INPUT.SampleLevel(sam, t7.xw, 0).rgb;
 
 	//---------------------------------------
 	// Input Pixel Mapping:  20|21|22|23|24
@@ -351,15 +362,19 @@ float4 Pass1(float2 pos) {
 		dst[20] = lerp(dst[20], blendPix, (needBlend && doLineBlend && haveShallowLine) ? 0.250 : 0.000);
 	}
 
-	float2 f = frac(pos / float2(inputPtX, inputPtY));
+	[unroll]
+	for (uint i = 0; i < 6; ++i) {
+		[unroll]
+		for (uint j = 0; j < 6; ++j) {
+			const uint2 destPos = gxy + uint2(i, j);
 
-	float3 res = lerp(lerp(lerp(lerp(lerp(lerp(dst[20], dst[21], step(one_sixth, f.x)), dst[22], step(two_sixth, f.x)), lerp(lerp(dst[23], dst[24], step(four_sixth, f.x)), dst[25], step(five_sixth, f.x)), step(0.50, f.x)),
-		lerp(lerp(lerp(dst[19], dst[6], step(one_sixth, f.x)), dst[7], step(two_sixth, f.x)), lerp(lerp(dst[8], dst[9], step(four_sixth, f.x)), dst[26], step(five_sixth, f.x)), step(0.50, f.x)), step(one_sixth, f.y)),
-		lerp(lerp(lerp(dst[18], dst[5], step(one_sixth, f.x)), dst[0], step(two_sixth, f.x)), lerp(lerp(dst[1], dst[10], step(four_sixth, f.x)), dst[27], step(five_sixth, f.x)), step(0.50, f.x)), step(two_sixth, f.y)),
-		lerp(lerp(lerp(lerp(lerp(dst[17], dst[4], step(one_sixth, f.x)), dst[3], step(two_sixth, f.x)), lerp(lerp(dst[2], dst[11], step(four_sixth, f.x)), dst[28], step(five_sixth, f.x)), step(0.50, f.x)),
-			lerp(lerp(lerp(dst[16], dst[15], step(one_sixth, f.x)), dst[14], step(two_sixth, f.x)), lerp(lerp(dst[13], dst[12], step(four_sixth, f.x)), dst[29], step(five_sixth, f.x)), step(0.50, f.x)), step(four_sixth, f.y)),
-			lerp(lerp(lerp(dst[35], dst[34], step(one_sixth, f.x)), dst[33], step(two_sixth, f.x)), lerp(lerp(dst[32], dst[31], step(four_sixth, f.x)), dst[30], step(five_sixth, f.x)), step(0.50, f.x)), step(five_sixth, f.y)),
-		step(0.50, f.y));
+			if (i != 0 || j != 0) {
+				if (!CheckViewport(destPos)) {
+					continue;
+				}
+			}
 
-	return float4(res, 1.0);
+			WriteToOutput(destPos, dst[destIdx[j][i]]);
+		}
+	}
 }

@@ -15,9 +15,7 @@
     <CopyFileToFolders Include="Anime4K_Restore_VL.hlsl" />
     <CopyFileToFolders Include="Anime4K_Upscale_Denoise_S.hlsl" />
     <CopyFileToFolders Include="Anime4K_Upscale_L.hlsl" />
-    <CopyFileToFolders Include="Anime4K_Upscale_S_Lite.hlsl" />
     <CopyFileToFolders Include="Bicubic.hlsl" />
-    <CopyFileToFolders Include="Bicubic_Lite.hlsl" />
     <CopyFileToFolders Include="CAS.hlsl" />
     <CopyFileToFolders Include="FSR_EASU.hlsl" />
     <CopyFileToFolders Include="FSR_RCAS.hlsl" />
@@ -29,7 +27,7 @@
     <CopyFileToFolders Include="FXAA_Ultra.hlsl" />
     <CopyFileToFolders Include="Jinc.hlsl" />
     <CopyFileToFolders Include="Lanczos.hlsl" />
-    <CopyFileToFolders Include="Linear.hlsl" />
+    <CopyFileToFolders Include="Bilinear.hlsl" />
     <CopyFileToFolders Include="Nearest.hlsl" />
     <CopyFileToFolders Include="Pixellate.hlsl" />
     <CopyFileToFolders Include="RAVU_Lite_R3.hlsl" />
@@ -51,7 +49,6 @@
     <CopyFileToFolders Include="xBRZ_6x.hlsl" />
     <CopyFileToFolders Include="xBRZ_4x.hlsl" />
     <CopyFileToFolders Include="xBRZ_Freescale.hlsl" />
-    <CopyFileToFolders Include="xBRZ_Freescale_MultiPass.hlsl" />
     <CopyFileToFolders Include="NIS.hlsl" />
     <CopyFileToFolders Include="NIS_Coef_Scale.dds" />
     <CopyFileToFolders Include="NIS_Coef_USM.dds" />
@@ -67,6 +64,11 @@
     <CopyFileToFolders Include="Anime4K_Thin_HQ.hlsl" />
     <CopyFileToFolders Include="LumaSharpen.hlsl" />
     <CopyFileToFolders Include="FineSharp.hlsl" />
-    <CopyFileToFolders Include="FSR_EASU_DX10.hlsl" />
+    <CopyFileToFolders Include="LCAS.hlsl" />
+    <CopyFileToFolders Include="CatmullRom.hlsl" />
+    <CopyFileToFolders Include="CAS_Scaling.hlsl" />
+    <CopyFileToFolders Include="MMPX.hlsl" />
+    <CopyFileToFolders Include="NNEDI3_nns16_win8x4.hlsl" />
+    <CopyFileToFolders Include="NNEDI3_nns64_win8x6.hlsl" />
   </ItemGroup>
 </Project>

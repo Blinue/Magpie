@@ -1,25 +1,12 @@
+// FidelityFX-FSR 中 EASU 通道
+// 移植自 https://github.com/GPUOpen-Effects/FidelityFX-FSR/blob/master/ffx-fsr/ffx_fsr1.h
+
 //!MAGPIE EFFECT
-//!VERSION 1
-
-
-//!CONSTANT
-//!VALUE INPUT_WIDTH
-float inputWidth;
-
-//!CONSTANT
-//!VALUE INPUT_HEIGHT
-float inputHeight;
-
-//!CONSTANT
-//!VALUE OUTPUT_WIDTH
-float outputWidth;
-
-//!CONSTANT
-//!VALUE OUTPUT_HEIGHT
-float outputHeight;
+//!VERSION 2
 
 //!TEXTURE
 Texture2D INPUT;
+
 
 //!SAMPLER
 //!FILTER POINT
@@ -27,7 +14,9 @@ SamplerState sam;
 
 
 //!PASS 1
-//!BIND INPUT
+//!IN INPUT
+//!BLOCK_SIZE 16
+//!NUM_THREADS 64
 
 #define min3(a, b, c) min(a, min(b, c))
 #define max3(a, b, c) max(a, max(b, c))
@@ -41,7 +30,7 @@ void FsrEasuTap(
 	float2 len, // Length.
 	float lob, // Negative lobe strength.
 	float clp, // Clipping point.
-	float3 c  // Tap color.
+	float3 c // Tap color.
 ) {
 	// Rotate offset by direction.
 	float2 v;
@@ -67,7 +56,8 @@ void FsrEasuTap(
 	wB = 25.0f / 16.0f * wB - (25.0f / 16.0f - 1.0f);
 	float w = wB * wA;
 	// Do weighted average.
-	aC += c * w; aW += w;
+	aC += c * w;
+	aW += w;
 }
 
 // Accumulate direction and length.
@@ -81,10 +71,14 @@ void FsrEasuSet(
 	//  s t
 	//  u v
 	float w = 0;
-	if (biS)w = (1 - pp.x) * (1 - pp.y);
-	if (biT)w = pp.x * (1 - pp.y);
-	if (biU)w = (1.0 - pp.x) * pp.y;
-	if (biV)w = pp.x * pp.y;
+	if (biS)
+		w = (1 - pp.x) * (1 - pp.y);
+	if (biT)
+		w = pp.x * (1 - pp.y);
+	if (biU)
+		w = (1.0 - pp.x) * pp.y;
+	if (biV)
+		w = pp.x * pp.y;
 	// Direction is the '+' diff.
 	//    a
 	//  b c d
@@ -112,42 +106,34 @@ void FsrEasuSet(
 	len += lenY * w;
 }
 
-float4 Pass1(float2 pos) {
-	float2 inputSize = { inputWidth, inputHeight };
-	float2 outputSize = { outputWidth, outputHeight };
-
-	//------------------------------------------------------------------------------------------------------------------------------
-	  // Get position of 'f'.
-	float2 pp = (floor(pos * outputSize) + 0.5f) / outputSize * inputSize - 0.5f;
+float3 FsrEasuF(uint2 pos, float4 con0, float4 con1, float4 con2, float2 con3) {
+//------------------------------------------------------------------------------------------------------------------------------
+	// Get position of 'f'.
+	float2 pp = pos * con0.xy + con0.zw;
 	float2 fp = floor(pp);
 	pp -= fp;
-	//------------------------------------------------------------------------------------------------------------------------------
-	  // 12-tap kernel.
-	  //    b c
-	  //  e f g h
-	  //  i j k l
-	  //    n o
-	  // Gather 4 ordering.
-	  //  a b
-	  //  r g
-	  // For packed FP16, need either {rg} or {ab} so using the following setup for gather in all versions,
-	  //    a b    <- unused (z)
-	  //    r g
-	  //  a b a b
-	  //  r g r g
-	  //    a b
-	  //    r g    <- unused (z)
-	  // Allowing dead-code removal to remove the 'z's.
-	float2 p0 = fp + float2(1, -1);
+//------------------------------------------------------------------------------------------------------------------------------
+	// 12-tap kernel.
+	//    b c
+	//  e f g h
+	//  i j k l
+	//    n o
+	// Gather 4 ordering.
+	//  a b
+	//  r g
+	// For packed FP16, need either {rg} or {ab} so using the following setup for gather in all versions,
+	//    a b    <- unused (z)
+	//    r g
+	//  a b a b
+	//  r g r g
+	//    a b
+	//    r g    <- unused (z)
+	// Allowing dead-code removal to remove the 'z's.
+	float2 p0 = fp * con1.xy + con1.zw;
 	// These are from p0 to avoid pulling two constants on pre-Navi hardware.
-	float2 p1 = p0 + float2(-1, 2);
-	float2 p2 = p0 + float2(1, 2);
-	float2 p3 = p0 + float2(0, 4);
-
-	p0 /= inputSize;
-	p1 /= inputSize;
-	p2 /= inputSize;
-	p3 /= inputSize;
+	float2 p1 = p0 + con2.xy;
+	float2 p2 = p0 + con2.zw;
+	float2 p3 = p0 + con3;
 
 	float4 bczzR = INPUT.GatherRed(sam, p0);
 	float4 bczzG = INPUT.GatherGreen(sam, p0);
@@ -161,8 +147,8 @@ float4 Pass1(float2 pos) {
 	float4 zzonR = INPUT.GatherRed(sam, p3);
 	float4 zzonG = INPUT.GatherGreen(sam, p3);
 	float4 zzonB = INPUT.GatherBlue(sam, p3);
-	//------------------------------------------------------------------------------------------------------------------------------
-	  // Simplest multi-channel approximate luma possible (luma times 2, in 2 FMA/MAD).
+//------------------------------------------------------------------------------------------------------------------------------
+	// Simplest multi-channel approximate luma possible (luma times 2, in 2 FMA/MAD).
 	float4 bczzL = bczzB * 0.5 + (bczzR * 0.5 + bczzG);
 	float4 ijfeL = ijfeB * 0.5 + (ijfeR * 0.5 + ijfeG);
 	float4 klhgL = klhgB * 0.5 + (klhgR * 0.5 + klhgG);
@@ -187,8 +173,8 @@ float4 Pass1(float2 pos) {
 	FsrEasuSet(dir, len, pp, false, true, false, false, cL, fL, gL, hL, kL);
 	FsrEasuSet(dir, len, pp, false, false, true, false, fL, iL, jL, kL, nL);
 	FsrEasuSet(dir, len, pp, false, false, false, true, gL, jL, kL, lL, oL);
-	//------------------------------------------------------------------------------------------------------------------------------
-	  // Normalize with approximation, and cleanup close to zero.
+//------------------------------------------------------------------------------------------------------------------------------
+	// Normalize with approximation, and cleanup close to zero.
 	float2 dir2 = dir * dir;
 	float dirR = dir2.x + dir2.y;
 	bool zro = dirR < 1.0f / 32768.0f;
@@ -210,12 +196,12 @@ float4 Pass1(float2 pos) {
 	float lob = 0.5 + ((1.0 / 4.0 - 0.04) - 0.5) * len;
 	// Set distance^2 clipping point to the end of the adjustable window.
 	float clp = rcp(lob);
-	//------------------------------------------------------------------------------------------------------------------------------
-	  // Accumulation mixed with min/max of 4 nearest.
-	  //    b c
-	  //  e f g h
-	  //  i j k l
-	  //    n o
+//------------------------------------------------------------------------------------------------------------------------------
+	// Accumulation mixed with min/max of 4 nearest.
+	//    b c
+	//  e f g h
+	//  i j k l
+	//    n o
 	float3 min4 = min(min3(float3(ijfeR.z, ijfeG.z, ijfeB.z), float3(klhgR.w, klhgG.w, klhgB.w), float3(ijfeR.y, ijfeG.y, ijfeB.y)),
 		float3(klhgR.x, klhgG.x, klhgB.x));
 	float3 max4 = max(max3(float3(ijfeR.z, ijfeG.z, ijfeB.z), float3(klhgR.w, klhgG.w, klhgB.w), float3(ijfeR.y, ijfeG.y, ijfeB.y)),
@@ -235,9 +221,70 @@ float4 Pass1(float2 pos) {
 	FsrEasuTap(aC, aW, float2(1.0, 0.0) - pp, dir, len2, lob, clp, float3(klhgR.w, klhgG.w, klhgB.w)); // g
 	FsrEasuTap(aC, aW, float2(1.0, 2.0) - pp, dir, len2, lob, clp, float3(zzonR.z, zzonG.z, zzonB.z)); // o
 	FsrEasuTap(aC, aW, float2(0.0, 2.0) - pp, dir, len2, lob, clp, float3(zzonR.w, zzonG.w, zzonB.w)); // n
-  //------------------------------------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------------------------------------------------------
 	// Normalize and dering.
-	float3 c = min(max4, max(min4, aC * rcp(aW)));
+	return min(max4, max(min4, aC * rcp(aW)));
+}
 
-	return float4(c, 1.0f);
+void Pass1(uint2 blockStart, uint3 threadId) {
+	uint2 gxy = blockStart + Rmp8x8(threadId.x);
+	if (!CheckViewport(gxy)) {
+		return;
+	}
+
+	uint2 inputSize = GetInputSize();
+	uint2 outputSize = GetOutputSize();
+	float2 inputPt = GetInputPt();
+
+	float4 con0, con1, con2;
+	float2 con3;
+	// Output integer position to a pixel position in viewport.
+	con0[0] = (float)inputSize.x / (float)outputSize.x;
+	con0[1] = (float)inputSize.y / (float)outputSize.y;
+	con0[2] = 0.5f * con0[0] - 0.5f;
+	con0[3] = 0.5f * con0[1] - 0.5f;
+	// Viewport pixel position to normalized image space.
+	// This is used to get upper-left of 'F' tap.
+	con1[0] = inputPt.x;
+	con1[1] = inputPt.y;
+	// Centers of gather4, first offset from upper-left of 'F'.
+	//      +---+---+
+	//      |   |   |
+	//      +--(0)--+
+	//      | b | c |
+	//  +---F---+---+---+
+	//  | e | f | g | h |
+	//  +--(1)--+--(2)--+
+	//  | i | j | k | l |
+	//  +---+---+---+---+
+	//      | n | o |
+	//      +--(3)--+
+	//      |   |   |
+	//      +---+---+
+	con1[2] = inputPt.x;
+	con1[3] = -inputPt.y;
+	// These are from (0) instead of 'F'.
+	con2[0] = -inputPt.x;
+	con2[1] = 2.0f * inputPt.y;
+	con2[2] = inputPt.x;
+	con2[3] = 2.0f * inputPt.y;
+	con3[0] = 0;
+	con3[1] = 4.0f * inputPt.y;
+
+	WriteToOutput(gxy, FsrEasuF(gxy, con0, con1, con2, con3));
+
+	gxy.x += 8u;
+	if (CheckViewport(gxy)) {
+		WriteToOutput(gxy, FsrEasuF(gxy, con0, con1, con2, con3));
+	}
+
+	gxy.y += 8u;
+	if (CheckViewport(gxy)) {
+		WriteToOutput(gxy, FsrEasuF(gxy, con0, con1, con2, con3));
+	}
+
+	gxy.x -= 8u;
+	if (CheckViewport(gxy)) {
+		WriteToOutput(gxy, FsrEasuF(gxy, con0, con1, con2, con3));
+	}
 }

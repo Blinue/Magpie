@@ -7,6 +7,9 @@ using System.Windows;
 using System.Windows.Controls;
 using System.IO;
 using System.Windows.Forms;
+using System.Windows.Media;
+using System.Linq;
+
 
 namespace Magpie.Options {
 	/// <summary>
@@ -23,13 +26,17 @@ namespace Magpie.Options {
 			InitializeComponent();
 
 			// 图形适配器
+			cbbAdapter.Items.Add(Properties.Resources.UI_Options_Scale_Adapter_Default);
 			foreach (string adapter in graphicsAdapters) {
 				cbbAdapter.Items.Add(adapter);
 			}
 
-			if (Settings.Default.AdapterIdx < 0 || Settings.Default.AdapterIdx >= graphicsAdapters.Length) {
-				Settings.Default.AdapterIdx = 0;
+			if (Settings.Default.AdapterIdx < -1 || Settings.Default.AdapterIdx >= graphicsAdapters.Length - 1) {
+				Settings.Default.AdapterIdx = -1;
 			}
+			cbbAdapter.SelectedIndex = Settings.Default.AdapterIdx + 1;
+
+			txtOverlayHotkey.Text = Settings.Default.OverlayHotkey;
 
 			cbbCursorZoomFactor.Items.Clear();
 			for (int i = 0; i < cursorZoomFactors.Length - 1; ++i) {
@@ -92,6 +99,29 @@ namespace Magpie.Options {
 			}
 
 			Settings.Default.CursorZoomFactor = cursorZoomFactors[cbbCursorZoomFactor.SelectedIndex];
+		}
+
+		private void CbbAdapter_SelectionChanged(object sender, SelectionChangedEventArgs e) {
+			Settings.Default.AdapterIdx = cbbAdapter.SelectedIndex - 1;
+		}
+
+		private static string RemoveWhiteSpaces(string str) {
+			return new string(str.Where(c => !char.IsWhiteSpace(c)).ToArray());
+		}
+
+		private void TxtOverlayHotkey_TextChanged(object sender, TextChangedEventArgs e) {
+			string oldHotkey = Settings.Default.OverlayHotkey;
+			Settings.Default.OverlayHotkey = txtOverlayHotkey.Text = RemoveWhiteSpaces(txtOverlayHotkey.Text);
+
+			if (((MainWindow)System.Windows.Application.Current.MainWindow).OnHotkeyChanged()) {
+				txtOverlayHotkey.Foreground = Brushes.Black;
+				txtOverlayHotkey!.Text = Settings.Default.OverlayHotkey;
+
+				Logger.Info($"当前游戏内覆盖热键：{txtOverlayHotkey.Text}");
+			} else {
+				Settings.Default.OverlayHotkey = oldHotkey;
+				txtOverlayHotkey.Foreground = Brushes.Red;
+			}
 		}
 	}
 }

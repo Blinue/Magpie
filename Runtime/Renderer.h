@@ -1,117 +1,72 @@
 #pragma once
 #include "pch.h"
-#include "EffectDrawer.h"
-#include "CursorDrawer.h"
-#include "FrameRateDrawer.h"
-#include <CommonStates.h>
-#include "StepTimer.h"
-#include "Utils.h"
+#include "EffectDesc.h"
+
+class EffectDrawer;
+class GPUTimer;
+class OverlayDrawer;
+class CursorManager;
 
 
 class Renderer {
 public:
-	bool Initialize();
+	Renderer();
+	Renderer(const Renderer&) = delete;
+	Renderer(Renderer&&) = delete;
 
-	bool InitializeEffectsAndCursor(const std::string& effectsJson);
+	~Renderer();
+
+	bool Initialize(const std::string& effectsJson);
 
 	void Render();
 
-	bool GetSampler(EffectSamplerFilterType filterType, EffectSamplerAddressType addressType, ID3D11SamplerState** result);
-
-	ComPtr<ID3D11Device1> GetD3DDevice() const{
-		return _d3dDevice;
+	GPUTimer& GetGPUTimer() {
+		return *_gpuTimer;
 	}
 
-	ComPtr<ID3D11DeviceContext1> GetD3DDC() const {
-		return _d3dDC;
+	// 可能为空
+	OverlayDrawer* GetOverlayDrawer() {
+		return _overlayDrawer.get();
 	}
 
-	ComPtr<IDXGIDevice1> GetDXGIDevice() const {
-		return _dxgiDevice;
+	bool IsUIVisiable() const noexcept;
+
+	void SetUIVisibility(bool value);
+
+	const RECT& GetOutputRect() const noexcept {
+		return _outputRect;
 	}
 
-	ComPtr<IDXGIFactory2> GetDXGIFactory() const {
-		return _dxgiFactory;
+	const RECT& GetVirtualOutputRect() const noexcept {
+		return _virtualOutputRect;
 	}
 
-	ComPtr<IDXGIAdapter1> GetGraphicsAdapter() const {
-		return _graphicsAdapter;
+	UINT GetEffectCount() const noexcept {
+		return (UINT)_effects.size();
 	}
 
-	bool GetRenderTargetView(ID3D11Texture2D* texture, ID3D11RenderTargetView** result);
-
-	bool GetShaderResourceView(ID3D11Texture2D* texture, ID3D11ShaderResourceView** result);
-
-	bool SetFillVS();
-
-	bool SetSimpleVS(ID3D11Buffer* simpleVB);
-
-	bool SetCopyPS(ID3D11SamplerState* sampler, ID3D11ShaderResourceView* input);
-
-	bool SetAlphaBlend(bool enable);
-
-	StepTimer& GetTimer() {
-		return _timer;
-	}
-
-	const StepTimer& GetTimer() const {
-		return _timer;
-	}
-
-	D3D_FEATURE_LEVEL GetFeatureLevel() const {
-		return _featureLevel;
-	}
-
-	bool CompileShader(bool isVS, std::string_view hlsl, const char* entryPoint,
-		ID3DBlob** blob, const char* sourceName = nullptr, ID3DInclude* include = nullptr);
-
-	// 测试 D3D 调试层是否可用
-	static bool IsDebugLayersAvailable();
+	const EffectDesc& GetEffectDesc(UINT idx) const noexcept;
 
 private:
-	bool _InitD3D();
-
-	bool _CreateSwapChain();
-
 	bool _CheckSrcState();
 
-	bool _ResolveEffectsJson(const std::string& effectsJson, RECT& destRect);
+	bool _ResolveEffectsJson(const std::string& effectsJson);
 
-	void _Render();
+	bool _UpdateDynamicConstants();
 
 	RECT _srcWndRect{};
+	RECT _outputRect{};
+	// 尺寸可能大于主窗口
+	RECT _virtualOutputRect{};
 
-	D3D_FEATURE_LEVEL _featureLevel = D3D_FEATURE_LEVEL_10_0;
-
-	ComPtr<IDXGIFactory2> _dxgiFactory;
-	ComPtr<IDXGIDevice1> _dxgiDevice;
-	ComPtr<IDXGISwapChain2> _dxgiSwapChain;
-	ComPtr<IDXGIAdapter1> _graphicsAdapter;
-	ComPtr<ID3D11Device1> _d3dDevice;
-	ComPtr<ID3D11DeviceContext1> _d3dDC;
-
-	Utils::ScopedHandle _frameLatencyWaitableObject = NULL;
 	bool _waitingForNextFrame = false;
 
-	ComPtr<ID3D11SamplerState> _linearClampSampler;
-	ComPtr<ID3D11SamplerState> _pointClampSampler;
-	ComPtr<ID3D11SamplerState> _linearWrapSampler;
-	ComPtr<ID3D11SamplerState> _pointWrapSampler;
-	ComPtr<ID3D11BlendState> _alphaBlendState;
+	std::vector<std::unique_ptr<EffectDrawer>> _effects;
+	std::array<EffectConstant32, 12> _dynamicConstants;
+	winrt::com_ptr<ID3D11Buffer> _dynamicCB;
 
-	ComPtr<ID3D11Texture2D> _effectInput;
-	ComPtr<ID3D11Texture2D> _backBuffer;
-	std::unordered_map<ID3D11Texture2D*, ComPtr<ID3D11RenderTargetView>> _rtvMap;
-	std::unordered_map<ID3D11Texture2D*, ComPtr<ID3D11ShaderResourceView>> _srvMap;
+	std::unique_ptr<OverlayDrawer> _overlayDrawer;
+	UINT _handlerID = 0;
 
-	ComPtr<ID3D11VertexShader> _fillVS;
-	ComPtr<ID3D11VertexShader> _simpleVS;
-	ComPtr<ID3D11InputLayout> _simpleIL;
-	ComPtr<ID3D11PixelShader> _copyPS;
-	std::vector<EffectDrawer> _effects;
-
-	CursorDrawer _cursorDrawer;
-	FrameRateDrawer _frameRateDrawer;
-
-	StepTimer _timer;
+	std::unique_ptr<GPUTimer> _gpuTimer;
 };

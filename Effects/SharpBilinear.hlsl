@@ -1,24 +1,8 @@
 // 移植自 https://github.com/libretro/common-shaders/blob/master/interpolation/shaders/sharp-bilinear.cg
 
 //!MAGPIE EFFECT
-//!VERSION 1
+//!VERSION 2
 
-
-//!CONSTANT
-//!VALUE INPUT_WIDTH
-float inputWidth;
-
-//!CONSTANT
-//!VALUE INPUT_HEIGHT
-float inputHeight;
-
-//!CONSTANT
-//!VALUE SCALE_X
-float scaleX;
-
-//!CONSTANT
-//!VALUE SCALE_Y
-float scaleY;
 
 //!TEXTURE
 Texture2D INPUT;
@@ -31,13 +15,16 @@ SamplerState sam;
 
 
 //!PASS 1
-//!BIND INPUT
+//!STYLE PS
+//!IN INPUT
 
 float4 Pass1(float2 pos) {
-	float2 texel = pos * float2(inputWidth, inputHeight);
+	float2 inputPt = GetInputPt();
+	float2 scale = GetScale();
+
+	float2 texel = pos * GetInputSize();
 //   float2 texel_floored = floor(texel);
 //   float scale = (AUTO_PRESCALE > 0.5) ? floor(output_size.y / video_size.y) : SHARP_BILINEAR_PRE_SCALE;
-	float2 scale = { scaleX, scaleY };
 	float2 texel_floored = floor(texel);
 	float2 s = frac(texel);
 	float2 region_range = 0.5 - 0.5 / scale;
@@ -49,5 +36,5 @@ float4 Pass1(float2 pos) {
 	float2 f = (center_dist - clamp(center_dist, -region_range, region_range)) * scale + 0.5;
 
 	float2 mod_texel = texel_floored + f;
-	return INPUT.Sample(sam, mod_texel / float2(inputWidth, inputHeight));
+	return INPUT.SampleLevel(sam, mod_texel * inputPt, 0);
 }

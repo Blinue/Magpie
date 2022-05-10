@@ -18,10 +18,13 @@
 #include "App.h"
 #include "Utils.h"
 #include "StrUtils.h"
+#include "Logger.h"
 
+
+#define API_DECLSPEC extern "C" __declspec(dllexport)
 
 static HINSTANCE hInst = NULL;
-std::shared_ptr<spdlog::logger> logger = nullptr;
+
 
 // DLL 入口
 BOOL APIENTRY DllMain(
@@ -34,7 +37,6 @@ BOOL APIENTRY DllMain(
 		hInst = hModule;
 		break;
 	case DLL_PROCESS_DETACH:
-		App::GetInstance().~App();
 		break;
 	case DLL_THREAD_ATTACH:
 		break;
@@ -47,14 +49,7 @@ BOOL APIENTRY DllMain(
 // 日志级别：
 // 0：TRACE，1：DEBUG，...，6：OFF
 API_DECLSPEC void WINAPI SetLogLevel(UINT logLevel) {
-	assert(logger);
-
-	logger->flush();
-	logger->set_level((spdlog::level::level_enum)logLevel);
-	static const char* LOG_LEVELS[7] = {
-		"TRACE", "DEBUG", "INFO", "WARN", "ERROR", "CRITICAL", "OFF"
-	};
-	SPDLOG_LOGGER_INFO(logger, fmt::format("当前日志级别：{}", LOG_LEVELS[logLevel]));
+	Logger::Get().SetLevel((spdlog::level::level_enum)logLevel);
 }
 
 
@@ -65,25 +60,17 @@ API_DECLSPEC BOOL WINAPI Initialize(
 	int logMaxArchiveFiles
 ) {
 	// 初始化日志
-	try {
-		logger = spdlog::rotating_logger_mt(".", logFileName, logArchiveAboveSize, logMaxArchiveFiles);
-		logger->set_level((spdlog::level::level_enum)logLevel);
-		logger->set_pattern("%Y-%m-%d %H:%M:%S.%e|%l|%s:%!|%v");
-		logger->flush_on(spdlog::level::warn);
-		spdlog::flush_every(std::chrono::seconds(5));
-	} catch (const spdlog::spdlog_ex&) {
+	if (!Logger::Get().Initialize(logLevel, logFileName, logArchiveAboveSize, logMaxArchiveFiles)) {
 		return FALSE;
 	}
 
-	SetLogLevel(logLevel);
-
 	// 初始化 App
-	if (!App::GetInstance().Initialize(hInst)) {
+	if (!App::Get().Initialize(hInst)) {
 		return FALSE;
 	}
 
 	// 初始化 Hasher
-	if (!Utils::Hasher::GetInstance().Initialize()) {
+	if (!Utils::Hasher::Get().Initialize()) {
 		return FALSE;
 	}
 
@@ -95,49 +82,50 @@ API_DECLSPEC const char* WINAPI Run(
 	const char* effectsJson,
 	UINT flags,
 	UINT captureMode,
-	int frameRate,	// 0：垂直同步，负数：不限帧率，正数：限制的帧率
-	float cursorZoomFactor,	// 负数和 0：和源原窗口相同，正数：缩放比例
+	float cursorZoomFactor,	// 负数和 0：和源窗口相同，正数：缩放比例
 	UINT cursorInterpolationMode,	// 0：最近邻，1：双线性
-	UINT adapterIdx,
+	int adapterIdx,
 	UINT multiMonitorUsage,	// 0：最近 1：相交 2：所有
 	UINT cropLeft,
 	UINT cropTop,
 	UINT cropRight,
 	UINT cropBottom
 ) {
+	Logger& logger = Logger::Get();
+
 	if (!hwndSrc || !IsWindow(hwndSrc)) {
-		SPDLOG_LOGGER_CRITICAL(logger, "非法的源窗口句柄");
+		logger.Critical("非法的源窗口句柄");
 		return ErrorMessages::GENERIC;
 	}
 
 	const auto& version = Utils::GetOSVersion();
-	SPDLOG_LOGGER_INFO(logger, fmt::format("OS 版本：{}.{}.{}",
+	logger.Info(fmt::format("OS 版本：{}.{}.{}",
 		version.dwMajorVersion, version.dwMinorVersion, version.dwBuildNumber));
 
 	int len = GetWindowTextLength(hwndSrc);
 	if (len <= 0) {
-		SPDLOG_LOGGER_INFO(logger, "源窗口无标题");
+		logger.Info("源窗口无标题");
 	} else {
 		std::wstring title(len, 0);
 		if (!GetWindowText(hwndSrc, &title[0], int(title.size() + 1))) {
-			SPDLOG_LOGGER_ERROR(logger, "获取源窗口标题失败");
+			Logger::Get().Error("获取源窗口标题失败");
 		} else {
-			SPDLOG_LOGGER_INFO(logger, "源窗口标题：" + StrUtils::UTF16ToUTF8(title));
+			Logger::Get().Info(StrUtils::Concat("源窗口标题：", StrUtils::UTF16ToUTF8(title)));
 		}
 	}
 
-	App& app = App::GetInstance();
-	if (!app.Run(hwndSrc, effectsJson, captureMode, frameRate,
+	App& app = App::Get();
+	if (!app.Run(hwndSrc, effectsJson, captureMode,
 		cursorZoomFactor, cursorInterpolationMode, adapterIdx, multiMonitorUsage,
 		RECT{(LONG)cropLeft, (LONG)cropTop, (LONG)cropRight, (LONG)cropBottom}, flags)
 	) {
 		// 初始化失败
-		SPDLOG_LOGGER_INFO(logger, "App.Run 失败");
+		Logger::Get().Info("App.Run 失败");
 		return app.GetErrorMsg();
 	}
 
-	SPDLOG_LOGGER_INFO(logger, "即将退出");
-	logger->flush();
+	logger.Info("即将退出");
+	logger.Flush();
 
 	return nullptr;
 }
@@ -152,17 +140,16 @@ API_DECLSPEC const char* WINAPI GetAllGraphicsAdapters(const char* delimiter) {
 	static std::string result;
 	result.clear();
 
-	ComPtr<IDXGIFactory1> dxgiFactory;
+	winrt::com_ptr<IDXGIFactory1> dxgiFactory;
 	HRESULT hr = CreateDXGIFactory1(IID_PPV_ARGS(&dxgiFactory));
 	if (FAILED(hr)) {
 		return "";
 	}
 
-	ComPtr<IDXGIAdapter1> adapter;
+	winrt::com_ptr<IDXGIAdapter1> adapter;
 	for (UINT adapterIndex = 0;
-			SUCCEEDED(dxgiFactory->EnumAdapters1(adapterIndex,
-				adapter.ReleaseAndGetAddressOf()));
-			adapterIndex++
+		SUCCEEDED(dxgiFactory->EnumAdapters1(adapterIndex,adapter.put()));
+		++adapterIndex
 	) {
 		if (adapterIndex > 0) {
 			result += delimiter;

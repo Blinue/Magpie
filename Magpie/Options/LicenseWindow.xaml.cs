@@ -27,5 +27,11 @@ namespace Magpie.Options {
 		private void BtnOK_Click(object sender, RoutedEventArgs e) {
 			Close();
 		}
+
+		private void Window_KeyDown(object sender, System.Windows.Input.KeyEventArgs e) {
+			if (e.Key == System.Windows.Input.Key.System) {
+				e.Handled = true;
+			}
+		}
 	}
 }

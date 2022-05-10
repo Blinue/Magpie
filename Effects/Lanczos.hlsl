@@ -2,18 +2,10 @@
 // 移植自 https://github.com/libretro/common-shaders/blob/master/windowed/shaders/lanczos6.cg
 
 //!MAGPIE EFFECT
-//!VERSION 1
+//!VERSION 2
 
 
-//!CONSTANT
-//!VALUE INPUT_PT_X
-float inputPtX;
-
-//!CONSTANT
-//!VALUE INPUT_PT_Y
-float inputPtY;
-
-//!CONSTANT
+//!PARAMETER
 //!DEFAULT 0.5
 //!MIN 0
 //!MAX 1
@@ -28,7 +20,8 @@ SamplerState sam;
 
 
 //!PASS 1
-//!BIND INPUT
+//!STYLE PS
+//!IN INPUT
 
 #define FIX(c) max(abs(c), 1e-5)
 #define PI 3.14159265359
@@ -36,35 +29,23 @@ SamplerState sam;
 #define max4(a, b, c, d) max(max(a, b), max(c, d))
 
 float3 weight3(float x) {
-	const float radius = 3.0;
+	const float rcpRadius = 1.0f / 3.0f;
 	float3 s = FIX(2.0 * PI * float3(x - 1.5, x - 0.5, x + 0.5));
 	// Lanczos3. Note: we normalize outside this function, so no point in multiplying by radius.
-	return /*radius **/ sin(s) * sin(s / radius) / (s * s);
-}
-
-float3 line_run(float ypos, float3 xpos1, float3 xpos2, float3 linetaps1, float3 linetaps2) {
-	return INPUT.Sample(sam, float2(xpos1.r, ypos)).rgb * linetaps1.r
-		+ INPUT.Sample(sam, float2(xpos1.g, ypos)).rgb * linetaps2.r
-		+ INPUT.Sample(sam, float2(xpos1.b, ypos)).rgb * linetaps1.g
-		+ INPUT.Sample(sam, float2(xpos2.r, ypos)).rgb * linetaps2.g
-		+ INPUT.Sample(sam, float2(xpos2.g, ypos)).rgb * linetaps1.b
-		+ INPUT.Sample(sam, float2(xpos2.b, ypos)).rgb * linetaps2.b;
+	return /*radius **/ sin(s) * sin(s * rcpRadius) * rcp(s * s);
 }
 
 float4 Pass1(float2 pos) {
-	// 用于抗振铃
-	float3 neighbors[4] = {
-		INPUT.Sample(sam, float2(pos.x - inputPtX, pos.y)).rgb,
-		INPUT.Sample(sam, float2(pos.x + inputPtX, pos.y)).rgb,
-		INPUT.Sample(sam, float2(pos.x, pos.y - inputPtY)).rgb,
-		INPUT.Sample(sam, float2(pos.x, pos.y + inputPtY)).rgb
-	};
+	pos *= GetInputSize();
+	float2 inputPt = GetInputPt();
 
-	float2 f = frac(pos.xy / float2(inputPtX, inputPtY) + 0.5);
-	float3 linetaps1 = weight3(0.5 - f.x * 0.5);
-	float3 linetaps2 = weight3(1.0 - f.x * 0.5);
-	float3 columntaps1 = weight3(0.5 - f.y * 0.5);
-	float3 columntaps2 = weight3(1.0 - f.y * 0.5);
+	uint i, j;
+
+	float2 f = frac(pos.xy + 0.5f);
+	float3 linetaps1 = weight3(0.5f - f.x * 0.5f);
+	float3 linetaps2 = weight3(1.0f - f.x * 0.5f);
+	float3 columntaps1 = weight3(0.5f - f.y * 0.5f);
+	float3 columntaps2 = weight3(1.0f - f.y * 0.5f);
 
 	// make sure all taps added together is exactly 1.0, otherwise some
 	// (very small) distortion can occur
@@ -75,22 +56,39 @@ float4 Pass1(float2 pos) {
 	columntaps1 /= sumc;
 	columntaps2 /= sumc;
 
-	// !!!改变当前坐标
-	pos -= (f + 2) * float2(inputPtX, inputPtY);
-	float3 xpos1 = float3(pos.x, pos.x + inputPtX, pos.x + 2 * inputPtX);
-	float3 xpos2 = float3(pos.x + 3 * inputPtX, pos.x + 4 * inputPtX, pos.x + 5 * inputPtX);
+	pos -= f + 1.5f;
+
+	float3 src[6][6];
+
+	[unroll]
+	for (i = 0; i <= 4; i += 2) {
+		[unroll]
+		for (j = 0; j <= 4; j += 2) {
+			float2 tpos = (pos + uint2(i, j)) * inputPt;
+			const float4 sr = INPUT.GatherRed(sam, tpos);
+			const float4 sg = INPUT.GatherGreen(sam, tpos);
+			const float4 sb = INPUT.GatherBlue(sam, tpos);
+
+			// w z
+			// x y
+			src[i][j] = float3(sr.w, sg.w, sb.w);
+			src[i][j + 1] = float3(sr.x, sg.x, sb.x);
+			src[i + 1][j] = float3(sr.z, sg.z, sb.z);
+			src[i + 1][j + 1] = float3(sr.y, sg.y, sb.y);
+		}
+	}
 
 	// final sum and weight normalization
-	float3 color = line_run(pos.y, xpos1, xpos2, linetaps1, linetaps2) * columntaps1.r
-		+ line_run(pos.y + inputPtY, xpos1, xpos2, linetaps1, linetaps2) * columntaps2.r
-		+ line_run(pos.y + 2 * inputPtY, xpos1, xpos2, linetaps1, linetaps2) * columntaps1.g
-		+ line_run(pos.y + 3 * inputPtY, xpos1, xpos2, linetaps1, linetaps2) * columntaps2.g
-		+ line_run(pos.y + 4 * inputPtY, xpos1, xpos2, linetaps1, linetaps2) * columntaps1.b
-		+ line_run(pos.y + 5 * inputPtY, xpos1, xpos2, linetaps1, linetaps2) * columntaps2.b;
+
+	float3 color = float3(0, 0, 0);
+	[unroll]
+	for (i = 0; i <= 4; i += 2) {
+		color += (mul(linetaps1, float3x3(src[0][i], src[2][i], src[4][i])) + mul(linetaps2, float3x3(src[1][i], src[3][i], src[5][i]))) * columntaps1[i / 2] + (mul(linetaps1, float3x3(src[0][i + 1], src[2][i + 1], src[4][i + 1])) + mul(linetaps2, float3x3(src[1][i + 1], src[3][i + 1], src[5][i + 1]))) * columntaps2[i / 2];
+	}
 
 	// 抗振铃
-	float3 min_sample = min4(neighbors[0], neighbors[1], neighbors[2], neighbors[3]);
-	float3 max_sample = max4(neighbors[0], neighbors[1], neighbors[2], neighbors[3]);
+	float3 min_sample = min4(src[2][2], src[3][2], src[2][3], src[3][3]);
+	float3 max_sample = max4(src[2][2], src[3][2], src[2][3], src[3][3]);
 	color = lerp(color, clamp(color, min_sample, max_sample), ARStrength);
 
 	return float4(color, 1);

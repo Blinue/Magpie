@@ -1,13 +1,12 @@
 #include "pch.h"
 #include "StrUtils.h"
+#include "Logger.h"
 
-
-extern std::shared_ptr<spdlog::logger> logger;
 
 std::wstring StrUtils::UTF8ToUTF16(std::string_view str) {
 	int convertResult = MultiByteToWideChar(CP_UTF8, 0, str.data(), (int)str.size(), nullptr, 0);
 	if (convertResult <= 0) {
-		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("MultiByteToWideChar 失败"));
+		Logger::Get().Win32Error("MultiByteToWideChar 失败");
 		assert(false);
 		return {};
 	}
@@ -15,7 +14,7 @@ std::wstring StrUtils::UTF8ToUTF16(std::string_view str) {
 	std::wstring r(convertResult + 10, L'\0');
 	convertResult = MultiByteToWideChar(CP_UTF8, 0, str.data(), (int)str.size(), &r[0], (int)r.size());
 	if (convertResult <= 0) {
-		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("MultiByteToWideChar 失败"));
+		Logger::Get().Win32Error("MultiByteToWideChar 失败");
 		assert(false);
 		return {};
 	}
@@ -26,7 +25,7 @@ std::wstring StrUtils::UTF8ToUTF16(std::string_view str) {
 std::string StrUtils::UTF16ToUTF8(std::wstring_view str) {
 	int convertResult = WideCharToMultiByte(CP_UTF8, 0, str.data(), (int)str.size(), nullptr, 0, nullptr, nullptr);
 	if (convertResult <= 0) {
-		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("WideCharToMultiByte 失败"));
+		Logger::Get().Win32Error("WideCharToMultiByte 失败");
 		assert(false);
 		return {};
 	}
@@ -34,7 +33,7 @@ std::string StrUtils::UTF16ToUTF8(std::wstring_view str) {
 	std::string r(convertResult + 10, L'\0');
 	convertResult = WideCharToMultiByte(CP_UTF8, 0, str.data(), (int)str.size(), &r[0], (int)r.size(), nullptr, nullptr);
 	if (convertResult <= 0) {
-		SPDLOG_LOGGER_ERROR(logger, MakeWin32ErrorMsg("WideCharToMultiByte 失败"));
+		Logger::Get().Win32Error("WideCharToMultiByte 失败");
 		assert(false);
 		return {};
 	}
