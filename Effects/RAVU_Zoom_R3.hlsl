@@ -66,10 +66,10 @@ void Pass1(uint2 blockStart, uint3 threadId) {
 	const int2 rectr = floor((blockStart + uint2(MP_BLOCK_WIDTH, MP_BLOCK_HEIGHT) - 1) * rcpScale - 0.5f) + 3;
 	const uint2 rect = uint2(rectr - rectl + 1);
 
-	const uint maxId = rect.x * rect.y;
+	const int maxId = int(rect.x * rect.y);
 
-	for (uint id = threadId.y * MP_NUM_THREADS_X + threadId.x; id < maxId; id += MP_NUM_THREADS_X * MP_NUM_THREADS_Y) {
-		uint y = id / rect.x, x = id % rect.x;
+	for (int id = int(threadId.y * MP_NUM_THREADS_X + threadId.x); id < maxId; id += MP_NUM_THREADS_X * MP_NUM_THREADS_Y) {
+		uint y = (uint)id / rect.x, x = (uint)id % rect.x;
 		samples[x + y * NUM_PIXELS_X] = GetLuma(INPUT.SampleLevel(sam, inputPt * (rectl + uint2(x, y) + 0.5f), 0).rgb);
 	}
 

@@ -130,9 +130,9 @@ void Pass2(uint2 blockStart, uint3 threadId) {
 	// Spatial window size, must be a positive real number.
 	const float SPATIAL_SIGMA = 2.0f * GetInputSize().y / 1080.0f;
 	// Kernel size, must be an positive odd integer.
-	const uint KERNELSIZE = max(uint(ceil(SPATIAL_SIGMA * 2.0)), 1) * 2 + 1;
+	const int KERNELSIZE = max(int(ceil(SPATIAL_SIGMA * 2.0)), 1) * 2 + 1;
 	//Half of the kernel size without remainder. Must be equal to trunc(KERNELSIZE/2).
-	const uint KERNELHALFSIZE = KERNELSIZE / 2;
+	const int KERNELHALFSIZE = KERNELSIZE >> 1;
 
 	[unroll]
 	for (uint i = 0; i <= 1; ++i) {
@@ -151,8 +151,8 @@ void Pass2(uint2 blockStart, uint3 threadId) {
 			float g = 0.0;
 			float gn = 0.0;
 
-			for (uint k = 0; k < KERNELSIZE; ++k) {
-				int di = (int)k - (int)KERNELHALFSIZE;
+			for (int k = 0; k < KERNELSIZE; ++k) {
+				int di = k - KERNELHALFSIZE;
 				float gf = gaussian(di, SPATIAL_SIGMA, 0.0);
 				g = g + tex2.SampleLevel(sam, pos + float2(di * inputPt.x, 0.0), 0).x * gf;
 				gn = gn + gf;
@@ -187,9 +187,9 @@ void Pass3(uint2 blockStart, uint3 threadId) {
 	// Spatial window size, must be a positive real number.
 	const float SPATIAL_SIGMA = 2.0f * GetInputSize().y / 1080.0f;
 	// Kernel size, must be an positive odd integer.
-	const uint KERNELSIZE = max(uint(ceil(SPATIAL_SIGMA * 2.0)), 1) * 2 + 1;
+	const int KERNELSIZE = max(int(ceil(SPATIAL_SIGMA * 2.0)), 1) * 2 + 1;
 	//Half of the kernel size without remainder. Must be equal to trunc(KERNELSIZE/2).
-	const uint KERNELHALFSIZE = KERNELSIZE / 2;
+	const int KERNELHALFSIZE = KERNELSIZE >> 1;
 
 	[unroll]
 	for (uint i = 0; i <= 1; ++i) {
@@ -208,8 +208,8 @@ void Pass3(uint2 blockStart, uint3 threadId) {
 			float g = 0.0;
 			float gn = 0.0;
 
-			for (uint k = 0; k < KERNELSIZE; ++k) {
-				int di = (int)k - (int)KERNELHALFSIZE;
+			for (int k = 0; k < KERNELSIZE; ++k) {
+				int di = k - KERNELHALFSIZE;
 				float gf = gaussian(di, SPATIAL_SIGMA, 0.0);
 
 				g = g + tex1.SampleLevel(sam, pos + float2(0, di * inputPt.y), 0).x * gf;

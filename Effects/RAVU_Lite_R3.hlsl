@@ -56,8 +56,8 @@ float mod(float x, float y) {
 void Pass1(uint2 blockStart, uint3 threadId) {
 	const float2 inputPt = GetInputPt();
 
-	for (uint id = threadId.y * MP_NUM_THREADS_X + threadId.x; id < NUM_PIXELS_X * NUM_PIXELS_Y; id += MP_NUM_THREADS_X * MP_NUM_THREADS_Y) {
-		uint2 pos = { id % NUM_PIXELS_X, id / NUM_PIXELS_X };
+	for (int id = threadId.y * MP_NUM_THREADS_X + threadId.x; id < NUM_PIXELS_X * NUM_PIXELS_Y; id += MP_NUM_THREADS_X * MP_NUM_THREADS_Y) {
+		uint2 pos = { (uint)id % NUM_PIXELS_X, (uint)id / NUM_PIXELS_X };
 		inp[pos.y][pos.x] = GetLuma(INPUT.SampleLevel(sam, inputPt * ((blockStart / 2) + pos - 1.5f), 0).rgb);
 	}
 
@@ -69,7 +69,9 @@ void Pass1(uint2 blockStart, uint3 threadId) {
 	}
 
 	float src[5][5];
+	[unroll]
 	for (uint i = 0; i < 5; ++i) {
+		[unroll]
 		for (uint j = 0; j < 5; ++j) {
 			src[j][i] = inp[threadId.y + i][threadId.x + j];
 		}
