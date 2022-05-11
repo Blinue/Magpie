@@ -63,8 +63,30 @@ Magpie 可以将任意窗口放大至全屏，内置大量缩放算法/滤镜。
 
 1. Windows 10/11
 2. DirectX 功能级别 11
-3. [.NET 6.0.4 Desktop 运行时](https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/runtime-desktop-6.0.4-windows-x64-installer)
-4. [MSVC 2015-2022 运行时](https://docs.microsoft.com/cpp/windows/latest-supported-vc-redist)
+3. 安装 .NET 6.0.4 Desktop 运行时
+
+   [下载安装包手动安装](https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/runtime-desktop-6.0.4-windows-x64-installer)
+   
+   或
+   
+   在终端输入以下指令通过winget自动安装 [示例图片](img/dotnetruntime.jpg)
+   
+   ```
+   winget install Microsoft.dotnetRuntime.6-x64 -e --force
+   ```
+
+5. 安装 MSVC 2015-2022 运行时
+
+   [下载安装包手动安装](https://docs.microsoft.com/cpp/windows/latest-supported-vc-redist)
+   
+   或
+   
+   在终端输入以下指令通过winget自动安装 [示例图片](img/msvc.jpg)
+   
+   ```
+   winget install Microsoft.VC++2015-2022Redist-x86 -e --force
+   winget install Microsoft.VC++2015-2022Redist-x64 -e --force
+   ```
 
 ## 使用提示
 
