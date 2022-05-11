@@ -146,6 +146,9 @@ struct Utils {
 
 	// 强制切换前台窗口
 	static bool SetForegroundWindow(HWND hWnd);
+
+	// 全局显示/隐藏系统光标
+	static bool ShowSystemCursor(bool value);
 };
 
 namespace std {

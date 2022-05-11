@@ -5,6 +5,9 @@
 #include "StrUtils.h"
 #include "Logger.h"
 #include <zstd.h>
+#include <magnification.h>
+
+#pragma comment(lib, "Magnification.lib")
 
 
 UINT Utils::GetWindowShowCmd(HWND hwnd) {
@@ -309,6 +312,42 @@ bool Utils::SetForegroundWindow(HWND hWnd) {
 	}
 
 	return true;
+}
+
+bool Utils::ShowSystemCursor(bool value) {
+	bool result = false;
+
+	static void (WINAPI* const showSystemCursor)(BOOL bShow) = []()->void(WINAPI*)(BOOL) {
+		HMODULE lib = LoadLibrary(L"user32.dll");
+		if (!lib) {
+			return nullptr;
+		}
+
+		return (void(WINAPI*)(BOOL))GetProcAddress(lib, "ShowSystemCursor");
+	}();
+
+	if (showSystemCursor) {
+		showSystemCursor((BOOL)value);
+		result = true;
+	} else {
+		// 获取 ShowSystemCursor 失败则回落到 Magnification API
+		static bool initialized = []() {
+			if (!MagInitialize()) {
+				Logger::Get().Win32Error("MagInitialize 失败");
+				return false;
+			}
+				
+			return true;
+		}();
+
+		result = initialized ? (bool)MagShowSystemCursor(value) : false;
+	}
+
+	if (result && value) {
+		// 修复有时不会立即生效的问题
+		SystemParametersInfo(SPI_SETCURSORS, 0, 0, 0);
+	}
+	return result;
 }
 
 Utils::Hasher::~Hasher() {

@@ -288,9 +288,7 @@ void CursorManager::_StartCapture(POINT cursorPt) {
 	// 在有黑边的情况下自动将光标调整到画面内
 
 	// 全局隐藏光标
-	if (!MagShowSystemCursor(FALSE)) {
-		Logger::Get().Win32Error("MagShowSystemCursor 失败");
-	}
+	Utils::ShowSystemCursor(false);
 
 	const RECT& srcFrameRect = App::Get().GetFrameSource().GetSrcFrameRect();
 	const RECT& hostRect = App::Get().GetHostWndRect();
@@ -345,12 +343,7 @@ void CursorManager::_StopCapture(POINT cursorPos, bool onDestroy) {
 			SystemParametersInfo(SPI_SETMOUSESPEED, 0, (PVOID)(intptr_t)_cursorSpeed, 0);
 		}
 
-		if (!MagShowSystemCursor(TRUE)) {
-			Logger::Get().Error("MagShowSystemCursor 失败");
-		}
-		
-		// 解决有时 MagShowSystemCursor(TRUE) 不会立即生效的问题
-		SystemParametersInfo(SPI_SETCURSORS, 0, 0, 0);
+		Utils::ShowSystemCursor(true);
 
 		_isUnderCapture = false;
 	} else {

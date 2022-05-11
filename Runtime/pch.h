@@ -40,11 +40,11 @@
 
 #include <windows.h>
 #include <windowsx.h>
-#include <magnification.h>
 #include <wrl/client.h>
 #include <dwmapi.h>
 #include <profileapi.h>
 #include <psapi.h>
+#include <wincodec.h>
 
 // DirectX 头文件
 #include <d3d11_4.h>
@@ -74,7 +74,6 @@
 #include <spdlog/sinks/rotating_file_sink.h>
 
 
-#pragma comment(lib, "Magnification.lib")
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "windowsapp")
 #pragma comment(lib, "dwmapi.lib")

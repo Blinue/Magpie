@@ -24,7 +24,6 @@ static constexpr const wchar_t* HOST_WINDOW_TITLE = L"Magpie_Host";
 App::App() {}
 
 App::~App() {
-	MagUninitialize();
 	winrt::uninit_apartment();
 }
 
@@ -37,11 +36,6 @@ bool App::Initialize(HINSTANCE hInst) {
 	winrt::init_apartment(winrt::apartment_type::multi_threaded);
 
 	_RegisterWndClasses();
-
-	// 供隐藏光标和 MagCallback 抓取模式使用
-	if (!MagInitialize()) {
-		Logger::Get().Win32Error("MagInitialize 失败");
-	}
 
 	Logger::Get().Info("App 初始化成功");
 	return true;
