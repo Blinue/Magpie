@@ -1,0 +1,13 @@
+- [维基主页](./Home.md)
+  - [编译指南](./编译指南.md)
+  - [自定义缩放配置](./自定义缩放配置.md)
+  - [自定义效果（MagpieFX）](./自定义效果（MagpieFX）.md)
+  - [性能优化建议](./性能优化建议.md)
+  - [捕获模式对比](./捕获模式对比.md)
+
+- [WIKI HOME](./Home_EN.md)
+  - [Compiling](./Compiling.md)
+  - [Capture modes](./capture_modes.md)
+  - [MagpieFX](./Customizing_Effects.md)
+  - [Performance optimization](./Performance_Improvements.md)
+  - [Custom scaling conf](./Customizing_Scaling_Configurations.md)
