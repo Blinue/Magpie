@@ -55,3 +55,7 @@ DirectFlip 是一种用于降低输入延迟的技术，但可能会在一些情
 ## Magpie 中显示的帧率是什么？
 
 Magpie 显示的是自己的帧率而不是游戏的，基于非侵入性原则，Magpie 无法获知游戏的帧率。建议使用 RTSS 等工具显示游戏帧率，它们的叠加层一般也可以被 Magpie 捕获到。
+
+## 是否支持触控？
+
+不支持。支持触控要求 Magpie 拥有相当高的权限，这对一般用户来说是不可接受的。在 [#218 (comment)](https://github.com/Blinue/Magpie/issues/218#issuecomment-980506414) 下载支持触控的版本。
