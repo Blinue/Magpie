@@ -27,7 +27,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	UNREFERENCED_PARAMETER(lpCmdLine);
 
 	winrt::init_apartment(winrt::apartment_type::single_threaded);
-	hostApp = winrt::Magpie::App::App{};
 
 	MyRegisterClass(hInstance);
 
@@ -123,11 +122,13 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow) {
 		BOOL value = TRUE;
 		DwmSetWindowAttribute(hWnd, DWMWA_MICA_EFFECT, &value, sizeof(value));
 	}
+	
+	// 在 Win10 上可能导致任务栏出现空的 DesktopWindowXamlSource 窗口
+	// 见 https://github.com/microsoft/microsoft-ui-xaml/issues/6490
+	hostApp = winrt::Magpie::App::App{};
+	ShowWindow(hWnd, nCmdShow);
 
 	xamlHost.Attach(hWnd, winrt::Magpie::App::MainPage());
-
-	ShowWindow(hWnd, nCmdShow);
-	UpdateWindow(hWnd);
 
 	return TRUE;
 }

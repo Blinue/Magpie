@@ -2,12 +2,12 @@
 <Package xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10" xmlns:mp="http://schemas.microsoft.com/appx/2014/phone/manifest" xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10" IgnorableNamespaces="uap mp">
   <Identity
     Name="95c63e03-47d5-41a3-9dc9-2b82eda2d1fa"
-    Publisher="CN=Administrator"
+    Publisher="CN=Blinue"
     Version="1.0.0.0" />
   <mp:PhoneIdentity PhoneProductId="95c63e03-47d5-41a3-9dc9-2b82eda2d1fa" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
   <Properties>
     <DisplayName>Magpie.App</DisplayName>
-    <PublisherDisplayName>Administrator</PublisherDisplayName>
+    <PublisherDisplayName>Blinue</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
   <Dependencies>

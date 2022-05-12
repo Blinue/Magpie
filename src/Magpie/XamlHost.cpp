@@ -1,5 +1,7 @@
 #include "pch.h"
 #include "XamlHost.h"
+#include <winrt/Windows.UI.Core.h>
+#include <CoreWindow.h>
 
 
 namespace winrt {
@@ -20,6 +22,16 @@ void XamlHost::Attach(HWND parent, winrt::Windows::UI::Xaml::UIElement xamlEleme
 
 	interop->get_WindowHandle(&_hwndXamlIsland);
 	_xamlSource.Content(xamlElement);
+
+	_OnResize();
+
+	// 防止关闭时出现 DesktopWindowXamlSource 窗口
+	auto coreWindow = winrt::Windows::UI::Core::CoreWindow::GetForCurrentThread();
+	if (coreWindow) {
+		HWND hwndDWXS;
+		coreWindow.as<ICoreWindowInterop>()->get_WindowHandle(&hwndDWXS);
+		ShowWindow(hwndDWXS, SW_HIDE);
+	}
 }
 
 void XamlHost::Detach() {
