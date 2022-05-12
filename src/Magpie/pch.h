@@ -38,17 +38,10 @@
 #define NOMCX
 
 #include <windows.h>
-#include <windowsx.h>
 #include <dwmapi.h>
 
 // C++ 运行时头文件
-#include <string>
-#include <memory>
 #include <cstdlib>
-#include <functional>
-#include <algorithm>
-#include <string_view>
-#include <span>
 
 // C++/WinRT 头文件
 #include <winrt/base.h>
@@ -61,7 +54,3 @@
 
 
 #pragma comment(lib, "dwmapi.lib")
-
-
-using namespace std::literals::string_literals;
-using namespace std::literals::string_view_literals;

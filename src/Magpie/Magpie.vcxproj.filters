@@ -18,7 +18,7 @@
     <ClInclude Include="pch.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="XamlHost.h">
+    <ClInclude Include="XamlApp.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
@@ -35,7 +35,7 @@
     <ClCompile Include="pch.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="XamlHost.cpp">
+    <ClCompile Include="XamlApp.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
