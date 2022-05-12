@@ -2,7 +2,11 @@
 #include "XamlApp.h"
 #include <winrt/Windows.UI.Core.h>
 #include <CoreWindow.h>
+#include <winrt/Windows.UI.ViewManagement.h>
 
+namespace winrt {
+using namespace Windows::UI::ViewManagement;
+}
 
 ATOM RegisterWndClass(
 	HINSTANCE hInstance,
@@ -11,6 +15,11 @@ ATOM RegisterWndClass(
 ) {
 	WNDCLASSEXW wcex{};
 
+	// 背景色遵循系统主题以避免显示时闪烁
+	winrt::UISettings uiSettings;
+	auto bkgColor = uiSettings.GetColorValue(winrt::UIColorType::Background);
+	HBRUSH hbrBkg = CreateSolidBrush(RGB(bkgColor.R, bkgColor.G, bkgColor.B));
+
 	wcex.cbSize = sizeof(WNDCLASSEX);
 	wcex.lpfnWndProc = wndProc;
 	wcex.cbClsExtra = 0;
@@ -18,7 +27,7 @@ ATOM RegisterWndClass(
 	wcex.hInstance = hInstance;
 	wcex.hIcon = NULL;
 	wcex.hCursor = LoadCursor(nullptr, IDC_ARROW);
-	wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
+	wcex.hbrBackground = hbrBkg;
 	wcex.lpszMenuName = NULL;
 	wcex.lpszClassName = className;
 	wcex.hIconSm = NULL;
