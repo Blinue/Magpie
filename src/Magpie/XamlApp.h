@@ -22,6 +22,8 @@ public:
 	int Run();
 
 private:
+	void _ApplyMica() const;
+
 	ATOM _RegisterWndClass(HINSTANCE hInstance, const wchar_t* className);
 
 	void _OnResize();
@@ -39,4 +41,7 @@ private:
 	winrt::com_ptr<IDesktopWindowXamlSourceNative2> _xamlSourceNative2;
 
 	winrt::Windows::UI::ViewManagement::UISettings _uiSettings{ nullptr };
+	winrt::Windows::UI::ViewManagement::UISettings::ColorValuesChanged_revoker _colorChangedRevoker;
+
+	bool _isWin11 = false;
 };

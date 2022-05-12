@@ -5,7 +5,24 @@
 
 
 namespace winrt {
+using namespace Windows::Foundation;
 using namespace Windows::UI::ViewManagement;
+}
+
+
+void XamlApp::_ApplyMica() const {
+	if (!_isWin11) {
+		return;
+	}
+
+	constexpr const DWORD DWMWA_MICA_EFFECT = 1029;
+
+	auto bkgColor = _uiSettings.GetColorValue(winrt::UIColorType::Background);
+	BOOL isDarkMode = bkgColor.R < 128;
+	DwmSetWindowAttribute(_hwndXamlHost, DWMWA_USE_IMMERSIVE_DARK_MODE, &isDarkMode, sizeof(isDarkMode));
+
+	BOOL mica = TRUE;
+	DwmSetWindowAttribute(_hwndXamlHost, DWMWA_MICA_EFFECT, &mica, sizeof(mica));
 }
 
 ATOM XamlApp::_RegisterWndClass(HINSTANCE hInstance, const wchar_t* className) {
@@ -52,30 +69,26 @@ RTL_OSVERSIONINFOW GetOSVersion() {
 bool XamlApp::Initialize(HINSTANCE hInstance, const wchar_t* className, const wchar_t* title) {
 	_uiSettings = winrt::UISettings();
 
+	auto osVersion = GetOSVersion();
+	_isWin11 = osVersion.dwMajorVersion == 10 && osVersion.dwMinorVersion == 0 && osVersion.dwBuildNumber >= 22000;
+
 	_RegisterWndClass(hInstance, className);
 
-	auto osVersion = GetOSVersion();
-	bool isWin11 = osVersion.dwMajorVersion == 10 && osVersion.dwMinorVersion == 0 && osVersion.dwBuildNumber >= 22000;
-
-	_hwndXamlHost = CreateWindowEx(isWin11 ? WS_EX_NOREDIRECTIONBITMAP | WS_EX_DLGMODALFRAME : 0,
-		className, isWin11 ? L"" : title, WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, 1000, 700,
+	_hwndXamlHost = CreateWindowEx(_isWin11 ? WS_EX_NOREDIRECTIONBITMAP | WS_EX_DLGMODALFRAME : 0,
+		className, _isWin11 ? L"" : title, WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, 1000, 700,
 		nullptr, nullptr, hInstance, nullptr);
 
 	if (!_hwndXamlHost) {
 		return false;
 	}
 
-	if (isWin11) {
-		constexpr const DWORD DWMWA_USE_IMMERSIVE_DARK_MODE = 20;
-		constexpr const DWORD DWMWA_MICA_EFFECT = 1029;
-
-		auto bkgColor = _uiSettings.GetColorValue(winrt::UIColorType::Background);
-		BOOL isDarkMode = bkgColor.R < 128;
-		DwmSetWindowAttribute(_hwndXamlHost, DWMWA_USE_IMMERSIVE_DARK_MODE, &isDarkMode, sizeof(isDarkMode));
-		
-		BOOL mica = TRUE;
-		DwmSetWindowAttribute(_hwndXamlHost, DWMWA_MICA_EFFECT, &mica, sizeof(mica));
-	}
+	_ApplyMica();
+	_colorChangedRevoker = _uiSettings.ColorValuesChanged(
+		winrt::auto_revoke,
+		[this](winrt::UISettings const& sender, winrt::IInspectable const& args) {
+			_ApplyMica();
+		}
+	);
 
 	return true;
 }
