@@ -2,26 +2,21 @@
 #include "XamlApp.h"
 #include <winrt/Windows.UI.Core.h>
 #include <CoreWindow.h>
-#include <winrt/Windows.UI.ViewManagement.h>
+
 
 namespace winrt {
 using namespace Windows::UI::ViewManagement;
 }
 
-ATOM RegisterWndClass(
-	HINSTANCE hInstance,
-	LRESULT (*wndProc)(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam),
-	const wchar_t* className
-) {
+ATOM XamlApp::_RegisterWndClass(HINSTANCE hInstance, const wchar_t* className) {
 	WNDCLASSEXW wcex{};
 
 	// 背景色遵循系统主题以避免显示时闪烁
-	winrt::UISettings uiSettings;
-	auto bkgColor = uiSettings.GetColorValue(winrt::UIColorType::Background);
+	auto bkgColor = _uiSettings.GetColorValue(winrt::UIColorType::Background);
 	HBRUSH hbrBkg = CreateSolidBrush(RGB(bkgColor.R, bkgColor.G, bkgColor.B));
-
+	
 	wcex.cbSize = sizeof(WNDCLASSEX);
-	wcex.lpfnWndProc = wndProc;
+	wcex.lpfnWndProc = _WndProcStatic;
 	wcex.cbClsExtra = 0;
 	wcex.cbWndExtra = 0;
 	wcex.hInstance = hInstance;
@@ -55,7 +50,9 @@ RTL_OSVERSIONINFOW GetOSVersion() {
 }
 
 bool XamlApp::Initialize(HINSTANCE hInstance, const wchar_t* className, const wchar_t* title) {
-	RegisterWndClass(hInstance, _WndProcStatic, className);
+	_uiSettings = winrt::UISettings();
+
+	_RegisterWndClass(hInstance, className);
 
 	auto osVersion = GetOSVersion();
 	bool isWin11 = osVersion.dwMajorVersion == 10 && osVersion.dwMinorVersion == 0 && osVersion.dwBuildNumber >= 22000;
@@ -69,10 +66,15 @@ bool XamlApp::Initialize(HINSTANCE hInstance, const wchar_t* className, const wc
 	}
 
 	if (isWin11) {
+		constexpr const DWORD DWMWA_USE_IMMERSIVE_DARK_MODE = 20;
 		constexpr const DWORD DWMWA_MICA_EFFECT = 1029;
 
-		BOOL value = TRUE;
-		DwmSetWindowAttribute(_hwndXamlHost, DWMWA_MICA_EFFECT, &value, sizeof(value));
+		auto bkgColor = _uiSettings.GetColorValue(winrt::UIColorType::Background);
+		BOOL isDarkMode = bkgColor.R < 128;
+		DwmSetWindowAttribute(_hwndXamlHost, DWMWA_USE_IMMERSIVE_DARK_MODE, &isDarkMode, sizeof(isDarkMode));
+		
+		BOOL mica = TRUE;
+		DwmSetWindowAttribute(_hwndXamlHost, DWMWA_MICA_EFFECT, &mica, sizeof(mica));
 	}
 
 	return true;

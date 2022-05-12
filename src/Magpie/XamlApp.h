@@ -22,6 +22,8 @@ public:
 	int Run();
 
 private:
+	ATOM _RegisterWndClass(HINSTANCE hInstance, const wchar_t* className);
+
 	void _OnResize();
 
 	static LRESULT _WndProcStatic(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
@@ -35,4 +37,6 @@ private:
 
 	winrt::Windows::UI::Xaml::Hosting::DesktopWindowXamlSource _xamlSource{ nullptr };
 	winrt::com_ptr<IDesktopWindowXamlSourceNative2> _xamlSourceNative2;
+
+	winrt::Windows::UI::ViewManagement::UISettings _uiSettings{ nullptr };
 };

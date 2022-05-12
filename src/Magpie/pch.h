@@ -49,6 +49,7 @@
 #include <winrt/Windows.Foundation.Collections.h>
 #include <winrt/Windows.System.h>
 #include <winrt/Windows.UI.Xaml.Hosting.h>
+#include <winrt/Windows.UI.ViewManagement.h>
 
 #include <winrt/Magpie.App.h>
 
