@@ -1,4 +1,4 @@
-﻿<Toolkit:XamlApplication
+<Toolkit:XamlApplication
     x:Class="Magpie.App.App"
     xmlns:Toolkit="using:Microsoft.Toolkit.Win32.UI.XamlHost"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
