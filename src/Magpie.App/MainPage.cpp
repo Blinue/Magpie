@@ -66,6 +66,11 @@ void MainPage::_UpdateHostTheme() {
 		isDarkMode = _uiSettings.GetColorValue(UIColorType::Background).R < 128;
 	}
 
+	if ((RequestedTheme() == ElementTheme::Light) != (bool)isDarkMode) {
+		// 无需切换
+		return;
+	}
+
 	if (_theme == 2) {
 		if (!_colorChangedToken) {
 			_colorChangedToken = _uiSettings.ColorValuesChanged(
@@ -97,11 +102,19 @@ void MainPage::_UpdateHostTheme() {
 		sizeof(isDarkMode)
 	);
 
+#if 0
 	// 在 Win11 中应用 Mica
 	if (osBuild >= 22000) {
 		BOOL mica = TRUE;
-		DwmSetWindowAttribute(hwndHost, DWMWA_MICA_EFFECT, &mica, sizeof(mica));
+		//DwmSetWindowAttribute(hwndHost, DWMWA_MICA_EFFECT, &mica, sizeof(mica));
 	}
+#else
+	// 更改背景色
+	HBRUSH hbrOld = (HBRUSH)SetClassLongPtr(hwndHost, GCLP_HBRBACKGROUND,
+		(INT_PTR)CreateSolidBrush(isDarkMode ? RGB(0, 0, 0) : RGB(255, 255, 255)));
+	DeleteObject(hbrOld);
+	InvalidateRect(hwndHost, nullptr, TRUE);
+#endif // 0
 
 	// 确保更改已应用
 	// 重新设置窗口样式似乎可以重绘标题栏的控制按钮

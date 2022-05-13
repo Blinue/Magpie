@@ -62,7 +62,7 @@ bool XamlApp::Initialize(HINSTANCE hInstance, const wchar_t* className, const wc
 
 	_RegisterWndClass(hInstance, className);
 
-	bool isWin11 = GetOSBuild() >= 22000;
+	bool isWin11 = false; // GetOSBuild() >= 22000;
 	_hwndXamlHost = CreateWindowEx(isWin11 ? WS_EX_NOREDIRECTIONBITMAP | WS_EX_DLGMODALFRAME : 0,
 		className, isWin11 ? L"" : title, WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, 1000, 700,
 		nullptr, nullptr, hInstance, nullptr);
@@ -98,7 +98,6 @@ bool XamlApp::Initialize(HINSTANCE hInstance, const wchar_t* className, const wc
 		coreWindow.as<ICoreWindowInterop>()->get_WindowHandle(&hwndDWXS);
 		ShowWindow(hwndDWXS, SW_HIDE);
 	}
-
 
 	return true;
 }

@@ -11,8 +11,6 @@ int APIENTRY wWinMain(
 	_In_ LPWSTR    lpCmdLine,
 	_In_ int       nCmdShow
 ) {
-	
-
 	auto& app = XamlApp::Get();
 	app.Initialize(hInstance, L"Magpie_XamlHost", L"Magpie");
 
