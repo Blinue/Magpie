@@ -11,18 +11,15 @@ using namespace Windows::UI::ViewManagement;
 
 
 void XamlApp::_ApplyMica() const {
-	if (!_isWin11) {
-		return;
-	}
-
-	constexpr const DWORD DWMWA_MICA_EFFECT = 1029;
-
 	auto bkgColor = _uiSettings.GetColorValue(winrt::UIColorType::Background);
 	BOOL isDarkMode = bkgColor.R < 128;
 	DwmSetWindowAttribute(_hwndXamlHost, DWMWA_USE_IMMERSIVE_DARK_MODE, &isDarkMode, sizeof(isDarkMode));
 
-	BOOL mica = TRUE;
-	DwmSetWindowAttribute(_hwndXamlHost, DWMWA_MICA_EFFECT, &mica, sizeof(mica));
+	if (_isWin11) {
+		constexpr const DWORD DWMWA_MICA_EFFECT = 1029;
+		BOOL mica = TRUE;
+		DwmSetWindowAttribute(_hwndXamlHost, DWMWA_MICA_EFFECT, &mica, sizeof(mica));
+	}
 }
 
 ATOM XamlApp::_RegisterWndClass(HINSTANCE hInstance, const wchar_t* className) {
