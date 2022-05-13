@@ -38,20 +38,17 @@
 #define NOMCX
 
 #include <windows.h>
-#include <dwmapi.h>
 
 // C++ 运行时头文件
 #include <cstdlib>
 
 // C++/WinRT 头文件
+#include <unknwn.h>
+#include <restrictederrorinfo.h>
+#include <hstring.h>
 #include <winrt/base.h>
 #include <winrt/Windows.Foundation.h>
 #include <winrt/Windows.Foundation.Collections.h>
 #include <winrt/Windows.System.h>
 #include <winrt/Windows.UI.Xaml.Hosting.h>
 #include <winrt/Windows.UI.ViewManagement.h>
-
-#include <winrt/Magpie.App.h>
-
-
-#pragma comment(lib, "dwmapi.lib")

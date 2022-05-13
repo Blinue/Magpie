@@ -34,40 +34,12 @@ UINT GetOSBuild() {
 	return build;
 }
 
-void XamlApp::_ApplyMica() const {
-	constexpr const DWORD DWMWA_USE_IMMERSIVE_DARK_MODE_BEFORE_20H1 = 19;
-	constexpr const DWORD DWMWA_MICA_EFFECT = 1029;
-
-	auto osBuild = GetOSBuild();
-
-	// 使标题栏
-	// build 18985 之前 DWMWA_USE_IMMERSIVE_DARK_MODE 的值不同
-	// https://github.com/MicrosoftDocs/sdk-api/pull/966/files
-	auto bkgColor = _uiSettings.GetColorValue(winrt::UIColorType::Background);
-	BOOL isDarkMode = bkgColor.R < 128;
-	DwmSetWindowAttribute(
-		_hwndXamlHost,
-		osBuild < 18985 ? DWMWA_USE_IMMERSIVE_DARK_MODE_BEFORE_20H1 :  DWMWA_USE_IMMERSIVE_DARK_MODE,
-		&isDarkMode,
-		sizeof(isDarkMode)
-	);
-	
-	if (osBuild >= 22000) {
-		// Mica 只在 Win11 中可用
-		BOOL mica = TRUE;
-		DwmSetWindowAttribute(_hwndXamlHost, DWMWA_MICA_EFFECT, &mica, sizeof(mica));
-	}
-
-	// 确保更改已应用
-	SetWindowPos(_hwndXamlHost, NULL, 0, 0, 0, 0,
-		SWP_DRAWFRAME | SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER);
-}
-
 ATOM XamlApp::_RegisterWndClass(HINSTANCE hInstance, const wchar_t* className) {
 	WNDCLASSEXW wcex{};
 
 	// 背景色遵循系统主题以避免显示时闪烁
-	auto bkgColor = _uiSettings.GetColorValue(winrt::UIColorType::Background);
+	winrt::Windows::UI::ViewManagement::UISettings uiSettings;
+	auto bkgColor = uiSettings.GetColorValue(winrt::UIColorType::Background);
 	HBRUSH hbrBkg = CreateSolidBrush(RGB(bkgColor.R, bkgColor.G, bkgColor.B));
 	
 	wcex.cbSize = sizeof(WNDCLASSEX);
@@ -86,12 +58,11 @@ ATOM XamlApp::_RegisterWndClass(HINSTANCE hInstance, const wchar_t* className) {
 }
 
 bool XamlApp::Initialize(HINSTANCE hInstance, const wchar_t* className, const wchar_t* title) {
-	_uiSettings = winrt::UISettings();
-
-	bool isWin11 = GetOSBuild() >= 22000;
+	winrt::init_apartment(winrt::apartment_type::single_threaded);
 
 	_RegisterWndClass(hInstance, className);
 
+	bool isWin11 = GetOSBuild() >= 22000;
 	_hwndXamlHost = CreateWindowEx(isWin11 ? WS_EX_NOREDIRECTIONBITMAP | WS_EX_DLGMODALFRAME : 0,
 		className, isWin11 ? L"" : title, WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, 1000, 700,
 		nullptr, nullptr, hInstance, nullptr);
@@ -100,19 +71,10 @@ bool XamlApp::Initialize(HINSTANCE hInstance, const wchar_t* className, const wc
 		return false;
 	}
 
-	_ApplyMica();
-	_colorChangedRevoker = _uiSettings.ColorValuesChanged(
-		winrt::auto_revoke,
-		[this](winrt::UISettings const& sender, winrt::IInspectable const& args) {
-			_ApplyMica();
-		}
-	);
+	_uwpApp = winrt::Magpie::App::App{};
+	_mainPage = winrt::Magpie::App::MainPage();
 
-	return true;
-}
-
-void XamlApp::Show(winrt::Windows::UI::Xaml::UIElement xamlElement) {
-	_xamlElement = xamlElement;
+	_mainPage.HostWnd((uint64_t)_hwndXamlHost);
 
 	// 在 Win10 上可能导致任务栏出现空的 DesktopWindowXamlSource 窗口
 	// 见 https://github.com/microsoft/microsoft-ui-xaml/issues/6490
@@ -125,7 +87,7 @@ void XamlApp::Show(winrt::Windows::UI::Xaml::UIElement xamlElement) {
 	interop->AttachToWindow(_hwndXamlHost);
 
 	interop->get_WindowHandle(&_hwndXamlIsland);
-	_xamlSource.Content(xamlElement);
+	_xamlSource.Content(_mainPage);
 
 	_OnResize();
 
@@ -136,6 +98,9 @@ void XamlApp::Show(winrt::Windows::UI::Xaml::UIElement xamlElement) {
 		coreWindow.as<ICoreWindowInterop>()->get_WindowHandle(&hwndDWXS);
 		ShowWindow(hwndDWXS, SW_HIDE);
 	}
+
+
+	return true;
 }
 
 int XamlApp::Run() {
@@ -178,7 +143,8 @@ LRESULT XamlApp::_WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		_xamlSourceNative2 = nullptr;
 		_xamlSource.Close();
 		_xamlSource = nullptr;
-		_xamlElement = nullptr;
+		_mainPage = nullptr;
+		_uwpApp = nullptr;
 		PostQuitMessage(0);
 		return 0;
 	}

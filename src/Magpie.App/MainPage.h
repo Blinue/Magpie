@@ -12,7 +12,25 @@ namespace winrt::Magpie::App::implementation
     {
         MainPage();
 
-        void ClickHandler(Windows::Foundation::IInspectable const& sender, Windows::UI::Xaml::RoutedEventArgs const& args);
+        void ThemeRadioButton_Checked(Windows::Foundation::IInspectable const&, Windows::UI::Xaml::RoutedEventArgs const&);
+
+        void HostWnd(uint64_t value);
+
+        uint64_t HostWnd() const {
+            return _hostWnd;
+        }
+
+    private:
+        void _UpdateHostTheme();
+
+        uint64_t _hostWnd{};
+
+        // 0: 浅色
+        // 1: 深色
+        // 2: 系统
+        uint32_t _theme = 2;
+        winrt::Windows::UI::ViewManagement::UISettings _uiSettings;
+        winrt::event_token _colorChangedToken{};
     };
 }
 

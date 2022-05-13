@@ -1,6 +1,7 @@
 #pragma once
 #include "pch.h"
 #include <windows.ui.xaml.hosting.desktopwindowxamlsource.h>
+#include <winrt/Magpie.App.h>
 
 
 class XamlApp {
@@ -17,13 +18,9 @@ public:
 
 	bool Initialize(HINSTANCE hInstance, const wchar_t* className, const wchar_t* title);
 
-	void Show(winrt::Windows::UI::Xaml::UIElement xamlElement);
-
 	int Run();
 
 private:
-	void _ApplyMica() const;
-
 	ATOM _RegisterWndClass(HINSTANCE hInstance, const wchar_t* className);
 
 	void _OnResize();
@@ -33,13 +30,11 @@ private:
 	}
 	LRESULT _WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
-	winrt::Windows::UI::Xaml::UIElement _xamlElement{ nullptr };
+	winrt::Magpie::App::App _uwpApp{ nullptr };
+	winrt::Magpie::App::MainPage _mainPage{ nullptr };
 	HWND _hwndXamlHost = NULL;
 	HWND _hwndXamlIsland = NULL;
 
 	winrt::Windows::UI::Xaml::Hosting::DesktopWindowXamlSource _xamlSource{ nullptr };
 	winrt::com_ptr<IDesktopWindowXamlSourceNative2> _xamlSourceNative2;
-
-	winrt::Windows::UI::ViewManagement::UISettings _uiSettings{ nullptr };
-	winrt::Windows::UI::ViewManagement::UISettings::ColorValuesChanged_revoker _colorChangedRevoker;
 };
