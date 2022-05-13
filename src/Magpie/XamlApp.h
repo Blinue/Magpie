@@ -42,6 +42,4 @@ private:
 
 	winrt::Windows::UI::ViewManagement::UISettings _uiSettings{ nullptr };
 	winrt::Windows::UI::ViewManagement::UISettings::ColorValuesChanged_revoker _colorChangedRevoker;
-
-	bool _isWin11 = false;
 };
