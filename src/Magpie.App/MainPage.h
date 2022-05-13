@@ -12,6 +12,8 @@ namespace winrt::Magpie::App::implementation
     {
         MainPage();
 
+        ~MainPage();
+
         void ThemeRadioButton_Checked(Windows::Foundation::IInspectable const&, Windows::UI::Xaml::RoutedEventArgs const&);
 
         void HostWnd(uint64_t value);
