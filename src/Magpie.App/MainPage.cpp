@@ -102,12 +102,15 @@ void MainPage::_UpdateHostTheme() {
 		sizeof(isDarkMode)
 	);
 
-#if 0
+#if 1
 	// 在 Win11 中应用 Mica
 	if (osBuild >= 22000) {
 		BOOL mica = TRUE;
-		//DwmSetWindowAttribute(hwndHost, DWMWA_MICA_EFFECT, &mica, sizeof(mica));
+		DwmSetWindowAttribute(hwndHost, DWMWA_MICA_EFFECT, &mica, sizeof(mica));
 	}
+
+	// 重新设置窗口样式似乎可以重绘标题栏的控制按钮
+	SetWindowLongPtr(hwndHost, GWL_EXSTYLE, GetWindowLongPtr(hwndHost, GWL_EXSTYLE));
 #else
 	// 更改背景色
 	HBRUSH hbrOld = (HBRUSH)SetClassLongPtr(hwndHost, GCLP_HBRBACKGROUND,
@@ -117,8 +120,6 @@ void MainPage::_UpdateHostTheme() {
 #endif // 0
 
 	// 确保更改已应用
-	// 重新设置窗口样式似乎可以重绘标题栏的控制按钮
-	SetWindowLongPtr(hwndHost, GWL_EXSTYLE, GetWindowLongPtr(hwndHost, GWL_EXSTYLE));
 	SetWindowPos(hwndHost, NULL, 0, 0, 0, 0,
 		SWP_DRAWFRAME | SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER);
 
