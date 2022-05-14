@@ -84,7 +84,6 @@ bool XamlApp::Initialize(HINSTANCE hInstance, const wchar_t* className, const wc
 
 	_uwpApp = winrt::Magpie::App::App{};
 	_mainPage = winrt::Magpie::App::MainPage();
-
 	_mainPage.HostWnd((uint64_t)_hwndXamlHost);
 
 	// 在 Win10 上可能导致任务栏出现空的 DesktopWindowXamlSource 窗口

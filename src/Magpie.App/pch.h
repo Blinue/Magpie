@@ -1,6 +1,11 @@
 #pragma once
 
-#define WINAPI_PARTITION_DESKTOP 1
+// 为了使用 Win32 API，重定义 WINAPI_FAMILY
+#ifdef WINAPI_FAMILY
+#undef WINAPI_FAMILY
+#endif // WINAPI_FAMILY
+#define WINAPI_FAMILY WINAPI_FAMILY_DESKTOP_APP
+
 #include <SDKDDKVer.h>
 
 // Windows 头文件

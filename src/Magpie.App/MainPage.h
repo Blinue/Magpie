@@ -27,9 +27,9 @@ namespace winrt::Magpie::App::implementation
 
         uint64_t _hostWnd{};
 
-        // 0: 浅色
-        // 1: 深色
-        // 2: 系统
+        // 0: 娴呰壊
+        // 1: 娣辫壊
+        // 2: 绯荤粺
         uint32_t _theme = 2;
         winrt::Windows::UI::ViewManagement::UISettings _uiSettings;
         winrt::event_token _colorChangedToken{};
