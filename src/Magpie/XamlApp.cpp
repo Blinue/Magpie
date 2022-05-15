@@ -65,17 +65,17 @@ bool XamlApp::Initialize(HINSTANCE hInstance, const wchar_t* className, const wc
 
 	_RegisterWndClass(hInstance, className);
 
-	bool isWin11 = GetOSBuild() >= 22000;
-	_hwndXamlHost = CreateWindowEx(isWin11 ? WS_EX_NOREDIRECTIONBITMAP:0,
+	bool useMica = GetOSBuild() >= 22000;
+	_hwndXamlHost = CreateWindowEx(useMica ? WS_EX_NOREDIRECTIONBITMAP : 0,
 		className, title, WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, 1000, 700,
 		nullptr, nullptr, hInstance, nullptr);
 
 	if (!_hwndXamlHost) {
 		return false;
 	}
-
-	// 标题栏不显示图标和标题，因为目前 DWM 存在 bug 无法在启用 Mica 时正确绘制标题
-	{
+	
+	if (useMica) {
+		// 标题栏不显示图标和标题，因为目前 DWM 存在 bug 无法在启用 Mica 时正确绘制标题
 		WTA_OPTIONS option{};
 		option.dwFlags = WTNCA_NODRAWCAPTION | WTNCA_NODRAWICON | WTNCA_NOSYSMENU;
 		option.dwMask = WTNCA_VALIDBITS;

@@ -102,22 +102,26 @@ void MainPage::_UpdateHostTheme() {
 		sizeof(isDarkMode)
 	);
 
-#if 1
 	// 在 Win11 中应用 Mica
 	if (osBuild >= 22000) {
 		BOOL mica = TRUE;
 		DwmSetWindowAttribute(hwndHost, DWMWA_MICA_EFFECT, &mica, sizeof(mica));
+	} else {
+		// 更改背景色
+		HBRUSH hbrOld = (HBRUSH)SetClassLongPtr(hwndHost, GCLP_HBRBACKGROUND,
+			(INT_PTR)CreateSolidBrush(isDarkMode ? RGB(0, 0, 0) : RGB(255, 255, 255)));
+		DeleteObject(hbrOld);
+		InvalidateRect(hwndHost, nullptr, TRUE);
 	}
 
-	// 重新设置窗口样式似乎可以重绘标题栏的控制按钮
-	SetWindowLongPtr(hwndHost, GWL_EXSTYLE, GetWindowLongPtr(hwndHost, GWL_EXSTYLE));
-#else
-	// 更改背景色
-	HBRUSH hbrOld = (HBRUSH)SetClassLongPtr(hwndHost, GCLP_HBRBACKGROUND,
-		(INT_PTR)CreateSolidBrush(isDarkMode ? RGB(0, 0, 0) : RGB(255, 255, 255)));
-	DeleteObject(hbrOld);
-	InvalidateRect(hwndHost, nullptr, TRUE);
-#endif // 0
+	// 强制重绘标题栏
+	auto style = GetWindowLongPtr(hwndHost, GWL_EXSTYLE);
+	if (osBuild < 22000) {
+		// 在较低版本的 Win10 上需要更多 hack
+		SetWindowLongPtr(hwndHost, GWL_EXSTYLE, style | WS_EX_LAYERED);
+		SetLayeredWindowAttributes(hwndHost, 0, 254, LWA_ALPHA);
+	}
+	SetWindowLongPtr(hwndHost, GWL_EXSTYLE, style);
 
 	// 确保更改已应用
 	SetWindowPos(hwndHost, NULL, 0, 0, 0, 0,

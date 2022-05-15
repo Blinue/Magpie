@@ -42,6 +42,7 @@
 #define NOMCX
 
 #include <windows.h>
+#include <dwmapi.h>
 
 // C++ 运行时头文件
 #include <cstdlib>
@@ -56,3 +57,6 @@
 #include <winrt/Windows.System.h>
 #include <winrt/Windows.UI.Xaml.Hosting.h>
 #include <winrt/Windows.UI.ViewManagement.h>
+
+
+#pragma comment(lib, "dwmapi.lib")
