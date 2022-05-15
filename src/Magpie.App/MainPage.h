@@ -1,10 +1,12 @@
 #pragma once
-
+#include "pch.h"
 #include "winrt/Windows.UI.Xaml.h"
 #include "winrt/Windows.UI.Xaml.Markup.h"
 #include "winrt/Windows.UI.Xaml.Interop.h"
 #include "winrt/Windows.UI.Xaml.Controls.Primitives.h"
 #include "MainPage.g.h"
+#include "MicaBrush.h"
+
 
 namespace winrt::Magpie::App::implementation
 {
@@ -22,6 +24,8 @@ namespace winrt::Magpie::App::implementation
             return _hostWnd;
         }
 
+        void OnHostFocusChanged(bool isFocused);
+
     private:
         void _UpdateHostTheme();
 
@@ -33,6 +37,7 @@ namespace winrt::Magpie::App::implementation
         uint32_t _theme = 2;
         winrt::Windows::UI::ViewManagement::UISettings _uiSettings;
         winrt::event_token _colorChangedToken{};
+        Magpie::App::MicaBrush _micaBrush{ nullptr };
     };
 }
 

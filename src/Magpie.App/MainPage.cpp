@@ -1,5 +1,6 @@
 #include "pch.h"
 #include <winrt/Windows.System.Profile.h>
+#include "MicaBrush.h"
 #include "MainPage.h"
 #if __has_include("MainPage.g.cpp")
 #include "MainPage.g.cpp"
@@ -8,11 +9,12 @@
 using namespace winrt;
 using namespace Windows::UI::Core;
 using namespace Windows::UI::Xaml;
+using namespace Windows::UI::Xaml::Input;
 using namespace Windows::System::Profile;
 using namespace Windows::UI::ViewManagement;
 
 
-UINT GetOSBuild() {
+static UINT GetOSBuild() {
 	const winrt::hstring& deviceFamilyVersion = AnalyticsInfo::VersionInfo().DeviceFamilyVersion();
 	uint64_t version = std::stoull(deviceFamilyVersion.c_str());
 	return (version & 0x00000000FFFF0000L) >> 16;
@@ -45,7 +47,13 @@ void MainPage::ThemeRadioButton_Checked(IInspectable const& sender, RoutedEventA
 
 void MainPage::HostWnd(uint64_t value) {
 	_hostWnd = value;
+
+	_micaBrush = Magpie::App::MicaBrush(*this);
 	_UpdateHostTheme();
+}
+
+void MainPage::OnHostFocusChanged(bool isFocused) {
+	_micaBrush.OnHostFocusChanged(isFocused);
 }
 
 void MainPage::_UpdateHostTheme() {
@@ -75,11 +83,11 @@ void MainPage::_UpdateHostTheme() {
 		if (!_colorChangedToken) {
 			_colorChangedToken = _uiSettings.ColorValuesChanged(
 				[this](UISettings const&, IInspectable const&) {
-				// 确保在 UI 线程上执行
-				Dispatcher().RunAsync(
-					CoreDispatcherPriority::Normal,
-					{ this, &MainPage::_UpdateHostTheme }
-				);
+					// 确保在 UI 线程上执行
+					return Dispatcher().RunAsync(
+						CoreDispatcherPriority::Normal,
+						{ this, &MainPage::_UpdateHostTheme }
+					);
 				}
 			);
 		}
@@ -103,16 +111,15 @@ void MainPage::_UpdateHostTheme() {
 	);
 
 	// 在 Win11 中应用 Mica
-	if (osBuild >= 22000) {
-		BOOL mica = TRUE;
-		DwmSetWindowAttribute(hwndHost, DWMWA_MICA_EFFECT, &mica, sizeof(mica));
-	} else {
-		// 更改背景色
-		HBRUSH hbrOld = (HBRUSH)SetClassLongPtr(hwndHost, GCLP_HBRBACKGROUND,
-			(INT_PTR)CreateSolidBrush(isDarkMode ? RGB(0, 0, 0) : RGB(255, 255, 255)));
-		DeleteObject(hbrOld);
-		InvalidateRect(hwndHost, nullptr, TRUE);
-	}
+
+	BOOL mica = TRUE;
+	DwmSetWindowAttribute(hwndHost, DWMWA_MICA_EFFECT, &mica, sizeof(mica));
+
+	// 更改背景色
+	HBRUSH hbrOld = (HBRUSH)SetClassLongPtr(hwndHost, GCLP_HBRBACKGROUND,
+		(INT_PTR)CreateSolidBrush(isDarkMode ? RGB(0, 0, 0) : RGB(255, 255, 255)));
+	DeleteObject(hbrOld);
+	InvalidateRect(hwndHost, nullptr, TRUE);
 
 	// 强制重绘标题栏
 	auto style = GetWindowLongPtr(hwndHost, GWL_EXSTYLE);
@@ -128,6 +135,7 @@ void MainPage::_UpdateHostTheme() {
 		SWP_DRAWFRAME | SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER);
 
 	RequestedTheme(isDarkMode ? ElementTheme::Dark : ElementTheme::Light);
+	Background(_micaBrush);
 }
 
 }

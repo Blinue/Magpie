@@ -13,7 +13,7 @@ using namespace Windows::UI::ViewManagement;
 }
 
 
-UINT GetOSBuild() {
+static UINT GetOSBuild() {
 	static UINT build = 0;
 
 	if (build == 0) {
@@ -65,15 +65,15 @@ bool XamlApp::Initialize(HINSTANCE hInstance, const wchar_t* className, const wc
 
 	_RegisterWndClass(hInstance, className);
 
-	bool useMica = GetOSBuild() >= 22000;
-	_hwndXamlHost = CreateWindowEx(useMica ? WS_EX_NOREDIRECTIONBITMAP : 0,
-		className, title, WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, 1000, 700,
+	_hwndXamlHost = CreateWindow(className, title, WS_OVERLAPPEDWINDOW,
+		CW_USEDEFAULT, CW_USEDEFAULT, 1000, 700,
 		nullptr, nullptr, hInstance, nullptr);
 
 	if (!_hwndXamlHost) {
 		return false;
 	}
 	
+	bool useMica = GetOSBuild() >= 22000;
 	if (useMica) {
 		// 标题栏不显示图标和标题，因为目前 DWM 存在 bug 无法在启用 Mica 时正确绘制标题
 		WTA_OPTIONS option{};
@@ -147,6 +147,9 @@ LRESULT XamlApp::_WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		if (_hwndXamlIsland) {
 			SetFocus(_hwndXamlIsland);
 		}
+		return 0;
+	case WM_ACTIVATE:
+		_mainPage.OnHostFocusChanged(LOWORD(wParam) != WA_INACTIVE);
 		return 0;
 	case WM_DESTROY:
 		_xamlSourceNative2 = nullptr;
