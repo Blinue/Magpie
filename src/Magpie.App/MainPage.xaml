@@ -8,12 +8,18 @@
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	mc:Ignorable="d">
 
-    <muxc:NavigationView CompactModeThresholdWidth="0" IsPaneToggleButtonVisible="False" IsBackButtonVisible="Collapsed">
+    <muxc:NavigationView CompactModeThresholdWidth="0" IsPaneToggleButtonVisible="False" IsBackButtonVisible="Collapsed" Header="Magpie">
         <muxc:NavigationView.MenuItems>
             <muxc:NavigationViewItem Icon="Home" Content="主页" Tag="Home" IsSelected="True" />
-            <muxc:NavigationViewItem Content="缩放配置" Tag="Zoom">
+            <muxc:NavigationViewItemHeader Content="缩放配置" />
+            <muxc:NavigationViewItem Content="全局" Tag="Zoom">
                 <muxc:NavigationViewItem.Icon>
                     <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE81E;"/>
+                </muxc:NavigationViewItem.Icon>
+            </muxc:NavigationViewItem>
+            <muxc:NavigationViewItem Content="游戏1" Tag="Game1">
+                <muxc:NavigationViewItem.Icon>
+                    <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xEA86;"/>
                 </muxc:NavigationViewItem.Icon>
             </muxc:NavigationViewItem>
         </muxc:NavigationView.MenuItems>
