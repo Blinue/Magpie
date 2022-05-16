@@ -2,6 +2,8 @@
 
 #include <SDKDDKVer.h>
 
+#define WIN32_LEAN_AND_MEAN
+#define WINRT_LEAN_AND_MEAN
 #define WINRT_NO_MODULE_LOCK
 
 // Windows 头文件

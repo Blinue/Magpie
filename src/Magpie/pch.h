@@ -9,11 +9,11 @@
 
 #include <SDKDDKVer.h>
 
-// Windows 头文件
-
 #define WIN32_LEAN_AND_MEAN
 #define WINRT_LEAN_AND_MEAN
 #define WINRT_NO_MODULE_LOCK
+
+// Windows 头文件
 
 // 从 windows.h 里排除不需要的 API
 #define NOMINMAX	// 使用 std::min 和 std::max 而不是宏

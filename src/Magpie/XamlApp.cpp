@@ -66,7 +66,7 @@ bool XamlApp::Initialize(HINSTANCE hInstance, const wchar_t* className, const wc
 	_RegisterWndClass(hInstance, className);
 
 	_hwndXamlHost = CreateWindow(className, title, WS_OVERLAPPEDWINDOW,
-		CW_USEDEFAULT, CW_USEDEFAULT, 1000, 700,
+		CW_USEDEFAULT, CW_USEDEFAULT, 1100, 700,
 		nullptr, nullptr, hInstance, nullptr);
 
 	if (!_hwndXamlHost) {
@@ -143,6 +143,13 @@ LRESULT XamlApp::_WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_SIZE:
 		_OnResize();
 		return 0;
+	case WM_GETMINMAXINFO:
+	{
+		// 设置窗口最小尺寸
+		MINMAXINFO* mmi = (MINMAXINFO*)lParam;
+		mmi->ptMinTrackSize = { 400,300 };
+		return 0;
+	}
 	case WM_SETFOCUS:
 		if (_hwndXamlIsland) {
 			SetFocus(_hwndXamlIsland);
