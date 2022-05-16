@@ -38,6 +38,8 @@ namespace winrt::Magpie::App::implementation
         winrt::Windows::UI::ViewManagement::UISettings _uiSettings;
         winrt::event_token _colorChangedToken{};
         Magpie::App::MicaBrush _micaBrush{ nullptr };
+
+        std::optional<bool> _isDarkTheme;
     };
 }
 

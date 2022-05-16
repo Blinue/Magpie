@@ -50,6 +50,8 @@ void MainPage::HostWnd(uint64_t value) {
 
 	_micaBrush = Magpie::App::MicaBrush(*this);
 	_UpdateHostTheme();
+
+	Background(_micaBrush);
 }
 
 void MainPage::OnHostFocusChanged(bool isFocused) {
@@ -74,10 +76,12 @@ void MainPage::_UpdateHostTheme() {
 		isDarkMode = _uiSettings.GetColorValue(UIColorType::Background).R < 128;
 	}
 
-	if ((RequestedTheme() == ElementTheme::Light) != (bool)isDarkMode) {
+	if (_isDarkTheme.has_value() && _isDarkTheme == (bool)isDarkMode) {
 		// 无需切换
 		return;
 	}
+
+	_isDarkTheme = isDarkMode;
 
 	if (_theme == 2) {
 		if (!_colorChangedToken) {
@@ -135,7 +139,6 @@ void MainPage::_UpdateHostTheme() {
 		SWP_DRAWFRAME | SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER);
 
 	RequestedTheme(isDarkMode ? ElementTheme::Dark : ElementTheme::Light);
-	Background(_micaBrush);
 }
 
 }
