@@ -87,10 +87,14 @@ static CompositionBrush CreateCrossFadeEffectBrush(Compositor compositor, Compos
 
 static ScalarKeyFrameAnimation CreateCrossFadeAnimation(Compositor compositor) {
 	ScalarKeyFrameAnimation animation = compositor.CreateScalarKeyFrameAnimation();
-	LinearEasingFunction linearEasing = compositor.CreateLinearEasingFunction();
+	auto easing = compositor.CreateCubicBezierEasingFunction({ 0.05f, 0.15f }, { 0.9f, 1.0f });
+	animation.InsertKeyFrame(0, 0, easing);
+	animation.InsertKeyFrame(1, 1, easing);
+	/*LinearEasingFunction linearEasing = compositor.CreateLinearEasingFunction();
 	animation.InsertKeyFrame(0.0f, 0.0f, linearEasing);
-	animation.InsertKeyFrame(1.0f, 1.0f, linearEasing);
+	animation.InsertKeyFrame(1.0f, 1.0f, linearEasing);*/
 	animation.Duration(TimeSpan(std::chrono::milliseconds(250)));
+
 	return animation;
 }
 

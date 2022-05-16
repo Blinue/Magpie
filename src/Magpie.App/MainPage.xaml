@@ -8,11 +8,11 @@
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	mc:Ignorable="d">
 
-    <muxc:NavigationView CompactModeThresholdWidth="0" IsPaneToggleButtonVisible="False" IsBackButtonVisible="Collapsed" Header="Magpie">
+    <muxc:NavigationView CompactModeThresholdWidth="0" IsPaneToggleButtonVisible="False" IsBackButtonVisible="Collapsed" SelectionChanged="NavigationView_SelectionChanged">
         <muxc:NavigationView.MenuItems>
             <muxc:NavigationViewItem Icon="Home" Content="主页" Tag="Home" IsSelected="True" />
             <muxc:NavigationViewItemHeader Content="缩放配置" />
-            <muxc:NavigationViewItem Content="全局" Tag="Zoom">
+            <muxc:NavigationViewItem Content="全局" Tag="GlobalScalingConfig">
                 <muxc:NavigationViewItem.Icon>
                     <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE81E;"/>
                 </muxc:NavigationViewItem.Icon>
@@ -30,17 +30,7 @@
                 </muxc:NavigationViewItem.Icon>
             </muxc:NavigationViewItem>
         </muxc:NavigationView.FooterMenuItems>
-        
-        <Frame x:Name="contentFrame">
-            <StackPanel HorizontalAlignment="Center" Spacing="10" 
-				Padding="20" VerticalAlignment="Center">
-                <TextBlock Text="主题" FontWeight="Bold" FontSize="18" />
-                <muxc:RadioButtons>
-                    <RadioButton x:Name="LightThemeRadioButton" Content="浅色" Checked="ThemeRadioButton_Checked"/>
-                    <RadioButton x:Name="DarkThemeRadioButton" Content="深色" Checked="ThemeRadioButton_Checked"/>
-                    <RadioButton x:Name="SystemThemeRadioButton" Content="使用系统设置" IsChecked="True" Checked="ThemeRadioButton_Checked"/>
-                </muxc:RadioButtons>
-            </StackPanel>
-        </Frame>
+
+        <Frame x:Name="ContentFrame"/>
     </muxc:NavigationView>
 </Page>

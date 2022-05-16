@@ -43,5 +43,8 @@
   </ItemGroup>
   <ItemGroup>
     <Page Include="MainPage.xaml" />
+    <Page Include="HomePage.xaml" />
+    <Page Include="SettingsPage.xaml" />
+    <Page Include="AboutPage.xaml" />
   </ItemGroup>
 </Project>

@@ -1,8 +1,5 @@
 #pragma once
 #include "pch.h"
-#include "winrt/Windows.UI.Xaml.h"
-#include "winrt/Windows.UI.Xaml.Markup.h"
-#include "winrt/Windows.UI.Xaml.Interop.h"
 #include "winrt/Windows.UI.Xaml.Controls.Primitives.h"
 #include "MainPage.g.h"
 #include "MicaBrush.h"
@@ -16,7 +13,12 @@ namespace winrt::Magpie::App::implementation
 
 		~MainPage();
 
-		void ThemeRadioButton_Checked(Windows::Foundation::IInspectable const&, Windows::UI::Xaml::RoutedEventArgs const&);
+		void NavigationView_SelectionChanged(Microsoft::UI::Xaml::Controls::NavigationView const& sender, Microsoft::UI::Xaml::Controls::NavigationViewSelectionChangedEventArgs const& args);
+
+		void Theme(uint8_t theme);
+		uint8_t Theme() const {
+			return _theme;
+		}
 
 		void HostWnd(uint64_t value);
 
@@ -39,7 +41,7 @@ namespace winrt::Magpie::App::implementation
 		// 0: 浅色
 		// 1: 深色
 		// 2: 系统
-		uint32_t _theme = 2;
+		uint8_t _theme = 2;
 		winrt::Windows::UI::ViewManagement::UISettings _uiSettings;
 		winrt::event_token _colorChangedToken{};
 		Magpie::App::MicaBrush _micaBrush{ nullptr };

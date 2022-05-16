@@ -7,5 +7,7 @@ namespace Magpie.App
 
 		void OnHostFocusChanged(Boolean isFocused);
 		UInt64 HostWnd;
+
+		UInt8 Theme;
 	}
 }

@@ -1,6 +1,9 @@
 #include "pch.h"
 #include <winrt/Windows.System.Profile.h>
 #include "MicaBrush.h"
+#include "HomePage.h"
+#include "SettingsPage.h"
+#include "AboutPage.h"
 #include "MainPage.h"
 #if __has_include("MainPage.g.cpp")
 #include "MainPage.g.cpp"
@@ -13,6 +16,7 @@ using namespace Windows::UI::Xaml::Input;
 using namespace Windows::Foundation;
 using namespace Windows::System::Profile;
 using namespace Windows::UI::ViewManagement;
+using namespace Microsoft::UI::Xaml::Controls;
 
 
 static UINT GetOSBuild() {
@@ -34,15 +38,25 @@ MainPage::~MainPage() {
 	}
 }
 
-void MainPage::ThemeRadioButton_Checked(IInspectable const& sender, RoutedEventArgs const&) {
-	if (sender == LightThemeRadioButton()) {
-		_theme = 0;
-	} else if (sender == DarkThemeRadioButton()) {
-		_theme = 1;
+void MainPage::NavigationView_SelectionChanged(NavigationView const&, NavigationViewSelectionChangedEventArgs const& args) {
+	if (args.IsSettingsSelected()) {
+		ContentFrame().Navigate(winrt::xaml_typename<Magpie::App::SettingsPage>());
 	} else {
-		_theme = 2;
-	}
+		NavigationViewItem selectedItem{ nullptr };
+		args.SelectedItem().as(selectedItem);
 
+		hstring tag = unbox_value<hstring>(selectedItem.Tag());
+		if (tag == L"Home") {
+			ContentFrame().Navigate(winrt::xaml_typename<Magpie::App::HomePage>());
+		} else if (tag == L"About") {
+			ContentFrame().Navigate(winrt::xaml_typename<Magpie::App::AboutPage>());
+		}
+	}
+}
+
+void MainPage::Theme(uint8_t theme) {
+	assert(theme >= 0 && theme <= 2);
+	_theme = theme;
 	_UpdateHostTheme();
 }
 
@@ -93,21 +107,23 @@ void MainPage::_UpdateHostTheme() {
 
 	auto osBuild = GetOSBuild();
 
+	if (osBuild >= 22000) {
+		// 在 Win11 中应用 Mica
+		BOOL mica = TRUE;
+		DwmSetWindowAttribute(hwndHost, DWMWA_MICA_EFFECT, &mica, sizeof(mica));
+	}
+
+	RequestedTheme(isDarkTheme ? ElementTheme::Dark : ElementTheme::Light);
+
 	// 使标题栏适应黑暗模式
 	// build 18985 之前 DWMWA_USE_IMMERSIVE_DARK_MODE 的值不同
 	// https://github.com/MicrosoftDocs/sdk-api/pull/966/files
 	DwmSetWindowAttribute(
 		hwndHost,
 		osBuild < 18985 ? DWMWA_USE_IMMERSIVE_DARK_MODE_BEFORE_20H1 : DWMWA_USE_IMMERSIVE_DARK_MODE,
-		&isDarkTheme,
+		& isDarkTheme,
 		sizeof(isDarkTheme)
 	);
-
-	if (osBuild >= 22000) {
-		// 在 Win11 中应用 Mica
-		BOOL mica = TRUE;
-		DwmSetWindowAttribute(hwndHost, DWMWA_MICA_EFFECT, &mica, sizeof(mica));
-	}
 
 	// 更改背景色以配合主题
 	// 背景色在更改窗口大小时会短暂可见
@@ -124,8 +140,6 @@ void MainPage::_UpdateHostTheme() {
 		SetLayeredWindowAttributes(hwndHost, 0, 254, LWA_ALPHA);
 	}
 	SetWindowLongPtr(hwndHost, GWL_EXSTYLE, style);
-
-	RequestedTheme(isDarkTheme ? ElementTheme::Dark : ElementTheme::Light);
 }
 
 IAsyncAction MainPage::_Settings_ColorValuesChanged(UISettings const&, IInspectable const&) {
