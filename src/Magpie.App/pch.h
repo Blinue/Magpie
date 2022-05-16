@@ -2,6 +2,8 @@
 
 #include <SDKDDKVer.h>
 
+#define WINRT_NO_MODULE_LOCK
+
 // Windows 头文件
 
 // 从 windows.h 里排除不需要的 API

@@ -1,11 +1,11 @@
 namespace Magpie.App
 {
-    [default_interface]
-    runtimeclass MainPage : Windows.UI.Xaml.Controls.Page
-    {
-        MainPage();
+	[default_interface]
+	runtimeclass MainPage : Windows.UI.Xaml.Controls.Page
+	{
+		MainPage();
 
-        void OnHostFocusChanged(Boolean isFocused);
-        UInt64 HostWnd;
-    }
+		void OnHostFocusChanged(Boolean isFocused);
+		UInt64 HostWnd;
+	}
 }

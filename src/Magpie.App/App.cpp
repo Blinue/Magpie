@@ -10,14 +10,14 @@ using namespace Windows::UI::Xaml;
 namespace winrt::Magpie::App::implementation {
 
 App::App() {
-    Initialize();
+	Initialize();
 
-    AddRef();
-    m_inner.as<::IUnknown>()->Release();
+	AddRef();
+	m_inner.as<::IUnknown>()->Release();
 }
 
 App::~App() {
-    Close();
+	Close();
 }
 
 }

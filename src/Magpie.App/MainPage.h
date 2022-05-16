@@ -10,47 +10,47 @@
 
 namespace winrt::Magpie::App::implementation
 {
-    struct MainPage : MainPageT<MainPage>
-    {
-        MainPage();
+	struct MainPage : MainPageT<MainPage>
+	{
+		MainPage();
 
-        ~MainPage();
+		~MainPage();
 
-        void ThemeRadioButton_Checked(Windows::Foundation::IInspectable const&, Windows::UI::Xaml::RoutedEventArgs const&);
+		void ThemeRadioButton_Checked(Windows::Foundation::IInspectable const&, Windows::UI::Xaml::RoutedEventArgs const&);
 
-        void HostWnd(uint64_t value);
+		void HostWnd(uint64_t value);
 
-        uint64_t HostWnd() const {
-            return _hostWnd;
-        }
+		uint64_t HostWnd() const {
+			return _hostWnd;
+		}
 
-        void OnHostFocusChanged(bool isFocused);
+		void OnHostFocusChanged(bool isFocused);
 
-    private:
-        void _UpdateHostTheme();
+	private:
+		void _UpdateHostTheme();
 
-        Windows::Foundation::IAsyncAction _Settings_ColorValuesChanged(
-            Windows::UI::ViewManagement::UISettings const&,
-            Windows::Foundation::IInspectable const&
-        );
+		Windows::Foundation::IAsyncAction _Settings_ColorValuesChanged(
+			Windows::UI::ViewManagement::UISettings const&,
+			Windows::Foundation::IInspectable const&
+		);
 
-        uint64_t _hostWnd{};
+		uint64_t _hostWnd{};
 
-        // 0: 浅色
-        // 1: 深色
-        // 2: 系统
-        uint32_t _theme = 2;
-        winrt::Windows::UI::ViewManagement::UISettings _uiSettings;
-        winrt::event_token _colorChangedToken{};
-        Magpie::App::MicaBrush _micaBrush{ nullptr };
+		// 0: 浅色
+		// 1: 深色
+		// 2: 系统
+		uint32_t _theme = 2;
+		winrt::Windows::UI::ViewManagement::UISettings _uiSettings;
+		winrt::event_token _colorChangedToken{};
+		Magpie::App::MicaBrush _micaBrush{ nullptr };
 
-        std::optional<bool> _isDarkTheme;
-    };
+		std::optional<bool> _isDarkTheme;
+	};
 }
 
 namespace winrt::Magpie::App::factory_implementation
 {
-    struct MainPage : MainPageT<MainPage, implementation::MainPage>
-    {
-    };
+	struct MainPage : MainPageT<MainPage, implementation::MainPage>
+	{
+	};
 }
