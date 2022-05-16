@@ -10,6 +10,7 @@ using namespace winrt;
 using namespace Windows::UI::Core;
 using namespace Windows::UI::Xaml;
 using namespace Windows::UI::Xaml::Input;
+using namespace Windows::Foundation;
 using namespace Windows::System::Profile;
 using namespace Windows::UI::ViewManagement;
 
@@ -85,15 +86,7 @@ void MainPage::_UpdateHostTheme() {
 
 	if (_theme == 2) {
 		if (!_colorChangedToken) {
-			_colorChangedToken = _uiSettings.ColorValuesChanged(
-				[this](UISettings const&, IInspectable const&) {
-					// 确保在 UI 线程上执行
-					return Dispatcher().RunAsync(
-						CoreDispatcherPriority::Normal,
-						{ this, &MainPage::_UpdateHostTheme }
-					);
-				}
-			);
+			_colorChangedToken = _uiSettings.ColorValuesChanged({ this, &MainPage::_Settings_ColorValuesChanged });
 		}
 	} else {
 		if (_colorChangedToken) {
@@ -130,7 +123,7 @@ void MainPage::_UpdateHostTheme() {
 	// 强制重绘标题栏
 	auto style = GetWindowLongPtr(hwndHost, GWL_EXSTYLE);
 	if (osBuild < 22000) {
-		// 在较低版本的 Win10 上需要更多 hack
+		// 在 Win10 上需要更多 hack
 		SetWindowLongPtr(hwndHost, GWL_EXSTYLE, style | WS_EX_LAYERED);
 		SetLayeredWindowAttributes(hwndHost, 0, 254, LWA_ALPHA);
 	}
@@ -139,4 +132,11 @@ void MainPage::_UpdateHostTheme() {
 	RequestedTheme(isDarkMode ? ElementTheme::Dark : ElementTheme::Light);
 }
 
+IAsyncAction MainPage::_Settings_ColorValuesChanged(UISettings const&, IInspectable const&) {
+	return Dispatcher().RunAsync(
+		CoreDispatcherPriority::Normal,
+		{ this, &MainPage::_UpdateHostTheme }
+	);
 }
+
+} // namespace winrt::Magpie::App::implementation

@@ -29,6 +29,11 @@ namespace winrt::Magpie::App::implementation
     private:
         void _UpdateHostTheme();
 
+        Windows::Foundation::IAsyncAction _Settings_ColorValuesChanged(
+            Windows::UI::ViewManagement::UISettings const&,
+            Windows::Foundation::IInspectable const&
+        );
+
         uint64_t _hostWnd{};
 
         // 0: 浅色

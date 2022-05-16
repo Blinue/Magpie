@@ -5,15 +5,15 @@
 #endif
 
 using namespace winrt;
-using namespace winrt::Windows::UI;
-using namespace winrt::Windows::UI::Xaml;
-using namespace winrt::Windows::UI::Composition;
-using namespace winrt::Windows::UI::ViewManagement;
-using namespace winrt::Windows::UI::Core;
-using namespace winrt::Windows::Foundation;
-using namespace winrt::Windows::Foundation::Metadata;
-using namespace winrt::Windows::System::Power;
-using namespace winrt::Microsoft::Graphics::Canvas::Effects;
+using namespace Windows::UI;
+using namespace Windows::UI::Xaml;
+using namespace Windows::UI::Composition;
+using namespace Windows::UI::ViewManagement;
+using namespace Windows::UI::Core;
+using namespace Windows::Foundation;
+using namespace Windows::Foundation::Metadata;
+using namespace Windows::System::Power;
+using namespace Microsoft::Graphics::Canvas::Effects;
 
 // 移植自 https://github.com/MicaForEveryone/MicaForEveryone/blob/master/MicaForEveryone.UI/Brushes/XamlMicaBrush.cs
 
@@ -111,8 +111,6 @@ void MicaBrush::OnHostFocusChanged(bool isFocused) {
 }
 
 void MicaBrush::OnConnected() {
-    __super::OnConnected();
-
     if (_settings == nullptr)
         _settings = UISettings();
 
@@ -127,7 +125,6 @@ void MicaBrush::OnConnected() {
 
     _UpdateBrush();
 
-    _colorValuesChangedToken = _settings.ColorValuesChanged({ this, & MicaBrush::_Settings_ColorValuesChanged });
     _highContrastChangedToken = _accessibilitySettings.HighContrastChanged({ this, &MicaBrush::_AccessibilitySettings_HighContrastChanged });
     _energySaverStatusChangedToken = PowerManager::EnergySaverStatusChanged({ this, &MicaBrush::_PowerManager_EnergySaverStatusChanged });
     _compositionCapabilitiesChangedToken = CompositionCapabilities::GetForCurrentView().Changed({ this, &MicaBrush::_CompositionCapabilities_Changed });
@@ -135,11 +132,7 @@ void MicaBrush::OnConnected() {
 }
 
 void MicaBrush::OnDisconnected() {
-    __super::OnDisconnected();
-
     if (_settings != nullptr) {
-        _settings.ColorValuesChanged(_colorValuesChangedToken);
-        _colorValuesChangedToken = {};
         _settings = nullptr;
     }
 
@@ -162,10 +155,6 @@ void MicaBrush::OnDisconnected() {
         CompositionBrush().Close();
         CompositionBrush(nullptr);
     }
-}
-
-IAsyncAction MicaBrush::_Settings_ColorValuesChanged(UISettings const&, IInspectable const&) {
-    return Dispatcher().RunAsync(CoreDispatcherPriority::Normal, { this, &MicaBrush::_UpdateBrush });
 }
 
 IAsyncAction MicaBrush::_AccessibilitySettings_HighContrastChanged(AccessibilitySettings const&, IInspectable const&) {

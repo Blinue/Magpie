@@ -10,16 +10,12 @@ struct MicaBrush : MicaBrushT<MicaBrush> {
 
     void OnHostFocusChanged(bool isFocused);
 
-    void _UpdateBrush();
-
     void OnConnected();
     void OnDisconnected();
 
 private:
-    Windows::Foundation::IAsyncAction _Settings_ColorValuesChanged(
-        Windows::UI::ViewManagement::UISettings const&,
-        Windows::Foundation::IInspectable const&
-    );
+    void _UpdateBrush();
+
     Windows::Foundation::IAsyncAction _AccessibilitySettings_HighContrastChanged(
         Windows::UI::ViewManagement::AccessibilitySettings const&,
         Windows::Foundation::IInspectable const&
@@ -46,7 +42,6 @@ private:
     std::optional<bool> _energySaver;
     bool _hasMica = false;
 
-    winrt::event_token _colorValuesChangedToken{};
     winrt::event_token _highContrastChangedToken{};
     winrt::event_token _energySaverStatusChangedToken{};
     winrt::event_token _compositionCapabilitiesChangedToken{};
