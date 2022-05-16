@@ -98,6 +98,11 @@ namespace winrt::Magpie::App::implementation {
 
 MicaBrush::MicaBrush(FrameworkElement root) {
     _rootElement = root;
+
+    _hasMica = ApiInformation::IsMethodPresent(
+        L"Windows.UI.Composition.Compositor",
+        L"TryCreateBlurredWallpaperBackdropBrush"
+    );
 }
 
 void MicaBrush::OnHostFocusChanged(bool isFocused) {
@@ -193,12 +198,8 @@ void MicaBrush::_UpdateBrush() {
     ElementTheme currentTheme = _rootElement.ActualTheme();
     Compositor compositor = Window::Current().Compositor();
 
-    bool useSolidColorFallback =
-        !ApiInformation::IsMethodPresent(L"Windows.UI.Composition.Compositor", L"TryCreateBlurredWallpaperBackdropBrush") ||
-        !_settings.AdvancedEffectsEnabled() ||
-        !_windowActivated ||
-        _fastEffects == false ||
-        _energySaver == true;
+    bool useSolidColorFallback = !_hasMica || !_settings.AdvancedEffectsEnabled() ||
+        !_windowActivated || _fastEffects == false || _energySaver == true;
 
     Color tintColor = currentTheme == ElementTheme::Light ?
         Color{ 255, 243, 243, 243 } :
@@ -218,7 +219,7 @@ void MicaBrush::_UpdateBrush() {
 
     bool doCrossFade = oldBrush != nullptr &&
         CompositionBrush().Comment() != L"CrossFade" &&
-        !(winrt::get_class_name(oldBrush) == L"Windows.UI.Composition.CompositionColorBrush"&&
+        !(winrt::get_class_name(oldBrush) == L"Windows.UI.Composition.CompositionColorBrush" &&
             winrt::get_class_name(newBrush) == L"Windows.UI.Composition.CompositionColorBrush");
 
     if (doCrossFade) {

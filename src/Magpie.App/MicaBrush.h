@@ -44,6 +44,7 @@ private:
     Windows::UI::ViewManagement::AccessibilitySettings _accessibilitySettings{ nullptr };
     std::optional<bool> _fastEffects;
     std::optional<bool> _energySaver;
+    bool _hasMica = false;
 
     winrt::event_token _colorValuesChangedToken{};
     winrt::event_token _highContrastChangedToken{};

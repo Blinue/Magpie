@@ -110,16 +110,18 @@ void MainPage::_UpdateHostTheme() {
 	DwmSetWindowAttribute(
 		hwndHost,
 		osBuild < 18985 ? DWMWA_USE_IMMERSIVE_DARK_MODE_BEFORE_20H1 : DWMWA_USE_IMMERSIVE_DARK_MODE,
-		& isDarkMode,
+		&isDarkMode,
 		sizeof(isDarkMode)
 	);
 
-	// 在 Win11 中应用 Mica
+	if (osBuild >= 22000) {
+		// 在 Win11 中应用 Mica
+		BOOL mica = TRUE;
+		DwmSetWindowAttribute(hwndHost, DWMWA_MICA_EFFECT, &mica, sizeof(mica));
+	}
 
-	BOOL mica = TRUE;
-	DwmSetWindowAttribute(hwndHost, DWMWA_MICA_EFFECT, &mica, sizeof(mica));
-
-	// 更改背景色
+	// 更改背景色以配合主题
+	// 背景色在更改窗口大小时会短暂可见
 	HBRUSH hbrOld = (HBRUSH)SetClassLongPtr(hwndHost, GCLP_HBRBACKGROUND,
 		(INT_PTR)CreateSolidBrush(isDarkMode ? RGB(0, 0, 0) : RGB(255, 255, 255)));
 	DeleteObject(hbrOld);
@@ -133,10 +135,6 @@ void MainPage::_UpdateHostTheme() {
 		SetLayeredWindowAttributes(hwndHost, 0, 254, LWA_ALPHA);
 	}
 	SetWindowLongPtr(hwndHost, GWL_EXSTYLE, style);
-
-	// 确保更改已应用
-	SetWindowPos(hwndHost, NULL, 0, 0, 0, 0,
-		SWP_DRAWFRAME | SWP_NOACTIVATE | SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER);
 
 	RequestedTheme(isDarkMode ? ElementTheme::Dark : ElementTheme::Light);
 }
