@@ -68,32 +68,28 @@ void MainPage::_UpdateHostTheme() {
 		return;
 	}
 
-	BOOL isDarkMode = FALSE;
-	if (_theme == 0) {
-		isDarkMode = FALSE;
-	} else if (_theme == 1) {
-		isDarkMode = TRUE;
-	} else {
-		isDarkMode = _uiSettings.GetColorValue(UIColorType::Background).R < 128;
-	}
-
-	if (_isDarkTheme.has_value() && _isDarkTheme == (bool)isDarkMode) {
-		// 无需切换
-		return;
-	}
-
-	_isDarkTheme = isDarkMode;
-
+	BOOL isDarkTheme = FALSE;
 	if (_theme == 2) {
 		if (!_colorChangedToken) {
 			_colorChangedToken = _uiSettings.ColorValuesChanged({ this, &MainPage::_Settings_ColorValuesChanged });
 		}
+
+		isDarkTheme = _uiSettings.GetColorValue(UIColorType::Background).R < 128;
 	} else {
 		if (_colorChangedToken) {
 			_uiSettings.ColorValuesChanged(_colorChangedToken);
 			_colorChangedToken = {};
 		}
+
+		isDarkTheme = _theme == 1;
 	}
+
+	if (_isDarkTheme.has_value() && _isDarkTheme == (bool)isDarkTheme) {
+		// 无需切换
+		return;
+	}
+
+	_isDarkTheme = isDarkTheme;
 
 	auto osBuild = GetOSBuild();
 
@@ -103,8 +99,8 @@ void MainPage::_UpdateHostTheme() {
 	DwmSetWindowAttribute(
 		hwndHost,
 		osBuild < 18985 ? DWMWA_USE_IMMERSIVE_DARK_MODE_BEFORE_20H1 : DWMWA_USE_IMMERSIVE_DARK_MODE,
-		&isDarkMode,
-		sizeof(isDarkMode)
+		&isDarkTheme,
+		sizeof(isDarkTheme)
 	);
 
 	if (osBuild >= 22000) {
@@ -116,7 +112,7 @@ void MainPage::_UpdateHostTheme() {
 	// 更改背景色以配合主题
 	// 背景色在更改窗口大小时会短暂可见
 	HBRUSH hbrOld = (HBRUSH)SetClassLongPtr(hwndHost, GCLP_HBRBACKGROUND,
-		(INT_PTR)CreateSolidBrush(isDarkMode ? RGB(0, 0, 0) : RGB(255, 255, 255)));
+		(INT_PTR)CreateSolidBrush(isDarkTheme ? RGB(0, 0, 0) : RGB(255, 255, 255)));
 	DeleteObject(hbrOld);
 	InvalidateRect(hwndHost, nullptr, TRUE);
 
@@ -129,7 +125,7 @@ void MainPage::_UpdateHostTheme() {
 	}
 	SetWindowLongPtr(hwndHost, GWL_EXSTYLE, style);
 
-	RequestedTheme(isDarkMode ? ElementTheme::Dark : ElementTheme::Light);
+	RequestedTheme(isDarkTheme ? ElementTheme::Dark : ElementTheme::Light);
 }
 
 IAsyncAction MainPage::_Settings_ColorValuesChanged(UISettings const&, IInspectable const&) {
