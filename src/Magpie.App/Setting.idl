@@ -1,10 +1,23 @@
 namespace Magpie.App.Controls
 {
-    [default_interface]
-    [Windows.UI.Xaml.TemplateVisualState("CommonStates", "Normal")]
-    [Windows.UI.Xaml.TemplateVisualState("CommonStates", "Disabled")]
-    runtimeclass Setting : Windows.UI.Xaml.Controls.ContentControl
-    {
-        Setting();
-    }
+	runtimeclass ContentPresenter : Windows.UI.Xaml.Controls.ContentPresenter
+	{
+	}
+
+	[default_interface]
+	[Windows.UI.Xaml.TemplateVisualState("CommonStates", "Normal")]
+	[Windows.UI.Xaml.TemplateVisualState("CommonStates", "Disabled")]
+	[Windows.UI.Xaml.TemplatePart("IconPresenter", ContentPresenter)]
+	[Windows.UI.Xaml.TemplatePart("DescriptionPresenter", ContentPresenter)]
+	runtimeclass Setting : Windows.UI.Xaml.Controls.ContentControl
+	{
+		Setting();
+
+		void OnApplyTemplate();
+
+		String MyHeader;
+		Object Description;
+		Object Icon;
+		Object ActionContent;
+	}
 }

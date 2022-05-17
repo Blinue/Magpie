@@ -154,11 +154,6 @@
     </AppxManifest>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="Assets\Square150x150Logo.scale-200.png" />
-    <Image Include="Assets\Square44x44Logo.scale-200.png" />
-    <Image Include="Assets\StoreLogo.png" />
-  </ItemGroup>
-  <ItemGroup>
     <ClCompile Include="AboutPage.cpp">
       <DependentUpon>AboutPage.xaml</DependentUpon>
       <SubType>Code</SubType>

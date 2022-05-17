@@ -6,5 +6,9 @@
 
 namespace winrt::Magpie::App::Controls::implementation
 {
-    
+
+Setting::Setting() {
+	
+}
+
 }
