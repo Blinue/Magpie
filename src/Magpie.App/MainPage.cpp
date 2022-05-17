@@ -54,6 +54,11 @@ void MainPage::NavigationView_SelectionChanged(NavigationView const&, Navigation
 	}
 }
 
+void MainPage::NavigationView_DisplayModeChanged(NavigationView const& sender, NavigationViewDisplayModeChangedEventArgs const& args) {
+	ScalingConfigSeparator().Visibility(
+		args.DisplayMode() == NavigationViewDisplayMode::Compact ? Visibility::Visible : Visibility::Collapsed);
+}
+
 void MainPage::Theme(uint8_t theme) {
 	assert(theme >= 0 && theme <= 2);
 	_theme = theme;

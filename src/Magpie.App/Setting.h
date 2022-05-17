@@ -2,45 +2,50 @@
 
 #include "Controls.Setting.g.h"
 
+
 namespace winrt::Magpie::App::Controls::implementation
 {
     struct Setting : SettingT<Setting>
     {
         Setting();
 
-        void MyHeader(const hstring& value) {
+        void MyHeader(const hstring& value);
 
-        }
+        hstring MyHeader() const;
 
-        hstring MyHeader() const {
-            return L"";
-        }
+        void Description(Windows::Foundation::IInspectable value);
 
-        void Description(Windows::Foundation::IInspectable value) {
+        Windows::Foundation::IInspectable Description() const;
 
-        }
+        void Icon(Windows::Foundation::IInspectable value);
 
-        Windows::Foundation::IInspectable Description() const {
-            return nullptr;
-        }
+        Windows::Foundation::IInspectable Icon() const;
 
-        void Icon(Windows::Foundation::IInspectable value) {
+        void ActionContent(Windows::Foundation::IInspectable value);
 
-        }
-
-        Windows::Foundation::IInspectable Icon() const {
-            return nullptr;
-        }
-
-        void ActionContent(Windows::Foundation::IInspectable value) {
-
-        }
-
-        Windows::Foundation::IInspectable ActionContent() const {
-            return nullptr;
-        }
+        Windows::Foundation::IInspectable ActionContent() const;
 
         void OnApplyTemplate() {}
+
+        static Windows::UI::Xaml::DependencyProperty MyHeaderProperty;
+        static Windows::UI::Xaml::DependencyProperty DescriptionProperty;
+        static Windows::UI::Xaml::DependencyProperty IconProperty;
+        static Windows::UI::Xaml::DependencyProperty ActionContentProperty;
+
+    private:
+        static void _OnMyHeaderChanged(Windows::UI::Xaml::DependencyObject const& sender, Windows::UI::Xaml::DependencyPropertyChangedEventArgs const&);
+
+        static void _OnDescriptionChanged(Windows::UI::Xaml::DependencyObject const& sender, Windows::UI::Xaml::DependencyPropertyChangedEventArgs const&);
+
+        static void _OnIconChanged(Windows::UI::Xaml::DependencyObject const& sender, Windows::UI::Xaml::DependencyPropertyChangedEventArgs const&);
+
+        Windows::UI::Xaml::Controls::ContentPresenter _iconPresenter{ nullptr };
+        Windows::UI::Xaml::Controls::ContentPresenter _descriptionPresenter{ nullptr };
+
+        Magpie::App::Controls::Setting _setting{ nullptr };
+
+        static constexpr const wchar_t* _PartIconPresenter = L"IconPresenter";
+        static constexpr const wchar_t* _PartDescriptionPresenter = L"DescriptionPresenter";
     };
 }
 

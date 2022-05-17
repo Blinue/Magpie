@@ -15,6 +15,8 @@ namespace winrt::Magpie::App::implementation
 
 		void NavigationView_SelectionChanged(Microsoft::UI::Xaml::Controls::NavigationView const& sender, Microsoft::UI::Xaml::Controls::NavigationViewSelectionChangedEventArgs const& args);
 
+		void NavigationView_DisplayModeChanged(Microsoft::UI::Xaml::Controls::NavigationView const& sender, Microsoft::UI::Xaml::Controls::NavigationViewDisplayModeChangedEventArgs const& args);
+
 		void Theme(uint8_t theme);
 		uint8_t Theme() const {
 			return _theme;
