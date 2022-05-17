@@ -9,15 +9,14 @@
     Loading="Page_Loading"
     mc:Ignorable="d">
 
-    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
-        <StackPanel HorizontalAlignment="Center" Spacing="10" 
-				Padding="20" VerticalAlignment="Center">
-            <TextBlock Text="主题" FontWeight="Bold" FontSize="18" />
-            <muxc:RadioButtons>
-                <RadioButton x:Name="LightThemeRadioButton" Content="浅色" Checked="ThemeRadioButton_Checked"/>
-                <RadioButton x:Name="DarkThemeRadioButton" Content="深色" Checked="ThemeRadioButton_Checked"/>
-                <RadioButton x:Name="SystemThemeRadioButton" Content="使用系统设置" Checked="ThemeRadioButton_Checked"/>
-            </muxc:RadioButtons>
-        </StackPanel>
+    <StackPanel Spacing="10" Orientation="Vertical" Margin="20">
+        <TextBlock Text="设置" FontWeight="Bold" FontSize="30" />
+
+        <TextBlock Text="主题" FontWeight="Bold" FontSize="18" />
+        <muxc:RadioButtons>
+            <RadioButton x:Name="LightThemeRadioButton" Content="浅色" Checked="ThemeRadioButton_Checked"/>
+            <RadioButton x:Name="DarkThemeRadioButton" Content="深色" Checked="ThemeRadioButton_Checked"/>
+            <RadioButton x:Name="SystemThemeRadioButton" Content="使用系统设置" Checked="ThemeRadioButton_Checked"/>
+        </muxc:RadioButtons>
     </StackPanel>
 </Page>

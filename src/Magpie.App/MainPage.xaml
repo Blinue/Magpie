@@ -12,7 +12,7 @@
         <muxc:NavigationView.MenuItems>
             <muxc:NavigationViewItem Icon="Home" Content="主页" Tag="Home" IsSelected="True" />
             <muxc:NavigationViewItemHeader Content="缩放配置" />
-            <muxc:NavigationViewItem Content="全局" Tag="GlobalScalingConfig">
+            <muxc:NavigationViewItem Content="全局" Tag="GlobalConfig">
                 <muxc:NavigationViewItem.Icon>
                     <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE81E;"/>
                 </muxc:NavigationViewItem.Icon>
@@ -22,6 +22,17 @@
                     <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xEA86;"/>
                 </muxc:NavigationViewItem.Icon>
             </muxc:NavigationViewItem>
+            <muxc:NavigationViewItem Content="游戏2" Tag="Game2">
+                <muxc:NavigationViewItem.Icon>
+                    <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xEA86;"/>
+                </muxc:NavigationViewItem.Icon>
+            </muxc:NavigationViewItem>
+            <muxc:NavigationViewItem Content="游戏3" Tag="Game3">
+                <muxc:NavigationViewItem.Icon>
+                    <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xEA86;"/>
+                </muxc:NavigationViewItem.Icon>
+            </muxc:NavigationViewItem>
+            <muxc:NavigationViewItem Icon="Add" Content="添加新配置" Tag="NewConfig" SelectsOnInvoked="False" />
         </muxc:NavigationView.MenuItems>
         <muxc:NavigationView.FooterMenuItems>
             <muxc:NavigationViewItem Content="关于" Tag="About">
