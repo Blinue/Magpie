@@ -8,6 +8,9 @@
     <Midl Include="MicaBrush.idl">
       <Filter>Brushes</Filter>
     </Midl>
+    <Midl Include="Setting.idl">
+      <Filter>Controls</Filter>
+    </Midl>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
@@ -47,6 +50,9 @@
     <Filter Include="Controls">
       <UniqueIdentifier>{ca435698-7c9e-4784-a031-2c9db29b5fcc}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Themes">
+      <UniqueIdentifier>{be3fc578-6b5a-4b23-8db1-0fc6083e1466}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -62,6 +68,18 @@
     </Page>
     <Page Include="AboutPage.xaml">
       <Filter>Pages</Filter>
+    </Page>
+    <Page Include="Colors.xaml">
+      <Filter>Themes</Filter>
+    </Page>
+    <Page Include="Generic.xaml">
+      <Filter>Themes</Filter>
+    </Page>
+    <Page Include="SettingsExpanderStyles.xaml">
+      <Filter>Themes</Filter>
+    </Page>
+    <Page Include="Setting.xaml">
+      <Filter>Controls</Filter>
     </Page>
   </ItemGroup>
 </Project>
