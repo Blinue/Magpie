@@ -8,10 +8,16 @@
 	<Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <muxc:XamlControlsResources />
+                <muxc:XamlControlsResources ControlsResourcesVersion="Version2" />
                 <ResourceDictionary Source="/Colors.xaml" />
                 <ResourceDictionary Source="/SettingsExpanderStyles.xaml" />
             </ResourceDictionary.MergedDictionaries>
+
+            <CornerRadius x:Key="ControlCornerRadius">8</CornerRadius>
+
+            <Thickness x:Key="NavigationViewContentGridBorderThickness">1,1,0,0</Thickness>
+            <CornerRadius x:Key="NavigationViewContentGridCornerRadius">8,0,0,0</CornerRadius>
+            <Thickness x:Key="NavigationViewHeaderMargin">56,34,0,0</Thickness>
         </ResourceDictionary>
     </Application.Resources>
 </Toolkit:XamlApplication>
