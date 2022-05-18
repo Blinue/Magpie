@@ -9,7 +9,7 @@
     Loading="Page_Loading"
     mc:Ignorable="d">
 
-    <StackPanel Spacing="10" Orientation="Vertical" Margin="40">
+    <StackPanel Spacing="10" Orientation="Vertical">
         <TextBlock Text="设置" FontWeight="Bold" FontSize="30" />
 
         <TextBlock Text="主题" FontWeight="Bold" FontSize="18" />

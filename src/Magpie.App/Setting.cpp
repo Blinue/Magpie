@@ -78,8 +78,33 @@ IInspectable Setting::ActionContent() const {
 	return GetValue(ActionContentProperty);
 }
 
+void Setting::OnApplyTemplate() {
+	/*IsEnabledChanged -= Setting_IsEnabledChanged;
+	_setting = (Setting)this;
+	_setting.GetTemplateChild(_PartIconPresenter).as(_iconPresenter);
+	_setting.GetTemplateChild(_PartDescriptionPresenter).as(_descriptionPresenter);
+	_Update();
+	_SetEnabledState();
+	IsEnabledChanged += Setting_IsEnabledChanged;*/
+
+	__super::OnApplyTemplate();
+}
+
+void Setting::_Update() {
+
+}
+
+void Setting::_Setting_IsEnabledChanged(Windows::Foundation::IInspectable const&, DependencyPropertyChangedEventArgs const&) {
+	_SetEnabledState();
+}
+
+void Setting::_SetEnabledState() {
+	VisualStateManager::GoToState(*this, IsEnabled() ? L"Normal" : L"Disabled", true);
+}
+
 
 void Setting::_OnMyHeaderChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
+	//winrt::get_self<Setting>(sender)->_Update();
 }
 
 void Setting::_OnDescriptionChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {

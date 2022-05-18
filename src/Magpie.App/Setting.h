@@ -25,7 +25,7 @@ namespace winrt::Magpie::App::Controls::implementation
 
         Windows::Foundation::IInspectable ActionContent() const;
 
-        void OnApplyTemplate() {}
+        void OnApplyTemplate();
 
         static Windows::UI::Xaml::DependencyProperty MyHeaderProperty;
         static Windows::UI::Xaml::DependencyProperty DescriptionProperty;
@@ -34,10 +34,14 @@ namespace winrt::Magpie::App::Controls::implementation
 
     private:
         static void _OnMyHeaderChanged(Windows::UI::Xaml::DependencyObject const& sender, Windows::UI::Xaml::DependencyPropertyChangedEventArgs const&);
-
         static void _OnDescriptionChanged(Windows::UI::Xaml::DependencyObject const& sender, Windows::UI::Xaml::DependencyPropertyChangedEventArgs const&);
-
         static void _OnIconChanged(Windows::UI::Xaml::DependencyObject const& sender, Windows::UI::Xaml::DependencyPropertyChangedEventArgs const&);
+
+        void _Setting_IsEnabledChanged(Windows::Foundation::IInspectable const&, Windows::UI::Xaml::DependencyPropertyChangedEventArgs const&);
+
+        void _Update();
+
+        void _SetEnabledState();
 
         Windows::UI::Xaml::Controls::ContentPresenter _iconPresenter{ nullptr };
         Windows::UI::Xaml::Controls::ContentPresenter _descriptionPresenter{ nullptr };
