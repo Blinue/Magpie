@@ -54,6 +54,12 @@ void MainPage::NavigationView_SelectionChanged(NavigationView const&, Navigation
 	}
 }
 
+void MainPage::NavigationView_DisplayModeChanged(NavigationView const& sender, NavigationViewDisplayModeChangedEventArgs const& args) {
+	// 需判断 DisplayMode，似乎是 WinUI 的 bug
+	ScalingConfigSeparator().Visibility(sender.IsPaneOpen() && (args.DisplayMode() != NavigationViewDisplayMode::Compact)
+		? Visibility::Collapsed : Visibility::Visible);
+}
+
 void MainPage::NavigationView_PaneOpening(NavigationView const& sender, IInspectable const& args) {
 	ScalingConfigSeparator().Visibility(Visibility::Collapsed);
 }

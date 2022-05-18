@@ -8,7 +8,7 @@
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	mc:Ignorable="d">
 
-    <muxc:NavigationView Name="GlobalNavigationView" IsBackButtonVisible="Collapsed" SelectionChanged="NavigationView_SelectionChanged" PaneOpening="NavigationView_PaneOpening" PaneClosing="NavigationView_PaneClosing">
+    <muxc:NavigationView Name="GlobalNavigationView" IsBackButtonVisible="Collapsed" SelectionChanged="NavigationView_SelectionChanged" DisplayModeChanged="NavigationView_DisplayModeChanged" PaneOpening="NavigationView_PaneOpening" PaneClosing="NavigationView_PaneClosing">
         <muxc:NavigationView.MenuItems>
             <muxc:NavigationViewItem Icon="Home" Content="主页" Tag="Home" IsSelected="True" />
             <muxc:NavigationViewItemSeparator x:Name="ScalingConfigSeparator" Visibility="Collapsed" />
