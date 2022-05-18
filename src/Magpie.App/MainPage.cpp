@@ -29,6 +29,9 @@ namespace winrt::Magpie::App::implementation {
 
 MainPage::MainPage() {
 	InitializeComponent();
+
+	// 修复 WinUI 的汉堡菜单的尺寸 bug
+	GlobalNavigationView().IsPaneOpen(true);
 }
 
 MainPage::~MainPage() {
