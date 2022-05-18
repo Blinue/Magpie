@@ -54,9 +54,12 @@ void MainPage::NavigationView_SelectionChanged(NavigationView const&, Navigation
 	}
 }
 
-void MainPage::NavigationView_DisplayModeChanged(NavigationView const& sender, NavigationViewDisplayModeChangedEventArgs const& args) {
-	ScalingConfigSeparator().Visibility(
-		args.DisplayMode() == NavigationViewDisplayMode::Compact ? Visibility::Visible : Visibility::Collapsed);
+void MainPage::NavigationView_PaneOpening(NavigationView const& sender, IInspectable const& args) {
+	ScalingConfigSeparator().Visibility(Visibility::Collapsed);
+}
+
+void MainPage::NavigationView_PaneClosing(NavigationView const&, NavigationViewPaneClosingEventArgs const&) {
+	ScalingConfigSeparator().Visibility(Visibility::Visible);
 }
 
 void MainPage::Theme(uint8_t theme) {
