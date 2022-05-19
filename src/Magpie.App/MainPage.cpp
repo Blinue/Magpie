@@ -20,14 +20,25 @@ using namespace Microsoft::UI::Xaml::Controls;
 
 
 static UINT GetOSBuild() {
-	const winrt::hstring& deviceFamilyVersion = AnalyticsInfo::VersionInfo().DeviceFamilyVersion();
-	uint64_t version = std::stoull(deviceFamilyVersion.c_str());
-	return (version & 0x00000000FFFF0000L) >> 16;
+	static UINT result = 0;
+	if (result == 0) {
+		const winrt::hstring& deviceFamilyVersion = AnalyticsInfo::VersionInfo().DeviceFamilyVersion();
+		uint64_t version = std::stoull(deviceFamilyVersion.c_str());
+		result = (version & 0x00000000FFFF0000L) >> 16;
+	}
+	return result;
 }
 
 namespace winrt::Magpie::App::implementation {
 
 MainPage::MainPage() {
+	// 初始化全局样式
+	UINT build = GetOSBuild();
+	Application::Current().Resources().Insert(
+		winrt::box_value(L"SymbolThemeFontFamily"),
+		Windows::UI::Xaml::Media::FontFamily(build >= 22000 ? L"Segoe Fluent Icons" : L"Segoe MDL2 Assets")
+	);
+
 	InitializeComponent();
 
 	// 修复 WinUI 的汉堡菜单的尺寸 bug

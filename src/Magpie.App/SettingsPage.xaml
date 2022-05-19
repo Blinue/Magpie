@@ -20,9 +20,9 @@
             <RadioButton x:Name="SystemThemeRadioButton" Content="使用系统设置" Checked="ThemeRadioButton_Checked"/>
         </muxc:RadioButtons>
 
-        <controls:Setting MyHeader="主题" Description="更改主题">
+        <controls:Setting MyHeader="主题">
             <controls:Setting.Icon>
-                <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}" Glyph="&#xE81E;"/>
+                <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE81E;"/>
             </controls:Setting.Icon>
         </controls:Setting>
     </StackPanel>

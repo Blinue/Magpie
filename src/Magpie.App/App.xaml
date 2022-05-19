@@ -51,11 +51,10 @@
                     <Thickness x:Key="CardBorderThickness">2</Thickness>
                 </ResourceDictionary>
             </ResourceDictionary.ThemeDictionaries>
-            
+
             <ResourceDictionary.MergedDictionaries>
                 <muxc:XamlControlsResources ControlsResourcesVersion="Version2" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
-        
     </Application.Resources>
 </Toolkit:XamlApplication>
