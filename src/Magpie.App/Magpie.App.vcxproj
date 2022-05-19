@@ -223,9 +223,6 @@
     <Page Include="AboutPage.xaml">
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Colors.xaml">
-      <SubType>Designer</SubType>
-    </Page>
     <Page Include="HomePage.xaml">
       <SubType>Designer</SubType>
     </Page>

@@ -6,13 +6,12 @@
     xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
     xmlns:controls="using:Magpie.App.Controls"
 	xmlns:local="using:Magpie.App">
-	<Application.Resources>
+    <Application.Resources>
         <ResourceDictionary>
             <CornerRadius x:Key="ControlCornerRadius">8</CornerRadius>
-
             <Thickness x:Key="NavigationViewContentGridBorderThickness">1,1,0,0</Thickness>
             <CornerRadius x:Key="NavigationViewContentGridCornerRadius">8,0,0,0</CornerRadius>
-
+            
             <ResourceDictionary.ThemeDictionaries>
                 <ResourceDictionary x:Key="Dark">
                     <StaticResource x:Key="CardBackgroundBrush" ResourceKey="CardBackgroundFillColorDefaultBrush" />
@@ -38,34 +37,8 @@
             
             <ResourceDictionary.MergedDictionaries>
                 <muxc:XamlControlsResources ControlsResourcesVersion="Version2" />
-
-                <ResourceDictionary>
-                    <Style TargetType="controls:Setting">
-                        <Setter Property="CornerRadius" Value="{ThemeResource ControlCornerRadius}" />
-                        <Setter Property="Background" Value="{ThemeResource CardBackgroundBrush}" />
-                        <Setter Property="BorderThickness" Value="{ThemeResource CardBorderThickness}" />
-                        <Setter Property="BorderBrush" Value="{ThemeResource CardStrokeColorDefaultBrush}" />
-                        <Setter Property="IsTabStop" Value="False" />
-                        <Setter Property="HorizontalAlignment" Value="Stretch" />
-                        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-                        <Setter Property="Padding" Value="160" />
-                        <Setter Property="Margin" Value="0,0,0,0" />
-                        <Setter Property="Template">
-                            <Setter.Value>
-                                <ControlTemplate TargetType="controls:Setting">
-                                    <Grid Background="Red">
-                                        <ContentPresenter
-                                            x:Name="DescriptionPresenter"
-                                            Content="{TemplateBinding Description}" />
-                                    </Grid>
-                                </ControlTemplate>
-                            </Setter.Value>
-                        </Setter>
-                    </Style>
-                </ResourceDictionary>
             </ResourceDictionary.MergedDictionaries>
-
-            
         </ResourceDictionary>
+        
     </Application.Resources>
 </Toolkit:XamlApplication>
