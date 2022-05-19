@@ -1,29 +1,33 @@
-﻿<Page
-    x:Class="Magpie.App.SettingsPage"
-    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:Magpie.App"
-    xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
-    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:controls="using:Magpie.App.Controls"
-    Loading="Page_Loading"
-    mc:Ignorable="d">
+<Page
+	x:Class="Magpie.App.SettingsPage"
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:local="using:Magpie.App"
+	xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
+	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+	xmlns:controls="using:Magpie.App.Controls"
+	Loading="Page_Loading"
+	mc:Ignorable="d">
 
-    <StackPanel Spacing="10" Orientation="Vertical">
-        <TextBlock Text="设置" FontWeight="Bold" FontSize="30" />
+	<StackPanel Orientation="Vertical" HorizontalAlignment="Stretch">
+		<TextBlock Text="设置" FontWeight="Bold" FontSize="30" Margin="0,0,0,20" />
 
-        <TextBlock Text="主题" FontWeight="Bold" FontSize="18" />
-        <muxc:RadioButtons>
-            <RadioButton x:Name="LightThemeRadioButton" Content="浅色" Checked="ThemeRadioButton_Checked"/>
-            <RadioButton x:Name="DarkThemeRadioButton" Content="深色" Checked="ThemeRadioButton_Checked"/>
-            <RadioButton x:Name="SystemThemeRadioButton" Content="使用系统设置" Checked="ThemeRadioButton_Checked"/>
-        </muxc:RadioButtons>
-
-        <controls:Setting MyHeader="主题">
-            <controls:Setting.Icon>
-                <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE81E;"/>
-            </controls:Setting.Icon>
-        </controls:Setting>
+        <StackPanel Spacing="10" Orientation="Vertical" MaxWidth="800">
+            <controls:Setting MyHeader="主题">
+                <controls:Setting.Icon>
+                    <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE790;"/>
+                </controls:Setting.Icon>
+                <controls:Setting.ActionContent>
+                    <ComboBox x:Name="ThemeComboBox" Width="150" SelectionChanged="ThemeComboBox_SelectionChanged">
+                        <ComboBox.Items>
+                            <ComboBoxItem Content="浅色" />
+                            <ComboBoxItem Content="深色" />
+                            <ComboBoxItem Content="使用系统设置" />
+                        </ComboBox.Items>
+                    </ComboBox>
+                </controls:Setting.ActionContent>
+            </controls:Setting>
+        </StackPanel>
     </StackPanel>
 </Page>

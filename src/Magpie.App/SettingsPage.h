@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "MainPage.h"
 #include "SettingsPage.g.h"
@@ -6,14 +6,14 @@
 namespace winrt::Magpie::App::implementation {
 
 struct SettingsPage : SettingsPageT<SettingsPage> {
-    SettingsPage();
+	SettingsPage();
 
-    void ThemeRadioButton_Checked(Windows::Foundation::IInspectable const&, Windows::UI::Xaml::RoutedEventArgs const&);
+	void Page_Loading(Windows::UI::Xaml::FrameworkElement const&, Windows::Foundation::IInspectable const&);
 
-    void Page_Loading(Windows::UI::Xaml::FrameworkElement const&, Windows::Foundation::IInspectable const&);
+	void ThemeComboBox_SelectionChanged(Windows::Foundation::IInspectable const&, Windows::UI::Xaml::Controls::SelectionChangedEventArgs const& args);
 
 private:
-    Magpie::App::MainPage _mainPage{ nullptr };
+	Magpie::App::MainPage _mainPage{ nullptr };
 };
 
 }

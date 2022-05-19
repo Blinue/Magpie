@@ -55,6 +55,6 @@
             </muxc:NavigationViewItem>
         </muxc:NavigationView.FooterMenuItems>
 
-        <Frame x:Name="ContentFrame" Margin="34" />
+        <Frame x:Name="ContentFrame" Margin="40" />
     </muxc:NavigationView>
 </Page>
