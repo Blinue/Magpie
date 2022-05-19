@@ -104,7 +104,7 @@ MicaBrush::MicaBrush(FrameworkElement root) {
 	_rootElement = root;
 
 	_hasMica = ApiInformation::IsMethodPresent(
-		L"Windows.UI.Composition.Compositor",
+		name_of<Compositor>(),
 		L"TryCreateBlurredWallpaperBackdropBrush"
 	);
 }
@@ -212,8 +212,8 @@ void MicaBrush::_UpdateBrush() {
 
 	bool doCrossFade = oldBrush != nullptr &&
 		CompositionBrush().Comment() != L"CrossFade" &&
-		!(winrt::get_class_name(oldBrush) == L"Windows.UI.Composition.CompositionColorBrush" &&
-			winrt::get_class_name(newBrush) == L"Windows.UI.Composition.CompositionColorBrush");
+		!(winrt::get_class_name(oldBrush) == name_of<CompositionColorBrush>() &&
+			winrt::get_class_name(newBrush) == name_of<CompositionColorBrush>());
 
 	if (doCrossFade) {
 		auto crossFadeBrush = CreateCrossFadeEffectBrush(compositor, oldBrush, newBrush);

@@ -61,9 +61,6 @@
     <Page Include="Colors.xaml">
       <Filter>Themes</Filter>
     </Page>
-    <Page Include="Generic.xaml">
-      <Filter>Themes</Filter>
-    </Page>
     <Page Include="SettingsExpanderStyles.xaml">
       <Filter>Themes</Filter>
     </Page>

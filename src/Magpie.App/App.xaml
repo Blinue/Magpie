@@ -4,19 +4,68 @@
 	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
+    xmlns:controls="using:Magpie.App.Controls"
 	xmlns:local="using:Magpie.App">
 	<Application.Resources>
         <ResourceDictionary>
-            <ResourceDictionary.MergedDictionaries>
-                <muxc:XamlControlsResources ControlsResourcesVersion="Version2" />
-                <ResourceDictionary Source="/Colors.xaml" />
-                <ResourceDictionary Source="/SettingsExpanderStyles.xaml" />
-            </ResourceDictionary.MergedDictionaries>
-
             <CornerRadius x:Key="ControlCornerRadius">8</CornerRadius>
 
             <Thickness x:Key="NavigationViewContentGridBorderThickness">1,1,0,0</Thickness>
             <CornerRadius x:Key="NavigationViewContentGridCornerRadius">8,0,0,0</CornerRadius>
+
+            <ResourceDictionary.ThemeDictionaries>
+                <ResourceDictionary x:Key="Dark">
+                    <StaticResource x:Key="CardBackgroundBrush" ResourceKey="CardBackgroundFillColorDefaultBrush" />
+                    <StaticResource x:Key="CardBorderBrush" ResourceKey="CardStrokeColorDefaultBrush" />
+                    <StaticResource x:Key="CardPrimaryForegroundBrush" ResourceKey="TextFillColorPrimaryBrush" />
+                    <Thickness x:Key="CardBorderThickness">1</Thickness>
+                </ResourceDictionary>
+
+                <ResourceDictionary x:Key="Light">
+                    <StaticResource x:Key="CardBackgroundBrush" ResourceKey="CardBackgroundFillColorDefaultBrush" />
+                    <StaticResource x:Key="CardBorderBrush" ResourceKey="CardStrokeColorDefaultBrush" />
+                    <StaticResource x:Key="CardPrimaryForegroundBrush" ResourceKey="TextFillColorPrimaryBrush" />
+                    <Thickness x:Key="CardBorderThickness">1</Thickness>
+                </ResourceDictionary>
+
+                <ResourceDictionary x:Key="HighContrast">
+                    <StaticResource x:Key="CardBackgroundBrush" ResourceKey="SystemColorButtonFaceColorBrush" />
+                    <StaticResource x:Key="CardBorderBrush" ResourceKey="SystemColorButtonTextColorBrush" />
+                    <StaticResource x:Key="CardPrimaryForegroundBrush" ResourceKey="SystemColorButtonTextColorBrush" />
+                    <Thickness x:Key="CardBorderThickness">2</Thickness>
+                </ResourceDictionary>
+            </ResourceDictionary.ThemeDictionaries>
+            
+            <ResourceDictionary.MergedDictionaries>
+                <muxc:XamlControlsResources ControlsResourcesVersion="Version2" />
+
+                <ResourceDictionary>
+                    <Style TargetType="controls:Setting">
+                        <Setter Property="CornerRadius" Value="{ThemeResource ControlCornerRadius}" />
+                        <Setter Property="Background" Value="{ThemeResource CardBackgroundBrush}" />
+                        <Setter Property="BorderThickness" Value="{ThemeResource CardBorderThickness}" />
+                        <Setter Property="BorderBrush" Value="{ThemeResource CardStrokeColorDefaultBrush}" />
+                        <Setter Property="IsTabStop" Value="False" />
+                        <Setter Property="HorizontalAlignment" Value="Stretch" />
+                        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                        <Setter Property="Padding" Value="160" />
+                        <Setter Property="Margin" Value="0,0,0,0" />
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="controls:Setting">
+                                    <Grid Background="Red">
+                                        <ContentPresenter
+                                            x:Name="DescriptionPresenter"
+                                            Content="{TemplateBinding Description}" />
+                                    </Grid>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </ResourceDictionary>
+            </ResourceDictionary.MergedDictionaries>
+
+            
         </ResourceDictionary>
     </Application.Resources>
 </Toolkit:XamlApplication>

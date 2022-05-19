@@ -6,6 +6,7 @@
     xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:controls="using:Magpie.App.Controls"
     Loading="Page_Loading"
     mc:Ignorable="d">
 
@@ -18,5 +19,11 @@
             <RadioButton x:Name="DarkThemeRadioButton" Content="深色" Checked="ThemeRadioButton_Checked"/>
             <RadioButton x:Name="SystemThemeRadioButton" Content="使用系统设置" Checked="ThemeRadioButton_Checked"/>
         </muxc:RadioButtons>
+
+        <controls:Setting Background="Red">
+            <controls:Setting.Description>
+                <TextBlock Text="主题" FontSize="20" />
+            </controls:Setting.Description>
+        </controls:Setting>
     </StackPanel>
 </Page>

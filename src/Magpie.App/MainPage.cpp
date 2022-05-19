@@ -63,7 +63,7 @@ void MainPage::NavigationView_DisplayModeChanged(NavigationView const& sender, N
 		? Visibility::Collapsed : Visibility::Visible);
 }
 
-void MainPage::NavigationView_PaneOpening(NavigationView const& sender, IInspectable const& args) {
+void MainPage::NavigationView_PaneOpening(NavigationView const&, IInspectable const&) {
 	ScalingConfigSeparator().Visibility(Visibility::Collapsed);
 }
 
