@@ -22,12 +22,10 @@
                     <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE790;"/>
                 </controls:Setting.Icon>
                 <controls:Setting.ActionContent>
-                    <ComboBox x:Name="ThemeComboBox" Width="150" SelectionChanged="ThemeComboBox_SelectionChanged">
-                        <ComboBox.Items>
-                            <ComboBoxItem Content="浅色" />
-                            <ComboBoxItem Content="深色" />
-                            <ComboBoxItem Content="使用系统设置" />
-                        </ComboBox.Items>
+                    <ComboBox x:Name="ThemeComboBox" Width="150" SelectionChanged="ThemeComboBox_SelectionChanged" DropDownOpened="ComboBox_DropDownOpened">
+                        <x:String>浅色</x:String>
+                        <x:String>深色</x:String>
+                        <x:String>使用系统设置</x:String>
                     </ComboBox>
                 </controls:Setting.ActionContent>
             </controls:Setting>

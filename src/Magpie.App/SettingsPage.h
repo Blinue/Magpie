@@ -11,6 +11,7 @@ struct SettingsPage : SettingsPageT<SettingsPage> {
 	void Page_Loading(Windows::UI::Xaml::FrameworkElement const&, Windows::Foundation::IInspectable const&);
 
 	void ThemeComboBox_SelectionChanged(Windows::Foundation::IInspectable const&, Windows::UI::Xaml::Controls::SelectionChangedEventArgs const& args);
+	void ComboBox_DropDownOpened(winrt::Windows::Foundation::IInspectable const& sender, winrt::Windows::Foundation::IInspectable const& e);
 
 private:
 	Magpie::App::MainPage _mainPage{ nullptr };

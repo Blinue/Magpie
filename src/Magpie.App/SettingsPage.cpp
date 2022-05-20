@@ -1,9 +1,11 @@
 #include "pch.h"
-#include "MainPage.h"
 #include "SettingsPage.h"
 #if __has_include("SettingsPage.g.cpp")
 #include "SettingsPage.g.cpp"
 #endif
+#include "MainPage.h"
+#include "Utils.h"
+
 
 using namespace winrt;
 using namespace Windows::UI::Xaml;
@@ -24,6 +26,10 @@ void SettingsPage::Page_Loading(Windows::UI::Xaml::FrameworkElement const&, Wind
 
 void SettingsPage::ThemeComboBox_SelectionChanged(IInspectable const&, SelectionChangedEventArgs const&) {
 	_mainPage.Theme((uint8_t)ThemeComboBox().SelectedIndex());
+}
+
+void SettingsPage::ComboBox_DropDownOpened(IInspectable const& sender, IInspectable const& e) {
+	Utils::UpdateThemeOfXamlPopups(XamlRoot(), _mainPage.ActualTheme());
 }
 
 }

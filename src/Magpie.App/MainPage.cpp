@@ -87,9 +87,6 @@ void MainPage::OnHostFocusChanged(bool isFocused) {
 }
 
 void MainPage::_UpdateTheme() {
-	// 已知问题：ComboBox 的弹出窗口无法响应主题切换
-	// https://github.com/microsoft/microsoft-ui-xaml/issues/6622
-
 	constexpr const DWORD DWMWA_USE_IMMERSIVE_DARK_MODE_BEFORE_20H1 = 19;
 	constexpr const DWORD DWMWA_MICA_EFFECT = 1029;
 
