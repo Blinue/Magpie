@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "XamlApp.h"
+#include "Utils.h"
 #include <winrt/Windows.UI.Core.h>
 #include <CoreWindow.h>
 #include <uxtheme.h>
@@ -12,30 +13,6 @@ using namespace Windows::Foundation;
 using namespace Windows::UI::ViewManagement;
 }
 
-
-static UINT GetOSBuild() {
-	static UINT build = 0;
-
-	if (build == 0) {
-		HMODULE hNtDll = GetModuleHandle(L"ntdll.dll");
-		if (!hNtDll) {
-			return {};
-		}
-
-		auto rtlGetVersion = (LONG(WINAPI*)(PRTL_OSVERSIONINFOW))GetProcAddress(hNtDll, "RtlGetVersion");
-		if (rtlGetVersion == nullptr) {
-			return {};
-		}
-
-		OSVERSIONINFOW version{};
-		version.dwOSVersionInfoSize = sizeof(version);
-		rtlGetVersion(&version);
-
-		build = version.dwBuildNumber;
-	}
-
-	return build;
-}
 
 ATOM XamlApp::_RegisterWndClass(HINSTANCE hInstance, const wchar_t* className) {
 	WNDCLASSEXW wcex{};
@@ -73,7 +50,7 @@ bool XamlApp::Initialize(HINSTANCE hInstance, const wchar_t* className, const wc
 		return false;
 	}
 	
-	bool useMica = GetOSBuild() >= 22000;
+	bool useMica = Utils::GetOSBuild() >= 22000;
 	if (useMica) {
 		// 标题栏不显示图标和标题，因为目前 DWM 存在 bug 无法在启用 Mica 时正确绘制标题
 		WTA_OPTIONS option{};
@@ -138,6 +115,50 @@ void XamlApp::_OnResize() {
 	SetWindowPos(_hwndXamlIsland, NULL, 0, 0, clientRect.right - clientRect.left, clientRect.bottom - clientRect.top, SWP_SHOWWINDOW);
 }
 
+struct EnumInfo {
+	HWND hwndHost = NULL;
+	POINT windowMove{};
+};
+
+static BOOL CALLBACK EnumWindowsProc(
+  _In_ HWND   hwnd,
+  _In_ LPARAM lParam
+) {
+	if (!IsWindowVisible(hwnd)) {
+		return TRUE;
+	}
+
+	// 过滤弹出窗口
+	// 1. 父窗口为 XAML Host
+	// 2. 窗口类为 Xaml_WindowedPopupClass
+
+	EnumInfo* ei = (EnumInfo*)lParam;
+	if (GetParent(hwnd) != ei->hwndHost) {
+		return TRUE;
+	}
+
+	wchar_t className[256]{};
+	if (!GetClassName(hwnd, className, (int)std::size(className))) {
+		return TRUE;
+	}
+
+	if (className != L"Xaml_WindowedPopupClass"sv) {
+		return TRUE;
+	}
+
+	RECT originRect;
+	if (!GetWindowRect(hwnd, &originRect)) {
+		return TRUE;
+	}
+
+	OutputDebugString((std::to_wstring(ei->windowMove.x) + L"\n").c_str());
+
+	SetWindowPos(hwnd, NULL, originRect.left + ei->windowMove.x, originRect.top + ei->windowMove.y, 0, 0,
+		SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE);
+
+	return TRUE;
+}
+
 LRESULT XamlApp::_WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
 	switch (message) {
 	case WM_SIZE:
@@ -150,14 +171,33 @@ LRESULT XamlApp::_WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		mmi->ptMinTrackSize = { 400,300 };
 		return 0;
 	}
-	case WM_SETFOCUS:
-		if (_hwndXamlIsland) {
-			SetFocus(_hwndXamlIsland);
-		}
-		return 0;
 	case WM_ACTIVATE:
-		_mainPage.OnHostFocusChanged(LOWORD(wParam) != WA_INACTIVE);
+	{
+		if (LOWORD(wParam) != WA_INACTIVE) {
+			_mainPage.OnHostFocusChanged(true);
+			if (_hwndXamlIsland) {
+				SetFocus(_hwndXamlIsland);
+			}
+		} else {
+			_mainPage.OnHostFocusChanged(false);
+		}
+		
 		return 0;
+	}
+	case WM_MOVING:
+	{
+		// 使某些弹出窗口随主窗口移动（如组合框）
+		RECT* targetRect = (RECT*)lParam;
+		RECT curRect;
+		GetWindowRect(_hwndXamlHost, &curRect);
+
+		if (Utils::GetSizeOfRect(curRect) == Utils::GetSizeOfRect(*targetRect)) {
+			EnumInfo ei{ _hwndXamlHost, POINT{targetRect->left - curRect.left, targetRect->top - curRect.top} };
+			EnumWindows(EnumWindowsProc, (LPARAM)&ei);
+		}
+
+		return 0;
+	}
 	case WM_DESTROY:
 		_xamlSourceNative2 = nullptr;
 		_xamlSource.Close();

@@ -46,6 +46,8 @@
 
 // C++ 运行时头文件
 #include <cstdlib>
+#include <string>
+#include <string_view>
 
 // C++/WinRT 头文件
 #include <unknwn.h>
@@ -58,5 +60,7 @@
 #include <winrt/Windows.UI.Xaml.Hosting.h>
 #include <winrt/Windows.UI.ViewManagement.h>
 
+using namespace std::string_literals;
+using namespace std::string_view_literals;
 
 #pragma comment(lib, "dwmapi.lib")

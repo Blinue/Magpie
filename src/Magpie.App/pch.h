@@ -37,6 +37,11 @@
 #include <windows.h>
 #include <dwmapi.h>
 
+// C++ 运行时头文件
+#include <cstdlib>
+#include <string>
+#include <string_view>
+
 // C++/WinRT 头文件
 #include <unknwn.h>
 #include <restrictederrorinfo.h>
@@ -67,5 +72,8 @@
 #include <winrt/Microsoft.UI.Xaml.Media.h>
 #include <winrt/Microsoft.UI.Xaml.XamlTypeInfo.h>
 #include <winrt/Microsoft.Graphics.Canvas.Effects.h>
+
+using namespace std::string_literals;
+using namespace std::string_view_literals;
 
 #pragma comment(lib, "dwmapi.lib")
