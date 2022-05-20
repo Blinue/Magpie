@@ -11,6 +11,7 @@ struct Utils {
 	}
 
 	static void CloseAllXamlPopups(winrt::Windows::UI::Xaml::XamlRoot root);
+	static void UpdateThemeOfXamlPopups(winrt::Windows::UI::Xaml::XamlRoot root, winrt::Windows::UI::Xaml::ElementTheme theme);
 };
 
 inline bool operator==(const SIZE& l, const SIZE& r) {

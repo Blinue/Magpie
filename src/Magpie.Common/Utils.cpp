@@ -33,8 +33,26 @@ UINT Utils::GetOSBuild() {
 }
 
 void Utils::CloseAllXamlPopups(XamlRoot root) {
+	if (!root) {
+		return;
+	}
+
 	// https://github.com/microsoft/microsoft-ui-xaml/issues/4554
 	for (const auto& popup : VisualTreeHelper::GetOpenPopupsForXamlRoot(root)) {
 		popup.IsOpen(false);
+	}
+}
+
+void Utils::UpdateThemeOfXamlPopups(XamlRoot root, ElementTheme theme) {
+	if (!root) {
+		return;
+	}
+
+	ElementTheme oppositeTheme = theme == ElementTheme::Light ? ElementTheme::Dark : ElementTheme::Light;
+
+	for (const auto& popup : VisualTreeHelper::GetOpenPopupsForXamlRoot(root)) {
+		// 这样可以确保主题被应用
+		popup.RequestedTheme(oppositeTheme);
+		popup.RequestedTheme(theme);
 	}
 }

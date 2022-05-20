@@ -216,10 +216,5 @@ void XamlApp::_CloseAllXamlPopups() {
 		return;
 	}
 
-	auto xamlRoot = _mainPage.XamlRoot();
-	if (!xamlRoot) {
-		return;
-	}
-
-	Utils::CloseAllXamlPopups(xamlRoot);
+	Utils::CloseAllXamlPopups(_mainPage.XamlRoot());
 }
