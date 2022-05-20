@@ -162,8 +162,11 @@ static BOOL CALLBACK EnumWindowsProc(
 LRESULT XamlApp::_WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
 	switch (message) {
 	case WM_SIZE:
+	{
 		_OnResize();
+		_CloseAllXamlPopups();
 		return 0;
+	}
 	case WM_GETMINMAXINFO:
 	{
 		// 设置窗口最小尺寸
@@ -180,23 +183,20 @@ LRESULT XamlApp::_WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			}
 		} else {
 			_mainPage.OnHostFocusChanged(false);
+			_CloseAllXamlPopups();
 		}
 		
 		return 0;
 	}
 	case WM_MOVING:
 	{
-		// 使某些弹出窗口随主窗口移动（如组合框）
-		RECT* targetRect = (RECT*)lParam;
-		RECT curRect;
-		GetWindowRect(_hwndXamlHost, &curRect);
-
-		if (Utils::GetSizeOfRect(curRect) == Utils::GetSizeOfRect(*targetRect)) {
-			EnumInfo ei{ _hwndXamlHost, POINT{targetRect->left - curRect.left, targetRect->top - curRect.top} };
-			EnumWindows(EnumWindowsProc, (LPARAM)&ei);
-		}
-
+		_CloseAllXamlPopups();
 		return 0;
+	}
+	case WM_NCLBUTTONDOWN:
+	{
+		_CloseAllXamlPopups();
+		break;
 	}
 	case WM_DESTROY:
 		_xamlSourceNative2 = nullptr;
@@ -209,4 +209,17 @@ LRESULT XamlApp::_WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	}
 
 	return DefWindowProc(hWnd, message, wParam, lParam);
+}
+
+void XamlApp::_CloseAllXamlPopups() {
+	if (!_mainPage) {
+		return;
+	}
+
+	auto xamlRoot = _mainPage.XamlRoot();
+	if (!xamlRoot) {
+		return;
+	}
+
+	Utils::CloseAllXamlPopups(xamlRoot);
 }

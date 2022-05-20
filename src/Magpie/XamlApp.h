@@ -30,6 +30,8 @@ private:
 	}
 	LRESULT _WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
+	void _CloseAllXamlPopups();
+
 	winrt::Magpie::App::App _uwpApp{ nullptr };
 	winrt::Magpie::App::MainPage _mainPage{ nullptr };
 	HWND _hwndXamlHost = NULL;
