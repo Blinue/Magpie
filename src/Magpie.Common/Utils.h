@@ -1,5 +1,5 @@
 #pragma once
-#include "pch.h"
+#include <Windows.h>
 
 
 struct Utils {
@@ -8,7 +8,6 @@ struct Utils {
 	static SIZE GetSizeOfRect(const RECT& rect) noexcept {
 		return { rect.right - rect.left, rect.bottom - rect.top };
 	}
-
 };
 
 inline bool operator==(const SIZE& l, const SIZE& r) {

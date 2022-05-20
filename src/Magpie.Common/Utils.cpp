@@ -1,5 +1,5 @@
-#include "pch.h"
 #include "Utils.h"
+
 
 UINT Utils::GetOSBuild() {
 	static UINT build = 0;
