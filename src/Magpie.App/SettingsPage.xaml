@@ -12,8 +12,9 @@
 
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition MaxWidth="900" Width="*" />
+            <ColumnDefinition MaxWidth="1000" Width="*" />
         </Grid.ColumnDefinitions>
+        
         <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
             <TextBlock Text="设置" FontWeight="Bold" FontSize="30" Margin="0,0,0,20" HorizontalAlignment="Stretch" />
             <controls:Setting MyHeader="主题" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left">

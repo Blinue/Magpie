@@ -1,13 +1,15 @@
 #include "pch.h"
+#include "MainPage.h"
+#if __has_include("MainPage.g.cpp")
+#include "MainPage.g.cpp"
+#endif
 #include <winrt/Windows.System.Profile.h>
 #include "MicaBrush.h"
 #include "HomePage.h"
 #include "SettingsPage.h"
 #include "AboutPage.h"
-#include "MainPage.h"
-#if __has_include("MainPage.g.cpp")
-#include "MainPage.g.cpp"
-#endif
+#include "Utils.h"
+
 
 using namespace winrt;
 using namespace Windows::UI::Core;
@@ -19,26 +21,9 @@ using namespace Windows::UI::ViewManagement;
 using namespace Microsoft::UI::Xaml::Controls;
 
 
-static UINT GetOSBuild() {
-	static UINT result = 0;
-	if (result == 0) {
-		const winrt::hstring& deviceFamilyVersion = AnalyticsInfo::VersionInfo().DeviceFamilyVersion();
-		uint64_t version = std::stoull(deviceFamilyVersion.c_str());
-		result = (version & 0x00000000FFFF0000L) >> 16;
-	}
-	return result;
-}
-
 namespace winrt::Magpie::App::implementation {
 
 MainPage::MainPage() {
-	// 初始化全局样式
-	UINT build = GetOSBuild();
-	Application::Current().Resources().Insert(
-		winrt::box_value(L"SymbolThemeFontFamily"),
-		Windows::UI::Xaml::Media::FontFamily(build >= 22000 ? L"Segoe Fluent Icons" : L"Segoe MDL2 Assets")
-	);
-
 	InitializeComponent();
 
 	// 修复 WinUI 的汉堡菜单的尺寸 bug
@@ -133,7 +118,7 @@ void MainPage::_UpdateHostTheme() {
 
 	_isDarkTheme = isDarkTheme;
 
-	auto osBuild = GetOSBuild();
+	auto osBuild = Utils::GetOSBuild();
 
 	if (osBuild >= 22000) {
 		// 在 Win11 中应用 Mica
