@@ -70,14 +70,14 @@ void MainPage::NavigationView_PaneClosing(NavigationView const&, NavigationViewP
 void MainPage::Theme(uint8_t theme) {
 	assert(theme >= 0 && theme <= 2);
 	_theme = theme;
-	_UpdateHostTheme();
+	_UpdateTheme();
 }
 
 void MainPage::HostWnd(uint64_t value) {
 	_hostWnd = value;
 
 	_micaBrush = Magpie::App::MicaBrush(*this);
-	_UpdateHostTheme();
+	_UpdateTheme();
 
 	Background(_micaBrush);
 }
@@ -86,7 +86,10 @@ void MainPage::OnHostFocusChanged(bool isFocused) {
 	_micaBrush.OnHostFocusChanged(isFocused);
 }
 
-void MainPage::_UpdateHostTheme() {
+void MainPage::_UpdateTheme() {
+	// 已知问题：ComboBox 的弹出窗口无法响应主题切换
+	// https://github.com/microsoft/microsoft-ui-xaml/issues/6622
+
 	constexpr const DWORD DWMWA_USE_IMMERSIVE_DARK_MODE_BEFORE_20H1 = 19;
 	constexpr const DWORD DWMWA_MICA_EFFECT = 1029;
 
@@ -158,7 +161,7 @@ void MainPage::_UpdateHostTheme() {
 IAsyncAction MainPage::_Settings_ColorValuesChanged(UISettings const&, IInspectable const&) {
 	return Dispatcher().RunAsync(
 		CoreDispatcherPriority::Normal,
-		{ this, &MainPage::_UpdateHostTheme }
+		{ this, &MainPage::_UpdateTheme }
 	);
 }
 

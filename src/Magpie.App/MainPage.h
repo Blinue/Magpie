@@ -33,7 +33,7 @@ namespace winrt::Magpie::App::implementation
 		void OnHostFocusChanged(bool isFocused);
 
 	private:
-		void _UpdateHostTheme();
+		void _UpdateTheme();
 
 		Windows::Foundation::IAsyncAction _Settings_ColorValuesChanged(
 			Windows::UI::ViewManagement::UISettings const&,
