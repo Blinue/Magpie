@@ -38,7 +38,6 @@ namespace winrt::Magpie::App::Controls::implementation
         Windows::UI::Xaml::Controls::TextBlock _myHeaderPresenter{ nullptr };
         Windows::UI::Xaml::Controls::ContentPresenter _descriptionPresenter{ nullptr };
 
-        SettingsGroup* _settingsGroup = nullptr;
         winrt::event_token _isEnabledChangedToken{};
 
         static constexpr const wchar_t* _PartMyHeaderPresenter = L"MyHeaderPresenter";

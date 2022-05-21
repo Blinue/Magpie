@@ -84,7 +84,6 @@ void Setting::OnApplyTemplate() {
 		_isEnabledChangedToken = {};
 	}
 	
-	_setting = this;
 	GetTemplateChild(_PartIconPresenter).as(_iconPresenter);
 	GetTemplateChild(_PartDescriptionPresenter).as(_descriptionPresenter);
 	
@@ -117,11 +116,7 @@ void Setting::_OnIconChanged(DependencyObject const& sender,DependencyPropertyCh
 }
 
 void Setting::_Update() {
-	if (_setting == nullptr) {
-		return;
-	}
-	
-	if (ActionContent() != nullptr) {
+	if (ActionContent()) {
 		if (winrt::get_class_name(ActionContent()) != name_of<Button>()) {
 			// We do not want to override the default AutomationProperties.Name of a button. Its Content property already describes what it does.
 			if (!MyHeader().empty()) {
@@ -130,7 +125,7 @@ void Setting::_Update() {
 		}
 	}
 	
-	if (_iconPresenter != nullptr) {
+	if (_iconPresenter) {
 		if (Icon() == nullptr) {
 			_iconPresenter.Visibility(Visibility::Collapsed);
 		} else {
@@ -138,10 +133,12 @@ void Setting::_Update() {
 		}
 	}
 
-	if (Description() == nullptr) {
-		_descriptionPresenter.Visibility(Visibility::Collapsed);
-	} else {
-		_descriptionPresenter.Visibility(Visibility::Visible);
+	if (_descriptionPresenter) {
+		if (Description() == nullptr) {
+			_descriptionPresenter.Visibility(Visibility::Collapsed);
+		} else {
+			_descriptionPresenter.Visibility(Visibility::Visible);
+		}
 	}
 }
 }

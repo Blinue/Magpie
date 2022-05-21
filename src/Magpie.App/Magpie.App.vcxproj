@@ -141,6 +141,10 @@
       <DependentUpon>Setting.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
+    <ClInclude Include="SettingsGroup.h">
+      <DependentUpon>SettingsGroup.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClInclude>
     <ClInclude Include="SettingsPage.h">
       <DependentUpon>SettingsPage.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -184,6 +188,10 @@
       <DependentUpon>Setting.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
+    <ClCompile Include="SettingsGroup.cpp">
+      <DependentUpon>SettingsGroup.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClCompile>
     <ClCompile Include="SettingsPage.cpp">
       <DependentUpon>SettingsPage.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -211,6 +219,9 @@
     <Midl Include="Setting.idl">
       <SubType>Designer</SubType>
     </Midl>
+    <Midl Include="SettingsGroup.idl">
+      <SubType>Designer</SubType>
+    </Midl>
     <Midl Include="SettingsPage.idl">
       <DependentUpon>SettingsPage.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -236,6 +247,9 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="SettingsExpanderStyles.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="SettingsGroup.xaml">
       <SubType>Designer</SubType>
     </Page>
     <Page Include="SettingsPage.xaml">

@@ -46,8 +46,6 @@ namespace winrt::Magpie::App::Controls::implementation
         Windows::UI::Xaml::Controls::ContentPresenter _iconPresenter{ nullptr };
         Windows::UI::Xaml::Controls::ContentPresenter _descriptionPresenter{ nullptr };
 
-        Setting* _setting = nullptr;
-
         winrt::event_token _isEnabledChangedToken{};
 
         static constexpr const wchar_t* _PartIconPresenter = L"IconPresenter";

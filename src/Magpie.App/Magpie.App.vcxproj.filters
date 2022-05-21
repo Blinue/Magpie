@@ -11,6 +11,9 @@
     <Midl Include="Setting.idl">
       <Filter>Controls</Filter>
     </Midl>
+    <Midl Include="SettingsGroup.idl">
+      <Filter>Controls</Filter>
+    </Midl>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
@@ -62,6 +65,9 @@
       <Filter>Themes</Filter>
     </Page>
     <Page Include="Setting.xaml">
+      <Filter>Controls</Filter>
+    </Page>
+    <Page Include="SettingsGroup.xaml">
       <Filter>Controls</Filter>
     </Page>
   </ItemGroup>

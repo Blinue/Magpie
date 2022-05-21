@@ -55,7 +55,6 @@ void SettingsGroup::OnApplyTemplate() {
 		_isEnabledChangedToken = {};
 	}
 
-	_settingsGroup = this;
 	GetTemplateChild(_PartMyHeaderPresenter).as(_myHeaderPresenter);
 	GetTemplateChild(_PartDescriptionPresenter).as(_descriptionPresenter);
 	
@@ -84,20 +83,20 @@ void SettingsGroup::_Setting_IsEnabledChanged(IInspectable const&, DependencyPro
 }
 
 void SettingsGroup::_Update() {
-	if (_settingsGroup == nullptr) {
-		return;
+	if (_myHeaderPresenter) {
+		if (MyHeader().empty()) {
+			_myHeaderPresenter.Visibility(Visibility::Collapsed);
+		} else {
+			_myHeaderPresenter.Visibility(Visibility::Visible);
+		}
 	}
 
-	if (MyHeader().empty()) {
-		_myHeaderPresenter.Visibility(Visibility::Collapsed);
-	} else {
-		_myHeaderPresenter.Visibility(Visibility::Visible);
-	}
-
-	if (Description() == nullptr) {
-		_descriptionPresenter.Visibility(Visibility::Collapsed);
-	} else {
-		_descriptionPresenter.Visibility(Visibility::Visible);
+	if (_descriptionPresenter) {
+		if (Description() == nullptr) {
+			_descriptionPresenter.Visibility(Visibility::Collapsed);
+		} else {
+			_descriptionPresenter.Visibility(Visibility::Visible);
+		}
 	}
 }
 

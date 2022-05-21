@@ -16,7 +16,7 @@
 		</Grid.ColumnDefinitions>
 		
 		<StackPanel Orientation="Vertical" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-			<TextBlock Text="设置" FontWeight="Bold" FontSize="30" Margin="0,0,0,20" HorizontalAlignment="Stretch" />
+			<TextBlock Text="设置" FontWeight="Bold" FontSize="30" Margin="0,0,0,0" HorizontalAlignment="Stretch" />
             <controls:SettingsGroup MyHeader="外观">
                 <controls:Setting MyHeader="主题" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left">
                     <controls:Setting.Icon>
