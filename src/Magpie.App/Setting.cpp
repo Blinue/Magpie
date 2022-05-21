@@ -85,11 +85,13 @@ void Setting::OnApplyTemplate() {
 	}
 	
 	_setting = this;
-	_setting->GetTemplateChild(_PartIconPresenter).as(_iconPresenter);
-	_setting->GetTemplateChild(_PartDescriptionPresenter).as(_descriptionPresenter);
-	_Update();
+	GetTemplateChild(_PartIconPresenter).as(_iconPresenter);
+	GetTemplateChild(_PartDescriptionPresenter).as(_descriptionPresenter);
+	
 	_SetEnabledState();
 	_isEnabledChangedToken = IsEnabledChanged({ this, &Setting::_Setting_IsEnabledChanged });
+
+	_Update();
 
 	__super::OnApplyTemplate();
 }
@@ -119,27 +121,27 @@ void Setting::_Update() {
 		return;
 	}
 	
-	if (_setting->ActionContent() != nullptr) {
-		if (winrt::get_class_name(_setting->ActionContent()) != name_of<Button>()) {
+	if (ActionContent() != nullptr) {
+		if (winrt::get_class_name(ActionContent()) != name_of<Button>()) {
 			// We do not want to override the default AutomationProperties.Name of a button. Its Content property already describes what it does.
-			if (!_setting->MyHeader().empty()) {
-				AutomationProperties::SetName(_setting->ActionContent().as<UIElement>(), _setting->MyHeader());
+			if (!MyHeader().empty()) {
+				AutomationProperties::SetName(ActionContent().as<UIElement>(), MyHeader());
 			}
 		}
 	}
 	
-	if (_setting->_iconPresenter != nullptr) {
-		if (_setting->Icon() == nullptr) {
-			_setting->_iconPresenter.Visibility(Visibility::Collapsed);
+	if (_iconPresenter != nullptr) {
+		if (Icon() == nullptr) {
+			_iconPresenter.Visibility(Visibility::Collapsed);
 		} else {
-			_setting->_iconPresenter.Visibility(Visibility::Visible);
+			_iconPresenter.Visibility(Visibility::Visible);
 		}
 	}
 
-	if (_setting->Description() == nullptr) {
-		_setting->_descriptionPresenter.Visibility(Visibility::Collapsed);
+	if (Description() == nullptr) {
+		_descriptionPresenter.Visibility(Visibility::Collapsed);
 	} else {
-		_setting->_descriptionPresenter.Visibility(Visibility::Visible);
+		_descriptionPresenter.Visibility(Visibility::Visible);
 	}
 }
 }

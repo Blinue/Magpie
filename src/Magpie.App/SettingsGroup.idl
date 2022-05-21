@@ -1,0 +1,23 @@
+namespace Magpie.App.Controls
+{
+    [default_interface]
+    [Windows.UI.Xaml.TemplateVisualState("CommonStates", "Normal")]
+    [Windows.UI.Xaml.TemplateVisualState("CommonStates", "Disabled")]
+    runtimeclass SettingsGroup : Windows.UI.Xaml.Controls.ItemsControl
+    {
+        SettingsGroup();
+
+        void OnApplyTemplate();
+        Windows.UI.Xaml.Automation.Peers.AutomationPeer OnCreateAutomationPeer();
+
+        String MyHeader;
+        Object Description;
+    }
+
+    runtimeclass SettingsGroupAutomationPeer : Windows.UI.Xaml.Automation.Peers.FrameworkElementAutomationPeer
+    {
+        SettingsGroupAutomationPeer(SettingsGroup owner);
+
+        String GetNameCore();
+    }
+}

@@ -10,25 +10,27 @@
 	Loading="Page_Loading"
 	mc:Ignorable="d">
 
-    <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition MaxWidth="1000" Width="*" />
-        </Grid.ColumnDefinitions>
-        
-        <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-            <TextBlock Text="设置" FontWeight="Bold" FontSize="30" Margin="0,0,0,20" HorizontalAlignment="Stretch" />
-            <controls:Setting MyHeader="主题" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left">
-                <controls:Setting.Icon>
-                    <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE790;"/>
-                </controls:Setting.Icon>
-                <controls:Setting.ActionContent>
-                    <ComboBox x:Name="ThemeComboBox" Width="150" SelectionChanged="ThemeComboBox_SelectionChanged" DropDownOpened="ComboBox_DropDownOpened">
-                        <x:String>浅色</x:String>
-                        <x:String>深色</x:String>
-                        <x:String>使用系统设置</x:String>
-                    </ComboBox>
-                </controls:Setting.ActionContent>
-            </controls:Setting>
+	<Grid>
+		<Grid.ColumnDefinitions>
+			<ColumnDefinition MaxWidth="1000" Width="*" />
+		</Grid.ColumnDefinitions>
+		
+		<StackPanel Orientation="Vertical" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+			<TextBlock Text="设置" FontWeight="Bold" FontSize="30" Margin="0,0,0,20" HorizontalAlignment="Stretch" />
+            <controls:SettingsGroup MyHeader="外观">
+                <controls:Setting MyHeader="主题" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left">
+                    <controls:Setting.Icon>
+                        <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE790;"/>
+                    </controls:Setting.Icon>
+                    <controls:Setting.ActionContent>
+                        <ComboBox x:Name="ThemeComboBox" Width="150" SelectionChanged="ThemeComboBox_SelectionChanged" DropDownOpened="ComboBox_DropDownOpened">
+                            <x:String>浅色</x:String>
+                            <x:String>深色</x:String>
+                            <x:String>使用系统设置</x:String>
+                        </ComboBox>
+                    </controls:Setting.ActionContent>
+                </controls:Setting>
+            </controls:SettingsGroup>
         </StackPanel>
-    </Grid>
+	</Grid>
 </Page>
