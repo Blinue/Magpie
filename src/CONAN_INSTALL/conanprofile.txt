@@ -1,9 +1,0 @@
-[settings]
-os=Windows
-arch=x86_64
-arch_build=x86_64
-compiler=Visual Studio
-compiler.version=17
-[options]
-[build_requires]
-[env]
