@@ -5,4 +5,12 @@
 		<OutDir>$(SolutionDir)\bin\$(Platform)\$(Configuration)\</OutDir>
 		<GeneratedFilesDir>$(IntDir)Generated Files\</GeneratedFilesDir>
 	</PropertyGroup>
+	
+	<!-- Conan 依赖 -->
+	<ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+		<Import Project="..\.conan\Debug\conanbuildinfo.props" />
+	</ImportGroup>
+	<ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+		<Import Project="..\.conan\Release\conanbuildinfo.props" />
+	</ImportGroup>
 </Project>

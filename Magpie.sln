@@ -12,10 +12,13 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Magpie.App", "src\Magpie.Ap
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{00AB63C3-0CD3-4944-B8E6-58C86138618D}"
 	ProjectSection(SolutionItems) = preProject
+		src\conanfile.txt = src\conanfile.txt
 		src\Solution.props = src\Solution.props
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Magpie.Common", "src\Magpie.Common\Magpie.Common.vcxitems", "{4EB33017-68C1-40FE-877A-BCFAB2832F18}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CONAN_INSTALL", "src\CONAN_INSTALL\CONAN_INSTALL.vcxproj", "{456CCAE4-2C51-4CF2-8D3A-1EFCE8C41A2D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -41,6 +44,10 @@ Global
 		{1239537C-E5B8-427A-9E7F-EA443D1F3529}.Release|ARM64.Build.0 = Release|ARM64
 		{1239537C-E5B8-427A-9E7F-EA443D1F3529}.Release|x64.ActiveCfg = Release|x64
 		{1239537C-E5B8-427A-9E7F-EA443D1F3529}.Release|x64.Build.0 = Release|x64
+		{456CCAE4-2C51-4CF2-8D3A-1EFCE8C41A2D}.Debug|ARM64.ActiveCfg = Debug|ARM64
+		{456CCAE4-2C51-4CF2-8D3A-1EFCE8C41A2D}.Debug|x64.ActiveCfg = Debug|x64
+		{456CCAE4-2C51-4CF2-8D3A-1EFCE8C41A2D}.Release|ARM64.ActiveCfg = Release|ARM64
+		{456CCAE4-2C51-4CF2-8D3A-1EFCE8C41A2D}.Release|x64.ActiveCfg = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

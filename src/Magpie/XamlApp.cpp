@@ -4,6 +4,7 @@
 #include <winrt/Windows.UI.Core.h>
 #include <CoreWindow.h>
 #include <uxtheme.h>
+#include <fmt/xchar.h>
 
 #pragma comment(lib, "UxTheme.lib")
 
@@ -113,6 +114,8 @@ void XamlApp::_OnResize() {
 	RECT clientRect;
 	GetClientRect(_hwndXamlHost, &clientRect);
 	SetWindowPos(_hwndXamlIsland, NULL, 0, 0, clientRect.right - clientRect.left, clientRect.bottom - clientRect.top, SWP_SHOWWINDOW);
+
+	OutputDebugString(fmt::format(L"test").c_str());
 }
 
 struct EnumInfo {

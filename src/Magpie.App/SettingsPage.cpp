@@ -28,7 +28,7 @@ void SettingsPage::ThemeComboBox_SelectionChanged(IInspectable const&, Selection
 	_mainPage.Theme((uint8_t)ThemeComboBox().SelectedIndex());
 }
 
-void SettingsPage::ComboBox_DropDownOpened(IInspectable const& sender, IInspectable const& e) {
+void SettingsPage::ComboBox_DropDownOpened(IInspectable const&, IInspectable const&) {
 	Utils::UpdateThemeOfXamlPopups(XamlRoot(), _mainPage.ActualTheme());
 }
 

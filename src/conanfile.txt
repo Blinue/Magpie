@@ -1,0 +1,10 @@
+[requires]
+fmt/8.1.1
+spdlog/1.10.0
+muparser/2.3.2
+yas/7.1.0
+rapidjson/cci.20211112
+zstd/1.5.2
+
+[generators]
+visual_studio
