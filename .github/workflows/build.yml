@@ -2,9 +2,9 @@ name: build
 
 on:
   push:
-    paths: [ 'src/**' ]
+    paths: [ 'src/**', '.github/workflows/build.yml' ]
   pull_request:
-    paths: [ 'src/**' ]
+    paths: [ 'src/**', '.github/workflows/build.yml' ]
 
 env:
   # Configuration type to build.
