@@ -11,6 +11,10 @@ int APIENTRY wWinMain(
 	_In_ LPWSTR    lpCmdLine,
 	_In_ int       nCmdShow
 ) {
+	UNREFERENCED_PARAMETER(hPrevInstance);
+	UNREFERENCED_PARAMETER(lpCmdLine);
+	UNREFERENCED_PARAMETER(nCmdShow);
+
 	auto& app = XamlApp::Get();
 	app.Initialize(hInstance, L"Magpie_XamlHost", L"Magpie");
 

@@ -114,52 +114,6 @@ void XamlApp::_OnResize() {
 	RECT clientRect;
 	GetClientRect(_hwndXamlHost, &clientRect);
 	SetWindowPos(_hwndXamlIsland, NULL, 0, 0, clientRect.right - clientRect.left, clientRect.bottom - clientRect.top, SWP_SHOWWINDOW);
-
-	OutputDebugString(fmt::format(L"test").c_str());
-}
-
-struct EnumInfo {
-	HWND hwndHost = NULL;
-	POINT windowMove{};
-};
-
-static BOOL CALLBACK EnumWindowsProc(
-  _In_ HWND   hwnd,
-  _In_ LPARAM lParam
-) {
-	if (!IsWindowVisible(hwnd)) {
-		return TRUE;
-	}
-
-	// 过滤弹出窗口
-	// 1. 父窗口为 XAML Host
-	// 2. 窗口类为 Xaml_WindowedPopupClass
-
-	EnumInfo* ei = (EnumInfo*)lParam;
-	if (GetParent(hwnd) != ei->hwndHost) {
-		return TRUE;
-	}
-
-	wchar_t className[256]{};
-	if (!GetClassName(hwnd, className, (int)std::size(className))) {
-		return TRUE;
-	}
-
-	if (className != L"Xaml_WindowedPopupClass"sv) {
-		return TRUE;
-	}
-
-	RECT originRect;
-	if (!GetWindowRect(hwnd, &originRect)) {
-		return TRUE;
-	}
-
-	OutputDebugString((std::to_wstring(ei->windowMove.x) + L"\n").c_str());
-
-	SetWindowPos(hwnd, NULL, originRect.left + ei->windowMove.x, originRect.top + ei->windowMove.y, 0, 0,
-		SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE);
-
-	return TRUE;
 }
 
 LRESULT XamlApp::_WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {

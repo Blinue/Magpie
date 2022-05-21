@@ -48,6 +48,8 @@
 #include <cstdlib>
 #include <string>
 #include <string_view>
+#include <vector>
+#include <algorithm>
 
 // C++/WinRT 头文件
 #include <unknwn.h>
@@ -59,6 +61,12 @@
 #include <winrt/Windows.System.h>
 #include <winrt/Windows.UI.Xaml.Hosting.h>
 #include <winrt/Windows.UI.ViewManagement.h>
+
+// fmt
+#include <fmt/format.h>
+#include <fmt/xchar.h>
+#include <fmt/printf.h>
+
 
 using namespace std::string_literals;
 using namespace std::string_view_literals;
