@@ -49,9 +49,6 @@
   <ItemGroup>
     <None Include="packages.config" />
     <None Include="dummy.exe" />
-    <None Include="Square44x44Logo.png" />
-    <None Include="Square150x150Logo.png" />
-    <None Include="StoreLogo.png" />
   </ItemGroup>
   <ItemGroup>
     <Page Include="MainPage.xaml" />

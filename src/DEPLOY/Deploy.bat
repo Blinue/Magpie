@@ -1,10 +1,3 @@
-msbuild /p:AppxPackage=false /p:GenerateAppxPackageOnBuild=false /p:AppxBundle=Never /p:Configuration=Release;Platform=x64;OutDir=..\..\publish\ ..\Magpie.App
-
-IF %ERRORLEVEL% NEQ 0 (
-    ECHO Error: Failed to build Magpie.App
-    EXIT 1
-)
-
 msbuild /p:Configuration=Release;Platform=x64;OutDir=..\..\publish\ ..\Magpie
 
 IF %ERRORLEVEL% NEQ 0 (
@@ -29,9 +22,6 @@ DEL dummy.*
 DEL *.winmd
 DEL *.xml
 DEL *.xbf
-DEL Square44x44Logo.png
-DEL Square150x150Logo.png
-DEL StoreLogo.png
 DEL Microsoft.Web.WebView2.Core.dll
 RD /S /Q Microsoft.UI.Xaml
 RD /S /Q Magpie.App

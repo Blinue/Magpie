@@ -8,7 +8,7 @@
   <Properties>
     <DisplayName>Magpie.App</DisplayName>
     <PublisherDisplayName>Blinue</PublisherDisplayName>
-    <Logo>StoreLogo.png</Logo>
+    <Logo>dummy.png</Logo>
   </Properties>
   <Dependencies>
     <TargetDeviceFamily Name="Windows.Universal" MinVersion="10.0.0.0" MaxVersionTested="10.0.0.0" />
@@ -19,7 +19,7 @@
   <Applications>
     <Application Id="App" Executable="dummy.exe" EntryPoint="Magpie.App.App">
       <uap:VisualElements DisplayName="Magpie.App" Description="Magpie"
-        Square150x150Logo="Square150x150Logo.png" Square44x44Logo="Square44x44Logo.png" BackgroundColor="transparent">
+        Square150x150Logo="dummy.png" Square44x44Logo="dummy.png" BackgroundColor="transparent">
         <uap:DefaultTile/>
       </uap:VisualElements>
     </Application>
