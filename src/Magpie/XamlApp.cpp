@@ -115,17 +115,21 @@ int XamlApp::Run() {
 
 	// 主消息循环
 	while (GetMessage(&msg, nullptr, 0, 0)) {
-		if (_xamlSource) {
-			BOOL processed = FALSE;
-			HRESULT hr = _xamlSourceNative2->PreTranslateMessage(&msg, &processed);
-			if (SUCCEEDED(hr) && processed) {
-				continue;
-			}
+		BOOL processed = FALSE;
+		HRESULT hr = _xamlSourceNative2->PreTranslateMessage(&msg, &processed);
+		if (SUCCEEDED(hr) && processed) {
+			continue;
 		}
 
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);
 	}
+
+	_xamlSourceNative2 = nullptr;
+	_xamlSource.Close();
+	_xamlSource = nullptr;
+	_mainPage = nullptr;
+	_uwpApp = nullptr;
 
 	return (int)msg.wParam;
 }
@@ -191,11 +195,6 @@ LRESULT XamlApp::_WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		break;
 	}
 	case WM_DESTROY:
-		_xamlSourceNative2 = nullptr;
-		_xamlSource.Close();
-		_xamlSource = nullptr;
-		_mainPage = nullptr;
-		_uwpApp = nullptr;
 		PostQuitMessage(0);
 		return 0;
 	}
