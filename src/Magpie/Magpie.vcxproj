@@ -179,4 +179,18 @@
     <Error Condition="!Exists('..\..\packages\Microsoft.Windows.CppWinRT.2.0.220418.1\build\native\Microsoft.Windows.CppWinRT.props')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Microsoft.Windows.CppWinRT.2.0.220418.1\build\native\Microsoft.Windows.CppWinRT.props'))" />
     <Error Condition="!Exists('..\..\packages\Microsoft.Windows.CppWinRT.2.0.220418.1\build\native\Microsoft.Windows.CppWinRT.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Microsoft.Windows.CppWinRT.2.0.220418.1\build\native\Microsoft.Windows.CppWinRT.targets'))" />
   </Target>
+
+  <!-- 解决 vcrt-forwarders 编译问题 https://github.com/microsoft/vcrt-forwarders/issues/37 -->
+  <Target Name="_FixUpProjectConfigurations"
+       BeforeTargets="ResolveVCRTForwarderReferences"
+       Condition="'@(ProjectReferenceWithConfiguration)' != '' And '$(VCRTForwarders-IncludeDebugCRT)' == ''">
+    <ItemGroup>
+      <_SavedProjectReferenceWithConfiguration Include="@(ProjectReferenceWithConfiguration)">
+        <Configuration>$(Configuration)</Configuration>
+        <Platform>$(Platform)</Platform>
+      </_SavedProjectReferenceWithConfiguration>
+      <ProjectReferenceWithConfiguration Remove="@(ProjectReferenceWithConfiguration)" />
+      <ProjectReferenceWithConfiguration Include="@(_SavedProjectReferenceWithConfiguration)" />
+    </ItemGroup>
+  </Target>
 </Project>

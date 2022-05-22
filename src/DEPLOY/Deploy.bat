@@ -1,5 +1,11 @@
-REM msbuild /p:Configuration=Release;Platform=x64;OutDir=..\..\publish\ ..\Magpie.App
-devenv ..\..\Magpie.sln /Build "Release|x64"
+msbuild /p:AppxPackage=false /p:GenerateAppxPackageOnBuild=false /p:AppxBundle=Never /p:Configuration=Release;Platform=x64;OutDir=..\..\publish\ ..\Magpie.App
+
+IF %ERRORLEVEL% NEQ 0 (
+    ECHO Error: Failed to build Magpie.App
+    EXIT 1
+)
+
+msbuild /p:Configuration=Release;Platform=x64;OutDir=..\..\publish\ ..\Magpie
 
 IF %ERRORLEVEL% NEQ 0 (
     ECHO Error: Failed to build Magpie.App
@@ -15,10 +21,19 @@ REM     EXIT 1
 REM )
 
 REM 清理不需要的文件
-cd ..\..\build\x64\Release
-del *.pdb
-del *.lib
-del *.exp
-del dummy.*
-del *.winmd
-del *.xml
+CD ..\..\publish
+DEL *.pdb
+DEL *.lib
+DEL *.exp
+DEL dummy.*
+DEL *.winmd
+DEL *.xml
+DEL *.xbf
+DEL Square44x44Logo.png
+DEL Square150x150Logo.png
+DEL StoreLogo.png
+DEL Microsoft.Web.WebView2.Core.dll
+RD /S /Q Microsoft.UI.Xaml
+RD /S /Q Magpie.App
+REM 删除所有 pri 文件，除了 resources.pri
+FOR %%f IN ("*.pri") DO IF /i "%%~nf" NEQ "resources" DEL "%%f"
