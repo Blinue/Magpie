@@ -99,6 +99,14 @@ bool XamlApp::Initialize(HINSTANCE hInstance, const wchar_t* className, const wc
 		ShowWindow(hwndDWXS, SW_HIDE);
 	}
 
+	// 焦点始终位于 _hwndXamlIsland 中
+	_xamlSource.TakeFocusRequested([](DesktopWindowXamlSource const& sender, DesktopWindowXamlSourceTakeFocusRequestedEventArgs const& args) {
+		auto reason = args.Request().Reason();
+		if (reason < XamlSourceFocusNavigationReason::Left) {
+			sender.NavigateFocus(args.Request());
+		}
+	});
+
 	return true;
 }
 
@@ -136,11 +144,11 @@ LRESULT XamlApp::_WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			// 处理焦点
 			if (_xamlSource) {
 				BYTE keyboardState[256] = {};
-				GetKeyboardState(keyboardState);
-
-				XamlSourceFocusNavigationReason reason = (keyboardState[VK_SHIFT] & 0x80) ?
-					XamlSourceFocusNavigationReason::Last : XamlSourceFocusNavigationReason::First;
-				_xamlSource.NavigateFocus(XamlSourceFocusNavigationRequest(reason));
+				if (GetKeyboardState(keyboardState)) {
+					XamlSourceFocusNavigationReason reason = (keyboardState[VK_SHIFT] & 0x80) ?
+						XamlSourceFocusNavigationReason::Last : XamlSourceFocusNavigationReason::First;
+					_xamlSource.NavigateFocus(XamlSourceFocusNavigationRequest(reason));
+				}
 			}
 			return 0;
 		}
