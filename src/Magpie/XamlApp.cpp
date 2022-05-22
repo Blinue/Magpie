@@ -51,8 +51,8 @@ bool XamlApp::Initialize(HINSTANCE hInstance, const wchar_t* className, const wc
 		return false;
 	}
 	
-	bool useMica = Utils::GetOSBuild() >= 22000;
-	if (useMica) {
+	bool isWin11 = Utils::GetOSBuild() >= 22000;
+	if (isWin11) {
 		// 标题栏不显示图标和标题，因为目前 DWM 存在 bug 无法在启用 Mica 时正确绘制标题
 		WTA_OPTIONS option{};
 		option.dwFlags = WTNCA_NODRAWCAPTION | WTNCA_NODRAWICON | WTNCA_NOSYSMENU;
@@ -64,12 +64,15 @@ bool XamlApp::Initialize(HINSTANCE hInstance, const wchar_t* className, const wc
 	_mainPage = winrt::Magpie::App::MainPage();
 	_mainPage.HostWnd((uint64_t)_hwndXamlHost);
 
-	// 在 Win10 上可能导致任务栏出现空的 DesktopWindowXamlSource 窗口
-	// 见 https://github.com/microsoft/microsoft-ui-xaml/issues/6490
-	ShowWindow(_hwndXamlHost, SW_SHOW);
-
 	_xamlSource = winrt::Windows::UI::Xaml::Hosting::DesktopWindowXamlSource();
 	_xamlSourceNative2 = _xamlSource.as<IDesktopWindowXamlSourceNative2>();
+
+	if (!isWin11) {
+		// 在 Win10 上可能导致任务栏出现空的 DesktopWindowXamlSource 窗口
+		// 见 https://github.com/microsoft/microsoft-ui-xaml/issues/6490
+		// 如果不将 ShowWindow 提前，任务栏会短暂出现两个图标
+		ShowWindow(_hwndXamlHost, SW_SHOW);
+	}
 
 	auto interop = _xamlSource.as<IDesktopWindowXamlSourceNative>();
 	interop->AttachToWindow(_hwndXamlHost);
@@ -77,7 +80,11 @@ bool XamlApp::Initialize(HINSTANCE hInstance, const wchar_t* className, const wc
 	interop->get_WindowHandle(&_hwndXamlIsland);
 	_xamlSource.Content(_mainPage);
 
-	_OnResize();
+	if (isWin11) {
+		ShowWindow(_hwndXamlHost, SW_SHOW);
+	} else {
+		_OnResize();
+	}
 
 	// 防止关闭时出现 DesktopWindowXamlSource 窗口
 	auto coreWindow = winrt::Windows::UI::Core::CoreWindow::GetForCurrentThread();
