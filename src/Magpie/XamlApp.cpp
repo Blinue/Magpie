@@ -9,18 +9,22 @@
 #pragma comment(lib, "UxTheme.lib")
 
 
-namespace winrt {
+using namespace winrt;
 using namespace Windows::Foundation;
 using namespace Windows::UI::ViewManagement;
-}
+using namespace Windows::UI::Core;
+using namespace Windows::UI::Xaml;
+using namespace Windows::UI::Xaml::Input;
+using namespace Windows::UI::Xaml::Controls;
+using namespace Windows::UI::Xaml::Hosting;
 
 
 ATOM XamlApp::_RegisterWndClass(HINSTANCE hInstance, const wchar_t* className) {
 	WNDCLASSEXW wcex{};
 
 	// 背景色遵循系统主题以避免显示时闪烁
-	winrt::Windows::UI::ViewManagement::UISettings uiSettings;
-	auto bkgColor = uiSettings.GetColorValue(winrt::UIColorType::Background);
+	UISettings uiSettings;
+	auto bkgColor = uiSettings.GetColorValue(UIColorType::Background);
 	HBRUSH hbrBkg = CreateSolidBrush(RGB(bkgColor.R, bkgColor.G, bkgColor.B));
 	
 	wcex.cbSize = sizeof(WNDCLASSEX);
@@ -39,7 +43,7 @@ ATOM XamlApp::_RegisterWndClass(HINSTANCE hInstance, const wchar_t* className) {
 }
 
 bool XamlApp::Initialize(HINSTANCE hInstance, const wchar_t* className, const wchar_t* title) {
-	winrt::init_apartment(winrt::apartment_type::single_threaded);
+	init_apartment(apartment_type::single_threaded);
 
 	_RegisterWndClass(hInstance, className);
 
@@ -60,11 +64,11 @@ bool XamlApp::Initialize(HINSTANCE hInstance, const wchar_t* className, const wc
 		SetWindowThemeAttribute(_hwndXamlHost, WTA_NONCLIENT, &option, sizeof(option));
 	}
 
-	_uwpApp = winrt::Magpie::App::App{};
-	_mainPage = winrt::Magpie::App::MainPage();
+	_uwpApp = Magpie::App::App{};
+	_mainPage = Magpie::App::MainPage();
 	_mainPage.HostWnd((uint64_t)_hwndXamlHost);
 
-	_xamlSource = winrt::Windows::UI::Xaml::Hosting::DesktopWindowXamlSource();
+	_xamlSource = Windows::UI::Xaml::Hosting::DesktopWindowXamlSource();
 	_xamlSourceNative2 = _xamlSource.as<IDesktopWindowXamlSourceNative2>();
 
 	if (!isWin11) {
@@ -82,12 +86,13 @@ bool XamlApp::Initialize(HINSTANCE hInstance, const wchar_t* className, const wc
 
 	if (isWin11) {
 		ShowWindow(_hwndXamlHost, SW_SHOW);
+		SetFocus(_hwndXamlHost);
 	} else {
 		_OnResize();
 	}
 
 	// 防止关闭时出现 DesktopWindowXamlSource 窗口
-	auto coreWindow = winrt::Windows::UI::Core::CoreWindow::GetForCurrentThread();
+	auto coreWindow = CoreWindow::GetForCurrentThread();
 	if (coreWindow) {
 		HWND hwndDWXS;
 		coreWindow.as<ICoreWindowInterop>()->get_WindowHandle(&hwndDWXS);
@@ -120,11 +125,26 @@ int XamlApp::Run() {
 void XamlApp::_OnResize() {
 	RECT clientRect;
 	GetClientRect(_hwndXamlHost, &clientRect);
-	SetWindowPos(_hwndXamlIsland, NULL, 0, 0, clientRect.right - clientRect.left, clientRect.bottom - clientRect.top, SWP_SHOWWINDOW);
+	SetWindowPos(_hwndXamlIsland, NULL, 0, 0, clientRect.right - clientRect.left, clientRect.bottom - clientRect.top, SWP_SHOWWINDOW | SWP_NOACTIVATE);
 }
 
 LRESULT XamlApp::_WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
 	switch (message) {
+	case WM_KEYDOWN:
+	{
+		if (wParam == VK_TAB) {
+			// 处理焦点
+			if (_xamlSource) {
+				BYTE keyboardState[256] = {};
+				GetKeyboardState(keyboardState);
+
+				XamlSourceFocusNavigationReason reason = (keyboardState[VK_SHIFT] & 0x80) ?
+					XamlSourceFocusNavigationReason::Last : XamlSourceFocusNavigationReason::First;
+				_xamlSource.NavigateFocus(XamlSourceFocusNavigationRequest(reason));
+			}
+			return 0;
+		}
+	}
 	case WM_SIZE:
 	{
 		_OnResize();
