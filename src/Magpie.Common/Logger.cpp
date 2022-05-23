@@ -3,10 +3,10 @@
 #include <spdlog/sinks/rotating_file_sink.h>
 
 
-bool Logger::Initialize(UINT logLevel, const char* logFileName, int logArchiveAboveSize, int logMaxArchiveFiles) {
+bool Logger::Initialize(spdlog::level::level_enum logLevel, const char* logFileName, int logArchiveAboveSize, int logMaxArchiveFiles) {
 	try {
 		_logger = spdlog::rotating_logger_mt(".", logFileName, logArchiveAboveSize, logMaxArchiveFiles);
-		_logger->set_level((spdlog::level::level_enum)logLevel);
+		_logger->set_level(logLevel);
 		_logger->set_pattern("%Y-%m-%d %H:%M:%S.%e|%l|%s:%!|%v");
 		_logger->flush_on(spdlog::level::warn);
 		spdlog::flush_every(std::chrono::seconds(5));
@@ -14,6 +14,11 @@ bool Logger::Initialize(UINT logLevel, const char* logFileName, int logArchiveAb
 		return false;
 	}
 
+	return true;
+}
+
+bool Logger::Initialize(Logger& logger) {
+	_logger = logger._logger;
 	return true;
 }
 

@@ -13,7 +13,10 @@ public:
 		return instance;
 	}
 
-	bool Initialize(UINT logLevel, const char* logFileName, int logArchiveAboveSize, int logMaxArchiveFiles);
+	// 在 exe 中调用
+	bool Initialize(spdlog::level::level_enum logLevel, const char* logFileName, int logArchiveAboveSize, int logMaxArchiveFiles);
+	// 在 dll 中调用
+	bool Initialize(Logger& logger);
 
 	void SetLevel(spdlog::level::level_enum logLevel);
 

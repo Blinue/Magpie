@@ -9,6 +9,8 @@
 #include "SettingsPage.h"
 #include "AboutPage.h"
 #include "Utils.h"
+#include "Logger.h"
+#include "StrUtils.h"
 
 
 using namespace winrt;
@@ -73,8 +75,11 @@ void MainPage::Theme(uint8_t theme) {
 	_UpdateTheme();
 }
 
-void MainPage::HostWnd(uint64_t value) {
-	_hostWnd = value;
+void MainPage::Initialize(uint64_t hwndHost, uint64_t pLogger) {
+	_hostWnd = hwndHost;
+
+	auto& logger = Logger::Get();
+	logger.Initialize(*(Logger*)pLogger);
 
 	_micaBrush = Magpie::App::MicaBrush(*this);
 	_UpdateTheme();
@@ -153,6 +158,8 @@ void MainPage::_UpdateTheme() {
 		SetLayeredWindowAttributes(hwndHost, 0, 254, LWA_ALPHA);
 	}
 	SetWindowLongPtr(hwndHost, GWL_EXSTYLE, style);
+
+	Logger::Get().Info(StrUtils::Concat("当前主题：", isDarkTheme ? "暗" : "亮"));
 }
 
 IAsyncAction MainPage::_Settings_ColorValuesChanged(UISettings const&, IInspectable const&) {

@@ -24,11 +24,7 @@ namespace winrt::Magpie::App::implementation
 			return _theme;
 		}
 
-		void HostWnd(uint64_t value);
-
-		uint64_t HostWnd() const {
-			return _hostWnd;
-		}
+		void Initialize(uint64_t hwndHost, uint64_t pLogger);
 
 		void OnHostFocusChanged(bool isFocused);
 

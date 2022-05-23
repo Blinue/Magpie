@@ -5,6 +5,8 @@
 #include <CoreWindow.h>
 #include <uxtheme.h>
 #include <fmt/xchar.h>
+#include "Logger.h"
+#include "StrUtils.h"
 
 #pragma comment(lib, "UxTheme.lib")
 
@@ -18,6 +20,20 @@ using namespace Windows::UI::Xaml::Input;
 using namespace Windows::UI::Xaml::Controls;
 using namespace Windows::UI::Xaml::Hosting;
 
+static void SetWorkingDirectory() {
+	wchar_t path[MAX_PATH] = { 0 };
+	GetModuleFileName(NULL, path, MAX_PATH);
+
+	for (int i = lstrlenW(path) - 1; i >= 0; --i) {
+		if (path[i] == L'\\' || path[i] == L'/') {
+			break;
+		} else {
+			path[i] = L'\0';
+		}
+	}
+
+	SetCurrentDirectory(path);
+}
 
 ATOM XamlApp::_RegisterWndClass(HINSTANCE hInstance, const wchar_t* className) {
 	WNDCLASSEXW wcex{};
@@ -43,6 +59,13 @@ ATOM XamlApp::_RegisterWndClass(HINSTANCE hInstance, const wchar_t* className) {
 }
 
 bool XamlApp::Initialize(HINSTANCE hInstance, const wchar_t* className, const wchar_t* title) {
+	SetWorkingDirectory();
+
+	auto& logger = Logger::Get();
+	logger.Initialize(spdlog::level::info, "logs/magpie.log", 100000, 2);
+
+	logger.Info("程序启动");
+
 	init_apartment(apartment_type::single_threaded);
 
 	_RegisterWndClass(hInstance, className);
@@ -66,7 +89,7 @@ bool XamlApp::Initialize(HINSTANCE hInstance, const wchar_t* className, const wc
 
 	_uwpApp = Magpie::App::App{};
 	_mainPage = Magpie::App::MainPage();
-	_mainPage.HostWnd((uint64_t)_hwndXamlHost);
+	_mainPage.Initialize((uint64_t)_hwndXamlHost, (uint64_t)&logger);
 
 	_xamlSource = Windows::UI::Xaml::Hosting::DesktopWindowXamlSource();
 	_xamlSourceNative2 = _xamlSource.as<IDesktopWindowXamlSourceNative2>();
@@ -130,6 +153,9 @@ int XamlApp::Run() {
 	_xamlSource = nullptr;
 	_mainPage = nullptr;
 	_uwpApp = nullptr;
+
+	Logger::Get().Info("程序退出");
+	Logger::Get().Flush();
 
 	return (int)msg.wParam;
 }
