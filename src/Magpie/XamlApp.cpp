@@ -13,6 +13,7 @@
 
 using namespace winrt;
 using namespace Windows::Foundation;
+using namespace Windows::UI;
 using namespace Windows::UI::ViewManagement;
 using namespace Windows::UI::Core;
 using namespace Windows::UI::Xaml;
@@ -40,7 +41,7 @@ ATOM XamlApp::_RegisterWndClass(HINSTANCE hInstance, const wchar_t* className) {
 
 	// 背景色遵循系统主题以避免显示时闪烁
 	UISettings uiSettings;
-	auto bkgColor = uiSettings.GetColorValue(UIColorType::Background);
+	Color bkgColor = uiSettings.GetColorValue(UIColorType::Background);
 	HBRUSH hbrBkg = CreateSolidBrush(RGB(bkgColor.R, bkgColor.G, bkgColor.B));
 	
 	wcex.cbSize = sizeof(WNDCLASSEX);
@@ -61,7 +62,7 @@ ATOM XamlApp::_RegisterWndClass(HINSTANCE hInstance, const wchar_t* className) {
 bool XamlApp::Initialize(HINSTANCE hInstance, const wchar_t* className, const wchar_t* title) {
 	SetWorkingDirectory();
 
-	auto& logger = Logger::Get();
+	Logger& logger = Logger::Get();
 	logger.Initialize(spdlog::level::info, "logs/magpie.log", 100000, 2);
 
 	logger.Info("程序启动");
@@ -115,7 +116,7 @@ bool XamlApp::Initialize(HINSTANCE hInstance, const wchar_t* className, const wc
 	}
 
 	// 防止关闭时出现 DesktopWindowXamlSource 窗口
-	auto coreWindow = CoreWindow::GetForCurrentThread();
+	CoreWindow coreWindow = CoreWindow::GetForCurrentThread();
 	if (coreWindow) {
 		HWND hwndDWXS;
 		coreWindow.as<ICoreWindowInterop>()->get_WindowHandle(&hwndDWXS);
@@ -124,7 +125,7 @@ bool XamlApp::Initialize(HINSTANCE hInstance, const wchar_t* className, const wc
 
 	// 焦点始终位于 _hwndXamlIsland 中
 	_xamlSource.TakeFocusRequested([](DesktopWindowXamlSource const& sender, DesktopWindowXamlSourceTakeFocusRequestedEventArgs const& args) {
-		auto reason = args.Request().Reason();
+		XamlSourceFocusNavigationReason reason = args.Request().Reason();
 		if (reason < XamlSourceFocusNavigationReason::Left) {
 			sender.NavigateFocus(args.Request());
 		}

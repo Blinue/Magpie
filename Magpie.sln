@@ -16,7 +16,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		src\Solution.props = src\Solution.props
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Magpie.Common", "src\Magpie.Common\Magpie.Common.vcxitems", "{4EB33017-68C1-40FE-877A-BCFAB2832F18}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Shared", "src\Shared\Shared.vcxitems", "{4EB33017-68C1-40FE-877A-BCFAB2832F18}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CONAN_INSTALL", "src\CONAN_INSTALL\CONAN_INSTALL.vcxproj", "{456CCAE4-2C51-4CF2-8D3A-1EFCE8C41A2D}"
 EndProject
@@ -62,8 +62,8 @@ Global
 		SolutionGuid = {0114F74A-3B0C-43A4-AA0E-AB36FD4935F8}
 	EndGlobalSection
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
-		src\Magpie.Common\Magpie.Common.vcxitems*{1239537c-e5b8-427a-9e7f-ea443d1f3529}*SharedItemsImports = 4
-		src\Magpie.Common\Magpie.Common.vcxitems*{1801171b-65b6-400f-92ff-73eaf499cfb3}*SharedItemsImports = 4
-		src\Magpie.Common\Magpie.Common.vcxitems*{4eb33017-68c1-40fe-877a-bcfab2832f18}*SharedItemsImports = 9
+		src\Shared\Shared.vcxitems*{1239537c-e5b8-427a-9e7f-ea443d1f3529}*SharedItemsImports = 4
+		src\Shared\Shared.vcxitems*{1801171b-65b6-400f-92ff-73eaf499cfb3}*SharedItemsImports = 4
+		src\Shared\Shared.vcxitems*{4eb33017-68c1-40fe-877a-bcfab2832f18}*SharedItemsImports = 9
 	EndGlobalSection
 EndGlobal

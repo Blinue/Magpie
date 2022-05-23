@@ -78,7 +78,7 @@ void MainPage::Theme(uint8_t theme) {
 void MainPage::Initialize(uint64_t hwndHost, uint64_t pLogger) {
 	_hostWnd = hwndHost;
 
-	auto& logger = Logger::Get();
+	Logger& logger = Logger::Get();
 	logger.Initialize(*(Logger*)pLogger);
 
 	_micaBrush = Magpie::App::MicaBrush(*this);
@@ -151,7 +151,7 @@ void MainPage::_UpdateTheme() {
 	InvalidateRect(hwndHost, nullptr, TRUE);
 
 	// 强制重绘标题栏
-	auto style = GetWindowLongPtr(hwndHost, GWL_EXSTYLE);
+	LONG_PTR style = GetWindowLongPtr(hwndHost, GWL_EXSTYLE);
 	if (osBuild < 22000) {
 		// 在 Win10 上需要更多 hack
 		SetWindowLongPtr(hwndHost, GWL_EXSTYLE, style | WS_EX_LAYERED);
@@ -159,7 +159,7 @@ void MainPage::_UpdateTheme() {
 	}
 	SetWindowLongPtr(hwndHost, GWL_EXSTYLE, style);
 
-	Logger::Get().Info(StrUtils::Concat("当前主题：", isDarkTheme ? "暗" : "亮"));
+	Logger::Get().Info(StrUtils::Concat("当前主题：", isDarkTheme ? "深色" : "浅色"));
 }
 
 IAsyncAction MainPage::_Settings_ColorValuesChanged(UISettings const&, IInspectable const&) {
