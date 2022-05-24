@@ -58,3 +58,18 @@ void StrUtils::Trim(std::string_view& str) {
 
 	str.remove_prefix(str.size());
 }
+
+std::vector<std::string_view> StrUtils::Split(std::string_view str, char delimiter) {
+	std::vector<std::string_view> result;
+	while (!str.empty()) {
+		size_t pos = str.find(delimiter, 0);
+		result.push_back(str.substr(0, pos));
+
+		if (pos == std::string_view::npos) {
+			return result;
+		} else {
+			str.remove_prefix(pos + 1);
+		}
+	}
+	return result;
+}

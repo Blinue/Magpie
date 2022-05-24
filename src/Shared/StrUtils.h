@@ -22,20 +22,7 @@ struct StrUtils {
 		return result;
 	}
 
-	static std::vector<std::string_view> Split(std::string_view str, char delimiter) {
-		std::vector<std::string_view> result;
-		while (!str.empty()) {
-			size_t pos = str.find(delimiter, 0);
-			result.push_back(str.substr(0, pos));
-
-			if (pos == std::string_view::npos) {
-				return result;
-			} else {
-				str.remove_prefix(pos + 1);
-			}
-		}
-		return result;
-	}
+	static std::vector<std::string_view> Split(std::string_view str, char delimiter);
 
 	static int isspace(char c) {
 		return std::isspace(static_cast<unsigned char>(c));
@@ -64,7 +51,9 @@ struct StrUtils {
 	}
 
 	static void ToUpperCase(std::string& str) {
-		std::transform(str.begin(), str.end(), str.begin(), toupper);
+		for (char& c : str) {
+			c = toupper(c);
+		}
 	}
 
 	static std::string ToLowerCase(std::string_view str) {
@@ -74,7 +63,9 @@ struct StrUtils {
 	}
 
 	static void ToLowerCase(std::string& str) {
-		std::transform(str.begin(), str.end(), str.begin(), tolower);
+		for (char& c : str) {
+			c = tolower(c);
+		}
 	}
 
 	template<typename CHAR_T>
