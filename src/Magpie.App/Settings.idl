@@ -6,6 +6,7 @@ namespace Magpie.App
 		Settings();
 
 		Boolean Initialize();
+		void Save();
 
 		Boolean IsPortableMode;
 	}

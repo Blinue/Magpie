@@ -30,6 +30,10 @@ App::~App() {
 	Close();
 }
 
+void App::OnClose() {
+	_settings.Save();
+}
+
 bool App::Initialize(uint64_t pLogger) {
 	Logger::Get().Initialize(*(Logger*)pLogger);
 

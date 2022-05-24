@@ -11,6 +11,7 @@
 #include <winternl.h>
 
 using namespace winrt;
+using namespace Windows::Foundation;
 using namespace Windows::UI::Xaml;
 using namespace Windows::UI::Xaml::Media;
 
@@ -169,6 +170,19 @@ bool Utils::WriteFile(const wchar_t* fileName, const void* buffer, size_t buffer
 	size_t writed = fwrite(buffer, 1, bufferSize, hFile);
 	assert(writed == bufferSize);
 	UNREFERENCED_PARAMETER(writed);
+
+	fclose(hFile);
+	return true;
+}
+
+bool Utils::WriteTextFile(const wchar_t* fileName, const char* text) {
+	FILE* hFile;
+	if (_wfopen_s(&hFile, fileName, L"wb") || !hFile) {
+		Logger::Get().Error(StrUtils::Concat("打开文件 ", StrUtils::UTF16ToUTF8(fileName), " 失败"));
+		return false;
+	}
+
+	fprintf(hFile, text);
 
 	fclose(hFile);
 	return true;

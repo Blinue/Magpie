@@ -11,6 +11,8 @@ public:
 	App();
 	~App();
 
+	void OnClose();
+
 	bool Initialize(uint64_t pLogger);
 
 	Magpie::App::Settings Settings() const {

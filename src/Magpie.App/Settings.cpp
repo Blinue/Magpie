@@ -8,42 +8,60 @@
 #include "StrUtils.h"
 #include "Logger.h"
 
-static constexpr const wchar_t* CONFIG_FILE_PATH = L"config\\config.json";
+using namespace winrt;
+using namespace Windows::Foundation;
+
+
+static std::wstring GetConfigPath(bool isPortableMode) {
+	static constexpr const wchar_t* CONFIG_FILE_PATH = L"config\\config.json";
+
+	if (isPortableMode) {
+		return CONFIG_FILE_PATH;
+	}
+
+	wchar_t localAppDataDir[MAX_PATH];
+	HRESULT hr = SHGetFolderPath(NULL, CSIDL_LOCAL_APPDATA, NULL, 0, localAppDataDir);
+	if (FAILED(hr)) {
+		Logger::Get().ComError("SHGetFolderPath 失败", hr);
+		return L"";
+	}
+
+	return StrUtils::ConcatW(localAppDataDir, L"\\Magpie\\", MAGPIE_VERSION_W, L"\\", CONFIG_FILE_PATH);
+}
+
 
 namespace winrt::Magpie::App::implementation {
 
 bool Settings::Initialize() {
-	// 若程序所在目录存在配置文件则为编写模式
-	_isPortableMode = Utils::FileExists(CONFIG_FILE_PATH);
+	// 若程序所在目录存在配置文件则为便携模式
+	std::wstring configPath = GetConfigPath(true);
+	_isPortableMode = Utils::FileExists(configPath.c_str());
 
 	std::string configText;
 	if (_isPortableMode) {
-		if (!Utils::ReadTextFile(CONFIG_FILE_PATH, configText)) {
+		if (!Utils::ReadTextFile(configPath.c_str(), configText)) {
 			Logger::Get().Error("读取配置文件失败");
 			return false;
 		}
 	} else {
-		wchar_t localAppDataDir[MAX_PATH];
-		HRESULT hr = SHGetFolderPath(NULL, CSIDL_LOCAL_APPDATA, NULL, 0, localAppDataDir);
-		if (FAILED(hr)) {
-			Logger::Get().ComError("SHGetFolderPath 失败", hr);
-			return false;
-		}
+		configPath = GetConfigPath(false);
 
-		std::wstring configPath = StrUtils::ConcatW(
-			localAppDataDir, L"\\Magpie\\", MAGPIE_VERSION_W, L"\\", CONFIG_FILE_PATH);
 		if (!Utils::FileExists(configPath.c_str())) {
 			Logger::Get().Info("不存在配置文件");
 			return true;
 		}
 
-		if (!Utils::ReadTextFile(localAppDataDir, configText)) {
+		if (!Utils::ReadTextFile(configPath.c_str(), configText)) {
 			Logger::Get().Error("读取配置文件失败");
 			return false;
 		}
 	}
 
 	return true;
+}
+
+void Settings::Save() {
+	
 }
 
 }

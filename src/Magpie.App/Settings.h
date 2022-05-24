@@ -1,6 +1,7 @@
 #pragma once
-
+#include "pch.h"
 #include "Settings.g.h"
+
 
 namespace winrt::Magpie::App::implementation {
 
@@ -16,8 +17,14 @@ struct Settings : SettingsT<Settings> {
 		_isPortableMode = value;
 	}
 
+	void Save();
+
 private:
 	bool _isPortableMode = false;
+	// 0: 系统
+	// 1: 浅色
+	// 2: 深色
+	uint32_t _theme = 0;
 };
 
 }

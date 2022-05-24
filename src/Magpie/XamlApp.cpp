@@ -224,6 +224,7 @@ LRESULT XamlApp::_WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		break;
 	}
 	case WM_DESTROY:
+		_uwpApp.OnClose();
 		PostQuitMessage(0);
 		return 0;
 	}

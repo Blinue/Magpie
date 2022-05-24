@@ -12,6 +12,8 @@ namespace Magpie.App{
 	runtimeclass App : Microsoft.Toolkit.Win32.UI.XamlHost.XamlApplication {
 		App();
 
+		void OnClose();
+
 		Boolean Initialize(UInt64 pLogger);
 
 		Settings Settings{ get; };

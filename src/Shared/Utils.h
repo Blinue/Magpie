@@ -42,6 +42,8 @@ struct Utils {
 
 	static bool WriteFile(const wchar_t* fileName, const void* buffer, size_t bufferSize);
 
+	static bool WriteTextFile(const wchar_t* fileName, const char* text);
+
 	static bool FileExists(const wchar_t* fileName) noexcept {
 		DWORD attrs = GetFileAttributes(fileName);
 		// 排除文件夹
