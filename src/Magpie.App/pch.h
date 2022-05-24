@@ -43,6 +43,7 @@
 #include <string_view>
 #include <vector>
 #include <algorithm>
+#include <functional>
 
 // C++/WinRT 头文件
 #include <unknwn.h>

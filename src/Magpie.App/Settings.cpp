@@ -4,10 +4,13 @@
 #include "Settings.g.cpp"
 #endif
 
+#include "Utils.h"
+
+
 namespace winrt::Magpie::App::implementation {
 
 Settings::Settings() {
-
+	
 }
 
 bool Settings::IsPortableMode() const {

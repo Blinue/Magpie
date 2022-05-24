@@ -3,6 +3,7 @@
 #if __has_include("MainPage.g.cpp")
 #include "MainPage.g.cpp"
 #endif
+
 #include <winrt/Windows.System.Profile.h>
 #include "MicaBrush.h"
 #include "HomePage.h"
