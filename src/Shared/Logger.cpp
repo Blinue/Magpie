@@ -1,6 +1,7 @@
 #include "Logger.h"
 #include "StrUtils.h"
 #include <spdlog/sinks/rotating_file_sink.h>
+#include <fmt/printf.h>
 
 
 bool Logger::Initialize(spdlog::level::level_enum logLevel, const char* logFileName, int logArchiveAboveSize, int logMaxArchiveFiles) {
@@ -32,6 +33,14 @@ void Logger::SetLevel(spdlog::level::level_enum logLevel) {
 		"TRACE", "DEBUG", "INFO", "WARN", "ERROR", "CRITICAL", "OFF"
 	};
 	Info(fmt::format("当前日志级别：{}", LOG_LEVELS[logLevel]));
+}
+
+std::string Logger::_MakeWin32ErrorMsg(std::string_view msg) {
+	return fmt::format("{}\n\tLastErrorCode：{}", msg, GetLastError());
+}
+
+std::string Logger::_MakeComErrorMsg(std::string_view msg, HRESULT hr) {
+	return fmt::sprintf("%s\n\tHRESULT：0x%X", msg, hr);
 }
 
 void Logger::_Log(spdlog::level::level_enum logLevel, std::string_view msg, const std::source_location& location) {

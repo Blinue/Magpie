@@ -1,9 +1,7 @@
 #pragma once
-
 #include <Windows.h>
 #include <source_location>
 #include <spdlog/spdlog.h>
-#include <fmt/printf.h>
 
 
 class Logger {
@@ -73,13 +71,9 @@ public:
 	}
 
 private:
-	static std::string _MakeWin32ErrorMsg(std::string_view msg) {
-		return fmt::format("{}\n\tLastErrorCode：{}", msg, GetLastError());
-	}
+	static std::string _MakeWin32ErrorMsg(std::string_view msg);
 
-	static std::string _MakeComErrorMsg(std::string_view msg, HRESULT hr) {
-		return fmt::sprintf("%s\n\tHRESULT：0x%X", msg, hr);
-	}
+	static std::string _MakeComErrorMsg(std::string_view msg, HRESULT hr);
 
 	void _Log(spdlog::level::level_enum logLevel, std::string_view msg, const std::source_location& location);
 
