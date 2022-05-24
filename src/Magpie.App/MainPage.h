@@ -24,7 +24,7 @@ namespace winrt::Magpie::App::implementation
 			return _theme;
 		}
 
-		void Initialize(uint64_t hwndHost, uint64_t pLogger);
+		void Initialize(uint64_t hwndHost);
 
 		void OnHostFocusChanged(bool isFocused);
 
@@ -36,7 +36,7 @@ namespace winrt::Magpie::App::implementation
 			Windows::Foundation::IInspectable const&
 		);
 
-		uint64_t _hostWnd{};
+		HWND _hwndHost = NULL;
 
 		// 0: 浅色
 		// 1: 深色

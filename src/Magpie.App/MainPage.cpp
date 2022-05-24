@@ -76,11 +76,8 @@ void MainPage::Theme(uint8_t theme) {
 	_UpdateTheme();
 }
 
-void MainPage::Initialize(uint64_t hwndHost, uint64_t pLogger) {
-	_hostWnd = hwndHost;
-
-	Logger& logger = Logger::Get();
-	logger.Initialize(*(Logger*)pLogger);
+void MainPage::Initialize(uint64_t hwndHost) {
+	_hwndHost = (HWND)hwndHost;
 
 	_micaBrush = Magpie::App::MicaBrush(*this);
 	_UpdateTheme();
@@ -96,8 +93,7 @@ void MainPage::_UpdateTheme() {
 	constexpr const DWORD DWMWA_USE_IMMERSIVE_DARK_MODE_BEFORE_20H1 = 19;
 	constexpr const DWORD DWMWA_MICA_EFFECT = 1029;
 
-	HWND hwndHost = (HWND)_hostWnd;
-	if (!hwndHost) {
+	if (!_hwndHost) {
 		return;
 	}
 
@@ -129,7 +125,7 @@ void MainPage::_UpdateTheme() {
 	if (osBuild >= 22000) {
 		// 在 Win11 中应用 Mica
 		BOOL mica = TRUE;
-		DwmSetWindowAttribute(hwndHost, DWMWA_MICA_EFFECT, &mica, sizeof(mica));
+		DwmSetWindowAttribute(_hwndHost, DWMWA_MICA_EFFECT, &mica, sizeof(mica));
 	}
 
 	RequestedTheme(isDarkTheme ? ElementTheme::Dark : ElementTheme::Light);
@@ -138,7 +134,7 @@ void MainPage::_UpdateTheme() {
 	// build 18985 之前 DWMWA_USE_IMMERSIVE_DARK_MODE 的值不同
 	// https://github.com/MicrosoftDocs/sdk-api/pull/966/files
 	DwmSetWindowAttribute(
-		hwndHost,
+		_hwndHost,
 		osBuild < 18985 ? DWMWA_USE_IMMERSIVE_DARK_MODE_BEFORE_20H1 : DWMWA_USE_IMMERSIVE_DARK_MODE,
 		& isDarkTheme,
 		sizeof(isDarkTheme)
@@ -146,19 +142,19 @@ void MainPage::_UpdateTheme() {
 
 	// 更改背景色以配合主题
 	// 背景色在更改窗口大小时会短暂可见
-	HBRUSH hbrOld = (HBRUSH)SetClassLongPtr(hwndHost, GCLP_HBRBACKGROUND,
+	HBRUSH hbrOld = (HBRUSH)SetClassLongPtr(_hwndHost, GCLP_HBRBACKGROUND,
 		(INT_PTR)CreateSolidBrush(isDarkTheme ? RGB(0, 0, 0) : RGB(255, 255, 255)));
 	DeleteObject(hbrOld);
-	InvalidateRect(hwndHost, nullptr, TRUE);
+	InvalidateRect(_hwndHost, nullptr, TRUE);
 
 	// 强制重绘标题栏
-	LONG_PTR style = GetWindowLongPtr(hwndHost, GWL_EXSTYLE);
+	LONG_PTR style = GetWindowLongPtr(_hwndHost, GWL_EXSTYLE);
 	if (osBuild < 22000) {
 		// 在 Win10 上需要更多 hack
-		SetWindowLongPtr(hwndHost, GWL_EXSTYLE, style | WS_EX_LAYERED);
-		SetLayeredWindowAttributes(hwndHost, 0, 254, LWA_ALPHA);
+		SetWindowLongPtr(_hwndHost, GWL_EXSTYLE, style | WS_EX_LAYERED);
+		SetLayeredWindowAttributes(_hwndHost, 0, 254, LWA_ALPHA);
 	}
-	SetWindowLongPtr(hwndHost, GWL_EXSTYLE, style);
+	SetWindowLongPtr(_hwndHost, GWL_EXSTYLE, style);
 
 	Logger::Get().Info(StrUtils::Concat("当前主题：", isDarkTheme ? "深色" : "浅色"));
 }

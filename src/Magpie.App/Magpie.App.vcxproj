@@ -17,7 +17,7 @@
     <ApplicationTypeRevision>10.0</ApplicationTypeRevision>
     <WindowsTargetPlatformVersion Condition=" '$(WindowsTargetPlatformVersion)' == '' ">10.0.22000.0</WindowsTargetPlatformVersion>
     <WindowsTargetPlatformMinVersion>10.0.18362.0</WindowsTargetPlatformMinVersion>
-    <CppWinRTVerbosity>normal</CppWinRTVerbosity>
+    <CppWinRTVerbosity>low</CppWinRTVerbosity>
   </PropertyGroup>
   <PropertyGroup Label="Globals">
     <WindowsAppContainer>true</WindowsAppContainer>
@@ -210,37 +210,37 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <Midl Include="AboutPage.idl">
+    <None Include="AboutPage.idl">
       <DependentUpon>AboutPage.xaml</DependentUpon>
       <SubType>Code</SubType>
-    </Midl>
+    </None>
     <Midl Include="App.idl">
       <DependentUpon>App.xaml</DependentUpon>
     </Midl>
-    <Midl Include="Settings.idl">
+    <None Include="Settings.idl">
       <SubType>Designer</SubType>
-    </Midl>
-    <Midl Include="HomePage.idl">
+    </None>
+    <None Include="HomePage.idl">
       <DependentUpon>HomePage.xaml</DependentUpon>
       <SubType>Code</SubType>
-    </Midl>
-    <Midl Include="MainPage.idl">
+    </None>
+    <None Include="MainPage.idl">
       <DependentUpon>MainPage.xaml</DependentUpon>
       <SubType>Code</SubType>
-    </Midl>
-    <Midl Include="MicaBrush.idl">
+    </None>
+    <None Include="MicaBrush.idl">
       <SubType>Designer</SubType>
-    </Midl>
-    <Midl Include="Setting.idl">
+    </None>
+    <None Include="Setting.idl">
       <SubType>Designer</SubType>
-    </Midl>
-    <Midl Include="SettingsGroup.idl">
+    </None>
+    <None Include="SettingsGroup.idl">
       <SubType>Designer</SubType>
-    </Midl>
-    <Midl Include="SettingsPage.idl">
+    </None>
+    <None Include="SettingsPage.idl">
       <DependentUpon>SettingsPage.xaml</DependentUpon>
       <SubType>Code</SubType>
-    </Midl>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <None Include="dummy.exe">

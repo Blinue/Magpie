@@ -6,7 +6,7 @@ namespace Magpie.App
 		MainPage();
 
 		void OnHostFocusChanged(Boolean isFocused);
-		void Initialize(UInt64 hwndHost, UInt64 pLogger);
+		void Initialize(UInt64 hwndHost);
 
 		UInt8 Theme;
 	}

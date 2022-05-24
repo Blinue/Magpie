@@ -5,6 +5,8 @@ namespace Magpie.App
 	{
 		Settings();
 
-		Boolean IsPortableMode{ get; };
+		Boolean Initialize();
+
+		Boolean IsPortableMode;
 	}
 }

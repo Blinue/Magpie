@@ -5,9 +5,19 @@
 namespace winrt::Magpie::App::implementation {
 
 struct Settings : SettingsT<Settings> {
-	Settings();
+	Settings() = default;
 
-	bool IsPortableMode() const;
+	bool Initialize();
+
+	bool IsPortableMode() const {
+		return _isPortableMode;
+	}
+	void IsPortableMode(bool value) {
+		_isPortableMode = value;
+	}
+
+private:
+	bool _isPortableMode = false;
 };
 
 }

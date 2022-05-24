@@ -5,16 +5,6 @@
   </ItemGroup>
   <ItemGroup>
     <Midl Include="App.idl" />
-    <Midl Include="MicaBrush.idl">
-      <Filter>Brushes</Filter>
-    </Midl>
-    <Midl Include="Setting.idl">
-      <Filter>Controls</Filter>
-    </Midl>
-    <Midl Include="SettingsGroup.idl">
-      <Filter>Controls</Filter>
-    </Midl>
-    <Midl Include="Settings.idl" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
@@ -50,6 +40,16 @@
   <ItemGroup>
     <None Include="packages.config" />
     <None Include="dummy.exe" />
+    <None Include="Settings.idl" />
+    <None Include="MicaBrush.idl">
+      <Filter>Brushes</Filter>
+    </None>
+    <None Include="Setting.idl">
+      <Filter>Controls</Filter>
+    </None>
+    <None Include="SettingsGroup.idl">
+      <Filter>Controls</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Page Include="MainPage.xaml" />

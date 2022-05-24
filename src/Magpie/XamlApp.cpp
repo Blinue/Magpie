@@ -69,6 +69,9 @@ bool XamlApp::Initialize(HINSTANCE hInstance, const wchar_t* className, const wc
 
 	init_apartment(apartment_type::single_threaded);
 
+	_uwpApp = Magpie::App::App();
+	_uwpApp.Initialize((uint64_t)&logger);
+
 	_RegisterWndClass(hInstance, className);
 
 	_hwndXamlHost = CreateWindow(className, title, WS_OVERLAPPEDWINDOW,
@@ -88,9 +91,8 @@ bool XamlApp::Initialize(HINSTANCE hInstance, const wchar_t* className, const wc
 		SetWindowThemeAttribute(_hwndXamlHost, WTA_NONCLIENT, &option, sizeof(option));
 	}
 
-	_uwpApp = Magpie::App::App{};
 	_mainPage = Magpie::App::MainPage();
-	_mainPage.Initialize((uint64_t)_hwndXamlHost, (uint64_t)&logger);
+	_mainPage.Initialize((uint64_t)_hwndXamlHost);
 
 	_xamlSource = Windows::UI::Xaml::Hosting::DesktopWindowXamlSource();
 	_xamlSourceNative2 = _xamlSource.as<IDesktopWindowXamlSourceNative2>();

@@ -1,9 +1,7 @@
 #pragma once
-#include <Windows.h>
+#include "CommonPCH.h"
 #include <winrt/Windows.UI.Xaml.h>
-#include <span>
 #include <bcrypt.h>
-#include <functional>
 
 
 struct Utils {

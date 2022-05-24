@@ -4,6 +4,7 @@
 #include "App.g.cpp"
 #endif
 #include "Utils.h"
+#include "Logger.h"
 
 
 using namespace winrt;
@@ -12,8 +13,8 @@ using namespace Windows::UI::Xaml;
 namespace winrt::Magpie::App::implementation {
 
 App::App() {
-	Initialize();
-
+	__super::Initialize();
+	
 	AddRef();
 	m_inner.as<::IUnknown>()->Release();
 
@@ -27,6 +28,14 @@ App::App() {
 
 App::~App() {
 	Close();
+}
+
+bool App::Initialize(uint64_t pLogger) {
+	Logger::Get().Initialize(*(Logger*)pLogger);
+
+	_settings.Initialize();
+
+	return true;
 }
 
 }

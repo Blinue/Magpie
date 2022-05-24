@@ -1,6 +1,19 @@
-namespace Magpie.App {
+#include "Settings.idl"
+#include "MainPage.idl"
+#include "Setting.idl"
+#include "SettingsGroup.idl"
+#include "MicaBrush.idl"
+#include "AboutPage.idl"
+#include "HomePage.idl"
+#include "SettingsPage.idl"
+
+namespace Magpie.App{
 	[default_interface]
 	runtimeclass App : Microsoft.Toolkit.Win32.UI.XamlHost.XamlApplication {
 		App();
+
+		Boolean Initialize(UInt64 pLogger);
+
+		Settings Settings{ get; };
 	}
 }
