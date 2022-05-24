@@ -1,12 +1,12 @@
 #include "pch.h"
 #include "XamlApp.h"
+#include "Logger.h"
+#include "StrUtils.h"
 #include "Utils.h"
 #include <winrt/Windows.UI.Core.h>
 #include <CoreWindow.h>
 #include <uxtheme.h>
 #include <fmt/xchar.h>
-#include "Logger.h"
-#include "StrUtils.h"
 
 #pragma comment(lib, "UxTheme.lib")
 

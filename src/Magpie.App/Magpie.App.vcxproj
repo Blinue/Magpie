@@ -24,7 +24,7 @@
     <AppxGeneratePriEnabled>true</AppxGeneratePriEnabled>
     <ProjectPriIndexName>App</ProjectPriIndexName>
     <AppxPackage>true</AppxPackage>
-	<GenerateAppxPackageOnBuild>false</GenerateAppxPackageOnBuild>
+    <GenerateAppxPackageOnBuild>false</GenerateAppxPackageOnBuild>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <ItemGroup Label="ProjectConfigurations">
@@ -125,6 +125,10 @@
       <SubType>Code</SubType>
     </ClInclude>
     <ClInclude Include="app.base.h" />
+    <ClInclude Include="Settings.h">
+      <DependentUpon>Settings.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClInclude>
     <ClInclude Include="HomePage.h">
       <DependentUpon>HomePage.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -169,6 +173,10 @@
       <DependentUpon>AboutPage.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
+    <ClCompile Include="Settings.cpp">
+      <DependentUpon>Settings.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClCompile>
     <ClCompile Include="HomePage.cpp">
       <DependentUpon>HomePage.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -208,6 +216,9 @@
     </Midl>
     <Midl Include="App.idl">
       <DependentUpon>App.xaml</DependentUpon>
+    </Midl>
+    <Midl Include="Settings.idl">
+      <SubType>Designer</SubType>
     </Midl>
     <Midl Include="HomePage.idl">
       <DependentUpon>HomePage.xaml</DependentUpon>

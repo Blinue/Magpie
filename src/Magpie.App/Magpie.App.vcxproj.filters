@@ -14,6 +14,7 @@
     <Midl Include="SettingsGroup.idl">
       <Filter>Controls</Filter>
     </Midl>
+    <Midl Include="Settings.idl" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp" />

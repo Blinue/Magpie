@@ -1,0 +1,10 @@
+namespace Magpie.App
+{
+	[default_interface]
+	runtimeclass Settings 
+	{
+		Settings();
+
+		Boolean IsPortableMode{ get; };
+	}
+}

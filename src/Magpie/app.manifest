@@ -16,6 +16,10 @@
 			name="Magpie.App.MainPage"
 			threadingModel="both"
 			xmlns="urn:schemas-microsoft-com:winrt.v1" />
+		<activatableClass
+			name="Magpie.App.Settings"
+			threadingModel="both"
+			xmlns="urn:schemas-microsoft-com:winrt.v1" />
 	</asmv3:file>
 
 	<trustInfo xmlns="urn:schemas-microsoft-com:asm.v2">
