@@ -8,7 +8,7 @@ namespace winrt::Magpie::App::implementation {
 struct Settings : SettingsT<Settings> {
 	Settings() = default;
 
-	bool Initialize(const hstring& workingDir);
+	bool Initialize(uint64_t pLogger);
 
 	bool Save();
 
@@ -16,7 +16,11 @@ struct Settings : SettingsT<Settings> {
 		return _workingDir;
 	}
 
-	static bool IsPortableMode();
+	bool IsPortableMode() const {
+		return _isPortableMode;
+	}
+
+	void IsPortableMode(bool value);
 
 	int Theme() const {
 		return _theme;
@@ -26,6 +30,7 @@ struct Settings : SettingsT<Settings> {
 	void ThemeChanged(winrt::event_token const& token) noexcept;
 
 private:
+	bool _isPortableMode = false;
 	hstring _workingDir;
 
 	// 0: 浅色

@@ -19,11 +19,16 @@ SettingsPage::SettingsPage() {
 
 	_settings = Application::Current().as<Magpie::App::App>().Settings();
 
+	PortableModeToggleSwitch().IsOn(_settings.IsPortableMode());
 	ThemeComboBox().SelectedIndex(_settings.Theme());
 }
 
 void SettingsPage::ThemeComboBox_SelectionChanged(IInspectable const&, SelectionChangedEventArgs const&) {
 	_settings.Theme(ThemeComboBox().SelectedIndex());
+}
+
+void SettingsPage::PortableModeToggleSwitch_Toggled(IInspectable const&, RoutedEventArgs const&) {
+	_settings.IsPortableMode(PortableModeToggleSwitch().IsOn());
 }
 
 void SettingsPage::ComboBox_DropDownOpened(IInspectable const&, IInspectable const&) {

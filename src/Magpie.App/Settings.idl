@@ -5,11 +5,11 @@ namespace Magpie.App
 	{
 		Settings();
 
-		static Boolean IsPortableMode();
+		Boolean Initialize(UInt64 pLogger);
 
-		Boolean Initialize(String workingDir);
 		Boolean Save();
 
+		Boolean IsPortableMode;
 		String WorkingDir{ get; };
 
 		Int32 Theme;

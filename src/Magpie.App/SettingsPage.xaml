@@ -34,7 +34,7 @@
                         <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xEC0A;"/>
                     </controls:Setting.Icon>
                     <controls:Setting.ActionContent>
-                        <ToggleSwitch />
+                        <ToggleSwitch x:Name="PortableModeToggleSwitch" Toggled="PortableModeToggleSwitch_Toggled" />
                     </controls:Setting.ActionContent>
                 </controls:Setting>
             </controls:SettingsGroup>

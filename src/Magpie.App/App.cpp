@@ -31,11 +31,8 @@ void App::OnClose() {
 	_settings.Save();
 }
 
-bool App::Initialize(uint64_t pLogger, const hstring& workingDir) {
-	Logger::Get().Initialize(*(Logger*)pLogger);
-
-	_settings.Initialize(workingDir);
-
+bool App::Initialize(Magpie::App::Settings settings) {
+	_settings = settings;
 	return true;
 }
 
