@@ -33,6 +33,26 @@ bool Settings::Initialize(const hstring& workingDir) {
 		return false;
 	}
 
+	rapidjson::Document doc;
+	if (doc.Parse(configText.c_str(), configText.size()).HasParseError()) {
+		Logger::Get().Error(fmt::format("解析配置失败\n\t错误码：{}", doc.GetParseError()));
+		return false;
+	}
+
+	if (!doc.IsObject()) {
+		return false;
+	}
+
+	const auto& root = doc.GetObj();
+	auto theme = root.FindMember("theme");
+	if (theme != root.MemberEnd()) {
+		if (!theme->value.IsNumber()) {
+			return false;
+		}
+
+		_theme = theme->value.GetInt();
+	}
+
 	return true;
 }
 
@@ -47,7 +67,7 @@ bool Settings::Save() {
 	rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(json);
 	writer.StartObject();
 	writer.Key("theme");
-	writer.Uint(_theme);
+	writer.Int(_theme);
 	writer.EndObject();
 
 	if (!Utils::WriteTextFile(StrUtils::ConcatW(_workingDir, L"config\\config.json").c_str(), json.GetString())) {
@@ -61,6 +81,27 @@ bool Settings::Save() {
 bool Settings::IsPortableMode() {
 	// 在当前目录中寻找配置文件
 	return Utils::FileExists(L"config\\config.json");
+}
+
+void Settings::Theme(int value) {
+	assert(value >= 0 && value <= 2);
+
+	if (_theme == value) {
+		return;
+	}
+
+	static constexpr const char* SETTINGS[] = { "浅色","深色","系统" };
+	Logger::Get().Info(StrUtils::Concat("主题已更改为：", SETTINGS[value]));
+	_theme = value;
+	_themeChangedEvent(*this, value);
+}
+
+winrt::event_token Settings::ThemeChanged(Windows::Foundation::EventHandler<int> const& handler) {
+	return _themeChangedEvent.add(handler);
+}
+
+void Settings::ThemeChanged(winrt::event_token const& token) noexcept {
+	_themeChangedEvent.remove(token);
 }
 
 }

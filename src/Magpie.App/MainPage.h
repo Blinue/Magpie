@@ -3,6 +3,7 @@
 #include "winrt/Windows.UI.Xaml.Controls.Primitives.h"
 #include "MainPage.g.h"
 #include "MicaBrush.h"
+#include "Settings.h"
 
 
 namespace winrt::Magpie::App::implementation
@@ -19,11 +20,6 @@ namespace winrt::Magpie::App::implementation
 		void NavigationView_PaneOpening(Microsoft::UI::Xaml::Controls::NavigationView const&, Windows::Foundation::IInspectable const&);
 		void NavigationView_PaneClosing(Microsoft::UI::Xaml::Controls::NavigationView const&, Microsoft::UI::Xaml::Controls::NavigationViewPaneClosingEventArgs const&);
 
-		void Theme(uint8_t theme);
-		uint8_t Theme() const {
-			return _theme;
-		}
-
 		void Initialize(uint64_t hwndHost);
 
 		void OnHostFocusChanged(bool isFocused);
@@ -38,14 +34,11 @@ namespace winrt::Magpie::App::implementation
 
 		HWND _hwndHost = NULL;
 
-		// 0: 浅色
-		// 1: 深色
-		// 2: 系统
-		uint8_t _theme = 2;
 		winrt::Windows::UI::ViewManagement::UISettings _uiSettings;
 		winrt::event_token _colorChangedToken{};
 		Magpie::App::MicaBrush _micaBrush{ nullptr };
 
+		Magpie::App::Settings _settings{ nullptr };
 		std::optional<bool> _isDarkTheme;
 	};
 }

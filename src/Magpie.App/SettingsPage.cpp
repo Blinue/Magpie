@@ -16,20 +16,18 @@ namespace winrt::Magpie::App::implementation {
 
 SettingsPage::SettingsPage() {
 	InitializeComponent();
-}
 
-void SettingsPage::Page_Loading(Windows::UI::Xaml::FrameworkElement const&, Windows::Foundation::IInspectable const&) {
-	XamlRoot().Content().as(_mainPage);
+	_settings = Application::Current().as<Magpie::App::App>().Settings();
 
-	ThemeComboBox().SelectedIndex(_mainPage.Theme());
+	ThemeComboBox().SelectedIndex(_settings.Theme());
 }
 
 void SettingsPage::ThemeComboBox_SelectionChanged(IInspectable const&, SelectionChangedEventArgs const&) {
-	_mainPage.Theme((uint8_t)ThemeComboBox().SelectedIndex());
+	_settings.Theme(ThemeComboBox().SelectedIndex());
 }
 
 void SettingsPage::ComboBox_DropDownOpened(IInspectable const&, IInspectable const&) {
-	Utils::UpdateThemeOfXamlPopups(XamlRoot(), _mainPage.ActualTheme());
+	Utils::UpdateThemeOfXamlPopups(XamlRoot(), ActualTheme());
 }
 
 }

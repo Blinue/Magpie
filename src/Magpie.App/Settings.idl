@@ -11,5 +11,8 @@ namespace Magpie.App
 		Boolean Save();
 
 		String WorkingDir{ get; };
+
+		Int32 Theme;
+		event Windows.Foundation.EventHandler<Int32> ThemeChanged;
 	}
 }

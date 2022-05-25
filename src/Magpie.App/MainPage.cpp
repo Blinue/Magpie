@@ -70,17 +70,14 @@ void MainPage::NavigationView_PaneClosing(NavigationView const&, NavigationViewP
 	ScalingConfigSeparator().Visibility(Visibility::Visible);
 }
 
-void MainPage::Theme(uint8_t theme) {
-	assert(theme >= 0 && theme <= 2);
-	_theme = theme;
-	_UpdateTheme();
-}
-
 void MainPage::Initialize(uint64_t hwndHost) {
 	_hwndHost = (HWND)hwndHost;
 
+	_settings = Application::Current().as<Magpie::App::App>().Settings();
 	_micaBrush = Magpie::App::MicaBrush(*this);
+
 	_UpdateTheme();
+	_settings.ThemeChanged([this](const auto&, int) { _UpdateTheme(); });
 
 	Background(_micaBrush);
 }
@@ -97,8 +94,10 @@ void MainPage::_UpdateTheme() {
 		return;
 	}
 
+	int theme = _settings.Theme();
+
 	BOOL isDarkTheme = FALSE;
-	if (_theme == 2) {
+	if (theme == 2) {
 		if (!_colorChangedToken) {
 			_colorChangedToken = _uiSettings.ColorValuesChanged({ this, &MainPage::_Settings_ColorValuesChanged });
 		}
@@ -110,7 +109,7 @@ void MainPage::_UpdateTheme() {
 			_colorChangedToken = {};
 		}
 
-		isDarkTheme = _theme == 1;
+		isDarkTheme = theme == 1;
 	}
 
 	if (_isDarkTheme.has_value() && _isDarkTheme == (bool)isDarkTheme) {
@@ -144,7 +143,9 @@ void MainPage::_UpdateTheme() {
 	// 背景色在更改窗口大小时会短暂可见
 	HBRUSH hbrOld = (HBRUSH)SetClassLongPtr(_hwndHost, GCLP_HBRBACKGROUND,
 		(INT_PTR)CreateSolidBrush(isDarkTheme ? RGB(0, 0, 0) : RGB(255, 255, 255)));
-	DeleteObject(hbrOld);
+	if (hbrOld) {
+		DeleteObject(hbrOld);
+	}
 	InvalidateRect(_hwndHost, nullptr, TRUE);
 
 	// 强制重绘标题栏

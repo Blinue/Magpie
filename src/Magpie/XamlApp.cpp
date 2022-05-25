@@ -24,11 +24,6 @@ using namespace Windows::UI::Xaml::Hosting;
 
 ATOM XamlApp::_RegisterWndClass(HINSTANCE hInstance, const wchar_t* className) {
 	WNDCLASSEXW wcex{};
-
-	// 背景色遵循系统主题以避免显示时闪烁
-	UISettings uiSettings;
-	Color bkgColor = uiSettings.GetColorValue(UIColorType::Background);
-	HBRUSH hbrBkg = CreateSolidBrush(RGB(bkgColor.R, bkgColor.G, bkgColor.B));
 	
 	wcex.cbSize = sizeof(WNDCLASSEX);
 	wcex.lpfnWndProc = _WndProcStatic;
@@ -37,7 +32,7 @@ ATOM XamlApp::_RegisterWndClass(HINSTANCE hInstance, const wchar_t* className) {
 	wcex.hInstance = hInstance;
 	wcex.hIcon = NULL;
 	wcex.hCursor = LoadCursor(nullptr, IDC_ARROW);
-	wcex.hbrBackground = hbrBkg;
+	wcex.hbrBackground = NULL;
 	wcex.lpszMenuName = NULL;
 	wcex.lpszClassName = className;
 	wcex.hIconSm = NULL;

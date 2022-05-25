@@ -18,13 +18,21 @@ struct Settings : SettingsT<Settings> {
 
 	static bool IsPortableMode();
 
+	int Theme() const {
+		return _theme;
+	}
+	void Theme(int value);
+	winrt::event_token ThemeChanged(Windows::Foundation::EventHandler<int> const& handler);
+	void ThemeChanged(winrt::event_token const& token) noexcept;
+
 private:
 	hstring _workingDir;
 
-	// 0: 系统
-	// 1: 浅色
-	// 2: 深色
-	uint32_t _theme = 0;
+	// 0: 浅色
+	// 1: 深色
+	// 2: 系统
+	int _theme = 2;
+	event<Windows::Foundation::EventHandler<int>> _themeChangedEvent;
 };
 
 }
