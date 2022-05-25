@@ -33,6 +33,11 @@ bool Settings::Initialize(const hstring& workingDir) {
 		return false;
 	}
 
+	if (configText.empty()) {
+		Logger::Get().Info("配置文件为空");
+		return true;
+	}
+
 	rapidjson::Document doc;
 	if (doc.Parse(configText.c_str(), configText.size()).HasParseError()) {
 		Logger::Get().Error(fmt::format("解析配置失败\n\t错误码：{}", doc.GetParseError()));

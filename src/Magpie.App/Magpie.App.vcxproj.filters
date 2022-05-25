@@ -33,7 +33,7 @@
     <Filter Include="Controls">
       <UniqueIdentifier>{ca435698-7c9e-4784-a031-2c9db29b5fcc}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Themes">
+    <Filter Include="Styles">
       <UniqueIdentifier>{be3fc578-6b5a-4b23-8db1-0fc6083e1466}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -63,13 +63,16 @@
       <Filter>Pages</Filter>
     </Page>
     <Page Include="SettingsExpanderStyles.xaml">
-      <Filter>Themes</Filter>
+      <Filter>Styles</Filter>
     </Page>
     <Page Include="Setting.xaml">
       <Filter>Controls</Filter>
     </Page>
     <Page Include="SettingsGroup.xaml">
       <Filter>Controls</Filter>
+    </Page>
+    <Page Include="ToggleSwitch.xaml">
+      <Filter>Styles</Filter>
     </Page>
   </ItemGroup>
 </Project>
