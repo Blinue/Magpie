@@ -34,10 +34,10 @@ void App::OnClose() {
 	_settings.Save();
 }
 
-bool App::Initialize(uint64_t pLogger) {
+bool App::Initialize(uint64_t pLogger, const hstring& workingDir) {
 	Logger::Get().Initialize(*(Logger*)pLogger);
 
-	_settings.Initialize();
+	_settings.Initialize(workingDir);
 
 	return true;
 }

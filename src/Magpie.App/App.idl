@@ -14,7 +14,7 @@ namespace Magpie.App{
 
 		void OnClose();
 
-		Boolean Initialize(UInt64 pLogger);
+		Boolean Initialize(UInt64 pLogger, String WorkingDir);
 
 		Settings Settings{ get; };
 	}

@@ -13,7 +13,7 @@ public:
 
 	void OnClose();
 
-	bool Initialize(uint64_t pLogger);
+	bool Initialize(uint64_t pLogger, const hstring& workingDir);
 
 	Magpie::App::Settings Settings() const {
 		return _settings;

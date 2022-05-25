@@ -21,20 +21,6 @@ using namespace Windows::UI::Xaml::Input;
 using namespace Windows::UI::Xaml::Controls;
 using namespace Windows::UI::Xaml::Hosting;
 
-static void SetWorkingDirectory() {
-	wchar_t path[MAX_PATH] = { 0 };
-	GetModuleFileName(NULL, path, MAX_PATH);
-
-	for (int i = lstrlenW(path) - 1; i >= 0; --i) {
-		if (path[i] == L'\\' || path[i] == L'/') {
-			break;
-		} else {
-			path[i] = L'\0';
-		}
-	}
-
-	SetCurrentDirectory(path);
-}
 
 ATOM XamlApp::_RegisterWndClass(HINSTANCE hInstance, const wchar_t* className) {
 	WNDCLASSEXW wcex{};
@@ -60,17 +46,52 @@ ATOM XamlApp::_RegisterWndClass(HINSTANCE hInstance, const wchar_t* className) {
 }
 
 bool XamlApp::Initialize(HINSTANCE hInstance, const wchar_t* className, const wchar_t* title) {
-	SetWorkingDirectory();
+	// 当前目录始终是程序所在目录
+	wchar_t curDir[MAX_PATH] = { 0 };
+	GetModuleFileName(NULL, curDir, MAX_PATH);
+
+	for (int i = lstrlenW(curDir) - 1; i >= 0; --i) {
+		if (curDir[i] == L'\\' || curDir[i] == L'/') {
+			break;
+		} else {
+			curDir[i] = L'\0';
+		}
+	}
+
+	SetCurrentDirectory(curDir);
+
+	bool isPortableMode = Magpie::App::Settings::IsPortableMode();
+
+	std::wstring workingDir;
+	if (isPortableMode) {
+		workingDir = curDir;
+	} else {
+		wchar_t localAppDataDir[MAX_PATH];
+		HRESULT hr = SHGetFolderPath(NULL, CSIDL_LOCAL_APPDATA, NULL, 0, localAppDataDir);
+		if (FAILED(hr)) {
+			return false;
+		}
+
+		workingDir = StrUtils::ConcatW(localAppDataDir, L"\\Magpie\\", MAGPIE_VERSION_W, L"\\");
+		if (!Utils::CreateDirRecursive(workingDir)) {
+			return false;
+		}
+	}
 
 	Logger& logger = Logger::Get();
-	logger.Initialize(spdlog::level::info, "logs/magpie.log", 100000, 2);
+	logger.Initialize(
+		spdlog::level::info,
+		StrUtils::Concat(StrUtils::UTF16ToUTF8(workingDir), "logs\\magpie.log").c_str(),
+		100000,
+		2
+	);
 
-	logger.Info("程序启动");
+	logger.Info(StrUtils::Concat("程序启动\n\t便携模式：", isPortableMode ? "是" : "否"));
 
 	init_apartment(apartment_type::single_threaded);
 
 	_uwpApp = Magpie::App::App();
-	_uwpApp.Initialize((uint64_t)&logger);
+	_uwpApp.Initialize((uint64_t)&logger, workingDir);
 
 	_RegisterWndClass(hInstance, className);
 

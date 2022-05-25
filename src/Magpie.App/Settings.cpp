@@ -14,58 +14,32 @@ using namespace winrt;
 using namespace Windows::Foundation;
 
 
-static std::wstring GetConfigPath(bool isPortableMode) {
-	static constexpr const wchar_t* CONFIG_FILE_PATH = L"config\\config.json";
-
-	if (isPortableMode) {
-		return CONFIG_FILE_PATH;
-	}
-
-	wchar_t localAppDataDir[MAX_PATH];
-	HRESULT hr = SHGetFolderPath(NULL, CSIDL_LOCAL_APPDATA, NULL, 0, localAppDataDir);
-	if (FAILED(hr)) {
-		Logger::Get().ComError("SHGetFolderPath 失败", hr);
-		return L"";
-	}
-
-	return StrUtils::ConcatW(localAppDataDir, L"\\Magpie\\", MAGPIE_VERSION_W, L"\\", CONFIG_FILE_PATH);
-}
-
-
 namespace winrt::Magpie::App::implementation {
 
-bool Settings::Initialize() {
+bool Settings::Initialize(const hstring& workingDir) {
+	_workingDir = workingDir;
+
 	// 若程序所在目录存在配置文件则为便携模式
-	std::wstring configPath = GetConfigPath(true);
-	_isPortableMode = Utils::FileExists(configPath.c_str());
+	std::wstring configPath = StrUtils::ConcatW(workingDir, L"config\\config.json");
+
+	if (!Utils::FileExists(configPath.c_str())) {
+		Logger::Get().Info("不存在配置文件");
+		return true;
+	}
 
 	std::string configText;
-	if (_isPortableMode) {
-		if (!Utils::ReadTextFile(configPath.c_str(), configText)) {
-			Logger::Get().Error("读取配置文件失败");
-			return false;
-		}
-	} else {
-		configPath = GetConfigPath(false);
-
-		if (!Utils::FileExists(configPath.c_str())) {
-			Logger::Get().Info("不存在配置文件");
-			return true;
-		}
-
-		if (!Utils::ReadTextFile(configPath.c_str(), configText)) {
-			Logger::Get().Error("读取配置文件失败");
-			return false;
-		}
+	if (!Utils::ReadTextFile(configPath.c_str(), configText)) {
+		Logger::Get().Error("读取配置文件失败");
+		return false;
 	}
 
 	return true;
 }
 
 bool Settings::Save() {
-	std::wstring configPath = GetConfigPath(_isPortableMode);
-	if (!Utils::CreateDirRecursive(configPath.substr(0, configPath.find_last_of(L'\\')))) {
-		Logger::Get().Error("创建配置文件路径失败");
+	std::wstring configDir = StrUtils::ConcatW(_workingDir, L"config");
+	if (!Utils::DirExists(configDir.c_str()) && !CreateDirectory(configDir.c_str(), nullptr)) {
+		Logger::Get().Error("创建配置文件夹失败");
 		return false;
 	}
 
@@ -76,9 +50,17 @@ bool Settings::Save() {
 	writer.Uint(_theme);
 	writer.EndObject();
 
-	Utils::WriteTextFile(configPath.c_str(), json.GetString());
+	if (!Utils::WriteTextFile(StrUtils::ConcatW(_workingDir, L"config\\config.json").c_str(), json.GetString())) {
+		Logger::Get().Error("保存配置失败");
+		return false;
+	}
 
 	return true;
+}
+
+bool Settings::IsPortableMode() {
+	// 在当前目录中寻找配置文件
+	return Utils::FileExists(L"config\\config.json");
 }
 
 }

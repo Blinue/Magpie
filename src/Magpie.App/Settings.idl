@@ -5,9 +5,11 @@ namespace Magpie.App
 	{
 		Settings();
 
-		Boolean Initialize();
+		static Boolean IsPortableMode();
+
+		Boolean Initialize(String workingDir);
 		Boolean Save();
 
-		Boolean IsPortableMode;
+		String WorkingDir{ get; };
 	}
 }

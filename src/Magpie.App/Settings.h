@@ -8,19 +8,19 @@ namespace winrt::Magpie::App::implementation {
 struct Settings : SettingsT<Settings> {
 	Settings() = default;
 
-	bool Initialize();
-
-	bool IsPortableMode() const {
-		return _isPortableMode;
-	}
-	void IsPortableMode(bool value) {
-		_isPortableMode = value;
-	}
+	bool Initialize(const hstring& workingDir);
 
 	bool Save();
 
+	hstring WorkingDir() const {
+		return _workingDir;
+	}
+
+	static bool IsPortableMode();
+
 private:
-	bool _isPortableMode = false;
+	hstring _workingDir;
+
 	// 0: 系统
 	// 1: 浅色
 	// 2: 深色
