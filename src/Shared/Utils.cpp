@@ -175,14 +175,14 @@ bool Utils::WriteFile(const wchar_t* fileName, const void* buffer, size_t buffer
 	return true;
 }
 
-bool Utils::WriteTextFile(const wchar_t* fileName, const char* text) {
+bool Utils::WriteTextFile(const wchar_t* fileName, std::string_view text) {
 	FILE* hFile;
-	if (_wfopen_s(&hFile, fileName, L"wb") || !hFile) {
+	if (_wfopen_s(&hFile, fileName, L"wt") || !hFile) {
 		Logger::Get().Error(StrUtils::Concat("打开文件 ", StrUtils::UTF16ToUTF8(fileName), " 失败"));
 		return false;
 	}
 
-	fprintf(hFile, text);
+	fwrite(text.data(), 1, text.size(), hFile);
 
 	fclose(hFile);
 	return true;
