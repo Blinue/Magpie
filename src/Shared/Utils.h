@@ -55,7 +55,7 @@ struct Utils {
 		return (attrs != INVALID_FILE_ATTRIBUTES) && (attrs & FILE_ATTRIBUTE_DIRECTORY);
 	}
 	
-	static bool CreateDirRecursive(const std::wstring& path);
+	static bool CreateDir(const std::wstring& path, bool recursive = false);
 
 	static const RTL_OSVERSIONINFOW& GetOSVersion() noexcept;
 

@@ -108,7 +108,7 @@ bool Settings::Initialize(uint64_t pLogger) {
 
 bool Settings::Save() {
 	std::wstring configDir = StrUtils::ConcatW(_workingDir, L"config");
-	if (!Utils::DirExists(configDir.c_str()) && !CreateDirectory(configDir.c_str(), nullptr)) {
+	if (!Utils::CreateDir(configDir)) {
 		Logger::Get().Error("创建配置文件夹失败");
 		return false;
 	}
@@ -143,6 +143,11 @@ void Settings::IsPortableMode(bool value) {
 
 	_isPortableMode = value;
 	_workingDir = GetWorkingDir(value);
+
+	// 确保 WorkingDir 存在
+	if (!Utils::CreateDir(_workingDir.c_str(), true)) {
+		Logger::Get().Error(StrUtils::Concat("创建文件夹", StrUtils::UTF16ToUTF8(_workingDir), "失败"));
+	}
 }
 
 void Settings::Theme(int value) {

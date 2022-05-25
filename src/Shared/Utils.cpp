@@ -209,13 +209,17 @@ RTL_OSVERSIONINFOW _GetOSVersion() noexcept {
 	return version;
 }
 
-bool Utils::CreateDirRecursive(const std::wstring& path) {
+bool Utils::CreateDir(const std::wstring& path, bool recursive) {
 	if (DirExists(path.c_str())) {
 		return true;
 	}
 
 	if (path.empty()) {
 		return false;
+	}
+
+	if (!recursive) {
+		return CreateDirectory(path.c_str(), nullptr);
 	}
 
 	size_t searchOffset = 0;
