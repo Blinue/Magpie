@@ -17,9 +17,7 @@
 using namespace winrt;
 using namespace Windows::UI::Core;
 using namespace Windows::UI::Xaml;
-using namespace Windows::UI::Xaml::Input;
 using namespace Windows::Foundation;
-using namespace Windows::System::Profile;
 using namespace Windows::UI::ViewManagement;
 using namespace Microsoft::UI::Xaml::Controls;
 
