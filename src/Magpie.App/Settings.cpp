@@ -94,13 +94,55 @@ bool Settings::Initialize(uint64_t pLogger) {
 	}
 
 	const auto& root = doc.GetObj();
-	auto theme = root.FindMember("theme");
-	if (theme != root.MemberEnd()) {
-		if (!theme->value.IsNumber()) {
-			return false;
-		}
+	{
+		auto themeNode = root.FindMember("theme");
+		if (themeNode != root.MemberEnd()) {
+			if (!themeNode->value.IsNumber()) {
+				return false;
+			}
 
-		_theme = theme->value.GetInt();
+			_theme = themeNode->value.GetInt();
+		}
+	}
+	{
+		auto windowPosNode = root.FindMember("windowPos");
+		if (windowPosNode != root.MemberEnd()) {
+			if (!windowPosNode->value.IsObject()) {
+				return false;
+			}
+
+			const auto& windowRectObj = windowPosNode->value.GetObj();
+
+			auto xNode = windowRectObj.FindMember("x");
+			if (xNode == windowRectObj.MemberEnd() || !xNode->value.IsNumber()) {
+				return false;
+			}
+			_windowRect.X = (float)xNode->value.GetInt();
+
+			auto yNode = windowRectObj.FindMember("y");
+			if (yNode == windowRectObj.MemberEnd() || !yNode->value.IsNumber()) {
+				return false;
+			}
+			_windowRect.Y = (float)yNode->value.GetInt();
+
+			auto widthNode = windowRectObj.FindMember("width");
+			if (widthNode == windowRectObj.MemberEnd() || !widthNode->value.IsNumber()) {
+				return false;
+			}
+			_windowRect.Width = (float)widthNode->value.GetInt();
+
+			auto heightNode = windowRectObj.FindMember("height");
+			if (heightNode == windowRectObj.MemberEnd() || !heightNode->value.IsNumber()) {
+				return false;
+			}
+			_windowRect.Height = (float)heightNode->value.GetInt();
+
+			auto maximizedNode = windowRectObj.FindMember("maximized");
+			if (maximizedNode == windowRectObj.MemberEnd() || !maximizedNode->value.IsBool()) {
+				return false;
+			}
+			_isWindowMaximized = maximizedNode->value.GetBool();
+		}
 	}
 
 	return true;
@@ -116,8 +158,24 @@ bool Settings::Save() {
 	rapidjson::StringBuffer json;
 	rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(json);
 	writer.StartObject();
+
 	writer.Key("theme");
 	writer.Int(_theme);
+
+	writer.Key("windowPos");
+	writer.StartObject();
+	writer.Key("x");
+	writer.Int((int)std::lroundf(_windowRect.X));
+	writer.Key("y");
+	writer.Int((int)std::lroundf(_windowRect.Y));
+	writer.Key("width");
+	writer.Int((int)std::lroundf(_windowRect.Width));
+	writer.Key("height");
+	writer.Int((int)std::lroundf(_windowRect.Height));
+	writer.Key("maximized");
+	writer.Bool(_isWindowMaximized);
+	writer.EndObject();
+
 	writer.EndObject();
 
 	if (!Utils::WriteTextFile(StrUtils::ConcatW(_workingDir, CONFIG_PATH).c_str(), json.GetString())) {

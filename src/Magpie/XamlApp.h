@@ -16,7 +16,7 @@ public:
 		return instance;
 	}
 
-	bool Initialize(HINSTANCE hInstance, const wchar_t* className, const wchar_t* title);
+	bool Initialize(HINSTANCE hInstance);
 
 	int Run();
 
@@ -31,6 +31,8 @@ private:
 	LRESULT _WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
 	void _CloseAllXamlPopups();
+
+	winrt::Magpie::App::Settings _settings{ nullptr };
 
 	winrt::Magpie::App::App _uwpApp{ nullptr };
 	winrt::Magpie::App::MainPage _mainPage{ nullptr };

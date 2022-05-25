@@ -14,5 +14,8 @@ namespace Magpie.App
 
 		Int32 Theme;
 		event Windows.Foundation.EventHandler<Int32> ThemeChanged;
+
+		Windows.Foundation.Rect WindowRect;
+		Boolean IsWindowMaximized;
 	}
 }

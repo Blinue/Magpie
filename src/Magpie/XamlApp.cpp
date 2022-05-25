@@ -14,58 +14,70 @@
 using namespace winrt;
 using namespace Windows::UI::Core;
 using namespace Windows::UI::Xaml::Hosting;
+using namespace Windows::Foundation;
+using namespace Magpie::App;
+
+static constexpr const wchar_t* XAML_HOST_CLASS_NAME = L"Magpie_XamlHost";
 
 
-ATOM XamlApp::_RegisterWndClass(HINSTANCE hInstance, const wchar_t* className) {
-	WNDCLASSEXW wcex{};
-	
-	wcex.cbSize = sizeof(WNDCLASSEX);
-	wcex.lpfnWndProc = _WndProcStatic;
-	wcex.cbClsExtra = 0;
-	wcex.cbWndExtra = 0;
-	wcex.hInstance = hInstance;
-	wcex.hIcon = NULL;
-	wcex.hCursor = LoadCursor(nullptr, IDC_ARROW);
-	wcex.hbrBackground = NULL;
-	wcex.lpszMenuName = NULL;
-	wcex.lpszClassName = className;
-	wcex.hIconSm = NULL;
-
-	return RegisterClassEx(&wcex);
-}
-
-bool XamlApp::Initialize(HINSTANCE hInstance, const wchar_t* className, const wchar_t* title) {
+bool XamlApp::Initialize(HINSTANCE hInstance) {
 	init_apartment(apartment_type::single_threaded);
 
 	// 当前目录始终是程序所在目录
-	wchar_t curDir[MAX_PATH] = { 0 };
-	GetModuleFileName(NULL, curDir, MAX_PATH);
+	{
+		wchar_t curDir[MAX_PATH] = { 0 };
+		GetModuleFileName(NULL, curDir, MAX_PATH);
 
-	for (int i = lstrlenW(curDir) - 1; i >= 0; --i) {
-		if (curDir[i] == L'\\' || curDir[i] == L'/') {
-			break;
-		} else {
-			curDir[i] = L'\0';
+		for (int i = lstrlenW(curDir) - 1; i >= 0; --i) {
+			if (curDir[i] == L'\\' || curDir[i] == L'/') {
+				break;
+			} else {
+				curDir[i] = L'\0';
+			}
 		}
+
+		SetCurrentDirectory(curDir);
 	}
-
-	SetCurrentDirectory(curDir);
-
-	Magpie::App::Settings settings;
-	if (!settings.Initialize((uint64_t)&Logger::Get())) {
+	
+	_settings = Settings();
+	if (!_settings.Initialize((uint64_t)&Logger::Get())) {
 		return false;
 	}
 
-	_uwpApp = Magpie::App::App();
-	_uwpApp.Initialize(settings);
+	// 注册窗口类
+	{
+		WNDCLASSEXW wcex{};
 
-	_RegisterWndClass(hInstance, className);
+		wcex.cbSize = sizeof(WNDCLASSEX);
+		wcex.lpfnWndProc = _WndProcStatic;
+		wcex.cbClsExtra = 0;
+		wcex.cbWndExtra = 0;
+		wcex.hInstance = hInstance;
+		wcex.hIcon = NULL;
+		wcex.hCursor = LoadCursor(nullptr, IDC_ARROW);
+		wcex.hbrBackground = NULL;
+		wcex.lpszMenuName = NULL;
+		wcex.lpszClassName = XAML_HOST_CLASS_NAME;
+		wcex.hIconSm = NULL;
 
-	_hwndXamlHost = CreateWindow(className, title, WS_OVERLAPPEDWINDOW,
-		CW_USEDEFAULT, CW_USEDEFAULT, 1100, 700,
-		nullptr, nullptr, hInstance, nullptr);
+		RegisterClassEx(&wcex);
+	}
+
+	const Rect& windowRect = _settings.WindowRect();
+
+	_hwndXamlHost = CreateWindow(
+		XAML_HOST_CLASS_NAME,
+		L"Magpie",
+		WS_OVERLAPPEDWINDOW,
+		(LONG)windowRect.X, (LONG)windowRect.Y, (LONG)windowRect.Width, (LONG)windowRect.Height,
+		nullptr,
+		nullptr,
+		hInstance,
+		nullptr
+	);
 
 	if (!_hwndXamlHost) {
+		Logger::Get().Win32Error("CreateWindow 失败");
 		return false;
 	}
 	
@@ -78,17 +90,22 @@ bool XamlApp::Initialize(HINSTANCE hInstance, const wchar_t* className, const wc
 		SetWindowThemeAttribute(_hwndXamlHost, WTA_NONCLIENT, &option, sizeof(option));
 	}
 
-	_mainPage = Magpie::App::MainPage();
+	_uwpApp = App();
+	_uwpApp.Initialize(_settings);
+
+	_mainPage = MainPage();
 	_mainPage.Initialize((uint64_t)_hwndXamlHost);
 
 	_xamlSource = Windows::UI::Xaml::Hosting::DesktopWindowXamlSource();
 	_xamlSourceNative2 = _xamlSource.as<IDesktopWindowXamlSourceNative2>();
 
+	const int cmdShow = _settings.IsWindowMaximized() ? SW_MAXIMIZE : SW_SHOW;
+
 	if (!isWin11) {
 		// 在 Win10 上可能导致任务栏出现空的 DesktopWindowXamlSource 窗口
 		// 见 https://github.com/microsoft/microsoft-ui-xaml/issues/6490
 		// 如果不将 ShowWindow 提前，任务栏会短暂出现两个图标
-		ShowWindow(_hwndXamlHost, SW_SHOW);
+		ShowWindow(_hwndXamlHost, cmdShow);
 	}
 
 	auto interop = _xamlSource.as<IDesktopWindowXamlSourceNative>();
@@ -98,7 +115,7 @@ bool XamlApp::Initialize(HINSTANCE hInstance, const wchar_t* className, const wc
 	_xamlSource.Content(_mainPage);
 
 	if (isWin11) {
-		ShowWindow(_hwndXamlHost, SW_SHOW);
+		ShowWindow(_hwndXamlHost, cmdShow);
 		SetFocus(_hwndXamlHost);
 	} else {
 		_OnResize();
@@ -180,6 +197,29 @@ LRESULT XamlApp::_WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		_OnResize();
 		_CloseAllXamlPopups();
 		return 0;
+	}
+	case WM_WINDOWPOSCHANGED:
+	{
+		if (_xamlSource) {
+			WINDOWPLACEMENT wp{};
+			wp.length = sizeof(wp);
+			if (GetWindowPlacement(_hwndXamlHost, &wp)) {
+				_settings.IsWindowMaximized(wp.showCmd == SW_MAXIMIZE);
+
+				RECT windowRect;
+				if (GetWindowRect(_hwndXamlHost, &windowRect)) {
+					_settings.WindowRect(Rect{
+						(float)wp.rcNormalPosition.left,
+						(float)wp.rcNormalPosition.top,
+						float(wp.rcNormalPosition.right - wp.rcNormalPosition.left),
+						float(wp.rcNormalPosition.bottom - wp.rcNormalPosition.top)
+					});
+				}
+			}
+		}
+
+		// 交给 DefWindowProc 处理
+		break;
 	}
 	case WM_GETMINMAXINFO:
 	{

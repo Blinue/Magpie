@@ -16,7 +16,7 @@ int APIENTRY wWinMain(
 	UNREFERENCED_PARAMETER(nCmdShow);
 
 	auto& app = XamlApp::Get();
-	app.Initialize(hInstance, L"Magpie_XamlHost", L"Magpie");
+	app.Initialize(hInstance);
 
 	return app.Run();
 }
