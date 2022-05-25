@@ -54,6 +54,8 @@ struct Utils {
 		DWORD attrs = GetFileAttributes(fileName);
 		return (attrs != INVALID_FILE_ATTRIBUTES) && (attrs & FILE_ATTRIBUTE_DIRECTORY);
 	}
+	
+	static bool CreateDirRecursive(const std::wstring& path);
 
 	static const RTL_OSVERSIONINFOW& GetOSVersion() noexcept;
 

@@ -151,6 +151,8 @@ int XamlApp::Run() {
 		DispatchMessage(&msg);
 	}
 
+	_uwpApp.OnClose();
+
 	_xamlSourceNative2 = nullptr;
 	_xamlSource.Close();
 	_xamlSource = nullptr;
@@ -224,7 +226,6 @@ LRESULT XamlApp::_WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		break;
 	}
 	case WM_DESTROY:
-		_uwpApp.OnClose();
 		PostQuitMessage(0);
 		return 0;
 	}

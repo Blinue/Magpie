@@ -7,6 +7,8 @@
 #include "Utils.h"
 #include "StrUtils.h"
 #include "Logger.h"
+#include <rapidjson/document.h>
+#include <rapidjson/prettywriter.h>
 
 using namespace winrt;
 using namespace Windows::Foundation;
@@ -60,8 +62,23 @@ bool Settings::Initialize() {
 	return true;
 }
 
-void Settings::Save() {
-	
+bool Settings::Save() {
+	std::wstring configPath = GetConfigPath(_isPortableMode);
+	if (!Utils::CreateDirRecursive(configPath.substr(0, configPath.find_last_of(L'\\')))) {
+		Logger::Get().Error("创建配置文件路径失败");
+		return false;
+	}
+
+	rapidjson::StringBuffer json;
+	rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(json);
+	writer.StartObject();
+	writer.Key("theme");
+	writer.Uint(_theme);
+	writer.EndObject();
+
+	Utils::WriteTextFile(configPath.c_str(), json.GetString());
+
+	return true;
 }
 
 }

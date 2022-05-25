@@ -17,7 +17,7 @@ struct Settings : SettingsT<Settings> {
 		_isPortableMode = value;
 	}
 
-	void Save();
+	bool Save();
 
 private:
 	bool _isPortableMode = false;

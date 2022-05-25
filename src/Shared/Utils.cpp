@@ -209,6 +209,35 @@ RTL_OSVERSIONINFOW _GetOSVersion() noexcept {
 	return version;
 }
 
+bool Utils::CreateDirRecursive(const std::wstring& path) {
+	if (DirExists(path.c_str())) {
+		return true;
+	}
+
+	if (path.empty()) {
+		return false;
+	}
+
+	size_t searchOffset = 0;
+	do {
+		auto tokenPos = path.find_first_of(L"\\/", searchOffset);
+		// treat the entire path as a folder if no folder separator not found
+		if (tokenPos == std::wstring::npos) {
+			tokenPos = path.size();
+		}
+
+		std::wstring subdir = path.substr(0, tokenPos);
+
+		if (!subdir.empty() && !DirExists(subdir.c_str()) && !CreateDirectory(subdir.c_str(), nullptr)) {
+			Logger::Get().Win32Error(StrUtils::Concat("创建文件夹", StrUtils::UTF16ToUTF8(subdir), "失败"));
+			return false; // return error if failed creating dir
+		}
+		searchOffset = tokenPos + 1;
+	} while (searchOffset < path.size());
+
+	return true;
+}
+
 const RTL_OSVERSIONINFOW& Utils::GetOSVersion() noexcept {
 	static RTL_OSVERSIONINFOW version = _GetOSVersion();
 	return version;
