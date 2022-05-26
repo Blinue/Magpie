@@ -15,14 +15,14 @@ using namespace Windows::UI::Xaml::Automation::Peers;
 
 namespace winrt::Magpie::App::Controls::implementation {
 
-DependencyProperty SettingsGroup::MyHeaderProperty = DependencyProperty::Register(
+const DependencyProperty SettingsGroup::MyHeaderProperty = DependencyProperty::Register(
 	L"MyHeader",
 	xaml_typename<hstring>(),
 	xaml_typename<Magpie::App::Controls::SettingsGroup>(),
 	PropertyMetadata(box_value(L""), &SettingsGroup::_OnMyHeaderChanged)
 );
 
-DependencyProperty SettingsGroup::DescriptionProperty = DependencyProperty::Register(
+const DependencyProperty SettingsGroup::DescriptionProperty = DependencyProperty::Register(
 	L"Description",
 	xaml_typename<IInspectable>(),
 	xaml_typename<Magpie::App::Controls::SettingsGroup>(),

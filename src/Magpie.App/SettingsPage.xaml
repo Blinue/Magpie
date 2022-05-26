@@ -20,7 +20,7 @@
 
 		<TextBlock Grid.Row="0" Text="设置" Style="{StaticResource PageHeaderTextStyle}" />
 
-		<ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+		<ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="0,0,40,0">
 			<StackPanel Orientation="Vertical" HorizontalAlignment="Stretch">
 				<controls:SettingsGroup MyHeader="外观和行为">
 					<controls:Setting MyHeader="主题" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left">

@@ -22,8 +22,8 @@ namespace winrt::Magpie::App::Controls::implementation
 
 		Windows::UI::Xaml::Automation::Peers::AutomationPeer OnCreateAutomationPeer();
 
-		static Windows::UI::Xaml::DependencyProperty MyHeaderProperty;
-		static Windows::UI::Xaml::DependencyProperty DescriptionProperty;
+		static const Windows::UI::Xaml::DependencyProperty MyHeaderProperty;
+		static const Windows::UI::Xaml::DependencyProperty DescriptionProperty;
 
 	private:
 		static void _OnMyHeaderChanged(Windows::UI::Xaml::DependencyObject const& sender, Windows::UI::Xaml::DependencyPropertyChangedEventArgs const&);
@@ -38,7 +38,7 @@ namespace winrt::Magpie::App::Controls::implementation
 		Windows::UI::Xaml::Controls::TextBlock _myHeaderPresenter{ nullptr };
 		Windows::UI::Xaml::Controls::ContentPresenter _descriptionPresenter{ nullptr };
 
-		winrt::event_token _isEnabledChangedToken{};
+		event_token _isEnabledChangedToken{};
 
 		static constexpr const wchar_t* _PartMyHeaderPresenter = L"MyHeaderPresenter";
 		static constexpr const wchar_t* _PartDescriptionPresenter = L"DescriptionPresenter";
