@@ -1,4 +1,4 @@
-﻿#include "pch.h"
+#include "pch.h"
 #include "SettingsGroup.h"
 #if __has_include("Controls.SettingsGroup.g.cpp")
 #include "Controls.SettingsGroup.g.cpp"
@@ -30,7 +30,7 @@ DependencyProperty SettingsGroup::DescriptionProperty = DependencyProperty::Regi
 );
 
 SettingsGroup::SettingsGroup() {
-    DefaultStyleKey(box_value(name_of<Magpie::App::Controls::SettingsGroup>()));
+	DefaultStyleKey(box_value(name_of<Magpie::App::Controls::SettingsGroup>()));
 }
 
 void SettingsGroup::MyHeader(const hstring& value) {

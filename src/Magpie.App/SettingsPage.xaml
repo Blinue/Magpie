@@ -13,31 +13,38 @@
 		<Grid.ColumnDefinitions>
 			<ColumnDefinition MaxWidth="1000" Width="*" />
 		</Grid.ColumnDefinitions>
-		
-		<StackPanel Orientation="Vertical" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-			<TextBlock Text="设置" FontWeight="Bold" FontSize="30" Margin="0,0,0,0" HorizontalAlignment="Stretch" />
-            <controls:SettingsGroup MyHeader="外观和行为">
-                <controls:Setting MyHeader="主题" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left">
-                    <controls:Setting.Icon>
-                        <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xEF1F;"/>
-                    </controls:Setting.Icon>
-                    <controls:Setting.ActionContent>
-                        <ComboBox x:Name="ThemeComboBox" Width="150" SelectionChanged="ThemeComboBox_SelectionChanged" DropDownOpened="ComboBox_DropDownOpened">
-                            <x:String>浅色</x:String>
-                            <x:String>深色</x:String>
-                            <x:String>使用系统设置</x:String>
-                        </ComboBox>
-                    </controls:Setting.ActionContent>
-                </controls:Setting>
-                <controls:Setting MyHeader="便携模式" Description="更改用户数据的保存位置" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left">
-                    <controls:Setting.Icon>
-                        <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xEC0A;"/>
-                    </controls:Setting.Icon>
-                    <controls:Setting.ActionContent>
-                        <ToggleSwitch x:Name="PortableModeToggleSwitch" Toggled="PortableModeToggleSwitch_Toggled" />
-                    </controls:Setting.ActionContent>
-                </controls:Setting>
-            </controls:SettingsGroup>
-        </StackPanel>
+		<Grid.RowDefinitions>
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="*" />
+		</Grid.RowDefinitions>
+
+		<TextBlock Grid.Row="0" Text="设置" Style="{StaticResource PageHeaderTextStyle}" />
+
+		<ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+			<StackPanel Orientation="Vertical" HorizontalAlignment="Stretch">
+				<controls:SettingsGroup MyHeader="外观和行为">
+					<controls:Setting MyHeader="主题" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left">
+						<controls:Setting.Icon>
+							<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xEF1F;"/>
+						</controls:Setting.Icon>
+						<controls:Setting.ActionContent>
+							<ComboBox x:Name="ThemeComboBox" Width="150" SelectionChanged="ThemeComboBox_SelectionChanged" DropDownOpened="ComboBox_DropDownOpened">
+								<x:String>浅色</x:String>
+								<x:String>深色</x:String>
+								<x:String>使用系统设置</x:String>
+							</ComboBox>
+						</controls:Setting.ActionContent>
+					</controls:Setting>
+					<controls:Setting MyHeader="便携模式" Description="更改用户数据的保存位置" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left">
+						<controls:Setting.Icon>
+							<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xEC0A;"/>
+						</controls:Setting.Icon>
+						<controls:Setting.ActionContent>
+							<ToggleSwitch x:Name="PortableModeToggleSwitch" Toggled="PortableModeToggleSwitch_Toggled" />
+						</controls:Setting.ActionContent>
+					</controls:Setting>
+				</controls:SettingsGroup>
+			</StackPanel>
+		</ScrollViewer>
 	</Grid>
 </Page>

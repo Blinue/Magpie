@@ -1,4 +1,4 @@
-﻿#include "pch.h"
+#include "pch.h"
 #include "App.h"
 #if __has_include("App.g.cpp")
 #include "App.g.cpp"

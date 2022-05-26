@@ -3,58 +3,64 @@
 	xmlns:Toolkit="using:Microsoft.Toolkit.Win32.UI.XamlHost"
 	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
-    xmlns:controls="using:Magpie.App.Controls"
+	xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
+	xmlns:controls="using:Magpie.App.Controls"
 	xmlns:local="using:Magpie.App">
-    <Application.Resources>
-        <ResourceDictionary>
-            <CornerRadius x:Key="ControlCornerRadius">8</CornerRadius>
-            <Thickness x:Key="NavigationViewContentGridBorderThickness">1,1,0,0</Thickness>
-            <CornerRadius x:Key="NavigationViewContentGridCornerRadius">8,0,0,0</CornerRadius>
+	<Application.Resources>
+		<ResourceDictionary>
+			<CornerRadius x:Key="ControlCornerRadius">8</CornerRadius>
+			<Thickness x:Key="NavigationViewContentGridBorderThickness">1,1,0,0</Thickness>
+			<CornerRadius x:Key="NavigationViewContentGridCornerRadius">8,0,0,0</CornerRadius>
 
-            <x:Double x:Key="SecondaryTextFontSize">12</x:Double>
-            <Style x:Key="SecondaryTextStyle" TargetType="TextBlock">
-                <Setter Property="FontSize" Value="{StaticResource SecondaryTextFontSize}" />
-                <Setter Property="Foreground" Value="{ThemeResource TextFillColorSecondaryBrush}" />
-            </Style>
+			<Style x:Key="PageHeaderTextStyle" TargetType="TextBlock">
+				<Setter Property="FontSize" Value="30" />
+				<Setter Property="Margin" Value="0" />
+				<Setter Property="FontWeight" Value="Bold" />
+			</Style>
 
-            <Style
-                x:Key="SettingButtonStyle"
-                BasedOn="{StaticResource DefaultButtonStyle}"
-                TargetType="Button">
-                <Setter Property="BorderBrush" Value="{ThemeResource CardBorderBrush}" />
-                <Setter Property="CornerRadius" Value="{ThemeResource ControlCornerRadius}" />
-                <Setter Property="Padding" Value="16,0,16,0" />
-                <Setter Property="HorizontalAlignment" Value="Stretch" />
-                <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-            </Style>
+			<x:Double x:Key="SecondaryTextFontSize">12</x:Double>
+			<Style x:Key="SecondaryTextStyle" TargetType="TextBlock">
+				<Setter Property="FontSize" Value="{StaticResource SecondaryTextFontSize}" />
+				<Setter Property="Foreground" Value="{ThemeResource TextFillColorSecondaryBrush}" />
+			</Style>
 
-            <ResourceDictionary.ThemeDictionaries>
-                <ResourceDictionary x:Key="Dark">
-                    <StaticResource x:Key="CardBackgroundBrush" ResourceKey="CardBackgroundFillColorDefaultBrush" />
-                    <StaticResource x:Key="CardBorderBrush" ResourceKey="CardStrokeColorDefaultBrush" />
-                    <StaticResource x:Key="CardPrimaryForegroundBrush" ResourceKey="TextFillColorPrimaryBrush" />
-                    <Thickness x:Key="CardBorderThickness">1</Thickness>
-                </ResourceDictionary>
+			<Style
+				x:Key="SettingButtonStyle"
+				BasedOn="{StaticResource DefaultButtonStyle}"
+				TargetType="Button">
+				<Setter Property="BorderBrush" Value="{ThemeResource CardBorderBrush}" />
+				<Setter Property="CornerRadius" Value="{ThemeResource ControlCornerRadius}" />
+				<Setter Property="Padding" Value="16,0,16,0" />
+				<Setter Property="HorizontalAlignment" Value="Stretch" />
+				<Setter Property="HorizontalContentAlignment" Value="Stretch" />
+			</Style>
 
-                <ResourceDictionary x:Key="Light">
-                    <StaticResource x:Key="CardBackgroundBrush" ResourceKey="CardBackgroundFillColorDefaultBrush" />
-                    <StaticResource x:Key="CardBorderBrush" ResourceKey="CardStrokeColorDefaultBrush" />
-                    <StaticResource x:Key="CardPrimaryForegroundBrush" ResourceKey="TextFillColorPrimaryBrush" />
-                    <Thickness x:Key="CardBorderThickness">1</Thickness>
-                </ResourceDictionary>
+			<ResourceDictionary.ThemeDictionaries>
+				<ResourceDictionary x:Key="Dark">
+					<StaticResource x:Key="CardBackgroundBrush" ResourceKey="CardBackgroundFillColorDefaultBrush" />
+					<StaticResource x:Key="CardBorderBrush" ResourceKey="CardStrokeColorDefaultBrush" />
+					<StaticResource x:Key="CardPrimaryForegroundBrush" ResourceKey="TextFillColorPrimaryBrush" />
+					<Thickness x:Key="CardBorderThickness">1</Thickness>
+				</ResourceDictionary>
 
-                <ResourceDictionary x:Key="HighContrast">
-                    <StaticResource x:Key="CardBackgroundBrush" ResourceKey="SystemColorButtonFaceColorBrush" />
-                    <StaticResource x:Key="CardBorderBrush" ResourceKey="SystemColorButtonTextColorBrush" />
-                    <StaticResource x:Key="CardPrimaryForegroundBrush" ResourceKey="SystemColorButtonTextColorBrush" />
-                    <Thickness x:Key="CardBorderThickness">2</Thickness>
-                </ResourceDictionary>
-            </ResourceDictionary.ThemeDictionaries>
+				<ResourceDictionary x:Key="Light">
+					<StaticResource x:Key="CardBackgroundBrush" ResourceKey="CardBackgroundFillColorDefaultBrush" />
+					<StaticResource x:Key="CardBorderBrush" ResourceKey="CardStrokeColorDefaultBrush" />
+					<StaticResource x:Key="CardPrimaryForegroundBrush" ResourceKey="TextFillColorPrimaryBrush" />
+					<Thickness x:Key="CardBorderThickness">1</Thickness>
+				</ResourceDictionary>
 
-            <ResourceDictionary.MergedDictionaries>
-                <muxc:XamlControlsResources ControlsResourcesVersion="Version2" />
-            </ResourceDictionary.MergedDictionaries>
-        </ResourceDictionary>
-    </Application.Resources>
+				<ResourceDictionary x:Key="HighContrast">
+					<StaticResource x:Key="CardBackgroundBrush" ResourceKey="SystemColorButtonFaceColorBrush" />
+					<StaticResource x:Key="CardBorderBrush" ResourceKey="SystemColorButtonTextColorBrush" />
+					<StaticResource x:Key="CardPrimaryForegroundBrush" ResourceKey="SystemColorButtonTextColorBrush" />
+					<Thickness x:Key="CardBorderThickness">2</Thickness>
+				</ResourceDictionary>
+			</ResourceDictionary.ThemeDictionaries>
+
+			<ResourceDictionary.MergedDictionaries>
+				<muxc:XamlControlsResources ControlsResourcesVersion="Version2" />
+			</ResourceDictionary.MergedDictionaries>
+		</ResourceDictionary>
+	</Application.Resources>
 </Toolkit:XamlApplication>

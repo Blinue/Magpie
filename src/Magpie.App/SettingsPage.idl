@@ -1,8 +1,8 @@
 namespace Magpie.App
 {
-    [default_interface]
-    runtimeclass SettingsPage : Windows.UI.Xaml.Controls.Page
-    {
-        SettingsPage();
-    }
+	[default_interface]
+	runtimeclass SettingsPage : Windows.UI.Xaml.Controls.Page
+	{
+		SettingsPage();
+	}
 }

@@ -1,7 +1,7 @@
 namespace Magpie.App.Controls
 {
-	[Windows.UI.Xaml.TemplateVisualState("CommonStates", "Normal")]
-	[Windows.UI.Xaml.TemplateVisualState("CommonStates", "Disabled")]
+	[Windows.UI.Xaml.TemplateVisualState("Normal", "CommonStates")]
+	[Windows.UI.Xaml.TemplateVisualState("Disabled", "CommonStates")]
 	runtimeclass Setting : Windows.UI.Xaml.Controls.ContentControl
 	{
 		Setting();

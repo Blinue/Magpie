@@ -8,55 +8,55 @@
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	mc:Ignorable="d">
 
-    <Page.Resources>
-        <ResourceDictionary>
-            <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="ms-appx:///Setting.xaml" />
-                <ResourceDictionary Source="ms-appx:///SettingsGroup.xaml" />
-                <ResourceDictionary Source="ms-appx:///ToggleSwitch.xaml" />
-            </ResourceDictionary.MergedDictionaries>
-        </ResourceDictionary>
-    </Page.Resources>
+	<Page.Resources>
+		<ResourceDictionary>
+			<ResourceDictionary.MergedDictionaries>
+				<ResourceDictionary Source="ms-appx:///Setting.xaml" />
+				<ResourceDictionary Source="ms-appx:///SettingsGroup.xaml" />
+				<ResourceDictionary Source="ms-appx:///ToggleSwitch.xaml" />
+			</ResourceDictionary.MergedDictionaries>
+		</ResourceDictionary>
+	</Page.Resources>
 
-    <muxc:NavigationView Name="GlobalNavigationView" IsBackButtonVisible="Collapsed" IsPaneOpen="False" SelectionChanged="NavigationView_SelectionChanged" DisplayModeChanged="NavigationView_DisplayModeChanged" PaneOpening="NavigationView_PaneOpening" PaneClosing="NavigationView_PaneClosing">
-        <muxc:NavigationView.MenuItems>
-            <muxc:NavigationViewItem Content="主页" Tag="Home" IsSelected="True">
-                <muxc:NavigationViewItem.Icon>
-                    <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE80F;"/>
-                </muxc:NavigationViewItem.Icon>
-            </muxc:NavigationViewItem>
-            <muxc:NavigationViewItemSeparator x:Name="ScalingConfigSeparator" Visibility="Collapsed" />
-            <muxc:NavigationViewItemHeader Content="缩放配置" />
-            <muxc:NavigationViewItem Content="全局" Tag="GlobalConfig">
-                <muxc:NavigationViewItem.Icon>
-                    <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE81E;"/>
-                </muxc:NavigationViewItem.Icon>
-            </muxc:NavigationViewItem>
-            <muxc:NavigationViewItem Content="游戏1" Tag="Game1">
-                <muxc:NavigationViewItem.Icon>
-                    <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xEA86;"/>
-                </muxc:NavigationViewItem.Icon>
-            </muxc:NavigationViewItem>
-            <muxc:NavigationViewItem Content="游戏2" Tag="Game2">
-                <muxc:NavigationViewItem.Icon>
-                    <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xEA86;"/>
-                </muxc:NavigationViewItem.Icon>
-            </muxc:NavigationViewItem>
-            <muxc:NavigationViewItem Content="游戏3" Tag="Game3">
-                <muxc:NavigationViewItem.Icon>
-                    <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xEA86;"/>
-                </muxc:NavigationViewItem.Icon>
-            </muxc:NavigationViewItem>
-            <muxc:NavigationViewItem Icon="Add" Content="添加新配置" Tag="NewConfig" SelectsOnInvoked="False" />
-        </muxc:NavigationView.MenuItems>
-        <muxc:NavigationView.FooterMenuItems>
-            <muxc:NavigationViewItem Content="关于" Tag="About">
-                <muxc:NavigationViewItem.Icon>
-                    <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE946;"/>
-                </muxc:NavigationViewItem.Icon>
-            </muxc:NavigationViewItem>
-        </muxc:NavigationView.FooterMenuItems>
+	<muxc:NavigationView Name="GlobalNavigationView" IsBackButtonVisible="Collapsed" IsPaneOpen="False" SelectionChanged="NavigationView_SelectionChanged" DisplayModeChanged="NavigationView_DisplayModeChanged" PaneOpening="NavigationView_PaneOpening" PaneClosing="NavigationView_PaneClosing">
+		<muxc:NavigationView.MenuItems>
+			<muxc:NavigationViewItem Content="主页" Tag="Home" IsSelected="True">
+				<muxc:NavigationViewItem.Icon>
+					<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE80F;"/>
+				</muxc:NavigationViewItem.Icon>
+			</muxc:NavigationViewItem>
+			<muxc:NavigationViewItemSeparator x:Name="ScalingConfigSeparator" Visibility="Collapsed" />
+			<muxc:NavigationViewItemHeader Content="缩放配置" />
+			<muxc:NavigationViewItem Content="全局" Tag="GlobalConfig">
+				<muxc:NavigationViewItem.Icon>
+					<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE81E;"/>
+				</muxc:NavigationViewItem.Icon>
+			</muxc:NavigationViewItem>
+			<muxc:NavigationViewItem Content="游戏1" Tag="Game1">
+				<muxc:NavigationViewItem.Icon>
+					<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xEA86;"/>
+				</muxc:NavigationViewItem.Icon>
+			</muxc:NavigationViewItem>
+			<muxc:NavigationViewItem Content="游戏2" Tag="Game2">
+				<muxc:NavigationViewItem.Icon>
+					<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xEA86;"/>
+				</muxc:NavigationViewItem.Icon>
+			</muxc:NavigationViewItem>
+			<muxc:NavigationViewItem Content="游戏3" Tag="Game3">
+				<muxc:NavigationViewItem.Icon>
+					<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xEA86;"/>
+				</muxc:NavigationViewItem.Icon>
+			</muxc:NavigationViewItem>
+			<muxc:NavigationViewItem Icon="Add" Content="添加新配置" Tag="NewConfig" SelectsOnInvoked="False" />
+		</muxc:NavigationView.MenuItems>
+		<muxc:NavigationView.FooterMenuItems>
+			<muxc:NavigationViewItem Content="关于" Tag="About">
+				<muxc:NavigationViewItem.Icon>
+					<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE946;"/>
+				</muxc:NavigationViewItem.Icon>
+			</muxc:NavigationViewItem>
+		</muxc:NavigationView.FooterMenuItems>
 
-        <Frame x:Name="ContentFrame" Margin="40" />
-    </muxc:NavigationView>
+		<Frame x:Name="ContentFrame" Margin="40,40,40,0" />
+	</muxc:NavigationView>
 </Page>

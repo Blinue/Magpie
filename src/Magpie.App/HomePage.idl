@@ -1,9 +1,8 @@
 namespace Magpie.App
 {
-    [default_interface]
-    runtimeclass HomePage : Windows.UI.Xaml.Controls.Page
-    {
-        HomePage();
-        Int32 MyProperty;
-    }
+	[default_interface]
+	runtimeclass HomePage : Windows.UI.Xaml.Controls.Page
+	{
+		HomePage();
+	}
 }
