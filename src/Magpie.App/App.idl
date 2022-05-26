@@ -1,3 +1,4 @@
+#include "Dummy.idl"
 #include "Settings.idl"
 #include "MainPage.idl"
 #include "Setting.idl"

@@ -50,6 +50,9 @@
     <None Include="SettingsGroup.idl">
       <Filter>Controls</Filter>
     </None>
+    <None Include="Dummy.idl">
+      <Filter>Controls</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Page Include="MainPage.xaml" />
@@ -73,6 +76,9 @@
     </Page>
     <Page Include="ToggleSwitch.xaml">
       <Filter>Styles</Filter>
+    </Page>
+    <Page Include="Dummy.xaml">
+      <Filter>Controls</Filter>
     </Page>
   </ItemGroup>
 </Project>
