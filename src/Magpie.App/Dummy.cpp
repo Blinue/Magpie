@@ -1,4 +1,4 @@
-﻿#include "pch.h"
+#include "pch.h"
 #include "Dummy.h"
 #if __has_include("Controls.Dummy.g.cpp")
 #include "Controls.Dummy.g.cpp"

@@ -74,9 +74,6 @@
     <Page Include="SettingsGroup.xaml">
       <Filter>Controls</Filter>
     </Page>
-    <Page Include="ToggleSwitch.xaml">
-      <Filter>Styles</Filter>
-    </Page>
     <Page Include="Dummy.xaml">
       <Filter>Controls</Filter>
     </Page>

@@ -7,25 +7,11 @@
 using namespace winrt;
 using namespace Windows::UI::Xaml;
 
-namespace winrt::Magpie::App::implementation
-{
-	AboutPage::AboutPage()
-	{
-		InitializeComponent();
-	}
 
-	int32_t AboutPage::MyProperty()
-	{
-		throw hresult_not_implemented();
-	}
+namespace winrt::Magpie::App::implementation {
 
-	void AboutPage::MyProperty(int32_t /* value */)
-	{
-		throw hresult_not_implemented();
-	}
+AboutPage::AboutPage() {
+	InitializeComponent();
+}
 
-	void AboutPage::ClickHandler(IInspectable const&, RoutedEventArgs const&)
-	{
-		Button().Content(box_value(L"Clicked"));
-	}
 }

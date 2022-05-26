@@ -1,8 +1,8 @@
 namespace Magpie.App.Controls
 {
-    [default_interface]
-    runtimeclass Dummy : Windows.UI.Xaml.Controls.ItemsControl
-    {
-        Dummy();
-    }
+	[default_interface]
+	runtimeclass Dummy : Windows.UI.Xaml.Controls.ItemsControl
+	{
+		Dummy();
+	}
 }

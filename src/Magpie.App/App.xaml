@@ -18,6 +18,12 @@
 				<Setter Property="FontWeight" Value="Bold" />
 			</Style>
 
+			<Style x:Key="ToggleSwitchWithoutText" BasedOn="{StaticResource DefaultToggleSwitchStyle}" TargetType="ToggleSwitch">
+				<Setter Property="OffContent" Value="" />
+				<Setter Property="OnContent" Value="" />
+				<Setter Property="Margin" Value="0,0,-110,0" />
+			</Style>
+
 			<x:Double x:Key="SecondaryTextFontSize">12</x:Double>
 			<Style x:Key="SecondaryTextStyle" TargetType="TextBlock">
 				<Setter Property="FontSize" Value="{StaticResource SecondaryTextFontSize}" />

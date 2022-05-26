@@ -20,27 +20,29 @@
 
 		<TextBlock Grid.Row="0" Text="Magpie" Style="{StaticResource PageHeaderTextStyle}" />
 
-        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="0,0,40,0">
-			<StackPanel Orientation="Vertical" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-				<controls:SettingsGroup MyHeader="激活">
-					<controls:Setting MyHeader="快捷键" Description="自定义进入和退出全屏的快捷键" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left">
-						<controls:Setting.Icon>
-							<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xEDA7;"/>
-						</controls:Setting.Icon>
-						<controls:Setting.ActionContent>
+		<ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="0,0,40,0">
+			<controls:Dummy>
+				<StackPanel Orientation="Vertical" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,0,0,10">
+					<controls:SettingsGroup MyHeader="激活">
+						<controls:Setting MyHeader="快捷键" Description="自定义进入和退出全屏的快捷键" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left">
+							<controls:Setting.Icon>
+								<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xEDA7;"/>
+							</controls:Setting.Icon>
+							<controls:Setting.ActionContent>
 
-						</controls:Setting.ActionContent>
-					</controls:Setting>
-					<controls:Setting MyHeader="计时器" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left">
-						<controls:Setting.Icon>
-							<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE916;"/>
-						</controls:Setting.Icon>
-						<controls:Setting.ActionContent>
-							<Button Content="5s 后缩放" />
-						</controls:Setting.ActionContent>
-					</controls:Setting>
-				</controls:SettingsGroup>
-			</StackPanel>
+							</controls:Setting.ActionContent>
+						</controls:Setting>
+						<controls:Setting MyHeader="计时器" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left">
+							<controls:Setting.Icon>
+								<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE916;"/>
+							</controls:Setting.Icon>
+							<controls:Setting.ActionContent>
+								<Button Content="5s 后缩放" />
+							</controls:Setting.ActionContent>
+						</controls:Setting>
+					</controls:SettingsGroup>
+				</StackPanel>
+			</controls:Dummy>
 		</ScrollViewer>
 	</Grid>
 </Page>
