@@ -7,6 +7,11 @@
 #include "Logger.h"
 
 
+using namespace winrt;
+using namespace Windows::UI::Xaml;
+using namespace Windows::UI::Xaml::Media;
+
+
 namespace winrt::Magpie::App::implementation {
 
 App::App() {
@@ -15,12 +20,26 @@ App::App() {
 	AddRef();
 	m_inner.as<::IUnknown>()->Release();
 
-	// 根据操作系统版本选择图标字体
-	UINT build = Utils::GetOSBuild();
+	// 根据操作系统版本设置样式
+
+	// 根据操作系统选择图标字体
+	bool isWin11 = Utils::GetOSBuild() >= 22000;
 	Resources().Insert(
-		winrt::box_value(L"SymbolThemeFontFamily"),
-		Windows::UI::Xaml::Media::FontFamily(build >= 22000 ? L"Segoe Fluent Icons" : L"Segoe MDL2 Assets")
+		box_value(L"SymbolThemeFontFamily"),
+		FontFamily(isWin11 ? L"Segoe Fluent Icons" : L"Segoe MDL2 Assets")
 	);
+
+	if (isWin11) {
+		// Win11 中更改圆角大小
+		Resources().Insert(
+			winrt::box_value(L"ControlCornerRadius"),
+			winrt::box_value(CornerRadius{ 8,8,8,8 })
+		);
+		Resources().Insert(
+			winrt::box_value(L"NavigationViewContentGridCornerRadius"),
+			winrt::box_value(CornerRadius{ 8,0,0,0 })
+		);
+	}
 }
 
 App::~App() {

@@ -8,9 +8,7 @@
 	xmlns:local="using:Magpie.App">
 	<Application.Resources>
 		<ResourceDictionary>
-			<CornerRadius x:Key="ControlCornerRadius">8</CornerRadius>
 			<Thickness x:Key="NavigationViewContentGridBorderThickness">1,1,0,0</Thickness>
-			<CornerRadius x:Key="NavigationViewContentGridCornerRadius">8,0,0,0</CornerRadius>
 
 			<Style x:Key="PageHeaderTextStyle" TargetType="TextBlock">
 				<Setter Property="FontSize" Value="30" />
