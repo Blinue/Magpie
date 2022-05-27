@@ -5,7 +5,6 @@
 	xmlns:local="using:Magpie.App"
 	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-	xmlns:controls="using:Magpie.App.Controls"
 	mc:Ignorable="d">
 	<Grid>
 		<Grid.ColumnDefinitions>
@@ -19,10 +18,10 @@
 		<TextBlock Grid.Row="0" Text="关于" Style="{StaticResource PageHeaderTextStyle}" />
 
 		<ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="0,0,40,0">
-			<controls:Dummy>
+			<local:Dummy>
 				<StackPanel Orientation="Vertical" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,0,0,10">
 				</StackPanel>
-			</controls:Dummy>
+			</local:Dummy>
 		</ScrollViewer>
 	</Grid>
 </Page>

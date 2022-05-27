@@ -17,9 +17,6 @@
   <ItemGroup>
     <ClInclude Include="pch.h" />
     <ClInclude Include="MicaBrush.h" />
-    <ClInclude Include="Controls.ShortcutControl.xaml.g.h">
-      <Filter>Miscellaneous</Filter>
-    </ClInclude>
     <ClInclude Include="app.base.h">
       <Filter>Miscellaneous</Filter>
     </ClInclude>
@@ -50,7 +47,7 @@
     <None Include="MicaBrush.idl">
       <Filter>Brushes</Filter>
     </None>
-    <None Include="Setting.idl">
+    <None Include="SettingItem.idl">
       <Filter>Controls</Filter>
     </None>
     <None Include="SettingsGroup.idl">

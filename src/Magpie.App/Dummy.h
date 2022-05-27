@@ -1,16 +1,16 @@
 #pragma once
 
-#include "Controls.Dummy.g.h"
+#include "Dummy.g.h"
 
-namespace winrt::Magpie::App::Controls::implementation
+namespace winrt::Magpie::App::implementation
 {
-    struct Dummy : DummyT<Dummy>
+    struct Dummy : Dummy_base<Dummy>
     {
         Dummy();
     };
 }
 
-namespace winrt::Magpie::App::Controls::factory_implementation
+namespace winrt::Magpie::App::factory_implementation
 {
     struct Dummy : DummyT<Dummy, implementation::Dummy>
     {

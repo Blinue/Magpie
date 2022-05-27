@@ -1,12 +1,12 @@
 #pragma once
 
-#include "Controls.SettingsGroup.g.h"
-#include "Controls.SettingsGroupAutomationPeer.g.h"
+#include "SettingsGroup.g.h"
+#include "SettingsGroupAutomationPeer.g.h"
 
 
-namespace winrt::Magpie::App::Controls::implementation
+namespace winrt::Magpie::App::implementation
 {
-	struct SettingsGroup : SettingsGroupT<SettingsGroup>
+	struct SettingsGroup : SettingsGroup_base<SettingsGroup>
 	{
 		SettingsGroup();
 
@@ -45,13 +45,13 @@ namespace winrt::Magpie::App::Controls::implementation
 	};
 
 	struct SettingsGroupAutomationPeer : SettingsGroupAutomationPeerT<SettingsGroupAutomationPeer> {
-		SettingsGroupAutomationPeer(Magpie::App::Controls::SettingsGroup owner);
+		SettingsGroupAutomationPeer(Magpie::App::SettingsGroup owner);
 
 		hstring GetNameCore();
 	};
 }
 
-namespace winrt::Magpie::App::Controls::factory_implementation {
+namespace winrt::Magpie::App::factory_implementation {
 
 struct SettingsGroup : SettingsGroupT<SettingsGroup, implementation::SettingsGroup> {
 };

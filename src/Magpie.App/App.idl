@@ -1,7 +1,7 @@
 #include "Dummy.idl"
 #include "Settings.idl"
 #include "MainPage.idl"
-#include "Setting.idl"
+#include "SettingItem.idl"
 #include "SettingsGroup.idl"
 #include "MicaBrush.idl"
 #include "AboutPage.idl"

@@ -1,13 +1,13 @@
 #pragma once
 
-#include "Controls.Setting.g.h"
+#include "SettingItem.g.h"
 
 
-namespace winrt::Magpie::App::Controls::implementation
+namespace winrt::Magpie::App::implementation
 {
-	struct Setting : SettingT<Setting>
+	struct SettingItem : SettingItem_base<SettingItem>
 	{
-		Setting();
+		SettingItem();
 
 		void MyHeader(const hstring& value);
 
@@ -53,9 +53,9 @@ namespace winrt::Magpie::App::Controls::implementation
 	};
 }
 
-namespace winrt::Magpie::App::Controls::factory_implementation
+namespace winrt::Magpie::App::factory_implementation
 {
-	struct Setting : SettingT<Setting, implementation::Setting>
+	struct SettingItem : SettingItemT<SettingItem, implementation::SettingItem>
 	{
 	};
 }

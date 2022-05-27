@@ -149,8 +149,8 @@
     <ClInclude Include="App.h">
       <DependentUpon>App.xaml</DependentUpon>
     </ClInclude>
-    <ClInclude Include="Setting.h">
-      <DependentUpon>Setting.idl</DependentUpon>
+    <ClInclude Include="SettingItem.h">
+      <DependentUpon>SettingItem.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
     <ClInclude Include="SettingsGroup.h">
@@ -204,8 +204,8 @@
       <DependentUpon>App.xaml</DependentUpon>
     </ClCompile>
     <ClCompile Include="$(GeneratedFilesDir)module.g.cpp" />
-    <ClCompile Include="Setting.cpp">
-      <DependentUpon>Setting.idl</DependentUpon>
+    <ClCompile Include="SettingItem.cpp">
+      <DependentUpon>SettingItem.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
     <ClCompile Include="SettingsGroup.cpp">
@@ -242,7 +242,7 @@
     <None Include="MicaBrush.idl">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Setting.idl">
+    <None Include="SettingItem.idl">
       <SubType>Designer</SubType>
     </None>
     <None Include="SettingsGroup.idl">

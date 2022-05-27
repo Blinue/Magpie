@@ -2,9 +2,9 @@
 <ResourceDictionary
 	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-	xmlns:controls="using:Magpie.App.Controls">
+	xmlns:local="using:Magpie.App">
 
-	<Style TargetType="controls:Setting">
+	<Style TargetType="local:SettingItem">
 		<Setter Property="CornerRadius" Value="{ThemeResource ControlCornerRadius}" />
 		<Setter Property="Background" Value="{ThemeResource CardBackgroundBrush}" />
 		<Setter Property="BorderThickness" Value="{ThemeResource CardBorderThickness}" />
@@ -16,7 +16,7 @@
 		<Setter Property="Margin" Value="0,0,0,0" />
 		<Setter Property="Template">
 			<Setter.Value>
-				<ControlTemplate TargetType="controls:Setting">
+				<ControlTemplate TargetType="local:SettingItem">
 					<Grid
 						x:Name="RootGrid"
 						MinHeight="48"

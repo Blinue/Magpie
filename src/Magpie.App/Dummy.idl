@@ -1,4 +1,4 @@
-namespace Magpie.App.Controls
+namespace Magpie.App
 {
 	[default_interface]
 	runtimeclass Dummy : Windows.UI.Xaml.Controls.ItemsControl
