@@ -20,7 +20,7 @@
         <TextBlock Grid.Row="0" Text="设置" Style="{StaticResource PageHeaderTextStyle}" />
 
         <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="0,0,40,0">
-			<local:Dummy>
+			<local:DummyTemplate>
                 <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch" Margin="0,0,0,10">
 					<local:SettingsGroup MyHeader="外观和行为">
 						<local:SettingItem MyHeader="主题" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left">
@@ -40,14 +40,12 @@
                                 <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xEC0A;"/>
                             </local:SettingItem.Icon>
 							<local:SettingItem.ActionContent>
-								<local:Dummy>
-									<ToggleSwitch x:Name="PortableModeToggleSwitch" Style="{StaticResource ToggleSwitchWithoutText}" Toggled="PortableModeToggleSwitch_Toggled" />
-								</local:Dummy>
+								<ToggleSwitch x:Name="PortableModeToggleSwitch" Style="{StaticResource ToggleSwitchWithoutText}" Toggled="PortableModeToggleSwitch_Toggled" />
 							</local:SettingItem.ActionContent>
                         </local:SettingItem>
                     </local:SettingsGroup>
                 </StackPanel>
-            </local:Dummy>
+            </local:DummyTemplate>
         </ScrollViewer>
     </Grid>
 </Page>

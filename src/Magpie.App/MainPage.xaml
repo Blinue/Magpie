@@ -13,7 +13,7 @@
 			<ResourceDictionary.MergedDictionaries>
 				<ResourceDictionary Source="ms-appx:///Setting.xaml" />
 				<ResourceDictionary Source="ms-appx:///SettingsGroup.xaml" />
-				<ResourceDictionary Source="ms-appx:///Dummy.xaml" />
+				<ResourceDictionary Source="ms-appx:///DummyTemplate.xaml" />
 			</ResourceDictionary.MergedDictionaries>
 		</ResourceDictionary>
 	</Page.Resources>

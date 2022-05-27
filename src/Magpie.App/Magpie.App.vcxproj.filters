@@ -53,7 +53,7 @@
     <None Include="SettingsGroup.idl">
       <Filter>Controls</Filter>
     </None>
-    <None Include="Dummy.idl">
+    <None Include="DummyTemplate.idl">
       <Filter>Controls</Filter>
     </None>
     <None Include="dummy.exe">
@@ -80,7 +80,7 @@
     <Page Include="SettingsGroup.xaml">
       <Filter>Controls</Filter>
     </Page>
-    <Page Include="Dummy.xaml">
+    <Page Include="DummyTemplate.xaml">
       <Filter>Controls</Filter>
     </Page>
   </ItemGroup>

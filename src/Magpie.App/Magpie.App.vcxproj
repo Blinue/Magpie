@@ -125,8 +125,8 @@
       <SubType>Code</SubType>
     </ClInclude>
     <ClInclude Include="app.base.h" />
-    <ClInclude Include="Dummy.h">
-      <DependentUpon>Dummy.idl</DependentUpon>
+    <ClInclude Include="DummyTemplate.h">
+      <DependentUpon>DummyTemplate.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
     <ClInclude Include="Settings.h">
@@ -177,8 +177,8 @@
       <DependentUpon>AboutPage.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
-    <ClCompile Include="Dummy.cpp">
-      <DependentUpon>Dummy.idl</DependentUpon>
+    <ClCompile Include="DummyTemplate.cpp">
+      <DependentUpon>DummyTemplate.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
     <ClCompile Include="Settings.cpp">
@@ -218,7 +218,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Dummy.idl">
+    <None Include="DummyTemplate.idl">
       <SubType>Designer</SubType>
     </None>
     <None Include="AboutPage.idl">
@@ -263,7 +263,7 @@
     <Page Include="AboutPage.xaml">
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Dummy.xaml">
+    <Page Include="DummyTemplate.xaml">
       <SubType>Designer</SubType>
     </Page>
     <Page Include="HomePage.xaml">
