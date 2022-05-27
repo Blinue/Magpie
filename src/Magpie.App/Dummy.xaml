@@ -11,5 +11,6 @@
 				</ControlTemplate>
 			</Setter.Value>
 		</Setter>
+		<Setter Property="IsTabStop" Value="False" />
 	</Style>
 </ResourceDictionary>

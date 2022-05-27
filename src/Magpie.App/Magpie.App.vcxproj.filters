@@ -9,16 +9,20 @@
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
     <ClCompile Include="App.cpp" />
-    <ClCompile Include="$(GeneratedFilesDir)module.g.cpp" />
     <ClCompile Include="MicaBrush.cpp" />
+    <ClCompile Include="$(GeneratedFilesDir)module.g.cpp">
+      <Filter>Miscellaneous</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
-    <ClInclude Include="app.base.h" />
     <ClInclude Include="MicaBrush.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <AppxManifest Include="Package.appxmanifest" />
+    <ClInclude Include="Controls.ShortcutControl.xaml.g.h">
+      <Filter>Miscellaneous</Filter>
+    </ClInclude>
+    <ClInclude Include="app.base.h">
+      <Filter>Miscellaneous</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Assets">
@@ -36,10 +40,12 @@
     <Filter Include="Styles">
       <UniqueIdentifier>{be3fc578-6b5a-4b23-8db1-0fc6083e1466}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Miscellaneous">
+      <UniqueIdentifier>{7a45d2bb-695d-4658-8fb9-a3d1f3b5aff8}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-    <None Include="dummy.exe" />
     <None Include="Settings.idl" />
     <None Include="MicaBrush.idl">
       <Filter>Brushes</Filter>
@@ -52,6 +58,9 @@
     </None>
     <None Include="Dummy.idl">
       <Filter>Controls</Filter>
+    </None>
+    <None Include="dummy.exe">
+      <Filter>Miscellaneous</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
@@ -77,5 +86,10 @@
     <Page Include="Dummy.xaml">
       <Filter>Controls</Filter>
     </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <AppxManifest Include="Package.appxmanifest">
+      <Filter>Miscellaneous</Filter>
+    </AppxManifest>
   </ItemGroup>
 </Project>
