@@ -27,7 +27,7 @@
     <ProjectGuid>{1801171b-65b6-400f-92ff-73eaf499cfb3}</ProjectGuid>
     <RootNamespace>Magpie</RootNamespace>
     <WindowsTargetPlatformVersion>10.0.22000.0</WindowsTargetPlatformVersion>
-    <AppProjectName>Magpie.App</AppProjectName>
+    <AppProjectName>App</AppProjectName>
     <AppIncludeDirectories>$(SolutionDir)\obj\$(Platform)\$(Configuration)\$(AppProjectName)\;$(SolutionDir)\obj\$(Platform)\$(Configuration)\$(AppProjectName)\Generated Files\;</AppIncludeDirectories>
     <CppWinRTVerbosity>low</CppWinRTVerbosity>
     <CppWinRTRootNamespaceAutoMerge>true</CppWinRTRootNamespaceAutoMerge>
