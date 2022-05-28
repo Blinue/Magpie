@@ -12,7 +12,7 @@ using namespace Windows::UI::Xaml;
 using namespace Windows::UI::Xaml::Media;
 
 
-namespace winrt::Magpie::App::implementation {
+namespace winrt::Magpie::implementation {
 
 App::App() {
 	__super::Initialize();
@@ -50,7 +50,7 @@ void App::OnClose() {
 	_settings.Save();
 }
 
-bool App::Initialize(Magpie::App::Settings settings) {
+bool App::Initialize(Magpie::Settings settings) {
 	_settings = settings;
 	return true;
 }

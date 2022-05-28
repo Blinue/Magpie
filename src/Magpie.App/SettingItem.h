@@ -3,7 +3,7 @@
 #include "SettingItem.g.h"
 
 
-namespace winrt::Magpie::App::implementation
+namespace winrt::Magpie::implementation
 {
 	struct SettingItem : SettingItem_base<SettingItem>
 	{
@@ -53,7 +53,7 @@ namespace winrt::Magpie::App::implementation
 	};
 }
 
-namespace winrt::Magpie::App::factory_implementation
+namespace winrt::Magpie::factory_implementation
 {
 	struct SettingItem : SettingItemT<SettingItem, implementation::SettingItem>
 	{

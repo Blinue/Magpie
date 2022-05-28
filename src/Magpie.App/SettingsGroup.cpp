@@ -13,24 +13,24 @@ using namespace Windows::UI::Xaml;
 using namespace Windows::UI::Xaml::Automation::Peers;
 
 
-namespace winrt::Magpie::App::implementation {
+namespace winrt::Magpie::implementation {
 
 const DependencyProperty SettingsGroup::MyHeaderProperty = DependencyProperty::Register(
 	L"MyHeader",
 	xaml_typename<hstring>(),
-	xaml_typename<Magpie::App::SettingsGroup>(),
+	xaml_typename<Magpie::SettingsGroup>(),
 	PropertyMetadata(box_value(L""), &SettingsGroup::_OnMyHeaderChanged)
 );
 
 const DependencyProperty SettingsGroup::DescriptionProperty = DependencyProperty::Register(
 	L"Description",
 	xaml_typename<IInspectable>(),
-	xaml_typename<Magpie::App::SettingsGroup>(),
+	xaml_typename<Magpie::SettingsGroup>(),
 	PropertyMetadata(nullptr, &SettingsGroup::_OnDescriptionChanged)
 );
 
 SettingsGroup::SettingsGroup() {
-	DefaultStyleKey(box_value(name_of<Magpie::App::SettingsGroup>()));
+	DefaultStyleKey(box_value(name_of<Magpie::SettingsGroup>()));
 }
 
 void SettingsGroup::MyHeader(const hstring& value) {
@@ -67,7 +67,7 @@ void SettingsGroup::OnApplyTemplate() {
 }
 
 AutomationPeer SettingsGroup::OnCreateAutomationPeer() {
-	return Magpie::App::SettingsGroupAutomationPeer(*this);
+	return Magpie::SettingsGroupAutomationPeer(*this);
 }
 
 void SettingsGroup::_OnMyHeaderChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
@@ -104,11 +104,11 @@ void SettingsGroup::_SetEnabledState() {
 	VisualStateManager::GoToState(*this, IsEnabled() ? L"Normal" : L"Disabled", true);
 }
 
-SettingsGroupAutomationPeer::SettingsGroupAutomationPeer(Magpie::App::SettingsGroup owner) : SettingsGroupAutomationPeerT<SettingsGroupAutomationPeer>(owner) {
+SettingsGroupAutomationPeer::SettingsGroupAutomationPeer(Magpie::SettingsGroup owner) : SettingsGroupAutomationPeerT<SettingsGroupAutomationPeer>(owner) {
 }
 
 hstring SettingsGroupAutomationPeer::GetNameCore() {
-	return Owner().as<Magpie::App::SettingsGroup>().MyHeader();
+	return Owner().as<Magpie::SettingsGroup>().MyHeader();
 }
 
 }

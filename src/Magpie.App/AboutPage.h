@@ -2,7 +2,7 @@
 
 #include "AboutPage.g.h"
 
-namespace winrt::Magpie::App::implementation
+namespace winrt::Magpie::implementation
 {
 	struct AboutPage : AboutPageT<AboutPage>
 	{
@@ -10,7 +10,7 @@ namespace winrt::Magpie::App::implementation
 	};
 }
 
-namespace winrt::Magpie::App::factory_implementation
+namespace winrt::Magpie::factory_implementation
 {
 	struct AboutPage : AboutPageT<AboutPage, implementation::AboutPage>
 	{

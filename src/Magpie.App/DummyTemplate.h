@@ -2,7 +2,7 @@
 
 #include "DummyTemplate.g.h"
 
-namespace winrt::Magpie::App::implementation
+namespace winrt::Magpie::implementation
 {
     struct DummyTemplate : DummyTemplate_base<DummyTemplate>
     {
@@ -10,7 +10,7 @@ namespace winrt::Magpie::App::implementation
     };
 }
 
-namespace winrt::Magpie::App::factory_implementation
+namespace winrt::Magpie::factory_implementation
 {
     struct DummyTemplate : DummyTemplateT<DummyTemplate, implementation::DummyTemplate>
     {

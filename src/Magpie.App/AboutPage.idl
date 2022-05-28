@@ -1,4 +1,4 @@
-namespace Magpie.App
+namespace Magpie
 {
 	[default_interface]
 	runtimeclass AboutPage : Windows.UI.Xaml.Controls.Page

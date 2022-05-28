@@ -22,7 +22,7 @@ using namespace Windows::UI::ViewManagement;
 using namespace Microsoft::UI::Xaml::Controls;
 
 
-namespace winrt::Magpie::App::implementation {
+namespace winrt::Magpie::implementation {
 
 MainPage::MainPage() {
 	InitializeComponent();
@@ -40,16 +40,16 @@ MainPage::~MainPage() {
 
 void MainPage::NavigationView_SelectionChanged(NavigationView const&, NavigationViewSelectionChangedEventArgs const& args) {
 	if (args.IsSettingsSelected()) {
-		ContentFrame().Navigate(winrt::xaml_typename<Magpie::App::SettingsPage>());
+		ContentFrame().Navigate(winrt::xaml_typename<Magpie::SettingsPage>());
 	} else {
 		NavigationViewItem selectedItem{ nullptr };
 		args.SelectedItem().as(selectedItem);
 
 		hstring tag = unbox_value<hstring>(selectedItem.Tag());
 		if (tag == L"Home") {
-			ContentFrame().Navigate(winrt::xaml_typename<Magpie::App::HomePage>());
+			ContentFrame().Navigate(winrt::xaml_typename<Magpie::HomePage>());
 		} else if (tag == L"About") {
-			ContentFrame().Navigate(winrt::xaml_typename<Magpie::App::AboutPage>());
+			ContentFrame().Navigate(winrt::xaml_typename<Magpie::AboutPage>());
 		}
 	}
 }
@@ -71,8 +71,8 @@ void MainPage::NavigationView_PaneClosing(NavigationView const&, NavigationViewP
 void MainPage::Initialize(uint64_t hwndHost) {
 	_hwndHost = (HWND)hwndHost;
 
-	_settings = Application::Current().as<Magpie::App::App>().Settings();
-	_micaBrush = Magpie::App::MicaBrush(*this);
+	_settings = Application::Current().as<Magpie::App>().Settings();
+	_micaBrush = Magpie::MicaBrush(*this);
 
 	_UpdateTheme();
 	_settings.ThemeChanged([this](const auto&, int) { _UpdateTheme(); });
@@ -165,4 +165,4 @@ IAsyncAction MainPage::_Settings_ColorValuesChanged(UISettings const&, IInspecta
 	);
 }
 
-} // namespace winrt::Magpie::App::implementation
+} // namespace winrt::Magpie::implementation

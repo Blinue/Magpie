@@ -4,7 +4,7 @@
 #include "App.base.h"
 #include "Settings.h"
 
-namespace winrt::Magpie::App::implementation {
+namespace winrt::Magpie::implementation {
 
 class App : public AppT2<App> {
 public:
@@ -13,19 +13,19 @@ public:
 
 	void OnClose();
 
-	bool Initialize(Magpie::App::Settings settings);
+	bool Initialize(Magpie::Settings settings);
 
-	Magpie::App::Settings Settings() const {
+	Magpie::Settings Settings() const {
 		return _settings;
 	}
 
 private:
-	Magpie::App::Settings _settings;
+	Magpie::Settings _settings;
 };
 
 }
 
-namespace winrt::Magpie::App::factory_implementation {
+namespace winrt::Magpie::factory_implementation {
 
 class App : public AppT<App, implementation::App> {
 };

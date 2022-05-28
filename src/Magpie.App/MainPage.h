@@ -6,7 +6,7 @@
 #include "Settings.h"
 
 
-namespace winrt::Magpie::App::implementation
+namespace winrt::Magpie::implementation
 {
 	struct MainPage : MainPageT<MainPage>
 	{
@@ -36,14 +36,14 @@ namespace winrt::Magpie::App::implementation
 
 		winrt::Windows::UI::ViewManagement::UISettings _uiSettings;
 		winrt::event_token _colorChangedToken{};
-		Magpie::App::MicaBrush _micaBrush{ nullptr };
+		Magpie::MicaBrush _micaBrush{ nullptr };
 
-		Magpie::App::Settings _settings{ nullptr };
+		Magpie::Settings _settings{ nullptr };
 		std::optional<bool> _isDarkTheme;
 	};
 }
 
-namespace winrt::Magpie::App::factory_implementation
+namespace winrt::Magpie::factory_implementation
 {
 	struct MainPage : MainPageT<MainPage, implementation::MainPage>
 	{

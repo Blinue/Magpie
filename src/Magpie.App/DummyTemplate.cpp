@@ -10,10 +10,10 @@ using namespace Windows::UI::Xaml;
 using namespace Windows::UI::Xaml::Automation::Peers;
 
 
-namespace winrt::Magpie::App::implementation {
+namespace winrt::Magpie::implementation {
 
 DummyTemplate::DummyTemplate() {
-	DefaultStyleKey(box_value(name_of<Magpie::App::DummyTemplate>()));
+	DefaultStyleKey(box_value(name_of<Magpie::DummyTemplate>()));
 }
 
 }

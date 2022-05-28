@@ -11,39 +11,39 @@ using namespace Windows::UI::Xaml::Controls;
 using namespace Windows::Foundation;
 
 
-namespace winrt::Magpie::App::implementation
+namespace winrt::Magpie::implementation
 {
 
 DependencyProperty SettingItem::MyHeaderProperty = DependencyProperty::Register(
 	L"MyHeader",
 	xaml_typename<hstring>(),
-	xaml_typename<Magpie::App::SettingItem>(),
+	xaml_typename<Magpie::SettingItem>(),
 	PropertyMetadata(box_value(L""), &SettingItem::_OnMyHeaderChanged)
 );
 
 DependencyProperty SettingItem::DescriptionProperty = DependencyProperty::Register(
 	L"Description",
 	xaml_typename<IInspectable>(),
-	xaml_typename<Magpie::App::SettingItem>(),
+	xaml_typename<Magpie::SettingItem>(),
 	PropertyMetadata(nullptr, &SettingItem::_OnDescriptionChanged)
 );
 
 DependencyProperty SettingItem::IconProperty = DependencyProperty::Register(
 	L"Icon",
 	xaml_typename<IInspectable>(),
-	xaml_typename<Magpie::App::SettingItem>(),
+	xaml_typename<Magpie::SettingItem>(),
 	PropertyMetadata(box_value(L""), &SettingItem::_OnIconChanged)
 );
 
 DependencyProperty SettingItem::ActionContentProperty = DependencyProperty::Register(
 	L"ActionContent",
 	xaml_typename<IInspectable>(),
-	xaml_typename<Magpie::App::SettingItem>(),
+	xaml_typename<Magpie::SettingItem>(),
 	nullptr
 );
 
 SettingItem::SettingItem() {
-	DefaultStyleKey(box_value(name_of<Magpie::App::SettingItem>()));
+	DefaultStyleKey(box_value(name_of<Magpie::SettingItem>()));
 }
 
 void SettingItem::MyHeader(const hstring& value) {

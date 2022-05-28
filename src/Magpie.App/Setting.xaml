@@ -2,7 +2,7 @@
 <ResourceDictionary
 	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-	xmlns:local="using:Magpie.App">
+	xmlns:local="using:Magpie">
 
 	<Style TargetType="local:SettingItem">
 		<Setter Property="CornerRadius" Value="{ThemeResource ControlCornerRadius}" />

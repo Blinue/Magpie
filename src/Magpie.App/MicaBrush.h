@@ -3,7 +3,7 @@
 #include "MicaBrush.g.h"
 
 
-namespace winrt::Magpie::App::implementation {
+namespace winrt::Magpie::implementation {
 
 struct MicaBrush : MicaBrushT<MicaBrush> {
 	MicaBrush(Windows::UI::Xaml::FrameworkElement root);
@@ -50,7 +50,7 @@ private:
 
 }
 
-namespace winrt::Magpie::App::factory_implementation {
+namespace winrt::Magpie::factory_implementation {
 
 struct MicaBrush : MicaBrushT<MicaBrush, implementation::MicaBrush> {
 };

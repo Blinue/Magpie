@@ -3,7 +3,7 @@
 #include "Settings.g.h"
 
 
-namespace winrt::Magpie::App::implementation {
+namespace winrt::Magpie::implementation {
 
 struct Settings : SettingsT<Settings> {
 	Settings() = default;
@@ -61,7 +61,7 @@ private:
 
 }
 
-namespace winrt::Magpie::App::factory_implementation {
+namespace winrt::Magpie::factory_implementation {
 
 struct Settings : SettingsT<Settings, implementation::Settings> {
 };

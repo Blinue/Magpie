@@ -8,7 +8,7 @@
 #include "HomePage.idl"
 #include "SettingsPage.idl"
 
-namespace Magpie.App{
+namespace Magpie{
 	[default_interface]
 	runtimeclass App : Microsoft.Toolkit.Win32.UI.XamlHost.XamlApplication {
 		App();

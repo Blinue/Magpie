@@ -15,7 +15,7 @@ using namespace winrt;
 using namespace Windows::UI::Core;
 using namespace Windows::UI::Xaml::Hosting;
 using namespace Windows::Foundation;
-using namespace Magpie::App;
+using namespace Magpie;
 
 static constexpr const wchar_t* XAML_HOST_CLASS_NAME = L"Magpie_XamlHost";
 

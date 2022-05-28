@@ -3,7 +3,7 @@
 #include "Settings.h"
 #include "SettingsPage.g.h"
 
-namespace winrt::Magpie::App::implementation {
+namespace winrt::Magpie::implementation {
 
 struct SettingsPage : SettingsPageT<SettingsPage> {
 	SettingsPage();
@@ -15,12 +15,12 @@ struct SettingsPage : SettingsPageT<SettingsPage> {
 	void ComboBox_DropDownOpened(winrt::Windows::Foundation::IInspectable const&, winrt::Windows::Foundation::IInspectable const&);
 
 private:
-	Magpie::App::Settings _settings{ nullptr };
+	Magpie::Settings _settings{ nullptr };
 };
 
 }
 
-namespace winrt::Magpie::App::factory_implementation {
+namespace winrt::Magpie::factory_implementation {
 
 struct SettingsPage : SettingsPageT<SettingsPage, implementation::SettingsPage> {
 };

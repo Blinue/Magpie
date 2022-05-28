@@ -8,7 +8,7 @@ using namespace winrt;
 using namespace Windows::UI::Xaml;
 
 
-namespace winrt::Magpie::App::implementation {
+namespace winrt::Magpie::implementation {
 
 AboutPage::AboutPage() {
 	InitializeComponent();

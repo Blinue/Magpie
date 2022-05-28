@@ -12,12 +12,12 @@ using namespace Windows::UI::Xaml;
 using namespace Windows::UI::Xaml::Controls;
 
 
-namespace winrt::Magpie::App::implementation {
+namespace winrt::Magpie::implementation {
 
 SettingsPage::SettingsPage() {
 	InitializeComponent();
 
-	_settings = Application::Current().as<Magpie::App::App>().Settings();
+	_settings = Application::Current().as<Magpie::App>().Settings();
 
 	PortableModeToggleSwitch().IsOn(_settings.IsPortableMode());
 	ThemeComboBox().SelectedIndex(_settings.Theme());

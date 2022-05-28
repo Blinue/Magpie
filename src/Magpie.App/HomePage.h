@@ -2,7 +2,7 @@
 
 #include "HomePage.g.h"
 
-namespace winrt::Magpie::App::implementation
+namespace winrt::Magpie::implementation
 {
 	struct HomePage : HomePageT<HomePage>
 	{
@@ -11,7 +11,7 @@ namespace winrt::Magpie::App::implementation
 	};
 }
 
-namespace winrt::Magpie::App::factory_implementation
+namespace winrt::Magpie::factory_implementation
 {
 	struct HomePage : HomePageT<HomePage, implementation::HomePage>
 	{

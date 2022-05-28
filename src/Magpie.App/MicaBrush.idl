@@ -1,4 +1,4 @@
-namespace Magpie.App
+namespace Magpie
 {
 	runtimeclass MicaBrush : Windows.UI.Xaml.Media.XamlCompositionBrushBase
 	{

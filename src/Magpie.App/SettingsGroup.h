@@ -4,7 +4,7 @@
 #include "SettingsGroupAutomationPeer.g.h"
 
 
-namespace winrt::Magpie::App::implementation
+namespace winrt::Magpie::implementation
 {
 	struct SettingsGroup : SettingsGroup_base<SettingsGroup>
 	{
@@ -45,13 +45,13 @@ namespace winrt::Magpie::App::implementation
 	};
 
 	struct SettingsGroupAutomationPeer : SettingsGroupAutomationPeerT<SettingsGroupAutomationPeer> {
-		SettingsGroupAutomationPeer(Magpie::App::SettingsGroup owner);
+		SettingsGroupAutomationPeer(Magpie::SettingsGroup owner);
 
 		hstring GetNameCore();
 	};
 }
 
-namespace winrt::Magpie::App::factory_implementation {
+namespace winrt::Magpie::factory_implementation {
 
 struct SettingsGroup : SettingsGroupT<SettingsGroup, implementation::SettingsGroup> {
 };
