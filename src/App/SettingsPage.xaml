@@ -8,44 +8,44 @@
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	mc:Ignorable="d">
 
-    <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition MaxWidth="1000" Width="*" />
-        </Grid.ColumnDefinitions>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
-        </Grid.RowDefinitions>
+	<Grid>
+		<Grid.ColumnDefinitions>
+			<ColumnDefinition MaxWidth="1000" Width="*" />
+		</Grid.ColumnDefinitions>
+		<Grid.RowDefinitions>
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="*" />
+		</Grid.RowDefinitions>
 
-        <TextBlock Grid.Row="0" Text="设置" Style="{StaticResource PageHeaderTextStyle}" />
+		<TextBlock Grid.Row="0" Text="设置" Style="{StaticResource PageHeaderTextStyle}" />
 
-        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="0,0,40,0">
+		<ScrollViewer Grid.Row="1" PointerPressed="ScrollViewer_PointerPressed" Padding="0,0,40,0">
 			<local:DummyTemplate>
-                <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch" Margin="0,0,0,10">
+				<StackPanel Orientation="Vertical" HorizontalAlignment="Stretch" Margin="0,0,0,10">
 					<local:SettingsGroup MyHeader="外观和行为">
 						<local:SettingItem MyHeader="主题" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left">
 							<local:SettingItem.Icon>
-                                <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xEF1F;"/>
-                            </local:SettingItem.Icon>
+								<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xEF1F;"/>
+							</local:SettingItem.Icon>
 							<local:SettingItem.ActionContent>
-                                <ComboBox x:Name="ThemeComboBox" Width="150" SelectionChanged="ThemeComboBox_SelectionChanged" DropDownOpened="ComboBox_DropDownOpened">
-                                    <x:String>浅色</x:String>
-                                    <x:String>深色</x:String>
-                                    <x:String>使用系统设置</x:String>
-                                </ComboBox>
-                            </local:SettingItem.ActionContent>
-                        </local:SettingItem>
+								<ComboBox x:Name="ThemeComboBox" Width="150" SelectionChanged="ThemeComboBox_SelectionChanged" DropDownOpened="ComboBox_DropDownOpened">
+									<x:String>浅色</x:String>
+									<x:String>深色</x:String>
+									<x:String>使用系统设置</x:String>
+								</ComboBox>
+							</local:SettingItem.ActionContent>
+						</local:SettingItem>
 						<local:SettingItem MyHeader="便携模式" Description="更改用户数据的保存位置" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left">
 							<local:SettingItem.Icon>
-                                <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xEC0A;"/>
-                            </local:SettingItem.Icon>
+								<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xEC0A;"/>
+							</local:SettingItem.Icon>
 							<local:SettingItem.ActionContent>
 								<ToggleSwitch x:Name="PortableModeToggleSwitch" Style="{StaticResource ToggleSwitchWithoutText}" Toggled="PortableModeToggleSwitch_Toggled" />
 							</local:SettingItem.ActionContent>
-                        </local:SettingItem>
-                    </local:SettingsGroup>
-                </StackPanel>
-            </local:DummyTemplate>
-        </ScrollViewer>
-    </Grid>
+						</local:SettingItem>
+					</local:SettingsGroup>
+				</StackPanel>
+			</local:DummyTemplate>
+		</ScrollViewer>
+	</Grid>
 </Page>

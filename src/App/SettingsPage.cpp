@@ -10,6 +10,7 @@
 using namespace winrt;
 using namespace Windows::UI::Xaml;
 using namespace Windows::UI::Xaml::Controls;
+using namespace Windows::UI::Xaml::Input;
 
 
 namespace winrt::Magpie::implementation {
@@ -33,6 +34,10 @@ void SettingsPage::PortableModeToggleSwitch_Toggled(IInspectable const&, RoutedE
 
 void SettingsPage::ComboBox_DropDownOpened(IInspectable const&, IInspectable const&) {
 	Utils::UpdateThemeOfXamlPopups(XamlRoot(), ActualTheme());
+}
+
+void SettingsPage::ScrollViewer_PointerPressed(IInspectable const&, PointerRoutedEventArgs const&) {
+	ThemeComboBox().IsDropDownOpen(false);
 }
 
 }

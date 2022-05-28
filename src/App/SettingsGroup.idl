@@ -7,9 +7,6 @@ namespace Magpie
 	{
 		SettingsGroup();
 
-		void OnApplyTemplate();
-		Windows.UI.Xaml.Automation.Peers.AutomationPeer OnCreateAutomationPeer();
-
 		String MyHeader;
 		Object Description;
 	}

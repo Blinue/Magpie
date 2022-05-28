@@ -6,8 +6,6 @@ namespace Magpie
 	{
 		SettingItem();
 
-		void OnApplyTemplate();
-
 		String MyHeader;
 		Object Description;
 		Object Icon;
