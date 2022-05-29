@@ -17,9 +17,9 @@
 
 		<TextBlock Grid.Row="0" Text="关于" Style="{StaticResource PageHeaderTextStyle}" />
 
-		<ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="0,0,40,0">
+		<ScrollViewer Grid.Row="1" Padding="0,0,40,0">
 			<local:DummyTemplate>
-				<StackPanel Orientation="Vertical" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,0,0,10">
+				<StackPanel Orientation="Vertical" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
 				</StackPanel>
 			</local:DummyTemplate>
 		</ScrollViewer>

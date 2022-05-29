@@ -273,7 +273,7 @@
     <Page Include="MainPage.xaml">
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Setting.xaml">
+    <Page Include="SettingItem.xaml">
       <SubType>Designer</SubType>
     </Page>
     <Page Include="SettingsExpanderStyles.xaml">

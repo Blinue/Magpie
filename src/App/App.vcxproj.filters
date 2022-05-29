@@ -74,7 +74,7 @@
     <Page Include="SettingsExpanderStyles.xaml">
       <Filter>Styles</Filter>
     </Page>
-    <Page Include="Setting.xaml">
+    <Page Include="SettingItem.xaml">
       <Filter>Controls</Filter>
     </Page>
     <Page Include="SettingsGroup.xaml">

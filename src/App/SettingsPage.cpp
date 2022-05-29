@@ -37,7 +37,8 @@ void SettingsPage::ComboBox_DropDownOpened(IInspectable const&, IInspectable con
 }
 
 void SettingsPage::ScrollViewer_PointerPressed(IInspectable const&, PointerRoutedEventArgs const&) {
-	ThemeComboBox().IsDropDownOpen(false);
+	// ThemeComboBox().IsDropDownOpen(false);
+	Utils::CloseAllXamlPopups(XamlRoot());
 }
 
 }

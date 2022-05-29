@@ -19,9 +19,9 @@
 
 		<TextBlock Grid.Row="0" Text="Magpie" Style="{StaticResource PageHeaderTextStyle}" />
 
-		<ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="0,0,40,0">
+		<ScrollViewer Grid.Row="1" Padding="0,0,40,0">
 			<local:DummyTemplate>
-				<StackPanel Orientation="Vertical" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,0,0,10">
+				<StackPanel Orientation="Vertical" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
 					<local:SettingsGroup MyHeader="激活">
 						<local:SettingItem MyHeader="快捷键" Description="自定义进入和退出全屏的快捷键" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left">
 							<local:SettingItem.Icon>
