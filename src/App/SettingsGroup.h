@@ -10,9 +10,9 @@ namespace winrt::Magpie::implementation
 	{
 		SettingsGroup();
 
-		void MyHeader(const hstring& value);
+		void Title(const hstring& value);
 
-		hstring MyHeader() const;
+		hstring Title() const;
 
 		void Description(Windows::Foundation::IInspectable value);
 
@@ -22,11 +22,11 @@ namespace winrt::Magpie::implementation
 
 		Windows::UI::Xaml::Automation::Peers::AutomationPeer OnCreateAutomationPeer();
 
-		static const Windows::UI::Xaml::DependencyProperty MyHeaderProperty;
+		static const Windows::UI::Xaml::DependencyProperty TitleProperty;
 		static const Windows::UI::Xaml::DependencyProperty DescriptionProperty;
 
 	private:
-		static void _OnMyHeaderChanged(Windows::UI::Xaml::DependencyObject const& sender, Windows::UI::Xaml::DependencyPropertyChangedEventArgs const&);
+		static void _OnTitleChanged(Windows::UI::Xaml::DependencyObject const& sender, Windows::UI::Xaml::DependencyPropertyChangedEventArgs const&);
 		static void _OnDescriptionChanged(Windows::UI::Xaml::DependencyObject const& sender, Windows::UI::Xaml::DependencyPropertyChangedEventArgs const&);
 
 		void _Setting_IsEnabledChanged(Windows::Foundation::IInspectable const&, Windows::UI::Xaml::DependencyPropertyChangedEventArgs const&);
@@ -35,12 +35,12 @@ namespace winrt::Magpie::implementation
 
 		void _SetEnabledState();
 
-		Windows::UI::Xaml::Controls::TextBlock _myHeaderPresenter{ nullptr };
+		Windows::UI::Xaml::Controls::TextBlock _TitlePresenter{ nullptr };
 		Windows::UI::Xaml::Controls::ContentPresenter _descriptionPresenter{ nullptr };
 
 		event_token _isEnabledChangedToken{};
 
-		static constexpr const wchar_t* _PartMyHeaderPresenter = L"MyHeaderPresenter";
+		static constexpr const wchar_t* _PartTitlePresenter = L"TitlePresenter";
 		static constexpr const wchar_t* _PartDescriptionPresenter = L"DescriptionPresenter";
 	};
 

@@ -130,6 +130,10 @@
       <DependentUpon>DummyTemplate.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
+    <ClInclude Include="PageFrame.h">
+      <DependentUpon>PageFrame.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClInclude>
     <ClInclude Include="Settings.h">
       <DependentUpon>Settings.idl</DependentUpon>
       <SubType>Code</SubType>
@@ -182,6 +186,10 @@
       <DependentUpon>DummyTemplate.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
+    <ClCompile Include="PageFrame.cpp">
+      <DependentUpon>PageFrame.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClCompile>
     <ClCompile Include="Settings.cpp">
       <DependentUpon>Settings.idl</DependentUpon>
       <SubType>Code</SubType>
@@ -219,6 +227,9 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <Midl Include="PageFrame.idl">
+      <SubType>Designer</SubType>
+    </Midl>
     <None Include="DummyTemplate.idl">
       <SubType>Designer</SubType>
     </None>
@@ -271,6 +282,9 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="MainPage.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="PageFrame.xaml">
       <SubType>Designer</SubType>
     </Page>
     <Page Include="SettingItem.xaml">

@@ -15,11 +15,11 @@ using namespace Windows::UI::Xaml::Automation::Peers;
 
 namespace winrt::Magpie::implementation {
 
-const DependencyProperty SettingsGroup::MyHeaderProperty = DependencyProperty::Register(
-	L"MyHeader",
+const DependencyProperty SettingsGroup::TitleProperty = DependencyProperty::Register(
+	L"Title",
 	xaml_typename<hstring>(),
 	xaml_typename<Magpie::SettingsGroup>(),
-	PropertyMetadata(box_value(L""), &SettingsGroup::_OnMyHeaderChanged)
+	PropertyMetadata(box_value(L""), &SettingsGroup::_OnTitleChanged)
 );
 
 const DependencyProperty SettingsGroup::DescriptionProperty = DependencyProperty::Register(
@@ -33,12 +33,12 @@ SettingsGroup::SettingsGroup() {
 	DefaultStyleKey(box_value(name_of<Magpie::SettingsGroup>()));
 }
 
-void SettingsGroup::MyHeader(const hstring& value) {
-	SetValue(MyHeaderProperty, box_value(value));
+void SettingsGroup::Title(const hstring& value) {
+	SetValue(TitleProperty, box_value(value));
 }
 
-hstring SettingsGroup::MyHeader() const {
-	return GetValue(MyHeaderProperty).as<hstring>();
+hstring SettingsGroup::Title() const {
+	return GetValue(TitleProperty).as<hstring>();
 }
 
 void SettingsGroup::Description(IInspectable value) {
@@ -55,7 +55,7 @@ void SettingsGroup::OnApplyTemplate() {
 		_isEnabledChangedToken = {};
 	}
 
-	GetTemplateChild(_PartMyHeaderPresenter).as(_myHeaderPresenter);
+	GetTemplateChild(_PartTitlePresenter).as(_TitlePresenter);
 	GetTemplateChild(_PartDescriptionPresenter).as(_descriptionPresenter);
 	
 	_SetEnabledState();
@@ -70,7 +70,7 @@ AutomationPeer SettingsGroup::OnCreateAutomationPeer() {
 	return Magpie::SettingsGroupAutomationPeer(*this);
 }
 
-void SettingsGroup::_OnMyHeaderChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
+void SettingsGroup::_OnTitleChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
 	winrt::get_self<SettingsGroup>(sender.as<default_interface<SettingsGroup>>())->_Update();
 }
 
@@ -83,11 +83,11 @@ void SettingsGroup::_Setting_IsEnabledChanged(IInspectable const&, DependencyPro
 }
 
 void SettingsGroup::_Update() {
-	if (_myHeaderPresenter) {
-		if (MyHeader().empty()) {
-			_myHeaderPresenter.Visibility(Visibility::Collapsed);
+	if (_TitlePresenter) {
+		if (Title().empty()) {
+			_TitlePresenter.Visibility(Visibility::Collapsed);
 		} else {
-			_myHeaderPresenter.Visibility(Visibility::Visible);
+			_TitlePresenter.Visibility(Visibility::Visible);
 		}
 	}
 
@@ -108,7 +108,7 @@ SettingsGroupAutomationPeer::SettingsGroupAutomationPeer(Magpie::SettingsGroup o
 }
 
 hstring SettingsGroupAutomationPeer::GetNameCore() {
-	return Owner().as<Magpie::SettingsGroup>().MyHeader();
+	return Owner().as<Magpie::SettingsGroup>().Title();
 }
 
 }

@@ -5,6 +5,9 @@
   </ItemGroup>
   <ItemGroup>
     <Midl Include="App.idl" />
+    <Midl Include="PageFrame.idl">
+      <Filter>Controls</Filter>
+    </Midl>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
@@ -81,6 +84,9 @@
       <Filter>Controls</Filter>
     </Page>
     <Page Include="DummyTemplate.xaml">
+      <Filter>Controls</Filter>
+    </Page>
+    <Page Include="PageFrame.xaml">
       <Filter>Controls</Filter>
     </Page>
   </ItemGroup>

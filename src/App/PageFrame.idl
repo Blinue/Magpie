@@ -1,0 +1,8 @@
+namespace Magpie
+{
+    [default_interface]
+    runtimeclass PageFrame : Windows.UI.Xaml.Controls.ContentControl
+    {
+        PageFrame();
+    }
+}

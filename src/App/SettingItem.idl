@@ -6,7 +6,7 @@ namespace Magpie
 	{
 		SettingItem();
 
-		String MyHeader;
+		String Title;
 		Object Description;
 		Object Icon;
 		Object ActionContent;

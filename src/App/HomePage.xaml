@@ -22,8 +22,8 @@
 		<ScrollViewer Grid.Row="1" Padding="0,0,40,0">
 			<local:DummyTemplate>
 				<StackPanel Orientation="Vertical" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-					<local:SettingsGroup MyHeader="激活">
-						<local:SettingItem MyHeader="快捷键" Description="自定义进入和退出全屏的快捷键" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left">
+					<local:SettingsGroup Title="激活">
+						<local:SettingItem Title="快捷键" Description="自定义进入和退出全屏的快捷键" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left">
 							<local:SettingItem.Icon>
 								<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xEDA7;"/>
 							</local:SettingItem.Icon>
@@ -31,7 +31,7 @@
 
 							</local:SettingItem.ActionContent>
 						</local:SettingItem>
-						<local:SettingItem MyHeader="计时器" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left">
+						<local:SettingItem Title="计时器" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left">
 							<local:SettingItem.Icon>
 								<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE916;"/>
 							</local:SettingItem.Icon>

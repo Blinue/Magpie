@@ -56,10 +56,10 @@
 							VerticalAlignment="Center">
 
 							<TextBlock
-								x:Name="MyHeaderPresenter"
+								x:Name="TitlePresenter"
 								VerticalAlignment="Center"
 								Foreground="{ThemeResource CardPrimaryForegroundBrush}"
-								Text="{TemplateBinding MyHeader}" />
+								Text="{TemplateBinding Title}" />
 
 							<ContentPresenter
 								x:Name="DescriptionPresenter"
@@ -94,7 +94,7 @@
 								<VisualState x:Name="Normal" />
 								<VisualState x:Name="Disabled">
 									<VisualState.Setters>
-										<Setter Target="MyHeaderPresenter.Foreground" Value="{ThemeResource TextFillColorDisabledBrush}" />
+										<Setter Target="TitlePresenter.Foreground" Value="{ThemeResource TextFillColorDisabledBrush}" />
 										<Setter Target="DescriptionPresenter.Foreground" Value="{ThemeResource TextFillColorDisabledBrush}" />
 										<Setter Target="IconPresenter.Foreground" Value="{ThemeResource TextFillColorDisabledBrush}" />
 										<Setter Target="ContentPresenter.Foreground" Value="{ThemeResource TextFillColorDisabledBrush}" />

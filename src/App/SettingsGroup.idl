@@ -7,7 +7,7 @@ namespace Magpie
 	{
 		SettingsGroup();
 
-		String MyHeader;
+		String Title;
 		Object Description;
 	}
 

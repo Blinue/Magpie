@@ -9,9 +9,9 @@ namespace winrt::Magpie::implementation
 	{
 		SettingItem();
 
-		void MyHeader(const hstring& value);
+		void Title(const hstring& value);
 
-		hstring MyHeader() const;
+		hstring Title() const;
 
 		void Description(Windows::Foundation::IInspectable value);
 
@@ -27,13 +27,13 @@ namespace winrt::Magpie::implementation
 
 		void OnApplyTemplate();
 
-		static Windows::UI::Xaml::DependencyProperty MyHeaderProperty;
+		static Windows::UI::Xaml::DependencyProperty TitleProperty;
 		static Windows::UI::Xaml::DependencyProperty DescriptionProperty;
 		static Windows::UI::Xaml::DependencyProperty IconProperty;
 		static Windows::UI::Xaml::DependencyProperty ActionContentProperty;
 
 	private:
-		static void _OnMyHeaderChanged(Windows::UI::Xaml::DependencyObject const& sender, Windows::UI::Xaml::DependencyPropertyChangedEventArgs const&);
+		static void _OnTitleChanged(Windows::UI::Xaml::DependencyObject const& sender, Windows::UI::Xaml::DependencyPropertyChangedEventArgs const&);
 		static void _OnDescriptionChanged(Windows::UI::Xaml::DependencyObject const& sender, Windows::UI::Xaml::DependencyPropertyChangedEventArgs const&);
 		static void _OnIconChanged(Windows::UI::Xaml::DependencyObject const& sender, Windows::UI::Xaml::DependencyPropertyChangedEventArgs const&);
 

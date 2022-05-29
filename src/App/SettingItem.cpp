@@ -14,11 +14,11 @@ using namespace Windows::Foundation;
 namespace winrt::Magpie::implementation
 {
 
-DependencyProperty SettingItem::MyHeaderProperty = DependencyProperty::Register(
-	L"MyHeader",
+DependencyProperty SettingItem::TitleProperty = DependencyProperty::Register(
+	L"Title",
 	xaml_typename<hstring>(),
 	xaml_typename<Magpie::SettingItem>(),
-	PropertyMetadata(box_value(L""), &SettingItem::_OnMyHeaderChanged)
+	PropertyMetadata(box_value(L""), &SettingItem::_OnTitleChanged)
 );
 
 DependencyProperty SettingItem::DescriptionProperty = DependencyProperty::Register(
@@ -46,12 +46,12 @@ SettingItem::SettingItem() {
 	DefaultStyleKey(box_value(name_of<Magpie::SettingItem>()));
 }
 
-void SettingItem::MyHeader(const hstring& value) {
-	SetValue(MyHeaderProperty, box_value(value));
+void SettingItem::Title(const hstring& value) {
+	SetValue(TitleProperty, box_value(value));
 }
 
-hstring SettingItem::MyHeader() const {
-	return GetValue(MyHeaderProperty).as<hstring>();
+hstring SettingItem::Title() const {
+	return GetValue(TitleProperty).as<hstring>();
 }
 
 void SettingItem::Description(IInspectable value) {
@@ -103,7 +103,7 @@ void SettingItem::_SetEnabledState() {
 	VisualStateManager::GoToState(*this, IsEnabled() ? L"Normal" : L"Disabled", true);
 }
 
-void SettingItem::_OnMyHeaderChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
+void SettingItem::_OnTitleChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
 	winrt::get_self<SettingItem>(sender.as<default_interface<SettingItem>>())->_Update();
 }
 
@@ -119,8 +119,8 @@ void SettingItem::_Update() {
 	if (ActionContent()) {
 		if (winrt::get_class_name(ActionContent()) != name_of<Button>()) {
 			// We do not want to override the default AutomationProperties.Name of a button. Its Content property already describes what it does.
-			if (!MyHeader().empty()) {
-				AutomationProperties::SetName(ActionContent().as<UIElement>(), MyHeader());
+			if (!Title().empty()) {
+				AutomationProperties::SetName(ActionContent().as<UIElement>(), Title());
 			}
 		}
 	}

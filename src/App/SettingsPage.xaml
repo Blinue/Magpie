@@ -22,8 +22,8 @@
 		<ScrollViewer Grid.Row="1" PointerPressed="ScrollViewer_PointerPressed" Padding="0,0,40,0">
 			<local:DummyTemplate>
 				<StackPanel Orientation="Vertical" HorizontalAlignment="Stretch">
-					<local:SettingsGroup MyHeader="外观和行为">
-						<local:SettingItem MyHeader="主题" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left">
+					<local:SettingsGroup Title="外观和行为">
+						<local:SettingItem Title="主题" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left">
 							<local:SettingItem.Icon>
 								<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xEF1F;"/>
 							</local:SettingItem.Icon>
@@ -35,7 +35,7 @@
 								</ComboBox>
 							</local:SettingItem.ActionContent>
 						</local:SettingItem>
-						<local:SettingItem MyHeader="便携模式" Description="更改用户数据的保存位置" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left">
+						<local:SettingItem Title="便携模式" Description="更改用户数据的保存位置" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left">
 							<local:SettingItem.Icon>
 								<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xEC0A;"/>
 							</local:SettingItem.Icon>
