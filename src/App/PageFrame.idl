@@ -4,5 +4,7 @@ namespace Magpie
     runtimeclass PageFrame : Windows.UI.Xaml.Controls.ContentControl
     {
         PageFrame();
+
+        String Title;
     }
 }

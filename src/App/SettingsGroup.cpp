@@ -19,14 +19,14 @@ const DependencyProperty SettingsGroup::TitleProperty = DependencyProperty::Regi
 	L"Title",
 	xaml_typename<hstring>(),
 	xaml_typename<Magpie::SettingsGroup>(),
-	PropertyMetadata(box_value(L""), &SettingsGroup::_OnTitleChanged)
+	PropertyMetadata(box_value(L""), &SettingsGroup::_OnPropertyChanged)
 );
 
 const DependencyProperty SettingsGroup::DescriptionProperty = DependencyProperty::Register(
 	L"Description",
 	xaml_typename<IInspectable>(),
 	xaml_typename<Magpie::SettingsGroup>(),
-	PropertyMetadata(nullptr, &SettingsGroup::_OnDescriptionChanged)
+	PropertyMetadata(nullptr, &SettingsGroup::_OnPropertyChanged)
 );
 
 SettingsGroup::SettingsGroup() {
@@ -55,7 +55,7 @@ void SettingsGroup::OnApplyTemplate() {
 		_isEnabledChangedToken = {};
 	}
 
-	GetTemplateChild(_PartTitlePresenter).as(_TitlePresenter);
+	GetTemplateChild(_PartTitlePresenter).as(_titlePresenter);
 	GetTemplateChild(_PartDescriptionPresenter).as(_descriptionPresenter);
 	
 	_SetEnabledState();
@@ -70,11 +70,7 @@ AutomationPeer SettingsGroup::OnCreateAutomationPeer() {
 	return Magpie::SettingsGroupAutomationPeer(*this);
 }
 
-void SettingsGroup::_OnTitleChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
-	winrt::get_self<SettingsGroup>(sender.as<default_interface<SettingsGroup>>())->_Update();
-}
-
-void SettingsGroup::_OnDescriptionChanged(DependencyObject const& sender,DependencyPropertyChangedEventArgs const&) {
+void SettingsGroup::_OnPropertyChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
 	winrt::get_self<SettingsGroup>(sender.as<default_interface<SettingsGroup>>())->_Update();
 }
 
@@ -83,11 +79,11 @@ void SettingsGroup::_Setting_IsEnabledChanged(IInspectable const&, DependencyPro
 }
 
 void SettingsGroup::_Update() {
-	if (_TitlePresenter) {
+	if (_titlePresenter) {
 		if (Title().empty()) {
-			_TitlePresenter.Visibility(Visibility::Collapsed);
+			_titlePresenter.Visibility(Visibility::Collapsed);
 		} else {
-			_TitlePresenter.Visibility(Visibility::Visible);
+			_titlePresenter.Visibility(Visibility::Visible);
 		}
 	}
 

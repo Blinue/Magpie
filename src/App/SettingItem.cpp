@@ -18,21 +18,21 @@ DependencyProperty SettingItem::TitleProperty = DependencyProperty::Register(
 	L"Title",
 	xaml_typename<hstring>(),
 	xaml_typename<Magpie::SettingItem>(),
-	PropertyMetadata(box_value(L""), &SettingItem::_OnTitleChanged)
+	PropertyMetadata(box_value(L""), &SettingItem::_OnPropertyChanged)
 );
 
 DependencyProperty SettingItem::DescriptionProperty = DependencyProperty::Register(
 	L"Description",
 	xaml_typename<IInspectable>(),
 	xaml_typename<Magpie::SettingItem>(),
-	PropertyMetadata(nullptr, &SettingItem::_OnDescriptionChanged)
+	PropertyMetadata(nullptr, &SettingItem::_OnPropertyChanged)
 );
 
 DependencyProperty SettingItem::IconProperty = DependencyProperty::Register(
 	L"Icon",
 	xaml_typename<IInspectable>(),
 	xaml_typename<Magpie::SettingItem>(),
-	PropertyMetadata(box_value(L""), &SettingItem::_OnIconChanged)
+	PropertyMetadata(box_value(L""), &SettingItem::_OnPropertyChanged)
 );
 
 DependencyProperty SettingItem::ActionContentProperty = DependencyProperty::Register(
@@ -103,15 +103,7 @@ void SettingItem::_SetEnabledState() {
 	VisualStateManager::GoToState(*this, IsEnabled() ? L"Normal" : L"Disabled", true);
 }
 
-void SettingItem::_OnTitleChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
-	winrt::get_self<SettingItem>(sender.as<default_interface<SettingItem>>())->_Update();
-}
-
-void SettingItem::_OnDescriptionChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
-	winrt::get_self<SettingItem>(sender.as<default_interface<SettingItem>>())->_Update();
-}
-
-void SettingItem::_OnIconChanged(DependencyObject const& sender,DependencyPropertyChangedEventArgs const&) {
+void SettingItem::_OnPropertyChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
 	winrt::get_self<SettingItem>(sender.as<default_interface<SettingItem>>())->_Update();
 }
 

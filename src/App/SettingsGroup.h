@@ -26,8 +26,7 @@ namespace winrt::Magpie::implementation
 		static const Windows::UI::Xaml::DependencyProperty DescriptionProperty;
 
 	private:
-		static void _OnTitleChanged(Windows::UI::Xaml::DependencyObject const& sender, Windows::UI::Xaml::DependencyPropertyChangedEventArgs const&);
-		static void _OnDescriptionChanged(Windows::UI::Xaml::DependencyObject const& sender, Windows::UI::Xaml::DependencyPropertyChangedEventArgs const&);
+		static void _OnPropertyChanged(Windows::UI::Xaml::DependencyObject const& sender, Windows::UI::Xaml::DependencyPropertyChangedEventArgs const&);
 
 		void _Setting_IsEnabledChanged(Windows::Foundation::IInspectable const&, Windows::UI::Xaml::DependencyPropertyChangedEventArgs const&);
 
@@ -35,7 +34,7 @@ namespace winrt::Magpie::implementation
 
 		void _SetEnabledState();
 
-		Windows::UI::Xaml::Controls::TextBlock _TitlePresenter{ nullptr };
+		Windows::UI::Xaml::Controls::TextBlock _titlePresenter{ nullptr };
 		Windows::UI::Xaml::Controls::ContentPresenter _descriptionPresenter{ nullptr };
 
 		event_token _isEnabledChangedToken{};
