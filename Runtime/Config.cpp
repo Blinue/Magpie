@@ -43,7 +43,40 @@ bool Config::Initialize(float cursorZoomFactor, UINT cursorInterpolationMode, in
 	_isTreatWarningsAsErrors = flags & (UINT)FlagMasks::WarningsAreErrors;
 	_isShowFPS = flags & (UINT)FlagMasks::ShowFPS;
 
-	Logger::Get().Info(fmt::format("运行时配置：\n\tadjustCursorSpeed：{}\n\tdisableLowLatency：{}\n\tbreakpointMode：{}\n\tdisableWindowResizing：{}\n\tdisableDirectFlip：{}\n\t3DMode：{}\n\tadapterIdx：{}\n\tcropTitleBarOfUWP：{}\n\tmultiMonitorUsage: {}\n\tnoCursor: {}\n\tdisableEffectCache: {}\n\tsimulateExclusiveFullscreen: {}\n\tcursorInterpolationMode: {}\n\tcropLeft: {}\n\tcropTop: {}\n\tcropRight: {}\n\tcropBottom: {}\n\tshowFPS: {}", IsAdjustCursorSpeed(), IsDisableLowLatency(), IsBreakpointMode(), IsDisableWindowResizing(), IsDisableDirectFlip(), Is3DMode(), GetAdapterIdx(), IsCropTitleBarOfUWP(), GetMultiMonitorUsage(), IsNoCursor(), IsDisableEffectCache(), IsSimulateExclusiveFullscreen(), GetCursorInterpolationMode(), cropBorders.left, cropBorders.top, cropBorders.right, cropBorders.bottom, IsShowFPS()));
+	Logger::Get().Info(fmt::format(R"(运行时配置:
+	IsAdjustCursorSpeed: {}
+	IsDisableLowLatency: {}
+	IsBreakpointMode: {}
+	IsDisableWindowResizing: {}
+	IsDisableDirectFlip: {}
+	Is3DMode: {}
+	AdapterIdx: {}
+	IsCropTitleBarOfUWP: {}
+	GetMultiMonitorUsage: {}
+	IsNoCursor: {}
+	IsDisableEffectCache: {}
+	IsDisableVSync: {}
+	IsSimulateExclusiveFullscreen: {}
+	CursorInterpolationMode: {}
+	CropBorders: [{}, {}, {}, {}]
+	IsShowFPS: {})",
+		IsAdjustCursorSpeed(),
+		IsDisableLowLatency(),
+		IsBreakpointMode(),
+		IsDisableWindowResizing(),
+		IsDisableDirectFlip(),
+		Is3DMode(),
+		GetAdapterIdx(),
+		IsCropTitleBarOfUWP(),
+		GetMultiMonitorUsage(),
+		IsNoCursor(),
+		IsDisableEffectCache(),
+		IsDisableVSync(),
+		IsSimulateExclusiveFullscreen(),
+		GetCursorInterpolationMode(),
+		cropBorders.left, cropBorders.top, cropBorders.right, cropBorders.bottom,
+		IsShowFPS()
+	));
 
 	return true;
 }
