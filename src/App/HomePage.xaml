@@ -17,12 +17,12 @@
 			<RowDefinition Height="*" />
 		</Grid.RowDefinitions>
 
-		<TextBlock Grid.Row="0" Text="Magpie" Style="{StaticResource PageHeaderTextStyle}" />
+		<TextBlock Grid.Row="0" Text="Magpie" Margin="0,0,0,10" Style="{StaticResource PageHeaderTextStyle}" />
 
 		<ScrollViewer Grid.Row="1" Padding="0,0,40,0">
 			<local:DummyTemplate>
-				<StackPanel Orientation="Vertical" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-					<local:SettingsGroup Title="激活">
+				<StackPanel Orientation="Vertical" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,0,0,10">
+					<local:SettingsGroup Title="激活" Margin="0,-10,0,0">
 						<local:SettingItem Title="快捷键" Description="自定义进入和退出全屏的快捷键" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left">
 							<local:SettingItem.Icon>
 								<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xEDA7;"/>

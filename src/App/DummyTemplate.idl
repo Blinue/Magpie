@@ -1,7 +1,7 @@
 namespace Magpie
 {
 	[default_interface]
-	runtimeclass DummyTemplate : Windows.UI.Xaml.Controls.ItemsControl
+	runtimeclass DummyTemplate : Windows.UI.Xaml.Controls.ContentControl
 	{
 		DummyTemplate();
 	}

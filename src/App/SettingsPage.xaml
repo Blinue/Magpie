@@ -17,12 +17,12 @@
 			<RowDefinition Height="*" />
 		</Grid.RowDefinitions>
 
-		<TextBlock Grid.Row="0" Text="设置" Style="{StaticResource PageHeaderTextStyle}" />
+		<TextBlock Grid.Row="0" Text="设置" Margin="0,0,0,10" Style="{StaticResource PageHeaderTextStyle}" />
 
 		<ScrollViewer Grid.Row="1" PointerPressed="ScrollViewer_PointerPressed" Padding="0,0,40,0">
 			<local:DummyTemplate>
-				<StackPanel Orientation="Vertical" HorizontalAlignment="Stretch">
-					<local:SettingsGroup Title="外观和行为">
+				<StackPanel Orientation="Vertical" HorizontalAlignment="Stretch" Margin="0,0,0,10">
+					<local:SettingsGroup Title="外观和行为" Margin="0,-10,0,0">
 						<local:SettingItem Title="主题" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left">
 							<local:SettingItem.Icon>
 								<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xEF1F;"/>

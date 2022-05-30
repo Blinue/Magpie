@@ -7,7 +7,7 @@
 		<Setter Property="Template">
 			<Setter.Value>
 				<ControlTemplate TargetType="local:DummyTemplate">
-					<ItemsPresenter />
+					<ContentPresenter HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
 				</ControlTemplate>
 			</Setter.Value>
 		</Setter>
