@@ -17,15 +17,16 @@ DependencyProperty PageFrame::TitleProperty = DependencyProperty::Register(
 	PropertyMetadata(box_value(L""), &PageFrame::_OnPropertyChanged)
 );
 
+DependencyProperty PageFrame::MainContentProperty = DependencyProperty::Register(
+	L"MainContent",
+	xaml_typename<hstring>(),
+	xaml_typename<Magpie::PageFrame>(),
+	PropertyMetadata(nullptr, &PageFrame::_OnPropertyChanged)
+);
+
+
 PageFrame::PageFrame() {
-	DefaultStyleKey(box_value(name_of<Magpie::PageFrame>()));
-}
-
-void PageFrame::OnApplyTemplate() {
-	GetTemplateChild(_PartTitlePresenter).as(_titlePresenter);
-	_Update();
-
-	__super::OnApplyTemplate();
+	InitializeComponent();
 }
 
 void PageFrame::Title(const hstring& value) {
@@ -36,18 +37,16 @@ hstring PageFrame::Title() const {
 	return GetValue(TitleProperty).as<hstring>();
 }
 
-void PageFrame::_OnPropertyChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
-	winrt::get_self<PageFrame>(sender.as<default_interface<PageFrame>>())->_Update();
+void PageFrame::MainContent(IInspectable value) {
+	SetValue(MainContentProperty, box_value(value));
 }
 
-void PageFrame::_Update() {
-	if (_titlePresenter) {
-		if (Title().empty()) {
-			_titlePresenter.Visibility(Visibility::Collapsed);
-		} else {
-			_titlePresenter.Visibility(Visibility::Visible);
-		}
-	}
+IInspectable PageFrame::MainContent() const {
+	return GetValue(MainContentProperty).as<IInspectable>();
+}
+
+void PageFrame::_OnPropertyChanged(DependencyObject const&, DependencyPropertyChangedEventArgs const&) {
+
 }
 
 }

@@ -14,7 +14,6 @@
 				<ResourceDictionary Source="ms-appx:///SettingItem.xaml" />
 				<ResourceDictionary Source="ms-appx:///SettingsGroup.xaml" />
 				<ResourceDictionary Source="ms-appx:///DummyTemplate.xaml" />
-				<ResourceDictionary Source="ms-appx:///PageFrame.xaml" />
 			</ResourceDictionary.MergedDictionaries>
 		</ResourceDictionary>
 	</Page.Resources>
@@ -58,6 +57,6 @@
 			</muxc:NavigationViewItem>
 		</muxc:NavigationView.FooterMenuItems>
 
-		<Frame x:Name="ContentFrame" Margin="40,40,0,0" />
+		<Frame x:Name="ContentFrame" />
 	</muxc:NavigationView>
 </Page>

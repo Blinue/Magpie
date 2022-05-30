@@ -1,29 +1,30 @@
-﻿#pragma once
+#pragma once
 
+#include "winrt/Windows.UI.Xaml.h"
+#include "winrt/Windows.UI.Xaml.Markup.h"
+#include "winrt/Windows.UI.Xaml.Interop.h"
+#include "winrt/Windows.UI.Xaml.Controls.Primitives.h"
 #include "PageFrame.g.h"
 
 
 namespace winrt::Magpie::implementation {
 
-struct PageFrame : PageFrame_base<PageFrame> {
-    PageFrame();
+struct PageFrame : PageFrameT<PageFrame> {
+	PageFrame();
 
-    void OnApplyTemplate();
+	void Title(const hstring& value);
 
-    void Title(const hstring& value);
+	hstring Title() const;
 
-    hstring Title() const;
+	void MainContent(Windows::Foundation::IInspectable value);
 
-    static Windows::UI::Xaml::DependencyProperty TitleProperty;
+	Windows::Foundation::IInspectable MainContent() const;
+
+	static Windows::UI::Xaml::DependencyProperty TitleProperty;
+	static Windows::UI::Xaml::DependencyProperty MainContentProperty;
 
 private:
-    static void _OnPropertyChanged(Windows::UI::Xaml::DependencyObject const& sender, Windows::UI::Xaml::DependencyPropertyChangedEventArgs const&);
-
-    void _Update();
-
-    Windows::UI::Xaml::Controls::TextBlock _titlePresenter{ nullptr };
-
-    static constexpr const wchar_t* _PartTitlePresenter = L"TitlePresenter";
+	static void _OnPropertyChanged(Windows::UI::Xaml::DependencyObject const& sender, Windows::UI::Xaml::DependencyPropertyChangedEventArgs const&);
 };
 
 }

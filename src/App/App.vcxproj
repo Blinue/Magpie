@@ -131,7 +131,7 @@
       <SubType>Code</SubType>
     </ClInclude>
     <ClInclude Include="PageFrame.h">
-      <DependentUpon>PageFrame.idl</DependentUpon>
+      <DependentUpon>PageFrame.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
     <ClInclude Include="Settings.h">
@@ -187,7 +187,7 @@
       <SubType>Code</SubType>
     </ClCompile>
     <ClCompile Include="PageFrame.cpp">
-      <DependentUpon>PageFrame.idl</DependentUpon>
+      <DependentUpon>PageFrame.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
     <ClCompile Include="Settings.cpp">
@@ -228,7 +228,8 @@
   </ItemGroup>
   <ItemGroup>
     <Midl Include="PageFrame.idl">
-      <SubType>Designer</SubType>
+      <DependentUpon>PageFrame.xaml</DependentUpon>
+      <SubType>Code</SubType>
     </Midl>
     <None Include="DummyTemplate.idl">
       <SubType>Designer</SubType>

@@ -1,10 +1,12 @@
 namespace Magpie
 {
     [default_interface]
-    runtimeclass PageFrame : Windows.UI.Xaml.Controls.ContentControl
+    [Windows.UI.Xaml.Markup.ContentProperty("MainContent")]
+    runtimeclass PageFrame : Windows.UI.Xaml.Controls.UserControl
     {
         PageFrame();
 
         String Title;
+        Object MainContent;
     }
 }

@@ -1,33 +1,27 @@
-﻿<!-- 通用页面框架，但切换页面时有闪烁问题 -->
-<ResourceDictionary
+<UserControl
+	x:Class="Magpie.PageFrame"
 	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-	xmlns:local="using:Magpie">
+	xmlns:local="using:Magpie"
+	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+	mc:Ignorable="d">
 
-	<Style TargetType="local:PageFrame">
-		<Setter Property="Template">
-			<Setter.Value>
-				<ControlTemplate TargetType="local:PageFrame">
-					<Grid>
-						<Grid.ColumnDefinitions>
-							<ColumnDefinition MaxWidth="1000" Width="*" />
-						</Grid.ColumnDefinitions>
-						<Grid.RowDefinitions>
-							<RowDefinition Height="Auto" />
-							<RowDefinition Height="*" />
-						</Grid.RowDefinitions>
+	<Grid Margin="40,40,0,0">
+		<Grid.ColumnDefinitions>
+			<ColumnDefinition MaxWidth="1000" Width="*" />
+		</Grid.ColumnDefinitions>
+		<Grid.RowDefinitions>
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="*" />
+		</Grid.RowDefinitions>
 
-						<TextBlock Grid.Row="0" Text="{TemplateBinding Title}" Margin="0,0,0,10" FontSize="30" FontWeight="Bold" />
+		<TextBlock Grid.Row="0" Text="{x:Bind Title, Mode=TwoWay}" Margin="0,0,0,10" FontSize="30" FontWeight="Bold" />
 
-						<ScrollViewer HorizontalAlignment="Stretch" Grid.Row="1" Padding="0,0,40,0">
-							<ContentControl VerticalContentAlignment="Stretch" HorizontalContentAlignment="Stretch" Margin="0,0,0,10">
-								<ContentPresenter />
-							</ContentControl>
-						</ScrollViewer>
-					</Grid>
-				</ControlTemplate>
-			</Setter.Value>
-		</Setter>
-		<Setter Property="IsTabStop" Value="False" />
-	</Style>
-</ResourceDictionary>
+		<ScrollViewer Grid.Row="1" Padding="0,0,40,0">
+			<ContentControl VerticalContentAlignment="Stretch" HorizontalContentAlignment="Stretch" Margin="0,0,0,10">
+				<ContentPresenter HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Content="{x:Bind MainContent, Mode=TwoWay}" />
+			</ContentControl>
+		</ScrollViewer>
+	</Grid>
+</UserControl>
