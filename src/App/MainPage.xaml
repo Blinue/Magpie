@@ -19,6 +19,13 @@
 	</Page.Resources>
 
 	<muxc:NavigationView Name="GlobalNavigationView" IsBackButtonVisible="Collapsed" IsPaneOpen="False" SelectionChanged="NavigationView_SelectionChanged" DisplayModeChanged="NavigationView_DisplayModeChanged" PaneOpening="NavigationView_PaneOpening" PaneClosing="NavigationView_PaneClosing">
+		<muxc:NavigationView.Resources>
+			<SolidColorBrush x:Key="NavigationViewContentBackground"
+                                 Color="Transparent" />
+			<SolidColorBrush x:Key="NavigationViewContentGridBorderBrush"
+                                 Color="Transparent" />
+		</muxc:NavigationView.Resources>
+		
 		<muxc:NavigationView.MenuItems>
 			<muxc:NavigationViewItem Content="主页" Tag="Home" IsSelected="True">
 				<muxc:NavigationViewItem.Icon>
