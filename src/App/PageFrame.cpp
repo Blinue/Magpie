@@ -6,22 +6,23 @@
 
 using namespace winrt;
 using namespace Windows::UI::Xaml;
+using namespace Windows::UI::Xaml::Controls;
 
 
 namespace winrt::Magpie::implementation {
 
-DependencyProperty PageFrame::TitleProperty = DependencyProperty::Register(
+const DependencyProperty PageFrame::TitleProperty = DependencyProperty::Register(
 	L"Title",
 	xaml_typename<hstring>(),
 	xaml_typename<Magpie::PageFrame>(),
-	PropertyMetadata(box_value(L""), &PageFrame::_OnPropertyChanged)
+	PropertyMetadata(box_value(L""), &PageFrame::_OnTitleChanged)
 );
 
-DependencyProperty PageFrame::MainContentProperty = DependencyProperty::Register(
+const DependencyProperty PageFrame::MainContentProperty = DependencyProperty::Register(
 	L"MainContent",
-	xaml_typename<hstring>(),
+	xaml_typename<IInspectable>(),
 	xaml_typename<Magpie::PageFrame>(),
-	PropertyMetadata(nullptr, &PageFrame::_OnPropertyChanged)
+	PropertyMetadata(nullptr)
 );
 
 
@@ -37,7 +38,7 @@ hstring PageFrame::Title() const {
 	return GetValue(TitleProperty).as<hstring>();
 }
 
-void PageFrame::MainContent(IInspectable value) {
+void PageFrame::MainContent(IInspectable const& value) {
 	SetValue(MainContentProperty, box_value(value));
 }
 
@@ -45,8 +46,9 @@ IInspectable PageFrame::MainContent() const {
 	return GetValue(MainContentProperty).as<IInspectable>();
 }
 
-void PageFrame::_OnPropertyChanged(DependencyObject const&, DependencyPropertyChangedEventArgs const&) {
-
+void PageFrame::_OnTitleChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const& args) {
+	TextBlock titleTextBlock = get_self<PageFrame>(sender.as<default_interface<PageFrame>>())->TitleTextBlock();
+	titleTextBlock.Visibility(unbox_value<hstring>(args.NewValue()).empty() ? Visibility::Collapsed : Visibility::Visible);
 }
 
 }

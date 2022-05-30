@@ -16,15 +16,15 @@ struct PageFrame : PageFrameT<PageFrame> {
 
 	hstring Title() const;
 
-	void MainContent(Windows::Foundation::IInspectable value);
+	void MainContent(Windows::Foundation::IInspectable const& value);
 
 	Windows::Foundation::IInspectable MainContent() const;
 
-	static Windows::UI::Xaml::DependencyProperty TitleProperty;
-	static Windows::UI::Xaml::DependencyProperty MainContentProperty;
+	static const Windows::UI::Xaml::DependencyProperty TitleProperty;
+	static const Windows::UI::Xaml::DependencyProperty MainContentProperty;
 
 private:
-	static void _OnPropertyChanged(Windows::UI::Xaml::DependencyObject const& sender, Windows::UI::Xaml::DependencyPropertyChangedEventArgs const&);
+	static void _OnTitleChanged(Windows::UI::Xaml::DependencyObject const& sender, Windows::UI::Xaml::DependencyPropertyChangedEventArgs const& args);
 };
 
 }

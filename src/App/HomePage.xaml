@@ -9,7 +9,7 @@
 	mc:Ignorable="d">
 
 	<local:PageFrame Title="Magpie">
-		<StackPanel Orientation="Vertical" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+		<StackPanel Orientation="Vertical" HorizontalAlignment="Stretch">
 			<local:DummyTemplate>
 				<local:SettingsGroup Title="激活" Margin="0,-10,0,0">
 					<local:SettingItem Title="快捷键" Description="自定义进入和退出全屏的快捷键" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left">

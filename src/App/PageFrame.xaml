@@ -16,7 +16,7 @@
 			<RowDefinition Height="*" />
 		</Grid.RowDefinitions>
 
-		<TextBlock Grid.Row="0" Text="{x:Bind Title, Mode=TwoWay}" Margin="0,0,0,10" FontSize="30" FontWeight="Bold" />
+		<TextBlock x:Name="TitleTextBlock" Grid.Row="0" Text="{x:Bind Title, Mode=TwoWay}" Visibility="Collapsed" Margin="0,0,0,10" FontSize="30" FontWeight="Bold" />
 
 		<ScrollViewer Grid.Row="1" Padding="0,0,40,0">
 			<ContentControl VerticalContentAlignment="Stretch" HorizontalContentAlignment="Stretch" Margin="0,0,0,10">
