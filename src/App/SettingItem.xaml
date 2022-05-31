@@ -14,16 +14,18 @@
 	HorizontalAlignment="Stretch"
 	HorizontalContentAlignment="Stretch"
 	Padding="16"
-	Margin="0,0,0,0">
+	Margin="0,0,0,0"
+	IsEnabledChanged="SettingItem_IsEnabledChanged"
+	Loading="SettingItem_Loading">
 
 	<Grid MinHeight="48"
-		  Padding="{x:Bind Padding}"
+		  Padding="{x:Bind Padding, Mode=OneWay}"
 		  HorizontalAlignment="Stretch"
 		  VerticalAlignment="Center"
-		  Background="{x:Bind Background}"
-		  BorderBrush="{x:Bind BorderBrush}"
-		  BorderThickness="{x:Bind BorderThickness}"
-		  CornerRadius="{x:Bind CornerRadius}">
+		  Background="{x:Bind Background, Mode=OneWay}"
+		  BorderBrush="{x:Bind BorderBrush, Mode=OneWay}"
+		  BorderThickness="{x:Bind BorderThickness, Mode=OneWay}"
+		  CornerRadius="{x:Bind CornerRadius, Mode=OneWay}">
 		<Grid.ColumnDefinitions>
 			<ColumnDefinition Width="Auto" />
 			<!--  Icon  -->
@@ -39,12 +41,11 @@
 						  HorizontalAlignment="Center"
 						  VerticalAlignment="Center"
 						  AutomationProperties.AccessibilityView="Raw"
-						  Content="{x:Bind Icon}"
+						  Content="{x:Bind Icon, Mode=OneWay}"
 						  FontFamily="{ThemeResource SymbolThemeFontFamily}"
 						  FontSize="20"
 						  Foreground="{ThemeResource CardPrimaryForegroundBrush}"
-						  IsTextScaleFactorEnabled="False"
-						  Visibility="Collapsed" />
+						  IsTextScaleFactorEnabled="False" />
 
 		<StackPanel Grid.Column="1"
 					Margin="0,0,16,0"
@@ -54,14 +55,13 @@
 			<TextBlock x:Name="TitleTextBlock"
 					   VerticalAlignment="Center"
 					   Foreground="{ThemeResource CardPrimaryForegroundBrush}"
-					   Text="{x:Bind Title}" />
+					   Text="{x:Bind Title, Mode=OneWay}" />
 
 			<ContentPresenter x:Name="DescriptionPresenter"
-							  Content="{x:Bind Description}"
+							  Content="{x:Bind Description, Mode=OneWay}"
 							  FontSize="{StaticResource SecondaryTextFontSize}"
 							  Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-							  TextWrapping="WrapWholeWords"
-							  Visibility="Collapsed">
+							  TextWrapping="WrapWholeWords">
 				<ContentPresenter.Resources>
 					<Style BasedOn="{StaticResource CaptionTextBlockStyle}" TargetType="TextBlock">
 						<Style.Setters>
@@ -82,20 +82,20 @@
 						  Grid.Column="2"
 						  HorizontalAlignment="Right"
 						  VerticalAlignment="Center"
-						  Content="{x:Bind ActionContent}" />
-	</Grid>
+						  Content="{x:Bind ActionContent, Mode=OneWay}" />
 
-	<VisualStateManager.VisualStateGroups>
-		<VisualStateGroup x:Name="CommonStates">
-			<VisualState x:Name="Normal" />
-			<VisualState x:Name="Disabled">
-				<VisualState.Setters>
-					<Setter Target="TitleTextBlock.Foreground" Value="{ThemeResource TextFillColorDisabledBrush}" />
-					<Setter Target="DescriptionPresenter.Foreground" Value="{ThemeResource TextFillColorDisabledBrush}" />
-					<Setter Target="IconPresenter.Foreground" Value="{ThemeResource TextFillColorDisabledBrush}" />
-					<Setter Target="ActionContentPresenter.Foreground" Value="{ThemeResource TextFillColorDisabledBrush}" />
-				</VisualState.Setters>
-			</VisualState>
-		</VisualStateGroup>
-	</VisualStateManager.VisualStateGroups>
+		<VisualStateManager.VisualStateGroups>
+			<VisualStateGroup x:Name="CommonStates">
+				<VisualState x:Name="Normal" />
+				<VisualState x:Name="Disabled">
+					<VisualState.Setters>
+						<Setter Target="TitleTextBlock.Foreground" Value="{ThemeResource TextFillColorDisabledBrush}" />
+						<Setter Target="DescriptionPresenter.Foreground" Value="{ThemeResource TextFillColorDisabledBrush}" />
+						<Setter Target="IconPresenter.Foreground" Value="{ThemeResource TextFillColorDisabledBrush}" />
+						<Setter Target="ActionContentPresenter.Foreground" Value="{ThemeResource TextFillColorDisabledBrush}" />
+					</VisualState.Setters>
+				</VisualState>
+			</VisualStateGroup>
+		</VisualStateManager.VisualStateGroups>
+	</Grid>
 </UserControl>

@@ -20,14 +20,19 @@ struct SettingsGroup : SettingsGroupT<SettingsGroup> {
 
 	Windows::Foundation::IInspectable Description() const;
 
+	void SettingsGroup_IsEnabledChanged(Windows::Foundation::IInspectable const&, Windows::UI::Xaml::DependencyPropertyChangedEventArgs const&);
+
+	void SettingsGroup_Loading(Windows::UI::Xaml::FrameworkElement const&, Windows::Foundation::IInspectable const&);
+
 	static const Windows::UI::Xaml::DependencyProperty TitleProperty;
 	static const Windows::UI::Xaml::DependencyProperty DescriptionProperty;
 
 private:
-	static void _OnTitleChanged(Windows::UI::Xaml::DependencyObject const& sender, Windows::UI::Xaml::DependencyPropertyChangedEventArgs const& args);
-	static void _OnDescriptionChanged(Windows::UI::Xaml::DependencyObject const& sender, Windows::UI::Xaml::DependencyPropertyChangedEventArgs const& args);
+	static void _OnPropertyChanged(Windows::UI::Xaml::DependencyObject const& sender, Windows::UI::Xaml::DependencyPropertyChangedEventArgs const& args);
 
-	void _IsEnabledChanged(Windows::Foundation::IInspectable const&, Windows::UI::Xaml::DependencyPropertyChangedEventArgs const&);
+	void _Update();
+
+	void _SetEnabledState();
 };
 
 }

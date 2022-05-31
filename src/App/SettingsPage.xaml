@@ -11,7 +11,7 @@
 	<local:PageFrame Title="设置">
 		<StackPanel Orientation="Vertical" HorizontalAlignment="Stretch">
 			<local:SettingsGroup Title="外观和行为" Margin="0,-10,0,0">
-				<local:SettingItem Title="主题" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left">
+				<local:SettingItem Title="主题">
 					<local:SettingItem.Icon>
 						<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xEF1F;"/>
 					</local:SettingItem.Icon>
@@ -23,7 +23,7 @@
 						</ComboBox>
 					</local:SettingItem.ActionContent>
 				</local:SettingItem>
-				<local:SettingItem Title="便携模式" Description="更改用户数据的保存位置" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left">
+				<local:SettingItem Title="便携模式" Description="更改用户数据的保存位置">
 					<local:SettingItem.Icon>
 						<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xEC0A;"/>
 					</local:SettingItem.Icon>

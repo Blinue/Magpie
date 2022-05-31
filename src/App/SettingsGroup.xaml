@@ -6,7 +6,9 @@
 	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	mc:Ignorable="d"
-	IsTabStop="False" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+	IsTabStop="False" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch"
+	IsEnabledChanged="SettingsGroup_IsEnabledChanged"
+	Loading="SettingsGroup_Loading">
 
 	<ItemsControl.ItemsPanel>
 		<ItemsPanelTemplate>
@@ -21,16 +23,15 @@
 			<RowDefinition Height="Auto" />
 		</Grid.RowDefinitions>
 
-		<TextBlock x:Name="TitleTextBlock" Grid.Row="0" Margin="1,32,0,0" Visibility="Collapsed"
-				   Style="{ThemeResource BodyStrongTextBlockStyle}" Text="{x:Bind Title, Mode=TwoWay}" />
+		<TextBlock x:Name="TitleTextBlock" Grid.Row="0" Margin="1,32,0,0"
+				   Style="{ThemeResource BodyStrongTextBlockStyle}" Text="{x:Bind Title, Mode=OneWay}" />
 		
 		<ContentPresenter x:Name="DescriptionPresenter"
 						  Grid.Row="1"
 						  Margin="1,4,0,0"
-						  Content="{x:Bind Description}"
+						  Content="{x:Bind Description, Mode=OneWay}"
 						  Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-						  TextWrapping="WrapWholeWords"
-						  Visibility="Collapsed">
+						  TextWrapping="WrapWholeWords">
 			<ContentPresenter.Resources>
 				<Style BasedOn="{StaticResource CaptionTextBlockStyle}" TargetType="TextBlock">
 					<Style.Setters>

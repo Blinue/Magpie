@@ -15,20 +15,18 @@ const DependencyProperty SettingsGroup::TitleProperty = DependencyProperty::Regi
 	L"Title",
 	xaml_typename<hstring>(),
 	xaml_typename<Magpie::SettingsGroup>(),
-	PropertyMetadata(box_value(L""), &SettingsGroup::_OnTitleChanged)
+	PropertyMetadata(box_value(L""), &SettingsGroup::_OnPropertyChanged)
 );
 
 const DependencyProperty SettingsGroup::DescriptionProperty = DependencyProperty::Register(
 	L"Description",
 	xaml_typename<IInspectable>(),
 	xaml_typename<Magpie::SettingsGroup>(),
-	PropertyMetadata(nullptr, &SettingsGroup::_OnDescriptionChanged)
+	PropertyMetadata(nullptr, &SettingsGroup::_OnPropertyChanged)
 );
 
 SettingsGroup::SettingsGroup() {
 	InitializeComponent();
-
-	IsEnabledChanged({ this, &SettingsGroup::_IsEnabledChanged });
 }
 
 void SettingsGroup::Title(const hstring& value) {
@@ -47,18 +45,26 @@ IInspectable SettingsGroup::Description() const {
 	return GetValue(DescriptionProperty);
 }
 
-void SettingsGroup::_OnTitleChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const& args) {
-	TextBlock titleTextBlock = get_self<SettingsGroup>(sender.as<default_interface<SettingsGroup>>())->TitleTextBlock();
-	titleTextBlock.Visibility(unbox_value<hstring>(args.NewValue()).empty() ? Visibility::Collapsed : Visibility::Visible);
+void SettingsGroup::_OnPropertyChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const& args) {
+	get_self<SettingsGroup>(sender.as<default_interface<SettingsGroup>>())->_Update();
 }
 
-void SettingsGroup::_OnDescriptionChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const& args) {
-	ContentPresenter desc = get_self<SettingsGroup>(sender.as<default_interface<SettingsGroup>>())->DescriptionPresenter();
-	desc.Visibility(args.NewValue() == nullptr ? Visibility::Collapsed : Visibility::Visible);
+void SettingsGroup::_Update() {
+	TitleTextBlock().Visibility(Title().empty() ? Visibility::Collapsed : Visibility::Visible);
+	DescriptionPresenter().Visibility(Description() == nullptr ? Visibility::Collapsed : Visibility::Visible);
 }
 
-void SettingsGroup::_IsEnabledChanged(IInspectable const&, DependencyPropertyChangedEventArgs const&) {
+void SettingsGroup::_SetEnabledState() {
 	VisualStateManager::GoToState(*this, IsEnabled() ? L"Normal" : L"Disabled", true);
+}
+
+void SettingsGroup::SettingsGroup_IsEnabledChanged(IInspectable const&, DependencyPropertyChangedEventArgs const&) {
+	_SetEnabledState();
+}
+
+void SettingsGroup::SettingsGroup_Loading(FrameworkElement const&, IInspectable const&) {
+	_SetEnabledState();
+	_Update();
 }
 
 }

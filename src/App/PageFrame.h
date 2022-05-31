@@ -20,11 +20,15 @@ struct PageFrame : PageFrameT<PageFrame> {
 
 	Windows::Foundation::IInspectable MainContent() const;
 
+	void PageFrame_Loading(Windows::UI::Xaml::FrameworkElement const&, Windows::Foundation::IInspectable const&);
+
 	static const Windows::UI::Xaml::DependencyProperty TitleProperty;
 	static const Windows::UI::Xaml::DependencyProperty MainContentProperty;
 
 private:
 	static void _OnTitleChanged(Windows::UI::Xaml::DependencyObject const& sender, Windows::UI::Xaml::DependencyPropertyChangedEventArgs const& args);
+
+	void _Update();
 };
 
 }

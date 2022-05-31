@@ -22,14 +22,14 @@ DependencyProperty SettingItem::DescriptionProperty = DependencyProperty::Regist
 	L"Description",
 	xaml_typename<IInspectable>(),
 	xaml_typename<Magpie::SettingItem>(),
-	PropertyMetadata(nullptr, &SettingItem::_OnDescriptionChanged)
+	PropertyMetadata(nullptr, &SettingItem::_OnPropertyChanged)
 );
 
 DependencyProperty SettingItem::IconProperty = DependencyProperty::Register(
 	L"Icon",
 	xaml_typename<IInspectable>(),
 	xaml_typename<Magpie::SettingItem>(),
-	PropertyMetadata(nullptr, &SettingItem::_OnIconChanged)
+	PropertyMetadata(nullptr, &SettingItem::_OnPropertyChanged)
 );
 
 DependencyProperty SettingItem::ActionContentProperty = DependencyProperty::Register(
@@ -40,8 +40,6 @@ DependencyProperty SettingItem::ActionContentProperty = DependencyProperty::Regi
 );
 
 SettingItem::SettingItem() {
-	IsEnabledChanged({ this, &SettingItem::_IsEnabledChanged });
-
 	InitializeComponent();
 }
 
@@ -77,18 +75,26 @@ IInspectable SettingItem::ActionContent() const {
 	return GetValue(ActionContentProperty);
 }
 
-void SettingItem::_OnDescriptionChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const& args) {
-	ContentPresenter desc = get_self<SettingItem>(sender.as<default_interface<SettingItem>>())->DescriptionPresenter();
-	desc.Visibility(args.NewValue() == nullptr ? Visibility::Collapsed : Visibility::Visible);
+void SettingItem::_OnPropertyChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const& args) {
+	get_self<SettingItem>(sender.as<default_interface<SettingItem>>())->_Update();
 }
 
-void SettingItem::_OnIconChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const& args) {
-	ContentPresenter icon = get_self<SettingItem>(sender.as<default_interface<SettingItem>>())->IconPresenter();
-	icon.Visibility(args.NewValue() == nullptr ? Visibility::Collapsed : Visibility::Visible);
+void SettingItem::_Update() {
+	DescriptionPresenter().Visibility(Description() == nullptr ? Visibility::Collapsed : Visibility::Visible);
+	IconPresenter().Visibility(Icon() == nullptr ? Visibility::Collapsed : Visibility::Visible);
 }
 
-void SettingItem::_IsEnabledChanged(IInspectable const&, DependencyPropertyChangedEventArgs const&) {
+void SettingItem::_SetEnabledState() {
 	VisualStateManager::GoToState(*this, IsEnabled() ? L"Normal" : L"Disabled", true);
+}
+
+void SettingItem::SettingItem_IsEnabledChanged(IInspectable const&, DependencyPropertyChangedEventArgs const&) {
+	_SetEnabledState();
+}
+
+void SettingItem::SettingItem_Loading(Windows::UI::Xaml::FrameworkElement const&, Windows::Foundation::IInspectable const&) {
+	_SetEnabledState();
+	_Update();
 }
 
 }

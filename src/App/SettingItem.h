@@ -28,16 +28,20 @@ struct SettingItem : SettingItemT<SettingItem> {
 
 	Windows::Foundation::IInspectable ActionContent() const;
 
+	void SettingItem_IsEnabledChanged(Windows::Foundation::IInspectable const&, Windows::UI::Xaml::DependencyPropertyChangedEventArgs const&);
+	void SettingItem_Loading(Windows::UI::Xaml::FrameworkElement const&, Windows::Foundation::IInspectable const&);
+
 	static Windows::UI::Xaml::DependencyProperty TitleProperty;
 	static Windows::UI::Xaml::DependencyProperty DescriptionProperty;
 	static Windows::UI::Xaml::DependencyProperty IconProperty;
 	static Windows::UI::Xaml::DependencyProperty ActionContentProperty;
 
 private:
-	static void _OnDescriptionChanged(Windows::UI::Xaml::DependencyObject const& sender, Windows::UI::Xaml::DependencyPropertyChangedEventArgs const& args);
-	static void _OnIconChanged(Windows::UI::Xaml::DependencyObject const& sender, Windows::UI::Xaml::DependencyPropertyChangedEventArgs const& args);
+	static void _OnPropertyChanged(Windows::UI::Xaml::DependencyObject const& sender, Windows::UI::Xaml::DependencyPropertyChangedEventArgs const& args);
 
-	void _IsEnabledChanged(Windows::Foundation::IInspectable const&, Windows::UI::Xaml::DependencyPropertyChangedEventArgs const&);
+	void _Update();
+
+	void _SetEnabledState();
 };
 
 }

@@ -46,9 +46,16 @@ IInspectable PageFrame::MainContent() const {
 	return GetValue(MainContentProperty).as<IInspectable>();
 }
 
+void PageFrame::PageFrame_Loading(FrameworkElement const&, IInspectable const&) {
+	_Update();
+}
+
+void PageFrame::_Update() {
+	TitleTextBlock().Visibility(Title().empty() ? Visibility::Collapsed : Visibility::Visible);
+}
+
 void PageFrame::_OnTitleChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const& args) {
-	TextBlock titleTextBlock = get_self<PageFrame>(sender.as<default_interface<PageFrame>>())->TitleTextBlock();
-	titleTextBlock.Visibility(unbox_value<hstring>(args.NewValue()).empty() ? Visibility::Collapsed : Visibility::Visible);
+	get_self<PageFrame>(sender.as<default_interface<PageFrame>>())->_Update();
 }
 
 }

@@ -74,10 +74,6 @@ void MainPage::_UpdateTheme() {
 	constexpr const DWORD DWMWA_USE_IMMERSIVE_DARK_MODE_BEFORE_20H1 = 19;
 	constexpr const DWORD DWMWA_MICA_EFFECT = 1029;
 
-	if (!_hwndHost) {
-		return;
-	}
-
 	int theme = _settings.Theme();
 
 	BOOL isDarkTheme = FALSE;

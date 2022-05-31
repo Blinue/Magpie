@@ -6,7 +6,8 @@
 	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	mc:Ignorable="d"
-	IsTabStop="False">
+	IsTabStop="False"
+	Loading="PageFrame_Loading">
 
 	<Grid Margin="{StaticResource PageHeaderMargin}">
 		<Grid.ColumnDefinitions>
@@ -17,11 +18,11 @@
 			<RowDefinition Height="*" />
 		</Grid.RowDefinitions>
 
-		<TextBlock x:Name="TitleTextBlock" Grid.Row="0" Text="{x:Bind Title, Mode=TwoWay}" Visibility="Collapsed" Margin="0,0,0,10" FontSize="30" FontWeight="Bold" />
+		<TextBlock x:Name="TitleTextBlock" Grid.Row="0" Text="{x:Bind Title, Mode=OneWay}" Margin="0,0,0,10" FontSize="30" FontWeight="Bold" />
 
 		<ScrollViewer Grid.Row="1" Padding="0,0,20,0" VerticalScrollBarVisibility="Auto">
 			<ContentControl IsTabStop="False" VerticalContentAlignment="Stretch" HorizontalContentAlignment="Stretch" Padding="0,0,0,10">
-				<ContentPresenter HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Content="{x:Bind MainContent, Mode=TwoWay}" />
+				<ContentPresenter HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Content="{x:Bind MainContent, Mode=OneWay}" />
 			</ContentControl>
 		</ScrollViewer>
 	</Grid>
