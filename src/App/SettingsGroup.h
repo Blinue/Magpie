@@ -1,61 +1,40 @@
 #pragma once
 
+#include "winrt/Windows.UI.Xaml.h"
+#include "winrt/Windows.UI.Xaml.Markup.h"
+#include "winrt/Windows.UI.Xaml.Interop.h"
+#include "winrt/Windows.UI.Xaml.Controls.Primitives.h"
 #include "SettingsGroup.g.h"
-#include "SettingsGroupAutomationPeer.g.h"
 
 
-namespace winrt::Magpie::implementation
-{
-	struct SettingsGroup : SettingsGroup_base<SettingsGroup>
-	{
-		SettingsGroup();
+namespace winrt::Magpie::implementation {
 
-		void Title(const hstring& value);
+struct SettingsGroup : SettingsGroupT<SettingsGroup> {
+	SettingsGroup();
 
-		hstring Title() const;
+	void Title(const hstring& value);
 
-		void Description(Windows::Foundation::IInspectable value);
+	hstring Title() const;
 
-		Windows::Foundation::IInspectable Description() const;
+	void Description(Windows::Foundation::IInspectable value);
 
-		void OnApplyTemplate();
+	Windows::Foundation::IInspectable Description() const;
 
-		Windows::UI::Xaml::Automation::Peers::AutomationPeer OnCreateAutomationPeer();
+	static const Windows::UI::Xaml::DependencyProperty TitleProperty;
+	static const Windows::UI::Xaml::DependencyProperty DescriptionProperty;
 
-		static const Windows::UI::Xaml::DependencyProperty TitleProperty;
-		static const Windows::UI::Xaml::DependencyProperty DescriptionProperty;
+private:
+	static void _OnTitleChanged(Windows::UI::Xaml::DependencyObject const& sender, Windows::UI::Xaml::DependencyPropertyChangedEventArgs const& args);
+	static void _OnDescriptionChanged(Windows::UI::Xaml::DependencyObject const& sender, Windows::UI::Xaml::DependencyPropertyChangedEventArgs const& args);
 
-	private:
-		static void _OnPropertyChanged(Windows::UI::Xaml::DependencyObject const& sender, Windows::UI::Xaml::DependencyPropertyChangedEventArgs const&);
+	void _IsEnabledChanged(Windows::Foundation::IInspectable const&, Windows::UI::Xaml::DependencyPropertyChangedEventArgs const&);
+};
 
-		void _Setting_IsEnabledChanged(Windows::Foundation::IInspectable const&, Windows::UI::Xaml::DependencyPropertyChangedEventArgs const&);
-
-		void _Update();
-
-		void _SetEnabledState();
-
-		Windows::UI::Xaml::Controls::TextBlock _titlePresenter{ nullptr };
-		Windows::UI::Xaml::Controls::ContentPresenter _descriptionPresenter{ nullptr };
-
-		event_token _isEnabledChangedToken{};
-
-		static constexpr const wchar_t* _PartTitlePresenter = L"TitlePresenter";
-		static constexpr const wchar_t* _PartDescriptionPresenter = L"DescriptionPresenter";
-	};
-
-	struct SettingsGroupAutomationPeer : SettingsGroupAutomationPeerT<SettingsGroupAutomationPeer> {
-		SettingsGroupAutomationPeer(Magpie::SettingsGroup owner);
-
-		hstring GetNameCore();
-	};
 }
 
 namespace winrt::Magpie::factory_implementation {
 
 struct SettingsGroup : SettingsGroupT<SettingsGroup, implementation::SettingsGroup> {
-};
-
-struct SettingsGroupAutomationPeer : SettingsGroupAutomationPeerT<SettingsGroupAutomationPeer, implementation::SettingsGroupAutomationPeer> {
 };
 
 }

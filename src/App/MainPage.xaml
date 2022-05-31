@@ -12,7 +12,6 @@
 		<ResourceDictionary>
 			<ResourceDictionary.MergedDictionaries>
 				<ResourceDictionary Source="ms-appx:///SettingItem.xaml" />
-				<ResourceDictionary Source="ms-appx:///SettingsGroup.xaml" />
 				<ResourceDictionary Source="ms-appx:///DummyTemplate.xaml" />
 			</ResourceDictionary.MergedDictionaries>
 		</ResourceDictionary>

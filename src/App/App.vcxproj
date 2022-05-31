@@ -159,7 +159,7 @@
       <SubType>Code</SubType>
     </ClInclude>
     <ClInclude Include="SettingsGroup.h">
-      <DependentUpon>SettingsGroup.idl</DependentUpon>
+      <DependentUpon>SettingsGroup.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
     <ClInclude Include="SettingsPage.h">
@@ -218,7 +218,7 @@
       <SubType>Code</SubType>
     </ClCompile>
     <ClCompile Include="SettingsGroup.cpp">
-      <DependentUpon>SettingsGroup.idl</DependentUpon>
+      <DependentUpon>SettingsGroup.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
     <ClCompile Include="SettingsPage.cpp">
@@ -231,6 +231,10 @@
       <DependentUpon>PageFrame.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Midl>
+    <None Include="SettingsGroup.idl">
+      <DependentUpon>SettingsGroup.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </None>
     <None Include="DummyTemplate.idl">
       <SubType>Designer</SubType>
     </None>
@@ -256,9 +260,6 @@
       <SubType>Designer</SubType>
     </None>
     <None Include="SettingItem.idl">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="SettingsGroup.idl">
       <SubType>Designer</SubType>
     </None>
     <None Include="SettingsPage.idl">

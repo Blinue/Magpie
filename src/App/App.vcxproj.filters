@@ -50,9 +50,6 @@
     <None Include="SettingItem.idl">
       <Filter>Controls</Filter>
     </None>
-    <None Include="SettingsGroup.idl">
-      <Filter>Controls</Filter>
-    </None>
     <None Include="DummyTemplate.idl">
       <Filter>Controls</Filter>
     </None>
@@ -77,13 +74,13 @@
     <Page Include="SettingItem.xaml">
       <Filter>Controls</Filter>
     </Page>
-    <Page Include="SettingsGroup.xaml">
-      <Filter>Controls</Filter>
-    </Page>
     <Page Include="DummyTemplate.xaml">
       <Filter>Controls</Filter>
     </Page>
     <Page Include="PageFrame.xaml">
+      <Filter>Controls</Filter>
+    </Page>
+    <Page Include="SettingsGroup.xaml">
       <Filter>Controls</Filter>
     </Page>
   </ItemGroup>

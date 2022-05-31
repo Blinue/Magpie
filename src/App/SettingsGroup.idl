@@ -10,11 +10,4 @@ namespace Magpie
 		String Title;
 		Object Description;
 	}
-
-	runtimeclass SettingsGroupAutomationPeer : Windows.UI.Xaml.Automation.Peers.FrameworkElementAutomationPeer
-	{
-		SettingsGroupAutomationPeer(SettingsGroup owner);
-
-		String GetNameCore();
-	}
 }
