@@ -7,7 +7,7 @@
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	mc:Ignorable="d">
 
-	<Grid Margin="20,25,0,0">
+	<Grid Margin="{StaticResource PageHeaderMargin}">
 		<Grid.ColumnDefinitions>
 			<ColumnDefinition MaxWidth="1000" Width="*" />
 		</Grid.ColumnDefinitions>

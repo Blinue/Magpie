@@ -21,25 +21,32 @@ App::App() {
 	m_inner.as<::IUnknown>()->Release();
 
 	// 根据操作系统版本设置样式
+	ResourceDictionary resource = Resources();
 
 	// 根据操作系统选择图标字体
 	bool isWin11 = Utils::GetOSBuild() >= 22000;
-	Resources().Insert(
+	resource.Insert(
 		box_value(L"SymbolThemeFontFamily"),
 		FontFamily(isWin11 ? L"Segoe Fluent Icons" : L"Segoe MDL2 Assets")
 	);
 
 	if (isWin11) {
 		// Win11 中更改圆角大小
-		Resources().Insert(
-			winrt::box_value(L"ControlCornerRadius"),
-			winrt::box_value(CornerRadius{ 8,8,8,8 })
+		resource.Insert(
+			box_value(L"ControlCornerRadius"),
+			box_value(CornerRadius{ 8,8,8,8 })
 		);
-		Resources().Insert(
-			winrt::box_value(L"NavigationViewContentGridCornerRadius"),
-			winrt::box_value(CornerRadius{ 8,0,0,0 })
+		resource.Insert(
+			box_value(L"NavigationViewContentGridCornerRadius"),
+			box_value(CornerRadius{ 8,0,0,0 })
 		);
 	}
+
+	// 页面标题位置
+	resource.Insert(
+		box_value(L"PageHeaderMargin"),
+		box_value(Thickness{ 20, double(isWin11 ? 25 : 40), 0, 0 })
+	);
 }
 
 App::~App() {

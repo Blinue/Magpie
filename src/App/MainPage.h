@@ -15,10 +15,6 @@ namespace winrt::Magpie::implementation
 		~MainPage();
 
 		void NavigationView_SelectionChanged(Microsoft::UI::Xaml::Controls::NavigationView const& sender, Microsoft::UI::Xaml::Controls::NavigationViewSelectionChangedEventArgs const& args);
-		
-		void NavigationView_DisplayModeChanged(Microsoft::UI::Xaml::Controls::NavigationView const& sender, Microsoft::UI::Xaml::Controls::NavigationViewDisplayModeChangedEventArgs const&);
-		void NavigationView_PaneOpening(Microsoft::UI::Xaml::Controls::NavigationView const&, Windows::Foundation::IInspectable const&);
-		void NavigationView_PaneClosing(Microsoft::UI::Xaml::Controls::NavigationView const&, Microsoft::UI::Xaml::Controls::NavigationViewPaneClosingEventArgs const&);
 
 		void Initialize(uint64_t hwndHost);
 
