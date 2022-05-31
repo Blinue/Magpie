@@ -1,8 +1,9 @@
 # MAGPIE
 
+[![许可](https://img.shields.io/github/license/Blinue/Magpie)](./LICENSE)
 [![build](https://github.com/Blinue/Magpie/actions/workflows/build.yml/badge.svg)](https://github.com/Blinue/Magpie/actions/workflows/build.yml)
 [![All Contributors](https://img.shields.io/github/all-contributors/Blinue/Magpie)](#%E8%B4%A1%E7%8C%AE%E8%80%85-)
-[![许可](https://img.shields.io/github/license/Blinue/Magpie)](./LICENSE)
+[![GitHub all releases](https://img.shields.io/github/downloads/Blinue/Magpie/total)](https://github.com/Blinue/Magpie/releases)
 
 🌍 **简体中文** | [English](./README_EN.md)
 
