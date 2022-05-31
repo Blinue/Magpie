@@ -9,8 +9,6 @@
 	
 	<local:PageFrame Title="关于">
 		<StackPanel Orientation="Vertical" HorizontalAlignment="Stretch">
-			<local:DummyTemplate>
-			</local:DummyTemplate>
 		</StackPanel>
 	</local:PageFrame>
 </Page>

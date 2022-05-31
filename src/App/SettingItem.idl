@@ -1,8 +1,9 @@
 namespace Magpie
 {
+	[default_interface]
 	[Windows.UI.Xaml.TemplateVisualState("Normal", "CommonStates")]
 	[Windows.UI.Xaml.TemplateVisualState("Disabled", "CommonStates")]
-	runtimeclass SettingItem : Windows.UI.Xaml.Controls.ContentControl
+	runtimeclass SettingItem : Windows.UI.Xaml.Controls.UserControl
 	{
 		SettingItem();
 

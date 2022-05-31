@@ -1,59 +1,50 @@
 #pragma once
 
+#include "winrt/Windows.UI.Xaml.h"
+#include "winrt/Windows.UI.Xaml.Markup.h"
+#include "winrt/Windows.UI.Xaml.Interop.h"
+#include "winrt/Windows.UI.Xaml.Controls.Primitives.h"
 #include "SettingItem.g.h"
 
 
-namespace winrt::Magpie::implementation
-{
-	struct SettingItem : SettingItem_base<SettingItem>
-	{
-		SettingItem();
+namespace winrt::Magpie::implementation {
 
-		void Title(const hstring& value);
+struct SettingItem : SettingItemT<SettingItem> {
+	SettingItem();
 
-		hstring Title() const;
+	void Title(const hstring& value);
 
-		void Description(Windows::Foundation::IInspectable value);
+	hstring Title() const;
 
-		Windows::Foundation::IInspectable Description() const;
+	void Description(Windows::Foundation::IInspectable value);
 
-		void Icon(Windows::Foundation::IInspectable value);
+	Windows::Foundation::IInspectable Description() const;
 
-		Windows::Foundation::IInspectable Icon() const;
+	void Icon(Windows::Foundation::IInspectable value);
 
-		void ActionContent(Windows::Foundation::IInspectable value);
+	Windows::Foundation::IInspectable Icon() const;
 
-		Windows::Foundation::IInspectable ActionContent() const;
+	void ActionContent(Windows::Foundation::IInspectable value);
 
-		void OnApplyTemplate();
+	Windows::Foundation::IInspectable ActionContent() const;
 
-		static Windows::UI::Xaml::DependencyProperty TitleProperty;
-		static Windows::UI::Xaml::DependencyProperty DescriptionProperty;
-		static Windows::UI::Xaml::DependencyProperty IconProperty;
-		static Windows::UI::Xaml::DependencyProperty ActionContentProperty;
+	static Windows::UI::Xaml::DependencyProperty TitleProperty;
+	static Windows::UI::Xaml::DependencyProperty DescriptionProperty;
+	static Windows::UI::Xaml::DependencyProperty IconProperty;
+	static Windows::UI::Xaml::DependencyProperty ActionContentProperty;
 
-	private:
-		static void _OnPropertyChanged(Windows::UI::Xaml::DependencyObject const& sender, Windows::UI::Xaml::DependencyPropertyChangedEventArgs const&);
+private:
+	static void _OnDescriptionChanged(Windows::UI::Xaml::DependencyObject const& sender, Windows::UI::Xaml::DependencyPropertyChangedEventArgs const& args);
+	static void _OnIconChanged(Windows::UI::Xaml::DependencyObject const& sender, Windows::UI::Xaml::DependencyPropertyChangedEventArgs const& args);
 
-		void _Setting_IsEnabledChanged(Windows::Foundation::IInspectable const&, Windows::UI::Xaml::DependencyPropertyChangedEventArgs const&);
+	void _IsEnabledChanged(Windows::Foundation::IInspectable const&, Windows::UI::Xaml::DependencyPropertyChangedEventArgs const&);
+};
 
-		void _Update();
-
-		void _SetEnabledState();
-
-		Windows::UI::Xaml::Controls::ContentPresenter _iconPresenter{ nullptr };
-		Windows::UI::Xaml::Controls::ContentPresenter _descriptionPresenter{ nullptr };
-
-		winrt::event_token _isEnabledChangedToken{};
-
-		static constexpr const wchar_t* _PartIconPresenter = L"IconPresenter";
-		static constexpr const wchar_t* _PartDescriptionPresenter = L"DescriptionPresenter";
-	};
 }
 
-namespace winrt::Magpie::factory_implementation
-{
-	struct SettingItem : SettingItemT<SettingItem, implementation::SettingItem>
-	{
-	};
+namespace winrt::Magpie::factory_implementation {
+
+struct SettingItem : SettingItemT<SettingItem, implementation::SettingItem> {
+};
+
 }

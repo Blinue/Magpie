@@ -10,30 +10,28 @@
 
 	<local:PageFrame Title="设置">
 		<StackPanel Orientation="Vertical" HorizontalAlignment="Stretch">
-			<local:DummyTemplate>
-				<local:SettingsGroup Title="外观和行为" Margin="0,-10,0,0">
-					<local:SettingItem Title="主题" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left">
-						<local:SettingItem.Icon>
-							<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xEF1F;"/>
-						</local:SettingItem.Icon>
-						<local:SettingItem.ActionContent>
-							<ComboBox x:Name="ThemeComboBox" Width="150" SelectionChanged="ThemeComboBox_SelectionChanged" DropDownOpened="ComboBox_DropDownOpened">
-								<x:String>浅色</x:String>
-								<x:String>深色</x:String>
-								<x:String>使用系统设置</x:String>
-							</ComboBox>
-						</local:SettingItem.ActionContent>
-					</local:SettingItem>
-					<local:SettingItem Title="便携模式" Description="更改用户数据的保存位置" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left">
-						<local:SettingItem.Icon>
-							<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xEC0A;"/>
-						</local:SettingItem.Icon>
-						<local:SettingItem.ActionContent>
-							<ToggleSwitch x:Name="PortableModeToggleSwitch" Style="{StaticResource ToggleSwitchWithoutText}" Toggled="PortableModeToggleSwitch_Toggled" />
-						</local:SettingItem.ActionContent>
-					</local:SettingItem>
-				</local:SettingsGroup>
-			</local:DummyTemplate>
+			<local:SettingsGroup Title="外观和行为" Margin="0,-10,0,0">
+				<local:SettingItem Title="主题" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left">
+					<local:SettingItem.Icon>
+						<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xEF1F;"/>
+					</local:SettingItem.Icon>
+					<local:SettingItem.ActionContent>
+						<ComboBox x:Name="ThemeComboBox" Width="150" SelectionChanged="ThemeComboBox_SelectionChanged" DropDownOpened="ComboBox_DropDownOpened">
+							<x:String>浅色</x:String>
+							<x:String>深色</x:String>
+							<x:String>使用系统设置</x:String>
+						</ComboBox>
+					</local:SettingItem.ActionContent>
+				</local:SettingItem>
+				<local:SettingItem Title="便携模式" Description="更改用户数据的保存位置" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left">
+					<local:SettingItem.Icon>
+						<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xEC0A;"/>
+					</local:SettingItem.Icon>
+					<local:SettingItem.ActionContent>
+						<ToggleSwitch x:Name="PortableModeToggleSwitch" Style="{StaticResource ToggleSwitchWithoutText}" Toggled="PortableModeToggleSwitch_Toggled" />
+					</local:SettingItem.ActionContent>
+				</local:SettingItem>
+			</local:SettingsGroup>
 		</StackPanel>
 	</local:PageFrame>
 </Page>

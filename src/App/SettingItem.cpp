@@ -6,33 +6,30 @@
 
 using namespace winrt;
 using namespace Windows::UI::Xaml;
-using namespace Windows::UI::Xaml::Automation;
 using namespace Windows::UI::Xaml::Controls;
-using namespace Windows::Foundation;
 
 
-namespace winrt::Magpie::implementation
-{
+namespace winrt::Magpie::implementation {
 
 DependencyProperty SettingItem::TitleProperty = DependencyProperty::Register(
 	L"Title",
 	xaml_typename<hstring>(),
 	xaml_typename<Magpie::SettingItem>(),
-	PropertyMetadata(box_value(L""), &SettingItem::_OnPropertyChanged)
+	PropertyMetadata(box_value(L""), nullptr)
 );
 
 DependencyProperty SettingItem::DescriptionProperty = DependencyProperty::Register(
 	L"Description",
 	xaml_typename<IInspectable>(),
 	xaml_typename<Magpie::SettingItem>(),
-	PropertyMetadata(nullptr, &SettingItem::_OnPropertyChanged)
+	PropertyMetadata(nullptr, &SettingItem::_OnDescriptionChanged)
 );
 
 DependencyProperty SettingItem::IconProperty = DependencyProperty::Register(
 	L"Icon",
 	xaml_typename<IInspectable>(),
 	xaml_typename<Magpie::SettingItem>(),
-	PropertyMetadata(box_value(L""), &SettingItem::_OnPropertyChanged)
+	PropertyMetadata(nullptr, &SettingItem::_OnIconChanged)
 );
 
 DependencyProperty SettingItem::ActionContentProperty = DependencyProperty::Register(
@@ -43,7 +40,9 @@ DependencyProperty SettingItem::ActionContentProperty = DependencyProperty::Regi
 );
 
 SettingItem::SettingItem() {
-	DefaultStyleKey(box_value(name_of<Magpie::SettingItem>()));
+	IsEnabledChanged({ this, &SettingItem::_IsEnabledChanged });
+
+	InitializeComponent();
 }
 
 void SettingItem::Title(const hstring& value) {
@@ -78,59 +77,18 @@ IInspectable SettingItem::ActionContent() const {
 	return GetValue(ActionContentProperty);
 }
 
-void SettingItem::OnApplyTemplate() {
-	if (_isEnabledChangedToken) {
-		IsEnabledChanged(_isEnabledChangedToken);
-		_isEnabledChangedToken = {};
-	}
-	
-	GetTemplateChild(_PartIconPresenter).as(_iconPresenter);
-	GetTemplateChild(_PartDescriptionPresenter).as(_descriptionPresenter);
-	
-	_SetEnabledState();
-	_isEnabledChangedToken = IsEnabledChanged({ this, &SettingItem::_Setting_IsEnabledChanged });
-
-	_Update();
-
-	__super::OnApplyTemplate();
+void SettingItem::_OnDescriptionChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const& args) {
+	ContentPresenter desc = get_self<SettingItem>(sender.as<default_interface<SettingItem>>())->DescriptionPresenter();
+	desc.Visibility(args.NewValue() == nullptr ? Visibility::Collapsed : Visibility::Visible);
 }
 
-void SettingItem::_Setting_IsEnabledChanged(IInspectable const&, DependencyPropertyChangedEventArgs const&) {
-	_SetEnabledState();
+void SettingItem::_OnIconChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const& args) {
+	ContentPresenter icon = get_self<SettingItem>(sender.as<default_interface<SettingItem>>())->IconPresenter();
+	icon.Visibility(args.NewValue() == nullptr ? Visibility::Collapsed : Visibility::Visible);
 }
 
-void SettingItem::_SetEnabledState() {
+void SettingItem::_IsEnabledChanged(IInspectable const&, DependencyPropertyChangedEventArgs const&) {
 	VisualStateManager::GoToState(*this, IsEnabled() ? L"Normal" : L"Disabled", true);
 }
 
-void SettingItem::_OnPropertyChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
-	winrt::get_self<SettingItem>(sender.as<default_interface<SettingItem>>())->_Update();
-}
-
-void SettingItem::_Update() {
-	if (ActionContent()) {
-		if (winrt::get_class_name(ActionContent()) != name_of<Button>()) {
-			// We do not want to override the default AutomationProperties.Name of a button. Its Content property already describes what it does.
-			if (!Title().empty()) {
-				AutomationProperties::SetName(ActionContent().as<UIElement>(), Title());
-			}
-		}
-	}
-	
-	if (_iconPresenter) {
-		if (Icon() == nullptr) {
-			_iconPresenter.Visibility(Visibility::Collapsed);
-		} else {
-			_iconPresenter.Visibility(Visibility::Visible);
-		}
-	}
-
-	if (_descriptionPresenter) {
-		if (Description() == nullptr) {
-			_descriptionPresenter.Visibility(Visibility::Collapsed);
-		} else {
-			_descriptionPresenter.Visibility(Visibility::Visible);
-		}
-	}
-}
 }

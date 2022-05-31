@@ -1,110 +1,101 @@
-<!--  Copied from: https://github.com/microsoft/PowerToys/blob/03b7cb46902a6d1dfcf013bb4ebde0b42273d0f8/src/settings-ui/Settings.UI/Controls/Setting/Setting.xaml  -->
-<ResourceDictionary
+<UserControl
+	x:Class="Magpie.SettingItem"
 	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-	xmlns:local="using:Magpie">
+	xmlns:local="using:Magpie"
+	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+	mc:Ignorable="d"
+	CornerRadius="{ThemeResource ControlCornerRadius}"
+	Background="{ThemeResource CardBackgroundBrush}"
+	BorderThickness="{ThemeResource CardBorderThickness}"
+	BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+	IsTabStop="False"
+	HorizontalAlignment="Stretch"
+	HorizontalContentAlignment="Stretch"
+	Padding="16"
+	Margin="0,0,0,0">
 
-	<Style TargetType="local:SettingItem">
-		<Setter Property="CornerRadius" Value="{ThemeResource ControlCornerRadius}" />
-		<Setter Property="Background" Value="{ThemeResource CardBackgroundBrush}" />
-		<Setter Property="BorderThickness" Value="{ThemeResource CardBorderThickness}" />
-		<Setter Property="BorderBrush" Value="{ThemeResource CardStrokeColorDefaultBrush}" />
-		<Setter Property="IsTabStop" Value="False" />
-		<Setter Property="HorizontalAlignment" Value="Stretch" />
-		<Setter Property="HorizontalContentAlignment" Value="Stretch" />
-		<Setter Property="Padding" Value="16" />
-		<Setter Property="Margin" Value="0,0,0,0" />
-		<Setter Property="Template">
-			<Setter.Value>
-				<ControlTemplate TargetType="local:SettingItem">
-					<Grid
-						x:Name="RootGrid"
-						MinHeight="48"
-						Padding="{TemplateBinding Padding}"
-						HorizontalAlignment="Stretch"
-						VerticalAlignment="Center"
-						Background="{TemplateBinding Background}"
-						BorderBrush="{TemplateBinding BorderBrush}"
-						BorderThickness="{TemplateBinding BorderThickness}"
-						CornerRadius="{TemplateBinding CornerRadius}">
-						<Grid.ColumnDefinitions>
-							<ColumnDefinition Width="Auto" />
-							<!--  Icon  -->
-							<ColumnDefinition Width="*" />
-							<!--  Header and subtitle  -->
-							<ColumnDefinition Width="Auto" />
-							<!--  Action control  -->
-						</Grid.ColumnDefinitions>
+	<Grid MinHeight="48"
+		  Padding="{x:Bind Padding}"
+		  HorizontalAlignment="Stretch"
+		  VerticalAlignment="Center"
+		  Background="{x:Bind Background}"
+		  BorderBrush="{x:Bind BorderBrush}"
+		  BorderThickness="{x:Bind BorderThickness}"
+		  CornerRadius="{x:Bind CornerRadius}">
+		<Grid.ColumnDefinitions>
+			<ColumnDefinition Width="Auto" />
+			<!--  Icon  -->
+			<ColumnDefinition Width="*" />
+			<!--  Header and subtitle  -->
+			<ColumnDefinition Width="Auto" />
+			<!--  Action control  -->
+		</Grid.ColumnDefinitions>
 
-						<ContentPresenter
-							x:Name="IconPresenter"
-							MaxWidth="20"
-							Margin="2,0,18,0"
-							HorizontalAlignment="Center"
-							VerticalAlignment="Center"
-							AutomationProperties.AccessibilityView="Raw"
-							Content="{TemplateBinding Icon}"
-							FontFamily="{ThemeResource SymbolThemeFontFamily}"
-							FontSize="20"
-							Foreground="{ThemeResource CardPrimaryForegroundBrush}"
-							IsTextScaleFactorEnabled="False" />
+		<ContentPresenter x:Name="IconPresenter"
+						  MaxWidth="20"
+						  Margin="2,0,18,0"
+						  HorizontalAlignment="Center"
+						  VerticalAlignment="Center"
+						  AutomationProperties.AccessibilityView="Raw"
+						  Content="{x:Bind Icon}"
+						  FontFamily="{ThemeResource SymbolThemeFontFamily}"
+						  FontSize="20"
+						  Foreground="{ThemeResource CardPrimaryForegroundBrush}"
+						  IsTextScaleFactorEnabled="False"
+						  Visibility="Collapsed" />
 
-						<StackPanel
-							Grid.Column="1"
-							Margin="0,0,16,0"
-							HorizontalAlignment="Stretch"
-							VerticalAlignment="Center">
+		<StackPanel Grid.Column="1"
+					Margin="0,0,16,0"
+					HorizontalAlignment="Stretch"
+					VerticalAlignment="Center">
 
-							<TextBlock
-								x:Name="TitlePresenter"
-								VerticalAlignment="Center"
-								Foreground="{ThemeResource CardPrimaryForegroundBrush}"
-								Text="{TemplateBinding Title}" />
+			<TextBlock x:Name="TitleTextBlock"
+					   VerticalAlignment="Center"
+					   Foreground="{ThemeResource CardPrimaryForegroundBrush}"
+					   Text="{x:Bind Title}" />
 
-							<ContentPresenter
-								x:Name="DescriptionPresenter"
-								Content="{TemplateBinding Description}"
-								FontSize="{StaticResource SecondaryTextFontSize}"
-								Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-								TextWrapping="WrapWholeWords">
-								<ContentPresenter.Resources>
-									<Style BasedOn="{StaticResource CaptionTextBlockStyle}" TargetType="TextBlock">
-										<Style.Setters>
-											<Setter Property="TextWrapping" Value="WrapWholeWords" />
-										</Style.Setters>
-									</Style>
-									<Style BasedOn="{StaticResource TextButtonStyle}" TargetType="HyperlinkButton">
-										<Style.Setters>
-											<Setter Property="FontSize" Value="12" />
-											<Setter Property="Padding" Value="0,0,0,0" />
-										</Style.Setters>
-									</Style>
-								</ContentPresenter.Resources>
-							</ContentPresenter>
-						</StackPanel>
+			<ContentPresenter x:Name="DescriptionPresenter"
+							  Content="{x:Bind Description}"
+							  FontSize="{StaticResource SecondaryTextFontSize}"
+							  Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+							  TextWrapping="WrapWholeWords"
+							  Visibility="Collapsed">
+				<ContentPresenter.Resources>
+					<Style BasedOn="{StaticResource CaptionTextBlockStyle}" TargetType="TextBlock">
+						<Style.Setters>
+							<Setter Property="TextWrapping" Value="WrapWholeWords" />
+						</Style.Setters>
+					</Style>
+					<Style BasedOn="{StaticResource TextButtonStyle}" TargetType="HyperlinkButton">
+						<Style.Setters>
+							<Setter Property="FontSize" Value="12" />
+							<Setter Property="Padding" Value="0,0,0,0" />
+						</Style.Setters>
+					</Style>
+				</ContentPresenter.Resources>
+			</ContentPresenter>
+		</StackPanel>
 
-						<ContentPresenter
-							x:Name="ContentPresenter"
-							Grid.Column="2"
-							HorizontalAlignment="Right"
-							VerticalAlignment="Center"
-							Content="{TemplateBinding ActionContent}" />
-						<VisualStateManager.VisualStateGroups>
-							<VisualStateGroup x:Name="CommonStates">
-								<VisualState x:Name="Normal" />
-								<VisualState x:Name="Disabled">
-									<VisualState.Setters>
-										<Setter Target="TitlePresenter.Foreground" Value="{ThemeResource TextFillColorDisabledBrush}" />
-										<Setter Target="DescriptionPresenter.Foreground" Value="{ThemeResource TextFillColorDisabledBrush}" />
-										<Setter Target="IconPresenter.Foreground" Value="{ThemeResource TextFillColorDisabledBrush}" />
-										<Setter Target="ContentPresenter.Foreground" Value="{ThemeResource TextFillColorDisabledBrush}" />
-									</VisualState.Setters>
-								</VisualState>
-							</VisualStateGroup>
-						</VisualStateManager.VisualStateGroups>
-					</Grid>
-				</ControlTemplate>
-			</Setter.Value>
-		</Setter>
-	</Style>
-</ResourceDictionary>
+		<ContentPresenter x:Name="ActionContentPresenter"
+						  Grid.Column="2"
+						  HorizontalAlignment="Right"
+						  VerticalAlignment="Center"
+						  Content="{x:Bind ActionContent}" />
+	</Grid>
+
+	<VisualStateManager.VisualStateGroups>
+		<VisualStateGroup x:Name="CommonStates">
+			<VisualState x:Name="Normal" />
+			<VisualState x:Name="Disabled">
+				<VisualState.Setters>
+					<Setter Target="TitleTextBlock.Foreground" Value="{ThemeResource TextFillColorDisabledBrush}" />
+					<Setter Target="DescriptionPresenter.Foreground" Value="{ThemeResource TextFillColorDisabledBrush}" />
+					<Setter Target="IconPresenter.Foreground" Value="{ThemeResource TextFillColorDisabledBrush}" />
+					<Setter Target="ActionContentPresenter.Foreground" Value="{ThemeResource TextFillColorDisabledBrush}" />
+				</VisualState.Setters>
+			</VisualState>
+		</VisualStateGroup>
+	</VisualStateManager.VisualStateGroups>
+</UserControl>

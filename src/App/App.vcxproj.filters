@@ -47,9 +47,6 @@
     <None Include="MicaBrush.idl">
       <Filter>Brushes</Filter>
     </None>
-    <None Include="SettingItem.idl">
-      <Filter>Controls</Filter>
-    </None>
     <None Include="DummyTemplate.idl">
       <Filter>Controls</Filter>
     </None>
@@ -71,9 +68,6 @@
     <Page Include="SettingsExpanderStyles.xaml">
       <Filter>Styles</Filter>
     </Page>
-    <Page Include="SettingItem.xaml">
-      <Filter>Controls</Filter>
-    </Page>
     <Page Include="DummyTemplate.xaml">
       <Filter>Controls</Filter>
     </Page>
@@ -81,6 +75,9 @@
       <Filter>Controls</Filter>
     </Page>
     <Page Include="SettingsGroup.xaml">
+      <Filter>Controls</Filter>
+    </Page>
+    <Page Include="SettingItem.xaml">
       <Filter>Controls</Filter>
     </Page>
   </ItemGroup>
