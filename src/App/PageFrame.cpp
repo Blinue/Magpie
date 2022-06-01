@@ -49,11 +49,15 @@ IInspectable PageFrame::MainContent() const {
 	return GetValue(MainContentProperty).as<IInspectable>();
 }
 
-void PageFrame::PageFrame_Loading(FrameworkElement const&, IInspectable const&) {
+void PageFrame::Loading(FrameworkElement const&, IInspectable const&) {
 	_Update();
 }
 
 void PageFrame::ScrollViewer_PointerPressed(IInspectable const&, PointerRoutedEventArgs const&) {
+	Utils::CloseAllXamlPopups(XamlRoot());
+}
+
+void PageFrame::ScrollViewer_ViewChanging(IInspectable const&, ScrollViewerViewChangingEventArgs const&) {
 	Utils::CloseAllXamlPopups(XamlRoot());
 }
 

@@ -20,9 +20,10 @@ struct PageFrame : PageFrameT<PageFrame> {
 
 	Windows::Foundation::IInspectable MainContent() const;
 
-	void PageFrame_Loading(Windows::UI::Xaml::FrameworkElement const&, Windows::Foundation::IInspectable const&);
+	void Loading(Windows::UI::Xaml::FrameworkElement const&, Windows::Foundation::IInspectable const&);
 
 	void ScrollViewer_PointerPressed(Windows::Foundation::IInspectable const&, Windows::UI::Xaml::Input::PointerRoutedEventArgs const&);
+	void ScrollViewer_ViewChanging(Windows::Foundation::IInspectable const&, Windows::UI::Xaml::Controls::ScrollViewerViewChangingEventArgs const&);
 
 	static const Windows::UI::Xaml::DependencyProperty TitleProperty;
 	static const Windows::UI::Xaml::DependencyProperty MainContentProperty;

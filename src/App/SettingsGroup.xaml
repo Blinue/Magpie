@@ -7,8 +7,8 @@
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	mc:Ignorable="d"
 	IsTabStop="False" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch"
-	IsEnabledChanged="SettingsGroup_IsEnabledChanged"
-	Loading="SettingsGroup_Loading">
+	IsEnabledChanged="IsEnabledChanged"
+	Loading="Loading">
 
 	<StackPanel Orientation="Vertical" Spacing="2">
 		<TextBlock x:Name="TitleTextBlock" Grid.Row="0" Margin="1,32,0,0"

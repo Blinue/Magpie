@@ -62,11 +62,11 @@ void SettingsGroup::Children(UIElementCollection const& value) {
 	SetValue(ChildrenProperty, value);
 }
 
-void SettingsGroup::SettingsGroup_IsEnabledChanged(IInspectable const&, DependencyPropertyChangedEventArgs const&) {
+void SettingsGroup::IsEnabledChanged(IInspectable const&, DependencyPropertyChangedEventArgs const&) {
 	_SetEnabledState();
 }
 
-void SettingsGroup::SettingsGroup_Loading(FrameworkElement const&, IInspectable const&) {
+void SettingsGroup::Loading(FrameworkElement const&, IInspectable const&) {
 	_SetEnabledState();
 	_Update();
 }

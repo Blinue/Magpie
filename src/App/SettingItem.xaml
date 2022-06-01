@@ -15,8 +15,8 @@
 	HorizontalContentAlignment="Stretch"
 	Padding="16"
 	Margin="0,0,0,0"
-	IsEnabledChanged="SettingItem_IsEnabledChanged"
-	Loading="SettingItem_Loading">
+	IsEnabledChanged="IsEnabledChanged"
+	Loading="Loading">
 
 	<Grid MinHeight="48"
 		  Padding="{x:Bind Padding, Mode=OneWay}"

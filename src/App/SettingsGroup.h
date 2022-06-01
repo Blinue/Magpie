@@ -23,9 +23,9 @@ struct SettingsGroup : SettingsGroupT<SettingsGroup> {
 	Windows::UI::Xaml::Controls::UIElementCollection Children() const;
 	void Children(Windows::UI::Xaml::Controls::UIElementCollection const& value);
 
-	void SettingsGroup_IsEnabledChanged(Windows::Foundation::IInspectable const&, Windows::UI::Xaml::DependencyPropertyChangedEventArgs const&);
+	void IsEnabledChanged(Windows::Foundation::IInspectable const&, Windows::UI::Xaml::DependencyPropertyChangedEventArgs const&);
 
-	void SettingsGroup_Loading(Windows::UI::Xaml::FrameworkElement const&, Windows::Foundation::IInspectable const&);
+	void Loading(Windows::UI::Xaml::FrameworkElement const&, Windows::Foundation::IInspectable const&);
 
 	static const Windows::UI::Xaml::DependencyProperty ChildrenProperty;
 	static const Windows::UI::Xaml::DependencyProperty TitleProperty;

@@ -28,8 +28,8 @@ struct SettingItem : SettingItemT<SettingItem> {
 
 	Windows::Foundation::IInspectable ActionContent() const;
 
-	void SettingItem_IsEnabledChanged(Windows::Foundation::IInspectable const&, Windows::UI::Xaml::DependencyPropertyChangedEventArgs const&);
-	void SettingItem_Loading(Windows::UI::Xaml::FrameworkElement const&, Windows::Foundation::IInspectable const&);
+	void IsEnabledChanged(Windows::Foundation::IInspectable const&, Windows::UI::Xaml::DependencyPropertyChangedEventArgs const&);
+	void Loading(Windows::UI::Xaml::FrameworkElement const&, Windows::Foundation::IInspectable const&);
 
 	static Windows::UI::Xaml::DependencyProperty TitleProperty;
 	static Windows::UI::Xaml::DependencyProperty DescriptionProperty;

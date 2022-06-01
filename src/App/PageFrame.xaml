@@ -7,7 +7,7 @@
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	mc:Ignorable="d"
 	IsTabStop="False"
-	Loading="PageFrame_Loading">
+	Loading="Loading">
 
 	<Grid Margin="{StaticResource PageHeaderMargin}">
 		<Grid.ColumnDefinitions>
@@ -20,8 +20,8 @@
 
 		<TextBlock x:Name="TitleTextBlock" Grid.Row="0" Text="{x:Bind Title, Mode=OneWay}" Margin="0,0,0,10" FontSize="30" FontWeight="Bold" />
 
-		<ScrollViewer Grid.Row="1" Padding="0,0,20,0" VerticalScrollBarVisibility="Auto" PointerPressed="ScrollViewer_PointerPressed">
-			<ContentControl IsTabStop="False" VerticalContentAlignment="Stretch" HorizontalContentAlignment="Stretch" Padding="0,0,0,10">
+		<ScrollViewer Grid.Row="1" Padding="0,0,20,0" VerticalScrollBarVisibility="Auto" PointerPressed="ScrollViewer_PointerPressed" ViewChanging="ScrollViewer_ViewChanging">
+			<ContentControl IsTabStop="False" VerticalContentAlignment="Stretch" HorizontalContentAlignment="Stretch" Padding="0,0,0,20">
 				<ContentPresenter HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Content="{x:Bind MainContent, Mode=OneWay}" />
 			</ContentControl>
 		</ScrollViewer>

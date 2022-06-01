@@ -88,11 +88,11 @@ void SettingItem::_SetEnabledState() {
 	VisualStateManager::GoToState(*this, IsEnabled() ? L"Normal" : L"Disabled", true);
 }
 
-void SettingItem::SettingItem_IsEnabledChanged(IInspectable const&, DependencyPropertyChangedEventArgs const&) {
+void SettingItem::IsEnabledChanged(IInspectable const&, DependencyPropertyChangedEventArgs const&) {
 	_SetEnabledState();
 }
 
-void SettingItem::SettingItem_Loading(Windows::UI::Xaml::FrameworkElement const&, Windows::Foundation::IInspectable const&) {
+void SettingItem::Loading(Windows::UI::Xaml::FrameworkElement const&, Windows::Foundation::IInspectable const&) {
 	_SetEnabledState();
 	_Update();
 }
