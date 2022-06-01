@@ -80,6 +80,9 @@
     <Page Include="SettingItem.xaml">
       <Filter>Controls</Filter>
     </Page>
+    <Page Include="SettingsGroup1.xaml">
+      <Filter>Controls</Filter>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest">
