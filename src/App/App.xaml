@@ -18,8 +18,10 @@
 			<Style x:Key="ToggleSwitchWithoutText" BasedOn="{StaticResource DefaultToggleSwitchStyle}" TargetType="ToggleSwitch">
 				<Setter Property="OffContent" Value="" />
 				<Setter Property="OnContent" Value="" />
-				<Setter Property="Margin" Value="0,0,-110,0" />
+				<Setter Property="MinWidth" Value="40" />
+				<Setter Property="Width" Value="40" />
 			</Style>
+			<x:Double x:Key="ToggleSwitchThemeMinWidth">0</x:Double>
 
 			<x:Double x:Key="SecondaryTextFontSize">12</x:Double>
 			<Style x:Key="SecondaryTextStyle" TargetType="TextBlock">
