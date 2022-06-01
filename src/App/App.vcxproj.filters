@@ -80,6 +80,9 @@
     <Page Include="SettingsGroup.xaml">
       <Filter>Controls</Filter>
     </Page>
+    <Page Include="ToggleSwitch.xaml">
+      <Filter>Styles</Filter>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest">
