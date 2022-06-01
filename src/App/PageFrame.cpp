@@ -54,7 +54,7 @@ void PageFrame::_Update() {
 	TitleTextBlock().Visibility(Title().empty() ? Visibility::Collapsed : Visibility::Visible);
 }
 
-void PageFrame::_OnTitleChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const& args) {
+void PageFrame::_OnTitleChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
 	get_self<PageFrame>(sender.as<default_interface<PageFrame>>())->_Update();
 }
 

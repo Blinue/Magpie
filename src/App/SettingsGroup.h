@@ -28,7 +28,7 @@ struct SettingsGroup : SettingsGroupT<SettingsGroup> {
 	static const Windows::UI::Xaml::DependencyProperty DescriptionProperty;
 
 private:
-	static void _OnPropertyChanged(Windows::UI::Xaml::DependencyObject const& sender, Windows::UI::Xaml::DependencyPropertyChangedEventArgs const& args);
+	static void _OnPropertyChanged(Windows::UI::Xaml::DependencyObject const& sender, Windows::UI::Xaml::DependencyPropertyChangedEventArgs const&);
 
 	void _Update();
 

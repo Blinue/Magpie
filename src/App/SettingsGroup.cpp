@@ -45,7 +45,7 @@ IInspectable SettingsGroup::Description() const {
 	return GetValue(DescriptionProperty);
 }
 
-void SettingsGroup::_OnPropertyChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const& args) {
+void SettingsGroup::_OnPropertyChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
 	get_self<SettingsGroup>(sender.as<default_interface<SettingsGroup>>())->_Update();
 }
 

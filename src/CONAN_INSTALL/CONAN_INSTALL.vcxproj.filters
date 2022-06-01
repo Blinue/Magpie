@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <CustomBuild Include="ConanInstall.bat" />
+    <None Include="ConanInstall_ARM64_Debug.bat" />
+    <None Include="ConanInstall_ARM64_Release.bat" />
+    <None Include="ConanInstall_x64_Debug.bat" />
+    <None Include="ConanInstall_x64_Release.bat" />
   </ItemGroup>
 </Project>

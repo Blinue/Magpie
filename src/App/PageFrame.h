@@ -26,7 +26,7 @@ struct PageFrame : PageFrameT<PageFrame> {
 	static const Windows::UI::Xaml::DependencyProperty MainContentProperty;
 
 private:
-	static void _OnTitleChanged(Windows::UI::Xaml::DependencyObject const& sender, Windows::UI::Xaml::DependencyPropertyChangedEventArgs const& args);
+	static void _OnTitleChanged(Windows::UI::Xaml::DependencyObject const& sender, Windows::UI::Xaml::DependencyPropertyChangedEventArgs const&);
 
 	void _Update();
 };

@@ -37,7 +37,7 @@ struct SettingItem : SettingItemT<SettingItem> {
 	static Windows::UI::Xaml::DependencyProperty ActionContentProperty;
 
 private:
-	static void _OnPropertyChanged(Windows::UI::Xaml::DependencyObject const& sender, Windows::UI::Xaml::DependencyPropertyChangedEventArgs const& args);
+	static void _OnPropertyChanged(Windows::UI::Xaml::DependencyObject const& sender, Windows::UI::Xaml::DependencyPropertyChangedEventArgs const&);
 
 	void _Update();
 

@@ -75,7 +75,7 @@ IInspectable SettingItem::ActionContent() const {
 	return GetValue(ActionContentProperty);
 }
 
-void SettingItem::_OnPropertyChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const& args) {
+void SettingItem::_OnPropertyChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
 	get_self<SettingItem>(sender.as<default_interface<SettingItem>>())->_Update();
 }
 

@@ -7,10 +7,7 @@
 	</PropertyGroup>
 	
 	<!-- Conan 依赖 -->
-	<ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-		<Import Project="..\.conan\Debug\conanbuildinfo.props" Condition="exists('..\.conan\Debug\conanbuildinfo.props')" />
-	</ImportGroup>
-	<ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-		<Import Project="..\.conan\Release\conanbuildinfo.props" Condition="exists('..\.conan\Release\conanbuildinfo.props')"/>
+	<ImportGroup Label="PropertySheets">
+		<Import Project="..\.conan\$(Platform)\$(Configuration)\conanbuildinfo.props" Condition="exists('..\.conan\$(Platform)\$(Configuration)\conanbuildinfo.props')" />
 	</ImportGroup>
 </Project>
