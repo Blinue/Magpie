@@ -162,10 +162,6 @@
       <DependentUpon>SettingsGroup.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
-    <ClInclude Include="SettingsGroup1.h">
-      <DependentUpon>SettingsGroup1.xaml</DependentUpon>
-      <SubType>Code</SubType>
-    </ClInclude>
     <ClInclude Include="SettingsPage.h">
       <DependentUpon>SettingsPage.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -225,10 +221,6 @@
       <DependentUpon>SettingsGroup.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
-    <ClCompile Include="SettingsGroup1.cpp">
-      <DependentUpon>SettingsGroup1.xaml</DependentUpon>
-      <SubType>Code</SubType>
-    </ClCompile>
     <ClCompile Include="SettingsPage.cpp">
       <DependentUpon>SettingsPage.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -239,16 +231,12 @@
       <DependentUpon>PageFrame.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Midl>
-    <Midl Include="SettingsGroup1.idl">
-      <DependentUpon>SettingsGroup1.xaml</DependentUpon>
-      <SubType>Code</SubType>
-    </Midl>
-    <None Include="SettingItem.idl">
-      <DependentUpon>SettingItem.xaml</DependentUpon>
-      <SubType>Code</SubType>
-    </None>
     <None Include="SettingsGroup.idl">
       <DependentUpon>SettingsGroup.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </None>
+    <None Include="SettingItem.idl">
+      <DependentUpon>SettingItem.xaml</DependentUpon>
       <SubType>Code</SubType>
     </None>
     <None Include="DummyTemplate.idl">
@@ -309,9 +297,6 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="SettingsGroup.xaml">
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="SettingsGroup1.xaml">
       <SubType>Designer</SubType>
     </Page>
     <Page Include="SettingsPage.xaml">

@@ -74,13 +74,10 @@
     <Page Include="PageFrame.xaml">
       <Filter>Controls</Filter>
     </Page>
-    <Page Include="SettingsGroup.xaml">
-      <Filter>Controls</Filter>
-    </Page>
     <Page Include="SettingItem.xaml">
       <Filter>Controls</Filter>
     </Page>
-    <Page Include="SettingsGroup1.xaml">
+    <Page Include="SettingsGroup.xaml">
       <Filter>Controls</Filter>
     </Page>
   </ItemGroup>

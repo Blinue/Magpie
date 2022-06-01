@@ -11,6 +11,13 @@ using namespace Windows::UI::Xaml::Controls;
 
 namespace winrt::Magpie::implementation {
 
+const DependencyProperty SettingsGroup::ChildrenProperty = DependencyProperty::Register(
+	L"Children",
+	xaml_typename<UIElementCollection>(),
+	xaml_typename<Magpie::SettingsGroup>(),
+	PropertyMetadata(nullptr)
+);
+
 const DependencyProperty SettingsGroup::TitleProperty = DependencyProperty::Register(
 	L"Title",
 	xaml_typename<hstring>(),
@@ -27,6 +34,8 @@ const DependencyProperty SettingsGroup::DescriptionProperty = DependencyProperty
 
 SettingsGroup::SettingsGroup() {
 	InitializeComponent();
+
+	Children(PART_Host().Children());
 }
 
 void SettingsGroup::Title(const hstring& value) {
@@ -45,6 +54,23 @@ IInspectable SettingsGroup::Description() const {
 	return GetValue(DescriptionProperty);
 }
 
+UIElementCollection SettingsGroup::Children() const {
+	return GetValue(ChildrenProperty).as<UIElementCollection>();
+}
+
+void SettingsGroup::Children(UIElementCollection const& value) {
+	SetValue(ChildrenProperty, value);
+}
+
+void SettingsGroup::SettingsGroup_IsEnabledChanged(IInspectable const&, DependencyPropertyChangedEventArgs const&) {
+	_SetEnabledState();
+}
+
+void SettingsGroup::SettingsGroup_Loading(FrameworkElement const&, IInspectable const&) {
+	_SetEnabledState();
+	_Update();
+}
+
 void SettingsGroup::_OnPropertyChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
 	get_self<SettingsGroup>(sender.as<default_interface<SettingsGroup>>())->_Update();
 }
@@ -56,15 +82,6 @@ void SettingsGroup::_Update() {
 
 void SettingsGroup::_SetEnabledState() {
 	VisualStateManager::GoToState(*this, IsEnabled() ? L"Normal" : L"Disabled", true);
-}
-
-void SettingsGroup::SettingsGroup_IsEnabledChanged(IInspectable const&, DependencyPropertyChangedEventArgs const&) {
-	_SetEnabledState();
-}
-
-void SettingsGroup::SettingsGroup_Loading(FrameworkElement const&, IInspectable const&) {
-	_SetEnabledState();
-	_Update();
 }
 
 }

@@ -1,4 +1,4 @@
-<ItemsControl
+<UserControl
 	x:Class="Magpie.SettingsGroup"
 	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -10,22 +10,10 @@
 	IsEnabledChanged="SettingsGroup_IsEnabledChanged"
 	Loading="SettingsGroup_Loading">
 
-	<ItemsControl.ItemsPanel>
-		<ItemsPanelTemplate>
-			<StackPanel Orientation="Vertical" Spacing="2" />
-		</ItemsPanelTemplate>
-	</ItemsControl.ItemsPanel>
-	
-	<Grid HorizontalAlignment="Stretch">
-		<Grid.RowDefinitions>
-			<RowDefinition Height="Auto" />
-			<RowDefinition Height="Auto" />
-			<RowDefinition Height="Auto" />
-		</Grid.RowDefinitions>
-
+	<StackPanel Orientation="Vertical" Spacing="2">
 		<TextBlock x:Name="TitleTextBlock" Grid.Row="0" Margin="1,32,0,0"
 				   Style="{ThemeResource BodyStrongTextBlockStyle}" Text="{x:Bind Title, Mode=OneWay}" />
-		
+
 		<ContentPresenter x:Name="DescriptionPresenter"
 						  Grid.Row="1"
 						  Margin="1,4,0,0"
@@ -46,7 +34,8 @@
 			</ContentPresenter.Resources>
 		</ContentPresenter>
 
-		<ItemsPresenter Grid.Row="2" Margin="0,8,0,0" />
+		<StackPanel Orientation="Vertical" Spacing="2" Margin="0,6,0,0" x:Name="PART_Host">
+		</StackPanel>
 
 		<VisualStateManager.VisualStateGroups>
 			<VisualStateGroup x:Name="CommonStates">
@@ -59,5 +48,5 @@
 				</VisualState>
 			</VisualStateGroup>
 		</VisualStateManager.VisualStateGroups>
-	</Grid>
-</ItemsControl>
+	</StackPanel>
+</UserControl>

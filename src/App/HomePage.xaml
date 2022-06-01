@@ -28,10 +28,6 @@
 					</local:SettingItem.ActionContent>
 				</local:SettingItem>
 			</local:SettingsGroup>
-			<local:SettingsGroup1>
-				<TextBlock Text="1" />
-				<TextBlock Text="2" />
-			</local:SettingsGroup1>
 		</StackPanel>
 	</local:PageFrame>
 </Page>
