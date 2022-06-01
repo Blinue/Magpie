@@ -4,9 +4,12 @@
 #include "PageFrame.g.cpp"
 #endif
 
+#include "Utils.h"
+
 using namespace winrt;
 using namespace Windows::UI::Xaml;
 using namespace Windows::UI::Xaml::Controls;
+using namespace Windows::UI::Xaml::Input;
 
 
 namespace winrt::Magpie::implementation {
@@ -48,6 +51,10 @@ IInspectable PageFrame::MainContent() const {
 
 void PageFrame::PageFrame_Loading(FrameworkElement const&, IInspectable const&) {
 	_Update();
+}
+
+void PageFrame::ScrollViewer_PointerPressed(IInspectable const&, PointerRoutedEventArgs const&) {
+	Utils::CloseAllXamlPopups(XamlRoot());
 }
 
 void PageFrame::_Update() {

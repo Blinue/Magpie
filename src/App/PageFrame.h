@@ -22,6 +22,8 @@ struct PageFrame : PageFrameT<PageFrame> {
 
 	void PageFrame_Loading(Windows::UI::Xaml::FrameworkElement const&, Windows::Foundation::IInspectable const&);
 
+	void ScrollViewer_PointerPressed(Windows::Foundation::IInspectable const&, Windows::UI::Xaml::Input::PointerRoutedEventArgs const&);
+
 	static const Windows::UI::Xaml::DependencyProperty TitleProperty;
 	static const Windows::UI::Xaml::DependencyProperty MainContentProperty;
 
