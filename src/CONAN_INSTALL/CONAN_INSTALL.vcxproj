@@ -39,21 +39,35 @@
     <PreBuildEvent>
       <Command>.\ConanInstall_x64_Debug.bat</Command>
     </PreBuildEvent>
+    <PostBuildEvent>
+      <Command>RD /S /Q ..\..\obj\x64\Debug\CONAN_INSTALL\CONAN_INSTALL.tlog</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <PreBuildEvent>
       <Command>.\ConanInstall_x64_Release.bat</Command>
     </PreBuildEvent>
+    <PostBuildEvent>
+      <Command>RD /S /Q ..\..\obj\x64\Release\CONAN_INSTALL\CONAN_INSTALL.tlog</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
     <PreBuildEvent>
       <Command>.\ConanInstall_ARM64_Debug.bat</Command>
     </PreBuildEvent>
+    <PostBuildEvent>
+      <Command>RD /S /Q ..\..\obj\ARM64\Debug\CONAN_INSTALL\CONAN_INSTALL.tlog</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
     <PreBuildEvent>
       <Command>.\ConanInstall_ARM64_Release.bat</Command>
     </PreBuildEvent>
+    <PostBuildEvent>
+      <Command>RD /S /Q ..\..\obj\ARM64\Release\CONAN_INSTALL\CONAN_INSTALL.tlog</Command>
+      <Message>
+      </Message>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="PropertySheets">
