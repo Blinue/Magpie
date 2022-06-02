@@ -21,7 +21,6 @@
 				<Setter Property="MinWidth" Value="40" />
 				<Setter Property="Width" Value="40" />
 			</Style>
-			<x:Double x:Key="ToggleSwitchThemeMinWidth">0</x:Double>
 
 			<x:Double x:Key="SecondaryTextFontSize">12</x:Double>
 			<Style x:Key="SecondaryTextStyle" TargetType="TextBlock">
