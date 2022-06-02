@@ -37,7 +37,12 @@ private:
 
 	void _Update();
 
+	void _UpdateHeaderStyle();
+
 	event<Windows::UI::Xaml::Data::PropertyChangedEventHandler> _propertyChangedEvent;
+
+	Microsoft::UI::Xaml::Controls::NavigationView _rootNavigationView{ nullptr };
+	Microsoft::UI::Xaml::Controls::NavigationView::DisplayModeChanged_revoker _displayModeChangedRevoker{};
 };
 
 }

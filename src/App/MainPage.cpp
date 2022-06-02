@@ -28,7 +28,7 @@ MainPage::MainPage() {
 	InitializeComponent();
 
 	// 修复 WinUI 的汉堡菜单的尺寸 bug
-	GlobalNavigationView().IsPaneOpen(true);
+	RootNavigationView_().IsPaneOpen(true);
 }
 
 MainPage::~MainPage() {
@@ -52,6 +52,10 @@ void MainPage::NavigationView_SelectionChanged(NavigationView const&, Navigation
 			ContentFrame().Navigate(winrt::xaml_typename<Magpie::AboutPage>());
 		}
 	}
+}
+
+IInspectable MainPage::RootNavigationView() {
+	return RootNavigationView_();
 }
 
 void MainPage::Initialize(uint64_t hwndHost) {

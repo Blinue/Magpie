@@ -16,6 +16,8 @@ namespace winrt::Magpie::implementation
 
 		void NavigationView_SelectionChanged(Microsoft::UI::Xaml::Controls::NavigationView const& sender, Microsoft::UI::Xaml::Controls::NavigationViewSelectionChangedEventArgs const& args);
 
+		Windows::Foundation::IInspectable RootNavigationView();
+
 		void Initialize(uint64_t hwndHost);
 
 		void OnHostFocusChanged(bool isFocused);
@@ -30,8 +32,8 @@ namespace winrt::Magpie::implementation
 
 		HWND _hwndHost = NULL;
 
-		winrt::Windows::UI::ViewManagement::UISettings _uiSettings;
-		winrt::event_token _colorChangedToken{};
+		Windows::UI::ViewManagement::UISettings _uiSettings;
+		event_token _colorChangedToken{};
 		Magpie::MicaBrush _micaBrush{ nullptr };
 
 		Magpie::Settings _settings{ nullptr };

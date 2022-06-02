@@ -24,6 +24,7 @@
 #include <winrt/Windows.UI.Xaml.Navigation.h>
 #include <winrt/Windows.UI.Xaml.Input.h>
 #include <winrt/Windows.UI.Xaml.Media.h>
+#include <winrt/Windows.UI.Text.h>
 #include <winrt/Windows.UI.ViewManagement.h>
 #include <winrt/Windows.System.Power.h>
 #include <winrt/Windows.Graphics.Effects.h>

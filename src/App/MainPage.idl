@@ -7,5 +7,7 @@ namespace Magpie
 
 		void OnHostFocusChanged(Boolean isFocused);
 		void Initialize(UInt64 hwndHost);
+
+		Object RootNavigationView { get; };
 	}
 }

@@ -41,12 +41,6 @@ App::App() {
 			box_value(CornerRadius{ 8,0,0,0 })
 		);
 	}
-
-	// 页面标题位置
-	resource.Insert(
-		box_value(L"PageHeaderMargin"),
-		box_value(Thickness{ 20, double(isWin11 ? 25 : 40), 0, 0 })
-	);
 }
 
 App::~App() {

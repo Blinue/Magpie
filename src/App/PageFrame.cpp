@@ -7,10 +7,12 @@
 #include "Utils.h"
 
 using namespace winrt;
+using namespace Windows::UI::Core;
 using namespace Windows::UI::Xaml;
 using namespace Windows::UI::Xaml::Controls;
 using namespace Windows::UI::Xaml::Data;
 using namespace Windows::UI::Xaml::Input;
+using namespace Windows::UI::Text;
 
 
 namespace winrt::Magpie::implementation {
@@ -52,6 +54,14 @@ IInspectable PageFrame::MainContent() const {
 
 void PageFrame::Loading(FrameworkElement const&, IInspectable const&) {
 	_Update();
+
+	MainPage mainPage = XamlRoot().Content().as<Magpie::MainPage>();
+	_rootNavigationView = mainPage.RootNavigationView().as<Microsoft::UI::Xaml::Controls::NavigationView>();
+	_displayModeChangedRevoker = _rootNavigationView.DisplayModeChanged(
+		auto_revoke,
+		[&](auto const&, auto const&) { _UpdateHeaderStyle(); }
+	);
+	_UpdateHeaderStyle();
 }
 
 void PageFrame::ScrollViewer_PointerPressed(IInspectable const&, PointerRoutedEventArgs const&) {
@@ -72,6 +82,20 @@ void PageFrame::PropertyChanged(event_token const& token) {
 
 void PageFrame::_Update() {
 	TitleTextBlock().Visibility(Title().empty() ? Visibility::Collapsed : Visibility::Visible);
+}
+
+void PageFrame::_UpdateHeaderStyle() {
+	TextBlock textBlock = TitleTextBlock();
+
+	bool isMinimal = _rootNavigationView.DisplayMode() == Microsoft::UI::Xaml::Controls::NavigationViewDisplayMode::Minimal;
+	if (isMinimal) {
+		textBlock.Margin(Thickness{ 28, 8.5, 0, 0 });
+		textBlock.FontSize(20);
+	} else {
+		bool isWin11 = Utils::GetOSBuild() >= 22000;
+		textBlock.Margin(Thickness{ 0, double(isWin11 ? 25 : 40), 0, 0 });
+		textBlock.FontSize(30);
+	}
 }
 
 void PageFrame::_OnTitleChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
