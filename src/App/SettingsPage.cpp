@@ -36,9 +36,4 @@ void SettingsPage::ComboBox_DropDownOpened(IInspectable const&, IInspectable con
 	Utils::UpdateThemeOfXamlPopups(XamlRoot(), ActualTheme());
 }
 
-void SettingsPage::ScrollViewer_PointerPressed(IInspectable const&, PointerRoutedEventArgs const&) {
-	// ThemeComboBox().IsDropDownOpen(false);
-	Utils::CloseAllXamlPopups(XamlRoot());
-}
-
 }

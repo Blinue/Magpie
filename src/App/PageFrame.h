@@ -25,13 +25,19 @@ struct PageFrame : PageFrameT<PageFrame> {
 	void ScrollViewer_PointerPressed(Windows::Foundation::IInspectable const&, Windows::UI::Xaml::Input::PointerRoutedEventArgs const&);
 	void ScrollViewer_ViewChanging(Windows::Foundation::IInspectable const&, Windows::UI::Xaml::Controls::ScrollViewerViewChangingEventArgs const&);
 
+	event_token PropertyChanged(Windows::UI::Xaml::Data::PropertyChangedEventHandler const& value);
+	void PropertyChanged(event_token const& token);
+
 	static const Windows::UI::Xaml::DependencyProperty TitleProperty;
 	static const Windows::UI::Xaml::DependencyProperty MainContentProperty;
 
 private:
 	static void _OnTitleChanged(Windows::UI::Xaml::DependencyObject const& sender, Windows::UI::Xaml::DependencyPropertyChangedEventArgs const&);
+	static void _OnMainContentChanged(Windows::UI::Xaml::DependencyObject const& sender, Windows::UI::Xaml::DependencyPropertyChangedEventArgs const&);
 
 	void _Update();
+
+	event<Windows::UI::Xaml::Data::PropertyChangedEventHandler> _propertyChangedEvent;
 };
 
 }

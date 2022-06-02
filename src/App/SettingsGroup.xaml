@@ -34,7 +34,7 @@
 			</ContentPresenter.Resources>
 		</ContentPresenter>
 
-		<StackPanel Orientation="Vertical" Spacing="2" Margin="0,6,0,0" x:Name="PART_Host">
+		<StackPanel Orientation="Vertical" Spacing="2" Margin="0,6,0,0" x:Name="ChildrenHost">
 		</StackPanel>
 
 		<VisualStateManager.VisualStateGroups>

@@ -15,28 +15,28 @@ DependencyProperty SettingItem::TitleProperty = DependencyProperty::Register(
 	L"Title",
 	xaml_typename<hstring>(),
 	xaml_typename<Magpie::SettingItem>(),
-	PropertyMetadata(box_value(L""), nullptr)
+	PropertyMetadata(box_value(L""), _OnTitleChanged)
 );
 
 DependencyProperty SettingItem::DescriptionProperty = DependencyProperty::Register(
 	L"Description",
 	xaml_typename<IInspectable>(),
 	xaml_typename<Magpie::SettingItem>(),
-	PropertyMetadata(nullptr, &SettingItem::_OnPropertyChanged)
+	PropertyMetadata(nullptr, &SettingItem::_OnDescriptionChanged)
 );
 
 DependencyProperty SettingItem::IconProperty = DependencyProperty::Register(
 	L"Icon",
 	xaml_typename<IInspectable>(),
 	xaml_typename<Magpie::SettingItem>(),
-	PropertyMetadata(nullptr, &SettingItem::_OnPropertyChanged)
+	PropertyMetadata(nullptr, &SettingItem::_OnIconChanged)
 );
 
 DependencyProperty SettingItem::ActionContentProperty = DependencyProperty::Register(
 	L"ActionContent",
 	xaml_typename<IInspectable>(),
 	xaml_typename<Magpie::SettingItem>(),
-	nullptr
+	PropertyMetadata(nullptr, &SettingItem::_OnActionContentChanged)
 );
 
 SettingItem::SettingItem() {
@@ -75,8 +75,28 @@ IInspectable SettingItem::ActionContent() const {
 	return GetValue(ActionContentProperty);
 }
 
-void SettingItem::_OnPropertyChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
-	get_self<SettingItem>(sender.as<default_interface<SettingItem>>())->_Update();
+void SettingItem::_OnTitleChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
+	SettingItem* that = get_self<SettingItem>(sender.as<default_interface<SettingItem>>());
+	that->_Update();
+	that->_propertyChangedEvent(*that, PropertyChangedEventArgs{ L"Title" });
+}
+
+void SettingItem::_OnDescriptionChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
+	SettingItem* that = get_self<SettingItem>(sender.as<default_interface<SettingItem>>());
+	that->_Update();
+	that->_propertyChangedEvent(*that, PropertyChangedEventArgs{ L"Description" });
+}
+
+void SettingItem::_OnIconChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
+	SettingItem* that = get_self<SettingItem>(sender.as<default_interface<SettingItem>>());
+	that->_Update();
+	that->_propertyChangedEvent(*that, PropertyChangedEventArgs{ L"Icon" });
+}
+
+void SettingItem::_OnActionContentChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
+	SettingItem* that = get_self<SettingItem>(sender.as<default_interface<SettingItem>>());
+	that->_Update();
+	that->_propertyChangedEvent(*that, PropertyChangedEventArgs{ L"ActionContent" });
 }
 
 void SettingItem::_Update() {
@@ -95,6 +115,14 @@ void SettingItem::IsEnabledChanged(IInspectable const&, DependencyPropertyChange
 void SettingItem::Loading(Windows::UI::Xaml::FrameworkElement const&, Windows::Foundation::IInspectable const&) {
 	_SetEnabledState();
 	_Update();
+}
+
+event_token SettingItem::PropertyChanged(Windows::UI::Xaml::Data::PropertyChangedEventHandler const& value) {
+	return _propertyChangedEvent.add(value);
+}
+
+void SettingItem::PropertyChanged(event_token const& token) {
+	_propertyChangedEvent.remove(token);
 }
 
 }

@@ -22,20 +22,20 @@ const DependencyProperty SettingsGroup::TitleProperty = DependencyProperty::Regi
 	L"Title",
 	xaml_typename<hstring>(),
 	xaml_typename<Magpie::SettingsGroup>(),
-	PropertyMetadata(box_value(L""), &SettingsGroup::_OnPropertyChanged)
+	PropertyMetadata(box_value(L""), &SettingsGroup::_OnTitleChanged)
 );
 
 const DependencyProperty SettingsGroup::DescriptionProperty = DependencyProperty::Register(
 	L"Description",
 	xaml_typename<IInspectable>(),
 	xaml_typename<Magpie::SettingsGroup>(),
-	PropertyMetadata(nullptr, &SettingsGroup::_OnPropertyChanged)
+	PropertyMetadata(nullptr, &SettingsGroup::_OnDescriptionChanged)
 );
 
 SettingsGroup::SettingsGroup() {
 	InitializeComponent();
 
-	Children(PART_Host().Children());
+	Children(ChildrenHost().Children());
 }
 
 void SettingsGroup::Title(const hstring& value) {
@@ -71,8 +71,24 @@ void SettingsGroup::Loading(FrameworkElement const&, IInspectable const&) {
 	_Update();
 }
 
-void SettingsGroup::_OnPropertyChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
-	get_self<SettingsGroup>(sender.as<default_interface<SettingsGroup>>())->_Update();
+event_token SettingsGroup::PropertyChanged(Windows::UI::Xaml::Data::PropertyChangedEventHandler const& value) {
+	return _propertyChangedEvent.add(value);
+}
+
+void SettingsGroup::PropertyChanged(event_token const& token) {
+	_propertyChangedEvent.remove(token);
+}
+
+void SettingsGroup::_OnTitleChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
+	SettingsGroup* that = get_self<SettingsGroup>(sender.as<default_interface<SettingsGroup>>());
+	that->_Update();
+	that->_propertyChangedEvent(*that, PropertyChangedEventArgs{ L"Title" });
+}
+
+void SettingsGroup::_OnDescriptionChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
+	SettingsGroup* that = get_self<SettingsGroup>(sender.as<default_interface<SettingsGroup>>());
+	that->_Update();
+	that->_propertyChangedEvent(*that, PropertyChangedEventArgs{ L"Description" });
 }
 
 void SettingsGroup::_Update() {

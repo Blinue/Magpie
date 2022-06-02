@@ -24,19 +24,24 @@ struct SettingsGroup : SettingsGroupT<SettingsGroup> {
 	void Children(Windows::UI::Xaml::Controls::UIElementCollection const& value);
 
 	void IsEnabledChanged(Windows::Foundation::IInspectable const&, Windows::UI::Xaml::DependencyPropertyChangedEventArgs const&);
-
 	void Loading(Windows::UI::Xaml::FrameworkElement const&, Windows::Foundation::IInspectable const&);
+
+	event_token PropertyChanged(Windows::UI::Xaml::Data::PropertyChangedEventHandler const& value);
+	void PropertyChanged(event_token const& token);
 
 	static const Windows::UI::Xaml::DependencyProperty ChildrenProperty;
 	static const Windows::UI::Xaml::DependencyProperty TitleProperty;
 	static const Windows::UI::Xaml::DependencyProperty DescriptionProperty;
 
 private:
-	static void _OnPropertyChanged(Windows::UI::Xaml::DependencyObject const& sender, Windows::UI::Xaml::DependencyPropertyChangedEventArgs const&);
+	static void _OnTitleChanged(Windows::UI::Xaml::DependencyObject const& sender, Windows::UI::Xaml::DependencyPropertyChangedEventArgs const&);
+	static void _OnDescriptionChanged(Windows::UI::Xaml::DependencyObject const& sender, Windows::UI::Xaml::DependencyPropertyChangedEventArgs const&);
 
 	void _Update();
 
 	void _SetEnabledState();
+
+	event<Windows::UI::Xaml::Data::PropertyChangedEventHandler> _propertyChangedEvent;
 };
 
 }

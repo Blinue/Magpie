@@ -14,8 +14,6 @@ struct SettingsPage : SettingsPageT<SettingsPage> {
 
 	void ComboBox_DropDownOpened(winrt::Windows::Foundation::IInspectable const&, winrt::Windows::Foundation::IInspectable const&);
 
-	void ScrollViewer_PointerPressed(winrt::Windows::Foundation::IInspectable const&, Windows::UI::Xaml::Input::PointerRoutedEventArgs const&);
-
 private:
 	Magpie::Settings _settings{ nullptr };
 };

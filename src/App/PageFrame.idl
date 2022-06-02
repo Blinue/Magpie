@@ -1,8 +1,7 @@
 namespace Magpie
 {
-    [default_interface]
     [Windows.UI.Xaml.Markup.ContentProperty("MainContent")]
-    runtimeclass PageFrame : Windows.UI.Xaml.Controls.UserControl
+    runtimeclass PageFrame : Windows.UI.Xaml.Controls.UserControl, [default] Windows.UI.Xaml.Data.INotifyPropertyChanged
     {
         PageFrame();
 

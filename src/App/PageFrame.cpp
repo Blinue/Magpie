@@ -9,6 +9,7 @@
 using namespace winrt;
 using namespace Windows::UI::Xaml;
 using namespace Windows::UI::Xaml::Controls;
+using namespace Windows::UI::Xaml::Data;
 using namespace Windows::UI::Xaml::Input;
 
 
@@ -25,7 +26,7 @@ const DependencyProperty PageFrame::MainContentProperty = DependencyProperty::Re
 	L"MainContent",
 	xaml_typename<IInspectable>(),
 	xaml_typename<Magpie::PageFrame>(),
-	PropertyMetadata(nullptr)
+	PropertyMetadata(nullptr, &PageFrame::_OnTitleChanged)
 );
 
 
@@ -61,12 +62,27 @@ void PageFrame::ScrollViewer_ViewChanging(IInspectable const&, ScrollViewerViewC
 	Utils::CloseAllXamlPopups(XamlRoot());
 }
 
+event_token PageFrame::PropertyChanged(PropertyChangedEventHandler const& value) {
+	return _propertyChangedEvent.add(value);
+}
+
+void PageFrame::PropertyChanged(event_token const& token) {
+	_propertyChangedEvent.remove(token);
+}
+
 void PageFrame::_Update() {
 	TitleTextBlock().Visibility(Title().empty() ? Visibility::Collapsed : Visibility::Visible);
 }
 
 void PageFrame::_OnTitleChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
-	get_self<PageFrame>(sender.as<default_interface<PageFrame>>())->_Update();
+	PageFrame* that = get_self<PageFrame>(sender.as<default_interface<PageFrame>>());
+	that->_Update();
+	that->_propertyChangedEvent(*that, PropertyChangedEventArgs{ L"Title" });
+}
+
+void PageFrame::_OnMainContentChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
+	PageFrame* that = get_self<PageFrame>(sender.as<default_interface<PageFrame>>());
+	that->_propertyChangedEvent(*that, PropertyChangedEventArgs{ L"MainContent" });
 }
 
 }
