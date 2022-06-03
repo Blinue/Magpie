@@ -10,7 +10,7 @@
 
 	<local:PageFrame Title="Magpie">
 		<StackPanel Orientation="Vertical" HorizontalAlignment="Stretch">
-			<local:SettingsGroup Title="激活" Margin="0,-10,0,0">
+			<local:SettingsGroup Title="激活">
 				<local:SettingItem Title="快捷键" Description="自定义进入和退出全屏的快捷键">
 					<local:SettingItem.Icon>
 						<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xEDA7;"/>

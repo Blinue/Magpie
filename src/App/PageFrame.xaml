@@ -18,10 +18,10 @@
 			<RowDefinition Height="*" />
 		</Grid.RowDefinitions>
 
-		<TextBlock x:Name="TitleTextBlock" Grid.Row="0" Text="{x:Bind Title, Mode=OneWay}" />
+		<TextBlock x:Name="TitleTextBlock" Grid.Row="0" Text="{x:Bind Title, Mode=OneWay}" FontWeight="SemiBold" />
 
-		<ScrollViewer Grid.Row="1" Padding="0,0,20,0" VerticalScrollBarVisibility="Auto" PointerPressed="ScrollViewer_PointerPressed" ViewChanging="ScrollViewer_ViewChanging">
-			<ContentControl IsTabStop="False" VerticalContentAlignment="Stretch" HorizontalContentAlignment="Stretch" Padding="0,0,0,20">
+		<ScrollViewer Grid.Row="1" Margin="0,15,0,0" VerticalScrollBarVisibility="Auto" PointerPressed="ScrollViewer_PointerPressed" ViewChanging="ScrollViewer_ViewChanging">
+			<ContentControl Margin="0,-15,20,20" IsTabStop="False" VerticalContentAlignment="Stretch" HorizontalContentAlignment="Stretch">
 				<ContentPresenter HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Content="{x:Bind MainContent, Mode=OneWay}" />
 			</ContentControl>
 		</ScrollViewer>

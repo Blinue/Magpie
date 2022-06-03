@@ -241,7 +241,7 @@ LRESULT XamlApp::_WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	{
 		// 设置窗口最小尺寸
 		MINMAXINFO* mmi = (MINMAXINFO*)lParam;
-		mmi->ptMinTrackSize = { 400,300 };
+		mmi->ptMinTrackSize = { 500,300 };
 		return 0;
 	}
 	case WM_ACTIVATE:

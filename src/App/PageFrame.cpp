@@ -89,14 +89,12 @@ void PageFrame::_UpdateHeaderStyle() {
 
 	bool isMinimal = _rootNavigationView.DisplayMode() == Microsoft::UI::Xaml::Controls::NavigationViewDisplayMode::Minimal;
 	if (isMinimal) {
-		textBlock.Margin(Thickness{ 28, 8.5, 0, 10 });
+		textBlock.Margin(Thickness{ 28, 8.5, 0, 0 });
 		textBlock.FontSize(20);
-		textBlock.FontWeight(FontWeights::Medium());
 	} else {
 		bool isWin11 = Utils::GetOSBuild() >= 22000;
 		textBlock.Margin(Thickness{ 0, double(isWin11 ? 25 : 40), 0, 0 });
 		textBlock.FontSize(30);
-		textBlock.FontWeight(FontWeights::Bold());
 	}
 }
 
