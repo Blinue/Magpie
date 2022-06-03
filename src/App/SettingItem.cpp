@@ -7,6 +7,8 @@
 using namespace winrt;
 using namespace Windows::UI::Xaml;
 using namespace Windows::UI::Xaml::Controls;
+using namespace Windows::UI::Xaml::Data;
+using namespace Windows::Foundation;
 
 
 namespace winrt::Magpie::implementation {
@@ -112,12 +114,12 @@ void SettingItem::IsEnabledChanged(IInspectable const&, DependencyPropertyChange
 	_SetEnabledState();
 }
 
-void SettingItem::Loading(Windows::UI::Xaml::FrameworkElement const&, Windows::Foundation::IInspectable const&) {
+void SettingItem::Loading(FrameworkElement const&, IInspectable const&) {
 	_SetEnabledState();
 	_Update();
 }
 
-event_token SettingItem::PropertyChanged(Windows::UI::Xaml::Data::PropertyChangedEventHandler const& value) {
+event_token SettingItem::PropertyChanged(PropertyChangedEventHandler const& value) {
 	return _propertyChangedEvent.add(value);
 }
 

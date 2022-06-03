@@ -8,7 +8,7 @@
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	mc:Ignorable="d">
 
-	<muxc:NavigationView Name="RootNavigationView_" IsBackButtonVisible="Collapsed" IsPaneOpen="False" SelectionChanged="NavigationView_SelectionChanged">
+	<muxc:NavigationView Name="RootNavigationView" IsBackButtonVisible="Collapsed" IsPaneOpen="False" SelectionChanged="NavigationView_SelectionChanged">
 		<muxc:NavigationView.Resources>
 			<SolidColorBrush x:Key="NavigationViewContentBackground"
                                  Color="Transparent" />

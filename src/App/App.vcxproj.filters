@@ -53,6 +53,9 @@
     <None Include="dummy.exe">
       <Filter>Miscellaneous</Filter>
     </None>
+    <None Include="KeyVisual.idl">
+      <Filter>Controls</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Page Include="MainPage.xaml" />
@@ -82,6 +85,9 @@
     </Page>
     <Page Include="ToggleSwitch.xaml">
       <Filter>Styles</Filter>
+    </Page>
+    <Page Include="KeyVisual.xaml">
+      <Filter>Controls</Filter>
     </Page>
   </ItemGroup>
   <ItemGroup>

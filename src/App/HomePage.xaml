@@ -16,7 +16,7 @@
 						<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xEDA7;"/>
 					</local:SettingItem.Icon>
 					<local:SettingItem.ActionContent>
-
+						<local:KeyVisual Content="X" />
 					</local:SettingItem.ActionContent>
 				</local:SettingItem>
 				<local:SettingItem Title="计时器">

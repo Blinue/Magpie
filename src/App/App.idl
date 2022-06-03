@@ -7,6 +7,8 @@
 #include "AboutPage.idl"
 #include "HomePage.idl"
 #include "SettingsPage.idl"
+#include "KeyVisual.idl"
+
 
 namespace Magpie{
 	[default_interface]
