@@ -18,8 +18,6 @@ namespace winrt::Magpie::implementation
 
 		Windows::Foundation::IInspectable RootNavigationView();
 
-		void OnHostFocusChanged(bool isFocused);
-
 	private:
 		void _UpdateTheme();
 
@@ -32,7 +30,6 @@ namespace winrt::Magpie::implementation
 
 		Windows::UI::ViewManagement::UISettings _uiSettings;
 		event_token _colorChangedToken{};
-		Magpie::MicaBrush _micaBrush{ nullptr };
 
 		Magpie::Settings _settings{ nullptr };
 		std::optional<bool> _isDarkTheme;

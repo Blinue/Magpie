@@ -8,6 +8,7 @@
 
 
 using namespace winrt;
+using namespace Windows::Foundation;
 using namespace Windows::UI::Xaml;
 using namespace Windows::UI::Xaml::Media;
 
@@ -54,7 +55,25 @@ void App::OnClose() {
 bool App::Initialize(Magpie::Settings settings, uint64_t hwndHost) {
 	_settings = settings;
 	_hwndHost = hwndHost;
+	_isHostWndFocused = GetForegroundWindow() == (HWND)hwndHost;
 	return true;
+}
+
+event_token App::HostWndFocusChanged(EventHandler<bool> const& handler) {
+	return _hostWndFocusChangedEvent.add(handler);
+}
+
+void App::HostWndFocusChanged(event_token const& token) noexcept {
+	_hostWndFocusChangedEvent.remove(token);
+}
+
+void App::OnHostWndFocusChanged(bool isFocused) {
+	if (isFocused == _isHostWndFocused) {
+		return;
+	}
+
+	_isHostWndFocused = isFocused;
+	_hostWndFocusChangedEvent(*this, isFocused);
 }
 
 }

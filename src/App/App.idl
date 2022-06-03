@@ -21,5 +21,9 @@ namespace Magpie{
 
 		Settings Settings{ get; };
 		UInt64 HwndHost{ get; };
+
+		Boolean IsHostWndFocused { get; };
+		event Windows.Foundation.EventHandler<Boolean> HostWndFocusChanged;
+		void OnHostWndFocusChanged(Boolean isFocused);
 	}
 }

@@ -8,8 +8,6 @@ namespace winrt::Magpie::implementation {
 struct MicaBrush : MicaBrushT<MicaBrush> {
 	MicaBrush(Windows::UI::Xaml::FrameworkElement root);
 
-	void OnHostFocusChanged(bool isFocused);
-
 	void OnConnected();
 	void OnDisconnected();
 
@@ -32,6 +30,12 @@ private:
 		Windows::UI::Xaml::FrameworkElement const&,
 		Windows::Foundation::IInspectable const&
 	);
+	void _App_HostWndFocusedChanged(
+		Windows::Foundation::IInspectable const&,
+		bool isFocused
+	);
+
+	App _app{ nullptr };
 
 	Windows::UI::Xaml::FrameworkElement _rootElement{ nullptr };
 	bool _windowActivated = false;
@@ -46,6 +50,7 @@ private:
 	winrt::event_token _energySaverStatusChangedToken{};
 	winrt::event_token _compositionCapabilitiesChangedToken{};
 	winrt::event_token _rootElementThemeChangedToken{};
+	winrt::event_token _hostWndFocusedChangedToken{};
 };
 
 }

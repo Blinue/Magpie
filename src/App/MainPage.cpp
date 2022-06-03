@@ -33,12 +33,11 @@ MainPage::MainPage() {
 	_hwndHost = (HWND)Application::Current().as<App>().HwndHost();
 
 	_settings = Application::Current().as<Magpie::App>().Settings();
-	_micaBrush = Magpie::MicaBrush(*this);
 
 	_UpdateTheme();
 	_settings.ThemeChanged([this](const auto&, int) { _UpdateTheme(); });
 
-	Background(_micaBrush);
+	Background(Magpie::MicaBrush(*this));
 }
 
 MainPage::~MainPage() {
@@ -66,10 +65,6 @@ void MainPage::NavigationView_SelectionChanged(NavigationView const&, Navigation
 
 IInspectable MainPage::RootNavigationView() {
 	return __super::RootNavigationView();
-}
-
-void MainPage::OnHostFocusChanged(bool isFocused) {
-	_micaBrush.OnHostFocusChanged(isFocused);
 }
 
 void MainPage::_UpdateTheme() {

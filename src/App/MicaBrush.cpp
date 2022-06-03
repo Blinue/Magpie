@@ -103,15 +103,12 @@ namespace winrt::Magpie::implementation {
 MicaBrush::MicaBrush(FrameworkElement root) {
 	_rootElement = root;
 
+	_app = Application::Current().as<App>();
+
 	_hasMica = ApiInformation::IsMethodPresent(
 		name_of<Compositor>(),
 		L"TryCreateBlurredWallpaperBackdropBrush"
 	);
-}
-
-void MicaBrush::OnHostFocusChanged(bool isFocused) {
-	_windowActivated = isFocused;
-	_UpdateBrush();
 }
 
 void MicaBrush::OnConnected() {
@@ -127,12 +124,15 @@ void MicaBrush::OnConnected() {
 	if (!_energySaver.has_value())
 		_energySaver = PowerManager::EnergySaverStatus() == EnergySaverStatus::On;
 
+	_windowActivated = _app.IsHostWndFocused();
+
 	_UpdateBrush();
 
 	_highContrastChangedToken = _accessibilitySettings.HighContrastChanged({ this, &MicaBrush::_AccessibilitySettings_HighContrastChanged });
 	_energySaverStatusChangedToken = PowerManager::EnergySaverStatusChanged({ this, &MicaBrush::_PowerManager_EnergySaverStatusChanged });
 	_compositionCapabilitiesChangedToken = CompositionCapabilities::GetForCurrentView().Changed({ this, &MicaBrush::_CompositionCapabilities_Changed });
 	_rootElementThemeChangedToken = _rootElement.ActualThemeChanged({ this, &MicaBrush::_RootElement_ActualThemeChanged });
+	_hostWndFocusedChangedToken = _app.HostWndFocusChanged({this, &MicaBrush::_App_HostWndFocusedChanged});
 }
 
 void MicaBrush::OnDisconnected() {
@@ -154,6 +154,9 @@ void MicaBrush::OnDisconnected() {
 
 	_rootElement.ActualThemeChanged(_rootElementThemeChangedToken);
 	_rootElementThemeChangedToken = {};
+
+	_app.HostWndFocusChanged(_hostWndFocusedChangedToken);
+	_hostWndFocusedChangedToken = {};
 
 	if (CompositionBrush() != nullptr) {
 		CompositionBrush().Close();
@@ -180,6 +183,11 @@ IAsyncAction MicaBrush::_PowerManager_EnergySaverStatusChanged(IInspectable cons
 }
 
 void MicaBrush::_RootElement_ActualThemeChanged(Windows::UI::Xaml::FrameworkElement const&, Windows::Foundation::IInspectable const&) {
+	_UpdateBrush();
+}
+
+void MicaBrush::_App_HostWndFocusedChanged(IInspectable const&, bool isFocused) {
+	_windowActivated = isFocused;
 	_UpdateBrush();
 }
 

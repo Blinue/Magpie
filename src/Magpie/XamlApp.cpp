@@ -20,6 +20,8 @@ using namespace Magpie;
 static constexpr const wchar_t* XAML_HOST_CLASS_NAME = L"Magpie_XamlHost";
 static constexpr const wchar_t* MUTEX_NAME = L"{4C416227-4A30-4A2F-8F23-8701544DD7D6}";
 
+static constexpr UINT CHECK_FORGROUND_TIMER_ID = 1;
+
 
 bool XamlApp::Initialize(HINSTANCE hInstance) {
 	_hMutex.reset(CreateMutex(nullptr, TRUE, MUTEX_NAME));
@@ -153,6 +155,19 @@ bool XamlApp::Initialize(HINSTANCE hInstance) {
 		}
 	});
 
+	{
+		// SetTimer 之前推荐先调用 SetUserObjectInformation
+		BOOL value = FALSE;
+		if (!SetUserObjectInformation(GetCurrentProcess(), UOI_TIMERPROC_EXCEPTION_SUPPRESSION, &value, sizeof(value))) {
+			Logger::Get().Win32Error("SetUserObjectInformation 失败");
+		}
+
+		// 监听 WM_ACTIVATE 不完全可靠，因此定期检查前台窗口以确保背景绘制正确
+		if (SetTimer(_hwndXamlHost, CHECK_FORGROUND_TIMER_ID, 250, nullptr) == 0) {
+			Logger::Get().Win32Error("SetTimer 失败");
+		}
+	}
+
 	return true;
 }
 
@@ -193,6 +208,14 @@ void XamlApp::_OnResize() {
 
 LRESULT XamlApp::_WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
 	switch (message) {
+	case WM_HOTKEY:
+	{
+		if (message >= 0) {
+			return 0;
+		}
+
+		break;
+	}
 	case WM_KEYDOWN:
 	{
 		if (wParam == VK_TAB) {
@@ -247,16 +270,30 @@ LRESULT XamlApp::_WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_ACTIVATE:
 	{
 		if (LOWORD(wParam) != WA_INACTIVE) {
-			_mainPage.OnHostFocusChanged(true);
+			_uwpApp.OnHostWndFocusChanged(true);
 			if (_hwndXamlIsland) {
 				SetFocus(_hwndXamlIsland);
 			}
 		} else {
-			_mainPage.OnHostFocusChanged(false);
+			_uwpApp.OnHostWndFocusChanged(false);
 			_CloseAllXamlPopups();
 		}
 		
 		return 0;
+	}
+	case WM_TIMER:
+	{
+		if (wParam == CHECK_FORGROUND_TIMER_ID) {
+			if (GetForegroundWindow() == _hwndXamlHost) {
+				_uwpApp.OnHostWndFocusChanged(true);
+			} else {
+				_uwpApp.OnHostWndFocusChanged(false);
+				_CloseAllXamlPopups();
+			}
+			return 0;
+		}
+
+		break;
 	}
 	case WM_MOVING:
 	{
