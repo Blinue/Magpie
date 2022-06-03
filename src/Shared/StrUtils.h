@@ -8,6 +8,8 @@ struct StrUtils {
 
 	static std::string UTF16ToUTF8(std::wstring_view str);
 
+	static std::string UTF16ToANSI(std::wstring_view str);
+
 	static void Trim(std::string_view& str);
 
 	static void Trim(std::string& str) {

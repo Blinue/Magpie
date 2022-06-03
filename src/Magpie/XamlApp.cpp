@@ -18,9 +18,23 @@ using namespace Windows::Foundation;
 using namespace Magpie;
 
 static constexpr const wchar_t* XAML_HOST_CLASS_NAME = L"Magpie_XamlHost";
+static constexpr const wchar_t* MUTEX_NAME = L"{4C416227-4A30-4A2F-8F23-8701544DD7D6}";
 
 
 bool XamlApp::Initialize(HINSTANCE hInstance) {
+	_hMutex.reset(CreateMutex(nullptr, TRUE, MUTEX_NAME));
+	if (!_hMutex || GetLastError() == ERROR_ALREADY_EXISTS) {
+		// 将已存在的窗口带到前台
+		// v0.10 之前的版本使用广播消息实现，因此不能兼容
+		HWND hWnd = FindWindow(XAML_HOST_CLASS_NAME, nullptr);
+		if (hWnd) {
+			// 如果已有实例权限更高 ShowWindow 会失败
+			ShowWindow(hWnd, SW_NORMAL);
+			Utils::SetForegroundWindow(hWnd);
+			return false;
+		}
+	}
+
 	init_apartment(apartment_type::single_threaded);
 
 	// 当前目录始终是程序所在目录
@@ -42,6 +56,10 @@ bool XamlApp::Initialize(HINSTANCE hInstance) {
 	_settings = Settings();
 	if (!_settings.Initialize((uint64_t)&Logger::Get())) {
 		return false;
+	}
+
+	if (!_hMutex) {
+		Logger::Get().Warn("获取 Mutex 失败但未找到其他实例");
 	}
 
 	// 注册窗口类

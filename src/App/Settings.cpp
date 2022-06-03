@@ -56,7 +56,7 @@ bool Settings::Initialize(uint64_t pLogger) {
 	Logger& logger = Logger::Get();
 	logger.Initialize(
 		spdlog::level::info,
-		StrUtils::Concat(StrUtils::UTF16ToUTF8(_workingDir), "logs\\magpie.log").c_str(),
+		StrUtils::Concat(StrUtils::UTF16ToANSI(_workingDir), "logs\\magpie.log").c_str(),
 		100000,
 		2
 	);

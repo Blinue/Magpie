@@ -16,7 +16,9 @@ int APIENTRY wWinMain(
 	UNREFERENCED_PARAMETER(nCmdShow);
 
 	auto& app = XamlApp::Get();
-	app.Initialize(hInstance);
+	if (!app.Initialize(hInstance)) {
+		return -1;
+	}
 
 	return app.Run();
 }

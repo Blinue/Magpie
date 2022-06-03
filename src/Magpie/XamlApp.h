@@ -2,6 +2,7 @@
 #include "pch.h"
 #include <windows.ui.xaml.hosting.desktopwindowxamlsource.h>
 #include <winrt/Magpie.h>
+#include "Utils.h"
 
 
 class XamlApp {
@@ -31,6 +32,8 @@ private:
 	LRESULT _WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
 	void _CloseAllXamlPopups();
+
+	Utils::ScopedHandle _hMutex;
 
 	winrt::Magpie::Settings _settings{ nullptr };
 
