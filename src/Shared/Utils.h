@@ -177,3 +177,10 @@ struct hash<std::pair<T1, T2>> {
 };
 
 }
+
+namespace winrt {
+
+// 将 VirtualKey 映射为字符串
+hstring to_hstring(Windows::System::VirtualKey status);
+
+}
