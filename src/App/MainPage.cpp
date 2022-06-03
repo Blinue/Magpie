@@ -119,7 +119,7 @@ void MainPage::_UpdateTheme() {
 	// 更改背景色以配合主题
 	// 背景色在更改窗口大小时会短暂可见
 	HBRUSH hbrOld = (HBRUSH)SetClassLongPtr(_hwndHost, GCLP_HBRBACKGROUND,
-		(INT_PTR)CreateSolidBrush(isDarkTheme ? RGB(0, 0, 0) : RGB(255, 255, 255)));
+		(INT_PTR)CreateSolidBrush(isDarkTheme ? RGB(32, 32, 32) : RGB(243, 243, 243)));
 	if (hbrOld) {
 		DeleteObject(hbrOld);
 	}

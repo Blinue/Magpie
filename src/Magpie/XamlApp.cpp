@@ -11,11 +11,16 @@
 #pragma comment(lib, "UxTheme.lib")
 
 
-using namespace winrt;
-using namespace Windows::UI::Core;
-using namespace Windows::UI::Xaml::Hosting;
+namespace winrt {
+
 using namespace Windows::Foundation;
+using namespace Windows::UI::Core;
+using namespace Windows::UI::Xaml;
+using namespace Windows::UI::Xaml::Hosting;
 using namespace Magpie;
+
+}
+
 
 static constexpr const wchar_t* XAML_HOST_CLASS_NAME = L"Magpie_XamlHost";
 static constexpr const wchar_t* MUTEX_NAME = L"{4C416227-4A30-4A2F-8F23-8701544DD7D6}";
@@ -37,7 +42,7 @@ bool XamlApp::Initialize(HINSTANCE hInstance) {
 		}
 	}
 
-	init_apartment(apartment_type::single_threaded);
+	winrt::init_apartment(winrt::apartment_type::single_threaded);
 
 	// 当前目录始终是程序所在目录
 	{
@@ -55,7 +60,7 @@ bool XamlApp::Initialize(HINSTANCE hInstance) {
 		SetCurrentDirectory(curDir);
 	}
 	
-	_settings = Settings();
+	_settings = winrt::Settings();
 	if (!_settings.Initialize((uint64_t)&Logger::Get())) {
 		return false;
 	}
@@ -83,7 +88,7 @@ bool XamlApp::Initialize(HINSTANCE hInstance) {
 		RegisterClassEx(&wcex);
 	}
 
-	const Rect& windowRect = _settings.WindowRect();
+	const winrt::Rect& windowRect = _settings.WindowRect();
 
 	_hwndXamlHost = CreateWindow(
 		XAML_HOST_CLASS_NAME,
@@ -110,52 +115,38 @@ bool XamlApp::Initialize(HINSTANCE hInstance) {
 		SetWindowThemeAttribute(_hwndXamlHost, WTA_NONCLIENT, &option, sizeof(option));
 	}
 
-	_uwpApp = App();
-	_uwpApp.Initialize(_settings, (uint64_t)_hwndXamlHost);
-	_mainPage = MainPage();
-
-	_xamlSource = Windows::UI::Xaml::Hosting::DesktopWindowXamlSource();
-	_xamlSourceNative2 = _xamlSource.as<IDesktopWindowXamlSourceNative2>();
-
-	const int cmdShow = _settings.IsWindowMaximized() ? SW_MAXIMIZE : SW_SHOW;
-
+	_uwpApp = winrt::App();
 	if (!isWin11) {
-		// 在 Win10 上可能导致任务栏出现空的 DesktopWindowXamlSource 窗口
-		// 见 https://github.com/microsoft/microsoft-ui-xaml/issues/6490
-		// 如果不将 ShowWindow 提前，任务栏会短暂出现两个图标
-		ShowWindow(_hwndXamlHost, cmdShow);
+		// 防止关闭时出现 DesktopWindowXamlSource 窗口
+		winrt::CoreWindow coreWindow = winrt::CoreWindow::GetForCurrentThread();
+		if (coreWindow) {
+			HWND hwndDWXS;
+			coreWindow.as<ICoreWindowInterop>()->get_WindowHandle(&hwndDWXS);
+			ShowWindow(hwndDWXS, SW_HIDE);
+		}
 	}
+
+	_uwpApp.Initialize(_settings, (uint64_t)_hwndXamlHost);
+	_mainPage = winrt::MainPage();
+	_mainPage.Loaded({ this, &XamlApp::_MainPage_Loaded });
+
+	_xamlSource = winrt::DesktopWindowXamlSource();
+	_xamlSourceNative2 = _xamlSource.as<IDesktopWindowXamlSourceNative2>();
 
 	auto interop = _xamlSource.as<IDesktopWindowXamlSourceNative>();
 	interop->AttachToWindow(_hwndXamlHost);
-
 	interop->get_WindowHandle(&_hwndXamlIsland);
 	_xamlSource.Content(_mainPage);
 
-	if (isWin11) {
-		ShowWindow(_hwndXamlHost, cmdShow);
-		SetFocus(_hwndXamlHost);
-	} else {
-		_OnResize();
-	}
-
-	// 防止关闭时出现 DesktopWindowXamlSource 窗口
-	CoreWindow coreWindow = CoreWindow::GetForCurrentThread();
-	if (coreWindow) {
-		HWND hwndDWXS;
-		coreWindow.as<ICoreWindowInterop>()->get_WindowHandle(&hwndDWXS);
-		ShowWindow(hwndDWXS, SW_HIDE);
-	}
-
 	// 焦点始终位于 _hwndXamlIsland 中
-	_xamlSource.TakeFocusRequested([](DesktopWindowXamlSource const& sender, DesktopWindowXamlSourceTakeFocusRequestedEventArgs const& args) {
-		XamlSourceFocusNavigationReason reason = args.Request().Reason();
-		if (reason < XamlSourceFocusNavigationReason::Left) {
+	_xamlSource.TakeFocusRequested([](winrt::DesktopWindowXamlSource const& sender, winrt::DesktopWindowXamlSourceTakeFocusRequestedEventArgs const& args) {
+		winrt::XamlSourceFocusNavigationReason reason = args.Request().Reason();
+		if (reason < winrt::XamlSourceFocusNavigationReason::Left) {
 			sender.NavigateFocus(args.Request());
 		}
 	});
 
-	{
+	if (isWin11) {
 		// SetTimer 之前推荐先调用 SetUserObjectInformation
 		BOOL value = FALSE;
 		if (!SetUserObjectInformation(GetCurrentProcess(), UOI_TIMERPROC_EXCEPTION_SUPPRESSION, &value, sizeof(value))) {
@@ -200,6 +191,11 @@ int XamlApp::Run() {
 	return (int)msg.wParam;
 }
 
+void XamlApp::_MainPage_Loaded(winrt::IInspectable const&, winrt::RoutedEventArgs const&) {
+	ShowWindow(_hwndXamlHost, _settings.IsWindowMaximized() ? SW_MAXIMIZE : SW_SHOW);
+	SetFocus(_hwndXamlHost);
+}
+
 void XamlApp::_OnResize() {
 	RECT clientRect;
 	GetClientRect(_hwndXamlHost, &clientRect);
@@ -223,9 +219,9 @@ LRESULT XamlApp::_WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			if (_xamlSource) {
 				BYTE keyboardState[256] = {};
 				if (GetKeyboardState(keyboardState)) {
-					XamlSourceFocusNavigationReason reason = (keyboardState[VK_SHIFT] & 0x80) ?
-						XamlSourceFocusNavigationReason::Last : XamlSourceFocusNavigationReason::First;
-					_xamlSource.NavigateFocus(XamlSourceFocusNavigationRequest(reason));
+					winrt::XamlSourceFocusNavigationReason reason = (keyboardState[VK_SHIFT] & 0x80) ?
+						winrt::XamlSourceFocusNavigationReason::Last : winrt::XamlSourceFocusNavigationReason::First;
+					_xamlSource.NavigateFocus(winrt::XamlSourceFocusNavigationRequest(reason));
 				}
 			}
 			return 0;
@@ -247,7 +243,7 @@ LRESULT XamlApp::_WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 				RECT windowRect;
 				if (GetWindowRect(_hwndXamlHost, &windowRect)) {
-					_settings.WindowRect(Rect{
+					_settings.WindowRect(winrt::Rect{
 						(float)wp.rcNormalPosition.left,
 						(float)wp.rcNormalPosition.top,
 						float(wp.rcNormalPosition.right - wp.rcNormalPosition.left),
