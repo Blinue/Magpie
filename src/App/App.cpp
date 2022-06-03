@@ -51,8 +51,9 @@ void App::OnClose() {
 	_settings.Save();
 }
 
-bool App::Initialize(Magpie::Settings settings) {
+bool App::Initialize(Magpie::Settings settings, uint64_t hwndHost) {
 	_settings = settings;
+	_hwndHost = hwndHost;
 	return true;
 }
 

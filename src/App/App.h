@@ -13,7 +13,11 @@ public:
 
 	void OnClose();
 
-	bool Initialize(Magpie::Settings settings);
+	bool Initialize(Magpie::Settings settings, uint64_t hwndHost);
+
+	uint64_t HwndHost() const {
+		return _hwndHost;
+	}
 
 	Magpie::Settings Settings() const {
 		return _settings;
@@ -21,6 +25,7 @@ public:
 
 private:
 	Magpie::Settings _settings;
+	uint64_t _hwndHost;
 };
 
 }

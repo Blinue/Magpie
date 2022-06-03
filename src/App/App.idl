@@ -17,8 +17,9 @@ namespace Magpie{
 
 		void OnClose();
 
-		Boolean Initialize(Settings settings);
+		Boolean Initialize(Settings settings, UInt64 hwndHost);
 
 		Settings Settings{ get; };
+		UInt64 HwndHost{ get; };
 	}
 }

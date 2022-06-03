@@ -91,10 +91,8 @@ bool XamlApp::Initialize(HINSTANCE hInstance) {
 	}
 
 	_uwpApp = App();
-	_uwpApp.Initialize(_settings);
-
+	_uwpApp.Initialize(_settings, (uint64_t)_hwndXamlHost);
 	_mainPage = MainPage();
-	_mainPage.Initialize((uint64_t)_hwndXamlHost);
 
 	_xamlSource = Windows::UI::Xaml::Hosting::DesktopWindowXamlSource();
 	_xamlSourceNative2 = _xamlSource.as<IDesktopWindowXamlSourceNative2>();

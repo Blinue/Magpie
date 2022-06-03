@@ -18,8 +18,6 @@ namespace winrt::Magpie::implementation
 
 		Windows::Foundation::IInspectable RootNavigationView();
 
-		void Initialize(uint64_t hwndHost);
-
 		void OnHostFocusChanged(bool isFocused);
 
 	private:

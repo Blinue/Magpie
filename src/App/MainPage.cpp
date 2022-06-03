@@ -29,6 +29,16 @@ MainPage::MainPage() {
 
 	// 修复 WinUI 的汉堡菜单的尺寸 bug
 	__super::RootNavigationView().IsPaneOpen(true);
+
+	_hwndHost = (HWND)Application::Current().as<App>().HwndHost();
+
+	_settings = Application::Current().as<Magpie::App>().Settings();
+	_micaBrush = Magpie::MicaBrush(*this);
+
+	_UpdateTheme();
+	_settings.ThemeChanged([this](const auto&, int) { _UpdateTheme(); });
+
+	Background(_micaBrush);
 }
 
 MainPage::~MainPage() {
@@ -56,18 +66,6 @@ void MainPage::NavigationView_SelectionChanged(NavigationView const&, Navigation
 
 IInspectable MainPage::RootNavigationView() {
 	return __super::RootNavigationView();
-}
-
-void MainPage::Initialize(uint64_t hwndHost) {
-	_hwndHost = (HWND)hwndHost;
-
-	_settings = Application::Current().as<Magpie::App>().Settings();
-	_micaBrush = Magpie::MicaBrush(*this);
-
-	_UpdateTheme();
-	_settings.ThemeChanged([this](const auto&, int) { _UpdateTheme(); });
-
-	Background(_micaBrush);
 }
 
 void MainPage::OnHostFocusChanged(bool isFocused) {

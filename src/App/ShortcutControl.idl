@@ -1,0 +1,8 @@
+namespace Magpie
+{
+	[default_interface]
+	runtimeclass ShortcutControl : Windows.UI.Xaml.Controls.UserControl
+	{
+		ShortcutControl();
+	}
+}
