@@ -55,7 +55,6 @@ void App::OnClose() {
 bool App::Initialize(Magpie::Settings settings, uint64_t hwndHost) {
 	_settings = settings;
 	_hwndHost = hwndHost;
-	_isHostWndFocused = GetForegroundWindow() == (HWND)hwndHost;
 	return true;
 }
 

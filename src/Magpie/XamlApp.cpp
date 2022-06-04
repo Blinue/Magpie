@@ -115,6 +115,7 @@ bool XamlApp::Initialize(HINSTANCE hInstance) {
 		SetWindowThemeAttribute(_hwndXamlHost, WTA_NONCLIENT, &option, sizeof(option));
 	}
 
+	// 初始化 UWP 应用和 XAML Islands
 	_uwpApp = winrt::App();
 	if (!isWin11) {
 		// 防止关闭时出现 DesktopWindowXamlSource 窗口
@@ -127,6 +128,9 @@ bool XamlApp::Initialize(HINSTANCE hInstance) {
 	}
 
 	_uwpApp.Initialize(_settings, (uint64_t)_hwndXamlHost);
+	// 未显示窗口时视为位于前台，否则显示窗口的动画有小瑕疵
+	_uwpApp.OnHostWndFocusChanged(true);
+
 	_mainPage = winrt::MainPage();
 	_mainPage.Loaded({ this, &XamlApp::_MainPage_Loaded });
 
@@ -192,6 +196,10 @@ int XamlApp::Run() {
 }
 
 void XamlApp::_MainPage_Loaded(winrt::IInspectable const&, winrt::RoutedEventArgs const&) {
+	// 防止窗口显示时背景闪烁
+	// https://stackoverflow.com/questions/69715610/how-to-initialize-the-background-color-of-win32-app-to-something-other-than-whit
+	SetWindowPos(_hwndXamlHost, NULL, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOREDRAW);
+
 	ShowWindow(_hwndXamlHost, _settings.IsWindowMaximized() ? SW_MAXIMIZE : SW_SHOW);
 	SetFocus(_hwndXamlHost);
 }
@@ -280,7 +288,7 @@ LRESULT XamlApp::_WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_TIMER:
 	{
 		if (wParam == CHECK_FORGROUND_TIMER_ID) {
-			if (GetForegroundWindow() == _hwndXamlHost) {
+			if (!IsWindowVisible(_hwndXamlHost) || GetForegroundWindow() == _hwndXamlHost) {
 				_uwpApp.OnHostWndFocusChanged(true);
 			} else {
 				_uwpApp.OnHostWndFocusChanged(false);
