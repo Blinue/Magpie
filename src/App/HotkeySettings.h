@@ -35,13 +35,26 @@ struct HotkeySettings : HotkeySettingsT<HotkeySettings> {
 		return _shift;
 	}
 
+	void Code(uint32_t value) noexcept {
+		_code = value;
+	}
+
+	uint32_t Code() const noexcept {
+		return _code;
+	}
+
 	IVector<IInspectable> GetKeyList() const;
+
+	bool Check() const;
 
 private:
 	bool _win = false;
 	bool _ctrl = false;
 	bool _alt = false;
 	bool _shift = false;
+
+	// 0 表示无 Virtual Key
+	uint32_t _code = 0;
 };
 
 }

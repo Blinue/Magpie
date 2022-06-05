@@ -9,6 +9,10 @@ namespace Magpie
 		Boolean Ctrl;
 		Boolean Alt;
 		Boolean Shift;
+
+		UInt32 Code;
+
+		Boolean Check();
 		
 		IVector<Object> GetKeyList();
 	}

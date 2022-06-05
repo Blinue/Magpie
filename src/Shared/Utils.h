@@ -156,6 +156,9 @@ struct Utils {
 
 	// 强制切换前台窗口
 	static bool SetForegroundWindow(HWND hWnd);
+
+	// 获取 Virtual Key 的名字
+	static std::wstring GetKeyName(DWORD key);
 };
 
 inline bool operator==(const SIZE& l, const SIZE& r) {
