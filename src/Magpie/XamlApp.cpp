@@ -32,14 +32,18 @@ bool XamlApp::Initialize(HINSTANCE hInstance) {
 	_hMutex.reset(CreateMutex(nullptr, TRUE, MUTEX_NAME));
 	if (!_hMutex || GetLastError() == ERROR_ALREADY_EXISTS) {
 		// 将已存在的窗口带到前台
-		// v0.10 之前的版本使用广播消息实现，因此不能兼容
+		// 可以唤醒旧版本，但旧版不能唤醒新版
 		HWND hWnd = FindWindow(XAML_HOST_CLASS_NAME, nullptr);
 		if (hWnd) {
 			// 如果已有实例权限更高 ShowWindow 会失败
 			ShowWindow(hWnd, SW_NORMAL);
 			Utils::SetForegroundWindow(hWnd);
-			return false;
+		} else {
+			// 唤醒旧版本
+			PostMessage(HWND_BROADCAST, RegisterWindowMessage(L"WM_SHOWME"), 0, 0);
 		}
+
+		return false;
 	}
 
 	winrt::init_apartment(winrt::apartment_type::single_threaded);
@@ -59,14 +63,10 @@ bool XamlApp::Initialize(HINSTANCE hInstance) {
 
 		SetCurrentDirectory(curDir);
 	}
-	
+
 	_settings = winrt::Settings();
 	if (!_settings.Initialize((uint64_t)&Logger::Get())) {
 		return false;
-	}
-
-	if (!_hMutex) {
-		Logger::Get().Warn("获取 Mutex 失败但未找到其他实例");
 	}
 
 	// 注册窗口类
@@ -105,7 +105,7 @@ bool XamlApp::Initialize(HINSTANCE hInstance) {
 		Logger::Get().Win32Error("CreateWindow 失败");
 		return false;
 	}
-	
+
 	bool isWin11 = Utils::GetOSBuild() >= 22000;
 	if (isWin11) {
 		// 标题栏不显示图标和标题，因为目前 DWM 存在 bug 无法在启用 Mica 时正确绘制标题
