@@ -1,0 +1,9 @@
+namespace Magpie
+{
+	[default_interface]
+	runtimeclass HotkeySettings 
+	{
+		HotkeySettings();
+		
+	}
+}

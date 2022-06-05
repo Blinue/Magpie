@@ -5,7 +5,6 @@
   </ItemGroup>
   <ItemGroup>
     <Midl Include="App.idl" />
-    <Midl Include="HotkeyManager.idl" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
@@ -57,6 +56,8 @@
     <None Include="KeyVisual.idl">
       <Filter>Controls</Filter>
     </None>
+    <None Include="HotkeySettings.idl" />
+    <None Include="HotkeyManager.idl" />
   </ItemGroup>
   <ItemGroup>
     <Page Include="MainPage.xaml" />

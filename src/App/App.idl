@@ -8,6 +8,9 @@
 #include "HomePage.idl"
 #include "SettingsPage.idl"
 #include "KeyVisual.idl"
+#include "HotkeySettings.idl"
+#include "HotkeyManager.idl"
+#include "ShortcutControl.idl"
 
 
 namespace Magpie{

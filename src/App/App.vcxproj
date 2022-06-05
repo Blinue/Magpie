@@ -134,6 +134,10 @@
       <DependentUpon>HotkeyManager.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
+    <ClInclude Include="HotkeySettings.h">
+      <DependentUpon>HotkeySettings.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClInclude>
     <ClInclude Include="KeyVisual.h">
       <DependentUpon>KeyVisual.idl</DependentUpon>
       <SubType>Code</SubType>
@@ -202,6 +206,10 @@
       <DependentUpon>HotkeyManager.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
+    <ClCompile Include="HotkeySettings.cpp">
+      <DependentUpon>HotkeySettings.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClCompile>
     <ClCompile Include="KeyVisual.cpp">
       <DependentUpon>KeyVisual.idl</DependentUpon>
       <SubType>Code</SubType>
@@ -251,13 +259,16 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <Midl Include="HotkeyManager.idl">
+    <None Include="HotkeyManager.idl">
       <SubType>Designer</SubType>
-    </Midl>
-    <Midl Include="ShortcutControl.idl">
+    </None>
+    <None Include="HotkeySettings.idl">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="ShortcutControl.idl">
       <DependentUpon>ShortcutControl.xaml</DependentUpon>
       <SubType>Code</SubType>
-    </Midl>
+    </None>
     <None Include="KeyVisual.idl">
       <SubType>Designer</SubType>
     </None>
