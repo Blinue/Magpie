@@ -23,9 +23,6 @@ namespace winrt::Magpie::implementation {
 MainPage::MainPage() {
 	InitializeComponent();
 
-	// 修复 WinUI 的汉堡菜单的尺寸 bug
-	__super::RootNavigationView().IsPaneOpen(true);
-
 	_hwndHost = (HWND)Application::Current().as<App>().HwndHost();
 
 	_settings = Application::Current().as<Magpie::App>().Settings();
@@ -62,7 +59,7 @@ void MainPage::NavigationView_SelectionChanged(
 	}
 }
 
-IInspectable MainPage::RootNavigationView() {
+Microsoft::UI::Xaml::Controls::NavigationView MainPage::RootNavigationView() {
 	return __super::RootNavigationView();
 }
 

@@ -6,9 +6,9 @@
 
 
 namespace winrt::Magpie::implementation {
-/*
+
 IVector<IInspectable> HotkeySettings::GetKeyList() const {
 	return winrt::single_threaded_vector<IInspectable>();
 }
-*/
+
 }

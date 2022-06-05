@@ -35,7 +35,7 @@ struct HotkeySettings : HotkeySettingsT<HotkeySettings> {
 		return _shift;
 	}
 
-	//IVector<IInspectable> GetKeyList() const;
+	IVector<IInspectable> GetKeyList() const;
 
 private:
 	bool _win = false;

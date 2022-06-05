@@ -16,7 +16,7 @@ namespace winrt::Magpie::implementation
 
 		void NavigationView_SelectionChanged(Microsoft::UI::Xaml::Controls::NavigationView const& sender, Microsoft::UI::Xaml::Controls::NavigationViewSelectionChangedEventArgs const& args);
 
-		IInspectable RootNavigationView();
+		Microsoft::UI::Xaml::Controls::NavigationView RootNavigationView();
 
 	private:
 		void _UpdateTheme();

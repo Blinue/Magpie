@@ -9,5 +9,7 @@ namespace Magpie
 		Boolean Ctrl;
 		Boolean Alt;
 		Boolean Shift;
+		
+		IVector<Object> GetKeyList();
 	}
 }

@@ -54,7 +54,7 @@ void PageFrame::Loading(FrameworkElement const&, IInspectable const&) {
 	_Update();
 
 	MainPage mainPage = XamlRoot().Content().as<Magpie::MainPage>();
-	_rootNavigationView = mainPage.RootNavigationView().as<Microsoft::UI::Xaml::Controls::NavigationView>();
+	_rootNavigationView = mainPage.RootNavigationView();
 	_displayModeChangedRevoker = _rootNavigationView.DisplayModeChanged(
 		auto_revoke,
 		[&](auto const&, auto const&) { _UpdateHeaderStyle(); }
