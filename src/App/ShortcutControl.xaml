@@ -12,41 +12,38 @@
 	d:DesignHeight="300"
 	d:DesignWidth="400">
 
-	<Grid HorizontalAlignment="Right">
-		<StackPanel Orientation="Horizontal">
-			<Button x:Name="EditButton"
+	<Grid HorizontalAlignment="Right" Margin="0,-6,0,-6">
+		<Button x:Name="EditButton"
 					Padding="0"
 					Background="Transparent"
-					BorderBrush="Transparent"
-					 >
-				<StackPanel Orientation="Horizontal"
+					BorderBrush="Transparent">
+			<StackPanel Orientation="Horizontal"
 							Margin="6,0,6,0"
 							Spacing="16">
-					<ItemsControl x:Name="PreviewKeysControl"
+				<ItemsControl x:Name="PreviewKeysControl"
 								  IsEnabled="{Binding ElementName=EditButton, Path=IsEnabled}"
 								  VerticalAlignment="Center"
 								  IsTabStop="False">
-						<ItemsControl.ItemsPanel>
-							<ItemsPanelTemplate>
-								<StackPanel Orientation="Horizontal" Spacing="4" />
-							</ItemsPanelTemplate>
-						</ItemsControl.ItemsPanel>
-						<ItemsControl.ItemTemplate>
-							<DataTemplate>
-								<local:KeyVisual IsTabStop="False"
+					<ItemsControl.ItemsPanel>
+						<ItemsPanelTemplate>
+							<StackPanel Orientation="Horizontal" Spacing="4" />
+						</ItemsPanelTemplate>
+					</ItemsControl.ItemsPanel>
+					<ItemsControl.ItemTemplate>
+						<DataTemplate>
+							<local:KeyVisual IsTabStop="False"
 												 AutomationProperties.AccessibilityView="Raw"
 												 VisualType="Small"
 												 VerticalAlignment="Center"
 												 Content="{Binding}" />
-							</DataTemplate>
-						</ItemsControl.ItemTemplate>
-					</ItemsControl>
-					<FontIcon Glyph="&#xE104;"
+						</DataTemplate>
+					</ItemsControl.ItemTemplate>
+				</ItemsControl>
+				<FontIcon Glyph="&#xE70F;"
 							  FontFamily="{ThemeResource SymbolThemeFontFamily}"
 							  FontSize="14"/>
-				</StackPanel>
-			</Button>
-		</StackPanel>
+			</StackPanel>
+		</Button>
 	</Grid>
 </UserControl>
 	

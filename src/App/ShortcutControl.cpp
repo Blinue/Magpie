@@ -11,6 +11,10 @@ namespace winrt::Magpie::implementation {
 
 ShortcutControl::ShortcutControl() {
 	InitializeComponent();
+
+	_hotkeySettings.Win(true);
+	_hotkeySettings.Alt(true);
+	PreviewKeysControl().ItemsSource(_hotkeySettings.GetKeyList());
 }
 
 }

@@ -44,17 +44,19 @@ void MainPage::NavigationView_SelectionChanged(
 	Microsoft::UI::Xaml::Controls::NavigationView const&,
 	Microsoft::UI::Xaml::Controls::NavigationViewSelectionChangedEventArgs const& args
 ) {
+	auto contentFrame = ContentFrame();
+
 	if (args.IsSettingsSelected()) {
-		ContentFrame().Navigate(winrt::xaml_typename<Magpie::SettingsPage>());
+		contentFrame.Navigate(winrt::xaml_typename<Magpie::SettingsPage>());
 	} else {
 		Microsoft::UI::Xaml::Controls::NavigationViewItem selectedItem{ nullptr };
 		args.SelectedItem().as(selectedItem);
 
 		hstring tag = unbox_value<hstring>(selectedItem.Tag());
 		if (tag == L"Home") {
-			ContentFrame().Navigate(winrt::xaml_typename<Magpie::HomePage>());
+			contentFrame.Navigate(winrt::xaml_typename<Magpie::HomePage>());
 		} else if (tag == L"About") {
-			ContentFrame().Navigate(winrt::xaml_typename<Magpie::AboutPage>());
+			contentFrame.Navigate(winrt::xaml_typename<Magpie::AboutPage>());
 		}
 	}
 }
