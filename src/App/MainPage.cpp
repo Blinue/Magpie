@@ -15,11 +15,7 @@
 
 
 using namespace winrt;
-using namespace Windows::UI::Core;
-using namespace Windows::UI::Xaml;
-using namespace Windows::Foundation;
 using namespace Windows::UI::ViewManagement;
-using namespace Microsoft::UI::Xaml::Controls;
 
 
 namespace winrt::Magpie::implementation {
@@ -47,11 +43,14 @@ MainPage::~MainPage() {
 	}
 }
 
-void MainPage::NavigationView_SelectionChanged(NavigationView const&, NavigationViewSelectionChangedEventArgs const& args) {
+void MainPage::NavigationView_SelectionChanged(
+	Microsoft::UI::Xaml::Controls::NavigationView const&,
+	Microsoft::UI::Xaml::Controls::NavigationViewSelectionChangedEventArgs const& args
+) {
 	if (args.IsSettingsSelected()) {
 		ContentFrame().Navigate(winrt::xaml_typename<Magpie::SettingsPage>());
 	} else {
-		NavigationViewItem selectedItem{ nullptr };
+		Microsoft::UI::Xaml::Controls::NavigationViewItem selectedItem{ nullptr };
 		args.SelectedItem().as(selectedItem);
 
 		hstring tag = unbox_value<hstring>(selectedItem.Tag());

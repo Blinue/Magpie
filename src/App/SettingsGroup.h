@@ -16,32 +16,32 @@ struct SettingsGroup : SettingsGroupT<SettingsGroup> {
 
 	hstring Title() const;
 
-	void Description(Windows::Foundation::IInspectable value);
+	void Description(IInspectable value);
 
-	Windows::Foundation::IInspectable Description() const;
+	IInspectable Description() const;
 
-	Windows::UI::Xaml::Controls::UIElementCollection Children() const;
-	void Children(Windows::UI::Xaml::Controls::UIElementCollection const& value);
+	Controls::UIElementCollection Children() const;
+	void Children(Controls::UIElementCollection const& value);
 
-	void IsEnabledChanged(Windows::Foundation::IInspectable const&, Windows::UI::Xaml::DependencyPropertyChangedEventArgs const&);
-	void Loading(Windows::UI::Xaml::FrameworkElement const&, Windows::Foundation::IInspectable const&);
+	void IsEnabledChanged(IInspectable const&, DependencyPropertyChangedEventArgs const&);
+	void Loading(FrameworkElement const&, IInspectable const&);
 
-	event_token PropertyChanged(Windows::UI::Xaml::Data::PropertyChangedEventHandler const& value);
+	event_token PropertyChanged(Data::PropertyChangedEventHandler const& value);
 	void PropertyChanged(event_token const& token);
 
-	static const Windows::UI::Xaml::DependencyProperty ChildrenProperty;
-	static const Windows::UI::Xaml::DependencyProperty TitleProperty;
-	static const Windows::UI::Xaml::DependencyProperty DescriptionProperty;
+	static const DependencyProperty ChildrenProperty;
+	static const DependencyProperty TitleProperty;
+	static const DependencyProperty DescriptionProperty;
 
 private:
-	static void _OnTitleChanged(Windows::UI::Xaml::DependencyObject const& sender, Windows::UI::Xaml::DependencyPropertyChangedEventArgs const&);
-	static void _OnDescriptionChanged(Windows::UI::Xaml::DependencyObject const& sender, Windows::UI::Xaml::DependencyPropertyChangedEventArgs const&);
+	static void _OnTitleChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&);
+	static void _OnDescriptionChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&);
 
 	void _Update();
 
 	void _SetEnabledState();
 
-	event<Windows::UI::Xaml::Data::PropertyChangedEventHandler> _propertyChangedEvent;
+	event<Data::PropertyChangedEventHandler> _propertyChangedEvent;
 };
 
 }

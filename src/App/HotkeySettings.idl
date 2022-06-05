@@ -4,6 +4,10 @@ namespace Magpie
 	runtimeclass HotkeySettings 
 	{
 		HotkeySettings();
-		
+
+		Boolean Win;
+		Boolean Ctrl;
+		Boolean Alt;
+		Boolean Shift;
 	}
 }

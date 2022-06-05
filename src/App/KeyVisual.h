@@ -8,9 +8,9 @@ namespace winrt::Magpie::implementation {
 struct KeyVisual : KeyVisual_base<KeyVisual> {
 	KeyVisual();
 
-	void Content(Windows::Foundation::IInspectable const& value);
+	void Content(IInspectable const& value);
 
-	Windows::Foundation::IInspectable Content() const;
+	IInspectable Content() const;
 
 	void VisualType(Magpie::VisualType value);
 
@@ -22,15 +22,15 @@ struct KeyVisual : KeyVisual_base<KeyVisual> {
 
 	void OnApplyTemplate();
 
-	static const Windows::UI::Xaml::DependencyProperty ContentProperty;
-	static const Windows::UI::Xaml::DependencyProperty VisualTypeProperty;
-	static const Windows::UI::Xaml::DependencyProperty IsErrorProperty;
+	static const DependencyProperty ContentProperty;
+	static const DependencyProperty VisualTypeProperty;
+	static const DependencyProperty IsErrorProperty;
 
 private:
-	static void _OnPropertyChanged(Windows::UI::Xaml::DependencyObject const& sender, Windows::UI::Xaml::DependencyPropertyChangedEventArgs const&);
-	static void _OnIsErrorChanged(Windows::UI::Xaml::DependencyObject const& sender, Windows::UI::Xaml::DependencyPropertyChangedEventArgs const&);
+	static void _OnPropertyChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&);
+	static void _OnIsErrorChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&);
 
-	void _IsEnabledChanged(Windows::Foundation::IInspectable const&, Windows::UI::Xaml::DependencyPropertyChangedEventArgs const&);
+	void _IsEnabledChanged(IInspectable const&, DependencyPropertyChangedEventArgs const&);
 
 	void _Update();
 	Windows::UI::Xaml::Style _GetStyleSize(std::wstring_view styleName) const;
@@ -39,7 +39,7 @@ private:
 	void _SetErrorState();
 	void _SetEnabledState();
 
-	Windows::UI::Xaml::Controls::ContentPresenter _keyPresenter{ nullptr };
+	Controls::ContentPresenter _keyPresenter{ nullptr };
 	event_token _isEnabledChangedToken{};
 };
 

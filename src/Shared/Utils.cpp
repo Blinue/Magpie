@@ -12,10 +12,8 @@
 
 
 using namespace winrt;
-using namespace Windows::Foundation;
 using namespace Windows::UI::Xaml;
 using namespace Windows::UI::Xaml::Media;
-using namespace Windows::System;
 
 
 UINT Utils::GetOSBuild() {

@@ -8,8 +8,6 @@
 
 
 using namespace winrt;
-using namespace Windows::UI::Xaml;
-using namespace Windows::UI::Xaml::Controls;
 using namespace Windows::UI::Xaml::Input;
 
 
@@ -24,7 +22,7 @@ SettingsPage::SettingsPage() {
 	ThemeComboBox().SelectedIndex(_settings.Theme());
 }
 
-void SettingsPage::ThemeComboBox_SelectionChanged(IInspectable const&, SelectionChangedEventArgs const&) {
+void SettingsPage::ThemeComboBox_SelectionChanged(IInspectable const&, Controls::SelectionChangedEventArgs const&) {
 	_settings.Theme(ThemeComboBox().SelectedIndex());
 }
 

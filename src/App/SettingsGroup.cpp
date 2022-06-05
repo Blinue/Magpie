@@ -5,8 +5,8 @@
 #endif
 
 using namespace winrt;
-using namespace Windows::UI::Xaml;
 using namespace Windows::UI::Xaml::Controls;
+using namespace Windows::UI::Xaml::Data;
 
 
 namespace winrt::Magpie::implementation {

@@ -13,8 +13,6 @@
 // C++/WinRT 头文件
 #include <winrt/Windows.Foundation.Metadata.h>
 #include <winrt/Windows.ApplicationModel.Activation.h>
-#include <winrt/Windows.UI.Core.h>
-#include <winrt/Windows.UI.Xaml.h>
 #include <winrt/Windows.UI.Xaml.Automation.h>
 #include <winrt/Windows.UI.Xaml.Controls.h>
 #include <winrt/Windows.UI.Xaml.Controls.Primitives.h>

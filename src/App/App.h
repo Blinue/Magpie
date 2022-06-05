@@ -23,7 +23,7 @@ public:
 		return _settings;
 	}
 
-	event_token HostWndFocusChanged(Windows::Foundation::EventHandler<bool> const& handler);
+	event_token HostWndFocusChanged(EventHandler<bool> const& handler);
 	void HostWndFocusChanged(event_token const& token) noexcept;
 
 	void OnHostWndFocusChanged(bool isFocused);
@@ -35,7 +35,7 @@ private:
 	Magpie::Settings _settings{ nullptr };
 	uint64_t _hwndHost{};
 
-	event<Windows::Foundation::EventHandler<bool>> _hostWndFocusChangedEvent;
+	event<EventHandler<bool>> _hostWndFocusChangedEvent;
 	bool _isHostWndFocused = false;
 };
 

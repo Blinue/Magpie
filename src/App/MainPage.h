@@ -16,14 +16,14 @@ namespace winrt::Magpie::implementation
 
 		void NavigationView_SelectionChanged(Microsoft::UI::Xaml::Controls::NavigationView const& sender, Microsoft::UI::Xaml::Controls::NavigationViewSelectionChangedEventArgs const& args);
 
-		Windows::Foundation::IInspectable RootNavigationView();
+		IInspectable RootNavigationView();
 
 	private:
 		void _UpdateTheme();
 
-		Windows::Foundation::IAsyncAction _Settings_ColorValuesChanged(
+		IAsyncAction _Settings_ColorValuesChanged(
 			Windows::UI::ViewManagement::UISettings const&,
-			Windows::Foundation::IInspectable const&
+			IInspectable const&
 		);
 
 		HWND _hwndHost = NULL;

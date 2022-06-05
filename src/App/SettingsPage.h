@@ -8,11 +8,11 @@ namespace winrt::Magpie::implementation {
 struct SettingsPage : SettingsPageT<SettingsPage> {
 	SettingsPage();
 
-	void ThemeComboBox_SelectionChanged(Windows::Foundation::IInspectable const&, Windows::UI::Xaml::Controls::SelectionChangedEventArgs const& args);
+	void ThemeComboBox_SelectionChanged(IInspectable const&, Controls::SelectionChangedEventArgs const& args);
 
-	void PortableModeToggleSwitch_Toggled(Windows::Foundation::IInspectable const&, Windows::UI::Xaml::RoutedEventArgs const&);
+	void PortableModeToggleSwitch_Toggled(IInspectable const&, RoutedEventArgs const&);
 
-	void ComboBox_DropDownOpened(winrt::Windows::Foundation::IInspectable const&, winrt::Windows::Foundation::IInspectable const&);
+	void ComboBox_DropDownOpened(IInspectable const&, IInspectable const&);
 
 private:
 	Magpie::Settings _settings{ nullptr };

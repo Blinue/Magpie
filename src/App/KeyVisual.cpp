@@ -8,11 +8,8 @@
 #include "Utils.h"
 
 using namespace winrt;
-using namespace Windows::Foundation;
-using namespace Windows::UI::Xaml;
 using namespace Windows::UI::Xaml::Controls;
 using namespace Windows::UI::Xaml::Markup;
-using namespace Windows::System;
 
 
 namespace winrt::Magpie::implementation {
