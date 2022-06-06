@@ -1,11 +1,11 @@
 namespace Magpie
 {
-    [default_interface]
-    runtimeclass ShortcutDialogContent : Windows.UI.Xaml.Controls.UserControl
-    {
-        ShortcutDialogContent();
+	[default_interface]
+	runtimeclass ShortcutDialogContent : Windows.UI.Xaml.Controls.UserControl
+	{
+		ShortcutDialogContent();
 
-        Boolean IsError;
-        IVector<Object> Keys;
-    }
+		Boolean IsError;
+		IVector<Object> Keys;
+	}
 }

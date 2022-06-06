@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "winrt/Windows.UI.Xaml.h"
 #include "winrt/Windows.UI.Xaml.Markup.h"
@@ -10,13 +10,16 @@
 namespace winrt::Magpie::implementation {
 
 struct ShortcutDialogContent : ShortcutDialogContentT<ShortcutDialogContent> {
-    ShortcutDialogContent();
+	ShortcutDialogContent();
 
-    void IsError(bool value);
-    bool IsError() const;
+	void IsError(bool value);
+	bool IsError() const;
 
-    void Keys(const IVector<IInspectable>& value);
-    IVector<IInspectable> Keys() const;
+	void Keys(const IVector<IInspectable>& value);
+	IVector<IInspectable> Keys() const;
+
+	static const DependencyProperty IsErrorProperty;
+	static const DependencyProperty KeysProperty;
 };
 
 }

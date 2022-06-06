@@ -43,7 +43,7 @@ hstring PageFrame::Title() const {
 }
 
 void PageFrame::MainContent(IInspectable const& value) {
-	SetValue(MainContentProperty, box_value(value));
+	SetValue(MainContentProperty, value);
 }
 
 IInspectable PageFrame::MainContent() const {

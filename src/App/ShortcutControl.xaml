@@ -16,7 +16,8 @@
 		<Button x:Name="EditButton"
 				Padding="0"
 				Background="Transparent"
-				BorderBrush="Transparent">
+				BorderBrush="Transparent"
+				Click="EditButton_Click">
 			<StackPanel Orientation="Horizontal"
 						Margin="6,0,6,0"
 						Spacing="16">
