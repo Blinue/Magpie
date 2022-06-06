@@ -94,6 +94,9 @@
     <Page Include="ShortcutControl.xaml">
       <Filter>Controls</Filter>
     </Page>
+    <Page Include="ShortcutDialogContent.xaml">
+      <Filter>Controls</Filter>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest">

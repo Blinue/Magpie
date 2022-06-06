@@ -11,6 +11,7 @@
 #include "HotkeySettings.idl"
 #include "HotkeyManager.idl"
 #include "ShortcutControl.idl"
+#include "ShortcutDialogContent.idl"
 
 
 namespace Magpie{
