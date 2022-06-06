@@ -14,6 +14,7 @@
 
 namespace winrt {
 using namespace Windows::UI::Xaml::Hosting;
+using namespace Windows::UI::ViewManagement;
 using namespace Magpie;
 }
 
@@ -103,18 +104,32 @@ bool XamlApp::Initialize(HINSTANCE hInstance) {
 	}
 
 	bool isWin11 = Utils::GetOSBuild() >= 22000;
+	if (!isWin11) {
+		// 此时 MainPage 尚未初始化
+		_UpdateTheme();
+	}
+
+	// 防止窗口显示时背景闪烁
+	// https://stackoverflow.com/questions/69715610/how-to-initialize-the-background-color-of-win32-app-to-something-other-than-whit
+	SetWindowPos(_hwndXamlHost, NULL, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+
 	if (isWin11) {
 		// 标题栏不显示图标和标题，因为目前 DWM 存在 bug 无法在启用 Mica 时正确绘制标题
 		WTA_OPTIONS option{};
 		option.dwFlags = WTNCA_NODRAWCAPTION | WTNCA_NODRAWICON | WTNCA_NOSYSMENU;
 		option.dwMask = WTNCA_VALIDBITS;
 		SetWindowThemeAttribute(_hwndXamlHost, WTA_NONCLIENT, &option, sizeof(option));
+	} else {
+		// Win10 中任务栏可能出现空的 DesktopWindowXamlSource 窗口
+		// 见 https://github.com/microsoft/microsoft-ui-xaml/issues/6490
+		// 如果不将 ShowWindow 提前，任务栏会短暂出现两个图标
+		ShowWindow(_hwndXamlHost, _settings.IsWindowMaximized() ? SW_MAXIMIZE : SW_SHOW);
 	}
 
 	// 初始化 UWP 应用和 XAML Islands
 	_uwpApp = winrt::App();
 	if (!isWin11) {
-		// 防止关闭时出现 DesktopWindowXamlSource 窗口
+		// 隐藏 DesktopWindowXamlSource 窗口
 		winrt::CoreWindow coreWindow = winrt::CoreWindow::GetForCurrentThread();
 		if (coreWindow) {
 			HWND hwndDWXS;
@@ -128,11 +143,17 @@ bool XamlApp::Initialize(HINSTANCE hInstance) {
 	_uwpApp.OnHostWndFocusChanged(true);
 
 	_mainPage = winrt::MainPage();
-	_mainPage.Loaded({ this, &XamlApp::_MainPage_Loaded });
 	_mainPage.ActualThemeChanged([this](winrt::FrameworkElement const&, winrt::IInspectable const&) {
 		_UpdateTheme();
 	});
-	_UpdateTheme();
+	if (isWin11) {
+		// Win11 中在 MainPage 加载完成后再显示主窗口
+		_mainPage.Loaded([this](winrt::IInspectable const&, winrt::RoutedEventArgs const&) {
+			ShowWindow(_hwndXamlHost, _settings.IsWindowMaximized() ? SW_MAXIMIZE : SW_SHOW);
+			SetFocus(_hwndXamlHost);
+		});
+		_UpdateTheme();
+	}
 
 	_xamlSource = winrt::DesktopWindowXamlSource();
 	_xamlSourceNative2 = _xamlSource.as<IDesktopWindowXamlSourceNative2>();
@@ -161,6 +182,9 @@ bool XamlApp::Initialize(HINSTANCE hInstance) {
 		if (SetTimer(_hwndXamlHost, CHECK_FORGROUND_TIMER_ID, 250, nullptr) == 0) {
 			Logger::Get().Win32Error("SetTimer 失败");
 		}
+	} else {
+		// Win10 中因为 ShowWindow 提前，需要显式设置 XAML Islands 位置
+		_OnResize();
 	}
 
 	return true;
@@ -195,15 +219,6 @@ int XamlApp::Run() {
 	return (int)msg.wParam;
 }
 
-void XamlApp::_MainPage_Loaded(winrt::IInspectable const&, winrt::RoutedEventArgs const&) {
-	// 防止窗口显示时背景闪烁
-	// https://stackoverflow.com/questions/69715610/how-to-initialize-the-background-color-of-win32-app-to-something-other-than-whit
-	SetWindowPos(_hwndXamlHost, NULL, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOREDRAW);
-
-	ShowWindow(_hwndXamlHost, _settings.IsWindowMaximized() ? SW_MAXIMIZE : SW_SHOW);
-	SetFocus(_hwndXamlHost);
-}
-
 void XamlApp::_OnResize() {
 	RECT clientRect;
 	GetClientRect(_hwndXamlHost, &clientRect);
@@ -214,7 +229,18 @@ void XamlApp::_UpdateTheme() {
 	constexpr const DWORD DWMWA_USE_IMMERSIVE_DARK_MODE_BEFORE_20H1 = 19;
 	constexpr const DWORD DWMWA_MICA_EFFECT = 1029;
 
-	BOOL isDarkTheme = _mainPage.ActualTheme() == winrt::ElementTheme::Dark;
+	BOOL isDarkTheme;
+	if (_mainPage) {
+		isDarkTheme = _mainPage.ActualTheme() == winrt::ElementTheme::Dark;
+	} else {
+		int theme = _settings.Theme();
+
+		if (theme == 2) {
+			isDarkTheme = winrt::UISettings().GetColorValue(winrt::UIColorType::Background).R < 128;
+		} else {
+			isDarkTheme = theme == 1;
+		}
+	}
 
 	auto osBuild = Utils::GetOSBuild();
 
@@ -319,14 +345,14 @@ LRESULT XamlApp::_WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	}
 	case WM_ACTIVATE:
 	{
-		if (LOWORD(wParam) != WA_INACTIVE) {
-			_uwpApp.OnHostWndFocusChanged(true);
-			if (_hwndXamlIsland) {
+		if (_uwpApp) {
+			if (LOWORD(wParam) != WA_INACTIVE) {
+				_uwpApp.OnHostWndFocusChanged(true);
 				SetFocus(_hwndXamlIsland);
+			} else {
+				_uwpApp.OnHostWndFocusChanged(false);
+				_CloseAllXamlPopups();
 			}
-		} else {
-			_uwpApp.OnHostWndFocusChanged(false);
-			_CloseAllXamlPopups();
 		}
 		
 		return 0;

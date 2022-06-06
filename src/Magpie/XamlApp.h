@@ -22,8 +22,6 @@ public:
 	int Run();
 
 private:
-	void _MainPage_Loaded(winrt::IInspectable const&, winrt::RoutedEventArgs const&);
-
 	ATOM _RegisterWndClass(HINSTANCE hInstance, const wchar_t* className);
 
 	void _OnResize();
