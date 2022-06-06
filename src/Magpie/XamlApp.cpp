@@ -311,7 +311,7 @@ LRESULT XamlApp::_WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	{
 		_OnResize();
 		if (_mainPage) {
-			Utils::CloseAllXamlDialogs(_mainPage.XamlRoot());
+			Utils::CloseXamlDialog(_mainPage.XamlRoot());
 			Utils::RepositionXamlPopups(_mainPage.XamlRoot());
 		}
 		return 0;

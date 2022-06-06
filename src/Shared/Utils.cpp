@@ -39,33 +39,36 @@ UINT Utils::GetOSBuild() {
 	return build;
 }
 
-void Utils::CloseAllXamlPopups(XamlRoot root) {
+void Utils::CloseAllXamlPopups(const XamlRoot& root) {
 	if (!root) {
 		return;
 	}
 
 	// https://github.com/microsoft/microsoft-ui-xaml/issues/4554
 	for (const auto& popup : VisualTreeHelper::GetOpenPopupsForXamlRoot(root)) {
-		if (popup.Parent()) {
+		UIElement child = popup.Child();
+		if (get_class_name(child) != name_of<Controls::ContentDialog>()) {
 			popup.IsOpen(false);
 		}
 	}
 }
 
-void Utils::CloseAllXamlDialogs(winrt::XamlRoot root) {
+void Utils::CloseXamlDialog(const XamlRoot& root) {
 	if (!root) {
 		return;
 	}
 
-	// https://github.com/microsoft/microsoft-ui-xaml/issues/4554
 	for (const auto& popup : VisualTreeHelper::GetOpenPopupsForXamlRoot(root)) {
-		if (!popup.Parent()) {
-			popup.IsOpen(false);
+		UIElement child = popup.Child();
+		if (get_class_name(child) == name_of<Controls::ContentDialog>()) {
+			child.as<Controls::ContentDialog>().Hide();
+			// 只能同时显示一个 ContentDialog
+			return;
 		}
 	}
 }
 
-void Utils::RepositionXamlPopups(XamlRoot root) {
+void Utils::RepositionXamlPopups(const XamlRoot& root) {
 	if (!root) {
 		return;
 	}
@@ -89,17 +92,13 @@ void Utils::RepositionXamlPopups(XamlRoot root) {
 	}
 }
 
-void Utils::UpdateThemeOfXamlPopups(XamlRoot root, ElementTheme theme) {
+void Utils::UpdateThemeOfXamlPopups(const XamlRoot& root, const ElementTheme& theme) {
 	if (!root) {
 		return;
 	}
 
-	ElementTheme oppositeTheme = theme == ElementTheme::Light ? ElementTheme::Dark : ElementTheme::Light;
-
 	for (const auto& popup : VisualTreeHelper::GetOpenPopupsForXamlRoot(root)) {
-		// 这样可以确保主题被应用
-		popup.RequestedTheme(oppositeTheme);
-		popup.RequestedTheme(theme);
+		popup.Child().as<FrameworkElement>().RequestedTheme(theme);
 	}
 }
 

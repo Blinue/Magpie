@@ -26,7 +26,6 @@ ShortcutControl::ShortcutControl() {
 IAsyncAction ShortcutControl::EditButton_Click(IInspectable const&, RoutedEventArgs const&) {
 	_shortcutDialogContent.Keys(_hotkeySettings.GetKeyList());
 
-	_shortcutDialog.Hide();
 	_shortcutDialog.XamlRoot(XamlRoot());
 	_shortcutDialog.RequestedTheme(ActualTheme());
 	co_await _shortcutDialog.ShowAsync();

@@ -220,8 +220,8 @@ void MicaBrush::_UpdateBrush() {
 
 	bool doCrossFade = oldBrush != nullptr &&
 		CompositionBrush().Comment() != L"CrossFade" &&
-		!(winrt::get_class_name(oldBrush) == name_of<CompositionColorBrush>() &&
-			winrt::get_class_name(newBrush) == name_of<CompositionColorBrush>());
+		!(get_class_name(oldBrush) == name_of<CompositionColorBrush>() &&
+			get_class_name(newBrush) == name_of<CompositionColorBrush>());
 
 	if (doCrossFade) {
 		auto crossFadeBrush = CreateCrossFadeEffectBrush(compositor, oldBrush, newBrush);

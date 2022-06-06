@@ -90,6 +90,7 @@ void MainPage::_UpdateTheme() {
 	_isDarkTheme = isDarkTheme;
 
 	RequestedTheme(isDarkTheme ? ElementTheme::Dark : ElementTheme::Light);
+	Utils::UpdateThemeOfXamlPopups(XamlRoot(), ActualTheme());
 
 	Logger::Get().Info(StrUtils::Concat("当前主题：", isDarkTheme ? "深色" : "浅色"));
 }
