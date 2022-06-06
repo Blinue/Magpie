@@ -4,13 +4,14 @@
 #include "MicaBrush.g.cpp"
 #endif
 
+#include "CommonSharedConstants.h"
+#include "Utils.h"
+
+
 using namespace winrt;
 using namespace Windows::UI;
-using namespace Windows::UI::Xaml;
 using namespace Windows::UI::Composition;
 using namespace Windows::UI::ViewManagement;
-using namespace Windows::UI::Core;
-using namespace Windows::Foundation;
 using namespace Windows::Foundation::Metadata;
 using namespace Windows::System::Power;
 using namespace Microsoft::Graphics::Canvas::Effects;
@@ -202,9 +203,8 @@ void MicaBrush::_UpdateBrush() {
 	bool useSolidColorFallback = !_hasMica || !_settings.AdvancedEffectsEnabled() ||
 		!_windowActivated || _fastEffects == false || _energySaver == true;
 
-	Color tintColor = currentTheme == ElementTheme::Light ?
-		Color{ 255, 243, 243, 243 } :
-		Color{ 255, 32, 32, 32 };
+	Color tintColor = Utils::Win32ColorToWinRTColor(currentTheme == ElementTheme::Light ?
+		CommonSharedConstants::LIGHT_TINT_COLOR : CommonSharedConstants::DARK_TINT_COLOR);
 	float tintOpacity = currentTheme == ElementTheme::Light ? 0.5f : 0.8f;
 
 	if (_accessibilitySettings.HighContrast()) {

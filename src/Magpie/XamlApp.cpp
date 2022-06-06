@@ -3,6 +3,7 @@
 #include "Logger.h"
 #include "StrUtils.h"
 #include "Utils.h"
+#include "CommonSharedConstants.h"
 #include <winrt/Windows.UI.Core.h>
 #include <CoreWindow.h>
 #include <uxtheme.h>
@@ -128,6 +129,10 @@ bool XamlApp::Initialize(HINSTANCE hInstance) {
 
 	_mainPage = winrt::MainPage();
 	_mainPage.Loaded({ this, &XamlApp::_MainPage_Loaded });
+	_mainPage.ActualThemeChanged([this](winrt::FrameworkElement const&, winrt::IInspectable const&) {
+		_UpdateTheme();
+	});
+	_UpdateTheme();
 
 	_xamlSource = winrt::DesktopWindowXamlSource();
 	_xamlSourceNative2 = _xamlSource.as<IDesktopWindowXamlSourceNative2>();
@@ -203,6 +208,52 @@ void XamlApp::_OnResize() {
 	RECT clientRect;
 	GetClientRect(_hwndXamlHost, &clientRect);
 	SetWindowPos(_hwndXamlIsland, NULL, 0, 0, clientRect.right - clientRect.left, clientRect.bottom - clientRect.top, SWP_SHOWWINDOW | SWP_NOACTIVATE);
+}
+
+void XamlApp::_UpdateTheme() {
+	constexpr const DWORD DWMWA_USE_IMMERSIVE_DARK_MODE_BEFORE_20H1 = 19;
+	constexpr const DWORD DWMWA_MICA_EFFECT = 1029;
+
+	BOOL isDarkTheme = _mainPage.ActualTheme() == winrt::ElementTheme::Dark;
+
+	auto osBuild = Utils::GetOSBuild();
+
+	if (osBuild >= 22000) {
+		// 在 Win11 中应用 Mica
+		BOOL mica = TRUE;
+		DwmSetWindowAttribute(_hwndXamlHost, DWMWA_MICA_EFFECT, &mica, sizeof(mica));
+	}
+
+	// 使标题栏适应黑暗模式
+	// build 18985 之前 DWMWA_USE_IMMERSIVE_DARK_MODE 的值不同
+	// https://github.com/MicrosoftDocs/sdk-api/pull/966/files
+	DwmSetWindowAttribute(
+		_hwndXamlHost,
+		osBuild < 18985 ? DWMWA_USE_IMMERSIVE_DARK_MODE_BEFORE_20H1 : DWMWA_USE_IMMERSIVE_DARK_MODE,
+		& isDarkTheme,
+		sizeof(isDarkTheme)
+	);
+
+	// 更改背景色以配合主题
+	// 背景色在更改窗口大小时会短暂可见
+	HBRUSH hbrOld = (HBRUSH)SetClassLongPtr(
+		_hwndXamlHost,
+		GCLP_HBRBACKGROUND,
+		(INT_PTR)CreateSolidBrush(isDarkTheme ?
+			CommonSharedConstants::DARK_TINT_COLOR : CommonSharedConstants::LIGHT_TINT_COLOR));
+	if (hbrOld) {
+		DeleteObject(hbrOld);
+	}
+	InvalidateRect(_hwndXamlHost, nullptr, TRUE);
+
+	// 强制重绘标题栏
+	LONG_PTR style = GetWindowLongPtr(_hwndXamlHost, GWL_EXSTYLE);
+	if (osBuild < 22000) {
+		// 在 Win10 上需要更多 hack
+		SetWindowLongPtr(_hwndXamlHost, GWL_EXSTYLE, style | WS_EX_LAYERED);
+		SetLayeredWindowAttributes(_hwndXamlHost, 0, 254, LWA_ALPHA);
+	}
+	SetWindowLongPtr(_hwndXamlHost, GWL_EXSTYLE, style);
 }
 
 LRESULT XamlApp::_WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {

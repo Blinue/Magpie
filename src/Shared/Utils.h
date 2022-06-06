@@ -159,6 +159,10 @@ struct Utils {
 
 	// 获取 Virtual Key 的名字
 	static std::wstring GetKeyName(DWORD key);
+
+	static winrt::Windows::UI::Color Win32ColorToWinRTColor(COLORREF color) {
+		return { 255, GetRValue(color), GetGValue(color), GetBValue(color) };
+	}
 };
 
 inline bool operator==(const SIZE& l, const SIZE& r) {

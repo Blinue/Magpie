@@ -22,11 +22,13 @@ public:
 	int Run();
 
 private:
-	void _MainPage_Loaded(winrt::Windows::Foundation::IInspectable const&, winrt::Windows::UI::Xaml::RoutedEventArgs const&);
+	void _MainPage_Loaded(winrt::IInspectable const&, winrt::RoutedEventArgs const&);
 
 	ATOM _RegisterWndClass(HINSTANCE hInstance, const wchar_t* className);
 
 	void _OnResize();
+
+	void _UpdateTheme();
 
 	static LRESULT _WndProcStatic(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 		return Get()._WndProc(hWnd, msg, wParam, lParam);
@@ -44,6 +46,6 @@ private:
 	HWND _hwndXamlHost = NULL;
 	HWND _hwndXamlIsland = NULL;
 
-	winrt::Windows::UI::Xaml::Hosting::DesktopWindowXamlSource _xamlSource{ nullptr };
+	winrt::Hosting::DesktopWindowXamlSource _xamlSource{ nullptr };
 	winrt::com_ptr<IDesktopWindowXamlSourceNative2> _xamlSourceNative2;
 };

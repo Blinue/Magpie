@@ -21,12 +21,7 @@ namespace winrt::Magpie::implementation
 	private:
 		void _UpdateTheme();
 
-		IAsyncAction _Settings_ColorValuesChanged(
-			Windows::UI::ViewManagement::UISettings const&,
-			IInspectable const&
-		);
-
-		HWND _hwndHost = NULL;
+		IAsyncAction _Settings_ColorValuesChanged(Windows::UI::ViewManagement::UISettings const&, IInspectable const&);
 
 		Windows::UI::ViewManagement::UISettings _uiSettings;
 		event_token _colorChangedToken{};
