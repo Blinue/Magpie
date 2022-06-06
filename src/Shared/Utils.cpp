@@ -12,7 +12,6 @@
 
 
 using namespace winrt;
-using namespace Windows::UI::Xaml;
 using namespace Windows::UI::Xaml::Media;
 
 
@@ -47,7 +46,46 @@ void Utils::CloseAllXamlPopups(XamlRoot root) {
 
 	// https://github.com/microsoft/microsoft-ui-xaml/issues/4554
 	for (const auto& popup : VisualTreeHelper::GetOpenPopupsForXamlRoot(root)) {
-		popup.IsOpen(false);
+		if (popup.Parent()) {
+			popup.IsOpen(false);
+		}
+	}
+}
+
+void Utils::CloseAllXamlDialogs(winrt::XamlRoot root) {
+	if (!root) {
+		return;
+	}
+
+	// https://github.com/microsoft/microsoft-ui-xaml/issues/4554
+	for (const auto& popup : VisualTreeHelper::GetOpenPopupsForXamlRoot(root)) {
+		if (!popup.Parent()) {
+			popup.IsOpen(false);
+		}
+	}
+}
+
+void Utils::RepositionXamlPopups(XamlRoot root) {
+	if (!root) {
+		return;
+	}
+
+	for (const auto& popup : VisualTreeHelper::GetOpenPopupsForXamlRoot(root)) {
+		// 取自 https://github.com/CommunityToolkit/Microsoft.Toolkit.Win32/blob/229fa3cd245ff002906b2a594196b88aded25774/Microsoft.Toolkit.Forms.UI.XamlHost/WindowsXamlHostBase.cs#L180
+		
+		// Toggle the CompositeMode property, which will force all windowed Popups
+		// to reposition themselves relative to the new position of the host window.
+		auto compositeMode = popup.CompositeMode();
+
+		// Set CompositeMode to some value it currently isn't set to.
+		if (compositeMode == ElementCompositeMode::SourceOver) {
+			popup.CompositeMode(ElementCompositeMode::MinBlend);
+		} else {
+			popup.CompositeMode(ElementCompositeMode::SourceOver);
+		}
+
+		// Restore CompositeMode to whatever it was originally set to.
+		popup.CompositeMode(compositeMode);
 	}
 }
 

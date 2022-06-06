@@ -310,7 +310,10 @@ LRESULT XamlApp::_WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_SIZE:
 	{
 		_OnResize();
-		_CloseAllXamlPopups();
+		if (_mainPage) {
+			Utils::CloseAllXamlDialogs(_mainPage.XamlRoot());
+			Utils::RepositionXamlPopups(_mainPage.XamlRoot());
+		}
 		return 0;
 	}
 	case WM_WINDOWPOSCHANGED:
@@ -351,7 +354,7 @@ LRESULT XamlApp::_WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				SetFocus(_hwndXamlIsland);
 			} else {
 				_uwpApp.OnHostWndFocusChanged(false);
-				_CloseAllXamlPopups();
+				Utils::CloseAllXamlPopups(_mainPage.XamlRoot());
 			}
 		}
 		
@@ -364,7 +367,7 @@ LRESULT XamlApp::_WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				_uwpApp.OnHostWndFocusChanged(true);
 			} else {
 				_uwpApp.OnHostWndFocusChanged(false);
-				_CloseAllXamlPopups();
+				Utils::CloseAllXamlPopups(_mainPage.XamlRoot());
 			}
 			return 0;
 		}
@@ -373,13 +376,11 @@ LRESULT XamlApp::_WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	}
 	case WM_MOVING:
 	{
-		_CloseAllXamlPopups();
+		if (_mainPage) {
+			Utils::RepositionXamlPopups(_mainPage.XamlRoot());
+		}
+		
 		return 0;
-	}
-	case WM_NCLBUTTONDOWN:
-	{
-		_CloseAllXamlPopups();
-		break;
 	}
 	case WM_DESTROY:
 		PostQuitMessage(0);
@@ -389,10 +390,3 @@ LRESULT XamlApp::_WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	return DefWindowProc(hWnd, message, wParam, lParam);
 }
 
-void XamlApp::_CloseAllXamlPopups() {
-	if (!_mainPage) {
-		return;
-	}
-
-	Utils::CloseAllXamlPopups(_mainPage.XamlRoot());
-}

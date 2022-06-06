@@ -15,8 +15,10 @@ struct Utils {
 		return r1.right > r2.left && r1.bottom > r2.top && r1.left < r2.right&& r1.top < r2.bottom;
 	}
 
-	static void CloseAllXamlPopups(winrt::Windows::UI::Xaml::XamlRoot root);
-	static void UpdateThemeOfXamlPopups(winrt::Windows::UI::Xaml::XamlRoot root, winrt::Windows::UI::Xaml::ElementTheme theme);
+	static void CloseAllXamlPopups(winrt::XamlRoot root);
+	static void CloseAllXamlDialogs(winrt::XamlRoot root);
+	static void RepositionXamlPopups(winrt::XamlRoot root);
+	static void UpdateThemeOfXamlPopups(winrt::XamlRoot root, winrt::ElementTheme theme);
 
 	static UINT GetWindowShowCmd(HWND hwnd);
 

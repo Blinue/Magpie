@@ -33,8 +33,6 @@ private:
 	}
 	LRESULT _WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
-	void _CloseAllXamlPopups();
-
 	Utils::ScopedHandle _hMutex;
 
 	winrt::Magpie::Settings _settings{ nullptr };
