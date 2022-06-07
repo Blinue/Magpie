@@ -192,7 +192,7 @@ float4 Pass3(float2 pos) {
 //!BLOCK_SIZE 16
 //!NUM_THREADS 64
 
-#define sigma_nsq   49. / (255.*255.)
+#define sigma_nsq   10. / (255.*255.)
 #define locality    2.0
 
 #define Kernel(x)   pow(1.0 / locality, abs(x))
@@ -280,9 +280,9 @@ void Pass4(uint2 blockStart, uint3 threadId) {
 			}
 			avg /= W;
 
-			float Sl = Luma(max(avg[1] - avg[0] * avg[0], 0.)) + sigma_nsq;
-			float Sh = Luma(max(avg[2] - avg[0] * avg[0], 0.)) + sigma_nsq;
-			MR[destPos] = float4(avg[0], sqrt(Sh / Sl) * oversharp);
+			float Sl = Luma(max(avg[1] - avg[0] * avg[0], 0.));
+			float Sh = Luma(max(avg[2] - avg[0] * avg[0], 0.));
+			MR[destPos] = float4(avg[0], lerp(sqrt((Sh + sigma_nsq) / (Sl + sigma_nsq)) * oversharp, clamp(Sh / Sl, 0., 1.), int(Sl > Sh)));
 		}
 	}
 }
