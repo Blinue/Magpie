@@ -28,6 +28,8 @@ MainPage::MainPage() {
 	_UpdateTheme();
 	_settings.ThemeChanged([this](const auto&, int) { _UpdateTheme(); });
 
+	__super::RootNavigationView().IsPaneOpen(_settings.IsPaneOpen());
+
 	Background(Magpie::MicaBrush(*this));
 }
 
@@ -57,6 +59,17 @@ void MainPage::NavigationView_SelectionChanged(
 			contentFrame.Navigate(winrt::xaml_typename<Magpie::AboutPage>());
 		}
 	}
+}
+
+void MainPage::NavigationView_PaneOpening(Microsoft::UI::Xaml::Controls::NavigationView const&, IInspectable const&) {
+	_settings.IsPaneOpen(true);
+}
+
+void MainPage::NavigationView_PaneClosing(
+	Microsoft::UI::Xaml::Controls::NavigationView const&,
+	Microsoft::UI::Xaml::Controls::NavigationViewPaneClosingEventArgs const&
+) {
+	_settings.IsPaneOpen(false);
 }
 
 Microsoft::UI::Xaml::Controls::NavigationView MainPage::RootNavigationView() {

@@ -144,6 +144,16 @@ bool Settings::Initialize(uint64_t pLogger) {
 			_isWindowMaximized = maximizedNode->value.GetBool();
 		}
 	}
+	{
+		auto isPaneOpenNode = root.FindMember("isPaneOpen");
+		if (isPaneOpenNode != root.MemberEnd()) {
+			if (!isPaneOpenNode->value.IsBool()) {
+				return false;
+			}
+
+			_isPaneOpen = isPaneOpenNode->value.GetBool();
+		}
+	}
 
 	return true;
 }
@@ -175,6 +185,9 @@ bool Settings::Save() {
 	writer.Key("maximized");
 	writer.Bool(_isWindowMaximized);
 	writer.EndObject();
+
+	writer.Key("isPaneOpen");
+	writer.Bool(_isPaneOpen);
 
 	writer.EndObject();
 
@@ -226,7 +239,7 @@ winrt::event_token Settings::ThemeChanged(Windows::Foundation::EventHandler<int>
 	return _themeChangedEvent.add(handler);
 }
 
-void Settings::ThemeChanged(winrt::event_token const& token) noexcept {
+void Settings::ThemeChanged(winrt::event_token const& token) {
 	_themeChangedEvent.remove(token);
 }
 

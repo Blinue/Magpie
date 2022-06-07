@@ -12,37 +12,45 @@ struct Settings : SettingsT<Settings> {
 
 	bool Save();
 
-	hstring WorkingDir() const {
+	hstring WorkingDir() const noexcept {
 		return _workingDir;
 	}
 
-	bool IsPortableMode() const {
+	bool IsPortableMode() const noexcept {
 		return _isPortableMode;
 	}
 
 	void IsPortableMode(bool value);
 
-	int Theme() const {
+	int Theme() const noexcept {
 		return _theme;
 	}
 	void Theme(int value);
 	winrt::event_token ThemeChanged(Windows::Foundation::EventHandler<int> const& handler);
-	void ThemeChanged(winrt::event_token const& token) noexcept;
+	void ThemeChanged(winrt::event_token const& token);
 
-	Windows::Foundation::Rect WindowRect() const {
+	Windows::Foundation::Rect WindowRect() const noexcept {
 		return _windowRect;
 	}
 
-	void WindowRect(const Windows::Foundation::Rect& value) {
+	void WindowRect(const Windows::Foundation::Rect& value) noexcept {
 		_windowRect = value;
 	}
 
-	bool IsWindowMaximized() const {
+	bool IsWindowMaximized() const noexcept {
 		return _isWindowMaximized;
 	}
 
-	void IsWindowMaximized(bool value) {
+	void IsWindowMaximized(bool value) noexcept {
 		_isWindowMaximized = value;
+	}
+
+	bool IsPaneOpen() const noexcept {
+		return _isPaneOpen;
+	}
+
+	void IsPaneOpen(bool value) noexcept {
+		_isPaneOpen = value;
 	}
 
 private:
@@ -57,6 +65,7 @@ private:
 
 	Windows::Foundation::Rect _windowRect{ CW_USEDEFAULT,CW_USEDEFAULT,1280,820 };
 	bool _isWindowMaximized = false;
+	bool _isPaneOpen = true;
 };
 
 }
