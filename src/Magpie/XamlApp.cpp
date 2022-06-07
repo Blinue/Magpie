@@ -4,7 +4,6 @@
 #include "StrUtils.h"
 #include "Utils.h"
 #include "CommonSharedConstants.h"
-#include <winrt/Windows.UI.Core.h>
 #include <CoreWindow.h>
 #include <uxtheme.h>
 #include <fmt/xchar.h>
@@ -14,6 +13,7 @@
 
 namespace winrt {
 using namespace Windows::UI::Xaml::Hosting;
+using namespace Windows::UI::Xaml::Media;
 using namespace Windows::UI::ViewManagement;
 using namespace Magpie;
 }
@@ -282,6 +282,57 @@ void XamlApp::_UpdateTheme() {
 	SetWindowLongPtr(_hwndXamlHost, GWL_EXSTYLE, style);
 }
 
+// 使 ContentDialog 跟随窗口尺寸调整
+void XamlApp::_ResizeXamlDialog() {
+	winrt::XamlRoot root = _mainPage.XamlRoot();
+	if (!root) {
+		return;
+	}
+
+	winrt::Size rootSize = root.Size();
+
+	for (const auto& popup : winrt::VisualTreeHelper::GetOpenPopupsForXamlRoot(root)) {
+		if (!popup.IsConstrainedToRootBounds()) {
+			continue;
+		}
+
+		winrt::FrameworkElement child = popup.Child().as<winrt::FrameworkElement>();
+
+		if (winrt::get_class_name(child) == winrt::name_of<winrt::Controls::ContentDialog>()) {
+			child.Width(rootSize.Width);
+			child.Height(rootSize.Height);
+		} else {
+			child.Width(rootSize.Width);
+			child.Height(rootSize.Height);
+		}
+	}
+}
+
+void XamlApp::_RepositionXamlPopups() {
+	winrt::XamlRoot root = _mainPage.XamlRoot();
+	if (!root) {
+		return;
+	}
+
+	for (const auto& popup : winrt::VisualTreeHelper::GetOpenPopupsForXamlRoot(root)) {
+		// 取自 https://github.com/CommunityToolkit/Microsoft.Toolkit.Win32/blob/229fa3cd245ff002906b2a594196b88aded25774/Microsoft.Toolkit.Forms.UI.XamlHost/WindowsXamlHostBase.cs#L180
+
+		// Toggle the CompositeMode property, which will force all windowed Popups
+		// to reposition themselves relative to the new position of the host window.
+		auto compositeMode = popup.CompositeMode();
+
+		// Set CompositeMode to some value it currently isn't set to.
+		if (compositeMode == winrt::ElementCompositeMode::SourceOver) {
+			popup.CompositeMode(winrt::ElementCompositeMode::MinBlend);
+		} else {
+			popup.CompositeMode(winrt::ElementCompositeMode::SourceOver);
+		}
+
+		// Restore CompositeMode to whatever it was originally set to.
+		popup.CompositeMode(compositeMode);
+	}
+}
+
 LRESULT XamlApp::_WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
 	switch (message) {
 	case WM_HOTKEY:
@@ -311,8 +362,12 @@ LRESULT XamlApp::_WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	{
 		_OnResize();
 		if (_mainPage) {
-			Utils::CloseXamlDialog(_mainPage.XamlRoot());
-			Utils::RepositionXamlPopups(_mainPage.XamlRoot());
+			[this]()->winrt::fire_and_forget {
+				co_await _mainPage.Dispatcher().RunAsync(winrt::CoreDispatcherPriority::Normal, [this]() {
+					_ResizeXamlDialog();
+					_RepositionXamlPopups();
+				});
+			}();
 		}
 		return 0;
 	}
@@ -354,7 +409,7 @@ LRESULT XamlApp::_WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				SetFocus(_hwndXamlIsland);
 			} else {
 				_uwpApp.OnHostWndFocusChanged(false);
-				Utils::CloseAllXamlPopups(_mainPage.XamlRoot());
+				Utils::CloseXamlPopups(_mainPage.XamlRoot());
 			}
 		}
 		
@@ -367,7 +422,7 @@ LRESULT XamlApp::_WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				_uwpApp.OnHostWndFocusChanged(true);
 			} else {
 				_uwpApp.OnHostWndFocusChanged(false);
-				Utils::CloseAllXamlPopups(_mainPage.XamlRoot());
+				Utils::CloseXamlPopups(_mainPage.XamlRoot());
 			}
 			return 0;
 		}
@@ -377,9 +432,9 @@ LRESULT XamlApp::_WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_MOVING:
 	{
 		if (_mainPage) {
-			Utils::RepositionXamlPopups(_mainPage.XamlRoot());
+			_RepositionXamlPopups();
 		}
-		
+
 		return 0;
 	}
 	case WM_DESTROY:

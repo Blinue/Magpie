@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "Logger.h"
 #include "StrUtils.h"
 #include <spdlog/sinks/rotating_file_sink.h>

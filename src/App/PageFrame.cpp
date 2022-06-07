@@ -63,11 +63,11 @@ void PageFrame::Loading(FrameworkElement const&, IInspectable const&) {
 }
 
 void PageFrame::ScrollViewer_PointerPressed(IInspectable const&, PointerRoutedEventArgs const&) {
-	Utils::CloseAllXamlPopups(XamlRoot());
+	Utils::CloseXamlPopups(XamlRoot());
 }
 
 void PageFrame::ScrollViewer_ViewChanging(IInspectable const&, ScrollViewerViewChangingEventArgs const&) {
-	Utils::CloseAllXamlPopups(XamlRoot());
+	Utils::CloseXamlPopups(XamlRoot());
 }
 
 event_token PageFrame::PropertyChanged(PropertyChangedEventHandler const& value) {

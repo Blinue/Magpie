@@ -12,4 +12,3 @@
 
 // C++/WinRT 头文件
 #include <winrt/Windows.UI.Xaml.Hosting.h>
-#include <winrt/Windows.UI.ViewManagement.h>

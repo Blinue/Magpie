@@ -1,6 +1,5 @@
 #pragma once
 #include "CommonPCH.h"
-#include <winrt/Windows.UI.Xaml.h>
 #include <bcrypt.h>
 
 
@@ -15,9 +14,7 @@ struct Utils {
 		return r1.right > r2.left && r1.bottom > r2.top && r1.left < r2.right&& r1.top < r2.bottom;
 	}
 
-	static void CloseAllXamlPopups(const winrt::XamlRoot& root);
-	static void CloseXamlDialog(const winrt::XamlRoot& root);
-	static void RepositionXamlPopups(const winrt::XamlRoot& root);
+	static void CloseXamlPopups(const winrt::XamlRoot& root);
 	static void UpdateThemeOfXamlPopups(const winrt::XamlRoot& root, const winrt::ElementTheme& theme);
 
 	static UINT GetWindowShowCmd(HWND hwnd);

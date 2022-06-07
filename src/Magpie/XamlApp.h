@@ -28,6 +28,9 @@ private:
 
 	void _UpdateTheme();
 
+	void _ResizeXamlDialog();
+	void _RepositionXamlPopups();
+
 	static LRESULT _WndProcStatic(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 		return Get()._WndProc(hWnd, msg, wParam, lParam);
 	}
