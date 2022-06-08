@@ -256,6 +256,9 @@
   <data name="UI_Options_Advanced_Open_Logs_Folder" xml:space="preserve">
     <value>Открыть папку журналов</value>
   </data>
+  <data name="UI_Options_Advanced_Save_Effect_Sources" xml:space="preserve">
+    <value>Сохранить исходники при разборе эффектов</value>
+  </data>
   <data name="UI_Options_Advanced_Show_All_Capture_Methods" xml:space="preserve">
     <value>Показать все способы захвата</value>
   </data>
@@ -265,8 +268,14 @@
   <data name="UI_Options_Advanced_Simulate_Exclusive_Fullscreen" xml:space="preserve">
     <value>Симулировать эксклюзивный полный экран</value>
   </data>
+  <data name="UI_Options_Advanced_Warnings_Are_Errors" xml:space="preserve">
+    <value>Предупреждения как ошибки при компиляции шейдеров</value>
+  </data>
   <data name="UI_Options_Application" xml:space="preserve">
     <value>Приложение</value>
+  </data>
+  <data name="UI_Options_Application_3D_Mode" xml:space="preserve">
+    <value>Режим 3D игры</value>
   </data>
   <data name="UI_Options_Application_Always_Run_As_Admin" xml:space="preserve">
     <value>Всегда запускать от имени администратора</value>
@@ -359,19 +368,28 @@
     <value>Использовать мониторы коротые пересекает исходное окно</value>
   </data>
   <data name="UI_Options_Scale_Multiple_Monitors_Nearest" xml:space="preserve">
-    <value>Использовать монитор ближайший к окну источника</value>
+    <value>Использовать монитор ближайший к исходному окну</value>
   </data>
   <data name="UI_Options_Scale_Open_Scale_Config" xml:space="preserve">
     <value>Открыть конфиг увеличения</value>
   </data>
-  <data name="UI_Options_Application_Restore_Full_Screen" xml:space="preserve">
-    <value>Восстановить полноэкранный режим при фокусе исходного окна</value>
+  <data name="UI_Options_Scale_Overlay" xml:space="preserve">
+    <value>Оверлей в игре</value>
   </data>
   <data name="UI_Options_Scale_Overlay_FPS" xml:space="preserve">
     <value>Показать частоту кадров</value>
   </data>
+  <data name="UI_Options_Scale_Overlay_Hotkey" xml:space="preserve">
+    <value>Клавиша</value>
+  </data>
+  <data name="UI_Options_Application_Restore_Full_Screen" xml:space="preserve">
+    <value>Восстановить полноэкранный режим при фокусе исходного окна</value>
+  </data>
   <data name="UI_Options_Scale_Source_Window" xml:space="preserve">
     <value>Исходное окно</value>
+  </data>
+  <data name="UI_Options_Scale_VSync" xml:space="preserve">
+    <value>Вертикальная синхронизация</value>
   </data>
   <data name="UI_Options_Title" xml:space="preserve">
     <value>Настройки Magpie</value>
