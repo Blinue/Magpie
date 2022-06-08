@@ -45,14 +45,6 @@ struct Settings : SettingsT<Settings> {
 		_isWindowMaximized = value;
 	}
 
-	bool IsPaneOpen() const noexcept {
-		return _isPaneOpen;
-	}
-
-	void IsPaneOpen(bool value) noexcept {
-		_isPaneOpen = value;
-	}
-
 private:
 	bool _isPortableMode = false;
 	hstring _workingDir;
@@ -65,7 +57,6 @@ private:
 
 	Windows::Foundation::Rect _windowRect{ CW_USEDEFAULT,CW_USEDEFAULT,1280,820 };
 	bool _isWindowMaximized = false;
-	bool _isPaneOpen = true;
 };
 
 }

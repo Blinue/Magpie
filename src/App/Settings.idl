@@ -17,7 +17,5 @@ namespace Magpie
 
 		Windows.Foundation.Rect WindowRect;
 		Boolean IsWindowMaximized;
-
-		Boolean IsPaneOpen;
 	}
 }

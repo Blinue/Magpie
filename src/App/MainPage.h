@@ -16,15 +16,6 @@ namespace winrt::Magpie::implementation
 
 		void NavigationView_SelectionChanged(Microsoft::UI::Xaml::Controls::NavigationView const&, Microsoft::UI::Xaml::Controls::NavigationViewSelectionChangedEventArgs const& args);
 
-		void NavigationView_PaneOpening(
-			Microsoft::UI::Xaml::Controls::NavigationView const&,
-			IInspectable const&
-		);
-		void NavigationView_PaneClosing(
-			Microsoft::UI::Xaml::Controls::NavigationView const&,
-			Microsoft::UI::Xaml::Controls::NavigationViewPaneClosingEventArgs const&
-		);
-
 		Microsoft::UI::Xaml::Controls::NavigationView RootNavigationView();
 
 	private:

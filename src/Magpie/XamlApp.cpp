@@ -362,12 +362,12 @@ LRESULT XamlApp::_WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	{
 		_OnResize();
 		if (_mainPage) {
-			[this]()->winrt::fire_and_forget {
-				co_await _mainPage.Dispatcher().RunAsync(winrt::CoreDispatcherPriority::Normal, [this]() {
-					_ResizeXamlDialog();
-					_RepositionXamlPopups();
+			[](XamlApp* app)->winrt::fire_and_forget {
+				co_await app->_mainPage.Dispatcher().RunAsync(winrt::CoreDispatcherPriority::Normal, [app]() {
+					app->_ResizeXamlDialog();
+					app->_RepositionXamlPopups();
 				});
-			}();
+			}(this);
 		}
 		return 0;
 	}
