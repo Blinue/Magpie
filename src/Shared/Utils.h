@@ -15,7 +15,7 @@ struct Utils {
 	}
 
 	static void CloseXamlPopups(const winrt::XamlRoot& root);
-	static void UpdateThemeOfXamlPopups(const winrt::XamlRoot& root, const winrt::ElementTheme& theme);
+	static void UpdateThemeOfXamlPopups(const winrt::XamlRoot& root, winrt::ElementTheme theme);
 
 	static UINT GetWindowShowCmd(HWND hwnd);
 

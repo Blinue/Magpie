@@ -52,7 +52,7 @@ void Utils::CloseXamlPopups(const XamlRoot& root) {
 	}
 }
 
-void Utils::UpdateThemeOfXamlPopups(const XamlRoot& root, const ElementTheme& theme) {
+void Utils::UpdateThemeOfXamlPopups(const XamlRoot& root, ElementTheme theme) {
 	if (!root) {
 		return;
 	}
