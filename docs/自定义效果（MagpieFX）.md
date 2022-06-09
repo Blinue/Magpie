@@ -1,4 +1,4 @@
-MagpieFX 语法
+MagpieFX 基于 DX11 计算着色器
 
 ``` hlsl
 //!MAGPIE EFFECT
@@ -8,7 +8,7 @@ MagpieFX 语法
 // 若要使用 GetFrameCount 或 GetCursorPos 需指定 USE_DYNAMIC
 //!USE_DYNAMIC
 
-// 如果不定义 OUTPUT_WIDTH 和 OUTPUT_HEIGHT 表示此 Effect 可以接受任何大小的输出
+// 不指定 OUTPUT_WIDTH 和 OUTPUT_HEIGHT 表示此效果支持输出任意尺寸
 // 计算纹理尺寸时可以使用一些预定义常量
 // INPUT_WIDTH
 // INPUT_HEIGHT
@@ -17,8 +17,6 @@ MagpieFX 语法
 
 
 // 参数定义
-// 含有 VALUE 关键字的变量会填充该表达式的值
-// 否则为在运行时可以改变的参数
 //!PARAMETER
 //!DEFAULT 0
 // LABEL 可选，暂时不使用
@@ -28,7 +26,7 @@ float sharpness;
 
 // 纹理定义
 // INPUT 是特殊关键字
-// INPUT 不能作为 Pass 的输出
+// INPUT 不能作为通道的输出
 // 定义 INPUT 是可选的，但为了保持语义的完整性，建议显式定义
 
 //!TEXTURE
@@ -61,7 +59,7 @@ Texture2D INPUT;
 //!TEXTURE
 //!WIDTH INPUT_WIDTH + 100
 //!HEIGHT INPUT_HEIGHT + 100
-//!FORMAT B8G8R8A8_UNORM
+//!FORMAT R8G8B8A8_UNORM
 Texture2D tex1;
 
 // 采样器定义
@@ -86,7 +84,7 @@ SamplerState sam2;
 // 通道定义
 
 //!PASS 1
-// 描述此通道以便于调试
+// 描述将出现在游戏内覆盖中
 //!DESC First Pass
 // 可选 PS 风格，依然用 CS 实现
 // STYLE 默认为 CS
@@ -98,12 +96,13 @@ SamplerState sam2;
 float func1() {
 }
 
-// Main 为通道入口点
-float4 Main(float2 pos) {
+// Pass[n] 为通道入口点
+float4 Pass1(float2 pos) {
     return float4(1, 1, 1, 1);
 }
 
-// 没有 OUT 表示此通道为 Effect 的输出
+// 最后一个通道不能指定 OUT
+// 如果是 CS 风格必须使用 WriteToOutput 输出结果
 
 //!PASS 2
 //!IN INPUT, tex1
@@ -174,7 +173,7 @@ PS 风格下 OUT 指令可指定多个输出（DirectX 限制最多 8 个）：
 
 这时通道入口有不同的签名：
 ``` hlsl
-void Main(float2 pos, out float4 target1, out float4 target2);
+void Pass1(float2 pos, out float4 target1, out float4 target2);
 ```
 
 ### 从文件加载纹理

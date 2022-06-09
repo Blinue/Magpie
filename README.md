@@ -1,14 +1,15 @@
 # MAGPIE
 
+[![许可](https://img.shields.io/github/license/Blinue/Magpie)](./LICENSE)
 [![build](https://github.com/Blinue/Magpie/actions/workflows/build.yml/badge.svg)](https://github.com/Blinue/Magpie/actions/workflows/build.yml)
 [![All Contributors](https://img.shields.io/github/all-contributors/Blinue/Magpie)](#%E8%B4%A1%E7%8C%AE%E8%80%85-)
-[![许可](https://img.shields.io/github/license/Blinue/Magpie)](./LICENSE)
+[![GitHub all releases](https://img.shields.io/github/downloads/Blinue/Magpie/total)](https://github.com/Blinue/Magpie/releases)
 
 🌍 **简体中文** | [English](./README_EN.md)
 
 Magpie 可以将任意窗口放大至全屏，内置大量缩放算法/滤镜。主要用于游戏窗口的放大显示，适用于不支持全屏模式，或者内置的全屏模式会使画面模糊的情况。
 
-使用中遇到问题请提交 issue。
+使用中遇到问题请提交 issue。（开源新手？看[这里](https://opensourceway.community/open-source-guide/how-to-contribute/#%E5%A6%82%E4%BD%95%E6%8F%90%E4%BA%A4%E6%88%90%E6%9E%9C)！）
 
 :point_right: [编译指南](https://github.com/Blinue/Magpie/wiki/编译指南)
 
