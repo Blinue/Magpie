@@ -28,7 +28,15 @@ IAsyncAction ShortcutControl::EditButton_Click(IInspectable const&, RoutedEventA
 
 	_shortcutDialog.XamlRoot(XamlRoot());
 	_shortcutDialog.RequestedTheme(ActualTheme());
+
+	// 防止快速点击时崩溃
+	static bool showing = false;
+	if (showing) {
+		co_return;
+	}
+	showing = true;
 	co_await _shortcutDialog.ShowAsync();
+	showing = false;
 }
 
 }
