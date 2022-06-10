@@ -23,9 +23,6 @@ namespace winrt::Magpie::implementation {
 MainPage::MainPage() {
 	InitializeComponent();
 
-	// 修复 WinUI 的汉堡菜单的尺寸 bug
-	__super::RootNavigationView().IsPaneOpen(true);
-
 	_settings = Application::Current().as<Magpie::App>().Settings();
 
 	_UpdateTheme();
@@ -41,9 +38,26 @@ MainPage::~MainPage() {
 	}
 }
 
+void MainPage::Loaded(IInspectable const&, RoutedEventArgs const&) {
+	MUXC::NavigationView nv = __super::RootNavigationView();
+	
+	if (nv.DisplayMode() == MUXC::NavigationViewDisplayMode::Minimal) {
+		nv.IsPaneOpen(true);
+		nv.PaneDisplayMode(MUXC::NavigationViewPaneDisplayMode::Auto);
+		
+		// 消除焦点框
+		IsTabStop(true);
+		Focus(FocusState::Programmatic);
+		IsTabStop(false);
+	} else if (nv.DisplayMode() == MUXC::NavigationViewDisplayMode::Expanded) {
+		// 修复 WinUI 的汉堡菜单的尺寸 bug
+		nv.PaneDisplayMode(MUXC::NavigationViewPaneDisplayMode::Auto);
+	}
+}
+
 void MainPage::NavigationView_SelectionChanged(
-	Microsoft::UI::Xaml::Controls::NavigationView const&,
-	Microsoft::UI::Xaml::Controls::NavigationViewSelectionChangedEventArgs const& args
+	MUXC::NavigationView const&,
+	MUXC::NavigationViewSelectionChangedEventArgs const& args
 ) {
 	auto contentFrame = ContentFrame();
 
@@ -62,7 +76,7 @@ void MainPage::NavigationView_SelectionChanged(
 	}
 }
 
-Microsoft::UI::Xaml::Controls::NavigationView MainPage::RootNavigationView() {
+MUXC::NavigationView MainPage::RootNavigationView() {
 	return __super::RootNavigationView();
 }
 

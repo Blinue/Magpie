@@ -6,9 +6,10 @@
 	xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
 	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-	mc:Ignorable="d">
+	mc:Ignorable="d"
+	Loaded="Loaded">
 
-	<muxc:NavigationView Name="RootNavigationView" IsPaneOpen="False" IsBackButtonVisible="Collapsed" SelectionChanged="NavigationView_SelectionChanged">
+	<muxc:NavigationView Name="RootNavigationView" IsBackButtonVisible="Collapsed" SelectionChanged="NavigationView_SelectionChanged">
 		<muxc:NavigationView.Resources>
 			<SolidColorBrush x:Key="NavigationViewContentBackground"
 							 Color="Transparent" />

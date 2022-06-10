@@ -14,9 +14,11 @@ namespace winrt::Magpie::implementation
 
 		~MainPage();
 
-		void NavigationView_SelectionChanged(Microsoft::UI::Xaml::Controls::NavigationView const&, Microsoft::UI::Xaml::Controls::NavigationViewSelectionChangedEventArgs const& args);
+		void Loaded(IInspectable const&, RoutedEventArgs const&);
 
-		Microsoft::UI::Xaml::Controls::NavigationView RootNavigationView();
+		void NavigationView_SelectionChanged(MUXC::NavigationView const&, MUXC::NavigationViewSelectionChangedEventArgs const& args);
+
+		MUXC::NavigationView RootNavigationView();
 
 	private:
 		void _UpdateTheme();

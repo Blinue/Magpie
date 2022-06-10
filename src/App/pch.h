@@ -28,5 +28,8 @@
 #include <winrt/Microsoft.UI.Xaml.XamlTypeInfo.h>
 #include <winrt/Microsoft.Graphics.Canvas.Effects.h>
 
+namespace winrt::MUXC {
+using namespace Microsoft::UI::Xaml::Controls;
+}
 
 #pragma comment(lib, "d3d11.lib")
