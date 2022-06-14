@@ -2,7 +2,6 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 	<PropertyGroup>
 		<IntDir>$(SolutionDir)\obj\$(Platform)\$(Configuration)\$(MSBuildProjectName)\</IntDir>
-		<OutDir>$(SolutionDir)\bin\$(Platform)\$(Configuration)\</OutDir>
 		<GeneratedFilesDir>$(IntDir)Generated Files\</GeneratedFilesDir>
 	</PropertyGroup>
 

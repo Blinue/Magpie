@@ -1,4 +1,4 @@
-namespace Runtime
+namespace Magpie.Runtime
 {
     [default_interface]
     runtimeclass Class

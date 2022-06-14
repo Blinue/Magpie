@@ -2,7 +2,7 @@
 #include "Class.h"
 #include "Class.g.cpp"
 
-namespace winrt::Runtime::implementation
+namespace winrt::Magpie::Runtime::implementation
 {
     int32_t Class::MyProperty()
     {

@@ -8,7 +8,7 @@
     <MinimalCoreWin>true</MinimalCoreWin>
     <ProjectGuid>{eecd2c4a-858e-48f7-b774-335ccc886e82}</ProjectGuid>
     <ProjectName>Runtime</ProjectName>
-    <RootNamespace>Runtime</RootNamespace>
+    <RootNamespace>Magpie.Runtime</RootNamespace>
     <DefaultLanguage>en-US</DefaultLanguage>
     <MinimumVisualStudioVersion>14.0</MinimumVisualStudioVersion>
     <AppContainerApplication>true</AppContainerApplication>
@@ -20,6 +20,7 @@
     <TargetName>Magpie.Runtime</TargetName>
     <DesktopCompatible>true</DesktopCompatible>
     <_NoWinAPIFamilyApp>true</_NoWinAPIFamilyApp>
+    <OutDir>$(SolutionDir)\bin\$(Platform)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <ItemGroup Label="ProjectConfigurations">

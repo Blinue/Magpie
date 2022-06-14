@@ -2,7 +2,7 @@
 
 #include "Class.g.h"
 
-namespace winrt::Runtime::implementation
+namespace winrt::Magpie::Runtime::implementation
 {
     struct Class : ClassT<Class>
     {
@@ -13,7 +13,7 @@ namespace winrt::Runtime::implementation
     };
 }
 
-namespace winrt::Runtime::factory_implementation
+namespace winrt::Magpie::Runtime::factory_implementation
 {
     struct Class : ClassT<Class, implementation::Class>
     {
