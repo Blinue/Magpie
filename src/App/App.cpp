@@ -3,7 +3,7 @@
 #if __has_include("App.g.cpp")
 #include "App.g.cpp"
 #endif
-#include "Utils.h"
+#include "Win32Utils.h"
 #include "Logger.h"
 
 
@@ -23,7 +23,7 @@ App::App() {
 	ResourceDictionary resource = Resources();
 
 	// 根据操作系统选择图标字体
-	bool isWin11 = Utils::GetOSBuild() >= 22000;
+	bool isWin11 = Win32Utils::GetOSBuild() >= 22000;
 	resource.Insert(
 		box_value(L"SymbolThemeFontFamily"),
 		FontFamily(isWin11 ? L"Segoe Fluent Icons" : L"Segoe MDL2 Assets")

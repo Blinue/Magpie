@@ -2,7 +2,7 @@
 #include "pch.h"
 #include <windows.ui.xaml.hosting.desktopwindowxamlsource.h>
 #include <winrt/Magpie.h>
-#include "Utils.h"
+#include "Win32Utils.h"
 
 
 class XamlApp {
@@ -36,7 +36,7 @@ private:
 	}
 	LRESULT _WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
-	Utils::ScopedHandle _hMutex;
+	Win32Utils::ScopedHandle _hMutex;
 
 	winrt::Magpie::Settings _settings{ nullptr };
 

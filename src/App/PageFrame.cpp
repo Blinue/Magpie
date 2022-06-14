@@ -5,7 +5,7 @@
 #endif
 
 #include "XamlUtils.h"
-#include "Utils.h"
+#include "Win32Utils.h"
 
 using namespace winrt;
 using namespace Windows::UI::Xaml::Controls;
@@ -91,7 +91,7 @@ void PageFrame::_UpdateHeaderStyle() {
 		textBlock.Margin(Thickness{ 28, 8.5, 0, 0 });
 		textBlock.FontSize(20);
 	} else {
-		bool isWin11 = Utils::GetOSBuild() >= 22000;
+		bool isWin11 = Win32Utils::GetOSBuild() >= 22000;
 		textBlock.Margin(Thickness{ 0, double(isWin11 ? 25 : 40), 0, 0 });
 		textBlock.FontSize(30);
 	}

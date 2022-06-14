@@ -4,7 +4,7 @@
 #include "HotkeySettings.g.cpp"
 #endif
 
-#include "Utils.h"
+#include "Win32Utils.h"
 
 
 namespace winrt::Magpie::implementation {
@@ -40,7 +40,7 @@ IVector<IInspectable> HotkeySettings::GetKeyList() const {
 			shortcutList.push_back(box_value(_code));
 			break;
 		default:
-			std::wstring localKey = Utils::GetKeyName(_code);
+			std::wstring localKey = Win32Utils::GetKeyName(_code);
 			shortcutList.push_back(box_value(localKey));
 			break;
 		}

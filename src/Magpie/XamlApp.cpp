@@ -2,7 +2,7 @@
 #include "XamlApp.h"
 #include "Logger.h"
 #include "StrUtils.h"
-#include "Utils.h"
+#include "Win32Utils.h"
 #include "XamlUtils.h"
 #include "CommonSharedConstants.h"
 #include <CoreWindow.h>
@@ -32,7 +32,7 @@ bool XamlApp::Initialize(HINSTANCE hInstance) {
 		if (hWnd) {
 			// 如果已有实例权限更高 ShowWindow 会失败
 			ShowWindow(hWnd, SW_NORMAL);
-			Utils::SetForegroundWindow(hWnd);
+			Win32Utils::SetForegroundWindow(hWnd);
 		} else {
 			// 唤醒旧版本
 			PostMessage(HWND_BROADCAST, RegisterWindowMessage(L"WM_SHOWME"), 0, 0);
@@ -101,7 +101,7 @@ bool XamlApp::Initialize(HINSTANCE hInstance) {
 		return false;
 	}
 
-	bool isWin11 = Utils::GetOSBuild() >= 22000;
+	bool isWin11 = Win32Utils::GetOSBuild() >= 22000;
 	if (!isWin11) {
 		// 此时 MainPage 尚未初始化
 		_UpdateTheme();
@@ -240,7 +240,7 @@ void XamlApp::_UpdateTheme() {
 		}
 	}
 
-	auto osBuild = Utils::GetOSBuild();
+	auto osBuild = Win32Utils::GetOSBuild();
 
 	if (osBuild >= 22000) {
 		// 在 Win11 中应用 Mica

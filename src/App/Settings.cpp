@@ -4,7 +4,7 @@
 #include "Settings.g.cpp"
 #endif
 
-#include "Utils.h"
+#include "Win32Utils.h"
 #include "StrUtils.h"
 #include "Logger.h"
 #include <rapidjson/document.h>
@@ -49,7 +49,7 @@ namespace winrt::Magpie::implementation {
 
 bool Settings::Initialize(uint64_t pLogger) {
 	// 若程序所在目录存在配置文件则为便携模式
-	_isPortableMode = Utils::FileExists(CONFIG_PATH);
+	_isPortableMode = Win32Utils::FileExists(CONFIG_PATH);
 	_workingDir = GetWorkingDir(_isPortableMode);
 
 	// 初始化日志的同时确保 WorkingDir 存在
@@ -67,13 +67,13 @@ bool Settings::Initialize(uint64_t pLogger) {
 
 	std::wstring configPath = StrUtils::ConcatW(_workingDir, CONFIG_PATH);
 
-	if (!Utils::FileExists(configPath.c_str())) {
+	if (!Win32Utils::FileExists(configPath.c_str())) {
 		Logger::Get().Info("不存在配置文件");
 		return true;
 	}
 
 	std::string configText;
-	if (!Utils::ReadTextFile(configPath.c_str(), configText)) {
+	if (!Win32Utils::ReadTextFile(configPath.c_str(), configText)) {
 		Logger::Get().Error("读取配置文件失败");
 		return false;
 	}
@@ -150,7 +150,7 @@ bool Settings::Initialize(uint64_t pLogger) {
 
 bool Settings::Save() {
 	std::wstring configDir = StrUtils::ConcatW(_workingDir, L"config");
-	if (!Utils::CreateDir(configDir)) {
+	if (!Win32Utils::CreateDir(configDir)) {
 		Logger::Get().Error("创建配置文件夹失败");
 		return false;
 	}
@@ -178,7 +178,7 @@ bool Settings::Save() {
 
 	writer.EndObject();
 
-	if (!Utils::WriteTextFile(StrUtils::ConcatW(_workingDir, CONFIG_PATH).c_str(), json.GetString())) {
+	if (!Win32Utils::WriteTextFile(StrUtils::ConcatW(_workingDir, CONFIG_PATH).c_str(), json.GetString())) {
 		Logger::Get().Error("保存配置失败");
 		return false;
 	}
@@ -203,7 +203,7 @@ void Settings::IsPortableMode(bool value) {
 	_workingDir = GetWorkingDir(value);
 
 	// 确保 WorkingDir 存在
-	if (!Utils::CreateDir(_workingDir.c_str(), true)) {
+	if (!Win32Utils::CreateDir(_workingDir.c_str(), true)) {
 		Logger::Get().Error(StrUtils::Concat("创建文件夹", StrUtils::UTF16ToUTF8(_workingDir), "失败"));
 	}
 }
