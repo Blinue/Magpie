@@ -1,10 +1,14 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 	<PropertyGroup>
 		<IntDir>$(SolutionDir)\obj\$(Platform)\$(Configuration)\$(MSBuildProjectName)\</IntDir>
 		<OutDir>$(SolutionDir)\bin\$(Platform)\$(Configuration)\</OutDir>
 		<GeneratedFilesDir>$(IntDir)Generated Files\</GeneratedFilesDir>
 	</PropertyGroup>
+
+	<ImportGroup Label="Shared">
+		<Import Project="Shared\Shared.vcxitems" Label="Shared" />
+	</ImportGroup>
 	
 	<!-- Conan 依赖 -->
 	<ImportGroup Label="PropertySheets">
