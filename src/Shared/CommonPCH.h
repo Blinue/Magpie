@@ -55,20 +55,12 @@
 #include <winrt/Windows.Foundation.h>
 #include <winrt/Windows.Foundation.Collections.h>
 #include <winrt/Windows.System.h>
-#include <winrt/Windows.UI.Core.h>
-#include <winrt/Windows.UI.Xaml.h>
-#include <winrt/Windows.UI.Xaml.Controls.h>
-#include <winrt/Windows.UI.Xaml.Controls.Primitives.h>
-#include <winrt/Windows.UI.Xaml.Data.h>
-#include <winrt/Windows.UI.Xaml.Media.h>
-#include <winrt/Windows.UI.ViewManagement.h>
+
 
 namespace winrt {
 using namespace Windows::Foundation;
 using namespace Windows::Foundation::Collections;
 using namespace Windows::System;
-using namespace Windows::UI::Core;
-using namespace Windows::UI::Xaml;
 }
 
 // 确保已编译 CONAN 依赖

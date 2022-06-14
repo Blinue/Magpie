@@ -4,6 +4,7 @@
 #include "PageFrame.g.cpp"
 #endif
 
+#include "XamlUtils.h"
 #include "Utils.h"
 
 using namespace winrt;
@@ -63,11 +64,11 @@ void PageFrame::Loading(FrameworkElement const&, IInspectable const&) {
 }
 
 void PageFrame::ScrollViewer_PointerPressed(IInspectable const&, PointerRoutedEventArgs const&) {
-	Utils::CloseXamlPopups(XamlRoot());
+	XamlUtils::CloseXamlPopups(XamlRoot());
 }
 
 void PageFrame::ScrollViewer_ViewChanging(IInspectable const&, ScrollViewerViewChangingEventArgs const&) {
-	Utils::CloseXamlPopups(XamlRoot());
+	XamlUtils::CloseXamlPopups(XamlRoot());
 }
 
 event_token PageFrame::PropertyChanged(PropertyChangedEventHandler const& value) {

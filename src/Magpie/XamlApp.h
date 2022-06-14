@@ -45,6 +45,6 @@ private:
 	HWND _hwndXamlHost = NULL;
 	HWND _hwndXamlIsland = NULL;
 
-	winrt::Hosting::DesktopWindowXamlSource _xamlSource{ nullptr };
+	winrt::DesktopWindowXamlSource _xamlSource{ nullptr };
 	winrt::com_ptr<IDesktopWindowXamlSourceNative2> _xamlSourceNative2;
 };

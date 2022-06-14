@@ -5,7 +5,7 @@
 #endif
 
 #include "StrUtils.h"
-#include "Utils.h"
+#include "XamlUtils.h"
 
 using namespace winrt;
 using namespace Windows::UI::Xaml::Controls;

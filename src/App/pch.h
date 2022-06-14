@@ -13,7 +13,13 @@
 // C++/WinRT 头文件
 #include <winrt/Windows.Foundation.Metadata.h>
 #include <winrt/Windows.ApplicationModel.Activation.h>
-#include <winrt/Windows.UI.Xaml.Automation.h>
+#include <winrt/Windows.UI.Core.h>
+#include <winrt/Windows.UI.ViewManagement.h>
+#include <winrt/Windows.UI.Xaml.h>
+#include <winrt/Windows.UI.Xaml.Controls.h>
+#include <winrt/Windows.UI.Xaml.Controls.Primitives.h>
+#include <winrt/Windows.UI.Xaml.Data.h>
+#include <winrt/Windows.UI.Xaml.Media.h>
 #include <winrt/Windows.UI.Xaml.Interop.h>
 #include <winrt/Windows.UI.Xaml.Markup.h>
 #include <winrt/Windows.UI.Xaml.Navigation.h>
@@ -21,15 +27,19 @@
 #include <winrt/Windows.UI.Text.h>
 #include <winrt/Windows.System.Power.h>
 #include <winrt/Windows.Graphics.Effects.h>
-#include <winrt/Microsoft.UI.Xaml.Automation.Peers.h>
 #include <winrt/Microsoft.UI.Xaml.Controls.h>
 #include <winrt/Microsoft.UI.Xaml.Controls.Primitives.h>
 #include <winrt/Microsoft.UI.Xaml.Media.h>
 #include <winrt/Microsoft.UI.Xaml.XamlTypeInfo.h>
 #include <winrt/Microsoft.Graphics.Canvas.Effects.h>
 
-namespace winrt::MUXC {
-using namespace Microsoft::UI::Xaml::Controls;
+
+namespace winrt {
+using namespace Windows::System;
+using namespace Windows::UI::Core;
+using namespace Windows::UI::Xaml;
+
+namespace MUXC = Microsoft::UI::Xaml::Controls;
 }
 
 #pragma comment(lib, "d3d11.lib")

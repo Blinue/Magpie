@@ -9,7 +9,7 @@
 #include "HomePage.h"
 #include "SettingsPage.h"
 #include "AboutPage.h"
-#include "Utils.h"
+#include "XamlUtils.h"
 #include "Logger.h"
 #include "StrUtils.h"
 
@@ -107,7 +107,7 @@ void MainPage::_UpdateTheme() {
 	_isDarkTheme = isDarkTheme;
 
 	RequestedTheme(isDarkTheme ? ElementTheme::Dark : ElementTheme::Light);
-	Utils::UpdateThemeOfXamlPopups(XamlRoot(), ActualTheme());
+	XamlUtils::UpdateThemeOfXamlPopups(XamlRoot(), ActualTheme());
 
 	Logger::Get().Info(StrUtils::Concat("当前主题：", isDarkTheme ? "深色" : "浅色"));
 }

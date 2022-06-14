@@ -11,4 +11,19 @@
 
 
 // C++/WinRT 头文件
+#include <winrt/Windows.UI.Core.h>
+#include <winrt/Windows.UI.ViewManagement.h>
+#include <winrt/Windows.UI.Xaml.h>
+#include <winrt/Windows.UI.Xaml.Controls.Primitives.h>
 #include <winrt/Windows.UI.Xaml.Hosting.h>
+#include <winrt/Windows.UI.Xaml.Media.h>
+
+
+namespace winrt {
+using namespace Windows::System;
+using namespace Windows::UI::Core;
+using namespace Windows::UI::Xaml;
+using namespace Windows::UI::Xaml::Hosting;
+using namespace Windows::UI::Xaml::Media;
+using namespace Windows::UI::ViewManagement;
+}

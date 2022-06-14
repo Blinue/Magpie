@@ -3,6 +3,7 @@
 #include "Logger.h"
 #include "StrUtils.h"
 #include "Utils.h"
+#include "XamlUtils.h"
 #include "CommonSharedConstants.h"
 #include <CoreWindow.h>
 #include <uxtheme.h>
@@ -12,9 +13,6 @@
 
 
 namespace winrt {
-using namespace Windows::UI::Xaml::Hosting;
-using namespace Windows::UI::Xaml::Media;
-using namespace Windows::UI::ViewManagement;
 using namespace Magpie;
 }
 
@@ -409,7 +407,7 @@ LRESULT XamlApp::_WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				SetFocus(_hwndXamlIsland);
 			} else {
 				_uwpApp.OnHostWndFocusChanged(false);
-				Utils::CloseXamlPopups(_mainPage.XamlRoot());
+				XamlUtils::CloseXamlPopups(_mainPage.XamlRoot());
 			}
 		}
 		
@@ -422,7 +420,7 @@ LRESULT XamlApp::_WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				_uwpApp.OnHostWndFocusChanged(true);
 			} else {
 				_uwpApp.OnHostWndFocusChanged(false);
-				Utils::CloseXamlPopups(_mainPage.XamlRoot());
+				XamlUtils::CloseXamlPopups(_mainPage.XamlRoot());
 			}
 			return 0;
 		}

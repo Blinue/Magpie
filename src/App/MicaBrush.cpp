@@ -5,7 +5,7 @@
 #endif
 
 #include "CommonSharedConstants.h"
-#include "Utils.h"
+#include "XamlUtils.h"
 
 
 using namespace winrt;
@@ -203,7 +203,7 @@ void MicaBrush::_UpdateBrush() {
 	bool useSolidColorFallback = !_hasMica || !_settings.AdvancedEffectsEnabled() ||
 		!_windowActivated || _fastEffects == false || _energySaver == true;
 
-	Color tintColor = Utils::Win32ColorToWinRTColor(currentTheme == ElementTheme::Light ?
+	Color tintColor = XamlUtils::Win32ColorToWinRTColor(currentTheme == ElementTheme::Light ?
 		CommonSharedConstants::LIGHT_TINT_COLOR : CommonSharedConstants::DARK_TINT_COLOR);
 	float tintOpacity = currentTheme == ElementTheme::Light ? 0.5f : 0.8f;
 

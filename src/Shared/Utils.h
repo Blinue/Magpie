@@ -14,9 +14,6 @@ struct Utils {
 		return r1.right > r2.left && r1.bottom > r2.top && r1.left < r2.right&& r1.top < r2.bottom;
 	}
 
-	static void CloseXamlPopups(const winrt::XamlRoot& root);
-	static void UpdateThemeOfXamlPopups(const winrt::XamlRoot& root, winrt::ElementTheme theme);
-
 	static UINT GetWindowShowCmd(HWND hwnd);
 
 	static bool GetClientScreenRect(HWND hWnd, RECT& rect);
@@ -159,9 +156,7 @@ struct Utils {
 	// 获取 Virtual Key 的名字
 	static std::wstring GetKeyName(DWORD key);
 
-	static winrt::Windows::UI::Color Win32ColorToWinRTColor(COLORREF color) {
-		return { 255, GetRValue(color), GetGValue(color), GetBValue(color) };
-	}
+	
 };
 
 inline bool operator==(const SIZE& l, const SIZE& r) {
@@ -184,9 +179,3 @@ struct hash<std::pair<T1, T2>> {
 
 }
 
-namespace winrt {
-
-// 将 VirtualKey 映射为字符串
-hstring to_hstring(Windows::System::VirtualKey status);
-
-}

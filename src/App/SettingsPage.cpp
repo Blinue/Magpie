@@ -4,7 +4,7 @@
 #include "SettingsPage.g.cpp"
 #endif
 #include "MainPage.h"
-#include "Utils.h"
+#include "XamlUtils.h"
 
 
 using namespace winrt;
@@ -31,7 +31,7 @@ void SettingsPage::PortableModeToggleSwitch_Toggled(IInspectable const&, RoutedE
 }
 
 void SettingsPage::ComboBox_DropDownOpened(IInspectable const&, IInspectable const&) {
-	Utils::UpdateThemeOfXamlPopups(XamlRoot(), ActualTheme());
+	XamlUtils::UpdateThemeOfXamlPopups(XamlRoot(), ActualTheme());
 }
 
 }
