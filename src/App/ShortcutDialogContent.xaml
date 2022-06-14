@@ -8,10 +8,6 @@
 	xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
 	mc:Ignorable="d"
 	x:Name="ShortcutContentControl">
-	<UserControl.Resources>
-		
-	</UserControl.Resources>
-	
 	<Grid MinWidth="498" MinHeight="220">
 		<Grid.RowDefinitions>
 			<RowDefinition Height="Auto"/>

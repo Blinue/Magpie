@@ -1,6 +1,5 @@
 #pragma once
 #include "pch.h"
-#include "winrt/Windows.UI.Xaml.Controls.Primitives.h"
 #include "MainPage.g.h"
 #include "MicaBrush.h"
 #include "Settings.h"

@@ -23,7 +23,7 @@
 	</asmv3:file>
 	<asmv3:file name="Magpie.Runtime.dll">
 		<activatableClass
-			name="Runtime.Class"
+			name="Magpie.Runtime.Class"
 			threadingModel="both"
 			xmlns="urn:schemas-microsoft-com:winrt.v1" />
 	</asmv3:file>

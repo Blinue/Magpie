@@ -20,7 +20,6 @@
 
 
 namespace winrt {
-using namespace Windows::System;
 using namespace Windows::UI::Core;
 using namespace Windows::UI::Xaml;
 using namespace Windows::UI::Xaml::Hosting;
