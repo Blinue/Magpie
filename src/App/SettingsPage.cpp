@@ -11,12 +11,12 @@ using namespace winrt;
 using namespace Windows::UI::Xaml::Input;
 
 
-namespace winrt::Magpie::implementation {
+namespace winrt::Magpie::App::implementation {
 
 SettingsPage::SettingsPage() {
 	InitializeComponent();
 
-	_settings = Application::Current().as<Magpie::App>().Settings();
+	_settings = Application::Current().as<Magpie::App::App>().Settings();
 
 	PortableModeToggleSwitch().IsOn(_settings.IsPortableMode());
 	ThemeComboBox().SelectedIndex(_settings.Theme());

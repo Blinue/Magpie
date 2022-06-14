@@ -8,19 +8,19 @@
 using namespace winrt;
 
 
-namespace winrt::Magpie::implementation {
+namespace winrt::Magpie::App::implementation {
 
 const DependencyProperty ShortcutDialogContent::IsErrorProperty = DependencyProperty::Register(
 	L"IsError",
 	xaml_typename<bool>(),
-	xaml_typename<Magpie::ShortcutDialogContent>(),
+	xaml_typename<Magpie::App::ShortcutDialogContent>(),
 	PropertyMetadata(box_value(false))
 );
 
 const DependencyProperty ShortcutDialogContent::KeysProperty = DependencyProperty::Register(
 	L"Keys",
 	xaml_typename<IVector<IInspectable>>(),
-	xaml_typename<Magpie::ShortcutDialogContent>(),
+	xaml_typename<Magpie::App::ShortcutDialogContent>(),
 	PropertyMetadata(nullptr)
 );
 

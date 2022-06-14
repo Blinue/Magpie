@@ -1,7 +1,7 @@
 #pragma once
 #include "pch.h"
 #include <windows.ui.xaml.hosting.desktopwindowxamlsource.h>
-#include <winrt/Magpie.h>
+#include <winrt/Magpie.App.h>
 #include "Win32Utils.h"
 
 
@@ -38,10 +38,10 @@ private:
 
 	Win32Utils::ScopedHandle _hMutex;
 
-	winrt::Magpie::Settings _settings{ nullptr };
+	winrt::Magpie::App::Settings _settings{ nullptr };
 
-	winrt::Magpie::App _uwpApp{ nullptr };
-	winrt::Magpie::MainPage _mainPage{ nullptr };
+	winrt::Magpie::App::App _uwpApp{ nullptr };
+	winrt::Magpie::App::MainPage _mainPage{ nullptr };
 	HWND _hwndXamlHost = NULL;
 	HWND _hwndXamlIsland = NULL;
 

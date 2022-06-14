@@ -2,7 +2,7 @@
 
 #include "HotkeySettings.g.h"
 
-namespace winrt::Magpie::implementation {
+namespace winrt::Magpie::App::implementation {
 
 struct HotkeySettings : HotkeySettingsT<HotkeySettings> {
 	HotkeySettings() = default;
@@ -59,7 +59,7 @@ private:
 
 }
 
-namespace winrt::Magpie::factory_implementation {
+namespace winrt::Magpie::App::factory_implementation {
 
 struct HotkeySettings : HotkeySettingsT<HotkeySettings, implementation::HotkeySettings> {
 };

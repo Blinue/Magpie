@@ -12,26 +12,26 @@ using namespace Windows::UI::Xaml::Controls;
 using namespace Windows::UI::Xaml::Markup;
 
 
-namespace winrt::Magpie::implementation {
+namespace winrt::Magpie::App::implementation {
 
 const DependencyProperty KeyVisual::ContentProperty = DependencyProperty::Register(
 	L"Content",
 	xaml_typename<IInspectable>(),
-	xaml_typename<Magpie::KeyVisual>(),
+	xaml_typename<Magpie::App::KeyVisual>(),
 	PropertyMetadata(box_value(L""), &KeyVisual::_OnPropertyChanged)
 );
 
 const DependencyProperty KeyVisual::VisualTypeProperty = DependencyProperty::Register(
 	L"VisualTypeProperty",
 	xaml_typename<IInspectable>(),
-	xaml_typename<Magpie::KeyVisual>(),
-	PropertyMetadata(box_value(Magpie::VisualType{}), &KeyVisual::_OnPropertyChanged)
+	xaml_typename<Magpie::App::KeyVisual>(),
+	PropertyMetadata(box_value(Magpie::App::VisualType{}), &KeyVisual::_OnPropertyChanged)
 );
 
 const DependencyProperty KeyVisual::IsErrorProperty = DependencyProperty::Register(
 	L"IsError",
 	xaml_typename<bool>(),
-	xaml_typename<Magpie::KeyVisual>(),
+	xaml_typename<Magpie::App::KeyVisual>(),
 	PropertyMetadata(box_value(false), &KeyVisual::_OnIsErrorChanged)
 );
 
@@ -48,12 +48,12 @@ IInspectable KeyVisual::Content() const {
 	return GetValue(ContentProperty);
 }
 
-void KeyVisual::VisualType(Magpie::VisualType value) {
+void KeyVisual::VisualType(Magpie::App::VisualType value) {
 	SetValue(VisualTypeProperty, box_value(value));
 }
 
-Magpie::VisualType KeyVisual::VisualType() const {
-	return GetValue(VisualTypeProperty).as<Magpie::VisualType>();
+Magpie::App::VisualType KeyVisual::VisualType() const {
+	return GetValue(VisualTypeProperty).as<Magpie::App::VisualType>();
 }
 
 void KeyVisual::IsError(bool value) {
@@ -139,7 +139,7 @@ void KeyVisual::_Update() {
 Style KeyVisual::_GetStyleSize(std::wstring_view styleName) const {
 	const wchar_t* prefix = nullptr;
 
-	Magpie::VisualType vt = VisualType();
+	Magpie::App::VisualType vt = VisualType();
 	if (vt == VisualType::Small) {
 		prefix = L"Small";
 	} else if (vt == VisualType::SmallOutline) {
@@ -156,7 +156,7 @@ Style KeyVisual::_GetStyleSize(std::wstring_view styleName) const {
 double KeyVisual::_GetIconSize() const {
 	const wchar_t* key = nullptr;
 
-	Magpie::VisualType vt = VisualType();
+	Magpie::App::VisualType vt = VisualType();
 	if (vt == VisualType::Small || vt == VisualType::SmallOutline) {
 		key = L"SmallIconSize";
 	} else {

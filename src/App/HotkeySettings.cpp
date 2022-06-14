@@ -7,7 +7,7 @@
 #include "Win32Utils.h"
 
 
-namespace winrt::Magpie::implementation {
+namespace winrt::Magpie::App::implementation {
 
 IVector<IInspectable> HotkeySettings::GetKeyList() const {
 	std::vector<IInspectable> shortcutList;

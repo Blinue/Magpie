@@ -1,4 +1,4 @@
-namespace Magpie
+namespace Magpie.App
 {
 	[Windows.UI.Xaml.TemplateVisualState("Normal", "CommonStates")]
 	[Windows.UI.Xaml.TemplateVisualState("Disabled", "CommonStates")]

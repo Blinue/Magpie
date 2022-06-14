@@ -7,7 +7,7 @@
 #include "ShortcutDialogContent.g.h"
 
 
-namespace winrt::Magpie::implementation {
+namespace winrt::Magpie::App::implementation {
 
 struct ShortcutDialogContent : ShortcutDialogContentT<ShortcutDialogContent> {
 	ShortcutDialogContent();
@@ -24,7 +24,7 @@ struct ShortcutDialogContent : ShortcutDialogContentT<ShortcutDialogContent> {
 
 }
 
-namespace winrt::Magpie::factory_implementation {
+namespace winrt::Magpie::App::factory_implementation {
 
 struct ShortcutDialogContent : ShortcutDialogContentT<ShortcutDialogContent, implementation::ShortcutDialogContent> {
 };

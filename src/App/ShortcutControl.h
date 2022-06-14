@@ -9,7 +9,7 @@
 #include "ShortcutDialogContent.h"
 
 
-namespace winrt::Magpie::implementation {
+namespace winrt::Magpie::App::implementation {
 
 struct ShortcutControl : ShortcutControlT<ShortcutControl> {
 	ShortcutControl();
@@ -17,14 +17,14 @@ struct ShortcutControl : ShortcutControlT<ShortcutControl> {
 	IAsyncAction EditButton_Click(IInspectable const&, RoutedEventArgs const&);
 
 private:
-	Magpie::HotkeySettings _hotkeySettings;
+	Magpie::App::HotkeySettings _hotkeySettings;
 	Controls::ContentDialog _shortcutDialog;
-	Magpie::ShortcutDialogContent _shortcutDialogContent;
+	Magpie::App::ShortcutDialogContent _shortcutDialogContent;
 };
 
 }
 
-namespace winrt::Magpie::factory_implementation {
+namespace winrt::Magpie::App::factory_implementation {
 
 struct ShortcutControl : ShortcutControlT<ShortcutControl, implementation::ShortcutControl> {
 };

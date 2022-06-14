@@ -4,7 +4,7 @@
 #include "App.base.h"
 #include "Settings.h"
 
-namespace winrt::Magpie::implementation {
+namespace winrt::Magpie::App::implementation {
 
 class App : public AppT2<App> {
 public:
@@ -13,13 +13,13 @@ public:
 
 	void OnClose();
 
-	bool Initialize(Magpie::Settings settings, uint64_t hwndHost);
+	bool Initialize(Magpie::App::Settings settings, uint64_t hwndHost);
 
 	uint64_t HwndHost() const {
 		return _hwndHost;
 	}
 
-	Magpie::Settings Settings() const {
+	Magpie::App::Settings Settings() const {
 		return _settings;
 	}
 
@@ -32,7 +32,7 @@ public:
 	}
 
 private:
-	Magpie::Settings _settings{ nullptr };
+	Magpie::App::Settings _settings{ nullptr };
 	uint64_t _hwndHost{};
 
 	event<EventHandler<bool>> _hostWndFocusChangedEvent;
@@ -41,7 +41,7 @@ private:
 
 }
 
-namespace winrt::Magpie::factory_implementation {
+namespace winrt::Magpie::App::factory_implementation {
 
 class App : public AppT<App, implementation::App> {
 };

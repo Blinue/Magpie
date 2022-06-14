@@ -4,6 +4,6 @@
 #include "HotkeyManager.g.cpp"
 #endif
 
-namespace winrt::Magpie::implementation {
+namespace winrt::Magpie::App::implementation {
 
 }

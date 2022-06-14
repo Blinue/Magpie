@@ -3,7 +3,7 @@
 #include "HotkeyManager.g.h"
 
 
-namespace winrt::Magpie::implementation {
+namespace winrt::Magpie::App::implementation {
 
 struct HotkeyManager : HotkeyManagerT<HotkeyManager> {
 	HotkeyManager() = default;
@@ -11,7 +11,7 @@ struct HotkeyManager : HotkeyManagerT<HotkeyManager> {
 
 }
 
-namespace winrt::Magpie::factory_implementation {
+namespace winrt::Magpie::App::factory_implementation {
 
 struct HotkeyManager : HotkeyManagerT<HotkeyManager, implementation::HotkeyManager> {
 };

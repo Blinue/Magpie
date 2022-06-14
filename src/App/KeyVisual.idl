@@ -1,4 +1,4 @@
-namespace Magpie
+namespace Magpie.App
 {
 	enum VisualType {
 		Small,

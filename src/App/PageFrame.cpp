@@ -14,19 +14,19 @@ using namespace Windows::UI::Xaml::Input;
 using namespace Windows::UI::Text;
 
 
-namespace winrt::Magpie::implementation {
+namespace winrt::Magpie::App::implementation {
 
 const DependencyProperty PageFrame::TitleProperty = DependencyProperty::Register(
 	L"Title",
 	xaml_typename<hstring>(),
-	xaml_typename<Magpie::PageFrame>(),
+	xaml_typename<Magpie::App::PageFrame>(),
 	PropertyMetadata(box_value(L""), &PageFrame::_OnTitleChanged)
 );
 
 const DependencyProperty PageFrame::MainContentProperty = DependencyProperty::Register(
 	L"MainContent",
 	xaml_typename<IInspectable>(),
-	xaml_typename<Magpie::PageFrame>(),
+	xaml_typename<Magpie::App::PageFrame>(),
 	PropertyMetadata(nullptr, &PageFrame::_OnTitleChanged)
 );
 
@@ -54,7 +54,7 @@ IInspectable PageFrame::MainContent() const {
 void PageFrame::Loading(FrameworkElement const&, IInspectable const&) {
 	_Update();
 
-	MainPage mainPage = XamlRoot().Content().as<Magpie::MainPage>();
+	MainPage mainPage = XamlRoot().Content().as<Magpie::App::MainPage>();
 	_rootNavigationView = mainPage.RootNavigationView();
 	_displayModeChangedRevoker = _rootNavigationView.DisplayModeChanged(
 		auto_revoke,

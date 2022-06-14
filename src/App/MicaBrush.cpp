@@ -99,7 +99,7 @@ static ScalarKeyFrameAnimation CreateCrossFadeAnimation(Compositor compositor) {
 	return animation;
 }
 
-namespace winrt::Magpie::implementation {
+namespace winrt::Magpie::App::implementation {
 
 MicaBrush::MicaBrush(FrameworkElement root) {
 	_rootElement = root;

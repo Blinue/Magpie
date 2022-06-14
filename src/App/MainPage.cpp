@@ -18,17 +18,17 @@ using namespace winrt;
 using namespace Windows::UI::ViewManagement;
 
 
-namespace winrt::Magpie::implementation {
+namespace winrt::Magpie::App::implementation {
 
 MainPage::MainPage() {
 	InitializeComponent();
 
-	_settings = Application::Current().as<Magpie::App>().Settings();
+	_settings = Application::Current().as<Magpie::App::App>().Settings();
 
 	_UpdateTheme();
 	_settings.ThemeChanged([this](const auto&, int) { _UpdateTheme(); });
 
-	Background(Magpie::MicaBrush(*this));
+	Background(Magpie::App::MicaBrush(*this));
 }
 
 MainPage::~MainPage() {
@@ -62,16 +62,16 @@ void MainPage::NavigationView_SelectionChanged(
 	auto contentFrame = ContentFrame();
 
 	if (args.IsSettingsSelected()) {
-		contentFrame.Navigate(winrt::xaml_typename<Magpie::SettingsPage>());
+		contentFrame.Navigate(winrt::xaml_typename<Magpie::App::SettingsPage>());
 	} else {
 		Microsoft::UI::Xaml::Controls::NavigationViewItem selectedItem{ nullptr };
 		args.SelectedItem().as(selectedItem);
 
 		hstring tag = unbox_value<hstring>(selectedItem.Tag());
 		if (tag == L"Home") {
-			contentFrame.Navigate(winrt::xaml_typename<Magpie::HomePage>());
+			contentFrame.Navigate(winrt::xaml_typename<Magpie::App::HomePage>());
 		} else if (tag == L"About") {
-			contentFrame.Navigate(winrt::xaml_typename<Magpie::AboutPage>());
+			contentFrame.Navigate(winrt::xaml_typename<Magpie::App::AboutPage>());
 		}
 	}
 }

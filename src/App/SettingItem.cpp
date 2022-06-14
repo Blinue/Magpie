@@ -9,33 +9,33 @@ using namespace Windows::UI::Xaml::Controls;
 using namespace Windows::UI::Xaml::Data;
 
 
-namespace winrt::Magpie::implementation {
+namespace winrt::Magpie::App::implementation {
 
 DependencyProperty SettingItem::TitleProperty = DependencyProperty::Register(
 	L"Title",
 	xaml_typename<hstring>(),
-	xaml_typename<Magpie::SettingItem>(),
+	xaml_typename<Magpie::App::SettingItem>(),
 	PropertyMetadata(box_value(L""), _OnTitleChanged)
 );
 
 DependencyProperty SettingItem::DescriptionProperty = DependencyProperty::Register(
 	L"Description",
 	xaml_typename<IInspectable>(),
-	xaml_typename<Magpie::SettingItem>(),
+	xaml_typename<Magpie::App::SettingItem>(),
 	PropertyMetadata(nullptr, &SettingItem::_OnDescriptionChanged)
 );
 
 DependencyProperty SettingItem::IconProperty = DependencyProperty::Register(
 	L"Icon",
 	xaml_typename<IInspectable>(),
-	xaml_typename<Magpie::SettingItem>(),
+	xaml_typename<Magpie::App::SettingItem>(),
 	PropertyMetadata(nullptr, &SettingItem::_OnIconChanged)
 );
 
 DependencyProperty SettingItem::ActionContentProperty = DependencyProperty::Register(
 	L"ActionContent",
 	xaml_typename<IInspectable>(),
-	xaml_typename<Magpie::SettingItem>(),
+	xaml_typename<Magpie::App::SettingItem>(),
 	PropertyMetadata(nullptr, &SettingItem::_OnActionContentChanged)
 );
 

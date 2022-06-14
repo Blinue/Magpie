@@ -7,7 +7,7 @@
 #include "SettingItem.g.h"
 
 
-namespace winrt::Magpie::implementation {
+namespace winrt::Magpie::App::implementation {
 
 struct SettingItem : SettingItemT<SettingItem> {
 	SettingItem();
@@ -54,7 +54,7 @@ private:
 
 }
 
-namespace winrt::Magpie::factory_implementation {
+namespace winrt::Magpie::App::factory_implementation {
 
 struct SettingItem : SettingItemT<SettingItem, implementation::SettingItem> {
 };

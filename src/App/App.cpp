@@ -11,7 +11,7 @@ using namespace winrt;
 using namespace Windows::UI::Xaml::Media;
 
 
-namespace winrt::Magpie::implementation {
+namespace winrt::Magpie::App::implementation {
 
 App::App() {
 	__super::Initialize();
@@ -50,7 +50,7 @@ void App::OnClose() {
 	_settings.Save();
 }
 
-bool App::Initialize(Magpie::Settings settings, uint64_t hwndHost) {
+bool App::Initialize(Magpie::App::Settings settings, uint64_t hwndHost) {
 	_settings = settings;
 	_hwndHost = hwndHost;
 	return true;

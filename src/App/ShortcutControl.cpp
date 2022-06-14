@@ -7,7 +7,7 @@
 using namespace winrt;
 
 
-namespace winrt::Magpie::implementation {
+namespace winrt::Magpie::App::implementation {
 
 ShortcutControl::ShortcutControl() {
 	InitializeComponent();

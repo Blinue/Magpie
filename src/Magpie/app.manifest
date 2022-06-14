@@ -5,19 +5,19 @@
 	manifestVersion="1.0">
 	<asmv3:file name="Magpie.App.dll">
 		<activatableClass
-			name="Magpie.App"
+			name="Magpie.App.App"
 			threadingModel="both"
 			xmlns="urn:schemas-microsoft-com:winrt.v1" />
 		<activatableClass
-			name="Magpie.XamlMetadataProvider"
+			name="Magpie.App.XamlMetadataProvider"
 			threadingModel="both"
 			xmlns="urn:schemas-microsoft-com:winrt.v1" />
 		<activatableClass
-			name="Magpie.MainPage"
+			name="Magpie.App.MainPage"
 			threadingModel="both"
 			xmlns="urn:schemas-microsoft-com:winrt.v1" />
 		<activatableClass
-			name="Magpie.Settings"
+			name="Magpie.App.Settings"
 			threadingModel="both"
 			xmlns="urn:schemas-microsoft-com:winrt.v1" />
 	</asmv3:file>

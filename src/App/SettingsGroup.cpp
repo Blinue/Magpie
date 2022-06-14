@@ -9,26 +9,26 @@ using namespace Windows::UI::Xaml::Controls;
 using namespace Windows::UI::Xaml::Data;
 
 
-namespace winrt::Magpie::implementation {
+namespace winrt::Magpie::App::implementation {
 
 const DependencyProperty SettingsGroup::ChildrenProperty = DependencyProperty::Register(
 	L"Children",
 	xaml_typename<UIElementCollection>(),
-	xaml_typename<Magpie::SettingsGroup>(),
+	xaml_typename<Magpie::App::SettingsGroup>(),
 	PropertyMetadata(nullptr)
 );
 
 const DependencyProperty SettingsGroup::TitleProperty = DependencyProperty::Register(
 	L"Title",
 	xaml_typename<hstring>(),
-	xaml_typename<Magpie::SettingsGroup>(),
+	xaml_typename<Magpie::App::SettingsGroup>(),
 	PropertyMetadata(box_value(L""), &SettingsGroup::_OnTitleChanged)
 );
 
 const DependencyProperty SettingsGroup::DescriptionProperty = DependencyProperty::Register(
 	L"Description",
 	xaml_typename<IInspectable>(),
-	xaml_typename<Magpie::SettingsGroup>(),
+	xaml_typename<Magpie::App::SettingsGroup>(),
 	PropertyMetadata(nullptr, &SettingsGroup::_OnDescriptionChanged)
 );
 

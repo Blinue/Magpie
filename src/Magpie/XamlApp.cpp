@@ -12,11 +12,6 @@
 #pragma comment(lib, "UxTheme.lib")
 
 
-namespace winrt {
-using namespace Magpie;
-}
-
-
 static constexpr const wchar_t* XAML_HOST_CLASS_NAME = L"Magpie_XamlHost";
 static constexpr const wchar_t* MUTEX_NAME = L"{4C416227-4A30-4A2F-8F23-8701544DD7D6}";
 
@@ -59,7 +54,7 @@ bool XamlApp::Initialize(HINSTANCE hInstance) {
 		SetCurrentDirectory(curDir);
 	}
 
-	_settings = winrt::Settings();
+	_settings = winrt::Magpie::App::Settings();
 	if (!_settings.Initialize((uint64_t)&Logger::Get())) {
 		return false;
 	}
@@ -125,7 +120,7 @@ bool XamlApp::Initialize(HINSTANCE hInstance) {
 	}
 
 	// 初始化 UWP 应用和 XAML Islands
-	_uwpApp = winrt::App();
+	_uwpApp = winrt::Magpie::App::App();
 	if (!isWin11) {
 		// 隐藏 DesktopWindowXamlSource 窗口
 		winrt::CoreWindow coreWindow = winrt::CoreWindow::GetForCurrentThread();
@@ -140,7 +135,7 @@ bool XamlApp::Initialize(HINSTANCE hInstance) {
 	// 未显示窗口时视为位于前台，否则显示窗口的动画有小瑕疵
 	_uwpApp.OnHostWndFocusChanged(true);
 
-	_mainPage = winrt::MainPage();
+	_mainPage = winrt::Magpie::App::MainPage();
 	_mainPage.ActualThemeChanged([this](winrt::FrameworkElement const&, winrt::IInspectable const&) {
 		_UpdateTheme();
 	});

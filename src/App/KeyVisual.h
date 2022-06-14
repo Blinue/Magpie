@@ -3,7 +3,7 @@
 #include "KeyVisual.g.h"
 
 
-namespace winrt::Magpie::implementation {
+namespace winrt::Magpie::App::implementation {
 
 struct KeyVisual : KeyVisual_base<KeyVisual> {
 	KeyVisual();
@@ -12,9 +12,9 @@ struct KeyVisual : KeyVisual_base<KeyVisual> {
 
 	IInspectable Content() const;
 
-	void VisualType(Magpie::VisualType value);
+	void VisualType(Magpie::App::VisualType value);
 
-	Magpie::VisualType VisualType() const;
+	Magpie::App::VisualType VisualType() const;
 
 	void IsError(bool value);
 
@@ -45,7 +45,7 @@ private:
 
 }
 
-namespace winrt::Magpie::factory_implementation {
+namespace winrt::Magpie::App::factory_implementation {
 
 struct KeyVisual : KeyVisualT<KeyVisual, implementation::KeyVisual> {
 };

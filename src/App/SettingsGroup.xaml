@@ -1,5 +1,5 @@
 <UserControl
-	x:Class="Magpie.SettingsGroup"
+	x:Class="Magpie.App.SettingsGroup"
 	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 	xmlns:local="using:Magpie"
