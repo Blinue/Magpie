@@ -21,7 +21,7 @@
 			<StackPanel Orientation="Horizontal"
 						Margin="6,0,6,0"
 						Spacing="16">
-				<ItemsControl x:Name="PreviewKeysControl"
+				<ItemsControl x:Name="KeysControl"
 							  IsEnabled="{Binding ElementName=EditButton, Path=IsEnabled}"
 							  VerticalAlignment="Center"
 							  IsTabStop="False">

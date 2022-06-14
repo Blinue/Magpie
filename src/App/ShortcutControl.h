@@ -16,10 +16,24 @@ struct ShortcutControl : ShortcutControlT<ShortcutControl> {
 
 	IAsyncAction EditButton_Click(IInspectable const&, RoutedEventArgs const&);
 
+	void ShortcutDialog_Opened(Controls::ContentDialog const&, Controls::ContentDialogOpenedEventArgs const&);
+	void ShortcutDialog_Closing(Controls::ContentDialog const&, Controls::ContentDialogClosingEventArgs const&);
+
 private:
-	Magpie::App::HotkeySettings _hotkeySettings;
+	static LRESULT CALLBACK _LowLevelKeyboardProc(
+		int    nCode,
+		WPARAM wParam,
+		LPARAM lParam
+	);
+
+	Magpie::App::HotkeySettings _hotkey;
 	Controls::ContentDialog _shortcutDialog;
 	Magpie::App::ShortcutDialogContent _shortcutDialogContent;
+
+	HHOOK _keyboardHook = NULL;
+	static ShortcutControl* _that;
+
+	Magpie::App::HotkeySettings _previewHotkey;
 };
 
 }

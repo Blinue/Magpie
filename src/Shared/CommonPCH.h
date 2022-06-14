@@ -26,7 +26,6 @@
 #define NOSERVICE
 #define NOSOUND
 #define NOTEXTMETRIC
-#define NOWH
 #define NOCOMM
 #define NOKANJI
 #define NOHELP

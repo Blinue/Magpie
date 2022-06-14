@@ -290,14 +290,8 @@ void XamlApp::_ResizeXamlDialog() {
 		}
 
 		winrt::FrameworkElement child = popup.Child().as<winrt::FrameworkElement>();
-
-		if (winrt::get_class_name(child) == winrt::name_of<winrt::Controls::ContentDialog>()) {
-			child.Width(rootSize.Width);
-			child.Height(rootSize.Height);
-		} else {
-			child.Width(rootSize.Width);
-			child.Height(rootSize.Height);
-		}
+		child.Width(rootSize.Width);
+		child.Height(rootSize.Height);
 	}
 }
 
@@ -353,14 +347,20 @@ LRESULT XamlApp::_WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	}
 	case WM_SIZE:
 	{
-		_OnResize();
-		if (_mainPage) {
-			[](XamlApp* app)->winrt::fire_and_forget {
-				co_await app->_mainPage.Dispatcher().RunAsync(winrt::CoreDispatcherPriority::Normal, [app]() {
-					app->_ResizeXamlDialog();
-					app->_RepositionXamlPopups();
-				});
-			}(this);
+		if (wParam == SIZE_MINIMIZED) {
+			if (_mainPage) {
+				XamlUtils::CloseXamlPopups(_mainPage.XamlRoot());
+			}			
+		} else {
+			_OnResize();
+			if (_mainPage) {
+				[](XamlApp* app)->winrt::fire_and_forget {
+					co_await app->_mainPage.Dispatcher().RunAsync(winrt::CoreDispatcherPriority::Normal, [app]() {
+						app->_ResizeXamlDialog();
+						app->_RepositionXamlPopups();
+					});
+				}(this);
+			}
 		}
 		return 0;
 	}
