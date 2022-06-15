@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 	<PropertyGroup>
+		<DefaultLanguage>en-US</DefaultLanguage>
+		<CppWinRTOptimized>true</CppWinRTOptimized>
+		<CppWinRTRootNamespaceAutoMerge>true</CppWinRTRootNamespaceAutoMerge>
+		<CppWinRTVerbosity>low</CppWinRTVerbosity>
 		<IntDir>$(SolutionDir)\obj\$(Platform)\$(Configuration)\$(MSBuildProjectName)\</IntDir>
 		<GeneratedFilesDir>$(IntDir)Generated Files\</GeneratedFilesDir>
 		<!-- 将 xbf 文件打包进 resources.pri
