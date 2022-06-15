@@ -17,6 +17,23 @@
 	<ImportGroup Label="Shared">
 		<Import Project="Shared\Shared.vcxitems" Label="Shared" />
 	</ImportGroup>
+
+	<ItemDefinitionGroup>
+		<ClCompile>
+			<PrecompiledHeader>Use</PrecompiledHeader>
+			<PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+			<PrecompiledHeaderOutputFile>$(IntDir)pch.pch</PrecompiledHeaderOutputFile>
+			<WarningLevel>Level4</WarningLevel>
+			<SDLCheck>true</SDLCheck>
+			<ConformanceMode>true</ConformanceMode>
+			<LanguageStandard>stdcpp20</LanguageStandard>
+			<LanguageStandard_C>stdc17</LanguageStandard_C>
+			<AdditionalOptions>/bigobj /utf-8 /Zc:__cplusplus /volatile:iso %(AdditionalOptions)</AdditionalOptions>
+			<ExternalWarningLevel>TurnOffAllWarnings</ExternalWarningLevel>
+			<TreatAngleIncludeAsExternal>true</TreatAngleIncludeAsExternal>
+			<DisableAnalyzeExternal>true</DisableAnalyzeExternal>
+		</ClCompile>
+	</ItemDefinitionGroup>
 	
 	<!-- Conan 依赖 -->
 	<ImportGroup Label="PropertySheets">
