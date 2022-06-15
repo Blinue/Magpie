@@ -9,6 +9,15 @@
 
 namespace winrt::Magpie::App::implementation {
 
+void HotkeySettings::CopyFrom(const Magpie::App::HotkeySettings& other) {
+	HotkeySettings* otherImpl = get_self<HotkeySettings>(other.as<default_interface<HotkeySettings>>());
+	_win = otherImpl->_win;
+	_ctrl = otherImpl->_ctrl;
+	_alt = otherImpl->_alt;
+	_shift = otherImpl->_shift;
+	_code = otherImpl->_code;
+}
+
 IVector<IInspectable> HotkeySettings::GetKeyList() const {
 	std::vector<IInspectable> shortcutList;
 	if (_win) {

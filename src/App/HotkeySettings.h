@@ -7,6 +7,8 @@ namespace winrt::Magpie::App::implementation {
 struct HotkeySettings : HotkeySettingsT<HotkeySettings> {
 	HotkeySettings() = default;
 
+	void CopyFrom(const Magpie::App::HotkeySettings& other);
+
 	void Win(bool value) noexcept {
 		_win = value;
 	}

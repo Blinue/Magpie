@@ -29,6 +29,7 @@ ShortcutControl::ShortcutControl() {
 }
 
 IAsyncAction ShortcutControl::EditButton_Click(IInspectable const&, RoutedEventArgs const&) {
+	_previewHotkey.CopyFrom(_hotkey);
 	_shortcutDialogContent.Keys(_previewHotkey.GetKeyList());
 
 	_shortcutDialog.XamlRoot(XamlRoot());
@@ -51,6 +52,8 @@ void ShortcutControl::ShortcutDialog_Opened(ContentDialog const&, ContentDialogO
 
 void ShortcutControl::ShortcutDialog_Closing(ContentDialog const&, ContentDialogClosingEventArgs const&) {
 	UnhookWindowsHookEx(_keyboardHook);
+	_hotkey.CopyFrom(_previewHotkey);
+	KeysControl().ItemsSource(_hotkey.GetKeyList());
 }
 
 LRESULT ShortcutControl::_LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM lParam) {

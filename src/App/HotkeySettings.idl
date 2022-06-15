@@ -5,6 +5,8 @@ namespace Magpie.App
 	{
 		HotkeySettings();
 
+		void CopyFrom(HotkeySettings other);
+
 		Boolean Win;
 		Boolean Ctrl;
 		Boolean Alt;
