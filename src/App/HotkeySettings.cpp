@@ -59,7 +59,31 @@ IVector<IInspectable> HotkeySettings::GetKeyList() const {
 }
 
 bool HotkeySettings::Check() const {
-	return false;
+	if (!_win && !_ctrl && !_alt && !_shift) {
+		return false;
+	}
+
+	HWND hwndHost = (HWND)Application::Current().as<App>().HwndHost();
+
+	UINT modifiers = MOD_NOREPEAT;
+	if (_win) {
+		modifiers |= MOD_WIN;
+	}
+	if (_ctrl) {
+		modifiers |= MOD_CONTROL;
+	}
+	if (_alt) {
+		modifiers |= MOD_ALT;
+	}
+	if (_shift) {
+		modifiers |= MOD_SHIFT;
+	}
+	if (!RegisterHotKey(NULL, 0, modifiers, _code)) {
+		return false;
+	}
+	
+	UnregisterHotKey(NULL, 0);
+	return true;
 }
 
 bool HotkeySettings::IsEmpty() const {

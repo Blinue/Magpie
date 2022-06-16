@@ -113,12 +113,14 @@ LRESULT ShortcutControl::_LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM 
 		break;
 	default:
 	{
-		if (isKeyDown) {
-			if (CheckVirtualKey(code)) {
+		if (CheckVirtualKey(code)) {
+			if (isKeyDown) {
 				_that->_pressedKeys.Code(code);
+			} else {
+				_that->_pressedKeys.Code(0);
 			}
 		} else {
-			_that->_pressedKeys.Code(0);
+			isKeyDown = false;
 		}
 		
 		break;
@@ -128,6 +130,8 @@ LRESULT ShortcutControl::_LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM 
 	if (isKeyDown) {
 		_that->_previewHotkey.CopyFrom(_that->_pressedKeys);
 		_that->_shortcutDialogContent.Keys(_that->_previewHotkey.GetKeyList());
+
+		_that->_shortcutDialogContent.IsError(!_that->_previewHotkey.Check());
 	}
 
 	return -1;

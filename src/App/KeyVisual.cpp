@@ -111,10 +111,10 @@ void KeyVisual::_Update() {
 
 	int key = content.as<int>();
 	switch (key) {
-	case 38: _keyPresenter.Content(box_value(L"\uE0E4")); break; // The Up Arrow key or button.
-	case 40: _keyPresenter.Content(box_value(L"\uE0E5")); break; // The Down Arrow key or button.
-	case 37: _keyPresenter.Content(box_value(L"\uE0E2")); break; // The Left Arrow key or button.
-	case 39: _keyPresenter.Content(box_value(L"\uE0E3")); break; // The Right Arrow key or button.
+	case 38: _keyPresenter.Content(box_value(L"\uE96D")); break; // The Up Arrow key or button.
+	case 40: _keyPresenter.Content(box_value(L"\uE96E")); break; // The Down Arrow key or button.
+	case 37: _keyPresenter.Content(box_value(L"\uE96F")); break; // The Left Arrow key or button.
+	case 39: _keyPresenter.Content(box_value(L"\uE970")); break; // The Right Arrow key or button.
 
 	case 91: // The left Windows key
 	case 92: // The right Windows key
