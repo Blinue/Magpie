@@ -62,4 +62,8 @@ bool HotkeySettings::Check() const {
 	return false;
 }
 
+bool HotkeySettings::IsEmpty() const {
+	return !_win && !_ctrl && !_alt && !_shift && _code == 0;
+}
+
 }

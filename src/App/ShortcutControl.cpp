@@ -50,10 +50,31 @@ void ShortcutControl::ShortcutDialog_Opened(ContentDialog const&, ContentDialogO
 	_keyboardHook = SetWindowsHookEx(WH_KEYBOARD_LL, _LowLevelKeyboardProc, NULL, 0);
 }
 
-void ShortcutControl::ShortcutDialog_Closing(ContentDialog const&, ContentDialogClosingEventArgs const&) {
+void ShortcutControl::ShortcutDialog_Closing(ContentDialog const&, ContentDialogClosingEventArgs const& args) {
 	UnhookWindowsHookEx(_keyboardHook);
-	_hotkey.CopyFrom(_previewHotkey);
-	KeysControl().ItemsSource(_hotkey.GetKeyList());
+
+	if (args.Result() == ContentDialogResult::Primary) {
+		_hotkey.CopyFrom(_previewHotkey);
+		KeysControl().ItemsSource(_hotkey.GetKeyList());
+	}
+}
+
+bool CheckVirtualKey(DWORD vkCode) {
+	return (vkCode >= 'A' && vkCode <= 'Z')	// 字母
+		|| (vkCode >= '0' && vkCode <= '9')	// 数字（顶部）
+		|| (vkCode >= VK_NUMPAD0 && vkCode <= VK_NUMPAD9)	// 数字（小键盘）
+		|| (vkCode >= VK_F1 && vkCode <= VK_F24)			// F1~F24
+		|| (vkCode >= VK_SPACE && vkCode <= VK_DOWN)		// 空格、Page Up/Down、End、Home、方向键
+		|| vkCode == VK_INSERT		// Insert
+		|| vkCode == VK_DELETE		// Delete
+		|| vkCode == VK_ADD			// 加（小键盘）
+		|| vkCode == VK_SUBTRACT	// 减（小键盘）
+		|| vkCode == VK_MULTIPLY	// 乘（小键盘）
+		|| vkCode == VK_DIVIDE		// 除（小键盘）
+		|| (vkCode >= VK_OEM_1 && vkCode <= VK_OEM_3)	// 分号、等号、逗号、-、句号、/、`
+		|| (vkCode >= VK_OEM_4 && vkCode <= VK_OEM_7)	// [、\、]、'
+		|| vkCode == VK_BACK		// Backspace
+		|| vkCode == VK_RETURN;		// 回车
 }
 
 LRESULT ShortcutControl::_LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM lParam) {
@@ -73,28 +94,41 @@ LRESULT ShortcutControl::_LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM 
 	switch (code) {
 	case VK_LWIN:
 	case VK_RWIN:
-		_that->_previewHotkey.Win(isKeyDown);
+		_that->_pressedKeys.Win(isKeyDown);
 		break;
 	case VK_CONTROL:
 	case VK_LCONTROL:
 	case VK_RCONTROL:
-		_that->_previewHotkey.Ctrl(isKeyDown);
+		_that->_pressedKeys.Ctrl(isKeyDown);
 		break;
 	case VK_SHIFT:
 	case VK_LSHIFT:
 	case VK_RSHIFT:
-		_that->_previewHotkey.Shift(isKeyDown);
+		_that->_pressedKeys.Shift(isKeyDown);
 		break;
 	case VK_MENU:
 	case VK_LMENU:
 	case VK_RMENU:
-		_that->_previewHotkey.Alt(isKeyDown);
+		_that->_pressedKeys.Alt(isKeyDown);
 		break;
 	default:
+	{
+		if (isKeyDown) {
+			if (CheckVirtualKey(code)) {
+				_that->_pressedKeys.Code(code);
+			}
+		} else {
+			_that->_pressedKeys.Code(0);
+		}
+		
 		break;
 	}
+	}
 
-	_that->_shortcutDialogContent.Keys(_that->_previewHotkey.GetKeyList());
+	if (isKeyDown) {
+		_that->_previewHotkey.CopyFrom(_that->_pressedKeys);
+		_that->_shortcutDialogContent.Keys(_that->_previewHotkey.GetKeyList());
+	}
 
 	return -1;
 }

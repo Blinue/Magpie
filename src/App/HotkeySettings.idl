@@ -15,6 +15,7 @@ namespace Magpie.App
 		UInt32 Code;
 
 		Boolean Check();
+		Boolean IsEmpty();
 		
 		IVector<Object> GetKeyList();
 	}

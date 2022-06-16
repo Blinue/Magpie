@@ -17,7 +17,7 @@ struct ShortcutControl : ShortcutControlT<ShortcutControl> {
 	IAsyncAction EditButton_Click(IInspectable const&, RoutedEventArgs const&);
 
 	void ShortcutDialog_Opened(Controls::ContentDialog const&, Controls::ContentDialogOpenedEventArgs const&);
-	void ShortcutDialog_Closing(Controls::ContentDialog const&, Controls::ContentDialogClosingEventArgs const&);
+	void ShortcutDialog_Closing(Controls::ContentDialog const&, Controls::ContentDialogClosingEventArgs const& args);
 
 private:
 	static LRESULT CALLBACK _LowLevelKeyboardProc(
@@ -37,6 +37,7 @@ private:
 	static ShortcutControl* _that;
 
 	Magpie::App::HotkeySettings _previewHotkey;
+	Magpie::App::HotkeySettings _pressedKeys;
 };
 
 }
