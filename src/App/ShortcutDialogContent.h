@@ -18,8 +18,17 @@ struct ShortcutDialogContent : ShortcutDialogContentT<ShortcutDialogContent> {
 	void Keys(const IVector<IInspectable>& value);
 	IVector<IInspectable> Keys() const;
 
+	event_token PropertyChanged(Data::PropertyChangedEventHandler const& value);
+	void PropertyChanged(event_token const& token);
+
 	static const DependencyProperty IsErrorProperty;
 	static const DependencyProperty KeysProperty;
+
+private:
+	static void _OnIsErrorChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&);
+	static void _OnKeysChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&);
+
+	event<Data::PropertyChangedEventHandler> _propertyChangedEvent;
 };
 
 }

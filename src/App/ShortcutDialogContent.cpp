@@ -14,14 +14,14 @@ const DependencyProperty ShortcutDialogContent::IsErrorProperty = DependencyProp
 	L"IsError",
 	xaml_typename<bool>(),
 	xaml_typename<Magpie::App::ShortcutDialogContent>(),
-	PropertyMetadata(box_value(false))
+	PropertyMetadata(box_value(false), &ShortcutDialogContent::_OnIsErrorChanged)
 );
 
 const DependencyProperty ShortcutDialogContent::KeysProperty = DependencyProperty::Register(
 	L"Keys",
 	xaml_typename<IVector<IInspectable>>(),
 	xaml_typename<Magpie::App::ShortcutDialogContent>(),
-	PropertyMetadata(nullptr)
+	PropertyMetadata(nullptr, &ShortcutDialogContent::_OnKeysChanged)
 );
 
 ShortcutDialogContent::ShortcutDialogContent() {
@@ -42,6 +42,24 @@ void ShortcutDialogContent::Keys(const IVector<IInspectable>& value) {
 
 IVector<IInspectable> ShortcutDialogContent::Keys() const {
 	return GetValue(KeysProperty).as<IVector<IInspectable>>();
+}
+
+event_token ShortcutDialogContent::PropertyChanged(Data::PropertyChangedEventHandler const& value) {
+	return _propertyChangedEvent.add(value);
+}
+
+void ShortcutDialogContent::PropertyChanged(event_token const& token) {
+	_propertyChangedEvent.remove(token);
+}
+
+void ShortcutDialogContent::_OnIsErrorChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
+	ShortcutDialogContent* that = get_self<ShortcutDialogContent>(sender.as<default_interface<ShortcutDialogContent>>());
+	that->_propertyChangedEvent(*that, PropertyChangedEventArgs{ L"IsError" });
+}
+
+void ShortcutDialogContent::_OnKeysChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
+	ShortcutDialogContent* that = get_self<ShortcutDialogContent>(sender.as<default_interface<ShortcutDialogContent>>());
+	that->_propertyChangedEvent(*that, PropertyChangedEventArgs{ L"Keys" });
 }
 
 }

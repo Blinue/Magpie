@@ -27,7 +27,7 @@ const DependencyProperty PageFrame::MainContentProperty = DependencyProperty::Re
 	L"MainContent",
 	xaml_typename<IInspectable>(),
 	xaml_typename<Magpie::App::PageFrame>(),
-	PropertyMetadata(nullptr, &PageFrame::_OnTitleChanged)
+	PropertyMetadata(nullptr, &PageFrame::_OnMainContentChanged)
 );
 
 

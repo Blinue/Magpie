@@ -67,13 +67,36 @@ LRESULT ShortcutControl::_LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM 
 		return CallNextHookEx(NULL, nCode, wParam, lParam);
 	}
 
-	if (wParam == WM_KEYDOWN || wParam == WM_SYSKEYDOWN) {
-		OutputDebugString(L"down");
-	} else if (wParam == WM_KEYUP || wParam == WM_SYSKEYUP) {
-		OutputDebugString(L"up");
+	bool isKeyDown = wParam == WM_KEYDOWN || wParam == WM_SYSKEYDOWN;
+
+	DWORD code = ((KBDLLHOOKSTRUCT*)lParam)->vkCode;
+	switch (code) {
+	case VK_LWIN:
+	case VK_RWIN:
+		_that->_previewHotkey.Win(isKeyDown);
+		break;
+	case VK_CONTROL:
+	case VK_LCONTROL:
+	case VK_RCONTROL:
+		_that->_previewHotkey.Ctrl(isKeyDown);
+		break;
+	case VK_SHIFT:
+	case VK_LSHIFT:
+	case VK_RSHIFT:
+		_that->_previewHotkey.Shift(isKeyDown);
+		break;
+	case VK_MENU:
+	case VK_LMENU:
+	case VK_RMENU:
+		_that->_previewHotkey.Alt(isKeyDown);
+		break;
+	default:
+		break;
 	}
 
-	return CallNextHookEx(NULL, nCode, wParam, lParam);
+	_that->_shortcutDialogContent.Keys(_that->_previewHotkey.GetKeyList());
+
+	return -1;
 }
 
 }
