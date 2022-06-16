@@ -50,9 +50,10 @@ void App::OnClose() {
 	_settings.Save();
 }
 
-bool App::Initialize(Magpie::App::Settings settings, uint64_t hwndHost) {
-	_settings = settings;
+bool App::Initialize(Magpie::App::Settings const& settings, uint64_t hwndHost) {
 	_hwndHost = hwndHost;
+	_settings = settings;
+	_hotkeyManager = HotkeyManager();
 	return true;
 }
 

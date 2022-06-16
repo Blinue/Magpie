@@ -23,8 +23,10 @@ namespace Magpie.App {
 
 		Boolean Initialize(Settings settings, UInt64 hwndHost);
 
-		Settings Settings{ get; };
-		UInt64 HwndHost{ get; };
+		Settings Settings { get; };
+		HotkeyManager HotkeyManager { get; };
+
+		UInt64 HwndHost { get; };
 
 		Boolean IsHostWndFocused { get; };
 		event Windows.Foundation.EventHandler<Boolean> HostWndFocusChanged;

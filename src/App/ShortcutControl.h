@@ -19,6 +19,10 @@ struct ShortcutControl : ShortcutControlT<ShortcutControl> {
 	void ShortcutDialog_Opened(Controls::ContentDialog const&, Controls::ContentDialogOpenedEventArgs const&);
 	void ShortcutDialog_Closing(Controls::ContentDialog const&, Controls::ContentDialogClosingEventArgs const& args);
 
+	bool IsError() const {
+		return false;
+	}
+
 private:
 	static LRESULT CALLBACK _LowLevelKeyboardProc(
 		int    nCode,

@@ -4,5 +4,7 @@ namespace Magpie.App
 	runtimeclass ShortcutControl : Windows.UI.Xaml.Controls.UserControl
 	{
 		ShortcutControl();
+
+		Boolean IsError { get; };
 	}
 }

@@ -3,6 +3,8 @@
 #include "App.g.h"
 #include "App.base.h"
 #include "Settings.h"
+#include "HotkeyManager.h"
+
 
 namespace winrt::Magpie::App::implementation {
 
@@ -13,7 +15,7 @@ public:
 
 	void OnClose();
 
-	bool Initialize(Magpie::App::Settings settings, uint64_t hwndHost);
+	bool Initialize(Magpie::App::Settings const& settings, uint64_t hwndHost);
 
 	uint64_t HwndHost() const {
 		return _hwndHost;
@@ -21,6 +23,10 @@ public:
 
 	Magpie::App::Settings Settings() const {
 		return _settings;
+	}
+
+	Magpie::App::HotkeyManager HotkeyManager() const {
+		return _hotkeyManager;
 	}
 
 	event_token HostWndFocusChanged(EventHandler<bool> const& handler);
@@ -33,6 +39,7 @@ public:
 
 private:
 	Magpie::App::Settings _settings{ nullptr };
+	Magpie::App::HotkeyManager _hotkeyManager{ nullptr };
 	uint64_t _hwndHost{};
 
 	event<EventHandler<bool>> _hostWndFocusChangedEvent;

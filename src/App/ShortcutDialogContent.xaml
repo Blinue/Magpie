@@ -34,7 +34,7 @@
 				<DataTemplate>
 					<local:KeyVisual Height="56"
 										 VisualType="Large"
-										 IsError="{Binding ElementName=ShortcutContentControl, Path=IsError, Mode=OneWay}"
+										 IsError="{Binding ElementName=ShortcutContentControl, Path=IsError, Mode=OneTime}"
 										 IsTabStop="False"
 										 Content="{Binding}" />
 				</DataTemplate>

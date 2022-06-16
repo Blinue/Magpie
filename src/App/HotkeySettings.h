@@ -9,6 +9,10 @@ struct HotkeySettings : HotkeySettingsT<HotkeySettings> {
 
 	void CopyFrom(const Magpie::App::HotkeySettings& other);
 
+	bool Equals(const Magpie::App::HotkeySettings& other) const;
+
+	bool IsEmpty() const;
+
 	void Win(bool value) noexcept {
 		_win = value;
 	}
@@ -48,8 +52,6 @@ struct HotkeySettings : HotkeySettingsT<HotkeySettings> {
 	IVector<IInspectable> GetKeyList() const;
 
 	bool Check() const;
-
-	bool IsEmpty() const;
 
 private:
 	bool _win = false;

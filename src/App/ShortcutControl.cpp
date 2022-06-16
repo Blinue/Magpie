@@ -120,6 +120,7 @@ LRESULT ShortcutControl::_LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM 
 				_that->_pressedKeys.Code(0);
 			}
 		} else {
+			// 不处理的键位
 			isKeyDown = false;
 		}
 		
@@ -131,7 +132,11 @@ LRESULT ShortcutControl::_LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM 
 		_that->_previewHotkey.CopyFrom(_that->_pressedKeys);
 		_that->_shortcutDialogContent.Keys(_that->_previewHotkey.GetKeyList());
 
-		_that->_shortcutDialogContent.IsError(!_that->_previewHotkey.Check());
+		if (_that->_previewHotkey.Equals(_that->_hotkey) && !_that->IsError()) {
+			_that->_shortcutDialogContent.IsError(false);
+		} else {
+			_that->_shortcutDialogContent.IsError(!_that->_previewHotkey.Check());
+		}
 	}
 
 	return -1;

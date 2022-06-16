@@ -18,6 +18,19 @@ void HotkeySettings::CopyFrom(const Magpie::App::HotkeySettings& other) {
 	_code = otherImpl->_code;
 }
 
+bool HotkeySettings::IsEmpty() const {
+	return !_win && !_ctrl && !_alt && !_shift && _code == 0;
+}
+
+bool HotkeySettings::Equals(const Magpie::App::HotkeySettings& other) const {
+	HotkeySettings* otherImpl = get_self<HotkeySettings>(other.as<default_interface<HotkeySettings>>());
+	return _win == otherImpl->_win
+		&& _ctrl == otherImpl->_ctrl
+		&& _alt == otherImpl->_alt
+		&& _shift == otherImpl->_shift
+		&& _code == otherImpl->_code;
+}
+
 IVector<IInspectable> HotkeySettings::GetKeyList() const {
 	std::vector<IInspectable> shortcutList;
 	if (_win) {
@@ -63,8 +76,6 @@ bool HotkeySettings::Check() const {
 		return false;
 	}
 
-	HWND hwndHost = (HWND)Application::Current().as<App>().HwndHost();
-
 	UINT modifiers = MOD_NOREPEAT;
 	if (_win) {
 		modifiers |= MOD_WIN;
@@ -84,10 +95,6 @@ bool HotkeySettings::Check() const {
 	
 	UnregisterHotKey(NULL, 0);
 	return true;
-}
-
-bool HotkeySettings::IsEmpty() const {
-	return !_win && !_ctrl && !_alt && !_shift && _code == 0;
 }
 
 }
