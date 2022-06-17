@@ -28,8 +28,3 @@ RD /S /Q App
 RD /S /Q Runtime
 REM 删除所有 pri 文件，除了 resources.pri
 FOR %%f IN ("*.pri") DO IF /i "%%~nf" NEQ "resources" DEL "%%f"
-
-REM 复制 MSVC 运行时依赖
-XCOPY /y %WINDIR%\System32\vcruntime140.dll
-XCOPY /y %WINDIR%\System32\vcruntime140_1.dll
-XCOPY /y %WINDIR%\System32\msvcp140.dll
