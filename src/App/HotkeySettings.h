@@ -53,6 +53,8 @@ struct HotkeySettings : HotkeySettingsT<HotkeySettings> {
 
 	bool Check() const;
 
+	void Clear();
+
 private:
 	bool _win = false;
 	bool _ctrl = false;

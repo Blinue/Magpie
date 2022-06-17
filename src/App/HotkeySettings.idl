@@ -16,6 +16,7 @@ namespace Magpie.App
 
 		Boolean Check();
 		Boolean IsEmpty();
+		void Clear();
 		Boolean Equals(HotkeySettings other);
 		
 		IVector<Object> GetKeyList();

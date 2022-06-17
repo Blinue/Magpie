@@ -48,6 +48,12 @@ IAsyncAction ShortcutControl::EditButton_Click(IInspectable const&, RoutedEventA
 void ShortcutControl::ShortcutDialog_Opened(ContentDialog const&, ContentDialogOpenedEventArgs const&) {
 	_that = this;
 	_keyboardHook = SetWindowsHookEx(WH_KEYBOARD_LL, _LowLevelKeyboardProc, NULL, 0);
+	_previewHotkey.CopyFrom(_hotkey);
+	_shortcutDialogContent.Keys(_previewHotkey.GetKeyList());
+	_shortcutDialogContent.IsError(IsError());
+	_shortcutDialog.IsPrimaryButtonEnabled(!IsError());
+
+	_pressedKeys.Clear();
 }
 
 void ShortcutControl::ShortcutDialog_Closing(ContentDialog const&, ContentDialogClosingEventArgs const& args) {
@@ -129,14 +135,45 @@ LRESULT ShortcutControl::_LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM 
 	}
 
 	if (isKeyDown) {
-		_that->_previewHotkey.CopyFrom(_that->_pressedKeys);
-		_that->_shortcutDialogContent.Keys(_that->_previewHotkey.GetKeyList());
+		Magpie::App::HotkeySettings& previewHotkey = _that->_previewHotkey;
 
-		if (_that->_previewHotkey.Equals(_that->_hotkey) && !_that->IsError()) {
-			_that->_shortcutDialogContent.IsError(false);
+		previewHotkey.CopyFrom(_that->_pressedKeys);
+		_that->_shortcutDialogContent.Keys(previewHotkey.GetKeyList());
+
+		bool isError = false;
+		bool isPrimaryButtonEnabled = false;
+		if (previewHotkey.Equals(_that->_hotkey) && !_that->IsError()) {
+			isError = false;
+			isPrimaryButtonEnabled = true;
 		} else {
-			_that->_shortcutDialogContent.IsError(!_that->_previewHotkey.Check());
+			UINT modCount = 0;
+			if (previewHotkey.Code() == 0) {
+				if (previewHotkey.Win()) {
+					++modCount;
+				}
+				if (previewHotkey.Alt()) {
+					++modCount;
+				}
+				if (modCount <= 1 && previewHotkey.Ctrl()) {
+					++modCount;
+				}
+				if (modCount <= 1 && previewHotkey.Shift()) {
+					++modCount;
+				}
+			}
+
+			if (modCount == 1) {
+				// Modifiers 个数为 1 时不显示错误
+				isError = false;
+				isPrimaryButtonEnabled = false;
+			} else {
+				isError = !previewHotkey.Check();
+				isPrimaryButtonEnabled = !isError;
+			}
 		}
+
+		_that->_shortcutDialogContent.IsError(isError);
+		_that->_shortcutDialog.IsPrimaryButtonEnabled(isPrimaryButtonEnabled);
 	}
 
 	return -1;

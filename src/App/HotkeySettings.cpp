@@ -97,4 +97,12 @@ bool HotkeySettings::Check() const {
 	return true;
 }
 
+void HotkeySettings::Clear() {
+	_win = false;
+	_ctrl = false;
+	_alt = false;
+	_shift = false;
+	_code = 0;
+}
+
 }
