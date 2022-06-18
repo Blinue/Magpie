@@ -10,6 +10,13 @@ using namespace Windows::UI::Xaml::Controls;
 
 namespace winrt::Magpie::App::implementation {
 
+const DependencyProperty ShortcutControl::_IsErrorProperty = DependencyProperty::Register(
+	L"_IsError",
+	xaml_typename<bool>(),
+	xaml_typename<Magpie::App::ShortcutControl>(),
+	PropertyMetadata(box_value(false), &ShortcutControl::_OnIsErrorChanged)
+);
+
 ShortcutControl* ShortcutControl::_that = nullptr;
 
 ShortcutControl::ShortcutControl() {
@@ -62,7 +69,16 @@ void ShortcutControl::ShortcutDialog_Closing(ContentDialog const&, ContentDialog
 	if (args.Result() == ContentDialogResult::Primary) {
 		_hotkey.CopyFrom(_previewHotkey);
 		KeysControl().ItemsSource(_hotkey.GetKeyList());
+		_propertyChangedEvent(*this, PropertyChangedEventArgs{ L"IsError" });
 	}
+}
+
+void ShortcutControl::_IsError(bool value) {
+	SetValue(_IsErrorProperty, box_value(value));
+}
+
+bool ShortcutControl::IsError() const {
+	return GetValue(_IsErrorProperty).as<bool>();
 }
 
 bool CheckVirtualKey(DWORD vkCode) {
@@ -81,6 +97,14 @@ bool CheckVirtualKey(DWORD vkCode) {
 		|| (vkCode >= VK_OEM_4 && vkCode <= VK_OEM_7)	// [、\、]、'
 		|| vkCode == VK_BACK		// Backspace
 		|| vkCode == VK_RETURN;		// 回车
+}
+
+event_token ShortcutControl::PropertyChanged(Data::PropertyChangedEventHandler const& value) {
+	return _propertyChangedEvent.add(value);
+}
+
+void ShortcutControl::PropertyChanged(event_token const& token) {
+	_propertyChangedEvent.remove(token);
 }
 
 LRESULT ShortcutControl::_LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM lParam) {
@@ -177,6 +201,11 @@ LRESULT ShortcutControl::_LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM 
 	}
 
 	return -1;
+}
+
+void ShortcutControl::_OnIsErrorChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
+	ShortcutControl* that = get_self<ShortcutControl>(sender.as<default_interface<ShortcutControl>>());
+	that->_propertyChangedEvent(*that, PropertyChangedEventArgs{ L"IsError" });
 }
 
 }

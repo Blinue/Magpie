@@ -7,11 +7,6 @@
 		<CppWinRTVerbosity>low</CppWinRTVerbosity>
 		<IntDir>$(SolutionDir)\obj\$(Platform)\$(Configuration)\$(MSBuildProjectName)\</IntDir>
 		<GeneratedFilesDir>$(IntDir)Generated Files\</GeneratedFilesDir>
-		<!-- 将 xbf 文件打包进 resources.pri
-			 https://github.com/microsoft/terminal/blob/9eb191d5453fed890bad63952e425e1240aa8df5/src/cascadia/TerminalApp/TerminalAppLib.vcxproj#L17-L18
-		-->
-		<DisableEmbeddedXbf>false</DisableEmbeddedXbf>
-		<XamlComponentResourceLocation>nested</XamlComponentResourceLocation>
 	</PropertyGroup>
 
 	<ImportGroup Label="Shared">

@@ -19,9 +19,10 @@ struct ShortcutControl : ShortcutControlT<ShortcutControl> {
 	void ShortcutDialog_Opened(Controls::ContentDialog const&, Controls::ContentDialogOpenedEventArgs const&);
 	void ShortcutDialog_Closing(Controls::ContentDialog const&, Controls::ContentDialogClosingEventArgs const& args);
 
-	bool IsError() const {
-		return false;
-	}
+	bool IsError() const;
+
+	event_token PropertyChanged(Data::PropertyChangedEventHandler const& value);
+	void PropertyChanged(event_token const& token);
 
 private:
 	static LRESULT CALLBACK _LowLevelKeyboardProc(
@@ -29,6 +30,13 @@ private:
 		WPARAM wParam,
 		LPARAM lParam
 	);
+
+	static const DependencyProperty _IsErrorProperty;
+	static void _OnIsErrorChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&);
+
+	void _IsError(bool value);
+
+	event<Data::PropertyChangedEventHandler> _propertyChangedEvent;
 
 	Magpie::App::HotkeySettings _hotkey;
 	Controls::ContentDialog _shortcutDialog;

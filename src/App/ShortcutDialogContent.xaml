@@ -18,13 +18,13 @@
 		<TextBlock Text="按组合键以更改此快捷键" Grid.Row="0" />
 
 		<ItemsControl x:Name="KeysControl"
-							  Height="56"
-							  Grid.Row="1"
-							  Margin="0,64,0,0"
-							  HorizontalContentAlignment="Center"
-							  ItemsSource="{x:Bind Keys, Mode=OneWay}"
-							  HorizontalAlignment="Center"
-							  VerticalAlignment="Top">
+					  Height="56"
+					  Grid.Row="1"
+					  Margin="0,64,0,0"
+					  HorizontalContentAlignment="Center"
+					  ItemsSource="{x:Bind Keys, Mode=OneWay}"
+					  HorizontalAlignment="Center"
+					  VerticalAlignment="Top">
 			<ItemsControl.ItemsPanel>
 				<ItemsPanelTemplate>
 					<StackPanel Orientation="Horizontal" Spacing="8"/>
@@ -33,10 +33,10 @@
 			<ItemsControl.ItemTemplate>
 				<DataTemplate>
 					<local:KeyVisual Height="56"
-										 VisualType="Large"
-										 IsError="{Binding ElementName=ShortcutContentControl, Path=IsError, Mode=OneWay}"
-										 IsTabStop="False"
-										 Content="{Binding}" />
+									 VisualType="Large"
+									 IsTabStop="False"
+									 IsError="{Binding ElementName=ShortcutContentControl, Path=IsError, Mode=OneTime}"
+									 Content="{Binding Mode=OneTime}" />
 				</DataTemplate>
 			</ItemsControl.ItemTemplate>
 		</ItemsControl>

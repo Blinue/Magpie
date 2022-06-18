@@ -35,7 +35,7 @@
 							<local:KeyVisual IsTabStop="False"
 											 VisualType="Small"
 											 VerticalAlignment="Center"
-											 IsError="{Binding ElementName=ShortcutControl, Path=IsError, Mode=OneWay}"
+											 IsError="{Binding ElementName=ShortcutControl, Path=_IsError, Mode=OneTime}"
 											 Content="{Binding Mode=OneTime}" />
 						</DataTemplate>
 					</ItemsControl.ItemTemplate>

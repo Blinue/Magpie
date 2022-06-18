@@ -72,27 +72,37 @@ IVector<IInspectable> HotkeySettings::GetKeyList() const {
 }
 
 bool HotkeySettings::Check() const {
-	if (!_win && !_ctrl && !_alt && !_shift) {
-		return false;
-	}
-
 	UINT modifiers = MOD_NOREPEAT;
+	UINT modCount = 0;
+
 	if (_win) {
+		++modCount;
 		modifiers |= MOD_WIN;
 	}
 	if (_ctrl) {
+		++modCount;
 		modifiers |= MOD_CONTROL;
 	}
 	if (_alt) {
+		++modCount;
 		modifiers |= MOD_ALT;
 	}
 	if (_shift) {
+		++modCount;
 		modifiers |= MOD_SHIFT;
 	}
+
+	if (modCount == 0 || (modCount == 1 && _code == 0)) {
+		// 必须存在 Modifier
+		// 如果只有一个 Modifier 则必须存在 Virtual Key
+		return false;
+	}
+
+	// 检测快捷键是否被占用
 	if (!RegisterHotKey(NULL, 0, modifiers, _code)) {
 		return false;
 	}
-	
+
 	UnregisterHotKey(NULL, 0);
 	return true;
 }
