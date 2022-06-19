@@ -1,10 +1,9 @@
 namespace Magpie.App
 {
 	enum HotkeyAction {
-		None,
 		Scale,
 		Overlay,
-		COUNT
+		COUNT_OR_NONE
 	};
 
 	[default_interface]

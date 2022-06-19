@@ -15,7 +15,7 @@ const DependencyProperty ShortcutControl::ActionProperty = DependencyProperty::R
 	L"Action",
 	xaml_typename<HotkeyAction>(),
 	xaml_typename<Magpie::App::ShortcutControl>(),
-	PropertyMetadata(box_value(HotkeyAction::None), &ShortcutControl::_OnActionChanged)
+	PropertyMetadata(box_value(HotkeyAction::COUNT_OR_NONE), &ShortcutControl::_OnActionChanged)
 );
 
 const DependencyProperty ShortcutControl::_IsErrorProperty = DependencyProperty::Register(

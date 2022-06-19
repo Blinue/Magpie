@@ -20,6 +20,14 @@ HotkeyManager::HotkeyManager() {
 	_RegisterHotkey(HotkeyAction::Overlay);
 }
 
+HotkeyManager::~HotkeyManager() {
+	for (int i = 0; i < (int)HotkeyAction::COUNT_OR_NONE; ++i) {
+		if (!_errors[i]) {
+			UnregisterHotKey(_hwndHost, i);
+		}
+	}
+}
+
 bool HotkeyManager::IsError(HotkeyAction action) {
 	return _errors[(size_t)action];
 }

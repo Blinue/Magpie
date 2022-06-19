@@ -7,6 +7,7 @@ namespace winrt::Magpie::App::implementation {
 
 struct HotkeyManager : HotkeyManagerT<HotkeyManager> {
 	HotkeyManager();
+	~HotkeyManager();
 
 	bool IsError(HotkeyAction action);
 
@@ -17,7 +18,7 @@ private:
 
 	Magpie::App::Settings::HotkeyChanged_revoker _hotkeyChangedToken;
 
-	std::array<bool, (size_t)HotkeyAction::COUNT> _errors;
+	std::array<bool, (size_t)HotkeyAction::COUNT_OR_NONE> _errors;
 
 	Magpie::App::Settings _settings{ nullptr };
 	HWND _hwndHost = NULL;

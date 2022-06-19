@@ -64,7 +64,7 @@ private:
 	Rect _windowRect{ CW_USEDEFAULT,CW_USEDEFAULT,1280,820 };
 	bool _isWindowMaximized = false;
 
-	std::array<Magpie::App::HotkeySettings, (size_t)HotkeyAction::COUNT> _hotkeys;
+	std::array<Magpie::App::HotkeySettings, (size_t)HotkeyAction::COUNT_OR_NONE> _hotkeys;
 	event<EventHandler<HotkeyAction>> _hotkeyChangedEvent;
 };
 
