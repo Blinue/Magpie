@@ -14,10 +14,15 @@ struct ShortcutControl : ShortcutControlT<ShortcutControl> {
 	void ShortcutDialog_Opened(Controls::ContentDialog const&, Controls::ContentDialogOpenedEventArgs const&);
 	void ShortcutDialog_Closing(Controls::ContentDialog const&, Controls::ContentDialogClosingEventArgs const& args);
 
+	HotkeyAction Action() const;
+	void Action(HotkeyAction value);
+
 	bool IsError() const;
 
 	event_token PropertyChanged(Data::PropertyChangedEventHandler const& value);
 	void PropertyChanged(event_token const& token);
+
+	static const DependencyProperty ActionProperty;
 
 private:
 	static LRESULT CALLBACK _LowLevelKeyboardProc(
@@ -27,11 +32,18 @@ private:
 	);
 
 	static const DependencyProperty _IsErrorProperty;
-	static void _OnIsErrorChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&);
+	
+	static void _OnActionChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&);
+
+	void _Settings_OnHotkeyChanged(IInspectable const&, HotkeyAction action);
+
+	void _UpdateHotkey();
 
 	void _IsError(bool value);
 
 	event<Data::PropertyChangedEventHandler> _propertyChangedEvent;
+
+	Magpie::App::Settings::HotkeyChanged_revoker _hotkeyChangedToken;
 
 	Magpie::App::HotkeySettings _hotkey;
 	Controls::ContentDialog _shortcutDialog;
@@ -45,6 +57,9 @@ private:
 
 	Magpie::App::HotkeySettings _previewHotkey;
 	Magpie::App::HotkeySettings _pressedKeys;
+
+	Magpie::App::Settings _settings{ nullptr };
+	Magpie::App::HotkeyManager _hotkeyManager{ nullptr };
 };
 
 }

@@ -53,7 +53,7 @@ void App::OnClose() {
 bool App::Initialize(Magpie::App::Settings const& settings, uint64_t hwndHost) {
 	_hwndHost = hwndHost;
 	_settings = settings;
-	_hotkeyManager = HotkeyManager();
+	_hotkeyManager = Magpie::App::HotkeyManager();
 	return true;
 }
 

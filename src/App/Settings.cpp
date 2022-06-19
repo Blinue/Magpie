@@ -145,6 +145,10 @@ bool Settings::Initialize(uint64_t pLogger) {
 		}
 	}
 
+	HotkeySettings hotkey = _hotkeys[(size_t)HotkeyAction::Scale];
+	hotkey.Win(true);
+	hotkey.Alt(true);
+
 	return true;
 }
 
@@ -239,7 +243,7 @@ void Settings::SetHotkey(HotkeyAction action, Magpie::App::HotkeySettings const&
 		return;
 	}
 
-	_hotkeys[(size_t)action] = value;
+	_hotkeys[(size_t)action].CopyFrom(value);
 	_hotkeyChangedEvent(*this, action);
 }
 

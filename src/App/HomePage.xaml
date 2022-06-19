@@ -16,7 +16,11 @@
 						<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xEDA7;"/>
 					</local:SettingItem.Icon>
 					<local:SettingItem.ActionContent>
-						<local:ShortcutControl />
+						<local:ShortcutControl>
+							<local:ShortcutControl.Action>
+								<local:HotkeyAction>Scale</local:HotkeyAction>
+							</local:ShortcutControl.Action>
+						</local:ShortcutControl>
 					</local:SettingItem.ActionContent>
 				</local:SettingItem>
 				<local:SettingItem Title="计时器">

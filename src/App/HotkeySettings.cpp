@@ -99,11 +99,11 @@ bool HotkeySettings::Check() const {
 	}
 
 	// 检测快捷键是否被占用
-	if (!RegisterHotKey(NULL, 0, modifiers, _code)) {
+	if (!RegisterHotKey(NULL, (int)HotkeyAction::None, modifiers, _code)) {
 		return false;
 	}
 
-	UnregisterHotKey(NULL, 0);
+	UnregisterHotKey(NULL, (int)HotkeyAction::None);
 	return true;
 }
 

@@ -5,8 +5,6 @@ namespace Magpie.App
 	{
 		HotkeyManager();
 
-		
 		Boolean IsError(HotkeyAction action);
-		
 	}
 }

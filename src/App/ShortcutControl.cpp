@@ -11,17 +11,31 @@ using namespace Windows::UI::Xaml::Media;
 
 namespace winrt::Magpie::App::implementation {
 
+const DependencyProperty ShortcutControl::ActionProperty = DependencyProperty::Register(
+	L"Action",
+	xaml_typename<HotkeyAction>(),
+	xaml_typename<Magpie::App::ShortcutControl>(),
+	PropertyMetadata(box_value(HotkeyAction::None), &ShortcutControl::_OnActionChanged)
+);
+
 const DependencyProperty ShortcutControl::_IsErrorProperty = DependencyProperty::Register(
 	L"_IsError",
 	xaml_typename<bool>(),
 	xaml_typename<Magpie::App::ShortcutControl>(),
-	PropertyMetadata(box_value(false), &ShortcutControl::_OnIsErrorChanged)
+	PropertyMetadata(box_value(false), nullptr)
 );
 
 ShortcutControl* ShortcutControl::_that = nullptr;
 
 ShortcutControl::ShortcutControl() {
 	InitializeComponent();
+
+	App app = Application::Current().as<App>();
+	_settings = app.Settings();
+	_hotkeyManager = app.HotkeyManager();
+
+	_hotkeyChangedToken = _settings.HotkeyChanged(
+		winrt::auto_revoke, { this,&ShortcutControl::_Settings_OnHotkeyChanged });
 
 	_shortcutDialog.Title(box_value(L"激活快捷键"));
 	_shortcutDialog.Content(_shortcutDialogContent);
@@ -30,10 +44,6 @@ ShortcutControl::ShortcutControl() {
 	_shortcutDialog.DefaultButton(ContentDialogButton::Primary);
 	_shortcutDialog.Opened({ this, &ShortcutControl::ShortcutDialog_Opened });
 	_shortcutDialog.Closing({ this, &ShortcutControl::ShortcutDialog_Closing });
-
-	_hotkey.Win(true);
-	_hotkey.Alt(true);
-	KeysControl().ItemsSource(_hotkey.GetKeyList());
 }
 
 IAsyncAction ShortcutControl::EditButton_Click(IInspectable const&, RoutedEventArgs const&) {
@@ -68,10 +78,16 @@ void ShortcutControl::ShortcutDialog_Closing(ContentDialog const&, ContentDialog
 	UnhookWindowsHookEx(_keyboardHook);
 
 	if (args.Result() == ContentDialogResult::Primary) {
-		_hotkey.CopyFrom(_previewHotkey);
-		KeysControl().ItemsSource(_hotkey.GetKeyList());
-		_propertyChangedEvent(*this, PropertyChangedEventArgs{ L"IsError" });
+		_settings.SetHotkey(Action(), _previewHotkey);
 	}
+}
+
+HotkeyAction ShortcutControl::Action() const {
+	return GetValue(ActionProperty).as<HotkeyAction>();
+}
+
+void ShortcutControl::Action(HotkeyAction value) {
+	SetValue(ActionProperty, box_value(value));
 }
 
 void ShortcutControl::_IsError(bool value) {
@@ -204,9 +220,30 @@ LRESULT ShortcutControl::_LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM 
 	return -1;
 }
 
-void ShortcutControl::_OnIsErrorChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
+void ShortcutControl::_OnActionChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
 	ShortcutControl* that = get_self<ShortcutControl>(sender.as<default_interface<ShortcutControl>>());
-	that->_propertyChangedEvent(*that, PropertyChangedEventArgs{ L"IsError" });
+	that->_UpdateHotkey();
+	that->_propertyChangedEvent(*that, PropertyChangedEventArgs{ L"Action" });
+}
+
+void ShortcutControl::_Settings_OnHotkeyChanged(IInspectable const&, HotkeyAction action) {
+	if (action == Action()) {
+		_UpdateHotkey();
+	}
+}
+
+void ShortcutControl::_UpdateHotkey() {
+	HotkeyAction action = Action();
+	HotkeySettings hotkey = _settings.GetHotkey(action);
+	if (hotkey) {
+		_hotkey.CopyFrom(hotkey);
+		_IsError(_hotkeyManager.IsError(action));
+	} else {
+		_hotkey.Clear();
+		_IsError(false);
+	}
+
+	KeysControl().ItemsSource(_hotkey.GetKeyList());
 }
 
 }
