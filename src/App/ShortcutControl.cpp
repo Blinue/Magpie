@@ -237,6 +237,7 @@ void ShortcutControl::_UpdateHotkey() {
 	HotkeySettings hotkey = _settings.GetHotkey(action);
 	if (hotkey) {
 		_hotkey.CopyFrom(hotkey);
+		// 此时 HotkeyManager 中的回调已执行
 		_IsError(_hotkeyManager.IsError(action));
 	} else {
 		_hotkey.Clear();

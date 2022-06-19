@@ -39,26 +39,25 @@ IVector<IInspectable> HotkeySettings::GetKeyList() const {
 	}
 
 	if (_ctrl) {
-		shortcutList.push_back(box_value(L"Ctrl"));
+		shortcutList.push_back(box_value(Win32Utils::GetKeyName(VK_CONTROL)));
 	}
 
 	if (_alt) {
-		shortcutList.push_back(box_value(L"Alt"));
+		shortcutList.push_back(box_value(Win32Utils::GetKeyName(VK_MENU)));
 	}
 
 	if (_shift) {
-		shortcutList.push_back(box_value(L"Shift"));
+		shortcutList.push_back(box_value(Win32Utils::GetKeyName(VK_SHIFT)));
 	}
 
 	if (_code > 0) {
 		switch (_code) {
-		   // https://docs.microsoft.com/en-us/uwp/api/windows.system.virtualkey?view=winrt-20348
-		case 38: // The Up Arrow key or button.
-		case 40: // The Down Arrow key or button.
-		case 37: // The Left Arrow key or button.
-		case 39: // The Right Arrow key or button.
-		// case 8: // The Back key or button.
-		// case 13: // The Enter key or button.
+		case VK_UP:
+		case VK_DOWN:
+		case VK_LEFT:
+		case VK_RIGHT:
+		// case VK_BACK:
+		// case VK_RETURN:
 			shortcutList.push_back(box_value(_code));
 			break;
 		default:

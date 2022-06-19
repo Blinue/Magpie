@@ -50,6 +50,10 @@ void HotkeyManager::_RegisterHotkey(HotkeyAction action) {
 		modifiers |= MOD_SHIFT;
 	}
 
+	if (!_errors[(size_t)action]) {
+		UnregisterHotKey(_hwndHost, (int)action);
+	}
+	
 	if (!RegisterHotKey(_hwndHost, (int)action, modifiers, hotkey.Code())) {
 		Logger::Get().Win32Error("RegisterHotKey 失败");
 		_errors[(size_t)action] = true;
