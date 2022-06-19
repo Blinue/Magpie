@@ -1,5 +1,11 @@
 namespace Magpie.App
 {
+	enum HotkeyAction {
+		Scale,
+		Overlay,
+		COUNT
+	};
+
 	[default_interface]
 	runtimeclass Settings 
 	{
@@ -17,5 +23,9 @@ namespace Magpie.App
 
 		Windows.Foundation.Rect WindowRect;
 		Boolean IsWindowMaximized;
+
+		HotkeySettings GetHotkey(HotkeyAction action);
+		void SetHotkey(HotkeyAction action, HotkeySettings value);
+		event Windows.Foundation.EventHandler<HotkeyAction> HotkeyChanged;
 	}
 }

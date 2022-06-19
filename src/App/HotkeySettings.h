@@ -2,6 +2,7 @@
 
 #include "HotkeySettings.g.h"
 
+
 namespace winrt::Magpie::App::implementation {
 
 struct HotkeySettings : HotkeySettingsT<HotkeySettings> {

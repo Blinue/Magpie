@@ -7,6 +7,8 @@ namespace winrt::Magpie::App::implementation {
 
 struct HotkeyManager : HotkeyManagerT<HotkeyManager> {
 	HotkeyManager() = default;
+
+	bool IsError(HotkeyAction action);
 };
 
 }

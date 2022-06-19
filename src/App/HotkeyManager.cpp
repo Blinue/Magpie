@@ -4,6 +4,11 @@
 #include "HotkeyManager.g.cpp"
 #endif
 
+
 namespace winrt::Magpie::App::implementation {
+
+bool HotkeyManager::IsError(HotkeyAction action) {
+	return false;
+}
 
 }

@@ -4,5 +4,9 @@ namespace Magpie.App
 	runtimeclass HotkeyManager 
 	{
 		HotkeyManager();
+
+		
+		Boolean IsError(HotkeyAction action);
+		
 	}
 }

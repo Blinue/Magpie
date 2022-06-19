@@ -230,4 +230,25 @@ void Settings::ThemeChanged(winrt::event_token const& token) {
 	_themeChangedEvent.remove(token);
 }
 
+Magpie::App::HotkeySettings Settings::GetHotkey(HotkeyAction action) const {
+	return _hotkeys[(size_t)action];
+}
+
+void Settings::SetHotkey(HotkeyAction action, Magpie::App::HotkeySettings const& value) {
+	if (_hotkeys[(size_t)action].Equals(value)) {
+		return;
+	}
+
+	_hotkeys[(size_t)action] = value;
+	_hotkeyChangedEvent(*this, action);
+}
+
+event_token Settings::HotkeyChanged(EventHandler<HotkeyAction> const& handler) {
+	return _hotkeyChangedEvent.add(handler);
+}
+
+void Settings::HotkeyChanged(event_token const& token) {
+	_hotkeyChangedEvent.remove(token);
+}
+
 }

@@ -38,8 +38,7 @@ namespace winrt {
 using namespace Windows::System;
 using namespace Windows::UI::Core;
 using namespace Windows::UI::Xaml;
+using namespace Windows::UI::Xaml::Data;
 
 namespace MUXC = Microsoft::UI::Xaml::Controls;
 }
-
-#pragma comment(lib, "d3d11.lib")

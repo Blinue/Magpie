@@ -26,14 +26,14 @@ struct Settings : SettingsT<Settings> {
 		return _theme;
 	}
 	void Theme(int value);
-	winrt::event_token ThemeChanged(Windows::Foundation::EventHandler<int> const& handler);
-	void ThemeChanged(winrt::event_token const& token);
+	event_token ThemeChanged(EventHandler<int> const& handler);
+	void ThemeChanged(event_token const& token);
 
-	Windows::Foundation::Rect WindowRect() const noexcept {
+	Rect WindowRect() const noexcept {
 		return _windowRect;
 	}
 
-	void WindowRect(const Windows::Foundation::Rect& value) noexcept {
+	void WindowRect(const Rect& value) noexcept {
 		_windowRect = value;
 	}
 
@@ -45,6 +45,12 @@ struct Settings : SettingsT<Settings> {
 		_isWindowMaximized = value;
 	}
 
+	Magpie::App::HotkeySettings GetHotkey(HotkeyAction action) const;
+	void SetHotkey(HotkeyAction action, Magpie::App::HotkeySettings const& value);
+
+	event_token HotkeyChanged(EventHandler<HotkeyAction> const& handler);
+	void HotkeyChanged(event_token const& token);
+
 private:
 	bool _isPortableMode = false;
 	hstring _workingDir;
@@ -53,10 +59,13 @@ private:
 	// 1: 深色
 	// 2: 系统
 	int _theme = 2;
-	event<Windows::Foundation::EventHandler<int>> _themeChangedEvent;
+	event<EventHandler<int>> _themeChangedEvent;
 
-	Windows::Foundation::Rect _windowRect{ CW_USEDEFAULT,CW_USEDEFAULT,1280,820 };
+	Rect _windowRect{ CW_USEDEFAULT,CW_USEDEFAULT,1280,820 };
 	bool _isWindowMaximized = false;
+
+	std::array<Magpie::App::HotkeySettings, (size_t)HotkeyAction::COUNT> _hotkeys;
+	event<EventHandler<HotkeyAction>> _hotkeyChangedEvent;
 };
 
 }
