@@ -71,7 +71,7 @@ IVector<IInspectable> HotkeySettings::GetKeyList() const {
 	return single_threaded_vector(std::move(shortcutList));
 }
 
-bool HotkeySettings::Check() const {
+HotkeyError HotkeySettings::Check() const {
 	UINT modifiers = MOD_NOREPEAT;
 	UINT modCount = 0;
 
@@ -95,16 +95,16 @@ bool HotkeySettings::Check() const {
 	if (modCount == 0 || (modCount == 1 && _code == 0)) {
 		// 必须存在 Modifier
 		// 如果只有一个 Modifier 则必须存在 Virtual Key
-		return false;
+		return HotkeyError::Invalid;
 	}
 
 	// 检测快捷键是否被占用
 	if (!RegisterHotKey(NULL, (int)HotkeyAction::COUNT_OR_NONE, modifiers, _code)) {
-		return false;
+		return HotkeyError::Occupied;
 	}
 
 	UnregisterHotKey(NULL, (int)HotkeyAction::COUNT_OR_NONE);
-	return true;
+	return HotkeyError::NoError;
 }
 
 void HotkeySettings::Clear() {

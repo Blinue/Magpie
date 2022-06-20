@@ -10,56 +10,51 @@ using namespace winrt;
 
 namespace winrt::Magpie::App::implementation {
 
-const DependencyProperty ShortcutDialogContent::IsErrorProperty = DependencyProperty::Register(
-	L"IsError",
+const DependencyProperty ShortcutDialogContent::_IsErrorProperty = DependencyProperty::Register(
+	L"_IsError",
 	xaml_typename<bool>(),
 	xaml_typename<Magpie::App::ShortcutDialogContent>(),
-	PropertyMetadata(box_value(false), &ShortcutDialogContent::_OnIsErrorChanged)
-);
-
-const DependencyProperty ShortcutDialogContent::KeysProperty = DependencyProperty::Register(
-	L"Keys",
-	xaml_typename<IVector<IInspectable>>(),
-	xaml_typename<Magpie::App::ShortcutDialogContent>(),
-	PropertyMetadata(nullptr, &ShortcutDialogContent::_OnKeysChanged)
+	PropertyMetadata(box_value(false), nullptr)
 );
 
 ShortcutDialogContent::ShortcutDialogContent() {
 	InitializeComponent();
 }
 
-void ShortcutDialogContent::IsError(bool value) {
-	SetValue(IsErrorProperty, box_value(value));
-}
+void ShortcutDialogContent::Error(HotkeyError value) {
+	switch (value) {
+	case HotkeyError::NoError:
+		_IsError(false);
+		WarningBanner().Visibility(Visibility::Collapsed);
+		break;
+	case HotkeyError::Invalid:
+		_IsError(true);
+		WarningBanner().Visibility(Visibility::Visible);
+		InvalidShortcutWarningLabel().Text(L"无效快捷键");
+		break;
+	case HotkeyError::Occupied:
+		_IsError(true);
+		WarningBanner().Visibility(Visibility::Visible);
+		InvalidShortcutWarningLabel().Text(L"此快捷键已被占用");
+		break;
+	default:
+		break;
+	}
 
-bool ShortcutDialogContent::IsError() const {
-	return GetValue(IsErrorProperty).as<bool>();
+	_error = value;
 }
 
 void ShortcutDialogContent::Keys(const IVector<IInspectable>& value) {
-	SetValue(KeysProperty, value);
+	_keys = value;
+	KeysControl().ItemsSource(value);
 }
 
 IVector<IInspectable> ShortcutDialogContent::Keys() const {
-	return GetValue(KeysProperty).as<IVector<IInspectable>>();
+	return _keys;
 }
 
-event_token ShortcutDialogContent::PropertyChanged(Data::PropertyChangedEventHandler const& value) {
-	return _propertyChangedEvent.add(value);
-}
-
-void ShortcutDialogContent::PropertyChanged(event_token const& token) {
-	_propertyChangedEvent.remove(token);
-}
-
-void ShortcutDialogContent::_OnIsErrorChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
-	ShortcutDialogContent* that = get_self<ShortcutDialogContent>(sender.as<default_interface<ShortcutDialogContent>>());
-	that->_propertyChangedEvent(*that, PropertyChangedEventArgs{ L"IsError" });
-}
-
-void ShortcutDialogContent::_OnKeysChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
-	ShortcutDialogContent* that = get_self<ShortcutDialogContent>(sender.as<default_interface<ShortcutDialogContent>>());
-	that->_propertyChangedEvent(*that, PropertyChangedEventArgs{ L"Keys" });
+void ShortcutDialogContent::_IsError(bool value) {
+	SetValue(_IsErrorProperty, box_value(value));
 }
 
 }

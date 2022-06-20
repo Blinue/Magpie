@@ -19,9 +19,6 @@ struct ShortcutControl : ShortcutControlT<ShortcutControl> {
 
 	bool IsError() const;
 
-	event_token PropertyChanged(Data::PropertyChangedEventHandler const& value);
-	void PropertyChanged(event_token const& token);
-
 	static const DependencyProperty ActionProperty;
 
 private:
@@ -40,8 +37,6 @@ private:
 	void _UpdateHotkey();
 
 	void _IsError(bool value);
-
-	event<Data::PropertyChangedEventHandler> _propertyChangedEvent;
 
 	Magpie::App::Settings::HotkeyChanged_revoker _hotkeyChangedRevoker;
 

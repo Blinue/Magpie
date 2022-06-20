@@ -1,5 +1,11 @@
 namespace Magpie.App
 {
+	enum HotkeyError {
+		NoError,
+		Invalid,
+		Occupied
+	};
+
 	[default_interface]
 	runtimeclass HotkeySettings 
 	{
@@ -14,7 +20,7 @@ namespace Magpie.App
 
 		UInt32 Code;
 
-		Boolean Check();
+		HotkeyError Check();
 		Boolean IsEmpty();
 		void Clear();
 		Boolean Equals(HotkeySettings other);

@@ -1,6 +1,7 @@
 namespace Magpie.App
 {
-	runtimeclass ShortcutControl : Windows.UI.Xaml.Controls.UserControl,[default] Windows.UI.Xaml.Data.INotifyPropertyChanged
+	[default_interface]
+	runtimeclass ShortcutControl : Windows.UI.Xaml.Controls.UserControl
 	{
 		ShortcutControl();
 

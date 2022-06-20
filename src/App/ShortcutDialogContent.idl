@@ -1,10 +1,11 @@
 namespace Magpie.App
 {
-	runtimeclass ShortcutDialogContent : Windows.UI.Xaml.Controls.UserControl, [default] Windows.UI.Xaml.Data.INotifyPropertyChanged
+	[default_interface]
+	runtimeclass ShortcutDialogContent : Windows.UI.Xaml.Controls.UserControl
 	{
 		ShortcutDialogContent();
 
-		Boolean IsError;
+		HotkeyError Error;
 		IVector<Object> Keys;
 	}
 }

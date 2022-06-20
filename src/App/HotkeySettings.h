@@ -52,7 +52,7 @@ struct HotkeySettings : HotkeySettingsT<HotkeySettings> {
 
 	IVector<IInspectable> GetKeyList() const;
 
-	bool Check() const;
+	HotkeyError Check() const;
 
 	void Clear();
 

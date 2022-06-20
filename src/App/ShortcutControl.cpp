@@ -69,7 +69,7 @@ void ShortcutControl::ShortcutDialog_Opened(ContentDialog const&, ContentDialogO
 	_keyboardHook = SetWindowsHookEx(WH_KEYBOARD_LL, _LowLevelKeyboardProc, NULL, 0);
 	_previewHotkey.CopyFrom(_hotkey);
 	_shortcutDialogContent.Keys(_previewHotkey.GetKeyList());
-	_shortcutDialogContent.IsError(IsError());
+	_shortcutDialogContent.Error(IsError() ? _previewHotkey.Check() : HotkeyError::NoError);
 	_shortcutDialog.IsPrimaryButtonEnabled(!IsError());
 
 	_pressedKeys.Clear();
@@ -97,14 +97,6 @@ void ShortcutControl::_IsError(bool value) {
 
 bool ShortcutControl::IsError() const {
 	return GetValue(_IsErrorProperty).as<bool>();
-}
-
-event_token ShortcutControl::PropertyChanged(Data::PropertyChangedEventHandler const& value) {
-	return _propertyChangedEvent.add(value);
-}
-
-void ShortcutControl::PropertyChanged(event_token const& token) {
-	_propertyChangedEvent.remove(token);
 }
 
 LRESULT ShortcutControl::_LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM lParam) {
@@ -172,10 +164,9 @@ LRESULT ShortcutControl::_LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM 
 		previewHotkey.CopyFrom(_that->_pressedKeys);
 		_that->_shortcutDialogContent.Keys(previewHotkey.GetKeyList());
 
-		bool isError = false;
+		HotkeyError error = HotkeyError::NoError;
 		bool isPrimaryButtonEnabled = false;
 		if (previewHotkey.Equals(_that->_hotkey) && !_that->IsError()) {
-			isError = false;
 			isPrimaryButtonEnabled = true;
 		} else {
 			UINT modCount = 0;
@@ -196,15 +187,14 @@ LRESULT ShortcutControl::_LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM 
 
 			if (modCount == 1) {
 				// Modifiers 个数为 1 时不显示错误
-				isError = false;
 				isPrimaryButtonEnabled = false;
 			} else {
-				isError = !previewHotkey.Check();
-				isPrimaryButtonEnabled = !isError;
+				error = previewHotkey.Check();
+				isPrimaryButtonEnabled = error == HotkeyError::NoError;
 			}
 		}
 
-		_that->_shortcutDialogContent.IsError(isError);
+		_that->_shortcutDialogContent.Error(error);
 		_that->_shortcutDialog.IsPrimaryButtonEnabled(isPrimaryButtonEnabled);
 	}
 
@@ -214,7 +204,6 @@ LRESULT ShortcutControl::_LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM 
 void ShortcutControl::_OnActionChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
 	ShortcutControl* that = get_self<ShortcutControl>(sender.as<default_interface<ShortcutControl>>());
 	that->_UpdateHotkey();
-	that->_propertyChangedEvent(*that, PropertyChangedEventArgs{ L"Action" });
 }
 
 void ShortcutControl::_Settings_OnHotkeyChanged(IInspectable const&, HotkeyAction action) {

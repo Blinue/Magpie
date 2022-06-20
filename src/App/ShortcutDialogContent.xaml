@@ -22,7 +22,6 @@
 					  Grid.Row="1"
 					  Margin="0,64,0,0"
 					  HorizontalContentAlignment="Center"
-					  ItemsSource="{x:Bind Keys, Mode=OneWay}"
 					  HorizontalAlignment="Center"
 					  VerticalAlignment="Top">
 			<ItemsControl.ItemsPanel>
@@ -35,7 +34,7 @@
 					<local:KeyVisual Height="56"
 									 VisualType="Large"
 									 IsTabStop="False"
-									 IsError="{Binding ElementName=ShortcutContentControl, Path=IsError, Mode=OneTime}"
+									 IsError="{Binding ElementName=ShortcutContentControl, Path=_IsError, Mode=OneTime}"
 									 Content="{Binding Mode=OneTime}" />
 				</DataTemplate>
 			</ItemsControl.ItemTemplate>
@@ -53,8 +52,7 @@
 					BorderBrush="{ThemeResource InfoBarBorderBrush}"
 					BorderThickness="{ThemeResource InfoBarBorderThickness}"
 					Padding="8"
-					Margin="-2,0,0,0"
-					Visibility="{x:Bind IsError, Mode=OneWay}">
+					Margin="-2,0,0,0">
 					<Grid>
 						<Grid.ColumnDefinitions>
 							<ColumnDefinition Width="Auto"/>
