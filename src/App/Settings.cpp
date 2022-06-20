@@ -182,7 +182,7 @@ void Settings::SetHotkey(HotkeyAction action, Magpie::App::HotkeySettings const&
 	}
 
 	_hotkeys[(size_t)action].CopyFrom(value);
-	Logger::Get().Info(fmt::format("热键 {} 已更改为 {}", to_string(action), StrUtils::UTF16ToUTF8(value.ToString())));
+	Logger::Get().Info(fmt::format("热键 {} 已更改为 {}", HotkeyHelper::ToString(action), StrUtils::UTF16ToUTF8(value.ToString())));
 	_hotkeyChangedEvent(*this, action);
 }
 
@@ -276,7 +276,7 @@ bool Settings::_LoadSettings(std::string text) {
 				_hotkeys[(size_t)HotkeyAction::Scale].FromString(StrUtils::UTF8ToUTF16(scaleNode->value.GetString()));
 			}
 
-			auto overlayNode = hotkeysObj.FindMember("scale");
+			auto overlayNode = hotkeysObj.FindMember("overlay");
 			if (overlayNode != hotkeysObj.MemberEnd() && overlayNode->value.IsString()) {
 				_hotkeys[(size_t)HotkeyAction::Overlay].FromString(StrUtils::UTF8ToUTF16(overlayNode->value.GetString()));
 			}

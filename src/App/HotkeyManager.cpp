@@ -41,7 +41,7 @@ void HotkeyManager::HotkeyPressed(event_token const& token) {
 }
 
 void HotkeyManager::OnHotkeyPressed(HotkeyAction action) {
-	Logger::Get().Info(fmt::format("热键 {} 激活", to_string(action)));
+	Logger::Get().Info(fmt::format("热键 {} 激活", HotkeyHelper::ToString(action)));
 	_hotkeyPressedEvent(*this, action);
 }
 
@@ -52,7 +52,7 @@ void HotkeyManager::_Settings_OnHotkeyChanged(IInspectable const&, HotkeyAction 
 void HotkeyManager::_RegisterHotkey(HotkeyAction action) {
 	HotkeySettings hotkey = _settings.GetHotkey(action);
 	if (hotkey == nullptr || hotkey.IsEmpty()) {
-		Logger::Get().Win32Error(fmt::format("注册热键 {} 失败", to_string(action)));
+		Logger::Get().Win32Error(fmt::format("注册热键 {} 失败", HotkeyHelper::ToString(action)));
 		_errors[(size_t)action] = true;
 		return;
 	}
@@ -77,7 +77,7 @@ void HotkeyManager::_RegisterHotkey(HotkeyAction action) {
 	}
 	
 	if (!RegisterHotKey(_hwndHost, (int)action, modifiers, hotkey.Code())) {
-		Logger::Get().Win32Error(fmt::format("注册热键 {} 失败", to_string(action)));
+		Logger::Get().Win32Error(fmt::format("注册热键 {} 失败", HotkeyHelper::ToString(action)));
 		_errors[(size_t)action] = true;
 	} else {
 		_errors[(size_t)action] = false;

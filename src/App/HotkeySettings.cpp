@@ -5,6 +5,8 @@
 #endif
 
 #include "Win32Utils.h"
+#include "StrUtils.h"
+#include "HotkeyHelper.h"
 
 
 namespace winrt::Magpie::App::implementation {
@@ -38,15 +40,15 @@ IVector<IInspectable> HotkeySettings::GetKeyList() const {
 	}
 
 	if (_ctrl) {
-		shortcutList.push_back(box_value(Win32Utils::GetKeyName(VK_CONTROL)));
+		shortcutList.push_back(box_value(L"Ctrl"));
 	}
 
 	if (_alt) {
-		shortcutList.push_back(box_value(Win32Utils::GetKeyName(VK_MENU)));
+		shortcutList.push_back(box_value(L"Alt"));
 	}
 
 	if (_shift) {
-		shortcutList.push_back(box_value(Win32Utils::GetKeyName(VK_SHIFT)));
+		shortcutList.push_back(box_value(L"Shift"));
 	}
 
 	if (_code > 0) {
@@ -114,7 +116,65 @@ void HotkeySettings::Clear() {
 }
 
 bool HotkeySettings::FromString(const hstring& str) {
-	return false;
+	bool win = false;
+	bool ctrl = false;
+	bool alt = false;
+	bool shift = false;
+	uint32_t code = 0;
+
+	if (!str.empty()) {
+		std::string s = StrUtils::UTF16ToUTF8(str);
+		std::vector<std::string_view> parts = StrUtils::Split(s, '+');
+		for (std::string_view& part : parts) {
+			StrUtils::Trim(part);
+
+			if (part.empty()) {
+				return false;
+			}
+
+			if (part == "Win") {
+				if (win) {
+					return false;
+				}
+
+				win = true;
+			} else if (part == "Ctrl") {
+				if (ctrl) {
+					return false;
+				}
+
+				ctrl = true;
+			} else if (part == "Alt") {
+				if (alt) {
+					return false;
+				}
+
+				alt = true;
+			} else if (part == "Shift") {
+				if (shift) {
+					return false;
+				}
+
+				shift = true;
+			} else {
+				if (code) {
+					return false;
+				}
+
+				code = HotkeyHelper::StringToKeyCode(StrUtils::UTF8ToUTF16(part));
+				if (code <= 0) {
+					return false;
+				}
+			}
+		}
+	}
+
+	_win = win;
+	_ctrl = ctrl;
+	_alt = alt;
+	_shift = shift;
+	_code = code;
+	return true;
 }
 
 hstring HotkeySettings::ToString() const {
