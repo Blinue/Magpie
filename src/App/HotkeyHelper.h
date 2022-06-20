@@ -11,7 +11,7 @@ struct HotkeyHelper {
 		return _GetValidKeyCodes().contains(code);
 	}
 
-	static DWORD StringToKeyCode(const std::wstring& str);
+	static DWORD StringToKeyCode(std::wstring_view str);
 
 private:
 	static const std::unordered_set<DWORD>& _GetValidKeyCodes();

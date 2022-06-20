@@ -123,34 +123,33 @@ bool HotkeySettings::FromString(const hstring& str) {
 	uint32_t code = 0;
 
 	if (!str.empty()) {
-		std::string s = StrUtils::UTF16ToUTF8(str);
-		std::vector<std::string_view> parts = StrUtils::Split(s, '+');
-		for (std::string_view& part : parts) {
+		std::vector<std::wstring_view> parts = StrUtils::Split(str.c_str(), L'+');
+		for (std::wstring_view& part : parts) {
 			StrUtils::Trim(part);
 
 			if (part.empty()) {
 				return false;
 			}
 
-			if (part == "Win") {
+			if (part == L"Win") {
 				if (win) {
 					return false;
 				}
 
 				win = true;
-			} else if (part == "Ctrl") {
+			} else if (part == L"Ctrl") {
 				if (ctrl) {
 					return false;
 				}
 
 				ctrl = true;
-			} else if (part == "Alt") {
+			} else if (part == L"Alt") {
 				if (alt) {
 					return false;
 				}
 
 				alt = true;
-			} else if (part == "Shift") {
+			} else if (part == L"Shift") {
 				if (shift) {
 					return false;
 				}
@@ -161,7 +160,7 @@ bool HotkeySettings::FromString(const hstring& str) {
 					return false;
 				}
 
-				code = HotkeyHelper::StringToKeyCode(StrUtils::UTF8ToUTF16(part));
+				code = HotkeyHelper::StringToKeyCode(part);
 				if (code <= 0) {
 					return false;
 				}

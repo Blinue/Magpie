@@ -1,41 +1,99 @@
 #pragma once
 #include <string>
 #include <vector>
+#include <cwctype>
 
 
 struct StrUtils {
+	// 字符串的通透哈希
+	template<typename CHAR_T>
+	struct StringHash {
+		using hash_type = std::hash<std::basic_string_view<CHAR_T>>;
+		using is_transparent = void;
+
+		size_t operator()(const CHAR_T* str) const { return hash_type{}(str); }
+		size_t operator()(std::basic_string_view<CHAR_T> str) const { return hash_type{}(str); }
+		size_t operator()(std::basic_string<CHAR_T> const& str) const { return hash_type{}(str); }
+	};
+
 	static std::wstring UTF8ToUTF16(std::string_view str);
 
 	static std::string UTF16ToUTF8(std::wstring_view str);
 
 	static std::string UTF16ToANSI(std::wstring_view str);
 
-	static void Trim(std::string_view& str);
+	template<typename CHAR_T>
+	static void Trim(std::basic_string_view<CHAR_T>& str) {
+		for (int i = 0; i < str.size(); ++i) {
+			if (!isspace(str[i])) {
+				str.remove_prefix(i);
 
-	static void Trim(std::string& str) {
-		std::string_view sv(str);
+				size_t j = str.size() - 1;
+				for (; j > 0; --j) {
+					if (!isspace(str[j])) {
+						break;
+					}
+				}
+				str.remove_suffix(str.size() - 1 - j);
+				return;
+			}
+		}
+
+		str.remove_prefix(str.size());
+	}
+
+	template<typename CHAR_T>
+	static void Trim(std::basic_string<CHAR_T>& str) {
+		std::basic_string_view<CHAR_T> sv(str);
 		Trim(sv);
 		str = sv;
 	}
 
-	static std::string Trim(const std::string& str) {
-		std::string result = str;
+	template<typename CHAR_T>
+	static std::basic_string<CHAR_T> Trim(const std::basic_string<CHAR_T>& str) {
+		std::basic_string<CHAR_T> result = str;
 		Trim(result);
 		return result;
 	}
 
-	static std::vector<std::string_view> Split(std::string_view str, char delimiter);
+	template<typename CHAR_T>
+	static std::vector<std::basic_string_view<CHAR_T>> Split(std::basic_string_view<CHAR_T> str, CHAR_T delimiter) {
+		std::vector<std::basic_string_view<CHAR_T>> result;
+		while (!str.empty()) {
+			size_t pos = str.find(delimiter, 0);
+			result.push_back(str.substr(0, pos));
 
-	static int isspace(char c) {
-		return std::isspace(static_cast<unsigned char>(c));
+			if (pos == std::basic_string_view<CHAR_T>::npos) {
+				return result;
+			} else {
+				str.remove_prefix(pos + 1);
+			}
+		}
+		return result;
 	}
 
-	static int isalpha(char c) {
-		return std::isalpha(static_cast<unsigned char>(c));
+	static std::vector<std::string_view> Split(std::string_view str, char delimiter) {
+		return Split<char>(str, delimiter);
 	}
 
-	static int isalnum(char c) {
-		return std::isalnum(static_cast<unsigned char>(c));
+	static std::vector<std::wstring_view> Split(std::wstring_view str, wchar_t delimiter) {
+		return Split<wchar_t>(str, delimiter);
+	}
+
+	static bool isspace(char c) {
+		return (bool)std::isspace(static_cast<unsigned char>(c));
+	}
+
+	static bool isspace(wchar_t c) {
+		return (bool)std::iswspace(c);
+	}
+
+	static bool isalpha(char c) {
+		return (bool)std::isalpha(static_cast<unsigned char>(c));
+	}
+
+	static bool isalnum(char c) {
+		return (bool)std::isalnum(static_cast<unsigned char>(c));
 	}
 
 	static char toupper(char c) {

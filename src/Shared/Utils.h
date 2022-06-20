@@ -65,4 +65,3 @@ struct hash<std::pair<T1, T2>> {
 };
 
 }
-

@@ -22,8 +22,8 @@ std::string HotkeyHelper::ToString(winrt::Magpie::App::HotkeyAction action) {
 	return {};
 }
 
-DWORD HotkeyHelper::StringToKeyCode(const std::wstring& str) {
-	static std::unordered_map<std::wstring, DWORD> map;
+DWORD HotkeyHelper::StringToKeyCode(std::wstring_view str) {
+	static std::unordered_map<std::wstring, DWORD, StrUtils::StringHash<wchar_t>, std::equal_to<>> map;
 	if (map.empty()) {
 		for (DWORD code : _GetValidKeyCodes()) {
 			map[Win32Utils::GetKeyName(code)] = code;
