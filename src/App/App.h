@@ -15,7 +15,7 @@ public:
 
 	void OnClose();
 
-	bool Initialize(Magpie::App::Settings const& settings, uint64_t hwndHost);
+	bool Initialize(Magpie::App::Settings const& settings, Magpie::App::HotkeyManager const& hotkeyManager, uint64_t hwndHost);
 
 	uint64_t HwndHost() const {
 		return _hwndHost;
@@ -38,12 +38,16 @@ public:
 	}
 
 private:
+	void _HotkeyManger_HotkeyPressed(IInspectable const&, HotkeyAction action);
+
 	Magpie::App::Settings _settings{ nullptr };
 	Magpie::App::HotkeyManager _hotkeyManager{ nullptr };
 	uint64_t _hwndHost{};
 
 	event<EventHandler<bool>> _hostWndFocusChangedEvent;
 	bool _isHostWndFocused = false;
+
+	Magpie::App::HotkeyManager::HotkeyPressed_revoker _hotkeyPressedRevoker;
 };
 
 }

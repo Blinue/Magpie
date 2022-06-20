@@ -8,12 +8,11 @@
 
 namespace winrt::Magpie::App::implementation {
 
-HotkeyManager::HotkeyManager() {
-	App app = Application::Current().as<App>();
-	_settings = app.Settings();
-	_hwndHost = (HWND)app.HwndHost();
+HotkeyManager::HotkeyManager(Magpie::App::Settings settings, uint64_t hwndHost) {
+	_settings = settings;
+	_hwndHost = (HWND)hwndHost;
 
-	_hotkeyChangedToken = _settings.HotkeyChanged(
+	_hotkeyChangedRevoker = settings.HotkeyChanged(
 		auto_revoke, { this,&HotkeyManager::_Settings_OnHotkeyChanged });
 
 	_RegisterHotkey(HotkeyAction::Scale);
@@ -30,6 +29,18 @@ HotkeyManager::~HotkeyManager() {
 
 bool HotkeyManager::IsError(HotkeyAction action) {
 	return _errors[(size_t)action];
+}
+
+event_token HotkeyManager::HotkeyPressed(EventHandler<HotkeyAction> const& handler) {
+	return _hotkeyPressedEvent.add(handler);
+}
+
+void HotkeyManager::HotkeyPressed(event_token const& token) {
+	_hotkeyPressedEvent.remove(token);
+}
+
+void HotkeyManager::OnHotkeyPressed(HotkeyAction action) {
+	_hotkeyPressedEvent(*this, action);
 }
 
 void HotkeyManager::_Settings_OnHotkeyChanged(IInspectable const&, HotkeyAction action) {

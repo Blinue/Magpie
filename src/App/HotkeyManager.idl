@@ -3,8 +3,11 @@ namespace Magpie.App
 	[default_interface]
 	runtimeclass HotkeyManager 
 	{
-		HotkeyManager();
+		HotkeyManager(Settings settings, UInt64 hwndHost);
 
 		Boolean IsError(HotkeyAction action);
+
+		event Windows.Foundation.EventHandler<HotkeyAction> HotkeyPressed;
+		void OnHotkeyPressed(HotkeyAction action);
 	}
 }

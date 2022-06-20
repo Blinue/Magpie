@@ -34,8 +34,8 @@ ShortcutControl::ShortcutControl() {
 	_settings = app.Settings();
 	_hotkeyManager = app.HotkeyManager();
 
-	_hotkeyChangedToken = _settings.HotkeyChanged(
-		winrt::auto_revoke, { this,&ShortcutControl::_Settings_OnHotkeyChanged });
+	_hotkeyChangedRevoker = _settings.HotkeyChanged(
+		auto_revoke, { this,&ShortcutControl::_Settings_OnHotkeyChanged });
 
 	_shortcutDialog.Title(box_value(L"激活快捷键"));
 	_shortcutDialog.Content(_shortcutDialogContent);

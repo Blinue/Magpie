@@ -50,11 +50,12 @@ void App::OnClose() {
 	_settings.Save();
 }
 
-bool App::Initialize(Magpie::App::Settings const& settings, uint64_t hwndHost) {
+bool App::Initialize(Magpie::App::Settings const& settings, Magpie::App::HotkeyManager const& hotkeyManager, uint64_t hwndHost) {
 	_hwndHost = hwndHost;
 	_settings = settings;
-	// HotkeyManager 中的回调总是最先调用
-	_hotkeyManager = Magpie::App::HotkeyManager();
+	_hotkeyManager = hotkeyManager;
+
+	_hotkeyPressedRevoker = hotkeyManager.HotkeyPressed(auto_revoke, { this, &App::_HotkeyManger_HotkeyPressed });
 	return true;
 }
 
@@ -73,6 +74,10 @@ void App::OnHostWndFocusChanged(bool isFocused) {
 
 	_isHostWndFocused = isFocused;
 	_hostWndFocusChangedEvent(*this, isFocused);
+}
+
+void App::_HotkeyManger_HotkeyPressed(IInspectable const&, HotkeyAction action) {
+	OutputDebugString(L"hotkey\n");
 }
 
 }

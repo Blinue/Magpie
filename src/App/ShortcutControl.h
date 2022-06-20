@@ -43,7 +43,7 @@ private:
 
 	event<Data::PropertyChangedEventHandler> _propertyChangedEvent;
 
-	Magpie::App::Settings::HotkeyChanged_revoker _hotkeyChangedToken;
+	Magpie::App::Settings::HotkeyChanged_revoker _hotkeyChangedRevoker;
 
 	Magpie::App::HotkeySettings _hotkey;
 	Controls::ContentDialog _shortcutDialog;

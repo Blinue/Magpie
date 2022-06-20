@@ -119,6 +119,9 @@ bool XamlApp::Initialize(HINSTANCE hInstance) {
 		ShowWindow(_hwndXamlHost, _settings.IsWindowMaximized() ? SW_MAXIMIZE : SW_SHOW);
 	}
 
+	// HotkeyManager 中的回调总是最先调用
+	_hotkeyManager = winrt::Magpie::App::HotkeyManager(_settings, (uint64_t)_hwndXamlHost);
+
 	// 初始化 UWP 应用和 XAML Islands
 	_uwpApp = winrt::Magpie::App::App();
 	if (!isWin11) {
@@ -131,7 +134,7 @@ bool XamlApp::Initialize(HINSTANCE hInstance) {
 		}
 	}
 
-	_uwpApp.Initialize(_settings, (uint64_t)_hwndXamlHost);
+	_uwpApp.Initialize(_settings, _hotkeyManager, (uint64_t)_hwndXamlHost);
 	// 未显示窗口时视为位于前台，否则显示窗口的动画有小瑕疵
 	_uwpApp.OnHostWndFocusChanged(true);
 
@@ -324,7 +327,9 @@ LRESULT XamlApp::_WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	switch (message) {
 	case WM_HOTKEY:
 	{
-		if (message >= 0) {
+		using winrt::Magpie::App::HotkeyAction;
+		if (wParam >= 0 && wParam < (UINT)HotkeyAction::COUNT_OR_NONE) {
+			_hotkeyManager.OnHotkeyPressed((HotkeyAction)wParam);
 			return 0;
 		}
 
