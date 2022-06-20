@@ -7,7 +7,7 @@
 
 using namespace winrt;
 using namespace Windows::UI::Xaml::Controls;
-using namespace Windows::UI::Xaml::Media;
+using namespace Windows::UI::Xaml::Input;
 
 
 namespace winrt::Magpie::App::implementation {
@@ -122,6 +122,9 @@ LRESULT ShortcutControl::_LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM 
 
 	DWORD code = ((KBDLLHOOKSTRUCT*)lParam)->vkCode;
 	switch (code) {
+	case VK_TAB:
+		// Tab 键传给系统以移动焦点
+		return CallNextHookEx(NULL, nCode, wParam, lParam);
 	case VK_LWIN:
 	case VK_RWIN:
 		_that->_pressedKeys.Win(isKeyDown);
@@ -143,6 +146,11 @@ LRESULT ShortcutControl::_LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM 
 		break;
 	default:
 	{
+		if (code == VK_RETURN && get_class_name(FocusManager::GetFocusedElement(_that->XamlRoot())) == name_of<Button>()) {
+			// 此时用户通过 Tab 键将焦点移到了对话框按钮上
+			return CallNextHookEx(NULL, nCode, wParam, lParam);
+		}
+
 		if (HotkeyHelper::IsValidKeyCode(code)) {
 			if (isKeyDown) {
 				_that->_pressedKeys.Code(code);
