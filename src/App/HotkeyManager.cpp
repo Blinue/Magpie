@@ -51,7 +51,7 @@ void HotkeyManager::_Settings_OnHotkeyChanged(IInspectable const&, HotkeyAction 
 
 void HotkeyManager::_RegisterHotkey(HotkeyAction action) {
 	HotkeySettings hotkey = _settings.GetHotkey(action);
-	if (hotkey == nullptr || hotkey.IsEmpty()) {
+	if (hotkey == nullptr || hotkey.IsEmpty() || hotkey.Check() != HotkeyError::NoError) {
 		Logger::Get().Win32Error(fmt::format("注册热键 {} 失败", HotkeyHelper::ToString(action)));
 		_errors[(size_t)action] = true;
 		return;

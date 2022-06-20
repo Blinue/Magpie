@@ -32,6 +32,20 @@
 					</local:SettingItem.ActionContent>
 				</local:SettingItem>
 			</local:SettingsGroup>
+			<local:SettingsGroup Title="游戏内覆盖">
+				<local:SettingItem Title="快捷键" Description="自定义打开和关闭游戏内覆盖的快捷键">
+					<local:SettingItem.Icon>
+						<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xEDA7;"/>
+					</local:SettingItem.Icon>
+					<local:SettingItem.ActionContent>
+						<local:ShortcutControl>
+							<local:ShortcutControl.Action>
+								<local:HotkeyAction>Overlay</local:HotkeyAction>
+							</local:ShortcutControl.Action>
+						</local:ShortcutControl>
+					</local:SettingItem.ActionContent>
+				</local:SettingItem>
+			</local:SettingsGroup>
 		</StackPanel>
 	</local:PageFrame>
 </Page>
