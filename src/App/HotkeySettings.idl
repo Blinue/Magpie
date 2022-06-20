@@ -18,6 +18,9 @@ namespace Magpie.App
 		Boolean IsEmpty();
 		void Clear();
 		Boolean Equals(HotkeySettings other);
+
+		Boolean FromString(String str);
+		String ToString();
 		
 		IVector<Object> GetKeyList();
 	}

@@ -107,6 +107,7 @@
       <DependentUpon>DummyTemplate.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
+    <ClInclude Include="HotkeyHelper.h" />
     <ClInclude Include="HotkeyManager.h">
       <DependentUpon>HotkeyManager.idl</DependentUpon>
       <SubType>Code</SubType>
@@ -183,6 +184,7 @@
       <DependentUpon>DummyTemplate.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
+    <ClCompile Include="HotkeyHelper.cpp" />
     <ClCompile Include="HotkeyManager.cpp">
       <DependentUpon>HotkeyManager.idl</DependentUpon>
       <SubType>Code</SubType>

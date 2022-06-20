@@ -7,6 +7,7 @@
 #include "Win32Utils.h"
 #include "StrUtils.h"
 #include "Logger.h"
+#include "HotkeyHelper.h"
 #include <rapidjson/document.h>
 #include <rapidjson/prettywriter.h>
 
@@ -144,10 +145,29 @@ bool Settings::Initialize(uint64_t pLogger) {
 			_isWindowMaximized = maximizedNode->value.GetBool();
 		}
 	}
+	{
+		auto hotkeysNode = root.FindMember("hotkeys");
+		if (hotkeysNode != root.MemberEnd()) {
+			if (!hotkeysNode->value.IsObject()) {
+				return false;
+			}
 
-	HotkeySettings hotkey = _hotkeys[(size_t)HotkeyAction::Scale];
-	hotkey.Win(true);
-	hotkey.Alt(true);
+			const auto& hotkeysObj = hotkeysNode->value.GetObj();
+
+			auto scaleNode = hotkeysObj.FindMember("scale");
+			if (scaleNode != hotkeysObj.MemberEnd() && scaleNode->value.IsString()) {
+				_hotkeys[(size_t)HotkeyAction::Scale].FromString(StrUtils::UTF8ToUTF16(scaleNode->value.GetString()));
+			}
+
+			auto overlayNode = hotkeysObj.FindMember("scale");
+			if (overlayNode != hotkeysObj.MemberEnd() && overlayNode->value.IsString()) {
+				_hotkeys[(size_t)HotkeyAction::Overlay].FromString(StrUtils::UTF8ToUTF16(overlayNode->value.GetString()));
+			}
+		}
+
+		_SetDefaultHotkeys();
+	}
+	
 
 	return true;
 }
@@ -178,6 +198,14 @@ bool Settings::Save() {
 	writer.Int((int)std::lroundf(_windowRect.Height));
 	writer.Key("maximized");
 	writer.Bool(_isWindowMaximized);
+	writer.EndObject();
+
+	writer.Key("hotkeys");
+	writer.StartObject();
+	writer.Key("scale");
+	writer.String(StrUtils::UTF16ToUTF8(_hotkeys[(size_t)HotkeyAction::Scale].ToString()).c_str());
+	writer.Key("overlay");
+	writer.String(StrUtils::UTF16ToUTF8(_hotkeys[(size_t)HotkeyAction::Overlay].ToString()).c_str());
 	writer.EndObject();
 
 	writer.EndObject();
@@ -244,6 +272,7 @@ void Settings::SetHotkey(HotkeyAction action, Magpie::App::HotkeySettings const&
 	}
 
 	_hotkeys[(size_t)action].CopyFrom(value);
+	Logger::Get().Info(fmt::format("热键 {} 已更改为 {}", to_string(action), StrUtils::UTF16ToUTF8(value.ToString())));
 	_hotkeyChangedEvent(*this, action);
 }
 
@@ -253,6 +282,21 @@ event_token Settings::HotkeyChanged(EventHandler<HotkeyAction> const& handler) {
 
 void Settings::HotkeyChanged(event_token const& token) {
 	_hotkeyChangedEvent.remove(token);
+}
+
+void Settings::_SetDefaultHotkeys() {
+	const HotkeySettings& scaleHotkey = _hotkeys[(size_t)HotkeyAction::Scale];
+	if (scaleHotkey.IsEmpty()) {
+		scaleHotkey.Win(true);
+		scaleHotkey.Alt(true);
+	}
+	
+	const HotkeySettings& overlayHotkey = _hotkeys[(size_t)HotkeyAction::Overlay];
+	if (overlayHotkey.IsEmpty()) {
+		overlayHotkey.Win(true);
+		overlayHotkey.Shift(true);
+		overlayHotkey.Code('D');
+	}
 }
 
 }

@@ -13,6 +13,7 @@
     <ClCompile Include="$(GeneratedFilesDir)module.g.cpp">
       <Filter>Miscellaneous</Filter>
     </ClCompile>
+    <ClCompile Include="HotkeyHelper.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -20,6 +21,7 @@
     <ClInclude Include="app.base.h">
       <Filter>Miscellaneous</Filter>
     </ClInclude>
+    <ClInclude Include="HotkeyHelper.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Assets">

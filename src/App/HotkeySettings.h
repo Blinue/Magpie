@@ -56,6 +56,9 @@ struct HotkeySettings : HotkeySettingsT<HotkeySettings> {
 
 	void Clear();
 
+	bool FromString(const hstring& str);
+	hstring ToString() const;
+
 private:
 	bool _win = false;
 	bool _ctrl = false;

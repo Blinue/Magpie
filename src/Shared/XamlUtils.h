@@ -16,6 +16,6 @@ struct XamlUtils {
 namespace winrt {
 
 // 将 VirtualKey 映射为字符串
-winrt::hstring to_hstring(winrt::Windows::System::VirtualKey status);
+hstring to_hstring(Windows::System::VirtualKey status);
 
 }

@@ -34,8 +34,7 @@ bool HotkeySettings::Equals(const Magpie::App::HotkeySettings& other) const {
 IVector<IInspectable> HotkeySettings::GetKeyList() const {
 	std::vector<IInspectable> shortcutList;
 	if (_win) {
-		// Windows 键
-		shortcutList.push_back(box_value(92));
+		shortcutList.push_back(box_value(VK_LWIN));
 	}
 
 	if (_ctrl) {
@@ -112,6 +111,38 @@ void HotkeySettings::Clear() {
 	_alt = false;
 	_shift = false;
 	_code = 0;
+}
+
+bool HotkeySettings::FromString(const hstring& str) {
+	return false;
+}
+
+hstring HotkeySettings::ToString() const {
+	std::wstring output;
+
+	if (_win) {
+		output.append(L"Win+");
+	}
+
+	if (_ctrl) {
+		output.append(L"Ctrl+");
+	}
+
+	if (_alt) {
+		output.append(L"Alt+");
+	}
+
+	if (_shift) {
+		output.append(L"Shift+");
+	}
+
+	if (_code > 0) {
+		output.append(Win32Utils::GetKeyName(_code));
+	} else if (output.size() > 1) {
+		output.pop_back();
+	}
+
+	return hstring(output);
 }
 
 }

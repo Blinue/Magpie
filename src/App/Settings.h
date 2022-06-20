@@ -52,6 +52,8 @@ struct Settings : SettingsT<Settings> {
 	void HotkeyChanged(event_token const& token);
 
 private:
+	void _SetDefaultHotkeys();
+
 	bool _isPortableMode = false;
 	hstring _workingDir;
 

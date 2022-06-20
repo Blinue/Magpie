@@ -4,6 +4,10 @@
 
 
 std::wstring StrUtils::UTF8ToUTF16(std::string_view str) {
+	if (str.empty()) {
+		return {};
+	}
+
 	int convertResult = MultiByteToWideChar(CP_UTF8, 0,
 		str.data(), (int)str.size(), nullptr, 0);
 	if (convertResult <= 0) {
@@ -26,6 +30,10 @@ std::wstring StrUtils::UTF8ToUTF16(std::string_view str) {
 }
 
 static std::string UTF16ToOther(UINT codePage, std::wstring_view str) {
+	if (str.empty()) {
+		return {};
+	}
+
 	int convertResult = WideCharToMultiByte(codePage, 0, str.data(), (int)str.size(),
 		nullptr, 0, nullptr, nullptr);
 	if (convertResult <= 0) {

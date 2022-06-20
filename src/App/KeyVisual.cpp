@@ -111,13 +111,20 @@ void KeyVisual::_Update() {
 
 	int key = content.as<int>();
 	switch (key) {
-	case 38: _keyPresenter.Content(box_value(L"\uE96D")); break; // The Up Arrow key or button.
-	case 40: _keyPresenter.Content(box_value(L"\uE96E")); break; // The Down Arrow key or button.
-	case 37: _keyPresenter.Content(box_value(L"\uE96F")); break; // The Left Arrow key or button.
-	case 39: _keyPresenter.Content(box_value(L"\uE970")); break; // The Right Arrow key or button.
-
-	case 91: // The left Windows key
-	case 92: // The right Windows key
+	case VK_UP:
+		_keyPresenter.Content(box_value(L"\uE96D"));
+		break;
+	case VK_DOWN:
+		_keyPresenter.Content(box_value(L"\uE96E"));
+		break;
+	case VK_LEFT:
+		_keyPresenter.Content(box_value(L"\uE96F"));
+		break;
+	case VK_RIGHT:
+		_keyPresenter.Content(box_value(L"\uE970"));
+		break;
+	case VK_LWIN:
+	case VK_RWIN:
 	{
 		PathIcon winIcon = XamlReader::Load(LR"(<PathIcon xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" Data="M9,17V9h8v8ZM0,17V9H8v8ZM9,8V0h8V8ZM0,8V0H8V8Z" />)").as<PathIcon>();
 		Viewbox winIconContainer;

@@ -4,6 +4,7 @@
 #include "HotkeyManager.g.cpp"
 #endif
 #include "Logger.h"
+#include "HotkeyHelper.h"
 
 
 namespace winrt::Magpie::App::implementation {
@@ -40,6 +41,7 @@ void HotkeyManager::HotkeyPressed(event_token const& token) {
 }
 
 void HotkeyManager::OnHotkeyPressed(HotkeyAction action) {
+	Logger::Get().Info(fmt::format("热键 {} 激活", to_string(action)));
 	_hotkeyPressedEvent(*this, action);
 }
 
@@ -50,6 +52,7 @@ void HotkeyManager::_Settings_OnHotkeyChanged(IInspectable const&, HotkeyAction 
 void HotkeyManager::_RegisterHotkey(HotkeyAction action) {
 	HotkeySettings hotkey = _settings.GetHotkey(action);
 	if (hotkey == nullptr || hotkey.IsEmpty()) {
+		Logger::Get().Win32Error(fmt::format("注册热键 {} 失败", to_string(action)));
 		_errors[(size_t)action] = true;
 		return;
 	}
@@ -74,7 +77,7 @@ void HotkeyManager::_RegisterHotkey(HotkeyAction action) {
 	}
 	
 	if (!RegisterHotKey(_hwndHost, (int)action, modifiers, hotkey.Code())) {
-		Logger::Get().Win32Error("RegisterHotKey 失败");
+		Logger::Get().Win32Error(fmt::format("注册热键 {} 失败", to_string(action)));
 		_errors[(size_t)action] = true;
 	} else {
 		_errors[(size_t)action] = false;
