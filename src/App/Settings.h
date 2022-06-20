@@ -52,6 +52,7 @@ struct Settings : SettingsT<Settings> {
 	void HotkeyChanged(event_token const& token);
 
 private:
+	bool _LoadSettings(std::string text);
 	void _SetDefaultHotkeys();
 
 	bool _isPortableMode = false;

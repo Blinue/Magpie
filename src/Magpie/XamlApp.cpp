@@ -56,6 +56,7 @@ bool XamlApp::Initialize(HINSTANCE hInstance) {
 
 	_settings = winrt::Magpie::App::Settings();
 	if (!_settings.Initialize((uint64_t)&Logger::Get())) {
+		MessageBox(NULL, L"加载配置文件失败", L"Magpie", MB_ICONERROR | MB_OK);
 		return false;
 	}
 

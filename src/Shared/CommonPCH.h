@@ -18,7 +18,6 @@
 #define NOATOM
 #define NOCLIPBOARD
 #define NODRAWTEXT
-#define NOMB
 #define NOMEMMGR
 #define NOMETAFILE
 #define NOOPENFILE

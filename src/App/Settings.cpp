@@ -69,107 +69,17 @@ bool Settings::Initialize(uint64_t pLogger) {
 	std::wstring configPath = StrUtils::ConcatW(_workingDir, CONFIG_PATH);
 
 	if (!Win32Utils::FileExists(configPath.c_str())) {
-		Logger::Get().Info("不存在配置文件");
+		logger.Info("不存在配置文件");
 		return true;
 	}
 
 	std::string configText;
 	if (!Win32Utils::ReadTextFile(configPath.c_str(), configText)) {
-		Logger::Get().Error("读取配置文件失败");
+		logger.Error("读取配置文件失败");
 		return false;
 	}
 
-	if (configText.empty()) {
-		Logger::Get().Info("配置文件为空");
-		return true;
-	}
-
-	rapidjson::Document doc;
-	if (doc.Parse(configText.c_str(), configText.size()).HasParseError()) {
-		Logger::Get().Error(fmt::format("解析配置失败\n\t错误码：{}", doc.GetParseError()));
-		return false;
-	}
-
-	if (!doc.IsObject()) {
-		return false;
-	}
-
-	const auto& root = doc.GetObj();
-	{
-		auto themeNode = root.FindMember("theme");
-		if (themeNode != root.MemberEnd()) {
-			if (!themeNode->value.IsNumber()) {
-				return false;
-			}
-
-			_theme = themeNode->value.GetInt();
-		}
-	}
-	{
-		auto windowPosNode = root.FindMember("windowPos");
-		if (windowPosNode != root.MemberEnd()) {
-			if (!windowPosNode->value.IsObject()) {
-				return false;
-			}
-
-			const auto& windowRectObj = windowPosNode->value.GetObj();
-
-			auto xNode = windowRectObj.FindMember("x");
-			if (xNode == windowRectObj.MemberEnd() || !xNode->value.IsNumber()) {
-				return false;
-			}
-			_windowRect.X = (float)xNode->value.GetInt();
-
-			auto yNode = windowRectObj.FindMember("y");
-			if (yNode == windowRectObj.MemberEnd() || !yNode->value.IsNumber()) {
-				return false;
-			}
-			_windowRect.Y = (float)yNode->value.GetInt();
-
-			auto widthNode = windowRectObj.FindMember("width");
-			if (widthNode == windowRectObj.MemberEnd() || !widthNode->value.IsNumber()) {
-				return false;
-			}
-			_windowRect.Width = (float)widthNode->value.GetInt();
-
-			auto heightNode = windowRectObj.FindMember("height");
-			if (heightNode == windowRectObj.MemberEnd() || !heightNode->value.IsNumber()) {
-				return false;
-			}
-			_windowRect.Height = (float)heightNode->value.GetInt();
-
-			auto maximizedNode = windowRectObj.FindMember("maximized");
-			if (maximizedNode == windowRectObj.MemberEnd() || !maximizedNode->value.IsBool()) {
-				return false;
-			}
-			_isWindowMaximized = maximizedNode->value.GetBool();
-		}
-	}
-	{
-		auto hotkeysNode = root.FindMember("hotkeys");
-		if (hotkeysNode != root.MemberEnd()) {
-			if (!hotkeysNode->value.IsObject()) {
-				return false;
-			}
-
-			const auto& hotkeysObj = hotkeysNode->value.GetObj();
-
-			auto scaleNode = hotkeysObj.FindMember("scale");
-			if (scaleNode != hotkeysObj.MemberEnd() && scaleNode->value.IsString()) {
-				_hotkeys[(size_t)HotkeyAction::Scale].FromString(StrUtils::UTF8ToUTF16(scaleNode->value.GetString()));
-			}
-
-			auto overlayNode = hotkeysObj.FindMember("scale");
-			if (overlayNode != hotkeysObj.MemberEnd() && overlayNode->value.IsString()) {
-				_hotkeys[(size_t)HotkeyAction::Overlay].FromString(StrUtils::UTF8ToUTF16(overlayNode->value.GetString()));
-			}
-		}
-
-		_SetDefaultHotkeys();
-	}
-	
-
-	return true;
+	return _LoadSettings(configText);
 }
 
 bool Settings::Save() {
@@ -282,6 +192,100 @@ event_token Settings::HotkeyChanged(EventHandler<HotkeyAction> const& handler) {
 
 void Settings::HotkeyChanged(event_token const& token) {
 	_hotkeyChangedEvent.remove(token);
+}
+
+// 遇到不合法的配置项会失败，因此用户不应直接编辑配置文件
+bool Settings::_LoadSettings(std::string text) {
+	if (text.empty()) {
+		Logger::Get().Info("配置文件为空");
+		return true;
+	}
+
+	rapidjson::Document doc;
+	if (doc.Parse(text.c_str(), text.size()).HasParseError()) {
+		Logger::Get().Error(fmt::format("解析配置失败\n\t错误码：{}", doc.GetParseError()));
+		return false;
+	}
+
+	if (!doc.IsObject()) {
+		return false;
+	}
+
+	const auto& root = doc.GetObj();
+	{
+		auto themeNode = root.FindMember("theme");
+		if (themeNode != root.MemberEnd()) {
+			if (!themeNode->value.IsNumber()) {
+				return false;
+			}
+
+			_theme = themeNode->value.GetInt();
+		}
+	}
+	{
+		auto windowPosNode = root.FindMember("windowPos");
+		if (windowPosNode != root.MemberEnd()) {
+			if (!windowPosNode->value.IsObject()) {
+				return false;
+			}
+
+			const auto& windowRectObj = windowPosNode->value.GetObj();
+
+			auto xNode = windowRectObj.FindMember("x");
+			if (xNode == windowRectObj.MemberEnd() || !xNode->value.IsNumber()) {
+				return false;
+			}
+			_windowRect.X = (float)xNode->value.GetInt();
+
+			auto yNode = windowRectObj.FindMember("y");
+			if (yNode == windowRectObj.MemberEnd() || !yNode->value.IsNumber()) {
+				return false;
+			}
+			_windowRect.Y = (float)yNode->value.GetInt();
+
+			auto widthNode = windowRectObj.FindMember("width");
+			if (widthNode == windowRectObj.MemberEnd() || !widthNode->value.IsNumber()) {
+				return false;
+			}
+			_windowRect.Width = (float)widthNode->value.GetInt();
+
+			auto heightNode = windowRectObj.FindMember("height");
+			if (heightNode == windowRectObj.MemberEnd() || !heightNode->value.IsNumber()) {
+				return false;
+			}
+			_windowRect.Height = (float)heightNode->value.GetInt();
+
+			auto maximizedNode = windowRectObj.FindMember("maximized");
+			if (maximizedNode == windowRectObj.MemberEnd() || !maximizedNode->value.IsBool()) {
+				return false;
+			}
+			_isWindowMaximized = maximizedNode->value.GetBool();
+		}
+	}
+	{
+		auto hotkeysNode = root.FindMember("hotkeys");
+		if (hotkeysNode != root.MemberEnd()) {
+			if (!hotkeysNode->value.IsObject()) {
+				return false;
+			}
+
+			const auto& hotkeysObj = hotkeysNode->value.GetObj();
+
+			auto scaleNode = hotkeysObj.FindMember("scale");
+			if (scaleNode != hotkeysObj.MemberEnd() && scaleNode->value.IsString()) {
+				_hotkeys[(size_t)HotkeyAction::Scale].FromString(StrUtils::UTF8ToUTF16(scaleNode->value.GetString()));
+			}
+
+			auto overlayNode = hotkeysObj.FindMember("scale");
+			if (overlayNode != hotkeysObj.MemberEnd() && overlayNode->value.IsString()) {
+				_hotkeys[(size_t)HotkeyAction::Overlay].FromString(StrUtils::UTF8ToUTF16(overlayNode->value.GetString()));
+			}
+		}
+
+		_SetDefaultHotkeys();
+	}
+
+	return true;
 }
 
 void Settings::_SetDefaultHotkeys() {
