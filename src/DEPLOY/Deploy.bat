@@ -12,7 +12,7 @@ IF %ERRORLEVEL% NEQ 0 (
     EXIT 1
 )
 
-msbuild /p:Configuration=Release;Platform=x64;OutDir=..\..\publish\ ..\Magpie
+msbuild /m /p:Configuration=Release;Platform=x64;OutDir=..\..\publish\ ..\Magpie
 
 IF %ERRORLEVEL% NEQ 0 (
     ECHO Error: Failed to build Magpie
