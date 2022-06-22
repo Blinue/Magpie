@@ -93,6 +93,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="ExclModeHack.h" />
     <ClInclude Include="MagApp.h" />
     <ClInclude Include="MagRuntime.h">
       <DependentUpon>MagRuntime.idl</DependentUpon>
@@ -105,6 +106,7 @@
     <ClInclude Include="pch.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="ExclModeHack.cpp" />
     <ClCompile Include="MagApp.cpp" />
     <ClCompile Include="MagRuntime.cpp">
       <DependentUpon>MagRuntime.idl</DependentUpon>

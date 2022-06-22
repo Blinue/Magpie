@@ -2,7 +2,7 @@
 #include "MagApp.h"
 #include "Logger.h"
 #include "Win32Utils.h"
-#include "CommonSharedConstants.h"
+#include "ExclModeHack.h"
 
 
 static constexpr const wchar_t* HOST_WINDOW_CLASS_NAME = L"Window_Magpie_967EB565-6F73-4E94-AE53-00CC42592A22";
@@ -24,6 +24,10 @@ MagApp::~MagApp() {}
 bool MagApp::Run(HWND hwndSrc, winrt::Magpie::Runtime::MagSettings const& settings) {
     _hwndSrc = hwndSrc;
     _settings = settings;
+
+	// 模拟独占全屏
+	// 必须在主窗口创建前，否则 SHQueryUserNotificationState 可能返回 QUNS_BUSY 而不是 QUNS_RUNNING_D3D_FULL_SCREEN
+	ExclModeHack exclMode;
 
 	static bool initialized = false;
 	if (!initialized) {
