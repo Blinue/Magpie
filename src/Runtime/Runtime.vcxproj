@@ -93,6 +93,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="MagApp.h" />
     <ClInclude Include="MagRuntime.h">
       <DependentUpon>MagRuntime.idl</DependentUpon>
       <SubType>Code</SubType>
@@ -104,6 +105,7 @@
     <ClInclude Include="pch.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="MagApp.cpp" />
     <ClCompile Include="MagRuntime.cpp">
       <DependentUpon>MagRuntime.idl</DependentUpon>
       <SubType>Code</SubType>

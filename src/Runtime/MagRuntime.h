@@ -7,12 +7,18 @@ namespace winrt::Magpie::Runtime::implementation {
 struct MagRuntime : MagRuntimeT<MagRuntime> {
 	MagRuntime() = default;
 
-	bool Scale(uint64_t hwndSrc, MagSettings const& settings);
+	void Run(uint64_t hwndSrc, MagSettings const& settings);
 
-	bool IsRunning() const;
+	void Stop();
+
+	bool IsRunning() const {
+		return _running;
+	}
 
 private:
 	std::thread _magWindThread;
+	std::atomic<bool> _running = false;
+	DispatcherQueueController _dqc{ nullptr };
 };
 
 }

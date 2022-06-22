@@ -14,9 +14,11 @@
     <ClCompile Include="$(GeneratedFilesDir)module.g.cpp">
       <Filter>Generated Files</Filter>
     </ClCompile>
+    <ClCompile Include="MagApp.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
+    <ClInclude Include="MagApp.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Runtime.def" />

@@ -42,6 +42,7 @@ private:
 	void _HotkeyManger_HotkeyPressed(IInspectable const&, HotkeyAction action);
 
 	Magpie::App::Settings _settings{ nullptr };
+	Magpie::Runtime::MagSettings _magSettings;
 	Magpie::App::HotkeyManager _hotkeyManager{ nullptr };
 	Magpie::Runtime::MagRuntime _magRuntime;
 	uint64_t _hwndHost{};

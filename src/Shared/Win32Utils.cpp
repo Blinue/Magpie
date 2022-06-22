@@ -519,7 +519,7 @@ Win32Utils::Hasher::~Hasher() {
 	}
 }
 
-bool Win32Utils::Hasher::Initialize() {
+bool Win32Utils::Hasher::_Initialize() {
 	NTSTATUS status = BCryptOpenAlgorithmProvider(&_hAlg, BCRYPT_SHA1_ALGORITHM, NULL, 0);
 	if (!NT_SUCCESS(status)) {
 		Logger::Get().Error(fmt::format("BCryptOpenAlgorithmProvider 失败\n\tNTSTATUS={}", status));
@@ -552,13 +552,17 @@ bool Win32Utils::Hasher::Initialize() {
 		return false;
 	}
 
-	Logger::Get().Info("Utils::Hasher 初始化成功");
 	return true;
 }
 
 bool Win32Utils::Hasher::Hash(std::span<const BYTE> data, std::vector<BYTE>& result) {
 	// BCrypt API 内部保存状态，因此需要同步对它们访问
 	std::scoped_lock lk(_cs);
+
+	if (!_hAlg && !_Initialize()) {
+		Logger::Get().Error("初始化失败");
+		return false;
+	}
 
 	result.resize(_hashLen);
 
@@ -575,4 +579,13 @@ bool Win32Utils::Hasher::Hash(std::span<const BYTE> data, std::vector<BYTE>& res
 	}
 
 	return true;
+}
+
+DWORD Win32Utils::Hasher::GetHashLength() noexcept {
+	if (!_hAlg && !_Initialize()) {
+		Logger::Get().Error("初始化失败");
+		return 0;
+	}
+
+	return _hashLen;
 }

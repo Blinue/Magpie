@@ -81,9 +81,14 @@ void App::_HotkeyManger_HotkeyPressed(IInspectable const&, HotkeyAction action) 
 	switch (action) {
 	case HotkeyAction::Scale:
 	{
+		if (_magRuntime.IsRunning()) {
+			_magRuntime.Stop();
+			return;
+		}
+
 		HWND hwndFore = GetForegroundWindow();
 		if (hwndFore) {
-			_magRuntime.Scale((uint64_t)hwndFore, Magpie::Runtime::MagSettings());
+			_magRuntime.Run((uint64_t)hwndFore, _magSettings);
 		}
 		break;
 	}

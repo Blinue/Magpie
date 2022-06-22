@@ -77,15 +77,13 @@ struct Win32Utils {
 			return instance;
 		}
 
-		bool Initialize();
-
 		bool Hash(std::span<const BYTE> data, std::vector<BYTE>& result);
 
-		DWORD GetHashLength() noexcept {
-			return _hashLen;
-		}
+		DWORD GetHashLength() noexcept;
 	private:
 		~Hasher();
+
+		bool _Initialize();
 
 		CSMutex _cs;	// 同步对 Hash() 的访问
 

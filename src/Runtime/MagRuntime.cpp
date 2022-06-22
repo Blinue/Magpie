@@ -3,18 +3,53 @@
 #if __has_include("MagRuntime.g.cpp")
 #include "MagRuntime.g.cpp"
 #endif
+#include "MagApp.h"
+#include <dispatcherqueue.h>
 
 
 namespace winrt::Magpie::Runtime::implementation {
 
-bool MagRuntime::Scale(uint64_t hwndSrc, MagSettings const& settings) {
-	UNREFERENCED_PARAMETER(hwndSrc);
-	UNREFERENCED_PARAMETER(settings);
-	return false;
+void MagRuntime::Run(uint64_t hwndSrc, MagSettings const& settings) {
+	if (_running) {
+		return;
+	}
+
+	_running = true;
+	if (_magWindThread.joinable()) {
+		_magWindThread.join();
+	}
+	_magWindThread = std::thread([&, settings]() {
+		winrt::init_apartment(winrt::apartment_type::multi_threaded);
+
+		DispatcherQueueOptions options{};
+		options.dwSize = sizeof(options);
+		options.threadType = DQTYPE_THREAD_CURRENT;
+		options.apartmentType = DQTAT_COM_NONE;
+
+		HRESULT hr = CreateDispatcherQueueController(options, (ABI::Windows::System::IDispatcherQueueController**)put_abi(_dqc));
+		if (FAILED(hr)) {
+			_running = false;
+			return;
+		}
+
+		MagApp& app = MagApp::Get();
+		app.Run((HWND)hwndSrc, settings);
+
+		_running = false;
+		_dqc = nullptr;
+	});
 }
 
-bool MagRuntime::IsRunning() const {
-	return false;
+void MagRuntime::Stop() {
+	if (!_running || !_dqc) {
+		return;
+	}
+
+	_dqc.DispatcherQueue().TryEnqueue([]() {
+		MagApp::Get().Stop();
+	});
+
+	_magWindThread.join();
 }
 
 }
