@@ -7,7 +7,7 @@ namespace winrt::Magpie::Runtime::implementation {
 struct MagRuntime : MagRuntimeT<MagRuntime> {
 	MagRuntime() = default;
 
-	bool Scale(uint64_t hwndSrc);
+	bool Scale(uint64_t hwndSrc, MagSettings const& settings);
 
 	bool IsRunning() const;
 

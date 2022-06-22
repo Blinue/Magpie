@@ -11,7 +11,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
-    <ClCompile Include="Class.cpp" />
     <ClCompile Include="$(GeneratedFilesDir)module.g.cpp">
       <Filter>Generated Files</Filter>
     </ClCompile>
@@ -22,8 +21,10 @@
   <ItemGroup>
     <None Include="Runtime.def" />
     <None Include="packages.config" />
+    <None Include="MagRuntime.idl" />
+    <None Include="MagSettings.idl" />
   </ItemGroup>
   <ItemGroup>
-    <Midl Include="MagRuntime.idl" />
+    <Midl Include="Runtime.idl" />
   </ItemGroup>
 </Project>

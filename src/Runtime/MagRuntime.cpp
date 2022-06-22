@@ -7,8 +7,9 @@
 
 namespace winrt::Magpie::Runtime::implementation {
 
-bool MagRuntime::Scale(uint64_t hwndSrc) {
+bool MagRuntime::Scale(uint64_t hwndSrc, MagSettings const& settings) {
 	UNREFERENCED_PARAMETER(hwndSrc);
+	UNREFERENCED_PARAMETER(settings);
 	return false;
 }
 

@@ -83,7 +83,7 @@ void App::_HotkeyManger_HotkeyPressed(IInspectable const&, HotkeyAction action) 
 	{
 		HWND hwndFore = GetForegroundWindow();
 		if (hwndFore) {
-			_magRuntime.Scale((uint64_t)hwndFore);
+			_magRuntime.Scale((uint64_t)hwndFore, Magpie::Runtime::MagSettings());
 		}
 		break;
 	}

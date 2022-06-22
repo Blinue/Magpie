@@ -1,0 +1,17 @@
+namespace Magpie.Runtime
+{
+    enum CaptureMode {
+        GraphicsCapture,
+        DesktopDuplication,
+        GDI,
+        DwmSharedSurface
+    };
+
+    [default_interface]
+    runtimeclass MagSettings
+    {
+        MagSettings();
+
+        CaptureMode CaptureMode;
+    }
+}

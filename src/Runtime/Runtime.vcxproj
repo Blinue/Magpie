@@ -97,11 +97,19 @@
       <DependentUpon>MagRuntime.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
+    <ClInclude Include="MagSettings.h">
+      <DependentUpon>MagSettings.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClInclude>
     <ClInclude Include="pch.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MagRuntime.cpp">
       <DependentUpon>MagRuntime.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClCompile>
+    <ClCompile Include="MagSettings.cpp">
+      <DependentUpon>MagSettings.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
     <ClCompile Include="pch.cpp">
@@ -114,9 +122,13 @@
     <None Include="Runtime.def" />
   </ItemGroup>
   <ItemGroup>
-    <Midl Include="MagRuntime.idl">
+    <None Include="MagRuntime.idl">
       <SubType>Designer</SubType>
-    </Midl>
+    </None>
+    <None Include="MagSettings.idl">
+      <SubType>Designer</SubType>
+    </None>
+    <Midl Include="Runtime.idl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

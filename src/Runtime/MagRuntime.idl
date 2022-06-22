@@ -5,7 +5,7 @@ namespace Magpie.Runtime
     {
         MagRuntime();
 
-        Boolean Scale(UInt64 hwndSrc);
+        Boolean Scale(UInt64 hwndSrc, MagSettings settings);
 
         Boolean IsRunning { get; };
     }
