@@ -11,7 +11,6 @@
 
 
 // C++/WinRT 头文件
-#include <winrt/Windows.Foundation.Metadata.h>
 #include <winrt/Windows.ApplicationModel.Activation.h>
 #include <winrt/Windows.UI.Core.h>
 #include <winrt/Windows.UI.ViewManagement.h>
@@ -31,8 +30,11 @@
 #include <winrt/Microsoft.UI.Xaml.Controls.Primitives.h>
 #include <winrt/Microsoft.UI.Xaml.Media.h>
 #include <winrt/Microsoft.UI.Xaml.XamlTypeInfo.h>
-#include <winrt/Microsoft.Graphics.Canvas.Effects.h>
 
+#pragma push_macro("GetNextSibling")
+#undef GetNextSibling
+#include <winrt/Microsoft.Graphics.Canvas.Effects.h>
+#pragma pop_macro("GetNextSibling")
 
 namespace winrt {
 using namespace Windows::System;

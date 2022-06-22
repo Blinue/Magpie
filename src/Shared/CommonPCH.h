@@ -33,6 +33,7 @@
 #define NOMCX
 
 #include <windows.h>
+#include <windowsx.h>
 #include <dwmapi.h>
 #include <ShlObj.h>
 
@@ -52,12 +53,14 @@
 #include <winrt/base.h>
 #include <winrt/Windows.Foundation.h>
 #include <winrt/Windows.Foundation.Collections.h>
+#include <winrt/Windows.Foundation.Metadata.h>
 #include <winrt/Windows.System.h>
 
 
 namespace winrt {
 using namespace Windows::Foundation;
 using namespace Windows::Foundation::Collections;
+using namespace Windows::Foundation::Metadata;
 using namespace Windows::System;
 }
 

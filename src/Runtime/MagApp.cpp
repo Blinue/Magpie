@@ -9,6 +9,8 @@
 #include "GDIFrameSource.h"
 #include "DwmSharedSurfaceFrameSource.h"
 #include "StrUtils.h"
+#include "CursorManager.h"
+#include "Renderer.h"
 
 
 static constexpr const wchar_t* HOST_WINDOW_CLASS_NAME = L"Window_Magpie_967EB565-6F73-4E94-AE53-00CC42592A22";
@@ -88,6 +90,41 @@ bool MagApp::Run(HWND hwndSrc, winrt::Magpie::Runtime::MagSettings const& settin
 		return false;
 	}
 
+	const char* effectsJson = R"(
+[
+  {
+    "effect": "FSR_EASU",
+    "scale": [ -1, -1 ]
+  },
+  {
+    "effect": "FSR_RCAS"
+  }
+]
+)";
+
+	_renderer.reset(new Renderer());
+	if (!_renderer->Initialize(effectsJson)) {
+		Logger::Get().Critical("初始化 Renderer 失败");
+		Stop();
+		_RunMessageLoop();
+		return false;
+	}
+
+	_cursorManager.reset(new CursorManager());
+	if (!_cursorManager->Initialize()) {
+		Logger::Get().Critical("初始化 CursorManager 失败");
+		Stop();
+		_RunMessageLoop();
+		return false;
+	}
+
+	/*if (_config->IsDisableDirectFlip() && !_config->IsBreakpointMode()) {
+		// 在此处创建的 DDF 窗口不会立刻显示
+		if (!_DisableDirectFlip()) {
+			Logger::Get().Error("_DisableDirectFlip 失败");
+		}
+	}*/
+
 	ShowWindow(_hwndHost, SW_NORMAL);
 
 	_RunMessageLoop();
@@ -146,7 +183,7 @@ void MagApp::_RunMessageLoop() {
 			DispatchMessage(&msg);
 		}
 
-		//_renderer->Render();
+		_renderer->Render();
 
 		//// 第二帧（等待时或完成后）显示 DDF 窗口
 		//// 如果在 Run 中创建会有短暂的灰屏
@@ -251,7 +288,7 @@ bool MagApp::_CreateHostWnd() {
 	}
 
 	_hwndHost = CreateWindowEx(
-		WS_EX_TOPMOST | WS_EX_NOACTIVATE | WS_EX_LAYERED | WS_EX_TRANSPARENT | WS_EX_TOOLWINDOW,
+		/*WS_EX_TOPMOST |*/ WS_EX_NOACTIVATE | WS_EX_LAYERED | WS_EX_TRANSPARENT | WS_EX_TOOLWINDOW,
 		HOST_WINDOW_CLASS_NAME,
 		HOST_WINDOW_TITLE,
 		WS_POPUP,
@@ -348,8 +385,8 @@ LRESULT MagApp::_HostWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 
 void MagApp::_OnQuit() {
 	// 释放资源
-	/*_cursorManager = nullptr;
-	_renderer = nullptr;*/
+	_cursorManager = nullptr;
+	_renderer = nullptr;
 	_frameSource = nullptr;
 	_deviceResources = nullptr;
 	_settings = nullptr;

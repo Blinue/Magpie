@@ -4,9 +4,9 @@
 #include <winrt/Magpie.Runtime.h>
 
 class DeviceResources;
-//class Renderer;
+class Renderer;
 class FrameSourceBase;
-//class CursorManager;
+class CursorManager;
 
 class MagApp {
 public:
@@ -44,17 +44,17 @@ public:
 		return *_deviceResources;
 	}
 
-	/*Renderer& GetRenderer() noexcept {
+	Renderer& GetRenderer() noexcept {
 		return *_renderer;
-	}*/
+	}
 
 	FrameSourceBase& GetFrameSource() noexcept {
 		return *_frameSource;
 	}
 
-	/*CursorManager& GetCursorManager() noexcept {
+	CursorManager& GetCursorManager() noexcept {
 		return *_cursorManager;
-	}*/
+	}
 
 	winrt::com_ptr<IWICImagingFactory2> GetWICImageFactory();
 
@@ -95,9 +95,9 @@ private:
 	bool _roundCornerDisabled = false;
 
 	std::unique_ptr<DeviceResources> _deviceResources;
-	//std::unique_ptr<Renderer> _renderer;
+	std::unique_ptr<Renderer> _renderer;
 	std::unique_ptr<FrameSourceBase> _frameSource;
-	//std::unique_ptr<CursorManager> _cursorManager;
+	std::unique_ptr<CursorManager> _cursorManager;
 	winrt::Magpie::Runtime::MagSettings _settings{ nullptr };
 
 	std::map<UINT, std::function<std::optional<LRESULT>(HWND, UINT, WPARAM, LPARAM)>> _wndProcHandlers;

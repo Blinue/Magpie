@@ -2,15 +2,13 @@
 #include "GraphicsCaptureFrameSource.h"
 #include "MagApp.h"
 #include "StrUtils.h"
-#include <Windows.Graphics.DirectX.Direct3D11.interop.h>
-#include <winrt/Windows.Foundation.Metadata.h>
 #include "Utils.h"
 #include "DeviceResources.h"
 #include "Logger.h"
+#include <Windows.Graphics.DirectX.Direct3D11.interop.h>
 
 
 namespace winrt {
-using namespace Windows::Foundation::Metadata;
 using namespace Windows::Graphics;
 using namespace Windows::Graphics::Capture;
 using namespace Windows::Graphics::DirectX;

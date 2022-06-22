@@ -23,6 +23,12 @@
     <ClCompile Include="DwmSharedSurfaceFrameSource.cpp" />
     <ClCompile Include="GraphicsCaptureFrameSource.cpp" />
     <ClCompile Include="GDIFrameSource.cpp" />
+    <ClCompile Include="GPUTimer.cpp" />
+    <ClCompile Include="CursorManager.cpp" />
+    <ClCompile Include="Renderer.cpp" />
+    <ClCompile Include="EffectCompiler.cpp" />
+    <ClCompile Include="EffectCacheManager.cpp" />
+    <ClCompile Include="EffectDrawer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -37,6 +43,13 @@
     <ClInclude Include="DwmSharedSurfaceFrameSource.h" />
     <ClInclude Include="GraphicsCaptureFrameSource.h" />
     <ClInclude Include="GDIFrameSource.h" />
+    <ClInclude Include="GPUTimer.h" />
+    <ClInclude Include="CursorManager.h" />
+    <ClInclude Include="Renderer.h" />
+    <ClInclude Include="EffectDesc.h" />
+    <ClInclude Include="EffectCompiler.h" />
+    <ClInclude Include="EffectCacheManager.h" />
+    <ClInclude Include="EffectDrawer.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Runtime.def" />
