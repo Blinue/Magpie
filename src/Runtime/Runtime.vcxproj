@@ -93,7 +93,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="DeviceResources.h" />
     <ClInclude Include="ExclModeHack.h" />
+    <ClInclude Include="FrameSourceBase.h" />
     <ClInclude Include="MagApp.h" />
     <ClInclude Include="MagRuntime.h">
       <DependentUpon>MagRuntime.idl</DependentUpon>
@@ -106,7 +108,9 @@
     <ClInclude Include="pch.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="DeviceResources.cpp" />
     <ClCompile Include="ExclModeHack.cpp" />
+    <ClCompile Include="FrameSourceBase.cpp" />
     <ClCompile Include="MagApp.cpp" />
     <ClCompile Include="MagRuntime.cpp">
       <DependentUpon>MagRuntime.idl</DependentUpon>

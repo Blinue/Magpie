@@ -3,11 +3,13 @@
 #include "Logger.h"
 #include "Win32Utils.h"
 #include "ExclModeHack.h"
+#include "DeviceResources.h"
 
 
 static constexpr const wchar_t* HOST_WINDOW_CLASS_NAME = L"Window_Magpie_967EB565-6F73-4E94-AE53-00CC42592A22";
 static constexpr const wchar_t* DDF_WINDOW_CLASS_NAME = L"Window_Magpie_C322D752-C866-4630-91F5-32CB242A8930";
 static constexpr const wchar_t* HOST_WINDOW_TITLE = L"Magpie_Host";
+
 
 LRESULT DDFWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 	if (msg == WM_DESTROY) {
@@ -24,6 +26,8 @@ MagApp::~MagApp() {}
 bool MagApp::Run(HWND hwndSrc, winrt::Magpie::Runtime::MagSettings const& settings) {
     _hwndSrc = hwndSrc;
     _settings = settings;
+
+	_hInst = GetModuleHandle(nullptr);
 
 	// 模拟独占全屏
 	// 必须在主窗口创建前，否则 SHQueryUserNotificationState 可能返回 QUNS_BUSY 而不是 QUNS_RUNNING_D3D_FULL_SCREEN
@@ -64,6 +68,14 @@ bool MagApp::Run(HWND hwndSrc, winrt::Magpie::Runtime::MagSettings const& settin
 		return false;
 	}
 
+	_deviceResources.reset(new DeviceResources());
+	if (!_deviceResources->Initialize()) {
+		Logger::Get().Error("初始化 DeviceResources 失败");
+		Stop();
+		_RunMessageLoop();
+		return false;
+	}
+
 	ShowWindow(_hwndHost, SW_NORMAL);
 
 	_RunMessageLoop();
@@ -78,6 +90,35 @@ void MagApp::Stop() {
     if (_hwndHost) {
         DestroyWindow(_hwndHost);
     }
+}
+
+winrt::com_ptr<IWICImagingFactory2> MagApp::GetWICImageFactory() {
+	static winrt::com_ptr<IWICImagingFactory2> wicImgFactory;
+
+	if (wicImgFactory == nullptr) {
+		HRESULT hr = CoCreateInstance(
+			CLSID_WICImagingFactory,
+			NULL,
+			CLSCTX_INPROC_SERVER,
+			IID_PPV_ARGS(wicImgFactory.put())
+		);
+
+		if (FAILED(hr)) {
+			Logger::Get().ComError("创建 WICImagingFactory 失败", hr);
+			return nullptr;
+		}
+	}
+
+	return wicImgFactory;
+}
+
+UINT MagApp::RegisterWndProcHandler(std::function<std::optional<LRESULT>(HWND, UINT, WPARAM, LPARAM)> handler) {
+	UINT id = _nextWndProcHandlerID++;
+	return _wndProcHandlers.emplace(id, handler).second ? id : 0;
+}
+
+void MagApp::UnregisterWndProcHandler(UINT id) {
+	_wndProcHandlers.erase(id);
 }
 
 void MagApp::_RunMessageLoop() {

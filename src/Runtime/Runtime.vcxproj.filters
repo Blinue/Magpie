@@ -16,11 +16,15 @@
     </ClCompile>
     <ClCompile Include="MagApp.cpp" />
     <ClCompile Include="ExclModeHack.cpp" />
+    <ClCompile Include="FrameSourceBase.cpp" />
+    <ClCompile Include="DeviceResources.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
     <ClInclude Include="MagApp.h" />
     <ClInclude Include="ExclModeHack.h" />
+    <ClInclude Include="FrameSourceBase.h" />
+    <ClInclude Include="DeviceResources.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Runtime.def" />
