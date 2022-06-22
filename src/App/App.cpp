@@ -53,9 +53,10 @@ void App::OnClose() {
 bool App::Initialize(Magpie::App::Settings const& settings, Magpie::App::HotkeyManager const& hotkeyManager, uint64_t hwndHost) {
 	_hwndHost = hwndHost;
 	_settings = settings;
-	_hotkeyManager = hotkeyManager;
 
+	_hotkeyManager = hotkeyManager;
 	_hotkeyPressedRevoker = hotkeyManager.HotkeyPressed(auto_revoke, { this, &App::_HotkeyManger_HotkeyPressed });
+
 	return true;
 }
 
@@ -77,7 +78,20 @@ void App::OnHostWndFocusChanged(bool isFocused) {
 }
 
 void App::_HotkeyManger_HotkeyPressed(IInspectable const&, HotkeyAction action) {
-	OutputDebugString(L"hotkey\n");
+	switch (action) {
+	case HotkeyAction::Scale:
+	{
+		HWND hwndFore = GetForegroundWindow();
+		if (hwndFore) {
+			_magRuntime.Scale((uint64_t)hwndFore);
+		}
+		break;
+	}
+	case HotkeyAction::Overlay:
+		break;
+	default:
+		break;
+	}
 }
 
 }

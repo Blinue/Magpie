@@ -36,6 +36,8 @@ bool XamlApp::Initialize(HINSTANCE hInstance) {
 		return false;
 	}
 
+	// 程序结束时也不应调用 uninit_apartment
+	// 见 https://kennykerr.ca/2018/03/24/cppwinrt-hosting-the-windows-runtime/
 	winrt::init_apartment(winrt::apartment_type::single_threaded);
 
 	// 当前目录始终是程序所在目录
@@ -135,7 +137,19 @@ bool XamlApp::Initialize(HINSTANCE hInstance) {
 		}
 	}
 
-	_uwpApp.Initialize(_settings, _hotkeyManager, (uint64_t)_hwndXamlHost);
+	if (!_uwpApp.Initialize(_settings, _hotkeyManager, (uint64_t)_hwndXamlHost)) {
+		Logger::Get().Error("App 初始化失败");
+
+		// 销毁主窗口
+		DestroyWindow(_hwndXamlHost);
+		MSG msg;
+		while (GetMessage(&msg, nullptr, 0, 0)) {
+			TranslateMessage(&msg);
+			DispatchMessage(&msg);
+		}
+		return false;
+	}
+
 	// 未显示窗口时视为位于前台，否则显示窗口的动画有小瑕疵
 	_uwpApp.OnHostWndFocusChanged(true);
 

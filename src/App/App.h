@@ -4,6 +4,7 @@
 #include "App.base.h"
 #include "Settings.h"
 #include "HotkeyManager.h"
+#include <winrt/Magpie.Runtime.h>
 
 
 namespace winrt::Magpie::App::implementation {
@@ -42,6 +43,7 @@ private:
 
 	Magpie::App::Settings _settings{ nullptr };
 	Magpie::App::HotkeyManager _hotkeyManager{ nullptr };
+	Magpie::Runtime::MagRuntime _magRuntime;
 	uint64_t _hwndHost{};
 
 	event<EventHandler<bool>> _hostWndFocusChangedEvent;

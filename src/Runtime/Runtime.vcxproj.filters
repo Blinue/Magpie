@@ -12,16 +12,18 @@
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
     <ClCompile Include="Class.cpp" />
-    <ClCompile Include="$(GeneratedFilesDir)module.g.cpp" />
+    <ClCompile Include="$(GeneratedFilesDir)module.g.cpp">
+      <Filter>Generated Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
   </ItemGroup>
   <ItemGroup>
-    <Midl Include="Class.idl" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="Runtime.def" />
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Midl Include="MagRuntime.idl" />
   </ItemGroup>
 </Project>
