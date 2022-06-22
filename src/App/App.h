@@ -44,7 +44,7 @@ private:
 	Magpie::App::Settings _settings{ nullptr };
 	Magpie::Runtime::MagSettings _magSettings;
 	Magpie::App::HotkeyManager _hotkeyManager{ nullptr };
-	Magpie::Runtime::MagRuntime _magRuntime;
+	Magpie::Runtime::MagRuntime _magRuntime{ nullptr };
 	uint64_t _hwndHost{};
 
 	event<EventHandler<bool>> _hostWndFocusChangedEvent;

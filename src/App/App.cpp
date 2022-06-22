@@ -53,6 +53,7 @@ void App::OnClose() {
 bool App::Initialize(Magpie::App::Settings const& settings, Magpie::App::HotkeyManager const& hotkeyManager, uint64_t hwndHost) {
 	_hwndHost = hwndHost;
 	_settings = settings;
+	_magRuntime = Magpie::Runtime::MagRuntime((uint64_t)&Logger::Get());
 
 	_hotkeyManager = hotkeyManager;
 	_hotkeyPressedRevoker = hotkeyManager.HotkeyPressed(auto_revoke, { this, &App::_HotkeyManger_HotkeyPressed });

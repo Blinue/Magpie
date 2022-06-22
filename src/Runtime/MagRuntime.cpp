@@ -4,10 +4,15 @@
 #include "MagRuntime.g.cpp"
 #endif
 #include "MagApp.h"
+#include "Logger.h"
 #include <dispatcherqueue.h>
 
 
 namespace winrt::Magpie::Runtime::implementation {
+
+MagRuntime::MagRuntime(uint64_t pLogger) {
+	Logger::Get().Initialize(*(Logger*)pLogger);
+}
 
 void MagRuntime::Run(uint64_t hwndSrc, MagSettings const& settings) {
 	if (_running) {
@@ -18,7 +23,7 @@ void MagRuntime::Run(uint64_t hwndSrc, MagSettings const& settings) {
 	if (_magWindThread.joinable()) {
 		_magWindThread.join();
 	}
-	_magWindThread = std::thread([&, settings]() {
+	_magWindThread = std::thread([=, this]() {
 		winrt::init_apartment(winrt::apartment_type::multi_threaded);
 
 		DispatcherQueueOptions options{};
@@ -49,7 +54,9 @@ void MagRuntime::Stop() {
 		MagApp::Get().Stop();
 	});
 
-	_magWindThread.join();
+	if (_magWindThread.joinable()) {
+		_magWindThread.join();
+	}
 }
 
 }
