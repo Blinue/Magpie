@@ -1,17 +1,23 @@
+msbuild /p:Configuration=Release /p:Platform=x64 ..\CONAN_INSTALL
+
+IF %ERRORLEVEL% NEQ 0 (
+    ECHO Error: Failed to build CONAN_INSTALL
+    EXIT 1
+)
+
+msbuild /p:Configuration=Release;Platform=x64;OutDir=..\..\publish\ ..\Effects
+
+IF %ERRORLEVEL% NEQ 0 (
+    ECHO Error: Failed to build Effects
+    EXIT 1
+)
+
 msbuild /p:Configuration=Release;Platform=x64;OutDir=..\..\publish\ ..\Magpie
 
 IF %ERRORLEVEL% NEQ 0 (
     ECHO Error: Failed to build Magpie
     EXIT 1
 )
-
-REM 复制效果文件
-REM msbuild /p:Configuration=Release;Platform=x64;OutDir=..\..\publish\ ..\Effects
-
-REM IF %ERRORLEVEL% NEQ 0 (
-REM     ECHO Error: Failed to build Effects
-REM     EXIT 1
-REM )
 
 REM 清理不需要的文件
 CD ..\..\publish

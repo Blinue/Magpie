@@ -10,7 +10,7 @@ env:
   # Configuration type to build.
   # You can convert this to a build matrix if you need coverage of multiple configuration types.
   # https://docs.github.com/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
-  BUILD_CONFIGURATION: Release
+  # BUILD_CONFIGURATION: Release
 
 jobs:
   build:
@@ -33,9 +33,6 @@ jobs:
 
     - name: Setup MSBuild
       uses: microsoft/setup-msbuild@v1.1
-
-    - name: Conan Install
-      run: msbuild /p:Configuration=${{env.BUILD_CONFIGURATION}} /p:Platform=x64 src/CONAN_INSTALL
 
     - name: Build
       run: msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} /p:Platform=x64 src/DEPLOY
