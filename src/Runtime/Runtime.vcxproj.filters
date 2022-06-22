@@ -18,6 +18,7 @@
     <ClCompile Include="ExclModeHack.cpp" />
     <ClCompile Include="FrameSourceBase.cpp" />
     <ClCompile Include="DeviceResources.cpp" />
+    <ClCompile Include="TextureLoader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -25,6 +26,9 @@
     <ClInclude Include="ExclModeHack.h" />
     <ClInclude Include="FrameSourceBase.h" />
     <ClInclude Include="DeviceResources.h" />
+    <ClInclude Include="DDS.h" />
+    <ClInclude Include="DDSLoderHelpers.h" />
+    <ClInclude Include="TextureLoader.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Runtime.def" />

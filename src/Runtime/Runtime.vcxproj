@@ -93,6 +93,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="DDS.h" />
+    <ClInclude Include="DDSLoderHelpers.h" />
     <ClInclude Include="DeviceResources.h" />
     <ClInclude Include="ExclModeHack.h" />
     <ClInclude Include="FrameSourceBase.h" />
@@ -106,6 +108,7 @@
       <SubType>Code</SubType>
     </ClInclude>
     <ClInclude Include="pch.h" />
+    <ClInclude Include="TextureLoader.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DeviceResources.cpp" />
@@ -124,6 +127,7 @@
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="$(GeneratedFilesDir)module.g.cpp" />
+    <ClCompile Include="TextureLoader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
