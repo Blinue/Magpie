@@ -5,7 +5,7 @@
 
 class DeviceResources;
 //class Renderer;
-//class FrameSourceBase;
+class FrameSourceBase;
 //class CursorManager;
 
 class MagApp {
@@ -46,13 +46,13 @@ public:
 
 	/*Renderer& GetRenderer() noexcept {
 		return *_renderer;
-	}
+	}*/
 
 	FrameSourceBase& GetFrameSource() noexcept {
 		return *_frameSource;
 	}
 
-	CursorManager& GetCursorManager() noexcept {
+	/*CursorManager& GetCursorManager() noexcept {
 		return *_cursorManager;
 	}*/
 
@@ -72,7 +72,7 @@ private:
 	// 创建主窗口
 	bool _CreateHostWnd();
 
-	bool _InitFrameSource(int captureMode);
+	bool _InitFrameSource();
 
 	bool _DisableDirectFlip();
 
@@ -96,7 +96,7 @@ private:
 
 	std::unique_ptr<DeviceResources> _deviceResources;
 	//std::unique_ptr<Renderer> _renderer;
-	//std::unique_ptr<FrameSourceBase> _frameSource;
+	std::unique_ptr<FrameSourceBase> _frameSource;
 	//std::unique_ptr<CursorManager> _cursorManager;
 	winrt::Magpie::Runtime::MagSettings _settings{ nullptr };
 

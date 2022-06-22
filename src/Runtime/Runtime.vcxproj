@@ -95,9 +95,13 @@
   <ItemGroup>
     <ClInclude Include="DDS.h" />
     <ClInclude Include="DDSLoderHelpers.h" />
+    <ClInclude Include="DesktopDuplicationFrameSource.h" />
     <ClInclude Include="DeviceResources.h" />
+    <ClInclude Include="DwmSharedSurfaceFrameSource.h" />
     <ClInclude Include="ExclModeHack.h" />
     <ClInclude Include="FrameSourceBase.h" />
+    <ClInclude Include="GDIFrameSource.h" />
+    <ClInclude Include="GraphicsCaptureFrameSource.h" />
     <ClInclude Include="MagApp.h" />
     <ClInclude Include="MagRuntime.h">
       <DependentUpon>MagRuntime.idl</DependentUpon>
@@ -111,9 +115,13 @@
     <ClInclude Include="TextureLoader.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="DesktopDuplicationFrameSource.cpp" />
     <ClCompile Include="DeviceResources.cpp" />
+    <ClCompile Include="DwmSharedSurfaceFrameSource.cpp" />
     <ClCompile Include="ExclModeHack.cpp" />
     <ClCompile Include="FrameSourceBase.cpp" />
+    <ClCompile Include="GDIFrameSource.cpp" />
+    <ClCompile Include="GraphicsCaptureFrameSource.cpp" />
     <ClCompile Include="MagApp.cpp" />
     <ClCompile Include="MagRuntime.cpp">
       <DependentUpon>MagRuntime.idl</DependentUpon>

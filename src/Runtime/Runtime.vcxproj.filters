@@ -19,6 +19,10 @@
     <ClCompile Include="FrameSourceBase.cpp" />
     <ClCompile Include="DeviceResources.cpp" />
     <ClCompile Include="TextureLoader.cpp" />
+    <ClCompile Include="DesktopDuplicationFrameSource.cpp" />
+    <ClCompile Include="DwmSharedSurfaceFrameSource.cpp" />
+    <ClCompile Include="GraphicsCaptureFrameSource.cpp" />
+    <ClCompile Include="GDIFrameSource.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -29,6 +33,10 @@
     <ClInclude Include="DDS.h" />
     <ClInclude Include="DDSLoderHelpers.h" />
     <ClInclude Include="TextureLoader.h" />
+    <ClInclude Include="DesktopDuplicationFrameSource.h" />
+    <ClInclude Include="DwmSharedSurfaceFrameSource.h" />
+    <ClInclude Include="GraphicsCaptureFrameSource.h" />
+    <ClInclude Include="GDIFrameSource.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Runtime.def" />

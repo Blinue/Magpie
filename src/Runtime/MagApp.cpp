@@ -4,6 +4,11 @@
 #include "Win32Utils.h"
 #include "ExclModeHack.h"
 #include "DeviceResources.h"
+#include "GraphicsCaptureFrameSource.h"
+#include "DesktopDuplicationFrameSource.h"
+#include "GDIFrameSource.h"
+#include "DwmSharedSurfaceFrameSource.h"
+#include "StrUtils.h"
 
 
 static constexpr const wchar_t* HOST_WINDOW_CLASS_NAME = L"Window_Magpie_967EB565-6F73-4E94-AE53-00CC42592A22";
@@ -71,6 +76,13 @@ bool MagApp::Run(HWND hwndSrc, winrt::Magpie::Runtime::MagSettings const& settin
 	_deviceResources.reset(new DeviceResources());
 	if (!_deviceResources->Initialize()) {
 		Logger::Get().Error("初始化 DeviceResources 失败");
+		Stop();
+		_RunMessageLoop();
+		return false;
+	}
+
+	if (!_InitFrameSource()) {
+		Logger::Get().Critical("_InitFrameSource 失败");
 		Stop();
 		_RunMessageLoop();
 		return false;
@@ -270,8 +282,39 @@ bool MagApp::_CreateHostWnd() {
 	return true;
 }
 
-bool MagApp::_InitFrameSource(int captureMode) {
-    return false;
+bool MagApp::_InitFrameSource() {
+	using winrt::Magpie::Runtime::CaptureMode;
+
+	switch (_settings.CaptureMode()) {
+	case CaptureMode::GraphicsCapture:
+		_frameSource.reset(new GraphicsCaptureFrameSource());
+		break;
+	case CaptureMode::DesktopDuplication:
+		_frameSource.reset(new DesktopDuplicationFrameSource());
+		break;
+	case CaptureMode::GDI:
+		_frameSource.reset(new GDIFrameSource());
+		break;
+	case CaptureMode::DwmSharedSurface:
+		_frameSource.reset(new DwmSharedSurfaceFrameSource());
+		break;
+	default:
+		Logger::Get().Critical("未知的捕获模式");
+		return false;
+	}
+
+	Logger::Get().Info(StrUtils::Concat("当前捕获模式：", _frameSource->GetName()));
+
+	if (!_frameSource->Initialize()) {
+		Logger::Get().Critical("初始化 FrameSource 失败");
+		return false;
+	}
+
+	const RECT& frameRect = _frameSource->GetSrcFrameRect();
+	Logger::Get().Info(fmt::format("源窗口尺寸：{}x{}",
+		frameRect.right - frameRect.left, frameRect.bottom - frameRect.top));
+
+	return true;
 }
 
 bool MagApp::_DisableDirectFlip() {
@@ -306,9 +349,9 @@ LRESULT MagApp::_HostWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 void MagApp::_OnQuit() {
 	// 释放资源
 	/*_cursorManager = nullptr;
-	_renderer = nullptr;
+	_renderer = nullptr;*/
 	_frameSource = nullptr;
-	_deviceResources = nullptr;*/
+	_deviceResources = nullptr;
 	_settings = nullptr;
 
 	_nextWndProcHandlerID = 1;
