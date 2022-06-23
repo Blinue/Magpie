@@ -142,7 +142,7 @@
     <ClCompile Include="GraphicsCaptureFrameSource.cpp" />
     <ClCompile Include="ImGuiImpl.cpp" />
     <ClCompile Include="imgui_impl_dx11.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="LoggerHelper.cpp">
       <DependentUpon>LoggerHelper.idl</DependentUpon>
