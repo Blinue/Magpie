@@ -183,7 +183,7 @@
   <ItemGroup>
     <CopyFileToFolders Include="NotoSansSC-Regular.otf">
       <FileType>Document</FileType>
-      <DestinationFolders Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)assets</DestinationFolders>
+      <DestinationFolders>$(OutDir)assets</DestinationFolders>
     </CopyFileToFolders>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

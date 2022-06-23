@@ -32,5 +32,6 @@ DEL Microsoft.Web.WebView2.Core.dll
 RD /S /Q Microsoft.UI.Xaml
 RD /S /Q App
 RD /S /Q Runtime
+RD /S /Q Magpie.Runtime
 REM 删除所有 pri 文件，除了 resources.pri
 FOR %%f IN ("*.pri") DO IF /i "%%~nf" NEQ "resources" DEL "%%f"
