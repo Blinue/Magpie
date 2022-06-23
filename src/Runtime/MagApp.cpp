@@ -315,7 +315,6 @@ bool MagApp::_CreateHostWnd() {
 		Logger::Get().Win32Error("SetLayeredWindowAttributes 失败");
 	}
 
-	Logger::Get().Info("已创建主窗口");
 	return true;
 }
 

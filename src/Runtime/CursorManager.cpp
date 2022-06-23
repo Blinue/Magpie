@@ -93,8 +93,6 @@ CursorManager::~CursorManager() {
 		}
 		_StopCapture(pt, true);
 	}
-
-	Logger::Get().Info("CursorDrawer 已析构");
 }
 
 static std::optional<LRESULT> HostWndProc(HWND /*hWnd*/, UINT message, WPARAM /*wParam*/, LPARAM /*lParam*/) {

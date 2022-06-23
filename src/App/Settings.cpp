@@ -3,19 +3,17 @@
 #if __has_include("Settings.g.cpp")
 #include "Settings.g.cpp"
 #endif
-
 #include "Win32Utils.h"
 #include "StrUtils.h"
 #include "Logger.h"
 #include "HotkeyHelper.h"
+#include "CommonSharedConstants.h"
 #include <rapidjson/document.h>
 #include <rapidjson/prettywriter.h>
 
 using namespace winrt;
 using namespace Windows::Foundation;
 
-
-static constexpr const wchar_t* CONFIG_PATH = L"config\\config.json";
 
 static hstring GetWorkingDir(bool isPortableMode) {
 	if (isPortableMode) {
@@ -49,24 +47,14 @@ static hstring GetWorkingDir(bool isPortableMode) {
 namespace winrt::Magpie::App::implementation {
 
 bool Settings::Initialize(uint64_t pLogger) {
+	Logger& logger = Logger::Get();
+	logger.Initialize(*(Logger*)pLogger);
+
 	// 若程序所在目录存在配置文件则为便携模式
-	_isPortableMode = Win32Utils::FileExists(CONFIG_PATH);
+	_isPortableMode = Win32Utils::FileExists(CommonSharedConstants::CONFIG_PATH_W);
 	_workingDir = GetWorkingDir(_isPortableMode);
 
-	// 初始化日志的同时确保 WorkingDir 存在
-	Logger& logger = Logger::Get();
-	logger.Initialize(
-		spdlog::level::info,
-		StrUtils::Concat(StrUtils::UTF16ToANSI(_workingDir), "logs\\magpie.log").c_str(),
-		100000,
-		2
-	);
-
-	((Logger*)pLogger)->Initialize(logger);
-
-	logger.Info(StrUtils::Concat("程序启动\n\t便携模式：", IsPortableMode() ? "是" : "否"));
-
-	std::wstring configPath = StrUtils::ConcatW(_workingDir, CONFIG_PATH);
+	std::wstring configPath = StrUtils::ConcatW(_workingDir, CommonSharedConstants::CONFIG_PATH_W);
 
 	if (!Win32Utils::FileExists(configPath.c_str())) {
 		logger.Info("不存在配置文件");
@@ -126,7 +114,7 @@ bool Settings::Save() {
 
 	writer.EndObject();
 
-	if (!Win32Utils::WriteTextFile(StrUtils::ConcatW(_workingDir, CONFIG_PATH).c_str(), json.GetString())) {
+	if (!Win32Utils::WriteTextFile(StrUtils::ConcatW(_workingDir, CommonSharedConstants::CONFIG_PATH_W).c_str(), json.GetString())) {
 		Logger::Get().Error("保存配置失败");
 		return false;
 	}
@@ -142,7 +130,7 @@ void Settings::IsPortableMode(bool value) {
 	if (!value) {
 		// 关闭便携模式需删除本地配置文件
 		// 不关心是否成功
-		DeleteFile(StrUtils::ConcatW(_workingDir, CONFIG_PATH).c_str());
+		DeleteFile(StrUtils::ConcatW(_workingDir, CommonSharedConstants::CONFIG_PATH_W).c_str());
 	}
 
 	Logger::Get().Info(value ? "已开启便携模式" : "已关闭便携模式");

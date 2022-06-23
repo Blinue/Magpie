@@ -56,8 +56,19 @@ bool XamlApp::Initialize(HINSTANCE hInstance) {
 		SetCurrentDirectory(curDir);
 	}
 
+	Logger& logger = Logger::Get();
+	logger.Initialize(
+		spdlog::level::info,
+		CommonSharedConstants::LOG_PATH,
+		100000,
+		2
+	);
+
+	logger.Info(fmt::format("程序启动\n\t版本：{}", MAGPIE_VERSION));
+
 	_settings = winrt::Magpie::App::Settings();
-	if (!_settings.Initialize((uint64_t)&Logger::Get())) {
+	if (!_settings.Initialize((uint64_t)&logger)) {
+		logger.Error("加载配置文件失败");
 		MessageBox(NULL, L"加载配置文件失败", L"Magpie", MB_ICONERROR | MB_OK);
 		return false;
 	}
@@ -95,7 +106,7 @@ bool XamlApp::Initialize(HINSTANCE hInstance) {
 	);
 
 	if (!_hwndXamlHost) {
-		Logger::Get().Win32Error("CreateWindow 失败");
+		logger.Win32Error("CreateWindow 失败");
 		return false;
 	}
 
@@ -138,7 +149,7 @@ bool XamlApp::Initialize(HINSTANCE hInstance) {
 	}
 
 	if (!_uwpApp.Initialize(_settings, _hotkeyManager, (uint64_t)_hwndXamlHost)) {
-		Logger::Get().Error("App 初始化失败");
+		logger.Error("App 初始化失败");
 
 		// 销毁主窗口
 		DestroyWindow(_hwndXamlHost);
@@ -186,12 +197,12 @@ bool XamlApp::Initialize(HINSTANCE hInstance) {
 		// SetTimer 之前推荐先调用 SetUserObjectInformation
 		BOOL value = FALSE;
 		if (!SetUserObjectInformation(GetCurrentProcess(), UOI_TIMERPROC_EXCEPTION_SUPPRESSION, &value, sizeof(value))) {
-			Logger::Get().Win32Error("SetUserObjectInformation 失败");
+			logger.Win32Error("SetUserObjectInformation 失败");
 		}
 
 		// 监听 WM_ACTIVATE 不完全可靠，因此定期检查前台窗口以确保背景绘制正确
 		if (SetTimer(_hwndXamlHost, CHECK_FORGROUND_TIMER_ID, 250, nullptr) == 0) {
-			Logger::Get().Win32Error("SetTimer 失败");
+			logger.Win32Error("SetTimer 失败");
 		}
 	} else {
 		// Win10 中因为 ShowWindow 提前，需要显式设置 XAML Islands 位置
