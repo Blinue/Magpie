@@ -66,7 +66,6 @@ private:
 	winrt::com_ptr<ID3D11Buffer> _dynamicCB;
 
 	//std::unique_ptr<OverlayDrawer> _overlayDrawer;
-	UINT _handlerID = 0;
 
 	std::unique_ptr<GPUTimer> _gpuTimer;
 };

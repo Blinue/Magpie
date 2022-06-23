@@ -138,9 +138,8 @@ bool Win32Utils::WriteFile(const wchar_t* fileName, const void* buffer, size_t b
 		return false;
 	}
 
-	size_t writed = fwrite(buffer, 1, bufferSize, hFile);
+	[[maybe_unused]] size_t writed = fwrite(buffer, 1, bufferSize, hFile);
 	assert(writed == bufferSize);
-	UNREFERENCED_PARAMETER(writed);
 
 	fclose(hFile);
 	return true;

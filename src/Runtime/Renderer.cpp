@@ -17,23 +17,9 @@
 #include <rapidjson/document.h>
 
 
-static std::optional<LRESULT> WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
-	/*if (msg == WindowsMessages::WM_TOGGLE_OVERLAY) {
-		Renderer& renderer = MagApp::Get().GetRenderer();
-		renderer.SetUIVisibility(!renderer.IsUIVisiable());
-		return 0;
-	}*/
-
-	return std::nullopt;
-}
-
 Renderer::Renderer() {}
 
-Renderer::~Renderer() {
-	if (_handlerID != 0) {
-		MagApp::Get().UnregisterWndProcHandler(_handlerID);
-	}
-}
+Renderer::~Renderer() {}
 
 bool Renderer::Initialize(const std::string& effectsJson) {
 	_gpuTimer.reset(new GPUTimer());
@@ -69,8 +55,6 @@ bool Renderer::Initialize(const std::string& effectsJson) {
 		Logger::Get().ComError("CreateBuffer 失败", hr);
 		return false;
 	}
-
-	_handlerID = MagApp::Get().RegisterWndProcHandler(WndProcHandler);
 
 	return true;
 }
@@ -159,7 +143,7 @@ bool Renderer::IsUIVisiable() const noexcept {
 	return /*_overlayDrawer ? _overlayDrawer->IsUIVisiable() :*/ false;
 }
 
-void Renderer::SetUIVisibility(bool value) {
+void Renderer::SetUIVisibility(bool /*value*/) {
 	/*if (!value) {
 		if (_overlayDrawer && _overlayDrawer->IsUIVisiable()) {
 			_overlayDrawer->SetUIVisibility(false);

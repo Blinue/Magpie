@@ -136,9 +136,9 @@ bool EffectDrawer::Initialize(
 
 			if (texDesc.format != EffectIntermediateTextureFormat::UNKNOWN) {
 				// 检查纹理格式是否匹配
-				D3D11_TEXTURE2D_DESC desc{};
-				_textures[i]->GetDesc(&desc);
-				if (desc.Format != EffectIntermediateTextureDesc::FORMAT_DESCS[(UINT)texDesc.format].dxgiFormat) {
+				D3D11_TEXTURE2D_DESC srcDesc{};
+				_textures[i]->GetDesc(&srcDesc);
+				if (srcDesc.Format != EffectIntermediateTextureDesc::FORMAT_DESCS[(UINT)texDesc.format].dxgiFormat) {
 					Logger::Get().Error("SOURCE 纹理格式不匹配");
 					return false;
 				}
@@ -223,11 +223,11 @@ bool EffectDrawer::Initialize(
 				}
 			}
 
-			D3D11_TEXTURE2D_DESC desc;
-			_textures[passDesc.outputs[0]]->GetDesc(&desc);
+			D3D11_TEXTURE2D_DESC outputDesc;
+			_textures[passDesc.outputs[0]]->GetDesc(&outputDesc);
 			_dispatches.emplace_back(
-				(desc.Width + passDesc.blockSize.first - 1) / passDesc.blockSize.first,
-				(desc.Height + passDesc.blockSize.second - 1) / passDesc.blockSize.second
+				(outputDesc.Width + passDesc.blockSize.first - 1) / passDesc.blockSize.first,
+				(outputDesc.Height + passDesc.blockSize.second - 1) / passDesc.blockSize.second
 			);
 		} else {
 			// 最后一个 pass 输出到 OUTPUT
@@ -237,12 +237,12 @@ bool EffectDrawer::Initialize(
 				return false;
 			}
 
-			D3D11_TEXTURE2D_DESC desc;
-			_textures.back()->GetDesc(&desc);
+			D3D11_TEXTURE2D_DESC lastDesc;
+			_textures.back()->GetDesc(&lastDesc);
 
 			_dispatches.emplace_back(
-				(std::min(desc.Width, (UINT)outputSize.cx) + passDesc.blockSize.first - 1) / passDesc.blockSize.first,
-				(std::min(desc.Height, (UINT)outputSize.cy) + passDesc.blockSize.second - 1) / passDesc.blockSize.second
+				(std::min(lastDesc.Width, (UINT)outputSize.cx) + passDesc.blockSize.first - 1) / passDesc.blockSize.first,
+				(std::min(lastDesc.Height, (UINT)outputSize.cy) + passDesc.blockSize.second - 1) / passDesc.blockSize.second
 			);
 		}
 	}

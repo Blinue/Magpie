@@ -97,7 +97,7 @@ CursorManager::~CursorManager() {
 	Logger::Get().Info("CursorDrawer 已析构");
 }
 
-static std::optional<LRESULT> HostWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
+static std::optional<LRESULT> HostWndProc(HWND /*hWnd*/, UINT message, WPARAM /*wParam*/, LPARAM /*lParam*/) {
 	if (/*MagApp::Get().GetConfig().Is3DMode() &&*/ MagApp::Get().GetRenderer().IsUIVisiable()) {
 		return std::nullopt;
 	}

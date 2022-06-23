@@ -21,9 +21,9 @@ static const wchar_t* SAVE_SOURCE_DIR = L".\\sources";
 class PassInclude : public ID3DInclude {
 public:
 	HRESULT CALLBACK Open(
-		D3D_INCLUDE_TYPE IncludeType,
+		D3D_INCLUDE_TYPE /*IncludeType*/,
 		LPCSTR pFileName,
-		LPCVOID pParentData,
+		LPCVOID /*pParentData*/,
 		LPCVOID* ppData,
 		UINT* pBytes
 	) override {
@@ -812,7 +812,7 @@ UINT ResolvePasses(
 	);
 
 	std::vector<std::string_view> temp = blocks;
-	for (int i = 0; i < blocks.size(); ++i) {
+	for (UINT i = 0; i < blocks.size(); ++i) {
 		if (passNumbers[i].first != i + 1) {
 			// PASS 序号不连续
 			return 1;
@@ -829,8 +829,8 @@ UINT ResolvePasses(
 
 		// 用于检查输入和输出中重复的纹理
 		std::unordered_map<std::string_view, UINT> texNames;
-		for (size_t i = 0; i < desc.textures.size(); ++i) {
-			texNames.emplace(desc.textures[i].name, (UINT)i);
+		for (UINT j = 0; j < desc.textures.size(); ++j) {
+			texNames.emplace(desc.textures[j].name, j);
 		}
 
 		std::bitset<6> processed;
@@ -959,19 +959,19 @@ UINT ResolvePasses(
 					return 1;
 				}
 
-				for (int i = 0; i < 3; ++i) {
+				for (UINT j = 0; j < 3; ++j) {
 					UINT num = 1;
-					if (split.size() > i) {
-						if (GetNextNumber(split[i], num)) {
+					if (split.size() > j) {
+						if (GetNextNumber(split[j], num)) {
 							return 1;
 						}
 
-						if (GetNextToken<false>(split[i], token) != 2) {
+						if (GetNextToken<false>(split[j], token) != 2) {
 							return false;
 						}
 					}
 
-					passDesc.numThreads[i] = num;
+					passDesc.numThreads[j] = num;
 				}
 			} else if (t == "STYLE") {
 				if (processed[4]) {
