@@ -79,7 +79,13 @@ bool Settings::Initialize(uint64_t pLogger) {
 		return false;
 	}
 
-	return _LoadSettings(configText);
+	if (!_LoadSettings(configText)) {
+		logger.Error("解析配置文件失败");
+		return false;
+	}
+
+	_SetDefaultHotkeys();
+	return true;
 }
 
 bool Settings::Save() {
@@ -281,8 +287,6 @@ bool Settings::_LoadSettings(std::string text) {
 				_hotkeys[(size_t)HotkeyAction::Overlay].FromString(StrUtils::UTF8ToUTF16(overlayNode->value.GetString()));
 			}
 		}
-
-		_SetDefaultHotkeys();
 	}
 
 	return true;
@@ -292,7 +296,8 @@ void Settings::_SetDefaultHotkeys() {
 	const HotkeySettings& scaleHotkey = _hotkeys[(size_t)HotkeyAction::Scale];
 	if (scaleHotkey.IsEmpty()) {
 		scaleHotkey.Win(true);
-		scaleHotkey.Alt(true);
+		scaleHotkey.Shift(true);
+		scaleHotkey.Code('A');
 	}
 	
 	const HotkeySettings& overlayHotkey = _hotkeys[(size_t)HotkeyAction::Overlay];
