@@ -12,7 +12,6 @@
 #include "FrameSourceBase.h"
 #include <bit>	// std::bit_ceil
 #include <Wbemidl.h>
-#include <comdef.h>
 #include <random>
 
 #pragma comment(lib, "wbemuuid.lib")
@@ -417,7 +416,7 @@ static std::string GetCPUNameViaWMI() {
 	}
 
 	hr = wbemLocator->ConnectServer(
-		_bstr_t(L"ROOT\\CIMV2"),
+		StrUtils::BStr(L"ROOT\\CIMV2"),
 		nullptr,
 		nullptr,
 		nullptr,
@@ -445,8 +444,8 @@ static std::string GetCPUNameViaWMI() {
 	}
 
 	hr = wbemServices->ExecQuery(
-		_bstr_t(L"WQL"),
-		_bstr_t(L"SELECT NAME FROM Win32_Processor"),
+		StrUtils::BStr(L"WQL"),
+		StrUtils::BStr(L"SELECT NAME FROM Win32_Processor"),
 		WBEM_FLAG_FORWARD_ONLY | WBEM_FLAG_RETURN_IMMEDIATELY,
 		nullptr,
 		enumWbemClassObject.put()
@@ -463,12 +462,14 @@ static std::string GetCPUNameViaWMI() {
 
 	VARIANT value;
 	VariantInit(&value);
-	hr = wbemClassObject->Get(_bstr_t(L"Name"), 0, &value, 0, 0);
+	hr = wbemClassObject->Get(StrUtils::BStr(L"Name"), 0, &value, 0, 0);
 	if (hr != WBEM_S_NO_ERROR || value.vt != VT_BSTR) {
 		return "";
 	}
 
-	return StrUtils::Trim(_com_util::ConvertBSTRToString(value.bstrVal));
+	std::string result = StrUtils::BStr(value.bstrVal).ToUTF8();
+	StrUtils::Trim(result);
+	return result;
 }
 
 static std::string GetCPUName() {

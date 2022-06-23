@@ -62,3 +62,22 @@ std::string StrUtils::UTF16ToUTF8(std::wstring_view str) {
 std::string StrUtils::UTF16ToANSI(std::wstring_view str) {
 	return UTF16ToOther(CP_ACP, str);
 }
+
+StrUtils::BStr::BStr(std::wstring_view str) {
+	_str = SysAllocStringLen(str.data(), (UINT)str.size());;
+}
+
+StrUtils::BStr::~BStr() {
+	if (_str) {
+		SysFreeString(_str);
+	}
+}
+
+std::string StrUtils::BStr::ToUTF8() {
+	if (!_str) {
+		return {};
+	}
+
+	std::wstring_view str(_str, SysStringLen(_str));
+	return UTF16ToUTF8(str);
+}
