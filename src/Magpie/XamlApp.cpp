@@ -8,6 +8,7 @@
 #include <CoreWindow.h>
 #include <uxtheme.h>
 #include <fmt/xchar.h>
+#include <winrt/Magpie.Runtime.h>
 
 #pragma comment(lib, "UxTheme.lib")
 
@@ -36,10 +37,6 @@ bool XamlApp::Initialize(HINSTANCE hInstance) {
 		return false;
 	}
 
-	// 程序结束时也不应调用 uninit_apartment
-	// 见 https://kennykerr.ca/2018/03/24/cppwinrt-hosting-the-windows-runtime/
-	winrt::init_apartment(winrt::apartment_type::single_threaded);
-
 	// 当前目录始终是程序所在目录
 	{
 		wchar_t curDir[MAX_PATH] = { 0 };
@@ -66,8 +63,12 @@ bool XamlApp::Initialize(HINSTANCE hInstance) {
 
 	logger.Info(fmt::format("程序启动\n\t版本：{}", MAGPIE_VERSION));
 
-	_settings = winrt::Magpie::App::Settings();
-	if (!_settings.Initialize((uint64_t)&logger)) {
+	// 初始化 dll 中的 Logger
+	// Logger 的单例无法在 exe 和 dll 间共享
+	winrt::Magpie::App::LoggerHelper::Initialize((uint64_t)&logger);
+	winrt::Magpie::Runtime::LoggerHelper::Initialize((uint64_t)&logger);
+
+	if (!_settings.Initialize()) {
 		logger.Error("加载配置文件失败");
 		MessageBox(NULL, L"加载配置文件失败", L"Magpie", MB_ICONERROR | MB_OK);
 		return false;
@@ -133,9 +134,6 @@ bool XamlApp::Initialize(HINSTANCE hInstance) {
 		ShowWindow(_hwndXamlHost, _settings.IsWindowMaximized() ? SW_MAXIMIZE : SW_SHOW);
 	}
 
-	// HotkeyManager 中的回调总是最先调用
-	_hotkeyManager = winrt::Magpie::App::HotkeyManager(_settings, (uint64_t)_hwndXamlHost);
-
 	// 初始化 UWP 应用和 XAML Islands
 	_uwpApp = winrt::Magpie::App::App();
 	if (!isWin11) {
@@ -148,7 +146,7 @@ bool XamlApp::Initialize(HINSTANCE hInstance) {
 		}
 	}
 
-	if (!_uwpApp.Initialize(_settings, _hotkeyManager, (uint64_t)_hwndXamlHost)) {
+	if (!_uwpApp.Initialize(_settings, (uint64_t)_hwndXamlHost)) {
 		logger.Error("App 初始化失败");
 
 		// 销毁主窗口
@@ -163,6 +161,8 @@ bool XamlApp::Initialize(HINSTANCE hInstance) {
 
 	// 未显示窗口时视为位于前台，否则显示窗口的动画有小瑕疵
 	_uwpApp.OnHostWndFocusChanged(true);
+
+	_hotkeyManager = _uwpApp.HotkeyManager();
 
 	_mainPage = winrt::Magpie::App::MainPage();
 	_mainPage.ActualThemeChanged([this](winrt::FrameworkElement const&, winrt::IInspectable const&) {

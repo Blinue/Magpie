@@ -5,7 +5,7 @@
 namespace winrt::Magpie::Runtime::implementation {
 
 struct MagRuntime : MagRuntimeT<MagRuntime> {
-	MagRuntime(uint64_t pLogger);
+	MagRuntime() = default;
 
 	void Run(uint64_t hwndSrc, MagSettings const& settings);
 

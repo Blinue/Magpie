@@ -38,7 +38,7 @@ private:
 
 	Win32Utils::ScopedHandle _hMutex;
 
-	winrt::Magpie::App::Settings _settings{ nullptr };
+	winrt::Magpie::App::Settings _settings;
 	winrt::Magpie::App::HotkeyManager _hotkeyManager{ nullptr };
 	winrt::Magpie::App::App _uwpApp{ nullptr };
 	winrt::Magpie::App::MainPage _mainPage{ nullptr };

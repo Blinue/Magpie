@@ -20,10 +20,14 @@
 			name="Magpie.App.Settings"
 			threadingModel="both"
 			xmlns="urn:schemas-microsoft-com:winrt.v1" />
+		<activatableClass
+			name="Magpie.App.LoggerHelper"
+			threadingModel="both"
+			xmlns="urn:schemas-microsoft-com:winrt.v1" />
 	</asmv3:file>
 	<asmv3:file name="Magpie.Runtime.dll">
 		<activatableClass
-			name="Magpie.Runtime.Class"
+			name="Magpie.Runtime.LoggerHelper"
 			threadingModel="both"
 			xmlns="urn:schemas-microsoft-com:winrt.v1" />
 	</asmv3:file>

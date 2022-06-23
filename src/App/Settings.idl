@@ -11,7 +11,7 @@ namespace Magpie.App
 	{
 		Settings();
 
-		Boolean Initialize(UInt64 pLogger);
+		Boolean Initialize();
 
 		Boolean Save();
 

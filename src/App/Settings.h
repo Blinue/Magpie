@@ -8,7 +8,7 @@ namespace winrt::Magpie::App::implementation {
 struct Settings : SettingsT<Settings> {
 	Settings() = default;
 
-	bool Initialize(uint64_t pLogger);
+	bool Initialize();
 
 	bool Save();
 

@@ -1,3 +1,4 @@
+#include "LoggerHelper.idl"
 #include "DummyTemplate.idl"
 #include "HotkeySettings.idl"
 #include "Settings.idl"
@@ -21,7 +22,7 @@ namespace Magpie.App {
 
 		void OnClose();
 
-		Boolean Initialize(Settings settings, HotkeyManager hotkeyManager, UInt64 hwndHost);
+		Boolean Initialize(Settings settings, UInt64 hwndHost);
 
 		Settings Settings { get; };
 		HotkeyManager HotkeyManager { get; };

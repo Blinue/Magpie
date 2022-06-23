@@ -10,10 +10,6 @@
 
 namespace winrt::Magpie::Runtime::implementation {
 
-MagRuntime::MagRuntime(uint64_t pLogger) {
-	Logger::Get().Initialize(*(Logger*)pLogger);
-}
-
 void MagRuntime::Run(uint64_t hwndSrc, MagSettings const& settings) {
 	if (_running) {
 		return;

@@ -46,9 +46,8 @@ static hstring GetWorkingDir(bool isPortableMode) {
 
 namespace winrt::Magpie::App::implementation {
 
-bool Settings::Initialize(uint64_t pLogger) {
+bool Settings::Initialize() {
 	Logger& logger = Logger::Get();
-	logger.Initialize(*(Logger*)pLogger);
 
 	// 若程序所在目录存在配置文件则为便携模式
 	_isPortableMode = Win32Utils::FileExists(CommonSharedConstants::CONFIG_PATH_W);

@@ -120,6 +120,10 @@
       <DependentUpon>KeyVisual.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
+    <ClInclude Include="LoggerHelper.h">
+      <DependentUpon>LoggerHelper.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClInclude>
     <ClInclude Include="PageFrame.h">
       <DependentUpon>PageFrame.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -197,6 +201,10 @@
       <DependentUpon>KeyVisual.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
+    <ClCompile Include="LoggerHelper.cpp">
+      <DependentUpon>LoggerHelper.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClCompile>
     <ClCompile Include="PageFrame.cpp">
       <DependentUpon>PageFrame.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -261,6 +269,9 @@
       <SubType>Code</SubType>
     </None>
     <None Include="KeyVisual.idl">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="LoggerHelper.idl">
       <SubType>Designer</SubType>
     </None>
     <Midl Include="PageFrame.idl">

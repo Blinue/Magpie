@@ -50,13 +50,13 @@ void App::OnClose() {
 	_settings.Save();
 }
 
-bool App::Initialize(Magpie::App::Settings const& settings, Magpie::App::HotkeyManager const& hotkeyManager, uint64_t hwndHost) {
+bool App::Initialize(Magpie::App::Settings const& settings, uint64_t hwndHost) {
 	_hwndHost = hwndHost;
 	_settings = settings;
-	_magRuntime = Magpie::Runtime::MagRuntime((uint64_t)&Logger::Get());
 
-	_hotkeyManager = hotkeyManager;
-	_hotkeyPressedRevoker = hotkeyManager.HotkeyPressed(auto_revoke, { this, &App::_HotkeyManger_HotkeyPressed });
+	// HotkeyManager 中的回调总是最先调用
+	_hotkeyManager = Magpie::App::HotkeyManager(settings, hwndHost);
+	_hotkeyPressedRevoker = _hotkeyManager.HotkeyPressed(auto_revoke, { this, &App::_HotkeyManger_HotkeyPressed });
 
 	return true;
 }

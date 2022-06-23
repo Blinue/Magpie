@@ -108,6 +108,10 @@
     <ClInclude Include="GDIFrameSource.h" />
     <ClInclude Include="GPUTimer.h" />
     <ClInclude Include="GraphicsCaptureFrameSource.h" />
+    <ClInclude Include="LoggerHelper.h">
+      <DependentUpon>LoggerHelper.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClInclude>
     <ClInclude Include="MagApp.h" />
     <ClInclude Include="MagRuntime.h">
       <DependentUpon>MagRuntime.idl</DependentUpon>
@@ -134,6 +138,10 @@
     <ClCompile Include="GDIFrameSource.cpp" />
     <ClCompile Include="GPUTimer.cpp" />
     <ClCompile Include="GraphicsCaptureFrameSource.cpp" />
+    <ClCompile Include="LoggerHelper.cpp">
+      <DependentUpon>LoggerHelper.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClCompile>
     <ClCompile Include="MagApp.cpp" />
     <ClCompile Include="MagRuntime.cpp">
       <DependentUpon>MagRuntime.idl</DependentUpon>
@@ -159,6 +167,9 @@
       <SubType>Designer</SubType>
     </None>
     <None Include="MagSettings.idl">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="LoggerHelper.idl">
       <SubType>Designer</SubType>
     </None>
     <Midl Include="Runtime.idl" />
