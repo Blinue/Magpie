@@ -2,11 +2,11 @@
 #include "pch.h"
 #include "EffectDesc.h"
 
+
 class EffectDrawer;
 class GPUTimer;
-//class OverlayDrawer;
+class OverlayDrawer;
 class CursorManager;
-
 
 class Renderer {
 public:
@@ -25,9 +25,9 @@ public:
 	}
 
 	// 可能为空
-	/*OverlayDrawer* GetOverlayDrawer() {
+	OverlayDrawer* GetOverlayDrawer() {
 		return _overlayDrawer.get();
-	}*/
+	}
 
 	bool IsUIVisiable() const noexcept;
 
@@ -65,7 +65,7 @@ private:
 	std::array<EffectConstant32, 12> _dynamicConstants;
 	winrt::com_ptr<ID3D11Buffer> _dynamicCB;
 
-	//std::unique_ptr<OverlayDrawer> _overlayDrawer;
+	std::unique_ptr<OverlayDrawer> _overlayDrawer;
 
 	std::unique_ptr<GPUTimer> _gpuTimer;
 };

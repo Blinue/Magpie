@@ -9,6 +9,8 @@ struct MagRuntime : MagRuntimeT<MagRuntime> {
 
 	void Run(uint64_t hwndSrc, MagSettings const& settings);
 
+	void ToggleOverlay();
+
 	void Stop();
 
 	bool IsRunning() const {

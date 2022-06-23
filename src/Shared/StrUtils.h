@@ -42,6 +42,10 @@ struct StrUtils {
 		str.remove_prefix(str.size());
 	}
 
+	static void Trim(std::string_view& str) {
+		Trim<char>(str);
+	}
+
 	template<typename CHAR_T>
 	static void Trim(std::basic_string<CHAR_T>& str) {
 		std::basic_string_view<CHAR_T> sv(str);
@@ -49,11 +53,19 @@ struct StrUtils {
 		str = sv;
 	}
 
+	static void Trim(std::string& str) {
+		Trim<char>(str);
+	}
+
 	template<typename CHAR_T>
 	static std::basic_string<CHAR_T> Trim(const std::basic_string<CHAR_T>& str) {
 		std::basic_string<CHAR_T> result = str;
 		Trim(result);
 		return result;
+	}
+
+	static std::string Trim(const std::string& str) {
+		return Trim<char>(str);
 	}
 
 	template<typename CHAR_T>

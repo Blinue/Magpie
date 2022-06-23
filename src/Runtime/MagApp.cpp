@@ -141,6 +141,10 @@ void MagApp::Stop() {
     }
 }
 
+void MagApp::ToggleOverlay() {
+	_renderer->SetUIVisibility(!_renderer->IsUIVisiable());
+}
+
 winrt::com_ptr<IWICImagingFactory2> MagApp::GetWICImageFactory() {
 	static winrt::com_ptr<IWICImagingFactory2> wicImgFactory;
 

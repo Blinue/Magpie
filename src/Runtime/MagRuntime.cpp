@@ -41,6 +41,16 @@ void MagRuntime::Run(uint64_t hwndSrc, MagSettings const& settings) {
 	});
 }
 
+void MagRuntime::ToggleOverlay() {
+	if (!_running || !_dqc) {
+		return;
+	}
+
+	_dqc.DispatcherQueue().TryEnqueue([]() {
+		MagApp::Get().ToggleOverlay();
+	});
+}
+
 void MagRuntime::Stop() {
 	if (!_running || !_dqc) {
 		return;

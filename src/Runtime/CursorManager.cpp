@@ -184,12 +184,12 @@ static HWND WindowFromPoint(INT_PTR style, POINT pt, bool clickThrough) {
 void CursorManager::OnBeginFrame() {
 	_UpdateCursorClip();
 
-	/*if (MagApp::Get().GetConfig().IsNoCursor() || !_isUnderCapture) {
+	if (/*MagApp::Get().GetConfig().IsNoCursor() ||*/ !_isUnderCapture) {
 		// 不绘制光标
 		_curCursor = NULL;
 		return;
 	}
-
+	/*
 	if (MagApp::Get().GetConfig().Is3DMode()) {
 		HWND hwndFore = GetForegroundWindow();
 		if (hwndFore != MagApp::Get().GetHwndHost() && hwndFore != MagApp::Get().GetHwndSrc()) {

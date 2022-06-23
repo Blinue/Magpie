@@ -6,6 +6,7 @@ namespace Magpie.Runtime
         MagRuntime();
 
         void Run(UInt64 hwndSrc, MagSettings settings);
+        void ToggleOverlay();
         void Stop();
 
         Boolean IsRunning { get; };

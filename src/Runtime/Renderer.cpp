@@ -8,7 +8,7 @@
 #include "DeviceResources.h"
 #include "GPUTimer.h"
 #include "EffectDrawer.h"
-//#include "OverlayDrawer.h"
+#include "OverlayDrawer.h"
 #include "Logger.h"
 #include "CursorManager.h"
 
@@ -132,19 +132,19 @@ void Renderer::Render() {
 
 	_gpuTimer->OnEndEffects();
 
-	/*if (_overlayDrawer) {
+	if (_overlayDrawer) {
 		_overlayDrawer->Draw();
-	}*/
+	}
 
 	dr.EndFrame();
 }
 
 bool Renderer::IsUIVisiable() const noexcept {
-	return /*_overlayDrawer ? _overlayDrawer->IsUIVisiable() :*/ false;
+	return _overlayDrawer ? _overlayDrawer->IsUIVisiable() : false;
 }
 
-void Renderer::SetUIVisibility(bool /*value*/) {
-	/*if (!value) {
+void Renderer::SetUIVisibility(bool value) {
+	if (!value) {
 		if (_overlayDrawer && _overlayDrawer->IsUIVisiable()) {
 			_overlayDrawer->SetUIVisibility(false);
 			_gpuTimer->StopProfiling();
@@ -170,7 +170,7 @@ void Renderer::SetUIVisibility(bool /*value*/) {
 
 		// StartProfiling 必须在 OnBeginFrame 之前调用
 		_gpuTimer->StartProfiling(std::chrono::milliseconds(500), passCount);
-	}*/
+	}
 }
 
 bool CheckForeground(HWND hwndForeground) {

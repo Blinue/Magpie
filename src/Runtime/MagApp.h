@@ -24,6 +24,8 @@ public:
 
 	void Stop();
 
+	void ToggleOverlay();
+
 	HINSTANCE GetHInstance() const noexcept {
 		return _hInst;
 	}

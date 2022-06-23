@@ -56,6 +56,9 @@
     <ClCompile Include="TextureLoader.cpp">
       <Filter>TextureLoader</Filter>
     </ClCompile>
+    <ClCompile Include="OverlayDrawer.cpp">
+      <Filter>Overlay</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -98,6 +101,9 @@
     </ClInclude>
     <ClInclude Include="TextureLoader.h">
       <Filter>TextureLoader</Filter>
+    </ClInclude>
+    <ClInclude Include="OverlayDrawer.h">
+      <Filter>Overlay</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

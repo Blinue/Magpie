@@ -94,7 +94,13 @@ void App::_HotkeyManger_HotkeyPressed(IInspectable const&, HotkeyAction action) 
 		break;
 	}
 	case HotkeyAction::Overlay:
+	{
+		if (_magRuntime.IsRunning()) {
+			_magRuntime.ToggleOverlay();
+			return;
+		}
 		break;
+	}
 	default:
 		break;
 	}
