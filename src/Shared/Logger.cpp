@@ -5,7 +5,7 @@
 #include <fmt/printf.h>
 
 
-bool Logger::Initialize(spdlog::level::level_enum logLevel, const char* logFileName, int logArchiveAboveSize, int logMaxArchiveFiles) {
+bool Logger::Initialize(spdlog::level::level_enum logLevel, const char* logFileName, int logArchiveAboveSize, int logMaxArchiveFiles) noexcept {
 	try {
 		_logger = spdlog::rotating_logger_mt(".", logFileName, logArchiveAboveSize, logMaxArchiveFiles);
 		_logger->set_level(logLevel);
@@ -19,7 +19,7 @@ bool Logger::Initialize(spdlog::level::level_enum logLevel, const char* logFileN
 	return true;
 }
 
-bool Logger::Initialize(Logger& logger) {
+bool Logger::Initialize(Logger& logger) noexcept {
 	_logger = logger._logger;
 	return true;
 }

@@ -5,6 +5,10 @@ muparser/2.3.2
 yas/7.1.0
 rapidjson/cci.20211112
 zstd/1.5.2
+imgui/1.87
 
 [generators]
 visual_studio
+
+[imports]
+./res/bindings, imgui_impl_dx11.* -> ../../../src/Runtime

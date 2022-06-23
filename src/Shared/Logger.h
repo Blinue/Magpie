@@ -12,9 +12,9 @@ public:
 	}
 
 	// 在 exe 中调用
-	bool Initialize(spdlog::level::level_enum logLevel, const char* logFileName, int logArchiveAboveSize, int logMaxArchiveFiles);
+	bool Initialize(spdlog::level::level_enum logLevel, const char* logFileName, int logArchiveAboveSize, int logMaxArchiveFiles) noexcept;
 	// 在 dll 中调用
-	bool Initialize(Logger& logger);
+	bool Initialize(Logger& logger) noexcept;
 
 	void SetLevel(spdlog::level::level_enum logLevel);
 

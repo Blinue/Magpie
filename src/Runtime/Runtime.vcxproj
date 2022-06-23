@@ -108,6 +108,8 @@
     <ClInclude Include="GDIFrameSource.h" />
     <ClInclude Include="GPUTimer.h" />
     <ClInclude Include="GraphicsCaptureFrameSource.h" />
+    <ClInclude Include="ImGuiImpl.h" />
+    <ClInclude Include="imgui_impl_dx11.h" />
     <ClInclude Include="LoggerHelper.h">
       <DependentUpon>LoggerHelper.idl</DependentUpon>
       <SubType>Code</SubType>
@@ -138,6 +140,10 @@
     <ClCompile Include="GDIFrameSource.cpp" />
     <ClCompile Include="GPUTimer.cpp" />
     <ClCompile Include="GraphicsCaptureFrameSource.cpp" />
+    <ClCompile Include="ImGuiImpl.cpp" />
+    <ClCompile Include="imgui_impl_dx11.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="LoggerHelper.cpp">
       <DependentUpon>LoggerHelper.idl</DependentUpon>
       <SubType>Code</SubType>
@@ -173,6 +179,12 @@
       <SubType>Designer</SubType>
     </None>
     <Midl Include="Runtime.idl" />
+  </ItemGroup>
+  <ItemGroup>
+    <CopyFileToFolders Include="NotoSansSC-Regular.otf">
+      <FileType>Document</FileType>
+      <DestinationFolders Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)assets</DestinationFolders>
+    </CopyFileToFolders>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

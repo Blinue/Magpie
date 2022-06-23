@@ -29,6 +29,8 @@
     <ClCompile Include="EffectCompiler.cpp" />
     <ClCompile Include="EffectCacheManager.cpp" />
     <ClCompile Include="EffectDrawer.cpp" />
+    <ClCompile Include="ImGuiImpl.cpp" />
+    <ClCompile Include="imgui_impl_dx11.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -50,6 +52,8 @@
     <ClInclude Include="EffectCompiler.h" />
     <ClInclude Include="EffectCacheManager.h" />
     <ClInclude Include="EffectDrawer.h" />
+    <ClInclude Include="ImGuiImpl.h" />
+    <ClInclude Include="imgui_impl_dx11.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Runtime.def" />
@@ -60,5 +64,8 @@
   </ItemGroup>
   <ItemGroup>
     <Midl Include="Runtime.idl" />
+  </ItemGroup>
+  <ItemGroup>
+    <CopyFileToFolders Include="NotoSansSC-Regular.otf" />
   </ItemGroup>
 </Project>
