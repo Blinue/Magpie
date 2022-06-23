@@ -8,6 +8,15 @@
     <Filter Include="Generated Files">
       <UniqueIdentifier>{926ab91d-31b4-48c3-b9a4-e681349f27f0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Capture">
+      <UniqueIdentifier>{02e00627-65a9-436a-aeeb-c8b05beb6fde}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="TextureLoader">
+      <UniqueIdentifier>{29f4e678-0af2-41c6-9ea6-6259bfb2e516}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Overlay">
+      <UniqueIdentifier>{e2523fcb-5d75-4b2c-a12a-e717e522da20}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
@@ -16,35 +25,43 @@
     </ClCompile>
     <ClCompile Include="MagApp.cpp" />
     <ClCompile Include="ExclModeHack.cpp" />
-    <ClCompile Include="FrameSourceBase.cpp" />
     <ClCompile Include="DeviceResources.cpp" />
-    <ClCompile Include="TextureLoader.cpp" />
-    <ClCompile Include="DesktopDuplicationFrameSource.cpp" />
-    <ClCompile Include="DwmSharedSurfaceFrameSource.cpp" />
-    <ClCompile Include="GraphicsCaptureFrameSource.cpp" />
-    <ClCompile Include="GDIFrameSource.cpp" />
     <ClCompile Include="GPUTimer.cpp" />
     <ClCompile Include="CursorManager.cpp" />
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="EffectCompiler.cpp" />
     <ClCompile Include="EffectCacheManager.cpp" />
     <ClCompile Include="EffectDrawer.cpp" />
-    <ClCompile Include="ImGuiImpl.cpp" />
-    <ClCompile Include="imgui_impl_dx11.cpp" />
+    <ClCompile Include="DesktopDuplicationFrameSource.cpp">
+      <Filter>Capture</Filter>
+    </ClCompile>
+    <ClCompile Include="DwmSharedSurfaceFrameSource.cpp">
+      <Filter>Capture</Filter>
+    </ClCompile>
+    <ClCompile Include="FrameSourceBase.cpp">
+      <Filter>Capture</Filter>
+    </ClCompile>
+    <ClCompile Include="GDIFrameSource.cpp">
+      <Filter>Capture</Filter>
+    </ClCompile>
+    <ClCompile Include="GraphicsCaptureFrameSource.cpp">
+      <Filter>Capture</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui_impl_dx11.cpp">
+      <Filter>Overlay</Filter>
+    </ClCompile>
+    <ClCompile Include="ImGuiImpl.cpp">
+      <Filter>Overlay</Filter>
+    </ClCompile>
+    <ClCompile Include="TextureLoader.cpp">
+      <Filter>TextureLoader</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
     <ClInclude Include="MagApp.h" />
     <ClInclude Include="ExclModeHack.h" />
-    <ClInclude Include="FrameSourceBase.h" />
     <ClInclude Include="DeviceResources.h" />
-    <ClInclude Include="DDS.h" />
-    <ClInclude Include="DDSLoderHelpers.h" />
-    <ClInclude Include="TextureLoader.h" />
-    <ClInclude Include="DesktopDuplicationFrameSource.h" />
-    <ClInclude Include="DwmSharedSurfaceFrameSource.h" />
-    <ClInclude Include="GraphicsCaptureFrameSource.h" />
-    <ClInclude Include="GDIFrameSource.h" />
     <ClInclude Include="GPUTimer.h" />
     <ClInclude Include="CursorManager.h" />
     <ClInclude Include="Renderer.h" />
@@ -52,8 +69,36 @@
     <ClInclude Include="EffectCompiler.h" />
     <ClInclude Include="EffectCacheManager.h" />
     <ClInclude Include="EffectDrawer.h" />
-    <ClInclude Include="ImGuiImpl.h" />
-    <ClInclude Include="imgui_impl_dx11.h" />
+    <ClInclude Include="DesktopDuplicationFrameSource.h">
+      <Filter>Capture</Filter>
+    </ClInclude>
+    <ClInclude Include="DwmSharedSurfaceFrameSource.h">
+      <Filter>Capture</Filter>
+    </ClInclude>
+    <ClInclude Include="FrameSourceBase.h">
+      <Filter>Capture</Filter>
+    </ClInclude>
+    <ClInclude Include="GDIFrameSource.h">
+      <Filter>Capture</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphicsCaptureFrameSource.h">
+      <Filter>Capture</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui_impl_dx11.h">
+      <Filter>Overlay</Filter>
+    </ClInclude>
+    <ClInclude Include="ImGuiImpl.h">
+      <Filter>Overlay</Filter>
+    </ClInclude>
+    <ClInclude Include="DDS.h">
+      <Filter>TextureLoader</Filter>
+    </ClInclude>
+    <ClInclude Include="DDSLoderHelpers.h">
+      <Filter>TextureLoader</Filter>
+    </ClInclude>
+    <ClInclude Include="TextureLoader.h">
+      <Filter>TextureLoader</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Runtime.def" />
@@ -66,6 +111,8 @@
     <Midl Include="Runtime.idl" />
   </ItemGroup>
   <ItemGroup>
-    <CopyFileToFolders Include="NotoSansSC-Regular.otf" />
+    <CopyFileToFolders Include="NotoSansSC-Regular.otf">
+      <Filter>Resources</Filter>
+    </CopyFileToFolders>
   </ItemGroup>
 </Project>
