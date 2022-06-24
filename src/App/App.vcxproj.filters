@@ -73,9 +73,6 @@
     <Page Include="AboutPage.xaml">
       <Filter>Pages</Filter>
     </Page>
-    <Page Include="SettingsExpanderStyles.xaml">
-      <Filter>Styles</Filter>
-    </Page>
     <Page Include="DummyTemplate.xaml">
       <Filter>Controls</Filter>
     </Page>

@@ -6,18 +6,21 @@
 	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	mc:Ignorable="d"
-	CornerRadius="{ThemeResource ControlCornerRadius}"
 	Background="{ThemeResource CardBackgroundBrush}"
-	BorderThickness="{ThemeResource CardBorderThickness}"
-	BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
 	IsTabStop="False"
-	HorizontalAlignment="Stretch"
-	HorizontalContentAlignment="Stretch"
-	Padding="16"
-	Margin="0,0,0,0"
 	IsEnabledChanged="IsEnabledChanged"
 	Loading="Loading">
-
+	<UserControl.Resources>
+		<Style TargetType="local:SettingItem">
+			<Setter Property="CornerRadius" Value="{ThemeResource ControlCornerRadius}" />
+			<Setter Property="BorderThickness" Value="{ThemeResource CardBorderThickness}" />
+			<Setter Property="BorderBrush" Value="{ThemeResource CardStrokeColorDefaultBrush}" />
+			<Setter Property="HorizontalAlignment" Value="Stretch" />
+			<Setter Property="HorizontalContentAlignment" Value="Stretch" />
+			<Setter Property="Padding" Value="16" />
+		</Style>
+	</UserControl.Resources>
+	
 	<Grid MinHeight="48"
 		  Padding="{x:Bind Padding, Mode=OneWay}"
 		  HorizontalAlignment="Stretch"

@@ -7,7 +7,6 @@
 	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	mc:Ignorable="d">
-
 	<local:PageFrame Title="Magpie">
 		<StackPanel Orientation="Vertical" HorizontalAlignment="Stretch">
 			<local:SettingsGroup Title="激活">
@@ -23,14 +22,25 @@
 						</local:ShortcutControl>
 					</local:SettingItem.ActionContent>
 				</local:SettingItem>
-				<local:SettingItem Title="计时器">
-					<local:SettingItem.Icon>
-						<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE916;"/>
-					</local:SettingItem.Icon>
-					<local:SettingItem.ActionContent>
-						<Button Content="5s 后缩放" />
-					</local:SettingItem.ActionContent>
-				</local:SettingItem>
+				<muxc:Expander
+                        HorizontalAlignment="Stretch"
+                        HorizontalContentAlignment="Stretch"
+                        IsExpanded="True"
+					Padding="0">
+					<muxc:Expander.Header>
+						<local:SettingItem Title="计时器" Style="{StaticResource ExpanderHeaderSettingStyle}">
+							<local:SettingItem.Icon>
+								<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE916;"/>
+							</local:SettingItem.Icon>
+							<local:SettingItem.ActionContent>
+								<Button Content="5s 后缩放" />
+							</local:SettingItem.ActionContent>
+						</local:SettingItem>
+					</muxc:Expander.Header>
+					<muxc:Expander.Content>
+						<Slider Width="200"/>
+					</muxc:Expander.Content>
+				</muxc:Expander>
 				<local:SettingItem Title="记忆缩放窗口" Description="当该窗口回到前台时将自动缩放">
 					<local:SettingItem.Icon>
 						<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE718;"/>
