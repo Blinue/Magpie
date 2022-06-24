@@ -24,7 +24,7 @@ struct StrUtils {
 	static std::string UTF16ToANSI(std::wstring_view str);
 
 	// 简单的 BSTR 包装器，用于管理生命周期
-	static struct BStr {
+	struct BStr {
 		BStr(std::wstring_view str);
 		BStr(BSTR str) {
 			_str = str;

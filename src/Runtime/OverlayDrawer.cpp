@@ -368,8 +368,7 @@ void OverlayDrawer::_DrawFPS() {
 
 // 只在 x86 和 x64 可用
 static std::string GetCPUNameViaCPUID() {
-	int nIDs = 0;
-	int nExIDs = 0;
+	// int nIDs = 0;
 
 	char strCPUName[0x40] = { };
 
@@ -382,7 +381,7 @@ static std::string GetCPUNameViaCPUID() {
 	// gets the number of the highest valid extended ID.
 	__cpuid(cpuInfo.data(), 0x80000000);
 
-	nExIDs = cpuInfo[0];
+	int nExIDs = cpuInfo[0];
 	for (int i = 0x80000000; i <= nExIDs; ++i) {
 		__cpuidex(cpuInfo.data(), i, 0);
 		extData.push_back(cpuInfo);
@@ -769,17 +768,19 @@ void OverlayDrawer::_DrawUI() {
 
 		std::vector<EffectTimings> effectTimings(nEffect);
 
-		UINT idx = 0;
-		for (UINT i = 0; i < nEffect; ++i) {
-			auto& effectTiming = effectTimings[i];
-			effectTiming.desc = &renderer.GetEffectDesc(i);
+		{
+			UINT idx = 0;
+			for (UINT i = 0; i < nEffect; ++i) {
+				auto& effectTiming = effectTimings[i];
+				effectTiming.desc = &renderer.GetEffectDesc(i);
 
-			UINT nPass = (UINT)effectTiming.desc->passes.size();
-			effectTiming.passTimings = { gpuTimings.passes.begin() + idx, nPass };
-			idx += nPass;
+				UINT nPass = (UINT)effectTiming.desc->passes.size();
+				effectTiming.passTimings = { gpuTimings.passes.begin() + idx, nPass };
+				idx += nPass;
 
-			for (float t : effectTiming.passTimings) {
-				effectTiming.totalTime += t;
+				for (float t : effectTiming.passTimings) {
+					effectTiming.totalTime += t;
+				}
 			}
 		}
 

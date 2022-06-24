@@ -31,6 +31,14 @@
 						<Button Content="5s 后缩放" />
 					</local:SettingItem.ActionContent>
 				</local:SettingItem>
+				<local:SettingItem Title="记忆缩放窗口" Description="当该窗口回到前台时将自动缩放">
+					<local:SettingItem.Icon>
+						<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE718;"/>
+					</local:SettingItem.Icon>
+					<local:SettingItem.ActionContent>
+						<ToggleSwitch x:Name="PortableModeToggleSwitch" />
+					</local:SettingItem.ActionContent>
+				</local:SettingItem>
 			</local:SettingsGroup>
 			<local:SettingsGroup Title="游戏内覆盖">
 				<local:SettingItem Title="快捷键" Description="自定义打开和关闭游戏内覆盖的快捷键">
