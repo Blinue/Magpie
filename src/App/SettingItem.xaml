@@ -6,12 +6,12 @@
 	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	mc:Ignorable="d"
-	Background="{ThemeResource CardBackgroundBrush}"
 	IsTabStop="False"
 	IsEnabledChanged="IsEnabledChanged"
 	Loading="Loading">
 	<UserControl.Resources>
 		<Style TargetType="local:SettingItem">
+			<Setter Property="Background" Value="{ThemeResource CardBackgroundBrush}" />
 			<Setter Property="CornerRadius" Value="{ThemeResource ControlCornerRadius}" />
 			<Setter Property="BorderThickness" Value="{ThemeResource CardBorderThickness}" />
 			<Setter Property="BorderBrush" Value="{ThemeResource CardStrokeColorDefaultBrush}" />
