@@ -30,6 +30,10 @@ public:
 		return _hotkeyManager;
 	}
 
+	Magpie::Runtime::MagRuntime MagRuntime() const {
+		return _magRuntime;
+	}
+
 	event_token HostWndFocusChanged(EventHandler<bool> const& handler);
 	void HostWndFocusChanged(event_token const& token) noexcept;
 

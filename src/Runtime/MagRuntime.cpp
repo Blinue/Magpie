@@ -10,15 +10,27 @@
 
 namespace winrt::Magpie::Runtime::implementation {
 
+MagRuntime::~MagRuntime() {
+	Stop();
+
+	if (_magWindThread.joinable()) {
+		_magWindThread.join();
+	}
+}
+
 void MagRuntime::Run(uint64_t hwndSrc, MagSettings const& settings) {
 	if (_running) {
 		return;
 	}
 
+	_hwndSrc = hwndSrc;
 	_running = true;
+	_isRunningChangedEvent(*this, true);
+
 	if (_magWindThread.joinable()) {
 		_magWindThread.join();
 	}
+
 	_magWindThread = std::thread([=, this]() {
 		winrt::init_apartment(winrt::apartment_type::multi_threaded);
 
@@ -30,6 +42,7 @@ void MagRuntime::Run(uint64_t hwndSrc, MagSettings const& settings) {
 		HRESULT hr = CreateDispatcherQueueController(options, (ABI::Windows::System::IDispatcherQueueController**)put_abi(_dqc));
 		if (FAILED(hr)) {
 			_running = false;
+			_isRunningChangedEvent(*this, false);
 			return;
 		}
 
@@ -38,6 +51,7 @@ void MagRuntime::Run(uint64_t hwndSrc, MagSettings const& settings) {
 
 		_running = false;
 		_dqc = nullptr;
+		_isRunningChangedEvent(*this, false);
 	});
 }
 
@@ -63,6 +77,15 @@ void MagRuntime::Stop() {
 	if (_magWindThread.joinable()) {
 		_magWindThread.join();
 	}
+}
+
+// 调用者应处理线程同步
+event_token MagRuntime::IsRunningChanged(EventHandler<bool> const& handler) {
+	return _isRunningChangedEvent.add(handler);
+}
+
+void MagRuntime::IsRunningChanged(event_token const& token) noexcept {
+	_isRunningChangedEvent.remove(token);
 }
 
 }

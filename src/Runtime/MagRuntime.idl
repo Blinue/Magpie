@@ -9,6 +9,9 @@ namespace Magpie.Runtime
         void ToggleOverlay();
         void Stop();
 
+        UInt64 HwndSrc { get; };
+
         Boolean IsRunning { get; };
+        event Windows.Foundation.EventHandler<Boolean> IsRunningChanged;
     }
 }
