@@ -50,7 +50,8 @@ private:
 	uint64_t _wndToRestore = 0;
 	event<EventHandler<uint64_t>> _wndToRestoreChangedEvent;
 
-	HWINEVENTHOOK _hEventHook = NULL;
+	HWINEVENTHOOK _hForegroundEventHook = NULL;
+	HWINEVENTHOOK _hDestoryEventHook = NULL;
 	static MagService* _that;
 };
 

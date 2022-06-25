@@ -61,9 +61,18 @@ void MagService::_UpdateIsAutoRestore() {
 
 		_that = this;
 		// 监听前台窗口更改
-		_hEventHook = SetWinEventHook(
-			EVENT_OBJECT_LOCATIONCHANGE,
-			EVENT_OBJECT_LOCATIONCHANGE,
+		_hForegroundEventHook = SetWinEventHook(
+			EVENT_SYSTEM_FOREGROUND,
+			EVENT_SYSTEM_FOREGROUND,
+			NULL,
+			_WinEventProcCallback,
+			0,
+			0,
+			WINEVENT_OUTOFCONTEXT
+		);
+		_hDestoryEventHook = SetWinEventHook(
+			EVENT_OBJECT_DESTROY,
+			EVENT_OBJECT_DESTROY,
 			NULL,
 			_WinEventProcCallback,
 			0,
@@ -75,21 +84,29 @@ void MagService::_UpdateIsAutoRestore() {
 		_curSrcWnd = NULL;
 		_wndToRestore = 0;
 		_wndToRestoreChangedEvent(*this, _wndToRestore);
-		if (_hEventHook) {
-			UnhookWinEvent(_hEventHook);
-			_hEventHook = NULL;
+		if (_hForegroundEventHook) {
+			UnhookWinEvent(_hForegroundEventHook);
+			_hForegroundEventHook = NULL;
+		}
+		if (_hDestoryEventHook) {
+			UnhookWinEvent(_hDestoryEventHook);
+			_hDestoryEventHook = NULL;
 		}
 	}
 }
 
 void MagService::_CheckForeground() {
-	if (_wndToRestore && !IsWindow((HWND)_wndToRestore)) {
+	if (!_wndToRestore || _magRuntime.IsRunning()) {
+		return;
+	}
+
+	if (!IsWindow((HWND)_wndToRestore)) {
 		_wndToRestore = 0;
 		_wndToRestoreChangedEvent(*this, _wndToRestore);
 		return;
 	}
 
-	if (_magRuntime.IsRunning() || (HWND)_wndToRestore != GetForegroundWindow()) {
+	if ((HWND)_wndToRestore != GetForegroundWindow()) {
 		return;
 	}
 
