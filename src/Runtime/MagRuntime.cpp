@@ -79,13 +79,4 @@ void MagRuntime::Stop() {
 	}
 }
 
-// 调用者应处理线程同步
-event_token MagRuntime::IsRunningChanged(EventHandler<bool> const& handler) {
-	return _isRunningChangedEvent.add(handler);
-}
-
-void MagRuntime::IsRunningChanged(event_token const& token) noexcept {
-	_isRunningChangedEvent.remove(token);
-}
-
 }

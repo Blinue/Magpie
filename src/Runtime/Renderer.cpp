@@ -235,16 +235,16 @@ const EffectDesc& Renderer::GetEffectDesc(UINT idx) const noexcept {
 bool Renderer::_CheckSrcState() {
 	HWND hwndSrc = MagApp::Get().GetHwndSrc();
 
-	/*if (!MagApp::Get().GetConfig().IsBreakpointMode()) {
+	//if (!MagApp::Get().GetConfig().IsBreakpointMode()) {
 		HWND hwndForeground = GetForegroundWindow();
 		// 在 3D 游戏模式下打开游戏内覆盖则全屏窗口可以接收焦点
-		if (!MagApp::Get().GetConfig().Is3DMode() || !IsUIVisiable() || hwndForeground != MagApp::Get().GetHwndHost()) {
+		if (/*!MagApp::Get().GetConfig().Is3DMode() ||*/ !IsUIVisiable() || hwndForeground != MagApp::Get().GetHwndHost()) {
 			if (hwndForeground && hwndForeground != hwndSrc && !CheckForeground(hwndForeground)) {
 				Logger::Get().Info("前台窗口已改变");
 				return false;
 			}
 		}
-	}*/
+	//}
 
 	if (Win32Utils::GetWindowShowCmd(hwndSrc) != SW_NORMAL) {
 		Logger::Get().Info("源窗口显示状态改变");

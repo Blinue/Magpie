@@ -26,8 +26,14 @@ struct Settings : SettingsT<Settings> {
 		return _theme;
 	}
 	void Theme(int value);
-	event_token ThemeChanged(EventHandler<int> const& handler);
-	void ThemeChanged(event_token const& token);
+
+	event_token ThemeChanged(EventHandler<int> const& handler) {
+		return _themeChangedEvent.add(handler);
+	}
+
+	void ThemeChanged(event_token const& token) {
+		_themeChangedEvent.remove(token);
+	}
 
 	Rect WindowRect() const noexcept {
 		return _windowRect;
@@ -48,8 +54,13 @@ struct Settings : SettingsT<Settings> {
 	Magpie::App::HotkeySettings GetHotkey(HotkeyAction action) const;
 	void SetHotkey(HotkeyAction action, Magpie::App::HotkeySettings const& value);
 
-	event_token HotkeyChanged(EventHandler<HotkeyAction> const& handler);
-	void HotkeyChanged(event_token const& token);
+	event_token HotkeyChanged(EventHandler<HotkeyAction> const& handler) {
+		return _hotkeyChangedEvent.add(handler);
+	}
+
+	void HotkeyChanged(event_token const& token) {
+		_hotkeyChangedEvent.remove(token);
+	}
 
 	bool IsAutoRestore() const noexcept {
 		return _isAutoRestore;
@@ -57,6 +68,14 @@ struct Settings : SettingsT<Settings> {
 
 	void IsAutoRestore(bool value) noexcept {
 		_isAutoRestore = value;
+	}
+
+	event_token IsAutoRestoreChanged(EventHandler<bool> const& handler) {
+		return _isAutoRestoreChangedEvent.add(handler);
+	}
+
+	void IsAutoRestoreChanged(event_token const& token) {
+		_isAutoRestoreChangedEvent.remove(token);
 	}
 
 	uint32_t DownCount() const noexcept {
@@ -87,6 +106,8 @@ private:
 	event<EventHandler<HotkeyAction>> _hotkeyChangedEvent;
 
 	bool _isAutoRestore = false;
+	event<EventHandler<bool>> _isAutoRestoreChangedEvent;
+
 	uint32_t _downCount = 5;
 };
 

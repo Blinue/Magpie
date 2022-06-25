@@ -23,8 +23,14 @@ struct MagRuntime : MagRuntimeT<MagRuntime> {
 		return _running ? _hwndSrc : 0;
 	}
 
-	event_token IsRunningChanged(EventHandler<bool> const& handler);
-	void IsRunningChanged(event_token const& token) noexcept;
+	// 调用者应处理线程同步
+	event_token IsRunningChanged(EventHandler<bool> const& handler) {
+		return _isRunningChangedEvent.add(handler);
+	}
+
+	void IsRunningChanged(event_token const& token) noexcept {
+		_isRunningChangedEvent.remove(token);
+	}
 
 private:
 	std::thread _magWindThread;

@@ -29,6 +29,8 @@ namespace Magpie.App
 		event Windows.Foundation.EventHandler<HotkeyAction> HotkeyChanged;
 
 		Boolean IsAutoRestore;
+		event Windows.Foundation.EventHandler<Boolean> IsAutoRestoreChanged;
+
 		UInt32 DownCount;
 	}
 }

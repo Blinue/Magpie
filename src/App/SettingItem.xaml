@@ -58,7 +58,8 @@
 			<TextBlock x:Name="TitleTextBlock"
 					   VerticalAlignment="Center"
 					   Foreground="{ThemeResource CardPrimaryForegroundBrush}"
-					   Text="{x:Bind Title, Mode=OneWay}" />
+					   Text="{x:Bind Title, Mode=OneWay}"
+					   TextWrapping="WrapWholeWords" />
 
 			<ContentPresenter x:Name="DescriptionPresenter"
 							  Content="{x:Bind Description, Mode=OneWay}"

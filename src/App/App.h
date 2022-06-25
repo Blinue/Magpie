@@ -38,10 +38,16 @@ public:
 		return _magService;
 	}
 
-	event_token HostWndFocusChanged(EventHandler<bool> const& handler);
-	void HostWndFocusChanged(event_token const& token) noexcept;
+	event_token HostWndFocusChanged(EventHandler<bool> const& handler) {
+		return _hostWndFocusChangedEvent.add(handler);
+	}
+
+	void HostWndFocusChanged(event_token const& token) noexcept {
+		_hostWndFocusChangedEvent.remove(token);
+	}
 
 	void OnHostWndFocusChanged(bool isFocused);
+
 	bool IsHostWndFocused() const noexcept {
 		return _isHostWndFocused;
 	}

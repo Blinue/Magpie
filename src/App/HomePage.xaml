@@ -6,7 +6,8 @@
 	xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
 	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-	mc:Ignorable="d">
+	mc:Ignorable="d"
+	Loaded="HomePage_Loaded">
 	<local:PageFrame Title="Magpie">
 		<StackPanel Orientation="Vertical" HorizontalAlignment="Stretch">
 			<local:SettingsGroup Title="激活">
@@ -47,7 +48,7 @@
 						</local:SettingItem>
 					</muxc:Expander.Content>
 				</muxc:Expander>
-				<local:SettingItem Title="记忆缩放窗口" Description="当该窗口回到前台时将自动缩放">
+				<local:SettingItem x:Name="AutoRestoreSettingItem" Title="记忆缩放窗口" Description="当该窗口回到前台时将自动缩放">
 					<local:SettingItem.Icon>
 						<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE944;"/>
 					</local:SettingItem.Icon>
@@ -55,6 +56,36 @@
 						<ToggleSwitch x:Name="AutoRestoreToggleSwitch" Toggled="AutoRestoreToggleSwitch_Toggled" />
 					</local:SettingItem.ActionContent>
 				</local:SettingItem>
+				<muxc:Expander
+					x:Name="AutoRestoreExpander"
+					IsExpanded="True"
+					Margin="0,-2,0,0"
+					HorizontalAlignment="Stretch"
+					HorizontalContentAlignment="Stretch"
+					Style="{StaticResource SettingExpanderStyle}">
+					<muxc:Expander.Header>
+						<local:SettingItem Title="记忆缩放窗口"
+										   Description="当该窗口回到前台时将自动缩放"
+										   Style="{StaticResource ExpanderHeaderSettingStyle}">
+							<local:SettingItem.Icon>
+								<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE944;"/>
+							</local:SettingItem.Icon>
+							<local:SettingItem.ActionContent>
+								<ToggleSwitch IsOn="True" Toggled="AutoRestoreToggleSwitch_Toggled" />
+							</local:SettingItem.ActionContent>
+						</local:SettingItem>
+					</muxc:Expander.Header>
+					<muxc:Expander.Content>
+						<local:SettingItem x:Name="AutoRestoreExpandedSettingItem" Title="当前窗口：Magpie" Style="{StaticResource ExpanderContentSettingStyle}">
+							<local:SettingItem.ActionContent>
+								<StackPanel Orientation="Horizontal" Spacing="5">
+									<Button Content="激活" Style="{StaticResource AccentButtonStyle}" />
+									<Button Content="忘记" />
+								</StackPanel>
+							</local:SettingItem.ActionContent>
+						</local:SettingItem>
+					</muxc:Expander.Content>
+				</muxc:Expander>
 			</local:SettingsGroup>
 			<local:SettingsGroup Title="游戏内覆盖">
 				<local:SettingItem Title="快捷键" Description="自定义打开和关闭游戏内覆盖的快捷键">
