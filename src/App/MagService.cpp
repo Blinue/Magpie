@@ -62,8 +62,8 @@ void MagService::_UpdateIsAutoRestore() {
 		_that = this;
 		// 监听前台窗口更改
 		_hEventHook = SetWinEventHook(
-			EVENT_SYSTEM_FOREGROUND,
-			EVENT_SYSTEM_FOREGROUND,
+			EVENT_OBJECT_LOCATIONCHANGE,
+			EVENT_OBJECT_LOCATIONCHANGE,
 			NULL,
 			_WinEventProcCallback,
 			0,
@@ -83,6 +83,12 @@ void MagService::_UpdateIsAutoRestore() {
 }
 
 void MagService::_CheckForeground() {
+	if (_wndToRestore && !IsWindow((HWND)_wndToRestore)) {
+		_wndToRestore = 0;
+		_wndToRestoreChangedEvent(*this, _wndToRestore);
+		return;
+	}
+
 	if (_magRuntime.IsRunning() || (HWND)_wndToRestore != GetForegroundWindow()) {
 		return;
 	}
