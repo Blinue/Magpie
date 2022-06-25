@@ -51,7 +51,10 @@ struct Settings : SettingsT<Settings> {
 		_isWindowMaximized = value;
 	}
 
-	Magpie::App::HotkeySettings GetHotkey(HotkeyAction action) const;
+	Magpie::App::HotkeySettings GetHotkey(HotkeyAction action) const {
+		return _hotkeys[(size_t)action];
+	}
+
 	void SetHotkey(HotkeyAction action, Magpie::App::HotkeySettings const& value);
 
 	event_token HotkeyChanged(EventHandler<HotkeyAction> const& handler) {
@@ -66,9 +69,7 @@ struct Settings : SettingsT<Settings> {
 		return _isAutoRestore;
 	}
 
-	void IsAutoRestore(bool value) noexcept {
-		_isAutoRestore = value;
-	}
+	void IsAutoRestore(bool value) noexcept;
 
 	event_token IsAutoRestoreChanged(EventHandler<bool> const& handler) {
 		return _isAutoRestoreChangedEvent.add(handler);

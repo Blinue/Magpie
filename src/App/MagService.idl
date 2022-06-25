@@ -7,5 +7,6 @@ namespace Magpie.App
 
 		UInt64 WndToRestore { get; };
 		event Windows.Foundation.EventHandler<UInt64> WndToRestoreChanged;
+		void ClearWndToRestore();
 	}
 }

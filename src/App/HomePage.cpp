@@ -4,6 +4,7 @@
 #include "HomePage.g.cpp"
 #endif
 #include "StrUtils.h"
+#include "Win32Utils.h"
 
 using namespace winrt;
 using namespace Windows::UI::Xaml::Controls::Primitives;
@@ -44,10 +45,28 @@ void HomePage::AutoRestoreToggleSwitch_Toggled(IInspectable const&, RoutedEventA
 	}
 }
 
+void HomePage::AutoRestoreExpanderToggleSwitch_Toggled(IInspectable const&, RoutedEventArgs const&) {
+	if (_settings) {
+		AutoRestoreToggleSwitch().IsOn(false);
+		AutoRestoreExpanderToggleSwitch().IsOn(true);
+	}
+}
+
 void HomePage::DownCountSlider_ValueChanged(IInspectable const&, RangeBaseValueChangedEventArgs const& args) {
 	if (_settings) {
 		_settings.DownCount((uint32_t)args.NewValue());
 	}
+}
+
+void HomePage::ActivateButton_Click(IInspectable const&, RoutedEventArgs const&) {
+	HWND wndToRestore = (HWND)_magService.WndToRestore();
+	if (wndToRestore) {
+		Win32Utils::SetForegroundWindow(wndToRestore);
+	}
+}
+
+void HomePage::ForgetButton_Click(IInspectable const&, RoutedEventArgs const&) {
+	_magService.ClearWndToRestore();
 }
 
 void HomePage::_MagService_WndToRestoreChanged(IInspectable const&, uint64_t) {

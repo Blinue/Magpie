@@ -12,7 +12,13 @@ struct HomePage : HomePageT<HomePage> {
 
 	void AutoRestoreToggleSwitch_Toggled(IInspectable const&, RoutedEventArgs const&);
 
+	void AutoRestoreExpanderToggleSwitch_Toggled(IInspectable const&, RoutedEventArgs const&);
+
 	void DownCountSlider_ValueChanged(IInspectable const&, Controls::Primitives::RangeBaseValueChangedEventArgs const& args);
+
+	void ActivateButton_Click(IInspectable const&, RoutedEventArgs const&);
+
+	void ForgetButton_Click(IInspectable const&, RoutedEventArgs const&);
 
 private:
 	void _MagService_WndToRestoreChanged(IInspectable const&, uint64_t);

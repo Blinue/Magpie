@@ -71,7 +71,7 @@
 								<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE944;"/>
 							</local:SettingItem.Icon>
 							<local:SettingItem.ActionContent>
-								<ToggleSwitch IsOn="True" Toggled="AutoRestoreToggleSwitch_Toggled" />
+								<ToggleSwitch x:Name="AutoRestoreExpanderToggleSwitch" IsOn="True" Toggled="AutoRestoreExpanderToggleSwitch_Toggled" />
 							</local:SettingItem.ActionContent>
 						</local:SettingItem>
 					</muxc:Expander.Header>
@@ -79,8 +79,8 @@
 						<local:SettingItem x:Name="AutoRestoreExpandedSettingItem" Title="当前窗口：Magpie" Style="{StaticResource ExpanderContentSettingStyle}">
 							<local:SettingItem.ActionContent>
 								<StackPanel Orientation="Horizontal" Spacing="5">
-									<Button Content="激活" Style="{StaticResource AccentButtonStyle}" />
-									<Button Content="忘记" />
+									<Button Click="ActivateButton_Click" Content="激活" Style="{StaticResource AccentButtonStyle}" />
+									<Button Click="ForgetButton_Click" Content="忘记" />
 								</StackPanel>
 							</local:SettingItem.ActionContent>
 						</local:SettingItem>

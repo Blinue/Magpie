@@ -162,10 +162,6 @@ void Settings::Theme(int value) {
 	_themeChangedEvent(*this, value);
 }
 
-Magpie::App::HotkeySettings Settings::GetHotkey(HotkeyAction action) const {
-	return _hotkeys[(size_t)action];
-}
-
 void Settings::SetHotkey(HotkeyAction action, Magpie::App::HotkeySettings const& value) {
 	if (_hotkeys[(size_t)action].Equals(value)) {
 		return;
@@ -174,6 +170,15 @@ void Settings::SetHotkey(HotkeyAction action, Magpie::App::HotkeySettings const&
 	_hotkeys[(size_t)action].CopyFrom(value);
 	Logger::Get().Info(fmt::format("热键 {} 已更改为 {}", HotkeyHelper::ToString(action), StrUtils::UTF16ToUTF8(value.ToString())));
 	_hotkeyChangedEvent(*this, action);
+}
+
+void Settings::IsAutoRestore(bool value) noexcept {
+	if (_isAutoRestore == value) {
+		return;
+	}
+
+	_isAutoRestore = value;
+	_isAutoRestoreChangedEvent(*this, value);
 }
 
 // 遇到不合法的配置项会失败，因此用户不应直接编辑配置文件
