@@ -42,7 +42,7 @@
 					<muxc:Expander.Content>
 						<local:SettingItem Title="倒计时时长" Style="{StaticResource ExpanderContentSettingStyle}">
 							<local:SettingItem.ActionContent>
-								<Slider Width="150" Minimum="1" Maximum="5" TickFrequency="1"/>
+								<Slider x:Name="DownCountSlider" ValueChanged="DownCountSlider_ValueChanged" Width="150" Minimum="1" Maximum="5" TickFrequency="1"/>
 							</local:SettingItem.ActionContent>
 						</local:SettingItem>
 					</muxc:Expander.Content>
@@ -52,7 +52,7 @@
 						<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE944;"/>
 					</local:SettingItem.Icon>
 					<local:SettingItem.ActionContent>
-						<ToggleSwitch x:Name="PortableModeToggleSwitch" />
+						<ToggleSwitch x:Name="AutoRestoreToggleSwitch" Toggled="AutoRestoreToggleSwitch_Toggled" />
 					</local:SettingItem.ActionContent>
 				</local:SettingItem>
 			</local:SettingsGroup>

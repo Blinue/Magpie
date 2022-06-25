@@ -1,0 +1,8 @@
+namespace Magpie.App
+{
+	[default_interface]
+	runtimeclass MagService 
+	{
+		MagService(Settings settings, Magpie.Runtime.MagRuntime magRuntime);
+	}
+}

@@ -51,6 +51,22 @@ struct Settings : SettingsT<Settings> {
 	event_token HotkeyChanged(EventHandler<HotkeyAction> const& handler);
 	void HotkeyChanged(event_token const& token);
 
+	bool IsAutoRestore() const noexcept {
+		return _isAutoRestore;
+	}
+
+	void IsAutoRestore(bool value) noexcept {
+		_isAutoRestore = value;
+	}
+
+	uint32_t DownCount() const noexcept {
+		return _downCount;
+	}
+
+	void DownCount(uint32_t value) noexcept {
+		_downCount = value;
+	}
+
 private:
 	bool _LoadSettings(std::string text);
 	void _SetDefaultHotkeys();
@@ -69,6 +85,9 @@ private:
 
 	std::array<Magpie::App::HotkeySettings, (size_t)HotkeyAction::COUNT_OR_NONE> _hotkeys;
 	event<EventHandler<HotkeyAction>> _hotkeyChangedEvent;
+
+	bool _isAutoRestore = false;
+	uint32_t _downCount = 5;
 };
 
 }

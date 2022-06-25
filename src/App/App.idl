@@ -13,6 +13,7 @@
 #include "HotkeyManager.idl"
 #include "ShortcutControl.idl"
 #include "ShortcutDialogContent.idl"
+#include "MagService.idl"
 
 
 namespace Magpie.App {
@@ -26,6 +27,8 @@ namespace Magpie.App {
 
 		Settings Settings { get; };
 		HotkeyManager HotkeyManager { get; };
+		Magpie.Runtime.MagRuntime MagRuntime{ get; };
+		MagService MagService { get; };
 
 		UInt64 HwndHost { get; };
 

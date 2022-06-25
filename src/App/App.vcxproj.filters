@@ -61,6 +61,7 @@
     <None Include="HotkeySettings.idl" />
     <None Include="HotkeyManager.idl" />
     <None Include="LoggerHelper.idl" />
+    <None Include="MagService.idl" />
   </ItemGroup>
   <ItemGroup>
     <Page Include="MainPage.xaml" />

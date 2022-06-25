@@ -111,6 +111,11 @@ bool Settings::Save() {
 	writer.String(StrUtils::UTF16ToUTF8(_hotkeys[(size_t)HotkeyAction::Overlay].ToString()).c_str());
 	writer.EndObject();
 
+	writer.Key("autoRestore");
+	writer.Bool(_isAutoRestore);
+	writer.Key("downCount");
+	writer.Uint(_downCount);
+
 	writer.EndObject();
 
 	if (!Win32Utils::WriteTextFile(StrUtils::ConcatW(_workingDir, CommonSharedConstants::CONFIG_PATH_W).c_str(), json.GetString())) {
@@ -273,6 +278,26 @@ bool Settings::_LoadSettings(std::string text) {
 			if (overlayNode != hotkeysObj.MemberEnd() && overlayNode->value.IsString()) {
 				_hotkeys[(size_t)HotkeyAction::Overlay].FromString(StrUtils::UTF8ToUTF16(overlayNode->value.GetString()));
 			}
+		}
+	}
+	{
+		auto autoRestoreNode = root.FindMember("autoRestore");
+		if (autoRestoreNode != root.MemberEnd()) {
+			if (!autoRestoreNode->value.IsBool()) {
+				return false;
+			}
+
+			_isAutoRestore = autoRestoreNode->value.GetBool();
+		}
+	}
+	{
+		auto downCountNode = root.FindMember("downCount");
+		if (downCountNode != root.MemberEnd()) {
+			if (!downCountNode->value.IsUint()) {
+				return false;
+			}
+
+			_downCount = downCountNode->value.GetUint();
 		}
 	}
 

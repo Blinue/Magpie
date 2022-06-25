@@ -124,6 +124,10 @@
       <DependentUpon>LoggerHelper.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
+    <ClInclude Include="MagService.h">
+      <DependentUpon>MagService.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClInclude>
     <ClInclude Include="PageFrame.h">
       <DependentUpon>PageFrame.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -205,6 +209,10 @@
       <DependentUpon>LoggerHelper.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
+    <ClCompile Include="MagService.cpp">
+      <DependentUpon>MagService.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClCompile>
     <ClCompile Include="PageFrame.cpp">
       <DependentUpon>PageFrame.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -272,6 +280,9 @@
       <SubType>Designer</SubType>
     </None>
     <None Include="LoggerHelper.idl">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="MagService.idl">
       <SubType>Designer</SubType>
     </None>
     <Midl Include="PageFrame.idl">

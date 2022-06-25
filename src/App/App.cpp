@@ -54,6 +54,8 @@ bool App::Initialize(Magpie::App::Settings const& settings, uint64_t hwndHost) {
 	_hwndHost = hwndHost;
 	_settings = settings;
 
+	_magService = Magpie::App::MagService(settings, _magRuntime);
+
 	// HotkeyManager 中的回调总是最先调用
 	_hotkeyManager = Magpie::App::HotkeyManager(settings, hwndHost);
 	_hotkeyPressedRevoker = _hotkeyManager.HotkeyPressed(auto_revoke, { this, &App::_HotkeyManger_HotkeyPressed });

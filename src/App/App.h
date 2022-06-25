@@ -18,20 +18,24 @@ public:
 
 	bool Initialize(Magpie::App::Settings const& settings, uint64_t hwndHost);
 
-	uint64_t HwndHost() const {
+	uint64_t HwndHost() const noexcept {
 		return _hwndHost;
 	}
 
-	Magpie::App::Settings Settings() const {
+	Magpie::App::Settings Settings() const noexcept {
 		return _settings;
 	}
 
-	Magpie::App::HotkeyManager HotkeyManager() const {
+	Magpie::App::HotkeyManager HotkeyManager() const noexcept {
 		return _hotkeyManager;
 	}
 
-	Magpie::Runtime::MagRuntime MagRuntime() const {
+	Magpie::Runtime::MagRuntime MagRuntime() const noexcept {
 		return _magRuntime;
+	}
+
+	Magpie::App::MagService MagService() const noexcept {
+		return _magService;
 	}
 
 	event_token HostWndFocusChanged(EventHandler<bool> const& handler);
@@ -49,6 +53,7 @@ private:
 	Magpie::Runtime::MagSettings _magSettings;
 	Magpie::App::HotkeyManager _hotkeyManager{ nullptr };
 	Magpie::Runtime::MagRuntime _magRuntime;
+	Magpie::App::MagService _magService{ nullptr };
 	uint64_t _hwndHost{};
 
 	event<EventHandler<bool>> _hostWndFocusChangedEvent;

@@ -27,5 +27,8 @@ namespace Magpie.App
 		HotkeySettings GetHotkey(HotkeyAction action);
 		void SetHotkey(HotkeyAction action, HotkeySettings value);
 		event Windows.Foundation.EventHandler<HotkeyAction> HotkeyChanged;
+
+		Boolean IsAutoRestore;
+		UInt32 DownCount;
 	}
 }
