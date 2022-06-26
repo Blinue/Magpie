@@ -70,6 +70,7 @@ void MagService::_UpdateIsAutoRestore() {
 			0,
 			WINEVENT_OUTOFCONTEXT
 		);
+		// 监听窗口销毁
 		_hDestoryEventHook = SetWinEventHook(
 			EVENT_OBJECT_DESTROY,
 			EVENT_OBJECT_DESTROY,

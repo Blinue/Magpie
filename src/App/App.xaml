@@ -54,8 +54,12 @@
 				<Setter Property="BorderThickness" Value="0" />
 				<Setter Property="BorderBrush" Value="Transparent" />
 				<Setter Property="Padding" Value="0,14,0,14" />
-				<Setter Property="Margin" Value="0,0,3,0" />
+				<Setter Property="Margin" Value="-1,0,3,0" />
 				<Setter Property="HorizontalAlignment" Value="Stretch" />
+			</Style>
+
+			<Style x:Key="ExpanderHeaderSettingIconStyle" TargetType="FontIcon">
+				<Setter Property="Margin" Value="0,0,1,0" />
 			</Style>
 
 			<Thickness x:Key="ExpanderChevronMargin">0,0,8,0</Thickness>
