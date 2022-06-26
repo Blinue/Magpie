@@ -38,8 +38,8 @@
 							<local:SettingItem.ActionContent>
 								<StackPanel Orientation="Horizontal" Spacing="5">
 									<Grid x:Name="CountdownVisual" Visibility="Collapsed">
-										<muxc:ProgressRing x:Name="CountdownProgressRing" FlowDirection="RightToLeft" Width="30" Height="30" Minimum="0" Maximum="1" Value="0.7" IsIndeterminate="False" />
-										<TextBlock Margin="0,-1,0,0" VerticalAlignment="Center" HorizontalAlignment="Center" Text="2" />
+										<muxc:ProgressRing x:Name="CountdownProgressRing" FlowDirection="RightToLeft" Width="30" Height="30" Minimum="0" Maximum="1" IsIndeterminate="False" />
+										<TextBlock x:Name="CountdownTextBlock" Margin="0,-1,0,0" VerticalAlignment="Center" HorizontalAlignment="Center" Text="2" />
 									</Grid>
 									<Button x:Name="CountdownButton" Click="CountdownButton_Click" />
 								</StackPanel>

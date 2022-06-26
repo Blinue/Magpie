@@ -7,6 +7,7 @@ namespace Magpie.App
 
 		void StartCountdown();
 		void StopCountdown();
+
 		Boolean IsCountingDown { get; };
 		event Windows.Foundation.EventHandler<Boolean> IsCountingDownChanged;
 		UInt32 TickingDownCount { get; };

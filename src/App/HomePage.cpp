@@ -105,9 +105,13 @@ void HomePage::_MagService_IsCountingDownChanged(IInspectable const&, bool value
 		CountdownVisual().Visibility(Visibility::Collapsed);
 		CountdownButton().Content(box_value(fmt::format(L"{} 秒后缩放", _settings.DownCount())));
 	}
+
+	_MagService_CountdownTick(nullptr, (float)_magService.TickingDownCount());
 }
 
 void HomePage::_MagService_CountdownTick(IInspectable const&, float value) {
+	CountdownProgressRing().Value(value / _magService.TickingDownCount());
+	CountdownTextBlock().Text(std::to_wstring((int)std::ceil(value)));
 }
 
 void HomePage::_MagService_WndToRestoreChanged(IInspectable const&, uint64_t) {

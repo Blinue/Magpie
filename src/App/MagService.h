@@ -51,6 +51,8 @@ struct MagService : MagServiceT<MagService> {
 	void ClearWndToRestore();
 
 private:
+	void _Timer_Tick(IInspectable const&, IInspectable const&);
+
 	void _Settings_IsAutoRestoreChanged(IInspectable const&, bool);
 
 	void _UpdateIsAutoRestore();
@@ -73,6 +75,10 @@ private:
 
 	Magpie::App::Settings::IsAutoRestoreChanged_revoker _isAutoRestoreChangedRevoker;
 	Magpie::Runtime::MagRuntime::IsRunningChanged_revoker _isRunningChangedRevoker;
+
+	DispatcherTimer _timer;
+	DispatcherTimer::Tick_revoker _timerTickRevoker;
+	std::chrono::steady_clock::time_point _timerStartTimePoint;
 
 	uint32_t _tickingDownCount = 0;
 	event<EventHandler<bool>> _isCountingDownChangedEvent;
