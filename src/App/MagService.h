@@ -8,6 +8,34 @@ namespace winrt::Magpie::App::implementation {
 struct MagService : MagServiceT<MagService> {
 	MagService(Magpie::App::Settings const& settings, Magpie::Runtime::MagRuntime const& magRuntime, CoreDispatcher const& dispatcher);
 
+	void StartCountdown();
+
+	void StopCountdown();
+
+	bool IsCountingDown() const noexcept {
+		return _tickingDownCount > 0;
+	}
+
+	event_token IsCountingDownChanged(EventHandler<bool> const& handler) {
+		return _isCountingDownChangedEvent.add(handler);
+	}
+
+	void IsCountingDownChanged(event_token const& token) noexcept {
+		_isCountingDownChangedEvent.remove(token);
+	}
+
+	uint32_t TickingDownCount() const noexcept {
+		return _tickingDownCount;
+	}
+
+	event_token CountdownTick(EventHandler<float> const& handler) {
+		return _countdownTickEvent.add(handler);
+	}
+
+	void CountdownTick(event_token const& token) noexcept {
+		_countdownTickEvent.remove(token);
+	}
+
 	uint64_t WndToRestore() const noexcept {
 		return _wndToRestore;
 	}
@@ -45,6 +73,10 @@ private:
 
 	Magpie::App::Settings::IsAutoRestoreChanged_revoker _isAutoRestoreChangedRevoker;
 	Magpie::Runtime::MagRuntime::IsRunningChanged_revoker _isRunningChangedRevoker;
+
+	uint32_t _tickingDownCount = 0;
+	event<EventHandler<bool>> _isCountingDownChangedEvent;
+	event<EventHandler<float>> _countdownTickEvent;
 
 	HWND _curSrcWnd = 0;
 	uint64_t _wndToRestore = 0;

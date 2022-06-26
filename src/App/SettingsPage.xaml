@@ -41,7 +41,7 @@
 				</local:SettingItem>
 			</local:SettingsGroup>
 			<local:SettingsGroup Title="调试">
-				<local:SettingItem Title="断点模式" Description="修改缩放行为以便于在 Visual Studio 中调试">
+				<local:SettingItem Title="断点模式" Description="更改缩放行为以便于在 Visual Studio 中调试">
 					<local:SettingItem.Icon>
 						<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xF272;"/>
 					</local:SettingItem.Icon>

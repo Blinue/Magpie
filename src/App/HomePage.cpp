@@ -20,13 +20,33 @@ HomePage::HomePage() {
 	_magService = app.MagService();
 	_magRuntime = app.MagRuntime();
 
+	_isCountingDownRevoker = _magService.IsCountingDownChanged(
+		auto_revoke,
+		{ this, &HomePage::_MagService_IsCountingDownChanged }
+	);
+
+	_countdownTickRevoker = _magService.CountdownTick(
+		auto_revoke,
+		{ this, &HomePage::_MagService_CountdownTick }
+	);
+
 	_wndToRestoreChangedRevoker = _magService.WndToRestoreChanged(
 		auto_revoke,
 		{ this, &HomePage::_MagService_WndToRestoreChanged}
 	);
 
+	_downCountChangedRevoker = _settings.DownCountChanged(
+		auto_revoke,
+		{ this, &HomePage::_Settings_DownCountChanged}
+	);
+
+	_isRunningChangedRevoker = _magRuntime.IsRunningChanged(
+		auto_revoke,
+		{ this, &HomePage::_MagRuntime_IsRunningChanged }
+	);
+
 	AutoRestoreToggleSwitch().IsOn(_settings.IsAutoRestore());
-	DownCountSlider().Value(_settings.DownCount());
+	_UpdateDownCount();
 }
 
 void HomePage::HomePage_Loaded(IInspectable const&, RoutedEventArgs const&) {
@@ -52,7 +72,7 @@ void HomePage::AutoRestoreExpanderToggleSwitch_Toggled(IInspectable const&, Rout
 	}
 }
 
-void HomePage::DownCountSlider_ValueChanged(IInspectable const&, RangeBaseValueChangedEventArgs const& args) {
+void HomePage::CountdownSlider_ValueChanged(IInspectable const&, RangeBaseValueChangedEventArgs const& args) {
 	if (_settings) {
 		_settings.DownCount((uint32_t)args.NewValue());
 	}
@@ -69,8 +89,39 @@ void HomePage::ForgetButton_Click(IInspectable const&, RoutedEventArgs const&) {
 	_magService.ClearWndToRestore();
 }
 
+void HomePage::CountdownButton_Click(IInspectable const&, RoutedEventArgs const&) {
+	if (_magService.IsCountingDown()) {
+		_magService.StopCountdown();
+	} else {
+		_magService.StartCountdown();
+	}
+}
+
+void HomePage::_MagService_IsCountingDownChanged(IInspectable const&, bool value) {
+	if (value) {
+		CountdownVisual().Visibility(Visibility::Visible);
+		CountdownButton().Content(box_value(L"取消"));
+	} else {
+		CountdownVisual().Visibility(Visibility::Collapsed);
+		CountdownButton().Content(box_value(fmt::format(L"{} 秒后缩放", _settings.DownCount())));
+	}
+}
+
+void HomePage::_MagService_CountdownTick(IInspectable const&, float value) {
+}
+
 void HomePage::_MagService_WndToRestoreChanged(IInspectable const&, uint64_t) {
 	_UpdateAutoRestoreState();
+}
+
+void HomePage::_Settings_DownCountChanged(IInspectable const&, uint64_t) {
+	_UpdateDownCount();
+}
+
+IAsyncAction HomePage::_MagRuntime_IsRunningChanged(IInspectable const&, bool value) {
+	co_await Dispatcher().RunAsync(CoreDispatcherPriority::Normal, [&, value]() {
+		CountdownButton().IsEnabled(!value);
+	});
 }
 
 void HomePage::_UpdateAutoRestoreState() {
@@ -91,6 +142,14 @@ void HomePage::_UpdateAutoRestoreState() {
 		AutoRestoreSettingItem().Visibility(Visibility::Visible);
 		autoRestoreExpander.Visibility(Visibility::Collapsed);
 		autoRestoreExpander.IsExpanded(false);
+	}
+}
+
+void HomePage::_UpdateDownCount() {
+	uint32_t downCount = _settings.DownCount();
+	CountdownSlider().Value(downCount);
+	if (!_magService.IsCountingDown()) {
+		CountdownButton().Content(box_value(fmt::format(L"{} 秒后缩放", downCount)));
 	}
 }
 

@@ -83,8 +83,14 @@ struct Settings : SettingsT<Settings> {
 		return _downCount;
 	}
 
-	void DownCount(uint32_t value) noexcept {
-		_downCount = value;
+	void DownCount(uint32_t value) noexcept;
+
+	event_token DownCountChanged(EventHandler<uint32_t> const& handler) {
+		return _downCountChangedEvent.add(handler);
+	}
+
+	void DownCountChanged(event_token const& token) {
+		_downCountChangedEvent.remove(token);
 	}
 
 private:
@@ -110,6 +116,7 @@ private:
 	event<EventHandler<bool>> _isAutoRestoreChangedEvent;
 
 	uint32_t _downCount = 5;
+	event<EventHandler<uint32_t>> _downCountChangedEvent;
 };
 
 }

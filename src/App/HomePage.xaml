@@ -36,14 +36,20 @@
 								<FontIcon Style="{StaticResource ExpanderHeaderSettingIconStyle}" FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE916;"/>
 							</local:SettingItem.Icon>
 							<local:SettingItem.ActionContent>
-								<Button Content="5s 后缩放" />
+								<StackPanel Orientation="Horizontal" Spacing="5">
+									<Grid x:Name="CountdownVisual" Visibility="Collapsed">
+										<muxc:ProgressRing x:Name="CountdownProgressRing" FlowDirection="RightToLeft" Width="30" Height="30" Minimum="0" Maximum="1" Value="0.7" IsIndeterminate="False" />
+										<TextBlock Margin="0,-1,0,0" VerticalAlignment="Center" HorizontalAlignment="Center" Text="2" />
+									</Grid>
+									<Button x:Name="CountdownButton" Click="CountdownButton_Click" />
+								</StackPanel>
 							</local:SettingItem.ActionContent>
 						</local:SettingItem>
 					</muxc:Expander.Header>
 					<muxc:Expander.Content>
 						<local:SettingItem Title="倒计时时长" Style="{StaticResource ExpanderContentSettingStyle}">
 							<local:SettingItem.ActionContent>
-								<Slider x:Name="DownCountSlider" ValueChanged="DownCountSlider_ValueChanged" Width="150" Minimum="1" Maximum="5" TickFrequency="1"/>
+								<Slider x:Name="CountdownSlider" ValueChanged="CountdownSlider_ValueChanged" Width="150" Minimum="1" Maximum="5" TickFrequency="1"/>
 							</local:SettingItem.ActionContent>
 						</local:SettingItem>
 					</muxc:Expander.Content>
@@ -59,7 +65,7 @@
 				<muxc:Expander
 					x:Name="AutoRestoreExpander"
 					IsExpanded="True"
-					Margin="0,-3,0,0"
+					Margin="0,-3,0,3"
 					HorizontalAlignment="Stretch"
 					HorizontalContentAlignment="Stretch"
 					Style="{StaticResource SettingExpanderStyle}">
@@ -76,7 +82,7 @@
 						</local:SettingItem>
 					</muxc:Expander.Header>
 					<muxc:Expander.Content>
-						<local:SettingItem x:Name="AutoRestoreExpandedSettingItem" Title="当前窗口：Magpie" Style="{StaticResource ExpanderContentSettingStyle}">
+						<local:SettingItem x:Name="AutoRestoreExpandedSettingItem" Style="{StaticResource ExpanderContentSettingStyle}">
 							<local:SettingItem.ActionContent>
 								<StackPanel Orientation="Horizontal" Spacing="5">
 									<Button Click="ActivateButton_Click" Content="激活" Style="{StaticResource AccentButtonStyle}" />

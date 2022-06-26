@@ -181,6 +181,15 @@ void Settings::IsAutoRestore(bool value) noexcept {
 	_isAutoRestoreChangedEvent(*this, value);
 }
 
+void Settings::DownCount(uint32_t value) noexcept {
+	if (_downCount == value) {
+		return;
+	}
+
+	_downCount = value;
+	_downCountChangedEvent(*this, value);
+}
+
 // 遇到不合法的配置项会失败，因此用户不应直接编辑配置文件
 bool Settings::_LoadSettings(std::string text) {
 	if (text.empty()) {

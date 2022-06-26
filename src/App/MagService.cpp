@@ -22,7 +22,29 @@ MagService::MagService(
 	_UpdateIsAutoRestore();
 }
 
+void MagService::StartCountdown() {
+	if (_tickingDownCount != 0) {
+		return;
+	}
+
+	_tickingDownCount = _settings.DownCount();
+	_isCountingDownChangedEvent(*this, true);
+}
+
+void MagService::StopCountdown() {
+	if (_tickingDownCount == 0) {
+		return;
+	}
+
+	_tickingDownCount = 0;
+	_isCountingDownChangedEvent(*this, false);
+}
+
 void MagService::ClearWndToRestore() {
+	if (_wndToRestore == 0) {
+		return;
+	}
+
 	_wndToRestore = 0;
 	_wndToRestoreChangedEvent(*this, _wndToRestore);
 }
