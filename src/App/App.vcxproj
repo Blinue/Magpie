@@ -103,6 +103,10 @@
       <SubType>Code</SubType>
     </ClInclude>
     <ClInclude Include="app.base.h" />
+    <ClInclude Include="BooleanToVisibilityConverter.h">
+      <DependentUpon>BooleanToVisibilityConverter.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClInclude>
     <ClInclude Include="DummyTemplate.h">
       <DependentUpon>DummyTemplate.idl</DependentUpon>
       <SubType>Code</SubType>
@@ -186,6 +190,10 @@
   <ItemGroup>
     <ClCompile Include="AboutPage.cpp">
       <DependentUpon>AboutPage.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </ClCompile>
+    <ClCompile Include="BooleanToVisibilityConverter.cpp">
+      <DependentUpon>BooleanToVisibilityConverter.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
     <ClCompile Include="DummyTemplate.cpp">
@@ -285,6 +293,9 @@
     <None Include="MagService.idl">
       <SubType>Designer</SubType>
     </None>
+    <Midl Include="BooleanToVisibilityConverter.idl">
+      <SubType>Designer</SubType>
+    </Midl>
     <Midl Include="PageFrame.idl">
       <DependentUpon>PageFrame.xaml</DependentUpon>
       <SubType>Code</SubType>

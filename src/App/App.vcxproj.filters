@@ -5,6 +5,9 @@
   </ItemGroup>
   <ItemGroup>
     <Midl Include="App.idl" />
+    <Midl Include="BooleanToVisibilityConverter.idl">
+      <Filter>Converters</Filter>
+    </Midl>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
@@ -41,6 +44,9 @@
     </Filter>
     <Filter Include="Miscellaneous">
       <UniqueIdentifier>{7a45d2bb-695d-4658-8fb9-a3d1f3b5aff8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Converters">
+      <UniqueIdentifier>{da249886-cfc3-4502-ac6b-a4a2b71807ce}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
