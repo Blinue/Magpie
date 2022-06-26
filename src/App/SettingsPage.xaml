@@ -25,10 +25,52 @@
 				</local:SettingItem>
 				<local:SettingItem Title="便携模式" Description="更改用户数据的保存位置">
 					<local:SettingItem.Icon>
-						<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xEC0A;"/>
+						<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE88E;"/>
 					</local:SettingItem.Icon>
 					<local:SettingItem.ActionContent>
 						<ToggleSwitch x:Name="PortableModeToggleSwitch" Toggled="PortableModeToggleSwitch_Toggled" />
+					</local:SettingItem.ActionContent>
+				</local:SettingItem>
+				<local:SettingItem Title="开发者模式" Description="打开里世界的大门">
+					<local:SettingItem.Icon>
+						<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xEC7A;"/>
+					</local:SettingItem.Icon>
+					<local:SettingItem.ActionContent>
+						<ToggleSwitch />
+					</local:SettingItem.ActionContent>
+				</local:SettingItem>
+			</local:SettingsGroup>
+			<local:SettingsGroup Title="调试">
+				<local:SettingItem Title="断点模式" Description="修改缩放行为以便于在 Visual Studio 中调试">
+					<local:SettingItem.Icon>
+						<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xF272;"/>
+					</local:SettingItem.Icon>
+					<local:SettingItem.ActionContent>
+						<ToggleSwitch />
+					</local:SettingItem.ActionContent>
+				</local:SettingItem>
+				<local:SettingItem Title="禁用效果缓存">
+					<local:SettingItem.Icon>
+						<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xEC7A;"/>
+					</local:SettingItem.Icon>
+					<local:SettingItem.ActionContent>
+						<ToggleSwitch />
+					</local:SettingItem.ActionContent>
+				</local:SettingItem>
+				<local:SettingItem Title="解析效果时保存源代码">
+					<local:SettingItem.Icon>
+						<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE943;"/>
+					</local:SettingItem.Icon>
+					<local:SettingItem.ActionContent>
+						<ToggleSwitch />
+					</local:SettingItem.ActionContent>
+				</local:SettingItem>
+				<local:SettingItem Title="编译效果时将警告视为错误">
+					<local:SettingItem.Icon>
+						<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xEC7A;"/>
+					</local:SettingItem.Icon>
+					<local:SettingItem.ActionContent>
+						<ToggleSwitch />
 					</local:SettingItem.ActionContent>
 				</local:SettingItem>
 			</local:SettingsGroup>
