@@ -49,6 +49,19 @@ void MagService::StopCountdown() {
 	_isCountingDownChangedEvent(*this, false);
 }
 
+float MagService::CountdownLeft() const noexcept {
+	using namespace std::chrono;
+
+	if (!IsCountingDown()) {
+		return 0.0f;
+	}
+
+	// DispatcherTimer 误差很大，因此我们自己计算剩余时间
+	auto now = steady_clock::now();
+	int timeLeft = (int)duration_cast<milliseconds>(_timerStartTimePoint + seconds(_tickingDownCount) - now).count();
+	return timeLeft / 1000.0f;
+}
+
 void MagService::ClearWndToRestore() {
 	if (_wndToRestore == 0) {
 		return;
@@ -59,20 +72,16 @@ void MagService::ClearWndToRestore() {
 }
 
 void MagService::_Timer_Tick(IInspectable const&, IInspectable const&) {
-	using namespace std::chrono;
-
-	// DispatcherTimer 误差很大，因此我们自己计算剩余时间
-	auto now = steady_clock::now();
-	int timeLeft = (int)duration_cast<milliseconds>(_timerStartTimePoint + seconds(_tickingDownCount) - now).count();
+	float timeLeft = CountdownLeft();
 
 	// 剩余时间在 10 ms 以内计时结束
-	if (timeLeft < 10) {
+	if (timeLeft < 0.01) {
 		StopCountdown();
 		_magRuntime.Run((uint64_t)GetForegroundWindow(), Magpie::Runtime::MagSettings());
 		return;
 	}
 	
-	_countdownTickEvent(*this, timeLeft / 1000.0f);
+	_countdownTickEvent(*this, timeLeft);
 }
 
 void MagService::_Settings_IsAutoRestoreChanged(IInspectable const&, bool) {

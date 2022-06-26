@@ -11,6 +11,7 @@ namespace Magpie.App
 		Boolean IsCountingDown { get; };
 		event Windows.Foundation.EventHandler<Boolean> IsCountingDownChanged;
 		UInt32 TickingDownCount { get; };
+		Single CountdownLeft { get; };
 		event Windows.Foundation.EventHandler<Single> CountdownTick;
 
 		UInt64 WndToRestore { get; };

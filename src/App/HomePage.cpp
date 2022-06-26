@@ -98,15 +98,7 @@ void HomePage::CountdownButton_Click(IInspectable const&, RoutedEventArgs const&
 }
 
 void HomePage::_MagService_IsCountingDownChanged(IInspectable const&, bool value) {
-	if (value) {
-		CountdownVisual().Visibility(Visibility::Visible);
-		CountdownButton().Content(box_value(L"取消"));
-	} else {
-		CountdownVisual().Visibility(Visibility::Collapsed);
-		CountdownButton().Content(box_value(fmt::format(L"{} 秒后缩放", _settings.DownCount())));
-	}
-
-	_MagService_CountdownTick(nullptr, (float)_magService.TickingDownCount());
+	_UpdateDownCount();
 }
 
 void HomePage::_MagService_CountdownTick(IInspectable const&, float value) {
@@ -152,8 +144,18 @@ void HomePage::_UpdateAutoRestoreState() {
 void HomePage::_UpdateDownCount() {
 	uint32_t downCount = _settings.DownCount();
 	CountdownSlider().Value(downCount);
-	if (!_magService.IsCountingDown()) {
+
+	if (_magService.IsCountingDown()) {
+		CountdownVisual().Visibility(Visibility::Visible);
+		CountdownButton().Content(box_value(L"取消"));
+
+		_MagService_CountdownTick(nullptr, _magService.CountdownLeft());
+	} else {
+		CountdownVisual().Visibility(Visibility::Collapsed);
 		CountdownButton().Content(box_value(fmt::format(L"{} 秒后缩放", downCount)));
+
+		// 修复动画错误
+		CountdownProgressRing().Value(1.0f);
 	}
 }
 

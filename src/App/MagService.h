@@ -28,6 +28,8 @@ struct MagService : MagServiceT<MagService> {
 		return _tickingDownCount;
 	}
 
+	float CountdownLeft() const noexcept;
+
 	event_token CountdownTick(EventHandler<float> const& handler) {
 		return _countdownTickEvent.add(handler);
 	}
