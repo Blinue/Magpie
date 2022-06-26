@@ -6,9 +6,6 @@
 
 #include <winrt/Windows.System.Profile.h>
 #include "MicaBrush.h"
-#include "HomePage.h"
-#include "SettingsPage.h"
-#include "AboutPage.h"
 #include "XamlUtils.h"
 #include "Logger.h"
 #include "StrUtils.h"
@@ -68,10 +65,19 @@ void MainPage::NavigationView_SelectionChanged(
 		args.SelectedItem().as(selectedItem);
 
 		hstring tag = unbox_value<hstring>(selectedItem.Tag());
+		Interop::TypeName typeName;
 		if (tag == L"Home") {
-			contentFrame.Navigate(winrt::xaml_typename<Magpie::App::HomePage>());
+			typeName = winrt::xaml_typename<Magpie::App::HomePage>();
+		} else if (tag == L"ScalingModes") {
+			typeName = winrt::xaml_typename<Magpie::App::ScaleModesPage>();
 		} else if (tag == L"About") {
-			contentFrame.Navigate(winrt::xaml_typename<Magpie::App::AboutPage>());
+			typeName = winrt::xaml_typename<Magpie::App::AboutPage>();
+		} else if (tag == L"DefaultScaleConfig") {
+			typeName = winrt::xaml_typename<Magpie::App::DefaultScaleConfigPage>();
+		}
+
+		if (!typeName.Name.empty()) {
+			contentFrame.Navigate(typeName);
 		}
 	}
 }

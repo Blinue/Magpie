@@ -31,7 +31,7 @@
 						<ToggleSwitch x:Name="PortableModeToggleSwitch" Toggled="PortableModeToggleSwitch_Toggled" />
 					</local:SettingItem.ActionContent>
 				</local:SettingItem>
-				<local:SettingItem Title="开发者模式" Description="打开里世界的大门">
+				<local:SettingItem Title="开发者模式">
 					<local:SettingItem.Icon>
 						<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xEC7A;"/>
 					</local:SettingItem.Icon>

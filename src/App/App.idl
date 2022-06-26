@@ -14,6 +14,8 @@
 #include "ShortcutControl.idl"
 #include "ShortcutDialogContent.idl"
 #include "MagService.idl"
+#include "ScaleModesPage.idl"
+#include "DefaultScaleConfigPage.idl"
 
 
 namespace Magpie.App {

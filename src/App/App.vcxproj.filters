@@ -104,6 +104,12 @@
     <Page Include="ShortcutDialogContent.xaml">
       <Filter>Controls</Filter>
     </Page>
+    <Page Include="ScaleModesPage.xaml">
+      <Filter>Pages</Filter>
+    </Page>
+    <Page Include="DefaultScaleConfigPage.xaml">
+      <Filter>Pages</Filter>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest">
