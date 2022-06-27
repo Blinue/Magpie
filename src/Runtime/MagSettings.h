@@ -15,8 +15,17 @@ struct MagSettings : MagSettingsT<MagSettings> {
         _captureMode = value;
     }
 
+    bool IsBreakpointMode() const noexcept {
+        return _isBreakpointMode;
+    }
+
+    void IsBreakpointMode(bool value) noexcept {
+        _isBreakpointMode = value;
+    }
+
 private:
     Magpie::Runtime::CaptureMode _captureMode = Magpie::Runtime::CaptureMode::GraphicsCapture;
+    bool _isBreakpointMode = false;
 };
 
 }

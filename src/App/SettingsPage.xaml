@@ -36,11 +36,11 @@
 						<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xEC7A;"/>
 					</local:SettingItem.Icon>
 					<local:SettingItem.ActionContent>
-						<ToggleSwitch />
+						<ToggleSwitch x:Name="DeveloperModeToggleSwitch" Toggled="DeveloperModeToggleSwitch_Toggled" />
 					</local:SettingItem.ActionContent>
 				</local:SettingItem>
 			</local:SettingsGroup>
-			<local:SettingsGroup Title="调试">
+			<local:SettingsGroup x:Name="DebugSettingsGroup" Title="调试">
 				<local:SettingItem Title="断点模式" Description="更改缩放行为以便于在 Visual Studio 中调试">
 					<local:SettingItem.Icon>
 						<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xF272;"/>

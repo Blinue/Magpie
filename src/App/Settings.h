@@ -94,6 +94,20 @@ struct Settings : SettingsT<Settings> {
 		_downCountChangedEvent.remove(token);
 	}
 
+	bool IsDeveloperMode() const noexcept {
+		return _isDeveloperMode;
+	}
+
+	void IsDeveloperMode(bool value) noexcept;
+
+	event_token IsDeveloperModeChanged(EventHandler<bool> const& handler) {
+		return _isDeveloperModeChangedEvent.add(handler);
+	}
+
+	void IsDeveloperModeChanged(event_token const& token) {
+		_isDeveloperModeChangedEvent.remove(token);
+	}
+
 	Magpie::Runtime::MagSettings GetMagSettings(uint64_t hWnd);
 
 private:
@@ -120,6 +134,9 @@ private:
 
 	uint32_t _downCount = 5;
 	event<EventHandler<uint32_t>> _downCountChangedEvent;
+
+	bool _isDeveloperMode = false;
+	event<EventHandler<bool>> _isDeveloperModeChangedEvent;
 
 	Magpie::Runtime::MagSettings _defaultMagSettings;
 };

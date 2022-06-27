@@ -35,5 +35,8 @@ namespace Magpie.App
 		event Windows.Foundation.EventHandler<UInt32> DownCountChanged;
 
 		Magpie.Runtime.MagSettings GetMagSettings(UInt64 hWnd);
+
+		Boolean IsDeveloperMode;
+		event Windows.Foundation.EventHandler<Boolean> IsDeveloperModeChanged;
 	}
 }

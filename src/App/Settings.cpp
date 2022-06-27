@@ -216,6 +216,15 @@ void Settings::DownCount(uint32_t value) noexcept {
 	_downCountChangedEvent(*this, value);
 }
 
+void Settings::IsDeveloperMode(bool value) noexcept {
+	if (_isDeveloperMode == value) {
+		return;
+	}
+
+	_isDeveloperMode = value;
+	_isDeveloperModeChangedEvent(*this, value);
+}
+
 Magpie::Runtime::MagSettings Settings::GetMagSettings(uint64_t hWnd) {
 	if (hWnd == 0) {
 		return _defaultMagSettings;
@@ -354,8 +363,6 @@ bool Settings::_LoadSettings(std::string text) {
 			}
 		}
 	}
-
-	_defaultMagSettings.CaptureMode(Magpie::Runtime::CaptureMode::GDI);
 
 	return true;
 }

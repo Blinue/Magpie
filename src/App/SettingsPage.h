@@ -12,10 +12,16 @@ struct SettingsPage : SettingsPageT<SettingsPage> {
 
 	void PortableModeToggleSwitch_Toggled(IInspectable const&, RoutedEventArgs const&);
 
+	void DeveloperModeToggleSwitch_Toggled(IInspectable const&, RoutedEventArgs const&);
+
 	void ComboBox_DropDownOpened(IInspectable const&, IInspectable const&);
 
 private:
+	void _Settings_IsDeveloperModeChanged(IInspectable const&, bool value);
+
 	Magpie::App::Settings _settings{ nullptr };
+
+	Magpie::App::Settings::IsDeveloperModeChanged_revoker _isDeveloperModeChangedRevoker;
 };
 
 }
