@@ -34,7 +34,7 @@ bool Renderer::Initialize(const std::string& effectsJson) {
 		return false;
 	}
 
-	/*if (MagApp::Get().GetConfig().IsShowFPS()) {
+	/*if (MagApp::Get().GetSettings().IsShowFPS()) {
 		_overlayDrawer.reset(new OverlayDrawer());
 		if (!_overlayDrawer->Initialize()) {
 			Logger::Get().Error("初始化 OverlayDrawer 失败");
@@ -75,7 +75,7 @@ void Renderer::Render() {
 	}
 
 	// 首先处理配置改变产生的回调
-	//MagApp::Get().GetConfig().OnBeginFrame();
+	//MagApp::Get().GetSettings().OnBeginFrame();
 
 	auto state = MagApp::Get().GetFrameSource().Update();
 	_waitingForNextFrame = state == FrameSourceBase::UpdateState::Waiting
@@ -235,16 +235,16 @@ const EffectDesc& Renderer::GetEffectDesc(UINT idx) const noexcept {
 bool Renderer::_CheckSrcState() {
 	HWND hwndSrc = MagApp::Get().GetHwndSrc();
 
-	//if (!MagApp::Get().GetConfig().IsBreakpointMode()) {
+	if (!MagApp::Get().GetSettings().IsBreakpointMode()) {
 		HWND hwndForeground = GetForegroundWindow();
 		// 在 3D 游戏模式下打开游戏内覆盖则全屏窗口可以接收焦点
-		if (/*!MagApp::Get().GetConfig().Is3DMode() ||*/ !IsUIVisiable() || hwndForeground != MagApp::Get().GetHwndHost()) {
+		if (/*!MagApp::Get().GetSettings().Is3DMode() ||*/ !IsUIVisiable() || hwndForeground != MagApp::Get().GetHwndHost()) {
 			if (hwndForeground && hwndForeground != hwndSrc && !CheckForeground(hwndForeground)) {
 				Logger::Get().Info("前台窗口已改变");
 				return false;
 			}
 		}
-	//}
+	}
 
 	if (Win32Utils::GetWindowShowCmd(hwndSrc) != SW_NORMAL) {
 		Logger::Get().Info("源窗口显示状态改变");
@@ -439,7 +439,7 @@ bool Renderer::_UpdateDynamicConstants() {
 	// };
 
 	CursorManager& cursorManager = MagApp::Get().GetCursorManager();
-	if (cursorManager.HasCursor()/* && !(MagApp::Get().GetConfig().Is3DMode() && IsUIVisiable())*/) {
+	if (cursorManager.HasCursor()/* && !(MagApp::Get().GetSettings().Is3DMode() && IsUIVisiable())*/) {
 		const POINT* pos = cursorManager.GetCursorPos();
 		const CursorManager::CursorInfo* ci = cursorManager.GetCursorInfo();
 
@@ -450,7 +450,7 @@ bool Renderer::_UpdateDynamicConstants() {
 		}
 		assert(pos && ci);
 
-		float cursorZoomFactor = 1;// MagApp::Get().GetConfig().GetCursorZoomFactor();
+		float cursorZoomFactor = 1;// MagApp::Get().GetSettings().GetCursorZoomFactor();
 		if (cursorZoomFactor < 1e-5) {
 			SIZE srcFrameSize = Win32Utils::GetSizeOfRect(MagApp::Get().GetFrameSource().GetSrcFrameRect());
 			SIZE virtualOutputSize = Win32Utils::GetSizeOfRect(_virtualOutputRect);

@@ -96,7 +96,7 @@ CursorManager::~CursorManager() {
 }
 
 static std::optional<LRESULT> HostWndProc(HWND /*hWnd*/, UINT message, WPARAM /*wParam*/, LPARAM /*lParam*/) {
-	if (/*MagApp::Get().GetConfig().Is3DMode() &&*/ MagApp::Get().GetRenderer().IsUIVisiable()) {
+	if (/*MagApp::Get().GetSettings().Is3DMode() &&*/ MagApp::Get().GetRenderer().IsUIVisiable()) {
 		return std::nullopt;
 	}
 
@@ -137,9 +137,9 @@ static std::optional<LRESULT> HostWndProc(HWND /*hWnd*/, UINT message, WPARAM /*
 			return 0;
 		}
 
-		/*if (!App::Get().GetConfig().IsBreakpointMode()) {
-			SetWindowPos(App::Get().GetHwndHost(), HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOREDRAW);
-		}*/
+		if (!MagApp::Get().GetSettings().IsBreakpointMode()) {
+			SetWindowPos(MagApp::Get().GetHwndHost(), HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOREDRAW);
+		}
 	}
 
 	return std::nullopt;
@@ -148,7 +148,7 @@ static std::optional<LRESULT> HostWndProc(HWND /*hWnd*/, UINT message, WPARAM /*
 bool CursorManager::Initialize() {
 	MagApp::Get().RegisterWndProcHandler(HostWndProc);
 
-	/*if (MagApp::Get().GetConfig().Is3DMode()) {
+	/*if (MagApp::Get().GetSettings().Is3DMode()) {
 		POINT cursorPos;
 		::GetCursorPos(&cursorPos);
 		_StartCapture(cursorPos);
@@ -184,13 +184,13 @@ static HWND WindowFromPoint(INT_PTR style, POINT pt, bool clickThrough) {
 void CursorManager::OnBeginFrame() {
 	_UpdateCursorClip();
 
-	if (/*MagApp::Get().GetConfig().IsNoCursor() ||*/ !_isUnderCapture) {
+	if (/*MagApp::Get().GetSettings().IsNoCursor() ||*/ !_isUnderCapture) {
 		// 不绘制光标
 		_curCursor = NULL;
 		return;
 	}
 	/*
-	if (MagApp::Get().GetConfig().Is3DMode()) {
+	if (MagApp::Get().GetSettings().Is3DMode()) {
 		HWND hwndFore = GetForegroundWindow();
 		if (hwndFore != MagApp::Get().GetHwndHost() && hwndFore != MagApp::Get().GetHwndSrc()) {
 			_curCursor = NULL;
@@ -295,7 +295,7 @@ void CursorManager::_StartCapture(POINT cursorPt) {
 	SIZE srcFrameSize = Win32Utils::GetSizeOfRect(srcFrameRect);
 	SIZE outputSize = Win32Utils::GetSizeOfRect(outputRect);
 
-	/*if (MagApp::Get().GetConfig().IsAdjustCursorSpeed()) {
+	/*if (MagApp::Get().GetSettings().IsAdjustCursorSpeed()) {
 		_AdjustCursorSpeed();
 	}*/
 
@@ -337,7 +337,7 @@ void CursorManager::_StopCapture(POINT cursorPos, bool onDestroy) {
 	if (onDestroy || MonitorFromPoint(newCursorPos, MONITOR_DEFAULTTONULL)) {
 		SetCursorPos(newCursorPos.x, newCursorPos.y);
 
-		/*if (MagApp::Get().GetConfig().IsAdjustCursorSpeed()) {
+		/*if (MagApp::Get().GetSettings().IsAdjustCursorSpeed()) {
 			SystemParametersInfo(SPI_SETMOUSESPEED, 0, (PVOID)(intptr_t)_cursorSpeed, 0);
 		}*/
 
@@ -580,8 +580,8 @@ void CursorManager::_UpdateCursorClip() {
 	// 3. 常规：根据多屏幕限制光标，捕获/取消捕获，支持 UI 和多屏幕
 
 	const RECT& srcFrameRect = MagApp::Get().GetFrameSource().GetSrcFrameRect();
-	/*
-	if (!MagApp::Get().GetConfig().IsBreakpointMode() && MagApp::Get().GetConfig().Is3DMode()) {
+	
+	/*if (!MagApp::Get().GetSettings().IsBreakpointMode() && MagApp::Get().GetSettings().Is3DMode()) {
 		// 开启“在 3D 游戏中限制光标”则每帧都限制一次光标
 		_curClips = srcFrameRect;
 		ClipCursor(&srcFrameRect);
@@ -748,9 +748,9 @@ void CursorManager::_UpdateCursorClip() {
 		}
 	}
 
-	/*if (MagApp::Get().GetConfig().IsBreakpointMode()) {
+	if (MagApp::Get().GetSettings().IsBreakpointMode()) {
 		return;
-	}*/
+	}
 
 	if (!_isOnOverlay && !_isUnderCapture) {
 		return;

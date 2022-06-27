@@ -67,6 +67,8 @@ private:
 
 	void _CheckForeground();
 
+	void _StartScale(uint64_t hWnd = 0);
+
 	static void CALLBACK _WinEventProcCallback(
 		HWINEVENTHOOK /*hWinEventHook*/,
 		DWORD /*dwEvent*/,

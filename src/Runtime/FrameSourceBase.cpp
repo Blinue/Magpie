@@ -46,7 +46,7 @@ bool FrameSourceBase::Initialize() {
 	HWND hwndSrc = MagApp::Get().GetHwndSrc();
 
 	// 禁用窗口大小调整
-	/*if (MagApp::Get().GetConfig().IsDisableWindowResizing()) {
+	/*if (MagApp::Get().GetSettings().IsDisableWindowResizing()) {
 		LONG_PTR style = GetWindowLongPtr(hwndSrc, GWL_STYLE);
 		if (style & WS_THICKFRAME) {
 			if (SetWindowLongPtr(hwndSrc, GWL_STYLE, style ^ WS_THICKFRAME)) {
@@ -260,12 +260,12 @@ bool FrameSourceBase::_UpdateSrcFrameRect() {
 
 	HWND hwndSrc = MagApp::Get().GetHwndSrc();
 
-	/*if (MagApp::Get().GetConfig().IsCropTitleBarOfUWP()) {
+	/*if (MagApp::Get().GetSettings().IsCropTitleBarOfUWP()) {
 		std::wstring className(256, 0);
 		int num = GetClassName(hwndSrc, &className[0], (int)className.size());
 		if (num > 0) {
 			className.resize(num);
-			if (App::Get().GetConfig().IsCropTitleBarOfUWP() &&
+			if (App::Get().GetSettings().IsCropTitleBarOfUWP() &&
 				(className == L"ApplicationFrameWindow" || className == L"Windows.UI.Core.CoreWindow")
 				) {
 				// "Modern App"
@@ -289,7 +289,7 @@ bool FrameSourceBase::_UpdateSrcFrameRect() {
 		}
 	}
 
-	/*const RECT& cropBorders = App::Get().GetConfig().GetCropBorders();
+	/*const RECT& cropBorders = App::Get().GetSettings().GetCropBorders();
 	_srcFrameRect = {
 		_srcFrameRect.left + cropBorders.left,
 		_srcFrameRect.top + cropBorders.top,

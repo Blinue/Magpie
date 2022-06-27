@@ -19,7 +19,7 @@
 OverlayDrawer::OverlayDrawer() {}
 
 OverlayDrawer::~OverlayDrawer() {
-	/*if (MagApp::Get().GetConfig().Is3DMode() && IsUIVisiable()) {
+	/*if (MagApp::Get().GetSettings().Is3DMode() && IsUIVisiable()) {
 		HWND hwndSrc = MagApp::Get().GetHwndSrc();
 		EnableWindow(hwndSrc, TRUE);
 		SetForegroundWindow(hwndSrc);
@@ -218,7 +218,7 @@ bool OverlayDrawer::Initialize() {
 }
 
 void OverlayDrawer::Draw() {
-	bool isShowFPS = false; // MagApp::Get().GetConfig().IsShowFPS();
+	bool isShowFPS = false; // MagApp::Get().GetSettings().IsShowFPS();
 
 	if (!_isUIVisiable && !isShowFPS) {
 		return;
@@ -247,7 +247,7 @@ void OverlayDrawer::SetUIVisibility(bool value) {
 	_isUIVisiable = value;
 
 	if (value) {
-		/*if (MagApp::Get().GetConfig().Is3DMode()) {
+		/*if (MagApp::Get().GetSettings().Is3DMode()) {
 			// 使全屏窗口不透明且可以接收焦点
 			HWND hwndHost = MagApp::Get().GetHwndHost();
 			INT_PTR style = GetWindowLongPtr(hwndHost, GWL_EXSTYLE);
@@ -265,11 +265,11 @@ void OverlayDrawer::SetUIVisibility(bool value) {
 		_validFrames = 0;
 		std::fill(_frameTimes.begin(), _frameTimes.end(), 0.0f);
 
-		//if (!MagApp::Get().GetConfig().IsShowFPS()) {
+		//if (!MagApp::Get().GetSettings().IsShowFPS()) {
 			_imguiImpl->ClearStates();
 		//}
 
-		/*if (MagApp::Get().GetConfig().Is3DMode()) {
+		/*if (MagApp::Get().GetSettings().Is3DMode()) {
 			// 还原全屏窗口样式
 			HWND hwndHost = MagApp::Get().GetHwndHost();
 			INT_PTR style = GetWindowLongPtr(hwndHost, GWL_EXSTYLE);
@@ -656,7 +656,7 @@ static void MyPlotLines(float(*values_getter)(void* data, int idx), void* data, 
 }
 
 void OverlayDrawer::_DrawUI() {
-	// auto& config = MagApp::Get().GetConfig();
+	// auto& config = MagApp::Get().GetSettings();
 	auto& renderer = MagApp::Get().GetRenderer();
 	auto& gpuTimer = renderer.GetGPUTimer();
 

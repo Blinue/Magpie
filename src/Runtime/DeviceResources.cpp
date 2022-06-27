@@ -100,7 +100,7 @@ bool DeviceResources::Initialize() {
 
 	Logger::Get().Info(fmt::format("可变刷新率支持：{}", supportTearing ? "是" : "否"));
 
-	/*if (MagApp::Get().GetConfig().IsDisableVSync() && !supportTearing) {
+	/*if (MagApp::Get().GetSettings().IsDisableVSync() && !supportTearing) {
 		Logger::Get().Error("当前显示器不支持可变刷新率");
 		MagApp::Get().SetErrorMsg(ErrorMessages::VSYNC_OFF_NOT_SUPPORTED);
 		return false;
@@ -118,7 +118,7 @@ bool DeviceResources::Initialize() {
 	};
 	UINT nFeatureLevels = ARRAYSIZE(featureLevels);
 
-	_graphicsAdapter = ObtainGraphicsAdapter(_dxgiFactory.get(), -1/*MagApp::Get().GetConfig().GetAdapterIdx()*/);
+	_graphicsAdapter = ObtainGraphicsAdapter(_dxgiFactory.get(), -1/*MagApp::Get().GetSettings().GetAdapterIdx()*/);
 	if (!_graphicsAdapter) {
 		Logger::Get().Error("找不到可用 Adapter");
 		return false;
@@ -249,7 +249,7 @@ void DeviceResources::BeginFrame() {
 }
 
 void DeviceResources::EndFrame() {
-	//if (App::Get().GetConfig().IsDisableVSync()) {
+	//if (App::Get().GetSettings().IsDisableVSync()) {
 	//	_swapChain->Present(0, DXGI_PRESENT_ALLOW_TEARING);
 	//} else {
 		_swapChain->Present(1, 0);
@@ -258,7 +258,7 @@ void DeviceResources::EndFrame() {
 
 bool DeviceResources::_CreateSwapChain() {
 	const RECT& hostWndRect = MagApp::Get().GetHostWndRect();
-	//const Config& config = App::Get().GetConfig();
+	//const Config& config = App::Get().GetSettings();
 
 	DXGI_SWAP_CHAIN_DESC1 sd = {};
 	sd.Width = hostWndRect.right - hostWndRect.left;
@@ -398,7 +398,7 @@ bool DeviceResources::CompileShader(std::string_view hlsl, const char* entryPoin
 	winrt::com_ptr<ID3DBlob> errorMsgs = nullptr;
 
 	UINT flags = D3DCOMPILE_ENABLE_STRICTNESS | D3DCOMPILE_ALL_RESOURCES_BOUND;
-	/*if (MagApp::Get().GetConfig().IsTreatWarningsAsErrors()) {
+	/*if (MagApp::Get().GetSettings().IsTreatWarningsAsErrors()) {
 		flags |= D3DCOMPILE_WARNINGS_ARE_ERRORS;
 	}*/
 

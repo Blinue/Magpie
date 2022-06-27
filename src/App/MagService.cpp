@@ -87,10 +87,7 @@ void MagService::_HotkeyManger_HotkeyPressed(IInspectable const&, HotkeyAction a
 			return;
 		}
 
-		uint64_t hwndFore = (uint64_t)GetForegroundWindow();
-		if (hwndFore != 0) {
-			_magRuntime.Run(hwndFore, _settings.GetMagSettings(hwndFore));
-		}
+		_StartScale();
 		break;
 	}
 	case HotkeyAction::Overlay:
@@ -112,11 +109,7 @@ void MagService::_Timer_Tick(IInspectable const&, IInspectable const&) {
 	// 剩余时间在 10 ms 以内计时结束
 	if (timeLeft < 0.01) {
 		StopCountdown();
-
-		uint64_t hwndFore = (uint64_t)GetForegroundWindow();
-		if (hwndFore != 0) {
-			_magRuntime.Run(hwndFore, _settings.GetMagSettings(hwndFore));
-		}
+		_StartScale();
 		return;
 	}
 	
@@ -209,7 +202,24 @@ void MagService::_CheckForeground() {
 		return;
 	}
 
-	_magRuntime.Run(_wndToRestore, _settings.GetMagSettings(_wndToRestore));
+	_StartScale(_wndToRestore);
+}
+
+void MagService::_StartScale(uint64_t hWnd) {
+	if (hWnd == 0) {
+		hWnd = (uint64_t)GetForegroundWindow();
+	}
+
+	const Magpie::Runtime::MagSettings& magSettings = _settings.GetMagSettings(_wndToRestore);
+
+	// 应用全局配置
+	if (_settings.IsDeveloperMode()) {
+		magSettings.IsBreakpointMode(_settings.IsBreakpointMode());
+	} else {
+		magSettings.IsBreakpointMode(false);
+	}
+
+	_magRuntime.Run(hWnd, magSettings);
 }
 
 void MagService::_WinEventProcCallback(HWINEVENTHOOK, DWORD, HWND, LONG, LONG, DWORD, DWORD) {

@@ -45,6 +45,8 @@ HomePage::HomePage() {
 		{ this, &HomePage::_MagRuntime_IsRunningChanged }
 	);
 
+	CountdownButton().IsEnabled(!_magRuntime.IsRunning());
+
 	AutoRestoreToggleSwitch().IsOn(_settings.IsAutoRestore());
 	_UpdateDownCount();
 

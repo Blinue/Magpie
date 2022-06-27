@@ -118,7 +118,7 @@ bool MagApp::Run(HWND hwndSrc, winrt::Magpie::Runtime::MagSettings const& settin
 		return false;
 	}
 
-	/*if (_config->IsDisableDirectFlip() && !_config->IsBreakpointMode()) {
+	/*if (_settings->IsDisableDirectFlip() && !_settings->IsBreakpointMode()) {
 		// 在此处创建的 DDF 窗口不会立刻显示
 		if (!_DisableDirectFlip()) {
 			Logger::Get().Error("_DisableDirectFlip 失败");
@@ -292,7 +292,7 @@ bool MagApp::_CreateHostWnd() {
 	}
 
 	_hwndHost = CreateWindowEx(
-		WS_EX_TOPMOST | WS_EX_NOACTIVATE | WS_EX_LAYERED | WS_EX_TRANSPARENT | WS_EX_TOOLWINDOW,
+		(_settings.IsBreakpointMode() ? 0 : WS_EX_TOPMOST) | WS_EX_NOACTIVATE | WS_EX_LAYERED | WS_EX_TRANSPARENT | WS_EX_TOOLWINDOW,
 		HOST_WINDOW_CLASS_NAME,
 		HOST_WINDOW_TITLE,
 		WS_POPUP,
