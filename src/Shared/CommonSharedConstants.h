@@ -9,4 +9,8 @@ struct CommonSharedConstants {
 	static constexpr const char* LOG_PATH = "logs\\magpie.log";
 	static constexpr const char* CONFIG_PATH = "config\\config.json";
 	static constexpr const wchar_t* CONFIG_PATH_W = L"config\\config.json";
+	static constexpr const wchar_t* SOURCES_DIR_W = L"sources\\";
+	static constexpr const wchar_t* EFFECTS_DIR_W = L"effects\\";
+	static constexpr const wchar_t* ASSETS_DIR_W = L"assets\\";
+	static constexpr const wchar_t* CACHE_DIR_W = L"cache\\";
 };

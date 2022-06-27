@@ -10,6 +10,7 @@
 #include "StrUtils.h"
 #include "Win32Utils.h"
 #include "FrameSourceBase.h"
+#include "CommonSharedConstants.h"
 #include <bit>	// std::bit_ceil
 #include <Wbemidl.h>
 #include <random>
@@ -185,7 +186,10 @@ bool OverlayDrawer::Initialize() {
 
 	static std::vector<BYTE> fontData;
 	if (fontData.empty()) {
-		if (!Win32Utils::ReadFile(L".\\assets\\NotoSansSC-Regular.otf", fontData)) {
+		if (!Win32Utils::ReadFile(
+			StrUtils::ConcatW(CommonSharedConstants::ASSETS_DIR_W, L"NotoSansSC-Regular.otf").c_str(),
+			fontData
+		)) {
 			Logger::Get().Error("读取字体文件失败");
 			return false;
 		}

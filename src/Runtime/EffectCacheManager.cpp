@@ -12,6 +12,7 @@
 #include "DeviceResources.h"
 #include "StrUtils.h"
 #include "Logger.h"
+#include "CommonSharedConstants.h"
 
 
 static constexpr const size_t MAX_CACHE_COUNT = 128;
@@ -23,12 +24,11 @@ static constexpr const UINT CACHE_VERSION = 8;
 // 缓存的压缩等级
 static constexpr const int CACHE_COMPRESSION_LEVEL = 1;
 
-static const wchar_t* CACHE_DIR = L".\\cache";
-
 
 std::wstring GetCacheFileName(std::string_view effectName, std::string_view hash, UINT flags) {
 	// 缓存文件的命名：{效果名}_{标志位（16进制）}{哈希}
-	return fmt::format(L"{}\\{}_{:02x}{}", CACHE_DIR, StrUtils::UTF8ToUTF16(effectName), flags, StrUtils::UTF8ToUTF16(hash));
+	return fmt::format(L"{}{}_{:02x}{}", CommonSharedConstants::CACHE_DIR_W,
+		StrUtils::UTF8ToUTF16(effectName), flags, StrUtils::UTF8ToUTF16(hash));
 }
 
 
@@ -259,8 +259,8 @@ void EffectCacheManager::Save(std::string_view effectName, std::string_view hash
 		}
 	}
 
-	if (!Win32Utils::DirExists(CACHE_DIR)) {
-		if (!CreateDirectory(CACHE_DIR, nullptr)) {
+	if (!Win32Utils::DirExists(CommonSharedConstants::CACHE_DIR_W)) {
+		if (!CreateDirectory(CommonSharedConstants::CACHE_DIR_W, nullptr)) {
 			Logger::Get().Win32Error("创建 cache 文件夹失败");
 			return;
 		}
@@ -270,7 +270,7 @@ void EffectCacheManager::Save(std::string_view effectName, std::string_view hash
 			Win32Utils::Hasher::Get().GetHashLength() * 2), std::wregex::optimize | std::wregex::nosubs);
 
 		WIN32_FIND_DATA findData;
-		HANDLE hFind = Win32Utils::SafeHandle(FindFirstFile(StrUtils::ConcatW(CACHE_DIR, L"\\*").c_str(), &findData));
+		HANDLE hFind = Win32Utils::SafeHandle(FindFirstFile(StrUtils::ConcatW(CommonSharedConstants::CACHE_DIR_W, L"*").c_str(), &findData));
 		if (hFind) {
 			while (FindNextFile(hFind, &findData)) {
 				if (StrUtils::StrLen(findData.cFileName) < 8) {
@@ -282,7 +282,7 @@ void EffectCacheManager::Save(std::string_view effectName, std::string_view hash
 					continue;
 				}
 
-				if (!DeleteFile(StrUtils::ConcatW(CACHE_DIR, L"\\", findData.cFileName).c_str())) {
+				if (!DeleteFile(StrUtils::ConcatW(CommonSharedConstants::CACHE_DIR_W, findData.cFileName).c_str())) {
 					Logger::Get().Win32Error(StrUtils::Concat("删除缓存文件 ",
 						StrUtils::UTF16ToUTF8(findData.cFileName), " 失败"));
 				}

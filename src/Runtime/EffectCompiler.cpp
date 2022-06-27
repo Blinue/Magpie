@@ -9,13 +9,11 @@
 #include "MagApp.h"
 #include "DeviceResources.h"
 #include "Logger.h"
+#include "CommonSharedConstants.h"
 #include <bit>	// std::has_single_bit
-// #include "Config.h"
 
 
 static const char* META_INDICATOR = "//!";
-
-static const wchar_t* SAVE_SOURCE_DIR = L".\\sources";
 
 
 class PassInclude : public ID3DInclude {
@@ -1473,8 +1471,8 @@ cbuffer __CB2 : register(b1) {
 
 	cbHlsl.append("};\n\n");
 
-	if (MagApp::Get().GetSettings().IsSaveEffectSources() && !Win32Utils::DirExists(SAVE_SOURCE_DIR)) {
-		if (!CreateDirectory(SAVE_SOURCE_DIR, nullptr)) {
+	if (MagApp::Get().GetSettings().IsSaveEffectSources() && !Win32Utils::DirExists(CommonSharedConstants::SOURCES_DIR_W)) {
+		if (!CreateDirectory(CommonSharedConstants::SOURCES_DIR_W, nullptr)) {
 			Logger::Get().Win32Error("创建 sources 文件夹失败");
 		}
 	}
@@ -1490,8 +1488,8 @@ cbuffer __CB2 : register(b1) {
 
 		if (MagApp::Get().GetSettings().IsSaveEffectSources()) {
 			std::wstring fileName = desc.passes.size() == 1
-				? fmt::format(L"{}\\{}.hlsl", SAVE_SOURCE_DIR, StrUtils::UTF8ToUTF16(desc.name))
-				: fmt::format(L"{}\\{}_Pass{}.hlsl", SAVE_SOURCE_DIR, StrUtils::UTF8ToUTF16(desc.name), id + 1);
+				? fmt::format(L"{}{}.hlsl", CommonSharedConstants::SOURCES_DIR_W, StrUtils::UTF8ToUTF16(desc.name))
+				: fmt::format(L"{}{}_Pass{}.hlsl", CommonSharedConstants::SOURCES_DIR_W, StrUtils::UTF8ToUTF16(desc.name), id + 1);
 
 			if (!Win32Utils::WriteFile(fileName.c_str(), source.data(), source.size())) {
 				Logger::Get().Error(fmt::format("保存 Pass{} 源码失败", id + 1));
@@ -1528,7 +1526,7 @@ UINT EffectCompiler::Compile(
 	desc.name = effectName;
 	desc.flags = flags;
 
-	std::wstring fileName = (L"effects\\" + StrUtils::UTF8ToUTF16(effectName) + L".hlsl");
+	std::wstring fileName = StrUtils::ConcatW(CommonSharedConstants::EFFECTS_DIR_W, StrUtils::UTF8ToUTF16(effectName), L".hlsl");
 
 	std::string source;
 	if (!Win32Utils::ReadTextFile(fileName.c_str(), source)) {
