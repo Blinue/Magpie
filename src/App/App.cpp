@@ -53,12 +53,9 @@ void App::OnClose() {
 bool App::Initialize(Magpie::App::Settings const& settings, uint64_t hwndHost) {
 	_hwndHost = hwndHost;
 	_settings = settings;
-
-	_magService = Magpie::App::MagService(settings, _magRuntime, CoreWindow::GetForCurrentThread().Dispatcher());
-
-	// HotkeyManager 中的回调总是最先调用
 	_hotkeyManager = Magpie::App::HotkeyManager(settings, hwndHost);
-	_hotkeyPressedRevoker = _hotkeyManager.HotkeyPressed(auto_revoke, { this, &App::_HotkeyManger_HotkeyPressed });
+
+	_magService = Magpie::App::MagService(settings, _magRuntime, _hotkeyManager);
 
 	return true;
 }
@@ -70,34 +67,6 @@ void App::OnHostWndFocusChanged(bool isFocused) {
 
 	_isHostWndFocused = isFocused;
 	_hostWndFocusChangedEvent(*this, isFocused);
-}
-
-void App::_HotkeyManger_HotkeyPressed(IInspectable const&, HotkeyAction action) {
-	switch (action) {
-	case HotkeyAction::Scale:
-	{
-		if (_magRuntime.IsRunning()) {
-			_magRuntime.Stop();
-			return;
-		}
-
-		HWND hwndFore = GetForegroundWindow();
-		if (hwndFore) {
-			_magRuntime.Run((uint64_t)hwndFore, _magSettings);
-		}
-		break;
-	}
-	case HotkeyAction::Overlay:
-	{
-		if (_magRuntime.IsRunning()) {
-			_magRuntime.ToggleOverlay();
-			return;
-		}
-		break;
-	}
-	default:
-		break;
-	}
 }
 
 }

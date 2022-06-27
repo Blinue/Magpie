@@ -58,6 +58,10 @@ public:
 		return *_cursorManager;
 	}
 
+	winrt::Magpie::Runtime::MagSettings& GetSettings() noexcept {
+		return _settings;
+	}
+
 	winrt::com_ptr<IWICImagingFactory2> GetWICImageFactory();
 
 	// 注册消息回调，回调函数如果不阻断消息应返回空

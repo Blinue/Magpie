@@ -3,7 +3,7 @@ namespace Magpie.App
 	[default_interface]
 	runtimeclass MagService 
 	{
-		MagService(Settings settings, Magpie.Runtime.MagRuntime magRuntime, Windows.UI.Core.CoreDispatcher dispatcher);
+		MagService(Settings settings, Magpie.Runtime.MagRuntime magRuntime, HotkeyManager hotkeyManager);
 
 		void StartCountdown();
 		void StopCountdown();

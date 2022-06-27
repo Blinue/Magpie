@@ -69,11 +69,11 @@ void MainPage::NavigationView_SelectionChanged(
 		if (tag == L"Home") {
 			typeName = winrt::xaml_typename<Magpie::App::HomePage>();
 		} else if (tag == L"ScalingModes") {
-			typeName = winrt::xaml_typename<Magpie::App::ScaleModesPage>();
+			typeName = winrt::xaml_typename<Magpie::App::ScalingModesPage>();
 		} else if (tag == L"About") {
 			typeName = winrt::xaml_typename<Magpie::App::AboutPage>();
-		} else if (tag == L"DefaultScaleConfig") {
-			typeName = winrt::xaml_typename<Magpie::App::DefaultScaleConfigPage>();
+		} else if (tag == L"DefaultScalingConfig") {
+			typeName = winrt::xaml_typename<Magpie::App::DefaultScalingConfigPage>();
 		}
 
 		if (!typeName.Name.empty()) {

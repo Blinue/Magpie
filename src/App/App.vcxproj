@@ -107,8 +107,8 @@
       <DependentUpon>BooleanToVisibilityConverter.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
-    <ClInclude Include="DefaultScaleConfigPage.h">
-      <DependentUpon>DefaultScaleConfigPage.xaml</DependentUpon>
+    <ClInclude Include="DefaultScalingConfigPage.h">
+      <DependentUpon>DefaultScalingConfigPage.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
     <ClInclude Include="DummyTemplate.h">
@@ -140,8 +140,8 @@
       <DependentUpon>PageFrame.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
-    <ClInclude Include="ScaleModesPage.h">
-      <DependentUpon>ScaleModesPage.xaml</DependentUpon>
+    <ClInclude Include="ScalingModesPage.h">
+      <DependentUpon>ScalingModesPage.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
     <ClInclude Include="SettingItem.h">
@@ -204,8 +204,8 @@
       <DependentUpon>BooleanToVisibilityConverter.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
-    <ClCompile Include="DefaultScaleConfigPage.cpp">
-      <DependentUpon>DefaultScaleConfigPage.xaml</DependentUpon>
+    <ClCompile Include="DefaultScalingConfigPage.cpp">
+      <DependentUpon>DefaultScalingConfigPage.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
     <ClCompile Include="DummyTemplate.cpp">
@@ -237,8 +237,8 @@
       <DependentUpon>PageFrame.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
-    <ClCompile Include="ScaleModesPage.cpp">
-      <DependentUpon>ScaleModesPage.xaml</DependentUpon>
+    <ClCompile Include="ScalingModesPage.cpp">
+      <DependentUpon>ScalingModesPage.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
     <ClCompile Include="SettingItem.cpp">
@@ -286,8 +286,8 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="ScaleModesPage.idl">
-      <DependentUpon>ScaleModesPage.xaml</DependentUpon>
+    <None Include="ScalingModesPage.idl">
+      <DependentUpon>ScalingModesPage.xaml</DependentUpon>
       <SubType>Code</SubType>
     </None>
     <None Include="ShortcutDialogContent.idl">
@@ -316,8 +316,8 @@
     <Midl Include="BooleanToVisibilityConverter.idl">
       <SubType>Designer</SubType>
     </Midl>
-    <None Include="DefaultScaleConfigPage.idl">
-      <DependentUpon>DefaultScaleConfigPage.xaml</DependentUpon>
+    <None Include="DefaultScalingConfigPage.idl">
+      <DependentUpon>DefaultScalingConfigPage.xaml</DependentUpon>
       <SubType>Code</SubType>
     </None>
     <Midl Include="PageFrame.idl">
@@ -371,7 +371,7 @@
     <Page Include="AboutPage.xaml">
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="DefaultScaleConfigPage.xaml">
+    <Page Include="DefaultScalingConfigPage.xaml">
       <SubType>Designer</SubType>
     </Page>
     <Page Include="DummyTemplate.xaml">
@@ -389,7 +389,7 @@
     <Page Include="PageFrame.xaml">
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="ScaleModesPage.xaml">
+    <Page Include="ScalingModesPage.xaml">
       <SubType>Designer</SubType>
     </Page>
     <Page Include="SettingItem.xaml">

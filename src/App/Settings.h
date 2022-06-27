@@ -1,6 +1,7 @@
 #pragma once
 #include "pch.h"
 #include "Settings.g.h"
+#include <winrt/Magpie.Runtime.h>
 
 
 namespace winrt::Magpie::App::implementation {
@@ -93,6 +94,8 @@ struct Settings : SettingsT<Settings> {
 		_downCountChangedEvent.remove(token);
 	}
 
+	Magpie::Runtime::MagSettings GetMagSettings(uint64_t hWnd);
+
 private:
 	bool _LoadSettings(std::string text);
 	void _SetDefaultHotkeys();
@@ -117,6 +120,8 @@ private:
 
 	uint32_t _downCount = 5;
 	event<EventHandler<uint32_t>> _downCountChangedEvent;
+
+	Magpie::Runtime::MagSettings _defaultMagSettings;
 };
 
 }

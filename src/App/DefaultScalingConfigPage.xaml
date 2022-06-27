@@ -1,5 +1,5 @@
 <Page
-    x:Class="Magpie.App.ScaleModesPage"
+    x:Class="Magpie.App.DefaultScalingConfigPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:Magpie.App"
@@ -7,7 +7,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
-	<local:PageFrame Title="缩放模式">
+	<local:PageFrame Title="默认">
 		<StackPanel Orientation="Vertical" HorizontalAlignment="Stretch">
 		</StackPanel>
 	</local:PageFrame>

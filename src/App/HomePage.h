@@ -23,7 +23,7 @@ struct HomePage : HomePageT<HomePage> {
 	void CountdownButton_Click(IInspectable const&, RoutedEventArgs const&);
 
 private:
-	void _MagService_IsCountingDownChanged(IInspectable const&, bool value);
+	void _MagService_IsCountingDownChanged(IInspectable const&, bool);
 
 	void _MagService_CountdownTick(IInspectable const&, float value);
 

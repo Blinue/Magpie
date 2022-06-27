@@ -190,6 +190,14 @@ void Settings::DownCount(uint32_t value) noexcept {
 	_downCountChangedEvent(*this, value);
 }
 
+Magpie::Runtime::MagSettings Settings::GetMagSettings(uint64_t hWnd) {
+	if (hWnd == 0) {
+		return _defaultMagSettings;
+	}
+
+	return _defaultMagSettings;
+}
+
 // 遇到不合法的配置项会失败，因此用户不应直接编辑配置文件
 bool Settings::_LoadSettings(std::string text) {
 	if (text.empty()) {

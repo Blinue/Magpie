@@ -33,5 +33,7 @@ namespace Magpie.App
 
 		UInt32 DownCount;
 		event Windows.Foundation.EventHandler<UInt32> DownCountChanged;
+
+		Magpie.Runtime.MagSettings GetMagSettings(UInt64 hWnd);
 	}
 }

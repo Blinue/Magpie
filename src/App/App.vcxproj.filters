@@ -104,10 +104,10 @@
     <Page Include="ShortcutDialogContent.xaml">
       <Filter>Controls</Filter>
     </Page>
-    <Page Include="ScaleModesPage.xaml">
+    <Page Include="ScalingModesPage.xaml">
       <Filter>Pages</Filter>
     </Page>
-    <Page Include="DefaultScaleConfigPage.xaml">
+    <Page Include="DefaultScalingConfigPage.xaml">
       <Filter>Pages</Filter>
     </Page>
   </ItemGroup>

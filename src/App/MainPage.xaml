@@ -25,11 +25,11 @@
 			</muxc:NavigationViewItem>
 			<muxc:NavigationViewItem Content="缩放模式" Tag="ScalingModes">
 				<muxc:NavigationViewItem.Icon>
-					<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xEA42;"/>
+					<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xEB3C;"/>
 				</muxc:NavigationViewItem.Icon>
 			</muxc:NavigationViewItem>
 			<muxc:NavigationViewItemHeader Content="缩放配置" />
-			<muxc:NavigationViewItem Content="默认" Tag="DefaultScaleConfig">
+			<muxc:NavigationViewItem Content="默认" Tag="DefaultScalingConfig">
 				<muxc:NavigationViewItem.Icon>
 					<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE81E;"/>
 				</muxc:NavigationViewItem.Icon>

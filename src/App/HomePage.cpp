@@ -97,7 +97,7 @@ void HomePage::CountdownButton_Click(IInspectable const&, RoutedEventArgs const&
 	}
 }
 
-void HomePage::_MagService_IsCountingDownChanged(IInspectable const&, bool value) {
+void HomePage::_MagService_IsCountingDownChanged(IInspectable const&, bool) {
 	_UpdateDownCount();
 }
 

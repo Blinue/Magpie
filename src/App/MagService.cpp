@@ -12,8 +12,10 @@ MagService* MagService::_that = nullptr;
 MagService::MagService(
 	Magpie::App::Settings const& settings,
 	Magpie::Runtime::MagRuntime const& magRuntime,
-	CoreDispatcher const& dispatcher
-) : _settings(settings), _magRuntime(magRuntime), _dispatcher(dispatcher) {
+	Magpie::App::HotkeyManager const& hotkeyManager
+) : _settings(settings), _magRuntime(magRuntime) {
+	_dispatcher = CoreWindow::GetForCurrentThread().Dispatcher();
+
 	_timer.Interval(TimeSpan(std::chrono::milliseconds(25)));
 	_timerTickRevoker = _timer.Tick(
 		auto_revoke,
@@ -23,6 +25,11 @@ MagService::MagService(
 	_isAutoRestoreChangedRevoker = _settings.IsAutoRestoreChanged(
 		auto_revoke,
 		{ this, &MagService::_Settings_IsAutoRestoreChanged }
+	);
+
+	_hotkeyPressedRevoker = hotkeyManager.HotkeyPressed(
+		auto_revoke,
+		{ this, &MagService::_HotkeyManger_HotkeyPressed }
 	);
 
 	_UpdateIsAutoRestore();
@@ -71,13 +78,45 @@ void MagService::ClearWndToRestore() {
 	_wndToRestoreChangedEvent(*this, _wndToRestore);
 }
 
+void MagService::_HotkeyManger_HotkeyPressed(IInspectable const&, HotkeyAction action) {
+	switch (action) {
+	case HotkeyAction::Scale:
+	{
+		if (_magRuntime.IsRunning()) {
+			_magRuntime.Stop();
+			return;
+		}
+
+		uint64_t hwndFore = (uint64_t)GetForegroundWindow();
+		if (hwndFore != 0) {
+			_magRuntime.Run(hwndFore, _settings.GetMagSettings(hwndFore));
+		}
+		break;
+	}
+	case HotkeyAction::Overlay:
+	{
+		if (_magRuntime.IsRunning()) {
+			_magRuntime.ToggleOverlay();
+			return;
+		}
+		break;
+	}
+	default:
+		break;
+	}
+}
+
 void MagService::_Timer_Tick(IInspectable const&, IInspectable const&) {
 	float timeLeft = CountdownLeft();
 
 	// 剩余时间在 10 ms 以内计时结束
 	if (timeLeft < 0.01) {
 		StopCountdown();
-		_magRuntime.Run((uint64_t)GetForegroundWindow(), Magpie::Runtime::MagSettings());
+
+		uint64_t hwndFore = (uint64_t)GetForegroundWindow();
+		if (hwndFore != 0) {
+			_magRuntime.Run(hwndFore, _settings.GetMagSettings(hwndFore));
+		}
 		return;
 	}
 	
@@ -156,7 +195,7 @@ void MagService::_UpdateIsAutoRestore() {
 }
 
 void MagService::_CheckForeground() {
-	if (!_wndToRestore || _magRuntime.IsRunning()) {
+	if (_wndToRestore == 0 || _magRuntime.IsRunning()) {
 		return;
 	}
 
@@ -170,7 +209,7 @@ void MagService::_CheckForeground() {
 		return;
 	}
 
-	_magRuntime.Run(_wndToRestore, Magpie::Runtime::MagSettings());
+	_magRuntime.Run(_wndToRestore, _settings.GetMagSettings(_wndToRestore));
 }
 
 void MagService::_WinEventProcCallback(HWINEVENTHOOK, DWORD, HWND, LONG, LONG, DWORD, DWORD) {

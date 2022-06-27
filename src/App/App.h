@@ -53,8 +53,6 @@ public:
 	}
 
 private:
-	void _HotkeyManger_HotkeyPressed(IInspectable const&, HotkeyAction action);
-
 	Magpie::App::Settings _settings{ nullptr };
 	Magpie::Runtime::MagSettings _magSettings;
 	Magpie::App::HotkeyManager _hotkeyManager{ nullptr };
@@ -64,8 +62,6 @@ private:
 
 	event<EventHandler<bool>> _hostWndFocusChangedEvent;
 	bool _isHostWndFocused = false;
-
-	Magpie::App::HotkeyManager::HotkeyPressed_revoker _hotkeyPressedRevoker;
 };
 
 }
