@@ -15,5 +15,8 @@ namespace Magpie.Runtime
         CaptureMode CaptureMode;
 
         Boolean IsBreakpointMode;
+        Boolean IsDisableEffectCache;
+        Boolean IsSaveEffectSources;
+        Boolean IsWarningsAreErrors;
     }
 }

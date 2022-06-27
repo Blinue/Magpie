@@ -139,6 +139,12 @@ bool Settings::Save() {
 	writer.Bool(_isDeveloperMode);
 	writer.Key("breakpointMode");
 	writer.Bool(_isBreakpointMode);
+	writer.Key("disableEffectCache");
+	writer.Bool(_isDisableEffectCache);
+	writer.Key("saveEffectSources");
+	writer.Bool(_isSaveEffectSources);
+	writer.Key("warningsAreErrors");
+	writer.Bool(_isWarningsAreErrors);
 	
 	writer.Key("scalingConfigs");
 	writer.StartObject();
@@ -357,8 +363,16 @@ bool Settings::_LoadSettings(std::string text) {
 	if (!_LoadBoolSettingItem(root, "developerMode", _isDeveloperMode)) {
 		return false;
 	}
-
 	if (!_LoadBoolSettingItem(root, "breakpointMode", _isBreakpointMode)) {
+		return false;
+	}
+	if (!_LoadBoolSettingItem(root, "disableEffectCache", _isDisableEffectCache)) {
+		return false;
+	}
+	if (!_LoadBoolSettingItem(root, "saveEffectSources", _isSaveEffectSources)) {
+		return false;
+	}
+	if (!_LoadBoolSettingItem(root, "warningsAreErrors", _isWarningsAreErrors)) {
 		return false;
 	}
 

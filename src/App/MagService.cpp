@@ -215,8 +215,14 @@ void MagService::_StartScale(uint64_t hWnd) {
 	// 应用全局配置
 	if (_settings.IsDeveloperMode()) {
 		magSettings.IsBreakpointMode(_settings.IsBreakpointMode());
+		magSettings.IsDisableEffectCache(_settings.IsDisableEffectCache());
+		magSettings.IsSaveEffectSources(_settings.IsSaveEffectSources());
+		magSettings.IsWarningsAreErrors(_settings.IsWarningsAreErrors());
 	} else {
 		magSettings.IsBreakpointMode(false);
+		magSettings.IsDisableEffectCache(false);
+		magSettings.IsSaveEffectSources(false);
+		magSettings.IsWarningsAreErrors(false);
 	}
 
 	_magRuntime.Run(hWnd, magSettings);

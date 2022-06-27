@@ -1473,11 +1473,11 @@ cbuffer __CB2 : register(b1) {
 
 	cbHlsl.append("};\n\n");
 
-	/*if (MagApp::Get().GetSettings().IsSaveEffectSources() && !Utils::DirExists(SAVE_SOURCE_DIR)) {
+	if (MagApp::Get().GetSettings().IsSaveEffectSources() && !Win32Utils::DirExists(SAVE_SOURCE_DIR)) {
 		if (!CreateDirectory(SAVE_SOURCE_DIR, nullptr)) {
 			Logger::Get().Win32Error("创建 sources 文件夹失败");
 		}
-	}*/
+	}
 
 	// 并行生成代码和编译
 	Win32Utils::RunParallel([&](UINT id) {
@@ -1488,7 +1488,7 @@ cbuffer __CB2 : register(b1) {
 			return;
 		}
 
-		/*if (MagApp::Get().GetSettings().IsSaveEffectSources()) {
+		if (MagApp::Get().GetSettings().IsSaveEffectSources()) {
 			std::wstring fileName = desc.passes.size() == 1
 				? fmt::format(L"{}\\{}.hlsl", SAVE_SOURCE_DIR, StrUtils::UTF8ToUTF16(desc.name))
 				: fmt::format(L"{}\\{}_Pass{}.hlsl", SAVE_SOURCE_DIR, StrUtils::UTF8ToUTF16(desc.name), id + 1);
@@ -1496,7 +1496,7 @@ cbuffer __CB2 : register(b1) {
 			if (!Win32Utils::WriteFile(fileName.c_str(), source.data(), source.size())) {
 				Logger::Get().Error(fmt::format("保存 Pass{} 源码失败", id + 1));
 			}
-		}*/
+		}
 
 		static PassInclude passInclude;
 
@@ -1548,7 +1548,7 @@ UINT EffectCompiler::Compile(
 	}
 
 	std::string hash;
-	//if (!App::Get().GetSettings().IsDisableEffectCache()) {
+	if (!MagApp::Get().GetSettings().IsDisableEffectCache()) {
 		hash = EffectCacheManager::GetHash(source, flags & EFFECT_FLAG_INLINE_PARAMETERS ? &inlineParams : nullptr);
 		if (!hash.empty()) {
 			if (EffectCacheManager::Get().Load(effectName, hash, desc)) {
@@ -1556,7 +1556,7 @@ UINT EffectCompiler::Compile(
 				return 0;
 			}
 		}
-	//}
+	}
 
 	std::string_view sourceView(source);
 
@@ -1737,7 +1737,7 @@ UINT EffectCompiler::Compile(
 		return 1;
 	}
 
-	if (/*!App::Get().GetSettings().IsDisableEffectCache() && */!hash.empty()) {
+	if (!MagApp::Get().GetSettings().IsDisableEffectCache() && !hash.empty()) {
 		EffectCacheManager::Get().Save(effectName, hash, desc);
 	}
 

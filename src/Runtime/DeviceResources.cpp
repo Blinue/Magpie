@@ -398,9 +398,9 @@ bool DeviceResources::CompileShader(std::string_view hlsl, const char* entryPoin
 	winrt::com_ptr<ID3DBlob> errorMsgs = nullptr;
 
 	UINT flags = D3DCOMPILE_ENABLE_STRICTNESS | D3DCOMPILE_ALL_RESOURCES_BOUND;
-	/*if (MagApp::Get().GetSettings().IsTreatWarningsAsErrors()) {
+	if (MagApp::Get().GetSettings().IsWarningsAreErrors()) {
 		flags |= D3DCOMPILE_WARNINGS_ARE_ERRORS;
-	}*/
+	}
 
 #ifdef _DEBUG
 	flags |= D3DCOMPILE_SKIP_OPTIMIZATION | D3DCOMPILE_DEBUG;

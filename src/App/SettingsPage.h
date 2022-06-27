@@ -17,6 +17,12 @@ struct SettingsPage : SettingsPageT<SettingsPage> {
 	void ComboBox_DropDownOpened(IInspectable const&, IInspectable const&);
 
 	void BreakpointModeToggleSwitch_Toggled(IInspectable const&, RoutedEventArgs const&);
+
+	void DisableEffectCacheToggleSwitch_Toggled(IInspectable const&, RoutedEventArgs const&);
+
+	void SaveEffectSourcesToggleSwitch_Toggled(IInspectable const&, RoutedEventArgs const&);
+
+	void WarningsAreErrorsToggleSwitch_Toggled(IInspectable const&, RoutedEventArgs const&);
 private:
 	void _Settings_IsDeveloperModeChanged(IInspectable const&, bool value);
 

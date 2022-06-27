@@ -40,5 +40,8 @@ namespace Magpie.App
 		event Windows.Foundation.EventHandler<Boolean> IsDeveloperModeChanged;
 
 		Boolean IsBreakpointMode;
+		Boolean IsDisableEffectCache;
+		Boolean IsSaveEffectSources;
+		Boolean IsWarningsAreErrors;
 	}
 }

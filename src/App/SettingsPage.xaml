@@ -54,7 +54,7 @@
 						<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xEC7A;"/>
 					</local:SettingItem.Icon>
 					<local:SettingItem.ActionContent>
-						<ToggleSwitch />
+						<ToggleSwitch x:Name="DisableEffectCacheToggleSwitch" Toggled="DisableEffectCacheToggleSwitch_Toggled" />
 					</local:SettingItem.ActionContent>
 				</local:SettingItem>
 				<local:SettingItem Title="解析效果时保存源代码">
@@ -62,7 +62,7 @@
 						<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE943;"/>
 					</local:SettingItem.Icon>
 					<local:SettingItem.ActionContent>
-						<ToggleSwitch />
+						<ToggleSwitch x:Name="SaveEffectSourcesToggleSwitch" Toggled="SaveEffectSourcesToggleSwitch_Toggled" />
 					</local:SettingItem.ActionContent>
 				</local:SettingItem>
 				<local:SettingItem Title="编译效果时将警告视为错误">
@@ -70,7 +70,7 @@
 						<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xEC7A;"/>
 					</local:SettingItem.Icon>
 					<local:SettingItem.ActionContent>
-						<ToggleSwitch />
+						<ToggleSwitch x:Name="WarningsAreErrorsToggleSwitch" Toggled="WarningsAreErrorsToggleSwitch_Toggled" />
 					</local:SettingItem.ActionContent>
 				</local:SettingItem>
 			</local:SettingsGroup>

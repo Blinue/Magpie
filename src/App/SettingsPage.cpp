@@ -32,6 +32,9 @@ SettingsPage::SettingsPage() {
 	ThemeComboBox().SelectedIndex(_settings.Theme());
 	PortableModeToggleSwitch().IsOn(_settings.IsPortableMode());
 	BreakpointModeToggleSwitch().IsOn(_settings.IsBreakpointMode());
+	DisableEffectCacheToggleSwitch().IsOn(_settings.IsDisableEffectCache());
+	SaveEffectSourcesToggleSwitch().IsOn(_settings.IsSaveEffectSources());
+	WarningsAreErrorsToggleSwitch().IsOn(_settings.IsWarningsAreErrors());
 }
 
 void SettingsPage::ThemeComboBox_SelectionChanged(IInspectable const&, Controls::SelectionChangedEventArgs const&) {
@@ -52,6 +55,18 @@ void SettingsPage::ComboBox_DropDownOpened(IInspectable const&, IInspectable con
 
 void SettingsPage::BreakpointModeToggleSwitch_Toggled(IInspectable const&, RoutedEventArgs const&) {
 	_settings.IsBreakpointMode(BreakpointModeToggleSwitch().IsOn());
+}
+
+void SettingsPage::DisableEffectCacheToggleSwitch_Toggled(IInspectable const&, RoutedEventArgs const&) {
+	_settings.IsDisableEffectCache(DisableEffectCacheToggleSwitch().IsOn());
+}
+
+void SettingsPage::SaveEffectSourcesToggleSwitch_Toggled(IInspectable const&, RoutedEventArgs const&) {
+	_settings.IsSaveEffectSources(SaveEffectSourcesToggleSwitch().IsOn());
+}
+
+void SettingsPage::WarningsAreErrorsToggleSwitch_Toggled(IInspectable const&, RoutedEventArgs const&) {
+	_settings.IsWarningsAreErrors(WarningsAreErrorsToggleSwitch().IsOn());
 }
 
 void SettingsPage::_Settings_IsDeveloperModeChanged(IInspectable const&, bool value) {
