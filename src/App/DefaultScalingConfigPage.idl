@@ -1,8 +1,0 @@
-namespace Magpie.App
-{
-    [default_interface]
-    runtimeclass DefaultScalingConfigPage : Windows.UI.Xaml.Controls.Page
-    {
-        DefaultScalingConfigPage();
-    }
-}

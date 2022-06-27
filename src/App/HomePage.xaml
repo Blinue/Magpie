@@ -10,7 +10,7 @@
 	Loaded="HomePage_Loaded">
 	<local:PageFrame Title="Magpie">
 		<StackPanel Orientation="Vertical" HorizontalAlignment="Stretch">
-			<local:SettingsGroup Title="激活">
+			<local:SettingsGroup Margin="0,-15,0,0" Title="激活">
 				<local:SettingItem Title="快捷键">
 					<local:SettingItem.Icon>
 						<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xEDA7;"/>

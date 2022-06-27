@@ -25,26 +25,26 @@
 			</muxc:NavigationViewItem>
 			<muxc:NavigationViewItem Content="缩放模式" Tag="ScalingModes">
 				<muxc:NavigationViewItem.Icon>
-					<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xEB3C;"/>
+					<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE740;"/>
 				</muxc:NavigationViewItem.Icon>
 			</muxc:NavigationViewItem>
 			<muxc:NavigationViewItemHeader Content="缩放配置" />
-			<muxc:NavigationViewItem Content="默认" Tag="DefaultScalingConfig">
+			<muxc:NavigationViewItem Content="默认" Tag="ScalingConfig">
 				<muxc:NavigationViewItem.Icon>
 					<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE81E;"/>
 				</muxc:NavigationViewItem.Icon>
 			</muxc:NavigationViewItem>
-			<muxc:NavigationViewItem Content="游戏1" Tag="Game1">
+			<muxc:NavigationViewItem Content="游戏1" Tag="ScalingConfig">
 				<muxc:NavigationViewItem.Icon>
 					<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xECAA;"/>
 				</muxc:NavigationViewItem.Icon>
 			</muxc:NavigationViewItem>
-			<muxc:NavigationViewItem Content="游戏2" Tag="Game2">
+			<muxc:NavigationViewItem Content="游戏2" Tag="ScalingConfig">
 				<muxc:NavigationViewItem.Icon>
 					<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xECAA;"/>
 				</muxc:NavigationViewItem.Icon>
 			</muxc:NavigationViewItem>
-			<muxc:NavigationViewItem Content="游戏3" Tag="Game3">
+			<muxc:NavigationViewItem Content="游戏3" Tag="ScalingConfig">
 				<muxc:NavigationViewItem.Icon>
 					<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xECAA;"/>
 				</muxc:NavigationViewItem.Icon>

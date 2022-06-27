@@ -107,7 +107,7 @@
     <Page Include="ScalingModesPage.xaml">
       <Filter>Pages</Filter>
     </Page>
-    <Page Include="DefaultScalingConfigPage.xaml">
+    <Page Include="ScalingConfigPage.xaml">
       <Filter>Pages</Filter>
     </Page>
   </ItemGroup>

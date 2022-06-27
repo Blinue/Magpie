@@ -8,7 +8,7 @@ namespace winrt::Magpie::App::implementation {
 struct SettingsPage : SettingsPageT<SettingsPage> {
 	SettingsPage();
 
-	void ThemeComboBox_SelectionChanged(IInspectable const&, Controls::SelectionChangedEventArgs const& args);
+	void ThemeComboBox_SelectionChanged(IInspectable const&, Controls::SelectionChangedEventArgs const&);
 
 	void PortableModeToggleSwitch_Toggled(IInspectable const&, RoutedEventArgs const&);
 

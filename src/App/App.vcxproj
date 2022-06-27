@@ -107,8 +107,8 @@
       <DependentUpon>BooleanToVisibilityConverter.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
-    <ClInclude Include="DefaultScalingConfigPage.h">
-      <DependentUpon>DefaultScalingConfigPage.xaml</DependentUpon>
+    <ClInclude Include="ScalingConfigPage.h">
+      <DependentUpon>ScalingConfigPage.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
     <ClInclude Include="DummyTemplate.h">
@@ -204,8 +204,8 @@
       <DependentUpon>BooleanToVisibilityConverter.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
-    <ClCompile Include="DefaultScalingConfigPage.cpp">
-      <DependentUpon>DefaultScalingConfigPage.xaml</DependentUpon>
+    <ClCompile Include="ScalingConfigPage.cpp">
+      <DependentUpon>ScalingConfigPage.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
     <ClCompile Include="DummyTemplate.cpp">
@@ -316,8 +316,8 @@
     <Midl Include="BooleanToVisibilityConverter.idl">
       <SubType>Designer</SubType>
     </Midl>
-    <None Include="DefaultScalingConfigPage.idl">
-      <DependentUpon>DefaultScalingConfigPage.xaml</DependentUpon>
+    <None Include="ScalingConfigPage.idl">
+      <DependentUpon>ScalingConfigPage.xaml</DependentUpon>
       <SubType>Code</SubType>
     </None>
     <Midl Include="PageFrame.idl">
@@ -371,7 +371,7 @@
     <Page Include="AboutPage.xaml">
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="DefaultScalingConfigPage.xaml">
+    <Page Include="ScalingConfigPage.xaml">
       <SubType>Designer</SubType>
     </Page>
     <Page Include="DummyTemplate.xaml">

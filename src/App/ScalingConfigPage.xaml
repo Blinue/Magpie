@@ -1,0 +1,39 @@
+<Page
+    x:Class="Magpie.App.ScalingConfigPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Magpie.App"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+	<local:PageFrame Title="默认">
+		<StackPanel Orientation="Vertical" HorizontalAlignment="Stretch">
+			<local:SettingsGroup Margin="0,-15,0,0" Title="常规">
+				<local:SettingItem Title="缩放模式">
+					<local:SettingItem.Icon>
+						<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE740;"/>
+					</local:SettingItem.Icon>
+					<local:SettingItem.ActionContent>
+						<ComboBox SelectedIndex="0" Width="100">
+							<x:String>FSR</x:String>
+						</ComboBox>
+					</local:SettingItem.ActionContent>
+				</local:SettingItem>
+				<local:SettingItem Title="捕获模式">
+					<local:SettingItem.Icon>
+						<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE722;"/>
+					</local:SettingItem.Icon>
+					<local:SettingItem.ActionContent>
+						<ComboBox x:Name="CaptureModeComboBox" SelectedIndex="0" Width="180" SelectionChanged="CaptureModeComboBox_SelectionChanged">
+							<x:String>Graphics Capture</x:String>
+							<x:String>Desktop Duplication</x:String>
+							<x:String>GDI</x:String>
+							<x:String>DwmSharedSurface</x:String>
+						</ComboBox>
+					</local:SettingItem.ActionContent>
+				</local:SettingItem>
+			</local:SettingsGroup>
+		</StackPanel>
+	</local:PageFrame>
+</Page>

@@ -75,6 +75,26 @@ bool Settings::Initialize() {
 	return true;
 }
 
+void WriteScalingConfig(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer, const Magpie::Runtime::MagSettings& magSettings) {
+	writer.StartObject();
+	writer.Key("captureMode");
+	writer.Uint((unsigned int)magSettings.CaptureMode());
+	writer.EndObject();
+}
+
+bool LoadScalingConfig(const rapidjson::GenericObject<false, rapidjson::Value>& scalingConfigObj, Magpie::Runtime::MagSettings& magSettings) {
+	auto captureModeNode = scalingConfigObj.FindMember("captureMode");
+	if (captureModeNode != scalingConfigObj.MemberEnd()) {
+		if (!captureModeNode->value.IsUint()) {
+			return false;
+		}
+
+		magSettings.CaptureMode((Magpie::Runtime::CaptureMode)captureModeNode->value.GetUint());
+	}
+
+	return true;
+}
+
 bool Settings::Save() {
 	std::wstring configDir = StrUtils::ConcatW(_workingDir, L"config");
 	if (!Win32Utils::CreateDir(configDir)) {
@@ -115,6 +135,12 @@ bool Settings::Save() {
 	writer.Bool(_isAutoRestore);
 	writer.Key("downCount");
 	writer.Uint(_downCount);
+	
+	writer.Key("scalingConfigs");
+	writer.StartObject();
+	writer.Key("default");
+	WriteScalingConfig(writer, _defaultMagSettings);
+	writer.EndObject();
 
 	writer.EndObject();
 
@@ -306,6 +332,30 @@ bool Settings::_LoadSettings(std::string text) {
 			_downCount = downCountNode->value.GetUint();
 		}
 	}
+	{
+		auto scaleConfigsNode = root.FindMember("scalingConfigs");
+		if (scaleConfigsNode != root.MemberEnd()) {
+			if (!scaleConfigsNode->value.IsObject()) {
+				return false;
+			}
+
+			const auto& scaleConfigsObj = scaleConfigsNode->value.GetObj();
+
+			auto defaultNode = scaleConfigsObj.FindMember("default");
+			if (defaultNode != scaleConfigsObj.MemberEnd()) {
+				if (!defaultNode->value.IsObject()) {
+					return false;
+				}
+
+				const auto& defaultObj = defaultNode->value.GetObj();
+				if (!LoadScalingConfig(defaultObj, _defaultMagSettings)) {
+					return false;
+				}
+			}
+		}
+	}
+
+	_defaultMagSettings.CaptureMode(Magpie::Runtime::CaptureMode::GDI);
 
 	return true;
 }

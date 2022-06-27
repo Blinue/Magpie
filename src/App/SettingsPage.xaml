@@ -10,7 +10,7 @@
 
 	<local:PageFrame Title="设置">
 		<StackPanel Orientation="Vertical" HorizontalAlignment="Stretch">
-			<local:SettingsGroup Title="外观和行为">
+			<local:SettingsGroup Margin="0,-15,0,0" Title="外观和行为">
 				<local:SettingItem Title="主题">
 					<local:SettingItem.Icon>
 						<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xEF1F;"/>
