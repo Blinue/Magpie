@@ -47,9 +47,7 @@ HomePage::HomePage() {
 
 	AutoRestoreToggleSwitch().IsOn(_settings.IsAutoRestore());
 	_UpdateDownCount();
-}
 
-void HomePage::HomePage_Loaded(IInspectable const&, RoutedEventArgs const&) {
 	_UpdateAutoRestoreState();
 }
 

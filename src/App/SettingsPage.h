@@ -16,6 +16,7 @@ struct SettingsPage : SettingsPageT<SettingsPage> {
 
 	void ComboBox_DropDownOpened(IInspectable const&, IInspectable const&);
 
+	void BreakpointModeToggleSwitch_Toggled(IInspectable const&, RoutedEventArgs const&);
 private:
 	void _Settings_IsDeveloperModeChanged(IInspectable const&, bool value);
 

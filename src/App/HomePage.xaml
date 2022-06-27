@@ -6,8 +6,7 @@
 	xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
 	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-	mc:Ignorable="d"
-	Loaded="HomePage_Loaded">
+	mc:Ignorable="d">
 	<local:PageFrame Title="Magpie">
 		<StackPanel Orientation="Vertical" HorizontalAlignment="Stretch">
 			<local:SettingsGroup Margin="0,-15,0,0" Title="激活">
@@ -65,7 +64,7 @@
 				<muxc:Expander
 					x:Name="AutoRestoreExpander"
 					IsExpanded="True"
-					Margin="0,-3,0,3"
+					Margin="0,-2,0,2"
 					HorizontalAlignment="Stretch"
 					HorizontalContentAlignment="Stretch"
 					Style="{StaticResource SettingExpanderStyle}">

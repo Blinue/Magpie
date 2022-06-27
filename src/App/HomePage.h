@@ -8,8 +8,6 @@ namespace winrt::Magpie::App::implementation {
 struct HomePage : HomePageT<HomePage> {
 	HomePage();
 
-	void HomePage_Loaded(IInspectable const&, RoutedEventArgs const&);
-
 	void AutoRestoreToggleSwitch_Toggled(IInspectable const&, RoutedEventArgs const&);
 
 	void AutoRestoreExpanderToggleSwitch_Toggled(IInspectable const&, RoutedEventArgs const&);

@@ -31,6 +31,7 @@ SettingsPage::SettingsPage() {
 	
 	ThemeComboBox().SelectedIndex(_settings.Theme());
 	PortableModeToggleSwitch().IsOn(_settings.IsPortableMode());
+	BreakpointModeToggleSwitch().IsOn(_settings.IsBreakpointMode());
 }
 
 void SettingsPage::ThemeComboBox_SelectionChanged(IInspectable const&, Controls::SelectionChangedEventArgs const&) {
@@ -47,6 +48,10 @@ void SettingsPage::DeveloperModeToggleSwitch_Toggled(IInspectable const&, Routed
 
 void SettingsPage::ComboBox_DropDownOpened(IInspectable const&, IInspectable const&) {
 	XamlUtils::UpdateThemeOfXamlPopups(XamlRoot(), ActualTheme());
+}
+
+void SettingsPage::BreakpointModeToggleSwitch_Toggled(IInspectable const&, RoutedEventArgs const&) {
+	_settings.IsBreakpointMode(BreakpointModeToggleSwitch().IsOn());
 }
 
 void SettingsPage::_Settings_IsDeveloperModeChanged(IInspectable const&, bool value) {

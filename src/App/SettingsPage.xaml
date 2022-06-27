@@ -46,7 +46,7 @@
 						<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xF272;"/>
 					</local:SettingItem.Icon>
 					<local:SettingItem.ActionContent>
-						<ToggleSwitch />
+						<ToggleSwitch x:Name="BreakpointModeToggleSwitch" Toggled="BreakpointModeToggleSwitch_Toggled" />
 					</local:SettingItem.ActionContent>
 				</local:SettingItem>
 				<local:SettingItem Title="禁用效果缓存">

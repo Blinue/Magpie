@@ -108,6 +108,14 @@ struct Settings : SettingsT<Settings> {
 		_isDeveloperModeChangedEvent.remove(token);
 	}
 
+	bool IsBreakpointMode() const noexcept {
+		return _isBreakpointMode;
+	}
+
+	void IsBreakpointMode(bool value) noexcept {
+		_isBreakpointMode = value;
+	}
+
 	Magpie::Runtime::MagSettings GetMagSettings(uint64_t hWnd);
 
 private:
@@ -137,6 +145,8 @@ private:
 
 	bool _isDeveloperMode = false;
 	event<EventHandler<bool>> _isDeveloperModeChangedEvent;
+
+	bool _isBreakpointMode = false;
 
 	Magpie::Runtime::MagSettings _defaultMagSettings;
 };

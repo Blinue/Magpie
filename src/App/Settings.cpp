@@ -135,6 +135,10 @@ bool Settings::Save() {
 	writer.Bool(_isAutoRestore);
 	writer.Key("downCount");
 	writer.Uint(_downCount);
+	writer.Key("developerMode");
+	writer.Bool(_isDeveloperMode);
+	writer.Key("breakpointMode");
+	writer.Bool(_isBreakpointMode);
 	
 	writer.Key("scalingConfigs");
 	writer.StartObject();
@@ -233,6 +237,19 @@ Magpie::Runtime::MagSettings Settings::GetMagSettings(uint64_t hWnd) {
 	return _defaultMagSettings;
 }
 
+bool _LoadBoolSettingItem(const rapidjson::GenericObject<false, rapidjson::Value>& obj, const char* nodeName, bool& result) {
+	auto node = obj.FindMember(nodeName);
+	if (node != obj.MemberEnd()) {
+		if (!node->value.IsBool()) {
+			return false;
+		}
+
+		result = node->value.GetBool();
+	}
+
+	return true;
+}
+
 // 遇到不合法的配置项会失败，因此用户不应直接编辑配置文件
 bool Settings::_LoadSettings(std::string text) {
 	if (text.empty()) {
@@ -254,7 +271,7 @@ bool Settings::_LoadSettings(std::string text) {
 	{
 		auto themeNode = root.FindMember("theme");
 		if (themeNode != root.MemberEnd()) {
-			if (!themeNode->value.IsNumber()) {
+			if (!themeNode->value.IsInt()) {
 				return false;
 			}
 
@@ -321,16 +338,11 @@ bool Settings::_LoadSettings(std::string text) {
 			}
 		}
 	}
-	{
-		auto autoRestoreNode = root.FindMember("autoRestore");
-		if (autoRestoreNode != root.MemberEnd()) {
-			if (!autoRestoreNode->value.IsBool()) {
-				return false;
-			}
 
-			_isAutoRestore = autoRestoreNode->value.GetBool();
-		}
+	if (!_LoadBoolSettingItem(root, "autoRestore", _isAutoRestore)) {
+		return false;
 	}
+
 	{
 		auto downCountNode = root.FindMember("downCount");
 		if (downCountNode != root.MemberEnd()) {
@@ -341,6 +353,15 @@ bool Settings::_LoadSettings(std::string text) {
 			_downCount = downCountNode->value.GetUint();
 		}
 	}
+
+	if (!_LoadBoolSettingItem(root, "developerMode", _isDeveloperMode)) {
+		return false;
+	}
+
+	if (!_LoadBoolSettingItem(root, "breakpointMode", _isBreakpointMode)) {
+		return false;
+	}
+
 	{
 		auto scaleConfigsNode = root.FindMember("scalingConfigs");
 		if (scaleConfigsNode != root.MemberEnd()) {
