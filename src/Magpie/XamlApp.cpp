@@ -378,11 +378,7 @@ LRESULT XamlApp::_WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	}
 	case WM_SIZE:
 	{
-		if (wParam == SIZE_MINIMIZED) {
-			if (_mainPage) {
-				XamlUtils::CloseXamlPopups(_mainPage.XamlRoot());
-			}			
-		} else {
+		if (wParam != SIZE_MINIMIZED) {
 			_OnResize();
 			if (_mainPage) {
 				[](XamlApp* app)->winrt::fire_and_forget {
@@ -393,6 +389,7 @@ LRESULT XamlApp::_WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				}(this);
 			}
 		}
+
 		return 0;
 	}
 	case WM_WINDOWPOSCHANGED:
@@ -449,6 +446,16 @@ LRESULT XamlApp::_WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				XamlUtils::CloseXamlPopups(_mainPage.XamlRoot());
 			}
 			return 0;
+		}
+
+		break;
+	}
+	case WM_SYSCOMMAND:
+	{
+		if (wParam == SC_MINIMIZE && _mainPage) {
+			// 最小化时关闭 ComboBox
+			// 不能在 WM_SIZE 中处理，该消息发送于最小化之后，会导致 ComboBox 无法交互
+			XamlUtils::CloseXamlPopups(_mainPage.XamlRoot());
 		}
 
 		break;

@@ -14,7 +14,6 @@
 #define NOMENUS
 #define NOICONS
 #define NOKEYSTATES
-#define NOSYSCOMMANDS
 #define NOATOM
 #define NOCLIPBOARD
 #define NODRAWTEXT
