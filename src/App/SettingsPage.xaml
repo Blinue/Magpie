@@ -31,6 +31,13 @@
 						<ToggleSwitch x:Name="PortableModeToggleSwitch" Toggled="PortableModeToggleSwitch_Toggled" />
 					</local:SettingItem.ActionContent>
 				</local:SettingItem>
+			</local:SettingsGroup>
+			<local:SettingsGroup Title="高级">
+				<local:SettingItem Title="缩放时模拟独占全屏">
+					<local:SettingItem.ActionContent>
+						<ToggleSwitch />
+					</local:SettingItem.ActionContent>
+				</local:SettingItem>
 				<local:SettingItem Title="开发者模式">
 					<local:SettingItem.Icon>
 						<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xEC7A;"/>
