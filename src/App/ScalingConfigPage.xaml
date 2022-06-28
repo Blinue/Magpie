@@ -41,12 +41,32 @@
 						<ToggleSwitch />
 					</local:SettingItem.ActionContent>
 				</local:SettingItem>
-				<local:SettingItem Title="垂直同步">
+			</local:SettingsGroup>
+			<local:SettingsGroup Title="性能">
+				<local:SettingItem Title="图形适配器">
+					<local:SettingItem.Icon>
+						<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xf211;"/>
+					</local:SettingItem.Icon>
+					<local:SettingItem.ActionContent>
+						<ComboBox SelectedIndex="0">
+							<x:String>默认</x:String>
+						</ComboBox>
+					</local:SettingItem.ActionContent>
+				</local:SettingItem>
+				<local:SettingItem Title="显示帧率">
 					<local:SettingItem.ActionContent>
 						<ToggleSwitch />
 					</local:SettingItem.ActionContent>
 				</local:SettingItem>
-				<local:SettingItem Title="显示帧率">
+				<local:SettingItem Title="垂直同步">
+					<local:SettingItem.Icon>
+						<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xF71C;" />
+					</local:SettingItem.Icon>
+					<local:SettingItem.ActionContent>
+						<ToggleSwitch />
+					</local:SettingItem.ActionContent>
+				</local:SettingItem>
+				<local:SettingItem Title="允许额外的延迟">
 					<local:SettingItem.ActionContent>
 						<ToggleSwitch />
 					</local:SettingItem.ActionContent>
@@ -76,6 +96,9 @@
 					</local:SettingItem.ActionContent>
 				</local:SettingItem>
 				<local:SettingItem Title="绘制光标">
+					<local:SettingItem.Icon>
+						<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE7C9;"/>
+					</local:SettingItem.Icon>
 					<local:SettingItem.ActionContent>
 						<ToggleSwitch />
 					</local:SettingItem.ActionContent>
