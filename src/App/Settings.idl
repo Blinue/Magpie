@@ -36,9 +36,6 @@ namespace Magpie.App
 
 		Magpie.Runtime.MagSettings GetMagSettings(UInt64 hWnd);
 
-		Boolean IsDeveloperMode;
-		event Windows.Foundation.EventHandler<Boolean> IsDeveloperModeChanged;
-
 		Boolean IsBreakpointMode;
 		Boolean IsDisableEffectCache;
 		Boolean IsSaveEffectSources;

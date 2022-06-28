@@ -12,8 +12,6 @@ struct SettingsPage : SettingsPageT<SettingsPage> {
 
 	void PortableModeToggleSwitch_Toggled(IInspectable const&, RoutedEventArgs const&);
 
-	void DeveloperModeToggleSwitch_Toggled(IInspectable const&, RoutedEventArgs const&);
-
 	void ComboBox_DropDownOpened(IInspectable const&, IInspectable const&);
 
 	void BreakpointModeToggleSwitch_Toggled(IInspectable const&, RoutedEventArgs const&);
@@ -23,12 +21,9 @@ struct SettingsPage : SettingsPageT<SettingsPage> {
 	void SaveEffectSourcesToggleSwitch_Toggled(IInspectable const&, RoutedEventArgs const&);
 
 	void WarningsAreErrorsToggleSwitch_Toggled(IInspectable const&, RoutedEventArgs const&);
+
 private:
-	void _Settings_IsDeveloperModeChanged(IInspectable const&, bool value);
-
 	Magpie::App::Settings _settings{ nullptr };
-
-	Magpie::App::Settings::IsDeveloperModeChanged_revoker _isDeveloperModeChangedRevoker;
 };
 
 }

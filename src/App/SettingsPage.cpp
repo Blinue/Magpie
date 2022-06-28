@@ -17,17 +17,6 @@ SettingsPage::SettingsPage() {
 	InitializeComponent();
 
 	_settings = Application::Current().as<Magpie::App::App>().Settings();
-
-	{
-		bool isDeveloperMode = _settings.IsDeveloperMode();
-		DeveloperModeToggleSwitch().IsOn(isDeveloperMode);
-
-		_isDeveloperModeChangedRevoker = _settings.IsDeveloperModeChanged(
-			auto_revoke,
-			{ this, &SettingsPage::_Settings_IsDeveloperModeChanged }
-		);
-		_Settings_IsDeveloperModeChanged(nullptr, isDeveloperMode);
-	}
 	
 	ThemeComboBox().SelectedIndex(_settings.Theme());
 	PortableModeToggleSwitch().IsOn(_settings.IsPortableMode());
@@ -43,10 +32,6 @@ void SettingsPage::ThemeComboBox_SelectionChanged(IInspectable const&, Controls:
 
 void SettingsPage::PortableModeToggleSwitch_Toggled(IInspectable const&, RoutedEventArgs const&) {
 	_settings.IsPortableMode(PortableModeToggleSwitch().IsOn());
-}
-
-void SettingsPage::DeveloperModeToggleSwitch_Toggled(IInspectable const&, RoutedEventArgs const&) {
-	_settings.IsDeveloperMode(DeveloperModeToggleSwitch().IsOn());
 }
 
 void SettingsPage::ComboBox_DropDownOpened(IInspectable const&, IInspectable const&) {
@@ -67,10 +52,6 @@ void SettingsPage::SaveEffectSourcesToggleSwitch_Toggled(IInspectable const&, Ro
 
 void SettingsPage::WarningsAreErrorsToggleSwitch_Toggled(IInspectable const&, RoutedEventArgs const&) {
 	_settings.IsWarningsAreErrors(WarningsAreErrorsToggleSwitch().IsOn());
-}
-
-void SettingsPage::_Settings_IsDeveloperModeChanged(IInspectable const&, bool value) {
-	DebugSettingsGroup().Visibility(value ? Visibility::Visible : Visibility::Collapsed);
 }
 
 }

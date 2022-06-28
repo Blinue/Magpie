@@ -38,48 +38,41 @@
 						<ToggleSwitch />
 					</local:SettingItem.ActionContent>
 				</local:SettingItem>
-				<local:SettingItem Title="开发者模式">
-					<local:SettingItem.Icon>
-						<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xEC7A;"/>
-					</local:SettingItem.Icon>
-					<local:SettingItem.ActionContent>
-						<ToggleSwitch x:Name="DeveloperModeToggleSwitch" Toggled="DeveloperModeToggleSwitch_Toggled" />
-					</local:SettingItem.ActionContent>
-				</local:SettingItem>
-			</local:SettingsGroup>
-			<local:SettingsGroup x:Name="DebugSettingsGroup" Title="调试">
-				<local:SettingItem Title="断点模式" Description="更改缩放行为以便于在 Visual Studio 中调试">
-					<local:SettingItem.Icon>
-						<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xF272;"/>
-					</local:SettingItem.Icon>
-					<local:SettingItem.ActionContent>
-						<ToggleSwitch x:Name="BreakpointModeToggleSwitch" Toggled="BreakpointModeToggleSwitch_Toggled" />
-					</local:SettingItem.ActionContent>
-				</local:SettingItem>
-				<local:SettingItem Title="禁用效果缓存">
-					<local:SettingItem.Icon>
-						<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xEC7A;"/>
-					</local:SettingItem.Icon>
-					<local:SettingItem.ActionContent>
-						<ToggleSwitch x:Name="DisableEffectCacheToggleSwitch" Toggled="DisableEffectCacheToggleSwitch_Toggled" />
-					</local:SettingItem.ActionContent>
-				</local:SettingItem>
-				<local:SettingItem Title="解析效果时保存源代码">
-					<local:SettingItem.Icon>
-						<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE943;"/>
-					</local:SettingItem.Icon>
-					<local:SettingItem.ActionContent>
-						<ToggleSwitch x:Name="SaveEffectSourcesToggleSwitch" Toggled="SaveEffectSourcesToggleSwitch_Toggled" />
-					</local:SettingItem.ActionContent>
-				</local:SettingItem>
-				<local:SettingItem Title="编译效果时将警告视为错误">
-					<local:SettingItem.Icon>
-						<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xEC7A;"/>
-					</local:SettingItem.Icon>
-					<local:SettingItem.ActionContent>
-						<ToggleSwitch x:Name="WarningsAreErrorsToggleSwitch" Toggled="WarningsAreErrorsToggleSwitch_Toggled" />
-					</local:SettingItem.ActionContent>
-				</local:SettingItem>
+				<muxc:Expander HorizontalAlignment="Stretch"
+					HorizontalContentAlignment="Stretch"
+					Style="{StaticResource SettingExpanderStyle}">
+					<muxc:Expander.Header>
+						<local:SettingItem Title="开发者选项" Style="{StaticResource ExpanderHeaderSettingStyle}">
+							<local:SettingItem.Icon>
+								<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xEC7A;"/>
+							</local:SettingItem.Icon>
+						</local:SettingItem>
+					</muxc:Expander.Header>
+					<muxc:Expander.Content>
+						<StackPanel>
+							<local:SettingItem Title="断点模式" Description="更改缩放行为以便于在 Visual Studio 中调试" Style="{StaticResource ExpanderContentSettingStyle}">
+								<local:SettingItem.ActionContent>
+									<ToggleSwitch x:Name="BreakpointModeToggleSwitch" Toggled="BreakpointModeToggleSwitch_Toggled" />
+								</local:SettingItem.ActionContent>
+							</local:SettingItem>
+							<local:SettingItem Title="禁用效果缓存" Style="{StaticResource ExpanderContentSettingStyle}">
+								<local:SettingItem.ActionContent>
+									<ToggleSwitch x:Name="DisableEffectCacheToggleSwitch" Toggled="DisableEffectCacheToggleSwitch_Toggled" />
+								</local:SettingItem.ActionContent>
+							</local:SettingItem>
+							<local:SettingItem Title="解析效果时保存源代码" Style="{StaticResource ExpanderContentSettingStyle}">
+								<local:SettingItem.ActionContent>
+									<ToggleSwitch x:Name="SaveEffectSourcesToggleSwitch" Toggled="SaveEffectSourcesToggleSwitch_Toggled" />
+								</local:SettingItem.ActionContent>
+							</local:SettingItem>
+							<local:SettingItem Title="编译效果时将警告视为错误" Style="{StaticResource ExpanderContentSettingStyle}">
+								<local:SettingItem.ActionContent>
+									<ToggleSwitch x:Name="WarningsAreErrorsToggleSwitch" Toggled="WarningsAreErrorsToggleSwitch_Toggled" />
+								</local:SettingItem.ActionContent>
+							</local:SettingItem>
+						</StackPanel>
+					</muxc:Expander.Content>
+				</muxc:Expander>
 			</local:SettingsGroup>
 		</StackPanel>
 	</local:PageFrame>
