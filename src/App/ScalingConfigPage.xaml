@@ -99,11 +99,17 @@
 			</local:SettingsGroup>
 			<local:SettingsGroup Title="源窗口">
 				<local:SettingItem Title="缩放时禁用窗口大小调整">
+					<local:SettingItem.Icon>
+						<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xEE3F;" />
+					</local:SettingItem.Icon>
 					<local:SettingItem.ActionContent>
 						<ToggleSwitch />
 					</local:SettingItem.ActionContent>
 				</local:SettingItem>
-				<local:SettingItem Title="裁剪 UWP 窗口的标题栏">
+				<local:SettingItem Title="保留标题栏" Description="仅在 Graphics Capture 和 Desktop Duplication 捕获模式下有效">
+					<local:SettingItem.Icon>
+						<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE737;" />
+					</local:SettingItem.Icon>
 					<local:SettingItem.ActionContent>
 						<ToggleSwitch />
 					</local:SettingItem.ActionContent>
