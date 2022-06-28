@@ -4,7 +4,6 @@
 #include "MainPage.g.cpp"
 #endif
 
-#include <winrt/Windows.System.Profile.h>
 #include "MicaBrush.h"
 #include "XamlUtils.h"
 #include "Logger.h"
@@ -26,6 +25,9 @@ MainPage::MainPage() {
 	_settings.ThemeChanged([this](const auto&, int) { _UpdateTheme(); });
 
 	Background(Magpie::App::MicaBrush(*this));
+
+	// 刚启动时有一个 ToggleSwitch 的动画 bug，这里展示页面切换动画掩盖
+	ContentFrame().Navigate(winrt::xaml_typename<Controls::Page>());
 }
 
 MainPage::~MainPage() {
