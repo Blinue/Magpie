@@ -5,6 +5,7 @@
     xmlns:local="using:Magpie.App"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+	xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
     mc:Ignorable="d">
 
 	<local:PageFrame Title="默认">
@@ -22,7 +23,7 @@
 				</local:SettingItem>
 				<local:SettingItem Title="捕获模式">
 					<local:SettingItem.Icon>
-						<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE722;"/>
+						<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE9A6;"/>
 					</local:SettingItem.Icon>
 					<local:SettingItem.ActionContent>
 						<ComboBox x:Name="CaptureModeComboBox" SelectedIndex="0" Width="180" SelectionChanged="CaptureModeComboBox_SelectionChanged">
@@ -41,9 +42,21 @@
 						<ToggleSwitch />
 					</local:SettingItem.ActionContent>
 				</local:SettingItem>
+				<local:SettingItem Title="多显示器">
+					<local:SettingItem.Icon>
+						<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xf5a9;"/>
+					</local:SettingItem.Icon>
+					<local:SettingItem.ActionContent>
+						<ComboBox SelectedIndex="0">
+							<x:String>使用距离源窗口最近的显示器</x:String>
+							<x:String>使用源窗口跨越的所有显示器</x:String>
+							<x:String>使用所有显示器</x:String>
+						</ComboBox>
+					</local:SettingItem.ActionContent>
+				</local:SettingItem>
 			</local:SettingsGroup>
 			<local:SettingsGroup Title="性能">
-				<local:SettingItem Title="图形适配器">
+				<local:SettingItem Title="显示卡">
 					<local:SettingItem.Icon>
 						<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xf211;"/>
 					</local:SettingItem.Icon>
@@ -54,23 +67,35 @@
 					</local:SettingItem.ActionContent>
 				</local:SettingItem>
 				<local:SettingItem Title="显示帧率">
-					<local:SettingItem.ActionContent>
-						<ToggleSwitch />
-					</local:SettingItem.ActionContent>
-				</local:SettingItem>
-				<local:SettingItem Title="垂直同步">
 					<local:SettingItem.Icon>
-						<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xF71C;" />
+						<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xEC4A;"/>
 					</local:SettingItem.Icon>
 					<local:SettingItem.ActionContent>
 						<ToggleSwitch />
 					</local:SettingItem.ActionContent>
 				</local:SettingItem>
-				<local:SettingItem Title="允许额外的延迟">
-					<local:SettingItem.ActionContent>
-						<ToggleSwitch />
-					</local:SettingItem.ActionContent>
-				</local:SettingItem>
+				<muxc:Expander
+					HorizontalAlignment="Stretch"
+					HorizontalContentAlignment="Stretch"
+					Style="{StaticResource SettingExpanderStyle}">
+					<muxc:Expander.Header>
+						<local:SettingItem Title="垂直同步" Style="{StaticResource ExpanderHeaderSettingStyle}">
+							<local:SettingItem.Icon>
+								<FontIcon Style="{StaticResource ExpanderHeaderSettingIconStyle}" FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xF71C;" />
+							</local:SettingItem.Icon>
+							<local:SettingItem.ActionContent>
+								<ToggleSwitch />
+							</local:SettingItem.ActionContent>
+						</local:SettingItem>
+					</muxc:Expander.Header>
+					<muxc:Expander.Content>
+						<local:SettingItem Title="允许额外的延迟以提高性能" Style="{StaticResource ExpanderContentSettingStyle}">
+							<local:SettingItem.ActionContent>
+								<ToggleSwitch />
+							</local:SettingItem.ActionContent>
+						</local:SettingItem>
+					</muxc:Expander.Content>
+				</muxc:Expander>
 			</local:SettingsGroup>
 			<local:SettingsGroup Title="源窗口">
 				<local:SettingItem Title="缩放时禁用窗口大小调整">
@@ -84,6 +109,9 @@
 					</local:SettingItem.ActionContent>
 				</local:SettingItem>
 				<local:SettingItem Title="自定义裁剪">
+					<local:SettingItem.Icon>
+						<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE7A8;" />
+					</local:SettingItem.Icon>
 					<local:SettingItem.ActionContent>
 						<ToggleSwitch />
 					</local:SettingItem.ActionContent>
@@ -91,40 +119,54 @@
 			</local:SettingsGroup>
 			<local:SettingsGroup Title="光标">
 				<local:SettingItem Title="缩放时调整光标速度">
-					<local:SettingItem.ActionContent>
-						<ToggleSwitch />
-					</local:SettingItem.ActionContent>
-				</local:SettingItem>
-				<local:SettingItem Title="绘制光标">
 					<local:SettingItem.Icon>
-						<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE7C9;"/>
+						<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE7C2;"/>
 					</local:SettingItem.Icon>
 					<local:SettingItem.ActionContent>
 						<ToggleSwitch />
 					</local:SettingItem.ActionContent>
 				</local:SettingItem>
-				<local:SettingItem Title="光标缩放系数">
-					<local:SettingItem.ActionContent>
-						<ComboBox SelectedIndex="2">
-							<x:String>0.5x</x:String>
-							<x:String>0.75x</x:String>
-							<x:String>无缩放</x:String>
-							<x:String>1.25x</x:String>
-							<x:String>1.5x</x:String>
-							<x:String>2x</x:String>
-							<x:String>2.5x</x:String>
-							<x:String>3x</x:String>
-						</ComboBox>
-					</local:SettingItem.ActionContent>
-				</local:SettingItem>
-				<local:SettingItem Title="插值算法">
-					<local:SettingItem.ActionContent>
-						<ComboBox SelectedIndex="0">
-							<x:String>最近邻</x:String>
-							<x:String>双线性</x:String>
-						</ComboBox>
-					</local:SettingItem.ActionContent>
-				</local:SettingItem>
+				<muxc:Expander
+					HorizontalAlignment="Stretch"
+					HorizontalContentAlignment="Stretch"
+					Style="{StaticResource SettingExpanderStyle}">
+					<muxc:Expander.Header>
+						<local:SettingItem Title="绘制光标" Style="{StaticResource ExpanderHeaderSettingStyle}">
+							<local:SettingItem.Icon>
+								<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE7C9;"/>
+							</local:SettingItem.Icon>
+							<local:SettingItem.ActionContent>
+								<ToggleSwitch />
+							</local:SettingItem.ActionContent>
+						</local:SettingItem>
+					</muxc:Expander.Header>
+					<muxc:Expander.Content>
+						<StackPanel>
+							<local:SettingItem Title="光标缩放系数" Style="{StaticResource ExpanderContentSettingStyle}">
+								<local:SettingItem.ActionContent>
+									<ComboBox SelectedIndex="2">
+										<x:String>0.5x</x:String>
+										<x:String>0.75x</x:String>
+										<x:String>无缩放</x:String>
+										<x:String>1.25x</x:String>
+										<x:String>1.5x</x:String>
+										<x:String>2x</x:String>
+										<x:String>2.5x</x:String>
+										<x:String>3x</x:String>
+									</ComboBox>
+								</local:SettingItem.ActionContent>
+							</local:SettingItem>
+							<local:SettingItem Title="插值算法" Style="{StaticResource ExpanderContentSettingStyle}">
+								<local:SettingItem.ActionContent>
+									<ComboBox SelectedIndex="0">
+										<x:String>最近邻</x:String>
+										<x:String>双线性</x:String>
+									</ComboBox>
+								</local:SettingItem.ActionContent>
+							</local:SettingItem>
+						</StackPanel>
+					</muxc:Expander.Content>
+				</muxc:Expander>
 			</local:SettingsGroup>
 			<local:SettingsGroup Title="高级">
 				<local:SettingItem Title="禁用 DirectFlip">

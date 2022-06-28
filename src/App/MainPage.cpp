@@ -8,6 +8,7 @@
 #include "XamlUtils.h"
 #include "Logger.h"
 #include "StrUtils.h"
+#include "Win32Utils.h"
 
 
 using namespace winrt;
@@ -26,8 +27,10 @@ MainPage::MainPage() {
 
 	Background(Magpie::App::MicaBrush(*this));
 
-	// 刚启动时有一个 ToggleSwitch 的动画 bug，这里展示页面切换动画掩盖
-	ContentFrame().Navigate(winrt::xaml_typename<Controls::Page>());
+	// Win10 里启动时有一个 ToggleSwitch 的动画 bug，这里展示页面切换动画掩盖
+	if (Win32Utils::GetOSBuild() < 22000) {
+		ContentFrame().Navigate(winrt::xaml_typename<Controls::Page>());
+	}
 }
 
 MainPage::~MainPage() {
