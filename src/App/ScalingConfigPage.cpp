@@ -3,6 +3,7 @@
 #if __has_include("ScalingConfigPage.g.cpp")
 #include "ScalingConfigPage.g.cpp"
 #endif
+#include "Win32Utils.h"
 
 using namespace winrt;
 
@@ -14,6 +15,11 @@ ScalingConfigPage::ScalingConfigPage() {
 
     App app = Application::Current().as<App>();
     _magSettings = app.Settings().GetMagSettings(0);
+
+    if (Win32Utils::GetOSBuild() < 22000) {
+        // Segoe MDL2 Assets 不存在 Move 图标
+        AdjustCursorSpeedFontIcon().Glyph(L"\uE962");
+    }
 
     CaptureModeComboBox().SelectedIndex((int32_t)_magSettings.CaptureMode());
 }

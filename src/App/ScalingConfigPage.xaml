@@ -126,7 +126,7 @@
 			<local:SettingsGroup Title="光标">
 				<local:SettingItem Title="缩放时调整光标速度">
 					<local:SettingItem.Icon>
-						<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE7C2;"/>
+						<FontIcon x:Name="AdjustCursorSpeedFontIcon" FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE7C2;"/>
 					</local:SettingItem.Icon>
 					<local:SettingItem.ActionContent>
 						<ToggleSwitch />
