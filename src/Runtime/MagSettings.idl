@@ -12,6 +12,8 @@ namespace Magpie.Runtime
     {
         MagSettings();
 
+        void CopyFrom(MagSettings other);
+
         CaptureMode CaptureMode;
 
         Boolean IsBreakpointMode;
@@ -19,5 +21,6 @@ namespace Magpie.Runtime
         Boolean IsSaveEffectSources;
         Boolean IsWarningsAreErrors;
         Boolean IsSimulateExclusiveFullscreen;
+        Boolean Is3DGameMode;
     }
 }

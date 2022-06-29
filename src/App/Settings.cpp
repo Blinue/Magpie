@@ -79,17 +79,31 @@ void WriteScalingConfig(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer
 	writer.StartObject();
 	writer.Key("captureMode");
 	writer.Uint((unsigned int)magSettings.CaptureMode());
+	writer.Key("3dGameMode");
+	writer.Bool(magSettings.Is3DGameMode());
 	writer.EndObject();
 }
 
 bool LoadScalingConfig(const rapidjson::GenericObject<false, rapidjson::Value>& scalingConfigObj, Magpie::Runtime::MagSettings& magSettings) {
-	auto captureModeNode = scalingConfigObj.FindMember("captureMode");
-	if (captureModeNode != scalingConfigObj.MemberEnd()) {
-		if (!captureModeNode->value.IsUint()) {
-			return false;
-		}
+	{
+		auto captureModeNode = scalingConfigObj.FindMember("captureMode");
+		if (captureModeNode != scalingConfigObj.MemberEnd()) {
+			if (!captureModeNode->value.IsUint()) {
+				return false;
+			}
 
-		magSettings.CaptureMode((Magpie::Runtime::CaptureMode)captureModeNode->value.GetUint());
+			magSettings.CaptureMode((Magpie::Runtime::CaptureMode)captureModeNode->value.GetUint());
+		}
+	}
+	{
+		auto is3DGameModeNode = scalingConfigObj.FindMember("3dGameMode");
+		if (is3DGameModeNode != scalingConfigObj.MemberEnd()) {
+			if (!is3DGameModeNode->value.IsBool()) {
+				return false;
+			}
+
+			magSettings.Is3DGameMode(is3DGameModeNode->value.GetBool());
+		}
 	}
 
 	return true;

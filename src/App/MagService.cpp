@@ -210,7 +210,8 @@ void MagService::_StartScale(uint64_t hWnd) {
 		hWnd = (uint64_t)GetForegroundWindow();
 	}
 
-	const Magpie::Runtime::MagSettings& magSettings = _settings.GetMagSettings(_wndToRestore);
+	Magpie::Runtime::MagSettings magSettings;
+	magSettings.CopyFrom(_settings.GetMagSettings(_wndToRestore));
 
 	// 应用全局配置
 	magSettings.IsBreakpointMode(_settings.IsBreakpointMode());

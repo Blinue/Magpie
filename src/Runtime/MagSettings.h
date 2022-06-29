@@ -7,6 +7,8 @@ namespace winrt::Magpie::Runtime::implementation {
 struct MagSettings : MagSettingsT<MagSettings> {
     MagSettings() = default;
 
+    void CopyFrom(Magpie::Runtime::MagSettings other);
+
     CaptureMode CaptureMode() const noexcept {
         return _captureMode;
     }
@@ -55,6 +57,14 @@ struct MagSettings : MagSettingsT<MagSettings> {
         _isSimulateExclusiveFullscreen = value;
     }
 
+    bool Is3DGameMode() const noexcept {
+        return _is3DGameMode;
+    }
+
+    void Is3DGameMode(bool value) noexcept {
+        _is3DGameMode = value;
+    }
+
 private:
     Magpie::Runtime::CaptureMode _captureMode = Magpie::Runtime::CaptureMode::GraphicsCapture;
 
@@ -63,6 +73,7 @@ private:
     bool _isSaveEffectSources = false;
     bool _isWarningsAreErrors = false;
     bool _isSimulateExclusiveFullscreen = false;
+    bool _is3DGameMode = false;
 };
 
 }

@@ -31,9 +31,9 @@ static std::optional<LRESULT> WndProcHandler(HWND hwnd, UINT msg, WPARAM wParam,
 	ImGuiIO& io = ImGui::GetIO();
 
 	if (!io.WantCaptureMouse) {
-		/*if (msg == WM_LBUTTONDOWN && MagApp::Get().GetSettings().Is3DMode()) {
+		if (msg == WM_LBUTTONDOWN && MagApp::Get().GetSettings().Is3DGameMode()) {
 			MagApp::Get().GetRenderer().SetUIVisibility(false);
-		}*/
+		}
 		return std::nullopt;
 	}
 
@@ -172,7 +172,7 @@ bool ImGuiImpl::Initialize() {
 	}
 
 	// 断点模式下不注册鼠标钩子，否则调试时鼠标无法使用
-	if (!MagApp::Get().GetSettings().IsBreakpointMode() /*&& !MagApp::Get().GetSettings().Is3DMode()*/) {
+	if (!MagApp::Get().GetSettings().IsBreakpointMode() && !MagApp::Get().GetSettings().Is3DGameMode()) {
 		_hHookThread = CreateThread(nullptr, 0, ThreadProc, nullptr, 0, &_hookThreadId);
 		if (!_hHookThread) {
 			Logger::Get().Win32Error("创建线程失败");
@@ -185,10 +185,10 @@ bool ImGuiImpl::Initialize() {
 static void UpdateMousePos() {
 	ImGuiIO& io = ImGui::GetIO();
 
-	/*if (MagApp::Get().GetSettings().Is3DMode() && !MagApp::Get().GetRenderer().IsUIVisiable()) {
+	if (MagApp::Get().GetSettings().Is3DGameMode() && !MagApp::Get().GetRenderer().IsUIVisiable()) {
 		io.MousePos = ImVec2(-FLT_MAX, -FLT_MAX);
 		return;
-	}*/
+	}
 
 	POINT pos;
 	CursorManager& cm = MagApp::Get().GetCursorManager();

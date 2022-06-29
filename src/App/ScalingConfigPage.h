@@ -13,6 +13,8 @@ struct ScalingConfigPage : ScalingConfigPageT<ScalingConfigPage> {
 
     void CaptureModeComboBox_SelectionChanged(IInspectable const&, Controls::SelectionChangedEventArgs const& args);
 
+    void Is3DGameModeToggleSwitch_Toggled(IInspectable const&, RoutedEventArgs const&);
+
 private:
     Magpie::Runtime::MagSettings _magSettings{ nullptr };
 };

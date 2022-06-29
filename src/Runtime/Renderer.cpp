@@ -238,7 +238,7 @@ bool Renderer::_CheckSrcState() {
 	if (!MagApp::Get().GetSettings().IsBreakpointMode()) {
 		HWND hwndForeground = GetForegroundWindow();
 		// 在 3D 游戏模式下打开游戏内覆盖则全屏窗口可以接收焦点
-		if (/*!MagApp::Get().GetSettings().Is3DMode() ||*/ !IsUIVisiable() || hwndForeground != MagApp::Get().GetHwndHost()) {
+		if (!MagApp::Get().GetSettings().Is3DGameMode() || !IsUIVisiable() || hwndForeground != MagApp::Get().GetHwndHost()) {
 			if (hwndForeground && hwndForeground != hwndSrc && !CheckForeground(hwndForeground)) {
 				Logger::Get().Info("前台窗口已改变");
 				return false;
@@ -439,7 +439,7 @@ bool Renderer::_UpdateDynamicConstants() {
 	// };
 
 	CursorManager& cursorManager = MagApp::Get().GetCursorManager();
-	if (cursorManager.HasCursor()/* && !(MagApp::Get().GetSettings().Is3DMode() && IsUIVisiable())*/) {
+	if (cursorManager.HasCursor() && !(MagApp::Get().GetSettings().Is3DGameMode() && IsUIVisiable())) {
 		const POINT* pos = cursorManager.GetCursorPos();
 		const CursorManager::CursorInfo* ci = cursorManager.GetCursorInfo();
 

@@ -20,11 +20,11 @@
 OverlayDrawer::OverlayDrawer() {}
 
 OverlayDrawer::~OverlayDrawer() {
-	/*if (MagApp::Get().GetSettings().Is3DMode() && IsUIVisiable()) {
+	if (MagApp::Get().GetSettings().Is3DGameMode() && IsUIVisiable()) {
 		HWND hwndSrc = MagApp::Get().GetHwndSrc();
 		EnableWindow(hwndSrc, TRUE);
 		SetForegroundWindow(hwndSrc);
-	}*/
+	}
 }
 
 static const ImColor TIMELINE_COLORS[] = {
@@ -251,7 +251,7 @@ void OverlayDrawer::SetUIVisibility(bool value) {
 	_isUIVisiable = value;
 
 	if (value) {
-		/*if (MagApp::Get().GetSettings().Is3DMode()) {
+		if (MagApp::Get().GetSettings().Is3DGameMode()) {
 			// 使全屏窗口不透明且可以接收焦点
 			HWND hwndHost = MagApp::Get().GetHwndHost();
 			INT_PTR style = GetWindowLongPtr(hwndHost, GWL_EXSTYLE);
@@ -262,7 +262,7 @@ void OverlayDrawer::SetUIVisibility(bool value) {
 			EnableWindow(MagApp::Get().GetHwndSrc(), FALSE);
 
 			ImGui::GetIO().MouseDrawCursor = true;
-		}*/
+		}
 
 		Logger::Get().Info("已开启覆盖层");
 	} else {
@@ -273,7 +273,7 @@ void OverlayDrawer::SetUIVisibility(bool value) {
 			_imguiImpl->ClearStates();
 		//}
 
-		/*if (MagApp::Get().GetSettings().Is3DMode()) {
+		if (MagApp::Get().GetSettings().Is3DGameMode()) {
 			// 还原全屏窗口样式
 			HWND hwndHost = MagApp::Get().GetHwndHost();
 			INT_PTR style = GetWindowLongPtr(hwndHost, GWL_EXSTYLE);
@@ -282,10 +282,10 @@ void OverlayDrawer::SetUIVisibility(bool value) {
 			// 重新激活源窗口
 			HWND hwndSrc = MagApp::Get().GetHwndSrc();
 			EnableWindow(hwndSrc, TRUE);
-			Utils::SetForegroundWindow(hwndSrc);
+			Win32Utils::SetForegroundWindow(hwndSrc);
 
 			ImGui::GetIO().MouseDrawCursor = false;
-		}*/
+		}
 
 		Logger::Get().Info("已关闭覆盖层");
 	}

@@ -23,6 +23,7 @@ ScalingConfigPage::ScalingConfigPage() {
     }
 
     CaptureModeComboBox().SelectedIndex((int32_t)_magSettings.CaptureMode());
+    Is3DGameModeToggleSwitch().IsOn(_magSettings.Is3DGameMode());
 }
 
 void ScalingConfigPage::ComboBox_DropDownOpened(IInspectable const& sender, IInspectable const&) {
@@ -33,6 +34,10 @@ void ScalingConfigPage::CaptureModeComboBox_SelectionChanged(IInspectable const&
     if (_magSettings) {
         _magSettings.CaptureMode((Magpie::Runtime::CaptureMode)CaptureModeComboBox().SelectedIndex());
     }
+}
+
+void ScalingConfigPage::Is3DGameModeToggleSwitch_Toggled(IInspectable const&, RoutedEventArgs const&) {
+    _magSettings.Is3DGameMode(Is3DGameModeToggleSwitch().IsOn());
 }
 
 }

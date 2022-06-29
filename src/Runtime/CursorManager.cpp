@@ -96,7 +96,7 @@ CursorManager::~CursorManager() {
 }
 
 static std::optional<LRESULT> HostWndProc(HWND /*hWnd*/, UINT message, WPARAM /*wParam*/, LPARAM /*lParam*/) {
-	if (/*MagApp::Get().GetSettings().Is3DMode() &&*/ MagApp::Get().GetRenderer().IsUIVisiable()) {
+	if (MagApp::Get().GetSettings().Is3DGameMode() && MagApp::Get().GetRenderer().IsUIVisiable()) {
 		return std::nullopt;
 	}
 
@@ -148,11 +148,11 @@ static std::optional<LRESULT> HostWndProc(HWND /*hWnd*/, UINT message, WPARAM /*
 bool CursorManager::Initialize() {
 	MagApp::Get().RegisterWndProcHandler(HostWndProc);
 
-	/*if (MagApp::Get().GetSettings().Is3DMode()) {
+	if (MagApp::Get().GetSettings().Is3DGameMode()) {
 		POINT cursorPos;
 		::GetCursorPos(&cursorPos);
 		_StartCapture(cursorPos);
-	}*/
+	}
 
 	Logger::Get().Info("CursorManager 初始化完成");
 	return true;
@@ -189,14 +189,14 @@ void CursorManager::OnBeginFrame() {
 		_curCursor = NULL;
 		return;
 	}
-	/*
-	if (MagApp::Get().GetSettings().Is3DMode()) {
+
+	if (MagApp::Get().GetSettings().Is3DGameMode()) {
 		HWND hwndFore = GetForegroundWindow();
 		if (hwndFore != MagApp::Get().GetHwndHost() && hwndFore != MagApp::Get().GetHwndSrc()) {
 			_curCursor = NULL;
 			return;
 		}
-	}*/
+	}
 
 	CURSORINFO ci{};
 	ci.cbSize = sizeof(ci);
@@ -581,12 +581,12 @@ void CursorManager::_UpdateCursorClip() {
 
 	const RECT& srcFrameRect = MagApp::Get().GetFrameSource().GetSrcFrameRect();
 	
-	/*if (!MagApp::Get().GetSettings().IsBreakpointMode() && MagApp::Get().GetSettings().Is3DMode()) {
+	if (!MagApp::Get().GetSettings().IsBreakpointMode() && MagApp::Get().GetSettings().Is3DGameMode()) {
 		// 开启“在 3D 游戏中限制光标”则每帧都限制一次光标
 		_curClips = srcFrameRect;
 		ClipCursor(&srcFrameRect);
 		return;
-	}*/
+	}
 
 	if (_isCapturedOnOverlay) {
 		// 已在 OnCursorCapturedOnOverlay 中限制光标
