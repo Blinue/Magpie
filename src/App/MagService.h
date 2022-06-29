@@ -63,6 +63,8 @@ private:
 
 	void _Settings_IsAutoRestoreChanged(IInspectable const&, bool);
 
+	IAsyncAction _MagRuntime_IsRunningChanged(IInspectable const&, bool);
+
 	void _UpdateIsAutoRestore();
 
 	void _CheckForeground();
