@@ -107,6 +107,7 @@
       <DependentUpon>BooleanToVisibilityConverter.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
+    <ClInclude Include="ComboBoxHelper.h" />
     <ClInclude Include="ScalingConfigPage.h">
       <DependentUpon>ScalingConfigPage.xaml</DependentUpon>
       <SubType>Code</SubType>

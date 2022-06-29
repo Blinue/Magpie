@@ -16,7 +16,7 @@
 						<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xEF1F;"/>
 					</local:SettingItem.Icon>
 					<local:SettingItem.ActionContent>
-						<ComboBox x:Name="ThemeComboBox" Width="150" SelectionChanged="ThemeComboBox_SelectionChanged" DropDownOpened="ComboBox_DropDownOpened">
+						<ComboBox x:Name="ThemeComboBox" Style="{StaticResource ComboBoxSettingStyle}" SelectionChanged="ThemeComboBox_SelectionChanged" DropDownOpened="ComboBox_DropDownOpened">
 							<x:String>浅色</x:String>
 							<x:String>深色</x:String>
 							<x:String>使用系统设置</x:String>

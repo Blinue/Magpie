@@ -5,6 +5,7 @@
 #endif
 #include "MainPage.h"
 #include "XamlUtils.h"
+#include "ComboBoxHelper.h"
 
 
 using namespace winrt;
@@ -34,8 +35,8 @@ void SettingsPage::PortableModeToggleSwitch_Toggled(IInspectable const&, RoutedE
 	_settings.IsPortableMode(PortableModeToggleSwitch().IsOn());
 }
 
-void SettingsPage::ComboBox_DropDownOpened(IInspectable const&, IInspectable const&) {
-	XamlUtils::UpdateThemeOfXamlPopups(XamlRoot(), ActualTheme());
+void SettingsPage::ComboBox_DropDownOpened(IInspectable const& sender, IInspectable const&) {
+	ComboBoxHelper::DropDownOpened(*this, sender);
 }
 
 void SettingsPage::BreakpointModeToggleSwitch_Toggled(IInspectable const&, RoutedEventArgs const&) {

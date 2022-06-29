@@ -4,6 +4,7 @@
 #include "ScalingConfigPage.g.cpp"
 #endif
 #include "Win32Utils.h"
+#include "ComboBoxHelper.h"
 
 using namespace winrt;
 
@@ -22,6 +23,10 @@ ScalingConfigPage::ScalingConfigPage() {
     }
 
     CaptureModeComboBox().SelectedIndex((int32_t)_magSettings.CaptureMode());
+}
+
+void ScalingConfigPage::ComboBox_DropDownOpened(IInspectable const& sender, IInspectable const&) {
+    ComboBoxHelper::DropDownOpened(*this, sender);
 }
 
 void ScalingConfigPage::CaptureModeComboBox_SelectionChanged(IInspectable const&, Controls::SelectionChangedEventArgs const&) {

@@ -25,6 +25,7 @@
       <Filter>Miscellaneous</Filter>
     </ClInclude>
     <ClInclude Include="HotkeyHelper.h" />
+    <ClInclude Include="ComboBoxHelper.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Assets">

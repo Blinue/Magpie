@@ -12,7 +12,7 @@ struct SettingsPage : SettingsPageT<SettingsPage> {
 
 	void PortableModeToggleSwitch_Toggled(IInspectable const&, RoutedEventArgs const&);
 
-	void ComboBox_DropDownOpened(IInspectable const&, IInspectable const&);
+	void ComboBox_DropDownOpened(IInspectable const& sender, IInspectable const&);
 
 	void BreakpointModeToggleSwitch_Toggled(IInspectable const&, RoutedEventArgs const&);
 

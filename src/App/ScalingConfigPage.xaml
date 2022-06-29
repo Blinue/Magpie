@@ -16,7 +16,7 @@
 						<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE740;"/>
 					</local:SettingItem.Icon>
 					<local:SettingItem.ActionContent>
-						<ComboBox SelectedIndex="0" Width="100">
+						<ComboBox SelectedIndex="0" Style="{StaticResource ComboBoxSettingStyle}" DropDownOpened="ComboBox_DropDownOpened">
 							<x:String>FSR</x:String>
 						</ComboBox>
 					</local:SettingItem.ActionContent>
@@ -26,7 +26,7 @@
 						<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE9A6;"/>
 					</local:SettingItem.Icon>
 					<local:SettingItem.ActionContent>
-						<ComboBox x:Name="CaptureModeComboBox" SelectedIndex="0" Width="180" SelectionChanged="CaptureModeComboBox_SelectionChanged">
+						<ComboBox x:Name="CaptureModeComboBox" SelectedIndex="0" Style="{StaticResource ComboBoxSettingStyle}" DropDownOpened="ComboBox_DropDownOpened" SelectionChanged="CaptureModeComboBox_SelectionChanged">
 							<x:String>Graphics Capture</x:String>
 							<x:String>Desktop Duplication</x:String>
 							<x:String>GDI</x:String>
@@ -47,7 +47,7 @@
 						<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xf5a9;"/>
 					</local:SettingItem.Icon>
 					<local:SettingItem.ActionContent>
-						<ComboBox SelectedIndex="0">
+						<ComboBox SelectedIndex="0" Style="{StaticResource ComboBoxSettingStyle}" DropDownOpened="ComboBox_DropDownOpened">
 							<x:String>使用距离源窗口最近的显示器</x:String>
 							<x:String>使用源窗口跨越的所有显示器</x:String>
 							<x:String>使用所有显示器</x:String>
@@ -61,7 +61,7 @@
 						<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xf211;"/>
 					</local:SettingItem.Icon>
 					<local:SettingItem.ActionContent>
-						<ComboBox SelectedIndex="0">
+						<ComboBox SelectedIndex="0" Style="{StaticResource ComboBoxSettingStyle}" DropDownOpened="ComboBox_DropDownOpened">
 							<x:String>默认</x:String>
 						</ComboBox>
 					</local:SettingItem.ActionContent>
@@ -150,7 +150,7 @@
 						<StackPanel>
 							<local:SettingItem Title="光标缩放系数" Style="{StaticResource ExpanderContentSettingStyle}">
 								<local:SettingItem.ActionContent>
-									<ComboBox SelectedIndex="2">
+									<ComboBox SelectedIndex="2" Style="{StaticResource ComboBoxSettingStyle}" DropDownOpened="ComboBox_DropDownOpened">
 										<x:String>0.5x</x:String>
 										<x:String>0.75x</x:String>
 										<x:String>无缩放</x:String>
@@ -164,7 +164,7 @@
 							</local:SettingItem>
 							<local:SettingItem Title="插值算法" Style="{StaticResource ExpanderContentSettingStyle}">
 								<local:SettingItem.ActionContent>
-									<ComboBox SelectedIndex="0">
+									<ComboBox SelectedIndex="0" Style="{StaticResource ComboBoxSettingStyle}" DropDownOpened="ComboBox_DropDownOpened">
 										<x:String>最近邻</x:String>
 										<x:String>双线性</x:String>
 									</ComboBox>
