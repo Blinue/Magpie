@@ -25,6 +25,12 @@ ScalingConfigPage::ScalingConfigPage() {
     CaptureModeComboBox().SelectedIndex((int32_t)_magSettings.CaptureMode());
     Is3DGameModeToggleSwitch().IsOn(_magSettings.Is3DGameMode());
     ShowFPSToggleSwitch().IsOn(_magSettings.IsShowFPS());
+
+    VSyncToggleSwitch().IsOn(_magSettings.IsVSync());
+    TripleBufferingToggleSwitch().IsOn(_magSettings.IsTripleBuffering());
+    _UpdateVSync();
+
+    _initialized = true;
 }
 
 void ScalingConfigPage::ComboBox_DropDownOpened(IInspectable const& sender, IInspectable const&) {
@@ -43,6 +49,24 @@ void ScalingConfigPage::Is3DGameModeToggleSwitch_Toggled(IInspectable const&, Ro
 
 void ScalingConfigPage::ShowFPSToggleSwitch_Toggled(IInspectable const&, RoutedEventArgs const&) {
     _magSettings.IsShowFPS(ShowFPSToggleSwitch().IsOn());
+}
+
+void ScalingConfigPage::VSyncToggleSwitch_Toggled(IInspectable const&, RoutedEventArgs const&) {
+    if (!_initialized) {
+        return;
+    }
+
+    _UpdateVSync();
+}
+
+void ScalingConfigPage::TripleBufferingToggleSwitch_Toggled(IInspectable const&, RoutedEventArgs const&) {
+    _magSettings.IsTripleBuffering(TripleBufferingToggleSwitch().IsOn());
+}
+
+void ScalingConfigPage::_UpdateVSync() {
+    bool isOn = VSyncToggleSwitch().IsOn();
+    _magSettings.IsVSync(isOn);
+    TripleBufferingSettingItem().IsEnabled(isOn);
 }
 
 }

@@ -660,7 +660,7 @@ static void MyPlotLines(float(*values_getter)(void* data, int idx), void* data, 
 }
 
 void OverlayDrawer::_DrawUI() {
-	// auto& config = MagApp::Get().GetSettings();
+	auto& settings = MagApp::Get().GetSettings();
 	auto& renderer = MagApp::Get().GetRenderer();
 	auto& gpuTimer = renderer.GetGPUTimer();
 
@@ -683,7 +683,7 @@ void OverlayDrawer::_DrawUI() {
 	ImGui::PushTextWrapPos(maxWindowWidth - ImGui::GetStyle().WindowPadding.x - ImGui::GetStyle().ScrollbarSize);
 	ImGui::TextUnformatted(StrUtils::Concat("GPU: ", _hardwareInfo.gpuName).c_str());
 	ImGui::TextUnformatted(StrUtils::Concat("CPU: ", _hardwareInfo.cpuName).c_str());
-	ImGui::TextUnformatted(StrUtils::Concat("VSync: ", /*config.IsDisableVSync() ? "OFF" :*/ "ON").c_str());
+	ImGui::TextUnformatted(StrUtils::Concat("VSync: ", settings.IsVSync() ? "ON" : "OFF").c_str());
 	ImGui::TextUnformatted(StrUtils::Concat("Capture Method: ", MagApp::Get().GetFrameSource().GetName()).c_str());
 	ImGui::PopTextWrapPos();
 

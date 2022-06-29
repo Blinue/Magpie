@@ -18,6 +18,8 @@ void MagSettings::CopyFrom(Magpie::Runtime::MagSettings other) {
 	_isSimulateExclusiveFullscreen = otherImpl->_isSimulateExclusiveFullscreen;
 	_is3DGameMode = otherImpl->_is3DGameMode;
 	_isShowFPS = otherImpl->_isShowFPS;
+	_isVSync = otherImpl->_isVSync;
+	_isTripleBuffering = otherImpl->_isTripleBuffering;
 }
 
 }

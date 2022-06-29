@@ -35,9 +35,9 @@ void GPUTimer::StartProfiling(std::chrono::microseconds updateInterval, UINT pas
 	_profilingCounter = {};
 
 	_queries[0].passes.resize(passCount);
-	/*if (App::Get().GetSettings().IsDisableLowLatency()) {
+	if (MagApp::Get().GetSettings().IsTripleBuffering()) {
 		_queries[1].passes.resize(passCount);
-	}*/
+	}
 	_passesTimings.resize(passCount);
 	_gpuTimings.passes.resize(passCount);
 	_firstProfilingFrame = true;
@@ -95,9 +95,9 @@ void GPUTimer::_UpdateGPUTimings() {
 		return;
 	}
 
-	/*if (MagApp::Get().GetSettings().IsDisableLowLatency()) {
+	if (MagApp::Get().GetSettings().IsTripleBuffering()) {
 		_curQueryIdx = 1 - _curQueryIdx;
-	}*/
+	}
 
 	auto& curQueryInfo = _queries[_curQueryIdx];
 

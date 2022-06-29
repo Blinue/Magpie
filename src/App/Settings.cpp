@@ -114,6 +114,10 @@ void WriteScalingConfig(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer
 	writer.Bool(magSettings.Is3DGameMode());
 	writer.Key("showFPS");
 	writer.Bool(magSettings.IsShowFPS());
+	writer.Key("VSync");
+	writer.Bool(magSettings.IsVSync());
+	writer.Key("tripleBuffering");
+	writer.Bool(magSettings.IsTripleBuffering());
 	writer.EndObject();
 }
 
@@ -143,6 +147,20 @@ bool LoadScalingConfig(const rapidjson::GenericObject<false, rapidjson::Value>& 
 	}
 	if (value.has_value()) {
 		magSettings.IsShowFPS(value.value());
+	}
+
+	if (!LoadBoolSettingItem(scalingConfigObj, "VSync", value)) {
+		return false;
+	}
+	if (value.has_value()) {
+		magSettings.IsVSync(value.value());
+	}
+
+	if (!LoadBoolSettingItem(scalingConfigObj, "tripleBuffering", value)) {
+		return false;
+	}
+	if (value.has_value()) {
+		magSettings.IsTripleBuffering(value.value());
 	}
 
 	return true;
@@ -286,8 +304,6 @@ Magpie::Runtime::MagSettings Settings::GetMagSettings(uint64_t hWnd) {
 
 	return _defaultMagSettings;
 }
-
-
 
 // 遇到不合法的配置项会失败，因此用户不应直接编辑配置文件
 bool Settings::_LoadSettings(std::string text) {

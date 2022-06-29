@@ -23,5 +23,7 @@ namespace Magpie.Runtime
         Boolean IsSimulateExclusiveFullscreen;
         Boolean Is3DGameMode;
         Boolean IsShowFPS;
+        Boolean IsVSync;
+        Boolean IsTripleBuffering;
     }
 }

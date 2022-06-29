@@ -84,14 +84,14 @@
 								<FontIcon Style="{StaticResource ExpanderHeaderSettingIconStyle}" FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xF71C;" />
 							</local:SettingItem.Icon>
 							<local:SettingItem.ActionContent>
-								<ToggleSwitch />
+								<ToggleSwitch x:Name="VSyncToggleSwitch" Toggled="VSyncToggleSwitch_Toggled" />
 							</local:SettingItem.ActionContent>
 						</local:SettingItem>
 					</muxc:Expander.Header>
 					<muxc:Expander.Content>
-						<local:SettingItem Title="允许额外的延迟以提高性能" Style="{StaticResource ExpanderContentSettingStyle}">
+						<local:SettingItem x:Name="TripleBufferingSettingItem" Title="三重缓冲" Description="允许额外的延迟以提高性能" Style="{StaticResource ExpanderContentSettingStyle}">
 							<local:SettingItem.ActionContent>
-								<ToggleSwitch />
+								<ToggleSwitch x:Name="TripleBufferingToggleSwitch" Toggled="TripleBufferingToggleSwitch_Toggled" />
 							</local:SettingItem.ActionContent>
 						</local:SettingItem>
 					</muxc:Expander.Content>

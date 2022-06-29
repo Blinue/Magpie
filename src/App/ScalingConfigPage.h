@@ -17,7 +17,14 @@ struct ScalingConfigPage : ScalingConfigPageT<ScalingConfigPage> {
 
     void ShowFPSToggleSwitch_Toggled(IInspectable const&, RoutedEventArgs const&);
 
+    void VSyncToggleSwitch_Toggled(IInspectable const&, RoutedEventArgs const&);
+
+    void TripleBufferingToggleSwitch_Toggled(IInspectable const&, RoutedEventArgs const&);
+
 private:
+    void _UpdateVSync();
+
+    bool _initialized = false;
     Magpie::Runtime::MagSettings _magSettings{ nullptr };
 };
 

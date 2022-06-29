@@ -73,6 +73,22 @@ struct MagSettings : MagSettingsT<MagSettings> {
         _isShowFPS = value;
     }
 
+    bool IsVSync() const noexcept {
+        return _isVSync;
+    }
+
+    void IsVSync(bool value) noexcept {
+        _isVSync = value;
+    }
+
+    bool IsTripleBuffering() const noexcept {
+        return _isTripleBuffering;
+    }
+
+    void IsTripleBuffering(bool value) noexcept {
+        _isTripleBuffering = value;
+    }
+
 private:
     Magpie::Runtime::CaptureMode _captureMode = Magpie::Runtime::CaptureMode::GraphicsCapture;
 
@@ -83,6 +99,8 @@ private:
     bool _isSimulateExclusiveFullscreen = false;
     bool _is3DGameMode = false;
     bool _isShowFPS = false;
+    bool _isVSync = true;
+    bool _isTripleBuffering = false;
 };
 
 }
