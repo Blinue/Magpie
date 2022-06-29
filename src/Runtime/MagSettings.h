@@ -47,6 +47,14 @@ struct MagSettings : MagSettingsT<MagSettings> {
         _isWarningsAreErrors = value;
     }
 
+    bool IsSimulateExclusiveFullscreen() const noexcept {
+        return _isSimulateExclusiveFullscreen;
+    }
+
+    void IsSimulateExclusiveFullscreen(bool value) noexcept {
+        _isSimulateExclusiveFullscreen = value;
+    }
+
 private:
     Magpie::Runtime::CaptureMode _captureMode = Magpie::Runtime::CaptureMode::GraphicsCapture;
 
@@ -54,6 +62,7 @@ private:
     bool _isDisableEffectCache = false;
     bool _isSaveEffectSources = false;
     bool _isWarningsAreErrors = false;
+    bool _isSimulateExclusiveFullscreen = false;
 };
 
 }

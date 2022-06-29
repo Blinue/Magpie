@@ -135,8 +135,6 @@ bool Settings::Save() {
 	writer.Bool(_isAutoRestore);
 	writer.Key("downCount");
 	writer.Uint(_downCount);
-	writer.Key("developerMode");
-	writer.Bool(_isDeveloperMode);
 	writer.Key("breakpointMode");
 	writer.Bool(_isBreakpointMode);
 	writer.Key("disableEffectCache");
@@ -145,6 +143,8 @@ bool Settings::Save() {
 	writer.Bool(_isSaveEffectSources);
 	writer.Key("warningsAreErrors");
 	writer.Bool(_isWarningsAreErrors);
+	writer.Key("simulateExclusiveFullscreen");
+	writer.Bool(_isSimulateExclusiveFullscreen);
 	
 	writer.Key("scalingConfigs");
 	writer.StartObject();
@@ -224,15 +224,6 @@ void Settings::DownCount(uint32_t value) noexcept {
 
 	_downCount = value;
 	_downCountChangedEvent(*this, value);
-}
-
-void Settings::IsDeveloperMode(bool value) noexcept {
-	if (_isDeveloperMode == value) {
-		return;
-	}
-
-	_isDeveloperMode = value;
-	_isDeveloperModeChangedEvent(*this, value);
 }
 
 Magpie::Runtime::MagSettings Settings::GetMagSettings(uint64_t hWnd) {
@@ -360,9 +351,6 @@ bool Settings::_LoadSettings(std::string text) {
 		}
 	}
 
-	if (!_LoadBoolSettingItem(root, "developerMode", _isDeveloperMode)) {
-		return false;
-	}
 	if (!_LoadBoolSettingItem(root, "breakpointMode", _isBreakpointMode)) {
 		return false;
 	}
@@ -373,6 +361,9 @@ bool Settings::_LoadSettings(std::string text) {
 		return false;
 	}
 	if (!_LoadBoolSettingItem(root, "warningsAreErrors", _isWarningsAreErrors)) {
+		return false;
+	}
+	if (!_LoadBoolSettingItem(root, "simulateExclusiveFullscreen", _isSimulateExclusiveFullscreen)) {
 		return false;
 	}
 

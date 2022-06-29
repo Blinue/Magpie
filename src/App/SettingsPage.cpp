@@ -21,6 +21,7 @@ SettingsPage::SettingsPage() {
 	
 	ThemeComboBox().SelectedIndex(_settings.Theme());
 	PortableModeToggleSwitch().IsOn(_settings.IsPortableMode());
+	SimulateExclusiveFullscreenToggleSwitch().IsOn(_settings.IsSimulateExclusiveFullscreen());
 	BreakpointModeToggleSwitch().IsOn(_settings.IsBreakpointMode());
 	DisableEffectCacheToggleSwitch().IsOn(_settings.IsDisableEffectCache());
 	SaveEffectSourcesToggleSwitch().IsOn(_settings.IsSaveEffectSources());
@@ -33,6 +34,10 @@ void SettingsPage::ThemeComboBox_SelectionChanged(IInspectable const&, Controls:
 
 void SettingsPage::PortableModeToggleSwitch_Toggled(IInspectable const&, RoutedEventArgs const&) {
 	_settings.IsPortableMode(PortableModeToggleSwitch().IsOn());
+}
+
+void SettingsPage::SimulateExclusiveFullscreenToggleSwitch_Toggled(IInspectable const&, RoutedEventArgs const&) {
+	_settings.IsSimulateExclusiveFullscreen(SimulateExclusiveFullscreenToggleSwitch().IsOn());
 }
 
 void SettingsPage::ComboBox_DropDownOpened(IInspectable const& sender, IInspectable const&) {

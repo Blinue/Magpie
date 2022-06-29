@@ -217,6 +217,7 @@ void MagService::_StartScale(uint64_t hWnd) {
 	magSettings.IsDisableEffectCache(_settings.IsDisableEffectCache());
 	magSettings.IsSaveEffectSources(_settings.IsSaveEffectSources());
 	magSettings.IsWarningsAreErrors(_settings.IsWarningsAreErrors());
+	magSettings.IsSimulateExclusiveFullscreen(_settings.IsSimulateExclusiveFullscreen());
 
 	_magRuntime.Run(hWnd, magSettings);
 }

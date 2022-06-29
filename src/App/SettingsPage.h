@@ -8,11 +8,13 @@ namespace winrt::Magpie::App::implementation {
 struct SettingsPage : SettingsPageT<SettingsPage> {
 	SettingsPage();
 
+	void ComboBox_DropDownOpened(IInspectable const& sender, IInspectable const&);
+
 	void ThemeComboBox_SelectionChanged(IInspectable const&, Controls::SelectionChangedEventArgs const&);
 
 	void PortableModeToggleSwitch_Toggled(IInspectable const&, RoutedEventArgs const&);
 
-	void ComboBox_DropDownOpened(IInspectable const& sender, IInspectable const&);
+	void SimulateExclusiveFullscreenToggleSwitch_Toggled(IInspectable const&, RoutedEventArgs const&);
 
 	void BreakpointModeToggleSwitch_Toggled(IInspectable const&, RoutedEventArgs const&);
 

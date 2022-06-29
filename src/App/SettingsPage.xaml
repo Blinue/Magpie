@@ -35,7 +35,7 @@
 			<local:SettingsGroup Title="高级">
 				<local:SettingItem Title="缩放时模拟独占全屏">
 					<local:SettingItem.ActionContent>
-						<ToggleSwitch />
+						<ToggleSwitch x:Name="SimulateExclusiveFullscreenToggleSwitch" Toggled="SimulateExclusiveFullscreenToggleSwitch_Toggled" />
 					</local:SettingItem.ActionContent>
 				</local:SettingItem>
 				<muxc:Expander HorizontalAlignment="Stretch"

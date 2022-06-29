@@ -35,22 +35,19 @@ HomePage::HomePage() {
 		{ this, &HomePage::_MagService_WndToRestoreChanged}
 	);
 
-	_downCountChangedRevoker = _settings.DownCountChanged(
-		auto_revoke,
-		{ this, &HomePage::_Settings_DownCountChanged}
-	);
-
 	_isRunningChangedRevoker = _magRuntime.IsRunningChanged(
 		auto_revoke,
 		{ this, &HomePage::_MagRuntime_IsRunningChanged }
 	);
 
-	CountdownButton().IsEnabled(!_magRuntime.IsRunning());
-
 	AutoRestoreToggleSwitch().IsOn(_settings.IsAutoRestore());
+	_UpdateAutoRestoreState();
+
+	CountdownButton().IsEnabled(!_magRuntime.IsRunning());
+	CountdownSlider().Value(_settings.DownCount());
 	_UpdateDownCount();
 
-	_UpdateAutoRestoreState();
+	_initialized = true;
 }
 
 void HomePage::AutoRestoreToggleSwitch_Toggled(IInspectable const&, RoutedEventArgs const&) {
@@ -66,16 +63,21 @@ void HomePage::AutoRestoreToggleSwitch_Toggled(IInspectable const&, RoutedEventA
 }
 
 void HomePage::AutoRestoreExpanderToggleSwitch_Toggled(IInspectable const&, RoutedEventArgs const&) {
-	if (_settings) {
-		AutoRestoreToggleSwitch().IsOn(false);
-		AutoRestoreExpanderToggleSwitch().IsOn(true);
+	if (!_initialized) {
+		return;
 	}
+
+	AutoRestoreToggleSwitch().IsOn(false);
+	AutoRestoreExpanderToggleSwitch().IsOn(true);
 }
 
 void HomePage::CountdownSlider_ValueChanged(IInspectable const&, RangeBaseValueChangedEventArgs const& args) {
-	if (_settings) {
-		_settings.DownCount((uint32_t)args.NewValue());
+	if (!_initialized) {
+		return;
 	}
+
+	_settings.DownCount((uint32_t)args.NewValue());
+	_UpdateDownCount();
 }
 
 void HomePage::ActivateButton_Click(IInspectable const&, RoutedEventArgs const&) {
@@ -110,10 +112,6 @@ void HomePage::_MagService_WndToRestoreChanged(IInspectable const&, uint64_t) {
 	_UpdateAutoRestoreState();
 }
 
-void HomePage::_Settings_DownCountChanged(IInspectable const&, uint64_t) {
-	_UpdateDownCount();
-}
-
 IAsyncAction HomePage::_MagRuntime_IsRunningChanged(IInspectable const&, bool value) {
 	co_await Dispatcher().RunAsync(CoreDispatcherPriority::Normal, [&, value]() {
 		CountdownButton().IsEnabled(!value);
@@ -142,9 +140,6 @@ void HomePage::_UpdateAutoRestoreState() {
 }
 
 void HomePage::_UpdateDownCount() {
-	uint32_t downCount = _settings.DownCount();
-	CountdownSlider().Value(downCount);
-
 	if (_magService.IsCountingDown()) {
 		CountdownVisual().Visibility(Visibility::Visible);
 		CountdownButton().Content(box_value(L"取消"));
@@ -152,7 +147,7 @@ void HomePage::_UpdateDownCount() {
 		_MagService_CountdownTick(nullptr, _magService.CountdownLeft());
 	} else {
 		CountdownVisual().Visibility(Visibility::Collapsed);
-		CountdownButton().Content(box_value(fmt::format(L"{} 秒后缩放", downCount)));
+		CountdownButton().Content(box_value(fmt::format(L"{} 秒后缩放", _settings.DownCount())));
 
 		// 修复动画错误
 		CountdownProgressRing().Value(1.0f);

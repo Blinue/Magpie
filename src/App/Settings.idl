@@ -32,7 +32,6 @@ namespace Magpie.App
 		event Windows.Foundation.EventHandler<Boolean> IsAutoRestoreChanged;
 
 		UInt32 DownCount;
-		event Windows.Foundation.EventHandler<UInt32> DownCountChanged;
 
 		Magpie.Runtime.MagSettings GetMagSettings(UInt64 hWnd);
 
@@ -40,5 +39,6 @@ namespace Magpie.App
 		Boolean IsDisableEffectCache;
 		Boolean IsSaveEffectSources;
 		Boolean IsWarningsAreErrors;
+		Boolean IsSimulateExclusiveFullscreen;
 	}
 }

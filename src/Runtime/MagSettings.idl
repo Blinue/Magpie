@@ -18,5 +18,6 @@ namespace Magpie.Runtime
         Boolean IsDisableEffectCache;
         Boolean IsSaveEffectSources;
         Boolean IsWarningsAreErrors;
+        Boolean IsSimulateExclusiveFullscreen;
     }
 }
