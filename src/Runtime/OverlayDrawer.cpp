@@ -222,7 +222,7 @@ bool OverlayDrawer::Initialize() {
 }
 
 void OverlayDrawer::Draw() {
-	bool isShowFPS = false; // MagApp::Get().GetSettings().IsShowFPS();
+	bool isShowFPS = MagApp::Get().GetSettings().IsShowFPS();
 
 	if (!_isUIVisiable && !isShowFPS) {
 		return;
@@ -269,9 +269,9 @@ void OverlayDrawer::SetUIVisibility(bool value) {
 		_validFrames = 0;
 		std::fill(_frameTimes.begin(), _frameTimes.end(), 0.0f);
 
-		//if (!MagApp::Get().GetSettings().IsShowFPS()) {
+		if (!MagApp::Get().GetSettings().IsShowFPS()) {
 			_imguiImpl->ClearStates();
-		//}
+		}
 
 		if (MagApp::Get().GetSettings().Is3DGameMode()) {
 			// 还原全屏窗口样式
@@ -757,12 +757,12 @@ void OverlayDrawer::_DrawUI() {
 				fmt::format("avg: {:.3f} ms", totalTime / _validFrames).c_str(),
 				0, maxTime2 * 1.7f, ImVec2(250 * _dpiScale, 80 * _dpiScale));
 		}
-		/*
+		
 		ImGui::Spacing();
 
 		if (ImGui::Button(showFPS ? "Switch to timings" : "Switch to FPS")) {
 			showFPS = !showFPS;
-		}*/
+		}
 	}
 
 	ImGui::Spacing();

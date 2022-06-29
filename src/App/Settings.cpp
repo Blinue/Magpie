@@ -15,6 +15,8 @@ using namespace winrt;
 using namespace Windows::Foundation;
 
 
+namespace winrt::Magpie::App::implementation {
+
 static hstring GetWorkingDir(bool isPortableMode) {
 	if (isPortableMode) {
 		wchar_t curDir[MAX_PATH];
@@ -35,7 +37,7 @@ static hstring GetWorkingDir(bool isPortableMode) {
 		}
 
 		return StrUtils::ConcatW(
-			localAppDataDir, 
+			localAppDataDir,
 			localAppDataDir[StrUtils::StrLen(localAppDataDir) - 1] == L'\\' ? L"Magpie\\" : L"\\Magpie\\",
 			MAGPIE_VERSION_W,
 			L"\\"
@@ -43,8 +45,37 @@ static hstring GetWorkingDir(bool isPortableMode) {
 	}
 }
 
+bool LoadBoolSettingItem(const rapidjson::GenericObject<false, rapidjson::Value>& obj, const char* nodeName, bool& result) {
+	auto node = obj.FindMember(nodeName);
+	if (node != obj.MemberEnd()) {
+		if (!node->value.IsBool()) {
+			return false;
+		}
 
-namespace winrt::Magpie::App::implementation {
+		result = node->value.GetBool();
+	}
+
+	return true;
+}
+
+bool LoadBoolSettingItem(
+	const rapidjson::GenericObject<false, rapidjson::Value>& obj,
+	const char* nodeName,
+	std::optional<bool>& result
+) {
+	auto node = obj.FindMember(nodeName);
+	if (node == obj.MemberEnd()) {
+		result = std::nullopt;
+		return true;
+	}
+
+	if (!node->value.IsBool()) {
+		return false;
+	}
+
+	result = node->value.GetBool();
+	return true;
+}
 
 bool Settings::Initialize() {
 	Logger& logger = Logger::Get();
@@ -81,6 +112,8 @@ void WriteScalingConfig(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer
 	writer.Uint((unsigned int)magSettings.CaptureMode());
 	writer.Key("3dGameMode");
 	writer.Bool(magSettings.Is3DGameMode());
+	writer.Key("showFPS");
+	writer.Bool(magSettings.IsShowFPS());
 	writer.EndObject();
 }
 
@@ -95,15 +128,21 @@ bool LoadScalingConfig(const rapidjson::GenericObject<false, rapidjson::Value>& 
 			magSettings.CaptureMode((Magpie::Runtime::CaptureMode)captureModeNode->value.GetUint());
 		}
 	}
-	{
-		auto is3DGameModeNode = scalingConfigObj.FindMember("3dGameMode");
-		if (is3DGameModeNode != scalingConfigObj.MemberEnd()) {
-			if (!is3DGameModeNode->value.IsBool()) {
-				return false;
-			}
 
-			magSettings.Is3DGameMode(is3DGameModeNode->value.GetBool());
-		}
+	std::optional<bool> value;
+
+	if (!LoadBoolSettingItem(scalingConfigObj, "3dGameMode", value)) {
+		return false;
+	}
+	if (value.has_value()) {
+		magSettings.Is3DGameMode(value.value());
+	}
+
+	if (!LoadBoolSettingItem(scalingConfigObj, "showFPS", value)) {
+		return false;
+	}
+	if (value.has_value()) {
+		magSettings.IsShowFPS(value.value());
 	}
 
 	return true;
@@ -248,18 +287,7 @@ Magpie::Runtime::MagSettings Settings::GetMagSettings(uint64_t hWnd) {
 	return _defaultMagSettings;
 }
 
-bool _LoadBoolSettingItem(const rapidjson::GenericObject<false, rapidjson::Value>& obj, const char* nodeName, bool& result) {
-	auto node = obj.FindMember(nodeName);
-	if (node != obj.MemberEnd()) {
-		if (!node->value.IsBool()) {
-			return false;
-		}
 
-		result = node->value.GetBool();
-	}
-
-	return true;
-}
 
 // 遇到不合法的配置项会失败，因此用户不应直接编辑配置文件
 bool Settings::_LoadSettings(std::string text) {
@@ -350,7 +378,7 @@ bool Settings::_LoadSettings(std::string text) {
 		}
 	}
 
-	if (!_LoadBoolSettingItem(root, "autoRestore", _isAutoRestore)) {
+	if (!LoadBoolSettingItem(root, "autoRestore", _isAutoRestore)) {
 		return false;
 	}
 
@@ -365,19 +393,19 @@ bool Settings::_LoadSettings(std::string text) {
 		}
 	}
 
-	if (!_LoadBoolSettingItem(root, "breakpointMode", _isBreakpointMode)) {
+	if (!LoadBoolSettingItem(root, "breakpointMode", _isBreakpointMode)) {
 		return false;
 	}
-	if (!_LoadBoolSettingItem(root, "disableEffectCache", _isDisableEffectCache)) {
+	if (!LoadBoolSettingItem(root, "disableEffectCache", _isDisableEffectCache)) {
 		return false;
 	}
-	if (!_LoadBoolSettingItem(root, "saveEffectSources", _isSaveEffectSources)) {
+	if (!LoadBoolSettingItem(root, "saveEffectSources", _isSaveEffectSources)) {
 		return false;
 	}
-	if (!_LoadBoolSettingItem(root, "warningsAreErrors", _isWarningsAreErrors)) {
+	if (!LoadBoolSettingItem(root, "warningsAreErrors", _isWarningsAreErrors)) {
 		return false;
 	}
-	if (!_LoadBoolSettingItem(root, "simulateExclusiveFullscreen", _isSimulateExclusiveFullscreen)) {
+	if (!LoadBoolSettingItem(root, "simulateExclusiveFullscreen", _isSimulateExclusiveFullscreen)) {
 		return false;
 	}
 

@@ -17,6 +17,7 @@ void MagSettings::CopyFrom(Magpie::Runtime::MagSettings other) {
 	_isWarningsAreErrors = otherImpl->_isWarningsAreErrors;
 	_isSimulateExclusiveFullscreen = otherImpl->_isSimulateExclusiveFullscreen;
 	_is3DGameMode = otherImpl->_is3DGameMode;
+	_isShowFPS = otherImpl->_isShowFPS;
 }
 
 }

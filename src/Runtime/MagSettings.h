@@ -65,6 +65,14 @@ struct MagSettings : MagSettingsT<MagSettings> {
         _is3DGameMode = value;
     }
 
+    bool IsShowFPS() const noexcept {
+        return _isShowFPS;
+    }
+
+    void IsShowFPS(bool value) noexcept {
+        _isShowFPS = value;
+    }
+
 private:
     Magpie::Runtime::CaptureMode _captureMode = Magpie::Runtime::CaptureMode::GraphicsCapture;
 
@@ -74,6 +82,7 @@ private:
     bool _isWarningsAreErrors = false;
     bool _isSimulateExclusiveFullscreen = false;
     bool _is3DGameMode = false;
+    bool _isShowFPS = false;
 };
 
 }

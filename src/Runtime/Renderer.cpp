@@ -34,13 +34,13 @@ bool Renderer::Initialize(const std::string& effectsJson) {
 		return false;
 	}
 
-	/*if (MagApp::Get().GetSettings().IsShowFPS()) {
+	if (MagApp::Get().GetSettings().IsShowFPS()) {
 		_overlayDrawer.reset(new OverlayDrawer());
 		if (!_overlayDrawer->Initialize()) {
 			Logger::Get().Error("初始化 OverlayDrawer 失败");
 			return false;
 		}
-	}*/
+	}
 
 	// 初始化所有效果共用的动态常量缓冲区
 	D3D11_BUFFER_DESC bd{};

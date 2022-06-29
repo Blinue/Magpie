@@ -24,6 +24,7 @@ ScalingConfigPage::ScalingConfigPage() {
 
     CaptureModeComboBox().SelectedIndex((int32_t)_magSettings.CaptureMode());
     Is3DGameModeToggleSwitch().IsOn(_magSettings.Is3DGameMode());
+    ShowFPSToggleSwitch().IsOn(_magSettings.IsShowFPS());
 }
 
 void ScalingConfigPage::ComboBox_DropDownOpened(IInspectable const& sender, IInspectable const&) {
@@ -38,6 +39,10 @@ void ScalingConfigPage::CaptureModeComboBox_SelectionChanged(IInspectable const&
 
 void ScalingConfigPage::Is3DGameModeToggleSwitch_Toggled(IInspectable const&, RoutedEventArgs const&) {
     _magSettings.Is3DGameMode(Is3DGameModeToggleSwitch().IsOn());
+}
+
+void ScalingConfigPage::ShowFPSToggleSwitch_Toggled(IInspectable const&, RoutedEventArgs const&) {
+    _magSettings.IsShowFPS(ShowFPSToggleSwitch().IsOn());
 }
 
 }

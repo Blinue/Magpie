@@ -11,9 +11,11 @@ struct ScalingConfigPage : ScalingConfigPageT<ScalingConfigPage> {
 
     void ComboBox_DropDownOpened(IInspectable const& sender, IInspectable const&);
 
-    void CaptureModeComboBox_SelectionChanged(IInspectable const&, Controls::SelectionChangedEventArgs const& args);
+    void CaptureModeComboBox_SelectionChanged(IInspectable const&, Controls::SelectionChangedEventArgs const&);
 
     void Is3DGameModeToggleSwitch_Toggled(IInspectable const&, RoutedEventArgs const&);
+
+    void ShowFPSToggleSwitch_Toggled(IInspectable const&, RoutedEventArgs const&);
 
 private:
     Magpie::Runtime::MagSettings _magSettings{ nullptr };
