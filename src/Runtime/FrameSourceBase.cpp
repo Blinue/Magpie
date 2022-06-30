@@ -24,8 +24,6 @@ FrameSourceBase::~FrameSourceBase() {
 
 	// 还原窗口大小调整
 	if (_windowResizingDisabled) {
-		_windowResizingDisabled = false;
-
 		LONG_PTR style = GetWindowLongPtr(hwndSrc, GWL_STYLE);
 		if (!(style & WS_THICKFRAME)) {
 			if (SetWindowLongPtr(hwndSrc, GWL_STYLE, style | WS_THICKFRAME)) {
@@ -46,7 +44,7 @@ bool FrameSourceBase::Initialize() {
 	HWND hwndSrc = MagApp::Get().GetHwndSrc();
 
 	// 禁用窗口大小调整
-	/*if (MagApp::Get().GetSettings().IsDisableWindowResizing()) {
+	if (MagApp::Get().GetSettings().IsDisableWindowResizing()) {
 		LONG_PTR style = GetWindowLongPtr(hwndSrc, GWL_STYLE);
 		if (style & WS_THICKFRAME) {
 			if (SetWindowLongPtr(hwndSrc, GWL_STYLE, style ^ WS_THICKFRAME)) {
@@ -62,7 +60,7 @@ bool FrameSourceBase::Initialize() {
 				Logger::Get().Win32Error("禁用窗口大小调整失败");
 			}
 		}
-	}*/
+	}
 
 	// 禁用窗口圆角
 	if (_HasRoundCornerInWin11()) {

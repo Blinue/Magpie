@@ -25,6 +25,8 @@ struct ScalingConfigPage : ScalingConfigPageT<ScalingConfigPage> {
 
 	void TripleBufferingToggleSwitch_Toggled(IInspectable const&, RoutedEventArgs const&);
 
+	void DisableWindowResizingToggleSwitch_Toggled(IInspectable const&, RoutedEventArgs const&);
+
 private:
 	void _UpdateVSync();
 

@@ -24,6 +24,7 @@ namespace Magpie.Runtime
 		MultiMonitorUsage MultiMonitorUsage;
 		// 0 为默认，否则应减一得到枚举序号
 		UInt32 GraphicsAdapter;
+		Boolean IsDisableWindowResizing;
 
 		Boolean IsBreakpointMode;
 		Boolean IsDisableEffectCache;

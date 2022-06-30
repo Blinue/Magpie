@@ -33,6 +33,14 @@ struct MagSettings : MagSettingsT<MagSettings> {
 		_graphicsAdapter = value;
 	}
 
+	bool IsDisableWindowResizing() const noexcept {
+		return _isDisableWindowResizing;
+	}
+
+	void IsDisableWindowResizing(bool value) noexcept {
+		_isDisableWindowResizing = value;
+	}
+
 	bool IsBreakpointMode() const noexcept {
 		return _isBreakpointMode;
 	}
@@ -109,6 +117,7 @@ private:
 	Magpie::Runtime::CaptureMode _captureMode = Magpie::Runtime::CaptureMode::GraphicsCapture;
 	Magpie::Runtime::MultiMonitorUsage _multiMonitorUsage = Magpie::Runtime::MultiMonitorUsage::Nearest;
 	uint32_t _graphicsAdapter = 0;
+	bool _isDisableWindowResizing = false;
 
 	bool _isBreakpointMode = false;
 	bool _isDisableEffectCache = false;

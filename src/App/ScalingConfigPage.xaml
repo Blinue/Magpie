@@ -103,7 +103,7 @@
 						<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xEE3F;" />
 					</local:SettingItem.Icon>
 					<local:SettingItem.ActionContent>
-						<ToggleSwitch />
+						<ToggleSwitch x:Name="DisableWindowResizingToggleSwitch" Toggled="DisableWindowResizingToggleSwitch_Toggled" />
 					</local:SettingItem.ActionContent>
 				</local:SettingItem>
 				<local:SettingItem Title="保留标题栏" Description="仅在 Graphics Capture 和 Desktop Duplication 捕获模式下有效">

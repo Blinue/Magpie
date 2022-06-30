@@ -13,6 +13,7 @@ void MagSettings::CopyFrom(Magpie::Runtime::MagSettings other) {
 	_captureMode = otherImpl->_captureMode;
 	_multiMonitorUsage = otherImpl->_multiMonitorUsage;
 	_graphicsAdapter = otherImpl->_graphicsAdapter;
+	_isDisableWindowResizing = otherImpl->_isDisableWindowResizing;
 	_isBreakpointMode = otherImpl->_isBreakpointMode;
 	_isDisableEffectCache = otherImpl->_isDisableEffectCache;
 	_isSaveEffectSources = otherImpl->_isSaveEffectSources;

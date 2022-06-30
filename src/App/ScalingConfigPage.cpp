@@ -90,6 +90,8 @@ ScalingConfigPage::ScalingConfigPage() {
 	TripleBufferingToggleSwitch().IsOn(_magSettings.IsTripleBuffering());
 	_UpdateVSync();
 
+	DisableWindowResizingToggleSwitch().IsOn(_magSettings.IsDisableWindowResizing());
+
 	_initialized = true;
 }
 
@@ -139,6 +141,10 @@ void ScalingConfigPage::VSyncToggleSwitch_Toggled(IInspectable const&, RoutedEve
 
 void ScalingConfigPage::TripleBufferingToggleSwitch_Toggled(IInspectable const&, RoutedEventArgs const&) {
 	_magSettings.IsTripleBuffering(TripleBufferingToggleSwitch().IsOn());
+}
+
+void ScalingConfigPage::DisableWindowResizingToggleSwitch_Toggled(IInspectable const&, RoutedEventArgs const&) {
+	_magSettings.IsDisableWindowResizing(DisableWindowResizingToggleSwitch().IsOn());
 }
 
 void ScalingConfigPage::_UpdateVSync() {
