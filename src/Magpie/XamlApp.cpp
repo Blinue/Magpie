@@ -13,7 +13,6 @@
 #pragma comment(lib, "UxTheme.lib")
 
 
-static constexpr const wchar_t* XAML_HOST_CLASS_NAME = L"Magpie_XamlHost";
 static constexpr const wchar_t* MUTEX_NAME = L"{4C416227-4A30-4A2F-8F23-8701544DD7D6}";
 
 static constexpr UINT CHECK_FORGROUND_TIMER_ID = 1;
@@ -24,7 +23,7 @@ bool XamlApp::Initialize(HINSTANCE hInstance) {
 	if (!_hMutex || GetLastError() == ERROR_ALREADY_EXISTS) {
 		// 将已存在的窗口带到前台
 		// 可以唤醒旧版本，但旧版不能唤醒新版
-		HWND hWnd = FindWindow(XAML_HOST_CLASS_NAME, nullptr);
+		HWND hWnd = FindWindow(CommonSharedConstants::XAML_HOST_CLASS_NAME, nullptr);
 		if (hWnd) {
 			// 如果已有实例权限更高 ShowWindow 会失败
 			ShowWindow(hWnd, SW_NORMAL);
@@ -87,7 +86,7 @@ bool XamlApp::Initialize(HINSTANCE hInstance) {
 		wcex.hCursor = LoadCursor(nullptr, IDC_ARROW);
 		wcex.hbrBackground = NULL;
 		wcex.lpszMenuName = NULL;
-		wcex.lpszClassName = XAML_HOST_CLASS_NAME;
+		wcex.lpszClassName = CommonSharedConstants::XAML_HOST_CLASS_NAME;
 		wcex.hIconSm = NULL;
 
 		RegisterClassEx(&wcex);
@@ -96,7 +95,7 @@ bool XamlApp::Initialize(HINSTANCE hInstance) {
 	const winrt::Rect& windowRect = _settings.WindowRect();
 
 	_hwndXamlHost = CreateWindow(
-		XAML_HOST_CLASS_NAME,
+		CommonSharedConstants::XAML_HOST_CLASS_NAME,
 		L"Magpie",
 		WS_OVERLAPPEDWINDOW,
 		(LONG)windowRect.X, (LONG)windowRect.Y, (LONG)windowRect.Width, (LONG)windowRect.Height,

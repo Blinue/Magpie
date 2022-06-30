@@ -4,6 +4,7 @@
 #include "Utils.h"
 #include "MagApp.h"
 #include "Logger.h"
+#include "CommonSharedConstants.h"
 
 
 FrameSourceBase::~FrameSourceBase() {
@@ -24,17 +25,21 @@ FrameSourceBase::~FrameSourceBase() {
 
 	// 还原窗口大小调整
 	if (_windowResizingDisabled) {
-		LONG_PTR style = GetWindowLongPtr(hwndSrc, GWL_STYLE);
-		if (!(style & WS_THICKFRAME)) {
-			if (SetWindowLongPtr(hwndSrc, GWL_STYLE, style | WS_THICKFRAME)) {
-				if (!SetWindowPos(hwndSrc, 0, 0, 0, 0, 0,
-					SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED)) {
-					Logger::Get().Win32Error("SetWindowPos 失败");
-				}
+		// 缩放 Magpie 主窗口时会在 SetWindowLongPtr 中卡住，似乎是 Win11 的 bug
+		// 将在 MagService::_MagRuntime_IsRunningChanged 还原主窗口样式
+		if (Win32Utils::GetWndClassName(hwndSrc) != CommonSharedConstants::XAML_HOST_CLASS_NAME) {
+			LONG_PTR style = GetWindowLongPtr(hwndSrc, GWL_STYLE);
+			if (!(style & WS_THICKFRAME)) {
+				if (SetWindowLongPtr(hwndSrc, GWL_STYLE, style | WS_THICKFRAME)) {
+					if (!SetWindowPos(hwndSrc, 0, 0, 0, 0, 0,
+						SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED)) {
+						Logger::Get().Win32Error("SetWindowPos 失败");
+					}
 
-				Logger::Get().Info("已取消禁用窗口大小调整");
-			} else {
-				Logger::Get().Win32Error("取消禁用窗口大小调整失败");
+					Logger::Get().Info("已取消禁用窗口大小调整");
+				} else {
+					Logger::Get().Win32Error("取消禁用窗口大小调整失败");
+				}
 			}
 		}
 	}
@@ -203,13 +208,7 @@ static BOOL CALLBACK EnumChildProc(
 	_In_ HWND   hwnd,
 	_In_ LPARAM lParam
 ) {
-	std::wstring className(256, 0);
-	int num = GetClassName(hwnd, &className[0], (int)className.size());
-	if (num == 0) {
-		Logger::Get().Win32Error("GetClassName 失败");
-		return TRUE;
-	}
-	className.resize(num);
+	std::wstring className = Win32Utils::GetWndClassName(hwnd);
 
 	EnumChildWndParam* param = (EnumChildWndParam*)lParam;
 	if (className == param->clientWndClassName) {
@@ -264,22 +263,16 @@ bool FrameSourceBase::_UpdateSrcFrameRect() {
 			return false;
 		}
 	} else {
-		std::wstring className(256, 0);
-		int num = GetClassName(hwndSrc, &className[0], (int)className.size());
-		if (num > 0) {
-			className.resize(num);
-			if (className == L"ApplicationFrameWindow" || className == L"Windows.UI.Core.CoreWindow") {
-				// "Modern App"
-				// 客户区窗口类名为 ApplicationFrameInputSinkWindow
-				HWND hwndClient = FindClientWindow(hwndSrc, L"ApplicationFrameInputSinkWindow");
-				if (hwndClient) {
-					if (!Win32Utils::GetClientScreenRect(hwndClient, _srcFrameRect)) {
-						Logger::Get().Win32Error("GetClientScreenRect 失败");
-					}
+		std::wstring className = Win32Utils::GetWndClassName(hwndSrc);
+		if (className == L"ApplicationFrameWindow" || className == L"Windows.UI.Core.CoreWindow") {
+			// "Modern App"
+			// 客户区窗口类名为 ApplicationFrameInputSinkWindow
+			HWND hwndClient = FindClientWindow(hwndSrc, L"ApplicationFrameInputSinkWindow");
+			if (hwndClient) {
+				if (!Win32Utils::GetClientScreenRect(hwndClient, _srcFrameRect)) {
+					Logger::Get().Win32Error("GetClientScreenRect 失败");
 				}
 			}
-		} else {
-			Logger::Get().Win32Error("GetClassName 失败");
 		}
 
 		if (_srcFrameRect == RECT{}) {

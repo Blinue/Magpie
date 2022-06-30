@@ -174,15 +174,11 @@ void Renderer::SetUIVisibility(bool value) {
 }
 
 bool CheckForeground(HWND hwndForeground) {
-	wchar_t className[256]{};
-	if (!GetClassName(hwndForeground, (LPWSTR)className, 256)) {
-		Logger::Get().Win32Error("GetClassName 失败");
-		return false;
-	}
+	std::wstring className = Win32Utils::GetWndClassName(hwndForeground);
 
 	// 排除桌面窗口和 Alt+Tab 窗口
-	if (!std::wcscmp(className, L"WorkerW") || !std::wcscmp(className, L"ForegroundStaging") ||
-		!std::wcscmp(className, L"MultitaskingViewFrame") || !std::wcscmp(className, L"XamlExplorerHostIslandWindow")
+	if (className == L"WorkerW" || className == L"ForegroundStaging" ||
+		className == L"MultitaskingViewFrame" || className == L"XamlExplorerHostIslandWindow"
 	) {
 		return true;
 	}

@@ -3,6 +3,8 @@
 
 
 struct CommonSharedConstants {
+	static constexpr const wchar_t* XAML_HOST_CLASS_NAME = L"Magpie_XamlHost";
+
 	static constexpr const COLORREF LIGHT_TINT_COLOR = RGB(243, 243, 243);
 	static constexpr const COLORREF DARK_TINT_COLOR = RGB(32, 32, 32);
 

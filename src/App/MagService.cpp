@@ -38,6 +38,8 @@ MagService::MagService(
 	);
 
 	_UpdateIsAutoRestore();
+
+	_hwndHost = (HWND)Application::Current().as<App>().HwndHost();
 }
 
 void MagService::StartCountdown() {
@@ -135,14 +137,25 @@ IAsyncAction MagService::_MagRuntime_IsRunningChanged(IInspectable const&, bool)
 				_wndToRestore = 0;
 				_wndToRestoreChangedEvent(*this, _wndToRestore);
 			}
-		} else if (_settings.IsAutoRestore()) {
-			// 退出全屏之后前台窗口不变则不必记忆
-			if (IsWindow(_curSrcWnd) && GetForegroundWindow() != _curSrcWnd) {
-				_wndToRestore = (uint64_t)_curSrcWnd;
-				_wndToRestoreChangedEvent(*this, _wndToRestore);
+		} else {
+			// 必须在主线程还原主窗口样式
+			// 见 FrameSourceBase::~FrameSourceBase
+			LONG_PTR style = GetWindowLongPtr(_hwndHost, GWL_STYLE);
+			if (!(style & WS_THICKFRAME)) {
+				SetWindowLongPtr(_hwndHost, GWL_STYLE, style | WS_THICKFRAME);
+				SetWindowPos(_hwndHost, 0, 0, 0, 0, 0,
+					SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
 			}
 
-			_curSrcWnd = NULL;
+			if (_settings.IsAutoRestore()) {
+				// 退出全屏之后前台窗口不变则不必记忆
+				if (IsWindow(_curSrcWnd) && GetForegroundWindow() != _curSrcWnd) {
+					_wndToRestore = (uint64_t)_curSrcWnd;
+					_wndToRestoreChangedEvent(*this, _wndToRestore);
+				}
+
+				_curSrcWnd = NULL;
+			}
 		}
 	});
 }

@@ -35,12 +35,25 @@ UINT Win32Utils::GetOSBuild() {
 	return build;
 }
 
-UINT Win32Utils::GetWindowShowCmd(HWND hwnd) {
-	assert(hwnd != NULL);
+std::wstring Win32Utils::GetWndClassName(HWND hWnd) {
+	// 窗口类名最多 256 个字符
+	std::wstring className(256, 0);
+	int num = GetClassName(hWnd, &className[0], (int)className.size());
+	if (num == 0) {
+		Logger::Get().Win32Error("GetClassName 失败");
+		return {};
+	}
+
+	className.resize(num);
+	return className;
+}
+
+UINT Win32Utils::GetWindowShowCmd(HWND hWnd) {
+	assert(hWnd != NULL);
 
 	WINDOWPLACEMENT wp{};
 	wp.length = sizeof(wp);
-	if (!GetWindowPlacement(hwnd, &wp)) {
+	if (!GetWindowPlacement(hWnd, &wp)) {
 		Logger::Get().Win32Error("GetWindowPlacement 出错");
 		assert(false);
 	}
@@ -273,21 +286,17 @@ void Win32Utils::RunParallel(std::function<void(UINT)> func, UINT times) {
 }
 
 
-bool Win32Utils::IsStartMenu(HWND hwnd) {
+bool Win32Utils::IsStartMenu(HWND hWnd) {
 	// 作为优化，首先检查窗口类
-	wchar_t className[256]{};
-	if (!GetClassName(hwnd, (LPWSTR)className, 256)) {
-		Logger::Get().Win32Error("GetClassName 失败");
-		return false;
-	}
+	std::wstring className = GetWndClassName(hWnd);
 
-	if (std::wcscmp(className, L"Windows.UI.Core.CoreWindow")) {
+	if (className != L"Windows.UI.Core.CoreWindow") {
 		return false;
 	}
 
 	// 检查可执行文件名称
 	DWORD dwProcId = 0;
-	if (!GetWindowThreadProcessId(hwnd, &dwProcId)) {
+	if (!GetWindowThreadProcessId(hWnd, &dwProcId)) {
 		Logger::Get().Win32Error("GetWindowThreadProcessId 失败");
 		return false;
 	}

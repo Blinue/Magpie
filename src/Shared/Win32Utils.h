@@ -14,7 +14,9 @@ struct Win32Utils {
 		return r1.right > r2.left && r1.bottom > r2.top && r1.left < r2.right&& r1.top < r2.bottom;
 	}
 
-	static UINT GetWindowShowCmd(HWND hwnd);
+	static std::wstring GetWndClassName(HWND hWnd);
+
+	static UINT GetWindowShowCmd(HWND hWnd);
 
 	static bool GetClientScreenRect(HWND hWnd, RECT& rect);
 
@@ -104,7 +106,7 @@ struct Win32Utils {
 	// 执行完毕后返回
 	static void RunParallel(std::function<void(UINT)> func, UINT times);
 
-	static bool IsStartMenu(HWND hwnd);
+	static bool IsStartMenu(HWND hWnd);
 
 	// 强制切换前台窗口
 	static bool SetForegroundWindow(HWND hWnd);
