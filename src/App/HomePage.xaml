@@ -53,7 +53,7 @@
 						</local:SettingItem>
 					</muxc:Expander.Content>
 				</muxc:Expander>
-				<local:SettingItem x:Name="AutoRestoreSettingItem" Title="记忆缩放窗口" Description="当该窗口回到前台时将自动缩放">
+				<local:SettingItem Margin="0,0,0,-2" x:Name="AutoRestoreSettingItem" Title="记忆缩放窗口" Description="当该窗口回到前台时将自动缩放">
 					<local:SettingItem.Icon>
 						<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE944;"/>
 					</local:SettingItem.Icon>
@@ -64,7 +64,7 @@
 				<muxc:Expander
 					x:Name="AutoRestoreExpander"
 					IsExpanded="True"
-					Margin="0,-2,0,2"
+					Margin="0,-2,0,0"
 					HorizontalAlignment="Stretch"
 					HorizontalContentAlignment="Stretch"
 					Style="{StaticResource SettingExpanderStyle}">
@@ -73,7 +73,7 @@
 										   Description="当该窗口回到前台时将自动缩放"
 										   Style="{StaticResource ExpanderHeaderSettingStyle}">
 							<local:SettingItem.Icon>
-								<FontIcon Style="{StaticResource ExpanderHeaderSettingIconStyle}" FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE944;"/>
+								<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE944;"/>
 							</local:SettingItem.Icon>
 							<local:SettingItem.ActionContent>
 								<ToggleSwitch x:Name="AutoRestoreExpanderToggleSwitch" IsOn="True" Toggled="AutoRestoreExpanderToggleSwitch_Toggled" />

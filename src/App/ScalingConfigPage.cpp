@@ -28,6 +28,12 @@ static std::vector<std::wstring> GetAllGraphicsAdapters() {
 	) {
 		DXGI_ADAPTER_DESC1 desc;
 		hr = adapter->GetDesc1(&desc);
+
+		// 不包含 WARP
+		if (desc.Flags & DXGI_ADAPTER_FLAG_SOFTWARE) {
+			continue;
+		}
+
 		result.emplace_back(SUCCEEDED(hr) ? desc.Description : L"???");
 	}
 
@@ -55,18 +61,26 @@ ScalingConfigPage::ScalingConfigPage() {
 	}
 
 	{
-		Controls::ItemCollection items = GraphicsAdapterComboBox().Items();
-		for (const std::wstring& adapter : GetAllGraphicsAdapters()) {
-			items.Append(box_value(adapter));
-		}
-
-		uint32_t adapter = _magSettings.GraphicsAdapter();
-		if (adapter > 0 && adapter >= items.Size()) {
+		std::vector<std::wstring> adapters = GetAllGraphicsAdapters();
+		if (adapters.size() <= 1) {
+			// 只有一个显卡时隐藏显示卡选项
+			GraphicsAdapterSettingItem().Visibility(Visibility::Collapsed);
+			ShowFPSSettingItem().Margin({ 0,-2,0,0 });
 			_magSettings.GraphicsAdapter(0);
-			adapter = 0;
-		}
+		} else {
+			Controls::ItemCollection items = GraphicsAdapterComboBox().Items();
+			for (const std::wstring& adapter : adapters) {
+				items.Append(box_value(adapter));
+			}
 
-		GraphicsAdapterComboBox().SelectedIndex(adapter);
+			uint32_t adapter = _magSettings.GraphicsAdapter();
+			if (adapter > 0 && adapter >= items.Size()) {
+				_magSettings.GraphicsAdapter(0);
+				adapter = 0;
+			}
+
+			GraphicsAdapterComboBox().SelectedIndex(adapter);
+		}
 	}
 	
 	Is3DGameModeToggleSwitch().IsOn(_magSettings.Is3DGameMode());
