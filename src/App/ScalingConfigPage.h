@@ -27,6 +27,8 @@ struct ScalingConfigPage : ScalingConfigPageT<ScalingConfigPage> {
 
 	void DisableWindowResizingToggleSwitch_Toggled(IInspectable const&, RoutedEventArgs const&);
 
+	void ReserveTitleBarToggleSwitch_Toggled(IInspectable const&, RoutedEventArgs const&);
+
 private:
 	void _UpdateVSync();
 

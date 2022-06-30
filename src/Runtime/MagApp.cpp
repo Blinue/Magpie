@@ -40,34 +40,7 @@ bool MagApp::Run(HWND hwndSrc, winrt::Magpie::Runtime::MagSettings const& settin
 	// 必须在主窗口创建前，否则 SHQueryUserNotificationState 可能返回 QUNS_BUSY 而不是 QUNS_RUNNING_D3D_FULL_SCREEN
 	ExclModeHack exclMode;
 
-	static bool initialized = false;
-	if (!initialized) {
-		initialized = true;
-
-		WNDCLASSEX wcex = {};
-		wcex.cbSize = sizeof(WNDCLASSEX);
-		wcex.lpfnWndProc = _HostWndProcStatic;
-		wcex.hInstance = _hInst;
-		wcex.hCursor = LoadCursor(NULL, IDC_ARROW);
-		wcex.lpszClassName = HOST_WINDOW_CLASS_NAME;
-
-		if (!RegisterClassEx(&wcex)) {
-			// 忽略此错误，因为可能是重复注册产生的错误
-			Logger::Get().Win32Error("注册主窗口类失败");
-		} else {
-			Logger::Get().Info("已注册主窗口类");
-		}
-
-		wcex.lpfnWndProc = DDFWndProc;
-		wcex.hbrBackground = (HBRUSH)GetStockObject(GRAY_BRUSH);
-		wcex.lpszClassName = DDF_WINDOW_CLASS_NAME;
-
-		if (!RegisterClassEx(&wcex)) {
-			Logger::Get().Win32Error("注册 DDF 窗口类失败");
-		} else {
-			Logger::Get().Info("已注册 DDF 窗口类");
-		}
-	}
+	_RegisterWndClasses();
 	
 	if (!_CreateHostWnd()) {
 		Logger::Get().Error("创建主窗口失败");
@@ -203,6 +176,34 @@ void MagApp::_RunMessageLoop() {
 }
 
 void MagApp::_RegisterWndClasses() const {
+	static bool registered = false;
+	if (!registered) {
+		registered = true;
+
+		WNDCLASSEX wcex = {};
+		wcex.cbSize = sizeof(WNDCLASSEX);
+		wcex.lpfnWndProc = _HostWndProcStatic;
+		wcex.hInstance = _hInst;
+		wcex.hCursor = LoadCursor(NULL, IDC_ARROW);
+		wcex.lpszClassName = HOST_WINDOW_CLASS_NAME;
+
+		if (!RegisterClassEx(&wcex)) {
+			// 忽略此错误，因为可能是重复注册产生的错误
+			Logger::Get().Win32Error("注册主窗口类失败");
+		} else {
+			Logger::Get().Info("已注册主窗口类");
+		}
+
+		wcex.lpfnWndProc = DDFWndProc;
+		wcex.hbrBackground = (HBRUSH)GetStockObject(GRAY_BRUSH);
+		wcex.lpszClassName = DDF_WINDOW_CLASS_NAME;
+
+		if (!RegisterClassEx(&wcex)) {
+			Logger::Get().Win32Error("注册 DDF 窗口类失败");
+		} else {
+			Logger::Get().Info("已注册 DDF 窗口类");
+		}
+	}
 }
 
 static BOOL CALLBACK MonitorEnumProc(HMONITOR, HDC, LPRECT monitorRect, LPARAM data) {
@@ -378,9 +379,6 @@ LRESULT MagApp::_HostWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 
 	switch (message) {
 	case WM_DESTROY:
-		// 有两个退出路径：
-		// 1. 前台窗口发生改变
-		// 2. 收到_WM_DESTORYMAG 消息
 		PostQuitMessage(0);
 		return 0;
 	}

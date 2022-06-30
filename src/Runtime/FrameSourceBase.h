@@ -37,6 +37,8 @@ public:
 protected:
 	virtual bool _HasRoundCornerInWin11() = 0;
 
+	virtual bool _CanCaptureTitleBar() = 0;
+
 	// 获取坐标系 1 到坐标系 2 的映射关系
 	// 坐标系 1：屏幕坐标系，即虚拟化后的坐标系。原点为屏幕左上角
 	// 坐标系 2：虚拟化前的坐标系，即窗口所见的坐标系，原点为窗口左上角

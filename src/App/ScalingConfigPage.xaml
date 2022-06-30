@@ -111,7 +111,7 @@
 						<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE737;" />
 					</local:SettingItem.Icon>
 					<local:SettingItem.ActionContent>
-						<ToggleSwitch />
+						<ToggleSwitch x:Name="ReserveTitleBarToggleSwitch" Toggled="ReserveTitleBarToggleSwitch_Toggled" />
 					</local:SettingItem.ActionContent>
 				</local:SettingItem>
 				<local:SettingItem Title="自定义裁剪">

@@ -30,6 +30,10 @@ protected:
 		return true;
 	}
 
+	bool _CanCaptureTitleBar() override {
+		return true;
+	}
+
 private:
 	bool _CaptureFromWindow(IGraphicsCaptureItemInterop* interop);
 

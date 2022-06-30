@@ -113,6 +113,14 @@ struct MagSettings : MagSettingsT<MagSettings> {
 		_isTripleBuffering = value;
 	}
 
+	bool IsReserveTitleBar() const noexcept {
+		return _isReserveTitleBar;
+	}
+
+	void IsReserveTitleBar(bool value) noexcept {
+		_isReserveTitleBar = value;
+	}
+
 private:
 	Magpie::Runtime::CaptureMode _captureMode = Magpie::Runtime::CaptureMode::GraphicsCapture;
 	Magpie::Runtime::MultiMonitorUsage _multiMonitorUsage = Magpie::Runtime::MultiMonitorUsage::Nearest;
@@ -128,6 +136,7 @@ private:
 	bool _isShowFPS = false;
 	bool _isVSync = true;
 	bool _isTripleBuffering = false;
+	bool _isReserveTitleBar = false;
 };
 
 }

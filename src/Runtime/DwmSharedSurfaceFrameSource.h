@@ -25,6 +25,10 @@ protected:
 		return false;
 	}
 
+	bool _CanCaptureTitleBar() override {
+		return false;
+	}
+
 private:
 	using _DwmGetDxSharedSurfaceFunc = bool(
 		HWND hWnd,

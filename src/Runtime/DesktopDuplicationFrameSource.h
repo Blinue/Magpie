@@ -26,6 +26,10 @@ protected:
 		return true;
 	}
 
+	bool _CanCaptureTitleBar() override {
+		return true;
+	}
+
 private:
 	bool _InitializeDdpD3D(HANDLE hSharedTex);
 

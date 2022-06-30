@@ -445,6 +445,7 @@ LRESULT XamlApp::_WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				_uwpApp.OnHostWndFocusChanged(false);
 				XamlUtils::CloseXamlPopups(_mainPage.XamlRoot());
 			}
+			_OnResize();
 			return 0;
 		}
 

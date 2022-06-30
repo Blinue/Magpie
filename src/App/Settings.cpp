@@ -143,6 +143,8 @@ void WriteScalingConfig(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer
 	writer.Bool(magSettings.IsTripleBuffering());
 	writer.Key("disableWindowResizing");
 	writer.Bool(magSettings.IsDisableWindowResizing());
+	writer.Key("reserveTitleBar");
+	writer.Bool(magSettings.IsReserveTitleBar());
 	writer.EndObject();
 }
 
@@ -204,6 +206,13 @@ bool LoadScalingConfig(const rapidjson::GenericObject<false, rapidjson::Value>& 
 	}
 	if (boolValue.has_value()) {
 		magSettings.IsDisableWindowResizing(boolValue.value());
+	}
+
+	if (!LoadBoolSettingItem(scalingConfigObj, "reserveTitleBar", boolValue)) {
+		return false;
+	}
+	if (boolValue.has_value()) {
+		magSettings.IsReserveTitleBar(boolValue.value());
 	}
 
 	return true;

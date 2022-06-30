@@ -91,6 +91,7 @@ ScalingConfigPage::ScalingConfigPage() {
 	_UpdateVSync();
 
 	DisableWindowResizingToggleSwitch().IsOn(_magSettings.IsDisableWindowResizing());
+	ReserveTitleBarToggleSwitch().IsOn(_magSettings.IsReserveTitleBar());
 
 	_initialized = true;
 }
@@ -145,6 +146,10 @@ void ScalingConfigPage::TripleBufferingToggleSwitch_Toggled(IInspectable const&,
 
 void ScalingConfigPage::DisableWindowResizingToggleSwitch_Toggled(IInspectable const&, RoutedEventArgs const&) {
 	_magSettings.IsDisableWindowResizing(DisableWindowResizingToggleSwitch().IsOn());
+}
+
+void ScalingConfigPage::ReserveTitleBarToggleSwitch_Toggled(IInspectable const&, RoutedEventArgs const&) {
+	_magSettings.IsReserveTitleBar(ReserveTitleBarToggleSwitch().IsOn());
 }
 
 void ScalingConfigPage::_UpdateVSync() {

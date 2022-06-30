@@ -25,6 +25,7 @@ namespace Magpie.Runtime
 		// 0 为默认，否则应减一得到枚举序号
 		UInt32 GraphicsAdapter;
 		Boolean IsDisableWindowResizing;
+		Boolean IsReserveTitleBar;
 
 		Boolean IsBreakpointMode;
 		Boolean IsDisableEffectCache;

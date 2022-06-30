@@ -258,14 +258,17 @@ bool FrameSourceBase::_UpdateSrcFrameRect() {
 
 	HWND hwndSrc = MagApp::Get().GetHwndSrc();
 
-	/*if (MagApp::Get().GetSettings().IsCropTitleBarOfUWP()) {
+	if (MagApp::Get().GetSettings().IsReserveTitleBar() && _CanCaptureTitleBar()) {
+		if (!Win32Utils::GetWindowFrameRect(hwndSrc, _srcFrameRect)) {
+			Logger::Get().Win32Error("GetClientScreenRect 失败");
+			return false;
+		}
+	} else {
 		std::wstring className(256, 0);
 		int num = GetClassName(hwndSrc, &className[0], (int)className.size());
 		if (num > 0) {
 			className.resize(num);
-			if (App::Get().GetSettings().IsCropTitleBarOfUWP() &&
-				(className == L"ApplicationFrameWindow" || className == L"Windows.UI.Core.CoreWindow")
-				) {
+			if (className == L"ApplicationFrameWindow" || className == L"Windows.UI.Core.CoreWindow") {
 				// "Modern App"
 				// 客户区窗口类名为 ApplicationFrameInputSinkWindow
 				HWND hwndClient = FindClientWindow(hwndSrc, L"ApplicationFrameInputSinkWindow");
@@ -278,12 +281,12 @@ bool FrameSourceBase::_UpdateSrcFrameRect() {
 		} else {
 			Logger::Get().Win32Error("GetClassName 失败");
 		}
-	}*/
 
-	if (_srcFrameRect == RECT{}) {
-		if (!Win32Utils::GetClientScreenRect(hwndSrc, _srcFrameRect)) {
-			Logger::Get().Win32Error("GetClientScreenRect 失败");
-			return false;
+		if (_srcFrameRect == RECT{}) {
+			if (!Win32Utils::GetClientScreenRect(hwndSrc, _srcFrameRect)) {
+				Logger::Get().Win32Error("GetClientScreenRect 失败");
+				return false;
+			}
 		}
 	}
 
