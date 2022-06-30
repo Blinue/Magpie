@@ -81,7 +81,7 @@
 					<muxc:Expander.Header>
 						<local:SettingItem Title="垂直同步" Style="{StaticResource ExpanderHeaderSettingStyle}">
 							<local:SettingItem.Icon>
-								<FontIcon Style="{StaticResource ExpanderHeaderSettingIconStyle}" FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xF71C;" />
+								<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xF71C;" />
 							</local:SettingItem.Icon>
 							<local:SettingItem.ActionContent>
 								<ToggleSwitch x:Name="VSyncToggleSwitch" Toggled="VSyncToggleSwitch_Toggled" />

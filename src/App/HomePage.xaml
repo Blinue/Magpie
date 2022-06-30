@@ -32,7 +32,7 @@
 							Description="计时结束后缩放前台窗口"
 							Style="{StaticResource ExpanderHeaderSettingStyle}">
 							<local:SettingItem.Icon>
-								<FontIcon Style="{StaticResource ExpanderHeaderSettingIconStyle}" FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE916;"/>
+								<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE916;"/>
 							</local:SettingItem.Icon>
 							<local:SettingItem.ActionContent>
 								<StackPanel Orientation="Horizontal" Spacing="5">
