@@ -10,6 +10,27 @@ static inline void LogAdapter(const DXGI_ADAPTER_DESC1& adapterDesc) {
 		adapterDesc.VendorId, adapterDesc.DeviceId, StrUtils::UTF16ToUTF8(adapterDesc.Description)));
 }
 
+static bool TestFeatureLevel11(IDXGIAdapter1* adapter) {
+	D3D_FEATURE_LEVEL featureLevels[] = {
+		D3D_FEATURE_LEVEL_11_1,
+		D3D_FEATURE_LEVEL_11_0
+	};
+	UINT nFeatureLevels = ARRAYSIZE(featureLevels);
+
+	return SUCCEEDED(D3D11CreateDevice(
+		adapter,
+		D3D_DRIVER_TYPE_UNKNOWN,
+		nullptr,
+		0,
+		featureLevels,
+		nFeatureLevels,
+		D3D11_SDK_VERSION,
+		nullptr,
+		nullptr,
+		nullptr
+	));
+}
+
 static winrt::com_ptr<IDXGIAdapter4> ObtainGraphicsAdapter(IDXGIFactory4* dxgiFactory, uint32_t adapterIdx) {
 	winrt::com_ptr<IDXGIAdapter1> adapter;
 
@@ -18,12 +39,20 @@ static winrt::com_ptr<IDXGIAdapter4> ObtainGraphicsAdapter(IDXGIFactory4* dxgiFa
 		if (SUCCEEDED(hr)) {
 			DXGI_ADAPTER_DESC1 desc;
 			hr = adapter->GetDesc1(&desc);
-			if (FAILED(hr)) {
-				return nullptr;
+			if (SUCCEEDED(hr)) {
+				if (desc.Flags & DXGI_ADAPTER_FLAG_SOFTWARE) {
+					Logger::Get().Warn("用户指定的显示卡为 WARP，已忽略");
+				} else if (TestFeatureLevel11(adapter.get())) {
+					LogAdapter(desc);
+					return adapter.try_as<IDXGIAdapter4>();
+				} else {
+					Logger::Get().Warn("用户指定的显示卡不支持 FL 11");
+				}
+			} else {
+				Logger::Get().Error("GetDesc1 失败");
 			}
-
-			LogAdapter(desc);
-			return adapter.try_as<IDXGIAdapter4>();
+		} else {
+			Logger::Get().Warn("未找到用户指定的显示卡");
 		}
 	}
 
@@ -38,35 +67,18 @@ static winrt::com_ptr<IDXGIAdapter4> ObtainGraphicsAdapter(IDXGIFactory4* dxgiFa
 			continue;
 		}
 
-		if (desc.Flags == DXGI_ADAPTER_FLAG_SOFTWARE) {
+		// 忽略 WARP
+		if (desc.Flags & DXGI_ADAPTER_FLAG_SOFTWARE) {
 			continue;
 		}
-
-		D3D_FEATURE_LEVEL featureLevels[] = {
-			D3D_FEATURE_LEVEL_11_1,
-			D3D_FEATURE_LEVEL_11_0
-		};
-		UINT nFeatureLevels = ARRAYSIZE(featureLevels);
-
-		hr = D3D11CreateDevice(
-			adapter.get(),
-			D3D_DRIVER_TYPE_UNKNOWN,
-			nullptr,
-			0,
-			featureLevels,
-			nFeatureLevels,
-			D3D11_SDK_VERSION,
-			nullptr,
-			nullptr,
-			nullptr
-		);
-		if (SUCCEEDED(hr)) {
+		
+		if (TestFeatureLevel11(adapter.get())) {
 			LogAdapter(desc);
 			return adapter.try_as<IDXGIAdapter4>();
 		}
 	}
 
-	// 回落到 Basic Render Driver Adapter（WARP）
+	// 作为最后手段，回落到 Basic Render Driver Adapter（WARP）
 	// https://docs.microsoft.com/en-us/windows/win32/direct3darticles/directx-warp
 	HRESULT hr = dxgiFactory->EnumWarpAdapter(IID_PPV_ARGS(&adapter));
 	if (FAILED(hr)) {
