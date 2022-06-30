@@ -26,7 +26,7 @@
 						<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE9A6;"/>
 					</local:SettingItem.Icon>
 					<local:SettingItem.ActionContent>
-						<ComboBox x:Name="CaptureModeComboBox" SelectedIndex="0" Style="{StaticResource ComboBoxSettingStyle}" DropDownOpened="ComboBox_DropDownOpened" SelectionChanged="CaptureModeComboBox_SelectionChanged">
+						<ComboBox x:Name="CaptureModeComboBox" Style="{StaticResource ComboBoxSettingStyle}" DropDownOpened="ComboBox_DropDownOpened" SelectionChanged="CaptureModeComboBox_SelectionChanged">
 							<x:String>Graphics Capture</x:String>
 							<x:String>Desktop Duplication</x:String>
 							<x:String>GDI</x:String>
@@ -34,7 +34,7 @@
 						</ComboBox>
 					</local:SettingItem.ActionContent>
 				</local:SettingItem>
-				<local:SettingItem Title="3D 游戏模式">
+				<local:SettingItem x:Name="Is3DGameModeSettingItem" Title="3D 游戏模式">
 					<local:SettingItem.Icon>
 						<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE7FC;"/>
 					</local:SettingItem.Icon>
@@ -42,12 +42,12 @@
 						<ToggleSwitch x:Name="Is3DGameModeToggleSwitch" Toggled="Is3DGameModeToggleSwitch_Toggled" />
 					</local:SettingItem.ActionContent>
 				</local:SettingItem>
-				<local:SettingItem Title="多显示器">
+				<local:SettingItem x:Name="MultiMonitorSettingItem" Title="多显示器">
 					<local:SettingItem.Icon>
 						<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xf5a9;"/>
 					</local:SettingItem.Icon>
 					<local:SettingItem.ActionContent>
-						<ComboBox SelectedIndex="0" Style="{StaticResource ComboBoxSettingStyle}" DropDownOpened="ComboBox_DropDownOpened">
+						<ComboBox x:Name="MultiMonitorUsageComboBox" SelectionChanged="MultiMonitorUsageComboBox_SelectionChanged" Style="{StaticResource ComboBoxSettingStyle}" DropDownOpened="ComboBox_DropDownOpened">
 							<x:String>使用距离源窗口最近的显示器</x:String>
 							<x:String>使用源窗口跨越的所有显示器</x:String>
 							<x:String>使用所有显示器</x:String>

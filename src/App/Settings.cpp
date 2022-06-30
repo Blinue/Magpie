@@ -77,6 +77,25 @@ bool LoadBoolSettingItem(
 	return true;
 }
 
+bool LoadUIntSettingItem(
+	const rapidjson::GenericObject<false, rapidjson::Value>& obj,
+	const char* nodeName,
+	std::optional<unsigned int>& result
+) {
+	auto node = obj.FindMember(nodeName);
+	if (node == obj.MemberEnd()) {
+		result = std::nullopt;
+		return true;
+	}
+
+	if (!node->value.IsUint()) {
+		return false;
+	}
+
+	result = node->value.GetUint();
+	return true;
+}
+
 bool Settings::Initialize() {
 	Logger& logger = Logger::Get();
 
@@ -110,6 +129,8 @@ void WriteScalingConfig(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer
 	writer.StartObject();
 	writer.Key("captureMode");
 	writer.Uint((unsigned int)magSettings.CaptureMode());
+	writer.Key("multiMonitorUsage");
+	writer.Uint((unsigned int)magSettings.MultiMonitorUsage());
 	writer.Key("3dGameMode");
 	writer.Bool(magSettings.Is3DGameMode());
 	writer.Key("showFPS");
@@ -122,45 +143,49 @@ void WriteScalingConfig(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer
 }
 
 bool LoadScalingConfig(const rapidjson::GenericObject<false, rapidjson::Value>& scalingConfigObj, Magpie::Runtime::MagSettings& magSettings) {
-	{
-		auto captureModeNode = scalingConfigObj.FindMember("captureMode");
-		if (captureModeNode != scalingConfigObj.MemberEnd()) {
-			if (!captureModeNode->value.IsUint()) {
-				return false;
-			}
+	std::optional<unsigned int> uintValue;
+	std::optional<bool> boolValue;
 
-			magSettings.CaptureMode((Magpie::Runtime::CaptureMode)captureModeNode->value.GetUint());
-		}
-	}
-
-	std::optional<bool> value;
-
-	if (!LoadBoolSettingItem(scalingConfigObj, "3dGameMode", value)) {
+	if (!LoadUIntSettingItem(scalingConfigObj, "captureMode", uintValue)) {
 		return false;
 	}
-	if (value.has_value()) {
-		magSettings.Is3DGameMode(value.value());
+	if (uintValue.has_value()) {
+		magSettings.CaptureMode((Magpie::Runtime::CaptureMode)uintValue.value());
 	}
 
-	if (!LoadBoolSettingItem(scalingConfigObj, "showFPS", value)) {
+	if (!LoadUIntSettingItem(scalingConfigObj, "multiMonitorUsage", uintValue)) {
 		return false;
 	}
-	if (value.has_value()) {
-		magSettings.IsShowFPS(value.value());
+	if (uintValue.has_value()) {
+		magSettings.MultiMonitorUsage((Magpie::Runtime::MultiMonitorUsage)uintValue.value());
 	}
 
-	if (!LoadBoolSettingItem(scalingConfigObj, "VSync", value)) {
+	if (!LoadBoolSettingItem(scalingConfigObj, "3dGameMode", boolValue)) {
 		return false;
 	}
-	if (value.has_value()) {
-		magSettings.IsVSync(value.value());
+	if (boolValue.has_value()) {
+		magSettings.Is3DGameMode(boolValue.value());
 	}
 
-	if (!LoadBoolSettingItem(scalingConfigObj, "tripleBuffering", value)) {
+	if (!LoadBoolSettingItem(scalingConfigObj, "showFPS", boolValue)) {
 		return false;
 	}
-	if (value.has_value()) {
-		magSettings.IsTripleBuffering(value.value());
+	if (boolValue.has_value()) {
+		magSettings.IsShowFPS(boolValue.value());
+	}
+
+	if (!LoadBoolSettingItem(scalingConfigObj, "VSync", boolValue)) {
+		return false;
+	}
+	if (boolValue.has_value()) {
+		magSettings.IsVSync(boolValue.value());
+	}
+
+	if (!LoadBoolSettingItem(scalingConfigObj, "tripleBuffering", boolValue)) {
+		return false;
+	}
+	if (boolValue.has_value()) {
+		magSettings.IsTripleBuffering(boolValue.value());
 	}
 
 	return true;

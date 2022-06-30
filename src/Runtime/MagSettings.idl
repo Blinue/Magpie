@@ -7,6 +7,12 @@ namespace Magpie.Runtime
         DwmSharedSurface
     };
 
+    enum MultiMonitorUsage {
+        Nearest,
+        Intersected,
+        All
+    };
+
     [default_interface]
     runtimeclass MagSettings
     {
@@ -15,6 +21,8 @@ namespace Magpie.Runtime
         void CopyFrom(MagSettings other);
 
         CaptureMode CaptureMode;
+
+        MultiMonitorUsage MultiMonitorUsage;
 
         Boolean IsBreakpointMode;
         Boolean IsDisableEffectCache;

@@ -11,6 +11,7 @@ void MagSettings::CopyFrom(Magpie::Runtime::MagSettings other) {
 	MagSettings* otherImpl = get_self<MagSettings>(other.as<default_interface<MagSettings>>());
 
 	_captureMode = otherImpl->_captureMode;
+	_multiMonitorUsage = otherImpl->_multiMonitorUsage;
 	_isBreakpointMode = otherImpl->_isBreakpointMode;
 	_isDisableEffectCache = otherImpl->_isDisableEffectCache;
 	_isSaveEffectSources = otherImpl->_isSaveEffectSources;

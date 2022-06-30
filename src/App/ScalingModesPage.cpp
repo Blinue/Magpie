@@ -10,7 +10,7 @@ using namespace winrt;
 namespace winrt::Magpie::App::implementation {
 
 ScalingModesPage::ScalingModesPage() {
-    InitializeComponent();
+	InitializeComponent();
 }
 
 }

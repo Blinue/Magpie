@@ -5,102 +5,111 @@
 namespace winrt::Magpie::Runtime::implementation {
 
 struct MagSettings : MagSettingsT<MagSettings> {
-    MagSettings() = default;
+	MagSettings() = default;
 
-    void CopyFrom(Magpie::Runtime::MagSettings other);
+	void CopyFrom(Magpie::Runtime::MagSettings other);
 
-    CaptureMode CaptureMode() const noexcept {
-        return _captureMode;
-    }
+	CaptureMode CaptureMode() const noexcept {
+		return _captureMode;
+	}
 
-    void CaptureMode(Magpie::Runtime::CaptureMode value) noexcept {
-        _captureMode = value;
-    }
+	void CaptureMode(Magpie::Runtime::CaptureMode value) noexcept {
+		_captureMode = value;
+	}
 
-    bool IsBreakpointMode() const noexcept {
-        return _isBreakpointMode;
-    }
+	MultiMonitorUsage MultiMonitorUsage() const noexcept {
+		return _multiMonitorUsage;
+	}
 
-    void IsBreakpointMode(bool value) noexcept {
-        _isBreakpointMode = value;
-    }
+	void MultiMonitorUsage(Magpie::Runtime::MultiMonitorUsage value) noexcept {
+		_multiMonitorUsage = value;
+	}
 
-    bool IsDisableEffectCache() const noexcept {
-        return _isDisableEffectCache;
-    }
+	bool IsBreakpointMode() const noexcept {
+		return _isBreakpointMode;
+	}
 
-    void IsDisableEffectCache(bool value) noexcept {
-        _isDisableEffectCache = value;
-    }
+	void IsBreakpointMode(bool value) noexcept {
+		_isBreakpointMode = value;
+	}
 
-    bool IsSaveEffectSources() const noexcept {
-        return _isSaveEffectSources;
-    }
+	bool IsDisableEffectCache() const noexcept {
+		return _isDisableEffectCache;
+	}
 
-    void IsSaveEffectSources(bool value) noexcept {
-        _isSaveEffectSources = value;
-    }
+	void IsDisableEffectCache(bool value) noexcept {
+		_isDisableEffectCache = value;
+	}
 
-    bool IsWarningsAreErrors() const noexcept {
-        return _isWarningsAreErrors;
-    }
+	bool IsSaveEffectSources() const noexcept {
+		return _isSaveEffectSources;
+	}
 
-    void IsWarningsAreErrors(bool value) noexcept {
-        _isWarningsAreErrors = value;
-    }
+	void IsSaveEffectSources(bool value) noexcept {
+		_isSaveEffectSources = value;
+	}
 
-    bool IsSimulateExclusiveFullscreen() const noexcept {
-        return _isSimulateExclusiveFullscreen;
-    }
+	bool IsWarningsAreErrors() const noexcept {
+		return _isWarningsAreErrors;
+	}
 
-    void IsSimulateExclusiveFullscreen(bool value) noexcept {
-        _isSimulateExclusiveFullscreen = value;
-    }
+	void IsWarningsAreErrors(bool value) noexcept {
+		_isWarningsAreErrors = value;
+	}
 
-    bool Is3DGameMode() const noexcept {
-        return _is3DGameMode;
-    }
+	bool IsSimulateExclusiveFullscreen() const noexcept {
+		return _isSimulateExclusiveFullscreen;
+	}
 
-    void Is3DGameMode(bool value) noexcept {
-        _is3DGameMode = value;
-    }
+	void IsSimulateExclusiveFullscreen(bool value) noexcept {
+		_isSimulateExclusiveFullscreen = value;
+	}
 
-    bool IsShowFPS() const noexcept {
-        return _isShowFPS;
-    }
+	bool Is3DGameMode() const noexcept {
+		return _is3DGameMode;
+	}
 
-    void IsShowFPS(bool value) noexcept {
-        _isShowFPS = value;
-    }
+	void Is3DGameMode(bool value) noexcept {
+		_is3DGameMode = value;
+	}
 
-    bool IsVSync() const noexcept {
-        return _isVSync;
-    }
+	bool IsShowFPS() const noexcept {
+		return _isShowFPS;
+	}
 
-    void IsVSync(bool value) noexcept {
-        _isVSync = value;
-    }
+	void IsShowFPS(bool value) noexcept {
+		_isShowFPS = value;
+	}
 
-    bool IsTripleBuffering() const noexcept {
-        return _isTripleBuffering;
-    }
+	bool IsVSync() const noexcept {
+		return _isVSync;
+	}
 
-    void IsTripleBuffering(bool value) noexcept {
-        _isTripleBuffering = value;
-    }
+	void IsVSync(bool value) noexcept {
+		_isVSync = value;
+	}
+
+	bool IsTripleBuffering() const noexcept {
+		return _isTripleBuffering;
+	}
+
+	void IsTripleBuffering(bool value) noexcept {
+		_isTripleBuffering = value;
+	}
 
 private:
-    Magpie::Runtime::CaptureMode _captureMode = Magpie::Runtime::CaptureMode::GraphicsCapture;
+	Magpie::Runtime::CaptureMode _captureMode = Magpie::Runtime::CaptureMode::GraphicsCapture;
+	Magpie::Runtime::MultiMonitorUsage _multiMonitorUsage = Magpie::Runtime::MultiMonitorUsage::Nearest;
 
-    bool _isBreakpointMode = false;
-    bool _isDisableEffectCache = false;
-    bool _isSaveEffectSources = false;
-    bool _isWarningsAreErrors = false;
-    bool _isSimulateExclusiveFullscreen = false;
-    bool _is3DGameMode = false;
-    bool _isShowFPS = false;
-    bool _isVSync = true;
-    bool _isTripleBuffering = false;
+	bool _isBreakpointMode = false;
+	bool _isDisableEffectCache = false;
+	bool _isSaveEffectSources = false;
+	bool _isWarningsAreErrors = false;
+	bool _isSimulateExclusiveFullscreen = false;
+	bool _is3DGameMode = false;
+	bool _isShowFPS = false;
+	bool _isVSync = true;
+	bool _isTripleBuffering = false;
 };
 
 }

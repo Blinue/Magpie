@@ -31,8 +31,8 @@ MagApp::MagApp() {}
 MagApp::~MagApp() {}
 
 bool MagApp::Run(HWND hwndSrc, winrt::Magpie::Runtime::MagSettings const& settings) {
-    _hwndSrc = hwndSrc;
-    _settings = settings;
+	_hwndSrc = hwndSrc;
+	_settings = settings;
 
 	_hInst = GetModuleHandle(nullptr);
 
@@ -93,11 +93,11 @@ bool MagApp::Run(HWND hwndSrc, winrt::Magpie::Runtime::MagSettings const& settin
 	const char* effectsJson = R"(
 [
   {
-    "effect": "FSR_EASU",
-    "scale": [ -1, -1 ]
+	"effect": "FSR_EASU",
+	"scale": [ -1, -1 ]
   },
   {
-    "effect": "FSR_RCAS"
+	"effect": "FSR_RCAS"
   }
 ]
 )";
@@ -129,16 +129,16 @@ bool MagApp::Run(HWND hwndSrc, winrt::Magpie::Runtime::MagSettings const& settin
 
 	_RunMessageLoop();
 
-    return false;
+	return false;
 }
 
 void MagApp::Stop() {
-    if (_hwndDDF) {
-        DestroyWindow(_hwndDDF);
-    }
-    if (_hwndHost) {
-        DestroyWindow(_hwndHost);
-    }
+	if (_hwndDDF) {
+		DestroyWindow(_hwndDDF);
+	}
+	if (_hwndHost) {
+		DestroyWindow(_hwndHost);
+	}
 }
 
 void MagApp::ToggleOverlay() {
@@ -215,9 +215,11 @@ static BOOL CALLBACK MonitorEnumProc(HMONITOR, HDC, LPRECT monitorRect, LPARAM d
 	return TRUE;
 }
 
-static bool CalcHostWndRect(HWND hWnd, UINT multiMonitorMode, RECT& result) {
-	switch (multiMonitorMode) {
-	case 0:
+static bool CalcHostWndRect(HWND hWnd, winrt::Magpie::Runtime::MultiMonitorUsage multiMonitorUsage, RECT& result) {
+	using winrt::Magpie::Runtime::MultiMonitorUsage;
+
+	switch (multiMonitorUsage) {
+	case MultiMonitorUsage::Nearest:
 	{
 		// 使用距离源窗口最近的显示器
 		HMONITOR hMonitor = MonitorFromWindow(hWnd, MONITOR_DEFAULTTONEAREST);
@@ -236,7 +238,7 @@ static bool CalcHostWndRect(HWND hWnd, UINT multiMonitorMode, RECT& result) {
 
 		break;
 	}
-	case 1:
+	case MultiMonitorUsage::Intersected:
 	{
 		// 使用源窗口跨越的所有显示器
 
@@ -261,7 +263,7 @@ static bool CalcHostWndRect(HWND hWnd, UINT multiMonitorMode, RECT& result) {
 
 		break;
 	}
-	case 2:
+	case MultiMonitorUsage::All:
 	{
 		// 使用所有显示器（Virtual Screen）
 		int vsWidth = GetSystemMetrics(SM_CXVIRTUALSCREEN);
@@ -286,7 +288,7 @@ bool MagApp::_CreateHostWnd() {
 		return false;
 	}
 
-	if (!CalcHostWndRect(_hwndSrc, 0, _hostWndRect)) {
+	if (!CalcHostWndRect(_hwndSrc, _settings.MultiMonitorUsage(), _hostWndRect)) {
 		Logger::Get().Error("CalcHostWndRect 失败");
 		return false;
 	}
@@ -358,7 +360,7 @@ bool MagApp::_InitFrameSource() {
 }
 
 bool MagApp::_DisableDirectFlip() {
-    return false;
+	return false;
 }
 
 LRESULT MagApp::_HostWndProcStatic(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {

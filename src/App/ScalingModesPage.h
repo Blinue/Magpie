@@ -5,7 +5,7 @@
 namespace winrt::Magpie::App::implementation {
 
 struct ScalingModesPage : ScalingModesPageT<ScalingModesPage> {
-    ScalingModesPage();
+	ScalingModesPage();
 };
 
 }
