@@ -61,7 +61,7 @@
 						<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xf211;"/>
 					</local:SettingItem.Icon>
 					<local:SettingItem.ActionContent>
-						<ComboBox SelectedIndex="0" Style="{StaticResource ComboBoxSettingStyle}" DropDownOpened="ComboBox_DropDownOpened">
+						<ComboBox x:Name="GraphicsAdapterComboBox" SelectionChanged="GraphicsAdapterComboBox_SelectionChanged"  Style="{StaticResource ComboBoxSettingStyle}" DropDownOpened="ComboBox_DropDownOpened">
 							<x:String>默认</x:String>
 						</ComboBox>
 					</local:SettingItem.ActionContent>

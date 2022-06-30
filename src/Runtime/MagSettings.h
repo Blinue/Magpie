@@ -25,6 +25,14 @@ struct MagSettings : MagSettingsT<MagSettings> {
 		_multiMonitorUsage = value;
 	}
 
+	uint32_t GraphicsAdapter() const noexcept {
+		return _graphicsAdapter;
+	}
+
+	void GraphicsAdapter(uint32_t value) {
+		_graphicsAdapter = value;
+	}
+
 	bool IsBreakpointMode() const noexcept {
 		return _isBreakpointMode;
 	}
@@ -100,6 +108,7 @@ struct MagSettings : MagSettingsT<MagSettings> {
 private:
 	Magpie::Runtime::CaptureMode _captureMode = Magpie::Runtime::CaptureMode::GraphicsCapture;
 	Magpie::Runtime::MultiMonitorUsage _multiMonitorUsage = Magpie::Runtime::MultiMonitorUsage::Nearest;
+	uint32_t _graphicsAdapter = 0;
 
 	bool _isBreakpointMode = false;
 	bool _isDisableEffectCache = false;

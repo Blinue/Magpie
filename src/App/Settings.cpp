@@ -131,6 +131,8 @@ void WriteScalingConfig(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer
 	writer.Uint((unsigned int)magSettings.CaptureMode());
 	writer.Key("multiMonitorUsage");
 	writer.Uint((unsigned int)magSettings.MultiMonitorUsage());
+	writer.Key("graphicsAdapter");
+	writer.Uint(magSettings.GraphicsAdapter());
 	writer.Key("3dGameMode");
 	writer.Bool(magSettings.Is3DGameMode());
 	writer.Key("showFPS");
@@ -158,6 +160,13 @@ bool LoadScalingConfig(const rapidjson::GenericObject<false, rapidjson::Value>& 
 	}
 	if (uintValue.has_value()) {
 		magSettings.MultiMonitorUsage((Magpie::Runtime::MultiMonitorUsage)uintValue.value());
+	}
+
+	if (!LoadUIntSettingItem(scalingConfigObj, "graphicsAdapter", uintValue)) {
+		return false;
+	}
+	if (uintValue.has_value()) {
+		magSettings.GraphicsAdapter(uintValue.value());
 	}
 
 	if (!LoadBoolSettingItem(scalingConfigObj, "3dGameMode", boolValue)) {

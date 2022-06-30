@@ -5,11 +5,34 @@
 #endif
 #include "Win32Utils.h"
 #include "ComboBoxHelper.h"
+#include <dxgi1_6.h>
 
 using namespace winrt;
 
 
 namespace winrt::Magpie::App::implementation {
+
+static std::vector<std::wstring> GetAllGraphicsAdapters() {
+	winrt::com_ptr<IDXGIFactory1> dxgiFactory;
+	HRESULT hr = CreateDXGIFactory1(IID_PPV_ARGS(&dxgiFactory));
+	if (FAILED(hr)) {
+		return {};
+	}
+
+	std::vector<std::wstring> result;
+
+	winrt::com_ptr<IDXGIAdapter1> adapter;
+	for (UINT adapterIndex = 0;
+		SUCCEEDED(dxgiFactory->EnumAdapters1(adapterIndex, adapter.put()));
+		++adapterIndex
+	) {
+		DXGI_ADAPTER_DESC1 desc;
+		hr = adapter->GetDesc1(&desc);
+		result.emplace_back(SUCCEEDED(hr) ? desc.Description : L"???");
+	}
+
+	return result;
+}
 
 ScalingConfigPage::ScalingConfigPage() {
 	InitializeComponent();
@@ -29,6 +52,21 @@ ScalingConfigPage::ScalingConfigPage() {
 		// 只有一个显示器时隐藏多显示器选项
 		MultiMonitorSettingItem().Visibility(Visibility::Collapsed);
 		Is3DGameModeSettingItem().Margin({ 0,0,0,-2 });
+	}
+
+	{
+		Controls::ItemCollection items = GraphicsAdapterComboBox().Items();
+		for (const std::wstring& adapter : GetAllGraphicsAdapters()) {
+			items.Append(box_value(adapter));
+		}
+
+		uint32_t adapter = _magSettings.GraphicsAdapter();
+		if (adapter > 0 && adapter >= items.Size()) {
+			_magSettings.GraphicsAdapter(0);
+			adapter = 0;
+		}
+
+		GraphicsAdapterComboBox().SelectedIndex(adapter);
 	}
 	
 	Is3DGameModeToggleSwitch().IsOn(_magSettings.Is3DGameMode());
@@ -59,6 +97,14 @@ void ScalingConfigPage::MultiMonitorUsageComboBox_SelectionChanged(IInspectable 
 	}
 
 	_magSettings.MultiMonitorUsage((Magpie::Runtime::MultiMonitorUsage)MultiMonitorUsageComboBox().SelectedIndex());
+}
+
+void ScalingConfigPage::GraphicsAdapterComboBox_SelectionChanged(IInspectable const&, Controls::SelectionChangedEventArgs const&) {
+	if (!_initialized) {
+		return;
+	}
+
+	_magSettings.GraphicsAdapter(GraphicsAdapterComboBox().SelectedIndex());
 }
 
 void ScalingConfigPage::Is3DGameModeToggleSwitch_Toggled(IInspectable const&, RoutedEventArgs const&) {

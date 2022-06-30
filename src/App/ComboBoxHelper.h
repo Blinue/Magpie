@@ -15,7 +15,10 @@ struct ComboBoxHelper {
 		// 修复下拉框位置不正确的问题
 		// https://github.com/microsoft/microsoft-ui-xaml/issues/4551
 		winrt::Controls::ComboBox comboBox = sender.as<winrt::Controls::ComboBox>();
-		comboBox.PlaceholderText(comboBox.SelectedItem().as<winrt::hstring>());
+		winrt::IInspectable selectedItem = comboBox.SelectedItem();
+		if (selectedItem) {
+			comboBox.PlaceholderText(selectedItem.as<winrt::hstring>());
+		}
 	}
 };
 

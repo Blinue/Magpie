@@ -1,37 +1,38 @@
 namespace Magpie.Runtime
 {
-    enum CaptureMode {
-        GraphicsCapture,
-        DesktopDuplication,
-        GDI,
-        DwmSharedSurface
-    };
+	enum CaptureMode {
+		GraphicsCapture,
+		DesktopDuplication,
+		GDI,
+		DwmSharedSurface
+	};
 
-    enum MultiMonitorUsage {
-        Nearest,
-        Intersected,
-        All
-    };
+	enum MultiMonitorUsage {
+		Nearest,
+		Intersected,
+		All
+	};
 
-    [default_interface]
-    runtimeclass MagSettings
-    {
-        MagSettings();
+	[default_interface]
+	runtimeclass MagSettings
+	{
+		MagSettings();
 
-        void CopyFrom(MagSettings other);
+		void CopyFrom(MagSettings other);
 
-        CaptureMode CaptureMode;
+		CaptureMode CaptureMode;
+		MultiMonitorUsage MultiMonitorUsage;
+		// 0 为默认，否则应减一得到枚举序号
+		UInt32 GraphicsAdapter;
 
-        MultiMonitorUsage MultiMonitorUsage;
-
-        Boolean IsBreakpointMode;
-        Boolean IsDisableEffectCache;
-        Boolean IsSaveEffectSources;
-        Boolean IsWarningsAreErrors;
-        Boolean IsSimulateExclusiveFullscreen;
-        Boolean Is3DGameMode;
-        Boolean IsShowFPS;
-        Boolean IsVSync;
-        Boolean IsTripleBuffering;
-    }
+		Boolean IsBreakpointMode;
+		Boolean IsDisableEffectCache;
+		Boolean IsSaveEffectSources;
+		Boolean IsWarningsAreErrors;
+		Boolean IsSimulateExclusiveFullscreen;
+		Boolean Is3DGameMode;
+		Boolean IsShowFPS;
+		Boolean IsVSync;
+		Boolean IsTripleBuffering;
+	}
 }

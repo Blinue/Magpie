@@ -15,6 +15,8 @@ struct ScalingConfigPage : ScalingConfigPageT<ScalingConfigPage> {
 
 	void MultiMonitorUsageComboBox_SelectionChanged(IInspectable const&, Controls::SelectionChangedEventArgs const&);
 
+	void GraphicsAdapterComboBox_SelectionChanged(IInspectable const&, Controls::SelectionChangedEventArgs const&);
+
 	void Is3DGameModeToggleSwitch_Toggled(IInspectable const&, RoutedEventArgs const&);
 
 	void ShowFPSToggleSwitch_Toggled(IInspectable const&, RoutedEventArgs const&);

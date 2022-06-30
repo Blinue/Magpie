@@ -10,11 +10,11 @@ static inline void LogAdapter(const DXGI_ADAPTER_DESC1& adapterDesc) {
 		adapterDesc.VendorId, adapterDesc.DeviceId, StrUtils::UTF16ToUTF8(adapterDesc.Description)));
 }
 
-static winrt::com_ptr<IDXGIAdapter4> ObtainGraphicsAdapter(IDXGIFactory4* dxgiFactory, int adapterIdx) {
+static winrt::com_ptr<IDXGIAdapter4> ObtainGraphicsAdapter(IDXGIFactory4* dxgiFactory, uint32_t adapterIdx) {
 	winrt::com_ptr<IDXGIAdapter1> adapter;
 
-	if (adapterIdx >= 0) {
-		HRESULT hr = dxgiFactory->EnumAdapters1(adapterIdx, adapter.put());
+	if (adapterIdx > 0) {
+		HRESULT hr = dxgiFactory->EnumAdapters1(adapterIdx - 1, adapter.put());
 		if (SUCCEEDED(hr)) {
 			DXGI_ADAPTER_DESC1 desc;
 			hr = adapter->GetDesc1(&desc);
@@ -118,9 +118,9 @@ bool DeviceResources::Initialize() {
 	};
 	UINT nFeatureLevels = ARRAYSIZE(featureLevels);
 
-	_graphicsAdapter = ObtainGraphicsAdapter(_dxgiFactory.get(), -1/*MagApp::Get().GetSettings().GetAdapterIdx()*/);
+	_graphicsAdapter = ObtainGraphicsAdapter(_dxgiFactory.get(), MagApp::Get().GetSettings().GraphicsAdapter());
 	if (!_graphicsAdapter) {
-		Logger::Get().Error("找不到可用 Adapter");
+		Logger::Get().Error("找不到可用的图形适配器");
 		return false;
 	}
 
