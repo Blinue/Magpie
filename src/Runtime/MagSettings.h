@@ -121,11 +121,20 @@ struct MagSettings : MagSettingsT<MagSettings> {
 		_isReserveTitleBar = value;
 	}
 
+	Cropping Cropping() noexcept {
+		return _cropping;
+	}
+
+	void Cropping(const Magpie::Runtime::Cropping& value) noexcept {
+		_cropping = value;
+	}
+
 private:
 	Magpie::Runtime::CaptureMode _captureMode = Magpie::Runtime::CaptureMode::GraphicsCapture;
 	Magpie::Runtime::MultiMonitorUsage _multiMonitorUsage = Magpie::Runtime::MultiMonitorUsage::Nearest;
 	uint32_t _graphicsAdapter = 0;
 	bool _isDisableWindowResizing = false;
+	Magpie::Runtime::Cropping _cropping{};
 
 	bool _isBreakpointMode = false;
 	bool _isDisableEffectCache = false;

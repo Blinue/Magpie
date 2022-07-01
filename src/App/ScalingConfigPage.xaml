@@ -114,14 +114,68 @@
 						<ToggleSwitch x:Name="ReserveTitleBarToggleSwitch" Toggled="ReserveTitleBarToggleSwitch_Toggled" />
 					</local:SettingItem.ActionContent>
 				</local:SettingItem>
-				<local:SettingItem Title="自定义裁剪">
-					<local:SettingItem.Icon>
-						<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE7A8;" />
-					</local:SettingItem.Icon>
-					<local:SettingItem.ActionContent>
-						<ToggleSwitch />
-					</local:SettingItem.ActionContent>
-				</local:SettingItem>
+				<muxc:Expander
+					HorizontalAlignment="Stretch"
+					HorizontalContentAlignment="Stretch"
+					Style="{StaticResource SettingExpanderStyle}">
+					<muxc:Expander.Header>
+						<local:SettingItem Title="自定义裁剪" Style="{StaticResource ExpanderHeaderSettingStyle}">
+							<local:SettingItem.Icon>
+								<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE7A8;" />
+							</local:SettingItem.Icon>
+							<local:SettingItem.ActionContent>
+								<ToggleSwitch />
+							</local:SettingItem.ActionContent>
+						</local:SettingItem>
+					</muxc:Expander.Header>
+					<muxc:Expander.Content>
+						<StackPanel Orientation="Vertical">
+							<StackPanel.Resources>
+								<Style TargetType="muxc:NumberBox">
+									<Setter Property="Width" Value="200" />
+									<Setter Property="SpinButtonPlacementMode" Value="Inline" />
+									<Setter Property="Value" Value="0" />
+									<Setter Property="Minimum" Value="0" />
+									<Setter Property="SmallChange" Value="1" />
+									<Setter Property="LargeChange" Value="10" />
+								</Style>
+							</StackPanel.Resources>
+
+							<local:SettingItem Title="左" Style="{StaticResource ExpanderContentSettingStyle}">
+								<local:SettingItem.Icon>
+									<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xF5A5;" />
+								</local:SettingItem.Icon>
+								<local:SettingItem.ActionContent>
+									<muxc:NumberBox />
+								</local:SettingItem.ActionContent>
+							</local:SettingItem>
+							<local:SettingItem Title="右" Style="{StaticResource ExpanderContentSettingStyle}">
+								<local:SettingItem.Icon>
+									<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xF5A6;" />
+								</local:SettingItem.Icon>
+								<local:SettingItem.ActionContent>
+									<muxc:NumberBox />
+								</local:SettingItem.ActionContent>
+							</local:SettingItem>
+							<local:SettingItem Title="上" Style="{StaticResource ExpanderContentSettingStyle}">
+								<local:SettingItem.Icon>
+									<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xF5A7;" />
+								</local:SettingItem.Icon>
+								<local:SettingItem.ActionContent>
+									<muxc:NumberBox />
+								</local:SettingItem.ActionContent>
+							</local:SettingItem>
+							<local:SettingItem Title="下" Style="{StaticResource ExpanderContentSettingStyle}">
+								<local:SettingItem.Icon>
+									<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xF5A8;" />
+								</local:SettingItem.Icon>
+								<local:SettingItem.ActionContent>
+									<muxc:NumberBox />
+								</local:SettingItem.ActionContent>
+							</local:SettingItem>
+						</StackPanel>
+					</muxc:Expander.Content>
+				</muxc:Expander>
 			</local:SettingsGroup>
 			<local:SettingsGroup Title="光标">
 				<local:SettingItem Title="缩放时调整光标速度">

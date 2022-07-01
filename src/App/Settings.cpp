@@ -96,6 +96,25 @@ bool LoadUIntSettingItem(
 	return true;
 }
 
+bool LoadFloatSettingItem(
+	const rapidjson::GenericObject<false, rapidjson::Value>& obj,
+	const char* nodeName,
+	std::optional<float>& result
+) {
+	auto node = obj.FindMember(nodeName);
+	if (node == obj.MemberEnd()) {
+		result = std::nullopt;
+		return true;
+	}
+
+	if (!node->value.IsDouble()) {
+		return false;
+	}
+
+	result = (float)node->value.GetDouble();
+	return true;
+}
+
 bool Settings::Initialize() {
 	Logger& logger = Logger::Get();
 
@@ -145,12 +164,32 @@ void WriteScalingConfig(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer
 	writer.Bool(magSettings.IsDisableWindowResizing());
 	writer.Key("reserveTitleBar");
 	writer.Bool(magSettings.IsReserveTitleBar());
+	writer.Key("cropping");
+	
+	{
+		Magpie::Runtime::Cropping cropping = magSettings.Cropping();
+
+		writer.StartObject();
+		
+		writer.Key("left");
+		writer.Double(cropping.Left);
+		writer.Key("top");
+		writer.Double(cropping.Top);
+		writer.Key("right");
+		writer.Double(cropping.Right);
+		writer.Key("bottom");
+		writer.Double(cropping.Bottom);
+
+		writer.EndObject();
+	}
+	
 	writer.EndObject();
 }
 
 bool LoadScalingConfig(const rapidjson::GenericObject<false, rapidjson::Value>& scalingConfigObj, Magpie::Runtime::MagSettings& magSettings) {
 	std::optional<unsigned int> uintValue;
 	std::optional<bool> boolValue;
+	std::optional<float> floatValue;
 
 	if (!LoadUIntSettingItem(scalingConfigObj, "captureMode", uintValue)) {
 		return false;
@@ -213,6 +252,40 @@ bool LoadScalingConfig(const rapidjson::GenericObject<false, rapidjson::Value>& 
 	}
 	if (boolValue.has_value()) {
 		magSettings.IsReserveTitleBar(boolValue.value());
+	}
+
+	{
+		auto croppingNode = scalingConfigObj.FindMember("cropping");
+		if (croppingNode != scalingConfigObj.MemberEnd()) {
+			if (!croppingNode->value.IsObject()) {
+				return false;
+			}
+
+			const auto& croppingObj = croppingNode->value.GetObj();
+
+			Magpie::Runtime::Cropping cropping{};
+
+			if (!LoadFloatSettingItem(croppingObj, "left", floatValue) || !floatValue.has_value()) {
+				return false;
+			}
+			cropping.Left = floatValue.value();
+			
+			if (!LoadFloatSettingItem(croppingObj, "top", floatValue) || !floatValue.has_value()) {
+				return false;
+			}
+			cropping.Top = floatValue.value();
+
+			if (!LoadFloatSettingItem(croppingObj, "right", floatValue) || !floatValue.has_value()) {
+				return false;
+			}
+			cropping.Right = floatValue.value();
+
+			if (!LoadFloatSettingItem(croppingObj, "bottom", floatValue) || !floatValue.has_value()) {
+				return false;
+			}
+			cropping.Bottom = floatValue.value();
+
+		}
 	}
 
 	return true;
