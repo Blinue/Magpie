@@ -142,35 +142,35 @@
 							</StackPanel.Resources>
 
 							<local:SettingItem Title="左" Style="{StaticResource ExpanderContentSettingStyle}">
-								<local:SettingItem.Icon>
-									<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xF5A5;" />
-								</local:SettingItem.Icon>
 								<local:SettingItem.ActionContent>
-									<muxc:NumberBox />
+									<StackPanel Orientation="Horizontal" Spacing="10">
+										<muxc:NumberBox />
+										<TextBlock Text="像素" VerticalAlignment="Center" />
+									</StackPanel>
 								</local:SettingItem.ActionContent>
 							</local:SettingItem>
 							<local:SettingItem Title="右" Style="{StaticResource ExpanderContentSettingStyle}">
-								<local:SettingItem.Icon>
-									<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xF5A6;" />
-								</local:SettingItem.Icon>
 								<local:SettingItem.ActionContent>
-									<muxc:NumberBox />
+									<StackPanel Orientation="Horizontal" Spacing="10">
+										<muxc:NumberBox />
+										<TextBlock Text="像素" VerticalAlignment="Center" />
+									</StackPanel>
 								</local:SettingItem.ActionContent>
 							</local:SettingItem>
 							<local:SettingItem Title="上" Style="{StaticResource ExpanderContentSettingStyle}">
-								<local:SettingItem.Icon>
-									<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xF5A7;" />
-								</local:SettingItem.Icon>
 								<local:SettingItem.ActionContent>
-									<muxc:NumberBox />
+									<StackPanel Orientation="Horizontal" Spacing="10">
+										<muxc:NumberBox />
+										<TextBlock Text="像素" VerticalAlignment="Center" />
+									</StackPanel>
 								</local:SettingItem.ActionContent>
 							</local:SettingItem>
 							<local:SettingItem Title="下" Style="{StaticResource ExpanderContentSettingStyle}">
-								<local:SettingItem.Icon>
-									<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xF5A8;" />
-								</local:SettingItem.Icon>
 								<local:SettingItem.ActionContent>
-									<muxc:NumberBox />
+									<StackPanel Orientation="Horizontal" Spacing="10">
+										<muxc:NumberBox />
+										<TextBlock Text="像素" VerticalAlignment="Center" />
+									</StackPanel>
 								</local:SettingItem.ActionContent>
 							</local:SettingItem>
 						</StackPanel>

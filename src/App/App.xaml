@@ -60,7 +60,7 @@
 				<Setter Property="BorderThickness" Value="0" />
 				<Setter Property="BorderBrush" Value="Transparent" />
 				<Setter Property="Padding" Value="0,16,0,16" />
-				<Setter Property="Margin" Value="0" />
+				<Setter Property="Margin" Value="0,0,3,0" />
 				<Setter Property="HorizontalAlignment" Value="Stretch" />
 			</Style>
 

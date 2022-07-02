@@ -365,12 +365,9 @@ LRESULT XamlApp::_WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		if (wParam == VK_TAB) {
 			// 处理焦点
 			if (_xamlSource) {
-				BYTE keyboardState[256] = {};
-				if (GetKeyboardState(keyboardState)) {
-					winrt::XamlSourceFocusNavigationReason reason = (keyboardState[VK_SHIFT] & 0x80) ?
-						winrt::XamlSourceFocusNavigationReason::Last : winrt::XamlSourceFocusNavigationReason::First;
-					_xamlSource.NavigateFocus(winrt::XamlSourceFocusNavigationRequest(reason));
-				}
+				winrt::XamlSourceFocusNavigationReason reason = (GetKeyState(VK_SHIFT) & 0x80) ?
+					winrt::XamlSourceFocusNavigationReason::Last : winrt::XamlSourceFocusNavigationReason::First;
+				_xamlSource.NavigateFocus(winrt::XamlSourceFocusNavigationRequest(reason));
 			}
 			return 0;
 		}
@@ -444,7 +441,6 @@ LRESULT XamlApp::_WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				_uwpApp.OnHostWndFocusChanged(false);
 				XamlUtils::CloseXamlPopups(_mainPage.XamlRoot());
 			}
-			_OnResize();
 			return 0;
 		}
 
