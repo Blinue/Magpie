@@ -1,5 +1,4 @@
 #include "LoggerHelper.idl"
-#include "DummyTemplate.idl"
 #include "HotkeySettings.idl"
 #include "Settings.idl"
 #include "MainPage.idl"

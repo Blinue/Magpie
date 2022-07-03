@@ -114,10 +114,6 @@
       <DependentUpon>ScalingConfigPage.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
-    <ClInclude Include="DummyTemplate.h">
-      <DependentUpon>DummyTemplate.idl</DependentUpon>
-      <SubType>Code</SubType>
-    </ClInclude>
     <ClInclude Include="HotkeyHelper.h" />
     <ClInclude Include="HotkeySettings.h">
       <DependentUpon>HotkeySettings.idl</DependentUpon>
@@ -203,10 +199,6 @@
     <ClCompile Include="MagService.cpp" />
     <ClCompile Include="ScalingConfigPage.cpp">
       <DependentUpon>ScalingConfigPage.xaml</DependentUpon>
-      <SubType>Code</SubType>
-    </ClCompile>
-    <ClCompile Include="DummyTemplate.cpp">
-      <DependentUpon>DummyTemplate.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
     <ClCompile Include="HotkeyHelper.cpp" />
@@ -315,9 +307,6 @@
       <DependentUpon>SettingItem.xaml</DependentUpon>
       <SubType>Code</SubType>
     </None>
-    <None Include="DummyTemplate.idl">
-      <SubType>Designer</SubType>
-    </None>
     <None Include="AboutPage.idl">
       <DependentUpon>AboutPage.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -355,9 +344,6 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="ScalingConfigPage.xaml">
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="DummyTemplate.xaml">
       <SubType>Designer</SubType>
     </Page>
     <Page Include="HomePage.xaml">

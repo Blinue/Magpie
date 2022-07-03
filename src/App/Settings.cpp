@@ -305,19 +305,29 @@ bool Settings::Save() {
 	writer.Key("theme");
 	writer.Int(_theme);
 
-	writer.Key("windowPos");
-	writer.StartObject();
-	writer.Key("x");
-	writer.Int((int)std::lroundf(_windowRect.X));
-	writer.Key("y");
-	writer.Int((int)std::lroundf(_windowRect.Y));
-	writer.Key("width");
-	writer.Int((int)std::lroundf(_windowRect.Width));
-	writer.Key("height");
-	writer.Int((int)std::lroundf(_windowRect.Height));
-	writer.Key("maximized");
-	writer.Bool(_isWindowMaximized);
-	writer.EndObject();
+	{
+		HWND hwndHost = (HWND)Application::Current().as<App>().HwndHost();
+
+		WINDOWPLACEMENT wp{};
+		wp.length = sizeof(wp);
+		if (GetWindowPlacement(hwndHost, &wp)) {
+			writer.Key("windowPos");
+			writer.StartObject();
+			writer.Key("x");
+			writer.Int((int)wp.rcNormalPosition.left);
+			writer.Key("y");
+			writer.Int((int)wp.rcNormalPosition.top);
+			writer.Key("width");
+			writer.Int(int(wp.rcNormalPosition.right - wp.rcNormalPosition.left));
+			writer.Key("height");
+			writer.Int(int(wp.rcNormalPosition.bottom - wp.rcNormalPosition.top));
+			writer.Key("maximized");
+			writer.Bool(wp.showCmd == SW_MAXIMIZE);
+			writer.EndObject();
+		} else {
+			Logger::Get().Win32Error("GetWindowPlacement 失败");
+		}
+	}
 
 	writer.Key("hotkeys");
 	writer.StartObject();

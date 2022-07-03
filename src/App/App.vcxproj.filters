@@ -83,9 +83,6 @@
     <None Include="MicaBrush.idl">
       <Filter>Brushes</Filter>
     </None>
-    <None Include="DummyTemplate.idl">
-      <Filter>Controls</Filter>
-    </None>
     <None Include="dummy.exe">
       <Filter>Miscellaneous</Filter>
     </None>
@@ -109,9 +106,6 @@
     </Page>
     <Page Include="AboutPage.xaml">
       <Filter>Pages</Filter>
-    </Page>
-    <Page Include="DummyTemplate.xaml">
-      <Filter>Controls</Filter>
     </Page>
     <Page Include="PageFrame.xaml">
       <Filter>Controls</Filter>

@@ -224,8 +224,6 @@ int XamlApp::Run() {
 		DispatchMessage(&msg);
 	}
 
-	_uwpApp.OnClose();
-
 	_xamlSourceNative2 = nullptr;
 	_xamlSource.Close();
 	_xamlSource = nullptr;
@@ -386,29 +384,6 @@ LRESULT XamlApp::_WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 		return 0;
 	}
-	case WM_WINDOWPOSCHANGED:
-	{
-		if (_xamlSource) {
-			WINDOWPLACEMENT wp{};
-			wp.length = sizeof(wp);
-			if (GetWindowPlacement(_hwndXamlHost, &wp)) {
-				_settings.IsWindowMaximized(wp.showCmd == SW_MAXIMIZE);
-
-				RECT windowRect;
-				if (GetWindowRect(_hwndXamlHost, &windowRect)) {
-					_settings.WindowRect(winrt::Rect{
-						(float)wp.rcNormalPosition.left,
-						(float)wp.rcNormalPosition.top,
-						float(wp.rcNormalPosition.right - wp.rcNormalPosition.left),
-						float(wp.rcNormalPosition.bottom - wp.rcNormalPosition.top)
-					});
-				}
-			}
-		}
-
-		// 交给 DefWindowProc 处理
-		break;
-	}
 	case WM_GETMINMAXINFO:
 	{
 		// 设置窗口最小尺寸
@@ -466,6 +441,11 @@ LRESULT XamlApp::_WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		}
 
 		return 0;
+	}
+	case WM_CLOSE:
+	{
+		_uwpApp.OnClose();
+		break;
 	}
 	case WM_DESTROY:
 		PostQuitMessage(0);
