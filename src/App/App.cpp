@@ -51,7 +51,7 @@ void App::OnClose() {
 	_settings.Save();
 }
 
-bool App::Initialize(uint64_t hwndHost) {
+bool App::Initialize(uint64_t hwndHost, uint64_t pWndRect, uint64_t pIsWndMaximized) {
 	_hwndHost = hwndHost;
 	
 	if (!_settings.Initialize()) {
@@ -59,15 +59,14 @@ bool App::Initialize(uint64_t hwndHost) {
 	}
 
 	const Rect& windowRect = _settings.WindowRect();
-	SetWindowPos(
-		(HWND)hwndHost,
-		NULL,
-		(int)std::lroundf(windowRect.X),
-		(int)std::lroundf(windowRect.Y),
-		(int)std::lroundf(windowRect.Width),
-		(int)std::lroundf(windowRect.Height),
-		SWP_NOACTIVATE | SWP_NOREDRAW | SWP_NOZORDER
-	);
+	*(RECT*)pWndRect = {
+		(LONG)std::lroundf(windowRect.X),
+		(LONG)std::lroundf(windowRect.Y),
+		(LONG)std::lroundf(windowRect.Width),
+		(LONG)std::lroundf(windowRect.Height)
+	};
+
+	*(bool*)pIsWndMaximized = _settings.IsWindowMaximized();
 
 	return true;
 }

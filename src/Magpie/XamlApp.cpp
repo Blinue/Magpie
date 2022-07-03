@@ -112,9 +112,12 @@ bool XamlApp::Initialize(HINSTANCE hInstance) {
 		SetWindowThemeAttribute(_hwndXamlHost, WTA_NONCLIENT, &option, sizeof(option));
 	}
 
-	// 初始化 UWP 应用和 XAML Islands
+	// 初始化 UWP 应用
 	_uwpApp = winrt::Magpie::App::App();
-	if (!_uwpApp.Initialize((uint64_t)_hwndXamlHost)) {
+
+	RECT wndRect{};
+	bool isWndMaximized = false;
+	if (!_uwpApp.Initialize((uint64_t)_hwndXamlHost, (uint64_t)&wndRect, (uint64_t)&isWndMaximized)) {
 		logger.Error("初始化失败");
 
 		// 销毁主窗口
@@ -127,6 +130,10 @@ bool XamlApp::Initialize(HINSTANCE hInstance) {
 		return false;
 	}
 
+	// right 为宽，bottom 为高
+	SetWindowPos(_hwndXamlHost, NULL, wndRect.left, wndRect.top, wndRect.right, wndRect.bottom,
+		SWP_NOACTIVATE | SWP_NOREDRAW | SWP_NOZORDER);
+
 	// 未显示窗口时视为位于前台，否则显示窗口的动画有小瑕疵
 	_uwpApp.OnHostWndFocusChanged(true);
 
@@ -135,6 +142,16 @@ bool XamlApp::Initialize(HINSTANCE hInstance) {
 		_UpdateTheme();
 	});
 	_UpdateTheme();
+
+	// MainPage 加载完成后显示主窗口
+	_mainPage.Loaded([this, isWndMaximized](winrt::IInspectable const&, winrt::RoutedEventArgs const&) -> winrt::IAsyncAction {
+		co_await _mainPage.Dispatcher().RunAsync(winrt::CoreDispatcherPriority::Normal, [hwndXamlHost(_hwndXamlHost), isWndMaximized]() {
+			// 防止窗口显示时背景闪烁
+			// https://stackoverflow.com/questions/69715610/how-to-initialize-the-background-color-of-win32-app-to-something-other-than-whit
+			SetWindowPos(hwndXamlHost, NULL, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+			ShowWindow(hwndXamlHost, isWndMaximized ? SW_SHOWMAXIMIZED : SW_SHOWNORMAL);
+		});
+	});
 	
 	// 初始化 XAML Islands
 	_xamlSource = winrt::DesktopWindowXamlSource();
@@ -206,7 +223,6 @@ void XamlApp::_OnResize() {
 	RECT clientRect;
 	GetClientRect(_hwndXamlHost, &clientRect);
 	SetWindowPos(_hwndXamlIsland, NULL, 0, 0, clientRect.right - clientRect.left, clientRect.bottom - clientRect.top, SWP_SHOWWINDOW | SWP_NOACTIVATE);
-	
 }
 
 void XamlApp::_UpdateTheme() {

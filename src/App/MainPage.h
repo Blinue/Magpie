@@ -13,7 +13,7 @@ namespace winrt::Magpie::App::implementation
 
 		~MainPage();
 
-		IAsyncAction Loaded(IInspectable const&, RoutedEventArgs const&);
+		void Loaded(IInspectable const&, RoutedEventArgs const&);
 
 		void NavigationView_SelectionChanged(MUXC::NavigationView const&, MUXC::NavigationViewSelectionChangedEventArgs const& args);
 

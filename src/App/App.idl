@@ -22,7 +22,7 @@ namespace Magpie.App {
 
 		void OnClose();
 
-		Boolean Initialize(UInt64 hwndHost);
+		Boolean Initialize(UInt64 hwndHost, UInt64 pWndRect, UInt64 pIsWndMaximized);
 
 		Settings Settings { get; };
 		Magpie.Runtime.MagRuntime MagRuntime{ get; };
