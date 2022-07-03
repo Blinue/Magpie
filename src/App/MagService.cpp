@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "MagService.h"
 #include "HotkeyService.h"
+#include "Win32Utils.h"
 
 
 namespace winrt::Magpie::App {
@@ -209,6 +210,10 @@ void MagService::_CheckForeground() {
 void MagService::_StartScale(uint64_t hWnd) {
 	if (hWnd == 0) {
 		hWnd = (uint64_t)GetForegroundWindow();
+	}
+
+	if (Win32Utils::GetWindowShowCmd((HWND)hWnd) != SW_NORMAL) {
+		return;
 	}
 
 	Magpie::Runtime::MagSettings magSettings;

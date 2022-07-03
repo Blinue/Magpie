@@ -15,7 +15,7 @@ public:
 
 	void OnClose();
 
-	bool Initialize(Magpie::App::Settings const& settings, uint64_t hwndHost);
+	bool Initialize(uint64_t hwndHost);
 
 	uint64_t HwndHost() const noexcept {
 		return _hwndHost;
@@ -46,7 +46,7 @@ public:
 	void OnHotkeyPressed(HotkeyAction action);
 
 private:
-	Magpie::App::Settings _settings{ nullptr };
+	Magpie::App::Settings _settings;
 	Magpie::Runtime::MagSettings _magSettings;
 	Magpie::Runtime::MagRuntime _magRuntime;
 	uint64_t _hwndHost{};

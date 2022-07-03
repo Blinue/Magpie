@@ -40,21 +40,29 @@ MainPage::~MainPage() {
 	}
 }
 
-void MainPage::Loaded(IInspectable const&, RoutedEventArgs const&) {
+IAsyncAction MainPage::Loaded(IInspectable const&, RoutedEventArgs const&) {
 	MUXC::NavigationView nv = __super::RootNavigationView();
-	
+
 	if (nv.DisplayMode() == MUXC::NavigationViewDisplayMode::Minimal) {
 		nv.IsPaneOpen(true);
-		nv.PaneDisplayMode(MUXC::NavigationViewPaneDisplayMode::Auto);
-		
-		// 消除焦点框
-		IsTabStop(true);
-		Focus(FocusState::Programmatic);
-		IsTabStop(false);
-	} else if (nv.DisplayMode() == MUXC::NavigationViewDisplayMode::Expanded) {
-		// 修复 WinUI 的汉堡菜单的尺寸 bug
-		nv.PaneDisplayMode(MUXC::NavigationViewPaneDisplayMode::Auto);
 	}
+
+	// 修复 WinUI 的汉堡菜单的尺寸 bug
+	nv.PaneDisplayMode(MUXC::NavigationViewPaneDisplayMode::Auto);
+
+	// 消除焦点框
+	IsTabStop(true);
+	Focus(FocusState::Programmatic);
+	IsTabStop(false);
+
+	co_await Dispatcher().RunAsync(CoreDispatcherPriority::Normal, [this]() {
+		// MainPage 加载完成后显示主窗口
+		HWND hwndHost = (HWND)Application::Current().as<App>().HwndHost();
+		// 防止窗口显示时背景闪烁
+		// https://stackoverflow.com/questions/69715610/how-to-initialize-the-background-color-of-win32-app-to-something-other-than-whit
+		SetWindowPos(hwndHost, NULL, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+		ShowWindow(hwndHost, _settings.IsWindowMaximized() ? SW_SHOWMAXIMIZED : SW_SHOWNORMAL);
+	});
 }
 
 void MainPage::NavigationView_SelectionChanged(

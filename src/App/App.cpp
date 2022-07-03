@@ -51,9 +51,23 @@ void App::OnClose() {
 	_settings.Save();
 }
 
-bool App::Initialize(Magpie::App::Settings const& settings, uint64_t hwndHost) {
+bool App::Initialize(uint64_t hwndHost) {
 	_hwndHost = hwndHost;
-	_settings = settings;
+	
+	if (!_settings.Initialize()) {
+		return false;
+	}
+
+	const Rect& windowRect = _settings.WindowRect();
+	SetWindowPos(
+		(HWND)hwndHost,
+		NULL,
+		(int)std::lroundf(windowRect.X),
+		(int)std::lroundf(windowRect.Y),
+		(int)std::lroundf(windowRect.Width),
+		(int)std::lroundf(windowRect.Height),
+		SWP_NOACTIVATE | SWP_NOREDRAW | SWP_NOZORDER
+	);
 
 	return true;
 }

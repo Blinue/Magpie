@@ -67,12 +67,6 @@ bool XamlApp::Initialize(HINSTANCE hInstance) {
 	winrt::Magpie::App::LoggerHelper::Initialize((uint64_t)&logger);
 	winrt::Magpie::Runtime::LoggerHelper::Initialize((uint64_t)&logger);
 
-	if (!_settings.Initialize()) {
-		logger.Error("加载配置文件失败");
-		MessageBox(NULL, L"加载配置文件失败", L"Magpie", MB_ICONERROR | MB_OK);
-		return false;
-	}
-
 	// 注册窗口类
 	{
 		WNDCLASSEXW wcex{};
@@ -92,13 +86,11 @@ bool XamlApp::Initialize(HINSTANCE hInstance) {
 		RegisterClassEx(&wcex);
 	}
 
-	const winrt::Rect& windowRect = _settings.WindowRect();
-
 	_hwndXamlHost = CreateWindow(
 		CommonSharedConstants::XAML_HOST_CLASS_NAME,
 		L"Magpie",
 		WS_OVERLAPPEDWINDOW,
-		(LONG)windowRect.X, (LONG)windowRect.Y, (LONG)windowRect.Width, (LONG)windowRect.Height,
+		CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
 		nullptr,
 		nullptr,
 		hInstance,
@@ -111,14 +103,6 @@ bool XamlApp::Initialize(HINSTANCE hInstance) {
 	}
 
 	bool isWin11 = Win32Utils::GetOSBuild() >= 22000;
-	if (!isWin11) {
-		// 此时 MainPage 尚未初始化
-		_UpdateTheme();
-	}
-
-	// 防止窗口显示时背景闪烁
-	// https://stackoverflow.com/questions/69715610/how-to-initialize-the-background-color-of-win32-app-to-something-other-than-whit
-	SetWindowPos(_hwndXamlHost, NULL, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
 
 	if (isWin11) {
 		// 标题栏不显示图标和标题，因为目前 DWM 存在 bug 无法在启用 Mica 时正确绘制标题
@@ -126,27 +110,12 @@ bool XamlApp::Initialize(HINSTANCE hInstance) {
 		option.dwFlags = WTNCA_NODRAWCAPTION | WTNCA_NODRAWICON | WTNCA_NOSYSMENU;
 		option.dwMask = WTNCA_VALIDBITS;
 		SetWindowThemeAttribute(_hwndXamlHost, WTA_NONCLIENT, &option, sizeof(option));
-	} else {
-		// Win10 中任务栏可能出现空的 DesktopWindowXamlSource 窗口
-		// 见 https://github.com/microsoft/microsoft-ui-xaml/issues/6490
-		// 如果不将 ShowWindow 提前，任务栏会短暂出现两个图标
-		ShowWindow(_hwndXamlHost, _settings.IsWindowMaximized() ? SW_MAXIMIZE : SW_SHOW);
 	}
 
 	// 初始化 UWP 应用和 XAML Islands
 	_uwpApp = winrt::Magpie::App::App();
-	if (!isWin11) {
-		// 隐藏 DesktopWindowXamlSource 窗口
-		winrt::CoreWindow coreWindow = winrt::CoreWindow::GetForCurrentThread();
-		if (coreWindow) {
-			HWND hwndDWXS;
-			coreWindow.as<ICoreWindowInterop>()->get_WindowHandle(&hwndDWXS);
-			ShowWindow(hwndDWXS, SW_HIDE);
-		}
-	}
-
-	if (!_uwpApp.Initialize(_settings, (uint64_t)_hwndXamlHost)) {
-		logger.Error("App 初始化失败");
+	if (!_uwpApp.Initialize((uint64_t)_hwndXamlHost)) {
+		logger.Error("初始化失败");
 
 		// 销毁主窗口
 		DestroyWindow(_hwndXamlHost);
@@ -165,15 +134,9 @@ bool XamlApp::Initialize(HINSTANCE hInstance) {
 	_mainPage.ActualThemeChanged([this](winrt::FrameworkElement const&, winrt::IInspectable const&) {
 		_UpdateTheme();
 	});
-	if (isWin11) {
-		// Win11 中在 MainPage 加载完成后再显示主窗口
-		_mainPage.Loaded([this](winrt::IInspectable const&, winrt::RoutedEventArgs const&) {
-			ShowWindow(_hwndXamlHost, _settings.IsWindowMaximized() ? SW_MAXIMIZE : SW_SHOW);
-			SetFocus(_hwndXamlHost);
-		});
-		_UpdateTheme();
-	}
-
+	_UpdateTheme();
+	
+	// 初始化 XAML Islands
 	_xamlSource = winrt::DesktopWindowXamlSource();
 	_xamlSourceNative2 = _xamlSource.as<IDesktopWindowXamlSourceNative2>();
 
@@ -181,6 +144,8 @@ bool XamlApp::Initialize(HINSTANCE hInstance) {
 	interop->AttachToWindow(_hwndXamlHost);
 	interop->get_WindowHandle(&_hwndXamlIsland);
 	_xamlSource.Content(_mainPage);
+
+	_OnResize();
 
 	// 焦点始终位于 _hwndXamlIsland 中
 	_xamlSource.TakeFocusRequested([](winrt::DesktopWindowXamlSource const& sender, winrt::DesktopWindowXamlSourceTakeFocusRequestedEventArgs const& args) {
@@ -201,9 +166,6 @@ bool XamlApp::Initialize(HINSTANCE hInstance) {
 		if (SetTimer(_hwndXamlHost, CHECK_FORGROUND_TIMER_ID, 250, nullptr) == 0) {
 			logger.Win32Error("SetTimer 失败");
 		}
-	} else {
-		// Win10 中因为 ShowWindow 提前，需要显式设置 XAML Islands 位置
-		_OnResize();
 	}
 
 	return true;
@@ -237,27 +199,19 @@ int XamlApp::Run() {
 }
 
 void XamlApp::_OnResize() {
+	if (!_hwndXamlHost || !_hwndXamlIsland) {
+		return;
+	}
+
 	RECT clientRect;
 	GetClientRect(_hwndXamlHost, &clientRect);
 	SetWindowPos(_hwndXamlIsland, NULL, 0, 0, clientRect.right - clientRect.left, clientRect.bottom - clientRect.top, SWP_SHOWWINDOW | SWP_NOACTIVATE);
+	
 }
 
 void XamlApp::_UpdateTheme() {
 	constexpr const DWORD DWMWA_USE_IMMERSIVE_DARK_MODE_BEFORE_20H1 = 19;
 	constexpr const DWORD DWMWA_MICA_EFFECT = 1029;
-
-	BOOL isDarkTheme;
-	if (_mainPage) {
-		isDarkTheme = _mainPage.ActualTheme() == winrt::ElementTheme::Dark;
-	} else {
-		int theme = _settings.Theme();
-
-		if (theme == 2) {
-			isDarkTheme = winrt::UISettings().GetColorValue(winrt::UIColorType::Background).R < 128;
-		} else {
-			isDarkTheme = theme == 1;
-		}
-	}
 
 	auto osBuild = Win32Utils::GetOSBuild();
 
@@ -267,13 +221,15 @@ void XamlApp::_UpdateTheme() {
 		DwmSetWindowAttribute(_hwndXamlHost, DWMWA_MICA_EFFECT, &mica, sizeof(mica));
 	}
 
+	BOOL isDarkTheme = _mainPage.ActualTheme() == winrt::ElementTheme::Dark;
+
 	// 使标题栏适应黑暗模式
 	// build 18985 之前 DWMWA_USE_IMMERSIVE_DARK_MODE 的值不同
 	// https://github.com/MicrosoftDocs/sdk-api/pull/966/files
 	DwmSetWindowAttribute(
 		_hwndXamlHost,
 		osBuild < 18985 ? DWMWA_USE_IMMERSIVE_DARK_MODE_BEFORE_20H1 : DWMWA_USE_IMMERSIVE_DARK_MODE,
-		& isDarkTheme,
+		&isDarkTheme,
 		sizeof(isDarkTheme)
 	);
 
@@ -346,6 +302,14 @@ void XamlApp::_RepositionXamlPopups() {
 
 LRESULT XamlApp::_WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
 	switch (message) {
+	case WM_SHOWWINDOW:
+	{
+		if (wParam == TRUE) {
+			SetFocus(_hwndXamlHost);
+		}
+
+		break;
+	}
 	case WM_HOTKEY:
 	{
 		using winrt::Magpie::App::HotkeyAction;
