@@ -5,6 +5,8 @@
 #include <unordered_map>
 
 
+namespace winrt::Magpie::App {
+
 std::string HotkeyHelper::ToString(winrt::Magpie::App::HotkeyAction action) {
 	using winrt::Magpie::App::HotkeyAction;
 
@@ -90,6 +92,8 @@ const std::unordered_set<DWORD>& HotkeyHelper::_GetValidKeyCodes() {
 	return result;
 }
 
+} // namespace winrt::Magpie::App
+
 namespace winrt {
 
 using Magpie::App::HotkeyAction;
@@ -109,4 +113,4 @@ hstring to_hstring(HotkeyAction action) {
 	return {};
 }
 
-}
+} // namespace winrt

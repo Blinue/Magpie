@@ -4,6 +4,8 @@
 #include <unordered_set>
 
 
+namespace winrt::Magpie::App {
+
 struct HotkeyHelper {
 	static std::string ToString(winrt::Magpie::App::HotkeyAction action);
 
@@ -16,6 +18,8 @@ struct HotkeyHelper {
 private:
 	static const std::unordered_set<DWORD>& _GetValidKeyCodes();
 };
+
+}
 
 namespace winrt {
 

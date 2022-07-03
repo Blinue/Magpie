@@ -152,6 +152,10 @@ void ScalingConfigPage::ReserveTitleBarToggleSwitch_Toggled(IInspectable const&,
 	_magSettings.IsReserveTitleBar(ReserveTitleBarToggleSwitch().IsOn());
 }
 
+void ScalingConfigPage::CroppingToggleSwitch_Toggled(IInspectable const&, RoutedEventArgs const&) {
+
+}
+
 void ScalingConfigPage::_UpdateVSync() {
 	bool isOn = VSyncToggleSwitch().IsOn();
 	_magSettings.IsVSync(isOn);

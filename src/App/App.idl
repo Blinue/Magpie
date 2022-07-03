@@ -10,7 +10,6 @@
 #include "HomePage.idl"
 #include "SettingsPage.idl"
 #include "KeyVisual.idl"
-#include "HotkeyManager.idl"
 #include "ShortcutControl.idl"
 #include "ShortcutDialogContent.idl"
 #include "MagService.idl"
@@ -28,7 +27,6 @@ namespace Magpie.App {
 		Boolean Initialize(Settings settings, UInt64 hwndHost);
 
 		Settings Settings { get; };
-		HotkeyManager HotkeyManager { get; };
 		Magpie.Runtime.MagRuntime MagRuntime{ get; };
 		MagService MagService { get; };
 
@@ -37,5 +35,7 @@ namespace Magpie.App {
 		Boolean IsHostWndFocused { get; };
 		event Windows.Foundation.EventHandler<Boolean> HostWndFocusChanged;
 		void OnHostWndFocusChanged(Boolean isFocused);
+
+		void OnHotkeyPressed(HotkeyAction action);
 	}
 }

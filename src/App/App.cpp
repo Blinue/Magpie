@@ -5,6 +5,7 @@
 #endif
 #include "Win32Utils.h"
 #include "Logger.h"
+#include "HotkeyService.h"
 
 
 using namespace winrt;
@@ -53,9 +54,8 @@ void App::OnClose() {
 bool App::Initialize(Magpie::App::Settings const& settings, uint64_t hwndHost) {
 	_hwndHost = hwndHost;
 	_settings = settings;
-	_hotkeyManager = Magpie::App::HotkeyManager(settings, hwndHost);
 
-	_magService = Magpie::App::MagService(settings, _magRuntime, _hotkeyManager);
+	_magService = Magpie::App::MagService(settings, _magRuntime);
 
 	return true;
 }
@@ -67,6 +67,10 @@ void App::OnHostWndFocusChanged(bool isFocused) {
 
 	_isHostWndFocused = isFocused;
 	_hostWndFocusChangedEvent(*this, isFocused);
+}
+
+void App::OnHotkeyPressed(HotkeyAction action) {
+	HotkeyService::Get().OnHotkeyPressed(action);
 }
 
 }

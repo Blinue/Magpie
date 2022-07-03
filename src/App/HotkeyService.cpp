@@ -1,26 +1,30 @@
 #include "pch.h"
-#include "HotkeyManager.h"
-#if __has_include("HotkeyManager.g.cpp")
-#include "HotkeyManager.g.cpp"
-#endif
+#include "HotkeyService.h"
 #include "Logger.h"
 #include "HotkeyHelper.h"
 
 
-namespace winrt::Magpie::App::implementation {
+namespace winrt::Magpie::App {
 
-HotkeyManager::HotkeyManager(Magpie::App::Settings settings, uint64_t hwndHost) {
-	_settings = settings;
-	_hwndHost = (HWND)hwndHost;
+HotkeyService::HotkeyService() {
+	App app = Application::Current().as<App>();
 
-	_hotkeyChangedRevoker = settings.HotkeyChanged(
-		auto_revoke, { this,&HotkeyManager::_Settings_OnHotkeyChanged });
+	_settings = app.Settings();
+	_hwndHost = (HWND)app.HwndHost();
+
+	_hotkeyChangedRevoker = _settings.HotkeyChanged(
+		auto_revoke, { this,&HotkeyService::_Settings_OnHotkeyChanged });
 
 	_RegisterHotkey(HotkeyAction::Scale);
 	_RegisterHotkey(HotkeyAction::Overlay);
 }
 
-HotkeyManager::~HotkeyManager() {
+void HotkeyService::OnHotkeyPressed(HotkeyAction action) {
+	Logger::Get().Info(fmt::format("热键 {} 激活", HotkeyHelper::ToString(action)));
+	_hotkeyPressedEvent(action);
+}
+
+HotkeyService::~HotkeyService() {
 	for (int i = 0; i < (int)HotkeyAction::COUNT_OR_NONE; ++i) {
 		if (!_errors[i]) {
 			UnregisterHotKey(_hwndHost, i);
@@ -28,28 +32,7 @@ HotkeyManager::~HotkeyManager() {
 	}
 }
 
-bool HotkeyManager::IsError(HotkeyAction action) {
-	return _errors[(size_t)action];
-}
-
-event_token HotkeyManager::HotkeyPressed(EventHandler<HotkeyAction> const& handler) {
-	return _hotkeyPressedEvent.add(handler);
-}
-
-void HotkeyManager::HotkeyPressed(event_token const& token) {
-	_hotkeyPressedEvent.remove(token);
-}
-
-void HotkeyManager::OnHotkeyPressed(HotkeyAction action) {
-	Logger::Get().Info(fmt::format("热键 {} 激活", HotkeyHelper::ToString(action)));
-	_hotkeyPressedEvent(*this, action);
-}
-
-void HotkeyManager::_Settings_OnHotkeyChanged(IInspectable const&, HotkeyAction action) {
-	_RegisterHotkey(action);
-}
-
-void HotkeyManager::_RegisterHotkey(HotkeyAction action) {
+void HotkeyService::_RegisterHotkey(HotkeyAction action) {
 	HotkeySettings hotkey = _settings.GetHotkey(action);
 	if (hotkey == nullptr || hotkey.IsEmpty() || hotkey.Check() != HotkeyError::NoError) {
 		Logger::Get().Win32Error(fmt::format("注册热键 {} 失败", HotkeyHelper::ToString(action)));
@@ -75,7 +58,7 @@ void HotkeyManager::_RegisterHotkey(HotkeyAction action) {
 	if (!_errors[(size_t)action]) {
 		UnregisterHotKey(_hwndHost, (int)action);
 	}
-	
+
 	if (!RegisterHotKey(_hwndHost, (int)action, modifiers, hotkey.Code())) {
 		Logger::Get().Win32Error(fmt::format("注册热键 {} 失败", HotkeyHelper::ToString(action)));
 		_errors[(size_t)action] = true;
@@ -85,3 +68,4 @@ void HotkeyManager::_RegisterHotkey(HotkeyAction action) {
 }
 
 }
+

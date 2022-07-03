@@ -3,7 +3,6 @@
 #include "App.g.h"
 #include "App.base.h"
 #include "Settings.h"
-#include "HotkeyManager.h"
 #include <winrt/Magpie.Runtime.h>
 
 
@@ -24,10 +23,6 @@ public:
 
 	Magpie::App::Settings Settings() const noexcept {
 		return _settings;
-	}
-
-	Magpie::App::HotkeyManager HotkeyManager() const noexcept {
-		return _hotkeyManager;
 	}
 
 	Magpie::Runtime::MagRuntime MagRuntime() const noexcept {
@@ -52,10 +47,11 @@ public:
 		return _isHostWndFocused;
 	}
 
+	void OnHotkeyPressed(HotkeyAction action);
+
 private:
 	Magpie::App::Settings _settings{ nullptr };
 	Magpie::Runtime::MagSettings _magSettings;
-	Magpie::App::HotkeyManager _hotkeyManager{ nullptr };
 	Magpie::Runtime::MagRuntime _magRuntime;
 	Magpie::App::MagService _magService{ nullptr };
 	uint64_t _hwndHost{};

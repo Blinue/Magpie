@@ -3,6 +3,7 @@
 #if __has_include("MagService.g.cpp")
 #include "MagService.g.cpp"
 #endif
+#include "HotkeyService.h"
 
 
 namespace winrt::Magpie::App::implementation {
@@ -11,8 +12,7 @@ MagService* MagService::_that = nullptr;
 
 MagService::MagService(
 	Magpie::App::Settings const& settings,
-	Magpie::Runtime::MagRuntime const& magRuntime,
-	Magpie::App::HotkeyManager const& hotkeyManager
+	Magpie::Runtime::MagRuntime const& magRuntime
 ) : _settings(settings), _magRuntime(magRuntime) {
 	_dispatcher = CoreWindow::GetForCurrentThread().Dispatcher();
 
@@ -27,9 +27,8 @@ MagService::MagService(
 		{ this, &MagService::_Settings_IsAutoRestoreChanged }
 	);
 
-	_hotkeyPressedRevoker = hotkeyManager.HotkeyPressed(
-		auto_revoke,
-		{ this, &MagService::_HotkeyManger_HotkeyPressed }
+	HotkeyService::Get().HotkeyPressed(
+		{ this, &MagService::_HotkeyService_HotkeyPressed }
 	);
 
 	_isRunningChangedRevoker = _magRuntime.IsRunningChanged(
@@ -39,8 +38,9 @@ MagService::MagService(
 
 	_UpdateIsAutoRestore();
 
-	_hwndHost = (HWND)Application::Current().as<App>().HwndHost();
+	_hwndHost = (HWND)Application::Current().as<Magpie::App::App>().HwndHost();
 }
+
 
 void MagService::StartCountdown() {
 	if (_tickingDownCount != 0) {
@@ -85,7 +85,7 @@ void MagService::ClearWndToRestore() {
 	_wndToRestoreChangedEvent(*this, _wndToRestore);
 }
 
-void MagService::_HotkeyManger_HotkeyPressed(IInspectable const&, HotkeyAction action) {
+void MagService::_HotkeyService_HotkeyPressed(HotkeyAction action) {
 	switch (action) {
 	case HotkeyAction::Scale:
 	{

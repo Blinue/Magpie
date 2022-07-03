@@ -1,10 +1,12 @@
-﻿#pragma once
+#pragma once
 
 #include "LoggerHelper.g.h"
 
 namespace winrt::Magpie::App::implementation {
 
 struct LoggerHelper : LoggerHelperT<LoggerHelper> {
+    LoggerHelper() = default;
+
     static void Initialize(uint64_t pLogger);
 };
 

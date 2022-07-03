@@ -3,6 +3,8 @@
 #include "XamlUtils.h"
 
 
+namespace winrt::Magpie::App {
+
 struct ComboBoxHelper {
 	// 用于修复 ComboBox 中存在的问题
 	// 因为官方毫无作为，我不得不使用这些 hack
@@ -22,3 +24,4 @@ struct ComboBoxHelper {
 	}
 };
 
+}

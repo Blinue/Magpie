@@ -16,7 +16,12 @@
     <ClCompile Include="$(GeneratedFilesDir)module.g.cpp">
       <Filter>Miscellaneous</Filter>
     </ClCompile>
-    <ClCompile Include="HotkeyHelper.cpp" />
+    <ClCompile Include="HotkeyService.cpp">
+      <Filter>Services</Filter>
+    </ClCompile>
+    <ClCompile Include="HotkeyHelper.cpp">
+      <Filter>Helpers</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -24,8 +29,15 @@
     <ClInclude Include="app.base.h">
       <Filter>Miscellaneous</Filter>
     </ClInclude>
-    <ClInclude Include="HotkeyHelper.h" />
-    <ClInclude Include="ComboBoxHelper.h" />
+    <ClInclude Include="HotkeyService.h">
+      <Filter>Services</Filter>
+    </ClInclude>
+    <ClInclude Include="ComboBoxHelper.h">
+      <Filter>Helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="HotkeyHelper.h">
+      <Filter>Helpers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Assets">
@@ -49,6 +61,12 @@
     <Filter Include="Converters">
       <UniqueIdentifier>{da249886-cfc3-4502-ac6b-a4a2b71807ce}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Services">
+      <UniqueIdentifier>{801d256c-217d-4b4c-a9a9-c40663b4dffe}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Helpers">
+      <UniqueIdentifier>{36c62660-b63e-423f-a335-8566a408f26b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -66,9 +84,10 @@
       <Filter>Controls</Filter>
     </None>
     <None Include="HotkeySettings.idl" />
-    <None Include="HotkeyManager.idl" />
-    <None Include="LoggerHelper.idl" />
     <None Include="MagService.idl" />
+    <None Include="LoggerHelper.idl">
+      <Filter>Helpers</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Page Include="MainPage.xaml" />

@@ -4,6 +4,8 @@
 #include "ShortcutControl.g.cpp"
 #endif
 #include "HotkeyHelper.h"
+#include "HotkeyService.h"
+
 
 using namespace winrt;
 using namespace Windows::UI::Xaml::Controls;
@@ -31,9 +33,8 @@ ShortcutControl* ShortcutControl::_that = nullptr;
 ShortcutControl::ShortcutControl() {
 	InitializeComponent();
 
-	App app = Application::Current().as<App>();
+	Magpie::App::App app = Application::Current().as<Magpie::App::App>();
 	_settings = app.Settings();
-	_hotkeyManager = app.HotkeyManager();
 
 	_hotkeyChangedRevoker = _settings.HotkeyChanged(
 		auto_revoke, { this,&ShortcutControl::_Settings_OnHotkeyChanged });
@@ -105,7 +106,7 @@ LRESULT ShortcutControl::_LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM 
 	}
 
 	// 只有位于前台时才监听按键
-	App app = Application::Current().as<App>();
+	Magpie::App::App app = Application::Current().as<Magpie::App::App>();
 	if (GetForegroundWindow() != (HWND)app.HwndHost()) {
 		return CallNextHookEx(NULL, nCode, wParam, lParam);
 	}
@@ -218,7 +219,7 @@ void ShortcutControl::_UpdateHotkey() {
 	if (hotkey) {
 		_hotkey.CopyFrom(hotkey);
 		// 此时 HotkeyManager 中的回调已执行
-		_IsError(_hotkeyManager.IsError(action));
+		_IsError(HotkeyService::Get().IsError(action));
 	} else {
 		_hotkey.Clear();
 		_IsError(false);

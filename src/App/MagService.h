@@ -8,8 +8,7 @@ namespace winrt::Magpie::App::implementation {
 struct MagService : MagServiceT<MagService> {
 	MagService(
 		Magpie::App::Settings const& settings,
-		Magpie::Runtime::MagRuntime const& magRuntime,
-		Magpie::App::HotkeyManager const& hotkeyManager
+		Magpie::Runtime::MagRuntime const& magRuntime
 	);
 
 	void StartCountdown();
@@ -57,7 +56,7 @@ struct MagService : MagServiceT<MagService> {
 	void ClearWndToRestore();
 
 private:
-	void _HotkeyManger_HotkeyPressed(IInspectable const&, HotkeyAction action);
+	void _HotkeyService_HotkeyPressed(HotkeyAction action);
 
 	void _Timer_Tick(IInspectable const&, IInspectable const&);
 
@@ -85,7 +84,6 @@ private:
 	Magpie::Runtime::MagRuntime _magRuntime{ nullptr };
 	CoreDispatcher _dispatcher{ nullptr };
 
-	Magpie::App::HotkeyManager::HotkeyPressed_revoker _hotkeyPressedRevoker;
 	Magpie::App::Settings::IsAutoRestoreChanged_revoker _isAutoRestoreChangedRevoker;
 	Magpie::Runtime::MagRuntime::IsRunningChanged_revoker _isRunningChangedRevoker;
 

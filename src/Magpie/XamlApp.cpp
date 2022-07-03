@@ -161,8 +161,6 @@ bool XamlApp::Initialize(HINSTANCE hInstance) {
 	// 未显示窗口时视为位于前台，否则显示窗口的动画有小瑕疵
 	_uwpApp.OnHostWndFocusChanged(true);
 
-	_hotkeyManager = _uwpApp.HotkeyManager();
-
 	_mainPage = winrt::Magpie::App::MainPage();
 	_mainPage.ActualThemeChanged([this](winrt::FrameworkElement const&, winrt::IInspectable const&) {
 		_UpdateTheme();
@@ -354,7 +352,7 @@ LRESULT XamlApp::_WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	{
 		using winrt::Magpie::App::HotkeyAction;
 		if (wParam >= 0 && wParam < (UINT)HotkeyAction::COUNT_OR_NONE) {
-			_hotkeyManager.OnHotkeyPressed((HotkeyAction)wParam);
+			_uwpApp.OnHotkeyPressed((HotkeyAction)wParam);
 			return 0;
 		}
 

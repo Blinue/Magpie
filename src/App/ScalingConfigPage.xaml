@@ -124,7 +124,7 @@
 								<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE7A8;" />
 							</local:SettingItem.Icon>
 							<local:SettingItem.ActionContent>
-								<ToggleSwitch />
+								<ToggleSwitch x:Name="CroppingToggleSwitch" Toggled="CroppingToggleSwitch_Toggled" />
 							</local:SettingItem.ActionContent>
 						</local:SettingItem>
 					</muxc:Expander.Header>

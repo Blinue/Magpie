@@ -29,6 +29,8 @@ struct ScalingConfigPage : ScalingConfigPageT<ScalingConfigPage> {
 
 	void ReserveTitleBarToggleSwitch_Toggled(IInspectable const&, RoutedEventArgs const&);
 
+	void CroppingToggleSwitch_Toggled(IInspectable const&, RoutedEventArgs const&);
+
 private:
 	void _UpdateVSync();
 

@@ -54,7 +54,6 @@ private:
 	Magpie::App::HotkeySettings _pressedKeys;
 
 	Magpie::App::Settings _settings{ nullptr };
-	Magpie::App::HotkeyManager _hotkeyManager{ nullptr };
 };
 
 }
