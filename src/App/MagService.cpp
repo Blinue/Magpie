@@ -1,19 +1,15 @@
 #include "pch.h"
 #include "MagService.h"
-#if __has_include("MagService.g.cpp")
-#include "MagService.g.cpp"
-#endif
 #include "HotkeyService.h"
 
 
-namespace winrt::Magpie::App::implementation {
+namespace winrt::Magpie::App {
 
-MagService* MagService::_that = nullptr;
+MagService::MagService() {
+	App app = Application::Current().as<App>();
+	_settings = app.Settings();
+	_magRuntime = app.MagRuntime();
 
-MagService::MagService(
-	Magpie::App::Settings const& settings,
-	Magpie::Runtime::MagRuntime const& magRuntime
-) : _settings(settings), _magRuntime(magRuntime) {
 	_dispatcher = CoreWindow::GetForCurrentThread().Dispatcher();
 
 	_timer.Interval(TimeSpan(std::chrono::milliseconds(25)));
@@ -22,25 +18,17 @@ MagService::MagService(
 		{ this, &MagService::_Timer_Tick }
 	);
 
-	_isAutoRestoreChangedRevoker = _settings.IsAutoRestoreChanged(
-		auto_revoke,
-		{ this, &MagService::_Settings_IsAutoRestoreChanged }
-	);
+	_settings.IsAutoRestoreChanged({ this, &MagService::_Settings_IsAutoRestoreChanged });
+	_magRuntime.IsRunningChanged({ this, &MagService::_MagRuntime_IsRunningChanged });
 
 	HotkeyService::Get().HotkeyPressed(
 		{ this, &MagService::_HotkeyService_HotkeyPressed }
-	);
-
-	_isRunningChangedRevoker = _magRuntime.IsRunningChanged(
-		auto_revoke,
-		{ this, &MagService::_MagRuntime_IsRunningChanged }
 	);
 
 	_UpdateIsAutoRestore();
 
 	_hwndHost = (HWND)Application::Current().as<Magpie::App::App>().HwndHost();
 }
-
 
 void MagService::StartCountdown() {
 	if (_tickingDownCount != 0) {
@@ -50,7 +38,7 @@ void MagService::StartCountdown() {
 	_tickingDownCount = _settings.DownCount();
 	_timerStartTimePoint = std::chrono::steady_clock::now();
 	_timer.Start();
-	_isCountingDownChangedEvent(*this, true);
+	_isCountingDownChangedEvent(true);
 }
 
 void MagService::StopCountdown() {
@@ -60,7 +48,7 @@ void MagService::StopCountdown() {
 
 	_tickingDownCount = 0;
 	_timer.Stop();
-	_isCountingDownChangedEvent(*this, false);
+	_isCountingDownChangedEvent(false);
 }
 
 float MagService::CountdownLeft() const noexcept {
@@ -82,7 +70,7 @@ void MagService::ClearWndToRestore() {
 	}
 
 	_wndToRestore = 0;
-	_wndToRestoreChangedEvent(*this, _wndToRestore);
+	_wndToRestoreChangedEvent(_wndToRestore);
 }
 
 void MagService::_HotkeyService_HotkeyPressed(HotkeyAction action) {
@@ -119,8 +107,8 @@ void MagService::_Timer_Tick(IInspectable const&, IInspectable const&) {
 		_StartScale();
 		return;
 	}
-	
-	_countdownTickEvent(*this, timeLeft);
+
+	_countdownTickEvent(timeLeft);
 }
 
 void MagService::_Settings_IsAutoRestoreChanged(IInspectable const&, bool) {
@@ -135,7 +123,7 @@ IAsyncAction MagService::_MagRuntime_IsRunningChanged(IInspectable const&, bool)
 			if (_settings.IsAutoRestore()) {
 				_curSrcWnd = (HWND)_magRuntime.HwndSrc();
 				_wndToRestore = 0;
-				_wndToRestoreChangedEvent(*this, _wndToRestore);
+				_wndToRestoreChangedEvent(_wndToRestore);
 			}
 		} else {
 			// 必须在主线程还原主窗口样式
@@ -151,7 +139,7 @@ IAsyncAction MagService::_MagRuntime_IsRunningChanged(IInspectable const&, bool)
 				// 退出全屏之后前台窗口不变则不必记忆
 				if (IsWindow(_curSrcWnd) && GetForegroundWindow() != _curSrcWnd) {
 					_wndToRestore = (uint64_t)_curSrcWnd;
-					_wndToRestoreChangedEvent(*this, _wndToRestore);
+					_wndToRestoreChangedEvent(_wndToRestore);
 				}
 
 				_curSrcWnd = NULL;
@@ -165,7 +153,6 @@ void MagService::_UpdateIsAutoRestore() {
 		// 立即生效，即使正处于缩放状态
 		_curSrcWnd = (HWND)_magRuntime.HwndSrc();
 
-		_that = this;
 		// 监听前台窗口更改
 		_hForegroundEventHook = SetWinEventHook(
 			EVENT_SYSTEM_FOREGROUND,
@@ -189,7 +176,7 @@ void MagService::_UpdateIsAutoRestore() {
 	} else {
 		_curSrcWnd = NULL;
 		_wndToRestore = 0;
-		_wndToRestoreChangedEvent(*this, _wndToRestore);
+		_wndToRestoreChangedEvent(_wndToRestore);
 		if (_hForegroundEventHook) {
 			UnhookWinEvent(_hForegroundEventHook);
 			_hForegroundEventHook = NULL;
@@ -208,7 +195,7 @@ void MagService::_CheckForeground() {
 
 	if (!IsWindow((HWND)_wndToRestore)) {
 		_wndToRestore = 0;
-		_wndToRestoreChangedEvent(*this, _wndToRestore);
+		_wndToRestoreChangedEvent(_wndToRestore);
 		return;
 	}
 
@@ -238,7 +225,7 @@ void MagService::_StartScale(uint64_t hWnd) {
 }
 
 void MagService::_WinEventProcCallback(HWINEVENTHOOK, DWORD, HWND, LONG, LONG, DWORD, DWORD) {
-	_that->_CheckForeground();
+	MagService::Get()._CheckForeground();
 }
 
 }

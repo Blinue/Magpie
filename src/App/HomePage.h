@@ -1,6 +1,7 @@
 #pragma once
 #include "HomePage.g.h"
 #include <winrt/Magpie.Runtime.h>
+#include "WinRTUtils.h"
 
 
 namespace winrt::Magpie::App::implementation {
@@ -21,11 +22,11 @@ struct HomePage : HomePageT<HomePage> {
 	void CountdownButton_Click(IInspectable const&, RoutedEventArgs const&);
 
 private:
-	void _MagService_IsCountingDownChanged(IInspectable const&, bool);
+	void _MagService_IsCountingDownChanged(bool);
 
-	void _MagService_CountdownTick(IInspectable const&, float value);
+	void _MagService_CountdownTick(float value);
 
-	void _MagService_WndToRestoreChanged(IInspectable const&, uint64_t);
+	void _MagService_WndToRestoreChanged(uint64_t);
 
 	IAsyncAction _MagRuntime_IsRunningChanged(IInspectable const&, bool value);
 
@@ -36,12 +37,11 @@ private:
 	bool _initialized = false;
 
 	Magpie::App::Settings _settings{ nullptr };
-	Magpie::App::MagService _magService{ nullptr };
 	Magpie::Runtime::MagRuntime _magRuntime{ nullptr };
 
-	Magpie::App::MagService::IsCountingDownChanged_revoker _isCountingDownRevoker;
-	Magpie::App::MagService::CountdownTick_revoker _countdownTickRevoker;
-	Magpie::App::MagService::WndToRestoreChanged_revoker _wndToRestoreChangedRevoker;
+	WinRTUtils::EventRevoker _isCountingDownRevoker;
+	WinRTUtils::EventRevoker _countdownTickRevoker;
+	WinRTUtils::EventRevoker _wndToRestoreChangedRevoker;
 	Magpie::Runtime::MagRuntime::IsRunningChanged_revoker _isRunningChangedRevoker;
 };
 

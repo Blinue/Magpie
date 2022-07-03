@@ -29,10 +29,6 @@ public:
 		return _magRuntime;
 	}
 
-	Magpie::App::MagService MagService() const noexcept {
-		return _magService;
-	}
-
 	event_token HostWndFocusChanged(EventHandler<bool> const& handler) {
 		return _hostWndFocusChangedEvent.add(handler);
 	}
@@ -53,7 +49,6 @@ private:
 	Magpie::App::Settings _settings{ nullptr };
 	Magpie::Runtime::MagSettings _magSettings;
 	Magpie::Runtime::MagRuntime _magRuntime;
-	Magpie::App::MagService _magService{ nullptr };
 	uint64_t _hwndHost{};
 
 	event<EventHandler<bool>> _hostWndFocusChangedEvent;

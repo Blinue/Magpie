@@ -22,6 +22,9 @@
     <ClCompile Include="HotkeyHelper.cpp">
       <Filter>Helpers</Filter>
     </ClCompile>
+    <ClCompile Include="MagService.cpp">
+      <Filter>Services</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -37,6 +40,9 @@
     </ClInclude>
     <ClInclude Include="HotkeyHelper.h">
       <Filter>Helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="MagService.h">
+      <Filter>Services</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -84,7 +90,6 @@
       <Filter>Controls</Filter>
     </None>
     <None Include="HotkeySettings.idl" />
-    <None Include="MagService.idl" />
     <None Include="LoggerHelper.idl">
       <Filter>Helpers</Filter>
     </None>

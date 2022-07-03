@@ -109,6 +109,7 @@
     </ClInclude>
     <ClInclude Include="ComboBoxHelper.h" />
     <ClInclude Include="HotkeyService.h" />
+    <ClInclude Include="MagService.h" />
     <ClInclude Include="ScalingConfigPage.h">
       <DependentUpon>ScalingConfigPage.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -128,10 +129,6 @@
     </ClInclude>
     <ClInclude Include="LoggerHelper.h">
       <DependentUpon>LoggerHelper.idl</DependentUpon>
-      <SubType>Code</SubType>
-    </ClInclude>
-    <ClInclude Include="MagService.h">
-      <DependentUpon>MagService.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
     <ClInclude Include="PageFrame.h">
@@ -203,6 +200,7 @@
       <SubType>Code</SubType>
     </ClCompile>
     <ClCompile Include="HotkeyService.cpp" />
+    <ClCompile Include="MagService.cpp" />
     <ClCompile Include="ScalingConfigPage.cpp">
       <DependentUpon>ScalingConfigPage.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -222,10 +220,6 @@
     </ClCompile>
     <ClCompile Include="LoggerHelper.cpp">
       <DependentUpon>LoggerHelper.idl</DependentUpon>
-      <SubType>Code</SubType>
-    </ClCompile>
-    <ClCompile Include="MagService.cpp">
-      <DependentUpon>MagService.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
     <ClCompile Include="PageFrame.cpp">
@@ -300,9 +294,6 @@
       <SubType>Designer</SubType>
     </None>
     <None Include="LoggerHelper.idl">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="MagService.idl">
       <SubType>Designer</SubType>
     </None>
     <Midl Include="BooleanToVisibilityConverter.idl">

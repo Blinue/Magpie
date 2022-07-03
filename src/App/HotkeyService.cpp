@@ -12,8 +12,7 @@ HotkeyService::HotkeyService() {
 	_settings = app.Settings();
 	_hwndHost = (HWND)app.HwndHost();
 
-	_hotkeyChangedRevoker = _settings.HotkeyChanged(
-		auto_revoke, { this,&HotkeyService::_Settings_OnHotkeyChanged });
+	_settings.HotkeyChanged({ this, &HotkeyService::_Settings_OnHotkeyChanged });
 
 	_RegisterHotkey(HotkeyAction::Scale);
 	_RegisterHotkey(HotkeyAction::Overlay);
@@ -68,4 +67,3 @@ void HotkeyService::_RegisterHotkey(HotkeyAction action) {
 }
 
 }
-

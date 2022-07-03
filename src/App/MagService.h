@@ -1,15 +1,17 @@
 #pragma once
-#include "MagService.g.h"
+#include <winrt/Magpie.App.h>
 #include <winrt/Magpie.Runtime.h>
+#include "WinRTUtils.h"
 
 
-namespace winrt::Magpie::App::implementation {
+namespace winrt::Magpie::App {
 
-struct MagService : MagServiceT<MagService> {
-	MagService(
-		Magpie::App::Settings const& settings,
-		Magpie::Runtime::MagRuntime const& magRuntime
-	);
+class MagService {
+public:
+	static MagService& Get() {
+		static MagService instance;
+		return instance;
+	}
 
 	void StartCountdown();
 
@@ -19,8 +21,15 @@ struct MagService : MagServiceT<MagService> {
 		return _tickingDownCount > 0;
 	}
 
-	event_token IsCountingDownChanged(EventHandler<bool> const& handler) {
+	event_token IsCountingDownChanged(delegate<bool> const& handler) {
 		return _isCountingDownChangedEvent.add(handler);
+	}
+
+	WinRTUtils::EventRevoker IsCountingDownChanged(auto_revoke_t, delegate<bool> const& handler) {
+		event_token token = IsCountingDownChanged(handler);
+		return WinRTUtils::EventRevoker([this, token]() {
+			IsCountingDownChanged(token);
+		});
 	}
 
 	void IsCountingDownChanged(event_token const& token) noexcept {
@@ -33,8 +42,15 @@ struct MagService : MagServiceT<MagService> {
 
 	float CountdownLeft() const noexcept;
 
-	event_token CountdownTick(EventHandler<float> const& handler) {
+	event_token CountdownTick(delegate<float> const& handler) {
 		return _countdownTickEvent.add(handler);
+	}
+
+	WinRTUtils::EventRevoker CountdownTick(auto_revoke_t, delegate<float> const& handler) {
+		event_token token = CountdownTick(handler);
+		return WinRTUtils::EventRevoker([this, token]() {
+			CountdownTick(token);
+		});
 	}
 
 	void CountdownTick(event_token const& token) noexcept {
@@ -45,8 +61,15 @@ struct MagService : MagServiceT<MagService> {
 		return _wndToRestore;
 	}
 
-	event_token WndToRestoreChanged(EventHandler<uint64_t> const& handler) {
+	event_token WndToRestoreChanged(delegate<uint64_t> const& handler) {
 		return _wndToRestoreChangedEvent.add(handler);
+	}
+
+	WinRTUtils::EventRevoker WndToRestoreChanged(auto_revoke_t, delegate<uint64_t> const& handler) {
+		event_token token = WndToRestoreChanged(handler);
+		return WinRTUtils::EventRevoker([this, token]() {
+			WndToRestoreChanged(token);
+		});
 	}
 
 	void WndToRestoreChanged(event_token const& token) noexcept {
@@ -56,6 +79,8 @@ struct MagService : MagServiceT<MagService> {
 	void ClearWndToRestore();
 
 private:
+	MagService();
+
 	void _HotkeyService_HotkeyPressed(HotkeyAction action);
 
 	void _Timer_Tick(IInspectable const&, IInspectable const&);
@@ -84,33 +109,23 @@ private:
 	Magpie::Runtime::MagRuntime _magRuntime{ nullptr };
 	CoreDispatcher _dispatcher{ nullptr };
 
-	Magpie::App::Settings::IsAutoRestoreChanged_revoker _isAutoRestoreChangedRevoker;
-	Magpie::Runtime::MagRuntime::IsRunningChanged_revoker _isRunningChangedRevoker;
-
 	DispatcherTimer _timer;
 	DispatcherTimer::Tick_revoker _timerTickRevoker;
 	std::chrono::steady_clock::time_point _timerStartTimePoint;
 
 	uint32_t _tickingDownCount = 0;
-	event<EventHandler<bool>> _isCountingDownChangedEvent;
-	event<EventHandler<float>> _countdownTickEvent;
+	event<delegate<bool>> _isCountingDownChangedEvent;
+	event<delegate<float>> _countdownTickEvent;
 
 	HWND _curSrcWnd = 0;
 	uint64_t _wndToRestore = 0;
-	event<EventHandler<uint64_t>> _wndToRestoreChangedEvent;
+	event<delegate<uint64_t>> _wndToRestoreChangedEvent;
 
 	HWND _hwndHost = 0;
 
 	HWINEVENTHOOK _hForegroundEventHook = NULL;
 	HWINEVENTHOOK _hDestoryEventHook = NULL;
-	static MagService* _that;
 };
 
 }
 
-namespace winrt::Magpie::App::factory_implementation {
-
-struct MagService : MagServiceT<MagService, implementation::MagService> {
-};
-
-}

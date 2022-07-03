@@ -55,8 +55,6 @@ bool App::Initialize(Magpie::App::Settings const& settings, uint64_t hwndHost) {
 	_hwndHost = hwndHost;
 	_settings = settings;
 
-	_magService = Magpie::App::MagService(settings, _magRuntime);
-
 	return true;
 }
 

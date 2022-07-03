@@ -20,7 +20,7 @@ namespace winrt::Magpie::App::implementation {
 MainPage::MainPage() {
 	InitializeComponent();
 
-	_settings = Application::Current().as<Magpie::App::App>().Settings();
+	_settings = Application::Current().as<App>().Settings();
 
 	_UpdateTheme();
 	_settings.ThemeChanged([this](const auto&, int) { _UpdateTheme(); });

@@ -12,7 +12,6 @@
 #include "KeyVisual.idl"
 #include "ShortcutControl.idl"
 #include "ShortcutDialogContent.idl"
-#include "MagService.idl"
 #include "ScalingModesPage.idl"
 #include "ScalingConfigPage.idl"
 
@@ -28,7 +27,6 @@ namespace Magpie.App {
 
 		Settings Settings { get; };
 		Magpie.Runtime.MagRuntime MagRuntime{ get; };
-		MagService MagService { get; };
 
 		UInt64 HwndHost { get; };
 

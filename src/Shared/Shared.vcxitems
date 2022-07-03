@@ -21,6 +21,7 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)StrUtils.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)Utils.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)Win32Utils.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)WinRTUtils.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)XamlUtils.h" />
   </ItemGroup>
   <ItemGroup>

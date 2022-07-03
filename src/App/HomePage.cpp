@@ -5,6 +5,8 @@
 #endif
 #include "StrUtils.h"
 #include "Win32Utils.h"
+#include "MagService.h"
+
 
 using namespace winrt;
 using namespace Windows::UI::Xaml::Controls::Primitives;
@@ -17,20 +19,21 @@ HomePage::HomePage() {
 
 	App app = Application::Current().as<App>();
 	_settings = app.Settings();
-	_magService = app.MagService();
 	_magRuntime = app.MagRuntime();
 
-	_isCountingDownRevoker = _magService.IsCountingDownChanged(
+	MagService& magService = MagService::Get();
+
+	_isCountingDownRevoker = magService.IsCountingDownChanged(
 		auto_revoke,
 		{ this, &HomePage::_MagService_IsCountingDownChanged }
 	);
 
-	_countdownTickRevoker = _magService.CountdownTick(
+	_countdownTickRevoker = magService.CountdownTick(
 		auto_revoke,
 		{ this, &HomePage::_MagService_CountdownTick }
 	);
 
-	_wndToRestoreChangedRevoker = _magService.WndToRestoreChanged(
+	_wndToRestoreChangedRevoker = magService.WndToRestoreChanged(
 		auto_revoke,
 		{ this, &HomePage::_MagService_WndToRestoreChanged}
 	);
@@ -81,34 +84,34 @@ void HomePage::CountdownSlider_ValueChanged(IInspectable const&, RangeBaseValueC
 }
 
 void HomePage::ActivateButton_Click(IInspectable const&, RoutedEventArgs const&) {
-	HWND wndToRestore = (HWND)_magService.WndToRestore();
+	HWND wndToRestore = (HWND)MagService::Get().WndToRestore();
 	if (wndToRestore) {
 		Win32Utils::SetForegroundWindow(wndToRestore);
 	}
 }
 
 void HomePage::ForgetButton_Click(IInspectable const&, RoutedEventArgs const&) {
-	_magService.ClearWndToRestore();
+	MagService::Get().ClearWndToRestore();
 }
 
 void HomePage::CountdownButton_Click(IInspectable const&, RoutedEventArgs const&) {
-	if (_magService.IsCountingDown()) {
-		_magService.StopCountdown();
+	if (MagService::Get().IsCountingDown()) {
+		MagService::Get().StopCountdown();
 	} else {
-		_magService.StartCountdown();
+		MagService::Get().StartCountdown();
 	}
 }
 
-void HomePage::_MagService_IsCountingDownChanged(IInspectable const&, bool) {
+void HomePage::_MagService_IsCountingDownChanged(bool) {
 	_UpdateDownCount();
 }
 
-void HomePage::_MagService_CountdownTick(IInspectable const&, float value) {
-	CountdownProgressRing().Value(value / _magService.TickingDownCount());
+void HomePage::_MagService_CountdownTick(float value) {
+	CountdownProgressRing().Value(value / MagService::Get().TickingDownCount());
 	CountdownTextBlock().Text(std::to_wstring((int)std::ceil(value)));
 }
 
-void HomePage::_MagService_WndToRestoreChanged(IInspectable const&, uint64_t) {
+void HomePage::_MagService_WndToRestoreChanged(uint64_t) {
 	_UpdateAutoRestoreState();
 }
 
@@ -121,7 +124,7 @@ IAsyncAction HomePage::_MagRuntime_IsRunningChanged(IInspectable const&, bool va
 void HomePage::_UpdateAutoRestoreState() {
 	const MUXC::Expander& autoRestoreExpander = AutoRestoreExpander();
 
-	HWND wndToRestore = (HWND)_magService.WndToRestore();
+	HWND wndToRestore = (HWND)MagService::Get().WndToRestore();
 	if (wndToRestore) {
 		AutoRestoreSettingItem().Visibility(Visibility::Collapsed);
 		autoRestoreExpander.Visibility(Visibility::Visible);
@@ -140,11 +143,11 @@ void HomePage::_UpdateAutoRestoreState() {
 }
 
 void HomePage::_UpdateDownCount() {
-	if (_magService.IsCountingDown()) {
+	if (MagService::Get().IsCountingDown()) {
 		CountdownVisual().Visibility(Visibility::Visible);
 		CountdownButton().Content(box_value(L"取消"));
 
-		_MagService_CountdownTick(nullptr, _magService.CountdownLeft());
+		_MagService_CountdownTick(MagService::Get().CountdownLeft());
 	} else {
 		CountdownVisual().Visibility(Visibility::Collapsed);
 		CountdownButton().Content(box_value(fmt::format(L"{} 秒后缩放", _settings.DownCount())));

@@ -1,5 +1,5 @@
 #pragma once
-#include "App.h"
+#include <winrt/Magpie.App.h>
 
 
 namespace winrt::Magpie::App {
@@ -35,8 +35,6 @@ private:
 	}
 
 	void _RegisterHotkey(HotkeyAction action);
-
-	Magpie::App::Settings::HotkeyChanged_revoker _hotkeyChangedRevoker;
 
 	std::array<bool, (size_t)HotkeyAction::COUNT_OR_NONE> _errors;
 

@@ -17,7 +17,7 @@ namespace winrt::Magpie::App::implementation {
 SettingsPage::SettingsPage() {
 	InitializeComponent();
 
-	_settings = Application::Current().as<Magpie::App::App>().Settings();
+	_settings = Application::Current().as<App>().Settings();
 	
 	ThemeComboBox().SelectedIndex(_settings.Theme());
 	PortableModeToggleSwitch().IsOn(_settings.IsPortableMode());

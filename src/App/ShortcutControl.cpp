@@ -33,7 +33,7 @@ ShortcutControl* ShortcutControl::_that = nullptr;
 ShortcutControl::ShortcutControl() {
 	InitializeComponent();
 
-	Magpie::App::App app = Application::Current().as<Magpie::App::App>();
+	App app = Application::Current().as<App>();
 	_settings = app.Settings();
 
 	_hotkeyChangedRevoker = _settings.HotkeyChanged(
@@ -106,7 +106,7 @@ LRESULT ShortcutControl::_LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM 
 	}
 
 	// 只有位于前台时才监听按键
-	Magpie::App::App app = Application::Current().as<Magpie::App::App>();
+	App app = Application::Current().as<App>();
 	if (GetForegroundWindow() != (HWND)app.HwndHost()) {
 		return CallNextHookEx(NULL, nCode, wParam, lParam);
 	}
