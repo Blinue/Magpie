@@ -73,6 +73,9 @@
     <Filter Include="Helpers">
       <UniqueIdentifier>{36c62660-b63e-423f-a335-8566a408f26b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Models">
+      <UniqueIdentifier>{8d78810f-671d-4793-9320-65078af2d7ec}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -89,9 +92,11 @@
     <None Include="KeyVisual.idl">
       <Filter>Controls</Filter>
     </None>
-    <None Include="HotkeySettings.idl" />
     <None Include="LoggerHelper.idl">
       <Filter>Helpers</Filter>
+    </None>
+    <None Include="HotkeySettings.idl">
+      <Filter>Models</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

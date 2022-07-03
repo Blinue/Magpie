@@ -1,8 +1,0 @@
-namespace Magpie.App
-{
-	[default_interface]
-	runtimeclass DummyTemplate : Windows.UI.Xaml.Controls.ContentControl
-	{
-		DummyTemplate();
-	}
-}
