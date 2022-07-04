@@ -62,17 +62,17 @@
 						</local:SettingItem>
 					</muxc:Expander.Content>
 				</muxc:Expander>
-				<local:SettingItem Margin="0,0,0,-2" x:Name="AutoRestoreSettingItem" Title="记忆缩放窗口" Description="当该窗口回到前台时将自动缩放">
+				<local:SettingItem Margin="0,0,0,-2" Visibility="{x:Bind ViewModel.IsNoWndToRestore, Mode=OneWay}" Title="记忆缩放窗口" Description="当该窗口回到前台时将自动缩放">
 					<local:SettingItem.Icon>
 						<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE944;"/>
 					</local:SettingItem.Icon>
 					<local:SettingItem.ActionContent>
-						<ToggleSwitch x:Name="AutoRestoreToggleSwitch" Toggled="AutoRestoreToggleSwitch_Toggled" />
+						<ToggleSwitch IsOn="{x:Bind ViewModel.IsAutoRestore, Mode=TwoWay}" />
 					</local:SettingItem.ActionContent>
 				</local:SettingItem>
 				<muxc:Expander
-					x:Name="AutoRestoreExpander"
-					IsExpanded="True"
+					Visibility="{x:Bind ViewModel.IsWndToRestore, Mode=OneWay}"
+					IsExpanded="{x:Bind ViewModel.IsWndToRestore, Mode=OneWay}"
 					Margin="0,-2,0,0"
 					HorizontalAlignment="Stretch"
 					HorizontalContentAlignment="Stretch"
@@ -85,7 +85,7 @@
 								<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE944;"/>
 							</local:SettingItem.Icon>
 							<local:SettingItem.ActionContent>
-								<ToggleSwitch x:Name="AutoRestoreExpanderToggleSwitch" IsOn="True" Toggled="AutoRestoreExpanderToggleSwitch_Toggled" />
+								<ToggleSwitch IsOn="{x:Bind ViewModel.IsAutoRestore, Mode=TwoWay}" />
 							</local:SettingItem.ActionContent>
 						</local:SettingItem>
 					</muxc:Expander.Header>
@@ -93,8 +93,8 @@
 						<local:SettingItem x:Name="AutoRestoreExpandedSettingItem" Style="{StaticResource ExpanderContentSettingStyle}">
 							<local:SettingItem.ActionContent>
 								<StackPanel Orientation="Horizontal" Spacing="5">
-									<Button Click="ActivateButton_Click" Content="激活" Style="{StaticResource AccentButtonStyle}" />
-									<Button Click="ForgetButton_Click" Content="忘记" />
+									<Button Click="{x:Bind ViewModel.ActivateRestore}" Content="激活" Style="{StaticResource AccentButtonStyle}" />
+									<Button Click="{x:Bind ViewModel.ClearRestore}" Content="忘记" />
 								</StackPanel>
 							</local:SettingItem.ActionContent>
 						</local:SettingItem>

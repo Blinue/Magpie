@@ -13,14 +13,6 @@ struct HomePage : HomePageT<HomePage> {
 		return _viewModel;
 	}
 
-	void AutoRestoreToggleSwitch_Toggled(IInspectable const&, RoutedEventArgs const&);
-
-	void AutoRestoreExpanderToggleSwitch_Toggled(IInspectable const&, RoutedEventArgs const&);
-
-	void ActivateButton_Click(IInspectable const&, RoutedEventArgs const&);
-
-	void ForgetButton_Click(IInspectable const&, RoutedEventArgs const&);
-
 private:
 	void _MagService_WndToRestoreChanged(uint64_t);
 

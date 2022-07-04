@@ -13,5 +13,12 @@ namespace Magpie.App
         UInt32 DownCount;
 
         void ToggleCountdown();
+
+        Boolean IsAutoRestore;
+        Boolean IsWndToRestore { get; };
+        Boolean IsNoWndToRestore{ get; };
+
+        void ActivateRestore();
+        void ClearRestore();
     }
 }
