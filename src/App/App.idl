@@ -36,8 +36,6 @@ namespace Magpie.App {
 
 		Boolean Initialize(UInt64 hwndHost, UInt64 pWndRect, UInt64 pIsWndMaximized);
 
-		Magpie.Runtime.MagRuntime MagRuntime{ get; };
-
 		UInt64 HwndHost { get; };
 
 		Boolean IsHostWndFocused { get; };

@@ -8,9 +8,6 @@
 namespace winrt::Magpie::App {
 
 MagService::MagService() {
-	App app = Application::Current().as<App>();
-	_magRuntime = app.MagRuntime();
-
 	_dispatcher = CoreWindow::GetForCurrentThread().Dispatcher();
 
 	_timer.Interval(TimeSpan(std::chrono::milliseconds(25)));

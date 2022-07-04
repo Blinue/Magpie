@@ -127,7 +127,7 @@ private:
 		DWORD /*dwmsEventTime*/
 	);
 
-	Magpie::Runtime::MagRuntime _magRuntime{ nullptr };
+	Magpie::Runtime::MagRuntime _magRuntime;
 	CoreDispatcher _dispatcher{ nullptr };
 
 	DispatcherTimer _timer;

@@ -2,7 +2,6 @@
 
 #include "App.g.h"
 #include "App.base.h"
-#include <winrt/Magpie.Runtime.h>
 
 
 namespace winrt::Magpie::App::implementation {
@@ -18,10 +17,6 @@ public:
 
 	uint64_t HwndHost() const noexcept {
 		return _hwndHost;
-	}
-
-	Magpie::Runtime::MagRuntime MagRuntime() const noexcept {
-		return _magRuntime;
 	}
 
 	event_token HostWndFocusChanged(EventHandler<bool> const& handler) {
@@ -41,8 +36,6 @@ public:
 	void OnHotkeyPressed(HotkeyAction action);
 
 private:
-	Magpie::Runtime::MagSettings _magSettings;
-	Magpie::Runtime::MagRuntime _magRuntime;
 	uint64_t _hwndHost{};
 
 	event<EventHandler<bool>> _hostWndFocusChangedEvent;
