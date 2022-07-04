@@ -29,6 +29,12 @@
     <ClCompile Include="HotkeySettings.cpp">
       <Filter>Models</Filter>
     </ClCompile>
+    <ClCompile Include="ScalingRule.cpp">
+      <Filter>Models</Filter>
+    </ClCompile>
+    <ClCompile Include="ScalingRuleService.cpp">
+      <Filter>Services</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -51,6 +57,12 @@
     <ClInclude Include="AppSettings.h" />
     <ClInclude Include="HotkeySettings.h">
       <Filter>Models</Filter>
+    </ClInclude>
+    <ClInclude Include="ScalingRule.h">
+      <Filter>Models</Filter>
+    </ClInclude>
+    <ClInclude Include="ScalingRuleService.h">
+      <Filter>Services</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

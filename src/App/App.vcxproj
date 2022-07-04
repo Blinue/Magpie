@@ -116,6 +116,7 @@
     <ClInclude Include="HotkeyService.h" />
     <ClInclude Include="HotkeySettings.h" />
     <ClInclude Include="MagService.h" />
+    <ClInclude Include="ScalingRule.h" />
     <ClInclude Include="ScalingRulePage.h">
       <DependentUpon>ScalingRulePage.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -137,6 +138,7 @@
       <DependentUpon>ScalingModesPage.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
+    <ClInclude Include="ScalingRuleService.h" />
     <ClInclude Include="ScalingRuleViewModel.h">
       <DependentUpon>ScalingRuleViewModel.idl</DependentUpon>
       <SubType>Code</SubType>
@@ -209,6 +211,7 @@
     <ClCompile Include="HotkeyService.cpp" />
     <ClCompile Include="HotkeySettings.cpp" />
     <ClCompile Include="MagService.cpp" />
+    <ClCompile Include="ScalingRule.cpp" />
     <ClCompile Include="ScalingRulePage.cpp">
       <DependentUpon>ScalingRulePage.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -230,6 +233,7 @@
       <DependentUpon>ScalingModesPage.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
+    <ClCompile Include="ScalingRuleService.cpp" />
     <ClCompile Include="ScalingRuleViewModel.cpp">
       <DependentUpon>ScalingRuleViewModel.idl</DependentUpon>
       <SubType>Code</SubType>

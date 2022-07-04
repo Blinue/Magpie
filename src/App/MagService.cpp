@@ -3,6 +3,7 @@
 #include "HotkeyService.h"
 #include "Win32Utils.h"
 #include "AppSettings.h"
+#include "ScalingRuleService.h"
 
 
 namespace winrt::Magpie::App {
@@ -215,12 +216,12 @@ void MagService::_StartScale(uint64_t hWnd) {
 	if (Win32Utils::GetWindowShowCmd((HWND)hWnd) != SW_NORMAL) {
 		return;
 	}
-
-	AppSettings& settings = AppSettings::Get();
+	
 	Magpie::Runtime::MagSettings magSettings;
-	magSettings.CopyFrom(settings.GetMagSettings(_wndToRestore));
+	magSettings.CopyFrom(ScalingRuleService::Get().GetRuleForWindow((HWND)_wndToRestore).MagSettings());
 
 	// 应用全局配置
+	AppSettings& settings = AppSettings::Get();
 	magSettings.IsBreakpointMode(settings.IsBreakpointMode());
 	magSettings.IsDisableEffectCache(settings.IsDisableEffectCache());
 	magSettings.IsSaveEffectSources(settings.IsSaveEffectSources());

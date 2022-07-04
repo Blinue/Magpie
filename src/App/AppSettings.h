@@ -3,6 +3,7 @@
 #include <winrt/Magpie.Runtime.h>
 #include "WinRTUtils.h"
 #include "HotkeySettings.h"
+#include "ScalingRule.h"
 
 
 namespace winrt::Magpie::App {
@@ -167,7 +168,13 @@ public:
 		_isSimulateExclusiveFullscreen = value;
 	}
 
-	Magpie::Runtime::MagSettings GetMagSettings(uint64_t hWnd);
+	ScalingRule& DefaultScalingRule() noexcept {
+		return _defaultScalingRule;
+	}
+
+	std::vector<ScalingRule>& ScalingRules() noexcept {
+		return _scalingRules;
+	}
 
 private:
 	AppSettings() = default;
@@ -206,7 +213,8 @@ private:
 
 	bool _isSimulateExclusiveFullscreen = false;
 
-	Magpie::Runtime::MagSettings _defaultMagSettings;
+	ScalingRule _defaultScalingRule;
+	std::vector<ScalingRule> _scalingRules;
 };
 
 }

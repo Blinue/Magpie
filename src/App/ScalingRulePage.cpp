@@ -6,9 +6,8 @@
 #include "Win32Utils.h"
 #include "ComboBoxHelper.h"
 #include "AppSettings.h"
+#include "ScalingRuleService.h"
 #include <dxgi1_6.h>
-
-using namespace winrt;
 
 
 namespace winrt::Magpie::App::implementation {
@@ -45,7 +44,7 @@ ScalingRulePage::ScalingRulePage() {
 	InitializeComponent();
 
 	App app = Application::Current().as<App>();
-	_magSettings = AppSettings::Get().GetMagSettings(0);
+	_magSettings = AppSettings::Get().DefaultScalingRule().MagSettings();
 
 	if (Win32Utils::GetOSBuild() < 22000) {
 		// Segoe MDL2 Assets 不存在 Move 图标

@@ -1,0 +1,52 @@
+#pragma once
+#include "pch.h"
+#include <winrt/Magpie.Runtime.h>
+
+
+namespace winrt::Magpie::App {
+
+// 默认规则 Name、PathRule、ClassNameRule 均为空
+class ScalingRule {
+public:
+	const std::wstring& Name() const noexcept{
+		return _name;
+	}
+
+	void Name(std::wstring_view value) noexcept {
+		_name = value;
+	}
+
+	const std::wstring& PathRule() const noexcept {
+		return _pathRule;
+	}
+
+	void PathRule(std::wstring_view value) noexcept {
+		_pathRule = value;
+	}
+
+	const std::wstring& ClassNameRule() const noexcept {
+		return _classNameRule;
+	}
+
+	void ClassNameRule(std::wstring_view value) noexcept {
+		_classNameRule = value;
+	}
+
+	Magpie::Runtime::MagSettings MagSettings() const noexcept {
+		return _magSettings;
+	}
+
+	bool IsMatch(HWND /*hWnd*/) const {
+		return false;
+	}
+
+private:
+	std::wstring _name;
+
+	std::wstring _pathRule;
+	std::wstring _classNameRule;
+
+	Magpie::Runtime::MagSettings _magSettings;
+};
+
+}
