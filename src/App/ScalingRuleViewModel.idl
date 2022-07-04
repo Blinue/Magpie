@@ -1,0 +1,8 @@
+namespace Magpie.App
+{
+	[default_interface]
+	runtimeclass ScalingRuleViewModel : Windows.UI.Xaml.Data.INotifyPropertyChanged
+	{
+		ScalingRuleViewModel();
+	}
+}

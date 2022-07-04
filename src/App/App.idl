@@ -5,6 +5,7 @@
 #include "MicaBrush.idl"
 #include "HomeViewModel.idl"
 #include "SettingsViewModel.idl"
+#include "ScalingRuleViewModel.idl"
 #include "AboutPage.idl"
 #include "HomePage.idl"
 #include "SettingsPage.idl"
@@ -12,7 +13,7 @@
 #include "ShortcutControl.idl"
 #include "ShortcutDialogContent.idl"
 #include "ScalingModesPage.idl"
-#include "ScalingConfigPage.idl"
+#include "ScalingRulePage.idl"
 
 
 namespace Magpie.App {

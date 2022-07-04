@@ -1,0 +1,10 @@
+namespace Magpie.App
+{
+	[default_interface]
+	runtimeclass ScalingRulePage : Windows.UI.Xaml.Controls.Page
+	{
+		ScalingRulePage();
+
+		ScalingRuleViewModel ViewModel { get; };
+	}
+}

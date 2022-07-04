@@ -108,6 +108,9 @@
     <None Include="HomeViewModel.idl">
       <Filter>ViewModels</Filter>
     </None>
+    <None Include="ScalingRuleViewModel.idl">
+      <Filter>ViewModels</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Page Include="MainPage.xaml" />
@@ -144,7 +147,7 @@
     <Page Include="ScalingModesPage.xaml">
       <Filter>Pages</Filter>
     </Page>
-    <Page Include="ScalingConfigPage.xaml">
+    <Page Include="ScalingRulePage.xaml">
       <Filter>Pages</Filter>
     </Page>
   </ItemGroup>

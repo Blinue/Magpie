@@ -1,7 +1,7 @@
 #include "pch.h"
-#include "ScalingConfigPage.h"
-#if __has_include("ScalingConfigPage.g.cpp")
-#include "ScalingConfigPage.g.cpp"
+#include "ScalingRulePage.h"
+#if __has_include("ScalingRulePage.g.cpp")
+#include "ScalingRulePage.g.cpp"
 #endif
 #include "Win32Utils.h"
 #include "ComboBoxHelper.h"
@@ -41,7 +41,7 @@ static std::vector<std::wstring> GetAllGraphicsAdapters() {
 	return result;
 }
 
-ScalingConfigPage::ScalingConfigPage() {
+ScalingRulePage::ScalingRulePage() {
 	InitializeComponent();
 
 	App app = Application::Current().as<App>();
@@ -95,11 +95,11 @@ ScalingConfigPage::ScalingConfigPage() {
 	ReserveTitleBarToggleSwitch().IsOn(_magSettings.IsReserveTitleBar());
 }
 
-void ScalingConfigPage::ComboBox_DropDownOpened(IInspectable const& sender, IInspectable const&) {
+void ScalingRulePage::ComboBox_DropDownOpened(IInspectable const& sender, IInspectable const&) {
 	ComboBoxHelper::DropDownOpened(*this, sender);
 }
 
-void ScalingConfigPage::CaptureModeComboBox_SelectionChanged(IInspectable const&, Controls::SelectionChangedEventArgs const&) {
+void ScalingRulePage::CaptureModeComboBox_SelectionChanged(IInspectable const&, Controls::SelectionChangedEventArgs const&) {
 	if (!IsLoaded()) {
 		return;
 	}
@@ -107,7 +107,7 @@ void ScalingConfigPage::CaptureModeComboBox_SelectionChanged(IInspectable const&
 	_magSettings.CaptureMode((Magpie::Runtime::CaptureMode)CaptureModeComboBox().SelectedIndex());
 }
 
-void ScalingConfigPage::MultiMonitorUsageComboBox_SelectionChanged(IInspectable const&, Controls::SelectionChangedEventArgs const&) {
+void ScalingRulePage::MultiMonitorUsageComboBox_SelectionChanged(IInspectable const&, Controls::SelectionChangedEventArgs const&) {
 	if (!IsLoaded()) {
 		return;
 	}
@@ -115,7 +115,7 @@ void ScalingConfigPage::MultiMonitorUsageComboBox_SelectionChanged(IInspectable 
 	_magSettings.MultiMonitorUsage((Magpie::Runtime::MultiMonitorUsage)MultiMonitorUsageComboBox().SelectedIndex());
 }
 
-void ScalingConfigPage::GraphicsAdapterComboBox_SelectionChanged(IInspectable const&, Controls::SelectionChangedEventArgs const&) {
+void ScalingRulePage::GraphicsAdapterComboBox_SelectionChanged(IInspectable const&, Controls::SelectionChangedEventArgs const&) {
 	if (!IsLoaded()) {
 		return;
 	}
@@ -123,15 +123,15 @@ void ScalingConfigPage::GraphicsAdapterComboBox_SelectionChanged(IInspectable co
 	_magSettings.GraphicsAdapter(GraphicsAdapterComboBox().SelectedIndex());
 }
 
-void ScalingConfigPage::Is3DGameModeToggleSwitch_Toggled(IInspectable const&, RoutedEventArgs const&) {
+void ScalingRulePage::Is3DGameModeToggleSwitch_Toggled(IInspectable const&, RoutedEventArgs const&) {
 	_magSettings.Is3DGameMode(Is3DGameModeToggleSwitch().IsOn());
 }
 
-void ScalingConfigPage::ShowFPSToggleSwitch_Toggled(IInspectable const&, RoutedEventArgs const&) {
+void ScalingRulePage::ShowFPSToggleSwitch_Toggled(IInspectable const&, RoutedEventArgs const&) {
 	_magSettings.IsShowFPS(ShowFPSToggleSwitch().IsOn());
 }
 
-void ScalingConfigPage::VSyncToggleSwitch_Toggled(IInspectable const&, RoutedEventArgs const&) {
+void ScalingRulePage::VSyncToggleSwitch_Toggled(IInspectable const&, RoutedEventArgs const&) {
 	if (!IsLoaded()) {
 		return;
 	}
@@ -139,23 +139,23 @@ void ScalingConfigPage::VSyncToggleSwitch_Toggled(IInspectable const&, RoutedEve
 	_UpdateVSync();
 }
 
-void ScalingConfigPage::TripleBufferingToggleSwitch_Toggled(IInspectable const&, RoutedEventArgs const&) {
+void ScalingRulePage::TripleBufferingToggleSwitch_Toggled(IInspectable const&, RoutedEventArgs const&) {
 	_magSettings.IsTripleBuffering(TripleBufferingToggleSwitch().IsOn());
 }
 
-void ScalingConfigPage::DisableWindowResizingToggleSwitch_Toggled(IInspectable const&, RoutedEventArgs const&) {
+void ScalingRulePage::DisableWindowResizingToggleSwitch_Toggled(IInspectable const&, RoutedEventArgs const&) {
 	_magSettings.IsDisableWindowResizing(DisableWindowResizingToggleSwitch().IsOn());
 }
 
-void ScalingConfigPage::ReserveTitleBarToggleSwitch_Toggled(IInspectable const&, RoutedEventArgs const&) {
+void ScalingRulePage::ReserveTitleBarToggleSwitch_Toggled(IInspectable const&, RoutedEventArgs const&) {
 	_magSettings.IsReserveTitleBar(ReserveTitleBarToggleSwitch().IsOn());
 }
 
-void ScalingConfigPage::CroppingToggleSwitch_Toggled(IInspectable const&, RoutedEventArgs const&) {
+void ScalingRulePage::CroppingToggleSwitch_Toggled(IInspectable const&, RoutedEventArgs const&) {
 
 }
 
-void ScalingConfigPage::_UpdateVSync() {
+void ScalingRulePage::_UpdateVSync() {
 	bool isOn = VSyncToggleSwitch().IsOn();
 	_magSettings.IsVSync(isOn);
 	TripleBufferingSettingItem().IsEnabled(isOn);

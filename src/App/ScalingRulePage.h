@@ -1,13 +1,17 @@
 #pragma once
 
-#include "ScalingConfigPage.g.h"
+#include "ScalingRulePage.g.h"
 #include <winrt/Magpie.Runtime.h>
 
 
 namespace winrt::Magpie::App::implementation {
 
-struct ScalingConfigPage : ScalingConfigPageT<ScalingConfigPage> {
-	ScalingConfigPage();
+struct ScalingRulePage : ScalingRulePageT<ScalingRulePage> {
+	ScalingRulePage();
+
+	Magpie::App::ScalingRuleViewModel ViewModel() const noexcept {
+		return _viewModel;
+	}
 
 	void ComboBox_DropDownOpened(IInspectable const& sender, IInspectable const&);
 
@@ -35,13 +39,14 @@ private:
 	void _UpdateVSync();
 
 	Magpie::Runtime::MagSettings _magSettings{ nullptr };
+	Magpie::App::ScalingRuleViewModel _viewModel;
 };
 
 }
 
 namespace winrt::Magpie::App::factory_implementation {
 
-struct ScalingConfigPage : ScalingConfigPageT<ScalingConfigPage, implementation::ScalingConfigPage> {
+struct ScalingRulePage : ScalingRulePageT<ScalingRulePage, implementation::ScalingRulePage> {
 };
 
 }

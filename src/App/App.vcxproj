@@ -116,8 +116,8 @@
     <ClInclude Include="HotkeyService.h" />
     <ClInclude Include="HotkeySettings.h" />
     <ClInclude Include="MagService.h" />
-    <ClInclude Include="ScalingConfigPage.h">
-      <DependentUpon>ScalingConfigPage.xaml</DependentUpon>
+    <ClInclude Include="ScalingRulePage.h">
+      <DependentUpon>ScalingRulePage.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
     <ClInclude Include="HotkeyHelper.h" />
@@ -135,6 +135,10 @@
     </ClInclude>
     <ClInclude Include="ScalingModesPage.h">
       <DependentUpon>ScalingModesPage.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </ClInclude>
+    <ClInclude Include="ScalingRuleViewModel.h">
+      <DependentUpon>ScalingRuleViewModel.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
     <ClInclude Include="SettingItem.h">
@@ -205,8 +209,8 @@
     <ClCompile Include="HotkeyService.cpp" />
     <ClCompile Include="HotkeySettings.cpp" />
     <ClCompile Include="MagService.cpp" />
-    <ClCompile Include="ScalingConfigPage.cpp">
-      <DependentUpon>ScalingConfigPage.xaml</DependentUpon>
+    <ClCompile Include="ScalingRulePage.cpp">
+      <DependentUpon>ScalingRulePage.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
     <ClCompile Include="HotkeyHelper.cpp" />
@@ -224,6 +228,10 @@
     </ClCompile>
     <ClCompile Include="ScalingModesPage.cpp">
       <DependentUpon>ScalingModesPage.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </ClCompile>
+    <ClCompile Include="ScalingRuleViewModel.cpp">
+      <DependentUpon>ScalingRuleViewModel.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
     <ClCompile Include="SettingItem.cpp">
@@ -271,6 +279,9 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <None Include="ScalingRuleViewModel.idl">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="SettingsViewModel.idl">
       <SubType>Designer</SubType>
     </None>
@@ -295,8 +306,8 @@
     <Midl Include="BooleanToVisibilityConverter.idl">
       <SubType>Designer</SubType>
     </Midl>
-    <None Include="ScalingConfigPage.idl">
-      <DependentUpon>ScalingConfigPage.xaml</DependentUpon>
+    <None Include="ScalingRulePage.idl">
+      <DependentUpon>ScalingRulePage.xaml</DependentUpon>
       <SubType>Code</SubType>
     </None>
     <None Include="HomeViewModel.idl">
@@ -347,7 +358,7 @@
     <Page Include="AboutPage.xaml">
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="ScalingConfigPage.xaml">
+    <Page Include="ScalingRulePage.xaml">
       <SubType>Designer</SubType>
     </Page>
     <Page Include="HomePage.xaml">
