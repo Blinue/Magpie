@@ -297,7 +297,7 @@ bool AppSettings::Save() {
 	writer.StartObject();
 
 	writer.Key("theme");
-	writer.Int(_theme);
+	writer.Uint(_theme);
 
 	{
 		HWND hwndHost = (HWND)Application::Current().as<App>().HwndHost();
@@ -384,8 +384,8 @@ void AppSettings::IsPortableMode(bool value) {
 	}
 }
 
-void AppSettings::Theme(int value) {
-	assert(value >= 0 && value <= 2);
+void AppSettings::Theme(uint32_t value) {
+	assert(value <= 2);
 
 	if (_theme == value) {
 		return;
@@ -455,11 +455,11 @@ bool AppSettings::_LoadSettings(std::string text) {
 	{
 		auto themeNode = root.FindMember("theme");
 		if (themeNode != root.MemberEnd()) {
-			if (!themeNode->value.IsInt()) {
+			if (!themeNode->value.IsUint()) {
 				return false;
 			}
 
-			_theme = themeNode->value.GetInt();
+			_theme = themeNode->value.GetUint();
 		}
 	}
 	{

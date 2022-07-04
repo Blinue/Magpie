@@ -16,7 +16,7 @@
 						<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xEF1F;"/>
 					</local:SettingItem.Icon>
 					<local:SettingItem.ActionContent>
-						<ComboBox x:Name="ThemeComboBox" Style="{StaticResource ComboBoxSettingStyle}" SelectionChanged="ThemeComboBox_SelectionChanged" DropDownOpened="ComboBox_DropDownOpened">
+						<ComboBox Style="{StaticResource ComboBoxSettingStyle}" SelectedIndex="{x:Bind ViewModel.Theme, Mode=TwoWay}" DropDownOpened="ComboBox_DropDownOpened">
 							<x:String>浅色</x:String>
 							<x:String>深色</x:String>
 							<x:String>使用系统设置</x:String>
@@ -28,14 +28,14 @@
 						<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE88E;"/>
 					</local:SettingItem.Icon>
 					<local:SettingItem.ActionContent>
-						<ToggleSwitch x:Name="PortableModeToggleSwitch" Toggled="PortableModeToggleSwitch_Toggled" />
+						<ToggleSwitch IsOn="{x:Bind ViewModel.IsPortableMode, Mode=TwoWay}" />
 					</local:SettingItem.ActionContent>
 				</local:SettingItem>
 			</local:SettingsGroup>
 			<local:SettingsGroup Title="高级">
 				<local:SettingItem Title="缩放时模拟独占全屏">
 					<local:SettingItem.ActionContent>
-						<ToggleSwitch x:Name="SimulateExclusiveFullscreenToggleSwitch" Toggled="SimulateExclusiveFullscreenToggleSwitch_Toggled" />
+						<ToggleSwitch IsOn="{x:Bind ViewModel.IsSimulateExclusiveFullscreen, Mode=TwoWay}" />
 					</local:SettingItem.ActionContent>
 				</local:SettingItem>
 				<muxc:Expander HorizontalAlignment="Stretch"
@@ -52,22 +52,22 @@
 						<StackPanel>
 							<local:SettingItem Title="断点模式" Description="更改缩放行为以便于在 Visual Studio 中调试" Style="{StaticResource ExpanderContentSettingStyle}">
 								<local:SettingItem.ActionContent>
-									<ToggleSwitch x:Name="BreakpointModeToggleSwitch" Toggled="BreakpointModeToggleSwitch_Toggled" />
+									<ToggleSwitch IsOn="{x:Bind ViewModel.IsBreakpointMode, Mode=TwoWay}" />
 								</local:SettingItem.ActionContent>
 							</local:SettingItem>
 							<local:SettingItem Title="禁用效果缓存" Style="{StaticResource ExpanderContentSettingStyle}">
 								<local:SettingItem.ActionContent>
-									<ToggleSwitch x:Name="DisableEffectCacheToggleSwitch" Toggled="DisableEffectCacheToggleSwitch_Toggled" />
+									<ToggleSwitch IsOn="{x:Bind ViewModel.IsDisableEffectCache, Mode=TwoWay}" />
 								</local:SettingItem.ActionContent>
 							</local:SettingItem>
 							<local:SettingItem Title="解析效果时保存源代码" Style="{StaticResource ExpanderContentSettingStyle}">
 								<local:SettingItem.ActionContent>
-									<ToggleSwitch x:Name="SaveEffectSourcesToggleSwitch" Toggled="SaveEffectSourcesToggleSwitch_Toggled" />
+									<ToggleSwitch IsOn="{x:Bind ViewModel.IsSaveEffectSources, Mode=TwoWay}" />
 								</local:SettingItem.ActionContent>
 							</local:SettingItem>
 							<local:SettingItem Title="编译效果时将警告视为错误" Style="{StaticResource ExpanderContentSettingStyle}">
 								<local:SettingItem.ActionContent>
-									<ToggleSwitch x:Name="WarningsAreErrorsToggleSwitch" Toggled="WarningsAreErrorsToggleSwitch_Toggled" />
+									<ToggleSwitch IsOn="{x:Bind ViewModel.IsWarningsAreErrors, Mode=TwoWay}" />
 								</local:SettingItem.ActionContent>
 							</local:SettingItem>
 						</StackPanel>

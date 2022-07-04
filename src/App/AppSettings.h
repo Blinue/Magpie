@@ -28,16 +28,16 @@ public:
 
 	void IsPortableMode(bool value);
 
-	int Theme() const noexcept {
+	uint32_t Theme() const noexcept {
 		return _theme;
 	}
-	void Theme(int value);
+	void Theme(uint32_t value);
 
-	event_token ThemeChanged(delegate<int> const& handler) {
+	event_token ThemeChanged(delegate<uint32_t> const& handler) {
 		return _themeChangedEvent.add(handler);
 	}
 
-	WinRTUtils::EventRevoker ThemeChanged(auto_revoke_t, delegate<int> const& handler) {
+	WinRTUtils::EventRevoker ThemeChanged(auto_revoke_t, delegate<uint32_t> const& handler) {
 		event_token token = ThemeChanged(handler);
 		return WinRTUtils::EventRevoker([this, token]() {
 			ThemeChanged(token);
@@ -184,8 +184,8 @@ private:
 	// 0: 浅色
 	// 1: 深色
 	// 2: 系统
-	int _theme = 2;
-	event<delegate<int>> _themeChangedEvent;
+	uint32_t _theme = 2;
+	event<delegate<uint32_t>> _themeChangedEvent;
 
 	Rect _windowRect{ CW_USEDEFAULT,CW_USEDEFAULT,1280,820 };
 	bool _isWindowMaximized = false;

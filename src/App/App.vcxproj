@@ -161,6 +161,10 @@
       <DependentUpon>SettingsPage.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
+    <ClInclude Include="SettingsPageViewModel.h">
+      <DependentUpon>SettingsPageViewModel.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClInclude>
     <ClInclude Include="ShortcutControl.h">
       <DependentUpon>ShortcutControl.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -245,6 +249,10 @@
       <DependentUpon>SettingsPage.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
+    <ClCompile Include="SettingsPageViewModel.cpp">
+      <DependentUpon>SettingsPageViewModel.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClCompile>
     <ClCompile Include="ShortcutControl.cpp">
       <DependentUpon>ShortcutControl.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -255,6 +263,9 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <None Include="SettingsPageViewModel.idl">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="ScalingModesPage.idl">
       <DependentUpon>ScalingModesPage.xaml</DependentUpon>
       <SubType>Code</SubType>

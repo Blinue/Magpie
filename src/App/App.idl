@@ -3,6 +3,7 @@
 #include "SettingItem.idl"
 #include "SettingsGroup.idl"
 #include "MicaBrush.idl"
+#include "SettingsPageViewModel.idl"
 #include "AboutPage.idl"
 #include "HomePage.idl"
 #include "SettingsPage.idl"

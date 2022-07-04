@@ -4,5 +4,7 @@ namespace Magpie.App
 	runtimeclass SettingsPage : Windows.UI.Xaml.Controls.Page
 	{
 		SettingsPage();
+
+		SettingsPageViewModel ViewModel { get; };
 	}
 }

@@ -1,0 +1,16 @@
+namespace Magpie.App
+{
+    [default_interface]
+    runtimeclass SettingsPageViewModel : Windows.UI.Xaml.Data.INotifyPropertyChanged
+    {
+        SettingsPageViewModel();
+
+        Int32 Theme;
+        Boolean IsPortableMode;
+        Boolean IsSimulateExclusiveFullscreen;
+        Boolean IsBreakpointMode;
+        Boolean IsDisableEffectCache;
+        Boolean IsSaveEffectSources;
+        Boolean IsWarningsAreErrors;
+    }
+}

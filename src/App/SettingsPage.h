@@ -6,22 +6,15 @@ namespace winrt::Magpie::App::implementation {
 
 struct SettingsPage : SettingsPageT<SettingsPage> {
 	SettingsPage();
+	
+	Magpie::App::SettingsPageViewModel ViewModel() const noexcept {
+		return _viewModel;
+	}
 
 	void ComboBox_DropDownOpened(IInspectable const& sender, IInspectable const&);
 
-	void ThemeComboBox_SelectionChanged(IInspectable const&, Controls::SelectionChangedEventArgs const&);
-
-	void PortableModeToggleSwitch_Toggled(IInspectable const&, RoutedEventArgs const&);
-
-	void SimulateExclusiveFullscreenToggleSwitch_Toggled(IInspectable const&, RoutedEventArgs const&);
-
-	void BreakpointModeToggleSwitch_Toggled(IInspectable const&, RoutedEventArgs const&);
-
-	void DisableEffectCacheToggleSwitch_Toggled(IInspectable const&, RoutedEventArgs const&);
-
-	void SaveEffectSourcesToggleSwitch_Toggled(IInspectable const&, RoutedEventArgs const&);
-
-	void WarningsAreErrorsToggleSwitch_Toggled(IInspectable const&, RoutedEventArgs const&);
+private:
+	Magpie::App::SettingsPageViewModel _viewModel;
 };
 
 }

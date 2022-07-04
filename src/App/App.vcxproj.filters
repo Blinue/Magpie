@@ -84,6 +84,9 @@
     <Filter Include="Models">
       <UniqueIdentifier>{8d78810f-671d-4793-9320-65078af2d7ec}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ViewModels">
+      <UniqueIdentifier>{c63b1e37-fe89-4c56-a1fe-e19d6803adad}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -98,6 +101,9 @@
     </None>
     <None Include="LoggerHelper.idl">
       <Filter>Helpers</Filter>
+    </None>
+    <None Include="SettingsPageViewModel.idl">
+      <Filter>ViewModels</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
