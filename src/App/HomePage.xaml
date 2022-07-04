@@ -36,11 +36,20 @@
 							</local:SettingItem.Icon>
 							<local:SettingItem.ActionContent>
 								<StackPanel Orientation="Horizontal" Spacing="5">
-									<Grid x:Name="CountdownVisual" Visibility="Collapsed">
-										<muxc:ProgressRing x:Name="CountdownProgressRing" FlowDirection="RightToLeft" Width="30" Height="30" Minimum="0" Maximum="1" IsIndeterminate="False" />
-										<TextBlock x:Name="CountdownTextBlock" Margin="0,-1,0,0" VerticalAlignment="Center" HorizontalAlignment="Center" Text="2" />
+									<Grid Visibility="{x:Bind ViewModel.IsCountingDown, Mode=OneWay}">
+										<muxc:ProgressRing Value="{x:Bind ViewModel.CountdownProgressRingValue, Mode=OneWay}"
+														   IsActive="{x:Bind ViewModel.IsCountingDown, Mode=OneWay}"
+														   FlowDirection="RightToLeft"
+														   Width="30"
+														   Height="30"
+														   Minimum="0"
+														   Maximum="1"
+														   IsIndeterminate="False" />
+										<TextBlock Text="{x:Bind ViewModel.CountdownLabelText, Mode=OneWay}" Margin="0,-1,0,0" VerticalAlignment="Center" HorizontalAlignment="Center" />
 									</Grid>
-									<Button x:Name="CountdownButton" Click="CountdownButton_Click" />
+									<Button Content="{x:Bind ViewModel.CountdownButtonText, Mode=OneWay}"
+											Click="{x:Bind ViewModel.ToggleCountdown}"
+											IsEnabled="{x:Bind ViewModel.IsNotRunning, Mode=OneWay}" />
 								</StackPanel>
 							</local:SettingItem.ActionContent>
 						</local:SettingItem>
@@ -48,7 +57,7 @@
 					<muxc:Expander.Content>
 						<local:SettingItem Title="倒计时时长" Style="{StaticResource ExpanderContentSettingStyle}">
 							<local:SettingItem.ActionContent>
-								<Slider x:Name="CountdownSlider" ValueChanged="CountdownSlider_ValueChanged" Width="150" Minimum="1" Maximum="5" TickFrequency="1"/>
+								<Slider Value="{x:Bind ViewModel.DownCount, Mode=TwoWay}" Width="150" Minimum="1" Maximum="5" TickFrequency="1"/>
 							</local:SettingItem.ActionContent>
 						</local:SettingItem>
 					</muxc:Expander.Content>

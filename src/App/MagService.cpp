@@ -118,7 +118,8 @@ void MagService::_Settings_IsAutoRestoreChanged(bool) {
 
 IAsyncAction MagService::_MagRuntime_IsRunningChanged(IInspectable const&, bool) {
 	co_await _dispatcher.RunAsync(CoreDispatcherPriority::Normal, [this]() {
-		if (_magRuntime.IsRunning()) {
+		bool isRunning = _magRuntime.IsRunning();
+		if (isRunning) {
 			StopCountdown();
 
 			if (AppSettings::Get().IsAutoRestore()) {
@@ -146,6 +147,8 @@ IAsyncAction MagService::_MagRuntime_IsRunningChanged(IInspectable const&, bool)
 				_curSrcWnd = NULL;
 			}
 		}
+
+		_isRunningChangedEvent(isRunning);
 	});
 }
 

@@ -78,6 +78,25 @@ public:
 
 	void ClearWndToRestore();
 
+	event_token IsRunningChanged(delegate<bool> const& handler) {
+		return _isRunningChangedEvent.add(handler);
+	}
+
+	WinRTUtils::EventRevoker IsRunningChanged(auto_revoke_t, delegate<bool> const& handler) {
+		event_token token = IsRunningChanged(handler);
+		return WinRTUtils::EventRevoker([this, token]() {
+			IsRunningChanged(token);
+		});
+	}
+
+	void IsRunningChanged(event_token const& token) noexcept {
+		_isRunningChangedEvent.remove(token);
+	}
+
+	bool IsRunning() const noexcept {
+		return _magRuntime.IsRunning();
+	}
+
 private:
 	MagService();
 
@@ -122,6 +141,8 @@ private:
 	HWND _curSrcWnd = 0;
 	uint64_t _wndToRestore = 0;
 	event<delegate<uint64_t>> _wndToRestoreChangedEvent;
+
+	event<delegate<bool>> _isRunningChangedEvent;
 
 	HWND _hwndHost = 0;
 

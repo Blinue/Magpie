@@ -5,5 +5,13 @@ namespace Magpie.App
     {
         HomeViewModel();
         
+        Boolean IsCountingDown { get; };
+        Single CountdownProgressRingValue { get; };
+        String CountdownLabelText { get; };
+        String CountdownButtonText { get; };
+        Boolean IsNotRunning { get; };
+        UInt32 DownCount;
+
+        void ToggleCountdown();
     }
 }
