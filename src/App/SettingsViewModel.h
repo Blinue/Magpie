@@ -1,12 +1,11 @@
 ﻿#pragma once
-
-#include "SettingsPageViewModel.g.h"
+#include "SettingsViewModel.g.h"
 
 
 namespace winrt::Magpie::App::implementation {
 
-struct SettingsPageViewModel : SettingsPageViewModelT<SettingsPageViewModel> {
-    SettingsPageViewModel() = default;
+struct SettingsViewModel : SettingsViewModelT<SettingsViewModel> {
+    SettingsViewModel() = default;
 
     int32_t Theme() const noexcept;
     void Theme(int32_t value) noexcept;
@@ -45,7 +44,7 @@ private:
 
 namespace winrt::Magpie::App::factory_implementation {
 
-struct SettingsPageViewModel : SettingsPageViewModelT<SettingsPageViewModel, implementation::SettingsPageViewModel> {
+struct SettingsViewModel : SettingsViewModelT<SettingsViewModel, implementation::SettingsViewModel> {
 };
 
 }

@@ -1,9 +1,9 @@
 namespace Magpie.App
 {
     [default_interface]
-    runtimeclass SettingsPageViewModel : Windows.UI.Xaml.Data.INotifyPropertyChanged
+    runtimeclass SettingsViewModel : Windows.UI.Xaml.Data.INotifyPropertyChanged
     {
-        SettingsPageViewModel();
+        SettingsViewModel();
 
         Int32 Theme;
         Boolean IsPortableMode;

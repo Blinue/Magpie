@@ -102,7 +102,10 @@
     <None Include="LoggerHelper.idl">
       <Filter>Helpers</Filter>
     </None>
-    <None Include="SettingsPageViewModel.idl">
+    <None Include="SettingsViewModel.idl">
+      <Filter>ViewModels</Filter>
+    </None>
+    <None Include="HomeViewModel.idl">
       <Filter>ViewModels</Filter>
     </None>
   </ItemGroup>

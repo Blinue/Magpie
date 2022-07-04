@@ -1,18 +1,18 @@
 ﻿#include "pch.h"
-#include "SettingsPageViewModel.h"
-#if __has_include("SettingsPageViewModel.g.cpp")
-#include "SettingsPageViewModel.g.cpp"
+#include "SettingsViewModel.h"
+#if __has_include("SettingsViewModel.g.cpp")
+#include "SettingsViewModel.g.cpp"
 #endif
 #include "AppSettings.h"
 
 
 namespace winrt::Magpie::App::implementation {
 
-int32_t SettingsPageViewModel::Theme() const noexcept {
+int32_t SettingsViewModel::Theme() const noexcept {
     return (int32_t)AppSettings::Get().Theme();
 }
 
-void SettingsPageViewModel::Theme(int32_t value) noexcept {
+void SettingsViewModel::Theme(int32_t value) noexcept {
     if (value < 0) {
         return;
     }
@@ -28,11 +28,11 @@ void SettingsPageViewModel::Theme(int32_t value) noexcept {
     _propertyChangedEvent(*this, PropertyChangedEventArgs(L"Theme"));
 }
 
-bool SettingsPageViewModel::IsPortableMode() const noexcept {
+bool SettingsViewModel::IsPortableMode() const noexcept {
     return (int32_t)AppSettings::Get().IsPortableMode();
 }
 
-void SettingsPageViewModel::IsPortableMode(bool value) noexcept {
+void SettingsViewModel::IsPortableMode(bool value) noexcept {
     AppSettings& settings = AppSettings::Get();
 
     if (settings.IsPortableMode() == value) {
@@ -43,11 +43,11 @@ void SettingsPageViewModel::IsPortableMode(bool value) noexcept {
     _propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsPortableMode"));
 }
 
-bool SettingsPageViewModel::IsSimulateExclusiveFullscreen() const noexcept {
+bool SettingsViewModel::IsSimulateExclusiveFullscreen() const noexcept {
     return AppSettings::Get().IsSimulateExclusiveFullscreen();
 }
 
-void SettingsPageViewModel::IsSimulateExclusiveFullscreen(bool value) noexcept {
+void SettingsViewModel::IsSimulateExclusiveFullscreen(bool value) noexcept {
     AppSettings& settings = AppSettings::Get();
 
     if (settings.IsSimulateExclusiveFullscreen() == value) {
@@ -58,11 +58,11 @@ void SettingsPageViewModel::IsSimulateExclusiveFullscreen(bool value) noexcept {
     _propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsSimulateExclusiveFullscreen"));
 }
 
-bool SettingsPageViewModel::IsBreakpointMode() const noexcept {
+bool SettingsViewModel::IsBreakpointMode() const noexcept {
     return AppSettings::Get().IsBreakpointMode();
 }
 
-void SettingsPageViewModel::IsBreakpointMode(bool value) noexcept {
+void SettingsViewModel::IsBreakpointMode(bool value) noexcept {
     AppSettings& settings = AppSettings::Get();
 
     if (settings.IsBreakpointMode() == value) {
@@ -73,11 +73,11 @@ void SettingsPageViewModel::IsBreakpointMode(bool value) noexcept {
     _propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsBreakpointMode"));
 }
 
-bool SettingsPageViewModel::IsDisableEffectCache() const noexcept {
+bool SettingsViewModel::IsDisableEffectCache() const noexcept {
     return AppSettings::Get().IsDisableEffectCache();
 }
 
-void SettingsPageViewModel::IsDisableEffectCache(bool value) noexcept {
+void SettingsViewModel::IsDisableEffectCache(bool value) noexcept {
     AppSettings& settings = AppSettings::Get();
 
     if (settings.IsDisableEffectCache() == value) {
@@ -88,11 +88,11 @@ void SettingsPageViewModel::IsDisableEffectCache(bool value) noexcept {
     _propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsDisableEffectCache"));
 }
 
-bool SettingsPageViewModel::IsSaveEffectSources() const noexcept {
+bool SettingsViewModel::IsSaveEffectSources() const noexcept {
     return AppSettings::Get().IsSaveEffectSources();
 }
 
-void SettingsPageViewModel::IsSaveEffectSources(bool value) noexcept {
+void SettingsViewModel::IsSaveEffectSources(bool value) noexcept {
     AppSettings& settings = AppSettings::Get();
 
     if (settings.IsSaveEffectSources() == value) {
@@ -103,11 +103,11 @@ void SettingsPageViewModel::IsSaveEffectSources(bool value) noexcept {
     _propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsSaveEffectSources"));
 }
 
-bool SettingsPageViewModel::IsWarningsAreErrors() const noexcept {
+bool SettingsViewModel::IsWarningsAreErrors() const noexcept {
     return AppSettings::Get().IsWarningsAreErrors();
 }
 
-void SettingsPageViewModel::IsWarningsAreErrors(bool value) noexcept {
+void SettingsViewModel::IsWarningsAreErrors(bool value) noexcept {
     AppSettings& settings = AppSettings::Get();
 
     if (settings.IsWarningsAreErrors() == value) {

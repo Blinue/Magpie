@@ -1,0 +1,9 @@
+namespace Magpie.App
+{
+    [default_interface]
+    runtimeclass HomeViewModel : Windows.UI.Xaml.Data.INotifyPropertyChanged
+    {
+        HomeViewModel();
+        
+    }
+}

@@ -109,6 +109,10 @@
       <SubType>Code</SubType>
     </ClInclude>
     <ClInclude Include="ComboBoxHelper.h" />
+    <ClInclude Include="HomeViewModel.h">
+      <DependentUpon>HomeViewModel.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClInclude>
     <ClInclude Include="HotkeyService.h" />
     <ClInclude Include="HotkeySettings.h" />
     <ClInclude Include="MagService.h" />
@@ -161,8 +165,8 @@
       <DependentUpon>SettingsPage.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
-    <ClInclude Include="SettingsPageViewModel.h">
-      <DependentUpon>SettingsPageViewModel.idl</DependentUpon>
+    <ClInclude Include="SettingsViewModel.h">
+      <DependentUpon>SettingsViewModel.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
     <ClInclude Include="ShortcutControl.h">
@@ -192,6 +196,10 @@
     <ClCompile Include="AppSettings.cpp" />
     <ClCompile Include="BooleanToVisibilityConverter.cpp">
       <DependentUpon>BooleanToVisibilityConverter.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClCompile>
+    <ClCompile Include="HomeViewModel.cpp">
+      <DependentUpon>HomeViewModel.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
     <ClCompile Include="HotkeyService.cpp" />
@@ -249,8 +257,8 @@
       <DependentUpon>SettingsPage.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
-    <ClCompile Include="SettingsPageViewModel.cpp">
-      <DependentUpon>SettingsPageViewModel.idl</DependentUpon>
+    <ClCompile Include="SettingsViewModel.cpp">
+      <DependentUpon>SettingsViewModel.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
     <ClCompile Include="ShortcutControl.cpp">
@@ -263,7 +271,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="SettingsPageViewModel.idl">
+    <None Include="SettingsViewModel.idl">
       <SubType>Designer</SubType>
     </None>
     <None Include="ScalingModesPage.idl">
@@ -290,6 +298,9 @@
     <None Include="ScalingConfigPage.idl">
       <DependentUpon>ScalingConfigPage.xaml</DependentUpon>
       <SubType>Code</SubType>
+    </None>
+    <None Include="HomeViewModel.idl">
+      <SubType>Designer</SubType>
     </None>
     <Midl Include="PageFrame.idl">
       <DependentUpon>PageFrame.xaml</DependentUpon>
