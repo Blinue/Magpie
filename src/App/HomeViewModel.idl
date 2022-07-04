@@ -1,24 +1,25 @@
 namespace Magpie.App
 {
-    [default_interface]
-    runtimeclass HomeViewModel : Windows.UI.Xaml.Data.INotifyPropertyChanged
-    {
-        HomeViewModel();
-        
-        Boolean IsCountingDown { get; };
-        Single CountdownProgressRingValue { get; };
-        String CountdownLabelText { get; };
-        String CountdownButtonText { get; };
-        Boolean IsNotRunning { get; };
-        UInt32 DownCount;
+	[default_interface]
+	runtimeclass HomeViewModel : Windows.UI.Xaml.Data.INotifyPropertyChanged
+	{
+		HomeViewModel();
+		
+		Boolean IsCountingDown { get; };
+		Single CountdownProgressRingValue { get; };
+		String CountdownLabelText { get; };
+		String CountdownButtonText { get; };
+		Boolean IsNotRunning { get; };
+		UInt32 DownCount;
 
-        void ToggleCountdown();
+		void ToggleCountdown();
 
-        Boolean IsAutoRestore;
-        Boolean IsWndToRestore { get; };
-        Boolean IsNoWndToRestore{ get; };
+		Boolean IsAutoRestore;
+		Boolean IsWndToRestore { get; };
+		Boolean IsNoWndToRestore { get; };
+		String RestoreWndDesc { get; };
 
-        void ActivateRestore();
-        void ClearRestore();
-    }
+		void ActivateRestore();
+		void ClearRestore();
+	}
 }

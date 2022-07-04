@@ -1,4 +1,4 @@
-﻿#include "pch.h"
+#include "pch.h"
 #include "HomeViewModel.h"
 #if __has_include("HomeViewModel.g.cpp")
 #include "HomeViewModel.g.cpp"
@@ -6,6 +6,7 @@
 #include "AppSettings.h"
 #include "MagService.h"
 #include "Win32Utils.h"
+#include "StrUtils.h"
 
 
 namespace winrt::Magpie::App::implementation {
@@ -105,6 +106,18 @@ void HomeViewModel::ClearRestore() const {
 	MagService::Get().ClearWndToRestore();
 }
 
+hstring HomeViewModel::RestoreWndDesc() const noexcept {
+	HWND wndToRestore = (HWND)MagService::Get().WndToRestore();
+	if (!wndToRestore) {
+		return L"";
+	}
+
+	std::wstring title(GetWindowTextLength(wndToRestore), L'\0');
+	GetWindowText(wndToRestore, title.data(), (int)title.size() + 1);
+
+	return hstring(StrUtils::ConcatW(L"当前窗口：", title.empty() ? L"<标题为空>" : title));
+}
+
 void HomeViewModel::_MagService_IsCountingDownChanged(bool value) {
 	if (!value) {
 		_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CountdownProgressRingValue"));
@@ -128,6 +141,7 @@ void HomeViewModel::_MagService_IsRunningChanged(bool) {
 void HomeViewModel::_MagService_WndToRestoreChanged(uint64_t) {
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsWndToRestore"));
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsNoWndToRestore"));
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"RestoreWndDesc"));
 }
 
 }

@@ -90,7 +90,7 @@
 						</local:SettingItem>
 					</muxc:Expander.Header>
 					<muxc:Expander.Content>
-						<local:SettingItem x:Name="AutoRestoreExpandedSettingItem" Style="{StaticResource ExpanderContentSettingStyle}">
+						<local:SettingItem Title="{x:Bind ViewModel.RestoreWndDesc, Mode=OneWay}" Style="{StaticResource ExpanderContentSettingStyle}">
 							<local:SettingItem.ActionContent>
 								<StackPanel Orientation="Horizontal" Spacing="5">
 									<Button Click="{x:Bind ViewModel.ActivateRestore}" Content="激活" Style="{StaticResource AccentButtonStyle}" />

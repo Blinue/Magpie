@@ -1,16 +1,16 @@
 namespace Magpie.App
 {
-    [default_interface]
-    runtimeclass SettingsViewModel : Windows.UI.Xaml.Data.INotifyPropertyChanged
-    {
-        SettingsViewModel();
+	[default_interface]
+	runtimeclass SettingsViewModel : Windows.UI.Xaml.Data.INotifyPropertyChanged
+	{
+		SettingsViewModel();
 
-        Int32 Theme;
-        Boolean IsPortableMode;
-        Boolean IsSimulateExclusiveFullscreen;
-        Boolean IsBreakpointMode;
-        Boolean IsDisableEffectCache;
-        Boolean IsSaveEffectSources;
-        Boolean IsWarningsAreErrors;
-    }
+		Int32 Theme;
+		Boolean IsPortableMode;
+		Boolean IsSimulateExclusiveFullscreen;
+		Boolean IsBreakpointMode;
+		Boolean IsDisableEffectCache;
+		Boolean IsSaveEffectSources;
+		Boolean IsWarningsAreErrors;
+	}
 }
