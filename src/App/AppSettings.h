@@ -2,6 +2,7 @@
 #include <winrt/Magpie.App.h>
 #include <winrt/Magpie.Runtime.h>
 #include "WinRTUtils.h"
+#include "HotkeySettings.h"
 
 
 namespace winrt::Magpie::App {
@@ -63,11 +64,11 @@ public:
 		_isWindowMaximized = value;
 	}
 
-	HotkeySettings GetHotkey(HotkeyAction action) const {
+	const HotkeySettings& GetHotkey(HotkeyAction action) const {
 		return _hotkeys[(size_t)action];
 	}
 
-	void SetHotkey(HotkeyAction action, HotkeySettings const& value);
+	void SetHotkey(HotkeyAction action, const HotkeySettings& value);
 
 	event_token HotkeyChanged(delegate<HotkeyAction> const& handler) {
 		return _hotkeyChangedEvent.add(handler);

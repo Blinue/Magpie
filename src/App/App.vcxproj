@@ -110,16 +110,13 @@
     </ClInclude>
     <ClInclude Include="ComboBoxHelper.h" />
     <ClInclude Include="HotkeyService.h" />
+    <ClInclude Include="HotkeySettings.h" />
     <ClInclude Include="MagService.h" />
     <ClInclude Include="ScalingConfigPage.h">
       <DependentUpon>ScalingConfigPage.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
     <ClInclude Include="HotkeyHelper.h" />
-    <ClInclude Include="HotkeySettings.h">
-      <DependentUpon>HotkeySettings.idl</DependentUpon>
-      <SubType>Code</SubType>
-    </ClInclude>
     <ClInclude Include="KeyVisual.h">
       <DependentUpon>KeyVisual.idl</DependentUpon>
       <SubType>Code</SubType>
@@ -194,16 +191,13 @@
       <SubType>Code</SubType>
     </ClCompile>
     <ClCompile Include="HotkeyService.cpp" />
+    <ClCompile Include="HotkeySettings.cpp" />
     <ClCompile Include="MagService.cpp" />
     <ClCompile Include="ScalingConfigPage.cpp">
       <DependentUpon>ScalingConfigPage.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
     <ClCompile Include="HotkeyHelper.cpp" />
-    <ClCompile Include="HotkeySettings.cpp">
-      <DependentUpon>HotkeySettings.idl</DependentUpon>
-      <SubType>Code</SubType>
-    </ClCompile>
     <ClCompile Include="KeyVisual.cpp">
       <DependentUpon>KeyVisual.idl</DependentUpon>
       <SubType>Code</SubType>
@@ -268,9 +262,6 @@
     <None Include="ShortcutDialogContent.idl">
       <DependentUpon>ShortcutDialogContent.xaml</DependentUpon>
       <SubType>Code</SubType>
-    </None>
-    <None Include="HotkeySettings.idl">
-      <SubType>Designer</SubType>
     </None>
     <None Include="ShortcutControl.idl">
       <DependentUpon>ShortcutControl.xaml</DependentUpon>

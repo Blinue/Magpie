@@ -1,54 +1,32 @@
 #include "pch.h"
 #include "HotkeySettings.h"
-#if __has_include("HotkeySettings.g.cpp")
-#include "HotkeySettings.g.cpp"
-#endif
-
 #include "Win32Utils.h"
 #include "StrUtils.h"
 #include "HotkeyHelper.h"
 
 
-namespace winrt::Magpie::App::implementation {
+namespace winrt::Magpie::App {
 
-void HotkeySettings::CopyFrom(const Magpie::App::HotkeySettings& other) {
-	HotkeySettings* otherImpl = get_self<HotkeySettings>(other.as<default_interface<HotkeySettings>>());
-	_win = otherImpl->_win;
-	_ctrl = otherImpl->_ctrl;
-	_alt = otherImpl->_alt;
-	_shift = otherImpl->_shift;
-	_code = otherImpl->_code;
-}
-
-bool HotkeySettings::IsEmpty() const {
+bool HotkeySettings::IsEmpty() const noexcept {
 	return !_win && !_ctrl && !_alt && !_shift && _code == 0;
 }
 
-bool HotkeySettings::Equals(const Magpie::App::HotkeySettings& other) const {
-	HotkeySettings* otherImpl = get_self<HotkeySettings>(other.as<default_interface<HotkeySettings>>());
-	return _win == otherImpl->_win
-		&& _ctrl == otherImpl->_ctrl
-		&& _alt == otherImpl->_alt
-		&& _shift == otherImpl->_shift
-		&& _code == otherImpl->_code;
-}
-
-IVector<IInspectable> HotkeySettings::GetKeyList() const {
-	std::vector<IInspectable> shortcutList;
+std::vector<std::variant<uint32_t, std::wstring>> HotkeySettings::GetKeyList() const noexcept {
+	std::vector<std::variant<uint32_t, std::wstring>> shortcutList;
 	if (_win) {
-		shortcutList.push_back(box_value(VK_LWIN));
+		shortcutList.emplace_back((uint32_t)VK_LWIN);
 	}
 
 	if (_ctrl) {
-		shortcutList.push_back(box_value(L"Ctrl"));
+		shortcutList.emplace_back(L"Ctrl");
 	}
 
 	if (_alt) {
-		shortcutList.push_back(box_value(L"Alt"));
+		shortcutList.emplace_back(L"Alt");
 	}
 
 	if (_shift) {
-		shortcutList.push_back(box_value(L"Shift"));
+		shortcutList.emplace_back(L"Shift");
 	}
 
 	if (_code > 0) {
@@ -59,19 +37,19 @@ IVector<IInspectable> HotkeySettings::GetKeyList() const {
 		case VK_RIGHT:
 		// case VK_BACK:
 		// case VK_RETURN:
-			shortcutList.push_back(box_value(_code));
+			shortcutList.emplace_back(_code);
 			break;
 		default:
 			std::wstring localKey = Win32Utils::GetKeyName(_code);
-			shortcutList.push_back(box_value(localKey));
+			shortcutList.emplace_back(localKey);
 			break;
 		}
 	}
 
-	return single_threaded_vector(std::move(shortcutList));
+	return shortcutList;
 }
 
-HotkeyError HotkeySettings::Check() const {
+HotkeyError HotkeySettings::Check() const noexcept {
 	UINT modifiers = MOD_NOREPEAT;
 	UINT modCount = 0;
 
@@ -107,7 +85,7 @@ HotkeyError HotkeySettings::Check() const {
 	return HotkeyError::NoError;
 }
 
-void HotkeySettings::Clear() {
+void HotkeySettings::Clear() noexcept {
 	_win = false;
 	_ctrl = false;
 	_alt = false;
@@ -115,7 +93,7 @@ void HotkeySettings::Clear() {
 	_code = 0;
 }
 
-bool HotkeySettings::FromString(const hstring& str) {
+bool HotkeySettings::FromString(std::wstring_view str) noexcept {
 	bool win = false;
 	bool ctrl = false;
 	bool alt = false;
@@ -123,7 +101,7 @@ bool HotkeySettings::FromString(const hstring& str) {
 	uint32_t code = 0;
 
 	if (!str.empty()) {
-		std::vector<std::wstring_view> parts = StrUtils::Split(str.c_str(), L'+');
+		std::vector<std::wstring_view> parts = StrUtils::Split(str, L'+');
 		for (std::wstring_view& part : parts) {
 			StrUtils::Trim(part);
 
@@ -176,7 +154,7 @@ bool HotkeySettings::FromString(const hstring& str) {
 	return true;
 }
 
-hstring HotkeySettings::ToString() const {
+std::wstring HotkeySettings::ToString() const noexcept {
 	std::wstring output;
 
 	if (_win) {
@@ -201,7 +179,7 @@ hstring HotkeySettings::ToString() const {
 		output.pop_back();
 	}
 
-	return hstring(output);
+	return output;
 }
 
 }

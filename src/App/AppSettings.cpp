@@ -398,12 +398,12 @@ void AppSettings::Theme(int value) {
 	_themeChangedEvent(value);
 }
 
-void AppSettings::SetHotkey(HotkeyAction action, Magpie::App::HotkeySettings const& value) {
-	if (_hotkeys[(size_t)action].Equals(value)) {
+void AppSettings::SetHotkey(HotkeyAction action, const Magpie::App::HotkeySettings& value) {
+	if (_hotkeys[(size_t)action] == value) {
 		return;
 	}
 
-	_hotkeys[(size_t)action].CopyFrom(value);
+	_hotkeys[(size_t)action] = value;
 	Logger::Get().Info(fmt::format("热键 {} 已更改为 {}", HotkeyHelper::ToString(action), StrUtils::UTF16ToUTF8(value.ToString())));
 	_hotkeyChangedEvent(action);
 }
@@ -581,20 +581,19 @@ bool AppSettings::_LoadSettings(std::string text) {
 }
 
 void AppSettings::_SetDefaultHotkeys() {
-	const HotkeySettings& scaleHotkey = _hotkeys[(size_t)HotkeyAction::Scale];
+	HotkeySettings& scaleHotkey = _hotkeys[(size_t)HotkeyAction::Scale];
 	if (scaleHotkey.IsEmpty()) {
 		scaleHotkey.Win(true);
 		scaleHotkey.Shift(true);
 		scaleHotkey.Code('A');
 	}
 
-	const HotkeySettings& overlayHotkey = _hotkeys[(size_t)HotkeyAction::Overlay];
+	HotkeySettings& overlayHotkey = _hotkeys[(size_t)HotkeyAction::Overlay];
 	if (overlayHotkey.IsEmpty()) {
 		overlayHotkey.Win(true);
 		overlayHotkey.Shift(true);
 		overlayHotkey.Code('D');
 	}
 }
-
 
 }

@@ -32,8 +32,8 @@ HotkeyService::~HotkeyService() {
 }
 
 void HotkeyService::_RegisterHotkey(HotkeyAction action) {
-	HotkeySettings hotkey = AppSettings::Get().GetHotkey(action);
-	if (hotkey == nullptr || hotkey.IsEmpty() || hotkey.Check() != HotkeyError::NoError) {
+	const HotkeySettings& hotkey = AppSettings::Get().GetHotkey(action);
+	if (hotkey.IsEmpty() || hotkey.Check() != HotkeyError::NoError) {
 		Logger::Get().Win32Error(fmt::format("注册热键 {} 失败", HotkeyHelper::ToString(action)));
 		_errors[(size_t)action] = true;
 		return;

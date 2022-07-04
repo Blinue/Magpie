@@ -1,18 +1,22 @@
 #pragma once
+#include <winrt/Magpie.App.h>
+#include <variant>
 
-#include "HotkeySettings.g.h"
 
+namespace winrt::Magpie::App {
 
-namespace winrt::Magpie::App::implementation {
+class HotkeySettings {
+public:
+	HotkeySettings() noexcept = default;
+	HotkeySettings(const HotkeySettings&) noexcept = default;
+	HotkeySettings(HotkeySettings&&) noexcept = default;
 
-struct HotkeySettings : HotkeySettingsT<HotkeySettings> {
-	HotkeySettings() = default;
+	HotkeySettings& operator=(const HotkeySettings&) noexcept = default;
+	HotkeySettings& operator=(HotkeySettings&&) noexcept = default;
 
-	void CopyFrom(const Magpie::App::HotkeySettings& other);
+	bool operator==(const HotkeySettings&) const noexcept = default;
 
-	bool Equals(const Magpie::App::HotkeySettings& other) const;
-
-	bool IsEmpty() const;
+	bool IsEmpty() const noexcept;
 
 	void Win(bool value) noexcept {
 		_win = value;
@@ -50,14 +54,14 @@ struct HotkeySettings : HotkeySettingsT<HotkeySettings> {
 		return _code;
 	}
 
-	IVector<IInspectable> GetKeyList() const;
+	std::vector<std::variant<uint32_t, std::wstring>> GetKeyList() const noexcept;
 
-	HotkeyError Check() const;
+	HotkeyError Check() const noexcept;
 
-	void Clear();
+	void Clear() noexcept;
 
-	bool FromString(const hstring& str);
-	hstring ToString() const;
+	bool FromString(std::wstring_view str) noexcept;
+	std::wstring ToString() const noexcept;
 
 private:
 	bool _win = false;
@@ -67,13 +71,6 @@ private:
 
 	// 0 表示无 Virtual Key
 	uint32_t _code = 0;
-};
-
-}
-
-namespace winrt::Magpie::App::factory_implementation {
-
-struct HotkeySettings : HotkeySettingsT<HotkeySettings, implementation::HotkeySettings> {
 };
 
 }

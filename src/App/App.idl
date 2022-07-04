@@ -1,5 +1,4 @@
 #include "LoggerHelper.idl"
-#include "HotkeySettings.idl"
 #include "MainPage.idl"
 #include "SettingItem.idl"
 #include "SettingsGroup.idl"
@@ -19,6 +18,12 @@ namespace Magpie.App {
 		Scale,
 		Overlay,
 		COUNT_OR_NONE
+	};
+
+	enum HotkeyError {
+		NoError,
+		Invalid,
+		Occupied
 	};
 
 	[default_interface]

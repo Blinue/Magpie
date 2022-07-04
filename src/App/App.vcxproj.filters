@@ -26,6 +26,9 @@
       <Filter>Services</Filter>
     </ClCompile>
     <ClCompile Include="AppSettings.cpp" />
+    <ClCompile Include="HotkeySettings.cpp">
+      <Filter>Models</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -46,6 +49,9 @@
       <Filter>Services</Filter>
     </ClInclude>
     <ClInclude Include="AppSettings.h" />
+    <ClInclude Include="HotkeySettings.h">
+      <Filter>Models</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Assets">
@@ -92,9 +98,6 @@
     </None>
     <None Include="LoggerHelper.idl">
       <Filter>Helpers</Filter>
-    </None>
-    <None Include="HotkeySettings.idl">
-      <Filter>Models</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

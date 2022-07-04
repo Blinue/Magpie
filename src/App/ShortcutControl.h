@@ -3,6 +3,7 @@
 #include "pch.h"
 #include "ShortcutControl.g.h"
 #include "WinRTUtils.h"
+#include "HotkeySettings.h"
 
 
 namespace winrt::Magpie::App::implementation {
@@ -51,8 +52,8 @@ private:
 	// 有没有更好的方法？
 	static ShortcutControl* _that;
 
-	Magpie::App::HotkeySettings _previewHotkey;
-	Magpie::App::HotkeySettings _pressedKeys;
+	HotkeySettings _previewHotkey;
+	HotkeySettings _pressedKeys;
 };
 
 }
