@@ -6,6 +6,7 @@
 #include "MainPage.h"
 #include "XamlUtils.h"
 #include "ComboBoxHelper.h"
+#include "AppSettings.h"
 
 
 using namespace winrt;
@@ -17,27 +18,27 @@ namespace winrt::Magpie::App::implementation {
 SettingsPage::SettingsPage() {
 	InitializeComponent();
 
-	_settings = Application::Current().as<App>().Settings();
+	AppSettings& settings = AppSettings::Get();
 	
-	ThemeComboBox().SelectedIndex(_settings.Theme());
-	PortableModeToggleSwitch().IsOn(_settings.IsPortableMode());
-	SimulateExclusiveFullscreenToggleSwitch().IsOn(_settings.IsSimulateExclusiveFullscreen());
-	BreakpointModeToggleSwitch().IsOn(_settings.IsBreakpointMode());
-	DisableEffectCacheToggleSwitch().IsOn(_settings.IsDisableEffectCache());
-	SaveEffectSourcesToggleSwitch().IsOn(_settings.IsSaveEffectSources());
-	WarningsAreErrorsToggleSwitch().IsOn(_settings.IsWarningsAreErrors());
+	ThemeComboBox().SelectedIndex(settings.Theme());
+	PortableModeToggleSwitch().IsOn(settings.IsPortableMode());
+	SimulateExclusiveFullscreenToggleSwitch().IsOn(settings.IsSimulateExclusiveFullscreen());
+	BreakpointModeToggleSwitch().IsOn(settings.IsBreakpointMode());
+	DisableEffectCacheToggleSwitch().IsOn(settings.IsDisableEffectCache());
+	SaveEffectSourcesToggleSwitch().IsOn(settings.IsSaveEffectSources());
+	WarningsAreErrorsToggleSwitch().IsOn(settings.IsWarningsAreErrors());
 }
 
 void SettingsPage::ThemeComboBox_SelectionChanged(IInspectable const&, Controls::SelectionChangedEventArgs const&) {
-	_settings.Theme(ThemeComboBox().SelectedIndex());
+	AppSettings::Get().Theme(ThemeComboBox().SelectedIndex());
 }
 
 void SettingsPage::PortableModeToggleSwitch_Toggled(IInspectable const&, RoutedEventArgs const&) {
-	_settings.IsPortableMode(PortableModeToggleSwitch().IsOn());
+	AppSettings::Get().IsPortableMode(PortableModeToggleSwitch().IsOn());
 }
 
 void SettingsPage::SimulateExclusiveFullscreenToggleSwitch_Toggled(IInspectable const&, RoutedEventArgs const&) {
-	_settings.IsSimulateExclusiveFullscreen(SimulateExclusiveFullscreenToggleSwitch().IsOn());
+	AppSettings::Get().IsSimulateExclusiveFullscreen(SimulateExclusiveFullscreenToggleSwitch().IsOn());
 }
 
 void SettingsPage::ComboBox_DropDownOpened(IInspectable const& sender, IInspectable const&) {
@@ -45,19 +46,19 @@ void SettingsPage::ComboBox_DropDownOpened(IInspectable const& sender, IInspecta
 }
 
 void SettingsPage::BreakpointModeToggleSwitch_Toggled(IInspectable const&, RoutedEventArgs const&) {
-	_settings.IsBreakpointMode(BreakpointModeToggleSwitch().IsOn());
+	AppSettings::Get().IsBreakpointMode(BreakpointModeToggleSwitch().IsOn());
 }
 
 void SettingsPage::DisableEffectCacheToggleSwitch_Toggled(IInspectable const&, RoutedEventArgs const&) {
-	_settings.IsDisableEffectCache(DisableEffectCacheToggleSwitch().IsOn());
+	AppSettings::Get().IsDisableEffectCache(DisableEffectCacheToggleSwitch().IsOn());
 }
 
 void SettingsPage::SaveEffectSourcesToggleSwitch_Toggled(IInspectable const&, RoutedEventArgs const&) {
-	_settings.IsSaveEffectSources(SaveEffectSourcesToggleSwitch().IsOn());
+	AppSettings::Get().IsSaveEffectSources(SaveEffectSourcesToggleSwitch().IsOn());
 }
 
 void SettingsPage::WarningsAreErrorsToggleSwitch_Toggled(IInspectable const&, RoutedEventArgs const&) {
-	_settings.IsWarningsAreErrors(WarningsAreErrorsToggleSwitch().IsOn());
+	AppSettings::Get().IsWarningsAreErrors(WarningsAreErrorsToggleSwitch().IsOn());
 }
 
 }

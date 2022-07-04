@@ -2,7 +2,6 @@
 
 #include "App.g.h"
 #include "App.base.h"
-#include "Settings.h"
 #include <winrt/Magpie.Runtime.h>
 
 
@@ -19,10 +18,6 @@ public:
 
 	uint64_t HwndHost() const noexcept {
 		return _hwndHost;
-	}
-
-	Magpie::App::Settings Settings() const noexcept {
-		return _settings;
 	}
 
 	Magpie::Runtime::MagRuntime MagRuntime() const noexcept {
@@ -46,7 +41,6 @@ public:
 	void OnHotkeyPressed(HotkeyAction action);
 
 private:
-	Magpie::App::Settings _settings;
 	Magpie::Runtime::MagSettings _magSettings;
 	Magpie::Runtime::MagRuntime _magRuntime;
 	uint64_t _hwndHost{};

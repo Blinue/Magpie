@@ -2,6 +2,7 @@
 #include "HotkeyService.h"
 #include "Logger.h"
 #include "HotkeyHelper.h"
+#include "AppSettings.h"
 
 
 namespace winrt::Magpie::App {
@@ -9,10 +10,9 @@ namespace winrt::Magpie::App {
 HotkeyService::HotkeyService() {
 	App app = Application::Current().as<App>();
 
-	_settings = app.Settings();
 	_hwndHost = (HWND)app.HwndHost();
 
-	_settings.HotkeyChanged({ this, &HotkeyService::_Settings_OnHotkeyChanged });
+	AppSettings::Get().HotkeyChanged({this, &HotkeyService::_Settings_OnHotkeyChanged});
 
 	_RegisterHotkey(HotkeyAction::Scale);
 	_RegisterHotkey(HotkeyAction::Overlay);
@@ -32,7 +32,7 @@ HotkeyService::~HotkeyService() {
 }
 
 void HotkeyService::_RegisterHotkey(HotkeyAction action) {
-	HotkeySettings hotkey = _settings.GetHotkey(action);
+	HotkeySettings hotkey = AppSettings::Get().GetHotkey(action);
 	if (hotkey == nullptr || hotkey.IsEmpty() || hotkey.Check() != HotkeyError::NoError) {
 		Logger::Get().Win32Error(fmt::format("注册热键 {} 失败", HotkeyHelper::ToString(action)));
 		_errors[(size_t)action] = true;

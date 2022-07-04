@@ -5,6 +5,7 @@
 #endif
 #include "HotkeyHelper.h"
 #include "HotkeyService.h"
+#include "AppSettings.h"
 
 
 using namespace winrt;
@@ -34,9 +35,8 @@ ShortcutControl::ShortcutControl() {
 	InitializeComponent();
 
 	App app = Application::Current().as<App>();
-	_settings = app.Settings();
 
-	_hotkeyChangedRevoker = _settings.HotkeyChanged(
+	_hotkeyChangedRevoker = AppSettings::Get().HotkeyChanged(
 		auto_revoke, { this,&ShortcutControl::_Settings_OnHotkeyChanged });
 
 	_shortcutDialog.Title(box_value(L"激活快捷键"));
@@ -80,7 +80,7 @@ void ShortcutControl::ShortcutDialog_Closing(ContentDialog const&, ContentDialog
 	UnhookWindowsHookEx(_keyboardHook);
 
 	if (args.Result() == ContentDialogResult::Primary) {
-		_settings.SetHotkey(Action(), _previewHotkey);
+		AppSettings::Get().SetHotkey(Action(), _previewHotkey);
 	}
 }
 
@@ -207,7 +207,7 @@ void ShortcutControl::_OnActionChanged(DependencyObject const& sender, Dependenc
 	that->_UpdateHotkey();
 }
 
-void ShortcutControl::_Settings_OnHotkeyChanged(IInspectable const&, HotkeyAction action) {
+void ShortcutControl::_Settings_OnHotkeyChanged(HotkeyAction action) {
 	if (action == Action()) {
 		_UpdateHotkey();
 	}
@@ -215,7 +215,7 @@ void ShortcutControl::_Settings_OnHotkeyChanged(IInspectable const&, HotkeyActio
 
 void ShortcutControl::_UpdateHotkey() {
 	HotkeyAction action = Action();
-	HotkeySettings hotkey = _settings.GetHotkey(action);
+	HotkeySettings hotkey = AppSettings::Get().GetHotkey(action);
 	if (hotkey) {
 		_hotkey.CopyFrom(hotkey);
 		// 此时 HotkeyManager 中的回调已执行

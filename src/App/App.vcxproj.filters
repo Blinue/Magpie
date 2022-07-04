@@ -25,6 +25,7 @@
     <ClCompile Include="MagService.cpp">
       <Filter>Services</Filter>
     </ClCompile>
+    <ClCompile Include="AppSettings.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -44,6 +45,7 @@
     <ClInclude Include="MagService.h">
       <Filter>Services</Filter>
     </ClInclude>
+    <ClInclude Include="AppSettings.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Assets">
@@ -79,7 +81,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-    <None Include="Settings.idl" />
     <None Include="MicaBrush.idl">
       <Filter>Brushes</Filter>
     </None>

@@ -6,6 +6,7 @@
 #include "Win32Utils.h"
 #include "Logger.h"
 #include "HotkeyService.h"
+#include "AppSettings.h"
 
 
 using namespace winrt;
@@ -48,17 +49,19 @@ App::~App() {
 }
 
 void App::OnClose() {
-	_settings.Save();
+	AppSettings::Get().Save();
 }
 
 bool App::Initialize(uint64_t hwndHost, uint64_t pWndRect, uint64_t pIsWndMaximized) {
 	_hwndHost = hwndHost;
 	
-	if (!_settings.Initialize()) {
+	AppSettings& settings = AppSettings::Get();
+
+	if (!settings.Initialize()) {
 		return false;
 	}
 
-	const Rect& windowRect = _settings.WindowRect();
+	const Rect& windowRect = settings.WindowRect();
 	*(RECT*)pWndRect = {
 		(LONG)std::lroundf(windowRect.X),
 		(LONG)std::lroundf(windowRect.Y),
@@ -66,7 +69,7 @@ bool App::Initialize(uint64_t hwndHost, uint64_t pWndRect, uint64_t pIsWndMaximi
 		(LONG)std::lroundf(windowRect.Height)
 	};
 
-	*(bool*)pIsWndMaximized = _settings.IsWindowMaximized();
+	*(bool*)pIsWndMaximized = settings.IsWindowMaximized();
 
 	return true;
 }

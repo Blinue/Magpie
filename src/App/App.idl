@@ -1,6 +1,5 @@
 #include "LoggerHelper.idl"
 #include "HotkeySettings.idl"
-#include "Settings.idl"
 #include "MainPage.idl"
 #include "SettingItem.idl"
 #include "SettingsGroup.idl"
@@ -16,6 +15,12 @@
 
 
 namespace Magpie.App {
+	enum HotkeyAction {
+		Scale,
+		Overlay,
+		COUNT_OR_NONE
+	};
+
 	[default_interface]
 	runtimeclass App : Microsoft.Toolkit.Win32.UI.XamlHost.XamlApplication {
 		App();
@@ -24,7 +29,6 @@ namespace Magpie.App {
 
 		Boolean Initialize(UInt64 hwndHost, UInt64 pWndRect, UInt64 pIsWndMaximized);
 
-		Settings Settings { get; };
 		Magpie.Runtime.MagRuntime MagRuntime{ get; };
 
 		UInt64 HwndHost { get; };

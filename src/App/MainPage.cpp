@@ -9,6 +9,7 @@
 #include "Logger.h"
 #include "StrUtils.h"
 #include "Win32Utils.h"
+#include "AppSettings.h"
 
 
 using namespace winrt;
@@ -20,10 +21,8 @@ namespace winrt::Magpie::App::implementation {
 MainPage::MainPage() {
 	InitializeComponent();
 
-	_settings = Application::Current().as<App>().Settings();
-
 	_UpdateTheme();
-	_settings.ThemeChanged([this](const auto&, int) { _UpdateTheme(); });
+	AppSettings::Get().ThemeChanged([this](int) { _UpdateTheme(); });
 
 	Background(Magpie::App::MicaBrush(*this));
 
@@ -91,7 +90,7 @@ MUXC::NavigationView MainPage::RootNavigationView() {
 }
 
 void MainPage::_UpdateTheme() {
-	int theme = _settings.Theme();
+	int theme = AppSettings::Get().Theme();
 
 	bool isDarkTheme = FALSE;
 	if (theme == 2) {

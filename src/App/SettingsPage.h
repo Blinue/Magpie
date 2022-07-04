@@ -1,7 +1,6 @@
 #pragma once
-
-#include "Settings.h"
 #include "SettingsPage.g.h"
+
 
 namespace winrt::Magpie::App::implementation {
 
@@ -23,9 +22,6 @@ struct SettingsPage : SettingsPageT<SettingsPage> {
 	void SaveEffectSourcesToggleSwitch_Toggled(IInspectable const&, RoutedEventArgs const&);
 
 	void WarningsAreErrorsToggleSwitch_Toggled(IInspectable const&, RoutedEventArgs const&);
-
-private:
-	Magpie::App::Settings _settings{ nullptr };
 };
 
 }

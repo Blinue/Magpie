@@ -1,13 +1,17 @@
 #pragma once
-#include "pch.h"
-#include "Settings.g.h"
+#include <winrt/Magpie.App.h>
 #include <winrt/Magpie.Runtime.h>
+#include "WinRTUtils.h"
 
 
-namespace winrt::Magpie::App::implementation {
+namespace winrt::Magpie::App {
 
-struct Settings : SettingsT<Settings> {
-	Settings() = default;
+class AppSettings {
+public:
+	static AppSettings& Get() {
+		static AppSettings instance;
+		return instance;
+	}
 
 	bool Initialize();
 
@@ -28,8 +32,15 @@ struct Settings : SettingsT<Settings> {
 	}
 	void Theme(int value);
 
-	event_token ThemeChanged(EventHandler<int> const& handler) {
+	event_token ThemeChanged(delegate<int> const& handler) {
 		return _themeChangedEvent.add(handler);
+	}
+
+	WinRTUtils::EventRevoker ThemeChanged(auto_revoke_t, delegate<int> const& handler) {
+		event_token token = ThemeChanged(handler);
+		return WinRTUtils::EventRevoker([this, token]() {
+			ThemeChanged(token);
+		});
 	}
 
 	void ThemeChanged(event_token const& token) {
@@ -52,14 +63,21 @@ struct Settings : SettingsT<Settings> {
 		_isWindowMaximized = value;
 	}
 
-	Magpie::App::HotkeySettings GetHotkey(HotkeyAction action) const {
+	HotkeySettings GetHotkey(HotkeyAction action) const {
 		return _hotkeys[(size_t)action];
 	}
 
-	void SetHotkey(HotkeyAction action, Magpie::App::HotkeySettings const& value);
+	void SetHotkey(HotkeyAction action, HotkeySettings const& value);
 
-	event_token HotkeyChanged(EventHandler<HotkeyAction> const& handler) {
+	event_token HotkeyChanged(delegate<HotkeyAction> const& handler) {
 		return _hotkeyChangedEvent.add(handler);
+	}
+
+	WinRTUtils::EventRevoker HotkeyChanged(auto_revoke_t, delegate<HotkeyAction> const& handler) {
+		event_token token = HotkeyChanged(handler);
+		return WinRTUtils::EventRevoker([this, token]() {
+			HotkeyChanged(token);
+		});
 	}
 
 	void HotkeyChanged(event_token const& token) {
@@ -72,8 +90,15 @@ struct Settings : SettingsT<Settings> {
 
 	void IsAutoRestore(bool value) noexcept;
 
-	event_token IsAutoRestoreChanged(EventHandler<bool> const& handler) {
+	event_token IsAutoRestoreChanged(delegate<bool> const& handler) {
 		return _isAutoRestoreChangedEvent.add(handler);
+	}
+
+	WinRTUtils::EventRevoker IsAutoRestoreChanged(auto_revoke_t, delegate<bool> const& handler) {
+		event_token token = IsAutoRestoreChanged(handler);
+		return WinRTUtils::EventRevoker([this, token]() {
+			IsAutoRestoreChanged(token);
+		});
 	}
 
 	void IsAutoRestoreChanged(event_token const& token) {
@@ -86,8 +111,15 @@ struct Settings : SettingsT<Settings> {
 
 	void DownCount(uint32_t value) noexcept;
 
-	event_token DownCountChanged(EventHandler<uint32_t> const& handler) {
+	event_token DownCountChanged(delegate<uint32_t> const& handler) {
 		return _downCountChangedEvent.add(handler);
+	}
+
+	WinRTUtils::EventRevoker DownCountChanged(auto_revoke_t, delegate<uint32_t> const& handler) {
+		event_token token = DownCountChanged(handler);
+		return WinRTUtils::EventRevoker([this, token]() {
+			DownCountChanged(token);
+		});
 	}
 
 	void DownCountChanged(event_token const& token) {
@@ -137,6 +169,11 @@ struct Settings : SettingsT<Settings> {
 	Magpie::Runtime::MagSettings GetMagSettings(uint64_t hWnd);
 
 private:
+	AppSettings() = default;
+
+	AppSettings(const AppSettings&) = delete;
+	AppSettings(AppSettings&&) = delete;
+
 	bool _LoadSettings(std::string text);
 	void _SetDefaultHotkeys();
 
@@ -147,19 +184,19 @@ private:
 	// 1: 深色
 	// 2: 系统
 	int _theme = 2;
-	event<EventHandler<int>> _themeChangedEvent;
+	event<delegate<int>> _themeChangedEvent;
 
 	Rect _windowRect{ CW_USEDEFAULT,CW_USEDEFAULT,1280,820 };
 	bool _isWindowMaximized = false;
 
-	std::array<Magpie::App::HotkeySettings, (size_t)HotkeyAction::COUNT_OR_NONE> _hotkeys;
-	event<EventHandler<HotkeyAction>> _hotkeyChangedEvent;
+	std::array<HotkeySettings, (size_t)HotkeyAction::COUNT_OR_NONE> _hotkeys;
+	event<delegate<HotkeyAction>> _hotkeyChangedEvent;
 
 	bool _isAutoRestore = false;
-	event<EventHandler<bool>> _isAutoRestoreChangedEvent;
+	event<delegate<bool>> _isAutoRestoreChangedEvent;
 
 	uint32_t _downCount = 5;
-	event<EventHandler<uint32_t>> _downCountChangedEvent;
+	event<delegate<uint32_t>> _downCountChangedEvent;
 
 	bool _isBreakpointMode = false;
 	bool _isDisableEffectCache = false;
@@ -169,13 +206,6 @@ private:
 	bool _isSimulateExclusiveFullscreen = false;
 
 	Magpie::Runtime::MagSettings _defaultMagSettings;
-};
-
-}
-
-namespace winrt::Magpie::App::factory_implementation {
-
-struct Settings : SettingsT<Settings, implementation::Settings> {
 };
 
 }

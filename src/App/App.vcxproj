@@ -103,6 +103,7 @@
       <SubType>Code</SubType>
     </ClInclude>
     <ClInclude Include="app.base.h" />
+    <ClInclude Include="AppSettings.h" />
     <ClInclude Include="BooleanToVisibilityConverter.h">
       <DependentUpon>BooleanToVisibilityConverter.idl</DependentUpon>
       <SubType>Code</SubType>
@@ -137,10 +138,6 @@
     </ClInclude>
     <ClInclude Include="SettingItem.h">
       <DependentUpon>SettingItem.xaml</DependentUpon>
-      <SubType>Code</SubType>
-    </ClInclude>
-    <ClInclude Include="Settings.h">
-      <DependentUpon>Settings.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
     <ClInclude Include="HomePage.h">
@@ -191,6 +188,7 @@
       <DependentUpon>AboutPage.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
+    <ClCompile Include="AppSettings.cpp" />
     <ClCompile Include="BooleanToVisibilityConverter.cpp">
       <DependentUpon>BooleanToVisibilityConverter.idl</DependentUpon>
       <SubType>Code</SubType>
@@ -224,10 +222,6 @@
     </ClCompile>
     <ClCompile Include="SettingItem.cpp">
       <DependentUpon>SettingItem.xaml</DependentUpon>
-      <SubType>Code</SubType>
-    </ClCompile>
-    <ClCompile Include="Settings.cpp">
-      <DependentUpon>Settings.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
     <ClCompile Include="HomePage.cpp">
@@ -314,9 +308,6 @@
     <Midl Include="App.idl">
       <DependentUpon>App.xaml</DependentUpon>
     </Midl>
-    <None Include="Settings.idl">
-      <SubType>Designer</SubType>
-    </None>
     <None Include="HomePage.idl">
       <DependentUpon>HomePage.xaml</DependentUpon>
       <SubType>Code</SubType>

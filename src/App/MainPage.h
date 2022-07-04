@@ -2,7 +2,6 @@
 #include "pch.h"
 #include "MainPage.g.h"
 #include "MicaBrush.h"
-#include "Settings.h"
 
 
 namespace winrt::Magpie::App::implementation
@@ -27,7 +26,6 @@ namespace winrt::Magpie::App::implementation
 		Windows::UI::ViewManagement::UISettings _uiSettings;
 		event_token _colorChangedToken{};
 
-		Magpie::App::Settings _settings{ nullptr };
 		std::optional<bool> _isDarkTheme;
 	};
 }

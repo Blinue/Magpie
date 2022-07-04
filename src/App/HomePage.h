@@ -34,9 +34,6 @@ private:
 
 	void _UpdateDownCount();
 
-	bool _initialized = false;
-
-	Magpie::App::Settings _settings{ nullptr };
 	Magpie::Runtime::MagRuntime _magRuntime{ nullptr };
 
 	WinRTUtils::EventRevoker _isCountingDownRevoker;

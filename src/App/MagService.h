@@ -81,11 +81,14 @@ public:
 private:
 	MagService();
 
+	MagService(const MagService&) = delete;
+	MagService(MagService&&) = delete;
+
 	void _HotkeyService_HotkeyPressed(HotkeyAction action);
 
 	void _Timer_Tick(IInspectable const&, IInspectable const&);
 
-	void _Settings_IsAutoRestoreChanged(IInspectable const&, bool);
+	void _Settings_IsAutoRestoreChanged(bool);
 
 	IAsyncAction _MagRuntime_IsRunningChanged(IInspectable const&, bool);
 
@@ -105,7 +108,6 @@ private:
 		DWORD /*dwmsEventTime*/
 	);
 
-	Magpie::App::Settings _settings{ nullptr };
 	Magpie::Runtime::MagRuntime _magRuntime{ nullptr };
 	CoreDispatcher _dispatcher{ nullptr };
 

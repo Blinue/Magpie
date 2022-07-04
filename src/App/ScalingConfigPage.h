@@ -34,7 +34,6 @@ struct ScalingConfigPage : ScalingConfigPageT<ScalingConfigPage> {
 private:
 	void _UpdateVSync();
 
-	bool _initialized = false;
 	Magpie::Runtime::MagSettings _magSettings{ nullptr };
 };
 

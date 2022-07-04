@@ -2,13 +2,13 @@
 #include "MagService.h"
 #include "HotkeyService.h"
 #include "Win32Utils.h"
+#include "AppSettings.h"
 
 
 namespace winrt::Magpie::App {
 
 MagService::MagService() {
 	App app = Application::Current().as<App>();
-	_settings = app.Settings();
 	_magRuntime = app.MagRuntime();
 
 	_dispatcher = CoreWindow::GetForCurrentThread().Dispatcher();
@@ -19,7 +19,7 @@ MagService::MagService() {
 		{ this, &MagService::_Timer_Tick }
 	);
 
-	_settings.IsAutoRestoreChanged({ this, &MagService::_Settings_IsAutoRestoreChanged });
+	AppSettings::Get().IsAutoRestoreChanged({this, &MagService::_Settings_IsAutoRestoreChanged});
 	_magRuntime.IsRunningChanged({ this, &MagService::_MagRuntime_IsRunningChanged });
 
 	HotkeyService::Get().HotkeyPressed(
@@ -36,7 +36,7 @@ void MagService::StartCountdown() {
 		return;
 	}
 
-	_tickingDownCount = _settings.DownCount();
+	_tickingDownCount = AppSettings::Get().DownCount();
 	_timerStartTimePoint = std::chrono::steady_clock::now();
 	_timer.Start();
 	_isCountingDownChangedEvent(true);
@@ -112,7 +112,7 @@ void MagService::_Timer_Tick(IInspectable const&, IInspectable const&) {
 	_countdownTickEvent(timeLeft);
 }
 
-void MagService::_Settings_IsAutoRestoreChanged(IInspectable const&, bool) {
+void MagService::_Settings_IsAutoRestoreChanged(bool) {
 	_UpdateIsAutoRestore();
 }
 
@@ -121,7 +121,7 @@ IAsyncAction MagService::_MagRuntime_IsRunningChanged(IInspectable const&, bool)
 		if (_magRuntime.IsRunning()) {
 			StopCountdown();
 
-			if (_settings.IsAutoRestore()) {
+			if (AppSettings::Get().IsAutoRestore()) {
 				_curSrcWnd = (HWND)_magRuntime.HwndSrc();
 				_wndToRestore = 0;
 				_wndToRestoreChangedEvent(_wndToRestore);
@@ -136,7 +136,7 @@ IAsyncAction MagService::_MagRuntime_IsRunningChanged(IInspectable const&, bool)
 					SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
 			}
 
-			if (_settings.IsAutoRestore()) {
+			if (AppSettings::Get().IsAutoRestore()) {
 				// 退出全屏之后前台窗口不变则不必记忆
 				if (IsWindow(_curSrcWnd) && GetForegroundWindow() != _curSrcWnd) {
 					_wndToRestore = (uint64_t)_curSrcWnd;
@@ -150,7 +150,7 @@ IAsyncAction MagService::_MagRuntime_IsRunningChanged(IInspectable const&, bool)
 }
 
 void MagService::_UpdateIsAutoRestore() {
-	if (_settings.IsAutoRestore()) {
+	if (AppSettings::Get().IsAutoRestore()) {
 		// 立即生效，即使正处于缩放状态
 		_curSrcWnd = (HWND)_magRuntime.HwndSrc();
 
@@ -216,15 +216,16 @@ void MagService::_StartScale(uint64_t hWnd) {
 		return;
 	}
 
+	AppSettings& settings = AppSettings::Get();
 	Magpie::Runtime::MagSettings magSettings;
-	magSettings.CopyFrom(_settings.GetMagSettings(_wndToRestore));
+	magSettings.CopyFrom(settings.GetMagSettings(_wndToRestore));
 
 	// 应用全局配置
-	magSettings.IsBreakpointMode(_settings.IsBreakpointMode());
-	magSettings.IsDisableEffectCache(_settings.IsDisableEffectCache());
-	magSettings.IsSaveEffectSources(_settings.IsSaveEffectSources());
-	magSettings.IsWarningsAreErrors(_settings.IsWarningsAreErrors());
-	magSettings.IsSimulateExclusiveFullscreen(_settings.IsSimulateExclusiveFullscreen());
+	magSettings.IsBreakpointMode(settings.IsBreakpointMode());
+	magSettings.IsDisableEffectCache(settings.IsDisableEffectCache());
+	magSettings.IsSaveEffectSources(settings.IsSaveEffectSources());
+	magSettings.IsWarningsAreErrors(settings.IsWarningsAreErrors());
+	magSettings.IsSimulateExclusiveFullscreen(settings.IsSimulateExclusiveFullscreen());
 
 	_magRuntime.Run(hWnd, magSettings);
 }

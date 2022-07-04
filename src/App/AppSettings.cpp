@@ -1,21 +1,15 @@
 #include "pch.h"
-#include "Settings.h"
-#if __has_include("Settings.g.cpp")
-#include "Settings.g.cpp"
-#endif
-#include "Win32Utils.h"
+#include "AppSettings.h"
 #include "StrUtils.h"
+#include "Win32Utils.h"
 #include "Logger.h"
 #include "HotkeyHelper.h"
 #include "CommonSharedConstants.h"
 #include <rapidjson/document.h>
 #include <rapidjson/prettywriter.h>
 
-using namespace winrt;
-using namespace Windows::Foundation;
 
-
-namespace winrt::Magpie::App::implementation {
+namespace winrt::Magpie::App {
 
 static hstring GetWorkingDir(bool isPortableMode) {
 	if (isPortableMode) {
@@ -115,7 +109,7 @@ bool LoadFloatSettingItem(
 	return true;
 }
 
-bool Settings::Initialize() {
+bool AppSettings::Initialize() {
 	Logger& logger = Logger::Get();
 
 	// 若程序所在目录存在配置文件则为便携模式
@@ -165,12 +159,12 @@ void WriteScalingConfig(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer
 	writer.Key("reserveTitleBar");
 	writer.Bool(magSettings.IsReserveTitleBar());
 	writer.Key("cropping");
-	
+
 	{
 		Magpie::Runtime::Cropping cropping = magSettings.Cropping();
 
 		writer.StartObject();
-		
+
 		writer.Key("left");
 		writer.Double(cropping.Left);
 		writer.Key("top");
@@ -182,7 +176,7 @@ void WriteScalingConfig(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer
 
 		writer.EndObject();
 	}
-	
+
 	writer.EndObject();
 }
 
@@ -269,7 +263,7 @@ bool LoadScalingConfig(const rapidjson::GenericObject<false, rapidjson::Value>& 
 				return false;
 			}
 			cropping.Left = floatValue.value();
-			
+
 			if (!LoadFloatSettingItem(croppingObj, "top", floatValue) || !floatValue.has_value()) {
 				return false;
 			}
@@ -291,7 +285,7 @@ bool LoadScalingConfig(const rapidjson::GenericObject<false, rapidjson::Value>& 
 	return true;
 }
 
-bool Settings::Save() {
+bool AppSettings::Save() {
 	std::wstring configDir = StrUtils::ConcatW(_workingDir, L"config");
 	if (!Win32Utils::CreateDir(configDir)) {
 		Logger::Get().Error("创建配置文件夹失败");
@@ -351,7 +345,7 @@ bool Settings::Save() {
 	writer.Bool(_isWarningsAreErrors);
 	writer.Key("simulateExclusiveFullscreen");
 	writer.Bool(_isSimulateExclusiveFullscreen);
-	
+
 	writer.Key("scalingConfigs");
 	writer.StartObject();
 	writer.Key("default");
@@ -368,7 +362,7 @@ bool Settings::Save() {
 	return true;
 }
 
-void Settings::IsPortableMode(bool value) {
+void AppSettings::IsPortableMode(bool value) {
 	if (_isPortableMode == value) {
 		return;
 	}
@@ -390,7 +384,7 @@ void Settings::IsPortableMode(bool value) {
 	}
 }
 
-void Settings::Theme(int value) {
+void AppSettings::Theme(int value) {
 	assert(value >= 0 && value <= 2);
 
 	if (_theme == value) {
@@ -401,38 +395,38 @@ void Settings::Theme(int value) {
 	Logger::Get().Info(StrUtils::Concat("主题已更改为：", SETTINGS[value]));
 
 	_theme = value;
-	_themeChangedEvent(*this, value);
+	_themeChangedEvent(value);
 }
 
-void Settings::SetHotkey(HotkeyAction action, Magpie::App::HotkeySettings const& value) {
+void AppSettings::SetHotkey(HotkeyAction action, Magpie::App::HotkeySettings const& value) {
 	if (_hotkeys[(size_t)action].Equals(value)) {
 		return;
 	}
 
 	_hotkeys[(size_t)action].CopyFrom(value);
 	Logger::Get().Info(fmt::format("热键 {} 已更改为 {}", HotkeyHelper::ToString(action), StrUtils::UTF16ToUTF8(value.ToString())));
-	_hotkeyChangedEvent(*this, action);
+	_hotkeyChangedEvent(action);
 }
 
-void Settings::IsAutoRestore(bool value) noexcept {
+void AppSettings::IsAutoRestore(bool value) noexcept {
 	if (_isAutoRestore == value) {
 		return;
 	}
 
 	_isAutoRestore = value;
-	_isAutoRestoreChangedEvent(*this, value);
+	_isAutoRestoreChangedEvent(value);
 }
 
-void Settings::DownCount(uint32_t value) noexcept {
+void AppSettings::DownCount(uint32_t value) noexcept {
 	if (_downCount == value) {
 		return;
 	}
 
 	_downCount = value;
-	_downCountChangedEvent(*this, value);
+	_downCountChangedEvent(value);
 }
 
-Magpie::Runtime::MagSettings Settings::GetMagSettings(uint64_t hWnd) {
+Magpie::Runtime::MagSettings AppSettings::GetMagSettings(uint64_t hWnd) {
 	if (hWnd == 0) {
 		return _defaultMagSettings;
 	}
@@ -441,7 +435,7 @@ Magpie::Runtime::MagSettings Settings::GetMagSettings(uint64_t hWnd) {
 }
 
 // 遇到不合法的配置项会失败，因此用户不应直接编辑配置文件
-bool Settings::_LoadSettings(std::string text) {
+bool AppSettings::_LoadSettings(std::string text) {
 	if (text.empty()) {
 		Logger::Get().Info("配置文件为空");
 		return true;
@@ -586,14 +580,14 @@ bool Settings::_LoadSettings(std::string text) {
 	return true;
 }
 
-void Settings::_SetDefaultHotkeys() {
+void AppSettings::_SetDefaultHotkeys() {
 	const HotkeySettings& scaleHotkey = _hotkeys[(size_t)HotkeyAction::Scale];
 	if (scaleHotkey.IsEmpty()) {
 		scaleHotkey.Win(true);
 		scaleHotkey.Shift(true);
 		scaleHotkey.Code('A');
 	}
-	
+
 	const HotkeySettings& overlayHotkey = _hotkeys[(size_t)HotkeyAction::Overlay];
 	if (overlayHotkey.IsEmpty()) {
 		overlayHotkey.Win(true);
@@ -601,5 +595,6 @@ void Settings::_SetDefaultHotkeys() {
 		overlayHotkey.Code('D');
 	}
 }
+
 
 }

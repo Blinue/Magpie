@@ -2,6 +2,7 @@
 
 #include "pch.h"
 #include "ShortcutControl.g.h"
+#include "WinRTUtils.h"
 
 
 namespace winrt::Magpie::App::implementation {
@@ -32,13 +33,13 @@ private:
 	
 	static void _OnActionChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&);
 
-	void _Settings_OnHotkeyChanged(IInspectable const&, HotkeyAction action);
+	void _Settings_OnHotkeyChanged(HotkeyAction action);
 
 	void _UpdateHotkey();
 
 	void _IsError(bool value);
 
-	Magpie::App::Settings::HotkeyChanged_revoker _hotkeyChangedRevoker;
+	WinRTUtils::EventRevoker _hotkeyChangedRevoker;
 
 	Magpie::App::HotkeySettings _hotkey;
 	Controls::ContentDialog _shortcutDialog;
@@ -52,8 +53,6 @@ private:
 
 	Magpie::App::HotkeySettings _previewHotkey;
 	Magpie::App::HotkeySettings _pressedKeys;
-
-	Magpie::App::Settings _settings{ nullptr };
 };
 
 }

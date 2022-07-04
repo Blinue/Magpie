@@ -6,6 +6,7 @@
 #include "StrUtils.h"
 #include "Win32Utils.h"
 #include "MagService.h"
+#include "AppSettings.h"
 
 
 using namespace winrt;
@@ -18,7 +19,6 @@ HomePage::HomePage() {
 	InitializeComponent();
 
 	App app = Application::Current().as<App>();
-	_settings = app.Settings();
 	_magRuntime = app.MagRuntime();
 
 	MagService& magService = MagService::Get();
@@ -43,30 +43,30 @@ HomePage::HomePage() {
 		{ this, &HomePage::_MagRuntime_IsRunningChanged }
 	);
 
-	AutoRestoreToggleSwitch().IsOn(_settings.IsAutoRestore());
+	AutoRestoreToggleSwitch().IsOn(AppSettings::Get().IsAutoRestore());
 	_UpdateAutoRestoreState();
 
 	CountdownButton().IsEnabled(!_magRuntime.IsRunning());
-	CountdownSlider().Value(_settings.DownCount());
+	CountdownSlider().Value(AppSettings::Get().DownCount());
 	_UpdateDownCount();
-
-	_initialized = true;
 }
 
 void HomePage::AutoRestoreToggleSwitch_Toggled(IInspectable const&, RoutedEventArgs const&) {
-	if (_settings) {
-		bool isOn = AutoRestoreToggleSwitch().IsOn();
-		_settings.IsAutoRestore(isOn);
+	if (!IsLoaded()) {
+		return;
+	}
 
-		if (!isOn) {
-			AutoRestoreSettingItem().Visibility(Visibility::Visible);
-			AutoRestoreExpander().Visibility(Visibility::Collapsed);
-		}
+	bool isOn = AutoRestoreToggleSwitch().IsOn();
+	AppSettings::Get().IsAutoRestore(isOn);
+
+	if (!isOn) {
+		AutoRestoreSettingItem().Visibility(Visibility::Visible);
+		AutoRestoreExpander().Visibility(Visibility::Collapsed);
 	}
 }
 
 void HomePage::AutoRestoreExpanderToggleSwitch_Toggled(IInspectable const&, RoutedEventArgs const&) {
-	if (!_initialized) {
+	if (!IsLoaded()) {
 		return;
 	}
 
@@ -75,11 +75,11 @@ void HomePage::AutoRestoreExpanderToggleSwitch_Toggled(IInspectable const&, Rout
 }
 
 void HomePage::CountdownSlider_ValueChanged(IInspectable const&, RangeBaseValueChangedEventArgs const& args) {
-	if (!_initialized) {
+	if (!IsLoaded()) {
 		return;
 	}
 
-	_settings.DownCount((uint32_t)args.NewValue());
+	AppSettings::Get().DownCount((uint32_t)args.NewValue());
 	_UpdateDownCount();
 }
 
@@ -150,7 +150,7 @@ void HomePage::_UpdateDownCount() {
 		_MagService_CountdownTick(MagService::Get().CountdownLeft());
 	} else {
 		CountdownVisual().Visibility(Visibility::Collapsed);
-		CountdownButton().Content(box_value(fmt::format(L"{} 秒后缩放", _settings.DownCount())));
+		CountdownButton().Content(box_value(fmt::format(L"{} 秒后缩放", AppSettings::Get().DownCount())));
 
 		// 修复动画错误
 		CountdownProgressRing().Value(1.0f);

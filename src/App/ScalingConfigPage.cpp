@@ -5,6 +5,7 @@
 #endif
 #include "Win32Utils.h"
 #include "ComboBoxHelper.h"
+#include "AppSettings.h"
 #include <dxgi1_6.h>
 
 using namespace winrt;
@@ -44,7 +45,7 @@ ScalingConfigPage::ScalingConfigPage() {
 	InitializeComponent();
 
 	App app = Application::Current().as<App>();
-	_magSettings = app.Settings().GetMagSettings(0);
+	_magSettings = AppSettings::Get().GetMagSettings(0);
 
 	if (Win32Utils::GetOSBuild() < 22000) {
 		// Segoe MDL2 Assets 不存在 Move 图标
@@ -92,8 +93,6 @@ ScalingConfigPage::ScalingConfigPage() {
 
 	DisableWindowResizingToggleSwitch().IsOn(_magSettings.IsDisableWindowResizing());
 	ReserveTitleBarToggleSwitch().IsOn(_magSettings.IsReserveTitleBar());
-
-	_initialized = true;
 }
 
 void ScalingConfigPage::ComboBox_DropDownOpened(IInspectable const& sender, IInspectable const&) {
@@ -101,7 +100,7 @@ void ScalingConfigPage::ComboBox_DropDownOpened(IInspectable const& sender, IIns
 }
 
 void ScalingConfigPage::CaptureModeComboBox_SelectionChanged(IInspectable const&, Controls::SelectionChangedEventArgs const&) {
-	if (!_initialized) {
+	if (!IsLoaded()) {
 		return;
 	}
 
@@ -109,7 +108,7 @@ void ScalingConfigPage::CaptureModeComboBox_SelectionChanged(IInspectable const&
 }
 
 void ScalingConfigPage::MultiMonitorUsageComboBox_SelectionChanged(IInspectable const&, Controls::SelectionChangedEventArgs const&) {
-	if (!_initialized) {
+	if (!IsLoaded()) {
 		return;
 	}
 
@@ -117,7 +116,7 @@ void ScalingConfigPage::MultiMonitorUsageComboBox_SelectionChanged(IInspectable 
 }
 
 void ScalingConfigPage::GraphicsAdapterComboBox_SelectionChanged(IInspectable const&, Controls::SelectionChangedEventArgs const&) {
-	if (!_initialized) {
+	if (!IsLoaded()) {
 		return;
 	}
 
@@ -133,7 +132,7 @@ void ScalingConfigPage::ShowFPSToggleSwitch_Toggled(IInspectable const&, RoutedE
 }
 
 void ScalingConfigPage::VSyncToggleSwitch_Toggled(IInspectable const&, RoutedEventArgs const&) {
-	if (!_initialized) {
+	if (!IsLoaded()) {
 		return;
 	}
 
