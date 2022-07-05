@@ -8,7 +8,7 @@
 	xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
     mc:Ignorable="d">
 
-	<local:PageFrame Title="默认">
+	<local:PageFrame Title="{x:Bind ViewModel.Name, Mode=OneWay}">
 		<StackPanel Orientation="Vertical" HorizontalAlignment="Stretch">
 			<local:SettingsGroup Margin="0,-15,0,0" Title="常规">
 				<local:SettingItem Title="缩放模式">
@@ -26,7 +26,7 @@
 						<FontIcon Glyph="&#xE9A6;"/>
 					</local:SettingItem.Icon>
 					<local:SettingItem.ActionContent>
-						<ComboBox x:Name="CaptureModeComboBox" Style="{StaticResource ComboBoxSettingStyle}" DropDownOpened="ComboBox_DropDownOpened" SelectionChanged="CaptureModeComboBox_SelectionChanged">
+						<ComboBox SelectedIndex="{x:Bind ViewModel.CaptureMode, Mode=TwoWay}" Style="{StaticResource ComboBoxSettingStyle}" DropDownOpened="ComboBox_DropDownOpened">
 							<x:String>Graphics Capture</x:String>
 							<x:String>Desktop Duplication</x:String>
 							<x:String>GDI</x:String>
@@ -39,7 +39,7 @@
 						<FontIcon Glyph="&#xE7FC;"/>
 					</local:SettingItem.Icon>
 					<local:SettingItem.ActionContent>
-						<ToggleSwitch x:Name="Is3DGameModeToggleSwitch" Toggled="Is3DGameModeToggleSwitch_Toggled" />
+						<ToggleSwitch IsOn="{x:Bind ViewModel.Is3DGameMode, Mode=TwoWay}" />
 					</local:SettingItem.ActionContent>
 				</local:SettingItem>
 				<local:SettingItem x:Name="MultiMonitorSettingItem" Title="多显示器">
@@ -47,7 +47,7 @@
 						<FontIcon Glyph="&#xf5a9;"/>
 					</local:SettingItem.Icon>
 					<local:SettingItem.ActionContent>
-						<ComboBox x:Name="MultiMonitorUsageComboBox" SelectionChanged="MultiMonitorUsageComboBox_SelectionChanged" Style="{StaticResource ComboBoxSettingStyle}" DropDownOpened="ComboBox_DropDownOpened">
+						<ComboBox x:Name="MultiMonitorUsageComboBox" SelectedIndex="{x:Bind ViewModel.MultiMonitorUsage, Mode=TwoWay}" Style="{StaticResource ComboBoxSettingStyle}" DropDownOpened="ComboBox_DropDownOpened">
 							<x:String>使用距离源窗口最近的显示器</x:String>
 							<x:String>使用源窗口跨越的所有显示器</x:String>
 							<x:String>使用所有显示器</x:String>

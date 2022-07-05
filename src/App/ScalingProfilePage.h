@@ -17,13 +17,7 @@ struct ScalingProfilePage : ScalingProfilePageT<ScalingProfilePage> {
 
 	void ComboBox_DropDownOpened(IInspectable const& sender, IInspectable const&);
 
-	void CaptureModeComboBox_SelectionChanged(IInspectable const&, Controls::SelectionChangedEventArgs const&);
-
-	void MultiMonitorUsageComboBox_SelectionChanged(IInspectable const&, Controls::SelectionChangedEventArgs const&);
-
 	void GraphicsAdapterComboBox_SelectionChanged(IInspectable const&, Controls::SelectionChangedEventArgs const&);
-
-	void Is3DGameModeToggleSwitch_Toggled(IInspectable const&, RoutedEventArgs const&);
 
 	void ShowFPSToggleSwitch_Toggled(IInspectable const&, RoutedEventArgs const&);
 
@@ -41,7 +35,7 @@ private:
 	void _UpdateVSync();
 
 	Magpie::Runtime::MagSettings _magSettings{ nullptr };
-	Magpie::App::ScalingProfileViewModel _viewModel;
+	Magpie::App::ScalingProfileViewModel _viewModel{ nullptr };
 };
 
 }

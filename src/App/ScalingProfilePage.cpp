@@ -3,6 +3,7 @@
 #if __has_include("ScalingProfilePage.g.cpp")
 #include "ScalingProfilePage.g.cpp"
 #endif
+#include "ScalingProfileViewModel.h"
 #include "Win32Utils.h"
 #include "ComboBoxHelper.h"
 #include "AppSettings.h"
@@ -51,9 +52,6 @@ ScalingProfilePage::ScalingProfilePage() {
 		AdjustCursorSpeedFontIcon().Glyph(L"\uE962");
 	}
 
-	CaptureModeComboBox().SelectedIndex((int32_t)_magSettings.CaptureMode());
-
-	MultiMonitorUsageComboBox().SelectedIndex((int32_t)_magSettings.MultiMonitorUsage());
 	if (GetSystemMetrics(SM_CMONITORS) <= 1) {
 		// 只有一个显示器时隐藏多显示器选项
 		MultiMonitorSettingItem().Visibility(Visibility::Collapsed);
@@ -83,7 +81,6 @@ ScalingProfilePage::ScalingProfilePage() {
 		}
 	}
 	
-	Is3DGameModeToggleSwitch().IsOn(_magSettings.Is3DGameMode());
 	ShowFPSToggleSwitch().IsOn(_magSettings.IsShowFPS());
 
 	VSyncToggleSwitch().IsOn(_magSettings.IsVSync());
@@ -96,27 +93,11 @@ ScalingProfilePage::ScalingProfilePage() {
 
 void ScalingProfilePage::OnNavigatedTo(Navigation::NavigationEventArgs const& args) {
 	uint32_t profileId = args.Parameter().as<uint32_t>();
-	profileId;
+	_viewModel = make<ScalingProfileViewModel>(profileId);
 }
 
 void ScalingProfilePage::ComboBox_DropDownOpened(IInspectable const& sender, IInspectable const&) {
 	ComboBoxHelper::DropDownOpened(*this, sender);
-}
-
-void ScalingProfilePage::CaptureModeComboBox_SelectionChanged(IInspectable const&, Controls::SelectionChangedEventArgs const&) {
-	if (!IsLoaded()) {
-		return;
-	}
-
-	_magSettings.CaptureMode((Magpie::Runtime::CaptureMode)CaptureModeComboBox().SelectedIndex());
-}
-
-void ScalingProfilePage::MultiMonitorUsageComboBox_SelectionChanged(IInspectable const&, Controls::SelectionChangedEventArgs const&) {
-	if (!IsLoaded()) {
-		return;
-	}
-
-	_magSettings.MultiMonitorUsage((Magpie::Runtime::MultiMonitorUsage)MultiMonitorUsageComboBox().SelectedIndex());
 }
 
 void ScalingProfilePage::GraphicsAdapterComboBox_SelectionChanged(IInspectable const&, Controls::SelectionChangedEventArgs const&) {
@@ -125,10 +106,6 @@ void ScalingProfilePage::GraphicsAdapterComboBox_SelectionChanged(IInspectable c
 	}
 
 	_magSettings.GraphicsAdapter(GraphicsAdapterComboBox().SelectedIndex());
-}
-
-void ScalingProfilePage::Is3DGameModeToggleSwitch_Toggled(IInspectable const&, RoutedEventArgs const&) {
-	_magSettings.Is3DGameMode(Is3DGameModeToggleSwitch().IsOn());
 }
 
 void ScalingProfilePage::ShowFPSToggleSwitch_Toggled(IInspectable const&, RoutedEventArgs const&) {

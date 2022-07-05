@@ -3,6 +3,11 @@ namespace Magpie.App
 	[default_interface]
 	runtimeclass ScalingProfileViewModel : Windows.UI.Xaml.Data.INotifyPropertyChanged
 	{
-		ScalingProfileViewModel();
+		ScalingProfileViewModel(UInt32 profileId);
+
+		String Name;
+		Int32 CaptureMode;
+		Boolean Is3DGameMode;
+		Int32 MultiMonitorUsage;
 	}
 }
