@@ -200,4 +200,17 @@ void ScalingProfileViewModel::IsReserveTitleBar(bool value) {
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsReserveTitleBar"));
 }
 
+bool ScalingProfileViewModel::IsCroppingEnabled() const noexcept {
+	return _profile.IsCroppingEnabled();
+}
+
+void ScalingProfileViewModel::IsCroppingEnabled(bool value) {
+	if (_profile.IsCroppingEnabled() == value) {
+		return;
+	}
+
+	_profile.IsCroppingEnabled(value);
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsCroppingEnabled"));
+}
+
 }

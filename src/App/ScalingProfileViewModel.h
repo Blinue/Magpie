@@ -53,6 +53,9 @@ struct ScalingProfileViewModel : ScalingProfileViewModelT<ScalingProfileViewMode
 	bool IsReserveTitleBar() const noexcept;
 	void IsReserveTitleBar(bool value);
 
+	bool IsCroppingEnabled() const noexcept;
+	void IsCroppingEnabled(bool value);
+
 private:
 	IVector<IInspectable> _graphicsAdapters;
 

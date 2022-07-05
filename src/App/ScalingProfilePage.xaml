@@ -124,7 +124,7 @@
 								<FontIcon Glyph="&#xE7A8;" />
 							</local:SettingItem.Icon>
 							<local:SettingItem.ActionContent>
-								<ToggleSwitch />
+								<ToggleSwitch IsOn="{x:Bind ViewModel.IsCroppingEnabled, Mode=TwoWay}" />
 							</local:SettingItem.ActionContent>
 						</local:SettingItem>
 					</muxc:Expander.Header>
@@ -141,7 +141,7 @@
 								</Style>
 							</StackPanel.Resources>
 
-							<local:SettingItem Title="左" Style="{StaticResource ExpanderContentSettingStyle}">
+							<local:SettingItem Title="左" IsEnabled="{x:Bind ViewModel.IsCroppingEnabled, Mode=OneWay}" Style="{StaticResource ExpanderContentSettingStyle}">
 								<local:SettingItem.ActionContent>
 									<StackPanel Orientation="Horizontal" Spacing="10">
 										<muxc:NumberBox />
@@ -149,7 +149,7 @@
 									</StackPanel>
 								</local:SettingItem.ActionContent>
 							</local:SettingItem>
-							<local:SettingItem Title="右" Style="{StaticResource ExpanderContentSettingStyle}">
+							<local:SettingItem Title="右" IsEnabled="{x:Bind ViewModel.IsCroppingEnabled, Mode=OneWay}" Style="{StaticResource ExpanderContentSettingStyle}">
 								<local:SettingItem.ActionContent>
 									<StackPanel Orientation="Horizontal" Spacing="10">
 										<muxc:NumberBox />
@@ -157,7 +157,7 @@
 									</StackPanel>
 								</local:SettingItem.ActionContent>
 							</local:SettingItem>
-							<local:SettingItem Title="上" Style="{StaticResource ExpanderContentSettingStyle}">
+							<local:SettingItem Title="上" IsEnabled="{x:Bind ViewModel.IsCroppingEnabled, Mode=OneWay}" Style="{StaticResource ExpanderContentSettingStyle}">
 								<local:SettingItem.ActionContent>
 									<StackPanel Orientation="Horizontal" Spacing="10">
 										<muxc:NumberBox />
@@ -165,7 +165,7 @@
 									</StackPanel>
 								</local:SettingItem.ActionContent>
 							</local:SettingItem>
-							<local:SettingItem Title="下" Style="{StaticResource ExpanderContentSettingStyle}">
+							<local:SettingItem Title="下" IsEnabled="{x:Bind ViewModel.IsCroppingEnabled, Mode=OneWay}" Style="{StaticResource ExpanderContentSettingStyle}">
 								<local:SettingItem.ActionContent>
 									<StackPanel Orientation="Horizontal" Spacing="10">
 										<muxc:NumberBox />

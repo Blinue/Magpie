@@ -32,6 +32,14 @@ public:
 		_classNameRule = value;
 	}
 
+	bool IsCroppingEnabled() const noexcept {
+		return _isCroppingEnabled;
+	}
+
+	void IsCroppingEnabled(bool value) noexcept {
+		_isCroppingEnabled = value;
+	}
+
 	Magpie::Runtime::MagSettings MagSettings() const noexcept {
 		return _magSettings;
 	}
@@ -41,6 +49,8 @@ private:
 
 	std::wstring _pathRule;
 	std::wstring _classNameRule;
+
+	bool _isCroppingEnabled = false;
 
 	Magpie::Runtime::MagSettings _magSettings;
 };
