@@ -6,6 +6,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
+	xmlns:wgn="using:Windows.Globalization.NumberFormatting"
     mc:Ignorable="d">
 
 	<local:PageFrame Title="{x:Bind ViewModel.Name, Mode=OneWay}">
@@ -77,6 +78,7 @@
 				<muxc:Expander
 					HorizontalAlignment="Stretch"
 					HorizontalContentAlignment="Stretch"
+					IsExpanded="{x:Bind ViewModel.IsVSync, Mode=OneWay}"
 					Style="{StaticResource SettingExpanderStyle}">
 					<muxc:Expander.Header>
 						<local:SettingItem Title="垂直同步" Style="{StaticResource ExpanderHeaderSettingStyle}">
@@ -117,6 +119,7 @@
 				<muxc:Expander
 					HorizontalAlignment="Stretch"
 					HorizontalContentAlignment="Stretch"
+					IsExpanded="{x:Bind ViewModel.IsCroppingEnabled, Mode=OneWay}"
 					Style="{StaticResource SettingExpanderStyle}">
 					<muxc:Expander.Header>
 						<local:SettingItem Title="自定义裁剪" Style="{StaticResource ExpanderHeaderSettingStyle}">
@@ -144,7 +147,7 @@
 							<local:SettingItem Title="左" IsEnabled="{x:Bind ViewModel.IsCroppingEnabled, Mode=OneWay}" Style="{StaticResource ExpanderContentSettingStyle}">
 								<local:SettingItem.ActionContent>
 									<StackPanel Orientation="Horizontal" Spacing="10">
-										<muxc:NumberBox />
+										<muxc:NumberBox Value="{x:Bind ViewModel.CrppingLeft, Mode=TwoWay}" NumberFormatter="{x:Bind NumberFormatter}" />
 										<TextBlock Text="像素" VerticalAlignment="Center" />
 									</StackPanel>
 								</local:SettingItem.ActionContent>
@@ -152,7 +155,7 @@
 							<local:SettingItem Title="右" IsEnabled="{x:Bind ViewModel.IsCroppingEnabled, Mode=OneWay}" Style="{StaticResource ExpanderContentSettingStyle}">
 								<local:SettingItem.ActionContent>
 									<StackPanel Orientation="Horizontal" Spacing="10">
-										<muxc:NumberBox />
+										<muxc:NumberBox Value="{x:Bind ViewModel.CrppingRight, Mode=TwoWay}" NumberFormatter="{x:Bind NumberFormatter}" />
 										<TextBlock Text="像素" VerticalAlignment="Center" />
 									</StackPanel>
 								</local:SettingItem.ActionContent>
@@ -160,7 +163,7 @@
 							<local:SettingItem Title="上" IsEnabled="{x:Bind ViewModel.IsCroppingEnabled, Mode=OneWay}" Style="{StaticResource ExpanderContentSettingStyle}">
 								<local:SettingItem.ActionContent>
 									<StackPanel Orientation="Horizontal" Spacing="10">
-										<muxc:NumberBox />
+										<muxc:NumberBox  Value="{x:Bind ViewModel.CrppingTop, Mode=TwoWay}" NumberFormatter="{x:Bind NumberFormatter}" />
 										<TextBlock Text="像素" VerticalAlignment="Center" />
 									</StackPanel>
 								</local:SettingItem.ActionContent>
@@ -168,7 +171,7 @@
 							<local:SettingItem Title="下" IsEnabled="{x:Bind ViewModel.IsCroppingEnabled, Mode=OneWay}" Style="{StaticResource ExpanderContentSettingStyle}">
 								<local:SettingItem.ActionContent>
 									<StackPanel Orientation="Horizontal" Spacing="10">
-										<muxc:NumberBox />
+										<muxc:NumberBox  Value="{x:Bind ViewModel.CrppingBottom, Mode=TwoWay}" NumberFormatter="{x:Bind NumberFormatter}" />
 										<TextBlock Text="像素" VerticalAlignment="Center" />
 									</StackPanel>
 								</local:SettingItem.ActionContent>

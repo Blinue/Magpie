@@ -216,9 +216,15 @@ void MagService::_StartScale(uint64_t hWnd) {
 	if (Win32Utils::GetWindowShowCmd((HWND)hWnd) != SW_NORMAL) {
 		return;
 	}
+
+	const ScalingProfile& profile = ScalingProfileService::Get().GetRuleForWindow((HWND)hWnd);
 	
 	Magpie::Runtime::MagSettings magSettings;
-	magSettings.CopyFrom(ScalingProfileService::Get().GetRuleForWindow((HWND)hWnd).MagSettings());
+	magSettings.CopyFrom(profile.MagSettings());
+
+	if (!profile.IsCroppingEnabled()) {
+		magSettings.Cropping({});
+	}
 
 	// 应用全局配置
 	AppSettings& settings = AppSettings::Get();

@@ -213,4 +213,65 @@ void ScalingProfileViewModel::IsCroppingEnabled(bool value) {
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsCroppingEnabled"));
 }
 
+double ScalingProfileViewModel::CrppingLeft() const noexcept {
+	return _profile.MagSettings().Cropping().Left;
+}
+
+void ScalingProfileViewModel::CrppingLeft(double value) {
+	Magpie::Runtime::Cropping cropping = _profile.MagSettings().Cropping();
+	if (cropping.Left == value) {
+		return;
+	}
+
+	cropping.Left = std::isnan(value) ? 0 : value;
+	_profile.MagSettings().Cropping(cropping);
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CrppingLeft"));
+}
+
+double ScalingProfileViewModel::CrppingTop() const noexcept {
+	return _profile.MagSettings().Cropping().Top;
+}
+
+void ScalingProfileViewModel::CrppingTop(double value) {
+	Magpie::Runtime::Cropping cropping = _profile.MagSettings().Cropping();
+	if (cropping.Top == value) {
+		return;
+	}
+
+	// 用户已清空数字框则重置为 0
+	cropping.Top = std::isnan(value) ? 0 : value;
+	_profile.MagSettings().Cropping(cropping);
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CrppingTop"));
+}
+
+double ScalingProfileViewModel::CrppingRight() const noexcept {
+	return _profile.MagSettings().Cropping().Right;
+}
+
+void ScalingProfileViewModel::CrppingRight(double value) {
+	Magpie::Runtime::Cropping cropping = _profile.MagSettings().Cropping();
+	if (cropping.Right == value) {
+		return;
+	}
+
+	cropping.Right = std::isnan(value) ? 0 : value;
+	_profile.MagSettings().Cropping(cropping);
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CrppingRight"));
+}
+
+double ScalingProfileViewModel::CrppingBottom() const noexcept {
+	return _profile.MagSettings().Cropping().Bottom;
+}
+
+void ScalingProfileViewModel::CrppingBottom(double value) {
+	Magpie::Runtime::Cropping cropping = _profile.MagSettings().Cropping();
+	if (cropping.Bottom == value) {
+		return;
+	}
+
+	cropping.Bottom = std::isnan(value) ? 0 : value;
+	_profile.MagSettings().Cropping(cropping);
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CrppingBottom"));
+}
+
 }

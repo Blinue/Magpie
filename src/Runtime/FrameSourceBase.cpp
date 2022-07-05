@@ -283,13 +283,13 @@ bool FrameSourceBase::_UpdateSrcFrameRect() {
 		}
 	}
 
-	/*const RECT& cropBorders = App::Get().GetSettings().GetCropBorders();
+	winrt::Magpie::Runtime::Cropping cropping = MagApp::Get().GetSettings().Cropping();
 	_srcFrameRect = {
-		_srcFrameRect.left + cropBorders.left,
-		_srcFrameRect.top + cropBorders.top,
-		_srcFrameRect.right - cropBorders.right,
-		_srcFrameRect.bottom - cropBorders.bottom
-	};*/
+		std::lround(_srcFrameRect.left + cropping.Left),
+		std::lround(_srcFrameRect.top + cropping.Top),
+		std::lround(_srcFrameRect.right - cropping.Right),
+		std::lround(_srcFrameRect.bottom - cropping.Bottom)
+	};
 
 	if (_srcFrameRect.right - _srcFrameRect.left <= 0 || _srcFrameRect.bottom - _srcFrameRect.top <= 0) {
 		//App::Get().SetErrorMsg(ErrorMessages::FAILED_TO_CROP);

@@ -14,10 +14,10 @@ namespace Magpie.Runtime
 	};
 
 	struct Cropping {
-		Single Left;
-		Single Top;
-		Single Right;
-		Single Bottom;
+		Double Left;
+		Double Top;
+		Double Right;
+		Double Bottom;
 	};
 
 	[default_interface]

@@ -17,8 +17,13 @@ struct ScalingProfilePage : ScalingProfilePageT<ScalingProfilePage> {
 
 	void ComboBox_DropDownOpened(IInspectable const& sender, IInspectable const&);
 
+	Windows::Globalization::NumberFormatting::INumberFormatter2 NumberFormatter() const noexcept {
+		return _numberFormatter;
+	}
+
 private:
 	Magpie::App::ScalingProfileViewModel _viewModel{ nullptr };
+	Windows::Globalization::NumberFormatting::DecimalFormatter _numberFormatter;
 };
 
 }

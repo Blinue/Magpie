@@ -10,12 +10,13 @@
 #include "ScalingProfileService.h"
 
 
+using namespace winrt;
+using namespace Windows::Globalization::NumberFormatting;
+
 namespace winrt::Magpie::App::implementation {
 
 ScalingProfilePage::ScalingProfilePage() {
 	InitializeComponent();
-
-	App app = Application::Current().as<App>();
 
 	if (Win32Utils::GetOSBuild() < 22000) {
 		// Segoe MDL2 Assets 不存在 Move 图标
@@ -27,6 +28,13 @@ ScalingProfilePage::ScalingProfilePage() {
 		MultiMonitorSettingItem().Visibility(Visibility::Collapsed);
 		Is3DGameModeSettingItem().Margin({ 0,0,0,-2 });
 	}
+
+	IncrementNumberRounder rounder;
+	// 保留一位小数
+	// 不知为何不能在 XAML 中设置
+	rounder.Increment(0.1);
+	_numberFormatter.NumberRounder(rounder);
+	_numberFormatter.FractionDigits(0);
 }
 
 void ScalingProfilePage::OnNavigatedTo(Navigation::NavigationEventArgs const& args) {

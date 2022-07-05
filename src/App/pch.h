@@ -12,6 +12,7 @@
 
 // C++/WinRT 头文件
 #include <winrt/Windows.ApplicationModel.Activation.h>
+#include <winrt/Windows.Globalization.NumberFormatting.h>
 #include <winrt/Windows.UI.Core.h>
 #include <winrt/Windows.UI.ViewManagement.h>
 #include <winrt/Windows.UI.Xaml.h>

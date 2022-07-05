@@ -91,10 +91,10 @@ bool LoadUIntSettingItem(
 	return true;
 }
 
-bool LoadFloatSettingItem(
+bool LoadDoubleSettingItem(
 	const rapidjson::GenericObject<false, rapidjson::Value>& obj,
 	const char* nodeName,
-	std::optional<float>& result
+	std::optional<double>& result
 ) {
 	auto node = obj.FindMember(nodeName);
 	if (node == obj.MemberEnd()) {
@@ -106,7 +106,7 @@ bool LoadFloatSettingItem(
 		return false;
 	}
 
-	result = (float)node->value.GetDouble();
+	result = node->value.GetDouble();
 	return true;
 }
 
@@ -218,7 +218,7 @@ bool LoadScalingProfile(const rapidjson::GenericObject<false, rapidjson::Value>&
 	std::optional<const char*> strValue;
 	std::optional<unsigned int> uintValue;
 	std::optional<bool> boolValue;
-	std::optional<float> floatValue;
+	std::optional<double> doubleValue;
 
 	if (!LoadStringSettingItem(scalingConfigObj, "name", strValue)) {
 		return false;
@@ -324,26 +324,27 @@ bool LoadScalingProfile(const rapidjson::GenericObject<false, rapidjson::Value>&
 
 			Magpie::Runtime::Cropping cropping{};
 
-			if (!LoadFloatSettingItem(croppingObj, "left", floatValue) || !floatValue.has_value()) {
+			if (!LoadDoubleSettingItem(croppingObj, "left", doubleValue) || !doubleValue.has_value()) {
 				return false;
 			}
-			cropping.Left = floatValue.value();
+			cropping.Left = doubleValue.value();
 
-			if (!LoadFloatSettingItem(croppingObj, "top", floatValue) || !floatValue.has_value()) {
+			if (!LoadDoubleSettingItem(croppingObj, "top", doubleValue) || !doubleValue.has_value()) {
 				return false;
 			}
-			cropping.Top = floatValue.value();
+			cropping.Top = doubleValue.value();
 
-			if (!LoadFloatSettingItem(croppingObj, "right", floatValue) || !floatValue.has_value()) {
+			if (!LoadDoubleSettingItem(croppingObj, "right", doubleValue) || !doubleValue.has_value()) {
 				return false;
 			}
-			cropping.Right = floatValue.value();
+			cropping.Right = doubleValue.value();
 
-			if (!LoadFloatSettingItem(croppingObj, "bottom", floatValue) || !floatValue.has_value()) {
+			if (!LoadDoubleSettingItem(croppingObj, "bottom", doubleValue) || !doubleValue.has_value()) {
 				return false;
 			}
-			cropping.Bottom = floatValue.value();
+			cropping.Bottom = doubleValue.value();
 
+			magSettings.Cropping(cropping);
 		}
 	}
 
