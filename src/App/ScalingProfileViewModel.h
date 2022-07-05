@@ -56,17 +56,17 @@ struct ScalingProfileViewModel : ScalingProfileViewModelT<ScalingProfileViewMode
 	bool IsCroppingEnabled() const noexcept;
 	void IsCroppingEnabled(bool value);
 
-	double CrppingLeft() const noexcept;
-	void CrppingLeft(double value);
+	double CroppingLeft() const noexcept;
+	void CroppingLeft(double value);
 
-	double CrppingTop() const noexcept;
-	void CrppingTop(double value);
+	double CroppingTop() const noexcept;
+	void CroppingTop(double value);
 
-	double CrppingRight() const noexcept;
-	void CrppingRight(double value);
+	double CroppingRight() const noexcept;
+	void CroppingRight(double value);
 
-	double CrppingBottom() const noexcept;
-	void CrppingBottom(double value);
+	double CroppingBottom() const noexcept;
+	void CroppingBottom(double value);
 
 	bool IsAdjustCursorSpeed() const noexcept;
 	void IsAdjustCursorSpeed(bool value);

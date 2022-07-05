@@ -140,13 +140,15 @@
 									<Setter Property="Minimum" Value="0" />
 									<Setter Property="SmallChange" Value="1" />
 									<Setter Property="LargeChange" Value="10" />
+									<!-- 修复有时取消禁用后文字依然为灰色的问题 -->
+									<Setter Property="Foreground" Value="{ThemeResource TextFillColorPrimaryBrush}" />
 								</Style>
 							</StackPanel.Resources>
 
 							<local:SettingItem Title="左" IsEnabled="{x:Bind ViewModel.IsCroppingEnabled, Mode=OneWay}" Style="{StaticResource ExpanderContentSettingStyle}">
 								<local:SettingItem.ActionContent>
 									<StackPanel Orientation="Horizontal" Spacing="10">
-										<muxc:NumberBox Value="{x:Bind ViewModel.CrppingLeft, Mode=TwoWay}" NumberFormatter="{x:Bind NumberFormatter, Mode=OneTime}" />
+										<muxc:NumberBox Value="{x:Bind ViewModel.CroppingLeft, Mode=TwoWay}" NumberFormatter="{x:Bind NumberFormatter, Mode=OneTime}" />
 										<TextBlock Text="像素" VerticalAlignment="Center" />
 									</StackPanel>
 								</local:SettingItem.ActionContent>
@@ -154,7 +156,7 @@
 							<local:SettingItem Title="右" IsEnabled="{x:Bind ViewModel.IsCroppingEnabled, Mode=OneWay}" Style="{StaticResource ExpanderContentSettingStyle}">
 								<local:SettingItem.ActionContent>
 									<StackPanel Orientation="Horizontal" Spacing="10">
-										<muxc:NumberBox Value="{x:Bind ViewModel.CrppingRight, Mode=TwoWay}" NumberFormatter="{x:Bind NumberFormatter, Mode=OneTime}" />
+										<muxc:NumberBox Value="{x:Bind ViewModel.CroppingRight, Mode=TwoWay}" NumberFormatter="{x:Bind NumberFormatter, Mode=OneTime}" />
 										<TextBlock Text="像素" VerticalAlignment="Center" />
 									</StackPanel>
 								</local:SettingItem.ActionContent>
@@ -162,7 +164,7 @@
 							<local:SettingItem Title="上" IsEnabled="{x:Bind ViewModel.IsCroppingEnabled, Mode=OneWay}" Style="{StaticResource ExpanderContentSettingStyle}">
 								<local:SettingItem.ActionContent>
 									<StackPanel Orientation="Horizontal" Spacing="10">
-										<muxc:NumberBox  Value="{x:Bind ViewModel.CrppingTop, Mode=TwoWay}" NumberFormatter="{x:Bind NumberFormatter, Mode=OneTime}" />
+										<muxc:NumberBox Value="{x:Bind ViewModel.CroppingTop, Mode=TwoWay}" NumberFormatter="{x:Bind NumberFormatter, Mode=OneTime}" />
 										<TextBlock Text="像素" VerticalAlignment="Center" />
 									</StackPanel>
 								</local:SettingItem.ActionContent>
@@ -170,7 +172,7 @@
 							<local:SettingItem Title="下" IsEnabled="{x:Bind ViewModel.IsCroppingEnabled, Mode=OneWay}" Style="{StaticResource ExpanderContentSettingStyle}">
 								<local:SettingItem.ActionContent>
 									<StackPanel Orientation="Horizontal" Spacing="10">
-										<muxc:NumberBox  Value="{x:Bind ViewModel.CrppingBottom, Mode=TwoWay}" NumberFormatter="{x:Bind NumberFormatter, Mode=OneTime}" />
+										<muxc:NumberBox Value="{x:Bind ViewModel.CroppingBottom, Mode=TwoWay}" NumberFormatter="{x:Bind NumberFormatter, Mode=OneTime}" />
 										<TextBlock Text="像素" VerticalAlignment="Center" />
 									</StackPanel>
 								</local:SettingItem.ActionContent>

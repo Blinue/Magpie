@@ -213,11 +213,11 @@ void ScalingProfileViewModel::IsCroppingEnabled(bool value) {
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsCroppingEnabled"));
 }
 
-double ScalingProfileViewModel::CrppingLeft() const noexcept {
+double ScalingProfileViewModel::CroppingLeft() const noexcept {
 	return _profile.MagSettings().Cropping().Left;
 }
 
-void ScalingProfileViewModel::CrppingLeft(double value) {
+void ScalingProfileViewModel::CroppingLeft(double value) {
 	Magpie::Runtime::Cropping cropping = _profile.MagSettings().Cropping();
 	if (cropping.Left == value) {
 		return;
@@ -225,14 +225,14 @@ void ScalingProfileViewModel::CrppingLeft(double value) {
 
 	cropping.Left = std::isnan(value) ? 0 : value;
 	_profile.MagSettings().Cropping(cropping);
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CrppingLeft"));
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CroppingLeft"));
 }
 
-double ScalingProfileViewModel::CrppingTop() const noexcept {
+double ScalingProfileViewModel::CroppingTop() const noexcept {
 	return _profile.MagSettings().Cropping().Top;
 }
 
-void ScalingProfileViewModel::CrppingTop(double value) {
+void ScalingProfileViewModel::CroppingTop(double value) {
 	Magpie::Runtime::Cropping cropping = _profile.MagSettings().Cropping();
 	if (cropping.Top == value) {
 		return;
@@ -241,14 +241,14 @@ void ScalingProfileViewModel::CrppingTop(double value) {
 	// 用户已清空数字框则重置为 0
 	cropping.Top = std::isnan(value) ? 0 : value;
 	_profile.MagSettings().Cropping(cropping);
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CrppingTop"));
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CroppingTop"));
 }
 
-double ScalingProfileViewModel::CrppingRight() const noexcept {
+double ScalingProfileViewModel::CroppingRight() const noexcept {
 	return _profile.MagSettings().Cropping().Right;
 }
 
-void ScalingProfileViewModel::CrppingRight(double value) {
+void ScalingProfileViewModel::CroppingRight(double value) {
 	Magpie::Runtime::Cropping cropping = _profile.MagSettings().Cropping();
 	if (cropping.Right == value) {
 		return;
@@ -256,14 +256,14 @@ void ScalingProfileViewModel::CrppingRight(double value) {
 
 	cropping.Right = std::isnan(value) ? 0 : value;
 	_profile.MagSettings().Cropping(cropping);
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CrppingRight"));
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CroppingRight"));
 }
 
-double ScalingProfileViewModel::CrppingBottom() const noexcept {
+double ScalingProfileViewModel::CroppingBottom() const noexcept {
 	return _profile.MagSettings().Cropping().Bottom;
 }
 
-void ScalingProfileViewModel::CrppingBottom(double value) {
+void ScalingProfileViewModel::CroppingBottom(double value) {
 	Magpie::Runtime::Cropping cropping = _profile.MagSettings().Cropping();
 	if (cropping.Bottom == value) {
 		return;
@@ -271,7 +271,7 @@ void ScalingProfileViewModel::CrppingBottom(double value) {
 
 	cropping.Bottom = std::isnan(value) ? 0 : value;
 	_profile.MagSettings().Cropping(cropping);
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CrppingBottom"));
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CroppingBottom"));
 }
 
 bool ScalingProfileViewModel::IsAdjustCursorSpeed() const noexcept {

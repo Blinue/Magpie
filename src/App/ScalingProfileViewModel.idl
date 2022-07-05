@@ -20,10 +20,10 @@ namespace Magpie.App
 		Boolean IsReserveTitleBar;
 
 		Boolean IsCroppingEnabled;
-		Double CrppingLeft;
-		Double CrppingTop;
-		Double CrppingRight;
-		Double CrppingBottom;
+		Double CroppingLeft;
+		Double CroppingTop;
+		Double CroppingRight;
+		Double CroppingBottom;
 
 		Boolean IsAdjustCursorSpeed;
 	}
