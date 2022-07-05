@@ -123,38 +123,58 @@ struct StrUtils {
 		return (bool)std::isalpha(static_cast<unsigned char>(c));
 	}
 
+	static bool isalpha(wchar_t c) {
+		return (bool)std::iswalpha(c);
+	}
+
 	static bool isalnum(char c) {
 		return (bool)std::isalnum(static_cast<unsigned char>(c));
+	}
+
+	static bool isalnum(wchar_t c) {
+		return (bool)std::iswalnum(c);
 	}
 
 	static char toupper(char c) {
 		return (char)std::toupper(static_cast<unsigned char>(c));
 	}
 
+	static char toupper(wchar_t c) {
+		return (char)std::towupper(c);
+	}
+
 	static char tolower(char c) {
 		return (char)std::tolower(static_cast<unsigned char>(c));
 	}
 
-	static std::string ToUpperCase(std::string_view str) {
-		std::string result(str);
+	static char tolower(wchar_t c) {
+		return (char)std::towlower(c);
+	}
+
+	template<typename CHAR_T>
+	static std::basic_string<CHAR_T> ToUpperCase(std::basic_string_view<CHAR_T> str) {
+		std::basic_string<CHAR_T> result(str);
 		ToUpperCase(result);
 		return result;
 	}
 
-	static void ToUpperCase(std::string& str) {
-		for (char& c : str) {
+	template<typename CHAR_T>
+	static void ToUpperCase(std::basic_string<CHAR_T>& str) {
+		for (CHAR_T& c : str) {
 			c = toupper(c);
 		}
 	}
 
-	static std::string ToLowerCase(std::string_view str) {
-		std::string result(str);
+	template<typename CHAR_T>
+	static std::basic_string<CHAR_T> ToLowerCase(std::basic_string_view<CHAR_T> str) {
+		std::basic_string<CHAR_T> result(str);
 		ToLowerCase(result);
 		return result;
 	}
 
-	static void ToLowerCase(std::string& str) {
-		for (char& c : str) {
+	template<typename CHAR_T>
+	static void ToLowerCase(std::basic_string<CHAR_T>& str) {
+		for (CHAR_T& c : str) {
 			c = tolower(c);
 		}
 	}

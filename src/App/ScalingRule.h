@@ -36,10 +36,6 @@ public:
 		return _magSettings;
 	}
 
-	bool IsMatch(HWND /*hWnd*/) const {
-		return false;
-	}
-
 private:
 	std::wstring _name;
 

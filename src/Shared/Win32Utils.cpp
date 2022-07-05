@@ -48,6 +48,30 @@ std::wstring Win32Utils::GetWndClassName(HWND hWnd) {
 	return className;
 }
 
+std::wstring Win32Utils::GetPathOfWnd(HWND hWnd) {
+	DWORD dwProcId = 0;
+	if (!GetWindowThreadProcessId(hWnd, &dwProcId)) {
+		Logger::Get().Win32Error("GetWindowThreadProcessId 失败");
+		return {};
+	}
+
+	ScopedHandle hProc(SafeHandle(OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, dwProcId)));
+	if (!hProc) {
+		Logger::Get().Win32Error("OpenProcess 失败");
+		return {};
+	}
+
+	std::wstring fileName(MAX_PATH, 0);
+	DWORD size = GetModuleFileNameEx(hProc.get(), NULL, fileName.data(), (DWORD)fileName.size());
+	if (size == 0) {
+		Logger::Get().Win32Error("GetModuleFileName 失败");
+		return {};
+	}
+
+	fileName.resize(size);
+	return fileName;
+}
+
 UINT Win32Utils::GetWindowShowCmd(HWND hWnd) {
 	assert(hWnd != NULL);
 
@@ -295,31 +319,13 @@ bool Win32Utils::IsStartMenu(HWND hWnd) {
 	}
 
 	// 检查可执行文件名称
-	DWORD dwProcId = 0;
-	if (!GetWindowThreadProcessId(hWnd, &dwProcId)) {
-		Logger::Get().Win32Error("GetWindowThreadProcessId 失败");
-		return false;
-	}
-
-	ScopedHandle hProc(SafeHandle(OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, dwProcId)));
-	if (!hProc) {
-		Logger::Get().Win32Error("OpenProcess 失败");
-		return false;
-	}
-
-	wchar_t fileName[MAX_PATH] = { 0 };
-	if (!GetModuleFileNameEx(hProc.get(), NULL, fileName, MAX_PATH)) {
-		Logger::Get().Win32Error("GetModuleFileName 失败");
-		return false;
-	}
-
-	std::string exeName = StrUtils::UTF16ToUTF8(fileName);
+	std::wstring exeName = GetPathOfWnd(hWnd);
 	exeName = exeName.substr(exeName.find_last_of(L'\\') + 1);
 	StrUtils::ToLowerCase(exeName);
 
 	// win10: searchapp.exe 和 startmenuexperiencehost.exe
 	// win11: searchhost.exe 和 startmenuexperiencehost.exe
-	return exeName == "searchapp.exe" || exeName == "searchhost.exe" || exeName == "startmenuexperiencehost.exe";
+	return exeName == L"searchapp.exe" || exeName == L"searchhost.exe" || exeName == L"startmenuexperiencehost.exe";
 }
 
 bool Win32Utils::SetForegroundWindow(HWND hWnd) {

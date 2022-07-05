@@ -13,15 +13,7 @@ public:
 		return instance;
 	}
 
-	ScalingRule& GetRuleForWindow(HWND hWnd) {
-		for (const auto& pair : _rulesMap) {
-			if (pair.second->IsMatch(hWnd)) {
-				return *pair.second;
-			}
-		}
-
-		return GetDefaultScalingRule();
-	}
+	ScalingRule& GetRuleForWindow(HWND hWnd);
 
 	ScalingRule* GetScalingRule(std::wstring_view name) {
 		auto it = _rulesMap.find(name);

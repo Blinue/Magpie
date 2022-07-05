@@ -16,6 +16,8 @@ struct Win32Utils {
 
 	static std::wstring GetWndClassName(HWND hWnd);
 
+	static std::wstring GetPathOfWnd(HWND hWnd);
+
 	static UINT GetWindowShowCmd(HWND hWnd);
 
 	static bool GetClientScreenRect(HWND hWnd, RECT& rect);
