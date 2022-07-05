@@ -211,6 +211,8 @@ void WriteScalingProfile(rapidjson::PrettyWriter<rapidjson::StringBuffer>& write
 
 	writer.Key("adjustCursorSpeed");
 	writer.Bool(magSettings.IsAdjustCursorSpeed());
+	writer.Key("drawCursor");
+	writer.Bool(magSettings.IsDrawCursor());
 
 	writer.EndObject();
 }
@@ -354,6 +356,13 @@ bool LoadScalingProfile(const rapidjson::GenericObject<false, rapidjson::Value>&
 	}
 	if (boolValue.has_value()) {
 		magSettings.IsAdjustCursorSpeed(boolValue.value());
+	}
+
+	if (!LoadBoolSettingItem(scalingConfigObj, "drawCursor", boolValue)) {
+		return false;
+	}
+	if (boolValue.has_value()) {
+		magSettings.IsDrawCursor(boolValue.value());
 	}
 
 	return true;

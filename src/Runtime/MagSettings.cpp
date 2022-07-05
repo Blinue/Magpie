@@ -26,6 +26,7 @@ void MagSettings::CopyFrom(Magpie::Runtime::MagSettings other) {
 	_isReserveTitleBar = otherImpl->_isReserveTitleBar;
 	_cropping = otherImpl->_cropping;
 	_isAdjustCursorSpeed = otherImpl->_isAdjustCursorSpeed;
+	_isDrawCursor = otherImpl->_isDrawCursor;
 }
 
 }

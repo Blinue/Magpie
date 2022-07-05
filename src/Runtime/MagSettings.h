@@ -137,6 +137,14 @@ struct MagSettings : MagSettingsT<MagSettings> {
 		_isAdjustCursorSpeed = value;
 	}
 
+	bool IsDrawCursor() const noexcept {
+		return _isDrawCursor;
+	}
+
+	void IsDrawCursor(bool value) noexcept {
+		_isDrawCursor = value;
+	}
+
 private:
 	Magpie::Runtime::CaptureMode _captureMode = Magpie::Runtime::CaptureMode::GraphicsCapture;
 	Magpie::Runtime::MultiMonitorUsage _multiMonitorUsage = Magpie::Runtime::MultiMonitorUsage::Nearest;
@@ -155,6 +163,7 @@ private:
 	bool _isTripleBuffering = false;
 	bool _isReserveTitleBar = false;
 	bool _isAdjustCursorSpeed = true;
+	bool _isDrawCursor = true;
 };
 
 }

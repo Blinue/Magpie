@@ -26,5 +26,6 @@ namespace Magpie.App
 		Double CroppingBottom;
 
 		Boolean IsAdjustCursorSpeed;
+		Boolean IsDrawCursor;
 	}
 }

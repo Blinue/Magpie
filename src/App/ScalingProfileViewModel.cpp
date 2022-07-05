@@ -287,4 +287,17 @@ void ScalingProfileViewModel::IsAdjustCursorSpeed(bool value) {
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsAdjustCursorSpeed"));
 }
 
+bool ScalingProfileViewModel::IsDrawCursor() const noexcept {
+	return _profile.MagSettings().IsDrawCursor();
+}
+
+void ScalingProfileViewModel::IsDrawCursor(bool value) {
+	if (_profile.MagSettings().IsDrawCursor() == value) {
+		return;
+	}
+
+	_profile.MagSettings().IsDrawCursor(value);
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsDrawCursor"));
+}
+
 }

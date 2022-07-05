@@ -182,14 +182,6 @@
 				</muxc:Expander>
 			</local:SettingsGroup>
 			<local:SettingsGroup Title="光标">
-				<local:SettingItem Title="缩放时调整光标速度">
-					<local:SettingItem.Icon>
-						<FontIcon x:Name="AdjustCursorSpeedFontIcon" Glyph="&#xE7C2;"/>
-					</local:SettingItem.Icon>
-					<local:SettingItem.ActionContent>
-						<ToggleSwitch IsOn="{x:Bind ViewModel.IsAdjustCursorSpeed, Mode=TwoWay}" />
-					</local:SettingItem.ActionContent>
-				</local:SettingItem>
 				<muxc:Expander
 					HorizontalAlignment="Stretch"
 					HorizontalContentAlignment="Stretch"
@@ -200,13 +192,13 @@
 								<FontIcon Glyph="&#xE7C9;"/>
 							</local:SettingItem.Icon>
 							<local:SettingItem.ActionContent>
-								<ToggleSwitch />
+								<ToggleSwitch IsOn="{x:Bind ViewModel.IsDrawCursor, Mode=TwoWay}" />
 							</local:SettingItem.ActionContent>
 						</local:SettingItem>
 					</muxc:Expander.Header>
 					<muxc:Expander.Content>
 						<StackPanel>
-							<local:SettingItem Title="光标缩放系数" Style="{StaticResource ExpanderContentSettingStyle}">
+							<local:SettingItem Title="光标缩放系数" IsEnabled="{x:Bind ViewModel.IsDrawCursor, Mode=OneWay}" Style="{StaticResource ExpanderContentSettingStyle}">
 								<local:SettingItem.ActionContent>
 									<ComboBox SelectedIndex="2" Style="{StaticResource ComboBoxSettingStyle}" DropDownOpened="ComboBox_DropDownOpened">
 										<x:String>0.5x</x:String>
@@ -220,7 +212,7 @@
 									</ComboBox>
 								</local:SettingItem.ActionContent>
 							</local:SettingItem>
-							<local:SettingItem Title="插值算法" Style="{StaticResource ExpanderContentSettingStyle}">
+							<local:SettingItem Title="插值算法" IsEnabled="{x:Bind ViewModel.IsDrawCursor, Mode=OneWay}" Style="{StaticResource ExpanderContentSettingStyle}">
 								<local:SettingItem.ActionContent>
 									<ComboBox SelectedIndex="0" Style="{StaticResource ComboBoxSettingStyle}" DropDownOpened="ComboBox_DropDownOpened">
 										<x:String>最近邻</x:String>
@@ -231,6 +223,14 @@
 						</StackPanel>
 					</muxc:Expander.Content>
 				</muxc:Expander>
+				<local:SettingItem Title="缩放时调整光标速度">
+					<local:SettingItem.Icon>
+						<FontIcon x:Name="AdjustCursorSpeedFontIcon" Glyph="&#xE7C2;"/>
+					</local:SettingItem.Icon>
+					<local:SettingItem.ActionContent>
+						<ToggleSwitch IsOn="{x:Bind ViewModel.IsAdjustCursorSpeed, Mode=TwoWay}" />
+					</local:SettingItem.ActionContent>
+				</local:SettingItem>
 			</local:SettingsGroup>
 			<local:SettingsGroup Title="高级">
 				<local:SettingItem Title="禁用 DirectFlip">

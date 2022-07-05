@@ -184,7 +184,7 @@ static HWND WindowFromPoint(INT_PTR style, POINT pt, bool clickThrough) {
 void CursorManager::OnBeginFrame() {
 	_UpdateCursorClip();
 
-	if (/*MagApp::Get().GetSettings().IsNoCursor() ||*/ !_isUnderCapture) {
+	if (!MagApp::Get().GetSettings().IsDrawCursor() || !_isUnderCapture) {
 		// 不绘制光标
 		_curCursor = NULL;
 		return;

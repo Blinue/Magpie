@@ -71,6 +71,9 @@ struct ScalingProfileViewModel : ScalingProfileViewModelT<ScalingProfileViewMode
 	bool IsAdjustCursorSpeed() const noexcept;
 	void IsAdjustCursorSpeed(bool value);
 
+	bool IsDrawCursor() const noexcept;
+	void IsDrawCursor(bool value);
+
 private:
 	IVector<IInspectable> _graphicsAdapters;
 
