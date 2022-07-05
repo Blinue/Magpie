@@ -76,7 +76,7 @@ void MainPage::NavigationView_SelectionChanged(
 		} else if (tag == L"About") {
 			typeName = winrt::xaml_typename<Magpie::App::AboutPage>();
 		} else {
-			typeName = winrt::xaml_typename<Magpie::App::ScalingRulePage>();
+			typeName = winrt::xaml_typename<Magpie::App::ScalingProfilePage>();
 		}
 
 		if (!typeName.Name.empty()) {

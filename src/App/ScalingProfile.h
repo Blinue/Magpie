@@ -6,7 +6,7 @@
 namespace winrt::Magpie::App {
 
 // 默认规则 Name、PathRule、ClassNameRule 均为空
-class ScalingRule {
+class ScalingProfile {
 public:
 	const std::wstring& Name() const noexcept{
 		return _name;

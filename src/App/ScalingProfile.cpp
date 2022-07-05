@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "ScalingRule.h"
+#include "ScalingProfile.h"
 
 
 namespace winrt::Magpie::App {

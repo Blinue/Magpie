@@ -1,15 +1,15 @@
 #pragma once
 
-#include "ScalingRulePage.g.h"
+#include "ScalingProfilePage.g.h"
 #include <winrt/Magpie.Runtime.h>
 
 
 namespace winrt::Magpie::App::implementation {
 
-struct ScalingRulePage : ScalingRulePageT<ScalingRulePage> {
-	ScalingRulePage();
+struct ScalingProfilePage : ScalingProfilePageT<ScalingProfilePage> {
+	ScalingProfilePage();
 
-	Magpie::App::ScalingRuleViewModel ViewModel() const noexcept {
+	Magpie::App::ScalingProfileViewModel ViewModel() const noexcept {
 		return _viewModel;
 	}
 
@@ -39,14 +39,14 @@ private:
 	void _UpdateVSync();
 
 	Magpie::Runtime::MagSettings _magSettings{ nullptr };
-	Magpie::App::ScalingRuleViewModel _viewModel;
+	Magpie::App::ScalingProfileViewModel _viewModel;
 };
 
 }
 
 namespace winrt::Magpie::App::factory_implementation {
 
-struct ScalingRulePage : ScalingRulePageT<ScalingRulePage, implementation::ScalingRulePage> {
+struct ScalingProfilePage : ScalingProfilePageT<ScalingProfilePage, implementation::ScalingProfilePage> {
 };
 
 }

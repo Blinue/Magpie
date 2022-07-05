@@ -1,0 +1,10 @@
+namespace Magpie.App
+{
+	[default_interface]
+	runtimeclass ScalingProfilePage : Windows.UI.Xaml.Controls.Page
+	{
+		ScalingProfilePage();
+
+		ScalingProfileViewModel ViewModel { get; };
+	}
+}

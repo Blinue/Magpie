@@ -4,7 +4,7 @@
 #include "Win32Utils.h"
 #include "Logger.h"
 #include "HotkeyHelper.h"
-#include "ScalingRule.h"
+#include "ScalingProfile.h"
 #include "CommonSharedConstants.h"
 #include <rapidjson/document.h>
 #include <rapidjson/prettywriter.h>
@@ -158,18 +158,18 @@ bool AppSettings::Initialize() {
 	return true;
 }
 
-void WriteScalingRule(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer, const ScalingRule& scalingRule) {
+void WriteScalingProfile(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer, const ScalingProfile& scalingProfile) {
 	writer.StartObject();
-	if (!scalingRule.Name().empty()) {
+	if (!scalingProfile.Name().empty()) {
 		writer.Key("name");
-		writer.String(StrUtils::UTF16ToUTF8(scalingRule.Name()).c_str());
+		writer.String(StrUtils::UTF16ToUTF8(scalingProfile.Name()).c_str());
 		writer.Key("pathRule");
-		writer.String(StrUtils::UTF16ToUTF8(scalingRule.PathRule()).c_str());
+		writer.String(StrUtils::UTF16ToUTF8(scalingProfile.PathRule()).c_str());
 		writer.Key("classNameRule");
-		writer.String(StrUtils::UTF16ToUTF8(scalingRule.ClassNameRule()).c_str());
+		writer.String(StrUtils::UTF16ToUTF8(scalingProfile.ClassNameRule()).c_str());
 	}
 
-	Magpie::Runtime::MagSettings magSettings = scalingRule.MagSettings();
+	Magpie::Runtime::MagSettings magSettings = scalingProfile.MagSettings();
 
 	writer.Key("captureMode");
 	writer.Uint((unsigned int)magSettings.CaptureMode());
@@ -211,7 +211,7 @@ void WriteScalingRule(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer, 
 	writer.EndObject();
 }
 
-bool LoadScalingRule(const rapidjson::GenericObject<false, rapidjson::Value>& scalingConfigObj, ScalingRule& scalingRule) {
+bool LoadScalingProfile(const rapidjson::GenericObject<false, rapidjson::Value>& scalingConfigObj, ScalingProfile& scalingProfile) {
 	std::optional<const char*> strValue;
 	std::optional<unsigned int> uintValue;
 	std::optional<bool> boolValue;
@@ -221,24 +221,24 @@ bool LoadScalingRule(const rapidjson::GenericObject<false, rapidjson::Value>& sc
 		return false;
 	}
 	if (strValue.has_value()) {
-		scalingRule.Name(StrUtils::UTF8ToUTF16(strValue.value()));
+		scalingProfile.Name(StrUtils::UTF8ToUTF16(strValue.value()));
 	}
 	
 	if (!LoadStringSettingItem(scalingConfigObj, "pathRule", strValue)) {
 		return false;
 	}
 	if (strValue.has_value()) {
-		scalingRule.PathRule(StrUtils::UTF8ToUTF16(strValue.value()));
+		scalingProfile.PathRule(StrUtils::UTF8ToUTF16(strValue.value()));
 	}
 
 	if (!LoadStringSettingItem(scalingConfigObj, "classNameRule", strValue)) {
 		return false;
 	}
 	if (strValue.has_value()) {
-		scalingRule.ClassNameRule(StrUtils::UTF8ToUTF16(strValue.value()));
+		scalingProfile.ClassNameRule(StrUtils::UTF8ToUTF16(strValue.value()));
 	}
 
-	Magpie::Runtime::MagSettings magSettings = scalingRule.MagSettings();
+	Magpie::Runtime::MagSettings magSettings = scalingProfile.MagSettings();
 
 	if (!LoadUIntSettingItem(scalingConfigObj, "captureMode", uintValue)) {
 		return false;
@@ -401,11 +401,11 @@ bool AppSettings::Save() {
 	writer.Key("simulateExclusiveFullscreen");
 	writer.Bool(_isSimulateExclusiveFullscreen);
 
-	writer.Key("scalingRules");
+	writer.Key("scalingProfiles");
 	writer.StartArray();
-	WriteScalingRule(writer, _defaultScalingRule);
-	for (const ScalingRule& rule : _scalingRules) {
-		WriteScalingRule(writer, rule);
+	WriteScalingProfile(writer, _defaultScalingProfile);
+	for (const ScalingProfile& rule : _scalingProfiles) {
+		WriteScalingProfile(writer, rule);
 	}
 	writer.EndArray();
 
@@ -604,7 +604,7 @@ bool AppSettings::_LoadSettings(std::string text) {
 	}
 
 	{
-		auto scaleConfigsNode = root.FindMember("scalingRules");
+		auto scaleConfigsNode = root.FindMember("scalingProfiles");
 		if (scaleConfigsNode != root.MemberEnd()) {
 			if (!scaleConfigsNode->value.IsArray()) {
 				return false;
@@ -618,24 +618,24 @@ bool AppSettings::_LoadSettings(std::string text) {
 					return false;
 				}
 
-				if (!LoadScalingRule(scaleRulesArray[0].GetObj(), _defaultScalingRule)) {
+				if (!LoadScalingProfile(scaleRulesArray[0].GetObj(), _defaultScalingProfile)) {
 					return false;
 				}
 
-				_defaultScalingRule.Name(L"");
-				_defaultScalingRule.PathRule(L"");
-				_defaultScalingRule.ClassNameRule(L"");
+				_defaultScalingProfile.Name(L"");
+				_defaultScalingProfile.PathRule(L"");
+				_defaultScalingProfile.ClassNameRule(L"");
 
 				if (size > 1) {
-					_scalingRules.resize(size - 1);
+					_scalingProfiles.resize(size - 1);
 					for (size_t i = 1; i < size; ++i) {
 						if (!scaleRulesArray[i].IsObject()) {
 							return false;
 						}
 
-						ScalingRule& rule = _scalingRules[i - 1];
+						ScalingProfile& rule = _scalingProfiles[i - 1];
 
-						if (!LoadScalingRule(scaleRulesArray[i].GetObj(), rule)) {
+						if (!LoadScalingProfile(scaleRulesArray[i].GetObj(), rule)) {
 							return false;
 						}
 

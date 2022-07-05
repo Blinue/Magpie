@@ -3,7 +3,7 @@
 #include "HotkeyService.h"
 #include "Win32Utils.h"
 #include "AppSettings.h"
-#include "ScalingRuleService.h"
+#include "ScalingProfileService.h"
 
 
 namespace winrt::Magpie::App {
@@ -218,7 +218,7 @@ void MagService::_StartScale(uint64_t hWnd) {
 	}
 	
 	Magpie::Runtime::MagSettings magSettings;
-	magSettings.CopyFrom(ScalingRuleService::Get().GetRuleForWindow((HWND)_wndToRestore).MagSettings());
+	magSettings.CopyFrom(ScalingProfileService::Get().GetRuleForWindow((HWND)hWnd).MagSettings());
 
 	// 应用全局配置
 	AppSettings& settings = AppSettings::Get();

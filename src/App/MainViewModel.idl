@@ -1,0 +1,8 @@
+namespace Magpie.App
+{
+    [default_interface]
+    runtimeclass MainViewModel 
+    {
+        MainViewModel();
+    }
+}

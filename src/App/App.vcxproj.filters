@@ -29,10 +29,10 @@
     <ClCompile Include="HotkeySettings.cpp">
       <Filter>Models</Filter>
     </ClCompile>
-    <ClCompile Include="ScalingRule.cpp">
+    <ClCompile Include="ScalingProfile.cpp">
       <Filter>Models</Filter>
     </ClCompile>
-    <ClCompile Include="ScalingRuleService.cpp">
+    <ClCompile Include="ScalingProfileService.cpp">
       <Filter>Services</Filter>
     </ClCompile>
   </ItemGroup>
@@ -58,10 +58,10 @@
     <ClInclude Include="HotkeySettings.h">
       <Filter>Models</Filter>
     </ClInclude>
-    <ClInclude Include="ScalingRule.h">
+    <ClInclude Include="ScalingProfile.h">
       <Filter>Models</Filter>
     </ClInclude>
-    <ClInclude Include="ScalingRuleService.h">
+    <ClInclude Include="ScalingProfileService.h">
       <Filter>Services</Filter>
     </ClInclude>
   </ItemGroup>
@@ -120,7 +120,10 @@
     <None Include="HomeViewModel.idl">
       <Filter>ViewModels</Filter>
     </None>
-    <None Include="ScalingRuleViewModel.idl">
+    <None Include="ScalingProfileViewModel.idl">
+      <Filter>ViewModels</Filter>
+    </None>
+    <None Include="MainViewModel.idl">
       <Filter>ViewModels</Filter>
     </None>
   </ItemGroup>
@@ -159,7 +162,7 @@
     <Page Include="ScalingModesPage.xaml">
       <Filter>Pages</Filter>
     </Page>
-    <Page Include="ScalingRulePage.xaml">
+    <Page Include="ScalingProfilePage.xaml">
       <Filter>Pages</Filter>
     </Page>
   </ItemGroup>

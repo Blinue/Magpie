@@ -1,11 +1,11 @@
 #pragma once
-#include "ScalingRuleViewModel.g.h"
+#include "ScalingProfileViewModel.g.h"
 
 
 namespace winrt::Magpie::App::implementation {
 
-struct ScalingRuleViewModel : ScalingRuleViewModelT<ScalingRuleViewModel> {
-	ScalingRuleViewModel() = default;
+struct ScalingProfileViewModel : ScalingProfileViewModelT<ScalingProfileViewModel> {
+	ScalingProfileViewModel() = default;
 
 	event_token PropertyChanged(PropertyChangedEventHandler const& handler) {
 		return _propertyChangedEvent.add(handler);
@@ -23,7 +23,7 @@ private:
 
 namespace winrt::Magpie::App::factory_implementation {
 
-struct ScalingRuleViewModel : ScalingRuleViewModelT<ScalingRuleViewModel, implementation::ScalingRuleViewModel> {
+struct ScalingProfileViewModel : ScalingProfileViewModelT<ScalingProfileViewModel, implementation::ScalingProfileViewModel> {
 };
 
 }
