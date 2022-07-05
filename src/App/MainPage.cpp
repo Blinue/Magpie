@@ -4,7 +4,6 @@
 #include "MainPage.g.cpp"
 #endif
 
-#include "MicaBrush.h"
 #include "XamlUtils.h"
 #include "Logger.h"
 #include "StrUtils.h"
@@ -25,6 +24,13 @@ MainPage::MainPage() {
 	AppSettings::Get().ThemeChanged([this](int) { _UpdateTheme(); });
 
 	Background(Magpie::App::MicaBrush(*this));
+
+	IVector<IInspectable> navMenuItems = __super::RootNavigationView().MenuItems();
+	for (const ScalingProfile& profile : AppSettings::Get().ScalingProfiles()) {
+		MUXC::NavigationViewItem item;
+		item.Content(box_value(profile.Name()));
+		navMenuItems.InsertAt(navMenuItems.Size() - 1, item);
+	}
 
 	// Win10 里启动时有一个 ToggleSwitch 的动画 bug，这里展示页面切换动画掩盖
 	if (Win32Utils::GetOSBuild() < 22000) {

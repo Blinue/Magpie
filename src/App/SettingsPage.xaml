@@ -13,7 +13,7 @@
 			<local:SettingsGroup Margin="0,-15,0,0" Title="外观和行为">
 				<local:SettingItem Title="主题">
 					<local:SettingItem.Icon>
-						<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xEF1F;"/>
+						<FontIcon Glyph="&#xEF1F;"/>
 					</local:SettingItem.Icon>
 					<local:SettingItem.ActionContent>
 						<ComboBox Style="{StaticResource ComboBoxSettingStyle}" SelectedIndex="{x:Bind ViewModel.Theme, Mode=TwoWay}" DropDownOpened="ComboBox_DropDownOpened">
@@ -25,7 +25,7 @@
 				</local:SettingItem>
 				<local:SettingItem Title="便携模式" Description="更改用户数据的保存位置">
 					<local:SettingItem.Icon>
-						<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE88E;"/>
+						<FontIcon Glyph="&#xE88E;"/>
 					</local:SettingItem.Icon>
 					<local:SettingItem.ActionContent>
 						<ToggleSwitch IsOn="{x:Bind ViewModel.IsPortableMode, Mode=TwoWay}" />
@@ -44,7 +44,7 @@
 					<muxc:Expander.Header>
 						<local:SettingItem Title="开发者选项" Style="{StaticResource ExpanderHeaderSettingStyle}">
 							<local:SettingItem.Icon>
-								<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xEC7A;"/>
+								<FontIcon Glyph="&#xEC7A;"/>
 							</local:SettingItem.Icon>
 						</local:SettingItem>
 					</muxc:Expander.Header>

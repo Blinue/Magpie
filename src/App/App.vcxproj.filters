@@ -123,9 +123,6 @@
     <None Include="ScalingProfileViewModel.idl">
       <Filter>ViewModels</Filter>
     </None>
-    <None Include="MainViewModel.idl">
-      <Filter>ViewModels</Filter>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <Page Include="MainPage.xaml" />

@@ -39,6 +39,10 @@
 				<Setter Property="HorizontalContentAlignment" Value="Stretch" />
 			</Style>
 
+			<Style TargetType="FontIcon">
+				<Setter Property="FontFamily" Value="{StaticResource SymbolThemeFontFamily}" />
+			</Style>
+
 			<!--  Combo Box  -->
 			<Style x:Key="ComboBoxSettingStyle"
 				   BasedOn="{StaticResource DefaultComboBoxStyle}"

@@ -12,7 +12,7 @@
 			<local:SettingsGroup Margin="0,-15,0,0" Title="激活">
 				<local:SettingItem Title="快捷键">
 					<local:SettingItem.Icon>
-						<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xEDA7;"/>
+						<FontIcon Glyph="&#xEDA7;"/>
 					</local:SettingItem.Icon>
 					<local:SettingItem.ActionContent>
 						<local:ShortcutControl>
@@ -32,7 +32,7 @@
 							Description="计时结束后缩放前台窗口"
 							Style="{StaticResource ExpanderHeaderSettingStyle}">
 							<local:SettingItem.Icon>
-								<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE916;"/>
+								<FontIcon Glyph="&#xE916;"/>
 							</local:SettingItem.Icon>
 							<local:SettingItem.ActionContent>
 								<StackPanel Orientation="Horizontal" Spacing="5">
@@ -64,7 +64,7 @@
 				</muxc:Expander>
 				<local:SettingItem Margin="0,0,0,-2" Visibility="{x:Bind ViewModel.IsNoWndToRestore, Mode=OneWay}" Title="记忆缩放窗口" Description="当该窗口回到前台时将自动缩放">
 					<local:SettingItem.Icon>
-						<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE944;"/>
+						<FontIcon Glyph="&#xE944;"/>
 					</local:SettingItem.Icon>
 					<local:SettingItem.ActionContent>
 						<ToggleSwitch IsOn="{x:Bind ViewModel.IsAutoRestore, Mode=TwoWay}" />
@@ -82,7 +82,7 @@
 										   Description="当该窗口回到前台时将自动缩放"
 										   Style="{StaticResource ExpanderHeaderSettingStyle}">
 							<local:SettingItem.Icon>
-								<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE944;"/>
+								<FontIcon Glyph="&#xE944;"/>
 							</local:SettingItem.Icon>
 							<local:SettingItem.ActionContent>
 								<ToggleSwitch IsOn="{x:Bind ViewModel.IsAutoRestore, Mode=TwoWay}" />
@@ -104,7 +104,7 @@
 			<local:SettingsGroup Title="游戏内覆盖">
 				<local:SettingItem Title="快捷键" Description="自定义打开和关闭游戏内覆盖的快捷键">
 					<local:SettingItem.Icon>
-						<FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xEDA7;"/>
+						<FontIcon Glyph="&#xEDA7;"/>
 					</local:SettingItem.Icon>
 					<local:SettingItem.ActionContent>
 						<local:ShortcutControl>

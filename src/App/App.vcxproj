@@ -116,10 +116,6 @@
     <ClInclude Include="HotkeyService.h" />
     <ClInclude Include="HotkeySettings.h" />
     <ClInclude Include="MagService.h" />
-    <ClInclude Include="MainViewModel.h">
-      <DependentUpon>MainViewModel.idl</DependentUpon>
-      <SubType>Code</SubType>
-    </ClInclude>
     <ClInclude Include="ScalingProfile.h" />
     <ClInclude Include="ScalingProfilePage.h">
       <DependentUpon>ScalingProfilePage.xaml</DependentUpon>
@@ -215,10 +211,6 @@
     <ClCompile Include="HotkeyService.cpp" />
     <ClCompile Include="HotkeySettings.cpp" />
     <ClCompile Include="MagService.cpp" />
-    <ClCompile Include="MainViewModel.cpp">
-      <DependentUpon>MainViewModel.idl</DependentUpon>
-      <SubType>Code</SubType>
-    </ClCompile>
     <ClCompile Include="ScalingProfile.cpp" />
     <ClCompile Include="ScalingProfilePage.cpp">
       <DependentUpon>ScalingProfilePage.xaml</DependentUpon>
@@ -323,9 +315,6 @@
       <SubType>Code</SubType>
     </None>
     <None Include="HomeViewModel.idl">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="MainViewModel.idl">
       <SubType>Designer</SubType>
     </None>
     <Midl Include="PageFrame.idl">

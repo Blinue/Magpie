@@ -3,7 +3,6 @@
 #include "SettingItem.idl"
 #include "SettingsGroup.idl"
 #include "MicaBrush.idl"
-#include "MainViewModel.idl"
 #include "HomeViewModel.idl"
 #include "SettingsViewModel.idl"
 #include "ScalingProfileViewModel.idl"
