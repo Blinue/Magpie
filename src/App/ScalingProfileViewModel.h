@@ -31,7 +31,31 @@ struct ScalingProfileViewModel : ScalingProfileViewModelT<ScalingProfileViewMode
 	int32_t MultiMonitorUsage() const noexcept;
 	void MultiMonitorUsage(int32_t value);
 
+	IVector<IInspectable> GraphicsAdapters() const noexcept {
+		return _graphicsAdapters;
+	}
+
+	int32_t GraphicsAdapter() const noexcept;
+	void GraphicsAdapter(int32_t value);
+
+	bool IsShowFPS() const noexcept;
+	void IsShowFPS(bool value);
+
+	bool IsVSync() const noexcept;
+	void IsVSync(bool value);
+
+	bool IsTripleBuffering() const noexcept;
+	void IsTripleBuffering(bool value);
+
+	bool IsDisableWindowResizing() const noexcept;
+	void IsDisableWindowResizing(bool value);
+
+	bool IsReserveTitleBar() const noexcept;
+	void IsReserveTitleBar(bool value);
+
 private:
+	IVector<IInspectable> _graphicsAdapters;
+
 	event<PropertyChangedEventHandler> _propertyChangedEvent;
 	ScalingProfile& _profile;
 };

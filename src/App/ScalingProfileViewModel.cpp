@@ -5,12 +5,54 @@
 #endif
 #include "AppSettings.h"
 #include "ScalingProfile.h"
+#include <dxgi1_6.h>
 
 
 namespace winrt::Magpie::App::implementation {
 
+static std::vector<std::wstring> GetAllGraphicsAdapters() {
+	com_ptr<IDXGIFactory1> dxgiFactory;
+	HRESULT hr = CreateDXGIFactory1(IID_PPV_ARGS(&dxgiFactory));
+	if (FAILED(hr)) {
+		return {};
+	}
+
+	std::vector<std::wstring> result;
+
+	com_ptr<IDXGIAdapter1> adapter;
+	for (UINT adapterIndex = 0;
+		SUCCEEDED(dxgiFactory->EnumAdapters1(adapterIndex, adapter.put()));
+		++adapterIndex
+		) {
+		DXGI_ADAPTER_DESC1 desc;
+		hr = adapter->GetDesc1(&desc);
+
+		// 不包含 WARP
+		if (desc.Flags & DXGI_ADAPTER_FLAG_SOFTWARE) {
+			continue;
+		}
+
+		result.emplace_back(SUCCEEDED(hr) ? desc.Description : L"???");
+	}
+
+	return result;
+}
+
 ScalingProfileViewModel::ScalingProfileViewModel(uint32_t profileId) 
 	: _profile(profileId == 0 ? AppSettings::Get().DefaultScalingProfile() : AppSettings::Get().ScalingProfiles()[profileId - 1]) {
+
+	std::vector<IInspectable> graphicsAdapters;
+	graphicsAdapters.push_back(box_value(L"默认"));
+
+	for (const std::wstring& adapter : GetAllGraphicsAdapters()) {
+		graphicsAdapters.push_back(box_value(adapter));
+	}
+
+	if (graphicsAdapters.size() <= 2 || GraphicsAdapter() >= graphicsAdapters.size()) {
+		GraphicsAdapter(0);
+	}
+
+	_graphicsAdapters = single_threaded_vector(std::move(graphicsAdapters));
 }
 
 hstring ScalingProfileViewModel::Name() const noexcept {
@@ -73,6 +115,89 @@ void ScalingProfileViewModel::MultiMonitorUsage(int32_t value) {
 
 	_profile.MagSettings().MultiMonitorUsage(multiMonitorUsage);
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"MultiMonitorUsage"));
+}
+
+int32_t ScalingProfileViewModel::GraphicsAdapter() const noexcept {
+	return (int32_t)_profile.MagSettings().GraphicsAdapter();
+}
+
+void ScalingProfileViewModel::GraphicsAdapter(int32_t value) {
+	if (value < 0) {
+		return;
+	}
+
+	uint32_t graphicsAdapter = (uint32_t)value;
+	if (_profile.MagSettings().GraphicsAdapter() == graphicsAdapter) {
+		return;
+	}
+
+	_profile.MagSettings().GraphicsAdapter(graphicsAdapter);
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"GraphicsAdapter"));
+}
+
+bool ScalingProfileViewModel::IsShowFPS() const noexcept {
+	return _profile.MagSettings().IsShowFPS();
+}
+
+void ScalingProfileViewModel::IsShowFPS(bool value) {
+	if (_profile.MagSettings().IsShowFPS() == value) {
+		return;
+	}
+
+	_profile.MagSettings().IsShowFPS(value);
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsShowFPS"));
+}
+
+bool ScalingProfileViewModel::IsVSync() const noexcept {
+	return _profile.MagSettings().IsVSync();
+}
+
+void ScalingProfileViewModel::IsVSync(bool value) {
+	if (_profile.MagSettings().IsVSync() == value) {
+		return;
+	}
+
+	_profile.MagSettings().IsVSync(value);
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsVSync"));
+}
+
+bool ScalingProfileViewModel::IsTripleBuffering() const noexcept {
+	return _profile.MagSettings().IsTripleBuffering();
+}
+
+void ScalingProfileViewModel::IsTripleBuffering(bool value) {
+	if (_profile.MagSettings().IsTripleBuffering() == value) {
+		return;
+	}
+
+	_profile.MagSettings().IsTripleBuffering(value);
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsTripleBuffering"));
+}
+
+bool ScalingProfileViewModel::IsDisableWindowResizing() const noexcept {
+	return _profile.MagSettings().IsDisableWindowResizing();
+}
+
+void ScalingProfileViewModel::IsDisableWindowResizing(bool value) {
+	if (_profile.MagSettings().IsDisableWindowResizing() == value) {
+		return;
+	}
+
+	_profile.MagSettings().IsDisableWindowResizing(value);
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsDisableWindowResizing"));
+}
+
+bool ScalingProfileViewModel::IsReserveTitleBar() const noexcept {
+	return _profile.MagSettings().IsReserveTitleBar();
+}
+
+void ScalingProfileViewModel::IsReserveTitleBar(bool value) {
+	if (_profile.MagSettings().IsReserveTitleBar() == value) {
+		return;
+	}
+
+	_profile.MagSettings().IsReserveTitleBar(value);
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsReserveTitleBar"));
 }
 
 }

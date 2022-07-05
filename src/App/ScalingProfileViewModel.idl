@@ -9,5 +9,14 @@ namespace Magpie.App
 		Int32 CaptureMode;
 		Boolean Is3DGameMode;
 		Int32 MultiMonitorUsage;
+
+		IVector<IInspectable> GraphicsAdapters { get; };
+		Int32 GraphicsAdapter;
+
+		Boolean IsShowFPS;
+		Boolean IsVSync;
+		Boolean IsTripleBuffering;
+		Boolean IsDisableWindowResizing;
+		Boolean IsReserveTitleBar;
 	}
 }

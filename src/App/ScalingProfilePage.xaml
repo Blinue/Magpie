@@ -47,7 +47,7 @@
 						<FontIcon Glyph="&#xf5a9;"/>
 					</local:SettingItem.Icon>
 					<local:SettingItem.ActionContent>
-						<ComboBox x:Name="MultiMonitorUsageComboBox" SelectedIndex="{x:Bind ViewModel.MultiMonitorUsage, Mode=TwoWay}" Style="{StaticResource ComboBoxSettingStyle}" DropDownOpened="ComboBox_DropDownOpened">
+						<ComboBox SelectedIndex="{x:Bind ViewModel.MultiMonitorUsage, Mode=TwoWay}" Style="{StaticResource ComboBoxSettingStyle}" DropDownOpened="ComboBox_DropDownOpened">
 							<x:String>使用距离源窗口最近的显示器</x:String>
 							<x:String>使用源窗口跨越的所有显示器</x:String>
 							<x:String>使用所有显示器</x:String>
@@ -61,9 +61,9 @@
 						<FontIcon Glyph="&#xf211;"/>
 					</local:SettingItem.Icon>
 					<local:SettingItem.ActionContent>
-						<ComboBox x:Name="GraphicsAdapterComboBox" SelectionChanged="GraphicsAdapterComboBox_SelectionChanged"  Style="{StaticResource ComboBoxSettingStyle}" DropDownOpened="ComboBox_DropDownOpened">
-							<x:String>默认</x:String>
-						</ComboBox>
+						<ComboBox SelectedIndex="{x:Bind ViewModel.GraphicsAdapter, Mode=TwoWay}"
+								  ItemsSource="{x:Bind ViewModel.GraphicsAdapters, Mode=OneTime}"
+								  Style="{StaticResource ComboBoxSettingStyle}" DropDownOpened="ComboBox_DropDownOpened" />
 					</local:SettingItem.ActionContent>
 				</local:SettingItem>
 				<local:SettingItem x:Name="ShowFPSSettingItem" Title="显示帧率">
@@ -71,7 +71,7 @@
 						<FontIcon Glyph="&#xEC4A;"/>
 					</local:SettingItem.Icon>
 					<local:SettingItem.ActionContent>
-						<ToggleSwitch x:Name="ShowFPSToggleSwitch" Toggled="ShowFPSToggleSwitch_Toggled" />
+						<ToggleSwitch IsOn="{x:Bind ViewModel.IsShowFPS, Mode=TwoWay}" />
 					</local:SettingItem.ActionContent>
 				</local:SettingItem>
 				<muxc:Expander
@@ -84,14 +84,14 @@
 								<FontIcon Glyph="&#xF71C;" />
 							</local:SettingItem.Icon>
 							<local:SettingItem.ActionContent>
-								<ToggleSwitch x:Name="VSyncToggleSwitch" Toggled="VSyncToggleSwitch_Toggled" />
+								<ToggleSwitch IsOn="{x:Bind ViewModel.IsVSync, Mode=TwoWay}" />
 							</local:SettingItem.ActionContent>
 						</local:SettingItem>
 					</muxc:Expander.Header>
 					<muxc:Expander.Content>
-						<local:SettingItem x:Name="TripleBufferingSettingItem" Title="三重缓冲" Description="允许额外的延迟以提高性能" Style="{StaticResource ExpanderContentSettingStyle}">
+						<local:SettingItem IsEnabled="{x:Bind ViewModel.IsVSync, Mode=OneWay}" Title="三重缓冲" Description="允许额外的延迟以提高性能" Style="{StaticResource ExpanderContentSettingStyle}">
 							<local:SettingItem.ActionContent>
-								<ToggleSwitch x:Name="TripleBufferingToggleSwitch" Toggled="TripleBufferingToggleSwitch_Toggled" />
+								<ToggleSwitch IsOn="{x:Bind ViewModel.IsTripleBuffering, Mode=TwoWay}" />
 							</local:SettingItem.ActionContent>
 						</local:SettingItem>
 					</muxc:Expander.Content>
@@ -103,7 +103,7 @@
 						<FontIcon Glyph="&#xEE3F;" />
 					</local:SettingItem.Icon>
 					<local:SettingItem.ActionContent>
-						<ToggleSwitch x:Name="DisableWindowResizingToggleSwitch" Toggled="DisableWindowResizingToggleSwitch_Toggled" />
+						<ToggleSwitch IsOn="{x:Bind ViewModel.IsDisableWindowResizing, Mode=TwoWay}" />
 					</local:SettingItem.ActionContent>
 				</local:SettingItem>
 				<local:SettingItem Title="保留标题栏" Description="仅在 Graphics Capture 和 Desktop Duplication 捕获模式下有效">
@@ -111,7 +111,7 @@
 						<FontIcon Glyph="&#xE737;" />
 					</local:SettingItem.Icon>
 					<local:SettingItem.ActionContent>
-						<ToggleSwitch x:Name="ReserveTitleBarToggleSwitch" Toggled="ReserveTitleBarToggleSwitch_Toggled" />
+						<ToggleSwitch IsOn="{x:Bind ViewModel.IsReserveTitleBar, Mode=TwoWay}" />
 					</local:SettingItem.ActionContent>
 				</local:SettingItem>
 				<muxc:Expander
@@ -124,7 +124,7 @@
 								<FontIcon Glyph="&#xE7A8;" />
 							</local:SettingItem.Icon>
 							<local:SettingItem.ActionContent>
-								<ToggleSwitch x:Name="CroppingToggleSwitch" Toggled="CroppingToggleSwitch_Toggled" />
+								<ToggleSwitch />
 							</local:SettingItem.ActionContent>
 						</local:SettingItem>
 					</muxc:Expander.Header>

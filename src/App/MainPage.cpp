@@ -29,6 +29,9 @@ MainPage::MainPage() {
 	for (const ScalingProfile& profile : AppSettings::Get().ScalingProfiles()) {
 		MUXC::NavigationViewItem item;
 		item.Content(box_value(profile.Name()));
+		Controls::FontIcon icon;
+		icon.Glyph(L"\uECAA");
+		item.Icon(icon);
 		navMenuItems.InsertAt(navMenuItems.Size() - 1, item);
 	}
 

@@ -17,24 +17,7 @@ struct ScalingProfilePage : ScalingProfilePageT<ScalingProfilePage> {
 
 	void ComboBox_DropDownOpened(IInspectable const& sender, IInspectable const&);
 
-	void GraphicsAdapterComboBox_SelectionChanged(IInspectable const&, Controls::SelectionChangedEventArgs const&);
-
-	void ShowFPSToggleSwitch_Toggled(IInspectable const&, RoutedEventArgs const&);
-
-	void VSyncToggleSwitch_Toggled(IInspectable const&, RoutedEventArgs const&);
-
-	void TripleBufferingToggleSwitch_Toggled(IInspectable const&, RoutedEventArgs const&);
-
-	void DisableWindowResizingToggleSwitch_Toggled(IInspectable const&, RoutedEventArgs const&);
-
-	void ReserveTitleBarToggleSwitch_Toggled(IInspectable const&, RoutedEventArgs const&);
-
-	void CroppingToggleSwitch_Toggled(IInspectable const&, RoutedEventArgs const&);
-
 private:
-	void _UpdateVSync();
-
-	Magpie::Runtime::MagSettings _magSettings{ nullptr };
 	Magpie::App::ScalingProfileViewModel _viewModel{ nullptr };
 };
 
