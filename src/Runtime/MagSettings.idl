@@ -44,5 +44,6 @@ namespace Magpie.Runtime
 		Boolean IsShowFPS;
 		Boolean IsVSync;
 		Boolean IsTripleBuffering;
+		Boolean IsAdjustCursorSpeed;
 	}
 }

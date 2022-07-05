@@ -68,6 +68,9 @@ struct ScalingProfileViewModel : ScalingProfileViewModelT<ScalingProfileViewMode
 	double CrppingBottom() const noexcept;
 	void CrppingBottom(double value);
 
+	bool IsAdjustCursorSpeed() const noexcept;
+	void IsAdjustCursorSpeed(bool value);
+
 private:
 	IVector<IInspectable> _graphicsAdapters;
 

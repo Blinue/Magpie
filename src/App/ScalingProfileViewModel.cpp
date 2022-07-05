@@ -274,4 +274,17 @@ void ScalingProfileViewModel::CrppingBottom(double value) {
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CrppingBottom"));
 }
 
+bool ScalingProfileViewModel::IsAdjustCursorSpeed() const noexcept {
+	return _profile.MagSettings().IsAdjustCursorSpeed();
+}
+
+void ScalingProfileViewModel::IsAdjustCursorSpeed(bool value) {
+	if (_profile.MagSettings().IsAdjustCursorSpeed() == value) {
+		return;
+	}
+
+	_profile.MagSettings().IsAdjustCursorSpeed(value);
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsAdjustCursorSpeed"));
+}
+
 }

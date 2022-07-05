@@ -129,6 +129,14 @@ struct MagSettings : MagSettingsT<MagSettings> {
 		_cropping = value;
 	}
 
+	bool IsAdjustCursorSpeed() const noexcept {
+		return _isAdjustCursorSpeed;
+	}
+
+	void IsAdjustCursorSpeed(bool value) noexcept {
+		_isAdjustCursorSpeed = value;
+	}
+
 private:
 	Magpie::Runtime::CaptureMode _captureMode = Magpie::Runtime::CaptureMode::GraphicsCapture;
 	Magpie::Runtime::MultiMonitorUsage _multiMonitorUsage = Magpie::Runtime::MultiMonitorUsage::Nearest;
@@ -146,6 +154,7 @@ private:
 	bool _isVSync = true;
 	bool _isTripleBuffering = false;
 	bool _isReserveTitleBar = false;
+	bool _isAdjustCursorSpeed = true;
 };
 
 }

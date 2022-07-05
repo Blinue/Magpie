@@ -295,9 +295,9 @@ void CursorManager::_StartCapture(POINT cursorPt) {
 	SIZE srcFrameSize = Win32Utils::GetSizeOfRect(srcFrameRect);
 	SIZE outputSize = Win32Utils::GetSizeOfRect(outputRect);
 
-	/*if (MagApp::Get().GetSettings().IsAdjustCursorSpeed()) {
+	if (MagApp::Get().GetSettings().IsAdjustCursorSpeed()) {
 		_AdjustCursorSpeed();
-	}*/
+	}
 
 	// 移动光标位置
 
@@ -337,9 +337,9 @@ void CursorManager::_StopCapture(POINT cursorPos, bool onDestroy) {
 	if (onDestroy || MonitorFromPoint(newCursorPos, MONITOR_DEFAULTTONULL)) {
 		SetCursorPos(newCursorPos.x, newCursorPos.y);
 
-		/*if (MagApp::Get().GetSettings().IsAdjustCursorSpeed()) {
+		if (MagApp::Get().GetSettings().IsAdjustCursorSpeed()) {
 			SystemParametersInfo(SPI_SETMOUSESPEED, 0, (PVOID)(intptr_t)_cursorSpeed, 0);
-		}*/
+		}
 
 		Win32Utils::ShowSystemCursor(true);
 

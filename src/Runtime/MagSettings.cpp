@@ -25,6 +25,7 @@ void MagSettings::CopyFrom(Magpie::Runtime::MagSettings other) {
 	_isTripleBuffering = otherImpl->_isTripleBuffering;
 	_isReserveTitleBar = otherImpl->_isReserveTitleBar;
 	_cropping = otherImpl->_cropping;
+	_isAdjustCursorSpeed = otherImpl->_isAdjustCursorSpeed;
 }
 
 }

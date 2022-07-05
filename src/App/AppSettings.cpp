@@ -192,13 +192,12 @@ void WriteScalingProfile(rapidjson::PrettyWriter<rapidjson::StringBuffer>& write
 	writer.Bool(magSettings.IsDisableWindowResizing());
 	writer.Key("reserveTitleBar");
 	writer.Bool(magSettings.IsReserveTitleBar());
-	writer.Key("cropping");
-
+	
 	{
 		Magpie::Runtime::Cropping cropping = magSettings.Cropping();
 
+		writer.Key("cropping");
 		writer.StartObject();
-
 		writer.Key("left");
 		writer.Double(cropping.Left);
 		writer.Key("top");
@@ -207,9 +206,11 @@ void WriteScalingProfile(rapidjson::PrettyWriter<rapidjson::StringBuffer>& write
 		writer.Double(cropping.Right);
 		writer.Key("bottom");
 		writer.Double(cropping.Bottom);
-
 		writer.EndObject();
 	}
+
+	writer.Key("adjustCursorSpeed");
+	writer.Bool(magSettings.IsAdjustCursorSpeed());
 
 	writer.EndObject();
 }
@@ -346,6 +347,13 @@ bool LoadScalingProfile(const rapidjson::GenericObject<false, rapidjson::Value>&
 
 			magSettings.Cropping(cropping);
 		}
+	}
+
+	if (!LoadBoolSettingItem(scalingConfigObj, "adjustCursorSpeed", boolValue)) {
+		return false;
+	}
+	if (boolValue.has_value()) {
+		magSettings.IsAdjustCursorSpeed(boolValue.value());
 	}
 
 	return true;

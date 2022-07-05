@@ -24,5 +24,7 @@ namespace Magpie.App
 		Double CrppingTop;
 		Double CrppingRight;
 		Double CrppingBottom;
+
+		Boolean IsAdjustCursorSpeed;
 	}
 }
