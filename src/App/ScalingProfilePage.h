@@ -9,6 +9,8 @@ namespace winrt::Magpie::App::implementation {
 struct ScalingProfilePage : ScalingProfilePageT<ScalingProfilePage> {
 	ScalingProfilePage();
 
+	void OnNavigatedTo(Navigation::NavigationEventArgs const& args);
+
 	Magpie::App::ScalingProfileViewModel ViewModel() const noexcept {
 		return _viewModel;
 	}

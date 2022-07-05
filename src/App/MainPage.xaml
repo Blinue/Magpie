@@ -29,7 +29,7 @@
 				</muxc:NavigationViewItem.Icon>
 			</muxc:NavigationViewItem>
 			<muxc:NavigationViewItemHeader Content="缩放配置" />
-			<muxc:NavigationViewItem Content="默认" Tag="ScalingConfig">
+			<muxc:NavigationViewItem Content="默认">
 				<muxc:NavigationViewItem.Icon>
 					<FontIcon Glyph="&#xE81E;"/>
 				</muxc:NavigationViewItem.Icon>

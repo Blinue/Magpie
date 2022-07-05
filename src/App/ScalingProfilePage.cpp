@@ -94,6 +94,11 @@ ScalingProfilePage::ScalingProfilePage() {
 	ReserveTitleBarToggleSwitch().IsOn(_magSettings.IsReserveTitleBar());
 }
 
+void ScalingProfilePage::OnNavigatedTo(Navigation::NavigationEventArgs const& args) {
+	uint32_t profileId = args.Parameter().as<uint32_t>();
+	profileId;
+}
+
 void ScalingProfilePage::ComboBox_DropDownOpened(IInspectable const& sender, IInspectable const&) {
 	ComboBoxHelper::DropDownOpened(*this, sender);
 }

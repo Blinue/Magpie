@@ -1,6 +1,6 @@
 #pragma once
-
 #include "ScalingModesPage.g.h"
+
 
 namespace winrt::Magpie::App::implementation {
 

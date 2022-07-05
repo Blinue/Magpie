@@ -4,8 +4,6 @@
 #include "AboutPage.g.cpp"
 #endif
 
-using namespace winrt;
-
 
 namespace winrt::Magpie::App::implementation {
 

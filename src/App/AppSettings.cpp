@@ -612,7 +612,7 @@ bool AppSettings::_LoadSettings(std::string text) {
 
 			const auto& scaleRulesArray = scaleConfigsNode->value.GetArray();
 
-			const size_t size = scaleRulesArray.Size();
+			const rapidjson::SizeType size = scaleRulesArray.Size();
 			if (size > 0) {
 				if (!scaleRulesArray[0].IsObject()) {
 					return false;
@@ -628,12 +628,12 @@ bool AppSettings::_LoadSettings(std::string text) {
 
 				if (size > 1) {
 					_scalingProfiles.resize(size - 1);
-					for (size_t i = 1; i < size; ++i) {
+					for (rapidjson::SizeType i = 1; i < size; ++i) {
 						if (!scaleRulesArray[i].IsObject()) {
 							return false;
 						}
 
-						ScalingProfile& rule = _scalingProfiles[i - 1];
+						ScalingProfile& rule = _scalingProfiles[(size_t)i - 1];
 
 						if (!LoadScalingProfile(scaleRulesArray[i].GetObj(), rule)) {
 							return false;

@@ -1,7 +1,6 @@
 #pragma once
 #include "pch.h"
 #include "MainPage.g.h"
-#include "MicaBrush.h"
 
 
 namespace winrt::Magpie::App::implementation

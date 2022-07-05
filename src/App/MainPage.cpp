@@ -23,7 +23,7 @@ MainPage::MainPage() {
 	_UpdateTheme();
 	AppSettings::Get().ThemeChanged([this](int) { _UpdateTheme(); });
 
-	Background(Magpie::App::MicaBrush(*this));
+	Background(MicaBrush(*this));
 
 	IVector<IInspectable> navMenuItems = __super::RootNavigationView().MenuItems();
 	for (const ScalingProfile& profile : AppSettings::Get().ScalingProfiles()) {
@@ -68,25 +68,30 @@ void MainPage::NavigationView_SelectionChanged(
 	auto contentFrame = ContentFrame();
 
 	if (args.IsSettingsSelected()) {
-		contentFrame.Navigate(winrt::xaml_typename<Magpie::App::SettingsPage>());
+		contentFrame.Navigate(winrt::xaml_typename<SettingsPage>());
 	} else {
-		Microsoft::UI::Xaml::Controls::NavigationViewItem selectedItem{ nullptr };
-		args.SelectedItem().as(selectedItem);
+		IInspectable tag = args.SelectedItem().as<MUXC::NavigationViewItem>().Tag();
+		if (tag) {
+			hstring tagStr = unbox_value<hstring>(tag);
+			Interop::TypeName typeName;
+			if (tagStr == L"Home") {
+				typeName = winrt::xaml_typename<HomePage>();
+			} else if (tagStr == L"ScalingModes") {
+				typeName = winrt::xaml_typename<ScalingModesPage>();
+			} else if (tagStr == L"About") {
+				typeName = winrt::xaml_typename<AboutPage>();
+			} else {
+				typeName = winrt::xaml_typename<HomePage>();
+			}
 
-		hstring tag = unbox_value<hstring>(selectedItem.Tag());
-		Interop::TypeName typeName;
-		if (tag == L"Home") {
-			typeName = winrt::xaml_typename<Magpie::App::HomePage>();
-		} else if (tag == L"ScalingModes") {
-			typeName = winrt::xaml_typename<Magpie::App::ScalingModesPage>();
-		} else if (tag == L"About") {
-			typeName = winrt::xaml_typename<Magpie::App::AboutPage>();
-		} else {
-			typeName = winrt::xaml_typename<Magpie::App::ScalingProfilePage>();
-		}
-
-		if (!typeName.Name.empty()) {
 			contentFrame.Navigate(typeName);
+		} else {
+			// 缩放配置页面
+			MUXC::NavigationView nv = __super::RootNavigationView();
+			uint32_t index;
+			if (nv.MenuItems().IndexOf(nv.SelectedItem(), index)) {
+				contentFrame.Navigate(winrt::xaml_typename<ScalingProfilePage>(), box_value(index - 3));
+			}
 		}
 	}
 }
