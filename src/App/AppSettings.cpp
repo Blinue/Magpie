@@ -173,6 +173,8 @@ void WriteScalingProfile(rapidjson::PrettyWriter<rapidjson::StringBuffer>& write
 	writer.Bool(scalingProfile.IsCroppingEnabled());
 	writer.Key("cursorScaling");
 	writer.Uint((unsigned int)scalingProfile.CursorScaling());
+	writer.Key("customCursorScaling");
+	writer.Double(scalingProfile.CustomCursorScaling());
 
 	Magpie::Runtime::MagSettings magSettings = scalingProfile.MagSettings();
 
@@ -258,6 +260,13 @@ bool LoadScalingProfile(const rapidjson::GenericObject<false, rapidjson::Value>&
 	}
 	if (uintValue.has_value()) {
 		scalingProfile.CursorScaling((CursorScaling)uintValue.value());
+	}
+
+	if (!LoadDoubleSettingItem(scalingConfigObj, "customCursorScaling", doubleValue)) {
+		return false;
+	}
+	if (doubleValue.has_value()) {
+		scalingProfile.CustomCursorScaling(doubleValue.value());
 	}
 
 	Magpie::Runtime::MagSettings magSettings = scalingProfile.MagSettings();

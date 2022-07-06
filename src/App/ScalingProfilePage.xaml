@@ -230,9 +230,10 @@
 														Grid.Column="1"
 														Margin="5,0,0,0"
 														HorizontalAlignment="Stretch"
+														Value="{x:Bind ViewModel.CustomCursorScaling, Mode=TwoWay}"
 														MinWidth="30"
 														MaxWidth="120"
-														Minimum="0.001"
+														Minimum="0.1"
 														Maximum="10"
 														SmallChange="0.1"
 														NumberFormatter="{x:Bind NumberFormatter, Mode=OneTime}"/>

@@ -318,4 +318,17 @@ void ScalingProfileViewModel::CursorScaling(int32_t value) {
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CursorScaling"));
 }
 
+double ScalingProfileViewModel::CustomCursorScaling() const noexcept {
+	return _profile.CustomCursorScaling();
+}
+
+void ScalingProfileViewModel::CustomCursorScaling(double value) {
+	if (_profile.CustomCursorScaling() == value) {
+		return;
+	}
+
+	_profile.CustomCursorScaling(std::isnan(value) ? 1.0 : value);
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CustomCursorScaling"));
+}
+
 }
