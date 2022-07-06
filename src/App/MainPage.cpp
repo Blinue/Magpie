@@ -13,6 +13,8 @@
 
 using namespace winrt;
 using namespace Windows::UI::ViewManagement;
+using namespace Windows::UI::Xaml::Input;
+using namespace Windows::UI::Xaml::Controls;
 
 
 namespace winrt::Magpie::App::implementation {
@@ -99,8 +101,39 @@ void MainPage::NavigationView_SelectionChanged(
 	}
 }
 
+IAsyncAction MainPage::AddNavigationViewItem_Tapped(IInspectable const&, TappedRoutedEventArgs const&) {
+	if (!_newProfileDialog) {
+		// 惰性初始化
+		_newProfileDialog = ContentDialog();
+		_newProfileDialogContent = NewProfileDialog();
+
+		_newProfileDialog.Title(box_value(L"添加新配置"));
+		_newProfileDialog.Content(_newProfileDialogContent);
+		_newProfileDialog.PrimaryButtonText(L"确定");
+		_newProfileDialog.CloseButtonText(L"取消");
+		_newProfileDialog.DefaultButton(ContentDialogButton::Primary);
+		_newProfileDialog.Closing({ this, &MainPage::_NewProfileDialog_Closing });
+	}
+
+	_newProfileDialog.XamlRoot(XamlRoot());
+	_newProfileDialog.RequestedTheme(ActualTheme());
+
+	// 防止快速点击时崩溃
+	static bool isShowing = false;
+	if (isShowing) {
+		co_return;
+	}
+	isShowing = true;
+	co_await _newProfileDialog.ShowAsync();
+	isShowing = false;
+}
+
 MUXC::NavigationView MainPage::RootNavigationView() {
 	return __super::RootNavigationView();
+}
+
+void MainPage::_NewProfileDialog_Closing(Controls::ContentDialog const&, Controls::ContentDialogClosingEventArgs const& args) {
+	
 }
 
 void MainPage::_UpdateTheme() {

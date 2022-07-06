@@ -13,9 +13,6 @@ struct ShortcutControl : ShortcutControlT<ShortcutControl> {
 
 	IAsyncAction EditButton_Click(IInspectable const&, RoutedEventArgs const&);
 
-	void ShortcutDialog_Opened(Controls::ContentDialog const&, Controls::ContentDialogOpenedEventArgs const&);
-	void ShortcutDialog_Closing(Controls::ContentDialog const&, Controls::ContentDialogClosingEventArgs const& args);
-
 	HotkeyAction Action() const;
 	void Action(HotkeyAction value);
 
@@ -24,6 +21,8 @@ struct ShortcutControl : ShortcutControlT<ShortcutControl> {
 	static const DependencyProperty ActionProperty;
 
 private:
+	void _ShortcutDialog_Closing(Controls::ContentDialog const&, Controls::ContentDialogClosingEventArgs const& args);
+
 	static LRESULT CALLBACK _LowLevelKeyboardProc(
 		int    nCode,
 		WPARAM wParam,
@@ -42,9 +41,9 @@ private:
 
 	WinRTUtils::EventRevoker _hotkeyChangedRevoker;
 
-	Magpie::App::HotkeySettings _hotkey;
-	Controls::ContentDialog _shortcutDialog;
-	Magpie::App::ShortcutDialog _shortcutDialogContent;
+	HotkeySettings _hotkey;
+	Controls::ContentDialog _shortcutDialog{ nullptr };
+	ShortcutDialog _shortcutDialogContent{ nullptr };
 
 	HHOOK _keyboardHook = NULL;
 	// 用于向键盘钩子传递 this 指针

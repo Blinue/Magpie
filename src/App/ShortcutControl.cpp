@@ -52,34 +52,28 @@ ShortcutControl::ShortcutControl() {
 
 	_hotkeyChangedRevoker = AppSettings::Get().HotkeyChanged(
 		auto_revoke, { this,&ShortcutControl::_Settings_OnHotkeyChanged });
-
-	_shortcutDialog.Title(box_value(L"激活快捷键"));
-	_shortcutDialog.Content(_shortcutDialogContent);
-	_shortcutDialog.PrimaryButtonText(L"保存");
-	_shortcutDialog.CloseButtonText(L"取消");
-	_shortcutDialog.DefaultButton(ContentDialogButton::Primary);
-	_shortcutDialog.Opened({ this, &ShortcutControl::ShortcutDialog_Opened });
-	_shortcutDialog.Closing({ this, &ShortcutControl::ShortcutDialog_Closing });
 }
 
 IAsyncAction ShortcutControl::EditButton_Click(IInspectable const&, RoutedEventArgs const&) {
+	if (!_shortcutDialog) {
+		// 惰性初始化
+		_shortcutDialog = ContentDialog();
+		_shortcutDialogContent = ShortcutDialog();
+
+		_shortcutDialog.Title(box_value(L"激活快捷键"));
+		_shortcutDialog.Content(_shortcutDialogContent);
+		_shortcutDialog.PrimaryButtonText(L"保存");
+		_shortcutDialog.CloseButtonText(L"取消");
+		_shortcutDialog.DefaultButton(ContentDialogButton::Primary);
+		_shortcutDialog.Closing({ this, &ShortcutControl::_ShortcutDialog_Closing });
+	}
+
 	_previewHotkey = _hotkey;
 	_shortcutDialogContent.Keys(ToKeys(_previewHotkey.GetKeyList()));
 
 	_shortcutDialog.XamlRoot(XamlRoot());
 	_shortcutDialog.RequestedTheme(ActualTheme());
 
-	// 防止快速点击时崩溃
-	static bool showing = false;
-	if (showing) {
-		co_return;
-	}
-	showing = true;
-	co_await _shortcutDialog.ShowAsync();
-	showing = false;
-}
-
-void ShortcutControl::ShortcutDialog_Opened(ContentDialog const&, ContentDialogOpenedEventArgs const&) {
 	_that = this;
 	_keyboardHook = SetWindowsHookEx(WH_KEYBOARD_LL, _LowLevelKeyboardProc, NULL, 0);
 	_previewHotkey = _hotkey;
@@ -88,9 +82,18 @@ void ShortcutControl::ShortcutDialog_Opened(ContentDialog const&, ContentDialogO
 	_shortcutDialog.IsPrimaryButtonEnabled(!IsError());
 
 	_pressedKeys.Clear();
+
+	// 防止快速点击时崩溃
+	static bool isShowing = false;
+	if (isShowing) {
+		co_return;
+	}
+	isShowing = true;
+	co_await _shortcutDialog.ShowAsync();
+	isShowing = false;
 }
 
-void ShortcutControl::ShortcutDialog_Closing(ContentDialog const&, ContentDialogClosingEventArgs const& args) {
+void ShortcutControl::_ShortcutDialog_Closing(ContentDialog const&, ContentDialogClosingEventArgs const& args) {
 	UnhookWindowsHookEx(_keyboardHook);
 
 	if (args.Result() == ContentDialogResult::Primary) {
