@@ -217,7 +217,7 @@ void MagService::_StartScale(uint64_t hWnd) {
 		return;
 	}
 
-	const ScalingProfile& profile = ScalingProfileService::Get().GetRuleForWindow((HWND)hWnd);
+	const ScalingProfile& profile = ScalingProfileService::Get().GetProfileForWindow((HWND)hWnd);
 	
 	Magpie::Runtime::MagSettings magSettings;
 	magSettings.CopyFrom(profile.MagSettings());
@@ -225,6 +225,39 @@ void MagService::_StartScale(uint64_t hWnd) {
 	if (!profile.IsCroppingEnabled()) {
 		magSettings.Cropping({});
 	}
+
+	double cursorScaling;
+	switch (profile.CursorScaling()) {
+	case CursorScaling::x0_5:
+		cursorScaling = 0.5;
+		break;
+	case CursorScaling::x0_75:
+		cursorScaling = 0.75;
+		break;
+	case CursorScaling::NoScaling:
+		cursorScaling = 1.0;
+		break;
+	case CursorScaling::x1_25:
+		cursorScaling = 1.25;
+		break;
+	case CursorScaling::x1_5:
+		cursorScaling = 1.5;
+		break;
+	case CursorScaling::x2:
+		cursorScaling = 2.0;
+		break;
+	case CursorScaling::Source:
+		// 0 或负值表示和源窗口缩放比例相同
+		cursorScaling = 0;
+		break;
+	case CursorScaling::Custom:
+		cursorScaling = profile.CustomCursorScaling();
+		break;
+	default:
+		cursorScaling = 1.0;
+		break;
+	}
+	magSettings.CursorScaling(cursorScaling);
 
 	// 应用全局配置
 	AppSettings& settings = AppSettings::Get();

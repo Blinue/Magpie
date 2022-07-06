@@ -6,7 +6,7 @@
 
 namespace winrt::Magpie::App {
 
-ScalingProfile& ScalingProfileService::GetRuleForWindow(HWND hWnd) {
+ScalingProfile& ScalingProfileService::GetProfileForWindow(HWND hWnd) {
 	std::wstring className = Win32Utils::GetWndClassName(hWnd);
 	std::wstring path;
 

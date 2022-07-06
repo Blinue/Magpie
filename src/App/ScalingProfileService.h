@@ -12,7 +12,7 @@ public:
 		return instance;
 	}
 
-	ScalingProfile& GetRuleForWindow(HWND hWnd);
+	ScalingProfile& GetProfileForWindow(HWND hWnd);
 
 	ScalingProfile* GetScalingProfile(std::wstring_view name) {
 		auto it = _rulesMap.find(name);

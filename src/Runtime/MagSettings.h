@@ -145,6 +145,14 @@ struct MagSettings : MagSettingsT<MagSettings> {
 		_isDrawCursor = value;
 	}
 
+	double CursorScaling() const noexcept {
+		return _cursorScaling;
+	}
+
+	void CursorScaling(double value) noexcept {
+		_cursorScaling = value;
+	}
+
 private:
 	Magpie::Runtime::CaptureMode _captureMode = Magpie::Runtime::CaptureMode::GraphicsCapture;
 	Magpie::Runtime::MultiMonitorUsage _multiMonitorUsage = Magpie::Runtime::MultiMonitorUsage::Nearest;
@@ -164,6 +172,7 @@ private:
 	bool _isReserveTitleBar = false;
 	bool _isAdjustCursorSpeed = true;
 	bool _isDrawCursor = true;
+	double _cursorScaling = 1.0;
 };
 
 }

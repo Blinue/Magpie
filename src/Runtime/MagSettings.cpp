@@ -27,6 +27,7 @@ void MagSettings::CopyFrom(Magpie::Runtime::MagSettings other) {
 	_cropping = otherImpl->_cropping;
 	_isAdjustCursorSpeed = otherImpl->_isAdjustCursorSpeed;
 	_isDrawCursor = otherImpl->_isDrawCursor;
+	_cursorScaling = otherImpl->_cursorScaling;
 }
 
 }

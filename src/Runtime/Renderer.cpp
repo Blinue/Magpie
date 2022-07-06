@@ -446,21 +446,21 @@ bool Renderer::_UpdateDynamicConstants() {
 		}
 		assert(pos && ci);
 
-		float cursorZoomFactor = 1;// MagApp::Get().GetSettings().GetCursorZoomFactor();
-		if (cursorZoomFactor < 1e-5) {
+		float cursorScaling = (float)MagApp::Get().GetSettings().CursorScaling();
+		if (cursorScaling < 1e-5) {
 			SIZE srcFrameSize = Win32Utils::GetSizeOfRect(MagApp::Get().GetFrameSource().GetSrcFrameRect());
 			SIZE virtualOutputSize = Win32Utils::GetSizeOfRect(_virtualOutputRect);
-			cursorZoomFactor = (((float)virtualOutputSize.cx / srcFrameSize.cx)
+			cursorScaling = (((float)virtualOutputSize.cx / srcFrameSize.cx)
 				+ ((float)virtualOutputSize.cy / srcFrameSize.cy)) / 2;
 		}
 
 		SIZE cursorSize = {
-			std::lroundf(ci->size.cx * cursorZoomFactor),
-			std::lroundf(ci->size.cy * cursorZoomFactor)
+			std::lroundf(ci->size.cx * cursorScaling),
+			std::lroundf(ci->size.cy * cursorScaling)
 		};
 
-		_dynamicConstants[0].intVal = pos->x - std::lroundf(ci->hotSpot.x * cursorZoomFactor);
-		_dynamicConstants[1].intVal = pos->y - std::lroundf(ci->hotSpot.y * cursorZoomFactor);
+		_dynamicConstants[0].intVal = pos->x - std::lroundf(ci->hotSpot.x * cursorScaling);
+		_dynamicConstants[1].intVal = pos->y - std::lroundf(ci->hotSpot.y * cursorScaling);
 		_dynamicConstants[2].intVal = _dynamicConstants[0].intVal + cursorSize.cx;
 		_dynamicConstants[3].intVal = _dynamicConstants[1].intVal + cursorSize.cy;
 

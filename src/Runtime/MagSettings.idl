@@ -46,5 +46,7 @@ namespace Magpie.Runtime
 		Boolean IsTripleBuffering;
 		Boolean IsAdjustCursorSpeed;
 		Boolean IsDrawCursor;
+		// 0 或负值表示和源窗口缩放比例相同
+		Double CursorScaling;
 	}
 }
