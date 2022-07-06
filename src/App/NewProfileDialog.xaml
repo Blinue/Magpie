@@ -7,7 +7,17 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
-    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
-		<ComboBox ItemsSource="{x:Bind CandidateWindows}" PlaceholderText="选择一个窗口" />
+	<StackPanel MinWidth="498" Orientation="Vertical" Spacing="10">
+		<TextBlock Text="选择一个窗口" />
+		<ListView MaxHeight="300"
+				  d:Height="250"
+				  BorderThickness="1"
+				  CornerRadius="{StaticResource ControlCornerRadius}"
+				  BorderBrush="{ThemeResource SystemControlForegroundBaseMediumLowBrush}"
+				  ItemsSource="{x:Bind CandidateWindows}" />
+		<StackPanel Orientation="Horizontal" Spacing="10">
+			<TextBlock Text="复制配置文件" VerticalAlignment="Center" />
+			<ComboBox />
+		</StackPanel>
 	</StackPanel>
 </UserControl>

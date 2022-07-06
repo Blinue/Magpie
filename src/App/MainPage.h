@@ -32,7 +32,6 @@ namespace winrt::Magpie::App::implementation
 		std::optional<bool> _isDarkTheme;
 
 		Controls::ContentDialog _newProfileDialog{ nullptr };
-		Magpie::App::NewProfileDialog _newProfileDialogContent{ nullptr };
 	};
 }
 

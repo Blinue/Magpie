@@ -38,7 +38,7 @@ UINT Win32Utils::GetOSBuild() {
 std::wstring Win32Utils::GetWndClassName(HWND hWnd) {
 	// 窗口类名最多 256 个字符
 	std::wstring className(256, 0);
-	int num = GetClassName(hWnd, &className[0], (int)className.size());
+	int num = GetClassName(hWnd, &className[0], (int)className.size() + 1);
 	if (num == 0) {
 		Logger::Get().Win32Error("GetClassName 失败");
 		return {};
@@ -46,6 +46,18 @@ std::wstring Win32Utils::GetWndClassName(HWND hWnd) {
 
 	className.resize(num);
 	return className;
+}
+
+std::wstring Win32Utils::GetWndTitle(HWND hWnd) {
+	int len = GetWindowTextLength(hWnd);
+	if (len == 0) {
+		return {};
+	}
+
+	std::wstring title(len, 0);
+	len = GetWindowText(hWnd, title.data(), len + 1);
+	title.resize(len);
+	return title;
 }
 
 std::wstring Win32Utils::GetPathOfWnd(HWND hWnd) {
@@ -62,7 +74,7 @@ std::wstring Win32Utils::GetPathOfWnd(HWND hWnd) {
 	}
 
 	std::wstring fileName(MAX_PATH, 0);
-	DWORD size = GetModuleFileNameEx(hProc.get(), NULL, fileName.data(), (DWORD)fileName.size());
+	DWORD size = GetModuleFileNameEx(hProc.get(), NULL, fileName.data(), (DWORD)fileName.size() + 1);
 	if (size == 0) {
 		Logger::Get().Win32Error("GetModuleFileName 失败");
 		return {};
@@ -109,7 +121,6 @@ bool Win32Utils::GetWindowFrameRect(HWND hWnd, RECT& result) {
 	HRESULT hr = DwmGetWindowAttribute(hWnd,
 		DWMWA_EXTENDED_FRAME_BOUNDS, &result, sizeof(result));
 	if (FAILED(hr)) {
-		Logger::Get().ComError("DwmGetWindowAttribute 失败", hr);
 		return false;
 	}
 
