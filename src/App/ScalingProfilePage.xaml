@@ -215,6 +215,7 @@
 												  SelectedIndex="{x:Bind ViewModel.CursorScaling, Mode=TwoWay}"
 												  SelectionChanged="CursorScalingComboBox_SelectionChanged"
 												  HorizontalAlignment="Stretch"
+												  VerticalAlignment="Stretch"
 												  Style="{StaticResource ComboBoxSettingStyle}"
 												  DropDownOpened="ComboBox_DropDownOpened">
 											<x:String>0.5x</x:String>
@@ -230,6 +231,7 @@
 														Grid.Column="1"
 														Margin="5,0,0,0"
 														HorizontalAlignment="Stretch"
+														VerticalAlignment="Stretch"
 														Value="{x:Bind ViewModel.CustomCursorScaling, Mode=TwoWay}"
 														MinWidth="30"
 														MaxWidth="120"

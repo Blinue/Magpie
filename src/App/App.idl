@@ -11,7 +11,7 @@
 #include "SettingsPage.idl"
 #include "KeyVisual.idl"
 #include "ShortcutControl.idl"
-#include "ShortcutDialogContent.idl"
+#include "ShortcutDialog.idl"
 #include "ScalingModesPage.idl"
 #include "ScalingProfilePage.idl"
 

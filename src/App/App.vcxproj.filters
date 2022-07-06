@@ -99,6 +99,9 @@
     <Filter Include="ViewModels">
       <UniqueIdentifier>{c63b1e37-fe89-4c56-a1fe-e19d6803adad}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Dialogs">
+      <UniqueIdentifier>{61e9c3f2-4587-49c8-9cb0-17e7728e1ac4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -153,14 +156,14 @@
     <Page Include="ShortcutControl.xaml">
       <Filter>Controls</Filter>
     </Page>
-    <Page Include="ShortcutDialogContent.xaml">
-      <Filter>Controls</Filter>
-    </Page>
     <Page Include="ScalingModesPage.xaml">
       <Filter>Pages</Filter>
     </Page>
     <Page Include="ScalingProfilePage.xaml">
       <Filter>Pages</Filter>
+    </Page>
+    <Page Include="ShortcutDialog.xaml">
+      <Filter>Dialogs</Filter>
     </Page>
   </ItemGroup>
   <ItemGroup>

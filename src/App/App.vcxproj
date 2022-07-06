@@ -179,8 +179,8 @@
       <DependentUpon>ShortcutControl.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
-    <ClInclude Include="ShortcutDialogContent.h">
-      <DependentUpon>ShortcutDialogContent.xaml</DependentUpon>
+    <ClInclude Include="ShortcutDialog.h">
+      <DependentUpon>ShortcutDialog.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
   </ItemGroup>
@@ -277,8 +277,8 @@
       <DependentUpon>ShortcutControl.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
-    <ClCompile Include="ShortcutDialogContent.cpp">
-      <DependentUpon>ShortcutDialogContent.xaml</DependentUpon>
+    <ClCompile Include="ShortcutDialog.cpp">
+      <DependentUpon>ShortcutDialog.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
   </ItemGroup>
@@ -293,8 +293,8 @@
       <DependentUpon>ScalingModesPage.xaml</DependentUpon>
       <SubType>Code</SubType>
     </None>
-    <None Include="ShortcutDialogContent.idl">
-      <DependentUpon>ShortcutDialogContent.xaml</DependentUpon>
+    <None Include="ShortcutDialog.idl">
+      <DependentUpon>ShortcutDialog.xaml</DependentUpon>
       <SubType>Code</SubType>
     </None>
     <None Include="ShortcutControl.idl">
@@ -392,7 +392,7 @@
     <Page Include="ShortcutControl.xaml">
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="ShortcutDialogContent.xaml">
+    <Page Include="ShortcutDialog.xaml">
       <SubType>Designer</SubType>
     </Page>
     <Page Include="ToggleSwitch.xaml">

@@ -1,27 +1,24 @@
 #include "pch.h"
-#include "ShortcutDialogContent.h"
-#if __has_include("ShortcutDialogContent.g.cpp")
-#include "ShortcutDialogContent.g.cpp"
+#include "ShortcutDialog.h"
+#if __has_include("ShortcutDialog.g.cpp")
+#include "ShortcutDialog.g.cpp"
 #endif
-
-
-using namespace winrt;
 
 
 namespace winrt::Magpie::App::implementation {
 
-const DependencyProperty ShortcutDialogContent::_IsErrorProperty = DependencyProperty::Register(
+const DependencyProperty ShortcutDialog::_IsErrorProperty = DependencyProperty::Register(
 	L"_IsError",
 	xaml_typename<bool>(),
-	xaml_typename<Magpie::App::ShortcutDialogContent>(),
+	xaml_typename<Magpie::App::ShortcutDialog>(),
 	PropertyMetadata(box_value(false), nullptr)
 );
 
-ShortcutDialogContent::ShortcutDialogContent() {
+ShortcutDialog::ShortcutDialog() {
 	InitializeComponent();
 }
 
-void ShortcutDialogContent::Error(HotkeyError value) {
+void ShortcutDialog::Error(HotkeyError value) {
 	switch (value) {
 	case HotkeyError::NoError:
 		_IsError(false);
@@ -44,16 +41,16 @@ void ShortcutDialogContent::Error(HotkeyError value) {
 	_error = value;
 }
 
-void ShortcutDialogContent::Keys(const IVector<IInspectable>& value) {
+void ShortcutDialog::Keys(const IVector<IInspectable>& value) {
 	_keys = value;
 	KeysControl().ItemsSource(value);
 }
 
-IVector<IInspectable> ShortcutDialogContent::Keys() const {
+IVector<IInspectable> ShortcutDialog::Keys() const {
 	return _keys;
 }
 
-void ShortcutDialogContent::_IsError(bool value) {
+void ShortcutDialog::_IsError(bool value) {
 	SetValue(_IsErrorProperty, box_value(value));
 }
 

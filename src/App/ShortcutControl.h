@@ -44,7 +44,7 @@ private:
 
 	Magpie::App::HotkeySettings _hotkey;
 	Controls::ContentDialog _shortcutDialog;
-	Magpie::App::ShortcutDialogContent _shortcutDialogContent;
+	Magpie::App::ShortcutDialog _shortcutDialogContent;
 
 	HHOOK _keyboardHook = NULL;
 	// 用于向键盘钩子传递 this 指针
