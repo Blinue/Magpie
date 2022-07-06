@@ -116,6 +116,10 @@
     <ClInclude Include="HotkeyService.h" />
     <ClInclude Include="HotkeySettings.h" />
     <ClInclude Include="MagService.h" />
+    <ClInclude Include="NewProfileDialog.h">
+      <DependentUpon>NewProfileDialog.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </ClInclude>
     <ClInclude Include="ScalingProfile.h" />
     <ClInclude Include="ScalingProfilePage.h">
       <DependentUpon>ScalingProfilePage.xaml</DependentUpon>
@@ -211,6 +215,10 @@
     <ClCompile Include="HotkeyService.cpp" />
     <ClCompile Include="HotkeySettings.cpp" />
     <ClCompile Include="MagService.cpp" />
+    <ClCompile Include="NewProfileDialog.cpp">
+      <DependentUpon>NewProfileDialog.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </ClCompile>
     <ClCompile Include="ScalingProfile.cpp" />
     <ClCompile Include="ScalingProfilePage.cpp">
       <DependentUpon>ScalingProfilePage.xaml</DependentUpon>
@@ -317,6 +325,10 @@
     <None Include="HomeViewModel.idl">
       <SubType>Designer</SubType>
     </None>
+    <None Include="NewProfileDialog.idl">
+      <DependentUpon>NewProfileDialog.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </None>
     <Midl Include="PageFrame.idl">
       <DependentUpon>PageFrame.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -360,6 +372,9 @@
   </ItemGroup>
   <ItemGroup>
     <Page Include="AboutPage.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="NewProfileDialog.xaml">
       <SubType>Designer</SubType>
     </Page>
     <Page Include="ScalingProfilePage.xaml">

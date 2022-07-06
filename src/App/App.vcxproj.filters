@@ -165,6 +165,9 @@
     <Page Include="ShortcutDialog.xaml">
       <Filter>Dialogs</Filter>
     </Page>
+    <Page Include="NewProfileDialog.xaml">
+      <Filter>Dialogs</Filter>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest">
