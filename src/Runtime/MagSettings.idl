@@ -20,6 +20,11 @@ namespace Magpie.Runtime
 		Double Bottom;
 	};
 
+	enum CursorInterpolationMode {
+		Nearest,
+		Bilinear
+	};
+
 	[default_interface]
 	runtimeclass MagSettings
 	{
@@ -48,5 +53,6 @@ namespace Magpie.Runtime
 		Boolean IsDrawCursor;
 		// 0 或负值表示和源窗口缩放比例相同
 		Double CursorScaling;
+		CursorInterpolationMode CursorInterpolationMode;
 	}
 }

@@ -28,6 +28,7 @@ void MagSettings::CopyFrom(Magpie::Runtime::MagSettings other) {
 	_isAdjustCursorSpeed = otherImpl->_isAdjustCursorSpeed;
 	_isDrawCursor = otherImpl->_isDrawCursor;
 	_cursorScaling = otherImpl->_cursorScaling;
+	_cursorInterpolationMode = otherImpl->_cursorInterpolationMode;
 }
 
 }

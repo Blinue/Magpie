@@ -252,7 +252,7 @@ bool EffectDrawer::Initialize(
 		_srvs.back().push_back(nullptr);
 
 		if (!dr.GetSampler(
-			/*MagApp::Get().GetSettings().GetCursorInterpolationMode() == 0 ?*/ D3D11_FILTER_MIN_MAG_MIP_POINT/* : D3D11_FILTER_MIN_MAG_MIP_LINEAR*/,
+			MagApp::Get().GetSettings().CursorInterpolationMode() == winrt::Magpie::Runtime::CursorInterpolationMode::Nearest ? D3D11_FILTER_MIN_MAG_MIP_POINT : D3D11_FILTER_MIN_MAG_MIP_LINEAR,
 			D3D11_TEXTURE_ADDRESS_CLAMP,
 			&_samplers.emplace_back(nullptr)
 		)) {

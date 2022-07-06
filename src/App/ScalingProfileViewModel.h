@@ -80,6 +80,9 @@ struct ScalingProfileViewModel : ScalingProfileViewModelT<ScalingProfileViewMode
 	double CustomCursorScaling() const noexcept;
 	void CustomCursorScaling(double value);
 
+	int32_t CursorInterpolationMode() const noexcept;
+	void CursorInterpolationMode(int32_t value);
+
 private:
 	IVector<IInspectable> _graphicsAdapters;
 

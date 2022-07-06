@@ -217,6 +217,8 @@ void WriteScalingProfile(rapidjson::PrettyWriter<rapidjson::StringBuffer>& write
 	writer.Bool(magSettings.IsAdjustCursorSpeed());
 	writer.Key("drawCursor");
 	writer.Bool(magSettings.IsDrawCursor());
+	writer.Key("cursorInterpolationMode");
+	writer.Uint((unsigned int)magSettings.CursorInterpolationMode());
 
 	writer.EndObject();
 }
@@ -381,6 +383,13 @@ bool LoadScalingProfile(const rapidjson::GenericObject<false, rapidjson::Value>&
 	}
 	if (boolValue.has_value()) {
 		magSettings.IsDrawCursor(boolValue.value());
+	}
+
+	if (!LoadUIntSettingItem(scalingConfigObj, "cursorInterpolationMode", uintValue)) {
+		return false;
+	}
+	if (uintValue.has_value()) {
+		magSettings.CursorInterpolationMode((Magpie::Runtime::CursorInterpolationMode)uintValue.value());
 	}
 
 	return true;

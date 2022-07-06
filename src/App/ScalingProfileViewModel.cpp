@@ -331,4 +331,22 @@ void ScalingProfileViewModel::CustomCursorScaling(double value) {
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CustomCursorScaling"));
 }
 
+int32_t ScalingProfileViewModel::CursorInterpolationMode() const noexcept {
+	return (int32_t)_profile.MagSettings().CursorInterpolationMode();
+}
+
+void ScalingProfileViewModel::CursorInterpolationMode(int32_t value) {
+	if (value < 0) {
+		return;
+	}
+
+	Magpie::Runtime::CursorInterpolationMode cursorInterpolationMode = (Magpie::Runtime::CursorInterpolationMode)value;
+	if (_profile.MagSettings().CursorInterpolationMode() == cursorInterpolationMode) {
+		return;
+	}
+
+	_profile.MagSettings().CursorInterpolationMode(cursorInterpolationMode);
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CursorInterpolationMode"));
+}
+
 }

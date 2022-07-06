@@ -29,5 +29,6 @@ namespace Magpie.App
 		Boolean IsDrawCursor;
 		Int32 CursorScaling;
 		Double CustomCursorScaling;
+		Int32 CursorInterpolationMode;
 	}
 }
