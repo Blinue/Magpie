@@ -11,6 +11,7 @@
 #include "StrUtils.h"
 #include "CursorManager.h"
 #include "Renderer.h"
+#include "GPUTimer.h"
 
 
 static constexpr const wchar_t* HOST_WINDOW_CLASS_NAME = L"Window_Magpie_967EB565-6F73-4E94-AE53-00CC42592A22";
@@ -38,7 +39,10 @@ bool MagApp::Run(HWND hwndSrc, winrt::Magpie::Runtime::MagSettings const& settin
 
 	// 模拟独占全屏
 	// 必须在主窗口创建前，否则 SHQueryUserNotificationState 可能返回 QUNS_BUSY 而不是 QUNS_RUNNING_D3D_FULL_SCREEN
-	ExclModeHack exclMode;
+	std::unique_ptr<ExclModeHack> exclMode;
+	if (MagApp::Get().GetSettings().IsSimulateExclusiveFullscreen()) {
+		exclMode = std::make_unique<ExclModeHack>();
+	};
 
 	_RegisterWndClasses();
 	
@@ -91,12 +95,12 @@ bool MagApp::Run(HWND hwndSrc, winrt::Magpie::Runtime::MagSettings const& settin
 		return false;
 	}
 
-	/*if (_settings->IsDisableDirectFlip() && !_settings->IsBreakpointMode()) {
+	if (_settings.IsDisableDirectFlip() && !_settings.IsBreakpointMode()) {
 		// 在此处创建的 DDF 窗口不会立刻显示
 		if (!_DisableDirectFlip()) {
 			Logger::Get().Error("_DisableDirectFlip 失败");
 		}
-	}*/
+	}
 
 	ShowWindow(_hwndHost, SW_NORMAL);
 
@@ -162,16 +166,16 @@ void MagApp::_RunMessageLoop() {
 
 		_renderer->Render();
 
-		//// 第二帧（等待时或完成后）显示 DDF 窗口
-		//// 如果在 Run 中创建会有短暂的灰屏
-		//// 选择第二帧的原因：当 GetFrameCount() 返回 1 时第一帧可能处于等待状态而没有渲染，见 Renderer::Render()
-		//if (_renderer->GetGPUTimer().GetFrameCount() == 2 && _hwndDDF) {
-		//	ShowWindow(_hwndDDF, SW_NORMAL);
+		// 第二帧（等待时或完成后）显示 DDF 窗口
+		// 如果在 Run 中创建会有短暂的灰屏
+		// 选择第二帧的原因：当 GetFrameCount() 返回 1 时第一帧可能处于等待状态而没有渲染，见 Renderer::Render()
+		if (_renderer->GetGPUTimer().GetFrameCount() == 2 && _hwndDDF) {
+			ShowWindow(_hwndDDF, SW_NORMAL);
 
-		//	if (!SetWindowPos(_hwndDDF, _hwndHost, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOREDRAW)) {
-		//		Logger::Get().Win32Error("SetWindowPos 失败");
-		//	}
-		//}
+			if (!SetWindowPos(_hwndDDF, _hwndHost, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOREDRAW)) {
+				Logger::Get().Win32Error("SetWindowPos 失败");
+			}
+		}
 	}
 }
 
@@ -318,7 +322,7 @@ bool MagApp::_CreateHostWnd() {
 
 	// 设置窗口不透明
 	// 不完全透明时可关闭 DirectFlip
-	if (!SetLayeredWindowAttributes(_hwndHost, 0, 255, LWA_ALPHA)) {
+	if (!SetLayeredWindowAttributes(_hwndHost, 0, _settings.IsDisableDirectFlip() ? 254 : 255, LWA_ALPHA)) {
 		Logger::Get().Win32Error("SetLayeredWindowAttributes 失败");
 	}
 
@@ -361,7 +365,45 @@ bool MagApp::_InitFrameSource() {
 }
 
 bool MagApp::_DisableDirectFlip() {
-	return false;
+	// 没有显式关闭 DirectFlip 的方法
+	// 将全屏窗口设为稍微透明，以灰色全屏窗口为背景
+	_hwndDDF = CreateWindowEx(
+		WS_EX_NOACTIVATE | WS_EX_LAYERED | WS_EX_TRANSPARENT,
+		DDF_WINDOW_CLASS_NAME,
+		NULL,
+		WS_POPUP,
+		_hostWndRect.left,
+		_hostWndRect.top,
+		_hostWndRect.right - _hostWndRect.left,
+		_hostWndRect.bottom - _hostWndRect.top,
+		NULL,
+		NULL,
+		_hInst,
+		NULL
+	);
+
+	if (!_hwndDDF) {
+		Logger::Get().Win32Error("创建 DDF 窗口失败");
+		return false;
+	}
+
+	// 设置窗口不透明
+	if (!SetLayeredWindowAttributes(_hwndDDF, 0, 255, LWA_ALPHA)) {
+		Logger::Get().Win32Error("SetLayeredWindowAttributes 失败");
+	}
+
+	if (_frameSource->IsScreenCapture()) {
+		const RTL_OSVERSIONINFOW& version = Win32Utils::GetOSVersion();
+		if (Utils::CompareVersion(version.dwMajorVersion, version.dwMinorVersion, version.dwBuildNumber, 10, 0, 19041) >= 0) {
+			// 使 DDF 窗口无法被捕获到
+			if (!SetWindowDisplayAffinity(_hwndDDF, WDA_EXCLUDEFROMCAPTURE)) {
+				Logger::Get().Win32Error("SetWindowDisplayAffinity 失败");
+			}
+		}
+	}
+
+	Logger::Get().Info("已创建 DDF 主窗口");
+	return true;
 }
 
 LRESULT MagApp::_HostWndProcStatic(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {

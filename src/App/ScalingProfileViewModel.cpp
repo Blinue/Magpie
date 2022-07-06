@@ -349,4 +349,17 @@ void ScalingProfileViewModel::CursorInterpolationMode(int32_t value) {
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CursorInterpolationMode"));
 }
 
+bool ScalingProfileViewModel::IsDisableDirectFlip() const noexcept {
+	return _profile.MagSettings().IsDisableDirectFlip();
+}
+
+void ScalingProfileViewModel::IsDisableDirectFlip(bool value) {
+	if (_profile.MagSettings().IsDisableDirectFlip() == value) {
+		return;
+	}
+
+	_profile.MagSettings().IsDisableDirectFlip(value);
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsDisableDirectFlip"));
+}
+
 }

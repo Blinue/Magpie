@@ -219,6 +219,8 @@ void WriteScalingProfile(rapidjson::PrettyWriter<rapidjson::StringBuffer>& write
 	writer.Bool(magSettings.IsDrawCursor());
 	writer.Key("cursorInterpolationMode");
 	writer.Uint((unsigned int)magSettings.CursorInterpolationMode());
+	writer.Key("disableDirectFlip");
+	writer.Bool(magSettings.IsDisableDirectFlip());
 
 	writer.EndObject();
 }
@@ -390,6 +392,13 @@ bool LoadScalingProfile(const rapidjson::GenericObject<false, rapidjson::Value>&
 	}
 	if (uintValue.has_value()) {
 		magSettings.CursorInterpolationMode((Magpie::Runtime::CursorInterpolationMode)uintValue.value());
+	}
+
+	if (!LoadBoolSettingItem(scalingConfigObj, "disableDirectFlip", boolValue)) {
+		return false;
+	}
+	if (boolValue.has_value()) {
+		magSettings.IsDisableDirectFlip(boolValue.value());
 	}
 
 	return true;

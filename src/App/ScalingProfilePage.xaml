@@ -264,7 +264,7 @@
 			<local:SettingsGroup Title="高级">
 				<local:SettingItem Title="禁用 DirectFlip">
 					<local:SettingItem.ActionContent>
-						<ToggleSwitch />
+						<ToggleSwitch IsOn="{x:Bind ViewModel.IsDisableDirectFlip, Mode=TwoWay}" />
 					</local:SettingItem.ActionContent>
 				</local:SettingItem>
 			</local:SettingsGroup>	

@@ -30,5 +30,6 @@ namespace Magpie.App
 		Int32 CursorScaling;
 		Double CustomCursorScaling;
 		Int32 CursorInterpolationMode;
+		Boolean IsDisableDirectFlip;
 	}
 }

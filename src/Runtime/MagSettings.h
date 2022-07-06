@@ -161,6 +161,14 @@ struct MagSettings : MagSettingsT<MagSettings> {
 		_cursorInterpolationMode = value;
 	}
 
+	bool IsDisableDirectFlip() const noexcept {
+		return _isDisableDirectFlip;
+	}
+
+	void IsDisableDirectFlip(bool value) noexcept {
+		_isDisableDirectFlip = value;
+	}
+
 private:
 	Magpie::Runtime::CaptureMode _captureMode = Magpie::Runtime::CaptureMode::GraphicsCapture;
 	Magpie::Runtime::MultiMonitorUsage _multiMonitorUsage = Magpie::Runtime::MultiMonitorUsage::Nearest;
@@ -182,6 +190,7 @@ private:
 	bool _isDrawCursor = true;
 	double _cursorScaling = 1.0;
 	Magpie::Runtime::CursorInterpolationMode _cursorInterpolationMode = Magpie::Runtime::CursorInterpolationMode::Nearest;
+	bool _isDisableDirectFlip = false;
 };
 
 }
