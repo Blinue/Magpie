@@ -20,7 +20,7 @@
 		<ScrollViewer Grid.Row="1" Margin="0,15,0,0" VerticalScrollBarVisibility="Auto" PointerPressed="ScrollViewer_PointerPressed" ViewChanging="ScrollViewer_ViewChanging">
 			<Grid>
 				<Grid.ColumnDefinitions>
-					<ColumnDefinition MaxWidth="1000" Width="*" />
+					<ColumnDefinition MaxWidth="1070" Width="*" />
 				</Grid.ColumnDefinitions>
 
 				<ContentControl Grid.Column="0" Margin="0,0,20,20" IsTabStop="False"  VerticalContentAlignment="Stretch" HorizontalContentAlignment="Stretch">

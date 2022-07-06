@@ -17,6 +17,8 @@ struct ScalingProfilePage : ScalingProfilePageT<ScalingProfilePage> {
 
 	void ComboBox_DropDownOpened(IInspectable const& sender, IInspectable const&);
 
+	void CursorScalingComboBox_SelectionChanged(IInspectable const&, Controls::SelectionChangedEventArgs const&);
+
 	Windows::Globalization::NumberFormatting::INumberFormatter2 NumberFormatter() const noexcept {
 		return _numberFormatter;
 	}

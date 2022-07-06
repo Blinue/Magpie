@@ -90,7 +90,10 @@
 						</local:SettingItem>
 					</muxc:Expander.Header>
 					<muxc:Expander.Content>
-						<local:SettingItem IsEnabled="{x:Bind ViewModel.IsVSync, Mode=OneWay}" Title="三重缓冲" Description="允许额外的延迟以提高性能" Style="{StaticResource ExpanderContentSettingStyle}">
+						<local:SettingItem IsEnabled="{x:Bind ViewModel.IsVSync, Mode=OneWay}"
+										   Title="三重缓冲"
+										   Description="允许额外的延迟以提高性能"
+										   Style="{StaticResource ExpanderContentSettingStyle}">
 							<local:SettingItem.ActionContent>
 								<ToggleSwitch IsOn="{x:Bind ViewModel.IsTripleBuffering, Mode=TwoWay}" />
 							</local:SettingItem.ActionContent>
@@ -198,18 +201,43 @@
 					</muxc:Expander.Header>
 					<muxc:Expander.Content>
 						<StackPanel>
-							<local:SettingItem Title="光标缩放系数" IsEnabled="{x:Bind ViewModel.IsDrawCursor, Mode=OneWay}" Style="{StaticResource ExpanderContentSettingStyle}">
+							<local:SettingItem Title="缩放系数" IsEnabled="{x:Bind ViewModel.IsDrawCursor, Mode=OneWay}" Style="{StaticResource ExpanderContentSettingStyle}">
 								<local:SettingItem.ActionContent>
-									<ComboBox SelectedIndex="2" Style="{StaticResource ComboBoxSettingStyle}" DropDownOpened="ComboBox_DropDownOpened">
-										<x:String>0.5x</x:String>
-										<x:String>0.75x</x:String>
-										<x:String>无缩放</x:String>
-										<x:String>1.25x</x:String>
-										<x:String>1.5x</x:String>
-										<x:String>2x</x:String>
-										<x:String>2.5x</x:String>
-										<x:String>3x</x:String>
-									</ComboBox>
+									<Grid MinWidth="{StaticResource SettingBoxMinWidth}">
+										<Grid.ColumnDefinitions>
+											<ColumnDefinition Width="Auto" />
+											<ColumnDefinition Width="*" />
+											<ColumnDefinition Width="Auto" />
+										</Grid.ColumnDefinitions>
+
+										<ComboBox x:Name="CursorScalingComboBox"
+												  Grid.Column="0"
+												  SelectedIndex="{x:Bind ViewModel.CursorScaling, Mode=TwoWay}"
+												  SelectionChanged="CursorScalingComboBox_SelectionChanged"
+												  HorizontalAlignment="Stretch"
+												  Style="{StaticResource ComboBoxSettingStyle}"
+												  DropDownOpened="ComboBox_DropDownOpened">
+											<x:String>0.5x</x:String>
+											<x:String>0.75x</x:String>
+											<x:String>无缩放</x:String>
+											<x:String>1.25x</x:String>
+											<x:String>1.5x</x:String>
+											<x:String>2x</x:String>
+											<x:String>和源窗口相同</x:String>
+											<x:String>自定义</x:String>
+										</ComboBox>
+										<muxc:NumberBox x:Name="CustomCursorScalingNumberBox"
+														Grid.Column="1"
+														Margin="5,0,0,0"
+														HorizontalAlignment="Stretch"
+														MinWidth="30"
+														MaxWidth="120"
+														Minimum="0.001"
+														Maximum="10"
+														SmallChange="0.1"
+														NumberFormatter="{x:Bind NumberFormatter, Mode=OneTime}"/>
+										<TextBlock x:Name="CustomCursorScalingLabel" Grid.Column="2" Margin="5,0,0,0" VerticalAlignment="Bottom" Text="x" />
+									</Grid>
 								</local:SettingItem.ActionContent>
 							</local:SettingItem>
 							<local:SettingItem Title="插值算法" IsEnabled="{x:Bind ViewModel.IsDrawCursor, Mode=OneWay}" Style="{StaticResource ExpanderContentSettingStyle}">

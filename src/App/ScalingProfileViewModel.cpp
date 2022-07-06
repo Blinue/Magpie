@@ -300,4 +300,22 @@ void ScalingProfileViewModel::IsDrawCursor(bool value) {
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsDrawCursor"));
 }
 
+int32_t ScalingProfileViewModel::CursorScaling() const noexcept {
+	return (int32_t)_profile.CursorScaling();
+}
+
+void ScalingProfileViewModel::CursorScaling(int32_t value) {
+	if (value < 0) {
+		return;
+	}
+
+	Magpie::App::CursorScaling cursorScaling = (Magpie::App::CursorScaling)value;
+	if (_profile.CursorScaling() == cursorScaling) {
+		return;
+	}
+
+	_profile.CursorScaling(cursorScaling);
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CursorScaling"));
+}
+
 }

@@ -44,10 +44,11 @@
 			</Style>
 
 			<!--  Combo Box  -->
+			<x:Double x:Key="SettingBoxMinWidth">200</x:Double>
 			<Style x:Key="ComboBoxSettingStyle"
 				   BasedOn="{StaticResource DefaultComboBoxStyle}"
 				   TargetType="ComboBox">
-				<Setter Property="MinWidth" Value="200" />
+				<Setter Property="MinWidth" Value="{StaticResource SettingBoxMinWidth}" />
 			</Style>
 
 			<!--  取自 https://github.com/microsoft/PowerToys/blob/35bfb0f83e5fc08cc04398e7aa98d77774412d3f/src/settings-ui/Settings.UI/Themes/SettingsExpanderStyles.xaml  -->

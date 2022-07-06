@@ -8,10 +8,13 @@
 #include "ComboBoxHelper.h"
 #include "AppSettings.h"
 #include "ScalingProfileService.h"
+#include "ScalingProfile.h"
 
 
 using namespace winrt;
 using namespace Windows::Globalization::NumberFormatting;
+using namespace Windows::UI::Xaml::Controls;
+
 
 namespace winrt::Magpie::App::implementation {
 
@@ -50,6 +53,21 @@ void ScalingProfilePage::OnNavigatedTo(Navigation::NavigationEventArgs const& ar
 
 void ScalingProfilePage::ComboBox_DropDownOpened(IInspectable const& sender, IInspectable const&) {
 	ComboBoxHelper::DropDownOpened(*this, sender);
+}
+
+void ScalingProfilePage::CursorScalingComboBox_SelectionChanged(IInspectable const&, SelectionChangedEventArgs const&) {
+	if ((CursorScaling)_viewModel.CursorScaling() == CursorScaling::Custom) {
+		CursorScalingComboBox().MinWidth(0);
+		CustomCursorScalingNumberBox().Visibility(Visibility::Visible);
+		CustomCursorScalingLabel().Visibility(Visibility::Visible);
+	} else {
+		double minWidth = Application::Current().Resources()
+			.Lookup(box_value(L"SettingBoxMinWidth"))
+			.as<double>();
+		CursorScalingComboBox().MinWidth(minWidth);
+		CustomCursorScalingNumberBox().Visibility(Visibility::Collapsed);
+		CustomCursorScalingLabel().Visibility(Visibility::Collapsed);
+	}
 }
 
 }
