@@ -23,7 +23,7 @@
 							<ColumnDefinition Width="*" />
 						</Grid.ColumnDefinitions>
 						<ContentPresenter Grid.Column="0" Content="{x:Bind Icon, Mode=OneWay}" />
-						<TextBlock Margin="10,0,0,0" Grid.Column="1" Text="{x:Bind Title}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+						<TextBlock Margin="10,0,0,0" Grid.Column="1" Text="{x:Bind Title}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" local:TextBlockHelper.IsAutoTooltip="True" />
 					</Grid>
 				</DataTemplate>
 			</ListView.ItemTemplate>

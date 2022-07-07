@@ -188,6 +188,10 @@
       <DependentUpon>ShortcutDialog.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
+    <ClInclude Include="TextBlockHelper.h">
+      <DependentUpon>TextBlockHelper.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml">
@@ -291,8 +295,15 @@
       <DependentUpon>ShortcutDialog.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
+    <ClCompile Include="TextBlockHelper.cpp">
+      <DependentUpon>TextBlockHelper.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <None Include="TextBlockHelper.idl">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="ScalingProfileViewModel.idl">
       <SubType>Designer</SubType>
     </None>

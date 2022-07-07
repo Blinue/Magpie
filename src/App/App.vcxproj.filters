@@ -132,6 +132,9 @@
     <None Include="ScalingProfileViewModel.idl">
       <Filter>ViewModels</Filter>
     </None>
+    <None Include="TextBlockHelper.idl">
+      <Filter>Helpers</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Page Include="MainPage.xaml" />
