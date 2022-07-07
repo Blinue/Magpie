@@ -5,5 +5,7 @@ namespace Magpie.App
         NewProfileDialog();
 
         IVector<IInspectable> CandidateWindows { get; };
+        IVector<IInspectable> Profiles { get; };
+        Int32 ProfileIndex;
     }
 }

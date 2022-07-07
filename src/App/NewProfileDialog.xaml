@@ -14,10 +14,10 @@
 				  BorderThickness="1"
 				  CornerRadius="{StaticResource ControlCornerRadius}"
 				  BorderBrush="{ThemeResource SystemControlForegroundBaseMediumLowBrush}"
-				  ItemsSource="{x:Bind CandidateWindows}" />
+				  ItemsSource="{x:Bind CandidateWindows, Mode=OneTime}" />
 		<StackPanel Orientation="Horizontal" Spacing="10">
-			<TextBlock Text="复制配置文件" VerticalAlignment="Center" />
-			<ComboBox DropDownOpened="ComboBox_DropDownOpened" />
+			<TextBlock Text="复制缩放配置" VerticalAlignment="Center" />
+			<ComboBox ItemsSource="{x:Bind Profiles, Mode=OneTime}" SelectedIndex="{x:Bind ProfileIndex, Mode=TwoWay}" DropDownOpened="ComboBox_DropDownOpened" />
 		</StackPanel>
 	</StackPanel>
 </UserControl>

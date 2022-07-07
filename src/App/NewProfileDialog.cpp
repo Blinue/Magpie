@@ -6,6 +6,7 @@
 #include "Win32Utils.h"
 #include "Utils.h"
 #include "ComboBoxHelper.h"
+#include "AppSettings.h"
 
 
 namespace winrt::Magpie::App::implementation {
@@ -71,6 +72,14 @@ NewProfileDialog::NewProfileDialog() {
 	}
 
 	_candidateWindows = single_threaded_observable_vector(std::move(candidateWindows));
+
+	std::vector<IInspectable> profiles;
+	profiles.push_back(box_value(L"默认"));
+	for (const ScalingProfile& profile : AppSettings::Get().ScalingProfiles()) {
+		profiles.push_back(box_value(profile.Name()));
+	}
+
+	_profiles = single_threaded_vector(std::move(profiles));
 }
 
 void NewProfileDialog::ComboBox_DropDownOpened(IInspectable const& sender, IInspectable const&) {

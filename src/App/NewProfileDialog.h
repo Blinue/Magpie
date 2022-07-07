@@ -8,6 +8,8 @@ namespace winrt::Magpie::App::implementation {
 struct NewProfileDialog : NewProfileDialogT<NewProfileDialog> {
     NewProfileDialog();
 
+	void ComboBox_DropDownOpened(IInspectable const& sender, IInspectable const&);
+
 	event_token PropertyChanged(PropertyChangedEventHandler const& handler) {
 		return _propertyChangedEvent.add(handler);
 	}
@@ -20,12 +22,25 @@ struct NewProfileDialog : NewProfileDialogT<NewProfileDialog> {
 		return _candidateWindows;
 	}
 
-	void ComboBox_DropDownOpened(IInspectable const& sender, IInspectable const&);
+	IVector<IInspectable> Profiles() const noexcept {
+		return _profiles;
+	}
+
+	int32_t ProfileIndex() const noexcept {
+		return _profileIndex;
+	}
+
+	void ProfileIndex(int32_t value) {
+		_profileIndex = value;
+		_propertyChangedEvent(*this, PropertyChangedEventArgs(L"ProfileIndex"));
+	}
 
 private:
 	event<PropertyChangedEventHandler> _propertyChangedEvent;
 
 	IVector<IInspectable> _candidateWindows;
+	IVector<IInspectable> _profiles;
+	int32_t _profileIndex = 0;
 };
 
 }
