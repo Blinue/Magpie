@@ -16,13 +16,6 @@ bool IsCandidateWindow(HWND hWnd) {
 		return false;
 	}
 
-	// The window must not be cloaked by the shell
-	UINT isCloaked{};
-	DwmGetWindowAttribute(hWnd, DWMWA_CLOAKED, &isCloaked, sizeof(isCloaked));
-	if (isCloaked == DWM_CLOAKED_SHELL) {
-		return false;
-	}
-
 	RECT frameRect;
 	if (!Win32Utils::GetWindowFrameRect(hWnd, frameRect)) {
 		return false;
@@ -33,6 +26,19 @@ bool IsCandidateWindow(HWND hWnd) {
 		return false;
 	}
 
+	// 排除后台 UWP 窗口
+	// https://stackoverflow.com/questions/43927156/enumwindows-returns-closed-windows-store-applications
+	UINT isCloaked{};
+	DwmGetWindowAttribute(hWnd, DWMWA_CLOAKED, &isCloaked, sizeof(isCloaked));
+	if (isCloaked != 0) {
+		return false;
+	}
+
+	if (Win32Utils::GetWndClassName(hWnd) == L"Progman") {
+		// 排除 Program Manager 窗口
+		return false;
+	}
+
 	return true;
 }
 
@@ -40,8 +46,10 @@ std::vector<HWND> GetDesktopWindows() {
 	std::vector<HWND> windows;
 	windows.reserve(1024);
 
-	EnumChildWindows(
-		GetDesktopWindow(),
+	// EnumWindows 能否枚举到 UWP 窗口？
+	// 虽然官方文档中明确指出不能，但我在 Win10/11 中测试是可以的
+	// PowerToys 也依赖这个行为 https://github.com/microsoft/PowerToys/blob/d4b62d8118d49b2cc83c2a2126091378d0b5fec4/src/modules/launcher/Plugins/Microsoft.Plugin.WindowWalker/Components/OpenWindows.cs
+	EnumWindows(
 		[](HWND hWnd, LPARAM lParam) {
 			std::vector<HWND>& windows = *(std::vector<HWND>*)lParam;
 
