@@ -7,9 +7,9 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
-	<StackPanel MinWidth="498" Orientation="Vertical" Spacing="10">
+	<StackPanel MinWidth="498" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Orientation="Vertical" Spacing="10">
 		<TextBlock Text="选择一个窗口" />
-		<ListView MaxHeight="300"
+		<ListView MaxHeight="282"
 				  d:Height="250"
 				  BorderThickness="1"
 				  CornerRadius="{StaticResource ControlCornerRadius}"
@@ -17,7 +17,7 @@
 				  ItemsSource="{x:Bind CandidateWindows}" />
 		<StackPanel Orientation="Horizontal" Spacing="10">
 			<TextBlock Text="复制配置文件" VerticalAlignment="Center" />
-			<ComboBox />
+			<ComboBox DropDownOpened="ComboBox_DropDownOpened" />
 		</StackPanel>
 	</StackPanel>
 </UserControl>

@@ -20,6 +20,8 @@ struct NewProfileDialog : NewProfileDialogT<NewProfileDialog> {
 		return _candidateWindows;
 	}
 
+	void ComboBox_DropDownOpened(IInspectable const& sender, IInspectable const&);
+
 private:
 	event<PropertyChangedEventHandler> _propertyChangedEvent;
 
