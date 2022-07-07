@@ -36,7 +36,17 @@ void TextBlockHelper::_TextBlock_SizeChanged(IInspectable const& sender, SizeCha
 }
 
 void TextBlockHelper::_SetTooltipBasedOnTrimmingState(const TextBlock& tb, bool isAttached) {
-    ToolTipService::SetToolTip(tb, isAttached && tb.IsTextTrimmed() ? box_value(tb.Text()) : nullptr);
+    bool hasTooltip = isAttached && tb.IsTextTrimmed();
+
+    if (hasTooltip) {
+        // 显式设置 Tooltip 的主题
+        ToolTip tooltip;
+        tooltip.Content(box_value(tb.Text()));
+        tooltip.RequestedTheme(tb.ActualTheme());
+        ToolTipService::SetToolTip(tb, tooltip);
+    } else {
+        ToolTipService::SetToolTip(tb, nullptr);
+    }
 }
 
 }
