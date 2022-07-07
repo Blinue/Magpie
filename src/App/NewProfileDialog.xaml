@@ -9,7 +9,7 @@
 
 	<StackPanel MinWidth="498" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Orientation="Vertical" Spacing="10">
 		<TextBlock Text="选择一个窗口" />
-		<ListView MaxHeight="282"
+		<ListView MaxHeight="242"
 				  d:Height="250"
 				  BorderThickness="1"
 				  CornerRadius="{StaticResource ControlCornerRadius}"
@@ -28,6 +28,10 @@
 				</DataTemplate>
 			</ListView.ItemTemplate>
 		</ListView>
+		<StackPanel Orientation="Horizontal" Spacing="10">
+			<TextBlock Text="名称" VerticalAlignment="Center" />
+			<TextBox Width="250" />
+		</StackPanel>
 		<StackPanel Orientation="Horizontal" Spacing="10">
 			<TextBlock Text="复制缩放配置" VerticalAlignment="Center" />
 			<ComboBox ItemsSource="{x:Bind Profiles, Mode=OneTime}" SelectedIndex="{x:Bind ProfileIndex, Mode=TwoWay}" DropDownOpened="ComboBox_DropDownOpened" />

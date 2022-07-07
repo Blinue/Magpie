@@ -88,7 +88,18 @@ static HICON GetIconOfWnd(HWND hWnd) {
 		return result;
 	}
 
-	return (HICON)GetClassLongPtr(hWnd, GCLP_HICON);
+	result = (HICON)GetClassLongPtr(hWnd, GCLP_HICON);
+	if (result) {
+		return result;
+	}
+
+	// 此窗口无图标则回落到所有者窗口
+	HWND hwndOwner = GetWindow(hWnd, GW_OWNER);
+	if (!hwndOwner) {
+		return NULL;
+	}
+
+	return GetIconOfWnd(hwndOwner);
 }
 
 static IAsyncOperation<IInspectable> ResolveWindowIconAsync(HWND hWnd) {
