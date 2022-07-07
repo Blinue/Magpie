@@ -1,8 +1,10 @@
-﻿#include "pch.h"
+#include "pch.h"
 #include "TextBlockHelper.h"
 #if __has_include("TextBlockHelper.g.cpp")
 #include "TextBlockHelper.g.cpp"
 #endif
+#include "Win32Utils.h"
+
 
 using namespace winrt;
 using namespace Windows::UI::Xaml::Controls;
@@ -39,11 +41,15 @@ void TextBlockHelper::_SetTooltipBasedOnTrimmingState(const TextBlock& tb, bool 
     bool hasTooltip = isAttached && tb.IsTextTrimmed();
 
     if (hasTooltip) {
-        // 显式设置 Tooltip 的主题
-        ToolTip tooltip;
-        tooltip.Content(box_value(tb.Text()));
-        tooltip.RequestedTheme(tb.ActualTheme());
-        ToolTipService::SetToolTip(tb, tooltip);
+        if (Win32Utils::GetOSBuild() < 22000) {
+            // 显式设置 Tooltip 的主题
+            ToolTip tooltip;
+            tooltip.Content(box_value(tb.Text()));
+            tooltip.RequestedTheme(tb.ActualTheme());
+            ToolTipService::SetToolTip(tb, tooltip);
+        } else {
+            ToolTipService::SetToolTip(tb, box_value(tb.Text()));
+        }
     } else {
         ToolTipService::SetToolTip(tb, nullptr);
     }

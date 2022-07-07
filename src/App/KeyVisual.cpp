@@ -139,7 +139,7 @@ void KeyVisual::_Update() {
 		break;
 	}
 	
-	default: _keyPresenter.Content(box_value(to_hstring((VirtualKey)key))); break;
+	default: _keyPresenter.Content(box_value(L"")); break;
 	}
 }
 

@@ -15,6 +15,12 @@ namespace winrt::Magpie::App::implementation
 
 		void NavigationView_SelectionChanged(MUXC::NavigationView const&, MUXC::NavigationViewSelectionChangedEventArgs const& args);
 
+		void NavigationView_PaneOpened(MUXC::NavigationView const&, IInspectable const&);
+
+		void NavigationView_PaneClosed(MUXC::NavigationView const&, IInspectable const&);
+
+		void NavigationView_DisplayModeChanged(MUXC::NavigationView const&, MUXC::NavigationViewDisplayModeChangedEventArgs const&);
+
 		IAsyncAction AddNavigationViewItem_Tapped(IInspectable const&, Input::TappedRoutedEventArgs const&);
 
 		MUXC::NavigationView RootNavigationView();
@@ -28,8 +34,6 @@ namespace winrt::Magpie::App::implementation
 
 		Windows::UI::ViewManagement::UISettings _uiSettings;
 		event_token _colorChangedToken{};
-
-		std::optional<bool> _isDarkTheme;
 
 		Controls::ContentDialog _newProfileDialog{ nullptr };
 	};

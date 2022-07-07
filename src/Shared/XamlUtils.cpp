@@ -1,11 +1,13 @@
 #include "pch.h"
 #include "XamlUtils.h"
+#include "Win32Utils.h"
 #include <winrt/Windows.UI.Xaml.Media.h>
 #include <winrt/Windows.UI.Xaml.Controls.Primitives.h>
 
 using namespace winrt;
 using namespace Windows::UI::Xaml;
 using namespace Windows::UI::Xaml::Media;
+using namespace Windows::UI::Xaml::Controls;
 
 
 void XamlUtils::CloseXamlPopups(const XamlRoot& root) {
@@ -26,358 +28,36 @@ void XamlUtils::UpdateThemeOfXamlPopups(const XamlRoot& root, ElementTheme theme
 	}
 
 	for (const auto& popup : VisualTreeHelper::GetOpenPopupsForXamlRoot(root)) {
-		popup.Child().as<FrameworkElement>().RequestedTheme(theme);
+		FrameworkElement child = popup.Child().as<FrameworkElement>();
+		child.RequestedTheme(theme);
+		UpdateThemeOfTooltips(child, theme);
 	}
 }
 
-
-hstring winrt::to_hstring(Windows::System::VirtualKey status) {
-	switch (status) {
-	case VirtualKey::None:
-		return L"None";
-	case VirtualKey::LeftButton:
-		return L"LeftButton";
-	case VirtualKey::RightButton:
-		return L"RightButton";
-	case VirtualKey::Cancel:
-		return L"Cancel";
-	case VirtualKey::MiddleButton:
-		return L"MiddleButton";
-	case VirtualKey::XButton1:
-		return L"XButton1";
-	case VirtualKey::XButton2:
-		return L"XButton2";
-	case VirtualKey::Back:
-		return L"Back";
-	case VirtualKey::Tab:
-		return L"Tab";
-	case VirtualKey::Clear:
-		return L"Clear";
-	case VirtualKey::Enter:
-		return L"Enter";
-	case VirtualKey::Shift:
-		return L"Shift";
-	case VirtualKey::Control:
-		return L"Control";
-	case VirtualKey::Menu:
-		return L"Menu";
-	case VirtualKey::Pause:
-		return L"Pause";
-	case VirtualKey::CapitalLock:
-		return L"CapitalLock";
-	case VirtualKey::Kana:
-		/*case VirtualKey::Hangul:*/
-		return L"Kana";
-	case VirtualKey::ImeOn:
-		return L"ImeOn";
-	case VirtualKey::Junja:
-		return L"Junja";
-	case VirtualKey::Final:
-		return L"Final";
-	case VirtualKey::Hanja:
-		/*case VirtualKey::Kanji:*/
-		return L"Hanja";
-	case VirtualKey::ImeOff:
-		return L"ImeOff";
-	case VirtualKey::Escape:
-		return L"Escape";
-	case VirtualKey::Convert:
-		return L"Convert";
-	case VirtualKey::NonConvert:
-		return L"NonConvert";
-	case VirtualKey::Accept:
-		return L"Accept";
-	case VirtualKey::ModeChange:
-		return L"ModeChange";
-	case VirtualKey::Space:
-		return L"Space";
-	case VirtualKey::PageUp:
-		return L"PageUp";
-	case VirtualKey::PageDown:
-		return L"PageDown";
-	case VirtualKey::End:
-		return L"End";
-	case VirtualKey::Home:
-		return L"Home";
-	case VirtualKey::Left:
-		return L"Left";
-	case VirtualKey::Up:
-		return L"Up";
-	case VirtualKey::Right:
-		return L"Right";
-	case VirtualKey::Down:
-		return L"Down";
-	case VirtualKey::Select:
-		return L"Select";
-	case VirtualKey::Print:
-		return L"Print";
-	case VirtualKey::Execute:
-		return L"Execute";
-	case VirtualKey::Snapshot:
-		return L"Snapshot";
-	case VirtualKey::Insert:
-		return L"Insert";
-	case VirtualKey::Delete:
-		return L"Delete";
-	case VirtualKey::Help:
-		return L"Help";
-	case VirtualKey::Number0:
-		return L"Number0";
-	case VirtualKey::Number1:
-		return L"Number1";
-	case VirtualKey::Number2:
-		return L"Number2";
-	case VirtualKey::Number3:
-		return L"Number3";
-	case VirtualKey::Number4:
-		return L"Number4";
-	case VirtualKey::Number5:
-		return L"Number5";
-	case VirtualKey::Number6:
-		return L"Number6";
-	case VirtualKey::Number7:
-		return L"Number7";
-	case VirtualKey::Number8:
-		return L"Number8";
-	case VirtualKey::Number9:
-		return L"Number9";
-	case VirtualKey::A:
-		return L"A";
-	case VirtualKey::B:
-		return L"B";
-	case VirtualKey::C:
-		return L"C";
-	case VirtualKey::D:
-		return L"D";
-	case VirtualKey::E:
-		return L"E";
-	case VirtualKey::F:
-		return L"F";
-	case VirtualKey::G:
-		return L"G";
-	case VirtualKey::H:
-		return L"H";
-	case VirtualKey::I:
-		return L"I";
-	case VirtualKey::J:
-		return L"J";
-	case VirtualKey::K:
-		return L"K";
-	case VirtualKey::L:
-		return L"L";
-	case VirtualKey::M:
-		return L"M";
-	case VirtualKey::N:
-		return L"N";
-	case VirtualKey::O:
-		return L"O";
-	case VirtualKey::P:
-		return L"P";
-	case VirtualKey::Q:
-		return L"Q";
-	case VirtualKey::R:
-		return L"R";
-	case VirtualKey::S:
-		return L"S";
-	case VirtualKey::T:
-		return L"T";
-	case VirtualKey::U:
-		return L"U";
-	case VirtualKey::V:
-		return L"V";
-	case VirtualKey::W:
-		return L"W";
-	case VirtualKey::X:
-		return L"X";
-	case VirtualKey::Y:
-		return L"Y";
-	case VirtualKey::Z:
-		return L"Z";
-	case VirtualKey::LeftWindows:
-		return L"LeftWindows";
-	case VirtualKey::RightWindows:
-		return L"RightWindows";
-	case VirtualKey::Application:
-		return L"Application";
-	case VirtualKey::Sleep:
-		return L"Sleep";
-	case VirtualKey::NumberPad0:
-		return L"NumberPad0";
-	case VirtualKey::NumberPad1:
-		return L"NumberPad1";
-	case VirtualKey::NumberPad2:
-		return L"NumberPad2";
-	case VirtualKey::NumberPad3:
-		return L"NumberPad3";
-	case VirtualKey::NumberPad4:
-		return L"NumberPad4";
-	case VirtualKey::NumberPad5:
-		return L"NumberPad5";
-	case VirtualKey::NumberPad6:
-		return L"NumberPad6";
-	case VirtualKey::NumberPad7:
-		return L"NumberPad7";
-	case VirtualKey::NumberPad8:
-		return L"NumberPad8";
-	case VirtualKey::NumberPad9:
-		return L"NumberPad9";
-	case VirtualKey::Multiply:
-		return L"Multiply";
-	case VirtualKey::Add:
-		return L"Add";
-	case VirtualKey::Separator:
-		return L"Separator";
-	case VirtualKey::Subtract:
-		return L"Subtract";
-	case VirtualKey::Decimal:
-		return L"Decimal";
-	case VirtualKey::Divide:
-		return L"Divide";
-	case VirtualKey::F1:
-		return L"F1";
-	case VirtualKey::F2:
-		return L"F2";
-	case VirtualKey::F3:
-		return L"F3";
-	case VirtualKey::F4:
-		return L"F4";
-	case VirtualKey::F5:
-		return L"F5";
-	case VirtualKey::F6:
-		return L"F6";
-	case VirtualKey::F7:
-		return L"F7";
-	case VirtualKey::F8:
-		return L"F8";
-	case VirtualKey::F9:
-		return L"F9";
-	case VirtualKey::F10:
-		return L"F10";
-	case VirtualKey::F11:
-		return L"F11";
-	case VirtualKey::F12:
-		return L"F12";
-	case VirtualKey::F13:
-		return L"F13";
-	case VirtualKey::F14:
-		return L"F14";
-	case VirtualKey::F15:
-		return L"F15";
-	case VirtualKey::F16:
-		return L"F16";
-	case VirtualKey::F17:
-		return L"F17";
-	case VirtualKey::F18:
-		return L"F18";
-	case VirtualKey::F19:
-		return L"F19";
-	case VirtualKey::F20:
-		return L"F20";
-	case VirtualKey::F21:
-		return L"F21";
-	case VirtualKey::F22:
-		return L"F22";
-	case VirtualKey::F23:
-		return L"F23";
-	case VirtualKey::F24:
-		return L"F24";
-	case VirtualKey::NavigationView:
-		return L"NavigationView";
-	case VirtualKey::NavigationMenu:
-		return L"NavigationMenu";
-	case VirtualKey::NavigationUp:
-		return L"NavigationUp";
-	case VirtualKey::NavigationDown:
-		return L"NavigationDown";
-	case VirtualKey::NavigationLeft:
-		return L"NavigationLeft";
-	case VirtualKey::NavigationRight:
-		return L"NavigationRight";
-	case VirtualKey::NavigationAccept:
-		return L"NavigationAccept";
-	case VirtualKey::NavigationCancel:
-		return L"NavigationCancel";
-	case VirtualKey::NumberKeyLock:
-		return L"NumberKeyLock";
-	case VirtualKey::Scroll:
-		return L"Scroll";
-	case VirtualKey::LeftShift:
-		return L"LeftShift";
-	case VirtualKey::RightShift:
-		return L"RightShift";
-	case VirtualKey::LeftControl:
-		return L"LeftControl";
-	case VirtualKey::RightControl:
-		return L"RightControl";
-	case VirtualKey::LeftMenu:
-		return L"LeftMenu";
-	case VirtualKey::RightMenu:
-		return L"RightMenu";
-	case VirtualKey::GoBack:
-		return L"GoBack";
-	case VirtualKey::GoForward:
-		return L"GoForward";
-	case VirtualKey::Refresh:
-		return L"Refresh";
-	case VirtualKey::Stop:
-		return L"Stop";
-	case VirtualKey::Search:
-		return L"Search";
-	case VirtualKey::Favorites:
-		return L"Favorites";
-	case VirtualKey::GoHome:
-		return L"GoHome";
-	case VirtualKey::GamepadA:
-		return L"GamepadA";
-	case VirtualKey::GamepadB:
-		return L"GamepadB";
-	case VirtualKey::GamepadX:
-		return L"GamepadX";
-	case VirtualKey::GamepadY:
-		return L"GamepadY";
-	case VirtualKey::GamepadRightShoulder:
-		return L"GamepadRightShoulder";
-	case VirtualKey::GamepadLeftShoulder:
-		return L"GamepadLeftShoulder";
-	case VirtualKey::GamepadLeftTrigger:
-		return L"GamepadLeftTrigger";
-	case VirtualKey::GamepadRightTrigger:
-		return L"GamepadRightTrigger";
-	case VirtualKey::GamepadDPadUp:
-		return L"GamepadDPadUp";
-	case VirtualKey::GamepadDPadDown:
-		return L"GamepadDPadDown";
-	case VirtualKey::GamepadDPadLeft:
-		return L"GamepadDPadLeft";
-	case VirtualKey::GamepadDPadRight:
-		return L"GamepadDPadRight";
-	case VirtualKey::GamepadMenu:
-		return L"GamepadMenu";
-	case VirtualKey::GamepadView:
-		return L"GamepadView";
-	case VirtualKey::GamepadLeftThumbstickButton:
-		return L"GamepadLeftThumbstickButton";
-	case VirtualKey::GamepadRightThumbstickButton:
-		return L"GamepadRightThumbstickButton";
-	case VirtualKey::GamepadLeftThumbstickUp:
-		return L"GamepadLeftThumbstickUp";
-	case VirtualKey::GamepadLeftThumbstickDown:
-		return L"GamepadLeftThumbstickDown";
-	case VirtualKey::GamepadLeftThumbstickRight:
-		return L"GamepadLeftThumbstickRight";
-	case VirtualKey::GamepadLeftThumbstickLeft:
-		return L"GamepadLeftThumbstickLeft";
-	case VirtualKey::GamepadRightThumbstickUp:
-		return L"GamepadRightThumbstickUp";
-	case VirtualKey::GamepadRightThumbstickDown:
-		return L"NonGamepadRightThumbstickDowne";
-	case VirtualKey::GamepadRightThumbstickRight:
-		return L"GamepadRightThumbstickRight";
-	case VirtualKey::GamepadRightThumbstickLeft:
-		return L"GamepadRightThumbstickLeft";
-	default:
-		break;
+void XamlUtils::UpdateThemeOfTooltips(const DependencyObject& root, ElementTheme theme) {
+	if (Win32Utils::GetOSBuild() >= 22000) {
+		// Win11 中 Tooltip 自动适应主题
+		return;
 	}
 
-	return L"";
+	int32_t count = VisualTreeHelper::GetChildrenCount(root);
+	for (int32_t i = 0; i < count; ++i) {
+		DependencyObject current = VisualTreeHelper::GetChild(root, i);
+
+		IInspectable tooltipContent = ToolTipService::GetToolTip(current);
+		if (tooltipContent) {
+			ToolTip tooltip = tooltipContent.try_as<ToolTip>();
+			if (tooltip) {
+				tooltip.RequestedTheme(theme);
+			} else {
+				hstring str = winrt::get_class_name(current);
+				ToolTip themedTooltip;
+				themedTooltip.Content(tooltipContent);
+				themedTooltip.RequestedTheme(theme);
+				ToolTipService::SetToolTip(current, themedTooltip);
+			}
+		}
+
+		UpdateThemeOfTooltips(current, theme);
+	}
 }

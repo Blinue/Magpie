@@ -64,6 +64,9 @@ void MainPage::Loaded(IInspectable const&, RoutedEventArgs const&) {
 	IsTabStop(true);
 	Focus(FocusState::Programmatic);
 	IsTabStop(false);
+
+	// 设置 NavigationView 内的 Tooltip 的主题
+	XamlUtils::UpdateThemeOfTooltips(*this, ActualTheme());
 }
 
 void MainPage::NavigationView_SelectionChanged(
@@ -99,6 +102,33 @@ void MainPage::NavigationView_SelectionChanged(
 			}
 		}
 	}
+}
+
+void MainPage::NavigationView_PaneOpened(MUXC::NavigationView const&, IInspectable const&) {
+	if (Win32Utils::GetOSBuild() >= 22000) {
+		// Win11 中 Tooltip 自动适应主题
+		return;
+	}
+
+	XamlUtils::UpdateThemeOfTooltips(*this, ActualTheme());
+
+	// UpdateThemeOfTooltips 中使用的 hack 会使 NavigationViewItem 在展开时不会自动删除 Tooltip
+	// 因此这里手动删除
+	const MUXC::NavigationView& nv = __super::RootNavigationView();
+	for (const IInspectable& item : nv.MenuItems()) {
+		ToolTipService::SetToolTip(item.as<DependencyObject>(), nullptr);
+	}
+	for (const IInspectable& item : nv.FooterMenuItems()) {
+		ToolTipService::SetToolTip(item.as<DependencyObject>(), nullptr);
+	}
+}
+
+void MainPage::NavigationView_PaneClosed(MUXC::NavigationView const&, IInspectable const&) {
+	XamlUtils::UpdateThemeOfTooltips(*this, ActualTheme());
+}
+
+void MainPage::NavigationView_DisplayModeChanged(MUXC::NavigationView const&, MUXC::NavigationViewDisplayModeChangedEventArgs const&) {
+	XamlUtils::UpdateThemeOfTooltips(*this, ActualTheme());
 }
 
 IAsyncAction MainPage::AddNavigationViewItem_Tapped(IInspectable const&, TappedRoutedEventArgs const&) {
@@ -153,15 +183,16 @@ void MainPage::_UpdateTheme() {
 		isDarkTheme = theme == 1;
 	}
 
-	if (_isDarkTheme.has_value() && _isDarkTheme == isDarkTheme) {
+	if (IsLoaded() && (ActualTheme() == ElementTheme::Dark) == isDarkTheme) {
 		// 无需切换
 		return;
 	}
 
-	_isDarkTheme = isDarkTheme;
+	ElementTheme newTheme = isDarkTheme ? ElementTheme::Dark : ElementTheme::Light;
 
-	RequestedTheme(isDarkTheme ? ElementTheme::Dark : ElementTheme::Light);
-	XamlUtils::UpdateThemeOfXamlPopups(XamlRoot(), ActualTheme());
+	RequestedTheme(newTheme);
+	XamlUtils::UpdateThemeOfXamlPopups(XamlRoot(), newTheme);
+	XamlUtils::UpdateThemeOfTooltips(*this, newTheme);
 
 	Logger::Get().Info(StrUtils::Concat("当前主题：", isDarkTheme ? "深色" : "浅色"));
 }
