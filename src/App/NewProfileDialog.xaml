@@ -14,7 +14,20 @@
 				  BorderThickness="1"
 				  CornerRadius="{StaticResource ControlCornerRadius}"
 				  BorderBrush="{ThemeResource SystemControlForegroundBaseMediumLowBrush}"
-				  ItemsSource="{x:Bind CandidateWindows, Mode=OneTime}" />
+				  ItemsSource="{x:Bind CandidateWindows, Mode=OneTime}">
+			<ListView.ItemTemplate>
+				<DataTemplate x:DataType="local:CandidateWindow">
+					<Grid HorizontalAlignment="Stretch">
+						<Grid.ColumnDefinitions>
+							<ColumnDefinition Width="Auto" />
+							<ColumnDefinition Width="*" />
+						</Grid.ColumnDefinitions>
+						<ContentPresenter Grid.Column="0" Content="{x:Bind Icon, Mode=OneWay}" />
+						<TextBlock Margin="10,0,0,0" Grid.Column="1" Text="{x:Bind Title}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+					</Grid>
+				</DataTemplate>
+			</ListView.ItemTemplate>
+		</ListView>
 		<StackPanel Orientation="Horizontal" Spacing="10">
 			<TextBlock Text="复制缩放配置" VerticalAlignment="Center" />
 			<ComboBox ItemsSource="{x:Bind Profiles, Mode=OneTime}" SelectedIndex="{x:Bind ProfileIndex, Mode=TwoWay}" DropDownOpened="ComboBox_DropDownOpened" />

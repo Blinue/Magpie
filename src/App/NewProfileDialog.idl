@@ -1,10 +1,19 @@
 namespace Magpie.App
 {
+    runtimeclass CandidateWindow : [default] Windows.UI.Xaml.Data.INotifyPropertyChanged
+    {
+        CandidateWindow();
+
+        UInt64 HWnd;
+        String Title;
+        Object Icon;
+    }
+
     runtimeclass NewProfileDialog : Windows.UI.Xaml.Controls.UserControl, [default] Windows.UI.Xaml.Data.INotifyPropertyChanged
     {
         NewProfileDialog();
 
-        IVector<IInspectable> CandidateWindows { get; };
+        IVector<CandidateWindow> CandidateWindows { get; };
         IVector<IInspectable> Profiles { get; };
         Int32 ProfileIndex;
     }

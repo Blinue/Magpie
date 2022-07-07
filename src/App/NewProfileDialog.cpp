@@ -3,15 +3,22 @@
 #if __has_include("NewProfileDialog.g.cpp")
 #include "NewProfileDialog.g.cpp"
 #endif
+#if __has_include("CandidateWindow.g.cpp")
+#include "CandidateWindow.g.cpp"
+#endif
 #include "Win32Utils.h"
 #include "Utils.h"
 #include "ComboBoxHelper.h"
 #include "AppSettings.h"
+#include "IconHelper.h"
+
+using namespace winrt;
+using namespace Windows::UI::Xaml::Controls;
 
 
 namespace winrt::Magpie::App::implementation {
 
-bool IsCandidateWindow(HWND hWnd) {
+static bool IsCandidateWindow(HWND hWnd) {
 	if (!IsWindowVisible(hWnd)) {
 		return false;
 	}
@@ -42,7 +49,7 @@ bool IsCandidateWindow(HWND hWnd) {
 	return true;
 }
 
-std::vector<HWND> GetDesktopWindows() {
+static std::vector<HWND> GetDesktopWindows() {
 	std::vector<HWND> windows;
 	windows.reserve(1024);
 
@@ -65,10 +72,48 @@ std::vector<HWND> GetDesktopWindows() {
 	return windows;
 }
 
+static HICON GetIconOfWnd(HWND hWnd) {
+	HICON result = (HICON)SendMessage(hWnd, WM_GETICON, ICON_SMALL, 0);
+	if (result) {
+		return result;
+	}
+
+	result = (HICON)SendMessage(hWnd, ICON_BIG, 1, 0);
+	if (result) {
+		return result;
+	}
+
+	result = (HICON)GetClassLongPtr(hWnd, GCLP_HICONSM);
+	if (result) {
+		return result;
+	}
+
+	return (HICON)GetClassLongPtr(hWnd, GCLP_HICON);
+}
+
+static IAsyncOperation<IInspectable> ResolveWindowIconAsync(HWND hWnd) {
+	HICON hIcon = GetIconOfWnd(hWnd);
+	if (hIcon) {
+		ImageSource imageSource = co_await IconHelper::HIcon2ImageSourceAsync(hIcon);
+
+		if (imageSource) {
+			MUXC::ImageIcon icon;
+			icon.Source(imageSource);
+			co_return icon;
+		}
+	}
+
+	// 回落到通用图标
+	FontIcon icon;
+	icon.Glyph(L"\uE737");
+	icon.FontSize(16);
+	co_return icon;
+}
+
 NewProfileDialog::NewProfileDialog() {
 	InitializeComponent();
 
-	std::vector<IInspectable> candidateWindows;
+	std::vector<Magpie::App::CandidateWindow> candidateWindows;
 
 	for (HWND hWnd : GetDesktopWindows()) {
 		std::wstring title = Win32Utils::GetWndTitle(hWnd);
@@ -76,10 +121,20 @@ NewProfileDialog::NewProfileDialog() {
 			continue;
 		}
 
-		candidateWindows.emplace_back(box_value(title));
+		Magpie::App::CandidateWindow cw;
+		cw.HWnd((uint64_t)hWnd);
+		cw.Title(title);
+
+		candidateWindows.emplace_back(cw);
 	}
 
 	_candidateWindows = single_threaded_observable_vector(std::move(candidateWindows));
+
+	[this]() -> fire_and_forget {
+		for (const auto& w : _candidateWindows) {
+			w.Icon(co_await ResolveWindowIconAsync((HWND)w.HWnd()));
+		}
+	}();
 
 	std::vector<IInspectable> profiles;
 	profiles.push_back(box_value(L"默认"));

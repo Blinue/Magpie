@@ -35,6 +35,9 @@
     <ClCompile Include="ScalingProfileService.cpp">
       <Filter>Services</Filter>
     </ClCompile>
+    <ClCompile Include="IconHelper.cpp">
+      <Filter>Helpers</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -63,6 +66,9 @@
     </ClInclude>
     <ClInclude Include="ScalingProfileService.h">
       <Filter>Services</Filter>
+    </ClInclude>
+    <ClInclude Include="IconHelper.h">
+      <Filter>Helpers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

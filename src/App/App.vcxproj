@@ -115,6 +115,7 @@
     </ClInclude>
     <ClInclude Include="HotkeyService.h" />
     <ClInclude Include="HotkeySettings.h" />
+    <ClInclude Include="IconHelper.h" />
     <ClInclude Include="MagService.h" />
     <ClInclude Include="NewProfileDialog.h">
       <DependentUpon>NewProfileDialog.xaml</DependentUpon>
@@ -214,6 +215,7 @@
     </ClCompile>
     <ClCompile Include="HotkeyService.cpp" />
     <ClCompile Include="HotkeySettings.cpp" />
+    <ClCompile Include="IconHelper.cpp" />
     <ClCompile Include="MagService.cpp" />
     <ClCompile Include="NewProfileDialog.cpp">
       <DependentUpon>NewProfileDialog.xaml</DependentUpon>
