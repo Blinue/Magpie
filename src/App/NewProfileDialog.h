@@ -80,6 +80,8 @@ struct NewProfileDialog : NewProfileDialogT<NewProfileDialog> {
 		_propertyChangedEvent(*this, PropertyChangedEventArgs(L"ProfileIndex"));
 	}
 
+	void RootScrollViewer_SizeChanged(IInspectable const&, IInspectable const&);
+
 private:
 	event<PropertyChangedEventHandler> _propertyChangedEvent;
 

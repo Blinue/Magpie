@@ -162,4 +162,13 @@ void NewProfileDialog::ComboBox_DropDownOpened(IInspectable const& sender, IInsp
 	ComboBoxHelper::DropDownOpened(*this, sender);
 }
 
+void NewProfileDialog::RootScrollViewer_SizeChanged(IInspectable const&, IInspectable const&) {
+	// 为滚动条预留空间
+	if (RootScrollViewer().ScrollableHeight() > 0) {
+		RootStackPanel().Padding({ 0,0,18,0 });
+	} else {
+		RootStackPanel().Padding({});
+	}
+}
+
 }

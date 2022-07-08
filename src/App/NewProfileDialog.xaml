@@ -7,34 +7,36 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
-	<StackPanel MinWidth="498" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Orientation="Vertical" Spacing="10">
-		<TextBlock Text="选择一个窗口" />
-		<ListView MaxHeight="242"
+	<ScrollViewer x:Name="RootScrollViewer" VerticalScrollBarVisibility="Auto" SizeChanged="RootScrollViewer_SizeChanged">
+		<StackPanel x:Name="RootStackPanel" MinWidth="498" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Orientation="Vertical" Spacing="10">
+			<TextBlock Text="选择一个窗口" />
+			<ListView MaxHeight="242"
 				  d:Height="250"
 				  BorderThickness="1"
 				  CornerRadius="{StaticResource ControlCornerRadius}"
 				  BorderBrush="{ThemeResource SystemControlForegroundBaseMediumLowBrush}"
 				  ItemsSource="{x:Bind CandidateWindows, Mode=OneTime}">
-			<ListView.ItemTemplate>
-				<DataTemplate x:DataType="local:CandidateWindow">
-					<Grid HorizontalAlignment="Stretch">
-						<Grid.ColumnDefinitions>
-							<ColumnDefinition Width="Auto" />
-							<ColumnDefinition Width="*" />
-						</Grid.ColumnDefinitions>
-						<ContentPresenter Grid.Column="0" Content="{x:Bind Icon, Mode=OneWay}" />
-						<TextBlock Margin="10,0,0,0" Grid.Column="1" Text="{x:Bind Title}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" local:TextBlockHelper.IsAutoTooltip="True" />
-					</Grid>
-				</DataTemplate>
-			</ListView.ItemTemplate>
-		</ListView>
-		<StackPanel Orientation="Horizontal" Spacing="10">
-			<TextBlock Text="名称" VerticalAlignment="Center" />
-			<TextBox Width="250" />
+				<ListView.ItemTemplate>
+					<DataTemplate x:DataType="local:CandidateWindow">
+						<Grid HorizontalAlignment="Stretch">
+							<Grid.ColumnDefinitions>
+								<ColumnDefinition Width="Auto" />
+								<ColumnDefinition Width="*" />
+							</Grid.ColumnDefinitions>
+							<ContentPresenter Grid.Column="0" Content="{x:Bind Icon, Mode=OneWay}" />
+							<TextBlock Margin="10,0,0,0" Grid.Column="1" Text="{x:Bind Title}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" local:TextBlockHelper.IsAutoTooltip="True" />
+						</Grid>
+					</DataTemplate>
+				</ListView.ItemTemplate>
+			</ListView>
+			<StackPanel Orientation="Horizontal" Spacing="10">
+				<TextBlock Text="名称" VerticalAlignment="Center" />
+				<TextBox Width="250" />
+			</StackPanel>
+			<StackPanel Orientation="Horizontal" Spacing="10">
+				<TextBlock Text="复制缩放配置" VerticalAlignment="Center" />
+				<ComboBox ItemsSource="{x:Bind Profiles, Mode=OneTime}" SelectedIndex="{x:Bind ProfileIndex, Mode=TwoWay}" DropDownOpened="ComboBox_DropDownOpened" />
+			</StackPanel>
 		</StackPanel>
-		<StackPanel Orientation="Horizontal" Spacing="10">
-			<TextBlock Text="复制缩放配置" VerticalAlignment="Center" />
-			<ComboBox ItemsSource="{x:Bind Profiles, Mode=OneTime}" SelectedIndex="{x:Bind ProfileIndex, Mode=TwoWay}" DropDownOpened="ComboBox_DropDownOpened" />
-		</StackPanel>
-	</StackPanel>
+	</ScrollViewer>
 </UserControl>
