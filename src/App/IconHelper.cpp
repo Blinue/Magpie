@@ -4,12 +4,10 @@
 #include "Utils.h"
 #include "Win32Utils.h"
 #include "StrUtils.h"
-#include <appmodel.h>
-#include <Psapi.h>
-
 
 using namespace winrt;
 using namespace Windows::Graphics::Imaging;
+using namespace Windows::UI::Xaml::Media::Imaging;
 
 
 namespace winrt::Magpie::App {
@@ -35,14 +33,14 @@ static bool CopyPixelsOfHBmp(HBITMAP hBmp, LONG width, LONG height, void* data) 
 	return true;
 }
 
-IAsyncOperation<ImageSource> IconHelper::HIcon2ImageSourceAsync(HICON hIcon) {
+static SoftwareBitmap HIcon2SoftwareBitmapAsync(HICON hIcon) {
 	// 单色图标：不处理
 	// 彩色掩码图标：忽略掩码
 
 	ICONINFO ii{};
 	if (!GetIconInfo(hIcon, &ii)) {
 		Logger::Get().Win32Error("GetIconInfo 失败");
-		co_return nullptr;
+		return nullptr;
 	}
 
 	Utils::ScopeExit se([&] {
@@ -55,7 +53,7 @@ IAsyncOperation<ImageSource> IconHelper::HIcon2ImageSourceAsync(HICON hIcon) {
 	});
 
 	if (!ii.fIcon) {
-		co_return nullptr;
+		return nullptr;
 	}
 
 	BITMAP bmp{};
@@ -67,7 +65,7 @@ IAsyncOperation<ImageSource> IconHelper::HIcon2ImageSourceAsync(HICON hIcon) {
 		uint8_t* pixels = buffer.CreateReference().data();
 		
 		if (!CopyPixelsOfHBmp(ii.hbmColor, bmp.bmWidth, bmp.bmHeight, pixels)) {
-			co_return nullptr;
+			return nullptr;
 		}
 
 		const UINT pixelsSize = bmp.bmWidth * bmp.bmHeight * 4;
@@ -98,10 +96,8 @@ IAsyncOperation<ImageSource> IconHelper::HIcon2ImageSourceAsync(HICON hIcon) {
 			}
 		}
 	}
-	
-	Imaging::SoftwareBitmapSource result;
-	co_await result.SetBitmapAsync(bitmap);
-	co_return result;
+
+	return bitmap;
 }
 
 static HICON GetHIconOfWnd(HWND hWnd, bool preferLargeIcon) {
@@ -158,59 +154,21 @@ static HICON GetHIconOfWnd(HWND hWnd, bool preferLargeIcon) {
 	return GetHIconOfWnd(hwndOwner, preferLargeIcon);
 }
 
-static bool IsPackaged(HWND hWnd) {
-	DWORD dwProcId = 0;
-	if (!GetWindowThreadProcessId(hWnd, &dwProcId)) {
-		Logger::Get().Win32Error("GetWindowThreadProcessId 失败");
-		return false;
-	}
-
-	Win32Utils::ScopedHandle hProc(Win32Utils::SafeHandle(OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, dwProcId)));
-	if (!hProc) {
-		Logger::Get().Win32Error("OpenProcess 失败");
-		return false;
-	}
-
-	std::wstring fileName(MAX_PATH, 0);
-	DWORD size = GetModuleFileNameEx(hProc.get(), NULL, fileName.data(), (DWORD)fileName.size() + 1);
-	if (size == 0) {
-		Logger::Get().Win32Error("GetModuleFileName 失败");
-		return false;
-	}
-	fileName.resize(size);
-
-	// UWP 窗口的程序名均为 ApplicationFrameHost.exe
-	fileName = fileName.substr(fileName.find_last_of(L'\\') + 1);
-	StrUtils::ToLowerCase(fileName);
-	if (fileName == L"applicationframehost.exe") {
-		return true;
-	}
-
-	// 打包应用
-	UINT32 length = 0;
-	LONG result = GetPackageFullName(hProc.get(), &length, nullptr);
-	return result != APPMODEL_ERROR_NO_PACKAGE;
-}
-
-IAsyncOperation<ImageSource> IconHelper::GetIconOfWndAsync(HWND hWnd, bool preferLargeIcon) {
-	apartment_context uiThread;
-	co_await resume_background();
-
+static SoftwareBitmap GetSoftwarBitmap(HWND hWnd, bool preferLargeIcon) {
 	HICON hIcon = GetHIconOfWnd(hWnd, preferLargeIcon);
 	if (hIcon) {
-		co_await uiThread;
-		co_return co_await HIcon2ImageSourceAsync(hIcon);
+		return HIcon2SoftwareBitmapAsync(hIcon);
 	}
 
-	if (IsPackaged(hWnd)) {
-		co_return nullptr;
+	if (Win32Utils::IsPackaged(hWnd)) {
+		return nullptr;
 	}
 
 	// 获取 HICON 失败则获取可执行文件图标
 	com_ptr<IShellItemImageFactory> factory;
 	HRESULT hr = SHCreateItemFromParsingName(Win32Utils::GetPathOfWnd(hWnd).c_str(), nullptr, IID_PPV_ARGS(&factory));
 	if (FAILED(hr)) {
-		co_return nullptr;
+		return nullptr;
 	}
 
 	HBITMAP hBmp;
@@ -220,7 +178,7 @@ IAsyncOperation<ImageSource> IconHelper::GetIconOfWndAsync(HWND hWnd, bool prefe
 	};
 	hr = factory->GetImage(iconSize, SIIGBF_BIGGERSIZEOK | SIIGBF_ICONONLY, &hBmp);
 	if (FAILED(hr)) {
-		co_return nullptr;
+		return nullptr;
 	}
 
 	Utils::ScopeExit se([hBmp] {
@@ -236,14 +194,24 @@ IAsyncOperation<ImageSource> IconHelper::GetIconOfWndAsync(HWND hWnd, bool prefe
 		uint8_t* pixels = buffer.CreateReference().data();
 
 		if (!CopyPixelsOfHBmp(hBmp, bmp.bmWidth, bmp.bmHeight, pixels)) {
-			co_return nullptr;
+			return nullptr;
 		}
+	}
+	return bitmap;
+}
+
+IAsyncOperation<ImageSource> IconHelper::GetIconOfWndAsync(HWND hWnd, bool preferLargeIcon) {
+	apartment_context uiThread;
+	co_await resume_background();
+
+	SoftwareBitmap bmp = GetSoftwarBitmap(hWnd, preferLargeIcon);
+	if (!bmp) {
+		co_return nullptr;
 	}
 
 	co_await uiThread;
-	Imaging::SoftwareBitmapSource result;
-	co_await result.SetBitmapAsync(bitmap);
-
+	SoftwareBitmapSource result;
+	co_await result.SetBitmapAsync(bmp);
 	co_return result;
 }
 
