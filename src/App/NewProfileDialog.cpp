@@ -72,8 +72,8 @@ static std::vector<HWND> GetDesktopWindows() {
 	return windows;
 }
 
-static IAsyncOperation<IInspectable> ResolveWindowIconAsync(HWND hWnd) {
-	ImageSource imageSource = co_await IconHelper::GetIconOfWndAsync(hWnd);
+static IAsyncOperation<IInspectable> ResolveWindowIconAsync(HWND hWnd, bool preferLargeIcon) {
+	ImageSource imageSource = co_await IconHelper::GetIconOfWndAsync(hWnd, preferLargeIcon);
 	if (imageSource) {
 		MUXC::ImageIcon icon;
 		icon.Width(16);
@@ -144,17 +144,24 @@ NewProfileDialog::NewProfileDialog() {
 		Magpie::App::CandidateWindow cw;
 		cw.HWnd((uint64_t)hWnd);
 		cw.Title(title);
+		
+		Shapes::Rectangle placeholder;
+		placeholder.Width(16);
+		placeholder.Height(16);
+		cw.Icon(placeholder);
 
 		candidateWindows.emplace_back(cw);
 	}
 
 	_candidateWindows = single_threaded_observable_vector(std::move(candidateWindows));
 
-	[this]() -> fire_and_forget {
-		for (const auto& item : _candidateWindows) {
-			item.Icon(co_await ResolveWindowIconAsync((HWND)item.HWnd()));
-		}
-	}();
+	bool preferLargeIcon = GetDpiForWindow((HWND)Application::Current().as<App>().HwndHost()) > 96;
+	// 并行加载图标
+	for (const auto& item : _candidateWindows) {
+		([](Magpie::App::CandidateWindow item, bool preferLargeIcon) -> fire_and_forget {
+			item.Icon(co_await ResolveWindowIconAsync((HWND)item.HWnd(), preferLargeIcon));
+		})(item, preferLargeIcon);
+	}
 
 	std::vector<IInspectable> profiles;
 	profiles.push_back(box_value(L"默认"));

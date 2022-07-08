@@ -32,7 +32,7 @@
 			</ListView>
 			<StackPanel Orientation="Horizontal" Spacing="10">
 				<TextBlock Text="名称" VerticalAlignment="Center" />
-				<TextBox x:Name="NameTextBox" Width="250" />
+				<TextBox x:Name="NameTextBox" Width="250" Height="32" />
 			</StackPanel>
 			<StackPanel Orientation="Horizontal" Spacing="10">
 				<TextBlock Text="复制缩放配置" VerticalAlignment="Center" />

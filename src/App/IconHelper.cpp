@@ -104,25 +104,49 @@ IAsyncOperation<ImageSource> IconHelper::HIcon2ImageSourceAsync(HICON hIcon) {
 	co_return result;
 }
 
-static HICON GetHIconOfWnd(HWND hWnd) {
-	HICON result = (HICON)SendMessage(hWnd, WM_GETICON, ICON_SMALL, 0);
-	if (result) {
-		return result;
-	}
+static HICON GetHIconOfWnd(HWND hWnd, bool preferLargeIcon) {
+	HICON result = NULL;
 
-	result = (HICON)SendMessage(hWnd, WM_GETICON, ICON_BIG, 0);
-	if (result) {
-		return result;
-	}
+	if (preferLargeIcon) {
+		result = (HICON)SendMessage(hWnd, WM_GETICON, ICON_BIG, 0);
+		if (result) {
+			return result;
+		}
 
-	result = (HICON)GetClassLongPtr(hWnd, GCLP_HICONSM);
-	if (result) {
-		return result;
-	}
+		result = (HICON)SendMessage(hWnd, WM_GETICON, ICON_SMALL, 0);
+		if (result) {
+			return result;
+		}
 
-	result = (HICON)GetClassLongPtr(hWnd, GCLP_HICON);
-	if (result) {
-		return result;
+		result = (HICON)GetClassLongPtr(hWnd, GCLP_HICON);
+		if (result) {
+			return result;
+		}
+
+		result = (HICON)GetClassLongPtr(hWnd, GCLP_HICONSM);
+		if (result) {
+			return result;
+		}
+	} else {
+		result = (HICON)SendMessage(hWnd, WM_GETICON, ICON_SMALL, 0);
+		if (result) {
+			return result;
+		}
+
+		result = (HICON)SendMessage(hWnd, WM_GETICON, ICON_BIG, 0);
+		if (result) {
+			return result;
+		}
+
+		result = (HICON)GetClassLongPtr(hWnd, GCLP_HICONSM);
+		if (result) {
+			return result;
+		}
+
+		result = (HICON)GetClassLongPtr(hWnd, GCLP_HICON);
+		if (result) {
+			return result;
+		}
 	}
 
 	// 此窗口无图标则回落到所有者窗口
@@ -131,7 +155,7 @@ static HICON GetHIconOfWnd(HWND hWnd) {
 		return NULL;
 	}
 
-	return GetHIconOfWnd(hwndOwner);
+	return GetHIconOfWnd(hwndOwner, preferLargeIcon);
 }
 
 static bool IsPackaged(HWND hWnd) {
@@ -168,19 +192,19 @@ static bool IsPackaged(HWND hWnd) {
 	return result != APPMODEL_ERROR_NO_PACKAGE;
 }
 
-IAsyncOperation<ImageSource> IconHelper::GetIconOfWndAsync(HWND hWnd) {
-	HICON hIcon = GetHIconOfWnd(hWnd);
+IAsyncOperation<ImageSource> IconHelper::GetIconOfWndAsync(HWND hWnd, bool preferLargeIcon) {
+	apartment_context uiThread;
+	co_await resume_background();
+
+	HICON hIcon = GetHIconOfWnd(hWnd, preferLargeIcon);
 	if (hIcon) {
+		co_await uiThread;
 		co_return co_await HIcon2ImageSourceAsync(hIcon);
 	}
 
 	if (IsPackaged(hWnd)) {
 		co_return nullptr;
 	}
-
-	// 通过 IShellItemImageFactory 获取图标非常耗时，因此转到后台线程执行
-	apartment_context uiThread;
-	co_await resume_background();
 
 	// 获取 HICON 失败则获取可执行文件图标
 	com_ptr<IShellItemImageFactory> factory;
@@ -190,7 +214,11 @@ IAsyncOperation<ImageSource> IconHelper::GetIconOfWndAsync(HWND hWnd) {
 	}
 
 	HBITMAP hBmp;
-	hr = factory->GetImage({ 16,16 }, SIIGBF_BIGGERSIZEOK | SIIGBF_ICONONLY, &hBmp);
+	SIZE iconSize = {
+		GetSystemMetrics(preferLargeIcon ? SM_CXICON : SM_CXSMICON),
+		GetSystemMetrics(preferLargeIcon ? SM_CYICON : SM_CYSMICON)
+	};
+	hr = factory->GetImage(iconSize, SIIGBF_BIGGERSIZEOK | SIIGBF_ICONONLY, &hBmp);
 	if (FAILED(hr)) {
 		co_return nullptr;
 	}
