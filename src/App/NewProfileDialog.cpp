@@ -78,7 +78,7 @@ static HICON GetIconOfWnd(HWND hWnd) {
 		return result;
 	}
 
-	result = (HICON)SendMessage(hWnd, ICON_BIG, 1, 0);
+	result = (HICON)SendMessage(hWnd, WM_GETICON, ICON_BIG, 0);
 	if (result) {
 		return result;
 	}
@@ -109,6 +109,8 @@ static IAsyncOperation<IInspectable> ResolveWindowIconAsync(HWND hWnd) {
 
 		if (imageSource) {
 			MUXC::ImageIcon icon;
+			icon.Width(16);
+			icon.Height(16);
 			icon.Source(imageSource);
 			co_return icon;
 		}

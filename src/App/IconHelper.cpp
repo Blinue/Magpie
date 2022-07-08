@@ -11,6 +11,9 @@ using namespace Windows::Graphics::Imaging;
 namespace winrt::Magpie::App {
 
 IAsyncOperation<ImageSource> IconHelper::HIcon2ImageSourceAsync(HICON hIcon) {
+	// 单色图标：不处理
+	// 彩色掩码图标：忽略掩码
+
 	ICONINFO ii{};
 	if (!GetIconInfo(hIcon, &ii)) {
 		Logger::Get().Win32Error("GetIconInfo 失败");
@@ -55,14 +58,30 @@ IAsyncOperation<ImageSource> IconHelper::HIcon2ImageSourceAsync(HICON hIcon) {
 		}
 		ReleaseDC(NULL, hdc);
 
-		// 彩色光标
-		for (size_t i = 0; i < bi.bmiHeader.biSizeImage; i += 4) {
-			// 预乘 Alpha 通道
-			double alpha = pixels[i + 3] / 255.0f;
+		// 若颜色掩码有 A 通道，则是彩色图标，否则是彩色掩码图标
+		bool hasAlpha = false;
+		for (UINT i = 3; i < bi.bmiHeader.biSizeImage; i += 4) {
+			if (pixels[i] != 0) {
+				hasAlpha = true;
+				break;
+			}
+		}
 
-			pixels[i] = (BYTE)std::lround(pixels[i] * alpha);
-			pixels[i + 1] = (BYTE)std::lround(pixels[i + 1] * alpha);
-			pixels[i + 2] = (BYTE)std::lround(pixels[i + 2] * alpha);
+		if (hasAlpha) {
+			// 彩色图标
+			for (size_t i = 0; i < bi.bmiHeader.biSizeImage; i += 4) {
+				// 预乘 Alpha 通道
+				double alpha = pixels[i + 3] / 255.0f;
+
+				pixels[i] = (BYTE)std::lround(pixels[i] * alpha);
+				pixels[i + 1] = (BYTE)std::lround(pixels[i + 1] * alpha);
+				pixels[i + 2] = (BYTE)std::lround(pixels[i + 2] * alpha);
+			}
+		} else {
+			// 彩色掩码图标
+			for (size_t i = 0; i < bi.bmiHeader.biSizeImage; i += 4) {
+				pixels[i + 3] = 255;
+			}
 		}
 	}
 	
