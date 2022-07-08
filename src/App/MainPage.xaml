@@ -12,8 +12,8 @@
 	<muxc:NavigationView Name="RootNavigationView"
 						 IsBackButtonVisible="Collapsed"
 						 SelectionChanged="NavigationView_SelectionChanged"
-						 PaneOpened="NavigationView_PaneOpened"
-						 PaneClosed="NavigationView_PaneClosed"
+						 PaneOpening="NavigationView_PaneOpening"
+						 PaneClosing="NavigationView_PaneClosing"
 						 DisplayModeChanged="NavigationView_DisplayModeChanged">
 		<muxc:NavigationView.Resources>
 			<SolidColorBrush x:Key="NavigationViewContentBackground"

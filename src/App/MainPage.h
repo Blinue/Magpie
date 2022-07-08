@@ -15,9 +15,9 @@ namespace winrt::Magpie::App::implementation
 
 		void NavigationView_SelectionChanged(MUXC::NavigationView const&, MUXC::NavigationViewSelectionChangedEventArgs const& args);
 
-		void NavigationView_PaneOpened(MUXC::NavigationView const&, IInspectable const&);
+		void NavigationView_PaneOpening(MUXC::NavigationView const&, IInspectable const&);
 
-		void NavigationView_PaneClosed(MUXC::NavigationView const&, IInspectable const&);
+		void NavigationView_PaneClosing(MUXC::NavigationView const&, MUXC::NavigationViewPaneClosingEventArgs const&);
 
 		void NavigationView_DisplayModeChanged(MUXC::NavigationView const&, MUXC::NavigationViewDisplayModeChangedEventArgs const&);
 

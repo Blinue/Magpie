@@ -104,7 +104,7 @@ void MainPage::NavigationView_SelectionChanged(
 	}
 }
 
-void MainPage::NavigationView_PaneOpened(MUXC::NavigationView const&, IInspectable const&) {
+void MainPage::NavigationView_PaneOpening(MUXC::NavigationView const&, IInspectable const&) {
 	if (Win32Utils::GetOSBuild() >= 22000) {
 		// Win11 中 Tooltip 自动适应主题
 		return;
@@ -123,7 +123,7 @@ void MainPage::NavigationView_PaneOpened(MUXC::NavigationView const&, IInspectab
 	}
 }
 
-void MainPage::NavigationView_PaneClosed(MUXC::NavigationView const&, IInspectable const&) {
+void MainPage::NavigationView_PaneClosing(MUXC::NavigationView const&, MUXC::NavigationViewPaneClosingEventArgs const&) {
 	XamlUtils::UpdateThemeOfTooltips(*this, ActualTheme());
 }
 
