@@ -72,48 +72,14 @@ static std::vector<HWND> GetDesktopWindows() {
 	return windows;
 }
 
-static HICON GetIconOfWnd(HWND hWnd) {
-	HICON result = (HICON)SendMessage(hWnd, WM_GETICON, ICON_SMALL, 0);
-	if (result) {
-		return result;
-	}
-
-	result = (HICON)SendMessage(hWnd, WM_GETICON, ICON_BIG, 0);
-	if (result) {
-		return result;
-	}
-
-	result = (HICON)GetClassLongPtr(hWnd, GCLP_HICONSM);
-	if (result) {
-		return result;
-	}
-
-	result = (HICON)GetClassLongPtr(hWnd, GCLP_HICON);
-	if (result) {
-		return result;
-	}
-
-	// 此窗口无图标则回落到所有者窗口
-	HWND hwndOwner = GetWindow(hWnd, GW_OWNER);
-	if (!hwndOwner) {
-		return NULL;
-	}
-
-	return GetIconOfWnd(hwndOwner);
-}
-
 static IAsyncOperation<IInspectable> ResolveWindowIconAsync(HWND hWnd) {
-	HICON hIcon = GetIconOfWnd(hWnd);
-	if (hIcon) {
-		ImageSource imageSource = co_await IconHelper::HIcon2ImageSourceAsync(hIcon);
-
-		if (imageSource) {
-			MUXC::ImageIcon icon;
-			icon.Width(16);
-			icon.Height(16);
-			icon.Source(imageSource);
-			co_return icon;
-		}
+	ImageSource imageSource = co_await IconHelper::GetIconOfWndAsync(hWnd);
+	if (imageSource) {
+		MUXC::ImageIcon icon;
+		icon.Width(16);
+		icon.Height(16);
+		icon.Source(imageSource);
+		co_return icon;
 	}
 
 	// 回落到通用图标
@@ -156,6 +122,12 @@ static hstring GetProcessDesc(HWND hWnd) {
 	}
 
 	return description;
+}
+
+static hstring GetDefaultProfileName(const Magpie::App::CandidateWindow& item) {
+	hstring processDesc = GetProcessDesc((HWND)item.HWnd());
+	// 获取文件描述失败则回落到标题
+	return processDesc.empty() ? item.Title() : processDesc;
 }
 
 NewProfileDialog::NewProfileDialog() {
@@ -201,10 +173,7 @@ void NewProfileDialog::WindowIndex(int32_t value) noexcept {
 	_windowIndex = value;
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"WindowIndex"));
 
-	const Magpie::App::CandidateWindow& item = _candidateWindows.GetAt(_windowIndex);
-	hstring processDesc = GetProcessDesc((HWND)item.HWnd());
-	// 如果不存在文件描述回落到标题
-	NameTextBox().Text(processDesc.empty() ? item.Title() : processDesc);
+	NameTextBox().Text(GetDefaultProfileName(_candidateWindows.GetAt(_windowIndex)));
 }
 
 void NewProfileDialog::RootScrollViewer_SizeChanged(IInspectable const&, IInspectable const&) {
