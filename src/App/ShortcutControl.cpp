@@ -36,6 +36,13 @@ const DependencyProperty ShortcutControl::ActionProperty = DependencyProperty::R
 	PropertyMetadata(box_value(HotkeyAction::COUNT_OR_NONE), &ShortcutControl::_OnActionChanged)
 );
 
+const DependencyProperty ShortcutControl::TitleProperty = DependencyProperty::Register(
+	L"Title",
+	xaml_typename<hstring>(),
+	xaml_typename<Magpie::App::ShortcutControl>(),
+	PropertyMetadata(box_value(L""), &ShortcutControl::_OnTitleChanged)
+);
+
 const DependencyProperty ShortcutControl::_IsErrorProperty = DependencyProperty::Register(
 	L"_IsError",
 	xaml_typename<bool>(),
@@ -60,7 +67,7 @@ IAsyncAction ShortcutControl::EditButton_Click(IInspectable const&, RoutedEventA
 		_shortcutDialog = ContentDialog();
 		_shortcutDialogContent = ShortcutDialog();
 
-		_shortcutDialog.Title(box_value(L"激活快捷键"));
+		_shortcutDialog.Title(GetValue(TitleProperty));
 		_shortcutDialog.Content(_shortcutDialogContent);
 		_shortcutDialog.PrimaryButtonText(L"保存");
 		_shortcutDialog.CloseButtonText(L"取消");
@@ -99,22 +106,6 @@ void ShortcutControl::_ShortcutDialog_Closing(ContentDialog const&, ContentDialo
 	if (args.Result() == ContentDialogResult::Primary) {
 		AppSettings::Get().SetHotkey(Action(), _previewHotkey);
 	}
-}
-
-HotkeyAction ShortcutControl::Action() const {
-	return GetValue(ActionProperty).as<HotkeyAction>();
-}
-
-void ShortcutControl::Action(HotkeyAction value) {
-	SetValue(ActionProperty, box_value(value));
-}
-
-void ShortcutControl::_IsError(bool value) {
-	SetValue(_IsErrorProperty, box_value(value));
-}
-
-bool ShortcutControl::IsError() const {
-	return GetValue(_IsErrorProperty).as<bool>();
 }
 
 LRESULT ShortcutControl::_LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM lParam) {
@@ -222,6 +213,13 @@ LRESULT ShortcutControl::_LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM 
 void ShortcutControl::_OnActionChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
 	ShortcutControl* that = get_self<ShortcutControl>(sender.as<default_interface<ShortcutControl>>());
 	that->_UpdateHotkey();
+}
+
+void ShortcutControl::_OnTitleChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const& args) {
+	ShortcutControl* that = get_self<ShortcutControl>(sender.as<default_interface<ShortcutControl>>());
+	if (that->_shortcutDialog) {
+		that->_shortcutDialog.Title(args.NewValue());
+	}
 }
 
 void ShortcutControl::_Settings_OnHotkeyChanged(HotkeyAction action) {

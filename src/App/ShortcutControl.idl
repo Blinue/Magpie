@@ -6,6 +6,7 @@ namespace Magpie.App
 		ShortcutControl();
 
 		HotkeyAction Action;
+		String Title;
 		Boolean IsError { get; };
 	}
 }

@@ -13,12 +13,28 @@ struct ShortcutControl : ShortcutControlT<ShortcutControl> {
 
 	IAsyncAction EditButton_Click(IInspectable const&, RoutedEventArgs const&);
 
-	HotkeyAction Action() const;
-	void Action(HotkeyAction value);
+	HotkeyAction Action() const {
+		return GetValue(ActionProperty).as<HotkeyAction>();
+	}
 
-	bool IsError() const;
+	void Action(HotkeyAction value) {
+		SetValue(ActionProperty, box_value(value));
+	}
+
+	hstring Title() const {
+		return GetValue(TitleProperty).as<hstring>();
+	}
+
+	void Title(const hstring& value) {
+		SetValue(TitleProperty, box_value(value));
+	}
+
+	bool IsError() const {
+		return GetValue(_IsErrorProperty).as<bool>();
+	}
 
 	static const DependencyProperty ActionProperty;
+	static const DependencyProperty TitleProperty;
 
 private:
 	void _ShortcutDialog_Closing(Controls::ContentDialog const&, Controls::ContentDialogClosingEventArgs const& args);
@@ -33,11 +49,15 @@ private:
 	
 	static void _OnActionChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&);
 
+	static void _OnTitleChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const& args);
+
 	void _Settings_OnHotkeyChanged(HotkeyAction action);
 
 	void _UpdateHotkey();
 
-	void _IsError(bool value);
+	void _IsError(bool value) {
+		SetValue(_IsErrorProperty, box_value(value));
+	}
 
 	WinRTUtils::EventRevoker _hotkeyChangedRevoker;
 

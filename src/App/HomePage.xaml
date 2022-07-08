@@ -15,7 +15,7 @@
 						<FontIcon Glyph="&#xEDA7;"/>
 					</local:SettingItem.Icon>
 					<local:SettingItem.ActionContent>
-						<local:ShortcutControl>
+						<local:ShortcutControl Title="激活快捷键">
 							<local:ShortcutControl.Action>
 								<local:HotkeyAction>Scale</local:HotkeyAction>
 							</local:ShortcutControl.Action>
@@ -107,7 +107,7 @@
 						<FontIcon Glyph="&#xEDA7;"/>
 					</local:SettingItem.Icon>
 					<local:SettingItem.ActionContent>
-						<local:ShortcutControl>
+						<local:ShortcutControl Title="游戏内覆盖快捷键">
 							<local:ShortcutControl.Action>
 								<local:HotkeyAction>Overlay</local:HotkeyAction>
 							</local:ShortcutControl.Action>
