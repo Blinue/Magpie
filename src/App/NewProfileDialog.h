@@ -67,6 +67,12 @@ struct NewProfileDialog : NewProfileDialogT<NewProfileDialog> {
 		return _candidateWindows;
 	}
 
+	int32_t WindowIndex() const noexcept {
+		return _windowIndex;
+	}
+
+	void WindowIndex(int32_t value) noexcept;
+
 	IVector<IInspectable> Profiles() const noexcept {
 		return _profiles;
 	}
@@ -86,6 +92,8 @@ private:
 	event<PropertyChangedEventHandler> _propertyChangedEvent;
 
 	IVector<Magpie::App::CandidateWindow> _candidateWindows;
+	int32_t _windowIndex = -1;
+
 	IVector<IInspectable> _profiles;
 	int32_t _profileIndex = 0;
 };

@@ -11,11 +11,12 @@
 		<StackPanel x:Name="RootStackPanel" MinWidth="498" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Orientation="Vertical" Spacing="10">
 			<TextBlock Text="选择一个窗口" />
 			<ListView MaxHeight="242"
-				  d:Height="250"
-				  BorderThickness="1"
-				  CornerRadius="{StaticResource ControlCornerRadius}"
-				  BorderBrush="{ThemeResource SystemControlForegroundBaseMediumLowBrush}"
-				  ItemsSource="{x:Bind CandidateWindows, Mode=OneTime}">
+					  d:Height="250"
+					  BorderThickness="1"
+					  CornerRadius="{StaticResource ControlCornerRadius}"
+					  BorderBrush="{ThemeResource SystemControlForegroundBaseMediumLowBrush}"
+					  ItemsSource="{x:Bind CandidateWindows, Mode=OneTime}"
+					  SelectedIndex="{x:Bind WindowIndex, Mode=TwoWay}">
 				<ListView.ItemTemplate>
 					<DataTemplate x:DataType="local:CandidateWindow">
 						<Grid HorizontalAlignment="Stretch">
@@ -31,7 +32,7 @@
 			</ListView>
 			<StackPanel Orientation="Horizontal" Spacing="10">
 				<TextBlock Text="名称" VerticalAlignment="Center" />
-				<TextBox Width="250" />
+				<TextBox x:Name="NameTextBox" Width="250" />
 			</StackPanel>
 			<StackPanel Orientation="Horizontal" Spacing="10">
 				<TextBlock Text="复制缩放配置" VerticalAlignment="Center" />

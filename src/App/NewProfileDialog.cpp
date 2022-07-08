@@ -123,6 +123,41 @@ static IAsyncOperation<IInspectable> ResolveWindowIconAsync(HWND hWnd) {
 	co_return icon;
 }
 
+static hstring GetProcessDesc(HWND hWnd) {
+	// 移植自 https://github.com/dotnet/runtime/blob/4a63cb28b69e1c48bccf592150be7ba297b67950/src/libraries/System.Diagnostics.FileVersionInfo/src/System/Diagnostics/FileVersionInfo.Windows.cs
+	std::wstring fileName = Win32Utils::GetPathOfWnd(hWnd);
+	if (fileName.empty()) {
+		return {};
+	}
+
+	DWORD dummy;
+	DWORD infoSize = GetFileVersionInfoSizeEx(FILE_VER_GET_LOCALISED, fileName.c_str(), &dummy);
+	if (infoSize == 0) {
+		return {};
+	}
+
+	std::unique_ptr<uint8_t[]> infoData(new uint8_t[infoSize]);
+	if (!GetFileVersionInfoEx(FILE_VER_GET_LOCALISED, fileName.c_str(), 0, infoSize, infoData.get())) {
+		return {};
+	}
+
+	std::wstring codePage;
+	uint8_t* langId = nullptr;
+	UINT len;
+	if (VerQueryValue(infoData.get(), L"\\VarFileInfo\\Translation", (void**)&langId, &len)) {
+		codePage = fmt::format(L"{:08X}", uint32_t((*(uint16_t*)langId << 16) | *(uint16_t*)(langId + 2)));
+	} else {
+		codePage = L"040904E4";
+	}
+
+	wchar_t* description = nullptr;
+	if (!VerQueryValue(infoData.get(), fmt::format(L"\\StringFileInfo\\{}\\FileDescription", codePage).c_str(), (void**)&description, &len)) {
+		return {};
+	}
+
+	return description;
+}
+
 NewProfileDialog::NewProfileDialog() {
 	InitializeComponent();
 
@@ -144,8 +179,8 @@ NewProfileDialog::NewProfileDialog() {
 	_candidateWindows = single_threaded_observable_vector(std::move(candidateWindows));
 
 	[this]() -> fire_and_forget {
-		for (const auto& w : _candidateWindows) {
-			w.Icon(co_await ResolveWindowIconAsync((HWND)w.HWnd()));
+		for (const auto& item : _candidateWindows) {
+			item.Icon(co_await ResolveWindowIconAsync((HWND)item.HWnd()));
 		}
 	}();
 
@@ -160,6 +195,16 @@ NewProfileDialog::NewProfileDialog() {
 
 void NewProfileDialog::ComboBox_DropDownOpened(IInspectable const& sender, IInspectable const&) {
 	ComboBoxHelper::DropDownOpened(*this, sender);
+}
+
+void NewProfileDialog::WindowIndex(int32_t value) noexcept {
+	_windowIndex = value;
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"WindowIndex"));
+
+	const Magpie::App::CandidateWindow& item = _candidateWindows.GetAt(_windowIndex);
+	hstring processDesc = GetProcessDesc((HWND)item.HWnd());
+	// 如果不存在文件描述回落到标题
+	NameTextBox().Text(processDesc.empty() ? item.Title() : processDesc);
 }
 
 void NewProfileDialog::RootScrollViewer_SizeChanged(IInspectable const&, IInspectable const&) {
