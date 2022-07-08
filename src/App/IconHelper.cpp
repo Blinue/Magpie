@@ -3,6 +3,9 @@
 #include "Logger.h"
 #include "Utils.h"
 #include "Win32Utils.h"
+#include "StrUtils.h"
+#include <appmodel.h>
+#include <Psapi.h>
 
 
 using namespace winrt;
@@ -131,14 +134,52 @@ static HICON GetHIconOfWnd(HWND hWnd) {
 	return GetHIconOfWnd(hwndOwner);
 }
 
+static bool IsPackaged(HWND hWnd) {
+	DWORD dwProcId = 0;
+	if (!GetWindowThreadProcessId(hWnd, &dwProcId)) {
+		Logger::Get().Win32Error("GetWindowThreadProcessId 失败");
+		return false;
+	}
+
+	Win32Utils::ScopedHandle hProc(Win32Utils::SafeHandle(OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, dwProcId)));
+	if (!hProc) {
+		Logger::Get().Win32Error("OpenProcess 失败");
+		return false;
+	}
+
+	std::wstring fileName(MAX_PATH, 0);
+	DWORD size = GetModuleFileNameEx(hProc.get(), NULL, fileName.data(), (DWORD)fileName.size() + 1);
+	if (size == 0) {
+		Logger::Get().Win32Error("GetModuleFileName 失败");
+		return false;
+	}
+	fileName.resize(size);
+
+	// UWP 窗口的程序名均为 ApplicationFrameHost.exe
+	fileName = fileName.substr(fileName.find_last_of(L'\\') + 1);
+	StrUtils::ToLowerCase(fileName);
+	if (fileName == L"applicationframehost.exe") {
+		return true;
+	}
+
+	// 打包应用
+	UINT32 length = 0;
+	LONG result = GetPackageFullName(hProc.get(), &length, nullptr);
+	return result != APPMODEL_ERROR_NO_PACKAGE;
+}
+
 IAsyncOperation<ImageSource> IconHelper::GetIconOfWndAsync(HWND hWnd) {
 	HICON hIcon = GetHIconOfWnd(hWnd);
 	if (hIcon) {
 		co_return co_await HIcon2ImageSourceAsync(hIcon);
 	}
 
+	if (IsPackaged(hWnd)) {
+		co_return nullptr;
+	}
+
 	// 通过 IShellItemImageFactory 获取图标非常耗时，因此转到后台线程执行
-	winrt::apartment_context uiThread;
+	apartment_context uiThread;
 	co_await resume_background();
 
 	// 获取 HICON 失败则获取可执行文件图标
