@@ -7,7 +7,7 @@
 namespace winrt::Magpie::App::implementation {
 
 struct CandidateWindow : CandidateWindowT<CandidateWindow> {
-	CandidateWindow() = default;
+	CandidateWindow(uint64_t hWnd, bool preferLargeIcon);
 
 	event_token PropertyChanged(PropertyChangedEventHandler const& handler) {
 		return _propertyChangedEvent.add(handler);
@@ -21,33 +21,30 @@ struct CandidateWindow : CandidateWindowT<CandidateWindow> {
 		return _hWnd;
 	}
 
-	void HWnd(uint64_t value) noexcept {
-		_hWnd = value;
-	}
-
 	hstring Title() const noexcept {
 		return _title;
-	}
-
-	void Title(const hstring& value) noexcept {
-		_title = value;
 	}
 
 	IInspectable Icon() const noexcept {
 		return _icon;
 	}
 
-	void Icon(const IInspectable& value) noexcept {
+	hstring DefaultProfileName() const noexcept {
+		return _defaultProfileName;
+	}
+
+private:
+	void _Icon(IInspectable const& value) {
 		_icon = value;
 		_propertyChangedEvent(*this, PropertyChangedEventArgs(L"Icon"));
 	}
 
-private:
 	event<PropertyChangedEventHandler> _propertyChangedEvent;
 
 	uint64_t _hWnd = 0;
 	hstring _title;
 	IInspectable _icon{ nullptr };
+	hstring _defaultProfileName;
 };
 
 struct NewProfileDialog : NewProfileDialogT<NewProfileDialog> {

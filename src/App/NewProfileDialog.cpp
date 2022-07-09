@@ -124,16 +124,12 @@ static hstring GetProcessDesc(HWND hWnd) {
 	return description;
 }
 
-static hstring GetDefaultProfileName(const Magpie::App::CandidateWindow& item) {
-	hstring processDesc = GetProcessDesc((HWND)item.HWnd());
-	// 获取文件描述失败则回落到标题
-	return processDesc.empty() ? item.Title() : processDesc;
-}
-
 NewProfileDialog::NewProfileDialog() {
 	InitializeComponent();
 
 	std::vector<Magpie::App::CandidateWindow> candidateWindows;
+
+	bool preferLargeIcon = GetDpiForSystem() > 96;
 
 	for (HWND hWnd : GetDesktopWindows()) {
 		std::wstring title = Win32Utils::GetWndTitle(hWnd);
@@ -141,27 +137,10 @@ NewProfileDialog::NewProfileDialog() {
 			continue;
 		}
 
-		Magpie::App::CandidateWindow cw;
-		cw.HWnd((uint64_t)hWnd);
-		cw.Title(title);
-		
-		Shapes::Rectangle placeholder;
-		placeholder.Width(16);
-		placeholder.Height(16);
-		cw.Icon(placeholder);
-
-		candidateWindows.emplace_back(cw);
+		candidateWindows.emplace_back(Magpie::App::CandidateWindow((uint64_t)hWnd, preferLargeIcon));
 	}
 
 	_candidateWindows = single_threaded_observable_vector(std::move(candidateWindows));
-
-	bool preferLargeIcon = GetDpiForWindow((HWND)Application::Current().as<App>().HwndHost()) > 96;
-	// 并行加载图标
-	for (const auto& item : _candidateWindows) {
-		([](Magpie::App::CandidateWindow item, bool preferLargeIcon) -> fire_and_forget {
-			item.Icon(co_await ResolveWindowIconAsync((HWND)item.HWnd(), preferLargeIcon));
-		})(item, preferLargeIcon);
-	}
 
 	std::vector<IInspectable> profiles;
 	profiles.push_back(box_value(L"默认"));
@@ -179,8 +158,6 @@ void NewProfileDialog::ComboBox_DropDownOpened(IInspectable const& sender, IInsp
 void NewProfileDialog::WindowIndex(int32_t value) noexcept {
 	_windowIndex = value;
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"WindowIndex"));
-
-	NameTextBox().Text(GetDefaultProfileName(_candidateWindows.GetAt(_windowIndex)));
 }
 
 void NewProfileDialog::RootScrollViewer_SizeChanged(IInspectable const&, IInspectable const&) {
@@ -190,6 +167,36 @@ void NewProfileDialog::RootScrollViewer_SizeChanged(IInspectable const&, IInspec
 	} else {
 		RootStackPanel().Padding({});
 	}
+}
+
+static hstring GetDefaultProfileName(const Magpie::App::CandidateWindow& item) {
+	HWND hWnd = (HWND)item.HWnd();
+	if (Win32Utils::IsPackaged(hWnd)) {
+		return item.Title();
+	}
+
+	hstring processDesc = GetProcessDesc((HWND)item.HWnd());
+	return processDesc.empty() ? item.Title() : processDesc;
+}
+
+CandidateWindow::CandidateWindow(uint64_t hWnd, bool preferLargeIcon) {
+	_hWnd = hWnd;
+
+	_title = Win32Utils::GetWndTitle((HWND)hWnd);
+	_defaultProfileName = GetDefaultProfileName(*this);
+
+	Shapes::Rectangle placeholder;
+	placeholder.Width(16);
+	placeholder.Height(16);
+	_icon = std::move(placeholder);
+	
+	([](weak_ref<CandidateWindow> weakThis, bool preferLargeIcon) -> fire_and_forget {
+		IInspectable icon = co_await ResolveWindowIconAsync((HWND)weakThis.get()->HWnd(), preferLargeIcon);
+
+		if (auto strongThis = weakThis.get()) {
+			strongThis->_Icon(icon);
+		}
+	})(get_weak(), preferLargeIcon);
 }
 
 }

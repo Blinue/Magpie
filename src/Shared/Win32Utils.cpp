@@ -86,34 +86,33 @@ std::wstring Win32Utils::GetPathOfWnd(HWND hWnd) {
 }
 
 bool Win32Utils::IsPackaged(HWND hWnd) {
+	if (GetWndClassName(hWnd) == L"ApplicationFrameWindow") {
+		EnumChildWindows(
+			hWnd,
+			[](HWND hWnd, LPARAM lParam) {
+				if (GetWndClassName(hWnd) != L"Windows.UI.Core.CoreWindow") {
+					return TRUE;
+				}
+
+				*(HWND*)lParam = hWnd;
+				return FALSE;
+			},
+			(LPARAM)&hWnd
+		);
+	}
+
 	DWORD dwProcId = 0;
 	if (!GetWindowThreadProcessId(hWnd, &dwProcId)) {
 		Logger::Get().Win32Error("GetWindowThreadProcessId 失败");
 		return false;
 	}
 
-	Win32Utils::ScopedHandle hProc(Win32Utils::SafeHandle(OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, dwProcId)));
+	Win32Utils::ScopedHandle hProc(Win32Utils::SafeHandle(OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, dwProcId)));
 	if (!hProc) {
 		Logger::Get().Win32Error("OpenProcess 失败");
 		return false;
 	}
 
-	std::wstring fileName(MAX_PATH, 0);
-	DWORD size = GetModuleFileNameEx(hProc.get(), NULL, fileName.data(), (DWORD)fileName.size() + 1);
-	if (size == 0) {
-		Logger::Get().Win32Error("GetModuleFileName 失败");
-		return false;
-	}
-	fileName.resize(size);
-
-	// UWP 窗口的程序名均为 ApplicationFrameHost.exe
-	fileName = fileName.substr(fileName.find_last_of(L'\\') + 1);
-	StrUtils::ToLowerCase(fileName);
-	if (fileName == L"applicationframehost.exe") {
-		return true;
-	}
-
-	// 打包应用
 	UINT32 length = 0;
 	LONG result = GetPackageFullName(hProc.get(), &length, nullptr);
 	return result != APPMODEL_ERROR_NO_PACKAGE;
