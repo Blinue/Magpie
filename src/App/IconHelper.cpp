@@ -156,50 +156,14 @@ static HICON GetHIconOfWnd(HWND hWnd, bool preferLargeIcon) {
 }
 
 static SoftwareBitmap GetSoftwarBitmap(HWND hWnd, bool preferLargeIcon) {
-	HICON hIcon = GetHIconOfWnd(hWnd, preferLargeIcon);
-	if (hIcon) {
+	if (HICON hIcon = GetHIconOfWnd(hWnd, preferLargeIcon)) {
 		return HIcon2SoftwareBitmapAsync(hIcon);
 	}
 
 	com_ptr<IShellItemImageFactory> factory;
-
-	bool isPackaged = Win32Utils::IsPackaged(hWnd);
-	if (isPackaged) {
-		// 来自 https://github.com/valinet/sws/blob/bc8b04e451649964ee3d74255f9e9eda13ef24c3/SimpleWindowSwitcher/sws_IconPainter.c#L257
-		com_ptr<IPropertyStore> propStore;
-		HRESULT hr = SHGetPropertyStoreForWindow(hWnd, IID_PPV_ARGS(&propStore));
-		if (FAILED(hr)) {
-			return nullptr;
-		}
-
-		static GUID __uuidof_AppUserModelIdProperty{
-			0x9F4C2855,
-			0x9F79, 0x4B39, 0xA8, 0xD0,
-			0xE1, 0xD4, 0x2D, 0xE1, 0xD5, 0xF3
-		};
-
-		PROPERTYKEY key{ __uuidof_AppUserModelIdProperty,5 };
-		PROPVARIANT prop;
-		hr =  propStore->GetValue(key, &prop);
-		if (FAILED(hr) || prop.vt != VT_LPWSTR || !prop.pwszVal) {
-			return nullptr;
-		}
-
-		hr = SHCreateItemInKnownFolder(
-			FOLDERID_AppsFolder,
-			KF_FLAG_DONT_VERIFY,
-			prop.bstrVal,
-			IID_PPV_ARGS(&factory)
-		);
-
-		if (FAILED(hr)) {
-			return nullptr;
-		}
-	} else {
-		HRESULT hr = SHCreateItemFromParsingName(Win32Utils::GetPathOfWnd(hWnd).c_str(), nullptr, IID_PPV_ARGS(&factory));
-		if (FAILED(hr)) {
-			return nullptr;
-		}
+	HRESULT hr = SHCreateItemFromParsingName(Win32Utils::GetPathOfWnd(hWnd).c_str(), nullptr, IID_PPV_ARGS(&factory));
+	if (FAILED(hr)) {
+		return nullptr;
 	}
 
 	HBITMAP hBmp;
@@ -207,7 +171,7 @@ static SoftwareBitmap GetSoftwarBitmap(HWND hWnd, bool preferLargeIcon) {
 		GetSystemMetrics(preferLargeIcon ? SM_CXICON : SM_CXSMICON),
 		GetSystemMetrics(preferLargeIcon ? SM_CYICON : SM_CYSMICON)
 	};
-	HRESULT hr = factory->GetImage(iconSize, SIIGBF_BIGGERSIZEOK | SIIGBF_ICONONLY, &hBmp);
+	hr = factory->GetImage(iconSize, SIIGBF_BIGGERSIZEOK | SIIGBF_ICONONLY, &hBmp);
 	if (FAILED(hr)) {
 		return nullptr;
 	}

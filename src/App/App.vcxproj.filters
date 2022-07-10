@@ -38,6 +38,9 @@
     <ClCompile Include="IconHelper.cpp">
       <Filter>Helpers</Filter>
     </ClCompile>
+    <ClCompile Include="AppXHelper.cpp">
+      <Filter>Helpers</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -68,6 +71,9 @@
       <Filter>Services</Filter>
     </ClInclude>
     <ClInclude Include="IconHelper.h">
+      <Filter>Helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="AppXHelper.h">
       <Filter>Helpers</Filter>
     </ClInclude>
   </ItemGroup>

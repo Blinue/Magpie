@@ -13,7 +13,6 @@
 #define NOGDICAPMASKS
 #define NOMENUS
 #define NOICONS
-#define NOKEYSTATES
 #define NOATOM
 #define NOCLIPBOARD
 #define NODRAWTEXT

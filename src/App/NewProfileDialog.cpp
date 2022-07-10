@@ -11,6 +11,7 @@
 #include "ComboBoxHelper.h"
 #include "AppSettings.h"
 #include "IconHelper.h"
+#include "AppXHelper.h"
 
 using namespace winrt;
 using namespace Windows::UI::Xaml::Controls;
@@ -56,6 +57,7 @@ static std::vector<HWND> GetDesktopWindows() {
 	// EnumWindows 能否枚举到 UWP 窗口？
 	// 虽然官方文档中明确指出不能，但我在 Win10/11 中测试是可以的
 	// PowerToys 也依赖这个行为 https://github.com/microsoft/PowerToys/blob/d4b62d8118d49b2cc83c2a2126091378d0b5fec4/src/modules/launcher/Plugins/Microsoft.Plugin.WindowWalker/Components/OpenWindows.cs
+	// 无法枚举到全屏状态下的 UWP 窗口
 	EnumWindows(
 		[](HWND hWnd, LPARAM lParam) {
 			std::vector<HWND>& windows = *(std::vector<HWND>*)lParam;
@@ -73,8 +75,7 @@ static std::vector<HWND> GetDesktopWindows() {
 }
 
 static IAsyncOperation<IInspectable> ResolveWindowIconAsync(HWND hWnd, bool preferLargeIcon) {
-	ImageSource imageSource = co_await IconHelper::GetIconOfWndAsync(hWnd, preferLargeIcon);
-	if (imageSource) {
+	if (ImageSource imageSource = co_await IconHelper::GetIconOfWndAsync(hWnd, preferLargeIcon)) {
 		MUXC::ImageIcon icon;
 		icon.Width(16);
 		icon.Height(16);
@@ -169,33 +170,51 @@ void NewProfileDialog::RootScrollViewer_SizeChanged(IInspectable const&, IInspec
 	}
 }
 
-static hstring GetDefaultProfileName(const Magpie::App::CandidateWindow& item) {
-	HWND hWnd = (HWND)item.HWnd();
-	if (Win32Utils::IsPackaged(hWnd)) {
-		return item.Title();
-	}
-
-	hstring processDesc = GetProcessDesc((HWND)item.HWnd());
-	return processDesc.empty() ? item.Title() : processDesc;
-}
-
 CandidateWindow::CandidateWindow(uint64_t hWnd, bool preferLargeIcon) {
 	_hWnd = hWnd;
 
 	_title = Win32Utils::GetWndTitle((HWND)hWnd);
-	_defaultProfileName = GetDefaultProfileName(*this);
+	_defaultProfileName = _title;
 
 	Shapes::Rectangle placeholder;
 	placeholder.Width(16);
 	placeholder.Height(16);
 	_icon = std::move(placeholder);
-	
-	([](weak_ref<CandidateWindow> weakThis, bool preferLargeIcon) -> fire_and_forget {
-		IInspectable icon = co_await ResolveWindowIconAsync((HWND)weakThis.get()->HWnd(), preferLargeIcon);
 
-		if (auto strongThis = weakThis.get()) {
-			strongThis->_Icon(icon);
+	([](weak_ref<CandidateWindow> weakThis, bool preferLargeIcon) -> fire_and_forget {
+		HWND hWnd = (HWND)weakThis.get()->HWnd();
+
+		apartment_context uiThread;
+		co_await resume_background();
+
+		std::wstring defaultProfileName;
+
+		AppXHelper::AppXReader reader;
+		if (reader.Initialize(hWnd)) {
+			// 打包应用
+			defaultProfileName = reader.GetDisplayName();
+		} else {
+			// Win32 窗口
+			defaultProfileName = GetProcessDesc(hWnd);
 		}
+
+		co_await uiThread;
+		if (!defaultProfileName.empty()) {
+			auto strongThis = weakThis.get();
+			if (!strongThis) {
+				co_return;
+			}
+
+			strongThis->_defaultProfileName = defaultProfileName;
+		}
+
+		IInspectable icon = co_await ResolveWindowIconAsync(hWnd, preferLargeIcon);
+
+		auto strongThis = weakThis.get();
+		if (!strongThis) {
+			co_return;
+		}
+		strongThis->_Icon(icon);
 	})(get_weak(), preferLargeIcon);
 }
 

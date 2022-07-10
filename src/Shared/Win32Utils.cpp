@@ -7,7 +7,6 @@
 #include <winternl.h>
 #include <dwmapi.h>
 #include <magnification.h>
-#include <appmodel.h>
 
 #pragma comment(lib, "Magnification.lib")
 
@@ -83,39 +82,6 @@ std::wstring Win32Utils::GetPathOfWnd(HWND hWnd) {
 
 	fileName.resize(size);
 	return fileName;
-}
-
-bool Win32Utils::IsPackaged(HWND hWnd) {
-	if (GetWndClassName(hWnd) == L"ApplicationFrameWindow") {
-		EnumChildWindows(
-			hWnd,
-			[](HWND hWnd, LPARAM lParam) {
-				if (GetWndClassName(hWnd) != L"Windows.UI.Core.CoreWindow") {
-					return TRUE;
-				}
-
-				*(HWND*)lParam = hWnd;
-				return FALSE;
-			},
-			(LPARAM)&hWnd
-		);
-	}
-
-	DWORD dwProcId = 0;
-	if (!GetWindowThreadProcessId(hWnd, &dwProcId)) {
-		Logger::Get().Win32Error("GetWindowThreadProcessId 失败");
-		return false;
-	}
-
-	Win32Utils::ScopedHandle hProc(Win32Utils::SafeHandle(OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, dwProcId)));
-	if (!hProc) {
-		Logger::Get().Win32Error("OpenProcess 失败");
-		return false;
-	}
-
-	UINT32 length = 0;
-	LONG result = GetPackageFullName(hProc.get(), &length, nullptr);
-	return result != APPMODEL_ERROR_NO_PACKAGE;
 }
 
 UINT Win32Utils::GetWindowShowCmd(HWND hWnd) {

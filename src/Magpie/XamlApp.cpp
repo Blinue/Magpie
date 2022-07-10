@@ -434,4 +434,3 @@ LRESULT XamlApp::_WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 	return DefWindowProc(hWnd, message, wParam, lParam);
 }
-
