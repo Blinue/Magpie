@@ -6,6 +6,8 @@
 #include "Logger.h"
 #include <appmodel.h>
 #include <Shlwapi.h>
+#include <shellapi.h>
+#include <propkey.h>
 
 #pragma comment(lib, "Shlwapi.lib")
 
@@ -56,17 +58,21 @@ static std::wstring ResourceFromPri(std::wstring_view packageFullName, std::wstr
 	std::wstring source = fmt::format(L"@{{{}? {}}}", packageFullName, parsed);
 	
 	std::wstring result(128, 0);
-	HRESULT hr = SHLoadIndirectString(source.c_str(), result.data(), (UINT)result.size() + 1, nullptr);
-	if (FAILED(hr)) {
-		return {};
-	}
+HRESULT hr = SHLoadIndirectString(source.c_str(), result.data(), (UINT)result.size() + 1, nullptr);
+if (FAILED(hr)) {
+	return {};
+}
 
-	result.resize(StrUtils::StrLen(result.c_str()));
-	return result;
+result.resize(StrUtils::StrLen(result.c_str()));
+return result;
 }
 
 bool AppXHelper::AppXReader::Initialize(HWND hWnd) noexcept {
+	Win32Utils::ScopedHandle hProc;
+	std::wstring aumid;
+
 	if (Win32Utils::GetWndClassName(hWnd) == L"ApplicationFrameWindow") {
+		HWND childWindow = NULL;
 		// UWP 应用被托管在 ApplicationFrameHost 进程中
 		EnumChildWindows(
 			hWnd,
@@ -78,31 +84,52 @@ bool AppXHelper::AppXReader::Initialize(HWND hWnd) noexcept {
 				*(HWND*)lParam = hWnd;
 				return FALSE;
 			},
-			(LPARAM)&hWnd
-		);
-	}
+			(LPARAM)&childWindow
+				);
 
-	DWORD dwProcId = 0;
-	if (!GetWindowThreadProcessId(hWnd, &dwProcId)) {
-		Logger::Get().Win32Error("GetWindowThreadProcessId 失败");
-		return false;
-	}
+		if (childWindow) {
+			DWORD dwProcId = 0;
+			if (!GetWindowThreadProcessId(childWindow, &dwProcId)) {
+				Logger::Get().Win32Error("GetWindowThreadProcessId 失败");
+				return false;
+			}
 
-	Win32Utils::ScopedHandle hProc(Win32Utils::SafeHandle(OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, dwProcId)));
-	if (!hProc) {
-		Logger::Get().Win32Error("OpenProcess 失败");
-		return false;
-	}
+			hProc.reset(Win32Utils::SafeHandle(OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, dwProcId)));
+			if (!hProc) {
+				Logger::Get().Win32Error("OpenProcess 失败");
+				return false;
+			}
 
-	UINT32 length = 0;
-	if (GetApplicationUserModelId(hProc.get(), &length, nullptr) == APPMODEL_ERROR_NO_APPLICATION || length == 0) {
-		// 不是打包应用
-		return false;
-	}
+			UINT32 length = 0;
+			if (GetApplicationUserModelId(hProc.get(), &length, nullptr) == APPMODEL_ERROR_NO_APPLICATION || length == 0) {
+				// 不是打包应用
+				return false;
+			}
 
-	std::wstring aumid(length - 1, 0);
-	if (GetApplicationUserModelId(hProc.get(), &length, aumid.data()) != ERROR_SUCCESS) {
-		return false;
+			aumid.resize((size_t)length - 1);
+			if (GetApplicationUserModelId(hProc.get(), &length, aumid.data()) != ERROR_SUCCESS) {
+				return false;
+			}
+		} else {
+			// 此窗口已挂起，此时 UWP 进程无法通过子窗口找到
+			// 回落到直接从窗口检索 PRAID
+			// 来自 https://github.com/valinet/sws/blob/bc8b04e451649964ee3d74255f9e9eda13ef24c3/SimpleWindowSwitcher/sws_IconPainter.c#L257
+			com_ptr<IPropertyStore> propStore;
+			HRESULT hr = SHGetPropertyStoreForWindow(hWnd, IID_PPV_ARGS(&propStore));
+			if (FAILED(hr)) {
+				Logger::Get().ComError("SHGetPropertyStoreForWindow 失败", hr);
+				return false;
+			}
+
+			PROPVARIANT prop;
+			hr = propStore->GetValue(PKEY_AppUserModel_ID, &prop);
+			if (FAILED(hr) || prop.vt != VT_LPWSTR || !prop.pwszVal) {
+				return false;
+			}
+
+			aumid = prop.pwszVal;
+			PropVariantClear(&prop);
+		}
 	}
 
 	UINT pfnLen = 0, praidLen = 0;
@@ -110,21 +137,38 @@ bool AppXHelper::AppXReader::Initialize(HWND hWnd) noexcept {
 		return false;
 	}
 
-	// 不使用 packageFamilyName
 	std::wstring packageFamilyName(pfnLen - 1, 0);
 	std::wstring praid(praidLen - 1, 0);
 	if (ParseApplicationUserModelId(aumid.c_str(), &pfnLen, packageFamilyName.data(), &praidLen, praid.data()) != ERROR_SUCCESS) {
 		return false;
 	}
 
-	length = 0;
-	if (::GetPackageFullName(hProc.get(), &length, nullptr) == APPMODEL_ERROR_NO_PACKAGE) {
-		return false;
-	}
+	if (hProc) {
+		UINT length = 0;
+		if (::GetPackageFullName(hProc.get(), &length, nullptr) == APPMODEL_ERROR_NO_PACKAGE) {
+			return false;
+		}
 
-	_packageFullName.resize((size_t)length - 1);
-	if (::GetPackageFullName(hProc.get(), &length, _packageFullName.data()) != ERROR_SUCCESS) {
-		return false;
+		_packageFullName.resize((size_t)length - 1);
+		if (::GetPackageFullName(hProc.get(), &length, _packageFullName.data()) != ERROR_SUCCESS) {
+			return false;
+		}
+	} else {
+		// 已挂起的 UWP 窗口无法获得进程句柄，因此使用 PackageFamilyName 检索 PackageFullName
+		UINT32 packageCount = 0;
+		UINT32 bufferLength = 0;
+		if (FindPackagesByPackageFamily(packageFamilyName.c_str(), PACKAGE_FILTER_HEAD, &packageCount, nullptr, &bufferLength, nullptr, nullptr) != ERROR_INSUFFICIENT_BUFFER || packageCount == 0 || bufferLength == 0) {
+			return false;
+		}
+
+		std::unique_ptr<wchar_t* []> packageFullNames(new wchar_t* [packageCount]);
+		std::unique_ptr<wchar_t[]> buffer(new wchar_t[bufferLength]);
+		if (FindPackagesByPackageFamily(packageFamilyName.c_str(), PACKAGE_FILTER_HEAD, &packageCount, packageFullNames.get(), &bufferLength, buffer.get(), nullptr) != ERROR_SUCCESS) {
+			return false;
+		}
+
+		// 只使用第一个包，一般也只有一个
+		_packageFullName = packageFullNames[0];
 	}
 
 	return _ResolveApplication(praid);
@@ -150,27 +194,18 @@ ImageSource AppXHelper::AppXReader::GetIcon(SIZE preferredSize) const noexcept {
 }
 
 bool AppXHelper::AppXReader::_ResolveApplication(const std::wstring& praid) noexcept {
-	PACKAGE_INFO_REFERENCE infoRef{};
-	if (OpenPackageInfoByFullName(_packageFullName.c_str(), 0, &infoRef) != ERROR_SUCCESS) {
-		Logger::Get().Error("OpenPackageInfoByFullName 失败");
+	UINT32 pathLen = 0;
+	GetPackagePathByFullName(_packageFullName.c_str(), &pathLen, nullptr);
+	if (pathLen == 0) {
 		return false;
 	}
 
-	UINT bufferSize = 0;
-	GetPackageInfo(infoRef, PACKAGE_FILTER_HEAD, &bufferSize, nullptr, nullptr);
-	if (bufferSize == 0) {
+	std::wstring path(pathLen - 1, 0);
+	if (GetPackagePathByFullName(_packageFullName.c_str(), &pathLen, path.data()) != ERROR_SUCCESS) {
 		return false;
 	}
 
-	std::unique_ptr<uint8_t[]> packageInfoBuffer(new uint8_t[bufferSize]);
-	UINT packageCount = 0;
-	if (GetPackageInfo(infoRef, PACKAGE_FILTER_HEAD, &bufferSize, packageInfoBuffer.get(), &packageCount) != ERROR_SUCCESS) {
-		Logger::Get().Error("GetPackageInfo 失败");
-		ClosePackageInfo(infoRef);
-		return false;
-	}
-
-	ClosePackageInfo(infoRef);
+	path.append(L"\\AppXManifest.xml");
 
 	com_ptr<IAppxFactory> factory;
 
@@ -184,67 +219,63 @@ bool AppXHelper::AppXReader::_ResolveApplication(const std::wstring& praid) noex
 		return false;
 	}
 
-	for (UINT32 i = 0; i < packageCount; ++i) {
-		const PACKAGE_INFO& packageInfo = ((PACKAGE_INFO*)packageInfoBuffer.get())[i];
-		std::wstring manifestPath = StrUtils::ConcatW(packageInfo.path, L"\\AppXManifest.xml");
+	com_ptr<IStream> inputStream;
+	hr = SHCreateStreamOnFileEx(
+		path.c_str(),
+		STGM_READ | STGM_SHARE_DENY_WRITE,
+		0,
+		FALSE,
+		nullptr,
+		inputStream.put()
+	);
+	if (FAILED(hr)) {
+		Logger::Get().ComError("打开 AppXManifest.xml 失败", hr);
+		return false;
+	}
 
-		com_ptr<IStream> inputStream;
-		hr = SHCreateStreamOnFileEx(
-			manifestPath.c_str(),
-			STGM_READ | STGM_SHARE_DENY_WRITE,
-			0,
-			FALSE,
-			nullptr,
-			inputStream.put()
-		);
-		if (FAILED(hr)) {
-			Logger::Get().ComError("打开 AppXManifest.xml 失败", hr);
-			continue;
+	com_ptr<IAppxManifestReader> manifestReader;
+	hr = factory->CreateManifestReader(
+		inputStream.get(),
+		manifestReader.put()
+	);
+	if (FAILED(hr)) {
+		Logger::Get().ComError("CreateManifestReader 失败", hr);
+		return false;
+	}
+
+	com_ptr<IAppxManifestApplicationsEnumerator> appEnumerator;
+	hr = manifestReader->GetApplications(appEnumerator.put());
+	if (FAILED(hr)) {
+		Logger::Get().ComError("GetApplications 失败", hr);
+		return false;
+	}
+
+	// 枚举所有应用查找 praid
+	BOOL hasCurrent = FALSE;
+	hr = appEnumerator->GetHasCurrent(&hasCurrent);
+
+	while (SUCCEEDED(hr) && hasCurrent) {
+		com_ptr<IAppxManifestApplication> appxApp;
+		if (FAILED(appEnumerator->GetCurrent(appxApp.put()))) {
+			break;
 		}
 
-		com_ptr<IAppxManifestReader> manifestReader;
-		hr = factory->CreateManifestReader(
-			inputStream.get(),
-			manifestReader.put()
-		);
-		if (FAILED(hr)) {
-			Logger::Get().ComError("CreateManifestReader 失败", hr);
-			continue;
+		wchar_t* curPraid = nullptr;
+		if (FAILED(appxApp->GetStringValue(L"Id", &curPraid))) {
+			break;
 		}
 
-		com_ptr<IAppxManifestApplicationsEnumerator> appEnumerator;
-		hr = manifestReader->GetApplications(appEnumerator.put());
-		if (FAILED(hr)) {
-			Logger::Get().ComError("GetApplications 失败", hr);
-			continue;
-		}
-
-		BOOL hasCurrent = FALSE;
-		hr = appEnumerator->GetHasCurrent(&hasCurrent);
-
-		while (SUCCEEDED(hr) && hasCurrent) {
-			com_ptr<IAppxManifestApplication> appxApp;
-			if (FAILED(appEnumerator->GetCurrent(appxApp.put()))) {
-				break;
-			}
-
-			wchar_t* curPraid = nullptr;
-			if (FAILED(appxApp->GetStringValue(L"Id", &curPraid))) {
-				break;
-			}
-
-			if (curPraid) {
-				if (praid == curPraid) {
-					_appxApp = std::move(appxApp);
-					CoTaskMemFree(curPraid);
-					return true;
-				}
-
+		if (curPraid) {
+			if (praid == curPraid) {
+				_appxApp = std::move(appxApp);
 				CoTaskMemFree(curPraid);
+				return true;
 			}
-			
-			hr = appEnumerator->MoveNext(&hasCurrent);
+
+			CoTaskMemFree(curPraid);
 		}
+
+		hr = appEnumerator->MoveNext(&hasCurrent);
 	}
 
 	// 未找到 Id 为 praid 的应用

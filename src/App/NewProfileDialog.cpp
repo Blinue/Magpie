@@ -77,6 +77,11 @@ static std::vector<HWND> GetDesktopWindows() {
 }
 
 static hstring GetProcessDesc(HWND hWnd) {
+	if (Win32Utils::GetWndClassName(hWnd) == L"ApplicationFrameWindow") {
+		// 跳过 UWP 窗口
+		return {};
+	}
+
 	// 移植自 https://github.com/dotnet/runtime/blob/4a63cb28b69e1c48bccf592150be7ba297b67950/src/libraries/System.Diagnostics.FileVersionInfo/src/System/Diagnostics/FileVersionInfo.Windows.cs
 	std::wstring fileName = Win32Utils::GetPathOfWnd(hWnd);
 	if (fileName.empty()) {
@@ -186,7 +191,9 @@ CandidateWindow::CandidateWindow(uint64_t hWnd, uint32_t dpi) {
 		} else {
 			// Win32 窗口
 			defaultProfileName = GetProcessDesc(hWnd);
-			iconBitmap = co_await IconHelper::GetIconOfWndAsync(hWnd, dpi);
+
+			LONG iconSize = (LONG)std::ceil(dpi * 16 / 96.0);
+			iconBitmap = co_await IconHelper::GetIconOfWndAsync(hWnd, { iconSize, iconSize });
 		}
 
 		co_await uiThread;

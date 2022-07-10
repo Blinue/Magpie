@@ -101,11 +101,11 @@ static SoftwareBitmap HIcon2SoftwareBitmapAsync(HICON hIcon) {
 	return bitmap;
 }
 
-static HICON GetHIconOfWnd(HWND hWnd, uint32_t dpi) {
+static HICON GetHIconOfWnd(HWND hWnd, SIZE preferredSize) {
 	HICON result = NULL;
 
-	if (GetDpiForWindow(hWnd) == dpi) {
-		// hWnd 是 DPI 感知的，优先获取小图标
+	if (GetSystemMetricsForDpi(SM_CXSMICON, GetDpiForWindow(hWnd)) >= preferredSize.cx) {
+		// 小图标尺寸足够
 		result = (HICON)SendMessage(hWnd, WM_GETICON, ICON_SMALL, 0);
 		if (result) {
 			return result;
@@ -126,7 +126,6 @@ static HICON GetHIconOfWnd(HWND hWnd, uint32_t dpi) {
 			return result;
 		}
 	} else {
-		// hWnd 非 DPI 感知，优先获取大图标
 		result = (HICON)SendMessage(hWnd, WM_GETICON, ICON_BIG, 0);
 		if (result) {
 			return result;
@@ -154,11 +153,11 @@ static HICON GetHIconOfWnd(HWND hWnd, uint32_t dpi) {
 		return NULL;
 	}
 
-	return GetHIconOfWnd(hwndOwner, dpi);
+	return GetHIconOfWnd(hwndOwner, preferredSize);
 }
 
-IAsyncOperation<SoftwareBitmap> IconHelper::GetIconOfWndAsync(HWND hWnd, uint32_t dpi) {
-	if (HICON hIcon = GetHIconOfWnd(hWnd, dpi)) {
+IAsyncOperation<SoftwareBitmap> IconHelper::GetIconOfWndAsync(HWND hWnd, SIZE preferredSize) {
+	if (HICON hIcon = GetHIconOfWnd(hWnd, preferredSize)) {
 		co_return HIcon2SoftwareBitmapAsync(hIcon);
 	}
 
@@ -169,13 +168,9 @@ IAsyncOperation<SoftwareBitmap> IconHelper::GetIconOfWndAsync(HWND hWnd, uint32_
 	}
 
 	HBITMAP hBmp;
-	SIZE iconSize = {
-		GetSystemMetricsForDpi(SM_CXSMICON, dpi),
-		GetSystemMetricsForDpi(SM_CYSMICON, dpi)
-	};
 
 	while (true) {
-		hr = factory->GetImage(iconSize, SIIGBF_BIGGERSIZEOK | SIIGBF_ICONONLY, &hBmp);
+		hr = factory->GetImage(preferredSize, SIIGBF_BIGGERSIZEOK | SIIGBF_ICONONLY, &hBmp);
 
 		if (hr == E_PENDING) {
 			Sleep(0);
