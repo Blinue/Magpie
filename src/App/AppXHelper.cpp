@@ -58,22 +58,20 @@ static std::wstring ResourceFromPri(std::wstring_view packageFullName, std::wstr
 	std::wstring source = fmt::format(L"@{{{}? {}}}", packageFullName, parsed);
 	
 	std::wstring result(128, 0);
-HRESULT hr = SHLoadIndirectString(source.c_str(), result.data(), (UINT)result.size() + 1, nullptr);
-if (FAILED(hr)) {
-	return {};
-}
+	HRESULT hr = SHLoadIndirectString(source.c_str(), result.data(), (UINT)result.size() + 1, nullptr);
+	if (FAILED(hr)) {
+		return {};
+	}
 
-result.resize(StrUtils::StrLen(result.c_str()));
-return result;
+	result.resize(StrUtils::StrLen(result.c_str()));
+	return result;
 }
 
 bool AppXHelper::AppXReader::Initialize(HWND hWnd) noexcept {
-	Win32Utils::ScopedHandle hProc;
-	std::wstring aumid;
-
+	bool isSuspended = false;
 	if (Win32Utils::GetWndClassName(hWnd) == L"ApplicationFrameWindow") {
-		HWND childWindow = NULL;
 		// UWP 应用被托管在 ApplicationFrameHost 进程中
+		HWND childHwnd = NULL;
 		EnumChildWindows(
 			hWnd,
 			[](HWND hWnd, LPARAM lParam) {
@@ -84,52 +82,60 @@ bool AppXHelper::AppXReader::Initialize(HWND hWnd) noexcept {
 				*(HWND*)lParam = hWnd;
 				return FALSE;
 			},
-			(LPARAM)&childWindow
-				);
+			(LPARAM)&childHwnd
+		);
 
-		if (childWindow) {
-			DWORD dwProcId = 0;
-			if (!GetWindowThreadProcessId(childWindow, &dwProcId)) {
-				Logger::Get().Win32Error("GetWindowThreadProcessId 失败");
-				return false;
-			}
+		// UWP 应用被挂起时无法通过子窗口找到
+		if (childHwnd == NULL) {
+			isSuspended = true;
+		} else {
+			hWnd = childHwnd;
+		}
+	}
 
-			hProc.reset(Win32Utils::SafeHandle(OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, dwProcId)));
-			if (!hProc) {
-				Logger::Get().Win32Error("OpenProcess 失败");
-				return false;
-			}
+	Win32Utils::ScopedHandle hProc;
+	std::wstring aumid;
 
-			UINT32 length = 0;
-			if (GetApplicationUserModelId(hProc.get(), &length, nullptr) == APPMODEL_ERROR_NO_APPLICATION || length == 0) {
-				// 不是打包应用
-				return false;
-			}
+	if (!isSuspended) {
+		// 使用 GetApplicationUserModelId 获取 AUMID
+		DWORD dwProcId = 0;
+		if (!GetWindowThreadProcessId(hWnd, &dwProcId)) {
+			Logger::Get().Win32Error("GetWindowThreadProcessId 失败");
+			return false;
+		}
 
+		hProc.reset(Win32Utils::SafeHandle(OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, dwProcId)));
+		if (!hProc) {
+			Logger::Get().Win32Error("OpenProcess 失败");
+			return false;
+		}
+
+		UINT32 length = 0;
+		if (GetApplicationUserModelId(hProc.get(), &length, nullptr) != APPMODEL_ERROR_NO_APPLICATION && length > 0) {
 			aumid.resize((size_t)length - 1);
 			if (GetApplicationUserModelId(hProc.get(), &length, aumid.data()) != ERROR_SUCCESS) {
-				return false;
+				aumid.clear();
 			}
-		} else {
-			// 此窗口已挂起，此时 UWP 进程无法通过子窗口找到
-			// 回落到直接从窗口检索 PRAID
-			// 来自 https://github.com/valinet/sws/blob/bc8b04e451649964ee3d74255f9e9eda13ef24c3/SimpleWindowSwitcher/sws_IconPainter.c#L257
-			com_ptr<IPropertyStore> propStore;
-			HRESULT hr = SHGetPropertyStoreForWindow(hWnd, IID_PPV_ARGS(&propStore));
-			if (FAILED(hr)) {
-				Logger::Get().ComError("SHGetPropertyStoreForWindow 失败", hr);
-				return false;
-			}
-
-			PROPVARIANT prop;
-			hr = propStore->GetValue(PKEY_AppUserModel_ID, &prop);
-			if (FAILED(hr) || prop.vt != VT_LPWSTR || !prop.pwszVal) {
-				return false;
-			}
-
-			aumid = prop.pwszVal;
-			PropVariantClear(&prop);
 		}
+	} else {
+		// 窗口被挂起，此时 UWP 进程无法通过子窗口找到
+		// 回落到从窗口的 PropertyStore 中检索 AUMID
+		// 来自 https://github.com/valinet/sws/blob/bc8b04e451649964ee3d74255f9e9eda13ef24c3/SimpleWindowSwitcher/sws_IconPainter.c#L257
+		com_ptr<IPropertyStore> propStore;
+		HRESULT hr = SHGetPropertyStoreForWindow(hWnd, IID_PPV_ARGS(&propStore));
+		if (FAILED(hr)) {
+			Logger::Get().ComError("SHGetPropertyStoreForWindow 失败", hr);
+			return false;
+		}
+
+		PROPVARIANT prop;
+		hr = propStore->GetValue(PKEY_AppUserModel_ID, &prop);
+		if (FAILED(hr) || prop.vt != VT_LPWSTR || !prop.pwszVal) {
+			return false;
+		}
+
+		aumid = prop.pwszVal;
+		PropVariantClear(&prop);
 	}
 
 	UINT pfnLen = 0, praidLen = 0;
@@ -143,7 +149,7 @@ bool AppXHelper::AppXReader::Initialize(HWND hWnd) noexcept {
 		return false;
 	}
 
-	if (hProc) {
+	if (!isSuspended) {
 		UINT length = 0;
 		if (::GetPackageFullName(hProc.get(), &length, nullptr) == APPMODEL_ERROR_NO_PACKAGE) {
 			return false;

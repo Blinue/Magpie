@@ -101,50 +101,71 @@ static SoftwareBitmap HIcon2SoftwareBitmapAsync(HICON hIcon) {
 	return bitmap;
 }
 
+static SIZE GetSizeOfIcon(HICON hIcon) {
+	ICONINFO ii{};
+	if (!GetIconInfo(hIcon, &ii)) {
+		Logger::Get().Win32Error("GetIconInfo 失败");
+		return {};
+	}
+
+	Utils::ScopeExit se([&] {
+		if (ii.hbmColor) {
+			DeleteBitmap(ii.hbmColor);
+		}
+		if (ii.hbmMask) {
+			DeleteBitmap(ii.hbmMask);
+		}
+	});
+
+	if (!ii.fIcon) {
+		return {};
+	}
+
+	BITMAP bmp{};
+	GetObject(ii.hbmColor, sizeof(BITMAP), &bmp);
+	return { bmp.bmWidth, bmp.bmHeight };
+}
+
 static HICON GetHIconOfWnd(HWND hWnd, SIZE preferredSize) {
 	HICON result = NULL;
 
-	if (GetSystemMetricsForDpi(SM_CXSMICON, GetDpiForWindow(hWnd)) >= preferredSize.cx) {
-		// 小图标尺寸足够
-		result = (HICON)SendMessage(hWnd, WM_GETICON, ICON_SMALL, 0);
-		if (result) {
-			return result;
-		}
+	HICON candidateSmallIcon = NULL;
 
-		result = (HICON)SendMessage(hWnd, WM_GETICON, ICON_BIG, 0);
-		if (result) {
+	result = (HICON)SendMessage(hWnd, WM_GETICON, ICON_SMALL, 0);
+	if (result) {
+		if (GetSizeOfIcon(result).cx >= preferredSize.cx) {
+			// 小图标尺寸足够
 			return result;
+		} else {
+			// 否则继续检索大图标
+			candidateSmallIcon = result;
 		}
+	}
 
+	result = (HICON)SendMessage(hWnd, WM_GETICON, ICON_BIG, 0);
+	if (result) {
+		return result;
+	}
+
+	if (!candidateSmallIcon) {
 		result = (HICON)GetClassLongPtr(hWnd, GCLP_HICONSM);
 		if (result) {
-			return result;
+			if (GetSizeOfIcon(result).cx >= preferredSize.cx) {
+				return result;
+			} else {
+				candidateSmallIcon = result;
+			}
 		}
+	}
 
-		result = (HICON)GetClassLongPtr(hWnd, GCLP_HICON);
-		if (result) {
-			return result;
-		}
-	} else {
-		result = (HICON)SendMessage(hWnd, WM_GETICON, ICON_BIG, 0);
-		if (result) {
-			return result;
-		}
+	result = (HICON)GetClassLongPtr(hWnd, GCLP_HICON);
+	if (result) {
+		return result;
+	}
 
-		result = (HICON)SendMessage(hWnd, WM_GETICON, ICON_SMALL, 0);
-		if (result) {
-			return result;
-		}
-
-		result = (HICON)GetClassLongPtr(hWnd, GCLP_HICON);
-		if (result) {
-			return result;
-		}
-
-		result = (HICON)GetClassLongPtr(hWnd, GCLP_HICONSM);
-		if (result) {
-			return result;
-		}
+	if (candidateSmallIcon) {
+		// 不存在大图标则回落到小图标
+		return candidateSmallIcon;
 	}
 
 	// 此窗口无图标则回落到所有者窗口
