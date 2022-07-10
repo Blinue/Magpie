@@ -15,6 +15,8 @@
 
 using namespace winrt;
 using namespace Windows::UI::Xaml::Controls;
+using namespace Windows::UI::Xaml::Media::Imaging;
+using namespace Windows::Graphics::Imaging;
 
 
 namespace winrt::Magpie::App::implementation {
@@ -74,22 +76,6 @@ static std::vector<HWND> GetDesktopWindows() {
 	return windows;
 }
 
-static IAsyncOperation<IInspectable> ResolveWindowIconAsync(HWND hWnd, bool preferLargeIcon) {
-	if (ImageSource imageSource = co_await IconHelper::GetIconOfWndAsync(hWnd, preferLargeIcon)) {
-		MUXC::ImageIcon icon;
-		icon.Width(16);
-		icon.Height(16);
-		icon.Source(imageSource);
-		co_return icon;
-	}
-
-	// 回落到通用图标
-	FontIcon icon;
-	icon.Glyph(L"\uE737");
-	icon.FontSize(16);
-	co_return icon;
-}
-
 static hstring GetProcessDesc(HWND hWnd) {
 	// 移植自 https://github.com/dotnet/runtime/blob/4a63cb28b69e1c48bccf592150be7ba297b67950/src/libraries/System.Diagnostics.FileVersionInfo/src/System/Diagnostics/FileVersionInfo.Windows.cs
 	std::wstring fileName = Win32Utils::GetPathOfWnd(hWnd);
@@ -130,7 +116,7 @@ NewProfileDialog::NewProfileDialog() {
 
 	std::vector<Magpie::App::CandidateWindow> candidateWindows;
 
-	bool preferLargeIcon = GetDpiForSystem() > 96;
+	UINT dpi = GetDpiForWindow((HWND)Application::Current().as<App>().HwndHost());
 
 	for (HWND hWnd : GetDesktopWindows()) {
 		std::wstring title = Win32Utils::GetWndTitle(hWnd);
@@ -138,7 +124,7 @@ NewProfileDialog::NewProfileDialog() {
 			continue;
 		}
 
-		candidateWindows.emplace_back(Magpie::App::CandidateWindow((uint64_t)hWnd, preferLargeIcon));
+		candidateWindows.emplace_back(Magpie::App::CandidateWindow((uint64_t)hWnd, dpi));
 	}
 
 	_candidateWindows = single_threaded_observable_vector(std::move(candidateWindows));
@@ -170,7 +156,7 @@ void NewProfileDialog::RootScrollViewer_SizeChanged(IInspectable const&, IInspec
 	}
 }
 
-CandidateWindow::CandidateWindow(uint64_t hWnd, bool preferLargeIcon) {
+CandidateWindow::CandidateWindow(uint64_t hWnd, uint32_t dpi) {
 	_hWnd = hWnd;
 
 	_title = Win32Utils::GetWndTitle((HWND)hWnd);
@@ -181,41 +167,69 @@ CandidateWindow::CandidateWindow(uint64_t hWnd, bool preferLargeIcon) {
 	placeholder.Height(16);
 	_icon = std::move(placeholder);
 
-	([](weak_ref<CandidateWindow> weakThis, bool preferLargeIcon) -> fire_and_forget {
+	([](weak_ref<CandidateWindow> weakThis, uint32_t dpi) -> fire_and_forget {
 		HWND hWnd = (HWND)weakThis.get()->HWnd();
 
 		apartment_context uiThread;
 		co_await resume_background();
 
 		std::wstring defaultProfileName;
+		ImageSource bitmapSource{ nullptr };
+		SoftwareBitmap iconBitmap{ nullptr };
 
 		AppXHelper::AppXReader reader;
-		if (reader.Initialize(hWnd)) {
+		const bool isPackaged = reader.Initialize(hWnd);
+		if (isPackaged) {
 			// 打包应用
 			defaultProfileName = reader.GetDisplayName();
+			bitmapSource = reader.GetIcon({16,16});
 		} else {
 			// Win32 窗口
 			defaultProfileName = GetProcessDesc(hWnd);
+			iconBitmap = co_await IconHelper::GetIconOfWndAsync(hWnd, dpi);
 		}
 
 		co_await uiThread;
-		if (!defaultProfileName.empty()) {
-			auto strongThis = weakThis.get();
-			if (!strongThis) {
-				co_return;
-			}
-
-			strongThis->_defaultProfileName = defaultProfileName;
-		}
-
-		IInspectable icon = co_await ResolveWindowIconAsync(hWnd, preferLargeIcon);
 
 		auto strongThis = weakThis.get();
 		if (!strongThis) {
 			co_return;
 		}
+
+		if (!defaultProfileName.empty()) {
+			strongThis->_defaultProfileName = defaultProfileName;
+		}
+
+		IInspectable icon{ nullptr };
+		if (bitmapSource) {
+			MUXC::ImageIcon imageIcon;
+			imageIcon.Width(16);
+			imageIcon.Height(16);
+			imageIcon.Source(bitmapSource);
+
+			icon = std::move(imageIcon);
+		} else if (iconBitmap) {
+			// 必须在主线程构造
+			SoftwareBitmapSource imageSource;
+			co_await imageSource.SetBitmapAsync(iconBitmap);
+
+			MUXC::ImageIcon imageIcon;
+			imageIcon.Width(16);
+			imageIcon.Height(16);
+			imageIcon.Source(imageSource);
+
+			icon = std::move(imageIcon);
+		} else {
+			// 回落到通用图标
+			FontIcon fontIcon;
+			fontIcon.Glyph(L"\uE737");
+			fontIcon.FontSize(16);
+
+			icon = std::move(fontIcon);
+		}
+
 		strongThis->_Icon(icon);
-	})(get_weak(), preferLargeIcon);
+	})(get_weak(), dpi);
 }
 
 }

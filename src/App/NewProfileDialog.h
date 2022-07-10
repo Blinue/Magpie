@@ -7,7 +7,7 @@
 namespace winrt::Magpie::App::implementation {
 
 struct CandidateWindow : CandidateWindowT<CandidateWindow> {
-	CandidateWindow(uint64_t hWnd, bool preferLargeIcon);
+	CandidateWindow(uint64_t hWnd, uint32_t dpi);
 
 	event_token PropertyChanged(PropertyChangedEventHandler const& handler) {
 		return _propertyChangedEvent.add(handler);

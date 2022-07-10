@@ -101,46 +101,48 @@ static SoftwareBitmap HIcon2SoftwareBitmapAsync(HICON hIcon) {
 	return bitmap;
 }
 
-static HICON GetHIconOfWnd(HWND hWnd, bool preferLargeIcon) {
+static HICON GetHIconOfWnd(HWND hWnd, uint32_t dpi) {
 	HICON result = NULL;
 
-	if (preferLargeIcon) {
-		result = (HICON)SendMessage(hWnd, WM_GETICON, ICON_BIG, 0);
-		if (result) {
-			return result;
-		}
-
+	if (GetDpiForWindow(hWnd) == dpi) {
+		// hWnd 是 DPI 感知的，优先获取小图标
 		result = (HICON)SendMessage(hWnd, WM_GETICON, ICON_SMALL, 0);
 		if (result) {
 			return result;
 		}
 
-		result = (HICON)GetClassLongPtr(hWnd, GCLP_HICON);
+		result = (HICON)SendMessage(hWnd, WM_GETICON, ICON_BIG, 0);
 		if (result) {
 			return result;
 		}
 
 		result = (HICON)GetClassLongPtr(hWnd, GCLP_HICONSM);
+		if (result) {
+			return result;
+		}
+
+		result = (HICON)GetClassLongPtr(hWnd, GCLP_HICON);
 		if (result) {
 			return result;
 		}
 	} else {
-		result = (HICON)SendMessage(hWnd, WM_GETICON, ICON_SMALL, 0);
-		if (result) {
-			return result;
-		}
-
+		// hWnd 非 DPI 感知，优先获取大图标
 		result = (HICON)SendMessage(hWnd, WM_GETICON, ICON_BIG, 0);
 		if (result) {
 			return result;
 		}
 
-		result = (HICON)GetClassLongPtr(hWnd, GCLP_HICONSM);
+		result = (HICON)SendMessage(hWnd, WM_GETICON, ICON_SMALL, 0);
 		if (result) {
 			return result;
 		}
 
 		result = (HICON)GetClassLongPtr(hWnd, GCLP_HICON);
+		if (result) {
+			return result;
+		}
+
+		result = (HICON)GetClassLongPtr(hWnd, GCLP_HICONSM);
 		if (result) {
 			return result;
 		}
@@ -152,28 +154,37 @@ static HICON GetHIconOfWnd(HWND hWnd, bool preferLargeIcon) {
 		return NULL;
 	}
 
-	return GetHIconOfWnd(hwndOwner, preferLargeIcon);
+	return GetHIconOfWnd(hwndOwner, dpi);
 }
 
-static SoftwareBitmap GetSoftwarBitmap(HWND hWnd, bool preferLargeIcon) {
-	if (HICON hIcon = GetHIconOfWnd(hWnd, preferLargeIcon)) {
-		return HIcon2SoftwareBitmapAsync(hIcon);
+IAsyncOperation<SoftwareBitmap> IconHelper::GetIconOfWndAsync(HWND hWnd, uint32_t dpi) {
+	if (HICON hIcon = GetHIconOfWnd(hWnd, dpi)) {
+		co_return HIcon2SoftwareBitmapAsync(hIcon);
 	}
 
 	com_ptr<IShellItemImageFactory> factory;
 	HRESULT hr = SHCreateItemFromParsingName(Win32Utils::GetPathOfWnd(hWnd).c_str(), nullptr, IID_PPV_ARGS(&factory));
 	if (FAILED(hr)) {
-		return nullptr;
+		co_return nullptr;
 	}
 
 	HBITMAP hBmp;
 	SIZE iconSize = {
-		GetSystemMetrics(preferLargeIcon ? SM_CXICON : SM_CXSMICON),
-		GetSystemMetrics(preferLargeIcon ? SM_CYICON : SM_CYSMICON)
+		GetSystemMetricsForDpi(SM_CXSMICON, dpi),
+		GetSystemMetricsForDpi(SM_CYSMICON, dpi)
 	};
-	hr = factory->GetImage(iconSize, SIIGBF_BIGGERSIZEOK | SIIGBF_ICONONLY, &hBmp);
-	if (FAILED(hr)) {
-		return nullptr;
+
+	while (true) {
+		hr = factory->GetImage(iconSize, SIIGBF_BIGGERSIZEOK | SIIGBF_ICONONLY, &hBmp);
+
+		if (hr == E_PENDING) {
+			Sleep(0);
+			continue;
+		} else if (FAILED(hr)) {
+			co_return nullptr;
+		} else {
+			break;
+		}
 	}
 
 	Utils::ScopeExit se([hBmp] {
@@ -189,25 +200,10 @@ static SoftwareBitmap GetSoftwarBitmap(HWND hWnd, bool preferLargeIcon) {
 		uint8_t* pixels = buffer.CreateReference().data();
 
 		if (!CopyPixelsOfHBmp(hBmp, bmp.bmWidth, bmp.bmHeight, pixels)) {
-			return nullptr;
+			co_return nullptr;
 		}
 	}
-	return bitmap;
-}
-
-IAsyncOperation<ImageSource> IconHelper::GetIconOfWndAsync(HWND hWnd, bool preferLargeIcon) {
-	apartment_context uiThread;
-	co_await resume_background();
-
-	SoftwareBitmap bmp = GetSoftwarBitmap(hWnd, preferLargeIcon);
-	if (!bmp) {
-		co_return nullptr;
-	}
-
-	co_await uiThread;
-	SoftwareBitmapSource result;
-	co_await result.SetBitmapAsync(bmp);
-	co_return result;
+	co_return bitmap;
 }
 
 }

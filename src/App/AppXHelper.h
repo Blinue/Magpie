@@ -6,13 +6,13 @@
 namespace winrt::Magpie::App {
 
 struct AppXHelper {
-	static std::wstring GetPackageFullName(HWND hWnd);
-
 	class AppXReader {
 	public:
 		bool Initialize(HWND hWnd) noexcept;
 
 		std::wstring GetDisplayName() const noexcept;
+
+		ImageSource GetIcon(SIZE preferredSize) const noexcept;
 
 	private:
 		bool _ResolveApplication(const std::wstring& praid) noexcept;

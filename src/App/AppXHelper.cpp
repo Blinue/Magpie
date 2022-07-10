@@ -12,48 +12,6 @@
 
 namespace winrt::Magpie::App {
 
-std::wstring AppXHelper::GetPackageFullName(HWND hWnd) {
-	if (Win32Utils::GetWndClassName(hWnd) == L"ApplicationFrameWindow") {
-		EnumChildWindows(
-			hWnd,
-			[](HWND hWnd, LPARAM lParam) {
-				if (Win32Utils::GetWndClassName(hWnd) != L"Windows.UI.Core.CoreWindow") {
-					return TRUE;
-				}
-
-				*(HWND*)lParam = hWnd;
-				return FALSE;
-			},
-			(LPARAM)&hWnd
-		);
-	}
-
-	DWORD dwProcId = 0;
-	if (!GetWindowThreadProcessId(hWnd, &dwProcId)) {
-		Logger::Get().Win32Error("GetWindowThreadProcessId 失败");
-		return {};
-	}
-
-	Win32Utils::ScopedHandle hProc(Win32Utils::SafeHandle(OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, dwProcId)));
-	if (!hProc) {
-		Logger::Get().Win32Error("OpenProcess 失败");
-		return {};
-	}
-
-	UINT32 length = 0;
-	if (::GetPackageFullName(hProc.get(), &length, nullptr) == APPMODEL_ERROR_NO_PACKAGE) {
-		// 不是打包应用
-		return {};
-	}
-
-	std::wstring result(length - 1, 0);
-	if (::GetPackageFullName(hProc.get(), &length, result.data()) != ERROR_SUCCESS) {
-		return {};
-	}
-
-	return result;
-}
-
 // 移植自 https://github.com/microsoft/PowerToys/blob/c36a80dad571db26d6cf9e40e70099815ed56049/src/modules/launcher/Plugins/Microsoft.Plugin.Program/Programs/UWPApplication.cs#L299
 static std::wstring ResourceFromPri(std::wstring_view packageFullName, std::wstring_view resourceReference) {
 	std::wstring_view prefix = L"ms-resource:";
@@ -70,10 +28,7 @@ static std::wstring ResourceFromPri(std::wstring_view packageFullName, std::wstr
 	// magic comes from @talynone
 	// https://github.com/talynone/Wox.Plugin.WindowsUniversalAppLauncher/blob/master/StoreAppLauncher/Helpers/NativeApiHelper.cs#L139-L153
 	std::wstring_view key = resourceReference.substr(prefix.size());
-	std::wstring_view lowerCaseKey(
-		lowerCaseResourceReference.c_str() + prefix.size(),
-		lowerCaseResourceReference.size() - prefix.size()
-	);
+	
 	std::wstring parsed;
 	std::wstring parsedFallback;
 
@@ -82,13 +37,20 @@ static std::wstring ResourceFromPri(std::wstring_view packageFullName, std::wstr
 		parsed = StrUtils::ConcatW(prefix, key);
 	} else if (key.starts_with(L'/')) {
 		parsed = StrUtils::ConcatW(prefix, L"//", key);
-	} else if (lowerCaseKey.starts_with(L"resources")) {
-		parsed = StrUtils::ConcatW(prefix, key);
 	} else {
-		parsed = StrUtils::ConcatW(prefix, L"///resources/", key);
+		std::wstring_view lowerCaseKey(
+			lowerCaseResourceReference.begin() + prefix.size(),
+			lowerCaseResourceReference.end()
+		);
 
-		// e.g. for Windows Terminal version >= 1.12 DisplayName and Description resources are not in the 'resources' subtree
-		parsedFallback = StrUtils::ConcatW(prefix, L"///", key);
+		if (lowerCaseKey.starts_with(L"resources")) {
+			parsed = StrUtils::ConcatW(prefix, key);
+		} else {
+			parsed = StrUtils::ConcatW(prefix, L"///resources/", key);
+
+			// e.g. for Windows Terminal version >= 1.12 DisplayName and Description resources are not in the 'resources' subtree
+			parsedFallback = StrUtils::ConcatW(prefix, L"///", key);
+		}
 	}
 	
 	std::wstring source = fmt::format(L"@{{{}? {}}}", packageFullName, parsed);
@@ -181,6 +143,10 @@ std::wstring AppXHelper::AppXReader::GetDisplayName() const noexcept {
 	std::wstring result = ResourceFromPri(_packageFullName, value);
 	CoTaskMemFree(value);
 	return result;
+}
+
+ImageSource AppXHelper::AppXReader::GetIcon(SIZE preferredSize) const noexcept {
+	return nullptr;
 }
 
 bool AppXHelper::AppXReader::_ResolveApplication(const std::wstring& praid) noexcept {

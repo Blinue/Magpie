@@ -3,7 +3,7 @@ namespace Magpie.App
     [Windows.UI.Xaml.Data.Bindable]
     runtimeclass CandidateWindow : [default] Windows.UI.Xaml.Data.INotifyPropertyChanged
     {
-        CandidateWindow(UInt64 hWnd, Boolean preferLargeIcon);
+        CandidateWindow(UInt64 hWnd, UInt32 dpi);
 
         UInt64 HWnd { get; };
         String Title { get; };
