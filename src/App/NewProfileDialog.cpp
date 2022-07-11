@@ -17,6 +17,7 @@ using namespace winrt;
 using namespace Windows::UI::Xaml::Controls;
 using namespace Windows::UI::Xaml::Media::Imaging;
 using namespace Windows::Graphics::Imaging;
+using namespace Windows::Graphics::Display;
 
 
 namespace winrt::Magpie::App::implementation {
@@ -121,8 +122,7 @@ NewProfileDialog::NewProfileDialog() {
 
 	std::vector<Magpie::App::CandidateWindow> candidateWindows;
 
-	UINT dpi = GetDpiForWindow((HWND)Application::Current().as<App>().HwndHost());
-
+	const UINT dpi = (UINT)std::lroundf(DisplayInformation::GetForCurrentView().LogicalDpi());
 	for (HWND hWnd : GetDesktopWindows()) {
 		std::wstring title = Win32Utils::GetWndTitle(hWnd);
 		if (title.empty()) {

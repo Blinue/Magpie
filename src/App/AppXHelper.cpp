@@ -60,7 +60,16 @@ static std::wstring ResourceFromPri(std::wstring_view packageFullName, std::wstr
 	std::wstring result(128, 0);
 	HRESULT hr = SHLoadIndirectString(source.c_str(), result.data(), (UINT)result.size() + 1, nullptr);
 	if (FAILED(hr)) {
-		return {};
+		if (parsedFallback.empty()) {
+			return {};
+		}
+
+		source = fmt::format(L"@{{{}? {}}}", packageFullName, parsedFallback);
+		hr = SHLoadIndirectString(source.c_str(), result.data(), (UINT)result.size() + 1, nullptr);
+		if (FAILED(hr)) {
+			Logger::Get().ComError("SHLoadIndirectString 失败", hr);
+			return {};
+		}
 	}
 
 	result.resize(StrUtils::StrLen(result.c_str()));
