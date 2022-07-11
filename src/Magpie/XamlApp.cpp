@@ -138,6 +138,8 @@ bool XamlApp::Initialize(HINSTANCE hInstance) {
 	_uwpApp.OnHostWndFocusChanged(true);
 
 	_mainPage = winrt::Magpie::App::MainPage();
+	_uwpApp.MainPage(_mainPage);
+
 	_mainPage.ActualThemeChanged([this](winrt::FrameworkElement const&, winrt::IInspectable const&) {
 		_UpdateTheme();
 	});

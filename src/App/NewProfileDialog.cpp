@@ -123,13 +123,14 @@ NewProfileDialog::NewProfileDialog() {
 	std::vector<Magpie::App::CandidateWindow> candidateWindows;
 
 	const UINT dpi = (UINT)std::lroundf(DisplayInformation::GetForCurrentView().LogicalDpi());
+	const bool isLightTheme = Application::Current().as<App>().MainPage().ActualTheme() == ElementTheme::Light;
 	for (HWND hWnd : GetDesktopWindows()) {
 		std::wstring title = Win32Utils::GetWndTitle(hWnd);
 		if (title.empty()) {
 			continue;
 		}
 
-		candidateWindows.emplace_back(Magpie::App::CandidateWindow((uint64_t)hWnd, dpi, Dispatcher()));
+		candidateWindows.emplace_back(Magpie::App::CandidateWindow((uint64_t)hWnd, dpi, isLightTheme, Dispatcher()));
 	}
 
 	_candidateWindows = single_threaded_observable_vector(std::move(candidateWindows));
@@ -161,9 +162,9 @@ void NewProfileDialog::RootScrollViewer_SizeChanged(IInspectable const&, IInspec
 	}
 }
 
-fire_and_forget CandidateWindow::_ResolveWindow(weak_ref<CandidateWindow> weakThis, uint32_t dpi, CoreDispatcher dispatcher) {
+fire_and_forget CandidateWindow::_ResolveWindow(weak_ref<CandidateWindow> weakThis, uint32_t dpi, bool isLightTheme, CoreDispatcher dispatcher) {
 	HWND hWnd = (HWND)weakThis.get()->HWnd();
-
+	
 	// 解析名称和图标非常耗时，转到后台进行
 	co_await resume_background();
 
@@ -188,11 +189,11 @@ fire_and_forget CandidateWindow::_ResolveWindow(weak_ref<CandidateWindow> weakTh
 
 	std::wstring iconPath;
 	SoftwareBitmap iconBitmap{ nullptr };
-	LONG iconSize = (LONG)std::ceil(dpi * 16 / 96.0);
+	uint32_t iconSize = (uint32_t)std::ceil(dpi * 16 / 96.0);
 	if (isPackaged) {
-		iconPath = reader.GetIconPath({ iconSize, iconSize });
+		iconPath = reader.GetIconPath(iconSize, isLightTheme);
 	} else {
-		iconBitmap = co_await IconHelper::GetIconOfWndAsync(hWnd, { iconSize, iconSize });
+		iconBitmap = co_await IconHelper::GetIconOfWndAsync(hWnd, iconSize);
 	}
 
 	// 切换到主线程
@@ -233,7 +234,7 @@ fire_and_forget CandidateWindow::_ResolveWindow(weak_ref<CandidateWindow> weakTh
 	}
 }
 
-CandidateWindow::CandidateWindow(uint64_t hWnd, uint32_t dpi, CoreDispatcher const& dispatcher) {
+CandidateWindow::CandidateWindow(uint64_t hWnd, uint32_t dpi, bool isLightTheme, CoreDispatcher const& dispatcher) {
 	_hWnd = hWnd;
 
 	_title = Win32Utils::GetWndTitle((HWND)hWnd);
@@ -244,7 +245,7 @@ CandidateWindow::CandidateWindow(uint64_t hWnd, uint32_t dpi, CoreDispatcher con
 	placeholder.Height(16);
 	_icon = std::move(placeholder);
 
-	_ResolveWindow(get_weak(), dpi, dispatcher);
+	_ResolveWindow(get_weak(), dpi, isLightTheme, dispatcher);
 }
 
 }

@@ -19,6 +19,14 @@ public:
 		return _hwndHost;
 	}
 
+	Magpie::App::MainPage MainPage() const noexcept {
+		return _mainPage;
+	}
+
+	void MainPage(Magpie::App::MainPage const& mainPage) noexcept {
+		_mainPage = mainPage;
+	}
+
 	event_token HostWndFocusChanged(EventHandler<bool> const& handler) {
 		return _hostWndFocusChangedEvent.add(handler);
 	}
@@ -37,6 +45,8 @@ public:
 
 private:
 	uint64_t _hwndHost{};
+
+	Magpie::App::MainPage _mainPage{ nullptr };
 
 	event<EventHandler<bool>> _hostWndFocusChangedEvent;
 	bool _isHostWndFocused = false;

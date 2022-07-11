@@ -126,14 +126,14 @@ static SIZE GetSizeOfIcon(HICON hIcon) {
 	return { bmp.bmWidth, bmp.bmHeight };
 }
 
-static HICON GetHIconOfWnd(HWND hWnd, SIZE preferredSize) {
+static HICON GetHIconOfWnd(HWND hWnd, LONG preferredSize) {
 	HICON result = NULL;
 
 	HICON candidateSmallIcon = NULL;
 
 	result = (HICON)SendMessage(hWnd, WM_GETICON, ICON_SMALL, 0);
 	if (result) {
-		if (GetSizeOfIcon(result).cx >= preferredSize.cx) {
+		if (GetSizeOfIcon(result).cx >= preferredSize) {
 			// 小图标尺寸足够
 			return result;
 		} else {
@@ -150,7 +150,7 @@ static HICON GetHIconOfWnd(HWND hWnd, SIZE preferredSize) {
 	if (!candidateSmallIcon) {
 		result = (HICON)GetClassLongPtr(hWnd, GCLP_HICONSM);
 		if (result) {
-			if (GetSizeOfIcon(result).cx >= preferredSize.cx) {
+			if (GetSizeOfIcon(result).cx >= preferredSize) {
 				return result;
 			} else {
 				candidateSmallIcon = result;
@@ -177,8 +177,8 @@ static HICON GetHIconOfWnd(HWND hWnd, SIZE preferredSize) {
 	return GetHIconOfWnd(hwndOwner, preferredSize);
 }
 
-IAsyncOperation<SoftwareBitmap> IconHelper::GetIconOfWndAsync(HWND hWnd, SIZE preferredSize) {
-	if (HICON hIcon = GetHIconOfWnd(hWnd, preferredSize)) {
+IAsyncOperation<SoftwareBitmap> IconHelper::GetIconOfWndAsync(HWND hWnd, uint32_t preferredSize) {
+	if (HICON hIcon = GetHIconOfWnd(hWnd, (LONG)preferredSize)) {
 		co_return HIcon2SoftwareBitmapAsync(hIcon);
 	}
 
@@ -191,7 +191,7 @@ IAsyncOperation<SoftwareBitmap> IconHelper::GetIconOfWndAsync(HWND hWnd, SIZE pr
 	HBITMAP hBmp;
 
 	while (true) {
-		hr = factory->GetImage(preferredSize, SIIGBF_BIGGERSIZEOK | SIIGBF_ICONONLY, &hBmp);
+		hr = factory->GetImage({ (LONG)preferredSize, (LONG)preferredSize }, SIIGBF_BIGGERSIZEOK | SIIGBF_ICONONLY, &hBmp);
 
 		if (hr == E_PENDING) {
 			Sleep(0);
