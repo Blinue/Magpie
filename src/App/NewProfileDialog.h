@@ -7,7 +7,7 @@
 namespace winrt::Magpie::App::implementation {
 
 struct CandidateWindow : CandidateWindowT<CandidateWindow> {
-	CandidateWindow(uint64_t hWnd, uint32_t dpi);
+	CandidateWindow(uint64_t hWnd, uint32_t dpi, CoreDispatcher const& dispatcher);
 
 	event_token PropertyChanged(PropertyChangedEventHandler const& handler) {
 		return _propertyChangedEvent.add(handler);
@@ -38,6 +38,8 @@ private:
 		_icon = value;
 		_propertyChangedEvent(*this, PropertyChangedEventArgs(L"Icon"));
 	}
+
+	fire_and_forget _ResolveWindow(weak_ref<CandidateWindow> weakThis, uint32_t dpi, CoreDispatcher dispatcher);
 
 	event<PropertyChangedEventHandler> _propertyChangedEvent;
 

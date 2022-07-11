@@ -18,6 +18,7 @@ struct AppXHelper {
 		bool _ResolveApplication(const std::wstring& praid) noexcept;
 
 		std::wstring _packageFullName;
+		std::wstring _packagePath;
 		com_ptr<IAppxManifestApplication> _appxApp;
 	};
 };

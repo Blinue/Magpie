@@ -94,8 +94,10 @@ bool AppXHelper::AppXReader::Initialize(HWND hWnd) noexcept {
 			(LPARAM)&childHwnd
 		);
 
-		// UWP 应用被挂起时无法通过子窗口找到
+		
 		if (childHwnd == NULL) {
+			// 特殊情况下 UWP 应用无法通过子窗口找到
+			// 比如被最小化（挂起）或尚未完成初始化
 			isSuspended = true;
 		} else {
 			hWnd = childHwnd;
@@ -205,6 +207,28 @@ std::wstring AppXHelper::AppXReader::GetDisplayName() const noexcept {
 }
 
 ImageSource AppXHelper::AppXReader::GetIcon(SIZE preferredSize) const noexcept {
+	if (!_appxApp) {
+		return nullptr;
+	}
+
+	wchar_t* logoUriVal = nullptr;
+	if (FAILED(_appxApp->GetStringValue(L"Square44x44Logo", &logoUriVal)) || !logoUriVal) {
+		return nullptr;
+	}
+
+	Utils::ScopeExit se([logoUriVal]() {
+		CoTaskMemFree(logoUriVal);
+	});
+
+	std::wstring_view logoUri = logoUriVal;
+
+	std::wstring path;
+	if (logoUri.find(L'\\') != std::wstring_view::npos) {
+		path = _packagePath + logoUriVal;;
+	} else {
+		path = StrUtils::ConcatW(_packagePath, L"Assets\\", logoUri);;
+	}
+
 	return nullptr;
 }
 
@@ -215,12 +239,13 @@ bool AppXHelper::AppXReader::_ResolveApplication(const std::wstring& praid) noex
 		return false;
 	}
 
-	std::wstring path(pathLen - 1, 0);
-	if (GetPackagePathByFullName(_packageFullName.c_str(), &pathLen, path.data()) != ERROR_SUCCESS) {
+	_packagePath.resize((size_t)pathLen - 1);
+	if (GetPackagePathByFullName(_packageFullName.c_str(), &pathLen, _packagePath.data()) != ERROR_SUCCESS) {
 		return false;
 	}
-
-	path.append(L"\\AppXManifest.xml");
+	if (_packagePath.back() != L'\\') {
+		_packagePath.push_back(L'\\');
+	}
 
 	com_ptr<IAppxFactory> factory;
 
@@ -236,7 +261,7 @@ bool AppXHelper::AppXReader::_ResolveApplication(const std::wstring& praid) noex
 
 	com_ptr<IStream> inputStream;
 	hr = SHCreateStreamOnFileEx(
-		path.c_str(),
+		(_packagePath + L"AppXManifest.xml").c_str(),
 		STGM_READ | STGM_SHARE_DENY_WRITE,
 		0,
 		FALSE,
