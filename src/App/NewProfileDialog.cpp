@@ -186,12 +186,12 @@ fire_and_forget CandidateWindow::_ResolveWindow(weak_ref<CandidateWindow> weakTh
 		}
 	}
 
-	ImageSource bitmapSource{ nullptr };
+	std::wstring iconPath;
 	SoftwareBitmap iconBitmap{ nullptr };
+	LONG iconSize = (LONG)std::ceil(dpi * 16 / 96.0);
 	if (isPackaged) {
-		bitmapSource = reader.GetIcon({ 16,16 });
+		iconPath = reader.GetIconPath({ iconSize, iconSize });
 	} else {
-		LONG iconSize = (LONG)std::ceil(dpi * 16 / 96.0);
 		iconBitmap = co_await IconHelper::GetIconOfWndAsync(hWnd, { iconSize, iconSize });
 	}
 
@@ -199,11 +199,14 @@ fire_and_forget CandidateWindow::_ResolveWindow(weak_ref<CandidateWindow> weakTh
 	co_await dispatcher;
 
 	IInspectable icon{ nullptr };
-	if (bitmapSource) {
+	if (!iconPath.empty()) {
+		BitmapImage image;
+		image.UriSource(Uri(iconPath));
+
 		MUXC::ImageIcon imageIcon;
 		imageIcon.Width(16);
 		imageIcon.Height(16);
-		imageIcon.Source(bitmapSource);
+		imageIcon.Source(image);
 
 		icon = std::move(imageIcon);
 	} else if (iconBitmap) {

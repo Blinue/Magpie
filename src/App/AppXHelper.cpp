@@ -11,6 +11,9 @@
 
 #pragma comment(lib, "Shlwapi.lib")
 
+using namespace winrt;
+using namespace Windows::UI::Xaml::Media::Imaging;
+
 
 namespace winrt::Magpie::App {
 
@@ -206,14 +209,14 @@ std::wstring AppXHelper::AppXReader::GetDisplayName() const noexcept {
 	return result;
 }
 
-ImageSource AppXHelper::AppXReader::GetIcon(SIZE preferredSize) const noexcept {
+std::wstring AppXHelper::AppXReader::GetIconPath(SIZE preferredSize) const noexcept {
 	if (!_appxApp) {
-		return nullptr;
+		return {};
 	}
 
 	wchar_t* logoUriVal = nullptr;
 	if (FAILED(_appxApp->GetStringValue(L"Square44x44Logo", &logoUriVal)) || !logoUriVal) {
-		return nullptr;
+		return {};
 	}
 
 	Utils::ScopeExit se([logoUriVal]() {
@@ -229,7 +232,55 @@ ImageSource AppXHelper::AppXReader::GetIcon(SIZE preferredSize) const noexcept {
 		path = StrUtils::ConcatW(_packagePath, L"Assets\\", logoUri);;
 	}
 
-	return nullptr;
+	size_t extensionPointPos = path.find_last_of(L'.');
+	if (extensionPointPos == std::wstring::npos) {
+		return {};
+	}
+	std::wstring_view prefix(path.begin(), path.begin() + extensionPointPos);
+	std::wstring_view extension(path.begin() + extensionPointPos, path.end());
+
+	struct CandidateIcon {
+		UINT width;
+		std::wstring_view coloredSuffix;
+	};
+	static constexpr const CandidateIcon candidateIcons[] = {
+		{ 16, L".targetsize-16" },
+		{ 24, L".targetsize-24" },
+		{ 30, L".targetsize-30" },
+		{ 36, L".targetsize-36" },
+		{ 44, L".scale-100" },
+		{ 44, L".targetsize-44" },
+		{ 55, L".scale-125" },
+		{ 60, L".targetsize-60" },
+		{ 66, L".scale-150" },
+		{ 72, L".targetsize-72" },
+		{ 88, L".scale-200" },
+		{ 96, L".targetsize-96" },
+		{ 128, L".targetsize-128" },
+		{ 176, L".scale-400" },
+		{ 180, L".targetsize-180" },
+		{ 256 , L".targetsize-256" }
+	};
+
+	const CandidateIcon* candiate = nullptr;
+
+	auto it = std::lower_bound(std::begin(candidateIcons), std::end(candidateIcons), preferredSize.cx, [](const CandidateIcon& l, LONG r) {
+		return l.width < r;
+	});
+	if (it == std::end(candidateIcons)) {
+		candiate = it - 1;
+	} else {
+		candiate = it;
+	}
+
+	for (; it != std::end(candidateIcons); ++it) {
+		std::wstring fileName = StrUtils::ConcatW(prefix, it->coloredSuffix, extension);
+		if (Win32Utils::FileExists(fileName.c_str())) {
+			return fileName;
+		}
+	}
+
+	return {};
 }
 
 bool AppXHelper::AppXReader::_ResolveApplication(const std::wstring& praid) noexcept {

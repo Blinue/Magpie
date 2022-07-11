@@ -12,7 +12,7 @@ struct AppXHelper {
 
 		std::wstring GetDisplayName() const noexcept;
 
-		ImageSource GetIcon(SIZE preferredSize) const noexcept;
+		std::wstring GetIconPath(SIZE preferredSize) const noexcept;
 
 	private:
 		bool _ResolveApplication(const std::wstring& praid) noexcept;
