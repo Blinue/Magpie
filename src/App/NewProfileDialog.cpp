@@ -209,8 +209,8 @@ fire_and_forget CandidateWindow::_ResolveWindow(weak_ref<CandidateWindow> weakTh
 		imageIcon.Source(image);
 
 		if (hasBackground) {
-			imageIcon.Width(14);
-			imageIcon.Height(14);
+			imageIcon.Width(12);
+			imageIcon.Height(12);
 
 			StackPanel container;
 			container.Background(Application::Current().Resources().Lookup(box_value(L"SystemControlHighlightAccentBrush")).as<SolidColorBrush>());

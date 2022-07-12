@@ -251,10 +251,14 @@ public:
 					_size = 24;
 				} else if (value == L"30") {
 					_size = 30;
+				} else if (value == L"32") {
+					_size = 32;
 				} else if (value == L"36") {
 					_size = 36;
 				} else if (value == L"44") {
 					_size = 44;
+				} else if (value == L"48") {
+					_size = 48;
 				} else if (value == L"60") {
 					_size = 60;
 				} else if (value == L"72") {
@@ -491,7 +495,7 @@ std::wstring AppXReader::GetIconPath(uint32_t preferredSize, bool isLightTheme, 
 	HANDLE hFind = Win32Utils::SafeHandle(FindFirstFileEx(StrUtils::ConcatW(prefix, L"*").c_str(),
 		FindExInfoBasic, &findData, FindExSearchNameMatch, nullptr, FIND_FIRST_EX_LARGE_FETCH));
 	if (hFind) {
-		while (FindNextFile(hFind, &findData)) {
+		do {
 			if (findData.cFileName != iconNameExt && !std::regex_match(findData.cFileName, regex)) {
 				continue;
 			}
@@ -500,9 +504,9 @@ std::wstring AppXReader::GetIconPath(uint32_t preferredSize, bool isLightTheme, 
 			if (!ci.IsValid()) {
 				continue;
 			}
-			
+
 			candidateIcons.emplace_back(std::move(ci));
-		}
+		} while (FindNextFile(hFind, &findData));
 
 		FindClose(hFind);
 	}
