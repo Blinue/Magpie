@@ -425,13 +425,17 @@ bool CheckNeedBackground(const std::wstring& iconPath, bool isLightTheme) {
 	UINT lumaCount = 0;
 	for (UINT i = 0, len = width * height; i < len; ++i) {
 		BYTE* pixel = &buf.get()[i * 4];
-		if (pixel[3] == 0) {
+
+		BYTE alpha = pixel[3];
+		if (alpha == 0) {
 			continue;
 		}
 
 		double luma = 0.299 * pixel[0] + 0.587 * pixel[1] + 0.114 * pixel[2];
-		double alpha = pixel[3] / 255.0;
-		luma = luma * alpha + 255 * (1 - alpha);
+		if (alpha != 255) {
+			double alphaNorm = alpha / 255.0;
+			luma = luma * alphaNorm + (isLightTheme ? 255 : 0) * (1 - alphaNorm);
+		}
 
 		lumaTotal += luma;
 		++lumaCount;
