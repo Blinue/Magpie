@@ -8,6 +8,7 @@
 #include <Shlwapi.h>
 #include <shellapi.h>
 #include <propkey.h>
+#include <regex>
 
 #pragma comment(lib, "Shlwapi.lib")
 
@@ -209,128 +210,233 @@ std::wstring AppXHelper::AppXReader::GetDisplayName() const noexcept {
 	return result;
 }
 
-static std::wstring GetIcon(std::wstring_view prefix, std::wstring_view suffix, std::wstring_view extension, bool isLightTheme) {
-	if (isLightTheme) {
-		std::wstring fileName = StrUtils::ConcatW(prefix, suffix,
-			L"_altform-lightunplated", extension);
-		if (Win32Utils::FileExists(fileName.c_str())) {
-			return fileName;
+class CandidateIcon {
+public:
+	CandidateIcon(const wchar_t* fileName) : _fileName(fileName) {
+		size_t firstPointPos = _fileName.find_first_of(L'.');
+		if (firstPointPos == std::wstring::npos) {
+			_isValid = false;
+			return;
+		}
+
+		size_t secondPointPos = _fileName.find_last_of(L'.');
+		if (secondPointPos == firstPointPos) {
+			_size = 44;
+			return;
+		} else if (secondPointPos == std::wstring::npos || secondPointPos <= firstPointPos + 1) {
+			_isValid = false;
+			return;
+		}
+
+		std::wstring_view suffix(_fileName.begin() + firstPointPos + 1, _fileName.begin() + secondPointPos);
+		assert(suffix.find(L'.') == std::wstring_view::npos);
+
+		for (std::wstring_view qualifier : StrUtils::Split(suffix, L'_')) {
+			size_t delimPos = qualifier.find_first_of(L'-');
+			if (delimPos == std::wstring_view::npos) {
+				_isValid = false;
+				return;
+			}
+			
+			std::wstring_view name(qualifier.begin(), qualifier.begin() + delimPos);
+			std::wstring_view value(qualifier.begin() + delimPos + 1, qualifier.end());
+
+			if (name == L"targetsize") {
+				_isTargetSize = true;
+
+				if (value == L"16") {
+					_size = 16;
+				} else if (value == L"24") {
+					_size = 24;
+				} else if (value == L"30") {
+					_size = 30;
+				} else if (value == L"36") {
+					_size = 36;
+				} else if (value == L"44") {
+					_size = 44;
+				} else if (value == L"60") {
+					_size = 60;
+				} else if (value == L"72") {
+					_size = 72;
+				} else if (value == L"96") {
+					_size = 96;
+				} else if (value == L"128") {
+					_size = 128;
+				} else if (value == L"180") {
+					_size = 180;
+				} else if (value == L"256") {
+					_size = 256;
+				} else {
+					_isValid = false;
+				}
+			} else if (name == L"scale") {
+				_isScale = true;
+
+				if (value == L"100") {
+					_size = 44;
+				} else if (value == L"125") {
+					_size = 55;
+				} else if (value == L"150") {
+					_size = 66; 
+				} else if (value == L"200") {
+					_size = 88;
+				} else if (value == L"400") {
+					_size = 176;
+				} else {
+					_isValid = false;
+				}
+			} else if (name == L"altform") {
+				if (value == L"lightunplated") {
+					_isLightTheme = true;
+				}
+			} else if (name == L"theme") {
+				if (value == L"light") {
+					_isLightTheme = true;
+				}
+			} else if (name == L"contrast") {
+				_isContrast = true;
+
+				if (value == L"white") {
+					_isLightTheme = true;
+				}
+			}
 		}
 	}
 
-	std::wstring fileName = StrUtils::ConcatW(prefix, suffix,
-		L"_altform-unplated", extension);
-	if (Win32Utils::FileExists(fileName.c_str())) {
-		return fileName;
+	const std::wstring& FileName() const noexcept {
+		return _fileName;
 	}
 
-	fileName = StrUtils::ConcatW(prefix, suffix, extension);
-	if (Win32Utils::FileExists(fileName.c_str())) {
-		return fileName;
+	bool IsValid() const noexcept {
+		return true;
 	}
 
-	return {};
-}
+	static bool Compare(const CandidateIcon& l, const CandidateIcon& r, uint32_t preferredSize, bool isLightTheme) {
+		if (l._isContrast != r._isContrast) {
+			return !l._isContrast;
+		}
+
+		if (l._isLightTheme != r._isLightTheme) {
+			return l._isLightTheme == isLightTheme;
+		}
+
+		if (l._size != r._size) {
+			if (l._size == preferredSize) {
+				return true;
+			}
+			if (r._size == preferredSize) {
+				return false;
+			}
+
+			if (l._size > preferredSize) {
+				if (r._size > preferredSize) {
+					return l._size < r._size;
+				} else {
+					return true;
+				}
+			} else {
+				if (r._size > preferredSize) {
+					return false;
+				} else {
+					return l._size > r._size;
+				}
+			}
+		}
+
+		if (l._isTargetSize != r._isTargetSize) {
+			return l._isTargetSize;
+		}
+
+		if (l._isScale != r._isScale) {
+			return l._isScale;
+		}
+
+		return false;
+	}
+
+private:
+	bool _isTargetSize = false;
+	bool _isScale = false;
+	bool _isContrast = false;
+	bool _isValid = true;
+	std::wstring _fileName;
+	uint32_t _size = 0;
+	bool _isLightTheme = false;
+};
 
 std::wstring AppXHelper::AppXReader::GetIconPath(uint32_t preferredSize, bool isLightTheme) const noexcept {
 	if (!_appxApp) {
 		return {};
 	}
 
-	wchar_t* logoUriVal = nullptr;
-	if (FAILED(_appxApp->GetStringValue(L"Square44x44Logo", &logoUriVal)) || !logoUriVal) {
-		return {};
-	}
+	std::wstring iconFileName;
+	{
+		wchar_t* logoUriVal = nullptr;
+		if (FAILED(_appxApp->GetStringValue(L"Square44x44Logo", &logoUriVal)) || !logoUriVal) {
+			return {};
+		}
 
-	Utils::ScopeExit se([logoUriVal]() {
+		std::wstring_view logoUri = logoUriVal;
+
+		if (logoUri.find(L'\\') != std::wstring_view::npos) {
+			iconFileName = _packagePath + logoUriVal;;
+		} else {
+			iconFileName = StrUtils::ConcatW(_packagePath, L"Assets\\", logoUri);;
+		}
+
 		CoTaskMemFree(logoUriVal);
-	});
-
-	std::wstring_view logoUri = logoUriVal;
-
-	std::wstring path;
-	if (logoUri.find(L'\\') != std::wstring_view::npos) {
-		path = _packagePath + logoUriVal;;
-	} else {
-		path = StrUtils::ConcatW(_packagePath, L"Assets\\", logoUri);;
 	}
 
-	size_t extensionPointPos = path.find_last_of(L'.');
-	if (extensionPointPos == std::wstring::npos) {
+	size_t delimPos = iconFileName.find_last_of(L'\\');
+	if (delimPos == std::wstring::npos) {
 		return {};
 	}
-	std::wstring_view prefix(path.begin(), path.begin() + extensionPointPos);
-	std::wstring_view extension(path.begin() + extensionPointPos, path.end());
-
-	struct CandidateIcon {
-		uint32_t size;
-		std::wstring_view suffix;
-	};
-
-	static constexpr const CandidateIcon TARGET_SIZES[] = {
-		{ 16, L".targetsize-16" },
-		{ 24, L".targetsize-24" },
-		{ 30, L".targetsize-30" },
-		{ 36, L".targetsize-36" },
-		{ 44, L".targetsize-44" },
-		{ 60, L".targetsize-60" },
-		{ 72, L".targetsize-72" },
-		{ 96, L".targetsize-96" },
-		{ 128, L".targetsize-128" },
-		{ 180, L".targetsize-180" },
-		{ 256 , L".targetsize-256" }
-	};
-
-	static constexpr const CandidateIcon SCALES[] = {
-		{ 44, L"" },
-		{ 44, L".scale-100" },
-		{ 55, L".scale-125" },
-		{ 66, L".scale-150" },
-		{ 88, L".scale-200" },
-		{ 176, L".scale-400" }
-	};
-
-	const CandidateIcon* candiate = nullptr;
-
-	auto it = std::lower_bound(
-		std::begin(TARGET_SIZES),
-		std::end(TARGET_SIZES),
-		preferredSize,
-		[](const CandidateIcon& l, uint32_t r) { return l.size < r; }
-	);
-	if (it == std::end(TARGET_SIZES)) {
-		candiate = it - 1;
-	} else {
-		candiate = it;
+	size_t extensionPointPos = iconFileName.find_last_of(L'.');
+	if (extensionPointPos == std::wstring::npos || extensionPointPos <= delimPos) {
+		return {};
 	}
+	
+	std::wstring_view prefix(iconFileName.begin(), iconFileName.begin() + extensionPointPos);
+	std::wstring_view extension(iconFileName.begin() + extensionPointPos, iconFileName.end());
 
-	for (; it != std::end(TARGET_SIZES); ++it) {
-		std::wstring fileName = GetIcon(prefix, it->suffix, extension, isLightTheme);
-		if (!fileName.empty()) {
-			return fileName;
+	std::wstring_view iconName(iconFileName.begin() + delimPos + 1, iconFileName.begin() + extensionPointPos);
+	std::wstring iconNameExt = StrUtils::ConcatW(iconName, extension);
+
+	std::wregex regex(fmt::format(L"^{}\\.[^\\.]+\\{}$", iconName, extension), std::wregex::optimize | std::wregex::nosubs);
+
+	std::vector<CandidateIcon> candidateIcons;
+
+	WIN32_FIND_DATA findData{};
+	HANDLE hFind = Win32Utils::SafeHandle(FindFirstFileEx(StrUtils::ConcatW(prefix, L"*").c_str(),
+		FindExInfoBasic, &findData, FindExSearchNameMatch, nullptr, FIND_FIRST_EX_LARGE_FETCH));
+	if (hFind) {
+		while (FindNextFile(hFind, &findData)) {
+			if (findData.cFileName != iconNameExt && !std::regex_match(findData.cFileName, regex)) {
+				continue;
+			}
+
+			CandidateIcon ci(findData.cFileName);
+			if (!ci.IsValid()) {
+				continue;
+			}
+			
+			candidateIcons.emplace_back(std::move(ci));
 		}
+
+		FindClose(hFind);
 	}
 
-	it = std::lower_bound(
-		std::begin(SCALES),
-		std::end(SCALES),
-		preferredSize,
-		[](const CandidateIcon& l, uint32_t r) { return l.size < r; }
-	);
-	if (it == std::end(SCALES)) {
-		candiate = it - 1;
-	} else {
-		candiate = it;
+	if (candidateIcons.empty()) {
+		return {};
 	}
 
-	for (; it != std::end(SCALES); ++it) {
-		std::wstring fileName = GetIcon(prefix, it->suffix, extension, isLightTheme);
-		if (!fileName.empty()) {
-			return fileName;
-		}
-	}
+	std::sort(candidateIcons.begin(), candidateIcons.end(),
+		[=](const CandidateIcon& l, const CandidateIcon& r) { return CandidateIcon::Compare(l, r, preferredSize, isLightTheme); });
 
-	return {};
+	auto it = std::min_element(candidateIcons.begin(), candidateIcons.end(),
+		[=](const CandidateIcon& l, const CandidateIcon& r) { return CandidateIcon::Compare(l, r, preferredSize, isLightTheme); });
+
+	return StrUtils::ConcatW(std::wstring_view(iconFileName.begin(), iconFileName.begin() + delimPos + 1), it->FileName());
 }
 
 bool AppXHelper::AppXReader::_ResolveApplication(const std::wstring& praid) noexcept {
