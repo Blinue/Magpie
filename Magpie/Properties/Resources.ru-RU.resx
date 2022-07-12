@@ -1,0 +1,418 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Msg_Error_Caption" xml:space="preserve">
+    <value>Ошибка</value>
+  </data>
+  <data name="Msg_Error_Failed_To_Capture" xml:space="preserve">
+    <value>Не удалось захватить, попробуйте изменить способ захвата.</value>
+  </data>
+  <data name="Msg_Error_Failed_To_Crop" xml:space="preserve">
+    <value>Это окно слишком маленькое для обрезки.</value>
+  </data>
+  <data name="Msg_Error_Generic" xml:space="preserve">
+    <value>Произошла ошибка, проверьте журналы для дополнительной информации.</value>
+  </data>
+  <data name="Msg_Error_Init" xml:space="preserve">
+    <value>Ошибка инициализации среды выполнения.</value>
+  </data>
+  <data name="Msg_Error_Invalid_Source_Window" xml:space="preserve">
+    <value>Неверное исходное окно</value>
+  </data>
+  <data name="Msg_Error_Run_As_Admin" xml:space="preserve">
+    <value>Ошибка получения прав администратора.</value>
+  </data>
+  <data name="Msg_Error_Src_Too_Large" xml:space="preserve">
+    <value>Это окно слишком велико для захвата.</value>
+  </data>
+  <data name="Msg_Error_Vsync_Off_Not_Supported" xml:space="preserve">
+    <value>Этот монитор не поддерживает выключение верт. синхронизации.</value>
+  </data>
+  <data name="UI_Main_Capture_Method" xml:space="preserve">
+    <value>Способ захвата</value>
+  </data>
+  <data name="UI_Main_Current_Window" xml:space="preserve">
+    <value>Текущее окно: </value>
+    <comment>@MutedRule(WhiteSpaceTail)</comment>
+  </data>
+  <data name="UI_Main_Forget_Current_Window" xml:space="preserve">
+    <value>Забыть</value>
+  </data>
+  <data name="UI_Main_Hotkey" xml:space="preserve">
+    <value>Клавиша</value>
+  </data>
+  <data name="UI_Main_Injection_Mode" xml:space="preserve">
+    <value>Режим внедрения</value>
+  </data>
+  <data name="UI_Main_Injection_Mode_Injection_At_Startup" xml:space="preserve">
+    <value>Внедрение при запуске</value>
+  </data>
+  <data name="UI_Main_Injection_Mode_No_Injection" xml:space="preserve">
+    <value>Без внедрения</value>
+  </data>
+  <data name="UI_Main_Injection_Mode_Runtime_Injection" xml:space="preserve">
+    <value>Внедрение во время выполнения</value>
+  </data>
+  <data name="UI_Main_Options" xml:space="preserve">
+    <value>Настройки</value>
+  </data>
+  <data name="UI_Main_Parse_Failure" xml:space="preserve">
+    <value>Ошибка разбора</value>
+  </data>
+  <data name="UI_Main_Scale_After_5S" xml:space="preserve">
+    <value>Увеличить после 5с</value>
+  </data>
+  <data name="UI_Main_Scaling_Mode" xml:space="preserve">
+    <value>Режим увеличения</value>
+  </data>
+  <data name="UI_Main_Title" xml:space="preserve">
+    <value>Magpie</value>
+  </data>
+  <data name="UI_Options_About" xml:space="preserve">
+    <value>О программе</value>
+  </data>
+  <data name="UI_Options_About_Feedback" xml:space="preserve">
+    <value>Для связи</value>
+  </data>
+  <data name="UI_Options_About_Licenses" xml:space="preserve">
+    <value>Лицензии</value>
+  </data>
+  <data name="UI_Options_About_Licenses_Close" xml:space="preserve">
+    <value>Закрыть</value>
+  </data>
+  <data name="UI_Options_About_Licenses_Header" xml:space="preserve">
+    <value>Лицензии используемые Magpie:</value>
+  </data>
+  <data name="UI_Options_About_Licenses_Title" xml:space="preserve">
+    <value>Лицензии Magpie</value>
+  </data>
+  <data name="UI_Options_About_Project_URL" xml:space="preserve">
+    <value>URL проекта</value>
+  </data>
+  <data name="UI_Options_About_Support" xml:space="preserve">
+    <value>Поддержка</value>
+  </data>
+  <data name="UI_Options_About_Thanks" xml:space="preserve">
+    <value>Благодарности</value>
+  </data>
+  <data name="UI_Options_About_Thanks_Contributors" xml:space="preserve">
+    <value>Всем оставившим отзыв и внёсшим вклад в Magpie</value>
+  </data>
+  <data name="UI_Options_About_Thanks_Shaders" xml:space="preserve">
+    <value>Всем шейдерным проектам используемых Magpie</value>
+  </data>
+  <data name="UI_Options_About_Version" xml:space="preserve">
+    <value>Версия</value>
+  </data>
+  <data name="UI_Options_Advanced" xml:space="preserve">
+    <value>Продвинутые</value>
+  </data>
+  <data name="UI_Options_Advanced_Breakpoint_Mode" xml:space="preserve">
+    <value>Режим точки останова</value>
+  </data>
+  <data name="UI_Options_Advanced_Debugging" xml:space="preserve">
+    <value>Отладка</value>
+  </data>
+  <data name="UI_Options_Advanced_Disable_DirectFlip" xml:space="preserve">
+    <value>Выключить DirectFlip</value>
+  </data>
+  <data name="UI_Options_Advanced_Disable_Effect_Cache" xml:space="preserve">
+    <value>Выключить кеш эффектов</value>
+  </data>
+  <data name="UI_Options_Advanced_Logging" xml:space="preserve">
+    <value>Журналирование</value>
+  </data>
+  <data name="UI_Options_Advanced_Logging_Level" xml:space="preserve">
+    <value>Уровень журналирования</value>
+  </data>
+  <data name="UI_Options_Advanced_Logging_Level_Error" xml:space="preserve">
+    <value>Ошибка</value>
+  </data>
+  <data name="UI_Options_Advanced_Logging_Level_Info" xml:space="preserve">
+    <value>Информация</value>
+  </data>
+  <data name="UI_Options_Advanced_Logging_Level_Off" xml:space="preserve">
+    <value>Выключено</value>
+  </data>
+  <data name="UI_Options_Advanced_Logging_Level_Warn" xml:space="preserve">
+    <value>Предупреждение</value>
+  </data>
+  <data name="UI_Options_Advanced_Open_Logs_Folder" xml:space="preserve">
+    <value>Открыть папку журналов</value>
+  </data>
+  <data name="UI_Options_Advanced_Save_Effect_Sources" xml:space="preserve">
+    <value>Сохранить исходники при разборе эффектов</value>
+  </data>
+  <data name="UI_Options_Advanced_Show_All_Capture_Methods" xml:space="preserve">
+    <value>Показать все способы захвата</value>
+  </data>
+  <data name="UI_Options_Advanced_Show_Debugging_Options" xml:space="preserve">
+    <value>Показать отладочные настройки</value>
+  </data>
+  <data name="UI_Options_Advanced_Simulate_Exclusive_Fullscreen" xml:space="preserve">
+    <value>Симулировать эксклюзивный полный экран</value>
+  </data>
+  <data name="UI_Options_Advanced_Warnings_Are_Errors" xml:space="preserve">
+    <value>Предупреждения как ошибки при компиляции шейдеров</value>
+  </data>
+  <data name="UI_Options_Application" xml:space="preserve">
+    <value>Приложение</value>
+  </data>
+  <data name="UI_Options_Application_3D_Mode" xml:space="preserve">
+    <value>Режим 3D игры</value>
+  </data>
+  <data name="UI_Options_Application_Always_Run_As_Admin" xml:space="preserve">
+    <value>Всегда запускать от имени администратора</value>
+  </data>
+  <data name="UI_Options_Application_Crop_Title_Bar_Of_UWP" xml:space="preserve">
+    <value>Обрезка заголовка окна UWP</value>
+  </data>
+  <data name="UI_Options_Application_Custom_Cropping_Bottom" xml:space="preserve">
+    <value>Низ</value>
+  </data>
+  <data name="UI_Options_Application_Custom_Cropping_Left" xml:space="preserve">
+    <value>Лево</value>
+  </data>
+  <data name="UI_Options_Application_Custom_Cropping_Right" xml:space="preserve">
+    <value>Право</value>
+  </data>
+  <data name="UI_Options_Application_Custom_Cropping_Top" xml:space="preserve">
+    <value>Верх</value>
+  </data>
+  <data name="UI_Options_Application_Custom_Cropping_Unit" xml:space="preserve">
+    <value>Единица: пиксель</value>
+  </data>
+  <data name="UI_Options_Application_Enable_Custom_Cropping" xml:space="preserve">
+    <value>Включить пользовательскую обрезку</value>
+  </data>
+  <data name="UI_Options_Application_Language" xml:space="preserve">
+    <value>Язык (Language)</value>
+  </data>
+  <data name="UI_Options_Application_Language_Default" xml:space="preserve">
+    <value>По умолчанию</value>
+  </data>
+  <data name="UI_Options_Application_Minimize_To_System_Tray" xml:space="preserve">
+    <value>Свернуть в системный лоток при запуске</value>
+  </data>
+  <data name="UI_Options_Application_Minimize_When_Close" xml:space="preserve">
+    <value>Свернуть в системный лоток при закрытии окна</value>
+  </data>
+  <data name="UI_Options_Application_Run_At_Startup" xml:space="preserve">
+    <value>Запускаться при загрузке ОС</value>
+  </data>
+  <data name="UI_Options_Common_Restart_To_Apply" xml:space="preserve">
+    <value>Это изменение будет применено после перезапуска Magpie.</value>
+  </data>
+  <data name="UI_Options_Scale_Adapter" xml:space="preserve">
+    <value>Графический адаптер</value>
+  </data>
+  <data name="UI_Options_Scale_Adapter_Default" xml:space="preserve">
+    <value>По умолчанию</value>
+  </data>
+  <data name="UI_Options_Scale_Adjust_Cursor_Speed" xml:space="preserve">
+    <value>Подтянуть скорость указателя при увеличении</value>
+  </data>
+  <data name="UI_Options_Scale_Cursor" xml:space="preserve">
+    <value>Указатель</value>
+  </data>
+  <data name="UI_Options_Scale_Cursor_Do_Not_Draw" xml:space="preserve">
+    <value>Не рисовать указатель</value>
+  </data>
+  <data name="UI_Options_Scale_Cursor_Interpolation_Mode" xml:space="preserve">
+    <value>Режим интерполяции</value>
+  </data>
+  <data name="UI_Options_Scale_Cursor_Interpolation_Mode_Bilinear" xml:space="preserve">
+    <value>Билинейная</value>
+  </data>
+  <data name="UI_Options_Scale_Cursor_Interpolation_Mode_Nearest" xml:space="preserve">
+    <value>Ближайшая (nearest)</value>
+  </data>
+  <data name="UI_Options_Scale_Cursor_Same_As_Source_Window" xml:space="preserve">
+    <value>Как у исходного окна</value>
+  </data>
+  <data name="UI_Options_Scale_Cursor_Zoom_Factor" xml:space="preserve">
+    <value>Множитель увеличения указателя</value>
+  </data>
+  <data name="UI_Options_Scale_Disable_Low_Latency" xml:space="preserve">
+    <value>Добавить задержку для повышения производительности</value>
+  </data>
+  <data name="UI_Options_Scale_Disable_Round_Corner" xml:space="preserve">
+    <value>Выключить закругленные углы при увеличении</value>
+  </data>
+  <data name="UI_Options_Scale_Disable_Window_Resizing" xml:space="preserve">
+    <value>Не изменять размер окна при увеличении</value>
+  </data>
+  <data name="UI_Options_Scale_Multiple_Monitors" xml:space="preserve">
+    <value>Несколько мониторов</value>
+  </data>
+  <data name="UI_Options_Scale_Multiple_Monitors_All" xml:space="preserve">
+    <value>Использовать все мониторы</value>
+  </data>
+  <data name="UI_Options_Scale_Multiple_Monitors_Intersect" xml:space="preserve">
+    <value>Использовать мониторы коротые пересекает исходное окно</value>
+  </data>
+  <data name="UI_Options_Scale_Multiple_Monitors_Nearest" xml:space="preserve">
+    <value>Использовать монитор ближайший к исходному окну</value>
+  </data>
+  <data name="UI_Options_Scale_Open_Scale_Config" xml:space="preserve">
+    <value>Открыть конфиг увеличения</value>
+  </data>
+  <data name="UI_Options_Scale_Overlay" xml:space="preserve">
+    <value>Оверлей в игре</value>
+  </data>
+  <data name="UI_Options_Scale_Overlay_FPS" xml:space="preserve">
+    <value>Показать частоту кадров</value>
+  </data>
+  <data name="UI_Options_Scale_Overlay_Hotkey" xml:space="preserve">
+    <value>Клавиша</value>
+  </data>
+  <data name="UI_Options_Application_Restore_Full_Screen" xml:space="preserve">
+    <value>Восстановить полноэкранный режим при фокусе исходного окна</value>
+  </data>
+  <data name="UI_Options_Scale_Source_Window" xml:space="preserve">
+    <value>Исходное окно</value>
+  </data>
+  <data name="UI_Options_Scale_VSync" xml:space="preserve">
+    <value>Вертикальная синхронизация</value>
+  </data>
+  <data name="UI_Options_Title" xml:space="preserve">
+    <value>Настройки Magpie</value>
+  </data>
+  <data name="UI_Options_Zoom" xml:space="preserve">
+    <value>Увеличение</value>
+  </data>
+  <data name="UI_SysTray_Exit" xml:space="preserve">
+    <value>Выход</value>
+  </data>
+  <data name="UI_SysTray_Main_Window" xml:space="preserve">
+    <value>Главное окно</value>
+  </data>
+  <data name="UI_SysTray_Options" xml:space="preserve">
+    <value>Настройки</value>
+  </data>
+  <data name="UI_SysTray_Scale_After_5S" xml:space="preserve">
+    <value>Увеличить после 5с</value>
+  </data>
+  <data name="UI_SysTray_Text" xml:space="preserve">
+    <value>Magpie
+Клавиша: {0}
+Режим увеличения: {1}
+Способ захвата: {2}</value>
+  </data>
+</root>

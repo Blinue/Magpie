@@ -1,0 +1,13 @@
+- [维基主页](https://github.com/Blinue/Magpie/wiki/)
+  - [编译指南](https://github.com/Blinue/Magpie/wiki/编译指南)
+  - [自定义缩放配置](https://github.com/Blinue/Magpie/wiki/自定义缩放配置)
+  - [自定义效果（MagpieFX）](https://github.com/Blinue/Magpie/wiki/自定义效果（MagpieFX）)
+  - [性能优化建议](https://github.com/Blinue/Magpie/wiki/性能优化建议)
+  - [捕获模式对比](https://github.com/Blinue/Magpie/wiki/捕获模式对比)
+
+- [WIKI HOME](https://github.com/Blinue/Magpie/wiki/Home_EN)
+  - [Compiling](https://github.com/Blinue/Magpie/wiki/Compiling)
+  - [Capture modes](https://github.com/Blinue/Magpie/wiki/capture_modes)
+  - [MagpieFX](https://github.com/Blinue/Magpie/wiki/Customizing_Effects)
+  - [Performance optimization](https://github.com/Blinue/Magpie/wiki/Performance_Improvements)
+  - [Custom scaling conf](https://github.com/Blinue/Magpie/wiki/Customizing_Scaling_Configurations)

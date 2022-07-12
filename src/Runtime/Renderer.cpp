@@ -265,7 +265,7 @@ bool Renderer::_ResolveEffectsJson(const std::string& effectsJson) {
 	rapidjson::Document doc;
 	if (doc.Parse(effectsJson.c_str(), effectsJson.size()).HasParseError()) {
 		// 解析 json 失败
-		Logger::Get().Error(fmt::format("解析 json 失败\n\t错误码：{}", doc.GetParseError()));
+		Logger::Get().Error(fmt::format("解析 json 失败\n\t错误码：{}", (int)doc.GetParseError()));
 		return false;
 	}
 
