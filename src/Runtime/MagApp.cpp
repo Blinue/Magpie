@@ -16,7 +16,6 @@
 
 static constexpr const wchar_t* HOST_WINDOW_CLASS_NAME = L"Window_Magpie_967EB565-6F73-4E94-AE53-00CC42592A22";
 static constexpr const wchar_t* DDF_WINDOW_CLASS_NAME = L"Window_Magpie_C322D752-C866-4630-91F5-32CB242A8930";
-static constexpr const wchar_t* HOST_WINDOW_TITLE = L"Magpie_Host";
 
 
 LRESULT DDFWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
@@ -301,7 +300,7 @@ bool MagApp::_CreateHostWnd() {
 	_hwndHost = CreateWindowEx(
 		(_settings.IsBreakpointMode() ? 0 : WS_EX_TOPMOST) | WS_EX_NOACTIVATE | WS_EX_LAYERED | WS_EX_TRANSPARENT | WS_EX_TOOLWINDOW,
 		HOST_WINDOW_CLASS_NAME,
-		HOST_WINDOW_TITLE,
+		NULL,	// 标题为空，否则会被添加新配置页面列为候选窗口
 		WS_POPUP,
 		_hostWndRect.left,
 		_hostWndRect.top,
