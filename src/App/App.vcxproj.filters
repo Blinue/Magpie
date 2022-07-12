@@ -38,7 +38,7 @@
     <ClCompile Include="IconHelper.cpp">
       <Filter>Helpers</Filter>
     </ClCompile>
-    <ClCompile Include="AppXHelper.cpp">
+    <ClCompile Include="AppXReader.cpp">
       <Filter>Helpers</Filter>
     </ClCompile>
   </ItemGroup>
@@ -73,7 +73,7 @@
     <ClInclude Include="IconHelper.h">
       <Filter>Helpers</Filter>
     </ClInclude>
-    <ClInclude Include="AppXHelper.h">
+    <ClInclude Include="AppXReader.h">
       <Filter>Helpers</Filter>
     </ClInclude>
   </ItemGroup>

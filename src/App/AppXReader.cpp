@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "AppXHelper.h"
+#include "AppXReader.h"
 #include "Win32Utils.h"
 #include "StrUtils.h"
 #include "Utils.h"
@@ -9,6 +9,7 @@
 #include <shellapi.h>
 #include <propkey.h>
 #include <regex>
+#include <wincodec.h>
 
 #pragma comment(lib, "Shlwapi.lib")
 
@@ -80,7 +81,7 @@ static std::wstring ResourceFromPri(std::wstring_view packageFullName, std::wstr
 	return result;
 }
 
-bool AppXHelper::AppXReader::Initialize(HWND hWnd) noexcept {
+bool AppXReader::Initialize(HWND hWnd) noexcept {
 	bool isSuspended = false;
 	if (Win32Utils::GetWndClassName(hWnd) == L"ApplicationFrameWindow") {
 		// UWP 应用被托管在 ApplicationFrameHost 进程中
@@ -195,7 +196,7 @@ bool AppXHelper::AppXReader::Initialize(HWND hWnd) noexcept {
 	return _ResolveApplication(praid);
 }
 
-std::wstring AppXHelper::AppXReader::GetDisplayName() const noexcept {
+std::wstring AppXReader::GetDisplayName() const noexcept {
 	if (!_appxApp) {
 		return {};
 	}
@@ -294,11 +295,8 @@ public:
 					_isLightTheme = true;
 				}
 			} else if (name == L"contrast") {
-				_isContrast = true;
-
-				if (value == L"white") {
-					_isLightTheme = true;
-				}
+				_isValid = false;
+				return;
 			}
 		}
 	}
@@ -308,14 +306,10 @@ public:
 	}
 
 	bool IsValid() const noexcept {
-		return true;
+		return _isValid;
 	}
 
 	static bool Compare(const CandidateIcon& l, const CandidateIcon& r, uint32_t preferredSize, bool isLightTheme) {
-		if (l._isContrast != r._isContrast) {
-			return !l._isContrast;
-		}
-
 		if (l._isLightTheme != r._isLightTheme) {
 			return l._isLightTheme == isLightTheme;
 		}
@@ -357,14 +351,97 @@ public:
 private:
 	bool _isTargetSize = false;
 	bool _isScale = false;
-	bool _isContrast = false;
 	bool _isValid = true;
 	std::wstring _fileName;
 	uint32_t _size = 0;
 	bool _isLightTheme = false;
 };
 
-std::wstring AppXHelper::AppXReader::GetIconPath(uint32_t preferredSize, bool isLightTheme) const noexcept {
+bool CheckNeedBackground(const std::wstring& iconPath, bool isLightTheme) {
+	com_ptr<IWICImagingFactory2> wicImgFactory;
+
+	HRESULT hr = CoCreateInstance(
+		CLSID_WICImagingFactory,
+		NULL,
+		CLSCTX_INPROC_SERVER,
+		IID_PPV_ARGS(wicImgFactory.put())
+	);
+
+	if (FAILED(hr)) {
+		Logger::Get().ComError("创建 WICImagingFactory 失败", hr);
+		return false;
+	}
+
+	// 读取图像文件
+	winrt::com_ptr<IWICBitmapDecoder> decoder;
+	hr = wicImgFactory->CreateDecoderFromFilename(
+		iconPath.c_str(), nullptr, GENERIC_READ, WICDecodeMetadataCacheOnDemand, decoder.put());
+	if (FAILED(hr)) {
+		Logger::Get().ComError("CreateDecoderFromFilename 失败", hr);
+		return false;
+	}
+
+	winrt::com_ptr<IWICBitmapFrameDecode> frame;
+	hr = decoder->GetFrame(0, frame.put());
+	if (FAILED(hr)) {
+		Logger::Get().ComError("IWICBitmapFrameDecode::GetFrame 失败", hr);
+		return false;
+	}
+
+	// 转换格式
+	winrt::com_ptr<IWICFormatConverter> formatConverter;
+	hr = wicImgFactory->CreateFormatConverter(formatConverter.put());
+	if (FAILED(hr)) {
+		Logger::Get().ComError("CreateFormatConverter 失败", hr);
+		return false;
+	}
+
+	hr = formatConverter->Initialize(frame.get(),
+		GUID_WICPixelFormat32bppRGBA, WICBitmapDitherTypeNone, nullptr, 0, WICBitmapPaletteTypeCustom);
+	if (FAILED(hr)) {
+		Logger::Get().ComError("IWICFormatConverter::Initialize 失败", hr);
+		return false;
+	}
+
+	UINT width, height;
+	hr = formatConverter->GetSize(&width, &height);
+	if (FAILED(hr)) {
+		Logger::Get().ComError("GetSize 失败", hr);
+		return false;
+	}
+
+	UINT stride = width * 4;
+	UINT size = stride * height;
+	std::unique_ptr<BYTE[]> buf(new BYTE[size]);
+
+	hr = formatConverter->CopyPixels(nullptr, stride, size, buf.get());
+	if (FAILED(hr)) {
+		Logger::Get().ComError("CopyPixels 失败", hr);
+		return false;
+	}
+
+	// 计算平均亮度
+	double lumaTotal = 0;
+	UINT lumaCount = 0;
+	for (UINT i = 0, len = width * height; i < len; ++i) {
+		BYTE* pixel = &buf.get()[i * 4];
+		if (pixel[3] == 0) {
+			continue;
+		}
+
+		double luma = 0.299 * pixel[0] + 0.587 * pixel[1] + 0.114 * pixel[2];
+		double alpha = pixel[3] / 255.0;
+		luma = luma * alpha + 255 * (1 - alpha);
+
+		lumaTotal += luma;
+		++lumaCount;
+	}
+
+	double lumaAvg = lumaTotal / lumaCount;
+	return isLightTheme ? lumaAvg > 220 : lumaAvg < 30;
+}
+
+std::wstring AppXReader::GetIconPath(uint32_t preferredSize, bool isLightTheme, bool* hasBackground) const noexcept {
 	if (!_appxApp) {
 		return {};
 	}
@@ -430,16 +507,17 @@ std::wstring AppXHelper::AppXReader::GetIconPath(uint32_t preferredSize, bool is
 		return {};
 	}
 
-	std::sort(candidateIcons.begin(), candidateIcons.end(),
-		[=](const CandidateIcon& l, const CandidateIcon& r) { return CandidateIcon::Compare(l, r, preferredSize, isLightTheme); });
-
 	auto it = std::min_element(candidateIcons.begin(), candidateIcons.end(),
 		[=](const CandidateIcon& l, const CandidateIcon& r) { return CandidateIcon::Compare(l, r, preferredSize, isLightTheme); });
 
-	return StrUtils::ConcatW(std::wstring_view(iconFileName.begin(), iconFileName.begin() + delimPos + 1), it->FileName());
+	std::wstring result = StrUtils::ConcatW(std::wstring_view(iconFileName.begin(), iconFileName.begin() + delimPos + 1), it->FileName());
+	if (hasBackground != nullptr) {
+		*hasBackground = CheckNeedBackground(result, isLightTheme);
+	}
+	return result;
 }
 
-bool AppXHelper::AppXReader::_ResolveApplication(const std::wstring& praid) noexcept {
+bool AppXReader::_ResolveApplication(const std::wstring& praid) noexcept {
 	UINT32 pathLen = 0;
 	GetPackagePathByFullName(_packageFullName.c_str(), &pathLen, nullptr);
 	if (pathLen == 0) {

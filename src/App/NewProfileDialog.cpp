@@ -11,7 +11,7 @@
 #include "ComboBoxHelper.h"
 #include "AppSettings.h"
 #include "IconHelper.h"
-#include "AppXHelper.h"
+#include "AppXReader.h"
 
 using namespace winrt;
 using namespace Windows::UI::Xaml::Controls;
@@ -168,7 +168,7 @@ fire_and_forget CandidateWindow::_ResolveWindow(weak_ref<CandidateWindow> weakTh
 	// 解析名称和图标非常耗时，转到后台进行
 	co_await resume_background();
 
-	AppXHelper::AppXReader reader;
+	AppXReader reader;
 	const bool isPackaged = reader.Initialize(hWnd);
 	std::wstring defaultProfileName = isPackaged ? reader.GetDisplayName() : (std::wstring)GetProcessDesc(hWnd);
 
@@ -188,10 +188,11 @@ fire_and_forget CandidateWindow::_ResolveWindow(weak_ref<CandidateWindow> weakTh
 	}
 
 	std::wstring iconPath;
+	bool hasBackground = false;
 	SoftwareBitmap iconBitmap{ nullptr };
 	uint32_t iconSize = (uint32_t)std::ceil(dpi * 16 / 96.0);
 	if (isPackaged) {
-		iconPath = reader.GetIconPath(iconSize, isLightTheme);
+		iconPath = reader.GetIconPath(iconSize, isLightTheme, &hasBackground);
 	} else {
 		iconBitmap = co_await IconHelper::GetIconOfWndAsync(hWnd, iconSize);
 	}
@@ -203,13 +204,29 @@ fire_and_forget CandidateWindow::_ResolveWindow(weak_ref<CandidateWindow> weakTh
 	if (!iconPath.empty()) {
 		BitmapImage image;
 		image.UriSource(Uri(iconPath));
-
+		
 		MUXC::ImageIcon imageIcon;
-		imageIcon.Width(16);
-		imageIcon.Height(16);
 		imageIcon.Source(image);
 
-		icon = std::move(imageIcon);
+		if (hasBackground) {
+			imageIcon.Width(14);
+			imageIcon.Height(14);
+
+			StackPanel container;
+			container.Background(Application::Current().Resources().Lookup(box_value(L"SystemControlHighlightAccentBrush")).as<SolidColorBrush>());
+			container.VerticalAlignment(VerticalAlignment::Center);
+			container.HorizontalAlignment(HorizontalAlignment::Center);
+			container.Padding({ 2,2,2,2 });
+			container.Children().Append(imageIcon);
+
+			icon = std::move(container);
+		} else {
+			imageIcon.Width(16);
+			imageIcon.Height(16);
+
+			icon = std::move(imageIcon);
+		}
+		
 	} else if (iconBitmap) {
 		SoftwareBitmapSource imageSource;
 		co_await imageSource.SetBitmapAsync(iconBitmap);

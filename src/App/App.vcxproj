@@ -104,7 +104,7 @@
     </ClInclude>
     <ClInclude Include="app.base.h" />
     <ClInclude Include="AppSettings.h" />
-    <ClInclude Include="AppXHelper.h" />
+    <ClInclude Include="AppXReader.h" />
     <ClInclude Include="BooleanToVisibilityConverter.h">
       <DependentUpon>BooleanToVisibilityConverter.idl</DependentUpon>
       <SubType>Code</SubType>
@@ -210,7 +210,7 @@
       <SubType>Code</SubType>
     </ClCompile>
     <ClCompile Include="AppSettings.cpp" />
-    <ClCompile Include="AppXHelper.cpp" />
+    <ClCompile Include="AppXReader.cpp" />
     <ClCompile Include="BooleanToVisibilityConverter.cpp">
       <DependentUpon>BooleanToVisibilityConverter.idl</DependentUpon>
       <SubType>Code</SubType>
