@@ -1,10 +1,10 @@
 [requires]
-fmt/8.1.1
+fmt/9.0.0
 spdlog/1.10.0
 muparser/2.3.2
 yas/7.1.0
 rapidjson/cci.20211112
-imgui/1.87
+imgui/1.88
 zstd/1.5.2
 
 [generators]
