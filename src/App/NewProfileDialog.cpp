@@ -122,7 +122,10 @@ NewProfileDialog::NewProfileDialog() {
 
 	std::vector<Magpie::App::CandidateWindow> candidateWindows;
 
-	const UINT dpi = (UINT)std::lroundf(DisplayInformation::GetForCurrentView().LogicalDpi());
+	_displayInfomation = DisplayInformation::GetForCurrentView();
+	_dpiChangedRevoker = _displayInfomation.DpiChanged(auto_revoke, { this, &NewProfileDialog::_DisplayInformation_DpiChanged });
+
+	const UINT dpi = (UINT)std::lroundf(_displayInfomation.LogicalDpi());
 	const bool isLightTheme = Application::Current().as<App>().MainPage().ActualTheme() == ElementTheme::Light;
 	for (HWND hWnd : GetDesktopWindows()) {
 		std::wstring title = Win32Utils::GetWndTitle(hWnd);
@@ -165,6 +168,13 @@ void NewProfileDialog::RootScrollViewer_SizeChanged(IInspectable const&, IInspec
 void NewProfileDialog::ActualThemeChanged(IInspectable const&, IInspectable const&) {
 	for (Magpie::App::CandidateWindow const& item : _candidateWindows) {
 		item.OnThemeChanged(ActualTheme() == ElementTheme::Light);
+	}
+}
+
+void NewProfileDialog::_DisplayInformation_DpiChanged(DisplayInformation const&, IInspectable const&) {
+	const UINT dpi = (UINT)std::lroundf(_displayInfomation.LogicalDpi());
+	for (Magpie::App::CandidateWindow const& item : _candidateWindows) {
+		item.OnDpiChanged(dpi);
 	}
 }
 
@@ -263,7 +273,9 @@ fire_and_forget CandidateWindow::_ResolveWindow(weak_ref<CandidateWindow> weakTh
 	}
 }
 
-CandidateWindow::CandidateWindow(uint64_t hWnd, uint32_t dpi, bool isLightTheme, CoreDispatcher const& dispatcher) : _hWnd(hWnd), _dispatcher(dispatcher), _dpi(dpi) {
+CandidateWindow::CandidateWindow(uint64_t hWnd, uint32_t dpi, bool isLightTheme, CoreDispatcher const& dispatcher)
+	: _hWnd(hWnd), _dispatcher(dispatcher), _dpi(dpi), _isLightTheme(isLightTheme)
+{
 	_title = Win32Utils::GetWndTitle((HWND)hWnd);
 	_defaultProfileName = _title;
 
@@ -276,7 +288,13 @@ CandidateWindow::CandidateWindow(uint64_t hWnd, uint32_t dpi, bool isLightTheme,
 }
 
 void CandidateWindow::OnThemeChanged(bool isLightTheme) {
+	_isLightTheme = isLightTheme;
 	_ResolveWindow(get_weak(), _dpi, isLightTheme, _dispatcher, true, false);
+}
+
+void CandidateWindow::OnDpiChanged(uint32_t newDpi) {
+	_dpi = newDpi;
+	_ResolveWindow(get_weak(), newDpi, _isLightTheme, _dispatcher, true, false);
 }
 
 }

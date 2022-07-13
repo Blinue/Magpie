@@ -11,6 +11,7 @@ namespace Magpie.App
         String DefaultProfileName { get; };
 
         void OnThemeChanged(Boolean isLightTheme);
+        void OnDpiChanged(UInt32 newDpi);
     }
 
     runtimeclass NewProfileDialog : Windows.UI.Xaml.Controls.UserControl, [default] Windows.UI.Xaml.Data.INotifyPropertyChanged

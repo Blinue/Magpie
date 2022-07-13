@@ -35,6 +35,8 @@ struct CandidateWindow : CandidateWindowT<CandidateWindow> {
 
 	void OnThemeChanged(bool isLightTheme);
 
+	void OnDpiChanged(uint32_t newDpi);
+
 private:
 	void _Icon(IInspectable const& value) {
 		_icon = value;
@@ -50,6 +52,7 @@ private:
 	IInspectable _icon{ nullptr };
 	hstring _defaultProfileName;
 
+	bool _isLightTheme = false;
 	uint32_t _dpi = 96;
 	CoreDispatcher _dispatcher{ nullptr };
 };
@@ -95,6 +98,8 @@ struct NewProfileDialog : NewProfileDialogT<NewProfileDialog> {
 	void ActualThemeChanged(IInspectable const&, IInspectable const&);
 
 private:
+	void _DisplayInformation_DpiChanged(Windows::Graphics::Display::DisplayInformation const&, IInspectable const&);
+
 	event<PropertyChangedEventHandler> _propertyChangedEvent;
 
 	IVector<Magpie::App::CandidateWindow> _candidateWindows;
@@ -102,6 +107,9 @@ private:
 
 	IVector<IInspectable> _profiles;
 	int32_t _profileIndex = 0;
+
+	Windows::Graphics::Display::DisplayInformation _displayInfomation{ nullptr };
+	Windows::Graphics::Display::DisplayInformation::DpiChanged_revoker _dpiChangedRevoker;
 };
 
 }
