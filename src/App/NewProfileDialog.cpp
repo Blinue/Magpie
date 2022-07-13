@@ -12,6 +12,7 @@
 #include "AppSettings.h"
 #include "IconHelper.h"
 #include "AppXReader.h"
+#include <unordered_set>
 
 using namespace winrt;
 using namespace Windows::UI::Xaml::Controls;
@@ -179,7 +180,7 @@ void NewProfileDialog::WindowIndex(int32_t value) noexcept {
 	_windowIndex = value;
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"WindowIndex"));
 
-	if (_windowIndex >= 0 && _windowIndex < _candidateWindows.Size()) {
+	if (_windowIndex >= 0 && _windowIndex < (int32_t)_candidateWindows.Size()) {
 		ProfileNameTextBox().Text(_candidateWindows.GetAt(_windowIndex).DefaultProfileName());
 	}
 }
@@ -218,11 +219,30 @@ IAsyncAction NewProfileDialog::_DisplayInformation_DpiChanged(DisplayInformation
 	}
 }
 
+static bool IsChanged(const IVector<Magpie::App::CandidateWindow>& oldItems, const std::vector<HWND>& newItems) {
+	if (oldItems.Size() != newItems.size()) {
+		return true;
+	}
+
+	std::unordered_set newItemsSet(newItems.begin(), newItems.end());
+
+	for (Magpie::App::CandidateWindow const& item : oldItems) {
+		if (!newItemsSet.contains((HWND)item.HWnd())) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
 fire_and_forget NewProfileDialog::_UpdateCandidateWindows() {
 	auto weakThis = get_weak();
 
+	// 更新图标的间隔
+	uint32_t count = 0;
+
 	while (true) {
-		co_await std::chrono::seconds(1);
+		co_await std::chrono::milliseconds(200);
 
 		auto strongThis = weakThis.get();
 		if (!strongThis) {
@@ -231,37 +251,42 @@ fire_and_forget NewProfileDialog::_UpdateCandidateWindows() {
 
 		co_await Dispatcher();
 
+		++count;
+
 		std::vector<HWND> candiateWindows = GetDesktopWindows();
+		
+		if (!IsChanged(_candidateWindows, candiateWindows)) {
+			// 更新标题
+			for (Magpie::App::CandidateWindow const& item : _candidateWindows) {
+				item.UpdateTitle();
+			}
+
+			// 更新图标
+			if (count >= 5) {
+				count = 0;
+				
+				for (Magpie::App::CandidateWindow const& item : _candidateWindows) {
+					item.UpdateIcon();
+				}
+			}
+
+			continue;
+		}
+
+		count = 0;
+
+		const UINT dpi = (UINT)std::lroundf(_displayInfomation.LogicalDpi());
+		const bool isLightTheme = ActualTheme() == ElementTheme::Light;
 
 		std::vector<Magpie::App::CandidateWindow> items;
 		items.reserve(candiateWindows.size());
 
-		bool changed = candiateWindows.size() != _candidateWindows.Size();
-		const UINT dpi = (UINT)std::lroundf(_displayInfomation.LogicalDpi());
-		const bool isLightTheme = ActualTheme() == ElementTheme::Light;
-
 		for (HWND hWnd : candiateWindows) {
-			bool flag = false;
-			for (Magpie::App::CandidateWindow const& item : _candidateWindows) {
-				if ((HWND)item.HWnd() == hWnd) {
-					items.emplace_back(make<CandidateWindow>(item, 0));
-					flag = true;
-					break;
-				}
-			}
-			
-			if (flag) {
-				continue;
-			}
-
-			changed = true;
 			items.emplace_back(Magpie::App::CandidateWindow((uint64_t)hWnd, dpi, isLightTheme, Dispatcher()));
 		}
-		
-		if (changed) {
-			SortCandidateWindows(items.begin(), items.end());
-			_candidateWindows.ReplaceAll(items);
-		}
+
+		SortCandidateWindows(items.begin(), items.end());
+		_candidateWindows.ReplaceAll(items);
 	}
 }
 
@@ -315,54 +340,12 @@ fire_and_forget CandidateWindow::_ResolveWindow(bool resolveIcon, bool resolveNa
 	// 切换到主线程
 	co_await dispatcher;
 
-	IInspectable icon{ nullptr };
-	if (!iconPath.empty()) {
-		BitmapImage image;
-		image.UriSource(Uri(iconPath));
-		
-		MUXC::ImageIcon imageIcon;
-		imageIcon.Source(image);
-
-		if (hasBackground) {
-			imageIcon.Width(12);
-			imageIcon.Height(12);
-
-			StackPanel container;
-			container.Background(Application::Current().Resources().Lookup(box_value(L"SystemControlHighlightAccentBrush")).as<SolidColorBrush>());
-			container.VerticalAlignment(VerticalAlignment::Center);
-			container.HorizontalAlignment(HorizontalAlignment::Center);
-			container.Padding({ 2,2,2,2 });
-			container.Children().Append(imageIcon);
-
-			icon = std::move(container);
-		} else {
-			imageIcon.Width(16);
-			imageIcon.Height(16);
-
-			icon = std::move(imageIcon);
-		}
-		
-	} else if (iconBitmap) {
-		SoftwareBitmapSource imageSource;
-		co_await imageSource.SetBitmapAsync(iconBitmap);
-
-		MUXC::ImageIcon imageIcon;
-		imageIcon.Width(16);
-		imageIcon.Height(16);
-		imageIcon.Source(imageSource);
-
-		icon = imageIcon;
-	} else {
-		// 回落到通用图标
-		FontIcon fontIcon;
-		fontIcon.Glyph(L"\uE737");
-		fontIcon.FontSize(16);
-
-		icon = std::move(fontIcon);
-	}
-
 	if (auto strongThis = weakThis.get()) {
-		strongThis->_Icon(icon);
+		if (!iconPath.empty()) {
+			strongThis->_SetPackagedIcon(iconPath, hasBackground);
+		} else {
+			co_await strongThis->_SetWin32IconAsync(iconBitmap);
+		}
 	}
 }
 
@@ -380,44 +363,34 @@ CandidateWindow::CandidateWindow(uint64_t hWnd, uint32_t dpi, bool isLightTheme,
 	_ResolveWindow(true, true);
 }
 
-CandidateWindow::CandidateWindow(Magpie::App::CandidateWindow const& other, int) {
-	CandidateWindow* otherImpl = get_self<CandidateWindow>(other);
-	_hWnd = otherImpl->_hWnd;
-	_dispatcher = otherImpl->_dispatcher;
-	_dpi = otherImpl->_dpi;
-	_isLightTheme = otherImpl->_isLightTheme;
-	_title = otherImpl->_title;
-	_defaultProfileName = otherImpl->_defaultProfileName;
-	_isPackagedApp = otherImpl->_isPackagedApp;
+void CandidateWindow::UpdateTitle() {
+	_title = Win32Utils::GetWndTitle((HWND)_hWnd);
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"Title"));
+}
 
-	// 复制图标不能直接复制引用
-	if (MUXC::ImageIcon uwpIcon = otherImpl->_icon.try_as<MUXC::ImageIcon>()) {
-		MUXC::ImageIcon icon;
-		icon.Source(uwpIcon.Source());
-		icon.Width(uwpIcon.Width());
-		icon.Height(uwpIcon.Height());
-		_icon = std::move(icon);
-	} else if (StackPanel bkgUwpIcon = otherImpl->_icon.try_as<StackPanel>()) {
-		StackPanel icon;
-		icon.Background(bkgUwpIcon.Background());
-		icon.VerticalAlignment(bkgUwpIcon.VerticalAlignment());
-		icon.HorizontalAlignment(bkgUwpIcon.HorizontalAlignment());
-		icon.Padding(bkgUwpIcon.Padding());
-
-		MUXC::ImageIcon uwpIcon = bkgUwpIcon.Children().GetAt(0).as<MUXC::ImageIcon>();
-		MUXC::ImageIcon newIcon;
-		newIcon.Source(uwpIcon.Source());
-		newIcon.Width(uwpIcon.Width());
-		newIcon.Height(uwpIcon.Height());
-
-		icon.Children().Append(newIcon);
-		_icon = std::move(icon);
-	} else if (FontIcon fontIcon = otherImpl->_icon.try_as<FontIcon>()) {
-		FontIcon icon;
-		icon.Glyph(fontIcon.Glyph());
-		icon.FontSize(fontIcon.FontSize());
-		_icon = std::move(icon);
+void CandidateWindow::UpdateIcon() {
+	if (_isPackagedApp) {
+		// 打包应用无需更新图标
+		return;
 	}
+
+	[this]()->fire_and_forget {
+		HWND hWnd = (HWND)_hWnd;
+		uint32_t iconSize = (uint32_t)std::ceil(_dpi * 16 / 96.0);
+		CoreDispatcher dispatcher = _dispatcher;
+
+		auto weakThis = get_weak();
+
+		co_await resume_background();
+
+		SoftwareBitmap iconBitmap = co_await IconHelper::GetIconOfWndAsync(hWnd, iconSize);
+
+		co_await dispatcher;
+
+		if (auto strongThis = weakThis.get()) {
+			co_await strongThis->_SetWin32IconAsync(iconBitmap);
+		}
+	}();
 }
 
 void CandidateWindow::OnThemeChanged(bool isLightTheme) {
@@ -428,6 +401,61 @@ void CandidateWindow::OnThemeChanged(bool isLightTheme) {
 void CandidateWindow::OnDpiChanged(uint32_t newDpi) {
 	_dpi = newDpi;
 	_ResolveWindow(true, false);
+}
+
+// 不检查 this 的生命周期，必须在主线程调用
+IAsyncAction CandidateWindow::_SetWin32IconAsync(SoftwareBitmap const& iconBitmap) {
+	if (iconBitmap) {
+		SoftwareBitmapSource imageSource;
+		co_await imageSource.SetBitmapAsync(iconBitmap);
+
+		co_await _dispatcher;
+
+		MUXC::ImageIcon imageIcon;
+		imageIcon.Width(16);
+		imageIcon.Height(16);
+		imageIcon.Source(imageSource);
+
+		_icon = imageIcon;
+	} else {
+		// 回落到通用图标
+		FontIcon fontIcon;
+		fontIcon.Glyph(L"\uE737");
+		fontIcon.FontSize(16);
+
+		_icon = std::move(fontIcon);
+	}
+
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"Icon"));
+}
+
+void CandidateWindow::_SetPackagedIcon(std::wstring_view iconPath, bool hasBackground) {
+	BitmapImage image;
+	image.UriSource(Uri(iconPath));
+
+	MUXC::ImageIcon imageIcon;
+	imageIcon.Source(image);
+
+	if (hasBackground) {
+		imageIcon.Width(12);
+		imageIcon.Height(12);
+
+		StackPanel container;
+		container.Background(Application::Current().Resources().Lookup(box_value(L"SystemControlHighlightAccentBrush")).as<SolidColorBrush>());
+		container.VerticalAlignment(VerticalAlignment::Center);
+		container.HorizontalAlignment(HorizontalAlignment::Center);
+		container.Padding({ 2,2,2,2 });
+		container.Children().Append(imageIcon);
+
+		_icon = std::move(container);
+	} else {
+		imageIcon.Width(16);
+		imageIcon.Height(16);
+
+		_icon = std::move(imageIcon);
+	}
+
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"Icon"));
 }
 
 }

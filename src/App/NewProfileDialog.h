@@ -9,7 +9,9 @@ namespace winrt::Magpie::App::implementation {
 struct CandidateWindow : CandidateWindowT<CandidateWindow> {
 	CandidateWindow(uint64_t hWnd, uint32_t dpi, bool isLightTheme, CoreDispatcher const& dispatcher);
 
-	CandidateWindow(Magpie::App::CandidateWindow const& other, int);
+	void UpdateTitle();
+
+	void UpdateIcon();
 
 	event_token PropertyChanged(PropertyChangedEventHandler const& handler) {
 		return _propertyChangedEvent.add(handler);
@@ -40,10 +42,9 @@ struct CandidateWindow : CandidateWindowT<CandidateWindow> {
 	void OnDpiChanged(uint32_t newDpi);
 
 private:
-	void _Icon(IInspectable const& value) {
-		_icon = value;
-		_propertyChangedEvent(*this, PropertyChangedEventArgs(L"Icon"));
-	}
+	IAsyncAction _SetWin32IconAsync(Windows::Graphics::Imaging::SoftwareBitmap const& iconBitmap);
+
+	void _SetPackagedIcon(std::wstring_view iconPath, bool hasBackground);
 
 	fire_and_forget _ResolveWindow(bool resolveIcon, bool resolveName);
 

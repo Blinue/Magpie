@@ -1,28 +1,29 @@
 namespace Magpie.App
 {
-    [Windows.UI.Xaml.Data.Bindable]
-    runtimeclass CandidateWindow : [default] Windows.UI.Xaml.Data.INotifyPropertyChanged
-    {
-        CandidateWindow(UInt64 hWnd, UInt32 dpi, Boolean isLightTheme, Windows.UI.Core.CoreDispatcher dispatcher);
+	[Windows.UI.Xaml.Data.Bindable]
+	runtimeclass CandidateWindow : [default] Windows.UI.Xaml.Data.INotifyPropertyChanged
+	{
+		CandidateWindow(UInt64 hWnd, UInt32 dpi, Boolean isLightTheme, Windows.UI.Core.CoreDispatcher dispatcher);
 
-        CandidateWindow(CandidateWindow other, Int32 unused);
+		void UpdateTitle();
+		void UpdateIcon();
 
-        UInt64 HWnd { get; };
-        String Title { get; };
-        Object Icon { get; };
-        String DefaultProfileName { get; };
+		UInt64 HWnd { get; };
+		String Title { get; };
+		Object Icon { get; };
+		String DefaultProfileName { get; };
 
-        void OnThemeChanged(Boolean isLightTheme);
-        void OnDpiChanged(UInt32 newDpi);
-    }
+		void OnThemeChanged(Boolean isLightTheme);
+		void OnDpiChanged(UInt32 newDpi);
+	}
 
-    runtimeclass NewProfileDialog : Windows.UI.Xaml.Controls.UserControl, [default] Windows.UI.Xaml.Data.INotifyPropertyChanged
-    {
-        NewProfileDialog();
+	runtimeclass NewProfileDialog : Windows.UI.Xaml.Controls.UserControl, [default] Windows.UI.Xaml.Data.INotifyPropertyChanged
+	{
+		NewProfileDialog();
 
-        IVector<CandidateWindow> CandidateWindows { get; };
-        Int32 WindowIndex;
-        IVector<IInspectable> Profiles { get; };
-        Int32 ProfileIndex;
-    }
+		IVector<CandidateWindow> CandidateWindows { get; };
+		Int32 WindowIndex;
+		IVector<IInspectable> Profiles { get; };
+		Int32 ProfileIndex;
+	}
 }
