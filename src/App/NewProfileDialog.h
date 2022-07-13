@@ -33,13 +33,15 @@ struct CandidateWindow : CandidateWindowT<CandidateWindow> {
 		return _defaultProfileName;
 	}
 
+	void OnThemeChanged(bool isLightTheme);
+
 private:
 	void _Icon(IInspectable const& value) {
 		_icon = value;
 		_propertyChangedEvent(*this, PropertyChangedEventArgs(L"Icon"));
 	}
 
-	fire_and_forget _ResolveWindow(weak_ref<CandidateWindow> weakThis, uint32_t dpi, bool isLightTheme, CoreDispatcher dispatcher);
+	fire_and_forget _ResolveWindow(weak_ref<CandidateWindow> weakThis, uint32_t dpi, bool isLightTheme, CoreDispatcher dispatcher, bool resolveIcon, bool resolveName);
 
 	event<PropertyChangedEventHandler> _propertyChangedEvent;
 
@@ -47,6 +49,9 @@ private:
 	hstring _title;
 	IInspectable _icon{ nullptr };
 	hstring _defaultProfileName;
+
+	uint32_t _dpi = 96;
+	CoreDispatcher _dispatcher{ nullptr };
 };
 
 struct NewProfileDialog : NewProfileDialogT<NewProfileDialog> {
@@ -86,6 +91,8 @@ struct NewProfileDialog : NewProfileDialogT<NewProfileDialog> {
 	}
 
 	void RootScrollViewer_SizeChanged(IInspectable const&, IInspectable const&);
+
+	void ActualThemeChanged(IInspectable const&, IInspectable const&);
 
 private:
 	event<PropertyChangedEventHandler> _propertyChangedEvent;

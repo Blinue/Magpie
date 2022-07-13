@@ -162,7 +162,15 @@ void NewProfileDialog::RootScrollViewer_SizeChanged(IInspectable const&, IInspec
 	}
 }
 
-fire_and_forget CandidateWindow::_ResolveWindow(weak_ref<CandidateWindow> weakThis, uint32_t dpi, bool isLightTheme, CoreDispatcher dispatcher) {
+void NewProfileDialog::ActualThemeChanged(IInspectable const&, IInspectable const&) {
+	for (Magpie::App::CandidateWindow const& item : _candidateWindows) {
+		item.OnThemeChanged(ActualTheme() == ElementTheme::Light);
+	}
+}
+
+fire_and_forget CandidateWindow::_ResolveWindow(weak_ref<CandidateWindow> weakThis, uint32_t dpi, bool isLightTheme, CoreDispatcher dispatcher, bool resolveIcon, bool resolveName) {
+	assert(resolveIcon || resolveName);
+
 	HWND hWnd = (HWND)weakThis.get()->HWnd();
 	
 	// 解析名称和图标非常耗时，转到后台进行
@@ -170,9 +178,9 @@ fire_and_forget CandidateWindow::_ResolveWindow(weak_ref<CandidateWindow> weakTh
 
 	AppXReader reader;
 	const bool isPackaged = reader.Initialize(hWnd);
-	std::wstring defaultProfileName = isPackaged ? reader.GetDisplayName() : (std::wstring)GetProcessDesc(hWnd);
+	if (resolveName) {
+		std::wstring defaultProfileName = isPackaged ? reader.GetDisplayName() : (std::wstring)GetProcessDesc(hWnd);
 
-	{
 		auto strongThis = weakThis.get();
 		if (!strongThis) {
 			co_return;
@@ -185,6 +193,10 @@ fire_and_forget CandidateWindow::_ResolveWindow(weak_ref<CandidateWindow> weakTh
 				});
 			}(strongThis, defaultProfileName, dispatcher);
 		}
+	}
+	
+	if (!resolveIcon) {
+		co_return;
 	}
 
 	std::wstring iconPath;
@@ -251,9 +263,7 @@ fire_and_forget CandidateWindow::_ResolveWindow(weak_ref<CandidateWindow> weakTh
 	}
 }
 
-CandidateWindow::CandidateWindow(uint64_t hWnd, uint32_t dpi, bool isLightTheme, CoreDispatcher const& dispatcher) {
-	_hWnd = hWnd;
-
+CandidateWindow::CandidateWindow(uint64_t hWnd, uint32_t dpi, bool isLightTheme, CoreDispatcher const& dispatcher) : _hWnd(hWnd), _dispatcher(dispatcher), _dpi(dpi) {
 	_title = Win32Utils::GetWndTitle((HWND)hWnd);
 	_defaultProfileName = _title;
 
@@ -262,7 +272,11 @@ CandidateWindow::CandidateWindow(uint64_t hWnd, uint32_t dpi, bool isLightTheme,
 	placeholder.Height(16);
 	_icon = std::move(placeholder);
 
-	_ResolveWindow(get_weak(), dpi, isLightTheme, dispatcher);
+	_ResolveWindow(get_weak(), dpi, isLightTheme, dispatcher, true, true);
+}
+
+void CandidateWindow::OnThemeChanged(bool isLightTheme) {
+	_ResolveWindow(get_weak(), _dpi, isLightTheme, _dispatcher, true, false);
 }
 
 }
