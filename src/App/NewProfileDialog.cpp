@@ -124,6 +124,26 @@ static hstring GetProcessDesc(HWND hWnd) {
 	return description;
 }
 
+template<typename It>
+static void SortCandidateWindows(It begin, It end) {
+	const std::collate<wchar_t>& col = std::use_facet<std::collate<wchar_t> >(std::locale());
+
+	// 根据用户的区域设置排序，对于中文为拼音顺序
+	std::sort(begin, end, [&col](Magpie::App::CandidateWindow const& l, Magpie::App::CandidateWindow const& r) {
+		const hstring& titleL = l.Title();
+		const hstring& titleR = r.Title();
+
+		// 忽略大小写，忽略半/全角
+		return CompareStringEx(
+			LOCALE_NAME_USER_DEFAULT,
+			NORM_IGNORECASE | NORM_IGNOREWIDTH | NORM_LINGUISTIC_CASING,
+			titleL.c_str(), titleL.size(),
+			titleR.c_str(), titleR.size(),
+			nullptr, nullptr, 0
+		) == CSTR_LESS_THAN;
+	});
+}
+
 NewProfileDialog::NewProfileDialog() {
 	InitializeComponent();
 
@@ -139,6 +159,7 @@ NewProfileDialog::NewProfileDialog() {
 		candidateWindows.emplace_back(Magpie::App::CandidateWindow((uint64_t)hWnd, dpi, isLightTheme, Dispatcher()));
 	}
 
+	SortCandidateWindows(candidateWindows.begin(), candidateWindows.end());
 	_candidateWindows = single_threaded_observable_vector(std::move(candidateWindows));
 
 	std::vector<IInspectable> profiles;
@@ -238,6 +259,7 @@ fire_and_forget NewProfileDialog::_UpdateCandidateWindows() {
 		}
 		
 		if (changed) {
+			SortCandidateWindows(items.begin(), items.end());
 			_candidateWindows.ReplaceAll(items);
 		}
 	}
