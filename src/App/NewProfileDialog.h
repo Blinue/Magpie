@@ -98,7 +98,7 @@ struct NewProfileDialog : NewProfileDialogT<NewProfileDialog> {
 	void ActualThemeChanged(IInspectable const&, IInspectable const&);
 
 private:
-	void _DisplayInformation_DpiChanged(Windows::Graphics::Display::DisplayInformation const&, IInspectable const&);
+	IAsyncAction _DisplayInformation_DpiChanged(Windows::Graphics::Display::DisplayInformation const&, IInspectable const&);
 
 	event<PropertyChangedEventHandler> _propertyChangedEvent;
 

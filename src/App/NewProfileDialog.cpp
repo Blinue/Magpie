@@ -45,8 +45,10 @@ static bool IsCandidateWindow(HWND hWnd) {
 		return false;
 	}
 
-	if (Win32Utils::GetWndClassName(hWnd) == L"Progman") {
-		// 排除 Program Manager 窗口
+	std::wstring className = Win32Utils::GetWndClassName(hWnd);
+	if (className == L"Progman"	||					// Program Manager
+		className == L"Xaml_WindowedPopupClass"		// 主机弹出窗口
+	) {
 		return false;
 	}
 
@@ -123,7 +125,8 @@ NewProfileDialog::NewProfileDialog() {
 	std::vector<Magpie::App::CandidateWindow> candidateWindows;
 
 	_displayInfomation = DisplayInformation::GetForCurrentView();
-	_dpiChangedRevoker = _displayInfomation.DpiChanged(auto_revoke, { this, &NewProfileDialog::_DisplayInformation_DpiChanged });
+	_dpiChangedRevoker = _displayInfomation.DpiChanged(
+		auto_revoke, { this, &NewProfileDialog::_DisplayInformation_DpiChanged});
 
 	const UINT dpi = (UINT)std::lroundf(_displayInfomation.LogicalDpi());
 	const bool isLightTheme = Application::Current().as<App>().MainPage().ActualTheme() == ElementTheme::Light;
@@ -171,10 +174,18 @@ void NewProfileDialog::ActualThemeChanged(IInspectable const&, IInspectable cons
 	}
 }
 
-void NewProfileDialog::_DisplayInformation_DpiChanged(DisplayInformation const&, IInspectable const&) {
-	const UINT dpi = (UINT)std::lroundf(_displayInfomation.LogicalDpi());
-	for (Magpie::App::CandidateWindow const& item : _candidateWindows) {
-		item.OnDpiChanged(dpi);
+IAsyncAction NewProfileDialog::_DisplayInformation_DpiChanged(DisplayInformation const&, IInspectable const&) {
+	auto weakThis = get_weak();
+
+	// 等待候选窗口更新图标
+	co_await std::chrono::milliseconds(200);
+	co_await Dispatcher();
+
+	if (auto strongThis = weakThis.get()) {
+		const UINT dpi = (UINT)std::lroundf(strongThis->_displayInfomation.LogicalDpi());
+		for (Magpie::App::CandidateWindow const& item : strongThis->_candidateWindows) {
+			item.OnDpiChanged(dpi);
+		}
 	}
 }
 
