@@ -223,7 +223,7 @@ fire_and_forget NewProfileDialog::_UpdateCandidateWindows() {
 			bool flag = false;
 			for (Magpie::App::CandidateWindow const& item : _candidateWindows) {
 				if ((HWND)item.HWnd() == hWnd) {
-					items.emplace_back(Magpie::App::CandidateWindow((uint64_t)hWnd, item.Title(), item.Icon(), item.DefaultProfileName(), dpi, isLightTheme, Dispatcher()));
+					items.emplace_back(make<CandidateWindow>(item, 0));
 					flag = true;
 					break;
 				}
@@ -238,7 +238,7 @@ fire_and_forget NewProfileDialog::_UpdateCandidateWindows() {
 		}
 		
 		if (changed) {
-			//_candidateWindows.ReplaceAll(items);
+			_candidateWindows.ReplaceAll(items);
 		}
 	}
 }
@@ -267,11 +267,12 @@ fire_and_forget CandidateWindow::_ResolveWindow(bool resolveIcon, bool resolveNa
 		}
 
 		if (!defaultProfileName.empty()) {
-			[](com_ptr<CandidateWindow> that, const std::wstring& defaultProfileName, CoreDispatcher const& dispatcher)->fire_and_forget {
-				co_await dispatcher.RunAsync(CoreDispatcherPriority::Normal, [that, defaultProfileName(defaultProfileName)]() {
+			[](com_ptr<CandidateWindow> that, const std::wstring& defaultProfileName, bool isPackaged, CoreDispatcher const& dispatcher)->fire_and_forget {
+				co_await dispatcher.RunAsync(CoreDispatcherPriority::Normal, [that, defaultProfileName(defaultProfileName), isPackaged]() {
 					that->_defaultProfileName = defaultProfileName;
+					that->_isPackagedApp = isPackaged;
 				});
-			}(strongThis, defaultProfileName, dispatcher);
+			}(strongThis, defaultProfileName, isPackaged, dispatcher);
 		}
 	}
 	
@@ -357,8 +358,44 @@ CandidateWindow::CandidateWindow(uint64_t hWnd, uint32_t dpi, bool isLightTheme,
 	_ResolveWindow(true, true);
 }
 
-CandidateWindow::CandidateWindow(uint64_t hWnd, const hstring& title, IInspectable const& icon, const hstring& defaultProfileName, uint32_t dpi, bool isLightTheme, CoreDispatcher const& dispatcher) : _hWnd(hWnd), _dispatcher(dispatcher), _dpi(dpi), _isLightTheme(isLightTheme), _title(title), _icon(icon), _defaultProfileName(defaultProfileName) {
+CandidateWindow::CandidateWindow(Magpie::App::CandidateWindow const& other, int) {
+	CandidateWindow* otherImpl = get_self<CandidateWindow>(other);
+	_hWnd = otherImpl->_hWnd;
+	_dispatcher = otherImpl->_dispatcher;
+	_dpi = otherImpl->_dpi;
+	_isLightTheme = otherImpl->_isLightTheme;
+	_title = otherImpl->_title;
+	_defaultProfileName = otherImpl->_defaultProfileName;
+	_isPackagedApp = otherImpl->_isPackagedApp;
 
+	// 复制图标不能直接复制引用
+	if (MUXC::ImageIcon uwpIcon = otherImpl->_icon.try_as<MUXC::ImageIcon>()) {
+		MUXC::ImageIcon icon;
+		icon.Source(uwpIcon.Source());
+		icon.Width(uwpIcon.Width());
+		icon.Height(uwpIcon.Height());
+		_icon = std::move(icon);
+	} else if (StackPanel bkgUwpIcon = otherImpl->_icon.try_as<StackPanel>()) {
+		StackPanel icon;
+		icon.Background(bkgUwpIcon.Background());
+		icon.VerticalAlignment(bkgUwpIcon.VerticalAlignment());
+		icon.HorizontalAlignment(bkgUwpIcon.HorizontalAlignment());
+		icon.Padding(bkgUwpIcon.Padding());
+
+		MUXC::ImageIcon uwpIcon = bkgUwpIcon.Children().GetAt(0).as<MUXC::ImageIcon>();
+		MUXC::ImageIcon newIcon;
+		newIcon.Source(uwpIcon.Source());
+		newIcon.Width(uwpIcon.Width());
+		newIcon.Height(uwpIcon.Height());
+
+		icon.Children().Append(newIcon);
+		_icon = std::move(icon);
+	} else if (FontIcon fontIcon = otherImpl->_icon.try_as<FontIcon>()) {
+		FontIcon icon;
+		icon.Glyph(fontIcon.Glyph());
+		icon.FontSize(fontIcon.FontSize());
+		_icon = std::move(icon);
+	}
 }
 
 void CandidateWindow::OnThemeChanged(bool isLightTheme) {

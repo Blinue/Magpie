@@ -5,7 +5,7 @@ namespace Magpie.App
     {
         CandidateWindow(UInt64 hWnd, UInt32 dpi, Boolean isLightTheme, Windows.UI.Core.CoreDispatcher dispatcher);
 
-        CandidateWindow(UInt64 hWnd, String title, Object icon, String defaultProfileName, UInt32 dpi, Boolean isLightTheme, Windows.UI.Core.CoreDispatcher dispatcher);
+        CandidateWindow(CandidateWindow other, Int32 unused);
 
         UInt64 HWnd { get; };
         String Title { get; };

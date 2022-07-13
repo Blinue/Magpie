@@ -9,7 +9,7 @@ namespace winrt::Magpie::App::implementation {
 struct CandidateWindow : CandidateWindowT<CandidateWindow> {
 	CandidateWindow(uint64_t hWnd, uint32_t dpi, bool isLightTheme, CoreDispatcher const& dispatcher);
 
-	CandidateWindow(uint64_t hWnd, const hstring& title, IInspectable const& icon, const hstring& defaultProfileName, uint32_t dpi, bool isLightTheme, CoreDispatcher const& dispatcher);
+	CandidateWindow(Magpie::App::CandidateWindow const& other, int);
 
 	event_token PropertyChanged(PropertyChangedEventHandler const& handler) {
 		return _propertyChangedEvent.add(handler);
@@ -49,6 +49,7 @@ private:
 
 	event<PropertyChangedEventHandler> _propertyChangedEvent;
 
+	bool _isPackagedApp = false;
 	uint64_t _hWnd = 0;
 	hstring _title;
 	IInspectable _icon{ nullptr };
