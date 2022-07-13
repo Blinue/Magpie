@@ -9,6 +9,8 @@ namespace winrt::Magpie::App::implementation {
 struct CandidateWindow : CandidateWindowT<CandidateWindow> {
 	CandidateWindow(uint64_t hWnd, uint32_t dpi, bool isLightTheme, CoreDispatcher const& dispatcher);
 
+	CandidateWindow(uint64_t hWnd, const hstring& title, IInspectable const& icon, const hstring& defaultProfileName, uint32_t dpi, bool isLightTheme, CoreDispatcher const& dispatcher);
+
 	event_token PropertyChanged(PropertyChangedEventHandler const& handler) {
 		return _propertyChangedEvent.add(handler);
 	}
@@ -43,7 +45,7 @@ private:
 		_propertyChangedEvent(*this, PropertyChangedEventArgs(L"Icon"));
 	}
 
-	fire_and_forget _ResolveWindow(weak_ref<CandidateWindow> weakThis, uint32_t dpi, bool isLightTheme, CoreDispatcher dispatcher, bool resolveIcon, bool resolveName);
+	fire_and_forget _ResolveWindow(bool resolveIcon, bool resolveName);
 
 	event<PropertyChangedEventHandler> _propertyChangedEvent;
 
@@ -95,10 +97,14 @@ struct NewProfileDialog : NewProfileDialogT<NewProfileDialog> {
 
 	void RootScrollViewer_SizeChanged(IInspectable const&, IInspectable const&);
 
+	void Loaded(IInspectable const&, RoutedEventArgs const&);
+
 	void ActualThemeChanged(IInspectable const&, IInspectable const&);
 
 private:
 	IAsyncAction _DisplayInformation_DpiChanged(Windows::Graphics::Display::DisplayInformation const&, IInspectable const&);
+
+	fire_and_forget _UpdateCandidateWindows();
 
 	event<PropertyChangedEventHandler> _propertyChangedEvent;
 

@@ -37,6 +37,11 @@ static bool IsCandidateWindow(HWND hWnd) {
 		return false;
 	}
 
+	// 标题不能为空
+	if (Win32Utils::GetWndTitle(hWnd).empty()) {
+		return false;
+	}
+
 	// 排除后台 UWP 窗口
 	// https://stackoverflow.com/questions/43927156/enumwindows-returns-closed-windows-store-applications
 	UINT isCloaked{};
@@ -131,11 +136,6 @@ NewProfileDialog::NewProfileDialog() {
 	const UINT dpi = (UINT)std::lroundf(_displayInfomation.LogicalDpi());
 	const bool isLightTheme = Application::Current().as<App>().MainPage().ActualTheme() == ElementTheme::Light;
 	for (HWND hWnd : GetDesktopWindows()) {
-		std::wstring title = Win32Utils::GetWndTitle(hWnd);
-		if (title.empty()) {
-			continue;
-		}
-
 		candidateWindows.emplace_back(Magpie::App::CandidateWindow((uint64_t)hWnd, dpi, isLightTheme, Dispatcher()));
 	}
 
@@ -157,6 +157,10 @@ void NewProfileDialog::ComboBox_DropDownOpened(IInspectable const& sender, IInsp
 void NewProfileDialog::WindowIndex(int32_t value) noexcept {
 	_windowIndex = value;
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"WindowIndex"));
+
+	if (_windowIndex >= 0 && _windowIndex < _candidateWindows.Size()) {
+		ProfileNameTextBox().Text(_candidateWindows.GetAt(_windowIndex).DefaultProfileName());
+	}
 }
 
 void NewProfileDialog::RootScrollViewer_SizeChanged(IInspectable const&, IInspectable const&) {
@@ -166,6 +170,10 @@ void NewProfileDialog::RootScrollViewer_SizeChanged(IInspectable const&, IInspec
 	} else {
 		RootStackPanel().Padding({});
 	}
+}
+
+void NewProfileDialog::Loaded(IInspectable const&, RoutedEventArgs const&) {
+	_UpdateCandidateWindows();
 }
 
 void NewProfileDialog::ActualThemeChanged(IInspectable const&, IInspectable const&) {
@@ -178,21 +186,72 @@ IAsyncAction NewProfileDialog::_DisplayInformation_DpiChanged(DisplayInformation
 	auto weakThis = get_weak();
 
 	// 等待候选窗口更新图标
-	co_await std::chrono::milliseconds(200);
+	co_await std::chrono::milliseconds(100);
 	co_await Dispatcher();
 
 	if (auto strongThis = weakThis.get()) {
-		const UINT dpi = (UINT)std::lroundf(strongThis->_displayInfomation.LogicalDpi());
-		for (Magpie::App::CandidateWindow const& item : strongThis->_candidateWindows) {
+		const UINT dpi = (UINT)std::lroundf(_displayInfomation.LogicalDpi());
+		for (Magpie::App::CandidateWindow const& item : _candidateWindows) {
 			item.OnDpiChanged(dpi);
 		}
 	}
 }
 
-fire_and_forget CandidateWindow::_ResolveWindow(weak_ref<CandidateWindow> weakThis, uint32_t dpi, bool isLightTheme, CoreDispatcher dispatcher, bool resolveIcon, bool resolveName) {
+fire_and_forget NewProfileDialog::_UpdateCandidateWindows() {
+	auto weakThis = get_weak();
+
+	while (true) {
+		co_await std::chrono::seconds(1);
+
+		auto strongThis = weakThis.get();
+		if (!strongThis) {
+			co_return;
+		}
+
+		co_await Dispatcher();
+
+		std::vector<HWND> candiateWindows = GetDesktopWindows();
+
+		std::vector<Magpie::App::CandidateWindow> items;
+		items.reserve(candiateWindows.size());
+
+		bool changed = candiateWindows.size() != _candidateWindows.Size();
+		const UINT dpi = (UINT)std::lroundf(_displayInfomation.LogicalDpi());
+		const bool isLightTheme = ActualTheme() == ElementTheme::Light;
+
+		for (HWND hWnd : candiateWindows) {
+			bool flag = false;
+			for (Magpie::App::CandidateWindow const& item : _candidateWindows) {
+				if ((HWND)item.HWnd() == hWnd) {
+					items.emplace_back(Magpie::App::CandidateWindow((uint64_t)hWnd, item.Title(), item.Icon(), item.DefaultProfileName(), dpi, isLightTheme, Dispatcher()));
+					flag = true;
+					break;
+				}
+			}
+			
+			if (flag) {
+				continue;
+			}
+
+			changed = true;
+			items.emplace_back(Magpie::App::CandidateWindow((uint64_t)hWnd, dpi, isLightTheme, Dispatcher()));
+		}
+		
+		if (changed) {
+			//_candidateWindows.ReplaceAll(items);
+		}
+	}
+}
+
+fire_and_forget CandidateWindow::_ResolveWindow(bool resolveIcon, bool resolveName) {
 	assert(resolveIcon || resolveName);
 
-	HWND hWnd = (HWND)weakThis.get()->HWnd();
+	auto weakThis = get_weak();
+
+	HWND hWnd = (HWND)_hWnd;
+	uint32_t dpi = _dpi;
+	bool isLightTheme = _isLightTheme;
+	CoreDispatcher dispatcher = _dispatcher;
 	
 	// 解析名称和图标非常耗时，转到后台进行
 	co_await resume_background();
@@ -295,17 +354,21 @@ CandidateWindow::CandidateWindow(uint64_t hWnd, uint32_t dpi, bool isLightTheme,
 	placeholder.Height(16);
 	_icon = std::move(placeholder);
 
-	_ResolveWindow(get_weak(), dpi, isLightTheme, dispatcher, true, true);
+	_ResolveWindow(true, true);
+}
+
+CandidateWindow::CandidateWindow(uint64_t hWnd, const hstring& title, IInspectable const& icon, const hstring& defaultProfileName, uint32_t dpi, bool isLightTheme, CoreDispatcher const& dispatcher) : _hWnd(hWnd), _dispatcher(dispatcher), _dpi(dpi), _isLightTheme(isLightTheme), _title(title), _icon(icon), _defaultProfileName(defaultProfileName) {
+
 }
 
 void CandidateWindow::OnThemeChanged(bool isLightTheme) {
 	_isLightTheme = isLightTheme;
-	_ResolveWindow(get_weak(), _dpi, isLightTheme, _dispatcher, true, false);
+	_ResolveWindow(true, false);
 }
 
 void CandidateWindow::OnDpiChanged(uint32_t newDpi) {
 	_dpi = newDpi;
-	_ResolveWindow(get_weak(), newDpi, _isLightTheme, _dispatcher, true, false);
+	_ResolveWindow(true, false);
 }
 
 }

@@ -6,6 +6,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
+	Loaded="Loaded"
 	ActualThemeChanged="ActualThemeChanged">
 
 	<ScrollViewer x:Name="RootScrollViewer" VerticalScrollBarVisibility="Auto" SizeChanged="RootScrollViewer_SizeChanged">
@@ -18,7 +19,7 @@
 					  CornerRadius="{StaticResource ControlCornerRadius}"
 					  BorderBrush="{ThemeResource SystemControlForegroundBaseMediumLowBrush}"
 					  ItemsSource="{x:Bind CandidateWindows, Mode=OneTime}"
-					  SelectedIndex="{x:Bind WindowIndex, Mode=TwoWay}">
+					  >
 				<ListView.ItemTemplate>
 					<DataTemplate x:DataType="local:CandidateWindow">
 						<Grid HorizontalAlignment="Stretch">
@@ -27,14 +28,14 @@
 								<ColumnDefinition Width="*" />
 							</Grid.ColumnDefinitions>
 							<ContentPresenter Grid.Column="0" Content="{x:Bind Icon, Mode=OneWay}" />
-							<TextBlock Margin="10,0,0,0" Grid.Column="1" Text="{x:Bind Title}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" local:TextBlockHelper.IsAutoTooltip="True" />
+							<TextBlock Margin="10,0,0,0" Grid.Column="1" Text="{x:Bind Title, Mode=OneTime}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" local:TextBlockHelper.IsAutoTooltip="True" />
 						</Grid>
 					</DataTemplate>
 				</ListView.ItemTemplate>
 			</ListView>
 			<StackPanel Orientation="Horizontal" Spacing="10">
 				<TextBlock Text="名称" VerticalAlignment="Center" />
-				<TextBox DataContext="{Binding SelectedItem, ElementName=CandidateWindowsListView, Mode=OneWay}" Text="{Binding DefaultProfileName, Mode=OneTime}" Width="250" Height="32" />
+				<TextBox x:Name="ProfileNameTextBox" Width="250" Height="32" />
 			</StackPanel>
 			<StackPanel Orientation="Horizontal" Spacing="10">
 				<TextBlock Text="复制缩放配置" VerticalAlignment="Center" />
