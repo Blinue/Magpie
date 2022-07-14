@@ -172,23 +172,6 @@ public:
 		return _defaultScalingProfile;
 	}
 
-	void AddScalingProfile(bool isPackaged, std::wstring_view pathOrAumid, std::wstring_view className, std::wstring_view name) noexcept;
-
-	event_token ScalingProfileAdded(delegate<ScalingProfile&> const& handler) {
-		return _scalingProfileAddedEvent.add(handler);
-	}
-
-	WinRTUtils::EventRevoker ScalingProfileAdded(auto_revoke_t, delegate<ScalingProfile&> const& handler) {
-		event_token token = ScalingProfileAdded(handler);
-		return WinRTUtils::EventRevoker([this, token]() {
-			ScalingProfileAdded(token);
-		});
-	}
-
-	void ScalingProfileAdded(event_token const& token) {
-		_scalingProfileAddedEvent.remove(token);
-	}
-
 	std::vector<ScalingProfile>& ScalingProfiles() noexcept {
 		return _scalingProfiles;
 	}
@@ -232,7 +215,6 @@ private:
 
 	ScalingProfile _defaultScalingProfile;
 	std::vector<ScalingProfile> _scalingProfiles;
-	event<delegate<ScalingProfile&>> _scalingProfileAddedEvent;
 };
 
 }

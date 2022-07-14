@@ -37,7 +37,7 @@ namespace winrt::Magpie::App::implementation
 
 		IAsyncAction _Settings_ColorValuesChanged(Windows::UI::ViewManagement::UISettings const&, IInspectable const&);
 
-		void _AppSettings_ScalingProfileAdded(ScalingProfile& profile);
+		void _ScalingProfileService_ProfileAdded(ScalingProfile& profile);
 
 		Windows::UI::ViewManagement::UISettings _uiSettings;
 		event_token _colorChangedToken{};

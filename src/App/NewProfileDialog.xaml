@@ -5,16 +5,18 @@
 	xmlns:local="using:Magpie.App"
 	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+	xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
 	mc:Ignorable="d"
 	Loaded="Loaded"
 	ActualThemeChanged="ActualThemeChanged">
 
 	<ScrollViewer x:Name="RootScrollViewer" VerticalScrollBarVisibility="Auto" SizeChanged="RootScrollViewer_SizeChanged">
-		<StackPanel x:Name="RootStackPanel" MinWidth="498" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Orientation="Vertical" Spacing="10">
+		<StackPanel x:Name="RootStackPanel" MinWidth="498" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Orientation="Vertical">
 			<TextBlock Text="选择一个窗口" />
 			<ListView x:Name="CandidateWindowsListView"
 					  MaxHeight="242"
 					  d:Height="250"
+					  Margin="0,10,0,0"
 					  BorderThickness="1"
 					  CornerRadius="{StaticResource ControlCornerRadius}"
 					  BorderBrush="{ThemeResource SystemControlForegroundBaseMediumLowBrush}"
@@ -41,14 +43,42 @@
 					</TransitionCollection>
 				</ListView.ItemContainerTransitions>
 			</ListView>
-			<StackPanel Orientation="Horizontal" Spacing="10">
-				<TextBlock Text="名称" VerticalAlignment="Center" />
-				<TextBox x:Name="ProfileNameTextBox" IsEnabled="False" TextChanged="ProfileNameTextBox_TextChanged" Width="250" Height="32" />
+			<Grid x:Name="ErrorMesageGrid" Height="36" Visibility="Collapsed" Margin="0,10,0,0">
+				<Border x:Name="WarningBanner"
+					Background="{ThemeResource InfoBarErrorSeverityBackgroundBrush}"
+					CornerRadius="{ThemeResource ControlCornerRadius}"
+					BorderBrush="{ThemeResource InfoBarBorderBrush}"
+					BorderThickness="{ThemeResource InfoBarBorderThickness}"
+					Padding="8"
+					Margin="-2,0,0,0">
+					<Grid>
+						<Grid.ColumnDefinitions>
+							<ColumnDefinition Width="Auto"/>
+							<ColumnDefinition Width="*" />
+						</Grid.ColumnDefinitions>
+
+						<muxc:InfoBadge Margin="2,0,12,0"
+										Style="{StaticResource CriticalIconInfoBadgeStyle}" />
+
+						<TextBlock x:Name="InvalidShortcutWarningLabel"
+								   VerticalAlignment="Center"
+								   Margin="0,-1,0,0"
+								   Foreground="{ThemeResource InfoBarTitleForeground}"
+								   FontWeight="{ThemeResource InfoBarTitleFontWeight}"
+								   Grid.Column="1"
+								   Text="已存在针对此窗口的缩放配置"/>
+					</Grid>
+				</Border>
+			</Grid>
+			<StackPanel x:Name="ProfileNameStackPanel" Height="36" Orientation="Horizontal" Spacing="10" Margin="0,10,0,0">
+				<TextBlock Text="名称" VerticalAlignment="Center"  />
+				<TextBox x:Name="ProfileNameTextBox" IsEnabled="False" TextChanged="ProfileNameTextBox_TextChanged" Width="260" Height="32" VerticalAlignment="Center" />
 			</StackPanel>
-			<StackPanel Orientation="Horizontal" Spacing="10">
+			<StackPanel Orientation="Horizontal" Spacing="10" Margin="0,8,0,0">
 				<TextBlock Text="复制缩放配置" VerticalAlignment="Center" />
 				<ComboBox ItemsSource="{x:Bind Profiles, Mode=OneTime}" SelectedIndex="{x:Bind ProfileIndex, Mode=TwoWay}" DropDownOpened="ComboBox_DropDownOpened" />
 			</StackPanel>
+			
 		</StackPanel>
 	</ScrollViewer>
 </UserControl>

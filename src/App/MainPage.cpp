@@ -9,6 +9,7 @@
 #include "StrUtils.h"
 #include "Win32Utils.h"
 #include "AppSettings.h"
+#include "ScalingProfileService.h"
 
 
 using namespace winrt;
@@ -42,8 +43,8 @@ MainPage::MainPage() {
 		ContentFrame().Navigate(winrt::xaml_typename<Controls::Page>());
 	}
 
-	_profileAddedRevoker = AppSettings::Get().ScalingProfileAdded(
-		auto_revoke, { this, &MainPage::_AppSettings_ScalingProfileAdded });
+	_profileAddedRevoker = ScalingProfileService::Get().ProfileAdded(
+		auto_revoke, { this, &MainPage::_ScalingProfileService_ProfileAdded });
 }
 
 MainPage::~MainPage() {
@@ -202,7 +203,7 @@ IAsyncAction MainPage::_Settings_ColorValuesChanged(UISettings const&, IInspecta
 	);
 }
 
-void MainPage::_AppSettings_ScalingProfileAdded(ScalingProfile& profile) {
+void MainPage::_ScalingProfileService_ProfileAdded(ScalingProfile& profile) {
 	MUXC::NavigationViewItem item;
 	item.Content(box_value(profile.Name()));
 	Controls::FontIcon icon;
@@ -211,6 +212,8 @@ void MainPage::_AppSettings_ScalingProfileAdded(ScalingProfile& profile) {
 
 	IVector<IInspectable> navMenuItems = __super::RootNavigationView().MenuItems();
 	navMenuItems.InsertAt(navMenuItems.Size() - 1, item);
+	
+	item.IsSelected(true);
 }
 
 } // namespace winrt::Magpie::implementation

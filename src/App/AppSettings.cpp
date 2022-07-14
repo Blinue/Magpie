@@ -556,15 +556,6 @@ void AppSettings::DownCount(uint32_t value) noexcept {
 	_downCountChangedEvent(value);
 }
 
-void AppSettings::AddScalingProfile(bool isPackaged, std::wstring_view pathOrAumid, std::wstring_view className, std::wstring_view name) noexcept {
-	ScalingProfile& profile = _scalingProfiles.emplace_back();
-	profile.IsPackaged(isPackaged);
-	profile.PathRule(pathOrAumid);
-	profile.ClassNameRule(className);
-	profile.Name(name);
-	_scalingProfileAddedEvent(std::ref(profile));
-}
-
 // 遇到不合法的配置项会失败，因此用户不应直接编辑配置文件
 bool AppSettings::_LoadSettings(std::string text) {
 	if (text.empty()) {

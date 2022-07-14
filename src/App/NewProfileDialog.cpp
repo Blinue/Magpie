@@ -12,7 +12,7 @@
 #include "AppSettings.h"
 #include "IconHelper.h"
 #include "AppXReader.h"
-#include "AppSettings.h"
+#include "ScalingProfileService.h"
 #include <unordered_set>
 
 using namespace winrt;
@@ -204,6 +204,8 @@ void NewProfileDialog::ActualThemeChanged(IInspectable const&, IInspectable cons
 void NewProfileDialog::CandidateWindowsListView_SelectionChanged(IInspectable const&, SelectionChangedEventArgs const&) {
 	IInspectable selectedItem = CandidateWindowsListView().SelectedItem();
 	if (!selectedItem) {
+		ErrorMesageGrid().Visibility(Visibility::Collapsed);
+		ProfileNameStackPanel().Visibility(Visibility::Visible);
 		ProfileNameTextBox().Text(L"");
 		ProfileNameTextBox().IsEnabled(false);
 		_parent.IsPrimaryButtonEnabled(false);
@@ -211,13 +213,28 @@ void NewProfileDialog::CandidateWindowsListView_SelectionChanged(IInspectable co
 	}
 
 	Magpie::App::CandidateWindow window = selectedItem.as<Magpie::App::CandidateWindow>();
-	ProfileNameTextBox().IsEnabled(true);
+
+	bool isValidProfile = false;
+	{
+		HWND hWnd = (HWND)window.HWnd();
+		std::wstring className = Win32Utils::GetWndClassName(hWnd);
+		hstring aumid = window.AUMID();
+		if (!aumid.empty()) {
+			isValidProfile = ScalingProfileService::Get().TestNewProfile(true, aumid, className);
+		} else {
+			isValidProfile = ScalingProfileService::Get().TestNewProfile(false, Win32Utils::GetPathOfWnd(hWnd), className);
+		}
+	}
+
 	ProfileNameTextBox().Text(window.DefaultProfileName());
-	_parent.IsPrimaryButtonEnabled(true);
+	ErrorMesageGrid().Visibility(isValidProfile ? Visibility::Collapsed : Visibility::Visible);
+	ProfileNameStackPanel().Visibility(isValidProfile ? Visibility::Visible : Visibility::Collapsed);
+	ProfileNameTextBox().IsEnabled(isValidProfile);
+	_parent.IsPrimaryButtonEnabled(isValidProfile);
 }
 
 void NewProfileDialog::ProfileNameTextBox_TextChanged(IInspectable const&, TextChangedEventArgs const&) {
-	_parent.IsPrimaryButtonEnabled(!ProfileNameTextBox().Text().empty());
+	_parent.IsPrimaryButtonEnabled(ProfileNameTextBox().IsEnabled() && !ProfileNameTextBox().Text().empty());
 }
 
 void NewProfileDialog::_ContentDialog_PrimaryButtonClick(Controls::ContentDialog const&, Controls::ContentDialogButtonClickEventArgs const&) {
@@ -229,9 +246,9 @@ void NewProfileDialog::_ContentDialog_PrimaryButtonClick(Controls::ContentDialog
 	std::wstring className = Win32Utils::GetWndClassName(hWnd);
 	hstring aumid = window.AUMID();
 	if (!aumid.empty()) {
-		AppSettings::Get().AddScalingProfile(true, aumid, className, ProfileNameTextBox().Text());
+		ScalingProfileService::Get().AddProfile(true, aumid, className, ProfileNameTextBox().Text());
 	} else {
-		AppSettings::Get().AddScalingProfile(false, Win32Utils::GetPathOfWnd(hWnd), className, ProfileNameTextBox().Text());
+		ScalingProfileService::Get().AddProfile(false, Win32Utils::GetPathOfWnd(hWnd), className, ProfileNameTextBox().Text());
 	}
 }
 
