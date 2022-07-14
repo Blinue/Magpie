@@ -438,7 +438,7 @@ fire_and_forget CandidateWindow::_ResolveWindow(bool resolveIcon, bool resolveNa
 	if (isPackaged) {
 		iconPath = reader.GetIconPath(iconSize, isLightTheme, &hasBackground);
 	} else {
-		iconBitmap = co_await IconHelper::GetIconOfWndAsync(hWnd, iconSize);
+		iconBitmap = IconHelper::GetIconOfWnd(hWnd, iconSize);
 	}
 
 	// 切换到主线程
@@ -447,8 +447,10 @@ fire_and_forget CandidateWindow::_ResolveWindow(bool resolveIcon, bool resolveNa
 	if (auto strongThis = weakThis.get()) {
 		if (!iconPath.empty()) {
 			strongThis->_SetPackagedIcon(iconPath, hasBackground);
-		} else {
+		} else if (iconBitmap) {
 			co_await strongThis->_SetWin32IconAsync(iconBitmap);
+		} else {
+			strongThis->_SetDefaultIcon();
 		}
 	}
 }
@@ -527,7 +529,7 @@ void CandidateWindow::UpdateIcon() {
 
 		co_await resume_background();
 
-		SoftwareBitmap iconBitmap = co_await IconHelper::GetIconOfWndAsync(hWnd, iconSize);
+		SoftwareBitmap iconBitmap = IconHelper::GetIconOfWnd(hWnd, iconSize);
 
 		co_await dispatcher;
 
@@ -547,29 +549,26 @@ void CandidateWindow::OnDpiChanged(uint32_t newDpi) {
 	_ResolveWindow(true, false);
 }
 
+void CandidateWindow::_SetDefaultIcon() {
+	FontIcon fontIcon;
+	fontIcon.Glyph(L"\uE737");
+	fontIcon.FontSize(16);
+
+	_icon = std::move(fontIcon);
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"Icon"));
+}
+
 // 不检查 this 的生命周期，必须在主线程调用
 IAsyncAction CandidateWindow::_SetWin32IconAsync(SoftwareBitmap const& iconBitmap) {
-	if (iconBitmap) {
-		SoftwareBitmapSource imageSource;
-		co_await imageSource.SetBitmapAsync(iconBitmap);
+	SoftwareBitmapSource imageSource;
+	co_await imageSource.SetBitmapAsync(iconBitmap);
 
-		co_await _dispatcher;
+	MUXC::ImageIcon imageIcon;
+	imageIcon.Width(16);
+	imageIcon.Height(16);
+	imageIcon.Source(imageSource);
 
-		MUXC::ImageIcon imageIcon;
-		imageIcon.Width(16);
-		imageIcon.Height(16);
-		imageIcon.Source(imageSource);
-
-		_icon = imageIcon;
-	} else {
-		// 回落到通用图标
-		FontIcon fontIcon;
-		fontIcon.Glyph(L"\uE737");
-		fontIcon.FontSize(16);
-
-		_icon = std::move(fontIcon);
-	}
-
+	_icon = imageIcon;
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"Icon"));
 }
 

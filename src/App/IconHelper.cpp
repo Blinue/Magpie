@@ -177,15 +177,19 @@ static HICON GetHIconOfWnd(HWND hWnd, LONG preferredSize) {
 	return GetHIconOfWnd(hwndOwner, preferredSize);
 }
 
-IAsyncOperation<SoftwareBitmap> IconHelper::GetIconOfWndAsync(HWND hWnd, uint32_t preferredSize) {
+SoftwareBitmap IconHelper::GetIconOfWnd(HWND hWnd, uint32_t preferredSize) {
 	if (HICON hIcon = GetHIconOfWnd(hWnd, (LONG)preferredSize)) {
-		co_return HIcon2SoftwareBitmapAsync(hIcon);
+		return HIcon2SoftwareBitmapAsync(hIcon);
 	}
 
+	return GetIconOfExe(Win32Utils::GetPathOfWnd(hWnd).c_str(), preferredSize);
+}
+
+SoftwareBitmap IconHelper::GetIconOfExe(const wchar_t* path, uint32_t preferredSize) {
 	com_ptr<IShellItemImageFactory> factory;
-	HRESULT hr = SHCreateItemFromParsingName(Win32Utils::GetPathOfWnd(hWnd).c_str(), nullptr, IID_PPV_ARGS(&factory));
+	HRESULT hr = SHCreateItemFromParsingName(path, nullptr, IID_PPV_ARGS(&factory));
 	if (FAILED(hr)) {
-		co_return nullptr;
+		return nullptr;
 	}
 
 	HBITMAP hBmp;
@@ -197,7 +201,7 @@ IAsyncOperation<SoftwareBitmap> IconHelper::GetIconOfWndAsync(HWND hWnd, uint32_
 			Sleep(0);
 			continue;
 		} else if (FAILED(hr)) {
-			co_return nullptr;
+			return nullptr;
 		} else {
 			break;
 		}
@@ -216,10 +220,10 @@ IAsyncOperation<SoftwareBitmap> IconHelper::GetIconOfWndAsync(HWND hWnd, uint32_
 		uint8_t* pixels = buffer.CreateReference().data();
 
 		if (!CopyPixelsOfHBmp(hBmp, bmp.bmWidth, bmp.bmHeight, pixels)) {
-			co_return nullptr;
+			return nullptr;
 		}
 	}
-	co_return bitmap;
+	return bitmap;
 }
 
 }

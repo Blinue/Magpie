@@ -9,6 +9,10 @@ class AppXReader {
 public:
 	bool Initialize(HWND hWnd) noexcept;
 
+	void Initialize(std::wstring_view aumid) noexcept {
+		_aumid = aumid;
+	}
+
 	std::wstring GetDisplayName() noexcept;
 
 	std::wstring GetIconPath(uint32_t preferredSize, bool preferLightTheme, bool* hasBackground = nullptr) noexcept;

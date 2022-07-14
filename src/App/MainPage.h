@@ -45,6 +45,8 @@ namespace winrt::Magpie::App::implementation
 		Controls::ContentDialog _newProfileDialog{ nullptr };
 
 		WinRTUtils::EventRevoker _profileAddedRevoker;
+
+		Windows::Graphics::Display::DisplayInformation _displayInfomation{ nullptr };
 	};
 }
 

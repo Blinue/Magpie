@@ -48,6 +48,8 @@ struct CandidateWindow : CandidateWindowT<CandidateWindow> {
 	void OnDpiChanged(uint32_t newDpi);
 
 private:
+	void _SetDefaultIcon();
+
 	IAsyncAction _SetWin32IconAsync(Windows::Graphics::Imaging::SoftwareBitmap const& iconBitmap);
 
 	void _SetPackagedIcon(std::wstring_view iconPath, bool hasBackground);
