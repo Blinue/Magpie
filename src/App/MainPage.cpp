@@ -41,6 +41,9 @@ MainPage::MainPage() {
 	if (Win32Utils::GetOSBuild() < 22000) {
 		ContentFrame().Navigate(winrt::xaml_typename<Controls::Page>());
 	}
+
+	_profileAddedRevoker = AppSettings::Get().ScalingProfileAdded(
+		auto_revoke, { this, &MainPage::_AppSettings_ScalingProfileAdded });
 }
 
 MainPage::~MainPage() {
@@ -139,7 +142,6 @@ IAsyncAction MainPage::AddNavigationViewItem_Tapped(IInspectable const&, TappedR
 		_newProfileDialog.PrimaryButtonText(L"确定");
 		_newProfileDialog.CloseButtonText(L"取消");
 		_newProfileDialog.DefaultButton(ContentDialogButton::Primary);
-		_newProfileDialog.Closing({ this, &MainPage::_NewProfileDialog_Closing });
 	}
 
 	_newProfileDialog.Content(NewProfileDialog());
@@ -158,10 +160,6 @@ IAsyncAction MainPage::AddNavigationViewItem_Tapped(IInspectable const&, TappedR
 
 MUXC::NavigationView MainPage::RootNavigationView() {
 	return __super::RootNavigationView();
-}
-
-void MainPage::_NewProfileDialog_Closing(Controls::ContentDialog const&, Controls::ContentDialogClosingEventArgs const& /*args*/) {
-	
 }
 
 void MainPage::_UpdateTheme() {
@@ -202,6 +200,17 @@ IAsyncAction MainPage::_Settings_ColorValuesChanged(UISettings const&, IInspecta
 		CoreDispatcherPriority::Normal,
 		{ this, &MainPage::_UpdateTheme }
 	);
+}
+
+void MainPage::_AppSettings_ScalingProfileAdded(ScalingProfile& profile) {
+	MUXC::NavigationViewItem item;
+	item.Content(box_value(profile.Name()));
+	Controls::FontIcon icon;
+	icon.Glyph(L"\uECAA");
+	item.Icon(icon);
+
+	IVector<IInspectable> navMenuItems = __super::RootNavigationView().MenuItems();
+	navMenuItems.InsertAt(navMenuItems.Size() - 1, item);
 }
 
 } // namespace winrt::Magpie::implementation

@@ -12,6 +12,7 @@
 #include "AppSettings.h"
 #include "IconHelper.h"
 #include "AppXReader.h"
+#include "AppSettings.h"
 #include <unordered_set>
 
 using namespace winrt;
@@ -190,6 +191,8 @@ void NewProfileDialog::Loaded(IInspectable const&, RoutedEventArgs const&) {
 
 	_parent = Parent().as<ContentDialog>();
 	_parent.IsPrimaryButtonEnabled(false);
+
+	_primaryButtonClickRevoker = _parent.PrimaryButtonClick(auto_revoke, { this, &NewProfileDialog::_ContentDialog_PrimaryButtonClick });
 }
 
 void NewProfileDialog::ActualThemeChanged(IInspectable const&, IInspectable const&) {
@@ -215,6 +218,21 @@ void NewProfileDialog::CandidateWindowsListView_SelectionChanged(IInspectable co
 
 void NewProfileDialog::ProfileNameTextBox_TextChanged(IInspectable const&, TextChangedEventArgs const&) {
 	_parent.IsPrimaryButtonEnabled(!ProfileNameTextBox().Text().empty());
+}
+
+void NewProfileDialog::_ContentDialog_PrimaryButtonClick(Controls::ContentDialog const&, Controls::ContentDialogButtonClickEventArgs const&) {
+	IInspectable selectedItem = CandidateWindowsListView().SelectedItem();
+	assert(selectedItem);
+	Magpie::App::CandidateWindow window = selectedItem.as<Magpie::App::CandidateWindow>();
+
+	HWND hWnd = (HWND)window.HWnd();
+	std::wstring className = Win32Utils::GetWndClassName(hWnd);
+	hstring aumid = window.AUMID();
+	if (!aumid.empty()) {
+		AppSettings::Get().AddScalingProfile(true, aumid, className, ProfileNameTextBox().Text());
+	} else {
+		AppSettings::Get().AddScalingProfile(false, Win32Utils::GetPathOfWnd(hWnd), className, ProfileNameTextBox().Text());
+	}
 }
 
 IAsyncAction NewProfileDialog::_DisplayInformation_DpiChanged(DisplayInformation const&, IInspectable const&) {
@@ -383,12 +401,12 @@ fire_and_forget CandidateWindow::_ResolveWindow(bool resolveIcon, bool resolveNa
 		}
 
 		if (!defaultProfileName.empty()) {
-			[](com_ptr<CandidateWindow> that, const std::wstring& defaultProfileName, bool isPackaged, CoreDispatcher const& dispatcher)->fire_and_forget {
-				co_await dispatcher.RunAsync(CoreDispatcherPriority::Normal, [that, defaultProfileName(defaultProfileName), isPackaged]() {
+			[](com_ptr<CandidateWindow> that, const std::wstring& defaultProfileName, const std::wstring& aumid, CoreDispatcher const& dispatcher)->fire_and_forget {
+				co_await dispatcher.RunAsync(CoreDispatcherPriority::Normal, [that, defaultProfileName(defaultProfileName), aumid(aumid)]() {
 					that->_defaultProfileName = defaultProfileName;
-					that->_isPackagedApp = isPackaged;
+					that->_aumid = aumid;
 				});
-			}(strongThis, defaultProfileName, isPackaged, dispatcher);
+			}(strongThis, defaultProfileName, reader.AUMID(), dispatcher);
 		}
 	}
 	
@@ -440,7 +458,7 @@ CandidateWindow::CandidateWindow(Magpie::App::CandidateWindow const& other, int)
 	_isLightTheme = otherImpl->_isLightTheme;
 	_title = otherImpl->_title;
 	_defaultProfileName = otherImpl->_defaultProfileName;
-	_isPackagedApp = otherImpl->_isPackagedApp;
+	_aumid = otherImpl->_aumid;
 
 	// 复制图标不能直接复制引用
 	if (MUXC::ImageIcon uwpIcon = otherImpl->_icon.try_as<MUXC::ImageIcon>()) {
@@ -478,7 +496,7 @@ void CandidateWindow::UpdateTitle() {
 }
 
 void CandidateWindow::UpdateIcon() {
-	if (_isPackagedApp) {
+	if (!_aumid.empty()) {
 		// 打包应用无需更新图标
 		return;
 	}

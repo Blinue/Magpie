@@ -14,6 +14,8 @@ namespace Magpie.App
 		String Title { get; };
 		Object Icon { get; };
 		String DefaultProfileName { get; };
+		String AUMID { get; };
+
 
 		void OnThemeChanged(Boolean isLightTheme);
 		void OnDpiChanged(UInt32 newDpi);

@@ -13,9 +13,14 @@ public:
 
 	std::wstring GetIconPath(uint32_t preferredSize, bool preferLightTheme, bool* hasBackground = nullptr) const noexcept;
 
+	const std::wstring& AUMID() const noexcept {
+		return _aumid;
+	}
+
 private:
 	bool _ResolveApplication(const std::wstring& praid) noexcept;
 
+	std::wstring _aumid;
 	std::wstring _packageFullName;
 	std::wstring _packagePath;
 	com_ptr<IAppxManifestApplication> _appxApp;

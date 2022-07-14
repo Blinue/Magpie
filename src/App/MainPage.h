@@ -1,7 +1,14 @@
 #pragma once
 #include "pch.h"
 #include "MainPage.g.h"
+#include "WinRTUtils.h"
 
+
+namespace winrt::Magpie::App {
+
+class ScalingProfile;
+
+}
 
 namespace winrt::Magpie::App::implementation
 {
@@ -26,16 +33,18 @@ namespace winrt::Magpie::App::implementation
 		MUXC::NavigationView RootNavigationView();
 
 	private:
-		void _NewProfileDialog_Closing(Controls::ContentDialog const&, Controls::ContentDialogClosingEventArgs const& args);
-
 		void _UpdateTheme();
 
 		IAsyncAction _Settings_ColorValuesChanged(Windows::UI::ViewManagement::UISettings const&, IInspectable const&);
+
+		void _AppSettings_ScalingProfileAdded(ScalingProfile& profile);
 
 		Windows::UI::ViewManagement::UISettings _uiSettings;
 		event_token _colorChangedToken{};
 
 		Controls::ContentDialog _newProfileDialog{ nullptr };
+
+		WinRTUtils::EventRevoker _profileAddedRevoker;
 	};
 }
 

@@ -35,6 +35,14 @@ public:
 		_pathRule = value;
 	}
 
+	bool IsPackaged() const noexcept {
+		return _isPackaged;
+	}
+
+	void IsPackaged(bool value) noexcept {
+		_isPackaged = value;
+	}
+
 	const std::wstring& ClassNameRule() const noexcept {
 		return _classNameRule;
 	}
@@ -74,6 +82,8 @@ public:
 private:
 	std::wstring _name;
 
+	// 若为打包应用，PathRule 存储 AUMID
+	bool _isPackaged = false;
 	std::wstring _pathRule;
 	std::wstring _classNameRule;
 

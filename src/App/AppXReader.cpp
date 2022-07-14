@@ -110,7 +110,6 @@ bool AppXReader::Initialize(HWND hWnd) noexcept {
 	}
 
 	Win32Utils::ScopedHandle hProc;
-	std::wstring aumid;
 
 	if (!isSuspended) {
 		// 使用 GetApplicationUserModelId 获取 AUMID
@@ -128,9 +127,9 @@ bool AppXReader::Initialize(HWND hWnd) noexcept {
 
 		UINT32 length = 0;
 		if (GetApplicationUserModelId(hProc.get(), &length, nullptr) != APPMODEL_ERROR_NO_APPLICATION && length > 0) {
-			aumid.resize((size_t)length - 1);
-			if (GetApplicationUserModelId(hProc.get(), &length, aumid.data()) != ERROR_SUCCESS) {
-				aumid.clear();
+			_aumid.resize((size_t)length - 1);
+			if (GetApplicationUserModelId(hProc.get(), &length, _aumid.data()) != ERROR_SUCCESS) {
+				_aumid.clear();
 			}
 		}
 	} else {
@@ -150,18 +149,18 @@ bool AppXReader::Initialize(HWND hWnd) noexcept {
 			return false;
 		}
 
-		aumid = prop.pwszVal;
+		_aumid = prop.pwszVal;
 		PropVariantClear(&prop);
 	}
 
 	UINT pfnLen = 0, praidLen = 0;
-	if (ParseApplicationUserModelId(aumid.c_str(), &pfnLen, nullptr, &praidLen, nullptr) != ERROR_INSUFFICIENT_BUFFER || pfnLen == 0 || praidLen == 0) {
+	if (ParseApplicationUserModelId(_aumid.c_str(), &pfnLen, nullptr, &praidLen, nullptr) != ERROR_INSUFFICIENT_BUFFER || pfnLen == 0 || praidLen == 0) {
 		return false;
 	}
 
 	std::wstring packageFamilyName(pfnLen - 1, 0);
 	std::wstring praid(praidLen - 1, 0);
-	if (ParseApplicationUserModelId(aumid.c_str(), &pfnLen, packageFamilyName.data(), &praidLen, praid.data()) != ERROR_SUCCESS) {
+	if (ParseApplicationUserModelId(_aumid.c_str(), &pfnLen, packageFamilyName.data(), &praidLen, praid.data()) != ERROR_SUCCESS) {
 		return false;
 	}
 

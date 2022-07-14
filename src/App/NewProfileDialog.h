@@ -39,6 +39,10 @@ struct CandidateWindow : CandidateWindowT<CandidateWindow> {
 		return _defaultProfileName;
 	}
 
+	hstring AUMID() const noexcept {
+		return _aumid;
+	}
+
 	void OnThemeChanged(bool isLightTheme);
 
 	void OnDpiChanged(uint32_t newDpi);
@@ -52,7 +56,7 @@ private:
 
 	event<PropertyChangedEventHandler> _propertyChangedEvent;
 
-	bool _isPackagedApp = false;
+	hstring _aumid;
 	uint64_t _hWnd = 0;
 	hstring _title;
 	IInspectable _icon{ nullptr };
@@ -104,6 +108,8 @@ struct NewProfileDialog : NewProfileDialogT<NewProfileDialog> {
 	void ProfileNameTextBox_TextChanged(IInspectable const&, Controls::TextChangedEventArgs const&);
 
 private:
+	void _ContentDialog_PrimaryButtonClick(Controls::ContentDialog const&, Controls::ContentDialogButtonClickEventArgs const&);
+
 	IAsyncAction _DisplayInformation_DpiChanged(Windows::Graphics::Display::DisplayInformation const&, IInspectable const&);
 
 	fire_and_forget _UpdateCandidateWindows();
@@ -119,6 +125,7 @@ private:
 	Windows::Graphics::Display::DisplayInformation::DpiChanged_revoker _dpiChangedRevoker;
 
 	Controls::ContentDialog _parent{ nullptr };
+	Controls::ContentDialog::PrimaryButtonClick_revoker _primaryButtonClickRevoker;
 };
 
 }

@@ -163,6 +163,8 @@ void WriteScalingProfile(rapidjson::PrettyWriter<rapidjson::StringBuffer>& write
 	if (!scalingProfile.Name().empty()) {
 		writer.Key("name");
 		writer.String(StrUtils::UTF16ToUTF8(scalingProfile.Name()).c_str());
+		writer.Key("packaged");
+		writer.Bool(scalingProfile.IsPackaged());
 		writer.Key("pathRule");
 		writer.String(StrUtils::UTF16ToUTF8(scalingProfile.PathRule()).c_str());
 		writer.Key("classNameRule");
@@ -236,6 +238,13 @@ bool LoadScalingProfile(const rapidjson::GenericObject<false, rapidjson::Value>&
 	}
 	if (strValue.has_value()) {
 		scalingProfile.Name(StrUtils::UTF8ToUTF16(strValue.value()));
+	}
+
+	if (!LoadBoolSettingItem(scalingConfigObj, "packaged", boolValue)) {
+		return false;
+	}
+	if (boolValue.has_value()) {
+		scalingProfile.IsPackaged(boolValue.value());
 	}
 	
 	if (!LoadStringSettingItem(scalingConfigObj, "pathRule", strValue)) {
@@ -547,6 +556,15 @@ void AppSettings::DownCount(uint32_t value) noexcept {
 	_downCountChangedEvent(value);
 }
 
+void AppSettings::AddScalingProfile(bool isPackaged, std::wstring_view pathOrAumid, std::wstring_view className, std::wstring_view name) noexcept {
+	ScalingProfile& profile = _scalingProfiles.emplace_back();
+	profile.IsPackaged(isPackaged);
+	profile.PathRule(pathOrAumid);
+	profile.ClassNameRule(className);
+	profile.Name(name);
+	_scalingProfileAddedEvent(std::ref(profile));
+}
+
 // 遇到不合法的配置项会失败，因此用户不应直接编辑配置文件
 bool AppSettings::_LoadSettings(std::string text) {
 	if (text.empty()) {
@@ -689,9 +707,10 @@ bool AppSettings::_LoadSettings(std::string text) {
 				_defaultScalingProfile.Name(L"");
 				_defaultScalingProfile.PathRule(L"");
 				_defaultScalingProfile.ClassNameRule(L"");
+				_defaultScalingProfile.IsPackaged(false);
 
 				if (size > 1) {
-					_scalingProfiles.resize(size - 1);
+					_scalingProfiles.resize((size_t)size - 1);
 					for (rapidjson::SizeType i = 1; i < size; ++i) {
 						if (!scaleRulesArray[i].IsObject()) {
 							return false;
