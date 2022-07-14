@@ -4,6 +4,8 @@ namespace Magpie.App
 	runtimeclass CandidateWindow : [default] Windows.UI.Xaml.Data.INotifyPropertyChanged
 	{
 		CandidateWindow(UInt64 hWnd, UInt32 dpi, Boolean isLightTheme, Windows.UI.Core.CoreDispatcher dispatcher);
+		// 添加一个不使用的参数以防止隐藏复制构造函数
+		CandidateWindow(CandidateWindow other, Int32 unused);
 
 		void UpdateTitle();
 		void UpdateIcon();

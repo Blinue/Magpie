@@ -9,6 +9,8 @@ namespace winrt::Magpie::App::implementation {
 struct CandidateWindow : CandidateWindowT<CandidateWindow> {
 	CandidateWindow(uint64_t hWnd, uint32_t dpi, bool isLightTheme, CoreDispatcher const& dispatcher);
 
+	CandidateWindow(Magpie::App::CandidateWindow const& other, int);
+
 	void UpdateTitle();
 
 	void UpdateIcon();

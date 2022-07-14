@@ -157,7 +157,7 @@ NewProfileDialog::NewProfileDialog() {
 	const UINT dpi = (UINT)std::lroundf(_displayInfomation.LogicalDpi());
 	const bool isLightTheme = Application::Current().as<App>().MainPage().ActualTheme() == ElementTheme::Light;
 	for (HWND hWnd : GetDesktopWindows()) {
-		candidateWindows.emplace_back(Magpie::App::CandidateWindow((uint64_t)hWnd, dpi, isLightTheme, Dispatcher()));
+		candidateWindows.emplace_back((uint64_t)hWnd, dpi, isLightTheme, Dispatcher());
 	}
 
 	SortCandidateWindows(candidateWindows.begin(), candidateWindows.end());
@@ -237,10 +237,18 @@ static bool IsChanged(const IVector<Magpie::App::CandidateWindow>& oldItems, con
 		return true;
 	}
 
-	std::unordered_set newItemsSet(newItems.begin(), newItems.end());
-
 	for (Magpie::App::CandidateWindow const& item : oldItems) {
-		if (!newItemsSet.contains((HWND)item.HWnd())) {
+		HWND hwndNew = (HWND)item.HWnd();
+
+		bool flag = false;
+		for (HWND hWnd : newItems) {
+			if (hWnd == hwndNew) {
+				flag = true;
+				break;
+			}
+		}
+
+		if (!flag) {
 			return true;
 		}
 	}
@@ -286,8 +294,6 @@ fire_and_forget NewProfileDialog::_UpdateCandidateWindows() {
 			continue;
 		}
 
-		count = 0;
-
 		const UINT dpi = (UINT)std::lroundf(_displayInfomation.LogicalDpi());
 		const bool isLightTheme = ActualTheme() == ElementTheme::Light;
 
@@ -295,7 +301,21 @@ fire_and_forget NewProfileDialog::_UpdateCandidateWindows() {
 		items.reserve(candiateWindows.size());
 
 		for (HWND hWnd : candiateWindows) {
-			items.emplace_back(Magpie::App::CandidateWindow((uint64_t)hWnd, dpi, isLightTheme, Dispatcher()));
+			bool flag = false;
+
+			for (Magpie::App::CandidateWindow const& item : _candidateWindows) {
+				if ((HWND)item.HWnd() == hWnd) {
+					items.emplace_back(item, 0);
+					flag = true;
+					break;
+				}
+			}
+
+			if (flag) {
+				continue;
+			}
+
+			items.emplace_back((uint64_t)hWnd, dpi, isLightTheme, Dispatcher());
 		}
 
 		SortCandidateWindows(items.begin(), items.end());
@@ -410,6 +430,46 @@ CandidateWindow::CandidateWindow(uint64_t hWnd, uint32_t dpi, bool isLightTheme,
 	_icon = std::move(placeholder);
 
 	_ResolveWindow(true, true);
+}
+
+CandidateWindow::CandidateWindow(Magpie::App::CandidateWindow const& other, int) {
+	CandidateWindow* otherImpl = get_self<CandidateWindow>(other);
+	_hWnd = otherImpl->_hWnd;
+	_dispatcher = otherImpl->_dispatcher;
+	_dpi = otherImpl->_dpi;
+	_isLightTheme = otherImpl->_isLightTheme;
+	_title = otherImpl->_title;
+	_defaultProfileName = otherImpl->_defaultProfileName;
+	_isPackagedApp = otherImpl->_isPackagedApp;
+
+	// 复制图标不能直接复制引用
+	if (MUXC::ImageIcon uwpIcon = otherImpl->_icon.try_as<MUXC::ImageIcon>()) {
+		MUXC::ImageIcon icon;
+		icon.Source(uwpIcon.Source());
+		icon.Width(uwpIcon.Width());
+		icon.Height(uwpIcon.Height());
+		_icon = std::move(icon);
+	} else if (StackPanel bkgUwpIcon = otherImpl->_icon.try_as<StackPanel>()) {
+		StackPanel icon;
+		icon.Background(bkgUwpIcon.Background());
+		icon.VerticalAlignment(bkgUwpIcon.VerticalAlignment());
+		icon.HorizontalAlignment(bkgUwpIcon.HorizontalAlignment());
+		icon.Padding(bkgUwpIcon.Padding());
+
+		MUXC::ImageIcon realIcon = bkgUwpIcon.Children().GetAt(0).as<MUXC::ImageIcon>();
+		MUXC::ImageIcon newRealIcon;
+		newRealIcon.Source(realIcon.Source());
+		newRealIcon.Width(realIcon.Width());
+		newRealIcon.Height(realIcon.Height());
+
+		icon.Children().Append(newRealIcon);
+		_icon = std::move(icon);
+	} else if (FontIcon fontIcon = otherImpl->_icon.try_as<FontIcon>()) {
+		FontIcon icon;
+		icon.Glyph(fontIcon.Glyph());
+		icon.FontSize(fontIcon.FontSize());
+		_icon = std::move(icon);
+	}
 }
 
 void CandidateWindow::UpdateTitle() {
