@@ -35,6 +35,8 @@ namespace winrt::Magpie::App::implementation
 	private:
 		void _UpdateTheme();
 
+		fire_and_forget _LoadIcon(MUXC::NavigationViewItem const& item, const ScalingProfile& profile);
+
 		IAsyncAction _Settings_ColorValuesChanged(Windows::UI::ViewManagement::UISettings const&, IInspectable const&);
 
 		void _ScalingProfileService_ProfileAdded(ScalingProfile& profile);

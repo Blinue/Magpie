@@ -36,73 +36,12 @@ MainPage::MainPage() {
 	_displayInfomation = DisplayInformation::GetForCurrentView();
 	uint32_t dpi = (uint32_t)std::lroundf(_displayInfomation.LogicalDpi());
 	uint32_t preferredIconSize = (uint32_t)std::ceil(dpi * 16 / 96.0);
-	bool preferLightTheme = ActualTheme() == ElementTheme::Light;
 
 	IVector<IInspectable> navMenuItems = __super::RootNavigationView().MenuItems();
 	for (const ScalingProfile& profile : AppSettings::Get().ScalingProfiles()) {
 		MUXC::NavigationViewItem item;
 		item.Content(box_value(profile.Name()));
-
-		([](bool isPackaged, std::wstring path, uint32_t preferredIconSize, bool preferLightTheme, MUXC::NavigationViewItem const& item, CoreDispatcher dispatcher)->fire_and_forget {
-			weak_ref<MUXC::NavigationViewItem> weakRef(item);
-
-			co_await resume_background();
-
-			std::wstring iconPath;
-			bool hasBackground = false;
-			SoftwareBitmap iconBitmap{ nullptr };
-
-			if (isPackaged) {
-				AppXReader reader;
-				reader.Initialize(path);
-				iconPath = reader.GetIconPath(preferredIconSize, preferLightTheme, &hasBackground);
-			} else {
-				iconBitmap = IconHelper::GetIconOfExe(path.c_str(), preferredIconSize);
-			}
-
-			co_await dispatcher;
-			
-			if (auto strongRef = weakRef.get()) {
-				if (!iconPath.empty()) {
-					BitmapImage image;
-					image.UriSource(Uri(iconPath));
-
-					MUXC::ImageIcon imageIcon;
-					imageIcon.Source(image);
-
-					if (hasBackground) {
-						/*imageIcon.Width(12);
-						imageIcon.Height(12);
-
-						StackPanel container;
-						container.Background(Application::Current().Resources().Lookup(box_value(L"SystemControlHighlightAccentBrush")).as<SolidColorBrush>());
-						container.VerticalAlignment(VerticalAlignment::Center);
-						container.HorizontalAlignment(HorizontalAlignment::Center);
-						container.Padding({ 2,2,2,2 });
-						container.Children().Append(imageIcon);
-
-						_icon = std::move(container);*/
-					} else {
-						imageIcon.Width(16);
-						imageIcon.Height(16);
-
-						strongRef.Icon(imageIcon);
-					}
-				} else if (iconBitmap) {
-					SoftwareBitmapSource imageSource;
-					co_await imageSource.SetBitmapAsync(iconBitmap);
-
-					MUXC::ImageIcon imageIcon;
-					imageIcon.Width(16);
-					imageIcon.Height(16);
-					imageIcon.Source(imageSource);
-
-					strongRef.Icon(imageIcon);
-				} else {
-
-				}
-			}
-		})(profile.IsPackaged(), profile.PathRule(), preferredIconSize, preferLightTheme, item, Dispatcher());
+		_LoadIcon(item, profile);
 
 		navMenuItems.InsertAt(navMenuItems.Size() - 1, item);
 	}
@@ -265,6 +204,80 @@ void MainPage::_UpdateTheme() {
 	Logger::Get().Info(StrUtils::Concat("当前主题：", isDarkTheme ? "深色" : "浅色"));
 }
 
+fire_and_forget MainPage::_LoadIcon(MUXC::NavigationViewItem const& item, const ScalingProfile& profile) {
+	// 用于占位
+	item.Icon(FontIcon());
+
+	weak_ref<MUXC::NavigationViewItem> weakRef(item);
+
+	bool preferLightTheme = item.ActualTheme() == ElementTheme::Light;
+	bool isPackaged = profile.IsPackaged();
+	std::wstring path = profile.PathRule();
+	CoreDispatcher dispatcher = Dispatcher();
+	uint32_t dpi = (uint32_t)std::lroundf(_displayInfomation.LogicalDpi());
+	uint32_t preferredIconSize = (uint32_t)std::ceil(dpi * 16 / 96.0);
+
+	co_await resume_background();
+
+	std::wstring iconPath;
+	bool hasBackground = false;
+	SoftwareBitmap iconBitmap{ nullptr };
+
+	if (isPackaged) {
+		AppXReader reader;
+		reader.Initialize(path);
+		iconPath = reader.GetIconPath(preferredIconSize, preferLightTheme, &hasBackground);
+	} else {
+		iconBitmap = IconHelper::GetIconOfExe(path.c_str(), preferredIconSize);
+	}
+
+	co_await dispatcher;
+
+	auto strongRef = weakRef.get();
+	if (!strongRef) {
+		co_return;
+	}
+
+	if (!iconPath.empty()) {
+		BitmapImage image;
+		image.UriSource(Uri(iconPath));
+
+		MUXC::ImageIcon imageIcon;
+		imageIcon.Source(image);
+
+		if (hasBackground) {
+			/*imageIcon.Width(12);
+			imageIcon.Height(12);
+
+			StackPanel container;
+			container.Background(Application::Current().Resources().Lookup(box_value(L"SystemControlHighlightAccentBrush")).as<SolidColorBrush>());
+			container.VerticalAlignment(VerticalAlignment::Center);
+			container.HorizontalAlignment(HorizontalAlignment::Center);
+			container.Padding({ 2,2,2,2 });
+			container.Children().Append(imageIcon);
+
+			_icon = std::move(container);*/
+		} else {
+			imageIcon.Width(16);
+			imageIcon.Height(16);
+
+			strongRef.Icon(imageIcon);
+		}
+	} else if (iconBitmap) {
+		SoftwareBitmapSource imageSource;
+		co_await imageSource.SetBitmapAsync(iconBitmap);
+
+		MUXC::ImageIcon imageIcon;
+		imageIcon.Width(16);
+		imageIcon.Height(16);
+		imageIcon.Source(imageSource);
+
+		strongRef.Icon(imageIcon);
+	} else {
+
+	}
+}
+
 IAsyncAction MainPage::_Settings_ColorValuesChanged(UISettings const&, IInspectable const&) {
 	return Dispatcher().RunAsync(
 		CoreDispatcherPriority::Normal,
@@ -275,14 +288,16 @@ IAsyncAction MainPage::_Settings_ColorValuesChanged(UISettings const&, IInspecta
 void MainPage::_ScalingProfileService_ProfileAdded(ScalingProfile& profile) {
 	MUXC::NavigationViewItem item;
 	item.Content(box_value(profile.Name()));
-	Controls::FontIcon icon;
-	icon.Glyph(L"\uECAA");
-	item.Icon(icon);
+	_LoadIcon(item, profile);
 
 	IVector<IInspectable> navMenuItems = __super::RootNavigationView().MenuItems();
 	navMenuItems.InsertAt(navMenuItems.Size() - 1, item);
-	
 	item.IsSelected(true);
+
+	// 关闭背景遮罩动画，否则导航完成后背景可能闪烁
+	for (const auto& popup : VisualTreeHelper::GetOpenPopupsForXamlRoot(XamlRoot())) {
+		popup.IsOpen(false);
+	}
 }
 
 } // namespace winrt::Magpie::implementation
