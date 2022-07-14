@@ -9,9 +9,9 @@ class AppXReader {
 public:
 	bool Initialize(HWND hWnd) noexcept;
 
-	std::wstring GetDisplayName() const noexcept;
+	std::wstring GetDisplayName() noexcept;
 
-	std::wstring GetIconPath(uint32_t preferredSize, bool preferLightTheme, bool* hasBackground = nullptr) const noexcept;
+	std::wstring GetIconPath(uint32_t preferredSize, bool preferLightTheme, bool* hasBackground = nullptr) noexcept;
 
 	const std::wstring& AUMID() const noexcept {
 		return _aumid;
@@ -19,6 +19,8 @@ public:
 
 private:
 	bool _ResolveApplication(const std::wstring& praid) noexcept;
+
+	bool _LoadManifest();
 
 	std::wstring _aumid;
 	std::wstring _packageFullName;

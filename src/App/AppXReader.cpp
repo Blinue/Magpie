@@ -109,8 +109,6 @@ bool AppXReader::Initialize(HWND hWnd) noexcept {
 		}
 	}
 
-	Win32Utils::ScopedHandle hProc;
-
 	if (!isSuspended) {
 		// 使用 GetApplicationUserModelId 获取 AUMID
 		DWORD dwProcId = 0;
@@ -119,18 +117,21 @@ bool AppXReader::Initialize(HWND hWnd) noexcept {
 			return false;
 		}
 
-		hProc.reset(Win32Utils::SafeHandle(OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, dwProcId)));
+		Win32Utils::ScopedHandle hProc(Win32Utils::SafeHandle(OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, dwProcId)));
 		if (!hProc) {
 			Logger::Get().Win32Error("OpenProcess 失败");
 			return false;
 		}
 
 		UINT32 length = 0;
-		if (GetApplicationUserModelId(hProc.get(), &length, nullptr) != APPMODEL_ERROR_NO_APPLICATION && length > 0) {
-			_aumid.resize((size_t)length - 1);
-			if (GetApplicationUserModelId(hProc.get(), &length, _aumid.data()) != ERROR_SUCCESS) {
-				_aumid.clear();
-			}
+		if (GetApplicationUserModelId(hProc.get(), &length, nullptr) == APPMODEL_ERROR_NO_APPLICATION || length == 0) {
+			return false;
+		}
+
+		_aumid.resize((size_t)length - 1);
+		if (GetApplicationUserModelId(hProc.get(), &length, _aumid.data()) != ERROR_SUCCESS) {
+			_aumid.clear();
+			return false;
 		}
 	} else {
 		// 窗口被挂起，此时 UWP 进程无法通过子窗口找到
@@ -153,50 +154,11 @@ bool AppXReader::Initialize(HWND hWnd) noexcept {
 		PropVariantClear(&prop);
 	}
 
-	UINT pfnLen = 0, praidLen = 0;
-	if (ParseApplicationUserModelId(_aumid.c_str(), &pfnLen, nullptr, &praidLen, nullptr) != ERROR_INSUFFICIENT_BUFFER || pfnLen == 0 || praidLen == 0) {
-		return false;
-	}
-
-	std::wstring packageFamilyName(pfnLen - 1, 0);
-	std::wstring praid(praidLen - 1, 0);
-	if (ParseApplicationUserModelId(_aumid.c_str(), &pfnLen, packageFamilyName.data(), &praidLen, praid.data()) != ERROR_SUCCESS) {
-		return false;
-	}
-
-	if (!isSuspended) {
-		UINT length = 0;
-		if (::GetPackageFullName(hProc.get(), &length, nullptr) == APPMODEL_ERROR_NO_PACKAGE) {
-			return false;
-		}
-
-		_packageFullName.resize((size_t)length - 1);
-		if (::GetPackageFullName(hProc.get(), &length, _packageFullName.data()) != ERROR_SUCCESS) {
-			return false;
-		}
-	} else {
-		// 已挂起的 UWP 窗口无法获得进程句柄，因此使用 PackageFamilyName 检索 PackageFullName
-		UINT32 packageCount = 0;
-		UINT32 bufferLength = 0;
-		if (FindPackagesByPackageFamily(packageFamilyName.c_str(), PACKAGE_FILTER_HEAD, &packageCount, nullptr, &bufferLength, nullptr, nullptr) != ERROR_INSUFFICIENT_BUFFER || packageCount == 0 || bufferLength == 0) {
-			return false;
-		}
-
-		std::unique_ptr<wchar_t* []> packageFullNames(new wchar_t* [packageCount]);
-		std::unique_ptr<wchar_t[]> buffer(new wchar_t[bufferLength]);
-		if (FindPackagesByPackageFamily(packageFamilyName.c_str(), PACKAGE_FILTER_HEAD, &packageCount, packageFullNames.get(), &bufferLength, buffer.get(), nullptr) != ERROR_SUCCESS) {
-			return false;
-		}
-
-		// 只使用第一个包，一般也只有一个
-		_packageFullName = packageFullNames[0];
-	}
-
-	return _ResolveApplication(praid);
+	return true;
 }
 
-std::wstring AppXReader::GetDisplayName() const noexcept {
-	if (!_appxApp) {
+std::wstring AppXReader::GetDisplayName() noexcept {
+	if (!_appxApp && !_LoadManifest()) {
 		return {};
 	}
 
@@ -448,8 +410,8 @@ bool CheckNeedBackground(const std::wstring& iconPath, bool isLightTheme) {
 	return isLightTheme ? lumaAvg > 220 : lumaAvg < 30;
 }
 
-std::wstring AppXReader::GetIconPath(uint32_t preferredSize, bool isLightTheme, bool* hasBackground) const noexcept {
-	if (!_appxApp) {
+std::wstring AppXReader::GetIconPath(uint32_t preferredSize, bool isLightTheme, bool* hasBackground) noexcept {
+	if (!_appxApp && !_LoadManifest()) {
 		return {};
 	}
 
@@ -612,6 +574,37 @@ bool AppXReader::_ResolveApplication(const std::wstring& praid) noexcept {
 
 	// 未找到 Id 为 praid 的应用
 	return false;
+}
+
+bool AppXReader::_LoadManifest() {
+	UINT pfnLen = 0, praidLen = 0;
+	if (ParseApplicationUserModelId(_aumid.c_str(), &pfnLen, nullptr, &praidLen, nullptr) != ERROR_INSUFFICIENT_BUFFER || pfnLen == 0 || praidLen == 0) {
+		return false;
+	}
+
+	std::wstring packageFamilyName(pfnLen - 1, 0);
+	std::wstring praid(praidLen - 1, 0);
+	if (ParseApplicationUserModelId(_aumid.c_str(), &pfnLen, packageFamilyName.data(), &praidLen, praid.data()) != ERROR_SUCCESS) {
+		return false;
+	}
+
+	//使用 PackageFamilyName 检索 PackageFullName
+	UINT32 packageCount = 0;
+	UINT32 bufferLength = 0;
+	if (FindPackagesByPackageFamily(packageFamilyName.c_str(), PACKAGE_FILTER_HEAD, &packageCount, nullptr, &bufferLength, nullptr, nullptr) != ERROR_INSUFFICIENT_BUFFER || packageCount == 0 || bufferLength == 0) {
+		return false;
+	}
+
+	std::unique_ptr<wchar_t* []> packageFullNames(new wchar_t* [packageCount]);
+	std::unique_ptr<wchar_t[]> buffer(new wchar_t[bufferLength]);
+	if (FindPackagesByPackageFamily(packageFamilyName.c_str(), PACKAGE_FILTER_HEAD, &packageCount, packageFullNames.get(), &bufferLength, buffer.get(), nullptr) != ERROR_SUCCESS) {
+		return false;
+	}
+
+	// 只使用第一个包，一般也只有一个
+	_packageFullName = packageFullNames[0];
+
+	return _ResolveApplication(praid);
 }
 
 }
