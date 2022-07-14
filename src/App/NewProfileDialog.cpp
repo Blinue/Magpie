@@ -176,15 +176,6 @@ void NewProfileDialog::ComboBox_DropDownOpened(IInspectable const& sender, IInsp
 	ComboBoxHelper::DropDownOpened(*this, sender);
 }
 
-void NewProfileDialog::WindowIndex(int32_t value) noexcept {
-	_windowIndex = value;
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"WindowIndex"));
-
-	if (_windowIndex >= 0 && _windowIndex < (int32_t)_candidateWindows.Size()) {
-		ProfileNameTextBox().Text(_candidateWindows.GetAt(_windowIndex).DefaultProfileName());
-	}
-}
-
 void NewProfileDialog::RootScrollViewer_SizeChanged(IInspectable const&, IInspectable const&) {
 	// 为滚动条预留空间
 	if (RootScrollViewer().ScrollableHeight() > 0) {
@@ -196,12 +187,34 @@ void NewProfileDialog::RootScrollViewer_SizeChanged(IInspectable const&, IInspec
 
 void NewProfileDialog::Loaded(IInspectable const&, RoutedEventArgs const&) {
 	_UpdateCandidateWindows();
+
+	_parent = Parent().as<ContentDialog>();
+	_parent.IsPrimaryButtonEnabled(false);
 }
 
 void NewProfileDialog::ActualThemeChanged(IInspectable const&, IInspectable const&) {
 	for (Magpie::App::CandidateWindow const& item : _candidateWindows) {
 		item.OnThemeChanged(ActualTheme() == ElementTheme::Light);
 	}
+}
+
+void NewProfileDialog::CandidateWindowsListView_SelectionChanged(IInspectable const&, SelectionChangedEventArgs const&) {
+	IInspectable selectedItem = CandidateWindowsListView().SelectedItem();
+	if (!selectedItem) {
+		ProfileNameTextBox().Text(L"");
+		ProfileNameTextBox().IsEnabled(false);
+		_parent.IsPrimaryButtonEnabled(false);
+		return;
+	}
+
+	Magpie::App::CandidateWindow window = selectedItem.as<Magpie::App::CandidateWindow>();
+	ProfileNameTextBox().IsEnabled(true);
+	ProfileNameTextBox().Text(window.DefaultProfileName());
+	_parent.IsPrimaryButtonEnabled(true);
+}
+
+void NewProfileDialog::ProfileNameTextBox_TextChanged(IInspectable const&, TextChangedEventArgs const&) {
+	_parent.IsPrimaryButtonEnabled(!ProfileNameTextBox().Text().empty());
 }
 
 IAsyncAction NewProfileDialog::_DisplayInformation_DpiChanged(DisplayInformation const&, IInspectable const&) {
@@ -254,7 +267,7 @@ fire_and_forget NewProfileDialog::_UpdateCandidateWindows() {
 		++count;
 
 		std::vector<HWND> candiateWindows = GetDesktopWindows();
-		
+
 		if (!IsChanged(_candidateWindows, candiateWindows)) {
 			// 更新标题
 			for (Magpie::App::CandidateWindow const& item : _candidateWindows) {
@@ -264,7 +277,7 @@ fire_and_forget NewProfileDialog::_UpdateCandidateWindows() {
 			// 更新图标
 			if (count >= 5) {
 				count = 0;
-				
+
 				for (Magpie::App::CandidateWindow const& item : _candidateWindows) {
 					item.UpdateIcon();
 				}
@@ -286,7 +299,43 @@ fire_and_forget NewProfileDialog::_UpdateCandidateWindows() {
 		}
 
 		SortCandidateWindows(items.begin(), items.end());
-		_candidateWindows.ReplaceAll(items);
+
+		// 计算当前选中的窗口的新位置
+		int32_t newSelectIndex = -1;
+		IInspectable selectItem = CandidateWindowsListView().SelectedItem();
+		if (selectItem) {
+			uint64_t selectedHWnd = selectItem.as<Magpie::App::CandidateWindow>().HWnd();
+			for (int32_t i = 0, end = (int32_t)items.size(); i < end; ++i) {
+				if (items[i].HWnd() == selectedHWnd) {
+					newSelectIndex = i;
+					break;
+				}
+			}
+		}
+
+		if (items.size() > _candidateWindows.Size()) {
+			uint32_t i = 0;
+			for (uint32_t end = _candidateWindows.Size(); i < end; ++i) {
+				_candidateWindows.SetAt(i, items[i]);
+			}
+
+			for (uint32_t end = (uint32_t)items.size(); i < end; ++i) {
+				_candidateWindows.Append(items[i]);
+			}
+		} else{
+			uint32_t i = 0;
+			for (uint32_t end = (uint32_t)items.size(); i < end; ++i) {
+				_candidateWindows.SetAt(i, items[i]);
+			}
+
+			for (uint32_t end = _candidateWindows.Size(); i < end; ++i) {
+				_candidateWindows.RemoveAtEnd();
+			}
+		}
+
+		if (newSelectIndex > 0) {
+			CandidateWindowsListView().SelectedIndex(newSelectIndex);
+		}
 	}
 }
 

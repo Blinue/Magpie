@@ -1,11 +1,11 @@
 <UserControl
-    x:Class="Magpie.App.NewProfileDialog"
-    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:Magpie.App"
-    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    mc:Ignorable="d"
+	x:Class="Magpie.App.NewProfileDialog"
+	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:local="using:Magpie.App"
+	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+	mc:Ignorable="d"
 	Loaded="Loaded"
 	ActualThemeChanged="ActualThemeChanged">
 
@@ -18,7 +18,8 @@
 					  BorderThickness="1"
 					  CornerRadius="{StaticResource ControlCornerRadius}"
 					  BorderBrush="{ThemeResource SystemControlForegroundBaseMediumLowBrush}"
-					  ItemsSource="{x:Bind CandidateWindows, Mode=OneTime}">
+					  ItemsSource="{x:Bind CandidateWindows, Mode=OneTime}"
+					  SelectionChanged="CandidateWindowsListView_SelectionChanged">
 				<ListView.ItemTemplate>
 					<DataTemplate x:DataType="local:CandidateWindow">
 						<Grid HorizontalAlignment="Stretch">
@@ -32,13 +33,17 @@
 					</DataTemplate>
 				</ListView.ItemTemplate>
 				<ListView.ItemContainerTransitions>
-					<!-- 禁用动画 -->
-					<TransitionCollection />
+					<!-- 禁用添加/删除动画 -->
+					<TransitionCollection>
+						<ContentThemeTransition />
+						<EntranceThemeTransition IsStaggeringEnabled="False" />
+						<ReorderThemeTransition />
+					</TransitionCollection>
 				</ListView.ItemContainerTransitions>
 			</ListView>
 			<StackPanel Orientation="Horizontal" Spacing="10">
 				<TextBlock Text="名称" VerticalAlignment="Center" />
-				<TextBox x:Name="ProfileNameTextBox" Width="250" Height="32" />
+				<TextBox x:Name="ProfileNameTextBox" IsEnabled="False" TextChanged="ProfileNameTextBox_TextChanged" Width="250" Height="32" />
 			</StackPanel>
 			<StackPanel Orientation="Horizontal" Spacing="10">
 				<TextBlock Text="复制缩放配置" VerticalAlignment="Center" />

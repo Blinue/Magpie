@@ -22,7 +22,6 @@ namespace Magpie.App
 		NewProfileDialog();
 
 		IVector<CandidateWindow> CandidateWindows { get; };
-		Int32 WindowIndex;
 		IVector<IInspectable> Profiles { get; };
 		Int32 ProfileIndex;
 	}

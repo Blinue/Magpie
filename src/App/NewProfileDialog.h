@@ -62,7 +62,7 @@ private:
 };
 
 struct NewProfileDialog : NewProfileDialogT<NewProfileDialog> {
-    NewProfileDialog();
+	NewProfileDialog();
 
 	void ComboBox_DropDownOpened(IInspectable const& sender, IInspectable const&);
 
@@ -77,12 +77,6 @@ struct NewProfileDialog : NewProfileDialogT<NewProfileDialog> {
 	IVector<Magpie::App::CandidateWindow> CandidateWindows() const noexcept {
 		return _candidateWindows;
 	}
-
-	int32_t WindowIndex() const noexcept {
-		return _windowIndex;
-	}
-
-	void WindowIndex(int32_t value) noexcept;
 
 	IVector<IInspectable> Profiles() const noexcept {
 		return _profiles;
@@ -103,6 +97,10 @@ struct NewProfileDialog : NewProfileDialogT<NewProfileDialog> {
 
 	void ActualThemeChanged(IInspectable const&, IInspectable const&);
 
+	void CandidateWindowsListView_SelectionChanged(IInspectable const&, Controls::SelectionChangedEventArgs const&);
+
+	void ProfileNameTextBox_TextChanged(IInspectable const&, Controls::TextChangedEventArgs const&);
+
 private:
 	IAsyncAction _DisplayInformation_DpiChanged(Windows::Graphics::Display::DisplayInformation const&, IInspectable const&);
 
@@ -111,13 +109,14 @@ private:
 	event<PropertyChangedEventHandler> _propertyChangedEvent;
 
 	IVector<Magpie::App::CandidateWindow> _candidateWindows;
-	int32_t _windowIndex = -1;
 
 	IVector<IInspectable> _profiles;
 	int32_t _profileIndex = 0;
 
 	Windows::Graphics::Display::DisplayInformation _displayInfomation{ nullptr };
 	Windows::Graphics::Display::DisplayInformation::DpiChanged_revoker _dpiChangedRevoker;
+
+	Controls::ContentDialog _parent{ nullptr };
 };
 
 }
