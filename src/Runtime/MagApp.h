@@ -88,8 +88,6 @@ private:
 
 	bool _DisableDirectFlip();
 
-	void _InitPrintScreenHook();
-
 	static LRESULT CALLBACK _HostWndProcStatic(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
 	LRESULT _HostWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
@@ -116,8 +114,7 @@ private:
 	std::unique_ptr<CursorManager> _cursorManager;
 	winrt::Magpie::Runtime::MagSettings _settings{ nullptr };
 
-	HANDLE _hHookThread = NULL;
-	DWORD _hookThreadId = 0;
+	HHOOK _hKeyboardHook = NULL;
 
 	std::map<UINT, std::function<std::optional<LRESULT>(HWND, UINT, WPARAM, LPARAM)>> _wndProcHandlers;
 	UINT _nextWndProcHandlerID = 1;

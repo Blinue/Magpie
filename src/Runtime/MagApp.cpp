@@ -21,15 +21,51 @@ using namespace Magpie::Runtime;
 static constexpr const wchar_t* HOST_WINDOW_CLASS_NAME = L"Window_Magpie_967EB565-6F73-4E94-AE53-00CC42592A22";
 static constexpr const wchar_t* DDF_WINDOW_CLASS_NAME = L"Window_Magpie_C322D752-C866-4630-91F5-32CB242A8930";
 
-static constexpr const DWORD WM_PRINTSCREEN = WM_USER;
 
-
-LRESULT DDFWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
+static LRESULT DDFWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 	if (msg == WM_DESTROY) {
 		return 0;
 	}
 
 	return DefWindowProc(hWnd, msg, wParam, lParam);
+}
+
+static LRESULT CALLBACK LowLevelKeyboardProc(
+  _In_ int    nCode,
+  _In_ WPARAM wParam,
+  _In_ LPARAM lParam
+) {
+	if (nCode != HC_ACTION || wParam != WM_KEYDOWN) {
+		return CallNextHookEx(NULL, nCode, wParam, lParam);
+	}
+
+	KBDLLHOOKSTRUCT* info = (KBDLLHOOKSTRUCT*)lParam;
+	if (info->vkCode == VK_SNAPSHOT) {
+		([]()->winrt::fire_and_forget {
+			MagApp& app = MagApp::Get();
+
+			const winrt::Magpie::Runtime::MagSettings& settings = app.GetSettings();
+			if (!settings || !settings.IsDrawCursor()) {
+				co_return;
+			}
+
+			// 暂时隐藏光标
+			app.GetSettings().IsDrawCursor(false);
+			app.GetRenderer().Render(true);
+
+			winrt::weak_ref<winrt::MagSettings> weakRef(settings);
+			winrt::DispatcherQueue dispatcher = app.Dispatcher();
+
+			co_await std::chrono::milliseconds(400);
+			co_await dispatcher;
+
+			if (auto strongRef = weakRef.get()) {
+				strongRef.IsDrawCursor(true);
+			}
+		})();
+	}
+
+	return CallNextHookEx(NULL, nCode, wParam, lParam);
 }
 
 MagApp::MagApp() {}
@@ -108,7 +144,7 @@ bool MagApp::Run(HWND hwndSrc, winrt::Magpie::Runtime::MagSettings const& settin
 		}
 	}
 
-	_InitPrintScreenHook();
+	_hKeyboardHook = SetWindowsHookEx(WH_KEYBOARD_LL, LowLevelKeyboardProc, NULL, 0);
 
 	ShowWindow(_hwndHost, SW_NORMAL);
 
@@ -414,70 +450,7 @@ bool MagApp::_DisableDirectFlip() {
 	return true;
 }
 
-static LRESULT CALLBACK LowLevelKeyboardProc(
-  _In_ int    nCode,
-  _In_ WPARAM wParam,
-  _In_ LPARAM lParam
-) {
-	if (nCode != HC_ACTION || wParam != WM_KEYDOWN) {
-		return CallNextHookEx(NULL, nCode, wParam, lParam);
-	}
 
-	KBDLLHOOKSTRUCT* info = (KBDLLHOOKSTRUCT*)lParam;
-	if (info->vkCode == VK_SNAPSHOT) {
-		([]()->winrt::fire_and_forget {
-			MagApp& app = MagApp::Get();
-			
-			const winrt::Magpie::Runtime::MagSettings& settings = app.GetSettings();
-			if (!settings || !settings.IsDrawCursor()) {
-				co_return;
-			}
-
-			// 使用 Send 以等待渲染完成
-			SendMessage(app.GetHwndHost(), WM_PRINTSCREEN, 0, 0);
-
-			winrt::weak_ref<winrt::MagSettings> weakRef(settings);
-			winrt::DispatcherQueue dispatcher = app.Dispatcher();
-
-			co_await std::chrono::milliseconds(100);
-			co_await dispatcher;
-
-			if (auto strongRef = weakRef.get()) {
-				strongRef.IsDrawCursor(true);
-			}
-		})();
-	}
-
-	return CallNextHookEx(NULL, nCode, wParam, lParam);
-}
-
-static DWORD WINAPI ThreadProc(LPVOID /*lpThreadParameter*/) {
-	HHOOK hook = SetWindowsHookEx(WH_KEYBOARD_LL, LowLevelKeyboardProc, NULL, 0);
-	if (!hook) {
-		Logger::Get().Win32Error("注册鼠标钩子失败");
-		return 1;
-	}
-
-	Logger::Get().Info("已注册鼠标钩子");
-
-	// 鼠标钩子需要消息循环
-	MSG msg;
-	while (GetMessage(&msg, nullptr, 0, 0)) {
-		TranslateMessage(&msg);
-		DispatchMessage(&msg);
-	}
-
-	UnhookWindowsHookEx(hook);
-	Logger::Get().Info("已销毁鼠标钩子");
-	return 0;
-}
-
-void MagApp::_InitPrintScreenHook() {
-	_hHookThread = CreateThread(nullptr, 0, ThreadProc, nullptr, 0, &_hookThreadId);
-	if (!_hHookThread) {
-		Logger::Get().Win32Error("创建线程失败");
-	}
-}
 
 LRESULT MagApp::_HostWndProcStatic(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
 	return Get()._HostWndProc(hWnd, message, wParam, lParam);
@@ -493,13 +466,6 @@ LRESULT MagApp::_HostWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 	}
 
 	switch (message) {
-	case WM_PRINTSCREEN:
-		_settings.IsDrawCursor(false);
-		_renderer->Render(true);
-
-		// 等待呈现
-		_deviceResources->BeginFrame();
-		return 0;
 	case WM_DESTROY:
 		PostQuitMessage(0);
 		return 0;
@@ -509,10 +475,9 @@ LRESULT MagApp::_HostWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 }
 
 void MagApp::_OnQuit() {
-	if (_hHookThread) {
-		PostThreadMessage(_hookThreadId, WM_QUIT, 0, 0);
-		WaitForSingleObject(_hHookThread, 1000);
-		_hHookThread = NULL;
+	if (_hKeyboardHook) {
+		UnhookWindowsHookEx(_hKeyboardHook);
+		_hKeyboardHook = NULL;
 	}
 
 	// 释放资源
