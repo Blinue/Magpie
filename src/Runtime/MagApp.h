@@ -3,6 +3,7 @@
 #include <unordered_map>
 #include <winrt/Magpie.Runtime.h>
 
+
 class DeviceResources;
 class Renderer;
 class FrameSourceBase;
@@ -19,7 +20,8 @@ public:
 
 	bool Run(
 		HWND hwndSrc,
-		winrt::Magpie::Runtime::MagSettings const& settings
+		winrt::Magpie::Runtime::MagSettings const& settings,
+		winrt::DispatcherQueue const& dispatcher
 	);
 
 	void Stop();
@@ -62,6 +64,10 @@ public:
 		return _settings;
 	}
 
+	winrt::DispatcherQueue Dispatcher() const noexcept {
+		return _dispatcher;
+	}
+
 	winrt::com_ptr<IWICImagingFactory2> GetWICImageFactory();
 
 	// 注册消息回调，回调函数如果不阻断消息应返回空
@@ -82,11 +88,15 @@ private:
 
 	bool _DisableDirectFlip();
 
+	void _InitPrintScreenHook();
+
 	static LRESULT CALLBACK _HostWndProcStatic(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
 	LRESULT _HostWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
 	void _OnQuit();
+
+	winrt::DispatcherQueue _dispatcher{ nullptr };
 
 	HINSTANCE _hInst = NULL;
 	HWND _hwndSrc = NULL;
@@ -105,6 +115,9 @@ private:
 	std::unique_ptr<FrameSourceBase> _frameSource;
 	std::unique_ptr<CursorManager> _cursorManager;
 	winrt::Magpie::Runtime::MagSettings _settings{ nullptr };
+
+	HANDLE _hHookThread = NULL;
+	DWORD _hookThreadId = 0;
 
 	std::map<UINT, std::function<std::optional<LRESULT>(HWND, UINT, WPARAM, LPARAM)>> _wndProcHandlers;
 	UINT _nextWndProcHandlerID = 1;

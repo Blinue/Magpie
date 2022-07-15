@@ -47,7 +47,7 @@ void MagRuntime::Run(uint64_t hwndSrc, MagSettings const& settings) {
 		}
 
 		MagApp& app = MagApp::Get();
-		app.Run((HWND)hwndSrc, settings);
+		app.Run((HWND)hwndSrc, settings, _dqc.DispatcherQueue());
 
 		_running = false;
 		_dqc = nullptr;
