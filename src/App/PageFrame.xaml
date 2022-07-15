@@ -15,7 +15,7 @@
 			<RowDefinition Height="*" />
 		</Grid.RowDefinitions>
 
-		<TextBlock x:Name="TitleTextBlock" Grid.Row="0" Text="{x:Bind Title, Mode=OneWay}" FontWeight="SemiBold" />
+		<TextBlock x:Name="TitleTextBlock" Grid.Row="0" Text="{x:Bind Title, Mode=OneWay}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" local:TextBlockHelper.IsAutoTooltip="True" />
 
 		<ScrollViewer Grid.Row="1" Margin="0,15,0,0" VerticalScrollBarVisibility="Auto" PointerPressed="ScrollViewer_PointerPressed" ViewChanging="ScrollViewer_ViewChanging">
 			<Grid>

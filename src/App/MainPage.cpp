@@ -34,8 +34,6 @@ MainPage::MainPage() {
 	Background(MicaBrush(*this));
 
 	_displayInfomation = DisplayInformation::GetForCurrentView();
-	uint32_t dpi = (uint32_t)std::lroundf(_displayInfomation.LogicalDpi());
-	uint32_t preferredIconSize = (uint32_t)std::ceil(dpi * 16 / 96.0);
 
 	IVector<IInspectable> navMenuItems = __super::RootNavigationView().MenuItems();
 	for (const ScalingProfile& profile : AppSettings::Get().ScalingProfiles()) {
@@ -274,7 +272,9 @@ fire_and_forget MainPage::_LoadIcon(MUXC::NavigationViewItem const& item, const 
 
 		strongRef.Icon(imageIcon);
 	} else {
-
+		FontIcon icon;
+		icon.Glyph(L"\uECAA");
+		strongRef.Icon(icon);
 	}
 }
 
@@ -292,11 +292,13 @@ void MainPage::_ScalingProfileService_ProfileAdded(ScalingProfile& profile) {
 
 	IVector<IInspectable> navMenuItems = __super::RootNavigationView().MenuItems();
 	navMenuItems.InsertAt(navMenuItems.Size() - 1, item);
-	item.IsSelected(true);
-
-	// 关闭背景遮罩动画，否则导航完成后背景可能闪烁
-	for (const auto& popup : VisualTreeHelper::GetOpenPopupsForXamlRoot(XamlRoot())) {
-		popup.IsOpen(false);
+	__super::RootNavigationView().SelectedItem(item);
+	
+	if (Win32Utils::GetOSBuild() >= 22000) {
+		// Win11 中关闭背景遮罩动画，否则导航完成后背景可能闪烁
+		for (const auto& popup : VisualTreeHelper::GetOpenPopupsForXamlRoot(XamlRoot())) {
+			popup.IsOpen(false);
+		}
 	}
 }
 
