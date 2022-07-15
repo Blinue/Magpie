@@ -60,7 +60,7 @@ bool Renderer::Initialize(const std::string& effectsJson) {
 }
 
 
-void Renderer::Render() {
+void Renderer::Render(bool onPrint) {
 	if (!_CheckSrcState()) {
 		Logger::Get().Info("源窗口状态改变，退出全屏");
 		MagApp::Get().Stop();
@@ -77,7 +77,7 @@ void Renderer::Render() {
 	// 首先处理配置改变产生的回调
 	//MagApp::Get().GetSettings().OnBeginFrame();
 
-	auto state = MagApp::Get().GetFrameSource().Update();
+	auto state = onPrint ? FrameSourceBase::UpdateState::NoUpdate : MagApp::Get().GetFrameSource().Update();
 	_waitingForNextFrame = state == FrameSourceBase::UpdateState::Waiting
 		|| state == FrameSourceBase::UpdateState::Error;
 	if (_waitingForNextFrame) {

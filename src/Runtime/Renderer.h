@@ -18,7 +18,7 @@ public:
 
 	bool Initialize(const std::string& effectsJson);
 
-	void Render();
+	void Render(bool onPrint = false);
 
 	GPUTimer& GetGPUTimer() {
 		return *_gpuTimer;

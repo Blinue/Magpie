@@ -14,6 +14,10 @@
 #include "GPUTimer.h"
 
 
+namespace winrt {
+using namespace Magpie::Runtime;
+}
+
 static constexpr const wchar_t* HOST_WINDOW_CLASS_NAME = L"Window_Magpie_967EB565-6F73-4E94-AE53-00CC42592A22";
 static constexpr const wchar_t* DDF_WINDOW_CLASS_NAME = L"Window_Magpie_C322D752-C866-4630-91F5-32CB242A8930";
 
@@ -423,18 +427,24 @@ static LRESULT CALLBACK LowLevelKeyboardProc(
 	if (info->vkCode == VK_SNAPSHOT) {
 		([]()->winrt::fire_and_forget {
 			MagApp& app = MagApp::Get();
+			
 			const winrt::Magpie::Runtime::MagSettings& settings = app.GetSettings();
 			if (!settings || !settings.IsDrawCursor()) {
 				co_return;
 			}
 
-			// 使用 Send 以等待当前帧渲染完成
+			// 使用 Send 以等待渲染完成
 			SendMessage(app.GetHwndHost(), WM_PRINTSCREEN, 0, 0);
 
-			co_await std::chrono::milliseconds(500);
-			co_await app.Dispatcher();
+			winrt::weak_ref<winrt::MagSettings> weakRef(settings);
+			winrt::DispatcherQueue dispatcher = app.Dispatcher();
 
-			settings.IsDrawCursor(true);
+			co_await std::chrono::milliseconds(100);
+			co_await dispatcher;
+
+			if (auto strongRef = weakRef.get()) {
+				strongRef.IsDrawCursor(true);
+			}
 		})();
 	}
 
@@ -485,6 +495,10 @@ LRESULT MagApp::_HostWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 	switch (message) {
 	case WM_PRINTSCREEN:
 		_settings.IsDrawCursor(false);
+		_renderer->Render(true);
+
+		// 等待呈现
+		_deviceResources->BeginFrame();
 		return 0;
 	case WM_DESTROY:
 		PostQuitMessage(0);
