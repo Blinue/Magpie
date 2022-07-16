@@ -152,7 +152,7 @@ void serialize(Archive& ar, EffectDesc& o) {
 }
 
 void EffectCacheManager::_AddToMemCache(const std::wstring& cacheFileName, const EffectDesc& desc) {
-	std::scoped_lock lk(_cs);
+	std::scoped_lock lk(_srwMutex);
 
 	_memCache[cacheFileName] = { desc, ++_lastAccess };
 
@@ -181,7 +181,7 @@ void EffectCacheManager::_AddToMemCache(const std::wstring& cacheFileName, const
 }
 
 bool EffectCacheManager::_LoadFromMemCache(const std::wstring& cacheFileName, EffectDesc& desc) {
-	std::scoped_lock lk(_cs);
+	std::scoped_lock lk(_srwMutex);
 
 	auto it = _memCache.find(cacheFileName);
 	if (it != _memCache.end()) {

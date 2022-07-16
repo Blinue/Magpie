@@ -50,12 +50,14 @@ struct Win32Utils {
 	static const RTL_OSVERSIONINFOW& GetOSVersion() noexcept;
 
 	// CRITICAL_SECTION 的封装，满足基本可锁定要求（BasicLockable）
-	// 因此可用于 std::scoped_lock 等
 	class CSMutex {
 	public:
 		CSMutex() noexcept {
 			InitializeCriticalSectionEx(&_cs, 4000, CRITICAL_SECTION_NO_DEBUG_INFO);
 		}
+
+		CSMutex(const CSMutex&) = delete;
+		CSMutex(CSMutex&&) = default;
 
 		~CSMutex() noexcept {
 			DeleteCriticalSection(&_cs);
@@ -69,11 +71,51 @@ struct Win32Utils {
 			LeaveCriticalSection(&_cs);
 		}
 
-		CRITICAL_SECTION* get() noexcept {
-			return &_cs;
+		CRITICAL_SECTION& get() noexcept {
+			return _cs;
 		}
 	private:
 		CRITICAL_SECTION _cs{};
+	};
+
+	// SRWLOCK 的封装，满足基本可锁定要求（BasicLockable）
+	class SRWMutex {
+	public:
+		SRWMutex() = default;
+		SRWMutex(const SRWMutex&) = delete;
+		SRWMutex(SRWMutex&&) = default;
+
+		void lock() noexcept {
+			lock_exclusive();
+		}
+
+		_Requires_lock_held_(_srwLock)
+		void unlock() noexcept {
+			unlock_exclusive();
+		}
+
+		void lock_exclusive() noexcept {
+			AcquireSRWLockExclusive(&_srwLock);
+		}
+
+		_Requires_lock_held_(_srwLock)
+		void unlock_exclusive() noexcept {
+			ReleaseSRWLockExclusive(&_srwLock);
+		}
+
+		void lock_shared() noexcept {
+			AcquireSRWLockShared(&_srwLock);
+		}
+
+		void unlock_shared() noexcept {
+			ReleaseSRWLockShared(&_srwLock);
+		}
+
+		SRWLOCK& get() noexcept {
+			return _srwLock;
+		}
+	private:
+		SRWLOCK _srwLock = SRWLOCK_INIT;
 	};
 
 	class Hasher {
@@ -91,7 +133,7 @@ struct Win32Utils {
 
 		bool _Initialize();
 
-		CSMutex _cs;	// 同步对 Hash() 的访问
+		SRWMutex _srwMutex;	// 同步对 Hash() 的访问
 
 		BCRYPT_ALG_HANDLE _hAlg = NULL;
 		DWORD _hashObjLen = 0;		// hash 对象的大小

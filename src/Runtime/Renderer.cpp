@@ -75,7 +75,7 @@ void Renderer::Render(bool onPrint) {
 	}
 
 	// 首先处理配置改变产生的回调
-	//MagApp::Get().GetSettings().OnBeginFrame();
+	// MagApp::Get().GetSettings().OnBeginFrame();
 
 	auto state = onPrint ? FrameSourceBase::UpdateState::NoUpdate : MagApp::Get().GetFrameSource().Update();
 	_waitingForNextFrame = state == FrameSourceBase::UpdateState::Waiting

@@ -621,7 +621,7 @@ bool Win32Utils::Hasher::_Initialize() {
 
 bool Win32Utils::Hasher::Hash(std::span<const BYTE> data, std::vector<BYTE>& result) {
 	// BCrypt API 内部保存状态，因此需要同步对它们访问
-	std::scoped_lock lk(_cs);
+	std::scoped_lock lk(_srwMutex);
 
 	if (!_hAlg && !_Initialize()) {
 		Logger::Get().Error("初始化失败");

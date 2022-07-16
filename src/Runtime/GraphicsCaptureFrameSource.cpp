@@ -149,7 +149,7 @@ FrameSourceBase::UpdateState GraphicsCaptureFrameSource::Update() {
 	{
 		std::scoped_lock lk(_cs);
 		if (!_newFrameArrived) {
-			SleepConditionVariableCS(&_cv, _cs.get(), 1);
+			SleepConditionVariableCS(&_cv, &_cs.get(), 1);
 		}
 
 		if (_newFrameArrived) {

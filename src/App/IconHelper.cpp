@@ -186,24 +186,30 @@ SoftwareBitmap IconHelper::GetIconOfWnd(HWND hWnd, uint32_t preferredSize) {
 }
 
 SoftwareBitmap IconHelper::GetIconOfExe(const wchar_t* path, uint32_t preferredSize) {
-	com_ptr<IShellItemImageFactory> factory;
-	HRESULT hr = SHCreateItemFromParsingName(path, nullptr, IID_PPV_ARGS(&factory));
-	if (FAILED(hr)) {
-		return nullptr;
-	}
+	static Win32Utils::SRWMutex mutex;
 
-	HBITMAP hBmp;
+	HBITMAP hBmp = NULL;
+	{
+		// 并发使用 IShellItemImageFactory 有时会得到错误的结果
+		std::scoped_lock lk(mutex);
 
-	while (true) {
-		hr = factory->GetImage({ (LONG)preferredSize, (LONG)preferredSize }, SIIGBF_BIGGERSIZEOK | SIIGBF_ICONONLY, &hBmp);
-
-		if (hr == E_PENDING) {
-			Sleep(0);
-			continue;
-		} else if (FAILED(hr)) {
+		com_ptr<IShellItemImageFactory> factory;
+		HRESULT hr = SHCreateItemFromParsingName(path, nullptr, IID_PPV_ARGS(&factory));
+		if (FAILED(hr)) {
 			return nullptr;
-		} else {
-			break;
+		}
+
+		while (true) {
+			hr = factory->GetImage({ (LONG)preferredSize, (LONG)preferredSize }, SIIGBF_BIGGERSIZEOK | SIIGBF_ICONONLY, &hBmp);
+
+			if (hr == E_PENDING) {
+				Sleep(0);
+				continue;
+			} else if (FAILED(hr)) {
+				return nullptr;
+			} else {
+				break;
+			}
 		}
 	}
 

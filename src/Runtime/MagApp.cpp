@@ -44,7 +44,7 @@ static LRESULT CALLBACK LowLevelKeyboardProc(
 		([]()->winrt::fire_and_forget {
 			MagApp& app = MagApp::Get();
 
-			const winrt::Magpie::Runtime::MagSettings& settings = app.GetSettings();
+			const winrt::MagSettings& settings = app.GetSettings();
 			if (!settings || !settings.IsDrawCursor()) {
 				co_return;
 			}
@@ -72,7 +72,7 @@ MagApp::MagApp() {}
 
 MagApp::~MagApp() {}
 
-bool MagApp::Run(HWND hwndSrc, winrt::Magpie::Runtime::MagSettings const& settings, winrt::DispatcherQueue const& dispatcher) {
+bool MagApp::Run(HWND hwndSrc, winrt::MagSettings const& settings, winrt::DispatcherQueue const& dispatcher) {
 	_dispatcher = dispatcher;
 	_hwndSrc = hwndSrc;
 	_settings = settings;
@@ -264,8 +264,8 @@ static BOOL CALLBACK MonitorEnumProc(HMONITOR, HDC, LPRECT monitorRect, LPARAM d
 	return TRUE;
 }
 
-static bool CalcHostWndRect(HWND hWnd, winrt::Magpie::Runtime::MultiMonitorUsage multiMonitorUsage, RECT& result) {
-	using winrt::Magpie::Runtime::MultiMonitorUsage;
+static bool CalcHostWndRect(HWND hWnd, winrt::MultiMonitorUsage multiMonitorUsage, RECT& result) {
+	using winrt::MultiMonitorUsage;
 
 	switch (multiMonitorUsage) {
 	case MultiMonitorUsage::Nearest:
@@ -374,7 +374,7 @@ bool MagApp::_CreateHostWnd() {
 }
 
 bool MagApp::_InitFrameSource() {
-	using winrt::Magpie::Runtime::CaptureMode;
+	using winrt::CaptureMode;
 
 	switch (_settings.CaptureMode()) {
 	case CaptureMode::GraphicsCapture:
