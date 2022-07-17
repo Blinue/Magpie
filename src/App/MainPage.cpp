@@ -32,7 +32,7 @@ MainPage::MainPage() {
 	AppSettings::Get().ThemeChanged([this](int) { _UpdateTheme(); });
 
 	_colorChangedRevoker = _uiSettings.ColorValuesChanged(
-		auto_revoke, {get_strong(), &MainPage::_UISettings_ColorValuesChanged });
+		auto_revoke, { get_strong(), &MainPage::_UISettings_ColorValuesChanged });
 
 	Background(MicaBrush(*this));
 
@@ -270,7 +270,7 @@ IAsyncAction MainPage::_UISettings_ColorValuesChanged(Windows::UI::ViewManagemen
 void MainPage::_UpdateUWPIcons() {
 	IVector<IInspectable> navMenuItems = __super::RootNavigationView().MenuItems();
 	const std::vector<ScalingProfile>& profiles = AppSettings::Get().ScalingProfiles();
-	const uint32_t firstProfileIdx = navMenuItems.Size() - profiles.size() - 1;
+	const uint32_t firstProfileIdx = navMenuItems.Size() - (uint32_t)profiles.size() - 1;
 
 	for (uint32_t i = 0; i < profiles.size(); ++i) {
 		if (!profiles[i].IsPackaged()) {

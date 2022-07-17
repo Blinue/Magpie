@@ -101,7 +101,6 @@ bool AppXReader::Initialize(HWND hWnd) noexcept {
 			},
 			(LPARAM)&childHwnd
 		);
-
 		
 		if (childHwnd == NULL) {
 			// 特殊情况下 UWP 应用无法通过子窗口找到
@@ -434,12 +433,12 @@ static SoftwareBitmap AutoFillBackground(const std::wstring& iconPath, bool isLi
 		const uint8_t* origin = buf.get();
 		for (UINT i = 0; i < height; ++i) {
 			for (UINT j = 0; j < width; ++j, origin += 4, pixels += 4) {
-				double alpha = origin[3] / 255.0;
+				float alpha = origin[3] / 255.0f;
 				if (alpha < 1e-5) {
 					continue;
 				}
 
-				double reverseAlpha = 1 - alpha;
+				float reverseAlpha = 1 - alpha;
 				if (reverseAlpha < 1e-5) {
 					pixels[0] = origin[2];
 					pixels[1] = origin[1];
@@ -532,7 +531,7 @@ std::variant<std::wstring, SoftwareBitmap> AppXReader::GetIcon(uint32_t preferre
 	std::wstring iconPath = StrUtils::ConcatW(std::wstring_view(iconFileName.begin(), iconFileName.begin() + delimPos + 1), it->FileName());
 	SoftwareBitmap bkgIcon = AutoFillBackground(iconPath, isLightTheme);
 	if (bkgIcon) {
-		return bkgIcon;
+		return std::move(bkgIcon);
 	} else {
 		return std::move(iconPath);
 	}
