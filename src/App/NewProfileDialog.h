@@ -103,9 +103,9 @@ struct NewProfileDialog : NewProfileDialogT<NewProfileDialog> {
 
 	void RootScrollViewer_SizeChanged(IInspectable const&, IInspectable const&);
 
-	void Loaded(IInspectable const&, RoutedEventArgs const&);
+	void Loading(FrameworkElement const&, IInspectable const&);
 
-	void ActualThemeChanged(IInspectable const&, IInspectable const&);
+	void ActualThemeChanged(FrameworkElement const&, IInspectable const&);
 
 	void CandidateWindowsListView_SelectionChanged(IInspectable const&, Controls::SelectionChangedEventArgs const&);
 

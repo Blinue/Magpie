@@ -7,7 +7,7 @@
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
 	mc:Ignorable="d"
-	Loaded="Loaded"
+	Loading="Loading"
 	ActualThemeChanged="ActualThemeChanged">
 
 	<ScrollViewer x:Name="RootScrollViewer" VerticalScrollBarVisibility="Auto" SizeChanged="RootScrollViewer_SizeChanged">
@@ -35,12 +35,8 @@
 					</DataTemplate>
 				</ListView.ItemTemplate>
 				<ListView.ItemContainerTransitions>
-					<!-- 禁用添加/删除动画 -->
-					<TransitionCollection>
-						<ContentThemeTransition />
-						<EntranceThemeTransition IsStaggeringEnabled="False" />
-						<ReorderThemeTransition />
-					</TransitionCollection>
+					<!-- 禁用动画 -->
+					<TransitionCollection />
 				</ListView.ItemContainerTransitions>
 			</ListView>
 			<Grid x:Name="ErrorMesageGrid" Height="36" Visibility="Collapsed" Margin="0,10,0,0">
@@ -78,7 +74,6 @@
 				<TextBlock Text="复制缩放配置" VerticalAlignment="Center" />
 				<ComboBox ItemsSource="{x:Bind Profiles, Mode=OneTime}" SelectedIndex="{x:Bind ProfileIndex, Mode=TwoWay}" DropDownOpened="ComboBox_DropDownOpened" />
 			</StackPanel>
-			
 		</StackPanel>
 	</ScrollViewer>
 </UserControl>

@@ -157,7 +157,7 @@ NewProfileDialog::NewProfileDialog() {
 		auto_revoke, { this, &NewProfileDialog::_DisplayInformation_DpiChanged});
 
 	_colorValuesChangedRevoker = _uiSettings.ColorValuesChanged(
-		auto_revoke, { get_strong(), &NewProfileDialog::_UISettings_ColorValuesChanged });
+		auto_revoke, { get_weak(), &NewProfileDialog::_UISettings_ColorValuesChanged });
 
 	const UINT dpi = (UINT)std::lroundf(_displayInfomation.LogicalDpi());
 	const bool isLightTheme = Application::Current().as<App>().MainPage().ActualTheme() == ElementTheme::Light;
@@ -190,7 +190,7 @@ void NewProfileDialog::RootScrollViewer_SizeChanged(IInspectable const&, IInspec
 	}
 }
 
-void NewProfileDialog::Loaded(IInspectable const&, RoutedEventArgs const&) {
+void NewProfileDialog::Loading(FrameworkElement const&, IInspectable const&) {
 	_UpdateCandidateWindows();
 
 	_parent = Parent().as<ContentDialog>();
@@ -199,7 +199,7 @@ void NewProfileDialog::Loaded(IInspectable const&, RoutedEventArgs const&) {
 	_primaryButtonClickRevoker = _parent.PrimaryButtonClick(auto_revoke, { this, &NewProfileDialog::_ContentDialog_PrimaryButtonClick });
 }
 
-void NewProfileDialog::ActualThemeChanged(IInspectable const&, IInspectable const&) {
+void NewProfileDialog::ActualThemeChanged(FrameworkElement const&, IInspectable const&) {
 	for (Magpie::App::CandidateWindow const& item : _candidateWindows) {
 		item.OnThemeChanged(ActualTheme() == ElementTheme::Light);
 	}
@@ -304,6 +304,11 @@ static bool IsChanged(const IVector<Magpie::App::CandidateWindow>& oldItems, con
 }
 
 fire_and_forget NewProfileDialog::_UpdateCandidateWindows() {
+	if (_parent) {
+		// 不知为何 Loading 会被调用两次
+		co_return;
+	}
+
 	auto weakThis = get_weak();
 
 	// 更新图标的间隔
@@ -380,6 +385,8 @@ fire_and_forget NewProfileDialog::_UpdateCandidateWindows() {
 			}
 		}
 
+		CandidateWindowsListView().SelectedIndex(-1);
+
 		if (items.size() > _candidateWindows.Size()) {
 			uint32_t i = 0;
 			for (uint32_t end = _candidateWindows.Size(); i < end; ++i) {
@@ -400,7 +407,7 @@ fire_and_forget NewProfileDialog::_UpdateCandidateWindows() {
 			}
 		}
 
-		if (newSelectIndex > 0) {
+		if (newSelectIndex >= 0) {
 			CandidateWindowsListView().SelectedIndex(newSelectIndex);
 		}
 	}
@@ -530,12 +537,12 @@ void CandidateWindow::UpdateIcon() {
 		return;
 	}
 
-	[this]()->fire_and_forget {
-		HWND hWnd = (HWND)_hWnd;
-		uint32_t iconSize = (uint32_t)std::ceil(_dpi * 16 / 96.0);
-		CoreDispatcher dispatcher = _dispatcher;
+	[](CandidateWindow* that)->fire_and_forget {
+		HWND hWnd = (HWND)that->_hWnd;
+		uint32_t iconSize = (uint32_t)std::ceil(that->_dpi * 16 / 96.0);
+		CoreDispatcher dispatcher = that->_dispatcher;
 
-		auto weakThis = get_weak();
+		auto weakThis = that->get_weak();
 
 		co_await resume_background();
 
@@ -546,7 +553,7 @@ void CandidateWindow::UpdateIcon() {
 		if (auto strongThis = weakThis.get()) {
 			co_await strongThis->_SetSoftwareBitmapIconAsync(iconBitmap);
 		}
-	}();
+	}(this);
 }
 
 void CandidateWindow::OnThemeChanged(bool isLightTheme) {

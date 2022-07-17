@@ -32,7 +32,7 @@ MainPage::MainPage() {
 	AppSettings::Get().ThemeChanged([this](int) { _UpdateTheme(); });
 
 	_colorChangedRevoker = _uiSettings.ColorValuesChanged(
-		auto_revoke, { get_strong(), &MainPage::_UISettings_ColorValuesChanged });
+		auto_revoke, { get_weak(), &MainPage::_UISettings_ColorValuesChanged });
 
 	Background(MicaBrush(*this));
 
@@ -159,6 +159,7 @@ IAsyncAction MainPage::AddNavigationViewItem_Tapped(IInspectable const&, TappedR
 	isShowing = true;
 	co_await _newProfileDialog.ShowAsync();
 	isShowing = false;
+	_newProfileDialog.Content(nullptr);
 }
 
 MUXC::NavigationView MainPage::RootNavigationView() {

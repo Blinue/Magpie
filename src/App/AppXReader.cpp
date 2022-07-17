@@ -388,7 +388,7 @@ static SoftwareBitmap AutoFillBackground(const std::wstring& iconPath, bool isLi
 	}
 
 	// 计算平均亮度
-	double lumaTotal = 0;
+	float lumaTotal = 0;
 	UINT lumaCount = 0;
 	for (UINT i = 0, len = width * height; i < len; ++i) {
 		uint8_t* pixel = &buf.get()[i * 4];
@@ -398,9 +398,9 @@ static SoftwareBitmap AutoFillBackground(const std::wstring& iconPath, bool isLi
 			continue;
 		}
 
-		double luma = 0.299 * pixel[0] + 0.587 * pixel[1] + 0.114 * pixel[2];
+		float luma = 0.299f * pixel[0] + 0.587f * pixel[1] + 0.114f * pixel[2];
 		if (alpha != 255) {
-			double alphaNorm = alpha / 255.0;
+			float alphaNorm = alpha / 255.0f;
 			luma = luma * alphaNorm + (isLightTheme ? 255 : 0) * (1 - alphaNorm);
 		}
 
@@ -408,7 +408,7 @@ static SoftwareBitmap AutoFillBackground(const std::wstring& iconPath, bool isLi
 		++lumaCount;
 	}
 
-	double lumaAvg = lumaTotal / lumaCount;
+	float lumaAvg = lumaTotal / lumaCount;
 	if (isLightTheme ? lumaAvg <= 220 : lumaAvg >= 30) {
 		return nullptr;
 	}
