@@ -28,8 +28,11 @@ namespace winrt::Magpie::App::implementation {
 MainPage::MainPage() {
 	InitializeComponent();
 
-	_UpdateTheme();
+	_UpdateTheme(false);
 	AppSettings::Get().ThemeChanged([this](int) { _UpdateTheme(); });
+
+	_colorChangedRevoker = _uiSettings.ColorValuesChanged(
+		auto_revoke, {get_strong(), &MainPage::_UISettings_ColorValuesChanged });
 
 	Background(MicaBrush(*this));
 
@@ -51,13 +54,6 @@ MainPage::MainPage() {
 
 	_profileAddedRevoker = ScalingProfileService::Get().ProfileAdded(
 		auto_revoke, { this, &MainPage::_ScalingProfileService_ProfileAdded });
-}
-
-MainPage::~MainPage() {
-	if (_colorChangedToken) {
-		_uiSettings.ColorValuesChanged(_colorChangedToken);
-		_colorChangedToken = {};
-	}
 }
 
 void MainPage::Loaded(IInspectable const&, RoutedEventArgs const&) {
@@ -169,22 +165,13 @@ MUXC::NavigationView MainPage::RootNavigationView() {
 	return __super::RootNavigationView();
 }
 
-void MainPage::_UpdateTheme() {
+void MainPage::_UpdateTheme(bool updateIcons) {
 	int theme = AppSettings::Get().Theme();
 
 	bool isDarkTheme = FALSE;
 	if (theme == 2) {
-		if (!_colorChangedToken) {
-			_colorChangedToken = _uiSettings.ColorValuesChanged({ this, &MainPage::_Settings_ColorValuesChanged });
-		}
-
 		isDarkTheme = _uiSettings.GetColorValue(UIColorType::Background).R < 128;
 	} else {
-		if (_colorChangedToken) {
-			_uiSettings.ColorValuesChanged(_colorChangedToken);
-			_colorChangedToken = {};
-		}
-
 		isDarkTheme = theme == 1;
 	}
 
@@ -198,6 +185,10 @@ void MainPage::_UpdateTheme() {
 	RequestedTheme(newTheme);
 	XamlUtils::UpdateThemeOfXamlPopups(XamlRoot(), newTheme);
 	XamlUtils::UpdateThemeOfTooltips(*this, newTheme);
+
+	if (updateIcons && IsLoaded()) {
+		_UpdateUWPIcons();
+	}
 
 	Logger::Get().Info(StrUtils::Concat("当前主题：", isDarkTheme ? "深色" : "浅色"));
 }
@@ -218,13 +209,18 @@ fire_and_forget MainPage::_LoadIcon(MUXC::NavigationViewItem const& item, const 
 	co_await resume_background();
 
 	std::wstring iconPath;
-	bool hasBackground = false;
 	SoftwareBitmap iconBitmap{ nullptr };
 
 	if (isPackaged) {
 		AppXReader reader;
 		reader.Initialize(path);
-		iconPath = reader.GetIconPath(preferredIconSize, preferLightTheme, &hasBackground);
+
+		std::variant<std::wstring, SoftwareBitmap> uwpIcon = reader.GetIcon(preferredIconSize, preferLightTheme);
+		if (uwpIcon.index() == 0) {
+			iconPath = std::get<0>(uwpIcon);
+		} else {
+			iconBitmap = std::get<1>(uwpIcon);
+		}
 	} else {
 		iconBitmap = IconHelper::GetIconOfExe(path.c_str(), preferredIconSize);
 	}
@@ -237,30 +233,13 @@ fire_and_forget MainPage::_LoadIcon(MUXC::NavigationViewItem const& item, const 
 	}
 
 	if (!iconPath.empty()) {
-		BitmapImage image;
-		image.UriSource(Uri(iconPath));
+		BitmapIcon icon;
+		icon.ShowAsMonochrome(false);
+		icon.UriSource(Uri(iconPath));
+		icon.Width(16);
+		icon.Height(16);
 
-		MUXC::ImageIcon imageIcon;
-		imageIcon.Source(image);
-
-		if (hasBackground) {
-			/*imageIcon.Width(12);
-			imageIcon.Height(12);
-
-			StackPanel container;
-			container.Background(Application::Current().Resources().Lookup(box_value(L"SystemControlHighlightAccentBrush")).as<SolidColorBrush>());
-			container.VerticalAlignment(VerticalAlignment::Center);
-			container.HorizontalAlignment(HorizontalAlignment::Center);
-			container.Padding({ 2,2,2,2 });
-			container.Children().Append(imageIcon);
-
-			_icon = std::move(container);*/
-		} else {
-			imageIcon.Width(16);
-			imageIcon.Height(16);
-
-			strongRef.Icon(imageIcon);
-		}
+		strongRef.Icon(icon);
 	} else if (iconBitmap) {
 		SoftwareBitmapSource imageSource;
 		co_await imageSource.SetBitmapAsync(iconBitmap);
@@ -278,11 +257,29 @@ fire_and_forget MainPage::_LoadIcon(MUXC::NavigationViewItem const& item, const 
 	}
 }
 
-IAsyncAction MainPage::_Settings_ColorValuesChanged(UISettings const&, IInspectable const&) {
-	return Dispatcher().RunAsync(
-		CoreDispatcherPriority::Normal,
-		{ this, &MainPage::_UpdateTheme }
-	);
+IAsyncAction MainPage::_UISettings_ColorValuesChanged(Windows::UI::ViewManagement::UISettings const&, IInspectable const&) {
+	co_await Dispatcher();
+
+	if (AppSettings::Get().Theme() == 2) {
+		_UpdateTheme(false);
+	}
+	
+	_UpdateUWPIcons();
+}
+
+void MainPage::_UpdateUWPIcons() {
+	IVector<IInspectable> navMenuItems = __super::RootNavigationView().MenuItems();
+	const std::vector<ScalingProfile>& profiles = AppSettings::Get().ScalingProfiles();
+	const uint32_t firstProfileIdx = navMenuItems.Size() - profiles.size() - 1;
+
+	for (uint32_t i = 0; i < profiles.size(); ++i) {
+		if (!profiles[i].IsPackaged()) {
+			continue;
+		}
+
+		MUXC::NavigationViewItem item = navMenuItems.GetAt(firstProfileIdx + i).as<MUXC::NavigationViewItem>();
+		_LoadIcon(item, profiles[i]);
+	}
 }
 
 void MainPage::_ScalingProfileService_ProfileAdded(ScalingProfile& profile) {

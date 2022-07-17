@@ -16,6 +16,7 @@
 #include <unordered_set>
 
 using namespace winrt;
+using namespace Windows::UI::ViewManagement;
 using namespace Windows::UI::Xaml::Controls;
 using namespace Windows::UI::Xaml::Media::Imaging;
 using namespace Windows::Graphics::Imaging;
@@ -155,6 +156,9 @@ NewProfileDialog::NewProfileDialog() {
 	_dpiChangedRevoker = _displayInfomation.DpiChanged(
 		auto_revoke, { this, &NewProfileDialog::_DisplayInformation_DpiChanged});
 
+	_colorValuesChangedRevoker = _uiSettings.ColorValuesChanged(
+		auto_revoke, { get_strong(), &NewProfileDialog::_UISettings_ColorValuesChanged });
+
 	const UINT dpi = (UINT)std::lroundf(_displayInfomation.LogicalDpi());
 	const bool isLightTheme = Application::Current().as<App>().MainPage().ActualTheme() == ElementTheme::Light;
 	for (HWND hWnd : GetDesktopWindows()) {
@@ -249,6 +253,14 @@ void NewProfileDialog::_ContentDialog_PrimaryButtonClick(Controls::ContentDialog
 		ScalingProfileService::Get().AddProfile(true, aumid, className, ProfileNameTextBox().Text());
 	} else {
 		ScalingProfileService::Get().AddProfile(false, Win32Utils::GetPathOfWnd(hWnd), className, ProfileNameTextBox().Text());
+	}
+}
+
+IAsyncAction NewProfileDialog::_UISettings_ColorValuesChanged(UISettings const&, IInspectable const&) {
+	co_await Dispatcher();
+
+	for (Magpie::App::CandidateWindow const& item : _candidateWindows) {
+		item.OnAccentColorChanged();
 	}
 }
 
@@ -431,12 +443,18 @@ fire_and_forget CandidateWindow::_ResolveWindow(bool resolveIcon, bool resolveNa
 		co_return;
 	}
 
+	const uint32_t iconSize = (uint32_t)std::ceil(dpi * 16 / 96.0);
+
 	std::wstring iconPath;
-	bool hasBackground = false;
 	SoftwareBitmap iconBitmap{ nullptr };
-	uint32_t iconSize = (uint32_t)std::ceil(dpi * 16 / 96.0);
+
 	if (isPackaged) {
-		iconPath = reader.GetIconPath(iconSize, isLightTheme, &hasBackground);
+		std::variant<std::wstring, SoftwareBitmap> uwpIcon = reader.GetIcon(iconSize, isLightTheme);
+		if (uwpIcon.index() == 0) {
+			iconPath = std::get<0>(uwpIcon);
+		} else {
+			iconBitmap = std::get<1>(uwpIcon);
+		}
 	} else {
 		iconBitmap = IconHelper::GetIconOfWnd(hWnd, iconSize);
 	}
@@ -446,9 +464,9 @@ fire_and_forget CandidateWindow::_ResolveWindow(bool resolveIcon, bool resolveNa
 
 	if (auto strongThis = weakThis.get()) {
 		if (!iconPath.empty()) {
-			strongThis->_SetPackagedIcon(iconPath, hasBackground);
+			strongThis->_SetIconPath(iconPath);
 		} else if (iconBitmap) {
-			co_await strongThis->_SetWin32IconAsync(iconBitmap);
+			co_await strongThis->_SetSoftwareBitmapIconAsync(iconBitmap);
 		} else {
 			strongThis->_SetDefaultIcon();
 		}
@@ -480,26 +498,18 @@ CandidateWindow::CandidateWindow(Magpie::App::CandidateWindow const& other, int)
 	_aumid = otherImpl->_aumid;
 
 	// 复制图标不能直接复制引用
-	if (MUXC::ImageIcon uwpIcon = otherImpl->_icon.try_as<MUXC::ImageIcon>()) {
+	if (MUXC::ImageIcon imageIcon = otherImpl->_icon.try_as<MUXC::ImageIcon>()) {
 		MUXC::ImageIcon icon;
-		icon.Source(uwpIcon.Source());
-		icon.Width(uwpIcon.Width());
-		icon.Height(uwpIcon.Height());
+		icon.Source(imageIcon.Source());
+		icon.Width(imageIcon.Width());
+		icon.Height(imageIcon.Height());
 		_icon = std::move(icon);
-	} else if (StackPanel bkgUwpIcon = otherImpl->_icon.try_as<StackPanel>()) {
-		StackPanel icon;
-		icon.Background(bkgUwpIcon.Background());
-		icon.VerticalAlignment(bkgUwpIcon.VerticalAlignment());
-		icon.HorizontalAlignment(bkgUwpIcon.HorizontalAlignment());
-		icon.Padding(bkgUwpIcon.Padding());
-
-		MUXC::ImageIcon realIcon = bkgUwpIcon.Children().GetAt(0).as<MUXC::ImageIcon>();
-		MUXC::ImageIcon newRealIcon;
-		newRealIcon.Source(realIcon.Source());
-		newRealIcon.Width(realIcon.Width());
-		newRealIcon.Height(realIcon.Height());
-
-		icon.Children().Append(newRealIcon);
+	} else if (BitmapIcon bitmapIcon = otherImpl->_icon.try_as<BitmapIcon>()) {
+		BitmapIcon icon;
+		icon.ShowAsMonochrome(bitmapIcon.ShowAsMonochrome());
+		icon.UriSource(bitmapIcon.UriSource());
+		icon.Width(bitmapIcon.Width());
+		icon.Height(bitmapIcon.Height());
 		_icon = std::move(icon);
 	} else if (FontIcon fontIcon = otherImpl->_icon.try_as<FontIcon>()) {
 		FontIcon icon;
@@ -534,13 +544,21 @@ void CandidateWindow::UpdateIcon() {
 		co_await dispatcher;
 
 		if (auto strongThis = weakThis.get()) {
-			co_await strongThis->_SetWin32IconAsync(iconBitmap);
+			co_await strongThis->_SetSoftwareBitmapIconAsync(iconBitmap);
 		}
 	}();
 }
 
 void CandidateWindow::OnThemeChanged(bool isLightTheme) {
 	_isLightTheme = isLightTheme;
+	_ResolveWindow(true, false);
+}
+
+void CandidateWindow::OnAccentColorChanged() {
+	if (_aumid.empty() || get_class_name(_icon) != name_of<MUXC::ImageIcon>()) {
+		return;
+	}
+
 	_ResolveWindow(true, false);
 }
 
@@ -559,7 +577,7 @@ void CandidateWindow::_SetDefaultIcon() {
 }
 
 // 不检查 this 的生命周期，必须在主线程调用
-IAsyncAction CandidateWindow::_SetWin32IconAsync(SoftwareBitmap const& iconBitmap) {
+IAsyncAction CandidateWindow::_SetSoftwareBitmapIconAsync(SoftwareBitmap const& iconBitmap) {
 	SoftwareBitmapSource imageSource;
 	co_await imageSource.SetBitmapAsync(iconBitmap);
 
@@ -572,31 +590,14 @@ IAsyncAction CandidateWindow::_SetWin32IconAsync(SoftwareBitmap const& iconBitma
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"Icon"));
 }
 
-void CandidateWindow::_SetPackagedIcon(std::wstring_view iconPath, bool hasBackground) {
-	BitmapImage image;
-	image.UriSource(Uri(iconPath));
+void CandidateWindow::_SetIconPath(std::wstring_view iconPath) {
+	BitmapIcon icon;
+	icon.ShowAsMonochrome(false);
+	icon.UriSource(Uri(iconPath));
+	icon.Width(16);
+	icon.Height(16);
 
-	MUXC::ImageIcon imageIcon;
-	imageIcon.Source(image);
-
-	if (hasBackground) {
-		imageIcon.Width(12);
-		imageIcon.Height(12);
-
-		StackPanel container;
-		container.Background(Application::Current().Resources().Lookup(box_value(L"SystemControlHighlightAccentBrush")).as<SolidColorBrush>());
-		container.VerticalAlignment(VerticalAlignment::Center);
-		container.HorizontalAlignment(HorizontalAlignment::Center);
-		container.Padding({ 2,2,2,2 });
-		container.Children().Append(imageIcon);
-
-		_icon = std::move(container);
-	} else {
-		imageIcon.Width(16);
-		imageIcon.Height(16);
-
-		_icon = std::move(imageIcon);
-	}
+	_icon = std::move(icon);
 
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"Icon"));
 }

@@ -17,6 +17,7 @@ namespace Magpie.App
 		String AUMID { get; };
 
 		void OnThemeChanged(Boolean isLightTheme);
+		void OnAccentColorChanged();
 		void OnDpiChanged(UInt32 newDpi);
 	}
 

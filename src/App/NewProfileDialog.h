@@ -45,14 +45,16 @@ struct CandidateWindow : CandidateWindowT<CandidateWindow> {
 
 	void OnThemeChanged(bool isLightTheme);
 
+	void OnAccentColorChanged();
+
 	void OnDpiChanged(uint32_t newDpi);
 
 private:
 	void _SetDefaultIcon();
 
-	IAsyncAction _SetWin32IconAsync(Windows::Graphics::Imaging::SoftwareBitmap const& iconBitmap);
+	IAsyncAction _SetSoftwareBitmapIconAsync(Windows::Graphics::Imaging::SoftwareBitmap const& iconBitmap);
 
-	void _SetPackagedIcon(std::wstring_view iconPath, bool hasBackground);
+	void _SetIconPath(std::wstring_view iconPath);
 
 	fire_and_forget _ResolveWindow(bool resolveIcon, bool resolveName);
 
@@ -114,6 +116,8 @@ private:
 
 	IAsyncAction _DisplayInformation_DpiChanged(Windows::Graphics::Display::DisplayInformation const&, IInspectable const&);
 
+	IAsyncAction _UISettings_ColorValuesChanged(Windows::UI::ViewManagement::UISettings const&, IInspectable const&);
+
 	fire_and_forget _UpdateCandidateWindows();
 
 	event<PropertyChangedEventHandler> _propertyChangedEvent;
@@ -125,6 +129,8 @@ private:
 
 	Windows::Graphics::Display::DisplayInformation _displayInfomation{ nullptr };
 	Windows::Graphics::Display::DisplayInformation::DpiChanged_revoker _dpiChangedRevoker;
+	Windows::UI::ViewManagement::UISettings _uiSettings;
+	Windows::UI::ViewManagement::UISettings::ColorValuesChanged_revoker _colorValuesChangedRevoker;
 
 	Controls::ContentDialog _parent{ nullptr };
 	Controls::ContentDialog::PrimaryButtonClick_revoker _primaryButtonClickRevoker;

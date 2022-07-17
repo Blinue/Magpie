@@ -16,8 +16,6 @@ namespace winrt::Magpie::App::implementation
 	{
 		MainPage();
 
-		~MainPage();
-
 		void Loaded(IInspectable const&, RoutedEventArgs const&);
 
 		void NavigationView_SelectionChanged(MUXC::NavigationView const&, MUXC::NavigationViewSelectionChangedEventArgs const& args);
@@ -33,16 +31,18 @@ namespace winrt::Magpie::App::implementation
 		MUXC::NavigationView RootNavigationView();
 
 	private:
-		void _UpdateTheme();
+		void _UpdateTheme(bool updateIcons = true);
 
 		fire_and_forget _LoadIcon(MUXC::NavigationViewItem const& item, const ScalingProfile& profile);
 
-		IAsyncAction _Settings_ColorValuesChanged(Windows::UI::ViewManagement::UISettings const&, IInspectable const&);
+		IAsyncAction _UISettings_ColorValuesChanged(Windows::UI::ViewManagement::UISettings const&, IInspectable const&);
+
+		void _UpdateUWPIcons();
 
 		void _ScalingProfileService_ProfileAdded(ScalingProfile& profile);
 
 		Windows::UI::ViewManagement::UISettings _uiSettings;
-		event_token _colorChangedToken{};
+		Windows::UI::ViewManagement::UISettings::ColorValuesChanged_revoker _colorChangedRevoker;
 
 		Controls::ContentDialog _newProfileDialog{ nullptr };
 

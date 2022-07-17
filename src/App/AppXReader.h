@@ -1,6 +1,7 @@
 #pragma once
 #include "pch.h"
 #include <AppxPackaging.h>
+#include <variant>
 
 
 namespace winrt::Magpie::App {
@@ -15,7 +16,7 @@ public:
 
 	std::wstring GetDisplayName() noexcept;
 
-	std::wstring GetIconPath(uint32_t preferredSize, bool preferLightTheme, bool* hasBackground = nullptr) noexcept;
+	std::variant<std::wstring, Windows::Graphics::Imaging::SoftwareBitmap> GetIcon(uint32_t preferredSize, bool isLightTheme) noexcept;
 
 	const std::wstring& AUMID() const noexcept {
 		return _aumid;

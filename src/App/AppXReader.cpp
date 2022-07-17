@@ -14,7 +14,10 @@
 #pragma comment(lib, "Shlwapi.lib")
 
 using namespace winrt;
+using namespace Windows::Graphics::Imaging;
+using namespace Windows::UI;
 using namespace Windows::UI::Xaml::Media::Imaging;
+using namespace Windows::UI::ViewManagement;
 
 
 namespace winrt::Magpie::App {
@@ -322,7 +325,7 @@ private:
 	bool _isLightTheme = false;
 };
 
-bool CheckNeedBackground(const std::wstring& iconPath, bool isLightTheme) {
+static SoftwareBitmap AutoFillBackground(const std::wstring& iconPath, bool isLightTheme) {
 	com_ptr<IWICImagingFactory2> wicImgFactory;
 
 	HRESULT hr = CoCreateInstance(
@@ -334,7 +337,7 @@ bool CheckNeedBackground(const std::wstring& iconPath, bool isLightTheme) {
 
 	if (FAILED(hr)) {
 		Logger::Get().ComError("创建 WICImagingFactory 失败", hr);
-		return false;
+		return nullptr;
 	}
 
 	// 读取图像文件
@@ -343,14 +346,14 @@ bool CheckNeedBackground(const std::wstring& iconPath, bool isLightTheme) {
 		iconPath.c_str(), nullptr, GENERIC_READ, WICDecodeMetadataCacheOnDemand, decoder.put());
 	if (FAILED(hr)) {
 		Logger::Get().ComError("CreateDecoderFromFilename 失败", hr);
-		return false;
+		return nullptr;
 	}
 
 	winrt::com_ptr<IWICBitmapFrameDecode> frame;
 	hr = decoder->GetFrame(0, frame.put());
 	if (FAILED(hr)) {
 		Logger::Get().ComError("IWICBitmapFrameDecode::GetFrame 失败", hr);
-		return false;
+		return nullptr;
 	}
 
 	// 转换格式
@@ -358,40 +361,40 @@ bool CheckNeedBackground(const std::wstring& iconPath, bool isLightTheme) {
 	hr = wicImgFactory->CreateFormatConverter(formatConverter.put());
 	if (FAILED(hr)) {
 		Logger::Get().ComError("CreateFormatConverter 失败", hr);
-		return false;
+		return nullptr;
 	}
 
 	hr = formatConverter->Initialize(frame.get(),
 		GUID_WICPixelFormat32bppRGBA, WICBitmapDitherTypeNone, nullptr, 0, WICBitmapPaletteTypeCustom);
 	if (FAILED(hr)) {
 		Logger::Get().ComError("IWICFormatConverter::Initialize 失败", hr);
-		return false;
+		return nullptr;
 	}
 
 	UINT width, height;
 	hr = formatConverter->GetSize(&width, &height);
 	if (FAILED(hr)) {
 		Logger::Get().ComError("GetSize 失败", hr);
-		return false;
+		return nullptr;
 	}
 
 	UINT stride = width * 4;
 	UINT size = stride * height;
-	std::unique_ptr<BYTE[]> buf(new BYTE[size]);
+	std::unique_ptr<uint8_t[]> buf(new uint8_t[size]);
 
 	hr = formatConverter->CopyPixels(nullptr, stride, size, buf.get());
 	if (FAILED(hr)) {
 		Logger::Get().ComError("CopyPixels 失败", hr);
-		return false;
+		return nullptr;
 	}
 
 	// 计算平均亮度
 	double lumaTotal = 0;
 	UINT lumaCount = 0;
 	for (UINT i = 0, len = width * height; i < len; ++i) {
-		BYTE* pixel = &buf.get()[i * 4];
+		uint8_t* pixel = &buf.get()[i * 4];
 
-		BYTE alpha = pixel[3];
+		uint8_t alpha = pixel[3];
 		if (alpha == 0) {
 			continue;
 		}
@@ -407,10 +410,57 @@ bool CheckNeedBackground(const std::wstring& iconPath, bool isLightTheme) {
 	}
 
 	double lumaAvg = lumaTotal / lumaCount;
-	return isLightTheme ? lumaAvg > 220 : lumaAvg < 30;
+	if (isLightTheme ? lumaAvg <= 220 : lumaAvg >= 30) {
+		return nullptr;
+	}
+
+	// 和背景的对比度太低，需要填充背景
+	const UINT borderWidth = width / 6;
+	const UINT borderHeight = height / 6;
+	const UINT totalWidth = width + borderWidth * 2;
+	const UINT totalHeight = height + borderHeight * 2;
+
+	const Color accentColor = UISettings().GetColorValue(UIColorType::Accent);
+
+	SoftwareBitmap bitmap(BitmapPixelFormat::Bgra8, totalWidth, totalHeight, BitmapAlphaMode::Premultiplied);
+	{
+		BitmapBuffer buffer = bitmap.LockBuffer(BitmapBufferAccessMode::Write);
+		uint8_t* pixels = buffer.CreateReference().data();
+
+		const uint32_t fillColor = (0xff << 24) | (accentColor.R << 16) | (accentColor.G << 8) | accentColor.B;
+		std::fill_n((uint32_t*)pixels, totalWidth * totalHeight, fillColor);
+
+		pixels += (borderHeight * totalWidth + borderWidth) * 4;
+		const uint8_t* origin = buf.get();
+		for (UINT i = 0; i < height; ++i) {
+			for (UINT j = 0; j < width; ++j, origin += 4, pixels += 4) {
+				double alpha = origin[3] / 255.0;
+				if (alpha < 1e-5) {
+					continue;
+				}
+
+				double reverseAlpha = 1 - alpha;
+				if (reverseAlpha < 1e-5) {
+					pixels[0] = origin[2];
+					pixels[1] = origin[1];
+					pixels[2] = origin[0];
+					pixels[3] = 255;
+					continue;
+				}
+
+				pixels[0] = (uint8_t)std::lroundf(origin[2] * alpha + accentColor.B * reverseAlpha);
+				pixels[1] = (uint8_t)std::lroundf(origin[1] * alpha + accentColor.G * reverseAlpha);
+				pixels[2] = (uint8_t)std::lroundf(origin[0] * alpha + accentColor.R * reverseAlpha);
+				pixels[3] = 255;
+			}
+
+			pixels += borderWidth * 2 * 4;
+		}
+	}
+	return bitmap;
 }
 
-std::wstring AppXReader::GetIconPath(uint32_t preferredSize, bool isLightTheme, bool* hasBackground) noexcept {
+std::variant<std::wstring, SoftwareBitmap> AppXReader::GetIcon(uint32_t preferredSize, bool isLightTheme) noexcept {
 	if (!_appxApp && !_LoadManifest()) {
 		return {};
 	}
@@ -479,11 +529,13 @@ std::wstring AppXReader::GetIconPath(uint32_t preferredSize, bool isLightTheme, 
 	auto it = std::min_element(candidateIcons.begin(), candidateIcons.end(),
 		[=](const CandidateIcon& l, const CandidateIcon& r) { return CandidateIcon::Compare(l, r, preferredSize, isLightTheme); });
 
-	std::wstring result = StrUtils::ConcatW(std::wstring_view(iconFileName.begin(), iconFileName.begin() + delimPos + 1), it->FileName());
-	if (hasBackground != nullptr) {
-		*hasBackground = CheckNeedBackground(result, isLightTheme);
+	std::wstring iconPath = StrUtils::ConcatW(std::wstring_view(iconFileName.begin(), iconFileName.begin() + delimPos + 1), it->FileName());
+	SoftwareBitmap bkgIcon = AutoFillBackground(iconPath, isLightTheme);
+	if (bkgIcon) {
+		return bkgIcon;
+	} else {
+		return std::move(iconPath);
 	}
-	return result;
 }
 
 bool AppXReader::_ResolveApplication(const std::wstring& praid) noexcept {
