@@ -385,27 +385,7 @@ fire_and_forget NewProfileDialog::_UpdateCandidateWindows() {
 			}
 		}
 
-		CandidateWindowsListView().SelectedIndex(-1);
-
-		if (items.size() > _candidateWindows.Size()) {
-			uint32_t i = 0;
-			for (uint32_t end = _candidateWindows.Size(); i < end; ++i) {
-				_candidateWindows.SetAt(i, items[i]);
-			}
-
-			for (uint32_t end = (uint32_t)items.size(); i < end; ++i) {
-				_candidateWindows.Append(items[i]);
-			}
-		} else{
-			uint32_t i = 0;
-			for (uint32_t end = (uint32_t)items.size(); i < end; ++i) {
-				_candidateWindows.SetAt(i, items[i]);
-			}
-
-			for (uint32_t end = _candidateWindows.Size(); i < end; ++i) {
-				_candidateWindows.RemoveAtEnd();
-			}
-		}
+		_candidateWindows.ReplaceAll(items);
 
 		if (newSelectIndex >= 0) {
 			CandidateWindowsListView().SelectedIndex(newSelectIndex);
