@@ -283,23 +283,28 @@ void XamlApp::_ResizeXamlDialog() {
 	winrt::Size rootSize = root.Size();
 
 	for (const auto& popup : winrt::VisualTreeHelper::GetOpenPopupsForXamlRoot(root)) {
-		if (!popup.IsConstrainedToRootBounds()) {
-			continue;
+		winrt::UIElement child = popup.Child();
+		winrt::hstring className = winrt::get_class_name(child);
+		if (className == winrt::name_of<winrt::Controls::ContentDialog>() || className == winrt::name_of<winrt::Shapes::Rectangle>()) {
+			winrt::FrameworkElement fe = child.as<winrt::FrameworkElement>();
+			fe.Width(rootSize.Width);
+			fe.Height(rootSize.Height);
 		}
-
-		winrt::FrameworkElement child = popup.Child().as<winrt::FrameworkElement>();
-		child.Width(rootSize.Width);
-		child.Height(rootSize.Height);
 	}
 }
 
-void XamlApp::_RepositionXamlPopups() {
+void XamlApp::_RepositionXamlPopups(bool closeFlyoutPresenter) {
 	winrt::XamlRoot root = _mainPage.XamlRoot();
 	if (!root) {
 		return;
 	}
 
 	for (const auto& popup : winrt::VisualTreeHelper::GetOpenPopupsForXamlRoot(root)) {
+		if (closeFlyoutPresenter && winrt::get_class_name(popup.Child()) == winrt::name_of<winrt::Controls::FlyoutPresenter>()) {
+			popup.IsOpen(false);
+			continue;
+		}
+
 		// 取自 https://github.com/CommunityToolkit/Microsoft.Toolkit.Win32/blob/229fa3cd245ff002906b2a594196b88aded25774/Microsoft.Toolkit.Forms.UI.XamlHost/WindowsXamlHostBase.cs#L180
 
 		// Toggle the CompositeMode property, which will force all windowed Popups
@@ -358,7 +363,7 @@ LRESULT XamlApp::_WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				[](XamlApp* app)->winrt::fire_and_forget {
 					co_await app->_mainPage.Dispatcher().RunAsync(winrt::CoreDispatcherPriority::Normal, [app]() {
 						app->_ResizeXamlDialog();
-						app->_RepositionXamlPopups();
+						app->_RepositionXamlPopups(true);
 					});
 				}(this);
 			}
@@ -419,7 +424,7 @@ LRESULT XamlApp::_WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_MOVING:
 	{
 		if (_mainPage) {
-			_RepositionXamlPopups();
+			_RepositionXamlPopups(false);
 		}
 
 		return 0;

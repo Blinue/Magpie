@@ -287,13 +287,6 @@ void MainPage::_ScalingProfileService_ProfileAdded(ScalingProfile& profile) {
 	IVector<IInspectable> navMenuItems = __super::RootNavigationView().MenuItems();
 	navMenuItems.InsertAt(navMenuItems.Size() - 1, item);
 	__super::RootNavigationView().SelectedItem(item);
-	
-	if (Win32Utils::GetOSBuild() >= 22000) {
-		// Win11 中关闭背景遮罩动画，否则导航完成后背景可能闪烁
-		for (const auto& popup : VisualTreeHelper::GetOpenPopupsForXamlRoot(XamlRoot())) {
-			popup.IsOpen(false);
-		}
-	}
 }
 
 } // namespace winrt::Magpie::implementation

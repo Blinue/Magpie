@@ -3,11 +3,13 @@
 #include "Win32Utils.h"
 #include <winrt/Windows.UI.Xaml.Media.h>
 #include <winrt/Windows.UI.Xaml.Controls.Primitives.h>
+#include <winrt/Windows.UI.Xaml.Shapes.h>
+
 
 using namespace winrt;
 using namespace Windows::UI::Xaml;
-using namespace Windows::UI::Xaml::Media;
 using namespace Windows::UI::Xaml::Controls;
+using namespace Windows::UI::Xaml::Media;
 
 
 void XamlUtils::CloseXamlPopups(const XamlRoot& root) {
@@ -16,9 +18,12 @@ void XamlUtils::CloseXamlPopups(const XamlRoot& root) {
 	}
 
 	for (const auto& popup : VisualTreeHelper::GetOpenPopupsForXamlRoot(root)) {
-		if (!popup.IsConstrainedToRootBounds()) {
-			popup.IsOpen(false);
+		winrt::hstring className = winrt::get_class_name(popup.Child());
+		if (className == winrt::name_of<ContentDialog>() || className == winrt::name_of<Shapes::Rectangle>()) {
+			continue;
 		}
+
+		popup.IsOpen(false);
 	}
 }
 
