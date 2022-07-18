@@ -1,6 +1,5 @@
 namespace Magpie.App
 {
-	[default_interface]
 	runtimeclass MainPage : Windows.UI.Xaml.Controls.Page, [default] Windows.UI.Xaml.Data.INotifyPropertyChanged
 	{
 		MainPage();

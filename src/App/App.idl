@@ -13,7 +13,6 @@
 #include "KeyVisual.idl"
 #include "ShortcutControl.idl"
 #include "ShortcutDialog.idl"
-#include "NewProfileDialog.idl"
 #include "ScalingModesPage.idl"
 #include "ScalingProfilePage.idl"
 

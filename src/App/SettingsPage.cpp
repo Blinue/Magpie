@@ -3,7 +3,6 @@
 #if __has_include("SettingsPage.g.cpp")
 #include "SettingsPage.g.cpp"
 #endif
-#include "MainPage.h"
 #include "XamlUtils.h"
 #include "ComboBoxHelper.h"
 #include "AppSettings.h"

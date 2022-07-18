@@ -140,29 +140,6 @@ void MainPage::NavigationView_DisplayModeChanged(MUXC::NavigationView const&, MU
 }
 
 void MainPage::AddNavigationViewItem_Tapped(IInspectable const&, TappedRoutedEventArgs const&) {
-	/*if (!_newProfileDialog) {
-		// 惰性初始化
-		_newProfileDialog = ContentDialog();
-		_newProfileDialog.Title(box_value(L"添加新配置"));
-		_newProfileDialog.PrimaryButtonText(L"确定");
-		_newProfileDialog.CloseButtonText(L"取消");
-		_newProfileDialog.DefaultButton(ContentDialogButton::Primary);
-	}
-
-	_newProfileDialog.Content(NewProfileDialog());
-	_newProfileDialog.XamlRoot(XamlRoot());
-	_newProfileDialog.RequestedTheme(ActualTheme());
-
-	// 防止快速点击时崩溃
-	static bool isShowing = false;
-	if (isShowing) {
-		co_return;
-	}
-	isShowing = true;
-	co_await _newProfileDialog.ShowAsync();
-	isShowing = false;
-	_newProfileDialog.Content(nullptr);*/
-
 	std::vector<IInspectable> profiles;
 	profiles.push_back(box_value(L"默认"));
 	for (const ScalingProfile& profile : AppSettings::Get().ScalingProfiles()) {
@@ -171,6 +148,8 @@ void MainPage::AddNavigationViewItem_Tapped(IInspectable const&, TappedRoutedEve
 
 	_profiles = single_threaded_vector(std::move(profiles));
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"Profiles"));
+
+	ProfileIndex(0);
 
 	FlyoutBase::ShowAttachedFlyout(AddNavigationViewItem());
 }

@@ -72,8 +72,6 @@ namespace winrt::Magpie::App::implementation
 		Windows::UI::ViewManagement::UISettings _uiSettings;
 		Windows::UI::ViewManagement::UISettings::ColorValuesChanged_revoker _colorChangedRevoker;
 
-		Controls::ContentDialog _newProfileDialog{ nullptr };
-
 		WinRTUtils::EventRevoker _profileAddedRevoker;
 
 		Windows::Graphics::Display::DisplayInformation _displayInfomation{ nullptr };
