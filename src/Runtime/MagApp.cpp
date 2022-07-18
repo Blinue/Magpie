@@ -450,8 +450,6 @@ bool MagApp::_DisableDirectFlip() {
 	return true;
 }
 
-
-
 LRESULT MagApp::_HostWndProcStatic(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
 	return Get()._HostWndProc(hWnd, message, wParam, lParam);
 }

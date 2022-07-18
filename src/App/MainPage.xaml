@@ -39,7 +39,11 @@
 					<FontIcon Glyph="&#xE81E;"/>
 				</muxc:NavigationViewItem.Icon>
 			</muxc:NavigationViewItem>
-			<muxc:NavigationViewItem Icon="Add" Content="添加新配置" SelectsOnInvoked="False" Tapped="AddNavigationViewItem_Tapped" />
+			<muxc:NavigationViewItem x:Name="AddNavigationViewItem" Icon="Add" Content="添加新配置" SelectsOnInvoked="False" Tapped="AddNavigationViewItem_Tapped">
+				<FlyoutBase.AttachedFlyout>
+					<local:NewProfileFlyout />
+				</FlyoutBase.AttachedFlyout>
+			</muxc:NavigationViewItem>
 		</muxc:NavigationView.MenuItems>
 		<muxc:NavigationView.FooterMenuItems>
 			<muxc:NavigationViewItem Content="关于" Tag="About">

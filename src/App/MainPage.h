@@ -26,7 +26,7 @@ namespace winrt::Magpie::App::implementation
 
 		void NavigationView_DisplayModeChanged(MUXC::NavigationView const&, MUXC::NavigationViewDisplayModeChangedEventArgs const&);
 
-		IAsyncAction AddNavigationViewItem_Tapped(IInspectable const&, Input::TappedRoutedEventArgs const&);
+		void AddNavigationViewItem_Tapped(IInspectable const&, Input::TappedRoutedEventArgs const&);
 
 		MUXC::NavigationView RootNavigationView();
 

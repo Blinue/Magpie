@@ -19,6 +19,7 @@ using namespace Windows::Graphics::Display;
 using namespace Windows::Graphics::Imaging;
 using namespace Windows::UI::ViewManagement;
 using namespace Windows::UI::Xaml::Controls;
+using namespace Windows::UI::Xaml::Controls::Primitives;
 using namespace Windows::UI::Xaml::Input;
 using namespace Windows::UI::Xaml::Media::Imaging;
 
@@ -137,8 +138,8 @@ void MainPage::NavigationView_DisplayModeChanged(MUXC::NavigationView const&, MU
 	XamlUtils::UpdateThemeOfTooltips(*this, ActualTheme());
 }
 
-IAsyncAction MainPage::AddNavigationViewItem_Tapped(IInspectable const&, TappedRoutedEventArgs const&) {
-	if (!_newProfileDialog) {
+void MainPage::AddNavigationViewItem_Tapped(IInspectable const&, TappedRoutedEventArgs const&) {
+	/*if (!_newProfileDialog) {
 		// 惰性初始化
 		_newProfileDialog = ContentDialog();
 		_newProfileDialog.Title(box_value(L"添加新配置"));
@@ -159,7 +160,8 @@ IAsyncAction MainPage::AddNavigationViewItem_Tapped(IInspectable const&, TappedR
 	isShowing = true;
 	co_await _newProfileDialog.ShowAsync();
 	isShowing = false;
-	_newProfileDialog.Content(nullptr);
+	_newProfileDialog.Content(nullptr);*/
+	FlyoutBase::ShowAttachedFlyout(AddNavigationViewItem());
 }
 
 MUXC::NavigationView MainPage::RootNavigationView() {

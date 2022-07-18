@@ -183,6 +183,7 @@
     <Page Include="NewProfileDialog.xaml">
       <Filter>Dialogs</Filter>
     </Page>
+    <Page Include="NewProfileFlyout.xaml" />
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest">

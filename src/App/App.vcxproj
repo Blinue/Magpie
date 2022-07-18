@@ -122,6 +122,10 @@
       <DependentUpon>NewProfileDialog.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
+    <ClInclude Include="NewProfileFlyout.h">
+      <DependentUpon>NewProfileFlyout.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </ClInclude>
     <ClInclude Include="ScalingProfile.h" />
     <ClInclude Include="ScalingProfilePage.h">
       <DependentUpon>ScalingProfilePage.xaml</DependentUpon>
@@ -225,6 +229,10 @@
     <ClCompile Include="MagService.cpp" />
     <ClCompile Include="NewProfileDialog.cpp">
       <DependentUpon>NewProfileDialog.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </ClCompile>
+    <ClCompile Include="NewProfileFlyout.cpp">
+      <DependentUpon>NewProfileFlyout.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
     <ClCompile Include="ScalingProfile.cpp" />
@@ -344,6 +352,10 @@
       <DependentUpon>NewProfileDialog.xaml</DependentUpon>
       <SubType>Code</SubType>
     </None>
+    <Midl Include="NewProfileFlyout.idl">
+      <DependentUpon>NewProfileFlyout.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Midl>
     <Midl Include="PageFrame.idl">
       <DependentUpon>PageFrame.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -390,6 +402,9 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="NewProfileDialog.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="NewProfileFlyout.xaml">
       <SubType>Designer</SubType>
     </Page>
     <Page Include="ScalingProfilePage.xaml">
