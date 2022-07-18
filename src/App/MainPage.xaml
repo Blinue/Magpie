@@ -41,7 +41,34 @@
 			</muxc:NavigationViewItem>
 			<muxc:NavigationViewItem x:Name="AddNavigationViewItem" Icon="Add" Content="添加新配置" SelectsOnInvoked="False" Tapped="AddNavigationViewItem_Tapped">
 				<FlyoutBase.AttachedFlyout>
-					<local:NewProfileFlyout />
+					<Flyout>
+						<StackPanel Orientation="Vertical">
+							<TextBlock Text="添加新配置" FontWeight="SemiBold" FontSize="18" Margin="0,5,0,20" />
+
+							<StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="10" Width="280">
+								<StackPanel Orientation="Vertical" Spacing="5">
+									<TextBlock Text="选择一个窗口" />
+									<ComboBox HorizontalAlignment="Stretch" />
+								</StackPanel>
+								<StackPanel Orientation="Vertical" Spacing="5">
+									<TextBlock Text="名称" />
+									<TextBox HorizontalAlignment="Stretch" />
+								</StackPanel>
+								<StackPanel Orientation="Vertical" Spacing="5">
+									<TextBlock Text="复制缩放配置" />
+									<ComboBox x:Name="ProfilesComboBox" ItemsSource="{x:Bind Profiles, Mode=OneWay}" SelectedIndex="{x:Bind ProfileIndex, Mode=TwoWay}" HorizontalAlignment="Stretch">
+										<ComboBox.ItemTemplate>
+											<DataTemplate>
+												<TextBlock Text="{Binding}" MaxWidth="350" HorizontalAlignment="Stretch" TextTrimming="CharacterEllipsis" local:TextBlockHelper.IsAutoTooltip="True" />
+											</DataTemplate>
+										</ComboBox.ItemTemplate>
+									</ComboBox>
+								</StackPanel>
+
+								<Button Margin="0,15,0,0" IsEnabled="False" HorizontalAlignment="Right" Width="100" Content="确定" Style="{StaticResource AccentButtonStyle}" />
+							</StackPanel>
+						</StackPanel>
+					</Flyout>
 				</FlyoutBase.AttachedFlyout>
 			</muxc:NavigationViewItem>
 		</muxc:NavigationView.MenuItems>

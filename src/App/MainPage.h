@@ -30,6 +30,29 @@ namespace winrt::Magpie::App::implementation
 
 		MUXC::NavigationView RootNavigationView();
 
+		void ComboBox_DropDownOpened(IInspectable const&, IInspectable const&);
+
+		event_token PropertyChanged(PropertyChangedEventHandler const& handler) {
+			return _propertyChangedEvent.add(handler);
+		}
+
+		void PropertyChanged(event_token const& token) noexcept {
+			_propertyChangedEvent.remove(token);
+		}
+
+		IVector<IInspectable> Profiles() const noexcept {
+			return _profiles;
+		}
+
+		int32_t ProfileIndex() const noexcept {
+			return _profileIndex;
+		}
+
+		void ProfileIndex(int32_t value) {
+			_profileIndex = value;
+			_propertyChangedEvent(*this, PropertyChangedEventArgs(L"ProfileIndex"));
+		}
+
 	private:
 		void _UpdateTheme(bool updateIcons = true);
 
@@ -40,6 +63,11 @@ namespace winrt::Magpie::App::implementation
 		void _UpdateUWPIcons();
 
 		void _ScalingProfileService_ProfileAdded(ScalingProfile& profile);
+
+		event<PropertyChangedEventHandler> _propertyChangedEvent;
+
+		IVector<IInspectable> _profiles;
+		int32_t _profileIndex = 0;
 
 		Windows::UI::ViewManagement::UISettings _uiSettings;
 		Windows::UI::ViewManagement::UISettings::ColorValuesChanged_revoker _colorChangedRevoker;

@@ -12,6 +12,7 @@
 #include "ScalingProfileService.h"
 #include "AppXReader.h"
 #include "IconHelper.h"
+#include "ComboBoxHelper.h"
 
 
 using namespace winrt;
@@ -161,11 +162,25 @@ void MainPage::AddNavigationViewItem_Tapped(IInspectable const&, TappedRoutedEve
 	co_await _newProfileDialog.ShowAsync();
 	isShowing = false;
 	_newProfileDialog.Content(nullptr);*/
+
+	std::vector<IInspectable> profiles;
+	profiles.push_back(box_value(L"默认"));
+	for (const ScalingProfile& profile : AppSettings::Get().ScalingProfiles()) {
+		profiles.push_back(box_value(profile.Name()));
+	}
+
+	_profiles = single_threaded_vector(std::move(profiles));
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"Profiles"));
+
 	FlyoutBase::ShowAttachedFlyout(AddNavigationViewItem());
 }
 
 MUXC::NavigationView MainPage::RootNavigationView() {
 	return __super::RootNavigationView();
+}
+
+void MainPage::ComboBox_DropDownOpened(IInspectable const&, IInspectable const&) {
+	XamlUtils::UpdateThemeOfXamlPopups(XamlRoot(), ActualTheme());
 }
 
 void MainPage::_UpdateTheme(bool updateIcons) {

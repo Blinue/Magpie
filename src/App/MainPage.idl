@@ -1,10 +1,13 @@
 namespace Magpie.App
 {
 	[default_interface]
-	runtimeclass MainPage : Windows.UI.Xaml.Controls.Page
+	runtimeclass MainPage : Windows.UI.Xaml.Controls.Page, [default] Windows.UI.Xaml.Data.INotifyPropertyChanged
 	{
 		MainPage();
 
 		Microsoft.UI.Xaml.Controls.NavigationView RootNavigationView { get; };
+
+		IVector<IInspectable> Profiles{ get; };
+		Int32 ProfileIndex;
 	}
 }
