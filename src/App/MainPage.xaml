@@ -41,15 +41,12 @@
 			</muxc:NavigationViewItem>
 			<muxc:NavigationViewItem x:Name="AddNavigationViewItem" Icon="Add" Content="添加新配置" SelectsOnInvoked="False" Tapped="AddNavigationViewItem_Tapped">
 				<FlyoutBase.AttachedFlyout>
-					<Flyout>
+					<Flyout Placement="Right">
 						<StackPanel Orientation="Vertical">
 							<TextBlock Text="添加新配置" FontWeight="SemiBold" FontSize="18" Margin="0,5,0,20" />
 
 							<StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="10" Width="280">
-								<StackPanel Orientation="Vertical" Spacing="5">
-									<TextBlock Text="选择一个窗口" />
-									<ComboBox HorizontalAlignment="Stretch" />
-								</StackPanel>
+								<ComboBox PlaceholderText="选择一个窗口" HorizontalAlignment="Stretch" Margin="0,0,0,10" />
 								<StackPanel Orientation="Vertical" Spacing="5">
 									<TextBlock Text="名称" />
 									<TextBox HorizontalAlignment="Stretch" />
