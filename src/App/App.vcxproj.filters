@@ -138,7 +138,12 @@
     <None Include="TextBlockHelper.idl">
       <Filter>Helpers</Filter>
     </None>
-    <None Include="CandidateWindowItem.idl" />
+    <None Include="CandidateWindowItem.idl">
+      <Filter>ViewModels</Filter>
+    </None>
+    <None Include="NewProfileViewModel.idl">
+      <Filter>ViewModels</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Page Include="MainPage.xaml" />

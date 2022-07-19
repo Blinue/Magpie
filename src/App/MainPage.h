@@ -30,42 +30,11 @@ namespace winrt::Magpie::App::implementation
 
 		MUXC::NavigationView RootNavigationView();
 
+		Magpie::App::NewProfileViewModel NewProfileViewModel() const noexcept {
+			return _newProfileViewModel;
+		}
+
 		void ComboBox_DropDownOpened(IInspectable const&, IInspectable const&);
-
-		event_token PropertyChanged(PropertyChangedEventHandler const& handler) {
-			return _propertyChangedEvent.add(handler);
-		}
-
-		void PropertyChanged(event_token const& token) noexcept {
-			_propertyChangedEvent.remove(token);
-		}
-
-		IVector<IInspectable> CandidateWindows() const noexcept {
-			return _candidateWindows;
-		}
-
-		int32_t CandidateWindowIndex() const noexcept {
-			return _candidateWindowIndex;
-		}
-
-		void CandidateWindowIndex(int32_t value) {
-			_candidateWindowIndex = value;
-			_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CandidateWindowIndex"));
-		}
-
-		IVector<IInspectable> Profiles() const noexcept {
-			return _profiles;
-		}
-
-		int32_t ProfileIndex() const noexcept {
-			return _profileIndex;
-		}
-
-		void ProfileIndex(int32_t value) {
-			_profileIndex = value;
-			_propertyChangedEvent(*this, PropertyChangedEventArgs(L"ProfileIndex"));
-		}
-
 	private:
 		void _UpdateTheme(bool updateIcons = true);
 
@@ -77,16 +46,10 @@ namespace winrt::Magpie::App::implementation
 
 		void _ScalingProfileService_ProfileAdded(ScalingProfile& profile);
 
-		event<PropertyChangedEventHandler> _propertyChangedEvent;
-
-		IVector<IInspectable> _candidateWindows;
-		int32_t _candidateWindowIndex = -1;
-		IVector<IInspectable> _profiles;
-		int32_t _profileIndex = 0;
-
 		Windows::UI::ViewManagement::UISettings _uiSettings;
 		Windows::UI::ViewManagement::UISettings::ColorValuesChanged_revoker _colorChangedRevoker;
 
+		Magpie::App::NewProfileViewModel _newProfileViewModel;
 		WinRTUtils::EventRevoker _profileAddedRevoker;
 
 		Windows::Graphics::Display::DisplayInformation _displayInfomation{ nullptr };

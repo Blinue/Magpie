@@ -1,6 +1,7 @@
 #include "LoggerHelper.idl"
 #include "TextBlockHelper.idl"
 #include "CandidateWindowItem.idl"
+#include "NewProfileViewModel.idl"
 #include "MainPage.idl"
 #include "SettingItem.idl"
 #include "SettingsGroup.idl"

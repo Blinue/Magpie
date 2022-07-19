@@ -122,6 +122,10 @@
     <ClInclude Include="HotkeySettings.h" />
     <ClInclude Include="IconHelper.h" />
     <ClInclude Include="MagService.h" />
+    <ClInclude Include="NewProfileViewModel.h">
+      <DependentUpon>NewProfileViewModel.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClInclude>
     <ClInclude Include="ScalingProfile.h" />
     <ClInclude Include="ScalingProfilePage.h">
       <DependentUpon>ScalingProfilePage.xaml</DependentUpon>
@@ -227,6 +231,10 @@
     <ClCompile Include="HotkeySettings.cpp" />
     <ClCompile Include="IconHelper.cpp" />
     <ClCompile Include="MagService.cpp" />
+    <ClCompile Include="NewProfileViewModel.cpp">
+      <DependentUpon>NewProfileViewModel.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClCompile>
     <ClCompile Include="ScalingProfile.cpp" />
     <ClCompile Include="ScalingProfilePage.cpp">
       <DependentUpon>ScalingProfilePage.xaml</DependentUpon>
@@ -341,6 +349,9 @@
       <SubType>Designer</SubType>
     </None>
     <None Include="CandidateWindowItem.idl">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="NewProfileViewModel.idl">
       <SubType>Designer</SubType>
     </None>
     <Midl Include="PageFrame.idl">
