@@ -49,13 +49,13 @@
 								<ComboBox PlaceholderText="选择一个窗口" HorizontalAlignment="Stretch" Margin="0,0,0,10" ItemsSource="{x:Bind CandidateWindows, Mode=OneWay}" SelectedIndex="{x:Bind CandidateWindowIndex, Mode=TwoWay}" DropDownOpened="ComboBox_DropDownOpened">
 									<ComboBox.ItemTemplate>
 										<DataTemplate x:DataType="local:CandidateWindowItem">
-											<Grid HorizontalAlignment="Stretch" MaxWidth="400">
+											<Grid HorizontalAlignment="Stretch" MaxWidth="400" ColumnSpacing="10">
 												<Grid.ColumnDefinitions>
 													<ColumnDefinition Width="Auto" />
 													<ColumnDefinition Width="*" />
 												</Grid.ColumnDefinitions>
-												<ContentPresenter Grid.Column="0" />
-												<TextBlock Margin="10,0,0,0" Grid.Column="1" Text="{x:Bind Title, Mode=OneWay}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" local:TextBlockHelper.IsAutoTooltip="True" />
+												<ContentPresenter Grid.Column="0" Content="{x:Bind Icon, Mode=OneWay}" />
+												<TextBlock Grid.Column="1" Text="{x:Bind Title, Mode=OneWay}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" local:TextBlockHelper.IsAutoTooltip="True" />
 											</Grid>
 										</DataTemplate>
 									</ComboBox.ItemTemplate>

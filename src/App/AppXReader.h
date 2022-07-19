@@ -16,7 +16,7 @@ public:
 
 	std::wstring GetDisplayName() noexcept;
 
-	std::variant<std::wstring, Windows::Graphics::Imaging::SoftwareBitmap> GetIcon(uint32_t preferredSize, bool isLightTheme) noexcept;
+	std::variant<std::wstring, Windows::Graphics::Imaging::SoftwareBitmap> GetIcon(uint32_t preferredSize, bool isLightTheme, bool noPath = false) noexcept;
 
 	const std::wstring& AUMID() const noexcept {
 		return _aumid;

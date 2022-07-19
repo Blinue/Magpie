@@ -84,11 +84,11 @@ static SoftwareBitmap HIcon2SoftwareBitmapAsync(HICON hIcon) {
 			// 彩色图标
 			for (size_t i = 0; i < pixelsSize; i += 4) {
 				// 预乘 Alpha 通道
-				double alpha = pixels[i + 3] / 255.0f;
+				float alpha = pixels[i + 3] / 255.0f;
 
-				pixels[i] = (BYTE)std::lround(pixels[i] * alpha);
-				pixels[i + 1] = (BYTE)std::lround(pixels[i + 1] * alpha);
-				pixels[i + 2] = (BYTE)std::lround(pixels[i + 2] * alpha);
+				pixels[i] = (BYTE)std::lroundf(pixels[i] * alpha);
+				pixels[i + 1] = (BYTE)std::lroundf(pixels[i + 1] * alpha);
+				pixels[i + 2] = (BYTE)std::lroundf(pixels[i + 2] * alpha);
 			}
 		} else {
 			// 彩色掩码图标

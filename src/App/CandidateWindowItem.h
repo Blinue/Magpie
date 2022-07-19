@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 #include "CandidateWindowItem.g.h"
 
 
@@ -19,9 +19,7 @@ struct CandidateWindowItem : CandidateWindowItemT<CandidateWindowItem> {
 		return _title;
 	}
 
-	IInspectable Icon() const noexcept {
-		return _icon;
-	}
+	IInspectable Icon() const noexcept;
 
 	hstring DefaultProfileName() const noexcept {
 		return _defaultProfileName;

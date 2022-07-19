@@ -324,7 +324,7 @@ private:
 	bool _isLightTheme = false;
 };
 
-static SoftwareBitmap AutoFillBackground(const std::wstring& iconPath, bool isLightTheme) {
+static SoftwareBitmap AutoFillBackground(const std::wstring& iconPath, bool isLightTheme, bool noPath) {
 	com_ptr<IWICImagingFactory2> wicImgFactory;
 
 	HRESULT hr = CoCreateInstance(
@@ -364,7 +364,7 @@ static SoftwareBitmap AutoFillBackground(const std::wstring& iconPath, bool isLi
 	}
 
 	hr = formatConverter->Initialize(frame.get(),
-		GUID_WICPixelFormat32bppRGBA, WICBitmapDitherTypeNone, nullptr, 0, WICBitmapPaletteTypeCustom);
+		GUID_WICPixelFormat32bppBGRA, WICBitmapDitherTypeNone, nullptr, 0, WICBitmapPaletteTypeCustom);
 	if (FAILED(hr)) {
 		Logger::Get().ComError("IWICFormatConverter::Initialize 失败", hr);
 		return nullptr;
@@ -410,7 +410,27 @@ static SoftwareBitmap AutoFillBackground(const std::wstring& iconPath, bool isLi
 
 	float lumaAvg = lumaTotal / lumaCount;
 	if (isLightTheme ? lumaAvg <= 220 : lumaAvg >= 30) {
-		return nullptr;
+		if (!noPath) {
+			return nullptr;
+		}
+
+		SoftwareBitmap bitmap(BitmapPixelFormat::Bgra8, width, height, BitmapAlphaMode::Premultiplied);
+		{
+			BitmapBuffer buffer = bitmap.LockBuffer(BitmapBufferAccessMode::Write);
+			uint8_t* pixels = buffer.CreateReference().data();
+
+			const uint8_t* origin = buf.get();
+			for (size_t i = 0, pixelsSize = static_cast<size_t>(width) * height * 4; i < pixelsSize; i += 4) {
+				// 预乘 Alpha 通道
+				float alpha = origin[i + 3] / 255.0f;
+
+				pixels[i] = (BYTE)std::lround(origin[i] * alpha);
+				pixels[i + 1] = (BYTE)std::lround(origin[i + 1] * alpha);
+				pixels[i + 2] = (BYTE)std::lround(origin[i + 2] * alpha);
+				pixels[i + 3] = origin[i + 3];
+			}
+		}
+		return bitmap;
 	}
 
 	// 和背景的对比度太低，需要填充背景
@@ -440,16 +460,16 @@ static SoftwareBitmap AutoFillBackground(const std::wstring& iconPath, bool isLi
 
 				float reverseAlpha = 1 - alpha;
 				if (reverseAlpha < 1e-5) {
-					pixels[0] = origin[2];
+					pixels[0] = origin[0];
 					pixels[1] = origin[1];
-					pixels[2] = origin[0];
+					pixels[2] = origin[2];
 					pixels[3] = 255;
 					continue;
 				}
 
-				pixels[0] = (uint8_t)std::lroundf(origin[2] * alpha + accentColor.B * reverseAlpha);
+				pixels[0] = (uint8_t)std::lroundf(origin[0] * alpha + accentColor.B * reverseAlpha);
 				pixels[1] = (uint8_t)std::lroundf(origin[1] * alpha + accentColor.G * reverseAlpha);
-				pixels[2] = (uint8_t)std::lroundf(origin[0] * alpha + accentColor.R * reverseAlpha);
+				pixels[2] = (uint8_t)std::lroundf(origin[2] * alpha + accentColor.R * reverseAlpha);
 				pixels[3] = 255;
 			}
 
@@ -459,7 +479,7 @@ static SoftwareBitmap AutoFillBackground(const std::wstring& iconPath, bool isLi
 	return bitmap;
 }
 
-std::variant<std::wstring, SoftwareBitmap> AppXReader::GetIcon(uint32_t preferredSize, bool isLightTheme) noexcept {
+std::variant<std::wstring, SoftwareBitmap> AppXReader::GetIcon(uint32_t preferredSize, bool isLightTheme, bool noPath) noexcept {
 	if (!_appxApp && !_LoadManifest()) {
 		return {};
 	}
@@ -529,8 +549,8 @@ std::variant<std::wstring, SoftwareBitmap> AppXReader::GetIcon(uint32_t preferre
 		[=](const CandidateIcon& l, const CandidateIcon& r) { return CandidateIcon::Compare(l, r, preferredSize, isLightTheme); });
 
 	std::wstring iconPath = StrUtils::ConcatW(std::wstring_view(iconFileName.begin(), iconFileName.begin() + delimPos + 1), it->FileName());
-	SoftwareBitmap bkgIcon = AutoFillBackground(iconPath, isLightTheme);
-	if (bkgIcon) {
+	SoftwareBitmap bkgIcon = AutoFillBackground(iconPath, isLightTheme, noPath);
+	if (bkgIcon || noPath) {
 		return std::move(bkgIcon);
 	} else {
 		return std::move(iconPath);

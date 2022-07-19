@@ -1,4 +1,4 @@
-﻿#include "pch.h"
+#include "pch.h"
 #include "CandidateWindowItem.h"
 #if __has_include("CandidateWindowItem.g.cpp")
 #include "CandidateWindowItem.g.cpp"
@@ -72,6 +72,24 @@ CandidateWindowItem::CandidateWindowItem(uint64_t hWnd, uint32_t dpi, bool isLig
 	_ResolveWindow(true, true);
 }
 
+IInspectable CandidateWindowItem::Icon() const noexcept {
+	// 返回副本，否则在 ComboBox 中绑定会导致崩溃
+	if (MUXC::ImageIcon imageIcon = _icon.try_as<MUXC::ImageIcon>()) {
+		MUXC::ImageIcon icon;
+		icon.Source(imageIcon.Source());
+		icon.Width(imageIcon.Width());
+		icon.Height(imageIcon.Height());
+		return std::move(icon);
+	} else if (FontIcon fontIcon = _icon.try_as<FontIcon>()) {
+		FontIcon icon;
+		icon.Glyph(fontIcon.Glyph());
+		icon.FontSize(fontIcon.FontSize());
+		return std::move(icon);
+	}
+
+	return nullptr;
+}
+
 fire_and_forget CandidateWindowItem::_ResolveWindow(bool resolveIcon, bool resolveName) {
 	assert(resolveIcon || resolveName);
 
@@ -111,14 +129,11 @@ fire_and_forget CandidateWindowItem::_ResolveWindow(bool resolveIcon, bool resol
 
 	const uint32_t iconSize = (uint32_t)std::ceil(dpi * 16 / 96.0);
 
-	std::wstring iconPath;
 	SoftwareBitmap iconBitmap{ nullptr };
 
 	if (isPackaged) {
-		std::variant<std::wstring, SoftwareBitmap> uwpIcon = reader.GetIcon(iconSize, isLightTheme);
-		if (uwpIcon.index() == 0) {
-			iconPath = std::get<0>(uwpIcon);
-		} else {
+		std::variant<std::wstring, SoftwareBitmap> uwpIcon = reader.GetIcon(iconSize, isLightTheme, true);
+		if (uwpIcon.index() == 1) {
 			iconBitmap = std::get<1>(uwpIcon);
 		}
 	} else {
@@ -129,9 +144,7 @@ fire_and_forget CandidateWindowItem::_ResolveWindow(bool resolveIcon, bool resol
 	co_await dispatcher;
 
 	if (auto strongThis = weakThis.get()) {
-		if (!iconPath.empty()) {
-			strongThis->_SetIconPath(iconPath);
-		} else if (iconBitmap) {
+		if (iconBitmap) {
 			co_await strongThis->_SetSoftwareBitmapIconAsync(iconBitmap);
 		} else {
 			strongThis->_SetDefaultIcon();
@@ -159,18 +172,6 @@ IAsyncAction CandidateWindowItem::_SetSoftwareBitmapIconAsync(Windows::Graphics:
 	imageIcon.Source(imageSource);
 
 	_icon = imageIcon;
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"Icon"));
-}
-
-void CandidateWindowItem::_SetIconPath(std::wstring_view iconPath) {
-	BitmapIcon icon;
-	icon.ShowAsMonochrome(false);
-	icon.UriSource(Uri(iconPath));
-	icon.Width(16);
-	icon.Height(16);
-
-	_icon = std::move(icon);
-
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"Icon"));
 }
 
