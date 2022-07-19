@@ -109,6 +109,10 @@
       <DependentUpon>BooleanToVisibilityConverter.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
+    <ClInclude Include="CandidateWindowItem.h">
+      <DependentUpon>CandidateWindowItem.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClInclude>
     <ClInclude Include="ComboBoxHelper.h" />
     <ClInclude Include="HomeViewModel.h">
       <DependentUpon>HomeViewModel.idl</DependentUpon>
@@ -209,6 +213,10 @@
     <ClCompile Include="AppXReader.cpp" />
     <ClCompile Include="BooleanToVisibilityConverter.cpp">
       <DependentUpon>BooleanToVisibilityConverter.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClCompile>
+    <ClCompile Include="CandidateWindowItem.cpp">
+      <DependentUpon>CandidateWindowItem.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
     <ClCompile Include="HomeViewModel.cpp">
@@ -330,6 +338,9 @@
       <SubType>Code</SubType>
     </None>
     <None Include="HomeViewModel.idl">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="CandidateWindowItem.idl">
       <SubType>Designer</SubType>
     </None>
     <Midl Include="PageFrame.idl">

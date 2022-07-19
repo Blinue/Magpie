@@ -40,6 +40,19 @@ namespace winrt::Magpie::App::implementation
 			_propertyChangedEvent.remove(token);
 		}
 
+		IVector<IInspectable> CandidateWindows() const noexcept {
+			return _candidateWindows;
+		}
+
+		int32_t CandidateWindowIndex() const noexcept {
+			return _candidateWindowIndex;
+		}
+
+		void CandidateWindowIndex(int32_t value) {
+			_candidateWindowIndex = value;
+			_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CandidateWindowIndex"));
+		}
+
 		IVector<IInspectable> Profiles() const noexcept {
 			return _profiles;
 		}
@@ -66,6 +79,8 @@ namespace winrt::Magpie::App::implementation
 
 		event<PropertyChangedEventHandler> _propertyChangedEvent;
 
+		IVector<IInspectable> _candidateWindows;
+		int32_t _candidateWindowIndex = -1;
 		IVector<IInspectable> _profiles;
 		int32_t _profileIndex = 0;
 

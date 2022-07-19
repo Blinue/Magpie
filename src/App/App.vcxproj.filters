@@ -138,6 +138,7 @@
     <None Include="TextBlockHelper.idl">
       <Filter>Helpers</Filter>
     </None>
+    <None Include="CandidateWindowItem.idl" />
   </ItemGroup>
   <ItemGroup>
     <Page Include="MainPage.xaml" />
