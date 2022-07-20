@@ -25,26 +25,30 @@ struct CandidateWindowItem : CandidateWindowItemT<CandidateWindowItem> {
 		return _defaultProfileName;
 	}
 
+	hstring AUMID() const noexcept {
+		return _aumid;
+	}
+
+	hstring Path() const noexcept {
+		return _path;
+	}
+
+	hstring ClassName() const noexcept {
+		return _className;
+	}
+
 private:
-	fire_and_forget _ResolveWindow(bool resolveIcon, bool resolveName);
-
-	void _SetDefaultIcon();
-
-	IAsyncAction _SetSoftwareBitmapIconAsync(Windows::Graphics::Imaging::SoftwareBitmap const& iconBitmap);
-
-	void _SetIconPath(std::wstring_view iconPath);
+	fire_and_forget _ResolveWindow(bool resolveIcon, bool resolveName, HWND hWnd, bool isLightTheme, uint32_t dpi, CoreDispatcher dispatcher);
 
 	event<PropertyChangedEventHandler> _propertyChangedEvent;
 
-	hstring _aumid;
-	uint64_t _hWnd = 0;
 	hstring _title;
 	IInspectable _icon{ nullptr };
 	hstring _defaultProfileName;
 
-	bool _isLightTheme = false;
-	uint32_t _dpi = 96;
-	CoreDispatcher _dispatcher{ nullptr };
+	hstring _aumid;
+	hstring _path;
+	hstring _className;
 };
 
 }

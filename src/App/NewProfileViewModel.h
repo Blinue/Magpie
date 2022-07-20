@@ -50,6 +50,8 @@ struct NewProfileViewModel : NewProfileViewModelT<NewProfileViewModel> {
 		return _isConfirmButtonEnabled;
 	}
 
+	void Confirm() const noexcept;
+
 private:
 	void _IsConfirmButtonEnabled(bool value) noexcept {
 		if (_isConfirmButtonEnabled == value) {

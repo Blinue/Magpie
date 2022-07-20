@@ -58,18 +58,19 @@ static hstring GetProcessDesc(HWND hWnd) {
 	return description;
 }
 
-CandidateWindowItem::CandidateWindowItem(uint64_t hWnd, uint32_t dpi, bool isLightTheme, CoreDispatcher const& dispatcher) 
-	: _hWnd(hWnd), _dispatcher(dispatcher), _dpi(dpi), _isLightTheme(isLightTheme)
-{
+CandidateWindowItem::CandidateWindowItem(uint64_t hWnd, uint32_t dpi, bool isLightTheme, CoreDispatcher const& dispatcher) {
 	_title = Win32Utils::GetWndTitle((HWND)hWnd);
 	_defaultProfileName = _title;
+
+	_className = Win32Utils::GetWndClassName((HWND)hWnd);
+	_path = Win32Utils::GetPathOfWnd((HWND)hWnd);
 
 	Shapes::Rectangle placeholder;
 	placeholder.Width(16);
 	placeholder.Height(16);
 	_icon = std::move(placeholder);
 
-	_ResolveWindow(true, true);
+	_ResolveWindow(true, true, (HWND)hWnd, isLightTheme, dpi, dispatcher);
 }
 
 IInspectable CandidateWindowItem::Icon() const noexcept {
@@ -90,15 +91,10 @@ IInspectable CandidateWindowItem::Icon() const noexcept {
 	return nullptr;
 }
 
-fire_and_forget CandidateWindowItem::_ResolveWindow(bool resolveIcon, bool resolveName) {
+fire_and_forget CandidateWindowItem::_ResolveWindow(bool resolveIcon, bool resolveName, HWND hWnd, bool isLightTheme, uint32_t dpi, CoreDispatcher dispatcher) {
 	assert(resolveIcon || resolveName);
 
 	auto weakThis = get_weak();
-
-	HWND hWnd = (HWND)_hWnd;
-	uint32_t dpi = _dpi;
-	bool isLightTheme = _isLightTheme;
-	CoreDispatcher dispatcher = _dispatcher;
 
 	// 解析名称和图标非常耗时，转到后台进行
 	co_await resume_background();
@@ -145,34 +141,25 @@ fire_and_forget CandidateWindowItem::_ResolveWindow(bool resolveIcon, bool resol
 
 	if (auto strongThis = weakThis.get()) {
 		if (iconBitmap) {
-			co_await strongThis->_SetSoftwareBitmapIconAsync(iconBitmap);
+			SoftwareBitmapSource imageSource;
+			co_await imageSource.SetBitmapAsync(iconBitmap);
+
+			MUXC::ImageIcon imageIcon;
+			imageIcon.Width(16);
+			imageIcon.Height(16);
+			imageIcon.Source(imageSource);
+
+			strongThis->_icon = std::move(imageIcon);
 		} else {
-			strongThis->_SetDefaultIcon();
+			FontIcon fontIcon;
+			fontIcon.Glyph(L"\uE737");
+			fontIcon.FontSize(16);
+
+			strongThis->_icon = std::move(fontIcon);
 		}
+
+		strongThis->_propertyChangedEvent(*this, PropertyChangedEventArgs(L"Icon"));
 	}
-}
-
-void CandidateWindowItem::_SetDefaultIcon() {
-	FontIcon fontIcon;
-	fontIcon.Glyph(L"\uE737");
-	fontIcon.FontSize(16);
-
-	_icon = std::move(fontIcon);
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"Icon"));
-}
-
-// 不检查 this 的生命周期，必须在主线程调用
-IAsyncAction CandidateWindowItem::_SetSoftwareBitmapIconAsync(Windows::Graphics::Imaging::SoftwareBitmap const& iconBitmap) {
-	SoftwareBitmapSource imageSource;
-	co_await imageSource.SetBitmapAsync(iconBitmap);
-
-	MUXC::ImageIcon imageIcon;
-	imageIcon.Width(16);
-	imageIcon.Height(16);
-	imageIcon.Source(imageSource);
-
-	_icon = imageIcon;
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"Icon"));
 }
 
 }

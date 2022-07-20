@@ -144,7 +144,7 @@ void MainPage::AddNavigationViewItem_Tapped(IInspectable const&, TappedRoutedEve
 	const bool isLightTheme = ActualTheme() == ElementTheme::Light;
 	_newProfileViewModel.PrepareForOpen(dpi, isLightTheme, Dispatcher());
 
-	FlyoutBase::ShowAttachedFlyout(AddNavigationViewItem());
+	NewProfileFlyout().ShowAt(AddNavigationViewItem());
 }
 
 MUXC::NavigationView MainPage::RootNavigationView() {
@@ -153,6 +153,11 @@ MUXC::NavigationView MainPage::RootNavigationView() {
 
 void MainPage::ComboBox_DropDownOpened(IInspectable const&, IInspectable const&) {
 	XamlUtils::UpdateThemeOfXamlPopups(XamlRoot(), ActualTheme());
+}
+
+void MainPage::NewProfileConfirmButton_Click(IInspectable const&, RoutedEventArgs const&) {
+	_newProfileViewModel.Confirm();
+	NewProfileFlyout().Hide();
 }
 
 void MainPage::_UpdateTheme(bool updateIcons) {
@@ -253,7 +258,7 @@ IAsyncAction MainPage::_UISettings_ColorValuesChanged(Windows::UI::ViewManagemen
 	if (AppSettings::Get().Theme() == 2) {
 		_UpdateTheme(false);
 	}
-	
+
 	_UpdateUWPIcons();
 }
 

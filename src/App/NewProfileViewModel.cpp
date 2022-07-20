@@ -163,4 +163,14 @@ void NewProfileViewModel::Name(const hstring& value) noexcept {
 	_IsConfirmButtonEnabled(!value.empty() && _candidateWindowIndex >= 0);
 }
 
+void NewProfileViewModel::Confirm() const noexcept {
+	if (_candidateWindowIndex < 0 || _name.empty()) {
+		return;
+	}
+
+	CandidateWindowItem selectedItem = _candidateWindows.GetAt(_candidateWindowIndex).as<CandidateWindowItem>();
+	hstring aumid = selectedItem.AUMID();
+	ScalingProfileService::Get().AddProfile(!aumid.empty(), aumid.empty() ? selectedItem.Path() : aumid, selectedItem.ClassName(), _name);
+}
+
 }

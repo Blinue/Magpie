@@ -8,5 +8,9 @@ namespace Magpie.App
         String Title{ get; };
         Object Icon{ get; };
         String DefaultProfileName{ get; };
+
+        String AUMID { get; };
+        String Path { get; };
+        String ClassName { get; };
     }
 }
