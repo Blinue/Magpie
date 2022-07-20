@@ -75,7 +75,7 @@
 											<Grid
 												MaxWidth="400"
 												HorizontalAlignment="Stretch"
-												ColumnSpacing="10">
+												ColumnSpacing="15">
 												<Grid.ColumnDefinitions>
 													<ColumnDefinition Width="Auto" />
 													<ColumnDefinition Width="*" />
@@ -91,14 +91,14 @@
 										</DataTemplate>
 									</ComboBox.ItemTemplate>
 								</ComboBox>
-								<StackPanel Orientation="Vertical" Spacing="5">
+								<StackPanel Orientation="Vertical" Spacing="6">
 									<TextBlock Text="名称" />
 									<TextBox
 										Height="32"
 										HorizontalAlignment="Stretch"
 										Text="{x:Bind NewProfileViewModel.Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
 								</StackPanel>
-								<StackPanel Orientation="Vertical" Spacing="5">
+								<StackPanel Orientation="Vertical" Spacing="6">
 									<TextBlock Text="复制缩放配置" />
 									<ComboBox
 										x:Name="ProfilesComboBox"
