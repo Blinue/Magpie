@@ -113,6 +113,7 @@ fire_and_forget CandidateWindowItem::_ResolveWindow(bool resolveIcon, bool resol
 			[](com_ptr<CandidateWindowItem> that, const std::wstring& defaultProfileName, const std::wstring& aumid, CoreDispatcher const& dispatcher)->fire_and_forget {
 				co_await dispatcher.RunAsync(CoreDispatcherPriority::Normal, [that, defaultProfileName(defaultProfileName), aumid(aumid)]() {
 					that->_defaultProfileName = defaultProfileName;
+					that->_propertyChangedEvent(*that, PropertyChangedEventArgs(L"DefaultProfileName"));
 					that->_aumid = aumid;
 				});
 			}(strongThis, defaultProfileName, reader.AUMID(), dispatcher);

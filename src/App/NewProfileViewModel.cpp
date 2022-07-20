@@ -132,6 +132,18 @@ void NewProfileViewModel::PrepareForOpen(uint32_t dpi, bool isLightTheme, CoreDi
 	_candidateWindows = single_threaded_vector(std::move(items));
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CandidateWindows"));
 
+	CandidateWindowIndex(-1);
+	if (_candidateWindows.Size() == 1) {
+		_candidateWindows.GetAt(0)
+			.as<CandidateWindowItem>()
+			.PropertyChanged([this](IInspectable const&, PropertyChangedEventArgs const& args) {
+			if (args.PropertyName() == L"DefaultProfileName") {
+				CandidateWindowIndex(0);
+				return;
+			}
+		});
+	}
+
 	std::vector<IInspectable> profiles;
 	profiles.push_back(box_value(L"默认"));
 	for (const ScalingProfile& profile : AppSettings::Get().ScalingProfiles()) {
@@ -141,7 +153,6 @@ void NewProfileViewModel::PrepareForOpen(uint32_t dpi, bool isLightTheme, CoreDi
 	_profiles = single_threaded_vector(std::move(profiles));
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"Profiles"));
 
-	CandidateWindowIndex(_candidateWindows.Size() == 1 ? 0 : -1);
 	ProfileIndex(0);
 }
 
