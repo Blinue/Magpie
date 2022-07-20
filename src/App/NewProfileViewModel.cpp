@@ -141,7 +141,7 @@ void NewProfileViewModel::PrepareForOpen(uint32_t dpi, bool isLightTheme, CoreDi
 	_profiles = single_threaded_vector(std::move(profiles));
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"Profiles"));
 
-	CandidateWindowIndex(-1);
+	CandidateWindowIndex(_candidateWindows.Size() == 1 ? 0 : -1);
 	ProfileIndex(0);
 }
 
