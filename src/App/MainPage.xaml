@@ -1,36 +1,36 @@
-<Page
-	x:Class="Magpie.App.MainPage"
-	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-	xmlns:local="using:Magpie.App"
-	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-	xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
-	Loaded="Loaded"
-	mc:Ignorable="d">
+<Page x:Class="Magpie.App.MainPage"
+	  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	  xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+	  xmlns:local="using:Magpie.App"
+	  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+	  xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
+	  Loaded="Loaded"
+	  mc:Ignorable="d">
 
-	<muxc:NavigationView
-		Name="RootNavigationView"
-		DisplayModeChanged="NavigationView_DisplayModeChanged"
-		IsBackButtonVisible="Collapsed"
-		PaneClosing="NavigationView_PaneClosing"
-		PaneOpening="NavigationView_PaneOpening"
-		SelectionChanged="NavigationView_SelectionChanged">
+	<muxc:NavigationView Name="RootNavigationView"
+						 DisplayModeChanged="NavigationView_DisplayModeChanged"
+						 IsBackButtonVisible="Collapsed"
+						 PaneClosing="NavigationView_PaneClosing"
+						 PaneOpening="NavigationView_PaneOpening"
+						 SelectionChanged="NavigationView_SelectionChanged">
 		<muxc:NavigationView.Resources>
-			<SolidColorBrush x:Key="NavigationViewContentBackground" Color="Transparent" />
-			<SolidColorBrush x:Key="NavigationViewContentGridBorderBrush" Color="Transparent" />
+			<SolidColorBrush x:Key="NavigationViewContentBackground"
+							 Color="Transparent" />
+			<SolidColorBrush x:Key="NavigationViewContentGridBorderBrush"
+							 Color="Transparent" />
 		</muxc:NavigationView.Resources>
 
 		<muxc:NavigationView.MenuItems>
-			<muxc:NavigationViewItem
-				Content="主页"
-				IsSelected="True"
-				Tag="Home">
+			<muxc:NavigationViewItem Content="主页"
+									 IsSelected="True"
+									 Tag="Home">
 				<muxc:NavigationViewItem.Icon>
 					<FontIcon Glyph="&#xE80F;" />
 				</muxc:NavigationViewItem.Icon>
 			</muxc:NavigationViewItem>
-			<muxc:NavigationViewItem Content="缩放模式" Tag="ScalingModes">
+			<muxc:NavigationViewItem Content="缩放模式"
+									 Tag="ScalingModes">
 				<muxc:NavigationViewItem.Icon>
 					<FontIcon Glyph="&#xE740;" />
 				</muxc:NavigationViewItem.Icon>
@@ -41,100 +41,124 @@
 					<FontIcon Glyph="&#xE81E;" />
 				</muxc:NavigationViewItem.Icon>
 			</muxc:NavigationViewItem>
-			<muxc:NavigationViewItem
-				x:Name="AddNavigationViewItem"
-				Content="添加新配置"
-				Icon="Add"
-				SelectsOnInvoked="False"
-				Tapped="AddNavigationViewItem_Tapped">
+			<muxc:NavigationViewItem x:Name="AddNavigationViewItem"
+									 Content="添加新配置"
+									 Icon="Add"
+									 SelectsOnInvoked="False"
+									 Tapped="AddNavigationViewItem_Tapped">
 				<FlyoutBase.AttachedFlyout>
-					<Flyout x:Name="NewProfileFlyout" Placement="Right">
-						<StackPanel Orientation="Vertical">
-							<TextBlock
-								Margin="0,5,0,20"
-								FontSize="18"
-								FontWeight="SemiBold"
-								Text="添加新配置" />
-
-							<StackPanel
-								Width="280"
-								HorizontalAlignment="Center"
-								VerticalAlignment="Center"
-								Orientation="Vertical"
-								Spacing="10">
-								<ComboBox
-									x:Name="CandidateWindowsComboBox"
-									Margin="0,0,0,10"
-									HorizontalAlignment="Stretch"
-									DropDownOpened="ComboBox_DropDownOpened"
-									ItemsSource="{x:Bind NewProfileViewModel.CandidateWindows, Mode=OneWay}"
-									PlaceholderText="选择一个窗口"
-									SelectedIndex="{x:Bind NewProfileViewModel.CandidateWindowIndex, Mode=TwoWay}">
-									<ComboBox.ItemTemplate>
-										<DataTemplate x:DataType="local:CandidateWindowItem">
-											<Grid
-												MaxWidth="400"
-												HorizontalAlignment="Stretch"
-												ColumnSpacing="15">
-												<Grid.ColumnDefinitions>
-													<ColumnDefinition Width="Auto" />
-													<ColumnDefinition Width="*" />
-												</Grid.ColumnDefinitions>
-												<ContentPresenter Grid.Column="0" Content="{x:Bind Icon, Mode=OneWay}" />
-												<TextBlock
-													Grid.Column="1"
-													VerticalAlignment="Center"
-													local:TextBlockHelper.IsAutoTooltip="True"
-													Text="{x:Bind Title, Mode=OneWay}"
-													TextTrimming="CharacterEllipsis" />
-											</Grid>
-										</DataTemplate>
-									</ComboBox.ItemTemplate>
-								</ComboBox>
-								<StackPanel Orientation="Vertical" Spacing="6">
-									<TextBlock Text="名称" />
-									<TextBox
-										Height="32"
-										HorizontalAlignment="Stretch"
-										Text="{x:Bind NewProfileViewModel.Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+					<Flyout x:Name="NewProfileFlyout"
+							Placement="Right">
+						<Grid>
+							<Grid Visibility="{x:Bind NewProfileViewModel.IsNoCandidateWindow, Mode=OneWay}">
+								<Grid.RowDefinitions>
+									<RowDefinition Height="*" />
+									<RowDefinition Height="Auto" />
+								</Grid.RowDefinitions>
+								<StackPanel Grid.RowSpan="2"
+											Margin="50"
+											Orientation="Vertical"
+											Spacing="20">
+									<FontIcon HorizontalAlignment="Center"
+											  FontSize="40"
+											  Glyph="&#xE8FC;" />
+									<TextBlock HorizontalAlignment="Center"
+											   Text="打开更多窗口以创建新配置" />
 								</StackPanel>
-								<StackPanel Orientation="Vertical" Spacing="6">
-									<TextBlock Text="复制缩放配置" />
-									<ComboBox
-										x:Name="ProfilesComboBox"
-										HorizontalAlignment="Stretch"
-										DropDownOpened="ComboBox_DropDownOpened"
-										ItemsSource="{x:Bind NewProfileViewModel.Profiles, Mode=OneWay}"
-										SelectedIndex="{x:Bind NewProfileViewModel.ProfileIndex, Mode=TwoWay}">
+								<TextBlock Grid.Row="1"
+										   HorizontalAlignment="Right"
+										   FontSize="12"
+										   Foreground="Gray"
+										   Text="检测不到某个窗口？">
+									<ToolTipService.ToolTip>
+										<ToolTip Content="尝试以管理员身份运行 Magpie" />
+									</ToolTipService.ToolTip>
+								</TextBlock>
+							</Grid>
+
+							<StackPanel Orientation="Vertical"
+										Visibility="{x:Bind NewProfileViewModel.IsAnyCandidateWindow, Mode=OneWay}">
+								<TextBlock Margin="0,5,0,20"
+										   FontSize="18"
+										   FontWeight="SemiBold"
+										   Text="添加新配置" />
+
+								<StackPanel Width="280"
+											HorizontalAlignment="Center"
+											VerticalAlignment="Center"
+											Orientation="Vertical"
+											Spacing="15">
+									<ComboBox x:Name="CandidateWindowsComboBox"
+											  Margin="0,0,0,10"
+											  HorizontalAlignment="Stretch"
+											  DropDownOpened="ComboBox_DropDownOpened"
+											  ItemsSource="{x:Bind NewProfileViewModel.CandidateWindows, Mode=OneWay}"
+											  PlaceholderText="选择一个窗口"
+											  SelectedIndex="{x:Bind NewProfileViewModel.CandidateWindowIndex, Mode=TwoWay}">
 										<ComboBox.ItemTemplate>
-											<DataTemplate>
-												<TextBlock
-													MaxWidth="300"
-													HorizontalAlignment="Stretch"
-													local:TextBlockHelper.IsAutoTooltip="True"
-													Text="{Binding}"
-													TextTrimming="CharacterEllipsis" />
+											<DataTemplate x:DataType="local:CandidateWindowItem">
+												<Grid MaxWidth="400"
+													  HorizontalAlignment="Stretch"
+													  ColumnSpacing="15">
+													<Grid.ColumnDefinitions>
+														<ColumnDefinition Width="Auto" />
+														<ColumnDefinition Width="*" />
+													</Grid.ColumnDefinitions>
+													<ContentPresenter Grid.Column="0"
+																	  Content="{x:Bind Icon, Mode=OneWay}" />
+													<TextBlock Grid.Column="1"
+															   VerticalAlignment="Center"
+															   local:TextBlockHelper.IsAutoTooltip="True"
+															   Text="{x:Bind Title, Mode=OneWay}"
+															   TextTrimming="CharacterEllipsis" />
+												</Grid>
 											</DataTemplate>
 										</ComboBox.ItemTemplate>
 									</ComboBox>
-								</StackPanel>
+									<StackPanel Orientation="Vertical"
+												Spacing="8">
+										<TextBlock Text="名称" />
+										<TextBox Height="32"
+												 HorizontalAlignment="Stretch"
+												 Text="{x:Bind NewProfileViewModel.Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+									</StackPanel>
+									<StackPanel Orientation="Vertical"
+												Spacing="8">
+										<TextBlock Text="复制缩放配置" />
+										<ComboBox x:Name="ProfilesComboBox"
+												  HorizontalAlignment="Stretch"
+												  DropDownOpened="ComboBox_DropDownOpened"
+												  ItemsSource="{x:Bind NewProfileViewModel.Profiles, Mode=OneWay}"
+												  SelectedIndex="{x:Bind NewProfileViewModel.ProfileIndex, Mode=TwoWay}">
+											<ComboBox.ItemTemplate>
+												<DataTemplate>
+													<TextBlock MaxWidth="300"
+															   HorizontalAlignment="Stretch"
+															   local:TextBlockHelper.IsAutoTooltip="True"
+															   Text="{Binding}"
+															   TextTrimming="CharacterEllipsis" />
+												</DataTemplate>
+											</ComboBox.ItemTemplate>
+										</ComboBox>
+									</StackPanel>
 
-								<Button
-									Width="100"
-									Margin="0,15,0,0"
-									HorizontalAlignment="Right"
-									Click="NewProfileConfirmButton_Click"
-									Content="确定"
-									IsEnabled="{x:Bind NewProfileViewModel.IsConfirmButtonEnabled, Mode=OneWay}"
-									Style="{StaticResource AccentButtonStyle}" />
+									<Button Width="100"
+											Margin="0,15,0,0"
+											HorizontalAlignment="Right"
+											Click="NewProfileConfirmButton_Click"
+											Content="确定"
+											IsEnabled="{x:Bind NewProfileViewModel.IsConfirmButtonEnabled, Mode=OneWay}"
+											Style="{StaticResource AccentButtonStyle}" />
+								</StackPanel>
 							</StackPanel>
-						</StackPanel>
+						</Grid>
 					</Flyout>
 				</FlyoutBase.AttachedFlyout>
 			</muxc:NavigationViewItem>
 		</muxc:NavigationView.MenuItems>
 		<muxc:NavigationView.FooterMenuItems>
-			<muxc:NavigationViewItem Content="关于" Tag="About">
+			<muxc:NavigationViewItem Content="关于"
+									 Tag="About">
 				<muxc:NavigationViewItem.Icon>
 					<FontIcon Glyph="&#xE946;" />
 				</muxc:NavigationViewItem.Icon>

@@ -131,6 +131,8 @@ void NewProfileViewModel::PrepareForOpen(uint32_t dpi, bool isLightTheme, CoreDi
 	std::copy(candidateWindows.begin(), candidateWindows.end(), std::insert_iterator(items, items.begin()));
 	_candidateWindows = single_threaded_vector(std::move(items));
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CandidateWindows"));
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsNoCandidateWindow"));
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsAnyCandidateWindow"));
 
 	CandidateWindowIndex(-1);
 	if (_candidateWindows.Size() == 1) {

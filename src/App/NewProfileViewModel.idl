@@ -12,6 +12,8 @@ namespace Magpie.App
 		IVector<IInspectable> Profiles { get; };
 		Int32 ProfileIndex;
 		Boolean IsConfirmButtonEnabled { get; };
+		Boolean IsNoCandidateWindow { get; };
+		Boolean IsAnyCandidateWindow { get; };
 
 		void Confirm();
 	}
