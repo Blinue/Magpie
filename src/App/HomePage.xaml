@@ -1,18 +1,19 @@
-<Page
-	x:Class="Magpie.App.HomePage"
-	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-	xmlns:local="using:Magpie.App"
-	xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
-	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-	mc:Ignorable="d">
+<Page x:Class="Magpie.App.HomePage"
+	  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	  xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+	  xmlns:local="using:Magpie.App"
+	  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+	  xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
+	  mc:Ignorable="d">
 	<local:PageFrame Title="Magpie">
-		<StackPanel Orientation="Vertical" HorizontalAlignment="Stretch">
-			<local:SettingsGroup Margin="0,-15,0,0" Title="激活">
+		<StackPanel HorizontalAlignment="Stretch"
+					Orientation="Vertical">
+			<local:SettingsGroup Title="激活"
+								 Margin="0,-15,0,0">
 				<local:SettingItem Title="快捷键">
 					<local:SettingItem.Icon>
-						<FontIcon Glyph="&#xEDA7;"/>
+						<FontIcon Glyph="&#xEDA7;" />
 					</local:SettingItem.Icon>
 					<local:SettingItem.ActionContent>
 						<local:ShortcutControl Title="激活快捷键">
@@ -22,67 +23,76 @@
 						</local:ShortcutControl>
 					</local:SettingItem.ActionContent>
 				</local:SettingItem>
-				<muxc:Expander
-					HorizontalAlignment="Stretch"
-					HorizontalContentAlignment="Stretch"
-					Style="{StaticResource SettingExpanderStyle}">
+				<muxc:Expander HorizontalAlignment="Stretch"
+							   HorizontalContentAlignment="Stretch"
+							   Style="{StaticResource SettingExpanderStyle}">
 					<muxc:Expander.Header>
-						<local:SettingItem
-							Title="计时器"
-							Description="计时结束后缩放前台窗口"
-							Style="{StaticResource ExpanderHeaderSettingStyle}">
+						<local:SettingItem Title="计时器"
+										   Description="计时结束后缩放前台窗口"
+										   Style="{StaticResource ExpanderHeaderSettingStyle}">
 							<local:SettingItem.Icon>
-								<FontIcon Glyph="&#xE916;"/>
+								<FontIcon Glyph="&#xE916;" />
 							</local:SettingItem.Icon>
 							<local:SettingItem.ActionContent>
-								<StackPanel Orientation="Horizontal" Spacing="5">
+								<StackPanel Orientation="Horizontal"
+											Spacing="5">
 									<Grid Visibility="{x:Bind ViewModel.IsCountingDown, Mode=OneWay}">
-										<muxc:ProgressRing Value="{x:Bind ViewModel.CountdownProgressRingValue, Mode=OneWay}"
-														   IsActive="{x:Bind ViewModel.IsCountingDown, Mode=OneWay}"
-														   FlowDirection="RightToLeft"
-														   Width="30"
+										<muxc:ProgressRing Width="30"
 														   Height="30"
-														   Minimum="0"
+														   FlowDirection="RightToLeft"
+														   IsActive="{x:Bind ViewModel.IsCountingDown, Mode=OneWay}"
+														   IsIndeterminate="False"
 														   Maximum="1"
-														   IsIndeterminate="False" />
-										<TextBlock Text="{x:Bind ViewModel.CountdownLabelText, Mode=OneWay}" Margin="0,-1,0,0" VerticalAlignment="Center" HorizontalAlignment="Center" />
+														   Minimum="0"
+														   Value="{x:Bind ViewModel.CountdownProgressRingValue, Mode=OneWay}" />
+										<TextBlock Margin="0,-1,0,0"
+												   HorizontalAlignment="Center"
+												   VerticalAlignment="Center"
+												   Text="{x:Bind ViewModel.CountdownLabelText, Mode=OneWay}" />
 									</Grid>
-									<Button Content="{x:Bind ViewModel.CountdownButtonText, Mode=OneWay}"
-											Click="{x:Bind ViewModel.ToggleCountdown}"
+									<Button Click="{x:Bind ViewModel.ToggleCountdown}"
+											Content="{x:Bind ViewModel.CountdownButtonText, Mode=OneWay}"
 											IsEnabled="{x:Bind ViewModel.IsNotRunning, Mode=OneWay}" />
 								</StackPanel>
 							</local:SettingItem.ActionContent>
 						</local:SettingItem>
 					</muxc:Expander.Header>
 					<muxc:Expander.Content>
-						<local:SettingItem Title="倒计时时长" Style="{StaticResource ExpanderContentSettingStyle}">
+						<local:SettingItem Title="倒计时时长"
+										   Style="{StaticResource ExpanderContentSettingStyle}">
 							<local:SettingItem.ActionContent>
-								<Slider Value="{x:Bind ViewModel.DownCount, Mode=TwoWay}" Width="150" Minimum="1" Maximum="5" TickFrequency="1"/>
+								<Slider Width="150"
+										Maximum="5"
+										Minimum="1"
+										TickFrequency="1"
+										Value="{x:Bind ViewModel.DownCount, Mode=TwoWay}" />
 							</local:SettingItem.ActionContent>
 						</local:SettingItem>
 					</muxc:Expander.Content>
 				</muxc:Expander>
-				<local:SettingItem Margin="0,0,0,-2" Visibility="{x:Bind ViewModel.IsNoWndToRestore, Mode=OneWay}" Title="记忆缩放窗口" Description="当该窗口回到前台时将自动缩放">
+				<local:SettingItem Title="记忆缩放窗口"
+								   Margin="0,0,0,-2"
+								   Description="当该窗口回到前台时将自动缩放"
+								   Visibility="{x:Bind ViewModel.IsNoWndToRestore, Mode=OneWay}">
 					<local:SettingItem.Icon>
-						<FontIcon Glyph="&#xE944;"/>
+						<FontIcon Glyph="&#xE944;" />
 					</local:SettingItem.Icon>
 					<local:SettingItem.ActionContent>
 						<ToggleSwitch IsOn="{x:Bind ViewModel.IsAutoRestore, Mode=TwoWay}" />
 					</local:SettingItem.ActionContent>
 				</local:SettingItem>
-				<muxc:Expander
-					Visibility="{x:Bind ViewModel.IsWndToRestore, Mode=OneWay}"
-					IsExpanded="{x:Bind ViewModel.IsWndToRestore, Mode=OneWay}"
-					Margin="0,-2,0,0"
-					HorizontalAlignment="Stretch"
-					HorizontalContentAlignment="Stretch"
-					Style="{StaticResource SettingExpanderStyle}">
+				<muxc:Expander Margin="0,-2,0,0"
+							   HorizontalAlignment="Stretch"
+							   HorizontalContentAlignment="Stretch"
+							   IsExpanded="{x:Bind ViewModel.IsWndToRestore, Mode=OneWay}"
+							   Style="{StaticResource SettingExpanderStyle}"
+							   Visibility="{x:Bind ViewModel.IsWndToRestore, Mode=OneWay}">
 					<muxc:Expander.Header>
 						<local:SettingItem Title="记忆缩放窗口"
 										   Description="当该窗口回到前台时将自动缩放"
 										   Style="{StaticResource ExpanderHeaderSettingStyle}">
 							<local:SettingItem.Icon>
-								<FontIcon Glyph="&#xE944;"/>
+								<FontIcon Glyph="&#xE944;" />
 							</local:SettingItem.Icon>
 							<local:SettingItem.ActionContent>
 								<ToggleSwitch IsOn="{x:Bind ViewModel.IsAutoRestore, Mode=TwoWay}" />
@@ -90,11 +100,16 @@
 						</local:SettingItem>
 					</muxc:Expander.Header>
 					<muxc:Expander.Content>
-						<local:SettingItem Title="{x:Bind ViewModel.RestoreWndDesc, Mode=OneWay}" Style="{StaticResource ExpanderContentSettingStyle}">
+						<local:SettingItem Title="{x:Bind ViewModel.RestoreWndDesc, Mode=OneWay}"
+										   Style="{StaticResource ExpanderContentSettingStyle}">
 							<local:SettingItem.ActionContent>
-								<StackPanel Orientation="Horizontal" Spacing="5">
-									<Button Click="{x:Bind ViewModel.ActivateRestore}" Content="激活" Style="{StaticResource AccentButtonStyle}" />
-									<Button Click="{x:Bind ViewModel.ClearRestore}" Content="忘记" />
+								<StackPanel Orientation="Horizontal"
+											Spacing="5">
+									<Button Click="{x:Bind ViewModel.ActivateRestore}"
+											Content="激活"
+											Style="{StaticResource AccentButtonStyle}" />
+									<Button Click="{x:Bind ViewModel.ClearRestore}"
+											Content="忘记" />
 								</StackPanel>
 							</local:SettingItem.ActionContent>
 						</local:SettingItem>
@@ -102,9 +117,10 @@
 				</muxc:Expander>
 			</local:SettingsGroup>
 			<local:SettingsGroup Title="游戏内覆盖">
-				<local:SettingItem Title="快捷键" Description="自定义打开和关闭游戏内覆盖的快捷键">
+				<local:SettingItem Title="快捷键"
+								   Description="自定义打开和关闭游戏内覆盖的快捷键">
 					<local:SettingItem.Icon>
-						<FontIcon Glyph="&#xEDA7;"/>
+						<FontIcon Glyph="&#xEDA7;" />
 					</local:SettingItem.Icon>
 					<local:SettingItem.ActionContent>
 						<local:ShortcutControl Title="游戏内覆盖快捷键">

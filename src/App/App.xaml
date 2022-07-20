@@ -1,10 +1,9 @@
-<Toolkit:XamlApplication
-	x:Class="Magpie.App.App"
-	xmlns:Toolkit="using:Microsoft.Toolkit.Win32.UI.XamlHost"
-	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-	xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
-	xmlns:local="using:Magpie.App">
+<Toolkit:XamlApplication x:Class="Magpie.App.App"
+                         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                         xmlns:Toolkit="using:Microsoft.Toolkit.Win32.UI.XamlHost"
+                         xmlns:local="using:Magpie.App"
+                         xmlns:muxc="using:Microsoft.UI.Xaml.Controls">
 	<Application.Resources>
 		<ResourceDictionary>
 			<Thickness x:Key="NavigationViewContentGridBorderThickness">1,1,0,0</Thickness>
@@ -15,7 +14,9 @@
 				<Setter Property="FontWeight" Value="Bold" />
 			</Style>
 
-			<Style x:Key="ToggleSwitchWithoutText" BasedOn="{StaticResource DefaultToggleSwitchStyle}" TargetType="ToggleSwitch">
+			<Style x:Key="ToggleSwitchWithoutText"
+			       BasedOn="{StaticResource DefaultToggleSwitchStyle}"
+			       TargetType="ToggleSwitch">
 				<Setter Property="OffContent" Value="" />
 				<Setter Property="OnContent" Value="" />
 				<Setter Property="MinWidth" Value="40" />
@@ -28,10 +29,9 @@
 				<Setter Property="Foreground" Value="{ThemeResource TextFillColorSecondaryBrush}" />
 			</Style>
 
-			<Style
-				x:Key="SettingButtonStyle"
-				BasedOn="{StaticResource DefaultButtonStyle}"
-				TargetType="Button">
+			<Style x:Key="SettingButtonStyle"
+			       BasedOn="{StaticResource DefaultButtonStyle}"
+			       TargetType="Button">
 				<Setter Property="BorderBrush" Value="{ThemeResource CardBorderBrush}" />
 				<Setter Property="CornerRadius" Value="{ThemeResource ControlCornerRadius}" />
 				<Setter Property="Padding" Value="16,0,16,0" />
@@ -46,13 +46,13 @@
 			<!--  Combo Box  -->
 			<x:Double x:Key="SettingBoxMinWidth">200</x:Double>
 			<Style x:Key="ComboBoxSettingStyle"
-				   BasedOn="{StaticResource DefaultComboBoxStyle}"
-				   TargetType="ComboBox">
+			       BasedOn="{StaticResource DefaultComboBoxStyle}"
+			       TargetType="ComboBox">
 				<Setter Property="MinWidth" Value="{StaticResource SettingBoxMinWidth}" />
 			</Style>
 
 			<!--  取自 https://github.com/microsoft/PowerToys/blob/35bfb0f83e5fc08cc04398e7aa98d77774412d3f/src/settings-ui/Settings.UI/Themes/SettingsExpanderStyles.xaml  -->
-			
+
 			<!--  Thickness  -->
 			<Thickness x:Key="ExpanderContentPadding">0</Thickness>
 			<Thickness x:Key="ExpanderSettingMargin">56, 8, 40, 8</Thickness>

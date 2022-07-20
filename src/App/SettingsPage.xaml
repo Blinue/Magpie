@@ -1,31 +1,35 @@
-<Page
-	x:Class="Magpie.App.SettingsPage"
-	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-	xmlns:local="using:Magpie.App"
-	xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
-	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-	mc:Ignorable="d">
+<Page x:Class="Magpie.App.SettingsPage"
+	  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	  xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+	  xmlns:local="using:Magpie.App"
+	  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+	  xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
+	  mc:Ignorable="d">
 
 	<local:PageFrame Title="设置">
-		<StackPanel Orientation="Vertical" HorizontalAlignment="Stretch">
-			<local:SettingsGroup Margin="0,-15,0,0" Title="外观和行为">
+		<StackPanel HorizontalAlignment="Stretch"
+					Orientation="Vertical">
+			<local:SettingsGroup Title="外观和行为"
+								 Margin="0,-15,0,0">
 				<local:SettingItem Title="主题">
 					<local:SettingItem.Icon>
-						<FontIcon Glyph="&#xEF1F;"/>
+						<FontIcon Glyph="&#xEF1F;" />
 					</local:SettingItem.Icon>
 					<local:SettingItem.ActionContent>
-						<ComboBox Style="{StaticResource ComboBoxSettingStyle}" SelectedIndex="{x:Bind ViewModel.Theme, Mode=TwoWay}" DropDownOpened="ComboBox_DropDownOpened">
+						<ComboBox DropDownOpened="ComboBox_DropDownOpened"
+								  SelectedIndex="{x:Bind ViewModel.Theme, Mode=TwoWay}"
+								  Style="{StaticResource ComboBoxSettingStyle}">
 							<x:String>浅色</x:String>
 							<x:String>深色</x:String>
 							<x:String>使用系统设置</x:String>
 						</ComboBox>
 					</local:SettingItem.ActionContent>
 				</local:SettingItem>
-				<local:SettingItem Title="便携模式" Description="更改用户数据的保存位置">
+				<local:SettingItem Title="便携模式"
+								   Description="更改用户数据的保存位置">
 					<local:SettingItem.Icon>
-						<FontIcon Glyph="&#xE88E;"/>
+						<FontIcon Glyph="&#xE88E;" />
 					</local:SettingItem.Icon>
 					<local:SettingItem.ActionContent>
 						<ToggleSwitch IsOn="{x:Bind ViewModel.IsPortableMode, Mode=TwoWay}" />
@@ -39,33 +43,39 @@
 					</local:SettingItem.ActionContent>
 				</local:SettingItem>
 				<muxc:Expander HorizontalAlignment="Stretch"
-					HorizontalContentAlignment="Stretch"
-					Style="{StaticResource SettingExpanderStyle}">
+							   HorizontalContentAlignment="Stretch"
+							   Style="{StaticResource SettingExpanderStyle}">
 					<muxc:Expander.Header>
-						<local:SettingItem Title="开发者选项" Style="{StaticResource ExpanderHeaderSettingStyle}">
+						<local:SettingItem Title="开发者选项"
+										   Style="{StaticResource ExpanderHeaderSettingStyle}">
 							<local:SettingItem.Icon>
-								<FontIcon Glyph="&#xEC7A;"/>
+								<FontIcon Glyph="&#xEC7A;" />
 							</local:SettingItem.Icon>
 						</local:SettingItem>
 					</muxc:Expander.Header>
 					<muxc:Expander.Content>
 						<StackPanel>
-							<local:SettingItem Title="断点模式" Description="更改缩放行为以便于在 Visual Studio 中调试" Style="{StaticResource ExpanderContentSettingStyle}">
+							<local:SettingItem Title="断点模式"
+											   Description="更改缩放行为以便于在 Visual Studio 中调试"
+											   Style="{StaticResource ExpanderContentSettingStyle}">
 								<local:SettingItem.ActionContent>
 									<ToggleSwitch IsOn="{x:Bind ViewModel.IsBreakpointMode, Mode=TwoWay}" />
 								</local:SettingItem.ActionContent>
 							</local:SettingItem>
-							<local:SettingItem Title="禁用效果缓存" Style="{StaticResource ExpanderContentSettingStyle}">
+							<local:SettingItem Title="禁用效果缓存"
+											   Style="{StaticResource ExpanderContentSettingStyle}">
 								<local:SettingItem.ActionContent>
 									<ToggleSwitch IsOn="{x:Bind ViewModel.IsDisableEffectCache, Mode=TwoWay}" />
 								</local:SettingItem.ActionContent>
 							</local:SettingItem>
-							<local:SettingItem Title="解析效果时保存源代码" Style="{StaticResource ExpanderContentSettingStyle}">
+							<local:SettingItem Title="解析效果时保存源代码"
+											   Style="{StaticResource ExpanderContentSettingStyle}">
 								<local:SettingItem.ActionContent>
 									<ToggleSwitch IsOn="{x:Bind ViewModel.IsSaveEffectSources, Mode=TwoWay}" />
 								</local:SettingItem.ActionContent>
 							</local:SettingItem>
-							<local:SettingItem Title="编译效果时将警告视为错误" Style="{StaticResource ExpanderContentSettingStyle}">
+							<local:SettingItem Title="编译效果时将警告视为错误"
+											   Style="{StaticResource ExpanderContentSettingStyle}">
 								<local:SettingItem.ActionContent>
 									<ToggleSwitch IsOn="{x:Bind ViewModel.IsWarningsAreErrors, Mode=TwoWay}" />
 								</local:SettingItem.ActionContent>
