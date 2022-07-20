@@ -5,6 +5,9 @@
 #endif
 #include "AppSettings.h"
 #include "Win32Utils.h"
+#include <Psapi.h>
+#include "ScalingProfileService.h"
+#include "AppXReader.h"
 
 
 namespace winrt::Magpie::App::implementation {
@@ -44,7 +47,31 @@ static bool IsCandidateWindow(HWND hWnd) {
 		return false;
 	}
 
-	return true;
+	DWORD dwProcId = 0;
+	if (!GetWindowThreadProcessId(hWnd, &dwProcId)) {
+		return false;
+	}
+
+	Win32Utils::ScopedHandle hProc(Win32Utils::SafeHandle(OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, dwProcId)));
+	if (!hProc) {
+		// 权限不足
+		return false;
+	}
+
+	// 检查是否和已有配置重复
+	AppXReader appxReader;
+	if (appxReader.Initialize(hWnd)) {
+		return ScalingProfileService::Get().TestNewProfile(true, appxReader.AUMID(), className);
+	} else {
+		std::wstring fileName(MAX_PATH, 0);
+		DWORD size = GetModuleFileNameEx(hProc.get(), NULL, fileName.data(), (DWORD)fileName.size() + 1);
+		if (size == 0) {
+			return false;
+		}
+		fileName.resize(size);
+
+		return ScalingProfileService::Get().TestNewProfile(false, fileName, className);
+	}
 }
 
 static std::vector<HWND> GetDesktopWindows() {
@@ -66,7 +93,7 @@ static std::vector<HWND> GetDesktopWindows() {
 			return TRUE;
 		},
 		(LPARAM)&windows
-			);
+	);
 
 	return windows;
 }
