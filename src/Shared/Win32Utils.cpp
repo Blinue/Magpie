@@ -579,11 +579,15 @@ bool Win32Utils::IsRunningAsAdmin() noexcept {
 		BYTE adminSID[SECURITY_MAX_SID_SIZE]{};
 		DWORD dwLength = sizeof(adminSID);
 		if (!CreateWellKnownSid(WinBuiltinAdministratorsSid, NULL, &adminSID, &dwLength)) {
+			Logger::Get().Win32Error("CreateWellKnownSid 失败");
+			result = -1;
 			return false;
 		}
 
 		BOOL isAdmin;
 		if (!CheckTokenMembership(NULL, adminSID, &isAdmin)) {
+			Logger::Get().Win32Error("CheckTokenMembership 失败");
+			result = -1;
 			return false;
 		}
 

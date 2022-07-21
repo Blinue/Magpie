@@ -180,6 +180,7 @@ void MainPage::_UpdateTheme(bool updateIcons) {
 	RequestedTheme(newTheme);
 	XamlUtils::UpdateThemeOfXamlPopups(XamlRoot(), newTheme);
 	XamlUtils::UpdateThemeOfTooltips(*this, newTheme);
+	NewProfileAdminToolTip().RequestedTheme(newTheme);
 
 	if (updateIcons && IsLoaded()) {
 		_UpdateUWPIcons();
@@ -194,7 +195,7 @@ fire_and_forget MainPage::_LoadIcon(MUXC::NavigationViewItem const& item, const 
 
 	weak_ref<MUXC::NavigationViewItem> weakRef(item);
 
-	bool preferLightTheme = item.ActualTheme() == ElementTheme::Light;
+	bool preferLightTheme = ActualTheme() == ElementTheme::Light;
 	bool isPackaged = profile.IsPackaged();
 	std::wstring path = profile.PathRule();
 	CoreDispatcher dispatcher = Dispatcher();

@@ -72,7 +72,7 @@
 										   Foreground="Gray"
 										   Text="检测不到某个窗口？">
 									<ToolTipService.ToolTip>
-										<ToolTip Content="尝试以管理员身份运行 Magpie" />
+										<ToolTip x:Name="NewProfileAdminToolTip" Content="尝试以管理员身份运行 Magpie" />
 									</ToolTipService.ToolTip>
 								</TextBlock>
 							</Grid>
