@@ -34,7 +34,7 @@ static bool CopyPixelsOfHBmp(HBITMAP hBmp, LONG width, LONG height, void* data) 
 	return true;
 }
 
-static SoftwareBitmap HIcon2SoftwareBitmapAsync(HICON hIcon) {
+static SoftwareBitmap HIcon2SoftwareBitmap(HICON hIcon) {
 	// 单色图标：不处理
 	// 彩色掩码图标：忽略掩码
 
@@ -179,18 +179,35 @@ static HICON GetHIconOfWnd(HWND hWnd, LONG preferredSize) {
 
 SoftwareBitmap IconHelper::GetIconOfWnd(HWND hWnd, uint32_t preferredSize) {
 	if (HICON hIcon = GetHIconOfWnd(hWnd, (LONG)preferredSize)) {
-		return HIcon2SoftwareBitmapAsync(hIcon);
+		return HIcon2SoftwareBitmap(hIcon);
 	}
 
 	return GetIconOfExe(Win32Utils::GetPathOfWnd(hWnd).c_str(), preferredSize);
 }
 
 SoftwareBitmap IconHelper::GetIconOfExe(const wchar_t* path, uint32_t preferredSize) {
-	static Win32Utils::SRWMutex mutex;
+	// 假设原始图标尺寸是 16 的倍数
+	preferredSize = (preferredSize + 15) / 16 * 16;
+
+	{
+		HICON hIcon = NULL;
+		SHDefExtractIcon(path, 0, 0, &hIcon, NULL, preferredSize);
+		if (hIcon) {
+			SoftwareBitmap result = HIcon2SoftwareBitmap(hIcon);
+			DestroyIcon(hIcon);
+			return result;
+		}
+	}
+
+	// 回落到 IShellItemImageFactory，该接口存在以下问题：
+	// 1. 相当慢，有时需要数十毫秒
+	// 2. SIIGBF_BIGGERSIZEOK 不起作用，在我的测试里它始终在内部执行低质量的 GDI 缩放
+	// 3. 不能可靠的并发使用，有时会得到错误的结果
+	// 4. 据说它返回的位图有时已经预乘透明通道，没有区分的办法
 
 	HBITMAP hBmp = NULL;
 	{
-		// 并发使用 IShellItemImageFactory 有时会得到错误的结果
+		static Win32Utils::SRWMutex mutex;
 		std::scoped_lock lk(mutex);
 
 		com_ptr<IShellItemImageFactory> factory;
@@ -231,7 +248,7 @@ SoftwareBitmap IconHelper::GetIconOfExe(const wchar_t* path, uint32_t preferredS
 
 		const UINT pixelsSize = bmp.bmWidth * bmp.bmHeight * 4;
 		for (size_t i = 0; i < pixelsSize; i += 4) {
-				// 预乘 Alpha 通道
+			// 预乘 Alpha 通道
 			float alpha = pixels[i + 3] / 255.0f;
 
 			pixels[i] = (BYTE)std::lroundf(pixels[i] * alpha);

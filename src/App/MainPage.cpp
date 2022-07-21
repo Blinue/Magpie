@@ -39,6 +39,9 @@ MainPage::MainPage() {
 	Background(MicaBrush(*this));
 
 	_displayInfomation = DisplayInformation::GetForCurrentView();
+	_displayInfomation.DpiChanged([&](DisplayInformation const&, IInspectable const&) {
+		_UpdateIcons(false);
+	});
 
 	IVector<IInspectable> navMenuItems = __super::RootNavigationView().MenuItems();
 	for (const ScalingProfile& profile : AppSettings::Get().ScalingProfiles()) {
@@ -183,7 +186,7 @@ void MainPage::_UpdateTheme(bool updateIcons) {
 	NewProfileAdminToolTip().RequestedTheme(newTheme);
 
 	if (updateIcons && IsLoaded()) {
-		_UpdateUWPIcons();
+		_UpdateIcons(true);
 	}
 
 	Logger::Get().Info(StrUtils::Concat("当前主题：", isDarkTheme ? "深色" : "浅色"));
@@ -260,16 +263,16 @@ IAsyncAction MainPage::_UISettings_ColorValuesChanged(Windows::UI::ViewManagemen
 		_UpdateTheme(false);
 	}
 
-	_UpdateUWPIcons();
+	_UpdateIcons(true);
 }
 
-void MainPage::_UpdateUWPIcons() {
+void MainPage::_UpdateIcons(bool skipDesktop) {
 	IVector<IInspectable> navMenuItems = __super::RootNavigationView().MenuItems();
 	const std::vector<ScalingProfile>& profiles = AppSettings::Get().ScalingProfiles();
 	const uint32_t firstProfileIdx = navMenuItems.Size() - (uint32_t)profiles.size() - 1;
 
 	for (uint32_t i = 0; i < profiles.size(); ++i) {
-		if (!profiles[i].IsPackaged()) {
+		if (skipDesktop && !profiles[i].IsPackaged()) {
 			continue;
 		}
 

@@ -42,7 +42,7 @@ private:
 
 	IAsyncAction _UISettings_ColorValuesChanged(Windows::UI::ViewManagement::UISettings const&, IInspectable const&);
 
-	void _UpdateUWPIcons();
+	void _UpdateIcons(bool skipDesktop);
 
 	void _ScalingProfileService_ProfileAdded(ScalingProfile& profile);
 
