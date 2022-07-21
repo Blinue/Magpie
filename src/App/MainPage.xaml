@@ -63,9 +63,10 @@
 											  FontSize="40"
 											  Glyph="&#xE8FC;" />
 									<TextBlock HorizontalAlignment="Center"
-											   Text="打开更多窗口以创建新配置" />
+											   Text="打开新窗口以创建缩放配置" />
 								</StackPanel>
 								<TextBlock Grid.Row="1"
+										   Visibility="{x:Bind NewProfileViewModel.IsNotRunningAsAdmin, Mode=OneTime}"
 										   HorizontalAlignment="Right"
 										   FontSize="12"
 										   Foreground="Gray"

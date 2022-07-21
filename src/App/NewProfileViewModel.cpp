@@ -176,6 +176,10 @@ void NewProfileViewModel::Name(const hstring& value) noexcept {
 	_IsConfirmButtonEnabled(!value.empty() && _candidateWindowIndex >= 0);
 }
 
+bool NewProfileViewModel::IsNotRunningAsAdmin() const noexcept {
+	return !Win32Utils::IsRunningAsAdmin();
+}
+
 void NewProfileViewModel::Confirm() const noexcept {
 	if (_candidateWindowIndex < 0 || _name.empty()) {
 		return;

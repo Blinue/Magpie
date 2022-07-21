@@ -571,6 +571,28 @@ std::wstring Win32Utils::GetKeyName(DWORD key) {
 	}
 }
 
+bool Win32Utils::IsRunningAsAdmin() noexcept {
+	static INT result = 0;
+
+	if (result == 0) {
+		// https://web.archive.org/web/20100418044859/http://msdn.microsoft.com/en-us/windows/ff420334.aspx
+		BYTE adminSID[SECURITY_MAX_SID_SIZE]{};
+		DWORD dwLength = sizeof(adminSID);
+		if (!CreateWellKnownSid(WinBuiltinAdministratorsSid, NULL, &adminSID, &dwLength)) {
+			return false;
+		}
+
+		BOOL isAdmin;
+		if (!CheckTokenMembership(NULL, adminSID, &isAdmin)) {
+			return false;
+		}
+
+		result = isAdmin ? 1 : -1;
+	}
+
+	return bool(result == 1);
+}
+
 Win32Utils::Hasher::~Hasher() {
 	if (_hAlg) {
 		BCryptCloseAlgorithmProvider(_hAlg, 0);

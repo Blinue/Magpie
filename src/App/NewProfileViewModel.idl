@@ -14,6 +14,7 @@ namespace Magpie.App
 		Boolean IsConfirmButtonEnabled { get; };
 		Boolean IsNoCandidateWindow { get; };
 		Boolean IsAnyCandidateWindow { get; };
+		Boolean IsNotRunningAsAdmin { get; };
 
 		void Confirm();
 	}
