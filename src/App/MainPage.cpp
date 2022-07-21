@@ -147,6 +147,7 @@ void MainPage::AddNavigationViewItem_Tapped(IInspectable const&, TappedRoutedEve
 	const bool isLightTheme = ActualTheme() == ElementTheme::Light;
 	_newProfileViewModel.PrepareForOpen(dpi, isLightTheme, Dispatcher());
 
+	NewProfileFlyout().Hide();
 	NewProfileFlyout().ShowAt(AddNavigationViewItem());
 }
 
