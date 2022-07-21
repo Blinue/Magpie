@@ -228,6 +228,16 @@ SoftwareBitmap IconHelper::GetIconOfExe(const wchar_t* path, uint32_t preferredS
 		if (!CopyPixelsOfHBmp(hBmp, bmp.bmWidth, bmp.bmHeight, pixels)) {
 			return nullptr;
 		}
+
+		const UINT pixelsSize = bmp.bmWidth * bmp.bmHeight * 4;
+		for (size_t i = 0; i < pixelsSize; i += 4) {
+				// 预乘 Alpha 通道
+			float alpha = pixels[i + 3] / 255.0f;
+
+			pixels[i] = (BYTE)std::lroundf(pixels[i] * alpha);
+			pixels[i + 1] = (BYTE)std::lroundf(pixels[i + 1] * alpha);
+			pixels[i + 2] = (BYTE)std::lroundf(pixels[i + 2] * alpha);
+		}
 	}
 	return bitmap;
 }
