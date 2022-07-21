@@ -8,7 +8,8 @@
 	  xmlns:wgn="using:Windows.Globalization.NumberFormatting"
 	  mc:Ignorable="d">
 
-	<local:PageFrame Title="{x:Bind ViewModel.Name, Mode=OneWay}">
+	<local:PageFrame Title="{x:Bind ViewModel.Name, Mode=OneWay}"
+					 Icon="{x:Bind ViewModel.Icon, Mode=OneWay}">
 		<StackPanel HorizontalAlignment="Stretch"
 					Orientation="Vertical">
 			<local:SettingsGroup Title="常规"

@@ -19,7 +19,7 @@ struct CandidateWindowItem : CandidateWindowItemT<CandidateWindowItem> {
 		return _title;
 	}
 
-	IInspectable Icon() const noexcept;
+	Controls::IconElement Icon() const noexcept;
 
 	hstring DefaultProfileName() const noexcept {
 		return _defaultProfileName;
@@ -43,7 +43,7 @@ private:
 	event<PropertyChangedEventHandler> _propertyChangedEvent;
 
 	hstring _title;
-	IInspectable _icon{ nullptr };
+	Controls::IconElement _icon{ nullptr };
 	hstring _defaultProfileName;
 
 	hstring _aumid;

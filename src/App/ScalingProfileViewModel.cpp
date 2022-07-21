@@ -6,9 +6,20 @@
 #include "AppSettings.h"
 #include "ScalingProfile.h"
 #include <dxgi1_6.h>
+#include "AppXReader.h"
+#include "IconHelper.h"
+
+
+using namespace winrt;
+using namespace Windows::Graphics::Display;
+using namespace Windows::Graphics::Imaging;
+using namespace Windows::UI::Xaml::Controls;
+using namespace Windows::UI::Xaml::Media::Imaging;
 
 
 namespace winrt::Magpie::App::implementation {
+
+static constexpr const UINT ICON_SIZE = 32;
 
 static std::vector<std::wstring> GetAllGraphicsAdapters() {
 	com_ptr<IDXGIFactory1> dxgiFactory;
@@ -39,7 +50,16 @@ static std::vector<std::wstring> GetAllGraphicsAdapters() {
 }
 
 ScalingProfileViewModel::ScalingProfileViewModel(uint32_t profileId) 
-	: _profile(profileId == 0 ? AppSettings::Get().DefaultScalingProfile() : AppSettings::Get().ScalingProfiles()[profileId - 1]) {
+	: _profile(profileId == 0 ? AppSettings::Get().DefaultScalingProfile() : AppSettings::Get().ScalingProfiles()[profileId - 1]
+) {
+	if (profileId > 0) {
+		MUXC::ImageIcon placeholderIcon;
+		placeholderIcon.Width(ICON_SIZE);
+		placeholderIcon.Height(ICON_SIZE);
+		_icon = std::move(placeholderIcon);
+
+		_LoadIcon();
+	}
 
 	std::vector<IInspectable> graphicsAdapters;
 	graphicsAdapters.push_back(box_value(L"默认"));
@@ -360,6 +380,75 @@ void ScalingProfileViewModel::IsDisableDirectFlip(bool value) {
 
 	_profile.MagSettings().IsDisableDirectFlip(value);
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsDisableDirectFlip"));
+}
+
+fire_and_forget ScalingProfileViewModel::_LoadIcon() {
+	auto weakThis = get_weak();
+
+	MainPage mainPage = Application::Current().as<App>().MainPage();
+	bool preferLightTheme = mainPage.ActualTheme() == ElementTheme::Light;
+	bool isPackaged = _profile.IsPackaged();
+	std::wstring path = _profile.PathRule();
+	CoreDispatcher dispatcher = mainPage.Dispatcher();
+	uint32_t dpi = (uint32_t)std::lroundf(DisplayInformation::GetForCurrentView().LogicalDpi());
+
+	co_await resume_background();
+
+	std::wstring iconPath;
+	SoftwareBitmap iconBitmap{ nullptr };
+
+	if (isPackaged) {
+		AppXReader reader;
+		reader.Initialize(path);
+
+		std::variant<std::wstring, SoftwareBitmap> uwpIcon =
+			reader.GetIcon((uint32_t)std::ceil(dpi * ICON_SIZE / 96.0), preferLightTheme);
+		if (uwpIcon.index() == 0) {
+			iconPath = std::get<0>(uwpIcon);
+		} else {
+			iconBitmap = std::get<1>(uwpIcon);
+		}
+	} else {
+		iconBitmap = IconHelper::GetIconOfExe(path.c_str(), ICON_SIZE, dpi);
+	}
+
+	co_await dispatcher;
+
+	auto strongRef = weakThis.get();
+	if (!strongRef) {
+		co_return;
+	}
+
+	if (!iconPath.empty()) {
+		BitmapImage image;
+		image.UriSource(Uri(iconPath));
+		int32_t decodeSize = (int32_t)std::lroundf(ICON_SIZE * dpi / 96.0f);
+		image.DecodePixelWidth(decodeSize);
+		image.DecodePixelHeight(decodeSize);
+
+		MUXC::ImageIcon imageIcon;
+		imageIcon.Width(ICON_SIZE);
+		imageIcon.Height(ICON_SIZE);
+		imageIcon.Source(image);
+
+		strongRef->_icon = std::move(imageIcon);
+	} else if (iconBitmap) {
+		SoftwareBitmapSource imageSource;
+		co_await imageSource.SetBitmapAsync(iconBitmap);
+
+		MUXC::ImageIcon imageIcon;
+		imageIcon.Width(ICON_SIZE);
+		imageIcon.Height(ICON_SIZE);
+		imageIcon.Source(imageSource);
+
+		strongRef->_icon = std::move(imageIcon);
+	} else {
+		FontIcon icon;
+		icon.Glyph(L"\uECAA");
+		strongRef->_icon = std::move(icon);
+	}
+
+	strongRef->_propertyChangedEvent(*strongRef, PropertyChangedEventArgs(L"Icon"));
 }
 
 }

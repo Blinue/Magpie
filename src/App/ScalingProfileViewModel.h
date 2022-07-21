@@ -19,6 +19,10 @@ struct ScalingProfileViewModel : ScalingProfileViewModelT<ScalingProfileViewMode
 		_propertyChangedEvent.remove(token);
 	}
 
+	Controls::IconElement Icon() const noexcept {
+		return _icon;
+	}
+
 	hstring Name() const noexcept;
 	void Name(const hstring& value);
 
@@ -87,10 +91,14 @@ struct ScalingProfileViewModel : ScalingProfileViewModelT<ScalingProfileViewMode
 	void IsDisableDirectFlip(bool value);
 
 private:
+	fire_and_forget _LoadIcon();
+
 	IVector<IInspectable> _graphicsAdapters;
 
 	event<PropertyChangedEventHandler> _propertyChangedEvent;
 	ScalingProfile& _profile;
+
+	Controls::IconElement _icon{ nullptr };
 };
 
 }

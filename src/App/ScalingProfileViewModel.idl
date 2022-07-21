@@ -5,7 +5,9 @@ namespace Magpie.App
 	{
 		ScalingProfileViewModel(UInt32 profileId);
 
+		Windows.UI.Xaml.Controls.IconElement Icon { get; };
 		String Name;
+
 		Int32 CaptureMode;
 		Boolean Is3DGameMode;
 		Int32 MultiMonitorUsage;

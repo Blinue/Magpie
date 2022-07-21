@@ -14,12 +14,27 @@
 			<RowDefinition Height="*" />
 		</Grid.RowDefinitions>
 
-		<TextBlock x:Name="TitleTextBlock"
-				   Grid.Row="0"
-				   local:TextBlockHelper.IsAutoTooltip="True"
-				   FontWeight="SemiBold"
-				   Text="{x:Bind Title, Mode=OneWay}"
-				   TextTrimming="CharacterEllipsis" />
+		<Grid x:Name="HeaderGrid"
+			  Grid.Row="0"
+			  Padding="0,0,10,0">
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="Auto" />
+				<ColumnDefinition Width="*" />
+			</Grid.ColumnDefinitions>
+			<ContentPresenter x:Name="IconPresenter"
+							  Grid.Column="0"
+							  Margin="0,0,15,0"
+							  Padding="0,0,0,-5"
+							  VerticalAlignment="Center"
+							  Content="{x:Bind Icon, Mode=OneWay}" />
+			<TextBlock x:Name="TitleTextBlock"
+					   Grid.Column="1"
+					   VerticalAlignment="Center"
+					   local:TextBlockHelper.IsAutoTooltip="True"
+					   FontWeight="SemiBold"
+					   Text="{x:Bind Title, Mode=OneWay}"
+					   TextTrimming="CharacterEllipsis" />
+		</Grid>
 
 		<ScrollViewer Grid.Row="1"
 					  Margin="0,15,0,0"

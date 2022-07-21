@@ -23,6 +23,13 @@ const DependencyProperty PageFrame::TitleProperty = DependencyProperty::Register
 	PropertyMetadata(box_value(L""), &PageFrame::_OnTitleChanged)
 );
 
+const DependencyProperty PageFrame::IconProperty = DependencyProperty::Register(
+	L"Icon",
+	xaml_typename<IconElement>(),
+	xaml_typename<Magpie::App::PageFrame>(),
+	PropertyMetadata(nullptr, &PageFrame::_OnIconChanged)
+);
+
 const DependencyProperty PageFrame::MainContentProperty = DependencyProperty::Register(
 	L"MainContent",
 	xaml_typename<IInspectable>(),
@@ -41,6 +48,14 @@ void PageFrame::Title(const hstring& value) {
 
 hstring PageFrame::Title() const {
 	return GetValue(TitleProperty).as<hstring>();
+}
+
+void PageFrame::Icon(IconElement const& value) {
+	SetValue(IconProperty, value);
+}
+
+IconElement PageFrame::Icon() const {
+	return GetValue(IconProperty).as<IconElement>();
 }
 
 void PageFrame::MainContent(IInspectable const& value) {
@@ -81,18 +96,34 @@ void PageFrame::PropertyChanged(event_token const& token) {
 
 void PageFrame::_Update() {
 	TitleTextBlock().Visibility(Title().empty() ? Visibility::Collapsed : Visibility::Visible);
+	IconPresenter().Visibility(Icon() ? Visibility::Visible : Visibility::Collapsed);
+
+	if (_rootNavigationView) {
+		_UpdateHeaderStyle();
+	}
 }
 
 void PageFrame::_UpdateHeaderStyle() {
 	TextBlock textBlock = TitleTextBlock();
+	IconElement icon = Icon();
 
 	bool isMinimal = _rootNavigationView.DisplayMode() == Microsoft::UI::Xaml::Controls::NavigationViewDisplayMode::Minimal;
 	if (isMinimal) {
-		textBlock.Margin(Thickness{ 28, 8.5, 0, 0 });
+		if (icon) {
+			icon.Width(20);
+			icon.Height(20);
+		}
+		
+		HeaderGrid().Margin(Thickness{28, 8.5, 0, 0});
 		textBlock.FontSize(20);
 	} else {
+		if (icon) {
+			icon.Width(28);
+			icon.Height(28);
+		}
+
 		bool isWin11 = Win32Utils::GetOSBuild() >= 22000;
-		textBlock.Margin(Thickness{ 0, double(isWin11 ? 25 : 40), 0, 0 });
+		HeaderGrid().Margin(Thickness{ 0, double(isWin11 ? 25 : 40), 0, 0 });
 		textBlock.FontSize(30);
 	}
 }
@@ -101,6 +132,12 @@ void PageFrame::_OnTitleChanged(DependencyObject const& sender, DependencyProper
 	PageFrame* that = get_self<PageFrame>(sender.as<default_interface<PageFrame>>());
 	that->_Update();
 	that->_propertyChangedEvent(*that, PropertyChangedEventArgs{ L"Title" });
+}
+
+void PageFrame::_OnIconChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
+	PageFrame* that = get_self<PageFrame>(sender.as<default_interface<PageFrame>>());
+	that->_Update();
+	that->_propertyChangedEvent(*that, PropertyChangedEventArgs{ L"Icon" });
 }
 
 void PageFrame::_OnMainContentChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {

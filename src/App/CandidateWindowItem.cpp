@@ -65,7 +65,7 @@ CandidateWindowItem::CandidateWindowItem(uint64_t hWnd, uint32_t dpi, bool isLig
 	_className = Win32Utils::GetWndClassName((HWND)hWnd);
 	_path = Win32Utils::GetPathOfWnd((HWND)hWnd);
 
-	Shapes::Rectangle placeholder;
+	MUXC::ImageIcon placeholder;
 	placeholder.Width(16);
 	placeholder.Height(16);
 	_icon = std::move(placeholder);
@@ -73,7 +73,7 @@ CandidateWindowItem::CandidateWindowItem(uint64_t hWnd, uint32_t dpi, bool isLig
 	_ResolveWindow(true, true, (HWND)hWnd, isLightTheme, dpi, dispatcher);
 }
 
-IInspectable CandidateWindowItem::Icon() const noexcept {
+IconElement CandidateWindowItem::Icon() const noexcept {
 	// 返回副本，否则在 ComboBox 中绑定会导致崩溃
 	if (MUXC::ImageIcon imageIcon = _icon.try_as<MUXC::ImageIcon>()) {
 		MUXC::ImageIcon icon;
@@ -109,32 +109,33 @@ fire_and_forget CandidateWindowItem::_ResolveWindow(bool resolveIcon, bool resol
 			co_return;
 		}
 
-		if (!defaultProfileName.empty()) {
-			[](com_ptr<CandidateWindowItem> that, const std::wstring& defaultProfileName, const std::wstring& aumid, CoreDispatcher const& dispatcher)->fire_and_forget {
-				co_await dispatcher.RunAsync(CoreDispatcherPriority::Normal, [that, defaultProfileName(defaultProfileName), aumid(aumid)]() {
+		[](com_ptr<CandidateWindowItem> that, const std::wstring& defaultProfileName, const std::wstring& aumid, CoreDispatcher const& dispatcher)->fire_and_forget {
+			co_await dispatcher.RunAsync(CoreDispatcherPriority::Normal, [that, defaultProfileName(defaultProfileName), aumid(aumid)]() {
+				if (!defaultProfileName.empty()) {
 					that->_defaultProfileName = defaultProfileName;
-					that->_propertyChangedEvent(*that, PropertyChangedEventArgs(L"DefaultProfileName"));
-					that->_aumid = aumid;
-				});
-			}(strongThis, defaultProfileName, reader.AUMID(), dispatcher);
-		}
+				}
+				// 即使 defaultProfileName 为空也通知 DefaultProfileName 已更改
+				that->_propertyChangedEvent(*that, PropertyChangedEventArgs(L"DefaultProfileName"));
+
+				that->_aumid = aumid;
+			});
+		}(strongThis, defaultProfileName, reader.AUMID(), dispatcher);
 	}
 
 	if (!resolveIcon) {
 		co_return;
 	}
 
-	const uint32_t iconSize = (uint32_t)std::ceil(dpi * 16 / 96.0);
-
 	SoftwareBitmap iconBitmap{ nullptr };
 
 	if (isPackaged) {
-		std::variant<std::wstring, SoftwareBitmap> uwpIcon = reader.GetIcon(iconSize, isLightTheme, true);
+		std::variant<std::wstring, SoftwareBitmap> uwpIcon =
+			reader.GetIcon((uint32_t)std::ceil(dpi * 16 / 96.0), isLightTheme, true);
 		if (uwpIcon.index() == 1) {
 			iconBitmap = std::get<1>(uwpIcon);
 		}
 	} else {
-		iconBitmap = IconHelper::GetIconOfWnd(hWnd, iconSize);
+		iconBitmap = IconHelper::GetIconOfWnd(hWnd, 16, dpi);
 	}
 
 	// 切换到主线程

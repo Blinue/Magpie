@@ -6,7 +6,7 @@ namespace Magpie.App
         CandidateWindowItem(UInt64 hWnd, UInt32 dpi, Boolean isLightTheme, Windows.UI.Core.CoreDispatcher dispatcher);
 
         String Title{ get; };
-        Object Icon{ get; };
+        Windows.UI.Xaml.Controls.IconElement Icon{ get; };
         String DefaultProfileName{ get; };
 
         String AUMID { get; };

@@ -47,6 +47,8 @@ MainPage::MainPage() {
 	for (const ScalingProfile& profile : AppSettings::Get().ScalingProfiles()) {
 		MUXC::NavigationViewItem item;
 		item.Content(box_value(profile.Name()));
+		// 用于占位
+		item.Icon(FontIcon());
 		_LoadIcon(item, profile);
 
 		navMenuItems.InsertAt(navMenuItems.Size() - 1, item);
@@ -194,9 +196,6 @@ void MainPage::_UpdateTheme(bool updateIcons) {
 }
 
 fire_and_forget MainPage::_LoadIcon(MUXC::NavigationViewItem const& item, const ScalingProfile& profile) {
-	// 用于占位
-	item.Icon(FontIcon());
-
 	weak_ref<MUXC::NavigationViewItem> weakRef(item);
 
 	bool preferLightTheme = ActualTheme() == ElementTheme::Light;
@@ -204,7 +203,6 @@ fire_and_forget MainPage::_LoadIcon(MUXC::NavigationViewItem const& item, const 
 	std::wstring path = profile.PathRule();
 	CoreDispatcher dispatcher = Dispatcher();
 	uint32_t dpi = (uint32_t)std::lroundf(_displayInfomation.LogicalDpi());
-	uint32_t preferredIconSize = (uint32_t)std::ceil(dpi * 16 / 96.0);
 
 	co_await resume_background();
 
@@ -215,14 +213,15 @@ fire_and_forget MainPage::_LoadIcon(MUXC::NavigationViewItem const& item, const 
 		AppXReader reader;
 		reader.Initialize(path);
 
-		std::variant<std::wstring, SoftwareBitmap> uwpIcon = reader.GetIcon(preferredIconSize, preferLightTheme);
+		std::variant<std::wstring, SoftwareBitmap> uwpIcon = 
+			reader.GetIcon((uint32_t)std::ceil(dpi * 16 / 96.0), preferLightTheme);
 		if (uwpIcon.index() == 0) {
 			iconPath = std::get<0>(uwpIcon);
 		} else {
 			iconBitmap = std::get<1>(uwpIcon);
 		}
 	} else {
-		iconBitmap = IconHelper::GetIconOfExe(path.c_str(), preferredIconSize);
+		iconBitmap = IconHelper::GetIconOfExe(path.c_str(), 16, dpi);
 	}
 
 	co_await dispatcher;
@@ -233,13 +232,18 @@ fire_and_forget MainPage::_LoadIcon(MUXC::NavigationViewItem const& item, const 
 	}
 
 	if (!iconPath.empty()) {
-		BitmapIcon icon;
-		icon.ShowAsMonochrome(false);
-		icon.UriSource(Uri(iconPath));
-		icon.Width(16);
-		icon.Height(16);
+		BitmapImage image;
+		image.UriSource(Uri(iconPath));
+		int32_t decodeSize = (int32_t)std::lroundf(16 * dpi / 96.0f);
+		image.DecodePixelWidth(decodeSize);
+		image.DecodePixelHeight(decodeSize);
 
-		strongRef.Icon(icon);
+		MUXC::ImageIcon imageIcon;
+		imageIcon.Width(16);
+		imageIcon.Height(16);
+		imageIcon.Source(image);
+
+		strongRef.Icon(imageIcon);
 	} else if (iconBitmap) {
 		SoftwareBitmapSource imageSource;
 		co_await imageSource.SetBitmapAsync(iconBitmap);
@@ -285,6 +289,8 @@ void MainPage::_UpdateIcons(bool skipDesktop) {
 void MainPage::_ScalingProfileService_ProfileAdded(ScalingProfile& profile) {
 	MUXC::NavigationViewItem item;
 	item.Content(box_value(profile.Name()));
+	// 用于占位
+	item.Icon(FontIcon());
 	_LoadIcon(item, profile);
 
 	IVector<IInspectable> navMenuItems = __super::RootNavigationView().MenuItems();

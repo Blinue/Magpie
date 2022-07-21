@@ -13,6 +13,10 @@ struct PageFrame : PageFrameT<PageFrame> {
 
 	hstring Title() const;
 
+	void Icon(Controls::IconElement const& value);
+
+	Controls::IconElement Icon() const;
+
 	void MainContent(IInspectable const& value);
 
 	IInspectable MainContent() const;
@@ -26,10 +30,12 @@ struct PageFrame : PageFrameT<PageFrame> {
 	void PropertyChanged(event_token const& token);
 
 	static const DependencyProperty TitleProperty;
+	static const DependencyProperty IconProperty;
 	static const DependencyProperty MainContentProperty;
 
 private:
 	static void _OnTitleChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&);
+	static void _OnIconChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&);
 	static void _OnMainContentChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&);
 
 	void _Update();

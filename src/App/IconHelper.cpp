@@ -177,17 +177,17 @@ static HICON GetHIconOfWnd(HWND hWnd, LONG preferredSize) {
 	return GetHIconOfWnd(hwndOwner, preferredSize);
 }
 
-SoftwareBitmap IconHelper::GetIconOfWnd(HWND hWnd, uint32_t preferredSize) {
-	if (HICON hIcon = GetHIconOfWnd(hWnd, (LONG)preferredSize)) {
+SoftwareBitmap IconHelper::GetIconOfWnd(HWND hWnd, uint32_t preferredSize, uint32_t dpi) {
+	if (HICON hIcon = GetHIconOfWnd(hWnd, std::lroundf(preferredSize * dpi / 96.0f))) {
 		return HIcon2SoftwareBitmap(hIcon);
 	}
 
-	return GetIconOfExe(Win32Utils::GetPathOfWnd(hWnd).c_str(), preferredSize);
+	return GetIconOfExe(Win32Utils::GetPathOfWnd(hWnd).c_str(), preferredSize, dpi);
 }
 
-SoftwareBitmap IconHelper::GetIconOfExe(const wchar_t* path, uint32_t preferredSize) {
-	// 假设原始图标尺寸是 16 的倍数
+SoftwareBitmap IconHelper::GetIconOfExe(const wchar_t* path, uint32_t preferredSize, uint32_t dpi) {
 	preferredSize = (preferredSize + 15) / 16 * 16;
+	preferredSize = (uint32_t)std::lroundf(preferredSize * dpi / 96.0f);
 
 	{
 		HICON hIcon = NULL;

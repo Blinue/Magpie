@@ -6,6 +6,7 @@ namespace Magpie.App
         PageFrame();
 
         String Title;
+        Windows.UI.Xaml.Controls.IconElement Icon;
         Object MainContent;
     }
 }
