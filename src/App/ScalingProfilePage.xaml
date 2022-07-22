@@ -11,10 +11,80 @@
 	<local:PageFrame Title="{x:Bind ViewModel.Name, Mode=OneWay}"
 					 Icon="{x:Bind ViewModel.Icon, Mode=OneWay}">
 		<local:PageFrame.HeaderAction>
-			<Button>
+			<Button Visibility="{x:Bind ViewModel.IsNotDefaultScalingProfile, Mode=OneTime}" Width="40" Height="40" Padding="0">
+				<Button.Resources>
+					<ResourceDictionary>
+						<ResourceDictionary.ThemeDictionaries>
+							<ResourceDictionary x:Key="Default">
+								<StaticResource x:Key="ButtonBackground"
+												ResourceKey="SubtleFillColorTransparentBrush" />
+								<StaticResource x:Key="ButtonBackgroundPointerOver"
+												ResourceKey="SubtleFillColorSecondaryBrush" />
+								<StaticResource x:Key="ButtonBackgroundPressed"
+												ResourceKey="SubtleFillColorTertiaryBrush" />
+								<StaticResource x:Key="ButtonForeground"
+												ResourceKey="TextFillColorPrimaryBrush" />
+								<StaticResource x:Key="ButtonForegroundPointerOver"
+												ResourceKey="TextFillColorPrimaryBrush" />
+								<StaticResource x:Key="ButtonForegroundPressed"
+												ResourceKey="TextFillColorSecondaryBrush" />
+								<StaticResource x:Key="ButtonBorderBrush"
+												ResourceKey="ControlFillColorTransparentBrush" />
+								<StaticResource x:Key="ButtonBorderBrushPointerOver"
+												ResourceKey="ControlFillColorTransparentBrush" />
+								<StaticResource x:Key="ButtonBorderBrushPressed"
+												ResourceKey="ControlFillColorTransparentBrush" />
+							</ResourceDictionary>
+							<ResourceDictionary x:Key="HighContrast">
+								<StaticResource x:Key="ButtonBackground"
+												ResourceKey="SystemControlTransparentBrush" />
+								<StaticResource x:Key="ButtonBackgroundPointerOver"
+												ResourceKey="SystemControlHighlightListLowBrush" />
+								<StaticResource x:Key="ButtonBackgroundPressed"
+												ResourceKey="SystemControlHighlightListMediumBrush" />
+								<StaticResource x:Key="ButtonForeground"
+												ResourceKey="SystemControlForegroundBaseHighBrush" />
+								<StaticResource x:Key="ButtonForegroundPointerOver"
+												ResourceKey="SystemControlHighlightAltBaseHighBrush" />
+								<StaticResource x:Key="ButtonForegroundPressed"
+												ResourceKey="SystemControlHighlightAltBaseHighBrush" />
+								<StaticResource x:Key="ButtonBorderBrush"
+												ResourceKey="SystemControlForegroundTransparentBrush" />
+								<StaticResource x:Key="ButtonBorderBrushPointerOver"
+												ResourceKey="SystemControlHighlightTransparentBrush" />
+								<StaticResource x:Key="ButtonBorderBrushPressed"
+												ResourceKey="SystemControlHighlightTransparentBrush" />
+							</ResourceDictionary>
+							<ResourceDictionary x:Key="Light">
+								<StaticResource x:Key="ButtonBackground"
+												ResourceKey="SubtleFillColorTransparentBrush" />
+								<StaticResource x:Key="ButtonBackgroundPointerOver"
+												ResourceKey="SubtleFillColorSecondaryBrush" />
+								<StaticResource x:Key="ButtonBackgroundPressed"
+												ResourceKey="SubtleFillColorTertiaryBrush" />
+								<StaticResource x:Key="ButtonForeground"
+												ResourceKey="TextFillColorPrimaryBrush" />
+								<StaticResource x:Key="ButtonForegroundPointerOver"
+												ResourceKey="TextFillColorPrimaryBrush" />
+								<StaticResource x:Key="ButtonForegroundPressed"
+												ResourceKey="TextFillColorSecondaryBrush" />
+								<StaticResource x:Key="ButtonBorderBrush"
+												ResourceKey="ControlFillColorTransparentBrush" />
+								<StaticResource x:Key="ButtonBorderBrushPointerOver"
+												ResourceKey="ControlFillColorTransparentBrush" />
+								<StaticResource x:Key="ButtonBorderBrushPressed"
+												ResourceKey="ControlFillColorTransparentBrush" />
+							</ResourceDictionary>
+						</ResourceDictionary.ThemeDictionaries>
+					</ResourceDictionary>
+				</Button.Resources>
+
 				<Button.Content>
 					<FontIcon Glyph="&#xE712;" />
 				</Button.Content>
+				<ToolTipService.ToolTip>
+					<ToolTip Content="选项" />
+				</ToolTipService.ToolTip>
 				<Button.Flyout>
 					<MenuFlyout Placement="BottomEdgeAlignedRight">
 						<MenuFlyoutItem Text="重命名">

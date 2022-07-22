@@ -23,6 +23,8 @@ struct ScalingProfileViewModel : ScalingProfileViewModelT<ScalingProfileViewMode
 		return _icon;
 	}
 
+	bool IsNotDefaultScalingProfile() const noexcept;
+
 	hstring Name() const noexcept;
 	void Name(const hstring& value);
 

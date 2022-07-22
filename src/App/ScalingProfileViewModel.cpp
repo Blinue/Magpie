@@ -75,6 +75,10 @@ ScalingProfileViewModel::ScalingProfileViewModel(uint32_t profileId)
 	_graphicsAdapters = single_threaded_vector(std::move(graphicsAdapters));
 }
 
+bool ScalingProfileViewModel::IsNotDefaultScalingProfile() const noexcept {
+	return !_profile.Name().empty();
+}
+
 hstring ScalingProfileViewModel::Name() const noexcept {
 	return hstring(_profile.Name().empty() ? L"默认" : _profile.Name());
 }
