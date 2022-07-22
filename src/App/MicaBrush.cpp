@@ -12,18 +12,19 @@ using namespace winrt;
 using namespace Windows::UI;
 using namespace Windows::UI::Composition;
 using namespace Windows::UI::ViewManagement;
-using namespace Windows::Foundation::Metadata;
 using namespace Windows::System::Power;
 using namespace Microsoft::Graphics::Canvas::Effects;
 
 // 移植自 https://github.com/MicaForEveryone/MicaForEveryone/blob/master/MicaForEveryone.UI/Brushes/XamlMicaBrush.cs
+
+namespace winrt::Magpie::App::implementation {
 
 static CompositionBrush BuildMicaEffectBrush(Compositor compositor, Color tintColor, float tintOpacity, float luminosityOpacity) {
 	// Tint Color.
 	ColorSourceEffect tintColorEffect;
 	tintColorEffect.Name(L"TintColor");
 	tintColorEffect.Color(tintColor);
-	
+
 	// OpacityEffect applied to Tint.
 	OpacityEffect tintOpacityEffect;
 	tintOpacityEffect.Name(L"TintOpacity");
@@ -98,8 +99,6 @@ static ScalarKeyFrameAnimation CreateCrossFadeAnimation(Compositor compositor) {
 
 	return animation;
 }
-
-namespace winrt::Magpie::App::implementation {
 
 MicaBrush::MicaBrush(FrameworkElement root) {
 	_rootElement = root;
