@@ -17,6 +17,10 @@ struct PageFrame : PageFrameT<PageFrame> {
 
 	Controls::IconElement Icon() const;
 
+	void HeaderAction(FrameworkElement const& value);
+
+	FrameworkElement HeaderAction() const;
+
 	void MainContent(IInspectable const& value);
 
 	IInspectable MainContent() const;
@@ -31,11 +35,13 @@ struct PageFrame : PageFrameT<PageFrame> {
 
 	static const DependencyProperty TitleProperty;
 	static const DependencyProperty IconProperty;
+	static const DependencyProperty HeaderActionProperty;
 	static const DependencyProperty MainContentProperty;
 
 private:
 	static void _OnTitleChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&);
 	static void _OnIconChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&);
+	static void _OnHeaderActionChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&);
 	static void _OnMainContentChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&);
 
 	void _Update();

@@ -30,6 +30,13 @@ const DependencyProperty PageFrame::IconProperty = DependencyProperty::Register(
 	PropertyMetadata(nullptr, &PageFrame::_OnIconChanged)
 );
 
+const DependencyProperty PageFrame::HeaderActionProperty = DependencyProperty::Register(
+	L"HeaderAction",
+	xaml_typename<FrameworkElement>(),
+	xaml_typename<Magpie::App::PageFrame>(),
+	PropertyMetadata(nullptr, &PageFrame::_OnHeaderActionChanged)
+);
+
 const DependencyProperty PageFrame::MainContentProperty = DependencyProperty::Register(
 	L"MainContent",
 	xaml_typename<IInspectable>(),
@@ -56,6 +63,14 @@ void PageFrame::Icon(IconElement const& value) {
 
 IconElement PageFrame::Icon() const {
 	return GetValue(IconProperty).as<IconElement>();
+}
+
+void PageFrame::HeaderAction(FrameworkElement const& value) {
+	SetValue(HeaderActionProperty, value);
+}
+
+FrameworkElement PageFrame::HeaderAction() const {
+	return GetValue(HeaderActionProperty).as<FrameworkElement>();
 }
 
 void PageFrame::MainContent(IInspectable const& value) {
@@ -95,8 +110,9 @@ void PageFrame::PropertyChanged(event_token const& token) {
 }
 
 void PageFrame::_Update() {
-	TitleTextBlock().Visibility(Title().empty() ? Visibility::Collapsed : Visibility::Visible);
 	IconPresenter().Visibility(Icon() ? Visibility::Visible : Visibility::Collapsed);
+	TitleTextBlock().Visibility(Title().empty() ? Visibility::Collapsed : Visibility::Visible);
+	HeaderActionPresenter().Visibility(HeaderAction() ? Visibility::Visible : Visibility::Collapsed);
 
 	if (_rootNavigationView) {
 		_UpdateHeaderStyle();
@@ -138,6 +154,12 @@ void PageFrame::_OnIconChanged(DependencyObject const& sender, DependencyPropert
 	PageFrame* that = get_self<PageFrame>(sender.as<default_interface<PageFrame>>());
 	that->_Update();
 	that->_propertyChangedEvent(*that, PropertyChangedEventArgs{ L"Icon" });
+}
+
+void PageFrame::_OnHeaderActionChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
+	PageFrame* that = get_self<PageFrame>(sender.as<default_interface<PageFrame>>());
+	that->_Update();
+	that->_propertyChangedEvent(*that, PropertyChangedEventArgs{ L"HeaderAction" });
 }
 
 void PageFrame::_OnMainContentChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {

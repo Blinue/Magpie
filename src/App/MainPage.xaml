@@ -66,13 +66,14 @@
 											   Text="打开新窗口以创建缩放配置" />
 								</StackPanel>
 								<TextBlock Grid.Row="1"
-										   Visibility="{x:Bind NewProfileViewModel.IsNotRunningAsAdmin, Mode=OneTime}"
 										   HorizontalAlignment="Right"
 										   FontSize="12"
 										   Foreground="Gray"
-										   Text="检测不到某个窗口？">
+										   Text="检测不到某个窗口？"
+										   Visibility="{x:Bind NewProfileViewModel.IsNotRunningAsAdmin, Mode=OneTime}">
 									<ToolTipService.ToolTip>
-										<ToolTip x:Name="NewProfileAdminToolTip" Content="尝试以管理员身份运行 Magpie" />
+										<ToolTip x:Name="NewProfileAdminToolTip"
+												 Content="尝试以管理员身份运行 Magpie" />
 									</ToolTipService.ToolTip>
 								</TextBlock>
 							</Grid>

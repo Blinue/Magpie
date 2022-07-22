@@ -232,18 +232,13 @@ fire_and_forget MainPage::_LoadIcon(MUXC::NavigationViewItem const& item, const 
 	}
 
 	if (!iconPath.empty()) {
-		BitmapImage image;
-		image.UriSource(Uri(iconPath));
-		int32_t decodeSize = (int32_t)std::lroundf(16 * dpi / 96.0f);
-		image.DecodePixelWidth(decodeSize);
-		image.DecodePixelHeight(decodeSize);
+		BitmapIcon icon;
+		icon.ShowAsMonochrome(false);
+		icon.UriSource(Uri(iconPath));
+		icon.Width(16);
+		icon.Height(16);
 
-		MUXC::ImageIcon imageIcon;
-		imageIcon.Width(16);
-		imageIcon.Height(16);
-		imageIcon.Source(image);
-
-		strongRef.Icon(imageIcon);
+		strongRef.Icon(icon);
 	} else if (iconBitmap) {
 		SoftwareBitmapSource imageSource;
 		co_await imageSource.SetBitmapAsync(iconBitmap);

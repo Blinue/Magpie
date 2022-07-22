@@ -7,7 +7,6 @@
 			 IsTabStop="False"
 			 Loading="Loading"
 			 mc:Ignorable="d">
-
 	<Grid Margin="20,0,0,0">
 		<Grid.RowDefinitions>
 			<RowDefinition Height="Auto" />
@@ -15,18 +14,18 @@
 		</Grid.RowDefinitions>
 
 		<Grid x:Name="HeaderGrid"
-			  Grid.Row="0"
-			  Padding="0,0,10,0">
+			  Grid.Row="0">
 			<Grid.ColumnDefinitions>
 				<ColumnDefinition Width="Auto" />
 				<ColumnDefinition Width="*" />
+				<ColumnDefinition Width="Auto" />
 			</Grid.ColumnDefinitions>
-			<ContentPresenter x:Name="IconPresenter"
-							  Grid.Column="0"
-							  Margin="0,0,15,0"
-							  Padding="0,0,0,-5"
-							  VerticalAlignment="Center"
-							  Content="{x:Bind Icon, Mode=OneWay}" />
+			<ContentControl x:Name="IconPresenter"
+							Grid.Column="0"
+							Margin="0,0,15,0"
+							Padding="0,0,0,-5"
+							VerticalAlignment="Center"
+							Content="{x:Bind Icon, Mode=OneWay}" />
 			<TextBlock x:Name="TitleTextBlock"
 					   Grid.Column="1"
 					   VerticalAlignment="Center"
@@ -34,6 +33,12 @@
 					   FontWeight="SemiBold"
 					   Text="{x:Bind Title, Mode=OneWay}"
 					   TextTrimming="CharacterEllipsis" />
+			<ContentControl x:Name="HeaderActionPresenter"
+							Grid.Column="2"
+							Margin="0,0,20,0"
+							VerticalAlignment="Center"
+							VerticalContentAlignment="Center"
+							Content="{x:Bind HeaderAction, Mode=OneWay}" />
 		</Grid>
 
 		<ScrollViewer Grid.Row="1"

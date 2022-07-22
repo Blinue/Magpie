@@ -10,6 +10,27 @@
 
 	<local:PageFrame Title="{x:Bind ViewModel.Name, Mode=OneWay}"
 					 Icon="{x:Bind ViewModel.Icon, Mode=OneWay}">
+		<local:PageFrame.HeaderAction>
+			<Button>
+				<Button.Content>
+					<FontIcon Glyph="&#xE712;" />
+				</Button.Content>
+				<Button.Flyout>
+					<MenuFlyout Placement="BottomEdgeAlignedRight">
+						<MenuFlyoutItem Text="重命名">
+							<MenuFlyoutItem.Icon>
+								<FontIcon Glyph="&#xE8AC;" />
+							</MenuFlyoutItem.Icon>
+						</MenuFlyoutItem>
+						<MenuFlyoutItem Text="删除">
+							<MenuFlyoutItem.Icon>
+								<FontIcon Glyph="&#xE74D;" />
+							</MenuFlyoutItem.Icon>
+						</MenuFlyoutItem>
+					</MenuFlyout>
+				</Button.Flyout>
+			</Button>
+		</local:PageFrame.HeaderAction>
 		<StackPanel HorizontalAlignment="Stretch"
 					Orientation="Vertical">
 			<local:SettingsGroup Title="常规"
