@@ -7,6 +7,10 @@
 			 IsTabStop="False"
 			 Loading="Loading"
 			 mc:Ignorable="d">
+	<UserControl.Resources>
+		<x:Double x:Key="PageMaxWidth">1070</x:Double>
+	</UserControl.Resources>
+
 	<Grid Margin="20,0,0,0">
 		<Grid.RowDefinitions>
 			<RowDefinition Height="Auto" />
@@ -16,29 +20,35 @@
 		<Grid x:Name="HeaderGrid"
 			  Grid.Row="0">
 			<Grid.ColumnDefinitions>
-				<ColumnDefinition Width="Auto" />
-				<ColumnDefinition Width="*" />
-				<ColumnDefinition Width="Auto" />
+				<ColumnDefinition Width="*"
+								  MaxWidth="{StaticResource PageMaxWidth}" />
 			</Grid.ColumnDefinitions>
-			<ContentControl x:Name="IconPresenter"
-							Grid.Column="0"
-							Margin="0,0,15,0"
-							Padding="0,0,0,-5"
-							VerticalAlignment="Center"
-							Content="{x:Bind Icon, Mode=OneWay}" />
-			<TextBlock x:Name="TitleTextBlock"
-					   Grid.Column="1"
-					   VerticalAlignment="Center"
-					   local:TextBlockHelper.IsAutoTooltip="True"
-					   FontWeight="SemiBold"
-					   Text="{x:Bind Title, Mode=OneWay}"
-					   TextTrimming="CharacterEllipsis" />
-			<ContentControl x:Name="HeaderActionPresenter"
-							Grid.Column="2"
-							Margin="0,0,20,0"
-							VerticalAlignment="Center"
-							VerticalContentAlignment="Center"
-							Content="{x:Bind HeaderAction, Mode=OneWay}" />
+			<Grid>
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition Width="Auto" />
+					<ColumnDefinition Width="*" />
+					<ColumnDefinition Width="Auto" />
+				</Grid.ColumnDefinitions>
+				<ContentControl x:Name="IconPresenter"
+								Grid.Column="0"
+								Margin="0,0,15,0"
+								Padding="0,0,0,-5"
+								VerticalAlignment="Center"
+								Content="{x:Bind Icon, Mode=OneWay}" />
+				<TextBlock x:Name="TitleTextBlock"
+						   Grid.Column="1"
+						   VerticalAlignment="Center"
+						   local:TextBlockHelper.IsAutoTooltip="True"
+						   FontWeight="SemiBold"
+						   Text="{x:Bind Title, Mode=OneWay}"
+						   TextTrimming="CharacterEllipsis" />
+				<ContentControl x:Name="HeaderActionPresenter"
+								Grid.Column="2"
+								Margin="0,0,20,0"
+								VerticalAlignment="Center"
+								VerticalContentAlignment="Center"
+								Content="{x:Bind HeaderAction, Mode=OneWay}" />
+			</Grid>
 		</Grid>
 
 		<ScrollViewer Grid.Row="1"
@@ -49,7 +59,7 @@
 			<Grid>
 				<Grid.ColumnDefinitions>
 					<ColumnDefinition Width="*"
-									  MaxWidth="1070" />
+									  MaxWidth="{StaticResource PageMaxWidth}" />
 				</Grid.ColumnDefinitions>
 
 				<ContentControl Grid.Column="0"

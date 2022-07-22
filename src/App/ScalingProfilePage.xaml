@@ -11,8 +11,10 @@
 	<local:PageFrame Title="{x:Bind ViewModel.Name, Mode=OneWay}"
 					 Icon="{x:Bind ViewModel.Icon, Mode=OneWay}">
 		<local:PageFrame.HeaderAction>
-			<Button Visibility="{x:Bind ViewModel.IsNotDefaultScalingProfile, Mode=OneTime}" Width="40" Height="40" Padding="0">
-				<Button.Resources>
+			<StackPanel Orientation="Horizontal"
+						Spacing="2"
+						Visibility="{x:Bind ViewModel.IsNotDefaultScalingProfile, Mode=OneTime}">
+				<StackPanel.Resources>
 					<ResourceDictionary>
 						<ResourceDictionary.ThemeDictionaries>
 							<ResourceDictionary x:Key="Default">
@@ -76,30 +78,46 @@
 												ResourceKey="ControlFillColorTransparentBrush" />
 							</ResourceDictionary>
 						</ResourceDictionary.ThemeDictionaries>
-					</ResourceDictionary>
-				</Button.Resources>
 
-				<Button.Content>
-					<FontIcon Glyph="&#xE712;" />
-				</Button.Content>
-				<ToolTipService.ToolTip>
-					<ToolTip Content="选项" />
-				</ToolTipService.ToolTip>
-				<Button.Flyout>
-					<MenuFlyout Placement="BottomEdgeAlignedRight">
-						<MenuFlyoutItem Text="重命名">
-							<MenuFlyoutItem.Icon>
-								<FontIcon Glyph="&#xE8AC;" />
-							</MenuFlyoutItem.Icon>
-						</MenuFlyoutItem>
-						<MenuFlyoutItem Text="删除">
-							<MenuFlyoutItem.Icon>
-								<FontIcon Glyph="&#xE74D;" />
-							</MenuFlyoutItem.Icon>
-						</MenuFlyoutItem>
-					</MenuFlyout>
-				</Button.Flyout>
-			</Button>
+						<Style TargetType="Button">
+							<Setter Property="Width" Value="40" />
+							<Setter Property="Height" Value="40" />
+							<Setter Property="Padding" Value="0" />
+							<Setter Property="CornerRadius" Value="{StaticResource ControlCornerRadius}" />
+						</Style>
+					</ResourceDictionary>
+				</StackPanel.Resources>
+				<Button>
+					<Button.Content>
+						<FontIcon Glyph="&#xE8AC;" />
+					</Button.Content>
+					<ToolTipService.ToolTip>
+						<ToolTip Content="重命名" />
+					</ToolTipService.ToolTip>
+				</Button>
+				<Button>
+					<Button.Content>
+						<FontIcon Glyph="&#xE712;" />
+					</Button.Content>
+					<ToolTipService.ToolTip>
+						<ToolTip Content="更多选项" />
+					</ToolTipService.ToolTip>
+					<Button.Flyout>
+						<MenuFlyout Placement="BottomEdgeAlignedRight">
+							<MenuFlyoutItem Text="排序">
+								<MenuFlyoutItem.Icon>
+									<FontIcon Glyph="&#xE8CB;" />
+								</MenuFlyoutItem.Icon>
+							</MenuFlyoutItem>
+							<MenuFlyoutItem Text="删除">
+								<MenuFlyoutItem.Icon>
+									<FontIcon Glyph="&#xE74D;" />
+								</MenuFlyoutItem.Icon>
+							</MenuFlyoutItem>
+						</MenuFlyout>
+					</Button.Flyout>
+				</Button>
+			</StackPanel>
 		</local:PageFrame.HeaderAction>
 		<StackPanel HorizontalAlignment="Stretch"
 					Orientation="Vertical">
