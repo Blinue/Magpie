@@ -12,7 +12,6 @@
 					 Icon="{x:Bind ViewModel.Icon, Mode=OneWay}">
 		<local:PageFrame.HeaderAction>
 			<StackPanel Orientation="Horizontal"
-						Spacing="2"
 						Visibility="{x:Bind ViewModel.IsNotDefaultScalingProfile, Mode=OneTime}">
 				<StackPanel.Resources>
 					<ResourceDictionary>
@@ -80,10 +79,11 @@
 						</ResourceDictionary.ThemeDictionaries>
 
 						<Style TargetType="Button">
-							<Setter Property="Width" Value="40" />
-							<Setter Property="Height" Value="40" />
-							<Setter Property="Padding" Value="0" />
+							<Setter Property="MinWidth" Value="36" />
+							<Setter Property="MinHeight" Value="36" />
+							<Setter Property="Padding" Value="10" />
 							<Setter Property="CornerRadius" Value="{StaticResource ControlCornerRadius}" />
+							<Setter Property="FontSize" Value="16" />
 						</Style>
 					</ResourceDictionary>
 				</StackPanel.Resources>

@@ -33,8 +33,7 @@ MainPage::MainPage() {
 	_UpdateTheme(false);
 	AppSettings::Get().ThemeChanged([this](int) { _UpdateTheme(); });
 
-	_colorChangedRevoker = _uiSettings.ColorValuesChanged(
-		auto_revoke, { get_weak(), &MainPage::_UISettings_ColorValuesChanged });
+	_uiSettings.ColorValuesChanged({ get_weak(), &MainPage::_UISettings_ColorValuesChanged });
 
 	Background(MicaBrush(*this));
 

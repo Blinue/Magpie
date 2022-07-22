@@ -134,12 +134,12 @@ void PageFrame::_UpdateHeaderStyle() {
 		textBlock.FontSize(20);
 	} else {
 		if (icon) {
-			icon.Width(28);
-			icon.Height(28);
+			icon.Width(26);
+			icon.Height(26);
 		}
 
 		bool isWin11 = Win32Utils::GetOSBuild() >= 22000;
-		HeaderGrid().Margin(Thickness{ 0, double(isWin11 ? 25 : 40), 0, 0 });
+		HeaderGrid().Margin(Thickness{ 0, double(isWin11 ? 24 : 40), 0, 0 });
 		textBlock.FontSize(30);
 	}
 }

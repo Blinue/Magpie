@@ -424,18 +424,13 @@ fire_and_forget ScalingProfileViewModel::_LoadIcon() {
 	}
 
 	if (!iconPath.empty()) {
-		BitmapImage image;
-		image.UriSource(Uri(iconPath));
-		int32_t decodeSize = (int32_t)std::lroundf(ICON_SIZE * dpi / 96.0f);
-		image.DecodePixelWidth(decodeSize);
-		image.DecodePixelHeight(decodeSize);
+		BitmapIcon icon;
+		icon.ShowAsMonochrome(false);
+		icon.Width(ICON_SIZE);
+		icon.Height(ICON_SIZE);
+		icon.UriSource(Uri(iconPath));
 
-		MUXC::ImageIcon imageIcon;
-		imageIcon.Width(ICON_SIZE);
-		imageIcon.Height(ICON_SIZE);
-		imageIcon.Source(image);
-
-		strongRef->_icon = std::move(imageIcon);
+		strongRef->_icon = std::move(icon);
 	} else if (iconBitmap) {
 		SoftwareBitmapSource imageSource;
 		co_await imageSource.SetBitmapAsync(iconBitmap);

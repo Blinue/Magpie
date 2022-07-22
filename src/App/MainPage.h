@@ -47,7 +47,6 @@ private:
 	void _ScalingProfileService_ProfileAdded(ScalingProfile& profile);
 
 	Windows::UI::ViewManagement::UISettings _uiSettings;
-	Windows::UI::ViewManagement::UISettings::ColorValuesChanged_revoker _colorChangedRevoker;
 
 	Magpie::App::NewProfileViewModel _newProfileViewModel;
 	WinRTUtils::EventRevoker _profileAddedRevoker;
