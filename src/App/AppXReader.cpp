@@ -256,6 +256,9 @@ public:
 			} else if (name == L"altform") {
 				if (value == L"lightunplated") {
 					_isLightTheme = true;
+					_isUnplated = true;
+				} else if (value == L"unplated") {
+					_isUnplated = true;
 				}
 			} else if (name == L"theme") {
 				if (value == L"light") {
@@ -279,6 +282,11 @@ public:
 	static bool Compare(const CandidateIcon& l, const CandidateIcon& r, uint32_t preferredSize, bool isLightTheme) {
 		if (l._isLightTheme != r._isLightTheme) {
 			return l._isLightTheme == isLightTheme;
+		}
+
+		// 优先选择没有边框的图标
+		if (l._isUnplated != r._isUnplated) {
+			return l._isUnplated;
 		}
 
 		if (l._size != r._size) {
@@ -322,6 +330,7 @@ private:
 	std::wstring _fileName;
 	uint32_t _size = 0;
 	bool _isLightTheme = false;
+	bool _isUnplated = false;
 };
 
 static SoftwareBitmap AutoFillBackground(const std::wstring& iconPath, bool isLightTheme, bool noPath) {
@@ -517,7 +526,7 @@ std::variant<std::wstring, SoftwareBitmap> AppXReader::GetIcon(uint32_t preferre
 	std::wstring_view iconName(iconFileName.begin() + delimPos + 1, iconFileName.begin() + extensionPointPos);
 	std::wstring iconNameExt = StrUtils::ConcatW(iconName, extension);
 
-	std::wregex regex(fmt::format(L"^{}\\.[^\\.]+\\{}$", iconName, extension), std::wregex::optimize | std::wregex::nosubs);
+	std::wregex regex(fmt::format(L"^{}\\.[^\\.]+\\{}$", iconName, extension), std::wregex::nosubs);
 
 	std::vector<CandidateIcon> candidateIcons;
 
