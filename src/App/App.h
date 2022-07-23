@@ -27,6 +27,10 @@ public:
 		_mainPage = mainPage;
 	}
 
+	Windows::Graphics::Display::DisplayInformation DisplayInformation() const noexcept {
+		return _displayInformation;
+	}
+
 	event_token HostWndFocusChanged(EventHandler<bool> const& handler) {
 		return _hostWndFocusChangedEvent.add(handler);
 	}
@@ -47,6 +51,7 @@ private:
 	uint64_t _hwndHost{};
 
 	Magpie::App::MainPage _mainPage{ nullptr };
+	Windows::Graphics::Display::DisplayInformation _displayInformation{ nullptr };
 
 	event<EventHandler<bool>> _hostWndFocusChangedEvent;
 	bool _isHostWndFocused = false;

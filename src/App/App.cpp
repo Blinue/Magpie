@@ -42,6 +42,8 @@ App::App() {
 			box_value(CornerRadius{ 8,0,0,0 })
 		);
 	}
+
+	_displayInformation = Windows::Graphics::Display::DisplayInformation::GetForCurrentView();
 }
 
 App::~App() {

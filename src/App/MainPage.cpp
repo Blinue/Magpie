@@ -37,10 +37,9 @@ MainPage::MainPage() {
 
 	Background(MicaBrush(*this));
 
-	_displayInfomation = DisplayInformation::GetForCurrentView();
-	_displayInfomation.DpiChanged([&](DisplayInformation const&, IInspectable const&) {
-		_UpdateIcons(false);
-	});
+	_displayInformation = Application::Current().as<App>().DisplayInformation();
+	_dpiChangedRevoker = _displayInformation.DpiChanged(
+		auto_revoke, [this](DisplayInformation const&, IInspectable const&) { _UpdateIcons(false); });
 
 	IVector<IInspectable> navMenuItems = __super::RootNavigationView().MenuItems();
 	for (const ScalingProfile& profile : AppSettings::Get().ScalingProfiles()) {
@@ -144,7 +143,7 @@ void MainPage::NavigationView_DisplayModeChanged(MUXC::NavigationView const&, MU
 }
 
 void MainPage::AddNavigationViewItem_Tapped(IInspectable const&, TappedRoutedEventArgs const&) {
-	const UINT dpi = (UINT)std::lroundf(_displayInfomation.LogicalDpi());
+	const UINT dpi = (UINT)std::lroundf(_displayInformation.LogicalDpi());
 	const bool isLightTheme = ActualTheme() == ElementTheme::Light;
 	_newProfileViewModel.PrepareForOpen(dpi, isLightTheme, Dispatcher());
 
@@ -201,7 +200,7 @@ fire_and_forget MainPage::_LoadIcon(MUXC::NavigationViewItem const& item, const 
 	bool isPackaged = profile.IsPackaged();
 	std::wstring path = profile.PathRule();
 	CoreDispatcher dispatcher = Dispatcher();
-	uint32_t dpi = (uint32_t)std::lroundf(_displayInfomation.LogicalDpi());
+	uint32_t dpi = (uint32_t)std::lroundf(_displayInformation.LogicalDpi());
 
 	co_await resume_background();
 

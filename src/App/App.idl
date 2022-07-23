@@ -43,6 +43,7 @@ namespace Magpie.App {
 		UInt64 HwndHost { get; };
 
 		MainPage MainPage;
+		Windows.Graphics.Display.DisplayInformation DisplayInformation { get; };
 
 		Boolean IsHostWndFocused { get; };
 		event Windows.Foundation.EventHandler<Boolean> HostWndFocusChanged;

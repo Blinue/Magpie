@@ -51,7 +51,8 @@ private:
 	Magpie::App::NewProfileViewModel _newProfileViewModel;
 	WinRTUtils::EventRevoker _profileAddedRevoker;
 
-	Windows::Graphics::Display::DisplayInformation _displayInfomation{ nullptr };
+	Windows::Graphics::Display::DisplayInformation _displayInformation{ nullptr };
+	Windows::Graphics::Display::DisplayInformation::DpiChanged_revoker _dpiChangedRevoker;
 };
 
 }

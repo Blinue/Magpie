@@ -93,12 +93,16 @@ struct ScalingProfileViewModel : ScalingProfileViewModelT<ScalingProfileViewMode
 	void IsDisableDirectFlip(bool value);
 
 private:
-	fire_and_forget _LoadIcon();
+	fire_and_forget _LoadIcon(FrameworkElement const& mainPage);
 
 	IVector<IInspectable> _graphicsAdapters;
 
 	event<PropertyChangedEventHandler> _propertyChangedEvent;
 	ScalingProfile& _profile;
+
+	MainPage::ActualThemeChanged_revoker _themeChangedRevoker;
+	Windows::Graphics::Display::DisplayInformation _displayInformation{ nullptr };
+	Windows::Graphics::Display::DisplayInformation::DpiChanged_revoker _dpiChangedRevoker;
 
 	Controls::IconElement _icon{ nullptr };
 };

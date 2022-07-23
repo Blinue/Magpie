@@ -19,8 +19,6 @@ using namespace Windows::UI::Xaml::Media::Imaging;
 
 namespace winrt::Magpie::App::implementation {
 
-static constexpr const UINT ICON_SIZE = 32;
-
 static std::vector<std::wstring> GetAllGraphicsAdapters() {
 	com_ptr<IDXGIFactory1> dxgiFactory;
 	HRESULT hr = CreateDXGIFactory1(IID_PPV_ARGS(&dxgiFactory));
@@ -54,11 +52,26 @@ ScalingProfileViewModel::ScalingProfileViewModel(uint32_t profileId)
 ) {
 	if (profileId > 0) {
 		MUXC::ImageIcon placeholderIcon;
-		placeholderIcon.Width(ICON_SIZE);
-		placeholderIcon.Height(ICON_SIZE);
 		_icon = std::move(placeholderIcon);
 
-		_LoadIcon();
+		App app = Application::Current().as<App>();
+		MainPage mainPage = app.MainPage();
+		_themeChangedRevoker = mainPage.ActualThemeChanged(
+			auto_revoke,
+			[this](FrameworkElement const& sender, IInspectable const&) {
+				_LoadIcon(sender);
+			}
+		);
+
+		_displayInformation = app.DisplayInformation();
+		_dpiChangedRevoker = _displayInformation.DpiChanged(
+			auto_revoke,
+			[this, mainPage](DisplayInformation const&, IInspectable const&) {
+				_LoadIcon(mainPage);
+			}
+		);
+
+		_LoadIcon(mainPage);
 	}
 
 	std::vector<IInspectable> graphicsAdapters;
@@ -386,10 +399,9 @@ void ScalingProfileViewModel::IsDisableDirectFlip(bool value) {
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsDisableDirectFlip"));
 }
 
-fire_and_forget ScalingProfileViewModel::_LoadIcon() {
+fire_and_forget ScalingProfileViewModel::_LoadIcon(FrameworkElement const& mainPage) {
 	auto weakThis = get_weak();
 
-	MainPage mainPage = Application::Current().as<App>().MainPage();
 	bool preferLightTheme = mainPage.ActualTheme() == ElementTheme::Light;
 	bool isPackaged = _profile.IsPackaged();
 	std::wstring path = _profile.PathRule();
@@ -401,6 +413,7 @@ fire_and_forget ScalingProfileViewModel::_LoadIcon() {
 	std::wstring iconPath;
 	SoftwareBitmap iconBitmap{ nullptr };
 
+	static constexpr const UINT ICON_SIZE = 32;
 	if (isPackaged) {
 		AppXReader reader;
 		reader.Initialize(path);
