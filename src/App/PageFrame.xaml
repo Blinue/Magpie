@@ -13,7 +13,8 @@
 
 	<Grid Margin="20,0,0,0">
 		<Grid.RowDefinitions>
-			<RowDefinition Height="75" />
+			<RowDefinition x:Name="HeaderRowDefinition"
+						   Height="75" />
 			<RowDefinition Height="*" />
 		</Grid.RowDefinitions>
 
@@ -30,7 +31,7 @@
 					<ColumnDefinition Width="*" />
 					<ColumnDefinition Width="Auto" />
 				</Grid.ColumnDefinitions>
-				<ContentControl x:Name="IconPresenter"
+				<ContentControl x:Name="IconContainer"
 								Margin="0,0,15,0"
 								VerticalAlignment="Center"
 								Content="{x:Bind Icon, Mode=OneWay}" />
@@ -42,7 +43,6 @@
 							   VerticalAlignment="Center"
 							   local:TextBlockHelper.IsAutoTooltip="True"
 							   FontWeight="SemiBold"
-							   LineHeight="34"
 							   LineStackingStrategy="BlockLineHeight"
 							   Text="{x:Bind Title, Mode=OneWay}"
 							   TextTrimming="CharacterEllipsis" />

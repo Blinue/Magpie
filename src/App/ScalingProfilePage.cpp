@@ -21,6 +21,13 @@ namespace winrt::Magpie::App::implementation {
 ScalingProfilePage::ScalingProfilePage() {
 	InitializeComponent();
 
+	_rootNavigationView = Application::Current().as<App>().MainPage().RootNavigationView();
+	_displayModeChangedRevoker = _rootNavigationView.DisplayModeChanged(
+		auto_revoke,
+		[&](auto const&, auto const&) { _UpdateHeaderActionStyle(); }
+	);
+	_UpdateHeaderActionStyle();
+
 	if (Win32Utils::GetOSBuild() < 22000) {
 		// Segoe MDL2 Assets 不存在 Move 图标
 		AdjustCursorSpeedFontIcon().Glyph(L"\uE962");
@@ -67,6 +74,25 @@ void ScalingProfilePage::CursorScalingComboBox_SelectionChanged(IInspectable con
 		CursorScalingComboBox().MinWidth(minWidth);
 		CustomCursorScalingNumberBox().Visibility(Visibility::Collapsed);
 		CustomCursorScalingLabel().Visibility(Visibility::Collapsed);
+	}
+}
+
+void ScalingProfilePage::_UpdateHeaderActionStyle() {
+	StackPanel actionContainer = HeaderActionStackPanel();
+	if (_rootNavigationView.DisplayMode() == MUXC::NavigationViewDisplayMode::Minimal) {
+		actionContainer.Margin({ 0,2,0,-2 });
+		actionContainer.Padding({ 0,-4,0,-4 });
+
+		for (UIElement const& button : actionContainer.Children()) {
+			button.as<Button>().Padding({ 5,5,5,5 });
+		}
+	} else {
+		actionContainer.Margin({});
+		actionContainer.Padding({});
+
+		for (UIElement const& button : actionContainer.Children()) {
+			button.as<Button>().Padding({ 10,10,10,10 });
+		}
 	}
 }
 

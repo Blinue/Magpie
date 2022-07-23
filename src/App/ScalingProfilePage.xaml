@@ -7,11 +7,15 @@
 	  xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
 	  xmlns:wgn="using:Windows.Globalization.NumberFormatting"
 	  mc:Ignorable="d">
+	<Page.Resources>
+		<x:Double x:Key="ActionButtonPadding">10</x:Double>
+	</Page.Resources>
 
 	<local:PageFrame Title="{x:Bind ViewModel.Name, Mode=OneWay}"
 					 Icon="{x:Bind ViewModel.Icon, Mode=OneWay}">
 		<local:PageFrame.HeaderAction>
-			<StackPanel Orientation="Horizontal"
+			<StackPanel x:Name="HeaderActionStackPanel"
+						Orientation="Horizontal"
 						Visibility="{x:Bind ViewModel.IsNotDefaultScalingProfile, Mode=OneTime}">
 				<StackPanel.Resources>
 					<ResourceDictionary>
@@ -81,7 +85,6 @@
 						<Style TargetType="Button">
 							<Setter Property="MinWidth" Value="36" />
 							<Setter Property="MinHeight" Value="36" />
-							<Setter Property="Padding" Value="10" />
 							<Setter Property="CornerRadius" Value="{StaticResource ControlCornerRadius}" />
 							<Setter Property="FontSize" Value="16" />
 						</Style>

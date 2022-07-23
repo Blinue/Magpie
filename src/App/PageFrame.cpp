@@ -110,7 +110,6 @@ void PageFrame::PropertyChanged(event_token const& token) {
 }
 
 void PageFrame::_Update() {
-	IconPresenter().Visibility(Icon() ? Visibility::Visible : Visibility::Collapsed);
 	TitleTextBlock().Visibility(Title().empty() ? Visibility::Collapsed : Visibility::Visible);
 	HeaderActionPresenter().Visibility(HeaderAction() ? Visibility::Visible : Visibility::Collapsed);
 
@@ -121,26 +120,28 @@ void PageFrame::_Update() {
 
 void PageFrame::_UpdateHeaderStyle() {
 	TextBlock textBlock = TitleTextBlock();
+
 	IconElement icon = Icon();
+	if (icon) {
+		icon.Width(26);
+		icon.Height(26);
+	}
 
-	bool isMinimal = _rootNavigationView.DisplayMode() == Microsoft::UI::Xaml::Controls::NavigationViewDisplayMode::Minimal;
-	if (isMinimal) {
-		if (icon) {
-			icon.Width(20);
-			icon.Height(20);
-		}
+	if (_rootNavigationView.DisplayMode() == MUXC::NavigationViewDisplayMode::Minimal) {
+		HeaderGrid().Margin({ 28, 8, 0, 0 });
+		HeaderRowDefinition().Height({ 50, GridUnitType::Pixel });
+		IconContainer().Visibility(Visibility::Collapsed);
 		
-		HeaderGrid().Margin(Thickness{28, 8.5, 0, 0});
 		textBlock.FontSize(20);
+		textBlock.LineHeight(0);
 	} else {
-		if (icon) {
-			icon.Width(26);
-			icon.Height(26);
-		}
-
 		bool isWin11 = Win32Utils::GetOSBuild() >= 22000;
 		HeaderGrid().Margin(Thickness{ 0, double(isWin11 ? 24 : 40), 0, 0 });
+		HeaderRowDefinition().Height({ 75, GridUnitType::Pixel });
+		IconContainer().Visibility(icon ? Visibility::Visible : Visibility::Collapsed);
+		
 		textBlock.FontSize(30);
+		textBlock.LineHeight(32);
 	}
 }
 

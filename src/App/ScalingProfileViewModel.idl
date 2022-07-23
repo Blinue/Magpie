@@ -1,14 +1,13 @@
 namespace Magpie.App
 {
-	[default_interface]
-	runtimeclass ScalingProfileViewModel : Windows.UI.Xaml.Data.INotifyPropertyChanged
+	runtimeclass ScalingProfileViewModel : [default] Windows.UI.Xaml.Data.INotifyPropertyChanged
 	{
 		ScalingProfileViewModel(UInt32 profileId);
 
 		Windows.UI.Xaml.Controls.IconElement Icon { get; };
 		String Name;
 		Boolean IsNotDefaultScalingProfile { get; };
-
+		
 		Int32 CaptureMode;
 		Boolean Is3DGameMode;
 		Int32 MultiMonitorUsage;

@@ -20,6 +20,7 @@ using namespace Windows::UI::Xaml::Media::Imaging;
 namespace winrt::Magpie::App::implementation {
 
 static constexpr const UINT ICON_SIZE = 32;
+static constexpr const UINT DISPLAY_ICON_SIZE = 26;
 
 static std::vector<std::wstring> GetAllGraphicsAdapters() {
 	com_ptr<IDXGIFactory1> dxgiFactory;
@@ -426,8 +427,8 @@ fire_and_forget ScalingProfileViewModel::_LoadIcon() {
 	if (!iconPath.empty()) {
 		BitmapIcon icon;
 		icon.ShowAsMonochrome(false);
-		icon.Width(ICON_SIZE);
-		icon.Height(ICON_SIZE);
+		icon.Width(DISPLAY_ICON_SIZE);
+		icon.Height(DISPLAY_ICON_SIZE);
 		icon.UriSource(Uri(iconPath));
 
 		strongRef->_icon = std::move(icon);
@@ -436,8 +437,8 @@ fire_and_forget ScalingProfileViewModel::_LoadIcon() {
 		co_await imageSource.SetBitmapAsync(iconBitmap);
 
 		MUXC::ImageIcon imageIcon;
-		imageIcon.Width(ICON_SIZE);
-		imageIcon.Height(ICON_SIZE);
+		imageIcon.Width(DISPLAY_ICON_SIZE);
+		imageIcon.Height(DISPLAY_ICON_SIZE);
 		imageIcon.Source(imageSource);
 
 		strongRef->_icon = std::move(imageIcon);

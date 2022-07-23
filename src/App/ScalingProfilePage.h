@@ -24,8 +24,13 @@ struct ScalingProfilePage : ScalingProfilePageT<ScalingProfilePage> {
 	}
 
 private:
+	void _UpdateHeaderActionStyle();
+
 	Magpie::App::ScalingProfileViewModel _viewModel{ nullptr };
 	Windows::Globalization::NumberFormatting::DecimalFormatter _numberFormatter;
+
+	Microsoft::UI::Xaml::Controls::NavigationView _rootNavigationView{ nullptr };
+	Microsoft::UI::Xaml::Controls::NavigationView::DisplayModeChanged_revoker _displayModeChangedRevoker{};
 };
 
 }
