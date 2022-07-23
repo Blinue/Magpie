@@ -11,7 +11,7 @@ cpp_generate_documentation_comments = xml
 
 cpp_indent_braces = false
 cpp_indent_multi_line_relative_to = statement_begin
-cpp_indent_within_parentheses = align_to_parenthesis
+cpp_indent_within_parentheses = indent
 cpp_indent_preserve_within_parentheses = false
 cpp_indent_case_contents = true
 cpp_indent_case_labels = false
