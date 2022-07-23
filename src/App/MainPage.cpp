@@ -142,13 +142,17 @@ void MainPage::NavigationView_DisplayModeChanged(MUXC::NavigationView const&, MU
 	XamlUtils::UpdateThemeOfTooltips(*this, ActualTheme());
 }
 
-void MainPage::AddNavigationViewItem_Tapped(IInspectable const&, TappedRoutedEventArgs const&) {
-	const UINT dpi = (UINT)std::lroundf(_displayInformation.LogicalDpi());
-	const bool isLightTheme = ActualTheme() == ElementTheme::Light;
-	_newProfileViewModel.PrepareForOpen(dpi, isLightTheme, Dispatcher());
+void MainPage::NavigationView_ItemInvoked(MUXC::NavigationView const&, MUXC::NavigationViewItemInvokedEventArgs const& args) {
+	if (args.InvokedItemContainer() == NewProfileNavigationViewItem()) {
+		const UINT dpi = (UINT)std::lroundf(_displayInformation.LogicalDpi());
+		const bool isLightTheme = ActualTheme() == ElementTheme::Light;
+		_newProfileViewModel.PrepareForOpen(dpi, isLightTheme, Dispatcher());
 
-	NewProfileFlyout().Hide();
-	NewProfileFlyout().ShowAt(AddNavigationViewItem());
+		// 同步调用 ShowAt 有时会失败
+		Dispatcher().TryRunAsync(CoreDispatcherPriority::Normal, [this]() {
+			NewProfileFlyout().ShowAt(NewProfileNavigationViewItem());
+		});
+	}
 }
 
 MUXC::NavigationView MainPage::RootNavigationView() {

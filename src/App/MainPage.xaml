@@ -11,6 +11,7 @@
 	<muxc:NavigationView Name="RootNavigationView"
 						 DisplayModeChanged="NavigationView_DisplayModeChanged"
 						 IsBackButtonVisible="Collapsed"
+						 ItemInvoked="NavigationView_ItemInvoked"
 						 PaneClosing="NavigationView_PaneClosing"
 						 PaneOpening="NavigationView_PaneOpening"
 						 SelectionChanged="NavigationView_SelectionChanged">
@@ -41,11 +42,10 @@
 					<FontIcon Glyph="&#xE81E;" />
 				</muxc:NavigationViewItem.Icon>
 			</muxc:NavigationViewItem>
-			<muxc:NavigationViewItem x:Name="AddNavigationViewItem"
+			<muxc:NavigationViewItem x:Name="NewProfileNavigationViewItem"
 									 Content="添加新配置"
 									 Icon="Add"
-									 SelectsOnInvoked="False"
-									 Tapped="AddNavigationViewItem_Tapped">
+									 SelectsOnInvoked="False">
 				<FlyoutBase.AttachedFlyout>
 					<Flyout x:Name="NewProfileFlyout"
 							Placement="Right">

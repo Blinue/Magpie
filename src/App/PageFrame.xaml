@@ -34,7 +34,8 @@
 				<ContentControl x:Name="IconContainer"
 								Margin="0,0,15,0"
 								VerticalAlignment="Center"
-								Content="{x:Bind Icon, Mode=OneWay}" />
+								Content="{x:Bind Icon, Mode=OneWay}"
+								IsTabStop="False" />
 				<StackPanel Grid.Column="1"
 							VerticalAlignment="Center">
 					<TextBlock x:Name="TitleTextBlock"
@@ -53,7 +54,8 @@
 									Margin="0,0,20,0"
 									VerticalAlignment="Center"
 									VerticalContentAlignment="Center"
-									Content="{x:Bind HeaderAction, Mode=OneWay}" />
+									Content="{x:Bind HeaderAction, Mode=OneWay}"
+									IsTabStop="False" />
 				</StackPanel>
 
 			</Grid>
