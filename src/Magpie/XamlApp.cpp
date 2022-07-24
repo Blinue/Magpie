@@ -300,9 +300,14 @@ void XamlApp::_RepositionXamlPopups(bool closeFlyoutPresenter) {
 	}
 
 	for (const auto& popup : winrt::VisualTreeHelper::GetOpenPopupsForXamlRoot(root)) {
-		if (closeFlyoutPresenter && winrt::get_class_name(popup.Child()) == winrt::name_of<winrt::Controls::FlyoutPresenter>()) {
-			popup.IsOpen(false);
-			continue;
+		if (closeFlyoutPresenter) {
+			auto className = winrt::get_class_name(popup.Child());
+			if (className == winrt::name_of<winrt::Controls::FlyoutPresenter>() ||
+				className == winrt::name_of<winrt::Controls::MenuFlyoutPresenter>()
+			) {
+				popup.IsOpen(false);
+				continue;
+			}
 		}
 
 		// 取自 https://github.com/CommunityToolkit/Microsoft.Toolkit.Win32/blob/229fa3cd245ff002906b2a594196b88aded25774/Microsoft.Toolkit.Forms.UI.XamlHost/WindowsXamlHostBase.cs#L180
