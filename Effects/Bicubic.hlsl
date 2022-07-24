@@ -1,5 +1,5 @@
 // Bicubic 插值算法
-// 移植自 https://github.com/libretro/common-shaders/blob/master/bicubic/shaders/bicubic-normal.cg
+// 移植自 https://github.com/ActualMandM/cemu_graphic_packs/blob/468d165cf27dae13a06e8bdc3d588d0af775ad91/Filters/Bicubic/output.glsl
 
 //!MAGPIE EFFECT
 //!VERSION 2
@@ -23,7 +23,7 @@ float paramC;
 Texture2D INPUT;
 
 //!SAMPLER
-//!FILTER POINT
+//!FILTER LINEAR
 SamplerState sam;
 
 
@@ -33,12 +33,15 @@ SamplerState sam;
 
 
 float weight(float x) {
+	const float B = paramB;
+	const float C = paramC;
+
 	float ax = abs(x);
 
 	if (ax < 1.0) {
-		return (x * x * ((12.0 - 9.0 * paramB - 6.0 * paramC) * ax + (-18.0 + 12.0 * paramB + 6.0 * paramC)) + (6.0 - 2.0 * paramB)) / 6.0;
+		return (x * x * ((12.0 - 9.0 * B - 6.0 * C) * ax + (-18.0 + 12.0 * B + 6.0 * C)) + (6.0 - 2.0 * B)) / 6.0;
 	} else if (ax >= 1.0 && ax < 2.0) {
-		return (x * x * ((-paramB - 6.0 * paramC) * ax + (6.0 * paramB + 30.0 * paramC)) + (-12.0 * paramB - 48.0 * paramC) * ax + (8.0 * paramB + 24.0 * paramC)) / 6.0;
+		return (x * x * ((-B - 6.0 * C) * ax + (6.0 * B + 30.0 * C)) + (-12.0 * B - 48.0 * C) * ax + (8.0 * B + 24.0 * C)) / 6.0;
 	} else {
 		return 0.0;
 	}
@@ -55,46 +58,50 @@ float4 weight4(float x) {
 
 
 float4 Pass1(float2 pos) {
-	float2 inputPt = GetInputPt();
-	uint i, j;
+	const float2 inputPt = GetInputPt();
+	const float2 inputSize = GetInputSize();
 
 	pos *= GetInputSize();
-	float2 f = frac(pos + 0.5f);
+	float2 pos1 = floor(pos - 0.5) + 0.5;
+	float2 f = pos - pos1;
 
-	float4 linetaps = weight4(1.0 - f.x);
-	float4 columntaps = weight4(1.0 - f.y);
+	float4 rowtaps = weight4(1 - f.x);
+	float4 coltaps = weight4(1 - f.y);
 
 	// make sure all taps added together is exactly 1.0, otherwise some (very small) distortion can occur
-	linetaps /= linetaps.r + linetaps.g + linetaps.b + linetaps.a;
-	columntaps /= columntaps.r + columntaps.g + columntaps.b + columntaps.a;
+	rowtaps /= rowtaps.r + rowtaps.g + rowtaps.b + rowtaps.a;
+	coltaps /= coltaps.r + coltaps.g + coltaps.b + coltaps.a;
 
-	pos -= f + 0.5f;
+	float2 uv1 = pos1 * inputPt;
+	float2 uv0 = uv1 - inputPt;
+	float2 uv2 = uv1 + inputPt;
+	float2 uv3 = uv2 + inputPt;
 
-	float3 src[4][4];
+	float u_weight_sum = rowtaps.y + rowtaps.z;
+	float u_middle_offset = rowtaps.z * inputPt.x / u_weight_sum;
+	float u_middle = uv1.x + u_middle_offset;
 
-	[unroll]
-	for (i = 0; i <= 2; i += 2) {
-		[unroll]
-		for (j = 0; j <= 2; j += 2) {
-			float2 tpos = (pos + uint2(i, j)) * inputPt;
-			const float4 sr = INPUT.GatherRed(sam, tpos);
-			const float4 sg = INPUT.GatherGreen(sam, tpos);
-			const float4 sb = INPUT.GatherBlue(sam, tpos);
+	float v_weight_sum = coltaps.y + coltaps.z;
+	float v_middle_offset = coltaps.z * inputPt.y / v_weight_sum;
+	float v_middle = uv1.y + v_middle_offset;
 
-			// w z
-			// x y
-			src[i][j] = float3(sr.w, sg.w, sb.w);
-			src[i][j + 1] = float3(sr.x, sg.x, sb.x);
-			src[i + 1][j] = float3(sr.z, sg.z, sb.z);
-			src[i + 1][j + 1] = float3(sr.y, sg.y, sb.y);
-		}
-	}
+	int2 coord_top_left = int2(max(uv0 * inputSize, 0.5));
+	int2 coord_bottom_right = int2(min(uv3 * inputSize, inputSize - 0.5));
 
-	float3 result = float3(0, 0, 0);
-	[unroll]
-	for (i = 0; i < 4; ++i) {
-		result += mul(linetaps, float4x3(src[0][i], src[1][i], src[2][i], src[3][i])) * columntaps[i];
-	}
+	float4 top = INPUT.Load(int3(coord_top_left, 0)) * rowtaps.x;
+	top += INPUT.SampleLevel(sam, float2(u_middle, uv0.y), 0) * u_weight_sum;
+	top += INPUT.Load(int3(coord_bottom_right.x, coord_top_left.y, 0)) * rowtaps.w;
+	float4 total = top * coltaps.x;
 
-	return float4(result, 1);
+	float4 middle = INPUT.SampleLevel(sam, float2(uv0.x, v_middle), 0) * rowtaps.x;
+	middle += INPUT.SampleLevel(sam, float2(u_middle, v_middle), 0) * u_weight_sum;
+	middle += INPUT.SampleLevel(sam, float2(uv3.x, v_middle), 0) * rowtaps.w;
+	total += middle * v_weight_sum;
+
+	float4 bottom = INPUT.Load(int3(coord_top_left.x, coord_bottom_right.y, 0)) * rowtaps.x;
+	bottom += INPUT.SampleLevel(sam, float2(u_middle, uv3.y), 0) * u_weight_sum;
+	bottom += INPUT.Load(int3(coord_bottom_right, 0)) * rowtaps.w;
+	total += bottom * coltaps.w;
+
+	return total;
 }

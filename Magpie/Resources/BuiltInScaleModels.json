@@ -28,8 +28,10 @@
         "effect": "FSRCNNX"
       },
       {
-        "effect": "CatmullRom",
-        "scale": [ -1, -1 ]
+        "effect": "Bicubic",
+        "scale": [ -1, -1 ],
+        "paramB": 0,
+        "paramC": 0.5
       }
     ]
   },
@@ -40,8 +42,10 @@
         "effect": "ACNet"
       },
       {
-        "effect": "CatmullRom",
-        "scale": [ -1, -1 ]
+        "effect": "Bicubic",
+        "scale": [ -1, -1 ],
+        "paramB": 0,
+        "paramC": 0.5
       }
     ]
   },
@@ -52,8 +56,10 @@
         "effect": "Anime4K_Upscale_Denoise_L"
       },
       {
-        "effect": "CatmullRom",
-        "scale": [ -1, -1 ]
+        "effect": "Bicubic",
+        "scale": [ -1, -1 ],
+        "paramB": 0,
+        "paramC": 0.5
       }
     ]
   },
