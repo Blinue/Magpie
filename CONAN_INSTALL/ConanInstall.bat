@@ -7,5 +7,5 @@ IF %ERRORLEVEL% NEQ 0 (
 
 conan config set storage.path=%CD%\..\.conan\data
 
-conan install ..\Runtime\conanfile.txt --profile ../conanprofile.txt -g visual_studio --install-folder ..\.conan\Debug\Runtime -s build_type=Debug -s compiler.runtime=MTd --build=outdated --update
-conan install ..\Runtime\conanfile.txt --profile ../conanprofile.txt -g visual_studio --install-folder ..\.conan\Release\Runtime -s build_type=Release -s compiler.runtime=MT --build=outdated --update
+conan install ..\Runtime\conanfile.txt --profile ../conanprofile.txt -g visual_studio --install-folder ..\.conan\Debug\Runtime -s build_type=Debug -s compiler.runtime=MDd --build=outdated --update
+conan install ..\Runtime\conanfile.txt --profile ../conanprofile.txt -g visual_studio --install-folder ..\.conan\Release\Runtime -s build_type=Release -s compiler.runtime=MD --build=outdated --update
