@@ -71,4 +71,10 @@
     <CopyFileToFolders Include="NNEDI3_nns16_win8x4.hlsl" />
     <CopyFileToFolders Include="NNEDI3_nns64_win8x6.hlsl" />
   </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="Anime4K_Upscale_UL.hlsl" />
+    <FxCompile Include="Anime4K_Upscale_VL.hlsl" />
+    <FxCompile Include="Anime4K_Upscale_Denoise_UL.hlsl" />
+    <FxCompile Include="Anime4K_Upscale_Denoise_VL.hlsl" />
+  </ItemGroup>
 </Project>

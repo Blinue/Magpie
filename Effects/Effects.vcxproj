@@ -330,6 +330,12 @@
       <FileType>Document</FileType>
     </CopyFileToFolders>
   </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="Anime4K_Upscale_UL.hlsl" />
+    <FxCompile Include="Anime4K_Upscale_VL.hlsl" />
+    <FxCompile Include="Anime4K_Upscale_Denoise_UL.hlsl" />
+    <FxCompile Include="Anime4K_Upscale_Denoise_VL.hlsl" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

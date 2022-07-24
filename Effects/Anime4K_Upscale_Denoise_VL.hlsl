@@ -1,3 +1,6 @@
+// Anime4K_Upscale_Denoise_CNN_x2_VL
+// 移植自 https://github.com/bloc97/Anime4K/blob/78e4f78f65b772e94bae6e7db5c49af1e889f784/glsl/Upscale%2BDenoise/Anime4K_Upscale_Denoise_CNN_x2_VL.glsl
+
 //!MAGPIE EFFECT
 //!VERSION 2
 //!OUTPUT_WIDTH INPUT_WIDTH * 2
@@ -14,6 +17,7 @@ SamplerState sam;
 //!SAMPLER
 //!FILTER LINEAR
 SamplerState sam1;
+
 //!TEXTURE
 //!WIDTH INPUT_WIDTH
 //!HEIGHT INPUT_HEIGHT
@@ -1308,4 +1312,3 @@ void Pass8(uint2 blockStart, uint3 threadId) {
 		WriteToOutput(gxy, float3(target1.z, target2.z, target3.z) + INPUT.SampleLevel(sam1, pos, 0).rgb);
 	}
 }
-
