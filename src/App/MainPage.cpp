@@ -150,6 +150,8 @@ void MainPage::NavigationView_ItemInvoked(MUXC::NavigationView const&, MUXC::Nav
 
 		// 同步调用 ShowAt 有时会失败
 		Dispatcher().TryRunAsync(CoreDispatcherPriority::Normal, [this]() {
+			// 仅限 Win10：导航栏处于 Minimal 状态时会导致 Flyout 不在正确位置弹出
+			// 有一个修复方法，但会导致性能损失
 			NewProfileFlyout().ShowAt(NewProfileNavigationViewItem());
 		});
 	}

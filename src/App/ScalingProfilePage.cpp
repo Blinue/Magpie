@@ -84,18 +84,14 @@ void ScalingProfilePage::_UpdateHeaderActionStyle() {
 		actionContainer.Padding({ 0,-4,0,-4 });
 
 		for (UIElement const& child : actionContainer.Children()) {
-			Button button = child.as<Button>();
-			button.Padding({ 5,5,5,5 });
-			button.Content().as<FontIcon>().FontSize(18);
+			child.as<Button>().Padding({ 5,5,5,5 });
 		}
 	} else {
 		actionContainer.Margin({});
 		actionContainer.Padding({});
 
 		for (UIElement const& child : actionContainer.Children()) {
-			Button button = child.as<Button>();
-			button.Padding({ 10,10,10,10 });
-			button.Content().as<FontIcon>().FontSize(20);
+			child.as<Button>().Padding({ 10,10,10,10 });
 		}
 	}
 }

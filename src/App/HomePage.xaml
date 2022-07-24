@@ -10,7 +10,7 @@
 		<StackPanel HorizontalAlignment="Stretch"
 					Orientation="Vertical">
 			<local:SettingsGroup Title="激活"
-								 Margin="0,-15,0,0">
+								 Margin="0,-20,0,0">
 				<local:SettingItem Title="快捷键">
 					<local:SettingItem.Icon>
 						<FontIcon Glyph="&#xEDA7;" />

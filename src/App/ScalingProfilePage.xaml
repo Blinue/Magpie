@@ -88,6 +88,9 @@
 							<Setter Property="CornerRadius" Value="{StaticResource ControlCornerRadius}" />
 							<Setter Property="FontSize" Value="16" />
 						</Style>
+						<Style TargetType="FontIcon">
+							<Setter Property="FontSize" Value="18" />
+						</Style>
 					</ResourceDictionary>
 				</StackPanel.Resources>
 				<Button>
@@ -125,7 +128,7 @@
 		<StackPanel HorizontalAlignment="Stretch"
 					Orientation="Vertical">
 			<local:SettingsGroup Title="常规"
-								 Margin="0,-15,0,0">
+								 Margin="0,-20,0,0">
 				<local:SettingItem Title="缩放模式">
 					<local:SettingItem.Icon>
 						<FontIcon Glyph="&#xE740;" />
