@@ -61,7 +61,7 @@ float4 Pass1(float2 pos) {
 	const float2 inputPt = GetInputPt();
 	const float2 inputSize = GetInputSize();
 
-	pos *= GetInputSize();
+	pos *= inputSize;
 	float2 pos1 = floor(pos - 0.5) + 0.5;
 	float2 f = pos - pos1;
 
