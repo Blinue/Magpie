@@ -1140,7 +1140,7 @@ void Pass7(uint2 blockStart, uint3 threadId) {
 }
 
 //!PASS 8
-//!DESC Conv-4x1x1x120, Depth-to-Space
+//!DESC Conv-4x1x1x112, Depth-to-Space
 //!IN INPUT, conv2d_tf, conv2d_tf1, conv2d_1_tf, conv2d_1_tf1, conv2d_2_tf, conv2d_2_tf1, conv2d_3_tf, conv2d_3_tf1, conv2d_4_tf, conv2d_4_tf1, conv2d_5_tf, conv2d_5_tf1, conv2d_6_tf, conv2d_6_tf1
 //!BLOCK_SIZE 16
 //!NUM_THREADS 64
