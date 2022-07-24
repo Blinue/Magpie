@@ -160,7 +160,7 @@ void Pass1(uint2 blockStart, uint3 threadId) {
 
 	float2 inputPt = GetInputPt();
 	
-    uint i, j;
+	uint i, j;
 
 	float3 src[4][4];
 	[unroll]
@@ -215,7 +215,7 @@ void Pass1(uint2 blockStart, uint3 threadId) {
 			target2 += mul(src[i + 1][j + 1], float3x4(-0.18697992, -0.60250723, -0.11149202, -0.015566043, -0.57483697, 0.07203411, 0.050863862, -0.078300595, -0.09433572, 0.27099958, -0.03195694, 0.10535165));
 			target2 += float4(-0.043337345, 0.16099554, -0.030338328, 0.0074565704);
 
-            float4 target3 = mul(src[i - 1][j - 1], float3x4(-0.05112635, -0.09334158, -0.031148188, -0.041258592, -0.04633252, 0.022155467, 0.16979018, 0.06819186, 0.094320215, 0.02111737, -0.15604521, -0.15083192));
+			float4 target3 = mul(src[i - 1][j - 1], float3x4(-0.05112635, -0.09334158, -0.031148188, -0.041258592, -0.04633252, 0.022155467, 0.16979018, 0.06819186, 0.094320215, 0.02111737, -0.15604521, -0.15083192));
 			target3 += mul(src[i - 1][j], float3x4(0.10213034, 0.41852444, 0.32454407, -0.058512308, -0.054484565, -0.24399261, -0.26164648, -0.34274867, -0.06912002, 0.02257528, 0.2588075, 0.24375258));
 			target3 += mul(src[i - 1][j + 1], float3x4(0.019957408, 0.06354756, 0.10109863, 0.16890836, 0.06791468, 0.1259216, 0.3096521, 0.07912831, -0.08293642, -0.16565439, -0.050881315, -0.0576009));
 			target3 += mul(src[i][j - 1], float3x4(0.19822149, 0.34747612, -0.20176221, 0.042434175, -0.029007072, -0.1637076, -0.09433387, 0.32732537, -0.12577844, -0.049755163, 0.091352955, 0.27023584));
@@ -228,7 +228,7 @@ void Pass1(uint2 blockStart, uint3 threadId) {
 
 			conv2d_tf[destPos] = target1;
 			conv2d_tf1[destPos] = target2;
-            conv2d_tf2[destPos] = target3;
+			conv2d_tf2[destPos] = target3;
 		}
 	}
 }
@@ -313,7 +313,7 @@ void Pass2(uint2 blockStart, uint3 threadId) {
 	h2 = max(h2, 0);
 	i2 = max(i2, 0);
 
-    float4 a3 = conv2d_tf2.SampleLevel(sam, pos + float2(-inputPt.x, -inputPt.y), 0);
+	float4 a3 = conv2d_tf2.SampleLevel(sam, pos + float2(-inputPt.x, -inputPt.y), 0);
 	float4 b3 = conv2d_tf2.SampleLevel(sam, pos + float2(-inputPt.x, 0), 0);
 	float4 c3 = conv2d_tf2.SampleLevel(sam, pos + float2(-inputPt.x, inputPt.y), 0);
 	float4 d3 = conv2d_tf2.SampleLevel(sam, pos + float2(0, -inputPt.y), 0);
@@ -595,7 +595,7 @@ void Pass3(uint2 blockStart, uint3 threadId) {
 	h2 = max(h2, 0);
 	i2 = max(i2, 0);
 
-    float4 a3 = conv2d_1_tf2.SampleLevel(sam, pos + float2(-inputPt.x, -inputPt.y), 0);
+	float4 a3 = conv2d_1_tf2.SampleLevel(sam, pos + float2(-inputPt.x, -inputPt.y), 0);
 	float4 b3 = conv2d_1_tf2.SampleLevel(sam, pos + float2(-inputPt.x, 0), 0);
 	float4 c3 = conv2d_1_tf2.SampleLevel(sam, pos + float2(-inputPt.x, inputPt.y), 0);
 	float4 d3 = conv2d_1_tf2.SampleLevel(sam, pos + float2(0, -inputPt.y), 0);
@@ -877,7 +877,7 @@ void Pass4(uint2 blockStart, uint3 threadId) {
 	h2 = max(h2, 0);
 	i2 = max(i2, 0);
 
-    float4 a3 = conv2d_2_tf2.SampleLevel(sam, pos + float2(-inputPt.x, -inputPt.y), 0);
+	float4 a3 = conv2d_2_tf2.SampleLevel(sam, pos + float2(-inputPt.x, -inputPt.y), 0);
 	float4 b3 = conv2d_2_tf2.SampleLevel(sam, pos + float2(-inputPt.x, 0), 0);
 	float4 c3 = conv2d_2_tf2.SampleLevel(sam, pos + float2(-inputPt.x, inputPt.y), 0);
 	float4 d3 = conv2d_2_tf2.SampleLevel(sam, pos + float2(0, -inputPt.y), 0);
@@ -1159,7 +1159,7 @@ void Pass5(uint2 blockStart, uint3 threadId) {
 	h2 = max(h2, 0);
 	i2 = max(i2, 0);
 
-    float4 a3 = conv2d_3_tf2.SampleLevel(sam, pos + float2(-inputPt.x, -inputPt.y), 0);
+	float4 a3 = conv2d_3_tf2.SampleLevel(sam, pos + float2(-inputPt.x, -inputPt.y), 0);
 	float4 b3 = conv2d_3_tf2.SampleLevel(sam, pos + float2(-inputPt.x, 0), 0);
 	float4 c3 = conv2d_3_tf2.SampleLevel(sam, pos + float2(-inputPt.x, inputPt.y), 0);
 	float4 d3 = conv2d_3_tf2.SampleLevel(sam, pos + float2(0, -inputPt.y), 0);
@@ -1441,7 +1441,7 @@ void Pass6(uint2 blockStart, uint3 threadId) {
 	h2 = max(h2, 0);
 	i2 = max(i2, 0);
 
-    float4 a3 = conv2d_4_tf2.SampleLevel(sam, pos + float2(-inputPt.x, -inputPt.y), 0);
+	float4 a3 = conv2d_4_tf2.SampleLevel(sam, pos + float2(-inputPt.x, -inputPt.y), 0);
 	float4 b3 = conv2d_4_tf2.SampleLevel(sam, pos + float2(-inputPt.x, 0), 0);
 	float4 c3 = conv2d_4_tf2.SampleLevel(sam, pos + float2(-inputPt.x, inputPt.y), 0);
 	float4 d3 = conv2d_4_tf2.SampleLevel(sam, pos + float2(0, -inputPt.y), 0);
@@ -1723,7 +1723,7 @@ void Pass7(uint2 blockStart, uint3 threadId) {
 	h2 = max(h2, 0);
 	i2 = max(i2, 0);
 
-    float4 a3 = conv2d_5_tf2.SampleLevel(sam, pos + float2(-inputPt.x, -inputPt.y), 0);
+	float4 a3 = conv2d_5_tf2.SampleLevel(sam, pos + float2(-inputPt.x, -inputPt.y), 0);
 	float4 b3 = conv2d_5_tf2.SampleLevel(sam, pos + float2(-inputPt.x, 0), 0);
 	float4 c3 = conv2d_5_tf2.SampleLevel(sam, pos + float2(-inputPt.x, inputPt.y), 0);
 	float4 d3 = conv2d_5_tf2.SampleLevel(sam, pos + float2(0, -inputPt.y), 0);
@@ -1940,21 +1940,21 @@ void Pass8(uint2 blockStart, uint3 threadId) {
 	float2 inputPt = GetInputPt();
 	float2 pos = ((gxy >> 1) + 0.5f) * inputPt;
 
-    float4 g0 = conv2d_2_tf.SampleLevel(sam, pos, 0);
-    float4 g1 = conv2d_2_tf1.SampleLevel(sam, pos, 0);
-    float4 g2 = conv2d_2_tf2.SampleLevel(sam, pos, 0);
-    float4 g3 = conv2d_3_tf.SampleLevel(sam, pos, 0);
-    float4 g4 = conv2d_3_tf1.SampleLevel(sam, pos, 0);
-    float4 g5 = conv2d_3_tf2.SampleLevel(sam, pos, 0);
-    float4 g6 = conv2d_4_tf.SampleLevel(sam, pos, 0);
-    float4 g7 = conv2d_4_tf1.SampleLevel(sam, pos, 0);
-    float4 g8 = conv2d_4_tf2.SampleLevel(sam, pos, 0);
-    float4 g9 = conv2d_5_tf.SampleLevel(sam, pos, 0);
-    float4 g10 = conv2d_5_tf1.SampleLevel(sam, pos, 0);
-    float4 g11 = conv2d_5_tf2.SampleLevel(sam, pos, 0);
-    float4 g12 = conv2d_6_tf.SampleLevel(sam, pos, 0);
-    float4 g13 = conv2d_6_tf1.SampleLevel(sam, pos, 0);
-    float4 g14 = conv2d_6_tf2.SampleLevel(sam, pos, 0);
+	float4 g0 = conv2d_2_tf.SampleLevel(sam, pos, 0);
+	float4 g1 = conv2d_2_tf1.SampleLevel(sam, pos, 0);
+	float4 g2 = conv2d_2_tf2.SampleLevel(sam, pos, 0);
+	float4 g3 = conv2d_3_tf.SampleLevel(sam, pos, 0);
+	float4 g4 = conv2d_3_tf1.SampleLevel(sam, pos, 0);
+	float4 g5 = conv2d_3_tf2.SampleLevel(sam, pos, 0);
+	float4 g6 = conv2d_4_tf.SampleLevel(sam, pos, 0);
+	float4 g7 = conv2d_4_tf1.SampleLevel(sam, pos, 0);
+	float4 g8 = conv2d_4_tf2.SampleLevel(sam, pos, 0);
+	float4 g9 = conv2d_5_tf.SampleLevel(sam, pos, 0);
+	float4 g10 = conv2d_5_tf1.SampleLevel(sam, pos, 0);
+	float4 g11 = conv2d_5_tf2.SampleLevel(sam, pos, 0);
+	float4 g12 = conv2d_6_tf.SampleLevel(sam, pos, 0);
+	float4 g13 = conv2d_6_tf1.SampleLevel(sam, pos, 0);
+	float4 g14 = conv2d_6_tf2.SampleLevel(sam, pos, 0);
 
 	float4 ng0 = max(-g0, 0);
 	float4 ng1 = max(-g1, 0);

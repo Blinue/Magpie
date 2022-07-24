@@ -118,7 +118,7 @@ void Pass1(uint2 blockStart, uint3 threadId) {
 
 	float2 inputPt = GetInputPt();
 	
-    uint i, j;
+	uint i, j;
 
 	float3 src[4][4];
 	[unroll]
@@ -1154,20 +1154,20 @@ void Pass8(uint2 blockStart, uint3 threadId) {
 	float2 inputPt = GetInputPt();
 	float2 pos = ((gxy >> 1) + 0.5f) * inputPt;
 
-    float4 g0 = conv2d_tf.SampleLevel(sam, pos, 0);
-    float4 g1 = conv2d_tf1.SampleLevel(sam, pos, 0);
-    float4 g2 = conv2d_1_tf.SampleLevel(sam, pos, 0);
-    float4 g3 = conv2d_1_tf1.SampleLevel(sam, pos, 0);
-    float4 g4 = conv2d_2_tf.SampleLevel(sam, pos, 0);
-    float4 g5 = conv2d_2_tf1.SampleLevel(sam, pos, 0);
-    float4 g6 = conv2d_3_tf.SampleLevel(sam, pos, 0);
-    float4 g7 = conv2d_3_tf1.SampleLevel(sam, pos, 0);
-    float4 g8 = conv2d_4_tf.SampleLevel(sam, pos, 0);
-    float4 g9 = conv2d_4_tf1.SampleLevel(sam, pos, 0);
-    float4 g10 = conv2d_5_tf.SampleLevel(sam, pos, 0);
-    float4 g11 = conv2d_5_tf1.SampleLevel(sam, pos, 0);
-    float4 g12 = conv2d_6_tf.SampleLevel(sam, pos, 0);
-    float4 g13 = conv2d_6_tf1.SampleLevel(sam, pos, 0);
+	float4 g0 = conv2d_tf.SampleLevel(sam, pos, 0);
+	float4 g1 = conv2d_tf1.SampleLevel(sam, pos, 0);
+	float4 g2 = conv2d_1_tf.SampleLevel(sam, pos, 0);
+	float4 g3 = conv2d_1_tf1.SampleLevel(sam, pos, 0);
+	float4 g4 = conv2d_2_tf.SampleLevel(sam, pos, 0);
+	float4 g5 = conv2d_2_tf1.SampleLevel(sam, pos, 0);
+	float4 g6 = conv2d_3_tf.SampleLevel(sam, pos, 0);
+	float4 g7 = conv2d_3_tf1.SampleLevel(sam, pos, 0);
+	float4 g8 = conv2d_4_tf.SampleLevel(sam, pos, 0);
+	float4 g9 = conv2d_4_tf1.SampleLevel(sam, pos, 0);
+	float4 g10 = conv2d_5_tf.SampleLevel(sam, pos, 0);
+	float4 g11 = conv2d_5_tf1.SampleLevel(sam, pos, 0);
+	float4 g12 = conv2d_6_tf.SampleLevel(sam, pos, 0);
+	float4 g13 = conv2d_6_tf1.SampleLevel(sam, pos, 0);
 
 	float4 ng0 = max(-g0, 0);
 	float4 ng1 = max(-g1, 0);
