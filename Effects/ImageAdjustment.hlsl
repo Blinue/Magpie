@@ -2,6 +2,8 @@
 
 //!MAGPIE EFFECT
 //!VERSION 2
+//!OUTPUT_WIDTH INPUT_WIDTH
+//!OUTPUT_HEIGHT INPUT_HEIGHT
 
 
 //!PARAMETER
@@ -95,7 +97,7 @@ float4 Pass1(float2 pos) {
 
     // black level
     color -= blackLevel;
-    color = color / (1 - blackLevel);
+    color = saturate(color / (1 - blackLevel));
 
 	// gamma correction
 	color = pow(color, targetGamma / monitorGamma);
