@@ -1,4 +1,4 @@
-// 移植自 https://github.com/libretro/slang-shaders/blob/master/misc/image-adjustment.slang
+// 移植自 https://github.com/libretro/slang-shaders/blob/3f67e1870dbd5be74ae2f09eaed0eeadce6abd15/misc/image-adjustment.slang
 
 //!MAGPIE EFFECT
 //!VERSION 2
@@ -34,6 +34,27 @@ float contrast;
 //!MIN -1
 //!MAX 1
 float brightBoost;
+
+//!PARAMETER
+//!DEFAULT 0
+//!MIN -1
+//!MAX 1
+float blackLevel;
+
+//!PARAMETER
+//!DEFAULT 1
+//!MIN 0
+float r;
+
+//!PARAMETER
+//!DEFAULT 1
+//!MIN 0
+float g;
+
+//!PARAMETER
+//!DEFAULT 1
+//!MIN 0
+float b;
 
 //!TEXTURE
 Texture2D INPUT;
@@ -72,8 +93,14 @@ float4 Pass1(float2 pos) {
     // contrast and brightness
     color = saturate((color - 0.5) * contrast + 0.5 + brightBoost);
 
-	// Apply gamma correction
+    // black level
+    color -= blackLevel;
+    color = color / (1 - blackLevel);
+
+	// gamma correction
 	color = pow(color, targetGamma / monitorGamma);
+
+    color *= float3(r, g, b);
 
 	return float4(color, 1);
 }
