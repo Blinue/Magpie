@@ -14,6 +14,7 @@
 using namespace winrt;
 using namespace Windows::Globalization::NumberFormatting;
 using namespace Windows::UI::Xaml::Controls;
+using namespace Windows::UI::Xaml::Input;
 
 
 namespace winrt::Magpie::App::implementation {
@@ -85,6 +86,15 @@ void ScalingProfilePage::RenameFlyout_Opening(IInspectable const&, IInspectable 
 
 void ScalingProfilePage::RenameConfirmButton_Click(IInspectable const&, RoutedEventArgs const&) {
 	RenameFlyout().Hide();
+}
+
+void ScalingProfilePage::RenameTextBox_KeyDown(IInspectable const&, Input::KeyRoutedEventArgs const& args) {
+	if (args.Key() == VirtualKey::Enter) {
+		Button btn = RenameConfirmButton();
+		if (btn.IsEnabled()) {
+			RenameConfirmButton_Click(nullptr, nullptr);
+		}
+	}
 }
 
 void ScalingProfilePage::_UpdateHeaderActionStyle() {

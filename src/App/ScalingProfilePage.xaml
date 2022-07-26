@@ -5,7 +5,6 @@
 	  xmlns:local="using:Magpie.App"
 	  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	  xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
-	  xmlns:wgn="using:Windows.Globalization.NumberFormatting"
 	  mc:Ignorable="d">
 	<Page.Resources>
 		<x:Double x:Key="ActionButtonPadding">10</x:Double>
@@ -102,14 +101,16 @@
 					</ToolTipService.ToolTip>
 					<Button.Flyout>
 						<Flyout x:Name="RenameFlyout"
-								Opening="RenameFlyout_Opened"
+								Opening="RenameFlyout_Opening"
 								Placement="Bottom">
-							<StackPanel Orientation="Vertical"
-										Spacing="20">
+							<StackPanel Orientation="Vertical">
+								<TextBlock Text="输入新名称" />
 								<TextBox x:Name="RenameTextBox"
 										 Width="250"
-										 Header="输入新名称" />
-								<Button MinWidth="80"
+										 Margin="0,8,0,20"
+										 KeyDown="RenameTextBox_KeyDown" />
+								<Button x:Name="RenameConfirmButton"
+										MinWidth="80"
 										HorizontalAlignment="Right"
 										Click="RenameConfirmButton_Click"
 										Content="确定"
