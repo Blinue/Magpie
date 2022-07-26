@@ -1,22 +1,23 @@
 <Toolkit:XamlApplication x:Class="Magpie.App.App"
-                         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-                         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                         xmlns:Toolkit="using:Microsoft.Toolkit.Win32.UI.XamlHost"
-                         xmlns:local="using:Magpie.App"
-                         xmlns:muxc="using:Microsoft.UI.Xaml.Controls">
+						 xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+						 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+						 xmlns:Toolkit="using:Microsoft.Toolkit.Win32.UI.XamlHost"
+						 xmlns:local="using:Magpie.App"
+						 xmlns:muxc="using:Microsoft.UI.Xaml.Controls">
 	<Application.Resources>
 		<ResourceDictionary>
 			<Thickness x:Key="NavigationViewContentGridBorderThickness">1,1,0,0</Thickness>
 
-			<Style x:Key="PageHeaderTextStyle" TargetType="TextBlock">
+			<Style x:Key="PageHeaderTextStyle"
+				   TargetType="TextBlock">
 				<Setter Property="FontSize" Value="30" />
 				<Setter Property="Margin" Value="0" />
 				<Setter Property="FontWeight" Value="Bold" />
 			</Style>
 
 			<Style x:Key="ToggleSwitchWithoutText"
-			       BasedOn="{StaticResource DefaultToggleSwitchStyle}"
-			       TargetType="ToggleSwitch">
+				   BasedOn="{StaticResource DefaultToggleSwitchStyle}"
+				   TargetType="ToggleSwitch">
 				<Setter Property="OffContent" Value="" />
 				<Setter Property="OnContent" Value="" />
 				<Setter Property="MinWidth" Value="40" />
@@ -24,14 +25,15 @@
 			</Style>
 
 			<x:Double x:Key="SecondaryTextFontSize">12</x:Double>
-			<Style x:Key="SecondaryTextStyle" TargetType="TextBlock">
+			<Style x:Key="SecondaryTextStyle"
+				   TargetType="TextBlock">
 				<Setter Property="FontSize" Value="{StaticResource SecondaryTextFontSize}" />
 				<Setter Property="Foreground" Value="{ThemeResource TextFillColorSecondaryBrush}" />
 			</Style>
 
 			<Style x:Key="SettingButtonStyle"
-			       BasedOn="{StaticResource DefaultButtonStyle}"
-			       TargetType="Button">
+				   BasedOn="{StaticResource DefaultButtonStyle}"
+				   TargetType="Button">
 				<Setter Property="BorderBrush" Value="{ThemeResource CardBorderBrush}" />
 				<Setter Property="CornerRadius" Value="{ThemeResource ControlCornerRadius}" />
 				<Setter Property="Padding" Value="16,0,16,0" />
@@ -46,8 +48,8 @@
 			<!--  Combo Box  -->
 			<x:Double x:Key="SettingBoxMinWidth">200</x:Double>
 			<Style x:Key="ComboBoxSettingStyle"
-			       BasedOn="{StaticResource DefaultComboBoxStyle}"
-			       TargetType="ComboBox">
+				   BasedOn="{StaticResource DefaultComboBoxStyle}"
+				   TargetType="ComboBox">
 				<Setter Property="MinWidth" Value="{StaticResource SettingBoxMinWidth}" />
 			</Style>
 
@@ -60,7 +62,8 @@
 			<SolidColorBrush x:Key="ExpanderChevronPointerOverBackground">Transparent</SolidColorBrush>
 
 			<!--  Setting used in a Expander header  -->
-			<Style x:Key="ExpanderHeaderSettingStyle" TargetType="local:SettingItem">
+			<Style x:Key="ExpanderHeaderSettingStyle"
+				   TargetType="local:SettingItem">
 				<Setter Property="Background" Value="Transparent" />
 				<Setter Property="BorderThickness" Value="0" />
 				<Setter Property="BorderBrush" Value="Transparent" />
@@ -72,7 +75,8 @@
 			<Thickness x:Key="ExpanderChevronMargin">0,0,8,0</Thickness>
 
 			<!--  Setting used in a Expander header  -->
-			<Style x:Key="ExpanderContentSettingStyle" TargetType="local:SettingItem">
+			<Style x:Key="ExpanderContentSettingStyle"
+				   TargetType="local:SettingItem">
 				<Setter Property="Background" Value="Transparent" />
 				<Setter Property="BorderThickness" Value="0,1,0,0" />
 				<Setter Property="BorderBrush" Value="{ThemeResource CardBorderBrush}" />
@@ -82,7 +86,8 @@
 			</Style>
 
 			<!--  Setting expander style  -->
-			<Style x:Key="SettingExpanderStyle" TargetType="muxc:Expander">
+			<Style x:Key="SettingExpanderStyle"
+				   TargetType="muxc:Expander">
 				<Setter Property="Background" Value="{ThemeResource CardBackgroundBrush}" />
 				<Setter Property="BorderThickness" Value="{ThemeResource CardBorderThickness}" />
 				<Setter Property="BorderBrush" Value="{ThemeResource CardBorderBrush}" />
@@ -90,30 +95,40 @@
 				<Setter Property="HorizontalContentAlignment" Value="Stretch" />
 			</Style>
 
-			<Style x:Key="ExpanderSeparatorStyle" TargetType="Rectangle">
+			<Style x:Key="ExpanderSeparatorStyle"
+				   TargetType="Rectangle">
 				<Setter Property="Height" Value="1" />
 				<Setter Property="Stroke" Value="{ThemeResource CardBorderBrush}" />
 			</Style>
 
 			<ResourceDictionary.ThemeDictionaries>
 				<ResourceDictionary x:Key="Dark">
-					<StaticResource x:Key="CardBackgroundBrush" ResourceKey="CardBackgroundFillColorDefaultBrush" />
-					<StaticResource x:Key="CardBorderBrush" ResourceKey="CardStrokeColorDefaultBrush" />
-					<StaticResource x:Key="CardPrimaryForegroundBrush" ResourceKey="TextFillColorPrimaryBrush" />
+					<StaticResource x:Key="CardBackgroundBrush"
+									ResourceKey="CardBackgroundFillColorDefaultBrush" />
+					<StaticResource x:Key="CardBorderBrush"
+									ResourceKey="CardStrokeColorDefaultBrush" />
+					<StaticResource x:Key="CardPrimaryForegroundBrush"
+									ResourceKey="TextFillColorPrimaryBrush" />
 					<Thickness x:Key="CardBorderThickness">1</Thickness>
 				</ResourceDictionary>
 
 				<ResourceDictionary x:Key="Light">
-					<StaticResource x:Key="CardBackgroundBrush" ResourceKey="CardBackgroundFillColorDefaultBrush" />
-					<StaticResource x:Key="CardBorderBrush" ResourceKey="CardStrokeColorDefaultBrush" />
-					<StaticResource x:Key="CardPrimaryForegroundBrush" ResourceKey="TextFillColorPrimaryBrush" />
+					<StaticResource x:Key="CardBackgroundBrush"
+									ResourceKey="CardBackgroundFillColorDefaultBrush" />
+					<StaticResource x:Key="CardBorderBrush"
+									ResourceKey="CardStrokeColorDefaultBrush" />
+					<StaticResource x:Key="CardPrimaryForegroundBrush"
+									ResourceKey="TextFillColorPrimaryBrush" />
 					<Thickness x:Key="CardBorderThickness">1</Thickness>
 				</ResourceDictionary>
 
 				<ResourceDictionary x:Key="HighContrast">
-					<StaticResource x:Key="CardBackgroundBrush" ResourceKey="SystemColorButtonFaceColorBrush" />
-					<StaticResource x:Key="CardBorderBrush" ResourceKey="SystemColorButtonTextColorBrush" />
-					<StaticResource x:Key="CardPrimaryForegroundBrush" ResourceKey="SystemColorButtonTextColorBrush" />
+					<StaticResource x:Key="CardBackgroundBrush"
+									ResourceKey="SystemColorButtonFaceColorBrush" />
+					<StaticResource x:Key="CardBorderBrush"
+									ResourceKey="SystemColorButtonTextColorBrush" />
+					<StaticResource x:Key="CardPrimaryForegroundBrush"
+									ResourceKey="SystemColorButtonTextColorBrush" />
 					<Thickness x:Key="CardBorderThickness">2</Thickness>
 				</ResourceDictionary>
 			</ResourceDictionary.ThemeDictionaries>

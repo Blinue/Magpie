@@ -23,6 +23,10 @@ struct ScalingProfilePage : ScalingProfilePageT<ScalingProfilePage> {
 		return _numberFormatter;
 	}
 
+	void RenameFlyout_Opening(IInspectable const&, IInspectable const&);
+
+	void RenameConfirmButton_Click(IInspectable const&, RoutedEventArgs const&);
+
 private:
 	void _UpdateHeaderActionStyle();
 

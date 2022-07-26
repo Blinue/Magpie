@@ -144,7 +144,7 @@
 										</ComboBox>
 									</StackPanel>
 
-									<Button Width="100"
+									<Button MinWidth="100"
 											Margin="0,15,0,0"
 											HorizontalAlignment="Right"
 											Click="NewProfileConfirmButton_Click"

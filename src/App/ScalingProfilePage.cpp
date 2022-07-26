@@ -77,6 +77,16 @@ void ScalingProfilePage::CursorScalingComboBox_SelectionChanged(IInspectable con
 	}
 }
 
+void ScalingProfilePage::RenameFlyout_Opening(IInspectable const&, IInspectable const&) {
+	TextBox tb = RenameTextBox();
+	tb.Text(ViewModel().Name());
+	tb.SelectAll();
+}
+
+void ScalingProfilePage::RenameConfirmButton_Click(IInspectable const&, RoutedEventArgs const&) {
+	RenameFlyout().Hide();
+}
+
 void ScalingProfilePage::_UpdateHeaderActionStyle() {
 	StackPanel actionContainer = HeaderActionStackPanel();
 	if (_rootNavigationView.DisplayMode() == MUXC::NavigationViewDisplayMode::Minimal) {
