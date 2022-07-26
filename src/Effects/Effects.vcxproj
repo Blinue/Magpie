@@ -256,11 +256,6 @@
     </CopyFileToFolders>
   </ItemGroup>
   <ItemGroup>
-    <CopyFileToFolders Include="CatmullRom.hlsl">
-      <FileType>Document</FileType>
-    </CopyFileToFolders>
-  </ItemGroup>
-  <ItemGroup>
     <CopyFileToFolders Include="CAS_Scaling.hlsl">
       <FileType>Document</FileType>
     </CopyFileToFolders>

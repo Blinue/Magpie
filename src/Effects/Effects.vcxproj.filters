@@ -23,7 +23,6 @@
     <CopyFileToFolders Include="LumaSharpen.hlsl" />
     <CopyFileToFolders Include="FineSharp.hlsl" />
     <CopyFileToFolders Include="LCAS.hlsl" />
-    <CopyFileToFolders Include="CatmullRom.hlsl" />
     <CopyFileToFolders Include="CAS_Scaling.hlsl" />
     <CopyFileToFolders Include="MMPX.hlsl" />
     <CopyFileToFolders Include="NNEDI3_nns16_win8x4.hlsl" />
@@ -153,6 +152,19 @@
     </CopyFileToFolders>
     <CopyFileToFolders Include="RAVU_Zoom_R3_Weights.dds">
       <Filter>RAVU</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="ImageAdjustment.hlsl" />
+    <CopyFileToFolders Include="Anime4K_Upscale_Denoise_UL.hlsl">
+      <Filter>Anime4K</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Anime4K_Upscale_Denoise_VL.hlsl">
+      <Filter>Anime4K</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Anime4K_Upscale_UL.hlsl">
+      <Filter>Anime4K</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Anime4K_Upscale_VL.hlsl">
+      <Filter>Anime4K</Filter>
     </CopyFileToFolders>
   </ItemGroup>
   <ItemGroup>
