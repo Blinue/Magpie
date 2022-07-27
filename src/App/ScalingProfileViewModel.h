@@ -107,6 +107,7 @@ private:
 	fire_and_forget _LoadIcon(FrameworkElement const& mainPage);
 
 	hstring _renameText;
+	std::wstring_view _trimedRenameText;
 	bool _isRenameConfirmButtonEnabled = false;
 
 	IVector<IInspectable> _graphicsAdapters;

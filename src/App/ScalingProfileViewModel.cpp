@@ -9,6 +9,7 @@
 #include "AppXReader.h"
 #include "IconHelper.h"
 #include "ScalingProfileService.h"
+#include "StrUtils.h"
 
 
 using namespace winrt;
@@ -101,7 +102,9 @@ void ScalingProfileViewModel::RenameText(const hstring& value) {
 	_renameText = value;
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"RenameText"));
 
-	bool newEnabled = !_renameText.empty() && _renameText != _profile.Name();
+	_trimedRenameText = value;
+	StrUtils::Trim(_trimedRenameText);
+	bool newEnabled = !_trimedRenameText.empty() && _trimedRenameText != _profile.Name();
 	if (_isRenameConfirmButtonEnabled != newEnabled) {
 		_isRenameConfirmButtonEnabled = newEnabled;
 		_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsRenameConfirmButtonEnabled"));
@@ -113,7 +116,7 @@ void ScalingProfileViewModel::Rename() {
 		return;
 	}
 
-	ScalingProfileService::Get().RenameProfile(_profileIdx - 1, _renameText);
+	ScalingProfileService::Get().RenameProfile(_profileIdx - 1, _trimedRenameText);
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"Name"));
 }
 

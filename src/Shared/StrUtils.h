@@ -65,6 +65,10 @@ struct StrUtils {
 		Trim<char>(str);
 	}
 
+	static void Trim(std::wstring_view& str) {
+		Trim<wchar_t>(str);
+	}
+
 	template<typename CHAR_T>
 	static void Trim(std::basic_string<CHAR_T>& str) {
 		std::basic_string_view<CHAR_T> sv(str);
