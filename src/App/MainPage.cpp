@@ -64,6 +64,8 @@ MainPage::MainPage() {
 		auto_revoke, { this, &MainPage::_ScalingProfileService_ProfileAdded });
 	_profileRenamedRevoker = scalingProfileService.ProfileRenamed(
 		auto_revoke, { this, &MainPage::_ScalingProfileService_ProfileRenamed });
+	_profileRemovedRevoker = scalingProfileService.ProfileRemoved(
+		auto_revoke, { this, &MainPage::_ScalingProfileService_ProfileRemoved });
 }
 
 void MainPage::Loaded(IInspectable const&, RoutedEventArgs const&) {
@@ -308,4 +310,11 @@ void MainPage::_ScalingProfileService_ProfileRenamed(uint32_t idx) {
 		.Content(box_value(AppSettings::Get().ScalingProfiles()[idx].Name()));
 }
 
-} // namespace winrt::Magpie::implementation
+void MainPage::_ScalingProfileService_ProfileRemoved(uint32_t idx) {
+	MUXC::NavigationView nv = RootNavigationView();
+	IVector<IInspectable> menuItems = nv.MenuItems();
+	nv.SelectedItem(menuItems.GetAt(FIRST_PROFILE_ITEM_IDX - 1));
+	menuItems.RemoveAt(FIRST_PROFILE_ITEM_IDX + idx);
+}
+
+}

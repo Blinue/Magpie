@@ -109,6 +109,11 @@ void ScalingProfilePage::DeleteMenuItem_Click(IInspectable const&, RoutedEventAr
 	DeleteFlyout().ShowAt(MoreOptionsButton());
 }
 
+void ScalingProfilePage::DeleteButton_Click(IInspectable const&, RoutedEventArgs const&) {
+	DeleteFlyout().Hide();
+	_viewModel.Delete();
+}
+
 void ScalingProfilePage::_UpdateHeaderActionStyle() {
 	StackPanel actionContainer = HeaderActionStackPanel();
 	if (_rootNavigationView.DisplayMode() == MUXC::NavigationViewDisplayMode::Minimal) {

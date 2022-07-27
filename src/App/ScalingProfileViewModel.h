@@ -38,6 +38,7 @@ struct ScalingProfileViewModel : ScalingProfileViewModelT<ScalingProfileViewMode
 	}
 
 	void Rename();
+	void Delete();
 
 	int32_t CaptureMode() const noexcept;
 	void CaptureMode(int32_t value);

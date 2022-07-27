@@ -31,6 +31,8 @@ struct ScalingProfilePage : ScalingProfilePageT<ScalingProfilePage> {
 
 	void DeleteMenuItem_Click(IInspectable const&, RoutedEventArgs const&);
 
+	void DeleteButton_Click(IInspectable const&, RoutedEventArgs const&);
+
 private:
 	void _UpdateHeaderActionStyle();
 

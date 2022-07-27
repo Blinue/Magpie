@@ -108,6 +108,7 @@
 								<TextBlock Text="重命名" />
 								<TextBox x:Name="RenameTextBox"
 										 Width="250"
+										 Height="32"
 										 Margin="0,8,0,20"
 										 KeyDown="RenameTextBox_KeyDown"
 										 Text="{x:Bind ViewModel.RenameText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
@@ -131,7 +132,7 @@
 								 Content="更多选项" />
 					</ToolTipService.ToolTip>
 					<Button.Flyout>
-						<MenuFlyout Placement="BottomEdgeAlignedRight">
+						<MenuFlyout Placement="Bottom">
 							<MenuFlyoutItem Text="排序">
 								<MenuFlyoutItem.Icon>
 									<FontIcon Glyph="&#xE8CB;" />
@@ -150,22 +151,9 @@
 													Spacing="15">
 											<TextBlock Text="确定删除此缩放配置？" />
 											<Button HorizontalAlignment="Right"
-													Content="删除">
+													Click="DeleteButton_Click">
 												<Button.Resources>
 													<ResourceDictionary>
-														<Color x:Key="DeleteButtonColorBackground">Firebrick</Color>
-														<SolidColorBrush x:Key="DeleteButtonBackgroundBrush"
-																		 Color="{StaticResource DeleteButtonColorBackground}" />
-														<SolidColorBrush x:Key="DeleteButtonBackgroundPointerOverBrush"
-																		 Opacity="0.9"
-																		 Color="{StaticResource DeleteButtonColorBackground}" />
-														<SolidColorBrush x:Key="DeleteButtonBackgroundPressedBrush"
-																		 Opacity="0.8"
-																		 Color="{StaticResource DeleteButtonColorBackground}" />
-														<SolidColorBrush x:Key="DeleteButtonForegroundBrush"
-																		 Color="#FFFFFF" />
-														<SolidColorBrush x:Key="DeleteButtonForegroundPressedBrush"
-																		 Color="#B3FFFFFF" />
 														<StaticResource x:Key="ButtonBackground"
 																		ResourceKey="DeleteButtonBackgroundBrush" />
 														<StaticResource x:Key="ButtonBackgroundPointerOver"
@@ -180,6 +168,14 @@
 																		ResourceKey="DeleteButtonForegroundPressedBrush" />
 													</ResourceDictionary>
 												</Button.Resources>
+												<Button.Content>
+													<StackPanel Orientation="Horizontal"
+																Spacing="8">
+														<FontIcon FontSize="15"
+																  Glyph="&#xE74D;" />
+														<TextBlock Text="删除" />
+													</StackPanel>
+												</Button.Content>
 											</Button>
 										</StackPanel>
 									</Flyout>

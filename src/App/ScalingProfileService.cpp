@@ -82,6 +82,12 @@ void ScalingProfileService::RenameProfile(uint32_t profileIdx, std::wstring_view
 	_profileRenamedEvent(profileIdx);
 }
 
+void ScalingProfileService::RemoveProfile(uint32_t profileIdx) {
+	std::vector<ScalingProfile>& profiles = AppSettings::Get().ScalingProfiles();
+	profiles.erase(profiles.begin() + profileIdx);
+	_profileRemovedEvent(profileIdx);
+}
+
 ScalingProfile& ScalingProfileService::GetProfileForWindow(HWND hWnd) {
 	std::wstring className = Win32Utils::GetWndClassName(hWnd);
 	std::wstring_view realClassName = GetRealClassName(className);

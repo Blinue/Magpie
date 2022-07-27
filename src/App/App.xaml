@@ -6,15 +6,6 @@
 						 xmlns:muxc="using:Microsoft.UI.Xaml.Controls">
 	<Application.Resources>
 		<ResourceDictionary>
-			<Thickness x:Key="NavigationViewContentGridBorderThickness">1,1,0,0</Thickness>
-
-			<Style x:Key="PageHeaderTextStyle"
-				   TargetType="TextBlock">
-				<Setter Property="FontSize" Value="30" />
-				<Setter Property="Margin" Value="0" />
-				<Setter Property="FontWeight" Value="Bold" />
-			</Style>
-
 			<Style x:Key="ToggleSwitchWithoutText"
 				   BasedOn="{StaticResource DefaultToggleSwitchStyle}"
 				   TargetType="ToggleSwitch">
@@ -100,6 +91,20 @@
 				<Setter Property="Height" Value="1" />
 				<Setter Property="Stroke" Value="{ThemeResource CardBorderBrush}" />
 			</Style>
+
+			<Color x:Key="DeleteButtonBackgroundColor">Firebrick</Color>
+			<SolidColorBrush x:Key="DeleteButtonBackgroundBrush"
+							 Color="{StaticResource DeleteButtonBackgroundColor}" />
+			<SolidColorBrush x:Key="DeleteButtonBackgroundPointerOverBrush"
+							 Opacity="0.9"
+							 Color="{StaticResource DeleteButtonBackgroundColor}" />
+			<SolidColorBrush x:Key="DeleteButtonBackgroundPressedBrush"
+							 Opacity="0.8"
+							 Color="{StaticResource DeleteButtonBackgroundColor}" />
+			<SolidColorBrush x:Key="DeleteButtonForegroundBrush"
+							 Color="#FFFFFF" />
+			<SolidColorBrush x:Key="DeleteButtonForegroundPressedBrush"
+							 Color="#B3FFFFFF" />
 
 			<ResourceDictionary.ThemeDictionaries>
 				<ResourceDictionary x:Key="Dark">

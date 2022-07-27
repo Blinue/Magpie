@@ -48,6 +48,23 @@ public:
 		_profileRenamedEvent.remove(token);
 	}
 
+	void RemoveProfile(uint32_t profileIdx);
+
+	event_token ProfileRemoved(delegate<uint32_t> const& handler) {
+		return _profileRemovedEvent.add(handler);
+	}
+
+	WinRTUtils::EventRevoker ProfileRemoved(auto_revoke_t, delegate<uint32_t> const& handler) {
+		event_token token = ProfileRemoved(handler);
+		return WinRTUtils::EventRevoker([this, token]() {
+			ProfileRemoved(token);
+		});
+	}
+
+	void ProfileRemoved(event_token const& token) {
+		_profileRemovedEvent.remove(token);
+	}
+
 	ScalingProfile& GetProfileForWindow(HWND hWnd);
 
 	ScalingProfile& GetDefaultScalingProfile();
@@ -57,6 +74,7 @@ private:
 
 	event<delegate<ScalingProfile&>> _profileAddedEvent;
 	event<delegate<uint32_t>> _profileRenamedEvent;
+	event<delegate<uint32_t>> _profileRemovedEvent;
 };
 
 }

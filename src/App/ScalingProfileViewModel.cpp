@@ -120,6 +120,14 @@ void ScalingProfileViewModel::Rename() {
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"Name"));
 }
 
+void ScalingProfileViewModel::Delete() {
+	if (_profileIdx == 0) {
+		return;
+	}
+
+	ScalingProfileService::Get().RemoveProfile(_profileIdx - 1);
+}
+
 int32_t ScalingProfileViewModel::CaptureMode() const noexcept {
 	return (int32_t)_profile.MagSettings().CaptureMode();
 }
