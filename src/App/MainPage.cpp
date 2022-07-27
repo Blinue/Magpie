@@ -66,6 +66,8 @@ MainPage::MainPage() {
 		auto_revoke, { this, &MainPage::_ScalingProfileService_ProfileRenamed });
 	_profileRemovedRevoker = scalingProfileService.ProfileRemoved(
 		auto_revoke, { this, &MainPage::_ScalingProfileService_ProfileRemoved });
+	_profileReorderdRevoker = scalingProfileService.ProfileReordered(
+		auto_revoke, { this, &MainPage::_ScalingProfileService_ProfileReordered });
 }
 
 void MainPage::Loaded(IInspectable const&, RoutedEventArgs const&) {
@@ -116,7 +118,7 @@ void MainPage::NavigationView_SelectionChanged(
 			MUXC::NavigationView nv = __super::RootNavigationView();
 			uint32_t index;
 			if (nv.MenuItems().IndexOf(nv.SelectedItem(), index)) {
-				contentFrame.Navigate(winrt::xaml_typename<ScalingProfilePage>(), box_value(index - 3));
+				contentFrame.Navigate(winrt::xaml_typename<ScalingProfilePage>(), box_value((int32_t)index - 4));
 			}
 		}
 	}
@@ -315,6 +317,17 @@ void MainPage::_ScalingProfileService_ProfileRemoved(uint32_t idx) {
 	IVector<IInspectable> menuItems = nv.MenuItems();
 	nv.SelectedItem(menuItems.GetAt(FIRST_PROFILE_ITEM_IDX - 1));
 	menuItems.RemoveAt(FIRST_PROFILE_ITEM_IDX + idx);
+}
+
+void MainPage::_ScalingProfileService_ProfileReordered(uint32_t profileIdx, bool isMoveUp) {
+	IVector<IInspectable> menuItems = RootNavigationView().MenuItems();
+
+	uint32_t curIdx = FIRST_PROFILE_ITEM_IDX + profileIdx;
+	uint32_t otherIdx = isMoveUp ? curIdx - 1 : curIdx + 1;
+	
+	IInspectable otherItem = menuItems.GetAt(otherIdx);
+	menuItems.RemoveAt(otherIdx);
+	menuItems.InsertAt(curIdx, otherItem);
 }
 
 }

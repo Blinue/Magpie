@@ -107,7 +107,7 @@
 							<StackPanel Orientation="Vertical">
 								<TextBlock Text="重命名" />
 								<TextBox x:Name="RenameTextBox"
-										 Width="250"
+										 Width="280"
 										 Height="32"
 										 Margin="0,8,0,20"
 										 KeyDown="RenameTextBox_KeyDown"
@@ -133,13 +133,27 @@
 					</ToolTipService.ToolTip>
 					<Button.Flyout>
 						<MenuFlyout Placement="Bottom">
-							<MenuFlyoutItem Text="排序">
+							<MenuFlyoutItem Click="ReorderMenuItem_Click"
+											Text="重新排序">
 								<MenuFlyoutItem.Icon>
 									<FontIcon Glyph="&#xE8CB;" />
 								</MenuFlyoutItem.Icon>
+								<FlyoutBase.AttachedFlyout>
+									<Flyout x:Name="ReorderFlyout"
+											Placement="Bottom">
+										<StackPanel Orientation="Vertical"
+													Spacing="10">
+											<Button Width="60"
+													Click="{x:Bind ViewModel.MoveUp}"
+													Content="上移" />
+											<Button Width="60"
+													Click="{x:Bind ViewModel.MoveDown}"
+													Content="下移" />
+										</StackPanel>
+									</Flyout>
+								</FlyoutBase.AttachedFlyout>
 							</MenuFlyoutItem>
-							<MenuFlyoutItem x:Name="DeleteMenuItem"
-											Click="DeleteMenuItem_Click"
+							<MenuFlyoutItem Click="DeleteMenuItem_Click"
 											Text="删除">
 								<MenuFlyoutItem.Icon>
 									<FontIcon Glyph="&#xE74D;" />

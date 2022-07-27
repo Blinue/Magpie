@@ -2,7 +2,7 @@ namespace Magpie.App
 {
 	runtimeclass ScalingProfileViewModel : [default] Windows.UI.Xaml.Data.INotifyPropertyChanged
 	{
-		ScalingProfileViewModel(UInt32 profileIdx);
+		ScalingProfileViewModel(Int32 profileIdx);
 
 		Windows.UI.Xaml.Controls.IconElement Icon { get; };
 		String Name { get; };
@@ -11,6 +11,8 @@ namespace Magpie.App
 		String RenameText;
 		Boolean IsRenameConfirmButtonEnabled { get; };
 		void Rename();
+		void MoveUp();
+		void MoveDown();
 		void Delete();
 		
 		Int32 CaptureMode;

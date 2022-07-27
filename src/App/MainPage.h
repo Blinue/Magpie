@@ -50,12 +50,15 @@ private:
 
 	void _ScalingProfileService_ProfileRemoved(uint32_t idx);
 
+	void _ScalingProfileService_ProfileReordered(uint32_t profileIdx, bool isMoveUp);
+
 	Windows::UI::ViewManagement::UISettings _uiSettings;
 
 	Magpie::App::NewProfileViewModel _newProfileViewModel;
 	WinRTUtils::EventRevoker _profileAddedRevoker;
 	WinRTUtils::EventRevoker _profileRenamedRevoker;
 	WinRTUtils::EventRevoker _profileRemovedRevoker;
+	WinRTUtils::EventRevoker _profileReorderdRevoker;
 
 	Windows::Graphics::Display::DisplayInformation _displayInformation{ nullptr };
 	Windows::Graphics::Display::DisplayInformation::DpiChanged_revoker _dpiChangedRevoker;

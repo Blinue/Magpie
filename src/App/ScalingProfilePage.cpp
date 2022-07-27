@@ -55,8 +55,8 @@ ScalingProfilePage::ScalingProfilePage() {
 }
 
 void ScalingProfilePage::OnNavigatedTo(Navigation::NavigationEventArgs const& args) {
-	uint32_t profileId = args.Parameter().as<uint32_t>();
-	_viewModel = make<ScalingProfileViewModel>(profileId);
+	int32_t profileIdx = args.Parameter().as<int32_t>();
+	_viewModel = make<ScalingProfileViewModel>(profileIdx);
 
 	if (_viewModel.GraphicsAdapters().Size() <= 2) {
 		// 只有一个显卡时隐藏显示卡选项
@@ -103,6 +103,10 @@ void ScalingProfilePage::RenameTextBox_KeyDown(IInspectable const&, Input::KeyRo
 			RenameConfirmButton_Click(nullptr, nullptr);
 		}
 	}
+}
+
+void ScalingProfilePage::ReorderMenuItem_Click(IInspectable const&, RoutedEventArgs const&) {
+	ReorderFlyout().ShowAt(MoreOptionsButton());
 }
 
 void ScalingProfilePage::DeleteMenuItem_Click(IInspectable const&, RoutedEventArgs const&) {

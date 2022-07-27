@@ -65,9 +65,30 @@ public:
 		_profileRemovedEvent.remove(token);
 	}
 
+	bool ReorderProfile(uint32_t profileIdx, bool isMoveUp);
+
+	event_token ProfileReordered(delegate<uint32_t, bool> const& handler) {
+		return _profileReorderedEvent.add(handler);
+	}
+
+	WinRTUtils::EventRevoker ProfileReordered(auto_revoke_t, delegate<uint32_t, bool> const& handler) {
+		event_token token = ProfileReordered(handler);
+		return WinRTUtils::EventRevoker([this, token]() {
+			ProfileReordered(token);
+		});
+	}
+
+	void ProfileReordered(event_token const& token) {
+		_profileReorderedEvent.remove(token);
+	}
+
 	ScalingProfile& GetProfileForWindow(HWND hWnd);
 
-	ScalingProfile& GetDefaultScalingProfile();
+	ScalingProfile& DefaultScalingProfile();
+
+	ScalingProfile& GetProfile(uint32_t idx);
+
+	uint32_t GetProfileCount();
 
 private:
 	ScalingProfileService() = default;
@@ -75,6 +96,7 @@ private:
 	event<delegate<ScalingProfile&>> _profileAddedEvent;
 	event<delegate<uint32_t>> _profileRenamedEvent;
 	event<delegate<uint32_t>> _profileRemovedEvent;
+	event<delegate<uint32_t, bool>> _profileReorderedEvent;
 };
 
 }

@@ -88,6 +88,17 @@ void ScalingProfileService::RemoveProfile(uint32_t profileIdx) {
 	_profileRemovedEvent(profileIdx);
 }
 
+bool ScalingProfileService::ReorderProfile(uint32_t profileIdx, bool isMoveUp) {
+	std::vector<ScalingProfile>& profiles = AppSettings::Get().ScalingProfiles();
+	if (isMoveUp ? profileIdx == 0 : profileIdx + 1 >= (uint32_t)profiles.size()) {
+		return false;
+	}
+
+	std::swap(profiles[profileIdx], profiles[isMoveUp ? (size_t)profileIdx - 1 : (size_t)profileIdx + 1]);
+	_profileReorderedEvent(profileIdx, isMoveUp);
+	return true;
+}
+
 ScalingProfile& ScalingProfileService::GetProfileForWindow(HWND hWnd) {
 	std::wstring className = Win32Utils::GetWndClassName(hWnd);
 	std::wstring_view realClassName = GetRealClassName(className);
@@ -112,11 +123,19 @@ ScalingProfile& ScalingProfileService::GetProfileForWindow(HWND hWnd) {
 		}
 	}
 
-	return GetDefaultScalingProfile();
+	return DefaultScalingProfile();
 }
 
-ScalingProfile& ScalingProfileService::GetDefaultScalingProfile() {
+ScalingProfile& ScalingProfileService::DefaultScalingProfile() {
 	return AppSettings::Get().DefaultScalingProfile();
+}
+
+ScalingProfile& ScalingProfileService::GetProfile(uint32_t idx) {
+	return AppSettings::Get().ScalingProfiles()[idx];
+}
+
+uint32_t ScalingProfileService::GetProfileCount() {
+	return (uint32_t)AppSettings::Get().ScalingProfiles().size();
 }
 
 }
