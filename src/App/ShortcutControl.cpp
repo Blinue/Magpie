@@ -55,8 +55,6 @@ ShortcutControl* ShortcutControl::_that = nullptr;
 ShortcutControl::ShortcutControl() {
 	InitializeComponent();
 
-	App app = Application::Current().as<App>();
-
 	_hotkeyChangedRevoker = AppSettings::Get().HotkeyChanged(
 		auto_revoke, { this,&ShortcutControl::_Settings_OnHotkeyChanged });
 }

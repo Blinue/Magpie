@@ -8,6 +8,7 @@
 #include <dxgi1_6.h>
 #include "AppXReader.h"
 #include "IconHelper.h"
+#include "ScalingProfileService.h"
 
 
 using namespace winrt;
@@ -47,10 +48,10 @@ static std::vector<std::wstring> GetAllGraphicsAdapters() {
 	return result;
 }
 
-ScalingProfileViewModel::ScalingProfileViewModel(uint32_t profileId) 
-	: _profile(profileId == 0 ? AppSettings::Get().DefaultScalingProfile() : AppSettings::Get().ScalingProfiles()[profileId - 1]
+ScalingProfileViewModel::ScalingProfileViewModel(uint32_t profileIdx) 
+	: _profileIdx(profileIdx), _profile(profileIdx == 0 ? AppSettings::Get().DefaultScalingProfile() : AppSettings::Get().ScalingProfiles()[profileIdx - 1]
 ) {
-	if (profileId > 0) {
+	if (profileIdx > 0) {
 		MUXC::ImageIcon placeholderIcon;
 		_icon = std::move(placeholderIcon);
 
@@ -96,12 +97,23 @@ hstring ScalingProfileViewModel::Name() const noexcept {
 	return hstring(_profile.Name().empty() ? L"默认" : _profile.Name());
 }
 
-void ScalingProfileViewModel::Name(const hstring& value) {
-	if (_profile.Name() == value) {
+void ScalingProfileViewModel::RenameText(const hstring& value) {
+	_renameText = value;
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"RenameText"));
+
+	bool newEnabled = !_renameText.empty() && _renameText != _profile.Name();
+	if (_isRenameConfirmButtonEnabled != newEnabled) {
+		_isRenameConfirmButtonEnabled = newEnabled;
+		_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsRenameConfirmButtonEnabled"));
+	}
+}
+
+void ScalingProfileViewModel::Rename() {
+	if (_profileIdx == 0 || !_isRenameConfirmButtonEnabled) {
 		return;
 	}
 
-	_profile.Name(value);
+	ScalingProfileService::Get().RenameProfile(_profileIdx - 1, _renameText);
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"Name"));
 }
 

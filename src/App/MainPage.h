@@ -46,10 +46,13 @@ private:
 
 	void _ScalingProfileService_ProfileAdded(ScalingProfile& profile);
 
+	void _ScalingProfileService_ProfileRenamed(uint32_t idx);
+
 	Windows::UI::ViewManagement::UISettings _uiSettings;
 
 	Magpie::App::NewProfileViewModel _newProfileViewModel;
 	WinRTUtils::EventRevoker _profileAddedRevoker;
+	WinRTUtils::EventRevoker _profileRenamedRevoker;
 
 	Windows::Graphics::Display::DisplayInformation _displayInformation{ nullptr };
 	Windows::Graphics::Display::DisplayInformation::DpiChanged_revoker _dpiChangedRevoker;

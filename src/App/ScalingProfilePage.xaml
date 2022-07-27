@@ -105,16 +105,18 @@
 								Opening="RenameFlyout_Opening"
 								Placement="Bottom">
 							<StackPanel Orientation="Vertical">
-								<TextBlock Text="输入新名称" />
+								<TextBlock Text="重命名" />
 								<TextBox x:Name="RenameTextBox"
 										 Width="250"
 										 Margin="0,8,0,20"
-										 KeyDown="RenameTextBox_KeyDown" />
+										 KeyDown="RenameTextBox_KeyDown"
+										 Text="{x:Bind ViewModel.RenameText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
 								<Button x:Name="RenameConfirmButton"
 										MinWidth="80"
 										HorizontalAlignment="Right"
 										Click="RenameConfirmButton_Click"
 										Content="确定"
+										IsEnabled="{x:Bind ViewModel.IsRenameConfirmButtonEnabled, Mode=OneWay}"
 										Style="{StaticResource AccentButtonStyle}" />
 							</StackPanel>
 						</Flyout>

@@ -27,6 +27,8 @@ using namespace Windows::UI::Xaml::Media::Imaging;
 
 namespace winrt::Magpie::App::implementation {
 
+static constexpr const uint32_t FIRST_PROFILE_ITEM_IDX = 4;
+
 MainPage::MainPage() {
 	InitializeComponent();
 
@@ -57,8 +59,11 @@ MainPage::MainPage() {
 		ContentFrame().Navigate(winrt::xaml_typename<Controls::Page>());
 	}
 
-	_profileAddedRevoker = ScalingProfileService::Get().ProfileAdded(
+	ScalingProfileService& scalingProfileService = ScalingProfileService::Get();
+	_profileAddedRevoker = scalingProfileService.ProfileAdded(
 		auto_revoke, { this, &MainPage::_ScalingProfileService_ProfileAdded });
+	_profileRenamedRevoker = scalingProfileService.ProfileRenamed(
+		auto_revoke, { this, &MainPage::_ScalingProfileService_ProfileRenamed });
 }
 
 void MainPage::Loaded(IInspectable const&, RoutedEventArgs const&) {
@@ -271,16 +276,15 @@ IAsyncAction MainPage::_UISettings_ColorValuesChanged(Windows::UI::ViewManagemen
 }
 
 void MainPage::_UpdateIcons(bool skipDesktop) {
-	IVector<IInspectable> navMenuItems = __super::RootNavigationView().MenuItems();
+	IVector<IInspectable> navMenuItems = RootNavigationView().MenuItems();
 	const std::vector<ScalingProfile>& profiles = AppSettings::Get().ScalingProfiles();
-	const uint32_t firstProfileIdx = navMenuItems.Size() - (uint32_t)profiles.size() - 1;
 
 	for (uint32_t i = 0; i < profiles.size(); ++i) {
 		if (skipDesktop && !profiles[i].IsPackaged()) {
 			continue;
 		}
 
-		MUXC::NavigationViewItem item = navMenuItems.GetAt(firstProfileIdx + i).as<MUXC::NavigationViewItem>();
+		MUXC::NavigationViewItem item = navMenuItems.GetAt(FIRST_PROFILE_ITEM_IDX + i).as<MUXC::NavigationViewItem>();
 		_LoadIcon(item, profiles[i]);
 	}
 }
@@ -294,7 +298,14 @@ void MainPage::_ScalingProfileService_ProfileAdded(ScalingProfile& profile) {
 
 	IVector<IInspectable> navMenuItems = __super::RootNavigationView().MenuItems();
 	navMenuItems.InsertAt(navMenuItems.Size() - 1, item);
-	__super::RootNavigationView().SelectedItem(item);
+	RootNavigationView().SelectedItem(item);
+}
+
+void MainPage::_ScalingProfileService_ProfileRenamed(uint32_t idx) {
+	RootNavigationView().MenuItems()
+		.GetAt(FIRST_PROFILE_ITEM_IDX + idx)
+		.as<MUXC::NavigationViewItem>()
+		.Content(box_value(AppSettings::Get().ScalingProfiles()[idx].Name()));
 }
 
 } // namespace winrt::Magpie::implementation

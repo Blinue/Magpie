@@ -76,6 +76,12 @@ bool ScalingProfileService::AddProfile(bool isPackaged, std::wstring_view pathOr
 	return true;
 }
 
+void ScalingProfileService::RenameProfile(uint32_t profileIdx, std::wstring_view newName) {
+	assert(!newName.empty());
+	AppSettings::Get().ScalingProfiles()[profileIdx].Name(newName);
+	_profileRenamedEvent(profileIdx);
+}
+
 ScalingProfile& ScalingProfileService::GetProfileForWindow(HWND hWnd) {
 	std::wstring className = Win32Utils::GetWndClassName(hWnd);
 	std::wstring_view realClassName = GetRealClassName(className);

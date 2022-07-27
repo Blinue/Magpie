@@ -30,8 +30,9 @@ ScalingProfilePage::ScalingProfilePage() {
 	);
 	_UpdateHeaderActionStyle();
 
-	RenameTooltip().RequestedTheme(mainPage.ActualTheme());
-	MoreOptionsTooltip().RequestedTheme(mainPage.ActualTheme());
+	ElementTheme theme = mainPage.ActualTheme();
+	RenameTooltip().RequestedTheme(theme);
+	MoreOptionsTooltip().RequestedTheme(theme);
 
 	if (Win32Utils::GetOSBuild() < 22000) {
 		// Segoe MDL2 Assets 不存在 Move 图标
@@ -84,12 +85,14 @@ void ScalingProfilePage::CursorScalingComboBox_SelectionChanged(IInspectable con
 
 void ScalingProfilePage::RenameFlyout_Opening(IInspectable const&, IInspectable const&) {
 	TextBox tb = RenameTextBox();
-	tb.Text(ViewModel().Name());
-	tb.SelectAll();
+	hstring name = _viewModel.Name();
+	tb.Text(name);
+	tb.SelectionStart(name.size());
 }
 
 void ScalingProfilePage::RenameConfirmButton_Click(IInspectable const&, RoutedEventArgs const&) {
 	RenameFlyout().Hide();
+	_viewModel.Rename();
 }
 
 void ScalingProfilePage::RenameTextBox_KeyDown(IInspectable const&, Input::KeyRoutedEventArgs const& args) {

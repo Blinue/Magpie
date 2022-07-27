@@ -31,6 +31,23 @@ public:
 		_profileAddedEvent.remove(token);
 	}
 
+	void RenameProfile(uint32_t profileIdx, std::wstring_view newName);
+
+	event_token ProfileRenamed(delegate<uint32_t> const& handler) {
+		return _profileRenamedEvent.add(handler);
+	}
+
+	WinRTUtils::EventRevoker ProfileRenamed(auto_revoke_t, delegate<uint32_t> const& handler) {
+		event_token token = ProfileRenamed(handler);
+		return WinRTUtils::EventRevoker([this, token]() {
+			ProfileRenamed(token);
+		});
+	}
+
+	void ProfileRenamed(event_token const& token) {
+		_profileRenamedEvent.remove(token);
+	}
+
 	ScalingProfile& GetProfileForWindow(HWND hWnd);
 
 	ScalingProfile& GetDefaultScalingProfile();
@@ -39,6 +56,7 @@ private:
 	ScalingProfileService() = default;
 
 	event<delegate<ScalingProfile&>> _profileAddedEvent;
+	event<delegate<uint32_t>> _profileRenamedEvent;
 };
 
 }

@@ -9,7 +9,7 @@ class ScalingProfile;
 namespace winrt::Magpie::App::implementation {
 
 struct ScalingProfileViewModel : ScalingProfileViewModelT<ScalingProfileViewModel> {
-	ScalingProfileViewModel(uint32_t profileId);
+	ScalingProfileViewModel(uint32_t profileIdx);
 
 	event_token PropertyChanged(PropertyChangedEventHandler const& handler) {
 		return _propertyChangedEvent.add(handler);
@@ -26,7 +26,18 @@ struct ScalingProfileViewModel : ScalingProfileViewModelT<ScalingProfileViewMode
 	bool IsNotDefaultScalingProfile() const noexcept;
 
 	hstring Name() const noexcept;
-	void Name(const hstring& value);
+
+	hstring RenameText() const noexcept {
+		return _renameText;
+	}
+
+	void RenameText(const hstring& value);
+
+	bool IsRenameConfirmButtonEnabled() const noexcept {
+		return _isRenameConfirmButtonEnabled;
+	}
+
+	void Rename();
 
 	int32_t CaptureMode() const noexcept;
 	void CaptureMode(int32_t value);
@@ -95,9 +106,14 @@ struct ScalingProfileViewModel : ScalingProfileViewModelT<ScalingProfileViewMode
 private:
 	fire_and_forget _LoadIcon(FrameworkElement const& mainPage);
 
+	hstring _renameText;
+	bool _isRenameConfirmButtonEnabled = false;
+
 	IVector<IInspectable> _graphicsAdapters;
 
 	event<PropertyChangedEventHandler> _propertyChangedEvent;
+
+	uint32_t _profileIdx = 0;
 	ScalingProfile& _profile;
 
 	MainPage::ActualThemeChanged_revoker _themeChangedRevoker;
