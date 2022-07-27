@@ -22,12 +22,16 @@ namespace winrt::Magpie::App::implementation {
 ScalingProfilePage::ScalingProfilePage() {
 	InitializeComponent();
 
-	_rootNavigationView = Application::Current().as<App>().MainPage().RootNavigationView();
+	MainPage mainPage = Application::Current().as<App>().MainPage();
+	_rootNavigationView = mainPage.RootNavigationView();
 	_displayModeChangedRevoker = _rootNavigationView.DisplayModeChanged(
 		auto_revoke,
 		[&](auto const&, auto const&) { _UpdateHeaderActionStyle(); }
 	);
 	_UpdateHeaderActionStyle();
+
+	RenameTooltip().RequestedTheme(mainPage.ActualTheme());
+	MoreOptionsTooltip().RequestedTheme(mainPage.ActualTheme());
 
 	if (Win32Utils::GetOSBuild() < 22000) {
 		// Segoe MDL2 Assets 不存在 Move 图标

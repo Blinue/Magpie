@@ -97,7 +97,8 @@
 						<FontIcon Glyph="&#xE8AC;" />
 					</Button.Content>
 					<ToolTipService.ToolTip>
-						<ToolTip Content="重命名" />
+						<ToolTip x:Name="RenameTooltip"
+								 Content="重命名" />
 					</ToolTipService.ToolTip>
 					<Button.Flyout>
 						<Flyout x:Name="RenameFlyout"
@@ -124,7 +125,8 @@
 						<FontIcon Glyph="&#xE712;" />
 					</Button.Content>
 					<ToolTipService.ToolTip>
-						<ToolTip Content="更多选项" />
+						<ToolTip x:Name="MoreOptionsTooltip"
+								 Content="更多选项" />
 					</ToolTipService.ToolTip>
 					<Button.Flyout>
 						<MenuFlyout Placement="BottomEdgeAlignedRight">
