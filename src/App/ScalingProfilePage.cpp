@@ -14,6 +14,7 @@
 using namespace winrt;
 using namespace Windows::Globalization::NumberFormatting;
 using namespace Windows::UI::Xaml::Controls;
+using namespace Windows::UI::Xaml::Controls::Primitives;
 using namespace Windows::UI::Xaml::Input;
 
 
@@ -102,6 +103,10 @@ void ScalingProfilePage::RenameTextBox_KeyDown(IInspectable const&, Input::KeyRo
 			RenameConfirmButton_Click(nullptr, nullptr);
 		}
 	}
+}
+
+void ScalingProfilePage::DeleteMenuItem_Click(IInspectable const&, RoutedEventArgs const&) {
+	DeleteFlyout().ShowAt(MoreOptionsButton());
 }
 
 void ScalingProfilePage::_UpdateHeaderActionStyle() {

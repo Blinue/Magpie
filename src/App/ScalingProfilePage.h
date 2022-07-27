@@ -29,6 +29,8 @@ struct ScalingProfilePage : ScalingProfilePageT<ScalingProfilePage> {
 
 	void RenameTextBox_KeyDown(IInspectable const&, Input::KeyRoutedEventArgs const& args);
 
+	void DeleteMenuItem_Click(IInspectable const&, RoutedEventArgs const&);
+
 private:
 	void _UpdateHeaderActionStyle();
 

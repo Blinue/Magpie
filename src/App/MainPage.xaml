@@ -84,7 +84,6 @@
 										   FontSize="18"
 										   FontWeight="SemiBold"
 										   Text="添加新配置" />
-
 								<StackPanel Width="280"
 											HorizontalAlignment="Center"
 											VerticalAlignment="Center"
@@ -143,7 +142,6 @@
 											</ComboBox.ItemTemplate>
 										</ComboBox>
 									</StackPanel>
-
 									<Button MinWidth="100"
 											Margin="0,15,0,0"
 											HorizontalAlignment="Right"

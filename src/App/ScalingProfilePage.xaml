@@ -122,7 +122,7 @@
 						</Flyout>
 					</Button.Flyout>
 				</Button>
-				<Button>
+				<Button x:Name="MoreOptionsButton">
 					<Button.Content>
 						<FontIcon Glyph="&#xE712;" />
 					</Button.Content>
@@ -137,10 +137,53 @@
 									<FontIcon Glyph="&#xE8CB;" />
 								</MenuFlyoutItem.Icon>
 							</MenuFlyoutItem>
-							<MenuFlyoutItem Text="删除">
+							<MenuFlyoutItem x:Name="DeleteMenuItem"
+											Click="DeleteMenuItem_Click"
+											Text="删除">
 								<MenuFlyoutItem.Icon>
 									<FontIcon Glyph="&#xE74D;" />
 								</MenuFlyoutItem.Icon>
+								<FlyoutBase.AttachedFlyout>
+									<Flyout x:Name="DeleteFlyout"
+											Placement="Bottom">
+										<StackPanel Orientation="Vertical"
+													Spacing="15">
+											<TextBlock Text="确定删除此缩放配置？" />
+											<Button HorizontalAlignment="Right"
+													Content="删除">
+												<Button.Resources>
+													<ResourceDictionary>
+														<Color x:Key="DeleteButtonColorBackground">Firebrick</Color>
+														<SolidColorBrush x:Key="DeleteButtonBackgroundBrush"
+																		 Color="{StaticResource DeleteButtonColorBackground}" />
+														<SolidColorBrush x:Key="DeleteButtonBackgroundPointerOverBrush"
+																		 Opacity="0.9"
+																		 Color="{StaticResource DeleteButtonColorBackground}" />
+														<SolidColorBrush x:Key="DeleteButtonBackgroundPressedBrush"
+																		 Opacity="0.8"
+																		 Color="{StaticResource DeleteButtonColorBackground}" />
+														<SolidColorBrush x:Key="DeleteButtonForegroundBrush"
+																		 Color="#FFFFFF" />
+														<SolidColorBrush x:Key="DeleteButtonForegroundPressedBrush"
+																		 Color="#B3FFFFFF" />
+														<StaticResource x:Key="ButtonBackground"
+																		ResourceKey="DeleteButtonBackgroundBrush" />
+														<StaticResource x:Key="ButtonBackgroundPointerOver"
+																		ResourceKey="DeleteButtonBackgroundPointerOverBrush" />
+														<StaticResource x:Key="ButtonBackgroundPressed"
+																		ResourceKey="DeleteButtonBackgroundPressedBrush" />
+														<StaticResource x:Key="ButtonForeground"
+																		ResourceKey="DeleteButtonForegroundBrush" />
+														<StaticResource x:Key="ButtonForegroundPointerOver"
+																		ResourceKey="DeleteButtonForegroundBrush" />
+														<StaticResource x:Key="ButtonForegroundPressed"
+																		ResourceKey="DeleteButtonForegroundPressedBrush" />
+													</ResourceDictionary>
+												</Button.Resources>
+											</Button>
+										</StackPanel>
+									</Flyout>
+								</FlyoutBase.AttachedFlyout>
 							</MenuFlyoutItem>
 						</MenuFlyout>
 					</Button.Flyout>
