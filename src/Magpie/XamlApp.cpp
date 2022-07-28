@@ -9,6 +9,7 @@
 #include <uxtheme.h>
 #include <fmt/xchar.h>
 #include <winrt/Magpie.Runtime.h>
+#include "resource.h"
 
 #pragma comment(lib, "UxTheme.lib")
 
@@ -73,15 +74,10 @@ bool XamlApp::Initialize(HINSTANCE hInstance) {
 
 		wcex.cbSize = sizeof(WNDCLASSEX);
 		wcex.lpfnWndProc = _WndProcStatic;
-		wcex.cbClsExtra = 0;
-		wcex.cbWndExtra = 0;
 		wcex.hInstance = hInstance;
-		wcex.hIcon = NULL;
+		wcex.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_APP));
 		wcex.hCursor = LoadCursor(nullptr, IDC_ARROW);
-		wcex.hbrBackground = NULL;
-		wcex.lpszMenuName = NULL;
 		wcex.lpszClassName = CommonSharedConstants::XAML_HOST_CLASS_NAME;
-		wcex.hIconSm = NULL;
 
 		RegisterClassEx(&wcex);
 	}
