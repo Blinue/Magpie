@@ -4,13 +4,13 @@
 
 namespace winrt::Magpie::App {
 
-class NotifyIconService {
+class TrayIconService {
 public:
-	NotifyIconService(const NotifyIconService&) = delete;
-	NotifyIconService(NotifyIconService&&) = default;
+	TrayIconService(const TrayIconService&) = delete;
+	TrayIconService(TrayIconService&&) = default;
 
-	static NotifyIconService& Get() {
-		static NotifyIconService instance;
+	static TrayIconService& Get() {
+		static TrayIconService instance;
 		return instance;
 	}
 
@@ -24,7 +24,7 @@ private:
 	}
 	LRESULT _WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
-	NotifyIconService();
+	TrayIconService();
 
 	HINSTANCE _hInst = NULL;
 	NOTIFYICONDATA _nid{};

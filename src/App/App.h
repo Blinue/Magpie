@@ -13,6 +13,8 @@ public:
 
 	void OnClose();
 
+	void OnDestroy();
+
 	bool Initialize(uint64_t hwndHost, uint64_t pWndRect, uint64_t pIsWndMaximized);
 
 	uint64_t HwndHost() const noexcept {

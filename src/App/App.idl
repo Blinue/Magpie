@@ -37,6 +37,7 @@ namespace Magpie.App {
 		App();
 
 		void OnClose();
+		void OnDestroy();
 
 		Boolean Initialize(UInt64 hwndHost, UInt64 pWndRect, UInt64 pIsWndMaximized);
 

@@ -446,10 +446,14 @@ LRESULT XamlApp::_WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	}
 	case WM_CLOSE:
 	{
+		ShowWindow(_hwndXamlHost, SW_HIDE);
 		_uwpApp.OnClose();
-		break;
+
+		// 阻止关闭
+		return 0;
 	}
 	case WM_DESTROY:
+		_uwpApp.OnDestroy();
 		PostQuitMessage(0);
 		return 0;
 	}

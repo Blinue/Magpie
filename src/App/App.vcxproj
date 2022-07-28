@@ -126,7 +126,7 @@
       <DependentUpon>NewProfileViewModel.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
-    <ClInclude Include="NotifyIconService.h" />
+    <ClInclude Include="TrayIconService.h" />
     <ClInclude Include="ScalingProfile.h" />
     <ClInclude Include="ScalingProfilePage.h">
       <DependentUpon>ScalingProfilePage.xaml</DependentUpon>
@@ -236,7 +236,7 @@
       <DependentUpon>NewProfileViewModel.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
-    <ClCompile Include="NotifyIconService.cpp" />
+    <ClCompile Include="TrayconService.cpp" />
     <ClCompile Include="ScalingProfile.cpp" />
     <ClCompile Include="ScalingProfilePage.cpp">
       <DependentUpon>ScalingProfilePage.xaml</DependentUpon>
