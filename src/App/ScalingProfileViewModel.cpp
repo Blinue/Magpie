@@ -122,6 +122,14 @@ void ScalingProfileViewModel::Rename() {
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"Name"));
 }
 
+bool ScalingProfileViewModel::CanMoveUp() const noexcept {
+	return !_isDefaultProfile && _profileIdx != 0;
+}
+
+bool ScalingProfileViewModel::CanMoveDown() const noexcept {
+	return !_isDefaultProfile && _profileIdx + 1 < ScalingProfileService::Get().GetProfileCount();
+}
+
 void ScalingProfileViewModel::MoveUp() {
 	if (_isDefaultProfile) {
 		return;
@@ -134,6 +142,9 @@ void ScalingProfileViewModel::MoveUp() {
 
 	--_profileIdx;
 	_profile = &scalingProfileService.GetProfile(_profileIdx);
+
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CanMoveUp"));
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CanMoveDown"));
 }
 
 void ScalingProfileViewModel::MoveDown() {
@@ -148,6 +159,9 @@ void ScalingProfileViewModel::MoveDown() {
 
 	++_profileIdx;
 	_profile = &scalingProfileService.GetProfile(_profileIdx);
+
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CanMoveUp"));
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CanMoveDown"));
 }
 
 void ScalingProfileViewModel::Delete() {

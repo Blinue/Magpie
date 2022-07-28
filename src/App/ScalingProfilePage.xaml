@@ -141,14 +141,33 @@
 								<FlyoutBase.AttachedFlyout>
 									<Flyout x:Name="ReorderFlyout"
 											Placement="Bottom">
-										<StackPanel Orientation="Vertical"
-													Spacing="10">
-											<Button Width="60"
+										<StackPanel Orientation="Vertical">
+											<TextBlock Text="重新排序" />
+											<Button Margin="0,15,0,10"
+													HorizontalAlignment="Center"
 													Click="{x:Bind ViewModel.MoveUp}"
-													Content="上移" />
-											<Button Width="60"
+													IsEnabled="{x:Bind ViewModel.CanMoveUp, Mode=OneWay}">
+												<StackPanel Orientation="Horizontal"
+															Spacing="8">
+													<FontIcon VerticalAlignment="Center"
+															  FontSize="15"
+															  Glyph="&#xe74a;" />
+													<TextBlock VerticalAlignment="Center"
+															   Text="上移" />
+												</StackPanel>
+											</Button>
+											<Button HorizontalAlignment="Center"
 													Click="{x:Bind ViewModel.MoveDown}"
-													Content="下移" />
+													IsEnabled="{x:Bind ViewModel.CanMoveDown, Mode=OneWay}">
+												<StackPanel Orientation="Horizontal"
+															Spacing="8">
+													<FontIcon VerticalAlignment="Center"
+															  FontSize="15"
+															  Glyph="&#xe74b;" />
+													<TextBlock VerticalAlignment="Center"
+															   Text="下移" />
+												</StackPanel>
+											</Button>
 										</StackPanel>
 									</Flyout>
 								</FlyoutBase.AttachedFlyout>
@@ -185,9 +204,11 @@
 												<Button.Content>
 													<StackPanel Orientation="Horizontal"
 																Spacing="8">
-														<FontIcon FontSize="15"
+														<FontIcon VerticalAlignment="Center"
+																  FontSize="15"
 																  Glyph="&#xE74D;" />
-														<TextBlock Text="删除" />
+														<TextBlock VerticalAlignment="Center"
+																   Text="删除" />
 													</StackPanel>
 												</Button.Content>
 											</Button>

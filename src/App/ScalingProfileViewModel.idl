@@ -11,8 +11,12 @@ namespace Magpie.App
 		String RenameText;
 		Boolean IsRenameConfirmButtonEnabled { get; };
 		void Rename();
+
+		Boolean CanMoveUp { get; };
+		Boolean CanMoveDown { get; };
 		void MoveUp();
 		void MoveDown();
+
 		void Delete();
 		
 		Int32 CaptureMode;

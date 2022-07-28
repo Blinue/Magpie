@@ -39,6 +39,10 @@ struct ScalingProfileViewModel : ScalingProfileViewModelT<ScalingProfileViewMode
 
 	void Rename();
 
+	bool CanMoveUp() const noexcept;
+
+	bool CanMoveDown() const noexcept;
+
 	void MoveUp();
 
 	void MoveDown();
