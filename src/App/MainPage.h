@@ -23,7 +23,7 @@ struct MainPage : MainPageT<MainPage> {
 
 	void NavigationView_DisplayModeChanged(MUXC::NavigationView const&, MUXC::NavigationViewDisplayModeChangedEventArgs const&);
 
-	void NavigationView_ItemInvoked(MUXC::NavigationView const&, MUXC::NavigationViewItemInvokedEventArgs const& args);
+	IAsyncAction NavigationView_ItemInvoked(MUXC::NavigationView const&, MUXC::NavigationViewItemInvokedEventArgs const& args);
 
 	MUXC::NavigationView RootNavigationView();
 

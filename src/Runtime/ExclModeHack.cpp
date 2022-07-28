@@ -1,6 +1,5 @@
 #include "pch.h"
 #include "ExclModeHack.h"
-#include <shellapi.h>
 #include "MagApp.h"
 #include "Logger.h"
 

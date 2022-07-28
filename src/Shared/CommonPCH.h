@@ -34,6 +34,7 @@
 #include <windowsx.h>
 #include <dwmapi.h>
 #include <ShlObj.h>
+#include <shellapi.h>
 
 // C++ 运行时头文件
 #include <cstdlib>

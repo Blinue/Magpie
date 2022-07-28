@@ -4,7 +4,6 @@
 #include "Utils.h"
 #include "Win32Utils.h"
 #include "StrUtils.h"
-#include <shellapi.h>
 
 using namespace winrt;
 using namespace Windows::Graphics::Imaging;

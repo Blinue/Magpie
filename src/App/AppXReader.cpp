@@ -6,7 +6,6 @@
 #include "Logger.h"
 #include <appmodel.h>
 #include <Shlwapi.h>
-#include <shellapi.h>
 #include <propkey.h>
 #include <regex>
 #include <wincodec.h>

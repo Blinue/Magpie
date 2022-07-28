@@ -151,14 +151,14 @@ void MainPage::NavigationView_DisplayModeChanged(MUXC::NavigationView const&, MU
 	XamlUtils::UpdateThemeOfTooltips(*this, ActualTheme());
 }
 
-void MainPage::NavigationView_ItemInvoked(MUXC::NavigationView const&, MUXC::NavigationViewItemInvokedEventArgs const& args) {
+IAsyncAction MainPage::NavigationView_ItemInvoked(MUXC::NavigationView const&, MUXC::NavigationViewItemInvokedEventArgs const& args) {
 	if (args.InvokedItemContainer() == NewProfileNavigationViewItem()) {
 		const UINT dpi = (UINT)std::lroundf(_displayInformation.LogicalDpi());
 		const bool isLightTheme = ActualTheme() == ElementTheme::Light;
 		_newProfileViewModel.PrepareForOpen(dpi, isLightTheme, Dispatcher());
 
 		// 同步调用 ShowAt 有时会失败
-		Dispatcher().TryRunAsync(CoreDispatcherPriority::Normal, [this]() {
+		co_await Dispatcher().TryRunAsync(CoreDispatcherPriority::Normal, [this]() {
 			// 仅限 Win10：导航栏处于 Minimal 状态时会导致 Flyout 不在正确位置弹出
 			// 有一个修复方法，但会导致性能损失
 			NewProfileFlyout().ShowAt(NewProfileNavigationViewItem());
