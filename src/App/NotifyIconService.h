@@ -5,6 +5,7 @@
 namespace winrt::Magpie::App {
 
 class NotifyIconService {
+public:
 	NotifyIconService(const NotifyIconService&) = delete;
 	NotifyIconService(NotifyIconService&&) = default;
 
@@ -26,7 +27,7 @@ private:
 	NotifyIconService();
 
 	HINSTANCE _hInst = NULL;
-	HWND _hWnd = NULL;
+	NOTIFYICONDATA _nid{};
 };
 
 }

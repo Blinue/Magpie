@@ -76,6 +76,7 @@ static_assert(false, "Build CONAN_INSTALL first!")
 
 #pragma comment(lib, "dwmapi.lib")
 #pragma comment(lib, "shell32.lib")
+#pragma comment(lib, "Comctl32.lib")
 
 using namespace std::string_literals;
 using namespace std::string_view_literals;

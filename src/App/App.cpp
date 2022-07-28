@@ -7,6 +7,7 @@
 #include "Logger.h"
 #include "HotkeyService.h"
 #include "AppSettings.h"
+#include "NotifyIconService.h"
 
 
 using namespace winrt;
@@ -44,6 +45,8 @@ App::App() {
 	}
 
 	_displayInformation = Windows::Graphics::Display::DisplayInformation::GetForCurrentView();
+
+	NotifyIconService::Get().Show();
 }
 
 App::~App() {
@@ -52,6 +55,8 @@ App::~App() {
 
 void App::OnClose() {
 	AppSettings::Get().Save();
+
+	NotifyIconService::Get().Hide();
 }
 
 bool App::Initialize(uint64_t hwndHost, uint64_t pWndRect, uint64_t pIsWndMaximized) {

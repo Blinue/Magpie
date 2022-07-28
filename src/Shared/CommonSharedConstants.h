@@ -15,4 +15,9 @@ struct CommonSharedConstants {
 	static constexpr const wchar_t* EFFECTS_DIR_W = L"effects\\";
 	static constexpr const wchar_t* ASSETS_DIR_W = L"assets\\";
 	static constexpr const wchar_t* CACHE_DIR_W = L"cache\\";
+
+	// 来自 Magpie\resource.h
+	static constexpr UINT IDI_APP = 101;
+
+	static constexpr UINT WM_NOTIFY_ICON = WM_USER;
 };
