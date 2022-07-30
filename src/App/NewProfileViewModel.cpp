@@ -187,7 +187,8 @@ void NewProfileViewModel::Confirm() const noexcept {
 
 	CandidateWindowItem selectedItem = _candidateWindows.GetAt(_candidateWindowIndex).as<CandidateWindowItem>();
 	hstring aumid = selectedItem.AUMID();
-	ScalingProfileService::Get().AddProfile(!aumid.empty(), aumid.empty() ? selectedItem.Path() : aumid, selectedItem.ClassName(), _name);
+	ScalingProfileService::Get().AddProfile(!aumid.empty(), aumid.empty() ? selectedItem.Path() : aumid,
+		selectedItem.ClassName(), _name, _profileIndex - 1);
 }
 
 }

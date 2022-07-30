@@ -54,7 +54,20 @@ bool ScalingProfileService::TestNewProfile(bool isPackaged, std::wstring_view pa
 	return RealTestNewProfile(isPackaged, pathOrAumid, GetRealClassName(className));
 }
 
-bool ScalingProfileService::AddProfile(bool isPackaged, std::wstring_view pathOrAumid, std::wstring_view className, std::wstring_view name) {
+static void CopyProfile(ScalingProfile& target, const ScalingProfile& source) {
+	target.CursorScaling(source.CursorScaling());
+	target.CustomCursorScaling(source.CustomCursorScaling());
+	target.IsCroppingEnabled(source.IsCroppingEnabled());
+	target.MagSettings().CopyFrom(source.MagSettings());
+}
+
+bool ScalingProfileService::AddProfile(
+	bool isPackaged,
+	std::wstring_view pathOrAumid,
+	std::wstring_view className,
+	std::wstring_view name,
+	int copyFrom
+) {
 	if (pathOrAumid.empty() || className.empty() || name.empty()) {
 		return false;
 	}
@@ -65,12 +78,19 @@ bool ScalingProfileService::AddProfile(bool isPackaged, std::wstring_view pathOr
 		return false;
 	}
 
-	ScalingProfile& profile = AppSettings::Get().ScalingProfiles().emplace_back();
+	std::vector<ScalingProfile>& profiles = AppSettings::Get().ScalingProfiles();
+	ScalingProfile& profile = profiles.emplace_back();
+	if (copyFrom < 0) {
+		CopyProfile(profile, DefaultScalingProfile());
+	} else {
+		CopyProfile(profile, profiles[copyFrom]);
+	}
+	
+	profile.Name(name);
 	profile.IsPackaged(isPackaged);
 	profile.PathRule(pathOrAumid);
 	profile.ClassNameRule(realClassName);
-	profile.Name(name);
-
+	
 	_profileAddedEvent(std::ref(profile));
 
 	return true;

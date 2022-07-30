@@ -133,7 +133,7 @@ void PageFrame::_UpdateHeaderStyle() {
 		
 		textBlock.FontSize(20);
 	} else {
-		bool isWin11 = false;// Win32Utils::GetOSBuild() >= 22000;
+		bool isWin11 = Win32Utils::GetOSBuild() >= 22000;
 		HeaderGrid().Margin({ 0, isWin11 ? 22.0 : 41.5, 0, 0 });
 		IconContainer().Visibility(icon ? Visibility::Visible : Visibility::Collapsed);
 		
