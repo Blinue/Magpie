@@ -13,8 +13,7 @@
 
 	<Grid Margin="20,0,0,0">
 		<Grid.RowDefinitions>
-			<RowDefinition x:Name="HeaderRowDefinition"
-						   Height="75" />
+			<RowDefinition Height="Auto" />
 			<RowDefinition Height="*" />
 		</Grid.RowDefinitions>
 
@@ -25,39 +24,28 @@
 				<ColumnDefinition Width="*"
 								  MaxWidth="{StaticResource PageMaxWidth}" />
 			</Grid.ColumnDefinitions>
-			<Grid>
+			<Grid Margin="0,0,20,15">
 				<Grid.ColumnDefinitions>
 					<ColumnDefinition Width="Auto" />
 					<ColumnDefinition Width="*" />
 					<ColumnDefinition Width="Auto" />
 				</Grid.ColumnDefinitions>
 				<ContentControl x:Name="IconContainer"
-								Margin="0,0,15,0"
-								VerticalAlignment="Center"
+								Grid.Column="0"
+								Margin="0,8,15,0"
 								Content="{x:Bind Icon, Mode=OneWay}"
 								IsTabStop="False" />
-				<StackPanel Grid.Column="1"
-							VerticalAlignment="Center">
-					<TextBlock x:Name="TitleTextBlock"
-							   Margin="0"
-							   Padding="0"
-							   VerticalAlignment="Center"
-							   local:TextBlockHelper.IsAutoTooltip="True"
-							   FontWeight="SemiBold"
-							   LineStackingStrategy="BlockLineHeight"
-							   Text="{x:Bind Title, Mode=OneWay}"
-							   TextTrimming="CharacterEllipsis" />
-				</StackPanel>
-				<StackPanel Grid.Column="2"
-							VerticalAlignment="Center">
-					<ContentControl x:Name="HeaderActionPresenter"
-									Margin="0,0,20,0"
-									VerticalAlignment="Center"
-									VerticalContentAlignment="Center"
-									Content="{x:Bind HeaderAction, Mode=OneWay}"
-									IsTabStop="False" />
-				</StackPanel>
-
+				<TextBlock x:Name="TitleTextBlock"
+						   Grid.Column="1"
+						   local:TextBlockHelper.IsAutoTooltip="True"
+						   FontWeight="SemiBold"
+						   Text="{x:Bind Title, Mode=OneWay}"
+						   TextTrimming="CharacterEllipsis" />
+				<ContentControl x:Name="HeaderActionPresenter"
+								Grid.Column="2"
+								VerticalContentAlignment="Center"
+								Content="{x:Bind HeaderAction, Mode=OneWay}"
+								IsTabStop="False" />
 			</Grid>
 		</Grid>
 

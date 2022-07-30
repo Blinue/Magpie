@@ -6,11 +6,11 @@
 	  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	  xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
 	  mc:Ignorable="d">
-	<local:PageFrame Title="Magpie">
+	<local:PageFrame Title="主页">
 		<StackPanel HorizontalAlignment="Stretch"
 					Orientation="Vertical">
 			<local:SettingsGroup Title="激活"
-								 Margin="0,-20,0,0">
+								 Margin="0,-25,0,0">
 				<local:SettingItem Title="快捷键">
 					<local:SettingItem.Icon>
 						<FontIcon Glyph="&#xEDA7;" />

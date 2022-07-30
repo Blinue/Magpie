@@ -11,7 +11,7 @@
 		<StackPanel HorizontalAlignment="Stretch"
 					Orientation="Vertical">
 			<local:SettingsGroup Title="外观和行为"
-								 Margin="0,-20,0,0">
+								 Margin="0,-25,0,0">
 				<local:SettingItem Title="主题">
 					<local:SettingItem.Icon>
 						<FontIcon Glyph="&#xEF1F;" />

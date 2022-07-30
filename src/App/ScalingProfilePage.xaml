@@ -81,18 +81,12 @@
 							</ResourceDictionary>
 						</ResourceDictionary.ThemeDictionaries>
 
-						<Style TargetType="Button">
-							<Setter Property="MinWidth" Value="36" />
-							<Setter Property="MinHeight" Value="36" />
-							<Setter Property="CornerRadius" Value="{StaticResource ControlCornerRadius}" />
-							<Setter Property="FontSize" Value="16" />
-						</Style>
 						<Style TargetType="FontIcon">
 							<Setter Property="FontSize" Value="18" />
 						</Style>
 					</ResourceDictionary>
 				</StackPanel.Resources>
-				<Button>
+				<Button Padding="0">
 					<Button.Content>
 						<FontIcon Glyph="&#xE8AC;" />
 					</Button.Content>
@@ -124,7 +118,7 @@
 						</Flyout>
 					</Button.Flyout>
 				</Button>
-				<Button x:Name="MoreOptionsButton">
+				<Button x:Name="MoreOptionsButton" Padding="0">
 					<Button.Content>
 						<FontIcon Glyph="&#xE712;" />
 					</Button.Content>
@@ -228,7 +222,7 @@
 		<StackPanel HorizontalAlignment="Stretch"
 					Orientation="Vertical">
 			<local:SettingsGroup Title="常规"
-								 Margin="0,-20,0,0">
+								 Margin="0,-25,0,0">
 				<local:SettingItem Title="缩放模式">
 					<local:SettingItem.Icon>
 						<FontIcon Glyph="&#xE740;" />

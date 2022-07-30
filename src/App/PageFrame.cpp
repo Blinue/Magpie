@@ -123,25 +123,21 @@ void PageFrame::_UpdateHeaderStyle() {
 
 	IconElement icon = Icon();
 	if (icon) {
-		icon.Width(26);
-		icon.Height(26);
+		icon.Width(28);
+		icon.Height(28);
 	}
 
 	if (_rootNavigationView.DisplayMode() == MUXC::NavigationViewDisplayMode::Minimal) {
 		HeaderGrid().Margin({ 28, 8, 0, 0 });
-		HeaderRowDefinition().Height({ 50, GridUnitType::Pixel });
 		IconContainer().Visibility(Visibility::Collapsed);
 		
 		textBlock.FontSize(20);
-		textBlock.LineHeight(0);
 	} else {
-		bool isWin11 = Win32Utils::GetOSBuild() >= 22000;
-		HeaderGrid().Margin(Thickness{ 0, isWin11 ? 24.0 : 40.0, 0, 0 });
-		HeaderRowDefinition().Height({ isWin11 ? 75.0 : 91.0, GridUnitType::Pixel });
+		bool isWin11 = false;// Win32Utils::GetOSBuild() >= 22000;
+		HeaderGrid().Margin({ 0, isWin11 ? 22.0 : 41.5, 0, 0 });
 		IconContainer().Visibility(icon ? Visibility::Visible : Visibility::Collapsed);
 		
 		textBlock.FontSize(30);
-		textBlock.LineHeight(32);
 	}
 }
 
