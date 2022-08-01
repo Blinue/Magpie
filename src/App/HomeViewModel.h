@@ -50,6 +50,10 @@ struct HomeViewModel : HomeViewModelT<HomeViewModel> {
 
 	void RestartAsElevated() const noexcept;
 
+	bool IsAlwaysRunAsElevated() const noexcept;
+
+	void IsAlwaysRunAsElevated(bool value) noexcept;
+
 private:
 	void _MagService_IsCountingDownChanged(bool value);
 

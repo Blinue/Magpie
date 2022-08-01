@@ -11,23 +11,23 @@ public:
 	App();
 	~App();
 
-	void OnClose();
+	void SaveSettings();
 
-	void OnDestroy();
-
-	bool Initialize(uint64_t hwndMain, uint64_t pWndRect, uint64_t pIsWndMaximized);
+	StartUpOptions Initialize(int);
 
 	uint64_t HwndMain() const noexcept {
 		return (uint64_t)_hwndMain;
+	}
+
+	void HwndMain(uint64_t value) noexcept {
+		_hwndMain = (HWND)value;
 	}
 
 	Magpie::App::MainPage MainPage() const noexcept {
 		return _mainPage;
 	}
 
-	void MainPage(Magpie::App::MainPage const& mainPage) noexcept {
-		_mainPage = mainPage;
-	}
+	void MainPage(Magpie::App::MainPage const& mainPage) noexcept;
 
 	Windows::Graphics::Display::DisplayInformation DisplayInformation() const noexcept {
 		return _displayInformation;

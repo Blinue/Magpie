@@ -176,6 +176,14 @@ public:
 		return _scalingProfiles;
 	}
 
+	bool IsAlwaysRunAsElevated() const noexcept {
+		return _isAlwaysRunAsElevated;
+	}
+
+	void IsAlwaysRunAsElevated(bool value) noexcept {
+		_isAlwaysRunAsElevated = value;
+	}
+
 private:
 	AppSettings() = default;
 
@@ -206,6 +214,7 @@ private:
 	uint32_t _downCount = 5;
 	event<delegate<uint32_t>> _downCountChangedEvent;
 
+	bool _isAlwaysRunAsElevated = false;
 	bool _isBreakpointMode = false;
 	bool _isDisableEffectCache = false;
 	bool _isSaveEffectSources = false;

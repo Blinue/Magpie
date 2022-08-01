@@ -22,7 +22,13 @@ public:
 	int Run();
 
 private:
-	ATOM _RegisterWndClass(HINSTANCE hInstance, const wchar_t* className);
+	void _CreateMainWindow();
+
+	void _RestartAsElevated() noexcept;
+
+	void _ShowTrayIcon() noexcept;
+
+	void _HideTrayIcon() noexcept;
 
 	void _OnResize();
 
@@ -36,7 +42,19 @@ private:
 	}
 	LRESULT _WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
+	static LRESULT _TrayIconWndProcStatic(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
+		return Get()._TrayIconWndProc(hWnd, msg, wParam, lParam);
+	}
+	LRESULT _TrayIconWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+
 	Win32Utils::ScopedHandle _hMutex;
+
+	HINSTANCE _hInst = NULL;
+	// right 存储宽，bottom 存储高
+	RECT _mainWndRect{};
+	bool _isMainWndMaximized = false;
+
+	NOTIFYICONDATA _nid{};
 
 	winrt::Magpie::App::App _uwpApp{ nullptr };
 	winrt::Magpie::App::MainPage _mainPage{ nullptr };

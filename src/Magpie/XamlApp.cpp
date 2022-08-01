@@ -18,8 +18,16 @@ static constexpr const wchar_t* MUTEX_NAME = L"{4C416227-4A30-4A2F-8F23-8701544D
 
 static constexpr UINT CHECK_FORGROUND_TIMER_ID = 1;
 
+static constexpr const wchar_t* NOTIFY_ICON_WINDOW_CLASS_NAME = L"Magpie_NotifyIcon";
+
+// {D0DCEAC7-905E-4955-B660-B9EB815C2139}
+static constexpr const GUID NOTIFY_ICON_GUID =
+{ 0xd0dceac7, 0x905e, 0x4955, { 0xb6, 0x60, 0xb9, 0xeb, 0x81, 0x5c, 0x21, 0x39 } };
+
 
 bool XamlApp::Initialize(HINSTANCE hInstance) {
+	_hInst = hInstance;
+
 	_hMutex.reset(CreateMutex(nullptr, TRUE, MUTEX_NAME));
 	if (!_hMutex || GetLastError() == ERROR_ALREADY_EXISTS) {
 		// 将已存在的窗口带到前台
@@ -68,11 +76,32 @@ bool XamlApp::Initialize(HINSTANCE hInstance) {
 	winrt::Magpie::App::LoggerHelper::Initialize((uint64_t)&logger);
 	winrt::Magpie::Runtime::LoggerHelper::Initialize((uint64_t)&logger);
 
+	// 初始化 UWP 应用
+	_uwpApp = winrt::Magpie::App::App();
+
+	winrt::Magpie::App::StartUpOptions options = _uwpApp.Initialize(0);
+	if (options.IsError) {
+		Logger::Get().Error("初始化失败");
+		return false;
+	}
+
+	if (options.IsNeedElevated && !Win32Utils::IsProcessElevated()) {
+		_RestartAsElevated();
+		return false;
+	}
+
+	_mainWndRect = {
+		(int)std::lroundf(options.MainWndRect.X),
+		(int)std::lroundf(options.MainWndRect.Y),
+		(int)std::lroundf(options.MainWndRect.Width),
+		(int)std::lroundf(options.MainWndRect.Height)
+	};
+	_isMainWndMaximized = options.IsWndMaximized;
+
 	// 注册窗口类
 	{
 		WNDCLASSEXW wcex{};
-
-		wcex.cbSize = sizeof(WNDCLASSEX);
+		wcex.cbSize = sizeof(wcex);
 		wcex.lpfnWndProc = _WndProcStatic;
 		wcex.hInstance = hInstance;
 		wcex.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_APP));
@@ -81,21 +110,77 @@ bool XamlApp::Initialize(HINSTANCE hInstance) {
 
 		RegisterClassEx(&wcex);
 	}
+	{
+		WNDCLASSEXW wcex{};
+		wcex.cbSize = sizeof(wcex);
+		wcex.hInstance = hInstance;
+		wcex.lpfnWndProc = _TrayIconWndProcStatic;
+		wcex.lpszClassName = NOTIFY_ICON_WINDOW_CLASS_NAME;
 
+		RegisterClassEx(&wcex);
+	}
+
+	_nid.cbSize = sizeof(_nid);
+	_nid.uVersion = NOTIFYICON_VERSION_4;
+	_nid.uCallbackMessage = CommonSharedConstants::WM_NOTIFY_ICON;
+	_nid.uFlags = NIF_ICON | NIF_MESSAGE | NIF_TIP | NIF_GUID;
+	_nid.guidItem = NOTIFY_ICON_GUID;
+
+	// SetTimer 之前推荐先调用 SetUserObjectInformation
+	BOOL value = FALSE;
+	if (!SetUserObjectInformation(GetCurrentProcess(), UOI_TIMERPROC_EXCEPTION_SUPPRESSION, &value, sizeof(value))) {
+		logger.Win32Error("SetUserObjectInformation 失败");
+	}
+
+	_CreateMainWindow();
+	_ShowTrayIcon();
+
+	return true;
+}
+
+int XamlApp::Run() {
+	MSG msg;
+
+	// 主消息循环
+	while (GetMessage(&msg, nullptr, 0, 0)) {
+		if (_xamlSourceNative2) {
+			BOOL processed = FALSE;
+			HRESULT hr = _xamlSourceNative2->PreTranslateMessage(&msg, &processed);
+			if (SUCCEEDED(hr) && processed) {
+				continue;
+			}
+		}
+
+		TranslateMessage(&msg);
+		DispatchMessage(&msg);
+	}
+	
+	_uwpApp.SaveSettings();
+	_uwpApp = nullptr;
+
+	_HideTrayIcon();
+
+	Logger::Get().Info("程序退出");
+	Logger::Get().Flush();
+
+	return (int)msg.wParam;
+}
+
+void XamlApp::_CreateMainWindow() {
 	_hwndMain = CreateWindow(
 		CommonSharedConstants::XAML_HOST_CLASS_NAME,
 		L"Magpie",
 		WS_OVERLAPPEDWINDOW,
-		CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
+		_mainWndRect.left, _mainWndRect.top, _mainWndRect.right, _mainWndRect.bottom,
 		nullptr,
 		nullptr,
-		hInstance,
+		_hInst,
 		nullptr
 	);
 
 	if (!_hwndMain) {
-		logger.Win32Error("CreateWindow 失败");
-		return false;
+		Logger::Get().Win32Error("CreateWindow 失败");
+		return;
 	}
 
 	bool isWin11 = Win32Utils::GetOSBuild() >= 22000;
@@ -108,28 +193,7 @@ bool XamlApp::Initialize(HINSTANCE hInstance) {
 		SetWindowThemeAttribute(_hwndMain, WTA_NONCLIENT, &option, sizeof(option));
 	}
 
-	// 初始化 UWP 应用
-	_uwpApp = winrt::Magpie::App::App();
-
-	RECT wndRect{};
-	bool isWndMaximized = false;
-	if (!_uwpApp.Initialize((uint64_t)_hwndMain, (uint64_t)&wndRect, (uint64_t)&isWndMaximized)) {
-		logger.Error("初始化失败");
-
-		// 销毁主窗口
-		DestroyWindow(_hwndMain);
-		MSG msg;
-		while (GetMessage(&msg, nullptr, 0, 0)) {
-			TranslateMessage(&msg);
-			DispatchMessage(&msg);
-		}
-		return false;
-	}
-
-	// right 为宽，bottom 为高
-	SetWindowPos(_hwndMain, NULL, wndRect.left, wndRect.top, wndRect.right, wndRect.bottom,
-		SWP_NOACTIVATE | SWP_NOREDRAW | SWP_NOZORDER);
-
+	_uwpApp.HwndMain((uint64_t)_hwndMain);
 	// 未显示窗口时视为位于前台，否则显示窗口的动画有小瑕疵
 	_uwpApp.OnHostWndFocusChanged(true);
 
@@ -142,15 +206,15 @@ bool XamlApp::Initialize(HINSTANCE hInstance) {
 	_UpdateTheme();
 
 	// MainPage 加载完成后显示主窗口
-	_mainPage.Loaded([this, isWndMaximized](winrt::IInspectable const&, winrt::RoutedEventArgs const&) -> winrt::IAsyncAction {
-		co_await _mainPage.Dispatcher().RunAsync(winrt::CoreDispatcherPriority::Normal, [hwndXamlHost(_hwndMain), isWndMaximized]() {
+	_mainPage.Loaded([this](winrt::IInspectable const&, winrt::RoutedEventArgs const&)->winrt::IAsyncAction {
+		co_await _mainPage.Dispatcher().RunAsync(winrt::CoreDispatcherPriority::Normal, [this]() {
 			// 防止窗口显示时背景闪烁
 			// https://stackoverflow.com/questions/69715610/how-to-initialize-the-background-color-of-win32-app-to-something-other-than-whit
-			SetWindowPos(hwndXamlHost, NULL, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
-			ShowWindow(hwndXamlHost, isWndMaximized ? SW_SHOWMAXIMIZED : SW_SHOWNORMAL);
+			SetWindowPos(_hwndMain, NULL, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+			ShowWindow(_hwndMain, _isMainWndMaximized ? SW_SHOWMAXIMIZED : SW_SHOWNORMAL);
 		});
 	});
-	
+
 	// 初始化 XAML Islands
 	_xamlSource = winrt::DesktopWindowXamlSource();
 	_xamlSourceNative2 = _xamlSource.as<IDesktopWindowXamlSourceNative2>();
@@ -174,43 +238,72 @@ bool XamlApp::Initialize(HINSTANCE hInstance) {
 		// SetTimer 之前推荐先调用 SetUserObjectInformation
 		BOOL value = FALSE;
 		if (!SetUserObjectInformation(GetCurrentProcess(), UOI_TIMERPROC_EXCEPTION_SUPPRESSION, &value, sizeof(value))) {
-			logger.Win32Error("SetUserObjectInformation 失败");
+			Logger::Get().Win32Error("SetUserObjectInformation 失败");
 		}
 
 		// 监听 WM_ACTIVATE 不完全可靠，因此定期检查前台窗口以确保背景绘制正确
 		if (SetTimer(_hwndMain, CHECK_FORGROUND_TIMER_ID, 250, nullptr) == 0) {
-			logger.Win32Error("SetTimer 失败");
+			Logger::Get().Win32Error("SetTimer 失败");
 		}
 	}
-
-	return true;
 }
 
-int XamlApp::Run() {
-	MSG msg;
-
-	// 主消息循环
-	while (GetMessage(&msg, nullptr, 0, 0)) {
-		BOOL processed = FALSE;
-		HRESULT hr = _xamlSourceNative2->PreTranslateMessage(&msg, &processed);
-		if (SUCCEEDED(hr) && processed) {
-			continue;
-		}
-
-		TranslateMessage(&msg);
-		DispatchMessage(&msg);
+void XamlApp::_RestartAsElevated() noexcept {
+	if (_hwndMain) {
+		DestroyWindow(_hwndMain);
 	}
-	
-	_xamlSourceNative2 = nullptr;
-	_xamlSource.Close();
-	_xamlSource = nullptr;
-	_mainPage = nullptr;
-	_uwpApp = nullptr;
 
-	Logger::Get().Info("程序退出");
-	Logger::Get().Flush();
+	// 提前释放锁
+	_hMutex.reset();
 
-	return (int)msg.wParam;
+	wchar_t exePath[MAX_PATH]{};
+	GetModuleFileName(NULL, exePath, MAX_PATH);
+
+	SHELLEXECUTEINFOW execInfo{};
+	execInfo.cbSize = sizeof(execInfo);
+	execInfo.lpFile = exePath;
+	execInfo.lpVerb = L"runas";
+	// 调用 ShellExecuteEx 后立即退出，因此应该指定 SEE_MASK_NOASYNC
+	execInfo.fMask = SEE_MASK_NOASYNC;
+	execInfo.nShow = SW_SHOWDEFAULT;
+
+	if (!ShellExecuteEx(&execInfo)) {
+		Logger::Get().Win32Error("ShellExecuteEx 失败");
+	}
+}
+
+void XamlApp::_ShowTrayIcon() noexcept {
+	if (_nid.hWnd) {
+		return;
+	}
+
+	_nid.hWnd = CreateWindow(NOTIFY_ICON_WINDOW_CLASS_NAME, nullptr, WS_OVERLAPPED, 0, 0, 0, 0, NULL, NULL, _hInst, 0);
+	LoadIconMetric(_hInst, MAKEINTRESOURCE(IDI_APP), LIM_SMALL, &_nid.hIcon);
+	wcscpy_s(_nid.szTip, std::size(_nid.szTip), L"Magpie");
+
+	if (!Shell_NotifyIcon(NIM_ADD, &_nid)) {
+		// 创建托盘图标失败，可能是因为已经存在
+		Shell_NotifyIcon(NIM_DELETE, &_nid);
+		if (!Shell_NotifyIcon(NIM_ADD, &_nid)) {
+			Logger::Get().Win32Error("创建托盘图标失败");
+			_HideTrayIcon();
+			return;
+		}
+	}
+	Shell_NotifyIcon(NIM_SETVERSION, &_nid);
+}
+
+void XamlApp::_HideTrayIcon() noexcept {
+	if (!_nid.hWnd) {
+		return;
+	}
+
+	Shell_NotifyIcon(NIM_DELETE, &_nid);
+	DestroyIcon(_nid.hIcon);
+	_nid.hIcon = NULL;
+
+	DestroyWindow(_nid.hWnd);
+	_nid.hWnd = NULL;
 }
 
 void XamlApp::_OnResize() {
@@ -444,39 +537,92 @@ LRESULT XamlApp::_WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 		break;
 	}
-	case WM_CLOSE:
+	case WM_DESTROY:
 	{
-		ShowWindow(_hwndMain, SW_HIDE);
-		_uwpApp.OnClose();
+		if (_nid.hWnd) {
+			WINDOWPLACEMENT wp{};
+			wp.length = sizeof(wp);
+			if (GetWindowPlacement(_hwndMain, &wp)) {
+				_mainWndRect = {
+					wp.rcNormalPosition.left,
+					wp.rcNormalPosition.top,
+					wp.rcNormalPosition.right - wp.rcNormalPosition.left,
+					wp.rcNormalPosition.bottom - wp.rcNormalPosition.top
+				};
+				_isMainWndMaximized = wp.showCmd == SW_MAXIMIZE;
+			} else {
+				Logger::Get().Win32Error("GetWindowPlacement 失败");
+			}
+		}
 
-		// 阻止关闭
+		_uwpApp.SaveSettings();
+		_uwpApp.HwndMain(0);
+
+		_hwndMain = NULL;
+		_xamlSourceNative2 = nullptr;
+		_xamlSource.Close();
+		_xamlSource = nullptr;
+		_mainPage = nullptr;
+		_uwpApp.MainPage(nullptr);
+
 		return 0;
 	}
-	case WM_DESTROY:
-		_uwpApp.OnDestroy();
-		PostQuitMessage(0);
-		return 0;
 	case CommonSharedConstants::WM_RESTART_AS_ELEVATED:
-		DestroyWindow(_hwndMain);
-		// 提前释放锁
-		_hMutex.reset();
+	{
+		_RestartAsElevated();
+		return 0;
+	}
+	}
 
-		wchar_t exePath[MAX_PATH]{};
-		GetModuleFileName(NULL, exePath, MAX_PATH);
-		
-		SHELLEXECUTEINFOW execInfo{};
-		execInfo.cbSize = sizeof(execInfo);
-		execInfo.lpFile = exePath;
-		execInfo.lpVerb = L"runas";
-		// 调用 ShellExecuteEx 后立即退出，因此应该指定 SEE_MASK_NOASYNC
-		execInfo.fMask = SEE_MASK_NOASYNC;
-		execInfo.nShow = SW_SHOWDEFAULT;
-		
-		if (!ShellExecuteEx(&execInfo)) {
-			Logger::Get().Win32Error("ShellExecuteEx 失败");
+	return DefWindowProc(hWnd, message, wParam, lParam);
+}
+
+LRESULT XamlApp::_TrayIconWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
+	switch (message) {
+	case CommonSharedConstants::WM_NOTIFY_ICON:
+	{
+		UINT msg = LOWORD(lParam);
+		switch (msg) {
+		case WM_RBUTTONUP:
+		{
+			HMENU hMenu = CreatePopupMenu();
+			AppendMenu(hMenu, MF_STRING, 1, L"主窗口");
+			AppendMenu(hMenu, MF_STRING, 2, L"退出");
+
+			// hWnd 必须为前台窗口才能正确展示弹出菜单
+			// 即使 hWnd 是隐藏的
+			SetForegroundWindow(hWnd);
+			BOOL selectedMenuId = TrackPopupMenuEx(hMenu, TPM_LEFTALIGN | TPM_NONOTIFY | TPM_RETURNCMD, GET_X_LPARAM(wParam), GET_Y_LPARAM(wParam), hWnd, nullptr);
+
+			DestroyMenu(hMenu);
+
+			switch (selectedMenuId) {
+			case 1:
+			{
+				if (_hwndMain) {
+					ShowWindow(_hwndMain, SW_SHOW);
+				} else {
+					_CreateMainWindow();
+				}
+				
+				break;
+			}
+			case 2:
+			{
+				_HideTrayIcon();
+				if (_hwndMain) {
+					DestroyWindow(_hwndMain);
+				}
+				PostQuitMessage(0);
+				break;
+			}
+			}
+			break;
+		}
 		}
 
 		return 0;
+	}
 	}
 
 	return DefWindowProc(hWnd, message, wParam, lParam);

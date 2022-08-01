@@ -7,7 +7,6 @@
 #include "Logger.h"
 #include "HotkeyService.h"
 #include "AppSettings.h"
-#include "TrayIconService.h"
 #include "CommonSharedConstants.h"
 
 
@@ -52,36 +51,32 @@ App::~App() {
 	Close();
 }
 
-void App::OnClose() {
-	TrayIconService::Get().Show();
-}
-
-void App::OnDestroy() {
+void App::SaveSettings() {
 	AppSettings::Get().Save();
-
-	TrayIconService::Get().Hide();
 }
 
-bool App::Initialize(uint64_t hwndMain, uint64_t pWndRect, uint64_t pIsWndMaximized) {
-	_hwndMain = (HWND)hwndMain;
+StartUpOptions App::Initialize(int) {
+	StartUpOptions result{};
 	
 	AppSettings& settings = AppSettings::Get();
-
 	if (!settings.Initialize()) {
-		return false;
+		result.IsError = true;
+		return result;
 	}
 
-	const Rect& windowRect = settings.WindowRect();
-	*(RECT*)pWndRect = {
-		(LONG)std::lroundf(windowRect.X),
-		(LONG)std::lroundf(windowRect.Y),
-		(LONG)std::lroundf(windowRect.Width),
-		(LONG)std::lroundf(windowRect.Height)
-	};
+	result.IsError = false;
+	result.MainWndRect = settings.WindowRect();
+	result.IsWndMaximized= settings.IsWindowMaximized();
+	result.IsNeedElevated = settings.IsAlwaysRunAsElevated();
 
-	*(bool*)pIsWndMaximized = settings.IsWindowMaximized();
+	return result;
+}
 
-	return true;
+inline void App::MainPage(Magpie::App::MainPage const& mainPage) noexcept {
+	if (!mainPage) {
+		_mainPage.RootNavigationView().SelectedItem(nullptr);
+	}
+	_mainPage = mainPage;
 }
 
 void App::OnHostWndFocusChanged(bool isFocused) {

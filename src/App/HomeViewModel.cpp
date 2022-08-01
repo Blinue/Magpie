@@ -126,6 +126,14 @@ void HomeViewModel::RestartAsElevated() const noexcept {
 	Application::Current().as<App>().RestartAsElevated();
 }
 
+bool HomeViewModel::IsAlwaysRunAsElevated() const noexcept {
+	return AppSettings::Get().IsAlwaysRunAsElevated();
+}
+
+void HomeViewModel::IsAlwaysRunAsElevated(bool value) noexcept {
+	AppSettings::Get().IsAlwaysRunAsElevated(value);
+}
+
 void HomeViewModel::_MagService_IsCountingDownChanged(bool value) {
 	if (!value) {
 		_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CountdownProgressRingValue"));

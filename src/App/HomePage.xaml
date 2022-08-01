@@ -154,7 +154,7 @@
 											   IsEnabled="{x:Bind ViewModel.IsProcessElevated, Mode=OneTime}"
 											   Style="{StaticResource ExpanderContentSettingStyle}">
 								<local:SettingItem.ActionContent>
-									<ToggleSwitch />
+									<ToggleSwitch IsOn="{x:Bind ViewModel.IsAlwaysRunAsElevated, Mode=TwoWay}" />
 								</local:SettingItem.ActionContent>
 							</local:SettingItem>
 							<muxc:InfoBar Title="以管理员身份重启 Magpie 以更改此设置"

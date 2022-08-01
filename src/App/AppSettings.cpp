@@ -428,27 +428,36 @@ bool AppSettings::Save() {
 	writer.Uint(_theme);
 
 	{
-		HWND hwndMain = (HWND)Application::Current().as<App>().HwndMain();
-
-		WINDOWPLACEMENT wp{};
-		wp.length = sizeof(wp);
-		if (GetWindowPlacement(hwndMain, &wp)) {
-			writer.Key("windowPos");
-			writer.StartObject();
-			writer.Key("x");
-			writer.Int((int)wp.rcNormalPosition.left);
-			writer.Key("y");
-			writer.Int((int)wp.rcNormalPosition.top);
-			writer.Key("width");
-			writer.Int(int(wp.rcNormalPosition.right - wp.rcNormalPosition.left));
-			writer.Key("height");
-			writer.Int(int(wp.rcNormalPosition.bottom - wp.rcNormalPosition.top));
-			writer.Key("maximized");
-			writer.Bool(wp.showCmd == SW_MAXIMIZE);
-			writer.EndObject();
-		} else {
-			Logger::Get().Win32Error("GetWindowPlacement 失败");
+		if (HWND hwndMain = (HWND)Application::Current().as<App>().HwndMain()) {
+			WINDOWPLACEMENT wp{};
+			wp.length = sizeof(wp);
+			if (GetWindowPlacement(hwndMain, &wp)) {
+				_windowRect = {
+					(float)wp.rcNormalPosition.left,
+					(float)wp.rcNormalPosition.top,
+					float(wp.rcNormalPosition.right - wp.rcNormalPosition.left),
+					float(wp.rcNormalPosition.bottom - wp.rcNormalPosition.top)
+				};
+				_isWindowMaximized = wp.showCmd == SW_MAXIMIZE;
+				
+			} else {
+				Logger::Get().Win32Error("GetWindowPlacement 失败");
+			}
 		}
+
+		writer.Key("windowPos");
+		writer.StartObject();
+		writer.Key("x");
+		writer.Int((int)std::lroundf(_windowRect.X));
+		writer.Key("y");
+		writer.Int((int)std::lroundf(_windowRect.Y));
+		writer.Key("width");
+		writer.Int((int)std::lroundf(_windowRect.Width));
+		writer.Key("height");
+		writer.Int((int)std::lroundf(_windowRect.Height));
+		writer.Key("maximized");
+		writer.Bool(_isWindowMaximized);
+		writer.EndObject();
 	}
 
 	writer.Key("hotkeys");
@@ -473,6 +482,8 @@ bool AppSettings::Save() {
 	writer.Bool(_isWarningsAreErrors);
 	writer.Key("simulateExclusiveFullscreen");
 	writer.Bool(_isSimulateExclusiveFullscreen);
+	writer.Key("alwaysRunAsElevated");
+	writer.Bool(_isAlwaysRunAsElevated);
 
 	writer.Key("scalingProfiles");
 	writer.StartArray();
@@ -673,6 +684,9 @@ bool AppSettings::_LoadSettings(std::string text) {
 		return false;
 	}
 	if (!LoadBoolSettingItem(root, "simulateExclusiveFullscreen", _isSimulateExclusiveFullscreen)) {
+		return false;
+	}
+	if (!LoadBoolSettingItem(root, "alwaysRunAsElevated", _isAlwaysRunAsElevated)) {
 		return false;
 	}
 

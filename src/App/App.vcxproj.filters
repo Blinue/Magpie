@@ -44,9 +44,6 @@
     <ClCompile Include="AppXReader.cpp">
       <Filter>Helpers</Filter>
     </ClCompile>
-    <ClCompile Include="TrayconService.cpp">
-      <Filter>Services</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -81,9 +78,6 @@
     </ClInclude>
     <ClInclude Include="AppXReader.h">
       <Filter>Helpers</Filter>
-    </ClInclude>
-    <ClInclude Include="TrayIconService.h">
-      <Filter>Services</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

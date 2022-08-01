@@ -70,6 +70,10 @@ MainPage::MainPage() {
 		auto_revoke, { this, &MainPage::_ScalingProfileService_ProfileReordered });
 }
 
+MainPage::~MainPage() {
+	OutputDebugString(L"test");
+}
+
 void MainPage::Loaded(IInspectable const&, RoutedEventArgs const&) {
 	MUXC::NavigationView nv = __super::RootNavigationView();
 
@@ -98,7 +102,13 @@ void MainPage::NavigationView_SelectionChanged(
 	if (args.IsSettingsSelected()) {
 		contentFrame.Navigate(winrt::xaml_typename<SettingsPage>());
 	} else {
-		IInspectable tag = args.SelectedItem().as<MUXC::NavigationViewItem>().Tag();
+		IInspectable selectedItem = args.SelectedItem();
+		if (!selectedItem) {
+			contentFrame.Content(nullptr);
+			return;
+		}
+
+		IInspectable tag = selectedItem.as<MUXC::NavigationViewItem>().Tag();
 		if (tag) {
 			hstring tagStr = unbox_value<hstring>(tag);
 			Interop::TypeName typeName;

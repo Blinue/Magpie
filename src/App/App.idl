@@ -32,16 +32,22 @@ namespace Magpie.App {
 		Occupied
 	};
 
+	struct StartUpOptions {
+		Windows.Foundation.Rect MainWndRect;
+		Boolean IsError;
+		Boolean IsWndMaximized;
+		Boolean IsNeedElevated;
+	};
+
 	[default_interface]
 	runtimeclass App : Microsoft.Toolkit.Win32.UI.XamlHost.XamlApplication {
 		App();
 
-		void OnClose();
-		void OnDestroy();
+		void SaveSettings();
 
-		Boolean Initialize(UInt64 hwndMain, UInt64 pWndRect, UInt64 pIsWndMaximized);
+		StartUpOptions Initialize(Int32 notUsed);
 
-		UInt64 HwndMain { get; };
+		UInt64 HwndMain;
 
 		MainPage MainPage;
 		Windows.Graphics.Display.DisplayInformation DisplayInformation { get; };
