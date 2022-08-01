@@ -123,8 +123,9 @@ bool XamlApp::Initialize(HINSTANCE hInstance) {
 	_nid.cbSize = sizeof(_nid);
 	_nid.uVersion = NOTIFYICON_VERSION_4;
 	_nid.uCallbackMessage = CommonSharedConstants::WM_NOTIFY_ICON;
-	_nid.uFlags = NIF_ICON | NIF_MESSAGE | NIF_TIP | NIF_GUID;
+	_nid.uFlags = NIF_ICON | NIF_MESSAGE | NIF_TIP;
 	_nid.guidItem = NOTIFY_ICON_GUID;
+	_nid.uID = 0;
 
 	// SetTimer 之前推荐先调用 SetUserObjectInformation
 	BOOL value = FALSE;
@@ -570,6 +571,7 @@ LRESULT XamlApp::_WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	case CommonSharedConstants::WM_RESTART_AS_ELEVATED:
 	{
 		_RestartAsElevated();
+		PostQuitMessage(0);
 		return 0;
 	}
 	}
