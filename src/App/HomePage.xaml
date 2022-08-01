@@ -131,6 +131,38 @@
 					</local:SettingItem.ActionContent>
 				</local:SettingItem>
 			</local:SettingsGroup>
+			<local:SettingsGroup Title="管理员模式">
+				<muxc:Expander HorizontalAlignment="Stretch"
+							   HorizontalContentAlignment="Stretch"
+							   Style="{StaticResource SettingExpanderStyle}">
+					<muxc:Expander.Header>
+						<local:SettingItem Title="管理员模式"
+										   Style="{StaticResource ExpanderHeaderSettingStyle}">
+							<local:SettingItem.Icon>
+								<FontIcon Glyph="&#xE7EF;" />
+							</local:SettingItem.Icon>
+							<local:SettingItem.ActionContent>
+								<Button Content="以管理员身份重启 Magpie" />
+							</local:SettingItem.ActionContent>
+						</local:SettingItem>
+					</muxc:Expander.Header>
+					<muxc:Expander.Content>
+						<StackPanel Orientation="Vertical">
+							<local:SettingItem Title="始终以管理员身份运行"
+											   IsEnabled="False"
+											   Style="{StaticResource ExpanderContentSettingStyle}">
+								<local:SettingItem.ActionContent>
+									<ToggleSwitch />
+								</local:SettingItem.ActionContent>
+							</local:SettingItem>
+							<muxc:InfoBar Title="以管理员身份重启 Magpie 以更改此设置"
+										  IsClosable="False"
+										  IsOpen="True"
+										  Severity="Warning" />
+						</StackPanel>
+					</muxc:Expander.Content>
+				</muxc:Expander>
+			</local:SettingsGroup>
 		</StackPanel>
 	</local:PageFrame>
 </Page>

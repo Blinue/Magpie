@@ -36,13 +36,17 @@
 				<Setter Property="FontFamily" Value="{StaticResource SymbolThemeFontFamily}" />
 			</Style>
 
-			<!--  Combo Box  -->
+			<!--  ComboBox  -->
 			<x:Double x:Key="SettingBoxMinWidth">200</x:Double>
 			<Style x:Key="ComboBoxSettingStyle"
 				   BasedOn="{StaticResource DefaultComboBoxStyle}"
 				   TargetType="ComboBox">
 				<Setter Property="MinWidth" Value="{StaticResource SettingBoxMinWidth}" />
 			</Style>
+
+			<!--  InfoBar  -->
+			<Thickness x:Key="InfoBarIconMargin">6,16,16,16</Thickness>
+			<Thickness x:Key="InfoBarContentRootPadding">16,0,0,0</Thickness>
 
 			<!--  取自 https://github.com/microsoft/PowerToys/blob/35bfb0f83e5fc08cc04398e7aa98d77774412d3f/src/settings-ui/Settings.UI/Themes/SettingsExpanderStyles.xaml  -->
 
