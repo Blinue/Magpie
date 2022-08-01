@@ -113,7 +113,7 @@ LRESULT ShortcutControl::_LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM 
 
 	// 只有位于前台时才监听按键
 	App app = Application::Current().as<App>();
-	if (GetForegroundWindow() != (HWND)app.HwndHost()) {
+	if (GetForegroundWindow() != (HWND)app.HwndMain()) {
 		return CallNextHookEx(NULL, nCode, wParam, lParam);
 	}
 

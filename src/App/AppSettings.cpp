@@ -428,11 +428,11 @@ bool AppSettings::Save() {
 	writer.Uint(_theme);
 
 	{
-		HWND hwndHost = (HWND)Application::Current().as<App>().HwndHost();
+		HWND hwndMain = (HWND)Application::Current().as<App>().HwndMain();
 
 		WINDOWPLACEMENT wp{};
 		wp.length = sizeof(wp);
-		if (GetWindowPlacement(hwndHost, &wp)) {
+		if (GetWindowPlacement(hwndMain, &wp)) {
 			writer.Key("windowPos");
 			writer.StartObject();
 			writer.Key("x");

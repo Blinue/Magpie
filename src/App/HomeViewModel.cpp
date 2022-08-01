@@ -118,6 +118,14 @@ hstring HomeViewModel::RestoreWndDesc() const noexcept {
 	return hstring(StrUtils::ConcatW(L"当前窗口：", title.empty() ? L"<标题为空>" : title));
 }
 
+bool HomeViewModel::IsProcessElevated() const noexcept {
+	return Win32Utils::IsProcessElevated();
+}
+
+void HomeViewModel::RestartAsElevated() const noexcept {
+	Application::Current().as<App>().RestartAsElevated();
+}
+
 void HomeViewModel::_MagService_IsCountingDownChanged(bool value) {
 	if (!value) {
 		_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CountdownProgressRingValue"));

@@ -82,7 +82,7 @@ bool XamlApp::Initialize(HINSTANCE hInstance) {
 		RegisterClassEx(&wcex);
 	}
 
-	_hwndXamlHost = CreateWindow(
+	_hwndMain = CreateWindow(
 		CommonSharedConstants::XAML_HOST_CLASS_NAME,
 		L"Magpie",
 		WS_OVERLAPPEDWINDOW,
@@ -93,7 +93,7 @@ bool XamlApp::Initialize(HINSTANCE hInstance) {
 		nullptr
 	);
 
-	if (!_hwndXamlHost) {
+	if (!_hwndMain) {
 		logger.Win32Error("CreateWindow 失败");
 		return false;
 	}
@@ -105,7 +105,7 @@ bool XamlApp::Initialize(HINSTANCE hInstance) {
 		WTA_OPTIONS option{};
 		option.dwFlags = WTNCA_NODRAWCAPTION | WTNCA_NODRAWICON | WTNCA_NOSYSMENU;
 		option.dwMask = WTNCA_VALIDBITS;
-		SetWindowThemeAttribute(_hwndXamlHost, WTA_NONCLIENT, &option, sizeof(option));
+		SetWindowThemeAttribute(_hwndMain, WTA_NONCLIENT, &option, sizeof(option));
 	}
 
 	// 初始化 UWP 应用
@@ -113,11 +113,11 @@ bool XamlApp::Initialize(HINSTANCE hInstance) {
 
 	RECT wndRect{};
 	bool isWndMaximized = false;
-	if (!_uwpApp.Initialize((uint64_t)_hwndXamlHost, (uint64_t)&wndRect, (uint64_t)&isWndMaximized)) {
+	if (!_uwpApp.Initialize((uint64_t)_hwndMain, (uint64_t)&wndRect, (uint64_t)&isWndMaximized)) {
 		logger.Error("初始化失败");
 
 		// 销毁主窗口
-		DestroyWindow(_hwndXamlHost);
+		DestroyWindow(_hwndMain);
 		MSG msg;
 		while (GetMessage(&msg, nullptr, 0, 0)) {
 			TranslateMessage(&msg);
@@ -127,7 +127,7 @@ bool XamlApp::Initialize(HINSTANCE hInstance) {
 	}
 
 	// right 为宽，bottom 为高
-	SetWindowPos(_hwndXamlHost, NULL, wndRect.left, wndRect.top, wndRect.right, wndRect.bottom,
+	SetWindowPos(_hwndMain, NULL, wndRect.left, wndRect.top, wndRect.right, wndRect.bottom,
 		SWP_NOACTIVATE | SWP_NOREDRAW | SWP_NOZORDER);
 
 	// 未显示窗口时视为位于前台，否则显示窗口的动画有小瑕疵
@@ -143,7 +143,7 @@ bool XamlApp::Initialize(HINSTANCE hInstance) {
 
 	// MainPage 加载完成后显示主窗口
 	_mainPage.Loaded([this, isWndMaximized](winrt::IInspectable const&, winrt::RoutedEventArgs const&) -> winrt::IAsyncAction {
-		co_await _mainPage.Dispatcher().RunAsync(winrt::CoreDispatcherPriority::Normal, [hwndXamlHost(_hwndXamlHost), isWndMaximized]() {
+		co_await _mainPage.Dispatcher().RunAsync(winrt::CoreDispatcherPriority::Normal, [hwndXamlHost(_hwndMain), isWndMaximized]() {
 			// 防止窗口显示时背景闪烁
 			// https://stackoverflow.com/questions/69715610/how-to-initialize-the-background-color-of-win32-app-to-something-other-than-whit
 			SetWindowPos(hwndXamlHost, NULL, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
@@ -156,7 +156,7 @@ bool XamlApp::Initialize(HINSTANCE hInstance) {
 	_xamlSourceNative2 = _xamlSource.as<IDesktopWindowXamlSourceNative2>();
 
 	auto interop = _xamlSource.as<IDesktopWindowXamlSourceNative>();
-	interop->AttachToWindow(_hwndXamlHost);
+	interop->AttachToWindow(_hwndMain);
 	interop->get_WindowHandle(&_hwndXamlIsland);
 	_xamlSource.Content(_mainPage);
 
@@ -178,7 +178,7 @@ bool XamlApp::Initialize(HINSTANCE hInstance) {
 		}
 
 		// 监听 WM_ACTIVATE 不完全可靠，因此定期检查前台窗口以确保背景绘制正确
-		if (SetTimer(_hwndXamlHost, CHECK_FORGROUND_TIMER_ID, 250, nullptr) == 0) {
+		if (SetTimer(_hwndMain, CHECK_FORGROUND_TIMER_ID, 250, nullptr) == 0) {
 			logger.Win32Error("SetTimer 失败");
 		}
 	}
@@ -200,7 +200,7 @@ int XamlApp::Run() {
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);
 	}
-
+	
 	_xamlSourceNative2 = nullptr;
 	_xamlSource.Close();
 	_xamlSource = nullptr;
@@ -214,12 +214,12 @@ int XamlApp::Run() {
 }
 
 void XamlApp::_OnResize() {
-	if (!_hwndXamlHost || !_hwndXamlIsland) {
+	if (!_hwndMain || !_hwndXamlIsland) {
 		return;
 	}
 
 	RECT clientRect;
-	GetClientRect(_hwndXamlHost, &clientRect);
+	GetClientRect(_hwndMain, &clientRect);
 	SetWindowPos(_hwndXamlIsland, NULL, 0, 0, clientRect.right - clientRect.left, clientRect.bottom - clientRect.top, SWP_SHOWWINDOW | SWP_NOACTIVATE);
 }
 
@@ -232,7 +232,7 @@ void XamlApp::_UpdateTheme() {
 	if (osBuild >= 22000) {
 		// 在 Win11 中应用 Mica
 		BOOL mica = TRUE;
-		DwmSetWindowAttribute(_hwndXamlHost, DWMWA_MICA_EFFECT, &mica, sizeof(mica));
+		DwmSetWindowAttribute(_hwndMain, DWMWA_MICA_EFFECT, &mica, sizeof(mica));
 	}
 
 	BOOL isDarkTheme = _mainPage.ActualTheme() == winrt::ElementTheme::Dark;
@@ -241,7 +241,7 @@ void XamlApp::_UpdateTheme() {
 	// build 18985 之前 DWMWA_USE_IMMERSIVE_DARK_MODE 的值不同
 	// https://github.com/MicrosoftDocs/sdk-api/pull/966/files
 	DwmSetWindowAttribute(
-		_hwndXamlHost,
+		_hwndMain,
 		osBuild < 18985 ? DWMWA_USE_IMMERSIVE_DARK_MODE_BEFORE_20H1 : DWMWA_USE_IMMERSIVE_DARK_MODE,
 		&isDarkTheme,
 		sizeof(isDarkTheme)
@@ -250,23 +250,23 @@ void XamlApp::_UpdateTheme() {
 	// 更改背景色以配合主题
 	// 背景色在更改窗口大小时会短暂可见
 	HBRUSH hbrOld = (HBRUSH)SetClassLongPtr(
-		_hwndXamlHost,
+		_hwndMain,
 		GCLP_HBRBACKGROUND,
 		(INT_PTR)CreateSolidBrush(isDarkTheme ?
 			CommonSharedConstants::DARK_TINT_COLOR : CommonSharedConstants::LIGHT_TINT_COLOR));
 	if (hbrOld) {
 		DeleteObject(hbrOld);
 	}
-	InvalidateRect(_hwndXamlHost, nullptr, TRUE);
+	InvalidateRect(_hwndMain, nullptr, TRUE);
 
 	// 强制重绘标题栏
-	LONG_PTR style = GetWindowLongPtr(_hwndXamlHost, GWL_EXSTYLE);
+	LONG_PTR style = GetWindowLongPtr(_hwndMain, GWL_EXSTYLE);
 	if (osBuild < 22000) {
 		// 在 Win10 上需要更多 hack
-		SetWindowLongPtr(_hwndXamlHost, GWL_EXSTYLE, style | WS_EX_LAYERED);
-		SetLayeredWindowAttributes(_hwndXamlHost, 0, 254, LWA_ALPHA);
+		SetWindowLongPtr(_hwndMain, GWL_EXSTYLE, style | WS_EX_LAYERED);
+		SetLayeredWindowAttributes(_hwndMain, 0, 254, LWA_ALPHA);
 	}
-	SetWindowLongPtr(_hwndXamlHost, GWL_EXSTYLE, style);
+	SetWindowLongPtr(_hwndMain, GWL_EXSTYLE, style);
 }
 
 // 使 ContentDialog 跟随窗口尺寸调整
@@ -329,7 +329,7 @@ LRESULT XamlApp::_WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_SHOWWINDOW:
 	{
 		if (wParam == TRUE) {
-			SetFocus(_hwndXamlHost);
+			SetFocus(_hwndMain);
 		}
 
 		break;
@@ -396,7 +396,7 @@ LRESULT XamlApp::_WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_TIMER:
 	{
 		if (wParam == CHECK_FORGROUND_TIMER_ID) {
-			if (!IsWindowVisible(_hwndXamlHost) || GetForegroundWindow() == _hwndXamlHost) {
+			if (!IsWindowVisible(_hwndMain) || GetForegroundWindow() == _hwndMain) {
 				_uwpApp.OnHostWndFocusChanged(true);
 			} else {
 				_uwpApp.OnHostWndFocusChanged(false);
@@ -446,7 +446,7 @@ LRESULT XamlApp::_WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	}
 	case WM_CLOSE:
 	{
-		ShowWindow(_hwndXamlHost, SW_HIDE);
+		ShowWindow(_hwndMain, SW_HIDE);
 		_uwpApp.OnClose();
 
 		// 阻止关闭
@@ -455,6 +455,27 @@ LRESULT XamlApp::_WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_DESTROY:
 		_uwpApp.OnDestroy();
 		PostQuitMessage(0);
+		return 0;
+	case CommonSharedConstants::WM_RESTART_AS_ELEVATED:
+		DestroyWindow(_hwndMain);
+		// 提前释放锁
+		_hMutex.reset();
+
+		wchar_t exePath[MAX_PATH]{};
+		GetModuleFileName(NULL, exePath, MAX_PATH);
+		
+		SHELLEXECUTEINFOW execInfo{};
+		execInfo.cbSize = sizeof(execInfo);
+		execInfo.lpFile = exePath;
+		execInfo.lpVerb = L"runas";
+		// 调用 ShellExecuteEx 后立即退出，因此应该指定 SEE_MASK_NOASYNC
+		execInfo.fMask = SEE_MASK_NOASYNC;
+		execInfo.nShow = SW_SHOWDEFAULT;
+		
+		if (!ShellExecuteEx(&execInfo)) {
+			Logger::Get().Win32Error("ShellExecuteEx 失败");
+		}
+
 		return 0;
 	}
 

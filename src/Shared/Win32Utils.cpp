@@ -571,7 +571,7 @@ std::wstring Win32Utils::GetKeyName(DWORD key) {
 	}
 }
 
-bool Win32Utils::IsRunningAsAdmin() noexcept {
+bool Win32Utils::IsProcessElevated() noexcept {
 	static INT result = 0;
 
 	if (result == 0) {

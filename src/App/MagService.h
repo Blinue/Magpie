@@ -144,7 +144,7 @@ private:
 
 	event<delegate<bool>> _isRunningChangedEvent;
 
-	HWND _hwndHost = 0;
+	HWND _hwndMain = 0;
 
 	HWINEVENTHOOK _hForegroundEventHook = NULL;
 	HWINEVENTHOOK _hDestoryEventHook = NULL;

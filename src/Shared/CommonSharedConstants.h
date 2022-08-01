@@ -20,4 +20,5 @@ struct CommonSharedConstants {
 	static constexpr UINT IDI_APP = 101;
 
 	static constexpr UINT WM_NOTIFY_ICON = WM_USER;
+	static constexpr UINT WM_RESTART_AS_ELEVATED = WM_USER + 1;
 };

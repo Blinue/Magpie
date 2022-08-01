@@ -51,7 +51,7 @@ private:
 
 	event<delegate<HotkeyAction>> _hotkeyPressedEvent;
 
-	HWND _hwndHost = NULL;
+	HWND _hwndMain = NULL;
 };
 
 }

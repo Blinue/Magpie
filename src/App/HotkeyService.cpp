@@ -10,7 +10,7 @@ namespace winrt::Magpie::App {
 HotkeyService::HotkeyService() {
 	App app = Application::Current().as<App>();
 
-	_hwndHost = (HWND)app.HwndHost();
+	_hwndMain = (HWND)app.HwndMain();
 
 	AppSettings::Get().HotkeyChanged({this, &HotkeyService::_Settings_OnHotkeyChanged});
 
@@ -26,7 +26,7 @@ void HotkeyService::OnHotkeyPressed(HotkeyAction action) {
 HotkeyService::~HotkeyService() {
 	for (int i = 0; i < (int)HotkeyAction::COUNT_OR_NONE; ++i) {
 		if (!_errors[i]) {
-			UnregisterHotKey(_hwndHost, i);
+			UnregisterHotKey(_hwndMain, i);
 		}
 	}
 }
@@ -55,10 +55,10 @@ void HotkeyService::_RegisterHotkey(HotkeyAction action) {
 	}
 
 	if (!_errors[(size_t)action]) {
-		UnregisterHotKey(_hwndHost, (int)action);
+		UnregisterHotKey(_hwndMain, (int)action);
 	}
 
-	if (!RegisterHotKey(_hwndHost, (int)action, modifiers, hotkey.Code())) {
+	if (!RegisterHotKey(_hwndMain, (int)action, modifiers, hotkey.Code())) {
 		Logger::Get().Win32Error(fmt::format("注册热键 {} 失败", HotkeyHelper::ToString(action)));
 		_errors[(size_t)action] = true;
 	} else {

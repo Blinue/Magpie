@@ -163,5 +163,5 @@ struct Win32Utils {
 	// 获取 Virtual Key 的名字
 	static std::wstring GetKeyName(DWORD key);
 
-	static bool IsRunningAsAdmin() noexcept;
+	static bool IsProcessElevated() noexcept;
 };

@@ -142,14 +142,16 @@
 								<FontIcon Glyph="&#xE7EF;" />
 							</local:SettingItem.Icon>
 							<local:SettingItem.ActionContent>
-								<Button Content="以管理员身份重启 Magpie" />
+								<Button Click="{x:Bind ViewModel.RestartAsElevated}"
+										Content="以管理员身份重启 Magpie"
+										IsEnabled="{x:Bind ViewModel.IsProcessElevated, Mode=OneTime, Converter={StaticResource NegationConverter}}" />
 							</local:SettingItem.ActionContent>
 						</local:SettingItem>
 					</muxc:Expander.Header>
 					<muxc:Expander.Content>
 						<StackPanel Orientation="Vertical">
 							<local:SettingItem Title="始终以管理员身份运行"
-											   IsEnabled="False"
+											   IsEnabled="{x:Bind ViewModel.IsProcessElevated, Mode=OneTime}"
 											   Style="{StaticResource ExpanderContentSettingStyle}">
 								<local:SettingItem.ActionContent>
 									<ToggleSwitch />
@@ -157,7 +159,7 @@
 							</local:SettingItem>
 							<muxc:InfoBar Title="以管理员身份重启 Magpie 以更改此设置"
 										  IsClosable="False"
-										  IsOpen="True"
+										  IsOpen="{x:Bind ViewModel.IsProcessElevated, Mode=OneTime, Converter={StaticResource NegationConverter}}"
 										  Severity="Warning" />
 						</StackPanel>
 					</muxc:Expander.Content>

@@ -91,16 +91,16 @@ LRESULT TrayIconService::_WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM
 			{
 				Hide();
 
-				HWND hwndHost = (HWND)Application::Current().as<App>().HwndHost();
-				ShowWindow(hwndHost, SW_SHOW);
+				HWND hwndMain = (HWND)Application::Current().as<App>().HwndMain();
+				ShowWindow(hwndMain, SW_SHOW);
 				break;
 			}
 			case 2:
 			{
 				Hide();
 
-				HWND hwndHost = (HWND)Application::Current().as<App>().HwndHost();
-				DestroyWindow(hwndHost);
+				HWND hwndMain = (HWND)Application::Current().as<App>().HwndMain();
+				DestroyWindow(hwndMain);
 				break;
 			}
 			default:

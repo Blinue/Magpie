@@ -15,10 +15,10 @@ public:
 
 	void OnDestroy();
 
-	bool Initialize(uint64_t hwndHost, uint64_t pWndRect, uint64_t pIsWndMaximized);
+	bool Initialize(uint64_t hwndMain, uint64_t pWndRect, uint64_t pIsWndMaximized);
 
-	uint64_t HwndHost() const noexcept {
-		return _hwndHost;
+	uint64_t HwndMain() const noexcept {
+		return (uint64_t)_hwndMain;
 	}
 
 	Magpie::App::MainPage MainPage() const noexcept {
@@ -49,8 +49,10 @@ public:
 
 	void OnHotkeyPressed(HotkeyAction action);
 
+	void RestartAsElevated() const noexcept;
+
 private:
-	uint64_t _hwndHost{};
+	HWND _hwndMain{};
 
 	Magpie::App::MainPage _mainPage{ nullptr };
 	Windows::Graphics::Display::DisplayInformation _displayInformation{ nullptr };

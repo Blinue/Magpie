@@ -39,9 +39,9 @@ namespace Magpie.App {
 		void OnClose();
 		void OnDestroy();
 
-		Boolean Initialize(UInt64 hwndHost, UInt64 pWndRect, UInt64 pIsWndMaximized);
+		Boolean Initialize(UInt64 hwndMain, UInt64 pWndRect, UInt64 pIsWndMaximized);
 
-		UInt64 HwndHost { get; };
+		UInt64 HwndMain { get; };
 
 		MainPage MainPage;
 		Windows.Graphics.Display.DisplayInformation DisplayInformation { get; };
@@ -51,5 +51,7 @@ namespace Magpie.App {
 		void OnHostWndFocusChanged(Boolean isFocused);
 
 		void OnHotkeyPressed(HotkeyAction action);
+
+		void RestartAsElevated();
 	}
 }

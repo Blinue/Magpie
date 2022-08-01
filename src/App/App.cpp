@@ -8,6 +8,7 @@
 #include "HotkeyService.h"
 #include "AppSettings.h"
 #include "TrayIconService.h"
+#include "CommonSharedConstants.h"
 
 
 using namespace winrt;
@@ -61,8 +62,8 @@ void App::OnDestroy() {
 	TrayIconService::Get().Hide();
 }
 
-bool App::Initialize(uint64_t hwndHost, uint64_t pWndRect, uint64_t pIsWndMaximized) {
-	_hwndHost = hwndHost;
+bool App::Initialize(uint64_t hwndMain, uint64_t pWndRect, uint64_t pIsWndMaximized) {
+	_hwndMain = (HWND)hwndMain;
 	
 	AppSettings& settings = AppSettings::Get();
 
@@ -94,6 +95,10 @@ void App::OnHostWndFocusChanged(bool isFocused) {
 
 void App::OnHotkeyPressed(HotkeyAction action) {
 	HotkeyService::Get().OnHotkeyPressed(action);
+}
+
+void App::RestartAsElevated() const noexcept {
+	PostMessage(_hwndMain, CommonSharedConstants::WM_RESTART_AS_ELEVATED, 0, 0);
 }
 
 }

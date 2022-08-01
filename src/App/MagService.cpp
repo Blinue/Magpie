@@ -26,7 +26,7 @@ MagService::MagService() {
 
 	_UpdateIsAutoRestore();
 
-	_hwndHost = (HWND)Application::Current().as<Magpie::App::App>().HwndHost();
+	_hwndMain = (HWND)Application::Current().as<Magpie::App::App>().HwndMain();
 }
 
 void MagService::StartCountdown() {
@@ -128,10 +128,10 @@ IAsyncAction MagService::_MagRuntime_IsRunningChanged(IInspectable const&, bool)
 		} else {
 			// 必须在主线程还原主窗口样式
 			// 见 FrameSourceBase::~FrameSourceBase
-			LONG_PTR style = GetWindowLongPtr(_hwndHost, GWL_STYLE);
+			LONG_PTR style = GetWindowLongPtr(_hwndMain, GWL_STYLE);
 			if (!(style & WS_THICKFRAME)) {
-				SetWindowLongPtr(_hwndHost, GWL_STYLE, style | WS_THICKFRAME);
-				SetWindowPos(_hwndHost, 0, 0, 0, 0, 0,
+				SetWindowLongPtr(_hwndMain, GWL_STYLE, style | WS_THICKFRAME);
+				SetWindowPos(_hwndMain, 0, 0, 0, 0, 0,
 					SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
 			}
 

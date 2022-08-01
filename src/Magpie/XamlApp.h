@@ -40,7 +40,7 @@ private:
 
 	winrt::Magpie::App::App _uwpApp{ nullptr };
 	winrt::Magpie::App::MainPage _mainPage{ nullptr };
-	HWND _hwndXamlHost = NULL;
+	HWND _hwndMain = NULL;
 	HWND _hwndXamlIsland = NULL;
 
 	winrt::DesktopWindowXamlSource _xamlSource{ nullptr };

@@ -21,5 +21,8 @@ namespace Magpie.App
 
 		void ActivateRestore();
 		void ClearRestore();
+
+		Boolean IsProcessElevated { get; };
+		void RestartAsElevated();
 	}
 }

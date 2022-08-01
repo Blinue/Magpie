@@ -46,6 +46,10 @@ struct HomeViewModel : HomeViewModelT<HomeViewModel> {
 
 	hstring RestoreWndDesc() const noexcept;
 
+	bool IsProcessElevated() const noexcept;
+
+	void RestartAsElevated() const noexcept;
+
 private:
 	void _MagService_IsCountingDownChanged(bool value);
 

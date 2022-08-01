@@ -177,7 +177,7 @@ void NewProfileViewModel::Name(const hstring& value) noexcept {
 }
 
 bool NewProfileViewModel::IsNotRunningAsAdmin() const noexcept {
-	return !Win32Utils::IsRunningAsAdmin();
+	return !Win32Utils::IsProcessElevated();
 }
 
 void NewProfileViewModel::Confirm() const noexcept {

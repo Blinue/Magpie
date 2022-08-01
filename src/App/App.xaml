@@ -6,6 +6,8 @@
 						 xmlns:muxc="using:Microsoft.UI.Xaml.Controls">
 	<Application.Resources>
 		<ResourceDictionary>
+			<local:BoolNegationConverter x:Key="NegationConverter" />
+
 			<Style x:Key="ToggleSwitchWithoutText"
 				   BasedOn="{StaticResource DefaultToggleSwitchStyle}"
 				   TargetType="ToggleSwitch">
