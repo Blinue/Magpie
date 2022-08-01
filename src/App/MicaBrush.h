@@ -28,7 +28,7 @@ private:
 
 	App _app{ nullptr };
 
-	FrameworkElement _rootElement{ nullptr };
+	weak_ref<FrameworkElement> _rootElement{ nullptr };
 	bool _windowActivated = false;
 
 	Windows::UI::ViewManagement::UISettings _settings{ nullptr };

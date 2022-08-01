@@ -112,6 +112,11 @@ MicaBrush::MicaBrush(FrameworkElement root) {
 }
 
 void MicaBrush::OnConnected() {
+	auto rootElement = _rootElement.get();
+	if (!_rootElement) {
+		return;
+	}
+
 	if (_settings == nullptr)
 		_settings = UISettings();
 
@@ -131,7 +136,7 @@ void MicaBrush::OnConnected() {
 	_highContrastChangedToken = _accessibilitySettings.HighContrastChanged({ this, &MicaBrush::_AccessibilitySettings_HighContrastChanged });
 	_energySaverStatusChangedToken = PowerManager::EnergySaverStatusChanged({ this, &MicaBrush::_PowerManager_EnergySaverStatusChanged });
 	_compositionCapabilitiesChangedToken = CompositionCapabilities::GetForCurrentView().Changed({ this, &MicaBrush::_CompositionCapabilities_Changed });
-	_rootElementThemeChangedToken = _rootElement.ActualThemeChanged({ this, &MicaBrush::_RootElement_ActualThemeChanged });
+	_rootElementThemeChangedToken = rootElement.ActualThemeChanged({ this, &MicaBrush::_RootElement_ActualThemeChanged });
 	_hostWndFocusedChangedToken = _app.HostWndFocusChanged({this, &MicaBrush::_App_HostWndFocusedChanged});
 }
 
@@ -151,8 +156,10 @@ void MicaBrush::OnDisconnected() {
 
 	CompositionCapabilities::GetForCurrentView().Changed(_compositionCapabilitiesChangedToken);
 	_compositionCapabilitiesChangedToken = {};
-
-	_rootElement.ActualThemeChanged(_rootElementThemeChangedToken);
+	
+	if (auto rootElement = _rootElement.get()) {
+		rootElement.ActualThemeChanged(_rootElementThemeChangedToken);
+	}
 	_rootElementThemeChangedToken = {};
 
 	_app.HostWndFocusChanged(_hostWndFocusedChangedToken);
@@ -196,7 +203,12 @@ void MicaBrush::_UpdateBrush() {
 		return;
 	}
 
-	ElementTheme currentTheme = _rootElement.ActualTheme();
+	auto rootElement = _rootElement.get();
+	if (!rootElement) {
+		return;
+	}
+
+	ElementTheme currentTheme = rootElement.ActualTheme();
 	Compositor compositor = Window::Current().Compositor();
 
 	bool useSolidColorFallback = !_hasMica || !_settings.AdvancedEffectsEnabled() ||
