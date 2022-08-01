@@ -105,8 +105,12 @@
     <ClInclude Include="app.base.h" />
     <ClInclude Include="AppSettings.h" />
     <ClInclude Include="AppXReader.h" />
-    <ClInclude Include="BooleanToVisibilityConverter.h">
-      <DependentUpon>BooleanToVisibilityConverter.idl</DependentUpon>
+    <ClInclude Include="BoolNegationConverter.h">
+      <DependentUpon>BoolNegationConverter.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClInclude>
+    <ClInclude Include="BoolToVisibilityConverter.h">
+      <DependentUpon>BoolToVisibilityConverter.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
     <ClInclude Include="CandidateWindowItem.h">
@@ -216,8 +220,12 @@
     </ClCompile>
     <ClCompile Include="AppSettings.cpp" />
     <ClCompile Include="AppXReader.cpp" />
-    <ClCompile Include="BooleanToVisibilityConverter.cpp">
-      <DependentUpon>BooleanToVisibilityConverter.idl</DependentUpon>
+    <ClCompile Include="BoolNegationConverter.cpp">
+      <DependentUpon>BoolNegationConverter.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClCompile>
+    <ClCompile Include="BoolToVisibilityConverter.cpp">
+      <DependentUpon>BoolToVisibilityConverter.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
     <ClCompile Include="CandidateWindowItem.cpp">
@@ -340,7 +348,10 @@
     <None Include="LoggerHelper.idl">
       <SubType>Designer</SubType>
     </None>
-    <Midl Include="BooleanToVisibilityConverter.idl">
+    <Midl Include="BoolNegationConverter.idl">
+      <SubType>Designer</SubType>
+    </Midl>
+    <Midl Include="BoolToVisibilityConverter.idl">
       <SubType>Designer</SubType>
     </Midl>
     <None Include="ScalingProfilePage.idl">
