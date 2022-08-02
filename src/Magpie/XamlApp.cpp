@@ -79,6 +79,16 @@ bool XamlApp::Initialize(HINSTANCE hInstance) {
 	// 初始化 UWP 应用
 	_uwpApp = winrt::Magpie::App::App();
 
+	if (Win32Utils::GetOSBuild() < 22000) {
+		// Win10 中隐藏 DesktopWindowXamlSource 窗口
+		winrt::CoreWindow coreWindow = winrt::CoreWindow::GetForCurrentThread();
+		if (coreWindow) {
+			HWND hwndDWXS;
+			coreWindow.as<ICoreWindowInterop>()->get_WindowHandle(&hwndDWXS);
+			ShowWindow(hwndDWXS, SW_HIDE);
+		}
+	}
+
 	winrt::Magpie::App::StartUpOptions options = _uwpApp.Initialize(0);
 	if (options.IsError) {
 		Logger::Get().Error("初始化失败");
@@ -87,7 +97,7 @@ bool XamlApp::Initialize(HINSTANCE hInstance) {
 
 	if (options.IsNeedElevated && !Win32Utils::IsProcessElevated()) {
 		_RestartAsElevated();
-		return false;
+		return true;
 	}
 
 	_mainWndRect = {
@@ -271,6 +281,8 @@ void XamlApp::_RestartAsElevated() noexcept {
 	if (!ShellExecuteEx(&execInfo)) {
 		Logger::Get().Win32Error("ShellExecuteEx 失败");
 	}
+
+	PostQuitMessage(0);
 }
 
 void XamlApp::_ShowTrayIcon() noexcept {
@@ -571,7 +583,6 @@ LRESULT XamlApp::_WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	case CommonSharedConstants::WM_RESTART_AS_ELEVATED:
 	{
 		_RestartAsElevated();
-		PostQuitMessage(0);
 		return 0;
 	}
 	}
