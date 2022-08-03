@@ -20,10 +20,6 @@ static constexpr UINT CHECK_FORGROUND_TIMER_ID = 1;
 
 static constexpr const wchar_t* NOTIFY_ICON_WINDOW_CLASS_NAME = L"Magpie_NotifyIcon";
 
-// {D0DCEAC7-905E-4955-B660-B9EB815C2139}
-static constexpr const GUID NOTIFY_ICON_GUID =
-{ 0xd0dceac7, 0x905e, 0x4955, { 0xb6, 0x60, 0xb9, 0xeb, 0x81, 0x5c, 0x21, 0x39 } };
-
 
 bool XamlApp::Initialize(HINSTANCE hInstance) {
 	_hInst = hInstance;
@@ -131,10 +127,9 @@ bool XamlApp::Initialize(HINSTANCE hInstance) {
 	}
 
 	_nid.cbSize = sizeof(_nid);
-	_nid.uVersion = NOTIFYICON_VERSION_4;
+	_nid.uVersion = 0;	// 不使用 NOTIFYICON_VERSION_4
 	_nid.uCallbackMessage = CommonSharedConstants::WM_NOTIFY_ICON;
 	_nid.uFlags = NIF_ICON | NIF_MESSAGE | NIF_TIP;
-	_nid.guidItem = NOTIFY_ICON_GUID;
 	_nid.uID = 0;
 
 	// SetTimer 之前推荐先调用 SetUserObjectInformation
@@ -303,7 +298,6 @@ void XamlApp::_ShowTrayIcon() noexcept {
 			return;
 		}
 	}
-	Shell_NotifyIcon(NIM_SETVERSION, &_nid);
 }
 
 void XamlApp::_HideTrayIcon() noexcept {
@@ -594,8 +588,7 @@ LRESULT XamlApp::_TrayIconWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM
 	switch (message) {
 	case CommonSharedConstants::WM_NOTIFY_ICON:
 	{
-		UINT msg = LOWORD(lParam);
-		switch (msg) {
+		switch (lParam) {
 		case WM_RBUTTONUP:
 		{
 			HMENU hMenu = CreatePopupMenu();
@@ -605,7 +598,10 @@ LRESULT XamlApp::_TrayIconWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM
 			// hWnd 必须为前台窗口才能正确展示弹出菜单
 			// 即使 hWnd 是隐藏的
 			SetForegroundWindow(hWnd);
-			BOOL selectedMenuId = TrackPopupMenuEx(hMenu, TPM_LEFTALIGN | TPM_NONOTIFY | TPM_RETURNCMD, GET_X_LPARAM(wParam), GET_Y_LPARAM(wParam), hWnd, nullptr);
+
+			POINT cursorPos;
+			GetCursorPos(&cursorPos);
+			BOOL selectedMenuId = TrackPopupMenuEx(hMenu, TPM_LEFTALIGN | TPM_NONOTIFY | TPM_RETURNCMD, cursorPos.x, cursorPos.y, hWnd, nullptr);
 
 			DestroyMenu(hMenu);
 
@@ -613,7 +609,11 @@ LRESULT XamlApp::_TrayIconWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM
 			case 1:
 			{
 				if (_hwndMain) {
-					ShowWindow(_hwndMain, SW_SHOW);
+					if (IsIconic(_hwndMain)) {
+						ShowWindow(_hwndMain, SW_RESTORE);
+					}
+
+					SetForegroundWindow(_hwndMain);
 				} else {
 					_CreateMainWindow();
 				}
