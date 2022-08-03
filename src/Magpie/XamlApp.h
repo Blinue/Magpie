@@ -62,6 +62,8 @@ private:
 
 	winrt::Magpie::App::App _uwpApp{ nullptr };
 	winrt::Magpie::App::MainPage _mainPage{ nullptr };
+	// 用于防止内存泄露
+	winrt::weak_ref<winrt::Magpie::App::MainPage> _weakMainPage;
 	HWND _hwndMain = NULL;
 	HWND _hwndXamlIsland = NULL;
 
