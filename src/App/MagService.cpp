@@ -8,7 +8,7 @@
 
 namespace winrt::Magpie::App {
 
-MagService::MagService() {
+void MagService::Initialize() {
 	_dispatcher = CoreWindow::GetForCurrentThread().Dispatcher();
 
 	_timer.Interval(TimeSpan(std::chrono::milliseconds(25)));
@@ -17,7 +17,7 @@ MagService::MagService() {
 		{ this, &MagService::_Timer_Tick }
 	);
 
-	AppSettings::Get().IsAutoRestoreChanged({this, &MagService::_Settings_IsAutoRestoreChanged});
+	AppSettings::Get().IsAutoRestoreChanged({ this, &MagService::_Settings_IsAutoRestoreChanged });
 	_magRuntime.IsRunningChanged({ this, &MagService::_MagRuntime_IsRunningChanged });
 
 	HotkeyService::Get().HotkeyPressed(
@@ -25,8 +25,6 @@ MagService::MagService() {
 	);
 
 	_UpdateIsAutoRestore();
-
-	_hwndMain = (HWND)Application::Current().as<Magpie::App::App>().HwndMain();
 }
 
 void MagService::StartCountdown() {
@@ -126,12 +124,14 @@ IAsyncAction MagService::_MagRuntime_IsRunningChanged(IInspectable const&, bool)
 				_wndToRestoreChangedEvent(_wndToRestore);
 			}
 		} else {
+			HWND hwndMain = (HWND)Application::Current().as<Magpie::App::App>().HwndMain();
+
 			// 必须在主线程还原主窗口样式
 			// 见 FrameSourceBase::~FrameSourceBase
-			LONG_PTR style = GetWindowLongPtr(_hwndMain, GWL_STYLE);
+			LONG_PTR style = GetWindowLongPtr(hwndMain, GWL_STYLE);
 			if (!(style & WS_THICKFRAME)) {
-				SetWindowLongPtr(_hwndMain, GWL_STYLE, style | WS_THICKFRAME);
-				SetWindowPos(_hwndMain, 0, 0, 0, 0, 0,
+				SetWindowLongPtr(hwndMain, GWL_STYLE, style | WS_THICKFRAME);
+				SetWindowPos(hwndMain, 0, 0, 0, 0, 0,
 					SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
 			}
 

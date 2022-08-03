@@ -48,6 +48,7 @@ namespace Magpie.App {
 		StartUpOptions Initialize(Int32 notUsed);
 
 		UInt64 HwndMain;
+		event Windows.Foundation.EventHandler<UInt64> HwndMainChanged;
 
 		MainPage MainPage;
 		Windows.Graphics.Display.DisplayInformation DisplayInformation { get; };

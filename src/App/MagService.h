@@ -13,6 +13,8 @@ public:
 		return instance;
 	}
 
+	void Initialize();
+
 	void StartCountdown();
 
 	void StopCountdown();
@@ -98,7 +100,7 @@ public:
 	}
 
 private:
-	MagService();
+	MagService() = default;
 
 	MagService(const MagService&) = delete;
 	MagService(MagService&&) = delete;
@@ -143,8 +145,6 @@ private:
 	event<delegate<uint64_t>> _wndToRestoreChangedEvent;
 
 	event<delegate<bool>> _isRunningChangedEvent;
-
-	HWND _hwndMain = 0;
 
 	HWINEVENTHOOK _hForegroundEventHook = NULL;
 	HWINEVENTHOOK _hDestoryEventHook = NULL;

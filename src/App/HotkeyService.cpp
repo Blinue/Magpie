@@ -7,15 +7,13 @@
 
 namespace winrt::Magpie::App {
 
-HotkeyService::HotkeyService() {
+void HotkeyService::Initialize() {
 	App app = Application::Current().as<App>();
 
-	_hwndMain = (HWND)app.HwndMain();
+	app.HwndMainChanged({ this, &HotkeyService::_App_OnHwndMainChanged });
+	_App_OnHwndMainChanged(nullptr, app.HwndMain());
 
-	AppSettings::Get().HotkeyChanged({this, &HotkeyService::_Settings_OnHotkeyChanged});
-
-	_RegisterHotkey(HotkeyAction::Scale);
-	_RegisterHotkey(HotkeyAction::Overlay);
+	AppSettings::Get().HotkeyChanged({ this, &HotkeyService::_Settings_OnHotkeyChanged });
 }
 
 void HotkeyService::OnHotkeyPressed(HotkeyAction action) {
@@ -24,11 +22,26 @@ void HotkeyService::OnHotkeyPressed(HotkeyAction action) {
 }
 
 HotkeyService::~HotkeyService() {
+	if (!_hwndMain) {
+		return;
+	}
+
 	for (int i = 0; i < (int)HotkeyAction::COUNT_OR_NONE; ++i) {
 		if (!_errors[i]) {
 			UnregisterHotKey(_hwndMain, i);
 		}
 	}
+}
+
+void HotkeyService::_App_OnHwndMainChanged(IInspectable const&, uint64_t value) {
+	_hwndMain = (HWND)value;
+	std::fill(_errors.begin(), _errors.end(), false);
+	if (value == 0) {
+		return;
+	}
+
+	_RegisterHotkey(HotkeyAction::Scale);
+	_RegisterHotkey(HotkeyAction::Overlay);
 }
 
 void HotkeyService::_RegisterHotkey(HotkeyAction action) {

@@ -12,6 +12,8 @@ public:
 		return instance;
 	}
 
+	void Initialize();
+
 	bool IsError(HotkeyAction action) {
 		return _errors[(size_t)action];
 	}
@@ -34,7 +36,7 @@ public:
 	void OnHotkeyPressed(HotkeyAction action);
 
 private:
-	HotkeyService();
+	HotkeyService() = default;
 
 	HotkeyService(const HotkeyService&) = delete;
 	HotkeyService(HotkeyService&&) = delete;
@@ -45,9 +47,11 @@ private:
 		_RegisterHotkey(action);
 	}
 
+	void _App_OnHwndMainChanged(IInspectable const&, uint64_t value);
+
 	void _RegisterHotkey(HotkeyAction action);
 
-	std::array<bool, (size_t)HotkeyAction::COUNT_OR_NONE> _errors;
+	std::array<bool, (size_t)HotkeyAction::COUNT_OR_NONE> _errors{};
 
 	event<delegate<HotkeyAction>> _hotkeyPressedEvent;
 

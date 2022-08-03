@@ -19,8 +19,14 @@ public:
 		return (uint64_t)_hwndMain;
 	}
 
-	void HwndMain(uint64_t value) noexcept {
-		_hwndMain = (HWND)value;
+	void HwndMain(uint64_t value) noexcept;
+
+	event_token HwndMainChanged(EventHandler<uint64_t> const& handler) {
+		return _hwndMainChangedEvent.add(handler);
+	}
+
+	void HwndMainChanged(event_token const& token) noexcept {
+		_hwndMainChangedEvent.remove(token);
 	}
 
 	Magpie::App::MainPage MainPage() const noexcept {
@@ -53,6 +59,7 @@ public:
 
 private:
 	HWND _hwndMain{};
+	event<EventHandler<uint64_t>> _hwndMainChangedEvent;
 
 	Magpie::App::MainPage _mainPage{ nullptr };
 	Windows::Graphics::Display::DisplayInformation _displayInformation{ nullptr };

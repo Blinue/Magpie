@@ -189,14 +189,17 @@ void XamlApp::_CreateMainWindow() {
 		return;
 	}
 
-	bool isWin11 = Win32Utils::GetOSBuild() >= 22000;
-
-	if (isWin11) {
+	if (Win32Utils::GetOSBuild() >= 22000) {
 		// 标题栏不显示图标和标题，因为目前 DWM 存在 bug 无法在启用 Mica 时正确绘制标题
 		WTA_OPTIONS option{};
 		option.dwFlags = WTNCA_NODRAWCAPTION | WTNCA_NODRAWICON | WTNCA_NOSYSMENU;
 		option.dwMask = WTNCA_VALIDBITS;
 		SetWindowThemeAttribute(_hwndMain, WTA_NONCLIENT, &option, sizeof(option));
+
+		// 监听 WM_ACTIVATE 不完全可靠，因此定期检查前台窗口以确保背景绘制正确
+		if (SetTimer(_hwndMain, CHECK_FORGROUND_TIMER_ID, 250, nullptr) == 0) {
+			Logger::Get().Win32Error("SetTimer 失败");
+		}
 	}
 
 	_uwpApp.HwndMain((uint64_t)_hwndMain);
@@ -258,19 +261,6 @@ void XamlApp::_CreateMainWindow() {
 			sender.NavigateFocus(args.Request());
 		}
 	});
-
-	if (isWin11) {
-		// SetTimer 之前推荐先调用 SetUserObjectInformation
-		BOOL value = FALSE;
-		if (!SetUserObjectInformation(GetCurrentProcess(), UOI_TIMERPROC_EXCEPTION_SUPPRESSION, &value, sizeof(value))) {
-			Logger::Get().Win32Error("SetUserObjectInformation 失败");
-		}
-
-		// 监听 WM_ACTIVATE 不完全可靠，因此定期检查前台窗口以确保背景绘制正确
-		if (SetTimer(_hwndMain, CHECK_FORGROUND_TIMER_ID, 250, nullptr) == 0) {
-			Logger::Get().Win32Error("SetTimer 失败");
-		}
-	}
 }
 
 void XamlApp::_ShowMainWindow() noexcept {

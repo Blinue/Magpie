@@ -8,6 +8,7 @@
 #include "HotkeyService.h"
 #include "AppSettings.h"
 #include "CommonSharedConstants.h"
+#include "MagService.h"
 
 
 using namespace winrt;
@@ -45,6 +46,9 @@ App::App() {
 	}
 
 	_displayInformation = Windows::Graphics::Display::DisplayInformation::GetForCurrentView();
+
+	HotkeyService::Get().Initialize();
+	MagService::Get().Initialize();
 }
 
 App::~App() {
@@ -72,7 +76,16 @@ StartUpOptions App::Initialize(int) {
 	return result;
 }
 
-inline void App::MainPage(Magpie::App::MainPage const& mainPage) noexcept {
+void App::HwndMain(uint64_t value) noexcept {
+	if (_hwndMain == (HWND)value) {
+		return;
+	}
+
+	_hwndMain = (HWND)value;
+	_hwndMainChangedEvent(*this, value);
+}
+
+void App::MainPage(Magpie::App::MainPage const& mainPage) noexcept {
 	if (!mainPage) {
 		_mainPage.RootNavigationView().SelectedItem(nullptr);
 	}
