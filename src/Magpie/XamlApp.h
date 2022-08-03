@@ -24,6 +24,10 @@ public:
 private:
 	void _CreateMainWindow();
 
+	void _ShowMainWindow() noexcept;
+
+	void _Quit() noexcept;
+
 	void _RestartAsElevated() noexcept;
 
 	void _ShowTrayIcon() noexcept;

@@ -218,6 +218,7 @@ void XamlApp::_CreateMainWindow() {
 			// https://stackoverflow.com/questions/69715610/how-to-initialize-the-background-color-of-win32-app-to-something-other-than-whit
 			SetWindowPos(_hwndMain, NULL, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
 			ShowWindow(_hwndMain, _isMainWndMaximized ? SW_SHOWMAXIMIZED : SW_SHOWNORMAL);
+			SetForegroundWindow(_hwndMain);
 		});
 	});
 
@@ -254,6 +255,28 @@ void XamlApp::_CreateMainWindow() {
 	}
 }
 
+void XamlApp::_ShowMainWindow() noexcept {
+	if (_hwndMain) {
+		if (IsIconic(_hwndMain)) {
+			ShowWindow(_hwndMain, SW_RESTORE);
+		}
+
+		SetForegroundWindow(_hwndMain);
+	} else {
+		_CreateMainWindow();
+	}
+}
+
+void XamlApp::_Quit() noexcept {
+	_HideTrayIcon();
+
+	if (_hwndMain) {
+		DestroyWindow(_hwndMain);
+	}
+
+	PostQuitMessage(0);
+}
+
 void XamlApp::_RestartAsElevated() noexcept {
 	if (_hwndMain) {
 		DestroyWindow(_hwndMain);
@@ -285,7 +308,8 @@ void XamlApp::_ShowTrayIcon() noexcept {
 		return;
 	}
 
-	_nid.hWnd = CreateWindow(NOTIFY_ICON_WINDOW_CLASS_NAME, nullptr, WS_OVERLAPPED, 0, 0, 0, 0, NULL, NULL, _hInst, 0);
+	// 创建一个隐藏的、message-only 的窗口用于接收托盘图标消息
+	_nid.hWnd = CreateWindow(NOTIFY_ICON_WINDOW_CLASS_NAME, nullptr, 0, 0, 0, 0, 0, HWND_MESSAGE, NULL, _hInst, 0);
 	LoadIconMetric(_hInst, MAKEINTRESOURCE(IDI_APP), LIM_SMALL, &_nid.hIcon);
 	wcscpy_s(_nid.szTip, std::size(_nid.szTip), L"Magpie");
 
@@ -589,6 +613,11 @@ LRESULT XamlApp::_TrayIconWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM
 	case CommonSharedConstants::WM_NOTIFY_ICON:
 	{
 		switch (lParam) {
+		case WM_LBUTTONDBLCLK:
+		{
+			_ShowMainWindow();
+			break;
+		}
 		case WM_RBUTTONUP:
 		{
 			HMENU hMenu = CreatePopupMenu();
@@ -608,25 +637,12 @@ LRESULT XamlApp::_TrayIconWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM
 			switch (selectedMenuId) {
 			case 1:
 			{
-				if (_hwndMain) {
-					if (IsIconic(_hwndMain)) {
-						ShowWindow(_hwndMain, SW_RESTORE);
-					}
-
-					SetForegroundWindow(_hwndMain);
-				} else {
-					_CreateMainWindow();
-				}
-				
+				_ShowMainWindow();
 				break;
 			}
 			case 2:
 			{
-				_HideTrayIcon();
-				if (_hwndMain) {
-					DestroyWindow(_hwndMain);
-				}
-				PostQuitMessage(0);
+				_Quit();
 				break;
 			}
 			}
