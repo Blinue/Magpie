@@ -591,10 +591,31 @@ LRESULT XamlApp::_WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 		_hwndMain = NULL;
 		_xamlSourceNative2 = nullptr;
+		// 手动重置 Content 以减少内存泄露
+		_xamlSource.Content(nullptr);
 		_xamlSource.Close();
 		_xamlSource = nullptr;
-		_mainPage = nullptr;
+
 		_uwpApp.MainPage(nullptr);
+
+		///////////////////////////////////////////////////////////////////////////////////////////////
+		//
+		// HACK 注意
+		// 
+		// DesktopWindowXamlSource 存在内存泄露问题，销毁后不会正确还原 MainPage 的引用计数。
+		// 这里使用丑陋的 hack 减少 MainPage 的引用计数以确保 MainPage 被销毁。
+		// 即使如此也不能修复全部的内存泄露，见 https://github.com/microsoft/microsoft-ui-xaml/issues/934
+		//
+		////////////////////////////////////////////////////////////////////////////////////////////////
+		{
+			IUnknown* abi = (IUnknown*)winrt::get_abi(_mainPage);
+			ULONG n = abi->AddRef();
+			while (n > 1) {
+				n = abi->Release();
+			}
+		}
+
+		_mainPage = nullptr;
 
 		return 0;
 	}
