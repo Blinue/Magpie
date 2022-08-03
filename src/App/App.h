@@ -53,8 +53,6 @@ public:
 		return _isHostWndFocused;
 	}
 
-	void OnHotkeyPressed(HotkeyAction action);
-
 	void RestartAsElevated() const noexcept;
 
 private:

@@ -46,9 +46,6 @@ App::App() {
 	}
 
 	_displayInformation = Windows::Graphics::Display::DisplayInformation::GetForCurrentView();
-
-	HotkeyService::Get().Initialize();
-	MagService::Get().Initialize();
 }
 
 App::~App() {
@@ -72,6 +69,9 @@ StartUpOptions App::Initialize(int) {
 	result.MainWndRect = settings.WindowRect();
 	result.IsWndMaximized= settings.IsWindowMaximized();
 	result.IsNeedElevated = settings.IsAlwaysRunAsElevated();
+
+	HotkeyService::Get().Initialize();
+	MagService::Get().Initialize();
 
 	return result;
 }
@@ -99,10 +99,6 @@ void App::OnHostWndFocusChanged(bool isFocused) {
 
 	_isHostWndFocused = isFocused;
 	_hostWndFocusChangedEvent(*this, isFocused);
-}
-
-void App::OnHotkeyPressed(HotkeyAction action) {
-	HotkeyService::Get().OnHotkeyPressed(action);
 }
 
 void App::RestartAsElevated() const noexcept {

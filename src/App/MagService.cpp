@@ -213,7 +213,7 @@ void MagService::_StartScale(uint64_t hWnd) {
 		hWnd = (uint64_t)GetForegroundWindow();
 	}
 
-	if (Win32Utils::GetWindowShowCmd((HWND)hWnd) != SW_NORMAL) {
+	if (hWnd && Win32Utils::GetWindowShowCmd((HWND)hWnd) != SW_NORMAL) {
 		return;
 	}
 

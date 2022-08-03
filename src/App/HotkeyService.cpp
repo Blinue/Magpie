@@ -5,43 +5,55 @@
 #include "AppSettings.h"
 
 
+static constexpr const wchar_t* HOTKEY_WINDOW_CLASS_NAME = L"Magpie_Hotkey";
+
 namespace winrt::Magpie::App {
 
 void HotkeyService::Initialize() {
-	App app = Application::Current().as<App>();
+	HINSTANCE hInst = GetModuleHandle(nullptr);
 
-	app.HwndMainChanged({ this, &HotkeyService::_App_OnHwndMainChanged });
-	_App_OnHwndMainChanged(nullptr, app.HwndMain());
+	WNDCLASSEXW wcex{};
+	wcex.cbSize = sizeof(wcex);
+	wcex.hInstance = hInst;
+	wcex.lpfnWndProc = _WndProcStatic;
+	wcex.lpszClassName = HOTKEY_WINDOW_CLASS_NAME;
+	RegisterClassEx(&wcex);
+
+	_hwndHotkey = CreateWindow(HOTKEY_WINDOW_CLASS_NAME, nullptr, 0, 0, 0, 0, 0, HWND_MESSAGE, NULL, hInst, 0);
+
+	std::fill(_errors.begin(), _errors.end(), true);
+	_RegisterHotkey(HotkeyAction::Scale);
+	_RegisterHotkey(HotkeyAction::Overlay);
 
 	AppSettings::Get().HotkeyChanged({ this, &HotkeyService::_Settings_OnHotkeyChanged });
 }
 
-void HotkeyService::OnHotkeyPressed(HotkeyAction action) {
-	Logger::Get().Info(fmt::format("热键 {} 激活", HotkeyHelper::ToString(action)));
-	_hotkeyPressedEvent(action);
-}
-
 HotkeyService::~HotkeyService() {
-	if (!_hwndMain) {
-		return;
-	}
-
 	for (int i = 0; i < (int)HotkeyAction::COUNT_OR_NONE; ++i) {
 		if (!_errors[i]) {
-			UnregisterHotKey(_hwndMain, i);
+			UnregisterHotKey(_hwndHotkey, i);
 		}
 	}
+
+	DestroyWindow(_hwndHotkey);
 }
 
-void HotkeyService::_App_OnHwndMainChanged(IInspectable const&, uint64_t value) {
-	_hwndMain = (HWND)value;
-	std::fill(_errors.begin(), _errors.end(), false);
-	if (value == 0) {
-		return;
+LRESULT HotkeyService::_WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
+	if (message == WM_HOTKEY) {
+		if (wParam >= 0 && wParam < (UINT)HotkeyAction::COUNT_OR_NONE) {
+			HotkeyAction action = (HotkeyAction)wParam;
+			Logger::Get().Info(fmt::format("热键 {} 激活", HotkeyHelper::ToString(action)));
+			_hotkeyPressedEvent(action);
+
+			return 0;
+		}
 	}
 
-	_RegisterHotkey(HotkeyAction::Scale);
-	_RegisterHotkey(HotkeyAction::Overlay);
+	return DefWindowProc(hWnd, message, wParam, lParam);
+}
+
+void HotkeyService::_Settings_OnHotkeyChanged(HotkeyAction action) {
+	_RegisterHotkey(action);
 }
 
 void HotkeyService::_RegisterHotkey(HotkeyAction action) {
@@ -68,10 +80,10 @@ void HotkeyService::_RegisterHotkey(HotkeyAction action) {
 	}
 
 	if (!_errors[(size_t)action]) {
-		UnregisterHotKey(_hwndMain, (int)action);
+		UnregisterHotKey(_hwndHotkey, (int)action);
 	}
 
-	if (!RegisterHotKey(_hwndMain, (int)action, modifiers, hotkey.Code())) {
+	if (!RegisterHotKey(_hwndHotkey, (int)action, modifiers, hotkey.Code())) {
 		Logger::Get().Win32Error(fmt::format("注册热键 {} 失败", HotkeyHelper::ToString(action)));
 		_errors[(size_t)action] = true;
 	} else {

@@ -466,16 +466,6 @@ LRESULT XamlApp::_WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 		break;
 	}
-	case WM_HOTKEY:
-	{
-		using winrt::Magpie::App::HotkeyAction;
-		if (wParam >= 0 && wParam < (UINT)HotkeyAction::COUNT_OR_NONE) {
-			_uwpApp.OnHotkeyPressed((HotkeyAction)wParam);
-			return 0;
-		}
-
-		break;
-	}
 	case WM_KEYDOWN:
 	{
 		if (wParam == VK_TAB) {

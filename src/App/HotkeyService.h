@@ -33,8 +33,6 @@ public:
 		_hotkeyPressedEvent.remove(token);
 	}
 
-	void OnHotkeyPressed(HotkeyAction action);
-
 private:
 	HotkeyService() = default;
 
@@ -43,19 +41,18 @@ private:
 
 	~HotkeyService();
 
-	void _Settings_OnHotkeyChanged(HotkeyAction action) {
-		_RegisterHotkey(action);
+	static LRESULT _WndProcStatic(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
+		return Get()._WndProc(hWnd, msg, wParam, lParam);
 	}
+	LRESULT _WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
-	void _App_OnHwndMainChanged(IInspectable const&, uint64_t value);
+	void _Settings_OnHotkeyChanged(HotkeyAction action);
 
 	void _RegisterHotkey(HotkeyAction action);
 
 	std::array<bool, (size_t)HotkeyAction::COUNT_OR_NONE> _errors{};
-
 	event<delegate<HotkeyAction>> _hotkeyPressedEvent;
-
-	HWND _hwndMain = NULL;
+	HWND _hwndHotkey = NULL;
 };
 
 }
