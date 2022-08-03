@@ -63,16 +63,17 @@ ScalingProfileViewModel::ScalingProfileViewModel(int32_t profileIdx) : _isDefaul
 		_themeChangedRevoker = mainPage.ActualThemeChanged(
 			auto_revoke,
 			[this](FrameworkElement const& sender, IInspectable const&) {
-			_LoadIcon(sender);
-		}
+				_LoadIcon(sender);
+			}
 		);
 
 		_displayInformation = app.DisplayInformation();
 		_dpiChangedRevoker = _displayInformation.DpiChanged(
 			auto_revoke,
-			[this, mainPage](DisplayInformation const&, IInspectable const&) {
-			_LoadIcon(mainPage);
-		}
+			[this](DisplayInformation const&, IInspectable const&) {
+				// 不能捕获 mainPage，会引起内存泄露
+				_LoadIcon(Application::Current().as<App>().MainPage());
+			}
 		);
 
 		_LoadIcon(mainPage);
