@@ -105,6 +105,7 @@
     <ClInclude Include="app.base.h" />
     <ClInclude Include="AppSettings.h" />
     <ClInclude Include="AppXReader.h" />
+    <ClInclude Include="AutoStartHelper.h" />
     <ClInclude Include="BoolNegationConverter.h">
       <DependentUpon>BoolNegationConverter.idl</DependentUpon>
       <SubType>Code</SubType>
@@ -219,6 +220,7 @@
     </ClCompile>
     <ClCompile Include="AppSettings.cpp" />
     <ClCompile Include="AppXReader.cpp" />
+    <ClCompile Include="AutoStartHelper.cpp" />
     <ClCompile Include="BoolNegationConverter.cpp">
       <DependentUpon>BoolNegationConverter.idl</DependentUpon>
       <SubType>Code</SubType>

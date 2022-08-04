@@ -44,6 +44,9 @@
     <ClCompile Include="AppXReader.cpp">
       <Filter>Helpers</Filter>
     </ClCompile>
+    <ClCompile Include="AutoStartHelper.cpp">
+      <Filter>Helpers</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -77,6 +80,9 @@
       <Filter>Helpers</Filter>
     </ClInclude>
     <ClInclude Include="AppXReader.h">
+      <Filter>Helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="AutoStartHelper.h">
       <Filter>Helpers</Filter>
     </ClInclude>
   </ItemGroup>
