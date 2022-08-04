@@ -569,6 +569,15 @@ void AppSettings::DownCount(uint32_t value) noexcept {
 	_downCountChangedEvent(value);
 }
 
+void AppSettings::IsShowTrayIcon(bool value) noexcept {
+	if (_isShowTrayIcon == value) {
+		return;
+	}
+
+	_isShowTrayIcon = value;
+	_isShowTrayIconChangedEvent(value);
+}
+
 // 遇到不合法的配置项会失败，因此用户不应直接编辑配置文件
 bool AppSettings::_LoadSettings(std::string text) {
 	if (text.empty()) {

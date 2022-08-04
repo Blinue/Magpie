@@ -15,6 +15,12 @@ public:
 
 	StartUpOptions Initialize(int);
 
+	bool IsShowTrayIcon() const noexcept;
+
+	event_token IsShowTrayIconChanged(EventHandler<bool> const& handler);
+
+	void IsShowTrayIconChanged(event_token const& token);
+
 	uint64_t HwndMain() const noexcept {
 		return (uint64_t)_hwndMain;
 	}

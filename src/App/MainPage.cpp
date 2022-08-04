@@ -32,10 +32,11 @@ static constexpr const uint32_t FIRST_PROFILE_ITEM_IDX = 4;
 MainPage::MainPage() {
 	InitializeComponent();
 
+	_themeChangedRevoker = AppSettings::Get().ThemeChanged(auto_revoke, [this](int) { _UpdateTheme(); });
 	_UpdateTheme(false);
-	AppSettings::Get().ThemeChanged([this](int) { _UpdateTheme(); });
 
-	_uiSettings.ColorValuesChanged({ get_weak(), &MainPage::_UISettings_ColorValuesChanged });
+	_colorValuesChangedRevoker = _uiSettings.ColorValuesChanged(
+		auto_revoke, { get_weak(), &MainPage::_UISettings_ColorValuesChanged });
 
 	Background(MicaBrush(*this));
 

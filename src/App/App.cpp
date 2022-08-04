@@ -76,6 +76,20 @@ StartUpOptions App::Initialize(int) {
 	return result;
 }
 
+bool App::IsShowTrayIcon() const noexcept {
+	return AppSettings::Get().IsShowTrayIcon();
+}
+
+event_token App::IsShowTrayIconChanged(EventHandler<bool> const& handler) {
+	return AppSettings::Get().IsShowTrayIconChanged([handler(handler)](bool value) {
+		handler(nullptr, value);
+	});
+}
+
+void App::IsShowTrayIconChanged(event_token const& token) {
+	AppSettings::Get().IsShowTrayIconChanged(token);
+}
+
 void App::HwndMain(uint64_t value) noexcept {
 	if (_hwndMain == (HWND)value) {
 		return;

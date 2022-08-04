@@ -54,7 +54,10 @@ private:
 
 	void _ScalingProfileService_ProfileReordered(uint32_t profileIdx, bool isMoveUp);
 
+	WinRTUtils::EventRevoker _themeChangedRevoker;
+
 	Windows::UI::ViewManagement::UISettings _uiSettings;
+	Windows::UI::ViewManagement::UISettings::ColorValuesChanged_revoker _colorValuesChangedRevoker;
 
 	Magpie::App::NewProfileViewModel _newProfileViewModel;
 	WinRTUtils::EventRevoker _profileAddedRevoker;

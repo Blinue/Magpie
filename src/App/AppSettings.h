@@ -188,8 +188,21 @@ public:
 		return _isShowTrayIcon;
 	}
 
-	void IsShowTrayIcon(bool value) noexcept {
-		_isShowTrayIcon = value;
+	void IsShowTrayIcon(bool value) noexcept;
+
+	event_token IsShowTrayIconChanged(delegate<bool> const& handler) {
+		return _isShowTrayIconChangedEvent.add(handler);
+	}
+
+	WinRTUtils::EventRevoker IsShowTrayIconChanged(auto_revoke_t, delegate<bool> const& handler) {
+		event_token token = IsShowTrayIconChanged(handler);
+		return WinRTUtils::EventRevoker([this, token]() {
+			IsShowTrayIconChanged(token);
+		});
+	}
+
+	void IsShowTrayIconChanged(event_token const& token) {
+		_isShowTrayIconChangedEvent.remove(token);
 	}
 
 private:

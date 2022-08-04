@@ -139,7 +139,18 @@ bool XamlApp::Initialize(HINSTANCE hInstance) {
 	}
 
 	_CreateMainWindow();
-	_ShowTrayIcon();
+
+	if (_uwpApp.IsShowTrayIcon()) {
+		_ShowTrayIcon();
+	}
+
+	_uwpApp.IsShowTrayIconChanged([this](winrt::IInspectable const&, bool value) {
+		if (value) {
+			_ShowTrayIcon();
+		} else {
+			_HideTrayIcon();
+		}
+	});
 
 	return true;
 }
@@ -578,6 +589,10 @@ LRESULT XamlApp::_WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		_xamlSource = nullptr;
 
 		_mainPage = nullptr;
+
+		if (!_nid.hWnd) {
+			PostQuitMessage(0);
+		}
 
 		return 0;
 	}
