@@ -854,10 +854,14 @@ void OverlayDrawer::_DrawUI() {
 				if (showPasses) {
 					if (ImGui::BeginTable("timeline", (int)gpuTimings.passes.size())) {
 						for (UINT i = 0; i < gpuTimings.passes.size(); ++i) {
+							if (gpuTimings.passes[i] < 1e-5f) {
+								continue;
+							}
+
 							ImGui::TableSetupColumn(
 								std::to_string(i).c_str(),
 								ImGuiTableColumnFlags_WidthStretch | ImGuiTableColumnFlags_NoResize | ImGuiTableColumnFlags_NoReorder,
-								std::max(1e-5f, gpuTimings.passes[i] / effectsTotalTime)
+								gpuTimings.passes[i] / effectsTotalTime
 							);
 						}
 
@@ -866,6 +870,10 @@ void OverlayDrawer::_DrawUI() {
 						UINT i = 0;
 						for (const EffectTimings& et : effectTimings) {
 							for (UINT j = 0, end = (UINT)et.passTimings.size(); j < end; ++j) {
+								if (et.passTimings[j] < 1e-5f) {
+									continue;
+								}
+
 								ImGui::TableNextColumn();
 
 								std::string name;
@@ -888,19 +896,26 @@ void OverlayDrawer::_DrawUI() {
 				} else {
 					if (ImGui::BeginTable("timeline", nEffect)) {
 						for (UINT i = 0; i < nEffect; ++i) {
+							if (effectTimings[i].totalTime < 1e-5f) {
+								continue;
+							}
+							
 							ImGui::TableSetupColumn(
 								std::to_string(i).c_str(),
 								ImGuiTableColumnFlags_WidthStretch | ImGuiTableColumnFlags_NoResize | ImGuiTableColumnFlags_NoReorder,
-								std::max(1e-5f, effectTimings[i].totalTime / effectsTotalTime)
+								effectTimings[i].totalTime / effectsTotalTime
 							);
 						}
 
 						ImGui::TableNextRow();
 
 						for (UINT i = 0; i < nEffect; ++i) {
-							ImGui::TableNextColumn();
 							auto& et = effectTimings[i];
+							if (et.totalTime < 1e-5f) {
+								continue;
+							}
 
+							ImGui::TableNextColumn();
 							DrawTimelineItem(colors[i], _dpiScale, et.desc->name, et.totalTime, effectsTotalTime, selectedIdx == (int)i);
 						}
 
