@@ -13,6 +13,9 @@ struct SettingsViewModel : SettingsViewModelT<SettingsViewModel> {
 	bool IsPortableMode() const noexcept;
 	void IsPortableMode(bool value) noexcept;
 
+	bool IsShowTrayIcon() const noexcept;
+	void IsShowTrayIcon(bool value) noexcept;
+
 	bool IsSimulateExclusiveFullscreen() const noexcept;
 	void IsSimulateExclusiveFullscreen(bool value) noexcept;
 

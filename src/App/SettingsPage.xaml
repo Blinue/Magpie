@@ -35,6 +35,15 @@
 						<ToggleSwitch IsOn="{x:Bind ViewModel.IsPortableMode, Mode=TwoWay}" />
 					</local:SettingItem.ActionContent>
 				</local:SettingItem>
+				<local:SettingItem Title="常驻后台"
+								   Description="关闭主窗口时最小化到系统托盘">
+					<local:SettingItem.Icon>
+						<FontIcon Glyph="&#xE9F5;" />
+					</local:SettingItem.Icon>
+					<local:SettingItem.ActionContent>
+						<ToggleSwitch IsOn="{x:Bind ViewModel.IsShowTrayIcon, Mode=TwoWay}" />
+					</local:SettingItem.ActionContent>
+				</local:SettingItem>
 			</local:SettingsGroup>
 			<local:SettingsGroup Title="高级">
 				<local:SettingItem Title="缩放时模拟独占全屏">

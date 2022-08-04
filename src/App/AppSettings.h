@@ -184,6 +184,14 @@ public:
 		_isAlwaysRunAsElevated = value;
 	}
 
+	bool IsShowTrayIcon() const noexcept {
+		return _isShowTrayIcon;
+	}
+
+	void IsShowTrayIcon(bool value) noexcept {
+		_isShowTrayIcon = value;
+	}
+
 private:
 	AppSettings() = default;
 
@@ -214,6 +222,8 @@ private:
 	uint32_t _downCount = 5;
 	event<delegate<uint32_t>> _downCountChangedEvent;
 
+	bool _isShowTrayIcon = true;
+	event<delegate<bool>> _isShowTrayIconChangedEvent;
 	bool _isAlwaysRunAsElevated = false;
 	bool _isBreakpointMode = false;
 	bool _isDisableEffectCache = false;

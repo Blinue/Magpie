@@ -484,6 +484,8 @@ bool AppSettings::Save() {
 	writer.Bool(_isSimulateExclusiveFullscreen);
 	writer.Key("alwaysRunAsElevated");
 	writer.Bool(_isAlwaysRunAsElevated);
+	writer.Key("showTrayIcon");
+	writer.Bool(_isShowTrayIcon);
 
 	writer.Key("scalingProfiles");
 	writer.StartArray();
@@ -687,6 +689,9 @@ bool AppSettings::_LoadSettings(std::string text) {
 		return false;
 	}
 	if (!LoadBoolSettingItem(root, "alwaysRunAsElevated", _isAlwaysRunAsElevated)) {
+		return false;
+	}
+	if (!LoadBoolSettingItem(root, "showTrayIcon", _isShowTrayIcon)) {
 		return false;
 	}
 

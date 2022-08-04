@@ -7,6 +7,7 @@ namespace Magpie.App
 
 		Int32 Theme;
 		Boolean IsPortableMode;
+		Boolean IsShowTrayIcon;
 		Boolean IsSimulateExclusiveFullscreen;
 		Boolean IsBreakpointMode;
 		Boolean IsDisableEffectCache;

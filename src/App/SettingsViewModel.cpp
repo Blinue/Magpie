@@ -43,6 +43,14 @@ void SettingsViewModel::IsPortableMode(bool value) noexcept {
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsPortableMode"));
 }
 
+bool SettingsViewModel::IsShowTrayIcon() const noexcept {
+	return AppSettings::Get().IsShowTrayIcon();
+}
+
+void SettingsViewModel::IsShowTrayIcon(bool value) noexcept {
+	AppSettings::Get().IsShowTrayIcon(value);
+}
+
 bool SettingsViewModel::IsSimulateExclusiveFullscreen() const noexcept {
 	return AppSettings::Get().IsSimulateExclusiveFullscreen();
 }
