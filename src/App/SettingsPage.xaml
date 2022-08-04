@@ -26,13 +26,12 @@
 						</ComboBox>
 					</local:SettingItem.ActionContent>
 				</local:SettingItem>
-				<local:SettingItem Title="便携模式"
-								   Description="更改用户数据的保存位置">
+				<local:SettingItem Title="开机启动">
 					<local:SettingItem.Icon>
-						<FontIcon Glyph="&#xE88E;" />
+						<FontIcon Glyph="&#xE7B5;" />
 					</local:SettingItem.Icon>
 					<local:SettingItem.ActionContent>
-						<ToggleSwitch IsOn="{x:Bind ViewModel.IsPortableMode, Mode=TwoWay}" />
+						<ToggleSwitch />
 					</local:SettingItem.ActionContent>
 				</local:SettingItem>
 				<local:SettingItem Title="常驻后台"
@@ -42,6 +41,15 @@
 					</local:SettingItem.Icon>
 					<local:SettingItem.ActionContent>
 						<ToggleSwitch IsOn="{x:Bind ViewModel.IsShowTrayIcon, Mode=TwoWay}" />
+					</local:SettingItem.ActionContent>
+				</local:SettingItem>
+				<local:SettingItem Title="便携模式"
+								   Description="更改用户数据的保存位置">
+					<local:SettingItem.Icon>
+						<FontIcon Glyph="&#xE88E;" />
+					</local:SettingItem.Icon>
+					<local:SettingItem.ActionContent>
+						<ToggleSwitch IsOn="{x:Bind ViewModel.IsPortableMode, Mode=TwoWay}" />
 					</local:SettingItem.ActionContent>
 				</local:SettingItem>
 			</local:SettingsGroup>
