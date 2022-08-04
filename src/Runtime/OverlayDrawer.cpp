@@ -621,7 +621,7 @@ static void DrawTimelineItem(ImU32 color, float dpiScale, const std::string& nam
 	float textWidth = ImGui::CalcTextSize(text.c_str()).x;
 	float itemWidth = ImGui::GetItemRectSize().x;
 	float itemSpacing = ImGui::GetStyle().ItemSpacing.x;
-	if (itemWidth - (selected ? 0 : itemSpacing - 2) > textWidth) {
+	if (itemWidth - (selected ? 0 : itemSpacing) > textWidth + 4) {
 		ImGui::SameLine(0, 0);
 		ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (itemWidth - textWidth - itemSpacing) / 2);
 		ImGui::TextUnformatted(text.c_str());
