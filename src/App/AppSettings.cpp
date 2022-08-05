@@ -8,6 +8,7 @@
 #include "CommonSharedConstants.h"
 #include <rapidjson/document.h>
 #include <rapidjson/prettywriter.h>
+#include "AutoStartHelper.h"
 
 
 namespace winrt::Magpie::App {
@@ -567,6 +568,18 @@ void AppSettings::DownCount(uint32_t value) noexcept {
 
 	_downCount = value;
 	_downCountChangedEvent(value);
+}
+
+void AppSettings::IsAlwaysRunAsElevated(bool value) noexcept {
+	if (_isAlwaysRunAsElevated == value) {
+		return;
+	}
+
+	_isAlwaysRunAsElevated = value;
+	if (AutoStartHelper::IsAutoStartTaskActive()) {
+		// 更新启动任务
+		AutoStartHelper::CreateAutoStartTask(value);
+	}
 }
 
 void AppSettings::IsShowTrayIcon(bool value) noexcept {

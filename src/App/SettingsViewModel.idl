@@ -6,6 +6,7 @@ namespace Magpie.App
 		SettingsViewModel();
 
 		Int32 Theme;
+		Boolean IsRunAtStartup;
 		Boolean IsPortableMode;
 		Boolean IsShowTrayIcon;
 		Boolean IsSimulateExclusiveFullscreen;

@@ -16,11 +16,15 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
+namespace winrt::Magpie::App {
+
 static constexpr const DWORD USERNAME_DOMAIN_LEN = DNLEN + UNLEN + 2; // Domain Name + '\' + User Name + '\0'
 static constexpr const DWORD USERNAME_LEN = UNLEN + 1; // User Name + '\0'
 
 
-namespace winrt::Magpie::App {
+static std::wstring GetTaskName(std::wstring_view userName) {
+    return StrUtils::ConcatW(L"Autorun for ", userName);
+}
 
 bool AutoStartHelper::CreateAutoStartTask(bool runElevated) {
     WCHAR usernameDomain[USERNAME_DOMAIN_LEN];
@@ -39,12 +43,6 @@ bool AutoStartHelper::CreateAutoStartTask(bool runElevated) {
 
     wcscat_s(usernameDomain, L"\\");
     wcscat_s(usernameDomain, username);
-
-    std::wstring taskName = StrUtils::ConcatW(L"Autorun for ", username);
-
-    // Get the executable path passed to the custom action.
-    WCHAR executablePath[MAX_PATH];
-    GetModuleFileName(NULL, executablePath, MAX_PATH);
 
     // ------------------------------------------------------
     // Create an instance of the Task Service.
@@ -206,7 +204,9 @@ bool AutoStartHelper::CreateAutoStartTask(bool runElevated) {
             return false;
         }
 
-        // Set the path of the executable to PowerToys (passed as CustomActionData).
+        // Set the path of the executable to Magpie (passed as CustomActionData).
+        WCHAR executablePath[MAX_PATH];
+        GetModuleFileName(NULL, executablePath, MAX_PATH);
         hr = execAction->put_Path(Win32Utils::BStr(executablePath));
         if (FAILED(hr)) {
             Logger::Get().ComError("设置可执行文件路径失败", hr);
@@ -242,12 +242,14 @@ bool AutoStartHelper::CreateAutoStartTask(bool runElevated) {
     }
 
     // ------------------------------------------------------
-    //  Save the task in the PowerToys folder.
+    //  Save the task in the Magpie folder.
     {
         com_ptr<IRegisteredTask> registeredTask;
         static constexpr const wchar_t* SDDL_FULL_ACCESS_FOR_EVERYONE = L"D:(A;;FA;;;WD)";
+
+        // 如果不是管理员身份某些情况下会因权限问题失败
         hr = taskFolder->RegisterTaskDefinition(
-            Win32Utils::BStr(taskName),
+            Win32Utils::BStr(GetTaskName(username)),
             task.get(),
             TASK_CREATE_OR_UPDATE,
             Win32Utils::Variant(usernameDomain),
@@ -260,17 +262,124 @@ bool AutoStartHelper::CreateAutoStartTask(bool runElevated) {
             Logger::Get().ComError("注册任务失败", hr);
             return false;
         }
+
+        registeredTask->put_Enabled(VARIANT_TRUE);
     }
 
     return true;
 }
 
 bool AutoStartHelper::DeleteAutoStartTask() {
-    return false;
+    // ------------------------------------------------------
+    // Get the Username for the task.
+    WCHAR username[USERNAME_LEN];
+    if (!GetEnvironmentVariable(L"USERNAME", username, USERNAME_LEN)) {
+        Logger::Get().Win32Error("获取用户名失败");
+        return false;
+    }
+
+    // ------------------------------------------------------
+    // Create an instance of the Task Service.
+    com_ptr<ITaskService> taskService;
+    HRESULT hr = CoCreateInstance(
+        CLSID_TaskScheduler,
+        NULL,
+        CLSCTX_INPROC_SERVER,
+        IID_PPV_ARGS(&taskService)
+    );
+    if (FAILED(hr)) {
+        Logger::Get().ComError("创建 ITaskService 失败", hr);
+        return false;
+    }
+
+    // Connect to the task service.
+    hr = taskService->Connect(Win32Utils::Variant(), Win32Utils::Variant(), Win32Utils::Variant(), Win32Utils::Variant());
+    if (FAILED(hr)) {
+        Logger::Get().ComError("ITaskService::Connect 失败", hr);
+        return false;
+    }
+
+    // ------------------------------------------------------
+    // Get the Magpie task folder.
+    com_ptr<ITaskFolder> taskFolder;
+    hr = taskService->GetFolder(Win32Utils::BStr(L"\\Magpie"), taskFolder.put());
+    if (FAILED(hr)) {
+        return true;
+    }
+
+    Win32Utils::BStr taskName(GetTaskName(username));
+
+    {
+        com_ptr<IRegisteredTask> existingRegisteredTask;
+        hr = taskFolder->GetTask(taskName, existingRegisteredTask.put());
+        if (FAILED(hr)) {
+            return true;
+        }
+    }
+
+    // Task exists, try disabling it.
+    hr = taskFolder->DeleteTask(taskName, 0);
+    if (FAILED(hr)) {
+        Logger::Get().ComError("删除任务失败", hr);
+        return false;
+    }
+
+    return true;
 }
 
 bool AutoStartHelper::IsAutoStartTaskActive() {
-    return false;
+    // ------------------------------------------------------
+    // Get the Username for the task.
+    WCHAR username[USERNAME_LEN];
+    if (!GetEnvironmentVariable(L"USERNAME", username, USERNAME_LEN)) {
+        Logger::Get().Win32Error("获取用户名失败");
+        return false;
+    }
+
+    // ------------------------------------------------------
+    // Create an instance of the Task Service.
+    com_ptr<ITaskService> taskService;
+    HRESULT hr = CoCreateInstance(
+        CLSID_TaskScheduler,
+        NULL,
+        CLSCTX_INPROC_SERVER,
+        IID_PPV_ARGS(&taskService)
+    );
+    if (FAILED(hr)) {
+        Logger::Get().ComError("创建 ITaskService 失败", hr);
+        return false;
+    }
+
+    // Connect to the task service.
+    hr = taskService->Connect(Win32Utils::Variant(), Win32Utils::Variant(), Win32Utils::Variant(), Win32Utils::Variant());
+    if (FAILED(hr)) {
+        Logger::Get().ComError("ITaskService::Connect 失败", hr);
+        return false;
+    }
+
+    // ------------------------------------------------------
+    // Get the Magpie task folder.
+    com_ptr<ITaskFolder> taskFolder;
+    hr = taskService->GetFolder(Win32Utils::BStr(L"\\Magpie"), taskFolder.put());
+    if (FAILED(hr)) {
+        return false;
+    }
+
+    com_ptr<IRegisteredTask> existingRegisteredTask;
+    hr = taskFolder->GetTask(Win32Utils::BStr(GetTaskName(username)), existingRegisteredTask.put());
+    if (FAILED(hr)) {
+        return false;
+    }
+
+    // Task exists, get its value.
+    VARIANT_BOOL isEnabled;
+    hr = existingRegisteredTask->get_Enabled(&isEnabled);
+    if (FAILED(hr)) {
+        return false;
+    }
+
+    return isEnabled == VARIANT_TRUE;
+
 }
 
 }

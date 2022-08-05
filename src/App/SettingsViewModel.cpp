@@ -4,6 +4,8 @@
 #include "SettingsViewModel.g.cpp"
 #endif
 #include "AppSettings.h"
+#include "AutoStartHelper.h"
+#include "Win32Utils.h"
 
 
 namespace winrt::Magpie::App::implementation {
@@ -26,6 +28,20 @@ void SettingsViewModel::Theme(int32_t value) noexcept {
 
 	settings.Theme(theme);
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"Theme"));
+}
+
+bool SettingsViewModel::IsRunAtStartup() const noexcept {
+	return AutoStartHelper::IsAutoStartTaskActive();
+}
+
+void SettingsViewModel::IsRunAtStartup(bool value) noexcept {
+	if (value) {
+		AutoStartHelper::CreateAutoStartTask(AppSettings::Get().IsAlwaysRunAsElevated());
+	} else {
+		AutoStartHelper::DeleteAutoStartTask();
+	}
+
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsRunAtStartup"));
 }
 
 bool SettingsViewModel::IsPortableMode() const noexcept {

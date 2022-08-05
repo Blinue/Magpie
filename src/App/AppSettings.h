@@ -180,9 +180,7 @@ public:
 		return _isAlwaysRunAsElevated;
 	}
 
-	void IsAlwaysRunAsElevated(bool value) noexcept {
-		_isAlwaysRunAsElevated = value;
-	}
+	void IsAlwaysRunAsElevated(bool value) noexcept;
 
 	bool IsShowTrayIcon() const noexcept {
 		return _isShowTrayIcon;

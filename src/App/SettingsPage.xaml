@@ -31,7 +31,7 @@
 						<FontIcon Glyph="&#xE7B5;" />
 					</local:SettingItem.Icon>
 					<local:SettingItem.ActionContent>
-						<ToggleSwitch />
+						<ToggleSwitch IsOn="{x:Bind ViewModel.IsRunAtStartup, Mode=TwoWay}" />
 					</local:SettingItem.ActionContent>
 				</local:SettingItem>
 				<local:SettingItem Title="常驻后台"

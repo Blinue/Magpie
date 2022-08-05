@@ -10,6 +10,9 @@ struct SettingsViewModel : SettingsViewModelT<SettingsViewModel> {
 	int32_t Theme() const noexcept;
 	void Theme(int32_t value) noexcept;
 
+	bool IsRunAtStartup() const noexcept;
+	void IsRunAtStartup(bool value) noexcept;
+
 	bool IsPortableMode() const noexcept;
 	void IsPortableMode(bool value) noexcept;
 
