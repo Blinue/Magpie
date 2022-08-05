@@ -164,4 +164,55 @@ struct Win32Utils {
 	static std::wstring GetKeyName(DWORD key);
 
 	static bool IsProcessElevated() noexcept;
+
+	// VARIANT 封装，自动管理生命周期
+	struct Variant : public VARIANT {
+		Variant() noexcept {
+			VariantInit(this);
+		}
+
+		Variant(const Variant& other) noexcept : Variant(static_cast<const VARIANT&>(other)) {}
+
+		Variant(Variant&& other) noexcept : Variant(static_cast<VARIANT&&>(other)) {}
+
+		Variant& operator=(const Variant& other) noexcept {
+			return operator=(static_cast<const VARIANT&>(other));
+		}
+
+		Variant& operator=(Variant&& other) noexcept {
+			return operator=(static_cast<VARIANT&&>(other));
+		}
+
+		Variant(const VARIANT& varSrc) noexcept {
+			VariantInit(this);
+			[[maybe_unused]]
+			HRESULT _ = VariantCopy(this, const_cast<VARIANT*>(&varSrc));
+		}
+
+		Variant(VARIANT&& varSrc) noexcept {
+			std::memcpy(this, &varSrc, sizeof(varSrc));
+			varSrc.vt = VT_EMPTY;
+		}
+
+		Variant& operator=(const VARIANT& other) noexcept {
+			[[maybe_unused]]
+			HRESULT _ = VariantCopy(this, const_cast<VARIANT*>(&other));
+			return *this;
+		}
+
+		Variant& operator=(VARIANT&& other) noexcept {
+			std::memcpy(this, &other, sizeof(other));
+			other.vt = VT_EMPTY;
+			return *this;
+		}
+
+		Variant(const wchar_t* pSrc) noexcept {
+			vt = VT_BSTR;
+			bstrVal = SysAllocString(pSrc);
+		}
+
+		~Variant() noexcept {
+			VariantClear(this);
+		}
+	};
 };

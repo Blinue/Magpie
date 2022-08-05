@@ -5,7 +5,6 @@
 #include "Win32Utils.h"
 #include "XamlUtils.h"
 #include "CommonSharedConstants.h"
-#include <CoreWindow.h>
 #include <uxtheme.h>
 #include <fmt/xchar.h>
 #include <winrt/Magpie.Runtime.h>
@@ -74,16 +73,6 @@ bool XamlApp::Initialize(HINSTANCE hInstance) {
 
 	// 初始化 UWP 应用
 	_uwpApp = winrt::Magpie::App::App();
-
-	if (Win32Utils::GetOSBuild() < 22000) {
-		// Win10 中隐藏 DesktopWindowXamlSource 窗口
-		winrt::CoreWindow coreWindow = winrt::CoreWindow::GetForCurrentThread();
-		if (coreWindow) {
-			HWND hwndDWXS;
-			coreWindow.as<ICoreWindowInterop>()->get_WindowHandle(&hwndDWXS);
-			ShowWindow(hwndDWXS, SW_HIDE);
-		}
-	}
 
 	winrt::Magpie::App::StartUpOptions options = _uwpApp.Initialize(0);
 	if (options.IsError) {

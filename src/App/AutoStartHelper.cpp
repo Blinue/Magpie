@@ -4,6 +4,7 @@
 #include <Lmcons.h>
 #include "Logger.h"
 #include "StrUtils.h"
+#include "Win32Utils.h"
 
 #pragma comment(lib, "Taskschd.lib")
 
@@ -59,7 +60,7 @@ bool AutoStartHelper::CreateAutoStartTask(bool runElevated) {
     }
 
     // Connect to the task service.
-    hr = taskService->Connect({}, {}, {}, {});
+    hr = taskService->Connect(Win32Utils::Variant(), Win32Utils::Variant(), Win32Utils::Variant(), Win32Utils::Variant());
     if (FAILED(hr)) {
         Logger::Get().ComError("ITaskService::Connect 失败", hr);
         return false;
@@ -78,12 +79,7 @@ bool AutoStartHelper::CreateAutoStartTask(bool runElevated) {
             return false;
         }
         
-        VARIANT sddl;
-        VariantInit(&sddl);
-        sddl.vt = VT_BSTR;
-        sddl.bstrVal = SysAllocString(L"");
-        hr = rootFolder->CreateFolder(StrUtils::BStr(L"\\Magpie"), sddl, taskFolder.put());
-        VariantClear(&sddl);
+        hr = rootFolder->CreateFolder(StrUtils::BStr(L"\\Magpie"), Win32Utils::Variant(L""), taskFolder.put());
         if (FAILED(hr)) {
             Logger::Get().ComError("创建 Magpie 任务文件夹失败", hr);
             return false;

@@ -9,6 +9,7 @@
 #include "AppSettings.h"
 #include "CommonSharedConstants.h"
 #include "MagService.h"
+#include <CoreWindow.h>
 
 
 using namespace winrt;
@@ -23,11 +24,21 @@ App::App() {
 	AddRef();
 	m_inner.as<::IUnknown>()->Release();
 
+	bool isWin11 = Win32Utils::GetOSBuild() >= 22000;
+	if (!isWin11) {
+		// Win10 中隐藏 DesktopWindowXamlSource 窗口
+		winrt::CoreWindow coreWindow = winrt::CoreWindow::GetForCurrentThread();
+		if (coreWindow) {
+			HWND hwndDWXS;
+			coreWindow.as<ICoreWindowInterop>()->get_WindowHandle(&hwndDWXS);
+			ShowWindow(hwndDWXS, SW_HIDE);
+		}
+	}
+
 	// 根据操作系统版本设置样式
 	ResourceDictionary resource = Resources();
 
 	// 根据操作系统选择图标字体
-	bool isWin11 = Win32Utils::GetOSBuild() >= 22000;
 	resource.Insert(
 		box_value(L"SymbolThemeFontFamily"),
 		FontFamily(isWin11 ? L"Segoe Fluent Icons" : L"Segoe MDL2 Assets")
