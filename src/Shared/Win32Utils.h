@@ -206,13 +206,28 @@ struct Win32Utils {
 			return *this;
 		}
 
-		Variant(const wchar_t* pSrc) noexcept {
+		Variant(std::wstring_view str) noexcept {
 			vt = VT_BSTR;
-			bstrVal = SysAllocString(pSrc);
+			bstrVal = SysAllocStringLen(str.data(), (UINT)str.size());
 		}
 
 		~Variant() noexcept {
 			VariantClear(this);
 		}
+	};
+
+	// 简单的 BSTR 包装器，用于管理生命周期
+	struct BStr {
+		BStr(std::wstring_view str);
+
+		~BStr();
+
+		std::string ToUTF8();
+
+		operator BSTR() {
+			return _str;
+		}
+	private:
+		BSTR _str = NULL;
 	};
 };

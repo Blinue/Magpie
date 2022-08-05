@@ -23,24 +23,6 @@ struct StrUtils {
 
 	static std::string UTF16ToANSI(std::wstring_view str);
 
-	// 简单的 BSTR 包装器，用于管理生命周期
-	struct BStr {
-		BStr(std::wstring_view str);
-		BStr(BSTR str) {
-			_str = str;
-		}
-
-		~BStr();
-
-		std::string ToUTF8();
-
-		operator BSTR() {
-			return _str;
-		}
-	private:
-		BSTR _str = NULL;
-	};
-
 	template<typename CHAR_T>
 	static void Trim(std::basic_string_view<CHAR_T>& str) {
 		for (int i = 0; i < str.size(); ++i) {

@@ -19,6 +19,7 @@
 static constexpr const DWORD USERNAME_DOMAIN_LEN = DNLEN + UNLEN + 2; // Domain Name + '\' + User Name + '\0'
 static constexpr const DWORD USERNAME_LEN = UNLEN + 1; // User Name + '\0'
 
+
 namespace winrt::Magpie::App {
 
 bool AutoStartHelper::CreateAutoStartTask(bool runElevated) {
@@ -69,24 +70,199 @@ bool AutoStartHelper::CreateAutoStartTask(bool runElevated) {
     // ------------------------------------------------------
     // Get the Magpie task folder. Creates it if it doesn't exist.
     com_ptr<ITaskFolder> taskFolder;
-    hr = taskService->GetFolder(StrUtils::BStr(L"\\Magpie"), taskFolder.put());
+    hr = taskService->GetFolder(Win32Utils::BStr(L"\\Magpie"), taskFolder.put());
     if (FAILED(hr)) {
-        // Folder doesn't exist. Get the Root folder and create the PowerToys subfolder.
+        // Folder doesn't exist. Get the Root folder and create the Magpie subfolder.
         com_ptr<ITaskFolder> rootFolder = NULL;
-        hr = taskService->GetFolder(StrUtils::BStr(L"\\"), rootFolder.put());
+        hr = taskService->GetFolder(Win32Utils::BStr(L"\\"), rootFolder.put());
         if (FAILED(hr)) {
             Logger::Get().ComError("获取根目录失败", hr);
             return false;
         }
         
-        hr = rootFolder->CreateFolder(StrUtils::BStr(L"\\Magpie"), Win32Utils::Variant(L""), taskFolder.put());
+        hr = rootFolder->CreateFolder(Win32Utils::BStr(L"\\Magpie"), Win32Utils::Variant(L""), taskFolder.put());
         if (FAILED(hr)) {
             Logger::Get().ComError("创建 Magpie 任务文件夹失败", hr);
             return false;
         }
     }
 
-    return false;
+    // Create the task builder object to create the task.
+    com_ptr<ITaskDefinition> task;
+    hr = taskService->NewTask(0, task.put());
+    if (FAILED(hr)) {
+        Logger::Get().ComError("创建 ITaskDefinition 失败", hr);
+        return false;
+    }
+
+    // ------------------------------------------------------
+    // Get the registration info for setting the identification.
+    com_ptr<IRegistrationInfo> regInfo;
+    hr = task->get_RegistrationInfo(regInfo.put());
+    if (FAILED(hr)) {
+        Logger::Get().ComError("获取 IRegistrationInfo 失败", hr);
+        return false;
+    }
+    
+    hr = regInfo->put_Author(Win32Utils::BStr(usernameDomain));
+    if (FAILED(hr)) {
+        Logger::Get().ComError("IRegistrationInfo::put_Author 失败", hr);
+        return false;
+    }
+
+     // ------------------------------------------------------
+    // Create the settings for the task
+    com_ptr<ITaskSettings> taskSettings;
+    hr = task->get_Settings(taskSettings.put());
+    if (FAILED(hr)) {
+        Logger::Get().ComError("获取 ITaskSettings 失败", hr);
+        return false;
+    }
+
+    hr = taskSettings->put_StartWhenAvailable(VARIANT_FALSE);
+    if (FAILED(hr)) {
+        Logger::Get().ComError("ITaskSettings::put_StartWhenAvailable 失败", hr);
+        return false;
+    }
+    hr = taskSettings->put_StopIfGoingOnBatteries(VARIANT_FALSE);
+    if (FAILED(hr)) {
+        Logger::Get().ComError("ITaskSettings::put_StopIfGoingOnBatteries 失败", hr);
+        return false;
+    }
+    hr = taskSettings->put_ExecutionTimeLimit(Win32Utils::BStr(L"PT0S")); //Unlimited
+    if (FAILED(hr)) {
+        Logger::Get().ComError("ITaskSettings::put_ExecutionTimeLimit 失败", hr);
+        return false;
+    }
+    hr = taskSettings->put_DisallowStartIfOnBatteries(VARIANT_FALSE);
+    if (FAILED(hr)) {
+        Logger::Get().ComError("ITaskSettings::put_DisallowStartIfOnBatteries 失败", hr);
+        return false;
+    }
+
+    // ------------------------------------------------------
+    // Get the trigger collection to insert the logon trigger.
+    com_ptr<ITriggerCollection> triggerCollection;
+    hr = task->get_Triggers(triggerCollection.put());
+    if (FAILED(hr)) {
+        Logger::Get().ComError("获取 ITriggerCollection 失败", hr);
+        return false;
+    }
+    
+    // Add the logon trigger to the task.
+    {
+        com_ptr<ITrigger> trigger;
+        hr = triggerCollection->Create(TASK_TRIGGER_LOGON, trigger.put());
+        if (FAILED(hr)) {
+            Logger::Get().ComError("创建 ITrigger 失败", hr);
+            return false;
+        }
+
+        com_ptr<ILogonTrigger> logonTrigger = trigger.try_as<ILogonTrigger>();
+        if (!logonTrigger) {
+            Logger::Get().Error("获取 ILogonTrigger 失败");
+            return false;
+        }
+
+        logonTrigger->put_Id(Win32Utils::BStr(L"Trigger1"));
+
+        // Timing issues may make explorer not be started when the task runs.
+        // Add a little delay to mitigate this.
+        logonTrigger->put_Delay(Win32Utils::BStr(L"PT03S"));
+
+        // Define the user. The task will execute when the user logs on.
+        // The specified user must be a user on this computer.
+        hr = logonTrigger->put_UserId(Win32Utils::BStr(usernameDomain));
+        if (FAILED(hr)) {
+            Logger::Get().ComError("ILogonTrigger::put_UserId 失败", hr);
+            return false;
+        }
+    }
+
+    // ------------------------------------------------------
+    // Add an Action to the task. This task will execute the path passed to this custom action.
+    {
+        com_ptr<IActionCollection> actionCollection;
+
+        // Get the task action collection pointer.
+        hr = task->get_Actions(actionCollection.put());
+        if (FAILED(hr)) {
+            Logger::Get().ComError("获取 IActionCollection 失败", hr);
+            return false;
+        }
+
+        // Create the action, specifying that it is an executable action.
+        com_ptr<IAction> action;
+        hr = actionCollection->Create(TASK_ACTION_EXEC, action.put());
+        if (FAILED(hr)) {
+            Logger::Get().ComError("创建 IAction 失败", hr);
+            return false;
+        }
+
+        // QI for the executable task pointer.
+        com_ptr<IExecAction> execAction = action.try_as<IExecAction>();
+        if (!execAction) {
+            Logger::Get().Error("获取 IExecAction 失败");
+            return false;
+        }
+
+        // Set the path of the executable to PowerToys (passed as CustomActionData).
+        hr = execAction->put_Path(Win32Utils::BStr(executablePath));
+        if (FAILED(hr)) {
+            Logger::Get().ComError("设置可执行文件路径失败", hr);
+            return false;
+        }
+    }
+
+    // ------------------------------------------------------
+    // Create the principal for the task
+    {
+        com_ptr<IPrincipal> principal;
+        hr = task->get_Principal(principal.put());
+        if (FAILED(hr)) {
+            Logger::Get().ComError("获取 IPrincipal 失败", hr);
+            return false;
+        }
+
+        // Set up principal information:
+        principal->put_Id(Win32Utils::BStr(L"Principal1"));
+        principal->put_UserId(Win32Utils::BStr(usernameDomain));
+        principal->put_LogonType(TASK_LOGON_INTERACTIVE_TOKEN);
+
+        if (runElevated) {
+            hr = principal->put_RunLevel(_TASK_RUNLEVEL::TASK_RUNLEVEL_HIGHEST);
+        } else {
+            hr = principal->put_RunLevel(_TASK_RUNLEVEL::TASK_RUNLEVEL_LUA);
+        }
+        
+        if (FAILED(hr)) {
+            Logger::Get().ComError("IPrincipal::put_RunLevel 失败", hr);
+            return false;
+        }
+    }
+
+    // ------------------------------------------------------
+    //  Save the task in the PowerToys folder.
+    {
+        com_ptr<IRegisteredTask> registeredTask;
+        static constexpr const wchar_t* SDDL_FULL_ACCESS_FOR_EVERYONE = L"D:(A;;FA;;;WD)";
+        hr = taskFolder->RegisterTaskDefinition(
+            Win32Utils::BStr(taskName),
+            task.get(),
+            TASK_CREATE_OR_UPDATE,
+            Win32Utils::Variant(usernameDomain),
+            Win32Utils::Variant(),
+            TASK_LOGON_INTERACTIVE_TOKEN,
+            Win32Utils::Variant(SDDL_FULL_ACCESS_FOR_EVERYONE),
+            registeredTask.put()
+        );
+        if (FAILED(hr)) {
+            Logger::Get().ComError("注册任务失败", hr);
+            return false;
+        }
+    }
+
+    return true;
 }
 
 bool AutoStartHelper::DeleteAutoStartTask() {

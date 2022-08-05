@@ -679,3 +679,22 @@ DWORD Win32Utils::Hasher::GetHashLength() noexcept {
 
 	return _hashLen;
 }
+
+Win32Utils::BStr::BStr(std::wstring_view str) {
+	_str = SysAllocStringLen(str.data(), (UINT)str.size());;
+}
+
+Win32Utils::BStr::~BStr() {
+	if (_str) {
+		SysFreeString(_str);
+	}
+}
+
+std::string Win32Utils::BStr::ToUTF8() {
+	if (!_str) {
+		return {};
+	}
+
+	std::wstring_view str(_str, SysStringLen(_str));
+	return StrUtils::UTF16ToUTF8(str);
+}

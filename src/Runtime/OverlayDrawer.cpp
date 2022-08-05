@@ -419,7 +419,7 @@ static std::string GetCPUNameViaWMI() {
 	}
 
 	hr = wbemLocator->ConnectServer(
-		StrUtils::BStr(L"ROOT\\CIMV2"),
+		Win32Utils::BStr(L"ROOT\\CIMV2"),
 		nullptr,
 		nullptr,
 		nullptr,
@@ -447,8 +447,8 @@ static std::string GetCPUNameViaWMI() {
 	}
 
 	hr = wbemServices->ExecQuery(
-		StrUtils::BStr(L"WQL"),
-		StrUtils::BStr(L"SELECT NAME FROM Win32_Processor"),
+		Win32Utils::BStr(L"WQL"),
+		Win32Utils::BStr(L"SELECT NAME FROM Win32_Processor"),
 		WBEM_FLAG_FORWARD_ONLY | WBEM_FLAG_RETURN_IMMEDIATELY,
 		nullptr,
 		enumWbemClassObject.put()
@@ -465,12 +465,12 @@ static std::string GetCPUNameViaWMI() {
 
 	VARIANT value;
 	VariantInit(&value);
-	hr = wbemClassObject->Get(StrUtils::BStr(L"Name"), 0, &value, 0, 0);
+	hr = wbemClassObject->Get(Win32Utils::BStr(L"Name"), 0, &value, 0, 0);
 	if (hr != WBEM_S_NO_ERROR || value.vt != VT_BSTR) {
 		return "";
 	}
 
-	std::string result = StrUtils::BStr(value.bstrVal).ToUTF8();
+	std::string result = Win32Utils::BStr(value.bstrVal).ToUTF8();
 	StrUtils::Trim(result);
 	return result;
 }
