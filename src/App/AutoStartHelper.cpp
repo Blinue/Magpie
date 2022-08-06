@@ -32,12 +32,33 @@ static std::wstring GetTaskName(std::wstring_view userName) {
 	return StrUtils::ConcatW(L"Autorun for ", userName);
 }
 
+static com_ptr<ITaskService> CreateTaskService() {
+	com_ptr<ITaskService> taskService;
+	HRESULT hr = CoCreateInstance(
+		CLSID_TaskScheduler,
+		NULL,
+		CLSCTX_INPROC_SERVER,
+		IID_PPV_ARGS(&taskService)
+	);
+	if (FAILED(hr)) {
+		Logger::Get().ComError("创建 ITaskService 失败", hr);
+		return nullptr;
+	}
+
+	hr = taskService->Connect(Win32Utils::Variant(), Win32Utils::Variant(), Win32Utils::Variant(), Win32Utils::Variant());
+	if (FAILED(hr)) {
+		Logger::Get().ComError("ITaskService::Connect 失败", hr);
+		return nullptr;
+	}
+
+	return taskService;
+}
+
 static bool CreateAutoStartTask(bool runElevated) {
 	WCHAR usernameDomain[USERNAME_DOMAIN_LEN];
 	WCHAR username[USERNAME_LEN];
 
-	// ------------------------------------------------------
-	// Get the Domain/Username for the trigger.
+	// 检索用户域和用户名
 	if (!GetEnvironmentVariable(L"USERNAME", username, USERNAME_LEN)) {
 		Logger::Get().Win32Error("获取用户名失败");
 		return false;
@@ -50,33 +71,15 @@ static bool CreateAutoStartTask(bool runElevated) {
 	wcscat_s(usernameDomain, L"\\");
 	wcscat_s(usernameDomain, username);
 
-	// ------------------------------------------------------
-	// Create an instance of the Task Service.
-	com_ptr<ITaskService> taskService;
-	HRESULT hr = CoCreateInstance(
-		CLSID_TaskScheduler,
-		NULL,
-		CLSCTX_INPROC_SERVER,
-		IID_PPV_ARGS(&taskService)
-	);
-	if (FAILED(hr)) {
-		Logger::Get().ComError("创建 ITaskService 失败", hr);
+	com_ptr<ITaskService> taskService = CreateTaskService();
+	if (!taskService) {
 		return false;
 	}
 
-	// Connect to the task service.
-	hr = taskService->Connect(Win32Utils::Variant(), Win32Utils::Variant(), Win32Utils::Variant(), Win32Utils::Variant());
-	if (FAILED(hr)) {
-		Logger::Get().ComError("ITaskService::Connect 失败", hr);
-		return false;
-	}
-
-	// ------------------------------------------------------
-	// Get the Magpie task folder. Creates it if it doesn't exist.
+	// 获取/创建 Magpie 文件夹
 	com_ptr<ITaskFolder> taskFolder;
-	hr = taskService->GetFolder(Win32Utils::BStr(L"\\Magpie"), taskFolder.put());
+	HRESULT hr = taskService->GetFolder(Win32Utils::BStr(L"\\Magpie"), taskFolder.put());
 	if (FAILED(hr)) {
-		// Folder doesn't exist. Get the Root folder and create the Magpie subfolder.
 		com_ptr<ITaskFolder> rootFolder = NULL;
 		hr = taskService->GetFolder(Win32Utils::BStr(L"\\"), rootFolder.put());
 		if (FAILED(hr)) {
@@ -277,39 +280,19 @@ static bool CreateAutoStartTask(bool runElevated) {
 }
 
 static bool DeleteAutoStartTask() {
-	// ------------------------------------------------------
-	// Get the Username for the task.
 	WCHAR username[USERNAME_LEN];
 	if (!GetEnvironmentVariable(L"USERNAME", username, USERNAME_LEN)) {
 		Logger::Get().Win32Error("获取用户名失败");
 		return false;
 	}
 
-	// ------------------------------------------------------
-	// Create an instance of the Task Service.
-	com_ptr<ITaskService> taskService;
-	HRESULT hr = CoCreateInstance(
-		CLSID_TaskScheduler,
-		NULL,
-		CLSCTX_INPROC_SERVER,
-		IID_PPV_ARGS(&taskService)
-	);
-	if (FAILED(hr)) {
-		Logger::Get().ComError("创建 ITaskService 失败", hr);
+	com_ptr<ITaskService> taskService = CreateTaskService();
+	if (!taskService) {
 		return false;
 	}
 
-	// Connect to the task service.
-	hr = taskService->Connect(Win32Utils::Variant(), Win32Utils::Variant(), Win32Utils::Variant(), Win32Utils::Variant());
-	if (FAILED(hr)) {
-		Logger::Get().ComError("ITaskService::Connect 失败", hr);
-		return false;
-	}
-
-	// ------------------------------------------------------
-	// Get the Magpie task folder.
 	com_ptr<ITaskFolder> taskFolder;
-	hr = taskService->GetFolder(Win32Utils::BStr(L"\\Magpie"), taskFolder.put());
+	HRESULT hr = taskService->GetFolder(Win32Utils::BStr(L"\\Magpie"), taskFolder.put());
 	if (FAILED(hr)) {
 		return true;
 	}
@@ -320,11 +303,11 @@ static bool DeleteAutoStartTask() {
 		com_ptr<IRegisteredTask> existingRegisteredTask;
 		hr = taskFolder->GetTask(taskName, existingRegisteredTask.put());
 		if (FAILED(hr)) {
+			// 不存在任务
 			return true;
 		}
 	}
 
-	// Task exists, try disabling it.
 	hr = taskFolder->DeleteTask(taskName, 0);
 	if (FAILED(hr)) {
 		Logger::Get().ComError("删除任务失败", hr);
@@ -343,31 +326,13 @@ static bool IsAutoStartTaskActive() {
 		return false;
 	}
 
-	// ------------------------------------------------------
-	// Create an instance of the Task Service.
-	com_ptr<ITaskService> taskService;
-	HRESULT hr = CoCreateInstance(
-		CLSID_TaskScheduler,
-		NULL,
-		CLSCTX_INPROC_SERVER,
-		IID_PPV_ARGS(&taskService)
-	);
-	if (FAILED(hr)) {
-		Logger::Get().ComError("创建 ITaskService 失败", hr);
+	com_ptr<ITaskService> taskService = CreateTaskService();
+	if (!taskService) {
 		return false;
 	}
 
-	// Connect to the task service.
-	hr = taskService->Connect(Win32Utils::Variant(), Win32Utils::Variant(), Win32Utils::Variant(), Win32Utils::Variant());
-	if (FAILED(hr)) {
-		Logger::Get().ComError("ITaskService::Connect 失败", hr);
-		return false;
-	}
-
-	// ------------------------------------------------------
-	// Get the Magpie task folder.
 	com_ptr<ITaskFolder> taskFolder;
-	hr = taskService->GetFolder(Win32Utils::BStr(L"\\Magpie"), taskFolder.put());
+	HRESULT hr = taskService->GetFolder(Win32Utils::BStr(L"\\Magpie"), taskFolder.put());
 	if (FAILED(hr)) {
 		return false;
 	}
@@ -462,6 +427,7 @@ static bool IsAutoStartShortcutExist() {
 
 bool AutoStartHelper::EnableAutoStart(bool runElevated) {
 	if (CreateAutoStartTask(runElevated)) {
+		DeleteAutoStartShortcut();
 		return true;
 	}
 
