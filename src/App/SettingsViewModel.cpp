@@ -31,14 +31,14 @@ void SettingsViewModel::Theme(int32_t value) noexcept {
 }
 
 bool SettingsViewModel::IsRunAtStartup() const noexcept {
-	return AutoStartHelper::IsAutoStartTaskActive();
+	return AutoStartHelper::IsAutoStartEnabled();
 }
 
 void SettingsViewModel::IsRunAtStartup(bool value) noexcept {
 	if (value) {
-		AutoStartHelper::CreateAutoStartTask(AppSettings::Get().IsAlwaysRunAsElevated());
+		AutoStartHelper::EnableAutoStart(AppSettings::Get().IsAlwaysRunAsElevated());
 	} else {
-		AutoStartHelper::DeleteAutoStartTask();
+		AutoStartHelper::DisableAutoStart();
 	}
 
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsRunAtStartup"));

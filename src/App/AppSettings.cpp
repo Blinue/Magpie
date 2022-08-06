@@ -576,9 +576,9 @@ void AppSettings::IsAlwaysRunAsElevated(bool value) noexcept {
 	}
 
 	_isAlwaysRunAsElevated = value;
-	if (AutoStartHelper::IsAutoStartTaskActive()) {
+	if (AutoStartHelper::IsAutoStartEnabled()) {
 		// 更新启动任务
-		AutoStartHelper::CreateAutoStartTask(value);
+		AutoStartHelper::EnableAutoStart(value);
 	}
 }
 

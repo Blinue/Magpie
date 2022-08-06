@@ -3,11 +3,11 @@
 namespace winrt::Magpie::App {
 
 struct AutoStartHelper {
-	static bool CreateAutoStartTask(bool runElevated);
+	static bool EnableAutoStart(bool runElevated);
 
-	static bool DeleteAutoStartTask();
+	static bool DisableAutoStart();
 
-	static bool IsAutoStartTaskActive();
+	static bool IsAutoStartEnabled();
 };
 
 }
