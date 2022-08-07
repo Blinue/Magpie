@@ -576,9 +576,10 @@ void AppSettings::IsAlwaysRunAsElevated(bool value) noexcept {
 	}
 
 	_isAlwaysRunAsElevated = value;
-	if (AutoStartHelper::IsAutoStartEnabled()) {
+	std::wstring arguments;
+	if (AutoStartHelper::IsAutoStartEnabled(arguments)) {
 		// 更新启动任务
-		AutoStartHelper::EnableAutoStart(value);
+		AutoStartHelper::EnableAutoStart(value, _isShowTrayIcon ? arguments.c_str() : nullptr);
 	}
 }
 

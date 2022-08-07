@@ -26,14 +26,31 @@
 						</ComboBox>
 					</local:SettingItem.ActionContent>
 				</local:SettingItem>
-				<local:SettingItem Title="开机启动">
-					<local:SettingItem.Icon>
-						<FontIcon Glyph="&#xE7B5;" />
-					</local:SettingItem.Icon>
-					<local:SettingItem.ActionContent>
-						<ToggleSwitch IsOn="{x:Bind ViewModel.IsRunAtStartup, Mode=TwoWay}" />
-					</local:SettingItem.ActionContent>
-				</local:SettingItem>
+				<muxc:Expander HorizontalAlignment="Stretch"
+							   HorizontalContentAlignment="Stretch"
+							   Style="{StaticResource SettingExpanderStyle}">
+					<muxc:Expander.Header>
+						<local:SettingItem Title="开机启动"
+										   Style="{StaticResource ExpanderHeaderSettingStyle}">
+							<local:SettingItem.Icon>
+								<FontIcon Glyph="&#xE7B5;" />
+							</local:SettingItem.Icon>
+							<local:SettingItem.ActionContent>
+								<ToggleSwitch IsOn="{x:Bind ViewModel.IsRunAtStartup, Mode=TwoWay}" />
+							</local:SettingItem.ActionContent>
+						</local:SettingItem>
+					</muxc:Expander.Header>
+					<muxc:Expander.Content>
+						<local:SettingItem Title="开机启动时最小化到系统托盘"
+										   Description="需开启常驻后台才能更改此选项"
+										   IsEnabled="{x:Bind ViewModel.IsMinimizeAtStartupEnabled, Mode=OneWay}"
+										   Style="{StaticResource ExpanderContentSettingStyle}">
+							<local:SettingItem.ActionContent>
+								<ToggleSwitch IsOn="{x:Bind ViewModel.IsMinimizeAtStartup, Mode=TwoWay}" />
+							</local:SettingItem.ActionContent>
+						</local:SettingItem>
+					</muxc:Expander.Content>
+				</muxc:Expander>
 				<local:SettingItem Title="常驻后台"
 								   Description="关闭主窗口时最小化到系统托盘">
 					<local:SettingItem.Icon>

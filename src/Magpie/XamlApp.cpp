@@ -20,7 +20,7 @@ static constexpr UINT CHECK_FORGROUND_TIMER_ID = 1;
 static constexpr const wchar_t* NOTIFY_ICON_WINDOW_CLASS_NAME = L"Magpie_NotifyIcon";
 
 
-bool XamlApp::Initialize(HINSTANCE hInstance) {
+bool XamlApp::Initialize(HINSTANCE hInstance, const wchar_t* arguments) {
 	_hInst = hInstance;
 
 	_hMutex.reset(CreateMutex(nullptr, TRUE, MUTEX_NAME));
@@ -81,7 +81,7 @@ bool XamlApp::Initialize(HINSTANCE hInstance) {
 	}
 
 	if (options.IsNeedElevated && !Win32Utils::IsProcessElevated()) {
-		_RestartAsElevated();
+		_RestartAsElevated(arguments);
 		return true;
 	}
 
@@ -127,10 +127,14 @@ bool XamlApp::Initialize(HINSTANCE hInstance) {
 		logger.Win32Error("SetUserObjectInformation 失败");
 	}
 
-	_CreateMainWindow();
-
-	if (_uwpApp.IsShowTrayIcon()) {
+	bool isShowTrayIcon = _uwpApp.IsShowTrayIcon();
+	if (isShowTrayIcon) {
 		_ShowTrayIcon();
+	}
+
+	// 不常驻后台时忽略 -t 参数
+	if (!isShowTrayIcon || !arguments || arguments != L"-t"sv) {
+		_CreateMainWindow();
 	}
 
 	_uwpApp.IsShowTrayIconChanged([this](winrt::IInspectable const&, bool value) {
@@ -267,7 +271,7 @@ void XamlApp::_Quit() noexcept {
 	PostQuitMessage(0);
 }
 
-void XamlApp::_RestartAsElevated() noexcept {
+void XamlApp::_RestartAsElevated(const wchar_t* arguments) noexcept {
 	if (_hwndMain) {
 		DestroyWindow(_hwndMain);
 	}
@@ -281,6 +285,7 @@ void XamlApp::_RestartAsElevated() noexcept {
 	SHELLEXECUTEINFOW execInfo{};
 	execInfo.cbSize = sizeof(execInfo);
 	execInfo.lpFile = exePath;
+	execInfo.lpParameters = arguments;
 	execInfo.lpVerb = L"runas";
 	// 调用 ShellExecuteEx 后立即退出，因此应该指定 SEE_MASK_NOASYNC
 	execInfo.fMask = SEE_MASK_NOASYNC;

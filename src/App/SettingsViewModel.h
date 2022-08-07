@@ -5,13 +5,24 @@
 namespace winrt::Magpie::App::implementation {
 
 struct SettingsViewModel : SettingsViewModelT<SettingsViewModel> {
-	SettingsViewModel() = default;
+	SettingsViewModel();
 
 	int32_t Theme() const noexcept;
 	void Theme(int32_t value) noexcept;
 
-	bool IsRunAtStartup() const noexcept;
+	bool IsRunAtStartup() const noexcept {
+		return _isRunAtStartup;
+	}
+
 	void IsRunAtStartup(bool value) noexcept;
+
+	bool IsMinimizeAtStartup() const noexcept {
+		return _isMinimizeAtStartup;
+	}
+
+	void IsMinimizeAtStartup(bool value) noexcept;
+
+	bool IsMinimizeAtStartupEnabled() const noexcept;
 
 	bool IsPortableMode() const noexcept;
 	void IsPortableMode(bool value) noexcept;
@@ -43,7 +54,12 @@ struct SettingsViewModel : SettingsViewModelT<SettingsViewModel> {
 	}
 
 private:
+	void _UpdateStartupOptions() noexcept;
+
 	event<PropertyChangedEventHandler> _propertyChangedEvent;
+
+	bool _isRunAtStartup = false;
+	bool _isMinimizeAtStartup = false;
 };
 
 }

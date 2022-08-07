@@ -17,7 +17,7 @@ public:
 		return instance;
 	}
 
-	bool Initialize(HINSTANCE hInstance);
+	bool Initialize(HINSTANCE hInstance, const wchar_t* arguments);
 
 	int Run();
 
@@ -28,7 +28,7 @@ private:
 
 	void _Quit() noexcept;
 
-	void _RestartAsElevated() noexcept;
+	void _RestartAsElevated(const wchar_t* arguments = nullptr) noexcept;
 
 	void _ShowTrayIcon() noexcept;
 

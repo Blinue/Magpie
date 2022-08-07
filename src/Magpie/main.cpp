@@ -8,7 +8,7 @@
 int APIENTRY wWinMain(
 	_In_ HINSTANCE hInstance,
 	_In_opt_ HINSTANCE /*hPrevInstance*/,
-	_In_ LPWSTR /*lpCmdLine*/,
+	_In_ LPWSTR lpCmdLine,
 	_In_ int /*nCmdShow*/
 ) {
 	// 程序结束时也不应调用 uninit_apartment
@@ -16,7 +16,7 @@ int APIENTRY wWinMain(
 	winrt::init_apartment(winrt::apartment_type::single_threaded);
 
 	auto& app = XamlApp::Get();
-	if (!app.Initialize(hInstance)) {
+	if (!app.Initialize(hInstance, lpCmdLine)) {
 		return -1;
 	}
 

@@ -684,17 +684,38 @@ Win32Utils::BStr::BStr(std::wstring_view str) {
 	_str = SysAllocStringLen(str.data(), (UINT)str.size());;
 }
 
-Win32Utils::BStr::~BStr() {
-	if (_str) {
-		SysFreeString(_str);
-	}
+Win32Utils::BStr::BStr(const BStr& other) {
+	_str = SysAllocStringLen(other._str, SysStringLen(other._str));
 }
 
-std::string Win32Utils::BStr::ToUTF8() {
+Win32Utils::BStr::~BStr() {
+	_Release();
+}
+
+Win32Utils::BStr& Win32Utils::BStr::operator=(const BStr& other) {
+	_Release();
+	_str = SysAllocStringLen(other._str, SysStringLen(other._str));
+	return *this;
+}
+
+Win32Utils::BStr& Win32Utils::BStr::operator=(BStr&& other) {
+	_Release();
+	_str = other._str;
+	other._str = NULL;
+	return *this;
+}
+
+std::string Win32Utils::BStr::ToUTF8() const {
 	if (!_str) {
 		return {};
 	}
 
 	std::wstring_view str(_str, SysStringLen(_str));
 	return StrUtils::UTF16ToUTF8(str);
+}
+
+void Win32Utils::BStr::_Release() {
+	if (_str) {
+		SysFreeString(_str);
+	}
 }

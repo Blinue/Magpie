@@ -7,6 +7,8 @@ namespace Magpie.App
 
 		Int32 Theme;
 		Boolean IsRunAtStartup;
+		Boolean IsMinimizeAtStartup;
+		Boolean IsMinimizeAtStartupEnabled { get; };
 		Boolean IsPortableMode;
 		Boolean IsShowTrayIcon;
 		Boolean IsSimulateExclusiveFullscreen;

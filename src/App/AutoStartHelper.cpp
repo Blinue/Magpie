@@ -5,6 +5,7 @@
 #include "Logger.h"
 #include "StrUtils.h"
 #include "Win32Utils.h"
+#include <propkey.h>
 
 #pragma comment(lib, "Taskschd.lib")
 
@@ -12,10 +13,10 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 // 实现开机启动
-// 
+//
 // 首先尝试使用任务计划程序，此方案的优点是以管理员身份启动时不会显示 UAC。
 // 如果创建任务失败，则回落到在当前用户的启动文件夹中创建快捷方式。
-// 
+//
 // 任务计划程序的使用参考自
 // https://github.com/microsoft/PowerToys/blob/3d54cb838504c12f59516afaf1a00fde2dd5d01b/src/runner/auto_start_helper.cpp
 //
@@ -54,7 +55,7 @@ static com_ptr<ITaskService> CreateTaskService() {
 	return taskService;
 }
 
-static bool CreateAutoStartTask(bool runElevated) {
+static bool CreateAutoStartTask(bool runElevated, const wchar_t* arguments) {
 	WCHAR usernameDomain[USERNAME_DOMAIN_LEN];
 	WCHAR username[USERNAME_LEN];
 
@@ -221,6 +222,10 @@ static bool CreateAutoStartTask(bool runElevated) {
 			Logger::Get().ComError("设置可执行文件路径失败", hr);
 			return false;
 		}
+
+		if (arguments) {
+			execAction->put_Arguments(Win32Utils::BStr(arguments));
+		}
 	}
 
 	// ------------------------------------------------------
@@ -317,9 +322,7 @@ static bool DeleteAutoStartTask() {
 	return true;
 }
 
-static bool IsAutoStartTaskActive() {
-	// ------------------------------------------------------
-	// Get the Username for the task.
+static bool IsAutoStartTaskActive(std::wstring& arguements) {
 	WCHAR username[USERNAME_LEN];
 	if (!GetEnvironmentVariable(L"USERNAME", username, USERNAME_LEN)) {
 		Logger::Get().Win32Error("获取用户名失败");
@@ -343,12 +346,43 @@ static bool IsAutoStartTaskActive() {
 		return false;
 	}
 
-	// Task exists, get its value.
 	VARIANT_BOOL isEnabled;
 	hr = existingRegisteredTask->get_Enabled(&isEnabled);
 	if (FAILED(hr)) {
+		Logger::Get().ComError("IRegisteredTask::get_Enabled 失败", hr);
 		return false;
 	}
+
+	com_ptr<ITaskDefinition> task;
+	hr = existingRegisteredTask->get_Definition(task.put());
+	if (FAILED(hr)) {
+		Logger::Get().ComError("获取 ITaskDefinition 失败", hr);
+		return false;
+	}
+
+	com_ptr<IActionCollection> actionCollection;
+	task->get_Actions(actionCollection.put());
+	if (FAILED(hr)) {
+		Logger::Get().ComError("获取 IActionCollection 失败", hr);
+		return false;
+	}
+
+	com_ptr<IAction> action;
+	// 索引从 1 开始
+	hr = actionCollection->get_Item(1, action.put());
+	if (FAILED(hr)) {
+		Logger::Get().ComError("获取 IAction 失败", hr);
+		return false;
+	}
+
+	com_ptr<IExecAction> execAction = action.try_as<IExecAction>();
+	Win32Utils::BStr args;
+	hr = execAction->get_Arguments(&args.Raw());
+	if (FAILED(hr)) {
+		Logger::Get().ComError("获取参数失败", hr);
+		return false;
+	}
+	arguements = args.ToString();
 
 	return isEnabled == VARIANT_TRUE;
 }
@@ -371,7 +405,7 @@ static std::wstring GetShortcutPath() {
 	return shortcutPath;
 }
 
-static bool CreateAutoStartShortcut() {
+static bool CreateAutoStartShortcut(const wchar_t* arguments) {
 	com_ptr<IShellLink> shellLink;
 	HRESULT hr = CoCreateInstance(CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&shellLink));
 	if (FAILED(hr)) {
@@ -382,7 +416,11 @@ static bool CreateAutoStartShortcut() {
 	WCHAR executablePath[MAX_PATH];
 	GetModuleFileName(NULL, executablePath, MAX_PATH);
 	shellLink->SetPath(executablePath);
-	
+
+	if (arguments) {
+		shellLink->SetArguments(arguments);
+	}
+
 	com_ptr<IPersistFile> persistFile = shellLink.try_as<IPersistFile>();
 	if (!persistFile) {
 		Logger::Get().Error("获取 IPersistFile 失败");
@@ -416,22 +454,74 @@ static bool DeleteAutoStartShortcut() {
 	return true;
 }
 
-static bool IsAutoStartShortcutExist() {
+static bool IsAutoStartShortcutExist(std::wstring& arguments) {
 	std::wstring shortcutPath = GetShortcutPath();
 	if (shortcutPath.empty()) {
 		return false;
 	}
 
-	return Win32Utils::FileExists(shortcutPath.c_str());
+	if (!Win32Utils::FileExists(shortcutPath.c_str())) {
+		return false;
+	}
+
+	com_ptr<IShellLink> shellLink;
+	HRESULT hr = CoCreateInstance(CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&shellLink));
+	if (FAILED(hr)) {
+		Logger::Get().ComError("创建 IShellLink 失败", hr);
+		return false;
+	}
+
+	com_ptr<IPersistFile> persistFile = shellLink.try_as<IPersistFile>();
+	if (!persistFile) {
+		Logger::Get().Error("获取 IPersistFile 失败");
+		return false;
+	}
+
+	hr = persistFile->Load(shortcutPath.c_str(), STGM_READ);
+	if (FAILED(hr)) {
+		Logger::Get().ComError("读取快捷方式失败", hr);
+		return false;
+	}
+
+	hr = shellLink->Resolve(NULL, SLR_NO_UI);
+	if (FAILED(hr)) {
+		Logger::Get().ComError("解析快捷方式失败", hr);
+		return false;
+	}
+
+	// https://docs.microsoft.com/en-us/windows/win32/api/shobjidl_core/nf-shobjidl_core-ishelllinka-getarguments
+	// 推荐从 IPropertyStore 检索参数
+	com_ptr<IPropertyStore> propertyStore = shellLink.as<IPropertyStore>();
+	if (!propertyStore) {
+		Logger::Get().Error("获取 IPropertyStore 失败");
+		return false;
+	}
+
+	PROPVARIANT prop;
+	hr = propertyStore->GetValue(PKEY_Link_Arguments, &prop);
+	if (FAILED(hr)) {
+		Logger::Get().ComError("检索 Arguments 参数失败", hr);
+		return false;
+	}
+
+	if (prop.vt == VT_LPWSTR) {
+		arguments = prop.pwszVal;
+	} else if (prop.vt == VT_BSTR) {
+		arguments = prop.bstrVal;
+	}
+
+	PropVariantClear(&prop);
+
+	return true;
 }
 
-bool AutoStartHelper::EnableAutoStart(bool runElevated) {
-	if (CreateAutoStartTask(runElevated)) {
+bool AutoStartHelper::EnableAutoStart(bool runElevated, const wchar_t* arguments) {
+	if (CreateAutoStartTask(runElevated, arguments)) {
 		DeleteAutoStartShortcut();
 		return true;
 	}
 
-	return CreateAutoStartShortcut();
+	return CreateAutoStartShortcut(arguments);
 }
 
 bool AutoStartHelper::DisableAutoStart() {
@@ -440,8 +530,8 @@ bool AutoStartHelper::DisableAutoStart() {
 	return result1 || result2;
 }
 
-bool AutoStartHelper::IsAutoStartEnabled() {
-	return IsAutoStartTaskActive() || IsAutoStartShortcutExist();
+bool AutoStartHelper::IsAutoStartEnabled(std::wstring& arguments) {
+	return IsAutoStartTaskActive(arguments) || IsAutoStartShortcutExist(arguments);
 }
 
 }

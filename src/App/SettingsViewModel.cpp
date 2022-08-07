@@ -6,9 +6,14 @@
 #include "AppSettings.h"
 #include "AutoStartHelper.h"
 #include "Win32Utils.h"
+#include "CommonSharedConstants.h"
 
 
 namespace winrt::Magpie::App::implementation {
+
+SettingsViewModel::SettingsViewModel() {
+	_UpdateStartupOptions();
+}
 
 int32_t SettingsViewModel::Theme() const noexcept {
 	return (int32_t)AppSettings::Get().Theme();
@@ -30,18 +35,36 @@ void SettingsViewModel::Theme(int32_t value) noexcept {
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"Theme"));
 }
 
-bool SettingsViewModel::IsRunAtStartup() const noexcept {
-	return AutoStartHelper::IsAutoStartEnabled();
-}
-
 void SettingsViewModel::IsRunAtStartup(bool value) noexcept {
 	if (value) {
-		AutoStartHelper::EnableAutoStart(AppSettings::Get().IsAlwaysRunAsElevated());
+		AutoStartHelper::EnableAutoStart(
+			AppSettings::Get().IsAlwaysRunAsElevated(),
+			_isMinimizeAtStartup ? CommonSharedConstants::OPTION_MINIMIZE_TO_TRAY_AT_STARTUP : nullptr
+		);
 	} else {
 		AutoStartHelper::DisableAutoStart();
 	}
 
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsRunAtStartup"));
+	_UpdateStartupOptions();
+
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsMinimizeAtStartupEnabled"));
+}
+
+void SettingsViewModel::IsMinimizeAtStartup(bool value) noexcept {
+	if (!_isRunAtStartup) {
+		return;
+	}
+
+	AutoStartHelper::EnableAutoStart(
+		AppSettings::Get().IsAlwaysRunAsElevated(),
+		value ? CommonSharedConstants::OPTION_MINIMIZE_TO_TRAY_AT_STARTUP : nullptr
+	);
+
+	_UpdateStartupOptions();
+}
+
+bool SettingsViewModel::IsMinimizeAtStartupEnabled() const noexcept {
+	return IsRunAtStartup() && IsShowTrayIcon();
 }
 
 bool SettingsViewModel::IsPortableMode() const noexcept {
@@ -65,6 +88,14 @@ bool SettingsViewModel::IsShowTrayIcon() const noexcept {
 
 void SettingsViewModel::IsShowTrayIcon(bool value) noexcept {
 	AppSettings::Get().IsShowTrayIcon(value);
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsMinimizeAtStartupEnabled"));
+
+	if (_isRunAtStartup) {
+		AutoStartHelper::EnableAutoStart(AppSettings::Get().IsAlwaysRunAsElevated(), nullptr);
+		_UpdateStartupOptions();
+	}
+
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsMinimizeAtStartupEnabled"));
 }
 
 bool SettingsViewModel::IsSimulateExclusiveFullscreen() const noexcept {
@@ -140,6 +171,19 @@ void SettingsViewModel::IsWarningsAreErrors(bool value) noexcept {
 
 	settings.IsWarningsAreErrors(value);
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsWarningsAreErrors"));
+}
+
+void SettingsViewModel::_UpdateStartupOptions() noexcept {
+	std::wstring arguments;
+	_isRunAtStartup = AutoStartHelper::IsAutoStartEnabled(arguments);
+	if (_isRunAtStartup) {
+		_isMinimizeAtStartup = arguments == CommonSharedConstants::OPTION_MINIMIZE_TO_TRAY_AT_STARTUP;
+	} else {
+		_isMinimizeAtStartup = false;
+	}
+
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsRunAtStartup"));
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsMinimizeAtStartup"));
 }
 
 }

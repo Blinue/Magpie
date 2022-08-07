@@ -16,6 +16,8 @@ struct CommonSharedConstants {
 	static constexpr const wchar_t* ASSETS_DIR_W = L"assets\\";
 	static constexpr const wchar_t* CACHE_DIR_W = L"cache\\";
 
+	static constexpr const wchar_t* OPTION_MINIMIZE_TO_TRAY_AT_STARTUP = L"-t";
+
 	// 来自 Magpie\resource.h
 	static constexpr UINT IDI_APP = 101;
 

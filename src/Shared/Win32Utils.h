@@ -218,16 +218,41 @@ struct Win32Utils {
 
 	// 简单的 BSTR 包装器，用于管理生命周期
 	struct BStr {
+		BStr() = default;
 		BStr(std::wstring_view str);
+
+		BStr(const BStr& other);
+		BStr(BStr&& other) noexcept {
+			_str = other._str;
+			other._str = NULL;
+		}
 
 		~BStr();
 
-		std::string ToUTF8();
+		BStr& operator=(const BStr& other);
+		BStr& operator=(BStr&& other);
 
-		operator BSTR() {
+		std::wstring ToString() const {
+			if (_str) {
+				return _str;
+			} else {
+				return {};
+			}
+		}
+
+		std::string ToUTF8() const;
+
+		BSTR& Raw() {
 			return _str;
 		}
+
+		operator BSTR() const {
+			return _str;
+		}
+
 	private:
+		void _Release();
+
 		BSTR _str = NULL;
 	};
 };

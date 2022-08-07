@@ -71,7 +71,7 @@
 
 			<Thickness x:Key="ExpanderChevronMargin">0,0,8,0</Thickness>
 
-			<!--  Setting used in a Expander header  -->
+			<!--  Setting used in a Expander content  -->
 			<Style x:Key="ExpanderContentSettingStyle"
 				   TargetType="local:SettingItem">
 				<Setter Property="Background" Value="Transparent" />
@@ -79,6 +79,7 @@
 				<Setter Property="BorderBrush" Value="{ThemeResource CardBorderBrush}" />
 				<Setter Property="CornerRadius" Value="0" />
 				<Setter Property="Padding" Value="{StaticResource ExpanderSettingMargin}" />
+				<Setter Property="Margin" Value="0,0,3,0" />
 				<Setter Property="HorizontalAlignment" Value="Stretch" />
 			</Style>
 
