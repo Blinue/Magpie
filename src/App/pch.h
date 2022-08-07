@@ -41,6 +41,7 @@
 #include <winrt/Microsoft.Graphics.Canvas.Effects.h>
 #pragma pop_macro("GetNextSibling")
 
+
 namespace winrt {
 using namespace Windows::System;
 using namespace Windows::UI::Core;

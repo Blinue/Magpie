@@ -9,6 +9,7 @@
 #include <magnification.h>
 
 #pragma comment(lib, "Magnification.lib")
+#pragma comment(lib, "Bcrypt.lib")
 
 
 UINT Win32Utils::GetOSBuild() {

@@ -23,6 +23,7 @@
 			<ConformanceMode>true</ConformanceMode>
 			<LanguageStandard>stdcpp20</LanguageStandard>
 			<LanguageStandard_C>stdc17</LanguageStandard_C>
+			<FloatingPointModel>Fast</FloatingPointModel>
 			<AdditionalOptions>/bigobj /utf-8 /Zc:__cplusplus /volatile:iso %(AdditionalOptions)</AdditionalOptions>
 			<ExternalWarningLevel>TurnOffAllWarnings</ExternalWarningLevel>
 			<TreatAngleIncludeAsExternal>true</TreatAngleIncludeAsExternal>

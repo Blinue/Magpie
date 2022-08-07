@@ -10,7 +10,7 @@
 #include "CommonSharedConstants.h"
 #include "MagService.h"
 #include <CoreWindow.h>
-
+#include <Runtime.h>
 
 using namespace winrt;
 using namespace Windows::UI::Xaml::Media;
@@ -57,6 +57,9 @@ App::App() {
 	}
 
 	_displayInformation = Windows::Graphics::Display::DisplayInformation::GetForCurrentView();
+
+	::Magpie::Runtime::MagRuntime t;
+	t.HwndSrc();
 }
 
 App::~App() {

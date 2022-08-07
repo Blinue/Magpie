@@ -57,6 +57,9 @@
   <PropertyGroup Label="UserMacros" />
   <ItemGroup>
     <ProjectReference Include="..\$(AppProjectName)\$(AppProjectName).vcxproj" />
+    <ProjectReference Include="..\Runtime1\Runtime1.vcxproj">
+      <Project>{0e5205ae-dfa9-4cb8-b662-e43cd6512e2a}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\Runtime\Runtime.vcxproj" />
   </ItemGroup>
   <ItemDefinitionGroup>
