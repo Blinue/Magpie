@@ -14,12 +14,11 @@
     <ClInclude Include="include\Runtime.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="include\MagOptions.h">
-      <Filter>include</Filter>
-    </ClInclude>
+    <ClInclude Include="MagOptions.h" />
+    <ClInclude Include="MagRuntime.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Runtime.cpp" />
+    <ClCompile Include="MagRuntime.cpp" />
     <ClCompile Include="pch.cpp" />
     <ClCompile Include="DllMain.cpp" />
   </ItemGroup>

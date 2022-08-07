@@ -48,11 +48,9 @@ struct MagFlags {
 
 struct MagOptions {
 	Cropping Cropping{};
+	uint32_t Flags = 0;
 	uint32_t GraphicsAdapter = 0;
 	float CursorScaling = 1.0f;
-
-	uint32_t Flags = 0;
-
 	CaptureMode CaptureMode = CaptureMode::GraphicsCapture;
 	MultiMonitorUsage MultiMonitorUsage = MultiMonitorUsage::Nearest;
 	CursorInterpolationMode CrsorInterpolationMode = CursorInterpolationMode::Nearest;

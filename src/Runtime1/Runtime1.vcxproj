@@ -159,8 +159,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="include\MagOptions.h" />
     <ClInclude Include="include\Runtime.h" />
+    <ClInclude Include="MagOptions.h" />
+    <ClInclude Include="MagRuntime.h" />
     <ClInclude Include="pch.h" />
   </ItemGroup>
   <ItemGroup>
@@ -171,7 +172,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Runtime.cpp" />
+    <ClCompile Include="MagRuntime.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
