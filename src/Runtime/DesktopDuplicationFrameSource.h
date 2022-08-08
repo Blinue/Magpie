@@ -2,6 +2,8 @@
 #include "FrameSourceBase.h"
 
 
+namespace Magpie::Runtime {
+
 // 使用 Desktop Duplication API 捕获窗口
 // 在单独的线程中接收屏幕帧以避免丢帧
 class DesktopDuplicationFrameSource : public FrameSourceBase {
@@ -59,3 +61,5 @@ private:
 	RECT _srcClientInMonitor{};
 	D3D11_BOX _frameInMonitor{};
 };
+
+}

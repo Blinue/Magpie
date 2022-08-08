@@ -9,6 +9,7 @@
 #include "IconHelper.h"
 #include "ScalingProfileService.h"
 #include "StrUtils.h"
+#include <Runtime.h>
 
 
 using namespace winrt;
@@ -16,6 +17,7 @@ using namespace Windows::Graphics::Display;
 using namespace Windows::Graphics::Imaging;
 using namespace Windows::UI::Xaml::Controls;
 using namespace Windows::UI::Xaml::Media::Imaging;
+using namespace ::Magpie::Runtime;
 
 
 namespace winrt::Magpie::App::implementation {
@@ -94,11 +96,11 @@ ScalingProfileViewModel::ScalingProfileViewModel(int32_t profileIdx) : _isDefaul
 }
 
 bool ScalingProfileViewModel::IsNotDefaultScalingProfile() const noexcept {
-	return !_profile->Name().empty();
+	return !_profile->Name.empty();
 }
 
 hstring ScalingProfileViewModel::Name() const noexcept {
-	return hstring(_profile->Name().empty() ? L"默认" : _profile->Name());
+	return hstring(_profile->Name.empty() ? L"默认" : _profile->Name);
 }
 
 void ScalingProfileViewModel::RenameText(const hstring& value) {
@@ -107,7 +109,7 @@ void ScalingProfileViewModel::RenameText(const hstring& value) {
 
 	_trimedRenameText = value;
 	StrUtils::Trim(_trimedRenameText);
-	bool newEnabled = !_trimedRenameText.empty() && _trimedRenameText != _profile->Name();
+	bool newEnabled = !_trimedRenameText.empty() && _trimedRenameText != _profile->Name;
 	if (_isRenameConfirmButtonEnabled != newEnabled) {
 		_isRenameConfirmButtonEnabled = newEnabled;
 		_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsRenameConfirmButtonEnabled"));
@@ -175,7 +177,7 @@ void ScalingProfileViewModel::Delete() {
 }
 
 int32_t ScalingProfileViewModel::CaptureMode() const noexcept {
-	return (int32_t)_profile->MagSettings().CaptureMode();
+	return (int32_t)_profile->CaptureMode;
 }
 
 void ScalingProfileViewModel::CaptureMode(int32_t value) {
@@ -183,30 +185,30 @@ void ScalingProfileViewModel::CaptureMode(int32_t value) {
 		return;
 	}
 
-	Magpie::Runtime::CaptureMode captureMode = (Magpie::Runtime::CaptureMode)value;
-	if (_profile->MagSettings().CaptureMode() == captureMode) {
+	::Magpie::Runtime::CaptureMode captureMode = (::Magpie::Runtime::CaptureMode)value;
+	if (_profile->CaptureMode == captureMode) {
 		return;
 	}
 
-	_profile->MagSettings().CaptureMode(captureMode);
+	_profile->CaptureMode = captureMode;
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CaptureMode"));
 }
 
 bool ScalingProfileViewModel::Is3DGameMode() const noexcept {
-	return _profile->MagSettings().Is3DGameMode();
+	return _profile->Is3DGameMode();
 }
 
 void ScalingProfileViewModel::Is3DGameMode(bool value) {
-	if (_profile->MagSettings().Is3DGameMode() == value) {
+	if (_profile->Is3DGameMode() == value) {
 		return;
 	}
 
-	_profile->MagSettings().Is3DGameMode(value);
+	_profile->Is3DGameMode(value);
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"Is3DGameMode"));
 }
 
 int32_t ScalingProfileViewModel::MultiMonitorUsage() const noexcept {
-	return (int32_t)_profile->MagSettings().MultiMonitorUsage();
+	return (int32_t)_profile->MultiMonitorUsage;
 }
 
 void ScalingProfileViewModel::MultiMonitorUsage(int32_t value) {
@@ -214,17 +216,17 @@ void ScalingProfileViewModel::MultiMonitorUsage(int32_t value) {
 		return;
 	}
 
-	Magpie::Runtime::MultiMonitorUsage multiMonitorUsage = (Magpie::Runtime::MultiMonitorUsage)value;
-	if (_profile->MagSettings().MultiMonitorUsage() == multiMonitorUsage) {
+	::Magpie::Runtime::MultiMonitorUsage multiMonitorUsage = (::Magpie::Runtime::MultiMonitorUsage)value;
+	if (_profile->MultiMonitorUsage == multiMonitorUsage) {
 		return;
 	}
 
-	_profile->MagSettings().MultiMonitorUsage(multiMonitorUsage);
+	_profile->MultiMonitorUsage = multiMonitorUsage;
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"MultiMonitorUsage"));
 }
 
 int32_t ScalingProfileViewModel::GraphicsAdapter() const noexcept {
-	return (int32_t)_profile->MagSettings().GraphicsAdapter();
+	return (int32_t)_profile->GraphicsAdapter;
 }
 
 void ScalingProfileViewModel::GraphicsAdapter(int32_t value) {
@@ -233,181 +235,173 @@ void ScalingProfileViewModel::GraphicsAdapter(int32_t value) {
 	}
 
 	uint32_t graphicsAdapter = (uint32_t)value;
-	if (_profile->MagSettings().GraphicsAdapter() == graphicsAdapter) {
+	if (_profile->GraphicsAdapter == graphicsAdapter) {
 		return;
 	}
 
-	_profile->MagSettings().GraphicsAdapter(graphicsAdapter);
+	_profile->GraphicsAdapter = graphicsAdapter;
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"GraphicsAdapter"));
 }
 
 bool ScalingProfileViewModel::IsShowFPS() const noexcept {
-	return _profile->MagSettings().IsShowFPS();
+	return _profile->IsShowFPS();
 }
 
 void ScalingProfileViewModel::IsShowFPS(bool value) {
-	if (_profile->MagSettings().IsShowFPS() == value) {
+	if (_profile->IsShowFPS() == value) {
 		return;
 	}
 
-	_profile->MagSettings().IsShowFPS(value);
+	_profile->IsShowFPS(value);
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsShowFPS"));
 }
 
 bool ScalingProfileViewModel::IsVSync() const noexcept {
-	return _profile->MagSettings().IsVSync();
+	return _profile->IsVSync();
 }
 
 void ScalingProfileViewModel::IsVSync(bool value) {
-	if (_profile->MagSettings().IsVSync() == value) {
+	if (_profile->IsVSync() == value) {
 		return;
 	}
 
-	_profile->MagSettings().IsVSync(value);
+	_profile->IsVSync(value);
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsVSync"));
 }
 
 bool ScalingProfileViewModel::IsTripleBuffering() const noexcept {
-	return _profile->MagSettings().IsTripleBuffering();
+	return _profile->IsTripleBuffering();
 }
 
 void ScalingProfileViewModel::IsTripleBuffering(bool value) {
-	if (_profile->MagSettings().IsTripleBuffering() == value) {
+	if (_profile->IsTripleBuffering() == value) {
 		return;
 	}
 
-	_profile->MagSettings().IsTripleBuffering(value);
+	_profile->IsTripleBuffering(value);
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsTripleBuffering"));
 }
 
 bool ScalingProfileViewModel::IsDisableWindowResizing() const noexcept {
-	return _profile->MagSettings().IsDisableWindowResizing();
+	return _profile->IsDisableWindowResizing();
 }
 
 void ScalingProfileViewModel::IsDisableWindowResizing(bool value) {
-	if (_profile->MagSettings().IsDisableWindowResizing() == value) {
+	if (_profile->IsDisableWindowResizing() == value) {
 		return;
 	}
 
-	_profile->MagSettings().IsDisableWindowResizing(value);
+	_profile->IsDisableWindowResizing(value);
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsDisableWindowResizing"));
 }
 
 bool ScalingProfileViewModel::IsReserveTitleBar() const noexcept {
-	return _profile->MagSettings().IsReserveTitleBar();
+	return _profile->IsReserveTitleBar();
 }
 
 void ScalingProfileViewModel::IsReserveTitleBar(bool value) {
-	if (_profile->MagSettings().IsReserveTitleBar() == value) {
+	if (_profile->IsReserveTitleBar() == value) {
 		return;
 	}
 
-	_profile->MagSettings().IsReserveTitleBar(value);
+	_profile->IsReserveTitleBar(value);
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsReserveTitleBar"));
 }
 
 bool ScalingProfileViewModel::IsCroppingEnabled() const noexcept {
-	return _profile->IsCroppingEnabled();
+	return _profile->IsCroppingEnabled;
 }
 
 void ScalingProfileViewModel::IsCroppingEnabled(bool value) {
-	if (_profile->IsCroppingEnabled() == value) {
+	if (_profile->IsCroppingEnabled == value) {
 		return;
 	}
 
-	_profile->IsCroppingEnabled(value);
+	_profile->IsCroppingEnabled = value;
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsCroppingEnabled"));
 }
 
 double ScalingProfileViewModel::CroppingLeft() const noexcept {
-	return _profile->MagSettings().Cropping().Left;
+	return _profile->Cropping.Left;
 }
 
 void ScalingProfileViewModel::CroppingLeft(double value) {
-	Magpie::Runtime::Cropping cropping = _profile->MagSettings().Cropping();
-	if (cropping.Left == value) {
+	if (_profile->Cropping.Left == value) {
 		return;
 	}
 
-	cropping.Left = std::isnan(value) ? 0 : value;
-	_profile->MagSettings().Cropping(cropping);
+	_profile->Cropping.Left = std::isnan(value) ? 0.0f : (float)value;
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CroppingLeft"));
 }
 
 double ScalingProfileViewModel::CroppingTop() const noexcept {
-	return _profile->MagSettings().Cropping().Top;
+	return _profile->Cropping.Top;
 }
 
 void ScalingProfileViewModel::CroppingTop(double value) {
-	Magpie::Runtime::Cropping cropping = _profile->MagSettings().Cropping();
-	if (cropping.Top == value) {
+	if (_profile->Cropping.Top == value) {
 		return;
 	}
 
 	// 用户已清空数字框则重置为 0
-	cropping.Top = std::isnan(value) ? 0 : value;
-	_profile->MagSettings().Cropping(cropping);
+	_profile->Cropping.Top = std::isnan(value) ? 0.0f : (float)value;
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CroppingTop"));
 }
 
 double ScalingProfileViewModel::CroppingRight() const noexcept {
-	return _profile->MagSettings().Cropping().Right;
+	return _profile->Cropping.Right;
 }
 
 void ScalingProfileViewModel::CroppingRight(double value) {
-	Magpie::Runtime::Cropping cropping = _profile->MagSettings().Cropping();
-	if (cropping.Right == value) {
+	if (_profile->Cropping.Right == value) {
 		return;
 	}
 
-	cropping.Right = std::isnan(value) ? 0 : value;
-	_profile->MagSettings().Cropping(cropping);
+	_profile->Cropping.Right = std::isnan(value) ? 0.0f : (float)value;
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CroppingRight"));
 }
 
 double ScalingProfileViewModel::CroppingBottom() const noexcept {
-	return _profile->MagSettings().Cropping().Bottom;
+	return _profile->Cropping.Bottom;
 }
 
 void ScalingProfileViewModel::CroppingBottom(double value) {
-	Magpie::Runtime::Cropping cropping = _profile->MagSettings().Cropping();
-	if (cropping.Bottom == value) {
+	if (_profile->Cropping.Bottom == value) {
 		return;
 	}
 
-	cropping.Bottom = std::isnan(value) ? 0 : value;
-	_profile->MagSettings().Cropping(cropping);
+	_profile->Cropping.Bottom = std::isnan(value) ? 0.0f : (float)value;
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CroppingBottom"));
 }
 
 bool ScalingProfileViewModel::IsAdjustCursorSpeed() const noexcept {
-	return _profile->MagSettings().IsAdjustCursorSpeed();
+	return _profile->IsAdjustCursorSpeed();
 }
 
 void ScalingProfileViewModel::IsAdjustCursorSpeed(bool value) {
-	if (_profile->MagSettings().IsAdjustCursorSpeed() == value) {
+	if (_profile->IsAdjustCursorSpeed() == value) {
 		return;
 	}
 
-	_profile->MagSettings().IsAdjustCursorSpeed(value);
+	_profile->IsAdjustCursorSpeed(value);
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsAdjustCursorSpeed"));
 }
 
 bool ScalingProfileViewModel::IsDrawCursor() const noexcept {
-	return _profile->MagSettings().IsDrawCursor();
+	return _profile->IsDrawCursor();
 }
 
 void ScalingProfileViewModel::IsDrawCursor(bool value) {
-	if (_profile->MagSettings().IsDrawCursor() == value) {
+	if (_profile->IsDrawCursor() == value) {
 		return;
 	}
 
-	_profile->MagSettings().IsDrawCursor(value);
+	_profile->IsDrawCursor(value);
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsDrawCursor"));
 }
 
 int32_t ScalingProfileViewModel::CursorScaling() const noexcept {
-	return (int32_t)_profile->CursorScaling();
+	return (int32_t)_profile->CursorScaling;
 }
 
 void ScalingProfileViewModel::CursorScaling(int32_t value) {
@@ -416,29 +410,29 @@ void ScalingProfileViewModel::CursorScaling(int32_t value) {
 	}
 
 	Magpie::App::CursorScaling cursorScaling = (Magpie::App::CursorScaling)value;
-	if (_profile->CursorScaling() == cursorScaling) {
+	if (_profile->CursorScaling == cursorScaling) {
 		return;
 	}
 
-	_profile->CursorScaling(cursorScaling);
+	_profile->CursorScaling = cursorScaling;
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CursorScaling"));
 }
 
 double ScalingProfileViewModel::CustomCursorScaling() const noexcept {
-	return _profile->CustomCursorScaling();
+	return _profile->CustomCursorScaling;
 }
 
 void ScalingProfileViewModel::CustomCursorScaling(double value) {
-	if (_profile->CustomCursorScaling() == value) {
+	if (_profile->CustomCursorScaling == value) {
 		return;
 	}
 
-	_profile->CustomCursorScaling(std::isnan(value) ? 1.0 : value);
+	_profile->CustomCursorScaling = std::isnan(value) ? 1.0f : (float)value;
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CustomCursorScaling"));
 }
 
 int32_t ScalingProfileViewModel::CursorInterpolationMode() const noexcept {
-	return (int32_t)_profile->MagSettings().CursorInterpolationMode();
+	return (int32_t)_profile->CursorInterpolationMode;
 }
 
 void ScalingProfileViewModel::CursorInterpolationMode(int32_t value) {
@@ -446,25 +440,25 @@ void ScalingProfileViewModel::CursorInterpolationMode(int32_t value) {
 		return;
 	}
 
-	Magpie::Runtime::CursorInterpolationMode cursorInterpolationMode = (Magpie::Runtime::CursorInterpolationMode)value;
-	if (_profile->MagSettings().CursorInterpolationMode() == cursorInterpolationMode) {
+	::Magpie::Runtime::CursorInterpolationMode cursorInterpolationMode = (::Magpie::Runtime::CursorInterpolationMode)value;
+	if (_profile->CursorInterpolationMode == cursorInterpolationMode) {
 		return;
 	}
 
-	_profile->MagSettings().CursorInterpolationMode(cursorInterpolationMode);
+	_profile->CursorInterpolationMode = cursorInterpolationMode;
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CursorInterpolationMode"));
 }
 
 bool ScalingProfileViewModel::IsDisableDirectFlip() const noexcept {
-	return _profile->MagSettings().IsDisableDirectFlip();
+	return _profile->IsDisableDirectFlip();
 }
 
 void ScalingProfileViewModel::IsDisableDirectFlip(bool value) {
-	if (_profile->MagSettings().IsDisableDirectFlip() == value) {
+	if (_profile->IsDisableDirectFlip() == value) {
 		return;
 	}
 
-	_profile->MagSettings().IsDisableDirectFlip(value);
+	_profile->IsDisableDirectFlip(value);
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsDisableDirectFlip"));
 }
 
@@ -472,8 +466,8 @@ fire_and_forget ScalingProfileViewModel::_LoadIcon(FrameworkElement const& mainP
 	auto weakThis = get_weak();
 
 	bool preferLightTheme = mainPage.ActualTheme() == ElementTheme::Light;
-	bool isPackaged = _profile->IsPackaged();
-	std::wstring path = _profile->PathRule();
+	bool isPackaged = _profile->IsPackaged;
+	std::wstring path = _profile->PathRule;
 	CoreDispatcher dispatcher = mainPage.Dispatcher();
 	uint32_t dpi = (uint32_t)std::lroundf(DisplayInformation::GetForCurrentView().LogicalDpi());
 

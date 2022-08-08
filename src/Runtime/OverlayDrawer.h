@@ -4,6 +4,9 @@
 
 
 struct ImFont;
+
+namespace Magpie::Runtime {
+
 class ImGuiImpl;
 
 class OverlayDrawer {
@@ -50,3 +53,5 @@ private:
 
 	std::unique_ptr<ImGuiImpl> _imguiImpl;
 };
+
+}

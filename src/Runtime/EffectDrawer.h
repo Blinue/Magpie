@@ -3,6 +3,8 @@
 #include "EffectDesc.h"
 
 
+namespace Magpie::Runtime {
+
 class EffectDrawer {
 public:
 	EffectDrawer() = default;
@@ -46,3 +48,5 @@ private:
 
 	std::vector<std::pair<UINT, UINT>> _dispatches;
 };
+
+}

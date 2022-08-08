@@ -3,6 +3,8 @@
 #include "EffectDesc.h"
 
 
+namespace Magpie::Runtime {
+
 class EffectDrawer;
 class GPUTimer;
 class OverlayDrawer;
@@ -69,3 +71,5 @@ private:
 
 	std::unique_ptr<GPUTimer> _gpuTimer;
 };
+
+}

@@ -5,6 +5,8 @@
 #include "Logger.h"
 
 
+namespace Magpie::Runtime {
+
 bool GDIFrameSource::Initialize() {
 	if (!FrameSourceBase::Initialize()) {
 		Logger::Get().Error("初始化 FrameSourceBase 失败");
@@ -49,8 +51,8 @@ bool GDIFrameSource::Initialize() {
 	if (_frameRect.left < 0 || _frameRect.top < 0 || _frameRect.right < 0
 		|| _frameRect.bottom < 0 || _frameRect.right - _frameRect.left <= 0
 		|| _frameRect.bottom - _frameRect.top <= 0
-	) {
-		//App::Get().SetErrorMsg(ErrorMessages::FAILED_TO_CROP);
+		) {
+			//App::Get().SetErrorMsg(ErrorMessages::FAILED_TO_CROP);
 		Logger::Get().Error("裁剪失败");
 		return false;
 	}
@@ -97,7 +99,7 @@ FrameSourceBase::UpdateState GDIFrameSource::Update() {
 
 	if (!BitBlt(hdcDest, 0, 0, _frameRect.right - _frameRect.left, _frameRect.bottom - _frameRect.top,
 		hdcSrc, _frameRect.left, _frameRect.top, SRCCOPY)
-	) {
+		) {
 		Logger::Get().Win32Error("BitBlt 失败");
 	}
 
@@ -105,4 +107,6 @@ FrameSourceBase::UpdateState GDIFrameSource::Update() {
 	_dxgiSurface->ReleaseDC(nullptr);
 
 	return UpdateState::NewFrame;
+}
+
 }

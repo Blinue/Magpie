@@ -3,6 +3,8 @@
 #include "FrameSourceBase.h"
 
 
+namespace Magpie::Runtime {
+
 class DwmSharedSurfaceFrameSource : public FrameSourceBase {
 public:
 	DwmSharedSurfaceFrameSource() {}
@@ -37,9 +39,10 @@ private:
 		ULONG* pFmtWindow,
 		ULONG* pPresentFlags,
 		ULONGLONG* pWin32KUpdateId
-	);
+		);
 	_DwmGetDxSharedSurfaceFunc* _dwmGetDxSharedSurface = nullptr;
 
 	D3D11_BOX _frameInWnd{};
-
 };
+
+}

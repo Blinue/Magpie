@@ -3,6 +3,8 @@
 #include "EffectDesc.h"
 
 
+namespace Magpie::Runtime {
+
 class EffectCompiler {
 public:
 	EffectCompiler() = default;
@@ -17,3 +19,5 @@ public:
 	// 当前 MagpieFX 版本
 	static constexpr UINT VERSION = 2;
 };
+
+}

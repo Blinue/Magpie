@@ -65,16 +65,16 @@ void HotkeyService::_RegisterHotkey(HotkeyAction action) {
 
 	UINT modifiers = MOD_NOREPEAT;
 
-	if (hotkey.Win()) {
+	if (hotkey.Win) {
 		modifiers |= MOD_WIN;
 	}
-	if (hotkey.Ctrl()) {
+	if (hotkey.Ctrl) {
 		modifiers |= MOD_CONTROL;
 	}
-	if (hotkey.Alt()) {
+	if (hotkey.Alt) {
 		modifiers |= MOD_ALT;
 	}
-	if (hotkey.Shift()) {
+	if (hotkey.Shift) {
 		modifiers |= MOD_SHIFT;
 	}
 
@@ -82,7 +82,7 @@ void HotkeyService::_RegisterHotkey(HotkeyAction action) {
 		UnregisterHotKey(_hwndHotkey, (int)action);
 	}
 
-	if (!RegisterHotKey(_hwndHotkey, (int)action, modifiers, hotkey.Code())) {
+	if (!RegisterHotKey(_hwndHotkey, (int)action, modifiers, hotkey.Code)) {
 		Logger::Get().Win32Error(fmt::format("注册热键 {} 失败", HotkeyHelper::ToString(action)));
 		_errors[(size_t)action] = true;
 	} else {

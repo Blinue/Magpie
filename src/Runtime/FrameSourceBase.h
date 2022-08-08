@@ -2,6 +2,8 @@
 #include "pch.h"
 
 
+namespace Magpie::Runtime {
+
 class FrameSourceBase {
 public:
 	FrameSourceBase() {}
@@ -59,3 +61,5 @@ protected:
 	bool _roundCornerDisabled = false;
 	bool _windowResizingDisabled = false;
 };
+
+}

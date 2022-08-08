@@ -3,9 +3,10 @@
 #include "MagApp.h"
 #include "DeviceResources.h"
 
-
 using namespace std::chrono_literals;
 
+
+namespace Magpie::Runtime {
 
 void GPUTimer::OnBeginFrame() {
 	auto now = std::chrono::high_resolution_clock::now();
@@ -35,7 +36,7 @@ void GPUTimer::StartProfiling(std::chrono::microseconds updateInterval, UINT pas
 	_profilingCounter = {};
 
 	_queries[0].passes.resize(passCount);
-	if (MagApp::Get().GetSettings().IsTripleBuffering()) {
+	if (MagApp::Get().GetOptions().IsTripleBuffering()) {
 		_queries[1].passes.resize(passCount);
 	}
 	_passesTimings.resize(passCount);
@@ -95,7 +96,7 @@ void GPUTimer::_UpdateGPUTimings() {
 		return;
 	}
 
-	if (MagApp::Get().GetSettings().IsTripleBuffering()) {
+	if (MagApp::Get().GetOptions().IsTripleBuffering()) {
 		_curQueryIdx = 1 - _curQueryIdx;
 	}
 
@@ -166,4 +167,6 @@ void GPUTimer::_UpdateGPUTimings() {
 			d3dDevice->CreateQuery(&desc, curQueryInfo.passes[j].put());
 		}
 	}
+}
+
 }

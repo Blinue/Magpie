@@ -4,6 +4,8 @@
 #include "Logger.h"
 
 
+namespace Magpie::Runtime {
+
 // 模拟 D3D 独占全屏模式，以起到免打扰的效果
 // SHQueryUserNotificationState 通常被用来检测是否有 D3D 游戏独占全屏，以确定是否应该向用户推送通知/弹窗
 // 此函数内部使用名为 __DDrawExclMode__ 的 mutex 检测独占全屏，因此这里直接获取该 mutex 以模拟独占全屏
@@ -55,4 +57,6 @@ ExclModeHack::~ExclModeHack() {
 	if (_exclModeMutex) {
 		ReleaseMutex(_exclModeMutex.get());
 	}
+}
+
 }

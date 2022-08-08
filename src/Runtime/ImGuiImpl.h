@@ -2,6 +2,8 @@
 #include "pch.h"
 
 
+namespace Magpie::Runtime {
+
 class ImGuiImpl {
 public:
 	ImGuiImpl() = default;
@@ -28,3 +30,5 @@ private:
 	DWORD _hookThreadId = 0;
 	std::atomic<float> _wheelData = 0;
 };
+
+}

@@ -3,7 +3,7 @@
 
 
 namespace winrt::Magpie::App {
-class ScalingProfile;
+struct ScalingProfile;
 }
 
 namespace winrt::Magpie::App::implementation {

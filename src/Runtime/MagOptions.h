@@ -46,14 +46,39 @@ struct MagFlags {
 	static constexpr const uint32_t IsDisableDirectFlip = 0x2000;
 };
 
+#define DEFINE_MAGFLAG_ACCESSOR(Name) \
+	bool Name() const noexcept { return Flags & ::Magpie::Runtime::MagFlags::Name; } \
+	void Name(bool value) noexcept { \
+		if (value) { \
+			Flags |= ::Magpie::Runtime::MagFlags::Name; \
+		} else { \
+			Flags &= ~::Magpie::Runtime::MagFlags::Name; \
+		} \
+	}
+
 struct MagOptions {
+	DEFINE_MAGFLAG_ACCESSOR(IsDisableWindowResizing)
+	DEFINE_MAGFLAG_ACCESSOR(IsBreakpointMode)
+	DEFINE_MAGFLAG_ACCESSOR(IsDisableEffectCache)
+	DEFINE_MAGFLAG_ACCESSOR(IsSaveEffectSources)
+	DEFINE_MAGFLAG_ACCESSOR(IsWarningsAreErrors)
+	DEFINE_MAGFLAG_ACCESSOR(IsSimulateExclusiveFullscreen)
+	DEFINE_MAGFLAG_ACCESSOR(Is3DGameMode)
+	DEFINE_MAGFLAG_ACCESSOR(IsShowFPS)
+	DEFINE_MAGFLAG_ACCESSOR(IsVSync)
+	DEFINE_MAGFLAG_ACCESSOR(IsTripleBuffering)
+	DEFINE_MAGFLAG_ACCESSOR(IsReserveTitleBar)
+	DEFINE_MAGFLAG_ACCESSOR(IsAdjustCursorSpeed)
+	DEFINE_MAGFLAG_ACCESSOR(IsDrawCursor)
+	DEFINE_MAGFLAG_ACCESSOR(IsDisableDirectFlip)
+
 	Cropping Cropping{};
-	uint32_t Flags = 0;
+	uint32_t Flags = MagFlags::IsVSync | MagFlags::IsAdjustCursorSpeed | MagFlags::IsDrawCursor;
 	uint32_t GraphicsAdapter = 0;
 	float CursorScaling = 1.0f;
 	CaptureMode CaptureMode = CaptureMode::GraphicsCapture;
 	MultiMonitorUsage MultiMonitorUsage = MultiMonitorUsage::Nearest;
-	CursorInterpolationMode CrsorInterpolationMode = CursorInterpolationMode::Nearest;
+	CursorInterpolationMode CursorInterpolationMode = CursorInterpolationMode::Nearest;
 };
 
 }

@@ -61,7 +61,7 @@ private:
 
 	void _MagService_IsRunningChanged(bool);
 
-	void _MagService_WndToRestoreChanged(uint64_t);
+	void _MagService_WndToRestoreChanged(HWND);
 
 	event<PropertyChangedEventHandler> _propertyChangedEvent;
 

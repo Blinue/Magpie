@@ -6,6 +6,8 @@
 #include "Win32Utils.h"
 
 
+namespace Magpie::Runtime {
+
 // 使用 Window Runtime 的 Windows.Graphics.Capture API 抓取窗口
 // 见 https://docs.microsoft.com/en-us/windows/uwp/audio-video-camera/screen-capture
 class GraphicsCaptureFrameSource : public FrameSourceBase {
@@ -59,3 +61,5 @@ private:
 	Win32Utils::CSMutex _cs;
 	bool _newFrameArrived = false;
 };
+
+}

@@ -7,6 +7,8 @@
 #include "CommonSharedConstants.h"
 
 
+namespace Magpie::Runtime {
+
 FrameSourceBase::~FrameSourceBase() {
 	HWND hwndSrc = MagApp::Get().GetHwndSrc();
 
@@ -49,7 +51,7 @@ bool FrameSourceBase::Initialize() {
 	HWND hwndSrc = MagApp::Get().GetHwndSrc();
 
 	// 禁用窗口大小调整
-	if (MagApp::Get().GetSettings().IsDisableWindowResizing()) {
+	if (MagApp::Get().GetOptions().IsDisableWindowResizing()) {
 		LONG_PTR style = GetWindowLongPtr(hwndSrc, GWL_STYLE);
 		if (style & WS_THICKFRAME) {
 			if (SetWindowLongPtr(hwndSrc, GWL_STYLE, style ^ WS_THICKFRAME)) {
@@ -191,7 +193,7 @@ bool FrameSourceBase::_CenterWindowIfNecessary(HWND hWnd, const RECT& rcWork) {
 			0,
 			0,
 			SWP_NOSIZE | SWP_NOZORDER
-		)) {
+			)) {
 			Logger::Get().Win32Error("SetWindowPos 失败");
 		}
 	}
@@ -257,7 +259,7 @@ bool FrameSourceBase::_UpdateSrcFrameRect() {
 
 	HWND hwndSrc = MagApp::Get().GetHwndSrc();
 
-	if (MagApp::Get().GetSettings().IsReserveTitleBar() && _CanCaptureTitleBar()) {
+	if (MagApp::Get().GetOptions().IsReserveTitleBar() && _CanCaptureTitleBar()) {
 		if (!Win32Utils::GetWindowFrameRect(hwndSrc, _srcFrameRect)) {
 			Logger::Get().Win32Error("GetClientScreenRect 失败");
 			return false;
@@ -283,7 +285,7 @@ bool FrameSourceBase::_UpdateSrcFrameRect() {
 		}
 	}
 
-	winrt::Magpie::Runtime::Cropping cropping = MagApp::Get().GetSettings().Cropping();
+	const Cropping& cropping = MagApp::Get().GetOptions().Cropping;
 	_srcFrameRect = {
 		std::lround(_srcFrameRect.left + cropping.Left),
 		std::lround(_srcFrameRect.top + cropping.Top),
@@ -298,4 +300,6 @@ bool FrameSourceBase::_UpdateSrcFrameRect() {
 	}
 
 	return true;
+}
+
 }

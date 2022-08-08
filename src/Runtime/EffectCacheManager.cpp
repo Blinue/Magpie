@@ -15,23 +15,6 @@
 #include "CommonSharedConstants.h"
 
 
-static constexpr const size_t MAX_CACHE_COUNT = 128;
-
-// 缓存版本
-// 当缓存文件结构有更改时更新它，使旧缓存失效
-static constexpr const UINT CACHE_VERSION = 8;
-
-// 缓存的压缩等级
-static constexpr const int CACHE_COMPRESSION_LEVEL = 1;
-
-
-std::wstring GetCacheFileName(std::string_view effectName, std::string_view hash, UINT flags) {
-	// 缓存文件的命名：{效果名}_{标志位（16进制）}{哈希}
-	return fmt::format(L"{}{}_{:02x}{}", CommonSharedConstants::CACHE_DIR_W,
-		StrUtils::UTF8ToUTF16(effectName), flags, StrUtils::UTF8ToUTF16(hash));
-}
-
-
 template<typename Archive>
 void serialize(Archive& ar, winrt::com_ptr<ID3DBlob>& o) {
 	SIZE_T size = 0;
@@ -58,6 +41,8 @@ void serialize(Archive& ar, const winrt::com_ptr<ID3DBlob>& o) {
 		ar& (*buf++);
 	}
 }
+
+namespace Magpie::Runtime {
 
 template<typename Archive>
 void serialize(Archive& ar, const EffectParameterDesc& o) {
@@ -149,6 +134,23 @@ void serialize(Archive& ar, EffectPassDesc& o) {
 template<typename Archive>
 void serialize(Archive& ar, EffectDesc& o) {
 	ar& o.name& o.outSizeExpr& o.params& o.textures& o.samplers& o.passes& o.flags& o.isUseDynamic;
+}
+
+
+static constexpr const size_t MAX_CACHE_COUNT = 128;
+
+// 缓存版本
+// 当缓存文件结构有更改时更新它，使旧缓存失效
+static constexpr const UINT CACHE_VERSION = 8;
+
+// 缓存的压缩等级
+static constexpr const int CACHE_COMPRESSION_LEVEL = 1;
+
+
+std::wstring GetCacheFileName(std::string_view effectName, std::string_view hash, UINT flags) {
+	// 缓存文件的命名：{效果名}_{标志位（16进制）}{哈希}
+	return fmt::format(L"{}{}_{:02x}{}", CommonSharedConstants::CACHE_DIR_W,
+		StrUtils::UTF8ToUTF16(effectName), flags, StrUtils::UTF8ToUTF16(hash));
 }
 
 void EffectCacheManager::_AddToMemCache(const std::wstring& cacheFileName, const EffectDesc& desc) {
@@ -359,4 +361,6 @@ std::string EffectCacheManager::GetHash(std::string& source, const std::map<std:
 	source.resize(originSize);
 
 	return success ? Utils::Bin2Hex(hashBytes) : "";
+}
+
 }

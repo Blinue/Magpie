@@ -16,6 +16,8 @@ using namespace Windows::Graphics::DirectX::Direct3D11;
 }
 
 
+namespace Magpie::Runtime {
+
 bool GraphicsCaptureFrameSource::Initialize() {
 	if (!FrameSourceBase::Initialize()) {
 		Logger::Get().Error("初始化 FrameSourceBase 失败");
@@ -93,8 +95,8 @@ bool GraphicsCaptureFrameSource::Initialize() {
 		if (winrt::ApiInformation::IsPropertyPresent(
 			L"Windows.Graphics.Capture.GraphicsCaptureSession",
 			L"IsCursorCaptureEnabled"
-		)) {
-			// 从 v2004 开始提供
+			)) {
+				// 从 v2004 开始提供
 			_captureSession.IsCursorCaptureEnabled(false);
 		} else {
 			Logger::Get().Info("当前系统无 IsCursorCaptureEnabled API");
@@ -104,9 +106,9 @@ bool GraphicsCaptureFrameSource::Initialize() {
 		if (winrt::ApiInformation::IsPropertyPresent(
 			L"Windows.Graphics.Capture.GraphicsCaptureSession",
 			L"IsBorderRequired"
-		)) {
-			// 从 Win10 v2104 开始提供
-			// 先请求权限
+			)) {
+				// 从 Win10 v2104 开始提供
+				// 先请求权限
 			auto status = winrt::GraphicsCaptureAccess::RequestAccessAsync(winrt::GraphicsCaptureAccessKind::Borderless).get();
 			if (status == decltype(status)::Allowed) {
 				_captureSession.IsBorderRequired(false);
@@ -360,4 +362,6 @@ GraphicsCaptureFrameSource::~GraphicsCaptureFrameSource() {
 	if (_srcWndStyle) {
 		SetWindowLongPtr(MagApp::Get().GetHwndSrc(), GWL_EXSTYLE, _srcWndStyle);
 	}
+}
+
 }

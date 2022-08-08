@@ -18,6 +18,8 @@
 #pragma pop_macro("_UNICODE")
 
 
+namespace Magpie::Runtime {
+
 bool EffectDrawer::Initialize(
 	const EffectDesc& desc,
 	const EffectParams& params,
@@ -113,7 +115,7 @@ bool EffectDrawer::Initialize(
 			samDesc.filterType == EffectSamplerFilterType::Linear ? D3D11_FILTER_MIN_MAG_MIP_LINEAR : D3D11_FILTER_MIN_MAG_MIP_POINT,
 			samDesc.addressType == EffectSamplerAddressType::Clamp ? D3D11_TEXTURE_ADDRESS_CLAMP : D3D11_TEXTURE_ADDRESS_WRAP,
 			&_samplers[i])
-		) {
+			) {
 			Logger::Get().Error(fmt::format("创建采样器 {} 失败", samDesc.name));
 			return false;
 		}
@@ -252,10 +254,10 @@ bool EffectDrawer::Initialize(
 		_srvs.back().push_back(nullptr);
 
 		if (!dr.GetSampler(
-			MagApp::Get().GetSettings().CursorInterpolationMode() == winrt::Magpie::Runtime::CursorInterpolationMode::Nearest ? D3D11_FILTER_MIN_MAG_MIP_POINT : D3D11_FILTER_MIN_MAG_MIP_LINEAR,
+			MagApp::Get().GetOptions().CursorInterpolationMode == CursorInterpolationMode::Nearest ? D3D11_FILTER_MIN_MAG_MIP_POINT : D3D11_FILTER_MIN_MAG_MIP_LINEAR,
 			D3D11_TEXTURE_ADDRESS_CLAMP,
 			&_samplers.emplace_back(nullptr)
-		)) {
+			)) {
 			Logger::Get().Error("GetSampler 失败");
 			return false;
 		}
@@ -372,7 +374,7 @@ bool EffectDrawer::Initialize(
 
 					if ((paramDesc.minValue.index() == 1 && value < std::get<float>(paramDesc.minValue))
 						|| (paramDesc.maxValue.index() == 1 && value > std::get<float>(paramDesc.maxValue))
-					) {
+						) {
 						Logger::Get().Error(fmt::format("参数 {} 的值非法", paramDesc.name));
 						return false;
 					}
@@ -393,7 +395,7 @@ bool EffectDrawer::Initialize(
 
 					if ((paramDesc.minValue.index() == 2 && value < std::get<int>(paramDesc.minValue))
 						|| (paramDesc.maxValue.index() == 2 && value > std::get<int>(paramDesc.maxValue))
-					) {
+						) {
 						Logger::Get().Error(StrUtils::Concat("参数 ", paramDesc.name, " 的值非法"));
 						return false;
 					}
@@ -480,4 +482,6 @@ void EffectDrawer::_DrawPass(UINT i) {
 	d3dDC->Dispatch(_dispatches[i].first, _dispatches[i].second, 1);
 
 	d3dDC->CSSetUnorderedAccessViews(0, uavCount, _uavs[i].data() + uavCount, nullptr);
+}
+
 }

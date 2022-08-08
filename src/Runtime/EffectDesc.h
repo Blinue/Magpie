@@ -3,6 +3,8 @@
 #include <variant>
 
 
+namespace Magpie::Runtime {
+
 enum class EffectIntermediateTextureFormat {
 	R32G32B32A32_FLOAT,
 	R16G16B16A16_FLOAT,
@@ -138,3 +140,5 @@ union EffectConstant32 {
 	UINT uintVal;
 	INT intVal;
 };
+
+}

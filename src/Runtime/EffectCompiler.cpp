@@ -13,6 +13,8 @@
 #include <bit>	// std::has_single_bit
 
 
+namespace Magpie::Runtime {
+
 static const char* META_INDICATOR = "//!";
 
 
@@ -1472,7 +1474,7 @@ cbuffer __CB2 : register(b1) {
 
 	cbHlsl.append("};\n\n");
 
-	if (MagApp::Get().GetSettings().IsSaveEffectSources() && !Win32Utils::DirExists(CommonSharedConstants::SOURCES_DIR_W)) {
+	if (MagApp::Get().GetOptions().IsSaveEffectSources() && !Win32Utils::DirExists(CommonSharedConstants::SOURCES_DIR_W)) {
 		if (!CreateDirectory(CommonSharedConstants::SOURCES_DIR_W, nullptr)) {
 			Logger::Get().Win32Error("创建 sources 文件夹失败");
 		}
@@ -1487,7 +1489,7 @@ cbuffer __CB2 : register(b1) {
 			return;
 		}
 
-		if (MagApp::Get().GetSettings().IsSaveEffectSources()) {
+		if (MagApp::Get().GetOptions().IsSaveEffectSources()) {
 			std::wstring fileName = desc.passes.size() == 1
 				? fmt::format(L"{}{}.hlsl", CommonSharedConstants::SOURCES_DIR_W, StrUtils::UTF8ToUTF16(desc.name))
 				: fmt::format(L"{}{}_Pass{}.hlsl", CommonSharedConstants::SOURCES_DIR_W, StrUtils::UTF8ToUTF16(desc.name), id + 1);
@@ -1547,7 +1549,7 @@ UINT EffectCompiler::Compile(
 	}
 
 	std::string hash;
-	if (!MagApp::Get().GetSettings().IsDisableEffectCache()) {
+	if (!MagApp::Get().GetOptions().IsDisableEffectCache()) {
 		hash = EffectCacheManager::GetHash(source, flags & EFFECT_FLAG_INLINE_PARAMETERS ? &inlineParams : nullptr);
 		if (!hash.empty()) {
 			if (EffectCacheManager::Get().Load(effectName, hash, desc)) {
@@ -1736,9 +1738,11 @@ UINT EffectCompiler::Compile(
 		return 1;
 	}
 
-	if (!MagApp::Get().GetSettings().IsDisableEffectCache() && !hash.empty()) {
+	if (!MagApp::Get().GetOptions().IsDisableEffectCache() && !hash.empty()) {
 		EffectCacheManager::Get().Save(effectName, hash, desc);
 	}
 
 	return 0;
+}
+
 }

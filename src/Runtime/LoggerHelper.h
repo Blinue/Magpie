@@ -1,20 +1,12 @@
 #pragma once
+#include "CommonPCH.h"
+#include "Logger.h"
 
-#include "LoggerHelper.g.h"
 
-namespace winrt::Magpie::Runtime::implementation {
+namespace Magpie::Runtime {
 
-struct LoggerHelper : LoggerHelperT<LoggerHelper> {
-    LoggerHelper() = default;
-
-    static void Initialize(uint64_t pLogger);
-};
-
-}
-
-namespace winrt::Magpie::Runtime::factory_implementation {
-
-struct LoggerHelper : LoggerHelperT<LoggerHelper, implementation::LoggerHelper> {
+struct API_DECLSPEC LoggerHelper {
+	static void Initialize(Logger& logger);
 };
 
 }

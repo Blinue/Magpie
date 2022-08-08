@@ -149,7 +149,7 @@ void NewProfileViewModel::PrepareForOpen(uint32_t dpi, bool isLightTheme, CoreDi
 	std::vector<IInspectable> profiles;
 	profiles.push_back(box_value(L"默认"));
 	for (const ScalingProfile& profile : AppSettings::Get().ScalingProfiles()) {
-		profiles.push_back(box_value(profile.Name()));
+		profiles.push_back(box_value(profile.Name));
 	}
 
 	_profiles = single_threaded_vector(std::move(profiles));

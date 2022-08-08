@@ -5,6 +5,8 @@
 #include "Logger.h"
 
 
+namespace Magpie::Runtime {
+
 static inline void LogAdapter(const DXGI_ADAPTER_DESC1& adapterDesc) {
 	Logger::Get().Info(fmt::format("当前图形适配器：\n\tVendorId：{:#x}\n\tDeviceId：{:#x}\n\t描述：{}",
 		adapterDesc.VendorId, adapterDesc.DeviceId, StrUtils::UTF16ToUTF8(adapterDesc.Description)));
@@ -60,7 +62,7 @@ static winrt::com_ptr<IDXGIAdapter4> ObtainGraphicsAdapter(IDXGIFactory4* dxgiFa
 	for (UINT adapterIndex = 0;
 		SUCCEEDED(dxgiFactory->EnumAdapters1(adapterIndex, adapter.put()));
 		++adapterIndex
-	) {
+		) {
 		DXGI_ADAPTER_DESC1 desc;
 		HRESULT hr = adapter->GetDesc1(&desc);
 		if (FAILED(hr)) {
@@ -71,7 +73,7 @@ static winrt::com_ptr<IDXGIAdapter4> ObtainGraphicsAdapter(IDXGIFactory4* dxgiFa
 		if (desc.Flags & DXGI_ADAPTER_FLAG_SOFTWARE) {
 			continue;
 		}
-		
+
 		if (TestFeatureLevel11(adapter.get())) {
 			LogAdapter(desc);
 			return adapter.try_as<IDXGIAdapter4>();
@@ -112,7 +114,7 @@ bool DeviceResources::Initialize() {
 
 	Logger::Get().Info(fmt::format("可变刷新率支持：{}", supportTearing ? "是" : "否"));
 
-	if (!MagApp::Get().GetSettings().IsVSync() && !supportTearing) {
+	if (!MagApp::Get().GetOptions().IsVSync() && !supportTearing) {
 		Logger::Get().Error("当前显示器不支持可变刷新率");
 		//MagApp::Get().SetErrorMsg(ErrorMessages::VSYNC_OFF_NOT_SUPPORTED);
 		return false;
@@ -130,7 +132,7 @@ bool DeviceResources::Initialize() {
 	};
 	UINT nFeatureLevels = ARRAYSIZE(featureLevels);
 
-	_graphicsAdapter = ObtainGraphicsAdapter(_dxgiFactory.get(), MagApp::Get().GetSettings().GraphicsAdapter());
+	_graphicsAdapter = ObtainGraphicsAdapter(_dxgiFactory.get(), MagApp::Get().GetOptions().GraphicsAdapter);
 	if (!_graphicsAdapter) {
 		Logger::Get().Error("找不到可用的图形适配器");
 		return false;
@@ -261,7 +263,7 @@ void DeviceResources::BeginFrame() {
 }
 
 void DeviceResources::EndFrame() {
-	if (MagApp::Get().GetSettings().IsVSync()) {
+	if (MagApp::Get().GetOptions().IsVSync()) {
 		_swapChain->Present(1, 0);
 	} else {
 		_swapChain->Present(0, DXGI_PRESENT_ALLOW_TEARING);
@@ -270,8 +272,8 @@ void DeviceResources::EndFrame() {
 
 bool DeviceResources::_CreateSwapChain() {
 	const RECT& hostWndRect = MagApp::Get().GetHostWndRect();
-	const winrt::Magpie::Runtime::MagSettings& settings = MagApp::Get().GetSettings();
-	
+	const MagOptions& options = MagApp::Get().GetOptions();
+
 	DXGI_SWAP_CHAIN_DESC1 sd = {};
 	sd.Width = hostWndRect.right - hostWndRect.left;
 	sd.Height = hostWndRect.bottom - hostWndRect.top;
@@ -281,7 +283,7 @@ bool DeviceResources::_CreateSwapChain() {
 	sd.SampleDesc.Quality = 0;
 	sd.Scaling = DXGI_SCALING_NONE;
 	sd.BufferUsage = DXGI_USAGE_UNORDERED_ACCESS | DXGI_USAGE_RENDER_TARGET_OUTPUT;
-	sd.BufferCount = (settings.IsTripleBuffering() || !settings.IsVSync()) ? 3 : 2;
+	sd.BufferCount = (options.IsTripleBuffering() || !options.IsVSync()) ? 3 : 2;
 	// 使用 DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL 而不是 DXGI_SWAP_EFFECT_FLIP_DISCARD
 	// 不渲染四周（可能存在的）黑边，因此必须保证交换链缓冲区不被改变
 	// 否则将不得不在每帧渲染前清空后缓冲区，这个操作在一些显卡上比较耗时
@@ -311,7 +313,7 @@ bool DeviceResources::_CreateSwapChain() {
 	}
 
 	// 关闭低延迟模式或关闭垂直同步时将最大延迟设为 2 以使 CPU 和 GPU 并行执行
-	_swapChain->SetMaximumFrameLatency(settings.IsTripleBuffering() || !settings.IsVSync() ? 2 : 1);
+	_swapChain->SetMaximumFrameLatency(options.IsTripleBuffering() || !options.IsVSync() ? 2 : 1);
 
 	_frameLatencyWaitableObject.reset(_swapChain->GetFrameLatencyWaitableObject());
 	if (!_frameLatencyWaitableObject) {
@@ -410,7 +412,7 @@ bool DeviceResources::CompileShader(std::string_view hlsl, const char* entryPoin
 	winrt::com_ptr<ID3DBlob> errorMsgs = nullptr;
 
 	UINT flags = D3DCOMPILE_ENABLE_STRICTNESS | D3DCOMPILE_ALL_RESOURCES_BOUND;
-	if (MagApp::Get().GetSettings().IsWarningsAreErrors()) {
+	if (MagApp::Get().GetOptions().IsWarningsAreErrors()) {
 		flags |= D3DCOMPILE_WARNINGS_ARE_ERRORS;
 	}
 
@@ -488,4 +490,6 @@ bool DeviceResources::GetSampler(D3D11_FILTER filterMode, D3D11_TEXTURE_ADDRESS_
 	*result = sam.get();
 	_samMap.emplace(key, std::move(sam));
 	return true;
+}
+
 }

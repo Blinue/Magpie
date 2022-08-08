@@ -4,6 +4,8 @@
 #include "EffectDesc.h"
 
 
+namespace Magpie::Runtime {
+
 class EffectCacheManager {
 public:
 	static EffectCacheManager& Get() {
@@ -36,3 +38,5 @@ private:
 	std::unordered_map<std::wstring, std::pair<EffectDesc, UINT>> _memCache;
 	UINT _lastAccess = 0;
 };
+
+}

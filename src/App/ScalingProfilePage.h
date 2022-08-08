@@ -1,7 +1,5 @@
 #pragma once
-
 #include "ScalingProfilePage.g.h"
-#include <winrt/Magpie.Runtime.h>
 
 
 namespace winrt::Magpie::App::implementation {

@@ -13,24 +13,26 @@
 ///////////////////////////////////////////////////////////////////
 
 
+namespace Magpie::Runtime {
+
 HRESULT CreateD3DResources(
-        _In_ ID3D11Device* d3dDevice,
-        _In_ uint32_t resDim,
-        _In_ size_t width,
-        _In_ size_t height,
-        _In_ size_t depth,
-        _In_ size_t mipCount,
-        _In_ size_t arraySize,
-        _In_ DXGI_FORMAT format,
-        _In_ D3D11_USAGE usage,
-        _In_ unsigned int bindFlags,
-        _In_ unsigned int cpuAccessFlags,
-        _In_ unsigned int miscFlags,
-        _In_ bool forceSRGB,
-        _In_ bool isCubeMap,
-        _In_reads_opt_(mipCount* arraySize) const D3D11_SUBRESOURCE_DATA* initData,
-        _Outptr_opt_ ID3D11Resource** texture,
-        _Outptr_opt_ ID3D11ShaderResourceView** textureView) noexcept {
+    _In_ ID3D11Device* d3dDevice,
+    _In_ uint32_t resDim,
+    _In_ size_t width,
+    _In_ size_t height,
+    _In_ size_t depth,
+    _In_ size_t mipCount,
+    _In_ size_t arraySize,
+    _In_ DXGI_FORMAT format,
+    _In_ D3D11_USAGE usage,
+    _In_ unsigned int bindFlags,
+    _In_ unsigned int cpuAccessFlags,
+    _In_ unsigned int miscFlags,
+    _In_ bool forceSRGB,
+    _In_ bool isCubeMap,
+    _In_reads_opt_(mipCount* arraySize) const D3D11_SUBRESOURCE_DATA* initData,
+    _Outptr_opt_ ID3D11Resource** texture,
+    _Outptr_opt_ ID3D11ShaderResourceView** textureView) noexcept {
     if (!d3dDevice)
         return E_POINTER;
 
@@ -209,20 +211,20 @@ HRESULT CreateD3DResources(
 }
 
 HRESULT FillInitData(
-        _In_ size_t width,
-        _In_ size_t height,
-        _In_ size_t depth,
-        _In_ size_t mipCount,
-        _In_ size_t arraySize,
-        _In_ DXGI_FORMAT format,
-        _In_ size_t maxsize,
-        _In_ size_t bitSize,
-        _In_reads_bytes_(bitSize) const uint8_t* bitData,
-        _Out_ size_t& twidth,
-        _Out_ size_t& theight,
-        _Out_ size_t& tdepth,
-        _Out_ size_t& skipMip,
-        _Out_writes_(mipCount* arraySize) D3D11_SUBRESOURCE_DATA* initData) noexcept {
+    _In_ size_t width,
+    _In_ size_t height,
+    _In_ size_t depth,
+    _In_ size_t mipCount,
+    _In_ size_t arraySize,
+    _In_ DXGI_FORMAT format,
+    _In_ size_t maxsize,
+    _In_ size_t bitSize,
+    _In_reads_bytes_(bitSize) const uint8_t* bitData,
+    _Out_ size_t& twidth,
+    _Out_ size_t& theight,
+    _Out_ size_t& tdepth,
+    _Out_ size_t& skipMip,
+    _Out_writes_(mipCount* arraySize) D3D11_SUBRESOURCE_DATA* initData) noexcept {
     if (!bitData || !initData) {
         return E_POINTER;
     }
@@ -293,19 +295,19 @@ HRESULT FillInitData(
 }
 
 HRESULT CreateTextureFromDDS(
-        _In_ ID3D11Device* d3dDevice,
-        _In_opt_ ID3D11DeviceContext* d3dContext,
-        _In_ const DDS_HEADER* header,
-        _In_reads_bytes_(bitSize) const uint8_t* bitData,
-        _In_ size_t bitSize,
-        _In_ size_t maxsize,
-        _In_ D3D11_USAGE usage,
-        _In_ unsigned int bindFlags,
-        _In_ unsigned int cpuAccessFlags,
-        _In_ unsigned int miscFlags,
-        _In_ bool forceSRGB,
-        _Outptr_opt_ ID3D11Resource** texture,
-        _Outptr_opt_ ID3D11ShaderResourceView** textureView) noexcept {
+    _In_ ID3D11Device* d3dDevice,
+    _In_opt_ ID3D11DeviceContext* d3dContext,
+    _In_ const DDS_HEADER* header,
+    _In_reads_bytes_(bitSize) const uint8_t* bitData,
+    _In_ size_t bitSize,
+    _In_ size_t maxsize,
+    _In_ D3D11_USAGE usage,
+    _In_ unsigned int bindFlags,
+    _In_ unsigned int cpuAccessFlags,
+    _In_ unsigned int miscFlags,
+    _In_ bool forceSRGB,
+    _Outptr_opt_ ID3D11Resource** texture,
+    _Outptr_opt_ ID3D11ShaderResourceView** textureView) noexcept {
     HRESULT hr = S_OK;
 
     const UINT width = header->width;
@@ -876,4 +878,6 @@ winrt::com_ptr<ID3D11Texture2D> TextureLoader::Load(const wchar_t* fileName) {
     }
 
     return it->second(fileName);
+}
+
 }

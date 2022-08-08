@@ -1,0 +1,4 @@
+// 提示文件帮助 Visual Studio IDE 解释 Visual C++ 标识符,
+// 如函数和宏的名称。
+// 有关详细信息，请参见 https://go.microsoft.com/fwlink/?linkid=865984
+#define DEFINE_MAGFLAG_ACCESSOR(Name) bool Name() const noexcept { return Flags & MagFlags::Name; } void Name(bool value) noexcept { if (value) { Flags |= MagFlags::Name; } else { Flags &= !MagFlags::Name; }}

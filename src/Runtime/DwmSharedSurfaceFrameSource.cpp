@@ -5,6 +5,8 @@
 #include "Logger.h"
 
 
+namespace Magpie::Runtime {
+
 bool DwmSharedSurfaceFrameSource::Initialize() {
 	if (!FrameSourceBase::Initialize()) {
 		Logger::Get().Error("初始化 FrameSourceBase 失败");
@@ -48,7 +50,7 @@ bool DwmSharedSurfaceFrameSource::Initialize() {
 	if (frameRect.left < 0 || frameRect.top < 0 || frameRect.right < 0
 		|| frameRect.bottom < 0 || frameRect.right - frameRect.left <= 0
 		|| frameRect.bottom - frameRect.top <= 0
-	) {
+		) {
 		Logger::Get().Error("裁剪失败");
 		//MagApp::Get().SetErrorMsg(ErrorMessages::FAILED_TO_CROP);
 		return false;
@@ -83,7 +85,7 @@ FrameSourceBase::UpdateState DwmSharedSurfaceFrameSource::Update() {
 	if (!_dwmGetDxSharedSurface(MagApp::Get().GetHwndSrc(),
 		&sharedTextureHandle, nullptr, nullptr, nullptr, nullptr)
 		|| !sharedTextureHandle
-	) {
+		) {
 		Logger::Get().Win32Error("DwmGetDxSharedSurface 失败");
 		return UpdateState::Error;
 	}
@@ -100,4 +102,6 @@ FrameSourceBase::UpdateState DwmSharedSurfaceFrameSource::Update() {
 		->CopySubresourceRegion(_output.get(), 0, 0, 0, 0, sharedTexture.get(), 0, &_frameInWnd);
 
 	return UpdateState::NewFrame;
+}
+
 }

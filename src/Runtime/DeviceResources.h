@@ -3,6 +3,9 @@
 #include "Win32Utils.h"
 #include "Utils.h"
 
+
+namespace Magpie::Runtime {
+
 class DeviceResources {
 public:
 	DeviceResources() = default;
@@ -72,3 +75,5 @@ private:
 		winrt::com_ptr<ID3D11SamplerState>
 	> _samMap;
 };
+
+}

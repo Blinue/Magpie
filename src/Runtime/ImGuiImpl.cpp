@@ -11,6 +11,8 @@
 #include "Win32Utils.h"
 
 
+namespace Magpie::Runtime {
+
 ImGuiImpl::~ImGuiImpl() {
 	ImGuiIO& io = ImGui::GetIO();
 	io.BackendPlatformName = nullptr;
@@ -31,7 +33,7 @@ static std::optional<LRESULT> WndProcHandler(HWND hwnd, UINT msg, WPARAM wParam,
 	ImGuiIO& io = ImGui::GetIO();
 
 	if (!io.WantCaptureMouse) {
-		if (msg == WM_LBUTTONDOWN && MagApp::Get().GetSettings().Is3DGameMode()) {
+		if (msg == WM_LBUTTONDOWN && MagApp::Get().GetOptions().Is3DGameMode()) {
 			MagApp::Get().GetRenderer().SetUIVisibility(false);
 		}
 		return std::nullopt;
@@ -93,9 +95,9 @@ static std::optional<LRESULT> WndProcHandler(HWND hwnd, UINT msg, WPARAM wParam,
 }
 
 static LRESULT CALLBACK LowLevelMouseProc(
-  _In_ int    nCode,
-  _In_ WPARAM wParam,
-  _In_ LPARAM lParam
+	_In_ int    nCode,
+	_In_ WPARAM wParam,
+	_In_ LPARAM lParam
 ) {
 	if (nCode != HC_ACTION || !ImGui::GetIO().WantCaptureMouse) {
 		return CallNextHookEx(NULL, nCode, wParam, lParam);
@@ -172,7 +174,7 @@ bool ImGuiImpl::Initialize() {
 	}
 
 	// 断点模式下不注册鼠标钩子，否则调试时鼠标无法使用
-	if (!MagApp::Get().GetSettings().IsBreakpointMode() && !MagApp::Get().GetSettings().Is3DGameMode()) {
+	if (!MagApp::Get().GetOptions().IsBreakpointMode() && !MagApp::Get().GetOptions().Is3DGameMode()) {
 		_hHookThread = CreateThread(nullptr, 0, ThreadProc, nullptr, 0, &_hookThreadId);
 		if (!_hHookThread) {
 			Logger::Get().Win32Error("创建线程失败");
@@ -185,7 +187,7 @@ bool ImGuiImpl::Initialize() {
 static void UpdateMousePos() {
 	ImGuiIO& io = ImGui::GetIO();
 
-	if (MagApp::Get().GetSettings().Is3DGameMode() && !MagApp::Get().GetRenderer().IsUIVisiable()) {
+	if (MagApp::Get().GetOptions().Is3DGameMode() && !MagApp::Get().GetRenderer().IsUIVisiable()) {
 		io.MousePos = ImVec2(-FLT_MAX, -FLT_MAX);
 		return;
 	}
@@ -335,4 +337,6 @@ void ImGuiImpl::ClearStates() {
 		ImGui::NewFrame();
 		ImGui::EndFrame();
 	}
+}
+
 }

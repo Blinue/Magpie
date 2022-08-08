@@ -1,82 +1,146 @@
 #include "pch.h"
-#include "MagRuntime.h"
-#if __has_include("MagRuntime.g.cpp")
-#include "MagRuntime.g.cpp"
-#endif
-#include "MagApp.h"
-#include "Logger.h"
+#include "include/Runtime.h"
 #include <dispatcherqueue.h>
+#include "MagApp.h"
 
 
-namespace winrt::Magpie::Runtime::implementation {
+namespace Magpie::Runtime {
 
-MagRuntime::~MagRuntime() {
-	Stop();
+class MagRuntime::Impl {
+public:
+	Impl() = default;
+	Impl(const Impl&) = delete;
+	Impl(Impl&&) = default;
 
-	if (_magWindThread.joinable()) {
-		_magWindThread.join();
-	}
-}
+	~Impl() {
+		Stop();
 
-void MagRuntime::Run(uint64_t hwndSrc, MagSettings const& settings) {
-	if (_running) {
-		return;
-	}
-
-	_hwndSrc = hwndSrc;
-	_running = true;
-	_isRunningChangedEvent(*this, true);
-
-	if (_magWindThread.joinable()) {
-		_magWindThread.join();
+		if (_magWindThread.joinable()) {
+			_magWindThread.join();
+		}
 	}
 
-	_magWindThread = std::thread([=, this]() {
-		winrt::init_apartment(winrt::apartment_type::multi_threaded);
-
-		DispatcherQueueOptions options{};
-		options.dwSize = sizeof(options);
-		options.threadType = DQTYPE_THREAD_CURRENT;
-		options.apartmentType = DQTAT_COM_NONE;
-
-		HRESULT hr = CreateDispatcherQueueController(options, (ABI::Windows::System::IDispatcherQueueController**)put_abi(_dqc));
-		if (FAILED(hr)) {
-			_running = false;
-			_isRunningChangedEvent(*this, false);
+	void Run(HWND hwndSrc, const MagOptions& options) {
+		if (_running) {
 			return;
 		}
 
-		MagApp& app = MagApp::Get();
-		app.Run((HWND)hwndSrc, settings, _dqc.DispatcherQueue());
+		_hwndSrc = hwndSrc;
+		_running = true;
+		_isRunningChangedEvent(true);
 
-		_running = false;
-		_dqc = nullptr;
-		_isRunningChangedEvent(*this, false);
-	});
+		if (_magWindThread.joinable()) {
+			_magWindThread.join();
+		}
+
+		_magWindThread = std::thread([=, this]() {
+			winrt::init_apartment(winrt::apartment_type::multi_threaded);
+
+			DispatcherQueueOptions dqOptions{};
+			dqOptions.dwSize = sizeof(DispatcherQueueOptions);
+			dqOptions.threadType = DQTYPE_THREAD_CURRENT;
+
+			HRESULT hr = CreateDispatcherQueueController(
+				dqOptions,
+				(ABI::Windows::System::IDispatcherQueueController**)winrt::put_abi(_dqc)
+			);
+			if (FAILED(hr)) {
+				_running = false;
+				_isRunningChangedEvent(false);
+				return;
+			}
+
+			MagApp& app = MagApp::Get();
+			app.Run((HWND)hwndSrc, options, _dqc.DispatcherQueue());
+
+			_running = false;
+			_dqc = nullptr;
+			_isRunningChangedEvent(false);
+		});
+	}
+
+	void ToggleOverlay() {
+		if (!_running || !_dqc) {
+			return;
+		}
+
+		_dqc.DispatcherQueue().TryEnqueue([]() {
+			MagApp::Get().ToggleOverlay();
+		});
+	}
+
+	void Stop() {
+		if (!_running || !_dqc) {
+			return;
+		}
+
+		_dqc.DispatcherQueue().TryEnqueue([]() {
+			MagApp::Get().Stop();
+		});
+
+		if (_magWindThread.joinable()) {
+			_magWindThread.join();
+		}
+	}
+
+	bool IsRunning() const {
+		return _running;
+	}
+
+	HWND HwndSrc() const {
+		return _running ? _hwndSrc : 0;
+	}
+
+	// 调用者应处理线程同步
+	winrt::event_token IsRunningChanged(winrt::delegate<bool> const& handler) {
+		return _isRunningChangedEvent.add(handler);
+	}
+
+	void IsRunningChanged(winrt::event_token const& token) noexcept {
+		_isRunningChangedEvent.remove(token);
+	}
+
+private:
+	std::thread _magWindThread;
+	std::atomic<bool> _running = false;
+	HWND _hwndSrc = 0;
+	winrt::DispatcherQueueController _dqc{ nullptr };
+
+	winrt::event<winrt::delegate<bool>> _isRunningChangedEvent;
+};
+
+MagRuntime::MagRuntime() : _impl(new Impl()) {}
+
+MagRuntime::~MagRuntime() {
+	delete _impl;
+}
+
+HWND MagRuntime::HwndSrc() const {
+	return _impl->HwndSrc();
+}
+
+void MagRuntime::Run(HWND hwndSrc, const MagOptions& options) {
+	return _impl->Run(hwndSrc, options);
 }
 
 void MagRuntime::ToggleOverlay() {
-	if (!_running || !_dqc) {
-		return;
-	}
-
-	_dqc.DispatcherQueue().TryEnqueue([]() {
-		MagApp::Get().ToggleOverlay();
-	});
+	return _impl->ToggleOverlay();
 }
 
 void MagRuntime::Stop() {
-	if (!_running || !_dqc) {
-		return;
-	}
+	return _impl->Stop();
+}
 
-	_dqc.DispatcherQueue().TryEnqueue([]() {
-		MagApp::Get().Stop();
-	});
+bool MagRuntime::IsRunning() const {
+	return _impl->IsRunning();
+}
 
-	if (_magWindThread.joinable()) {
-		_magWindThread.join();
-	}
+winrt::event_token MagRuntime::IsRunningChanged(winrt::delegate<bool> const& handler) {
+	return _impl->IsRunningChanged(handler);
+}
+
+void MagRuntime::IsRunningChanged(winrt::event_token const& token) noexcept {
+	_impl->IsRunningChanged(token);
 }
 
 }

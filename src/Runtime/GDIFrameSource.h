@@ -3,6 +3,8 @@
 #include "FrameSourceBase.h"
 
 
+namespace Magpie::Runtime {
+
 class GDIFrameSource : public FrameSourceBase {
 public:
 	GDIFrameSource() {};
@@ -33,3 +35,5 @@ private:
 	RECT _frameRect{};
 	winrt::com_ptr<IDXGISurface1> _dxgiSurface;
 };
+
+}

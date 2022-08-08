@@ -9,6 +9,9 @@
 #include <rapidjson/document.h>
 #include <rapidjson/prettywriter.h>
 #include "AutoStartHelper.h"
+#include <Runtime.h>
+
+using namespace Magpie::Runtime;
 
 
 namespace winrt::Magpie::App {
@@ -92,10 +95,10 @@ bool LoadUIntSettingItem(
 	return true;
 }
 
-bool LoadDoubleSettingItem(
+bool LoadFloatSettingItem(
 	const rapidjson::GenericObject<false, rapidjson::Value>& obj,
 	const char* nodeName,
-	std::optional<double>& result
+	std::optional<float>& result
 ) {
 	auto node = obj.FindMember(nodeName);
 	if (node == obj.MemberEnd()) {
@@ -103,11 +106,11 @@ bool LoadDoubleSettingItem(
 		return true;
 	}
 
-	if (!node->value.IsDouble()) {
+	if (!node->value.IsFloat()) {
 		return false;
 	}
 
-	result = node->value.GetDouble();
+	result = node->value.GetFloat();
 	return true;
 }
 
@@ -161,69 +164,46 @@ bool AppSettings::Initialize() {
 
 void WriteScalingProfile(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer, const ScalingProfile& scalingProfile) {
 	writer.StartObject();
-	if (!scalingProfile.Name().empty()) {
+	if (!scalingProfile.Name.empty()) {
 		writer.Key("name");
-		writer.String(StrUtils::UTF16ToUTF8(scalingProfile.Name()).c_str());
+		writer.String(StrUtils::UTF16ToUTF8(scalingProfile.Name).c_str());
 		writer.Key("packaged");
-		writer.Bool(scalingProfile.IsPackaged());
+		writer.Bool(scalingProfile.IsPackaged);
 		writer.Key("pathRule");
-		writer.String(StrUtils::UTF16ToUTF8(scalingProfile.PathRule()).c_str());
+		writer.String(StrUtils::UTF16ToUTF8(scalingProfile.PathRule).c_str());
 		writer.Key("classNameRule");
-		writer.String(StrUtils::UTF16ToUTF8(scalingProfile.ClassNameRule()).c_str());
+		writer.String(StrUtils::UTF16ToUTF8(scalingProfile.ClassNameRule).c_str());
 	}
 
 	writer.Key("croppingEnabled");
-	writer.Bool(scalingProfile.IsCroppingEnabled());
+	writer.Bool(scalingProfile.IsCroppingEnabled);
 	writer.Key("cursorScaling");
-	writer.Uint((unsigned int)scalingProfile.CursorScaling());
+	writer.Uint((unsigned int)scalingProfile.CursorScaling);
 	writer.Key("customCursorScaling");
-	writer.Double(scalingProfile.CustomCursorScaling());
-
-	Magpie::Runtime::MagSettings magSettings = scalingProfile.MagSettings();
+	writer.Double(scalingProfile.CustomCursorScaling);
 
 	writer.Key("captureMode");
-	writer.Uint((unsigned int)magSettings.CaptureMode());
+	writer.Uint((unsigned int)scalingProfile.CaptureMode);
 	writer.Key("multiMonitorUsage");
-	writer.Uint((unsigned int)magSettings.MultiMonitorUsage());
+	writer.Uint((unsigned int)scalingProfile.MultiMonitorUsage);
 	writer.Key("graphicsAdapter");
-	writer.Uint(magSettings.GraphicsAdapter());
-	writer.Key("3dGameMode");
-	writer.Bool(magSettings.Is3DGameMode());
-	writer.Key("showFPS");
-	writer.Bool(magSettings.IsShowFPS());
-	writer.Key("VSync");
-	writer.Bool(magSettings.IsVSync());
-	writer.Key("tripleBuffering");
-	writer.Bool(magSettings.IsTripleBuffering());
-	writer.Key("disableWindowResizing");
-	writer.Bool(magSettings.IsDisableWindowResizing());
-	writer.Key("reserveTitleBar");
-	writer.Bool(magSettings.IsReserveTitleBar());
-	
-	{
-		Magpie::Runtime::Cropping cropping = magSettings.Cropping();
-
-		writer.Key("cropping");
-		writer.StartObject();
-		writer.Key("left");
-		writer.Double(cropping.Left);
-		writer.Key("top");
-		writer.Double(cropping.Top);
-		writer.Key("right");
-		writer.Double(cropping.Right);
-		writer.Key("bottom");
-		writer.Double(cropping.Bottom);
-		writer.EndObject();
-	}
-
-	writer.Key("adjustCursorSpeed");
-	writer.Bool(magSettings.IsAdjustCursorSpeed());
-	writer.Key("drawCursor");
-	writer.Bool(magSettings.IsDrawCursor());
+	writer.Uint(scalingProfile.GraphicsAdapter);
+	writer.Key("flags");
+	writer.Uint(scalingProfile.Flags);
 	writer.Key("cursorInterpolationMode");
-	writer.Uint((unsigned int)magSettings.CursorInterpolationMode());
-	writer.Key("disableDirectFlip");
-	writer.Bool(magSettings.IsDisableDirectFlip());
+	writer.Uint((unsigned int)scalingProfile.CursorInterpolationMode);
+
+	writer.Key("cropping");
+	writer.StartObject();
+	writer.Key("left");
+	writer.Double(scalingProfile.Cropping.Left);
+	writer.Key("top");
+	writer.Double(scalingProfile.Cropping.Top);
+	writer.Key("right");
+	writer.Double(scalingProfile.Cropping.Right);
+	writer.Key("bottom");
+	writer.Double(scalingProfile.Cropping.Bottom);
+	writer.EndObject();
 
 	writer.EndObject();
 }
@@ -232,120 +212,90 @@ bool LoadScalingProfile(const rapidjson::GenericObject<false, rapidjson::Value>&
 	std::optional<const char*> strValue;
 	std::optional<unsigned int> uintValue;
 	std::optional<bool> boolValue;
-	std::optional<double> doubleValue;
+	std::optional<float> floatValue;
 
 	if (!LoadStringSettingItem(scalingConfigObj, "name", strValue)) {
 		return false;
 	}
 	if (strValue.has_value()) {
-		scalingProfile.Name(StrUtils::UTF8ToUTF16(strValue.value()));
+		scalingProfile.Name = StrUtils::UTF8ToUTF16(strValue.value());
 	}
 
 	if (!LoadBoolSettingItem(scalingConfigObj, "packaged", boolValue)) {
 		return false;
 	}
 	if (boolValue.has_value()) {
-		scalingProfile.IsPackaged(boolValue.value());
+		scalingProfile.IsPackaged = boolValue.value();
 	}
 	
 	if (!LoadStringSettingItem(scalingConfigObj, "pathRule", strValue)) {
 		return false;
 	}
 	if (strValue.has_value()) {
-		scalingProfile.PathRule(StrUtils::UTF8ToUTF16(strValue.value()));
+		scalingProfile.PathRule = StrUtils::UTF8ToUTF16(strValue.value());
 	}
 
 	if (!LoadStringSettingItem(scalingConfigObj, "classNameRule", strValue)) {
 		return false;
 	}
 	if (strValue.has_value()) {
-		scalingProfile.ClassNameRule(StrUtils::UTF8ToUTF16(strValue.value()));
+		scalingProfile.ClassNameRule = StrUtils::UTF8ToUTF16(strValue.value());
 	}
 
 	if (!LoadBoolSettingItem(scalingConfigObj, "croppingEnabled", boolValue)) {
 		return false;
 	}
 	if (boolValue.has_value()) {
-		scalingProfile.IsCroppingEnabled(boolValue.value());
+		scalingProfile.IsCroppingEnabled = boolValue.value();
 	}
 
 	if (!LoadUIntSettingItem(scalingConfigObj, "cursorScaling", uintValue)) {
 		return false;
 	}
 	if (uintValue.has_value()) {
-		scalingProfile.CursorScaling((CursorScaling)uintValue.value());
+		scalingProfile.CursorScaling = (CursorScaling)uintValue.value();
 	}
 
-	if (!LoadDoubleSettingItem(scalingConfigObj, "customCursorScaling", doubleValue)) {
+	if (!LoadFloatSettingItem(scalingConfigObj, "customCursorScaling", floatValue)) {
 		return false;
 	}
-	if (doubleValue.has_value()) {
-		scalingProfile.CustomCursorScaling(doubleValue.value());
+	if (floatValue.has_value()) {
+		scalingProfile.CustomCursorScaling = floatValue.value();
 	}
-
-	Magpie::Runtime::MagSettings magSettings = scalingProfile.MagSettings();
 
 	if (!LoadUIntSettingItem(scalingConfigObj, "captureMode", uintValue)) {
 		return false;
 	}
 	if (uintValue.has_value()) {
-		magSettings.CaptureMode((Magpie::Runtime::CaptureMode)uintValue.value());
+		scalingProfile.CaptureMode = (CaptureMode)uintValue.value();
 	}
 
 	if (!LoadUIntSettingItem(scalingConfigObj, "multiMonitorUsage", uintValue)) {
 		return false;
 	}
 	if (uintValue.has_value()) {
-		magSettings.MultiMonitorUsage((Magpie::Runtime::MultiMonitorUsage)uintValue.value());
+		scalingProfile.MultiMonitorUsage = (MultiMonitorUsage)uintValue.value();
 	}
 
 	if (!LoadUIntSettingItem(scalingConfigObj, "graphicsAdapter", uintValue)) {
 		return false;
 	}
 	if (uintValue.has_value()) {
-		magSettings.GraphicsAdapter(uintValue.value());
+		scalingProfile.GraphicsAdapter = uintValue.value();
 	}
 
-	if (!LoadBoolSettingItem(scalingConfigObj, "3dGameMode", boolValue)) {
+	if (!LoadUIntSettingItem(scalingConfigObj, "flags", uintValue)) {
 		return false;
 	}
-	if (boolValue.has_value()) {
-		magSettings.Is3DGameMode(boolValue.value());
+	if (uintValue.has_value()) {
+		scalingProfile.Flags = uintValue.value();
 	}
 
-	if (!LoadBoolSettingItem(scalingConfigObj, "showFPS", boolValue)) {
+	if (!LoadUIntSettingItem(scalingConfigObj, "cursorInterpolationMode", uintValue)) {
 		return false;
 	}
-	if (boolValue.has_value()) {
-		magSettings.IsShowFPS(boolValue.value());
-	}
-
-	if (!LoadBoolSettingItem(scalingConfigObj, "VSync", boolValue)) {
-		return false;
-	}
-	if (boolValue.has_value()) {
-		magSettings.IsVSync(boolValue.value());
-	}
-
-	if (!LoadBoolSettingItem(scalingConfigObj, "tripleBuffering", boolValue)) {
-		return false;
-	}
-	if (boolValue.has_value()) {
-		magSettings.IsTripleBuffering(boolValue.value());
-	}
-
-	if (!LoadBoolSettingItem(scalingConfigObj, "disableWindowResizing", boolValue)) {
-		return false;
-	}
-	if (boolValue.has_value()) {
-		magSettings.IsDisableWindowResizing(boolValue.value());
-	}
-
-	if (!LoadBoolSettingItem(scalingConfigObj, "reserveTitleBar", boolValue)) {
-		return false;
-	}
-	if (boolValue.has_value()) {
-		magSettings.IsReserveTitleBar(boolValue.value());
+	if (uintValue.has_value()) {
+		scalingProfile.CursorInterpolationMode = (CursorInterpolationMode)uintValue.value();
 	}
 
 	{
@@ -357,58 +307,26 @@ bool LoadScalingProfile(const rapidjson::GenericObject<false, rapidjson::Value>&
 
 			const auto& croppingObj = croppingNode->value.GetObj();
 
-			Magpie::Runtime::Cropping cropping{};
-
-			if (!LoadDoubleSettingItem(croppingObj, "left", doubleValue) || !doubleValue.has_value()) {
+			if (!LoadFloatSettingItem(croppingObj, "left", floatValue) || !floatValue.has_value()) {
 				return false;
 			}
-			cropping.Left = doubleValue.value();
+			scalingProfile.Cropping.Left = floatValue.value();
 
-			if (!LoadDoubleSettingItem(croppingObj, "top", doubleValue) || !doubleValue.has_value()) {
+			if (!LoadFloatSettingItem(croppingObj, "top", floatValue) || !floatValue.has_value()) {
 				return false;
 			}
-			cropping.Top = doubleValue.value();
+			scalingProfile.Cropping.Top = floatValue.value();
 
-			if (!LoadDoubleSettingItem(croppingObj, "right", doubleValue) || !doubleValue.has_value()) {
+			if (!LoadFloatSettingItem(croppingObj, "right", floatValue) || !floatValue.has_value()) {
 				return false;
 			}
-			cropping.Right = doubleValue.value();
+			scalingProfile.Cropping.Right = floatValue.value();
 
-			if (!LoadDoubleSettingItem(croppingObj, "bottom", doubleValue) || !doubleValue.has_value()) {
+			if (!LoadFloatSettingItem(croppingObj, "bottom", floatValue) || !floatValue.has_value()) {
 				return false;
 			}
-			cropping.Bottom = doubleValue.value();
-
-			magSettings.Cropping(cropping);
+			scalingProfile.Cropping.Bottom = floatValue.value();
 		}
-	}
-
-	if (!LoadBoolSettingItem(scalingConfigObj, "adjustCursorSpeed", boolValue)) {
-		return false;
-	}
-	if (boolValue.has_value()) {
-		magSettings.IsAdjustCursorSpeed(boolValue.value());
-	}
-
-	if (!LoadBoolSettingItem(scalingConfigObj, "drawCursor", boolValue)) {
-		return false;
-	}
-	if (boolValue.has_value()) {
-		magSettings.IsDrawCursor(boolValue.value());
-	}
-
-	if (!LoadUIntSettingItem(scalingConfigObj, "cursorInterpolationMode", uintValue)) {
-		return false;
-	}
-	if (uintValue.has_value()) {
-		magSettings.CursorInterpolationMode((Magpie::Runtime::CursorInterpolationMode)uintValue.value());
-	}
-
-	if (!LoadBoolSettingItem(scalingConfigObj, "disableDirectFlip", boolValue)) {
-		return false;
-	}
-	if (boolValue.has_value()) {
-		magSettings.IsDisableDirectFlip(boolValue.value());
 	}
 
 	return true;
@@ -737,10 +655,10 @@ bool AppSettings::_LoadSettings(std::string text) {
 					return false;
 				}
 
-				_defaultScalingProfile.Name(L"");
-				_defaultScalingProfile.PathRule(L"");
-				_defaultScalingProfile.ClassNameRule(L"");
-				_defaultScalingProfile.IsPackaged(false);
+				_defaultScalingProfile.Name = L"";
+				_defaultScalingProfile.PathRule = L"";
+				_defaultScalingProfile.ClassNameRule = L"";
+				_defaultScalingProfile.IsPackaged = false;
 
 				if (size > 1) {
 					_scalingProfiles.resize((size_t)size - 1);
@@ -755,7 +673,7 @@ bool AppSettings::_LoadSettings(std::string text) {
 							return false;
 						}
 
-						if (rule.Name().empty() || rule.PathRule().empty() || rule.ClassNameRule().empty()) {
+						if (rule.Name.empty() || rule.PathRule.empty() || rule.ClassNameRule.empty()) {
 							return false;
 						}
 					}
@@ -770,16 +688,16 @@ bool AppSettings::_LoadSettings(std::string text) {
 void AppSettings::_SetDefaultHotkeys() {
 	HotkeySettings& scaleHotkey = _hotkeys[(size_t)HotkeyAction::Scale];
 	if (scaleHotkey.IsEmpty()) {
-		scaleHotkey.Win(true);
-		scaleHotkey.Shift(true);
-		scaleHotkey.Code('A');
+		scaleHotkey.Win = true;
+		scaleHotkey.Shift = true;
+		scaleHotkey.Code = 'A';
 	}
 
 	HotkeySettings& overlayHotkey = _hotkeys[(size_t)HotkeyAction::Overlay];
 	if (overlayHotkey.IsEmpty()) {
-		overlayHotkey.Win(true);
-		overlayHotkey.Shift(true);
-		overlayHotkey.Code('D');
+		overlayHotkey.Win = true;
+		overlayHotkey.Shift = true;
+		overlayHotkey.Code = 'D';
 	}
 }
 

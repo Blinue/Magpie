@@ -14,9 +14,7 @@
 #include "GPUTimer.h"
 
 
-namespace winrt {
-using namespace Magpie::Runtime;
-}
+namespace Magpie::Runtime {
 
 static constexpr const wchar_t* HOST_WINDOW_CLASS_NAME = L"Window_Magpie_967EB565-6F73-4E94-AE53-00CC42592A22";
 static constexpr const wchar_t* DDF_WINDOW_CLASS_NAME = L"Window_Magpie_C322D752-C866-4630-91F5-32CB242A8930";
@@ -31,9 +29,9 @@ static LRESULT DDFWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 }
 
 static LRESULT CALLBACK LowLevelKeyboardProc(
-  _In_ int    nCode,
-  _In_ WPARAM wParam,
-  _In_ LPARAM lParam
+	_In_ int    nCode,
+	_In_ WPARAM wParam,
+	_In_ LPARAM lParam
 ) {
 	if (nCode != HC_ACTION || wParam != WM_KEYDOWN) {
 		return CallNextHookEx(NULL, nCode, wParam, lParam);
@@ -44,24 +42,22 @@ static LRESULT CALLBACK LowLevelKeyboardProc(
 		([]()->winrt::fire_and_forget {
 			MagApp& app = MagApp::Get();
 
-			const winrt::MagSettings& settings = app.GetSettings();
-			if (!settings || !settings.IsDrawCursor()) {
+			MagOptions& options = app.GetOptions();
+			if (!options.IsDrawCursor()) {
 				co_return;
 			}
 
 			// 暂时隐藏光标
-			app.GetSettings().IsDrawCursor(false);
+			app.GetOptions().IsDrawCursor(false);
 			app.GetRenderer().Render(true);
 
-			winrt::weak_ref<winrt::MagSettings> weakRef(settings);
 			winrt::DispatcherQueue dispatcher = app.Dispatcher();
 
 			co_await std::chrono::milliseconds(400);
 			co_await dispatcher;
 
-			if (auto strongRef = weakRef.get()) {
-				strongRef.IsDrawCursor(true);
-			}
+			MagApp::Get().GetOptions().IsDrawCursor(true);
+			
 		})();
 	}
 
@@ -72,22 +68,22 @@ MagApp::MagApp() {}
 
 MagApp::~MagApp() {}
 
-bool MagApp::Run(HWND hwndSrc, winrt::MagSettings const& settings, winrt::DispatcherQueue const& dispatcher) {
+bool MagApp::Run(HWND hwndSrc, const MagOptions& options, winrt::DispatcherQueue const& dispatcher) {
 	_dispatcher = dispatcher;
 	_hwndSrc = hwndSrc;
-	_settings = settings;
+	_options = options;
 
 	_hInst = GetModuleHandle(nullptr);
 
 	// 模拟独占全屏
 	// 必须在主窗口创建前，否则 SHQueryUserNotificationState 可能返回 QUNS_BUSY 而不是 QUNS_RUNNING_D3D_FULL_SCREEN
 	std::unique_ptr<ExclModeHack> exclMode;
-	if (MagApp::Get().GetSettings().IsSimulateExclusiveFullscreen()) {
+	if (MagApp::Get().GetOptions().IsSimulateExclusiveFullscreen()) {
 		exclMode = std::make_unique<ExclModeHack>();
 	};
 
 	_RegisterWndClasses();
-	
+
 	if (!_CreateHostWnd()) {
 		Logger::Get().Error("创建主窗口失败");
 		_OnQuit();
@@ -137,7 +133,7 @@ bool MagApp::Run(HWND hwndSrc, winrt::MagSettings const& settings, winrt::Dispat
 		return false;
 	}
 
-	if (_settings.IsDisableDirectFlip() && !_settings.IsBreakpointMode()) {
+	if (_options.IsDisableDirectFlip() && !_options.IsBreakpointMode()) {
 		// 在此处创建的 DDF 窗口不会立刻显示
 		if (!_DisableDirectFlip()) {
 			Logger::Get().Error("_DisableDirectFlip 失败");
@@ -264,9 +260,7 @@ static BOOL CALLBACK MonitorEnumProc(HMONITOR, HDC, LPRECT monitorRect, LPARAM d
 	return TRUE;
 }
 
-static bool CalcHostWndRect(HWND hWnd, winrt::MultiMonitorUsage multiMonitorUsage, RECT& result) {
-	using winrt::MultiMonitorUsage;
-
+static bool CalcHostWndRect(HWND hWnd, MultiMonitorUsage multiMonitorUsage, RECT& result) {
 	switch (multiMonitorUsage) {
 	case MultiMonitorUsage::Nearest:
 	{
@@ -337,13 +331,13 @@ bool MagApp::_CreateHostWnd() {
 		return false;
 	}
 
-	if (!CalcHostWndRect(_hwndSrc, _settings.MultiMonitorUsage(), _hostWndRect)) {
+	if (!CalcHostWndRect(_hwndSrc, _options.MultiMonitorUsage, _hostWndRect)) {
 		Logger::Get().Error("CalcHostWndRect 失败");
 		return false;
 	}
 
 	_hwndHost = CreateWindowEx(
-		(_settings.IsBreakpointMode() ? 0 : WS_EX_TOPMOST) | WS_EX_NOACTIVATE | WS_EX_LAYERED | WS_EX_TRANSPARENT | WS_EX_TOOLWINDOW,
+		(_options.IsBreakpointMode() ? 0 : WS_EX_TOPMOST) | WS_EX_NOACTIVATE | WS_EX_LAYERED | WS_EX_TRANSPARENT | WS_EX_TOOLWINDOW,
 		HOST_WINDOW_CLASS_NAME,
 		NULL,	// 标题为空，否则会被添加新配置页面列为候选窗口
 		WS_POPUP,
@@ -366,7 +360,7 @@ bool MagApp::_CreateHostWnd() {
 
 	// 设置窗口不透明
 	// 不完全透明时可关闭 DirectFlip
-	if (!SetLayeredWindowAttributes(_hwndHost, 0, _settings.IsDisableDirectFlip() ? 254 : 255, LWA_ALPHA)) {
+	if (!SetLayeredWindowAttributes(_hwndHost, 0, _options.IsDisableDirectFlip() ? 254 : 255, LWA_ALPHA)) {
 		Logger::Get().Win32Error("SetLayeredWindowAttributes 失败");
 	}
 
@@ -374,9 +368,7 @@ bool MagApp::_CreateHostWnd() {
 }
 
 bool MagApp::_InitFrameSource() {
-	using winrt::CaptureMode;
-
-	switch (_settings.CaptureMode()) {
+	switch (_options.CaptureMode) {
 	case CaptureMode::GraphicsCapture:
 		_frameSource.reset(new GraphicsCaptureFrameSource());
 		break;
@@ -483,8 +475,9 @@ void MagApp::_OnQuit() {
 	_renderer = nullptr;
 	_frameSource = nullptr;
 	_deviceResources = nullptr;
-	_settings = nullptr;
 
 	_nextWndProcHandlerID = 1;
 	_wndProcHandlers.clear();
+}
+
 }

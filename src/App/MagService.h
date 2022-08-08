@@ -1,6 +1,6 @@
 #pragma once
 #include <winrt/Magpie.App.h>
-#include <winrt/Magpie.Runtime.h>
+#include <Runtime.h>
 #include "WinRTUtils.h"
 
 
@@ -59,15 +59,15 @@ public:
 		_countdownTickEvent.remove(token);
 	}
 
-	uint64_t WndToRestore() const noexcept {
+	HWND WndToRestore() const noexcept {
 		return _wndToRestore;
 	}
 
-	event_token WndToRestoreChanged(delegate<uint64_t> const& handler) {
+	event_token WndToRestoreChanged(delegate<HWND> const& handler) {
 		return _wndToRestoreChangedEvent.add(handler);
 	}
 
-	WinRTUtils::EventRevoker WndToRestoreChanged(auto_revoke_t, delegate<uint64_t> const& handler) {
+	WinRTUtils::EventRevoker WndToRestoreChanged(auto_revoke_t, delegate<HWND> const& handler) {
 		event_token token = WndToRestoreChanged(handler);
 		return WinRTUtils::EventRevoker([this, token]() {
 			WndToRestoreChanged(token);
@@ -111,13 +111,13 @@ private:
 
 	void _Settings_IsAutoRestoreChanged(bool);
 
-	IAsyncAction _MagRuntime_IsRunningChanged(IInspectable const&, bool);
+	IAsyncAction _MagRuntime_IsRunningChanged(bool);
 
 	void _UpdateIsAutoRestore();
 
 	void _CheckForeground();
 
-	void _StartScale(uint64_t hWnd = 0);
+	void _StartScale(HWND hWnd = 0);
 
 	static void CALLBACK _WinEventProcCallback(
 		HWINEVENTHOOK /*hWinEventHook*/,
@@ -129,7 +129,7 @@ private:
 		DWORD /*dwmsEventTime*/
 	);
 
-	Magpie::Runtime::MagRuntime _magRuntime;
+	::Magpie::Runtime::MagRuntime _magRuntime;
 	CoreDispatcher _dispatcher{ nullptr };
 
 	DispatcherTimer _timer;
@@ -141,8 +141,8 @@ private:
 	event<delegate<float>> _countdownTickEvent;
 
 	HWND _curSrcWnd = 0;
-	uint64_t _wndToRestore = 0;
-	event<delegate<uint64_t>> _wndToRestoreChangedEvent;
+	HWND _wndToRestore = 0;
+	event<delegate<HWND>> _wndToRestoreChangedEvent;
 
 	event<delegate<bool>> _isRunningChangedEvent;
 

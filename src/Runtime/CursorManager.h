@@ -2,6 +2,8 @@
 #include "pch.h"
 
 
+namespace Magpie::Runtime {
+
 class CursorManager {
 public:
 	CursorManager() = default;
@@ -91,3 +93,5 @@ private:
 
 	std::unordered_map<HCURSOR, _CursorInfo> _cursorInfos;
 };
+
+}

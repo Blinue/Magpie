@@ -6,13 +6,15 @@
 #include "Win32Utils.h"
 
 
+namespace Magpie::Runtime {
+
 static winrt::com_ptr<IDXGIOutput1> FindMonitor(IDXGIAdapter1* adapter, HMONITOR hMonitor) {
 	winrt::com_ptr<IDXGIOutput> output;
 
 	for (UINT adapterIndex = 0;
 		SUCCEEDED(adapter->EnumOutputs(adapterIndex, output.put()));
 		++adapterIndex
-	) {
+		) {
 		DXGI_OUTPUT_DESC desc;
 		HRESULT hr = output->GetDesc(&desc);
 		if (FAILED(hr)) {
@@ -51,7 +53,7 @@ static winrt::com_ptr<IDXGIOutput1> GetDXGIOutput(HMONITOR hMonitor) {
 	for (UINT adapterIndex = 0;
 		SUCCEEDED(dxgiFactory->EnumAdapters1(adapterIndex, adapter.put()));
 		++adapterIndex
-	) {
+		) {
 		if (adapter.get() == curAdapter) {
 			continue;
 		}
@@ -382,4 +384,6 @@ DWORD WINAPI DesktopDuplicationFrameSource::_DDPThreadProc(LPVOID lpThreadParame
 	}
 
 	return 0;
+}
+
 }

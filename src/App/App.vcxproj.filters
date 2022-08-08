@@ -32,9 +32,6 @@
     <ClCompile Include="HotkeySettings.cpp">
       <Filter>Models</Filter>
     </ClCompile>
-    <ClCompile Include="ScalingProfile.cpp">
-      <Filter>Models</Filter>
-    </ClCompile>
     <ClCompile Include="ScalingProfileService.cpp">
       <Filter>Services</Filter>
     </ClCompile>

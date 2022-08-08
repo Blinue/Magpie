@@ -1,6 +1,5 @@
 #pragma once
 #include <winrt/Magpie.App.h>
-#include <winrt/Magpie.Runtime.h>
 #include "WinRTUtils.h"
 #include "HotkeySettings.h"
 #include "ScalingProfile.h"

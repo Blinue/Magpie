@@ -7,7 +7,6 @@
 #include "CommonSharedConstants.h"
 #include <uxtheme.h>
 #include <fmt/xchar.h>
-#include <winrt/Magpie.Runtime.h>
 #include "resource.h"
 #include <Runtime.h>
 
@@ -185,7 +184,6 @@ void XamlApp::_InitializeLogger() {
 	// 初始化 dll 中的 Logger
 	// Logger 的单例无法在 exe 和 dll 间共享
 	winrt::Magpie::App::LoggerHelper::Initialize((uint64_t)&logger);
-	winrt::Magpie::Runtime::LoggerHelper::Initialize((uint64_t)&logger);
 	Magpie::Runtime::LoggerHelper::Initialize(logger);
 }
 

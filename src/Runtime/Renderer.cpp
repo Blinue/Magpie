@@ -11,11 +11,10 @@
 #include "OverlayDrawer.h"
 #include "Logger.h"
 #include "CursorManager.h"
-
-#pragma push_macro("GetObject")
-#undef GetObject
 #include <rapidjson/document.h>
 
+
+namespace Magpie::Runtime {
 
 Renderer::Renderer() {}
 
@@ -34,7 +33,7 @@ bool Renderer::Initialize(const std::string& effectsJson) {
 		return false;
 	}
 
-	if (MagApp::Get().GetSettings().IsShowFPS()) {
+	if (MagApp::Get().GetOptions().IsShowFPS()) {
 		_overlayDrawer.reset(new OverlayDrawer());
 		if (!_overlayDrawer->Initialize()) {
 			Logger::Get().Error("初始化 OverlayDrawer 失败");
@@ -75,7 +74,7 @@ void Renderer::Render(bool onPrint) {
 	}
 
 	// 首先处理配置改变产生的回调
-	// MagApp::Get().GetSettings().OnBeginFrame();
+	// MagApp::Get().GetOptions().OnBeginFrame();
 
 	auto state = onPrint ? FrameSourceBase::UpdateState::NoUpdate : MagApp::Get().GetFrameSource().Update();
 	_waitingForNextFrame = state == FrameSourceBase::UpdateState::Waiting
@@ -179,7 +178,7 @@ bool CheckForeground(HWND hwndForeground) {
 	// 排除桌面窗口和 Alt+Tab 窗口
 	if (className == L"WorkerW" || className == L"ForegroundStaging" ||
 		className == L"MultitaskingViewFrame" || className == L"XamlExplorerHostIslandWindow"
-	) {
+		) {
 		return true;
 	}
 
@@ -188,7 +187,7 @@ bool CheckForeground(HWND hwndForeground) {
 	// 如果捕获模式可以捕获到弹窗，则允许小的弹窗
 	if (MagApp::Get().GetFrameSource().IsScreenCapture()
 		&& GetWindowStyle(hwndForeground) & (WS_POPUP | WS_CHILD)
-	) {
+		) {
 		if (!Win32Utils::GetWindowFrameRect(hwndForeground, rectForground)) {
 			Logger::Get().Error("GetWindowFrameRect 失败");
 			return false;
@@ -200,7 +199,7 @@ bool CheckForeground(HWND hwndForeground) {
 			&& rectForground.right <= srcFrameRect.right
 			&& rectForground.top >= srcFrameRect.top
 			&& rectForground.bottom <= srcFrameRect.bottom
-		) {
+			) {
 			return true;
 		}
 	}
@@ -231,10 +230,10 @@ const EffectDesc& Renderer::GetEffectDesc(UINT idx) const noexcept {
 bool Renderer::_CheckSrcState() {
 	HWND hwndSrc = MagApp::Get().GetHwndSrc();
 
-	if (!MagApp::Get().GetSettings().IsBreakpointMode()) {
+	if (!MagApp::Get().GetOptions().IsBreakpointMode()) {
 		HWND hwndForeground = GetForegroundWindow();
 		// 在 3D 游戏模式下打开游戏内覆盖则全屏窗口可以接收焦点
-		if (!MagApp::Get().GetSettings().Is3DGameMode() || !IsUIVisiable() || hwndForeground != MagApp::Get().GetHwndHost()) {
+		if (!MagApp::Get().GetOptions().Is3DGameMode() || !IsUIVisiable() || hwndForeground != MagApp::Get().GetHwndHost()) {
 			if (hwndForeground && hwndForeground != hwndSrc && !CheckForeground(hwndForeground)) {
 				Logger::Get().Info("前台窗口已改变");
 				return false;
@@ -312,7 +311,7 @@ bool Renderer::_ResolveEffectsJson(const std::string& effectsJson) {
 				effectNames[id] = effectName->value.GetString();
 			}
 
-			for (const auto& prop : effectJson.GetObject()) {
+			for (const auto& prop : effectJson.GetObj()) {
 				if (!prop.name.IsString()) {
 					Logger::Get().Error(fmt::format("解析效果#{}失败：非法的效果名", id));
 					allSuccess = false;
@@ -416,7 +415,7 @@ bool Renderer::_ResolveEffectsJson(const std::string& effectsJson) {
 			effectDescs[i], effectParams[i], effectInput, &effectInput,
 			isLastEffect ? &_outputRect : nullptr,
 			isLastEffect ? &_virtualOutputRect : nullptr
-		)) {
+			)) {
 			Logger::Get().Error(fmt::format("初始化效果#{} ({}) 失败", i, effectNames[i]));
 			return false;
 		}
@@ -435,7 +434,7 @@ bool Renderer::_UpdateDynamicConstants() {
 	// };
 
 	CursorManager& cursorManager = MagApp::Get().GetCursorManager();
-	if (cursorManager.HasCursor() && !(MagApp::Get().GetSettings().Is3DGameMode() && IsUIVisiable())) {
+	if (cursorManager.HasCursor() && !(MagApp::Get().GetOptions().Is3DGameMode() && IsUIVisiable())) {
 		const POINT* pos = cursorManager.GetCursorPos();
 		const CursorManager::CursorInfo* ci = cursorManager.GetCursorInfo();
 
@@ -446,7 +445,7 @@ bool Renderer::_UpdateDynamicConstants() {
 		}
 		assert(pos && ci);
 
-		float cursorScaling = (float)MagApp::Get().GetSettings().CursorScaling();
+		float cursorScaling = (float)MagApp::Get().GetOptions().CursorScaling;
 		if (cursorScaling < 1e-5) {
 			SIZE srcFrameSize = Win32Utils::GetSizeOfRect(MagApp::Get().GetFrameSource().GetSrcFrameRect());
 			SIZE virtualOutputSize = Win32Utils::GetSizeOfRect(_virtualOutputRect);
@@ -497,4 +496,4 @@ bool Renderer::_UpdateDynamicConstants() {
 	return true;
 }
 
-#pragma pop_macro("GetObject")
+}

@@ -1,3 +1,0 @@
-#include "MagSettings.idl"
-#include "MagRuntime.idl"
-#include "LoggerHelper.idl"

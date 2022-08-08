@@ -17,10 +17,13 @@
 
 #pragma comment(lib, "wbemuuid.lib")
 
+
+namespace Magpie::Runtime {
+
 OverlayDrawer::OverlayDrawer() {}
 
 OverlayDrawer::~OverlayDrawer() {
-	if (MagApp::Get().GetSettings().Is3DGameMode() && IsUIVisiable()) {
+	if (MagApp::Get().GetOptions().Is3DGameMode() && IsUIVisiable()) {
 		HWND hwndSrc = MagApp::Get().GetHwndSrc();
 		EnableWindow(hwndSrc, TRUE);
 		SetForegroundWindow(hwndSrc);
@@ -143,8 +146,8 @@ static std::vector<UINT> GenerateTimelineColors() {
 					UINT prevColor = (i > 0 && j == 0) ? result[idx - 2] : result[idx - 1];
 
 					if (j + 1 == nPass && i + 1 != nEffect &&
-							renderer.GetEffectDesc(i + 1).passes.size() == 1) {
-						// 当前效果的最后一个通道且下一个效果只有一个通道
+						renderer.GetEffectDesc(i + 1).passes.size() == 1) {
+					// 当前效果的最后一个通道且下一个效果只有一个通道
 						UINT nextColor = result[idx + 1];
 						while (c == prevColor || c == nextColor) {
 							c = uniformDst(randomEngine);
@@ -189,7 +192,7 @@ bool OverlayDrawer::Initialize() {
 		if (!Win32Utils::ReadFile(
 			StrUtils::ConcatW(CommonSharedConstants::ASSETS_DIR_W, L"NotoSansSC-Regular.otf").c_str(),
 			fontData
-		)) {
+			)) {
 			Logger::Get().Error("读取字体文件失败");
 			return false;
 		}
@@ -222,7 +225,7 @@ bool OverlayDrawer::Initialize() {
 }
 
 void OverlayDrawer::Draw() {
-	bool isShowFPS = MagApp::Get().GetSettings().IsShowFPS();
+	bool isShowFPS = MagApp::Get().GetOptions().IsShowFPS();
 
 	if (!_isUIVisiable && !isShowFPS) {
 		return;
@@ -251,7 +254,7 @@ void OverlayDrawer::SetUIVisibility(bool value) {
 	_isUIVisiable = value;
 
 	if (value) {
-		if (MagApp::Get().GetSettings().Is3DGameMode()) {
+		if (MagApp::Get().GetOptions().Is3DGameMode()) {
 			// 使全屏窗口不透明且可以接收焦点
 			HWND hwndHost = MagApp::Get().GetHwndHost();
 			INT_PTR style = GetWindowLongPtr(hwndHost, GWL_EXSTYLE);
@@ -269,11 +272,11 @@ void OverlayDrawer::SetUIVisibility(bool value) {
 		_validFrames = 0;
 		std::fill(_frameTimes.begin(), _frameTimes.end(), 0.0f);
 
-		if (!MagApp::Get().GetSettings().IsShowFPS()) {
+		if (!MagApp::Get().GetOptions().IsShowFPS()) {
 			_imguiImpl->ClearStates();
 		}
 
-		if (MagApp::Get().GetSettings().Is3DGameMode()) {
+		if (MagApp::Get().GetOptions().Is3DGameMode()) {
 			// 还原全屏窗口样式
 			HWND hwndHost = MagApp::Get().GetHwndHost();
 			INT_PTR style = GetWindowLongPtr(hwndHost, GWL_EXSTYLE);
@@ -433,14 +436,14 @@ static std::string GetCPUNameViaWMI() {
 	}
 
 	hr = CoSetProxyBlanket(
-	   wbemServices.get(),
-	   RPC_C_AUTHN_WINNT,
-	   RPC_C_AUTHZ_NONE,
-	   nullptr,
-	   RPC_C_AUTHN_LEVEL_CALL,
-	   RPC_C_IMP_LEVEL_IMPERSONATE,
-	   NULL,
-	   EOAC_NONE
+		wbemServices.get(),
+		RPC_C_AUTHN_WINNT,
+		RPC_C_AUTHZ_NONE,
+		nullptr,
+		RPC_C_AUTHN_LEVEL_CALL,
+		RPC_C_IMP_LEVEL_IMPERSONATE,
+		NULL,
+		EOAC_NONE
 	);
 	if (FAILED(hr)) {
 		return "";
@@ -660,7 +663,7 @@ static void MyPlotLines(float(*values_getter)(void* data, int idx), void* data, 
 }
 
 void OverlayDrawer::_DrawUI() {
-	auto& settings = MagApp::Get().GetSettings();
+	auto& settings = MagApp::Get().GetOptions();
 	auto& renderer = MagApp::Get().GetRenderer();
 	auto& gpuTimer = renderer.GetGPUTimer();
 
@@ -757,7 +760,7 @@ void OverlayDrawer::_DrawUI() {
 				fmt::format("avg: {:.3f} ms", totalTime / _validFrames).c_str(),
 				0, maxTime2 * 1.7f, ImVec2(250 * _dpiScale, 80 * _dpiScale));
 		}
-		
+
 		ImGui::Spacing();
 
 		if (ImGui::Button(showFPS ? "Switch to timings" : "Switch to FPS")) {
@@ -899,7 +902,7 @@ void OverlayDrawer::_DrawUI() {
 							if (effectTimings[i].totalTime < 1e-5f) {
 								continue;
 							}
-							
+
 							ImGui::TableSetupColumn(
 								std::to_string(i).c_str(),
 								ImGuiTableColumnFlags_WidthStretch | ImGuiTableColumnFlags_NoResize | ImGuiTableColumnFlags_NoReorder,
@@ -1010,4 +1013,6 @@ void OverlayDrawer::_RetrieveHardwareInfo() {
 
 	std::string cpuName = GetCPUName();
 	_hardwareInfo.cpuName = !cpuName.empty() ? std::move(cpuName) : "UNAVAILABLE";
+}
+
 }

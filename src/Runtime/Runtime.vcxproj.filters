@@ -1,41 +1,96 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Resources">
-      <UniqueIdentifier>accd3aa8-1ba0-4223-9bbe-0c431709210b</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tga;tiff;tif;png;wav;mfcribbon-ms</Extensions>
-    </Filter>
-    <Filter Include="Generated Files">
-      <UniqueIdentifier>{926ab91d-31b4-48c3-b9a4-e681349f27f0}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Capture">
-      <UniqueIdentifier>{02e00627-65a9-436a-aeeb-c8b05beb6fde}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="TextureLoader">
-      <UniqueIdentifier>{29f4e678-0af2-41c6-9ea6-6259bfb2e516}</UniqueIdentifier>
+      <UniqueIdentifier>{a3c5f48a-b77b-4e7d-ab18-74308a1c0889}</UniqueIdentifier>
     </Filter>
     <Filter Include="Overlay">
-      <UniqueIdentifier>{e2523fcb-5d75-4b2c-a12a-e717e522da20}</UniqueIdentifier>
+      <UniqueIdentifier>{a50e8e49-7ac6-4977-98d8-013e82a19dad}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="TextureLoader">
+      <UniqueIdentifier>{b0bbac79-0e76-436d-bcaa-b725b62d545f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="资源文件">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Include">
+      <UniqueIdentifier>{7ed1757c-3140-42a7-93b3-5bf0171cfa7b}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="pch.h" />
+    <ClInclude Include="include\Runtime.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="MagOptions.h" />
+    <ClInclude Include="MagRuntime.h" />
+    <ClInclude Include="LoggerHelper.h" />
+    <ClInclude Include="CursorManager.h" />
+    <ClInclude Include="DeviceResources.h" />
+    <ClInclude Include="EffectCacheManager.h" />
+    <ClInclude Include="EffectCompiler.h" />
+    <ClInclude Include="EffectDesc.h" />
+    <ClInclude Include="EffectDrawer.h" />
+    <ClInclude Include="ExclModeHack.h" />
+    <ClInclude Include="GPUTimer.h" />
+    <ClInclude Include="MagApp.h" />
+    <ClInclude Include="Renderer.h" />
+    <ClInclude Include="DesktopDuplicationFrameSource.h">
+      <Filter>Capture</Filter>
+    </ClInclude>
+    <ClInclude Include="DwmSharedSurfaceFrameSource.h">
+      <Filter>Capture</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphicsCaptureFrameSource.h">
+      <Filter>Capture</Filter>
+    </ClInclude>
+    <ClInclude Include="FrameSourceBase.h">
+      <Filter>Capture</Filter>
+    </ClInclude>
+    <ClInclude Include="GDIFrameSource.h">
+      <Filter>Capture</Filter>
+    </ClInclude>
+    <ClInclude Include="OverlayDrawer.h">
+      <Filter>Overlay</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui_impl_dx11.h">
+      <Filter>Overlay</Filter>
+    </ClInclude>
+    <ClInclude Include="ImGuiImpl.h">
+      <Filter>Overlay</Filter>
+    </ClInclude>
+    <ClInclude Include="TextureLoader.h">
+      <Filter>TextureLoader</Filter>
+    </ClInclude>
+    <ClInclude Include="DDS.h">
+      <Filter>TextureLoader</Filter>
+    </ClInclude>
+    <ClInclude Include="DDSLoderHelpers.h">
+      <Filter>TextureLoader</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="MagRuntime.cpp" />
     <ClCompile Include="pch.cpp" />
-    <ClCompile Include="$(GeneratedFilesDir)module.g.cpp">
-      <Filter>Generated Files</Filter>
-    </ClCompile>
-    <ClCompile Include="MagApp.cpp" />
-    <ClCompile Include="ExclModeHack.cpp" />
-    <ClCompile Include="DeviceResources.cpp" />
-    <ClCompile Include="GPUTimer.cpp" />
+    <ClCompile Include="DllMain.cpp" />
+    <ClCompile Include="LoggerHelper.cpp" />
     <ClCompile Include="CursorManager.cpp" />
-    <ClCompile Include="Renderer.cpp" />
-    <ClCompile Include="EffectCompiler.cpp" />
+    <ClCompile Include="DeviceResources.cpp" />
     <ClCompile Include="EffectCacheManager.cpp" />
+    <ClCompile Include="EffectCompiler.cpp" />
     <ClCompile Include="EffectDrawer.cpp" />
+    <ClCompile Include="ExclModeHack.cpp" />
+    <ClCompile Include="GPUTimer.cpp" />
+    <ClCompile Include="MagApp.cpp" />
+    <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="DesktopDuplicationFrameSource.cpp">
       <Filter>Capture</Filter>
     </ClCompile>
     <ClCompile Include="DwmSharedSurfaceFrameSource.cpp">
+      <Filter>Capture</Filter>
+    </ClCompile>
+    <ClCompile Include="GraphicsCaptureFrameSource.cpp">
       <Filter>Capture</Filter>
     </ClCompile>
     <ClCompile Include="FrameSourceBase.cpp">
@@ -44,8 +99,8 @@
     <ClCompile Include="GDIFrameSource.cpp">
       <Filter>Capture</Filter>
     </ClCompile>
-    <ClCompile Include="GraphicsCaptureFrameSource.cpp">
-      <Filter>Capture</Filter>
+    <ClCompile Include="OverlayDrawer.cpp">
+      <Filter>Overlay</Filter>
     </ClCompile>
     <ClCompile Include="imgui_impl_dx11.cpp">
       <Filter>Overlay</Filter>
@@ -56,69 +111,14 @@
     <ClCompile Include="TextureLoader.cpp">
       <Filter>TextureLoader</Filter>
     </ClCompile>
-    <ClCompile Include="OverlayDrawer.cpp">
-      <Filter>Overlay</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="pch.h" />
-    <ClInclude Include="MagApp.h" />
-    <ClInclude Include="ExclModeHack.h" />
-    <ClInclude Include="DeviceResources.h" />
-    <ClInclude Include="GPUTimer.h" />
-    <ClInclude Include="CursorManager.h" />
-    <ClInclude Include="Renderer.h" />
-    <ClInclude Include="EffectDesc.h" />
-    <ClInclude Include="EffectCompiler.h" />
-    <ClInclude Include="EffectCacheManager.h" />
-    <ClInclude Include="EffectDrawer.h" />
-    <ClInclude Include="DesktopDuplicationFrameSource.h">
-      <Filter>Capture</Filter>
-    </ClInclude>
-    <ClInclude Include="DwmSharedSurfaceFrameSource.h">
-      <Filter>Capture</Filter>
-    </ClInclude>
-    <ClInclude Include="FrameSourceBase.h">
-      <Filter>Capture</Filter>
-    </ClInclude>
-    <ClInclude Include="GDIFrameSource.h">
-      <Filter>Capture</Filter>
-    </ClInclude>
-    <ClInclude Include="GraphicsCaptureFrameSource.h">
-      <Filter>Capture</Filter>
-    </ClInclude>
-    <ClInclude Include="imgui_impl_dx11.h">
-      <Filter>Overlay</Filter>
-    </ClInclude>
-    <ClInclude Include="ImGuiImpl.h">
-      <Filter>Overlay</Filter>
-    </ClInclude>
-    <ClInclude Include="DDS.h">
-      <Filter>TextureLoader</Filter>
-    </ClInclude>
-    <ClInclude Include="DDSLoderHelpers.h">
-      <Filter>TextureLoader</Filter>
-    </ClInclude>
-    <ClInclude Include="TextureLoader.h">
-      <Filter>TextureLoader</Filter>
-    </ClInclude>
-    <ClInclude Include="OverlayDrawer.h">
-      <Filter>Overlay</Filter>
-    </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Runtime.def" />
     <None Include="packages.config" />
-    <None Include="MagRuntime.idl" />
-    <None Include="MagSettings.idl" />
-    <None Include="LoggerHelper.idl" />
+    <None Include="cpp.hint" />
   </ItemGroup>
   <ItemGroup>
-    <Midl Include="Runtime.idl" />
-  </ItemGroup>
-  <ItemGroup>
-    <CopyFileToFolders Include="NotoSansSC-Regular.otf">
-      <Filter>Resources</Filter>
-    </CopyFileToFolders>
+    <Font Include="NotoSansSC-Regular.otf">
+      <Filter>资源文件</Filter>
+    </Font>
   </ItemGroup>
 </Project>

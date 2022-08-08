@@ -5,6 +5,8 @@
 #include "AppSettings.h"
 #include "ScalingProfileService.h"
 
+using namespace Magpie::Runtime;
+
 
 namespace winrt::Magpie::App {
 
@@ -112,14 +114,14 @@ void MagService::_Settings_IsAutoRestoreChanged(bool) {
 	_UpdateIsAutoRestore();
 }
 
-IAsyncAction MagService::_MagRuntime_IsRunningChanged(IInspectable const&, bool) {
+IAsyncAction MagService::_MagRuntime_IsRunningChanged(bool) {
 	co_await _dispatcher.RunAsync(CoreDispatcherPriority::Normal, [this]() {
 		bool isRunning = _magRuntime.IsRunning();
 		if (isRunning) {
 			StopCountdown();
 
 			if (AppSettings::Get().IsAutoRestore()) {
-				_curSrcWnd = (HWND)_magRuntime.HwndSrc();
+				_curSrcWnd = _magRuntime.HwndSrc();
 				_wndToRestore = 0;
 				_wndToRestoreChangedEvent(_wndToRestore);
 			}
@@ -138,7 +140,7 @@ IAsyncAction MagService::_MagRuntime_IsRunningChanged(IInspectable const&, bool)
 			if (AppSettings::Get().IsAutoRestore()) {
 				// 退出全屏之后前台窗口不变则不必记忆
 				if (IsWindow(_curSrcWnd) && GetForegroundWindow() != _curSrcWnd) {
-					_wndToRestore = (uint64_t)_curSrcWnd;
+					_wndToRestore = _curSrcWnd;
 					_wndToRestoreChangedEvent(_wndToRestore);
 				}
 
@@ -153,7 +155,7 @@ IAsyncAction MagService::_MagRuntime_IsRunningChanged(IInspectable const&, bool)
 void MagService::_UpdateIsAutoRestore() {
 	if (AppSettings::Get().IsAutoRestore()) {
 		// 立即生效，即使正处于缩放状态
-		_curSrcWnd = (HWND)_magRuntime.HwndSrc();
+		_curSrcWnd = _magRuntime.HwndSrc();
 
 		// 监听前台窗口更改
 		_hForegroundEventHook = SetWinEventHook(
@@ -195,79 +197,81 @@ void MagService::_CheckForeground() {
 		return;
 	}
 
-	if (!IsWindow((HWND)_wndToRestore)) {
+	if (!IsWindow(_wndToRestore)) {
 		_wndToRestore = 0;
 		_wndToRestoreChangedEvent(_wndToRestore);
 		return;
 	}
 
-	if ((HWND)_wndToRestore != GetForegroundWindow()) {
+	if (_wndToRestore != GetForegroundWindow()) {
 		return;
 	}
 
 	_StartScale(_wndToRestore);
 }
 
-void MagService::_StartScale(uint64_t hWnd) {
-	if (hWnd == 0) {
-		hWnd = (uint64_t)GetForegroundWindow();
+void MagService::_StartScale(HWND hWnd) {
+	if (!hWnd) {
+		hWnd = GetForegroundWindow();
 	}
 
-	if (hWnd && Win32Utils::GetWindowShowCmd((HWND)hWnd) != SW_NORMAL) {
+	if (hWnd && Win32Utils::GetWindowShowCmd(hWnd) != SW_NORMAL) {
 		return;
 	}
 
 	const ScalingProfile& profile = ScalingProfileService::Get().GetProfileForWindow((HWND)hWnd);
 	
-	Magpie::Runtime::MagSettings magSettings;
-	magSettings.CopyFrom(profile.MagSettings());
+	MagOptions options;
+	options.GraphicsAdapter = profile.GraphicsAdapter;
+	options.CaptureMode = profile.CaptureMode;
+	options.MultiMonitorUsage = profile.MultiMonitorUsage;
+	options.CursorInterpolationMode = profile.CursorInterpolationMode;
+	options.Flags = profile.Flags;
 
-	if (!profile.IsCroppingEnabled()) {
-		magSettings.Cropping({});
+	if (!profile.IsCroppingEnabled) {
+		options.Cropping = profile.Cropping;
 	}
 
-	double cursorScaling;
-	switch (profile.CursorScaling()) {
+	switch (profile.CursorScaling) {
 	case CursorScaling::x0_5:
-		cursorScaling = 0.5;
+		options.CursorScaling = 0.5;
 		break;
 	case CursorScaling::x0_75:
-		cursorScaling = 0.75;
+		options.CursorScaling = 0.75;
 		break;
 	case CursorScaling::NoScaling:
-		cursorScaling = 1.0;
+		options.CursorScaling = 1.0;
 		break;
 	case CursorScaling::x1_25:
-		cursorScaling = 1.25;
+		options.CursorScaling = 1.25;
 		break;
 	case CursorScaling::x1_5:
-		cursorScaling = 1.5;
+		options.CursorScaling = 1.5;
 		break;
 	case CursorScaling::x2:
-		cursorScaling = 2.0;
+		options.CursorScaling = 2.0;
 		break;
 	case CursorScaling::Source:
 		// 0 或负值表示和源窗口缩放比例相同
-		cursorScaling = 0;
+		options.CursorScaling = 0;
 		break;
 	case CursorScaling::Custom:
-		cursorScaling = profile.CustomCursorScaling();
+		options.CursorScaling = profile.CustomCursorScaling;
 		break;
 	default:
-		cursorScaling = 1.0;
+		options.CursorScaling = 1.0;
 		break;
 	}
-	magSettings.CursorScaling(cursorScaling);
 
 	// 应用全局配置
 	AppSettings& settings = AppSettings::Get();
-	magSettings.IsBreakpointMode(settings.IsBreakpointMode());
-	magSettings.IsDisableEffectCache(settings.IsDisableEffectCache());
-	magSettings.IsSaveEffectSources(settings.IsSaveEffectSources());
-	magSettings.IsWarningsAreErrors(settings.IsWarningsAreErrors());
-	magSettings.IsSimulateExclusiveFullscreen(settings.IsSimulateExclusiveFullscreen());
+	options.IsBreakpointMode(settings.IsBreakpointMode());
+	options.IsDisableEffectCache(settings.IsDisableEffectCache());
+	options.IsSaveEffectSources(settings.IsSaveEffectSources());
+	options.IsWarningsAreErrors(settings.IsWarningsAreErrors());
+	options.IsSimulateExclusiveFullscreen(settings.IsSimulateExclusiveFullscreen());
 
-	_magRuntime.Run(hWnd, magSettings);
+	_magRuntime.Run(hWnd, options);
 }
 
 void MagService::_WinEventProcCallback(HWINEVENTHOOK, DWORD, HWND, LONG, LONG, DWORD, DWORD) {

@@ -1,6 +1,6 @@
 #pragma once
 #include "pch.h"
-#include <winrt/Magpie.Runtime.h>
+#include <Runtime.h>
 
 
 namespace winrt::Magpie::App {
@@ -17,81 +17,49 @@ enum class CursorScaling {
 };
 
 // 默认规则 Name、PathRule、ClassNameRule 均为空
-class ScalingProfile {
-public:
-	const std::wstring& Name() const noexcept{
-		return _name;
+struct ScalingProfile {
+	void Copy(const ScalingProfile& other) noexcept {
+		CursorScaling = other.CursorScaling;
+		CustomCursorScaling = other.CustomCursorScaling;
+		IsCroppingEnabled = other.IsCroppingEnabled;
+		Cropping = other.Cropping;
+		CaptureMode = other.CaptureMode;
+		GraphicsAdapter = other.GraphicsAdapter;
+		MultiMonitorUsage = other.MultiMonitorUsage;
+		CursorInterpolationMode = other.CursorInterpolationMode;
+		Flags = other.Flags;
 	}
 
-	void Name(std::wstring_view value) noexcept {
-		_name = value;
-	}
+	DEFINE_MAGFLAG_ACCESSOR(IsDisableWindowResizing)
+	DEFINE_MAGFLAG_ACCESSOR(Is3DGameMode)
+	DEFINE_MAGFLAG_ACCESSOR(IsShowFPS)
+	DEFINE_MAGFLAG_ACCESSOR(IsVSync)
+	DEFINE_MAGFLAG_ACCESSOR(IsTripleBuffering)
+	DEFINE_MAGFLAG_ACCESSOR(IsReserveTitleBar)
+	DEFINE_MAGFLAG_ACCESSOR(IsAdjustCursorSpeed)
+	DEFINE_MAGFLAG_ACCESSOR(IsDrawCursor)
+	DEFINE_MAGFLAG_ACCESSOR(IsDisableDirectFlip)
 
-	const std::wstring& PathRule() const noexcept {
-		return _pathRule;
-	}
-
-	void PathRule(std::wstring_view value) noexcept {
-		_pathRule = value;
-	}
-
-	bool IsPackaged() const noexcept {
-		return _isPackaged;
-	}
-
-	void IsPackaged(bool value) noexcept {
-		_isPackaged = value;
-	}
-
-	const std::wstring& ClassNameRule() const noexcept {
-		return _classNameRule;
-	}
-
-	void ClassNameRule(std::wstring_view value) noexcept {
-		_classNameRule = value;
-	}
-
-	bool IsCroppingEnabled() const noexcept {
-		return _isCroppingEnabled;
-	}
-
-	void IsCroppingEnabled(bool value) noexcept {
-		_isCroppingEnabled = value;
-	}
-
-	CursorScaling CursorScaling() const noexcept {
-		return _cursorScaling;
-	}
-
-	void CursorScaling(Magpie::App::CursorScaling value) noexcept {
-		_cursorScaling = value;
-	}
-
-	double CustomCursorScaling() const noexcept {
-		return _customCursorScaling;
-	}
-
-	void CustomCursorScaling(double value) noexcept {
-		_customCursorScaling = value;
-	}
-
-	Magpie::Runtime::MagSettings MagSettings() const noexcept {
-		return _magSettings;
-	}
-
-private:
-	std::wstring _name;
+	std::wstring Name;
 
 	// 若为打包应用，PathRule 存储 AUMID
-	bool _isPackaged = false;
-	std::wstring _pathRule;
-	std::wstring _classNameRule;
+	std::wstring PathRule;
+	std::wstring ClassNameRule;
+	bool IsPackaged = false;
+	
+	CursorScaling CursorScaling = CursorScaling::NoScaling;
+	float CustomCursorScaling = 1.0;
 
-	bool _isCroppingEnabled = false;
-	Magpie::App::CursorScaling _cursorScaling = CursorScaling::NoScaling;
-	double _customCursorScaling = 1.0;
+	bool IsCroppingEnabled = false;
+	::Magpie::Runtime::Cropping Cropping{};
+	::Magpie::Runtime::CaptureMode CaptureMode = ::Magpie::Runtime::CaptureMode::GraphicsCapture;
+	uint32_t GraphicsAdapter = 0;
+	::Magpie::Runtime::MultiMonitorUsage MultiMonitorUsage = ::Magpie::Runtime::MultiMonitorUsage::Nearest;
+	::Magpie::Runtime::CursorInterpolationMode CursorInterpolationMode = ::Magpie::Runtime::CursorInterpolationMode::Nearest;
 
-	Magpie::Runtime::MagSettings _magSettings;
+	uint32_t Flags = ::Magpie::Runtime::MagFlags::IsVSync 
+		| ::Magpie::Runtime::MagFlags::IsAdjustCursorSpeed
+		| ::Magpie::Runtime::MagFlags::IsDrawCursor;
 };
 
 }

@@ -2,6 +2,8 @@
 #include "pch.h"
 
 
+namespace Magpie::Runtime {
+
 // 用于记录帧率和 GPU 时间
 class GPUTimer {
 public:
@@ -79,3 +81,5 @@ private:
 	// (总计用时, 已统计帧数)
 	std::vector<std::pair<float, UINT>> _passesTimings;
 };
+
+}

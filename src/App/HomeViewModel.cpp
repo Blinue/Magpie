@@ -154,7 +154,7 @@ void HomeViewModel::_MagService_IsRunningChanged(bool) {
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsNotRunning"));
 }
 
-void HomeViewModel::_MagService_WndToRestoreChanged(uint64_t) {
+void HomeViewModel::_MagService_WndToRestoreChanged(HWND) {
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsWndToRestore"));
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsNoWndToRestore"));
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"RestoreWndDesc"));

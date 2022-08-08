@@ -1,8 +1,10 @@
 #pragma once
 #include "pch.h"
 #include <unordered_map>
-#include <winrt/Magpie.Runtime.h>
+#include "MagOptions.h"
 
+
+namespace Magpie::Runtime {
 
 class DeviceResources;
 class Renderer;
@@ -20,7 +22,7 @@ public:
 
 	bool Run(
 		HWND hwndSrc,
-		winrt::Magpie::Runtime::MagSettings const& settings,
+		const MagOptions& options,
 		winrt::DispatcherQueue const& dispatcher
 	);
 
@@ -60,8 +62,8 @@ public:
 		return *_cursorManager;
 	}
 
-	winrt::Magpie::Runtime::MagSettings& GetSettings() noexcept {
-		return _settings;
+	MagOptions& GetOptions() noexcept {
+		return _options;
 	}
 
 	winrt::DispatcherQueue Dispatcher() const noexcept {
@@ -112,10 +114,12 @@ private:
 	std::unique_ptr<Renderer> _renderer;
 	std::unique_ptr<FrameSourceBase> _frameSource;
 	std::unique_ptr<CursorManager> _cursorManager;
-	winrt::Magpie::Runtime::MagSettings _settings{ nullptr };
+	MagOptions _options;
 
 	HHOOK _hKeyboardHook = NULL;
 
 	std::map<UINT, std::function<std::optional<LRESULT>(HWND, UINT, WPARAM, LPARAM)>> _wndProcHandlers;
 	UINT _nextWndProcHandlerID = 1;
 };
+
+}
