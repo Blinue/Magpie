@@ -15,7 +15,7 @@ int APIENTRY wWinMain(
 	// 见 https://kennykerr.ca/2018/03/24/cppwinrt-hosting-the-windows-runtime/
 	winrt::init_apartment(winrt::apartment_type::single_threaded);
 
-	auto& app = XamlApp::Get();
+	auto& app = Magpie::XamlApp::Get();
 	if (!app.Initialize(hInstance, lpCmdLine)) {
 		return -1;
 	}

@@ -5,6 +5,8 @@
 #include "Win32Utils.h"
 
 
+namespace Magpie {
+
 class XamlApp {
 public:
 	XamlApp() = default;
@@ -22,6 +24,8 @@ public:
 	int Run();
 
 private:
+	bool _CheckSingleInstance();
+
 	void _CreateMainWindow();
 
 	void _ShowMainWindow() noexcept;
@@ -51,7 +55,7 @@ private:
 	}
 	LRESULT _TrayIconWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
-	Win32Utils::ScopedHandle _hMutex;
+	Win32Utils::ScopedHandle _hSingleInstanceMutex;
 
 	HINSTANCE _hInst = NULL;
 	// right 存储宽，bottom 存储高
@@ -68,3 +72,5 @@ private:
 	winrt::DesktopWindowXamlSource _xamlSource{ nullptr };
 	winrt::com_ptr<IDesktopWindowXamlSourceNative2> _xamlSourceNative2;
 };
+
+}

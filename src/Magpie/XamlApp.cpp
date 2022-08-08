@@ -14,30 +14,12 @@
 #pragma comment(lib, "UxTheme.lib")
 
 
-static constexpr const wchar_t* MUTEX_NAME = L"{4C416227-4A30-4A2F-8F23-8701544DD7D6}";
-
-static constexpr UINT CHECK_FORGROUND_TIMER_ID = 1;
-
-static constexpr const wchar_t* NOTIFY_ICON_WINDOW_CLASS_NAME = L"Magpie_NotifyIcon";
-
+namespace Magpie {
 
 bool XamlApp::Initialize(HINSTANCE hInstance, const wchar_t* arguments) {
 	_hInst = hInstance;
 
-	_hMutex.reset(CreateMutex(nullptr, TRUE, MUTEX_NAME));
-	if (!_hMutex || GetLastError() == ERROR_ALREADY_EXISTS) {
-		// 将已存在的窗口带到前台
-		// 可以唤醒旧版本，但旧版不能唤醒新版
-		HWND hWnd = FindWindow(CommonSharedConstants::XAML_HOST_CLASS_NAME, nullptr);
-		if (hWnd) {
-			// 如果已有实例权限更高 ShowWindow 会失败
-			ShowWindow(hWnd, SW_NORMAL);
-			Win32Utils::SetForegroundWindow(hWnd);
-		} else {
-			// 唤醒旧版本
-			PostMessage(HWND_BROADCAST, RegisterWindowMessage(L"WM_SHOWME"), 0, 0);
-		}
-
+	if (!_CheckSingleInstance()) {
 		return false;
 	}
 
@@ -103,7 +85,7 @@ bool XamlApp::Initialize(HINSTANCE hInstance, const wchar_t* arguments) {
 		wcex.hInstance = hInstance;
 		wcex.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_APP));
 		wcex.hCursor = LoadCursor(nullptr, IDC_ARROW);
-		wcex.lpszClassName = CommonSharedConstants::XAML_HOST_CLASS_NAME;
+		wcex.lpszClassName = CommonSharedConstants::MAIN_WINDOW_CLASS_NAME;
 
 		RegisterClassEx(&wcex);
 	}
@@ -112,7 +94,7 @@ bool XamlApp::Initialize(HINSTANCE hInstance, const wchar_t* arguments) {
 		wcex.cbSize = sizeof(wcex);
 		wcex.hInstance = hInstance;
 		wcex.lpfnWndProc = _TrayIconWndProcStatic;
-		wcex.lpszClassName = NOTIFY_ICON_WINDOW_CLASS_NAME;
+		wcex.lpszClassName = CommonSharedConstants::NOTIFY_ICON_WINDOW_CLASS_NAME;
 
 		RegisterClassEx(&wcex);
 	}
@@ -166,7 +148,7 @@ int XamlApp::Run() {
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);
 	}
-	
+
 	_uwpApp.SaveSettings();
 	_uwpApp = nullptr;
 
@@ -178,9 +160,32 @@ int XamlApp::Run() {
 	return (int)msg.wParam;
 }
 
+bool XamlApp::_CheckSingleInstance() {
+	static constexpr const wchar_t* SINGLE_INSTANCE_MUTEX_NAME = L"{4C416227-4A30-4A2F-8F23-8701544DD7D6}";
+
+	_hSingleInstanceMutex.reset(CreateMutex(nullptr, TRUE, SINGLE_INSTANCE_MUTEX_NAME));
+	if (!_hSingleInstanceMutex || GetLastError() == ERROR_ALREADY_EXISTS) {
+		// 将已存在的窗口带到前台
+		// 可以唤醒旧版本，但旧版不能唤醒新版
+		HWND hWnd = FindWindow(CommonSharedConstants::MAIN_WINDOW_CLASS_NAME, nullptr);
+		if (hWnd) {
+			// 如果已有实例权限更高 ShowWindow 会失败
+			ShowWindow(hWnd, SW_NORMAL);
+			Win32Utils::SetForegroundWindow(hWnd);
+		} else {
+			// 唤醒旧版本
+			PostMessage(HWND_BROADCAST, RegisterWindowMessage(L"WM_SHOWME"), 0, 0);
+		}
+
+		return false;
+	}
+
+	return true;
+}
+
 void XamlApp::_CreateMainWindow() {
 	_hwndMain = CreateWindow(
-		CommonSharedConstants::XAML_HOST_CLASS_NAME,
+		CommonSharedConstants::MAIN_WINDOW_CLASS_NAME,
 		L"Magpie",
 		WS_OVERLAPPEDWINDOW,
 		_mainWndRect.left, _mainWndRect.top, _mainWndRect.right, _mainWndRect.bottom,
@@ -203,7 +208,7 @@ void XamlApp::_CreateMainWindow() {
 		SetWindowThemeAttribute(_hwndMain, WTA_NONCLIENT, &option, sizeof(option));
 
 		// 监听 WM_ACTIVATE 不完全可靠，因此定期检查前台窗口以确保背景绘制正确
-		if (SetTimer(_hwndMain, CHECK_FORGROUND_TIMER_ID, 250, nullptr) == 0) {
+		if (SetTimer(_hwndMain, CommonSharedConstants::CHECK_FORGROUND_TIMER_ID, 250, nullptr) == 0) {
 			Logger::Get().Win32Error("SetTimer 失败");
 		}
 	}
@@ -279,7 +284,7 @@ void XamlApp::_RestartAsElevated(const wchar_t* arguments) noexcept {
 	}
 
 	// 提前释放锁
-	_hMutex.reset();
+	_hSingleInstanceMutex.reset();
 
 	wchar_t exePath[MAX_PATH]{};
 	GetModuleFileName(NULL, exePath, MAX_PATH);
@@ -306,7 +311,7 @@ void XamlApp::_ShowTrayIcon() noexcept {
 	}
 
 	// 创建一个隐藏的、message-only 的窗口用于接收托盘图标消息
-	_nid.hWnd = CreateWindow(NOTIFY_ICON_WINDOW_CLASS_NAME, nullptr, 0, 0, 0, 0, 0, HWND_MESSAGE, NULL, _hInst, 0);
+	_nid.hWnd = CreateWindow(CommonSharedConstants::NOTIFY_ICON_WINDOW_CLASS_NAME, nullptr, 0, 0, 0, 0, 0, HWND_MESSAGE, NULL, _hInst, 0);
 	LoadIconMetric(_hInst, MAKEINTRESOURCE(IDI_APP), LIM_SMALL, &_nid.hIcon);
 	wcscpy_s(_nid.szTip, std::size(_nid.szTip), L"Magpie");
 
@@ -364,7 +369,7 @@ void XamlApp::_UpdateTheme() {
 	DwmSetWindowAttribute(
 		_hwndMain,
 		osBuild < 18985 ? DWMWA_USE_IMMERSIVE_DARK_MODE_BEFORE_20H1 : DWMWA_USE_IMMERSIVE_DARK_MODE,
-		&isDarkTheme,
+		& isDarkTheme,
 		sizeof(isDarkTheme)
 	);
 
@@ -374,7 +379,7 @@ void XamlApp::_UpdateTheme() {
 		_hwndMain,
 		GCLP_HBRBACKGROUND,
 		(INT_PTR)CreateSolidBrush(isDarkTheme ?
-			CommonSharedConstants::DARK_TINT_COLOR : CommonSharedConstants::LIGHT_TINT_COLOR));
+		CommonSharedConstants::DARK_TINT_COLOR : CommonSharedConstants::LIGHT_TINT_COLOR));
 	if (hbrOld) {
 		DeleteObject(hbrOld);
 	}
@@ -421,7 +426,7 @@ void XamlApp::_RepositionXamlPopups(bool closeFlyoutPresenter) {
 			auto className = winrt::get_class_name(popup.Child());
 			if (className == winrt::name_of<winrt::Controls::FlyoutPresenter>() ||
 				className == winrt::name_of<winrt::Controls::MenuFlyoutPresenter>()
-			) {
+				) {
 				popup.IsOpen(false);
 				continue;
 			}
@@ -501,12 +506,12 @@ LRESULT XamlApp::_WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				XamlUtils::CloseXamlPopups(_mainPage.XamlRoot());
 			}
 		}
-		
+
 		return 0;
 	}
 	case WM_TIMER:
 	{
-		if (wParam == CHECK_FORGROUND_TIMER_ID) {
+		if (wParam == CommonSharedConstants::CHECK_FORGROUND_TIMER_ID) {
 			if (!IsWindowVisible(_hwndMain) || GetForegroundWindow() == _hwndMain) {
 				_uwpApp.OnHostWndFocusChanged(true);
 			} else {
@@ -649,4 +654,6 @@ LRESULT XamlApp::_TrayIconWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM
 	}
 
 	return DefWindowProc(hWnd, message, wParam, lParam);
+}
+
 }

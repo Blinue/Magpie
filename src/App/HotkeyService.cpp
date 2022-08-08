@@ -3,9 +3,8 @@
 #include "Logger.h"
 #include "HotkeyHelper.h"
 #include "AppSettings.h"
+#include "CommonSharedConstants.h"
 
-
-static constexpr const wchar_t* HOTKEY_WINDOW_CLASS_NAME = L"Magpie_Hotkey";
 
 namespace winrt::Magpie::App {
 
@@ -16,10 +15,10 @@ void HotkeyService::Initialize() {
 	wcex.cbSize = sizeof(wcex);
 	wcex.hInstance = hInst;
 	wcex.lpfnWndProc = _WndProcStatic;
-	wcex.lpszClassName = HOTKEY_WINDOW_CLASS_NAME;
+	wcex.lpszClassName = CommonSharedConstants::HOTKEY_WINDOW_CLASS_NAME;
 	RegisterClassEx(&wcex);
 
-	_hwndHotkey = CreateWindow(HOTKEY_WINDOW_CLASS_NAME, nullptr, 0, 0, 0, 0, 0, HWND_MESSAGE, NULL, hInst, 0);
+	_hwndHotkey = CreateWindow(CommonSharedConstants::HOTKEY_WINDOW_CLASS_NAME, nullptr, 0, 0, 0, 0, 0, HWND_MESSAGE, NULL, hInst, 0);
 
 	std::fill(_errors.begin(), _errors.end(), true);
 	_RegisterHotkey(HotkeyAction::Scale);
