@@ -39,21 +39,17 @@ bool XamlApp::Initialize(HINSTANCE hInstance, const wchar_t* arguments) {
 		SetCurrentDirectory(curDir);
 	}
 
-	Logger& logger = Logger::Get();
-	logger.Initialize(
-		spdlog::level::info,
-		CommonSharedConstants::LOG_PATH,
-		100000,
-		2
-	);
+	_InitializeLogger();
 
-	logger.Info(fmt::format("程序启动\n\t版本：{}", MAGPIE_VERSION));
+	Logger::Get().Info(fmt::format("程序启动\n\t版本：{}", MAGPIE_VERSION));
 
-	// 初始化 dll 中的 Logger
-	// Logger 的单例无法在 exe 和 dll 间共享
-	winrt::Magpie::App::LoggerHelper::Initialize((uint64_t)&logger);
-	winrt::Magpie::Runtime::LoggerHelper::Initialize((uint64_t)&logger);
-	Magpie::Runtime::LoggerHelper::Initialize(logger);
+	// SetTimer 之前推荐先调用 SetUserObjectInformation
+	{
+		BOOL value = FALSE;
+		if (!SetUserObjectInformation(GetCurrentProcess(), UOI_TIMERPROC_EXCEPTION_SUPPRESSION, &value, sizeof(value))) {
+			Logger::Get().Win32Error("SetUserObjectInformation 失败");
+		}
+	}
 
 	// 初始化 UWP 应用
 	_uwpApp = winrt::Magpie::App::App();
@@ -104,12 +100,6 @@ bool XamlApp::Initialize(HINSTANCE hInstance, const wchar_t* arguments) {
 	_nid.uCallbackMessage = CommonSharedConstants::WM_NOTIFY_ICON;
 	_nid.uFlags = NIF_ICON | NIF_MESSAGE | NIF_TIP;
 	_nid.uID = 0;
-
-	// SetTimer 之前推荐先调用 SetUserObjectInformation
-	BOOL value = FALSE;
-	if (!SetUserObjectInformation(GetCurrentProcess(), UOI_TIMERPROC_EXCEPTION_SUPPRESSION, &value, sizeof(value))) {
-		logger.Win32Error("SetUserObjectInformation 失败");
-	}
 
 	bool isShowTrayIcon = _uwpApp.IsShowTrayIcon();
 	if (isShowTrayIcon) {
@@ -181,6 +171,22 @@ bool XamlApp::_CheckSingleInstance() {
 	}
 
 	return true;
+}
+
+void XamlApp::_InitializeLogger() {
+	Logger& logger = Logger::Get();
+	logger.Initialize(
+		spdlog::level::info,
+		CommonSharedConstants::LOG_PATH,
+		100000,
+		2
+	);
+
+	// 初始化 dll 中的 Logger
+	// Logger 的单例无法在 exe 和 dll 间共享
+	winrt::Magpie::App::LoggerHelper::Initialize((uint64_t)&logger);
+	winrt::Magpie::Runtime::LoggerHelper::Initialize((uint64_t)&logger);
+	Magpie::Runtime::LoggerHelper::Initialize(logger);
 }
 
 void XamlApp::_CreateMainWindow() {

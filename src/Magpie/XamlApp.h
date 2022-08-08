@@ -26,6 +26,8 @@ public:
 private:
 	bool _CheckSingleInstance();
 
+	void _InitializeLogger();
+
 	void _CreateMainWindow();
 
 	void _ShowMainWindow() noexcept;
