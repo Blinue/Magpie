@@ -117,8 +117,8 @@
     <None Include="cpp.hint" />
   </ItemGroup>
   <ItemGroup>
-    <Font Include="NotoSansSC-Regular.otf">
+    <CopyFileToFolders Include="NotoSansSC-Regular.otf">
       <Filter>资源文件</Filter>
-    </Font>
+    </CopyFileToFolders>
   </ItemGroup>
 </Project>

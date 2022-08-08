@@ -148,7 +148,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Font Include="NotoSansSC-Regular.otf" />
+    <CopyFileToFolders Include="NotoSansSC-Regular.otf">
+      <FileType>Document</FileType>
+      <DestinationFolders>$(OutDir)assets</DestinationFolders>
+    </CopyFileToFolders>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
