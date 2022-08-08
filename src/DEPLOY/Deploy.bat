@@ -12,6 +12,13 @@ IF %ERRORLEVEL% NEQ 0 (
     EXIT 1
 )
 
+msbuild /p:Configuration=Release;Platform=x64;OutDir=..\..\publish\ ..\Runtime
+
+IF %ERRORLEVEL% NEQ 0 (
+    ECHO Error: Failed to build Runtime
+    EXIT 1
+)
+
 msbuild /m /p:Configuration=Release;Platform=x64;OutDir=..\..\publish\ ..\Magpie
 
 IF %ERRORLEVEL% NEQ 0 (
