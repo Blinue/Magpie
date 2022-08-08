@@ -16,11 +16,13 @@
     </ClInclude>
     <ClInclude Include="MagOptions.h" />
     <ClInclude Include="MagRuntime.h" />
+    <ClInclude Include="LoggerHelper.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MagRuntime.cpp" />
     <ClCompile Include="pch.cpp" />
     <ClCompile Include="DllMain.cpp" />
+    <ClCompile Include="LoggerHelper.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

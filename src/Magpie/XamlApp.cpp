@@ -9,6 +9,7 @@
 #include <fmt/xchar.h>
 #include <winrt/Magpie.Runtime.h>
 #include "resource.h"
+#include <Runtime.h>
 
 #pragma comment(lib, "UxTheme.lib")
 
@@ -70,6 +71,7 @@ bool XamlApp::Initialize(HINSTANCE hInstance, const wchar_t* arguments) {
 	// Logger 的单例无法在 exe 和 dll 间共享
 	winrt::Magpie::App::LoggerHelper::Initialize((uint64_t)&logger);
 	winrt::Magpie::Runtime::LoggerHelper::Initialize((uint64_t)&logger);
+	Magpie::Runtime::LoggerHelper::Initialize(logger);
 
 	// 初始化 UWP 应用
 	_uwpApp = winrt::Magpie::App::App();

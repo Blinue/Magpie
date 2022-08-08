@@ -1,6 +1,7 @@
 #pragma once
 #include "CommonPCH.h"
 #include "MagOptions.h"
+#include "WinRTUtils.h"
 
 
 namespace Magpie::Runtime {
@@ -22,6 +23,13 @@ public:
 
 	// 调用者应处理线程同步
 	winrt::event_token IsRunningChanged(winrt::delegate<bool> const& handler);
+
+	WinRTUtils::EventRevoker IsRunningChanged(winrt::auto_revoke_t, winrt::delegate<bool> const& handler) {
+		winrt::event_token token = IsRunningChanged(handler);
+		return WinRTUtils::EventRevoker([this, token]() {
+			IsRunningChanged(token);
+		});
+	}
 
 	void IsRunningChanged(winrt::event_token const& token) noexcept;
 

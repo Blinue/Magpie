@@ -35,13 +35,12 @@ public:
 		_magWindThread = std::thread([=, this]() {
 			winrt::init_apartment(winrt::apartment_type::multi_threaded);
 
-			DispatcherQueueOptions options{};
-			options.dwSize = sizeof(options);
-			options.threadType = DQTYPE_THREAD_CURRENT;
-			options.apartmentType = DQTAT_COM_NONE;
+			DispatcherQueueOptions dqOptions{};
+			dqOptions.dwSize = sizeof(DispatcherQueueOptions);
+			dqOptions.threadType = DQTYPE_THREAD_CURRENT;
 
 			HRESULT hr = CreateDispatcherQueueController(
-				options,
+				dqOptions,
 				(ABI::Windows::System::IDispatcherQueueController**)winrt::put_abi(_dqc)
 			);
 			if (FAILED(hr)) {
