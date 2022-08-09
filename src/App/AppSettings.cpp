@@ -44,27 +44,13 @@ static hstring GetWorkingDir(bool isPortableMode) {
 	}
 }
 
-bool LoadBoolSettingItem(const rapidjson::GenericObject<false, rapidjson::Value>& obj, const char* nodeName, bool& result) {
-	auto node = obj.FindMember(nodeName);
-	if (node != obj.MemberEnd()) {
-		if (!node->value.IsBool()) {
-			return false;
-		}
-
-		result = node->value.GetBool();
-	}
-
-	return true;
-}
-
 bool LoadBoolSettingItem(
 	const rapidjson::GenericObject<false, rapidjson::Value>& obj,
 	const char* nodeName,
-	std::optional<bool>& result
+	bool& result
 ) {
 	auto node = obj.FindMember(nodeName);
 	if (node == obj.MemberEnd()) {
-		result = std::nullopt;
 		return true;
 	}
 
@@ -79,11 +65,10 @@ bool LoadBoolSettingItem(
 bool LoadUIntSettingItem(
 	const rapidjson::GenericObject<false, rapidjson::Value>& obj,
 	const char* nodeName,
-	std::optional<unsigned int>& result
+	uint32_t& result
 ) {
 	auto node = obj.FindMember(nodeName);
 	if (node == obj.MemberEnd()) {
-		result = std::nullopt;
 		return true;
 	}
 
@@ -98,11 +83,10 @@ bool LoadUIntSettingItem(
 bool LoadFloatSettingItem(
 	const rapidjson::GenericObject<false, rapidjson::Value>& obj,
 	const char* nodeName,
-	std::optional<float>& result
+	float& result
 ) {
 	auto node = obj.FindMember(nodeName);
 	if (node == obj.MemberEnd()) {
-		result = std::nullopt;
 		return true;
 	}
 
@@ -117,11 +101,10 @@ bool LoadFloatSettingItem(
 bool LoadStringSettingItem(
 	const rapidjson::GenericObject<false, rapidjson::Value>& obj,
 	const char* nodeName,
-	std::optional<const char*>& result
+	std::wstring& result
 ) {
 	auto node = obj.FindMember(nodeName);
 	if (node == obj.MemberEnd()) {
-		result = std::nullopt;
 		return true;
 	}
 
@@ -129,7 +112,7 @@ bool LoadStringSettingItem(
 		return false;
 	}
 
-	result = node->value.GetString();
+	result = StrUtils::UTF8ToUTF16(node->value.GetString());
 	return true;
 }
 
@@ -175,13 +158,6 @@ void WriteScalingProfile(rapidjson::PrettyWriter<rapidjson::StringBuffer>& write
 		writer.String(StrUtils::UTF16ToUTF8(scalingProfile.ClassNameRule).c_str());
 	}
 
-	writer.Key("croppingEnabled");
-	writer.Bool(scalingProfile.IsCroppingEnabled);
-	writer.Key("cursorScaling");
-	writer.Uint((unsigned int)scalingProfile.CursorScaling);
-	writer.Key("customCursorScaling");
-	writer.Double(scalingProfile.CustomCursorScaling);
-
 	writer.Key("captureMode");
 	writer.Uint((unsigned int)scalingProfile.CaptureMode);
 	writer.Key("multiMonitorUsage");
@@ -190,9 +166,16 @@ void WriteScalingProfile(rapidjson::PrettyWriter<rapidjson::StringBuffer>& write
 	writer.Uint(scalingProfile.GraphicsAdapter);
 	writer.Key("flags");
 	writer.Uint(scalingProfile.Flags);
+	
+	writer.Key("cursorScaling");
+	writer.Uint((unsigned int)scalingProfile.CursorScaling);
+	writer.Key("customCursorScaling");
+	writer.Double(scalingProfile.CustomCursorScaling);
 	writer.Key("cursorInterpolationMode");
 	writer.Uint((unsigned int)scalingProfile.CursorInterpolationMode);
 
+	writer.Key("croppingEnabled");
+	writer.Bool(scalingProfile.IsCroppingEnabled);
 	writer.Key("cropping");
 	writer.StartObject();
 	writer.Key("left");
@@ -209,96 +192,53 @@ void WriteScalingProfile(rapidjson::PrettyWriter<rapidjson::StringBuffer>& write
 }
 
 bool LoadScalingProfile(const rapidjson::GenericObject<false, rapidjson::Value>& scalingConfigObj, ScalingProfile& scalingProfile) {
-	std::optional<const char*> strValue;
-	std::optional<unsigned int> uintValue;
-	std::optional<bool> boolValue;
-	std::optional<float> floatValue;
-
-	if (!LoadStringSettingItem(scalingConfigObj, "name", strValue)) {
+	if (!LoadStringSettingItem(scalingConfigObj, "name", scalingProfile.Name)) {
 		return false;
 	}
-	if (strValue.has_value()) {
-		scalingProfile.Name = StrUtils::UTF8ToUTF16(strValue.value());
-	}
 
-	if (!LoadBoolSettingItem(scalingConfigObj, "packaged", boolValue)) {
+	if (!LoadBoolSettingItem(scalingConfigObj, "packaged", scalingProfile.IsPackaged)) {
 		return false;
-	}
-	if (boolValue.has_value()) {
-		scalingProfile.IsPackaged = boolValue.value();
 	}
 	
-	if (!LoadStringSettingItem(scalingConfigObj, "pathRule", strValue)) {
+	if (!LoadStringSettingItem(scalingConfigObj, "pathRule", scalingProfile.PathRule)) {
 		return false;
-	}
-	if (strValue.has_value()) {
-		scalingProfile.PathRule = StrUtils::UTF8ToUTF16(strValue.value());
 	}
 
-	if (!LoadStringSettingItem(scalingConfigObj, "classNameRule", strValue)) {
+	if (!LoadStringSettingItem(scalingConfigObj, "classNameRule", scalingProfile.ClassNameRule)) {
 		return false;
-	}
-	if (strValue.has_value()) {
-		scalingProfile.ClassNameRule = StrUtils::UTF8ToUTF16(strValue.value());
 	}
 
-	if (!LoadBoolSettingItem(scalingConfigObj, "croppingEnabled", boolValue)) {
+	if (!LoadUIntSettingItem(scalingConfigObj, "captureMode", (uint32_t&)scalingProfile.CaptureMode)) {
 		return false;
-	}
-	if (boolValue.has_value()) {
-		scalingProfile.IsCroppingEnabled = boolValue.value();
 	}
 
-	if (!LoadUIntSettingItem(scalingConfigObj, "cursorScaling", uintValue)) {
+	if (!LoadUIntSettingItem(scalingConfigObj, "multiMonitorUsage", (uint32_t&)scalingProfile.MultiMonitorUsage)) {
 		return false;
-	}
-	if (uintValue.has_value()) {
-		scalingProfile.CursorScaling = (CursorScaling)uintValue.value();
 	}
 
-	if (!LoadFloatSettingItem(scalingConfigObj, "customCursorScaling", floatValue)) {
+	if (!LoadUIntSettingItem(scalingConfigObj, "graphicsAdapter", scalingProfile.GraphicsAdapter)) {
 		return false;
-	}
-	if (floatValue.has_value()) {
-		scalingProfile.CustomCursorScaling = floatValue.value();
 	}
 
-	if (!LoadUIntSettingItem(scalingConfigObj, "captureMode", uintValue)) {
+	if (!LoadUIntSettingItem(scalingConfigObj, "flags", scalingProfile.Flags)) {
 		return false;
-	}
-	if (uintValue.has_value()) {
-		scalingProfile.CaptureMode = (CaptureMode)uintValue.value();
 	}
 
-	if (!LoadUIntSettingItem(scalingConfigObj, "multiMonitorUsage", uintValue)) {
+	if (!LoadUIntSettingItem(scalingConfigObj, "cursorScaling", (uint32_t&)scalingProfile.CursorScaling)) {
 		return false;
 	}
-	if (uintValue.has_value()) {
-		scalingProfile.MultiMonitorUsage = (MultiMonitorUsage)uintValue.value();
-	}
-
-	if (!LoadUIntSettingItem(scalingConfigObj, "graphicsAdapter", uintValue)) {
+	if (!LoadFloatSettingItem(scalingConfigObj, "customCursorScaling", scalingProfile.CustomCursorScaling)) {
 		return false;
 	}
-	if (uintValue.has_value()) {
-		scalingProfile.GraphicsAdapter = uintValue.value();
-	}
-
-	if (!LoadUIntSettingItem(scalingConfigObj, "flags", uintValue)) {
+	if (!LoadUIntSettingItem(scalingConfigObj, "cursorInterpolationMode", (uint32_t&)scalingProfile.CursorInterpolationMode)) {
 		return false;
-	}
-	if (uintValue.has_value()) {
-		scalingProfile.Flags = uintValue.value();
-	}
-
-	if (!LoadUIntSettingItem(scalingConfigObj, "cursorInterpolationMode", uintValue)) {
-		return false;
-	}
-	if (uintValue.has_value()) {
-		scalingProfile.CursorInterpolationMode = (CursorInterpolationMode)uintValue.value();
 	}
 
 	{
+		if (!LoadBoolSettingItem(scalingConfigObj, "croppingEnabled", scalingProfile.IsCroppingEnabled)) {
+			return false;
+		}
+
 		auto croppingNode = scalingConfigObj.FindMember("cropping");
 		if (croppingNode != scalingConfigObj.MemberEnd()) {
 			if (!croppingNode->value.IsObject()) {
@@ -307,25 +247,13 @@ bool LoadScalingProfile(const rapidjson::GenericObject<false, rapidjson::Value>&
 
 			const auto& croppingObj = croppingNode->value.GetObj();
 
-			if (!LoadFloatSettingItem(croppingObj, "left", floatValue) || !floatValue.has_value()) {
+			if (!LoadFloatSettingItem(croppingObj, "left", scalingProfile.Cropping.Left)
+				|| !LoadFloatSettingItem(croppingObj, "top", scalingProfile.Cropping.Top)
+				|| !LoadFloatSettingItem(croppingObj, "right", scalingProfile.Cropping.Right)
+				|| !LoadFloatSettingItem(croppingObj, "bottom", scalingProfile.Cropping.Bottom)
+			) {
 				return false;
 			}
-			scalingProfile.Cropping.Left = floatValue.value();
-
-			if (!LoadFloatSettingItem(croppingObj, "top", floatValue) || !floatValue.has_value()) {
-				return false;
-			}
-			scalingProfile.Cropping.Top = floatValue.value();
-
-			if (!LoadFloatSettingItem(croppingObj, "right", floatValue) || !floatValue.has_value()) {
-				return false;
-			}
-			scalingProfile.Cropping.Right = floatValue.value();
-
-			if (!LoadFloatSettingItem(croppingObj, "bottom", floatValue) || !floatValue.has_value()) {
-				return false;
-			}
-			scalingProfile.Cropping.Bottom = floatValue.value();
 		}
 	}
 

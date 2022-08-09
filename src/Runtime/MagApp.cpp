@@ -42,8 +42,7 @@ static LRESULT CALLBACK LowLevelKeyboardProc(
 		([]()->winrt::fire_and_forget {
 			MagApp& app = MagApp::Get();
 
-			MagOptions& options = app.GetOptions();
-			if (!options.IsDrawCursor()) {
+			if (!app.GetOptions().IsDrawCursor()) {
 				co_return;
 			}
 
