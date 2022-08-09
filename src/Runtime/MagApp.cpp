@@ -48,7 +48,7 @@ static LRESULT CALLBACK LowLevelKeyboardProc(
 			}
 
 			// 暂时隐藏光标
-			app.GetOptions().IsDrawCursor(false);
+			app.GetCursorManager().Hide();
 			app.GetRenderer().Render(true);
 
 			winrt::DispatcherQueue dispatcher = app.Dispatcher();
@@ -56,8 +56,7 @@ static LRESULT CALLBACK LowLevelKeyboardProc(
 			co_await std::chrono::milliseconds(400);
 			co_await dispatcher;
 
-			MagApp::Get().GetOptions().IsDrawCursor(true);
-			
+			app.GetCursorManager().Show();
 		})();
 	}
 

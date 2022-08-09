@@ -62,6 +62,14 @@ public:
 		return _isOnOverlay;
 	}
 
+	void Show() {
+		_isShowCursor = true;
+	}
+
+	void Hide() {
+		_isShowCursor = false;
+	}
+
 private:
 	void _StartCapture(POINT cursorPos);
 
@@ -72,6 +80,8 @@ private:
 	void _AdjustCursorSpeed();
 
 	void _UpdateCursorClip();
+
+	bool _isShowCursor = true;
 
 	bool _isUnderCapture = false;
 	RECT _curClips{};
