@@ -19,13 +19,6 @@ IF %ERRORLEVEL% NEQ 0 (
     EXIT 1
 )
 
-msbuild /p:Configuration=Release;Platform=x64;OutDir=..\..\publish\ ..\App
-
-IF %ERRORLEVEL% NEQ 0 (
-    ECHO Error: Failed to build App
-    EXIT 1
-)
-
 msbuild /m /p:Configuration=Release;Platform=x64;BuildProjectReferences=false;OutDir=..\..\publish\ ..\Magpie
 
 IF %ERRORLEVEL% NEQ 0 (
