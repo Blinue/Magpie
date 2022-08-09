@@ -13,19 +13,19 @@ public:
 		return instance;
 	}
 
-	bool Load(std::string_view effectName, std::string_view hash, EffectDesc& desc);
+	bool Load(std::wstring_view effectName, std::wstring_view hash, EffectDesc& desc);
 
-	void Save(std::string_view effectName, std::string_view hash, const EffectDesc& desc);
+	void Save(std::wstring_view effectName, std::wstring_view hash, const EffectDesc& desc);
 
 	// inlineParams 为内联变量，可以为空
 	// 接受 std::string& 的重载速度更快，且保证不修改 source
-	static std::string GetHash(
+	static std::wstring GetHash(
 		std::string_view source,
-		const std::map<std::string, std::variant<float, int>>* inlineParams = nullptr
+		const std::unordered_map<std::wstring, float>* inlineParams = nullptr
 	);
-	static std::string GetHash(
+	static std::wstring GetHash(
 		std::string& source,
-		const std::map<std::string, std::variant<float, int>>* inlineParams = nullptr
+		const std::unordered_map<std::wstring, float>* inlineParams = nullptr
 	);
 
 private:

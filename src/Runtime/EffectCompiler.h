@@ -10,9 +10,9 @@ public:
 	EffectCompiler() = default;
 
 	static UINT Compile(
-		std::string_view effectName,
+		std::wstring_view effectName,
 		UINT flags,
-		const std::map<std::string, std::variant<float, int>>& inlineParams,
+		const std::unordered_map<std::wstring, float>& inlineParams,
 		EffectDesc& desc
 	);
 

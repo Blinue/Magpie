@@ -103,20 +103,8 @@ bool MagApp::Run(HWND hwndSrc, MagOptions&& options, winrt::DispatcherQueue cons
 		return false;
 	}
 
-	const char* effectsJson = R"(
-[
-  {
-	"effect": "FSR_EASU",
-	"scale": [ -1, -1 ]
-  },
-  {
-	"effect": "FSR_RCAS"
-  }
-]
-)";
-
 	_renderer.reset(new Renderer());
-	if (!_renderer->Initialize(effectsJson)) {
+	if (!_renderer->Initialize()) {
 		Logger::Get().Critical("初始化 Renderer 失败");
 		Stop();
 		_RunMessageLoop();

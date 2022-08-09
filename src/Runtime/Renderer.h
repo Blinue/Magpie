@@ -18,7 +18,7 @@ public:
 
 	~Renderer();
 
-	bool Initialize(const std::string& effectsJson);
+	bool Initialize();
 
 	void Render(bool onPrint = false);
 
@@ -52,7 +52,7 @@ public:
 private:
 	bool _CheckSrcState();
 
-	bool _ResolveEffectsJson(const std::string& effectsJson);
+	bool _BuildEffects();
 
 	bool _UpdateDynamicConstants();
 

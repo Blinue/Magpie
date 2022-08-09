@@ -130,11 +130,6 @@ struct EffectDesc {
 	bool isUseDynamic = false;
 };
 
-struct EffectParams {
-	std::optional<std::pair<float, float>> scale;
-	std::map<std::string, std::variant<float, int>> params;
-};
-
 union EffectConstant32 {
 	FLOAT floatVal;
 	UINT uintVal;

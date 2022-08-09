@@ -1035,7 +1035,7 @@ UINT GeneratePassSource(
 	std::string_view cbHlsl,
 	const std::vector<std::string_view>& commonBlocks,
 	std::string_view passBlock,
-	const std::map<std::string, std::variant<float, int>>& inlineParams,
+	const std::unordered_map<std::wstring, float>& inlineParams,
 	std::string& result,
 	std::vector<std::pair<std::string, std::string>>& macros
 ) {
@@ -1169,11 +1169,11 @@ UINT GeneratePassSource(
 	// 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////
 	if (isInlineParams) {
-		std::unordered_set<std::string_view> paramNames;
+		std::unordered_set<std::wstring> paramNames;
 		for (const auto& d : desc.params) {
-			paramNames.emplace(d.name);
+			auto result = paramNames.emplace(StrUtils::UTF8ToUTF16(d.name));
 
-			auto it = inlineParams.find(d.name);
+			auto it = inlineParams.find(*result.first);
 			if (it == inlineParams.end()) {
 				if (d.type == EffectConstantType::Float) {
 					macros.emplace_back(d.name, std::to_string(std::get<float>(d.defaultValue)));
@@ -1181,20 +1181,16 @@ UINT GeneratePassSource(
 					macros.emplace_back(d.name, std::to_string(std::get<int>(d.defaultValue)));
 				}
 			} else {
-				if (it->second.index() == 1) {
-					macros.emplace_back(d.name, std::to_string(std::get<int>(it->second)));
+				if (d.type == EffectConstantType::Float) {
+					macros.emplace_back(d.name, std::to_string(it->second));
 				} else {
-					if (d.type == EffectConstantType::Int) {
-						return 1;
-					}
-
-					macros.emplace_back(d.name, std::to_string(std::get<float>(it->second)));
+					macros.emplace_back(d.name, std::to_string((int)std::lroundf(it->second)));
 				}
 			}
 		}
 
 		for (const auto& pair : inlineParams) {
-			if (!paramNames.contains(std::string_view(pair.first))) {
+			if (!paramNames.contains(pair.first)) {
 				return 1;
 			}
 		}
@@ -1426,7 +1422,7 @@ UINT CompilePasses(
 	EffectDesc& desc,
 	const std::vector<std::string_view>& commonBlocks,
 	const std::vector<std::string_view>& passBlocks,
-	const std::map<std::string, std::variant<float, int>>& inlineParams
+	const std::unordered_map<std::wstring, float>& inlineParams
 ) {
 	////////////////////////////////////////////////////////////////////////////////////////////////////////
 	//
@@ -1520,16 +1516,16 @@ cbuffer __CB2 : register(b1) {
 
 
 UINT EffectCompiler::Compile(
-	std::string_view effectName,
+	std::wstring_view effectName,
 	UINT flags,
-	const std::map<std::string, std::variant<float, int>>& inlineParams,
+	const std::unordered_map<std::wstring, float>& inlineParams,
 	EffectDesc& desc
 ) {
 	desc = {};
-	desc.name = effectName;
+	desc.name = StrUtils::UTF16ToUTF8(effectName);
 	desc.flags = flags;
 
-	std::wstring fileName = StrUtils::ConcatW(CommonSharedConstants::EFFECTS_DIR_W, StrUtils::UTF8ToUTF16(effectName), L".hlsl");
+	std::wstring fileName = StrUtils::ConcatW(CommonSharedConstants::EFFECTS_DIR_W, effectName, L".hlsl");
 
 	std::string source;
 	if (!Win32Utils::ReadTextFile(fileName.c_str(), source)) {
@@ -1548,7 +1544,7 @@ UINT EffectCompiler::Compile(
 		return 1;
 	}
 
-	std::string hash;
+	std::wstring hash;
 	if (!MagApp::Get().GetOptions().IsDisableEffectCache()) {
 		hash = EffectCacheManager::GetHash(source, flags & EFFECT_FLAG_INLINE_PARAMETERS ? &inlineParams : nullptr);
 		if (!hash.empty()) {

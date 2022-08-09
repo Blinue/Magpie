@@ -1,6 +1,7 @@
 #pragma once
 #include "pch.h"
 #include "EffectDesc.h"
+#include "MagOptions.h"
 
 
 namespace Magpie::Runtime {
@@ -13,7 +14,7 @@ public:
 
 	bool Initialize(
 		const EffectDesc& desc,
-		const EffectParams& params,
+		const EffectOption& options,
 		ID3D11Texture2D* inputTex,
 		ID3D11Texture2D** outputTex,
 		RECT* outputRect = nullptr,

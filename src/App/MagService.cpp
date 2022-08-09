@@ -271,6 +271,13 @@ void MagService::_StartScale(HWND hWnd) {
 	options.IsWarningsAreErrors(settings.IsWarningsAreErrors());
 	options.IsSimulateExclusiveFullscreen(settings.IsSimulateExclusiveFullscreen());
 
+	EffectOption& easu = options.Effects.emplace_back();
+	easu.Name = L"FSR_EASU";
+	easu.ScaleType = ScaleType::Fit;
+	EffectOption& rcas = options.Effects.emplace_back();
+	rcas.Name = L"FSR_RCAS";
+	rcas.Parameters[L"sharpness"] = 0.9;
+
 	_magRuntime.Run(hWnd, options);
 }
 

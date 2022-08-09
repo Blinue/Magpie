@@ -22,7 +22,7 @@ namespace Magpie::Runtime {
 
 bool EffectDrawer::Initialize(
 	const EffectDesc& desc,
-	const EffectParams& params,
+	const EffectOption& options,
 	ID3D11Texture2D* inputTex,
 	ID3D11Texture2D** outputTex,
 	RECT* outputRect,
@@ -51,42 +51,34 @@ bool EffectDrawer::Initialize(
 	SIZE outputSize{};
 
 	if (desc.outSizeExpr.first.empty()) {
-		if (params.scale.has_value()) {
+		switch (options.ScaleType) {
+		case ScaleType::Normal:
+		{
+			outputSize.cx = std::lroundf(inputSize.cx * options.Scale.first);
+			outputSize.cy = std::lroundf(inputSize.cy * options.Scale.second);
+			break;
+		}
+		case ScaleType::Fit:
+		{
+			float fillScale = std::min(float(hostSize.cx) / inputSize.cx, float(hostSize.cy) / inputSize.cy);
+			outputSize.cx = std::lroundf(inputSize.cx * fillScale * options.Scale.first);
+			outputSize.cy = std::lroundf(inputSize.cy * fillScale * options.Scale.second);
+			break;
+		}
+		case ScaleType::Absolute:
+		{
+			outputSize.cx = std::lroundf(options.Scale.first);
+			outputSize.cy = std::lroundf(options.Scale.second);
+			break;
+		}
+		case ScaleType::Fill:
+		{
 			outputSize = hostSize;
-
-			// scale 属性
-			// [+, +]：缩放比例
-			// [0, 0]：非等比例缩放到屏幕大小
-			// [-, -]：相对于屏幕能容纳的最大等比缩放的比例
-
-			static float DELTA = 1e-5f;
-
-			float scaleX = params.scale.value().first;
-			float scaleY = params.scale.value().second;
-
-			float fillScale = std::min(float(outputSize.cx) / inputSize.cx, float(outputSize.cy) / inputSize.cy);
-
-			if (scaleX >= DELTA) {
-				outputSize.cx = std::lroundf(inputSize.cx * scaleX);
-			} else if (scaleX < -DELTA) {
-				outputSize.cx = std::lroundf(inputSize.cx * fillScale * -scaleX);
-			}
-
-			if (scaleY >= DELTA) {
-				outputSize.cy = std::lroundf(inputSize.cy * scaleY);
-			} else if (scaleY < -DELTA) {
-				outputSize.cy = std::lroundf(inputSize.cy * fillScale * -scaleY);
-			}
-		} else {
-			outputSize = inputSize;
+			break;
+		}
 		}
 	} else {
 		assert(!desc.outSizeExpr.second.empty());
-
-		if (params.scale.has_value()) {
-			Logger::Get().Error("无法指定缩放");
-			return false;
-		}
 
 		try {
 			exprParser.SetExpr(desc.outSizeExpr.first);
@@ -351,26 +343,17 @@ bool EffectDrawer::Initialize(
 	}
 
 	if (!isInlineParams) {
-		// 填入参数
-		std::unordered_set<std::string_view> paramNames;
-
 		for (UINT i = 0; i < desc.params.size(); ++i) {
 			const auto& paramDesc = desc.params[i];
-			paramNames.emplace(paramDesc.name);
-
-			auto it = params.params.find(paramDesc.name);
+			auto it = options.Parameters.find(StrUtils::UTF8ToUTF16(paramDesc.name));
 
 			if (paramDesc.type == EffectConstantType::Float) {
 				float value;
 
-				if (it == params.params.end()) {
+				if (it == options.Parameters.end()) {
 					value = std::get<float>(paramDesc.defaultValue);
 				} else {
-					if (it->second.index() == 0) {
-						value = std::get<0>(it->second);
-					} else {
-						value = (float)std::get<1>(it->second);
-					}
+					value = it->second;
 
 					if ((paramDesc.minValue.index() == 1 && value < std::get<float>(paramDesc.minValue))
 						|| (paramDesc.maxValue.index() == 1 && value > std::get<float>(paramDesc.maxValue))
@@ -384,14 +367,10 @@ bool EffectDrawer::Initialize(
 			} else {
 				int value;
 
-				if (it == params.params.end()) {
+				if (it == options.Parameters.end()) {
 					value = std::get<int>(paramDesc.defaultValue);
 				} else {
-					if (it->second.index() == 0) {
-						return false;
-					} else {
-						value = std::get<int>(it->second);
-					}
+					value = (int)std::lroundf(it->second);
 
 					if ((paramDesc.minValue.index() == 2 && value < std::get<int>(paramDesc.minValue))
 						|| (paramDesc.maxValue.index() == 2 && value > std::get<int>(paramDesc.maxValue))
@@ -405,13 +384,6 @@ bool EffectDrawer::Initialize(
 			}
 
 			++pCurParam;
-		}
-
-		for (const auto& pair : params.params) {
-			if (!paramNames.contains(std::string_view(pair.first))) {
-				Logger::Get().Error(StrUtils::Concat("非法参数 ", pair.first));
-				return false;
-			}
 		}
 	}
 

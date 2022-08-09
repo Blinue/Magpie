@@ -5,28 +5,6 @@
 #include <zstd.h>
 
 
-
-std::string Utils::Bin2Hex(std::span<const BYTE> data) {
-	if (data.size() == 0) {
-		return {};
-	}
-
-	static char oct2Hex[16] = {
-		'0','1','2','3','4','5','6','7',
-		'8','9','a','b','c','d','e','f'
-	};
-
-	std::string result(data.size() * 2, 0);
-	char* pResult = &result[0];
-
-	for (BYTE b : data) {
-		*pResult++ = oct2Hex[(b >> 4) & 0xf];
-		*pResult++ = oct2Hex[b & 0xf];
-	}
-
-	return result;
-}
-
 bool Utils::ZstdCompress(std::span<const BYTE> src, std::vector<BYTE>& dest, int compressionLevel) {
 	dest.resize(ZSTD_compressBound(src.size()));
 	size_t size = ZSTD_compress(dest.data(), dest.size(), src.data(), src.size(), compressionLevel);

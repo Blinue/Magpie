@@ -268,8 +268,8 @@ const RTL_OSVERSIONINFOW& Win32Utils::GetOSVersion() noexcept {
 
 
 struct TPContext {
-	std::function<void(UINT)> func;
-	std::atomic<UINT> id;
+	std::function<void(uint32_t)> func;
+	std::atomic<uint32_t> id;
 };
 
 #pragma warning(push)
@@ -277,13 +277,13 @@ struct TPContext {
 
 static void CALLBACK TPCallback(PTP_CALLBACK_INSTANCE, PVOID context, PTP_WORK) {
 	TPContext* ctxt = (TPContext*)context;
-	UINT id = ++ctxt->id;
+	uint32_t id = ++ctxt->id;
 	ctxt->func(id);
 }
 
 #pragma warning(pop) 
 
-void Win32Utils::RunParallel(std::function<void(UINT)> func, UINT times) {
+void Win32Utils::RunParallel(std::function<void(uint32_t)> func, uint32_t times) {
 #ifdef _DEBUG
 	// 为了便于调试，DEBUG 模式下不使用线程池
 	for (UINT i = 0; i < times; ++i) {
@@ -302,7 +302,7 @@ void Win32Utils::RunParallel(std::function<void(UINT)> func, UINT times) {
 	PTP_WORK work = CreateThreadpoolWork(TPCallback, &ctxt, nullptr);
 	if (work) {
 		// 在线程池中执行 times - 1 次
-		for (UINT i = 1; i < times; ++i) {
+		for (uint32_t i = 1; i < times; ++i) {
 			SubmitThreadpoolWork(work);
 		}
 
@@ -314,7 +314,7 @@ void Win32Utils::RunParallel(std::function<void(UINT)> func, UINT times) {
 		Logger::Get().Win32Error("CreateThreadpoolWork 失败，回退到单线程");
 
 		// 回退到单线程
-		for (UINT i = 0; i < times; ++i) {
+		for (uint32_t i = 0; i < times; ++i) {
 			func(i);
 		}
 	}

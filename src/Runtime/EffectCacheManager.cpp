@@ -147,10 +147,9 @@ static constexpr const UINT CACHE_VERSION = 8;
 static constexpr const int CACHE_COMPRESSION_LEVEL = 1;
 
 
-std::wstring GetCacheFileName(std::string_view effectName, std::string_view hash, UINT flags) {
+static std::wstring GetCacheFileName(std::wstring_view effectName, std::wstring_view hash, UINT flags) {
 	// 缓存文件的命名：{效果名}_{标志位（16进制）}{哈希}
-	return fmt::format(L"{}{}_{:02x}{}", CommonSharedConstants::CACHE_DIR_W,
-		StrUtils::UTF8ToUTF16(effectName), flags, StrUtils::UTF8ToUTF16(hash));
+	return fmt::format(L"{}{}_{:02x}{}", CommonSharedConstants::CACHE_DIR_W, effectName, flags, hash);
 }
 
 void EffectCacheManager::_AddToMemCache(const std::wstring& cacheFileName, const EffectDesc& desc) {
@@ -195,7 +194,7 @@ bool EffectCacheManager::_LoadFromMemCache(const std::wstring& cacheFileName, Ef
 	return false;
 }
 
-bool EffectCacheManager::Load(std::string_view effectName, std::string_view hash, EffectDesc& desc) {
+bool EffectCacheManager::Load(std::wstring_view effectName, std::wstring_view hash, EffectDesc& desc) {
 	assert(!effectName.empty() && !hash.empty());
 
 	std::wstring cacheFileName = GetCacheFileName(effectName, hash, desc.flags);
@@ -238,7 +237,7 @@ bool EffectCacheManager::Load(std::string_view effectName, std::string_view hash
 	return true;
 }
 
-void EffectCacheManager::Save(std::string_view effectName, std::string_view hash, const EffectDesc& desc) {
+void EffectCacheManager::Save(std::wstring_view effectName, std::wstring_view hash, const EffectDesc& desc) {
 	std::vector<BYTE> compressedBuf;
 	{
 		std::vector<BYTE> buf;
@@ -268,10 +267,10 @@ void EffectCacheManager::Save(std::string_view effectName, std::string_view hash
 		}
 	} else {
 		// 删除所有该效果（flags 相同）的缓存
-		std::wregex regex(fmt::format(L"^{}_{:02x}[0-9,a-f]{{{}}}$", StrUtils::UTF8ToUTF16(effectName), desc.flags,
+		std::wregex regex(fmt::format(L"^{}_{:02x}[0-9,a-f]{{{}}}$", effectName, desc.flags,
 			Win32Utils::Hasher::Get().GetHashLength() * 2), std::wregex::optimize | std::wregex::nosubs);
 
-		WIN32_FIND_DATA findData;
+		WIN32_FIND_DATA findData{};
 		HANDLE hFind = Win32Utils::SafeHandle(FindFirstFileEx(
 			StrUtils::ConcatW(CommonSharedConstants::CACHE_DIR_W, L"*").c_str(),
 			FindExInfoBasic, &findData, FindExSearchNameMatch, nullptr, FIND_FIRST_EX_LARGE_FETCH));
@@ -308,47 +307,60 @@ void EffectCacheManager::Save(std::string_view effectName, std::string_view hash
 	Logger::Get().Info(StrUtils::Concat("已保存缓存 ", StrUtils::UTF16ToUTF8(cacheFileName)));
 }
 
-std::string EffectCacheManager::GetHash(
+static std::wstring Bin2Hex(std::span<const BYTE> data) {
+	if (data.size() == 0) {
+		return {};
+	}
+
+	static wchar_t oct2Hex[16] = {
+		L'0',L'1',L'2',L'3',L'4',L'5',L'6',L'7',
+		L'8',L'9',L'a',L'b',L'c',L'd',L'e',L'f'
+	};
+
+	std::wstring result(data.size() * 2, 0);
+	wchar_t* pResult = &result[0];
+
+	for (BYTE b : data) {
+		*pResult++ = oct2Hex[(b >> 4) & 0xf];
+		*pResult++ = oct2Hex[b & 0xf];
+	}
+
+	return result;
+}
+
+std::wstring EffectCacheManager::GetHash(
 	std::string_view source,
-	const std::map<std::string, std::variant<float, int>>* inlineParams
+	const std::unordered_map<std::wstring, float>* inlineParams
 ) {
 	std::string str;
-	str.reserve(source.size() + 128);
+	str.reserve(source.size() + 256);
 	str = source;
 
 	str.append(fmt::format("CACHE_VERSION:{}\n", CACHE_VERSION));
 	if (inlineParams) {
 		for (const auto& pair : *inlineParams) {
-			if (pair.second.index() == 0) {
-				str.append(fmt::format("{}:{}\n", pair.first, std::get<0>(pair.second)));
-			} else {
-				str.append(fmt::format("{}:{}\n", pair.first, std::get<1>(pair.second)));
-			}
+			str.append(fmt::format("{}:{}\n", StrUtils::UTF16ToUTF8(pair.first), std::lroundf(pair.second * 10000)));
 		}
 	}
 
 	std::vector<BYTE> hashBytes;
 	if (!Win32Utils::Hasher::Get().Hash(std::span((const BYTE*)source.data(), source.size()), hashBytes)) {
 		Logger::Get().Error("计算 hash 失败");
-		return "";
+		return {};
 	}
 
-	return Utils::Bin2Hex(hashBytes);
+	return Bin2Hex(hashBytes);
 }
 
-std::string EffectCacheManager::GetHash(std::string& source, const std::map<std::string, std::variant<float, int>>* inlineParams) {
+std::wstring EffectCacheManager::GetHash(std::string& source, const std::unordered_map<std::wstring, float>* inlineParams) {
 	size_t originSize = source.size();
 
-	source.reserve(originSize + 128);
+	source.reserve(originSize + 256);
 
 	source.append(fmt::format("CACHE_VERSION:{}\n", CACHE_VERSION));
 	if (inlineParams) {
 		for (const auto& pair : *inlineParams) {
-			if (pair.second.index() == 0) {
-				source.append(fmt::format("{}:{}\n", pair.first, std::get<0>(pair.second)));
-			} else {
-				source.append(fmt::format("{}:{}\n", pair.first, std::get<1>(pair.second)));
-			}
+			source.append(fmt::format("{}:{}\n", StrUtils::UTF16ToUTF8(pair.first), std::lroundf(pair.second * 10000)));
 		}
 	}
 
@@ -360,7 +372,7 @@ std::string EffectCacheManager::GetHash(std::string& source, const std::map<std:
 
 	source.resize(originSize);
 
-	return success ? Utils::Bin2Hex(hashBytes) : "";
+	return success ? Bin2Hex(hashBytes) : std::wstring();
 }
 
 }

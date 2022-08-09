@@ -11,7 +11,6 @@
 #include "OverlayDrawer.h"
 #include "Logger.h"
 #include "CursorManager.h"
-#include <rapidjson/document.h>
 
 
 namespace Magpie::Runtime {
@@ -20,7 +19,7 @@ Renderer::Renderer() {}
 
 Renderer::~Renderer() {}
 
-bool Renderer::Initialize(const std::string& effectsJson) {
+bool Renderer::Initialize() {
 	_gpuTimer.reset(new GPUTimer());
 
 	if (!GetWindowRect(MagApp::Get().GetHwndSrc(), &_srcWndRect)) {
@@ -28,8 +27,8 @@ bool Renderer::Initialize(const std::string& effectsJson) {
 		return false;
 	}
 
-	if (!_ResolveEffectsJson(effectsJson)) {
-		Logger::Get().Error("_ResolveEffectsJson 失败");
+	if (!_BuildEffects()) {
+		Logger::Get().Error("_BuildEffects 失败");
 		return false;
 	}
 
@@ -260,137 +259,38 @@ bool Renderer::_CheckSrcState() {
 	return true;
 }
 
-bool Renderer::_ResolveEffectsJson(const std::string& effectsJson) {
-	rapidjson::Document doc;
-	if (doc.Parse(effectsJson.c_str(), effectsJson.size()).HasParseError()) {
-		// 解析 json 失败
-		Logger::Get().Error(fmt::format("解析 json 失败\n\t错误码：{}", (int)doc.GetParseError()));
-		return false;
-	}
-
-	if (!doc.IsArray()) {
-		Logger::Get().Error("解析 json 失败：根元素不为数组");
-		return false;
-	}
-
-	const auto& effectsArr = doc.GetArray();
-
-	// 不得为空
-	if (effectsArr.Empty()) {
-		Logger::Get().Error("解析 json 失败：根元素为空");
+bool Renderer::_BuildEffects() {
+	const auto& effectsOption = MagApp::Get().GetOptions().Effects;
+	uint32_t effectCount = (int)effectsOption.size();
+	if (effectCount == 0) {
 		return false;
 	}
 
 	// 并行编译所有效果
-
-	UINT effectCount = effectsArr.Size();
-	std::vector<const char*> effectNames(effectCount);
-	std::vector<EffectParams> effectParams(effectCount);
-	std::vector<EffectDesc> effectDescs(effectCount);
+	std::vector<EffectDesc> effectDescs(effectsOption.size());
 	std::atomic<bool> allSuccess = true;
 
 	int duration = Utils::Measure([&]() {
-		Win32Utils::RunParallel([&](UINT id) {
-			const auto& effectJson = effectsArr[id];
-			UINT effectFlag = (id == effectCount - 1) ? EFFECT_FLAG_LAST_EFFECT : 0;
-			EffectParams& params = effectParams[id];
+		Win32Utils::RunParallel([&](uint32_t id) {
+			uint32_t effectFlag = (id == effectCount - 1) ? EFFECT_FLAG_LAST_EFFECT : 0;
+			const EffectOption& option = effectsOption[id];
 
-			if (!effectJson.IsObject()) {
-				Logger::Get().Error("解析 json 失败：根数组中存在非法成员");
-				allSuccess = false;
-				return;
+			if (option.Flags & EffectOptionFlags::InlineParams) {
+				effectFlag |= EFFECT_FLAG_INLINE_PARAMETERS;
 			}
-
-			{
-				auto effectName = effectJson.FindMember("effect");
-				if (effectName == effectJson.MemberEnd() || !effectName->value.IsString()) {
-					Logger::Get().Error(fmt::format("解析效果#{}失败：未找到 effect 属性或该属性的值不合法", id));
-					allSuccess = false;
-					return;
-				}
-				effectNames[id] = effectName->value.GetString();
+			if (option.Flags & EffectOptionFlags::FP16) {
+				effectFlag |= EFFECT_FLAG_FP16;
 			}
-
-			for (const auto& prop : effectJson.GetObj()) {
-				if (!prop.name.IsString()) {
-					Logger::Get().Error(fmt::format("解析效果#{}失败：非法的效果名", id));
-					allSuccess = false;
-					return;
-				}
-
-				std::string_view name = prop.name.GetString();
-
-				if (name == "effect") {
-					continue;
-				} else if (name == "inlineParams") {
-					if (!prop.value.IsBool()) {
-						Logger::Get().Error(fmt::format("解析效果#{}（{}）失败：成员 inlineParams 必须为 bool 类型", id, effectNames[id]));
-						allSuccess = false;
-						return;
-					}
-
-					if (prop.value.GetBool()) {
-						effectFlag |= EFFECT_FLAG_INLINE_PARAMETERS;
-					}
-					continue;
-				} else if (name == "fp16") {
-					if (!prop.value.IsBool()) {
-						Logger::Get().Error(fmt::format("解析效果#{}（{}）失败：成员 fp16 必须为 bool 类型", id, effectNames[id]));
-						allSuccess = false;
-						return;
-					}
-
-					if (prop.value.GetBool()) {
-						effectFlag |= EFFECT_FLAG_FP16;
-					}
-					continue;
-				} else if (name == "scale") {
-					auto scaleProp = effectJson.FindMember("scale");
-					if (scaleProp != effectJson.MemberEnd()) {
-						if (!scaleProp->value.IsArray()) {
-							Logger::Get().Error(fmt::format("解析效果#{}（{}）失败：成员 scale 必须为数组类型", id, effectNames[id]));
-							allSuccess = false;
-							return;
-						}
-
-						const auto& scale = scaleProp->value.GetArray();
-						if (scale.Size() != 2 || !scale[0].IsNumber() || !scale[1].IsNumber()) {
-							Logger::Get().Error(fmt::format("解析效果#{}（{}）失败：成员 scale 格式非法", id, effectNames[id]));
-							allSuccess = false;
-							return;
-						}
-
-						params.scale = std::make_pair(scale[0].GetFloat(), scale[1].GetFloat());
-					}
-				} else {
-					auto& paramValue = params.params[std::string(name)];
-
-					if (prop.value.IsFloat()) {
-						paramValue = prop.value.GetFloat();
-					} else if (prop.value.IsInt()) {
-						paramValue = prop.value.GetInt();
-					} else if (prop.value.IsBool()) {
-						// bool 值视为 int
-						paramValue = (int)prop.value.GetBool();
-					} else {
-						Logger::Get().Error(fmt::format("解析效果#{}（{}）失败：成员 {} 的类型非法", id, effectNames[id], name));
-						allSuccess = false;
-						return;
-					}
-				}
-			}
-
-			std::wstring fileName = (L"effects\\" + StrUtils::UTF8ToUTF16(effectNames[id]) + L".hlsl");
 
 			bool success = true;
 			int duration = Utils::Measure([&]() {
-				success = !EffectCompiler::Compile(effectNames[id], effectFlag, effectParams[id].params, effectDescs[id]);
+				success = !EffectCompiler::Compile(option.Name, effectFlag, option.Parameters, effectDescs[id]);
 			});
 
 			if (success) {
-				Logger::Get().Info(fmt::format("编译 {} 用时 {} 毫秒", StrUtils::UTF16ToUTF8(fileName), duration / 1000.0f));
+				Logger::Get().Info(fmt::format("编译 {}.hlsl 用时 {} 毫秒", StrUtils::UTF16ToUTF8(option.Name), duration / 1000.0f));
 			} else {
-				Logger::Get().Error(StrUtils::Concat("编译 ", StrUtils::UTF16ToUTF8(fileName), " 失败"));
+				Logger::Get().Error(StrUtils::Concat("编译 ", StrUtils::UTF16ToUTF8(option.Name), ".hlsl 失败"));
 				allSuccess = false;
 			}
 		}, effectCount);
@@ -405,18 +305,18 @@ bool Renderer::_ResolveEffectsJson(const std::string& effectsJson) {
 	}
 
 	ID3D11Texture2D* effectInput = MagApp::Get().GetFrameSource().GetOutput();
-	_effects.resize(effectCount);
+	_effects.resize(effectsOption.size());
 
-	for (UINT i = 0; i < effectCount; ++i) {
+	for (uint32_t i = 0; i < effectCount; ++i) {
 		bool isLastEffect = i == effectCount - 1;
 
 		_effects[i].reset(new EffectDrawer());
 		if (!_effects[i]->Initialize(
-			effectDescs[i], effectParams[i], effectInput, &effectInput,
+			effectDescs[i], effectsOption[i], effectInput, &effectInput,
 			isLastEffect ? &_outputRect : nullptr,
 			isLastEffect ? &_virtualOutputRect : nullptr
-			)) {
-			Logger::Get().Error(fmt::format("初始化效果#{} ({}) 失败", i, effectNames[i]));
+		)) {
+			Logger::Get().Error(fmt::format("初始化效果#{} ({}) 失败", i, StrUtils::UTF16ToUTF8(effectsOption[i].Name)));
 			return false;
 		}
 	}

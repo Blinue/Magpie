@@ -27,8 +27,6 @@ struct Utils {
 		}
 	}
 
-	static std::string Bin2Hex(std::span<const BYTE> data);
-
 	template<typename T>
 	class ScopeExit {
 	public:
