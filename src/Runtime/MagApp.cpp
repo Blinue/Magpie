@@ -66,7 +66,7 @@ MagApp::MagApp() {}
 
 MagApp::~MagApp() {}
 
-bool MagApp::Run(HWND hwndSrc, const MagOptions& options, winrt::DispatcherQueue const& dispatcher) {
+bool MagApp::Run(HWND hwndSrc, MagOptions&& options, winrt::DispatcherQueue const& dispatcher) {
 	_dispatcher = dispatcher;
 	_hwndSrc = hwndSrc;
 	_options = options;

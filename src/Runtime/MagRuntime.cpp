@@ -33,7 +33,7 @@ public:
 			_magWindThread.join();
 		}
 
-		_magWindThread = std::thread([=, this]() {
+		_magWindThread = std::thread([=, this, options(options)]() mutable {
 			winrt::init_apartment(winrt::apartment_type::multi_threaded);
 
 			DispatcherQueueOptions dqOptions{};
@@ -51,7 +51,7 @@ public:
 			}
 
 			MagApp& app = MagApp::Get();
-			app.Run((HWND)hwndSrc, options, _dqc.DispatcherQueue());
+			app.Run((HWND)hwndSrc, std::move(options), _dqc.DispatcherQueue());
 
 			_running = false;
 			_dqc = nullptr;

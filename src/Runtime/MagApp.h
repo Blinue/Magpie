@@ -22,7 +22,7 @@ public:
 
 	bool Run(
 		HWND hwndSrc,
-		const MagOptions& options,
+		MagOptions&& options,
 		winrt::DispatcherQueue const& dispatcher
 	);
 

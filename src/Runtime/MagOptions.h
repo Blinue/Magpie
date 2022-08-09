@@ -46,6 +46,26 @@ struct MagFlags {
 	static constexpr const uint32_t IsDisableDirectFlip = 0x2000;
 };
 
+enum class ScaleType {
+	Normal,		// Scale 表示缩放倍数
+	Fit,		// Scale 表示相对于屏幕能容纳的最大等比缩放的比例
+	Absolute,	// Scale 表示目标大小（单位为像素）
+	Fill		// 充满屏幕，此时不使用 Scale 参数
+};
+
+struct EffectOptionFlags {
+	static constexpr const uint32_t InlineParams = 0x1;
+	static constexpr const uint32_t FP16 = 0x2;
+};
+
+struct EffectOption {
+	std::wstring Name;
+	std::unordered_map<std::wstring, float> Parameters;
+	ScaleType ScaleType = ScaleType::Normal;
+	std::pair<float, float> Scale = { 1.0f,1.0f };
+	uint32_t Flags = 0;
+};
+
 #define DEFINE_MAGFLAG_ACCESSOR(Name) \
 	bool Name() const noexcept { return Flags & ::Magpie::Runtime::MagFlags::Name; } \
 	void Name(bool value) noexcept { \
@@ -79,6 +99,8 @@ struct MagOptions {
 	CaptureMode CaptureMode = CaptureMode::GraphicsCapture;
 	MultiMonitorUsage MultiMonitorUsage = MultiMonitorUsage::Nearest;
 	CursorInterpolationMode CursorInterpolationMode = CursorInterpolationMode::Nearest;
+
+	std::vector<EffectOption> Effects;
 };
 
 }
