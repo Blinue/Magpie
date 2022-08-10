@@ -4,10 +4,50 @@
 	  xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
 	  xmlns:local="using:Magpie.App"
 	  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+	  xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
 	  mc:Ignorable="d">
 
 	<local:PageFrame Title="缩放模式">
 		<StackPanel HorizontalAlignment="Stretch"
-					Orientation="Vertical" />
+					Orientation="Vertical"
+					Spacing="2">
+			<muxc:Expander HorizontalAlignment="Stretch"
+						   HorizontalContentAlignment="Stretch"
+						   Style="{StaticResource SettingExpanderStyle}">
+				<muxc:Expander.Header>
+					<local:SettingItem Title="Lanczos"
+									   Description="Lanczos"
+									   Style="{StaticResource ExpanderHeaderSettingStyle}" />
+				</muxc:Expander.Header>
+				<muxc:Expander.Content>
+					<StackPanel Orientation="Vertical">
+						<local:SettingItem Title="Lanczos"
+										   Style="{StaticResource ExpanderContentSettingStyle}" />
+					</StackPanel>
+				</muxc:Expander.Content>
+			</muxc:Expander>
+			<muxc:Expander HorizontalAlignment="Stretch"
+						   HorizontalContentAlignment="Stretch"
+						   Style="{StaticResource SettingExpanderStyle}">
+				<muxc:Expander.Header>
+					<local:SettingItem Title="FSR"
+									   Description="FSR_EASU → FSR_RCAS"
+									   Style="{StaticResource ExpanderHeaderSettingStyle}" />
+				</muxc:Expander.Header>
+				<muxc:Expander.Content>
+					<StackPanel Orientation="Vertical">
+						<local:SettingItem Title="FSR_EASU"
+										   Style="{StaticResource ExpanderContentSettingStyle}" />
+						<local:SettingItem Title="FSR_RCAS"
+										   Style="{StaticResource ExpanderContentSettingStyle}">
+							<local:SettingItem.ActionContent>
+								<Slider Width="150"
+										Header="sharpness" Value="0.87" Minimum="0" Maximum="1" StepFrequency="0.01" />
+							</local:SettingItem.ActionContent>
+						</local:SettingItem>
+					</StackPanel>
+				</muxc:Expander.Content>
+			</muxc:Expander>
+		</StackPanel>
 	</local:PageFrame>
 </Page>
