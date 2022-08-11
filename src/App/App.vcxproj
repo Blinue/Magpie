@@ -138,6 +138,7 @@
       <DependentUpon>NewProfileViewModel.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
+    <ClInclude Include="ScaleMode.h" />
     <ClInclude Include="ScalingProfile.h" />
     <ClInclude Include="ScalingProfilePage.h">
       <DependentUpon>ScalingProfilePage.xaml</DependentUpon>

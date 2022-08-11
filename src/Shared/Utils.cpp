@@ -57,7 +57,7 @@ static uint64_t _wyr3(const uint8_t* p, size_t k) { return (((uint64_t)p[0]) << 
 //the default secret parameters
 static const uint64_t _wyp[4] = { 0xa0761d6478bd642full, 0xe7037ed1a0b428dbull, 0x8ebc6af09c88c6e3ull, 0x589965cc75374cc3ull };
 
-uint64_t Utils::DoHash(std::span<const BYTE> data) {
+uint64_t Utils::HashData(std::span<const BYTE> data) {
 	const size_t len = data.size();
 	uint64_t seed = _wyp[0];
 

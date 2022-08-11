@@ -82,6 +82,9 @@
     <ClInclude Include="AutoStartHelper.h">
       <Filter>Helpers</Filter>
     </ClInclude>
+    <ClInclude Include="ScaleMode.h">
+      <Filter>Models</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Assets">

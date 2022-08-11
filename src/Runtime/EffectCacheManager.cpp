@@ -308,7 +308,7 @@ void EffectCacheManager::Save(std::wstring_view effectName, std::wstring_view ha
 }
 
 static std::wstring HexHash(std::span<const BYTE> data) {
-	uint64_t hashBytes = Utils::DoHash(data);
+	uint64_t hashBytes = Utils::HashData(data);
 	
 	static wchar_t oct2Hex[16] = {
 		L'0',L'1',L'2',L'3',L'4',L'5',L'6',L'7',

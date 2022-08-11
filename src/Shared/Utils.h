@@ -43,7 +43,7 @@ struct Utils {
 	static bool ZstdCompress(std::span<const BYTE> src, std::vector<BYTE>& dest, int compressionLevel);
 	static bool ZstdDecompress(std::span<const BYTE> src, std::vector<BYTE>& dest);
 
-	static uint64_t DoHash(std::span<const BYTE> data);
+	static uint64_t HashData(std::span<const BYTE> data);
 };
 
 inline bool operator==(const SIZE& l, const SIZE& r) {
