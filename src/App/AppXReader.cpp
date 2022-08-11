@@ -5,12 +5,10 @@
 #include "Utils.h"
 #include "Logger.h"
 #include <appmodel.h>
-#include <Shlwapi.h>
 #include <propkey.h>
 #include <regex>
 #include <wincodec.h>
 
-#pragma comment(lib, "Shlwapi.lib")
 
 using namespace winrt;
 using namespace Windows::Graphics::Imaging;

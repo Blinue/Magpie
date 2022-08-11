@@ -15,6 +15,44 @@
 #include "CommonSharedConstants.h"
 
 
+//128bit multiply function
+static void _wymum(uint64_t* A, uint64_t* B) {
+	*A = _umul128(*A, *B, B);
+}
+
+//multiply and xor mix function, aka MUM
+static uint64_t _wymix(uint64_t A, uint64_t B) { _wymum(&A, &B); return A ^ B; }
+
+//read functions
+static uint64_t _wyr8(const uint8_t* p) { uint64_t v; memcpy(&v, p, 8); return v; }
+static uint64_t _wyr4(const uint8_t* p) { uint32_t v; memcpy(&v, p, 4); return v; }
+static uint64_t _wyr3(const uint8_t* p, size_t k) { return (((uint64_t)p[0]) << 16) | (((uint64_t)p[k >> 1]) << 8) | p[k - 1]; }
+//wyhash main function
+static uint64_t wyhash(const void* key, size_t len) {
+	uint64_t seed = 0;
+
+	const uint8_t* p = (const uint8_t*)key;	uint64_t	a, b;
+	if (len <= 16) {
+		if (len >= 4) { a = (_wyr4(p) << 32) | _wyr4(p + ((len >> 3) << 2)); b = (_wyr4(p + len - 4) << 32) | _wyr4(p + len - 4 - ((len >> 3) << 2)); } else if (len > 0) { a = _wyr3(p, len); b = 0; } else a = b = 0;
+	} else {
+		size_t i = len;
+		if (i > 48) {
+			uint64_t see1 = seed, see2 = seed;
+			do {
+				seed = _wymix(_wyr8(p), _wyr8(p + 8) ^ seed);
+				see1 = _wymix(_wyr8(p + 16), _wyr8(p + 24) ^ see1);
+				see2 = _wymix(_wyr8(p + 32), _wyr8(p + 40) ^ see2);
+				p += 48; i -= 48;
+			} while (i > 48);
+			seed ^= see1 ^ see2;
+		}
+		while (i > 16) { seed = _wymix(_wyr8(p), _wyr8(p + 8) ^ seed);  i -= 16; p += 16; }
+		a = _wyr8(p + i - 16);  b = _wyr8(p + i - 8);
+	}
+	return _wymix(len, _wymix(a, b ^ seed));
+}
+
+
 template<typename Archive>
 void serialize(Archive& ar, winrt::com_ptr<ID3DBlob>& o) {
 	SIZE_T size = 0;
@@ -149,7 +187,7 @@ static constexpr const int CACHE_COMPRESSION_LEVEL = 1;
 
 static std::wstring GetCacheFileName(std::wstring_view effectName, std::wstring_view hash, UINT flags) {
 	// 缓存文件的命名：{效果名}_{标志位（16进制）}{哈希}
-	return fmt::format(L"{}{}_{:02x}{}", CommonSharedConstants::CACHE_DIR_W, effectName, flags, hash);
+	return fmt::format(L"{}{}_{:02x}_{}", CommonSharedConstants::CACHE_DIR_W, effectName, flags, hash);
 }
 
 void EffectCacheManager::_AddToMemCache(const std::wstring& cacheFileName, const EffectDesc& desc) {
@@ -267,8 +305,8 @@ void EffectCacheManager::Save(std::wstring_view effectName, std::wstring_view ha
 		}
 	} else {
 		// 删除所有该效果（flags 相同）的缓存
-		std::wregex regex(fmt::format(L"^{}_{:02x}[0-9,a-f]{{{}}}$", effectName, desc.flags,
-			Win32Utils::Hasher::Get().GetHashLength() * 2), std::wregex::optimize | std::wregex::nosubs);
+		std::wregex regex(fmt::format(L"^{}_{:02x}[0-9,a-f]{{{}}}$", effectName, desc.flags, 16),
+			std::wregex::optimize | std::wregex::nosubs);
 
 		WIN32_FIND_DATA findData{};
 		HANDLE hFind = Win32Utils::SafeHandle(FindFirstFileEx(
@@ -307,22 +345,22 @@ void EffectCacheManager::Save(std::wstring_view effectName, std::wstring_view ha
 	Logger::Get().Info(StrUtils::Concat("已保存缓存 ", StrUtils::UTF16ToUTF8(cacheFileName)));
 }
 
-static std::wstring Bin2Hex(std::span<const BYTE> data) {
-	if (data.size() == 0) {
-		return {};
-	}
-
+static std::wstring DoHash(std::span<const BYTE> data) {
+	uint64_t hashBytes = wyhash(data.data(), data.size());
+	
 	static wchar_t oct2Hex[16] = {
 		L'0',L'1',L'2',L'3',L'4',L'5',L'6',L'7',
 		L'8',L'9',L'a',L'b',L'c',L'd',L'e',L'f'
 	};
 
-	std::wstring result(data.size() * 2, 0);
+	std::wstring result(16, 0);
 	wchar_t* pResult = &result[0];
-
-	for (BYTE b : data) {
-		*pResult++ = oct2Hex[(b >> 4) & 0xf];
-		*pResult++ = oct2Hex[b & 0xf];
+	
+	BYTE* b = (BYTE*)&hashBytes;
+	for (int i = 0; i < 8; ++i) {
+		*pResult++ = oct2Hex[(*b >> 4) & 0xf];
+		*pResult++ = oct2Hex[*b & 0xf];
+		++b;
 	}
 
 	return result;
@@ -343,13 +381,7 @@ std::wstring EffectCacheManager::GetHash(
 		}
 	}
 
-	std::vector<BYTE> hashBytes;
-	if (!Win32Utils::Hasher::Get().Hash(std::span((const BYTE*)source.data(), source.size()), hashBytes)) {
-		Logger::Get().Error("计算 hash 失败");
-		return {};
-	}
-
-	return Bin2Hex(hashBytes);
+	return DoHash(std::span((const BYTE*)source.data(), source.size()));
 }
 
 std::wstring EffectCacheManager::GetHash(std::string& source, const std::unordered_map<std::wstring, float>* inlineParams) {
@@ -364,15 +396,9 @@ std::wstring EffectCacheManager::GetHash(std::string& source, const std::unorder
 		}
 	}
 
-	std::vector<BYTE> hashBytes;
-	bool success = Win32Utils::Hasher::Get().Hash(std::span((const BYTE*)source.data(), source.size()), hashBytes);
-	if (!success) {
-		Logger::Get().Error("计算 hash 失败");
-	}
-
+	std::wstring result = DoHash(std::span((const BYTE*)source.data(), source.size()));
 	source.resize(originSize);
-
-	return success ? Bin2Hex(hashBytes) : std::wstring();
+	return result;
 }
 
 }

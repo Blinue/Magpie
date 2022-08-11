@@ -1,6 +1,5 @@
 #pragma once
 #include "CommonPCH.h"
-#include <bcrypt.h>
 
 
 struct Win32Utils {
@@ -116,30 +115,6 @@ struct Win32Utils {
 		}
 	private:
 		SRWLOCK _srwLock = SRWLOCK_INIT;
-	};
-
-	class Hasher {
-	public:
-		static Hasher& Get() noexcept {
-			static Hasher instance;
-			return instance;
-		}
-
-		bool Hash(std::span<const BYTE> data, std::vector<BYTE>& result);
-
-		DWORD GetHashLength() noexcept;
-	private:
-		~Hasher();
-
-		bool _Initialize();
-
-		SRWMutex _srwMutex;	// 同步对 Hash() 的访问
-
-		BCRYPT_ALG_HANDLE _hAlg = NULL;
-		DWORD _hashObjLen = 0;		// hash 对象的大小
-		void* _hashObj = nullptr;	// 存储 hash 对象
-		DWORD _hashLen = 0;			// 哈希结果的大小
-		BCRYPT_HASH_HANDLE _hHash = NULL;
 	};
 
 	struct HandleCloser { void operator()(HANDLE h) noexcept { assert(h != INVALID_HANDLE_VALUE); if (h) CloseHandle(h); } };

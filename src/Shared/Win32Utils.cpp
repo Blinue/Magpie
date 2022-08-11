@@ -9,7 +9,6 @@
 #include <magnification.h>
 
 #pragma comment(lib, "Magnification.lib")
-#pragma comment(lib, "Bcrypt.lib")
 
 
 UINT Win32Utils::GetOSBuild() {
@@ -596,89 +595,6 @@ bool Win32Utils::IsProcessElevated() noexcept {
 	}
 
 	return bool(result == 1);
-}
-
-Win32Utils::Hasher::~Hasher() {
-	if (_hAlg) {
-		BCryptCloseAlgorithmProvider(_hAlg, 0);
-	}
-	if (_hashObj) {
-		HeapFree(GetProcessHeap(), 0, _hashObj);
-	}
-	if (_hHash) {
-		BCryptDestroyHash(_hHash);
-	}
-}
-
-bool Win32Utils::Hasher::_Initialize() {
-	NTSTATUS status = BCryptOpenAlgorithmProvider(&_hAlg, BCRYPT_SHA1_ALGORITHM, NULL, 0);
-	if (!NT_SUCCESS(status)) {
-		Logger::Get().Error(fmt::format("BCryptOpenAlgorithmProvider 失败\n\tNTSTATUS={}", status));
-		return false;
-	}
-
-	ULONG result;
-
-	status = BCryptGetProperty(_hAlg, BCRYPT_OBJECT_LENGTH, (PBYTE)&_hashObjLen, sizeof(_hashObjLen), &result, 0);
-	if (!NT_SUCCESS(status)) {
-		Logger::Get().Error(fmt::format("BCryptGetProperty 失败\n\tNTSTATUS={}", status));
-		return false;
-	}
-
-	_hashObj = HeapAlloc(GetProcessHeap(), 0, _hashObjLen);
-	if (!_hashObj) {
-		Logger::Get().Error("HeapAlloc 失败");
-		return false;
-	}
-
-	status = BCryptGetProperty(_hAlg, BCRYPT_HASH_LENGTH, (PBYTE)&_hashLen, sizeof(_hashLen), &result, 0);
-	if (!NT_SUCCESS(status)) {
-		Logger::Get().Error(fmt::format("BCryptGetProperty 失败\n\tNTSTATUS={}", status));
-		return false;
-	}
-
-	status = BCryptCreateHash(_hAlg, &_hHash, (PUCHAR)_hashObj, _hashObjLen, NULL, 0, BCRYPT_HASH_REUSABLE_FLAG);
-	if (!NT_SUCCESS(status)) {
-		Logger::Get().Error(fmt::format("BCryptCreateHash 失败\n\tNTSTATUS={}", status));
-		return false;
-	}
-
-	return true;
-}
-
-bool Win32Utils::Hasher::Hash(std::span<const BYTE> data, std::vector<BYTE>& result) {
-	// BCrypt API 内部保存状态，因此需要同步对它们访问
-	std::scoped_lock lk(_srwMutex);
-
-	if (!_hAlg && !_Initialize()) {
-		Logger::Get().Error("初始化失败");
-		return false;
-	}
-
-	result.resize(_hashLen);
-
-	NTSTATUS status = BCryptHashData(_hHash, (PUCHAR)data.data(), (ULONG)data.size(), 0);
-	if (!NT_SUCCESS(status)) {
-		Logger::Get().Error(fmt::format("BCryptCreateHash 失败\n\tNTSTATUS={}", status));
-		return false;
-	}
-
-	status = BCryptFinishHash(_hHash, result.data(), (ULONG)result.size(), 0);
-	if (!NT_SUCCESS(status)) {
-		Logger::Get().Error(fmt::format("BCryptFinishHash 失败\n\tNTSTATUS={}", status));
-		return false;
-	}
-
-	return true;
-}
-
-DWORD Win32Utils::Hasher::GetHashLength() noexcept {
-	if (!_hAlg && !_Initialize()) {
-		Logger::Get().Error("初始化失败");
-		return 0;
-	}
-
-	return _hashLen;
 }
 
 Win32Utils::BStr::BStr(std::wstring_view str) {

@@ -42,7 +42,12 @@
 										   Style="{StaticResource ExpanderContentSettingStyle}">
 							<local:SettingItem.ActionContent>
 								<Slider Width="150"
-										Header="sharpness" Value="0.87" Minimum="0" Maximum="1" StepFrequency="0.01" />
+										Header="sharpness"
+										IsThumbToolTipEnabled="False"
+										Maximum="1"
+										Minimum="0"
+										StepFrequency="0.01"
+										Value="0.87" />
 							</local:SettingItem.ActionContent>
 						</local:SettingItem>
 					</StackPanel>
