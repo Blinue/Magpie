@@ -131,9 +131,9 @@ struct EffectDesc {
 };
 
 union EffectConstant32 {
-	FLOAT floatVal;
-	UINT uintVal;
-	INT intVal;
+	float floatVal;
+	uint32_t uintVal;
+	int32_t intVal;
 };
 
 }

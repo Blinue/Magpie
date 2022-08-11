@@ -15,44 +15,6 @@
 #include "CommonSharedConstants.h"
 
 
-//128bit multiply function
-static void _wymum(uint64_t* A, uint64_t* B) {
-	*A = _umul128(*A, *B, B);
-}
-
-//multiply and xor mix function, aka MUM
-static uint64_t _wymix(uint64_t A, uint64_t B) { _wymum(&A, &B); return A ^ B; }
-
-//read functions
-static uint64_t _wyr8(const uint8_t* p) { uint64_t v; memcpy(&v, p, 8); return v; }
-static uint64_t _wyr4(const uint8_t* p) { uint32_t v; memcpy(&v, p, 4); return v; }
-static uint64_t _wyr3(const uint8_t* p, size_t k) { return (((uint64_t)p[0]) << 16) | (((uint64_t)p[k >> 1]) << 8) | p[k - 1]; }
-//wyhash main function
-static uint64_t wyhash(const void* key, size_t len) {
-	uint64_t seed = 0;
-
-	const uint8_t* p = (const uint8_t*)key;	uint64_t	a, b;
-	if (len <= 16) {
-		if (len >= 4) { a = (_wyr4(p) << 32) | _wyr4(p + ((len >> 3) << 2)); b = (_wyr4(p + len - 4) << 32) | _wyr4(p + len - 4 - ((len >> 3) << 2)); } else if (len > 0) { a = _wyr3(p, len); b = 0; } else a = b = 0;
-	} else {
-		size_t i = len;
-		if (i > 48) {
-			uint64_t see1 = seed, see2 = seed;
-			do {
-				seed = _wymix(_wyr8(p), _wyr8(p + 8) ^ seed);
-				see1 = _wymix(_wyr8(p + 16), _wyr8(p + 24) ^ see1);
-				see2 = _wymix(_wyr8(p + 32), _wyr8(p + 40) ^ see2);
-				p += 48; i -= 48;
-			} while (i > 48);
-			seed ^= see1 ^ see2;
-		}
-		while (i > 16) { seed = _wymix(_wyr8(p), _wyr8(p + 8) ^ seed);  i -= 16; p += 16; }
-		a = _wyr8(p + i - 16);  b = _wyr8(p + i - 8);
-	}
-	return _wymix(len, _wymix(a, b ^ seed));
-}
-
-
 template<typename Archive>
 void serialize(Archive& ar, winrt::com_ptr<ID3DBlob>& o) {
 	SIZE_T size = 0;
@@ -345,8 +307,8 @@ void EffectCacheManager::Save(std::wstring_view effectName, std::wstring_view ha
 	Logger::Get().Info(StrUtils::Concat("已保存缓存 ", StrUtils::UTF16ToUTF8(cacheFileName)));
 }
 
-static std::wstring DoHash(std::span<const BYTE> data) {
-	uint64_t hashBytes = wyhash(data.data(), data.size());
+static std::wstring HexHash(std::span<const BYTE> data) {
+	uint64_t hashBytes = Utils::DoHash(data);
 	
 	static wchar_t oct2Hex[16] = {
 		L'0',L'1',L'2',L'3',L'4',L'5',L'6',L'7',
@@ -381,7 +343,7 @@ std::wstring EffectCacheManager::GetHash(
 		}
 	}
 
-	return DoHash(std::span((const BYTE*)source.data(), source.size()));
+	return HexHash(std::span((const BYTE*)source.data(), source.size()));
 }
 
 std::wstring EffectCacheManager::GetHash(std::string& source, const std::unordered_map<std::wstring, float>* inlineParams) {
@@ -396,7 +358,7 @@ std::wstring EffectCacheManager::GetHash(std::string& source, const std::unorder
 		}
 	}
 
-	std::wstring result = DoHash(std::span((const BYTE*)source.data(), source.size()));
+	std::wstring result = HexHash(std::span((const BYTE*)source.data(), source.size()));
 	source.resize(originSize);
 	return result;
 }

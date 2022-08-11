@@ -97,7 +97,7 @@ void Renderer::Render(bool onPrint) {
 
 	_gpuTimer->OnBeginEffects();
 
-	UINT idx = 0;
+	uint32_t idx = 0;
 	if (state == FrameSourceBase::UpdateState::NoUpdate) {
 		// 此帧内容无变化
 		// 从第一个使用动态常量的效果开始渲染
@@ -108,7 +108,7 @@ void Renderer::Render(bool onPrint) {
 			if (_effects[i]->IsUseDynamic()) {
 				break;
 			} else {
-				for (UINT j = (UINT)_effects[i]->GetDesc().passes.size(); j > 0; --j) {
+				for (uint32_t j = (uint32_t)_effects[i]->GetDesc().passes.size(); j > 0; --j) {
 					_gpuTimer->OnEndPass(idx++);
 				}
 			}
@@ -161,9 +161,9 @@ void Renderer::SetUIVisibility(bool value) {
 	if (!_overlayDrawer->IsUIVisiable()) {
 		_overlayDrawer->SetUIVisibility(true);
 
-		UINT passCount = 0;
+		uint32_t passCount = 0;
 		for (const auto& effect : _effects) {
-			passCount += (UINT)effect->GetDesc().passes.size();
+			passCount += (uint32_t)effect->GetDesc().passes.size();
 		}
 
 		// StartProfiling 必须在 OnBeginFrame 之前调用
@@ -221,7 +221,7 @@ bool CheckForeground(HWND hwndForeground) {
 	return Win32Utils::IsStartMenu(hwndForeground);
 }
 
-const EffectDesc& Renderer::GetEffectDesc(UINT idx) const noexcept {
+const EffectDesc& Renderer::GetEffectDesc(uint32_t idx) const noexcept {
 	assert(idx < _effects.size());
 	return _effects[idx]->GetDesc();
 }
@@ -369,7 +369,7 @@ bool Renderer::_UpdateDynamicConstants() {
 		_dynamicConstants[6].uintVal = pos->x;
 		_dynamicConstants[7].uintVal = pos->y;
 
-		_dynamicConstants[8].uintVal = (UINT)cursorType;
+		_dynamicConstants[8].uintVal = (uint32_t)cursorType;
 	} else {
 		_dynamicConstants[0].intVal = INT_MAX;
 		_dynamicConstants[1].intVal = INT_MAX;
