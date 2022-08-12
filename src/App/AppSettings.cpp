@@ -44,7 +44,7 @@ static hstring GetWorkingDir(bool isPortableMode) {
 	}
 }
 
-bool LoadBoolSettingItem(
+static bool LoadBoolSettingItem(
 	const rapidjson::GenericObject<false, rapidjson::Value>& obj,
 	const char* nodeName,
 	bool& result
@@ -62,7 +62,7 @@ bool LoadBoolSettingItem(
 	return true;
 }
 
-bool LoadUIntSettingItem(
+static bool LoadUIntSettingItem(
 	const rapidjson::GenericObject<false, rapidjson::Value>& obj,
 	const char* nodeName,
 	uint32_t& result
@@ -80,7 +80,7 @@ bool LoadUIntSettingItem(
 	return true;
 }
 
-bool LoadFloatSettingItem(
+static bool LoadFloatSettingItem(
 	const rapidjson::GenericObject<false, rapidjson::Value>& obj,
 	const char* nodeName,
 	float& result
@@ -98,7 +98,7 @@ bool LoadFloatSettingItem(
 	return true;
 }
 
-bool LoadStringSettingItem(
+static bool LoadStringSettingItem(
 	const rapidjson::GenericObject<false, rapidjson::Value>& obj,
 	const char* nodeName,
 	std::wstring& result
@@ -116,36 +116,17 @@ bool LoadStringSettingItem(
 	return true;
 }
 
-bool AppSettings::Initialize() {
-	Logger& logger = Logger::Get();
-
-	// 若程序所在目录存在配置文件则为便携模式
-	_isPortableMode = Win32Utils::FileExists(CommonSharedConstants::CONFIG_PATH_W);
-	_workingDir = GetWorkingDir(_isPortableMode);
-
-	std::wstring configPath = StrUtils::ConcatW(_workingDir, CommonSharedConstants::CONFIG_PATH_W);
-
-	if (!Win32Utils::FileExists(configPath.c_str())) {
-		logger.Info("不存在配置文件");
-		return true;
-	}
-
-	std::string configText;
-	if (!Win32Utils::ReadTextFile(configPath.c_str(), configText)) {
-		logger.Error("读取配置文件失败");
-		return false;
-	}
-
-	if (!_LoadSettings(configText)) {
-		logger.Error("解析配置文件失败");
-		return false;
-	}
-
-	_SetDefaultHotkeys();
-	return true;
+static void WriteScaleMode(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer, const ScaleMode& scaleMode) {
+	writer.StartObject();
+	writer.Key("name");
+	writer.String(StrUtils::UTF16ToUTF8(scaleMode.Name).c_str());
+	writer.Key("effects");
+	writer.StartArray();
+	writer.EndArray();
+	writer.EndObject();
 }
 
-void WriteScalingProfile(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer, const ScalingProfile& scalingProfile) {
+static void WriteScalingProfile(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer, const ScalingProfile& scalingProfile) {
 	writer.StartObject();
 	if (!scalingProfile.Name.empty()) {
 		writer.Key("name");
@@ -166,7 +147,7 @@ void WriteScalingProfile(rapidjson::PrettyWriter<rapidjson::StringBuffer>& write
 	writer.Uint(scalingProfile.GraphicsAdapter);
 	writer.Key("flags");
 	writer.Uint(scalingProfile.Flags);
-	
+
 	writer.Key("cursorScaling");
 	writer.Uint((unsigned int)scalingProfile.CursorScaling);
 	writer.Key("customCursorScaling");
@@ -191,7 +172,7 @@ void WriteScalingProfile(rapidjson::PrettyWriter<rapidjson::StringBuffer>& write
 	writer.EndObject();
 }
 
-bool LoadScalingProfile(const rapidjson::GenericObject<false, rapidjson::Value>& scalingConfigObj, ScalingProfile& scalingProfile) {
+static bool LoadScalingProfile(const rapidjson::GenericObject<false, rapidjson::Value>& scalingConfigObj, ScalingProfile& scalingProfile) {
 	if (!LoadStringSettingItem(scalingConfigObj, "name", scalingProfile.Name)) {
 		return false;
 	}
@@ -199,7 +180,7 @@ bool LoadScalingProfile(const rapidjson::GenericObject<false, rapidjson::Value>&
 	if (!LoadBoolSettingItem(scalingConfigObj, "packaged", scalingProfile.IsPackaged)) {
 		return false;
 	}
-	
+
 	if (!LoadStringSettingItem(scalingConfigObj, "pathRule", scalingProfile.PathRule)) {
 		return false;
 	}
@@ -251,12 +232,41 @@ bool LoadScalingProfile(const rapidjson::GenericObject<false, rapidjson::Value>&
 				|| !LoadFloatSettingItem(croppingObj, "top", scalingProfile.Cropping.Top)
 				|| !LoadFloatSettingItem(croppingObj, "right", scalingProfile.Cropping.Right)
 				|| !LoadFloatSettingItem(croppingObj, "bottom", scalingProfile.Cropping.Bottom)
-			) {
+				) {
 				return false;
 			}
 		}
 	}
 
+	return true;
+}
+
+bool AppSettings::Initialize() {
+	Logger& logger = Logger::Get();
+
+	// 若程序所在目录存在配置文件则为便携模式
+	_isPortableMode = Win32Utils::FileExists(CommonSharedConstants::CONFIG_PATH_W);
+	_workingDir = GetWorkingDir(_isPortableMode);
+
+	std::wstring configPath = StrUtils::ConcatW(_workingDir, CommonSharedConstants::CONFIG_PATH_W);
+
+	if (!Win32Utils::FileExists(configPath.c_str())) {
+		logger.Info("不存在配置文件");
+		return true;
+	}
+
+	std::string configText;
+	if (!Win32Utils::ReadTextFile(configPath.c_str(), configText)) {
+		logger.Error("读取配置文件失败");
+		return false;
+	}
+
+	if (!_LoadSettings(configText)) {
+		logger.Error("解析配置文件失败");
+		return false;
+	}
+
+	_SetDefaultHotkeys();
 	return true;
 }
 
@@ -333,6 +343,13 @@ bool AppSettings::Save() {
 	writer.Bool(_isAlwaysRunAsElevated);
 	writer.Key("showTrayIcon");
 	writer.Bool(_isShowTrayIcon);
+
+	writer.Key("scaleModes");
+	writer.StartArray();
+	for (const ScaleMode& scaleMode : _scaleModes) {
+		WriteScaleMode(writer, scaleMode);
+	}
+	writer.EndArray();
 
 	writer.Key("scalingProfiles");
 	writer.StartArray();
@@ -565,13 +582,20 @@ bool AppSettings::_LoadSettings(std::string text) {
 	}
 
 	{
-		auto scaleConfigsNode = root.FindMember("scalingProfiles");
-		if (scaleConfigsNode != root.MemberEnd()) {
-			if (!scaleConfigsNode->value.IsArray()) {
+		auto scaleModeNode = root.FindMember("scaleMode");
+		if (scaleModeNode != root.MemberEnd()) {
+			
+		}
+	}
+
+	{
+		auto scaleProfilesNode = root.FindMember("scalingProfiles");
+		if (scaleProfilesNode != root.MemberEnd()) {
+			if (!scaleProfilesNode->value.IsArray()) {
 				return false;
 			}
 
-			const auto& scaleRulesArray = scaleConfigsNode->value.GetArray();
+			const auto& scaleRulesArray = scaleProfilesNode->value.GetArray();
 
 			const rapidjson::SizeType size = scaleRulesArray.Size();
 			if (size > 0) {
