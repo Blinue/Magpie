@@ -64,6 +64,11 @@ struct EffectOption {
 	ScaleType ScaleType = ScaleType::Normal;
 	std::pair<float, float> Scale = { 1.0f,1.0f };
 	uint32_t Flags = 0;
+
+	bool HasScale() const noexcept {
+		return ScaleType != ScaleType::Normal ||
+			std::abs(Scale.first - 1.0f) > 1e-5 || std::abs(Scale.second - 1.0f) > 1e-5;
+	}
 };
 
 #define DEFINE_MAGFLAG_ACCESSOR(Name) \

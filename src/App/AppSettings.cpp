@@ -122,6 +122,34 @@ static void WriteScaleMode(rapidjson::PrettyWriter<rapidjson::StringBuffer>& wri
 	writer.String(StrUtils::UTF16ToUTF8(scaleMode.Name).c_str());
 	writer.Key("effects");
 	writer.StartArray();
+	for (const auto& effect : scaleMode.Effects) {
+		writer.StartObject();
+		writer.Key("name");
+		writer.String(StrUtils::UTF16ToUTF8(effect.Name).c_str());
+		if (!effect.Parameters.empty()) {
+			writer.Key("parameters");
+			writer.StartObject();
+			for (const auto& [name, value] : effect.Parameters) {
+				writer.Key(StrUtils::UTF16ToUTF8(name).c_str());
+				writer.Double(value);
+			}
+			writer.EndObject();
+		}
+		
+		if (effect.HasScale()) {
+			writer.Key("scaleType");
+			writer.Uint((uint32_t)effect.ScaleType);
+			writer.Key("scale");
+			writer.StartObject();
+			writer.Key("x");
+			writer.Double(effect.Scale.first);
+			writer.Key("y");
+			writer.Double(effect.Scale.second);
+			writer.EndObject();
+		}
+		
+		writer.EndObject();
+	}
 	writer.EndArray();
 	writer.EndObject();
 }
@@ -140,20 +168,20 @@ static void WriteScalingProfile(rapidjson::PrettyWriter<rapidjson::StringBuffer>
 	}
 
 	writer.Key("captureMode");
-	writer.Uint((unsigned int)scalingProfile.CaptureMode);
+	writer.Uint((uint32_t)scalingProfile.CaptureMode);
 	writer.Key("multiMonitorUsage");
-	writer.Uint((unsigned int)scalingProfile.MultiMonitorUsage);
+	writer.Uint((uint32_t)scalingProfile.MultiMonitorUsage);
 	writer.Key("graphicsAdapter");
 	writer.Uint(scalingProfile.GraphicsAdapter);
 	writer.Key("flags");
 	writer.Uint(scalingProfile.Flags);
 
 	writer.Key("cursorScaling");
-	writer.Uint((unsigned int)scalingProfile.CursorScaling);
+	writer.Uint((uint32_t)scalingProfile.CursorScaling);
 	writer.Key("customCursorScaling");
 	writer.Double(scalingProfile.CustomCursorScaling);
 	writer.Key("cursorInterpolationMode");
-	writer.Uint((unsigned int)scalingProfile.CursorInterpolationMode);
+	writer.Uint((uint32_t)scalingProfile.CursorInterpolationMode);
 
 	writer.Key("croppingEnabled");
 	writer.Bool(scalingProfile.IsCroppingEnabled);
@@ -252,6 +280,8 @@ bool AppSettings::Initialize() {
 
 	if (!Win32Utils::FileExists(configPath.c_str())) {
 		logger.Info("不存在配置文件");
+		// 只有不存在配置文件时才生成默认缩放模式
+		_SetDefaultScaleModes();
 		return true;
 	}
 
@@ -650,6 +680,26 @@ void AppSettings::_SetDefaultHotkeys() {
 		overlayHotkey.Win = true;
 		overlayHotkey.Shift = true;
 		overlayHotkey.Code = 'D';
+	}
+}
+
+void AppSettings::_SetDefaultScaleModes() {
+	{
+		auto& lanczos = _scaleModes.emplace_back();
+		lanczos.Name = L"Lanczos";
+		auto& lanczosEffect = lanczos.Effects.emplace_back();
+		lanczosEffect.Name = L"Lanczos";
+		lanczosEffect.ScaleType = ScaleType::Fit;
+	}
+	{
+		auto& fsr = _scaleModes.emplace_back();
+		fsr.Name = L"FSR";
+		auto& easu = fsr.Effects.emplace_back();
+		easu.Name = L"EASU";
+		easu.ScaleType = ScaleType::Fit;
+		auto& rcas = fsr.Effects.emplace_back();
+		rcas.Name = L"RCAS";
+		rcas.Parameters[L"sharpness"] = 0.87f;
 	}
 }
 

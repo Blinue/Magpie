@@ -211,6 +211,7 @@ private:
 
 	bool _LoadSettings(std::string text);
 	void _SetDefaultHotkeys();
+	void _SetDefaultScaleModes();
 
 	bool _isPortableMode = false;
 	hstring _workingDir;
