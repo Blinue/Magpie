@@ -47,11 +47,12 @@ static hstring GetWorkingDir(bool isPortableMode) {
 static bool LoadBoolSettingItem(
 	const rapidjson::GenericObject<false, rapidjson::Value>& obj,
 	const char* nodeName,
-	bool& result
+	bool& result,
+	bool required = false
 ) {
 	auto node = obj.FindMember(nodeName);
 	if (node == obj.MemberEnd()) {
-		return true;
+		return !required;
 	}
 
 	if (!node->value.IsBool()) {
@@ -65,11 +66,12 @@ static bool LoadBoolSettingItem(
 static bool LoadUIntSettingItem(
 	const rapidjson::GenericObject<false, rapidjson::Value>& obj,
 	const char* nodeName,
-	uint32_t& result
+	uint32_t& result,
+	bool required = false
 ) {
 	auto node = obj.FindMember(nodeName);
 	if (node == obj.MemberEnd()) {
-		return true;
+		return !required;
 	}
 
 	if (!node->value.IsUint()) {
@@ -83,14 +85,15 @@ static bool LoadUIntSettingItem(
 static bool LoadFloatSettingItem(
 	const rapidjson::GenericObject<false, rapidjson::Value>& obj,
 	const char* nodeName,
-	float& result
+	float& result,
+	bool required = false
 ) {
 	auto node = obj.FindMember(nodeName);
 	if (node == obj.MemberEnd()) {
-		return true;
+		return !required;
 	}
 
-	if (!node->value.IsFloat()) {
+	if (!node->value.IsNumber()) {
 		return false;
 	}
 
@@ -101,11 +104,12 @@ static bool LoadFloatSettingItem(
 static bool LoadStringSettingItem(
 	const rapidjson::GenericObject<false, rapidjson::Value>& obj,
 	const char* nodeName,
-	std::wstring& result
+	std::wstring& result,
+	bool required = false
 ) {
 	auto node = obj.FindMember(nodeName);
 	if (node == obj.MemberEnd()) {
-		return true;
+		return !required;
 	}
 
 	if (!node->value.IsString()) {
@@ -120,38 +124,40 @@ static void WriteScaleMode(rapidjson::PrettyWriter<rapidjson::StringBuffer>& wri
 	writer.StartObject();
 	writer.Key("name");
 	writer.String(StrUtils::UTF16ToUTF8(scaleMode.Name).c_str());
-	writer.Key("effects");
-	writer.StartArray();
-	for (const auto& effect : scaleMode.Effects) {
-		writer.StartObject();
-		writer.Key("name");
-		writer.String(StrUtils::UTF16ToUTF8(effect.Name).c_str());
-		if (!effect.Parameters.empty()) {
-			writer.Key("parameters");
+	if (!scaleMode.Effects.empty()) {
+		writer.Key("effects");
+		writer.StartArray();
+		for (const auto& effect : scaleMode.Effects) {
 			writer.StartObject();
-			for (const auto& [name, value] : effect.Parameters) {
-				writer.Key(StrUtils::UTF16ToUTF8(name).c_str());
-				writer.Double(value);
+			writer.Key("name");
+			writer.String(StrUtils::UTF16ToUTF8(effect.Name).c_str());
+			if (!effect.Parameters.empty()) {
+				writer.Key("parameters");
+				writer.StartObject();
+				for (const auto& [name, value] : effect.Parameters) {
+					writer.Key(StrUtils::UTF16ToUTF8(name).c_str());
+					writer.Double(value);
+				}
+				writer.EndObject();
 			}
+
+			if (effect.HasScale()) {
+				writer.Key("scaleType");
+				writer.Uint((uint32_t)effect.ScaleType);
+				writer.Key("scale");
+				writer.StartObject();
+				writer.Key("x");
+				writer.Double(effect.Scale.first);
+				writer.Key("y");
+				writer.Double(effect.Scale.second);
+				writer.EndObject();
+			}
+
 			writer.EndObject();
 		}
-		
-		if (effect.HasScale()) {
-			writer.Key("scaleType");
-			writer.Uint((uint32_t)effect.ScaleType);
-			writer.Key("scale");
-			writer.StartObject();
-			writer.Key("x");
-			writer.Double(effect.Scale.first);
-			writer.Key("y");
-			writer.Double(effect.Scale.second);
-			writer.EndObject();
-		}
-		
+		writer.EndArray();
 		writer.EndObject();
 	}
-	writer.EndArray();
-	writer.EndObject();
 }
 
 static void WriteScalingProfile(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer, const ScalingProfile& scalingProfile) {
@@ -200,21 +206,23 @@ static void WriteScalingProfile(rapidjson::PrettyWriter<rapidjson::StringBuffer>
 	writer.EndObject();
 }
 
-static bool LoadScalingProfile(const rapidjson::GenericObject<false, rapidjson::Value>& scalingConfigObj, ScalingProfile& scalingProfile) {
-	if (!LoadStringSettingItem(scalingConfigObj, "name", scalingProfile.Name)) {
-		return false;
-	}
+static bool LoadScalingProfile(const rapidjson::GenericObject<false, rapidjson::Value>& scalingConfigObj, ScalingProfile& scalingProfile, bool isDefault = false) {
+	if (!isDefault) {
+		if (!LoadStringSettingItem(scalingConfigObj, "name", scalingProfile.Name, true)) {
+			return false;
+		}
 
-	if (!LoadBoolSettingItem(scalingConfigObj, "packaged", scalingProfile.IsPackaged)) {
-		return false;
-	}
+		if (!LoadBoolSettingItem(scalingConfigObj, "packaged", scalingProfile.IsPackaged, true)) {
+			return false;
+		}
 
-	if (!LoadStringSettingItem(scalingConfigObj, "pathRule", scalingProfile.PathRule)) {
-		return false;
-	}
+		if (!LoadStringSettingItem(scalingConfigObj, "pathRule", scalingProfile.PathRule, true)) {
+			return false;
+		}
 
-	if (!LoadStringSettingItem(scalingConfigObj, "classNameRule", scalingProfile.ClassNameRule)) {
-		return false;
+		if (!LoadStringSettingItem(scalingConfigObj, "classNameRule", scalingProfile.ClassNameRule, true)) {
+			return false;
+		}
 	}
 
 	if (!LoadUIntSettingItem(scalingConfigObj, "captureMode", (uint32_t&)scalingProfile.CaptureMode)) {
@@ -256,11 +264,86 @@ static bool LoadScalingProfile(const rapidjson::GenericObject<false, rapidjson::
 
 			const auto& croppingObj = croppingNode->value.GetObj();
 
-			if (!LoadFloatSettingItem(croppingObj, "left", scalingProfile.Cropping.Left)
-				|| !LoadFloatSettingItem(croppingObj, "top", scalingProfile.Cropping.Top)
-				|| !LoadFloatSettingItem(croppingObj, "right", scalingProfile.Cropping.Right)
-				|| !LoadFloatSettingItem(croppingObj, "bottom", scalingProfile.Cropping.Bottom)
+			if (!LoadFloatSettingItem(croppingObj, "left", scalingProfile.Cropping.Left, true)
+				|| !LoadFloatSettingItem(croppingObj, "top", scalingProfile.Cropping.Top, true)
+				|| !LoadFloatSettingItem(croppingObj, "right", scalingProfile.Cropping.Right, true)
+				|| !LoadFloatSettingItem(croppingObj, "bottom", scalingProfile.Cropping.Bottom, true)
 				) {
+				return false;
+			}
+		}
+	}
+
+	return true;
+}
+
+static bool LoadScaleMode(const rapidjson::GenericObject<false, rapidjson::Value>& scaleModeObj, ScaleMode& scaleMode) {
+	if (!LoadStringSettingItem(scaleModeObj, "name", scaleMode.Name)) {
+		return false;
+	}
+
+	auto effectsNode = scaleModeObj.FindMember("effects");
+	if (effectsNode != scaleModeObj.MemberEnd()) {
+		if (!effectsNode->value.IsArray()) {
+			return false;
+		}
+
+		auto effectsArray = effectsNode->value.GetArray();
+		rapidjson::SizeType size = effectsArray.Size();
+		scaleMode.Effects.resize(size);
+
+		for (rapidjson::SizeType i = 0; i < size; ++i) {
+			if (!effectsArray[i].IsObject()) {
+				return false;
+			}
+
+			auto elemObj = effectsArray[i].GetObj();
+			EffectOption& effect = scaleMode.Effects[i];
+
+			if (!LoadStringSettingItem(elemObj, "name", effect.Name)) {
+				return false;
+			}
+
+			{
+				auto parametersNode = elemObj.FindMember("parameters");
+				if (parametersNode != elemObj.MemberEnd()) {
+					if (!parametersNode->value.IsObject()) {
+						return false;
+					}
+
+					for (auto& param : parametersNode->value.GetObj()) {
+						std::wstring name = StrUtils::UTF8ToUTF16(param.name.GetString());
+
+						if (!param.value.IsNumber()) {
+							return false;
+						}
+						effect.Parameters[name] = param.value.GetFloat();
+					}
+				}
+			}
+
+			if (!LoadUIntSettingItem(elemObj, "scaleType", (uint32_t&)effect.ScaleType)) {
+				return false;
+			}
+
+			{
+				auto scaleNode = elemObj.FindMember("scale");
+				if (scaleNode != elemObj.MemberEnd()) {
+					if (!scaleNode->value.IsObject()) {
+						return false;
+					}
+
+					auto scaleObj = scaleNode->value.GetObj();
+
+					if (!LoadFloatSettingItem(scaleObj, "x", effect.Scale.first, true)
+						|| !LoadFloatSettingItem(scaleObj, "y", effect.Scale.second, true)
+					) {
+						return false;
+					}
+				}
+			}
+
+			if (!LoadUIntSettingItem(elemObj, "flags", effect.Flags)) {
 				return false;
 			}
 		}
@@ -503,16 +586,11 @@ bool AppSettings::_LoadSettings(std::string text) {
 	}
 
 	const auto& root = doc.GetObj();
-	{
-		auto themeNode = root.FindMember("theme");
-		if (themeNode != root.MemberEnd()) {
-			if (!themeNode->value.IsUint()) {
-				return false;
-			}
 
-			_theme = themeNode->value.GetUint();
-		}
+	if (!LoadUIntSettingItem(root, "theme", _theme)) {
+		return false;
 	}
+
 	{
 		auto windowPosNode = root.FindMember("windowPos");
 		if (windowPosNode != root.MemberEnd()) {
@@ -522,37 +600,24 @@ bool AppSettings::_LoadSettings(std::string text) {
 
 			const auto& windowRectObj = windowPosNode->value.GetObj();
 
-			auto xNode = windowRectObj.FindMember("x");
-			if (xNode == windowRectObj.MemberEnd() || !xNode->value.IsNumber()) {
+			if (!LoadFloatSettingItem(windowRectObj, "x", _windowRect.X, true)) {
 				return false;
 			}
-			_windowRect.X = (float)xNode->value.GetInt();
-
-			auto yNode = windowRectObj.FindMember("y");
-			if (yNode == windowRectObj.MemberEnd() || !yNode->value.IsNumber()) {
+			if (!LoadFloatSettingItem(windowRectObj, "y", _windowRect.Y, true)) {
 				return false;
 			}
-			_windowRect.Y = (float)yNode->value.GetInt();
-
-			auto widthNode = windowRectObj.FindMember("width");
-			if (widthNode == windowRectObj.MemberEnd() || !widthNode->value.IsNumber()) {
+			if (!LoadFloatSettingItem(windowRectObj, "width", _windowRect.Width, true)) {
 				return false;
 			}
-			_windowRect.Width = (float)widthNode->value.GetInt();
-
-			auto heightNode = windowRectObj.FindMember("height");
-			if (heightNode == windowRectObj.MemberEnd() || !heightNode->value.IsNumber()) {
+			if (!LoadFloatSettingItem(windowRectObj, "height", _windowRect.Height, true)) {
 				return false;
 			}
-			_windowRect.Height = (float)heightNode->value.GetInt();
-
-			auto maximizedNode = windowRectObj.FindMember("maximized");
-			if (maximizedNode == windowRectObj.MemberEnd() || !maximizedNode->value.IsBool()) {
+			if (!LoadBoolSettingItem(windowRectObj, "maximized", _isWindowMaximized, true)) {
 				return false;
 			}
-			_isWindowMaximized = maximizedNode->value.GetBool();
 		}
 	}
+
 	{
 		auto hotkeysNode = root.FindMember("hotkeys");
 		if (hotkeysNode != root.MemberEnd()) {
@@ -578,15 +643,8 @@ bool AppSettings::_LoadSettings(std::string text) {
 		return false;
 	}
 
-	{
-		auto downCountNode = root.FindMember("downCount");
-		if (downCountNode != root.MemberEnd()) {
-			if (!downCountNode->value.IsUint()) {
-				return false;
-			}
-
-			_downCount = downCountNode->value.GetUint();
-		}
+	if (!LoadUIntSettingItem(root, "downCount", _downCount)) {
+		return false;
 	}
 
 	if (!LoadBoolSettingItem(root, "breakpointMode", _isBreakpointMode)) {
@@ -612,9 +670,25 @@ bool AppSettings::_LoadSettings(std::string text) {
 	}
 
 	{
-		auto scaleModeNode = root.FindMember("scaleMode");
-		if (scaleModeNode != root.MemberEnd()) {
-			
+		auto scaleModesNode = root.FindMember("scaleModes");
+		if (scaleModesNode != root.MemberEnd()) {
+			if (!scaleModesNode->value.IsArray()) {
+				return false;
+			}
+
+			const auto& scaleModesArray = scaleModesNode->value.GetArray();
+			const rapidjson::SizeType size = scaleModesArray.Size();
+			_scaleModes.resize(size);
+
+			for (rapidjson::SizeType i = 0; i < size; ++i) {
+				if (!scaleModesArray[i].IsObject()) {
+					return false;
+				}
+
+				if (!LoadScaleMode(scaleModesArray[i].GetObj(), _scaleModes[i])) {
+					return false;
+				}
+			}
 		}
 	}
 
@@ -625,33 +699,28 @@ bool AppSettings::_LoadSettings(std::string text) {
 				return false;
 			}
 
-			const auto& scaleRulesArray = scaleProfilesNode->value.GetArray();
+			const auto& scaleProfilesArray = scaleProfilesNode->value.GetArray();
 
-			const rapidjson::SizeType size = scaleRulesArray.Size();
+			const rapidjson::SizeType size = scaleProfilesArray.Size();
 			if (size > 0) {
-				if (!scaleRulesArray[0].IsObject()) {
+				if (!scaleProfilesArray[0].IsObject()) {
 					return false;
 				}
 
-				if (!LoadScalingProfile(scaleRulesArray[0].GetObj(), _defaultScalingProfile)) {
+				if (!LoadScalingProfile(scaleProfilesArray[0].GetObj(), _defaultScalingProfile, true)) {
 					return false;
 				}
-
-				_defaultScalingProfile.Name = L"";
-				_defaultScalingProfile.PathRule = L"";
-				_defaultScalingProfile.ClassNameRule = L"";
-				_defaultScalingProfile.IsPackaged = false;
 
 				if (size > 1) {
 					_scalingProfiles.resize((size_t)size - 1);
 					for (rapidjson::SizeType i = 1; i < size; ++i) {
-						if (!scaleRulesArray[i].IsObject()) {
+						if (!scaleProfilesArray[i].IsObject()) {
 							return false;
 						}
 
 						ScalingProfile& rule = _scalingProfiles[(size_t)i - 1];
 
-						if (!LoadScalingProfile(scaleRulesArray[i].GetObj(), rule)) {
+						if (!LoadScalingProfile(scaleProfilesArray[i].GetObj(), rule)) {
 							return false;
 						}
 
@@ -695,10 +764,10 @@ void AppSettings::_SetDefaultScaleModes() {
 		auto& fsr = _scaleModes.emplace_back();
 		fsr.Name = L"FSR";
 		auto& easu = fsr.Effects.emplace_back();
-		easu.Name = L"EASU";
+		easu.Name = L"FSR_EASU";
 		easu.ScaleType = ScaleType::Fit;
 		auto& rcas = fsr.Effects.emplace_back();
-		rcas.Name = L"RCAS";
+		rcas.Name = L"FSR_RCAS";
 		rcas.Parameters[L"sharpness"] = 0.87f;
 	}
 }
