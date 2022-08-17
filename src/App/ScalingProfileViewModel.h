@@ -25,6 +25,9 @@ struct ScalingProfileViewModel : ScalingProfileViewModelT<ScalingProfileViewMode
 
 	bool IsNotDefaultScalingProfile() const noexcept;
 
+	bool IsOpenProgramLocationMenuEnabled() const noexcept;
+	fire_and_forget OpenProgramLocation() const noexcept;
+
 	hstring Name() const noexcept;
 
 	hstring RenameText() const noexcept {

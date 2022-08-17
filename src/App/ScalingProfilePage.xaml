@@ -118,7 +118,8 @@
 						</Flyout>
 					</Button.Flyout>
 				</Button>
-				<Button x:Name="MoreOptionsButton" Padding="0">
+				<Button x:Name="MoreOptionsButton"
+						Padding="0">
 					<Button.Content>
 						<FontIcon Glyph="&#xE712;" />
 					</Button.Content>
@@ -129,6 +130,13 @@
 					<Button.Flyout>
 						<MenuFlyout Placement="Bottom"
 									ShouldConstrainToRootBounds="False">
+							<MenuFlyoutItem Click="{x:Bind ViewModel.OpenProgramLocation}"
+											IsEnabled="{x:Bind ViewModel.IsOpenProgramLocationMenuEnabled, Mode=OneTime}"
+											Text="打开程序位置">
+								<MenuFlyoutItem.Icon>
+									<FontIcon Glyph="&#xE8DA;" />
+								</MenuFlyoutItem.Icon>
+							</MenuFlyoutItem>
 							<MenuFlyoutItem Click="ReorderMenuItem_Click"
 											Text="重新排序">
 								<MenuFlyoutItem.Icon>

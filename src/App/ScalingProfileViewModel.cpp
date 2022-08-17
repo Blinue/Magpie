@@ -10,6 +10,7 @@
 #include "ScalingProfileService.h"
 #include "StrUtils.h"
 #include <Runtime.h>
+#include "Win32Utils.h"
 
 
 using namespace winrt;
@@ -97,6 +98,32 @@ ScalingProfileViewModel::ScalingProfileViewModel(int32_t profileIdx) : _isDefaul
 
 bool ScalingProfileViewModel::IsNotDefaultScalingProfile() const noexcept {
 	return !_profile->Name.empty();
+}
+
+bool ScalingProfileViewModel::IsOpenProgramLocationMenuEnabled() const noexcept {
+	return Win32Utils::FileExists(_profile->PathRule.c_str());
+}
+
+fire_and_forget ScalingProfileViewModel::OpenProgramLocation() const noexcept {
+	if (!Win32Utils::FileExists(_profile->PathRule.c_str())) {
+		co_return;
+	}
+	std::wstring programLocation = _profile->PathRule;
+
+	// 根据 https://docs.microsoft.com/en-us/windows/win32/api/shlobj_core/nf-shlobj_core-shparsedisplayname，
+	// SHParseDisplayName 不能在主线程调用
+	co_await resume_background();
+
+	PIDLIST_ABSOLUTE pidl;
+	HRESULT hr = SHParseDisplayName(programLocation.c_str(), nullptr, &pidl, 0, nullptr);
+	if (FAILED(hr)) {
+		Logger::Get().ComError("SHParseDisplayName 失败", hr);
+		co_return;
+	}
+
+	SHOpenFolderAndSelectItems(pidl, 0, nullptr, 0);
+
+	CoTaskMemFree(pidl);
 }
 
 hstring ScalingProfileViewModel::Name() const noexcept {

@@ -8,6 +8,9 @@ namespace Magpie.App
 		String Name { get; };
 		Boolean IsNotDefaultScalingProfile { get; };
 
+		Boolean IsOpenProgramLocationMenuEnabled { get; };
+		void OpenProgramLocation();
+
 		String RenameText;
 		Boolean IsRenameConfirmButtonEnabled { get; };
 		void Rename();
