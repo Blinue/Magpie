@@ -60,11 +60,16 @@
 						<ToggleSwitch IsOn="{x:Bind ViewModel.IsShowTrayIcon, Mode=TwoWay}" />
 					</local:SettingItem.ActionContent>
 				</local:SettingItem>
-				<local:SettingItem Title="便携模式"
-								   Description="更改用户数据的保存位置">
+				<local:SettingItem Title="便携模式">
 					<local:SettingItem.Icon>
 						<FontIcon Glyph="&#xE88E;" />
 					</local:SettingItem.Icon>
+					<local:SettingItem.Description>
+						<StackPanel Orientation="Vertical" Spacing="2">
+							<TextBlock Text="更改配置文件的保存位置" />
+							<HyperlinkButton Content="打开配置文件位置" Click="{x:Bind ViewModel.OpenConfigLocation}" />
+						</StackPanel>
+					</local:SettingItem.Description>
 					<local:SettingItem.ActionContent>
 						<ToggleSwitch IsOn="{x:Bind ViewModel.IsPortableMode, Mode=TwoWay}" />
 					</local:SettingItem.ActionContent>

@@ -147,6 +147,7 @@
 
 			<ResourceDictionary.MergedDictionaries>
 				<muxc:XamlControlsResources ControlsResourcesVersion="Version2" />
+				<ResourceDictionary Source="ms-appx:///Button.xaml" />
 				<ResourceDictionary Source="ms-appx:///ToggleSwitch.xaml" />
 				<ResourceDictionary Source="ms-appx:///KeyVisual.xaml" />
 			</ResourceDictionary.MergedDictionaries>

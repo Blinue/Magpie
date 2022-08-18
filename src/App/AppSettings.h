@@ -19,8 +19,8 @@ public:
 
 	bool Save();
 
-	hstring WorkingDir() const noexcept {
-		return _workingDir;
+	const std::wstring& ConfigDir() const noexcept {
+		return _configDir;
 	}
 
 	bool IsPortableMode() const noexcept {
@@ -213,8 +213,11 @@ private:
 	void _SetDefaultHotkeys();
 	void _SetDefaultScaleModes();
 
+	void _UpdateConfigPath() noexcept;
+
 	bool _isPortableMode = false;
-	hstring _workingDir;
+	std::wstring _configDir;
+	std::wstring _configPath;
 
 	// 0: 浅色
 	// 1: 深色

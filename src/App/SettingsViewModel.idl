@@ -10,6 +10,7 @@ namespace Magpie.App
 		Boolean IsMinimizeAtStartup;
 		Boolean IsMinimizeAtStartupEnabled { get; };
 		Boolean IsPortableMode;
+		void OpenConfigLocation();
 		Boolean IsShowTrayIcon;
 		Boolean IsSimulateExclusiveFullscreen;
 		Boolean IsBreakpointMode;

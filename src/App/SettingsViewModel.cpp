@@ -82,6 +82,10 @@ void SettingsViewModel::IsPortableMode(bool value) noexcept {
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsPortableMode"));
 }
 
+void SettingsViewModel::OpenConfigLocation() const noexcept {
+	ShellExecute(NULL, L"explore", AppSettings::Get().ConfigDir().c_str(), nullptr, nullptr, SW_SHOWNORMAL);
+}
+
 bool SettingsViewModel::IsShowTrayIcon() const noexcept {
 	return AppSettings::Get().IsShowTrayIcon();
 }

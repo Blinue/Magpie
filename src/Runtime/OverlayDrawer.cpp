@@ -190,7 +190,7 @@ bool OverlayDrawer::Initialize() {
 	static std::vector<BYTE> fontData;
 	if (fontData.empty()) {
 		if (!Win32Utils::ReadFile(
-			StrUtils::ConcatW(CommonSharedConstants::ASSETS_DIR_W, L"NotoSansSC-Regular.otf").c_str(),
+			StrUtils::ConcatW(CommonSharedConstants::ASSETS_DIR, L"NotoSansSC-Regular.otf").c_str(),
 			fontData
 			)) {
 			Logger::Get().Error("读取字体文件失败");

@@ -149,7 +149,7 @@ static constexpr const int CACHE_COMPRESSION_LEVEL = 1;
 
 static std::wstring GetCacheFileName(std::wstring_view effectName, std::wstring_view hash, UINT flags) {
 	// 缓存文件的命名：{效果名}_{标志位（16进制）}{哈希}
-	return fmt::format(L"{}{}_{:02x}_{}", CommonSharedConstants::CACHE_DIR_W, effectName, flags, hash);
+	return fmt::format(L"{}{}_{:02x}_{}", CommonSharedConstants::CACHE_DIR, effectName, flags, hash);
 }
 
 void EffectCacheManager::_AddToMemCache(const std::wstring& cacheFileName, const EffectDesc& desc) {
@@ -260,8 +260,8 @@ void EffectCacheManager::Save(std::wstring_view effectName, std::wstring_view ha
 		}
 	}
 
-	if (!Win32Utils::DirExists(CommonSharedConstants::CACHE_DIR_W)) {
-		if (!CreateDirectory(CommonSharedConstants::CACHE_DIR_W, nullptr)) {
+	if (!Win32Utils::DirExists(CommonSharedConstants::CACHE_DIR)) {
+		if (!CreateDirectory(CommonSharedConstants::CACHE_DIR, nullptr)) {
 			Logger::Get().Win32Error("创建 cache 文件夹失败");
 			return;
 		}
@@ -272,7 +272,7 @@ void EffectCacheManager::Save(std::wstring_view effectName, std::wstring_view ha
 
 		WIN32_FIND_DATA findData{};
 		HANDLE hFind = Win32Utils::SafeHandle(FindFirstFileEx(
-			StrUtils::ConcatW(CommonSharedConstants::CACHE_DIR_W, L"*").c_str(),
+			StrUtils::ConcatW(CommonSharedConstants::CACHE_DIR, L"*").c_str(),
 			FindExInfoBasic, &findData, FindExSearchNameMatch, nullptr, FIND_FIRST_EX_LARGE_FETCH));
 		if (hFind) {
 			do {
@@ -285,7 +285,7 @@ void EffectCacheManager::Save(std::wstring_view effectName, std::wstring_view ha
 					continue;
 				}
 
-				if (!DeleteFile(StrUtils::ConcatW(CommonSharedConstants::CACHE_DIR_W, findData.cFileName).c_str())) {
+				if (!DeleteFile(StrUtils::ConcatW(CommonSharedConstants::CACHE_DIR, findData.cFileName).c_str())) {
 					Logger::Get().Win32Error(StrUtils::Concat("删除缓存文件 ",
 						StrUtils::UTF16ToUTF8(findData.cFileName), " 失败"));
 				}

@@ -1470,8 +1470,8 @@ cbuffer __CB2 : register(b1) {
 
 	cbHlsl.append("};\n\n");
 
-	if (MagApp::Get().GetOptions().IsSaveEffectSources() && !Win32Utils::DirExists(CommonSharedConstants::SOURCES_DIR_W)) {
-		if (!CreateDirectory(CommonSharedConstants::SOURCES_DIR_W, nullptr)) {
+	if (MagApp::Get().GetOptions().IsSaveEffectSources() && !Win32Utils::DirExists(CommonSharedConstants::SOURCES_DIR)) {
+		if (!CreateDirectory(CommonSharedConstants::SOURCES_DIR, nullptr)) {
 			Logger::Get().Win32Error("创建 sources 文件夹失败");
 		}
 	}
@@ -1487,8 +1487,8 @@ cbuffer __CB2 : register(b1) {
 
 		if (MagApp::Get().GetOptions().IsSaveEffectSources()) {
 			std::wstring fileName = desc.passes.size() == 1
-				? fmt::format(L"{}{}.hlsl", CommonSharedConstants::SOURCES_DIR_W, StrUtils::UTF8ToUTF16(desc.name))
-				: fmt::format(L"{}{}_Pass{}.hlsl", CommonSharedConstants::SOURCES_DIR_W, StrUtils::UTF8ToUTF16(desc.name), id + 1);
+				? fmt::format(L"{}{}.hlsl", CommonSharedConstants::SOURCES_DIR, StrUtils::UTF8ToUTF16(desc.name))
+				: fmt::format(L"{}{}_Pass{}.hlsl", CommonSharedConstants::SOURCES_DIR, StrUtils::UTF8ToUTF16(desc.name), id + 1);
 
 			if (!Win32Utils::WriteFile(fileName.c_str(), source.data(), source.size())) {
 				Logger::Get().Error(fmt::format("保存 Pass{} 源码失败", id + 1));
@@ -1525,7 +1525,7 @@ UINT EffectCompiler::Compile(
 	desc.name = StrUtils::UTF16ToUTF8(effectName);
 	desc.flags = flags;
 
-	std::wstring fileName = StrUtils::ConcatW(CommonSharedConstants::EFFECTS_DIR_W, effectName, L".hlsl");
+	std::wstring fileName = StrUtils::ConcatW(CommonSharedConstants::EFFECTS_DIR, effectName, L".hlsl");
 
 	std::string source;
 	if (!Win32Utils::ReadTextFile(fileName.c_str(), source)) {

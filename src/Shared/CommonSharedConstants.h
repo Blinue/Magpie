@@ -11,12 +11,12 @@ struct CommonSharedConstants {
 	static constexpr const COLORREF DARK_TINT_COLOR = RGB(32, 32, 32);
 
 	static constexpr const char* LOG_PATH = "logs\\magpie.log";
-	static constexpr const char* CONFIG_PATH = "config\\config.json";
-	static constexpr const wchar_t* CONFIG_PATH_W = L"config\\config.json";
-	static constexpr const wchar_t* SOURCES_DIR_W = L"sources\\";
-	static constexpr const wchar_t* EFFECTS_DIR_W = L"effects\\";
-	static constexpr const wchar_t* ASSETS_DIR_W = L"assets\\";
-	static constexpr const wchar_t* CACHE_DIR_W = L"cache\\";
+	static constexpr const wchar_t* CONFIG_DIR = L"config\\";
+	static constexpr const wchar_t* CONFIG_NAME = L"config.json";
+	static constexpr const wchar_t* SOURCES_DIR = L"sources\\";
+	static constexpr const wchar_t* EFFECTS_DIR = L"effects\\";
+	static constexpr const wchar_t* ASSETS_DIR = L"assets\\";
+	static constexpr const wchar_t* CACHE_DIR = L"cache\\";
 
 	static constexpr const wchar_t* OPTION_MINIMIZE_TO_TRAY_AT_STARTUP = L"-t";
 

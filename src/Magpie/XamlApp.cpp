@@ -138,7 +138,6 @@ int XamlApp::Run() {
 		DispatchMessage(&msg);
 	}
 
-	_uwpApp.SaveSettings();
 	_uwpApp = nullptr;
 
 	_HideTrayIcon();
@@ -277,6 +276,8 @@ void XamlApp::_Quit() noexcept {
 
 	if (_hwndMain) {
 		DestroyWindow(_hwndMain);
+	} else {
+		_uwpApp.SaveSettings();
 	}
 
 	PostQuitMessage(0);

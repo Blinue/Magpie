@@ -419,6 +419,9 @@
     <Page Include="AboutPage.xaml">
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="Button.xaml">
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="ScalingProfilePage.xaml">
       <SubType>Designer</SubType>
     </Page>

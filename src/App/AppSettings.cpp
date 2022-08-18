@@ -16,34 +16,6 @@ using namespace Magpie::Runtime;
 
 namespace winrt::Magpie::App {
 
-static hstring GetWorkingDir(bool isPortableMode) {
-	if (isPortableMode) {
-		wchar_t curDir[MAX_PATH];
-		if (!GetCurrentDirectory(MAX_PATH, curDir)) {
-			return L"";
-		}
-
-		std::wstring result = curDir;
-		if (result.back() != L'\\') {
-			result += L'\\';
-		}
-		return result.c_str();
-	} else {
-		wchar_t localAppDataDir[MAX_PATH];
-		HRESULT hr = SHGetFolderPath(NULL, CSIDL_LOCAL_APPDATA, NULL, 0, localAppDataDir);
-		if (FAILED(hr)) {
-			return L"";
-		}
-
-		return StrUtils::ConcatW(
-			localAppDataDir,
-			localAppDataDir[StrUtils::StrLen(localAppDataDir) - 1] == L'\\' ? L"Magpie\\" : L"\\Magpie\\",
-			MAGPIE_VERSION_W,
-			L"\\"
-		).c_str();
-	}
-}
-
 static bool LoadBoolSettingItem(
 	const rapidjson::GenericObject<false, rapidjson::Value>& obj,
 	const char* nodeName,
@@ -356,12 +328,11 @@ bool AppSettings::Initialize() {
 	Logger& logger = Logger::Get();
 
 	// 若程序所在目录存在配置文件则为便携模式
-	_isPortableMode = Win32Utils::FileExists(CommonSharedConstants::CONFIG_PATH_W);
-	_workingDir = GetWorkingDir(_isPortableMode);
+	_isPortableMode = Win32Utils::FileExists(
+		StrUtils::ConcatW(CommonSharedConstants::CONFIG_DIR, CommonSharedConstants::CONFIG_NAME).c_str());
+	_UpdateConfigPath();
 
-	std::wstring configPath = StrUtils::ConcatW(_workingDir, CommonSharedConstants::CONFIG_PATH_W);
-
-	if (!Win32Utils::FileExists(configPath.c_str())) {
+	if (!Win32Utils::FileExists(_configPath.c_str())) {
 		logger.Info("不存在配置文件");
 		// 只有不存在配置文件时才生成默认缩放模式
 		_SetDefaultScaleModes();
@@ -369,7 +340,7 @@ bool AppSettings::Initialize() {
 	}
 
 	std::string configText;
-	if (!Win32Utils::ReadTextFile(configPath.c_str(), configText)) {
+	if (!Win32Utils::ReadTextFile(_configPath.c_str(), configText)) {
 		logger.Error("读取配置文件失败");
 		return false;
 	}
@@ -384,8 +355,7 @@ bool AppSettings::Initialize() {
 }
 
 bool AppSettings::Save() {
-	std::wstring configDir = StrUtils::ConcatW(_workingDir, L"config");
-	if (!Win32Utils::CreateDir(configDir)) {
+	if (!Win32Utils::CreateDir(_configDir)) {
 		Logger::Get().Error("创建配置文件夹失败");
 		return false;
 	}
@@ -474,7 +444,7 @@ bool AppSettings::Save() {
 
 	writer.EndObject();
 
-	if (!Win32Utils::WriteTextFile(StrUtils::ConcatW(_workingDir, CommonSharedConstants::CONFIG_PATH_W).c_str(), json.GetString())) {
+	if (!Win32Utils::WriteTextFile(_configPath.c_str(), json.GetString())) {
 		Logger::Get().Error("保存配置失败");
 		return false;
 	}
@@ -490,18 +460,13 @@ void AppSettings::IsPortableMode(bool value) {
 	if (!value) {
 		// 关闭便携模式需删除本地配置文件
 		// 不关心是否成功
-		DeleteFile(StrUtils::ConcatW(_workingDir, CommonSharedConstants::CONFIG_PATH_W).c_str());
+		DeleteFile(StrUtils::ConcatW(_configDir, CommonSharedConstants::CONFIG_NAME).c_str());
 	}
 
 	Logger::Get().Info(value ? "已开启便携模式" : "已关闭便携模式");
 
 	_isPortableMode = value;
-	_workingDir = GetWorkingDir(value);
-
-	// 确保 WorkingDir 存在
-	if (!Win32Utils::CreateDir(_workingDir.c_str(), true)) {
-		Logger::Get().Error(StrUtils::Concat("创建文件夹", StrUtils::UTF16ToUTF8(_workingDir), "失败"));
-	}
+	_UpdateConfigPath();
 }
 
 void AppSettings::Theme(uint32_t value) {
@@ -770,6 +735,39 @@ void AppSettings::_SetDefaultScaleModes() {
 		rcas.Name = L"FSR_RCAS";
 		rcas.Parameters[L"sharpness"] = 0.87f;
 	}
+}
+
+void AppSettings::_UpdateConfigPath() noexcept {
+	if (_isPortableMode) {
+		wchar_t curDir[MAX_PATH];
+		GetCurrentDirectory(MAX_PATH, curDir);
+
+		_configDir = curDir;
+		if (_configDir.back() != L'\\') {
+			_configDir.push_back(L'\\');
+		}
+		_configDir += CommonSharedConstants::CONFIG_DIR;
+	} else {
+		wchar_t localAppDataDir[MAX_PATH];
+		HRESULT hr = SHGetFolderPath(NULL, CSIDL_LOCAL_APPDATA, NULL, 0, localAppDataDir);
+		if (SUCCEEDED(hr)) {
+			_configDir = StrUtils::ConcatW(
+				localAppDataDir,
+				localAppDataDir[StrUtils::StrLen(localAppDataDir) - 1] == L'\\' ? L"Magpie\\" : L"\\Magpie\\",
+				MAGPIE_VERSION_W,
+				L"\\",
+				CommonSharedConstants::CONFIG_DIR
+			);
+		} else {
+			Logger::Get().ComError("SHGetFolderPath 失败", hr);
+			_configDir = CommonSharedConstants::CONFIG_DIR;
+		}
+	}
+
+	_configPath = _configDir + CommonSharedConstants::CONFIG_NAME;
+
+	// 确保 ConfigDir 存在
+	Win32Utils::CreateDir(_configDir.c_str(), true);
 }
 
 }
