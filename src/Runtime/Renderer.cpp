@@ -282,9 +282,12 @@ bool Renderer::_BuildEffects() {
 				effectFlag |= EFFECT_FLAG_FP16;
 			}
 
+			effectDescs[id].name = StrUtils::UTF16ToUTF8(option.Name);
+			effectDescs[id].flags = effectFlag;
+
 			bool success = true;
 			int duration = Utils::Measure([&]() {
-				success = !EffectCompiler::Compile(option.Name, effectDescs[id], effectFlag, &option.Parameters);
+				success = !EffectCompiler::Compile(effectDescs[id], &option.Parameters);
 			});
 
 			if (success) {

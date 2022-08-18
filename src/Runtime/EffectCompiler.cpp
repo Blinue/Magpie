@@ -1517,15 +1517,10 @@ cbuffer __CB2 : register(b1) {
 
 
 uint32_t EffectCompiler::Compile(
-	std::wstring_view effectName,
 	EffectDesc& desc,
-	uint32_t flags,
 	const std::unordered_map<std::wstring, float>* inlineParams
 ) {
-	desc = {};
-	desc.name = StrUtils::UTF16ToUTF8(effectName);
-	desc.flags = flags;
-
+	std::wstring effectName = StrUtils::UTF8ToUTF16(desc.name);
 	std::wstring fileName = StrUtils::ConcatW(CommonSharedConstants::EFFECTS_DIR, effectName, L".hlsl");
 
 	std::string source;
@@ -1547,7 +1542,7 @@ uint32_t EffectCompiler::Compile(
 
 	std::wstring hash;
 	if (!MagApp::Get().GetOptions().IsDisableEffectCache()) {
-		hash = EffectCacheManager::GetHash(source, flags & EFFECT_FLAG_INLINE_PARAMETERS ? inlineParams : nullptr);
+		hash = EffectCacheManager::GetHash(source, desc.flags & EFFECT_FLAG_INLINE_PARAMETERS ? inlineParams : nullptr);
 		if (!hash.empty()) {
 			if (EffectCacheManager::Get().Load(effectName, hash, desc)) {
 				// 已从缓存中读取
@@ -1662,6 +1657,7 @@ uint32_t EffectCompiler::Compile(
 		return 1;
 	}
 
+	desc.params.clear();
 	for (size_t i = 0; i < paramBlocks.size(); ++i) {
 		if (ResolveParameter(paramBlocks[i], desc)) {
 			Logger::Get().Error(fmt::format("解析 Constant#{} 块失败", i + 1));
@@ -1678,6 +1674,7 @@ uint32_t EffectCompiler::Compile(
 		texDesc.sizeExpr.second = "INPUT_HEIGHT";
 	}
 
+	desc.textures.clear();
 	for (size_t i = 0; i < textureBlocks.size(); ++i) {
 		if (ResolveTexture(textureBlocks[i], desc)) {
 			Logger::Get().Error(fmt::format("解析 Texture#{} 块失败", i + 1));
@@ -1685,6 +1682,7 @@ uint32_t EffectCompiler::Compile(
 		}
 	}
 
+	desc.samplers.clear();
 	for (size_t i = 0; i < samplerBlocks.size(); ++i) {
 		if (ResolveSampler(samplerBlocks[i], desc)) {
 			Logger::Get().Error(fmt::format("解析 Sampler#{} 块失败", i + 1));
@@ -1725,6 +1723,7 @@ uint32_t EffectCompiler::Compile(
 		}
 	}
 
+	desc.passes.clear();
 	if (ResolvePasses(passBlocks, desc)) {
 		Logger::Get().Error("解析 Pass 块失败");
 		return 1;

@@ -6,10 +6,9 @@
 namespace Magpie::Runtime {
 
 struct API_DECLSPEC EffectCompiler {
+	// 调用者需填入 desc 中的 name 和 flags
 	static uint32_t Compile(
-		std::wstring_view effectName,
 		EffectDesc& desc,
-		uint32_t flags,
 		const std::unordered_map<std::wstring, float>* inlineParams = nullptr
 	);
 
