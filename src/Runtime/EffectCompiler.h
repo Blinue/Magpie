@@ -5,15 +5,12 @@
 
 namespace Magpie::Runtime {
 
-class EffectCompiler {
-public:
-	EffectCompiler() = default;
-
-	static UINT Compile(
+struct API_DECLSPEC EffectCompiler {
+	static uint32_t Compile(
 		std::wstring_view effectName,
-		UINT flags,
-		const std::unordered_map<std::wstring, float>& inlineParams,
-		EffectDesc& desc
+		EffectDesc& desc,
+		uint32_t flags,
+		const std::unordered_map<std::wstring, float>* inlineParams = nullptr
 	);
 
 	// 当前 MagpieFX 版本

@@ -11,6 +11,7 @@
 #include "Logger.h"
 #include "CommonSharedConstants.h"
 #include <bit>	// std::has_single_bit
+#include <d3dcompiler.h>
 
 
 namespace Magpie::Runtime {
@@ -1035,7 +1036,7 @@ UINT GeneratePassSource(
 	std::string_view cbHlsl,
 	const std::vector<std::string_view>& commonBlocks,
 	std::string_view passBlock,
-	const std::unordered_map<std::wstring, float>& inlineParams,
+	const std::unordered_map<std::wstring, float>* inlineParams,
 	std::string& result,
 	std::vector<std::pair<std::string, std::string>>& macros
 ) {
@@ -1168,13 +1169,13 @@ UINT GeneratePassSource(
 	// 内联常量
 	// 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////
-	if (isInlineParams) {
+	if (isInlineParams && inlineParams) {
 		std::unordered_set<std::wstring> paramNames;
 		for (const auto& d : desc.params) {
 			auto result = paramNames.emplace(StrUtils::UTF8ToUTF16(d.name));
 
-			auto it = inlineParams.find(*result.first);
-			if (it == inlineParams.end()) {
+			auto it = inlineParams->find(*result.first);
+			if (it == inlineParams->end()) {
 				if (d.type == EffectConstantType::Float) {
 					macros.emplace_back(d.name, std::to_string(std::get<float>(d.defaultValue)));
 				} else {
@@ -1189,7 +1190,7 @@ UINT GeneratePassSource(
 			}
 		}
 
-		for (const auto& pair : inlineParams) {
+		for (const auto& pair : *inlineParams) {
 			if (!paramNames.contains(pair.first)) {
 				return 1;
 			}
@@ -1422,7 +1423,7 @@ UINT CompilePasses(
 	EffectDesc& desc,
 	const std::vector<std::string_view>& commonBlocks,
 	const std::vector<std::string_view>& passBlocks,
-	const std::unordered_map<std::wstring, float>& inlineParams
+	const std::unordered_map<std::wstring, float>* inlineParams
 ) {
 	////////////////////////////////////////////////////////////////////////////////////////////////////////
 	//
@@ -1515,11 +1516,11 @@ cbuffer __CB2 : register(b1) {
 }
 
 
-UINT EffectCompiler::Compile(
+uint32_t EffectCompiler::Compile(
 	std::wstring_view effectName,
-	UINT flags,
-	const std::unordered_map<std::wstring, float>& inlineParams,
-	EffectDesc& desc
+	EffectDesc& desc,
+	uint32_t flags,
+	const std::unordered_map<std::wstring, float>* inlineParams
 ) {
 	desc = {};
 	desc.name = StrUtils::UTF16ToUTF8(effectName);
@@ -1546,7 +1547,7 @@ UINT EffectCompiler::Compile(
 
 	std::wstring hash;
 	if (!MagApp::Get().GetOptions().IsDisableEffectCache()) {
-		hash = EffectCacheManager::GetHash(source, flags & EFFECT_FLAG_INLINE_PARAMETERS ? &inlineParams : nullptr);
+		hash = EffectCacheManager::GetHash(source, flags & EFFECT_FLAG_INLINE_PARAMETERS ? inlineParams : nullptr);
 		if (!hash.empty()) {
 			if (EffectCacheManager::Get().Load(effectName, hash, desc)) {
 				// 已从缓存中读取

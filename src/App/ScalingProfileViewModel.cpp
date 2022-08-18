@@ -4,7 +4,6 @@
 #include "ScalingProfileViewModel.g.cpp"
 #endif
 #include "ScalingProfile.h"
-#include <dxgi1_6.h>
 #include "AppXReader.h"
 #include "IconHelper.h"
 #include "ScalingProfileService.h"

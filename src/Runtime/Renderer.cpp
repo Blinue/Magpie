@@ -284,7 +284,7 @@ bool Renderer::_BuildEffects() {
 
 			bool success = true;
 			int duration = Utils::Measure([&]() {
-				success = !EffectCompiler::Compile(option.Name, effectFlag, option.Parameters, effectDescs[id]);
+				success = !EffectCompiler::Compile(option.Name, effectDescs[id], effectFlag, &option.Parameters);
 			});
 
 			if (success) {

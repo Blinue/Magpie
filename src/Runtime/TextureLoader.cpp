@@ -6,6 +6,7 @@
 #include "DDS.h"
 #include "DDSLoderHelpers.h"
 #include "Utils.h"
+#include <wincodec.h>
 
 
 ///////////////////////////////////////////////////////////////////
@@ -703,15 +704,22 @@ HRESULT CreateDDSTextureFromFileEx(
 }
 
 winrt::com_ptr<ID3D11Texture2D> LoadImg(const wchar_t* fileName) {
-    winrt::com_ptr<IWICImagingFactory2> factory = MagApp::Get().GetWICImageFactory();
-    if (!factory) {
-        Logger::Get().Error("GetWICImageFactory 失败");
+    winrt::com_ptr<IWICImagingFactory2> wicImgFactory;
+    HRESULT hr = CoCreateInstance(
+        CLSID_WICImagingFactory,
+        NULL,
+        CLSCTX_INPROC_SERVER,
+        IID_PPV_ARGS(wicImgFactory.put())
+    );
+
+    if (FAILED(hr)) {
+        Logger::Get().ComError("创建 WICImagingFactory 失败", hr);
         return nullptr;
     }
 
     // 读取图像文件
     winrt::com_ptr<IWICBitmapDecoder> decoder;
-    HRESULT hr = factory->CreateDecoderFromFilename(fileName, nullptr, GENERIC_READ, WICDecodeMetadataCacheOnDemand, decoder.put());
+    hr = wicImgFactory->CreateDecoderFromFilename(fileName, nullptr, GENERIC_READ, WICDecodeMetadataCacheOnDemand, decoder.put());
     if (FAILED(hr)) {
         Logger::Get().ComError("CreateDecoderFromFilename 失败", hr);
         return nullptr;
@@ -734,7 +742,7 @@ winrt::com_ptr<ID3D11Texture2D> LoadImg(const wchar_t* fileName) {
         }
 
         winrt::com_ptr<IWICComponentInfo> cInfo;
-        hr = factory->CreateComponentInfo(sourceFormat, cInfo.put());
+        hr = wicImgFactory->CreateComponentInfo(sourceFormat, cInfo.put());
         if (FAILED(hr)) {
             Logger::Get().ComError("CreateComponentInfo", hr);
             return nullptr;
@@ -763,7 +771,7 @@ winrt::com_ptr<ID3D11Texture2D> LoadImg(const wchar_t* fileName) {
 
     // 转换格式
     winrt::com_ptr<IWICFormatConverter> formatConverter;
-    hr = factory->CreateFormatConverter(formatConverter.put());
+    hr = wicImgFactory->CreateFormatConverter(formatConverter.put());
     if (FAILED(hr)) {
         Logger::Get().ComError("CreateFormatConverter 失败", hr);
         return nullptr;

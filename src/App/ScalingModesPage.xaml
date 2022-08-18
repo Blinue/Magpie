@@ -22,7 +22,7 @@
 									  Style="{StaticResource ComboBoxSettingStyle}">
 								<ComboBox.Items>
 									<x:String>无</x:String>
-									<x:String>Mitchell</x:String>
+									<x:String>Bicubic</x:String>
 								</ComboBox.Items>
 							</ComboBox>
 							<Button VerticalAlignment="Stretch">

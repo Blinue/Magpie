@@ -13,6 +13,7 @@
 #include "StrUtils.h"
 #include "Logger.h"
 #include "CommonSharedConstants.h"
+#include <d3dcompiler.h>
 
 
 template<typename Archive>

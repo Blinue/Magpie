@@ -35,9 +35,7 @@
 						<VisualStateManager.VisualStateGroups>
 							<VisualStateGroup x:Name="CommonStates">
 								<VisualState x:Name="Normal" />
-
 								<VisualState x:Name="PointerOver">
-
 									<Storyboard>
 										<ObjectAnimationUsingKeyFrames Storyboard.TargetName="Text"
 																	   Storyboard.TargetProperty="Foreground">
@@ -56,9 +54,7 @@
 										</ObjectAnimationUsingKeyFrames>
 									</Storyboard>
 								</VisualState>
-
 								<VisualState x:Name="Pressed">
-
 									<Storyboard>
 										<ObjectAnimationUsingKeyFrames Storyboard.TargetName="Text"
 																	   Storyboard.TargetProperty="Foreground">
@@ -77,9 +73,7 @@
 										</ObjectAnimationUsingKeyFrames>
 									</Storyboard>
 								</VisualState>
-
 								<VisualState x:Name="Disabled">
-
 									<Storyboard>
 										<ObjectAnimationUsingKeyFrames Storyboard.TargetName="Text"
 																	   Storyboard.TargetProperty="Foreground">
@@ -98,12 +92,9 @@
 										</ObjectAnimationUsingKeyFrames>
 									</Storyboard>
 								</VisualState>
-
 							</VisualStateGroup>
-
 						</VisualStateManager.VisualStateGroups>
 					</Grid>
-
 				</ControlTemplate>
 			</Setter.Value>
 		</Setter>

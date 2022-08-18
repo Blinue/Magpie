@@ -1,5 +1,5 @@
 #pragma once
-#include "CommonPCH.h"
+#include "pch.h"
 #include "MagOptions.h"
 #include "WinRTUtils.h"
 

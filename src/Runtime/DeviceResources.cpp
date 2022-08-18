@@ -3,6 +3,7 @@
 #include "MagApp.h"
 #include "StrUtils.h"
 #include "Logger.h"
+#include <d3dcompiler.h>
 
 
 namespace Magpie::Runtime {

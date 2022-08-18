@@ -148,26 +148,6 @@ void MagApp::ToggleOverlay() {
 	_renderer->SetUIVisibility(!_renderer->IsUIVisiable());
 }
 
-winrt::com_ptr<IWICImagingFactory2> MagApp::GetWICImageFactory() {
-	static winrt::com_ptr<IWICImagingFactory2> wicImgFactory;
-
-	if (wicImgFactory == nullptr) {
-		HRESULT hr = CoCreateInstance(
-			CLSID_WICImagingFactory,
-			NULL,
-			CLSCTX_INPROC_SERVER,
-			IID_PPV_ARGS(wicImgFactory.put())
-		);
-
-		if (FAILED(hr)) {
-			Logger::Get().ComError("创建 WICImagingFactory 失败", hr);
-			return nullptr;
-		}
-	}
-
-	return wicImgFactory;
-}
-
 UINT MagApp::RegisterWndProcHandler(std::function<std::optional<LRESULT>(HWND, UINT, WPARAM, LPARAM)> handler) {
 	UINT id = _nextWndProcHandlerID++;
 	return _wndProcHandlers.emplace(id, handler).second ? id : 0;
