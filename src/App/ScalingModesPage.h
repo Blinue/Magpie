@@ -6,6 +6,8 @@ namespace winrt::Magpie::App::implementation {
 
 struct ScalingModesPage : ScalingModesPageT<ScalingModesPage> {
 	ScalingModesPage();
+
+	void ComboBox_DropDownOpened(IInspectable const& sender, IInspectable const&);
 };
 
 }

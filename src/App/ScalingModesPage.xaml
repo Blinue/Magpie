@@ -9,50 +9,79 @@
 
 	<local:PageFrame Title="缩放模式">
 		<StackPanel HorizontalAlignment="Stretch"
-					Orientation="Vertical"
-					Spacing="2">
-			<muxc:Expander HorizontalAlignment="Stretch"
-						   HorizontalContentAlignment="Stretch"
-						   Style="{StaticResource SettingExpanderStyle}">
-				<muxc:Expander.Header>
-					<local:SettingItem Title="Lanczos"
-									   Description="Lanczos"
-									   Style="{StaticResource ExpanderHeaderSettingStyle}" />
-				</muxc:Expander.Header>
-				<muxc:Expander.Content>
-					<StackPanel Orientation="Vertical">
+					Orientation="Vertical">
+			<local:SettingsGroup Title="通用"
+								 Margin="0,-25,0,0">
+				<local:SettingItem Title="默认降采样效果"
+								   Description="无法容纳输出图像时将自动应用此效果">
+					<local:SettingItem.ActionContent>
+						<StackPanel Orientation="Horizontal"
+									Spacing="2">
+							<ComboBox DropDownOpened="ComboBox_DropDownOpened"
+									  SelectedIndex="1"
+									  Style="{StaticResource ComboBoxSettingStyle}">
+								<ComboBox.Items>
+									<x:String>无</x:String>
+									<x:String>Mitchell</x:String>
+								</ComboBox.Items>
+							</ComboBox>
+							<Button VerticalAlignment="Stretch">
+								<Button.Content>
+									<FontIcon FontSize="15"
+											  Glyph="&#xE70F;" />
+								</Button.Content>
+								<ToolTipService.ToolTip>
+									<ToolTip Content="修改参数" />
+								</ToolTipService.ToolTip>
+							</Button>
+						</StackPanel>
+					</local:SettingItem.ActionContent>
+				</local:SettingItem>
+			</local:SettingsGroup>
+			<local:SettingsGroup Title="缩放模式">
+				<muxc:Expander HorizontalAlignment="Stretch"
+							   HorizontalContentAlignment="Stretch"
+							   Style="{StaticResource SettingExpanderStyle}">
+					<muxc:Expander.Header>
 						<local:SettingItem Title="Lanczos"
-										   Style="{StaticResource ExpanderContentSettingStyle}" />
-					</StackPanel>
-				</muxc:Expander.Content>
-			</muxc:Expander>
-			<muxc:Expander HorizontalAlignment="Stretch"
-						   HorizontalContentAlignment="Stretch"
-						   Style="{StaticResource SettingExpanderStyle}">
-				<muxc:Expander.Header>
-					<local:SettingItem Title="FSR"
-									   Description="FSR_EASU → FSR_RCAS"
-									   Style="{StaticResource ExpanderHeaderSettingStyle}" />
-				</muxc:Expander.Header>
-				<muxc:Expander.Content>
-					<StackPanel Orientation="Vertical">
-						<local:SettingItem Title="FSR_EASU"
-										   Style="{StaticResource ExpanderContentSettingStyle}" />
-						<local:SettingItem Title="FSR_RCAS"
-										   Style="{StaticResource ExpanderContentSettingStyle}">
-							<local:SettingItem.ActionContent>
-								<Slider Width="150"
-										Header="sharpness"
-										IsThumbToolTipEnabled="False"
-										Maximum="1"
-										Minimum="0"
-										StepFrequency="0.01"
-										Value="0.87" />
-							</local:SettingItem.ActionContent>
-						</local:SettingItem>
-					</StackPanel>
-				</muxc:Expander.Content>
-			</muxc:Expander>
+										   Description="Lanczos"
+										   Style="{StaticResource ExpanderHeaderSettingStyle}" />
+					</muxc:Expander.Header>
+					<muxc:Expander.Content>
+						<StackPanel Orientation="Vertical">
+							<local:SettingItem Title="Lanczos"
+											   Style="{StaticResource ExpanderContentSettingStyle}" />
+						</StackPanel>
+					</muxc:Expander.Content>
+				</muxc:Expander>
+				<muxc:Expander HorizontalAlignment="Stretch"
+							   HorizontalContentAlignment="Stretch"
+							   Style="{StaticResource SettingExpanderStyle}">
+					<muxc:Expander.Header>
+						<local:SettingItem Title="FSR"
+										   Description="FSR_EASU → FSR_RCAS"
+										   Style="{StaticResource ExpanderHeaderSettingStyle}" />
+					</muxc:Expander.Header>
+					<muxc:Expander.Content>
+						<StackPanel Orientation="Vertical">
+							<local:SettingItem Title="FSR_EASU"
+											   Style="{StaticResource ExpanderContentSettingStyle}" />
+							<local:SettingItem Title="FSR_RCAS"
+											   Style="{StaticResource ExpanderContentSettingStyle}">
+								<local:SettingItem.ActionContent>
+									<Slider Width="150"
+											Header="sharpness"
+											IsThumbToolTipEnabled="False"
+											Maximum="1"
+											Minimum="0"
+											StepFrequency="0.01"
+											Value="0.87" />
+								</local:SettingItem.ActionContent>
+							</local:SettingItem>
+						</StackPanel>
+					</muxc:Expander.Content>
+				</muxc:Expander>
+			</local:SettingsGroup>
 		</StackPanel>
 	</local:PageFrame>
 </Page>
