@@ -126,6 +126,7 @@
       <SubType>Code</SubType>
     </ClInclude>
     <ClInclude Include="ComboBoxHelper.h" />
+    <ClInclude Include="EffectsService.h" />
     <ClInclude Include="HomeViewModel.h">
       <DependentUpon>HomeViewModel.idl</DependentUpon>
       <SubType>Code</SubType>
@@ -241,6 +242,7 @@
       <DependentUpon>CandidateWindowItem.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
+    <ClCompile Include="EffectsService.cpp" />
     <ClCompile Include="HomeViewModel.cpp">
       <DependentUpon>HomeViewModel.idl</DependentUpon>
       <SubType>Code</SubType>

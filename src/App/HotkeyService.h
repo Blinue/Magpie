@@ -1,4 +1,5 @@
 #pragma once
+#include "pch.h"
 #include <winrt/Magpie.App.h>
 #include "WinRTUtils.h"
 

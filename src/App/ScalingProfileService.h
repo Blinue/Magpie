@@ -1,4 +1,5 @@
 #pragma once
+#include "pch.h"
 #include "ScalingProfile.h"
 #include "WinRTUtils.h"
 

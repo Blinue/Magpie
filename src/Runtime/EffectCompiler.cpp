@@ -1520,6 +1520,9 @@ uint32_t EffectCompiler::Compile(
 	uint32_t flags,
 	const std::unordered_map<std::wstring, float>* inlineParams
 ) {
+	bool noCompile = flags & EffectCompilerFlags::NoCompile;
+	bool noCache = flags & EffectCompilerFlags::NoCache;
+
 	std::wstring effectName = StrUtils::UTF8ToUTF16(desc.name);
 	std::wstring fileName = StrUtils::ConcatW(CommonSharedConstants::EFFECTS_DIR, effectName, L".hlsl");
 
@@ -1541,7 +1544,7 @@ uint32_t EffectCompiler::Compile(
 	}
 
 	std::wstring hash;
-	if (!(flags & EffectCompilerFlags::NoCache)) {
+	if (!noCompile && !noCache) {
 		hash = EffectCacheManager::GetHash(source, desc.flags & EffectFlags::InlineParams ? inlineParams : nullptr);
 		if (!hash.empty()) {
 			if (EffectCacheManager::Get().Load(effectName, hash, desc)) {
@@ -1561,7 +1564,7 @@ uint32_t EffectCompiler::Compile(
 
 	enum class BlockType {
 		Header,
-		Constant,
+		Parameter,
 		Texture,
 		Sampler,
 		Common,
@@ -1579,28 +1582,28 @@ uint32_t EffectCompiler::Compile(
 	size_t curBlockOff = 0;
 
 	auto completeCurrentBlock = [&](size_t len, BlockType newBlockType) {
-		switch (curBlockType) {
-		case BlockType::Header:
+		if (curBlockType == BlockType::Header) {
 			headerBlock = sourceView.substr(curBlockOff, len);
-			break;
-		case BlockType::Constant:
+		} else if (curBlockType == BlockType::Parameter) {
 			paramBlocks.push_back(sourceView.substr(curBlockOff, len));
-			break;
-		case BlockType::Texture:
-			textureBlocks.push_back(sourceView.substr(curBlockOff, len));
-			break;
-		case BlockType::Sampler:
-			samplerBlocks.push_back(sourceView.substr(curBlockOff, len));
-			break;
-		case BlockType::Common:
-			commonBlocks.push_back(sourceView.substr(curBlockOff, len));
-			break;
-		case BlockType::Pass:
-			passBlocks.push_back(sourceView.substr(curBlockOff, len));
-			break;
-		default:
-			assert(false);
-			break;
+		} else if (!noCompile) {
+			switch (curBlockType) {
+			case BlockType::Texture:
+				textureBlocks.push_back(sourceView.substr(curBlockOff, len));
+				break;
+			case BlockType::Sampler:
+				samplerBlocks.push_back(sourceView.substr(curBlockOff, len));
+				break;
+			case BlockType::Common:
+				commonBlocks.push_back(sourceView.substr(curBlockOff, len));
+				break;
+			case BlockType::Pass:
+				passBlocks.push_back(sourceView.substr(curBlockOff, len));
+				break;
+			default:
+				assert(false);
+				break;
+			}
 		}
 
 		curBlockType = newBlockType;
@@ -1622,7 +1625,7 @@ uint32_t EffectCompiler::Compile(
 				std::string blockType = StrUtils::ToUpperCase(token);
 
 				if (blockType == "PARAMETER") {
-					completeCurrentBlock(len, BlockType::Constant);
+					completeCurrentBlock(len, BlockType::Parameter);
 				} else if (blockType == "TEXTURE") {
 					completeCurrentBlock(len, BlockType::Texture);
 				} else if (blockType == "SAMPLER") {
@@ -1660,33 +1663,35 @@ uint32_t EffectCompiler::Compile(
 	desc.params.clear();
 	for (size_t i = 0; i < paramBlocks.size(); ++i) {
 		if (ResolveParameter(paramBlocks[i], desc)) {
-			Logger::Get().Error(fmt::format("解析 Constant#{} 块失败", i + 1));
+			Logger::Get().Error(fmt::format("解析 Parameter#{} 块失败", i + 1));
 			return 1;
 		}
 	}
 
-	desc.textures.clear();
-	// 纹理第一个元素为 INPUT
-	{
-		auto& texDesc = desc.textures.emplace_back();
-		texDesc.name = "INPUT";
-		texDesc.format = EffectIntermediateTextureFormat::R8G8B8A8_UNORM;
-		texDesc.sizeExpr.first = "INPUT_WIDTH";
-		texDesc.sizeExpr.second = "INPUT_HEIGHT";
-	}
-
-	for (size_t i = 0; i < textureBlocks.size(); ++i) {
-		if (ResolveTexture(textureBlocks[i], desc)) {
-			Logger::Get().Error(fmt::format("解析 Texture#{} 块失败", i + 1));
-			return 1;
+	if (!noCompile) {
+		desc.textures.clear();
+		// 纹理第一个元素为 INPUT
+		{
+			auto& texDesc = desc.textures.emplace_back();
+			texDesc.name = "INPUT";
+			texDesc.format = EffectIntermediateTextureFormat::R8G8B8A8_UNORM;
+			texDesc.sizeExpr.first = "INPUT_WIDTH";
+			texDesc.sizeExpr.second = "INPUT_HEIGHT";
 		}
-	}
 
-	desc.samplers.clear();
-	for (size_t i = 0; i < samplerBlocks.size(); ++i) {
-		if (ResolveSampler(samplerBlocks[i], desc)) {
-			Logger::Get().Error(fmt::format("解析 Sampler#{} 块失败", i + 1));
-			return 1;
+		for (size_t i = 0; i < textureBlocks.size(); ++i) {
+			if (ResolveTexture(textureBlocks[i], desc)) {
+				Logger::Get().Error(fmt::format("解析 Texture#{} 块失败", i + 1));
+				return 1;
+			}
+		}
+
+		desc.samplers.clear();
+		for (size_t i = 0; i < samplerBlocks.size(); ++i) {
+			if (ResolveSampler(samplerBlocks[i], desc)) {
+				Logger::Get().Error(fmt::format("解析 Sampler#{} 块失败", i + 1));
+				return 1;
+			}
 		}
 	}
 
@@ -1716,26 +1721,28 @@ uint32_t EffectCompiler::Compile(
 		}
 	}
 
-	for (size_t i = 0; i < commonBlocks.size(); ++i) {
-		if (ResolveCommon(commonBlocks[i])) {
-			Logger::Get().Error(fmt::format("解析 Common#{} 块失败", i + 1));
+	if (!noCompile) {
+		for (size_t i = 0; i < commonBlocks.size(); ++i) {
+			if (ResolveCommon(commonBlocks[i])) {
+				Logger::Get().Error(fmt::format("解析 Common#{} 块失败", i + 1));
+				return 1;
+			}
+		}
+
+		desc.passes.clear();
+		if (ResolvePasses(passBlocks, desc)) {
+			Logger::Get().Error("解析 Pass 块失败");
 			return 1;
 		}
-	}
 
-	desc.passes.clear();
-	if (ResolvePasses(passBlocks, desc)) {
-		Logger::Get().Error("解析 Pass 块失败");
-		return 1;
-	}
+		if (CompilePasses(desc, flags, commonBlocks, passBlocks, inlineParams)) {
+			Logger::Get().Error("编译着色器失败");
+			return 1;
+		}
 
-	if (CompilePasses(desc, flags, commonBlocks, passBlocks, inlineParams)) {
-		Logger::Get().Error("编译着色器失败");
-		return 1;
-	}
-
-	if (!(flags & EffectCompilerFlags::NoCache) && !hash.empty()) {
-		EffectCacheManager::Get().Save(effectName, hash, desc);
+		if (!noCache && !hash.empty()) {
+			EffectCacheManager::Get().Save(effectName, hash, desc);
+		}
 	}
 
 	return 0;

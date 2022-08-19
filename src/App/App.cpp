@@ -11,6 +11,7 @@
 #include "MagService.h"
 #include <CoreWindow.h>
 #include <Runtime.h>
+#include "EffectsService.h"
 
 using namespace winrt;
 using namespace Windows::UI::Xaml::Media;
@@ -58,8 +59,7 @@ App::App() {
 
 	_displayInformation = Windows::Graphics::Display::DisplayInformation::GetForCurrentView();
 
-	::Magpie::Runtime::MagRuntime t;
-	t.HwndSrc();
+	EffectsService::Get().Initialize();
 }
 
 App::~App() {

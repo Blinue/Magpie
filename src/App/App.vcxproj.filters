@@ -44,6 +44,9 @@
     <ClCompile Include="AutoStartHelper.cpp">
       <Filter>Helpers</Filter>
     </ClCompile>
+    <ClCompile Include="EffectsService.cpp">
+      <Filter>Services</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -84,6 +87,9 @@
     </ClInclude>
     <ClInclude Include="ScaleMode.h">
       <Filter>Models</Filter>
+    </ClInclude>
+    <ClInclude Include="EffectsService.h">
+      <Filter>Services</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
