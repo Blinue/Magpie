@@ -95,11 +95,11 @@ static bool LoadStringSettingItem(
 static void WriteScaleMode(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer, const ScaleMode& scaleMode) {
 	writer.StartObject();
 	writer.Key("name");
-	writer.String(StrUtils::UTF16ToUTF8(scaleMode.Name).c_str());
-	if (!scaleMode.Effects.empty()) {
+	writer.String(StrUtils::UTF16ToUTF8(scaleMode.name).c_str());
+	if (!scaleMode.effects.empty()) {
 		writer.Key("effects");
 		writer.StartArray();
-		for (const auto& effect : scaleMode.Effects) {
+		for (const auto& effect : scaleMode.effects) {
 			writer.StartObject();
 			writer.Key("name");
 			writer.String(StrUtils::UTF16ToUTF8(effect.Name).c_str());
@@ -134,45 +134,45 @@ static void WriteScaleMode(rapidjson::PrettyWriter<rapidjson::StringBuffer>& wri
 
 static void WriteScalingProfile(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer, const ScalingProfile& scalingProfile) {
 	writer.StartObject();
-	if (!scalingProfile.Name.empty()) {
+	if (!scalingProfile.name.empty()) {
 		writer.Key("name");
-		writer.String(StrUtils::UTF16ToUTF8(scalingProfile.Name).c_str());
+		writer.String(StrUtils::UTF16ToUTF8(scalingProfile.name).c_str());
 		writer.Key("packaged");
-		writer.Bool(scalingProfile.IsPackaged);
+		writer.Bool(scalingProfile.isPackaged);
 		writer.Key("pathRule");
-		writer.String(StrUtils::UTF16ToUTF8(scalingProfile.PathRule).c_str());
+		writer.String(StrUtils::UTF16ToUTF8(scalingProfile.pathRule).c_str());
 		writer.Key("classNameRule");
-		writer.String(StrUtils::UTF16ToUTF8(scalingProfile.ClassNameRule).c_str());
+		writer.String(StrUtils::UTF16ToUTF8(scalingProfile.classNameRule).c_str());
 	}
 
 	writer.Key("captureMode");
-	writer.Uint((uint32_t)scalingProfile.CaptureMode);
+	writer.Uint((uint32_t)scalingProfile.captureMode);
 	writer.Key("multiMonitorUsage");
-	writer.Uint((uint32_t)scalingProfile.MultiMonitorUsage);
+	writer.Uint((uint32_t)scalingProfile.multiMonitorUsage);
 	writer.Key("graphicsAdapter");
-	writer.Uint(scalingProfile.GraphicsAdapter);
+	writer.Uint(scalingProfile.graphicsAdapter);
 	writer.Key("flags");
-	writer.Uint(scalingProfile.Flags);
+	writer.Uint(scalingProfile.flags);
 
 	writer.Key("cursorScaling");
-	writer.Uint((uint32_t)scalingProfile.CursorScaling);
+	writer.Uint((uint32_t)scalingProfile.cursorScaling);
 	writer.Key("customCursorScaling");
-	writer.Double(scalingProfile.CustomCursorScaling);
+	writer.Double(scalingProfile.customCursorScaling);
 	writer.Key("cursorInterpolationMode");
-	writer.Uint((uint32_t)scalingProfile.CursorInterpolationMode);
+	writer.Uint((uint32_t)scalingProfile.cursorInterpolationMode);
 
 	writer.Key("croppingEnabled");
-	writer.Bool(scalingProfile.IsCroppingEnabled);
+	writer.Bool(scalingProfile.isCroppingEnabled);
 	writer.Key("cropping");
 	writer.StartObject();
 	writer.Key("left");
-	writer.Double(scalingProfile.Cropping.Left);
+	writer.Double(scalingProfile.cropping.Left);
 	writer.Key("top");
-	writer.Double(scalingProfile.Cropping.Top);
+	writer.Double(scalingProfile.cropping.Top);
 	writer.Key("right");
-	writer.Double(scalingProfile.Cropping.Right);
+	writer.Double(scalingProfile.cropping.Right);
 	writer.Key("bottom");
-	writer.Double(scalingProfile.Cropping.Bottom);
+	writer.Double(scalingProfile.cropping.Bottom);
 	writer.EndObject();
 
 	writer.EndObject();
@@ -180,51 +180,51 @@ static void WriteScalingProfile(rapidjson::PrettyWriter<rapidjson::StringBuffer>
 
 static bool LoadScalingProfile(const rapidjson::GenericObject<false, rapidjson::Value>& scalingConfigObj, ScalingProfile& scalingProfile, bool isDefault = false) {
 	if (!isDefault) {
-		if (!LoadStringSettingItem(scalingConfigObj, "name", scalingProfile.Name, true)) {
+		if (!LoadStringSettingItem(scalingConfigObj, "name", scalingProfile.name, true)) {
 			return false;
 		}
 
-		if (!LoadBoolSettingItem(scalingConfigObj, "packaged", scalingProfile.IsPackaged, true)) {
+		if (!LoadBoolSettingItem(scalingConfigObj, "packaged", scalingProfile.isPackaged, true)) {
 			return false;
 		}
 
-		if (!LoadStringSettingItem(scalingConfigObj, "pathRule", scalingProfile.PathRule, true)) {
+		if (!LoadStringSettingItem(scalingConfigObj, "pathRule", scalingProfile.pathRule, true)) {
 			return false;
 		}
 
-		if (!LoadStringSettingItem(scalingConfigObj, "classNameRule", scalingProfile.ClassNameRule, true)) {
+		if (!LoadStringSettingItem(scalingConfigObj, "classNameRule", scalingProfile.classNameRule, true)) {
 			return false;
 		}
 	}
 
-	if (!LoadUIntSettingItem(scalingConfigObj, "captureMode", (uint32_t&)scalingProfile.CaptureMode)) {
+	if (!LoadUIntSettingItem(scalingConfigObj, "captureMode", (uint32_t&)scalingProfile.captureMode)) {
 		return false;
 	}
 
-	if (!LoadUIntSettingItem(scalingConfigObj, "multiMonitorUsage", (uint32_t&)scalingProfile.MultiMonitorUsage)) {
+	if (!LoadUIntSettingItem(scalingConfigObj, "multiMonitorUsage", (uint32_t&)scalingProfile.multiMonitorUsage)) {
 		return false;
 	}
 
-	if (!LoadUIntSettingItem(scalingConfigObj, "graphicsAdapter", scalingProfile.GraphicsAdapter)) {
+	if (!LoadUIntSettingItem(scalingConfigObj, "graphicsAdapter", scalingProfile.graphicsAdapter)) {
 		return false;
 	}
 
-	if (!LoadUIntSettingItem(scalingConfigObj, "flags", scalingProfile.Flags)) {
+	if (!LoadUIntSettingItem(scalingConfigObj, "flags", scalingProfile.flags)) {
 		return false;
 	}
 
-	if (!LoadUIntSettingItem(scalingConfigObj, "cursorScaling", (uint32_t&)scalingProfile.CursorScaling)) {
+	if (!LoadUIntSettingItem(scalingConfigObj, "cursorScaling", (uint32_t&)scalingProfile.cursorScaling)) {
 		return false;
 	}
-	if (!LoadFloatSettingItem(scalingConfigObj, "customCursorScaling", scalingProfile.CustomCursorScaling)) {
+	if (!LoadFloatSettingItem(scalingConfigObj, "customCursorScaling", scalingProfile.customCursorScaling)) {
 		return false;
 	}
-	if (!LoadUIntSettingItem(scalingConfigObj, "cursorInterpolationMode", (uint32_t&)scalingProfile.CursorInterpolationMode)) {
+	if (!LoadUIntSettingItem(scalingConfigObj, "cursorInterpolationMode", (uint32_t&)scalingProfile.cursorInterpolationMode)) {
 		return false;
 	}
 
 	{
-		if (!LoadBoolSettingItem(scalingConfigObj, "croppingEnabled", scalingProfile.IsCroppingEnabled)) {
+		if (!LoadBoolSettingItem(scalingConfigObj, "croppingEnabled", scalingProfile.isCroppingEnabled)) {
 			return false;
 		}
 
@@ -236,10 +236,10 @@ static bool LoadScalingProfile(const rapidjson::GenericObject<false, rapidjson::
 
 			const auto& croppingObj = croppingNode->value.GetObj();
 
-			if (!LoadFloatSettingItem(croppingObj, "left", scalingProfile.Cropping.Left, true)
-				|| !LoadFloatSettingItem(croppingObj, "top", scalingProfile.Cropping.Top, true)
-				|| !LoadFloatSettingItem(croppingObj, "right", scalingProfile.Cropping.Right, true)
-				|| !LoadFloatSettingItem(croppingObj, "bottom", scalingProfile.Cropping.Bottom, true)
+			if (!LoadFloatSettingItem(croppingObj, "left", scalingProfile.cropping.Left, true)
+				|| !LoadFloatSettingItem(croppingObj, "top", scalingProfile.cropping.Top, true)
+				|| !LoadFloatSettingItem(croppingObj, "right", scalingProfile.cropping.Right, true)
+				|| !LoadFloatSettingItem(croppingObj, "bottom", scalingProfile.cropping.Bottom, true)
 				) {
 				return false;
 			}
@@ -250,7 +250,7 @@ static bool LoadScalingProfile(const rapidjson::GenericObject<false, rapidjson::
 }
 
 static bool LoadScaleMode(const rapidjson::GenericObject<false, rapidjson::Value>& scaleModeObj, ScaleMode& scaleMode) {
-	if (!LoadStringSettingItem(scaleModeObj, "name", scaleMode.Name)) {
+	if (!LoadStringSettingItem(scaleModeObj, "name", scaleMode.name)) {
 		return false;
 	}
 
@@ -262,7 +262,7 @@ static bool LoadScaleMode(const rapidjson::GenericObject<false, rapidjson::Value
 
 		auto effectsArray = effectsNode->value.GetArray();
 		rapidjson::SizeType size = effectsArray.Size();
-		scaleMode.Effects.resize(size);
+		scaleMode.effects.resize(size);
 
 		for (rapidjson::SizeType i = 0; i < size; ++i) {
 			if (!effectsArray[i].IsObject()) {
@@ -270,7 +270,7 @@ static bool LoadScaleMode(const rapidjson::GenericObject<false, rapidjson::Value
 			}
 
 			auto elemObj = effectsArray[i].GetObj();
-			EffectOption& effect = scaleMode.Effects[i];
+			EffectOption& effect = scaleMode.effects[i];
 
 			if (!LoadStringSettingItem(elemObj, "name", effect.Name)) {
 				return false;
@@ -689,7 +689,7 @@ bool AppSettings::_LoadSettings(std::string text) {
 							return false;
 						}
 
-						if (rule.Name.empty() || rule.PathRule.empty() || rule.ClassNameRule.empty()) {
+						if (rule.name.empty() || rule.pathRule.empty() || rule.classNameRule.empty()) {
 							return false;
 						}
 					}
@@ -704,34 +704,34 @@ bool AppSettings::_LoadSettings(std::string text) {
 void AppSettings::_SetDefaultHotkeys() {
 	HotkeySettings& scaleHotkey = _hotkeys[(size_t)HotkeyAction::Scale];
 	if (scaleHotkey.IsEmpty()) {
-		scaleHotkey.Win = true;
-		scaleHotkey.Shift = true;
-		scaleHotkey.Code = 'A';
+		scaleHotkey.win = true;
+		scaleHotkey.shift = true;
+		scaleHotkey.code = 'A';
 	}
 
 	HotkeySettings& overlayHotkey = _hotkeys[(size_t)HotkeyAction::Overlay];
 	if (overlayHotkey.IsEmpty()) {
-		overlayHotkey.Win = true;
-		overlayHotkey.Shift = true;
-		overlayHotkey.Code = 'D';
+		overlayHotkey.win = true;
+		overlayHotkey.shift = true;
+		overlayHotkey.code = 'D';
 	}
 }
 
 void AppSettings::_SetDefaultScaleModes() {
 	{
 		auto& lanczos = _scaleModes.emplace_back();
-		lanczos.Name = L"Lanczos";
-		auto& lanczosEffect = lanczos.Effects.emplace_back();
+		lanczos.name = L"Lanczos";
+		auto& lanczosEffect = lanczos.effects.emplace_back();
 		lanczosEffect.Name = L"Lanczos";
 		lanczosEffect.ScaleType = ScaleType::Fit;
 	}
 	{
 		auto& fsr = _scaleModes.emplace_back();
-		fsr.Name = L"FSR";
-		auto& easu = fsr.Effects.emplace_back();
+		fsr.name = L"FSR";
+		auto& easu = fsr.effects.emplace_back();
 		easu.Name = L"FSR_EASU";
 		easu.ScaleType = ScaleType::Fit;
-		auto& rcas = fsr.Effects.emplace_back();
+		auto& rcas = fsr.effects.emplace_back();
 		rcas.Name = L"FSR_RCAS";
 		rcas.Parameters[L"sharpness"] = 0.87f;
 	}

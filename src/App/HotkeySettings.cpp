@@ -8,39 +8,39 @@
 namespace winrt::Magpie::App {
 
 bool HotkeySettings::IsEmpty() const noexcept {
-	return !Win && !Ctrl && !Alt && !Shift && Code == 0;
+	return !win && !ctrl && !alt && !shift && code == 0;
 }
 
 std::vector<std::variant<uint32_t, std::wstring>> HotkeySettings::GetKeyList() const noexcept {
 	std::vector<std::variant<uint32_t, std::wstring>> shortcutList;
-	if (Win) {
+	if (win) {
 		shortcutList.emplace_back((uint32_t)VK_LWIN);
 	}
 
-	if (Ctrl) {
+	if (ctrl) {
 		shortcutList.emplace_back(L"Ctrl");
 	}
 
-	if (Alt) {
+	if (alt) {
 		shortcutList.emplace_back(L"Alt");
 	}
 
-	if (Shift) {
+	if (shift) {
 		shortcutList.emplace_back(L"Shift");
 	}
 
-	if (Code > 0) {
-		switch (Code) {
+	if (code > 0) {
+		switch (code) {
 		case VK_UP:
 		case VK_DOWN:
 		case VK_LEFT:
 		case VK_RIGHT:
 		// case VK_BACK:
 		// case VK_RETURN:
-			shortcutList.emplace_back(Code);
+			shortcutList.emplace_back(code);
 			break;
 		default:
-			std::wstring localKey = Win32Utils::GetKeyName(Code);
+			std::wstring localKey = Win32Utils::GetKeyName(code);
 			shortcutList.emplace_back(localKey);
 			break;
 		}
@@ -53,31 +53,31 @@ HotkeyError HotkeySettings::Check() const noexcept {
 	UINT modifiers = MOD_NOREPEAT;
 	UINT modCount = 0;
 
-	if (Win) {
+	if (win) {
 		++modCount;
 		modifiers |= MOD_WIN;
 	}
-	if (Ctrl) {
+	if (ctrl) {
 		++modCount;
 		modifiers |= MOD_CONTROL;
 	}
-	if (Alt) {
+	if (alt) {
 		++modCount;
 		modifiers |= MOD_ALT;
 	}
-	if (Shift) {
+	if (shift) {
 		++modCount;
 		modifiers |= MOD_SHIFT;
 	}
 
-	if (modCount == 0 || (modCount == 1 && Code == 0)) {
+	if (modCount == 0 || (modCount == 1 && code == 0)) {
 		// 必须存在 Modifier
 		// 如果只有一个 Modifier 则必须存在 Virtual Key
 		return HotkeyError::Invalid;
 	}
 
 	// 检测快捷键是否被占用
-	if (!RegisterHotKey(NULL, (int)HotkeyAction::COUNT_OR_NONE, modifiers, Code)) {
+	if (!RegisterHotKey(NULL, (int)HotkeyAction::COUNT_OR_NONE, modifiers, code)) {
 		return HotkeyError::Occupied;
 	}
 
@@ -86,19 +86,19 @@ HotkeyError HotkeySettings::Check() const noexcept {
 }
 
 void HotkeySettings::Clear() noexcept {
-	Win = false;
-	Ctrl = false;
-	Alt = false;
-	Shift = false;
-	Code = 0;
+	win = false;
+	ctrl = false;
+	alt = false;
+	shift = false;
+	code = 0;
 }
 
 bool HotkeySettings::FromString(std::wstring_view str) noexcept {
-	bool win = false;
-	bool ctrl = false;
-	bool alt = false;
-	bool shift = false;
-	uint32_t code = 0;
+	bool winT = false;
+	bool ctrlT = false;
+	bool altT = false;
+	bool shiftT = false;
+	uint32_t codeT = 0;
 
 	if (!str.empty()) {
 		std::vector<std::wstring_view> parts = StrUtils::Split(str, L'+');
@@ -110,71 +110,71 @@ bool HotkeySettings::FromString(std::wstring_view str) noexcept {
 			}
 
 			if (part == L"Win") {
-				if (win) {
+				if (winT) {
 					return false;
 				}
 
-				win = true;
+				winT = true;
 			} else if (part == L"Ctrl") {
-				if (ctrl) {
+				if (ctrlT) {
 					return false;
 				}
 
-				ctrl = true;
+				ctrlT = true;
 			} else if (part == L"Alt") {
-				if (alt) {
+				if (altT) {
 					return false;
 				}
 
-				alt = true;
+				altT = true;
 			} else if (part == L"Shift") {
-				if (shift) {
+				if (shiftT) {
 					return false;
 				}
 
-				shift = true;
+				shiftT = true;
 			} else {
-				if (code) {
+				if (codeT) {
 					return false;
 				}
 
-				code = HotkeyHelper::StringToKeyCode(part);
-				if (code <= 0) {
+				codeT = HotkeyHelper::StringToKeyCode(part);
+				if (codeT <= 0) {
 					return false;
 				}
 			}
 		}
 	}
 
-	Win = win;
-	Ctrl = ctrl;
-	Alt = alt;
-	Shift = shift;
-	Code = code;
+	win = winT;
+	ctrl = ctrlT;
+	alt = altT;
+	shift = shiftT;
+	code = codeT;
 	return true;
 }
 
 std::wstring HotkeySettings::ToString() const noexcept {
 	std::wstring output;
 
-	if (Win) {
+	if (win) {
 		output.append(L"Win+");
 	}
 
-	if (Ctrl) {
+	if (ctrl) {
 		output.append(L"Ctrl+");
 	}
 
-	if (Alt) {
+	if (alt) {
 		output.append(L"Alt+");
 	}
 
-	if (Shift) {
+	if (shift) {
 		output.append(L"Shift+");
 	}
 
-	if (Code > 0) {
-		output.append(Win32Utils::GetKeyName(Code));
+	if (code > 0) {
+		output.append(Win32Utils::GetKeyName(code));
 	} else if (output.size() > 1) {
 		output.pop_back();
 	}

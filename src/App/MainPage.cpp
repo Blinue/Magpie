@@ -47,7 +47,7 @@ MainPage::MainPage() {
 	IVector<IInspectable> navMenuItems = __super::RootNavigationView().MenuItems();
 	for (const ScalingProfile& profile : AppSettings::Get().ScalingProfiles()) {
 		MUXC::NavigationViewItem item;
-		item.Content(box_value(profile.Name));
+		item.Content(box_value(profile.name));
 		// 用于占位
 		item.Icon(FontIcon());
 		_LoadIcon(item, profile);
@@ -223,8 +223,8 @@ fire_and_forget MainPage::_LoadIcon(MUXC::NavigationViewItem const& item, const 
 	weak_ref<MUXC::NavigationViewItem> weakRef(item);
 
 	bool preferLightTheme = ActualTheme() == ElementTheme::Light;
-	bool isPackaged = profile.IsPackaged;
-	std::wstring path = profile.PathRule;
+	bool isPackaged = profile.isPackaged;
+	std::wstring path = profile.pathRule;
 	CoreDispatcher dispatcher = Dispatcher();
 	uint32_t dpi = (uint32_t)std::lroundf(_displayInformation.LogicalDpi());
 
@@ -295,7 +295,7 @@ void MainPage::_UpdateIcons(bool skipDesktop) {
 	const std::vector<ScalingProfile>& profiles = AppSettings::Get().ScalingProfiles();
 
 	for (uint32_t i = 0; i < profiles.size(); ++i) {
-		if (skipDesktop && !profiles[i].IsPackaged) {
+		if (skipDesktop && !profiles[i].isPackaged) {
 			continue;
 		}
 
@@ -306,7 +306,7 @@ void MainPage::_UpdateIcons(bool skipDesktop) {
 
 void MainPage::_ScalingProfileService_ProfileAdded(ScalingProfile& profile) {
 	MUXC::NavigationViewItem item;
-	item.Content(box_value(profile.Name));
+	item.Content(box_value(profile.name));
 	// 用于占位
 	item.Icon(FontIcon());
 	_LoadIcon(item, profile);
@@ -320,7 +320,7 @@ void MainPage::_ScalingProfileService_ProfileRenamed(uint32_t idx) {
 	RootNavigationView().MenuItems()
 		.GetAt(FIRST_PROFILE_ITEM_IDX + idx)
 		.as<MUXC::NavigationViewItem>()
-		.Content(box_value(AppSettings::Get().ScalingProfiles()[idx].Name));
+		.Content(box_value(AppSettings::Get().ScalingProfiles()[idx].name));
 }
 
 void MainPage::_ScalingProfileService_ProfileRemoved(uint32_t idx) {

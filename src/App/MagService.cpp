@@ -222,17 +222,17 @@ void MagService::_StartScale(HWND hWnd) {
 	const ScalingProfile& profile = ScalingProfileService::Get().GetProfileForWindow((HWND)hWnd);
 	
 	MagOptions options;
-	options.GraphicsAdapter = profile.GraphicsAdapter;
-	options.CaptureMode = profile.CaptureMode;
-	options.MultiMonitorUsage = profile.MultiMonitorUsage;
-	options.CursorInterpolationMode = profile.CursorInterpolationMode;
-	options.Flags = profile.Flags;
+	options.GraphicsAdapter = profile.graphicsAdapter;
+	options.CaptureMode = profile.captureMode;
+	options.MultiMonitorUsage = profile.multiMonitorUsage;
+	options.CursorInterpolationMode = profile.cursorInterpolationMode;
+	options.flags = profile.flags;
 
-	if (!profile.IsCroppingEnabled) {
-		options.Cropping = profile.Cropping;
+	if (!profile.isCroppingEnabled) {
+		options.Cropping = profile.cropping;
 	}
 
-	switch (profile.CursorScaling) {
+	switch (profile.cursorScaling) {
 	case CursorScaling::x0_5:
 		options.CursorScaling = 0.5;
 		break;
@@ -256,7 +256,7 @@ void MagService::_StartScale(HWND hWnd) {
 		options.CursorScaling = 0;
 		break;
 	case CursorScaling::Custom:
-		options.CursorScaling = profile.CustomCursorScaling;
+		options.CursorScaling = profile.customCursorScaling;
 		break;
 	default:
 		options.CursorScaling = 1.0;

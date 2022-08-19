@@ -126,22 +126,22 @@ LRESULT ShortcutControl::_LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM 
 		return CallNextHookEx(NULL, nCode, wParam, lParam);
 	case VK_LWIN:
 	case VK_RWIN:
-		_that->_pressedKeys.Win = isKeyDown;
+		_that->_pressedKeys.win = isKeyDown;
 		break;
 	case VK_CONTROL:
 	case VK_LCONTROL:
 	case VK_RCONTROL:
-		_that->_pressedKeys.Ctrl = isKeyDown;
+		_that->_pressedKeys.ctrl = isKeyDown;
 		break;
 	case VK_SHIFT:
 	case VK_LSHIFT:
 	case VK_RSHIFT:
-		_that->_pressedKeys.Shift = isKeyDown;
+		_that->_pressedKeys.shift = isKeyDown;
 		break;
 	case VK_MENU:
 	case VK_LMENU:
 	case VK_RMENU:
-		_that->_pressedKeys.Alt = isKeyDown;
+		_that->_pressedKeys.alt = isKeyDown;
 		break;
 	default:
 	{
@@ -152,9 +152,9 @@ LRESULT ShortcutControl::_LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM 
 
 		if (HotkeyHelper::IsValidKeyCode(code)) {
 			if (isKeyDown) {
-				_that->_pressedKeys.Code = code;
+				_that->_pressedKeys.code = code;
 			} else {
-				_that->_pressedKeys.Code = 0;
+				_that->_pressedKeys.code = 0;
 			}
 		} else {
 			// 不处理的键位
@@ -177,17 +177,17 @@ LRESULT ShortcutControl::_LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM 
 			isPrimaryButtonEnabled = true;
 		} else {
 			UINT modCount = 0;
-			if (previewHotkey.Code == 0) {
-				if (previewHotkey.Win) {
+			if (previewHotkey.code == 0) {
+				if (previewHotkey.win) {
 					++modCount;
 				}
-				if (previewHotkey.Alt) {
+				if (previewHotkey.alt) {
 					++modCount;
 				}
-				if (modCount <= 1 && previewHotkey.Ctrl) {
+				if (modCount <= 1 && previewHotkey.ctrl) {
 					++modCount;
 				}
-				if (modCount <= 1 && previewHotkey.Shift) {
+				if (modCount <= 1 && previewHotkey.shift) {
 					++modCount;
 				}
 			}

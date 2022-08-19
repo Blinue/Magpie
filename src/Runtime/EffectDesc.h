@@ -109,9 +109,12 @@ struct EffectPassDesc {
 };
 
 struct EffectFlags {
+	// 输入
 	static constexpr const uint32_t LastEffect = 0x1;
 	static constexpr const uint32_t InlineParams = 0x2;
 	static constexpr const uint32_t FP16 = 0x4;
+	// 输出
+	static constexpr const uint32_t UseDynamic = 0x8;
 };
 
 struct EffectDesc {
@@ -123,11 +126,9 @@ struct EffectDesc {
 	std::vector<EffectParameterDesc> params;
 	std::vector<EffectIntermediateTextureDesc> textures;
 	std::vector<EffectSamplerDesc> samplers;
-
 	std::vector<EffectPassDesc> passes;
 
 	uint32_t flags = 0;
-	bool isUseDynamic = false;
 };
 
 union EffectConstant32 {

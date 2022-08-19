@@ -31,13 +31,13 @@ static bool RealTestNewProfile(
 
 	if (isPackaged) {
 		for (const ScalingProfile& rule : profiles) {
-			if (rule.IsPackaged && rule.PathRule == pathOrAumid && rule.ClassNameRule == realClassName) {
+			if (rule.isPackaged && rule.pathRule == pathOrAumid && rule.classNameRule == realClassName) {
 				return false;
 			}
 		}
 	} else {
 		for (const ScalingProfile& rule : profiles) {
-			if (!rule.IsPackaged && rule.PathRule == pathOrAumid && rule.ClassNameRule == realClassName) {
+			if (!rule.isPackaged && rule.pathRule == pathOrAumid && rule.classNameRule == realClassName) {
 				return false;
 			}
 		}
@@ -76,10 +76,10 @@ bool ScalingProfileService::AddProfile(
 
 	profile.Copy(copyFrom < 0 ? DefaultScalingProfile() : profiles[copyFrom]);
 
-	profile.Name = name;
-	profile.IsPackaged = isPackaged;
-	profile.PathRule = pathOrAumid;
-	profile.ClassNameRule = realClassName;
+	profile.name = name;
+	profile.isPackaged = isPackaged;
+	profile.pathRule = pathOrAumid;
+	profile.classNameRule = realClassName;
 
 	_profileAddedEvent(std::ref(profile));
 
@@ -88,7 +88,7 @@ bool ScalingProfileService::AddProfile(
 
 void ScalingProfileService::RenameProfile(uint32_t profileIdx, std::wstring_view newName) {
 	assert(!newName.empty());
-	AppSettings::Get().ScalingProfiles()[profileIdx].Name = newName;
+	AppSettings::Get().ScalingProfiles()[profileIdx].name = newName;
 	_profileRenamedEvent(profileIdx);
 }
 
@@ -118,7 +118,7 @@ ScalingProfile& ScalingProfileService::GetProfileForWindow(HWND hWnd) {
 		// 打包的应用程序匹配 AUMID 和 类名
 		const std::wstring& aumid = appXReader.AUMID();
 		for (ScalingProfile& rule : AppSettings::Get().ScalingProfiles()) {
-			if (rule.IsPackaged && rule.PathRule == aumid && rule.ClassNameRule == realClassName) {
+			if (rule.isPackaged && rule.pathRule == aumid && rule.classNameRule == realClassName) {
 				return rule;
 			}
 		}
@@ -127,7 +127,7 @@ ScalingProfile& ScalingProfileService::GetProfileForWindow(HWND hWnd) {
 		std::wstring path = Win32Utils::GetPathOfWnd(hWnd);
 
 		for (ScalingProfile& rule : AppSettings::Get().ScalingProfiles()) {
-			if (!rule.IsPackaged && rule.PathRule == path && rule.ClassNameRule == realClassName) {
+			if (!rule.isPackaged && rule.pathRule == path && rule.classNameRule == realClassName) {
 				return rule;
 			}
 		}

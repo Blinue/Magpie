@@ -72,12 +72,12 @@ struct EffectOption {
 };
 
 #define DEFINE_MAGFLAG_ACCESSOR(Name) \
-	bool Name() const noexcept { return Flags & ::Magpie::Runtime::MagFlags::Name; } \
+	bool Name() const noexcept { return flags & ::Magpie::Runtime::MagFlags::Name; } \
 	void Name(bool value) noexcept { \
 		if (value) { \
-			Flags |= ::Magpie::Runtime::MagFlags::Name; \
+			flags |= ::Magpie::Runtime::MagFlags::Name; \
 		} else { \
-			Flags &= ~::Magpie::Runtime::MagFlags::Name; \
+			flags &= ~::Magpie::Runtime::MagFlags::Name; \
 		} \
 	}
 
@@ -98,7 +98,7 @@ struct MagOptions {
 	DEFINE_MAGFLAG_ACCESSOR(IsDisableDirectFlip)
 
 	Cropping Cropping{};
-	uint32_t Flags = MagFlags::IsVSync | MagFlags::IsAdjustCursorSpeed | MagFlags::IsDrawCursor;	// MagFlags
+	uint32_t flags = MagFlags::IsVSync | MagFlags::IsAdjustCursorSpeed | MagFlags::IsDrawCursor;	// MagFlags
 	uint32_t GraphicsAdapter = 0;
 	float CursorScaling = 1.0f;
 	CaptureMode CaptureMode = CaptureMode::GraphicsCapture;

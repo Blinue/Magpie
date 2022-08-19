@@ -4,6 +4,11 @@
 
 namespace winrt::Magpie::App {
 
+struct EffectDesc {
+	std::wstring Name;
+	uint32_t Flags;
+};
+
 class EffectsService {
 public:
 	static EffectsService& Get() {

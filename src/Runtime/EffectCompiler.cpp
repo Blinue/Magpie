@@ -315,7 +315,7 @@ UINT ResolveHeader(std::string_view block, EffectDesc& desc) {
 				return 1;
 			}
 
-			desc.isUseDynamic = true;
+			desc.flags |= EffectFlags::UseDynamic;
 		} else {
 			return 1;
 		}
@@ -1252,7 +1252,7 @@ float2 GetOutputPt() { return __outputPt; }
 float2 GetScale() { return __scale; }
 )");
 
-	if (desc.isUseDynamic) {
+	if (desc.flags & EffectFlags::UseDynamic) {
 		result.append(R"(uint GetFrameCount() { return __frameCount; }
 uint2 GetCursorPos() { return __cursorPos; }
 

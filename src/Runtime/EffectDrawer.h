@@ -24,7 +24,7 @@ public:
 	void Draw(UINT& idx, bool noUpdate = false);
 
 	bool IsUseDynamic() const noexcept {
-		return _desc.isUseDynamic;
+		return _desc.flags & EffectFlags::UseDynamic;
 	}
 
 	const EffectDesc& GetDesc() const noexcept {

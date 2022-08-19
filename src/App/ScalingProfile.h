@@ -19,15 +19,15 @@ enum class CursorScaling {
 // 默认规则 Name、PathRule、ClassNameRule 均为空
 struct ScalingProfile {
 	void Copy(const ScalingProfile& other) noexcept {
-		CursorScaling = other.CursorScaling;
-		CustomCursorScaling = other.CustomCursorScaling;
-		IsCroppingEnabled = other.IsCroppingEnabled;
-		Cropping = other.Cropping;
-		CaptureMode = other.CaptureMode;
-		GraphicsAdapter = other.GraphicsAdapter;
-		MultiMonitorUsage = other.MultiMonitorUsage;
-		CursorInterpolationMode = other.CursorInterpolationMode;
-		Flags = other.Flags;
+		cursorScaling = other.cursorScaling;
+		customCursorScaling = other.customCursorScaling;
+		isCroppingEnabled = other.isCroppingEnabled;
+		cropping = other.cropping;
+		captureMode = other.captureMode;
+		graphicsAdapter = other.graphicsAdapter;
+		multiMonitorUsage = other.multiMonitorUsage;
+		cursorInterpolationMode = other.cursorInterpolationMode;
+		flags = other.flags;
 	}
 
 	DEFINE_MAGFLAG_ACCESSOR(IsDisableWindowResizing)
@@ -40,24 +40,24 @@ struct ScalingProfile {
 	DEFINE_MAGFLAG_ACCESSOR(IsDrawCursor)
 	DEFINE_MAGFLAG_ACCESSOR(IsDisableDirectFlip)
 
-	std::wstring Name;
+	std::wstring name;
 
 	// 若为打包应用，PathRule 存储 AUMID
-	std::wstring PathRule;
-	std::wstring ClassNameRule;
-	bool IsPackaged = false;
+	std::wstring pathRule;
+	std::wstring classNameRule;
+	bool isPackaged = false;
 	
-	CursorScaling CursorScaling = CursorScaling::NoScaling;
-	float CustomCursorScaling = 1.0;
+	CursorScaling cursorScaling = CursorScaling::NoScaling;
+	float customCursorScaling = 1.0;
 
-	bool IsCroppingEnabled = false;
-	::Magpie::Runtime::Cropping Cropping{};
-	::Magpie::Runtime::CaptureMode CaptureMode = ::Magpie::Runtime::CaptureMode::GraphicsCapture;
-	uint32_t GraphicsAdapter = 0;
-	::Magpie::Runtime::MultiMonitorUsage MultiMonitorUsage = ::Magpie::Runtime::MultiMonitorUsage::Nearest;
-	::Magpie::Runtime::CursorInterpolationMode CursorInterpolationMode = ::Magpie::Runtime::CursorInterpolationMode::Nearest;
+	bool isCroppingEnabled = false;
+	::Magpie::Runtime::Cropping cropping{};
+	::Magpie::Runtime::CaptureMode captureMode = ::Magpie::Runtime::CaptureMode::GraphicsCapture;
+	uint32_t graphicsAdapter = 0;
+	::Magpie::Runtime::MultiMonitorUsage multiMonitorUsage = ::Magpie::Runtime::MultiMonitorUsage::Nearest;
+	::Magpie::Runtime::CursorInterpolationMode cursorInterpolationMode = ::Magpie::Runtime::CursorInterpolationMode::Nearest;
 
-	uint32_t Flags = ::Magpie::Runtime::MagFlags::IsVSync 
+	uint32_t flags = ::Magpie::Runtime::MagFlags::IsVSync 
 		| ::Magpie::Runtime::MagFlags::IsAdjustCursorSpeed
 		| ::Magpie::Runtime::MagFlags::IsDrawCursor;
 };
