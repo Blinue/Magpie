@@ -260,7 +260,7 @@ bool Renderer::_CheckSrcState() {
 }
 
 bool Renderer::_BuildEffects() {
-	const auto& effectsOption = MagApp::Get().GetOptions().Effects;
+	const auto& effectsOption = MagApp::Get().GetOptions().effects;
 	uint32_t effectCount = (int)effectsOption.size();
 	if (effectCount == 0) {
 		return false;
@@ -275,14 +275,14 @@ bool Renderer::_BuildEffects() {
 			uint32_t effectFlag = (id == effectCount - 1) ? EffectFlags::LastEffect : 0;
 			const EffectOption& option = effectsOption[id];
 
-			if (option.Flags & EffectOptionFlags::InlineParams) {
+			if (option.flags & EffectOptionFlags::InlineParams) {
 				effectFlag |= EffectFlags::InlineParams;
 			}
-			if (option.Flags & EffectOptionFlags::FP16) {
+			if (option.flags & EffectOptionFlags::FP16) {
 				effectFlag |= EffectFlags::FP16;
 			}
 
-			effectDescs[id].name = StrUtils::UTF16ToUTF8(option.Name);
+			effectDescs[id].name = StrUtils::UTF16ToUTF8(option.name);
 			effectDescs[id].flags = effectFlag;
 
 			uint32_t compileFlag = 0;
@@ -299,13 +299,13 @@ bool Renderer::_BuildEffects() {
 
 			bool success = true;
 			int duration = Utils::Measure([&]() {
-				success = !EffectCompiler::Compile(effectDescs[id], compileFlag, &option.Parameters);
+				success = !EffectCompiler::Compile(effectDescs[id], compileFlag, &option.parameters);
 			});
 
 			if (success) {
-				Logger::Get().Info(fmt::format("编译 {}.hlsl 用时 {} 毫秒", StrUtils::UTF16ToUTF8(option.Name), duration / 1000.0f));
+				Logger::Get().Info(fmt::format("编译 {}.hlsl 用时 {} 毫秒", StrUtils::UTF16ToUTF8(option.name), duration / 1000.0f));
 			} else {
-				Logger::Get().Error(StrUtils::Concat("编译 ", StrUtils::UTF16ToUTF8(option.Name), ".hlsl 失败"));
+				Logger::Get().Error(StrUtils::Concat("编译 ", StrUtils::UTF16ToUTF8(option.name), ".hlsl 失败"));
 				allSuccess = false;
 			}
 		}, effectCount);
@@ -331,7 +331,7 @@ bool Renderer::_BuildEffects() {
 			isLastEffect ? &_outputRect : nullptr,
 			isLastEffect ? &_virtualOutputRect : nullptr
 		)) {
-			Logger::Get().Error(fmt::format("初始化效果#{} ({}) 失败", i, StrUtils::UTF16ToUTF8(effectsOption[i].Name)));
+			Logger::Get().Error(fmt::format("初始化效果#{} ({}) 失败", i, StrUtils::UTF16ToUTF8(effectsOption[i].name)));
 			return false;
 		}
 	}
@@ -360,7 +360,7 @@ bool Renderer::_UpdateDynamicConstants() {
 		}
 		assert(pos && ci);
 
-		float cursorScaling = (float)MagApp::Get().GetOptions().CursorScaling;
+		float cursorScaling = (float)MagApp::Get().GetOptions().cursorScaling;
 		if (cursorScaling < 1e-5) {
 			SIZE srcFrameSize = Win32Utils::GetSizeOfRect(MagApp::Get().GetFrameSource().GetSrcFrameRect());
 			SIZE virtualOutputSize = Win32Utils::GetSizeOfRect(_virtualOutputRect);

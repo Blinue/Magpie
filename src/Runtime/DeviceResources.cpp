@@ -132,7 +132,7 @@ bool DeviceResources::Initialize() {
 	};
 	UINT nFeatureLevels = ARRAYSIZE(featureLevels);
 
-	_graphicsAdapter = ObtainGraphicsAdapter(_dxgiFactory.get(), MagApp::Get().GetOptions().GraphicsAdapter);
+	_graphicsAdapter = ObtainGraphicsAdapter(_dxgiFactory.get(), MagApp::Get().GetOptions().graphicsAdapter);
 	if (!_graphicsAdapter) {
 		Logger::Get().Error("找不到可用的图形适配器");
 		return false;

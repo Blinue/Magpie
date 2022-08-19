@@ -297,7 +297,7 @@ bool MagApp::_CreateHostWnd() {
 		return false;
 	}
 
-	if (!CalcHostWndRect(_hwndSrc, _options.MultiMonitorUsage, _hostWndRect)) {
+	if (!CalcHostWndRect(_hwndSrc, _options.multiMonitorUsage, _hostWndRect)) {
 		Logger::Get().Error("CalcHostWndRect 失败");
 		return false;
 	}
@@ -334,7 +334,7 @@ bool MagApp::_CreateHostWnd() {
 }
 
 bool MagApp::_InitFrameSource() {
-	switch (_options.CaptureMode) {
+	switch (_options.captureMode) {
 	case CaptureMode::GraphicsCapture:
 		_frameSource.reset(new GraphicsCaptureFrameSource());
 		break;

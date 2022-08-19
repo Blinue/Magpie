@@ -222,44 +222,44 @@ void MagService::_StartScale(HWND hWnd) {
 	const ScalingProfile& profile = ScalingProfileService::Get().GetProfileForWindow((HWND)hWnd);
 	
 	MagOptions options;
-	options.GraphicsAdapter = profile.graphicsAdapter;
-	options.CaptureMode = profile.captureMode;
-	options.MultiMonitorUsage = profile.multiMonitorUsage;
-	options.CursorInterpolationMode = profile.cursorInterpolationMode;
+	options.graphicsAdapter = profile.graphicsAdapter;
+	options.captureMode = profile.captureMode;
+	options.multiMonitorUsage = profile.multiMonitorUsage;
+	options.cursorInterpolationMode = profile.cursorInterpolationMode;
 	options.flags = profile.flags;
 
 	if (!profile.isCroppingEnabled) {
-		options.Cropping = profile.cropping;
+		options.cropping = profile.cropping;
 	}
 
 	switch (profile.cursorScaling) {
 	case CursorScaling::x0_5:
-		options.CursorScaling = 0.5;
+		options.cursorScaling = 0.5;
 		break;
 	case CursorScaling::x0_75:
-		options.CursorScaling = 0.75;
+		options.cursorScaling = 0.75;
 		break;
 	case CursorScaling::NoScaling:
-		options.CursorScaling = 1.0;
+		options.cursorScaling = 1.0;
 		break;
 	case CursorScaling::x1_25:
-		options.CursorScaling = 1.25;
+		options.cursorScaling = 1.25;
 		break;
 	case CursorScaling::x1_5:
-		options.CursorScaling = 1.5;
+		options.cursorScaling = 1.5;
 		break;
 	case CursorScaling::x2:
-		options.CursorScaling = 2.0;
+		options.cursorScaling = 2.0;
 		break;
 	case CursorScaling::Source:
 		// 0 或负值表示和源窗口缩放比例相同
-		options.CursorScaling = 0;
+		options.cursorScaling = 0;
 		break;
 	case CursorScaling::Custom:
-		options.CursorScaling = profile.customCursorScaling;
+		options.cursorScaling = profile.customCursorScaling;
 		break;
 	default:
-		options.CursorScaling = 1.0;
+		options.cursorScaling = 1.0;
 		break;
 	}
 
@@ -271,12 +271,12 @@ void MagService::_StartScale(HWND hWnd) {
 	options.IsWarningsAreErrors(settings.IsWarningsAreErrors());
 	options.IsSimulateExclusiveFullscreen(settings.IsSimulateExclusiveFullscreen());
 
-	EffectOption& easu = options.Effects.emplace_back();
-	easu.Name = L"FSR_EASU";
-	easu.ScaleType = ScaleType::Fit;
-	EffectOption& rcas = options.Effects.emplace_back();
-	rcas.Name = L"FSR_RCAS";
-	rcas.Parameters[L"sharpness"] = 0.9;
+	EffectOption& easu = options.effects.emplace_back();
+	easu.name = L"FSR_EASU";
+	easu.scaleType = ScaleType::Fit;
+	EffectOption& rcas = options.effects.emplace_back();
+	rcas.name = L"FSR_RCAS";
+	rcas.parameters[L"sharpness"] = 0.9;
 
 	_magRuntime.Run(hWnd, options);
 }

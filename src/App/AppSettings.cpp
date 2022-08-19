@@ -102,11 +102,11 @@ static void WriteScaleMode(rapidjson::PrettyWriter<rapidjson::StringBuffer>& wri
 		for (const auto& effect : scaleMode.effects) {
 			writer.StartObject();
 			writer.Key("name");
-			writer.String(StrUtils::UTF16ToUTF8(effect.Name).c_str());
-			if (!effect.Parameters.empty()) {
+			writer.String(StrUtils::UTF16ToUTF8(effect.name).c_str());
+			if (!effect.parameters.empty()) {
 				writer.Key("parameters");
 				writer.StartObject();
-				for (const auto& [name, value] : effect.Parameters) {
+				for (const auto& [name, value] : effect.parameters) {
 					writer.Key(StrUtils::UTF16ToUTF8(name).c_str());
 					writer.Double(value);
 				}
@@ -115,13 +115,13 @@ static void WriteScaleMode(rapidjson::PrettyWriter<rapidjson::StringBuffer>& wri
 
 			if (effect.HasScale()) {
 				writer.Key("scaleType");
-				writer.Uint((uint32_t)effect.ScaleType);
+				writer.Uint((uint32_t)effect.scaleType);
 				writer.Key("scale");
 				writer.StartObject();
 				writer.Key("x");
-				writer.Double(effect.Scale.first);
+				writer.Double(effect.scale.first);
 				writer.Key("y");
-				writer.Double(effect.Scale.second);
+				writer.Double(effect.scale.second);
 				writer.EndObject();
 			}
 
@@ -272,7 +272,7 @@ static bool LoadScaleMode(const rapidjson::GenericObject<false, rapidjson::Value
 			auto elemObj = effectsArray[i].GetObj();
 			EffectOption& effect = scaleMode.effects[i];
 
-			if (!LoadStringSettingItem(elemObj, "name", effect.Name)) {
+			if (!LoadStringSettingItem(elemObj, "name", effect.name)) {
 				return false;
 			}
 
@@ -289,12 +289,12 @@ static bool LoadScaleMode(const rapidjson::GenericObject<false, rapidjson::Value
 						if (!param.value.IsNumber()) {
 							return false;
 						}
-						effect.Parameters[name] = param.value.GetFloat();
+						effect.parameters[name] = param.value.GetFloat();
 					}
 				}
 			}
 
-			if (!LoadUIntSettingItem(elemObj, "scaleType", (uint32_t&)effect.ScaleType)) {
+			if (!LoadUIntSettingItem(elemObj, "scaleType", (uint32_t&)effect.scaleType)) {
 				return false;
 			}
 
@@ -307,15 +307,15 @@ static bool LoadScaleMode(const rapidjson::GenericObject<false, rapidjson::Value
 
 					auto scaleObj = scaleNode->value.GetObj();
 
-					if (!LoadFloatSettingItem(scaleObj, "x", effect.Scale.first, true)
-						|| !LoadFloatSettingItem(scaleObj, "y", effect.Scale.second, true)
+					if (!LoadFloatSettingItem(scaleObj, "x", effect.scale.first, true)
+						|| !LoadFloatSettingItem(scaleObj, "y", effect.scale.second, true)
 					) {
 						return false;
 					}
 				}
 			}
 
-			if (!LoadUIntSettingItem(elemObj, "flags", effect.Flags)) {
+			if (!LoadUIntSettingItem(elemObj, "flags", effect.flags)) {
 				return false;
 			}
 		}
@@ -722,18 +722,18 @@ void AppSettings::_SetDefaultScaleModes() {
 		auto& lanczos = _scaleModes.emplace_back();
 		lanczos.name = L"Lanczos";
 		auto& lanczosEffect = lanczos.effects.emplace_back();
-		lanczosEffect.Name = L"Lanczos";
-		lanczosEffect.ScaleType = ScaleType::Fit;
+		lanczosEffect.name = L"Lanczos";
+		lanczosEffect.scaleType = ScaleType::Fit;
 	}
 	{
 		auto& fsr = _scaleModes.emplace_back();
 		fsr.name = L"FSR";
 		auto& easu = fsr.effects.emplace_back();
-		easu.Name = L"FSR_EASU";
-		easu.ScaleType = ScaleType::Fit;
+		easu.name = L"FSR_EASU";
+		easu.scaleType = ScaleType::Fit;
 		auto& rcas = fsr.effects.emplace_back();
-		rcas.Name = L"FSR_RCAS";
-		rcas.Parameters[L"sharpness"] = 0.87f;
+		rcas.name = L"FSR_RCAS";
+		rcas.parameters[L"sharpness"] = 0.87f;
 	}
 }
 

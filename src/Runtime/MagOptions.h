@@ -59,15 +59,15 @@ struct EffectOptionFlags {
 };
 
 struct EffectOption {
-	std::wstring Name;
-	std::unordered_map<std::wstring, float> Parameters;
-	ScaleType ScaleType = ScaleType::Normal;
-	std::pair<float, float> Scale = { 1.0f,1.0f };
-	uint32_t Flags = 0;	// EffectOptionFlags
+	std::wstring name;
+	std::unordered_map<std::wstring, float> parameters;
+	ScaleType scaleType = ScaleType::Normal;
+	std::pair<float, float> scale = { 1.0f,1.0f };
+	uint32_t flags = 0;	// EffectOptionFlags
 
 	bool HasScale() const noexcept {
-		return ScaleType != ScaleType::Normal ||
-			std::abs(Scale.first - 1.0f) > 1e-5 || std::abs(Scale.second - 1.0f) > 1e-5;
+		return scaleType != ScaleType::Normal ||
+			std::abs(scale.first - 1.0f) > 1e-5 || std::abs(scale.second - 1.0f) > 1e-5;
 	}
 };
 
@@ -97,15 +97,15 @@ struct MagOptions {
 	DEFINE_MAGFLAG_ACCESSOR(IsDrawCursor)
 	DEFINE_MAGFLAG_ACCESSOR(IsDisableDirectFlip)
 
-	Cropping Cropping{};
+	Cropping cropping{};
 	uint32_t flags = MagFlags::IsVSync | MagFlags::IsAdjustCursorSpeed | MagFlags::IsDrawCursor;	// MagFlags
-	uint32_t GraphicsAdapter = 0;
-	float CursorScaling = 1.0f;
-	CaptureMode CaptureMode = CaptureMode::GraphicsCapture;
-	MultiMonitorUsage MultiMonitorUsage = MultiMonitorUsage::Nearest;
-	CursorInterpolationMode CursorInterpolationMode = CursorInterpolationMode::Nearest;
+	uint32_t graphicsAdapter = 0;
+	float cursorScaling = 1.0f;
+	CaptureMode captureMode = CaptureMode::GraphicsCapture;
+	MultiMonitorUsage multiMonitorUsage = MultiMonitorUsage::Nearest;
+	CursorInterpolationMode cursorInterpolationMode = CursorInterpolationMode::Nearest;
 
-	std::vector<EffectOption> Effects;
+	std::vector<EffectOption> effects;
 };
 
 }

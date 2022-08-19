@@ -51,24 +51,24 @@ bool EffectDrawer::Initialize(
 	SIZE outputSize{};
 
 	if (desc.outSizeExpr.first.empty()) {
-		switch (options.ScaleType) {
+		switch (options.scaleType) {
 		case ScaleType::Normal:
 		{
-			outputSize.cx = std::lroundf(inputSize.cx * options.Scale.first);
-			outputSize.cy = std::lroundf(inputSize.cy * options.Scale.second);
+			outputSize.cx = std::lroundf(inputSize.cx * options.scale.first);
+			outputSize.cy = std::lroundf(inputSize.cy * options.scale.second);
 			break;
 		}
 		case ScaleType::Fit:
 		{
 			float fillScale = std::min(float(hostSize.cx) / inputSize.cx, float(hostSize.cy) / inputSize.cy);
-			outputSize.cx = std::lroundf(inputSize.cx * fillScale * options.Scale.first);
-			outputSize.cy = std::lroundf(inputSize.cy * fillScale * options.Scale.second);
+			outputSize.cx = std::lroundf(inputSize.cx * fillScale * options.scale.first);
+			outputSize.cy = std::lroundf(inputSize.cy * fillScale * options.scale.second);
 			break;
 		}
 		case ScaleType::Absolute:
 		{
-			outputSize.cx = std::lroundf(options.Scale.first);
-			outputSize.cy = std::lroundf(options.Scale.second);
+			outputSize.cx = std::lroundf(options.scale.first);
+			outputSize.cy = std::lroundf(options.scale.second);
 			break;
 		}
 		case ScaleType::Fill:
@@ -246,7 +246,7 @@ bool EffectDrawer::Initialize(
 		_srvs.back().push_back(nullptr);
 
 		if (!dr.GetSampler(
-			MagApp::Get().GetOptions().CursorInterpolationMode == CursorInterpolationMode::Nearest ? D3D11_FILTER_MIN_MAG_MIP_POINT : D3D11_FILTER_MIN_MAG_MIP_LINEAR,
+			MagApp::Get().GetOptions().cursorInterpolationMode == CursorInterpolationMode::Nearest ? D3D11_FILTER_MIN_MAG_MIP_POINT : D3D11_FILTER_MIN_MAG_MIP_LINEAR,
 			D3D11_TEXTURE_ADDRESS_CLAMP,
 			&_samplers.emplace_back(nullptr)
 			)) {
@@ -345,12 +345,12 @@ bool EffectDrawer::Initialize(
 	if (!isInlineParams) {
 		for (UINT i = 0; i < desc.params.size(); ++i) {
 			const auto& paramDesc = desc.params[i];
-			auto it = options.Parameters.find(StrUtils::UTF8ToUTF16(paramDesc.name));
+			auto it = options.parameters.find(StrUtils::UTF8ToUTF16(paramDesc.name));
 
 			if (paramDesc.type == EffectConstantType::Float) {
 				float value;
 
-				if (it == options.Parameters.end()) {
+				if (it == options.parameters.end()) {
 					value = std::get<float>(paramDesc.defaultValue);
 				} else {
 					value = it->second;
@@ -367,7 +367,7 @@ bool EffectDrawer::Initialize(
 			} else {
 				int value;
 
-				if (it == options.Parameters.end()) {
+				if (it == options.parameters.end()) {
 					value = std::get<int>(paramDesc.defaultValue);
 				} else {
 					value = (int)std::lroundf(it->second);

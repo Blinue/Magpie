@@ -285,7 +285,7 @@ bool FrameSourceBase::_UpdateSrcFrameRect() {
 		}
 	}
 
-	const Cropping& cropping = MagApp::Get().GetOptions().Cropping;
+	const Cropping& cropping = MagApp::Get().GetOptions().cropping;
 	_srcFrameRect = {
 		std::lround(_srcFrameRect.left + cropping.Left),
 		std::lround(_srcFrameRect.top + cropping.Top),
