@@ -38,8 +38,8 @@ bool EffectDrawer::Initialize(
 	}
 
 	const SIZE hostSize = Win32Utils::GetSizeOfRect(MagApp::Get().GetHostWndRect());;
-	bool isLastEffect = desc.flags & EFFECT_FLAG_LAST_EFFECT;
-	bool isInlineParams = desc.flags & EFFECT_FLAG_INLINE_PARAMETERS;
+	bool isLastEffect = desc.flags & EffectFlags::LastEffect;
+	bool isInlineParams = desc.flags & EffectFlags::InlineParams;
 
 	DeviceResources& dr = MagApp::Get().GetDeviceResources();
 	auto d3dDevice = dr.GetD3DDevice();
@@ -429,7 +429,7 @@ void EffectDrawer::_DrawPass(UINT i) {
 	auto d3dDC = MagApp::Get().GetDeviceResources().GetD3DDC();
 	d3dDC->CSSetShader(_shaders[i].get(), nullptr, 0);
 
-	if ((_desc.flags & EFFECT_FLAG_LAST_EFFECT) && i == _dispatches.size() - 1) {
+	if ((_desc.flags & EffectFlags::LastEffect) && i == _dispatches.size() - 1) {
 		// 最后一个效果的最后一个通道负责渲染光标
 
 		// 光标纹理

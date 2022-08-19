@@ -94,6 +94,7 @@
     <ClInclude Include="DesktopDuplicationFrameSource.h" />
     <ClInclude Include="DeviceResources.h" />
     <ClInclude Include="DwmSharedSurfaceFrameSource.h" />
+    <ClInclude Include="DXUtils.h" />
     <ClInclude Include="EffectCacheManager.h" />
     <ClInclude Include="EffectCompiler.h" />
     <ClInclude Include="EffectDesc.h" />
@@ -121,6 +122,7 @@
     <ClCompile Include="DeviceResources.cpp" />
     <ClCompile Include="DllMain.cpp" />
     <ClCompile Include="DwmSharedSurfaceFrameSource.cpp" />
+    <ClCompile Include="DXUtils.cpp" />
     <ClCompile Include="EffectCacheManager.cpp" />
     <ClCompile Include="EffectCompiler.cpp" />
     <ClCompile Include="EffectDrawer.cpp" />

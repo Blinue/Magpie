@@ -272,22 +272,34 @@ bool Renderer::_BuildEffects() {
 
 	int duration = Utils::Measure([&]() {
 		Win32Utils::RunParallel([&](uint32_t id) {
-			uint32_t effectFlag = (id == effectCount - 1) ? EFFECT_FLAG_LAST_EFFECT : 0;
+			uint32_t effectFlag = (id == effectCount - 1) ? EffectFlags::LastEffect : 0;
 			const EffectOption& option = effectsOption[id];
 
 			if (option.Flags & EffectOptionFlags::InlineParams) {
-				effectFlag |= EFFECT_FLAG_INLINE_PARAMETERS;
+				effectFlag |= EffectFlags::InlineParams;
 			}
 			if (option.Flags & EffectOptionFlags::FP16) {
-				effectFlag |= EFFECT_FLAG_FP16;
+				effectFlag |= EffectFlags::FP16;
 			}
 
 			effectDescs[id].name = StrUtils::UTF16ToUTF8(option.Name);
 			effectDescs[id].flags = effectFlag;
 
+			uint32_t compileFlag = 0;
+			MagOptions& options = MagApp::Get().GetOptions();
+			if (options.IsDisableEffectCache()) {
+				compileFlag |= EffectCompilerFlags::NoCache;
+			}
+			if (options.IsSaveEffectSources()) {
+				compileFlag |= EffectCompilerFlags::SaveSources;
+			}
+			if (options.IsWarningsAreErrors()) {
+				compileFlag |= EffectCompilerFlags::WarningsAreErrors;
+			}
+
 			bool success = true;
 			int duration = Utils::Measure([&]() {
-				success = !EffectCompiler::Compile(effectDescs[id], &option.Parameters);
+				success = !EffectCompiler::Compile(effectDescs[id], compileFlag, &option.Parameters);
 			});
 
 			if (success) {

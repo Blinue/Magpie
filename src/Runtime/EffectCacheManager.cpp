@@ -6,14 +6,12 @@
 #include <yas/types/std/pair.hpp>
 #include <yas/types/std/string.hpp>
 #include <yas/types/std/vector.hpp>
-#include "EffectCompiler.h"
 #include <regex>
-#include "MagApp.h"
-#include "DeviceResources.h"
 #include "StrUtils.h"
 #include "Logger.h"
 #include "CommonSharedConstants.h"
 #include <d3dcompiler.h>
+#include "Utils.h"
 
 
 template<typename Archive>

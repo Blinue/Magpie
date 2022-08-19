@@ -100,18 +100,18 @@ struct EffectParameterDesc {
 
 struct EffectPassDesc {
 	winrt::com_ptr<ID3DBlob> cso;
-	std::vector<UINT> inputs;
-	std::vector<UINT> outputs;
-	std::array<UINT, 3> numThreads{};
-	std::pair<UINT, UINT> blockSize{};
+	std::vector<uint32_t> inputs;
+	std::vector<uint32_t> outputs;
+	std::array<uint32_t, 3> numThreads{};
+	std::pair<uint32_t, uint32_t> blockSize{};
 	std::string desc;
 	bool isPSStyle = false;
 };
 
-enum EffectFlags {
-	EFFECT_FLAG_LAST_EFFECT = 0x1,
-	EFFECT_FLAG_INLINE_PARAMETERS = 0x2,
-	EFFECT_FLAG_FP16 = 0x4
+struct EffectFlags {
+	static constexpr const uint32_t LastEffect = 0x1;
+	static constexpr const uint32_t InlineParams = 0x2;
+	static constexpr const uint32_t FP16 = 0x4;
 };
 
 struct EffectDesc {
@@ -126,7 +126,7 @@ struct EffectDesc {
 
 	std::vector<EffectPassDesc> passes;
 
-	UINT flags = 0;
+	uint32_t flags = 0;
 	bool isUseDynamic = false;
 };
 

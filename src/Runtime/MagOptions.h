@@ -63,7 +63,7 @@ struct EffectOption {
 	std::unordered_map<std::wstring, float> Parameters;
 	ScaleType ScaleType = ScaleType::Normal;
 	std::pair<float, float> Scale = { 1.0f,1.0f };
-	uint32_t Flags = 0;
+	uint32_t Flags = 0;	// EffectOptionFlags
 
 	bool HasScale() const noexcept {
 		return ScaleType != ScaleType::Normal ||
@@ -98,7 +98,7 @@ struct MagOptions {
 	DEFINE_MAGFLAG_ACCESSOR(IsDisableDirectFlip)
 
 	Cropping Cropping{};
-	uint32_t Flags = MagFlags::IsVSync | MagFlags::IsAdjustCursorSpeed | MagFlags::IsDrawCursor;
+	uint32_t Flags = MagFlags::IsVSync | MagFlags::IsAdjustCursorSpeed | MagFlags::IsDrawCursor;	// MagFlags
 	uint32_t GraphicsAdapter = 0;
 	float CursorScaling = 1.0f;
 	CaptureMode CaptureMode = CaptureMode::GraphicsCapture;

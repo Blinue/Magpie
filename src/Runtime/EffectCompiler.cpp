@@ -6,12 +6,10 @@
 #include <charconv>
 #include "EffectCacheManager.h"
 #include "StrUtils.h"
-#include "MagApp.h"
-#include "DeviceResources.h"
 #include "Logger.h"
 #include "CommonSharedConstants.h"
 #include <bit>	// std::has_single_bit
-#include <d3dcompiler.h>
+#include "DXUtils.h"
 
 
 namespace Magpie::Runtime {
@@ -1040,9 +1038,9 @@ UINT GeneratePassSource(
 	std::string& result,
 	std::vector<std::pair<std::string, std::string>>& macros
 ) {
-	bool isLastEffect = desc.flags & EFFECT_FLAG_LAST_EFFECT;
+	bool isLastEffect = desc.flags & EffectFlags::LastEffect;
 	bool isLastPass = passIdx == desc.passes.size();
-	bool isInlineParams = desc.flags & EFFECT_FLAG_INLINE_PARAMETERS;
+	bool isInlineParams = desc.flags & EffectFlags::InlineParams;
 
 	const EffectPassDesc& passDesc = desc.passes[(size_t)passIdx - 1];
 
@@ -1141,7 +1139,7 @@ UINT GeneratePassSource(
 
 	// 用于在 FP32 和 FP16 间切换的宏
 	static const char* numbers[] = { "1","2","3","4" };
-	if (desc.flags & EFFECT_FLAG_FP16) {
+	if (desc.flags & EffectFlags::FP16) {
 		macros.emplace_back("MP_FP16", "");
 		macros.emplace_back("MF", "min16float");
 
@@ -1421,6 +1419,7 @@ void __M(uint3 tid : SV_GroupThreadID, uint3 gid : SV_GroupID) {{
 
 UINT CompilePasses(
 	EffectDesc& desc,
+	uint32_t flags,
 	const std::vector<std::string_view>& commonBlocks,
 	const std::vector<std::string_view>& passBlocks,
 	const std::unordered_map<std::wstring, float>* inlineParams
@@ -1447,7 +1446,7 @@ cbuffer __CB2 : register(b1) {
 	int2 __viewport;
 )";
 
-	if (desc.flags & EFFECT_FLAG_LAST_EFFECT) {
+	if (desc.flags & EffectFlags::LastEffect) {
 		// 指定输出到屏幕的位置
 		cbHlsl.append("\tint4 __offset;\n");
 	}
@@ -1460,7 +1459,7 @@ cbuffer __CB2 : register(b1) {
 		}
 	}
 
-	if (!(desc.flags & EFFECT_FLAG_INLINE_PARAMETERS)) {
+	if (!(desc.flags & EffectFlags::InlineParams)) {
 		for (const auto& d : desc.params) {
 			cbHlsl.append("\t")
 				.append(d.type == EffectConstantType::Int ? "int " : "float ")
@@ -1471,7 +1470,7 @@ cbuffer __CB2 : register(b1) {
 
 	cbHlsl.append("};\n\n");
 
-	if (MagApp::Get().GetOptions().IsSaveEffectSources() && !Win32Utils::DirExists(CommonSharedConstants::SOURCES_DIR)) {
+	if ((flags & EffectCompilerFlags::SaveSources) && !Win32Utils::DirExists(CommonSharedConstants::SOURCES_DIR)) {
 		if (!CreateDirectory(CommonSharedConstants::SOURCES_DIR, nullptr)) {
 			Logger::Get().Win32Error("创建 sources 文件夹失败");
 		}
@@ -1486,7 +1485,7 @@ cbuffer __CB2 : register(b1) {
 			return;
 		}
 
-		if (MagApp::Get().GetOptions().IsSaveEffectSources()) {
+		if (flags & EffectCompilerFlags::SaveSources) {
 			std::wstring fileName = desc.passes.size() == 1
 				? fmt::format(L"{}{}.hlsl", CommonSharedConstants::SOURCES_DIR, StrUtils::UTF8ToUTF16(desc.name))
 				: fmt::format(L"{}{}_Pass{}.hlsl", CommonSharedConstants::SOURCES_DIR, StrUtils::UTF8ToUTF16(desc.name), id + 1);
@@ -1498,8 +1497,8 @@ cbuffer __CB2 : register(b1) {
 
 		static PassInclude passInclude;
 
-		if (!MagApp::Get().GetDeviceResources().CompileShader(source, "__M", desc.passes[id].cso.put(),
-			fmt::format("{}_Pass{}.hlsl", desc.name, id + 1).c_str(), &passInclude, macros)
+		if (!DXUtils::CompileComputeShader(source, "__M", desc.passes[id].cso.put(),
+			fmt::format("{}_Pass{}.hlsl", desc.name, id + 1).c_str(), &passInclude, macros, flags & EffectCompilerFlags::WarningsAreErrors)
 		) {
 			Logger::Get().Error(fmt::format("编译 Pass{} 失败", id + 1));
 		}
@@ -1518,6 +1517,7 @@ cbuffer __CB2 : register(b1) {
 
 uint32_t EffectCompiler::Compile(
 	EffectDesc& desc,
+	uint32_t flags,
 	const std::unordered_map<std::wstring, float>* inlineParams
 ) {
 	std::wstring effectName = StrUtils::UTF8ToUTF16(desc.name);
@@ -1541,8 +1541,8 @@ uint32_t EffectCompiler::Compile(
 	}
 
 	std::wstring hash;
-	if (!MagApp::Get().GetOptions().IsDisableEffectCache()) {
-		hash = EffectCacheManager::GetHash(source, desc.flags & EFFECT_FLAG_INLINE_PARAMETERS ? inlineParams : nullptr);
+	if (!(flags & EffectCompilerFlags::NoCache)) {
+		hash = EffectCacheManager::GetHash(source, desc.flags & EffectFlags::InlineParams ? inlineParams : nullptr);
 		if (!hash.empty()) {
 			if (EffectCacheManager::Get().Load(effectName, hash, desc)) {
 				// 已从缓存中读取
@@ -1665,6 +1665,7 @@ uint32_t EffectCompiler::Compile(
 		}
 	}
 
+	desc.textures.clear();
 	// 纹理第一个元素为 INPUT
 	{
 		auto& texDesc = desc.textures.emplace_back();
@@ -1674,7 +1675,6 @@ uint32_t EffectCompiler::Compile(
 		texDesc.sizeExpr.second = "INPUT_HEIGHT";
 	}
 
-	desc.textures.clear();
 	for (size_t i = 0; i < textureBlocks.size(); ++i) {
 		if (ResolveTexture(textureBlocks[i], desc)) {
 			Logger::Get().Error(fmt::format("解析 Texture#{} 块失败", i + 1));
@@ -1729,12 +1729,12 @@ uint32_t EffectCompiler::Compile(
 		return 1;
 	}
 
-	if (CompilePasses(desc, commonBlocks, passBlocks, inlineParams)) {
+	if (CompilePasses(desc, flags, commonBlocks, passBlocks, inlineParams)) {
 		Logger::Get().Error("编译着色器失败");
 		return 1;
 	}
 
-	if (!MagApp::Get().GetOptions().IsDisableEffectCache() && !hash.empty()) {
+	if (!(flags & EffectCompilerFlags::NoCache) && !hash.empty()) {
 		EffectCacheManager::Get().Save(effectName, hash, desc);
 	}
 

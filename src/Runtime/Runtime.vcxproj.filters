@@ -69,6 +69,7 @@
     <ClInclude Include="DDSLoderHelpers.h">
       <Filter>TextureLoader</Filter>
     </ClInclude>
+    <ClInclude Include="DXUtils.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MagRuntime.cpp" />
@@ -111,6 +112,7 @@
     <ClCompile Include="TextureLoader.cpp">
       <Filter>TextureLoader</Filter>
     </ClCompile>
+    <ClCompile Include="DXUtils.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
