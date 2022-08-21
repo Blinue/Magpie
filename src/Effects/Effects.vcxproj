@@ -39,6 +39,7 @@
   <ItemDefinitionGroup>
     <CopyFileToFolders>
       <DestinationFolders>$(OutDir)effects</DestinationFolders>
+      <DestinationFileName>%(RelativeDir)%(Filename)%(Extension)</DestinationFileName>
     </CopyFileToFolders>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -102,12 +103,6 @@
     <CopyFileToFolders Include="FSRCNNX_LineArt.hlsl">
       <FileType>Document</FileType>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="FSR_EASU.hlsl">
-      <FileType>Document</FileType>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="FSR_RCAS.hlsl">
-      <FileType>Document</FileType>
-    </CopyFileToFolders>
     <CopyFileToFolders Include="FXAA_High.hlsl">
       <FileType>Document</FileType>
     </CopyFileToFolders>
@@ -141,18 +136,6 @@
     <CopyFileToFolders Include="SharpBilinear.hlsl">
       <FileType>Document</FileType>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="SMAA_High.hlsl">
-      <FileType>Document</FileType>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="SMAA_Low.hlsl">
-      <FileType>Document</FileType>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="SMAA_Medium.hlsl">
-      <FileType>Document</FileType>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="SMAA_Ultra.hlsl">
-      <FileType>Document</FileType>
-    </CopyFileToFolders>
     <CopyFileToFolders Include="SSimDownscaler.hlsl">
       <FileType>Document</FileType>
     </CopyFileToFolders>
@@ -179,15 +162,10 @@
     <CopyFileToFolders Include="FXAA.hlsli">
       <FileType>Document</FileType>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="SMAA.hlsli">
-      <FileType>Document</FileType>
-    </CopyFileToFolders>
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="RAVU_Lite_R3_Weights.dds" />
     <CopyFileToFolders Include="RAVU_Zoom_R3_Weights.dds" />
-    <CopyFileToFolders Include="SMAA_AreaTex.dds" />
-    <CopyFileToFolders Include="SMAA_SearchTex.dds" />
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="NIS.hlsl">
@@ -291,6 +269,37 @@
     <CopyFileToFolders Include="ImageAdjustment.hlsl">
       <FileType>Document</FileType>
     </CopyFileToFolders>
+  </ItemGroup>
+  <ItemGroup>
+    <CopyFileToFolders Include="SMAA\SMAA.hlsli">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+  </ItemGroup>
+  <ItemGroup>
+    <CopyFileToFolders Include="SMAA\SMAA_High.hlsl">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="SMAA\SMAA_Low.hlsl">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="SMAA\SMAA_Medium.hlsl">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="SMAA\SMAA_Ultra.hlsl">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+  </ItemGroup>
+  <ItemGroup>
+    <CopyFileToFolders Include="FSR\FSR_EASU.hlsl">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="FSR\FSR_RCAS.hlsl">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+  </ItemGroup>
+  <ItemGroup>
+    <CopyFileToFolders Include="SMAA\AreaTex.dds" />
+    <CopyFileToFolders Include="SMAA\SearchTex.dds" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
 </Project>

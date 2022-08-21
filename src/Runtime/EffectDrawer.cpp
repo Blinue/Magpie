@@ -122,7 +122,11 @@ bool EffectDrawer::Initialize(
 
 		if (!texDesc.source.empty()) {
 			// 从文件加载纹理
-			_textures[i] = TextureLoader::Load((L"effects\\" + StrUtils::UTF8ToUTF16(texDesc.source)).c_str());
+			size_t delimPos = desc.name.find_last_of('\\');
+			std::string texPath = delimPos == std::string::npos 
+				? StrUtils::Concat("effects\\", texDesc.source)
+				: StrUtils::Concat("effects\\", std::string_view(desc.name.c_str(), delimPos + 1), texDesc.source);
+			_textures[i] = TextureLoader::Load(StrUtils::UTF8ToUTF16(texPath).c_str());
 			if (!_textures[i]) {
 				Logger::Get().Error(fmt::format("加载纹理 {} 失败", texDesc.source));
 				return false;

@@ -283,6 +283,13 @@ bool Renderer::_BuildEffects() {
 			}
 
 			effectDescs[id].name = StrUtils::UTF16ToUTF8(option.name);
+			// 将文件夹分隔符统一为 '\'
+			for (char& c : effectDescs[id].name) {
+				if (c == '/') {
+					c = '\\';
+				}
+			}
+
 			effectDescs[id].flags = effectFlag;
 
 			uint32_t compileFlag = 0;

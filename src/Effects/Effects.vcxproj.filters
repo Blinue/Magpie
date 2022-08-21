@@ -5,8 +5,6 @@
     <CopyFileToFolders Include="ACNet.hlsl" />
     <CopyFileToFolders Include="Bicubic.hlsl" />
     <CopyFileToFolders Include="CAS.hlsl" />
-    <CopyFileToFolders Include="FSR_EASU.hlsl" />
-    <CopyFileToFolders Include="FSR_RCAS.hlsl" />
     <CopyFileToFolders Include="FSRCNNX.hlsl" />
     <CopyFileToFolders Include="FSRCNNX_LineArt.hlsl" />
     <CopyFileToFolders Include="Jinc.hlsl" />
@@ -74,27 +72,6 @@
     </CopyFileToFolders>
     <CopyFileToFolders Include="Anime4K_Upscale_S.hlsl">
       <Filter>Anime4K</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="SMAA_AreaTex.dds">
-      <Filter>SMAA</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="SMAA.hlsli">
-      <Filter>SMAA</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="SMAA_High.hlsl">
-      <Filter>SMAA</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="SMAA_Low.hlsl">
-      <Filter>SMAA</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="SMAA_Medium.hlsl">
-      <Filter>SMAA</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="SMAA_SearchTex.dds">
-      <Filter>SMAA</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="SMAA_Ultra.hlsl">
-      <Filter>SMAA</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="xBRZ_2x.hlsl">
       <Filter>xBRZ</Filter>
@@ -166,6 +143,33 @@
     <CopyFileToFolders Include="Anime4K_Upscale_VL.hlsl">
       <Filter>Anime4K</Filter>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="SMAA\SMAA.hlsli">
+      <Filter>SMAA</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="SMAA\SMAA_High.hlsl">
+      <Filter>SMAA</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="SMAA\SMAA_Low.hlsl">
+      <Filter>SMAA</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="SMAA\SMAA_Medium.hlsl">
+      <Filter>SMAA</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="SMAA\SMAA_Ultra.hlsl">
+      <Filter>SMAA</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="FSR\FSR_EASU.hlsl">
+      <Filter>FSR</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="FSR\FSR_RCAS.hlsl">
+      <Filter>FSR</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="SMAA\AreaTex.dds">
+      <Filter>SMAA</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="SMAA\SearchTex.dds">
+      <Filter>SMAA</Filter>
+    </CopyFileToFolders>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Anime4K">
@@ -185,6 +189,9 @@
     </Filter>
     <Filter Include="RAVU">
       <UniqueIdentifier>{cd0d6b91-fff1-4731-9198-d3c818fbbcd3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="FSR">
+      <UniqueIdentifier>{265c81d9-3ccf-442d-86f5-e256d4ef55fc}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

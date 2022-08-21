@@ -146,9 +146,19 @@ static constexpr const UINT CACHE_VERSION = 9;
 static constexpr const int CACHE_COMPRESSION_LEVEL = 1;
 
 
-static std::wstring GetCacheFileName(std::wstring_view effectName, std::wstring_view hash, UINT flags) {
-	// 缓存文件的命名：{效果名}_{标志位（16进制）}{哈希}
-	return fmt::format(L"{}{}_{:02x}_{}", CommonSharedConstants::CACHE_DIR, effectName, flags, hash);
+static std::wstring GetLinearEffectName(std::wstring_view effectName) {
+	std::wstring result(effectName);
+	for (wchar_t& c : result) {
+		if (c == L'\\') {
+			c = L'#';
+		}
+	}
+	return result;
+}
+
+static std::wstring GetCacheFileName(std::wstring_view linearEffectName, std::wstring_view hash, UINT flags) {
+	// 缓存文件的命名：{效果名}_{标志位（16进制）}_{哈希}
+	return fmt::format(L"{}{}_{:02x}_{}", CommonSharedConstants::CACHE_DIR, linearEffectName, flags, hash);
 }
 
 void EffectCacheManager::_AddToMemCache(const std::wstring& cacheFileName, const EffectDesc& desc) {
@@ -196,7 +206,7 @@ bool EffectCacheManager::_LoadFromMemCache(const std::wstring& cacheFileName, Ef
 bool EffectCacheManager::Load(std::wstring_view effectName, std::wstring_view hash, EffectDesc& desc) {
 	assert(!effectName.empty() && !hash.empty());
 
-	std::wstring cacheFileName = GetCacheFileName(effectName, hash, desc.flags);
+	std::wstring cacheFileName = GetCacheFileName(GetLinearEffectName(effectName), hash, desc.flags);
 
 	if (_LoadFromMemCache(cacheFileName, desc)) {
 		return true;
@@ -237,6 +247,8 @@ bool EffectCacheManager::Load(std::wstring_view effectName, std::wstring_view ha
 }
 
 void EffectCacheManager::Save(std::wstring_view effectName, std::wstring_view hash, const EffectDesc& desc) {
+	std::wstring linearEffectName = GetLinearEffectName(effectName);
+
 	std::vector<BYTE> compressedBuf;
 	{
 		std::vector<BYTE> buf;
@@ -266,7 +278,7 @@ void EffectCacheManager::Save(std::wstring_view effectName, std::wstring_view ha
 		}
 	} else {
 		// 删除所有该效果（flags 相同）的缓存
-		std::wregex regex(fmt::format(L"^{}_{:02x}[0-9,a-f]{{{}}}$", effectName, desc.flags, 16),
+		std::wregex regex(fmt::format(L"^{}_{:02x}_[0-9,a-f]{{16}}$", linearEffectName, desc.flags),
 			std::wregex::optimize | std::wregex::nosubs);
 
 		WIN32_FIND_DATA findData{};
@@ -275,7 +287,9 @@ void EffectCacheManager::Save(std::wstring_view effectName, std::wstring_view ha
 			FindExInfoBasic, &findData, FindExSearchNameMatch, nullptr, FIND_FIRST_EX_LARGE_FETCH));
 		if (hFind) {
 			do {
-				if (StrUtils::StrLen(findData.cFileName) < 8) {
+				// 缓存文件名至少有 21 个字符
+				// {Name}_{2}_{16}
+				if (StrUtils::StrLen(findData.cFileName) < 21) {
 					continue;
 				}
 
@@ -296,7 +310,7 @@ void EffectCacheManager::Save(std::wstring_view effectName, std::wstring_view ha
 		}
 	}
 
-	std::wstring cacheFileName = GetCacheFileName(effectName, hash, desc.flags);
+	std::wstring cacheFileName = GetCacheFileName(linearEffectName, hash, desc.flags);
 	if (!Win32Utils::WriteFile(cacheFileName.c_str(), compressedBuf.data(), compressedBuf.size())) {
 		Logger::Get().Error("保存缓存失败");
 	}

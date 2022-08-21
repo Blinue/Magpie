@@ -272,10 +272,10 @@ void MagService::_StartScale(HWND hWnd) {
 	options.IsSimulateExclusiveFullscreen(settings.IsSimulateExclusiveFullscreen());
 
 	EffectOption& easu = options.effects.emplace_back();
-	easu.name = L"FSR_EASU";
+	easu.name = L"FSR\\FSR_EASU";
 	easu.scaleType = ScaleType::Fit;
 	EffectOption& rcas = options.effects.emplace_back();
-	rcas.name = L"FSR_RCAS";
+	rcas.name = L"FSR\\FSR_RCAS";
 	rcas.parameters[L"sharpness"] = 0.9;
 
 	_magRuntime.Run(hWnd, options);

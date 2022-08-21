@@ -19,6 +19,11 @@ static const char* META_INDICATOR = "//!";
 
 class PassInclude : public ID3DInclude {
 public:
+	PassInclude(std::wstring_view localDir) : _localDir(localDir) {}
+
+	PassInclude(const PassInclude&) = default;
+	PassInclude(PassInclude&&) = default;
+
 	HRESULT CALLBACK Open(
 		D3D_INCLUDE_TYPE /*IncludeType*/,
 		LPCSTR pFileName,
@@ -26,7 +31,7 @@ public:
 		LPCVOID* ppData,
 		UINT* pBytes
 	) override {
-		std::wstring relativePath = StrUtils::ConcatW(L"effects\\", StrUtils::UTF8ToUTF16(pFileName));
+		std::wstring relativePath = StrUtils::ConcatW(_localDir, StrUtils::UTF8ToUTF16(pFileName));
 
 		std::string file;
 		if (!Win32Utils::ReadTextFile(relativePath.c_str(), file)) {
@@ -46,6 +51,9 @@ public:
 		delete[](char*)pData;
 		return S_OK;
 	}
+
+private:
+	std::wstring _localDir;
 };
 
 UINT RemoveComments(std::string& source) {
@@ -1476,6 +1484,11 @@ cbuffer __CB2 : register(b1) {
 		}
 	}
 
+	size_t delimPos = desc.name.find_last_of('\\');
+	PassInclude passInclude(delimPos == std::string::npos 
+		? L"effects\\"
+		: L"effects\\" + StrUtils::UTF8ToUTF16(std::string_view(desc.name.c_str(), delimPos + 1)));
+
 	// 并行生成代码和编译
 	Win32Utils::RunParallel([&](UINT id) {
 		std::string source;
@@ -1494,8 +1507,6 @@ cbuffer __CB2 : register(b1) {
 				Logger::Get().Error(fmt::format("保存 Pass{} 源码失败", id + 1));
 			}
 		}
-
-		static PassInclude passInclude;
 
 		if (!DXUtils::CompileComputeShader(source, "__M", desc.passes[id].cso.put(),
 			fmt::format("{}_Pass{}.hlsl", desc.name, id + 1).c_str(), &passInclude, macros, flags & EffectCompilerFlags::WarningsAreErrors)

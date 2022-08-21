@@ -8,22 +8,22 @@ Texture2D INPUT;
 //!TEXTURE
 //!WIDTH INPUT_WIDTH
 //!HEIGHT INPUT_HEIGHT
-//!FORMAT R8G8_UNORM
+//!FORMAT R16G16_FLOAT
 Texture2D edgesTex;
 
 //!TEXTURE
 //!WIDTH INPUT_WIDTH
 //!HEIGHT INPUT_HEIGHT
-//!FORMAT R8G8B8A8_UNORM
+//!FORMAT R16G16B16A16_FLOAT
 Texture2D blendTex;
 
 //!TEXTURE
-//!SOURCE SMAA_AreaTex.dds
+//!SOURCE AreaTex.dds
 //!FORMAT R8G8B8A8_UNORM
 Texture2D areaTex;
 
 //!TEXTURE
-//!SOURCE SMAA_SearchTex.dds
+//!SOURCE SearchTex.dds
 //!FORMAT R8_UNORM
 Texture2D searchTex;
 
@@ -41,7 +41,7 @@ SamplerState LinearSampler;
 #define SMAA_RT_METRICS float4(GetInputPt(), GetInputSize())
 #define SMAA_LINEAR_SAMPLER LinearSampler
 #define SMAA_POINT_SAMPLER PointSampler
-#define SMAA_PRESET_MEDIUM
+#define SMAA_PRESET_ULTRA
 #include "SMAA.hlsli"
 
 //!PASS 1
