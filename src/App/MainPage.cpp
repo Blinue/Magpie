@@ -71,10 +71,6 @@ MainPage::MainPage() {
 		auto_revoke, { this, &MainPage::_ScalingProfileService_ProfileReordered });
 }
 
-MainPage::~MainPage() {
-	OutputDebugString(L"test");
-}
-
 void MainPage::Loaded(IInspectable const&, RoutedEventArgs const&) {
 	MUXC::NavigationView nv = __super::RootNavigationView();
 

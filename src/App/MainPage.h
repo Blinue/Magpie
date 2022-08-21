@@ -13,8 +13,6 @@ namespace winrt::Magpie::App::implementation {
 struct MainPage : MainPageT<MainPage> {
 	MainPage();
 
-	~MainPage();
-
 	void Loaded(IInspectable const&, RoutedEventArgs const&);
 
 	void NavigationView_SelectionChanged(MUXC::NavigationView const&, MUXC::NavigationViewSelectionChangedEventArgs const& args);

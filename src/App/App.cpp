@@ -28,7 +28,7 @@ App::App() {
 	bool isWin11 = Win32Utils::GetOSBuild() >= 22000;
 	if (!isWin11) {
 		// Win10 中隐藏 DesktopWindowXamlSource 窗口
-		winrt::CoreWindow coreWindow = winrt::CoreWindow::GetForCurrentThread();
+		CoreWindow coreWindow = CoreWindow::GetForCurrentThread();
 		if (coreWindow) {
 			HWND hwndDWXS;
 			coreWindow.as<ICoreWindowInterop>()->get_WindowHandle(&hwndDWXS);
@@ -57,9 +57,9 @@ App::App() {
 		);
 	}
 
-	_displayInformation = Windows::Graphics::Display::DisplayInformation::GetForCurrentView();
+	EffectsService::Get().StartInitialize();
 
-	EffectsService::Get().Initialize();
+	_displayInformation = Windows::Graphics::Display::DisplayInformation::GetForCurrentView();
 }
 
 App::~App() {
@@ -114,9 +114,9 @@ void App::HwndMain(uint64_t value) noexcept {
 }
 
 void App::MainPage(Magpie::App::MainPage const& mainPage) noexcept {
-	if (!mainPage) {
-		_mainPage.RootNavigationView().SelectedItem(nullptr);
-	}
+	// 显示主窗口前等待 EffectsService 完成初始化
+	EffectsService::Get().WaitForInitialize();
+
 	_mainPage = mainPage;
 }
 

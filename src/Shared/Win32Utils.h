@@ -125,7 +125,7 @@ struct Win32Utils {
 
 	// 并行执行 times 次 func，并行失败时回退到单线程
 	// 执行完毕后返回
-	static void RunParallel(std::function<void(UINT)> func, UINT times);
+	static void RunParallel(std::function<void(uint32_t)> func, uint32_t times);
 
 	static bool IsStartMenu(HWND hWnd);
 

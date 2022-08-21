@@ -1521,7 +1521,7 @@ uint32_t EffectCompiler::Compile(
 	const std::unordered_map<std::wstring, float>* inlineParams
 ) {
 	bool noCompile = flags & EffectCompilerFlags::NoCompile;
-	bool noCache = flags & EffectCompilerFlags::NoCache;
+	bool noCache = noCompile || (flags & EffectCompilerFlags::NoCache);
 
 	std::wstring effectName = StrUtils::UTF8ToUTF16(desc.name);
 	std::wstring fileName = StrUtils::ConcatW(CommonSharedConstants::EFFECTS_DIR, effectName, L".hlsl");
@@ -1544,7 +1544,7 @@ uint32_t EffectCompiler::Compile(
 	}
 
 	std::wstring hash;
-	if (!noCompile && !noCache) {
+	if (!noCache) {
 		hash = EffectCacheManager::GetHash(source, desc.flags & EffectFlags::InlineParams ? inlineParams : nullptr);
 		if (!hash.empty()) {
 			if (EffectCacheManager::Get().Load(effectName, hash, desc)) {
@@ -1650,7 +1650,7 @@ uint32_t EffectCompiler::Compile(
 	completeCurrentBlock(sourceView.size() - curBlockOff, BlockType::Header);
 
 	// 必须有 PASS 块
-	if (passBlocks.empty()) {
+	if (!noCompile && passBlocks.empty()) {
 		Logger::Get().Error("无 PASS 块");
 		return 1;
 	}

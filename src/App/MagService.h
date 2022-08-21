@@ -14,6 +14,9 @@ public:
 		return instance;
 	}
 
+	MagService(const MagService&) = delete;
+	MagService(MagService&&) = delete;
+
 	void Initialize();
 
 	void StartCountdown();
@@ -102,9 +105,6 @@ public:
 
 private:
 	MagService() = default;
-
-	MagService(const MagService&) = delete;
-	MagService(MagService&&) = delete;
 
 	void _HotkeyService_HotkeyPressed(HotkeyAction action);
 

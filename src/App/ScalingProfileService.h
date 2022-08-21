@@ -13,6 +13,9 @@ public:
 		return instance;
 	}
 
+	ScalingProfileService(const ScalingProfileService&) = delete;
+	ScalingProfileService(ScalingProfileService&&) = delete;
+
 	bool TestNewProfile(bool isPackaged, std::wstring_view pathOrAumid, std::wstring_view className);
 
 	bool AddProfile(bool isPackaged, std::wstring_view pathOrAumid, std::wstring_view className, std::wstring_view name, int copyFrom);

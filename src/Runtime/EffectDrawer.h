@@ -6,11 +6,17 @@
 
 namespace Magpie::Runtime {
 
+union EffectConstant32 {
+	float floatVal;
+	uint32_t uintVal;
+	int32_t intVal;
+};
+
 class EffectDrawer {
 public:
 	EffectDrawer() = default;
 	EffectDrawer(const EffectDrawer&) = delete;
-	EffectDrawer(EffectDrawer&&) = delete;
+	EffectDrawer(EffectDrawer&&) = default;
 
 	bool Initialize(
 		const EffectDesc& desc,

@@ -128,13 +128,7 @@ struct EffectDesc {
 	std::vector<EffectSamplerDesc> samplers;
 	std::vector<EffectPassDesc> passes;
 
-	uint32_t flags = 0;
-};
-
-union EffectConstant32 {
-	float floatVal;
-	uint32_t uintVal;
-	int32_t intVal;
+	uint32_t flags = 0;	// EffectFlags
 };
 
 }

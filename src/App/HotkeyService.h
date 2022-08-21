@@ -13,6 +13,9 @@ public:
 		return instance;
 	}
 
+	HotkeyService(const HotkeyService&) = delete;
+	HotkeyService(HotkeyService&&) = delete;
+
 	void Initialize();
 
 	bool IsError(HotkeyAction action) {
@@ -36,10 +39,6 @@ public:
 
 private:
 	HotkeyService() = default;
-
-	HotkeyService(const HotkeyService&) = delete;
-	HotkeyService(HotkeyService&&) = delete;
-
 	~HotkeyService();
 
 	static LRESULT _WndProcStatic(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {

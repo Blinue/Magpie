@@ -221,8 +221,6 @@ void XamlApp::_CreateMainWindow() {
 	_uwpApp.OnHostWndFocusChanged(true);
 
 	_mainPage = winrt::Magpie::App::MainPage();
-	_uwpApp.MainPage(_mainPage);
-
 	_mainPage.ActualThemeChanged([this](winrt::FrameworkElement const&, winrt::IInspectable const&) {
 		_UpdateTheme();
 	});
@@ -257,6 +255,8 @@ void XamlApp::_CreateMainWindow() {
 			sender.NavigateFocus(args.Request());
 		}
 	});
+
+	_uwpApp.MainPage(_mainPage);
 }
 
 void XamlApp::_ShowMainWindow() noexcept {

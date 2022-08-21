@@ -1,12 +1,14 @@
 #pragma once
 #include "pch.h"
+#include <Runtime.h>
 
 
 namespace winrt::Magpie::App {
 
-struct EffectDesc {
-	std::wstring Name;
-	uint32_t Flags;
+struct EffectInfo {
+	std::wstring name;
+	std::vector<::Magpie::Runtime::EffectParameterDesc> params;
+	bool hasScale = false;
 };
 
 class EffectsService {
@@ -16,13 +18,22 @@ public:
 		return instance;
 	}
 
-	void Initialize();
+	EffectsService(const EffectsService&) = delete;
+	EffectsService(EffectsService&&) = delete;
+
+	fire_and_forget StartInitialize();
+
+	void WaitForInitialize();
+
+	const std::vector<EffectInfo>& Effects() const noexcept {
+		return _effects;
+	}
 
 private:
 	EffectsService() = default;
 
-	EffectsService(const EffectsService&) = delete;
-	EffectsService(EffectsService&&) = delete;
+	std::vector<EffectInfo> _effects;
+	std::atomic<bool> _initialized = false;
 };
 
 }

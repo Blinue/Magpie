@@ -1,11 +1,11 @@
 #pragma once
 #include "pch.h"
 #include "EffectDesc.h"
+#include "EffectDrawer.h"
 
 
 namespace Magpie::Runtime {
 
-class EffectDrawer;
 class GPUTimer;
 class OverlayDrawer;
 class CursorManager;
@@ -47,7 +47,7 @@ public:
 		return (UINT)_effects.size();
 	}
 
-	const EffectDesc& GetEffectDesc(UINT idx) const noexcept;
+	const EffectDesc& GetEffectDesc(uint32_t idx) const noexcept;
 
 private:
 	bool _CheckSrcState();
@@ -63,7 +63,7 @@ private:
 
 	bool _waitingForNextFrame = false;
 
-	std::vector<std::unique_ptr<EffectDrawer>> _effects;
+	std::vector<EffectDrawer> _effects;
 	std::array<EffectConstant32, 12> _dynamicConstants;
 	winrt::com_ptr<ID3D11Buffer> _dynamicCB;
 

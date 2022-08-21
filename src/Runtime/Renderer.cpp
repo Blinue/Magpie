@@ -105,10 +105,10 @@ void Renderer::Render(bool onPrint) {
 
 		size_t i = 0;
 		for (size_t end = _effects.size() - 1; i < end; ++i) {
-			if (_effects[i]->IsUseDynamic()) {
+			if (_effects[i].IsUseDynamic()) {
 				break;
 			} else {
-				for (uint32_t j = (uint32_t)_effects[i]->GetDesc().passes.size(); j > 0; --j) {
+				for (uint32_t j = (uint32_t)_effects[i].GetDesc().passes.size(); j > 0; --j) {
 					_gpuTimer->OnEndPass(idx++);
 				}
 			}
@@ -116,15 +116,15 @@ void Renderer::Render(bool onPrint) {
 
 		if (i == _effects.size()) {
 			// 只渲染最后一个 Effect 的最后一个 pass
-			_effects.back()->Draw(idx, true);
+			_effects.back().Draw(idx, true);
 		} else {
 			for (; i < _effects.size(); ++i) {
-				_effects[i]->Draw(idx);
+				_effects[i].Draw(idx);
 			}
 		}
 	} else {
 		for (auto& effect : _effects) {
-			effect->Draw(idx);
+			effect.Draw(idx);
 		}
 	}
 
@@ -163,7 +163,7 @@ void Renderer::SetUIVisibility(bool value) {
 
 		uint32_t passCount = 0;
 		for (const auto& effect : _effects) {
-			passCount += (uint32_t)effect->GetDesc().passes.size();
+			passCount += (uint32_t)effect.GetDesc().passes.size();
 		}
 
 		// StartProfiling 必须在 OnBeginFrame 之前调用
@@ -223,7 +223,7 @@ bool CheckForeground(HWND hwndForeground) {
 
 const EffectDesc& Renderer::GetEffectDesc(uint32_t idx) const noexcept {
 	assert(idx < _effects.size());
-	return _effects[idx]->GetDesc();
+	return _effects[idx].GetDesc();
 }
 
 bool Renderer::_CheckSrcState() {
@@ -325,8 +325,7 @@ bool Renderer::_BuildEffects() {
 	for (uint32_t i = 0; i < effectCount; ++i) {
 		bool isLastEffect = i == effectCount - 1;
 
-		_effects[i].reset(new EffectDrawer());
-		if (!_effects[i]->Initialize(
+		if (!_effects[i].Initialize(
 			effectDescs[i], effectsOption[i], effectInput, &effectInput,
 			isLastEffect ? &_outputRect : nullptr,
 			isLastEffect ? &_virtualOutputRect : nullptr
