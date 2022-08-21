@@ -8,6 +8,8 @@ struct ScalingModesPage : ScalingModesPageT<ScalingModesPage> {
 	ScalingModesPage();
 
 	void ComboBox_DropDownOpened(IInspectable const& sender, IInspectable const&);
+
+	void AddEffectButton_Click(IInspectable const&, RoutedEventArgs const&);
 };
 
 }

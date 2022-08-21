@@ -44,7 +44,7 @@ fire_and_forget EffectsService::StartInitialize() {
 	std::vector<EffectDesc> descs(nEffect);
 	Win32Utils::RunParallel([&](uint32_t id) {
 		descs[id].name = StrUtils::UTF16ToUTF8(effectNames[id]);
-		if (!EffectCompiler::Compile(descs[id], EffectCompilerFlags::NoCompile)) {
+		if (EffectCompiler::Compile(descs[id], EffectCompilerFlags::NoCompile)) {
 			descs[id].name.clear();
 		}
 	}, nEffect);
