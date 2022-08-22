@@ -14,12 +14,12 @@ float sharpness;
 Texture2D INPUT;
 
 //!TEXTURE
-//!SOURCE NIS_Coef_Scale.dds
+//!SOURCE Coef_Scale.dds
 //!FORMAT R16G16B16A16_FLOAT
 Texture2D coef_scaler;
 
 //!TEXTURE
-//!SOURCE NIS_Coef_USM.dds
+//!SOURCE Coef_USM.dds
 //!FORMAT R16G16B16A16_FLOAT
 Texture2D coef_usm;
 

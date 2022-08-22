@@ -1,148 +1,14 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <CopyFileToFolders Include="AdaptiveSharpen.hlsl" />
     <CopyFileToFolders Include="ACNet.hlsl" />
     <CopyFileToFolders Include="Bicubic.hlsl" />
-    <CopyFileToFolders Include="CAS.hlsl" />
-    <CopyFileToFolders Include="FSRCNNX.hlsl" />
-    <CopyFileToFolders Include="FSRCNNX_LineArt.hlsl" />
     <CopyFileToFolders Include="Jinc.hlsl" />
     <CopyFileToFolders Include="Lanczos.hlsl" />
     <CopyFileToFolders Include="Bilinear.hlsl" />
     <CopyFileToFolders Include="Nearest.hlsl" />
-    <CopyFileToFolders Include="Pixellate.hlsl" />
-    <CopyFileToFolders Include="SharpBilinear.hlsl" />
     <CopyFileToFolders Include="SSimDownscaler.hlsl" />
-    <CopyFileToFolders Include="NIS.hlsl" />
-    <CopyFileToFolders Include="NIS_Coef_Scale.dds" />
-    <CopyFileToFolders Include="NIS_Coef_USM.dds" />
-    <CopyFileToFolders Include="NVSharpen.hlsl" />
-    <CopyFileToFolders Include="LumaSharpen.hlsl" />
-    <CopyFileToFolders Include="FineSharp.hlsl" />
-    <CopyFileToFolders Include="LCAS.hlsl" />
-    <CopyFileToFolders Include="CAS_Scaling.hlsl" />
-    <CopyFileToFolders Include="MMPX.hlsl" />
-    <CopyFileToFolders Include="NNEDI3_nns16_win8x4.hlsl" />
-    <CopyFileToFolders Include="NNEDI3_nns64_win8x6.hlsl" />
-    <CopyFileToFolders Include="Anime4K_3D_AA_Upscale_US.hlsl">
-      <Filter>Anime4K</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="Anime4K_3D_Upscale_US.hlsl">
-      <Filter>Anime4K</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="Anime4K_Denoise_Bilateral_Mean.hlsl">
-      <Filter>Anime4K</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="Anime4K_Denoise_Bilateral_Median.hlsl">
-      <Filter>Anime4K</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="Anime4K_Denoise_Bilateral_Mode.hlsl">
-      <Filter>Anime4K</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="Anime4K_Restore_L.hlsl">
-      <Filter>Anime4K</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="Anime4K_Restore_M.hlsl">
-      <Filter>Anime4K</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="Anime4K_Restore_Soft_L.hlsl">
-      <Filter>Anime4K</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="Anime4K_Restore_Soft_M.hlsl">
-      <Filter>Anime4K</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="Anime4K_Restore_VL.hlsl">
-      <Filter>Anime4K</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="Anime4K_Thin_HQ.hlsl">
-      <Filter>Anime4K</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="Anime4K_Upscale_Denoise_L.hlsl">
-      <Filter>Anime4K</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="Anime4K_Upscale_Denoise_S.hlsl">
-      <Filter>Anime4K</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="Anime4K_Upscale_GAN_x2_S.hlsl">
-      <Filter>Anime4K</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="Anime4K_Upscale_L.hlsl">
-      <Filter>Anime4K</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="Anime4K_Upscale_S.hlsl">
-      <Filter>Anime4K</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="xBRZ_2x.hlsl">
-      <Filter>xBRZ</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="xBRZ_3x.hlsl">
-      <Filter>xBRZ</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="xBRZ_4x.hlsl">
-      <Filter>xBRZ</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="xBRZ_Freescale.hlsl">
-      <Filter>xBRZ</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="xBRZ_5x.hlsl">
-      <Filter>xBRZ</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="xBRZ_6x.hlsl">
-      <Filter>xBRZ</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="FXAA.hlsli">
-      <Filter>FXAA</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="FXAA_High.hlsl">
-      <Filter>FXAA</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="FXAA_Medium.hlsl">
-      <Filter>FXAA</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="FXAA_Ultra.hlsl">
-      <Filter>FXAA</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="CRT_Easymode.hlsl">
-      <Filter>CRT</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="CRT_Geom.hlsl">
-      <Filter>CRT</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="CRT_Hyllian.hlsl">
-      <Filter>CRT</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="CRT_Lottes.hlsl">
-      <Filter>CRT</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="GTU_v050.hlsl">
-      <Filter>CRT</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="RAVU_Lite_R3.hlsl">
-      <Filter>RAVU</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="RAVU_Lite_R3_Weights.dds">
-      <Filter>RAVU</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="RAVU_Zoom_R3.hlsl">
-      <Filter>RAVU</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="RAVU_Zoom_R3_Weights.dds">
-      <Filter>RAVU</Filter>
-    </CopyFileToFolders>
     <CopyFileToFolders Include="ImageAdjustment.hlsl" />
-    <CopyFileToFolders Include="Anime4K_Upscale_Denoise_UL.hlsl">
-      <Filter>Anime4K</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="Anime4K_Upscale_Denoise_VL.hlsl">
-      <Filter>Anime4K</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="Anime4K_Upscale_UL.hlsl">
-      <Filter>Anime4K</Filter>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="Anime4K_Upscale_VL.hlsl">
-      <Filter>Anime4K</Filter>
-    </CopyFileToFolders>
     <CopyFileToFolders Include="SMAA\SMAA.hlsli">
       <Filter>SMAA</Filter>
     </CopyFileToFolders>
@@ -170,6 +36,174 @@
     <CopyFileToFolders Include="SMAA\SearchTex.dds">
       <Filter>SMAA</Filter>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="Anime4K\Anime4K_3D_AA_Upscale_US.hlsl">
+      <Filter>Anime4K</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Anime4K\Anime4K_3D_Upscale_US.hlsl">
+      <Filter>Anime4K</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Anime4K\Anime4K_Denoise_Bilateral_Mean.hlsl">
+      <Filter>Anime4K</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Anime4K\Anime4K_Denoise_Bilateral_Mode.hlsl">
+      <Filter>Anime4K</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Anime4K\Anime4K_Denoise_Bilateral_Median.hlsl">
+      <Filter>Anime4K</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Anime4K\Anime4K_Restore_L.hlsl">
+      <Filter>Anime4K</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Anime4K\Anime4K_Restore_M.hlsl">
+      <Filter>Anime4K</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Anime4K\Anime4K_Restore_Soft_L.hlsl">
+      <Filter>Anime4K</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Anime4K\Anime4K_Restore_Soft_M.hlsl">
+      <Filter>Anime4K</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Anime4K\Anime4K_Restore_VL.hlsl">
+      <Filter>Anime4K</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Anime4K\Anime4K_Thin_HQ.hlsl">
+      <Filter>Anime4K</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Anime4K\Anime4K_Upscale_Denoise_L.hlsl">
+      <Filter>Anime4K</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Anime4K\Anime4K_Upscale_Denoise_S.hlsl">
+      <Filter>Anime4K</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Anime4K\Anime4K_Upscale_Denoise_UL.hlsl">
+      <Filter>Anime4K</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Anime4K\Anime4K_Upscale_Denoise_VL.hlsl">
+      <Filter>Anime4K</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Anime4K\Anime4K_Upscale_GAN_x2_S.hlsl">
+      <Filter>Anime4K</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Anime4K\Anime4K_Upscale_L.hlsl">
+      <Filter>Anime4K</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Anime4K\Anime4K_Upscale_S.hlsl">
+      <Filter>Anime4K</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Anime4K\Anime4K_Upscale_UL.hlsl">
+      <Filter>Anime4K</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Anime4K\Anime4K_Upscale_VL.hlsl">
+      <Filter>Anime4K</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="CRT\CRT_Easymode.hlsl">
+      <Filter>CRT</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="CRT\CRT_Geom.hlsl">
+      <Filter>CRT</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="CRT\CRT_Hyllian.hlsl">
+      <Filter>CRT</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="CRT\CRT_Lottes.hlsl">
+      <Filter>CRT</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="CRT\GTU_v050.hlsl">
+      <Filter>CRT</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="xBRZ\xBRZ_2x.hlsl">
+      <Filter>xBRZ</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="xBRZ\xBRZ_3x.hlsl">
+      <Filter>xBRZ</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="xBRZ\xBRZ_4x.hlsl">
+      <Filter>xBRZ</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="xBRZ\xBRZ_5x.hlsl">
+      <Filter>xBRZ</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="xBRZ\xBRZ_6x.hlsl">
+      <Filter>xBRZ</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="xBRZ\xBRZ_Freescale.hlsl">
+      <Filter>xBRZ</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="FXAA\FXAA_High.hlsl">
+      <Filter>FXAA</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="FXAA\FXAA_Medium.hlsl">
+      <Filter>FXAA</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="FXAA\FXAA_Ultra.hlsl">
+      <Filter>FXAA</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="FXAA\FXAA.hlsli">
+      <Filter>FXAA</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="RAVU\RAVU_Lite_R3.hlsl">
+      <Filter>RAVU</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="RAVU\RAVU_Lite_R3_Weights.dds">
+      <Filter>RAVU</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="RAVU\RAVU_Zoom_R3.hlsl">
+      <Filter>RAVU</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="RAVU\RAVU_Zoom_R3_Weights.dds">
+      <Filter>RAVU</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="NNEDI3\NNEDI3_nns16_win8x4.hlsl">
+      <Filter>NNEDI3</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="NNEDI3\NNEDI3_nns64_win8x6.hlsl">
+      <Filter>NNEDI3</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="NIS\NIS.hlsl">
+      <Filter>NIS</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="NIS\Coef_Scale.dds">
+      <Filter>NIS</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="NIS\Coef_USM.dds">
+      <Filter>NIS</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="NIS\NVSharpen.hlsl">
+      <Filter>NIS</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="CAS\CAS_Scaling.hlsl">
+      <Filter>CAS</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="CAS\CAS.hlsl">
+      <Filter>CAS</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="FSRCNNX\FSRCNNX.hlsl">
+      <Filter>FSRCNNX</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="FSRCNNX\FSRCNNX_LineArt.hlsl">
+      <Filter>FSRCNNX</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Sharpen\AdaptiveSharpen.hlsl">
+      <Filter>Sharpen</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Sharpen\FineSharp.hlsl">
+      <Filter>Sharpen</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Sharpen\LCAS.hlsl">
+      <Filter>Sharpen</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Sharpen\LumaSharpen.hlsl">
+      <Filter>Sharpen</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Pixel Art\MMPX.hlsl">
+      <Filter>Pixel Art</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Pixel Art\Pixellate.hlsl">
+      <Filter>Pixel Art</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Pixel Art\SharpBilinear.hlsl">
+      <Filter>Pixel Art</Filter>
+    </CopyFileToFolders>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Anime4K">
@@ -192,6 +226,24 @@
     </Filter>
     <Filter Include="FSR">
       <UniqueIdentifier>{265c81d9-3ccf-442d-86f5-e256d4ef55fc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="NNEDI3">
+      <UniqueIdentifier>{47ebe4ed-6766-4781-8ba2-a9115b518ac3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="NIS">
+      <UniqueIdentifier>{2a9bfdf6-4953-44ee-a989-ecb9c21f15bf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="CAS">
+      <UniqueIdentifier>{604c2f86-a219-4941-9cc6-775f434f1351}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="FSRCNNX">
+      <UniqueIdentifier>{962f3a4e-e086-4ba0-86a5-7355d5af7a4a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Sharpen">
+      <UniqueIdentifier>{3e769cea-6a90-4904-ba66-0b0e993f7a91}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Pixel Art">
+      <UniqueIdentifier>{0b58f073-84cb-4c38-919d-80176ae408bc}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>
