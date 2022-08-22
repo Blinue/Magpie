@@ -129,11 +129,9 @@
 										<StackPanel VerticalAlignment="Center"
 													Orientation="Horizontal"
 													Spacing="5">
-											<FontIcon Margin="0"
-													  FontSize="15"
+											<FontIcon FontSize="15"
 													  Glyph="&#xe710;" />
-											<TextBlock Margin="0,-2,0,0"
-													   Padding="0"
+											<TextBlock Margin="0,-1,0,0"
 													   Text="添加效果" />
 										</StackPanel>
 									</Button>
@@ -170,6 +168,16 @@
 					</muxc:Expander.Content>
 				</muxc:Expander>
 			</local:SettingsGroup>
+			<Button Margin="0,10,0,0"
+					HorizontalAlignment="Right"
+					Style="{StaticResource AccentButtonStyle}">
+				<StackPanel Orientation="Horizontal"
+							Spacing="5">
+					<FontIcon FontSize="15"
+							  Glyph="&#xe710;" />
+					<TextBlock Text="新建缩放模式" />
+				</StackPanel>
+			</Button>
 		</StackPanel>
 	</local:PageFrame>
 </Page>
