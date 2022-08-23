@@ -65,9 +65,11 @@
 						<FontIcon Glyph="&#xE88E;" />
 					</local:SettingItem.Icon>
 					<local:SettingItem.Description>
-						<StackPanel Orientation="Vertical" Spacing="2">
+						<StackPanel Orientation="Vertical"
+									Spacing="2">
 							<TextBlock Text="更改配置文件的保存位置" />
-							<HyperlinkButton Content="打开配置文件位置" Click="{x:Bind ViewModel.OpenConfigLocation}" />
+							<HyperlinkButton Click="{x:Bind ViewModel.OpenConfigLocation}"
+											 Content="打开配置文件位置" />
 						</StackPanel>
 					</local:SettingItem.Description>
 					<local:SettingItem.ActionContent>
@@ -76,9 +78,16 @@
 				</local:SettingItem>
 			</local:SettingsGroup>
 			<local:SettingsGroup Title="高级">
-				<local:SettingItem Title="缩放时模拟独占全屏">
+				<local:SettingItem Title="模拟独占全屏"
+								   Description="使你在游戏时不受打扰">
 					<local:SettingItem.ActionContent>
 						<ToggleSwitch IsOn="{x:Bind ViewModel.IsSimulateExclusiveFullscreen, Mode=TwoWay}" />
+					</local:SettingItem.ActionContent>
+				</local:SettingItem>
+				<local:SettingItem Title="内联效果参数"
+								   Description="可以稍微提高性能，但每次修改参数都需重新编译该效果">
+					<local:SettingItem.ActionContent>
+						<ToggleSwitch />
 					</local:SettingItem.ActionContent>
 				</local:SettingItem>
 				<muxc:Expander HorizontalAlignment="Stretch"

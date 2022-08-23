@@ -35,7 +35,7 @@
 											  Glyph="&#xE70F;" />
 								</Button.Content>
 								<ToolTipService.ToolTip>
-									<ToolTip Content="修改参数" />
+									<ToolTip Content="自定义" />
 								</ToolTipService.ToolTip>
 							</Button>
 						</StackPanel>
