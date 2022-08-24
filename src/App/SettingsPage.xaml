@@ -80,12 +80,18 @@
 			<local:SettingsGroup Title="高级">
 				<local:SettingItem Title="模拟独占全屏"
 								   Description="使你在游戏时不受打扰">
+					<local:SettingItem.Icon>
+						<FontIcon Glyph="&#xec46;" />
+					</local:SettingItem.Icon>
 					<local:SettingItem.ActionContent>
 						<ToggleSwitch IsOn="{x:Bind ViewModel.IsSimulateExclusiveFullscreen, Mode=TwoWay}" />
 					</local:SettingItem.ActionContent>
 				</local:SettingItem>
 				<local:SettingItem Title="内联效果参数"
 								   Description="可以稍微提高性能，但每次修改参数都需重新编译该效果">
+					<local:SettingItem.Icon>
+						<FontIcon Glyph="&#xE9E9;" />
+					</local:SettingItem.Icon>
 					<local:SettingItem.ActionContent>
 						<ToggleSwitch />
 					</local:SettingItem.ActionContent>
