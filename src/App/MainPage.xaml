@@ -85,8 +85,6 @@
 										   FontWeight="SemiBold"
 										   Text="添加新配置" />
 								<StackPanel Width="280"
-											HorizontalAlignment="Center"
-											VerticalAlignment="Center"
 											Orientation="Vertical"
 											Spacing="15">
 									<ComboBox x:Name="CandidateWindowsComboBox"
@@ -125,7 +123,7 @@
 									</StackPanel>
 									<StackPanel Orientation="Vertical"
 												Spacing="8">
-										<TextBlock Text="复制缩放配置" />
+										<TextBlock Text="复制自" />
 										<ComboBox x:Name="ProfilesComboBox"
 												  HorizontalAlignment="Stretch"
 												  DropDownOpened="ComboBox_DropDownOpened"
