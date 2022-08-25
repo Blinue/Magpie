@@ -35,6 +35,9 @@ struct SettingsViewModel : SettingsViewModelT<SettingsViewModel> {
 	bool IsSimulateExclusiveFullscreen() const noexcept;
 	void IsSimulateExclusiveFullscreen(bool value) noexcept;
 
+	bool IsInlineParams() const noexcept;
+	void IsInlineParams(bool value) noexcept;
+
 	bool IsBreakpointMode() const noexcept;
 	void IsBreakpointMode(bool value) noexcept;
 

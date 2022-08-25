@@ -203,6 +203,14 @@ public:
 		_isShowTrayIconChangedEvent.remove(token);
 	}
 
+	bool IsInlineParams() const noexcept {
+		return _isInlineParams;
+	}
+
+	void IsInlineParams(bool value) noexcept {
+		_isInlineParams = value;
+	}
+
 private:
 	AppSettings() = default;
 
@@ -246,6 +254,7 @@ private:
 	bool _isWarningsAreErrors = false;
 
 	bool _isSimulateExclusiveFullscreen = false;
+	bool _isInlineParams = false;
 
 	std::vector<ScaleMode> _scaleModes;
 

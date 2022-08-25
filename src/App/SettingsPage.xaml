@@ -93,7 +93,7 @@
 						<FontIcon Glyph="&#xE9E9;" />
 					</local:SettingItem.Icon>
 					<local:SettingItem.ActionContent>
-						<ToggleSwitch />
+						<ToggleSwitch IsOn="{x:Bind ViewModel.IsInlineParams, Mode=TwoWay}" />
 					</local:SettingItem.ActionContent>
 				</local:SettingItem>
 				<muxc:Expander HorizontalAlignment="Stretch"

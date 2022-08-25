@@ -274,9 +274,15 @@ void MagService::_StartScale(HWND hWnd) {
 	EffectOption& easu = options.effects.emplace_back();
 	easu.name = L"FSR\\FSR_EASU";
 	easu.scaleType = ScaleType::Fit;
+	if (settings.IsInlineParams()) {
+		easu.flags |= EffectOptionFlags::InlineParams;
+	}
 	EffectOption& rcas = options.effects.emplace_back();
 	rcas.name = L"FSR\\FSR_RCAS";
 	rcas.parameters[L"sharpness"] = 0.9;
+	if (settings.IsInlineParams()) {
+		rcas.flags |= EffectOptionFlags::InlineParams;
+	}
 
 	_magRuntime.Run(hWnd, options);
 }

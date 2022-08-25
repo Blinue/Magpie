@@ -117,6 +117,21 @@ void SettingsViewModel::IsSimulateExclusiveFullscreen(bool value) noexcept {
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsSimulateExclusiveFullscreen"));
 }
 
+bool SettingsViewModel::IsInlineParams() const noexcept {
+	return AppSettings::Get().IsInlineParams();
+}
+
+void SettingsViewModel::IsInlineParams(bool value) noexcept {
+	AppSettings& settings = AppSettings::Get();
+
+	if (settings.IsInlineParams() == value) {
+		return;
+	}
+
+	settings.IsInlineParams(value);
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsInlineParams"));
+}
+
 bool SettingsViewModel::IsBreakpointMode() const noexcept {
 	return AppSettings::Get().IsBreakpointMode();
 }

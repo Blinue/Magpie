@@ -13,6 +13,7 @@ namespace Magpie.App
 		void OpenConfigLocation();
 		Boolean IsShowTrayIcon;
 		Boolean IsSimulateExclusiveFullscreen;
+		Boolean IsInlineParams;
 		Boolean IsBreakpointMode;
 		Boolean IsDisableEffectCache;
 		Boolean IsSaveEffectSources;

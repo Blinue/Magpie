@@ -426,6 +426,8 @@ bool AppSettings::Save() {
 	writer.Bool(_isAlwaysRunAsElevated);
 	writer.Key("showTrayIcon");
 	writer.Bool(_isShowTrayIcon);
+	writer.Key("inlineParams");
+	writer.Bool(_isInlineParams);
 
 	writer.Key("scaleModes");
 	writer.StartArray();
@@ -631,6 +633,9 @@ bool AppSettings::_LoadSettings(std::string text) {
 		return false;
 	}
 	if (!LoadBoolSettingItem(root, "showTrayIcon", _isShowTrayIcon)) {
+		return false;
+	}
+	if (!LoadBoolSettingItem(root, "inlineParams", _isInlineParams)) {
 		return false;
 	}
 
