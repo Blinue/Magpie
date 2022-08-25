@@ -71,7 +71,7 @@
 							<Setter Property="TextWrapping" Value="WrapWholeWords" />
 						</Style.Setters>
 					</Style>
-					<Style BasedOn="{StaticResource TextButtonStyle}"
+					<Style BasedOn="{StaticResource SettingItemHyperlinkStyle}"
 						   TargetType="HyperlinkButton">
 						<Style.Setters>
 							<Setter Property="FontSize" Value="12" />
