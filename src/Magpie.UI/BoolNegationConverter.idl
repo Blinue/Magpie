@@ -1,0 +1,7 @@
+namespace Magpie.UI
+{
+    runtimeclass BoolNegationConverter : [default] Windows.UI.Xaml.Data.IValueConverter
+    {
+        BoolNegationConverter();
+    }
+}

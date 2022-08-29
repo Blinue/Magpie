@@ -1,0 +1,10 @@
+namespace Magpie.UI
+{
+	[default_interface]
+	runtimeclass HomePage : Windows.UI.Xaml.Controls.Page
+	{
+		HomePage();
+
+		HomeViewModel ViewModel { get; };
+	}
+}

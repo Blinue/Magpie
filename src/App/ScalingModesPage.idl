@@ -1,8 +1,0 @@
-namespace Magpie.App
-{
-	[default_interface]
-	runtimeclass ScalingModesPage : Windows.UI.Xaml.Controls.Page
-	{
-		ScalingModesPage();
-	}
-}

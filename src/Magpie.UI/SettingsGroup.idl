@@ -1,0 +1,14 @@
+namespace Magpie.UI
+{
+	[Windows.UI.Xaml.Markup.ContentProperty("Children")]
+	[Windows.UI.Xaml.TemplateVisualState("Normal", "CommonStates")]
+	[Windows.UI.Xaml.TemplateVisualState("Disabled", "CommonStates")]
+	runtimeclass SettingsGroup : Windows.UI.Xaml.Controls.UserControl, [default] Windows.UI.Xaml.Data.INotifyPropertyChanged
+	{
+		SettingsGroup();
+
+		Windows.UI.Xaml.Controls.UIElementCollection Children;
+		String Title;
+		Object Description;
+	}
+}

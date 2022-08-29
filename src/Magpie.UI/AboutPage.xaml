@@ -1,0 +1,67 @@
+<Page x:Class="Magpie.UI.AboutPage"
+	  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	  xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+	  xmlns:local="using:Magpie.UI"
+	  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+	  xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
+	  mc:Ignorable="d">
+
+	<local:PageFrame Title="关于">
+		<StackPanel HorizontalAlignment="Stretch"
+					Orientation="Vertical">
+			<local:SettingsGroup Title="版本"
+								 Margin="0,-25,0,0">
+				<muxc:Expander HorizontalAlignment="Stretch"
+							   HorizontalContentAlignment="Stretch"
+							   Style="{StaticResource SettingExpanderStyle}">
+					<muxc:Expander.Header>
+						<local:SettingItem Title="Magpie"
+										   Description="v0.10.0"
+										   Style="{StaticResource ExpanderHeaderSettingStyle}">
+							<local:SettingItem.Icon>
+								<FontIcon Glyph="&#xE895;" />
+							</local:SettingItem.Icon>
+							<local:SettingItem.ActionContent>
+								<Button Content="检查更新" />
+							</local:SettingItem.ActionContent>
+						</local:SettingItem>
+					</muxc:Expander.Header>
+					<muxc:Expander.Content>
+						<local:SettingItem Title="自动下载更新"
+										   Style="{StaticResource ExpanderContentSettingStyle}">
+							<local:SettingItem.ActionContent>
+								<ToggleSwitch />
+							</local:SettingItem.ActionContent>
+						</local:SettingItem>
+					</muxc:Expander.Content>
+				</muxc:Expander>
+			</local:SettingsGroup>
+			<local:SettingsGroup Title="反馈">
+				<local:SettingItem Title="汇报错误">
+					<local:SettingItem.Icon>
+						<FontIcon Glyph="&#xEBE8;" />
+					</local:SettingItem.Icon>
+				</local:SettingItem>
+				<local:SettingItem Title="建议功能">
+					<local:SettingItem.Icon>
+						<FontIcon Glyph="&#xEA80;" />
+					</local:SettingItem.Icon>
+				</local:SettingItem>
+			</local:SettingsGroup>
+			<local:SettingsGroup Title="其他链接">
+				<StackPanel Orientation="Horizontal">
+					<HyperlinkButton NavigateUri="https://github.com/Blinue/Magpie">
+						<TextBlock Text="项目主页" />
+					</HyperlinkButton>
+					<HyperlinkButton NavigateUri="https://github.com/Blinue/Magpie/wiki/FAQ">
+						<TextBlock Text="FAQ" />
+					</HyperlinkButton>
+					<HyperlinkButton NavigateUri="https://github.com/Blinue/Magpie/blob/main/LICENSE">
+						<TextBlock Text="许可协议" />
+					</HyperlinkButton>
+				</StackPanel>
+			</local:SettingsGroup>
+		</StackPanel>
+	</local:PageFrame>
+</Page>

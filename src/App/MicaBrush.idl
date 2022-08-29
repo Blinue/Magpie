@@ -1,8 +1,0 @@
-namespace Magpie.App
-{
-	[default_interface]
-	runtimeclass MicaBrush : Windows.UI.Xaml.Media.XamlCompositionBrushBase
-	{
-		MicaBrush(Windows.UI.Xaml.FrameworkElement root);
-	}
-}

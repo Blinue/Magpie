@@ -1,0 +1,143 @@
+<Page x:Class="Magpie.UI.SettingsPage"
+	  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+	  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	  xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+	  xmlns:local="using:Magpie.UI"
+	  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+	  xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
+	  mc:Ignorable="d">
+
+	<local:PageFrame Title="设置">
+		<StackPanel HorizontalAlignment="Stretch"
+					Orientation="Vertical">
+			<local:SettingsGroup Title="外观和行为"
+								 Margin="0,-25,0,0">
+				<local:SettingItem Title="主题">
+					<local:SettingItem.Icon>
+						<FontIcon Glyph="&#xEF1F;" />
+					</local:SettingItem.Icon>
+					<local:SettingItem.ActionContent>
+						<ComboBox DropDownOpened="ComboBox_DropDownOpened"
+								  SelectedIndex="{x:Bind ViewModel.Theme, Mode=TwoWay}"
+								  Style="{StaticResource ComboBoxSettingStyle}">
+							<x:String>浅色</x:String>
+							<x:String>深色</x:String>
+							<x:String>使用系统设置</x:String>
+						</ComboBox>
+					</local:SettingItem.ActionContent>
+				</local:SettingItem>
+				<muxc:Expander HorizontalAlignment="Stretch"
+							   HorizontalContentAlignment="Stretch"
+							   Style="{StaticResource SettingExpanderStyle}">
+					<muxc:Expander.Header>
+						<local:SettingItem Title="开机启动"
+										   Style="{StaticResource ExpanderHeaderSettingStyle}">
+							<local:SettingItem.Icon>
+								<FontIcon Glyph="&#xE7B5;" />
+							</local:SettingItem.Icon>
+							<local:SettingItem.ActionContent>
+								<ToggleSwitch IsOn="{x:Bind ViewModel.IsRunAtStartup, Mode=TwoWay}" />
+							</local:SettingItem.ActionContent>
+						</local:SettingItem>
+					</muxc:Expander.Header>
+					<muxc:Expander.Content>
+						<local:SettingItem Title="开机启动时最小化到系统托盘"
+										   Description="需开启常驻后台才能更改此选项"
+										   IsEnabled="{x:Bind ViewModel.IsMinimizeAtStartupEnabled, Mode=OneWay}"
+										   Style="{StaticResource ExpanderContentSettingStyle}">
+							<local:SettingItem.ActionContent>
+								<ToggleSwitch IsOn="{x:Bind ViewModel.IsMinimizeAtStartup, Mode=TwoWay}" />
+							</local:SettingItem.ActionContent>
+						</local:SettingItem>
+					</muxc:Expander.Content>
+				</muxc:Expander>
+				<local:SettingItem Title="常驻后台"
+								   Description="关闭主窗口时最小化到系统托盘">
+					<local:SettingItem.Icon>
+						<FontIcon Glyph="&#xE9F5;" />
+					</local:SettingItem.Icon>
+					<local:SettingItem.ActionContent>
+						<ToggleSwitch IsOn="{x:Bind ViewModel.IsShowTrayIcon, Mode=TwoWay}" />
+					</local:SettingItem.ActionContent>
+				</local:SettingItem>
+				<local:SettingItem Title="便携模式">
+					<local:SettingItem.Icon>
+						<FontIcon Glyph="&#xE88E;" />
+					</local:SettingItem.Icon>
+					<local:SettingItem.Description>
+						<StackPanel Orientation="Vertical"
+									Spacing="2">
+							<TextBlock Text="更改配置文件的保存位置" />
+							<HyperlinkButton Click="{x:Bind ViewModel.OpenConfigLocation}"
+											 Content="打开配置文件位置" />
+						</StackPanel>
+					</local:SettingItem.Description>
+					<local:SettingItem.ActionContent>
+						<ToggleSwitch IsOn="{x:Bind ViewModel.IsPortableMode, Mode=TwoWay}" />
+					</local:SettingItem.ActionContent>
+				</local:SettingItem>
+			</local:SettingsGroup>
+			<local:SettingsGroup Title="高级">
+				<local:SettingItem Title="模拟独占全屏"
+								   Description="使你在游戏时不受打扰">
+					<local:SettingItem.Icon>
+						<FontIcon Glyph="&#xec46;" />
+					</local:SettingItem.Icon>
+					<local:SettingItem.ActionContent>
+						<ToggleSwitch IsOn="{x:Bind ViewModel.IsSimulateExclusiveFullscreen, Mode=TwoWay}" />
+					</local:SettingItem.ActionContent>
+				</local:SettingItem>
+				<local:SettingItem Title="内联效果参数"
+								   Description="可以稍微提高性能，但每次修改参数都需重新编译该效果">
+					<local:SettingItem.Icon>
+						<FontIcon Glyph="&#xE9E9;" />
+					</local:SettingItem.Icon>
+					<local:SettingItem.ActionContent>
+						<ToggleSwitch IsOn="{x:Bind ViewModel.IsInlineParams, Mode=TwoWay}" />
+					</local:SettingItem.ActionContent>
+				</local:SettingItem>
+				<muxc:Expander HorizontalAlignment="Stretch"
+							   HorizontalContentAlignment="Stretch"
+							   Style="{StaticResource SettingExpanderStyle}">
+					<muxc:Expander.Header>
+						<local:SettingItem Title="开发者选项"
+										   Style="{StaticResource ExpanderHeaderSettingStyle}">
+							<local:SettingItem.Icon>
+								<FontIcon Glyph="&#xEC7A;" />
+							</local:SettingItem.Icon>
+						</local:SettingItem>
+					</muxc:Expander.Header>
+					<muxc:Expander.Content>
+						<StackPanel>
+							<local:SettingItem Title="断点模式"
+											   Description="更改缩放行为以便于在 Visual Studio 中调试"
+											   Style="{StaticResource ExpanderContentSettingStyle}">
+								<local:SettingItem.ActionContent>
+									<ToggleSwitch IsOn="{x:Bind ViewModel.IsBreakpointMode, Mode=TwoWay}" />
+								</local:SettingItem.ActionContent>
+							</local:SettingItem>
+							<local:SettingItem Title="禁用效果缓存"
+											   Style="{StaticResource ExpanderContentSettingStyle}">
+								<local:SettingItem.ActionContent>
+									<ToggleSwitch IsOn="{x:Bind ViewModel.IsDisableEffectCache, Mode=TwoWay}" />
+								</local:SettingItem.ActionContent>
+							</local:SettingItem>
+							<local:SettingItem Title="解析效果时保存源代码"
+											   Style="{StaticResource ExpanderContentSettingStyle}">
+								<local:SettingItem.ActionContent>
+									<ToggleSwitch IsOn="{x:Bind ViewModel.IsSaveEffectSources, Mode=TwoWay}" />
+								</local:SettingItem.ActionContent>
+							</local:SettingItem>
+							<local:SettingItem Title="编译效果时将警告视为错误"
+											   Style="{StaticResource ExpanderContentSettingStyle}">
+								<local:SettingItem.ActionContent>
+									<ToggleSwitch IsOn="{x:Bind ViewModel.IsWarningsAreErrors, Mode=TwoWay}" />
+								</local:SettingItem.ActionContent>
+							</local:SettingItem>
+						</StackPanel>
+					</muxc:Expander.Content>
+				</muxc:Expander>
+			</local:SettingsGroup>
+		</StackPanel>
+	</local:PageFrame>
+</Page>

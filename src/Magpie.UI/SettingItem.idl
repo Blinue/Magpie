@@ -1,0 +1,14 @@
+namespace Magpie.UI
+{
+	[Windows.UI.Xaml.TemplateVisualState("Normal", "CommonStates")]
+	[Windows.UI.Xaml.TemplateVisualState("Disabled", "CommonStates")]
+	runtimeclass SettingItem : Windows.UI.Xaml.Controls.UserControl, [default] Windows.UI.Xaml.Data.INotifyPropertyChanged
+	{
+		SettingItem();
+
+		String Title;
+		Object Description;
+		Object Icon;
+		Object ActionContent;
+	}
+}

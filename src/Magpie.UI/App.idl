@@ -1,0 +1,65 @@
+#include "LoggerHelper.idl"
+#include "TextBlockHelper.idl"
+#include "CandidateWindowItem.idl"
+#include "NewProfileViewModel.idl"
+#include "MainPage.idl"
+#include "SettingItem.idl"
+#include "SettingsGroup.idl"
+#include "MicaBrush.idl"
+#include "HomeViewModel.idl"
+#include "SettingsViewModel.idl"
+#include "ScalingProfileViewModel.idl"
+#include "AboutPage.idl"
+#include "HomePage.idl"
+#include "SettingsPage.idl"
+#include "KeyVisual.idl"
+#include "ShortcutControl.idl"
+#include "ShortcutDialog.idl"
+#include "ScalingModesPage.idl"
+#include "ScalingProfilePage.idl"
+
+
+namespace Magpie.UI {
+	enum HotkeyAction {
+		Scale,
+		Overlay,
+		COUNT_OR_NONE
+	};
+
+	enum HotkeyError {
+		NoError,
+		Invalid,
+		Occupied
+	};
+
+	struct StartUpOptions {
+		Windows.Foundation.Rect MainWndRect;
+		Boolean IsError;
+		Boolean IsWndMaximized;
+		Boolean IsNeedElevated;
+	};
+
+	[default_interface]
+	runtimeclass App : Microsoft.Toolkit.Win32.UI.XamlHost.XamlApplication {
+		App();
+
+		void SaveSettings();
+
+		StartUpOptions Initialize(Int32 notUsed);
+
+		Boolean IsShowTrayIcon { get; };
+		event Windows.Foundation.EventHandler<Boolean> IsShowTrayIconChanged;
+
+		UInt64 HwndMain;
+		event Windows.Foundation.EventHandler<UInt64> HwndMainChanged;
+
+		MainPage MainPage;
+		Windows.Graphics.Display.DisplayInformation DisplayInformation { get; };
+
+		Boolean IsHostWndFocused { get; };
+		event Windows.Foundation.EventHandler<Boolean> HostWndFocusChanged;
+		void OnHostWndFocusChanged(Boolean isFocused);
+
+		void RestartAsElevated();
+	}
+}

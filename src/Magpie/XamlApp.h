@@ -1,7 +1,7 @@
 #pragma once
 #include "pch.h"
 #include <windows.ui.xaml.hosting.desktopwindowxamlsource.h>
-#include <winrt/Magpie.App.h>
+#include <winrt/Magpie.UI.h>
 #include "Win32Utils.h"
 
 
@@ -66,8 +66,8 @@ private:
 
 	NOTIFYICONDATA _nid{};
 
-	winrt::Magpie::App::App _uwpApp{ nullptr };
-	winrt::Magpie::App::MainPage _mainPage{ nullptr };
+	winrt::Magpie::UI::App _uwpApp{ nullptr };
+	winrt::Magpie::UI::MainPage _mainPage{ nullptr };
 	HWND _hwndMain = NULL;
 	HWND _hwndXamlIsland = NULL;
 
