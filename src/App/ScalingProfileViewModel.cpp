@@ -8,7 +8,7 @@
 #include "IconHelper.h"
 #include "ScalingProfileService.h"
 #include "StrUtils.h"
-#include <Runtime.h>
+#include <Magpie.Core.h>
 #include "Win32Utils.h"
 
 

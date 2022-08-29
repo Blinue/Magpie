@@ -9,7 +9,7 @@
 #include <rapidjson/document.h>
 #include <rapidjson/prettywriter.h>
 #include "AutoStartHelper.h"
-#include <Runtime.h>
+#include <Magpie.Core.h>
 
 using namespace Magpie::Runtime;
 

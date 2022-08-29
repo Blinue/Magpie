@@ -26,7 +26,7 @@
 #include "CommonSharedConstants.h"
 #include "MagService.h"
 #include <CoreWindow.h>
-#include <Runtime.h>
+#include <Magpie.Core.h>
 #include "EffectsService.h"
 
 using namespace winrt;

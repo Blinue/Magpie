@@ -57,13 +57,13 @@
   <PropertyGroup Label="UserMacros" />
   <ItemGroup>
     <ProjectReference Include="..\$(AppProjectName)\$(AppProjectName).vcxproj" />
-    <ProjectReference Include="..\Runtime\Runtime.vcxproj">
+    <ProjectReference Include="..\Magpie.Core\Magpie.Core.vcxproj">
       <Project>{0e5205ae-dfa9-4cb8-b662-e43cd6512e2a}</Project>
     </ProjectReference>
   </ItemGroup>
   <ItemDefinitionGroup>
     <ClCompile>
-      <AdditionalIncludeDirectories>..\Runtime\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\Magpie.Core\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

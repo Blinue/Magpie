@@ -2,7 +2,7 @@
 #include "CommonPCH.h"
 
 
-#ifdef RUNTIME_EXPORTS
+#ifdef MAGPIE_CORE_EXPORTS
 #define API_DECLSPEC __declspec(dllexport)
 #else
 #define API_DECLSPEC __declspec(dllimport)

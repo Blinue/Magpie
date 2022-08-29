@@ -20,7 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
-    <ClInclude Include="include\Runtime.h">
+    <ClInclude Include="include\Magpie.Core.h">
       <Filter>Include</Filter>
     </ClInclude>
     <ClInclude Include="MagOptions.h" />

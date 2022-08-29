@@ -8,7 +8,7 @@
 #include <uxtheme.h>
 #include <fmt/xchar.h>
 #include "resource.h"
-#include <Runtime.h>
+#include <Magpie.Core.h>
 
 #pragma comment(lib, "UxTheme.lib")
 

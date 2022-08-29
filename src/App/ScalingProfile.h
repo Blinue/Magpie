@@ -1,6 +1,6 @@
 #pragma once
 #include "pch.h"
-#include <Runtime.h>
+#include <Magpie.Core.h>
 
 
 namespace winrt::Magpie::App {

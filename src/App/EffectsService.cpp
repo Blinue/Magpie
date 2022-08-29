@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "EffectsService.h"
-#include <Runtime.h>
+#include <Magpie.Core.h>
 #include "StrUtils.h"
 #include "Win32Utils.h"
 #include "CommonSharedConstants.h"

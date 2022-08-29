@@ -1,7 +1,7 @@
 #pragma once
 #include "pch.h"
 #include <winrt/Magpie.App.h>
-#include <Runtime.h>
+#include <Magpie.Core.h>
 #include "WinRTUtils.h"
 
 

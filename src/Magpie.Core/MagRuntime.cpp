@@ -1,7 +1,7 @@
 #include "pch.h"
-#include "include/Runtime.h"
 #include <dispatcherqueue.h>
 #include "MagApp.h"
+#include "MagRuntime.h"
 
 
 namespace Magpie::Runtime {
