@@ -2,7 +2,7 @@
 #include "LoggerHelper.h"
 
 
-namespace Magpie::Runtime {
+namespace Magpie::Core {
 
 void LoggerHelper::Initialize(Logger& logger) {
 	Logger::Get().Initialize(logger);

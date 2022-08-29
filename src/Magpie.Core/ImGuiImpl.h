@@ -2,7 +2,7 @@
 #include "pch.h"
 
 
-namespace Magpie::Runtime {
+namespace Magpie::Core {
 
 class ImGuiImpl {
 public:

@@ -17,7 +17,7 @@ using namespace Windows::Graphics::Display;
 using namespace Windows::Graphics::Imaging;
 using namespace Windows::UI::Xaml::Controls;
 using namespace Windows::UI::Xaml::Media::Imaging;
-using namespace ::Magpie::Runtime;
+using namespace ::Magpie::Core;
 
 
 namespace winrt::Magpie::App::implementation {
@@ -211,7 +211,7 @@ void ScalingProfileViewModel::CaptureMode(int32_t value) {
 		return;
 	}
 
-	::Magpie::Runtime::CaptureMode captureMode = (::Magpie::Runtime::CaptureMode)value;
+	::Magpie::Core::CaptureMode captureMode = (::Magpie::Core::CaptureMode)value;
 	if (_profile->captureMode == captureMode) {
 		return;
 	}
@@ -242,7 +242,7 @@ void ScalingProfileViewModel::MultiMonitorUsage(int32_t value) {
 		return;
 	}
 
-	::Magpie::Runtime::MultiMonitorUsage multiMonitorUsage = (::Magpie::Runtime::MultiMonitorUsage)value;
+	::Magpie::Core::MultiMonitorUsage multiMonitorUsage = (::Magpie::Core::MultiMonitorUsage)value;
 	if (_profile->multiMonitorUsage == multiMonitorUsage) {
 		return;
 	}
@@ -466,7 +466,7 @@ void ScalingProfileViewModel::CursorInterpolationMode(int32_t value) {
 		return;
 	}
 
-	::Magpie::Runtime::CursorInterpolationMode cursorInterpolationMode = (::Magpie::Runtime::CursorInterpolationMode)value;
+	::Magpie::Core::CursorInterpolationMode cursorInterpolationMode = (::Magpie::Core::CursorInterpolationMode)value;
 	if (_profile->cursorInterpolationMode == cursorInterpolationMode) {
 		return;
 	}

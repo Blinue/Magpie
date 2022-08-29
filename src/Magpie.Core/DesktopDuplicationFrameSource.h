@@ -2,7 +2,7 @@
 #include "FrameSourceBase.h"
 
 
-namespace Magpie::Runtime {
+namespace Magpie::Core {
 
 // 使用 Desktop Duplication API 捕获窗口
 // 在单独的线程中接收屏幕帧以避免丢帧

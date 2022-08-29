@@ -7,7 +7,7 @@ namespace winrt::Magpie::App {
 
 struct EffectInfo {
 	std::wstring name;
-	std::vector<::Magpie::Runtime::EffectParameterDesc> params;
+	std::vector<::Magpie::Core::EffectParameterDesc> params;
 	bool hasScale = false;
 };
 

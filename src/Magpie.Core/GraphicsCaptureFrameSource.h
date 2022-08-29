@@ -6,7 +6,7 @@
 #include "Win32Utils.h"
 
 
-namespace Magpie::Runtime {
+namespace Magpie::Core {
 
 // 使用 Window Runtime 的 Windows.Graphics.Capture API 抓取窗口
 // 见 https://docs.microsoft.com/en-us/windows/uwp/audio-video-camera/screen-capture

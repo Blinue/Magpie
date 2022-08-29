@@ -12,7 +12,7 @@
 #include "DXUtils.h"
 
 
-namespace Magpie::Runtime {
+namespace Magpie::Core {
 
 static const char* META_INDICATOR = "//!";
 

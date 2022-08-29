@@ -7,7 +7,7 @@
 #include "CommonSharedConstants.h"
 
 
-namespace Magpie::Runtime {
+namespace Magpie::Core {
 
 FrameSourceBase::~FrameSourceBase() {
 	HWND hwndSrc = MagApp::Get().GetHwndSrc();

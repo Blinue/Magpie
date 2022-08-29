@@ -51,15 +51,15 @@ struct ScalingProfile {
 	float customCursorScaling = 1.0;
 
 	bool isCroppingEnabled = false;
-	::Magpie::Runtime::Cropping cropping{};
-	::Magpie::Runtime::CaptureMode captureMode = ::Magpie::Runtime::CaptureMode::GraphicsCapture;
+	::Magpie::Core::Cropping cropping{};
+	::Magpie::Core::CaptureMode captureMode = ::Magpie::Core::CaptureMode::GraphicsCapture;
 	uint32_t graphicsAdapter = 0;
-	::Magpie::Runtime::MultiMonitorUsage multiMonitorUsage = ::Magpie::Runtime::MultiMonitorUsage::Nearest;
-	::Magpie::Runtime::CursorInterpolationMode cursorInterpolationMode = ::Magpie::Runtime::CursorInterpolationMode::Nearest;
+	::Magpie::Core::MultiMonitorUsage multiMonitorUsage = ::Magpie::Core::MultiMonitorUsage::Nearest;
+	::Magpie::Core::CursorInterpolationMode cursorInterpolationMode = ::Magpie::Core::CursorInterpolationMode::Nearest;
 
-	uint32_t flags = ::Magpie::Runtime::MagFlags::IsVSync 
-		| ::Magpie::Runtime::MagFlags::IsAdjustCursorSpeed
-		| ::Magpie::Runtime::MagFlags::IsDrawCursor;
+	uint32_t flags = ::Magpie::Core::MagFlags::IsVSync 
+		| ::Magpie::Core::MagFlags::IsAdjustCursorSpeed
+		| ::Magpie::Core::MagFlags::IsDrawCursor;
 };
 
 }

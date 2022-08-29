@@ -5,7 +5,7 @@
 #include "StrUtils.h"
 
 
-bool Magpie::Runtime::DXUtils::CompileComputeShader(
+bool Magpie::Core::DXUtils::CompileComputeShader(
 	std::string_view hlsl,
 	const char* entryPoint,
 	ID3DBlob** blob,

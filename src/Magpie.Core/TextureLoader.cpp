@@ -14,7 +14,7 @@
 ///////////////////////////////////////////////////////////////////
 
 
-namespace Magpie::Runtime {
+namespace Magpie::Core {
 
 HRESULT CreateD3DResources(
     _In_ ID3D11Device* d3dDevice,

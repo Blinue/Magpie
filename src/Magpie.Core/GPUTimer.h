@@ -2,7 +2,7 @@
 #include "pch.h"
 
 
-namespace Magpie::Runtime {
+namespace Magpie::Core {
 
 // 用于记录帧率和 GPU 时间
 class GPUTimer {

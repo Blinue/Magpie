@@ -3,7 +3,7 @@
 #include "EffectDesc.h"
 
 
-namespace Magpie::Runtime {
+namespace Magpie::Core {
 
 struct EffectCompilerFlags {
 	static constexpr const uint32_t NoCache = 0x1;

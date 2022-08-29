@@ -4,7 +4,7 @@
 #include "Utils.h"
 
 
-namespace Magpie::Runtime {
+namespace Magpie::Core {
 
 class DeviceResources {
 public:

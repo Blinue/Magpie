@@ -18,7 +18,7 @@
 #pragma pop_macro("_UNICODE")
 
 
-namespace Magpie::Runtime {
+namespace Magpie::Core {
 
 bool EffectDrawer::Initialize(
 	const EffectDesc& desc,

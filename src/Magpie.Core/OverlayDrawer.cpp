@@ -18,7 +18,7 @@
 #pragma comment(lib, "wbemuuid.lib")
 
 
-namespace Magpie::Runtime {
+namespace Magpie::Core {
 
 OverlayDrawer::OverlayDrawer() {}
 

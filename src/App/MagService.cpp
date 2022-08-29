@@ -5,7 +5,7 @@
 #include "AppSettings.h"
 #include "ScalingProfileService.h"
 
-using namespace Magpie::Runtime;
+using namespace Magpie::Core;
 
 
 namespace winrt::Magpie::App {

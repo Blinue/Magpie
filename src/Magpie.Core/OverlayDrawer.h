@@ -5,7 +5,7 @@
 
 struct ImFont;
 
-namespace Magpie::Runtime {
+namespace Magpie::Core {
 
 class ImGuiImpl;
 

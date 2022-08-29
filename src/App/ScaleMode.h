@@ -7,7 +7,7 @@ namespace winrt::Magpie::App {
 
 struct ScaleMode {
 	std::wstring name;
-	std::vector<::Magpie::Runtime::EffectOption> effects;
+	std::vector<::Magpie::Core::EffectOption> effects;
 };
 
 }

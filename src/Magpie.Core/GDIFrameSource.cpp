@@ -5,7 +5,7 @@
 #include "Logger.h"
 
 
-namespace Magpie::Runtime {
+namespace Magpie::Core {
 
 bool GDIFrameSource::Initialize() {
 	if (!FrameSourceBase::Initialize()) {

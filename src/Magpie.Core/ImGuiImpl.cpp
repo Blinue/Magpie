@@ -11,7 +11,7 @@
 #include "Win32Utils.h"
 
 
-namespace Magpie::Runtime {
+namespace Magpie::Core {
 
 ImGuiImpl::~ImGuiImpl() {
 	ImGuiIO& io = ImGui::GetIO();

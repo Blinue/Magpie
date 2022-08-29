@@ -41,7 +41,7 @@ void serialize(Archive& ar, const winrt::com_ptr<ID3DBlob>& o) {
 	}
 }
 
-namespace Magpie::Runtime {
+namespace Magpie::Core {
 
 template<typename Archive>
 void serialize(Archive& ar, const EffectParameterDesc& o) {

@@ -4,7 +4,7 @@
 #include "Logger.h"
 
 
-namespace Magpie::Runtime {
+namespace Magpie::Core {
 
 // 模拟 D3D 独占全屏模式，以起到免打扰的效果
 // SHQueryUserNotificationState 通常被用来检测是否有 D3D 游戏独占全屏，以确定是否应该向用户推送通知/弹窗

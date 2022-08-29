@@ -5,7 +5,7 @@
 #include "Win32Utils.h"
 #include "CommonSharedConstants.h"
 
-using namespace Magpie::Runtime;
+using namespace Magpie::Core;
 
 
 namespace winrt::Magpie::App {

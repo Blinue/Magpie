@@ -3,7 +3,7 @@
 #include "Logger.h"
 
 
-namespace Magpie::Runtime {
+namespace Magpie::Core {
 
 struct API_DECLSPEC LoggerHelper {
 	static void Initialize(Logger& logger);

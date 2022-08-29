@@ -6,7 +6,7 @@
 #include "Win32Utils.h"
 
 
-namespace Magpie::Runtime {
+namespace Magpie::Core {
 
 static winrt::com_ptr<IDXGIOutput1> FindMonitor(IDXGIAdapter1* adapter, HMONITOR hMonitor) {
 	winrt::com_ptr<IDXGIOutput> output;

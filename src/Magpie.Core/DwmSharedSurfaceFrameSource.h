@@ -3,7 +3,7 @@
 #include "FrameSourceBase.h"
 
 
-namespace Magpie::Runtime {
+namespace Magpie::Core {
 
 class DwmSharedSurfaceFrameSource : public FrameSourceBase {
 public:

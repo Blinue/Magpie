@@ -5,7 +5,7 @@
 #include "Logger.h"
 
 
-namespace Magpie::Runtime {
+namespace Magpie::Core {
 
 static inline void LogAdapter(const DXGI_ADAPTER_DESC1& adapterDesc) {
 	Logger::Get().Info(fmt::format("当前图形适配器：\n\tVendorId：{:#x}\n\tDeviceId：{:#x}\n\t描述：{}",

@@ -4,7 +4,7 @@
 #include "MagRuntime.h"
 
 
-namespace Magpie::Runtime {
+namespace Magpie::Core {
 
 class MagRuntime::Impl {
 public:

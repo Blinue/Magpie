@@ -2,7 +2,7 @@
 #include "pch.h"
 
 
-namespace Magpie::Runtime {
+namespace Magpie::Core {
 
 enum class CaptureMode {
 	GraphicsCapture,
@@ -72,12 +72,12 @@ struct EffectOption {
 };
 
 #define DEFINE_MAGFLAG_ACCESSOR(Name) \
-	bool Name() const noexcept { return flags & ::Magpie::Runtime::MagFlags::Name; } \
+	bool Name() const noexcept { return flags & ::Magpie::Core::MagFlags::Name; } \
 	void Name(bool value) noexcept { \
 		if (value) { \
-			flags |= ::Magpie::Runtime::MagFlags::Name; \
+			flags |= ::Magpie::Core::MagFlags::Name; \
 		} else { \
-			flags &= ~::Magpie::Runtime::MagFlags::Name; \
+			flags &= ~::Magpie::Core::MagFlags::Name; \
 		} \
 	}
 

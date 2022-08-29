@@ -3,7 +3,7 @@
 #include <variant>
 
 
-namespace Magpie::Runtime {
+namespace Magpie::Core {
 
 enum class EffectIntermediateTextureFormat {
 	R32G32B32A32_FLOAT,

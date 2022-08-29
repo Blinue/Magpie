@@ -4,7 +4,7 @@
 #include "MagOptions.h"
 
 
-namespace Magpie::Runtime {
+namespace Magpie::Core {
 
 class DeviceResources;
 class Renderer;

@@ -4,7 +4,7 @@
 #include "EffectDrawer.h"
 
 
-namespace Magpie::Runtime {
+namespace Magpie::Core {
 
 class GPUTimer;
 class OverlayDrawer;

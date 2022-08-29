@@ -8,7 +8,7 @@
 #include "DeviceResources.h"
 
 
-namespace Magpie::Runtime {
+namespace Magpie::Core {
 
 // 将源窗口的光标位置映射到缩放后的光标位置
 // 当光标位于源窗口之外，与源窗口的距离不会缩放

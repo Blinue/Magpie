@@ -4,7 +4,7 @@
 #include "EffectDesc.h"
 
 
-namespace Magpie::Runtime {
+namespace Magpie::Core {
 
 class EffectCacheManager {
 public:

@@ -13,7 +13,7 @@
 #include "CursorManager.h"
 
 
-namespace Magpie::Runtime {
+namespace Magpie::Core {
 
 Renderer::Renderer() {}
 

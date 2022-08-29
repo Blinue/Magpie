@@ -4,7 +4,7 @@
 #include "WinRTUtils.h"
 
 
-namespace Magpie::Runtime {
+namespace Magpie::Core {
 
 class API_DECLSPEC MagRuntime {
 public:

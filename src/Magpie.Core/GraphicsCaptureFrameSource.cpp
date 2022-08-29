@@ -16,7 +16,7 @@ using namespace Windows::Graphics::DirectX::Direct3D11;
 }
 
 
-namespace Magpie::Runtime {
+namespace Magpie::Core {
 
 bool GraphicsCaptureFrameSource::Initialize() {
 	if (!FrameSourceBase::Initialize()) {

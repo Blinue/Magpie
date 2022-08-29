@@ -6,7 +6,7 @@
 using namespace std::chrono_literals;
 
 
-namespace Magpie::Runtime {
+namespace Magpie::Core {
 
 void GPUTimer::OnBeginFrame() {
 	auto now = std::chrono::high_resolution_clock::now();
