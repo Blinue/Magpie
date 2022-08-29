@@ -11,4 +11,4 @@ imgui/1.87
 visual_studio
 
 [imports]
-./res/bindings, imgui_impl_dx11.* -> ../../../src/Runtime
+./res/bindings, imgui_impl_dx11.* -> ../../../src/Magpie.Core
