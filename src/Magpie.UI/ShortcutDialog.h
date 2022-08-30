@@ -23,7 +23,7 @@ private:
 	void _IsError(bool value);
 
 	HotkeyError _error = HotkeyError::NoError;
-	IVector<IInspectable> _keys = nullptr;
+	IVector<IInspectable> _keys{ nullptr };
 };
 
 }

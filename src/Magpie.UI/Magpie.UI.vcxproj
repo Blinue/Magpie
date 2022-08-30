@@ -139,6 +139,7 @@
       <DependentUpon>NewProfileViewModel.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
+    <ClInclude Include="ScalingModesService.h" />
     <ClInclude Include="ScalingModesViewModel.h">
       <DependentUpon>ScalingModesViewModel.idl</DependentUpon>
       <SubType>Code</SubType>
@@ -259,6 +260,7 @@
       <DependentUpon>NewProfileViewModel.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
+    <ClCompile Include="ScalingModesService.cpp" />
     <ClCompile Include="ScalingModesViewModel.cpp">
       <DependentUpon>ScalingModesViewModel.idl</DependentUpon>
       <SubType>Code</SubType>

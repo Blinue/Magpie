@@ -15,8 +15,14 @@ struct ScalingModesViewModel : ScalingModesViewModelT<ScalingModesViewModel> {
 		_propertyChangedEvent.remove(token);
 	}
 
+	IObservableVector<IInspectable> ScalingModes() const noexcept {
+		return _scalingModes;
+	}
+
 private:
 	event<PropertyChangedEventHandler> _propertyChangedEvent;
+
+	IObservableVector<IInspectable> _scalingModes{ nullptr };
 };
 
 }

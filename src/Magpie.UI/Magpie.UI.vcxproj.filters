@@ -47,6 +47,9 @@
     <ClCompile Include="EffectsService.cpp">
       <Filter>Services</Filter>
     </ClCompile>
+    <ClCompile Include="ScalingModesService.cpp">
+      <Filter>ViewModels</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -89,6 +92,9 @@
       <Filter>Models</Filter>
     </ClInclude>
     <ClInclude Include="EffectsService.h">
+      <Filter>Services</Filter>
+    </ClInclude>
+    <ClInclude Include="ScalingModesService.h">
       <Filter>Services</Filter>
     </ClInclude>
   </ItemGroup>

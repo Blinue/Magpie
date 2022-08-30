@@ -63,7 +63,7 @@ private:
 
 	HotkeySettings _hotkey;
 	Controls::ContentDialog _shortcutDialog{ nullptr };
-	ShortcutDialog _shortcutDialogContent{ nullptr };
+	Magpie::UI::ShortcutDialog _shortcutDialogContent{ nullptr };
 
 	HHOOK _keyboardHook = NULL;
 	// 用于向键盘钩子传递 this 指针

@@ -26,7 +26,7 @@ private:
 	void _RootElement_ActualThemeChanged(FrameworkElement const&, IInspectable const&);
 	void _App_HostWndFocusedChanged(IInspectable const&, bool isFocused);
 
-	App _app{ nullptr };
+	Magpie::UI::App _app{ nullptr };
 
 	weak_ref<FrameworkElement> _rootElement{ nullptr };
 	bool _windowActivated = false;

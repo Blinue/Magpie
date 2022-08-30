@@ -123,7 +123,7 @@ private:
 	std::wstring_view _trimedRenameText;
 	bool _isRenameConfirmButtonEnabled = false;
 
-	IVector<IInspectable> _graphicsAdapters;
+	IVector<IInspectable> _graphicsAdapters{ nullptr };
 
 	event<PropertyChangedEventHandler> _propertyChangedEvent;
 

@@ -5,5 +5,6 @@ namespace Magpie.UI
     {
         ScalingModesViewModel();
         
+        IObservableVector<IInspectable> ScalingModes { get; };
     }
 }

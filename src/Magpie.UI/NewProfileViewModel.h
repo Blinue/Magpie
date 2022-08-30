@@ -74,10 +74,10 @@ private:
 
 	event<PropertyChangedEventHandler> _propertyChangedEvent;
 
-	IVector<IInspectable> _candidateWindows;
+	IVector<IInspectable> _candidateWindows{ nullptr };
 	int32_t _candidateWindowIndex = -1;
 	hstring _name;
-	IVector<IInspectable> _profiles;
+	IVector<IInspectable> _profiles{ nullptr };
 	int32_t _profileIndex = 0;
 	bool _isConfirmButtonEnabled = false;
 };

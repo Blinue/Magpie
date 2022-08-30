@@ -18,6 +18,7 @@ public:
 
 	bool TestNewProfile(bool isPackaged, std::wstring_view pathOrAumid, std::wstring_view className);
 
+	// copyFrom < 0 表示复制默认配置
 	bool AddProfile(bool isPackaged, std::wstring_view pathOrAumid, std::wstring_view className, std::wstring_view name, int copyFrom);
 
 	event_token ProfileAdded(delegate<ScalingProfile&> const& handler) {
