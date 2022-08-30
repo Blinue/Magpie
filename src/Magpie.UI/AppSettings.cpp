@@ -759,8 +759,6 @@ void AppSettings::_UpdateConfigPath() noexcept {
 			_configDir = StrUtils::ConcatW(
 				localAppDataDir,
 				localAppDataDir[StrUtils::StrLen(localAppDataDir) - 1] == L'\\' ? L"Magpie\\" : L"\\Magpie\\",
-				MAGPIE_VERSION_W,
-				L"\\",
 				CommonSharedConstants::CONFIG_DIR
 			);
 		} else {
