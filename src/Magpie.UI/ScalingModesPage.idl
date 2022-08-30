@@ -4,5 +4,7 @@ namespace Magpie.UI
 	runtimeclass ScalingModesPage : Windows.UI.Xaml.Controls.Page
 	{
 		ScalingModesPage();
+
+		ScalingModesViewModel ViewModel { get; };
 	}
 }

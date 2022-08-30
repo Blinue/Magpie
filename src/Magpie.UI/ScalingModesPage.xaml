@@ -43,6 +43,7 @@
 				</local:SettingItem>
 			</local:SettingsGroup>
 			<local:SettingsGroup Title="缩放模式">
+				<ListView />
 				<muxc:Expander HorizontalAlignment="Stretch"
 							   HorizontalContentAlignment="Stretch"
 							   Style="{StaticResource SettingExpanderStyle}">

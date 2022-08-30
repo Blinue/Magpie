@@ -159,6 +159,9 @@
     <None Include="NewProfileViewModel.idl">
       <Filter>ViewModels</Filter>
     </None>
+    <None Include="ScalingModesViewModel.idl">
+      <Filter>ViewModels</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Page Include="MainPage.xaml" />

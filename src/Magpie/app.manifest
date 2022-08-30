@@ -17,10 +17,6 @@
 			threadingModel="both"
 			xmlns="urn:schemas-microsoft-com:winrt.v1" />
 		<activatableClass
-			name="Magpie.UI.Settings"
-			threadingModel="both"
-			xmlns="urn:schemas-microsoft-com:winrt.v1" />
-		<activatableClass
 			name="Magpie.UI.LoggerHelper"
 			threadingModel="both"
 			xmlns="urn:schemas-microsoft-com:winrt.v1" />

@@ -6,17 +6,18 @@
 #include "SettingItem.idl"
 #include "SettingsGroup.idl"
 #include "MicaBrush.idl"
-#include "HomeViewModel.idl"
-#include "SettingsViewModel.idl"
-#include "ScalingProfileViewModel.idl"
 #include "AboutPage.idl"
-#include "HomePage.idl"
-#include "SettingsPage.idl"
 #include "KeyVisual.idl"
 #include "ShortcutControl.idl"
 #include "ShortcutDialog.idl"
+#include "HomeViewModel.idl"
+#include "HomePage.idl"
+#include "ScalingModesViewModel.idl"
 #include "ScalingModesPage.idl"
+#include "ScalingProfileViewModel.idl"
 #include "ScalingProfilePage.idl"
+#include "SettingsViewModel.idl"
+#include "SettingsPage.idl"
 
 
 namespace Magpie.UI {
