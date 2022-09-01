@@ -1,5 +1,5 @@
 [requires]
-fmt/9.0.0
+fmt/9.1.0
 spdlog/1.10.0
 muparser/2.3.2
 yas/7.1.0
