@@ -31,15 +31,11 @@
 #include <winrt/Windows.UI.Text.h>
 #include <winrt/Windows.System.Power.h>
 #include <winrt/Windows.Graphics.Effects.h>
+#include <winrt/Microsoft.Graphics.Canvas.Effects.h>
 #include <winrt/Microsoft.UI.Xaml.Controls.h>
 #include <winrt/Microsoft.UI.Xaml.Controls.Primitives.h>
 #include <winrt/Microsoft.UI.Xaml.Media.h>
 #include <winrt/Microsoft.UI.Xaml.XamlTypeInfo.h>
-
-#pragma push_macro("GetNextSibling")
-#undef GetNextSibling
-#include <winrt/Microsoft.Graphics.Canvas.Effects.h>
-#pragma pop_macro("GetNextSibling")
 
 
 namespace winrt {

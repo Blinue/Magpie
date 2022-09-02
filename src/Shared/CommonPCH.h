@@ -36,6 +36,10 @@
 #include <shellapi.h>
 #include <Shlwapi.h>
 
+// 修复 C++/WinRT 头文件的警告
+#undef GetCurrentTime
+#undef GetNextSibling
+
 // DirectX 头文件
 #include <d3d11_4.h>
 #include <dxgi1_6.h>

@@ -544,7 +544,7 @@ bool AppSettings::_LoadSettings(std::string text) {
 
 	rapidjson::Document doc;
 	if (doc.Parse(text.c_str(), text.size()).HasParseError()) {
-		Logger::Get().Error(fmt::format("解析配置失败\n\t错误码：{}", doc.GetParseError()));
+		Logger::Get().Error(fmt::format("解析配置失败\n\t错误码：{}", (int)doc.GetParseError()));
 		return false;
 	}
 
