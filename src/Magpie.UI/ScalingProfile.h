@@ -30,15 +30,15 @@ struct ScalingProfile {
 		flags = other.flags;
 	}
 
-	DEFINE_MAGFLAG_ACCESSOR(IsDisableWindowResizing)
-	DEFINE_MAGFLAG_ACCESSOR(Is3DGameMode)
-	DEFINE_MAGFLAG_ACCESSOR(IsShowFPS)
-	DEFINE_MAGFLAG_ACCESSOR(IsVSync)
-	DEFINE_MAGFLAG_ACCESSOR(IsTripleBuffering)
-	DEFINE_MAGFLAG_ACCESSOR(IsReserveTitleBar)
-	DEFINE_MAGFLAG_ACCESSOR(IsAdjustCursorSpeed)
-	DEFINE_MAGFLAG_ACCESSOR(IsDrawCursor)
-	DEFINE_MAGFLAG_ACCESSOR(IsDisableDirectFlip)
+	DEFINE_FLAG_ACCESSOR(IsDisableWindowResizing, ::Magpie::Core::MagFlags::DisableWindowResizing, flags)
+	DEFINE_FLAG_ACCESSOR(Is3DGameMode, ::Magpie::Core::MagFlags::Is3DGameMode, flags)
+	DEFINE_FLAG_ACCESSOR(IsShowFPS, ::Magpie::Core::MagFlags::ShowFPS, flags)
+	DEFINE_FLAG_ACCESSOR(IsVSync, ::Magpie::Core::MagFlags::VSync, flags)
+	DEFINE_FLAG_ACCESSOR(IsTripleBuffering, ::Magpie::Core::MagFlags::TripleBuffering, flags)
+	DEFINE_FLAG_ACCESSOR(IsReserveTitleBar, ::Magpie::Core::MagFlags::ReserveTitleBar, flags)
+	DEFINE_FLAG_ACCESSOR(IsAdjustCursorSpeed, ::Magpie::Core::MagFlags::AdjustCursorSpeed, flags)
+	DEFINE_FLAG_ACCESSOR(IsDrawCursor, ::Magpie::Core::MagFlags::DrawCursor, flags)
+	DEFINE_FLAG_ACCESSOR(IsDisableDirectFlip, ::Magpie::Core::MagFlags::DisableDirectFlip, flags)
 
 	std::wstring name;
 
@@ -57,9 +57,9 @@ struct ScalingProfile {
 	::Magpie::Core::MultiMonitorUsage multiMonitorUsage = ::Magpie::Core::MultiMonitorUsage::Nearest;
 	::Magpie::Core::CursorInterpolationMode cursorInterpolationMode = ::Magpie::Core::CursorInterpolationMode::Nearest;
 
-	uint32_t flags = ::Magpie::Core::MagFlags::IsVSync 
-		| ::Magpie::Core::MagFlags::IsAdjustCursorSpeed
-		| ::Magpie::Core::MagFlags::IsDrawCursor;
+	uint32_t flags = ::Magpie::Core::MagFlags::VSync 
+		| ::Magpie::Core::MagFlags::AdjustCursorSpeed
+		| ::Magpie::Core::MagFlags::DrawCursor;
 };
 
 }

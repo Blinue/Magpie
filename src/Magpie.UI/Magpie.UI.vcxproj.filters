@@ -48,7 +48,7 @@
       <Filter>Services</Filter>
     </ClCompile>
     <ClCompile Include="ScalingModesService.cpp">
-      <Filter>ViewModels</Filter>
+      <Filter>Services</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -88,7 +88,7 @@
     <ClInclude Include="AutoStartHelper.h">
       <Filter>Helpers</Filter>
     </ClInclude>
-    <ClInclude Include="ScaleMode.h">
+    <ClInclude Include="ScalingMode.h">
       <Filter>Models</Filter>
     </ClInclude>
     <ClInclude Include="EffectsService.h">

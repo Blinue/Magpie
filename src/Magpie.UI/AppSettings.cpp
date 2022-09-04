@@ -35,6 +35,30 @@ static bool LoadBoolSettingItem(
 	return true;
 }
 
+static bool LoadBoolFlagSettingItem(
+	const rapidjson::GenericObject<false, rapidjson::Value>& obj,
+	const char* nodeName,
+	uint32_t flagBit,
+	uint32_t& flags
+) {
+	auto node = obj.FindMember(nodeName);
+	if (node == obj.MemberEnd()) {
+		return true;
+	}
+
+	if (!node->value.IsBool()) {
+		return false;
+	}
+
+	if (node->value.GetBool()) {
+		flags |= flagBit;
+	} else {
+		flags &= ~flagBit;
+	}
+
+	return true;
+}
+
 static bool LoadUIntSettingItem(
 	const rapidjson::GenericObject<false, rapidjson::Value>& obj,
 	const char* nodeName,
@@ -92,7 +116,7 @@ static bool LoadStringSettingItem(
 	return true;
 }
 
-static void WriteScaleMode(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer, const ScaleMode& scaleMode) {
+static void WriteScaleMode(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer, const ScalingMode& scaleMode) {
 	writer.StartObject();
 	writer.Key("name");
 	writer.String(StrUtils::UTF16ToUTF8(scaleMode.name).c_str());
@@ -151,8 +175,25 @@ static void WriteScalingProfile(rapidjson::PrettyWriter<rapidjson::StringBuffer>
 	writer.Uint((uint32_t)scalingProfile.multiMonitorUsage);
 	writer.Key("graphicsAdapter");
 	writer.Uint(scalingProfile.graphicsAdapter);
-	writer.Key("flags");
-	writer.Uint(scalingProfile.flags);
+
+	writer.Key("disableWindowResizing");
+	writer.Bool(scalingProfile.IsDisableWindowResizing());
+	writer.Key("3DGameMode");
+	writer.Bool(scalingProfile.Is3DGameMode());
+	writer.Key("showFPS");
+	writer.Bool(scalingProfile.IsShowFPS());
+	writer.Key("VSync");
+	writer.Bool(scalingProfile.IsVSync());
+	writer.Key("tripleBuffering");
+	writer.Bool(scalingProfile.IsTripleBuffering());
+	writer.Key("reserveTitleBar");
+	writer.Bool(scalingProfile.IsReserveTitleBar());
+	writer.Key("adjustCursorSpeed");
+	writer.Bool(scalingProfile.IsAdjustCursorSpeed());
+	writer.Key("drawCursor");
+	writer.Bool(scalingProfile.IsDrawCursor());
+	writer.Key("disableDirectFlip");
+	writer.Bool(scalingProfile.IsDisableDirectFlip());
 
 	writer.Key("cursorScaling");
 	writer.Uint((uint32_t)scalingProfile.cursorScaling);
@@ -209,7 +250,7 @@ static bool LoadScalingProfile(const rapidjson::GenericObject<false, rapidjson::
 		return false;
 	}
 
-	if (!LoadUIntSettingItem(scalingConfigObj, "flags", scalingProfile.flags)) {
+	if (!LoadBoolFlagSettingItem(scalingConfigObj, "disableWindowResizing", MagFlags::DisableDirectFlip, scalingProfile.flags)) {
 		return false;
 	}
 
@@ -249,20 +290,20 @@ static bool LoadScalingProfile(const rapidjson::GenericObject<false, rapidjson::
 	return true;
 }
 
-static bool LoadScaleMode(const rapidjson::GenericObject<false, rapidjson::Value>& scaleModeObj, ScaleMode& scaleMode) {
-	if (!LoadStringSettingItem(scaleModeObj, "name", scaleMode.name)) {
+static bool LoadScalingMode(const rapidjson::GenericObject<false, rapidjson::Value>& scalingModeObj, ScalingMode& scalingMode) {
+	if (!LoadStringSettingItem(scalingModeObj, "name", scalingMode.name)) {
 		return false;
 	}
 
-	auto effectsNode = scaleModeObj.FindMember("effects");
-	if (effectsNode != scaleModeObj.MemberEnd()) {
+	auto effectsNode = scalingModeObj.FindMember("effects");
+	if (effectsNode != scalingModeObj.MemberEnd()) {
 		if (!effectsNode->value.IsArray()) {
 			return false;
 		}
 
 		auto effectsArray = effectsNode->value.GetArray();
 		rapidjson::SizeType size = effectsArray.Size();
-		scaleMode.effects.resize(size);
+		scalingMode.effects.resize(size);
 
 		for (rapidjson::SizeType i = 0; i < size; ++i) {
 			if (!effectsArray[i].IsObject()) {
@@ -270,7 +311,7 @@ static bool LoadScaleMode(const rapidjson::GenericObject<false, rapidjson::Value
 			}
 
 			auto elemObj = effectsArray[i].GetObj();
-			EffectOption& effect = scaleMode.effects[i];
+			EffectOption& effect = scalingMode.effects[i];
 
 			if (!LoadStringSettingItem(elemObj, "name", effect.name)) {
 				return false;
@@ -314,10 +355,6 @@ static bool LoadScaleMode(const rapidjson::GenericObject<false, rapidjson::Value
 					}
 				}
 			}
-
-			if (!LoadUIntSettingItem(elemObj, "flags", effect.flags)) {
-				return false;
-			}
 		}
 	}
 
@@ -335,7 +372,7 @@ bool AppSettings::Initialize() {
 	if (!Win32Utils::FileExists(_configPath.c_str())) {
 		logger.Info("不存在配置文件");
 		// 只有不存在配置文件时才生成默认缩放模式
-		_SetDefaultScaleModes();
+		_SetDefaultScalingModes();
 		return true;
 	}
 
@@ -429,10 +466,10 @@ bool AppSettings::Save() {
 	writer.Key("inlineParams");
 	writer.Bool(_isInlineParams);
 
-	writer.Key("scaleModes");
+	writer.Key("scalingModes");
 	writer.StartArray();
-	for (const ScaleMode& scaleMode : _scaleModes) {
-		WriteScaleMode(writer, scaleMode);
+	for (const ScalingMode& scalingMode : _scalingModes) {
+		WriteScaleMode(writer, scalingMode);
 	}
 	writer.EndArray();
 
@@ -640,22 +677,22 @@ bool AppSettings::_LoadSettings(std::string text) {
 	}
 
 	{
-		auto scaleModesNode = root.FindMember("scaleModes");
-		if (scaleModesNode != root.MemberEnd()) {
-			if (!scaleModesNode->value.IsArray()) {
+		auto scalingModesNode = root.FindMember("scalingModes");
+		if (scalingModesNode != root.MemberEnd()) {
+			if (!scalingModesNode->value.IsArray()) {
 				return false;
 			}
 
-			const auto& scaleModesArray = scaleModesNode->value.GetArray();
-			const rapidjson::SizeType size = scaleModesArray.Size();
-			_scaleModes.resize(size);
+			const auto& scalingModesArray = scalingModesNode->value.GetArray();
+			const rapidjson::SizeType size = scalingModesArray.Size();
+			_scalingModes.resize(size);
 
 			for (rapidjson::SizeType i = 0; i < size; ++i) {
-				if (!scaleModesArray[i].IsObject()) {
+				if (!scalingModesArray[i].IsObject()) {
 					return false;
 				}
 
-				if (!LoadScaleMode(scaleModesArray[i].GetObj(), _scaleModes[i])) {
+				if (!LoadScalingMode(scalingModesArray[i].GetObj(), _scalingModes[i])) {
 					return false;
 				}
 			}
@@ -722,16 +759,16 @@ void AppSettings::_SetDefaultHotkeys() {
 	}
 }
 
-void AppSettings::_SetDefaultScaleModes() {
+void AppSettings::_SetDefaultScalingModes() {
 	{
-		auto& lanczos = _scaleModes.emplace_back();
+		auto& lanczos = _scalingModes.emplace_back();
 		lanczos.name = L"Lanczos";
 		auto& lanczosEffect = lanczos.effects.emplace_back();
 		lanczosEffect.name = L"Lanczos";
 		lanczosEffect.scaleType = ScaleType::Fit;
 	}
 	{
-		auto& fsr = _scaleModes.emplace_back();
+		auto& fsr = _scalingModes.emplace_back();
 		fsr.name = L"FSR";
 		auto& easu = fsr.effects.emplace_back();
 		easu.name = L"FSR_EASU";

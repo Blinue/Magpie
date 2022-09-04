@@ -3,7 +3,7 @@
 #include "WinRTUtils.h"
 #include "HotkeySettings.h"
 #include "ScalingProfile.h"
-#include "ScaleMode.h"
+#include "ScalingMode.h"
 
 
 namespace winrt::Magpie::UI {
@@ -211,6 +211,9 @@ public:
 		_isInlineParams = value;
 	}
 
+	std::vector<ScalingMode>& ScalingModes() noexcept {
+		return _scalingModes;
+	}
 private:
 	AppSettings() = default;
 
@@ -219,7 +222,7 @@ private:
 
 	bool _LoadSettings(std::string text);
 	void _SetDefaultHotkeys();
-	void _SetDefaultScaleModes();
+	void _SetDefaultScalingModes();
 
 	void _UpdateConfigPath() noexcept;
 
@@ -256,7 +259,7 @@ private:
 	bool _isSimulateExclusiveFullscreen = false;
 	bool _isInlineParams = false;
 
-	std::vector<ScaleMode> _scaleModes;
+	std::vector<ScalingMode> _scalingModes;
 
 	ScalingProfile _defaultScalingProfile;
 	std::vector<ScalingProfile> _scalingProfiles;

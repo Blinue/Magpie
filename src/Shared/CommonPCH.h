@@ -100,3 +100,13 @@ using namespace std::string_view_literals;
 #endif // !MAGPIE_VERSION
 
 #define MAGPIE_VERSION_W L"" MAGPIE_VERSION
+
+#define DEFINE_FLAG_ACCESSOR(Name, FlagBit, FlagsVar) \
+	bool Name() const noexcept { return FlagsVar & FlagBit; } \
+	void Name(bool value) noexcept { \
+		if (value) { \
+			FlagsVar |= FlagBit; \
+		} else { \
+			FlagsVar &= FlagBit; \
+		} \
+	}

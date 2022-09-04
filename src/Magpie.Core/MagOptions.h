@@ -30,20 +30,20 @@ struct Cropping {
 };
 
 struct MagFlags {
-	static constexpr const uint32_t IsDisableWindowResizing = 0x1;
-	static constexpr const uint32_t IsBreakpointMode = 0x2;
-	static constexpr const uint32_t IsDisableEffectCache = 0x4;
-	static constexpr const uint32_t IsSaveEffectSources = 0x8;
-	static constexpr const uint32_t IsWarningsAreErrors = 0x10;
-	static constexpr const uint32_t IsSimulateExclusiveFullscreen = 0x20;
+	static constexpr const uint32_t DisableWindowResizing = 0x1;
+	static constexpr const uint32_t BreakpointMode = 0x2;
+	static constexpr const uint32_t DisableEffectCache = 0x4;
+	static constexpr const uint32_t SaveEffectSources = 0x8;
+	static constexpr const uint32_t WarningsAreErrors = 0x10;
+	static constexpr const uint32_t SimulateExclusiveFullscreen = 0x20;
 	static constexpr const uint32_t Is3DGameMode = 0x40;
-	static constexpr const uint32_t IsShowFPS = 0x80;
-	static constexpr const uint32_t IsVSync = 0x100;
-	static constexpr const uint32_t IsTripleBuffering = 0x200;
-	static constexpr const uint32_t IsReserveTitleBar = 0x400;
-	static constexpr const uint32_t IsAdjustCursorSpeed = 0x800;
-	static constexpr const uint32_t IsDrawCursor = 0x1000;
-	static constexpr const uint32_t IsDisableDirectFlip = 0x2000;
+	static constexpr const uint32_t ShowFPS = 0x80;
+	static constexpr const uint32_t VSync = 0x100;
+	static constexpr const uint32_t TripleBuffering = 0x200;
+	static constexpr const uint32_t ReserveTitleBar = 0x400;
+	static constexpr const uint32_t AdjustCursorSpeed = 0x800;
+	static constexpr const uint32_t DrawCursor = 0x1000;
+	static constexpr const uint32_t DisableDirectFlip = 0x2000;
 };
 
 enum class ScaleType {
@@ -71,34 +71,24 @@ struct EffectOption {
 	}
 };
 
-#define DEFINE_MAGFLAG_ACCESSOR(Name) \
-	bool Name() const noexcept { return flags & ::Magpie::Core::MagFlags::Name; } \
-	void Name(bool value) noexcept { \
-		if (value) { \
-			flags |= ::Magpie::Core::MagFlags::Name; \
-		} else { \
-			flags &= ~::Magpie::Core::MagFlags::Name; \
-		} \
-	}
-
 struct MagOptions {
-	DEFINE_MAGFLAG_ACCESSOR(IsDisableWindowResizing)
-	DEFINE_MAGFLAG_ACCESSOR(IsBreakpointMode)
-	DEFINE_MAGFLAG_ACCESSOR(IsDisableEffectCache)
-	DEFINE_MAGFLAG_ACCESSOR(IsSaveEffectSources)
-	DEFINE_MAGFLAG_ACCESSOR(IsWarningsAreErrors)
-	DEFINE_MAGFLAG_ACCESSOR(IsSimulateExclusiveFullscreen)
-	DEFINE_MAGFLAG_ACCESSOR(Is3DGameMode)
-	DEFINE_MAGFLAG_ACCESSOR(IsShowFPS)
-	DEFINE_MAGFLAG_ACCESSOR(IsVSync)
-	DEFINE_MAGFLAG_ACCESSOR(IsTripleBuffering)
-	DEFINE_MAGFLAG_ACCESSOR(IsReserveTitleBar)
-	DEFINE_MAGFLAG_ACCESSOR(IsAdjustCursorSpeed)
-	DEFINE_MAGFLAG_ACCESSOR(IsDrawCursor)
-	DEFINE_MAGFLAG_ACCESSOR(IsDisableDirectFlip)
+	DEFINE_FLAG_ACCESSOR(IsDisableWindowResizing, MagFlags::DisableWindowResizing, flags)
+	DEFINE_FLAG_ACCESSOR(IsBreakpointMode, MagFlags::BreakpointMode, flags)
+	DEFINE_FLAG_ACCESSOR(IsDisableEffectCache, MagFlags::DisableEffectCache, flags)
+	DEFINE_FLAG_ACCESSOR(IsSaveEffectSources, MagFlags::SaveEffectSources, flags)
+	DEFINE_FLAG_ACCESSOR(IsWarningsAreErrors, MagFlags::WarningsAreErrors, flags)
+	DEFINE_FLAG_ACCESSOR(IsSimulateExclusiveFullscreen, MagFlags::SimulateExclusiveFullscreen, flags)
+	DEFINE_FLAG_ACCESSOR(Is3DGameMode, MagFlags::Is3DGameMode, flags)
+	DEFINE_FLAG_ACCESSOR(IsShowFPS, MagFlags::ShowFPS, flags)
+	DEFINE_FLAG_ACCESSOR(IsVSync, MagFlags::VSync, flags)
+	DEFINE_FLAG_ACCESSOR(IsTripleBuffering, MagFlags::TripleBuffering, flags)
+	DEFINE_FLAG_ACCESSOR(IsReserveTitleBar, MagFlags::ReserveTitleBar, flags)
+	DEFINE_FLAG_ACCESSOR(IsAdjustCursorSpeed, MagFlags::AdjustCursorSpeed, flags)
+	DEFINE_FLAG_ACCESSOR(IsDrawCursor, MagFlags::DrawCursor, flags)
+	DEFINE_FLAG_ACCESSOR(IsDisableDirectFlip, MagFlags::DisableDirectFlip, flags)
 
 	Cropping cropping{};
-	uint32_t flags = MagFlags::IsVSync | MagFlags::IsAdjustCursorSpeed | MagFlags::IsDrawCursor;	// MagFlags
+	uint32_t flags = MagFlags::VSync | MagFlags::AdjustCursorSpeed | MagFlags::DrawCursor;	// MagFlags
 	uint32_t graphicsAdapter = 0;
 	float cursorScaling = 1.0f;
 	CaptureMode captureMode = CaptureMode::GraphicsCapture;
