@@ -107,6 +107,6 @@ using namespace std::string_view_literals;
 		if (value) { \
 			FlagsVar |= FlagBit; \
 		} else { \
-			FlagsVar &= FlagBit; \
+			FlagsVar &= ~FlagBit; \
 		} \
 	}

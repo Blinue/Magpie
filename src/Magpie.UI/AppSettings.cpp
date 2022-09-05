@@ -253,6 +253,30 @@ static bool LoadScalingProfile(const rapidjson::GenericObject<false, rapidjson::
 	if (!LoadBoolFlagSettingItem(scalingConfigObj, "disableWindowResizing", MagFlags::DisableDirectFlip, scalingProfile.flags)) {
 		return false;
 	}
+	if (!LoadBoolFlagSettingItem(scalingConfigObj, "3DGameMode", MagFlags::Is3DGameMode, scalingProfile.flags)) {
+		return false;
+	}
+	if (!LoadBoolFlagSettingItem(scalingConfigObj, "showFPS", MagFlags::ShowFPS, scalingProfile.flags)) {
+		return false;
+	}
+	if (!LoadBoolFlagSettingItem(scalingConfigObj, "VSync", MagFlags::VSync, scalingProfile.flags)) {
+		return false;
+	}
+	if (!LoadBoolFlagSettingItem(scalingConfigObj, "tripleBuffering", MagFlags::TripleBuffering, scalingProfile.flags)) {
+		return false;
+	}
+	if (!LoadBoolFlagSettingItem(scalingConfigObj, "reserveTitleBar", MagFlags::ReserveTitleBar, scalingProfile.flags)) {
+		return false;
+	}
+	if (!LoadBoolFlagSettingItem(scalingConfigObj, "adjustCursorSpeed", MagFlags::AdjustCursorSpeed, scalingProfile.flags)) {
+		return false;
+	}
+	if (!LoadBoolFlagSettingItem(scalingConfigObj, "drawCursor", MagFlags::DrawCursor, scalingProfile.flags)) {
+		return false;
+	}
+	if (!LoadBoolFlagSettingItem(scalingConfigObj, "disableDirectFlip", MagFlags::DisableDirectFlip, scalingProfile.flags)) {
+		return false;
+	}
 
 	if (!LoadUIntSettingItem(scalingConfigObj, "cursorScaling", (uint32_t&)scalingProfile.cursorScaling)) {
 		return false;
