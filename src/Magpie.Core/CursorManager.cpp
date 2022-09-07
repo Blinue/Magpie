@@ -159,27 +159,51 @@ bool CursorManager::Initialize() {
 	return true;
 }
 
-// 检测光标在哪个窗口上
-// 此实现存在缺陷，包括被禁用窗口、透明窗口、UWP窗口的处理以及可能会有光标闪烁的问题
-// 当实现窗口化时，此函数需要重写
-// 请帮助我们改进！
-static HWND WindowFromPoint(INT_PTR style, POINT pt, bool clickThrough) {
-	HWND hwndHost = MagApp::Get().GetHwndHost();
+// 检测光标位于哪个窗口上，是否检测缩放窗口由 clickThroughHost 指定
+static HWND WindowFromPoint(POINT pt, bool clickThroughHost) {
+	struct EnumData {
+		HWND hWnd;	// 传入 hwndHost 以及储存结果
+		POINT pt;
+		bool clickThroughHost;
+	} data { MagApp::Get().GetHwndHost(), pt, clickThroughHost };
+	
+	EnumWindows([](HWND hWnd, LPARAM lParam) {
+		EnumData& data = *(EnumData*)lParam;
+		if (hWnd == data.hWnd) {
+			return (BOOL)data.clickThroughHost;
+		}
 
-	if (bool(style & WS_EX_TRANSPARENT) ^ !clickThrough) {
-		return WindowFromPoint(pt);
-	}
+		// 跳过不可见的窗口
+		if (!(GetWindowLongPtr(hWnd, GWL_STYLE) & WS_VISIBLE)) {
+			return TRUE;
+		}
 
-	if (!clickThrough) {
-		return ChildWindowFromPointEx(GetDesktopWindow(), pt, CWP_SKIPDISABLED | CWP_SKIPINVISIBLE);
-	}
+		// 跳过透明窗口
+		if (GetWindowLongPtr(hWnd, GWL_EXSTYLE) & WS_EX_TRANSPARENT) {
+			return TRUE;
+		}
 
-	SetWindowLongPtr(hwndHost, GWL_EXSTYLE,
-		clickThrough ? (style | WS_EX_TRANSPARENT) : (style & ~WS_EX_TRANSPARENT));
-	HWND hwndCur = WindowFromPoint(pt);
-	SetWindowLongPtr(hwndHost, GWL_EXSTYLE, style);
+		// 跳过被冻结的窗口
+		UINT isCloaked{};
+		DwmGetWindowAttribute(hWnd, DWMWA_CLOAKED, &isCloaked, sizeof(isCloaked));
+		if (isCloaked != 0) {
+			return TRUE;
+		}
 
-	return hwndCur;
+		// 对于分层窗口（Layered Window），没有公开的 API 可以检测某个像素是否透明。
+		// ChildWindowFromPointEx 是一个替代方案，当命中透明像素时它将返回 NULL。
+		// Windows 内部有 LayerHitTest (https://github.com/tongzx/nt5src/blob/daad8a087a4e75422ec96b7911f1df4669989611/Source/XPSP1/NT/windows/core/ntuser/kernel/winwhere.c#L21) 方法用于对分层窗口执行命中测试，虽然它没有被公开，但 ChildWindowFromPointEx 使用了它
+		POINT clientPt = data.pt;
+		ScreenToClient(hWnd, &clientPt);
+		if (!ChildWindowFromPointEx(hWnd, clientPt, CWP_SKIPDISABLED | CWP_SKIPINVISIBLE | CWP_SKIPTRANSPARENT)) {
+			return TRUE;
+		}
+
+		data.hWnd = hWnd;
+		return FALSE;
+	}, (LPARAM)&data);
+
+	return data.hWnd;
 }
 
 void CursorManager::OnBeginFrame() {
@@ -627,7 +651,7 @@ void CursorManager::_UpdateCursorClip() {
 		// 
 		///////////////////////////////////////////////////////////
 
-		HWND hwndCur = WindowFromPoint(style, SrcToHost(cursorPos, true), false);
+		HWND hwndCur = WindowFromPoint(SrcToHost(cursorPos, true), false);
 
 		if (hwndCur != hwndHost) {
 			// 主窗口被遮挡
@@ -642,7 +666,7 @@ void CursorManager::_UpdateCursorClip() {
 
 			if (!stopCapture) {
 				// 判断源窗口是否被遮挡
-				hwndCur = WindowFromPoint(style, cursorPos, true);
+				hwndCur = WindowFromPoint(cursorPos, true);
 				stopCapture = hwndCur != hwndSrc && (!IsChild(hwndSrc, hwndCur) || !((GetWindowStyle(hwndCur) & WS_CHILD)));
 			}
 
@@ -672,7 +696,7 @@ void CursorManager::_UpdateCursorClip() {
 		// 
 		/////////////////////////////////////////////////////////
 
-		HWND hwndCur = WindowFromPoint(style, cursorPos, false);
+		HWND hwndCur = WindowFromPoint(cursorPos, false);
 
 		if (hwndCur == hwndHost) {
 			// 主窗口未被遮挡
@@ -712,7 +736,7 @@ void CursorManager::_UpdateCursorClip() {
 						std::clamp(cursorPos.y, hostRect.top + outputRect.top, hostRect.top + outputRect.bottom - 1)
 					};
 
-					if (WindowFromPoint(style, clampedPos, false) == hwndHost) {
+					if (WindowFromPoint(clampedPos, false) == hwndHost) {
 						if (!(style & WS_EX_TRANSPARENT)) {
 							SetWindowLongPtr(hwndHost, GWL_EXSTYLE, style | WS_EX_TRANSPARENT);
 						}
@@ -730,7 +754,7 @@ void CursorManager::_UpdateCursorClip() {
 
 				if (startCapture) {
 					// 判断源窗口是否被遮挡
-					hwndCur = WindowFromPoint(style, newCursorPos, true);
+					hwndCur = WindowFromPoint(newCursorPos, true);
 					startCapture = hwndCur == hwndSrc || ((IsChild(hwndSrc, hwndCur) && (GetWindowStyle(hwndCur) & WS_CHILD)));
 				}
 
