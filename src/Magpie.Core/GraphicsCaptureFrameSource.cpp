@@ -74,58 +74,6 @@ bool GraphicsCaptureFrameSource::Initialize() {
 		}
 	}
 
-	try {
-		// 创建帧缓冲池
-		// 帧的尺寸和 _captureItem.Size() 不同
-		_captureFramePool = winrt::Direct3D11CaptureFramePool::CreateFreeThreaded(
-			_wrappedD3DDevice,
-			winrt::DirectXPixelFormat::B8G8R8A8UIntNormalized,
-			1,	// 帧的缓存数量
-			{ (int)_frameBox.right, (int)_frameBox.bottom } // 帧的尺寸为包含源窗口的最小尺寸
-		);
-
-		_frameArrived = _captureFramePool.FrameArrived(
-			winrt::auto_revoke,
-			{ this, &GraphicsCaptureFrameSource::_OnFrameArrived }
-		);
-
-		_captureSession = _captureFramePool.CreateCaptureSession(_captureItem);
-
-		// 不捕获光标
-		if (winrt::ApiInformation::IsPropertyPresent(
-			L"Windows.Graphics.Capture.GraphicsCaptureSession",
-			L"IsCursorCaptureEnabled"
-			)) {
-				// 从 v2004 开始提供
-			_captureSession.IsCursorCaptureEnabled(false);
-		} else {
-			Logger::Get().Info("当前系统无 IsCursorCaptureEnabled API");
-		}
-
-		// 不显示黄色边框
-		if (winrt::ApiInformation::IsPropertyPresent(
-			L"Windows.Graphics.Capture.GraphicsCaptureSession",
-			L"IsBorderRequired"
-			)) {
-				// 从 Win10 v2104 开始提供
-				// 先请求权限
-			auto status = winrt::GraphicsCaptureAccess::RequestAccessAsync(winrt::GraphicsCaptureAccessKind::Borderless).get();
-			if (status == decltype(status)::Allowed) {
-				_captureSession.IsBorderRequired(false);
-			} else {
-				Logger::Get().Info("IsCursorCaptureEnabled 失败");
-			}
-		} else {
-			Logger::Get().Info("当前系统无 IsBorderRequired API");
-		}
-
-		// 开始捕获
-		_captureSession.StartCapture();
-	} catch (const winrt::hresult_error& e) {
-		Logger::Get().Info(StrUtils::Concat("Graphics Capture 失败：", StrUtils::UTF16ToUTF8(e.message())));
-		return false;
-	}
-
 	_output = MagApp::Get().GetDeviceResources().CreateTexture2D(
 		DXGI_FORMAT_B8G8R8A8_UNORM,
 		_frameBox.right - _frameBox.left,
@@ -138,6 +86,11 @@ bool GraphicsCaptureFrameSource::Initialize() {
 	}
 
 	InitializeConditionVariable(&_cv);
+
+	if (!StartCapture()) {
+		Logger::Get().Error("_StartCapture 失败");
+		return false;
+	}
 
 	//App::Get().SetErrorMsg(ErrorMessages::GENERIC);
 	Logger::Get().Info("GraphicsCaptureFrameSource 初始化完成");
@@ -164,7 +117,7 @@ FrameSourceBase::UpdateState GraphicsCaptureFrameSource::Update() {
 		winrt::Direct3D11CaptureFrame frame = _captureFramePool.TryGetNextFrame();
 		if (!frame) {
 			// 缓冲池没有帧，不应发生此情况
-			assert(false);
+			//assert(false);
 
 			return UpdateState::Waiting;
 		}
@@ -337,6 +290,74 @@ bool GraphicsCaptureFrameSource::_CaptureFromMonitor(IGraphicsCaptureItemInterop
 	return true;
 }
 
+bool GraphicsCaptureFrameSource::StartCapture() {
+	if (_captureSession) {
+		return true;
+	}
+
+	try {
+		// 创建帧缓冲池
+		// 帧的尺寸和 _captureItem.Size() 不同
+		_captureFramePool = winrt::Direct3D11CaptureFramePool::CreateFreeThreaded(
+			_wrappedD3DDevice,
+			winrt::DirectXPixelFormat::B8G8R8A8UIntNormalized,
+			1,	// 帧的缓存数量
+			{ (int)_frameBox.right, (int)_frameBox.bottom } // 帧的尺寸为包含源窗口的最小尺寸
+		);
+
+		_frameArrived = _captureFramePool.FrameArrived(
+			winrt::auto_revoke,
+			{ this, &GraphicsCaptureFrameSource::_OnFrameArrived }
+		);
+
+		_captureSession = _captureFramePool.CreateCaptureSession(_captureItem);
+
+		// 不捕获光标
+		if (winrt::ApiInformation::IsPropertyPresent(
+			winrt::name_of<winrt::GraphicsCaptureSession>(),
+			L"IsCursorCaptureEnabled"
+		)) {
+			// 从 v2004 开始提供
+			_captureSession.IsCursorCaptureEnabled(false);
+		}
+
+		// 不显示黄色边框
+		if (winrt::ApiInformation::IsPropertyPresent(
+			winrt::name_of<winrt::GraphicsCaptureSession>(),
+			L"IsBorderRequired"
+		)) {
+			// 从 Win10 v2104 开始提供
+			// 先请求权限
+			auto status = winrt::GraphicsCaptureAccess::RequestAccessAsync(winrt::GraphicsCaptureAccessKind::Borderless).get();
+			if (status == decltype(status)::Allowed) {
+				_captureSession.IsBorderRequired(false);
+			}
+		}
+
+		// 开始捕获
+		_captureSession.StartCapture();
+	} catch (const winrt::hresult_error& e) {
+		Logger::Get().Info(StrUtils::Concat("Graphics Capture 失败：", StrUtils::UTF16ToUTF8(e.message())));
+		return false;
+	}
+
+	return true;
+}
+
+void GraphicsCaptureFrameSource::StopCapture() {
+	if (_frameArrived) {
+		_frameArrived.revoke();
+	}
+	if (_captureSession) {
+		_captureSession.Close();
+		_captureSession = nullptr;
+	}
+	if (_captureFramePool) {
+		_captureFramePool.Close();
+		_captureFramePool = nullptr;
+	}
+}
+
 void GraphicsCaptureFrameSource::_OnFrameArrived(winrt::Direct3D11CaptureFramePool const&, winrt::IInspectable const&) {
 	// 更改标志，如果主线程正在等待，唤醒主线程
 	{
@@ -348,15 +369,7 @@ void GraphicsCaptureFrameSource::_OnFrameArrived(winrt::Direct3D11CaptureFramePo
 }
 
 GraphicsCaptureFrameSource::~GraphicsCaptureFrameSource() {
-	if (_frameArrived) {
-		_frameArrived.revoke();
-	}
-	if (_captureSession) {
-		_captureSession.Close();
-	}
-	if (_captureFramePool) {
-		_captureFramePool.Close();
-	}
+	StopCapture();
 
 	// 还原源窗口样式
 	if (_srcWndStyle) {

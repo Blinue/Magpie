@@ -27,6 +27,10 @@ public:
 		return "Graphics Capture";
 	}
 
+	bool StartCapture();
+
+	void StopCapture();
+
 protected:
 	bool _HasRoundCornerInWin11() override {
 		return true;

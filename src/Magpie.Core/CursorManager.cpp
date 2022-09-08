@@ -6,6 +6,10 @@
 #include "Logger.h"
 #include "Win32Utils.h"
 #include "DeviceResources.h"
+#include "GraphicsCaptureFrameSource.h"
+#include <magnification.h>
+
+#pragma comment(lib, "Magnification.lib")
 
 
 namespace Magpie::Core {
@@ -304,6 +308,50 @@ void CursorManager::OnCursorLeaveOverlay() {
 	_UpdateCursorClip();
 }
 
+static void ShowSystemCursor(bool show) {
+	static void (WINAPI* const showSystemCursor)(BOOL bShow) = []()->void(WINAPI*)(BOOL) {
+		HMODULE lib = LoadLibrary(L"user32.dll");
+		if (!lib) {
+			return nullptr;
+		}
+
+		return (void(WINAPI*)(BOOL))GetProcAddress(lib, "ShowSystemCursor");
+	}();
+
+	if (showSystemCursor) {
+		showSystemCursor((BOOL)show);
+	} else {
+		// 获取 ShowSystemCursor 失败则回落到 Magnification API
+		static bool initialized = []() {
+			if (!MagInitialize()) {
+				Logger::Get().Win32Error("MagInitialize 失败");
+				return false;
+			}
+
+			return true;
+		}();
+
+		if (initialized) {
+			MagShowSystemCursor(show);
+		}
+	}
+
+	if (show) {
+		MagApp::Get().Dispatcher().TryEnqueue([]() {
+			// 修复有时不会立即显示光标的问题
+			auto wgc = dynamic_cast<GraphicsCaptureFrameSource*>(&MagApp::Get().GetFrameSource());
+			if (wgc) {
+				// WGC 需要重启捕获
+				// 没有用户报告这个问题，只在我的电脑上出现，可能和驱动有关
+				wgc->StopCapture();
+				wgc->StartCapture();
+			} else {
+				SystemParametersInfo(SPI_SETCURSORS, 0, 0, 0);
+			}
+		});
+	}
+}
+
 void CursorManager::_StartCapture(POINT cursorPt) {
 	if (_isUnderCapture) {
 		return;
@@ -320,7 +368,7 @@ void CursorManager::_StartCapture(POINT cursorPt) {
 	// 在有黑边的情况下自动将光标调整到画面内
 
 	// 全局隐藏光标
-	Win32Utils::ShowSystemCursor(false);
+	ShowSystemCursor(false);
 
 	const RECT& srcFrameRect = MagApp::Get().GetFrameSource().GetSrcFrameRect();
 	const RECT& hostRect = MagApp::Get().GetHostWndRect();
@@ -375,8 +423,7 @@ void CursorManager::_StopCapture(POINT cursorPos, bool onDestroy) {
 			SystemParametersInfo(SPI_SETMOUSESPEED, 0, (PVOID)(intptr_t)_cursorSpeed, 0);
 		}
 
-		Win32Utils::ShowSystemCursor(true);
-
+		ShowSystemCursor(true);
 		_isUnderCapture = false;
 	} else {
 		// 目标位置不存在屏幕，则将光标限制在源窗口内
