@@ -491,6 +491,15 @@ static std::string GetCPUName() {
 	return GetCPUNameViaWMI();
 }
 
+static std::string_view GetEffectDisplayName(const EffectDesc* desc) {
+	auto delimPos = desc->name.find_last_of('\\');
+	if (delimPos == std::string::npos) {
+		return desc->name;
+	} else {
+		return std::string_view(desc->name.begin() + delimPos + 1, desc->name.end());
+	}
+}
+
 struct EffectTimings {
 	const EffectDesc* desc = nullptr;
 	std::span<const float> passTimings;
@@ -517,7 +526,7 @@ static int DrawEffectTimings(const EffectTimings& et, bool showPasses, float max
 		ImGui::SameLine(0, 3);
 	}
 
-	ImGui::TextUnformatted(et.desc->name.c_str());
+	ImGui::TextUnformatted(std::string(GetEffectDisplayName(et.desc)).c_str());
 
 	ImGui::TableNextColumn();
 
@@ -605,7 +614,7 @@ static int DrawEffectTimings(const EffectTimings& et, bool showPasses, float max
 	return result;
 }
 
-static void DrawTimelineItem(ImU32 color, float dpiScale, const std::string& name,
+static void DrawTimelineItem(ImU32 color, float dpiScale, std::string_view name,
 	float time, float effectsTotalTime, bool selected = false) {
 	ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, color);
 	ImGui::PushStyleColor(ImGuiCol_HeaderActive, color);
@@ -620,7 +629,13 @@ static void DrawTimelineItem(ImU32 color, float dpiScale, const std::string& nam
 	}
 
 	// 空间足够时显示文字
-	std::string text = selected ? fmt::format("{}%", std::lroundf(time / effectsTotalTime * 100)) : name;
+	std::string text;
+	if (selected) {
+		text = fmt::format("{}%", std::lroundf(time / effectsTotalTime * 100));
+	} else {
+		text.assign(name);
+	}
+	
 	float textWidth = ImGui::CalcTextSize(text.c_str()).x;
 	float itemWidth = ImGui::GetItemRectSize().x;
 	float itemSpacing = ImGui::GetStyle().ItemSpacing.x;
@@ -881,11 +896,11 @@ void OverlayDrawer::_DrawUI() {
 
 								std::string name;
 								if (et.passTimings.size() == 1) {
-									name = et.desc->name;
+									name = std::string(GetEffectDisplayName(et.desc));
 								} else if (nEffect == 1) {
 									name = et.desc->passes[j].desc;
 								} else {
-									name = StrUtils::Concat(et.desc->name, "/", et.desc->passes[j].desc);
+									name = StrUtils::Concat(GetEffectDisplayName(et.desc), "/", et.desc->passes[j].desc);
 								}
 
 								DrawTimelineItem(colors[i], _dpiScale, name, et.passTimings[j], effectsTotalTime, selectedIdx == (int)i);
@@ -919,7 +934,7 @@ void OverlayDrawer::_DrawUI() {
 							}
 
 							ImGui::TableNextColumn();
-							DrawTimelineItem(colors[i], _dpiScale, et.desc->name, et.totalTime, effectsTotalTime, selectedIdx == (int)i);
+							DrawTimelineItem(colors[i], _dpiScale, GetEffectDisplayName(et.desc), et.totalTime, effectsTotalTime, selectedIdx == (int)i);
 						}
 
 						ImGui::EndTable();

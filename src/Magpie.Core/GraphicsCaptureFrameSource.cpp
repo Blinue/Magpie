@@ -98,6 +98,10 @@ bool GraphicsCaptureFrameSource::Initialize() {
 }
 
 FrameSourceBase::UpdateState GraphicsCaptureFrameSource::Update() {
+	if (!_captureSession) {
+		return UpdateState::Waiting;
+	}
+
 	// 每次睡眠 1 毫秒等待新帧到达，防止 CPU 占用过高
 	BOOL update = FALSE;
 
@@ -117,8 +121,7 @@ FrameSourceBase::UpdateState GraphicsCaptureFrameSource::Update() {
 		winrt::Direct3D11CaptureFrame frame = _captureFramePool.TryGetNextFrame();
 		if (!frame) {
 			// 缓冲池没有帧，不应发生此情况
-			//assert(false);
-
+			assert(false);
 			return UpdateState::Waiting;
 		}
 
