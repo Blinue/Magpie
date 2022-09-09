@@ -339,8 +339,7 @@ static void ShowSystemCursor(bool show) {
 	if (show) {
 		MagApp::Get().Dispatcher().TryEnqueue([]() {
 			// 修复有时不会立即显示光标的问题
-			auto wgc = dynamic_cast<GraphicsCaptureFrameSource*>(&MagApp::Get().GetFrameSource());
-			if (wgc) {
+			if (auto wgc = dynamic_cast<GraphicsCaptureFrameSource*>(&MagApp::Get().GetFrameSource())) {
 				// WGC 需要重启捕获
 				// 没有用户报告这个问题，只在我的电脑上出现，可能和驱动有关
 				wgc->StopCapture();

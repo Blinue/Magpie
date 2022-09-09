@@ -243,10 +243,12 @@ void MicaBrush::_UpdateBrush() {
 		crossFadeBrush.StartAnimation(L"CrossFade.CrossFade", animation);
 		crossFadeAnimationBatch.End();
 
-		crossFadeAnimationBatch.Completed([=, this](IInspectable const&, CompositionBatchCompletedEventArgs const&) {
+		crossFadeAnimationBatch.Completed([=, weakThis(get_weak())](IInspectable const&, CompositionBatchCompletedEventArgs const&) {
 			crossFadeBrush.Close();
 			oldBrush.Close();
-			CompositionBrush(newBrush);
+			if (auto strongThis = weakThis.get()) {
+				strongThis->CompositionBrush(newBrush);
+			}
 		});
 	} else {
 		CompositionBrush(newBrush);

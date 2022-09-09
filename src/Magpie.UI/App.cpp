@@ -133,6 +133,10 @@ void App::MainPage(Magpie::UI::MainPage const& mainPage) noexcept {
 	// 显示主窗口前等待 EffectsService 完成初始化
 	EffectsService::Get().WaitForInitialize();
 
+	if (_mainPage) {
+		// 在 MainPage 的生命周期内确保 App.MainPage 是存在的
+		_mainPage.CleanUp();
+	}
 	_mainPage = mainPage;
 }
 

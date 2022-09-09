@@ -5,6 +5,8 @@ namespace Magpie.UI
 	{
 		MainPage();
 
+		void CleanUp();
+
 		Microsoft.UI.Xaml.Controls.NavigationView RootNavigationView { get; };
 		NewProfileViewModel NewProfileViewModel { get; };
 	}

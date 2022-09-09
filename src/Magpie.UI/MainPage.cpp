@@ -71,6 +71,22 @@ MainPage::MainPage() {
 		auto_revoke, { this, &MainPage::_ScalingProfileService_ProfileReordered });
 }
 
+void MainPage::CleanUp() {
+	ContentFrame().Content(nullptr);
+
+	_themeChangedRevoker.Revoke();
+	_colorValuesChangedRevoker.revoke();
+	_profileAddedRevoker.Revoke();
+	_profileRenamedRevoker.Revoke();
+	_profileRemovedRevoker.Revoke();
+	_profileReorderdRevoker.Revoke();
+	_dpiChangedRevoker.revoke();
+	_displayInformation = nullptr;
+	_uiSettings = nullptr;
+	_newProfileViewModel = nullptr;
+	Background(nullptr);
+}
+
 void MainPage::Loaded(IInspectable const&, RoutedEventArgs const&) {
 	MUXC::NavigationView nv = __super::RootNavigationView();
 

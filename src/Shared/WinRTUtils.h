@@ -29,6 +29,13 @@ struct WinRTUtils {
 			std::swap(_revoker, other._revoker);
 		}
 
+		void Revoke() {
+			if (_revoker) {
+				_revoker();
+				_revoker = {};
+			}
+		}
+
 	private:
 		std::function<void()> _revoker{};
 	};
