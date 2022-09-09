@@ -359,6 +359,8 @@ void GraphicsCaptureFrameSource::StopCapture() {
 		_captureFramePool.Close();
 		_captureFramePool = nullptr;
 	}
+	
+	_newFrameArrived = false;
 }
 
 void GraphicsCaptureFrameSource::_OnFrameArrived(winrt::Direct3D11CaptureFramePool const&, winrt::IInspectable const&) {
