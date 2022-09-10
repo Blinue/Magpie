@@ -410,7 +410,7 @@ bool AppSettings::Initialize() {
 		logger.Error("解析配置文件失败");
 		return false;
 	}
-
+	
 	_SetDefaultHotkeys();
 	return true;
 }

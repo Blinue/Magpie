@@ -1,0 +1,10 @@
+namespace Magpie.UI
+{
+    runtimeclass ScalingModeItem : [default] Windows.UI.Xaml.Data.INotifyPropertyChanged
+    {
+        ScalingModeItem(UInt32 index);
+
+        String Name;
+        String Description { get; };
+    }
+}

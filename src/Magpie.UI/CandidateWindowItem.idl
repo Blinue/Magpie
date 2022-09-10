@@ -1,6 +1,5 @@
 namespace Magpie.UI
 {
-    [Windows.UI.Xaml.Data.Bindable]
     runtimeclass CandidateWindowItem : [default] Windows.UI.Xaml.Data.INotifyPropertyChanged
     {
         CandidateWindowItem(UInt64 hWnd, UInt32 dpi, Boolean isLightTheme, Windows.UI.Core.CoreDispatcher dispatcher);

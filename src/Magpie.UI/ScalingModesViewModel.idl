@@ -1,6 +1,5 @@
 namespace Magpie.UI
 {
-    [default_interface]
     runtimeclass ScalingModesViewModel : [default] Windows.UI.Xaml.Data.INotifyPropertyChanged
     {
         ScalingModesViewModel();

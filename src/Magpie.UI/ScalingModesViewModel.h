@@ -1,11 +1,11 @@
-﻿#pragma once
+#pragma once
 #include "ScalingModesViewModel.g.h"
 
 
 namespace winrt::Magpie::UI::implementation {
 
 struct ScalingModesViewModel : ScalingModesViewModelT<ScalingModesViewModel> {
-    ScalingModesViewModel() = default;
+	ScalingModesViewModel();
 
 	event_token PropertyChanged(PropertyChangedEventHandler const& handler) {
 		return _propertyChangedEvent.add(handler);

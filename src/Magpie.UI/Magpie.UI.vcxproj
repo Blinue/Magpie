@@ -140,6 +140,10 @@
       <DependentUpon>NewProfileViewModel.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
+    <ClInclude Include="ScalingModeItem.h">
+      <DependentUpon>ScalingModeItem.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClInclude>
     <ClInclude Include="ScalingModesService.h" />
     <ClInclude Include="ScalingModesViewModel.h">
       <DependentUpon>ScalingModesViewModel.idl</DependentUpon>
@@ -261,6 +265,10 @@
       <DependentUpon>NewProfileViewModel.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
+    <ClCompile Include="ScalingModeItem.cpp">
+      <DependentUpon>ScalingModeItem.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClCompile>
     <ClCompile Include="ScalingModesService.cpp" />
     <ClCompile Include="ScalingModesViewModel.cpp">
       <DependentUpon>ScalingModesViewModel.idl</DependentUpon>
@@ -341,6 +349,9 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <None Include="ScalingModeItem.idl">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="ScalingModesViewModel.idl">
       <SubType>Designer</SubType>
     </None>

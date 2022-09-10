@@ -1,7 +1,6 @@
 namespace Magpie.UI
 {
-	[default_interface]
-	runtimeclass SettingsViewModel : Windows.UI.Xaml.Data.INotifyPropertyChanged
+	runtimeclass SettingsViewModel : [default] Windows.UI.Xaml.Data.INotifyPropertyChanged
 	{
 		SettingsViewModel();
 

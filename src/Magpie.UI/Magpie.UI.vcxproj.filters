@@ -168,6 +168,9 @@
     <None Include="ScalingModesViewModel.idl">
       <Filter>ViewModels</Filter>
     </None>
+    <None Include="ScalingModeItem.idl">
+      <Filter>ViewModels</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Page Include="MainPage.xaml" />
