@@ -24,8 +24,7 @@ ScalingProfilePage::ScalingProfilePage() {
 	InitializeComponent();
 
 	MainPage mainPage = Application::Current().as<App>().MainPage();
-	_rootNavigationView = mainPage.RootNavigationView();
-	_displayModeChangedRevoker = _rootNavigationView.DisplayModeChanged(
+	_displayModeChangedRevoker = mainPage.RootNavigationView().DisplayModeChanged(
 		auto_revoke,
 		[&](auto const&, auto const&) { _UpdateHeaderActionStyle(); }
 	);
@@ -120,7 +119,9 @@ void ScalingProfilePage::DeleteButton_Click(IInspectable const&, RoutedEventArgs
 
 void ScalingProfilePage::_UpdateHeaderActionStyle() {
 	StackPanel actionContainer = HeaderActionStackPanel();
-	if (_rootNavigationView.DisplayMode() == MUXC::NavigationViewDisplayMode::Minimal) {
+
+	MainPage mainPage = Application::Current().as<App>().MainPage();
+	if (mainPage.RootNavigationView().DisplayMode() == MUXC::NavigationViewDisplayMode::Minimal) {
 		actionContainer.Margin({ 0,2,0,-2 });
 		actionContainer.Padding({ 0,-4,0,-4 });
 

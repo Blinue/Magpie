@@ -133,11 +133,9 @@ void App::MainPage(Magpie::UI::MainPage const& mainPage) noexcept {
 	// 显示主窗口前等待 EffectsService 完成初始化
 	EffectsService::Get().WaitForInitialize();
 
-	if (_mainPage) {
-		// 在 MainPage 的生命周期内确保 App.MainPage 是存在的
-		_mainPage.CleanUp();
-	}
-	_mainPage = mainPage;
+	// 不存储对 MainPage 的强引用
+	// XAML Islands 内部保留着对 MainPage 的强引用，MainPage 的生命周期是无法预知的
+	_mainPage = weak_ref(mainPage);
 }
 
 void App::OnHostWndFocusChanged(bool isFocused) {

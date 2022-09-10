@@ -13,7 +13,7 @@ namespace winrt::Magpie::UI::implementation {
 struct MainPage : MainPageT<MainPage> {
 	MainPage();
 
-	void CleanUp();
+	~MainPage();
 
 	void Loaded(IInspectable const&, RoutedEventArgs const&);
 

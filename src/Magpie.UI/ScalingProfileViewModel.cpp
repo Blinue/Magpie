@@ -73,8 +73,9 @@ ScalingProfileViewModel::ScalingProfileViewModel(int32_t profileIdx) : _isDefaul
 		_dpiChangedRevoker = _displayInformation.DpiChanged(
 			auto_revoke,
 			[this](DisplayInformation const&, IInspectable const&) {
-				// 不能捕获 mainPage，会引起内存泄露
-				_LoadIcon(Application::Current().as<App>().MainPage());
+				if (MainPage mainPage = Application::Current().as<App>().MainPage()) {
+					_LoadIcon(mainPage);
+				}
 			}
 		);
 

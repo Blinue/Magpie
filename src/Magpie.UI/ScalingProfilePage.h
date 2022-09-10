@@ -39,7 +39,6 @@ private:
 	Magpie::UI::ScalingProfileViewModel _viewModel{ nullptr };
 	Windows::Globalization::NumberFormatting::DecimalFormatter _numberFormatter;
 
-	Microsoft::UI::Xaml::Controls::NavigationView _rootNavigationView{ nullptr };
 	Microsoft::UI::Xaml::Controls::NavigationView::DisplayModeChanged_revoker _displayModeChangedRevoker{};
 };
 

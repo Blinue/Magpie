@@ -35,10 +35,12 @@ public:
 		_hwndMainChangedEvent.remove(token);
 	}
 
+	// 在由外部源引发的回调中可能返回 nullptr
+	// 这是因为用户关闭主窗口后 MainPage 不会立刻析构
 	Magpie::UI::MainPage MainPage() const noexcept {
-		return _mainPage;
+		return _mainPage.get();
 	}
-
+	
 	void MainPage(Magpie::UI::MainPage const& mainPage) noexcept;
 
 	Windows::Graphics::Display::DisplayInformation DisplayInformation() const noexcept {
@@ -65,7 +67,7 @@ private:
 	HWND _hwndMain{};
 	event<EventHandler<uint64_t>> _hwndMainChangedEvent;
 
-	Magpie::UI::MainPage _mainPage{ nullptr };
+	weak_ref<Magpie::UI::MainPage> _mainPage{ nullptr };
 	Windows::Graphics::Display::DisplayInformation _displayInformation{ nullptr };
 
 	event<EventHandler<bool>> _hostWndFocusChangedEvent;
