@@ -23,8 +23,8 @@ void ScalingModesPage::ComboBox_DropDownOpened(IInspectable const& sender, IInsp
 	ComboBoxHelper::DropDownOpened(*this, sender);
 }
 
-void ScalingModesPage::AddEffectButton_Click(IInspectable const&, RoutedEventArgs const&) {
-	AddEffectMenuFlyout().ShowAt(AddEffectButton());
+void ScalingModesPage::AddEffectButton_Click(IInspectable const& sender, RoutedEventArgs const&) {
+	AddEffectMenuFlyout().ShowAt(sender.as<Button>());
 }
 
 void ScalingModesPage::_BuildEffectMenu() noexcept {
