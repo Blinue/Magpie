@@ -23,14 +23,16 @@ struct ScalingModeItem : ScalingModeItemT<ScalingModeItem> {
 
 	void Name(const hstring& value) noexcept;
 
-	hstring Description() const noexcept {
-		return _description;
+	hstring Description() const noexcept;
+
+	IObservableVector<IInspectable> Effects() const noexcept {
+		return _effects;
 	}
 
 private:
 	event<PropertyChangedEventHandler> _propertyChangedEvent;
 	ScalingMode* _scalingMode = nullptr;
-	hstring _description;
+	IObservableVector<IInspectable> _effects{ nullptr };
 };
 
 }
