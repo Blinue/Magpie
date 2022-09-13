@@ -19,10 +19,41 @@ struct ScalingModesViewModel : ScalingModesViewModelT<ScalingModesViewModel> {
 		return _scalingModes;
 	}
 
+	void PrepareForAdd();
+
+	hstring NewScalingModeName() const noexcept {
+		return _newScalingModeName;
+	}
+
+	void NewScalingModeName(const hstring& value) noexcept;
+
+	IVector<IInspectable> NewScalingModeCopyFromList() const noexcept {
+		return _newScalingModeCopyFromList;
+	}
+
+	int32_t NewScalingModeCopyFrom() const noexcept {
+		return _newScalingModeCopyFrom;
+	}
+
+	void NewScalingModeCopyFrom(int32_t value) noexcept {
+		_newScalingModeCopyFrom = value;
+		_propertyChangedEvent(*this, PropertyChangedEventArgs(L"NewScalingModeCopyFrom"));
+	}
+	
+	bool IsAddButtonEnabled() const noexcept {
+		return !_newScalingModeName.empty();
+	}
+
+	void AddScalingMode();
+
 private:
 	event<PropertyChangedEventHandler> _propertyChangedEvent;
 
 	IObservableVector<IInspectable> _scalingModes{ nullptr };
+
+	hstring _newScalingModeName;
+	IVector<IInspectable> _newScalingModeCopyFromList{ nullptr };
+	int32_t _newScalingModeCopyFrom = 0;
 };
 
 }

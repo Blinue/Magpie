@@ -9,6 +9,7 @@
 using namespace winrt;
 using namespace Windows::UI::Xaml::Controls;
 using namespace Windows::UI::Xaml::Controls::Primitives;
+using namespace Windows::UI::Xaml::Input;
 
 
 namespace winrt::Magpie::UI::implementation {
@@ -25,6 +26,23 @@ void ScalingModesPage::ComboBox_DropDownOpened(IInspectable const& sender, IInsp
 
 void ScalingModesPage::AddEffectButton_Click(IInspectable const& sender, RoutedEventArgs const&) {
 	AddEffectMenuFlyout().ShowAt(sender.as<Button>());
+}
+
+void ScalingModesPage::NewScalingModeFlyout_Opening(IInspectable const&, IInspectable const&) {
+	_viewModel.PrepareForAdd();
+}
+
+void ScalingModesPage::NewScalingModeNameTextBox_KeyDown(IInspectable const&, KeyRoutedEventArgs const& args) {
+	if (args.Key() == VirtualKey::Enter) {
+		if (_viewModel.IsAddButtonEnabled()) {
+			NewScalingModeConfirmButton_Click(nullptr, nullptr);
+		}
+	}
+}
+
+void ScalingModesPage::NewScalingModeConfirmButton_Click(IInspectable const&, RoutedEventArgs const&) {
+	NewScalingModeFlyout().Hide();
+	_viewModel.AddScalingMode();
 }
 
 void ScalingModesPage::_BuildEffectMenu() noexcept {

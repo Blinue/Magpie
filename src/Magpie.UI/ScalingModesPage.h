@@ -15,6 +15,12 @@ struct ScalingModesPage : ScalingModesPageT<ScalingModesPage> {
 
 	void AddEffectButton_Click(IInspectable const& sender, RoutedEventArgs const&);
 
+	void NewScalingModeFlyout_Opening(IInspectable const&, IInspectable const&);
+
+	void NewScalingModeNameTextBox_KeyDown(IInspectable const&, Input::KeyRoutedEventArgs const& args);
+
+	void NewScalingModeConfirmButton_Click(IInspectable const& sender, RoutedEventArgs const&);
+
 private:
 	void _BuildEffectMenu() noexcept;
 

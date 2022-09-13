@@ -107,8 +107,7 @@
 										 Margin="0,8,0,20"
 										 KeyDown="RenameTextBox_KeyDown"
 										 Text="{x:Bind ViewModel.RenameText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-								<Button x:Name="RenameConfirmButton"
-										MinWidth="80"
+								<Button MinWidth="80"
 										HorizontalAlignment="Right"
 										Click="RenameConfirmButton_Click"
 										Content="确定"

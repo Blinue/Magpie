@@ -175,7 +175,8 @@
 					HorizontalAlignment="Right"
 					Style="{StaticResource AccentButtonStyle}">
 				<Button.Flyout>
-					<Flyout>
+					<Flyout x:Name="NewScalingModeFlyout"
+							Opening="NewScalingModeFlyout_Opening">
 						<StackPanel Orientation="Vertical">
 							<TextBlock Margin="0,5,0,20"
 									   FontSize="18"
@@ -187,22 +188,23 @@
 								<StackPanel Orientation="Vertical"
 											Spacing="8">
 									<TextBlock Text="名称" />
-									<TextBox HorizontalAlignment="Stretch" />
+									<TextBox HorizontalAlignment="Stretch"
+											 KeyDown="NewScalingModeNameTextBox_KeyDown"
+											 Text="{x:Bind ViewModel.NewScalingModeName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
 								</StackPanel>
 								<StackPanel Orientation="Vertical"
 											Spacing="8">
 									<TextBlock Text="复制自" />
 									<ComboBox HorizontalAlignment="Stretch"
-											  SelectedIndex="0">
-										<ComboBox.Items>
-											<x:String>无</x:String>
-										</ComboBox.Items>
-									</ComboBox>
+											  ItemsSource="{x:Bind ViewModel.NewScalingModeCopyFromList, Mode=OneWay}"
+											  SelectedIndex="{x:Bind ViewModel.NewScalingModeCopyFrom, Mode=TwoWay}" />
 								</StackPanel>
 								<Button MinWidth="100"
 										Margin="0,15,0,0"
 										HorizontalAlignment="Right"
+										Click="NewScalingModeConfirmButton_Click"
 										Content="确定"
+										IsEnabled="{x:Bind ViewModel.IsAddButtonEnabled, Mode=OneWay}"
 										Style="{StaticResource AccentButtonStyle}" />
 							</StackPanel>
 						</StackPanel>

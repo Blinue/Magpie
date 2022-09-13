@@ -28,12 +28,20 @@
 						</local:SettingItem>
 					</muxc:Expander.Header>
 					<muxc:Expander.Content>
-						<local:SettingItem Title="自动下载更新"
-										   Style="{StaticResource ExpanderContentSettingStyle}">
-							<local:SettingItem.ActionContent>
-								<ToggleSwitch />
-							</local:SettingItem.ActionContent>
-						</local:SettingItem>
+						<StackPanel Orientation="Vertical">
+							<local:SettingItem Title="自动下载更新"
+											   Style="{StaticResource ExpanderContentSettingStyle}">
+								<local:SettingItem.ActionContent>
+									<ToggleSwitch />
+								</local:SettingItem.ActionContent>
+							</local:SettingItem>
+							<local:SettingItem Title="检查预览版更新"
+											   Style="{StaticResource ExpanderContentSettingStyle}">
+								<local:SettingItem.ActionContent>
+									<ToggleSwitch />
+								</local:SettingItem.ActionContent>
+							</local:SettingItem>
+						</StackPanel>
 					</muxc:Expander.Content>
 				</muxc:Expander>
 			</local:SettingsGroup>
