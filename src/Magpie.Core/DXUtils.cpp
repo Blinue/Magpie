@@ -27,13 +27,13 @@ bool Magpie::Core::DXUtils::CompileComputeShader(
 	flags |= D3DCOMPILE_OPTIMIZATION_LEVEL3;
 #endif // _DEBUG
 
-	std::vector<D3D_SHADER_MACRO> mc(macros.size() + 1);
+	std::unique_ptr<D3D_SHADER_MACRO[]> mc(new D3D_SHADER_MACRO[macros.size() + 1]);
 	for (UINT i = 0; i < macros.size(); ++i) {
 		mc[i] = { macros[i].first.c_str(), macros[i].second.c_str() };
 	}
-	mc.back() = { nullptr,nullptr };
+	mc[macros.size()] = {nullptr,nullptr};
 
-	HRESULT hr = D3DCompile(hlsl.data(), hlsl.size(), sourceName, mc.data(), include,
+	HRESULT hr = D3DCompile(hlsl.data(), hlsl.size(), sourceName, mc.get(), include,
 		entryPoint, "cs_5_0", flags, 0, blob, errorMsgs.put());
 	if (FAILED(hr)) {
 		if (errorMsgs) {

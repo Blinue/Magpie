@@ -38,7 +38,6 @@ private:
 	static DWORD WINAPI _DDPThreadProc(LPVOID lpThreadParameter);
 
 	winrt::com_ptr<IDXGIOutputDuplication> _outputDup;
-	std::vector<BYTE> _dupMetaData;
 
 	HANDLE _hDDPThread = NULL;
 	std::atomic<bool> _exiting = false;
