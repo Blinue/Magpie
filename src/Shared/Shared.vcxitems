@@ -18,6 +18,7 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)CommonPCH.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)CommonSharedConstants.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)Logger.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)SmallVector.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)StrUtils.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)Utils.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)Win32Utils.h" />
@@ -26,6 +27,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="$(MSBuildThisFileDirectory)Logger.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)SmallVector.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)StrUtils.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)Utils.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)Win32Utils.cpp" />

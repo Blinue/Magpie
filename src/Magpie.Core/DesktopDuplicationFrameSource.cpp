@@ -4,6 +4,7 @@
 #include "DeviceResources.h"
 #include "Logger.h"
 #include "Win32Utils.h"
+#include "SmallVector.h"
 
 
 namespace Magpie::Core {
@@ -289,7 +290,7 @@ DWORD WINAPI DesktopDuplicationFrameSource::_DDPThreadProc(LPVOID lpThreadParame
 
 	DXGI_OUTDUPL_FRAME_INFO info{};
 	winrt::com_ptr<IDXGIResource> dxgiRes;
-	std::vector<BYTE> dupMetaData;
+	SmallVector<uint8_t, 0> dupMetaData;
 
 	while (!that._exiting.load()) {
 		if (dxgiRes) {

@@ -485,9 +485,9 @@ bool CursorManager::_ResolveCursor(HCURSOR hCursor, bool resolveTexture) {
 		// 单色光标
 		_curCursorInfo->type = CursorType::Monochrome;
 
-		std::vector<BYTE> pixels(bi.bmiHeader.biSizeImage);
+		std::unique_ptr<BYTE[]> pixels(new BYTE[bi.bmiHeader.biSizeImage]);
 		HDC hdc = GetDC(NULL);
-		if (GetDIBits(hdc, ii.hbmMask, 0, bmp.bmHeight, &pixels[0], &bi, DIB_RGB_COLORS) != bmp.bmHeight) {
+		if (GetDIBits(hdc, ii.hbmMask, 0, bmp.bmHeight, pixels.get(), &bi, DIB_RGB_COLORS) != bmp.bmHeight) {
 			Logger::Get().Win32Error("GetDIBits 失败");
 			ReleaseDC(NULL, hdc);
 			return false;
@@ -507,7 +507,7 @@ bool CursorManager::_ResolveCursor(HCURSOR hCursor, bool resolveTexture) {
 		}
 
 		D3D11_SUBRESOURCE_DATA initData{};
-		initData.pSysMem = &pixels[0];
+		initData.pSysMem = pixels.get();
 		initData.SysMemPitch = bmp.bmWidth * 4;
 
 		_curCursorInfo->texture = dr.CreateTexture2D(
@@ -527,9 +527,9 @@ bool CursorManager::_ResolveCursor(HCURSOR hCursor, bool resolveTexture) {
 		return true;
 	}
 
-	std::vector<BYTE> pixels(bi.bmiHeader.biSizeImage);
+	std::unique_ptr<BYTE[]> pixels(new BYTE[bi.bmiHeader.biSizeImage]);
 	HDC hdc = GetDC(NULL);
-	if (GetDIBits(hdc, ii.hbmColor, 0, bmp.bmHeight, &pixels[0], &bi, DIB_RGB_COLORS) != bmp.bmHeight) {
+	if (GetDIBits(hdc, ii.hbmColor, 0, bmp.bmHeight, pixels.get(), &bi, DIB_RGB_COLORS) != bmp.bmHeight) {
 		Logger::Get().Win32Error("GetDIBits 失败");
 		ReleaseDC(NULL, hdc);
 		return false;
@@ -564,9 +564,9 @@ bool CursorManager::_ResolveCursor(HCURSOR hCursor, bool resolveTexture) {
 		// 彩色掩码光标
 		_curCursorInfo->type = CursorType::MaskedColor;
 
-		std::vector<BYTE> maskPixels(bi.bmiHeader.biSizeImage);
+		std::unique_ptr<BYTE[]> maskPixels(new BYTE[bi.bmiHeader.biSizeImage]);
 		hdc = GetDC(NULL);
-		if (GetDIBits(hdc, ii.hbmMask, 0, bmp.bmHeight, &maskPixels[0], &bi, DIB_RGB_COLORS) != bmp.bmHeight) {
+		if (GetDIBits(hdc, ii.hbmMask, 0, bmp.bmHeight, maskPixels.get(), &bi, DIB_RGB_COLORS) != bmp.bmHeight) {
 			Logger::Get().Win32Error("GetDIBits 失败");
 			ReleaseDC(NULL, hdc);
 			return false;
