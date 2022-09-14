@@ -15,7 +15,7 @@ using namespace Windows::UI::Xaml::Input;
 
 namespace winrt::Magpie::UI::implementation {
 
-static IVector<IInspectable> ToKeys(const std::vector<std::variant<uint32_t, std::wstring>>& keyList) {
+static IVector<IInspectable> ToKeys(const SmallVector<std::variant<uint32_t, std::wstring>, 5>& keyList) {
 	std::vector<IInspectable> result;
 
 	for (const std::variant<uint32_t, std::wstring>& key : keyList) {

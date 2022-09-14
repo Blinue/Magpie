@@ -775,7 +775,7 @@ UINT ResolveCommon(std::string_view& block) {
 }
 
 UINT ResolvePasses(
-	std::vector<std::string_view>& blocks,
+	SmallVector<std::string_view>& blocks,
 	EffectDesc& desc
 ) {
 	// 必选项：IN
@@ -787,7 +787,7 @@ UINT ResolvePasses(
 	// 首先解析通道序号
 
 	// first 为 Pass 序号，second 为在 blocks 中的位置
-	std::vector<std::pair<UINT, UINT>> passNumbers;
+	SmallVector<std::pair<UINT, UINT>> passNumbers;
 	passNumbers.reserve(blocks.size());
 
 	for (UINT i = 0; i < blocks.size(); ++i) {
@@ -818,7 +818,7 @@ UINT ResolvePasses(
 		[](const std::pair<UINT, UINT>& l, const std::pair<UINT, UINT>& r) {return l.first < r.first; }
 	);
 
-	std::vector<std::string_view> temp = blocks;
+	SmallVector<std::string_view> temp = blocks;
 	for (UINT i = 0; i < blocks.size(); ++i) {
 		if (passNumbers[i].first != i + 1) {
 			// PASS 序号不连续
@@ -864,8 +864,7 @@ UINT ResolvePasses(
 					return 1;
 				}
 
-				std::vector<std::string_view> inputs = StrUtils::Split(binds, ',');
-				for (std::string_view& input : inputs) {
+				for (std::string_view& input : StrUtils::Split(binds, ',')) {
 					StrUtils::Trim(input);
 
 					auto it = texNames.find(input);
@@ -888,7 +887,7 @@ UINT ResolvePasses(
 					return 1;
 				}
 
-				std::vector<std::string_view> outputs = StrUtils::Split(saves, ',');
+				SmallVector<std::string_view> outputs = StrUtils::Split(saves, ',');
 				if (outputs.size() > 8) {
 					// 最多 8 个输出
 					return 1;
@@ -922,7 +921,7 @@ UINT ResolvePasses(
 					return 1;
 				}
 
-				std::vector<std::string_view> split = StrUtils::Split(val, ',');
+				SmallVector<std::string_view> split = StrUtils::Split(val, ',');
 				if (split.size() > 2) {
 					return 1;
 				}
@@ -961,7 +960,7 @@ UINT ResolvePasses(
 					return 1;
 				}
 
-				std::vector<std::string_view> split = StrUtils::Split(val, ',');
+				SmallVector<std::string_view> split = StrUtils::Split(val, ',');
 				if (split.size() > 3) {
 					return 1;
 				}
@@ -1040,7 +1039,7 @@ UINT GeneratePassSource(
 	const EffectDesc& desc,
 	UINT passIdx,
 	std::string_view cbHlsl,
-	const std::vector<std::string_view>& commonBlocks,
+	const SmallVector<std::string_view>& commonBlocks,
 	std::string_view passBlock,
 	const std::unordered_map<std::wstring, float>* inlineParams,
 	std::string& result,
@@ -1428,8 +1427,8 @@ void __M(uint3 tid : SV_GroupThreadID, uint3 gid : SV_GroupID) {{
 UINT CompilePasses(
 	EffectDesc& desc,
 	uint32_t flags,
-	const std::vector<std::string_view>& commonBlocks,
-	const std::vector<std::string_view>& passBlocks,
+	const SmallVector<std::string_view>& commonBlocks,
+	const SmallVector<std::string_view>& passBlocks,
 	const std::unordered_map<std::wstring, float>* inlineParams
 ) {
 	////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1583,11 +1582,11 @@ uint32_t EffectCompiler::Compile(
 	};
 
 	std::string_view headerBlock;
-	std::vector<std::string_view> paramBlocks;
-	std::vector<std::string_view> textureBlocks;
-	std::vector<std::string_view> samplerBlocks;
-	std::vector<std::string_view> commonBlocks;
-	std::vector<std::string_view> passBlocks;
+	SmallVector<std::string_view> paramBlocks;
+	SmallVector<std::string_view> textureBlocks;
+	SmallVector<std::string_view> samplerBlocks;
+	SmallVector<std::string_view> commonBlocks;
+	SmallVector<std::string_view> passBlocks;
 
 	BlockType curBlockType = BlockType::Header;
 	size_t curBlockOff = 0;

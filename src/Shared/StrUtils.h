@@ -3,6 +3,7 @@
 #include <vector>
 #include <cwctype>
 #include <wtypes.h>	// BSTR
+#include "SmallVector.h"
 
 
 struct StrUtils {
@@ -74,8 +75,8 @@ struct StrUtils {
 	}
 
 	template<typename CHAR_T>
-	static std::vector<std::basic_string_view<CHAR_T>> Split(std::basic_string_view<CHAR_T> str, CHAR_T delimiter) {
-		std::vector<std::basic_string_view<CHAR_T>> result;
+	static SmallVector<std::basic_string_view<CHAR_T>> Split(std::basic_string_view<CHAR_T> str, CHAR_T delimiter) {
+		SmallVector<std::basic_string_view<CHAR_T>> result;
 		while (!str.empty()) {
 			size_t pos = str.find(delimiter, 0);
 			result.push_back(str.substr(0, pos));
@@ -89,11 +90,11 @@ struct StrUtils {
 		return result;
 	}
 
-	static std::vector<std::string_view> Split(std::string_view str, char delimiter) {
+	static SmallVector<std::string_view> Split(std::string_view str, char delimiter) {
 		return Split<char>(str, delimiter);
 	}
 
-	static std::vector<std::wstring_view> Split(std::wstring_view str, wchar_t delimiter) {
+	static SmallVector<std::wstring_view> Split(std::wstring_view str, wchar_t delimiter) {
 		return Split<wchar_t>(str, delimiter);
 	}
 

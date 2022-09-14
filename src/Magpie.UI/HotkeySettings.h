@@ -1,6 +1,7 @@
 #pragma once
 #include <winrt/Magpie.UI.h>
 #include <variant>
+#include "SmallVector.h"
 
 
 namespace winrt::Magpie::UI {
@@ -10,7 +11,7 @@ struct HotkeySettings {
 
 	bool IsEmpty() const noexcept;
 
-	std::vector<std::variant<uint32_t, std::wstring>> GetKeyList() const noexcept;
+	SmallVector<std::variant<uint32_t, std::wstring>, 5> GetKeyList() const noexcept;
 
 	HotkeyError Check() const noexcept;
 

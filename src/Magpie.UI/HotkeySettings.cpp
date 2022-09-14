@@ -3,6 +3,7 @@
 #include "Win32Utils.h"
 #include "StrUtils.h"
 #include "HotkeyHelper.h"
+#include "SmallVector.h"
 
 
 namespace winrt::Magpie::UI {
@@ -11,8 +12,8 @@ bool HotkeySettings::IsEmpty() const noexcept {
 	return !win && !ctrl && !alt && !shift && code == 0;
 }
 
-std::vector<std::variant<uint32_t, std::wstring>> HotkeySettings::GetKeyList() const noexcept {
-	std::vector<std::variant<uint32_t, std::wstring>> shortcutList;
+SmallVector<std::variant<uint32_t, std::wstring>, 5> HotkeySettings::GetKeyList() const noexcept {
+	SmallVector<std::variant<uint32_t, std::wstring>, 5> shortcutList;
 	if (win) {
 		shortcutList.emplace_back((uint32_t)VK_LWIN);
 	}
@@ -101,8 +102,7 @@ bool HotkeySettings::FromString(std::wstring_view str) noexcept {
 	uint32_t codeT = 0;
 
 	if (!str.empty()) {
-		std::vector<std::wstring_view> parts = StrUtils::Split(str, L'+');
-		for (std::wstring_view& part : parts) {
+		for (std::wstring_view& part : StrUtils::Split(str, L'+')) {
 			StrUtils::Trim(part);
 
 			if (part.empty()) {

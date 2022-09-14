@@ -1,6 +1,7 @@
 #pragma once
 #include "pch.h"
 #include <variant>
+#include "SmallVector.h"
 
 
 namespace Magpie::Core {
@@ -100,8 +101,8 @@ struct EffectParameterDesc {
 
 struct EffectPassDesc {
 	winrt::com_ptr<ID3DBlob> cso;
-	std::vector<uint32_t> inputs;
-	std::vector<uint32_t> outputs;
+	SmallVector<uint32_t> inputs;
+	SmallVector<uint32_t> outputs;
 	std::array<uint32_t, 3> numThreads{};
 	std::pair<uint32_t, uint32_t> blockSize{};
 	std::string desc;

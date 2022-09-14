@@ -929,7 +929,7 @@ public:
 
     SmallVectorImpl& operator=(const SmallVectorImpl& RHS);
 
-    SmallVectorImpl& operator=(SmallVectorImpl&& RHS);
+    SmallVectorImpl& operator=(SmallVectorImpl&& RHS) noexcept;
 
     bool operator==(const SmallVectorImpl& RHS) const {
         if (this->size() != RHS.size()) return false;
@@ -1033,7 +1033,7 @@ operator=(const SmallVectorImpl<T>& RHS) {
 }
 
 template <typename T>
-SmallVectorImpl<T>& SmallVectorImpl<T>::operator=(SmallVectorImpl<T>&& RHS) {
+SmallVectorImpl<T>& SmallVectorImpl<T>::operator=(SmallVectorImpl<T>&& RHS) noexcept {
   // Avoid self-assignment.
     if (this == &RHS) return *this;
 
@@ -1095,10 +1095,13 @@ struct SmallVectorStorage {
     alignas(T) char InlineElts[N * sizeof(T)];
 };
 
+#pragma warning(push)
+#pragma warning(disable: 4324)  // “SmallVectorStorage<T,0>”: 由于对齐说明符，结构被填充
 /// We need the storage to be properly aligned even for small-size of 0 so that
 /// the pointer math in \a SmallVectorTemplateCommon::getFirstEl() is
 /// well-defined.
 template <typename T> struct alignas(T) SmallVectorStorage<T, 0> {};
+#pragma warning(pop)
 
 /// Forward declaration of SmallVector so that
 /// calculateSmallVectorDefaultInlinedElements can reference
@@ -1210,7 +1213,7 @@ public:
         return *this;
     }
 
-    SmallVector(SmallVector&& RHS) : SmallVectorImpl<T>(N) {
+    SmallVector(SmallVector&& RHS) noexcept : SmallVectorImpl<T>(N) {
         if (!RHS.empty())
             SmallVectorImpl<T>::operator=(::std::move(RHS));
     }

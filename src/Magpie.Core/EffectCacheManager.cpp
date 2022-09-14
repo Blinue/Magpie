@@ -14,31 +14,67 @@
 #include "Utils.h"
 
 
-template<typename Archive>
-void serialize(Archive& ar, winrt::com_ptr<ID3DBlob>& o) {
-	SIZE_T size = 0;
-	ar& size;
-	HRESULT hr = D3DCreateBlob(size, o.put());
-	if (FAILED(hr)) {
-		Logger::Get().ComError("D3DCreateBlob 失败", hr);
-		throw new std::exception();
+namespace yas::detail {
+
+// SmallVector
+template<std::size_t F, typename T, unsigned N>
+struct serializer<
+	type_prop::not_a_fundamental,
+	ser_case::use_internal_serializer,
+	F,
+	SmallVector<T, N>
+> {
+	template<typename Archive>
+	static Archive& save(Archive& ar, const SmallVector<T, N>& vector) {
+		return concepts::array::save<F>(ar, vector);
 	}
 
-	BYTE* buf = (BYTE*)o->GetBufferPointer();
-	for (SIZE_T i = 0; i < size; ++i) {
-		ar& (*buf++);
+	template<typename Archive>
+	static Archive& load(Archive& ar, SmallVector<T, N>& vector) {
+		return concepts::array::load<F>(ar, vector);
 	}
-}
+};
 
-template<typename Archive>
-void serialize(Archive& ar, const winrt::com_ptr<ID3DBlob>& o) {
-	SIZE_T size = o->GetBufferSize();
-	ar& size;
+// winrt::com_ptr<ID3DBlob>
+template<std::size_t F>
+struct serializer<
+	type_prop::not_a_fundamental,
+	ser_case::use_internal_serializer,
+	F,
+	winrt::com_ptr<ID3DBlob>
+> {
+	template<typename Archive>
+	static Archive& save(Archive& ar, const winrt::com_ptr<ID3DBlob>& blob) {
+		SIZE_T size = blob->GetBufferSize();
+		ar& size;
 
-	BYTE* buf = (BYTE*)o->GetBufferPointer();
-	for (SIZE_T i = 0; i < size; ++i) {
-		ar& (*buf++);
+		BYTE* buf = (BYTE*)blob->GetBufferPointer();
+		for (SIZE_T i = 0; i < size; ++i) {
+			ar& (*buf++);
+		}
+
+		return ar;
 	}
+
+	template<typename Archive>
+	static Archive& load(Archive& ar, winrt::com_ptr<ID3DBlob>& blob) {
+		SIZE_T size = 0;
+		ar& size;
+		HRESULT hr = D3DCreateBlob(size, blob.put());
+		if (FAILED(hr)) {
+			Logger::Get().ComError("D3DCreateBlob 失败", hr);
+			throw new std::exception();
+		}
+
+		BYTE* buf = (BYTE*)blob->GetBufferPointer();
+		for (SIZE_T i = 0; i < size; ++i) {
+			ar& (*buf++);
+		}
+
+		return ar;
+	}
+};
+
 }
 
 namespace Magpie::Core {
@@ -168,8 +204,7 @@ void EffectCacheManager::_AddToMemCache(const std::wstring& cacheFileName, const
 
 	if (_memCache.size() > MAX_CACHE_COUNT) {
 		// 清理一半较旧的内存缓存
-		std::vector<UINT> access;
-		access.reserve(_memCache.size());
+		SmallVector<UINT, MAX_CACHE_COUNT> access;
 		for (const auto& pair : _memCache) {
 			access.push_back(pair.second.second);
 		}
