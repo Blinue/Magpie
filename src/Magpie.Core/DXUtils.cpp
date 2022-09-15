@@ -31,7 +31,7 @@ bool Magpie::Core::DXUtils::CompileComputeShader(
 	for (UINT i = 0; i < macros.size(); ++i) {
 		mc[i] = { macros[i].first.c_str(), macros[i].second.c_str() };
 	}
-	mc[macros.size()] = {nullptr,nullptr};
+	mc[macros.size()] = { nullptr,nullptr };
 
 	HRESULT hr = D3DCompile(hlsl.data(), hlsl.size(), sourceName, mc.get(), include,
 		entryPoint, "cs_5_0", flags, 0, blob, errorMsgs.put());

@@ -11,6 +11,8 @@ using namespace Magpie::Core;
 namespace winrt::Magpie::UI {
 
 static void ListEffects(std::vector<std::wstring>& result, std::wstring_view prefix = {}) {
+	result.reserve(80);
+
 	WIN32_FIND_DATA findData{};
 	HANDLE hFind = Win32Utils::SafeHandle(FindFirstFileEx(
 		StrUtils::ConcatW(CommonSharedConstants::EFFECTS_DIR, prefix, L"*").c_str(),

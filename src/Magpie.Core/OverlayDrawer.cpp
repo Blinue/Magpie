@@ -51,7 +51,7 @@ static UINT GetSeed() {
 	return result;
 }
 
-static std::vector<UINT> GenerateTimelineColors() {
+static SmallVector<UINT> GenerateTimelineColors() {
 	Renderer& renderer = MagApp::Get().GetRenderer();
 
 	const UINT nEffect = renderer.GetEffectCount();
@@ -70,7 +70,7 @@ static std::vector<UINT> GenerateTimelineColors() {
 	constexpr UINT nColors = (UINT)std::size(TIMELINE_COLORS);
 
 	std::default_random_engine randomEngine(GetSeed());
-	std::vector<UINT> result;
+	SmallVector<UINT> result;
 
 	if (totalColors <= nColors) {
 		result.resize(nColors);
@@ -88,7 +88,7 @@ static std::vector<UINT> GenerateTimelineColors() {
 		if (nEffect <= nColors) {
 			if (nEffect > 1) {
 				// 确保效果的颜色不重复
-				std::vector<UINT> effectColors(nColors, 0);
+				std::array<UINT, nColors> effectColors{};
 				for (UINT i = 0; i < nColors; ++i) {
 					effectColors[i] = i;
 				}
@@ -373,14 +373,11 @@ void OverlayDrawer::_DrawFPS() {
 	ImGui::PopStyleVar();
 }
 
-// 只在 x86 和 x64 可用
+// 只在 x86 可用
 static std::string GetCPUNameViaCPUID() {
-	// int nIDs = 0;
-
-	char strCPUName[0x40] = { };
+	char strCPUName[0x40]{};
 
 	std::array<int, 4> cpuInfo{};
-	std::vector<std::array<int, 4>> extData;
 
 	__cpuid(cpuInfo.data(), 0);
 
@@ -388,18 +385,16 @@ static std::string GetCPUNameViaCPUID() {
 	// gets the number of the highest valid extended ID.
 	__cpuid(cpuInfo.data(), 0x80000000);
 
-	int nExIDs = cpuInfo[0];
-	for (int i = 0x80000000; i <= nExIDs; ++i) {
-		__cpuidex(cpuInfo.data(), i, 0);
-		extData.push_back(cpuInfo);
+	if (cpuInfo[0] < 0x80000004) {
+		return {};
 	}
 
-	// Interpret CPU strCPUName string if reported
-	if (nExIDs >= 0x80000004) {
-		memcpy(strCPUName, extData[2].data(), sizeof(cpuInfo));
-		memcpy(strCPUName + 16, extData[3].data(), sizeof(cpuInfo));
-		memcpy(strCPUName + 32, extData[4].data(), sizeof(cpuInfo));
-	}
+	__cpuidex(cpuInfo.data(), 0x80000002, 0);
+	memcpy(strCPUName, cpuInfo.data(), sizeof(cpuInfo));
+	__cpuidex(cpuInfo.data(), 0x80000003, 0);
+	memcpy(strCPUName + 16, cpuInfo.data(), sizeof(cpuInfo));
+	__cpuidex(cpuInfo.data(), 0x80000004, 0);
+	memcpy(strCPUName + 32, cpuInfo.data(), sizeof(cpuInfo));
 
 	return StrUtils::Trim(strCPUName);
 }
@@ -787,8 +782,8 @@ void OverlayDrawer::_DrawUI() {
 	if (ImGui::CollapsingHeader("Timings", ImGuiTreeNodeFlags_DefaultOpen)) {
 		const auto& gpuTimings = gpuTimer.GetGPUTimings();
 		const UINT nEffect = renderer.GetEffectCount();
-
-		std::vector<EffectTimings> effectTimings(nEffect);
+		
+		SmallVector<EffectTimings, 4> effectTimings(nEffect);
 
 		{
 			UINT idx = 0;
@@ -826,7 +821,8 @@ void OverlayDrawer::_DrawUI() {
 			}
 		}
 
-		std::vector<ImColor> colors;
+		SmallVector<ImColor, 4> colors;
+		colors.reserve(_timelineColors.size());
 		if (nEffect == 1) {
 			colors.resize(_timelineColors.size());
 			for (size_t i = 0; i < _timelineColors.size(); ++i) {

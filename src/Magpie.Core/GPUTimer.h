@@ -1,5 +1,6 @@
 #pragma once
 #include "pch.h"
+#include "SmallVector.h"
 
 
 namespace Magpie::Core {
@@ -23,7 +24,7 @@ public:
 	void OnBeginFrame();
 
 	struct GPUTimings {
-		std::vector<float> passes;
+		SmallVector<float> passes;
 		// float overlay = 0.0f;
 	};
 

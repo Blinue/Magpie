@@ -5,6 +5,7 @@
 #include "MagApp.h"
 #include "Logger.h"
 #include "CommonSharedConstants.h"
+#include "SmallVector.h"
 
 
 namespace Magpie::Core {
@@ -203,7 +204,7 @@ bool FrameSourceBase::_CenterWindowIfNecessary(HWND hWnd, const RECT& rcWork) {
 
 struct EnumChildWndParam {
 	const wchar_t* clientWndClassName = nullptr;
-	std::vector<HWND> childWindows;
+	SmallVector<HWND, 1> childWindows;
 };
 
 static BOOL CALLBACK EnumChildProc(
