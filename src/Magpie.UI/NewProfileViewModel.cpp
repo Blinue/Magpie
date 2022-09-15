@@ -74,8 +74,8 @@ static bool IsCandidateWindow(HWND hWnd) {
 	}
 }
 
-static std::vector<HWND> GetDesktopWindows() {
-	std::vector<HWND> windows;
+static SmallVector<HWND, 0> GetDesktopWindows() {
+	SmallVector<HWND, 0> windows;
 	windows.reserve(1024);
 
 	// EnumWindows 能否枚举到 UWP 窗口？
@@ -84,7 +84,7 @@ static std::vector<HWND> GetDesktopWindows() {
 	// 无法枚举到全屏状态下的 UWP 窗口
 	EnumWindows(
 		[](HWND hWnd, LPARAM lParam) {
-			std::vector<HWND>& windows = *(std::vector<HWND>*)lParam;
+			SmallVector<HWND, 0>& windows = *(SmallVector<HWND, 0>*)lParam;
 
 			if (IsCandidateWindow(hWnd)) {
 				windows.push_back(hWnd);

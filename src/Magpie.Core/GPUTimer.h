@@ -80,7 +80,7 @@ private:
 
 	// 用于保存渲染时间
 	// (总计用时, 已统计帧数)
-	std::vector<std::pair<float, UINT>> _passesTimings;
+	SmallVector<std::pair<float, UINT>, 0> _passesTimings;
 };
 
 }

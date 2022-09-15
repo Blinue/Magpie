@@ -22,14 +22,14 @@ using namespace ::Magpie::Core;
 
 namespace winrt::Magpie::UI::implementation {
 
-static std::vector<std::wstring> GetAllGraphicsAdapters() {
+static SmallVector<std::wstring, 2> GetAllGraphicsAdapters() {
 	com_ptr<IDXGIFactory1> dxgiFactory;
 	HRESULT hr = CreateDXGIFactory1(IID_PPV_ARGS(&dxgiFactory));
 	if (FAILED(hr)) {
 		return {};
 	}
 
-	std::vector<std::wstring> result;
+	SmallVector<std::wstring, 2> result;
 
 	com_ptr<IDXGIAdapter1> adapter;
 	for (UINT adapterIndex = 0;

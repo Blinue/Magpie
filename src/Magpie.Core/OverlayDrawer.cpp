@@ -192,7 +192,7 @@ bool OverlayDrawer::Initialize() {
 		if (!Win32Utils::ReadFile(
 			StrUtils::ConcatW(CommonSharedConstants::ASSETS_DIR, L"NotoSansSC-Regular.otf").c_str(),
 			fontData
-			)) {
+		)) {
 			Logger::Get().Error("读取字体文件失败");
 			return false;
 		}
@@ -375,7 +375,7 @@ void OverlayDrawer::_DrawFPS() {
 
 // 只在 x86 可用
 static std::string GetCPUNameViaCPUID() {
-	char strCPUName[0x40]{};
+	std::string cpuName(48, '\0');
 
 	std::array<int, 4> cpuInfo{};
 
@@ -390,13 +390,15 @@ static std::string GetCPUNameViaCPUID() {
 	}
 
 	__cpuidex(cpuInfo.data(), 0x80000002, 0);
-	memcpy(strCPUName, cpuInfo.data(), sizeof(cpuInfo));
+	memcpy(cpuName.data(), cpuInfo.data(), sizeof(cpuInfo));
 	__cpuidex(cpuInfo.data(), 0x80000003, 0);
-	memcpy(strCPUName + 16, cpuInfo.data(), sizeof(cpuInfo));
+	memcpy(cpuName.data() + 16, cpuInfo.data(), sizeof(cpuInfo));
 	__cpuidex(cpuInfo.data(), 0x80000004, 0);
-	memcpy(strCPUName + 32, cpuInfo.data(), sizeof(cpuInfo));
+	memcpy(cpuName.data() + 32, cpuInfo.data(), sizeof(cpuInfo));
 
-	return StrUtils::Trim(strCPUName);
+	cpuName.resize(StrUtils::StrLen(cpuName.c_str()));
+	StrUtils::Trim(cpuName);
+	return cpuName;
 }
 
 // 非常慢，需要大约 18 ms
