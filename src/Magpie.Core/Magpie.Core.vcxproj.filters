@@ -115,8 +115,8 @@
     <ClCompile Include="DXUtils.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
     <None Include="cpp.hint" />
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="NotoSansSC-Regular.otf">
