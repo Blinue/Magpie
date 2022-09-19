@@ -59,8 +59,8 @@
 										   HorizontalContentAlignment="Stretch"
 										   Style="{StaticResource SettingExpanderStyle}">
 								<muxc:Expander.Header>
-									<local:SettingItem Title="{x:Bind Name}"
-													   Description="{x:Bind Description}"
+									<local:SettingItem Title="{x:Bind Name, Mode=OneWay}"
+													   Description="{x:Bind Description, Mode=OneWay}"
 													   Style="{StaticResource ExpanderHeaderSettingStyle}">
 										<local:SettingItem.ActionContent>
 											<StackPanel Orientation="Horizontal"
@@ -84,27 +84,18 @@
 												</Button>
 												<Button>
 													<ToolTipService.ToolTip>
+														<ToolTip Content="重新排序" />
+													</ToolTipService.ToolTip>
+													<Button.Content>
+														<FontIcon Glyph="&#xE8CB;" />
+													</Button.Content>
+												</Button>
+												<Button>
+													<ToolTipService.ToolTip>
 														<ToolTip Content="删除" />
 													</ToolTipService.ToolTip>
 													<Button.Content>
 														<FontIcon Glyph="&#xE74D;" />
-													</Button.Content>
-												</Button>
-												<AppBarSeparator />
-												<Button>
-													<ToolTipService.ToolTip>
-														<ToolTip Content="上移" />
-													</ToolTipService.ToolTip>
-													<Button.Content>
-														<FontIcon Glyph="&#xE74A;" />
-													</Button.Content>
-												</Button>
-												<Button>
-													<ToolTipService.ToolTip>
-														<ToolTip Content="下移" />
-													</ToolTipService.ToolTip>
-													<Button.Content>
-														<FontIcon Glyph="&#xE74B;" />
 													</Button.Content>
 												</Button>
 											</StackPanel>
@@ -114,7 +105,9 @@
 								<muxc:Expander.Content>
 									<StackPanel Orientation="Vertical">
 										<ListView ItemsSource="{x:Bind Effects, Mode=OneTime}"
-												  SelectionMode="None">
+												  SelectionMode="None"
+												  AllowDrop="True"
+												  CanReorderItems="True">
 											<ListView.Resources>
 												<Style TargetType="ListViewItem">
 													<Setter Property="Margin" Value="0,0,0,0" />
@@ -153,23 +146,6 @@
 																	</ToolTipService.ToolTip>
 																	<Button.Content>
 																		<FontIcon Glyph="&#xE74D;" />
-																	</Button.Content>
-																</Button>
-																<AppBarSeparator />
-																<Button>
-																	<ToolTipService.ToolTip>
-																		<ToolTip Content="上移" />
-																	</ToolTipService.ToolTip>
-																	<Button.Content>
-																		<FontIcon Glyph="&#xE74A;" />
-																	</Button.Content>
-																</Button>
-																<Button>
-																	<ToolTipService.ToolTip>
-																		<ToolTip Content="下移" />
-																	</ToolTipService.ToolTip>
-																	<Button.Content>
-																		<FontIcon Glyph="&#xE74B;" />
 																	</Button.Content>
 																</Button>
 															</StackPanel>
