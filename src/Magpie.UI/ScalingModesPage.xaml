@@ -6,7 +6,6 @@
 	  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	  xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
 	  mc:Ignorable="d">
-
 	<local:PageFrame Title="缩放模式">
 		<FlyoutBase.AttachedFlyout>
 			<MenuFlyout x:Name="AddEffectMenuFlyout" />
@@ -84,19 +83,30 @@
 												</Button>
 												<Button>
 													<ToolTipService.ToolTip>
-														<ToolTip Content="重新排序" />
+														<ToolTip Content="更多选项" />
 													</ToolTipService.ToolTip>
 													<Button.Content>
-														<FontIcon Glyph="&#xE8CB;" />
+														<FontIcon Glyph="&#xE712;" />
 													</Button.Content>
-												</Button>
-												<Button>
-													<ToolTipService.ToolTip>
-														<ToolTip Content="删除" />
-													</ToolTipService.ToolTip>
-													<Button.Content>
-														<FontIcon Glyph="&#xE74D;" />
-													</Button.Content>
+													<Button.Flyout>
+														<MenuFlyout ShouldConstrainToRootBounds="False">
+															<MenuFlyoutItem Text="上移">
+																<MenuFlyoutItem.Icon>
+																	<FontIcon Glyph="&#xE74A;" />
+																</MenuFlyoutItem.Icon>
+															</MenuFlyoutItem>
+															<MenuFlyoutItem Text="下移">
+																<MenuFlyoutItem.Icon>
+																	<FontIcon Glyph="&#xE74B;" />
+																</MenuFlyoutItem.Icon>
+															</MenuFlyoutItem>
+															<MenuFlyoutItem Text="删除">
+																<MenuFlyoutItem.Icon>
+																	<FontIcon Glyph="&#xE74D;" />
+																</MenuFlyoutItem.Icon>
+															</MenuFlyoutItem>
+														</MenuFlyout>
+													</Button.Flyout>
 												</Button>
 											</StackPanel>
 										</local:SettingItem.ActionContent>
@@ -104,10 +114,10 @@
 								</muxc:Expander.Header>
 								<muxc:Expander.Content>
 									<StackPanel Orientation="Vertical">
-										<ListView ItemsSource="{x:Bind Effects, Mode=OneTime}"
-												  SelectionMode="None"
-												  AllowDrop="True"
-												  CanReorderItems="True">
+										<ListView AllowDrop="True"
+												  CanReorderItems="True"
+												  ItemsSource="{x:Bind Effects, Mode=OneTime}"
+												  SelectionMode="None">
 											<ListView.Resources>
 												<Style TargetType="ListViewItem">
 													<Setter Property="Margin" Value="0,0,0,0" />
