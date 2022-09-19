@@ -83,76 +83,34 @@
 											</ListView.ItemTemplate>
 										</ListView>
 										<local:SettingItem Style="{StaticResource ExpanderContentSettingStyle}">
-											<local:SettingItem.Resources>
-												<ResourceDictionary>
-													<ResourceDictionary.ThemeDictionaries>
-														<ResourceDictionary x:Key="Default">
-															<StaticResource x:Key="ButtonBackground"
-																			ResourceKey="SubtleFillColorTransparentBrush" />
-															<StaticResource x:Key="ButtonBackgroundPointerOver"
-																			ResourceKey="SubtleFillColorSecondaryBrush" />
-															<StaticResource x:Key="ButtonBackgroundPressed"
-																			ResourceKey="SubtleFillColorTertiaryBrush" />
-															<StaticResource x:Key="ButtonForeground"
-																			ResourceKey="TextFillColorPrimaryBrush" />
-															<StaticResource x:Key="ButtonForegroundPointerOver"
-																			ResourceKey="TextFillColorPrimaryBrush" />
-															<StaticResource x:Key="ButtonForegroundPressed"
-																			ResourceKey="TextFillColorSecondaryBrush" />
-															<StaticResource x:Key="ButtonBorderBrush"
-																			ResourceKey="ControlFillColorTransparentBrush" />
-															<StaticResource x:Key="ButtonBorderBrushPointerOver"
-																			ResourceKey="ControlFillColorTransparentBrush" />
-															<StaticResource x:Key="ButtonBorderBrushPressed"
-																			ResourceKey="ControlFillColorTransparentBrush" />
-														</ResourceDictionary>
-														<ResourceDictionary x:Key="HighContrast">
-															<StaticResource x:Key="ButtonBackground"
-																			ResourceKey="SystemControlTransparentBrush" />
-															<StaticResource x:Key="ButtonBackgroundPointerOver"
-																			ResourceKey="SystemControlHighlightListLowBrush" />
-															<StaticResource x:Key="ButtonBackgroundPressed"
-																			ResourceKey="SystemControlHighlightListMediumBrush" />
-															<StaticResource x:Key="ButtonForeground"
-																			ResourceKey="SystemControlForegroundBaseHighBrush" />
-															<StaticResource x:Key="ButtonForegroundPointerOver"
-																			ResourceKey="SystemControlHighlightAltBaseHighBrush" />
-															<StaticResource x:Key="ButtonForegroundPressed"
-																			ResourceKey="SystemControlHighlightAltBaseHighBrush" />
-															<StaticResource x:Key="ButtonBorderBrush"
-																			ResourceKey="SystemControlForegroundTransparentBrush" />
-															<StaticResource x:Key="ButtonBorderBrushPointerOver"
-																			ResourceKey="SystemControlHighlightTransparentBrush" />
-															<StaticResource x:Key="ButtonBorderBrushPressed"
-																			ResourceKey="SystemControlHighlightTransparentBrush" />
-														</ResourceDictionary>
-														<ResourceDictionary x:Key="Light">
-															<StaticResource x:Key="ButtonBackground"
-																			ResourceKey="SubtleFillColorTransparentBrush" />
-															<StaticResource x:Key="ButtonBackgroundPointerOver"
-																			ResourceKey="SubtleFillColorSecondaryBrush" />
-															<StaticResource x:Key="ButtonBackgroundPressed"
-																			ResourceKey="SubtleFillColorTertiaryBrush" />
-															<StaticResource x:Key="ButtonForeground"
-																			ResourceKey="TextFillColorPrimaryBrush" />
-															<StaticResource x:Key="ButtonForegroundPointerOver"
-																			ResourceKey="TextFillColorPrimaryBrush" />
-															<StaticResource x:Key="ButtonForegroundPressed"
-																			ResourceKey="TextFillColorSecondaryBrush" />
-															<StaticResource x:Key="ButtonBorderBrush"
-																			ResourceKey="ControlFillColorTransparentBrush" />
-															<StaticResource x:Key="ButtonBorderBrushPointerOver"
-																			ResourceKey="ControlFillColorTransparentBrush" />
-															<StaticResource x:Key="ButtonBorderBrushPressed"
-																			ResourceKey="ControlFillColorTransparentBrush" />
-														</ResourceDictionary>
-													</ResourceDictionary.ThemeDictionaries>
-												</ResourceDictionary>
-											</local:SettingItem.Resources>
 											<local:SettingItem.ActionContent>
 												<Button x:Name="AddEffectButton"
 														Padding="10,8"
+														Background="Transparent"
+														BorderBrush="Transparent"
 														Click="AddEffectButton_Click">
+													<Button.Resources>
+														<ResourceDictionary>
+															<ResourceDictionary.ThemeDictionaries>
+																<ResourceDictionary x:Key="Default" />
+																<ResourceDictionary x:Key="HighContrast" />
+																<ResourceDictionary x:Key="Light">
+																	<StaticResource x:Key="ButtonBackground"
+																					ResourceKey="SubtleFillColorTransparentBrush" />
+																	<StaticResource x:Key="ButtonBackgroundPointerOver"
+																					ResourceKey="SubtleFillColorSecondaryBrush" />
+																	<StaticResource x:Key="ButtonBackgroundPressed"
+																					ResourceKey="SubtleFillColorTertiaryBrush" />
+																	<StaticResource x:Key="ButtonBorderBrush"
+																					ResourceKey="ControlFillColorTransparentBrush" />
+																	<StaticResource x:Key="ButtonBorderBrushPointerOver"
+																					ResourceKey="ControlFillColorTransparentBrush" />
+																	<StaticResource x:Key="ButtonBorderBrushPressed"
+																					ResourceKey="ControlFillColorTransparentBrush" />
+																</ResourceDictionary>
+															</ResourceDictionary.ThemeDictionaries>
+														</ResourceDictionary>
+													</Button.Resources>
 													<StackPanel VerticalAlignment="Center"
 																Orientation="Horizontal"
 																Spacing="5">
