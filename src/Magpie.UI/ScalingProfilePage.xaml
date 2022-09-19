@@ -155,7 +155,7 @@
 															Spacing="8">
 													<FontIcon VerticalAlignment="Center"
 															  FontSize="15"
-															  Glyph="&#xe74a;" />
+															  Glyph="&#xE74A;" />
 													<TextBlock VerticalAlignment="Center"
 															   Text="上移" />
 												</StackPanel>
@@ -167,7 +167,7 @@
 															Spacing="8">
 													<FontIcon VerticalAlignment="Center"
 															  FontSize="15"
-															  Glyph="&#xe74b;" />
+															  Glyph="&#xE74B;" />
 													<TextBlock VerticalAlignment="Center"
 															   Text="下移" />
 												</StackPanel>

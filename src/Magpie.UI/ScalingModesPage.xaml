@@ -61,7 +61,55 @@
 								<muxc:Expander.Header>
 									<local:SettingItem Title="{x:Bind Name}"
 													   Description="{x:Bind Description}"
-													   Style="{StaticResource ExpanderHeaderSettingStyle}" />
+													   Style="{StaticResource ExpanderHeaderSettingStyle}">
+										<local:SettingItem.ActionContent>
+											<StackPanel Orientation="Horizontal"
+														Spacing="5">
+												<StackPanel.Resources>
+													<Style BasedOn="{StaticResource DefaultButtonStyle}"
+														   TargetType="Button">
+														<Setter Property="Padding" Value="10" />
+													</Style>
+													<Style TargetType="FontIcon">
+														<Setter Property="FontSize" Value="15" />
+													</Style>
+												</StackPanel.Resources>
+												<Button>
+													<ToolTipService.ToolTip>
+														<ToolTip Content="重命名" />
+													</ToolTipService.ToolTip>
+													<Button.Content>
+														<FontIcon Glyph="&#xE8AC;" />
+													</Button.Content>
+												</Button>
+												<Button>
+													<ToolTipService.ToolTip>
+														<ToolTip Content="删除" />
+													</ToolTipService.ToolTip>
+													<Button.Content>
+														<FontIcon Glyph="&#xE74D;" />
+													</Button.Content>
+												</Button>
+												<AppBarSeparator />
+												<Button>
+													<ToolTipService.ToolTip>
+														<ToolTip Content="上移" />
+													</ToolTipService.ToolTip>
+													<Button.Content>
+														<FontIcon Glyph="&#xE74A;" />
+													</Button.Content>
+												</Button>
+												<Button>
+													<ToolTipService.ToolTip>
+														<ToolTip Content="下移" />
+													</ToolTipService.ToolTip>
+													<Button.Content>
+														<FontIcon Glyph="&#xE74B;" />
+													</Button.Content>
+												</Button>
+											</StackPanel>
+										</local:SettingItem.ActionContent>
+									</local:SettingItem>
 								</muxc:Expander.Header>
 								<muxc:Expander.Content>
 									<StackPanel Orientation="Vertical">
@@ -78,7 +126,55 @@
 											<ListView.ItemTemplate>
 												<DataTemplate x:DataType="x:String">
 													<local:SettingItem Title="{x:Bind}"
-																	   Style="{StaticResource ExpanderContentSettingStyle}" />
+																	   Style="{StaticResource ExpanderContentSettingStyle}">
+														<local:SettingItem.ActionContent>
+															<StackPanel Orientation="Horizontal"
+																		Spacing="5">
+																<StackPanel.Resources>
+																	<Style BasedOn="{StaticResource DefaultButtonStyle}"
+																		   TargetType="Button">
+																		<Setter Property="Padding" Value="10" />
+																	</Style>
+																	<Style TargetType="FontIcon">
+																		<Setter Property="FontSize" Value="15" />
+																	</Style>
+																</StackPanel.Resources>
+																<Button>
+																	<ToolTipService.ToolTip>
+																		<ToolTip Content="自定义" />
+																	</ToolTipService.ToolTip>
+																	<Button.Content>
+																		<FontIcon Glyph="&#xE70F;" />
+																	</Button.Content>
+																</Button>
+																<Button>
+																	<ToolTipService.ToolTip>
+																		<ToolTip Content="删除" />
+																	</ToolTipService.ToolTip>
+																	<Button.Content>
+																		<FontIcon Glyph="&#xE74D;" />
+																	</Button.Content>
+																</Button>
+																<AppBarSeparator />
+																<Button>
+																	<ToolTipService.ToolTip>
+																		<ToolTip Content="上移" />
+																	</ToolTipService.ToolTip>
+																	<Button.Content>
+																		<FontIcon Glyph="&#xE74A;" />
+																	</Button.Content>
+																</Button>
+																<Button>
+																	<ToolTipService.ToolTip>
+																		<ToolTip Content="下移" />
+																	</ToolTipService.ToolTip>
+																	<Button.Content>
+																		<FontIcon Glyph="&#xE74B;" />
+																	</Button.Content>
+																</Button>
+															</StackPanel>
+														</local:SettingItem.ActionContent>
+													</local:SettingItem>
 												</DataTemplate>
 											</ListView.ItemTemplate>
 										</ListView>
