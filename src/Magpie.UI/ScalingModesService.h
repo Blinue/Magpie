@@ -19,6 +19,9 @@ public:
 	ScalingMode& GetScalingMode(uint32_t idx);
 
 	uint32_t GetScalingModeCount();
+
+	// copyFrom < 0 表示新建空缩放配置
+	void AddScalingMode(std::wstring_view name, int copyFrom);
 private:
 	ScalingModesService() = default;
 };

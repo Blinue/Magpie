@@ -40,7 +40,8 @@ void ScalingModesViewModel::NewScalingModeName(const hstring& value) noexcept {
 }
 
 void ScalingModesViewModel::AddScalingMode() {
-
+	ScalingModesService::Get().AddScalingMode(_newScalingModeName, _newScalingModeCopyFrom - 1);
+	_scalingModes.Append(ScalingModeItem(ScalingModesService::Get().GetScalingModeCount() - 1));
 }
 
 }

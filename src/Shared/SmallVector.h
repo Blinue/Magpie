@@ -3,7 +3,8 @@
 // 1. 数据较少时没有堆分配
 // 2. 没有强异常保证，因此某些情况下更快
 // 3. 对于 POD 类型直接操作内存而不是使用啰嗦且低效的 Allocator
-// 移植自 LLVM，所作修改如下：
+// 移植自 https://github.com/llvm/llvm-project/blob/03c3c2db103053d734ac420d82dcd9a686776922/llvm/include/llvm/ADT/SmallVector.h 和 https://github.com/llvm/llvm-project/blob/03c3c2db103053d734ac420d82dcd9a686776922/llvm/lib/Support/SmallVector.cpp
+// 所作修改如下：
 // 1. 删除跨编译器逻辑
 // 2. 修复 MSVC 警告
 

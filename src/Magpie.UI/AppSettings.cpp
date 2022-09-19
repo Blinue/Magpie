@@ -152,8 +152,8 @@ static void WriteScaleMode(rapidjson::PrettyWriter<rapidjson::StringBuffer>& wri
 			writer.EndObject();
 		}
 		writer.EndArray();
-		writer.EndObject();
 	}
+	writer.EndObject();
 }
 
 static void WriteScalingProfile(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer, const ScalingProfile& scalingProfile) {

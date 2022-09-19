@@ -61,9 +61,7 @@ bool ScalingProfileService::AddProfile(
 	std::wstring_view name,
 	int copyFrom
 ) {
-	if (pathOrAumid.empty() || className.empty() || name.empty()) {
-		return false;
-	}
+	assert(!pathOrAumid.empty() && !className.empty() && !name.empty());
 
 	std::wstring_view realClassName = GetRealClassName(className);
 
