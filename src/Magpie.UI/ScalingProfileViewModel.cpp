@@ -10,6 +10,7 @@
 #include "StrUtils.h"
 #include <Magpie.Core.h>
 #include "Win32Utils.h"
+#include "AppSettings.h"
 
 
 using namespace winrt;
@@ -81,6 +82,13 @@ ScalingProfileViewModel::ScalingProfileViewModel(int32_t profileIdx) : _isDefaul
 
 		_LoadIcon(mainPage);
 	}
+
+	std::vector<IInspectable> scalingModes;
+	scalingModes.push_back(box_value(L"无"));
+	for (const Magpie::UI::ScalingMode& sm : AppSettings::Get().ScalingModes()) {
+		scalingModes.push_back(box_value(sm.name));
+	}
+	_scalingModes = single_threaded_vector(std::move(scalingModes));
 
 	std::vector<IInspectable> graphicsAdapters;
 	graphicsAdapters.push_back(box_value(L"默认"));
@@ -201,6 +209,15 @@ void ScalingProfileViewModel::Delete() {
 
 	ScalingProfileService::Get().RemoveProfile(_profileIdx);
 	_profile = nullptr;
+}
+
+int32_t ScalingProfileViewModel::ScalingMode() const noexcept {
+	return _profile->scalingMode + 1;
+}
+
+void ScalingProfileViewModel::ScalingMode(int32_t value) {
+	_profile->scalingMode = value - 1;
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"ScalingMode"));
 }
 
 int32_t ScalingProfileViewModel::CaptureMode() const noexcept {

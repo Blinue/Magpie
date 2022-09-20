@@ -22,6 +22,9 @@ namespace Magpie.UI
 
 		void Delete();
 		
+		IVector<IInspectable> ScalingModes { get; };
+		Int32 ScalingMode;
+
 		Int32 CaptureMode;
 		Boolean Is3DGameMode;
 		Int32 MultiMonitorUsage;

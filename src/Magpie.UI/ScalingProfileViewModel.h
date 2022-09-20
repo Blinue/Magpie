@@ -52,6 +52,13 @@ struct ScalingProfileViewModel : ScalingProfileViewModelT<ScalingProfileViewMode
 
 	void Delete();
 
+	IVector<IInspectable> ScalingModes() const noexcept {
+		return _scalingModes;
+	}
+
+	int32_t ScalingMode() const noexcept;
+	void ScalingMode(int32_t value);
+
 	int32_t CaptureMode() const noexcept;
 	void CaptureMode(int32_t value);
 
@@ -123,6 +130,7 @@ private:
 	std::wstring_view _trimedRenameText;
 	bool _isRenameConfirmButtonEnabled = false;
 
+	IVector<IInspectable> _scalingModes{ nullptr };
 	IVector<IInspectable> _graphicsAdapters{ nullptr };
 
 	event<PropertyChangedEventHandler> _propertyChangedEvent;

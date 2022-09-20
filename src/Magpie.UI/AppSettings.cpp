@@ -78,6 +78,25 @@ static bool LoadUIntSettingItem(
 	return true;
 }
 
+static bool LoadIntSettingItem(
+	const rapidjson::GenericObject<false, rapidjson::Value>& obj,
+	const char* nodeName,
+	int& result,
+	bool required = false
+) {
+	auto node = obj.FindMember(nodeName);
+	if (node == obj.MemberEnd()) {
+		return !required;
+	}
+
+	if (!node->value.IsInt()) {
+		return false;
+	}
+
+	result = node->value.GetInt();
+	return true;
+}
+
 static bool LoadFloatSettingItem(
 	const rapidjson::GenericObject<false, rapidjson::Value>& obj,
 	const char* nodeName,
@@ -169,6 +188,8 @@ static void WriteScalingProfile(rapidjson::PrettyWriter<rapidjson::StringBuffer>
 		writer.String(StrUtils::UTF16ToUTF8(scalingProfile.classNameRule).c_str());
 	}
 
+	writer.Key("scalingMode");
+	writer.Int(scalingProfile.scalingMode);
 	writer.Key("captureMode");
 	writer.Uint((uint32_t)scalingProfile.captureMode);
 	writer.Key("multiMonitorUsage");
@@ -236,6 +257,10 @@ static bool LoadScalingProfile(const rapidjson::GenericObject<false, rapidjson::
 		if (!LoadStringSettingItem(scalingConfigObj, "classNameRule", scalingProfile.classNameRule, true)) {
 			return false;
 		}
+	}
+
+	if (!LoadIntSettingItem(scalingConfigObj, "scalingMode", scalingProfile.scalingMode)) {
+		return false;
 	}
 
 	if (!LoadUIntSettingItem(scalingConfigObj, "captureMode", (uint32_t&)scalingProfile.captureMode)) {

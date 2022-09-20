@@ -236,10 +236,9 @@
 					</local:SettingItem.Icon>
 					<local:SettingItem.ActionContent>
 						<ComboBox DropDownOpened="ComboBox_DropDownOpened"
-								  SelectedIndex="0"
-								  Style="{StaticResource ComboBoxSettingStyle}">
-							<x:String>FSR</x:String>
-						</ComboBox>
+								  ItemsSource="{x:Bind ViewModel.ScalingModes, Mode=OneTime}"
+								  SelectedIndex="{x:Bind ViewModel.ScalingMode, Mode=TwoWay}"
+								  Style="{StaticResource ComboBoxSettingStyle}" />
 					</local:SettingItem.ActionContent>
 				</local:SettingItem>
 				<local:SettingItem Title="捕获模式">

@@ -52,6 +52,8 @@ struct ScalingProfile {
 
 	bool isCroppingEnabled = false;
 	::Magpie::Core::Cropping cropping{};
+	// -1 表示原样
+	int scalingMode = -1;
 	::Magpie::Core::CaptureMode captureMode = ::Magpie::Core::CaptureMode::GraphicsCapture;
 	uint32_t graphicsAdapter = 0;
 	::Magpie::Core::MultiMonitorUsage multiMonitorUsage = ::Magpie::Core::MultiMonitorUsage::Nearest;
