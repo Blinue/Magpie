@@ -187,7 +187,10 @@ void XamlApp::_InitializeLogger() {
 }
 
 void XamlApp::_CreateMainWindow() {
-	_hwndMain = CreateWindow(
+	const uint32_t osBuild = Win32Utils::GetOSBuild();
+	// Win11 22H2 中为了使用 Mica 背景需指定 WS_EX_NOREDIRECTIONBITMAP
+	_hwndMain = CreateWindowEx(
+		osBuild >= 22621 ? WS_EX_NOREDIRECTIONBITMAP : 0,
 		CommonSharedConstants::MAIN_WINDOW_CLASS_NAME,
 		L"Magpie",
 		WS_OVERLAPPEDWINDOW,
@@ -203,15 +206,12 @@ void XamlApp::_CreateMainWindow() {
 		return;
 	}
 	
-	const uint32_t osBuild = Win32Utils::GetOSBuild();
-	if (osBuild >= 22000) {
-		if (osBuild < 22621) {
-			// Win11 22H1 在启用 Mica 时无法正确绘制标题，因此隐藏标题和图标
-			WTA_OPTIONS option{};
-			option.dwFlags = WTNCA_NODRAWCAPTION | WTNCA_NODRAWICON | WTNCA_NOSYSMENU;
-			option.dwMask = WTNCA_VALIDBITS;
-			SetWindowThemeAttribute(_hwndMain, WTA_NONCLIENT, &option, sizeof(option));
-		}
+	if (osBuild >= 22000 && osBuild < 22621) {
+		// Win11 22H1 在启用 Mica 时无法正确绘制标题，因此隐藏标题和图标
+		WTA_OPTIONS option{};
+		option.dwFlags = WTNCA_NODRAWCAPTION | WTNCA_NODRAWICON | WTNCA_NOSYSMENU;
+		option.dwMask = WTNCA_VALIDBITS;
+		SetWindowThemeAttribute(_hwndMain, WTA_NONCLIENT, &option, sizeof(option));
 
 		// 监听 WM_ACTIVATE 不完全可靠，因此定期检查前台窗口以确保背景绘制正确
 		if (SetTimer(_hwndMain, CommonSharedConstants::CHECK_FORGROUND_TIMER_ID, 250, nullptr) == 0) {
@@ -358,19 +358,9 @@ void XamlApp::_OnResize() {
 }
 
 void XamlApp::_UpdateTheme() {
-	UINT osBuild = Win32Utils::GetOSBuild();
-
-	if (osBuild >= 22621) {
-		DWM_SYSTEMBACKDROP_TYPE value = DWMSBT_MAINWINDOW;
-		DwmSetWindowAttribute(_hwndMain, DWMWA_SYSTEMBACKDROP_TYPE, &value, sizeof(value));
-	} else if (osBuild >= 22000) {
-		constexpr const DWORD DWMWA_MICA_EFFECT = 1029;
-		BOOL value = TRUE;
-		DwmSetWindowAttribute(_hwndMain, DWMWA_MICA_EFFECT, &value, sizeof(value));
-	}
+	const uint32_t osBuild = Win32Utils::GetOSBuild();
 
 	BOOL isDarkTheme = _mainPage.ActualTheme() == winrt::ElementTheme::Dark;
-	
 	// 使标题栏适应黑暗模式
 	// build 18985 之前 DWMWA_USE_IMMERSIVE_DARK_MODE 的值不同
 	// https://github.com/MicrosoftDocs/sdk-api/pull/966/files
@@ -378,9 +368,21 @@ void XamlApp::_UpdateTheme() {
 	DwmSetWindowAttribute(
 		_hwndMain,
 		osBuild < 18985 ? DWMWA_USE_IMMERSIVE_DARK_MODE_BEFORE_20H1 : DWMWA_USE_IMMERSIVE_DARK_MODE,
-		& isDarkTheme,
+		&isDarkTheme,
 		sizeof(isDarkTheme)
 	);
+
+	if (osBuild >= 22621) {
+		DWM_SYSTEMBACKDROP_TYPE value = DWMSBT_MAINWINDOW;
+		DwmSetWindowAttribute(_hwndMain, DWMWA_SYSTEMBACKDROP_TYPE, &value, sizeof(value));
+		return;
+	}
+
+	if (osBuild >= 22000) {
+		constexpr const DWORD DWMWA_MICA_EFFECT = 1029;
+		BOOL value = TRUE;
+		DwmSetWindowAttribute(_hwndMain, DWMWA_MICA_EFFECT, &value, sizeof(value));
+	}
 
 	// 更改背景色以配合主题
 	// 背景色在更改窗口大小时会短暂可见

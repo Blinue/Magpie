@@ -38,7 +38,15 @@ MainPage::MainPage() {
 	_colorValuesChangedRevoker = _uiSettings.ColorValuesChanged(
 		auto_revoke, { get_weak(), &MainPage::_UISettings_ColorValuesChanged });
 
-	Background(MicaBrush(*this));
+	const uint32_t osBuild = Win32Utils::GetOSBuild();
+	if (osBuild >= 22000) {
+		if (osBuild < 22621) {
+			// Win11 22H1 中自行绘制 Mica 背景
+			Background(MicaBrush(*this));
+		} else {
+			MUXC::BackdropMaterial::SetApplyToRootOrPageBackground(*this, true);
+		}
+	}
 
 	_displayInformation = Application::Current().as<App>().DisplayInformation();
 	_dpiChangedRevoker = _displayInformation.DpiChanged(

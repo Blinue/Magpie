@@ -8,7 +8,6 @@
 #include <dwmapi.h>
 
 
-
 uint32_t Win32Utils::GetOSBuild() {
 	static uint32_t build = 0;
 
