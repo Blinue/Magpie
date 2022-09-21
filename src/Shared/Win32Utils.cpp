@@ -9,8 +9,8 @@
 
 
 
-UINT Win32Utils::GetOSBuild() {
-	static UINT build = 0;
+uint32_t Win32Utils::GetOSBuild() {
+	static uint32_t build = 0;
 
 	if (build == 0) {
 		HMODULE hNtDll = GetModuleHandle(L"ntdll.dll");

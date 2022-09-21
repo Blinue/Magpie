@@ -202,13 +202,16 @@ void XamlApp::_CreateMainWindow() {
 		Logger::Get().Win32Error("CreateWindow 失败");
 		return;
 	}
-
-	if (Win32Utils::GetOSBuild() >= 22000) {
-		// 标题栏不显示图标和标题，因为目前 DWM 存在 bug 无法在启用 Mica 时正确绘制标题
-		WTA_OPTIONS option{};
-		option.dwFlags = WTNCA_NODRAWCAPTION | WTNCA_NODRAWICON | WTNCA_NOSYSMENU;
-		option.dwMask = WTNCA_VALIDBITS;
-		SetWindowThemeAttribute(_hwndMain, WTA_NONCLIENT, &option, sizeof(option));
+	
+	const uint32_t osBuild = Win32Utils::GetOSBuild();
+	if (osBuild >= 22000) {
+		if (osBuild < 22621) {
+			// Win11 22H1 在启用 Mica 时无法正确绘制标题，因此隐藏标题和图标
+			WTA_OPTIONS option{};
+			option.dwFlags = WTNCA_NODRAWCAPTION | WTNCA_NODRAWICON | WTNCA_NOSYSMENU;
+			option.dwMask = WTNCA_VALIDBITS;
+			SetWindowThemeAttribute(_hwndMain, WTA_NONCLIENT, &option, sizeof(option));
+		}
 
 		// 监听 WM_ACTIVATE 不完全可靠，因此定期检查前台窗口以确保背景绘制正确
 		if (SetTimer(_hwndMain, CommonSharedConstants::CHECK_FORGROUND_TIMER_ID, 250, nullptr) == 0) {
@@ -355,22 +358,23 @@ void XamlApp::_OnResize() {
 }
 
 void XamlApp::_UpdateTheme() {
-	constexpr const DWORD DWMWA_USE_IMMERSIVE_DARK_MODE_BEFORE_20H1 = 19;
-	constexpr const DWORD DWMWA_MICA_EFFECT = 1029;
+	UINT osBuild = Win32Utils::GetOSBuild();
 
-	auto osBuild = Win32Utils::GetOSBuild();
-
-	if (osBuild >= 22000) {
-		// 在 Win11 中应用 Mica
-		BOOL mica = TRUE;
-		DwmSetWindowAttribute(_hwndMain, DWMWA_MICA_EFFECT, &mica, sizeof(mica));
+	if (osBuild >= 22621) {
+		DWM_SYSTEMBACKDROP_TYPE value = DWMSBT_MAINWINDOW;
+		DwmSetWindowAttribute(_hwndMain, DWMWA_SYSTEMBACKDROP_TYPE, &value, sizeof(value));
+	} else if (osBuild >= 22000) {
+		constexpr const DWORD DWMWA_MICA_EFFECT = 1029;
+		BOOL value = TRUE;
+		DwmSetWindowAttribute(_hwndMain, DWMWA_MICA_EFFECT, &value, sizeof(value));
 	}
 
 	BOOL isDarkTheme = _mainPage.ActualTheme() == winrt::ElementTheme::Dark;
-
+	
 	// 使标题栏适应黑暗模式
 	// build 18985 之前 DWMWA_USE_IMMERSIVE_DARK_MODE 的值不同
 	// https://github.com/MicrosoftDocs/sdk-api/pull/966/files
+	constexpr const DWORD DWMWA_USE_IMMERSIVE_DARK_MODE_BEFORE_20H1 = 19;
 	DwmSetWindowAttribute(
 		_hwndMain,
 		osBuild < 18985 ? DWMWA_USE_IMMERSIVE_DARK_MODE_BEFORE_20H1 : DWMWA_USE_IMMERSIVE_DARK_MODE,
