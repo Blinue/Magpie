@@ -820,10 +820,10 @@ void AppSettings::_SetDefaultScalingModes() {
 		auto& fsr = _scalingModes.emplace_back();
 		fsr.name = L"FSR";
 		auto& easu = fsr.effects.emplace_back();
-		easu.name = L"FSR_EASU";
+		easu.name = L"FSR\\FSR_EASU";
 		easu.scaleType = ScaleType::Fit;
 		auto& rcas = fsr.effects.emplace_back();
-		rcas.name = L"FSR_RCAS";
+		rcas.name = L"FSR\\FSR_RCAS";
 		rcas.parameters[L"sharpness"] = 0.87f;
 	}
 }

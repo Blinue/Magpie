@@ -21,9 +21,9 @@ ScalingModeItem::ScalingModeItem(uint32_t index) {
 		size_t delimPos = effect.name.find_last_of(L'\\');
 		if (delimPos != std::wstring::npos) {
 			effects.push_back(box_value(name.substr(delimPos + 1)));
+		} else {
+			effects.push_back(box_value(name));
 		}
-
-		effects.push_back(box_value(name));
 	}
 	_effects = winrt::single_threaded_observable_vector(std::move(effects));
 }

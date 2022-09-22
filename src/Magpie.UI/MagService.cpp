@@ -4,6 +4,7 @@
 #include "Win32Utils.h"
 #include "AppSettings.h"
 #include "ScalingProfileService.h"
+#include "ScalingModesService.h"
 
 using namespace Magpie::Core;
 
@@ -263,26 +264,24 @@ void MagService::_StartScale(HWND hWnd) {
 		break;
 	}
 
-	// 应用全局配置
 	AppSettings& settings = AppSettings::Get();
+
+	// 应用缩放模式
+	if (profile.scalingMode >= 0) {
+		options.effects = ScalingModesService::Get().GetScalingMode(profile.scalingMode).effects;
+		if (settings.IsInlineParams()) {
+			for (EffectOption& effect : options.effects) {
+				effect.flags |= EffectOptionFlags::InlineParams;
+			}
+		}
+	}
+
+	// 应用全局配置
 	options.IsBreakpointMode(settings.IsBreakpointMode());
 	options.IsDisableEffectCache(settings.IsDisableEffectCache());
 	options.IsSaveEffectSources(settings.IsSaveEffectSources());
 	options.IsWarningsAreErrors(settings.IsWarningsAreErrors());
 	options.IsSimulateExclusiveFullscreen(settings.IsSimulateExclusiveFullscreen());
-
-	EffectOption& easu = options.effects.emplace_back();
-	easu.name = L"FSR\\FSR_EASU";
-	easu.scaleType = ScaleType::Fit;
-	if (settings.IsInlineParams()) {
-		easu.flags |= EffectOptionFlags::InlineParams;
-	}
-	EffectOption& rcas = options.effects.emplace_back();
-	rcas.name = L"FSR\\FSR_RCAS";
-	rcas.parameters[L"sharpness"] = 0.9;
-	if (settings.IsInlineParams()) {
-		rcas.flags |= EffectOptionFlags::InlineParams;
-	}
 
 	_magRuntime.Run(hWnd, options);
 }
