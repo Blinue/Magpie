@@ -7,10 +7,6 @@
 	  xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
 	  mc:Ignorable="d">
 	<local:PageFrame Title="缩放模式">
-		<FlyoutBase.AttachedFlyout>
-			<MenuFlyout x:Name="AddEffectMenuFlyout" />
-		</FlyoutBase.AttachedFlyout>
-
 		<StackPanel HorizontalAlignment="Stretch"
 					Orientation="Vertical">
 			<local:SettingsGroup Title="通用"
@@ -170,7 +166,8 @@
 														Padding="10,8"
 														Background="Transparent"
 														BorderBrush="Transparent"
-														Click="AddEffectButton_Click">
+														Click="AddEffectButton_Click"
+														Tag="{x:Bind}">
 													<Button.Resources>
 														<ResourceDictionary>
 															<ResourceDictionary.ThemeDictionaries>

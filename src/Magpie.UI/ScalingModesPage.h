@@ -24,7 +24,11 @@ struct ScalingModesPage : ScalingModesPageT<ScalingModesPage> {
 private:
 	void _BuildEffectMenu() noexcept;
 
+	void _AddEffectMenuFlyoutItem_Click(IInspectable const& sender, RoutedEventArgs const&);
+
+	Controls::MenuFlyout _addEffectMenuFlyout;
 	Magpie::UI::ScalingModesViewModel _viewModel;
+	Magpie::UI::ScalingModeItem _curScalingMode{ nullptr };
 };
 
 }

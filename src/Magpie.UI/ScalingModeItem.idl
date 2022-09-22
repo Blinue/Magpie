@@ -4,6 +4,8 @@ namespace Magpie.UI
     {
         ScalingModeItem(UInt32 index);
 
+        void AddEffect(String fullName);
+
         String Name;
         String Description { get; };
         IObservableVector<IInspectable> Effects { get; };

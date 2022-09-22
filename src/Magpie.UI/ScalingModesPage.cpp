@@ -25,7 +25,9 @@ void ScalingModesPage::ComboBox_DropDownOpened(IInspectable const& sender, IInsp
 }
 
 void ScalingModesPage::AddEffectButton_Click(IInspectable const& sender, RoutedEventArgs const&) {
-	AddEffectMenuFlyout().ShowAt(sender.as<Button>());
+	Button btn = sender.as<Button>();
+	_curScalingMode = btn.Tag().as<ScalingModeItem>();
+	_addEffectMenuFlyout.ShowAt(btn);
 }
 
 void ScalingModesPage::NewScalingModeFlyout_Opening(IInspectable const&, IInspectable const&) {
@@ -52,15 +54,17 @@ void ScalingModesPage::_BuildEffectMenu() noexcept {
 	for (const auto& effect : EffectsService::Get().Effects()) {
 		std::wstring_view name(effect.name);
 
+		MenuFlyoutItem item;
+		item.Tag(box_value(effect.name));
+		item.Click({ this, &ScalingModesPage::_AddEffectMenuFlyoutItem_Click });
+
 		size_t delimPos = name.find_last_of(L'\\');
 		if (delimPos == std::wstring::npos) {
-			MenuFlyoutItem item;
 			item.Text(name);
 			rootItems.emplace_back(std::move(item));
 			continue;
 		}
 
-		MenuFlyoutItem item;
 		item.Text(name.substr(delimPos + 1));
 
 		std::wstring_view dir = name.substr(0, delimPos);
@@ -93,8 +97,14 @@ void ScalingModesPage::_BuildEffectMenu() noexcept {
 	});
 
 	for (MenuFlyoutItemBase& item : rootItems) {
-		AddEffectMenuFlyout().Items().Append(std::move(item));
+		_addEffectMenuFlyout.Items().Append(std::move(item));
 	}
+}
+
+void ScalingModesPage::_AddEffectMenuFlyoutItem_Click(IInspectable const& sender, RoutedEventArgs const&) {
+	hstring effectName = unbox_value<hstring>(sender.as<MenuFlyoutItem>().Tag());
+	_curScalingMode.AddEffect(effectName);
+	
 }
 
 }

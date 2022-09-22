@@ -9,23 +9,28 @@
 using namespace Magpie::Core;
 
 
+static std::wstring_view GetEffectDisplayName(std::wstring_view fullName) {
+	size_t delimPos = fullName.find_last_of(L'\\');
+	return delimPos != std::wstring::npos ? fullName.substr(delimPos + 1) : fullName;
+}
+
 namespace winrt::Magpie::UI::implementation {
 
 ScalingModeItem::ScalingModeItem(uint32_t index) {
 	_scalingMode = &ScalingModesService::Get().GetScalingMode(index);
 
 	std::vector<IInspectable> effects;
+	effects.reserve(_scalingMode->effects.size());
 	for (auto& effect : _scalingMode->effects) {
-		std::wstring_view name = effect.name;
-
-		size_t delimPos = effect.name.find_last_of(L'\\');
-		if (delimPos != std::wstring::npos) {
-			effects.push_back(box_value(name.substr(delimPos + 1)));
-		} else {
-			effects.push_back(box_value(name));
-		}
+		effects.push_back(box_value(GetEffectDisplayName(effect.name)));
 	}
 	_effects = winrt::single_threaded_observable_vector(std::move(effects));
+}
+
+void ScalingModeItem::AddEffect(const hstring& fullName) {
+	EffectOption& effect = _scalingMode->effects.emplace_back();
+	effect.name = fullName;
+	_effects.Append(box_value(GetEffectDisplayName(fullName)));
 }
 
 hstring ScalingModeItem::Name() const noexcept {

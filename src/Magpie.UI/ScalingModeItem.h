@@ -19,6 +19,8 @@ struct ScalingModeItem : ScalingModeItemT<ScalingModeItem> {
 		_propertyChangedEvent.remove(token);
 	}
 
+	void AddEffect(const hstring& fullName);
+
 	hstring Name() const noexcept;
 
 	void Name(const hstring& value) noexcept;
