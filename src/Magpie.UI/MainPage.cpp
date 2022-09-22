@@ -39,15 +39,15 @@ MainPage::MainPage() {
 		auto_revoke, { get_weak(), &MainPage::_UISettings_ColorValuesChanged });
 
 	const uint32_t osBuild = Win32Utils::GetOSBuild();
-	if (osBuild >= 22000) {
-		if (osBuild < 22621) {
-			// Win11 22H1 中自行绘制 Mica 背景
-			Background(MicaBrush(*this));
-		} else {
-			MUXC::BackdropMaterial::SetApplyToRootOrPageBackground(*this, true);
-		}
+	if (osBuild < 22621) {
+		// Win10: 以纯色填充
+		// Win11 22H1: 自行绘制 Mica 背景
+		Background(MicaBrush(*this));
+	} else {
+		// Win11 22H2+: 使用系统的 Mica 背景
+		MUXC::BackdropMaterial::SetApplyToRootOrPageBackground(*this, true);
 	}
-
+	
 	_displayInformation = Application::Current().as<App>().DisplayInformation();
 	_dpiChangedRevoker = _displayInformation.DpiChanged(
 		auto_revoke, [this](DisplayInformation const&, IInspectable const&) { _UpdateIcons(false); });
@@ -64,7 +64,7 @@ MainPage::MainPage() {
 	}
 
 	// Win10 里启动时有一个 ToggleSwitch 的动画 bug，这里展示页面切换动画掩盖
-	if (Win32Utils::GetOSBuild() < 22000) {
+	if (osBuild < 22000) {
 		ContentFrame().Navigate(winrt::xaml_typename<Controls::Page>());
 	}
 
