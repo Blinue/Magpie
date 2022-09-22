@@ -9,6 +9,7 @@
 #include "AppSettings.h"
 #include "ScalingProfileService.h"
 #include "ScalingProfile.h"
+#include "PageHelper.h"
 
 
 using namespace winrt;
@@ -26,9 +27,9 @@ ScalingProfilePage::ScalingProfilePage() {
 	MainPage mainPage = Application::Current().as<App>().MainPage();
 	_displayModeChangedRevoker = mainPage.RootNavigationView().DisplayModeChanged(
 		auto_revoke,
-		[&](auto const&, auto const&) { _UpdateHeaderActionStyle(); }
+		[&](auto const&, auto const&) { PageHelper::UpdateHeaderActionStyle(HeaderActionStackPanel()); }
 	);
-	_UpdateHeaderActionStyle();
+	PageHelper::UpdateHeaderActionStyle(HeaderActionStackPanel());
 
 	ElementTheme theme = mainPage.ActualTheme();
 	RenameTooltip().RequestedTheme(theme);
@@ -114,31 +115,6 @@ void ScalingProfilePage::DeleteMenuItem_Click(IInspectable const&, RoutedEventAr
 void ScalingProfilePage::DeleteButton_Click(IInspectable const&, RoutedEventArgs const&) {
 	DeleteFlyout().Hide();
 	_viewModel.Delete();
-}
-
-void ScalingProfilePage::_UpdateHeaderActionStyle() {
-	StackPanel actionContainer = HeaderActionStackPanel();
-
-	MainPage mainPage = Application::Current().as<App>().MainPage();
-	if (mainPage.RootNavigationView().DisplayMode() == MUXC::NavigationViewDisplayMode::Minimal) {
-		actionContainer.Margin({ 0,2,0,-2 });
-		actionContainer.Padding({ 0,-4,0,-4 });
-
-		for (UIElement const& child : actionContainer.Children()) {
-			Button btn = child.as<Button>();
-			btn.Width(36);
-			btn.Height(36);
-		}
-	} else {
-		actionContainer.Margin({0,0,0,-3});
-		actionContainer.Padding({});
-
-		for (UIElement const& child : actionContainer.Children()) {
-			Button btn = child.as<Button>();
-			btn.Width(40);
-			btn.Height(40);
-		}
-	}
 }
 
 }

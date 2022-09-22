@@ -50,6 +50,9 @@
     <ClCompile Include="ScalingModesService.cpp">
       <Filter>Services</Filter>
     </ClCompile>
+    <ClCompile Include="PageHelper.cpp">
+      <Filter>Helpers</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -96,6 +99,9 @@
     </ClInclude>
     <ClInclude Include="ScalingModesService.h">
       <Filter>Services</Filter>
+    </ClInclude>
+    <ClInclude Include="PageHelper.h">
+      <Filter>Helpers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

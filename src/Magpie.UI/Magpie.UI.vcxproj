@@ -140,6 +140,7 @@
       <DependentUpon>NewProfileViewModel.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
+    <ClInclude Include="PageHelper.h" />
     <ClInclude Include="ScalingModeItem.h">
       <DependentUpon>ScalingModeItem.idl</DependentUpon>
       <SubType>Code</SubType>
@@ -265,6 +266,7 @@
       <DependentUpon>NewProfileViewModel.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
+    <ClCompile Include="PageHelper.cpp" />
     <ClCompile Include="ScalingModeItem.cpp">
       <DependentUpon>ScalingModeItem.idl</DependentUpon>
       <SubType>Code</SubType>

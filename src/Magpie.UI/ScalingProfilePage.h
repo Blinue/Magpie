@@ -34,12 +34,10 @@ struct ScalingProfilePage : ScalingProfilePageT<ScalingProfilePage> {
 	void DeleteButton_Click(IInspectable const&, RoutedEventArgs const&);
 
 private:
-	void _UpdateHeaderActionStyle();
-
 	Magpie::UI::ScalingProfileViewModel _viewModel{ nullptr };
 	Windows::Globalization::NumberFormatting::DecimalFormatter _numberFormatter;
 
-	Microsoft::UI::Xaml::Controls::NavigationView::DisplayModeChanged_revoker _displayModeChangedRevoker{};
+	MUXC::NavigationView::DisplayModeChanged_revoker _displayModeChangedRevoker{};
 };
 
 }

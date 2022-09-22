@@ -5,6 +5,8 @@
 #endif
 #include "ComboBoxHelper.h"
 #include "EffectsService.h"
+#include "PageHelper.h"
+
 
 using namespace winrt;
 using namespace Windows::UI::Xaml::Controls;
@@ -16,6 +18,13 @@ namespace winrt::Magpie::UI::implementation {
 
 ScalingModesPage::ScalingModesPage() {
 	InitializeComponent();
+
+	MainPage mainPage = Application::Current().as<App>().MainPage();
+	_displayModeChangedRevoker = mainPage.RootNavigationView().DisplayModeChanged(
+		auto_revoke,
+		[&](auto const&, auto const&) { PageHelper::UpdateHeaderActionStyle(HeaderActionStackPanel()); }
+	);
+	PageHelper::UpdateHeaderActionStyle(HeaderActionStackPanel());
 
 	_BuildEffectMenu();
 }

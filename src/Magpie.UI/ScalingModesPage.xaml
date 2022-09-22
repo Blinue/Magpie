@@ -7,6 +7,111 @@
 	  xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
 	  mc:Ignorable="d">
 	<local:PageFrame Title="缩放模式">
+		<local:PageFrame.HeaderAction>
+			<StackPanel x:Name="HeaderActionStackPanel"
+						Orientation="Horizontal">
+				<StackPanel.Resources>
+					<ResourceDictionary>
+						<ResourceDictionary.ThemeDictionaries>
+							<ResourceDictionary x:Key="Default">
+								<StaticResource x:Key="ButtonBackground"
+												ResourceKey="SubtleFillColorTransparentBrush" />
+								<StaticResource x:Key="ButtonBackgroundPointerOver"
+												ResourceKey="SubtleFillColorSecondaryBrush" />
+								<StaticResource x:Key="ButtonBackgroundPressed"
+												ResourceKey="SubtleFillColorTertiaryBrush" />
+								<StaticResource x:Key="ButtonForeground"
+												ResourceKey="TextFillColorPrimaryBrush" />
+								<StaticResource x:Key="ButtonForegroundPointerOver"
+												ResourceKey="TextFillColorPrimaryBrush" />
+								<StaticResource x:Key="ButtonForegroundPressed"
+												ResourceKey="TextFillColorSecondaryBrush" />
+								<StaticResource x:Key="ButtonBorderBrush"
+												ResourceKey="ControlFillColorTransparentBrush" />
+								<StaticResource x:Key="ButtonBorderBrushPointerOver"
+												ResourceKey="ControlFillColorTransparentBrush" />
+								<StaticResource x:Key="ButtonBorderBrushPressed"
+												ResourceKey="ControlFillColorTransparentBrush" />
+							</ResourceDictionary>
+							<ResourceDictionary x:Key="HighContrast">
+								<StaticResource x:Key="ButtonBackground"
+												ResourceKey="SystemControlTransparentBrush" />
+								<StaticResource x:Key="ButtonBackgroundPointerOver"
+												ResourceKey="SystemControlHighlightListLowBrush" />
+								<StaticResource x:Key="ButtonBackgroundPressed"
+												ResourceKey="SystemControlHighlightListMediumBrush" />
+								<StaticResource x:Key="ButtonForeground"
+												ResourceKey="SystemControlForegroundBaseHighBrush" />
+								<StaticResource x:Key="ButtonForegroundPointerOver"
+												ResourceKey="SystemControlHighlightAltBaseHighBrush" />
+								<StaticResource x:Key="ButtonForegroundPressed"
+												ResourceKey="SystemControlHighlightAltBaseHighBrush" />
+								<StaticResource x:Key="ButtonBorderBrush"
+												ResourceKey="SystemControlForegroundTransparentBrush" />
+								<StaticResource x:Key="ButtonBorderBrushPointerOver"
+												ResourceKey="SystemControlHighlightTransparentBrush" />
+								<StaticResource x:Key="ButtonBorderBrushPressed"
+												ResourceKey="SystemControlHighlightTransparentBrush" />
+							</ResourceDictionary>
+							<ResourceDictionary x:Key="Light">
+								<StaticResource x:Key="ButtonBackground"
+												ResourceKey="SubtleFillColorTransparentBrush" />
+								<StaticResource x:Key="ButtonBackgroundPointerOver"
+												ResourceKey="SubtleFillColorSecondaryBrush" />
+								<StaticResource x:Key="ButtonBackgroundPressed"
+												ResourceKey="SubtleFillColorTertiaryBrush" />
+								<StaticResource x:Key="ButtonForeground"
+												ResourceKey="TextFillColorPrimaryBrush" />
+								<StaticResource x:Key="ButtonForegroundPointerOver"
+												ResourceKey="TextFillColorPrimaryBrush" />
+								<StaticResource x:Key="ButtonForegroundPressed"
+												ResourceKey="TextFillColorSecondaryBrush" />
+								<StaticResource x:Key="ButtonBorderBrush"
+												ResourceKey="ControlFillColorTransparentBrush" />
+								<StaticResource x:Key="ButtonBorderBrushPointerOver"
+												ResourceKey="ControlFillColorTransparentBrush" />
+								<StaticResource x:Key="ButtonBorderBrushPressed"
+												ResourceKey="ControlFillColorTransparentBrush" />
+							</ResourceDictionary>
+						</ResourceDictionary.ThemeDictionaries>
+
+						<Style TargetType="FontIcon">
+							<Setter Property="FontSize" Value="18" />
+						</Style>
+					</ResourceDictionary>
+				</StackPanel.Resources>
+				<Button Padding="0">
+					<Button.Content>
+						<FontIcon Glyph="&#xE712;" />
+					</Button.Content>
+					<ToolTipService.ToolTip>
+						<ToolTip x:Name="MoreOptionsTooltip"
+								 Content="更多选项" />
+					</ToolTipService.ToolTip>
+					<Button.Flyout>
+						<MenuFlyout Placement="Bottom"
+									ShouldConstrainToRootBounds="False">
+							<MenuFlyoutItem Text="导出">
+								<MenuFlyoutItem.Icon>
+									<FontIcon Glyph="&#xEDE1;" />
+								</MenuFlyoutItem.Icon>
+							</MenuFlyoutItem>
+							<MenuFlyoutItem Text="导入">
+								<MenuFlyoutItem.Icon>
+									<FontIcon Glyph="&#xE8B5;" />
+								</MenuFlyoutItem.Icon>
+							</MenuFlyoutItem>
+							<MenuFlyoutItem Text="导入旧版缩放模式">
+								<MenuFlyoutItem.Icon>
+									<FontIcon Glyph="&#xE8B5;" />
+								</MenuFlyoutItem.Icon>
+							</MenuFlyoutItem>
+						</MenuFlyout>
+					</Button.Flyout>
+				</Button>
+			</StackPanel>
+		</local:PageFrame.HeaderAction>
+
 		<StackPanel HorizontalAlignment="Stretch"
 					Orientation="Vertical">
 			<local:SettingsGroup Title="通用"
@@ -247,12 +352,14 @@
 						</StackPanel>
 					</Flyout>
 				</Button.Flyout>
-				<StackPanel Orientation="Horizontal"
-							Spacing="5">
-					<FontIcon FontSize="15"
-							  Glyph="&#xe710;" />
-					<TextBlock Text="新建缩放模式" />
-				</StackPanel>
+				<Button.Content>
+					<StackPanel Orientation="Horizontal"
+								Spacing="5">
+						<FontIcon FontSize="15"
+								  Glyph="&#xe710;" />
+						<TextBlock Text="新建缩放模式" />
+					</StackPanel>
+				</Button.Content>
 			</Button>
 		</StackPanel>
 	</local:PageFrame>

@@ -26,6 +26,8 @@ private:
 
 	void _AddEffectMenuFlyoutItem_Click(IInspectable const& sender, RoutedEventArgs const&);
 
+	MUXC::NavigationView::DisplayModeChanged_revoker _displayModeChangedRevoker{};
+
 	Controls::MenuFlyout _addEffectMenuFlyout;
 	Magpie::UI::ScalingModesViewModel _viewModel;
 	Magpie::UI::ScalingModeItem _curScalingMode{ nullptr };
