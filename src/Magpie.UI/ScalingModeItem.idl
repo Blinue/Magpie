@@ -5,9 +5,16 @@ namespace Magpie.UI
         ScalingModeItem(UInt32 index);
 
         void AddEffect(String fullName);
+        void RenameFlyout_Opening();
+        void RenameTextBox_KeyDown(Object sender, Windows.UI.Xaml.Input.KeyRoutedEventArgs args);
+        void RenameButton_Click();
 
         String Name;
         String Description { get; };
         IObservableVector<IInspectable> Effects { get; };
+
+        String RenameText;
+        Int32 RenameTextBoxSelectionStart{ get; };
+        Boolean IsRenameButtonEnabled { get; };
     }
 }

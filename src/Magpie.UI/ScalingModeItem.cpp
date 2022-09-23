@@ -5,6 +5,8 @@
 #endif
 #include "ScalingMode.h"
 #include "ScalingModesService.h"
+#include "StrUtils.h"
+#include "XamlUtils.h"
 
 using namespace Magpie::Core;
 
@@ -56,6 +58,41 @@ hstring ScalingModeItem::Description() const noexcept {
 		}
 	}
 	return hstring(result);
+}
+
+void ScalingModeItem::RenameText(const hstring& value) noexcept {
+	_renameText = value;
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"RenameText"));
+
+	_trimedRenameText = value;
+	StrUtils::Trim(_trimedRenameText);
+	bool newEnabled = !_trimedRenameText.empty() && _trimedRenameText != _scalingMode->name;
+	if (_isRenameButtonEnabled != newEnabled) {
+		_isRenameButtonEnabled = newEnabled;
+		_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsRenameButtonEnabled"));
+	}
+}
+
+void ScalingModeItem::RenameFlyout_Opening() {
+	RenameText(hstring(_scalingMode->name));
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"RenameTextBoxSelectionStart"));
+}
+
+void ScalingModeItem::RenameTextBox_KeyDown(IInspectable const&, Input::KeyRoutedEventArgs const& args) {
+	if (args.Key() == VirtualKey::Enter) {
+		RenameButton_Click();
+	}
+}
+
+void ScalingModeItem::RenameButton_Click() {
+	if (!_isRenameButtonEnabled) {
+		return;
+	}
+
+	XamlUtils::CloseXamlPopups(Application::Current().as<App>().MainPage().XamlRoot());
+
+	_scalingMode->name = _trimedRenameText;
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"Name"));
 }
 
 }

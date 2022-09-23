@@ -98,12 +98,12 @@
 							</MenuFlyoutItem>
 							<MenuFlyoutItem Text="导入">
 								<MenuFlyoutItem.Icon>
-									<FontIcon Glyph="&#xE8B5;" />
+									<FontIcon Glyph="&#xEA52;" />
 								</MenuFlyoutItem.Icon>
 							</MenuFlyoutItem>
-							<MenuFlyoutItem Text="导入旧版缩放模式">
+							<MenuFlyoutItem Text="导入旧版">
 								<MenuFlyoutItem.Icon>
-									<FontIcon Glyph="&#xE8B5;" />
+									<FontIcon Glyph="&#xEA52;" />
 								</MenuFlyoutItem.Icon>
 							</MenuFlyoutItem>
 						</MenuFlyout>
@@ -181,6 +181,26 @@
 													<Button.Content>
 														<FontIcon Glyph="&#xE8AC;" />
 													</Button.Content>
+													<Button.Flyout>
+														<Flyout Opening="{x:Bind RenameFlyout_Opening}"
+																ShouldConstrainToRootBounds="False">
+															<StackPanel Orientation="Vertical">
+																<TextBlock Text="重命名" />
+																<TextBox Width="280"
+																		 Height="32"
+																		 Margin="0,8,0,20"
+																		 KeyDown="{x:Bind RenameTextBox_KeyDown}"
+																		 SelectionStart="{x:Bind RenameTextBoxSelectionStart, Mode=OneWay}"
+																		 Text="{x:Bind RenameText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+																<Button MinWidth="80"
+																		HorizontalAlignment="Right"
+																		Click="{x:Bind RenameButton_Click}"
+																		Content="确定"
+																		IsEnabled="{x:Bind IsRenameButtonEnabled, Mode=OneWay}"
+																		Style="{StaticResource AccentButtonStyle}" />
+															</StackPanel>
+														</Flyout>
+													</Button.Flyout>
 												</Button>
 												<Button>
 													<ToolTipService.ToolTip>

@@ -31,10 +31,34 @@ struct ScalingModeItem : ScalingModeItemT<ScalingModeItem> {
 		return _effects;
 	}
 
+	hstring RenameText() const noexcept {
+		return _renameText;
+	}
+
+	void RenameText(const hstring& value) noexcept;
+
+	bool IsRenameButtonEnabled() const noexcept {
+		return _isRenameButtonEnabled;
+	}
+
+	void RenameFlyout_Opening();
+
+	void RenameTextBox_KeyDown(IInspectable const&, Input::KeyRoutedEventArgs const& args);
+
+	int32_t RenameTextBoxSelectionStart() {
+		return _renameText.size();
+	}
+
+	void RenameButton_Click();
+
 private:
 	event<PropertyChangedEventHandler> _propertyChangedEvent;
 	ScalingMode* _scalingMode = nullptr;
 	IObservableVector<IInspectable> _effects{ nullptr };
+
+	hstring _renameText;
+	std::wstring_view _trimedRenameText;
+	bool _isRenameButtonEnabled = false;
 };
 
 }

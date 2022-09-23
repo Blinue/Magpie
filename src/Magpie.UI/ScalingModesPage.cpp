@@ -113,7 +113,6 @@ void ScalingModesPage::_BuildEffectMenu() noexcept {
 void ScalingModesPage::_AddEffectMenuFlyoutItem_Click(IInspectable const& sender, RoutedEventArgs const&) {
 	hstring effectName = unbox_value<hstring>(sender.as<MenuFlyoutItem>().Tag());
 	_curScalingMode.AddEffect(effectName);
-	
 }
 
 }
