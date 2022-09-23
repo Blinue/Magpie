@@ -33,6 +33,7 @@ void ScalingModeItem::AddEffect(const hstring& fullName) {
 	EffectOption& effect = _scalingMode->effects.emplace_back();
 	effect.name = fullName;
 	_effects.Append(box_value(GetEffectDisplayName(fullName)));
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CanReorder"));
 }
 
 hstring ScalingModeItem::Name() const noexcept {

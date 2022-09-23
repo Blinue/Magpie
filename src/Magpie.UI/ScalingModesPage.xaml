@@ -236,7 +236,7 @@
 								<muxc:Expander.Content>
 									<StackPanel Orientation="Vertical">
 										<ListView AllowDrop="True"
-												  CanReorderItems="True"
+												  CanReorderItems="{x:Bind CanReorder, Mode=OneWay}"
 												  ItemsSource="{x:Bind Effects, Mode=OneTime}"
 												  SelectionMode="None">
 											<ListView.Resources>
@@ -286,6 +286,12 @@
 											</ListView.ItemTemplate>
 										</ListView>
 										<local:SettingItem Style="{StaticResource ExpanderContentSettingStyle}">
+											<local:SettingItem.Description>
+												<TextBlock Margin="-40,0,0,2"
+														   VerticalAlignment="Center"
+														   Text="拖动可重新排序"
+														   Visibility="{x:Bind CanReorder, Mode=OneWay}" />
+											</local:SettingItem.Description>
 											<local:SettingItem.ActionContent>
 												<Button x:Name="AddEffectButton"
 														Padding="10,8"

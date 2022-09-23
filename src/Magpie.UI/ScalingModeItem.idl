@@ -16,5 +16,7 @@ namespace Magpie.UI
         String RenameText;
         Int32 RenameTextBoxSelectionStart{ get; };
         Boolean IsRenameButtonEnabled { get; };
+
+        Boolean CanReorder { get; };
     }
 }

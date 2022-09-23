@@ -51,6 +51,10 @@ struct ScalingModeItem : ScalingModeItemT<ScalingModeItem> {
 
 	void RenameButton_Click();
 
+	bool CanReorder() const noexcept {
+		return _effects.Size() > 1;
+	}
+
 private:
 	event<PropertyChangedEventHandler> _propertyChangedEvent;
 	ScalingMode* _scalingMode = nullptr;
