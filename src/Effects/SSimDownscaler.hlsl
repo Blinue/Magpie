@@ -9,6 +9,8 @@
 //!PARAMETER
 //!DEFAULT 1
 //!MIN 1
+//!MAX 5
+//!STEP 0.1
 float oversharp;
 
 //!TEXTURE

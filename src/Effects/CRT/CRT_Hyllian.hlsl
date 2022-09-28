@@ -35,78 +35,91 @@
 //!DEFAULT 1
 //!MIN 0
 //!MAX 1
+//!STEP 1
 int phosphor;
 
 //!PARAMETER
 //!DEFAULT 0
 //!MIN 0
 //!MAX 1
+//!STEP 1
 int vScanlines;
 
 //!PARAMETER
 //!DEFAULT 2.5
 //!MIN 0
 //!MAX 5
+//!STEP 0.01
 float inputGamma;
 
 //!PARAMETER
 //!DEFAULT 2.2
 //!MIN 0
 //!MAX 5
+//!STEP 0.01
 float outputGamma;
 
 //!PARAMETER
 //!DEFAULT 1
 //!MIN 1
 //!MAX 5
+//!STEP 1
 int sharpness;
 
 //!PARAMETER
 //!DEFAULT 1.5
 //!MIN 1
 //!MAX 2
+//!STEP 0.01
 float colorBoost;
 
 //!PARAMETER
 //!DEFAULT 1
 //!MIN 1
 //!MAX 2
+//!STEP 0.01
 float redBoost;
 
 //!PARAMETER
 //!DEFAULT 1
 //!MIN 1
 //!MAX 2
+//!STEP 0.01
 float greenBoost;
 
 //!PARAMETER
 //!DEFAULT 1
 //!MIN 1
 //!MAX 2
+//!STEP 0.01
 float blueBoost;
 
 //!PARAMETER
 //!DEFAULT 0.5
 //!MIN 0
 //!MAX 1
+//!STEP 0.01
 float scanlinesStrength;
 
 //!PARAMETER
 //!DEFAULT 0.86
 //!MIN 0
 //!MAX 1
+//!STEP 0.01
 float beamMinWidth;
 
 //!PARAMETER
 //!DEFAULT 1
 //!MIN 0
 //!MAX 1
+//!STEP 0.01
 float beamMaxWidth;
 
 //!PARAMETER
 //!DEFAULT 0.8
 //!MIN 0
 //!MAX 1
+//!STEP 0.01
 float crtAntiRinging;
 
 //!TEXTURE

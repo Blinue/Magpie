@@ -23,72 +23,84 @@
 //!DEFAULT -8
 //!MIN -20
 //!MAX 0
+//!STEP 1
 int hardScan;
 
 //!PARAMETER
 //!DEFAULT -3
 //!MIN -20
 //!MAX 0
+//!STEP 1
 int hardPix;
 
 //!PARAMETER
 //!DEFAULT 0.031
 //!MIN 0
 //!MAX 0.125
+//!STEP 0.001
 float warpX;
 
 //!PARAMETER
 //!DEFAULT 0.041
 //!MIN 0
 //!MAX 0.125
+//!STEP 0.001
 float warpY;
 
 //!PARAMETER
 //!DEFAULT 0.5
 //!MIN 0
 //!MAX 2
+//!STEP 0.01
 float maskDark;
 
 //!PARAMETER
 //!DEFAULT 1.5
 //!MIN 0
 //!MAX 2
+//!STEP 0.01
 float maskLight;
 
 //!PARAMETER
 //!DEFAULT 3
 //!MIN 0
 //!MAX 4
+//!STEP 1
 int shadowMask;
 
 //!PARAMETER
 //!DEFAULT 1
 //!MIN 0
 //!MAX 2
+//!STEP 0.01
 float brightBoost;
 
 //!PARAMETER
 //!DEFAULT -1.5
 //!MIN -2
 //!MAX -0.5
+//!STEP 0.01
 float hardBloomPix;
 
 //!PARAMETER
 //!DEFAULT -2
 //!MIN -4
 //!MAX -1
+//!STEP 0.01
 float hardBloomScan;
 
 //!PARAMETER
 //!DEFAULT 0.15
 //!MIN 0
 //!MAX 1
+//!STEP 0.01
 float bloomAmount;
 
 //!PARAMETER
 //!DEFAULT 2
 //!MIN 0
 //!MAX 10
+//!STEP 0.01
 float shape;
 
 

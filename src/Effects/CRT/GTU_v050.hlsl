@@ -16,44 +16,56 @@
 //!DEFAULT 0
 //!MIN 0
 //!MAX 1
+//!STEP 1
 int compositeConnection;
 
 //!PARAMETER
 //!DEFAULT 0
 //!MIN 0
 //!MAX 1
+//!STEP 1
 int noScanlines;
 
 //!PARAMETER
 //!DEFAULT 256
 //!MIN 16
+//!MAX 1024
+//!STEP 16
 int signalResolution;
 
 //!PARAMETER
 //!DEFAULT 83
 //!MIN 1
+//!MAX 350
+//!STEP 1
 int signalResolutionI;
 
 //!PARAMETER
 //!DEFAULT 25
 //!MIN 1
+//!MAX 350
+//!STEP 1
 int signalResolutionQ;
 
 //!PARAMETER
 //!DEFAULT 250
 //!MIN 20
+//!MAX 1000
+//!STEP 10
 int tvVerticalResolution;
 
 //!PARAMETER
 //!DEFAULT 0.07
 //!MIN -0.3
 //!MAX 0.3
+//!STEP 0.01
 float blackLevel;
 
 //!PARAMETER
 //!DEFAULT 1
 //!MIN 0
 //!MAX 2
+//!STEP 0.01
 float contrast;
 
 

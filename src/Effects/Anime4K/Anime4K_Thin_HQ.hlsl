@@ -9,7 +9,9 @@
 
 //!PARAMETER
 //!DEFAULT 0.6
-//!MIN 1e-5
+//!MIN 0.1
+//!MAX 10
+//!STEP 0.1
 
 // Strength of warping for each iteration
 float strength;
@@ -17,6 +19,8 @@ float strength;
 //!PARAMETER
 //!DEFAULT 1
 //!MIN 1
+//!MAX 10
+//!STEP 1
 
 // Number of iterations for the forwards solver, decreasing strength and increasing iterations improves quality at the cost of speed.
 int iterations;

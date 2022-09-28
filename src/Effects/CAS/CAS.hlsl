@@ -9,6 +9,7 @@
 //!DEFAULT 0.4
 //!MIN 0
 //!MAX 1
+//!STEP 0.01
 float sharpness;
 
 //!TEXTURE

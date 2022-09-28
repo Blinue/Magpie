@@ -20,7 +20,9 @@
 
 //!PARAMETER
 //!DEFAULT 0.65
-//!MIN 1e-5
+//!MIN 0
+//!MAX 3
+//!STEP 0.01
 
 // Shapening strength
 float sharpStrength;
@@ -29,6 +31,7 @@ float sharpStrength;
 //!DEFAULT 0.035
 //!MIN 0
 //!MAX 1
+//!STEP 0.005
 
 // Limits maximum amount of sharpening a pixel receives
 // This helps avoid "haloing" artifacts which would otherwise occur when you raised the strength too much.
@@ -38,6 +41,7 @@ float sharpClamp;
 //!DEFAULT 1
 //!MIN 0
 //!MAX 3
+//!STEP 1
 
 // 0 : Fast
 // 1 : Normal
@@ -49,6 +53,8 @@ int pattern;
 //!PARAMETER
 //!DEFAULT 1
 //!MIN 0
+//!MAX 6
+//!STEP 0.01
 
 // Offset bias adjusts the radius of the sampling pattern.I designed the pattern for an offset bias of 1.0, but feel free to experiment.
 float offsetBias;

@@ -32,96 +32,112 @@
 //!DEFAULT 2.4
 //!MIN 0.1
 //!MAX 5
+//!STEP 0.01
 float CRTGamma;
 
 //!PARAMETER
 //!DEFAULT 2.2
 //!MIN 0.1
 //!MAX 5
+//!STEP 0.01
 float monitorGamma;
 
 //!PARAMETER
 //!DEFAULT 1.5
 //!MIN 0.1
 //!MAX 3.0
+//!STEP 0.01
 float distance;
 
 //!PARAMETER
 //!DEFAULT 1
 //!MIN 0
 //!MAX 1
+//!STEP 1
 int curvature;
 
 //!PARAMETER
 //!DEFAULT 2
 //!MIN 0.1
 //!MAX 10
+//!STEP 0.1
 float radius;
 
 //!PARAMETER
 //!DEFAULT 0.03
-//!MIN 0.001
+//!MIN 0
 //!MAX 1.0
+//!STEP 0.01
 float cornerSize;
 
 //!PARAMETER
 //!DEFAULT 1000
 //!MIN 80
 //!MAX 2000
+//!STEP 1
 int cornerSmooth;
 
 //!PARAMETER
 //!DEFAULT 0
 //!MIN -0.5
 //!MAX 0.5
+//!STEP 0.01
 float xTilt;
 
 //!PARAMETER
 //!DEFAULT 0
 //!MIN -0.5
 //!MAX 0.5
+//!STEP 0.01
 float yTilt;
 
 //!PARAMETER
 //!DEFAULT 100
 //!MIN -125
 //!MAX 125
+//!STEP 1
 int overScanX;
 
 //!PARAMETER
 //!DEFAULT 100
 //!MIN -125
 //!MAX 125
+//!STEP 1
 int overScanY;
 
 //!PARAMETER
 //!DEFAULT 0.3
 //!MIN 0
 //!MAX 0.3
+//!STEP 0.01
 float dotMask;
 
 //!PARAMETER
 //!DEFAULT 1
 //!MIN 1
 //!MAX 3
+//!STEP 1
 int sharper;
 
 //!PARAMETER
 //!DEFAULT 0.3
 //!MIN 0.1
 //!MAX 0.5
+//!STEP 0.01
 float scanlineWeight;
 
 //!PARAMETER
 //!DEFAULT 0
 //!MIN 0
 //!MAX 1
+//!STEP 0.01
 float lum;
 
 //!PARAMETER
 //!DEFAULT 1
 //!MIN 0
 //!MAX 1
+//!STEP 1
 int interlace;
 
 

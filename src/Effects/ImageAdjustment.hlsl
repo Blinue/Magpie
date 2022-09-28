@@ -8,54 +8,72 @@
 
 //!PARAMETER
 //!DEFAULT 2.2
-//!MIN 1e-5
+//!MIN 0.01
+//!MAX 5
+//!STEP 0.01
 float targetGamma;
 
 //!PARAMETER
 //!DEFAULT 2.2
-//!MIN 1e-5
+//!MIN 0.01
+//!MAX 5
+//!STEP 0.01
 float monitorGamma;
 
 //!PARAMETER
 //!DEFAULT 1
 //!MIN 0
+//!MAX 5
+//!STEP 0.01
 float saturation;
 
 //!PARAMETER
 //!DEFAULT 1
 //!MIN 0
+//!MAX 2
+//!STEP 0.01
 float luminance;
 
 //!PARAMETER
 //!DEFAULT 1
 //!MIN 0
+//!MAX 10
+//!STEP 0.1
 float contrast;
 
 //!PARAMETER
 //!DEFAULT 0
 //!MIN -1
 //!MAX 1
+//!STEP 0.01
 float brightBoost;
 
 //!PARAMETER
 //!DEFAULT 0
 //!MIN -1
 //!MAX 1
+//!STEP 0.01
 float blackLevel;
 
 //!PARAMETER
 //!DEFAULT 1
 //!MIN 0
+//!MAX 2
+//!STEP 0.01
 float r;
 
 //!PARAMETER
 //!DEFAULT 1
 //!MIN 0
+//!MAX 2
+//!STEP 0.01
 float g;
 
 //!PARAMETER
 //!DEFAULT 1
 //!MIN 0
+//!MAX 2
+//!STEP 0.01
 float b;
 
 //!TEXTURE

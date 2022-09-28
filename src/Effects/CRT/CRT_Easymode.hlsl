@@ -38,102 +38,119 @@
 //!DEFAULT 0.5
 //!MIN 0
 //!MAX 1
+//!STEP 0.01
 float sharpnessH;
 
 //!PARAMETER
 //!DEFAULT 1
 //!MIN 0
 //!MAX 1
+//!STEP 0.01
 float sharpnessV;
 
 //!PARAMETER
 //!DEFAULT 0.3
 //!MIN 0
 //!MAX 1
+//!STEP 0.01
 float maskStrength;
 
 //!PARAMETER
 //!DEFAULT 1
 //!MIN 1
 //!MAX 100
+//!STEP 1
 int maskDotWidth;
 
 //!PARAMETER
 //!DEFAULT 1
 //!MIN 1
 //!MAX 100
+//!STEP 1
 int maskDotHeight;
 
 //!PARAMETER
 //!DEFAULT 0
 //!MIN 0
 //!MAX 100
+//!STEP 1
 int maskStagger;
 
 //!PARAMETER
 //!DEFAULT 1
 //!MIN 1
 //!MAX 100
+//!STEP 1
 int maskSize;
 
 //!PARAMETER
 //!DEFAULT 1
 //!MIN 0
 //!MAX 1
+//!STEP 1
 float scanlineStrength;
 
 //!PARAMETER
 //!DEFAULT 1.5
 //!MIN 0.5
 //!MAX 5
+//!STEP 0.1
 float scanlineBeamWidthMin;
 
 //!PARAMETER
 //!DEFAULT 1.5
 //!MIN 0.5
 //!MAX 5
+//!STEP 0.1
 float scanlineBeamWidthMax;
 
 //!PARAMETER
 //!DEFAULT 0.35
 //!MIN 0
 //!MAX 1
+//!STEP 0.01
 float scanlineBrightMin;
 
 //!PARAMETER
 //!DEFAULT 0.65
 //!MIN 0
 //!MAX 1
+//!STEP 0.01
 float scanlineBrightMax;
 
 //!PARAMETER
 //!DEFAULT 400
 //!MIN 1
 //!MAX 1000
+//!STEP 1
 int scanlineCutoff;
 
 //!PARAMETER
 //!DEFAULT 2
 //!MIN 0.1
 //!MAX 5
+//!STEP 0.01
 float gammaInput;
 
 //!PARAMETER
 //!DEFAULT 1.8
 //!MIN 0.1
 //!MAX 5
+//!STEP 0.01
 float gammaOutput;
 
 //!PARAMETER
 //!DEFAULT 1.2
 //!MIN 1
 //!MAX 2
+//!STEP 0.01
 float brightBoost;
 
 //!PARAMETER
 //!DEFAULT 1
 //!MIN 0
 //!MAX 1
+//!STEP 1
 int dilation;
 
 //!TEXTURE

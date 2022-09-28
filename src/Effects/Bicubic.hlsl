@@ -6,16 +6,18 @@
 
 
 //!PARAMETER
-//!DEFAULT 0.333333
+//!DEFAULT 0.33
 //!MIN 0
 //!MAX 1
+//!STEP 0.01
 
 float paramB;
 
 //!PARAMETER
-//!DEFAULT 0.333333
+//!DEFAULT 0.33
 //!MIN 0
 //!MAX 1
+//!STEP 0.01
 
 float paramC;
 

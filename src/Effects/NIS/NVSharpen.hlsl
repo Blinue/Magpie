@@ -17,6 +17,7 @@ SamplerState samplerLinearClamp;
 //!DEFAULT 0.5
 //!MIN 0
 //!MAX 1
+//!STEP 0.01
 float sharpness;
 
 

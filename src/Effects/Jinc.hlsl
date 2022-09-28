@@ -15,18 +15,23 @@
 
 //!PARAMETER
 //!DEFAULT 0.5
-//!MIN 1e-5
+//!MIN 0
+//!MAX 1
+//!STEP 0.01
 float windowSinc;
 
 //!PARAMETER
 //!DEFAULT 0.825
-//!MIN 1e-5
+//!MIN 0
+//!MAX 1
+//!STEP 0.01
 float sinc;
 
 //!PARAMETER
 //!DEFAULT 0.5
 //!MIN 0
 //!MAX 1
+//!STEP 0.1
 float ARStrength;
 
 //!TEXTURE

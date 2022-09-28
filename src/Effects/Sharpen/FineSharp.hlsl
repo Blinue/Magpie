@@ -14,6 +14,8 @@
 //!PARAMETER
 //!DEFAULT 2.0
 //!MIN 0
+//!MAX 8
+//!STEP 0.01
 
 // Strength of sharpening, 0.0 up to 8.0 or more. If you change this, then alter cstr below
 float sstr;
@@ -21,6 +23,8 @@ float sstr;
 //!PARAMETER
 //!DEFAULT 0.9
 //!MIN 0
+//!MAX 2
+//!STEP 0.01
 
 // Strength of equalisation, 0.0 to 2.0 or more. Suggested settings for cstr based on sstr value: 
 // sstr=0->cstr=0, sstr=0.5->cstr=0.1, 1.0->0.6, 2.0->0.9, 2.5->1.00, 3.0->1.09, 3.5->1.15, 4.0->1.19, 8.0->1.249, 255.0->1.5
@@ -30,6 +34,7 @@ float cstr;
 //!DEFAULT 0.19
 //!MIN 0
 //!MAX 1
+//!STEP 0.01
 
 // Strength of XSharpen-style final sharpening, 0.0 to 1.0 (but, better don't go beyond 0.249 ...)
 float xstr;
@@ -37,6 +42,8 @@ float xstr;
 //!PARAMETER
 //!DEFAULT 0.25
 //!MIN 0
+//!MAX 1
+//!STEP 0.01
 
 // Repair artefacts from final sharpening, 0.0 to 1.0 or more (-Vit- addition to original script)
 float xrep;

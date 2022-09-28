@@ -9,8 +9,10 @@
 
 
 //!PARAMETER
-//!MIN 1e-5
 //!DEFAULT 0.1
+//!MIN 0.01
+//!MAX 5
+//!STEP 0.01
 float intensitySigma;
 
 //!TEXTURE
