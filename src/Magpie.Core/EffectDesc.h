@@ -85,18 +85,18 @@ struct EffectSamplerDesc {
 	std::string name;
 };
 
-enum class EffectConstantType {
-	Float,
-	Int
+template <typename T>
+struct EffectConstant {
+	T defaultValue;
+	T minValue;
+	T maxValue;
+	T step;
 };
 
 struct EffectParameterDesc {
 	std::string name;
 	std::string label;
-	EffectConstantType type = EffectConstantType::Float;
-	std::variant<float, int> defaultValue;
-	std::variant<std::monostate, float, int> minValue;
-	std::variant<std::monostate, float, int> maxValue;
+	std::variant<EffectConstant<float>, EffectConstant<int>> constant;
 };
 
 struct EffectPassDesc {

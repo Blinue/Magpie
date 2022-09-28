@@ -6,6 +6,7 @@
 #include <yas/types/std/pair.hpp>
 #include <yas/types/std/string.hpp>
 #include <yas/types/std/vector.hpp>
+#include <yas/types/std/variant.hpp>
 #include <regex>
 #include "StrUtils.h"
 #include "Logger.h"
@@ -45,11 +46,11 @@ struct serializer<
 > {
 	template<typename Archive>
 	static Archive& save(Archive& ar, const winrt::com_ptr<ID3DBlob>& blob) {
-		SIZE_T size = blob->GetBufferSize();
+		uint32_t size = (uint32_t)blob->GetBufferSize();
 		ar& size;
 
 		BYTE* buf = (BYTE*)blob->GetBufferPointer();
-		for (SIZE_T i = 0; i < size; ++i) {
+		for (uint32_t i = 0; i < size; ++i) {
 			ar& (*buf++);
 		}
 
@@ -58,7 +59,7 @@ struct serializer<
 
 	template<typename Archive>
 	static Archive& load(Archive& ar, winrt::com_ptr<ID3DBlob>& blob) {
-		SIZE_T size = 0;
+		uint32_t size = 0;
 		ar& size;
 		HRESULT hr = D3DCreateBlob(size, blob.put());
 		if (FAILED(hr)) {
@@ -67,7 +68,7 @@ struct serializer<
 		}
 
 		BYTE* buf = (BYTE*)blob->GetBufferPointer();
-		for (SIZE_T i = 0; i < size; ++i) {
+		for (uint32_t i = 0; i < size; ++i) {
 			ar& (*buf++);
 		}
 
@@ -79,76 +80,14 @@ struct serializer<
 
 namespace Magpie::Core {
 
-template<typename Archive>
-void serialize(Archive& ar, const EffectParameterDesc& o) {
-	size_t index = o.defaultValue.index();
-	ar& index;
-
-	if (index == 0) {
-		ar& std::get<0>(o.defaultValue);
-	} else {
-		ar& std::get<1>(o.defaultValue);
-	}
-
-	ar& o.label;
-
-	index = o.maxValue.index();
-	ar& index;
-	if (index == 1) {
-		ar& std::get<1>(o.maxValue);
-	} else if (index == 2) {
-		ar& std::get<2>(o.maxValue);
-	}
-
-	index = o.minValue.index();
-	ar& index;
-	if (index == 1) {
-		ar& std::get<1>(o.minValue);
-	} else if (index == 2) {
-		ar& std::get<2>(o.minValue);
-	}
-
-	ar& o.name& o.type;
+template<typename Archive, typename T>
+void serialize(Archive& ar, EffectConstant<T>& o) {
+	ar& o.defaultValue& o.minValue& o.maxValue& o.step;
 }
 
 template<typename Archive>
 void serialize(Archive& ar, EffectParameterDesc& o) {
-	size_t index = 0;
-	ar& index;
-
-	if (index == 0) {
-		o.defaultValue.emplace<0>();
-		ar& std::get<0>(o.defaultValue);
-	} else {
-		o.defaultValue.emplace<1>();
-		ar& std::get<1>(o.defaultValue);
-	}
-
-	ar& o.label;
-
-	ar& index;
-	if (index == 0) {
-		o.maxValue.emplace<0>();
-	} else if (index == 1) {
-		o.maxValue.emplace<1>();
-		ar& std::get<1>(o.maxValue);
-	} else {
-		o.maxValue.emplace<2>();
-		ar& std::get<2>(o.maxValue);
-	}
-
-	ar& index;
-	if (index == 0) {
-		o.minValue.emplace<0>();
-	} else if (index == 1) {
-		o.minValue.emplace<1>();
-		ar& std::get<1>(o.minValue);
-	} else {
-		o.minValue.emplace<2>();
-		ar& std::get<2>(o.minValue);
-	}
-
-	ar& o.name& o.type;
+	ar& o.name& o.label& o.constant;
 }
 
 template<typename Archive>
@@ -172,11 +111,11 @@ void serialize(Archive& ar, EffectDesc& o) {
 }
 
 
-static constexpr const size_t MAX_CACHE_COUNT = 128;
+static constexpr const uint32_t MAX_CACHE_COUNT = 128;
 
 // 缓存版本
 // 当缓存文件结构有更改时更新它，使旧缓存失效
-static constexpr const UINT CACHE_VERSION = 9;
+static constexpr const uint32_t CACHE_VERSION = 10;
 
 // 缓存的压缩等级
 static constexpr const int CACHE_COMPRESSION_LEVEL = 1;

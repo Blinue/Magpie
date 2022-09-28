@@ -351,17 +351,14 @@ bool EffectDrawer::Initialize(
 			const auto& paramDesc = desc.params[i];
 			auto it = options.parameters.find(StrUtils::UTF8ToUTF16(paramDesc.name));
 
-			if (paramDesc.type == EffectConstantType::Float) {
-				float value;
+			if (paramDesc.constant.index() == 0) {
+				const EffectConstant<float>& constant = std::get<0>(paramDesc.constant);
+				float value = constant.defaultValue;
 
-				if (it == options.parameters.end()) {
-					value = std::get<float>(paramDesc.defaultValue);
-				} else {
+				if (it != options.parameters.end()) {
 					value = it->second;
 
-					if ((paramDesc.minValue.index() == 1 && value < std::get<float>(paramDesc.minValue))
-						|| (paramDesc.maxValue.index() == 1 && value > std::get<float>(paramDesc.maxValue))
-						) {
+					if (value < constant.minValue || value > constant.maxValue) {
 						Logger::Get().Error(fmt::format("参数 {} 的值非法", paramDesc.name));
 						return false;
 					}
@@ -369,16 +366,13 @@ bool EffectDrawer::Initialize(
 
 				pCurParam->floatVal = value;
 			} else {
-				int value;
+				const EffectConstant<int>& constant = std::get<1>(paramDesc.constant);
+				int value = constant.defaultValue;
 
-				if (it == options.parameters.end()) {
-					value = std::get<int>(paramDesc.defaultValue);
-				} else {
+				if (it != options.parameters.end()) {
 					value = (int)std::lroundf(it->second);
 
-					if ((paramDesc.minValue.index() == 2 && value < std::get<int>(paramDesc.minValue))
-						|| (paramDesc.maxValue.index() == 2 && value > std::get<int>(paramDesc.maxValue))
-						) {
+					if ((value < constant.minValue) || (value > constant.maxValue)) {
 						Logger::Get().Error(StrUtils::Concat("参数 ", paramDesc.name, " 的值非法"));
 						return false;
 					}

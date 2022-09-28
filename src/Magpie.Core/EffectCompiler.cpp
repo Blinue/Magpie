@@ -56,7 +56,7 @@ private:
 	std::wstring _localDir;
 };
 
-UINT RemoveComments(std::string& source) {
+static UINT RemoveComments(std::string& source) {
 	// 确保以换行符结尾
 	if (source.back() != '\n') {
 		source.push_back('\n');
@@ -179,7 +179,7 @@ static UINT GetNextToken(std::string_view& source, std::string_view& value) {
 	}
 }
 
-bool CheckMagic(std::string_view& source) {
+static bool CheckMagic(std::string_view& source) {
 	std::string_view token;
 	if (!CheckNextToken<true>(source, META_INDICATOR)) {
 		return false;
@@ -203,7 +203,7 @@ bool CheckMagic(std::string_view& source) {
 	return true;
 }
 
-UINT GetNextString(std::string_view& source, std::string_view& value) {
+static UINT GetNextString(std::string_view& source, std::string_view& value) {
 	RemoveLeadingBlanks<false>(source);
 	size_t pos = source.find('\n');
 
@@ -235,7 +235,7 @@ static UINT GetNextNumber(std::string_view& source, T& value) {
 	return 0;
 }
 
-UINT GetNextExpr(std::string_view& source, std::string& expr) {
+static UINT GetNextExpr(std::string_view& source, std::string& expr) {
 	RemoveLeadingBlanks<false>(source);
 	size_t size = std::min(source.find('\n') + 1, source.size());
 
@@ -259,7 +259,7 @@ UINT GetNextExpr(std::string_view& source, std::string& expr) {
 	return 0;
 }
 
-UINT ResolveHeader(std::string_view block, EffectDesc& desc) {
+static UINT ResolveHeader(std::string_view block, EffectDesc& desc) {
 	// 必需的选项：VERSION
 	// 可选的选项：OUTPUT_WIDTH，OUTPUT_HEIGHT，USE_DYNAMIC
 
@@ -341,11 +341,11 @@ UINT ResolveHeader(std::string_view block, EffectDesc& desc) {
 	return 0;
 }
 
-UINT ResolveParameter(std::string_view block, EffectDesc& desc) {
-	// 必需的选项：DEFAULT
-	// 可选的选项：LABEL，MIN，MAX
+static UINT ResolveParameter(std::string_view block, EffectDesc& desc) {
+	// 必需的选项：DEFAULT，MIN，MAX，STEP
+	// 可选的选项：LABEL
 
-	std::bitset<4> processed;
+	std::bitset<5> processed;
 
 	std::string_view token;
 
@@ -365,6 +365,7 @@ UINT ResolveParameter(std::string_view block, EffectDesc& desc) {
 	std::string_view defaultValue;
 	std::string_view minValue;
 	std::string_view maxValue;
+	std::string_view stepValue;
 
 	while (true) {
 		if (!CheckNextToken<true>(block, META_INDICATOR)) {
@@ -415,13 +416,22 @@ UINT ResolveParameter(std::string_view block, EffectDesc& desc) {
 			if (GetNextString(block, maxValue)) {
 				return 1;
 			}
+		} else if (t == "STEP") {
+			if (processed[4]) {
+				return 1;
+			}
+			processed[4] = true;
+
+			if (GetNextString(block, stepValue)) {
+				return 1;
+			}
 		} else {
 			return 1;
 		}
 	}
 
-	// DEFAULT 必须存在
-	if (!processed[0]) {
+	// 检查必选项
+	if (!processed[0] || !processed[2] || !processed[3] || !processed[4]) {
 		return 1;
 	}
 
@@ -431,78 +441,42 @@ UINT ResolveParameter(std::string_view block, EffectDesc& desc) {
 	}
 
 	if (token == "float") {
-		paramDesc.type = EffectConstantType::Float;
+		EffectConstant<float>& constant = paramDesc.constant.emplace<0>();
 
-		if (!defaultValue.empty()) {
-			paramDesc.defaultValue = 0.0f;
-			if (GetNextNumber(defaultValue, std::get<float>(paramDesc.defaultValue))) {
-				return 1;
-			}
+		if (GetNextNumber(defaultValue, constant.defaultValue)) {
+			return 1;
 		}
-		if (!minValue.empty()) {
-			float value;
-			if (GetNextNumber(minValue, value)) {
-				return 1;
-			}
-
-			if (!defaultValue.empty() && std::get<float>(paramDesc.defaultValue) < value) {
-				return 1;
-			}
-
-			paramDesc.minValue = value;
+		if (GetNextNumber(minValue, constant.minValue)) {
+			return 1;
 		}
-		if (!maxValue.empty()) {
-			float value;
-			if (GetNextNumber(maxValue, value)) {
-				return 1;
-			}
+		if (GetNextNumber(maxValue, constant.maxValue)) {
+			return 1;
+		}
+		if (GetNextNumber(stepValue, constant.step)) {
+			return 1;
+		}
 
-			if (!defaultValue.empty() && std::get<float>(paramDesc.defaultValue) > value) {
-				return 1;
-			}
-
-			if (!minValue.empty() && std::get<float>(paramDesc.minValue) > value) {
-				return 1;
-			}
-
-			paramDesc.maxValue = value;
+		if (constant.defaultValue < constant.minValue || constant.maxValue < constant.defaultValue) {
+			return 1;
 		}
 	} else if (token == "int") {
-		paramDesc.type = EffectConstantType::Int;
+		EffectConstant<int>& constant = paramDesc.constant.emplace<1>();
 
-		if (!defaultValue.empty()) {
-			paramDesc.defaultValue = 0;
-			if (GetNextNumber(defaultValue, std::get<int>(paramDesc.defaultValue))) {
-				return 1;
-			}
+		if (GetNextNumber(defaultValue, constant.defaultValue)) {
+			return 1;
 		}
-		if (!minValue.empty()) {
-			int value;
-			if (GetNextNumber(minValue, value)) {
-				return 1;
-			}
-
-			if (!defaultValue.empty() && std::get<int>(paramDesc.defaultValue) < value) {
-				return 1;
-			}
-
-			paramDesc.minValue = value;
+		if (GetNextNumber(minValue, constant.minValue)) {
+			return 1;
 		}
-		if (!maxValue.empty()) {
-			int value;
-			if (GetNextNumber(maxValue, value)) {
-				return 1;
-			}
+		if (GetNextNumber(maxValue, constant.maxValue)) {
+			return 1;
+		}
+		if (GetNextNumber(stepValue, constant.step)) {
+			return 1;
+		}
 
-			if (!defaultValue.empty() && std::get<int>(paramDesc.defaultValue) > value) {
-				return 1;
-			}
-
-			if (!minValue.empty() && std::get<int>(paramDesc.minValue) > value) {
-				return 1;
-			}
-
-			paramDesc.maxValue = value;
+		if (constant.defaultValue < constant.minValue || constant.maxValue < constant.defaultValue) {
+			return 1;
 		}
 	} else {
 		return 1;
@@ -525,7 +499,7 @@ UINT ResolveParameter(std::string_view block, EffectDesc& desc) {
 }
 
 
-UINT ResolveTexture(std::string_view block, EffectDesc& desc) {
+static UINT ResolveTexture(std::string_view block, EffectDesc& desc) {
 	// 如果名称为 INPUT 不能有任何选项，含 SOURCE 时不能有任何其他选项
 	// 否则必需的选项：FORMAT
 	// 可选的选项：WIDTH，HEIGHT
@@ -655,7 +629,7 @@ UINT ResolveTexture(std::string_view block, EffectDesc& desc) {
 	return 0;
 }
 
-UINT ResolveSampler(std::string_view block, EffectDesc& desc) {
+static UINT ResolveSampler(std::string_view block, EffectDesc& desc) {
 	// 必选项：FILTER
 	// 可选项：ADDRESS
 
@@ -756,7 +730,7 @@ UINT ResolveSampler(std::string_view block, EffectDesc& desc) {
 	return 0;
 }
 
-UINT ResolveCommon(std::string_view& block) {
+static UINT ResolveCommon(std::string_view& block) {
 	// 无选项
 
 	if (!CheckNextToken<true>(block, META_INDICATOR)) {
@@ -774,7 +748,7 @@ UINT ResolveCommon(std::string_view& block) {
 	return 0;
 }
 
-UINT ResolvePasses(
+static UINT ResolvePasses(
 	SmallVector<std::string_view>& blocks,
 	EffectDesc& desc
 ) {
@@ -1035,7 +1009,7 @@ UINT ResolvePasses(
 }
 
 
-UINT GeneratePassSource(
+static UINT GeneratePassSource(
 	const EffectDesc& desc,
 	UINT passIdx,
 	std::string_view cbHlsl,
@@ -1181,13 +1155,13 @@ UINT GeneratePassSource(
 
 			auto it = inlineParams->find(*result.first);
 			if (it == inlineParams->end()) {
-				if (d.type == EffectConstantType::Float) {
-					macros.emplace_back(d.name, std::to_string(std::get<float>(d.defaultValue)));
+				if (d.constant.index() == 0) {
+					macros.emplace_back(d.name, std::to_string(std::get<0>(d.constant).defaultValue));
 				} else {
-					macros.emplace_back(d.name, std::to_string(std::get<int>(d.defaultValue)));
+					macros.emplace_back(d.name, std::to_string(std::get<1>(d.constant).defaultValue));
 				}
 			} else {
-				if (d.type == EffectConstantType::Float) {
+				if (d.constant.index() == 0) {
 					macros.emplace_back(d.name, std::to_string(it->second));
 				} else {
 					macros.emplace_back(d.name, std::to_string((int)std::lroundf(it->second)));
@@ -1424,7 +1398,7 @@ void __M(uint3 tid : SV_GroupThreadID, uint3 gid : SV_GroupID) {{
 	return 0;
 }
 
-UINT CompilePasses(
+static UINT CompilePasses(
 	EffectDesc& desc,
 	uint32_t flags,
 	const SmallVector<std::string_view>& commonBlocks,
@@ -1469,7 +1443,7 @@ cbuffer __CB2 : register(b1) {
 	if (!(desc.flags & EffectFlags::InlineParams)) {
 		for (const auto& d : desc.params) {
 			cbHlsl.append("\t")
-				.append(d.type == EffectConstantType::Int ? "int " : "float ")
+				.append(d.constant.index() == 0 ? "float " : "int ")
 				.append(d.name)
 				.append(";\n");
 		}

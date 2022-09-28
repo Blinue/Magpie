@@ -14,7 +14,9 @@
 
 //!PARAMETER
 //!DEFAULT 0.8
-//!MIN 1e-5
+//!MIN 0
+//!MAX 2
+//!STEP 0.01
 
 // Main control of sharpening strength [>0]
 // 0.3 <-> 2.0 is a reasonable range of values
