@@ -15,6 +15,9 @@ ScalingModesViewModel::ScalingModesViewModel() {
 		scalingModes.push_back(ScalingModeItem(i));
 	}
 	_scalingModes = single_threaded_observable_vector(std::move(scalingModes));
+
+	_scalingModesReorderdRevoker = ScalingModesService::Get().ProfileReordered(
+		auto_revoke, { this, &ScalingModesViewModel::_ScalingModesService_Reordered });
 }
 
 void ScalingModesViewModel::PrepareForAdd() {
@@ -42,6 +45,17 @@ void ScalingModesViewModel::NewScalingModeName(const hstring& value) noexcept {
 void ScalingModesViewModel::AddScalingMode() {
 	ScalingModesService::Get().AddScalingMode(_newScalingModeName, _newScalingModeCopyFrom - 1);
 	_scalingModes.Append(ScalingModeItem(ScalingModesService::Get().GetScalingModeCount() - 1));
+}
+
+void ScalingModesViewModel::_ScalingModesService_Reordered(uint32_t index, bool isMoveUp) {
+	uint32_t targetIndex = isMoveUp ? index - 1 : index + 1;
+	_scalingModes.GetAt(index).as<ScalingModeItem>().Index(targetIndex);
+
+	ScalingModeItem targetItem = _scalingModes.GetAt(targetIndex).as<ScalingModeItem>();
+	targetItem.Index(index);
+	
+	_scalingModes.RemoveAt(targetIndex);
+	_scalingModes.InsertAt(index, targetItem);
 }
 
 }

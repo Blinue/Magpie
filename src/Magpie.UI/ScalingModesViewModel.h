@@ -1,5 +1,6 @@
 #pragma once
 #include "ScalingModesViewModel.g.h"
+#include <WinRTUtils.h>
 
 
 namespace winrt::Magpie::UI::implementation {
@@ -47,9 +48,13 @@ struct ScalingModesViewModel : ScalingModesViewModelT<ScalingModesViewModel> {
 	void AddScalingMode();
 
 private:
+	void _ScalingModesService_Reordered(uint32_t index, bool isMoveUp);
+
 	event<PropertyChangedEventHandler> _propertyChangedEvent;
 
 	IObservableVector<IInspectable> _scalingModes{ nullptr };
+
+	WinRTUtils::EventRevoker _scalingModesReorderdRevoker;
 
 	hstring _newScalingModeName;
 	IVector<IInspectable> _newScalingModeCopyFromList{ nullptr };

@@ -4,6 +4,8 @@ namespace Magpie.UI
     {
         ScalingModeItem(UInt32 index);
 
+        UInt32 Index;
+
         void AddEffect(String fullName);
         void RenameFlyout_Opening();
         void RenameTextBox_KeyDown(Object sender, Windows.UI.Xaml.Input.KeyRoutedEventArgs args);
@@ -17,6 +19,11 @@ namespace Magpie.UI
         Int32 RenameTextBoxSelectionStart{ get; };
         Boolean IsRenameButtonEnabled { get; };
 
-        Boolean CanReorder { get; };
+        Boolean CanMoveUp{ get; };
+        Boolean CanMoveDown{ get; };
+        void MoveUp();
+        void MoveDown();
+
+        Boolean CanReorderEffects { get; };
     }
 }

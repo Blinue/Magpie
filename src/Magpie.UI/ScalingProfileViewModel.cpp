@@ -53,10 +53,10 @@ static SmallVector<std::wstring, 2> GetAllGraphicsAdapters() {
 
 ScalingProfileViewModel::ScalingProfileViewModel(int32_t profileIdx) : _isDefaultProfile(profileIdx < 0) {
 	if (_isDefaultProfile) {
-		_profile = &ScalingProfileService::Get().DefaultScalingProfile();
+		_data = &ScalingProfileService::Get().DefaultScalingProfile();
 	} else {
-		_profileIdx = (uint32_t)profileIdx;
-		_profile = &ScalingProfileService::Get().GetProfile(profileIdx);
+		_index = (uint32_t)profileIdx;
+		_data = &ScalingProfileService::Get().GetProfile(profileIdx);
 
 		MUXC::ImageIcon placeholderIcon;
 		_icon = std::move(placeholderIcon);
@@ -105,18 +105,18 @@ ScalingProfileViewModel::ScalingProfileViewModel(int32_t profileIdx) : _isDefaul
 }
 
 bool ScalingProfileViewModel::IsNotDefaultScalingProfile() const noexcept {
-	return !_profile->name.empty();
+	return !_data->name.empty();
 }
 
 bool ScalingProfileViewModel::IsOpenProgramLocationMenuEnabled() const noexcept {
-	return Win32Utils::FileExists(_profile->pathRule.c_str());
+	return Win32Utils::FileExists(_data->pathRule.c_str());
 }
 
 fire_and_forget ScalingProfileViewModel::OpenProgramLocation() const noexcept {
-	if (!Win32Utils::FileExists(_profile->pathRule.c_str())) {
+	if (!Win32Utils::FileExists(_data->pathRule.c_str())) {
 		co_return;
 	}
-	std::wstring programLocation = _profile->pathRule;
+	std::wstring programLocation = _data->pathRule;
 
 	// 根据 https://docs.microsoft.com/en-us/windows/win32/api/shlobj_core/nf-shlobj_core-shparsedisplayname，
 	// SHParseDisplayName 不能在主线程调用
@@ -135,7 +135,7 @@ fire_and_forget ScalingProfileViewModel::OpenProgramLocation() const noexcept {
 }
 
 hstring ScalingProfileViewModel::Name() const noexcept {
-	return hstring(_profile->name.empty() ? L"默认" : _profile->name);
+	return hstring(_data->name.empty() ? L"默认" : _data->name);
 }
 
 void ScalingProfileViewModel::RenameText(const hstring& value) {
@@ -144,7 +144,7 @@ void ScalingProfileViewModel::RenameText(const hstring& value) {
 
 	_trimedRenameText = value;
 	StrUtils::Trim(_trimedRenameText);
-	bool newEnabled = !_trimedRenameText.empty() && _trimedRenameText != _profile->name;
+	bool newEnabled = !_trimedRenameText.empty() && _trimedRenameText != _data->name;
 	if (_isRenameConfirmButtonEnabled != newEnabled) {
 		_isRenameConfirmButtonEnabled = newEnabled;
 		_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsRenameConfirmButtonEnabled"));
@@ -156,16 +156,16 @@ void ScalingProfileViewModel::Rename() {
 		return;
 	}
 
-	ScalingProfileService::Get().RenameProfile(_profileIdx, _trimedRenameText);
+	ScalingProfileService::Get().RenameProfile(_index, _trimedRenameText);
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"Name"));
 }
 
 bool ScalingProfileViewModel::CanMoveUp() const noexcept {
-	return !_isDefaultProfile && _profileIdx != 0;
+	return !_isDefaultProfile && _index != 0;
 }
 
 bool ScalingProfileViewModel::CanMoveDown() const noexcept {
-	return !_isDefaultProfile && _profileIdx + 1 < ScalingProfileService::Get().GetProfileCount();
+	return !_isDefaultProfile && _index + 1 < ScalingProfileService::Get().GetProfileCount();
 }
 
 void ScalingProfileViewModel::MoveUp() {
@@ -174,12 +174,12 @@ void ScalingProfileViewModel::MoveUp() {
 	}
 
 	ScalingProfileService& scalingProfileService = ScalingProfileService::Get();
-	if (!scalingProfileService.ReorderProfile(_profileIdx, true)) {
+	if (!scalingProfileService.ReorderProfile(_index, true)) {
 		return;
 	}
 
-	--_profileIdx;
-	_profile = &scalingProfileService.GetProfile(_profileIdx);
+	--_index;
+	_data = &scalingProfileService.GetProfile(_index);
 
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CanMoveUp"));
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CanMoveDown"));
@@ -191,12 +191,12 @@ void ScalingProfileViewModel::MoveDown() {
 	}
 
 	ScalingProfileService& scalingProfileService = ScalingProfileService::Get();
-	if (!scalingProfileService.ReorderProfile(_profileIdx, false)) {
+	if (!scalingProfileService.ReorderProfile(_index, false)) {
 		return;
 	}
 
-	++_profileIdx;
-	_profile = &scalingProfileService.GetProfile(_profileIdx);
+	++_index;
+	_data = &scalingProfileService.GetProfile(_index);
 
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CanMoveUp"));
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CanMoveDown"));
@@ -207,21 +207,21 @@ void ScalingProfileViewModel::Delete() {
 		return;
 	}
 
-	ScalingProfileService::Get().RemoveProfile(_profileIdx);
-	_profile = nullptr;
+	ScalingProfileService::Get().RemoveProfile(_index);
+	_data = nullptr;
 }
 
 int32_t ScalingProfileViewModel::ScalingMode() const noexcept {
-	return _profile->scalingMode + 1;
+	return _data->scalingMode + 1;
 }
 
 void ScalingProfileViewModel::ScalingMode(int32_t value) {
-	_profile->scalingMode = value - 1;
+	_data->scalingMode = value - 1;
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"ScalingMode"));
 }
 
 int32_t ScalingProfileViewModel::CaptureMode() const noexcept {
-	return (int32_t)_profile->captureMode;
+	return (int32_t)_data->captureMode;
 }
 
 void ScalingProfileViewModel::CaptureMode(int32_t value) {
@@ -230,29 +230,29 @@ void ScalingProfileViewModel::CaptureMode(int32_t value) {
 	}
 
 	::Magpie::Core::CaptureMode captureMode = (::Magpie::Core::CaptureMode)value;
-	if (_profile->captureMode == captureMode) {
+	if (_data->captureMode == captureMode) {
 		return;
 	}
 
-	_profile->captureMode = captureMode;
+	_data->captureMode = captureMode;
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CaptureMode"));
 }
 
 bool ScalingProfileViewModel::Is3DGameMode() const noexcept {
-	return _profile->Is3DGameMode();
+	return _data->Is3DGameMode();
 }
 
 void ScalingProfileViewModel::Is3DGameMode(bool value) {
-	if (_profile->Is3DGameMode() == value) {
+	if (_data->Is3DGameMode() == value) {
 		return;
 	}
 
-	_profile->Is3DGameMode(value);
+	_data->Is3DGameMode(value);
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"Is3DGameMode"));
 }
 
 int32_t ScalingProfileViewModel::MultiMonitorUsage() const noexcept {
-	return (int32_t)_profile->multiMonitorUsage;
+	return (int32_t)_data->multiMonitorUsage;
 }
 
 void ScalingProfileViewModel::MultiMonitorUsage(int32_t value) {
@@ -261,16 +261,16 @@ void ScalingProfileViewModel::MultiMonitorUsage(int32_t value) {
 	}
 
 	::Magpie::Core::MultiMonitorUsage multiMonitorUsage = (::Magpie::Core::MultiMonitorUsage)value;
-	if (_profile->multiMonitorUsage == multiMonitorUsage) {
+	if (_data->multiMonitorUsage == multiMonitorUsage) {
 		return;
 	}
 
-	_profile->multiMonitorUsage = multiMonitorUsage;
+	_data->multiMonitorUsage = multiMonitorUsage;
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"MultiMonitorUsage"));
 }
 
 int32_t ScalingProfileViewModel::GraphicsAdapter() const noexcept {
-	return (int32_t)_profile->graphicsAdapter;
+	return (int32_t)_data->graphicsAdapter;
 }
 
 void ScalingProfileViewModel::GraphicsAdapter(int32_t value) {
@@ -279,173 +279,173 @@ void ScalingProfileViewModel::GraphicsAdapter(int32_t value) {
 	}
 
 	uint32_t graphicsAdapter = (uint32_t)value;
-	if (_profile->graphicsAdapter == graphicsAdapter) {
+	if (_data->graphicsAdapter == graphicsAdapter) {
 		return;
 	}
 
-	_profile->graphicsAdapter = graphicsAdapter;
+	_data->graphicsAdapter = graphicsAdapter;
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"GraphicsAdapter"));
 }
 
 bool ScalingProfileViewModel::IsShowFPS() const noexcept {
-	return _profile->IsShowFPS();
+	return _data->IsShowFPS();
 }
 
 void ScalingProfileViewModel::IsShowFPS(bool value) {
-	if (_profile->IsShowFPS() == value) {
+	if (_data->IsShowFPS() == value) {
 		return;
 	}
 
-	_profile->IsShowFPS(value);
+	_data->IsShowFPS(value);
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsShowFPS"));
 }
 
 bool ScalingProfileViewModel::IsVSync() const noexcept {
-	return _profile->IsVSync();
+	return _data->IsVSync();
 }
 
 void ScalingProfileViewModel::IsVSync(bool value) {
-	if (_profile->IsVSync() == value) {
+	if (_data->IsVSync() == value) {
 		return;
 	}
 
-	_profile->IsVSync(value);
+	_data->IsVSync(value);
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsVSync"));
 }
 
 bool ScalingProfileViewModel::IsTripleBuffering() const noexcept {
-	return _profile->IsTripleBuffering();
+	return _data->IsTripleBuffering();
 }
 
 void ScalingProfileViewModel::IsTripleBuffering(bool value) {
-	if (_profile->IsTripleBuffering() == value) {
+	if (_data->IsTripleBuffering() == value) {
 		return;
 	}
 
-	_profile->IsTripleBuffering(value);
+	_data->IsTripleBuffering(value);
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsTripleBuffering"));
 }
 
 bool ScalingProfileViewModel::IsDisableWindowResizing() const noexcept {
-	return _profile->IsDisableWindowResizing();
+	return _data->IsDisableWindowResizing();
 }
 
 void ScalingProfileViewModel::IsDisableWindowResizing(bool value) {
-	if (_profile->IsDisableWindowResizing() == value) {
+	if (_data->IsDisableWindowResizing() == value) {
 		return;
 	}
 
-	_profile->IsDisableWindowResizing(value);
+	_data->IsDisableWindowResizing(value);
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsDisableWindowResizing"));
 }
 
 bool ScalingProfileViewModel::IsReserveTitleBar() const noexcept {
-	return _profile->IsReserveTitleBar();
+	return _data->IsReserveTitleBar();
 }
 
 void ScalingProfileViewModel::IsReserveTitleBar(bool value) {
-	if (_profile->IsReserveTitleBar() == value) {
+	if (_data->IsReserveTitleBar() == value) {
 		return;
 	}
 
-	_profile->IsReserveTitleBar(value);
+	_data->IsReserveTitleBar(value);
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsReserveTitleBar"));
 }
 
 bool ScalingProfileViewModel::IsCroppingEnabled() const noexcept {
-	return _profile->isCroppingEnabled;
+	return _data->isCroppingEnabled;
 }
 
 void ScalingProfileViewModel::IsCroppingEnabled(bool value) {
-	if (_profile->isCroppingEnabled == value) {
+	if (_data->isCroppingEnabled == value) {
 		return;
 	}
 
-	_profile->isCroppingEnabled = value;
+	_data->isCroppingEnabled = value;
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsCroppingEnabled"));
 }
 
 double ScalingProfileViewModel::CroppingLeft() const noexcept {
-	return _profile->cropping.Left;
+	return _data->cropping.Left;
 }
 
 void ScalingProfileViewModel::CroppingLeft(double value) {
-	if (_profile->cropping.Left == value) {
+	if (_data->cropping.Left == value) {
 		return;
 	}
 
-	_profile->cropping.Left = std::isnan(value) ? 0.0f : (float)value;
+	_data->cropping.Left = std::isnan(value) ? 0.0f : (float)value;
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CroppingLeft"));
 }
 
 double ScalingProfileViewModel::CroppingTop() const noexcept {
-	return _profile->cropping.Top;
+	return _data->cropping.Top;
 }
 
 void ScalingProfileViewModel::CroppingTop(double value) {
-	if (_profile->cropping.Top == value) {
+	if (_data->cropping.Top == value) {
 		return;
 	}
 
 	// 用户已清空数字框则重置为 0
-	_profile->cropping.Top = std::isnan(value) ? 0.0f : (float)value;
+	_data->cropping.Top = std::isnan(value) ? 0.0f : (float)value;
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CroppingTop"));
 }
 
 double ScalingProfileViewModel::CroppingRight() const noexcept {
-	return _profile->cropping.Right;
+	return _data->cropping.Right;
 }
 
 void ScalingProfileViewModel::CroppingRight(double value) {
-	if (_profile->cropping.Right == value) {
+	if (_data->cropping.Right == value) {
 		return;
 	}
 
-	_profile->cropping.Right = std::isnan(value) ? 0.0f : (float)value;
+	_data->cropping.Right = std::isnan(value) ? 0.0f : (float)value;
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CroppingRight"));
 }
 
 double ScalingProfileViewModel::CroppingBottom() const noexcept {
-	return _profile->cropping.Bottom;
+	return _data->cropping.Bottom;
 }
 
 void ScalingProfileViewModel::CroppingBottom(double value) {
-	if (_profile->cropping.Bottom == value) {
+	if (_data->cropping.Bottom == value) {
 		return;
 	}
 
-	_profile->cropping.Bottom = std::isnan(value) ? 0.0f : (float)value;
+	_data->cropping.Bottom = std::isnan(value) ? 0.0f : (float)value;
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CroppingBottom"));
 }
 
 bool ScalingProfileViewModel::IsAdjustCursorSpeed() const noexcept {
-	return _profile->IsAdjustCursorSpeed();
+	return _data->IsAdjustCursorSpeed();
 }
 
 void ScalingProfileViewModel::IsAdjustCursorSpeed(bool value) {
-	if (_profile->IsAdjustCursorSpeed() == value) {
+	if (_data->IsAdjustCursorSpeed() == value) {
 		return;
 	}
 
-	_profile->IsAdjustCursorSpeed(value);
+	_data->IsAdjustCursorSpeed(value);
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsAdjustCursorSpeed"));
 }
 
 bool ScalingProfileViewModel::IsDrawCursor() const noexcept {
-	return _profile->IsDrawCursor();
+	return _data->IsDrawCursor();
 }
 
 void ScalingProfileViewModel::IsDrawCursor(bool value) {
-	if (_profile->IsDrawCursor() == value) {
+	if (_data->IsDrawCursor() == value) {
 		return;
 	}
 
-	_profile->IsDrawCursor(value);
+	_data->IsDrawCursor(value);
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsDrawCursor"));
 }
 
 int32_t ScalingProfileViewModel::CursorScaling() const noexcept {
-	return (int32_t)_profile->cursorScaling;
+	return (int32_t)_data->cursorScaling;
 }
 
 void ScalingProfileViewModel::CursorScaling(int32_t value) {
@@ -454,29 +454,29 @@ void ScalingProfileViewModel::CursorScaling(int32_t value) {
 	}
 
 	Magpie::UI::CursorScaling cursorScaling = (Magpie::UI::CursorScaling)value;
-	if (_profile->cursorScaling == cursorScaling) {
+	if (_data->cursorScaling == cursorScaling) {
 		return;
 	}
 
-	_profile->cursorScaling = cursorScaling;
+	_data->cursorScaling = cursorScaling;
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CursorScaling"));
 }
 
 double ScalingProfileViewModel::CustomCursorScaling() const noexcept {
-	return _profile->customCursorScaling;
+	return _data->customCursorScaling;
 }
 
 void ScalingProfileViewModel::CustomCursorScaling(double value) {
-	if (_profile->customCursorScaling == value) {
+	if (_data->customCursorScaling == value) {
 		return;
 	}
 
-	_profile->customCursorScaling = std::isnan(value) ? 1.0f : (float)value;
+	_data->customCursorScaling = std::isnan(value) ? 1.0f : (float)value;
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CustomCursorScaling"));
 }
 
 int32_t ScalingProfileViewModel::CursorInterpolationMode() const noexcept {
-	return (int32_t)_profile->cursorInterpolationMode;
+	return (int32_t)_data->cursorInterpolationMode;
 }
 
 void ScalingProfileViewModel::CursorInterpolationMode(int32_t value) {
@@ -485,24 +485,24 @@ void ScalingProfileViewModel::CursorInterpolationMode(int32_t value) {
 	}
 
 	::Magpie::Core::CursorInterpolationMode cursorInterpolationMode = (::Magpie::Core::CursorInterpolationMode)value;
-	if (_profile->cursorInterpolationMode == cursorInterpolationMode) {
+	if (_data->cursorInterpolationMode == cursorInterpolationMode) {
 		return;
 	}
 
-	_profile->cursorInterpolationMode = cursorInterpolationMode;
+	_data->cursorInterpolationMode = cursorInterpolationMode;
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CursorInterpolationMode"));
 }
 
 bool ScalingProfileViewModel::IsDisableDirectFlip() const noexcept {
-	return _profile->IsDisableDirectFlip();
+	return _data->IsDisableDirectFlip();
 }
 
 void ScalingProfileViewModel::IsDisableDirectFlip(bool value) {
-	if (_profile->IsDisableDirectFlip() == value) {
+	if (_data->IsDisableDirectFlip() == value) {
 		return;
 	}
 
-	_profile->IsDisableDirectFlip(value);
+	_data->IsDisableDirectFlip(value);
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsDisableDirectFlip"));
 }
 
@@ -510,8 +510,8 @@ fire_and_forget ScalingProfileViewModel::_LoadIcon(FrameworkElement const& mainP
 	auto weakThis = get_weak();
 
 	bool preferLightTheme = mainPage.ActualTheme() == ElementTheme::Light;
-	bool isPackaged = _profile->isPackaged;
-	std::wstring path = _profile->pathRule;
+	bool isPackaged = _data->isPackaged;
+	std::wstring path = _data->pathRule;
 	CoreDispatcher dispatcher = mainPage.Dispatcher();
 	uint32_t dpi = (uint32_t)std::lroundf(DisplayInformation::GetForCurrentView().LogicalDpi());
 

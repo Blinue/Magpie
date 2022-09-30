@@ -211,12 +211,16 @@
 													</Button.Content>
 													<Button.Flyout>
 														<MenuFlyout ShouldConstrainToRootBounds="False">
-															<MenuFlyoutItem Text="上移">
+															<MenuFlyoutItem Click="{x:Bind MoveUp}"
+																			IsEnabled="{x:Bind CanMoveUp, Mode=OneWay}"
+																			Text="上移">
 																<MenuFlyoutItem.Icon>
 																	<FontIcon Glyph="&#xE74A;" />
 																</MenuFlyoutItem.Icon>
 															</MenuFlyoutItem>
-															<MenuFlyoutItem Text="下移">
+															<MenuFlyoutItem Click="{x:Bind MoveDown}"
+																			IsEnabled="{x:Bind CanMoveDown, Mode=OneWay}"
+																			Text="下移">
 																<MenuFlyoutItem.Icon>
 																	<FontIcon Glyph="&#xE74B;" />
 																</MenuFlyoutItem.Icon>
@@ -236,7 +240,7 @@
 								<muxc:Expander.Content>
 									<StackPanel Orientation="Vertical">
 										<ListView AllowDrop="True"
-												  CanReorderItems="{x:Bind CanReorder, Mode=OneWay}"
+												  CanReorderItems="{x:Bind CanReorderEffects, Mode=OneWay}"
 												  ItemsSource="{x:Bind Effects, Mode=OneTime}"
 												  SelectionMode="None">
 											<ListView.Resources>
@@ -290,7 +294,7 @@
 												<TextBlock Margin="-40,0,0,2"
 														   VerticalAlignment="Center"
 														   Text="拖动可重新排序"
-														   Visibility="{x:Bind CanReorder, Mode=OneWay}" />
+														   Visibility="{x:Bind CanReorderEffects, Mode=OneWay}" />
 											</local:SettingItem.Description>
 											<local:SettingItem.ActionContent>
 												<Button x:Name="AddEffectButton"

@@ -19,6 +19,15 @@ struct ScalingModeItem : ScalingModeItemT<ScalingModeItem> {
 		_propertyChangedEvent.remove(token);
 	}
 
+	uint32_t Index() const noexcept {
+		return _index;
+	}
+
+	// 重新排序时被调用
+	void Index(uint32_t value) noexcept {
+		_index = value;
+	}
+
 	void AddEffect(const hstring& fullName);
 
 	hstring Name() const noexcept;
@@ -51,13 +60,25 @@ struct ScalingModeItem : ScalingModeItemT<ScalingModeItem> {
 
 	void RenameButton_Click();
 
-	bool CanReorder() const noexcept {
+	bool CanMoveUp() const noexcept;
+
+	bool CanMoveDown() const noexcept;
+
+	void MoveUp() noexcept;
+
+	void MoveDown() noexcept;
+
+	bool CanReorderEffects() const noexcept {
 		return _effects.Size() > 1;
 	}
 
 private:
+	ScalingMode* _Data() noexcept;
+	const ScalingMode* _Data() const noexcept;
+
 	event<PropertyChangedEventHandler> _propertyChangedEvent;
-	ScalingMode* _scalingMode = nullptr;
+
+	uint32_t _index = 0;
 	IObservableVector<IInspectable> _effects{ nullptr };
 
 	hstring _renameText;
