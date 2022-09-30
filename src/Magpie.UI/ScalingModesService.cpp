@@ -24,7 +24,7 @@ void ScalingModesService::AddScalingMode(std::wstring_view name, int copyFrom) {
     }
 }
 
-bool ScalingModesService::Reorder(uint32_t scalingModeIdx, bool isMoveUp) {
+bool ScalingModesService::MoveScalingMode(uint32_t scalingModeIdx, bool isMoveUp) {
     std::vector<ScalingMode>& profiles = AppSettings::Get().ScalingModes();
     if (isMoveUp ? scalingModeIdx == 0 : scalingModeIdx + 1 >= (uint32_t)profiles.size()) {
         return false;

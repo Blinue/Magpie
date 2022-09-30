@@ -16,7 +16,7 @@ ScalingModesViewModel::ScalingModesViewModel() {
 	}
 	_scalingModes = single_threaded_observable_vector(std::move(scalingModes));
 
-	_scalingModesReorderdRevoker = ScalingModesService::Get().ProfileReordered(
+	_scalingModeMovedRevoker = ScalingModesService::Get().ScalingModeMoved(
 		auto_revoke, { this, &ScalingModesViewModel::_ScalingModesService_Reordered });
 }
 

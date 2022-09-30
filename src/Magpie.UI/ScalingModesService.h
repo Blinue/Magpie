@@ -24,20 +24,20 @@ public:
 	// copyFrom < 0 表示新建空缩放配置
 	void AddScalingMode(std::wstring_view name, int copyFrom);
 
-	bool Reorder(uint32_t scalingModeIdx, bool isMoveUp);
+	bool MoveScalingMode(uint32_t scalingModeIdx, bool isMoveUp);
 
-	event_token ProfileReordered(delegate<uint32_t, bool> const& handler) {
+	event_token ScalingModeMoved(delegate<uint32_t, bool> const& handler) {
 		return _reorderedEvent.add(handler);
 	}
 
-	WinRTUtils::EventRevoker ProfileReordered(auto_revoke_t, delegate<uint32_t, bool> const& handler) {
-		event_token token = ProfileReordered(handler);
+	WinRTUtils::EventRevoker ScalingModeMoved(auto_revoke_t, delegate<uint32_t, bool> const& handler) {
+		event_token token = ScalingModeMoved(handler);
 		return WinRTUtils::EventRevoker([this, token]() {
-			ProfileReordered(token);
+			ScalingModeMoved(token);
 		});
 	}
 
-	void ProfileReordered(event_token const& token) {
+	void ScalingModeMoved(event_token const& token) {
 		_reorderedEvent.remove(token);
 	}
 private:

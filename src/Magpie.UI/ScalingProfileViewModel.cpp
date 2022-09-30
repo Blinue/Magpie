@@ -174,7 +174,7 @@ void ScalingProfileViewModel::MoveUp() {
 	}
 
 	ScalingProfileService& scalingProfileService = ScalingProfileService::Get();
-	if (!scalingProfileService.ReorderProfile(_index, true)) {
+	if (!scalingProfileService.MoveProfile(_index, true)) {
 		return;
 	}
 
@@ -191,7 +191,7 @@ void ScalingProfileViewModel::MoveDown() {
 	}
 
 	ScalingProfileService& scalingProfileService = ScalingProfileService::Get();
-	if (!scalingProfileService.ReorderProfile(_index, false)) {
+	if (!scalingProfileService.MoveProfile(_index, false)) {
 		return;
 	}
 

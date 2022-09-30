@@ -107,7 +107,7 @@ bool ScalingModeItem::CanMoveDown() const noexcept {
 
 void ScalingModeItem::MoveUp() noexcept {
 	ScalingModesService& scalingModesService = ScalingModesService::Get();
-	if (!scalingModesService.Reorder(_index, true)) {
+	if (!scalingModesService.MoveScalingMode(_index, true)) {
 		return;
 	}
 
@@ -117,7 +117,7 @@ void ScalingModeItem::MoveUp() noexcept {
 
 void ScalingModeItem::MoveDown() noexcept {
 	ScalingModesService& scalingModesService = ScalingModesService::Get();
-	if (!scalingModesService.Reorder(_index, false)) {
+	if (!scalingModesService.MoveScalingMode(_index, false)) {
 		return;
 	}
 

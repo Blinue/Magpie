@@ -75,7 +75,7 @@ MainPage::MainPage() {
 		auto_revoke, { this, &MainPage::_ScalingProfileService_ProfileRenamed });
 	_profileRemovedRevoker = scalingProfileService.ProfileRemoved(
 		auto_revoke, { this, &MainPage::_ScalingProfileService_ProfileRemoved });
-	_profileReorderdRevoker = scalingProfileService.ProfileReordered(
+	_profileMovedRevoker = scalingProfileService.ProfileMoved(
 		auto_revoke, { this, &MainPage::_ScalingProfileService_ProfileReordered });
 }
 

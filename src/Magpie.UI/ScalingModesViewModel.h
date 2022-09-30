@@ -54,7 +54,7 @@ private:
 
 	IObservableVector<IInspectable> _scalingModes{ nullptr };
 
-	WinRTUtils::EventRevoker _scalingModesReorderdRevoker;
+	WinRTUtils::EventRevoker _scalingModeMovedRevoker;
 
 	hstring _newScalingModeName;
 	IVector<IInspectable> _newScalingModeCopyFromList{ nullptr };

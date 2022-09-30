@@ -70,20 +70,20 @@ public:
 		_profileRemovedEvent.remove(token);
 	}
 
-	bool ReorderProfile(uint32_t profileIdx, bool isMoveUp);
+	bool MoveProfile(uint32_t profileIdx, bool isMoveUp);
 
-	event_token ProfileReordered(delegate<uint32_t, bool> const& handler) {
+	event_token ProfileMoved(delegate<uint32_t, bool> const& handler) {
 		return _profileReorderedEvent.add(handler);
 	}
 
-	WinRTUtils::EventRevoker ProfileReordered(auto_revoke_t, delegate<uint32_t, bool> const& handler) {
-		event_token token = ProfileReordered(handler);
+	WinRTUtils::EventRevoker ProfileMoved(auto_revoke_t, delegate<uint32_t, bool> const& handler) {
+		event_token token = ProfileMoved(handler);
 		return WinRTUtils::EventRevoker([this, token]() {
-			ProfileReordered(token);
+			ProfileMoved(token);
 		});
 	}
 
-	void ProfileReordered(event_token const& token) {
+	void ProfileMoved(event_token const& token) {
 		_profileReorderedEvent.remove(token);
 	}
 

@@ -63,7 +63,7 @@ private:
 	WinRTUtils::EventRevoker _profileAddedRevoker;
 	WinRTUtils::EventRevoker _profileRenamedRevoker;
 	WinRTUtils::EventRevoker _profileRemovedRevoker;
-	WinRTUtils::EventRevoker _profileReorderdRevoker;
+	WinRTUtils::EventRevoker _profileMovedRevoker;
 
 	Windows::Graphics::Display::DisplayInformation _displayInformation{ nullptr };
 	Windows::Graphics::Display::DisplayInformation::DpiChanged_revoker _dpiChangedRevoker;

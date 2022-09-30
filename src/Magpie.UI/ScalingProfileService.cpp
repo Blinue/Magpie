@@ -96,7 +96,7 @@ void ScalingProfileService::RemoveProfile(uint32_t profileIdx) {
 	_profileRemovedEvent(profileIdx);
 }
 
-bool ScalingProfileService::ReorderProfile(uint32_t profileIdx, bool isMoveUp) {
+bool ScalingProfileService::MoveProfile(uint32_t profileIdx, bool isMoveUp) {
 	std::vector<ScalingProfile>& profiles = AppSettings::Get().ScalingProfiles();
 	if (isMoveUp ? profileIdx == 0 : profileIdx + 1 >= (uint32_t)profiles.size()) {
 		return false;
