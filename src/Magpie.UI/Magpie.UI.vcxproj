@@ -118,10 +118,6 @@
       <DependentUpon>BoolNegationConverter.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
-    <ClInclude Include="BoolToVisibilityConverter.h">
-      <DependentUpon>BoolToVisibilityConverter.idl</DependentUpon>
-      <SubType>Code</SubType>
-    </ClInclude>
     <ClInclude Include="CandidateWindowItem.h">
       <DependentUpon>CandidateWindowItem.idl</DependentUpon>
       <SubType>Code</SubType>
@@ -243,10 +239,6 @@
     <ClCompile Include="AutoStartHelper.cpp" />
     <ClCompile Include="BoolNegationConverter.cpp">
       <DependentUpon>BoolNegationConverter.idl</DependentUpon>
-      <SubType>Code</SubType>
-    </ClCompile>
-    <ClCompile Include="BoolToVisibilityConverter.cpp">
-      <DependentUpon>BoolToVisibilityConverter.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
     <ClCompile Include="CandidateWindowItem.cpp">
@@ -385,9 +377,6 @@
       <SubType>Designer</SubType>
     </None>
     <Midl Include="BoolNegationConverter.idl">
-      <SubType>Designer</SubType>
-    </Midl>
-    <Midl Include="BoolToVisibilityConverter.idl">
       <SubType>Designer</SubType>
     </Midl>
     <None Include="ScalingProfilePage.idl">

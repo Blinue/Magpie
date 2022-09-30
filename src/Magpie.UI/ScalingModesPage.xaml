@@ -148,7 +148,8 @@
 					<ListView.Resources>
 						<Style TargetType="ListViewItem">
 							<Setter Property="Margin" Value="0,0,0,2" />
-							<Setter Property="Padding" Value="0,0,0,0" />
+							<Setter Property="Padding" Value="0" />
+							<Setter Property="MinHeight" Value="0" />
 							<Setter Property="HorizontalContentAlignment" Value="Stretch" />
 							<Setter Property="IsTabStop" Value="False" />
 						</Style>
@@ -232,9 +233,44 @@
 																</MenuFlyoutItem.Icon>
 																<FlyoutBase.AttachedFlyout>
 																	<Flyout ShouldConstrainToRootBounds="False">
-																		<StackPanel Orientation="Vertical"
-																					Spacing="15">
-																			<TextBlock Text="确定删除此缩放模式？" />
+																		<StackPanel Orientation="Vertical">
+																			<TextBlock Margin="0,0,0,15"
+																					   FontWeight="SemiBold"
+																					   Text="确定删除此缩放模式？"
+																					   Visibility="{x:Bind ShowLinkedProfiles, Mode=OneTime}" />
+																			<TextBlock Margin="0,0,0,15"
+																					   Text="确定删除此缩放模式？"
+																					   Visibility="{x:Bind NotShowLinkedProfiles, Mode=OneTime}" />
+																			<StackPanel Margin="0,0,0,10"
+																						Orientation="Vertical"
+																						Spacing="8"
+																						Visibility="{x:Bind ShowLinkedProfiles, Mode=OneTime}">
+																				<TextBlock Text="以下缩放配置正在使用此模式：" />
+																				<ListView ItemsSource="{x:Bind LinkedProfiles, Mode=OneTime}"
+																						  SelectionMode="None">
+																					<ListView.ItemsPanel>
+																						<ItemsPanelTemplate>
+																							<StackPanel Orientation="Vertical"
+																										Spacing="4" />
+																						</ItemsPanelTemplate>
+																					</ListView.ItemsPanel>
+																					<ListView.Resources>
+																						<Style TargetType="ListViewItem">
+																							<Setter Property="Margin" Value="0" />
+																							<Setter Property="Padding" Value="0" />
+																							<Setter Property="MinHeight" Value="0" />
+																							<Setter Property="HorizontalContentAlignment" Value="Stretch" />
+																							<Setter Property="IsTabStop" Value="False" />
+																						</Style>
+																					</ListView.Resources>
+																					<ListView.ItemTemplate>
+																						<DataTemplate x:DataType="x:String">
+																							<TextBlock FontStyle="Italic"
+																									   Text="{x:Bind Mode=OneTime}" />
+																						</DataTemplate>
+																					</ListView.ItemTemplate>
+																				</ListView>
+																			</StackPanel>
 																			<Button HorizontalAlignment="Right"
 																					Click="{x:Bind Remove}">
 																				<Button.Resources>
@@ -283,8 +319,9 @@
 												  SelectionMode="None">
 											<ListView.Resources>
 												<Style TargetType="ListViewItem">
-													<Setter Property="Margin" Value="0,0,0,0" />
-													<Setter Property="Padding" Value="0,0,0,0" />
+													<Setter Property="Margin" Value="0" />
+													<Setter Property="Padding" Value="0" />
+													<Setter Property="MinHeight" Value="0" />
 													<Setter Property="HorizontalContentAlignment" Value="Stretch" />
 													<Setter Property="IsTabStop" Value="False" />
 												</Style>

@@ -5,9 +5,6 @@
   </ItemGroup>
   <ItemGroup>
     <Midl Include="App.idl" />
-    <Midl Include="BoolToVisibilityConverter.idl">
-      <Filter>Converters</Filter>
-    </Midl>
     <Midl Include="BoolNegationConverter.idl">
       <Filter>Converters</Filter>
     </Midl>

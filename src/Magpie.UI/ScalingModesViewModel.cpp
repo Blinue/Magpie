@@ -51,11 +51,8 @@ void ScalingModesViewModel::AddScalingMode() {
 
 void ScalingModesViewModel::_ScalingModesService_Moved(uint32_t index, bool isMoveUp) {
 	uint32_t targetIndex = isMoveUp ? index - 1 : index + 1;
-	_scalingModes.GetAt(index).as<ScalingModeItem>().Index(targetIndex);
 
 	ScalingModeItem targetItem = _scalingModes.GetAt(targetIndex).as<ScalingModeItem>();
-	targetItem.Index(index);
-	
 	_scalingModes.RemoveAt(targetIndex);
 	_scalingModes.InsertAt(index, targetItem);
 }

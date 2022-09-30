@@ -24,6 +24,21 @@ public:
 	// copyFrom < 0 表示新建空缩放配置
 	void AddScalingMode(std::wstring_view name, int copyFrom);
 
+	event_token ScalingModeAdded(delegate<> const& handler) {
+		return _scalingModeAddedEvent.add(handler);
+	}
+
+	WinRTUtils::EventRevoker ScalingModeAdded(auto_revoke_t, delegate<> const& handler) {
+		event_token token = ScalingModeAdded(handler);
+		return WinRTUtils::EventRevoker([this, token]() {
+			ScalingModeAdded(token);
+		});
+	}
+
+	void ScalingModeAdded(event_token const& token) {
+		_scalingModeAddedEvent.remove(token);
+	}
+
 	void RemoveScalingMode(uint32_t index);
 
 	event_token ScalingModeRemoved(delegate<uint32_t> const& handler) {
@@ -60,6 +75,7 @@ public:
 private:
 	ScalingModesService() = default;
 
+	event<delegate<>> _scalingModeAddedEvent;
 	event<delegate<uint32_t>> _scalingModeRemovedEvent;
 	event<delegate<uint32_t, bool>> _scalingModeMovedEvent;
 };

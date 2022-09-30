@@ -1,5 +1,6 @@
 #pragma once
 #include "ScalingModeItem.g.h"
+#include "WinRTUtils.h"
 
 
 namespace winrt::Magpie::UI {
@@ -17,15 +18,6 @@ struct ScalingModeItem : ScalingModeItemT<ScalingModeItem> {
 
 	void PropertyChanged(event_token const& token) noexcept {
 		_propertyChangedEvent.remove(token);
-	}
-
-	uint32_t Index() const noexcept {
-		return _index;
-	}
-
-	// 重新排序时被调用
-	void Index(uint32_t value) noexcept {
-		_index = value;
 	}
 
 	void AddEffect(const hstring& fullName);
@@ -74,7 +66,27 @@ struct ScalingModeItem : ScalingModeItemT<ScalingModeItem> {
 
 	void Remove();
 
+	IVector<IInspectable> LinkedProfiles() const noexcept {
+		return _linkedProfiles;
+	}
+
+	bool ShowLinkedProfiles() const noexcept {
+		return _linkedProfiles.Size() > 0;
+	}
+
+	bool NotShowLinkedProfiles() const noexcept {
+		return !ShowLinkedProfiles();
+	}
+
 private:
+	void _Index(uint32_t value) noexcept;
+
+	void _ScalingModesService_Added();
+
+	void _ScalingModesService_Moved(uint32_t index, bool isMoveUp);
+
+	void _ScalingModesService_Removed(uint32_t index);
+
 	ScalingMode* _Data() noexcept;
 	const ScalingMode* _Data() const noexcept;
 
@@ -83,9 +95,14 @@ private:
 	uint32_t _index = 0;
 	IObservableVector<IInspectable> _effects{ nullptr };
 
+	WinRTUtils::EventRevoker _scalingModeAddedRevoker;
+	WinRTUtils::EventRevoker _scalingModeMovedRevoker;
+	WinRTUtils::EventRevoker _scalingModeRemovedRevoker;
+
 	hstring _renameText;
 	std::wstring_view _trimedRenameText;
 	bool _isRenameButtonEnabled = false;
+	IVector<IInspectable> _linkedProfiles{ nullptr };
 };
 
 }

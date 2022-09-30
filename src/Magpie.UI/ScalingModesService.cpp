@@ -22,18 +22,25 @@ void ScalingModesService::AddScalingMode(std::wstring_view name, int copyFrom) {
     } else {
         scalingModes.emplace_back(scalingModes[copyFrom]).name = name;
     }
+
+    _scalingModeAddedEvent();
+}
+
+static void UpdateScalingModeAfterRemove(ScalingProfile& profile, int removedIdx) {
+    if (profile.scalingMode == removedIdx) {
+        profile.scalingMode = -1;
+    } else if (profile.scalingMode > removedIdx) {
+        --profile.scalingMode;
+    }
 }
 
 void ScalingModesService::RemoveScalingMode(uint32_t index) {
     std::vector<ScalingMode>& scalingModes = AppSettings::Get().ScalingModes();
     scalingModes.erase(scalingModes.begin() + index);
 
+    UpdateScalingModeAfterRemove(AppSettings::Get().DefaultScalingProfile(), (int)index);
     for (ScalingProfile& profile : AppSettings::Get().ScalingProfiles()) {
-        if (profile.scalingMode == (int)index) {
-            profile.scalingMode = -1;
-        } else if (profile.scalingMode > (int)index) {
-            --profile.scalingMode;
-        }
+        UpdateScalingModeAfterRemove(profile, (int)index);
     }
 
     _scalingModeRemovedEvent(index);

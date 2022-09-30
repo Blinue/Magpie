@@ -7,6 +7,7 @@
 #include "ScalingModesService.h"
 #include "StrUtils.h"
 #include "XamlUtils.h"
+#include "AppSettings.h"
 
 using namespace Magpie::Core;
 
@@ -22,12 +23,65 @@ ScalingModeItem::ScalingModeItem(uint32_t index) {
 	_index = index;
 	ScalingMode* data = _Data();
 
-	std::vector<IInspectable> effects;
-	effects.reserve(data->effects.size());
-	for (auto& effect : data->effects) {
-		effects.push_back(box_value(GetEffectDisplayName(effect.name)));
+	{
+		std::vector<IInspectable> effects;
+		effects.reserve(data->effects.size());
+		for (const EffectOption& effect : data->effects) {
+			effects.push_back(box_value(GetEffectDisplayName(effect.name)));
+		}
+		_effects = single_threaded_observable_vector(std::move(effects));
 	}
-	_effects = winrt::single_threaded_observable_vector(std::move(effects));
+
+	{
+		std::vector<IInspectable> linkedProfiles;
+		const ScalingProfile& defaultProfile = AppSettings::Get().DefaultScalingProfile();
+		if (defaultProfile.scalingMode == (int)index) {
+			linkedProfiles.push_back(box_value(L"默认"));
+		}
+		for (const ScalingProfile& profile : AppSettings::Get().ScalingProfiles()) {
+			if (profile.scalingMode == (int)index) {
+				linkedProfiles.push_back(box_value(profile.name));
+			}
+		}
+		_linkedProfiles = single_threaded_vector(std::move(linkedProfiles));
+	}
+
+	_scalingModeAddedRevoker = ScalingModesService::Get().ScalingModeAdded(
+		auto_revoke, { this, &ScalingModeItem::_ScalingModesService_Added });
+	_scalingModeMovedRevoker = ScalingModesService::Get().ScalingModeMoved(
+		auto_revoke, { this, &ScalingModeItem::_ScalingModesService_Moved });
+	_scalingModeRemovedRevoker = ScalingModesService::Get().ScalingModeRemoved(
+		auto_revoke, { this, &ScalingModeItem::_ScalingModesService_Removed });
+}
+
+void ScalingModeItem::_Index(uint32_t value) noexcept {
+	_index = value;
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CanMoveUp"));
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CanMoveDown"));
+}
+
+void ScalingModeItem::_ScalingModesService_Added() {
+	if (_index + 2 == ScalingModesService::Get().GetScalingModeCount()) {
+		_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CanMoveDown"));
+	}
+}
+
+void ScalingModeItem::_ScalingModesService_Moved(uint32_t index, bool isMoveUp) {
+	uint32_t targetIndex = isMoveUp ? index - 1 : index + 1;
+	if (_index == index) {
+		_Index(targetIndex);
+	} else if (_index == targetIndex) {
+		_Index(index);
+	}
+}
+
+void ScalingModeItem::_ScalingModesService_Removed(uint32_t index) {
+	if (_index > index) {
+		_Index(_index - 1);
+	} else {
+		_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CanMoveUp"));
+		_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CanMoveDown"));
+	}
 }
 
 void ScalingModeItem::AddEffect(const hstring& fullName) {
@@ -106,23 +160,11 @@ bool ScalingModeItem::CanMoveDown() const noexcept {
 }
 
 void ScalingModeItem::MoveUp() noexcept {
-	ScalingModesService& scalingModesService = ScalingModesService::Get();
-	if (!scalingModesService.MoveScalingMode(_index, true)) {
-		return;
-	}
-
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CanMoveUp"));
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CanMoveDown"));
+	ScalingModesService::Get().MoveScalingMode(_index, true);
 }
 
 void ScalingModeItem::MoveDown() noexcept {
-	ScalingModesService& scalingModesService = ScalingModesService::Get();
-	if (!scalingModesService.MoveScalingMode(_index, false)) {
-		return;
-	}
-
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CanMoveUp"));
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CanMoveDown"));
+	ScalingModesService::Get().MoveScalingMode(_index, false);
 }
 
 void ScalingModeItem::Remove() {
