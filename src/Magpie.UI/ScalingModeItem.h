@@ -72,6 +72,8 @@ struct ScalingModeItem : ScalingModeItemT<ScalingModeItem> {
 		return _effects.Size() > 1;
 	}
 
+	void Remove();
+
 private:
 	ScalingMode* _Data() noexcept;
 	const ScalingMode* _Data() const noexcept;

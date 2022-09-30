@@ -27,6 +27,15 @@ void ScalingModesService::AddScalingMode(std::wstring_view name, int copyFrom) {
 void ScalingModesService::RemoveScalingMode(uint32_t index) {
     std::vector<ScalingMode>& scalingModes = AppSettings::Get().ScalingModes();
     scalingModes.erase(scalingModes.begin() + index);
+
+    for (ScalingProfile& profile : AppSettings::Get().ScalingProfiles()) {
+        if (profile.scalingMode == (int)index) {
+            profile.scalingMode = -1;
+        } else if (profile.scalingMode > (int)index) {
+            --profile.scalingMode;
+        }
+    }
+
     _scalingModeRemovedEvent(index);
 }
 

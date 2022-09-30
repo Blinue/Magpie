@@ -48,13 +48,16 @@ struct ScalingModesViewModel : ScalingModesViewModelT<ScalingModesViewModel> {
 	void AddScalingMode();
 
 private:
-	void _ScalingModesService_Reordered(uint32_t index, bool isMoveUp);
+	void _ScalingModesService_Moved(uint32_t index, bool isMoveUp);
+
+	void _ScalingModesService_Removed(uint32_t index);
 
 	event<PropertyChangedEventHandler> _propertyChangedEvent;
 
 	IObservableVector<IInspectable> _scalingModes{ nullptr };
 
 	WinRTUtils::EventRevoker _scalingModeMovedRevoker;
+	WinRTUtils::EventRevoker _scalingModeRemovedRevoker;
 
 	hstring _newScalingModeName;
 	IVector<IInspectable> _newScalingModeCopyFromList{ nullptr };

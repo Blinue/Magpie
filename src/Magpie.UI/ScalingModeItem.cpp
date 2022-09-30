@@ -125,6 +125,10 @@ void ScalingModeItem::MoveDown() noexcept {
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CanMoveDown"));
 }
 
+void ScalingModeItem::Remove() {
+	ScalingModesService::Get().RemoveScalingMode(_index);
+}
+
 ScalingMode* ScalingModeItem::_Data() noexcept {
 	return &ScalingModesService::Get().GetScalingMode(_index);
 }

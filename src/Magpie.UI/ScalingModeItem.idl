@@ -24,6 +24,8 @@ namespace Magpie.UI
         void MoveUp();
         void MoveDown();
 
+        void Remove();
+
         Boolean CanReorderEffects { get; };
     }
 }
