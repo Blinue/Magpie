@@ -24,6 +24,12 @@ void ScalingModesService::AddScalingMode(std::wstring_view name, int copyFrom) {
     }
 }
 
+void ScalingModesService::RemoveScalingMode(uint32_t index) {
+    std::vector<ScalingMode>& scalingModes = AppSettings::Get().ScalingModes();
+    scalingModes.erase(scalingModes.begin() + index);
+    _scalingModeRemovedEvent(index);
+}
+
 bool ScalingModesService::MoveScalingMode(uint32_t scalingModeIdx, bool isMoveUp) {
     std::vector<ScalingMode>& profiles = AppSettings::Get().ScalingModes();
     if (isMoveUp ? scalingModeIdx == 0 : scalingModeIdx + 1 >= (uint32_t)profiles.size()) {
@@ -40,7 +46,7 @@ bool ScalingModesService::MoveScalingMode(uint32_t scalingModeIdx, bool isMoveUp
         }
     }
 
-    _reorderedEvent(scalingModeIdx, isMoveUp);
+    _scalingModeMovedEvent(scalingModeIdx, isMoveUp);
     return true;
 }
 

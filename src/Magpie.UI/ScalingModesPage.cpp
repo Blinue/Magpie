@@ -56,6 +56,15 @@ void ScalingModesPage::NewScalingModeConfirmButton_Click(IInspectable const&, Ro
 	_viewModel.AddScalingMode();
 }
 
+void ScalingModesPage::ScalingModeMoreOptionsButton_Click(IInspectable const& sender, RoutedEventArgs const&) {
+	_moreOptionsButton = sender;
+}
+
+void ScalingModesPage::RemoveScalingModeMenuItem_Click(IInspectable const& sender, RoutedEventArgs const&) {
+	FlyoutBase::GetAttachedFlyout(sender.as<FrameworkElement>())
+		.ShowAt(_moreOptionsButton.as<FrameworkElement>());
+}
+
 void ScalingModesPage::_BuildEffectMenu() noexcept {
 	std::vector<MenuFlyoutItemBase> rootItems;
 

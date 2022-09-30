@@ -202,7 +202,7 @@
 														</Flyout>
 													</Button.Flyout>
 												</Button>
-												<Button>
+												<Button Click="ScalingModeMoreOptionsButton_Click">
 													<ToolTipService.ToolTip>
 														<ToolTip Content="更多选项" />
 													</ToolTipService.ToolTip>
@@ -225,10 +225,47 @@
 																	<FontIcon Glyph="&#xE74B;" />
 																</MenuFlyoutItem.Icon>
 															</MenuFlyoutItem>
-															<MenuFlyoutItem Text="删除">
+															<MenuFlyoutItem Click="RemoveScalingModeMenuItem_Click"
+																			Text="删除">
 																<MenuFlyoutItem.Icon>
 																	<FontIcon Glyph="&#xE74D;" />
 																</MenuFlyoutItem.Icon>
+																<FlyoutBase.AttachedFlyout>
+																	<Flyout ShouldConstrainToRootBounds="False">
+																		<StackPanel Orientation="Vertical"
+																					Spacing="15">
+																			<TextBlock Text="确定删除此缩放模式？" />
+																			<Button HorizontalAlignment="Right">
+																				<Button.Resources>
+																					<ResourceDictionary>
+																						<StaticResource x:Key="ButtonBackground"
+																										ResourceKey="DeleteButtonBackgroundBrush" />
+																						<StaticResource x:Key="ButtonBackgroundPointerOver"
+																										ResourceKey="DeleteButtonBackgroundPointerOverBrush" />
+																						<StaticResource x:Key="ButtonBackgroundPressed"
+																										ResourceKey="DeleteButtonBackgroundPressedBrush" />
+																						<StaticResource x:Key="ButtonForeground"
+																										ResourceKey="DeleteButtonForegroundBrush" />
+																						<StaticResource x:Key="ButtonForegroundPointerOver"
+																										ResourceKey="DeleteButtonForegroundBrush" />
+																						<StaticResource x:Key="ButtonForegroundPressed"
+																										ResourceKey="DeleteButtonForegroundPressedBrush" />
+																					</ResourceDictionary>
+																				</Button.Resources>
+																				<Button.Content>
+																					<StackPanel Orientation="Horizontal"
+																								Spacing="8">
+																						<FontIcon VerticalAlignment="Center"
+																								  FontSize="15"
+																								  Glyph="&#xE74D;" />
+																						<TextBlock VerticalAlignment="Center"
+																								   Text="删除" />
+																					</StackPanel>
+																				</Button.Content>
+																			</Button>
+																		</StackPanel>
+																	</Flyout>
+																</FlyoutBase.AttachedFlyout>
 															</MenuFlyoutItem>
 														</MenuFlyout>
 													</Button.Flyout>

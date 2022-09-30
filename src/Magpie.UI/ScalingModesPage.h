@@ -21,12 +21,17 @@ struct ScalingModesPage : ScalingModesPageT<ScalingModesPage> {
 
 	void NewScalingModeConfirmButton_Click(IInspectable const& sender, RoutedEventArgs const&);
 
+	void ScalingModeMoreOptionsButton_Click(IInspectable const& sender, RoutedEventArgs const&);
+
+	void RemoveScalingModeMenuItem_Click(IInspectable const& sender, RoutedEventArgs const&);
 private:
 	void _BuildEffectMenu() noexcept;
 
 	void _AddEffectMenuFlyoutItem_Click(IInspectable const& sender, RoutedEventArgs const&);
 
 	MUXC::NavigationView::DisplayModeChanged_revoker _displayModeChangedRevoker{};
+
+	IInspectable _moreOptionsButton{ nullptr };
 
 	Controls::MenuFlyout _addEffectMenuFlyout;
 	Magpie::UI::ScalingModesViewModel _viewModel;
