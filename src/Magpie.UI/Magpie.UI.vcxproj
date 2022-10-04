@@ -351,9 +351,9 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <Midl Include="ScalingModeEffectItem.idl">
+    <None Include="ScalingModeEffectItem.idl">
       <SubType>Designer</SubType>
-    </Midl>
+    </None>
     <None Include="ScalingModeItem.idl">
       <SubType>Designer</SubType>
     </None>

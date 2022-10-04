@@ -350,7 +350,7 @@
 																		<FontIcon Glyph="&#xE70F;" />
 																	</Button.Content>
 																</Button>
-																<Button>
+																<Button Click="{x:Bind Remove}">
 																	<ToolTipService.ToolTip>
 																		<ToolTip Content="删除" />
 																	</ToolTipService.ToolTip>

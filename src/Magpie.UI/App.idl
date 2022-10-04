@@ -12,6 +12,7 @@
 #include "ShortcutDialog.idl"
 #include "HomeViewModel.idl"
 #include "HomePage.idl"
+#include "ScalingModeEffectItem.idl"
 #include "ScalingModeItem.idl"
 #include "ScalingModesViewModel.idl"
 #include "ScalingModesPage.idl"

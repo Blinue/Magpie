@@ -87,7 +87,9 @@ private:
 
 	void _ScalingModesService_Removed(uint32_t index);
 
-	void _Effects_VectorChangedChanged(IObservableVector<IInspectable> const&, IVectorChangedEventArgs const& args);
+	void _Effects_VectorChanged(IObservableVector<IInspectable> const&, IVectorChangedEventArgs const& args);
+
+	void _ScalingModeEffectItem_Removed(IInspectable const&, uint32_t index);
 
 	ScalingMode& _Data() noexcept;
 	const ScalingMode& _Data() const noexcept;

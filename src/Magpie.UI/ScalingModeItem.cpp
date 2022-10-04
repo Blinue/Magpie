@@ -12,11 +12,6 @@
 using namespace Magpie::Core;
 
 
-static std::wstring_view GetEffectDisplayName(std::wstring_view fullName) {
-	size_t delimPos = fullName.find_last_of(L'\\');
-	return delimPos != std::wstring::npos ? fullName.substr(delimPos + 1) : fullName;
-}
-
 namespace winrt::Magpie::UI::implementation {
 
 ScalingModeItem::ScalingModeItem(uint32_t index) : _index(index) {
@@ -46,11 +41,13 @@ ScalingModeItem::ScalingModeItem(uint32_t index) : _index(index) {
 		std::vector<IInspectable> effects;
 		effects.reserve(data.effects.size());
 		for (uint32_t i = 0; i < data.effects.size(); ++i) {
-			effects.push_back(ScalingModeEffectItem(_index, i));
+			ScalingModeEffectItem item(_index, i);
+			item.Removed({ this, &ScalingModeItem::_ScalingModeEffectItem_Removed });
+			effects.push_back(item);
 		}
 		_effects = single_threaded_observable_vector(std::move(effects));
 	}
-	_effects.VectorChanged({ this, &ScalingModeItem::_Effects_VectorChangedChanged });
+	_effects.VectorChanged({ this, &ScalingModeItem::_Effects_VectorChanged });
 }
 
 void ScalingModeItem::_Index(uint32_t value) noexcept {
@@ -86,7 +83,10 @@ void ScalingModeItem::_ScalingModesService_Removed(uint32_t index) {
 	}
 }
 
-void ScalingModeItem::_Effects_VectorChangedChanged(IObservableVector<IInspectable> const&, IVectorChangedEventArgs const& args) {
+void ScalingModeItem::_Effects_VectorChanged(IObservableVector<IInspectable> const&, IVectorChangedEventArgs const& args) {
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"Description"));
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CanReorderEffects"));
+
 	if (!_isMovingEffects) {
 		return;
 	}
@@ -117,18 +117,30 @@ void ScalingModeItem::_Effects_VectorChangedChanged(IObservableVector<IInspectab
 	for (uint32_t i = minIdx; i <= maxIdx; ++i) {
 		_effects.GetAt(i).as<ScalingModeEffectItem>().EffectIdx(i);
 	}
+}
 
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"Description"));
+void ScalingModeItem::_ScalingModeEffectItem_Removed(IInspectable const&, uint32_t index) {
+	std::vector<EffectOption>& effects = _Data().effects;
+	effects.erase(effects.begin() + index);
+
+	_isMovingEffects = false;
+	_effects.RemoveAt(index);
+	_isMovingEffects = true;
+
+	for (uint32_t i = index; i < effects.size(); ++i) {
+		_effects.GetAt(i).as<ScalingModeEffectItem>().EffectIdx(i);
+	}
 }
 
 void ScalingModeItem::AddEffect(const hstring& fullName) {
 	EffectOption& effect = _Data().effects.emplace_back();
 	effect.name = fullName;
+
+	ScalingModeEffectItem item(_index, (uint32_t)_Data().effects.size() - 1);
+	item.Removed({ this, &ScalingModeItem::_ScalingModeEffectItem_Removed });
 	_isMovingEffects = false;
-	_effects.Append(box_value(GetEffectDisplayName(fullName)));
+	_effects.Append(item);
 	_isMovingEffects = true;
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CanReorderEffects"));
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"Description"));
 }
 
 hstring ScalingModeItem::Name() const noexcept {

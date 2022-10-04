@@ -22,6 +22,10 @@ ScalingModeEffectItem::ScalingModeEffectItem(uint32_t scalingModeIdx, uint32_t e
 	_name = GetEffectDisplayName(_Data().name);
 }
 
+void ScalingModeEffectItem::Remove() {
+	_removedEvent(*this, _effectIdx);
+}
+
 EffectOption& ScalingModeEffectItem::_Data() noexcept {
 	return ScalingModesService::Get().GetScalingMode(_scalingModeIdx).effects[_effectIdx];
 }
