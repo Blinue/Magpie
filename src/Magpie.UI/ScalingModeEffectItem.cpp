@@ -25,8 +25,12 @@ ScalingModeEffectItem::ScalingModeEffectItem(uint32_t scalingModeIdx, uint32_t e
 	_effectInfo = EffectsService::Get().GetEffect(name);
 }
 
-bool ScalingModeEffectItem::CanEdit() const noexcept {
-	return _effectInfo && (_effectInfo->canScale || !_effectInfo->params.empty());
+bool ScalingModeEffectItem::CanScale() const noexcept {
+	return _effectInfo && _effectInfo->canScale;
+}
+
+bool ScalingModeEffectItem::HasParameters() const noexcept {
+	return _effectInfo && !_effectInfo->params.empty();
 }
 
 void ScalingModeEffectItem::Remove() {

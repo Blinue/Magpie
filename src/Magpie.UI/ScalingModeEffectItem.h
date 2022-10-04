@@ -43,7 +43,9 @@ struct ScalingModeEffectItem : ScalingModeEffectItemT<ScalingModeEffectItem> {
 		_effectIdx = value;
 	}
 
-	bool CanEdit() const noexcept;
+	bool CanScale() const noexcept;
+
+	bool HasParameters() const noexcept;
 
 	void Remove();
 

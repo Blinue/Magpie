@@ -19,7 +19,10 @@ struct ComboBoxHelper {
 		winrt::Controls::ComboBox comboBox = sender.as<winrt::Controls::ComboBox>();
 		winrt::IInspectable selectedItem = comboBox.SelectedItem();
 		if (selectedItem) {
-			comboBox.PlaceholderText(selectedItem.as<winrt::hstring>());
+			std::optional<hstring> str = selectedItem.try_as<hstring>();
+			if (str.has_value()) {
+				comboBox.PlaceholderText(str.value());
+			}
 		}
 	}
 };

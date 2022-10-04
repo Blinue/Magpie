@@ -331,8 +331,7 @@
 													<local:SettingItem Title="{x:Bind Name}"
 																	   Style="{StaticResource ExpanderContentSettingStyle}">
 														<local:SettingItem.ActionContent>
-															<StackPanel Orientation="Horizontal"
-																		Spacing="5">
+															<StackPanel Orientation="Horizontal">
 																<StackPanel.Resources>
 																	<Style BasedOn="{StaticResource DefaultButtonStyle}"
 																		   TargetType="Button">
@@ -342,13 +341,118 @@
 																		<Setter Property="FontSize" Value="15" />
 																	</Style>
 																</StackPanel.Resources>
-																<Button Visibility="{x:Bind CanEdit}">
+																<Button Margin="0,0,5,0"
+																		Visibility="{x:Bind CanScale}">
 																	<ToolTipService.ToolTip>
-																		<ToolTip Content="自定义" />
+																		<ToolTip Content="缩放" />
 																	</ToolTipService.ToolTip>
 																	<Button.Content>
-																		<FontIcon Glyph="&#xE70F;" />
+																		<FontIcon Glyph="&#xE740;" />
 																	</Button.Content>
+																	<Button.Flyout>
+																		<Flyout ShouldConstrainToRootBounds="False">
+																			<StackPanel Width="260"
+																						Orientation="Vertical">
+																				<TextBlock Margin="0,5,0,20"
+																						   FontSize="18"
+																						   FontWeight="SemiBold"
+																						   Text="缩放" />
+																				<StackPanel Spacing="15">
+																					<StackPanel.Resources>
+																						<Style TargetType="muxc:NumberBox">
+																							<Setter Property="HorizontalAlignment" Value="Stretch" />
+																							<Setter Property="SpinButtonPlacementMode" Value="Inline" />
+																							<!--  修复有时取消禁用后文字依然为灰色的问题  -->
+																							<Setter Property="Foreground" Value="{ThemeResource TextFillColorPrimaryBrush}" />
+																						</Style>
+																					</StackPanel.Resources>
+																					<StackPanel Orientation="Vertical"
+																								Spacing="8">
+																						<TextBlock Text="类型" />
+																						<ComboBox HorizontalAlignment="Stretch"
+																								  DropDownOpened="ComboBox_DropDownOpened"
+																								  SelectedIndex="1">
+																							<ComboBox.Resources>
+																								<Style x:Key="Description"
+																									   TargetType="TextBlock">
+																									<Setter Property="FontSize" Value="12" />
+																									<Setter Property="Foreground" Value="Gray" />
+																									<Setter Property="TextWrapping" Value="WrapWholeWords" />
+																								</Style>
+																							</ComboBox.Resources>
+																							<ComboBoxItem>
+																								<StackPanel Orientation="Vertical">
+																									<TextBlock Text="倍数" />
+																									<TextBlock Style="{StaticResource Description}"
+																											   Text="指定相对于输入图像的缩放倍数" />
+																								</StackPanel>
+																							</ComboBoxItem>
+																							<ComboBoxItem>
+																								<StackPanel Orientation="Vertical">
+																									<TextBlock Text="适应" />
+																									<TextBlock Style="{StaticResource Description}"
+																											   Text="指定等比缩放到充满屏幕后的缩放倍数" />
+																								</StackPanel>
+																							</ComboBoxItem>
+																							<ComboBoxItem>
+																								<StackPanel Orientation="Vertical">
+																									<TextBlock Text="绝对" />
+																									<TextBlock Style="{StaticResource Description}"
+																											   Text="指定缩放后的尺寸" />
+																								</StackPanel>
+																							</ComboBoxItem>
+																							<ComboBoxItem>
+																								<StackPanel Orientation="Vertical">
+																									<TextBlock Text="填充" />
+																									<TextBlock Style="{StaticResource Description}"
+																											   Text="充满屏幕，画面可能被拉伸" />
+																								</StackPanel>
+																							</ComboBoxItem>
+																						</ComboBox>
+																					</StackPanel>
+																					<StackPanel Orientation="Vertical"
+																								Spacing="8">
+																						<TextBlock Text="宽（缩放倍数）" />
+																						<muxc:NumberBox HorizontalAlignment="Stretch" />
+																					</StackPanel>
+																					<StackPanel Orientation="Vertical"
+																								Spacing="8">
+																						<TextBlock Text="高（缩放倍数）" />
+																						<muxc:NumberBox HorizontalAlignment="Stretch" />
+																					</StackPanel>
+																				</StackPanel>
+																			</StackPanel>
+																		</Flyout>
+																	</Button.Flyout>
+																</Button>
+																<Button Margin="0,0,5,0"
+																		Visibility="{x:Bind HasParameters}">
+																	<ToolTipService.ToolTip>
+																		<ToolTip Content="参数" />
+																	</ToolTipService.ToolTip>
+																	<Button.Content>
+																		<FontIcon Glyph="&#xE9E9;" />
+																	</Button.Content>
+																	<Button.Flyout>
+																		<Flyout ShouldConstrainToRootBounds="False">
+																			<ScrollViewer Width="260"
+																						  MaxHeight="400"
+																						  VerticalScrollBarVisibility="Auto">
+																				<StackPanel HorizontalAlignment="Stretch"
+																							Orientation="Vertical">
+																					<TextBlock Margin="0,5,0,20"
+																							   FontSize="18"
+																							   FontWeight="SemiBold"
+																							   Text="参数" />
+																					<StackPanel Orientation="Vertical"
+																								Spacing="15">
+																						<TextBlock Text="参数1" />
+																						<Slider HorizontalAlignment="Stretch" />
+																					</StackPanel>
+																				</StackPanel>
+																			</ScrollViewer>
+																		</Flyout>
+																	</Button.Flyout>
 																</Button>
 																<Button Click="{x:Bind Remove}">
 																	<ToolTipService.ToolTip>
