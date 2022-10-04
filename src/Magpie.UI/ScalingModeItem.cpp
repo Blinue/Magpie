@@ -45,8 +45,8 @@ ScalingModeItem::ScalingModeItem(uint32_t index) : _index(index) {
 	{
 		std::vector<IInspectable> effects;
 		effects.reserve(data.effects.size());
-		for (const EffectOption& effect : data.effects) {
-			effects.push_back(box_value(GetEffectDisplayName(effect.name)));
+		for (uint32_t i = 0; i < data.effects.size(); ++i) {
+			effects.push_back(ScalingModeEffectItem(_index, i));
 		}
 		_effects = single_threaded_observable_vector(std::move(effects));
 	}
@@ -55,6 +55,9 @@ ScalingModeItem::ScalingModeItem(uint32_t index) : _index(index) {
 
 void ScalingModeItem::_Index(uint32_t value) noexcept {
 	_index = value;
+	for (const IInspectable& item : _effects) {
+		item.as<ScalingModeEffectItem>().ScalingModeIdx(value);
+	}
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CanMoveUp"));
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CanMoveDown"));
 }
@@ -95,11 +98,25 @@ void ScalingModeItem::_Effects_VectorChangedChanged(IObservableVector<IInspectab
 	}
 	
 	assert(args.CollectionChange() == CollectionChange::ItemInserted);
+	uint32_t movingToIdx = args.Index();
 
 	std::vector<EffectOption>& effects = _Data().effects;
 	EffectOption removedEffect = std::move(effects[_movingFromIdx]);
 	effects.erase(effects.begin() + _movingFromIdx);
-	effects.emplace(effects.begin() + args.Index(), std::move(removedEffect));
+	effects.emplace(effects.begin() + movingToIdx, std::move(removedEffect));
+
+	uint32_t minIdx, maxIdx;
+	if (_movingFromIdx < movingToIdx) {
+		minIdx = _movingFromIdx;
+		maxIdx = movingToIdx;
+	} else {
+		minIdx = movingToIdx;
+		maxIdx = _movingFromIdx;
+	}
+	
+	for (uint32_t i = minIdx; i <= maxIdx; ++i) {
+		_effects.GetAt(i).as<ScalingModeEffectItem>().EffectIdx(i);
+	}
 
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"Description"));
 }

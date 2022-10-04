@@ -8,6 +8,9 @@
     <Midl Include="BoolNegationConverter.idl">
       <Filter>Converters</Filter>
     </Midl>
+    <Midl Include="ScalingModeEffectItem.idl">
+      <Filter>ViewModels</Filter>
+    </Midl>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp" />

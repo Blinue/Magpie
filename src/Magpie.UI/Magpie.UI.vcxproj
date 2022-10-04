@@ -137,6 +137,10 @@
       <SubType>Code</SubType>
     </ClInclude>
     <ClInclude Include="PageHelper.h" />
+    <ClInclude Include="ScalingModeEffectItem.h">
+      <DependentUpon>ScalingModeEffectItem.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClInclude>
     <ClInclude Include="ScalingModeItem.h">
       <DependentUpon>ScalingModeItem.idl</DependentUpon>
       <SubType>Code</SubType>
@@ -259,6 +263,10 @@
       <SubType>Code</SubType>
     </ClCompile>
     <ClCompile Include="PageHelper.cpp" />
+    <ClCompile Include="ScalingModeEffectItem.cpp">
+      <DependentUpon>ScalingModeEffectItem.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClCompile>
     <ClCompile Include="ScalingModeItem.cpp">
       <DependentUpon>ScalingModeItem.idl</DependentUpon>
       <SubType>Code</SubType>
@@ -343,6 +351,9 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <Midl Include="ScalingModeEffectItem.idl">
+      <SubType>Designer</SubType>
+    </Midl>
     <None Include="ScalingModeItem.idl">
       <SubType>Designer</SubType>
     </None>

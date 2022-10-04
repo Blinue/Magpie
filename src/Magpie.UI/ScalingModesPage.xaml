@@ -327,8 +327,8 @@
 												</Style>
 											</ListView.Resources>
 											<ListView.ItemTemplate>
-												<DataTemplate x:DataType="x:String">
-													<local:SettingItem Title="{x:Bind}"
+												<DataTemplate x:DataType="local:ScalingModeEffectItem">
+													<local:SettingItem Title="{x:Bind Name}"
 																	   Style="{StaticResource ExpanderContentSettingStyle}">
 														<local:SettingItem.ActionContent>
 															<StackPanel Orientation="Horizontal"

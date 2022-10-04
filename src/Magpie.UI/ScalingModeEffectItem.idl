@@ -1,0 +1,11 @@
+namespace Magpie.UI
+{
+    runtimeclass ScalingModeEffectItem : [default] Windows.UI.Xaml.Data.INotifyPropertyChanged
+    {
+        ScalingModeEffectItem(UInt32 scalingModeIdx, UInt32 effectIdx);
+
+        UInt32 ScalingModeIdx;
+        UInt32 EffectIdx;
+        String Name { get; };
+    }
+}
