@@ -67,6 +67,8 @@ fire_and_forget EffectsService::StartInitialize() {
 		effect.name = std::move(effectNames[i]);
 		effect.params = std::move(descs[i].params);
 		effect.canScale = descs[i].outSizeExpr.first.empty();
+
+		_effectsMap.emplace(effect.name, (uint32_t)_effects.size() - 1);
 	}
 
 	_initialized = true;

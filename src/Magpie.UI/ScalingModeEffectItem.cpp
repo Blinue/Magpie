@@ -5,6 +5,7 @@
 #endif
 #include <Magpie.Core.h>
 #include "ScalingModesService.h"
+#include "EffectsService.h"
 
 
 using namespace Magpie::Core;
@@ -19,7 +20,13 @@ namespace winrt::Magpie::UI::implementation {
 ScalingModeEffectItem::ScalingModeEffectItem(uint32_t scalingModeIdx, uint32_t effectIdx) 
 	: _scalingModeIdx(scalingModeIdx), _effectIdx(effectIdx)
 {
-	_name = GetEffectDisplayName(_Data().name);
+	const std::wstring& name = _Data().name;
+	_name = GetEffectDisplayName(name);
+	_effectInfo = EffectsService::Get().GetEffect(name);
+}
+
+bool ScalingModeEffectItem::CanEdit() const noexcept {
+	return _effectInfo && (_effectInfo->canScale || !_effectInfo->params.empty());
 }
 
 void ScalingModeEffectItem::Remove() {

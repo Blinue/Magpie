@@ -8,6 +8,8 @@ namespace Magpie.UI
 		UInt32 EffectIdx;
 		String Name { get; };
 
+		Boolean CanEdit { get; };
+
 		void Remove();
 		event Windows.Foundation.EventHandler<UInt32> Removed;
 	}

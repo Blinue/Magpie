@@ -138,16 +138,11 @@ void ScalingModeItem::AddEffect(const hstring& fullName) {
 	EffectOption& effect = _Data().effects.emplace_back();
 	effect.name = fullName;
 
-	const std::vector<EffectInfo> effects = EffectsService::Get().Effects();
-	for (const EffectInfo& effectInfo : effects) {
-		if (effectInfo.name == fullName) {
-			if (effectInfo.canScale) {
-				// 支持缩放的效果默认等比缩放到充满屏幕
-				effect.scaleType = ScaleType::Fit;
-			}
-
-			break;
-		}
+	const EffectInfo* effectInfo = EffectsService::Get().GetEffect(fullName);
+	assert(effectInfo);
+	if (effectInfo->canScale) {
+		// 支持缩放的效果默认等比缩放到充满屏幕
+		effect.scaleType = ScaleType::Fit;
 	}
 
 	ScalingModeEffectItem item(_index, (uint32_t)_Data().effects.size() - 1);

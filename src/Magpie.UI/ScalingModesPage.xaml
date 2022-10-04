@@ -342,7 +342,7 @@
 																		<Setter Property="FontSize" Value="15" />
 																	</Style>
 																</StackPanel.Resources>
-																<Button>
+																<Button Visibility="{x:Bind CanEdit}">
 																	<ToolTipService.ToolTip>
 																		<ToolTip Content="自定义" />
 																	</ToolTipService.ToolTip>

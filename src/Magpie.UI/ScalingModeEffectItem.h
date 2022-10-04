@@ -6,6 +6,10 @@ namespace Magpie::Core {
 struct EffectOption;
 }
 
+namespace winrt::Magpie::UI {
+struct EffectInfo;
+}
+
 namespace winrt::Magpie::UI::implementation {
 
 struct ScalingModeEffectItem : ScalingModeEffectItemT<ScalingModeEffectItem> {
@@ -39,6 +43,8 @@ struct ScalingModeEffectItem : ScalingModeEffectItemT<ScalingModeEffectItem> {
 		_effectIdx = value;
 	}
 
+	bool CanEdit() const noexcept;
+
 	void Remove();
 
 	event_token Removed(EventHandler<uint32_t> const& handler) {
@@ -58,6 +64,7 @@ private:
 	uint32_t _scalingModeIdx = 0;
 	uint32_t _effectIdx = 0;
 	hstring _name;
+	const EffectInfo* _effectInfo = nullptr;
 	event<EventHandler<uint32_t>> _removedEvent;
 };
 
