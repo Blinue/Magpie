@@ -8,6 +8,7 @@
 #include "StrUtils.h"
 #include "XamlUtils.h"
 #include "AppSettings.h"
+#include "EffectsService.h"
 
 using namespace Magpie::Core;
 
@@ -84,10 +85,9 @@ void ScalingModeItem::_ScalingModesService_Removed(uint32_t index) {
 }
 
 void ScalingModeItem::_Effects_VectorChanged(IObservableVector<IInspectable> const&, IVectorChangedEventArgs const& args) {
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"Description"));
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CanReorderEffects"));
-
 	if (!_isMovingEffects) {
+		_propertyChangedEvent(*this, PropertyChangedEventArgs(L"Description"));
+		_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CanReorderEffects"));
 		return;
 	}
 	
@@ -117,6 +117,8 @@ void ScalingModeItem::_Effects_VectorChanged(IObservableVector<IInspectable> con
 	for (uint32_t i = minIdx; i <= maxIdx; ++i) {
 		_effects.GetAt(i).as<ScalingModeEffectItem>().EffectIdx(i);
 	}
+
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"Description"));
 }
 
 void ScalingModeItem::_ScalingModeEffectItem_Removed(IInspectable const&, uint32_t index) {
@@ -135,6 +137,18 @@ void ScalingModeItem::_ScalingModeEffectItem_Removed(IInspectable const&, uint32
 void ScalingModeItem::AddEffect(const hstring& fullName) {
 	EffectOption& effect = _Data().effects.emplace_back();
 	effect.name = fullName;
+
+	const std::vector<EffectInfo> effects = EffectsService::Get().Effects();
+	for (const EffectInfo& effectInfo : effects) {
+		if (effectInfo.name == fullName) {
+			if (effectInfo.canScale) {
+				// 支持缩放的效果默认等比缩放到充满屏幕
+				effect.scaleType = ScaleType::Fit;
+			}
+
+			break;
+		}
+	}
 
 	ScalingModeEffectItem item(_index, (uint32_t)_Data().effects.size() - 1);
 	item.Removed({ this, &ScalingModeItem::_ScalingModeEffectItem_Removed });

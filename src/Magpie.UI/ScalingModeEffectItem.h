@@ -57,7 +57,7 @@ private:
 
 	uint32_t _scalingModeIdx = 0;
 	uint32_t _effectIdx = 0;
-	std::wstring_view _name;
+	hstring _name;
 	event<EventHandler<uint32_t>> _removedEvent;
 };
 

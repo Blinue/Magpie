@@ -8,7 +8,7 @@ namespace winrt::Magpie::UI {
 struct EffectInfo {
 	std::wstring name;
 	std::vector<::Magpie::Core::EffectParameterDesc> params;
-	bool hasScale = false;
+	bool canScale = false;
 };
 
 class EffectsService {
