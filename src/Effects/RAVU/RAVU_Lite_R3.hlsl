@@ -1,5 +1,5 @@
 // ravu-lite-r3
-// 移植自 https://github.com/bjin/mpv-prescalers/blob/master/ravu-lite-r3.hook
+// 移植自 https://github.com/bjin/mpv-prescalers/blob/cc02ed95c1fe05b72bc21d41257c4c085e6e409b/ravu-lite-r3.hook
 
 //!MAGPIE EFFECT
 //!VERSION 2
@@ -19,6 +19,9 @@ Texture2D ravu_lite_lut3;
 //!FILTER POINT
 SamplerState sam;
 
+//!SAMPLER
+//!FILTER LINEAR
+SamplerState sam1;
 
 //!PASS 1
 //!IN INPUT, ravu_lite_lut3
@@ -147,21 +150,25 @@ void Pass1(uint2 blockStart, uint3 threadId) {
 	res += src[2][2] * w;
 	res = saturate(res);
 
-	float2 originUV = mul(rgb2uv, INPUT.SampleLevel(sam, inputPt * (destPos / 2 + 0.5f), 0).rgb);
+	const float2 outputPt = GetOutputPt();
+	float2 originUV = mul(rgb2uv, INPUT.SampleLevel(sam1, (destPos + 0.5f) * outputPt, 0).rgb);
 	WriteToOutput(destPos, mul(yuv2rgb, float3(res.x, originUV)));
 
 	++destPos.y;
 	if (CheckViewport(destPos)) {
+		originUV = mul(rgb2uv, INPUT.SampleLevel(sam1, (destPos + 0.5f) * outputPt, 0).rgb);
 		WriteToOutput(destPos, mul(yuv2rgb, float3(res.y, originUV)));
 	}
 
 	++destPos.x;
 	if (CheckViewport(destPos)) {
+		originUV = mul(rgb2uv, INPUT.SampleLevel(sam1, (destPos + 0.5f) * outputPt, 0).rgb);
 		WriteToOutput(destPos, mul(yuv2rgb, float3(res.w, originUV)));
 	}
 
 	--destPos.y;
 	if (CheckViewport(destPos)) {
+		originUV = mul(rgb2uv, INPUT.SampleLevel(sam1, (destPos + 0.5f) * outputPt, 0).rgb);
 		WriteToOutput(destPos, mul(yuv2rgb, float3(res.z, originUV)));
 	}
 }

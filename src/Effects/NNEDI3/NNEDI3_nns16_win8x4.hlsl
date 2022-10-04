@@ -1,5 +1,5 @@
 // nnedi3-nns16-win8x4
-// 移植自 https://github.com/bjin/mpv-prescalers/blob/master/compute/nnedi3-nns16-win8x4.hook
+// 移植自 https://github.com/bjin/mpv-prescalers/blob/cc02ed95c1fe05b72bc21d41257c4c085e6e409b/compute/nnedi3-nns16-win8x4.hook
 // 有半像素的偏移
 
 //!MAGPIE EFFECT
@@ -14,6 +14,10 @@ Texture2D INPUT;
 //!SAMPLER
 //!FILTER POINT
 SamplerState sam;
+
+//!SAMPLER
+//!FILTER LINEAR
+SamplerState sam1;
 
 //!TEXTURE
 //!WIDTH INPUT_WIDTH
@@ -162,6 +166,7 @@ groupshared float inp[525];
 
 void Pass2(uint2 blockStart, uint3 threadId) {
 	const float2 inputPt = GetInputPt();
+	const float2 outputPt = GetOutputPt();
 
 	const uint2 group_base = uint2(blockStart.x >> 1, blockStart.y);
 	for (int id = threadId.x * MP_NUM_THREADS_Y + threadId.y; id < 525; id += MP_NUM_THREADS_X * MP_NUM_THREADS_Y) {
@@ -187,9 +192,8 @@ void Pass2(uint2 blockStart, uint3 threadId) {
 			samples[i][j] = inp[local_pos + (i / 2) * 15 + (i % 2) * 4 + j];
 		}
 	}
-	
-	float2 originUV = mul(rgb2uv, INPUT.SampleLevel(sam, inputPt * (destPos / 2 + 0.5f), 0).rgb);
 
+	float2 originUV = mul(rgb2uv, INPUT.SampleLevel(sam1, (destPos + 0.5f) * outputPt, 0).rgb);
 	WriteToOutput(destPos, mul(yuv2rgb, float3(samples[2][3], originUV)));
 
 	++destPos.x;
@@ -197,5 +201,6 @@ void Pass2(uint2 blockStart, uint3 threadId) {
 		return;
 	}
 
+	originUV = mul(rgb2uv, INPUT.SampleLevel(sam1, (destPos + 0.5f) * outputPt, 0).rgb);
 	WriteToOutput(destPos, mul(yuv2rgb, float3(nnedi3(samples), originUV)));
 }

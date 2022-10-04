@@ -1,11 +1,12 @@
 // ACNet
-// 移植自 https://github.com/TianZerL/ACNetGLSL/blob/master/glsl/ACNet.glsl
+// 移植自 https://github.com/TianZerL/ACNetGLSL/blob/f20a6b6b7327f4caf588b06c6b21f18e40dae1ce/glsl/ACNet.glsl
 
 
 //!MAGPIE EFFECT
 //!VERSION 2
 //!OUTPUT_WIDTH INPUT_WIDTH * 2
 //!OUTPUT_HEIGHT INPUT_HEIGHT * 2
+
 
 //!TEXTURE
 Texture2D INPUT;
@@ -38,6 +39,10 @@ Texture2D tex4;
 //!SAMPLER
 //!FILTER POINT
 SamplerState sam;
+
+//!SAMPLER
+//!FILTER LINEAR
+SamplerState sam1;
 
 
 //!COMMON
@@ -150,7 +155,7 @@ void Pass1(uint2 blockStart, uint3 threadId) {
 				src[i - 1][j - 1] * kernelsL1A[3 * 9 + 0] + src[i][j - 1] * kernelsL1A[3 * 9 + 1] + src[i + 1][j - 1] * kernelsL1A[3 * 9 + 2] +
 				src[i - 1][j] * kernelsL1A[3 * 9 + 3] + src[i][j] * kernelsL1A[3 * 9 + 4] + src[i + 1][j] * kernelsL1A[3 * 9 + 5] +
 				src[i + 1][j + 1] * kernelsL1A[3 * 9 + 6] + src[i][j + 1] * kernelsL1A[3 * 9 + 7] + src[i + 1][j + 1] * kernelsL1A[3 * 9 + 8] + biasL1A.w
-				));
+			));
 
 			float4 target2 = RELU(float4(
 				src[i - 1][j - 1] * kernelsL1B[0 * 9 + 0] + src[i][j - 1] * kernelsL1B[0 * 9 + 1] + src[i + 1][j - 1] * kernelsL1B[0 * 9 + 2] +
@@ -168,7 +173,7 @@ void Pass1(uint2 blockStart, uint3 threadId) {
 				src[i - 1][j - 1] * kernelsL1B[3 * 9 + 0] + src[i][j - 1] * kernelsL1B[3 * 9 + 1] + src[i + 1][j - 1] * kernelsL1B[3 * 9 + 2] +
 				src[i - 1][j] * kernelsL1B[3 * 9 + 3] + src[i][j] * kernelsL1B[3 * 9 + 4] + src[i + 1][j] * kernelsL1B[3 * 9 + 5] +
 				src[i - 1][j + 1] * kernelsL1B[3 * 9 + 6] + src[i][j + 1] * kernelsL1B[3 * 9 + 7] + src[i + 1][j + 1] * kernelsL1B[3 * 9 + 8] + biasL1B.w
-				));
+			));
 
 			tex1[destPos] = target1;
 			tex2[destPos] = target2;
@@ -3596,7 +3601,7 @@ void Pass8(uint2 blockStart, uint3 threadId) {
 		tl2.w * kernelsLA[3 * 72 + 7 * 9 + 0] + tc2.w * kernelsLA[3 * 72 + 7 * 9 + 1] + tr2.w * kernelsLA[3 * 72 + 7 * 9 + 2] +
 		ml2.w * kernelsLA[3 * 72 + 7 * 9 + 3] + mc2.w * kernelsLA[3 * 72 + 7 * 9 + 4] + mr2.w * kernelsLA[3 * 72 + 7 * 9 + 5] +
 		bl2.w * kernelsLA[3 * 72 + 7 * 9 + 6] + bc2.w * kernelsLA[3 * 72 + 7 * 9 + 7] + br2.w * kernelsLA[3 * 72 + 7 * 9 + 8] + biasLA.w
-		));
+	));
 
 	float4 target2 = RELU(float4(
 		tl1.x * kernelsLB[0 * 72 + 0 * 9 + 0] + tc1.x * kernelsLB[0 * 72 + 0 * 9 + 1] + tr1.x * kernelsLB[0 * 72 + 0 * 9 + 2] +
@@ -4266,8 +4271,6 @@ void Pass9(uint2 blockStart, uint3 threadId) {
 		bl2.w * kernelsLB[3 * 72 + 7 * 9 + 6] + bc2.w * kernelsLB[3 * 72 + 7 * 9 + 7] + br2.w * kernelsLB[3 * 72 + 7 * 9 + 8] + biasLB.w
 	));
 
-	float2 originUV = mul(rgb2uv, INPUT.SampleLevel(sam, pos, 0).rgb);
-
 	[unroll]
 	for (uint i = 0; i <= 1; ++i) {
 		[unroll]
@@ -4291,6 +4294,7 @@ void Pass9(uint2 blockStart, uint3 threadId) {
 				target2.z * kernelsL10[24 + index] +
 				target2.w * kernelsL10[28 + index], 0.0f, 1.0f);
 
+			float2 originUV = mul(rgb2uv, INPUT.SampleLevel(sam1, (destPos + 0.5f) * outputPt, 0).rgb);
 			WriteToOutput(destPos, mul(yuv2rgb, float3(luma, originUV)));
 		}
 	}
