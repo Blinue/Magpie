@@ -87,13 +87,17 @@ private:
 
 	void _ScalingModesService_Removed(uint32_t index);
 
-	ScalingMode* _Data() noexcept;
-	const ScalingMode* _Data() const noexcept;
+	void _Effects_VectorChangedChanged(IObservableVector<IInspectable> const&, IVectorChangedEventArgs const& args);
+
+	ScalingMode& _Data() noexcept;
+	const ScalingMode& _Data() const noexcept;
 
 	event<PropertyChangedEventHandler> _propertyChangedEvent;
 
 	uint32_t _index = 0;
 	IObservableVector<IInspectable> _effects{ nullptr };
+	bool _isMovingEffects = true;
+	uint32_t _movingFromIdx = 0;
 
 	WinRTUtils::EventRevoker _scalingModeAddedRevoker;
 	WinRTUtils::EventRevoker _scalingModeMovedRevoker;

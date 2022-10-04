@@ -19,19 +19,7 @@ static std::wstring_view GetEffectDisplayName(std::wstring_view fullName) {
 
 namespace winrt::Magpie::UI::implementation {
 
-ScalingModeItem::ScalingModeItem(uint32_t index) {
-	_index = index;
-	ScalingMode* data = _Data();
-
-	{
-		std::vector<IInspectable> effects;
-		effects.reserve(data->effects.size());
-		for (const EffectOption& effect : data->effects) {
-			effects.push_back(box_value(GetEffectDisplayName(effect.name)));
-		}
-		_effects = single_threaded_observable_vector(std::move(effects));
-	}
-
+ScalingModeItem::ScalingModeItem(uint32_t index) : _index(index) {
 	{
 		std::vector<IInspectable> linkedProfiles;
 		const ScalingProfile& defaultProfile = AppSettings::Get().DefaultScalingProfile();
@@ -52,6 +40,17 @@ ScalingModeItem::ScalingModeItem(uint32_t index) {
 		auto_revoke, { this, &ScalingModeItem::_ScalingModesService_Moved });
 	_scalingModeRemovedRevoker = ScalingModesService::Get().ScalingModeRemoved(
 		auto_revoke, { this, &ScalingModeItem::_ScalingModesService_Removed });
+
+	ScalingMode& data = _Data();
+	{
+		std::vector<IInspectable> effects;
+		effects.reserve(data.effects.size());
+		for (const EffectOption& effect : data.effects) {
+			effects.push_back(box_value(GetEffectDisplayName(effect.name)));
+		}
+		_effects = single_threaded_observable_vector(std::move(effects));
+	}
+	_effects.VectorChanged({ this, &ScalingModeItem::_Effects_VectorChangedChanged });
 }
 
 void ScalingModeItem::_Index(uint32_t value) noexcept {
@@ -84,24 +83,48 @@ void ScalingModeItem::_ScalingModesService_Removed(uint32_t index) {
 	}
 }
 
+void ScalingModeItem::_Effects_VectorChangedChanged(IObservableVector<IInspectable> const&, IVectorChangedEventArgs const& args) {
+	if (!_isMovingEffects) {
+		return;
+	}
+	
+	// 移动元素时先删除再插入
+	if (args.CollectionChange() == CollectionChange::ItemRemoved) {
+		_movingFromIdx = args.Index();
+		return;
+	}
+	
+	assert(args.CollectionChange() == CollectionChange::ItemInserted);
+
+	std::vector<EffectOption>& effects = _Data().effects;
+	EffectOption removedEffect = std::move(effects[_movingFromIdx]);
+	effects.erase(effects.begin() + _movingFromIdx);
+	effects.emplace(effects.begin() + args.Index(), std::move(removedEffect));
+
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"Description"));
+}
+
 void ScalingModeItem::AddEffect(const hstring& fullName) {
-	EffectOption& effect = _Data()->effects.emplace_back();
+	EffectOption& effect = _Data().effects.emplace_back();
 	effect.name = fullName;
+	_isMovingEffects = false;
 	_effects.Append(box_value(GetEffectDisplayName(fullName)));
+	_isMovingEffects = true;
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CanReorderEffects"));
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"Description"));
 }
 
 hstring ScalingModeItem::Name() const noexcept {
-	return hstring(_Data()->name);
+	return hstring(_Data().name);
 }
 
 void ScalingModeItem::Name(const hstring& value) noexcept {
-	_Data()->name = value;
+	_Data().name = value;
 }
 
 hstring ScalingModeItem::Description() const noexcept {
 	std::wstring result;
-	for (const EffectOption& effect : _Data()->effects) {
+	for (const EffectOption& effect : _Data().effects) {
 		if (!result.empty()) {
 			result.append(L" > ");
 		}
@@ -122,7 +145,7 @@ void ScalingModeItem::RenameText(const hstring& value) noexcept {
 
 	_trimedRenameText = value;
 	StrUtils::Trim(_trimedRenameText);
-	bool newEnabled = !_trimedRenameText.empty() && _trimedRenameText != _Data()->name;
+	bool newEnabled = !_trimedRenameText.empty() && _trimedRenameText != _Data().name;
 	if (_isRenameButtonEnabled != newEnabled) {
 		_isRenameButtonEnabled = newEnabled;
 		_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsRenameButtonEnabled"));
@@ -130,7 +153,7 @@ void ScalingModeItem::RenameText(const hstring& value) noexcept {
 }
 
 void ScalingModeItem::RenameFlyout_Opening() {
-	RenameText(hstring(_Data()->name));
+	RenameText(hstring(_Data().name));
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"RenameTextBoxSelectionStart"));
 }
 
@@ -147,7 +170,7 @@ void ScalingModeItem::RenameButton_Click() {
 
 	XamlUtils::CloseXamlPopups(Application::Current().as<App>().MainPage().XamlRoot());
 
-	_Data()->name = _trimedRenameText;
+	_Data().name = _trimedRenameText;
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"Name"));
 }
 
@@ -169,14 +192,15 @@ void ScalingModeItem::MoveDown() noexcept {
 
 void ScalingModeItem::Remove() {
 	ScalingModesService::Get().RemoveScalingMode(_index);
+	_index = std::numeric_limits<uint32_t>::max();
 }
 
-ScalingMode* ScalingModeItem::_Data() noexcept {
-	return &ScalingModesService::Get().GetScalingMode(_index);
+ScalingMode& ScalingModeItem::_Data() noexcept {
+	return ScalingModesService::Get().GetScalingMode(_index);
 }
 
-const ScalingMode* ScalingModeItem::_Data() const noexcept {
-	return &ScalingModesService::Get().GetScalingMode(_index);
+const ScalingMode& ScalingModeItem::_Data() const noexcept {
+	return ScalingModesService::Get().GetScalingMode(_index);
 }
 
 }
