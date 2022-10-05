@@ -315,13 +315,10 @@
 						</local:SettingItem>
 					</muxc:Expander.Header>
 					<muxc:Expander.Content>
-						<local:SettingItem Title="三重缓冲"
-										   Description="允许额外的延迟以提高性能"
-										   IsEnabled="{x:Bind ViewModel.IsVSync, Mode=OneWay}"
+						<local:SettingItem IsEnabled="{x:Bind ViewModel.IsVSync, Mode=OneWay}"
 										   Style="{StaticResource ExpanderContentSettingStyle}">
-							<local:SettingItem.ActionContent>
-								<ToggleSwitch IsOn="{x:Bind ViewModel.IsTripleBuffering, Mode=TwoWay}" />
-							</local:SettingItem.ActionContent>
+							<CheckBox Content="允许额外的延迟以提高性能"
+									  IsChecked="{x:Bind ViewModel.IsTripleBuffering, Mode=TwoWay}" />
 						</local:SettingItem>
 					</muxc:Expander.Content>
 				</muxc:Expander>

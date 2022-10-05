@@ -73,7 +73,7 @@ struct EffectOption {
 
 struct MagOptions {
 	DEFINE_FLAG_ACCESSOR(IsDisableWindowResizing, MagFlags::DisableWindowResizing, flags)
-	DEFINE_FLAG_ACCESSOR(IsBreakpointMode, MagFlags::BreakpointMode, flags)
+	DEFINE_FLAG_ACCESSOR(IsDebugMode, MagFlags::BreakpointMode, flags)
 	DEFINE_FLAG_ACCESSOR(IsDisableEffectCache, MagFlags::DisableEffectCache, flags)
 	DEFINE_FLAG_ACCESSOR(IsSaveEffectSources, MagFlags::SaveEffectSources, flags)
 	DEFINE_FLAG_ACCESSOR(IsWarningsAreErrors, MagFlags::WarningsAreErrors, flags)

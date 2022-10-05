@@ -277,7 +277,7 @@ void MagService::_StartScale(HWND hWnd) {
 	}
 
 	// 应用全局配置
-	options.IsBreakpointMode(settings.IsBreakpointMode());
+	options.IsDebugMode(settings.IsDebugMode());
 	options.IsDisableEffectCache(settings.IsDisableEffectCache());
 	options.IsSaveEffectSources(settings.IsSaveEffectSources());
 	options.IsWarningsAreErrors(settings.IsWarningsAreErrors());

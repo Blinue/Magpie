@@ -128,12 +128,12 @@ public:
 		_downCountChangedEvent.remove(token);
 	}
 
-	bool IsBreakpointMode() const noexcept {
-		return _isBreakpointMode;
+	bool IsDebugMode() const noexcept {
+		return _isDebugMode;
 	}
 
-	void IsBreakpointMode(bool value) noexcept {
-		_isBreakpointMode = value;
+	void IsDebugMode(bool value) noexcept {
+		_isDebugMode = value;
 	}
 
 	bool IsDisableEffectCache() const noexcept {
@@ -251,7 +251,7 @@ private:
 	bool _isShowTrayIcon = true;
 	event<delegate<bool>> _isShowTrayIconChangedEvent;
 	bool _isAlwaysRunAsElevated = false;
-	bool _isBreakpointMode = false;
+	bool _isDebugMode = false;
 	bool _isDisableEffectCache = false;
 	bool _isSaveEffectSources = false;
 	bool _isWarningsAreErrors = false;

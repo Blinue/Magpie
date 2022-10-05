@@ -498,8 +498,8 @@ bool AppSettings::Save() {
 	writer.Bool(_isAutoRestore);
 	writer.Key("downCount");
 	writer.Uint(_downCount);
-	writer.Key("breakpointMode");
-	writer.Bool(_isBreakpointMode);
+	writer.Key("debugMode");
+	writer.Bool(_isDebugMode);
 	writer.Key("disableEffectCache");
 	writer.Bool(_isDisableEffectCache);
 	writer.Key("saveEffectSources");
@@ -700,7 +700,7 @@ bool AppSettings::_LoadSettings(std::string text) {
 		return false;
 	}
 
-	if (!LoadBoolSettingItem(root, "breakpointMode", _isBreakpointMode)) {
+	if (!LoadBoolSettingItem(root, "debugMode", _isDebugMode)) {
 		return false;
 	}
 	if (!LoadBoolSettingItem(root, "disableEffectCache", _isDisableEffectCache)) {

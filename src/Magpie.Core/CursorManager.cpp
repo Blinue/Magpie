@@ -142,7 +142,7 @@ static std::optional<LRESULT> HostWndProc(HWND /*hWnd*/, UINT message, WPARAM /*
 			return 0;
 		}
 
-		if (!MagApp::Get().GetOptions().IsBreakpointMode()) {
+		if (!MagApp::Get().GetOptions().IsDebugMode()) {
 			SetWindowPos(MagApp::Get().GetHwndHost(), HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOREDRAW);
 		}
 	}
@@ -661,7 +661,7 @@ void CursorManager::_UpdateCursorClip() {
 
 	const RECT& srcFrameRect = MagApp::Get().GetFrameSource().GetSrcFrameRect();
 
-	if (!MagApp::Get().GetOptions().IsBreakpointMode() && MagApp::Get().GetOptions().Is3DGameMode()) {
+	if (!MagApp::Get().GetOptions().IsDebugMode() && MagApp::Get().GetOptions().Is3DGameMode()) {
 		// 开启“在 3D 游戏中限制光标”则每帧都限制一次光标
 		_curClips = srcFrameRect;
 		ClipCursor(&srcFrameRect);
@@ -828,7 +828,7 @@ void CursorManager::_UpdateCursorClip() {
 		}
 	}
 
-	if (MagApp::Get().GetOptions().IsBreakpointMode()) {
+	if (MagApp::Get().GetOptions().IsDebugMode()) {
 		return;
 	}
 

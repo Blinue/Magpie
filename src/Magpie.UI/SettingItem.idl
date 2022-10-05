@@ -1,11 +1,13 @@
 namespace Magpie.UI
 {
+	[Windows.UI.Xaml.Markup.ContentProperty("RawTitle")]
 	[Windows.UI.Xaml.TemplateVisualState("Normal", "CommonStates")]
 	[Windows.UI.Xaml.TemplateVisualState("Disabled", "CommonStates")]
 	runtimeclass SettingItem : Windows.UI.Xaml.Controls.UserControl, [default] Windows.UI.Xaml.Data.INotifyPropertyChanged
 	{
 		SettingItem();
-
+		
+		Object RawTitle;
 		String Title;
 		Object Description;
 		Object Icon;

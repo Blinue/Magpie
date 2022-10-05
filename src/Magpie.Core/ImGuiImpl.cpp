@@ -174,7 +174,7 @@ bool ImGuiImpl::Initialize() {
 	}
 
 	// 断点模式下不注册鼠标钩子，否则调试时鼠标无法使用
-	if (!MagApp::Get().GetOptions().IsBreakpointMode() && !MagApp::Get().GetOptions().Is3DGameMode()) {
+	if (!MagApp::Get().GetOptions().IsDebugMode() && !MagApp::Get().GetOptions().Is3DGameMode()) {
 		_hHookThread = CreateThread(nullptr, 0, ThreadProc, nullptr, 0, &_hookThreadId);
 		if (!_hHookThread) {
 			Logger::Get().Win32Error("创建线程失败");

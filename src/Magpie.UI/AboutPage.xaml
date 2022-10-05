@@ -29,17 +29,11 @@
 					</muxc:Expander.Header>
 					<muxc:Expander.Content>
 						<StackPanel Orientation="Vertical">
-							<local:SettingItem Title="自动下载更新"
-											   Style="{StaticResource ExpanderContentSettingStyle}">
-								<local:SettingItem.ActionContent>
-									<ToggleSwitch />
-								</local:SettingItem.ActionContent>
+							<local:SettingItem Style="{StaticResource ExpanderContentSettingStyle}">
+								<CheckBox Content="自动下载更新" />
 							</local:SettingItem>
-							<local:SettingItem Title="检查预览版更新"
-											   Style="{StaticResource ExpanderContentSettingStyle}">
-								<local:SettingItem.ActionContent>
-									<ToggleSwitch />
-								</local:SettingItem.ActionContent>
+							<local:SettingItem Style="{StaticResource ExpanderContentSettingStyle}">
+								<CheckBox Content="检查预览版更新" />
 							</local:SettingItem>
 						</StackPanel>
 					</muxc:Expander.Content>

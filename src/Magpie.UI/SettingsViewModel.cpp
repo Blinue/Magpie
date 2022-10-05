@@ -92,7 +92,7 @@ bool SettingsViewModel::IsShowTrayIcon() const noexcept {
 
 void SettingsViewModel::IsShowTrayIcon(bool value) noexcept {
 	AppSettings::Get().IsShowTrayIcon(value);
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsMinimizeAtStartupEnabled"));
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsShowTrayIcon"));
 
 	if (_isRunAtStartup) {
 		AutoStartHelper::EnableAutoStart(AppSettings::Get().IsAlwaysRunAsElevated(), nullptr);
@@ -132,19 +132,19 @@ void SettingsViewModel::IsInlineParams(bool value) noexcept {
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsInlineParams"));
 }
 
-bool SettingsViewModel::IsBreakpointMode() const noexcept {
-	return AppSettings::Get().IsBreakpointMode();
+bool SettingsViewModel::IsDebugMode() const noexcept {
+	return AppSettings::Get().IsDebugMode();
 }
 
-void SettingsViewModel::IsBreakpointMode(bool value) noexcept {
+void SettingsViewModel::IsDebugMode(bool value) noexcept {
 	AppSettings& settings = AppSettings::Get();
 
-	if (settings.IsBreakpointMode() == value) {
+	if (settings.IsDebugMode() == value) {
 		return;
 	}
 
-	settings.IsBreakpointMode(value);
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsBreakpointMode"));
+	settings.IsDebugMode(value);
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsDebugMode"));
 }
 
 bool SettingsViewModel::IsDisableEffectCache() const noexcept {

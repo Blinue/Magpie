@@ -11,6 +11,13 @@ using namespace Windows::UI::Xaml::Data;
 
 namespace winrt::Magpie::UI::implementation {
 
+DependencyProperty SettingItem::RawTitleProperty = DependencyProperty::Register(
+	L"RawTitle",
+	xaml_typename<IInspectable>(),
+	xaml_typename<Magpie::UI::SettingItem>(),
+	PropertyMetadata(nullptr, _OnTitleChanged)
+);
+
 DependencyProperty SettingItem::TitleProperty = DependencyProperty::Register(
 	L"Title",
 	xaml_typename<hstring>(),
@@ -43,6 +50,14 @@ SettingItem::SettingItem() {
 	InitializeComponent();
 }
 
+void SettingItem::RawTitle(IInspectable const& value) {
+	SetValue(RawTitleProperty, value);
+}
+
+IInspectable SettingItem::RawTitle() const {
+	return GetValue(RawTitleProperty);
+}
+
 void SettingItem::Title(const hstring& value) {
 	SetValue(TitleProperty, box_value(value));
 }
@@ -51,7 +66,7 @@ hstring SettingItem::Title() const {
 	return GetValue(TitleProperty).as<hstring>();
 }
 
-void SettingItem::Description(IInspectable value) {
+void SettingItem::Description(IInspectable const& value) {
 	SetValue(DescriptionProperty, value);
 }
 
@@ -59,7 +74,7 @@ IInspectable SettingItem::Description() const {
 	return GetValue(DescriptionProperty);
 }
 
-void SettingItem::Icon(IInspectable value) {
+void SettingItem::Icon(IInspectable const& value) {
 	SetValue(IconProperty, value);
 }
 
@@ -67,12 +82,18 @@ IInspectable SettingItem::Icon() const {
 	return GetValue(IconProperty);
 }
 
-void SettingItem::ActionContent(IInspectable value) {
+void SettingItem::ActionContent(IInspectable const& value) {
 	SetValue(ActionContentProperty, value);
 }
 
 IInspectable SettingItem::ActionContent() const {
 	return GetValue(ActionContentProperty);
+}
+
+void SettingItem::_OnRawTitleChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
+	SettingItem* that = get_self<SettingItem>(sender.as<default_interface<SettingItem>>());
+	that->_Update();
+	that->_propertyChangedEvent(*that, PropertyChangedEventArgs{ L"RawTitle" });
 }
 
 void SettingItem::_OnTitleChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
@@ -100,6 +121,8 @@ void SettingItem::_OnActionContentChanged(DependencyObject const& sender, Depend
 }
 
 void SettingItem::_Update() {
+	RawTitlePresenter().Visibility(RawTitle() == nullptr ? Visibility::Collapsed : Visibility::Visible);
+	TitleTextBlock().Visibility(Title().empty() ? Visibility::Collapsed : Visibility::Visible);
 	DescriptionPresenter().Visibility(Description() == nullptr ? Visibility::Collapsed : Visibility::Visible);
 	IconPresenter().Visibility(Icon() == nullptr ? Visibility::Collapsed : Visibility::Visible);
 }

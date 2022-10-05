@@ -41,14 +41,17 @@
 						</local:SettingItem>
 					</muxc:Expander.Header>
 					<muxc:Expander.Content>
-						<local:SettingItem Title="开机启动时最小化到系统托盘"
-										   Description="需开启常驻后台才能更改此选项"
-										   IsEnabled="{x:Bind ViewModel.IsMinimizeAtStartupEnabled, Mode=OneWay}"
-										   Style="{StaticResource ExpanderContentSettingStyle}">
-							<local:SettingItem.ActionContent>
-								<ToggleSwitch IsOn="{x:Bind ViewModel.IsMinimizeAtStartup, Mode=TwoWay}" />
-							</local:SettingItem.ActionContent>
-						</local:SettingItem>
+						<StackPanel>
+							<local:SettingItem IsEnabled="{x:Bind ViewModel.IsMinimizeAtStartupEnabled, Mode=OneWay}"
+											   Style="{StaticResource ExpanderContentSettingStyle}">
+								<CheckBox Content="开机启动时最小化到系统托盘"
+										  IsChecked="{x:Bind ViewModel.IsMinimizeAtStartup, Mode=TwoWay}" />
+							</local:SettingItem>
+							<muxc:InfoBar Title="启用“开机启动”和“常驻后台”以更改此设置"
+										  IsClosable="False"
+										  IsOpen="{x:Bind ViewModel.IsMinimizeAtStartupEnabled, Mode=OneWay, Converter={StaticResource NegationConverter}}"
+										  Severity="Warning" />
+						</StackPanel>
 					</muxc:Expander.Content>
 				</muxc:Expander>
 				<local:SettingItem Title="常驻后台"
@@ -109,30 +112,21 @@
 					</muxc:Expander.Header>
 					<muxc:Expander.Content>
 						<StackPanel>
-							<local:SettingItem Title="断点模式"
-											   Description="更改缩放行为以便于在 Visual Studio 中调试"
-											   Style="{StaticResource ExpanderContentSettingStyle}">
-								<local:SettingItem.ActionContent>
-									<ToggleSwitch IsOn="{x:Bind ViewModel.IsBreakpointMode, Mode=TwoWay}" />
-								</local:SettingItem.ActionContent>
+							<local:SettingItem Style="{StaticResource ExpanderContentSettingStyle}">
+								<CheckBox Content="调试模式"
+										  IsChecked="{x:Bind ViewModel.IsDebugMode, Mode=TwoWay}" />
 							</local:SettingItem>
-							<local:SettingItem Title="禁用效果缓存"
-											   Style="{StaticResource ExpanderContentSettingStyle}">
-								<local:SettingItem.ActionContent>
-									<ToggleSwitch IsOn="{x:Bind ViewModel.IsDisableEffectCache, Mode=TwoWay}" />
-								</local:SettingItem.ActionContent>
+							<local:SettingItem Style="{StaticResource ExpanderContentSettingStyle}">
+								<CheckBox Content="禁用效果缓存"
+										  IsChecked="{x:Bind ViewModel.IsDisableEffectCache, Mode=TwoWay}" />
 							</local:SettingItem>
-							<local:SettingItem Title="解析效果时保存源代码"
-											   Style="{StaticResource ExpanderContentSettingStyle}">
-								<local:SettingItem.ActionContent>
-									<ToggleSwitch IsOn="{x:Bind ViewModel.IsSaveEffectSources, Mode=TwoWay}" />
-								</local:SettingItem.ActionContent>
+							<local:SettingItem Style="{StaticResource ExpanderContentSettingStyle}">
+								<CheckBox Content="解析效果时保存源代码"
+										  IsChecked="{x:Bind ViewModel.IsSaveEffectSources, Mode=TwoWay}" />
 							</local:SettingItem>
-							<local:SettingItem Title="编译效果时将警告视为错误"
-											   Style="{StaticResource ExpanderContentSettingStyle}">
-								<local:SettingItem.ActionContent>
-									<ToggleSwitch IsOn="{x:Bind ViewModel.IsWarningsAreErrors, Mode=TwoWay}" />
-								</local:SettingItem.ActionContent>
+							<local:SettingItem Style="{StaticResource ExpanderContentSettingStyle}">
+								<CheckBox Content="编译效果时将警告视为错误"
+										  IsChecked="{x:Bind ViewModel.IsWarningsAreErrors, Mode=TwoWay}" />
 							</local:SettingItem>
 						</StackPanel>
 					</muxc:Expander.Content>

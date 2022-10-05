@@ -13,7 +13,7 @@ namespace Magpie.UI
 		Boolean IsShowTrayIcon;
 		Boolean IsSimulateExclusiveFullscreen;
 		Boolean IsInlineParams;
-		Boolean IsBreakpointMode;
+		Boolean IsDebugMode;
 		Boolean IsDisableEffectCache;
 		Boolean IsSaveEffectSources;
 		Boolean IsWarningsAreErrors;

@@ -150,12 +150,10 @@
 					</muxc:Expander.Header>
 					<muxc:Expander.Content>
 						<StackPanel Orientation="Vertical">
-							<local:SettingItem Title="始终以管理员身份运行"
-											   IsEnabled="{x:Bind ViewModel.IsProcessElevated, Mode=OneTime}"
+							<local:SettingItem IsEnabled="{x:Bind ViewModel.IsProcessElevated, Mode=OneTime}"
 											   Style="{StaticResource ExpanderContentSettingStyle}">
-								<local:SettingItem.ActionContent>
-									<ToggleSwitch IsOn="{x:Bind ViewModel.IsAlwaysRunAsElevated, Mode=TwoWay}" />
-								</local:SettingItem.ActionContent>
+								<CheckBox Content="始终以管理员身份运行"
+										  IsChecked="{x:Bind ViewModel.IsAlwaysRunAsElevated, Mode=TwoWay}" />
 							</local:SettingItem>
 							<muxc:InfoBar Title="以管理员身份重启 Magpie 以更改此设置"
 										  IsClosable="False"

@@ -119,7 +119,7 @@ bool MagApp::Run(HWND hwndSrc, MagOptions&& options, winrt::DispatcherQueue cons
 		return false;
 	}
 
-	if (_options.IsDisableDirectFlip() && !_options.IsBreakpointMode()) {
+	if (_options.IsDisableDirectFlip() && !_options.IsDebugMode()) {
 		// 在此处创建的 DDF 窗口不会立刻显示
 		if (!_DisableDirectFlip()) {
 			Logger::Get().Error("_DisableDirectFlip 失败");
@@ -303,7 +303,7 @@ bool MagApp::_CreateHostWnd() {
 	}
 
 	_hwndHost = CreateWindowEx(
-		(_options.IsBreakpointMode() ? 0 : WS_EX_TOPMOST) | WS_EX_NOACTIVATE | WS_EX_LAYERED | WS_EX_TRANSPARENT | WS_EX_TOOLWINDOW,
+		(_options.IsDebugMode() ? 0 : WS_EX_TOPMOST) | WS_EX_NOACTIVATE | WS_EX_LAYERED | WS_EX_TRANSPARENT | WS_EX_TOOLWINDOW,
 		HOST_WINDOW_CLASS_NAME,
 		NULL,	// 标题为空，否则会被添加新配置页面列为候选窗口
 		WS_POPUP,

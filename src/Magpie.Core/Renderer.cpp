@@ -229,7 +229,7 @@ const EffectDesc& Renderer::GetEffectDesc(uint32_t idx) const noexcept {
 bool Renderer::_CheckSrcState() {
 	HWND hwndSrc = MagApp::Get().GetHwndSrc();
 
-	if (!MagApp::Get().GetOptions().IsBreakpointMode()) {
+	if (!MagApp::Get().GetOptions().IsDebugMode()) {
 		HWND hwndForeground = GetForegroundWindow();
 		// 在 3D 游戏模式下打开游戏内覆盖则全屏窗口可以接收焦点
 		if (!MagApp::Get().GetOptions().Is3DGameMode() || !IsUIVisiable() || hwndForeground != MagApp::Get().GetHwndHost()) {
