@@ -61,18 +61,6 @@ App::App() {
 		FontFamily(isWin11 ? L"Segoe Fluent Icons" : L"Segoe MDL2 Assets")
 	);
 
-	if (isWin11) {
-		// Win11 中更改圆角大小
-		resource.Insert(
-			box_value(L"ControlCornerRadius"),
-			box_value(CornerRadius{ 8,8,8,8 })
-		);
-		resource.Insert(
-			box_value(L"NavigationViewContentGridCornerRadius"),
-			box_value(CornerRadius{ 8,0,0,0 })
-		);
-	}
-
 	EffectsService::Get().StartInitialize();
 
 	_displayInformation = Windows::Graphics::Display::DisplayInformation::GetForCurrentView();

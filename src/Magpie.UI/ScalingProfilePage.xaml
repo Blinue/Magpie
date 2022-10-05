@@ -97,8 +97,7 @@
 					<Button.Flyout>
 						<Flyout x:Name="RenameFlyout"
 								Opening="RenameFlyout_Opening"
-								Placement="Bottom"
-								ShouldConstrainToRootBounds="False">
+								Placement="Bottom">
 							<StackPanel Orientation="Vertical">
 								<TextBlock Text="重命名" />
 								<TextBox x:Name="RenameTextBox"
@@ -143,8 +142,7 @@
 								</MenuFlyoutItem.Icon>
 								<FlyoutBase.AttachedFlyout>
 									<Flyout x:Name="ReorderFlyout"
-											Placement="Bottom"
-											ShouldConstrainToRootBounds="False">
+											Placement="Bottom">
 										<StackPanel Orientation="Vertical">
 											<TextBlock Text="重新排序" />
 											<Button Margin="0,15,0,5"
@@ -183,8 +181,7 @@
 								</MenuFlyoutItem.Icon>
 								<FlyoutBase.AttachedFlyout>
 									<Flyout x:Name="DeleteFlyout"
-											Placement="Bottom"
-											ShouldConstrainToRootBounds="False">
+											Placement="Bottom">
 										<StackPanel Orientation="Vertical"
 													Spacing="15">
 											<TextBlock Text="确定删除此缩放配置？" />
