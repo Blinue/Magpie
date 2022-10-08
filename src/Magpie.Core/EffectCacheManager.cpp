@@ -1,5 +1,17 @@
 #include "pch.h"
 #include "EffectCacheManager.h"
+#include <regex>
+#include "StrUtils.h"
+#include "Logger.h"
+#include "CommonSharedConstants.h"
+#include <d3dcompiler.h>
+#include "Utils.h"
+
+// YAS 暂不支持 ARM64
+// https://github.com/niXman/yas/pull/121
+#ifdef _M_ARM64
+#define _LITTLE_ENDIAN
+#endif
 #include <yas/mem_streams.hpp>
 #include <yas/binary_oarchive.hpp>
 #include <yas/binary_iarchive.hpp>
@@ -7,12 +19,6 @@
 #include <yas/types/std/string.hpp>
 #include <yas/types/std/vector.hpp>
 #include <yas/types/std/variant.hpp>
-#include <regex>
-#include "StrUtils.h"
-#include "Logger.h"
-#include "CommonSharedConstants.h"
-#include <d3dcompiler.h>
-#include "Utils.h"
 
 
 namespace yas::detail {
@@ -351,3 +357,5 @@ std::wstring EffectCacheManager::GetHash(std::string& source, const std::unorder
 }
 
 }
+
+#undef _LITTLE_ENDIAN
