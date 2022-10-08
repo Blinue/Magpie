@@ -373,6 +373,7 @@ void OverlayDrawer::_DrawFPS() {
 	ImGui::PopStyleVar();
 }
 
+#ifdef _M_X64
 // 只在 x86 可用
 static std::string GetCPUNameViaCPUID() {
 	std::string cpuName(48, '\0');
@@ -400,6 +401,7 @@ static std::string GetCPUNameViaCPUID() {
 	StrUtils::Trim(cpuName);
 	return cpuName;
 }
+#endif
 
 // 非常慢，需要大约 18 ms
 static std::string GetCPUNameViaWMI() {
@@ -476,10 +478,8 @@ static std::string GetCPUNameViaWMI() {
 }
 
 static std::string GetCPUName() {
-	std::string result;
-
 #ifdef _M_X64
-	result = GetCPUNameViaCPUID();
+	std::string result = GetCPUNameViaCPUID();
 	if (!result.empty()) {
 		return result;
 	}
