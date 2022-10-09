@@ -45,7 +45,3 @@ struct Utils {
 
 	static uint64_t HashData(std::span<const BYTE> data) noexcept;
 };
-
-inline bool operator==(const SIZE& l, const SIZE& r) {
-	return l.cx == r.cx && l.cy == r.cy;
-}

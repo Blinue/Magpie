@@ -24,7 +24,7 @@ public:
 	static void Tooltip(const char* content, float maxWidth = -1.0f);
 private:
 	ID3D11RenderTargetView* _rtv = nullptr;
-	UINT _handlerId = 0;
+	uint32_t _handlerId = 0;
 
 	HANDLE _hHookThread = NULL;
 	DWORD _hookThreadId = 0;

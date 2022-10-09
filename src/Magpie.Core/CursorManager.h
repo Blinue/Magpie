@@ -82,6 +82,7 @@ private:
 
 	void _UpdateCursorClip();
 
+	uint32_t _handlerId = 0;
 	bool _isShowCursor = true;
 
 	bool _isUnderCapture = false;

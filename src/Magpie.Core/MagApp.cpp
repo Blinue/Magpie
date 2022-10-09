@@ -148,13 +148,26 @@ void MagApp::ToggleOverlay() {
 	_renderer->SetUIVisibility(!_renderer->IsUIVisiable());
 }
 
-UINT MagApp::RegisterWndProcHandler(std::function<std::optional<LRESULT>(HWND, UINT, WPARAM, LPARAM)> handler) {
-	UINT id = _nextWndProcHandlerID++;
-	return _wndProcHandlers.emplace(id, handler).second ? id : 0;
+uint32_t MagApp::RegisterWndProcHandler(std::function<std::optional<LRESULT>(HWND, UINT, WPARAM, LPARAM)> handler) noexcept {
+	uint32_t id = _nextWndProcHandlerID++;
+	_wndProcHandlers.emplace_back(std::move(handler), id);
+	return id;
 }
 
-void MagApp::UnregisterWndProcHandler(UINT id) {
-	_wndProcHandlers.erase(id);
+bool MagApp::UnregisterWndProcHandler(uint32_t id) noexcept {
+	if (id == 0) {
+		return false;
+	}
+
+	// 从后向前查找，因为后注册的回调更可能先取消注册
+	for (int i = (int)_wndProcHandlers.size() - 1; i >= 0; --i) {
+		if (_wndProcHandlers[i].second == id) {
+			_wndProcHandlers.erase(_wndProcHandlers.begin() + i);
+			return true;
+		}
+	}
+
+	return false;
 }
 
 void MagApp::_RunMessageLoop() {
@@ -415,7 +428,7 @@ LRESULT MagApp::_HostWndProcStatic(HWND hWnd, UINT message, WPARAM wParam, LPARA
 LRESULT MagApp::_HostWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
 	// 以反向调用回调
 	for (auto it = _wndProcHandlers.rbegin(); it != _wndProcHandlers.rend(); ++it) {
-		const auto& result = it->second(hWnd, message, wParam, lParam);
+		const auto& result = it->first(hWnd, message, wParam, lParam);
 		if (result.has_value()) {
 			return result.value();
 		}

@@ -1,6 +1,7 @@
 #pragma once
 #include "pch.h"
 #include "MagOptions.h"
+#include <SmallVector.h>
 
 
 namespace Magpie::Core {
@@ -70,8 +71,9 @@ public:
 	}
 
 	// 注册消息回调，回调函数如果不阻断消息应返回空
-	UINT RegisterWndProcHandler(std::function<std::optional<LRESULT>(HWND, UINT, WPARAM, LPARAM)> handler);
-	void UnregisterWndProcHandler(UINT id);
+	// 返回 ID，不会为 0
+	uint32_t RegisterWndProcHandler(std::function<std::optional<LRESULT>(HWND, UINT, WPARAM, LPARAM)> handler) noexcept;
+	bool UnregisterWndProcHandler(uint32_t id) noexcept;
 
 private:
 	MagApp();
@@ -115,8 +117,8 @@ private:
 
 	HHOOK _hKeyboardHook = NULL;
 
-	std::map<UINT, std::function<std::optional<LRESULT>(HWND, UINT, WPARAM, LPARAM)>> _wndProcHandlers;
-	UINT _nextWndProcHandlerID = 1;
+	SmallVector<std::pair<std::function<std::optional<LRESULT>(HWND, UINT, WPARAM, LPARAM)>, uint32_t>, 2> _wndProcHandlers;
+	uint32_t _nextWndProcHandlerID = 1;
 };
 
 }

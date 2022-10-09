@@ -168,10 +168,6 @@ bool ImGuiImpl::Initialize() {
 	}
 
 	_handlerId = MagApp::Get().RegisterWndProcHandler(WndProcHandler);
-	if (_handlerId == 0) {
-		Logger::Get().Error("RegisterWndProcHandler 失败");
-		return false;
-	}
 
 	// 断点模式下不注册鼠标钩子，否则调试时鼠标无法使用
 	if (!MagApp::Get().GetOptions().IsDebugMode() && !MagApp::Get().GetOptions().Is3DGameMode()) {

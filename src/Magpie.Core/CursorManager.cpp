@@ -98,6 +98,8 @@ CursorManager::~CursorManager() {
 		}
 		_StopCapture(pt, true);
 	}
+
+	MagApp::Get().UnregisterWndProcHandler(_handlerId);
 }
 
 static std::optional<LRESULT> HostWndProc(HWND /*hWnd*/, UINT message, WPARAM /*wParam*/, LPARAM /*lParam*/) {
@@ -151,7 +153,7 @@ static std::optional<LRESULT> HostWndProc(HWND /*hWnd*/, UINT message, WPARAM /*
 }
 
 bool CursorManager::Initialize() {
-	MagApp::Get().RegisterWndProcHandler(HostWndProc);
+	_handlerId = MagApp::Get().RegisterWndProcHandler(HostWndProc);
 
 	if (MagApp::Get().GetOptions().Is3DGameMode()) {
 		POINT cursorPos;
