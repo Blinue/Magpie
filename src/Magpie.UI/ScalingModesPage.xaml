@@ -364,45 +364,27 @@
 																				<StackPanel Orientation="Vertical"
 																							Spacing="8">
 																					<TextBlock Text="类型" />
+																					<!--  不使用 ItemsSource 会引起闪退！WinUI 的又一个 bug  -->
 																					<ComboBox HorizontalAlignment="Stretch"
-																							  DropDownOpened="ComboBox_DropDownOpened"
+																							  ItemsSource="{x:Bind local:ScalingModesPage.ScalingTypes, Mode=OneTime}"
 																							  SelectedIndex="1">
 																						<ComboBox.Resources>
 																							<Style x:Key="Description"
 																								   TargetType="TextBlock">
 																								<Setter Property="FontSize" Value="12" />
-																								<Setter Property="Foreground" Value="Gray" />
+																								<Setter Property="Foreground" Value="{ThemeResource TextFillColorSecondaryBrush}" />
 																								<Setter Property="TextWrapping" Value="WrapWholeWords" />
 																							</Style>
 																						</ComboBox.Resources>
-																						<ComboBoxItem>
-																							<StackPanel Orientation="Vertical">
-																								<TextBlock Text="倍数" />
-																								<TextBlock Style="{StaticResource Description}"
-																										   Text="指定相对于输入图像的缩放倍数" />
-																							</StackPanel>
-																						</ComboBoxItem>
-																						<ComboBoxItem>
-																							<StackPanel Orientation="Vertical">
-																								<TextBlock Text="适应" />
-																								<TextBlock Style="{StaticResource Description}"
-																										   Text="指定等比缩放到充满屏幕后的缩放倍数" />
-																							</StackPanel>
-																						</ComboBoxItem>
-																						<ComboBoxItem>
-																							<StackPanel Orientation="Vertical">
-																								<TextBlock Text="绝对" />
-																								<TextBlock Style="{StaticResource Description}"
-																										   Text="指定缩放后的尺寸" />
-																							</StackPanel>
-																						</ComboBoxItem>
-																						<ComboBoxItem>
-																							<StackPanel Orientation="Vertical">
-																								<TextBlock Text="填充" />
-																								<TextBlock Style="{StaticResource Description}"
-																										   Text="充满屏幕，画面可能被拉伸" />
-																							</StackPanel>
-																						</ComboBoxItem>
+																						<ComboBox.ItemTemplate>
+																							<DataTemplate x:DataType="local:ScalingType">
+																								<StackPanel>
+																									<TextBlock Text="{x:Bind Name, Mode=OneTime}" />
+																									<TextBlock Style="{StaticResource Description}"
+																											   Text="{x:Bind Desc, Mode=OneTime}" />
+																								</StackPanel>
+																							</DataTemplate>
+																						</ComboBox.ItemTemplate>
 																					</ComboBox>
 																				</StackPanel>
 																				<StackPanel Orientation="Vertical"

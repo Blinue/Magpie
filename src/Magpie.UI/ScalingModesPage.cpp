@@ -3,6 +3,9 @@
 #if __has_include("ScalingModesPage.g.cpp")
 #include "ScalingModesPage.g.cpp"
 #endif
+#if __has_include("ScalingType.g.cpp")
+#include "ScalingType.g.cpp"
+#endif
 #include "ComboBoxHelper.h"
 #include "EffectsService.h"
 #include "PageHelper.h"
@@ -27,6 +30,17 @@ ScalingModesPage::ScalingModesPage() {
 	PageHelper::UpdateHeaderActionStyle(HeaderActionStackPanel());
 
 	_BuildEffectMenu();
+}
+
+IVector<IInspectable> ScalingModesPage::ScalingTypes() noexcept {
+	static IVector<IInspectable> types = single_threaded_vector(std::vector<IInspectable>{
+		Magpie::UI::ScalingType(L"倍数", L"指定相对于输入图像的缩放倍数"),
+		Magpie::UI::ScalingType(L"适应", L"指定等比缩放到充满屏幕后的缩放倍数"),
+		Magpie::UI::ScalingType(L"绝对", L"指定缩放后的尺寸"),
+		Magpie::UI::ScalingType(L"填充", L"充满屏幕，画面可能被拉伸")
+	});
+
+	return types;
 }
 
 void ScalingModesPage::ComboBox_DropDownOpened(IInspectable const& sender, IInspectable const&) {
