@@ -409,10 +409,10 @@
     <None Include="BoolToNegativeVisibilityConverter.idl">
       <SubType>Designer</SubType>
     </None>
-    <Midl Include="PageFrame.idl">
+    <None Include="PageFrame.idl">
       <DependentUpon>PageFrame.xaml</DependentUpon>
       <SubType>Code</SubType>
-    </Midl>
+    </None>
     <None Include="SettingsGroup.idl">
       <DependentUpon>SettingsGroup.xaml</DependentUpon>
       <SubType>Code</SubType>
