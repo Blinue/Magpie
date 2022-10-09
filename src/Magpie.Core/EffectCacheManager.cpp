@@ -323,7 +323,7 @@ static std::wstring HexHash(std::span<const BYTE> data) {
 
 std::wstring EffectCacheManager::GetHash(
 	std::string_view source,
-	const std::unordered_map<std::wstring, float>* inlineParams
+	const phmap::flat_hash_map<std::wstring, float>* inlineParams
 ) {
 	std::string str;
 	str.reserve(source.size() + 256);
@@ -339,7 +339,7 @@ std::wstring EffectCacheManager::GetHash(
 	return HexHash(std::span((const BYTE*)source.data(), source.size()));
 }
 
-std::wstring EffectCacheManager::GetHash(std::string& source, const std::unordered_map<std::wstring, float>* inlineParams) {
+std::wstring EffectCacheManager::GetHash(std::string& source, const phmap::flat_hash_map<std::wstring, float>* inlineParams) {
 	size_t originSize = source.size();
 
 	source.reserve(originSize + 256);

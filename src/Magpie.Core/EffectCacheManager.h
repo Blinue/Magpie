@@ -2,6 +2,7 @@
 #include "pch.h"
 #include "Win32Utils.h"
 #include "EffectDesc.h"
+#include <parallel_hashmap/phmap.h>
 
 
 namespace Magpie::Core {
@@ -21,11 +22,11 @@ public:
 	// 接受 std::string& 的重载速度更快，且保证不修改 source
 	static std::wstring GetHash(
 		std::string_view source,
-		const std::unordered_map<std::wstring, float>* inlineParams = nullptr
+		const phmap::flat_hash_map<std::wstring, float>* inlineParams = nullptr
 	);
 	static std::wstring GetHash(
 		std::string& source,
-		const std::unordered_map<std::wstring, float>* inlineParams = nullptr
+		const phmap::flat_hash_map<std::wstring, float>* inlineParams = nullptr
 	);
 
 private:

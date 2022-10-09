@@ -57,6 +57,7 @@ fire_and_forget EffectsService::StartInitialize() {
 		}
 	}, nEffect);
 
+	_effectsMap.reserve(nEffect);
 	for (uint32_t i = 0; i < nEffect; ++i) {
 		if (descs[i].name.empty()) {
 			continue;

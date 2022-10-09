@@ -373,7 +373,9 @@ static bool LoadScalingMode(const rapidjson::GenericObject<false, rapidjson::Val
 						return false;
 					}
 
-					for (auto& param : parametersNode->value.GetObj()) {
+					auto paramsObj = parametersNode->value.GetObj();
+					effect.parameters.reserve(paramsObj.MemberCount());
+					for (auto& param : paramsObj) {
 						std::wstring name = StrUtils::UTF8ToUTF16(param.name.GetString());
 
 						if (!param.value.IsNumber()) {

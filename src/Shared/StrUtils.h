@@ -7,17 +7,6 @@
 
 
 struct StrUtils {
-	// 字符串的通透哈希
-	template<typename CHAR_T>
-	struct StringHash {
-		using hash_type = std::hash<std::basic_string_view<CHAR_T>>;
-		using is_transparent = void;
-
-		size_t operator()(const CHAR_T* str) const { return hash_type{}(str); }
-		size_t operator()(std::basic_string_view<CHAR_T> str) const { return hash_type{}(str); }
-		size_t operator()(std::basic_string<CHAR_T> const& str) const { return hash_type{}(str); }
-	};
-
 	static std::wstring UTF8ToUTF16(std::string_view str);
 
 	static std::string UTF16ToUTF8(std::wstring_view str);

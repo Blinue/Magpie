@@ -453,8 +453,7 @@
 										</ListView>
 										<local:SettingItem Style="{StaticResource ExpanderContentSettingStyle}">
 											<local:SettingItem.Description>
-												<TextBlock Margin="-40,0,0,2"
-														   VerticalAlignment="Center"
+												<TextBlock Margin="-40,0,0,-20"
 														   Text="拖动可重新排序"
 														   Visibility="{x:Bind CanReorderEffects, Mode=OneWay}" />
 											</local:SettingItem.Description>

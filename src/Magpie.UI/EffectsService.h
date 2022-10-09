@@ -1,7 +1,7 @@
 #pragma once
 #include "pch.h"
 #include <Magpie.Core.h>
-#include "StrUtils.h"
+#include <parallel_hashmap/phmap.h>
 
 
 namespace winrt::Magpie::UI {
@@ -39,7 +39,7 @@ private:
 	EffectsService() = default;
 
 	std::vector<EffectInfo> _effects;
-	std::unordered_map<std::wstring, uint32_t, StrUtils::StringHash<wchar_t>, std::equal_to<>> _effectsMap;
+	phmap::flat_hash_map<std::wstring, uint32_t> _effectsMap;
 	std::atomic<bool> _initialized = false;
 };
 

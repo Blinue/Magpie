@@ -1,5 +1,6 @@
 #pragma once
 #include "pch.h"
+#include <parallel_hashmap/phmap.h>
 
 
 namespace Magpie::Core {
@@ -60,7 +61,7 @@ struct EffectOptionFlags {
 
 struct EffectOption {
 	std::wstring name;
-	std::unordered_map<std::wstring, float> parameters;
+	phmap::flat_hash_map<std::wstring, float> parameters;
 	ScaleType scaleType = ScaleType::Normal;
 	std::pair<float, float> scale = { 1.0f,1.0f };
 	uint32_t flags = 0;	// EffectOptionFlags

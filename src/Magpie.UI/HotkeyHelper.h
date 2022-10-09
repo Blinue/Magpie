@@ -1,7 +1,6 @@
 #pragma once
 #include "pch.h"
 #include <winrt/Magpie.UI.h>
-#include <unordered_set>
 
 
 namespace winrt::Magpie::UI {
@@ -9,14 +8,9 @@ namespace winrt::Magpie::UI {
 struct HotkeyHelper {
 	static std::string ToString(winrt::Magpie::UI::HotkeyAction action);
 
-	static bool IsValidKeyCode(DWORD code) {
-		return _GetValidKeyCodes().contains(code);
-	}
+	static bool IsValidKeyCode(DWORD code);
 
 	static DWORD StringToKeyCode(std::wstring_view str);
-
-private:
-	static const std::unordered_set<DWORD>& _GetValidKeyCodes();
 };
 
 }

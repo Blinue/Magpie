@@ -1,6 +1,5 @@
 #include "pch.h"
 #include "EffectCompiler.h"
-#include <unordered_set>
 #include "Utils.h"
 #include <bitset>
 #include <charconv>
@@ -1015,7 +1014,7 @@ static UINT GeneratePassSource(
 	std::string_view cbHlsl,
 	const SmallVector<std::string_view>& commonBlocks,
 	std::string_view passBlock,
-	const std::unordered_map<std::wstring, float>* inlineParams,
+	const phmap::flat_hash_map<std::wstring, float>* inlineParams,
 	std::string& result,
 	std::vector<std::pair<std::string, std::string>>& macros
 ) {
@@ -1149,7 +1148,7 @@ static UINT GeneratePassSource(
 	// 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////
 	if (isInlineParams && inlineParams) {
-		std::unordered_set<std::wstring> paramNames;
+		phmap::flat_hash_set<std::wstring> paramNames;
 		for (const auto& d : desc.params) {
 			auto result = paramNames.emplace(StrUtils::UTF8ToUTF16(d.name));
 
@@ -1403,7 +1402,7 @@ static UINT CompilePasses(
 	uint32_t flags,
 	const SmallVector<std::string_view>& commonBlocks,
 	const SmallVector<std::string_view>& passBlocks,
-	const std::unordered_map<std::wstring, float>* inlineParams
+	const phmap::flat_hash_map<std::wstring, float>* inlineParams
 ) {
 	////////////////////////////////////////////////////////////////////////////////////////////////////////
 	//
@@ -1502,7 +1501,7 @@ cbuffer __CB2 : register(b1) {
 uint32_t EffectCompiler::Compile(
 	EffectDesc& desc,
 	uint32_t flags,
-	const std::unordered_map<std::wstring, float>* inlineParams
+	const phmap::flat_hash_map<std::wstring, float>* inlineParams
 ) {
 	bool noCompile = flags & EffectCompilerFlags::NoCompile;
 	bool noCache = noCompile || (flags & EffectCompilerFlags::NoCache);
@@ -1681,7 +1680,7 @@ uint32_t EffectCompiler::Compile(
 
 	{
 		// 确保没有重复的名字
-		std::unordered_set<std::string> names;
+		phmap::flat_hash_set<std::string> names;
 		for (const auto& d : desc.params) {
 			if (names.find(d.name) != names.end()) {
 				Logger::Get().Error("标识符重复");

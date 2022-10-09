@@ -1,6 +1,7 @@
 #pragma once
 #include "pch.h"
 #include "EffectDesc.h"
+#include <parallel_hashmap/phmap.h>
 
 
 namespace Magpie::Core {
@@ -18,7 +19,7 @@ struct API_DECLSPEC EffectCompiler {
 	static uint32_t Compile(
 		EffectDesc& desc,
 		uint32_t flags,	// EffectCompilerFlags
-		const std::unordered_map<std::wstring, float>* inlineParams = nullptr
+		const phmap::flat_hash_map<std::wstring, float>* inlineParams = nullptr
 	);
 
 	// 当前 MagpieFX 版本
