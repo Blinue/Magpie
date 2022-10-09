@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8"?>  
+
+<AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">  
+  <!-- flat map/set  -->
+  <Type            Name="phmap::flat_hash_set&lt;*,*,*,*&gt;">  
+  <AlternativeType Name="phmap::flat_hash_map&lt;*,*,*,*,*&gt;" />  
+      <DisplayString>{{size = {size_}}}</DisplayString>  
+      <Expand>  
+        <CustomListItems MaxItemsPerView="1000" ExcludeView="Test">  
+          <Variable Name="ctrl" InitialValue="ctrl_" />  
+          <Variable Name="slot" InitialValue="slots_" />  
+          <Variable Name="ctrl_end" InitialValue="ctrl_ + capacity_" />  
+          <Variable Name="slot_end" InitialValue="slots_ + capacity_" />  
+    
+          <Size>size_</Size>  
+          <Loop>  
+              <Break Condition="slot == slot_end" />  
+              <If Condition="*ctrl >= -1">
+                <Item>*slot,na</Item>  
+              </If>  
+              <Exec>++slot</Exec>  
+              <Exec>++ctrl</Exec>  
+          </Loop>
+        </CustomListItems>  
+      </Expand>  
+  </Type>  
+
+  <!-- node map/set - only difference is the **slot instead of *slot -->
+  <Type            Name="phmap::node_hash_set&lt;*,*,*,*&gt;">  
+  <AlternativeType Name="phmap::node_hash_map&lt;*,*,*,*,*&gt;" />  
+      <DisplayString>{{size = {size_}}}</DisplayString>  
+      <Expand>  
+        <CustomListItems MaxItemsPerView="1000" ExcludeView="Test">  
+          <Variable Name="ctrl" InitialValue="ctrl_" />  
+          <Variable Name="slot" InitialValue="slots_" />  
+          <Variable Name="ctrl_end" InitialValue="ctrl_ + capacity_" />  
+          <Variable Name="slot_end" InitialValue="slots_ + capacity_" />  
+    
+          <Size>size_</Size>  
+          <Loop>  
+              <Break Condition="slot == slot_end" />  
+              <If Condition="*ctrl >= -1">
+                <Item>**slot,na</Item>  
+              </If>  
+              <Exec>++slot</Exec>  
+              <Exec>++ctrl</Exec>  
+          </Loop>
+        </CustomListItems>  
+      </Expand>  
+  </Type>  
+    
+  <Type Name="phmap::priv::map_slot_type&lt;*,*&gt;">
+    <DisplayString>{value}</DisplayString>
+  </Type>
+
+  <!-- flat map iterators -->
+  <Type Name="phmap::priv::raw_hash_set&lt;*,*,*,*&gt;::iterator">
+       <DisplayString Condition="ctrl_ == 0">unset</DisplayString>
+       <DisplayString Condition="!(*ctrl_ >= 0)">end()</DisplayString>
+       <DisplayString>{*slot_,na}</DisplayString>
+  </Type>
+
+  <!-- node map iterators  - only difference is the **slot_ instead of * -->
+  <Type Name="phmap::priv::raw_hash_set&lt;phmap::priv::NodeHashSetPolicy&lt;*&gt;,*,*,*&gt;::iterator">
+       <DisplayString Condition="ctrl_ == 0">unset</DisplayString>
+       <DisplayString Condition="!(*ctrl_ >= 0)">end()</DisplayString>
+       <DisplayString>{**slot_,na}</DisplayString>
+  </Type>
+
+  <!-- parallel flat/node set -->
+  <Type            Name="phmap::parallel_flat_hash_set&lt;*,*,*,*,*,*&gt;">  
+  <AlternativeType Name="phmap::parallel_node_hash_set&lt;*,*,*,*,*,*&gt;" />  
+      <DisplayString>{{size = ?}}</DisplayString>  
+      <Expand>  
+        <CustomListItems MaxItemsPerView="1000" ExcludeView="Test">  
+          <Variable Name="idx" InitialValue="0" />  
+          <Variable Name="maxidx" InitialValue="$T5" />  
+          <Variable Name="ctrl" InitialValue="sets_._Elems[0].set_.ctrl_" />  
+          <Variable Name="slot" InitialValue="sets_._Elems[0].set_.slots_" />  
+          <Variable Name="ctrl_end" InitialValue="sets_._Elems[0].set_.ctrl_" />  
+          <Variable Name="slot_end" InitialValue="sets_._Elems[0].set_.slots_" />  
+          <Exec>maxidx = 2 &lt;&lt; maxidx</Exec>
+          <Loop>  
+                <Break Condition="idx == maxidx" />  
+                <Exec>ctrl = sets_._Elems[idx].set_.ctrl_</Exec>  
+                <Exec>slot = sets_._Elems[idx].set_.slots_</Exec>  
+                <Exec>ctrl_end = sets_._Elems[idx].set_.ctrl_ + sets_._Elems[idx].set_.capacity_</Exec>  
+                <Exec>slot_end = sets_._Elems[idx].set_.slots_ + sets_._Elems[idx].set_.capacity_</Exec>  
+                <Loop>  
+                    <Break Condition="slot == slot_end" />  
+                    <If Condition="*ctrl >= -1">
+                      <Item>*slot,na</Item>  
+                    </If>  
+                    <Exec>++slot</Exec>  
+                    <Exec>++ctrl</Exec>  
+                </Loop>
+                <Exec>++idx</Exec>  
+          </Loop>
+        </CustomListItems>  
+      </Expand>  
+  </Type>  
+
+  <!-- parallel flat/node map - only difference is $T6 instead of $T5 -->
+  <Type            Name="phmap::parallel_flat_hash_map&lt;*,*,*,*,*,*,*&gt;">  
+  <AlternativeType Name="phmap::parallel_node_hash_map&lt;*,*,*,*,*,*,*&gt;" /> 
+      <DisplayString>{{size = ?}}</DisplayString>  
+      <Expand>  
+        <CustomListItems MaxItemsPerView="1000" ExcludeView="Test">  
+          <Variable Name="idx" InitialValue="0" />  
+          <Variable Name="maxidx" InitialValue="$T6" />  
+          <Variable Name="ctrl" InitialValue="sets_._Elems[0].set_.ctrl_" />  
+          <Variable Name="slot" InitialValue="sets_._Elems[0].set_.slots_" />  
+          <Variable Name="ctrl_end" InitialValue="sets_._Elems[0].set_.ctrl_" />  
+          <Variable Name="slot_end" InitialValue="sets_._Elems[0].set_.slots_" />  
+          <Exec>maxidx = 2 &lt;&lt; maxidx</Exec>
+          <Loop>  
+                <Break Condition="idx == maxidx" />  
+                <Exec>ctrl = sets_._Elems[idx].set_.ctrl_</Exec>  
+                <Exec>slot = sets_._Elems[idx].set_.slots_</Exec>  
+                <Exec>ctrl_end = sets_._Elems[idx].set_.ctrl_ + sets_._Elems[idx].set_.capacity_</Exec>  
+                <Exec>slot_end = sets_._Elems[idx].set_.slots_ + sets_._Elems[idx].set_.capacity_</Exec>  
+                <Loop>  
+                    <Break Condition="slot == slot_end" />  
+                    <If Condition="*ctrl >= -1">
+                      <Item>*slot,na</Item>  
+                    </If>  
+                    <Exec>++slot</Exec>  
+                    <Exec>++ctrl</Exec>  
+                </Loop>
+                <Exec>++idx</Exec>  
+          </Loop>
+        </CustomListItems>  
+      </Expand>  
+  </Type>  
+
+  <Type Name="phmap::priv::parallel_hash_set&lt;*,*,*,*,*,*,*&gt;::iterator">
+       <DisplayString>{it_,na}</DisplayString>
+  </Type>
+
+</AutoVisualizer>  

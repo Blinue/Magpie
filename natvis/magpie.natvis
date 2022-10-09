@@ -1,0 +1,25 @@
+<AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+  <Type Name="SmallVectorImpl&lt;*&gt;">
+    <DisplayString IncludeView ="elt0" Condition="Size == 0"></DisplayString>
+    <DisplayString IncludeView ="elt0">{(($T1*)BeginX)[0]}{*this,view(elt1)}</DisplayString>
+    <DisplayString IncludeView ="elt1" Condition="Size == 1"></DisplayString>
+    <DisplayString IncludeView ="elt1">, {(($T1*)BeginX)[1]}{*this,view(elt2)}</DisplayString>
+    <DisplayString IncludeView ="elt2" Condition="Size == 2"></DisplayString>
+    <DisplayString IncludeView ="elt2">, {(($T1*)BeginX)[2]}{*this,view(elt3)}</DisplayString>
+    <DisplayString IncludeView ="elt3" Condition="Size == 3"></DisplayString>
+    <DisplayString IncludeView ="elt3">, {(($T1*)BeginX)[3]}{*this,view(elt4)}</DisplayString>
+    <DisplayString IncludeView ="elt4" Condition="Size == 4"></DisplayString>
+    <DisplayString IncludeView ="elt4">, /* {Size - 4} more*/ </DisplayString>
+    <DisplayString Condition="Size == 0">empty</DisplayString>
+    <DisplayString Condition="Size != 0">{{{*this,view(elt0)}}}</DisplayString>
+    <DisplayString>Uninitialized</DisplayString>
+    <Expand>
+      <Item Name="[size]">Size</Item>
+      <Item Name="[capacity]">Capacity</Item>
+      <ArrayItems>
+        <Size>Size</Size>
+        <ValuePointer>($T1*)BeginX</ValuePointer>
+      </ArrayItems>
+    </Expand>
+  </Type>
+</AutoVisualizer>
