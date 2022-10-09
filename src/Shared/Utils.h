@@ -49,19 +49,3 @@ struct Utils {
 inline bool operator==(const SIZE& l, const SIZE& r) {
 	return l.cx == r.cx && l.cy == r.cy;
 }
-
-namespace std {
-
-// std::hash 的 std::pair 特化
-template<typename T1, typename T2>
-struct hash<std::pair<T1, T2>> {
-	typedef std::pair<T1, T2> argument_type;
-	typedef std::size_t result_type;
-	result_type operator()(argument_type const& s) const noexcept {
-		result_type const h1(std::hash<T1>()(s.first));
-		result_type const h2(std::hash<T2>{}(s.second));
-		return h1 ^ (h2 << 1);
-	}
-};
-
-}

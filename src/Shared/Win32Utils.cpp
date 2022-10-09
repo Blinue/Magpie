@@ -6,6 +6,7 @@
 #include <Psapi.h>
 #include <winternl.h>
 #include <dwmapi.h>
+#include <parallel_hashmap/phmap.h>
 
 
 uint32_t Win32Utils::GetOSBuild() {
@@ -370,10 +371,10 @@ static bool MapKeycodeToUnicode(const int vCode, HKL layout, const BYTE* keyStat
 	return result != 0;
 }
 
-static const std::unordered_map<DWORD, std::wstring>& GetKeyboardLayout() {
+static const phmap::flat_hash_map<DWORD, std::wstring>& GetKeyboardLayout() {
 	// 取自 https://github.com/microsoft/PowerToys/blob/fa3a5f80a113568155d9c2dbbcea8af16e15afa1/src/common/interop/keyboard_layout.cpp#L63
 	static HKL previousLayout = 0;
-	static std::unordered_map<DWORD, std::wstring> keyboardLayoutMap;
+	static phmap::flat_hash_map<DWORD, std::wstring> keyboardLayoutMap;
 
 	// Get keyboard layout for current thread
 	const HKL layout = GetKeyboardLayout(0);
@@ -522,7 +523,7 @@ static const std::unordered_map<DWORD, std::wstring>& GetKeyboardLayout() {
 }
 
 std::wstring Win32Utils::GetKeyName(DWORD key) {
-	const std::unordered_map<DWORD, std::wstring>& keyboardLayoutMap = GetKeyboardLayout();
+	const phmap::flat_hash_map<DWORD, std::wstring>& keyboardLayoutMap = GetKeyboardLayout();
 
 	auto it = keyboardLayoutMap.find(key);
 	if (it != keyboardLayoutMap.end()) {

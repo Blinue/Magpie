@@ -8,7 +8,6 @@
 #include "StrUtils.h"
 #include "Renderer.h"
 #include "CursorManager.h"
-#include <unordered_set>
 #include "GPUTimer.h"
 
 #pragma push_macro("_UNICODE")

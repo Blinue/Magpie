@@ -9,6 +9,7 @@
 #include "ComboBoxHelper.h"
 #include "EffectsService.h"
 #include "PageHelper.h"
+#include <parallel_hashmap/phmap.h>
 
 
 using namespace winrt;
@@ -82,7 +83,8 @@ void ScalingModesPage::RemoveScalingModeMenuItem_Click(IInspectable const& sende
 void ScalingModesPage::_BuildEffectMenu() noexcept {
 	std::vector<MenuFlyoutItemBase> rootItems;
 
-	std::unordered_map<std::wstring_view, MenuFlyoutSubItem> folders;
+	phmap::flat_hash_map<std::wstring_view, MenuFlyoutSubItem> folders;
+	folders.reserve(13);
 	for (const auto& effect : EffectsService::Get().Effects()) {
 		std::wstring_view name(effect.name);
 

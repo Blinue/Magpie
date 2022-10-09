@@ -36,7 +36,7 @@ private:
 	// 用于同步对 _memCache 的访问
 	Win32Utils::SRWMutex _srwMutex;
 	// cacheFileName -> (EffectDesc, lastAccess)
-	std::unordered_map<std::wstring, std::pair<EffectDesc, UINT>> _memCache;
+	phmap::flat_hash_map<std::wstring, std::pair<EffectDesc, UINT>> _memCache;
 	UINT _lastAccess = 0;
 };
 

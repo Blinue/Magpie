@@ -9,6 +9,7 @@
 #include "CommonSharedConstants.h"
 #include <bit>	// std::has_single_bit
 #include "DXUtils.h"
+#include <parallel_hashmap/phmap.h>
 
 
 namespace Magpie::Core {
@@ -555,9 +556,12 @@ static UINT ResolveTexture(std::string_view block, EffectDesc& desc) {
 			using enum EffectIntermediateTextureFormat;
 
 			static auto formatMap = []() {
-				std::unordered_map<std::string, EffectIntermediateTextureFormat> result;
+				phmap::flat_hash_map<std::string, EffectIntermediateTextureFormat> result;
+
 				// UNKNOWN 不可用
-				for (UINT i = 0, end = (UINT)std::size(EffectIntermediateTextureDesc::FORMAT_DESCS) - 1; i < end; ++i) {
+				constexpr size_t descCount = std::size(EffectIntermediateTextureDesc::FORMAT_DESCS) - 1;
+				result.reserve(descCount);
+				for (size_t i = 0; i < descCount; ++i) {
 					result.emplace(EffectIntermediateTextureDesc::FORMAT_DESCS[i].name, (EffectIntermediateTextureFormat)i);
 				}
 				return result;
@@ -808,7 +812,8 @@ static UINT ResolvePasses(
 		auto& passDesc = desc.passes[i];
 
 		// 用于检查输入和输出中重复的纹理
-		std::unordered_map<std::string_view, UINT> texNames;
+		phmap::flat_hash_map<std::string_view, UINT> texNames;
+		texNames.reserve(desc.textures.size());
 		for (UINT j = 0; j < desc.textures.size(); ++j) {
 			texNames.emplace(desc.textures[j].name, j);
 		}

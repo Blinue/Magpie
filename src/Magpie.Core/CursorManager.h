@@ -1,5 +1,6 @@
 #pragma once
 #include "pch.h"
+#include <parallel_hashmap/phmap.h>
 
 
 namespace Magpie::Core {
@@ -101,7 +102,7 @@ private:
 	};
 	_CursorInfo* _curCursorInfo = nullptr;
 
-	std::unordered_map<HCURSOR, _CursorInfo> _cursorInfos;
+	phmap::flat_hash_map<HCURSOR, _CursorInfo> _cursorInfos;
 };
 
 }

@@ -117,7 +117,7 @@ void serialize(Archive& ar, EffectDesc& o) {
 }
 
 
-static constexpr const uint32_t MAX_CACHE_COUNT = 128;
+static constexpr const uint32_t MAX_CACHE_COUNT = 127;
 
 // 缓存版本
 // 当缓存文件结构有更改时更新它，使旧缓存失效
@@ -148,15 +148,16 @@ void EffectCacheManager::_AddToMemCache(const std::wstring& cacheFileName, const
 	_memCache[cacheFileName] = { desc, ++_lastAccess };
 
 	if (_memCache.size() > MAX_CACHE_COUNT) {
+		assert(_memCache.size() == MAX_CACHE_COUNT + 1);
+
 		// 清理一半较旧的内存缓存
-		SmallVector<UINT, MAX_CACHE_COUNT> access;
-		for (const auto& pair : _memCache) {
-			access.push_back(pair.second.second);
-		}
+		std::array<uint32_t, MAX_CACHE_COUNT + 1> access{};
+		std::transform(_memCache.begin(), _memCache.end(), access.begin(),
+			[](const auto& pair) {return pair.second.second; });
 
 		auto midIt = access.begin() + access.size() / 2;
 		std::nth_element(access.begin(), midIt, access.end());
-		UINT mid = *midIt;
+		const uint32_t mid = *midIt;
 
 		for (auto it = _memCache.begin(); it != _memCache.end();) {
 			if (it->second.second < mid) {

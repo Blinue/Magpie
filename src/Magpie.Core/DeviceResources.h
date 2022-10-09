@@ -2,6 +2,7 @@
 #include "pch.h"
 #include "Win32Utils.h"
 #include "Utils.h"
+#include <parallel_hashmap/phmap.h>
 
 
 namespace Magpie::Core {
@@ -63,11 +64,11 @@ private:
 
 	winrt::com_ptr<ID3D11Texture2D> _backBuffer;
 
-	std::unordered_map<ID3D11Texture2D*, winrt::com_ptr<ID3D11RenderTargetView>> _rtvMap;
-	std::unordered_map<ID3D11Texture2D*, winrt::com_ptr<ID3D11ShaderResourceView>> _srvMap;
-	std::unordered_map<ID3D11Texture2D*, winrt::com_ptr<ID3D11UnorderedAccessView>> _uavMap;
+	phmap::flat_hash_map<ID3D11Texture2D*, winrt::com_ptr<ID3D11RenderTargetView>> _rtvMap;
+	phmap::flat_hash_map<ID3D11Texture2D*, winrt::com_ptr<ID3D11ShaderResourceView>> _srvMap;
+	phmap::flat_hash_map<ID3D11Texture2D*, winrt::com_ptr<ID3D11UnorderedAccessView>> _uavMap;
 
-	std::unordered_map<
+	phmap::flat_hash_map<
 		std::pair<D3D11_FILTER, D3D11_TEXTURE_ADDRESS_MODE>,
 		winrt::com_ptr<ID3D11SamplerState>
 	> _samMap;
