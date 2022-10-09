@@ -5,9 +5,6 @@
   </ItemGroup>
   <ItemGroup>
     <Midl Include="App.idl" />
-    <Midl Include="BoolNegationConverter.idl">
-      <Filter>Converters</Filter>
-    </Midl>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
@@ -176,6 +173,12 @@
     </None>
     <None Include="ScalingModeEffectItem.idl">
       <Filter>ViewModels</Filter>
+    </None>
+    <None Include="BoolToNegativeVisibilityConverter.idl">
+      <Filter>Converters</Filter>
+    </None>
+    <None Include="BoolNegationConverter.idl">
+      <Filter>Converters</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

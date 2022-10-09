@@ -239,7 +239,7 @@
 																					   Visibility="{x:Bind ShowLinkedProfiles, Mode=OneTime}" />
 																			<TextBlock Margin="0,0,0,15"
 																					   Text="确定删除此缩放模式？"
-																					   Visibility="{x:Bind NotShowLinkedProfiles, Mode=OneTime}" />
+																					   Visibility="{x:Bind ShowLinkedProfiles, Mode=OneTime, Converter={StaticResource NegativeVisibilityConverter}}" />
 																			<StackPanel Margin="0,0,0,10"
 																						Orientation="Vertical"
 																						Spacing="8"

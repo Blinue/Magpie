@@ -5,13 +5,17 @@
 #endif
 
 
+using namespace winrt;
+using namespace Windows::UI::Xaml::Interop;
+
+
 namespace winrt::Magpie::UI::implementation {
 
-IInspectable BoolNegationConverter::Convert(IInspectable const& value, Interop::TypeName const&, IInspectable const&, hstring const&) {
+IInspectable BoolNegationConverter::Convert(IInspectable const& value, TypeName const&, IInspectable const&, hstring const&) {
 	return box_value(!unbox_value<bool>(value));
 }
 
-IInspectable BoolNegationConverter::ConvertBack(IInspectable const& value, Interop::TypeName const&, IInspectable const&, hstring const&) {
+IInspectable BoolNegationConverter::ConvertBack(IInspectable const& value, TypeName const&, IInspectable const&, hstring const&) {
 	return box_value(!unbox_value<bool>(value));
 }
 

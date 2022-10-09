@@ -1,0 +1,9 @@
+namespace Magpie.UI
+{
+    // true -> Visibility::Collapsed
+    // false -> Visibility::Visible
+    runtimeclass BoolToNegativeVisibilityConverter : [default] Windows.UI.Xaml.Data.IValueConverter
+    {
+        BoolToNegativeVisibilityConverter();
+    }
+}

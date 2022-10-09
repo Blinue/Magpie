@@ -25,7 +25,6 @@ namespace Magpie.UI
         void Remove();
         IVector<IInspectable> LinkedProfiles { get; };
         Boolean ShowLinkedProfiles { get; };
-        Boolean NotShowLinkedProfiles { get; };
 
         Boolean CanReorderEffects { get; };
     }

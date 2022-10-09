@@ -15,7 +15,6 @@ namespace Magpie.UI
 
 		Boolean IsAutoRestore;
 		Boolean IsWndToRestore { get; };
-		Boolean IsNoWndToRestore { get; };
 		String RestoreWndDesc { get; };
 
 		void ActivateRestore();

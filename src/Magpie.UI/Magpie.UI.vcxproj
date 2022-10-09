@@ -113,6 +113,10 @@
       <DependentUpon>BoolNegationConverter.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
+    <ClInclude Include="BoolToNegativeVisibilityConverter.h">
+      <DependentUpon>BoolToNegativeVisibilityConverter.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClInclude>
     <ClInclude Include="CandidateWindowItem.h">
       <DependentUpon>CandidateWindowItem.idl</DependentUpon>
       <SubType>Code</SubType>
@@ -238,6 +242,10 @@
     <ClCompile Include="AutoStartHelper.cpp" />
     <ClCompile Include="BoolNegationConverter.cpp">
       <DependentUpon>BoolNegationConverter.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClCompile>
+    <ClCompile Include="BoolToNegativeVisibilityConverter.cpp">
+      <DependentUpon>BoolToNegativeVisibilityConverter.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
     <ClCompile Include="CandidateWindowItem.cpp">
@@ -382,9 +390,9 @@
     <None Include="LoggerHelper.idl">
       <SubType>Designer</SubType>
     </None>
-    <Midl Include="BoolNegationConverter.idl">
+    <None Include="BoolNegationConverter.idl">
       <SubType>Designer</SubType>
-    </Midl>
+    </None>
     <None Include="ScalingProfilePage.idl">
       <DependentUpon>ScalingProfilePage.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -396,6 +404,9 @@
       <SubType>Designer</SubType>
     </None>
     <None Include="NewProfileViewModel.idl">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="BoolToNegativeVisibilityConverter.idl">
       <SubType>Designer</SubType>
     </None>
     <Midl Include="PageFrame.idl">

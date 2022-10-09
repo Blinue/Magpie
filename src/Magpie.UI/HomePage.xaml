@@ -73,7 +73,7 @@
 				<local:SettingItem Title="记忆缩放窗口"
 								   Margin="0,0,0,-2"
 								   Description="当该窗口回到前台时将自动缩放"
-								   Visibility="{x:Bind ViewModel.IsNoWndToRestore, Mode=OneWay}">
+								   Visibility="{x:Bind ViewModel.IsWndToRestore, Mode=OneWay, Converter={StaticResource NegativeVisibilityConverter}}">
 					<local:SettingItem.Icon>
 						<FontIcon Glyph="&#xE944;" />
 					</local:SettingItem.Icon>

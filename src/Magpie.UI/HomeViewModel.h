@@ -36,10 +36,6 @@ struct HomeViewModel : HomeViewModelT<HomeViewModel> {
 
 	bool IsWndToRestore() const noexcept;
 
-	bool IsNoWndToRestore() const noexcept {
-		return !IsWndToRestore();
-	}
-
 	void ActivateRestore() const noexcept;
 
 	void ClearRestore() const;

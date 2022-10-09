@@ -74,10 +74,6 @@ struct ScalingModeItem : ScalingModeItemT<ScalingModeItem> {
 		return _linkedProfiles.Size() > 0;
 	}
 
-	bool NotShowLinkedProfiles() const noexcept {
-		return !ShowLinkedProfiles();
-	}
-
 private:
 	void _Index(uint32_t value) noexcept;
 

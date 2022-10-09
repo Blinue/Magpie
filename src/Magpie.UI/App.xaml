@@ -7,6 +7,7 @@
 	<Application.Resources>
 		<ResourceDictionary>
 			<local:BoolNegationConverter x:Key="NegationConverter" />
+			<local:BoolToNegativeVisibilityConverter x:Key="NegativeVisibilityConverter" />
 
 			<Style x:Key="ToggleSwitchWithoutText"
 				   BasedOn="{StaticResource DefaultToggleSwitchStyle}"
