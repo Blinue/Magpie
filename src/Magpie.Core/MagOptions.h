@@ -47,7 +47,7 @@ struct MagFlags {
 	static constexpr const uint32_t DisableDirectFlip = 0x2000;
 };
 
-enum class ScaleType {
+enum class ScalingType {
 	Normal,		// Scale 表示缩放倍数
 	Fit,		// Scale 表示相对于屏幕能容纳的最大等比缩放的比例
 	Absolute,	// Scale 表示目标大小（单位为像素）
@@ -62,12 +62,12 @@ struct EffectOptionFlags {
 struct EffectOption {
 	std::wstring name;
 	phmap::flat_hash_map<std::wstring, float> parameters;
-	ScaleType scaleType = ScaleType::Normal;
+	ScalingType scalingType = ScalingType::Normal;
 	std::pair<float, float> scale = { 1.0f,1.0f };
 	uint32_t flags = 0;	// EffectOptionFlags
 
 	bool HasScale() const noexcept {
-		return scaleType != ScaleType::Normal ||
+		return scalingType != ScalingType::Normal ||
 			std::abs(scale.first - 1.0f) > 1e-5 || std::abs(scale.second - 1.0f) > 1e-5;
 	}
 };

@@ -8,7 +8,9 @@
 #include "EffectsService.h"
 
 
+namespace Core = ::Magpie::Core;
 using namespace Magpie::Core;
+
 
 static std::wstring_view GetEffectDisplayName(std::wstring_view fullName) {
 	size_t delimPos = fullName.find_last_of(L'\\');
@@ -31,6 +33,36 @@ bool ScalingModeEffectItem::CanScale() const noexcept {
 
 bool ScalingModeEffectItem::HasParameters() const noexcept {
 	return _effectInfo && !_effectInfo->params.empty();
+}
+
+int ScalingModeEffectItem::ScalingType() const noexcept {
+	return (int)_Data().scalingType;
+}
+
+void ScalingModeEffectItem::ScalingType(int value) noexcept {
+	if (value < 0) {
+		return;
+	}
+
+	EffectOption& data = _Data();
+	Core::ScalingType scalingType = (Core::ScalingType)value;
+	if (data.scalingType == scalingType) {
+		return;
+	}
+
+	data.scalingType = scalingType;
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"ScalingType"));
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsShowScalingFactors"));
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsShowScalingPixels"));
+}
+
+bool ScalingModeEffectItem::IsShowScalingFactors() const noexcept {
+	Core::ScalingType scalingType = _Data().scalingType;
+	return scalingType == Core::ScalingType::Normal || scalingType == Core::ScalingType::Fit;
+}
+
+bool ScalingModeEffectItem::IsShowScalingPixels() const noexcept {
+	return _Data().scalingType == Core::ScalingType::Absolute;
 }
 
 void ScalingModeEffectItem::Remove() {

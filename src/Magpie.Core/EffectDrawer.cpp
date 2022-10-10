@@ -50,27 +50,27 @@ bool EffectDrawer::Initialize(
 	SIZE outputSize{};
 
 	if (desc.outSizeExpr.first.empty()) {
-		switch (options.scaleType) {
-		case ScaleType::Normal:
+		switch (options.scalingType) {
+		case ScalingType::Normal:
 		{
 			outputSize.cx = std::lroundf(inputSize.cx * options.scale.first);
 			outputSize.cy = std::lroundf(inputSize.cy * options.scale.second);
 			break;
 		}
-		case ScaleType::Fit:
+		case ScalingType::Fit:
 		{
 			float fillScale = std::min(float(hostSize.cx) / inputSize.cx, float(hostSize.cy) / inputSize.cy);
 			outputSize.cx = std::lroundf(inputSize.cx * fillScale * options.scale.first);
 			outputSize.cy = std::lroundf(inputSize.cy * fillScale * options.scale.second);
 			break;
 		}
-		case ScaleType::Absolute:
+		case ScalingType::Absolute:
 		{
 			outputSize.cx = std::lroundf(options.scale.first);
 			outputSize.cy = std::lroundf(options.scale.second);
 			break;
 		}
-		case ScaleType::Fill:
+		case ScalingType::Fill:
 		{
 			outputSize = hostSize;
 			break;

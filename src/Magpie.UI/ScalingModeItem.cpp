@@ -142,7 +142,7 @@ void ScalingModeItem::AddEffect(const hstring& fullName) {
 	assert(effectInfo);
 	if (effectInfo->canScale) {
 		// 支持缩放的效果默认等比缩放到充满屏幕
-		effect.scaleType = ScaleType::Fit;
+		effect.scalingType = ::Magpie::Core::ScalingType::Fit;
 	}
 
 	ScalingModeEffectItem item(_index, (uint32_t)_Data().effects.size() - 1);

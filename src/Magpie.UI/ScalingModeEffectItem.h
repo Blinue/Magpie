@@ -47,6 +47,14 @@ struct ScalingModeEffectItem : ScalingModeEffectItemT<ScalingModeEffectItem> {
 
 	bool HasParameters() const noexcept;
 
+	int ScalingType() const noexcept;
+
+	void ScalingType(int value) noexcept;
+
+	bool IsShowScalingFactors() const noexcept;
+
+	bool IsShowScalingPixels() const noexcept;
+
 	void Remove();
 
 	event_token Removed(EventHandler<uint32_t> const& handler) {

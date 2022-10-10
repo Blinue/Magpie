@@ -351,8 +351,7 @@
 																	<Button.Flyout>
 																		<Flyout>
 																			<StackPanel Width="260"
-																						Margin="0,10"
-																						Spacing="15">
+																						Margin="0,10">
 																				<StackPanel.Resources>
 																					<Style TargetType="muxc:NumberBox">
 																						<Setter Property="HorizontalAlignment" Value="Stretch" />
@@ -361,13 +360,12 @@
 																						<Setter Property="Foreground" Value="{ThemeResource TextFillColorPrimaryBrush}" />
 																					</Style>
 																				</StackPanel.Resources>
-																				<StackPanel Orientation="Vertical"
-																							Spacing="8">
+																				<StackPanel Spacing="8">
 																					<TextBlock Text="类型" />
 																					<!--  不使用 ItemsSource 会引起闪退！WinUI 的又一个 bug  -->
 																					<ComboBox HorizontalAlignment="Stretch"
 																							  ItemsSource="{x:Bind local:ScalingModesPage.ScalingTypes, Mode=OneTime}"
-																							  SelectedIndex="1">
+																							  SelectedIndex="{x:Bind ScalingType, Mode=TwoWay}">
 																						<ComboBox.Resources>
 																							<Style x:Key="Description"
 																								   TargetType="TextBlock">
@@ -387,15 +385,28 @@
 																						</ComboBox.ItemTemplate>
 																					</ComboBox>
 																				</StackPanel>
-																				<StackPanel Orientation="Vertical"
-																							Spacing="8">
-																					<TextBlock Text="宽（缩放倍数）" />
-																					<muxc:NumberBox HorizontalAlignment="Stretch" />
+																				<StackPanel Margin="0,15,0,0"
+																							Spacing="15"
+																							Visibility="{x:Bind IsShowScalingFactors, Mode=OneWay}">
+																					<StackPanel Spacing="8">
+																						<TextBlock Text="宽（缩放倍数）" />
+																						<muxc:NumberBox HorizontalAlignment="Stretch" />
+																					</StackPanel>
+																					<StackPanel Spacing="8">
+																						<TextBlock Text="高（缩放倍数）" />
+																						<muxc:NumberBox HorizontalAlignment="Stretch" />
+																					</StackPanel>
 																				</StackPanel>
-																				<StackPanel Orientation="Vertical"
-																							Spacing="8">
-																					<TextBlock Text="高（缩放倍数）" />
-																					<muxc:NumberBox HorizontalAlignment="Stretch" />
+																				<StackPanel Margin="0,15,0,0"
+																							Visibility="{x:Bind IsShowScalingPixels, Mode=OneWay}">
+																					<StackPanel Spacing="8">
+																						<TextBlock Text="宽（像素）" />
+																						<muxc:NumberBox HorizontalAlignment="Stretch" />
+																					</StackPanel>
+																					<StackPanel Spacing="8">
+																						<TextBlock Text="高（像素）" />
+																						<muxc:NumberBox HorizontalAlignment="Stretch" />
+																					</StackPanel>
 																				</StackPanel>
 																			</StackPanel>
 																		</Flyout>

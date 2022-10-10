@@ -185,8 +185,8 @@ static void WriteScaleMode(rapidjson::PrettyWriter<rapidjson::StringBuffer>& wri
 			}
 
 			if (effect.HasScale()) {
-				writer.Key("scaleType");
-				writer.Uint((uint32_t)effect.scaleType);
+				writer.Key("scalingType");
+				writer.Uint((uint32_t)effect.scalingType);
 				writer.Key("scale");
 				writer.StartObject();
 				writer.Key("x");
@@ -414,7 +414,7 @@ static bool LoadScalingMode(const rapidjson::GenericObject<false, rapidjson::Val
 				}
 			}
 
-			if (!LoadUIntSettingItem(elemObj, "scaleType", (uint32_t&)effect.scaleType)) {
+			if (!LoadUIntSettingItem(elemObj, "scalingType", (uint32_t&)effect.scalingType)) {
 				return false;
 			}
 
@@ -844,14 +844,14 @@ void AppSettings::_SetDefaultScalingModes() {
 		lanczos.name = L"Lanczos";
 		auto& lanczosEffect = lanczos.effects.emplace_back();
 		lanczosEffect.name = L"Lanczos";
-		lanczosEffect.scaleType = ScaleType::Fit;
+		lanczosEffect.scalingType = ::Magpie::Core::ScalingType::Fit;
 	}
 	{
 		auto& fsr = _scalingModes.emplace_back();
 		fsr.name = L"FSR";
 		auto& easu = fsr.effects.emplace_back();
 		easu.name = L"FSR\\FSR_EASU";
-		easu.scaleType = ScaleType::Fit;
+		easu.scalingType = ::Magpie::Core::ScalingType::Fit;
 		auto& rcas = fsr.effects.emplace_back();
 		rcas.name = L"FSR\\FSR_RCAS";
 		rcas.parameters[L"sharpness"] = 0.87f;

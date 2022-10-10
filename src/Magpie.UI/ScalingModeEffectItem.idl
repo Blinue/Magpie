@@ -11,6 +11,10 @@ namespace Magpie.UI
 		Boolean CanScale { get; };
 		Boolean HasParameters { get; };
 
+		Int32 ScalingType;
+		Boolean IsShowScalingFactors { get; };
+		Boolean IsShowScalingPixels { get; };
+
 		void Remove();
 		event Windows.Foundation.EventHandler<UInt32> Removed;
 	}
