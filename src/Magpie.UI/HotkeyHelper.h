@@ -8,9 +8,7 @@ namespace winrt::Magpie::UI {
 struct HotkeyHelper {
 	static std::string ToString(winrt::Magpie::UI::HotkeyAction action);
 
-	static bool IsValidKeyCode(DWORD code);
-
-	static DWORD StringToKeyCode(std::wstring_view str);
+	static bool IsValidKeyCode(uint8_t code);
 };
 
 }

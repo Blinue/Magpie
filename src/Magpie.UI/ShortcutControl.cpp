@@ -15,10 +15,10 @@ using namespace Windows::UI::Xaml::Input;
 
 namespace winrt::Magpie::UI::implementation {
 
-static IVector<IInspectable> ToKeys(const SmallVectorImpl<std::variant<uint32_t, std::wstring>>& keyList) {
+static IVector<IInspectable> ToKeys(const SmallVectorImpl<std::variant<uint8_t, std::wstring>>& keyList) {
 	std::vector<IInspectable> result;
 
-	for (const std::variant<uint32_t, std::wstring>& key : keyList) {
+	for (const std::variant<uint8_t, std::wstring>& key : keyList) {
 		if (key.index() == 0) {
 			result.emplace_back(box_value(std::get<0>(key)));
 		} else {
@@ -111,15 +111,18 @@ LRESULT ShortcutControl::_LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM 
 		return CallNextHookEx(NULL, nCode, wParam, lParam);
 	}
 
+	const DWORD code = ((KBDLLHOOKSTRUCT*)lParam)->vkCode;
+	if (code <= 0 || code > 255) {
+		return CallNextHookEx(NULL, nCode, wParam, lParam);
+	}
+
 	// 只有位于前台时才监听按键
-	App app = Application::Current().as<App>();
-	if (GetForegroundWindow() != (HWND)app.HwndMain()) {
+	if (GetForegroundWindow() != (HWND)Application::Current().as<App>().HwndMain()) {
 		return CallNextHookEx(NULL, nCode, wParam, lParam);
 	}
 
 	bool isKeyDown = wParam == WM_KEYDOWN || wParam == WM_SYSKEYDOWN;
 
-	DWORD code = ((KBDLLHOOKSTRUCT*)lParam)->vkCode;
 	switch (code) {
 	case VK_TAB:
 		// Tab 键传给系统以移动焦点
@@ -150,9 +153,9 @@ LRESULT ShortcutControl::_LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM 
 			return CallNextHookEx(NULL, nCode, wParam, lParam);
 		}
 
-		if (HotkeyHelper::IsValidKeyCode(code)) {
+		if (HotkeyHelper::IsValidKeyCode((uint8_t)code)) {
 			if (isKeyDown) {
-				_that->_pressedKeys.code = code;
+				_that->_pressedKeys.code = (uint8_t)code;
 			} else {
 				_that->_pressedKeys.code = 0;
 			}

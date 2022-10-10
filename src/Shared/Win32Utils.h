@@ -133,7 +133,7 @@ struct Win32Utils {
 	static bool SetForegroundWindow(HWND hWnd);
 
 	// 获取 Virtual Key 的名字
-	static std::wstring GetKeyName(DWORD key);
+	static const std::wstring& GetKeyName(uint8_t key);
 
 	static bool IsProcessElevated() noexcept;
 

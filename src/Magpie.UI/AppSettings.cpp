@@ -135,6 +135,34 @@ static bool LoadStringSettingItem(
 	return true;
 }
 
+// 将热键存储为 uint32_t
+// 不能存储为字符串，因为某些键有相同的名称，如句号和小键盘的点
+static uint32_t EncodeHotkey(const HotkeySettings& hotkey) noexcept {
+	uint32_t value = 0;
+	value |= hotkey.code;
+	if (hotkey.win) {
+		value |= 0x100;
+	}
+	if (hotkey.ctrl) {
+		value |= 0x200;
+	}
+	if (hotkey.alt) {
+		value |= 0x400;
+	}
+	if (hotkey.shift) {
+		value |= 0x800;
+	}
+	return value;
+}
+
+static void DecodeHotkey(uint32_t value, HotkeySettings& hotkey) noexcept {
+	hotkey.code = value & 0xff;
+	hotkey.win = value & 0x100;
+	hotkey.ctrl = value & 0x200;
+	hotkey.alt = value & 0x400;
+	hotkey.shift = value & 0x800;
+}
+
 static void WriteScaleMode(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer, const ScalingMode& scaleMode) {
 	writer.StartObject();
 	writer.Key("name");
@@ -491,9 +519,9 @@ bool AppSettings::Save() {
 	writer.Key("hotkeys");
 	writer.StartObject();
 	writer.Key("scale");
-	writer.String(StrUtils::UTF16ToUTF8(_hotkeys[(size_t)HotkeyAction::Scale].ToString()).c_str());
+	writer.Uint(EncodeHotkey(_hotkeys[(size_t)HotkeyAction::Scale]));
 	writer.Key("overlay");
-	writer.String(StrUtils::UTF16ToUTF8(_hotkeys[(size_t)HotkeyAction::Overlay].ToString()).c_str());
+	writer.Uint(EncodeHotkey(_hotkeys[(size_t)HotkeyAction::Overlay]));
 	writer.EndObject();
 
 	writer.Key("autoRestore");
@@ -683,13 +711,13 @@ bool AppSettings::_LoadSettings(std::string text) {
 			const auto& hotkeysObj = hotkeysNode->value.GetObj();
 
 			auto scaleNode = hotkeysObj.FindMember("scale");
-			if (scaleNode != hotkeysObj.MemberEnd() && scaleNode->value.IsString()) {
-				_hotkeys[(size_t)HotkeyAction::Scale].FromString(StrUtils::UTF8ToUTF16(scaleNode->value.GetString()));
+			if (scaleNode != hotkeysObj.MemberEnd() && scaleNode->value.IsUint()) {
+				DecodeHotkey(scaleNode->value.GetUint(), _hotkeys[(size_t)HotkeyAction::Scale]);
 			}
 
 			auto overlayNode = hotkeysObj.FindMember("overlay");
-			if (overlayNode != hotkeysObj.MemberEnd() && overlayNode->value.IsString()) {
-				_hotkeys[(size_t)HotkeyAction::Overlay].FromString(StrUtils::UTF8ToUTF16(overlayNode->value.GetString()));
+			if (overlayNode != hotkeysObj.MemberEnd() && overlayNode->value.IsUint()) {
+				DecodeHotkey(overlayNode->value.GetUint(), _hotkeys[(size_t)HotkeyAction::Overlay]);
 			}
 		}
 	}

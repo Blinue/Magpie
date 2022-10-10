@@ -12,10 +12,10 @@ bool HotkeySettings::IsEmpty() const noexcept {
 	return !win && !ctrl && !alt && !shift && code == 0;
 }
 
-SmallVector<std::variant<uint32_t, std::wstring>, 5> HotkeySettings::GetKeyList() const noexcept {
-	SmallVector<std::variant<uint32_t, std::wstring>, 5> shortcutList;
+SmallVector<std::variant<uint8_t, std::wstring>, 5> HotkeySettings::GetKeyList() const noexcept {
+	SmallVector<std::variant<uint8_t, std::wstring>, 5> shortcutList;
 	if (win) {
-		shortcutList.emplace_back((uint32_t)VK_LWIN);
+		shortcutList.emplace_back((uint8_t)VK_LWIN);
 	}
 
 	if (ctrl) {
@@ -41,7 +41,7 @@ SmallVector<std::variant<uint32_t, std::wstring>, 5> HotkeySettings::GetKeyList(
 			shortcutList.emplace_back(code);
 			break;
 		default:
-			std::wstring localKey = Win32Utils::GetKeyName(code);
+			const std::wstring& localKey = Win32Utils::GetKeyName(code);
 			shortcutList.emplace_back(localKey);
 			break;
 		}
@@ -92,66 +92,6 @@ void HotkeySettings::Clear() noexcept {
 	alt = false;
 	shift = false;
 	code = 0;
-}
-
-bool HotkeySettings::FromString(std::wstring_view str) noexcept {
-	bool winT = false;
-	bool ctrlT = false;
-	bool altT = false;
-	bool shiftT = false;
-	uint32_t codeT = 0;
-
-	if (!str.empty()) {
-		for (std::wstring_view& part : StrUtils::Split(str, L'+')) {
-			StrUtils::Trim(part);
-
-			if (part.empty()) {
-				return false;
-			}
-
-			if (part == L"Win") {
-				if (winT) {
-					return false;
-				}
-
-				winT = true;
-			} else if (part == L"Ctrl") {
-				if (ctrlT) {
-					return false;
-				}
-
-				ctrlT = true;
-			} else if (part == L"Alt") {
-				if (altT) {
-					return false;
-				}
-
-				altT = true;
-			} else if (part == L"Shift") {
-				if (shiftT) {
-					return false;
-				}
-
-				shiftT = true;
-			} else {
-				if (codeT) {
-					return false;
-				}
-
-				codeT = HotkeyHelper::StringToKeyCode(part);
-				if (codeT <= 0) {
-					return false;
-				}
-			}
-		}
-	}
-
-	win = winT;
-	ctrl = ctrlT;
-	alt = altT;
-	shift = shiftT;
-	code = codeT;
-	return true;
 }
 
 std::wstring HotkeySettings::ToString() const noexcept {

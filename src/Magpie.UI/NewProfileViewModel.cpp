@@ -74,20 +74,17 @@ static bool IsCandidateWindow(HWND hWnd) {
 	}
 }
 
-static SmallVector<HWND, 0> GetDesktopWindows() {
-	SmallVector<HWND, 0> windows;
-	windows.reserve(1024);
-
+static SmallVector<HWND> GetDesktopWindows() {
+	SmallVector<HWND> windows;
+	
 	// EnumWindows 能否枚举到 UWP 窗口？
 	// 虽然官方文档中明确指出不能，但我在 Win10/11 中测试是可以的
 	// PowerToys 也依赖这个行为 https://github.com/microsoft/PowerToys/blob/d4b62d8118d49b2cc83c2a2126091378d0b5fec4/src/modules/launcher/Plugins/Microsoft.Plugin.WindowWalker/Components/OpenWindows.cs
 	// 无法枚举到全屏状态下的 UWP 窗口
 	EnumWindows(
 		[](HWND hWnd, LPARAM lParam) {
-			SmallVector<HWND, 0>& windows = *(SmallVector<HWND, 0>*)lParam;
-
 			if (IsCandidateWindow(hWnd)) {
-				windows.push_back(hWnd);
+				((SmallVector<HWND>*)lParam)->push_back(hWnd);
 			}
 
 			return TRUE;

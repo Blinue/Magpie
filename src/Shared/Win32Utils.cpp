@@ -371,17 +371,20 @@ static bool MapKeycodeToUnicode(const int vCode, HKL layout, const BYTE* keyStat
 	return result != 0;
 }
 
-static const phmap::flat_hash_map<DWORD, std::wstring>& GetKeyboardLayout() {
+static const std::array<std::wstring, 256>& GetKeyNames() {
 	// 取自 https://github.com/microsoft/PowerToys/blob/fa3a5f80a113568155d9c2dbbcea8af16e15afa1/src/common/interop/keyboard_layout.cpp#L63
 	static HKL previousLayout = 0;
-	static phmap::flat_hash_map<DWORD, std::wstring> keyboardLayoutMap;
+	static std::array<std::wstring, 256> keyboardLayoutMap;
 
 	// Get keyboard layout for current thread
 	const HKL layout = GetKeyboardLayout(0);
-	if (layout == previousLayout && !keyboardLayoutMap.empty()) {
+	if (layout == previousLayout && !keyboardLayoutMap[0].empty()) {
 		return keyboardLayoutMap;
 	}
 	previousLayout = layout;
+
+	// 0 为非法
+	keyboardLayoutMap[0] = L"Undefined";
 
 	std::array<BYTE, 256> btKeys = { 0 };
 	// Only set the Caps Lock key to on for the key names in uppercase
@@ -522,15 +525,8 @@ static const phmap::flat_hash_map<DWORD, std::wstring>& GetKeyboardLayout() {
 	return keyboardLayoutMap;
 }
 
-std::wstring Win32Utils::GetKeyName(DWORD key) {
-	const phmap::flat_hash_map<DWORD, std::wstring>& keyboardLayoutMap = GetKeyboardLayout();
-
-	auto it = keyboardLayoutMap.find(key);
-	if (it != keyboardLayoutMap.end()) {
-		return it->second;
-	} else {
-		return L"Undefined";
-	}
+const std::wstring& Win32Utils::GetKeyName(uint8_t key) {
+	return GetKeyNames()[key];
 }
 
 bool Win32Utils::IsProcessElevated() noexcept {
