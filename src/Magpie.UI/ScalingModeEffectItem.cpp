@@ -70,7 +70,10 @@ double ScalingModeEffectItem::ScalingFactorX() const noexcept {
 }
 
 void ScalingModeEffectItem::ScalingFactorX(double value) {
-	_Data().scale.first = (float)value;
+	if (!std::isnan(value) && value + std::numeric_limits<float>::epsilon() > 1e-4) {
+		_Data().scale.first = (float)value;
+	}
+	
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"ScalingFactorX"));
 }
 
@@ -79,8 +82,11 @@ double ScalingModeEffectItem::ScalingFactorY() const noexcept {
 }
 
 void ScalingModeEffectItem::ScalingFactorY(double value) {
-	_Data().scale.second = (float)value;
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"ScalingFactorX"));
+	if (!std::isnan(value) && value + std::numeric_limits<float>::epsilon() > 1e-4) {
+		_Data().scale.second = (float)value;
+	}
+
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"ScalingFactorY"));
 }
 
 void ScalingModeEffectItem::Remove() {
