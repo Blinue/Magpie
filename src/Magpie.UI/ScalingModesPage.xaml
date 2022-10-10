@@ -408,14 +408,25 @@
 																					</StackPanel>
 																				</StackPanel>
 																				<StackPanel Margin="0,15,0,0"
+																							Spacing="15"
 																							Visibility="{x:Bind IsShowScalingPixels, Mode=OneWay}">
+																					<StackPanel.Resources>
+																						<Style TargetType="muxc:NumberBox">
+																							<Setter Property="HorizontalAlignment" Value="Stretch" />
+																							<Setter Property="SmallChange" Value="1" />
+																							<Setter Property="LargeChange" Value="10" />
+																							<Setter Property="SpinButtonPlacementMode" Value="Inline" />
+																						</Style>
+																					</StackPanel.Resources>
 																					<StackPanel Spacing="8">
 																						<TextBlock Text="宽（像素）" />
-																						<muxc:NumberBox HorizontalAlignment="Stretch" />
+																						<muxc:NumberBox NumberFormatter="{x:Bind local:ScalingModesPage.NumberFormatter, Mode=OneTime}"
+																										Value="{x:Bind ScalingPixelsX, Mode=TwoWay}" />
 																					</StackPanel>
 																					<StackPanel Spacing="8">
 																						<TextBlock Text="高（像素）" />
-																						<muxc:NumberBox HorizontalAlignment="Stretch" />
+																						<muxc:NumberBox NumberFormatter="{x:Bind local:ScalingModesPage.NumberFormatter, Mode=OneTime}"
+																										Value="{x:Bind ScalingPixelsY, Mode=TwoWay}" />
 																					</StackPanel>
 																				</StackPanel>
 																			</StackPanel>

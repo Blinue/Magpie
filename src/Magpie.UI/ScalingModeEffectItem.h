@@ -63,6 +63,14 @@ struct ScalingModeEffectItem : ScalingModeEffectItemT<ScalingModeEffectItem> {
 
 	void ScalingFactorY(double value);
 
+	double ScalingPixelsX() const noexcept;
+
+	void ScalingPixelsX(double value);
+
+	double ScalingPixelsY() const noexcept;
+
+	void ScalingPixelsY(double value);
+
 	void Remove();
 
 	event_token Removed(EventHandler<uint32_t> const& handler) {

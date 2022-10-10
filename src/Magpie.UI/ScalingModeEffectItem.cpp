@@ -39,15 +39,49 @@ int ScalingModeEffectItem::ScalingType() const noexcept {
 	return (int)_Data().scalingType;
 }
 
+static SIZE GetMonitorSize() noexcept {
+	// 使用距离主窗口最近的显示器
+	HWND hwndMain = (HWND)Application::Current().as<App>().HwndMain();
+	HMONITOR hMonitor = MonitorFromWindow(hwndMain, MONITOR_DEFAULTTONEAREST);
+	if (!hMonitor) {
+		Logger::Get().Win32Error("MonitorFromWindow 失败");
+		return { 400,300 };
+	}
+
+	MONITORINFO mi{};
+	mi.cbSize = sizeof(mi);
+	if (!GetMonitorInfo(hMonitor, &mi)) {
+		Logger::Get().Win32Error("GetMonitorInfo 失败");
+		return { 400,300 };
+	}
+	
+	return {
+		mi.rcMonitor.right - mi.rcMonitor.left,
+		mi.rcMonitor.bottom - mi.rcMonitor.top
+	};
+}
+
 void ScalingModeEffectItem::ScalingType(int value) {
 	if (value < 0) {
 		return;
 	}
 
 	EffectOption& data = _Data();
-	Core::ScalingType scalingType = (Core::ScalingType)value;
+	const Core::ScalingType scalingType = (Core::ScalingType)value;
 	if (data.scalingType == scalingType) {
 		return;
+	}
+
+	if (data.scalingType == Core::ScalingType::Absolute) {
+		data.scale = { 1.0f,1.0f };
+		_propertyChangedEvent(*this, PropertyChangedEventArgs(L"ScalingFactorX"));
+		_propertyChangedEvent(*this, PropertyChangedEventArgs(L"ScalingFactorY"));
+	} else if (scalingType == Core::ScalingType::Absolute) {
+		SIZE monitorSize = GetMonitorSize();
+		data.scale = { (float)monitorSize.cx,(float)monitorSize.cy };
+
+		_propertyChangedEvent(*this, PropertyChangedEventArgs(L"ScalingPixelsX"));
+		_propertyChangedEvent(*this, PropertyChangedEventArgs(L"ScalingPixelsY"));
 	}
 
 	data.scalingType = scalingType;
@@ -70,8 +104,14 @@ double ScalingModeEffectItem::ScalingFactorX() const noexcept {
 }
 
 void ScalingModeEffectItem::ScalingFactorX(double value) {
+	EffectOption& data = _Data();
+	if (data.scalingType != Core::ScalingType::Normal && data.scalingType != Core::ScalingType::Fit) {
+		return;
+	}
+
+	// 用户将 NumberBox 清空时会传入 nan
 	if (!std::isnan(value) && value + std::numeric_limits<float>::epsilon() > 1e-4) {
-		_Data().scale.first = (float)value;
+		data.scale.first = (float)value;
 	}
 	
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"ScalingFactorX"));
@@ -82,11 +122,50 @@ double ScalingModeEffectItem::ScalingFactorY() const noexcept {
 }
 
 void ScalingModeEffectItem::ScalingFactorY(double value) {
+	EffectOption& data = _Data();
+	if (data.scalingType != Core::ScalingType::Normal && data.scalingType != Core::ScalingType::Fit) {
+		return;
+	}
+
 	if (!std::isnan(value) && value + std::numeric_limits<float>::epsilon() > 1e-4) {
-		_Data().scale.second = (float)value;
+		data.scale.second = (float)value;
 	}
 
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"ScalingFactorY"));
+}
+
+double ScalingModeEffectItem::ScalingPixelsX() const noexcept {
+	return _Data().scale.first;
+}
+
+void ScalingModeEffectItem::ScalingPixelsX(double value) {
+	EffectOption& data = _Data();
+	if (data.scalingType != Core::ScalingType::Absolute) {
+		return;
+	}
+
+	if (!std::isnan(value) && value > 0.5) {
+		data.scale.first = (float)std::round(value);
+	}
+
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"ScalingPixelsX"));
+}
+
+double ScalingModeEffectItem::ScalingPixelsY() const noexcept {
+	return _Data().scale.second;
+}
+
+void ScalingModeEffectItem::ScalingPixelsY(double value) {
+	EffectOption& data = _Data();
+	if (data.scalingType != Core::ScalingType::Absolute) {
+		return;
+	}
+
+	if (!std::isnan(value) && value > 0.5) {
+		data.scale.second = (float)std::round(value);
+	}
+
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"ScalingPixelsY"));
 }
 
 void ScalingModeEffectItem::Remove() {
