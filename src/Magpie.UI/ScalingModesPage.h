@@ -30,6 +30,8 @@ struct ScalingModesPage : ScalingModesPageT<ScalingModesPage> {
 
 	static IVector<IInspectable> ScalingTypes() noexcept;
 
+	static Windows::Globalization::NumberFormatting::INumberFormatter2 NumberFormatter() noexcept;
+
 	void ComboBox_DropDownOpened(IInspectable const& sender, IInspectable const&);
 
 	void AddEffectButton_Click(IInspectable const& sender, RoutedEventArgs const&);

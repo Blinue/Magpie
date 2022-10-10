@@ -13,6 +13,7 @@
 
 
 using namespace winrt;
+using namespace Windows::Globalization::NumberFormatting;
 using namespace Windows::UI::Xaml::Controls;
 using namespace Windows::UI::Xaml::Controls::Primitives;
 using namespace Windows::UI::Xaml::Input;
@@ -42,6 +43,20 @@ IVector<IInspectable> ScalingModesPage::ScalingTypes() noexcept {
 	});
 
 	return types;
+}
+
+INumberFormatter2 ScalingModesPage::NumberFormatter() noexcept {
+	static DecimalFormatter numberFormatter = []() {
+		DecimalFormatter result;
+		IncrementNumberRounder rounder;
+		// 保留四位小数
+		rounder.Increment(0.0001);
+		result.NumberRounder(rounder);
+		result.FractionDigits(0);
+		return result;
+	}();
+
+	return numberFormatter;
 }
 
 void ScalingModesPage::ComboBox_DropDownOpened(IInspectable const& sender, IInspectable const&) {

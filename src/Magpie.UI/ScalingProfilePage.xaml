@@ -377,7 +377,7 @@
 								<local:SettingItem.ActionContent>
 									<StackPanel Orientation="Horizontal"
 												Spacing="10">
-										<muxc:NumberBox NumberFormatter="{x:Bind NumberFormatter, Mode=OneTime}"
+										<muxc:NumberBox NumberFormatter="{x:Bind local:ScalingProfilePage.NumberFormatter, Mode=OneTime}"
 														Value="{x:Bind ViewModel.CroppingLeft, Mode=TwoWay}" />
 										<TextBlock VerticalAlignment="Center"
 												   Text="像素" />
@@ -390,7 +390,7 @@
 								<local:SettingItem.ActionContent>
 									<StackPanel Orientation="Horizontal"
 												Spacing="10">
-										<muxc:NumberBox NumberFormatter="{x:Bind NumberFormatter, Mode=OneTime}"
+										<muxc:NumberBox NumberFormatter="{x:Bind local:ScalingProfilePage.NumberFormatter, Mode=OneTime}"
 														Value="{x:Bind ViewModel.CroppingRight, Mode=TwoWay}" />
 										<TextBlock VerticalAlignment="Center"
 												   Text="像素" />
@@ -403,7 +403,7 @@
 								<local:SettingItem.ActionContent>
 									<StackPanel Orientation="Horizontal"
 												Spacing="10">
-										<muxc:NumberBox NumberFormatter="{x:Bind NumberFormatter, Mode=OneTime}"
+										<muxc:NumberBox NumberFormatter="{x:Bind local:ScalingProfilePage.NumberFormatter, Mode=OneTime}"
 														Value="{x:Bind ViewModel.CroppingTop, Mode=TwoWay}" />
 										<TextBlock VerticalAlignment="Center"
 												   Text="像素" />
@@ -416,7 +416,7 @@
 								<local:SettingItem.ActionContent>
 									<StackPanel Orientation="Horizontal"
 												Spacing="10">
-										<muxc:NumberBox NumberFormatter="{x:Bind NumberFormatter, Mode=OneTime}"
+										<muxc:NumberBox NumberFormatter="{x:Bind local:ScalingProfilePage.NumberFormatter, Mode=OneTime}"
 														Value="{x:Bind ViewModel.CroppingBottom, Mode=TwoWay}" />
 										<TextBlock VerticalAlignment="Center"
 												   Text="像素" />
@@ -481,7 +481,7 @@
 														VerticalAlignment="Stretch"
 														Maximum="10"
 														Minimum="0.1"
-														NumberFormatter="{x:Bind NumberFormatter, Mode=OneTime}"
+														NumberFormatter="{x:Bind local:ScalingProfilePage.NumberFormatter, Mode=OneTime}"
 														SmallChange="0.1"
 														Value="{x:Bind ViewModel.CustomCursorScaling, Mode=TwoWay}" />
 										<TextBlock x:Name="CustomCursorScalingLabel"

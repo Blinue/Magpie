@@ -14,6 +14,8 @@ namespace Magpie.UI
 		Int32 ScalingType;
 		Boolean IsShowScalingFactors { get; };
 		Boolean IsShowScalingPixels { get; };
+		Double ScalingFactorX;
+		Double ScalingFactorY;
 
 		void Remove();
 		event Windows.Foundation.EventHandler<UInt32> Removed;

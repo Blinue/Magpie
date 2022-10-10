@@ -39,7 +39,7 @@ int ScalingModeEffectItem::ScalingType() const noexcept {
 	return (int)_Data().scalingType;
 }
 
-void ScalingModeEffectItem::ScalingType(int value) noexcept {
+void ScalingModeEffectItem::ScalingType(int value) {
 	if (value < 0) {
 		return;
 	}
@@ -63,6 +63,24 @@ bool ScalingModeEffectItem::IsShowScalingFactors() const noexcept {
 
 bool ScalingModeEffectItem::IsShowScalingPixels() const noexcept {
 	return _Data().scalingType == Core::ScalingType::Absolute;
+}
+
+double ScalingModeEffectItem::ScalingFactorX() const noexcept {
+	return _Data().scale.first;
+}
+
+void ScalingModeEffectItem::ScalingFactorX(double value) {
+	_Data().scale.first = (float)value;
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"ScalingFactorX"));
+}
+
+double ScalingModeEffectItem::ScalingFactorY() const noexcept {
+	return _Data().scale.second;
+}
+
+void ScalingModeEffectItem::ScalingFactorY(double value) {
+	_Data().scale.second = (float)value;
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"ScalingFactorX"));
 }
 
 void ScalingModeEffectItem::Remove() {

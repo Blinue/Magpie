@@ -49,11 +49,19 @@ struct ScalingModeEffectItem : ScalingModeEffectItemT<ScalingModeEffectItem> {
 
 	int ScalingType() const noexcept;
 
-	void ScalingType(int value) noexcept;
+	void ScalingType(int value);
 
 	bool IsShowScalingFactors() const noexcept;
 
 	bool IsShowScalingPixels() const noexcept;
+
+	double ScalingFactorX() const noexcept;
+
+	void ScalingFactorX(double value);
+
+	double ScalingFactorY() const noexcept;
+
+	void ScalingFactorY(double value);
 
 	void Remove();
 

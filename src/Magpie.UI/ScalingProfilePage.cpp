@@ -45,13 +45,6 @@ ScalingProfilePage::ScalingProfilePage() {
 		MultiMonitorSettingItem().Visibility(Visibility::Collapsed);
 		Is3DGameModeSettingItem().Margin({ 0,0,0,-2 });
 	}
-
-	IncrementNumberRounder rounder;
-	// 保留一位小数
-	// 不知为何不能在 XAML 中设置
-	rounder.Increment(0.1);
-	_numberFormatter.NumberRounder(rounder);
-	_numberFormatter.FractionDigits(0);
 }
 
 void ScalingProfilePage::OnNavigatedTo(Navigation::NavigationEventArgs const& args) {
@@ -82,6 +75,20 @@ void ScalingProfilePage::CursorScalingComboBox_SelectionChanged(IInspectable con
 		CustomCursorScalingNumberBox().Visibility(Visibility::Collapsed);
 		CustomCursorScalingLabel().Visibility(Visibility::Collapsed);
 	}
+}
+
+INumberFormatter2 ScalingProfilePage::NumberFormatter() noexcept {
+	static DecimalFormatter numberFormatter = []() {
+		DecimalFormatter result;
+		IncrementNumberRounder rounder;
+		// 保留五位小数
+		rounder.Increment(0.1);
+		result.NumberRounder(rounder);
+		result.FractionDigits(0);
+		return result;
+	}();
+	
+	return numberFormatter;
 }
 
 void ScalingProfilePage::RenameFlyout_Opening(IInspectable const&, IInspectable const&) {

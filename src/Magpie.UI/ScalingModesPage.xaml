@@ -351,7 +351,7 @@
 																	<Button.Flyout>
 																		<Flyout>
 																			<StackPanel Width="260"
-																						Margin="0,10">
+																						Margin="0,5">
 																				<StackPanel.Resources>
 																					<Style TargetType="muxc:NumberBox">
 																						<Setter Property="HorizontalAlignment" Value="Stretch" />
@@ -390,11 +390,15 @@
 																							Visibility="{x:Bind IsShowScalingFactors, Mode=OneWay}">
 																					<StackPanel Spacing="8">
 																						<TextBlock Text="宽（缩放倍数）" />
-																						<muxc:NumberBox HorizontalAlignment="Stretch" />
+																						<muxc:NumberBox HorizontalAlignment="Stretch"
+																										NumberFormatter="{x:Bind local:ScalingModesPage.NumberFormatter, Mode=OneTime}"
+																										Value="{x:Bind ScalingFactorX, Mode=TwoWay}" />
 																					</StackPanel>
 																					<StackPanel Spacing="8">
 																						<TextBlock Text="高（缩放倍数）" />
-																						<muxc:NumberBox HorizontalAlignment="Stretch" />
+																						<muxc:NumberBox HorizontalAlignment="Stretch"
+																										NumberFormatter="{x:Bind local:ScalingModesPage.NumberFormatter, Mode=OneTime}"
+																										Value="{x:Bind ScalingFactorY, Mode=TwoWay}" />
 																					</StackPanel>
 																				</StackPanel>
 																				<StackPanel Margin="0,15,0,0"
@@ -424,7 +428,7 @@
 																		<Flyout>
 																			<ScrollViewer MinWidth="240"
 																						  MaxHeight="400"
-																						  Margin="0,10"
+																						  Margin="0,5"
 																						  VerticalScrollBarVisibility="Auto">
 																				<StackPanel Spacing="15">
 																					<StackPanel>
