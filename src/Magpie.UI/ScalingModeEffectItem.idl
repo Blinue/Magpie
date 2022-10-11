@@ -1,5 +1,24 @@
 namespace Magpie.UI
 {
+	runtimeclass ScalingModeBoolParameter : [default] Windows.UI.Xaml.Data.INotifyPropertyChanged
+	{
+		ScalingModeBoolParameter(UInt32 index, String label, Boolean initValue);
+
+		Boolean Value;
+		String Label { get; };
+	}
+
+	runtimeclass ScalingModeFloatParameter : [default] Windows.UI.Xaml.Data.INotifyPropertyChanged
+	{
+		ScalingModeFloatParameter(UInt32 index, String label, Single initValue, Single minimum, Single maximum, Single step);
+
+		Double Value;
+		String Label { get; };
+		Double Minimum { get; };
+		Double Maximum { get; };
+		Double Step{ get; };
+	}
+
 	runtimeclass ScalingModeEffectItem : [default] Windows.UI.Xaml.Data.INotifyPropertyChanged
 	{
 		ScalingModeEffectItem(UInt32 scalingModeIdx, UInt32 effectIdx);
@@ -18,6 +37,9 @@ namespace Magpie.UI
 		Double ScalingFactorY;
 		Double ScalingPixelsX;
 		Double ScalingPixelsY;
+
+		IVector<IInspectable> BoolParams { get; };
+		IVector<IInspectable> FloatParams { get; };
 
 		void Remove();
 		event Windows.Foundation.EventHandler<UInt32> Removed;

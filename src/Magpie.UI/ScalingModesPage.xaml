@@ -351,7 +351,7 @@
 																	<Button.Flyout>
 																		<Flyout>
 																			<StackPanel Width="260"
-																						Margin="0,5">
+																						Margin="0,0,0,4">
 																				<StackPanel.Resources>
 																					<Style TargetType="muxc:NumberBox">
 																						<Setter Property="HorizontalAlignment" Value="Stretch" />
@@ -443,27 +443,61 @@
 																	</Button.Content>
 																	<Button.Flyout>
 																		<Flyout>
-																			<ScrollViewer MinWidth="240"
-																						  MaxHeight="400"
-																						  Margin="0,5"
+																			<ScrollViewer MaxHeight="400"
 																						  VerticalScrollBarVisibility="Auto">
-																				<StackPanel Spacing="15">
-																					<StackPanel>
-																						<CheckBox Content="参数2" />
-																						<CheckBox Content="参数4" />
-																					</StackPanel>
-																					<StackPanel Spacing="15">
-																						<StackPanel Spacing="8">
-																							<TextBlock Text="参数1" />
-																							<Slider HorizontalAlignment="Stretch"
-																									IsThumbToolTipEnabled="False" />
-																						</StackPanel>
-																						<StackPanel Spacing="8">
-																							<TextBlock Text="参数3" />
-																							<Slider HorizontalAlignment="Stretch"
-																									IsThumbToolTipEnabled="False" />
-																						</StackPanel>
-																					</StackPanel>
+																				<StackPanel Margin="0,0,0,-15">
+																					<ListView Margin="0,0,0,15"
+																							  ItemsSource="{x:Bind BoolParams, Mode=OneTime}"
+																							  SelectionMode="None">
+																						<ListView.Resources>
+																							<Style TargetType="ListViewItem">
+																								<Setter Property="Margin" Value="0" />
+																								<Setter Property="Padding" Value="0" />
+																								<Setter Property="MinHeight" Value="0" />
+																								<Setter Property="HorizontalContentAlignment" Value="Stretch" />
+																								<Setter Property="IsTabStop" Value="False" />
+																							</Style>
+																						</ListView.Resources>
+																						<ListView.ItemTemplate>
+																							<DataTemplate x:DataType="local:ScalingModeBoolParameter">
+																								<CheckBox MinWidth="0"
+																										  Content="{x:Bind Label, Mode=OneTime}"
+																										  IsChecked="{x:Bind Value, Mode=TwoWay}" />
+																							</DataTemplate>
+																						</ListView.ItemTemplate>
+																					</ListView>
+																					<ListView MinWidth="240"
+																							  Margin="0,0,0,15"
+																							  ItemsSource="{x:Bind FloatParams, Mode=OneTime}"
+																							  SelectionMode="None">
+																						<ListView.Resources>
+																							<Style TargetType="ListViewItem">
+																								<Setter Property="Margin" Value="0" />
+																								<Setter Property="Padding" Value="0" />
+																								<Setter Property="MinHeight" Value="0" />
+																								<Setter Property="HorizontalContentAlignment" Value="Stretch" />
+																								<Setter Property="IsTabStop" Value="False" />
+																							</Style>
+																						</ListView.Resources>
+																						<ListView.ItemsPanel>
+																							<ItemsPanelTemplate>
+																								<StackPanel Spacing="8" />
+																							</ItemsPanelTemplate>
+																						</ListView.ItemsPanel>
+																						<ListView.ItemTemplate>
+																							<DataTemplate x:DataType="local:ScalingModeFloatParameter">
+																								<StackPanel Spacing="2">
+																									<TextBlock Text="{x:Bind Label}" />
+																									<Slider HorizontalAlignment="Stretch"
+																											IsThumbToolTipEnabled="False"
+																											Maximum="{x:Bind Maximum, Mode=OneTime}"
+																											Minimum="{x:Bind Minimum, Mode=OneTime}"
+																											TickFrequency="{x:Bind Step, Mode=OneTime}"
+																											Value="{x:Bind Value, Mode=TwoWay}" />
+																								</StackPanel>
+																							</DataTemplate>
+																						</ListView.ItemTemplate>
+																					</ListView>
 																				</StackPanel>
 																			</ScrollViewer>
 																		</Flyout>

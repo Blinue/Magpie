@@ -3,9 +3,16 @@
 #if __has_include("ScalingModeEffectItem.g.cpp")
 #include "ScalingModeEffectItem.g.cpp"
 #endif
+#if __has_include("ScalingModeBoolParameter.g.cpp")
+#include "ScalingModeBoolParameter.g.cpp"
+#endif
+#if __has_include("ScalingModeFloatParameter.g.cpp")
+#include "ScalingModeFloatParameter.g.cpp"
+#endif
 #include <Magpie.Core.h>
 #include "ScalingModesService.h"
 #include "EffectsService.h"
+#include "StrUtils.h"
 
 
 namespace Core = ::Magpie::Core;
@@ -19,12 +26,48 @@ static std::wstring_view GetEffectDisplayName(std::wstring_view fullName) {
 
 namespace winrt::Magpie::UI::implementation {
 
+ScalingModeBoolParameter::ScalingModeBoolParameter(uint32_t index, const hstring& label, bool initValue) : _index(index), _label(label), _value(initValue) {
+}
+
+ScalingModeFloatParameter::ScalingModeFloatParameter(uint32_t index, const hstring& label, float initValue, float minimum, float maximum, float step)
+	: _index(index), _label(label), _value(initValue), _minimum(minimum), _maximum(maximum), _step(step) {
+}
+
 ScalingModeEffectItem::ScalingModeEffectItem(uint32_t scalingModeIdx, uint32_t effectIdx) 
 	: _scalingModeIdx(scalingModeIdx), _effectIdx(effectIdx)
 {
-	const std::wstring& name = _Data().name;
+	EffectOption& data = _Data();
+
+	const std::wstring& name = data.name;
 	_name = GetEffectDisplayName(name);
 	_effectInfo = EffectsService::Get().GetEffect(name);
+
+	std::vector<IInspectable> boolParams;
+	std::vector<IInspectable> floatParams;
+	for (uint32_t i = 0, size = (uint32_t)_effectInfo->params.size(); i < size; ++i) {
+		const EffectParameterDesc& param = _effectInfo->params[i];
+
+		if (param.constant.index() == 0) {
+			const EffectConstant<float>& constant = std::get<0>(param.constant);
+			floatParams.push_back(Magpie::UI::ScalingModeFloatParameter(i, StrUtils::UTF8ToUTF16(param.label.empty() ? param.name : param.label),
+				constant.defaultValue, constant.minValue, constant.maxValue, constant.step));
+		} else {
+			const EffectConstant<int>& constant = std::get<1>(param.constant);
+			if (constant.minValue == 0 && constant.maxValue == 1 && constant.step == 1) {
+				boolParams.push_back(Magpie::UI::ScalingModeBoolParameter(i,
+					StrUtils::UTF8ToUTF16(param.label.empty() ? param.name : param.label), (bool)constant.defaultValue));
+			} else {
+				floatParams.push_back(Magpie::UI::ScalingModeFloatParameter(i, StrUtils::UTF8ToUTF16(param.label.empty() ? param.name : param.label),
+					(float)constant.defaultValue, (float)constant.minValue, (float)constant.maxValue, (float)constant.step));
+			}
+		}
+	}
+	if (!boolParams.empty()) {
+		_boolParams = single_threaded_vector(std::move(boolParams));
+	}
+	if (!floatParams.empty()) {
+		_floatParams = single_threaded_vector(std::move(floatParams));
+	}
 }
 
 bool ScalingModeEffectItem::CanScale() const noexcept {
