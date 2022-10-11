@@ -72,7 +72,10 @@ struct ScalingModeFloatParameter : ScalingModeFloatParameterT<ScalingModeFloatPa
 	void Value(double value) {
 		_value = value;
 		_propertyChangedEvent(*this, PropertyChangedEventArgs(L"Value"));
+		_propertyChangedEvent(*this, PropertyChangedEventArgs(L"ValueText"));
 	}
+
+	hstring ValueText() const noexcept;
 
 	hstring Label() const noexcept {
 		return _label;

@@ -466,7 +466,7 @@
 																							</DataTemplate>
 																						</ListView.ItemTemplate>
 																					</ListView>
-																					<ListView MinWidth="240"
+																					<ListView Width="240"
 																							  Margin="0,0,0,15"
 																							  ItemsSource="{x:Bind FloatParams, Mode=OneTime}"
 																							  SelectionMode="None">
@@ -487,12 +487,25 @@
 																						<ListView.ItemTemplate>
 																							<DataTemplate x:DataType="local:ScalingModeFloatParameter">
 																								<StackPanel Spacing="2">
-																									<TextBlock Text="{x:Bind Label}" />
+																									<Grid ColumnSpacing="4">
+																										<Grid.ColumnDefinitions>
+																											<ColumnDefinition Width="*" />
+																											<ColumnDefinition Width="60" />
+																										</Grid.ColumnDefinitions>
+																										<TextBlock Grid.Column="0"
+																												   VerticalAlignment="Center"
+																												   Text="{x:Bind Label, Mode=OneTime}"
+																												   TextWrapping="WrapWholeWords" />
+																										<TextBlock Grid.Column="1"
+																												   HorizontalAlignment="Right"
+																												   VerticalAlignment="Center"
+																												   Text="{x:Bind ValueText, Mode=OneWay}" />
+																									</Grid>
 																									<Slider HorizontalAlignment="Stretch"
 																											IsThumbToolTipEnabled="False"
 																											Maximum="{x:Bind Maximum, Mode=OneTime}"
 																											Minimum="{x:Bind Minimum, Mode=OneTime}"
-																											TickFrequency="{x:Bind Step, Mode=OneTime}"
+																											StepFrequency="{x:Bind Step, Mode=OneTime}"
 																											Value="{x:Bind Value, Mode=TwoWay}" />
 																								</StackPanel>
 																							</DataTemplate>

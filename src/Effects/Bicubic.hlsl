@@ -6,6 +6,7 @@
 
 
 //!PARAMETER
+//!LABEL B
 //!DEFAULT 0.33
 //!MIN 0
 //!MAX 1
@@ -14,6 +15,7 @@
 float paramB;
 
 //!PARAMETER
+//!LABEL C
 //!DEFAULT 0.33
 //!MIN 0
 //!MAX 1

@@ -14,6 +14,7 @@ namespace Magpie.UI
 
 		Double Value;
 		String Label { get; };
+		String ValueText { get; };
 		Double Minimum { get; };
 		Double Maximum { get; };
 		Double Step{ get; };

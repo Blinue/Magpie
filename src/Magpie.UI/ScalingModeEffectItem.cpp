@@ -33,6 +33,10 @@ ScalingModeFloatParameter::ScalingModeFloatParameter(uint32_t index, const hstri
 	: _index(index), _label(label), _value(initValue), _minimum(minimum), _maximum(maximum), _step(step) {
 }
 
+hstring ScalingModeFloatParameter::ValueText() const noexcept {
+	return ScalingModesPage::NumberFormatter().FormatDouble(_value);
+}
+
 ScalingModeEffectItem::ScalingModeEffectItem(uint32_t scalingModeIdx, uint32_t effectIdx) 
 	: _scalingModeIdx(scalingModeIdx), _effectIdx(effectIdx)
 {
