@@ -17,10 +17,10 @@ jobs:
     runs-on: windows-2022
 
     steps:
-    - uses: actions/checkout@v2.4.0
+    - uses: actions/checkout@v3
 
     - name: Load Conan cache
-      uses: actions/cache@v2
+      uses: actions/cache@v3
       with:
         path: ./.conan/data
         key: ${{ runner.os }}-conan-${{ hashFiles('src/conanfile.txt') }}
@@ -42,7 +42,7 @@ jobs:
       run: echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
 
     - name: Store build
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with: 
           name: Magpie_dev_${{ steps.vars.outputs.sha_short }}
           path: ./publish
