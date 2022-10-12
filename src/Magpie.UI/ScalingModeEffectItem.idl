@@ -41,6 +41,8 @@ namespace Magpie.UI
 
 		IVector<IInspectable> BoolParams { get; };
 		IVector<IInspectable> FloatParams { get; };
+		Boolean HasBoolParams { get; };
+		Boolean HasFloatParams { get; };
 
 		void Remove();
 		event Windows.Foundation.EventHandler<UInt32> Removed;

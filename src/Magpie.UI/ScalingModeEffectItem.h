@@ -171,6 +171,14 @@ struct ScalingModeEffectItem : ScalingModeEffectItemT<ScalingModeEffectItem> {
 		return _floatParams;
 	}
 
+	bool HasBoolParams() const noexcept {
+		return _boolParams != nullptr;
+	}
+
+	bool HasFloatParams() const noexcept {
+		return _floatParams != nullptr;
+	}
+
 	void Remove();
 
 	event_token Removed(EventHandler<uint32_t> const& handler) {
