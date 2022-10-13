@@ -134,7 +134,7 @@ float scanlineWeight;
 float lum;
 
 //!PARAMETER
-//!DEFAULT 1
+//!DEFAULT 0
 //!MIN 0
 //!MAX 1
 //!STEP 1
