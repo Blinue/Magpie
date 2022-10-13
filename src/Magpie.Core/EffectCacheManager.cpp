@@ -138,8 +138,8 @@ static std::wstring GetLinearEffectName(std::wstring_view effectName) {
 }
 
 static std::wstring GetCacheFileName(std::wstring_view linearEffectName, std::wstring_view hash, UINT flags) {
-	// 缓存文件的命名：{效果名}_{标志位（16进制）}_{哈希}
-	return fmt::format(L"{}{}_{:02x}_{}", CommonSharedConstants::CACHE_DIR, linearEffectName, flags, hash);
+	// 缓存文件的命名：{效果名}_{标志位（16进制）}{哈希}
+	return fmt::format(L"{}{}_{:01x}{}", CommonSharedConstants::CACHE_DIR, linearEffectName, flags & 0xf, hash);
 }
 
 void EffectCacheManager::_AddToMemCache(const std::wstring& cacheFileName, const EffectDesc& desc) {
@@ -259,7 +259,7 @@ void EffectCacheManager::Save(std::wstring_view effectName, std::wstring_view ha
 		}
 	} else {
 		// 删除所有该效果（flags 相同）的缓存
-		std::wregex regex(fmt::format(L"^{}_{:02x}_[0-9,a-f]{{16}}$", linearEffectName, desc.flags),
+		std::wregex regex(fmt::format(L"^{}_{:01x}[0-9,a-f]{{16}}$", linearEffectName, desc.flags & 0xf),
 			std::wregex::optimize | std::wregex::nosubs);
 
 		WIN32_FIND_DATA findData{};
@@ -268,9 +268,9 @@ void EffectCacheManager::Save(std::wstring_view effectName, std::wstring_view ha
 			FindExInfoBasic, &findData, FindExSearchNameMatch, nullptr, FIND_FIRST_EX_LARGE_FETCH));
 		if (hFind) {
 			do {
-				// 缓存文件名至少有 21 个字符
-				// {Name}_{2}_{16}
-				if (StrUtils::StrLen(findData.cFileName) < 21) {
+				// 缓存文件名至少有 19 个字符
+				// {Name}_{1}{16}
+				if (StrUtils::StrLen(findData.cFileName) < 19) {
 					continue;
 				}
 

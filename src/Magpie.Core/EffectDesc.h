@@ -115,7 +115,7 @@ struct EffectFlags {
 	static constexpr const uint32_t InlineParams = 0x2;
 	static constexpr const uint32_t FP16 = 0x4;
 	// 输出
-	static constexpr const uint32_t UseDynamic = 0x8;
+	static constexpr const uint32_t UseDynamic = 0x10;
 };
 
 struct EffectDesc {
