@@ -839,22 +839,102 @@ void AppSettings::_SetDefaultHotkeys() {
 }
 
 void AppSettings::_SetDefaultScalingModes() {
+	_scalingModes.resize(8);
+
+	// Lanczos
 	{
-		auto& lanczos = _scalingModes.emplace_back();
+		auto& lanczos = _scalingModes[0];
 		lanczos.name = L"Lanczos";
+
 		auto& lanczosEffect = lanczos.effects.emplace_back();
 		lanczosEffect.name = L"Lanczos";
 		lanczosEffect.scalingType = ::Magpie::Core::ScalingType::Fit;
 	}
+	// FSR
 	{
-		auto& fsr = _scalingModes.emplace_back();
+		auto& fsr = _scalingModes[1];
 		fsr.name = L"FSR";
-		auto& easu = fsr.effects.emplace_back();
+
+		fsr.effects.resize(2);
+		auto& easu = fsr.effects[0];
 		easu.name = L"FSR\\FSR_EASU";
 		easu.scalingType = ::Magpie::Core::ScalingType::Fit;
-		auto& rcas = fsr.effects.emplace_back();
+		auto& rcas = fsr.effects[1];
 		rcas.name = L"FSR\\FSR_RCAS";
 		rcas.parameters[L"sharpness"] = 0.87f;
+	}
+	// FSRCNNX
+	{
+		auto& fsrcnnx = _scalingModes[2];
+		fsrcnnx.name = L"FSRCNNX";
+
+		fsrcnnx.effects.resize(2);
+		fsrcnnx.effects[0].name = L"FSRCNNX\\FSRCNNX";
+		auto& bicubic = fsrcnnx.effects[1];
+		bicubic.name = L"Bicubic";
+		bicubic.scalingType = ::Magpie::Core::ScalingType::Fit;
+		bicubic.parameters[L"paramB"] = 0.0f;
+		bicubic.parameters[L"paramC"] = 0.5f;
+	}
+	// ACNet
+	{
+		auto& acnet = _scalingModes[3];
+		acnet.name = L"ACNet";
+
+		acnet.effects.resize(2);
+		acnet.effects[0].name = L"ACNet";
+		auto& bicubic = acnet.effects[1];
+		bicubic.name = L"Bicubic";
+		bicubic.scalingType = ::Magpie::Core::ScalingType::Fit;
+		bicubic.parameters[L"paramB"] = 0.0f;
+		bicubic.parameters[L"paramC"] = 0.5f;
+	}
+	// Anime4K
+	{
+		auto& anime4k = _scalingModes[4];
+		anime4k.name = L"Anime4K";
+
+		anime4k.effects.resize(2);
+		anime4k.effects[0].name = L"Anime4K\\Anime4K_Upscale_Denoise_L";
+		auto& bicubic = anime4k.effects[1];
+		bicubic.name = L"Bicubic";
+		bicubic.scalingType = ::Magpie::Core::ScalingType::Fit;
+		bicubic.parameters[L"paramB"] = 0.0f;
+		bicubic.parameters[L"paramC"] = 0.5f;
+	}
+	// CRT-Geom
+	{
+		auto& crtGeom = _scalingModes[5];
+		crtGeom.name = L"CRT-Geom";
+
+		auto& crtGeomEffect = crtGeom.effects.emplace_back();
+		crtGeomEffect.name = L"CRT\\CRT_Geom";
+		crtGeomEffect.scalingType = ::Magpie::Core::ScalingType::Fit;
+		crtGeomEffect.parameters[L"curvature"] = 0.0f;
+		crtGeomEffect.parameters[L"cornerSize"] = 0.001f;
+		crtGeomEffect.parameters[L"CRTGamma"] = 1.5f;
+		crtGeomEffect.parameters[L"monitorGamma"] = 2.2f;
+		crtGeomEffect.parameters[L"interlace"] = 0.0f;
+	}
+	// Integer Scale 2x
+	{
+		auto& integer2x = _scalingModes[6];
+		integer2x.name = L"Integer Scale 2x";
+
+		auto& nearest = integer2x.effects.emplace_back();
+		nearest.name = L"Nearest";
+		nearest.scalingType = ::Magpie::Core::ScalingType::Normal;
+		nearest.scale = { 2.0f,2.0f };
+	}
+	// Integer Scale 3x
+	{
+		auto& integer3x = _scalingModes[7];
+		integer3x.name = L"Integer Scale 3x";
+
+		auto& nearest = integer3x.effects.emplace_back();
+		nearest.name = L"Nearest";
+		nearest.scalingType = ::Magpie::Core::ScalingType::Normal;
+		nearest.scale = { 3.0f,3.0f };
 	}
 }
 
