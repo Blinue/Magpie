@@ -26,7 +26,8 @@ static std::wstring_view GetEffectDisplayName(std::wstring_view fullName) {
 
 namespace winrt::Magpie::UI::implementation {
 
-ScalingModeBoolParameter::ScalingModeBoolParameter(uint32_t index, const hstring& label, bool initValue) : _index(index), _label(label), _value(initValue) {
+ScalingModeBoolParameter::ScalingModeBoolParameter(uint32_t index, const hstring& label, bool initValue)
+	: _index(index), _label(label), _value(initValue) {
 }
 
 ScalingModeFloatParameter::ScalingModeFloatParameter(uint32_t index, const hstring& label, float initValue, float minimum, float maximum, float step)
@@ -51,18 +52,47 @@ ScalingModeEffectItem::ScalingModeEffectItem(uint32_t scalingModeIdx, uint32_t e
 	for (uint32_t i = 0, size = (uint32_t)_effectInfo->params.size(); i < size; ++i) {
 		const EffectParameterDesc& param = _effectInfo->params[i];
 
+		std::optional<float> paramValue;
+		{
+			auto it = data.parameters.find(StrUtils::UTF8ToUTF16(param.name));
+			if (it != data.parameters.end()) {
+				paramValue = it->second;
+			}
+		}
+
 		if (param.constant.index() == 0) {
 			const EffectConstant<float>& constant = std::get<0>(param.constant);
-			floatParams.push_back(Magpie::UI::ScalingModeFloatParameter(i, StrUtils::UTF8ToUTF16(param.label.empty() ? param.name : param.label),
-				constant.defaultValue, constant.minValue, constant.maxValue, constant.step));
+			Magpie::UI::ScalingModeFloatParameter floatParamItem(
+				i,
+				StrUtils::UTF8ToUTF16(param.label.empty() ? param.name : param.label),
+				paramValue.has_value() ? paramValue.value() : constant.defaultValue,
+				constant.minValue,
+				constant.maxValue,
+				constant.step
+			);
+			floatParamItem.PropertyChanged({ this, &ScalingModeEffectItem::_ScalingModeFloatParameter_PropertyChanged });
+			floatParams.push_back(floatParamItem);
 		} else {
 			const EffectConstant<int>& constant = std::get<1>(param.constant);
 			if (constant.minValue == 0 && constant.maxValue == 1 && constant.step == 1) {
-				boolParams.push_back(Magpie::UI::ScalingModeBoolParameter(i,
-					StrUtils::UTF8ToUTF16(param.label.empty() ? param.name : param.label), (bool)constant.defaultValue));
+				Magpie::UI::ScalingModeBoolParameter boolParamItem(
+					i,
+					StrUtils::UTF8ToUTF16(param.label.empty() ? param.name : param.label),
+					paramValue.has_value() ? std::abs(paramValue.value()) > 1e-6 : (bool)constant.defaultValue
+				);
+				boolParamItem.PropertyChanged({ this, &ScalingModeEffectItem::_ScalingModeBoolParameter_PropertyChanged });
+				boolParams.push_back(boolParamItem);
 			} else {
-				floatParams.push_back(Magpie::UI::ScalingModeFloatParameter(i, StrUtils::UTF8ToUTF16(param.label.empty() ? param.name : param.label),
-					(float)constant.defaultValue, (float)constant.minValue, (float)constant.maxValue, (float)constant.step));
+				Magpie::UI::ScalingModeFloatParameter floatParamItem(
+					i,
+					StrUtils::UTF8ToUTF16(param.label.empty() ? param.name : param.label),
+					paramValue.has_value() ? paramValue.value() : (float)constant.defaultValue,
+					(float)constant.minValue,
+					(float)constant.maxValue,
+					(float)constant.step
+				);
+				floatParamItem.PropertyChanged({ this, &ScalingModeEffectItem::_ScalingModeFloatParameter_PropertyChanged });
+				floatParams.push_back(floatParamItem);
 			}
 		}
 	}
@@ -217,6 +247,26 @@ void ScalingModeEffectItem::ScalingPixelsY(double value) {
 
 void ScalingModeEffectItem::Remove() {
 	_removedEvent(*this, _effectIdx);
+}
+
+void ScalingModeEffectItem::_ScalingModeBoolParameter_PropertyChanged(IInspectable const& sender, PropertyChangedEventArgs const& args) {
+	if (args.PropertyName() != L"Value") {
+		return;
+	}
+
+	ScalingModeBoolParameter* boolParamImpl = get_self<ScalingModeBoolParameter>(sender.as<default_interface<ScalingModeBoolParameter>>());
+	const std::string& effectName = _effectInfo->params[boolParamImpl->Index()].name;
+	_Data().parameters[StrUtils::UTF8ToUTF16(effectName)] = (float)boolParamImpl->Value();
+}
+
+void ScalingModeEffectItem::_ScalingModeFloatParameter_PropertyChanged(IInspectable const& sender, PropertyChangedEventArgs const& args) {
+	if (args.PropertyName() != L"Value") {
+		return;
+	}
+
+	ScalingModeFloatParameter* floatParamImpl = get_self<ScalingModeFloatParameter>(sender.as<default_interface<ScalingModeFloatParameter>>());
+	const std::string& effectName = _effectInfo->params[floatParamImpl->Index()].name;
+	_Data().parameters[StrUtils::UTF8ToUTF16(effectName)] = (float)floatParamImpl->Value();
 }
 
 EffectOption& ScalingModeEffectItem::_Data() noexcept {

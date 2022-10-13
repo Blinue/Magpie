@@ -190,6 +190,10 @@ struct ScalingModeEffectItem : ScalingModeEffectItemT<ScalingModeEffectItem> {
 	}
 
 private:
+	void _ScalingModeBoolParameter_PropertyChanged(IInspectable const& sender, PropertyChangedEventArgs const& args);
+
+	void _ScalingModeFloatParameter_PropertyChanged(IInspectable const& sender, PropertyChangedEventArgs const& args);
+
 	::Magpie::Core::EffectOption& _Data() noexcept;
 	const ::Magpie::Core::EffectOption& _Data() const noexcept;
 
