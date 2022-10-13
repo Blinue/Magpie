@@ -6,6 +6,7 @@
 //!OUTPUT_HEIGHT INPUT_HEIGHT
 
 //!PARAMETER
+//!LABEL Sharpness
 //!DEFAULT 0.4
 //!MIN 0
 //!MAX 1

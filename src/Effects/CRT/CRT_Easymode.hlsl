@@ -35,6 +35,7 @@
 
 
 //!PARAMETER
+//!LABEL Sharpness Horizontal
 //!DEFAULT 0.5
 //!MIN 0
 //!MAX 1
@@ -42,6 +43,7 @@
 float sharpnessH;
 
 //!PARAMETER
+//!LABEL Sharpness Vertical
 //!DEFAULT 1
 //!MIN 0
 //!MAX 1
@@ -49,6 +51,7 @@ float sharpnessH;
 float sharpnessV;
 
 //!PARAMETER
+//!LABEL Mask Strength
 //!DEFAULT 0.3
 //!MIN 0
 //!MAX 1
@@ -56,6 +59,7 @@ float sharpnessV;
 float maskStrength;
 
 //!PARAMETER
+//!LABEL Mask Dot Width
 //!DEFAULT 1
 //!MIN 1
 //!MAX 100
@@ -63,6 +67,7 @@ float maskStrength;
 int maskDotWidth;
 
 //!PARAMETER
+//!LABEL Mask Dot Height
 //!DEFAULT 1
 //!MIN 1
 //!MAX 100
@@ -70,6 +75,7 @@ int maskDotWidth;
 int maskDotHeight;
 
 //!PARAMETER
+//!LABEL Mask Stagger
 //!DEFAULT 0
 //!MIN 0
 //!MAX 100
@@ -77,6 +83,7 @@ int maskDotHeight;
 int maskStagger;
 
 //!PARAMETER
+//!LABEL Mask Size
 //!DEFAULT 1
 //!MIN 1
 //!MAX 100
@@ -84,6 +91,7 @@ int maskStagger;
 int maskSize;
 
 //!PARAMETER
+//!LABEL Scanline Strength
 //!DEFAULT 1
 //!MIN 0
 //!MAX 1
@@ -91,6 +99,7 @@ int maskSize;
 float scanlineStrength;
 
 //!PARAMETER
+//!LABEL Scanline Beam Width Min
 //!DEFAULT 1.5
 //!MIN 0.5
 //!MAX 5
@@ -98,6 +107,7 @@ float scanlineStrength;
 float scanlineBeamWidthMin;
 
 //!PARAMETER
+//!LABEL Scanline Beam Width Max
 //!DEFAULT 1.5
 //!MIN 0.5
 //!MAX 5
@@ -105,6 +115,7 @@ float scanlineBeamWidthMin;
 float scanlineBeamWidthMax;
 
 //!PARAMETER
+//!LABEL Scanline Brightness Min
 //!DEFAULT 0.35
 //!MIN 0
 //!MAX 1
@@ -112,6 +123,7 @@ float scanlineBeamWidthMax;
 float scanlineBrightMin;
 
 //!PARAMETER
+//!LABEL Scanline Brightness Max
 //!DEFAULT 0.65
 //!MIN 0
 //!MAX 1
@@ -119,6 +131,7 @@ float scanlineBrightMin;
 float scanlineBrightMax;
 
 //!PARAMETER
+//!LABEL Scanline Cutoff
 //!DEFAULT 400
 //!MIN 1
 //!MAX 1000
@@ -126,6 +139,7 @@ float scanlineBrightMax;
 int scanlineCutoff;
 
 //!PARAMETER
+//!LABEL Gamma Input
 //!DEFAULT 2
 //!MIN 0.1
 //!MAX 5
@@ -133,6 +147,7 @@ int scanlineCutoff;
 float gammaInput;
 
 //!PARAMETER
+//!LABEL Gamma Output
 //!DEFAULT 1.8
 //!MIN 0.1
 //!MAX 5
@@ -140,6 +155,7 @@ float gammaInput;
 float gammaOutput;
 
 //!PARAMETER
+//!LABEL Brightness Boost
 //!DEFAULT 1.2
 //!MIN 1
 //!MAX 2
@@ -147,6 +163,7 @@ float gammaOutput;
 float brightBoost;
 
 //!PARAMETER
+//!LABEL Dilation
 //!DEFAULT 1
 //!MIN 0
 //!MAX 1

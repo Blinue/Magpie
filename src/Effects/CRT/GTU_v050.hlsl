@@ -13,6 +13,7 @@
 
 
 //!PARAMETER
+//!LABEL Composite Connection
 //!DEFAULT 0
 //!MIN 0
 //!MAX 1
@@ -20,6 +21,7 @@
 int compositeConnection;
 
 //!PARAMETER
+//!LABEL No Scanlines
 //!DEFAULT 0
 //!MIN 0
 //!MAX 1
@@ -27,6 +29,7 @@ int compositeConnection;
 int noScanlines;
 
 //!PARAMETER
+//!LABEL Signal Resolution Y
 //!DEFAULT 256
 //!MIN 16
 //!MAX 1024
@@ -34,6 +37,7 @@ int noScanlines;
 int signalResolution;
 
 //!PARAMETER
+//!LABEL Signal Resolution I
 //!DEFAULT 83
 //!MIN 1
 //!MAX 350
@@ -41,6 +45,7 @@ int signalResolution;
 int signalResolutionI;
 
 //!PARAMETER
+//!LABEL Signal Resolution Q
 //!DEFAULT 25
 //!MIN 1
 //!MAX 350
@@ -48,6 +53,7 @@ int signalResolutionI;
 int signalResolutionQ;
 
 //!PARAMETER
+//!LABEL TV Vertical Resolution
 //!DEFAULT 250
 //!MIN 20
 //!MAX 1000
@@ -55,6 +61,7 @@ int signalResolutionQ;
 int tvVerticalResolution;
 
 //!PARAMETER
+//!LABEL Black Level
 //!DEFAULT 0.07
 //!MIN -0.3
 //!MAX 0.3
@@ -62,6 +69,7 @@ int tvVerticalResolution;
 float blackLevel;
 
 //!PARAMETER
+//!LABEL Contrast
 //!DEFAULT 1
 //!MIN 0
 //!MAX 2

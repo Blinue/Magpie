@@ -450,7 +450,8 @@
 																				</Style>
 																			</Flyout.FlyoutPresenterStyle>
 																			<StackPanel Margin="0,0,0,-17">
-																				<ListView Margin="0,0,0,15"
+																				<ListView MaxWidth="260"
+																						  Margin="0,0,0,15"
 																						  ItemsSource="{x:Bind BoolParams, Mode=OneTime}"
 																						  SelectionMode="None"
 																						  Visibility="{x:Bind HasBoolParams, Mode=OneTime}">
@@ -474,7 +475,7 @@
 																						</DataTemplate>
 																					</ListView.ItemTemplate>
 																				</ListView>
-																				<ListView Width="240"
+																				<ListView Width="260"
 																						  Margin="0,0,0,12"
 																						  ItemsSource="{x:Bind FloatParams, Mode=OneTime}"
 																						  SelectionMode="None"

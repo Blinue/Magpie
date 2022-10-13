@@ -8,6 +8,7 @@
 
 
 //!PARAMETER
+//!LABEL Sharpness
 //!DEFAULT 0.87
 //!MIN 0
 //!MAX 1
