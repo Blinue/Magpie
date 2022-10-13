@@ -7,6 +7,7 @@
 
 
 //!PARAMETER
+//!LABEL Target Gamma
 //!DEFAULT 2.2
 //!MIN 0.01
 //!MAX 5
@@ -14,6 +15,7 @@
 float targetGamma;
 
 //!PARAMETER
+//!LABEL Monitor Gamma
 //!DEFAULT 2.2
 //!MIN 0.01
 //!MAX 5
@@ -21,6 +23,7 @@ float targetGamma;
 float monitorGamma;
 
 //!PARAMETER
+//!LABEL Saturation
 //!DEFAULT 1
 //!MIN 0
 //!MAX 5
@@ -28,6 +31,7 @@ float monitorGamma;
 float saturation;
 
 //!PARAMETER
+//!LABEL Luminance
 //!DEFAULT 1
 //!MIN 0
 //!MAX 2
@@ -35,6 +39,7 @@ float saturation;
 float luminance;
 
 //!PARAMETER
+//!LABEL Contrast
 //!DEFAULT 1
 //!MIN 0
 //!MAX 10
@@ -42,6 +47,7 @@ float luminance;
 float contrast;
 
 //!PARAMETER
+//!LABEL Brightness Boost
 //!DEFAULT 0
 //!MIN -1
 //!MAX 1
@@ -49,6 +55,7 @@ float contrast;
 float brightBoost;
 
 //!PARAMETER
+//!LABEL Black Level
 //!DEFAULT 0
 //!MIN -1
 //!MAX 1
@@ -56,6 +63,7 @@ float brightBoost;
 float blackLevel;
 
 //!PARAMETER
+//!LABEL Red Channel
 //!DEFAULT 1
 //!MIN 0
 //!MAX 2
@@ -63,6 +71,7 @@ float blackLevel;
 float r;
 
 //!PARAMETER
+//!LABEL Green Channel
 //!DEFAULT 1
 //!MIN 0
 //!MAX 2
@@ -70,6 +79,7 @@ float r;
 float g;
 
 //!PARAMETER
+//!LABEL Blue Channel
 //!DEFAULT 1
 //!MIN 0
 //!MAX 2

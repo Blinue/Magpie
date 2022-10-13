@@ -14,6 +14,7 @@
 
 
 //!PARAMETER
+//!LABEL Window Sinc Param
 //!DEFAULT 0.5
 //!MIN 0
 //!MAX 1
@@ -21,6 +22,7 @@
 float windowSinc;
 
 //!PARAMETER
+//!LABEL Sinc Param
 //!DEFAULT 0.825
 //!MIN 0
 //!MAX 1
@@ -28,6 +30,7 @@ float windowSinc;
 float sinc;
 
 //!PARAMETER
+//!LABEL Anti-ringing Strength
 //!DEFAULT 0.5
 //!MIN 0
 //!MAX 1

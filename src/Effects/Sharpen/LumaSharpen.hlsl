@@ -19,15 +19,15 @@
 
 
 //!PARAMETER
+//!LABEL Sharpening Strength
 //!DEFAULT 0.65
 //!MIN 0
 //!MAX 3
 //!STEP 0.01
-
-// Shapening strength
 float sharpStrength;
 
 //!PARAMETER
+//!LABEL Sharpening Limit
 //!DEFAULT 0.035
 //!MIN 0
 //!MAX 1
@@ -38,6 +38,7 @@ float sharpStrength;
 float sharpClamp;
 
 //!PARAMETER
+//!LABEL Sample Pattern
 //!DEFAULT 1
 //!MIN 0
 //!MAX 3
@@ -51,6 +52,7 @@ float sharpClamp;
 int pattern;
 
 //!PARAMETER
+//!LABEL Offset Bias
 //!DEFAULT 1
 //!MIN 0
 //!MAX 6

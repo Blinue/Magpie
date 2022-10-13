@@ -20,6 +20,7 @@
 //!VERSION 2
 
 //!PARAMETER
+//!LABEL Scanline Hardness
 //!DEFAULT -8
 //!MIN -20
 //!MAX 0
@@ -27,6 +28,7 @@
 int hardScan;
 
 //!PARAMETER
+//!LABEL Pixel Hardness
 //!DEFAULT -3
 //!MIN -20
 //!MAX 0
@@ -34,6 +36,7 @@ int hardScan;
 int hardPix;
 
 //!PARAMETER
+//!LABEL Horizontal Display Warp
 //!DEFAULT 0.031
 //!MIN 0
 //!MAX 0.125
@@ -41,6 +44,7 @@ int hardPix;
 float warpX;
 
 //!PARAMETER
+//!LABEL Vertical Display Warp
 //!DEFAULT 0.041
 //!MIN 0
 //!MAX 0.125
@@ -48,6 +52,7 @@ float warpX;
 float warpY;
 
 //!PARAMETER
+//!LABEL Mask Dark
 //!DEFAULT 0.5
 //!MIN 0
 //!MAX 2
@@ -55,6 +60,7 @@ float warpY;
 float maskDark;
 
 //!PARAMETER
+//!LABEL Mask Light
 //!DEFAULT 1.5
 //!MIN 0
 //!MAX 2
@@ -62,6 +68,7 @@ float maskDark;
 float maskLight;
 
 //!PARAMETER
+//!LABEL Shadow Mask
 //!DEFAULT 3
 //!MIN 0
 //!MAX 4
@@ -69,6 +76,7 @@ float maskLight;
 int shadowMask;
 
 //!PARAMETER
+//!LABEL Brightness Boost
 //!DEFAULT 1
 //!MIN 0
 //!MAX 2
@@ -76,6 +84,7 @@ int shadowMask;
 float brightBoost;
 
 //!PARAMETER
+//!LABEL Bloom-X Soft
 //!DEFAULT -1.5
 //!MIN -2
 //!MAX -0.5
@@ -83,6 +92,7 @@ float brightBoost;
 float hardBloomPix;
 
 //!PARAMETER
+//!LABEL Bloom-Y Soft
 //!DEFAULT -2
 //!MIN -4
 //!MAX -1
@@ -90,6 +100,7 @@ float hardBloomPix;
 float hardBloomScan;
 
 //!PARAMETER
+//!LABEL Bloom Amount
 //!DEFAULT 0.15
 //!MIN 0
 //!MAX 1
@@ -97,6 +108,7 @@ float hardBloomScan;
 float bloomAmount;
 
 //!PARAMETER
+//!LABEL Filter Kernel Shape
 //!DEFAULT 2
 //!MIN 0
 //!MAX 10

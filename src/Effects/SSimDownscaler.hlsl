@@ -7,9 +7,10 @@
 //!VERSION 2
 
 //!PARAMETER
+//!LABEL Oversharp
 //!DEFAULT 1
 //!MIN 1
-//!MAX 5
+//!MAX 3
 //!STEP 0.1
 float oversharp;
 

@@ -6,7 +6,7 @@
 
 
 //!PARAMETER
-//!LABEL Anti-Ringing Strength
+//!LABEL Anti-ringing Strength
 //!DEFAULT 0.5
 //!MIN 0
 //!MAX 1
