@@ -8,6 +8,7 @@
 
 
 //!PARAMETER
+//!LABEL Strength
 //!DEFAULT 0.6
 //!MIN 0.1
 //!MAX 10
@@ -17,6 +18,7 @@
 float strength;
 
 //!PARAMETER
+//!LABEL Iterations
 //!DEFAULT 1
 //!MIN 1
 //!MAX 10

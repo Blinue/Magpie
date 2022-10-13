@@ -9,6 +9,7 @@
 
 
 //!PARAMETER
+//!LABEL Strength
 //!DEFAULT 0.1
 //!MIN 0.01
 //!MAX 5

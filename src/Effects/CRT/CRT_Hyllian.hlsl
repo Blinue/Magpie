@@ -32,6 +32,7 @@
 
 
 //!PARAMETER
+//!LABEL Phosphor
 //!DEFAULT 1
 //!MIN 0
 //!MAX 1
@@ -39,6 +40,7 @@
 int phosphor;
 
 //!PARAMETER
+//!LABEL Vertical Scanlines
 //!DEFAULT 0
 //!MIN 0
 //!MAX 1
@@ -46,6 +48,7 @@ int phosphor;
 int vScanlines;
 
 //!PARAMETER
+//!LABEL Input Gamma
 //!DEFAULT 2.5
 //!MIN 0
 //!MAX 5
@@ -53,6 +56,7 @@ int vScanlines;
 float inputGamma;
 
 //!PARAMETER
+//!LABEL Output Gamma
 //!DEFAULT 2.2
 //!MIN 0
 //!MAX 5
@@ -60,6 +64,7 @@ float inputGamma;
 float outputGamma;
 
 //!PARAMETER
+//!LABEL Sharpness
 //!DEFAULT 1
 //!MIN 1
 //!MAX 5
@@ -67,6 +72,7 @@ float outputGamma;
 int sharpness;
 
 //!PARAMETER
+//!LABEL Color Boost
 //!DEFAULT 1.5
 //!MIN 1
 //!MAX 2
@@ -74,6 +80,7 @@ int sharpness;
 float colorBoost;
 
 //!PARAMETER
+//!LABEL Red Boost
 //!DEFAULT 1
 //!MIN 1
 //!MAX 2
@@ -81,6 +88,7 @@ float colorBoost;
 float redBoost;
 
 //!PARAMETER
+//!LABEL Green Boost
 //!DEFAULT 1
 //!MIN 1
 //!MAX 2
@@ -88,6 +96,7 @@ float redBoost;
 float greenBoost;
 
 //!PARAMETER
+//!LABEL Blue Boost
 //!DEFAULT 1
 //!MIN 1
 //!MAX 2
@@ -95,6 +104,7 @@ float greenBoost;
 float blueBoost;
 
 //!PARAMETER
+//!LABEL Scanline Strength
 //!DEFAULT 0.5
 //!MIN 0
 //!MAX 1
@@ -102,6 +112,7 @@ float blueBoost;
 float scanlinesStrength;
 
 //!PARAMETER
+//!LABEL Min Beam Width
 //!DEFAULT 0.86
 //!MIN 0
 //!MAX 1
@@ -109,6 +120,7 @@ float scanlinesStrength;
 float beamMinWidth;
 
 //!PARAMETER
+//!LABEL Max Beam Width
 //!DEFAULT 1
 //!MIN 0
 //!MAX 1
@@ -116,6 +128,7 @@ float beamMinWidth;
 float beamMaxWidth;
 
 //!PARAMETER
+//!LABEL Anti-Ringing
 //!DEFAULT 0.8
 //!MIN 0
 //!MAX 1

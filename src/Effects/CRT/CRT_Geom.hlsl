@@ -29,6 +29,7 @@
 
 
 //!PARAMETER
+//!LABEL Target Gamma
 //!DEFAULT 2.4
 //!MIN 0.1
 //!MAX 5
@@ -36,6 +37,7 @@
 float CRTGamma;
 
 //!PARAMETER
+//!LABEL Monitor Gamma
 //!DEFAULT 2.2
 //!MIN 0.1
 //!MAX 5
@@ -43,6 +45,7 @@ float CRTGamma;
 float monitorGamma;
 
 //!PARAMETER
+//!LABEL Distance
 //!DEFAULT 1.5
 //!MIN 0.1
 //!MAX 3.0
@@ -50,6 +53,7 @@ float monitorGamma;
 float distance;
 
 //!PARAMETER
+//!LABEL Curvature
 //!DEFAULT 1
 //!MIN 0
 //!MAX 1
@@ -57,6 +61,7 @@ float distance;
 int curvature;
 
 //!PARAMETER
+//!LABEL Curvature Radius
 //!DEFAULT 2
 //!MIN 0.1
 //!MAX 10
@@ -64,6 +69,7 @@ int curvature;
 float radius;
 
 //!PARAMETER
+//!LABEL Corner Size
 //!DEFAULT 0.03
 //!MIN 0
 //!MAX 1.0
@@ -71,6 +77,7 @@ float radius;
 float cornerSize;
 
 //!PARAMETER
+//!LABEL Corner Smoothness
 //!DEFAULT 1000
 //!MIN 80
 //!MAX 2000
@@ -78,6 +85,7 @@ float cornerSize;
 int cornerSmooth;
 
 //!PARAMETER
+//!LABEL Horizontal Tilt
 //!DEFAULT 0
 //!MIN -0.5
 //!MAX 0.5
@@ -85,6 +93,7 @@ int cornerSmooth;
 float xTilt;
 
 //!PARAMETER
+//!LABEL Vertical Tilt
 //!DEFAULT 0
 //!MIN -0.5
 //!MAX 0.5
@@ -92,6 +101,7 @@ float xTilt;
 float yTilt;
 
 //!PARAMETER
+//!LABEL Horizontal Overscan
 //!DEFAULT 100
 //!MIN -125
 //!MAX 125
@@ -99,6 +109,7 @@ float yTilt;
 int overScanX;
 
 //!PARAMETER
+//!LABEL Vertical Overscan
 //!DEFAULT 100
 //!MIN -125
 //!MAX 125
@@ -106,6 +117,7 @@ int overScanX;
 int overScanY;
 
 //!PARAMETER
+//!LABEL Dot Mask
 //!DEFAULT 0.3
 //!MIN 0
 //!MAX 0.3
@@ -113,6 +125,7 @@ int overScanY;
 float dotMask;
 
 //!PARAMETER
+//!LABEL Sharpness
 //!DEFAULT 1
 //!MIN 1
 //!MAX 3
@@ -120,6 +133,7 @@ float dotMask;
 int sharper;
 
 //!PARAMETER
+//!LABEL Scanline Weight
 //!DEFAULT 0.3
 //!MIN 0.1
 //!MAX 0.5
@@ -127,6 +141,7 @@ int sharper;
 float scanlineWeight;
 
 //!PARAMETER
+//!LABEL Luminance Boost
 //!DEFAULT 0
 //!MIN 0
 //!MAX 1
@@ -134,6 +149,7 @@ float scanlineWeight;
 float lum;
 
 //!PARAMETER
+//!LABEL Interlacing
 //!DEFAULT 0
 //!MIN 0
 //!MAX 1
