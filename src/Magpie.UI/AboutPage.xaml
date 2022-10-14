@@ -68,6 +68,20 @@
 						</local:SettingItem.ActionContent>
 					</local:SettingItem>
 				</Button>
+				<Button Click="DiscussionsButton_Click"
+						Style="{StaticResource SettingItemButtonStyle}">
+					<local:SettingItem Title="问询和讨论"
+									   Style="{StaticResource ExpanderHeaderSettingStyle}">
+						<local:SettingItem.Icon>
+							<FontIcon Glyph="&#xE8F2;" />
+						</local:SettingItem.Icon>
+						<local:SettingItem.ActionContent>
+							<FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+									  FontSize="18"
+									  Glyph="&#xE8A7;" />
+						</local:SettingItem.ActionContent>
+					</local:SettingItem>
+				</Button>
 			</local:SettingsGroup>
 			<local:SettingsGroup Title="其他链接">
 				<StackPanel Orientation="Horizontal">
@@ -76,6 +90,9 @@
 					</HyperlinkButton>
 					<HyperlinkButton NavigateUri="https://github.com/Blinue/Magpie/wiki/FAQ">
 						<TextBlock Text="FAQ" />
+					</HyperlinkButton>
+					<HyperlinkButton NavigateUri="https://github.com/Blinue/Magpie/blob/main/CONTRIBUTING.md">
+						<TextBlock Text="贡献指南" />
 					</HyperlinkButton>
 					<HyperlinkButton NavigateUri="https://github.com/Blinue/Magpie/blob/main/LICENSE">
 						<TextBlock Text="许可协议" />
