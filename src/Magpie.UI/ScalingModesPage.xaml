@@ -119,13 +119,13 @@
 				<local:SettingItem Title="默认降采样效果"
 								   Description="无法容纳输出图像时将自动应用此效果">
 					<local:SettingItem.ActionContent>
-						<StackPanel Orientation="Horizontal"
-									Spacing="2">
+						<StackPanel Orientation="Horizontal">
 							<ComboBox DropDownOpened="ComboBox_DropDownOpened"
 									  ItemsSource="{x:Bind ViewModel.DownscalingEffects, Mode=OneTime}"
 									  SelectedIndex="1"
 									  Style="{StaticResource ComboBoxSettingStyle}" />
-							<Button VerticalAlignment="Stretch">
+							<Button Margin="4,0,0,0"
+									VerticalAlignment="Stretch">
 								<Button.Content>
 									<FontIcon FontSize="15"
 											  Glyph="&#xE9E9;" />
@@ -161,7 +161,7 @@
 													   Style="{StaticResource ExpanderHeaderSettingStyle}">
 										<local:SettingItem.ActionContent>
 											<StackPanel Orientation="Horizontal"
-														Spacing="5">
+														Spacing="6">
 												<StackPanel.Resources>
 													<Style BasedOn="{StaticResource DefaultButtonStyle}"
 														   TargetType="Button">
@@ -336,7 +336,7 @@
 																		<Setter Property="FontSize" Value="15" />
 																	</Style>
 																</StackPanel.Resources>
-																<Button Margin="0,0,5,0"
+																<Button Margin="0,0,6,0"
 																		Visibility="{x:Bind CanScale}">
 																	<ToolTipService.ToolTip>
 																		<ToolTip Content="缩放" />
@@ -429,7 +429,7 @@
 																		</Flyout>
 																	</Button.Flyout>
 																</Button>
-																<Button Margin="0,0,5,0"
+																<Button Margin="0,0,6,0"
 																		Visibility="{x:Bind HasParameters}">
 																	<ToolTipService.ToolTip>
 																		<ToolTip Content="参数" />

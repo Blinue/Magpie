@@ -6,6 +6,9 @@ namespace winrt::Magpie::UI::implementation {
 
 struct AboutPage : AboutPageT<AboutPage> {
 	AboutPage();
+
+	void BugReportButton_Click(IInspectable const&, RoutedEventArgs const&);
+	void FeatureRequestButton_Click(IInspectable const&, RoutedEventArgs const&);
 };
 
 }

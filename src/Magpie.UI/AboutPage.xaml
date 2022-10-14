@@ -40,16 +40,34 @@
 				</muxc:Expander>
 			</local:SettingsGroup>
 			<local:SettingsGroup Title="反馈">
-				<local:SettingItem Title="汇报错误">
-					<local:SettingItem.Icon>
-						<FontIcon Glyph="&#xEBE8;" />
-					</local:SettingItem.Icon>
-				</local:SettingItem>
-				<local:SettingItem Title="建议功能">
-					<local:SettingItem.Icon>
-						<FontIcon Glyph="&#xEA80;" />
-					</local:SettingItem.Icon>
-				</local:SettingItem>
+				<Button Click="BugReportButton_Click"
+						Style="{StaticResource SettingItemButtonStyle}">
+					<local:SettingItem Title="报告错误"
+									   Style="{StaticResource ExpanderHeaderSettingStyle}">
+						<local:SettingItem.Icon>
+							<FontIcon Glyph="&#xEBE8;" />
+						</local:SettingItem.Icon>
+						<local:SettingItem.ActionContent>
+							<FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+									  FontSize="18"
+									  Glyph="&#xE8A7;" />
+						</local:SettingItem.ActionContent>
+					</local:SettingItem>
+				</Button>
+				<Button Click="FeatureRequestButton_Click"
+						Style="{StaticResource SettingItemButtonStyle}">
+					<local:SettingItem Title="建议功能"
+									   Style="{StaticResource ExpanderHeaderSettingStyle}">
+						<local:SettingItem.Icon>
+							<FontIcon Glyph="&#xEA80;" />
+						</local:SettingItem.Icon>
+						<local:SettingItem.ActionContent>
+							<FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+									  FontSize="18"
+									  Glyph="&#xE8A7;" />
+						</local:SettingItem.ActionContent>
+					</local:SettingItem>
+				</Button>
 			</local:SettingsGroup>
 			<local:SettingsGroup Title="其他链接">
 				<StackPanel Orientation="Horizontal">

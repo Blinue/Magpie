@@ -25,7 +25,7 @@
 				<Setter Property="Foreground" Value="{ThemeResource TextFillColorSecondaryBrush}" />
 			</Style>
 
-			<Style x:Key="SettingButtonStyle"
+			<Style x:Key="SettingItemButtonStyle"
 				   BasedOn="{StaticResource DefaultButtonStyle}"
 				   TargetType="Button">
 				<Setter Property="BorderBrush" Value="{ThemeResource CardBorderBrush}" />
