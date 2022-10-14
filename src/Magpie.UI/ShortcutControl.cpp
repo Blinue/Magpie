@@ -60,6 +60,13 @@ ShortcutControl::ShortcutControl() {
 }
 
 IAsyncAction ShortcutControl::EditButton_Click(IInspectable const&, RoutedEventArgs const&) {
+	// 防止快速点击时崩溃
+	static bool isShowing = false;
+	if (isShowing) {
+		co_return;
+	}
+	isShowing = true;
+
 	if (!_shortcutDialog) {
 		// 惰性初始化
 		_shortcutDialog = ContentDialog();
@@ -88,12 +95,6 @@ IAsyncAction ShortcutControl::EditButton_Click(IInspectable const&, RoutedEventA
 
 	_pressedKeys.Clear();
 
-	// 防止快速点击时崩溃
-	static bool isShowing = false;
-	if (isShowing) {
-		co_return;
-	}
-	isShowing = true;
 	co_await _shortcutDialog.ShowAsync();
 	isShowing = false;
 }

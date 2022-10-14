@@ -161,7 +161,7 @@
 													   Style="{StaticResource ExpanderHeaderSettingStyle}">
 										<local:SettingItem.ActionContent>
 											<StackPanel Orientation="Horizontal"
-														Spacing="6">
+														Spacing="5">
 												<StackPanel.Resources>
 													<Style BasedOn="{StaticResource DefaultButtonStyle}"
 														   TargetType="Button">
@@ -336,7 +336,7 @@
 																		<Setter Property="FontSize" Value="15" />
 																	</Style>
 																</StackPanel.Resources>
-																<Button Margin="0,0,6,0"
+																<Button Margin="0,0,5,0"
 																		Visibility="{x:Bind CanScale}">
 																	<ToolTipService.ToolTip>
 																		<ToolTip Content="缩放" />
@@ -429,7 +429,7 @@
 																		</Flyout>
 																	</Button.Flyout>
 																</Button>
-																<Button Margin="0,0,6,0"
+																<Button Margin="0,0,5,0"
 																		Visibility="{x:Bind HasParameters}">
 																	<ToolTipService.ToolTip>
 																		<ToolTip Content="参数" />
