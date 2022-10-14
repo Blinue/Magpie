@@ -122,6 +122,7 @@
       <SubType>Code</SubType>
     </ClInclude>
     <ClInclude Include="ComboBoxHelper.h" />
+    <ClInclude Include="EffectHelper.h" />
     <ClInclude Include="EffectsService.h" />
     <ClInclude Include="HomeViewModel.h">
       <DependentUpon>HomeViewModel.idl</DependentUpon>

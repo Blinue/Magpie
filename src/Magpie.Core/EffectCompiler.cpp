@@ -261,9 +261,9 @@ static UINT GetNextExpr(std::string_view& source, std::string& expr) {
 
 static UINT ResolveHeader(std::string_view block, EffectDesc& desc) {
 	// 必需的选项：VERSION
-	// 可选的选项：OUTPUT_WIDTH，OUTPUT_HEIGHT，USE_DYNAMIC
+	// 可选的选项：OUTPUT_WIDTH，OUTPUT_HEIGHT，USE_DYNAMIC，GENERIC_DOWNSCALER 
 
-	std::bitset<4> processed;
+	std::bitset<5> processed;
 
 	std::string_view token;
 
@@ -324,6 +324,17 @@ static UINT ResolveHeader(std::string_view block, EffectDesc& desc) {
 			}
 
 			desc.flags |= EffectFlags::UseDynamic;
+		} else if (t == "GENERIC_DOWNSCALER") {
+			if (processed[4]) {
+				return 1;
+			}
+			processed[4] = true;
+
+			if (GetNextToken<false>(block, token) != 2) {
+				return 1;
+			}
+
+			desc.flags |= EffectFlags::GenericDownscaler;
 		} else {
 			return 1;
 		}
@@ -334,7 +345,12 @@ static UINT ResolveHeader(std::string_view block, EffectDesc& desc) {
 		return 1;
 	}
 
-	if (!processed[0] || (processed[1] ^ processed[2])) {
+	if (!processed[0] || processed[1] != processed[2]) {
+		return 1;
+	}
+
+	// GENERIC_DOWNSCALER 和 OUTPUT_WIDTH/OUTPUT_HEIGHT 冲突
+	if (processed[4] && processed[1]) {
 		return 1;
 	}
 
@@ -597,7 +613,7 @@ static UINT ResolveTexture(std::string_view block, EffectDesc& desc) {
 	}
 
 	// WIDTH 和 HEIGHT 必须成对出现
-	if (processed[2] ^ processed[3]) {
+	if (processed[2] != processed[3]) {
 		return 1;
 	}
 

@@ -140,7 +140,7 @@ void ScalingModeItem::AddEffect(const hstring& fullName) {
 
 	const EffectInfo* effectInfo = EffectsService::Get().GetEffect(fullName);
 	assert(effectInfo);
-	if (effectInfo->canScale) {
+	if (effectInfo->CanScale()) {
 		// 支持缩放的效果默认等比缩放到充满屏幕
 		effect.scalingType = ::Magpie::Core::ScalingType::Fit;
 	}

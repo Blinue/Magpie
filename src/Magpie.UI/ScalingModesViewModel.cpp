@@ -4,12 +4,23 @@
 #include "ScalingModesViewModel.g.cpp"
 #endif
 #include "ScalingModesService.h"
+#include "EffectsService.h"
 #include "AppSettings.h"
+#include "EffectHelper.h"
 
 
 namespace winrt::Magpie::UI::implementation {
 
 ScalingModesViewModel::ScalingModesViewModel() {
+	std::vector<IInspectable> downscalingEffects;
+	downscalingEffects.push_back(box_value(L"无"));
+	for (const EffectInfo& effectInfo : EffectsService::Get().Effects()) {
+		if (effectInfo.IsGenericDownscaler()) {
+			downscalingEffects.push_back(box_value(EffectHelper::GetDisplayName(effectInfo.name)));
+		}
+	}
+	_downscalingEffects = single_threaded_vector(std::move(downscalingEffects));
+
 	std::vector<IInspectable> scalingModes;
 	for (uint32_t i = 0, count = ScalingModesService::Get().GetScalingModeCount(); i < count;++i) {
 		scalingModes.push_back(ScalingModeItem(i));

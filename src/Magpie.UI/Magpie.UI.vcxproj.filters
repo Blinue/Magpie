@@ -97,6 +97,9 @@
     <ClInclude Include="PageHelper.h">
       <Filter>Helpers</Filter>
     </ClInclude>
+    <ClInclude Include="EffectHelper.h">
+      <Filter>Helpers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Assets">

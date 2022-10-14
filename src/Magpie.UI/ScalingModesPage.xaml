@@ -122,13 +122,9 @@
 						<StackPanel Orientation="Horizontal"
 									Spacing="2">
 							<ComboBox DropDownOpened="ComboBox_DropDownOpened"
+									  ItemsSource="{x:Bind ViewModel.DownscalingEffects, Mode=OneTime}"
 									  SelectedIndex="1"
-									  Style="{StaticResource ComboBoxSettingStyle}">
-								<ComboBox.Items>
-									<x:String>无</x:String>
-									<x:String>Bicubic</x:String>
-								</ComboBox.Items>
-							</ComboBox>
+									  Style="{StaticResource ComboBoxSettingStyle}" />
 							<Button VerticalAlignment="Stretch">
 								<Button.Content>
 									<FontIcon FontSize="15"

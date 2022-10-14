@@ -16,6 +16,10 @@ struct ScalingModesViewModel : ScalingModesViewModelT<ScalingModesViewModel> {
 		_propertyChangedEvent.remove(token);
 	}
 
+	IVector<IInspectable> DownscalingEffects() const noexcept {
+		return _downscalingEffects;
+	}
+
 	IObservableVector<IInspectable> ScalingModes() const noexcept {
 		return _scalingModes;
 	}
@@ -54,6 +58,7 @@ private:
 
 	event<PropertyChangedEventHandler> _propertyChangedEvent;
 
+	IVector<IInspectable> _downscalingEffects{ nullptr };
 	IObservableVector<IInspectable> _scalingModes{ nullptr };
 
 	WinRTUtils::EventRevoker _scalingModeMovedRevoker;

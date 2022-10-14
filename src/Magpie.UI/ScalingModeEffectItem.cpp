@@ -13,16 +13,12 @@
 #include "ScalingModesService.h"
 #include "EffectsService.h"
 #include "StrUtils.h"
+#include "EffectHelper.h"
 
 
 namespace Core = ::Magpie::Core;
 using namespace Magpie::Core;
 
-
-static std::wstring_view GetEffectDisplayName(std::wstring_view fullName) {
-	size_t delimPos = fullName.find_last_of(L'\\');
-	return delimPos != std::wstring::npos ? fullName.substr(delimPos + 1) : fullName;
-}
 
 namespace winrt::Magpie::UI::implementation {
 
@@ -43,9 +39,8 @@ ScalingModeEffectItem::ScalingModeEffectItem(uint32_t scalingModeIdx, uint32_t e
 {
 	EffectOption& data = _Data();
 
-	const std::wstring& name = data.name;
-	_name = GetEffectDisplayName(name);
-	_effectInfo = EffectsService::Get().GetEffect(name);
+	_name = EffectHelper::GetDisplayName(data.name);
+	_effectInfo = EffectsService::Get().GetEffect(data.name);
 
 	std::vector<IInspectable> boolParams;
 	std::vector<IInspectable> floatParams;
@@ -105,7 +100,7 @@ ScalingModeEffectItem::ScalingModeEffectItem(uint32_t scalingModeIdx, uint32_t e
 }
 
 bool ScalingModeEffectItem::CanScale() const noexcept {
-	return _effectInfo && _effectInfo->canScale;
+	return _effectInfo && _effectInfo->CanScale();
 }
 
 bool ScalingModeEffectItem::HasParameters() const noexcept {

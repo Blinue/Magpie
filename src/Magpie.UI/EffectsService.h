@@ -6,10 +6,23 @@
 
 namespace winrt::Magpie::UI {
 
+struct EffectInfoFlags {
+	static constexpr const uint32_t CanScale = 0x1;
+	static constexpr const uint32_t GenericDownscaler = 0x2;
+};
+
 struct EffectInfo {
 	std::wstring name;
 	std::vector<::Magpie::Core::EffectParameterDesc> params;
-	bool canScale = false;
+	uint32_t flags = 0;	// EffectInfoFlags
+
+	bool CanScale() const noexcept {
+		return flags & EffectInfoFlags::CanScale;
+	}
+
+	bool IsGenericDownscaler() const noexcept {
+		return flags & EffectInfoFlags::GenericDownscaler;
+	}
 };
 
 class EffectsService {

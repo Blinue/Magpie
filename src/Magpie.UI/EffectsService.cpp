@@ -59,15 +59,21 @@ fire_and_forget EffectsService::StartInitialize() {
 
 	_effectsMap.reserve(nEffect);
 	for (uint32_t i = 0; i < nEffect; ++i) {
-		if (descs[i].name.empty()) {
+		EffectDesc& effectDesc = descs[i];
+		if (effectDesc.name.empty()) {
 			continue;
 		}
 
 		// 这里修改 _effects 无需同步，因为用户界面尚未显示
 		EffectInfo& effect = _effects.emplace_back();
 		effect.name = std::move(effectNames[i]);
-		effect.params = std::move(descs[i].params);
-		effect.canScale = descs[i].outSizeExpr.first.empty();
+		effect.params = std::move(effectDesc.params);
+		if (effectDesc.outSizeExpr.first.empty()) {
+			effect.flags |= EffectInfoFlags::CanScale;
+		}
+		if (effectDesc.flags & EffectFlags::GenericDownscaler) {
+			effect.flags |= EffectInfoFlags::GenericDownscaler;
+		}
 
 		_effectsMap.emplace(effect.name, (uint32_t)_effects.size() - 1);
 	}

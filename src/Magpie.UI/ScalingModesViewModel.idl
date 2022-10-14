@@ -3,6 +3,8 @@ namespace Magpie.UI
     runtimeclass ScalingModesViewModel : [default] Windows.UI.Xaml.Data.INotifyPropertyChanged
     {
         ScalingModesViewModel();
+
+        IVector<IInspectable> DownscalingEffects { get; };
         
         IObservableVector<IInspectable> ScalingModes { get; };
 
