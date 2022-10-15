@@ -123,6 +123,10 @@
     </ClInclude>
     <ClInclude Include="ComboBoxHelper.h" />
     <ClInclude Include="EffectHelper.h" />
+    <ClInclude Include="EffectParametersViewModel.h">
+      <DependentUpon>EffectParametersViewModel.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClInclude>
     <ClInclude Include="EffectsService.h" />
     <ClInclude Include="HomeViewModel.h">
       <DependentUpon>HomeViewModel.idl</DependentUpon>
@@ -253,6 +257,10 @@
       <DependentUpon>CandidateWindowItem.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
+    <ClCompile Include="EffectParametersViewModel.cpp">
+      <DependentUpon>EffectParametersViewModel.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClCompile>
     <ClCompile Include="EffectsService.cpp" />
     <ClCompile Include="HomeViewModel.cpp">
       <DependentUpon>HomeViewModel.idl</DependentUpon>
@@ -355,6 +363,9 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <None Include="EffectParametersViewModel.idl">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="ScalingModeEffectItem.idl">
       <SubType>Designer</SubType>
     </None>

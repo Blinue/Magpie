@@ -6,6 +6,87 @@
 	  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	  xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
 	  mc:Ignorable="d">
+	<Page.Resources>
+		<DataTemplate x:Key="EffectParametersFlyout"
+					  x:DataType="local:EffectParametersViewModel">
+			<StackPanel Margin="0,0,0,-17">
+				<ListView MaxWidth="260"
+						  Margin="0,0,0,15"
+						  ItemsSource="{x:Bind BoolParams, Mode=OneTime}"
+						  SelectionMode="None"
+						  Visibility="{x:Bind HasBoolParams, Mode=OneTime}">
+					<ListView.ItemContainerTransitions>
+						<TransitionCollection />
+					</ListView.ItemContainerTransitions>
+					<ListView.Resources>
+						<Style TargetType="ListViewItem">
+							<Setter Property="Margin" Value="0" />
+							<Setter Property="Padding" Value="0" />
+							<Setter Property="MinHeight" Value="0" />
+							<Setter Property="HorizontalContentAlignment" Value="Stretch" />
+							<Setter Property="IsTabStop" Value="False" />
+						</Style>
+					</ListView.Resources>
+					<ListView.ItemTemplate>
+						<DataTemplate x:DataType="local:ScalingModeBoolParameter">
+							<CheckBox MinWidth="0"
+									  Content="{x:Bind Label, Mode=OneTime}"
+									  IsChecked="{x:Bind Value, Mode=TwoWay}" />
+						</DataTemplate>
+					</ListView.ItemTemplate>
+				</ListView>
+				<ListView Width="260"
+						  Margin="0,0,0,12"
+						  ItemsSource="{x:Bind FloatParams, Mode=OneTime}"
+						  SelectionMode="None"
+						  Visibility="{x:Bind HasFloatParams, Mode=OneTime}">
+					<ListView.ItemContainerTransitions>
+						<TransitionCollection />
+					</ListView.ItemContainerTransitions>
+					<ListView.Resources>
+						<Style TargetType="ListViewItem">
+							<Setter Property="Margin" Value="0" />
+							<Setter Property="Padding" Value="0" />
+							<Setter Property="MinHeight" Value="0" />
+							<Setter Property="HorizontalContentAlignment" Value="Stretch" />
+							<Setter Property="IsTabStop" Value="False" />
+						</Style>
+					</ListView.Resources>
+					<ListView.ItemsPanel>
+						<ItemsPanelTemplate>
+							<StackPanel Spacing="8" />
+						</ItemsPanelTemplate>
+					</ListView.ItemsPanel>
+					<ListView.ItemTemplate>
+						<DataTemplate x:DataType="local:ScalingModeFloatParameter">
+							<StackPanel>
+								<Grid ColumnSpacing="4">
+									<Grid.ColumnDefinitions>
+										<ColumnDefinition Width="*" />
+										<ColumnDefinition Width="60" />
+									</Grid.ColumnDefinitions>
+									<TextBlock Grid.Column="0"
+											   VerticalAlignment="Center"
+											   Text="{x:Bind Label, Mode=OneTime}"
+											   TextWrapping="WrapWholeWords" />
+									<TextBlock Grid.Column="1"
+											   HorizontalAlignment="Right"
+											   VerticalAlignment="Center"
+											   Text="{x:Bind ValueText, Mode=OneWay}" />
+								</Grid>
+								<Slider HorizontalAlignment="Stretch"
+										IsThumbToolTipEnabled="False"
+										Maximum="{x:Bind Maximum, Mode=OneTime}"
+										Minimum="{x:Bind Minimum, Mode=OneTime}"
+										StepFrequency="{x:Bind Step, Mode=OneTime}"
+										Value="{x:Bind Value, Mode=TwoWay}" />
+							</StackPanel>
+						</DataTemplate>
+					</ListView.ItemTemplate>
+				</ListView>
+			</StackPanel>
+		</DataTemplate>
+	</Page.Resources>
 	<local:PageFrame Title="缩放模式">
 		<local:PageFrame.HeaderAction>
 			<StackPanel x:Name="HeaderActionStackPanel"
@@ -446,82 +527,8 @@
 																					<Setter Property="MaxHeight" Value="450" />
 																				</Style>
 																			</Flyout.FlyoutPresenterStyle>
-																			<StackPanel Margin="0,0,0,-17">
-																				<ListView MaxWidth="260"
-																						  Margin="0,0,0,15"
-																						  ItemsSource="{x:Bind BoolParams, Mode=OneTime}"
-																						  SelectionMode="None"
-																						  Visibility="{x:Bind HasBoolParams, Mode=OneTime}">
-																					<ListView.ItemContainerTransitions>
-																						<TransitionCollection />
-																					</ListView.ItemContainerTransitions>
-																					<ListView.Resources>
-																						<Style TargetType="ListViewItem">
-																							<Setter Property="Margin" Value="0" />
-																							<Setter Property="Padding" Value="0" />
-																							<Setter Property="MinHeight" Value="0" />
-																							<Setter Property="HorizontalContentAlignment" Value="Stretch" />
-																							<Setter Property="IsTabStop" Value="False" />
-																						</Style>
-																					</ListView.Resources>
-																					<ListView.ItemTemplate>
-																						<DataTemplate x:DataType="local:ScalingModeBoolParameter">
-																							<CheckBox MinWidth="0"
-																									  Content="{x:Bind Label, Mode=OneTime}"
-																									  IsChecked="{x:Bind Value, Mode=TwoWay}" />
-																						</DataTemplate>
-																					</ListView.ItemTemplate>
-																				</ListView>
-																				<ListView Width="260"
-																						  Margin="0,0,0,12"
-																						  ItemsSource="{x:Bind FloatParams, Mode=OneTime}"
-																						  SelectionMode="None"
-																						  Visibility="{x:Bind HasFloatParams, Mode=OneTime}">
-																					<ListView.ItemContainerTransitions>
-																						<TransitionCollection />
-																					</ListView.ItemContainerTransitions>
-																					<ListView.Resources>
-																						<Style TargetType="ListViewItem">
-																							<Setter Property="Margin" Value="0" />
-																							<Setter Property="Padding" Value="0" />
-																							<Setter Property="MinHeight" Value="0" />
-																							<Setter Property="HorizontalContentAlignment" Value="Stretch" />
-																							<Setter Property="IsTabStop" Value="False" />
-																						</Style>
-																					</ListView.Resources>
-																					<ListView.ItemsPanel>
-																						<ItemsPanelTemplate>
-																							<StackPanel Spacing="8" />
-																						</ItemsPanelTemplate>
-																					</ListView.ItemsPanel>
-																					<ListView.ItemTemplate>
-																						<DataTemplate x:DataType="local:ScalingModeFloatParameter">
-																							<StackPanel>
-																								<Grid ColumnSpacing="4">
-																									<Grid.ColumnDefinitions>
-																										<ColumnDefinition Width="*" />
-																										<ColumnDefinition Width="60" />
-																									</Grid.ColumnDefinitions>
-																									<TextBlock Grid.Column="0"
-																											   VerticalAlignment="Center"
-																											   Text="{x:Bind Label, Mode=OneTime}"
-																											   TextWrapping="WrapWholeWords" />
-																									<TextBlock Grid.Column="1"
-																											   HorizontalAlignment="Right"
-																											   VerticalAlignment="Center"
-																											   Text="{x:Bind ValueText, Mode=OneWay}" />
-																								</Grid>
-																								<Slider HorizontalAlignment="Stretch"
-																										IsThumbToolTipEnabled="False"
-																										Maximum="{x:Bind Maximum, Mode=OneTime}"
-																										Minimum="{x:Bind Minimum, Mode=OneTime}"
-																										StepFrequency="{x:Bind Step, Mode=OneTime}"
-																										Value="{x:Bind Value, Mode=TwoWay}" />
-																							</StackPanel>
-																						</DataTemplate>
-																					</ListView.ItemTemplate>
-																				</ListView>
-																			</StackPanel>
+																			<ContentControl Content="{x:Bind Parameters}"
+																							ContentTemplate="{StaticResource EffectParametersFlyout}" />
 																		</Flyout>
 																	</Button.Flyout>
 																</Button>

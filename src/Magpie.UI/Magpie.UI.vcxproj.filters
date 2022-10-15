@@ -183,6 +183,9 @@
     <None Include="BoolNegationConverter.idl">
       <Filter>Converters</Filter>
     </None>
+    <None Include="EffectParametersViewModel.idl">
+      <Filter>ViewModels</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Page Include="MainPage.xaml" />

@@ -10,6 +10,7 @@
 #include "ShortcutDialog.idl"
 #include "MicaBrush.idl"
 #include "HomeViewModel.idl"
+#include "EffectParametersViewModel.idl"
 #include "ScalingModeEffectItem.idl"
 #include "ScalingModeItem.idl"
 #include "ScalingModesViewModel.idl"
