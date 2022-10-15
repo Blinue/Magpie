@@ -229,7 +229,7 @@ void MagService::_StartScale(HWND hWnd) {
 	options.cursorInterpolationMode = profile.cursorInterpolationMode;
 	options.flags = profile.flags;
 
-	if (!profile.isCroppingEnabled) {
+	if (profile.isCroppingEnabled) {
 		options.cropping = profile.cropping;
 	}
 
