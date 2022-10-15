@@ -21,9 +21,8 @@ public:
 
 	bool Initialize(
 		const EffectDesc& desc,
-		const EffectOption& options,
+		const EffectOption& option,
 		ID3D11Texture2D* inputTex,
-		ID3D11Texture2D** outputTex,
 		RECT* outputRect = nullptr,
 		RECT* virtualOutputRect = nullptr
 	);
@@ -36,6 +35,10 @@ public:
 
 	const EffectDesc& GetDesc() const noexcept {
 		return _desc;
+	}
+
+	ID3D11Texture2D* GetOutputTexture() const noexcept {
+		return _textures.empty() ? nullptr : _textures.back().get();
 	}
 
 private:

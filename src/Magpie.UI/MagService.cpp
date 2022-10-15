@@ -266,6 +266,8 @@ void MagService::_StartScale(HWND hWnd) {
 
 	AppSettings& settings = AppSettings::Get();
 
+	options.downscalingEffect = settings.DownscalingEffect();
+
 	// 应用缩放模式
 	if (profile.scalingMode >= 0) {
 		options.effects = ScalingModesService::Get().GetScalingMode(profile.scalingMode).effects;

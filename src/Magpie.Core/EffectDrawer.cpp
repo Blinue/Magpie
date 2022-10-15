@@ -21,9 +21,8 @@ namespace Magpie::Core {
 
 bool EffectDrawer::Initialize(
 	const EffectDesc& desc,
-	const EffectOption& options,
+	const EffectOption& option,
 	ID3D11Texture2D* inputTex,
-	ID3D11Texture2D** outputTex,
 	RECT* outputRect,
 	RECT* virtualOutputRect
 ) {
@@ -50,24 +49,24 @@ bool EffectDrawer::Initialize(
 	SIZE outputSize{};
 
 	if (desc.outSizeExpr.first.empty()) {
-		switch (options.scalingType) {
+		switch (option.scalingType) {
 		case ScalingType::Normal:
 		{
-			outputSize.cx = std::lroundf(inputSize.cx * options.scale.first);
-			outputSize.cy = std::lroundf(inputSize.cy * options.scale.second);
+			outputSize.cx = std::lroundf(inputSize.cx * option.scale.first);
+			outputSize.cy = std::lroundf(inputSize.cy * option.scale.second);
 			break;
 		}
 		case ScalingType::Fit:
 		{
 			float fillScale = std::min(float(hostSize.cx) / inputSize.cx, float(hostSize.cy) / inputSize.cy);
-			outputSize.cx = std::lroundf(inputSize.cx * fillScale * options.scale.first);
-			outputSize.cy = std::lroundf(inputSize.cy * fillScale * options.scale.second);
+			outputSize.cx = std::lroundf(inputSize.cx * fillScale * option.scale.first);
+			outputSize.cy = std::lroundf(inputSize.cy * fillScale * option.scale.second);
 			break;
 		}
 		case ScalingType::Absolute:
 		{
-			outputSize.cx = std::lroundf(options.scale.first);
-			outputSize.cy = std::lroundf(options.scale.second);
+			outputSize.cx = std::lroundf(option.scale.first);
+			outputSize.cy = std::lroundf(option.scale.second);
 			break;
 		}
 		case ScalingType::Fill:
@@ -187,8 +186,6 @@ bool EffectDrawer::Initialize(
 	} else {
 		_textures.back().copy_from(dr.GetBackBuffer());
 	}
-
-	*outputTex = _textures.back().get();
 
 	_shaders.resize(desc.passes.size());
 	_srvs.resize(desc.passes.size());
@@ -348,13 +345,13 @@ bool EffectDrawer::Initialize(
 	if (!isInlineParams) {
 		for (UINT i = 0; i < desc.params.size(); ++i) {
 			const auto& paramDesc = desc.params[i];
-			auto it = options.parameters.find(StrUtils::UTF8ToUTF16(paramDesc.name));
+			auto it = option.parameters.find(StrUtils::UTF8ToUTF16(paramDesc.name));
 
 			if (paramDesc.constant.index() == 0) {
 				const EffectConstant<float>& constant = std::get<0>(paramDesc.constant);
 				float value = constant.defaultValue;
 
-				if (it != options.parameters.end()) {
+				if (it != option.parameters.end()) {
 					value = it->second;
 
 					if (value < constant.minValue || value > constant.maxValue) {
@@ -368,7 +365,7 @@ bool EffectDrawer::Initialize(
 				const EffectConstant<int>& constant = std::get<1>(paramDesc.constant);
 				int value = constant.defaultValue;
 
-				if (it != options.parameters.end()) {
+				if (it != option.parameters.end()) {
 					value = (int)std::lroundf(it->second);
 
 					if ((value < constant.minValue) || (value > constant.maxValue)) {
