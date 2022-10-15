@@ -4,6 +4,7 @@
 #include "HotkeySettings.h"
 #include "ScalingProfile.h"
 #include "ScalingMode.h"
+#include <parallel_hashmap/phmap.h>
 
 
 namespace winrt::Magpie::UI {
@@ -211,6 +212,10 @@ public:
 		_isInlineParams = value;
 	}
 
+	::Magpie::Core::DownscalingEffect& DefaultDownscalingEffect() noexcept {
+		return _downscalingEffect;
+	}
+
 	std::vector<ScalingMode>& ScalingModes() noexcept {
 		return _scalingModes;
 	}
@@ -226,43 +231,42 @@ private:
 
 	void _UpdateConfigPath() noexcept;
 
-	bool _isPortableMode = false;
+	event<delegate<uint32_t>> _themeChangedEvent;
+	event<delegate<HotkeyAction>> _hotkeyChangedEvent;
+	event<delegate<bool>> _isAutoRestoreChangedEvent;
+	event<delegate<uint32_t>> _downCountChangedEvent;
+	event<delegate<bool>> _isShowTrayIconChangedEvent;
+
+	std::array<HotkeySettings, (size_t)HotkeyAction::COUNT_OR_NONE> _hotkeys;
+
+	::Magpie::Core::DownscalingEffect _downscalingEffect;
+	std::vector<ScalingMode> _scalingModes;
+
+	ScalingProfile _defaultScalingProfile;
+	std::vector<ScalingProfile> _scalingProfiles;
+
 	std::wstring _configDir;
 	std::wstring _configPath;
+
+	Rect _windowRect{ CW_USEDEFAULT,CW_USEDEFAULT,1280,820 };
 
 	// 0: 浅色
 	// 1: 深色
 	// 2: 系统
 	uint32_t _theme = 2;
-	event<delegate<uint32_t>> _themeChangedEvent;
-
-	Rect _windowRect{ CW_USEDEFAULT,CW_USEDEFAULT,1280,820 };
-	bool _isWindowMaximized = false;
-
-	std::array<HotkeySettings, (size_t)HotkeyAction::COUNT_OR_NONE> _hotkeys;
-	event<delegate<HotkeyAction>> _hotkeyChangedEvent;
-
-	bool _isAutoRestore = false;
-	event<delegate<bool>> _isAutoRestoreChangedEvent;
-
 	uint32_t _downCount = 5;
-	event<delegate<uint32_t>> _downCountChangedEvent;
 
-	bool _isShowTrayIcon = true;
-	event<delegate<bool>> _isShowTrayIconChangedEvent;
+	bool _isPortableMode = false;
 	bool _isAlwaysRunAsElevated = false;
 	bool _isDebugMode = false;
 	bool _isDisableEffectCache = false;
 	bool _isSaveEffectSources = false;
 	bool _isWarningsAreErrors = false;
-
 	bool _isSimulateExclusiveFullscreen = false;
 	bool _isInlineParams = false;
-
-	std::vector<ScalingMode> _scalingModes;
-
-	ScalingProfile _defaultScalingProfile;
-	std::vector<ScalingProfile> _scalingProfiles;
+	bool _isShowTrayIcon = true;
+	bool _isAutoRestore = false;
+	bool _isWindowMaximized = false;
 };
 
 }

@@ -47,6 +47,11 @@ struct MagFlags {
 	static constexpr const uint32_t DisableDirectFlip = 0x2000;
 };
 
+struct DownscalingEffect {
+	std::wstring name;
+	phmap::flat_hash_map<std::wstring, float> parameters;
+};
+
 enum class ScalingType {
 	Normal,		// Scale 表示缩放倍数
 	Fit,		// Scale 表示相对于屏幕能容纳的最大等比缩放的比例
@@ -95,6 +100,8 @@ struct MagOptions {
 	CaptureMode captureMode = CaptureMode::GraphicsCapture;
 	MultiMonitorUsage multiMonitorUsage = MultiMonitorUsage::Nearest;
 	CursorInterpolationMode cursorInterpolationMode = CursorInterpolationMode::Nearest;
+
+	DownscalingEffect downscalingEffect;
 
 	std::vector<EffectOption> effects;
 };
