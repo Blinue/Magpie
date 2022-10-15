@@ -26,38 +26,16 @@
 												ResourceKey="SubtleFillColorSecondaryBrush" />
 								<StaticResource x:Key="ButtonBackgroundPressed"
 												ResourceKey="SubtleFillColorTertiaryBrush" />
-								<StaticResource x:Key="ButtonForeground"
-												ResourceKey="TextFillColorPrimaryBrush" />
-								<StaticResource x:Key="ButtonForegroundPointerOver"
-												ResourceKey="TextFillColorPrimaryBrush" />
-								<StaticResource x:Key="ButtonForegroundPressed"
-												ResourceKey="TextFillColorSecondaryBrush" />
+								<StaticResource x:Key="ButtonBackgroundDisabled"
+												ResourceKey="SubtleFillColorTransparentBrush" />
 								<StaticResource x:Key="ButtonBorderBrush"
 												ResourceKey="ControlFillColorTransparentBrush" />
 								<StaticResource x:Key="ButtonBorderBrushPointerOver"
 												ResourceKey="ControlFillColorTransparentBrush" />
 								<StaticResource x:Key="ButtonBorderBrushPressed"
 												ResourceKey="ControlFillColorTransparentBrush" />
-							</ResourceDictionary>
-							<ResourceDictionary x:Key="HighContrast">
-								<StaticResource x:Key="ButtonBackground"
-												ResourceKey="SystemControlTransparentBrush" />
-								<StaticResource x:Key="ButtonBackgroundPointerOver"
-												ResourceKey="SystemControlHighlightListLowBrush" />
-								<StaticResource x:Key="ButtonBackgroundPressed"
-												ResourceKey="SystemControlHighlightListMediumBrush" />
-								<StaticResource x:Key="ButtonForeground"
-												ResourceKey="SystemControlForegroundBaseHighBrush" />
-								<StaticResource x:Key="ButtonForegroundPointerOver"
-												ResourceKey="SystemControlHighlightAltBaseHighBrush" />
-								<StaticResource x:Key="ButtonForegroundPressed"
-												ResourceKey="SystemControlHighlightAltBaseHighBrush" />
-								<StaticResource x:Key="ButtonBorderBrush"
-												ResourceKey="SystemControlForegroundTransparentBrush" />
-								<StaticResource x:Key="ButtonBorderBrushPointerOver"
-												ResourceKey="SystemControlHighlightTransparentBrush" />
-								<StaticResource x:Key="ButtonBorderBrushPressed"
-												ResourceKey="SystemControlHighlightTransparentBrush" />
+								<StaticResource x:Key="ButtonBorderBrushDisabled"
+												ResourceKey="ControlFillColorTransparentBrush" />
 							</ResourceDictionary>
 							<ResourceDictionary x:Key="Light">
 								<StaticResource x:Key="ButtonBackground"
@@ -66,17 +44,15 @@
 												ResourceKey="SubtleFillColorSecondaryBrush" />
 								<StaticResource x:Key="ButtonBackgroundPressed"
 												ResourceKey="SubtleFillColorTertiaryBrush" />
-								<StaticResource x:Key="ButtonForeground"
-												ResourceKey="TextFillColorPrimaryBrush" />
-								<StaticResource x:Key="ButtonForegroundPointerOver"
-												ResourceKey="TextFillColorPrimaryBrush" />
-								<StaticResource x:Key="ButtonForegroundPressed"
-												ResourceKey="TextFillColorSecondaryBrush" />
+								<StaticResource x:Key="ButtonBackgroundDisabled"
+												ResourceKey="SubtleFillColorTransparentBrush" />
 								<StaticResource x:Key="ButtonBorderBrush"
 												ResourceKey="ControlFillColorTransparentBrush" />
 								<StaticResource x:Key="ButtonBorderBrushPointerOver"
 												ResourceKey="ControlFillColorTransparentBrush" />
 								<StaticResource x:Key="ButtonBorderBrushPressed"
+												ResourceKey="ControlFillColorTransparentBrush" />
+								<StaticResource x:Key="ButtonBorderBrushDisabled"
 												ResourceKey="ControlFillColorTransparentBrush" />
 							</ResourceDictionary>
 						</ResourceDictionary.ThemeDictionaries>
@@ -86,35 +62,15 @@
 						</Style>
 					</ResourceDictionary>
 				</StackPanel.Resources>
-				<Button Padding="0">
+				<Button Padding="0"
+						Click="{x:Bind ViewModel.Launch}"
+						IsEnabled="{x:Bind ViewModel.IsProgramExist, Mode=OneTime}">
 					<Button.Content>
-						<FontIcon Glyph="&#xE8AC;" />
+						<FontIcon Glyph="&#xE768;" />
 					</Button.Content>
 					<ToolTipService.ToolTip>
-						<ToolTip x:Name="RenameTooltip"
-								 Content="重命名" />
+						<ToolTip Content="启动" />
 					</ToolTipService.ToolTip>
-					<Button.Flyout>
-						<Flyout x:Name="RenameFlyout"
-								Opening="RenameFlyout_Opening"
-								Placement="Bottom">
-							<StackPanel Orientation="Vertical">
-								<TextBlock Text="重命名" />
-								<TextBox x:Name="RenameTextBox"
-										 Width="280"
-										 Height="32"
-										 Margin="0,8,0,20"
-										 KeyDown="RenameTextBox_KeyDown"
-										 Text="{x:Bind ViewModel.RenameText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-								<Button MinWidth="80"
-										HorizontalAlignment="Right"
-										Click="RenameConfirmButton_Click"
-										Content="确定"
-										IsEnabled="{x:Bind ViewModel.IsRenameConfirmButtonEnabled, Mode=OneWay}"
-										Style="{StaticResource AccentButtonStyle}" />
-							</StackPanel>
-						</Flyout>
-					</Button.Flyout>
 				</Button>
 				<Button x:Name="MoreOptionsButton"
 						Padding="0">
@@ -129,11 +85,39 @@
 						<MenuFlyout Placement="Bottom"
 									ShouldConstrainToRootBounds="False">
 							<MenuFlyoutItem Click="{x:Bind ViewModel.OpenProgramLocation}"
-											IsEnabled="{x:Bind ViewModel.IsOpenProgramLocationMenuEnabled, Mode=OneTime}"
+											IsEnabled="{x:Bind ViewModel.IsProgramExist, Mode=OneTime}"
 											Text="打开程序位置">
 								<MenuFlyoutItem.Icon>
 									<FontIcon Glyph="&#xE8DA;" />
 								</MenuFlyoutItem.Icon>
+							</MenuFlyoutItem>
+							<MenuFlyoutSeparator />
+							<MenuFlyoutItem Click="RenameMenuItem_Click"
+											Text="重命名">
+								<MenuFlyoutItem.Icon>
+									<FontIcon Glyph="&#xE8AC;" />
+								</MenuFlyoutItem.Icon>
+								<FlyoutBase.AttachedFlyout>
+									<Flyout x:Name="RenameFlyout"
+											Opening="RenameFlyout_Opening"
+											Placement="Bottom">
+										<StackPanel Orientation="Vertical">
+											<TextBlock Text="重命名" />
+											<TextBox x:Name="RenameTextBox"
+													 Width="280"
+													 Height="32"
+													 Margin="0,8,0,20"
+													 KeyDown="RenameTextBox_KeyDown"
+													 Text="{x:Bind ViewModel.RenameText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+											<Button MinWidth="80"
+													HorizontalAlignment="Right"
+													Click="RenameConfirmButton_Click"
+													Content="确定"
+													IsEnabled="{x:Bind ViewModel.IsRenameConfirmButtonEnabled, Mode=OneWay}"
+													Style="{StaticResource AccentButtonStyle}" />
+										</StackPanel>
+									</Flyout>
+								</FlyoutBase.AttachedFlyout>
 							</MenuFlyoutItem>
 							<MenuFlyoutItem Click="ReorderMenuItem_Click"
 											Text="重新排序">

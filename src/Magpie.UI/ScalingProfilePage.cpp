@@ -32,7 +32,6 @@ ScalingProfilePage::ScalingProfilePage() {
 	PageHelper::UpdateHeaderActionStyle(HeaderActionStackPanel());
 
 	ElementTheme theme = mainPage.ActualTheme();
-	RenameTooltip().RequestedTheme(theme);
 	MoreOptionsTooltip().RequestedTheme(theme);
 
 	if (Win32Utils::GetOSBuild() < 22000) {
@@ -89,6 +88,10 @@ INumberFormatter2 ScalingProfilePage::NumberFormatter() noexcept {
 	}();
 	
 	return numberFormatter;
+}
+
+void ScalingProfilePage::RenameMenuItem_Click(IInspectable const&, RoutedEventArgs const&) {
+	RenameFlyout().ShowAt(MoreOptionsButton());
 }
 
 void ScalingProfilePage::RenameFlyout_Opening(IInspectable const&, IInspectable const&) {

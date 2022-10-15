@@ -108,7 +108,7 @@ bool ScalingProfileViewModel::IsNotDefaultScalingProfile() const noexcept {
 	return !_data->name.empty();
 }
 
-bool ScalingProfileViewModel::IsOpenProgramLocationMenuEnabled() const noexcept {
+bool ScalingProfileViewModel::IsProgramExist() const noexcept {
 	return Win32Utils::FileExists(_data->pathRule.c_str());
 }
 
@@ -136,6 +136,12 @@ fire_and_forget ScalingProfileViewModel::OpenProgramLocation() const noexcept {
 
 hstring ScalingProfileViewModel::Name() const noexcept {
 	return hstring(_data->name.empty() ? L"默认" : _data->name);
+}
+
+void ScalingProfileViewModel::Launch() const noexcept {
+	if ((INT_PTR)ShellExecute(NULL, L"open", _data->pathRule.c_str(), nullptr, nullptr, SW_SHOWDEFAULT) <= 32) {
+		Logger::Get().Win32Error("ShellExecute 失败");
+	}
 }
 
 void ScalingProfileViewModel::RenameText(const hstring& value) {

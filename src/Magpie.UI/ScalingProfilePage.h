@@ -19,6 +19,8 @@ struct ScalingProfilePage : ScalingProfilePageT<ScalingProfilePage> {
 
 	static Windows::Globalization::NumberFormatting::INumberFormatter2 NumberFormatter() noexcept;
 
+	void RenameMenuItem_Click(IInspectable const&, RoutedEventArgs const&);
+
 	void RenameFlyout_Opening(IInspectable const&, IInspectable const&);
 
 	void RenameConfirmButton_Click(IInspectable const&, RoutedEventArgs const&);

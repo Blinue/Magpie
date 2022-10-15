@@ -52,7 +52,7 @@ ScalingModesViewModel::ScalingModesViewModel() {
 			downscalingEffect.name.clear();
 			downscalingEffect.parameters.clear();
 		} else {
-			_downscalingEffectIndex = it - _downscalingEffectNames.begin() + 1;
+			_downscalingEffectIndex = int(it - _downscalingEffectNames.begin() + 1);
 		}
 	}
 
