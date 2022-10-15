@@ -73,7 +73,8 @@ private:
 	event<PropertyChangedEventHandler> _propertyChangedEvent;
 
 	IVector<IInspectable> _downscalingEffects{ nullptr };
-	std::vector<std::wstring> _downscalingEffectNames;
+	// (FullName, 小写 DisplayName)
+	std::vector<std::pair<std::wstring, std::wstring>> _downscalingEffectNames;
 	IObservableVector<IInspectable> _scalingModes{ nullptr };
 
 	WinRTUtils::EventRevoker _scalingModeMovedRevoker;

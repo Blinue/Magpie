@@ -18,29 +18,41 @@ namespace winrt::Magpie::UI::implementation {
 
 ScalingModesViewModel::ScalingModesViewModel() {
 	std::vector<IInspectable> downscalingEffects;
+	downscalingEffects.reserve(7);
 	downscalingEffects.push_back(box_value(L"无"));
+
+	_downscalingEffectNames.reserve(6);
 	for (const EffectInfo& effectInfo : EffectsService::Get().Effects()) {
 		if (effectInfo.IsGenericDownscaler()) {
-			_downscalingEffectNames.push_back(effectInfo.name);
-			downscalingEffects.push_back(box_value(EffectHelper::GetDisplayName(effectInfo.name)));
+			_downscalingEffectNames.emplace_back(effectInfo.name,
+				StrUtils::ToLowerCase(EffectHelper::GetDisplayName(effectInfo.name)));
 		}
+	}
+
+	// 根据显示名排序，不区分大小写
+	std::sort(_downscalingEffectNames.begin(), _downscalingEffectNames.end(),
+		[](const auto& l, const auto& r) { return l.second < r.second; });
+	for (const auto& pair : _downscalingEffectNames) {
+		downscalingEffects.push_back(box_value(EffectHelper::GetDisplayName(pair.first)));
 	}
 	_downscalingEffects = single_threaded_vector(std::move(downscalingEffects));
 
 	DownscalingEffect& downscalingEffect = AppSettings::Get().DownscalingEffect();
 	if (!downscalingEffect.name.empty()) {
-		for (uint32_t i = 0; i < _downscalingEffectNames.size(); ++i) {
-			if (_downscalingEffectNames[i] == downscalingEffect.name) {
-				_downscalingEffectIndex = i + 1;
-				break;
-			}
-		}
+		auto it = std::lower_bound(
+			_downscalingEffectNames.begin(),
+			_downscalingEffectNames.end(),
+			downscalingEffect.name,
+			[](const std::pair<std::wstring, std::wstring>& l, const std::wstring& r) { return l.first < r; }
+		);
 
-		if (_downscalingEffectIndex == 0) {
+		if (it == _downscalingEffectNames.end() || it->first != downscalingEffect.name) {
 			Logger::Get().Warn(fmt::format("降采样效果 {} 不存在",
 				StrUtils::UTF16ToUTF8(downscalingEffect.name)));
 			downscalingEffect.name.clear();
 			downscalingEffect.parameters.clear();
+		} else {
+			_downscalingEffectIndex = it - _downscalingEffectNames.begin() + 1;
 		}
 	}
 
@@ -67,7 +79,7 @@ void ScalingModesViewModel::DownscalingEffectIndex(int value) {
 	if (value <= 0) {
 		downscalingEffect.name.clear();
 	} else {
-		downscalingEffect.name = _downscalingEffectNames[(size_t)value - 1];
+		downscalingEffect.name = _downscalingEffectNames[(size_t)value - 1].first;
 	}
 
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"DownscalingEffectIndex"));
@@ -80,7 +92,7 @@ bool ScalingModesViewModel::DownscalingEffectHasParameters() noexcept {
 		return false;
 	}
 
-	const std::wstring& effectName = _downscalingEffectNames[(size_t)_downscalingEffectIndex - 1];
+	const std::wstring& effectName = _downscalingEffectNames[(size_t)_downscalingEffectIndex - 1].first;
 	return !EffectsService::Get().GetEffect(effectName)->params.empty();
 }
 
