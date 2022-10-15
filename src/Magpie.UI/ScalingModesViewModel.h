@@ -28,6 +28,12 @@ struct ScalingModesViewModel : ScalingModesViewModelT<ScalingModesViewModel> {
 
 	bool DownscalingEffectHasParameters() noexcept;
 
+	Magpie::UI::EffectParametersViewModel DownscalingEffectParameters() const noexcept {
+		// 默认构造表示降采样效果参数
+		// 每次调用都返回一个新的实例，因为此时降采样效果已更改
+		return {};
+	}
+
 	IObservableVector<IInspectable> ScalingModes() const noexcept {
 		return _scalingModes;
 	}

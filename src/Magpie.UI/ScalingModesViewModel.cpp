@@ -72,6 +72,7 @@ void ScalingModesViewModel::DownscalingEffectIndex(int value) {
 
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"DownscalingEffectIndex"));
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"DownscalingEffectHasParameters"));
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"DownscalingEffectParameters"));
 }
 
 bool ScalingModesViewModel::DownscalingEffectHasParameters() noexcept {

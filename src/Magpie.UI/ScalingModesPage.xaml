@@ -200,12 +200,18 @@
 				<local:SettingItem Title="默认降采样效果"
 								   Description="无法容纳输出图像时将自动应用此效果">
 					<local:SettingItem.ActionContent>
-						<StackPanel Orientation="Horizontal">
-							<ComboBox DropDownOpened="ComboBox_DropDownOpened"
+						<Grid MinWidth="210">
+							<Grid.ColumnDefinitions>
+								<ColumnDefinition Width="*" />
+								<ColumnDefinition Width="Auto" />
+							</Grid.ColumnDefinitions>
+							<ComboBox Grid.Column="0"
+									  HorizontalAlignment="Stretch"
+									  DropDownOpened="ComboBox_DropDownOpened"
 									  ItemsSource="{x:Bind ViewModel.DownscalingEffects, Mode=OneTime}"
-									  SelectedIndex="{x:Bind ViewModel.DownscalingEffectIndex, Mode=TwoWay}"
-									  Style="{StaticResource ComboBoxSettingStyle}" />
-							<Button Margin="4,0,0,0"
+									  SelectedIndex="{x:Bind ViewModel.DownscalingEffectIndex, Mode=TwoWay}" />
+							<Button Grid.Column="1"
+									Margin="4,0,0,0"
 									VerticalAlignment="Stretch"
 									Visibility="{x:Bind ViewModel.DownscalingEffectHasParameters, Mode=OneWay}">
 								<Button.Content>
@@ -215,8 +221,20 @@
 								<ToolTipService.ToolTip>
 									<ToolTip Content="参数" />
 								</ToolTipService.ToolTip>
+								<Button.Flyout>
+									<Flyout Placement="Bottom">
+										<Flyout.FlyoutPresenterStyle>
+											<Style BasedOn="{StaticResource DefaultFlyoutPresenterStyle}"
+												   TargetType="FlyoutPresenter">
+												<Setter Property="MaxHeight" Value="450" />
+											</Style>
+										</Flyout.FlyoutPresenterStyle>
+										<ContentControl Content="{x:Bind ViewModel.DownscalingEffectParameters, Mode=OneWay}"
+														ContentTemplate="{StaticResource EffectParametersFlyout}" />
+									</Flyout>
+								</Button.Flyout>
 							</Button>
-						</StackPanel>
+						</Grid>
 					</local:SettingItem.ActionContent>
 				</local:SettingItem>
 			</local:SettingsGroup>
@@ -527,7 +545,7 @@
 																					<Setter Property="MaxHeight" Value="450" />
 																				</Style>
 																			</Flyout.FlyoutPresenterStyle>
-																			<ContentControl Content="{x:Bind Parameters}"
+																			<ContentControl Content="{x:Bind Parameters, Mode=OneTime}"
 																							ContentTemplate="{StaticResource EffectParametersFlyout}" />
 																		</Flyout>
 																	</Button.Flyout>

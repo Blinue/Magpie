@@ -26,6 +26,9 @@ EffectParametersViewModel::EffectParametersViewModel(uint32_t scalingModeIdx, ui
 	std::wstring_view effectName;
 	if (_IsDefaultDownscalingEffect()) {
 		effectName = AppSettings::Get().DownscalingEffect().name;
+		if (effectName.empty()) {
+			return;
+		}
 	} else {
 		ScalingMode& scalingMode = ScalingModesService::Get().GetScalingMode(_scalingModeIdx);
 		effectName = scalingMode.effects[_effectIdx].name;
