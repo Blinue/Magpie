@@ -23,17 +23,20 @@
 								<FontIcon Glyph="&#xE895;" />
 							</local:SettingItem.Icon>
 							<local:SettingItem.ActionContent>
-								<Button Content="检查更新" />
+								<Button Content="检查更新（施工中）"
+										IsEnabled="False" />
 							</local:SettingItem.ActionContent>
 						</local:SettingItem>
 					</muxc:Expander.Header>
 					<muxc:Expander.Content>
 						<StackPanel Orientation="Vertical">
 							<local:SettingItem Style="{StaticResource ExpanderContentSettingStyle}">
-								<CheckBox Content="自动下载更新" />
+								<CheckBox Content="自动下载更新"
+										  IsEnabled="False" />
 							</local:SettingItem>
 							<local:SettingItem Style="{StaticResource ExpanderContentSettingStyle}">
-								<CheckBox Content="检查预览版更新" />
+								<CheckBox Content="检查预览版更新"
+										  IsEnabled="False" />
 							</local:SettingItem>
 						</StackPanel>
 					</muxc:Expander.Content>
