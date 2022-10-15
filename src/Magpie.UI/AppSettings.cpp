@@ -891,7 +891,7 @@ void AppSettings::_SetDefaultHotkeys() {
 }
 
 void AppSettings::_SetDefaultScalingModes() {
-	_scalingModes.resize(8);
+	_scalingModes.resize(7);
 
 	// Lanczos
 	{
@@ -919,40 +919,19 @@ void AppSettings::_SetDefaultScalingModes() {
 	{
 		auto& fsrcnnx = _scalingModes[2];
 		fsrcnnx.name = L"FSRCNNX";
-
-		fsrcnnx.effects.resize(2);
-		fsrcnnx.effects[0].name = L"FSRCNNX\\FSRCNNX";
-		auto& bicubic = fsrcnnx.effects[1];
-		bicubic.name = L"Bicubic";
-		bicubic.scalingType = ::Magpie::Core::ScalingType::Fit;
-		bicubic.parameters[L"paramB"] = 0.0f;
-		bicubic.parameters[L"paramC"] = 0.5f;
+		fsrcnnx.effects.emplace_back().name = L"FSRCNNX\\FSRCNNX";
 	}
 	// ACNet
 	{
 		auto& acnet = _scalingModes[3];
 		acnet.name = L"ACNet";
-
-		acnet.effects.resize(2);
-		acnet.effects[0].name = L"ACNet";
-		auto& bicubic = acnet.effects[1];
-		bicubic.name = L"Bicubic";
-		bicubic.scalingType = ::Magpie::Core::ScalingType::Fit;
-		bicubic.parameters[L"paramB"] = 0.0f;
-		bicubic.parameters[L"paramC"] = 0.5f;
+		acnet.effects.emplace_back().name = L"ACNet";
 	}
 	// Anime4K
 	{
 		auto& anime4k = _scalingModes[4];
 		anime4k.name = L"Anime4K";
-
-		anime4k.effects.resize(2);
-		anime4k.effects[0].name = L"Anime4K\\Anime4K_Upscale_Denoise_L";
-		auto& bicubic = anime4k.effects[1];
-		bicubic.name = L"Bicubic";
-		bicubic.scalingType = ::Magpie::Core::ScalingType::Fit;
-		bicubic.parameters[L"paramB"] = 0.0f;
-		bicubic.parameters[L"paramC"] = 0.5f;
+		anime4k.effects.emplace_back().name = L"Anime4K\\Anime4K_Upscale_Denoise_L";
 	}
 	// CRT-Geom
 	{
@@ -978,16 +957,11 @@ void AppSettings::_SetDefaultScalingModes() {
 		nearest.scalingType = ::Magpie::Core::ScalingType::Normal;
 		nearest.scale = { 2.0f,2.0f };
 	}
-	// Integer Scale 3x
-	{
-		auto& integer3x = _scalingModes[7];
-		integer3x.name = L"Integer Scale 3x";
 
-		auto& nearest = integer3x.effects.emplace_back();
-		nearest.name = L"Nearest";
-		nearest.scalingType = ::Magpie::Core::ScalingType::Normal;
-		nearest.scale = { 3.0f,3.0f };
-	}
+	// 降采样效果默认为 Bicubic (B=0, C=0.5)
+	_downscalingEffect.name = L"Bicubic";
+	_downscalingEffect.parameters[L"paramB"] = 0.0f;
+	_downscalingEffect.parameters[L"paramC"] = 0.5f;
 }
 
 void AppSettings::_UpdateConfigPath() noexcept {
