@@ -7,6 +7,11 @@
 #include "EffectsService.h"
 #include "AppSettings.h"
 #include "EffectHelper.h"
+#include "Logger.h"
+#include "StrUtils.h"
+
+
+using namespace ::Magpie::Core;
 
 
 namespace winrt::Magpie::UI::implementation {
@@ -16,10 +21,28 @@ ScalingModesViewModel::ScalingModesViewModel() {
 	downscalingEffects.push_back(box_value(L"无"));
 	for (const EffectInfo& effectInfo : EffectsService::Get().Effects()) {
 		if (effectInfo.IsGenericDownscaler()) {
+			_downscalingEffectNames.push_back(effectInfo.name);
 			downscalingEffects.push_back(box_value(EffectHelper::GetDisplayName(effectInfo.name)));
 		}
 	}
 	_downscalingEffects = single_threaded_vector(std::move(downscalingEffects));
+
+	DownscalingEffect& downscalingEffect = AppSettings::Get().DownscalingEffect();
+	if (!downscalingEffect.name.empty()) {
+		for (uint32_t i = 0; i < _downscalingEffectNames.size(); ++i) {
+			if (_downscalingEffectNames[i] == downscalingEffect.name) {
+				_downscalingEffectIndex = i + 1;
+				break;
+			}
+		}
+
+		if (_downscalingEffectIndex == 0) {
+			Logger::Get().Warn(fmt::format("降采样效果 {} 不存在",
+				StrUtils::UTF16ToUTF8(downscalingEffect.name)));
+			downscalingEffect.name.clear();
+			downscalingEffect.parameters.clear();
+		}
+	}
 
 	std::vector<IInspectable> scalingModes;
 	for (uint32_t i = 0, count = ScalingModesService::Get().GetScalingModeCount(); i < count;++i) {
@@ -31,6 +54,33 @@ ScalingModesViewModel::ScalingModesViewModel() {
 		auto_revoke, { this, &ScalingModesViewModel::_ScalingModesService_Moved });
 	_scalingModeRemovedRevoker = ScalingModesService::Get().ScalingModeRemoved(
 		auto_revoke, { this, &ScalingModesViewModel::_ScalingModesService_Removed });
+}
+
+void ScalingModesViewModel::DownscalingEffectIndex(int value) {
+	if (_downscalingEffectIndex == value) {
+		return;
+	}
+	_downscalingEffectIndex = value;
+
+	DownscalingEffect& downscalingEffect = AppSettings::Get().DownscalingEffect();
+	downscalingEffect.parameters.clear();
+	if (value <= 0) {
+		downscalingEffect.name.clear();
+	} else {
+		downscalingEffect.name = _downscalingEffectNames[(size_t)value - 1];
+	}
+
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"DownscalingEffectIndex"));
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"DownscalingEffectHasParameters"));
+}
+
+bool ScalingModesViewModel::DownscalingEffectHasParameters() noexcept {
+	if (_downscalingEffectIndex == 0) {
+		return false;
+	}
+
+	const std::wstring& effectName = _downscalingEffectNames[(size_t)_downscalingEffectIndex - 1];
+	return !EffectsService::Get().GetEffect(effectName)->params.empty();
 }
 
 void ScalingModesViewModel::PrepareForAdd() {

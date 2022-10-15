@@ -545,6 +545,23 @@ bool AppSettings::Save() {
 	writer.Key("inlineParams");
 	writer.Bool(_isInlineParams);
 
+	if (!_downscalingEffect.name.empty()) {
+		writer.Key("downscalingEffect");
+		writer.StartObject();
+		writer.Key("name");
+		writer.String(StrUtils::UTF16ToUTF8(_downscalingEffect.name).c_str());
+		if (!_downscalingEffect.parameters.empty()) {
+			writer.Key("parameters");
+			writer.StartObject();
+			for (const auto& [name, value] : _downscalingEffect.parameters) {
+				writer.Key(StrUtils::UTF16ToUTF8(name).c_str());
+				writer.Double(value);
+			}
+			writer.EndObject();
+		}
+		writer.EndObject();
+	}
+
 	writer.Key("scalingModes");
 	writer.StartArray();
 	for (const ScalingMode& scalingMode : _scalingModes) {
@@ -753,6 +770,41 @@ bool AppSettings::_LoadSettings(std::string text) {
 	}
 	if (!LoadBoolSettingItem(root, "inlineParams", _isInlineParams)) {
 		return false;
+	}
+
+	{
+		auto downscalingEffectNode = root.FindMember("downscalingEffect");
+		if (downscalingEffectNode != root.MemberEnd()) {
+			if (!downscalingEffectNode->value.IsObject()) {
+				return false;
+			}
+
+			auto downscalingEffectObj = downscalingEffectNode->value.GetObj();
+
+			if (!LoadStringSettingItem(downscalingEffectObj, "name", _downscalingEffect.name)) {
+				return false;
+			}
+
+			{
+				auto parametersNode = downscalingEffectObj.FindMember("parameters");
+				if (parametersNode != downscalingEffectObj.MemberEnd()) {
+					if (!parametersNode->value.IsObject()) {
+						return false;
+					}
+
+					auto paramsObj = parametersNode->value.GetObj();
+					_downscalingEffect.parameters.reserve(paramsObj.MemberCount());
+					for (auto& param : paramsObj) {
+						std::wstring name = StrUtils::UTF8ToUTF16(param.name.GetString());
+
+						if (!param.value.IsNumber()) {
+							return false;
+						}
+						_downscalingEffect.parameters[name] = param.value.GetFloat();
+					}
+				}
+			}
+		}
 	}
 
 	{

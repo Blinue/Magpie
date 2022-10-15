@@ -122,10 +122,11 @@
 						<StackPanel Orientation="Horizontal">
 							<ComboBox DropDownOpened="ComboBox_DropDownOpened"
 									  ItemsSource="{x:Bind ViewModel.DownscalingEffects, Mode=OneTime}"
-									  SelectedIndex="1"
+									  SelectedIndex="{x:Bind ViewModel.DownscalingEffectIndex, Mode=TwoWay}"
 									  Style="{StaticResource ComboBoxSettingStyle}" />
 							<Button Margin="4,0,0,0"
-									VerticalAlignment="Stretch">
+									VerticalAlignment="Stretch"
+									Visibility="{x:Bind ViewModel.DownscalingEffectHasParameters, Mode=OneWay}">
 								<Button.Content>
 									<FontIcon FontSize="15"
 											  Glyph="&#xE9E9;" />

@@ -212,7 +212,7 @@ public:
 		_isInlineParams = value;
 	}
 
-	::Magpie::Core::DownscalingEffect& DefaultDownscalingEffect() noexcept {
+	::Magpie::Core::DownscalingEffect& DownscalingEffect() noexcept {
 		return _downscalingEffect;
 	}
 

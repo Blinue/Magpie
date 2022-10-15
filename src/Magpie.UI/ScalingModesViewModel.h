@@ -20,6 +20,14 @@ struct ScalingModesViewModel : ScalingModesViewModelT<ScalingModesViewModel> {
 		return _downscalingEffects;
 	}
 
+	int DownscalingEffectIndex() const noexcept {
+		return _downscalingEffectIndex;
+	}
+
+	void DownscalingEffectIndex(int value);
+
+	bool DownscalingEffectHasParameters() noexcept;
+
 	IObservableVector<IInspectable> ScalingModes() const noexcept {
 		return _scalingModes;
 	}
@@ -36,11 +44,11 @@ struct ScalingModesViewModel : ScalingModesViewModelT<ScalingModesViewModel> {
 		return _newScalingModeCopyFromList;
 	}
 
-	int32_t NewScalingModeCopyFrom() const noexcept {
+	int NewScalingModeCopyFrom() const noexcept {
 		return _newScalingModeCopyFrom;
 	}
 
-	void NewScalingModeCopyFrom(int32_t value) noexcept {
+	void NewScalingModeCopyFrom(int value) noexcept {
 		_newScalingModeCopyFrom = value;
 		_propertyChangedEvent(*this, PropertyChangedEventArgs(L"NewScalingModeCopyFrom"));
 	}
@@ -59,6 +67,7 @@ private:
 	event<PropertyChangedEventHandler> _propertyChangedEvent;
 
 	IVector<IInspectable> _downscalingEffects{ nullptr };
+	std::vector<std::wstring> _downscalingEffectNames;
 	IObservableVector<IInspectable> _scalingModes{ nullptr };
 
 	WinRTUtils::EventRevoker _scalingModeMovedRevoker;
@@ -66,7 +75,9 @@ private:
 
 	hstring _newScalingModeName;
 	IVector<IInspectable> _newScalingModeCopyFromList{ nullptr };
-	int32_t _newScalingModeCopyFrom = 0;
+	int _newScalingModeCopyFrom = 0;
+
+	int _downscalingEffectIndex = 0;
 };
 
 }

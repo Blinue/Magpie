@@ -5,6 +5,8 @@ namespace Magpie.UI
         ScalingModesViewModel();
 
         IVector<IInspectable> DownscalingEffects { get; };
+        Int32 DownscalingEffectIndex;
+        Boolean DownscalingEffectHasParameters { get; };
         
         IObservableVector<IInspectable> ScalingModes { get; };
 
