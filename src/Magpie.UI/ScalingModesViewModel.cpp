@@ -9,9 +9,13 @@
 #include "EffectHelper.h"
 #include "Logger.h"
 #include "StrUtils.h"
-
+#include <winrt/Windows.Storage.Pickers.h>
+#include "Win32Utils.h"
 
 using namespace ::Magpie::Core;
+using namespace winrt;
+using namespace Windows::Storage;
+using namespace Windows::Storage::Pickers;
 
 
 namespace winrt::Magpie::UI::implementation {
@@ -66,6 +70,38 @@ ScalingModesViewModel::ScalingModesViewModel() {
 		auto_revoke, { this, &ScalingModesViewModel::_ScalingModesService_Moved });
 	_scalingModeRemovedRevoker = ScalingModesService::Get().ScalingModeRemoved(
 		auto_revoke, { this, &ScalingModesViewModel::_ScalingModesService_Removed });
+}
+
+fire_and_forget ScalingModesViewModel::Export() const noexcept {
+	FileSavePicker savePicker;
+	savePicker.as<IInitializeWithWindow>()->Initialize(
+		(HWND)Application::Current().as<App>().HwndMain());
+
+	savePicker.FileTypeChoices().Insert(L"JSON",
+		single_threaded_vector(std::vector{ hstring(L".json") }));
+	savePicker.SuggestedFileName(L"ScalingModes");
+
+	auto id1 = std::this_thread::get_id();
+
+	StorageFile file = co_await savePicker.PickSaveFileAsync();
+	if (!file) {
+		co_return;
+	}
+
+	auto id2 = std::this_thread::get_id();
+
+	hstring fileName = file.Path();
+
+	rapidjson::StringBuffer json;
+	rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(json);
+	writer.StartObject();
+	ScalingModesService::Get().Export(writer);
+	writer.EndObject();
+
+	Win32Utils::WriteTextFile(file.Path().c_str(), { json.GetString(), json.GetLength() });
+}
+
+void ScalingModesViewModel::Import() const noexcept {
 }
 
 void ScalingModesViewModel::DownscalingEffectIndex(int value) {

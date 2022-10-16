@@ -140,7 +140,8 @@
 					<Button.Flyout>
 						<MenuFlyout Placement="Bottom"
 									ShouldConstrainToRootBounds="False">
-							<MenuFlyoutItem Text="导出">
+							<MenuFlyoutItem Click="{x:Bind ViewModel.Export}"
+											Text="导出">
 								<MenuFlyoutItem.Icon>
 									<FontIcon Glyph="&#xEDE1;" />
 								</MenuFlyoutItem.Icon>

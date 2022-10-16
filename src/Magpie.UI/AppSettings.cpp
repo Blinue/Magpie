@@ -346,7 +346,7 @@ bool AppSettings::Save() {
 
 	writer.EndObject();
 
-	if (!Win32Utils::WriteTextFile(_configPath.c_str(), json.GetString())) {
+	if (!Win32Utils::WriteTextFile(_configPath.c_str(), { json.GetString(), json.GetLength() })) {
 		Logger::Get().Error("保存配置失败");
 		return false;
 	}

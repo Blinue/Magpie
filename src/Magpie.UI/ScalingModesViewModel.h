@@ -16,6 +16,10 @@ struct ScalingModesViewModel : ScalingModesViewModelT<ScalingModesViewModel> {
 		_propertyChangedEvent.remove(token);
 	}
 
+	fire_and_forget Export() const noexcept;
+
+	void Import() const noexcept;
+
 	IVector<IInspectable> DownscalingEffects() const noexcept {
 		return _downscalingEffects;
 	}

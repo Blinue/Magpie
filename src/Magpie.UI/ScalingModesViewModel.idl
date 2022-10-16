@@ -4,6 +4,9 @@ namespace Magpie.UI
     {
         ScalingModesViewModel();
 
+        void Export();
+        void Import();
+
         IVector<IInspectable> DownscalingEffects { get; };
         Int32 DownscalingEffectIndex;
         Boolean DownscalingEffectHasParameters { get; };
