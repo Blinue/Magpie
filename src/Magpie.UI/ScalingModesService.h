@@ -3,6 +3,8 @@
 #include "Magpie.Core.h"
 #include <ScalingMode.h>
 #include "WinRTUtils.h"
+#include <rapidjson/prettywriter.h>
+#include <rapidjson/document.h>
 
 
 namespace winrt::Magpie::UI {
@@ -72,6 +74,12 @@ public:
 	void ScalingModeMoved(event_token const& token) {
 		_scalingModeMovedEvent.remove(token);
 	}
+
+	// 不能使用 rapidjson::Writer 类型，因为 PrettyWriter 没有重写 Writer 中的方法
+	// 不合理的 API 设计
+	void Export(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer) const noexcept;
+
+	bool Import(const rapidjson::GenericObject<false, rapidjson::Value>& root) const noexcept;
 private:
 	ScalingModesService() = default;
 

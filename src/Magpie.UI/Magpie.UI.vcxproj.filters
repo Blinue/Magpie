@@ -47,6 +47,9 @@
     <ClCompile Include="PageHelper.cpp">
       <Filter>Helpers</Filter>
     </ClCompile>
+    <ClCompile Include="JsonHelper.cpp">
+      <Filter>Helpers</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -98,6 +101,9 @@
       <Filter>Helpers</Filter>
     </ClInclude>
     <ClInclude Include="EffectHelper.h">
+      <Filter>Helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="JsonHelper.h">
       <Filter>Helpers</Filter>
     </ClInclude>
   </ItemGroup>

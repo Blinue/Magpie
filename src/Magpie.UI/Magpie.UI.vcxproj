@@ -135,6 +135,7 @@
     <ClInclude Include="HotkeyService.h" />
     <ClInclude Include="HotkeySettings.h" />
     <ClInclude Include="IconHelper.h" />
+    <ClInclude Include="JsonHelper.h" />
     <ClInclude Include="MagService.h" />
     <ClInclude Include="NewProfileViewModel.h">
       <DependentUpon>NewProfileViewModel.idl</DependentUpon>
@@ -269,6 +270,7 @@
     <ClCompile Include="HotkeyService.cpp" />
     <ClCompile Include="HotkeySettings.cpp" />
     <ClCompile Include="IconHelper.cpp" />
+    <ClCompile Include="JsonHelper.cpp" />
     <ClCompile Include="MagService.cpp" />
     <ClCompile Include="NewProfileViewModel.cpp">
       <DependentUpon>NewProfileViewModel.idl</DependentUpon>
