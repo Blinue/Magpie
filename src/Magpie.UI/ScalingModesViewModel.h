@@ -18,7 +18,13 @@ struct ScalingModesViewModel : ScalingModesViewModelT<ScalingModesViewModel> {
 
 	fire_and_forget Export() const noexcept;
 
-	fire_and_forget Import() noexcept;
+	void Import() {
+		_Import(false);
+	}
+
+	void ImportLegacy() {
+		_Import(true);
+	}
 
 	bool ShowErrorMessage() const noexcept {
 		return _showErrorMessage;
@@ -84,6 +90,8 @@ private:
 	void _ScalingModesService_Moved(uint32_t index, bool isMoveUp);
 
 	void _ScalingModesService_Removed(uint32_t index);
+
+	fire_and_forget _Import(bool legacy);
 
 	event<PropertyChangedEventHandler> _propertyChangedEvent;
 

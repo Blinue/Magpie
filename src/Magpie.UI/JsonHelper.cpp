@@ -6,7 +6,7 @@
 namespace winrt::Magpie::UI {
 
 bool JsonHelper::ReadBool(
-	const rapidjson::GenericObject<false, rapidjson::Value>& obj,
+	const rapidjson::GenericObject<true, rapidjson::Value>& obj,
 	const char* name,
 	bool& result,
 	bool required
@@ -25,7 +25,7 @@ bool JsonHelper::ReadBool(
 }
 
 bool JsonHelper::ReadBoolFlag(
-	const rapidjson::GenericObject<false, rapidjson::Value>& obj,
+	const rapidjson::GenericObject<true, rapidjson::Value>& obj,
 	const char* nodeName,
 	uint32_t flagBit,
 	uint32_t& flags
@@ -49,7 +49,7 @@ bool JsonHelper::ReadBoolFlag(
 }
 
 bool JsonHelper::ReadUInt(
-	const rapidjson::GenericObject<false, rapidjson::Value>& obj,
+	const rapidjson::GenericObject<true, rapidjson::Value>& obj,
 	const char* name,
 	uint32_t& result,
 	bool required
@@ -68,7 +68,7 @@ bool JsonHelper::ReadUInt(
 }
 
 bool JsonHelper::ReadInt(
-	const rapidjson::GenericObject<false, rapidjson::Value>& obj,
+	const rapidjson::GenericObject<true, rapidjson::Value>& obj,
 	const char* name,
 	int& result,
 	bool required
@@ -87,7 +87,7 @@ bool JsonHelper::ReadInt(
 }
 
 bool JsonHelper::ReadFloat(
-	const rapidjson::GenericObject<false, rapidjson::Value>& obj,
+	const rapidjson::GenericObject<true, rapidjson::Value>& obj,
 	const char* name,
 	float& result,
 	bool required
@@ -106,7 +106,7 @@ bool JsonHelper::ReadFloat(
 }
 
 bool JsonHelper::ReadString(
-	const rapidjson::GenericObject<false, rapidjson::Value>& obj,
+	const rapidjson::GenericObject<true, rapidjson::Value>& obj,
 	const char* name,
 	std::wstring& result,
 	bool required

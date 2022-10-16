@@ -111,7 +111,11 @@ static void WriteScalingProfile(rapidjson::PrettyWriter<rapidjson::StringBuffer>
 	writer.EndObject();
 }
 
-static bool LoadScalingProfile(const rapidjson::GenericObject<false, rapidjson::Value>& scalingConfigObj, ScalingProfile& scalingProfile, bool isDefault = false) {
+static bool LoadScalingProfile(
+	const rapidjson::GenericObject<true, rapidjson::Value>& scalingConfigObj,
+	ScalingProfile& scalingProfile,
+	bool isDefault = false
+) {
 	if (!isDefault) {
 		if (!JsonHelper::ReadString(scalingConfigObj, "name", scalingProfile.name, true)) {
 			return false;
@@ -436,14 +440,15 @@ void AppSettings::IsShowTrayIcon(bool value) noexcept {
 }
 
 // 遇到不合法的配置项会失败，因此用户不应直接编辑配置文件
-bool AppSettings::_LoadSettings(std::string text) {
+bool AppSettings::_LoadSettings(std::string& text) {
 	if (text.empty()) {
 		Logger::Get().Info("配置文件为空");
 		return true;
 	}
 
 	rapidjson::Document doc;
-	if (doc.Parse(text.c_str(), text.size()).HasParseError()) {
+	doc.ParseInsitu(text.data());
+	if (doc.HasParseError()) {
 		Logger::Get().Error(fmt::format("解析配置失败\n\t错误码：{}", (int)doc.GetParseError()));
 		return false;
 	}
@@ -452,7 +457,7 @@ bool AppSettings::_LoadSettings(std::string text) {
 		return false;
 	}
 
-	const auto& root = doc.GetObj();
+	auto root = ((const rapidjson::Document&)doc).GetObj();
 
 	if (!JsonHelper::ReadUInt(root, "theme", _theme)) {
 		return false;

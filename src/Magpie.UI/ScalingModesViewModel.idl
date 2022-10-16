@@ -6,6 +6,7 @@ namespace Magpie.UI
 
         void Export();
         void Import();
+        void ImportLegacy();
 
         Boolean ShowErrorMessage;
 

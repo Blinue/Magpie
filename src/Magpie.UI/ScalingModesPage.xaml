@@ -152,7 +152,8 @@
 									<FontIcon Glyph="&#xEA52;" />
 								</MenuFlyoutItem.Icon>
 							</MenuFlyoutItem>
-							<MenuFlyoutItem Text="导入旧版">
+							<MenuFlyoutItem Click="{x:Bind ViewModel.ImportLegacy}"
+											Text="导入旧版">
 								<MenuFlyoutItem.Icon>
 									<FontIcon Glyph="&#xEA52;" />
 								</MenuFlyoutItem.Icon>

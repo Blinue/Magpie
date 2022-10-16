@@ -225,7 +225,7 @@ private:
 	AppSettings(const AppSettings&) = delete;
 	AppSettings(AppSettings&&) = delete;
 
-	bool _LoadSettings(std::string text);
+	bool _LoadSettings(std::string& text);
 	void _SetDefaultHotkeys();
 	void _SetDefaultScalingModes();
 
