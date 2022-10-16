@@ -8,7 +8,7 @@
 			 Loading="Loading"
 			 mc:Ignorable="d">
 	<UserControl.Resources>
-		<x:Double x:Key="PageMaxWidth">1070</x:Double>
+		<x:Double x:Key="PageMaxWidth">1000</x:Double>
 	</UserControl.Resources>
 
 	<Grid Margin="20,0,0,0">
@@ -17,14 +17,11 @@
 			<RowDefinition Height="*" />
 		</Grid.RowDefinitions>
 
-		<Grid x:Name="HeaderGrid"
-			  Grid.Row="0"
-			  VerticalAlignment="Top">
-			<Grid.ColumnDefinitions>
-				<ColumnDefinition Width="*"
-								  MaxWidth="{StaticResource PageMaxWidth}" />
-			</Grid.ColumnDefinitions>
-			<Grid Margin="0,0,20,15">
+		<StackPanel x:Name="HeaderGrid"
+					Grid.Row="0"
+					VerticalAlignment="Top">
+			<Grid MaxWidth="{StaticResource PageMaxWidth}"
+				  Margin="0,0,20,15">
 				<Grid.ColumnDefinitions>
 					<ColumnDefinition Width="Auto" />
 					<ColumnDefinition Width="*" />
@@ -47,25 +44,20 @@
 								Content="{x:Bind HeaderAction, Mode=OneWay}"
 								IsTabStop="False" />
 			</Grid>
-		</Grid>
-
+		</StackPanel>
 		<ScrollViewer Grid.Row="1"
 					  PointerPressed="ScrollViewer_PointerPressed"
 					  VerticalScrollBarVisibility="Auto"
 					  ViewChanging="ScrollViewer_ViewChanging">
-			<Grid>
-				<Grid.ColumnDefinitions>
-					<ColumnDefinition Width="*"
-									  MaxWidth="{StaticResource PageMaxWidth}" />
-				</Grid.ColumnDefinitions>
-
+			<StackPanel>
 				<ContentControl Grid.Column="0"
+								MaxWidth="{StaticResource PageMaxWidth}"
 								Margin="0,0,20,20"
 								HorizontalContentAlignment="Stretch"
 								VerticalContentAlignment="Stretch"
 								Content="{x:Bind MainContent, Mode=OneWay}"
 								IsTabStop="False" />
-			</Grid>
+			</StackPanel>
 		</ScrollViewer>
 	</Grid>
 </UserControl>
