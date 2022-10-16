@@ -18,7 +18,7 @@ struct ScalingModesViewModel : ScalingModesViewModelT<ScalingModesViewModel> {
 
 	fire_and_forget Export() const noexcept;
 
-	void Import() const noexcept;
+	fire_and_forget Import() const noexcept;
 
 	IVector<IInspectable> DownscalingEffects() const noexcept {
 		return _downscalingEffects;
@@ -70,6 +70,8 @@ struct ScalingModesViewModel : ScalingModesViewModelT<ScalingModesViewModel> {
 	void AddScalingMode();
 
 private:
+	void _ScalingModesService_Added();
+
 	void _ScalingModesService_Moved(uint32_t index, bool isMoveUp);
 
 	void _ScalingModesService_Removed(uint32_t index);
@@ -81,6 +83,7 @@ private:
 	std::vector<std::pair<std::wstring, std::wstring>> _downscalingEffectNames;
 	IObservableVector<IInspectable> _scalingModes{ nullptr };
 
+	WinRTUtils::EventRevoker _scalingModeAddedRevoker;
 	WinRTUtils::EventRevoker _scalingModeMovedRevoker;
 	WinRTUtils::EventRevoker _scalingModeRemovedRevoker;
 

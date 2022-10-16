@@ -66,6 +66,8 @@ ScalingModesViewModel::ScalingModesViewModel() {
 	}
 	_scalingModes = single_threaded_observable_vector(std::move(scalingModes));
 
+	_scalingModeAddedRevoker = ScalingModesService::Get().ScalingModeAdded(
+		auto_revoke, { this, &ScalingModesViewModel::_ScalingModesService_Added });
 	_scalingModeMovedRevoker = ScalingModesService::Get().ScalingModeMoved(
 		auto_revoke, { this, &ScalingModesViewModel::_ScalingModesService_Moved });
 	_scalingModeRemovedRevoker = ScalingModesService::Get().ScalingModeRemoved(
@@ -81,16 +83,10 @@ fire_and_forget ScalingModesViewModel::Export() const noexcept {
 		single_threaded_vector(std::vector{ hstring(L".json") }));
 	savePicker.SuggestedFileName(L"ScalingModes");
 
-	auto id1 = std::this_thread::get_id();
-
 	StorageFile file = co_await savePicker.PickSaveFileAsync();
 	if (!file) {
 		co_return;
 	}
-
-	auto id2 = std::this_thread::get_id();
-
-	hstring fileName = file.Path();
 
 	rapidjson::StringBuffer json;
 	rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(json);
@@ -101,7 +97,33 @@ fire_and_forget ScalingModesViewModel::Export() const noexcept {
 	Win32Utils::WriteTextFile(file.Path().c_str(), { json.GetString(), json.GetLength() });
 }
 
-void ScalingModesViewModel::Import() const noexcept {
+fire_and_forget ScalingModesViewModel::Import() const noexcept {
+	FileOpenPicker openPicker;
+	openPicker.as<IInitializeWithWindow>()->Initialize(
+		(HWND)Application::Current().as<App>().HwndMain());
+
+	openPicker.FileTypeFilter().Append(L".json");
+	StorageFile file = co_await openPicker.PickSingleFileAsync();
+	if (!file) {
+		co_return;
+	}
+
+	std::string json;
+	if (!Win32Utils::ReadTextFile(file.Path().c_str(), json)) {
+		co_return;
+	}
+
+	rapidjson::Document doc;
+	if (doc.Parse(json.c_str(), json.size()).HasParseError()) {
+		Logger::Get().Error(fmt::format("解析缩放模式失败\n\t错误码：{}", (int)doc.GetParseError()));
+		co_return;
+	}
+
+	if (!doc.IsObject()) {
+		co_return;
+	}
+
+	ScalingModesService::Get().Import(doc.GetObj());
 }
 
 void ScalingModesViewModel::DownscalingEffectIndex(int value) {
@@ -156,7 +178,13 @@ void ScalingModesViewModel::NewScalingModeName(const hstring& value) noexcept {
 
 void ScalingModesViewModel::AddScalingMode() {
 	ScalingModesService::Get().AddScalingMode(_newScalingModeName, _newScalingModeCopyFrom - 1);
-	_scalingModes.Append(ScalingModeItem(ScalingModesService::Get().GetScalingModeCount() - 1));
+}
+
+void ScalingModesViewModel::_ScalingModesService_Added() {
+	const uint32_t count = ScalingModesService::Get().GetScalingModeCount();
+	for (uint32_t i = _scalingModes.Size(); i < count; ++i) {
+		_scalingModes.Append(ScalingModeItem(i));
+	}
 }
 
 void ScalingModesViewModel::_ScalingModesService_Moved(uint32_t index, bool isMoveUp) {

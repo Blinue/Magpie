@@ -195,7 +195,7 @@ static bool LoadScalingMode(const rapidjson::GenericObject<false, rapidjson::Val
     return true;
 }
 
-bool ScalingModesService::Import(const rapidjson::GenericObject<false, rapidjson::Value>& root) const noexcept {
+bool ScalingModesService::Import(const rapidjson::GenericObject<false, rapidjson::Value>& root) noexcept {
     auto scalingModesNode = root.FindMember("scalingModes");
     if (scalingModesNode == root.MemberEnd()) {
         return true;
@@ -205,10 +205,13 @@ bool ScalingModesService::Import(const rapidjson::GenericObject<false, rapidjson
         return false;
     }
 
-    std::vector<ScalingMode> scalingModes;
-
     const auto& scalingModesArray = scalingModesNode->value.GetArray();
     const rapidjson::SizeType size = scalingModesArray.Size();
+    if (size == 0) {
+        return true;
+    }
+
+    std::vector<ScalingMode> scalingModes;
     scalingModes.resize(size);
 
     for (rapidjson::SizeType i = 0; i < size; ++i) {
@@ -221,7 +224,15 @@ bool ScalingModesService::Import(const rapidjson::GenericObject<false, rapidjson
         }
     }
 
-    AppSettings::Get().ScalingModes() = std::move(scalingModes);
+    std::vector<ScalingMode>& settings = AppSettings::Get().ScalingModes();
+    settings.insert(
+        settings.end(),
+        std::make_move_iterator(scalingModes.begin()),
+        std::make_move_iterator(scalingModes.end())
+    );
+
+    _scalingModeAddedEvent();
+
     return true;
 }
 

@@ -146,7 +146,8 @@
 									<FontIcon Glyph="&#xEDE1;" />
 								</MenuFlyoutItem.Icon>
 							</MenuFlyoutItem>
-							<MenuFlyoutItem Text="导入">
+							<MenuFlyoutItem Click="{x:Bind ViewModel.Import}"
+											Text="导入">
 								<MenuFlyoutItem.Icon>
 									<FontIcon Glyph="&#xEA52;" />
 								</MenuFlyoutItem.Icon>
