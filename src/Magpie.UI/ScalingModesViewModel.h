@@ -18,7 +18,16 @@ struct ScalingModesViewModel : ScalingModesViewModelT<ScalingModesViewModel> {
 
 	fire_and_forget Export() const noexcept;
 
-	fire_and_forget Import() const noexcept;
+	fire_and_forget Import() noexcept;
+
+	bool ShowErrorMessage() const noexcept {
+		return _showErrorMessage;
+	}
+
+	void ShowErrorMessage(bool value) {
+		_showErrorMessage = value;
+		_propertyChangedEvent(*this, PropertyChangedEventArgs(L"ShowErrorMessage"));
+	}
 
 	IVector<IInspectable> DownscalingEffects() const noexcept {
 		return _downscalingEffects;
@@ -92,6 +101,7 @@ private:
 	int _newScalingModeCopyFrom = 0;
 
 	int _downscalingEffectIndex = 0;
+	bool _showErrorMessage = false;
 };
 
 }

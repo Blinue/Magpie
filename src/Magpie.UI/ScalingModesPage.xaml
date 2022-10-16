@@ -163,8 +163,12 @@
 			</StackPanel>
 		</local:PageFrame.HeaderAction>
 
-		<StackPanel HorizontalAlignment="Stretch"
-					Orientation="Vertical">
+		<StackPanel HorizontalAlignment="Stretch">
+			<muxc:InfoBar Title="导入失败，请检查文件格式"
+						  Margin="0,7,0,13"
+						  IsOpen="{x:Bind ViewModel.ShowErrorMessage, Mode=TwoWay}"
+						  Severity="Error"
+						  Visibility="{x:Bind ViewModel.ShowErrorMessage, Mode=OneWay}" />
 			<local:SettingsGroup Title="通用"
 								 Margin="0,-25,0,0">
 				<local:SettingItem Title="默认降采样效果"

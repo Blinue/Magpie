@@ -97,7 +97,28 @@ fire_and_forget ScalingModesViewModel::Export() const noexcept {
 	Win32Utils::WriteTextFile(file.Path().c_str(), { json.GetString(), json.GetLength() });
 }
 
-fire_and_forget ScalingModesViewModel::Import() const noexcept {
+bool ReadScalingModes(const wchar_t* fileName) {
+	std::string json;
+	if (!Win32Utils::ReadTextFile(fileName, json)) {
+		return false;
+	}
+
+	rapidjson::Document doc;
+	if (doc.Parse(json.c_str(), json.size()).HasParseError()) {
+		Logger::Get().Error(fmt::format("解析缩放模式失败\n\t错误码：{}", (int)doc.GetParseError()));
+		return false;
+	}
+
+	if (!doc.IsObject()) {
+		return false;
+	}
+
+	return ScalingModesService::Get().Import(doc.GetObj());
+}
+
+fire_and_forget ScalingModesViewModel::Import() noexcept {
+	ShowErrorMessage(false);
+
 	FileOpenPicker openPicker;
 	openPicker.as<IInitializeWithWindow>()->Initialize(
 		(HWND)Application::Current().as<App>().HwndMain());
@@ -108,22 +129,9 @@ fire_and_forget ScalingModesViewModel::Import() const noexcept {
 		co_return;
 	}
 
-	std::string json;
-	if (!Win32Utils::ReadTextFile(file.Path().c_str(), json)) {
-		co_return;
+	if (!ReadScalingModes(file.Path().c_str())) {
+		ShowErrorMessage(true);
 	}
-
-	rapidjson::Document doc;
-	if (doc.Parse(json.c_str(), json.size()).HasParseError()) {
-		Logger::Get().Error(fmt::format("解析缩放模式失败\n\t错误码：{}", (int)doc.GetParseError()));
-		co_return;
-	}
-
-	if (!doc.IsObject()) {
-		co_return;
-	}
-
-	ScalingModesService::Get().Import(doc.GetObj());
 }
 
 void ScalingModesViewModel::DownscalingEffectIndex(int value) {
