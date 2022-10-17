@@ -240,4 +240,7 @@
       <Filter>Miscellaneous</Filter>
     </AppxManifest>
   </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Magpie.UI.rc" />
+  </ItemGroup>
 </Project>

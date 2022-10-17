@@ -1,6 +1,6 @@
 //{{NO_DEPENDENCIES}}
 // Microsoft Visual C++ 生成的包含文件。
-// 供 Resource.rc 使用
+// 供 Magpie.rc 使用
 //
 #define IDI_APP                         101
 

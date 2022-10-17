@@ -106,7 +106,7 @@
     <ClCompile Include="XamlApp.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="Resource.rc" />
+    <ResourceCompile Include="Magpie.rc" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Magpie.ico" />

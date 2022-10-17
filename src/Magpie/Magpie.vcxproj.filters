@@ -43,7 +43,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="Resource.rc">
+    <ResourceCompile Include="Magpie.rc">
       <Filter>资源文件</Filter>
     </ResourceCompile>
   </ItemGroup>
