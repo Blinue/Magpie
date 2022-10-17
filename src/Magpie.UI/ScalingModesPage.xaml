@@ -389,6 +389,7 @@
 											<ListView.ItemTemplate>
 												<DataTemplate x:DataType="local:ScalingModeEffectItem">
 													<local:SettingItem Title="{x:Bind Name}"
+																	   Loaded="EffectSettingItem_Loaded"
 																	   Style="{StaticResource ExpanderContentSettingStyle}">
 														<local:SettingItem.ActionContent>
 															<StackPanel Orientation="Horizontal">
@@ -423,6 +424,7 @@
 																					<TextBlock Text="类型" />
 																					<!--  不使用 ItemsSource 会引起闪退！WinUI 的又一个 bug  -->
 																					<ComboBox HorizontalAlignment="Stretch"
+																							  DropDownOpened="ComboBox_DropDownOpened"
 																							  ItemsSource="{x:Bind local:ScalingModesPage.ScalingTypes, Mode=OneTime}"
 																							  SelectedIndex="{x:Bind ScalingType, Mode=TwoWay}">
 																						<ComboBox.Resources>

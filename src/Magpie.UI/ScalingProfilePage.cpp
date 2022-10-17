@@ -31,9 +31,6 @@ ScalingProfilePage::ScalingProfilePage() {
 	);
 	PageHelper::UpdateHeaderActionStyle(HeaderActionStackPanel());
 
-	ElementTheme theme = mainPage.ActualTheme();
-	MoreOptionsTooltip().RequestedTheme(theme);
-
 	if (Win32Utils::GetOSBuild() < 22000) {
 		// Segoe MDL2 Assets 不存在 Move 图标
 		AdjustCursorSpeedFontIcon().Glyph(L"\uE962");

@@ -228,6 +228,7 @@ bool AppSettings::Initialize() {
 		logger.Info("不存在配置文件");
 		// 只有不存在配置文件时才生成默认缩放模式
 		_SetDefaultScalingModes();
+		_SetDefaultHotkeys();
 		return true;
 	}
 
