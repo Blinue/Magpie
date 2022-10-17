@@ -1,3 +1,9 @@
+"""
+用于更新版本号
+使用方式: python BumpVersion.py 1.0.0
+可选的可以指定字符串版本号: python BumpVersion.py 1.0.100 1.1.0-preview1
+"""
+
 import sys
 import re
 

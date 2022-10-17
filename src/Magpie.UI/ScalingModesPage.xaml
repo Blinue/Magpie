@@ -149,13 +149,13 @@
 							<MenuFlyoutItem Click="{x:Bind ViewModel.Import}"
 											Text="导入">
 								<MenuFlyoutItem.Icon>
-									<FontIcon Glyph="&#xEA52;" />
+									<FontIcon Glyph="&#xE8B5;" />
 								</MenuFlyoutItem.Icon>
 							</MenuFlyoutItem>
 							<MenuFlyoutItem Click="{x:Bind ViewModel.ImportLegacy}"
 											Text="导入旧版">
 								<MenuFlyoutItem.Icon>
-									<FontIcon Glyph="&#xEA52;" />
+									<FontIcon Glyph="&#xE8B5;" />
 								</MenuFlyoutItem.Icon>
 							</MenuFlyoutItem>
 						</MenuFlyout>
