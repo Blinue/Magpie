@@ -27,6 +27,8 @@ struct PageFrame : PageFrameT<PageFrame> {
 
 	void Loading(FrameworkElement const&, IInspectable const&);
 
+	void Loaded(IInspectable const&, RoutedEventArgs const&);
+
 	void ScrollViewer_PointerPressed(IInspectable const&, Input::PointerRoutedEventArgs const&);
 	void ScrollViewer_ViewChanging(IInspectable const&, Controls::ScrollViewerViewChangingEventArgs const&);
 

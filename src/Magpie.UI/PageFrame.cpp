@@ -93,6 +93,11 @@ void PageFrame::Loading(FrameworkElement const&, IInspectable const&) {
 	_UpdateHeaderStyle();
 }
 
+void PageFrame::Loaded(IInspectable const&, RoutedEventArgs const&) {
+	// Win10 中更新 ToolTip 的主题
+	XamlUtils::UpdateThemeOfTooltips(*this, Application::Current().as<App>().MainPage().ActualTheme());
+}
+
 void PageFrame::ScrollViewer_PointerPressed(IInspectable const&, PointerRoutedEventArgs const&) {
 	XamlUtils::CloseXamlPopups(XamlRoot());
 }

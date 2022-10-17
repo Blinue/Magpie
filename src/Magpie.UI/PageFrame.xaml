@@ -5,6 +5,7 @@
 			 xmlns:local="using:Magpie.UI"
 			 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 			 IsTabStop="False"
+			 Loaded="Loaded"
 			 Loading="Loading"
 			 mc:Ignorable="d">
 	<UserControl.Resources>

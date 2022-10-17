@@ -129,14 +129,11 @@
 						</Style>
 					</ResourceDictionary>
 				</StackPanel.Resources>
-				<Button Padding="0">
+				<Button Padding="0"
+						ToolTipService.ToolTip="更多选项">
 					<Button.Content>
 						<FontIcon Glyph="&#xE712;" />
 					</Button.Content>
-					<ToolTipService.ToolTip>
-						<ToolTip x:Name="MoreOptionsTooltip"
-								 Content="更多选项" />
-					</ToolTipService.ToolTip>
 					<Button.Flyout>
 						<MenuFlyout Placement="Bottom"
 									ShouldConstrainToRootBounds="False">
@@ -188,14 +185,12 @@
 							<Button Grid.Column="1"
 									Margin="4,0,0,0"
 									VerticalAlignment="Stretch"
+									ToolTipService.ToolTip="参数"
 									Visibility="{x:Bind ViewModel.DownscalingEffectHasParameters, Mode=OneWay}">
 								<Button.Content>
 									<FontIcon FontSize="15"
 											  Glyph="&#xE9E9;" />
 								</Button.Content>
-								<ToolTipService.ToolTip>
-									<ToolTip Content="参数" />
-								</ToolTipService.ToolTip>
 								<Button.Flyout>
 									<Flyout Placement="Bottom">
 										<Flyout.FlyoutPresenterStyle>
@@ -246,10 +241,7 @@
 														<Setter Property="FontSize" Value="15" />
 													</Style>
 												</StackPanel.Resources>
-												<Button>
-													<ToolTipService.ToolTip>
-														<ToolTip Content="重命名" />
-													</ToolTipService.ToolTip>
+												<Button ToolTipService.ToolTip="重命名">
 													<Button.Content>
 														<FontIcon Glyph="&#xE8AC;" />
 													</Button.Content>
@@ -273,10 +265,8 @@
 														</Flyout>
 													</Button.Flyout>
 												</Button>
-												<Button Click="ScalingModeMoreOptionsButton_Click">
-													<ToolTipService.ToolTip>
-														<ToolTip Content="更多选项" />
-													</ToolTipService.ToolTip>
+												<Button Click="ScalingModeMoreOptionsButton_Click"
+														ToolTipService.ToolTip="更多选项">
 													<Button.Content>
 														<FontIcon Glyph="&#xE712;" />
 													</Button.Content>
@@ -412,10 +402,8 @@
 																	</Style>
 																</StackPanel.Resources>
 																<Button Margin="0,0,5,0"
+																		ToolTipService.ToolTip="缩放"
 																		Visibility="{x:Bind CanScale}">
-																	<ToolTipService.ToolTip>
-																		<ToolTip Content="缩放" />
-																	</ToolTipService.ToolTip>
 																	<Button.Content>
 																		<FontIcon Glyph="&#xE740;" />
 																	</Button.Content>
@@ -505,10 +493,8 @@
 																	</Button.Flyout>
 																</Button>
 																<Button Margin="0,0,5,0"
+																		ToolTipService.ToolTip="参数"
 																		Visibility="{x:Bind HasParameters}">
-																	<ToolTipService.ToolTip>
-																		<ToolTip Content="参数" />
-																	</ToolTipService.ToolTip>
 																	<Button.Content>
 																		<FontIcon Glyph="&#xE9E9;" />
 																	</Button.Content>
@@ -525,10 +511,8 @@
 																		</Flyout>
 																	</Button.Flyout>
 																</Button>
-																<Button Click="{x:Bind Remove}">
-																	<ToolTipService.ToolTip>
-																		<ToolTip Content="删除" />
-																	</ToolTipService.ToolTip>
+																<Button Click="{x:Bind Remove}"
+																		ToolTipService.ToolTip="删除">
 																	<Button.Content>
 																		<FontIcon Glyph="&#xE74D;" />
 																	</Button.Content>

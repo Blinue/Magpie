@@ -64,23 +64,18 @@
 				</StackPanel.Resources>
 				<Button Padding="0"
 						Click="{x:Bind ViewModel.Launch}"
-						IsEnabled="{x:Bind ViewModel.IsProgramExist, Mode=OneTime}">
+						IsEnabled="{x:Bind ViewModel.IsProgramExist, Mode=OneTime}"
+						ToolTipService.ToolTip="启动">
 					<Button.Content>
 						<FontIcon Glyph="&#xE768;" />
 					</Button.Content>
-					<ToolTipService.ToolTip>
-						<ToolTip Content="启动" />
-					</ToolTipService.ToolTip>
 				</Button>
 				<Button x:Name="MoreOptionsButton"
-						Padding="0">
+						Padding="0"
+						ToolTipService.ToolTip="更多选项">
 					<Button.Content>
 						<FontIcon Glyph="&#xE712;" />
 					</Button.Content>
-					<ToolTipService.ToolTip>
-						<ToolTip x:Name="MoreOptionsTooltip"
-								 Content="更多选项" />
-					</ToolTipService.ToolTip>
 					<Button.Flyout>
 						<MenuFlyout Placement="Bottom"
 									ShouldConstrainToRootBounds="False">
