@@ -16,12 +16,15 @@
 							   HorizontalContentAlignment="Stretch"
 							   Style="{StaticResource SettingExpanderStyle}">
 					<muxc:Expander.Header>
-						<local:SettingItem Title="Magpie"
-										   Description="v0.10.0"
+						<local:SettingItem Title="{x:Bind Version, Mode=OneTime}"
 										   Style="{StaticResource ExpanderHeaderSettingStyle}">
 							<local:SettingItem.Icon>
 								<FontIcon Glyph="&#xE895;" />
 							</local:SettingItem.Icon>
+							<local:SettingItem.Description>
+								<HyperlinkButton Content="发行说明"
+												 NavigateUri="https://github.com/Blinue/Magpie/releases" />
+							</local:SettingItem.Description>
 							<local:SettingItem.ActionContent>
 								<Button Content="检查更新（施工中）"
 										IsEnabled="False" />

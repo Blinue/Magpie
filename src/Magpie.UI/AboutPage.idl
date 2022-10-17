@@ -4,5 +4,7 @@ namespace Magpie.UI
 	runtimeclass AboutPage : Windows.UI.Xaml.Controls.Page
 	{
 		AboutPage();
+
+		String Version { get; };
 	}
 }

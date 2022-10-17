@@ -94,13 +94,6 @@ using namespace std::string_view_literals;
 
 // 宏定义
 
-// 发布时传入 MAGPIE_VERSION 宏指定版本号
-#ifndef MAGPIE_VERSION
-#define MAGPIE_VERSION "dev"
-#endif // !MAGPIE_VERSION
-
-#define MAGPIE_VERSION_W L"" MAGPIE_VERSION
-
 #define DEFINE_FLAG_ACCESSOR(Name, FlagBit, FlagsVar) \
 	bool Name() const noexcept { return FlagsVar & FlagBit; } \
 	void Name(bool value) noexcept { \

@@ -9,6 +9,7 @@
 #include <fmt/xchar.h>
 #include "resource.h"
 #include <Magpie.Core.h>
+#include "Version.h"
 
 #pragma comment(lib, "UxTheme.lib")
 
