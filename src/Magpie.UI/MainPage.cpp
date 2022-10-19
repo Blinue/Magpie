@@ -225,8 +225,6 @@ void MainPage::_UpdateTheme(bool updateIcons) {
 	if (updateIcons && IsLoaded()) {
 		_UpdateIcons(true);
 	}
-
-	Logger::Get().Info(StrUtils::Concat("当前主题：", isDarkTheme ? "深色" : "浅色"));
 }
 
 fire_and_forget MainPage::_LoadIcon(MUXC::NavigationViewItem const& item, const ScalingProfile& profile) {

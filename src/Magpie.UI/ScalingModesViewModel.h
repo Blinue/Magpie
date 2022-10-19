@@ -16,7 +16,7 @@ struct ScalingModesViewModel : ScalingModesViewModelT<ScalingModesViewModel> {
 		_propertyChangedEvent.remove(token);
 	}
 
-	fire_and_forget Export() const noexcept;
+	void Export() const noexcept;
 
 	void Import() {
 		_Import(false);
@@ -91,7 +91,7 @@ private:
 
 	void _ScalingModesService_Removed(uint32_t index);
 
-	fire_and_forget _Import(bool legacy);
+	void _Import(bool legacy);
 
 	event<PropertyChangedEventHandler> _propertyChangedEvent;
 

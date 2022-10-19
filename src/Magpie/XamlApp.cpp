@@ -41,7 +41,8 @@ bool XamlApp::Initialize(HINSTANCE hInstance, const wchar_t* arguments) {
 
 	_InitializeLogger();
 
-	Logger::Get().Info(fmt::format("程序启动\n\t版本：{}", MAGPIE_VERSION));
+	Logger::Get().Info(fmt::format("程序启动\n\t版本：{}\n\t管理员：{}",
+		MAGPIE_VERSION, Win32Utils::IsProcessElevated() ? "是" : "否"));
 
 	// SetTimer 之前推荐先调用 SetUserObjectInformation
 	{

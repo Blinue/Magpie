@@ -383,9 +383,6 @@ void AppSettings::Theme(uint32_t value) {
 		return;
 	}
 
-	static constexpr const char* SETTINGS[] = { "浅色","深色","系统" };
-	Logger::Get().Info(StrUtils::Concat("主题已更改为：", SETTINGS[value]));
-
 	_theme = value;
 	_themeChangedEvent(value);
 }

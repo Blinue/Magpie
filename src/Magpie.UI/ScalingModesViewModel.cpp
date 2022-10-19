@@ -9,13 +9,10 @@
 #include "EffectHelper.h"
 #include "Logger.h"
 #include "StrUtils.h"
-#include <winrt/Windows.Storage.Pickers.h>
 #include "Win32Utils.h"
 
 using namespace ::Magpie::Core;
 using namespace winrt;
-using namespace Windows::Storage;
-using namespace Windows::Storage::Pickers;
 
 
 namespace winrt::Magpie::UI::implementation {
@@ -74,18 +71,58 @@ ScalingModesViewModel::ScalingModesViewModel() {
 		auto_revoke, { this, &ScalingModesViewModel::_ScalingModesService_Removed });
 }
 
-fire_and_forget ScalingModesViewModel::Export() const noexcept {
-	FileSavePicker savePicker;
-	savePicker.as<IInitializeWithWindow>()->Initialize(
-		(HWND)Application::Current().as<App>().HwndMain());
+static std::optional<std::wstring> OpenFileDialog(IFileDialog* fileDialog) {
+	const COMDLG_FILTERSPEC fileType{ L"JSON", L"*.json" };
+	fileDialog->SetFileTypes(1, &fileType);
+	fileDialog->SetDefaultExtension(L"json");
 
-	savePicker.FileTypeChoices().Insert(L"JSON",
-		single_threaded_vector(std::vector{ hstring(L".json") }));
-	savePicker.SuggestedFileName(L"ScalingModes");
+	FILEOPENDIALOGOPTIONS options;
+	fileDialog->GetOptions(&options);
+	fileDialog->SetOptions(options | FOS_STRICTFILETYPES | FOS_FORCEFILESYSTEM);
 
-	StorageFile file = co_await savePicker.PickSaveFileAsync();
-	if (!file) {
-		co_return;
+	if (fileDialog->Show((HWND)Application::Current().as<App>().HwndMain()) != S_OK) {
+		// 被用户取消
+		return std::wstring();
+	}
+
+	com_ptr<IShellItem> file;
+	HRESULT hr = fileDialog->GetResult(file.put());
+	if (FAILED(hr)) {
+		Logger::Get().ComError("IFileSaveDialog::GetResult 失败", hr);
+		return std::nullopt;
+	}
+
+	wchar_t* fileName = nullptr;
+	hr = file->GetDisplayName(SIGDN_DESKTOPABSOLUTEPARSING, &fileName);
+	if (FAILED(hr)) {
+		Logger::Get().ComError("IShellItem::GetDisplayName 失败", hr);
+		return std::nullopt;
+	}
+
+	std::wstring result(fileName);
+	CoTaskMemFree(fileName);
+	return std::move(result);
+}
+
+void ScalingModesViewModel::Export() const noexcept {
+	com_ptr<IFileSaveDialog> fileDialog;
+	HRESULT hr = CoCreateInstance(
+		CLSID_FileSaveDialog,
+		nullptr,
+		CLSCTX_INPROC_SERVER,
+		IID_PPV_ARGS(&fileDialog)
+	);
+	if (FAILED(hr)) {
+		Logger::Get().ComError("创建 IFileSaveDialog 失败", hr);
+		return;
+	}
+
+	fileDialog->SetFileName(L"ScalingModes");
+	fileDialog->SetTitle(L"导出缩放模式");
+
+	std::optional<std::wstring> fileName = OpenFileDialog(fileDialog.get());
+	if (!fileName.has_value() || fileName.value().empty()) {
+		return;
 	}
 
 	rapidjson::StringBuffer json;
@@ -94,10 +131,62 @@ fire_and_forget ScalingModesViewModel::Export() const noexcept {
 	ScalingModesService::Get().Export(writer);
 	writer.EndObject();
 
-	Win32Utils::WriteTextFile(file.Path().c_str(), { json.GetString(), json.GetLength() });
+	Win32Utils::WriteTextFile(fileName.value().c_str(), {json.GetString(), json.GetLength()});
 }
 
+static bool ImportImpl(bool legacy) {
+	com_ptr<IFileOpenDialog> fileDialog;
+	HRESULT hr = CoCreateInstance(
+		CLSID_FileOpenDialog,
+		nullptr,
+		CLSCTX_INPROC_SERVER,
+		IID_PPV_ARGS(&fileDialog)
+	);
+	if (FAILED(hr)) {
+		Logger::Get().ComError("创建 IFileOpenDialog 失败", hr);
+		return false;
+	}
 
+	fileDialog->SetTitle(legacy ? L"导入旧版缩放模式" : L"导入缩放模式");
+
+	std::optional<std::wstring> fileName = OpenFileDialog(fileDialog.get());
+	if (!fileName.has_value()) {
+		return false;
+	}
+	if (fileName.value().empty()) {
+		return true;
+	}
+
+	std::string json;
+	if (!Win32Utils::ReadTextFile(fileName.value().c_str(), json)) {
+		return false;
+	}
+
+	rapidjson::Document doc;
+	// 导入时放宽 json 格式限制
+	doc.ParseInsitu<rapidjson::kParseCommentsFlag | rapidjson::kParseTrailingCommasFlag>(json.data());
+	if (doc.HasParseError()) {
+		Logger::Get().Error(fmt::format("解析缩放模式失败\n\t错误码：{}", (int)doc.GetParseError()));
+		return false;
+	}
+
+	if (legacy) {
+		return ScalingModesService::Get().ImportLegacy(doc);
+	}
+
+	if (!doc.IsObject()) {
+		return false;
+	}
+
+	return ScalingModesService::Get().Import(((const rapidjson::Document&)doc).GetObj());
+}
+
+void ScalingModesViewModel::_Import(bool legacy) {
+	ShowErrorMessage(false);
+	if (!ImportImpl(legacy)) {
+		ShowErrorMessage(true);
+	}
+}
 
 void ScalingModesViewModel::DownscalingEffectIndex(int value) {
 	if (_downscalingEffectIndex == value) {
@@ -170,49 +259,6 @@ void ScalingModesViewModel::_ScalingModesService_Moved(uint32_t index, bool isMo
 
 void ScalingModesViewModel::_ScalingModesService_Removed(uint32_t index) {
 	_scalingModes.RemoveAt(index);
-}
-
-static bool ReadScalingModes(const wchar_t* fileName, bool legacy) {
-	std::string json;
-	if (!Win32Utils::ReadTextFile(fileName, json)) {
-		return false;
-	}
-
-	rapidjson::Document doc;
-	// 导入时放宽 json 格式限制
-	doc.ParseInsitu<rapidjson::kParseCommentsFlag | rapidjson::kParseTrailingCommasFlag>(json.data());
-	if (doc.HasParseError()) {
-		Logger::Get().Error(fmt::format("解析缩放模式失败\n\t错误码：{}", (int)doc.GetParseError()));
-		return false;
-	}
-
-	if (legacy) {
-		return ScalingModesService::Get().ImportLegacy(doc);
-	}
-
-	if (!doc.IsObject()) {
-		return false;
-	}
-
-	return ScalingModesService::Get().Import(((const rapidjson::Document&)doc).GetObj());
-}
-
-fire_and_forget ScalingModesViewModel::_Import(bool legacy) {
-	ShowErrorMessage(false);
-
-	FileOpenPicker openPicker;
-	openPicker.as<IInitializeWithWindow>()->Initialize(
-		(HWND)Application::Current().as<App>().HwndMain());
-
-	openPicker.FileTypeFilter().Append(L".json");
-	StorageFile file = co_await openPicker.PickSingleFileAsync();
-	if (!file) {
-		co_return;
-	}
-
-	if (!ReadScalingModes(file.Path().c_str(), legacy)) {
-		ShowErrorMessage(true);
-	}
 }
 
 }
