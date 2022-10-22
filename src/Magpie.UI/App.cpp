@@ -126,15 +126,6 @@ void App::MainPage(Magpie::UI::MainPage const& mainPage) noexcept {
 	_mainPage = weak_ref(mainPage);
 }
 
-void App::OnHostWndFocusChanged(bool isFocused) {
-	if (isFocused == _isHostWndFocused) {
-		return;
-	}
-
-	_isHostWndFocused = isFocused;
-	_hostWndFocusChangedEvent(*this, isFocused);
-}
-
 void App::RestartAsElevated() const noexcept {
 	PostMessage(_hwndMain, CommonSharedConstants::WM_RESTART_AS_ELEVATED, 0, 0);
 }

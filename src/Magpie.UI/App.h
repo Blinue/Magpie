@@ -47,20 +47,6 @@ public:
 		return _displayInformation;
 	}
 
-	event_token HostWndFocusChanged(EventHandler<bool> const& handler) {
-		return _hostWndFocusChangedEvent.add(handler);
-	}
-
-	void HostWndFocusChanged(event_token const& token) noexcept {
-		_hostWndFocusChangedEvent.remove(token);
-	}
-
-	void OnHostWndFocusChanged(bool isFocused);
-
-	bool IsHostWndFocused() const noexcept {
-		return _isHostWndFocused;
-	}
-
 	void RestartAsElevated() const noexcept;
 
 private:

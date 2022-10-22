@@ -30,9 +30,6 @@
 #include <winrt/Windows.UI.Xaml.Input.h>
 #include <winrt/Windows.UI.Xaml.Shapes.h>
 #include <winrt/Windows.UI.Text.h>
-#include <winrt/Windows.System.Power.h>
-#include <winrt/Windows.Graphics.Effects.h>
-#include <winrt/Microsoft.Graphics.Canvas.Effects.h>
 #include <winrt/Microsoft.UI.Xaml.Controls.h>
 #include <winrt/Microsoft.UI.Xaml.Controls.Primitives.h>
 #include <winrt/Microsoft.UI.Xaml.Media.h>

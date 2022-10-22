@@ -5,13 +5,10 @@
 #include "Win32Utils.h"
 #include "XamlUtils.h"
 #include "CommonSharedConstants.h"
-#include <uxtheme.h>
 #include <fmt/xchar.h>
 #include "resource.h"
 #include <Magpie.Core.h>
 #include "Version.h"
-
-#pragma comment(lib, "UxTheme.lib")
 
 
 namespace Magpie {
@@ -43,14 +40,6 @@ bool XamlApp::Initialize(HINSTANCE hInstance, const wchar_t* arguments) {
 
 	Logger::Get().Info(fmt::format("程序启动\n\t版本：{}\n\t管理员：{}",
 		MAGPIE_VERSION, Win32Utils::IsProcessElevated() ? "是" : "否"));
-
-	// SetTimer 之前推荐先调用 SetUserObjectInformation
-	{
-		BOOL value = FALSE;
-		if (!SetUserObjectInformation(GetCurrentProcess(), UOI_TIMERPROC_EXCEPTION_SUPPRESSION, &value, sizeof(value))) {
-			Logger::Get().Win32Error("SetUserObjectInformation 失败");
-		}
-	}
 
 	// 初始化 UWP 应用
 	_uwpApp = winrt::Magpie::UI::App();
@@ -207,23 +196,8 @@ void XamlApp::_CreateMainWindow() {
 		Logger::Get().Win32Error("CreateWindow 失败");
 		return;
 	}
-	
-	if (osBuild >= 22000 && osBuild < 22621) {
-		// Win11 22H1 在启用 Mica 时无法正确绘制标题，因此隐藏标题和图标
-		WTA_OPTIONS option{};
-		option.dwFlags = WTNCA_NODRAWCAPTION | WTNCA_NODRAWICON | WTNCA_NOSYSMENU;
-		option.dwMask = WTNCA_VALIDBITS;
-		SetWindowThemeAttribute(_hwndMain, WTA_NONCLIENT, &option, sizeof(option));
-
-		// 监听 WM_ACTIVATE 不完全可靠，因此定期检查前台窗口以确保背景绘制正确
-		if (SetTimer(_hwndMain, CommonSharedConstants::CHECK_FORGROUND_TIMER_ID, 250, nullptr) == 0) {
-			Logger::Get().Win32Error("SetTimer 失败");
-		}
-	}
 
 	_uwpApp.HwndMain((uint64_t)_hwndMain);
-	// 未显示窗口时视为位于前台，否则显示窗口的动画有小瑕疵
-	_uwpApp.OnHostWndFocusChanged(true);
 
 	_mainPage = winrt::Magpie::UI::MainPage();
 	_mainPage.ActualThemeChanged([this](winrt::FrameworkElement const&, winrt::IInspectable const&) {
@@ -380,12 +354,6 @@ void XamlApp::_UpdateTheme() {
 		return;
 	}
 
-	if (osBuild >= 22000) {
-		constexpr const DWORD DWMWA_MICA_EFFECT = 1029;
-		BOOL value = TRUE;
-		DwmSetWindowAttribute(_hwndMain, DWMWA_MICA_EFFECT, &value, sizeof(value));
-	}
-
 	// 更改背景色以配合主题
 	// 背景色在更改窗口大小时会短暂可见
 	HBRUSH hbrOld = (HBRUSH)SetClassLongPtr(
@@ -512,29 +480,13 @@ LRESULT XamlApp::_WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	{
 		if (_uwpApp) {
 			if (LOWORD(wParam) != WA_INACTIVE) {
-				_uwpApp.OnHostWndFocusChanged(true);
 				SetFocus(_hwndXamlIsland);
 			} else {
-				_uwpApp.OnHostWndFocusChanged(false);
 				XamlUtils::CloseXamlPopups(_mainPage.XamlRoot());
 			}
 		}
 
 		return 0;
-	}
-	case WM_TIMER:
-	{
-		if (wParam == CommonSharedConstants::CHECK_FORGROUND_TIMER_ID) {
-			if (!IsWindowVisible(_hwndMain) || GetForegroundWindow() == _hwndMain) {
-				_uwpApp.OnHostWndFocusChanged(true);
-			} else {
-				_uwpApp.OnHostWndFocusChanged(false);
-				XamlUtils::CloseXamlPopups(_mainPage.XamlRoot());
-			}
-			return 0;
-		}
-
-		break;
 	}
 	case WM_SYSCOMMAND:
 	{

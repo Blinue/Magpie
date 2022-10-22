@@ -114,9 +114,6 @@
     <Filter Include="Pages">
       <UniqueIdentifier>{30ac53e6-fb5b-4035-8150-913623452213}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Brushes">
-      <UniqueIdentifier>{2d0f428d-8d51-434e-b98f-7d140bb767ae}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Controls">
       <UniqueIdentifier>{ca435698-7c9e-4784-a031-2c9db29b5fcc}</UniqueIdentifier>
     </Filter>
@@ -144,9 +141,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-    <None Include="MicaBrush.idl">
-      <Filter>Brushes</Filter>
-    </None>
     <None Include="dummy.exe">
       <Filter>Miscellaneous</Filter>
     </None>

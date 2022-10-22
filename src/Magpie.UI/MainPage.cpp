@@ -13,6 +13,7 @@
 #include "AppXReader.h"
 #include "IconHelper.h"
 #include "ComboBoxHelper.h"
+#include "CommonSharedConstants.h"
 
 
 using namespace winrt;
@@ -39,12 +40,8 @@ MainPage::MainPage() {
 		auto_revoke, { get_weak(), &MainPage::_UISettings_ColorValuesChanged });
 
 	const uint32_t osBuild = Win32Utils::GetOSBuild();
-	if (osBuild < 22621) {
-		// Win10: 以纯色填充
-		// Win11 22H1: 自行绘制 Mica 背景
-		Background(MicaBrush(*this));
-	} else {
-		// Win11 22H2+: 使用系统的 Mica 背景
+	if (osBuild >= 22621) {
+		// Win11 22H2+ 使用系统的 Mica 背景
 		MUXC::BackdropMaterial::SetApplyToRootOrPageBackground(*this, true);
 	}
 	
@@ -200,6 +197,10 @@ void MainPage::NewProfileConfirmButton_Click(IInspectable const&, RoutedEventArg
 	NewProfileFlyout().Hide();
 }
 
+static winrt::Windows::UI::Color Win32ColorToWinRTColor(COLORREF color) {
+	return { 255, GetRValue(color), GetGValue(color), GetBValue(color) };
+}
+
 void MainPage::_UpdateTheme(bool updateIcons) {
 	int theme = AppSettings::Get().Theme();
 
@@ -215,9 +216,15 @@ void MainPage::_UpdateTheme(bool updateIcons) {
 		return;
 	}
 
-	ElementTheme newTheme = isDarkTheme ? ElementTheme::Dark : ElementTheme::Light;
+	if (Win32Utils::GetOSBuild() < 22621) {
+		const Windows::UI::Color bkgColor = Win32ColorToWinRTColor(
+			isDarkTheme ? CommonSharedConstants::DARK_TINT_COLOR : CommonSharedConstants::LIGHT_TINT_COLOR);
+		Background(SolidColorBrush(bkgColor));
+	}
 
+	ElementTheme newTheme = isDarkTheme ? ElementTheme::Dark : ElementTheme::Light;
 	RequestedTheme(newTheme);
+
 	XamlUtils::UpdateThemeOfXamlPopups(XamlRoot(), newTheme);
 	XamlUtils::UpdateThemeOfTooltips(*this, newTheme);
 	NewProfileAdminToolTip().RequestedTheme(newTheme);

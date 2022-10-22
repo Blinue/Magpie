@@ -8,7 +8,6 @@
 #include "KeyVisual.idl"
 #include "ShortcutControl.idl"
 #include "ShortcutDialog.idl"
-#include "MicaBrush.idl"
 #include "HomeViewModel.idl"
 #include "EffectParametersViewModel.idl"
 #include "ScalingModeEffectItem.idl"
@@ -62,10 +61,6 @@ namespace Magpie.UI {
 
 		MainPage MainPage;
 		Windows.Graphics.Display.DisplayInformation DisplayInformation { get; };
-
-		Boolean IsHostWndFocused { get; };
-		event Windows.Foundation.EventHandler<Boolean> HostWndFocusChanged;
-		void OnHostWndFocusChanged(Boolean isFocused);
 
 		void RestartAsElevated();
 	}

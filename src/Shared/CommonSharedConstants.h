@@ -23,8 +23,6 @@ struct CommonSharedConstants {
 	// 来自 Magpie\resource.h
 	static constexpr const UINT IDI_APP = 101;
 
-	static constexpr const UINT CHECK_FORGROUND_TIMER_ID = 1;
-
 	static constexpr const UINT WM_NOTIFY_ICON = WM_USER;
 	static constexpr const UINT WM_RESTART_AS_ELEVATED = WM_USER + 1;
 };
