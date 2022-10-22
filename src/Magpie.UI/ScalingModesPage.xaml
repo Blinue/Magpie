@@ -209,7 +209,8 @@
 				</local:SettingItem>
 			</local:SettingsGroup>
 			<local:SettingsGroup Title="缩放模式">
-				<ListView ItemsSource="{x:Bind ViewModel.ScalingModes, Mode=OneTime}"
+				<ListView ItemContainerTransitions="{x:Bind ViewModel.ScalingModesListTransitions, Mode=OneWay}"
+						  ItemsSource="{x:Bind ViewModel.ScalingModes, Mode=OneTime}"
 						  SelectionMode="None">
 					<ListView.Resources>
 						<Style TargetType="ListViewItem">

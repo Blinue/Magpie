@@ -53,6 +53,10 @@ struct ScalingModesViewModel : ScalingModesViewModelT<ScalingModesViewModel> {
 		return {};
 	}
 
+	Animation::TransitionCollection ScalingModesListTransitions() const noexcept {
+		return _scalingModesListTransitions;
+	}
+
 	IObservableVector<IInspectable> ScalingModes() const noexcept {
 		return _scalingModes;
 	}
@@ -85,6 +89,8 @@ struct ScalingModesViewModel : ScalingModesViewModelT<ScalingModesViewModel> {
 	void AddScalingMode();
 
 private:
+	fire_and_forget _AddScalingModes();
+
 	void _ScalingModesService_Added();
 
 	void _ScalingModesService_Moved(uint32_t index, bool isMoveUp);
@@ -95,10 +101,12 @@ private:
 
 	event<PropertyChangedEventHandler> _propertyChangedEvent;
 
+	Animation::TransitionCollection _scalingModesListTransitions;
+
 	IVector<IInspectable> _downscalingEffects{ nullptr };
 	// (FullName, 小写 DisplayName)
 	std::vector<std::pair<std::wstring, std::wstring>> _downscalingEffectNames;
-	IObservableVector<IInspectable> _scalingModes{ nullptr };
+	IObservableVector<IInspectable> _scalingModes = single_threaded_observable_vector<IInspectable>();
 
 	WinRTUtils::EventRevoker _scalingModeAddedRevoker;
 	WinRTUtils::EventRevoker _scalingModeMovedRevoker;
@@ -110,6 +118,9 @@ private:
 
 	int _downscalingEffectIndex = 0;
 	bool _showErrorMessage = false;
+
+	bool _addingScalingModes = false;
+	bool _scalingModesInitialized = false;
 };
 
 }

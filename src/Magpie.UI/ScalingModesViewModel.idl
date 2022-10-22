@@ -15,6 +15,7 @@ namespace Magpie.UI
         Boolean DownscalingEffectHasParameters { get; };
         EffectParametersViewModel DownscalingEffectParameters { get; };
         
+        Windows.UI.Xaml.Media.Animation.TransitionCollection ScalingModesListTransitions { get; };
         IObservableVector<IInspectable> ScalingModes { get; };
 
         void PrepareForAdd();

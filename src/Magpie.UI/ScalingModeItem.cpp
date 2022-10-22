@@ -153,6 +153,11 @@ void ScalingModeItem::AddEffect(const hstring& fullName) {
 }
 
 hstring ScalingModeItem::Name() const noexcept {
+	if (_index == std::numeric_limits<uint32_t>::max()) {
+		// 特殊情况下被删除后依然可能被获取 Name 和 Description，可能是 ListView 的 bug
+		return {};
+	}
+
 	return hstring(_Data().name);
 }
 
@@ -161,6 +166,10 @@ void ScalingModeItem::Name(const hstring& value) noexcept {
 }
 
 hstring ScalingModeItem::Description() const noexcept {
+	if (_index == std::numeric_limits<uint32_t>::max()) {
+		return {};
+	}
+
 	std::wstring result;
 	for (const EffectOption& effect : _Data().effects) {
 		if (!result.empty()) {

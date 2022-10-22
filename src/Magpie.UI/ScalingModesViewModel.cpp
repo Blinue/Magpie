@@ -18,6 +18,9 @@ using namespace winrt;
 namespace winrt::Magpie::UI::implementation {
 
 ScalingModesViewModel::ScalingModesViewModel() {
+	_scalingModesListTransitions.Append(Animation::ContentThemeTransition());
+	_scalingModesListTransitions.Append(Animation::ReorderThemeTransition());
+	
 	std::vector<IInspectable> downscalingEffects;
 	downscalingEffects.reserve(7);
 	downscalingEffects.push_back(box_value(L"无"));
@@ -57,11 +60,7 @@ ScalingModesViewModel::ScalingModesViewModel() {
 		}
 	}
 
-	std::vector<IInspectable> scalingModes;
-	for (uint32_t i = 0, count = ScalingModesService::Get().GetScalingModeCount(); i < count;++i) {
-		scalingModes.push_back(ScalingModeItem(i));
-	}
-	_scalingModes = single_threaded_observable_vector(std::move(scalingModes));
+	_AddScalingModes();
 
 	_scalingModeAddedRevoker = ScalingModesService::Get().ScalingModeAdded(
 		auto_revoke, { this, &ScalingModesViewModel::_ScalingModesService_Added });
@@ -72,7 +71,7 @@ ScalingModesViewModel::ScalingModesViewModel() {
 }
 
 static std::optional<std::wstring> OpenFileDialog(IFileDialog* fileDialog) {
-	const COMDLG_FILTERSPEC fileType{ L"JSON", L"*.json" };
+	const COMDLG_FILTERSPEC fileType{ L"JSON 文件", L"*.json" };
 	fileDialog->SetFileTypes(1, &fileType);
 	fileDialog->SetDefaultExtension(L"json");
 
@@ -242,11 +241,69 @@ void ScalingModesViewModel::AddScalingMode() {
 	ScalingModesService::Get().AddScalingMode(_newScalingModeName, _newScalingModeCopyFrom - 1);
 }
 
-void ScalingModesViewModel::_ScalingModesService_Added() {
-	const uint32_t count = ScalingModesService::Get().GetScalingModeCount();
-	for (uint32_t i = _scalingModes.Size(); i < count; ++i) {
-		_scalingModes.Append(ScalingModeItem(i));
+fire_and_forget ScalingModesViewModel::_AddScalingModes() {
+	if (_addingScalingModes) {
+		co_return;
 	}
+	_addingScalingModes = true;
+
+	ScalingModesService& scalingModesService = ScalingModesService::Get();
+	uint32_t total = scalingModesService.GetScalingModeCount();
+	uint32_t curSize = _scalingModes.Size();
+
+	CoreDispatcher dispatcher(nullptr);
+
+	if (total - curSize <= 5) {
+		for (; curSize < total; ++curSize) {
+			_scalingModes.Append(ScalingModeItem(curSize));
+		}
+	} else {
+		// 延迟加载
+		for (int j = 0; j < 5; ++j) {
+			_scalingModes.Append(ScalingModeItem(curSize++));
+		}
+
+		dispatcher = CoreWindow::GetForCurrentThread().Dispatcher();
+		auto weakThis = get_weak();
+
+		while (true) {
+			co_await std::chrono::milliseconds(20);
+			co_await dispatcher;
+
+			if (!weakThis.get()) {
+				co_return;
+			}
+
+			total = scalingModesService.GetScalingModeCount();
+			curSize = _scalingModes.Size();
+
+			if (curSize < total) {
+				_scalingModes.Append(ScalingModeItem(curSize++));
+			}
+			
+			if (curSize >= total) {
+				break;
+			}
+		}
+	}
+
+	_addingScalingModes = false;
+
+	if (!_scalingModesInitialized) {
+		_scalingModesInitialized = true;
+
+		// 在所有缩放模式初始化完毕后再展示添加/删除动画
+		if (dispatcher) {
+			co_await std::chrono::milliseconds(10);
+			co_await dispatcher;
+		}
+		
+		_scalingModesListTransitions.Append(Animation::AddDeleteThemeTransition());
+	}
+}
+
+void ScalingModesViewModel::_ScalingModesService_Added() {
+	_AddScalingModes();
 }
 
 void ScalingModesViewModel::_ScalingModesService_Moved(uint32_t index, bool isMoveUp) {
