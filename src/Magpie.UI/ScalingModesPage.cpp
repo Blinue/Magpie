@@ -94,8 +94,15 @@ void ScalingModesPage::ScalingModeMoreOptionsButton_Click(IInspectable const& se
 }
 
 void ScalingModesPage::RemoveScalingModeMenuItem_Click(IInspectable const& sender, RoutedEventArgs const&) {
-	FlyoutBase::GetAttachedFlyout(sender.as<FrameworkElement>())
-		.ShowAt(_moreOptionsButton.as<FrameworkElement>());
+	MenuFlyoutItem menuItem = sender.as<MenuFlyoutItem>();
+	ScalingModeItem scalingModeItem = menuItem.Tag().as<ScalingModeItem>();
+	if (scalingModeItem.IsInUse()) {
+		// 如果有缩放配置正在使用此缩放模式则弹出确认弹窗
+		FlyoutBase::GetAttachedFlyout(menuItem)
+			.ShowAt(_moreOptionsButton.as<FrameworkElement>());
+	} else {
+		scalingModeItem.Remove();
+	}
 }
 
 void ScalingModesPage::_BuildEffectMenu() noexcept {

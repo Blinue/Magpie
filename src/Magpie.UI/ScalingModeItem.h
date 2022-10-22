@@ -70,7 +70,7 @@ struct ScalingModeItem : ScalingModeItemT<ScalingModeItem> {
 		return _linkedProfiles;
 	}
 
-	bool ShowLinkedProfiles() const noexcept {
+	bool IsInUse() const noexcept {
 		return _linkedProfiles.Size() > 0;
 	}
 
