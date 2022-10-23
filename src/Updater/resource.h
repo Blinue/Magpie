@@ -1,8 +1,8 @@
 //{{NO_DEPENDENCIES}}
 // Microsoft Visual C++ 生成的包含文件。
-// 供 Magpie.rc 使用
+// 供 Updater.rc 使用
 //
-#define IDI_APP                         101
+#define IDI_UPDATER                     101
 
 // Next default values for new objects
 // 

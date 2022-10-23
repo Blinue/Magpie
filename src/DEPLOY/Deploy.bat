@@ -26,6 +26,13 @@ IF %ERRORLEVEL% NEQ 0 (
     EXIT 1
 )
 
+msbuild /p:Configuration=Release;Platform=x64;OutDir=..\..\publish\ ..\Updater
+
+IF %ERRORLEVEL% NEQ 0 (
+    ECHO Error: Failed to build Updater
+    EXIT 1
+)
+
 REM 清理不需要的文件
 CD ..\..\publish
 DEL *.pdb

@@ -9,14 +9,15 @@
 // Windows 头文件
 
 // 从 windows.h 里排除不需要的 API
-#define NOMINMAX	// 使用 std::min 和 std::max 而不是宏
 #define NOGDICAPMASKS
 #define NOICONS
+#define OEMRESOURCE
 #define NOATOM
 #define NOCLIPBOARD
 #define NODRAWTEXT
 #define NOMEMMGR
 #define NOMETAFILE
+#define NOMINMAX	// 使用 std::min 和 std::max 而不是宏
 #define NOOPENFILE
 #define NOSCROLL
 #define NOSERVICE

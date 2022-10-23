@@ -15,23 +15,13 @@
 
 
 #include "pch.h"
-#include "XamlApp.h"
 
 
 int APIENTRY wWinMain(
-	_In_ HINSTANCE hInstance,
+	_In_ HINSTANCE /*hInstance*/,
 	_In_opt_ HINSTANCE /*hPrevInstance*/,
-	_In_ wchar_t* lpCmdLine,
-	_In_ int /*nCmdShow*/
-) {
-	// 程序结束时也不应调用 uninit_apartment
-	// 见 https://kennykerr.ca/2018/03/24/cppwinrt-hosting-the-windows-runtime/
-	winrt::init_apartment(winrt::apartment_type::single_threaded);
-
-	auto& app = Magpie::XamlApp::Get();
-	if (!app.Initialize(hInstance, lpCmdLine)) {
-		return -1;
-	}
-
-	return app.Run();
+	_In_ wchar_t* /*lpCmdLine*/,
+	_In_ int /*nCmdShow*/)
+{
+	return 0;
 }
