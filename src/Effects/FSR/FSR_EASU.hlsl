@@ -3,6 +3,7 @@
 
 //!MAGPIE EFFECT
 //!VERSION 2
+//!BUILT_IN
 
 //!TEXTURE
 Texture2D INPUT;

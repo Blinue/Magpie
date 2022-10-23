@@ -18,6 +18,7 @@
 
 //!MAGPIE EFFECT
 //!VERSION 2
+//!BUILT_IN
 
 //!PARAMETER
 //!LABEL Scanline Hardness

@@ -261,9 +261,9 @@ static UINT GetNextExpr(std::string_view& source, std::string& expr) {
 
 static UINT ResolveHeader(std::string_view block, EffectDesc& desc) {
 	// 必需的选项：VERSION
-	// 可选的选项：OUTPUT_WIDTH，OUTPUT_HEIGHT，USE_DYNAMIC，GENERIC_DOWNSCALER 
+	// 可选的选项：OUTPUT_WIDTH, OUTPUT_HEIGHT, USE_DYNAMIC, GENERIC_DOWNSCALER, BUILT_INT
 
-	std::bitset<5> processed;
+	std::bitset<6> processed;
 
 	std::string_view token;
 
@@ -335,6 +335,17 @@ static UINT ResolveHeader(std::string_view block, EffectDesc& desc) {
 			}
 
 			desc.flags |= EffectFlags::GenericDownscaler;
+		} else if (t == "BUILT_IN") {
+			if (processed[5]) {
+				return 1;
+			}
+			processed[5] = true;
+
+			if (GetNextToken<false>(block, token) != 2) {
+				return 1;
+			}
+
+			desc.flags |= EffectFlags::BuiltIn;
 		} else {
 			return 1;
 		}
@@ -358,7 +369,7 @@ static UINT ResolveHeader(std::string_view block, EffectDesc& desc) {
 }
 
 static UINT ResolveParameter(std::string_view block, EffectDesc& desc) {
-	// 必需的选项：DEFAULT，MIN，MAX，STEP
+	// 必需的选项：DEFAULT, MIN, MAX, STEP
 	// 可选的选项：LABEL
 
 	std::bitset<5> processed;
@@ -518,7 +529,7 @@ static UINT ResolveParameter(std::string_view block, EffectDesc& desc) {
 static UINT ResolveTexture(std::string_view block, EffectDesc& desc) {
 	// 如果名称为 INPUT 不能有任何选项，含 SOURCE 时不能有任何其他选项
 	// 否则必需的选项：FORMAT
-	// 可选的选项：WIDTH，HEIGHT
+	// 可选的选项：WIDTH, HEIGHT
 
 	EffectIntermediateTextureDesc& texDesc = desc.textures.emplace_back();
 

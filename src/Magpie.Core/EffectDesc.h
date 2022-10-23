@@ -115,8 +115,12 @@ struct EffectFlags {
 	static constexpr const uint32_t InlineParams = 0x2;
 	static constexpr const uint32_t FP16 = 0x4;
 	// 输出
+	// 此效果需要帧数和鼠标位置
 	static constexpr const uint32_t UseDynamic = 0x10;
+	// 可作为通用的降采样效果
 	static constexpr const uint32_t GenericDownscaler = 0x20;
+	// 内置效果，在更新时可以删除
+	static constexpr const uint32_t BuiltIn = 0x40;
 };
 
 struct EffectDesc {
