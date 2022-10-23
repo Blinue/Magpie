@@ -6,6 +6,7 @@
 #include "Win32Utils.h"
 #include "AppXReader.h"
 #include "IconHelper.h"
+#include "StrUtils.h"
 
 
 using namespace winrt;
@@ -18,7 +19,7 @@ using namespace Windows::Graphics::Display;
 
 namespace winrt::Magpie::UI::implementation {
 
-static hstring GetProcessDesc(HWND hWnd) {
+static std::wstring GetProcessDesc(HWND hWnd) {
 	if (Win32Utils::GetWndClassName(hWnd) == L"ApplicationFrameWindow") {
 		// 跳过 UWP 窗口
 		return {};
@@ -102,24 +103,29 @@ fire_and_forget CandidateWindowItem::_ResolveWindow(bool resolveIcon, bool resol
 	AppXReader reader;
 	const bool isPackaged = reader.Initialize(hWnd);
 	if (resolveName) {
-		std::wstring defaultProfileName = isPackaged ? reader.GetDisplayName() : (std::wstring)GetProcessDesc(hWnd);
+		std::wstring defaultProfileName = isPackaged ? reader.GetDisplayName() : GetProcessDesc(hWnd);
+		StrUtils::Trim(defaultProfileName);
 
 		auto strongThis = weakThis.get();
 		if (!strongThis) {
 			co_return;
 		}
 
-		[](com_ptr<CandidateWindowItem> that, const std::wstring& defaultProfileName, const std::wstring& aumid, CoreDispatcher const& dispatcher)->fire_and_forget {
-			co_await dispatcher.RunAsync(CoreDispatcherPriority::Normal, [that, defaultProfileName(defaultProfileName), aumid(aumid)]() {
-				if (!defaultProfileName.empty()) {
-					that->_defaultProfileName = defaultProfileName;
-				}
-				// 即使 defaultProfileName 为空也通知 DefaultProfileName 已更改
-				that->_propertyChangedEvent(*that, PropertyChangedEventArgs(L"DefaultProfileName"));
+		[](com_ptr<CandidateWindowItem> that, std::wstring&& defaultProfileName, const std::wstring& aumid, CoreDispatcher const& dispatcher)->fire_and_forget {
+			co_await dispatcher.RunAsync(
+				CoreDispatcherPriority::Normal,
+				[that, defaultProfileName(std::move(defaultProfileName)), aumid(aumid)]() {
+					if (!defaultProfileName.empty()) {
+						that->_defaultProfileName = defaultProfileName;
+					}
+					// 即使 defaultProfileName 为空也通知 DefaultProfileName 已更改
+					// 这是为了正确设置 CandidateWindowIndex
+					that->_propertyChangedEvent(*that, PropertyChangedEventArgs(L"DefaultProfileName"));
 
-				that->_aumid = aumid;
-			});
-		}(strongThis, defaultProfileName, reader.AUMID(), dispatcher);
+					that->_aumid = aumid;
+				}
+			);
+		}(strongThis, std::move(defaultProfileName), reader.AUMID(), dispatcher);
 	}
 
 	if (!resolveIcon) {

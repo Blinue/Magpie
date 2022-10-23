@@ -45,7 +45,7 @@ struct StrUtils {
 	static void Trim(std::basic_string<CHAR_T>& str) {
 		std::basic_string_view<CHAR_T> sv(str);
 		Trim(sv);
-		str = sv;
+		str = std::move(sv);
 	}
 
 	static void Trim(std::string& str) {
