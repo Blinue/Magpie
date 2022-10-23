@@ -119,6 +119,7 @@
 										<TextBlock Text="名称" />
 										<TextBox Height="32"
 												 HorizontalAlignment="Stretch"
+												 KeyDown="NewProfileNameTextBox_KeyDown"
 												 Text="{x:Bind NewProfileViewModel.Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
 									</StackPanel>
 									<StackPanel Orientation="Vertical"

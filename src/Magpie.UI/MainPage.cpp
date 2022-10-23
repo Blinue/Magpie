@@ -197,6 +197,12 @@ void MainPage::NewProfileConfirmButton_Click(IInspectable const&, RoutedEventArg
 	NewProfileFlyout().Hide();
 }
 
+void MainPage::NewProfileNameTextBox_KeyDown(IInspectable const&, Input::KeyRoutedEventArgs const& args) {
+	if (args.Key() == VirtualKey::Enter && _newProfileViewModel.IsConfirmButtonEnabled()) {
+		NewProfileConfirmButton_Click(nullptr, nullptr);
+	}
+}
+
 static winrt::Windows::UI::Color Win32ColorToWinRTColor(COLORREF color) {
 	return { 255, GetRValue(color), GetGValue(color), GetBValue(color) };
 }

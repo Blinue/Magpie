@@ -44,7 +44,7 @@ static std::wstring GetProcessDesc(HWND hWnd) {
 
 	std::wstring codePage;
 	uint8_t* langId = nullptr;
-	UINT len;
+	uint32_t len;
 	if (VerQueryValue(infoData.get(), L"\\VarFileInfo\\Translation", (void**)&langId, &len)) {
 		codePage = fmt::format(L"{:08X}", uint32_t((*(uint16_t*)langId << 16) | *(uint16_t*)(langId + 2)));
 	} else {
@@ -52,7 +52,8 @@ static std::wstring GetProcessDesc(HWND hWnd) {
 	}
 
 	wchar_t* description = nullptr;
-	if (!VerQueryValue(infoData.get(), fmt::format(L"\\StringFileInfo\\{}\\FileDescription", codePage).c_str(), (void**)&description, &len)) {
+	std::wstring descPath = fmt::format(L"\\StringFileInfo\\{}\\FileDescription", codePage);
+	if (!VerQueryValue(infoData.get(), descPath.c_str(), (void**)&description, &len)) {
 		return {};
 	}
 

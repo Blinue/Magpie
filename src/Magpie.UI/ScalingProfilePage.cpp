@@ -104,10 +104,8 @@ void ScalingProfilePage::RenameConfirmButton_Click(IInspectable const&, RoutedEv
 }
 
 void ScalingProfilePage::RenameTextBox_KeyDown(IInspectable const&, Input::KeyRoutedEventArgs const& args) {
-	if (args.Key() == VirtualKey::Enter) {
-		if (_viewModel.IsRenameConfirmButtonEnabled()) {
-			RenameConfirmButton_Click(nullptr, nullptr);
-		}
+	if (args.Key() == VirtualKey::Enter && _viewModel.IsRenameConfirmButtonEnabled()) {
+		RenameConfirmButton_Click(nullptr, nullptr);
 	}
 }
 
