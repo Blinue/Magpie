@@ -206,22 +206,22 @@
 					Orientation="Vertical">
 			<local:SettingsGroup Title="常规"
 								 Margin="0,-25,0,0">
-				<local:SettingItem Title="缩放模式">
-					<local:SettingItem.Icon>
+				<local:SettingsCard Title="缩放模式">
+					<local:SettingsCard.Icon>
 						<FontIcon Glyph="&#xE740;" />
-					</local:SettingItem.Icon>
-					<local:SettingItem.ActionContent>
+					</local:SettingsCard.Icon>
+					<local:SettingsCard.ActionContent>
 						<ComboBox DropDownOpened="ComboBox_DropDownOpened"
 								  ItemsSource="{x:Bind ViewModel.ScalingModes, Mode=OneTime}"
 								  SelectedIndex="{x:Bind ViewModel.ScalingMode, Mode=TwoWay}"
 								  Style="{StaticResource ComboBoxSettingStyle}" />
-					</local:SettingItem.ActionContent>
-				</local:SettingItem>
-				<local:SettingItem Title="捕获模式">
-					<local:SettingItem.Icon>
+					</local:SettingsCard.ActionContent>
+				</local:SettingsCard>
+				<local:SettingsCard Title="捕获模式">
+					<local:SettingsCard.Icon>
 						<FontIcon Glyph="&#xE9A6;" />
-					</local:SettingItem.Icon>
-					<local:SettingItem.ActionContent>
+					</local:SettingsCard.Icon>
+					<local:SettingsCard.ActionContent>
 						<ComboBox DropDownOpened="ComboBox_DropDownOpened"
 								  SelectedIndex="{x:Bind ViewModel.CaptureMode, Mode=TwoWay}"
 								  Style="{StaticResource ComboBoxSettingStyle}">
@@ -230,23 +230,23 @@
 							<x:String>GDI</x:String>
 							<x:String>DwmSharedSurface</x:String>
 						</ComboBox>
-					</local:SettingItem.ActionContent>
-				</local:SettingItem>
-				<local:SettingItem x:Name="Is3DGameModeSettingItem"
+					</local:SettingsCard.ActionContent>
+				</local:SettingsCard>
+				<local:SettingsCard x:Name="Is3DGameModeSettingsCard"
 								   Title="3D 游戏模式">
-					<local:SettingItem.Icon>
+					<local:SettingsCard.Icon>
 						<FontIcon Glyph="&#xE7FC;" />
-					</local:SettingItem.Icon>
-					<local:SettingItem.ActionContent>
+					</local:SettingsCard.Icon>
+					<local:SettingsCard.ActionContent>
 						<ToggleSwitch IsOn="{x:Bind ViewModel.Is3DGameMode, Mode=TwoWay}" />
-					</local:SettingItem.ActionContent>
-				</local:SettingItem>
-				<local:SettingItem x:Name="MultiMonitorSettingItem"
+					</local:SettingsCard.ActionContent>
+				</local:SettingsCard>
+				<local:SettingsCard x:Name="MultiMonitorSettingsCard"
 								   Title="多显示器">
-					<local:SettingItem.Icon>
+					<local:SettingsCard.Icon>
 						<FontIcon Glyph="&#xf5a9;" />
-					</local:SettingItem.Icon>
-					<local:SettingItem.ActionContent>
+					</local:SettingsCard.Icon>
+					<local:SettingsCard.ActionContent>
 						<ComboBox DropDownOpened="ComboBox_DropDownOpened"
 								  SelectedIndex="{x:Bind ViewModel.MultiMonitorUsage, Mode=TwoWay}"
 								  Style="{StaticResource ComboBoxSettingStyle}">
@@ -254,86 +254,86 @@
 							<x:String>使用源窗口跨越的所有显示器</x:String>
 							<x:String>使用所有显示器</x:String>
 						</ComboBox>
-					</local:SettingItem.ActionContent>
-				</local:SettingItem>
+					</local:SettingsCard.ActionContent>
+				</local:SettingsCard>
 			</local:SettingsGroup>
 			<local:SettingsGroup Title="性能">
-				<local:SettingItem x:Name="GraphicsAdapterSettingItem"
+				<local:SettingsCard x:Name="GraphicsAdapterSettingsCard"
 								   Title="显示卡">
-					<local:SettingItem.Icon>
+					<local:SettingsCard.Icon>
 						<FontIcon Glyph="&#xf211;" />
-					</local:SettingItem.Icon>
-					<local:SettingItem.ActionContent>
+					</local:SettingsCard.Icon>
+					<local:SettingsCard.ActionContent>
 						<ComboBox DropDownOpened="ComboBox_DropDownOpened"
 								  ItemsSource="{x:Bind ViewModel.GraphicsAdapters, Mode=OneTime}"
 								  SelectedIndex="{x:Bind ViewModel.GraphicsAdapter, Mode=TwoWay}"
 								  Style="{StaticResource ComboBoxSettingStyle}" />
-					</local:SettingItem.ActionContent>
-				</local:SettingItem>
-				<local:SettingItem x:Name="ShowFPSSettingItem"
+					</local:SettingsCard.ActionContent>
+				</local:SettingsCard>
+				<local:SettingsCard x:Name="ShowFPSSettingsCard"
 								   Title="显示帧率">
-					<local:SettingItem.Icon>
+					<local:SettingsCard.Icon>
 						<FontIcon Glyph="&#xEC4A;" />
-					</local:SettingItem.Icon>
-					<local:SettingItem.ActionContent>
+					</local:SettingsCard.Icon>
+					<local:SettingsCard.ActionContent>
 						<ToggleSwitch IsOn="{x:Bind ViewModel.IsShowFPS, Mode=TwoWay}" />
-					</local:SettingItem.ActionContent>
-				</local:SettingItem>
+					</local:SettingsCard.ActionContent>
+				</local:SettingsCard>
 				<muxc:Expander HorizontalAlignment="Stretch"
 							   HorizontalContentAlignment="Stretch"
 							   Style="{StaticResource SettingExpanderStyle}">
 					<muxc:Expander.Header>
-						<local:SettingItem Title="垂直同步"
+						<local:SettingsCard Title="垂直同步"
 										   Style="{StaticResource ExpanderHeaderSettingStyle}">
-							<local:SettingItem.Icon>
+							<local:SettingsCard.Icon>
 								<FontIcon Glyph="&#xF71C;" />
-							</local:SettingItem.Icon>
-							<local:SettingItem.ActionContent>
+							</local:SettingsCard.Icon>
+							<local:SettingsCard.ActionContent>
 								<ToggleSwitch IsOn="{x:Bind ViewModel.IsVSync, Mode=TwoWay}" />
-							</local:SettingItem.ActionContent>
-						</local:SettingItem>
+							</local:SettingsCard.ActionContent>
+						</local:SettingsCard>
 					</muxc:Expander.Header>
 					<muxc:Expander.Content>
-						<local:SettingItem IsEnabled="{x:Bind ViewModel.IsVSync, Mode=OneWay}"
+						<local:SettingsCard IsEnabled="{x:Bind ViewModel.IsVSync, Mode=OneWay}"
 										   Style="{StaticResource ExpanderContentSettingStyle}">
 							<CheckBox Content="允许额外的延迟以提高性能"
 									  IsChecked="{x:Bind ViewModel.IsTripleBuffering, Mode=TwoWay}" />
-						</local:SettingItem>
+						</local:SettingsCard>
 					</muxc:Expander.Content>
 				</muxc:Expander>
 			</local:SettingsGroup>
 			<local:SettingsGroup Title="源窗口">
-				<local:SettingItem Title="缩放时禁用窗口大小调整">
-					<local:SettingItem.Icon>
+				<local:SettingsCard Title="缩放时禁用窗口大小调整">
+					<local:SettingsCard.Icon>
 						<FontIcon Glyph="&#xEE3F;" />
-					</local:SettingItem.Icon>
-					<local:SettingItem.ActionContent>
+					</local:SettingsCard.Icon>
+					<local:SettingsCard.ActionContent>
 						<ToggleSwitch IsOn="{x:Bind ViewModel.IsDisableWindowResizing, Mode=TwoWay}" />
-					</local:SettingItem.ActionContent>
-				</local:SettingItem>
-				<local:SettingItem Title="保留标题栏"
+					</local:SettingsCard.ActionContent>
+				</local:SettingsCard>
+				<local:SettingsCard Title="保留标题栏"
 								   Description="仅在 Graphics Capture 和 Desktop Duplication 捕获模式下有效">
-					<local:SettingItem.Icon>
+					<local:SettingsCard.Icon>
 						<FontIcon Glyph="&#xE737;" />
-					</local:SettingItem.Icon>
-					<local:SettingItem.ActionContent>
+					</local:SettingsCard.Icon>
+					<local:SettingsCard.ActionContent>
 						<ToggleSwitch IsOn="{x:Bind ViewModel.IsReserveTitleBar, Mode=TwoWay}" />
-					</local:SettingItem.ActionContent>
-				</local:SettingItem>
+					</local:SettingsCard.ActionContent>
+				</local:SettingsCard>
 				<muxc:Expander HorizontalAlignment="Stretch"
 							   HorizontalContentAlignment="Stretch"
 							   IsExpanded="{x:Bind ViewModel.IsCroppingEnabled, Mode=OneWay}"
 							   Style="{StaticResource SettingExpanderStyle}">
 					<muxc:Expander.Header>
-						<local:SettingItem Title="自定义裁剪"
+						<local:SettingsCard Title="自定义裁剪"
 										   Style="{StaticResource ExpanderHeaderSettingStyle}">
-							<local:SettingItem.Icon>
+							<local:SettingsCard.Icon>
 								<FontIcon Glyph="&#xE7A8;" />
-							</local:SettingItem.Icon>
-							<local:SettingItem.ActionContent>
+							</local:SettingsCard.Icon>
+							<local:SettingsCard.ActionContent>
 								<ToggleSwitch IsOn="{x:Bind ViewModel.IsCroppingEnabled, Mode=TwoWay}" />
-							</local:SettingItem.ActionContent>
-						</local:SettingItem>
+							</local:SettingsCard.ActionContent>
+						</local:SettingsCard>
 					</muxc:Expander.Header>
 					<muxc:Expander.Content>
 						<StackPanel Orientation="Vertical">
@@ -350,10 +350,10 @@
 								</Style>
 							</StackPanel.Resources>
 
-							<local:SettingItem Title="左"
+							<local:SettingsCard Title="左"
 											   IsEnabled="{x:Bind ViewModel.IsCroppingEnabled, Mode=OneWay}"
 											   Style="{StaticResource ExpanderContentSettingStyle}">
-								<local:SettingItem.ActionContent>
+								<local:SettingsCard.ActionContent>
 									<StackPanel Orientation="Horizontal"
 												Spacing="10">
 										<muxc:NumberBox NumberFormatter="{x:Bind local:ScalingProfilePage.NumberFormatter, Mode=OneTime}"
@@ -361,12 +361,12 @@
 										<TextBlock VerticalAlignment="Center"
 												   Text="像素" />
 									</StackPanel>
-								</local:SettingItem.ActionContent>
-							</local:SettingItem>
-							<local:SettingItem Title="右"
+								</local:SettingsCard.ActionContent>
+							</local:SettingsCard>
+							<local:SettingsCard Title="右"
 											   IsEnabled="{x:Bind ViewModel.IsCroppingEnabled, Mode=OneWay}"
 											   Style="{StaticResource ExpanderContentSettingStyle}">
-								<local:SettingItem.ActionContent>
+								<local:SettingsCard.ActionContent>
 									<StackPanel Orientation="Horizontal"
 												Spacing="10">
 										<muxc:NumberBox NumberFormatter="{x:Bind local:ScalingProfilePage.NumberFormatter, Mode=OneTime}"
@@ -374,12 +374,12 @@
 										<TextBlock VerticalAlignment="Center"
 												   Text="像素" />
 									</StackPanel>
-								</local:SettingItem.ActionContent>
-							</local:SettingItem>
-							<local:SettingItem Title="上"
+								</local:SettingsCard.ActionContent>
+							</local:SettingsCard>
+							<local:SettingsCard Title="上"
 											   IsEnabled="{x:Bind ViewModel.IsCroppingEnabled, Mode=OneWay}"
 											   Style="{StaticResource ExpanderContentSettingStyle}">
-								<local:SettingItem.ActionContent>
+								<local:SettingsCard.ActionContent>
 									<StackPanel Orientation="Horizontal"
 												Spacing="10">
 										<muxc:NumberBox NumberFormatter="{x:Bind local:ScalingProfilePage.NumberFormatter, Mode=OneTime}"
@@ -387,12 +387,12 @@
 										<TextBlock VerticalAlignment="Center"
 												   Text="像素" />
 									</StackPanel>
-								</local:SettingItem.ActionContent>
-							</local:SettingItem>
-							<local:SettingItem Title="下"
+								</local:SettingsCard.ActionContent>
+							</local:SettingsCard>
+							<local:SettingsCard Title="下"
 											   IsEnabled="{x:Bind ViewModel.IsCroppingEnabled, Mode=OneWay}"
 											   Style="{StaticResource ExpanderContentSettingStyle}">
-								<local:SettingItem.ActionContent>
+								<local:SettingsCard.ActionContent>
 									<StackPanel Orientation="Horizontal"
 												Spacing="10">
 										<muxc:NumberBox NumberFormatter="{x:Bind local:ScalingProfilePage.NumberFormatter, Mode=OneTime}"
@@ -400,8 +400,8 @@
 										<TextBlock VerticalAlignment="Center"
 												   Text="像素" />
 									</StackPanel>
-								</local:SettingItem.ActionContent>
-							</local:SettingItem>
+								</local:SettingsCard.ActionContent>
+							</local:SettingsCard>
 						</StackPanel>
 					</muxc:Expander.Content>
 				</muxc:Expander>
@@ -411,22 +411,22 @@
 							   HorizontalContentAlignment="Stretch"
 							   Style="{StaticResource SettingExpanderStyle}">
 					<muxc:Expander.Header>
-						<local:SettingItem Title="绘制光标"
+						<local:SettingsCard Title="绘制光标"
 										   Style="{StaticResource ExpanderHeaderSettingStyle}">
-							<local:SettingItem.Icon>
+							<local:SettingsCard.Icon>
 								<FontIcon Glyph="&#xE7C9;" />
-							</local:SettingItem.Icon>
-							<local:SettingItem.ActionContent>
+							</local:SettingsCard.Icon>
+							<local:SettingsCard.ActionContent>
 								<ToggleSwitch IsOn="{x:Bind ViewModel.IsDrawCursor, Mode=TwoWay}" />
-							</local:SettingItem.ActionContent>
-						</local:SettingItem>
+							</local:SettingsCard.ActionContent>
+						</local:SettingsCard>
 					</muxc:Expander.Header>
 					<muxc:Expander.Content>
 						<StackPanel>
-							<local:SettingItem Title="缩放系数"
+							<local:SettingsCard Title="缩放系数"
 											   IsEnabled="{x:Bind ViewModel.IsDrawCursor, Mode=OneWay}"
 											   Style="{StaticResource ExpanderContentSettingStyle}">
-								<local:SettingItem.ActionContent>
+								<local:SettingsCard.ActionContent>
 									<Grid MinWidth="{StaticResource SettingBoxMinWidth}">
 										<Grid.ColumnDefinitions>
 											<ColumnDefinition Width="Auto" />
@@ -469,39 +469,39 @@
 												   VerticalAlignment="Bottom"
 												   Text="x" />
 									</Grid>
-								</local:SettingItem.ActionContent>
-							</local:SettingItem>
-							<local:SettingItem Title="插值算法"
+								</local:SettingsCard.ActionContent>
+							</local:SettingsCard>
+							<local:SettingsCard Title="插值算法"
 											   IsEnabled="{x:Bind ViewModel.IsDrawCursor, Mode=OneWay}"
 											   Style="{StaticResource ExpanderContentSettingStyle}">
-								<local:SettingItem.ActionContent>
+								<local:SettingsCard.ActionContent>
 									<ComboBox DropDownOpened="ComboBox_DropDownOpened"
 											  SelectedIndex="{x:Bind ViewModel.CursorInterpolationMode, Mode=TwoWay}"
 											  Style="{StaticResource ComboBoxSettingStyle}">
 										<x:String>最近邻</x:String>
 										<x:String>双线性</x:String>
 									</ComboBox>
-								</local:SettingItem.ActionContent>
-							</local:SettingItem>
+								</local:SettingsCard.ActionContent>
+							</local:SettingsCard>
 						</StackPanel>
 					</muxc:Expander.Content>
 				</muxc:Expander>
-				<local:SettingItem Title="缩放时调整光标速度">
-					<local:SettingItem.Icon>
+				<local:SettingsCard Title="缩放时调整光标速度">
+					<local:SettingsCard.Icon>
 						<FontIcon x:Name="AdjustCursorSpeedFontIcon"
 								  Glyph="&#xE7C2;" />
-					</local:SettingItem.Icon>
-					<local:SettingItem.ActionContent>
+					</local:SettingsCard.Icon>
+					<local:SettingsCard.ActionContent>
 						<ToggleSwitch IsOn="{x:Bind ViewModel.IsAdjustCursorSpeed, Mode=TwoWay}" />
-					</local:SettingItem.ActionContent>
-				</local:SettingItem>
+					</local:SettingsCard.ActionContent>
+				</local:SettingsCard>
 			</local:SettingsGroup>
 			<local:SettingsGroup Title="高级">
-				<local:SettingItem Title="禁用 DirectFlip">
-					<local:SettingItem.ActionContent>
+				<local:SettingsCard Title="禁用 DirectFlip">
+					<local:SettingsCard.ActionContent>
 						<ToggleSwitch IsOn="{x:Bind ViewModel.IsDisableDirectFlip, Mode=TwoWay}" />
-					</local:SettingItem.ActionContent>
-				</local:SettingItem>
+					</local:SettingsCard.ActionContent>
+				</local:SettingsCard>
 			</local:SettingsGroup>
 		</StackPanel>
 	</local:PageFrame>

@@ -11,29 +11,29 @@
 					Orientation="Vertical">
 			<local:SettingsGroup Title="激活"
 								 Margin="0,-25,0,0">
-				<local:SettingItem Title="快捷键">
-					<local:SettingItem.Icon>
+				<local:SettingsCard Title="快捷键">
+					<local:SettingsCard.Icon>
 						<FontIcon Glyph="&#xEDA7;" />
-					</local:SettingItem.Icon>
-					<local:SettingItem.ActionContent>
+					</local:SettingsCard.Icon>
+					<local:SettingsCard.ActionContent>
 						<local:ShortcutControl Title="激活快捷键">
 							<local:ShortcutControl.Action>
 								<local:HotkeyAction>Scale</local:HotkeyAction>
 							</local:ShortcutControl.Action>
 						</local:ShortcutControl>
-					</local:SettingItem.ActionContent>
-				</local:SettingItem>
+					</local:SettingsCard.ActionContent>
+				</local:SettingsCard>
 				<muxc:Expander HorizontalAlignment="Stretch"
 							   HorizontalContentAlignment="Stretch"
 							   Style="{StaticResource SettingExpanderStyle}">
 					<muxc:Expander.Header>
-						<local:SettingItem Title="计时器"
+						<local:SettingsCard Title="计时器"
 										   Description="计时结束后缩放前台窗口"
 										   Style="{StaticResource ExpanderHeaderSettingStyle}">
-							<local:SettingItem.Icon>
+							<local:SettingsCard.Icon>
 								<FontIcon Glyph="&#xE916;" />
-							</local:SettingItem.Icon>
-							<local:SettingItem.ActionContent>
+							</local:SettingsCard.Icon>
+							<local:SettingsCard.ActionContent>
 								<StackPanel Orientation="Horizontal"
 											Spacing="5">
 									<Grid Visibility="{x:Bind ViewModel.IsCountingDown, Mode=OneWay}">
@@ -54,33 +54,33 @@
 											Content="{x:Bind ViewModel.CountdownButtonText, Mode=OneWay}"
 											IsEnabled="{x:Bind ViewModel.IsNotRunning, Mode=OneWay}" />
 								</StackPanel>
-							</local:SettingItem.ActionContent>
-						</local:SettingItem>
+							</local:SettingsCard.ActionContent>
+						</local:SettingsCard>
 					</muxc:Expander.Header>
 					<muxc:Expander.Content>
-						<local:SettingItem Title="倒计时时长"
+						<local:SettingsCard Title="倒计时时长"
 										   Style="{StaticResource ExpanderContentSettingStyle}">
-							<local:SettingItem.ActionContent>
+							<local:SettingsCard.ActionContent>
 								<Slider Width="150"
 										Maximum="5"
 										Minimum="1"
 										TickFrequency="1"
 										Value="{x:Bind ViewModel.DownCount, Mode=TwoWay}" />
-							</local:SettingItem.ActionContent>
-						</local:SettingItem>
+							</local:SettingsCard.ActionContent>
+						</local:SettingsCard>
 					</muxc:Expander.Content>
 				</muxc:Expander>
-				<local:SettingItem Title="记忆缩放窗口"
+				<local:SettingsCard Title="记忆缩放窗口"
 								   Margin="0,0,0,-2"
 								   Description="当该窗口回到前台时将自动缩放"
 								   Visibility="{x:Bind ViewModel.IsWndToRestore, Mode=OneWay, Converter={StaticResource NegativeVisibilityConverter}}">
-					<local:SettingItem.Icon>
+					<local:SettingsCard.Icon>
 						<FontIcon Glyph="&#xE944;" />
-					</local:SettingItem.Icon>
-					<local:SettingItem.ActionContent>
+					</local:SettingsCard.Icon>
+					<local:SettingsCard.ActionContent>
 						<ToggleSwitch IsOn="{x:Bind ViewModel.IsAutoRestore, Mode=TwoWay}" />
-					</local:SettingItem.ActionContent>
-				</local:SettingItem>
+					</local:SettingsCard.ActionContent>
+				</local:SettingsCard>
 				<muxc:Expander Margin="0,-2,0,0"
 							   HorizontalAlignment="Stretch"
 							   HorizontalContentAlignment="Stretch"
@@ -88,21 +88,21 @@
 							   Style="{StaticResource SettingExpanderStyle}"
 							   Visibility="{x:Bind ViewModel.IsWndToRestore, Mode=OneWay}">
 					<muxc:Expander.Header>
-						<local:SettingItem Title="记忆缩放窗口"
+						<local:SettingsCard Title="记忆缩放窗口"
 										   Description="当该窗口回到前台时将自动缩放"
 										   Style="{StaticResource ExpanderHeaderSettingStyle}">
-							<local:SettingItem.Icon>
+							<local:SettingsCard.Icon>
 								<FontIcon Glyph="&#xE944;" />
-							</local:SettingItem.Icon>
-							<local:SettingItem.ActionContent>
+							</local:SettingsCard.Icon>
+							<local:SettingsCard.ActionContent>
 								<ToggleSwitch IsOn="{x:Bind ViewModel.IsAutoRestore, Mode=TwoWay}" />
-							</local:SettingItem.ActionContent>
-						</local:SettingItem>
+							</local:SettingsCard.ActionContent>
+						</local:SettingsCard>
 					</muxc:Expander.Header>
 					<muxc:Expander.Content>
-						<local:SettingItem Title="{x:Bind ViewModel.RestoreWndDesc, Mode=OneWay}"
+						<local:SettingsCard Title="{x:Bind ViewModel.RestoreWndDesc, Mode=OneWay}"
 										   Style="{StaticResource ExpanderContentSettingStyle}">
-							<local:SettingItem.ActionContent>
+							<local:SettingsCard.ActionContent>
 								<StackPanel Orientation="Horizontal"
 											Spacing="5">
 									<Button Click="{x:Bind ViewModel.ActivateRestore}"
@@ -111,50 +111,50 @@
 									<Button Click="{x:Bind ViewModel.ClearRestore}"
 											Content="忘记" />
 								</StackPanel>
-							</local:SettingItem.ActionContent>
-						</local:SettingItem>
+							</local:SettingsCard.ActionContent>
+						</local:SettingsCard>
 					</muxc:Expander.Content>
 				</muxc:Expander>
 			</local:SettingsGroup>
 			<local:SettingsGroup Title="游戏内覆盖">
-				<local:SettingItem Title="快捷键"
+				<local:SettingsCard Title="快捷键"
 								   Description="自定义打开和关闭游戏内覆盖的快捷键">
-					<local:SettingItem.Icon>
+					<local:SettingsCard.Icon>
 						<FontIcon Glyph="&#xEDA7;" />
-					</local:SettingItem.Icon>
-					<local:SettingItem.ActionContent>
+					</local:SettingsCard.Icon>
+					<local:SettingsCard.ActionContent>
 						<local:ShortcutControl Title="游戏内覆盖快捷键">
 							<local:ShortcutControl.Action>
 								<local:HotkeyAction>Overlay</local:HotkeyAction>
 							</local:ShortcutControl.Action>
 						</local:ShortcutControl>
-					</local:SettingItem.ActionContent>
-				</local:SettingItem>
+					</local:SettingsCard.ActionContent>
+				</local:SettingsCard>
 			</local:SettingsGroup>
 			<local:SettingsGroup Title="管理员模式">
 				<muxc:Expander HorizontalAlignment="Stretch"
 							   HorizontalContentAlignment="Stretch"
 							   Style="{StaticResource SettingExpanderStyle}">
 					<muxc:Expander.Header>
-						<local:SettingItem Title="管理员模式"
+						<local:SettingsCard Title="管理员模式"
 										   Style="{StaticResource ExpanderHeaderSettingStyle}">
-							<local:SettingItem.Icon>
+							<local:SettingsCard.Icon>
 								<FontIcon Glyph="&#xE7EF;" />
-							</local:SettingItem.Icon>
-							<local:SettingItem.ActionContent>
+							</local:SettingsCard.Icon>
+							<local:SettingsCard.ActionContent>
 								<Button Click="{x:Bind ViewModel.RestartAsElevated}"
 										Content="以管理员身份重启 Magpie"
 										IsEnabled="{x:Bind ViewModel.IsProcessElevated, Mode=OneTime, Converter={StaticResource NegationConverter}}" />
-							</local:SettingItem.ActionContent>
-						</local:SettingItem>
+							</local:SettingsCard.ActionContent>
+						</local:SettingsCard>
 					</muxc:Expander.Header>
 					<muxc:Expander.Content>
 						<StackPanel Orientation="Vertical">
-							<local:SettingItem IsEnabled="{x:Bind ViewModel.IsProcessElevated, Mode=OneTime}"
+							<local:SettingsCard IsEnabled="{x:Bind ViewModel.IsProcessElevated, Mode=OneTime}"
 											   Style="{StaticResource ExpanderContentSettingStyle}">
 								<CheckBox Content="始终以管理员身份运行"
 										  IsChecked="{x:Bind ViewModel.IsAlwaysRunAsElevated, Mode=TwoWay}" />
-							</local:SettingItem>
+							</local:SettingsCard>
 							<muxc:InfoBar Title="以管理员身份重启 Magpie 以更改此设置"
 										  IsClosable="False"
 										  IsOpen="{x:Bind ViewModel.IsProcessElevated, Mode=OneTime, Converter={StaticResource NegationConverter}}"

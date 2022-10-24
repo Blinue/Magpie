@@ -62,7 +62,7 @@ void ScalingModesPage::ComboBox_DropDownOpened(IInspectable const& sender, IInsp
 	ComboBoxHelper::DropDownOpened(*this, sender);
 }
 
-void ScalingModesPage::EffectSettingItem_Loaded(IInspectable const& sender, RoutedEventArgs const&) {
+void ScalingModesPage::EffectSettingsCard_Loaded(IInspectable const& sender, RoutedEventArgs const&) {
 	XamlUtils::UpdateThemeOfTooltips(sender.as<DependencyObject>(), ActualTheme());
 }
 

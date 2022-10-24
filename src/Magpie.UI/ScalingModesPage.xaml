@@ -169,9 +169,9 @@
 						  Visibility="{x:Bind ViewModel.ShowErrorMessage, Mode=OneWay}" />
 			<local:SettingsGroup Title="通用"
 								 Margin="0,-25,0,0">
-				<local:SettingItem Title="默认降采样效果"
+				<local:SettingsCard Title="默认降采样效果"
 								   Description="无法容纳输出图像时将自动应用此效果">
-					<local:SettingItem.ActionContent>
+					<local:SettingsCard.ActionContent>
 						<Grid MinWidth="210">
 							<Grid.ColumnDefinitions>
 								<ColumnDefinition Width="*" />
@@ -205,8 +205,8 @@
 								</Button.Flyout>
 							</Button>
 						</Grid>
-					</local:SettingItem.ActionContent>
-				</local:SettingItem>
+					</local:SettingsCard.ActionContent>
+				</local:SettingsCard>
 			</local:SettingsGroup>
 			<local:SettingsGroup Title="缩放模式">
 				<ListView ItemContainerTransitions="{x:Bind ViewModel.ScalingModesListTransitions, Mode=OneWay}"
@@ -227,10 +227,10 @@
 										   HorizontalContentAlignment="Stretch"
 										   Style="{StaticResource SettingExpanderStyle}">
 								<muxc:Expander.Header>
-									<local:SettingItem Title="{x:Bind Name, Mode=OneWay}"
+									<local:SettingsCard Title="{x:Bind Name, Mode=OneWay}"
 													   Description="{x:Bind Description, Mode=OneWay}"
 													   Style="{StaticResource ExpanderHeaderSettingStyle}">
-										<local:SettingItem.ActionContent>
+										<local:SettingsCard.ActionContent>
 											<StackPanel Orientation="Horizontal"
 														Spacing="5">
 												<StackPanel.Resources>
@@ -365,8 +365,8 @@
 													</Button.Flyout>
 												</Button>
 											</StackPanel>
-										</local:SettingItem.ActionContent>
-									</local:SettingItem>
+										</local:SettingsCard.ActionContent>
+									</local:SettingsCard>
 								</muxc:Expander.Header>
 								<muxc:Expander.Content>
 									<StackPanel Orientation="Vertical">
@@ -385,10 +385,10 @@
 											</ListView.Resources>
 											<ListView.ItemTemplate>
 												<DataTemplate x:DataType="local:ScalingModeEffectItem">
-													<local:SettingItem Title="{x:Bind Name}"
-																	   Loaded="EffectSettingItem_Loaded"
+													<local:SettingsCard Title="{x:Bind Name}"
+																	   Loaded="EffectSettingsCard_Loaded"
 																	   Style="{StaticResource ExpanderContentSettingStyle}">
-														<local:SettingItem.ActionContent>
+														<local:SettingsCard.ActionContent>
 															<StackPanel Orientation="Horizontal">
 																<StackPanel.Resources>
 																	<Style BasedOn="{StaticResource DefaultButtonStyle}"
@@ -517,18 +517,18 @@
 																	</Button.Content>
 																</Button>
 															</StackPanel>
-														</local:SettingItem.ActionContent>
-													</local:SettingItem>
+														</local:SettingsCard.ActionContent>
+													</local:SettingsCard>
 												</DataTemplate>
 											</ListView.ItemTemplate>
 										</ListView>
-										<local:SettingItem Style="{StaticResource ExpanderContentSettingStyle}">
-											<local:SettingItem.Description>
+										<local:SettingsCard Style="{StaticResource ExpanderContentSettingStyle}">
+											<local:SettingsCard.Description>
 												<TextBlock Margin="-40,0,0,-20"
 														   Text="拖动可重新排序"
 														   Visibility="{x:Bind CanReorderEffects, Mode=OneWay}" />
-											</local:SettingItem.Description>
-											<local:SettingItem.ActionContent>
+											</local:SettingsCard.Description>
+											<local:SettingsCard.ActionContent>
 												<Button x:Name="AddEffectButton"
 														Padding="10,8"
 														Background="Transparent"
@@ -566,8 +566,8 @@
 																   Text="添加效果" />
 													</StackPanel>
 												</Button>
-											</local:SettingItem.ActionContent>
-										</local:SettingItem>
+											</local:SettingsCard.ActionContent>
+										</local:SettingsCard>
 									</StackPanel>
 								</muxc:Expander.Content>
 							</muxc:Expander>

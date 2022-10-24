@@ -183,8 +183,8 @@
       <DependentUpon>ScalingProfileViewModel.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
-    <ClInclude Include="SettingItem.h">
-      <DependentUpon>SettingItem.xaml</DependentUpon>
+    <ClInclude Include="SettingsCard.h">
+      <DependentUpon>SettingsCard.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
     <ClInclude Include="HomePage.h">
@@ -312,8 +312,8 @@
       <DependentUpon>ScalingProfileViewModel.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
-    <ClCompile Include="SettingItem.cpp">
-      <DependentUpon>SettingItem.xaml</DependentUpon>
+    <ClCompile Include="SettingsCard.cpp">
+      <DependentUpon>SettingsCard.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
     <ClCompile Include="HomePage.cpp">
@@ -423,8 +423,8 @@
       <DependentUpon>SettingsGroup.xaml</DependentUpon>
       <SubType>Code</SubType>
     </None>
-    <None Include="SettingItem.idl">
-      <DependentUpon>SettingItem.xaml</DependentUpon>
+    <None Include="SettingsCard.idl">
+      <DependentUpon>SettingsCard.xaml</DependentUpon>
       <SubType>Code</SubType>
     </None>
     <None Include="AboutPage.idl">
@@ -478,7 +478,7 @@
     <Page Include="ScalingModesPage.xaml">
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="SettingItem.xaml">
+    <Page Include="SettingsCard.xaml">
       <SubType>Designer</SubType>
     </Page>
     <Page Include="SettingsGroup.xaml">

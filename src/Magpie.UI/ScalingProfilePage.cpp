@@ -38,8 +38,8 @@ ScalingProfilePage::ScalingProfilePage() {
 
 	if (GetSystemMetrics(SM_CMONITORS) <= 1) {
 		// 只有一个显示器时隐藏多显示器选项
-		MultiMonitorSettingItem().Visibility(Visibility::Collapsed);
-		Is3DGameModeSettingItem().Margin({ 0,0,0,-2 });
+		MultiMonitorSettingsCard().Visibility(Visibility::Collapsed);
+		Is3DGameModeSettingsCard().Margin({ 0,0,0,-2 });
 	}
 }
 
@@ -49,8 +49,8 @@ void ScalingProfilePage::OnNavigatedTo(Navigation::NavigationEventArgs const& ar
 
 	if (_viewModel.GraphicsAdapters().Size() <= 2) {
 		// 只有一个显卡时隐藏显示卡选项
-		GraphicsAdapterSettingItem().Visibility(Visibility::Collapsed);
-		ShowFPSSettingItem().Margin({ 0,-2,0,0 });
+		GraphicsAdapterSettingsCard().Visibility(Visibility::Collapsed);
+		ShowFPSSettingsCard().Margin({ 0,-2,0,0 });
 	}
 }
 

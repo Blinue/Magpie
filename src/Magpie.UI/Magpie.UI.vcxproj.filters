@@ -9,7 +9,6 @@
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
     <ClCompile Include="App.cpp" />
-    <ClCompile Include="MicaBrush.cpp" />
     <ClCompile Include="$(GeneratedFilesDir)module.g.cpp">
       <Filter>Miscellaneous</Filter>
     </ClCompile>
@@ -53,7 +52,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
-    <ClInclude Include="MicaBrush.h" />
     <ClInclude Include="app.base.h">
       <Filter>Miscellaneous</Filter>
     </ClInclude>
@@ -201,7 +199,7 @@
     <Page Include="PageFrame.xaml">
       <Filter>Controls</Filter>
     </Page>
-    <Page Include="SettingItem.xaml">
+    <Page Include="SettingsCard.xaml">
       <Filter>Controls</Filter>
     </Page>
     <Page Include="SettingsGroup.xaml">

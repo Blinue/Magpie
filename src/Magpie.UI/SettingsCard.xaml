@@ -1,4 +1,4 @@
-<UserControl x:Class="Magpie.UI.SettingItem"
+<UserControl x:Class="Magpie.UI.SettingsCard"
 			 xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 			 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 			 xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -9,7 +9,7 @@
 			 Loading="Loading"
 			 mc:Ignorable="d">
 	<UserControl.Resources>
-		<Style TargetType="local:SettingItem">
+		<Style TargetType="local:SettingsCard">
 			<Setter Property="Background" Value="{ThemeResource CardBackgroundBrush}" />
 			<Setter Property="CornerRadius" Value="{ThemeResource ControlCornerRadius}" />
 			<Setter Property="BorderThickness" Value="{ThemeResource CardBorderThickness}" />
@@ -78,7 +78,7 @@
 							<Setter Property="TextWrapping" Value="WrapWholeWords" />
 						</Style.Setters>
 					</Style>
-					<Style BasedOn="{StaticResource SettingItemHyperlinkStyle}"
+					<Style BasedOn="{StaticResource SettingsCardHyperlinkStyle}"
 						   TargetType="HyperlinkButton">
 						<Style.Setters>
 							<Setter Property="FontSize" Value="12" />

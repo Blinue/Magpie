@@ -25,7 +25,7 @@
 				<Setter Property="Foreground" Value="{ThemeResource TextFillColorSecondaryBrush}" />
 			</Style>
 
-			<Style x:Key="SettingItemButtonStyle"
+			<Style x:Key="SettingsCardButtonStyle"
 				   BasedOn="{StaticResource DefaultButtonStyle}"
 				   TargetType="Button">
 				<Setter Property="BorderBrush" Value="{ThemeResource CardBorderBrush}" />
@@ -61,7 +61,7 @@
 
 			<!--  Setting used in a Expander header  -->
 			<Style x:Key="ExpanderHeaderSettingStyle"
-				   TargetType="local:SettingItem">
+				   TargetType="local:SettingsCard">
 				<Setter Property="Background" Value="Transparent" />
 				<Setter Property="BorderThickness" Value="0" />
 				<Setter Property="BorderBrush" Value="Transparent" />
@@ -74,7 +74,7 @@
 
 			<!--  Setting used in a Expander content  -->
 			<Style x:Key="ExpanderContentSettingStyle"
-				   TargetType="local:SettingItem">
+				   TargetType="local:SettingsCard">
 				<Setter Property="Background" Value="Transparent" />
 				<Setter Property="BorderThickness" Value="0,1,0,0" />
 				<Setter Property="BorderBrush" Value="{ThemeResource CardBorderBrush}" />

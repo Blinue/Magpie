@@ -1,13 +1,13 @@
 #pragma once
 
 #include "pch.h"
-#include "SettingItem.g.h"
+#include "SettingsCard.g.h"
 
 
 namespace winrt::Magpie::UI::implementation {
 
-struct SettingItem : SettingItemT<SettingItem> {
-	SettingItem();
+struct SettingsCard : SettingsCardT<SettingsCard> {
+	SettingsCard();
 
 	void RawTitle(IInspectable const& value);
 
@@ -59,7 +59,7 @@ private:
 
 namespace winrt::Magpie::UI::factory_implementation {
 
-struct SettingItem : SettingItemT<SettingItem, implementation::SettingItem> {
+struct SettingsCard : SettingsCardT<SettingsCard, implementation::SettingsCard> {
 };
 
 }

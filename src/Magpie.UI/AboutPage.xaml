@@ -16,77 +16,77 @@
 							   HorizontalContentAlignment="Stretch"
 							   Style="{StaticResource SettingExpanderStyle}">
 					<muxc:Expander.Header>
-						<local:SettingItem Title="{x:Bind Version, Mode=OneTime}"
+						<local:SettingsCard Title="{x:Bind Version, Mode=OneTime}"
 										   Style="{StaticResource ExpanderHeaderSettingStyle}">
-							<local:SettingItem.Icon>
+							<local:SettingsCard.Icon>
 								<FontIcon Glyph="&#xE895;" />
-							</local:SettingItem.Icon>
-							<local:SettingItem.Description>
+							</local:SettingsCard.Icon>
+							<local:SettingsCard.Description>
 								<HyperlinkButton Content="发行说明"
 												 NavigateUri="https://github.com/Blinue/Magpie/releases" />
-							</local:SettingItem.Description>
-							<local:SettingItem.ActionContent>
+							</local:SettingsCard.Description>
+							<local:SettingsCard.ActionContent>
 								<Button Content="检查更新（施工中）"
 										IsEnabled="False" />
-							</local:SettingItem.ActionContent>
-						</local:SettingItem>
+							</local:SettingsCard.ActionContent>
+						</local:SettingsCard>
 					</muxc:Expander.Header>
 					<muxc:Expander.Content>
 						<StackPanel Orientation="Vertical">
-							<local:SettingItem Style="{StaticResource ExpanderContentSettingStyle}">
+							<local:SettingsCard Style="{StaticResource ExpanderContentSettingStyle}">
 								<CheckBox Content="自动下载更新"
 										  IsEnabled="False" />
-							</local:SettingItem>
-							<local:SettingItem Style="{StaticResource ExpanderContentSettingStyle}">
+							</local:SettingsCard>
+							<local:SettingsCard Style="{StaticResource ExpanderContentSettingStyle}">
 								<CheckBox Content="检查预览版更新"
 										  IsEnabled="False" />
-							</local:SettingItem>
+							</local:SettingsCard>
 						</StackPanel>
 					</muxc:Expander.Content>
 				</muxc:Expander>
 			</local:SettingsGroup>
 			<local:SettingsGroup Title="反馈">
 				<Button Click="BugReportButton_Click"
-						Style="{StaticResource SettingItemButtonStyle}">
-					<local:SettingItem Title="报告错误"
+						Style="{StaticResource SettingsCardButtonStyle}">
+					<local:SettingsCard Title="报告错误"
 									   Style="{StaticResource ExpanderHeaderSettingStyle}">
-						<local:SettingItem.Icon>
+						<local:SettingsCard.Icon>
 							<FontIcon Glyph="&#xEBE8;" />
-						</local:SettingItem.Icon>
-						<local:SettingItem.ActionContent>
+						</local:SettingsCard.Icon>
+						<local:SettingsCard.ActionContent>
 							<FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
 									  FontSize="18"
 									  Glyph="&#xE8A7;" />
-						</local:SettingItem.ActionContent>
-					</local:SettingItem>
+						</local:SettingsCard.ActionContent>
+					</local:SettingsCard>
 				</Button>
 				<Button Click="FeatureRequestButton_Click"
-						Style="{StaticResource SettingItemButtonStyle}">
-					<local:SettingItem Title="建议功能"
+						Style="{StaticResource SettingsCardButtonStyle}">
+					<local:SettingsCard Title="建议功能"
 									   Style="{StaticResource ExpanderHeaderSettingStyle}">
-						<local:SettingItem.Icon>
+						<local:SettingsCard.Icon>
 							<FontIcon Glyph="&#xEA80;" />
-						</local:SettingItem.Icon>
-						<local:SettingItem.ActionContent>
+						</local:SettingsCard.Icon>
+						<local:SettingsCard.ActionContent>
 							<FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
 									  FontSize="18"
 									  Glyph="&#xE8A7;" />
-						</local:SettingItem.ActionContent>
-					</local:SettingItem>
+						</local:SettingsCard.ActionContent>
+					</local:SettingsCard>
 				</Button>
 				<Button Click="DiscussionsButton_Click"
-						Style="{StaticResource SettingItemButtonStyle}">
-					<local:SettingItem Title="问询和讨论"
+						Style="{StaticResource SettingsCardButtonStyle}">
+					<local:SettingsCard Title="问询和讨论"
 									   Style="{StaticResource ExpanderHeaderSettingStyle}">
-						<local:SettingItem.Icon>
+						<local:SettingsCard.Icon>
 							<FontIcon Glyph="&#xE8F2;" />
-						</local:SettingItem.Icon>
-						<local:SettingItem.ActionContent>
+						</local:SettingsCard.Icon>
+						<local:SettingsCard.ActionContent>
 							<FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
 									  FontSize="18"
 									  Glyph="&#xE8A7;" />
-						</local:SettingItem.ActionContent>
-					</local:SettingItem>
+						</local:SettingsCard.ActionContent>
+					</local:SettingsCard>
 				</Button>
 			</local:SettingsGroup>
 			<local:SettingsGroup Title="其他链接">
