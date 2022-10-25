@@ -1,0 +1,7 @@
+{
+    "version": "0.9.100",
+    "tag": "v0.10.0-preview1",
+    "binary": {
+        "x64": "https://github.com/Blinue/Magpie/releases/download/v0.10.0-preview1/Magpie_v0.10.0-preview1.zip"
+    }
+}
