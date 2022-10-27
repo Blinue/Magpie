@@ -49,6 +49,9 @@
     <ClCompile Include="JsonHelper.cpp">
       <Filter>Helpers</Filter>
     </ClCompile>
+    <ClCompile Include="UpdateService.cpp">
+      <Filter>Services</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -103,6 +106,9 @@
     </ClInclude>
     <ClInclude Include="JsonHelper.h">
       <Filter>Helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="UpdateService.h">
+      <Filter>Services</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

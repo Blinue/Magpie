@@ -223,6 +223,7 @@
       <DependentUpon>TextBlockHelper.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
+    <ClInclude Include="UpdateService.h" />
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml">
@@ -355,6 +356,7 @@
       <DependentUpon>TextBlockHelper.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
+    <ClCompile Include="UpdateService.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="EffectParametersViewModel.idl">
