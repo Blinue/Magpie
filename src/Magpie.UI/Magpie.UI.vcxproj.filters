@@ -190,6 +190,9 @@
     <None Include="EffectParametersViewModel.idl">
       <Filter>ViewModels</Filter>
     </None>
+    <None Include="AboutViewModel.idl">
+      <Filter>ViewModels</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Page Include="MainPage.xaml" />

@@ -105,6 +105,10 @@
       <DependentUpon>AboutPage.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
+    <ClInclude Include="AboutViewModel.h">
+      <DependentUpon>AboutViewModel.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClInclude>
     <ClInclude Include="app.base.h" />
     <ClInclude Include="AppSettings.h" />
     <ClInclude Include="AppXReader.h" />
@@ -238,6 +242,10 @@
   <ItemGroup>
     <ClCompile Include="AboutPage.cpp">
       <DependentUpon>AboutPage.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </ClCompile>
+    <ClCompile Include="AboutViewModel.cpp">
+      <DependentUpon>AboutViewModel.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
     <ClCompile Include="AppSettings.cpp" />
@@ -432,6 +440,9 @@
     <None Include="AboutPage.idl">
       <DependentUpon>AboutPage.xaml</DependentUpon>
       <SubType>Code</SubType>
+    </None>
+    <None Include="AboutViewModel.idl">
+      <SubType>Designer</SubType>
     </None>
     <Midl Include="App.idl">
       <DependentUpon>App.xaml</DependentUpon>

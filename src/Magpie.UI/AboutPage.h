@@ -7,11 +7,16 @@ namespace winrt::Magpie::UI::implementation {
 struct AboutPage : AboutPageT<AboutPage> {
 	AboutPage();
 
-	hstring Version() const noexcept;
+	Magpie::UI::AboutViewModel ViewModel() const noexcept {
+		return _viewModel;
+	}
 
 	void BugReportButton_Click(IInspectable const&, RoutedEventArgs const&);
 	void FeatureRequestButton_Click(IInspectable const&, RoutedEventArgs const&);
 	void DiscussionsButton_Click(IInspectable const&, RoutedEventArgs const&);
+
+private:
+	Magpie::UI::AboutViewModel _viewModel;
 };
 
 }

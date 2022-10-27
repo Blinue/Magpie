@@ -16,8 +16,8 @@
 							   HorizontalContentAlignment="Stretch"
 							   Style="{StaticResource SettingExpanderStyle}">
 					<muxc:Expander.Header>
-						<local:SettingsCard Title="{x:Bind Version, Mode=OneTime}"
-										   Style="{StaticResource ExpanderHeaderSettingStyle}">
+						<local:SettingsCard Title="{x:Bind ViewModel.Version, Mode=OneTime}"
+											Style="{StaticResource ExpanderHeaderSettingStyle}">
 							<local:SettingsCard.Icon>
 								<FontIcon Glyph="&#xE895;" />
 							</local:SettingsCard.Icon>
@@ -26,7 +26,8 @@
 												 NavigateUri="https://github.com/Blinue/Magpie/releases" />
 							</local:SettingsCard.Description>
 							<local:SettingsCard.ActionContent>
-								<Button Content="检查更新" />
+								<Button Click="{x:Bind ViewModel.CheckForUpdate}"
+										Content="检查更新" />
 							</local:SettingsCard.ActionContent>
 						</local:SettingsCard>
 					</muxc:Expander.Header>
@@ -46,7 +47,7 @@
 				<Button Click="BugReportButton_Click"
 						Style="{StaticResource SettingsCardButtonStyle}">
 					<local:SettingsCard Title="报告错误"
-									   Style="{StaticResource ExpanderHeaderSettingStyle}">
+										Style="{StaticResource ExpanderHeaderSettingStyle}">
 						<local:SettingsCard.Icon>
 							<FontIcon Glyph="&#xEBE8;" />
 						</local:SettingsCard.Icon>
@@ -60,7 +61,7 @@
 				<Button Click="FeatureRequestButton_Click"
 						Style="{StaticResource SettingsCardButtonStyle}">
 					<local:SettingsCard Title="建议功能"
-									   Style="{StaticResource ExpanderHeaderSettingStyle}">
+										Style="{StaticResource ExpanderHeaderSettingStyle}">
 						<local:SettingsCard.Icon>
 							<FontIcon Glyph="&#xEA80;" />
 						</local:SettingsCard.Icon>
@@ -74,7 +75,7 @@
 				<Button Click="DiscussionsButton_Click"
 						Style="{StaticResource SettingsCardButtonStyle}">
 					<local:SettingsCard Title="问询和讨论"
-									   Style="{StaticResource ExpanderHeaderSettingStyle}">
+										Style="{StaticResource ExpanderHeaderSettingStyle}">
 						<local:SettingsCard.Icon>
 							<FontIcon Glyph="&#xE8F2;" />
 						</local:SettingsCard.Icon>

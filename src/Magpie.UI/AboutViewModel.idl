@@ -1,0 +1,11 @@
+namespace Magpie.UI
+{
+    [default_interface]
+    runtimeclass AboutViewModel : [default] Windows.UI.Xaml.Data.INotifyPropertyChanged
+    {
+        AboutViewModel();
+
+        String Version { get; };
+        void CheckForUpdate();
+    }
+}

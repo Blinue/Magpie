@@ -7,8 +7,6 @@ namespace winrt::Magpie::UI::implementation {
 struct NewProfileViewModel : NewProfileViewModelT<NewProfileViewModel> {
 	NewProfileViewModel() = default;
 
-	void PrepareForOpen(uint32_t dpi, bool isLightTheme, CoreDispatcher const& dispatcher);
-
 	event_token PropertyChanged(PropertyChangedEventHandler const& handler) {
 		return _propertyChangedEvent.add(handler);
 	}
@@ -16,6 +14,8 @@ struct NewProfileViewModel : NewProfileViewModelT<NewProfileViewModel> {
 	void PropertyChanged(event_token const& token) noexcept {
 		_propertyChangedEvent.remove(token);
 	}
+
+	void PrepareForOpen(uint32_t dpi, bool isLightTheme, CoreDispatcher const& dispatcher);
 
 	IVector<IInspectable> CandidateWindows() const noexcept {
 		return _candidateWindows;

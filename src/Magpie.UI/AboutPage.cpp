@@ -3,17 +3,12 @@
 #if __has_include("AboutPage.g.cpp")
 #include "AboutPage.g.cpp"
 #endif
-#include "Version.h"
 
 
 namespace winrt::Magpie::UI::implementation {
 
 AboutPage::AboutPage() {
 	InitializeComponent();
-}
-
-hstring AboutPage::Version() const noexcept {
-	return hstring(L"v"s + MAGPIE_VERSION_W);
 }
 
 static void OpenUrl(const wchar_t* url) noexcept {

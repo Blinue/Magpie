@@ -4,6 +4,12 @@
 
 namespace winrt::Magpie::UI {
 
+enum class UpdateResult {
+	NoUpdate,
+	Available,
+	NetworkError
+};
+
 class UpdateService {
 public:
 	static UpdateService& Get() {
@@ -14,8 +20,20 @@ public:
 	UpdateService(const UpdateService&) = delete;
 	UpdateService(UpdateService&&) = delete;
 
+	IAsyncAction CheckForUpdateAsync();
+
+	UpdateResult GetResult() const noexcept {
+		return _result;
+	}
+
 private:
 	UpdateService() = default;
+
+	
+
+	std::wstring _tag;
+	std::wstring _binaryUrl;
+	UpdateResult _result = UpdateResult::NoUpdate;
 };
 
 }
