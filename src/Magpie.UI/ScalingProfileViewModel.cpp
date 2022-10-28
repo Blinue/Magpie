@@ -154,13 +154,48 @@ hstring ScalingProfileViewModel::Name() const noexcept {
 	return hstring(_data->name.empty() ? L"默认" : _data->name);
 }
 
+static void LaunchPackagedApp(const wchar_t* aumid) {
+	// 关于启动打包应用的讨论：
+	// https://github.com/microsoft/WindowsAppSDK/issues/2856#issuecomment-1224409948
+	com_ptr<IApplicationActivationManager> aam;
+	// 使用 CLSCTX_LOCAL_SERVER 以在独立的进程中启动应用
+	// 见 https://learn.microsoft.com/en-us/windows/win32/api/shobjidl_core/nn-shobjidl_core-iapplicationactivationmanager
+	HRESULT hr = CoCreateInstance(
+		CLSID_ApplicationActivationManager,
+		nullptr,
+		CLSCTX_LOCAL_SERVER,
+		IID_PPV_ARGS(&aam)
+	);
+	if (FAILED(hr)) {
+		Logger::Get().ComError("创建 ApplicationActivationManager 失败", hr);
+		return;
+	}
+
+	// 确保启动为前台窗口
+	hr = CoAllowSetForegroundWindow(aam.get(), nullptr);
+	if (FAILED(hr)) {
+		Logger::Get().ComError("创建 CoAllowSetForegroundWindow 失败", hr);
+	}
+
+	DWORD procId;
+	hr = aam->ActivateApplication(aumid, nullptr, AO_NONE, &procId);
+	if (FAILED(hr)) {
+		Logger::Get().ComError("IApplicationActivationManager::ActivateApplication 失败", hr);
+		return;
+	}
+}
+
 void ScalingProfileViewModel::Launch() const noexcept {
 	if (!_isProgramExist.has_value() || !_isProgramExist.value()) {
 		return;
 	}
 
-	if ((INT_PTR)ShellExecute(NULL, L"open", _data->pathRule.c_str(), nullptr, nullptr, SW_SHOWDEFAULT) <= 32) {
-		Logger::Get().Win32Error("ShellExecute 失败");
+	if (_data->isPackaged) {
+		LaunchPackagedApp(_data->pathRule.c_str());
+	} else {
+		if ((INT_PTR)ShellExecute(NULL, L"open", _data->pathRule.c_str(), nullptr, nullptr, SW_SHOWDEFAULT) <= 32) {
+			Logger::Get().Win32Error("ShellExecute 失败");
+		}
 	}
 }
 
