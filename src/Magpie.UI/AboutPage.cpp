@@ -12,7 +12,7 @@ AboutPage::AboutPage() {
 }
 
 static void OpenUrl(const wchar_t* url) noexcept {
-	ShellExecute(NULL, L"open", url, nullptr, nullptr, SW_NORMAL);
+	ShellExecute(NULL, L"open", url, nullptr, nullptr, SW_SHOWNORMAL);
 }
 
 void AboutPage::BugReportButton_Click(IInspectable const&, RoutedEventArgs const&) {

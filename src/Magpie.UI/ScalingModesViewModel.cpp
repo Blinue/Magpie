@@ -104,15 +104,9 @@ static std::optional<std::wstring> OpenFileDialog(IFileDialog* fileDialog) {
 }
 
 void ScalingModesViewModel::Export() const noexcept {
-	com_ptr<IFileSaveDialog> fileDialog;
-	HRESULT hr = CoCreateInstance(
-		CLSID_FileSaveDialog,
-		nullptr,
-		CLSCTX_INPROC_SERVER,
-		IID_PPV_ARGS(&fileDialog)
-	);
-	if (FAILED(hr)) {
-		Logger::Get().ComError("创建 IFileSaveDialog 失败", hr);
+	com_ptr<IFileSaveDialog> fileDialog = try_create_instance<IFileSaveDialog>(CLSID_FileSaveDialog);
+	if (!fileDialog) {
+		Logger::Get().Error("创建 FileSaveDialog 失败");
 		return;
 	}
 
@@ -134,15 +128,9 @@ void ScalingModesViewModel::Export() const noexcept {
 }
 
 static bool ImportImpl(bool legacy) {
-	com_ptr<IFileOpenDialog> fileDialog;
-	HRESULT hr = CoCreateInstance(
-		CLSID_FileOpenDialog,
-		nullptr,
-		CLSCTX_INPROC_SERVER,
-		IID_PPV_ARGS(&fileDialog)
-	);
-	if (FAILED(hr)) {
-		Logger::Get().ComError("创建 IFileOpenDialog 失败", hr);
+	com_ptr<IFileOpenDialog> fileDialog = try_create_instance<IFileOpenDialog>(CLSID_FileOpenDialog);
+	if (!fileDialog) {
+		Logger::Get().Error("创建 FileOpenDialog 失败");
 		return false;
 	}
 

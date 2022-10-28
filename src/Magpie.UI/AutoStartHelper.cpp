@@ -34,19 +34,14 @@ static std::wstring GetTaskName(std::wstring_view userName) {
 }
 
 static com_ptr<ITaskService> CreateTaskService() {
-	com_ptr<ITaskService> taskService;
-	HRESULT hr = CoCreateInstance(
-		CLSID_TaskScheduler,
-		NULL,
-		CLSCTX_INPROC_SERVER,
-		IID_PPV_ARGS(&taskService)
-	);
-	if (FAILED(hr)) {
-		Logger::Get().ComError("创建 ITaskService 失败", hr);
+	com_ptr<ITaskService> taskService = try_create_instance<ITaskService>(CLSID_TaskScheduler);
+	if (!taskService) {
+		Logger::Get().Error("创建 TaskService 失败");
 		return nullptr;
 	}
 
-	hr = taskService->Connect(Win32Utils::Variant(), Win32Utils::Variant(), Win32Utils::Variant(), Win32Utils::Variant());
+	HRESULT hr = taskService->Connect(Win32Utils::Variant(), Win32Utils::Variant(),
+		Win32Utils::Variant(), Win32Utils::Variant());
 	if (FAILED(hr)) {
 		Logger::Get().ComError("ITaskService::Connect 失败", hr);
 		return nullptr;
@@ -406,10 +401,9 @@ static std::wstring GetShortcutPath() {
 }
 
 static bool CreateAutoStartShortcut(const wchar_t* arguments) {
-	com_ptr<IShellLink> shellLink;
-	HRESULT hr = CoCreateInstance(CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&shellLink));
-	if (FAILED(hr)) {
-		Logger::Get().ComError("创建 IShellLink 失败", hr);
+	com_ptr<IShellLink> shellLink = try_create_instance<IShellLink>(CLSID_ShellLink);
+	if (!shellLink) {
+		Logger::Get().Error("创建 ShellLink 失败");
 		return false;
 	}
 
@@ -427,7 +421,7 @@ static bool CreateAutoStartShortcut(const wchar_t* arguments) {
 		return false;
 	}
 
-	hr = persistFile->Save(GetShortcutPath().c_str(), TRUE);
+	HRESULT hr = persistFile->Save(GetShortcutPath().c_str(), TRUE);
 	if (FAILED(hr)) {
 		Logger::Get().ComError("保存快捷方式失败", hr);
 		return false;
@@ -464,10 +458,9 @@ static bool IsAutoStartShortcutExist(std::wstring& arguments) {
 		return false;
 	}
 
-	com_ptr<IShellLink> shellLink;
-	HRESULT hr = CoCreateInstance(CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&shellLink));
-	if (FAILED(hr)) {
-		Logger::Get().ComError("创建 IShellLink 失败", hr);
+	com_ptr<IShellLink> shellLink = try_create_instance<IShellLink>(CLSID_ShellLink);
+	if (!shellLink) {
+		Logger::Get().Error("创建 ShellLink 失败");
 		return false;
 	}
 
@@ -477,7 +470,7 @@ static bool IsAutoStartShortcutExist(std::wstring& arguments) {
 		return false;
 	}
 
-	hr = persistFile->Load(shortcutPath.c_str(), STGM_READ);
+	HRESULT hr = persistFile->Load(shortcutPath.c_str(), STGM_READ);
 	if (FAILED(hr)) {
 		Logger::Get().ComError("读取快捷方式失败", hr);
 		return false;

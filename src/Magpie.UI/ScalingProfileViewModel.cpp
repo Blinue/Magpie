@@ -127,7 +127,7 @@ fire_and_forget ScalingProfileViewModel::OpenProgramLocation() const noexcept {
 		programLocation = _appxReader->GetExecutablePath();
 		if (programLocation.empty()) {
 			// 找不到可执行文件则打开应用文件夹
-			ShellExecute(NULL, L"open", _appxReader->GetPackagePath().c_str(), nullptr, nullptr, SW_SHOWDEFAULT);
+			ShellExecute(NULL, L"open", _appxReader->GetPackagePath().c_str(), nullptr, nullptr, SW_SHOWNORMAL);
 			co_return;
 		}
 	} else {
@@ -157,22 +157,17 @@ hstring ScalingProfileViewModel::Name() const noexcept {
 static void LaunchPackagedApp(const wchar_t* aumid) {
 	// 关于启动打包应用的讨论：
 	// https://github.com/microsoft/WindowsAppSDK/issues/2856#issuecomment-1224409948
-	com_ptr<IApplicationActivationManager> aam;
 	// 使用 CLSCTX_LOCAL_SERVER 以在独立的进程中启动应用
 	// 见 https://learn.microsoft.com/en-us/windows/win32/api/shobjidl_core/nn-shobjidl_core-iapplicationactivationmanager
-	HRESULT hr = CoCreateInstance(
-		CLSID_ApplicationActivationManager,
-		nullptr,
-		CLSCTX_LOCAL_SERVER,
-		IID_PPV_ARGS(&aam)
-	);
-	if (FAILED(hr)) {
-		Logger::Get().ComError("创建 ApplicationActivationManager 失败", hr);
+	com_ptr<IApplicationActivationManager> aam =
+		try_create_instance<IApplicationActivationManager>(CLSID_ApplicationActivationManager, CLSCTX_LOCAL_SERVER);
+	if (!aam) {
+		Logger::Get().Error("创建 ApplicationActivationManager 失败");
 		return;
 	}
 
 	// 确保启动为前台窗口
-	hr = CoAllowSetForegroundWindow(aam.get(), nullptr);
+	HRESULT hr = CoAllowSetForegroundWindow(aam.get(), nullptr);
 	if (FAILED(hr)) {
 		Logger::Get().ComError("创建 CoAllowSetForegroundWindow 失败", hr);
 	}
@@ -193,7 +188,7 @@ void ScalingProfileViewModel::Launch() const noexcept {
 	if (_data->isPackaged) {
 		LaunchPackagedApp(_data->pathRule.c_str());
 	} else {
-		if ((INT_PTR)ShellExecute(NULL, L"open", _data->pathRule.c_str(), nullptr, nullptr, SW_SHOWDEFAULT) <= 32) {
+		if ((INT_PTR)ShellExecute(NULL, L"open", _data->pathRule.c_str(), nullptr, nullptr, SW_SHOWNORMAL) <= 32) {
 			Logger::Get().Win32Error("ShellExecute 失败");
 		}
 	}

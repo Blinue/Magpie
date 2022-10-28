@@ -704,22 +704,16 @@ HRESULT CreateDDSTextureFromFileEx(
 }
 
 winrt::com_ptr<ID3D11Texture2D> LoadImg(const wchar_t* fileName) {
-	winrt::com_ptr<IWICImagingFactory2> wicImgFactory;
-	HRESULT hr = CoCreateInstance(
-		CLSID_WICImagingFactory,
-		NULL,
-		CLSCTX_INPROC_SERVER,
-		IID_PPV_ARGS(wicImgFactory.put())
-	);
-
-	if (FAILED(hr)) {
-		Logger::Get().ComError("创建 WICImagingFactory 失败", hr);
+	winrt::com_ptr<IWICImagingFactory2> wicImgFactory =
+		winrt::try_create_instance<IWICImagingFactory2>(CLSID_WICImagingFactory);
+	if (!wicImgFactory) {
+		Logger::Get().Error("创建 WICImagingFactory 失败");
 		return nullptr;
 	}
 
 	// 读取图像文件
 	winrt::com_ptr<IWICBitmapDecoder> decoder;
-	hr = wicImgFactory->CreateDecoderFromFilename(fileName, nullptr, GENERIC_READ, WICDecodeMetadataCacheOnDemand, decoder.put());
+	HRESULT hr = wicImgFactory->CreateDecoderFromFilename(fileName, nullptr, GENERIC_READ, WICDecodeMetadataCacheOnDemand, decoder.put());
 	if (FAILED(hr)) {
 		Logger::Get().ComError("CreateDecoderFromFilename 失败", hr);
 		return nullptr;

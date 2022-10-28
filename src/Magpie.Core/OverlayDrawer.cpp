@@ -405,22 +405,17 @@ static std::string GetCPUNameViaCPUID() {
 
 // 非常慢，需要大约 18 ms
 static std::string GetCPUNameViaWMI() {
-	winrt::com_ptr<IWbemLocator> wbemLocator;
+	winrt::com_ptr<IWbemLocator> wbemLocator = winrt::try_create_instance<IWbemLocator>(CLSID_WbemLocator);
+	if (!wbemLocator) {
+		Logger::Get().Error("创建 WbemLocator 失败");
+		return "";
+	}
+
 	winrt::com_ptr<IWbemServices> wbemServices;
 	winrt::com_ptr<IEnumWbemClassObject> enumWbemClassObject;
 	winrt::com_ptr<IWbemClassObject> wbemClassObject;
 
-	HRESULT hr = CoCreateInstance(
-		CLSID_WbemLocator,
-		0,
-		CLSCTX_INPROC_SERVER,
-		IID_PPV_ARGS(&wbemLocator)
-	);
-	if (FAILED(hr)) {
-		return "";
-	}
-
-	hr = wbemLocator->ConnectServer(
+	HRESULT hr = wbemLocator->ConnectServer(
 		Win32Utils::BStr(L"ROOT\\CIMV2"),
 		nullptr,
 		nullptr,
