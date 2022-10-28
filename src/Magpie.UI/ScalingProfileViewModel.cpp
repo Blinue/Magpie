@@ -80,6 +80,12 @@ ScalingProfileViewModel::ScalingProfileViewModel(int32_t profileIdx) : _isDefaul
 			}
 		);
 
+		if (_data->isPackaged) {
+			_appxReader = std::make_unique<AppXReader>();
+			_appxReader->Initialize(_data->pathRule);
+			_appxReader->ResolvePackagePath();
+		}
+
 		_LoadIcon(mainPage);
 	}
 
@@ -104,18 +110,30 @@ ScalingProfileViewModel::ScalingProfileViewModel(int32_t profileIdx) : _isDefaul
 	_graphicsAdapters = single_threaded_vector(std::move(graphicsAdapters));
 }
 
+ScalingProfileViewModel::~ScalingProfileViewModel() {}
+
 bool ScalingProfileViewModel::IsNotDefaultScalingProfile() const noexcept {
 	return !_data->name.empty();
 }
 
 bool ScalingProfileViewModel::IsProgramExist() const noexcept {
-	return Win32Utils::FileExists(_data->pathRule.c_str());
+	if (_data->isPackaged) {
+		return !_appxReader->GetPackagePath().empty();
+	} else {
+		return Win32Utils::FileExists(_data->pathRule.c_str());
+	}
 }
 
 fire_and_forget ScalingProfileViewModel::OpenProgramLocation() const noexcept {
-	if (!Win32Utils::FileExists(_data->pathRule.c_str())) {
+	if (!IsProgramExist()) {
 		co_return;
 	}
+
+	if (_data->isPackaged) {
+		ShellExecute(NULL, L"open", _appxReader->GetPackagePath().c_str(), nullptr, nullptr, SW_SHOWDEFAULT);
+		co_return;
+	}
+
 	std::wstring programLocation = _data->pathRule;
 
 	// 根据 https://docs.microsoft.com/en-us/windows/win32/api/shlobj_core/nf-shlobj_core-shparsedisplayname，
@@ -515,11 +533,11 @@ void ScalingProfileViewModel::IsDisableDirectFlip(bool value) {
 fire_and_forget ScalingProfileViewModel::_LoadIcon(FrameworkElement const& mainPage) {
 	auto weakThis = get_weak();
 
-	bool preferLightTheme = mainPage.ActualTheme() == ElementTheme::Light;
-	bool isPackaged = _data->isPackaged;
-	std::wstring path = _data->pathRule;
+	const bool preferLightTheme = mainPage.ActualTheme() == ElementTheme::Light;
+	const bool isPackaged = _data->isPackaged;
+	const std::wstring path = _data->pathRule;
 	CoreDispatcher dispatcher = mainPage.Dispatcher();
-	uint32_t dpi = (uint32_t)std::lroundf(DisplayInformation::GetForCurrentView().LogicalDpi());
+	const uint32_t dpi = (uint32_t)std::lroundf(DisplayInformation::GetForCurrentView().LogicalDpi());
 
 	co_await resume_background();
 

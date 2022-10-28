@@ -157,7 +157,7 @@ bool AppXReader::Initialize(HWND hWnd) noexcept {
 }
 
 std::wstring AppXReader::GetDisplayName() noexcept {
-	if (!_appxApp && !_LoadManifest()) {
+	if (!ResolveManifest()) {
 		return {};
 	}
 
@@ -486,7 +486,7 @@ static SoftwareBitmap AutoFillBackground(const std::wstring& iconPath, bool isLi
 }
 
 std::variant<std::wstring, SoftwareBitmap> AppXReader::GetIcon(uint32_t preferredSize, bool isLightTheme, bool noPath) noexcept {
-	if (!_appxApp && !_LoadManifest()) {
+	if (!ResolveManifest()) {
 		return {};
 	}
 
@@ -563,19 +563,18 @@ std::variant<std::wstring, SoftwareBitmap> AppXReader::GetIcon(uint32_t preferre
 	}
 }
 
-bool AppXReader::_ResolveApplication(const std::wstring& praid) noexcept {
-	UINT32 pathLen = 0;
-	GetPackagePathByFullName(_packageFullName.c_str(), &pathLen, nullptr);
-	if (pathLen == 0) {
-		return false;
+const std::wstring& AppXReader::GetPackagePath() noexcept {
+	ResolvePackagePath();
+	return _packagePath;
+}
+
+bool AppXReader::ResolveManifest() noexcept {
+	if (_appxApp) {
+		return true;
 	}
 
-	_packagePath.resize((size_t)pathLen - 1);
-	if (GetPackagePathByFullName(_packageFullName.c_str(), &pathLen, _packagePath.data()) != ERROR_SUCCESS) {
+	if (!ResolvePackagePath()) {
 		return false;
-	}
-	if (_packagePath.back() != L'\\') {
-		_packagePath.push_back(L'\\');
 	}
 
 	com_ptr<IAppxFactory> factory;
@@ -637,7 +636,7 @@ bool AppXReader::_ResolveApplication(const std::wstring& praid) noexcept {
 		}
 
 		if (curPraid) {
-			if (praid == curPraid) {
+			if (_praid == curPraid) {
 				_appxApp = std::move(appxApp);
 				CoTaskMemFree(curPraid);
 				return true;
@@ -653,21 +652,25 @@ bool AppXReader::_ResolveApplication(const std::wstring& praid) noexcept {
 	return false;
 }
 
-bool AppXReader::_LoadManifest() {
-	UINT pfnLen = 0, praidLen = 0;
+bool AppXReader::ResolvePackagePath() {
+	if (!_packagePath.empty()) {
+		return true;
+	}
+
+	uint32_t pfnLen = 0, praidLen = 0;
 	if (ParseApplicationUserModelId(_aumid.c_str(), &pfnLen, nullptr, &praidLen, nullptr) != ERROR_INSUFFICIENT_BUFFER || pfnLen == 0 || praidLen == 0) {
 		return false;
 	}
 
 	std::wstring packageFamilyName(pfnLen - 1, 0);
-	std::wstring praid(praidLen - 1, 0);
-	if (ParseApplicationUserModelId(_aumid.c_str(), &pfnLen, packageFamilyName.data(), &praidLen, praid.data()) != ERROR_SUCCESS) {
+	_praid.assign((size_t)praidLen - 1, 0);
+	if (ParseApplicationUserModelId(_aumid.c_str(), &pfnLen, packageFamilyName.data(), &praidLen, _praid.data()) != ERROR_SUCCESS) {
 		return false;
 	}
 
 	//使用 PackageFamilyName 检索 PackageFullName
-	UINT32 packageCount = 0;
-	UINT32 bufferLength = 0;
+	uint32_t packageCount = 0;
+	uint32_t bufferLength = 0;
 	if (FindPackagesByPackageFamily(packageFamilyName.c_str(), PACKAGE_FILTER_HEAD, &packageCount, nullptr, &bufferLength, nullptr, nullptr) != ERROR_INSUFFICIENT_BUFFER || packageCount == 0 || bufferLength == 0) {
 		return false;
 	}
@@ -681,7 +684,22 @@ bool AppXReader::_LoadManifest() {
 	// 只使用第一个包，一般也只有一个
 	_packageFullName = packageFullNames[0];
 
-	return _ResolveApplication(praid);
+	uint32_t pathLen = 0;
+	GetPackagePathByFullName(_packageFullName.c_str(), &pathLen, nullptr);
+	if (pathLen == 0) {
+		return false;
+	}
+
+	_packagePath.resize((size_t)pathLen - 1);
+	if (GetPackagePathByFullName(_packageFullName.c_str(), &pathLen, _packagePath.data()) != ERROR_SUCCESS) {
+		_packagePath.clear();
+		return false;
+	}
+	if (_packagePath.back() != L'\\') {
+		_packagePath.push_back(L'\\');
+	}
+
+	return true;
 }
 
 }

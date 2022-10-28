@@ -4,12 +4,14 @@
 
 namespace winrt::Magpie::UI {
 struct ScalingProfile;
+class AppXReader;
 }
 
 namespace winrt::Magpie::UI::implementation {
 
 struct ScalingProfileViewModel : ScalingProfileViewModelT<ScalingProfileViewModel> {
 	ScalingProfileViewModel(int32_t profileIdx);
+	~ScalingProfileViewModel();
 
 	event_token PropertyChanged(PropertyChangedEventHandler const& handler) {
 		return _propertyChangedEvent.add(handler);
@@ -127,6 +129,8 @@ struct ScalingProfileViewModel : ScalingProfileViewModelT<ScalingProfileViewMode
 
 private:
 	fire_and_forget _LoadIcon(FrameworkElement const& mainPage);
+
+	std::unique_ptr<AppXReader> _appxReader;
 
 	hstring _renameText;
 	std::wstring_view _trimedRenameText;

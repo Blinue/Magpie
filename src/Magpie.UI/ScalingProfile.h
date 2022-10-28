@@ -46,12 +46,10 @@ struct ScalingProfile {
 	// 若为打包应用，PathRule 存储 AUMID
 	std::wstring pathRule;
 	std::wstring classNameRule;
-	bool isPackaged = false;
-	
+
 	CursorScaling cursorScaling = CursorScaling::NoScaling;
 	float customCursorScaling = 1.0;
 
-	bool isCroppingEnabled = false;
 	::Magpie::Core::Cropping cropping{};
 	// -1 表示原样
 	int scalingMode = -1;
@@ -63,6 +61,9 @@ struct ScalingProfile {
 	uint32_t flags = ::Magpie::Core::MagFlags::VSync 
 		| ::Magpie::Core::MagFlags::AdjustCursorSpeed
 		| ::Magpie::Core::MagFlags::DrawCursor;
+
+	bool isPackaged = false;
+	bool isCroppingEnabled = false;
 };
 
 }
