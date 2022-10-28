@@ -61,7 +61,6 @@ namespace Magpie.UI {
 		event Windows.Foundation.EventHandler<UInt64> HwndMainChanged;
 
 		MainPage MainPage;
-		Windows.Graphics.Display.DisplayInformation DisplayInformation { get; };
 
 		void RestartAsElevated();
 	}

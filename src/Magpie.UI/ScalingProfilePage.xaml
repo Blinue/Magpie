@@ -64,7 +64,7 @@
 				</StackPanel.Resources>
 				<Button Padding="0"
 						Click="{x:Bind ViewModel.Launch}"
-						IsEnabled="{x:Bind ViewModel.IsProgramExist, Mode=OneTime}"
+						IsEnabled="{x:Bind ViewModel.IsProgramExist, Mode=OneWay}"
 						ToolTipService.ToolTip="启动">
 					<Button.Content>
 						<FontIcon Glyph="&#xE768;" />
@@ -80,7 +80,7 @@
 						<MenuFlyout Placement="Bottom"
 									ShouldConstrainToRootBounds="False">
 							<MenuFlyoutItem Click="{x:Bind ViewModel.OpenProgramLocation}"
-											IsEnabled="{x:Bind ViewModel.IsProgramExist, Mode=OneTime}"
+											IsEnabled="{x:Bind ViewModel.IsProgramExist, Mode=OneWay}"
 											Text="打开程序位置">
 								<MenuFlyoutItem.Icon>
 									<FontIcon Glyph="&#xE8DA;" />
@@ -233,7 +233,7 @@
 					</local:SettingsCard.ActionContent>
 				</local:SettingsCard>
 				<local:SettingsCard x:Name="Is3DGameModeSettingsCard"
-								   Title="3D 游戏模式">
+									Title="3D 游戏模式">
 					<local:SettingsCard.Icon>
 						<FontIcon Glyph="&#xE7FC;" />
 					</local:SettingsCard.Icon>
@@ -242,7 +242,7 @@
 					</local:SettingsCard.ActionContent>
 				</local:SettingsCard>
 				<local:SettingsCard x:Name="MultiMonitorSettingsCard"
-								   Title="多显示器">
+									Title="多显示器">
 					<local:SettingsCard.Icon>
 						<FontIcon Glyph="&#xf5a9;" />
 					</local:SettingsCard.Icon>
@@ -259,7 +259,7 @@
 			</local:SettingsGroup>
 			<local:SettingsGroup Title="性能">
 				<local:SettingsCard x:Name="GraphicsAdapterSettingsCard"
-								   Title="显示卡">
+									Title="显示卡">
 					<local:SettingsCard.Icon>
 						<FontIcon Glyph="&#xf211;" />
 					</local:SettingsCard.Icon>
@@ -271,7 +271,7 @@
 					</local:SettingsCard.ActionContent>
 				</local:SettingsCard>
 				<local:SettingsCard x:Name="ShowFPSSettingsCard"
-								   Title="显示帧率">
+									Title="显示帧率">
 					<local:SettingsCard.Icon>
 						<FontIcon Glyph="&#xEC4A;" />
 					</local:SettingsCard.Icon>
@@ -284,7 +284,7 @@
 							   Style="{StaticResource SettingExpanderStyle}">
 					<muxc:Expander.Header>
 						<local:SettingsCard Title="垂直同步"
-										   Style="{StaticResource ExpanderHeaderSettingStyle}">
+											Style="{StaticResource ExpanderHeaderSettingStyle}">
 							<local:SettingsCard.Icon>
 								<FontIcon Glyph="&#xF71C;" />
 							</local:SettingsCard.Icon>
@@ -295,7 +295,7 @@
 					</muxc:Expander.Header>
 					<muxc:Expander.Content>
 						<local:SettingsCard IsEnabled="{x:Bind ViewModel.IsVSync, Mode=OneWay}"
-										   Style="{StaticResource ExpanderContentSettingStyle}">
+											Style="{StaticResource ExpanderContentSettingStyle}">
 							<CheckBox Content="允许额外的延迟以提高性能"
 									  IsChecked="{x:Bind ViewModel.IsTripleBuffering, Mode=TwoWay}" />
 						</local:SettingsCard>
@@ -312,7 +312,7 @@
 					</local:SettingsCard.ActionContent>
 				</local:SettingsCard>
 				<local:SettingsCard Title="保留标题栏"
-								   Description="仅在 Graphics Capture 和 Desktop Duplication 捕获模式下有效">
+									Description="仅在 Graphics Capture 和 Desktop Duplication 捕获模式下有效">
 					<local:SettingsCard.Icon>
 						<FontIcon Glyph="&#xE737;" />
 					</local:SettingsCard.Icon>
@@ -326,7 +326,7 @@
 							   Style="{StaticResource SettingExpanderStyle}">
 					<muxc:Expander.Header>
 						<local:SettingsCard Title="自定义裁剪"
-										   Style="{StaticResource ExpanderHeaderSettingStyle}">
+											Style="{StaticResource ExpanderHeaderSettingStyle}">
 							<local:SettingsCard.Icon>
 								<FontIcon Glyph="&#xE7A8;" />
 							</local:SettingsCard.Icon>
@@ -351,8 +351,8 @@
 							</StackPanel.Resources>
 
 							<local:SettingsCard Title="左"
-											   IsEnabled="{x:Bind ViewModel.IsCroppingEnabled, Mode=OneWay}"
-											   Style="{StaticResource ExpanderContentSettingStyle}">
+												IsEnabled="{x:Bind ViewModel.IsCroppingEnabled, Mode=OneWay}"
+												Style="{StaticResource ExpanderContentSettingStyle}">
 								<local:SettingsCard.ActionContent>
 									<StackPanel Orientation="Horizontal"
 												Spacing="10">
@@ -364,8 +364,8 @@
 								</local:SettingsCard.ActionContent>
 							</local:SettingsCard>
 							<local:SettingsCard Title="右"
-											   IsEnabled="{x:Bind ViewModel.IsCroppingEnabled, Mode=OneWay}"
-											   Style="{StaticResource ExpanderContentSettingStyle}">
+												IsEnabled="{x:Bind ViewModel.IsCroppingEnabled, Mode=OneWay}"
+												Style="{StaticResource ExpanderContentSettingStyle}">
 								<local:SettingsCard.ActionContent>
 									<StackPanel Orientation="Horizontal"
 												Spacing="10">
@@ -377,8 +377,8 @@
 								</local:SettingsCard.ActionContent>
 							</local:SettingsCard>
 							<local:SettingsCard Title="上"
-											   IsEnabled="{x:Bind ViewModel.IsCroppingEnabled, Mode=OneWay}"
-											   Style="{StaticResource ExpanderContentSettingStyle}">
+												IsEnabled="{x:Bind ViewModel.IsCroppingEnabled, Mode=OneWay}"
+												Style="{StaticResource ExpanderContentSettingStyle}">
 								<local:SettingsCard.ActionContent>
 									<StackPanel Orientation="Horizontal"
 												Spacing="10">
@@ -390,8 +390,8 @@
 								</local:SettingsCard.ActionContent>
 							</local:SettingsCard>
 							<local:SettingsCard Title="下"
-											   IsEnabled="{x:Bind ViewModel.IsCroppingEnabled, Mode=OneWay}"
-											   Style="{StaticResource ExpanderContentSettingStyle}">
+												IsEnabled="{x:Bind ViewModel.IsCroppingEnabled, Mode=OneWay}"
+												Style="{StaticResource ExpanderContentSettingStyle}">
 								<local:SettingsCard.ActionContent>
 									<StackPanel Orientation="Horizontal"
 												Spacing="10">
@@ -412,7 +412,7 @@
 							   Style="{StaticResource SettingExpanderStyle}">
 					<muxc:Expander.Header>
 						<local:SettingsCard Title="绘制光标"
-										   Style="{StaticResource ExpanderHeaderSettingStyle}">
+											Style="{StaticResource ExpanderHeaderSettingStyle}">
 							<local:SettingsCard.Icon>
 								<FontIcon Glyph="&#xE7C9;" />
 							</local:SettingsCard.Icon>
@@ -424,8 +424,8 @@
 					<muxc:Expander.Content>
 						<StackPanel>
 							<local:SettingsCard Title="缩放系数"
-											   IsEnabled="{x:Bind ViewModel.IsDrawCursor, Mode=OneWay}"
-											   Style="{StaticResource ExpanderContentSettingStyle}">
+												IsEnabled="{x:Bind ViewModel.IsDrawCursor, Mode=OneWay}"
+												Style="{StaticResource ExpanderContentSettingStyle}">
 								<local:SettingsCard.ActionContent>
 									<Grid MinWidth="{StaticResource SettingBoxMinWidth}">
 										<Grid.ColumnDefinitions>
@@ -472,8 +472,8 @@
 								</local:SettingsCard.ActionContent>
 							</local:SettingsCard>
 							<local:SettingsCard Title="插值算法"
-											   IsEnabled="{x:Bind ViewModel.IsDrawCursor, Mode=OneWay}"
-											   Style="{StaticResource ExpanderContentSettingStyle}">
+												IsEnabled="{x:Bind ViewModel.IsDrawCursor, Mode=OneWay}"
+												Style="{StaticResource ExpanderContentSettingStyle}">
 								<local:SettingsCard.ActionContent>
 									<ComboBox DropDownOpened="ComboBox_DropDownOpened"
 											  SelectedIndex="{x:Bind ViewModel.CursorInterpolationMode, Mode=TwoWay}"

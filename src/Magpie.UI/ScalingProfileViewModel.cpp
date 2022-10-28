@@ -70,7 +70,7 @@ ScalingProfileViewModel::ScalingProfileViewModel(int32_t profileIdx) : _isDefaul
 			}
 		);
 
-		_displayInformation = app.DisplayInformation();
+		_displayInformation = DisplayInformation::GetForCurrentView();
 		_dpiChangedRevoker = _displayInformation.DpiChanged(
 			auto_revoke,
 			[this](DisplayInformation const&, IInspectable const&) {
@@ -81,9 +81,10 @@ ScalingProfileViewModel::ScalingProfileViewModel(int32_t profileIdx) : _isDefaul
 		);
 
 		if (_data->isPackaged) {
-			_appxReader = std::make_unique<AppXReader>();
+			_appxReader.reset(new AppXReader());
 			_appxReader->Initialize(_data->pathRule);
-			_appxReader->ResolvePackagePath();
+		} else {
+			_isProgramExist = Win32Utils::FileExists(_data->pathRule.c_str());
 		}
 
 		_LoadIcon(mainPage);
@@ -116,25 +117,22 @@ bool ScalingProfileViewModel::IsNotDefaultScalingProfile() const noexcept {
 	return !_data->name.empty();
 }
 
-bool ScalingProfileViewModel::IsProgramExist() const noexcept {
-	if (_data->isPackaged) {
-		return !_appxReader->GetPackagePath().empty();
-	} else {
-		return Win32Utils::FileExists(_data->pathRule.c_str());
-	}
-}
-
 fire_and_forget ScalingProfileViewModel::OpenProgramLocation() const noexcept {
-	if (!IsProgramExist()) {
+	if (!_isProgramExist.has_value() || !_isProgramExist.value()) {
 		co_return;
 	}
 
+	std::wstring programLocation;
 	if (_data->isPackaged) {
-		ShellExecute(NULL, L"open", _appxReader->GetPackagePath().c_str(), nullptr, nullptr, SW_SHOWDEFAULT);
-		co_return;
+		programLocation = _appxReader->GetExecutablePath();
+		if (programLocation.empty()) {
+			// 找不到可执行文件则打开应用文件夹
+			ShellExecute(NULL, L"open", _appxReader->GetPackagePath().c_str(), nullptr, nullptr, SW_SHOWDEFAULT);
+			co_return;
+		}
+	} else {
+		programLocation = _data->pathRule;
 	}
-
-	std::wstring programLocation = _data->pathRule;
 
 	// 根据 https://docs.microsoft.com/en-us/windows/win32/api/shlobj_core/nf-shlobj_core-shparsedisplayname，
 	// SHParseDisplayName 不能在主线程调用
@@ -157,6 +155,10 @@ hstring ScalingProfileViewModel::Name() const noexcept {
 }
 
 void ScalingProfileViewModel::Launch() const noexcept {
+	if (!_isProgramExist.has_value() || !_isProgramExist.value()) {
+		return;
+	}
+
 	if ((INT_PTR)ShellExecute(NULL, L"open", _data->pathRule.c_str(), nullptr, nullptr, SW_SHOWDEFAULT) <= 32) {
 		Logger::Get().Win32Error("ShellExecute 失败");
 	}
@@ -531,40 +533,52 @@ void ScalingProfileViewModel::IsDisableDirectFlip(bool value) {
 }
 
 fire_and_forget ScalingProfileViewModel::_LoadIcon(FrameworkElement const& mainPage) {
-	auto weakThis = get_weak();
-
-	const bool preferLightTheme = mainPage.ActualTheme() == ElementTheme::Light;
-	const bool isPackaged = _data->isPackaged;
-	const std::wstring path = _data->pathRule;
-	CoreDispatcher dispatcher = mainPage.Dispatcher();
-	const uint32_t dpi = (uint32_t)std::lroundf(DisplayInformation::GetForCurrentView().LogicalDpi());
-
-	co_await resume_background();
-
 	std::wstring iconPath;
 	SoftwareBitmap iconBitmap{ nullptr };
 
-	static constexpr const UINT ICON_SIZE = 32;
-	if (isPackaged) {
-		AppXReader reader;
-		reader.Initialize(path);
+	if (!_isProgramExist.has_value() || _isProgramExist.value()) {
+		auto weakThis = get_weak();
 
-		std::variant<std::wstring, SoftwareBitmap> uwpIcon =
-			reader.GetIcon((uint32_t)std::ceil(dpi * ICON_SIZE / 96.0), preferLightTheme);
-		if (uwpIcon.index() == 0) {
-			iconPath = std::get<0>(uwpIcon);
+		std::shared_ptr<AppXReader> appxReader = _appxReader;
+		const bool preferLightTheme = mainPage.ActualTheme() == ElementTheme::Light;
+		const bool isPackaged = _data->isPackaged;
+		const std::wstring path = _data->pathRule;
+		CoreDispatcher dispatcher = mainPage.Dispatcher();
+		const uint32_t dpi = (uint32_t)std::lroundf(_displayInformation.LogicalDpi());
+
+		co_await resume_background();
+
+		static constexpr const UINT ICON_SIZE = 32;
+		if (isPackaged) {
+			bool isProgramExist = appxReader->Resolve();
+
+			dispatcher.RunAsync(CoreDispatcherPriority::Normal, [weakThis, isProgramExist]() {
+				auto strongThis = weakThis.get();
+				if (!strongThis || strongThis->_isProgramExist.has_value()) {
+					return;
+				}
+
+				strongThis->_isProgramExist = isProgramExist;
+				strongThis->_propertyChangedEvent(*strongThis, PropertyChangedEventArgs(L"IsProgramExist"));
+			});
+
+			if (isProgramExist) {
+				std::variant<std::wstring, SoftwareBitmap> uwpIcon =
+					appxReader->GetIcon((uint32_t)std::ceil(dpi * ICON_SIZE / 96.0), preferLightTheme);
+				if (uwpIcon.index() == 0) {
+					iconPath = std::get<0>(uwpIcon);
+				} else {
+					iconBitmap = std::get<1>(uwpIcon);
+				}
+			}
 		} else {
-			iconBitmap = std::get<1>(uwpIcon);
+			iconBitmap = IconHelper::GetIconOfExe(path.c_str(), ICON_SIZE, dpi);
 		}
-	} else {
-		iconBitmap = IconHelper::GetIconOfExe(path.c_str(), ICON_SIZE, dpi);
-	}
 
-	co_await dispatcher;
-
-	auto strongRef = weakThis.get();
-	if (!strongRef) {
-		co_return;
+		co_await dispatcher;
+		if (!weakThis.get()) {
+			co_return;
+		}
 	}
 
 	if (!iconPath.empty()) {
@@ -572,7 +586,7 @@ fire_and_forget ScalingProfileViewModel::_LoadIcon(FrameworkElement const& mainP
 		icon.ShowAsMonochrome(false);
 		icon.UriSource(Uri(iconPath));
 
-		strongRef->_icon = std::move(icon);
+		_icon = std::move(icon);
 	} else if (iconBitmap) {
 		SoftwareBitmapSource imageSource;
 		co_await imageSource.SetBitmapAsync(iconBitmap);
@@ -580,14 +594,14 @@ fire_and_forget ScalingProfileViewModel::_LoadIcon(FrameworkElement const& mainP
 		MUXC::ImageIcon imageIcon;
 		imageIcon.Source(imageSource);
 
-		strongRef->_icon = std::move(imageIcon);
+		_icon = std::move(imageIcon);
 	} else {
 		FontIcon icon;
 		icon.Glyph(L"\uECAA");
-		strongRef->_icon = std::move(icon);
+		_icon = std::move(icon);
 	}
 
-	strongRef->_propertyChangedEvent(*strongRef, PropertyChangedEventArgs(L"Icon"));
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"Icon"));
 }
 
 }

@@ -7,7 +7,8 @@ namespace winrt::Magpie::UI {
 enum class UpdateResult {
 	NoUpdate,
 	Available,
-	NetworkError
+	NetworkError,
+	UnknownError
 };
 
 class UpdateService {
@@ -28,8 +29,6 @@ public:
 
 private:
 	UpdateService() = default;
-
-	
 
 	std::wstring _tag;
 	std::wstring _binaryUrl;

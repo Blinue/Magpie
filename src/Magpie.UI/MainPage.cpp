@@ -45,7 +45,7 @@ MainPage::MainPage() {
 		MUXC::BackdropMaterial::SetApplyToRootOrPageBackground(*this, true);
 	}
 	
-	_displayInformation = Application::Current().as<App>().DisplayInformation();
+	_displayInformation = DisplayInformation::GetForCurrentView();
 	_dpiChangedRevoker = _displayInformation.DpiChanged(
 		auto_revoke, [this](DisplayInformation const&, IInspectable const&) { _UpdateIcons(false); });
 

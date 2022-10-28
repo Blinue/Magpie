@@ -157,16 +157,36 @@ bool AppXReader::Initialize(HWND hWnd) noexcept {
 }
 
 std::wstring AppXReader::GetDisplayName() noexcept {
-	if (!ResolveManifest()) {
+	if (!Resolve()) {
 		return {};
 	}
-
+	
 	wchar_t* value = nullptr;
 	if (FAILED(_appxApp->GetStringValue(L"DisplayName", &value)) || !value) {
 		return {};
 	}
 
 	std::wstring result = ResourceFromPri(_packageFullName, value);
+	CoTaskMemFree(value);
+	return result;
+}
+
+const std::wstring& AppXReader::GetPackagePath() noexcept {
+	_ResolvePackagePath();
+	return _packagePath;
+}
+
+std::wstring AppXReader::GetExecutablePath() noexcept {
+	if (!Resolve()) {
+		return {};
+	}
+
+	wchar_t* value = nullptr;
+	if (FAILED(_appxApp->GetStringValue(L"Executable", &value)) || !value) {
+		return {};
+	}
+
+	std::wstring result = StrUtils::ConcatW(_packagePath, value);
 	CoTaskMemFree(value);
 	return result;
 }
@@ -486,7 +506,7 @@ static SoftwareBitmap AutoFillBackground(const std::wstring& iconPath, bool isLi
 }
 
 std::variant<std::wstring, SoftwareBitmap> AppXReader::GetIcon(uint32_t preferredSize, bool isLightTheme, bool noPath) noexcept {
-	if (!ResolveManifest()) {
+	if (!Resolve()) {
 		return {};
 	}
 
@@ -563,17 +583,12 @@ std::variant<std::wstring, SoftwareBitmap> AppXReader::GetIcon(uint32_t preferre
 	}
 }
 
-const std::wstring& AppXReader::GetPackagePath() noexcept {
-	ResolvePackagePath();
-	return _packagePath;
-}
-
-bool AppXReader::ResolveManifest() noexcept {
+bool AppXReader::Resolve() noexcept {
 	if (_appxApp) {
 		return true;
 	}
 
-	if (!ResolvePackagePath()) {
+	if (!_ResolvePackagePath()) {
 		return false;
 	}
 
@@ -652,7 +667,7 @@ bool AppXReader::ResolveManifest() noexcept {
 	return false;
 }
 
-bool AppXReader::ResolvePackagePath() {
+bool AppXReader::_ResolvePackagePath() {
 	if (!_packagePath.empty()) {
 		return true;
 	}

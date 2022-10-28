@@ -43,10 +43,6 @@ public:
 	
 	void MainPage(Magpie::UI::MainPage const& mainPage) noexcept;
 
-	Windows::Graphics::Display::DisplayInformation DisplayInformation() const noexcept {
-		return _displayInformation;
-	}
-
 	void RestartAsElevated() const noexcept;
 
 private:
@@ -54,7 +50,6 @@ private:
 	event<EventHandler<uint64_t>> _hwndMainChangedEvent;
 
 	weak_ref<Magpie::UI::MainPage> _mainPage{ nullptr };
-	Windows::Graphics::Display::DisplayInformation _displayInformation{ nullptr };
 
 	event<EventHandler<bool>> _hostWndFocusChangedEvent;
 	bool _isHostWndFocused = false;

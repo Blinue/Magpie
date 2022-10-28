@@ -27,7 +27,11 @@ struct ScalingProfileViewModel : ScalingProfileViewModelT<ScalingProfileViewMode
 
 	bool IsNotDefaultScalingProfile() const noexcept;
 
-	bool IsProgramExist() const noexcept;
+	bool IsProgramExist() const noexcept {
+		// 无值时视为 true
+		return _isProgramExist.has_value() ? _isProgramExist.value() : true;
+	}
+
 	fire_and_forget OpenProgramLocation() const noexcept;
 
 	hstring Name() const noexcept;
@@ -130,18 +134,17 @@ struct ScalingProfileViewModel : ScalingProfileViewModelT<ScalingProfileViewMode
 private:
 	fire_and_forget _LoadIcon(FrameworkElement const& mainPage);
 
-	std::unique_ptr<AppXReader> _appxReader;
+	std::optional<bool> _isProgramExist;
+	std::shared_ptr<AppXReader> _appxReader;
 
 	hstring _renameText;
 	std::wstring_view _trimedRenameText;
-	bool _isRenameConfirmButtonEnabled = false;
 
 	IVector<IInspectable> _scalingModes{ nullptr };
 	IVector<IInspectable> _graphicsAdapters{ nullptr };
 
 	event<PropertyChangedEventHandler> _propertyChangedEvent;
 
-	const bool _isDefaultProfile = true;
 	uint32_t _index = 0;
 	// 可以保存此指针的原因是：用户停留在此页面时不会有缩放配置被创建或删除
 	ScalingProfile* _data = nullptr;
@@ -151,6 +154,9 @@ private:
 	Windows::Graphics::Display::DisplayInformation::DpiChanged_revoker _dpiChangedRevoker;
 
 	Controls::IconElement _icon{ nullptr };
+
+	const bool _isDefaultProfile = true;
+	bool _isRenameConfirmButtonEnabled = false;
 };
 
 }

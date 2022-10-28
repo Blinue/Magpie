@@ -36,6 +36,8 @@ using namespace Windows::UI::Xaml::Media;
 namespace winrt::Magpie::UI::implementation {
 
 App::App() {
+	EffectsService::Get().StartInitialize();
+
 	__super::Initialize();
 	
 	AddRef();
@@ -60,10 +62,6 @@ App::App() {
 		box_value(L"SymbolThemeFontFamily"),
 		FontFamily(isWin11 ? L"Segoe Fluent Icons" : L"Segoe MDL2 Assets")
 	);
-
-	EffectsService::Get().StartInitialize();
-
-	_displayInformation = Windows::Graphics::Display::DisplayInformation::GetForCurrentView();
 }
 
 App::~App() {
