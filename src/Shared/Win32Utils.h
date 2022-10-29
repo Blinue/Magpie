@@ -227,4 +227,8 @@ struct Win32Utils {
 
 		BSTR _str = NULL;
 	};
+
+	static bool ShellOpen(const wchar_t* path);
+	// 不应在主线程调用
+	static bool OpenFolderAndSelectFile(const wchar_t* fileName);
 };

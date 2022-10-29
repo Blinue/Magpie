@@ -127,27 +127,15 @@ fire_and_forget ScalingProfileViewModel::OpenProgramLocation() const noexcept {
 		programLocation = _appxReader->GetExecutablePath();
 		if (programLocation.empty()) {
 			// 找不到可执行文件则打开应用文件夹
-			ShellExecute(NULL, L"open", _appxReader->GetPackagePath().c_str(), nullptr, nullptr, SW_SHOWNORMAL);
+			Win32Utils::ShellOpen(_appxReader->GetPackagePath().c_str());
 			co_return;
 		}
 	} else {
 		programLocation = _data->pathRule;
 	}
 
-	// 根据 https://docs.microsoft.com/en-us/windows/win32/api/shlobj_core/nf-shlobj_core-shparsedisplayname，
-	// SHParseDisplayName 不能在主线程调用
 	co_await resume_background();
-
-	PIDLIST_ABSOLUTE pidl;
-	HRESULT hr = SHParseDisplayName(programLocation.c_str(), nullptr, &pidl, 0, nullptr);
-	if (FAILED(hr)) {
-		Logger::Get().ComError("SHParseDisplayName 失败", hr);
-		co_return;
-	}
-
-	SHOpenFolderAndSelectItems(pidl, 0, nullptr, 0);
-
-	CoTaskMemFree(pidl);
+	Win32Utils::OpenFolderAndSelectFile(programLocation.c_str());
 }
 
 hstring ScalingProfileViewModel::Name() const noexcept {
@@ -188,9 +176,7 @@ void ScalingProfileViewModel::Launch() const noexcept {
 	if (_data->isPackaged) {
 		LaunchPackagedApp(_data->pathRule.c_str());
 	} else {
-		if ((INT_PTR)ShellExecute(NULL, L"open", _data->pathRule.c_str(), nullptr, nullptr, SW_SHOWNORMAL) <= 32) {
-			Logger::Get().Win32Error("ShellExecute 失败");
-		}
+		Win32Utils::ShellOpen(_data->pathRule.c_str());
 	}
 }
 

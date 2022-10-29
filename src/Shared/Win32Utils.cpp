@@ -555,6 +555,42 @@ bool Win32Utils::IsProcessElevated() noexcept {
 	return bool(result == 1);
 }
 
+bool Win32Utils::ShellOpen(const wchar_t* path) {
+	SHELLEXECUTEINFO execInfo{};
+	execInfo.cbSize = sizeof(execInfo);
+	execInfo.lpFile = path;
+	execInfo.lpVerb = L"open";
+	execInfo.fMask = SEE_MASK_DEFAULT;
+	execInfo.nShow = SW_SHOWNORMAL;
+
+	if (!ShellExecuteEx(&execInfo)) {
+		Logger::Get().Win32Error("ShellExecuteEx 失败");
+		return false;
+	}
+
+	return true;
+}
+
+bool Win32Utils::OpenFolderAndSelectFile(const wchar_t* fileName) {
+	PIDLIST_ABSOLUTE pidl;
+	HRESULT hr = SHParseDisplayName(fileName, nullptr, &pidl, 0, nullptr);
+	if (FAILED(hr)) {
+		Logger::Get().ComError("SHParseDisplayName 失败", hr);
+		return false;
+	}
+
+	// 根据 https://docs.microsoft.com/en-us/windows/win32/api/shlobj_core/nf-shlobj_core-shparsedisplayname，
+	// SHParseDisplayName 不能在主线程调用
+	hr = SHOpenFolderAndSelectItems(pidl, 0, nullptr, 0);
+	CoTaskMemFree(pidl);
+	if (FAILED(hr)) {
+		Logger::Get().ComError("SHOpenFolderAndSelectItems 失败", hr);
+		return false;
+	} else {
+		return true;
+	}
+}
+
 Win32Utils::BStr::BStr(std::wstring_view str) {
 	_str = SysAllocStringLen(str.data(), (UINT)str.size());;
 }

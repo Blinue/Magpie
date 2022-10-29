@@ -82,8 +82,10 @@ void SettingsViewModel::IsPortableMode(bool value) noexcept {
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsPortableMode"));
 }
 
-void SettingsViewModel::OpenConfigLocation() const noexcept {
-	ShellExecute(NULL, L"explore", AppSettings::Get().ConfigDir().c_str(), nullptr, nullptr, SW_SHOWNORMAL);
+fire_and_forget SettingsViewModel::OpenConfigLocation() const noexcept {
+	std::wstring configPath = AppSettings::Get().ConfigDir() + CommonSharedConstants::CONFIG_NAME;
+	co_await resume_background();
+	Win32Utils::OpenFolderAndSelectFile(configPath.c_str());
 }
 
 bool SettingsViewModel::IsShowTrayIcon() const noexcept {
