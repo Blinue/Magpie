@@ -32,7 +32,7 @@ void ScalingModesService::AddScalingMode(std::wstring_view name, int copyFrom) {
 	_scalingModeAddedEvent();
 }
 
-static void UpdateScalingModeAfterRemove(ScalingProfile& profile, int removedIdx) {
+static void UpdateScalingProfileAfterRemove(ScalingProfile& profile, int removedIdx) {
 	if (profile.scalingMode == removedIdx) {
 		profile.scalingMode = -1;
 	} else if (profile.scalingMode > removedIdx) {
@@ -44,12 +44,20 @@ void ScalingModesService::RemoveScalingMode(uint32_t index) {
 	std::vector<ScalingMode>& scalingModes = AppSettings::Get().ScalingModes();
 	scalingModes.erase(scalingModes.begin() + index);
 
-	UpdateScalingModeAfterRemove(AppSettings::Get().DefaultScalingProfile(), (int)index);
+	UpdateScalingProfileAfterRemove(AppSettings::Get().DefaultScalingProfile(), (int)index);
 	for (ScalingProfile& profile : AppSettings::Get().ScalingProfiles()) {
-		UpdateScalingModeAfterRemove(profile, (int)index);
+		UpdateScalingProfileAfterRemove(profile, (int)index);
 	}
 
 	_scalingModeRemovedEvent(index);
+}
+
+static void UpdateScalingProfileAfterMove(ScalingProfile& profile, int idx, int targetIdx) {
+	if (profile.scalingMode == idx) {
+		profile.scalingMode = targetIdx;
+	} else if (profile.scalingMode == targetIdx) {
+		profile.scalingMode = idx;
+	}
 }
 
 bool ScalingModesService::MoveScalingMode(uint32_t scalingModeIdx, bool isMoveUp) {
@@ -60,12 +68,14 @@ bool ScalingModesService::MoveScalingMode(uint32_t scalingModeIdx, bool isMoveUp
 
 	int targetIdx = isMoveUp ? (int)scalingModeIdx - 1 : (int)scalingModeIdx + 1;
 	std::swap(profiles[scalingModeIdx], profiles[targetIdx]);
+
+	UpdateScalingProfileAfterMove(
+		AppSettings::Get().DefaultScalingProfile(),
+		(int)scalingModeIdx,
+		targetIdx
+	);
 	for (ScalingProfile& profile : AppSettings::Get().ScalingProfiles()) {
-		if (profile.scalingMode == (int)scalingModeIdx) {
-			profile.scalingMode = targetIdx;
-		} else if (profile.scalingMode == targetIdx) {
-			profile.scalingMode = scalingModeIdx;
-		}
+		UpdateScalingProfileAfterMove(profile, (int)scalingModeIdx, targetIdx);
 	}
 
 	_scalingModeMovedEvent(scalingModeIdx, isMoveUp);

@@ -170,7 +170,7 @@
 			<local:SettingsGroup Title="通用"
 								 Margin="0,-25,0,0">
 				<local:SettingsCard Title="默认降采样效果"
-								   Description="无法容纳输出图像时将自动应用此效果">
+									Description="无法容纳输出图像时将自动应用此效果">
 					<local:SettingsCard.ActionContent>
 						<Grid MinWidth="210">
 							<Grid.ColumnDefinitions>
@@ -228,8 +228,8 @@
 										   Style="{StaticResource SettingExpanderStyle}">
 								<muxc:Expander.Header>
 									<local:SettingsCard Title="{x:Bind Name, Mode=OneWay}"
-													   Description="{x:Bind Description, Mode=OneWay}"
-													   Style="{StaticResource ExpanderHeaderSettingStyle}">
+														Description="{x:Bind Description, Mode=OneWay}"
+														Style="{StaticResource ExpanderHeaderSettingStyle}">
 										<local:SettingsCard.ActionContent>
 											<StackPanel Orientation="Horizontal"
 														Spacing="5">
@@ -386,8 +386,8 @@
 											<ListView.ItemTemplate>
 												<DataTemplate x:DataType="local:ScalingModeEffectItem">
 													<local:SettingsCard Title="{x:Bind Name}"
-																	   Loaded="EffectSettingsCard_Loaded"
-																	   Style="{StaticResource ExpanderContentSettingStyle}">
+																		Loaded="EffectSettingsCard_Loaded"
+																		Style="{StaticResource ExpanderContentSettingStyle}">
 														<local:SettingsCard.ActionContent>
 															<StackPanel Orientation="Horizontal">
 																<StackPanel.Resources>
