@@ -35,9 +35,9 @@ private:
 
 	void _RetrieveHardwareInfo();
 
-	float _dpiScale = 1.0f;
+	void _EnableSrcWnd(bool enable);
 
-	bool _isUIVisiable = false;
+	float _dpiScale = 1.0f;
 
 	ImFont* _fontUI = nullptr;
 	ImFont* _fontFPS = nullptr;
@@ -53,6 +53,9 @@ private:
 	} _hardwareInfo;
 
 	std::unique_ptr<ImGuiImpl> _imguiImpl;
+
+	bool _isUIVisiable = false;
+	bool _isSrcMainWnd = false;
 };
 
 }

@@ -20,13 +20,14 @@
 
 namespace Magpie::Core {
 
-OverlayDrawer::OverlayDrawer() {}
+OverlayDrawer::OverlayDrawer() {
+	HWND hwndSrc = MagApp::Get().GetHwndSrc();
+	_isSrcMainWnd = Win32Utils::GetWndClassName(hwndSrc) == CommonSharedConstants::MAIN_WINDOW_CLASS_NAME;
+}
 
 OverlayDrawer::~OverlayDrawer() {
 	if (MagApp::Get().GetOptions().Is3DGameMode() && IsUIVisiable()) {
-		HWND hwndSrc = MagApp::Get().GetHwndSrc();
-		EnableWindow(hwndSrc, TRUE);
-		SetForegroundWindow(hwndSrc);
+		_EnableSrcWnd(true);
 	}
 }
 
@@ -262,8 +263,8 @@ void OverlayDrawer::SetUIVisibility(bool value) {
 			Win32Utils::SetForegroundWindow(hwndHost);
 
 			// 使源窗口无法接收用户输入
-			EnableWindow(MagApp::Get().GetHwndSrc(), FALSE);
-
+			_EnableSrcWnd(false);
+			// 由 ImGUI 绘制光标
 			ImGui::GetIO().MouseDrawCursor = true;
 		}
 
@@ -283,9 +284,7 @@ void OverlayDrawer::SetUIVisibility(bool value) {
 			SetWindowLongPtr(hwndHost, GWL_EXSTYLE, style | (WS_EX_TRANSPARENT | WS_EX_NOACTIVATE));
 
 			// 重新激活源窗口
-			HWND hwndSrc = MagApp::Get().GetHwndSrc();
-			EnableWindow(hwndSrc, TRUE);
-			Win32Utils::SetForegroundWindow(hwndSrc);
+			_EnableSrcWnd(true);
 
 			ImGui::GetIO().MouseDrawCursor = false;
 		}
@@ -1021,6 +1020,17 @@ void OverlayDrawer::_RetrieveHardwareInfo() {
 
 	std::string cpuName = GetCPUName();
 	_hardwareInfo.cpuName = !cpuName.empty() ? std::move(cpuName) : "UNAVAILABLE";
+}
+
+void OverlayDrawer::_EnableSrcWnd(bool enable) {
+	HWND hwndSrc = MagApp::Get().GetHwndSrc();
+	if (!_isSrcMainWnd) {
+		// 如果源窗口是 Magpie 主窗口会卡死
+		EnableWindow(hwndSrc, TRUE);
+	}
+	if (enable) {
+		SetForegroundWindow(hwndSrc);
+	}
 }
 
 }

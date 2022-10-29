@@ -62,7 +62,9 @@ static LRESULT CALLBACK LowLevelKeyboardProc(
 	return CallNextHookEx(NULL, nCode, wParam, lParam);
 }
 
-MagApp::MagApp() {}
+MagApp::MagApp() {
+	_hInst = GetModuleHandle(nullptr);
+}
 
 MagApp::~MagApp() {}
 
@@ -70,8 +72,6 @@ bool MagApp::Run(HWND hwndSrc, MagOptions&& options, winrt::DispatcherQueue cons
 	_dispatcher = dispatcher;
 	_hwndSrc = hwndSrc;
 	_options = options;
-
-	_hInst = GetModuleHandle(nullptr);
 
 	// 模拟独占全屏
 	// 必须在主窗口创建前，否则 SHQueryUserNotificationState 可能返回 QUNS_BUSY 而不是 QUNS_RUNNING_D3D_FULL_SCREEN
@@ -142,6 +142,9 @@ void MagApp::Stop() {
 	if (_hwndHost) {
 		DestroyWindow(_hwndHost);
 	}
+
+	_hwndDDF = NULL;
+	_hwndHost = NULL;
 }
 
 void MagApp::ToggleOverlay() {
@@ -457,6 +460,8 @@ void MagApp::_OnQuit() {
 
 	_nextWndProcHandlerID = 1;
 	_wndProcHandlers.clear();
+
+	_hwndSrc = NULL;
 }
 
 }

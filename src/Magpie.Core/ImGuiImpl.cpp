@@ -131,7 +131,7 @@ static DWORD WINAPI ThreadProc(LPVOID /*lpThreadParameter*/) {
 
 	// 鼠标钩子需要消息循环
 	MSG msg;
-	while (GetMessage(&msg, nullptr, 0, 0)) {
+	while (GetMessage(&msg, NULL, 0, 0)) {
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);
 	}
