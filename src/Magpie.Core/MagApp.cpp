@@ -461,6 +461,7 @@ void MagApp::_OnQuit() {
 	_nextWndProcHandlerID = 1;
 	_wndProcHandlers.clear();
 
+	_dispatcher = nullptr;
 	_hwndSrc = NULL;
 }
 

@@ -106,9 +106,6 @@ private:
 
 	RECT _hostWndRect{};
 
-	bool _windowResizingDisabled = false;
-	bool _roundCornerDisabled = false;
-
 	std::unique_ptr<DeviceResources> _deviceResources;
 	std::unique_ptr<Renderer> _renderer;
 	std::unique_ptr<FrameSourceBase> _frameSource;
@@ -119,6 +116,9 @@ private:
 
 	SmallVector<std::pair<std::function<std::optional<LRESULT>(HWND, UINT, WPARAM, LPARAM)>, uint32_t>, 2> _wndProcHandlers;
 	uint32_t _nextWndProcHandlerID = 1;
+
+	bool _windowResizingDisabled = false;
+	bool _roundCornerDisabled = false;
 };
 
 }
