@@ -147,14 +147,6 @@ struct Win32Utils {
 
 		Variant(Variant&& other) noexcept : Variant(static_cast<VARIANT&&>(other)) {}
 
-		Variant& operator=(const Variant& other) noexcept {
-			return operator=(static_cast<const VARIANT&>(other));
-		}
-
-		Variant& operator=(Variant&& other) noexcept {
-			return operator=(static_cast<VARIANT&&>(other));
-		}
-
 		Variant(const VARIANT& varSrc) noexcept {
 			VariantInit(this);
 			[[maybe_unused]]
@@ -164,6 +156,29 @@ struct Win32Utils {
 		Variant(VARIANT&& varSrc) noexcept {
 			std::memcpy(this, &varSrc, sizeof(varSrc));
 			varSrc.vt = VT_EMPTY;
+		}
+
+		Variant(int value) noexcept {
+			VariantInit(this);
+			vt = VT_I4;
+			intVal = value;
+		}
+
+		Variant(std::wstring_view str) noexcept {
+			vt = VT_BSTR;
+			bstrVal = SysAllocStringLen(str.data(), (UINT)str.size());
+		}
+
+		~Variant() noexcept {
+			VariantClear(this);
+		}
+
+		Variant& operator=(const Variant& other) noexcept {
+			return operator=(static_cast<const VARIANT&>(other));
+		}
+
+		Variant& operator=(Variant&& other) noexcept {
+			return operator=(static_cast<VARIANT&&>(other));
 		}
 
 		Variant& operator=(const VARIANT& other) noexcept {
@@ -176,15 +191,6 @@ struct Win32Utils {
 			std::memcpy(this, &other, sizeof(other));
 			other.vt = VT_EMPTY;
 			return *this;
-		}
-
-		Variant(std::wstring_view str) noexcept {
-			vt = VT_BSTR;
-			bstrVal = SysAllocStringLen(str.data(), (UINT)str.size());
-		}
-
-		~Variant() noexcept {
-			VariantClear(this);
 		}
 	};
 
@@ -228,7 +234,7 @@ struct Win32Utils {
 		BSTR _str = NULL;
 	};
 
-	static bool ShellOpen(const wchar_t* path);
+	static bool ShellOpen(const wchar_t* path, bool nonElevated = true);
 	// 不应在主线程调用
 	static bool OpenFolderAndSelectFile(const wchar_t* fileName);
 };

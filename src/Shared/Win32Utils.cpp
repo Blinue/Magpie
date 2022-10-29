@@ -555,7 +555,110 @@ bool Win32Utils::IsProcessElevated() noexcept {
 	return bool(result == 1);
 }
 
-bool Win32Utils::ShellOpen(const wchar_t* path) {
+static winrt::com_ptr<IShellView> FindDesktopFolderView() {
+	winrt::com_ptr<IShellWindows> shellWindows =
+		winrt::try_create_instance<IShellWindows>(CLSID_ShellWindows, CLSCTX_LOCAL_SERVER);
+	if (!shellWindows) {
+		Logger::Get().Error("创建 ShellWindows 失败");
+		return nullptr;
+	}
+
+	winrt::com_ptr<IDispatch> dispatch;
+	Win32Utils::Variant vtLoc(CSIDL_DESKTOP);
+	Win32Utils::Variant vtEmpty;
+	long hWnd;
+	HRESULT hr = shellWindows->FindWindowSW(
+		&vtLoc, &vtEmpty, SWC_DESKTOP, &hWnd, SWFO_NEEDDISPATCH, dispatch.put());
+	if (FAILED(hr)) {
+		Logger::Get().ComError("IShellWindows::FindWindowSW 失败", hr);
+		return nullptr;
+	}
+	
+	winrt::com_ptr<IShellBrowser> shellBrowser;
+	hr = dispatch.as<IServiceProvider>()->QueryService(
+		SID_STopLevelBrowser, IID_PPV_ARGS(&shellBrowser));
+	if (FAILED(hr)) {
+		Logger::Get().ComError("IServiceProvider::QueryService 失败", hr);
+		return nullptr;
+	}
+
+	winrt::com_ptr<IShellView> shellView;
+	hr = shellBrowser->QueryActiveShellView(shellView.put());
+	if (FAILED(hr)) {
+		Logger::Get().ComError("IShellBrowser::QueryActiveShellView 失败", hr);
+		return nullptr;
+	}
+
+	return shellView;
+}
+
+static winrt::com_ptr<IShellFolderViewDual> GetDesktopAutomationObject() {
+	winrt::com_ptr<IShellView> shellView = FindDesktopFolderView();
+	if (!shellView) {
+		Logger::Get().Error("FindDesktopFolderView 失败");
+		return nullptr;
+	}
+
+	winrt::com_ptr<IDispatch> dispatch;
+	HRESULT hr = shellView->GetItemObject(SVGIO_BACKGROUND, IID_PPV_ARGS(&dispatch));
+	if (FAILED(hr)) {
+		Logger::Get().ComError("IShellView::GetItemObject 失败", hr);
+		return nullptr;
+	}
+
+	return dispatch.try_as<IShellFolderViewDual>();
+}
+
+// 在提升的进程中启动未提升的进程
+// 原理见 https://devblogs.microsoft.com/oldnewthing/20131118-00/?p=2643
+static bool OpenNonElevated(const wchar_t* path) {
+	static winrt::com_ptr<IShellDispatch2> shellDispatch = ([]() -> winrt::com_ptr<IShellDispatch2> {
+		winrt::com_ptr<IShellFolderViewDual> folderView = GetDesktopAutomationObject();
+		if (!folderView) {
+			Logger::Get().Error("GetDesktopAutomationObject 失败");
+			return nullptr;
+		}
+
+		winrt::com_ptr<IDispatch> dispatch;
+		HRESULT hr = folderView->get_Application(dispatch.put());
+		if (FAILED(hr)) {
+			Logger::Get().ComError("IShellFolderViewDual::get_Application 失败", hr);
+			return nullptr;
+		}
+
+		return dispatch.try_as<IShellDispatch2>();
+	})();
+	
+	if (!shellDispatch) {
+		return false;
+	}
+
+#pragma push_macro("ShellExecute")
+#undef ShellExecute
+	HRESULT hr = shellDispatch->ShellExecute(
+#pragma pop_macro("ShellExecute")
+		Win32Utils::BStr(path),
+		Win32Utils::Variant(L""),
+		Win32Utils::Variant(L""),
+		Win32Utils::Variant(L"open"),
+		Win32Utils::Variant(SW_SHOWNORMAL)
+	);
+	if (FAILED(hr)) {
+		Logger::Get().ComError("IShellDispatch2::ShellExecute 失败", hr);
+		return false;
+	}
+
+	return true;
+}
+
+bool Win32Utils::ShellOpen(const wchar_t* path, bool nonElevated) {
+	if (nonElevated && IsProcessElevated()) {
+		if (OpenNonElevated(path)) {
+			return true;
+		}
+		// OpenNonElevated 失败则回落到 ShellExecuteEx
+	}
+	
 	SHELLEXECUTEINFO execInfo{};
 	execInfo.cbSize = sizeof(execInfo);
 	execInfo.lpFile = path;
