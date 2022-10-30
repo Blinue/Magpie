@@ -40,6 +40,10 @@ static uint32_t EncodeHotkey(const HotkeySettings& hotkey) noexcept {
 }
 
 static void DecodeHotkey(uint32_t value, HotkeySettings& hotkey) noexcept {
+	if (value > 0xfff) {
+		return;
+	}
+
 	hotkey.code = value & 0xff;
 	hotkey.win = value & 0x100;
 	hotkey.ctrl = value & 0x200;
@@ -118,7 +122,8 @@ static bool LoadScalingProfile(
 	bool isDefault = false
 ) {
 	if (!isDefault) {
-		if (!JsonHelper::ReadString(scalingConfigObj, "name", scalingProfile.name, true)) {
+		if (!JsonHelper::ReadString(scalingConfigObj, "name", scalingProfile.name, true)
+			|| scalingProfile.name.empty()) {
 			return false;
 		}
 
@@ -126,96 +131,51 @@ static bool LoadScalingProfile(
 			return false;
 		}
 
-		if (!JsonHelper::ReadString(scalingConfigObj, "pathRule", scalingProfile.pathRule, true)) {
+		if (!JsonHelper::ReadString(scalingConfigObj, "pathRule", scalingProfile.pathRule, true)
+			|| scalingProfile.pathRule.empty()) {
 			return false;
 		}
 
-		if (!JsonHelper::ReadString(scalingConfigObj, "classNameRule", scalingProfile.classNameRule, true)) {
+		if (!JsonHelper::ReadString(scalingConfigObj, "classNameRule", scalingProfile.classNameRule, true)
+			|| scalingProfile.classNameRule.empty()) {
 			return false;
 		}
 	}
 
-	if (!JsonHelper::ReadInt(scalingConfigObj, "scalingMode", scalingProfile.scalingMode)) {
-		return false;
-	}
+	JsonHelper::ReadInt(scalingConfigObj, "scalingMode", scalingProfile.scalingMode);
+	JsonHelper::ReadUInt(scalingConfigObj, "captureMode", (uint32_t&)scalingProfile.captureMode);
+	JsonHelper::ReadUInt(scalingConfigObj, "multiMonitorUsage", (uint32_t&)scalingProfile.multiMonitorUsage);
+	JsonHelper::ReadUInt(scalingConfigObj, "graphicsAdapter", scalingProfile.graphicsAdapter);
+	JsonHelper::ReadBoolFlag(scalingConfigObj, "disableWindowResizing", MagFlags::DisableDirectFlip, scalingProfile.flags);
+	JsonHelper::ReadBoolFlag(scalingConfigObj, "3DGameMode", MagFlags::Is3DGameMode, scalingProfile.flags);
+	JsonHelper::ReadBoolFlag(scalingConfigObj, "showFPS", MagFlags::ShowFPS, scalingProfile.flags);
+	JsonHelper::ReadBoolFlag(scalingConfigObj, "VSync", MagFlags::VSync, scalingProfile.flags);
+	JsonHelper::ReadBoolFlag(scalingConfigObj, "tripleBuffering", MagFlags::TripleBuffering, scalingProfile.flags);
+	JsonHelper::ReadBoolFlag(scalingConfigObj, "reserveTitleBar", MagFlags::ReserveTitleBar, scalingProfile.flags);
+	JsonHelper::ReadBoolFlag(scalingConfigObj, "adjustCursorSpeed", MagFlags::AdjustCursorSpeed, scalingProfile.flags);
+	JsonHelper::ReadBoolFlag(scalingConfigObj, "drawCursor", MagFlags::DrawCursor, scalingProfile.flags);
+	JsonHelper::ReadBoolFlag(scalingConfigObj, "disableDirectFlip", MagFlags::DisableDirectFlip, scalingProfile.flags);
+	JsonHelper::ReadUInt(scalingConfigObj, "cursorScaling", (uint32_t&)scalingProfile.cursorScaling);
+	JsonHelper::ReadFloat(scalingConfigObj, "customCursorScaling", scalingProfile.customCursorScaling);
+	JsonHelper::ReadUInt(scalingConfigObj, "cursorInterpolationMode", (uint32_t&)scalingProfile.cursorInterpolationMode);
 
-	if (!JsonHelper::ReadUInt(scalingConfigObj, "captureMode", (uint32_t&)scalingProfile.captureMode)) {
-		return false;
-	}
+	JsonHelper::ReadBool(scalingConfigObj, "croppingEnabled", scalingProfile.isCroppingEnabled);
 
-	if (!JsonHelper::ReadUInt(scalingConfigObj, "multiMonitorUsage", (uint32_t&)scalingProfile.multiMonitorUsage)) {
-		return false;
-	}
+	auto croppingNode = scalingConfigObj.FindMember("cropping");
+	if (croppingNode != scalingConfigObj.MemberEnd() && croppingNode->value.IsObject()) {
+		const auto& croppingObj = croppingNode->value.GetObj();
 
-	if (!JsonHelper::ReadUInt(scalingConfigObj, "graphicsAdapter", scalingProfile.graphicsAdapter)) {
-		return false;
-	}
-
-	if (!JsonHelper::ReadBoolFlag(scalingConfigObj, "disableWindowResizing", MagFlags::DisableDirectFlip, scalingProfile.flags)) {
-		return false;
-	}
-	if (!JsonHelper::ReadBoolFlag(scalingConfigObj, "3DGameMode", MagFlags::Is3DGameMode, scalingProfile.flags)) {
-		return false;
-	}
-	if (!JsonHelper::ReadBoolFlag(scalingConfigObj, "showFPS", MagFlags::ShowFPS, scalingProfile.flags)) {
-		return false;
-	}
-	if (!JsonHelper::ReadBoolFlag(scalingConfigObj, "VSync", MagFlags::VSync, scalingProfile.flags)) {
-		return false;
-	}
-	if (!JsonHelper::ReadBoolFlag(scalingConfigObj, "tripleBuffering", MagFlags::TripleBuffering, scalingProfile.flags)) {
-		return false;
-	}
-	if (!JsonHelper::ReadBoolFlag(scalingConfigObj, "reserveTitleBar", MagFlags::ReserveTitleBar, scalingProfile.flags)) {
-		return false;
-	}
-	if (!JsonHelper::ReadBoolFlag(scalingConfigObj, "adjustCursorSpeed", MagFlags::AdjustCursorSpeed, scalingProfile.flags)) {
-		return false;
-	}
-	if (!JsonHelper::ReadBoolFlag(scalingConfigObj, "drawCursor", MagFlags::DrawCursor, scalingProfile.flags)) {
-		return false;
-	}
-	if (!JsonHelper::ReadBoolFlag(scalingConfigObj, "disableDirectFlip", MagFlags::DisableDirectFlip, scalingProfile.flags)) {
-		return false;
-	}
-
-	if (!JsonHelper::ReadUInt(scalingConfigObj, "cursorScaling", (uint32_t&)scalingProfile.cursorScaling)) {
-		return false;
-	}
-	if (!JsonHelper::ReadFloat(scalingConfigObj, "customCursorScaling", scalingProfile.customCursorScaling)) {
-		return false;
-	}
-	if (!JsonHelper::ReadUInt(scalingConfigObj, "cursorInterpolationMode", (uint32_t&)scalingProfile.cursorInterpolationMode)) {
-		return false;
-	}
-
-	{
-		if (!JsonHelper::ReadBool(scalingConfigObj, "croppingEnabled", scalingProfile.isCroppingEnabled)) {
-			return false;
-		}
-
-		auto croppingNode = scalingConfigObj.FindMember("cropping");
-		if (croppingNode != scalingConfigObj.MemberEnd()) {
-			if (!croppingNode->value.IsObject()) {
-				return false;
-			}
-
-			const auto& croppingObj = croppingNode->value.GetObj();
-
-			if (!JsonHelper::ReadFloat(croppingObj, "left", scalingProfile.cropping.Left, true)
-				|| !JsonHelper::ReadFloat(croppingObj, "top", scalingProfile.cropping.Top, true)
-				|| !JsonHelper::ReadFloat(croppingObj, "right", scalingProfile.cropping.Right, true)
-				|| !JsonHelper::ReadFloat(croppingObj, "bottom", scalingProfile.cropping.Bottom, true)
-				) {
-				return false;
-			}
+		if (!JsonHelper::ReadFloat(croppingObj, "left", scalingProfile.cropping.Left, true)
+			|| !JsonHelper::ReadFloat(croppingObj, "top", scalingProfile.cropping.Top, true)
+			|| !JsonHelper::ReadFloat(croppingObj, "right", scalingProfile.cropping.Right, true)
+			|| !JsonHelper::ReadFloat(croppingObj, "bottom", scalingProfile.cropping.Bottom, true))
+		{
+			scalingProfile.cropping = {};
 		}
 	}
 
 	return true;
 }
-
-
 
 bool AppSettings::Initialize() {
 	Logger& logger = Logger::Get();
@@ -286,10 +246,7 @@ bool AppSettings::Initialize() {
 		}
 	}
 
-	if (!_LoadSettings(root, settingsVersion)) {
-		logger.Error("解析配置文件失败");
-		return false;
-	}
+	_LoadSettings(root, settingsVersion);
 
 	_SetDefaultHotkeys();
 	return true;
@@ -311,38 +268,36 @@ bool AppSettings::Save() {
 	writer.Key("theme");
 	writer.Uint(_theme);
 
-	{
-		if (HWND hwndMain = (HWND)Application::Current().as<App>().HwndMain()) {
-			WINDOWPLACEMENT wp{};
-			wp.length = sizeof(wp);
-			if (GetWindowPlacement(hwndMain, &wp)) {
-				_windowRect = {
-					(float)wp.rcNormalPosition.left,
-					(float)wp.rcNormalPosition.top,
-					float(wp.rcNormalPosition.right - wp.rcNormalPosition.left),
-					float(wp.rcNormalPosition.bottom - wp.rcNormalPosition.top)
-				};
-				_isWindowMaximized = wp.showCmd == SW_MAXIMIZE;
-				
-			} else {
-				Logger::Get().Win32Error("GetWindowPlacement 失败");
-			}
-		}
+	if (HWND hwndMain = (HWND)Application::Current().as<App>().HwndMain()) {
+		WINDOWPLACEMENT wp{};
+		wp.length = sizeof(wp);
+		if (GetWindowPlacement(hwndMain, &wp)) {
+			_windowRect = {
+				wp.rcNormalPosition.left,
+				wp.rcNormalPosition.top,
+				wp.rcNormalPosition.right - wp.rcNormalPosition.left,
+				wp.rcNormalPosition.bottom - wp.rcNormalPosition.top
+			};
+			_isWindowMaximized = wp.showCmd == SW_MAXIMIZE;
 
-		writer.Key("windowPos");
-		writer.StartObject();
-		writer.Key("x");
-		writer.Int((int)std::lroundf(_windowRect.X));
-		writer.Key("y");
-		writer.Int((int)std::lroundf(_windowRect.Y));
-		writer.Key("width");
-		writer.Int((int)std::lroundf(_windowRect.Width));
-		writer.Key("height");
-		writer.Int((int)std::lroundf(_windowRect.Height));
-		writer.Key("maximized");
-		writer.Bool(_isWindowMaximized);
-		writer.EndObject();
+		} else {
+			Logger::Get().Win32Error("GetWindowPlacement 失败");
+		}
 	}
+
+	writer.Key("windowPos");
+	writer.StartObject();
+	writer.Key("x");
+	writer.Int(_windowRect.left);
+	writer.Key("y");
+	writer.Int(_windowRect.top);
+	writer.Key("width");
+	writer.Uint((uint32_t)_windowRect.right);
+	writer.Key("height");
+	writer.Uint((uint32_t)_windowRect.bottom);
+	writer.Key("maximized");
+	writer.Bool(_isWindowMaximized);
+	writer.EndObject();
 
 	writer.Key("hotkeys");
 	writer.StartObject();
@@ -488,174 +443,110 @@ void AppSettings::IsShowTrayIcon(bool value) noexcept {
 	_isShowTrayIconChangedEvent(value);
 }
 
-// 遇到不合法的配置项会失败，因此用户不应直接编辑配置文件
-bool AppSettings::_LoadSettings(const rapidjson::GenericObject<true, rapidjson::Value>& root, uint32_t version) {
-	if (!JsonHelper::ReadUInt(root, "theme", _theme)) {
-		return false;
+// 永远不会失败，遇到不合法的配置项则静默忽略
+void AppSettings::_LoadSettings(const rapidjson::GenericObject<true, rapidjson::Value>& root, uint32_t version) {
+	JsonHelper::ReadUInt(root, "theme", _theme);
+
+	auto windowPosNode = root.FindMember("windowPos");
+	if (windowPosNode != root.MemberEnd() && windowPosNode->value.IsObject()) {
+		const auto& windowRectObj = windowPosNode->value.GetObj();
+
+		int x = 0;
+		int y = 0;
+		if (JsonHelper::ReadInt(windowRectObj, "x", x, true)
+			&& JsonHelper::ReadInt(windowRectObj, "y", y, true)) {
+			_windowRect.left = x;
+			_windowRect.top = y;
+		}
+
+		uint32_t width = 0;
+		uint32_t height = 0;
+		if (JsonHelper::ReadUInt(windowRectObj, "width", width, true)
+			&& JsonHelper::ReadUInt(windowRectObj, "height", height, true)) {
+			_windowRect.right = (LONG)width;
+			_windowRect.bottom = (LONG)height;
+		}
+
+		JsonHelper::ReadBool(windowRectObj, "maximized", _isWindowMaximized);
 	}
 
-	{
-		auto windowPosNode = root.FindMember("windowPos");
-		if (windowPosNode != root.MemberEnd()) {
-			if (!windowPosNode->value.IsObject()) {
-				return false;
-			}
+	auto hotkeysNode = root.FindMember("hotkeys");
+	if (hotkeysNode != root.MemberEnd() && hotkeysNode->value.IsObject()) {
+		const auto& hotkeysObj = hotkeysNode->value.GetObj();
 
-			const auto& windowRectObj = windowPosNode->value.GetObj();
+		auto scaleNode = hotkeysObj.FindMember("scale");
+		if (scaleNode != hotkeysObj.MemberEnd() && scaleNode->value.IsUint()) {
+			DecodeHotkey(scaleNode->value.GetUint(), _hotkeys[(size_t)HotkeyAction::Scale]);
+		}
 
-			if (!JsonHelper::ReadFloat(windowRectObj, "x", _windowRect.X, true)) {
-				return false;
-			}
-			if (!JsonHelper::ReadFloat(windowRectObj, "y", _windowRect.Y, true)) {
-				return false;
-			}
-			if (!JsonHelper::ReadFloat(windowRectObj, "width", _windowRect.Width, true)) {
-				return false;
-			}
-			if (!JsonHelper::ReadFloat(windowRectObj, "height", _windowRect.Height, true)) {
-				return false;
-			}
-			if (!JsonHelper::ReadBool(windowRectObj, "maximized", _isWindowMaximized, true)) {
-				return false;
-			}
+		auto overlayNode = hotkeysObj.FindMember("overlay");
+		if (overlayNode != hotkeysObj.MemberEnd() && overlayNode->value.IsUint()) {
+			DecodeHotkey(overlayNode->value.GetUint(), _hotkeys[(size_t)HotkeyAction::Overlay]);
 		}
 	}
 
-	{
-		auto hotkeysNode = root.FindMember("hotkeys");
-		if (hotkeysNode != root.MemberEnd()) {
-			if (!hotkeysNode->value.IsObject()) {
-				return false;
-			}
+	JsonHelper::ReadBool(root, "autoRestore", _isAutoRestore);
+	JsonHelper::ReadUInt(root, "downCount", _downCount);
+	JsonHelper::ReadBool(root, "debugMode", _isDebugMode);
+	JsonHelper::ReadBool(root, "disableEffectCache", _isDisableEffectCache);
+	JsonHelper::ReadBool(root, "saveEffectSources", _isSaveEffectSources);
+	JsonHelper::ReadBool(root, "warningsAreErrors", _isWarningsAreErrors);
+	JsonHelper::ReadBool(root, "simulateExclusiveFullscreen", _isSimulateExclusiveFullscreen);
+	JsonHelper::ReadBool(root, "alwaysRunAsElevated", _isAlwaysRunAsElevated);
+	JsonHelper::ReadBool(root, "showTrayIcon", _isShowTrayIcon);
+	JsonHelper::ReadBool(root, "inlineParams", _isInlineParams);
 
-			const auto& hotkeysObj = hotkeysNode->value.GetObj();
+	auto downscalingEffectNode = root.FindMember("downscalingEffect");
+	if (downscalingEffectNode != root.MemberEnd() && downscalingEffectNode->value.IsObject()) {
+		auto downscalingEffectObj = downscalingEffectNode->value.GetObj();
 
-			auto scaleNode = hotkeysObj.FindMember("scale");
-			if (scaleNode != hotkeysObj.MemberEnd() && scaleNode->value.IsUint()) {
-				DecodeHotkey(scaleNode->value.GetUint(), _hotkeys[(size_t)HotkeyAction::Scale]);
-			}
-
-			auto overlayNode = hotkeysObj.FindMember("overlay");
-			if (overlayNode != hotkeysObj.MemberEnd() && overlayNode->value.IsUint()) {
-				DecodeHotkey(overlayNode->value.GetUint(), _hotkeys[(size_t)HotkeyAction::Overlay]);
-			}
-		}
-	}
-
-	if (!JsonHelper::ReadBool(root, "autoRestore", _isAutoRestore)) {
-		return false;
-	}
-
-	if (!JsonHelper::ReadUInt(root, "downCount", _downCount)) {
-		return false;
-	}
-
-	if (!JsonHelper::ReadBool(root, "debugMode", _isDebugMode)) {
-		return false;
-	}
-	if (!JsonHelper::ReadBool(root, "disableEffectCache", _isDisableEffectCache)) {
-		return false;
-	}
-	if (!JsonHelper::ReadBool(root, "saveEffectSources", _isSaveEffectSources)) {
-		return false;
-	}
-	if (!JsonHelper::ReadBool(root, "warningsAreErrors", _isWarningsAreErrors)) {
-		return false;
-	}
-	if (!JsonHelper::ReadBool(root, "simulateExclusiveFullscreen", _isSimulateExclusiveFullscreen)) {
-		return false;
-	}
-	if (!JsonHelper::ReadBool(root, "alwaysRunAsElevated", _isAlwaysRunAsElevated)) {
-		return false;
-	}
-	if (!JsonHelper::ReadBool(root, "showTrayIcon", _isShowTrayIcon)) {
-		return false;
-	}
-	if (!JsonHelper::ReadBool(root, "inlineParams", _isInlineParams)) {
-		return false;
-	}
-
-	{
-		auto downscalingEffectNode = root.FindMember("downscalingEffect");
-		if (downscalingEffectNode != root.MemberEnd()) {
-			if (!downscalingEffectNode->value.IsObject()) {
-				return false;
-			}
-
-			auto downscalingEffectObj = downscalingEffectNode->value.GetObj();
-
-			if (!JsonHelper::ReadString(downscalingEffectObj, "name", _downscalingEffect.name)) {
-				return false;
-			}
-
-			{
-				auto parametersNode = downscalingEffectObj.FindMember("parameters");
-				if (parametersNode != downscalingEffectObj.MemberEnd()) {
-					if (!parametersNode->value.IsObject()) {
-						return false;
+		JsonHelper::ReadString(downscalingEffectObj, "name", _downscalingEffect.name);
+		if (!_downscalingEffect.name.empty()) {
+			auto parametersNode = downscalingEffectObj.FindMember("parameters");
+			if (parametersNode != downscalingEffectObj.MemberEnd() && parametersNode->value.IsObject()) {
+				auto paramsObj = parametersNode->value.GetObj();
+				_downscalingEffect.parameters.reserve(paramsObj.MemberCount());
+				for (const auto& param : paramsObj) {
+					if (!param.value.IsFloat()) {
+						continue;
 					}
 
-					auto paramsObj = parametersNode->value.GetObj();
-					_downscalingEffect.parameters.reserve(paramsObj.MemberCount());
-					for (auto& param : paramsObj) {
-						std::wstring name = StrUtils::UTF8ToUTF16(param.name.GetString());
+					std::wstring name = StrUtils::UTF8ToUTF16(param.name.GetString());
+					_downscalingEffect.parameters[name] = param.value.GetFloat();
+				}
+			}
+		}
+	}
 
-						if (!param.value.IsNumber()) {
-							return false;
-						}
-						_downscalingEffect.parameters[name] = param.value.GetFloat();
+	ScalingModesService::Get().Import(root);
+
+	auto scaleProfilesNode = root.FindMember("scalingProfiles");
+	if (scaleProfilesNode != root.MemberEnd() && scaleProfilesNode->value.IsArray()) {
+		const auto& scaleProfilesArray = scaleProfilesNode->value.GetArray();
+
+		const rapidjson::SizeType size = scaleProfilesArray.Size();
+		if (size > 0) {
+			if (scaleProfilesArray[0].IsObject()) {
+				// 解析默认缩放配置不会失败
+				LoadScalingProfile(scaleProfilesArray[0].GetObj(), _defaultScalingProfile, true);
+			}
+
+			if (size > 1) {
+				_scalingProfiles.reserve((size_t)size - 1);
+				for (rapidjson::SizeType i = 1; i < size; ++i) {
+					if (!scaleProfilesArray[i].IsObject()) {
+						continue;
+					}
+
+					ScalingProfile& rule = _scalingProfiles.emplace_back();
+					if (!LoadScalingProfile(scaleProfilesArray[i].GetObj(), rule)) {
+						_scalingProfiles.pop_back();
+						continue;
 					}
 				}
 			}
 		}
 	}
-
-	if (!ScalingModesService::Get().Import(root)) {
-		return false;
-	}
-
-	{
-		auto scaleProfilesNode = root.FindMember("scalingProfiles");
-		if (scaleProfilesNode != root.MemberEnd()) {
-			if (!scaleProfilesNode->value.IsArray()) {
-				return false;
-			}
-
-			const auto& scaleProfilesArray = scaleProfilesNode->value.GetArray();
-
-			const rapidjson::SizeType size = scaleProfilesArray.Size();
-			if (size > 0) {
-				if (!scaleProfilesArray[0].IsObject()) {
-					return false;
-				}
-
-				if (!LoadScalingProfile(scaleProfilesArray[0].GetObj(), _defaultScalingProfile, true)) {
-					return false;
-				}
-
-				if (size > 1) {
-					_scalingProfiles.resize((size_t)size - 1);
-					for (rapidjson::SizeType i = 1; i < size; ++i) {
-						if (!scaleProfilesArray[i].IsObject()) {
-							return false;
-						}
-
-						ScalingProfile& rule = _scalingProfiles[(size_t)i - 1];
-
-						if (!LoadScalingProfile(scaleProfilesArray[i].GetObj(), rule)) {
-							return false;
-						}
-
-						if (rule.name.empty() || rule.pathRule.empty() || rule.classNameRule.empty()) {
-							return false;
-						}
-					}
-				}
-			}
-		}
-	}
-
-	return true;
 }
 
 void AppSettings::_SetDefaultHotkeys() {

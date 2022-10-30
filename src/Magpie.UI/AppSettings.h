@@ -51,11 +51,11 @@ public:
 		_themeChangedEvent.remove(token);
 	}
 
-	Rect WindowRect() const noexcept {
+	const RECT& WindowRect() const noexcept {
 		return _windowRect;
 	}
 
-	void WindowRect(const Rect& value) noexcept {
+	void WindowRect(const RECT& value) noexcept {
 		_windowRect = value;
 	}
 
@@ -226,7 +226,7 @@ private:
 	AppSettings(const AppSettings&) = delete;
 	AppSettings(AppSettings&&) = delete;
 
-	bool _LoadSettings(const rapidjson::GenericObject<true, rapidjson::Value>& root, uint32_t version);
+	void _LoadSettings(const rapidjson::GenericObject<true, rapidjson::Value>& root, uint32_t version);
 	void _SetDefaultHotkeys();
 	void _SetDefaultScalingModes();
 
@@ -249,7 +249,8 @@ private:
 	std::wstring _configDir;
 	std::wstring _configPath;
 
-	Rect _windowRect{ CW_USEDEFAULT,CW_USEDEFAULT,1280,820 };
+	// X, Y, 长, 高
+	RECT _windowRect{ CW_USEDEFAULT,CW_USEDEFAULT,1280,820 };
 
 	// 0: 浅色
 	// 1: 深色
