@@ -6,7 +6,6 @@
 #include "HotkeyHelper.h"
 #include "ScalingProfile.h"
 #include "CommonSharedConstants.h"
-#include <rapidjson/document.h>
 #include <rapidjson/prettywriter.h>
 #include "AutoStartHelper.h"
 #include <Magpie.Core.h>
@@ -17,6 +16,8 @@ using namespace Magpie::Core;
 
 
 namespace winrt::Magpie::UI {
+
+static constexpr uint32_t SETTINGS_VERSION = 0;
 
 // 将热键存储为 uint32_t
 // 不能存储为字符串，因为某些键有相同的名称，如句号和小键盘的点
@@ -234,15 +235,62 @@ bool AppSettings::Initialize() {
 
 	std::string configText;
 	if (!Win32Utils::ReadTextFile(_configPath.c_str(), configText)) {
+		MessageBox(NULL, L"无法读取配置文件", L"错误", MB_ICONERROR | MB_OK);
 		logger.Error("读取配置文件失败");
 		return false;
 	}
 
-	if (!_LoadSettings(configText)) {
+	if (configText.empty()) {
+		Logger::Get().Info("配置文件为空");
+		_SetDefaultHotkeys();
+		return true;
+	}
+
+	rapidjson::Document doc;
+	doc.ParseInsitu(configText.data());
+	if (doc.HasParseError()) {
+		Logger::Get().Error(fmt::format("解析配置失败\n\t错误码：{}", (int)doc.GetParseError()));
+		MessageBox(NULL, L"配置文件不是合法的 JSON", L"错误", MB_ICONERROR | MB_OK);
+		return false;
+	}
+
+	if (!doc.IsObject()) {
+		Logger::Get().Error("配置文件根元素不是 Object");
+		MessageBox(NULL, L"解析配置文件失败", L"错误", MB_ICONERROR | MB_OK);
+		return false;
+	}
+
+	auto root = ((const rapidjson::Document&)doc).GetObj();
+
+	uint32_t settingsVersion = 0;
+	// 不存在 version 字段则视为 0
+	JsonHelper::ReadUInt(root, "version", settingsVersion);
+
+	if (settingsVersion > SETTINGS_VERSION) {
+		Logger::Get().Warn("未知的配置文件版本");
+		if (_isPortableMode) {
+			if (MessageBox(NULL, L"配置文件来自未来版本，可能无法正确解析。\n点击确定继续使用，点击取消退出。",
+				L"警告", MB_ICONWARNING | MB_OKCANCEL) != IDOK
+			) {
+				return false;
+			}
+		} else {
+			if (MessageBox(NULL, L"全局配置文件来自未来版本，可能无法正确解析。\n点击确定继续使用，点击取消启用便携模式。",
+				L"警告", MB_ICONWARNING | MB_OKCANCEL) != IDOK
+			) {
+				IsPortableMode(true);
+				_SetDefaultScalingModes();
+				_SetDefaultHotkeys();
+				return true;
+			}
+		}
+	}
+
+	if (!_LoadSettings(root, settingsVersion)) {
 		logger.Error("解析配置文件失败");
 		return false;
 	}
-	
+
 	_SetDefaultHotkeys();
 	return true;
 }
@@ -256,6 +304,9 @@ bool AppSettings::Save() {
 	rapidjson::StringBuffer json;
 	rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(json);
 	writer.StartObject();
+
+	writer.Key("version");
+	writer.Uint(SETTINGS_VERSION);
 
 	writer.Key("theme");
 	writer.Uint(_theme);
@@ -438,25 +489,7 @@ void AppSettings::IsShowTrayIcon(bool value) noexcept {
 }
 
 // 遇到不合法的配置项会失败，因此用户不应直接编辑配置文件
-bool AppSettings::_LoadSettings(std::string& text) {
-	if (text.empty()) {
-		Logger::Get().Info("配置文件为空");
-		return true;
-	}
-
-	rapidjson::Document doc;
-	doc.ParseInsitu(text.data());
-	if (doc.HasParseError()) {
-		Logger::Get().Error(fmt::format("解析配置失败\n\t错误码：{}", (int)doc.GetParseError()));
-		return false;
-	}
-
-	if (!doc.IsObject()) {
-		return false;
-	}
-
-	auto root = ((const rapidjson::Document&)doc).GetObj();
-
+bool AppSettings::_LoadSettings(const rapidjson::GenericObject<true, rapidjson::Value>& root, uint32_t version) {
 	if (!JsonHelper::ReadUInt(root, "theme", _theme)) {
 		return false;
 	}

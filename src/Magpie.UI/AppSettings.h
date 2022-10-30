@@ -5,6 +5,7 @@
 #include "ScalingProfile.h"
 #include "ScalingMode.h"
 #include <parallel_hashmap/phmap.h>
+#include <rapidjson/document.h>
 
 
 namespace winrt::Magpie::UI {
@@ -225,7 +226,7 @@ private:
 	AppSettings(const AppSettings&) = delete;
 	AppSettings(AppSettings&&) = delete;
 
-	bool _LoadSettings(std::string& text);
+	bool _LoadSettings(const rapidjson::GenericObject<true, rapidjson::Value>& root, uint32_t version);
 	void _SetDefaultHotkeys();
 	void _SetDefaultScalingModes();
 
