@@ -47,3 +47,11 @@ RD /S /Q Microsoft.UI.Xaml
 RD /S /Q Magpie.UI
 REM 删除所有 pri 文件，除了 resources.pri
 FOR %%f IN ("*.pri") DO IF /i "%%~nf" NEQ "resources" DEL "%%f"
+
+REM 将需要的 VC++ 运行时 Dll 复制到本地
+FOR /f %%i in ('where msvcp140.dll') DO SET DLL=%%i
+copy /y %DLL%
+FOR /f %%i in ('where vcruntime140.dll') DO SET DLL=%%i
+copy /y %DLL%
+FOR /f %%i in ('where vcruntime140_1.dll') DO SET DLL=%%i
+copy /y %DLL%
