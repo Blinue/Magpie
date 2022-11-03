@@ -38,11 +38,11 @@ jobs:
       run: msbuild /p:Configuration=Release /p:Platform=x64 src/DEPLOY
 
     - name: Save hash
-      id: vars
-      run: echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
+      id: hash
+      run: echo "sha_short=$(git rev-parse --short HEAD)" >> $env:GITHUB_OUTPUT
 
     - name: Store build
       uses: actions/upload-artifact@v3
       with: 
-          name: Magpie_dev_${{ steps.vars.outputs.sha_short }}
+          name: Magpie_dev_${{ steps.hash.outputs.sha_short }}
           path: ./publish
