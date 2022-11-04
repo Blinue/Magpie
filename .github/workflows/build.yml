@@ -36,6 +36,9 @@ jobs:
 
     - name: Build
       run: msbuild /p:Configuration=Release /p:Platform=x64 src/DEPLOY
+      
+    - name: VC
+      run: pwsh "./publish.ps1"
 
     - name: Save hash
       id: hash
