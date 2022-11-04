@@ -22,24 +22,6 @@ jobs:
     - name: test
       run: pwsh ".\publish.ps1"
 
-    - name: Load Conan cache
-      uses: actions/cache@v3
-      with:
-        path: ./.conan/data
-        key: ${{ runner.os }}-conan-${{ hashFiles('src/conanfile.txt') }}
-    
-    - name: Restore NuGet packages
-      run: nuget restore
-    
-    - name: Setup Conan
-      run: pip install conan
-
-    - name: Setup MSBuild
-      uses: microsoft/setup-msbuild@v1
-
-    - name: Build
-      run: msbuild /p:Configuration=Release /p:Platform=x64 src/DEPLOY
-
     - name: Save hash
       id: hash
       run: echo "sha_short=$(git rev-parse --short HEAD)" >> $env:GITHUB_OUTPUT
