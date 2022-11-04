@@ -295,7 +295,8 @@
 																</MenuFlyoutItem.Icon>
 																<FlyoutBase.AttachedFlyout>
 																	<Flyout>
-																		<StackPanel Orientation="Vertical">
+																		<StackPanel MaxWidth="260"
+																					Orientation="Vertical">
 																			<TextBlock Margin="0,0,0,15"
 																					   FontWeight="SemiBold"
 																					   Text="确定删除此缩放模式？" />
@@ -322,8 +323,10 @@
 																					</ListView.Resources>
 																					<ListView.ItemTemplate>
 																						<DataTemplate x:DataType="x:String">
-																							<TextBlock FontStyle="Italic"
-																									   Text="{x:Bind Mode=OneTime}" />
+																							<TextBlock local:TextBlockHelper.IsAutoTooltip="True"
+																									   FontStyle="Italic"
+																									   Text="{x:Bind Mode=OneTime}"
+																									   TextTrimming="CharacterEllipsis" />
 																						</DataTemplate>
 																					</ListView.ItemTemplate>
 																				</ListView>

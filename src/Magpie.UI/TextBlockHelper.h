@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 #include "TextBlockHelper.g.h"
 
 
@@ -26,8 +26,6 @@ private:
     static DependencyProperty _isAutoTooltipProperty;
 
     static void _OnIsAutoTooltipChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const& args);
-
-    static void _TextBlock_SizeChanged(IInspectable const& sender, SizeChangedEventArgs const&);
 
     static void _SetTooltipBasedOnTrimmingState(const Controls::TextBlock& tb, bool isAttached);
 };

@@ -26,15 +26,25 @@ void TextBlockHelper::_OnIsAutoTooltipChanged(DependencyObject const& sender, De
     _SetTooltipBasedOnTrimmingState(tb, newValue);
 
     if (newValue) {
-        tb.SizeChanged(_TextBlock_SizeChanged);
+        tb.SizeChanged([](IInspectable const& sender, SizeChangedEventArgs const&) {
+            _SetTooltipBasedOnTrimmingState(sender.as<TextBlock>(), true);
+        });
+        tb.RegisterPropertyChangedCallback(
+            tb.TextProperty(),
+            [](DependencyObject const& sender, DependencyProperty const&) -> fire_and_forget {
+                TextBlock tb = sender.as<TextBlock>();
+                // 等待布局更新
+                co_await std::chrono::milliseconds(10);
+                co_await tb.Dispatcher().TryRunAsync(
+                    CoreDispatcherPriority::Low,
+                    std::bind(&_SetTooltipBasedOnTrimmingState, tb, true)
+                );
+            }
+        );
     } else {
         // 不支持取消
         assert(false);
     }
-}
-
-void TextBlockHelper::_TextBlock_SizeChanged(IInspectable const& sender, SizeChangedEventArgs const&) {
-    _SetTooltipBasedOnTrimmingState(sender.as<TextBlock>(), true);
 }
 
 void TextBlockHelper::_SetTooltipBasedOnTrimmingState(const TextBlock& tb, bool isAttached) {
