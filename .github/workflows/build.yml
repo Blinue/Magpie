@@ -2,9 +2,9 @@ name: build
 
 on:
   push:
-    paths: [ 'src/**', 'Magpie.sln', '.github/workflows/build.yml' ]
+    paths: [ 'src/**', 'Magpie.sln', 'publish.ps1', '.github/workflows/build.yml' ]
   pull_request:
-    paths: [ 'src/**', 'Magpie.sln', '.github/workflows/build.yml' ]
+    paths: [ 'src/**', 'Magpie.sln', 'publish.ps1', '.github/workflows/build.yml' ]
 
 # env:
 #   Configuration type to build.
