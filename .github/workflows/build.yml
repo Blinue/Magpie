@@ -2,9 +2,9 @@ name: build
 
 on:
   push:
-    paths: [ 'src/**', 'Magpie.sln', '.github/workflows/build.yml' ]
+    paths: [ 'Magpie.sln', 'src/**', 'ci/**', '.github/workflows/build.yml' ]
   pull_request:
-    paths: [ 'src/**', 'Magpie.sln', '.github/workflows/build.yml' ]
+    paths: [ 'Magpie.sln', 'src/**', 'ci/**', '.github/workflows/build.yml' ]
 
 # env:
 #   Configuration type to build.
@@ -35,7 +35,7 @@ jobs:
       uses: microsoft/setup-msbuild@v1
 
     - name: Build
-      run: msbuild /p:Configuration=Release /p:Platform=x64 src/DEPLOY
+      run: pwsh "ci/build.ps1"
 
     - name: Save hash
       id: hash
