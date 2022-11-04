@@ -114,7 +114,7 @@ void ScalingModesViewModel::Export() const noexcept {
 	fileDialog->SetTitle(L"导出缩放模式");
 
 	std::optional<std::wstring> fileName = OpenFileDialog(fileDialog.get());
-	if (!fileName.has_value() || fileName.value().empty()) {
+	if (!fileName.has_value() || fileName->empty()) {
 		return;
 	}
 
@@ -124,7 +124,7 @@ void ScalingModesViewModel::Export() const noexcept {
 	ScalingModesService::Get().Export(writer);
 	writer.EndObject();
 
-	Win32Utils::WriteTextFile(fileName.value().c_str(), {json.GetString(), json.GetLength()});
+	Win32Utils::WriteTextFile(fileName->c_str(), {json.GetString(), json.GetLength()});
 }
 
 static bool ImportImpl(bool legacy) {
@@ -140,12 +140,12 @@ static bool ImportImpl(bool legacy) {
 	if (!fileName.has_value()) {
 		return false;
 	}
-	if (fileName.value().empty()) {
+	if (fileName->empty()) {
 		return true;
 	}
 
 	std::string json;
-	if (!Win32Utils::ReadTextFile(fileName.value().c_str(), json)) {
+	if (!Win32Utils::ReadTextFile(fileName->c_str(), json)) {
 		return false;
 	}
 
@@ -165,7 +165,7 @@ static bool ImportImpl(bool legacy) {
 		return false;
 	}
 
-	return ScalingModesService::Get().Import(((const rapidjson::Document&)doc).GetObj());
+	return ScalingModesService::Get().Import(((const rapidjson::Document&)doc).GetObj(), true);
 }
 
 void ScalingModesViewModel::_Import(bool legacy) {
@@ -255,7 +255,7 @@ fire_and_forget ScalingModesViewModel::_AddScalingModes() {
 		auto weakThis = get_weak();
 
 		while (true) {
-			co_await std::chrono::milliseconds(20);
+			co_await std::chrono::milliseconds(10);
 			co_await dispatcher;
 
 			if (!weakThis.get()) {

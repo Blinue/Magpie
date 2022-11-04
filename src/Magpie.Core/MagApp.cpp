@@ -433,7 +433,7 @@ LRESULT MagApp::_HostWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 	for (auto it = _wndProcHandlers.rbegin(); it != _wndProcHandlers.rend(); ++it) {
 		const auto& result = it->first(hWnd, message, wParam, lParam);
 		if (result.has_value()) {
-			return result.value();
+			return *result;
 		}
 	}
 

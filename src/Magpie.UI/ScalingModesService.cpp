@@ -134,7 +134,11 @@ void ScalingModesService::Export(rapidjson::PrettyWriter<rapidjson::StringBuffer
 	writer.EndArray();
 }
 
-static bool LoadScalingMode(const rapidjson::GenericObject<true, rapidjson::Value>& scalingModeObj, ScalingMode& scalingMode) {
+static bool LoadScalingMode(
+	const rapidjson::GenericObject<true, rapidjson::Value>& scalingModeObj,
+	ScalingMode& scalingMode,
+	bool strict
+) {
 	if (!JsonHelper::ReadString(scalingModeObj, "name", scalingMode.name)) {
 		return false;
 	}
@@ -145,62 +149,85 @@ static bool LoadScalingMode(const rapidjson::GenericObject<true, rapidjson::Valu
 	}
 
 	if (!effectsNode->value.IsArray()) {
-		return false;
+		return !strict;
 	}
 
 	auto effectsArray = effectsNode->value.GetArray();
-	rapidjson::SizeType size = effectsArray.Size();
-	scalingMode.effects.resize(size);
+	scalingMode.effects.reserve(effectsArray.Size());
 
-	for (rapidjson::SizeType i = 0; i < size; ++i) {
-		if (!effectsArray[i].IsObject()) {
-			return false;
+	for (const auto& elem : effectsArray) {
+		if (!elem.IsObject()) {
+			if (strict) {
+				return false;
+			} else {
+				continue;
+			}
 		}
 
-		auto elemObj = effectsArray[i].GetObj();
-		EffectOption& effect = scalingMode.effects[i];
+		auto elemObj = elem.GetObj();
+		EffectOption& effect = scalingMode.effects.emplace_back();
 
 		if (!JsonHelper::ReadString(elemObj, "name", effect.name)) {
-			return false;
+			if (strict) {
+				return false;
+			} else {
+				scalingMode.effects.pop_back();
+				continue;
+			}
 		}
 
-		if (!JsonHelper::ReadUInt(elemObj, "scalingType", (uint32_t&)effect.scalingType)) {
-			return false;
+		if (!JsonHelper::ReadUInt(elemObj, "scalingType", (uint32_t&)effect.scalingType) && strict) {
+			if (strict) {
+				return false;
+			} else {
+				scalingMode.effects.pop_back();
+				continue;
+			}
 		}
 
-		{
-			auto scaleNode = elemObj.FindMember("scale");
-			if (scaleNode != elemObj.MemberEnd()) {
-				if (!scaleNode->value.IsObject()) {
-					return false;
-				}
-
+		auto scaleNode = elemObj.FindMember("scale");
+		if (scaleNode != elemObj.MemberEnd()) {
+			if (scaleNode->value.IsObject()) {
 				auto scaleObj = scaleNode->value.GetObj();
 
-				if (!JsonHelper::ReadFloat(scaleObj, "x", effect.scale.first, true)
-					|| !JsonHelper::ReadFloat(scaleObj, "y", effect.scale.second, true)
-					) {
+				float x, y;
+				if (JsonHelper::ReadFloat(scaleObj, "x", x, true)
+					&& JsonHelper::ReadFloat(scaleObj, "y", y, true)) 
+				{
+					effect.scale = { x,y };
+				} else {
+					if (strict) {
+						return false;
+					}
+				}
+			} else {
+				if (strict) {
 					return false;
 				}
 			}
 		}
 
-		{
-			auto parametersNode = elemObj.FindMember("parameters");
-			if (parametersNode != elemObj.MemberEnd()) {
-				if (!parametersNode->value.IsObject()) {
-					return false;
-				}
-
+		auto parametersNode = elemObj.FindMember("parameters");
+		if (parametersNode != elemObj.MemberEnd()) {
+			if (parametersNode->value.IsObject()) {
 				auto paramsObj = parametersNode->value.GetObj();
-				effect.parameters.reserve(paramsObj.MemberCount());
-				for (auto& param : paramsObj) {
-					std::wstring name = StrUtils::UTF8ToUTF16(param.name.GetString());
 
+				effect.parameters.reserve(paramsObj.MemberCount());
+				for (const auto& param : paramsObj) {
 					if (!param.value.IsNumber()) {
-						return false;
+						if (strict) {
+							return false;
+						} else {
+							continue;
+						}
 					}
+
+					std::wstring name = StrUtils::UTF8ToUTF16(param.name.GetString());
 					effect.parameters[name] = param.value.GetFloat();
+				}
+			} else {
+				if (strict) {
+					return false;
 				}
 			}
 		}
@@ -209,14 +236,14 @@ static bool LoadScalingMode(const rapidjson::GenericObject<true, rapidjson::Valu
 	return true;
 }
 
-bool ScalingModesService::Import(const rapidjson::GenericObject<true, rapidjson::Value>& root) noexcept {
+bool ScalingModesService::Import(const rapidjson::GenericObject<true, rapidjson::Value>& root, bool strict) noexcept {
 	auto scalingModesNode = root.FindMember("scalingModes");
 	if (scalingModesNode == root.MemberEnd()) {
 		return true;
 	}
 
 	if (!scalingModesNode->value.IsArray()) {
-		return false;
+		return !strict;
 	}
 
 	const auto& scalingModesArray = scalingModesNode->value.GetArray();
@@ -226,26 +253,36 @@ bool ScalingModesService::Import(const rapidjson::GenericObject<true, rapidjson:
 	}
 
 	std::vector<ScalingMode> scalingModes;
-	scalingModes.resize(size);
+	scalingModes.reserve(size);
 
-	for (rapidjson::SizeType i = 0; i < size; ++i) {
-		if (!scalingModesArray[i].IsObject()) {
-			return false;
+	for (const auto& elem : scalingModesArray) {
+		if (!elem.IsObject() && strict) {
+			if (strict) {
+				return false;
+			} else {
+				continue;
+			}
 		}
 
-		if (!LoadScalingMode(scalingModesArray[i].GetObj(), scalingModes[i])) {
-			return false;
+		if (!LoadScalingMode(elem.GetObj(), scalingModes.emplace_back(), strict)) {
+			if (strict) {
+				return false;
+			} else {
+				scalingModes.pop_back();
+			}
 		}
 	}
 
-	std::vector<ScalingMode>& settings = AppSettings::Get().ScalingModes();
-	settings.insert(
-		settings.end(),
-		std::make_move_iterator(scalingModes.begin()),
-		std::make_move_iterator(scalingModes.end())
-	);
+	if (!scalingModes.empty()) {
+		std::vector<ScalingMode>& settings = AppSettings::Get().ScalingModes();
+		settings.insert(
+			settings.end(),
+			std::make_move_iterator(scalingModes.begin()),
+			std::make_move_iterator(scalingModes.end())
+		);
 
-	_scalingModeAddedEvent();
+		_scalingModeAddedEvent();
+	}
 
 	return true;
 }

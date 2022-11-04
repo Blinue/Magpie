@@ -29,7 +29,7 @@ struct ScalingProfileViewModel : ScalingProfileViewModelT<ScalingProfileViewMode
 
 	bool IsProgramExist() const noexcept {
 		// 无值时视为 true
-		return _isProgramExist.has_value() ? _isProgramExist.value() : true;
+		return _isProgramExist.has_value() ? *_isProgramExist : true;
 	}
 
 	fire_and_forget OpenProgramLocation() const noexcept;

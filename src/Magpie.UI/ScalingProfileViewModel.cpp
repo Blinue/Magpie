@@ -118,7 +118,7 @@ bool ScalingProfileViewModel::IsNotDefaultScalingProfile() const noexcept {
 }
 
 fire_and_forget ScalingProfileViewModel::OpenProgramLocation() const noexcept {
-	if (!_isProgramExist.has_value() || !_isProgramExist.value()) {
+	if (!_isProgramExist.has_value() || !*_isProgramExist) {
 		co_return;
 	}
 
@@ -169,7 +169,7 @@ static void LaunchPackagedApp(const wchar_t* aumid) {
 }
 
 void ScalingProfileViewModel::Launch() const noexcept {
-	if (!_isProgramExist.has_value() || !_isProgramExist.value()) {
+	if (!_isProgramExist.has_value() || !*_isProgramExist) {
 		return;
 	}
 
@@ -552,7 +552,7 @@ fire_and_forget ScalingProfileViewModel::_LoadIcon(FrameworkElement const& mainP
 	std::wstring iconPath;
 	SoftwareBitmap iconBitmap{ nullptr };
 
-	if (!_isProgramExist.has_value() || _isProgramExist.value()) {
+	if (!_isProgramExist.has_value() || *_isProgramExist) {
 		auto weakThis = get_weak();
 
 		std::shared_ptr<AppXReader> appxReader = _appxReader;

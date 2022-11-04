@@ -444,7 +444,7 @@ void AppSettings::IsShowTrayIcon(bool value) noexcept {
 }
 
 // 永远不会失败，遇到不合法的配置项则静默忽略
-void AppSettings::_LoadSettings(const rapidjson::GenericObject<true, rapidjson::Value>& root, uint32_t version) {
+void AppSettings::_LoadSettings(const rapidjson::GenericObject<true, rapidjson::Value>& root, uint32_t /*version*/) {
 	JsonHelper::ReadUInt(root, "theme", _theme);
 
 	auto windowPosNode = root.FindMember("windowPos");
@@ -507,7 +507,7 @@ void AppSettings::_LoadSettings(const rapidjson::GenericObject<true, rapidjson::
 				auto paramsObj = parametersNode->value.GetObj();
 				_downscalingEffect.parameters.reserve(paramsObj.MemberCount());
 				for (const auto& param : paramsObj) {
-					if (!param.value.IsFloat()) {
+					if (!param.value.IsNumber()) {
 						continue;
 					}
 
@@ -518,7 +518,7 @@ void AppSettings::_LoadSettings(const rapidjson::GenericObject<true, rapidjson::
 		}
 	}
 
-	ScalingModesService::Get().Import(root);
+	ScalingModesService::Get().Import(root, false);
 
 	auto scaleProfilesNode = root.FindMember("scalingProfiles");
 	if (scaleProfilesNode != root.MemberEnd() && scaleProfilesNode->value.IsArray()) {

@@ -79,7 +79,7 @@ public:
 	// 不合理的 API 设计
 	void Export(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer) const noexcept;
 
-	bool Import(const rapidjson::GenericObject<true, rapidjson::Value>& root) noexcept;
+	bool Import(const rapidjson::GenericObject<true, rapidjson::Value>& root, bool strict) noexcept;
 
 	bool ImportLegacy(const rapidjson::Document& doc) noexcept;
 private:

@@ -21,7 +21,7 @@ struct ComboBoxHelper {
 		if (selectedItem) {
 			std::optional<hstring> str = selectedItem.try_as<hstring>();
 			if (str.has_value()) {
-				comboBox.PlaceholderText(str.value());
+				comboBox.PlaceholderText(*str);
 			}
 		}
 	}

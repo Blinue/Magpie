@@ -55,7 +55,7 @@ EffectParametersViewModel::EffectParametersViewModel(uint32_t scalingModeIdx, ui
 			Magpie::UI::ScalingModeFloatParameter floatParamItem(
 				i,
 				StrUtils::UTF8ToUTF16(param.label.empty() ? param.name : param.label),
-				paramValue.has_value() ? paramValue.value() : constant.defaultValue,
+				paramValue.has_value() ? *paramValue : constant.defaultValue,
 				constant.minValue,
 				constant.maxValue,
 				constant.step
@@ -68,7 +68,7 @@ EffectParametersViewModel::EffectParametersViewModel(uint32_t scalingModeIdx, ui
 				Magpie::UI::ScalingModeBoolParameter boolParamItem(
 					i,
 					StrUtils::UTF8ToUTF16(param.label.empty() ? param.name : param.label),
-					paramValue.has_value() ? std::abs(paramValue.value()) > 1e-6 : (bool)constant.defaultValue
+					paramValue.has_value() ? std::abs(*paramValue) > 1e-6 : (bool)constant.defaultValue
 				);
 				boolParamItem.PropertyChanged({ this, &EffectParametersViewModel::_ScalingModeBoolParameter_PropertyChanged });
 				boolParams.push_back(boolParamItem);
@@ -76,7 +76,7 @@ EffectParametersViewModel::EffectParametersViewModel(uint32_t scalingModeIdx, ui
 				Magpie::UI::ScalingModeFloatParameter floatParamItem(
 					i,
 					StrUtils::UTF8ToUTF16(param.label.empty() ? param.name : param.label),
-					paramValue.has_value() ? paramValue.value() : (float)constant.defaultValue,
+					paramValue.has_value() ? *paramValue : (float)constant.defaultValue,
 					(float)constant.minValue,
 					(float)constant.maxValue,
 					(float)constant.step
