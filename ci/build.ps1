@@ -1,3 +1,5 @@
+$ErrorActionPreference = "Stop"
+
 msbuild /p:Configuration=Release`;Platform=x64 src\CONAN_INSTALL
 msbuild /p:Configuration=Release`;Platform=x64`;OutDir=..\..\publish\ src\Effects
 msbuild /p:Configuration=Release`;Platform=x64`;OutDir=..\..\publish\ src\Magpie.Core
