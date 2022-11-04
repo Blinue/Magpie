@@ -35,10 +35,7 @@ jobs:
       uses: microsoft/setup-msbuild@v1
 
     - name: Build
-      run: msbuild /p:Configuration=Release /p:Platform=x64 src/DEPLOY
-      
-    - name: VC
-      run: pwsh "./publish.ps1"
+      run: pwsh "ci/build.ps1"
 
     - name: Save hash
       id: hash
