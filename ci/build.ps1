@@ -26,4 +26,4 @@ Remove-Item @("*.pdb", "*.lib", "*.exp", "*.winmd", "*.xml", "*.xbf", "dummy.*",
 Remove-Item @("Microsoft.UI.Xaml", "Magpie.UI") -Recurse
 Remove-Item *.pri -Exclude resources.pri
 
-COPY-ITEM -Path @("C:\Windows\System32\msvcp140.dll", "C:\Windows\System32\vcruntime140.dll", "C:\Windows\System32\vcruntime140_1.dll")
+Copy-Item @("C:\Windows\System32\msvcp140.dll", "C:\Windows\System32\vcruntime140.dll", "C:\Windows\System32\vcruntime140_1.dll")
