@@ -21,7 +21,7 @@ if($LastExitCode -ne 0) {
 	throw '编译 Updater 失败'
 }
 
-cd .\publish\
+Set-Location .\publish\
 Remove-Item @("*.pdb", "*.lib", "*.exp", "*.winmd", "*.xml", "*.xbf", "dummy.*", "Microsoft.Web.WebView2.Core.dll")
 Remove-Item @("Microsoft.UI.Xaml", "Magpie.UI") -Recurse
 Remove-Item *.pri -Exclude resources.pri
