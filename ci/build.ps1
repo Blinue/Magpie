@@ -1,7 +1,10 @@
-msbuild /p:Configuration=Release;Platform=x64 src\CONAN_INSTALL
-msbuild /p:Configuration=Release;Platform=x64;OutDir=publish src\Effects
-msbuild /p:Configuration=Release;Platform=x64;OutDir=publish src\Magpie.Core
-msbuild /m /p:Configuration=Release;Platform=x64;BuildProjectReferences=false;OutDir=publish src\Magpie
-msbuild /p:Configuration=Release;Platform=x64;OutDir=publish src\Updater
+msbuild /p:Configuration=Release`;Platform=x64 src\CONAN_INSTALL
+msbuild /p:Configuration=Release`;Platform=x64`;OutDir=..\..\publish\ src\Effects
+msbuild /p:Configuration=Release`;Platform=x64`;OutDir=..\..\publish\ src\Magpie.Core
+msbuild /m /p:Configuration=Release`;Platform=x64`;BuildProjectReferences=false`;OutDir=..\..\publish\ src\Magpie
+msbuild /p:Configuration=Release`;Platform=x64`;OutDir=..\..\publish\ src\Updater
+
+cd .\publish\
+Remove-Item ("*.pdb", "*.lib", "*.exp", "*.winmd", "*.xml", "*.xbf")
 
 COPY-ITEM -Path @("C:\Windows\System32\msvcp140.dll", "C:\Windows\System32\vcruntime140.dll", "C:\Windows\System32\vcruntime140_1.dll") -Destination "publish\"
