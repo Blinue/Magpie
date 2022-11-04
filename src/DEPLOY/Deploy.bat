@@ -47,7 +47,3 @@ RD /S /Q Microsoft.UI.Xaml
 RD /S /Q Magpie.UI
 REM 删除所有 pri 文件，除了 resources.pri
 FOR %%f IN ("*.pri") DO IF /i "%%~nf" NEQ "resources" DEL "%%f"
-
-copy /y C:\Windows\System32\msvcp140.dll
-copy /y C:\Windows\System32\vcruntime140.dll
-copy /y C:\Windows\System32\vcruntime140_1.dll
