@@ -2,9 +2,9 @@ name: build
 
 on:
   push:
-    paths: [ 'src/**', 'Magpie.sln', 'publish.ps1', '.github/workflows/build.yml' ]
+    paths: [ 'src/**', 'Magpie.sln', '.github/workflows/build.yml' ]
   pull_request:
-    paths: [ 'src/**', 'Magpie.sln', 'publish.ps1', '.github/workflows/build.yml' ]
+    paths: [ 'src/**', 'Magpie.sln', '.github/workflows/build.yml' ]
 
 # env:
 #   Configuration type to build.
@@ -18,9 +18,24 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
+
+    - name: Load Conan cache
+      uses: actions/cache@v3
+      with:
+        path: ./.conan/data
+        key: ${{ runner.os }}-conan-${{ hashFiles('src/conanfile.txt') }}
     
-    - name: test
-      run: pwsh ".\publish.ps1"
+    - name: Restore NuGet packages
+      run: nuget restore
+    
+    - name: Setup Conan
+      run: pip install conan
+
+    - name: Setup MSBuild
+      uses: microsoft/setup-msbuild@v1
+
+    - name: Build
+      run: msbuild /p:Configuration=Release /p:Platform=x64 src/DEPLOY
 
     - name: Save hash
       id: hash
