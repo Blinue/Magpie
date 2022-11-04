@@ -21,7 +21,7 @@ static constexpr const wchar_t* DDF_WINDOW_CLASS_NAME = L"Window_Magpie_C322D752
 
 
 static LRESULT DDFWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
-	if (msg == WM_DESTROY) {
+	if (msg == WM_DESTROY) {error
 		return 0;
 	}
 
