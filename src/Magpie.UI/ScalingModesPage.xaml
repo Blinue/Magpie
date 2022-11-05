@@ -295,7 +295,7 @@
 																</MenuFlyoutItem.Icon>
 																<FlyoutBase.AttachedFlyout>
 																	<Flyout>
-																		<StackPanel MaxWidth="260"
+																		<StackPanel MaxWidth="280"
 																					Orientation="Vertical">
 																			<TextBlock Margin="0,0,0,15"
 																					   FontWeight="SemiBold"
