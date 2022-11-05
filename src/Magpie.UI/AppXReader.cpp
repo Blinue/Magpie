@@ -625,7 +625,11 @@ static SoftwareBitmap AutoFillBackground(const std::wstring& iconPath, bool isLi
 	return bitmap;
 }
 
-std::variant<std::wstring, SoftwareBitmap> AppXReader::GetIcon(uint32_t preferredSize, bool isLightTheme, bool noPath) noexcept {
+std::variant<std::wstring, SoftwareBitmap> AppXReader::GetIcon(
+	uint32_t preferredSize,
+	bool isLightTheme,
+	bool noPath
+) noexcept {
 	assert(!_packagePath.empty());
 
 	if (_square44x44Logo.empty()) {
@@ -682,10 +686,18 @@ std::variant<std::wstring, SoftwareBitmap> AppXReader::GetIcon(uint32_t preferre
 		return {};
 	}
 
-	auto it = std::min_element(candidateIcons.begin(), candidateIcons.end(),
-		[=](const CandidateIcon& l, const CandidateIcon& r) { return CandidateIcon::Compare(l, r, preferredSize, isLightTheme); });
+	auto it = std::min_element(
+		candidateIcons.begin(),
+		candidateIcons.end(),
+		[=](const CandidateIcon& l, const CandidateIcon& r) {
+			return CandidateIcon::Compare(l, r, preferredSize, isLightTheme);
+		}
+	);
 
-	std::wstring iconPath = StrUtils::ConcatW(std::wstring_view(iconFileName.begin(), iconFileName.begin() + delimPos + 1), it->FileName());
+	std::wstring iconPath = StrUtils::ConcatW(
+		std::wstring_view(iconFileName.begin(), iconFileName.begin() + delimPos + 1),
+		it->FileName()
+	);
 	SoftwareBitmap bkgIcon = AutoFillBackground(iconPath, isLightTheme, noPath);
 	if (bkgIcon || noPath) {
 		return std::move(bkgIcon);
@@ -705,7 +717,7 @@ bool AppXReader::_ResolvePackagePath() {
 	}
 
 	uint32_t pfnLen = 0, praidLen = 0;
-	ParseApplicationUserModelId(_aumid.c_str(), &pfnLen, nullptr, &praidLen, nullptr);
+	std::ignore = ParseApplicationUserModelId(_aumid.c_str(), &pfnLen, nullptr, &praidLen, nullptr);
 	if (pfnLen == 0 || praidLen == 0) {
 		Logger::Get().Error("ParseApplicationUserModelId 失败");
 		return false;
@@ -713,7 +725,9 @@ bool AppXReader::_ResolvePackagePath() {
 
 	std::wstring packageFamilyName(pfnLen - 1, 0);
 	_praid.assign((size_t)praidLen - 1, 0);
-	if (ParseApplicationUserModelId(_aumid.c_str(), &pfnLen, packageFamilyName.data(), &praidLen, _praid.data()) != ERROR_SUCCESS) {
+	if (ParseApplicationUserModelId(_aumid.c_str(), &pfnLen, packageFamilyName.data(),
+		&praidLen, _praid.data()) != ERROR_SUCCESS)
+	{
 		Logger::Get().Error("ParseApplicationUserModelId 失败");
 		return false;
 	}
@@ -721,7 +735,8 @@ bool AppXReader::_ResolvePackagePath() {
 	//使用 PackageFamilyName 检索 PackageFullName
 	uint32_t packageCount = 0;
 	uint32_t bufferLength = 0;
-	FindPackagesByPackageFamily(packageFamilyName.c_str(), PACKAGE_FILTER_HEAD, &packageCount, nullptr, &bufferLength, nullptr, nullptr);
+	std::ignore = FindPackagesByPackageFamily(packageFamilyName.c_str(), PACKAGE_FILTER_HEAD,
+		&packageCount, nullptr, &bufferLength, nullptr, nullptr);
 	if (packageCount == 0 || bufferLength == 0) {
 		Logger::Get().Error("FindPackagesByPackageFamily 失败");
 		return false;
@@ -729,7 +744,9 @@ bool AppXReader::_ResolvePackagePath() {
 
 	std::unique_ptr<wchar_t* []> packageFullNames(new wchar_t* [packageCount]);
 	std::unique_ptr<wchar_t[]> buffer(new wchar_t[bufferLength]);
-	if (FindPackagesByPackageFamily(packageFamilyName.c_str(), PACKAGE_FILTER_HEAD, &packageCount, packageFullNames.get(), &bufferLength, buffer.get(), nullptr) != ERROR_SUCCESS) {
+	if (FindPackagesByPackageFamily(packageFamilyName.c_str(), PACKAGE_FILTER_HEAD,
+		&packageCount, packageFullNames.get(), &bufferLength, buffer.get(), nullptr) != ERROR_SUCCESS) 
+	{
 		Logger::Get().Error("FindPackagesByPackageFamily 失败");
 		return false;
 	}

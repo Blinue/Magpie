@@ -184,13 +184,13 @@ SoftwareBitmap IconHelper::GetIconOfWnd(HWND hWnd, uint32_t preferredSize, uint3
 	return GetIconOfExe(Win32Utils::GetPathOfWnd(hWnd).c_str(), preferredSize, dpi);
 }
 
-SoftwareBitmap IconHelper::GetIconOfExe(const wchar_t* path, uint32_t preferredSize, uint32_t dpi) {
+SoftwareBitmap IconHelper::GetIconOfExe(const wchar_t* fileName, uint32_t preferredSize, uint32_t dpi) {
 	preferredSize = (preferredSize + 15) / 16 * 16;
 	preferredSize = (uint32_t)std::lroundf(preferredSize * dpi / 96.0f);
 
 	{
 		HICON hIcon = NULL;
-		SHDefExtractIcon(path, 0, 0, &hIcon, NULL, preferredSize);
+		SHDefExtractIcon(fileName, 0, 0, &hIcon, NULL, preferredSize);
 		if (hIcon) {
 			SoftwareBitmap result = HIcon2SoftwareBitmap(hIcon);
 			DestroyIcon(hIcon);
@@ -199,7 +199,7 @@ SoftwareBitmap IconHelper::GetIconOfExe(const wchar_t* path, uint32_t preferredS
 	}
 
 	// 回落到 IShellItemImageFactory，该接口存在以下问题：
-	// 1. 相当慢，有时需要数十毫秒
+	// 1. 速度较慢
 	// 2. SIIGBF_BIGGERSIZEOK 不起作用，在我的测试里它始终在内部执行低质量的 GDI 缩放
 	// 3. 不能可靠的并发使用，有时会得到错误的结果
 	// 4. 据说它返回的位图有时已经预乘透明通道，没有区分的办法
@@ -210,7 +210,7 @@ SoftwareBitmap IconHelper::GetIconOfExe(const wchar_t* path, uint32_t preferredS
 		std::scoped_lock lk(mutex);
 
 		com_ptr<IShellItemImageFactory> factory;
-		HRESULT hr = SHCreateItemFromParsingName(path, nullptr, IID_PPV_ARGS(&factory));
+		HRESULT hr = SHCreateItemFromParsingName(fileName, nullptr, IID_PPV_ARGS(&factory));
 		if (FAILED(hr)) {
 			return nullptr;
 		}
@@ -219,6 +219,7 @@ SoftwareBitmap IconHelper::GetIconOfExe(const wchar_t* path, uint32_t preferredS
 			hr = factory->GetImage({ (LONG)preferredSize, (LONG)preferredSize }, SIIGBF_BIGGERSIZEOK | SIIGBF_ICONONLY, &hBmp);
 
 			if (hr == E_PENDING) {
+				// 等待提取完成
 				Sleep(0);
 				continue;
 			} else if (FAILED(hr)) {
@@ -229,10 +230,6 @@ SoftwareBitmap IconHelper::GetIconOfExe(const wchar_t* path, uint32_t preferredS
 		}
 	}
 
-	Utils::ScopeExit se([hBmp] {
-		DeleteBitmap(hBmp);
-	});
-
 	BITMAP bmp{};
 	GetObject(hBmp, sizeof(BITMAP), &bmp);
 
@@ -242,6 +239,7 @@ SoftwareBitmap IconHelper::GetIconOfExe(const wchar_t* path, uint32_t preferredS
 		uint8_t* pixels = buffer.CreateReference().data();
 
 		if (!CopyPixelsOfHBmp(hBmp, bmp.bmWidth, bmp.bmHeight, pixels)) {
+			DeleteBitmap(hBmp);
 			return nullptr;
 		}
 
@@ -255,6 +253,8 @@ SoftwareBitmap IconHelper::GetIconOfExe(const wchar_t* path, uint32_t preferredS
 			pixels[i + 2] = (BYTE)std::lroundf(pixels[i + 2] * alpha);
 		}
 	}
+
+	DeleteBitmap(hBmp);
 	return bitmap;
 }
 

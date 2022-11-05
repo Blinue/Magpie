@@ -675,6 +675,8 @@ bool Win32Utils::ShellOpen(const wchar_t* path, bool nonElevated) {
 }
 
 bool Win32Utils::OpenFolderAndSelectFile(const wchar_t* fileName) {
+	// 根据 https://docs.microsoft.com/en-us/windows/win32/api/shlobj_core/nf-shlobj_core-shparsedisplayname，
+	// SHParseDisplayName 不能在主线程调用
 	PIDLIST_ABSOLUTE pidl;
 	HRESULT hr = SHParseDisplayName(fileName, nullptr, &pidl, 0, nullptr);
 	if (FAILED(hr)) {
@@ -682,8 +684,6 @@ bool Win32Utils::OpenFolderAndSelectFile(const wchar_t* fileName) {
 		return false;
 	}
 
-	// 根据 https://docs.microsoft.com/en-us/windows/win32/api/shlobj_core/nf-shlobj_core-shparsedisplayname，
-	// SHParseDisplayName 不能在主线程调用
 	hr = SHOpenFolderAndSelectItems(pidl, 0, nullptr, 0);
 	CoTaskMemFree(pidl);
 	if (FAILED(hr)) {
