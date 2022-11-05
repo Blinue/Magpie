@@ -22,7 +22,9 @@ struct AppxCacheData {
 	std::wstring praid;
 	std::wstring packageFullName;
 	std::wstring packagePath;
-	com_ptr<IAppxManifestApplication> appxApp;
+	std::wstring displayName;
+	std::wstring executable;
+	std::wstring square44x44Logo;
 };
 static phmap::flat_hash_map<std::wstring, AppxCacheData> appxCache;
 // 用于同步对 appxCache 的访问
@@ -173,7 +175,7 @@ bool AppXReader::Initialize(std::wstring_view aumid) noexcept {
 
 		auto it = appxCache.find(aumid);
 		if (it != appxCache.end()) {
-			if (!it->second.appxApp) {
+			if (it->second.packagePath.empty()) {
 				// 之前的解析失败
 				return false;
 			}
@@ -182,7 +184,9 @@ bool AppXReader::Initialize(std::wstring_view aumid) noexcept {
 			_praid = it->second.praid;
 			_packageFullName = it->second.packageFullName;
 			_packagePath = it->second.packagePath;
-			_appxApp = it->second.appxApp;
+			_displayName = it->second.displayName;
+			_executable = it->second.executable;
+			_square44x44Logo = it->second.square44x44Logo;
 			return true;
 		}
 		
@@ -249,15 +253,34 @@ bool AppXReader::Initialize(std::wstring_view aumid) noexcept {
 
 		if (curPraid) {
 			if (_praid == curPraid) {
-				_appxApp = std::move(appxApp);
 				CoTaskMemFree(curPraid);
+
+				wchar_t* value = nullptr;
+				if (SUCCEEDED(appxApp->GetStringValue(L"DisplayName", &value)) && value) {
+					_displayName = value;
+					CoTaskMemFree(value);
+				}
+
+				value = nullptr;
+				if (SUCCEEDED(appxApp->GetStringValue(L"Executable", &value)) && value) {
+					_executable = value;
+					CoTaskMemFree(value);
+				}
+
+				value = nullptr;
+				if (SUCCEEDED(appxApp->GetStringValue(L"Square44x44Logo", &value)) && value) {
+					_square44x44Logo = value;
+					CoTaskMemFree(value);
+				}
 
 				std::scoped_lock lk(appxCacheMutex);
 				AppxCacheData& cacheData = appxCache[aumid];
 				cacheData.praid = _praid;
 				cacheData.packageFullName = _packageFullName;
 				cacheData.packagePath = _packagePath;
-				cacheData.appxApp = _appxApp;
+				cacheData.displayName = _displayName;
+				cacheData.executable = _executable;
+				cacheData.square44x44Logo = _square44x44Logo;
 				return true;
 			}
 
@@ -272,34 +295,28 @@ bool AppXReader::Initialize(std::wstring_view aumid) noexcept {
 }
 
 std::wstring AppXReader::GetDisplayName() noexcept {
-	assert(_appxApp);
+	assert(!_packagePath.empty());
 
-	wchar_t* value = nullptr;
-	if (FAILED(_appxApp->GetStringValue(L"DisplayName", &value)) || !value) {
+	if (_displayName.empty()) {
 		return {};
 	}
 
-	std::wstring result = ResourceFromPri(_packageFullName, value);
-	CoTaskMemFree(value);
-	return result;
+	return ResourceFromPri(_packageFullName, _displayName);
 }
 
 const std::wstring& AppXReader::GetPackagePath() noexcept {
-	assert(_appxApp);
+	assert(!_packagePath.empty());
 	return _packagePath;
 }
 
 std::wstring AppXReader::GetExecutablePath() noexcept {
-	assert(_appxApp);
+	assert(!_packagePath.empty());
 
-	wchar_t* value = nullptr;
-	if (FAILED(_appxApp->GetStringValue(L"Executable", &value)) || !value) {
+	if (_executable.empty()) {
 		return {};
 	}
 
-	std::wstring result = StrUtils::ConcatW(_packagePath, value);
-	CoTaskMemFree(value);
-	return result;
+	return StrUtils::ConcatW(_packagePath, _executable);
 }
 
 class CandidateIcon {
@@ -609,24 +626,17 @@ static SoftwareBitmap AutoFillBackground(const std::wstring& iconPath, bool isLi
 }
 
 std::variant<std::wstring, SoftwareBitmap> AppXReader::GetIcon(uint32_t preferredSize, bool isLightTheme, bool noPath) noexcept {
-	assert(_appxApp);
+	assert(!_packagePath.empty());
+
+	if (_square44x44Logo.empty()) {
+		return {};
+	}
 
 	std::wstring iconFileName;
-	{
-		wchar_t* logoUriVal = nullptr;
-		if (FAILED(_appxApp->GetStringValue(L"Square44x44Logo", &logoUriVal)) || !logoUriVal) {
-			return {};
-		}
-
-		std::wstring_view logoUri = logoUriVal;
-
-		if (logoUri.find(L'\\') != std::wstring_view::npos) {
-			iconFileName = _packagePath + logoUriVal;;
-		} else {
-			iconFileName = StrUtils::ConcatW(_packagePath, L"Assets\\", logoUri);;
-		}
-
-		CoTaskMemFree(logoUriVal);
+	if (_square44x44Logo.find(L'\\') != std::wstring_view::npos) {
+		iconFileName = _packagePath + _square44x44Logo;
+	} else {
+		iconFileName = StrUtils::ConcatW(_packagePath, L"Assets\\", _square44x44Logo);;
 	}
 
 	size_t delimPos = iconFileName.find_last_of(L'\\');
@@ -637,7 +647,7 @@ std::variant<std::wstring, SoftwareBitmap> AppXReader::GetIcon(uint32_t preferre
 	if (extensionPointPos == std::wstring::npos || extensionPointPos <= delimPos) {
 		return {};
 	}
-	
+
 	std::wstring_view prefix(iconFileName.begin(), iconFileName.begin() + extensionPointPos);
 	std::wstring_view extension(iconFileName.begin() + extensionPointPos, iconFileName.end());
 

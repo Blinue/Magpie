@@ -39,7 +39,9 @@ private:
 	std::wstring _praid;
 	std::wstring _packageFullName;
 	std::wstring _packagePath;
-	com_ptr<IAppxManifestApplication> _appxApp;
+	std::wstring _displayName;
+	std::wstring _executable;
+	std::wstring _square44x44Logo;
 };
 
 }
