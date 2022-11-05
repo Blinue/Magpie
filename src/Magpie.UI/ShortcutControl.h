@@ -10,8 +10,9 @@ namespace winrt::Magpie::UI::implementation {
 
 struct ShortcutControl : ShortcutControlT<ShortcutControl> {
 	ShortcutControl();
+	~ShortcutControl();
 
-	IAsyncAction EditButton_Click(IInspectable const&, RoutedEventArgs const&);
+	fire_and_forget EditButton_Click(IInspectable const&, RoutedEventArgs const&);
 
 	HotkeyAction Action() const {
 		return GetValue(ActionProperty).as<HotkeyAction>();

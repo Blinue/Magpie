@@ -6,6 +6,10 @@
 struct XamlUtils {
 	static void CloseXamlPopups(const winrt::Windows::UI::Xaml::XamlRoot& root);
 
+	static void CloseContentDialog(const winrt::Windows::UI::Xaml::XamlRoot& root);
+
+	static bool IsAnyContentDialogOpen(const winrt::Windows::UI::Xaml::XamlRoot& root);
+
 	static void UpdateThemeOfXamlPopups(
 		const winrt::Windows::UI::Xaml::XamlRoot& root,
 		winrt::Windows::UI::Xaml::ElementTheme theme

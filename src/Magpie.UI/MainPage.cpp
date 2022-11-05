@@ -169,7 +169,7 @@ void MainPage::NavigationView_DisplayModeChanged(MUXC::NavigationView const&, MU
 	XamlUtils::UpdateThemeOfTooltips(*this, ActualTheme());
 }
 
-IAsyncAction MainPage::NavigationView_ItemInvoked(MUXC::NavigationView const&, MUXC::NavigationViewItemInvokedEventArgs const& args) {
+fire_and_forget MainPage::NavigationView_ItemInvoked(MUXC::NavigationView const&, MUXC::NavigationViewItemInvokedEventArgs const& args) {
 	if (args.InvokedItemContainer() == NewProfileNavigationViewItem()) {
 		const UINT dpi = (UINT)std::lroundf(_displayInformation.LogicalDpi());
 		const bool isLightTheme = ActualTheme() == ElementTheme::Light;
@@ -301,7 +301,7 @@ fire_and_forget MainPage::_LoadIcon(MUXC::NavigationViewItem const& item, const 
 	}
 }
 
-IAsyncAction MainPage::_UISettings_ColorValuesChanged(Windows::UI::ViewManagement::UISettings const&, IInspectable const&) {
+fire_and_forget MainPage::_UISettings_ColorValuesChanged(Windows::UI::ViewManagement::UISettings const&, IInspectable const&) {
 	co_await Dispatcher();
 
 	if (AppSettings::Get().Theme() == 2) {

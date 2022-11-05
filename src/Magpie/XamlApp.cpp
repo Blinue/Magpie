@@ -206,7 +206,7 @@ void XamlApp::_CreateMainWindow() {
 	_UpdateTheme();
 
 	// MainPage 加载完成后显示主窗口
-	_mainPage.Loaded([this](winrt::IInspectable const&, winrt::RoutedEventArgs const&)->winrt::IAsyncAction {
+	_mainPage.Loaded([this](winrt::IInspectable const&, winrt::RoutedEventArgs const&) -> winrt::fire_and_forget {
 		co_await _mainPage.Dispatcher().RunAsync(winrt::CoreDispatcherPriority::Normal, [this]() {
 			// 防止窗口显示时背景闪烁
 			// https://stackoverflow.com/questions/69715610/how-to-initialize-the-background-color-of-win32-app-to-something-other-than-whit
@@ -542,6 +542,9 @@ LRESULT XamlApp::_WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				Logger::Get().Win32Error("GetWindowPlacement 失败");
 			}
 		}
+
+		// ContentDialog 不会自动关闭
+		XamlUtils::CloseContentDialog(_mainPage.XamlRoot());
 
 		_uwpApp.SaveSettings();
 		_uwpApp.HwndMain(0);

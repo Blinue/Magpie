@@ -112,7 +112,7 @@ private:
 
 	void _Settings_IsAutoRestoreChanged(bool);
 
-	IAsyncAction _MagRuntime_IsRunningChanged(bool);
+	fire_and_forget _MagRuntime_IsRunningChanged(bool);
 
 	void _UpdateIsAutoRestore();
 

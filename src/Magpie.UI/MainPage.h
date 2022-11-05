@@ -25,7 +25,7 @@ struct MainPage : MainPageT<MainPage> {
 
 	void NavigationView_DisplayModeChanged(MUXC::NavigationView const&, MUXC::NavigationViewDisplayModeChangedEventArgs const&);
 
-	IAsyncAction NavigationView_ItemInvoked(MUXC::NavigationView const&, MUXC::NavigationViewItemInvokedEventArgs const& args);
+	fire_and_forget NavigationView_ItemInvoked(MUXC::NavigationView const&, MUXC::NavigationViewItemInvokedEventArgs const& args);
 
 	MUXC::NavigationView RootNavigationView();
 
@@ -44,7 +44,7 @@ private:
 
 	fire_and_forget _LoadIcon(MUXC::NavigationViewItem const& item, const ScalingProfile& profile);
 
-	IAsyncAction _UISettings_ColorValuesChanged(Windows::UI::ViewManagement::UISettings const&, IInspectable const&);
+	fire_and_forget _UISettings_ColorValuesChanged(Windows::UI::ViewManagement::UISettings const&, IInspectable const&);
 
 	void _UpdateIcons(bool skipDesktop);
 
