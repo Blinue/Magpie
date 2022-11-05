@@ -28,8 +28,7 @@ struct ScalingProfileViewModel : ScalingProfileViewModelT<ScalingProfileViewMode
 	bool IsNotDefaultScalingProfile() const noexcept;
 
 	bool IsProgramExist() const noexcept {
-		// 无值时视为 true
-		return _isProgramExist.has_value() ? *_isProgramExist : true;
+		return _isProgramExist;
 	}
 
 	fire_and_forget OpenProgramLocation() const noexcept;
@@ -134,8 +133,7 @@ struct ScalingProfileViewModel : ScalingProfileViewModelT<ScalingProfileViewMode
 private:
 	fire_and_forget _LoadIcon(FrameworkElement const& mainPage);
 
-	std::optional<bool> _isProgramExist;
-	std::shared_ptr<AppXReader> _appxReader;
+	bool _isProgramExist = true;
 
 	hstring _renameText;
 	std::wstring_view _trimedRenameText;

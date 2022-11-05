@@ -64,7 +64,7 @@
 				</StackPanel.Resources>
 				<Button Padding="0"
 						Click="{x:Bind ViewModel.Launch}"
-						IsEnabled="{x:Bind ViewModel.IsProgramExist, Mode=OneWay}"
+						IsEnabled="{x:Bind ViewModel.IsProgramExist, Mode=OneTime}"
 						ToolTipService.ToolTip="启动">
 					<Button.Content>
 						<FontIcon Glyph="&#xE768;" />
@@ -80,7 +80,7 @@
 						<MenuFlyout Placement="Bottom"
 									ShouldConstrainToRootBounds="False">
 							<MenuFlyoutItem Click="{x:Bind ViewModel.OpenProgramLocation}"
-											IsEnabled="{x:Bind ViewModel.IsProgramExist, Mode=OneWay}"
+											IsEnabled="{x:Bind ViewModel.IsProgramExist, Mode=OneTime}"
 											Text="打开程序位置">
 								<MenuFlyoutItem.Icon>
 									<FontIcon Glyph="&#xE8DA;" />

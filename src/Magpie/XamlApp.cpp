@@ -377,7 +377,7 @@ void XamlApp::_UpdateTheme() {
 }
 
 // 使 ContentDialog 跟随窗口尺寸调整
-void XamlApp::_ResizeXamlDialog() {
+void XamlApp::_ResizeContentDialog() {
 	winrt::XamlRoot root = _mainPage.XamlRoot();
 	if (!root) {
 		return;
@@ -460,7 +460,7 @@ LRESULT XamlApp::_WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			if (_mainPage) {
 				[](XamlApp* app)->winrt::fire_and_forget {
 					co_await app->_mainPage.Dispatcher().RunAsync(winrt::CoreDispatcherPriority::Normal, [app]() {
-						app->_ResizeXamlDialog();
+						app->_ResizeContentDialog();
 						app->_RepositionXamlPopups(true);
 					});
 				}(this);

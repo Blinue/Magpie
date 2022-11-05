@@ -81,8 +81,8 @@ ScalingProfileViewModel::ScalingProfileViewModel(int32_t profileIdx) : _isDefaul
 		);
 
 		if (_data->isPackaged) {
-			_appxReader.reset(new AppXReader());
-			_appxReader->Initialize(_data->pathRule);
+			AppXReader appxReader;
+			_isProgramExist = appxReader.Initialize(_data->pathRule);
 		} else {
 			_isProgramExist = Win32Utils::FileExists(_data->pathRule.c_str());
 		}
@@ -118,16 +118,20 @@ bool ScalingProfileViewModel::IsNotDefaultScalingProfile() const noexcept {
 }
 
 fire_and_forget ScalingProfileViewModel::OpenProgramLocation() const noexcept {
-	if (!_isProgramExist.has_value() || !*_isProgramExist) {
+	if (!_isProgramExist) {
 		co_return;
 	}
 
 	std::wstring programLocation;
 	if (_data->isPackaged) {
-		programLocation = _appxReader->GetExecutablePath();
+		AppXReader appxReader;
+		[[maybe_unused]] bool result = appxReader.Initialize(_data->pathRule);
+		assert(result);
+
+		programLocation = appxReader.GetExecutablePath();
 		if (programLocation.empty()) {
 			// 找不到可执行文件则打开应用文件夹
-			Win32Utils::ShellOpen(_appxReader->GetPackagePath().c_str());
+			Win32Utils::ShellOpen(appxReader.GetPackagePath().c_str());
 			co_return;
 		}
 	} else {
@@ -169,7 +173,7 @@ static void LaunchPackagedApp(const wchar_t* aumid) {
 }
 
 void ScalingProfileViewModel::Launch() const noexcept {
-	if (!_isProgramExist.has_value() || !*_isProgramExist) {
+	if (!_isProgramExist) {
 		return;
 	}
 
@@ -552,10 +556,9 @@ fire_and_forget ScalingProfileViewModel::_LoadIcon(FrameworkElement const& mainP
 	std::wstring iconPath;
 	SoftwareBitmap iconBitmap{ nullptr };
 
-	if (!_isProgramExist.has_value() || *_isProgramExist) {
+	if (_isProgramExist) {
 		auto weakThis = get_weak();
 
-		std::shared_ptr<AppXReader> appxReader = _appxReader;
 		const bool preferLightTheme = mainPage.ActualTheme() == ElementTheme::Light;
 		const bool isPackaged = _data->isPackaged;
 		const std::wstring path = _data->pathRule;
@@ -566,26 +569,16 @@ fire_and_forget ScalingProfileViewModel::_LoadIcon(FrameworkElement const& mainP
 
 		static constexpr const UINT ICON_SIZE = 32;
 		if (isPackaged) {
-			bool isProgramExist = appxReader->Resolve();
+			AppXReader appxReader;
+			[[maybe_unused]] bool result = appxReader.Initialize(path);
+			assert(result);
 
-			dispatcher.RunAsync(CoreDispatcherPriority::Normal, [weakThis, isProgramExist]() {
-				auto strongThis = weakThis.get();
-				if (!strongThis || strongThis->_isProgramExist.has_value()) {
-					return;
-				}
-
-				strongThis->_isProgramExist = isProgramExist;
-				strongThis->_propertyChangedEvent(*strongThis, PropertyChangedEventArgs(L"IsProgramExist"));
-			});
-
-			if (isProgramExist) {
-				std::variant<std::wstring, SoftwareBitmap> uwpIcon =
-					appxReader->GetIcon((uint32_t)std::ceil(dpi * ICON_SIZE / 96.0), preferLightTheme);
-				if (uwpIcon.index() == 0) {
-					iconPath = std::get<0>(uwpIcon);
-				} else {
-					iconBitmap = std::get<1>(uwpIcon);
-				}
+			std::variant<std::wstring, SoftwareBitmap> uwpIcon =
+				appxReader.GetIcon((uint32_t)std::ceil(dpi * ICON_SIZE / 96.0), preferLightTheme);
+			if (uwpIcon.index() == 0) {
+				iconPath = std::get<0>(uwpIcon);
+			} else {
+				iconBitmap = std::get<1>(uwpIcon);
 			}
 		} else {
 			iconBitmap = IconHelper::GetIconOfExe(path.c_str(), ICON_SIZE, dpi);

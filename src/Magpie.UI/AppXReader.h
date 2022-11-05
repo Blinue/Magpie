@@ -12,11 +12,7 @@ class AppXReader {
 public:
 	bool Initialize(HWND hWnd) noexcept;
 
-	void Initialize(std::wstring_view aumid) noexcept {
-		_aumid = aumid;
-	}
-
-	bool Resolve() noexcept;
+	bool Initialize(std::wstring_view aumid) noexcept;
 
 	const std::wstring& AUMID() const noexcept {
 		return _aumid;
@@ -28,7 +24,13 @@ public:
 
 	std::wstring GetExecutablePath() noexcept;
 	
-	std::variant<std::wstring, Windows::Graphics::Imaging::SoftwareBitmap> GetIcon(uint32_t preferredSize, bool isLightTheme, bool noPath = false) noexcept;
+	std::variant<std::wstring, Windows::Graphics::Imaging::SoftwareBitmap> GetIcon(
+		uint32_t preferredSize,
+		bool isLightTheme,
+		bool noPath = false
+	) noexcept;
+
+	static void ClearCache() noexcept;
 
 private:
 	bool _ResolvePackagePath();
@@ -39,6 +41,5 @@ private:
 	std::wstring _packagePath;
 	com_ptr<IAppxManifestApplication> _appxApp;
 };
-
 
 }

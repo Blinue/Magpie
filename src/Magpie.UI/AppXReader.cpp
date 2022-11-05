@@ -2,13 +2,12 @@
 #include "AppXReader.h"
 #include "Win32Utils.h"
 #include "StrUtils.h"
-#include "Utils.h"
 #include "Logger.h"
 #include <appmodel.h>
 #include <propkey.h>
 #include <regex>
 #include <wincodec.h>
-
+#include <parallel_hashmap/phmap.h>
 
 using namespace winrt;
 using namespace Windows::Graphics::Imaging;
@@ -19,8 +18,20 @@ using namespace Windows::UI::ViewManagement;
 
 namespace winrt::Magpie::UI {
 
-// 移植自 https://github.com/microsoft/PowerToys/blob/c36a80dad571db26d6cf9e40e70099815ed56049/src/modules/launcher/Plugins/Microsoft.Plugin.Program/Programs/UWPApplication.cs#L299
+struct AppxCacheData {
+	std::wstring praid;
+	std::wstring packageFullName;
+	std::wstring packagePath;
+	com_ptr<IAppxManifestApplication> appxApp;
+};
+static phmap::flat_hash_map<std::wstring, AppxCacheData> appxCache;
+// 用于同步对 appxCache 的访问
+static Win32Utils::SRWMutex appxCacheMutex;
+
+
 static std::wstring ResourceFromPri(std::wstring_view packageFullName, std::wstring_view resourceReference) {
+	// 移植自 https://github.com/microsoft/PowerToys/blob/c36a80dad571db26d6cf9e40e70099815ed56049/src/modules/launcher/Plugins/Microsoft.Plugin.Program/Programs/UWPApplication.cs#L299
+
 	std::wstring_view prefix = L"ms-resource:";
 
 	StrUtils::Trim(resourceReference);
@@ -108,31 +119,7 @@ bool AppXReader::Initialize(HWND hWnd) noexcept {
 		}
 	}
 
-	if (!isSuspended) {
-		// 使用 GetApplicationUserModelId 获取 AUMID
-		DWORD dwProcId = 0;
-		if (!GetWindowThreadProcessId(hWnd, &dwProcId)) {
-			Logger::Get().Win32Error("GetWindowThreadProcessId 失败");
-			return false;
-		}
-
-		Win32Utils::ScopedHandle hProc(Win32Utils::SafeHandle(OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, dwProcId)));
-		if (!hProc) {
-			Logger::Get().Win32Error("OpenProcess 失败");
-			return false;
-		}
-
-		UINT32 length = 0;
-		if (GetApplicationUserModelId(hProc.get(), &length, nullptr) == APPMODEL_ERROR_NO_APPLICATION || length == 0) {
-			return false;
-		}
-
-		_aumid.resize((size_t)length - 1);
-		if (GetApplicationUserModelId(hProc.get(), &length, _aumid.data()) != ERROR_SUCCESS) {
-			_aumid.clear();
-			return false;
-		}
-	} else {
+	if (isSuspended) {
 		// 窗口被挂起，此时 UWP 进程无法通过子窗口找到
 		// 回落到从窗口的 PropertyStore 中检索 AUMID
 		// 来自 https://github.com/valinet/sws/blob/bc8b04e451649964ee3d74255f9e9eda13ef24c3/SimpleWindowSwitcher/sws_IconPainter.c#L257
@@ -149,18 +136,144 @@ bool AppXReader::Initialize(HWND hWnd) noexcept {
 			return false;
 		}
 
-		_aumid = prop.pwszVal;
+		bool result = Initialize(prop.pwszVal);
 		PropVariantClear(&prop);
+		return result;
 	}
 
-	return true;
+	// 使用 GetApplicationUserModelId 获取 AUMID
+	DWORD dwProcId = 0;
+	if (!GetWindowThreadProcessId(hWnd, &dwProcId)) {
+		Logger::Get().Win32Error("GetWindowThreadProcessId 失败");
+		return false;
+	}
+
+	Win32Utils::ScopedHandle hProc(Win32Utils::SafeHandle(OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, dwProcId)));
+	if (!hProc) {
+		Logger::Get().Win32Error("OpenProcess 失败");
+		return false;
+	}
+
+	UINT32 length = 0;
+	if (GetApplicationUserModelId(hProc.get(), &length, nullptr) == APPMODEL_ERROR_NO_APPLICATION || length == 0) {
+		return false;
+	}
+
+	std::wstring aumid((size_t)length - 1, 0);
+	if (GetApplicationUserModelId(hProc.get(), &length, aumid.data()) != ERROR_SUCCESS) {
+		return false;
+	}
+
+	return Initialize(aumid);
+}
+
+bool AppXReader::Initialize(std::wstring_view aumid) noexcept {
+	{
+		std::scoped_lock lk(appxCacheMutex);
+
+		auto it = appxCache.find(aumid);
+		if (it != appxCache.end()) {
+			if (!it->second.appxApp) {
+				// 之前的解析失败
+				return false;
+			}
+
+			_aumid = aumid;
+			_praid = it->second.praid;
+			_packageFullName = it->second.packageFullName;
+			_packagePath = it->second.packagePath;
+			_appxApp = it->second.appxApp;
+			return true;
+		}
+		
+		appxCache.emplace(aumid, AppxCacheData());
+	}
+
+	_aumid = aumid;
+
+	if (!_ResolvePackagePath()) {
+		return false;
+	}
+
+	com_ptr<IAppxFactory> factory = try_create_instance<IAppxFactory>(CLSID_AppxFactory);
+	if (!factory) {
+		Logger::Get().Error("创建 AppxFactory 失败");
+		return false;
+	}
+
+	com_ptr<IStream> inputStream;
+	HRESULT hr = SHCreateStreamOnFileEx(
+		(_packagePath + L"AppXManifest.xml").c_str(),
+		STGM_READ | STGM_SHARE_DENY_WRITE,
+		0,
+		FALSE,
+		nullptr,
+		inputStream.put()
+	);
+	if (FAILED(hr)) {
+		Logger::Get().ComError("打开 AppXManifest.xml 失败", hr);
+		return false;
+	}
+
+	com_ptr<IAppxManifestReader> manifestReader;
+	hr = factory->CreateManifestReader(
+		inputStream.get(),
+		manifestReader.put()
+	);
+	if (FAILED(hr)) {
+		Logger::Get().ComError("CreateManifestReader 失败", hr);
+		return false;
+	}
+
+	com_ptr<IAppxManifestApplicationsEnumerator> appEnumerator;
+	hr = manifestReader->GetApplications(appEnumerator.put());
+	if (FAILED(hr)) {
+		Logger::Get().ComError("GetApplications 失败", hr);
+		return false;
+	}
+
+	// 枚举所有应用查找 praid
+	BOOL hasCurrent = FALSE;
+	hr = appEnumerator->GetHasCurrent(&hasCurrent);
+
+	while (SUCCEEDED(hr) && hasCurrent) {
+		com_ptr<IAppxManifestApplication> appxApp;
+		if (FAILED(appEnumerator->GetCurrent(appxApp.put()))) {
+			break;
+		}
+
+		wchar_t* curPraid = nullptr;
+		if (FAILED(appxApp->GetStringValue(L"Id", &curPraid))) {
+			break;
+		}
+
+		if (curPraid) {
+			if (_praid == curPraid) {
+				_appxApp = std::move(appxApp);
+				CoTaskMemFree(curPraid);
+
+				std::scoped_lock lk(appxCacheMutex);
+				AppxCacheData& cacheData = appxCache[aumid];
+				cacheData.praid = _praid;
+				cacheData.packageFullName = _packageFullName;
+				cacheData.packagePath = _packagePath;
+				cacheData.appxApp = _appxApp;
+				return true;
+			}
+
+			CoTaskMemFree(curPraid);
+		}
+
+		hr = appEnumerator->MoveNext(&hasCurrent);
+	}
+
+	// 未找到 Id 为 praid 的应用
+	return false;
 }
 
 std::wstring AppXReader::GetDisplayName() noexcept {
-	if (!Resolve()) {
-		return {};
-	}
-	
+	assert(_appxApp);
+
 	wchar_t* value = nullptr;
 	if (FAILED(_appxApp->GetStringValue(L"DisplayName", &value)) || !value) {
 		return {};
@@ -172,14 +285,12 @@ std::wstring AppXReader::GetDisplayName() noexcept {
 }
 
 const std::wstring& AppXReader::GetPackagePath() noexcept {
-	_ResolvePackagePath();
+	assert(_appxApp);
 	return _packagePath;
 }
 
 std::wstring AppXReader::GetExecutablePath() noexcept {
-	if (!Resolve()) {
-		return {};
-	}
+	assert(_appxApp);
 
 	wchar_t* value = nullptr;
 	if (FAILED(_appxApp->GetStringValue(L"Executable", &value)) || !value) {
@@ -498,9 +609,7 @@ static SoftwareBitmap AutoFillBackground(const std::wstring& iconPath, bool isLi
 }
 
 std::variant<std::wstring, SoftwareBitmap> AppXReader::GetIcon(uint32_t preferredSize, bool isLightTheme, bool noPath) noexcept {
-	if (!Resolve()) {
-		return {};
-	}
+	assert(_appxApp);
 
 	std::wstring iconFileName;
 	{
@@ -575,82 +684,9 @@ std::variant<std::wstring, SoftwareBitmap> AppXReader::GetIcon(uint32_t preferre
 	}
 }
 
-bool AppXReader::Resolve() noexcept {
-	if (_appxApp) {
-		return true;
-	}
-
-	if (!_ResolvePackagePath()) {
-		return false;
-	}
-
-	com_ptr<IAppxFactory> factory = try_create_instance<IAppxFactory>(CLSID_AppxFactory);
-	if (!factory) {
-		Logger::Get().Error("创建 AppxFactory 失败");
-		return false;
-	}
-
-	com_ptr<IStream> inputStream;
-	HRESULT hr = SHCreateStreamOnFileEx(
-		(_packagePath + L"AppXManifest.xml").c_str(),
-		STGM_READ | STGM_SHARE_DENY_WRITE,
-		0,
-		FALSE,
-		nullptr,
-		inputStream.put()
-	);
-	if (FAILED(hr)) {
-		Logger::Get().ComError("打开 AppXManifest.xml 失败", hr);
-		return false;
-	}
-
-	com_ptr<IAppxManifestReader> manifestReader;
-	hr = factory->CreateManifestReader(
-		inputStream.get(),
-		manifestReader.put()
-	);
-	if (FAILED(hr)) {
-		Logger::Get().ComError("CreateManifestReader 失败", hr);
-		return false;
-	}
-
-	com_ptr<IAppxManifestApplicationsEnumerator> appEnumerator;
-	hr = manifestReader->GetApplications(appEnumerator.put());
-	if (FAILED(hr)) {
-		Logger::Get().ComError("GetApplications 失败", hr);
-		return false;
-	}
-
-	// 枚举所有应用查找 praid
-	BOOL hasCurrent = FALSE;
-	hr = appEnumerator->GetHasCurrent(&hasCurrent);
-
-	while (SUCCEEDED(hr) && hasCurrent) {
-		com_ptr<IAppxManifestApplication> appxApp;
-		if (FAILED(appEnumerator->GetCurrent(appxApp.put()))) {
-			break;
-		}
-
-		wchar_t* curPraid = nullptr;
-		if (FAILED(appxApp->GetStringValue(L"Id", &curPraid))) {
-			break;
-		}
-
-		if (curPraid) {
-			if (_praid == curPraid) {
-				_appxApp = std::move(appxApp);
-				CoTaskMemFree(curPraid);
-				return true;
-			}
-
-			CoTaskMemFree(curPraid);
-		}
-
-		hr = appEnumerator->MoveNext(&hasCurrent);
-	}
-
-	// 未找到 Id 为 praid 的应用
-	return false;
+void AppXReader::ClearCache() noexcept {
+	std::scoped_lock lk(appxCacheMutex);
+	appxCache.clear();
 }
 
 bool AppXReader::_ResolvePackagePath() {
@@ -659,26 +695,32 @@ bool AppXReader::_ResolvePackagePath() {
 	}
 
 	uint32_t pfnLen = 0, praidLen = 0;
-	if (ParseApplicationUserModelId(_aumid.c_str(), &pfnLen, nullptr, &praidLen, nullptr) != ERROR_INSUFFICIENT_BUFFER || pfnLen == 0 || praidLen == 0) {
+	ParseApplicationUserModelId(_aumid.c_str(), &pfnLen, nullptr, &praidLen, nullptr);
+	if (pfnLen == 0 || praidLen == 0) {
+		Logger::Get().Error("ParseApplicationUserModelId 失败");
 		return false;
 	}
 
 	std::wstring packageFamilyName(pfnLen - 1, 0);
 	_praid.assign((size_t)praidLen - 1, 0);
 	if (ParseApplicationUserModelId(_aumid.c_str(), &pfnLen, packageFamilyName.data(), &praidLen, _praid.data()) != ERROR_SUCCESS) {
+		Logger::Get().Error("ParseApplicationUserModelId 失败");
 		return false;
 	}
 
 	//使用 PackageFamilyName 检索 PackageFullName
 	uint32_t packageCount = 0;
 	uint32_t bufferLength = 0;
-	if (FindPackagesByPackageFamily(packageFamilyName.c_str(), PACKAGE_FILTER_HEAD, &packageCount, nullptr, &bufferLength, nullptr, nullptr) != ERROR_INSUFFICIENT_BUFFER || packageCount == 0 || bufferLength == 0) {
+	FindPackagesByPackageFamily(packageFamilyName.c_str(), PACKAGE_FILTER_HEAD, &packageCount, nullptr, &bufferLength, nullptr, nullptr);
+	if (packageCount == 0 || bufferLength == 0) {
+		Logger::Get().Error("FindPackagesByPackageFamily 失败");
 		return false;
 	}
 
 	std::unique_ptr<wchar_t* []> packageFullNames(new wchar_t* [packageCount]);
 	std::unique_ptr<wchar_t[]> buffer(new wchar_t[bufferLength]);
 	if (FindPackagesByPackageFamily(packageFamilyName.c_str(), PACKAGE_FILTER_HEAD, &packageCount, packageFullNames.get(), &bufferLength, buffer.get(), nullptr) != ERROR_SUCCESS) {
+		Logger::Get().Error("FindPackagesByPackageFamily 失败");
 		return false;
 	}
 
@@ -688,11 +730,13 @@ bool AppXReader::_ResolvePackagePath() {
 	uint32_t pathLen = 0;
 	GetPackagePathByFullName(_packageFullName.c_str(), &pathLen, nullptr);
 	if (pathLen == 0) {
+		Logger::Get().Error("GetPackagePathByFullName 失败");
 		return false;
 	}
 
 	_packagePath.resize((size_t)pathLen - 1);
 	if (GetPackagePathByFullName(_packageFullName.c_str(), &pathLen, _packagePath.data()) != ERROR_SUCCESS) {
+		Logger::Get().Error("GetPackagePathByFullName 失败");
 		_packagePath.clear();
 		return false;
 	}

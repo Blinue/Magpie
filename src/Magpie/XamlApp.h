@@ -44,7 +44,7 @@ private:
 
 	void _UpdateTheme();
 
-	void _ResizeXamlDialog();
+	void _ResizeContentDialog();
 	void _RepositionXamlPopups(bool closeFlyoutPresenter);
 
 	static LRESULT _WndProcStatic(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {

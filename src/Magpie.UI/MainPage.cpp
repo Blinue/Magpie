@@ -80,6 +80,9 @@ MainPage::~MainPage() {
 	// 不手动置空会内存泄露
 	// 似乎是 XAML Islands 的 bug？
 	ContentFrame().Content(nullptr);
+
+	// 每次主窗口关闭都清理 AppXReader 的缓存
+	AppXReader::ClearCache();
 }
 
 void MainPage::Loaded(IInspectable const&, RoutedEventArgs const&) {
@@ -256,14 +259,14 @@ fire_and_forget MainPage::_LoadIcon(MUXC::NavigationViewItem const& item, const 
 
 	if (isPackaged) {
 		AppXReader reader;
-		reader.Initialize(path);
-
-		std::variant<std::wstring, SoftwareBitmap> uwpIcon = 
-			reader.GetIcon((uint32_t)std::ceil(dpi * 16 / 96.0), preferLightTheme);
-		if (uwpIcon.index() == 0) {
-			iconPath = std::get<0>(uwpIcon);
-		} else {
-			iconBitmap = std::get<1>(uwpIcon);
+		if (reader.Initialize(path)) {
+			std::variant<std::wstring, SoftwareBitmap> uwpIcon =
+				reader.GetIcon((uint32_t)std::ceil(dpi * 16 / 96.0), preferLightTheme);
+			if (uwpIcon.index() == 0) {
+				iconPath = std::get<0>(uwpIcon);
+			} else {
+				iconBitmap = std::get<1>(uwpIcon);
+			}
 		}
 	} else {
 		iconBitmap = IconHelper::GetIconOfExe(path.c_str(), 16, dpi);
