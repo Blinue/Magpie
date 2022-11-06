@@ -30,6 +30,8 @@ void ScalingModesService::AddScalingMode(std::wstring_view name, int copyFrom) {
 	}
 
 	_scalingModeAddedEvent();
+
+	AppSettings::Get().SaveAsync();
 }
 
 static void UpdateScalingProfileAfterRemove(ScalingProfile& profile, int removedIdx) {
@@ -50,6 +52,8 @@ void ScalingModesService::RemoveScalingMode(uint32_t index) {
 	}
 
 	_scalingModeRemovedEvent(index);
+
+	AppSettings::Get().SaveAsync();
 }
 
 static void UpdateScalingProfileAfterMove(ScalingProfile& profile, int idx, int targetIdx) {
@@ -79,6 +83,8 @@ bool ScalingModesService::MoveScalingMode(uint32_t scalingModeIdx, bool isMoveUp
 	}
 
 	_scalingModeMovedEvent(scalingModeIdx, isMoveUp);
+
+	AppSettings::Get().SaveAsync();
 	return true;
 }
 
@@ -273,17 +279,20 @@ bool ScalingModesService::Import(const rapidjson::GenericObject<true, rapidjson:
 		}
 	}
 
-	if (!scalingModes.empty()) {
-		std::vector<ScalingMode>& settings = AppSettings::Get().ScalingModes();
-		settings.insert(
-			settings.end(),
-			std::make_move_iterator(scalingModes.begin()),
-			std::make_move_iterator(scalingModes.end())
-		);
-
-		_scalingModeAddedEvent();
+	if (scalingModes.empty()) {
+		return true;
 	}
 
+	std::vector<ScalingMode>& settings = AppSettings::Get().ScalingModes();
+	settings.insert(
+		settings.end(),
+		std::make_move_iterator(scalingModes.begin()),
+		std::make_move_iterator(scalingModes.end())
+	);
+
+	_scalingModeAddedEvent();
+
+	AppSettings::Get().SaveAsync();
 	return true;
 }
 
@@ -433,6 +442,7 @@ bool ScalingModesService::ImportLegacy(const rapidjson::Document& doc) noexcept 
 
 	_scalingModeAddedEvent();
 	
+	AppSettings::Get().SaveAsync();
 	return true;
 }
 

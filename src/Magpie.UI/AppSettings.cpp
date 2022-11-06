@@ -253,116 +253,18 @@ bool AppSettings::Initialize() {
 }
 
 bool AppSettings::Save() {
-	if (!Win32Utils::CreateDir(_configDir)) {
-		Logger::Get().Error("创建配置文件夹失败");
-		return false;
-	}
+	_UpdateWindowPlacement();
+	return _Save(*this);
+}
 
-	rapidjson::StringBuffer json;
-	rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(json);
-	writer.StartObject();
+fire_and_forget AppSettings::SaveAsync() {
+	_UpdateWindowPlacement();
 
-	writer.Key("version");
-	writer.Uint(SETTINGS_VERSION);
+	// 拷贝当前配置
+	_AppSettingsData data = *this;
+	co_await resume_background();
 
-	writer.Key("theme");
-	writer.Uint(_theme);
-
-	if (HWND hwndMain = (HWND)Application::Current().as<App>().HwndMain()) {
-		WINDOWPLACEMENT wp{};
-		wp.length = sizeof(wp);
-		if (GetWindowPlacement(hwndMain, &wp)) {
-			_windowRect = {
-				wp.rcNormalPosition.left,
-				wp.rcNormalPosition.top,
-				wp.rcNormalPosition.right - wp.rcNormalPosition.left,
-				wp.rcNormalPosition.bottom - wp.rcNormalPosition.top
-			};
-			_isWindowMaximized = wp.showCmd == SW_MAXIMIZE;
-
-		} else {
-			Logger::Get().Win32Error("GetWindowPlacement 失败");
-		}
-	}
-
-	writer.Key("windowPos");
-	writer.StartObject();
-	writer.Key("x");
-	writer.Int(_windowRect.left);
-	writer.Key("y");
-	writer.Int(_windowRect.top);
-	writer.Key("width");
-	writer.Uint((uint32_t)_windowRect.right);
-	writer.Key("height");
-	writer.Uint((uint32_t)_windowRect.bottom);
-	writer.Key("maximized");
-	writer.Bool(_isWindowMaximized);
-	writer.EndObject();
-
-	writer.Key("hotkeys");
-	writer.StartObject();
-	writer.Key("scale");
-	writer.Uint(EncodeHotkey(_hotkeys[(size_t)HotkeyAction::Scale]));
-	writer.Key("overlay");
-	writer.Uint(EncodeHotkey(_hotkeys[(size_t)HotkeyAction::Overlay]));
-	writer.EndObject();
-
-	writer.Key("autoRestore");
-	writer.Bool(_isAutoRestore);
-	writer.Key("downCount");
-	writer.Uint(_downCount);
-	writer.Key("debugMode");
-	writer.Bool(_isDebugMode);
-	writer.Key("disableEffectCache");
-	writer.Bool(_isDisableEffectCache);
-	writer.Key("saveEffectSources");
-	writer.Bool(_isSaveEffectSources);
-	writer.Key("warningsAreErrors");
-	writer.Bool(_isWarningsAreErrors);
-	writer.Key("simulateExclusiveFullscreen");
-	writer.Bool(_isSimulateExclusiveFullscreen);
-	writer.Key("alwaysRunAsElevated");
-	writer.Bool(_isAlwaysRunAsElevated);
-	writer.Key("showTrayIcon");
-	writer.Bool(_isShowTrayIcon);
-	writer.Key("inlineParams");
-	writer.Bool(_isInlineParams);
-
-	if (!_downscalingEffect.name.empty()) {
-		writer.Key("downscalingEffect");
-		writer.StartObject();
-		writer.Key("name");
-		writer.String(StrUtils::UTF16ToUTF8(_downscalingEffect.name).c_str());
-		if (!_downscalingEffect.parameters.empty()) {
-			writer.Key("parameters");
-			writer.StartObject();
-			for (const auto& [name, value] : _downscalingEffect.parameters) {
-				writer.Key(StrUtils::UTF16ToUTF8(name).c_str());
-				writer.Double(value);
-			}
-			writer.EndObject();
-		}
-		writer.EndObject();
-	}
-
-	ScalingModesService::Get().Export(writer);
-
-	writer.Key("scalingProfiles");
-	writer.StartArray();
-	WriteScalingProfile(writer, _defaultScalingProfile);
-	for (const ScalingProfile& rule : _scalingProfiles) {
-		WriteScalingProfile(writer, rule);
-	}
-	writer.EndArray();
-
-	writer.EndObject();
-
-	if (!Win32Utils::WriteTextFile(_configPath.c_str(), { json.GetString(), json.GetLength() })) {
-		Logger::Get().Error("保存配置失败");
-		return false;
-	}
-
-	return true;
+	_Save(data);
 }
 
 void AppSettings::IsPortableMode(bool value) {
@@ -380,6 +282,8 @@ void AppSettings::IsPortableMode(bool value) {
 
 	_isPortableMode = value;
 	_UpdateConfigPath();
+
+	SaveAsync();
 }
 
 void AppSettings::Theme(uint32_t value) {
@@ -391,6 +295,8 @@ void AppSettings::Theme(uint32_t value) {
 
 	_theme = value;
 	_themeChangedEvent(value);
+
+	SaveAsync();
 }
 
 void AppSettings::SetHotkey(HotkeyAction action, const Magpie::UI::HotkeySettings& value) {
@@ -401,6 +307,8 @@ void AppSettings::SetHotkey(HotkeyAction action, const Magpie::UI::HotkeySetting
 	_hotkeys[(size_t)action] = value;
 	Logger::Get().Info(fmt::format("热键 {} 已更改为 {}", HotkeyHelper::ToString(action), StrUtils::UTF16ToUTF8(value.ToString())));
 	_hotkeyChangedEvent(action);
+
+	SaveAsync();
 }
 
 void AppSettings::IsAutoRestore(bool value) noexcept {
@@ -410,6 +318,8 @@ void AppSettings::IsAutoRestore(bool value) noexcept {
 
 	_isAutoRestore = value;
 	_isAutoRestoreChangedEvent(value);
+
+	SaveAsync();
 }
 
 void AppSettings::DownCount(uint32_t value) noexcept {
@@ -419,6 +329,8 @@ void AppSettings::DownCount(uint32_t value) noexcept {
 
 	_downCount = value;
 	_downCountChangedEvent(value);
+
+	SaveAsync();
 }
 
 void AppSettings::IsAlwaysRunAsElevated(bool value) noexcept {
@@ -432,6 +344,8 @@ void AppSettings::IsAlwaysRunAsElevated(bool value) noexcept {
 		// 更新启动任务
 		AutoStartHelper::EnableAutoStart(value, _isShowTrayIcon ? arguments.c_str() : nullptr);
 	}
+
+	SaveAsync();
 }
 
 void AppSettings::IsShowTrayIcon(bool value) noexcept {
@@ -441,6 +355,127 @@ void AppSettings::IsShowTrayIcon(bool value) noexcept {
 
 	_isShowTrayIcon = value;
 	_isShowTrayIconChangedEvent(value);
+
+	SaveAsync();
+}
+
+void AppSettings::_UpdateWindowPlacement() noexcept {
+	HWND hwndMain = (HWND)Application::Current().as<App>().HwndMain();
+	if (!hwndMain) {
+		return;
+	}
+
+	WINDOWPLACEMENT wp{ sizeof(wp) };
+	if (!GetWindowPlacement(hwndMain, &wp)) {
+		Logger::Get().Win32Error("GetWindowPlacement 失败");
+		return;
+	}
+
+	_windowRect = {
+		wp.rcNormalPosition.left,
+		wp.rcNormalPosition.top,
+		wp.rcNormalPosition.right - wp.rcNormalPosition.left,
+		wp.rcNormalPosition.bottom - wp.rcNormalPosition.top
+	};
+	_isWindowMaximized = wp.showCmd == SW_MAXIMIZE;
+}
+
+bool AppSettings::_Save(const _AppSettingsData& data) noexcept {
+	if (!Win32Utils::CreateDir(data._configDir)) {
+		Logger::Get().Error("创建配置文件夹失败");
+		return false;
+	}
+
+	rapidjson::StringBuffer json;
+	rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(json);
+	writer.StartObject();
+
+	writer.Key("version");
+	writer.Uint(SETTINGS_VERSION);
+
+	writer.Key("theme");
+	writer.Uint(data._theme);
+
+	writer.Key("windowPos");
+	writer.StartObject();
+	writer.Key("x");
+	writer.Int(data._windowRect.left);
+	writer.Key("y");
+	writer.Int(data._windowRect.top);
+	writer.Key("width");
+	writer.Uint((uint32_t)data._windowRect.right);
+	writer.Key("height");
+	writer.Uint((uint32_t)data._windowRect.bottom);
+	writer.Key("maximized");
+	writer.Bool(data._isWindowMaximized);
+	writer.EndObject();
+
+	writer.Key("hotkeys");
+	writer.StartObject();
+	writer.Key("scale");
+	writer.Uint(EncodeHotkey(data._hotkeys[(size_t)HotkeyAction::Scale]));
+	writer.Key("overlay");
+	writer.Uint(EncodeHotkey(data._hotkeys[(size_t)HotkeyAction::Overlay]));
+	writer.EndObject();
+
+	writer.Key("autoRestore");
+	writer.Bool(data._isAutoRestore);
+	writer.Key("downCount");
+	writer.Uint(data._downCount);
+	writer.Key("debugMode");
+	writer.Bool(data._isDebugMode);
+	writer.Key("disableEffectCache");
+	writer.Bool(data._isDisableEffectCache);
+	writer.Key("saveEffectSources");
+	writer.Bool(data._isSaveEffectSources);
+	writer.Key("warningsAreErrors");
+	writer.Bool(data._isWarningsAreErrors);
+	writer.Key("simulateExclusiveFullscreen");
+	writer.Bool(data._isSimulateExclusiveFullscreen);
+	writer.Key("alwaysRunAsElevated");
+	writer.Bool(data._isAlwaysRunAsElevated);
+	writer.Key("showTrayIcon");
+	writer.Bool(data._isShowTrayIcon);
+	writer.Key("inlineParams");
+	writer.Bool(data._isInlineParams);
+
+	if (!data._downscalingEffect.name.empty()) {
+		writer.Key("downscalingEffect");
+		writer.StartObject();
+		writer.Key("name");
+		writer.String(StrUtils::UTF16ToUTF8(data._downscalingEffect.name).c_str());
+		if (!data._downscalingEffect.parameters.empty()) {
+			writer.Key("parameters");
+			writer.StartObject();
+			for (const auto& [name, value] : data._downscalingEffect.parameters) {
+				writer.Key(StrUtils::UTF16ToUTF8(name).c_str());
+				writer.Double(value);
+			}
+			writer.EndObject();
+		}
+		writer.EndObject();
+	}
+
+	ScalingModesService::Get().Export(writer);
+
+	writer.Key("scalingProfiles");
+	writer.StartArray();
+	WriteScalingProfile(writer, data._defaultScalingProfile);
+	for (const ScalingProfile& rule : data._scalingProfiles) {
+		WriteScalingProfile(writer, rule);
+	}
+	writer.EndArray();
+
+	writer.EndObject();
+
+	// 防止并行写入
+	std::scoped_lock lk(_saveMutex);
+	if (!Win32Utils::WriteTextFile(data._configPath.c_str(), { json.GetString(), json.GetLength() })) {
+		Logger::Get().Error("保存配置失败");
+		return false;
+	}
+
+	return true;
 }
 
 // 永远不会失败，遇到不合法的配置项则静默忽略

@@ -81,6 +81,7 @@ bool ScalingProfileService::AddProfile(
 
 	_profileAddedEvent(std::ref(profile));
 
+	AppSettings::Get().SaveAsync();
 	return true;
 }
 
@@ -88,12 +89,14 @@ void ScalingProfileService::RenameProfile(uint32_t profileIdx, std::wstring_view
 	assert(!newName.empty());
 	AppSettings::Get().ScalingProfiles()[profileIdx].name = newName;
 	_profileRenamedEvent(profileIdx);
+	AppSettings::Get().SaveAsync();
 }
 
 void ScalingProfileService::RemoveProfile(uint32_t profileIdx) {
 	std::vector<ScalingProfile>& profiles = AppSettings::Get().ScalingProfiles();
 	profiles.erase(profiles.begin() + profileIdx);
 	_profileRemovedEvent(profileIdx);
+	AppSettings::Get().SaveAsync();
 }
 
 bool ScalingProfileService::MoveProfile(uint32_t profileIdx, bool isMoveUp) {
@@ -104,6 +107,8 @@ bool ScalingProfileService::MoveProfile(uint32_t profileIdx, bool isMoveUp) {
 
 	std::swap(profiles[profileIdx], profiles[isMoveUp ? (size_t)profileIdx - 1 : (size_t)profileIdx + 1]);
 	_profileReorderedEvent(profileIdx, isMoveUp);
+
+	AppSettings::Get().SaveAsync();
 	return true;
 }
 

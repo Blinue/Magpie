@@ -151,6 +151,7 @@ bool XamlApp::_CheckSingleInstance() {
 
 	_hSingleInstanceMutex.reset(CreateMutex(nullptr, TRUE, SINGLE_INSTANCE_MUTEX_NAME));
 	if (!_hSingleInstanceMutex || GetLastError() == ERROR_ALREADY_EXISTS) {
+		// 通知已有实例显示主窗口
 		PostMessage(HWND_BROADCAST, WM_MAGPIE_SHOWME, 0, 0);
 		return false;
 	}

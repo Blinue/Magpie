@@ -6,11 +6,46 @@
 #include "ScalingMode.h"
 #include <parallel_hashmap/phmap.h>
 #include <rapidjson/document.h>
+#include "Win32Utils.h"
 
 
 namespace winrt::Magpie::UI {
 
-class AppSettings {
+struct _AppSettingsData {
+	std::array<HotkeySettings, (size_t)HotkeyAction::COUNT_OR_NONE> _hotkeys;
+
+	::Magpie::Core::DownscalingEffect _downscalingEffect;
+	std::vector<ScalingMode> _scalingModes;
+
+	ScalingProfile _defaultScalingProfile;
+	std::vector<ScalingProfile> _scalingProfiles;
+
+	std::wstring _configDir;
+	std::wstring _configPath;
+
+	// X, Y, 长, 高
+	RECT _windowRect{ CW_USEDEFAULT,CW_USEDEFAULT,1280,820 };
+
+	// 0: 浅色
+	// 1: 深色
+	// 2: 系统
+	uint32_t _theme = 2;
+	uint32_t _downCount = 5;
+
+	bool _isPortableMode = false;
+	bool _isAlwaysRunAsElevated = false;
+	bool _isDebugMode = false;
+	bool _isDisableEffectCache = false;
+	bool _isSaveEffectSources = false;
+	bool _isWarningsAreErrors = false;
+	bool _isSimulateExclusiveFullscreen = false;
+	bool _isInlineParams = false;
+	bool _isShowTrayIcon = true;
+	bool _isAutoRestore = false;
+	bool _isWindowMaximized = false;
+};
+
+class AppSettings : private _AppSettingsData {
 public:
 	static AppSettings& Get() {
 		static AppSettings instance;
@@ -20,6 +55,8 @@ public:
 	bool Initialize();
 
 	bool Save();
+
+	fire_and_forget SaveAsync();
 
 	const std::wstring& ConfigDir() const noexcept {
 		return _configDir;
@@ -55,16 +92,8 @@ public:
 		return _windowRect;
 	}
 
-	void WindowRect(const RECT& value) noexcept {
-		_windowRect = value;
-	}
-
 	bool IsWindowMaximized() const noexcept {
 		return _isWindowMaximized;
-	}
-
-	void IsWindowMaximized(bool value) noexcept {
-		_isWindowMaximized = value;
 	}
 
 	const HotkeySettings& GetHotkey(HotkeyAction action) const {
@@ -136,6 +165,7 @@ public:
 
 	void IsDebugMode(bool value) noexcept {
 		_isDebugMode = value;
+		SaveAsync();
 	}
 
 	bool IsDisableEffectCache() const noexcept {
@@ -144,6 +174,7 @@ public:
 
 	void IsDisableEffectCache(bool value) noexcept {
 		_isDisableEffectCache = value;
+		SaveAsync();
 	}
 
 	bool IsSaveEffectSources() const noexcept {
@@ -152,6 +183,7 @@ public:
 
 	void IsSaveEffectSources(bool value) noexcept {
 		_isSaveEffectSources = value;
+		SaveAsync();
 	}
 
 	bool IsWarningsAreErrors() const noexcept {
@@ -160,6 +192,7 @@ public:
 
 	void IsWarningsAreErrors(bool value) noexcept {
 		_isWarningsAreErrors = value;
+		SaveAsync();
 	}
 
 	bool IsSimulateExclusiveFullscreen() const noexcept {
@@ -168,6 +201,7 @@ public:
 
 	void IsSimulateExclusiveFullscreen(bool value) noexcept {
 		_isSimulateExclusiveFullscreen = value;
+		SaveAsync();
 	}
 
 	ScalingProfile& DefaultScalingProfile() noexcept {
@@ -211,6 +245,7 @@ public:
 
 	void IsInlineParams(bool value) noexcept {
 		_isInlineParams = value;
+		SaveAsync();
 	}
 
 	::Magpie::Core::DownscalingEffect& DownscalingEffect() noexcept {
@@ -226,49 +261,23 @@ private:
 	AppSettings(const AppSettings&) = delete;
 	AppSettings(AppSettings&&) = delete;
 
+	void _UpdateWindowPlacement() noexcept;
+	bool _Save(const _AppSettingsData& data) noexcept;
+
 	void _LoadSettings(const rapidjson::GenericObject<true, rapidjson::Value>& root, uint32_t version);
 	void _SetDefaultHotkeys();
 	void _SetDefaultScalingModes();
 
 	void _UpdateConfigPath() noexcept;
 
+	// 用于同步保存
+	Win32Utils::SRWMutex _saveMutex;
+
 	event<delegate<uint32_t>> _themeChangedEvent;
 	event<delegate<HotkeyAction>> _hotkeyChangedEvent;
 	event<delegate<bool>> _isAutoRestoreChangedEvent;
 	event<delegate<uint32_t>> _downCountChangedEvent;
 	event<delegate<bool>> _isShowTrayIconChangedEvent;
-
-	std::array<HotkeySettings, (size_t)HotkeyAction::COUNT_OR_NONE> _hotkeys;
-
-	::Magpie::Core::DownscalingEffect _downscalingEffect;
-	std::vector<ScalingMode> _scalingModes;
-
-	ScalingProfile _defaultScalingProfile;
-	std::vector<ScalingProfile> _scalingProfiles;
-
-	std::wstring _configDir;
-	std::wstring _configPath;
-
-	// X, Y, 长, 高
-	RECT _windowRect{ CW_USEDEFAULT,CW_USEDEFAULT,1280,820 };
-
-	// 0: 浅色
-	// 1: 深色
-	// 2: 系统
-	uint32_t _theme = 2;
-	uint32_t _downCount = 5;
-
-	bool _isPortableMode = false;
-	bool _isAlwaysRunAsElevated = false;
-	bool _isDebugMode = false;
-	bool _isDisableEffectCache = false;
-	bool _isSaveEffectSources = false;
-	bool _isWarningsAreErrors = false;
-	bool _isSimulateExclusiveFullscreen = false;
-	bool _isInlineParams = false;
-	bool _isShowTrayIcon = true;
-	bool _isAutoRestore = false;
-	bool _isWindowMaximized = false;
 };
 
 }
