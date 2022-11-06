@@ -13,6 +13,8 @@
 
 namespace Magpie {
 
+static const UINT WM_MAGPIE_SHOWME = RegisterWindowMessage(CommonSharedConstants::WM_MAGPIE_SHOWME);
+
 bool XamlApp::Initialize(HINSTANCE hInstance, const wchar_t* arguments) {
 	_hInst = hInstance;
 
@@ -117,6 +119,11 @@ int XamlApp::Run() {
 
 	// 主消息循环
 	while (GetMessage(&msg, nullptr, 0, 0)) {
+		if (msg.message == WM_MAGPIE_SHOWME) {
+			_ShowMainWindow();
+			continue;
+		}
+
 		if (_xamlSourceNative2) {
 			BOOL processed = FALSE;
 			HRESULT hr = _xamlSourceNative2->PreTranslateMessage(&msg, &processed);
@@ -144,18 +151,7 @@ bool XamlApp::_CheckSingleInstance() {
 
 	_hSingleInstanceMutex.reset(CreateMutex(nullptr, TRUE, SINGLE_INSTANCE_MUTEX_NAME));
 	if (!_hSingleInstanceMutex || GetLastError() == ERROR_ALREADY_EXISTS) {
-		// 将已存在的窗口带到前台
-		// 可以唤醒旧版本，但旧版不能唤醒新版
-		HWND hWnd = FindWindow(CommonSharedConstants::MAIN_WINDOW_CLASS_NAME, nullptr);
-		if (hWnd) {
-			// 如果已有实例权限更高 ShowWindow 会失败
-			ShowWindow(hWnd, SW_NORMAL);
-			Win32Utils::SetForegroundWindow(hWnd);
-		} else {
-			// 唤醒旧版本
-			PostMessage(HWND_BROADCAST, RegisterWindowMessage(L"WM_SHOWME"), 0, 0);
-		}
-
+		PostMessage(HWND_BROADCAST, WM_MAGPIE_SHOWME, 0, 0);
 		return false;
 	}
 
@@ -244,7 +240,7 @@ void XamlApp::_ShowMainWindow() noexcept {
 			ShowWindow(_hwndMain, SW_RESTORE);
 		}
 
-		SetForegroundWindow(_hwndMain);
+		Win32Utils::SetForegroundWindow(_hwndMain);
 	} else {
 		_CreateMainWindow();
 	}

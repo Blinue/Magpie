@@ -25,4 +25,6 @@ struct CommonSharedConstants {
 
 	static constexpr const UINT WM_NOTIFY_ICON = WM_USER;
 	static constexpr const UINT WM_RESTART_AS_ELEVATED = WM_USER + 1;
+
+	static constexpr const wchar_t* WM_MAGPIE_SHOWME = L"WM_MAGPIE_SHOWME";
 };
