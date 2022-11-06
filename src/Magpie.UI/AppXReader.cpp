@@ -424,6 +424,14 @@ public:
 		return _isValid;
 	}
 
+	// 用以选择更合适的图标
+	// 规则：
+	// 1. 匹配当前主题的优先
+	// 2. 没有边框的优先
+	// 3. 和 preferredSize 相同的优先
+	// 4. 如果一个过大，另一个过小，取大的
+	// 5. 如果都过大或过小，取更接近 preferredSize 的
+	// 6. 优先选择 targetsize 前缀，然后是 scale 前缀
 	static bool Compare(const CandidateIcon& l, const CandidateIcon& r, uint32_t preferredSize, bool isLightTheme) {
 		if (l._isLightTheme != r._isLightTheme) {
 			return l._isLightTheme == isLightTheme;
@@ -478,6 +486,7 @@ private:
 	bool _isUnplated = false;
 };
 
+// 如果图标和背景的对比度太低，使用主题色填充背景
 static SoftwareBitmap AutoFillBackground(const std::wstring& iconPath, bool isLightTheme, bool noPath) {
 	com_ptr<IWICImagingFactory2> wicImgFactory = try_create_instance<IWICImagingFactory2>(CLSID_WICImagingFactory);
 	if (!wicImgFactory) {
