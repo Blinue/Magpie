@@ -133,6 +133,8 @@ void ScalingModeItem::_ScalingModeEffectItem_Removed(IInspectable const&, uint32
 	for (uint32_t i = index; i < effects.size(); ++i) {
 		_effects.GetAt(i).as<ScalingModeEffectItem>().EffectIdx(i);
 	}
+
+	AppSettings::Get().SaveAsync();
 }
 
 void ScalingModeItem::AddEffect(const hstring& fullName) {
