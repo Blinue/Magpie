@@ -119,6 +119,7 @@ void ScalingModeItem::_Effects_VectorChanged(IObservableVector<IInspectable> con
 	}
 
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"Description"));
+	AppSettings::Get().SaveAsync();
 }
 
 void ScalingModeItem::_ScalingModeEffectItem_Removed(IInspectable const&, uint32_t index) {
@@ -150,6 +151,8 @@ void ScalingModeItem::AddEffect(const hstring& fullName) {
 	_isMovingEffects = false;
 	_effects.Append(item);
 	_isMovingEffects = true;
+
+	AppSettings::Get().SaveAsync();
 }
 
 hstring ScalingModeItem::Name() const noexcept {
@@ -163,6 +166,7 @@ hstring ScalingModeItem::Name() const noexcept {
 
 void ScalingModeItem::Name(const hstring& value) noexcept {
 	_Data().name = value;
+	AppSettings::Get().SaveAsync();
 }
 
 hstring ScalingModeItem::Description() const noexcept {
@@ -219,6 +223,8 @@ void ScalingModeItem::RenameButton_Click() {
 
 	_Data().name = _trimedRenameText;
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"Name"));
+
+	AppSettings::Get().SaveAsync();
 }
 
 bool ScalingModeItem::CanMoveUp() const noexcept {

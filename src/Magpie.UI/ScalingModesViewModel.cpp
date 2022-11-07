@@ -192,6 +192,8 @@ void ScalingModesViewModel::DownscalingEffectIndex(int value) {
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"DownscalingEffectIndex"));
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"DownscalingEffectHasParameters"));
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"DownscalingEffectParameters"));
+
+	AppSettings::Get().SaveAsync();
 }
 
 bool ScalingModesViewModel::DownscalingEffectHasParameters() noexcept {

@@ -20,6 +20,42 @@ using namespace Magpie::Core;
 
 namespace winrt::Magpie::UI::implementation {
 
+// 限制保存频率
+// 1 秒内没有新的调用才执行保存
+static fire_and_forget LazySaveAppSettings() {
+	using namespace std::chrono;
+
+	static steady_clock::time_point lastInvokeTime;
+	static bool sleeping = false;
+
+	lastInvokeTime = steady_clock::now();
+
+	if (sleeping) {
+		co_return;
+	}
+
+	sleeping = true;
+	CoreDispatcher dispatcher = CoreWindow::GetForCurrentThread().Dispatcher();
+	
+	co_await 1s;
+
+	while (true) {
+		int duration = (int)duration_cast<milliseconds>(steady_clock::now() - lastInvokeTime).count();
+		if (duration >= 999) {
+			break;
+		}
+
+		// 如果与 lastInvokeTime 相差不到 1s，则继续等待
+		co_await milliseconds(1000 - duration);
+	}
+
+	// 回到主线程
+	co_await dispatcher;
+
+	sleeping = false;
+	AppSettings::Get().SaveAsync();
+}
+
 EffectParametersViewModel::EffectParametersViewModel(uint32_t scalingModeIdx, uint32_t effectIdx)
 	: _scalingModeIdx(scalingModeIdx), _effectIdx(effectIdx)
 {
@@ -106,6 +142,8 @@ void EffectParametersViewModel::_ScalingModeBoolParameter_PropertyChanged(
 		get_self<ScalingModeBoolParameter>(sender.as<default_interface<ScalingModeBoolParameter>>());
 	const std::string& effectName = _effectInfo->params[boolParamImpl->Index()].name;
 	_Data()[StrUtils::UTF8ToUTF16(effectName)] = (float)boolParamImpl->Value();
+
+	LazySaveAppSettings();
 }
 
 void EffectParametersViewModel::_ScalingModeFloatParameter_PropertyChanged(
@@ -120,6 +158,8 @@ void EffectParametersViewModel::_ScalingModeFloatParameter_PropertyChanged(
 		get_self<ScalingModeFloatParameter>(sender.as<default_interface<ScalingModeFloatParameter>>());
 	const std::string& effectName = _effectInfo->params[floatParamImpl->Index()].name;
 	_Data()[StrUtils::UTF8ToUTF16(effectName)] = (float)floatParamImpl->Value();
+
+	LazySaveAppSettings();
 }
 
 phmap::flat_hash_map<std::wstring, float>& EffectParametersViewModel::_Data() {

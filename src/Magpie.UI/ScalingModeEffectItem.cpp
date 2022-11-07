@@ -7,7 +7,7 @@
 #include "ScalingModesService.h"
 #include "EffectsService.h"
 #include "EffectHelper.h"
-
+#include "AppSettings.h"
 
 namespace Core = ::Magpie::Core;
 using namespace Magpie::Core;
@@ -85,6 +85,8 @@ void ScalingModeEffectItem::ScalingType(int value) {
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"ScalingType"));
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsShowScalingFactors"));
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsShowScalingPixels"));
+
+	AppSettings::Get().SaveAsync();
 }
 
 bool ScalingModeEffectItem::IsShowScalingFactors() const noexcept {
@@ -112,6 +114,7 @@ void ScalingModeEffectItem::ScalingFactorX(double value) {
 	}
 	
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"ScalingFactorX"));
+	AppSettings::Get().SaveAsync();
 }
 
 double ScalingModeEffectItem::ScalingFactorY() const noexcept {
@@ -129,6 +132,7 @@ void ScalingModeEffectItem::ScalingFactorY(double value) {
 	}
 
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"ScalingFactorY"));
+	AppSettings::Get().SaveAsync();
 }
 
 double ScalingModeEffectItem::ScalingPixelsX() const noexcept {
@@ -146,6 +150,7 @@ void ScalingModeEffectItem::ScalingPixelsX(double value) {
 	}
 
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"ScalingPixelsX"));
+	AppSettings::Get().SaveAsync();
 }
 
 double ScalingModeEffectItem::ScalingPixelsY() const noexcept {
@@ -163,6 +168,7 @@ void ScalingModeEffectItem::ScalingPixelsY(double value) {
 	}
 
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"ScalingPixelsY"));
+	AppSettings::Get().SaveAsync();
 }
 
 void ScalingModeEffectItem::Remove() {

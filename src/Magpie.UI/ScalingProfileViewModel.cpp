@@ -264,6 +264,8 @@ int32_t ScalingProfileViewModel::ScalingMode() const noexcept {
 void ScalingProfileViewModel::ScalingMode(int32_t value) {
 	_data->scalingMode = value - 1;
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"ScalingMode"));
+
+	AppSettings::Get().SaveAsync();
 }
 
 int32_t ScalingProfileViewModel::CaptureMode() const noexcept {
@@ -282,6 +284,8 @@ void ScalingProfileViewModel::CaptureMode(int32_t value) {
 
 	_data->captureMode = captureMode;
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CaptureMode"));
+
+	AppSettings::Get().SaveAsync();
 }
 
 bool ScalingProfileViewModel::Is3DGameMode() const noexcept {
@@ -295,6 +299,8 @@ void ScalingProfileViewModel::Is3DGameMode(bool value) {
 
 	_data->Is3DGameMode(value);
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"Is3DGameMode"));
+
+	AppSettings::Get().SaveAsync();
 }
 
 int32_t ScalingProfileViewModel::MultiMonitorUsage() const noexcept {
@@ -313,6 +319,8 @@ void ScalingProfileViewModel::MultiMonitorUsage(int32_t value) {
 
 	_data->multiMonitorUsage = multiMonitorUsage;
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"MultiMonitorUsage"));
+
+	AppSettings::Get().SaveAsync();
 }
 
 int32_t ScalingProfileViewModel::GraphicsAdapter() const noexcept {
@@ -331,6 +339,8 @@ void ScalingProfileViewModel::GraphicsAdapter(int32_t value) {
 
 	_data->graphicsAdapter = graphicsAdapter;
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"GraphicsAdapter"));
+
+	AppSettings::Get().SaveAsync();
 }
 
 bool ScalingProfileViewModel::IsShowFPS() const noexcept {
@@ -344,6 +354,8 @@ void ScalingProfileViewModel::IsShowFPS(bool value) {
 
 	_data->IsShowFPS(value);
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsShowFPS"));
+
+	AppSettings::Get().SaveAsync();
 }
 
 bool ScalingProfileViewModel::IsVSync() const noexcept {
@@ -357,6 +369,8 @@ void ScalingProfileViewModel::IsVSync(bool value) {
 
 	_data->IsVSync(value);
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsVSync"));
+
+	AppSettings::Get().SaveAsync();
 }
 
 bool ScalingProfileViewModel::IsTripleBuffering() const noexcept {
@@ -370,6 +384,8 @@ void ScalingProfileViewModel::IsTripleBuffering(bool value) {
 
 	_data->IsTripleBuffering(value);
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsTripleBuffering"));
+
+	AppSettings::Get().SaveAsync();
 }
 
 bool ScalingProfileViewModel::IsDisableWindowResizing() const noexcept {
@@ -383,6 +399,8 @@ void ScalingProfileViewModel::IsDisableWindowResizing(bool value) {
 
 	_data->IsDisableWindowResizing(value);
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsDisableWindowResizing"));
+
+	AppSettings::Get().SaveAsync();
 }
 
 bool ScalingProfileViewModel::IsReserveTitleBar() const noexcept {
@@ -396,6 +414,8 @@ void ScalingProfileViewModel::IsReserveTitleBar(bool value) {
 
 	_data->IsReserveTitleBar(value);
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsReserveTitleBar"));
+
+	AppSettings::Get().SaveAsync();
 }
 
 bool ScalingProfileViewModel::IsCroppingEnabled() const noexcept {
@@ -409,6 +429,8 @@ void ScalingProfileViewModel::IsCroppingEnabled(bool value) {
 
 	_data->isCroppingEnabled = value;
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsCroppingEnabled"));
+
+	AppSettings::Get().SaveAsync();
 }
 
 double ScalingProfileViewModel::CroppingLeft() const noexcept {
@@ -422,6 +444,8 @@ void ScalingProfileViewModel::CroppingLeft(double value) {
 
 	_data->cropping.Left = std::isnan(value) ? 0.0f : (float)value;
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CroppingLeft"));
+
+	AppSettings::Get().SaveAsync();
 }
 
 double ScalingProfileViewModel::CroppingTop() const noexcept {
@@ -436,6 +460,8 @@ void ScalingProfileViewModel::CroppingTop(double value) {
 	// 用户已清空数字框则重置为 0
 	_data->cropping.Top = std::isnan(value) ? 0.0f : (float)value;
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CroppingTop"));
+
+	AppSettings::Get().SaveAsync();
 }
 
 double ScalingProfileViewModel::CroppingRight() const noexcept {
@@ -449,6 +475,8 @@ void ScalingProfileViewModel::CroppingRight(double value) {
 
 	_data->cropping.Right = std::isnan(value) ? 0.0f : (float)value;
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CroppingRight"));
+
+	AppSettings::Get().SaveAsync();
 }
 
 double ScalingProfileViewModel::CroppingBottom() const noexcept {
@@ -462,6 +490,8 @@ void ScalingProfileViewModel::CroppingBottom(double value) {
 
 	_data->cropping.Bottom = std::isnan(value) ? 0.0f : (float)value;
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CroppingBottom"));
+
+	AppSettings::Get().SaveAsync();
 }
 
 bool ScalingProfileViewModel::IsAdjustCursorSpeed() const noexcept {
@@ -475,6 +505,8 @@ void ScalingProfileViewModel::IsAdjustCursorSpeed(bool value) {
 
 	_data->IsAdjustCursorSpeed(value);
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsAdjustCursorSpeed"));
+
+	AppSettings::Get().SaveAsync();
 }
 
 bool ScalingProfileViewModel::IsDrawCursor() const noexcept {
@@ -488,6 +520,8 @@ void ScalingProfileViewModel::IsDrawCursor(bool value) {
 
 	_data->IsDrawCursor(value);
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsDrawCursor"));
+
+	AppSettings::Get().SaveAsync();
 }
 
 int32_t ScalingProfileViewModel::CursorScaling() const noexcept {
@@ -506,6 +540,8 @@ void ScalingProfileViewModel::CursorScaling(int32_t value) {
 
 	_data->cursorScaling = cursorScaling;
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CursorScaling"));
+
+	AppSettings::Get().SaveAsync();
 }
 
 double ScalingProfileViewModel::CustomCursorScaling() const noexcept {
@@ -519,6 +555,8 @@ void ScalingProfileViewModel::CustomCursorScaling(double value) {
 
 	_data->customCursorScaling = std::isnan(value) ? 1.0f : (float)value;
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CustomCursorScaling"));
+
+	AppSettings::Get().SaveAsync();
 }
 
 int32_t ScalingProfileViewModel::CursorInterpolationMode() const noexcept {
@@ -537,6 +575,8 @@ void ScalingProfileViewModel::CursorInterpolationMode(int32_t value) {
 
 	_data->cursorInterpolationMode = cursorInterpolationMode;
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CursorInterpolationMode"));
+
+	AppSettings::Get().SaveAsync();
 }
 
 bool ScalingProfileViewModel::IsDisableDirectFlip() const noexcept {
@@ -550,6 +590,8 @@ void ScalingProfileViewModel::IsDisableDirectFlip(bool value) {
 
 	_data->IsDisableDirectFlip(value);
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsDisableDirectFlip"));
+
+	AppSettings::Get().SaveAsync();
 }
 
 fire_and_forget ScalingProfileViewModel::_LoadIcon(FrameworkElement const& mainPage) {
