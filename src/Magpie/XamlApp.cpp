@@ -14,6 +14,10 @@
 namespace Magpie {
 
 static const UINT WM_MAGPIE_SHOWME = RegisterWindowMessage(CommonSharedConstants::WM_MAGPIE_SHOWME);
+// 当任务栏被创建时会广播此消息。用于在资源管理器被重新启动时重新创建托盘图标
+// https://learn.microsoft.com/en-us/windows/win32/shell/taskbar#taskbar-creation-notification
+static const UINT WM_TASKBARCREATED = RegisterWindowMessage(L"TaskbarCreated");
+
 
 bool XamlApp::Initialize(HINSTANCE hInstance, const wchar_t* arguments) {
 	_hInst = hInstance;
@@ -136,10 +140,6 @@ int XamlApp::Run() {
 		DispatchMessage(&msg);
 	}
 
-	_uwpApp = nullptr;
-
-	_HideTrayIcon();
-
 	Logger::Get().Info("程序退出");
 	Logger::Get().Flush();
 
@@ -248,21 +248,34 @@ void XamlApp::_ShowMainWindow() noexcept {
 }
 
 void XamlApp::_Quit() noexcept {
-	_HideTrayIcon();
-
 	if (_hwndMain) {
+		const bool isShowTrayIcon = _uwpApp.IsShowTrayIcon();
+
 		DestroyWindow(_hwndMain);
-	} else {
-		_uwpApp.SaveSettings();
+
+		if (!isShowTrayIcon) {
+			// WM_DESTROY 中已调用 _Quit()
+			return;
+		}
 	}
 
+	_HideTrayIcon();
+
+	if (_nid.hWnd) {
+		DestroyWindow(_nid.hWnd);
+		_nid.hWnd = NULL;
+	}
+	if (_nid.hIcon) {
+		DestroyIcon(_nid.hIcon);
+		_nid.hIcon = NULL;
+	}
+
+	_uwpApp = nullptr;
 	PostQuitMessage(0);
 }
 
 void XamlApp::_RestartAsElevated(const wchar_t* arguments) noexcept {
-	if (_hwndMain) {
-		DestroyWindow(_hwndMain);
-	}
+	_Quit();
 
 	// 提前释放锁
 	_hSingleInstanceMutex.reset();
@@ -282,42 +295,45 @@ void XamlApp::_RestartAsElevated(const wchar_t* arguments) noexcept {
 	if (!ShellExecuteEx(&execInfo)) {
 		Logger::Get().Win32Error("ShellExecuteEx 失败");
 	}
-
-	PostQuitMessage(0);
 }
 
 void XamlApp::_ShowTrayIcon() noexcept {
-	if (_nid.hWnd) {
-		return;
-	}
+	if (!_nid.hWnd) {
+		// 创建一个隐藏的、message-only 的窗口用于接收托盘图标消息
+		_nid.hWnd = CreateWindow(
+			CommonSharedConstants::NOTIFY_ICON_WINDOW_CLASS_NAME,
+			nullptr,
+			WS_OVERLAPPEDWINDOW | WS_POPUP,
+			CW_USEDEFAULT,
+			CW_USEDEFAULT,
+			CW_USEDEFAULT,
+			CW_USEDEFAULT,
+			NULL,
+			NULL,
+			_hInst,
+			0
+		);
 
-	// 创建一个隐藏的、message-only 的窗口用于接收托盘图标消息
-	_nid.hWnd = CreateWindow(CommonSharedConstants::NOTIFY_ICON_WINDOW_CLASS_NAME, nullptr, 0, 0, 0, 0, 0, HWND_MESSAGE, NULL, _hInst, 0);
-	LoadIconMetric(_hInst, MAKEINTRESOURCE(IDI_APP), LIM_SMALL, &_nid.hIcon);
-	wcscpy_s(_nid.szTip, std::size(_nid.szTip), L"Magpie");
+		LoadIconMetric(_hInst, MAKEINTRESOURCE(IDI_APP), LIM_SMALL, &_nid.hIcon);
+		wcscpy_s(_nid.szTip, std::size(_nid.szTip), L"Magpie");
+	}
 
 	if (!Shell_NotifyIcon(NIM_ADD, &_nid)) {
 		// 创建托盘图标失败，可能是因为已经存在
 		Shell_NotifyIcon(NIM_DELETE, &_nid);
 		if (!Shell_NotifyIcon(NIM_ADD, &_nid)) {
 			Logger::Get().Win32Error("创建托盘图标失败");
-			_HideTrayIcon();
+			_isTrayIconCreated = false;
 			return;
 		}
 	}
+
+	_isTrayIconCreated = true;
 }
 
 void XamlApp::_HideTrayIcon() noexcept {
-	if (!_nid.hWnd) {
-		return;
-	}
-
 	Shell_NotifyIcon(NIM_DELETE, &_nid);
-	DestroyIcon(_nid.hIcon);
-	_nid.hIcon = NULL;
-
-	DestroyWindow(_nid.hWnd);
-	_nid.hWnd = NULL;
+	_isTrayIconCreated = false;
 }
 
 void XamlApp::_OnResize() {
@@ -524,7 +540,8 @@ LRESULT XamlApp::_WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	}
 	case WM_DESTROY:
 	{
-		if (_nid.hWnd) {
+		const bool isShowTrayIcon = _uwpApp.IsShowTrayIcon();
+		if (isShowTrayIcon) {
 			WINDOWPLACEMENT wp{};
 			wp.length = sizeof(wp);
 			if (GetWindowPlacement(_hwndMain, &wp)) {
@@ -556,8 +573,8 @@ LRESULT XamlApp::_WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 		_mainPage = nullptr;
 
-		if (!_nid.hWnd) {
-			PostQuitMessage(0);
+		if (!isShowTrayIcon) {
+			_Quit();
 		}
 
 		return 0;
@@ -606,6 +623,10 @@ LRESULT XamlApp::_TrayIconWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM
 			}
 			case 2:
 			{
+				if (!_hwndMain) {
+					_uwpApp.SaveSettings();
+				}
+				
 				_Quit();
 				break;
 			}
@@ -615,6 +636,25 @@ LRESULT XamlApp::_TrayIconWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM
 		}
 
 		return 0;
+	}
+	case WM_WINDOWPOSCHANGING:
+	{
+		// 如果 Magpie 启动时任务栏尚未被创建，Shell_NotifyIcon 会失败，因此无法收到 WM_TASKBARCREATED 消息。
+		// 监听 WM_WINDOWPOSCHANGING 以在资源管理器启动时获得通知
+		// hack 来自 https://github.com/microsoft/PowerToys/pull/789
+		if (!_isTrayIconCreated && _uwpApp.IsShowTrayIcon()) {
+			_ShowTrayIcon();
+		}
+		break;
+	}
+	default:
+	{
+		if (message == WM_TASKBARCREATED) {
+			if (_uwpApp.IsShowTrayIcon()) {
+				// 重新创建任务栏图标
+				_ShowTrayIcon();
+			}
+		}
 	}
 	}
 

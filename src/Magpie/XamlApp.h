@@ -73,6 +73,8 @@ private:
 
 	winrt::DesktopWindowXamlSource _xamlSource{ nullptr };
 	winrt::com_ptr<IDesktopWindowXamlSourceNative2> _xamlSourceNative2;
+
+	bool _isTrayIconCreated = false;
 };
 
 }
