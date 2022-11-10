@@ -553,7 +553,7 @@ void AppSettings::_LoadSettings(const rapidjson::GenericObject<true, rapidjson::
 		}
 	}
 
-	[[maybe_unused]] bool result = ScalingModesService::Get().Import(root, false);
+	[[maybe_unused]] bool result = ScalingModesService::Get().Import(root, true);
 	assert(result);
 
 	auto scaleProfilesNode = root.FindMember("scalingProfiles");

@@ -165,7 +165,7 @@ static bool ImportImpl(bool legacy) {
 		return false;
 	}
 
-	return ScalingModesService::Get().Import(((const rapidjson::Document&)doc).GetObj(), true);
+	return ScalingModesService::Get().Import(((const rapidjson::Document&)doc).GetObj(), false);
 }
 
 void ScalingModesViewModel::_Import(bool legacy) {

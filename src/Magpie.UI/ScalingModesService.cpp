@@ -143,7 +143,7 @@ void ScalingModesService::Export(rapidjson::PrettyWriter<rapidjson::StringBuffer
 static bool LoadScalingMode(
 	const rapidjson::GenericObject<true, rapidjson::Value>& scalingModeObj,
 	ScalingMode& scalingMode,
-	bool strict
+	bool loadingSettings
 ) {
 	if (!JsonHelper::ReadString(scalingModeObj, "name", scalingMode.name)) {
 		return false;
@@ -155,7 +155,7 @@ static bool LoadScalingMode(
 	}
 
 	if (!effectsNode->value.IsArray()) {
-		return !strict;
+		return loadingSettings;
 	}
 
 	auto effectsArray = effectsNode->value.GetArray();
@@ -163,10 +163,10 @@ static bool LoadScalingMode(
 
 	for (const auto& elem : effectsArray) {
 		if (!elem.IsObject()) {
-			if (strict) {
-				return false;
-			} else {
+			if (loadingSettings) {
 				continue;
+			} else {
+				return false;
 			}
 		}
 
@@ -174,21 +174,16 @@ static bool LoadScalingMode(
 		EffectOption& effect = scalingMode.effects.emplace_back();
 
 		if (!JsonHelper::ReadString(elemObj, "name", effect.name)) {
-			if (strict) {
-				return false;
-			} else {
+			if (loadingSettings) {
 				scalingMode.effects.pop_back();
 				continue;
+			} else {
+				return false;
 			}
 		}
 
-		if (!JsonHelper::ReadUInt(elemObj, "scalingType", (uint32_t&)effect.scalingType) && strict) {
-			if (strict) {
-				return false;
-			} else {
-				scalingMode.effects.pop_back();
-				continue;
-			}
+		if (!JsonHelper::ReadUInt(elemObj, "scalingType", (uint32_t&)effect.scalingType) && !loadingSettings) {
+			return false;
 		}
 
 		auto scaleNode = elemObj.FindMember("scale");
@@ -202,12 +197,12 @@ static bool LoadScalingMode(
 				{
 					effect.scale = { x,y };
 				} else {
-					if (strict) {
+					if (!loadingSettings) {
 						return false;
 					}
 				}
 			} else {
-				if (strict) {
+				if (!loadingSettings) {
 					return false;
 				}
 			}
@@ -221,10 +216,10 @@ static bool LoadScalingMode(
 				effect.parameters.reserve(paramsObj.MemberCount());
 				for (const auto& param : paramsObj) {
 					if (!param.value.IsNumber()) {
-						if (strict) {
-							return false;
-						} else {
+						if (loadingSettings) {
 							continue;
+						} else {
+							return false;
 						}
 					}
 
@@ -232,7 +227,7 @@ static bool LoadScalingMode(
 					effect.parameters[name] = param.value.GetFloat();
 				}
 			} else {
-				if (strict) {
+				if (!loadingSettings) {
 					return false;
 				}
 			}
@@ -242,14 +237,14 @@ static bool LoadScalingMode(
 	return true;
 }
 
-bool ScalingModesService::Import(const rapidjson::GenericObject<true, rapidjson::Value>& root, bool strict) noexcept {
+bool ScalingModesService::Import(const rapidjson::GenericObject<true, rapidjson::Value>& root, bool loadingSettings) noexcept {
 	auto scalingModesNode = root.FindMember("scalingModes");
 	if (scalingModesNode == root.MemberEnd()) {
 		return true;
 	}
 
 	if (!scalingModesNode->value.IsArray()) {
-		return !strict;
+		return loadingSettings;
 	}
 
 	const auto& scalingModesArray = scalingModesNode->value.GetArray();
@@ -262,19 +257,19 @@ bool ScalingModesService::Import(const rapidjson::GenericObject<true, rapidjson:
 	scalingModes.reserve(size);
 
 	for (const auto& elem : scalingModesArray) {
-		if (!elem.IsObject() && strict) {
-			if (strict) {
-				return false;
-			} else {
+		if (!elem.IsObject()) {
+			if (loadingSettings) {
 				continue;
+			} else {
+				return false;
 			}
 		}
 
-		if (!LoadScalingMode(elem.GetObj(), scalingModes.emplace_back(), strict)) {
-			if (strict) {
-				return false;
-			} else {
+		if (!LoadScalingMode(elem.GetObj(), scalingModes.emplace_back(), loadingSettings)) {
+			if (loadingSettings) {
 				scalingModes.pop_back();
+			} else {
+				return false;
 			}
 		}
 	}
@@ -292,7 +287,10 @@ bool ScalingModesService::Import(const rapidjson::GenericObject<true, rapidjson:
 
 	_scalingModeAddedEvent();
 
-	AppSettings::Get().SaveAsync();
+	if (!loadingSettings) {
+		AppSettings::Get().SaveAsync();
+	}
+	
 	return true;
 }
 
