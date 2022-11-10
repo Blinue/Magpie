@@ -7,6 +7,7 @@
 #include "HotkeyService.h"
 #include "AppSettings.h"
 #include "XamlUtils.h"
+#include "ContentDialogHelper.h"
 
 using namespace winrt;
 using namespace Windows::UI::Xaml::Controls;
@@ -66,8 +67,7 @@ ShortcutControl::~ShortcutControl() {
 }
 
 fire_and_forget ShortcutControl::EditButton_Click(IInspectable const&, RoutedEventArgs const&) {
-	// 防止快速点击时崩溃
-	if (XamlUtils::IsAnyContentDialogOpen(XamlRoot())) {
+	if (ContentDialogHelper::IsAnyDialogOpen()) {
 		co_return;
 	}
 
@@ -81,7 +81,6 @@ fire_and_forget ShortcutControl::EditButton_Click(IInspectable const&, RoutedEve
 		_shortcutDialog.PrimaryButtonText(L"保存");
 		_shortcutDialog.CloseButtonText(L"取消");
 		_shortcutDialog.DefaultButton(ContentDialogButton::Primary);
-		_shortcutDialog.Closing({ this, &ShortcutControl::_ShortcutDialog_Closing });
 	}
 
 	_previewHotkey = _hotkey;
@@ -99,14 +98,12 @@ fire_and_forget ShortcutControl::EditButton_Click(IInspectable const&, RoutedEve
 	
 	_pressedKeys.Clear();
 
-	co_await _shortcutDialog.ShowAsync();
-}
+	ContentDialogResult result = co_await ContentDialogHelper::ShowAsync(_shortcutDialog);
 
-void ShortcutControl::_ShortcutDialog_Closing(ContentDialog const&, ContentDialogClosingEventArgs const& args) {
 	UnhookWindowsHookEx(_keyboardHook);
 	_keyboardHook = NULL;
 
-	if (args.Result() == ContentDialogResult::Primary) {
+	if (result == ContentDialogResult::Primary) {
 		AppSettings::Get().SetHotkey(Action(), _previewHotkey);
 	}
 }

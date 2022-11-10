@@ -14,7 +14,7 @@
 #include "IconHelper.h"
 #include "ComboBoxHelper.h"
 #include "CommonSharedConstants.h"
-
+#include "ContentDialogHelper.h"
 
 using namespace winrt;
 using namespace Windows::Graphics::Display;
@@ -77,6 +77,8 @@ MainPage::MainPage() {
 }
 
 MainPage::~MainPage() {
+	ContentDialogHelper::CloseActiveDialog();
+
 	// 不手动置空会内存泄露
 	// 似乎是 XAML Islands 的 bug？
 	ContentFrame().Content(nullptr);

@@ -126,6 +126,7 @@
       <SubType>Code</SubType>
     </ClInclude>
     <ClInclude Include="ComboBoxHelper.h" />
+    <ClInclude Include="ContentDialogHelper.h" />
     <ClInclude Include="EffectHelper.h" />
     <ClInclude Include="EffectParametersViewModel.h">
       <DependentUpon>EffectParametersViewModel.idl</DependentUpon>
@@ -263,6 +264,7 @@
       <DependentUpon>CandidateWindowItem.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
+    <ClCompile Include="ContentDialogHelper.cpp" />
     <ClCompile Include="EffectParametersViewModel.cpp">
       <DependentUpon>EffectParametersViewModel.idl</DependentUpon>
       <SubType>Code</SubType>

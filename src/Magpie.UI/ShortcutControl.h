@@ -38,8 +38,6 @@ struct ShortcutControl : ShortcutControlT<ShortcutControl> {
 	static const DependencyProperty TitleProperty;
 
 private:
-	void _ShortcutDialog_Closing(Controls::ContentDialog const&, Controls::ContentDialogClosingEventArgs const& args);
-
 	static LRESULT CALLBACK _LowLevelKeyboardProc(
 		int    nCode,
 		WPARAM wParam,

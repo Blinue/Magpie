@@ -557,9 +557,6 @@ LRESULT XamlApp::_WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			}
 		}
 
-		// ContentDialog 不会自动关闭
-		XamlUtils::CloseContentDialog(_mainPage.XamlRoot());
-
 		_uwpApp.SaveSettings();
 		_uwpApp.HwndMain(0);
 		_uwpApp.MainPage(nullptr);

@@ -27,33 +27,6 @@ void XamlUtils::CloseXamlPopups(const XamlRoot& root) {
 	}
 }
 
-void XamlUtils::CloseContentDialog(const winrt::Windows::UI::Xaml::XamlRoot& root) {
-	if (!root) {
-		return;
-	}
-
-	for (const auto& popup : VisualTreeHelper::GetOpenPopupsForXamlRoot(root)) {
-		if (ContentDialog dialog = popup.Child().try_as<ContentDialog>()) {
-			dialog.Hide();
-			return;
-		}
-	}
-}
-
-bool XamlUtils::IsAnyContentDialogOpen(const winrt::Windows::UI::Xaml::XamlRoot& root) {
-	if (!root) {
-		return false;
-	}
-
-	for (const auto& popup : VisualTreeHelper::GetOpenPopupsForXamlRoot(root)) {
-		if (winrt::get_class_name(popup.Child()) == winrt::name_of<ContentDialog>()) {
-			return true;
-		}
-	}
-
-	return false;
-}
-
 void XamlUtils::UpdateThemeOfXamlPopups(const XamlRoot& root, ElementTheme theme) {
 	if (!root) {
 		return;
