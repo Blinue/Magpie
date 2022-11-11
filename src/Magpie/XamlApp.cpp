@@ -204,7 +204,7 @@ void XamlApp::_CreateMainWindow() {
 
 	// MainPage 加载完成后显示主窗口
 	_mainPage.Loaded([this](winrt::IInspectable const&, winrt::RoutedEventArgs const&) -> winrt::fire_and_forget {
-		co_await _mainPage.Dispatcher().RunAsync(winrt::CoreDispatcherPriority::Normal, [this]() {
+		co_await _mainPage.Dispatcher().TryRunAsync(winrt::CoreDispatcherPriority::Normal, [this]() {
 			// 防止窗口显示时背景闪烁
 			// https://stackoverflow.com/questions/69715610/how-to-initialize-the-background-color-of-win32-app-to-something-other-than-whit
 			SetWindowPos(_hwndMain, NULL, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
@@ -471,8 +471,8 @@ LRESULT XamlApp::_WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		if (wParam != SIZE_MINIMIZED) {
 			_OnResize();
 			if (_mainPage) {
-				[](XamlApp* app)->winrt::fire_and_forget {
-					co_await app->_mainPage.Dispatcher().RunAsync(winrt::CoreDispatcherPriority::Normal, [app]() {
+				[](XamlApp* app) -> winrt::fire_and_forget {
+					co_await app->_mainPage.Dispatcher().TryRunAsync(winrt::CoreDispatcherPriority::Normal, [app]() {
 						app->_ResizeContentDialog();
 						app->_RepositionXamlPopups(true);
 					});

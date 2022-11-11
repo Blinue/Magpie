@@ -112,8 +112,8 @@ fire_and_forget CandidateWindowItem::_ResolveWindow(bool resolveIcon, bool resol
 			co_return;
 		}
 
-		[](com_ptr<CandidateWindowItem> that, std::wstring&& defaultProfileName, const std::wstring& aumid, CoreDispatcher const& dispatcher)->fire_and_forget {
-			co_await dispatcher.RunAsync(
+		[](com_ptr<CandidateWindowItem> that, std::wstring&& defaultProfileName, const std::wstring& aumid, CoreDispatcher const& dispatcher) -> fire_and_forget {
+			co_await dispatcher.TryRunAsync(
 				CoreDispatcherPriority::Normal,
 				[that, defaultProfileName(std::move(defaultProfileName)), aumid(aumid)]() {
 					if (!defaultProfileName.empty()) {

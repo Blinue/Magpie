@@ -37,6 +37,14 @@ public:
 		_hotkeyPressedEvent.remove(token);
 	}
 
+	void StopKeyboardHook() noexcept {
+		_isKeyboardHookActive = false;
+	}
+
+	void StartKeyboardHook() noexcept {
+		_isKeyboardHookActive = true;
+	}
+
 private:
 	HotkeyService() = default;
 	~HotkeyService();
@@ -50,9 +58,14 @@ private:
 
 	void _RegisterHotkey(HotkeyAction action);
 
+	static LRESULT CALLBACK _LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM lParam);
+
 	std::array<bool, (size_t)HotkeyAction::COUNT_OR_NONE> _errors{};
 	event<delegate<HotkeyAction>> _hotkeyPressedEvent;
 	HWND _hwndHotkey = NULL;
+	HHOOK _keyboardHook = NULL;
+
+	bool _isKeyboardHookActive = true;
 };
 
 }

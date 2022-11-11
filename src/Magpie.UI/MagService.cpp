@@ -116,7 +116,7 @@ void MagService::_Settings_IsAutoRestoreChanged(bool) {
 }
 
 fire_and_forget MagService::_MagRuntime_IsRunningChanged(bool) {
-	co_await _dispatcher.RunAsync(CoreDispatcherPriority::Normal, [this]() {
+	co_await _dispatcher.TryRunAsync(CoreDispatcherPriority::Normal, [this]() {
 		bool isRunning = _magRuntime.IsRunning();
 		if (isRunning) {
 			StopCountdown();

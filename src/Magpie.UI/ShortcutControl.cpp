@@ -90,7 +90,13 @@ fire_and_forget ShortcutControl::EditButton_Click(IInspectable const&, RoutedEve
 	_shortcutDialog.RequestedTheme(ActualTheme());
 
 	_that = this;
+	// 防止钩子冲突
+	HotkeyService::Get().StopKeyboardHook();
 	_keyboardHook = SetWindowsHookEx(WH_KEYBOARD_LL, _LowLevelKeyboardProc, NULL, 0);
+	if (!_keyboardHook) {
+		Logger::Get().Win32Error("SetWindowsHookEx 失败");
+		co_return;
+	}
 	_previewHotkey = _hotkey;
 	_shortcutDialogContent.Keys(ToKeys(_previewHotkey.GetKeyList()));
 	_shortcutDialogContent.Error(IsError() ? _previewHotkey.Check() : HotkeyError::NoError);
@@ -102,6 +108,7 @@ fire_and_forget ShortcutControl::EditButton_Click(IInspectable const&, RoutedEve
 
 	UnhookWindowsHookEx(_keyboardHook);
 	_keyboardHook = NULL;
+	HotkeyService::Get().StartKeyboardHook();
 
 	if (result == ContentDialogResult::Primary) {
 		AppSettings::Get().SetHotkey(Action(), _previewHotkey);
@@ -114,7 +121,7 @@ LRESULT ShortcutControl::_LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM 
 	}
 
 	const DWORD code = ((KBDLLHOOKSTRUCT*)lParam)->vkCode;
-	if (code <= 0 || code > 255) {
+	if (code <= 0 || code >= 255) {
 		return CallNextHookEx(NULL, nCode, wParam, lParam);
 	}
 
