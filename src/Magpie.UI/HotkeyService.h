@@ -18,8 +18,8 @@ public:
 
 	void Initialize();
 
-	bool IsError(HotkeyAction action) {
-		return _errors[(size_t)action];
+	bool IsError(HotkeyAction action) const noexcept {
+		return _hotkeyInfos[(size_t)action].isError;
 	}
 
 	event_token HotkeyPressed(delegate<HotkeyAction> const& handler) {
@@ -58,14 +58,22 @@ private:
 
 	void _RegisterHotkey(HotkeyAction action);
 
+	void _FireHotkey(HotkeyAction action);
+
 	static LRESULT CALLBACK _LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM lParam);
 
-	std::array<bool, (size_t)HotkeyAction::COUNT_OR_NONE> _errors{};
+	struct _HotkeyInfo {
+		std::chrono::steady_clock::time_point lastFireTime{};
+		bool isError = true;
+	};
+	std::array<_HotkeyInfo, (size_t)HotkeyAction::COUNT_OR_NONE> _hotkeyInfos{};
 	event<delegate<HotkeyAction>> _hotkeyPressedEvent;
 	HWND _hwndHotkey = NULL;
 	HHOOK _keyboardHook = NULL;
 
 	bool _isKeyboardHookActive = true;
+	// 用于防止长按时重复触发热键
+	bool _keyboardHookHotkeyFired = false;
 };
 
 }

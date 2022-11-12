@@ -95,6 +95,7 @@ fire_and_forget ShortcutControl::EditButton_Click(IInspectable const&, RoutedEve
 	_keyboardHook = SetWindowsHookEx(WH_KEYBOARD_LL, _LowLevelKeyboardProc, NULL, 0);
 	if (!_keyboardHook) {
 		Logger::Get().Win32Error("SetWindowsHookEx 失败");
+		HotkeyService::Get().StartKeyboardHook();
 		co_return;
 	}
 	_previewHotkey = _hotkey;
