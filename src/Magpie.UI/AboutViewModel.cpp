@@ -10,7 +10,7 @@
 namespace winrt::Magpie::UI::implementation {
 
 hstring AboutViewModel::Version() const noexcept {
-	return hstring(L"v"s + MAGPIE_VERSION_W);
+	return MAGPIE_TAG_W;
 }
 
 fire_and_forget AboutViewModel::CheckForUpdate() {

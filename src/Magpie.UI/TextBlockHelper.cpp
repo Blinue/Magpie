@@ -51,7 +51,7 @@ void TextBlockHelper::_SetTooltipBasedOnTrimmingState(const TextBlock& tb, bool 
     bool hasTooltip = isAttached && tb.IsTextTrimmed();
 
     if (hasTooltip) {
-        if (Win32Utils::GetOSBuild() < 22000) {
+        if (!Win32Utils::GetOSVersion().IsWin11()) {
             // 显式设置 Tooltip 的主题
             ToolTip tooltip;
             tooltip.Content(box_value(tb.Text()));

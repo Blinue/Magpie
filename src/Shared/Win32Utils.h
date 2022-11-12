@@ -1,10 +1,9 @@
 #pragma once
 #include "CommonPCH.h"
+#include "Version.h"
 
 
 struct Win32Utils {
-	static UINT GetOSBuild();
-
 	static SIZE GetSizeOfRect(const RECT& rect) noexcept {
 		return { rect.right - rect.left, rect.bottom - rect.top };
 	}
@@ -46,7 +45,32 @@ struct Win32Utils {
 
 	static bool CreateDir(const std::wstring& path, bool recursive = false);
 
-	static const RTL_OSVERSIONINFOW& GetOSVersion() noexcept;
+	struct OSVersion : Version {
+		constexpr OSVersion() {}
+		constexpr OSVersion(uint32_t major, uint32_t minor, uint32_t patch)
+			: Version(major, minor, patch) {}
+
+		bool Is20H1OrNewer() const noexcept {
+			return *this >= Version(10, 0, 19041);
+		}
+
+		// 下面为 Win11
+		// 不考虑代号相同的 Win10
+
+		bool IsWin11() const noexcept {
+			return Is21H2OrNewer();
+		}
+
+		bool Is21H2OrNewer() const noexcept {
+			return *this >= Version(10, 0, 22000);
+		}
+
+		bool Is22H2OrNewer() const noexcept {
+			return *this >= Version(10, 0, 22621);
+		}
+	};
+
+	static const OSVersion& GetOSVersion() noexcept;
 
 	// CRITICAL_SECTION 的封装，满足基本可锁定要求（BasicLockable）
 	class CSMutex {

@@ -9,30 +9,6 @@
 #include <parallel_hashmap/phmap.h>
 
 
-uint32_t Win32Utils::GetOSBuild() {
-	static uint32_t build = 0;
-
-	if (build == 0) {
-		HMODULE hNtDll = GetModuleHandle(L"ntdll.dll");
-		if (!hNtDll) {
-			return {};
-		}
-
-		auto rtlGetVersion = (LONG(WINAPI*)(PRTL_OSVERSIONINFOW))GetProcAddress(hNtDll, "RtlGetVersion");
-		if (rtlGetVersion == nullptr) {
-			return {};
-		}
-
-		OSVERSIONINFOW version{};
-		version.dwOSVersionInfoSize = sizeof(version);
-		rtlGetVersion(&version);
-
-		build = version.dwBuildNumber;
-	}
-
-	return build;
-}
-
 std::wstring Win32Utils::GetWndClassName(HWND hWnd) {
 	// 窗口类名最多 256 个字符
 	std::wstring className(256, 0);
@@ -204,27 +180,6 @@ bool Win32Utils::WriteTextFile(const wchar_t* fileName, std::string_view text) {
 	return true;
 }
 
-RTL_OSVERSIONINFOW _GetOSVersion() noexcept {
-	HMODULE hNtDll = GetModuleHandle(L"ntdll.dll");
-	if (!hNtDll) {
-		Logger::Get().Win32Error("获取 ntdll.dll 句柄失败");
-		return {};
-	}
-
-	auto rtlGetVersion = (LONG(WINAPI*)(PRTL_OSVERSIONINFOW))GetProcAddress(hNtDll, "RtlGetVersion");
-	if (rtlGetVersion == nullptr) {
-		Logger::Get().Win32Error("获取 RtlGetVersion 地址失败");
-		assert(false);
-		return {};
-	}
-
-	RTL_OSVERSIONINFOW version{};
-	version.dwOSVersionInfoSize = sizeof(version);
-	rtlGetVersion(&version);
-
-	return version;
-}
-
 bool Win32Utils::CreateDir(const std::wstring& path, bool recursive) {
 	if (DirExists(path.c_str())) {
 		return true;
@@ -258,11 +213,31 @@ bool Win32Utils::CreateDir(const std::wstring& path, bool recursive) {
 	return true;
 }
 
-const RTL_OSVERSIONINFOW& Win32Utils::GetOSVersion() noexcept {
-	static RTL_OSVERSIONINFOW version = _GetOSVersion();
-	return version;
+static Win32Utils::OSVersion RealGetOSVersion() noexcept {
+	HMODULE hNtDll = GetModuleHandle(L"ntdll.dll");
+	if (!hNtDll) {
+		Logger::Get().Win32Error("获取 ntdll.dll 句柄失败");
+		return {};
+	}
+
+	auto rtlGetVersion = (LONG(WINAPI*)(PRTL_OSVERSIONINFOW))GetProcAddress(hNtDll, "RtlGetVersion");
+	if (rtlGetVersion == nullptr) {
+		Logger::Get().Win32Error("获取 RtlGetVersion 地址失败");
+		assert(false);
+		return {};
+	}
+
+	RTL_OSVERSIONINFOW version{};
+	version.dwOSVersionInfoSize = sizeof(version);
+	rtlGetVersion(&version);
+
+	return { version.dwMajorVersion, version.dwMinorVersion, version.dwBuildNumber };
 }
 
+const Win32Utils::OSVersion& Win32Utils::GetOSVersion() noexcept {
+	static OSVersion version = RealGetOSVersion();
+	return version;
+}
 
 struct TPContext {
 	std::function<void(uint32_t)> func;

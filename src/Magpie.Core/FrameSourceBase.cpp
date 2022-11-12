@@ -72,12 +72,7 @@ bool FrameSourceBase::Initialize() {
 
 	// 禁用窗口圆角
 	if (_HasRoundCornerInWin11()) {
-		const auto& version = Win32Utils::GetOSVersion();
-		bool isWin11 = Utils::CompareVersion(
-			version.dwMajorVersion, version.dwMinorVersion,
-			version.dwBuildNumber, 10, 0, 22000) >= 0;
-
-		if (isWin11) {
+		if (Win32Utils::GetOSVersion().IsWin11()) {
 			INT attr = DWMWCP_DONOTROUND;
 			HRESULT hr = DwmSetWindowAttribute(hwndSrc, DWMWA_WINDOW_CORNER_PREFERENCE, &attr, sizeof(attr));
 			if (FAILED(hr)) {

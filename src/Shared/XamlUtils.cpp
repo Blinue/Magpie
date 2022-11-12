@@ -40,7 +40,7 @@ void XamlUtils::UpdateThemeOfXamlPopups(const XamlRoot& root, ElementTheme theme
 }
 
 void XamlUtils::UpdateThemeOfTooltips(const DependencyObject& root, ElementTheme theme) {
-	if (Win32Utils::GetOSBuild() >= 22000) {
+	if (Win32Utils::GetOSVersion().IsWin11()) {
 		// Win11 中 Tooltip 自动适应主题
 		return;
 	}

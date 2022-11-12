@@ -411,8 +411,7 @@ bool MagApp::_DisableDirectFlip() {
 	}
 
 	if (_frameSource->IsScreenCapture()) {
-		const RTL_OSVERSIONINFOW& version = Win32Utils::GetOSVersion();
-		if (Utils::CompareVersion(version.dwMajorVersion, version.dwMinorVersion, version.dwBuildNumber, 10, 0, 19041) >= 0) {
+		if (Win32Utils::GetOSVersion().Is20H1OrNewer()) {
 			// 使 DDF 窗口无法被捕获到
 			if (!SetWindowDisplayAffinity(_hwndDDF, WDA_EXCLUDEFROMCAPTURE)) {
 				Logger::Get().Win32Error("SetWindowDisplayAffinity 失败");

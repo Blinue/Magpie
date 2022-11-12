@@ -31,7 +31,7 @@ ScalingProfilePage::ScalingProfilePage() {
 	);
 	PageHelper::UpdateHeaderActionStyle(HeaderActionStackPanel());
 
-	if (Win32Utils::GetOSBuild() < 22000) {
+	if (!Win32Utils::GetOSVersion().IsWin11()) {
 		// Segoe MDL2 Assets 不存在 Move 图标
 		AdjustCursorSpeedFontIcon().Glyph(L"\uE962");
 	}

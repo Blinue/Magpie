@@ -39,8 +39,8 @@ MainPage::MainPage() {
 	_colorValuesChangedRevoker = _uiSettings.ColorValuesChanged(
 		auto_revoke, { get_weak(), &MainPage::_UISettings_ColorValuesChanged });
 
-	const uint32_t osBuild = Win32Utils::GetOSBuild();
-	if (osBuild >= 22621) {
+	const Win32Utils::OSVersion& osVersion = Win32Utils::GetOSVersion();
+	if (osVersion.Is22H2OrNewer()) {
 		// Win11 22H2+ 使用系统的 Mica 背景
 		MUXC::BackdropMaterial::SetApplyToRootOrPageBackground(*this, true);
 	}
@@ -61,7 +61,7 @@ MainPage::MainPage() {
 	}
 
 	// Win10 里启动时有一个 ToggleSwitch 的动画 bug，这里展示页面切换动画掩盖
-	if (osBuild < 22000) {
+	if (!osVersion.IsWin11()) {
 		ContentFrame().Navigate(winrt::xaml_typename<Controls::Page>());
 	}
 
@@ -148,7 +148,7 @@ void MainPage::NavigationView_SelectionChanged(
 }
 
 void MainPage::NavigationView_PaneOpening(MUXC::NavigationView const&, IInspectable const&) {
-	if (Win32Utils::GetOSBuild() >= 22000) {
+	if (Win32Utils::GetOSVersion().IsWin11()) {
 		// Win11 中 Tooltip 自动适应主题
 		return;
 	}
@@ -227,7 +227,7 @@ void MainPage::_UpdateTheme(bool updateIcons) {
 		return;
 	}
 
-	if (Win32Utils::GetOSBuild() < 22621) {
+	if (!Win32Utils::GetOSVersion().Is22H2OrNewer()) {
 		const Windows::UI::Color bkgColor = Win32ColorToWinRTColor(
 			isDarkTheme ? CommonSharedConstants::DARK_TINT_COLOR : CommonSharedConstants::LIGHT_TINT_COLOR);
 		Background(SolidColorBrush(bkgColor));

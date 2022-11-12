@@ -45,7 +45,7 @@ bool XamlApp::Initialize(HINSTANCE hInstance, const wchar_t* arguments) {
 	_InitializeLogger();
 
 	Logger::Get().Info(fmt::format("程序启动\n\t版本：{}\n\t管理员：{}",
-		MAGPIE_VERSION, Win32Utils::IsProcessElevated() ? "是" : "否"));
+		MAGPIE_TAG, Win32Utils::IsProcessElevated() ? "是" : "否"));
 
 	// 初始化 UWP 应用
 	_uwpApp = winrt::Magpie::UI::App();
@@ -175,10 +175,9 @@ void XamlApp::_InitializeLogger() {
 }
 
 void XamlApp::_CreateMainWindow() {
-	const uint32_t osBuild = Win32Utils::GetOSBuild();
 	// Win11 22H2 中为了使用 Mica 背景需指定 WS_EX_NOREDIRECTIONBITMAP
 	_hwndMain = CreateWindowEx(
-		osBuild >= 22621 ? WS_EX_NOREDIRECTIONBITMAP : 0,
+		Win32Utils::GetOSVersion().Is22H2OrNewer() ? WS_EX_NOREDIRECTIONBITMAP : 0,
 		CommonSharedConstants::MAIN_WINDOW_CLASS_NAME,
 		L"Magpie",
 		WS_OVERLAPPEDWINDOW,
@@ -347,7 +346,7 @@ void XamlApp::_OnResize() {
 }
 
 void XamlApp::_UpdateTheme() {
-	const uint32_t osBuild = Win32Utils::GetOSBuild();
+	const Win32Utils::OSVersion& osVersion = Win32Utils::GetOSVersion();
 
 	BOOL isDarkTheme = _mainPage.ActualTheme() == winrt::ElementTheme::Dark;
 	// 使标题栏适应黑暗模式
@@ -356,12 +355,12 @@ void XamlApp::_UpdateTheme() {
 	constexpr const DWORD DWMWA_USE_IMMERSIVE_DARK_MODE_BEFORE_20H1 = 19;
 	DwmSetWindowAttribute(
 		_hwndMain,
-		osBuild < 18985 ? DWMWA_USE_IMMERSIVE_DARK_MODE_BEFORE_20H1 : DWMWA_USE_IMMERSIVE_DARK_MODE,
+		osVersion.Is20H1OrNewer() ? DWMWA_USE_IMMERSIVE_DARK_MODE : DWMWA_USE_IMMERSIVE_DARK_MODE_BEFORE_20H1,
 		&isDarkTheme,
 		sizeof(isDarkTheme)
 	);
 
-	if (osBuild >= 22621) {
+	if (osVersion.Is22H2OrNewer()) {
 		DWM_SYSTEMBACKDROP_TYPE value = DWMSBT_MAINWINDOW;
 		DwmSetWindowAttribute(_hwndMain, DWMWA_SYSTEMBACKDROP_TYPE, &value, sizeof(value));
 		return;
@@ -381,7 +380,7 @@ void XamlApp::_UpdateTheme() {
 
 	// 强制重绘标题栏
 	LONG_PTR style = GetWindowLongPtr(_hwndMain, GWL_EXSTYLE);
-	if (osBuild < 22000) {
+	if (!osVersion.IsWin11()) {
 		// 在 Win10 上需要更多 hack
 		SetWindowLongPtr(_hwndMain, GWL_EXSTYLE, style | WS_EX_LAYERED);
 		SetLayeredWindowAttributes(_hwndMain, 0, 254, LWA_ALPHA);

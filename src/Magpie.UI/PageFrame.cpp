@@ -138,7 +138,7 @@ void PageFrame::_UpdateHeaderStyle() {
 		
 		textBlock.FontSize(20);
 	} else {
-		HeaderGrid().Margin({ 0, Win32Utils::GetOSBuild() >= 22621 ? 22.0 : 41.5, 0, 0 });
+		HeaderGrid().Margin({ 0, Win32Utils::GetOSVersion().Is22H2OrNewer() ? 22.0 : 41.5, 0, 0});
 		IconContainer().Visibility(icon ? Visibility::Visible : Visibility::Collapsed);
 		
 		textBlock.FontSize(30);

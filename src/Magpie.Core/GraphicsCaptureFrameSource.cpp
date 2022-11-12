@@ -228,9 +228,8 @@ bool GraphicsCaptureFrameSource::_CaptureFromStyledWindow(IGraphicsCaptureItemIn
 }
 
 bool GraphicsCaptureFrameSource::_CaptureFromMonitor(IGraphicsCaptureItemInterop* interop) {
-	// WDA_EXCLUDEFROMCAPTURE 只在 Win10 v2004 及更新版本中可用
-	const RTL_OSVERSIONINFOW& version = Win32Utils::GetOSVersion();
-	if (Utils::CompareVersion(version.dwMajorVersion, version.dwMinorVersion, version.dwBuildNumber, 10, 0, 19041) < 0) {
+	// WDA_EXCLUDEFROMCAPTURE 只在 Win10 20H1 及更新版本中可用
+	if (!Win32Utils::GetOSVersion().Is20H1OrNewer()) {
 		Logger::Get().Error("当前操作系统无法使用全屏捕获");
 		return false;
 	}

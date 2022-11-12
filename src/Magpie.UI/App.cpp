@@ -43,7 +43,7 @@ App::App() {
 	AddRef();
 	m_inner.as<::IUnknown>()->Release();
 
-	bool isWin11 = Win32Utils::GetOSBuild() >= 22000;
+	const bool isWin11 = Win32Utils::GetOSVersion().IsWin11();
 	if (!isWin11) {
 		// Win10 中隐藏 DesktopWindowXamlSource 窗口
 		CoreWindow coreWindow = CoreWindow::GetForCurrentThread();
