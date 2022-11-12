@@ -6,9 +6,9 @@
 
 :earth_africa: [简体中文](./README.md) | **English**
 
-Magpie magnifies any window to fullscreen with a handful of algorithms/filter. The main goal is to tackle the situations where the games either do not natively support fullscreen or display blurry images under fullscreen modes.
+Magpie can magnify any window to full screen and has a large number of built-in scaling algorithms/filters. Its main purpose is to enlarge game windows, and is suitable for situations where full-screen mode is not supported, or the built-in full-screen mode causes the screen to blur.
 
-Please raise an issue if you are having trouble running the app.
+If you encounter any problems during use, please submit an issue
 
 👉 [Compiling](https://github.com/Blinue/Magpie/wiki/Compiling)
 
@@ -22,7 +22,7 @@ Please raise an issue if you are having trouble running the app.
 
 ![Screenshot](img/Main_Window.png)
 
-The the window to be magnified is at foreground, you can press the hot keys to make it fullscreen. Pressing the hot keys again or shift another window to foreground will exit the fullscreen mode.
+When the window to be magnified is at foreground, press a hotkey to make it fullscreen. Pressing the hotkey again or bringing another window to the foreground will exit the fullscreen mode.
 
 Below are config guides:
 
@@ -43,8 +43,8 @@ The application ships with multiple scaling modes. If they don't fit your needs,
 This section introduces how Magpie captures the source window. Check the [Capture Modes](https://github.com/Blinue/Magpie/wiki/Capture_Modes) page for their use cases.
 
 1. Graphics Capture：Captures with [Screen Capture API](https://docs.microsoft.com/en-us/windows/uwp/audio-video-camera/screen-capture). The recommended way. Available since Win10 v1903.
-2. Desktop Duplication：Captures with [Desktop Duplication API](https://docs.microsoft.com/en-us/windows/win32/direct3ddxgi/desktop-dup-api). It is able to capture more types of windows compared with Graphics Capture. Available since Win10 v2004.
-3. GDI：Captures with GDI. Has a lower CPU occupancy compared with Graphics Capture.
+2. Desktop Duplication：Captures with [Desktop Duplication API](https://docs.microsoft.com/en-us/windows/win32/direct3ddxgi/desktop-dup-api). This is able to capture more types of windows when compared against Graphics Capture. Available since Win10 v2004.
+3. GDI：Captures with GDI. Has lower CPU usage than Graphics Capture.
 4. DwmSharedSurface：Capture with the private DwmSharedSurface API.
 
 #### Change the Hot Keys
@@ -67,7 +67,7 @@ You need to manually type in your preferred hot keys (concatenate multiple keys 
 
 ## Hints
 
-1. If you have set DPI scaling, but the window to be magnifies doesn't support high DPI: Go to the compatibility settings of the target application, and set the "High DPI scaling override" option to "Application".
+1. If you have set DPI scaling, but the window to be magnified doesn't support high DPI: Go to the compatibility settings of the target application, and set the "High DPI scaling override" option to "Application".
 
    ![High DPI Setting](img/High_DPI_Settings.png)
 
