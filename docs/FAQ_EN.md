@@ -8,15 +8,15 @@ This problem should no longer occur since v0.6.1. Please submit an issue if you 
 
 ## "Initialization failed" when launching
 
-Please first check the [System Requirements](https://github.com/Blinue/Magpie/blob/master/README_EN.md#System-Requirements), and then try fixing/updating the dotnet and MSVC runtime libraries. Please submit an issue if the procedures above didn't work.
+Please first check the [System Requirements](https://github.com/Blinue/Magpie/blob/master/README_EN.md#System-Requirements), and then try fixing/updating the dotnet and MSVC runtime libraries. Please submit an issue if the fixes above don't work.
 
 ## Duplicate-monitoring
 
-When displaying performance monitor like RTSS (Rivatuner Statistics Server), there might be 2 OSD layers displayed with Magpie scaling. This is caused by d3d, the way to capture the screen since v0.7.0. It will be captured by RTSS as well. You can solve the problem by adding it to the blacklist.
+When displaying performance monitor like RTSS (Rivatuner Statistics Server), there might be 2 OSD layers displayed with Magpie scaling. This is caused by d3d, the screen capture method since v0.7.0. It will be captured by RTSS as well. You can fix this issue by adding it to the blacklist.
 
 ## Error occurs when using Graphics Capture
 
-It is a rare bug after v0.8, especially under Win10 v2004 or newer systems. Please notify the developers if you encounter this bug.
+This is a rare bug after v0.8, especially under Win10 v2004 or newer systems. Please notify the developers if you encounter this bug.
 
 ## The hot keys don't work, but `Scale after 5s` works.
 
@@ -25,23 +25,23 @@ It is a rare bug after v0.8, especially under Win10 v2004 or newer systems. Plea
 
 ## Does Magpie support multiple monitors?
 
-Support starts from v0.8.
+Supported from v0.8.
 
 ## Lagging/latency
 
 Please check the [Performance Improvements](https://github.com/Blinue/Magpie/wiki/Performance_Improvements) page.
 
-## I'd like to do something with Magpie. Do I need to get approval?
+## I'd like to do something with Magpie. Do I need to get permission?
 
-There is no need for approval as long as you are follow its [License](https://github.com/Blinue/Magpie/blob/main/LICENSE) (GPLv3).
+There is no need for permission as long as you are follow its [License](https://github.com/Blinue/Magpie/blob/main/LICENSE) (GPLv3).
 
 ## Will using Magpie in multi-player games be detected as cheating?
 
-Magpie is designed to be non-intrusive, so it will not likely to be detected as a cheating tool. Currently there is no banning report for using Magpie. Nevertheless, you need to take the risks of using this software on your own.
+Magpie is designed to be non-intrusive, so it is unlikely to be detected as a cheating tool. There have been no reports of bans for using Magpie. Nevertheless, you should be aware of the risks of using the software.
 
 ## What is "Disable DirectFlip?"
 
-DirectFlip is a technology to reduce input lags, but it may cause troubles in some circumstances. Please turn on this option when you are in the following situationsL:
+DirectFlip is a technology to reduce input lags, but it may cause trouble in some circumstances. Please turn on this option when you are in the following situationsL:
 
 1. The game lags unexpectedly (game known with the issue: Days Gone).
 2. Abnormal low frame rates.
@@ -53,4 +53,4 @@ A lot of software checks whether there are games running under dedicated fullscr
 
 ## What is the frame rate displayed in Magpie?
 
-The frame rate displayed by Magpie is that of its own rather than that of the game. Due to the non-intrusive nature, Magpie has no way to detect the frame rates of the games themselves. We recommend you to use tools like RTSS to display the games' frame rates. There add-on layers can usually be captured by Magpie as well.
+The frame rate displayed by Magpie is that of its own rather than that of the game. Due to the non-intrusive nature, Magpie has no way to detect the frame rates of games themselves. We recommend you to use tools like RTSS to display the games' frame rates. Their add-on layers can usually be captured by Magpie as well.
