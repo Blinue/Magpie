@@ -80,6 +80,8 @@ void HotkeyService::_RegisterHotkey(HotkeyAction action) {
 	const HotkeySettings& hotkey = AppSettings::Get().GetHotkey(action);
 	bool& isError = _hotkeyInfos[(size_t)action].isError;
 
+	UnregisterHotKey(_hwndHotkey, (int)action);
+
 	if (hotkey.IsEmpty() || hotkey.Check() != HotkeyError::NoError) {
 		Logger::Get().Win32Error(fmt::format("注册热键 {} 失败", HotkeyHelper::ToString(action)));
 		isError = true;
@@ -99,10 +101,6 @@ void HotkeyService::_RegisterHotkey(HotkeyAction action) {
 	}
 	if (hotkey.shift) {
 		modifiers |= MOD_SHIFT;
-	}
-
-	if (!isError) {
-		UnregisterHotKey(_hwndHotkey, (int)action);
 	}
 
 	isError = !RegisterHotKey(_hwndHotkey, (int)action, modifiers, hotkey.code);

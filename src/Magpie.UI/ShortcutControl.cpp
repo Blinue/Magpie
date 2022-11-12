@@ -81,6 +81,9 @@ fire_and_forget ShortcutControl::EditButton_Click(IInspectable const&, RoutedEve
 		_shortcutDialog.PrimaryButtonText(L"保存");
 		_shortcutDialog.CloseButtonText(L"取消");
 		_shortcutDialog.DefaultButton(ContentDialogButton::Primary);
+		// 在 Closing 事件中设置热键而不是等待 ShowAsync 返回
+		// 这两个时间点有一定间隔，用户在这段时间内的按键不应处理
+		_shortcutDialog.Closing({ this, &ShortcutControl::_ShortcutDialog_Closing });
 	}
 
 	_previewHotkey = _hotkey;
@@ -105,13 +108,15 @@ fire_and_forget ShortcutControl::EditButton_Click(IInspectable const&, RoutedEve
 	
 	_pressedKeys.Clear();
 
-	ContentDialogResult result = co_await ContentDialogHelper::ShowAsync(_shortcutDialog);
+	co_await ContentDialogHelper::ShowAsync(_shortcutDialog);
+}
 
+void ShortcutControl::_ShortcutDialog_Closing(ContentDialog const&, ContentDialogClosingEventArgs const& args) {
 	UnhookWindowsHookEx(_keyboardHook);
 	_keyboardHook = NULL;
 	HotkeyService::Get().StartKeyboardHook();
 
-	if (result == ContentDialogResult::Primary) {
+	if (args.Result() == ContentDialogResult::Primary) {
 		AppSettings::Get().SetHotkey(Action(), _previewHotkey);
 	}
 }
