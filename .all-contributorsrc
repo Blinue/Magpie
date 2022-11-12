@@ -112,6 +112,15 @@
       "contributions": [
         "userTesting"
       ]
+    },
+    {
+      "login": "sammyhori",
+      "name": "Sammy Hori",
+      "avatar_url": "https://avatars.githubusercontent.com/u/116026761?v=4",
+      "profile": "http://sammyhori.com",
+      "contributions": [
+        "translation"
+      ]
     }
   ],
   "contributorsPerLine": 7,
