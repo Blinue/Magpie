@@ -217,14 +217,14 @@
 								  Style="{StaticResource ComboBoxSettingStyle}" />
 					</local:SettingsCard.ActionContent>
 				</local:SettingsCard>
-				<local:SettingsCard Title="捕获模式">
+				<local:SettingsCard Title="捕获方式">
 					<local:SettingsCard.Icon>
 						<FontIcon Glyph="&#xE9A6;" />
 					</local:SettingsCard.Icon>
 					<local:SettingsCard.ActionContent>
 						<ComboBox DropDownOpened="ComboBox_DropDownOpened"
 								  ItemsSource="{x:Bind ViewModel.CaptureMethods, Mode=OneTime}"
-								  SelectedIndex="{x:Bind ViewModel.CaptureMode, Mode=TwoWay}"
+								  SelectedIndex="{x:Bind ViewModel.CaptureMethod, Mode=TwoWay}"
 								  Style="{StaticResource ComboBoxSettingStyle}" />
 					</local:SettingsCard.ActionContent>
 				</local:SettingsCard>

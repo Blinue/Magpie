@@ -24,7 +24,7 @@ struct ScalingProfile {
 		customCursorScaling = other.customCursorScaling;
 		isCroppingEnabled = other.isCroppingEnabled;
 		cropping = other.cropping;
-		captureMode = other.captureMode;
+		captureMethod = other.captureMethod;
 		graphicsAdapter = other.graphicsAdapter;
 		multiMonitorUsage = other.multiMonitorUsage;
 		cursorInterpolationMode = other.cursorInterpolationMode;
@@ -53,7 +53,7 @@ struct ScalingProfile {
 	::Magpie::Core::Cropping cropping{};
 	// -1 表示原样
 	int scalingMode = -1;
-	::Magpie::Core::CaptureMode captureMode = ::Magpie::Core::CaptureMode::GraphicsCapture;
+	::Magpie::Core::CaptureMethod captureMethod = ::Magpie::Core::CaptureMethod::GraphicsCapture;
 	uint32_t graphicsAdapter = 0;
 	::Magpie::Core::MultiMonitorUsage multiMonitorUsage = ::Magpie::Core::MultiMonitorUsage::Nearest;
 	::Magpie::Core::CursorInterpolationMode cursorInterpolationMode = ::Magpie::Core::CursorInterpolationMode::Nearest;

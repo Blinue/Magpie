@@ -224,7 +224,7 @@ void MagService::_StartScale(HWND hWnd) {
 	
 	MagOptions options;
 	options.graphicsAdapter = profile.graphicsAdapter;
-	options.captureMode = profile.captureMode;
+	options.captureMethod = profile.captureMethod;
 	options.multiMonitorUsage = profile.multiMonitorUsage;
 	options.cursorInterpolationMode = profile.cursorInterpolationMode;
 	options.flags = profile.flags;

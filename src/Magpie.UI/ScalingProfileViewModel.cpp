@@ -284,30 +284,30 @@ void ScalingProfileViewModel::ScalingMode(int value) {
 	AppSettings::Get().SaveAsync();
 }
 
-int ScalingProfileViewModel::CaptureMode() const noexcept {
-	if (Win32Utils::GetOSVersion().Is20H1OrNewer() || _data->captureMode < CaptureMode::DesktopDuplication) {
-		return (int)_data->captureMode;
+int ScalingProfileViewModel::CaptureMethod() const noexcept {
+	if (Win32Utils::GetOSVersion().Is20H1OrNewer() || _data->captureMethod < CaptureMethod::DesktopDuplication) {
+		return (int)_data->captureMethod;
 	} else {
-		return (int)_data->captureMode - 1;
+		return (int)_data->captureMethod - 1;
 	}
 }
 
-void ScalingProfileViewModel::CaptureMode(int value) {
+void ScalingProfileViewModel::CaptureMethod(int value) {
 	if (value < 0) {
 		return;
 	}
 
-	if (!Win32Utils::GetOSVersion().Is20H1OrNewer() && value >= (int)CaptureMode::DesktopDuplication) {
+	if (!Win32Utils::GetOSVersion().Is20H1OrNewer() && value >= (int)CaptureMethod::DesktopDuplication) {
 		++value;
 	}
 
-	::Magpie::Core::CaptureMode captureMode = (::Magpie::Core::CaptureMode)value;
-	if (_data->captureMode == captureMode) {
+	::Magpie::Core::CaptureMethod captureMethod = (::Magpie::Core::CaptureMethod)value;
+	if (_data->captureMethod == captureMethod) {
 		return;
 	}
 
-	_data->captureMode = captureMode;
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CaptureMode"));
+	_data->captureMethod = captureMethod;
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CaptureMethod"));
 
 	AppSettings::Get().SaveAsync();
 }

@@ -350,17 +350,17 @@ bool MagApp::_CreateHostWnd() {
 }
 
 bool MagApp::_InitFrameSource() {
-	switch (_options.captureMode) {
-	case CaptureMode::GraphicsCapture:
+	switch (_options.captureMethod) {
+	case CaptureMethod::GraphicsCapture:
 		_frameSource.reset(new GraphicsCaptureFrameSource());
 		break;
-	case CaptureMode::DesktopDuplication:
+	case CaptureMethod::DesktopDuplication:
 		_frameSource.reset(new DesktopDuplicationFrameSource());
 		break;
-	case CaptureMode::GDI:
+	case CaptureMethod::GDI:
 		_frameSource.reset(new GDIFrameSource());
 		break;
-	case CaptureMode::DwmSharedSurface:
+	case CaptureMethod::DwmSharedSurface:
 		_frameSource.reset(new DwmSharedSurfaceFrameSource());
 		break;
 	default:

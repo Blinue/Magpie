@@ -5,7 +5,7 @@
 
 namespace Magpie::Core {
 
-enum class CaptureMode {
+enum class CaptureMethod {
 	GraphicsCapture,
 	DesktopDuplication,
 	GDI,
@@ -97,7 +97,7 @@ struct MagOptions {
 	uint32_t flags = MagFlags::VSync | MagFlags::AdjustCursorSpeed | MagFlags::DrawCursor;	// MagFlags
 	uint32_t graphicsAdapter = 0;
 	float cursorScaling = 1.0f;
-	CaptureMode captureMode = CaptureMode::GraphicsCapture;
+	CaptureMethod captureMethod = CaptureMethod::GraphicsCapture;
 	MultiMonitorUsage multiMonitorUsage = MultiMonitorUsage::Nearest;
 	CursorInterpolationMode cursorInterpolationMode = CursorInterpolationMode::Nearest;
 

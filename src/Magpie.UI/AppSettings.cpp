@@ -66,8 +66,8 @@ static void WriteScalingProfile(rapidjson::PrettyWriter<rapidjson::StringBuffer>
 
 	writer.Key("scalingMode");
 	writer.Int(scalingProfile.scalingMode);
-	writer.Key("captureMode");
-	writer.Uint((uint32_t)scalingProfile.captureMode);
+	writer.Key("captureMethod");
+	writer.Uint((uint32_t)scalingProfile.captureMethod);
 	writer.Key("multiMonitorUsage");
 	writer.Uint((uint32_t)scalingProfile.multiMonitorUsage);
 	writer.Key("graphicsAdapter");
@@ -566,17 +566,21 @@ bool AppSettings::_LoadScalingProfile(
 	}
 
 	{
-		uint32_t captureMode = (uint32_t)CaptureMode::GraphicsCapture;
-		JsonHelper::ReadUInt(scalingProfileObj, "captureMode", captureMode);
-		if (captureMode > 3) {
-			captureMode = (uint32_t)CaptureMode::GraphicsCapture;
-		} else if (captureMode == (uint32_t)CaptureMode::DesktopDuplication) {
+		uint32_t captureMethod = (uint32_t)CaptureMethod::GraphicsCapture;
+		if (!JsonHelper::ReadUInt(scalingProfileObj, "captureMethod", captureMethod, true)) {
+			// v0.10.0-preview1 使用 captureMode
+			JsonHelper::ReadUInt(scalingProfileObj, "captureMode", captureMethod);
+		}
+		
+		if (captureMethod > 3) {
+			captureMethod = (uint32_t)CaptureMethod::GraphicsCapture;
+		} else if (captureMethod == (uint32_t)CaptureMethod::DesktopDuplication) {
 			// Desktop Duplication 捕获模式要求 Win10 20H1+
 			if (!Win32Utils::GetOSVersion().Is20H1OrNewer()) {
-				captureMode = (uint32_t)CaptureMode::GraphicsCapture;
+				captureMethod = (uint32_t)CaptureMethod::GraphicsCapture;
 			}
 		}
-		scalingProfile.captureMode = (CaptureMode)captureMode;
+		scalingProfile.captureMethod = (CaptureMethod)captureMethod;
 	}
 
 	{
