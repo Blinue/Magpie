@@ -30,7 +30,8 @@ struct _AppSettingsData {
 	// 1: 深色
 	// 2: 系统
 	uint32_t _theme = 2;
-	uint32_t _downCount = 5;
+	// 必须在 1~5 之间
+	uint32_t _downCount = 3;
 
 	bool _isPortableMode = false;
 	bool _isAlwaysRunAsElevated = false;
@@ -265,6 +266,11 @@ private:
 	bool _Save(const _AppSettingsData& data) noexcept;
 
 	void _LoadSettings(const rapidjson::GenericObject<true, rapidjson::Value>& root, uint32_t version);
+	bool _LoadScalingProfile(
+		const rapidjson::GenericObject<true, rapidjson::Value>& scalingProfileObj,
+		ScalingProfile& scalingProfile,
+		bool isDefault = false
+	);
 	void _SetDefaultHotkeys();
 	void _SetDefaultScalingModes();
 

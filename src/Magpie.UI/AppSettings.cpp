@@ -116,67 +116,6 @@ static void WriteScalingProfile(rapidjson::PrettyWriter<rapidjson::StringBuffer>
 	writer.EndObject();
 }
 
-static bool LoadScalingProfile(
-	const rapidjson::GenericObject<true, rapidjson::Value>& scalingConfigObj,
-	ScalingProfile& scalingProfile,
-	bool isDefault = false
-) {
-	if (!isDefault) {
-		if (!JsonHelper::ReadString(scalingConfigObj, "name", scalingProfile.name, true)
-			|| scalingProfile.name.empty()) {
-			return false;
-		}
-
-		if (!JsonHelper::ReadBool(scalingConfigObj, "packaged", scalingProfile.isPackaged, true)) {
-			return false;
-		}
-
-		if (!JsonHelper::ReadString(scalingConfigObj, "pathRule", scalingProfile.pathRule, true)
-			|| scalingProfile.pathRule.empty()) {
-			return false;
-		}
-
-		if (!JsonHelper::ReadString(scalingConfigObj, "classNameRule", scalingProfile.classNameRule, true)
-			|| scalingProfile.classNameRule.empty()) {
-			return false;
-		}
-	}
-
-	JsonHelper::ReadInt(scalingConfigObj, "scalingMode", scalingProfile.scalingMode);
-	JsonHelper::ReadUInt(scalingConfigObj, "captureMode", (uint32_t&)scalingProfile.captureMode);
-	JsonHelper::ReadUInt(scalingConfigObj, "multiMonitorUsage", (uint32_t&)scalingProfile.multiMonitorUsage);
-	JsonHelper::ReadUInt(scalingConfigObj, "graphicsAdapter", scalingProfile.graphicsAdapter);
-	JsonHelper::ReadBoolFlag(scalingConfigObj, "disableWindowResizing", MagFlags::DisableDirectFlip, scalingProfile.flags);
-	JsonHelper::ReadBoolFlag(scalingConfigObj, "3DGameMode", MagFlags::Is3DGameMode, scalingProfile.flags);
-	JsonHelper::ReadBoolFlag(scalingConfigObj, "showFPS", MagFlags::ShowFPS, scalingProfile.flags);
-	JsonHelper::ReadBoolFlag(scalingConfigObj, "VSync", MagFlags::VSync, scalingProfile.flags);
-	JsonHelper::ReadBoolFlag(scalingConfigObj, "tripleBuffering", MagFlags::TripleBuffering, scalingProfile.flags);
-	JsonHelper::ReadBoolFlag(scalingConfigObj, "reserveTitleBar", MagFlags::ReserveTitleBar, scalingProfile.flags);
-	JsonHelper::ReadBoolFlag(scalingConfigObj, "adjustCursorSpeed", MagFlags::AdjustCursorSpeed, scalingProfile.flags);
-	JsonHelper::ReadBoolFlag(scalingConfigObj, "drawCursor", MagFlags::DrawCursor, scalingProfile.flags);
-	JsonHelper::ReadBoolFlag(scalingConfigObj, "disableDirectFlip", MagFlags::DisableDirectFlip, scalingProfile.flags);
-	JsonHelper::ReadUInt(scalingConfigObj, "cursorScaling", (uint32_t&)scalingProfile.cursorScaling);
-	JsonHelper::ReadFloat(scalingConfigObj, "customCursorScaling", scalingProfile.customCursorScaling);
-	JsonHelper::ReadUInt(scalingConfigObj, "cursorInterpolationMode", (uint32_t&)scalingProfile.cursorInterpolationMode);
-
-	JsonHelper::ReadBool(scalingConfigObj, "croppingEnabled", scalingProfile.isCroppingEnabled);
-
-	auto croppingNode = scalingConfigObj.FindMember("cropping");
-	if (croppingNode != scalingConfigObj.MemberEnd() && croppingNode->value.IsObject()) {
-		const auto& croppingObj = croppingNode->value.GetObj();
-
-		if (!JsonHelper::ReadFloat(croppingObj, "left", scalingProfile.cropping.Left, true)
-			|| !JsonHelper::ReadFloat(croppingObj, "top", scalingProfile.cropping.Top, true)
-			|| !JsonHelper::ReadFloat(croppingObj, "right", scalingProfile.cropping.Right, true)
-			|| !JsonHelper::ReadFloat(croppingObj, "bottom", scalingProfile.cropping.Bottom, true))
-		{
-			scalingProfile.cropping = {};
-		}
-	}
-
-	return true;
-}
-
 bool AppSettings::Initialize() {
 	Logger& logger = Logger::Get();
 
@@ -522,6 +461,9 @@ void AppSettings::_LoadSettings(const rapidjson::GenericObject<true, rapidjson::
 
 	JsonHelper::ReadBool(root, "autoRestore", _isAutoRestore);
 	JsonHelper::ReadUInt(root, "downCount", _downCount);
+	if (_downCount == 0 || _downCount > 5) {
+		_downCount = 3;
+	}
 	JsonHelper::ReadBool(root, "debugMode", _isDebugMode);
 	JsonHelper::ReadBool(root, "disableEffectCache", _isDisableEffectCache);
 	JsonHelper::ReadBool(root, "saveEffectSources", _isSaveEffectSources);
@@ -564,7 +506,7 @@ void AppSettings::_LoadSettings(const rapidjson::GenericObject<true, rapidjson::
 		if (size > 0) {
 			if (scaleProfilesArray[0].IsObject()) {
 				// 解析默认缩放配置不会失败
-				LoadScalingProfile(scaleProfilesArray[0].GetObj(), _defaultScalingProfile, true);
+				_LoadScalingProfile(scaleProfilesArray[0].GetObj(), _defaultScalingProfile, true);
 			}
 
 			if (size > 1) {
@@ -575,7 +517,7 @@ void AppSettings::_LoadSettings(const rapidjson::GenericObject<true, rapidjson::
 					}
 
 					ScalingProfile& rule = _scalingProfiles.emplace_back();
-					if (!LoadScalingProfile(scaleProfilesArray[i].GetObj(), rule)) {
+					if (!_LoadScalingProfile(scaleProfilesArray[i].GetObj(), rule)) {
 						_scalingProfiles.pop_back();
 						continue;
 					}
@@ -583,6 +525,123 @@ void AppSettings::_LoadSettings(const rapidjson::GenericObject<true, rapidjson::
 			}
 		}
 	}
+}
+
+bool AppSettings::_LoadScalingProfile(
+	const rapidjson::GenericObject<true, rapidjson::Value>& scalingProfileObj,
+	ScalingProfile& scalingProfile,
+	bool isDefault
+) {
+	if (!isDefault) {
+		if (!JsonHelper::ReadString(scalingProfileObj, "name", scalingProfile.name, true)) {
+			return false;
+		}
+
+		{
+			std::wstring_view nameView(scalingProfile.name);
+			StrUtils::Trim(nameView);
+			if (nameView.empty()) {
+				return false;
+			}
+		}
+
+		if (!JsonHelper::ReadBool(scalingProfileObj, "packaged", scalingProfile.isPackaged, true)) {
+			return false;
+		}
+
+		if (!JsonHelper::ReadString(scalingProfileObj, "pathRule", scalingProfile.pathRule, true)
+			|| scalingProfile.pathRule.empty()) {
+			return false;
+		}
+
+		if (!JsonHelper::ReadString(scalingProfileObj, "classNameRule", scalingProfile.classNameRule, true)
+			|| scalingProfile.classNameRule.empty()) {
+			return false;
+		}
+	}
+
+	JsonHelper::ReadInt(scalingProfileObj, "scalingMode", scalingProfile.scalingMode);
+	if (scalingProfile.scalingMode < -1 || scalingProfile.scalingMode >= _scalingModes.size()) {
+		scalingProfile.scalingMode = -1;
+	}
+
+	{
+		uint32_t captureMode = (uint32_t)CaptureMode::GraphicsCapture;
+		JsonHelper::ReadUInt(scalingProfileObj, "captureMode", captureMode);
+		if (captureMode > 3) {
+			captureMode = (uint32_t)CaptureMode::GraphicsCapture;
+		} else if (captureMode == (uint32_t)CaptureMode::DesktopDuplication) {
+			// Desktop Duplication 捕获模式要求 Win10 20H1+
+			if (!Win32Utils::GetOSVersion().Is20H1OrNewer()) {
+				captureMode = (uint32_t)CaptureMode::GraphicsCapture;
+			}
+		}
+		scalingProfile.captureMode = (CaptureMode)captureMode;
+	}
+
+	{
+		uint32_t multiMonitorUsage = (uint32_t)MultiMonitorUsage::Nearest;
+		JsonHelper::ReadUInt(scalingProfileObj, "multiMonitorUsage", multiMonitorUsage);
+		if (multiMonitorUsage > 2) {
+			multiMonitorUsage = (uint32_t)MultiMonitorUsage::Nearest;
+		}
+		scalingProfile.multiMonitorUsage = (MultiMonitorUsage)multiMonitorUsage;
+	}
+	
+	JsonHelper::ReadUInt(scalingProfileObj, "graphicsAdapter", scalingProfile.graphicsAdapter);
+	JsonHelper::ReadBoolFlag(scalingProfileObj, "disableWindowResizing", MagFlags::DisableDirectFlip, scalingProfile.flags);
+	JsonHelper::ReadBoolFlag(scalingProfileObj, "3DGameMode", MagFlags::Is3DGameMode, scalingProfile.flags);
+	JsonHelper::ReadBoolFlag(scalingProfileObj, "showFPS", MagFlags::ShowFPS, scalingProfile.flags);
+	JsonHelper::ReadBoolFlag(scalingProfileObj, "VSync", MagFlags::VSync, scalingProfile.flags);
+	JsonHelper::ReadBoolFlag(scalingProfileObj, "tripleBuffering", MagFlags::TripleBuffering, scalingProfile.flags);
+	JsonHelper::ReadBoolFlag(scalingProfileObj, "reserveTitleBar", MagFlags::ReserveTitleBar, scalingProfile.flags);
+	JsonHelper::ReadBoolFlag(scalingProfileObj, "adjustCursorSpeed", MagFlags::AdjustCursorSpeed, scalingProfile.flags);
+	JsonHelper::ReadBoolFlag(scalingProfileObj, "drawCursor", MagFlags::DrawCursor, scalingProfile.flags);
+	JsonHelper::ReadBoolFlag(scalingProfileObj, "disableDirectFlip", MagFlags::DisableDirectFlip, scalingProfile.flags);
+
+	{
+		uint32_t cursorScaling = (uint32_t)CursorScaling::NoScaling;
+		JsonHelper::ReadUInt(scalingProfileObj, "cursorScaling", cursorScaling);
+		if (cursorScaling > 7) {
+			cursorScaling = (uint32_t)CursorScaling::NoScaling;
+		}
+		scalingProfile.cursorScaling = (CursorScaling)cursorScaling;
+	}
+	
+	JsonHelper::ReadFloat(scalingProfileObj, "customCursorScaling", scalingProfile.customCursorScaling);
+	if (scalingProfile.customCursorScaling < 0) {
+		scalingProfile.customCursorScaling = 1.0f;
+	}
+
+	{
+		uint32_t cursorInterpolationMode = (uint32_t)CursorInterpolationMode::Nearest;
+		JsonHelper::ReadUInt(scalingProfileObj, "cursorInterpolationMode", (uint32_t&)scalingProfile.cursorInterpolationMode);
+		if (cursorInterpolationMode > 1) {
+			cursorInterpolationMode = (uint32_t)CursorInterpolationMode::Nearest;
+		}
+		scalingProfile.cursorInterpolationMode = (CursorInterpolationMode)cursorInterpolationMode;
+	}
+
+	JsonHelper::ReadBool(scalingProfileObj, "croppingEnabled", scalingProfile.isCroppingEnabled);
+
+	auto croppingNode = scalingProfileObj.FindMember("cropping");
+	if (croppingNode != scalingProfileObj.MemberEnd() && croppingNode->value.IsObject()) {
+		const auto& croppingObj = croppingNode->value.GetObj();
+
+		if (!JsonHelper::ReadFloat(croppingObj, "left", scalingProfile.cropping.Left, true)
+			|| scalingProfile.cropping.Left < 0
+			|| !JsonHelper::ReadFloat(croppingObj, "top", scalingProfile.cropping.Top, true)
+			|| scalingProfile.cropping.Top < 0
+			|| !JsonHelper::ReadFloat(croppingObj, "right", scalingProfile.cropping.Right, true)
+			|| scalingProfile.cropping.Right < 0
+			|| !JsonHelper::ReadFloat(croppingObj, "bottom", scalingProfile.cropping.Bottom, true)
+			|| scalingProfile.cropping.Bottom < 0
+		) {
+			scalingProfile.cropping = {};
+		}
+	}
+
+	return true;
 }
 
 void AppSettings::_SetDefaultHotkeys() {

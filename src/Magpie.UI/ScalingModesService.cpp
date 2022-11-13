@@ -193,7 +193,8 @@ static bool LoadScalingMode(
 
 				float x, y;
 				if (JsonHelper::ReadFloat(scaleObj, "x", x, true)
-					&& JsonHelper::ReadFloat(scaleObj, "y", y, true)) 
+					&& JsonHelper::ReadFloat(scaleObj, "y", y, true)
+					&& x > 0 && y > 0)
 				{
 					effect.scale = { x,y };
 				} else {
