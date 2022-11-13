@@ -51,7 +51,7 @@ static SmallVector<std::wstring, 2> GetAllGraphicsAdapters() {
 	return result;
 }
 
-ScalingProfileViewModel::ScalingProfileViewModel(int32_t profileIdx) : _isDefaultProfile(profileIdx < 0) {
+ScalingProfileViewModel::ScalingProfileViewModel(int profileIdx) : _isDefaultProfile(profileIdx < 0) {
 	if (_isDefaultProfile) {
 		_data = &ScalingProfileService::Get().DefaultScalingProfile();
 	} else {
@@ -90,12 +90,28 @@ ScalingProfileViewModel::ScalingProfileViewModel(int32_t profileIdx) : _isDefaul
 		_LoadIcon(mainPage);
 	}
 
-	std::vector<IInspectable> scalingModes;
-	scalingModes.push_back(box_value(L"无"));
-	for (const Magpie::UI::ScalingMode& sm : AppSettings::Get().ScalingModes()) {
-		scalingModes.push_back(box_value(sm.name));
+	{
+		std::vector<IInspectable> scalingModes;
+		scalingModes.push_back(box_value(L"无"));
+		for (const Magpie::UI::ScalingMode& sm : AppSettings::Get().ScalingModes()) {
+			scalingModes.push_back(box_value(sm.name));
+		}
+		_scalingModes = single_threaded_vector(std::move(scalingModes));
 	}
-	_scalingModes = single_threaded_vector(std::move(scalingModes));
+
+	{
+		std::vector<IInspectable> captureMethods;
+		captureMethods.reserve(4);
+		captureMethods.push_back(box_value(L"Graphics Catpure"));
+		if (Win32Utils::GetOSVersion().Is20H1OrNewer()) {
+			// Desktop Duplication 要求 Win10 20H1+
+			captureMethods.push_back(box_value(L"Desktop Duplication"));
+		}
+		captureMethods.push_back(box_value(L"GDI"));
+		captureMethods.push_back(box_value(L"DwmSharedSurface"));
+
+		_captureMethods = single_threaded_vector(std::move(captureMethods));
+	}
 
 	std::vector<IInspectable> graphicsAdapters;
 	graphicsAdapters.push_back(box_value(L"默认"));
@@ -257,24 +273,32 @@ void ScalingProfileViewModel::Delete() {
 	_data = nullptr;
 }
 
-int32_t ScalingProfileViewModel::ScalingMode() const noexcept {
+int ScalingProfileViewModel::ScalingMode() const noexcept {
 	return _data->scalingMode + 1;
 }
 
-void ScalingProfileViewModel::ScalingMode(int32_t value) {
+void ScalingProfileViewModel::ScalingMode(int value) {
 	_data->scalingMode = value - 1;
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"ScalingMode"));
 
 	AppSettings::Get().SaveAsync();
 }
 
-int32_t ScalingProfileViewModel::CaptureMode() const noexcept {
-	return (int32_t)_data->captureMode;
+int ScalingProfileViewModel::CaptureMode() const noexcept {
+	if (Win32Utils::GetOSVersion().Is20H1OrNewer() || _data->captureMode < CaptureMode::DesktopDuplication) {
+		return (int)_data->captureMode;
+	} else {
+		return (int)_data->captureMode - 1;
+	}
 }
 
-void ScalingProfileViewModel::CaptureMode(int32_t value) {
+void ScalingProfileViewModel::CaptureMode(int value) {
 	if (value < 0) {
 		return;
+	}
+
+	if (!Win32Utils::GetOSVersion().Is20H1OrNewer() && value >= (int)CaptureMode::DesktopDuplication) {
+		++value;
 	}
 
 	::Magpie::Core::CaptureMode captureMode = (::Magpie::Core::CaptureMode)value;
@@ -303,11 +327,11 @@ void ScalingProfileViewModel::Is3DGameMode(bool value) {
 	AppSettings::Get().SaveAsync();
 }
 
-int32_t ScalingProfileViewModel::MultiMonitorUsage() const noexcept {
-	return (int32_t)_data->multiMonitorUsage;
+int ScalingProfileViewModel::MultiMonitorUsage() const noexcept {
+	return (int)_data->multiMonitorUsage;
 }
 
-void ScalingProfileViewModel::MultiMonitorUsage(int32_t value) {
+void ScalingProfileViewModel::MultiMonitorUsage(int value) {
 	if (value < 0) {
 		return;
 	}
@@ -323,11 +347,11 @@ void ScalingProfileViewModel::MultiMonitorUsage(int32_t value) {
 	AppSettings::Get().SaveAsync();
 }
 
-int32_t ScalingProfileViewModel::GraphicsAdapter() const noexcept {
-	return (int32_t)_data->graphicsAdapter;
+int ScalingProfileViewModel::GraphicsAdapter() const noexcept {
+	return (int)_data->graphicsAdapter;
 }
 
-void ScalingProfileViewModel::GraphicsAdapter(int32_t value) {
+void ScalingProfileViewModel::GraphicsAdapter(int value) {
 	if (value < 0) {
 		return;
 	}
@@ -524,11 +548,11 @@ void ScalingProfileViewModel::IsDrawCursor(bool value) {
 	AppSettings::Get().SaveAsync();
 }
 
-int32_t ScalingProfileViewModel::CursorScaling() const noexcept {
-	return (int32_t)_data->cursorScaling;
+int ScalingProfileViewModel::CursorScaling() const noexcept {
+	return (int)_data->cursorScaling;
 }
 
-void ScalingProfileViewModel::CursorScaling(int32_t value) {
+void ScalingProfileViewModel::CursorScaling(int value) {
 	if (value < 0) {
 		return;
 	}
@@ -559,11 +583,11 @@ void ScalingProfileViewModel::CustomCursorScaling(double value) {
 	AppSettings::Get().SaveAsync();
 }
 
-int32_t ScalingProfileViewModel::CursorInterpolationMode() const noexcept {
-	return (int32_t)_data->cursorInterpolationMode;
+int ScalingProfileViewModel::CursorInterpolationMode() const noexcept {
+	return (int)_data->cursorInterpolationMode;
 }
 
-void ScalingProfileViewModel::CursorInterpolationMode(int32_t value) {
+void ScalingProfileViewModel::CursorInterpolationMode(int value) {
 	if (value < 0) {
 		return;
 	}

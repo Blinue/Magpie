@@ -141,7 +141,7 @@ void MainPage::NavigationView_SelectionChanged(
 			MUXC::NavigationView nv = __super::RootNavigationView();
 			uint32_t index;
 			if (nv.MenuItems().IndexOf(nv.SelectedItem(), index)) {
-				contentFrame.Navigate(winrt::xaml_typename<ScalingProfilePage>(), box_value((int32_t)index - 4));
+				contentFrame.Navigate(winrt::xaml_typename<ScalingProfilePage>(), box_value((int)index - 4));
 			}
 		}
 	}

@@ -46,7 +46,7 @@ struct ScalingModeItem : ScalingModeItemT<ScalingModeItem> {
 
 	void RenameTextBox_KeyDown(IInspectable const&, Input::KeyRoutedEventArgs const& args);
 
-	int32_t RenameTextBoxSelectionStart() {
+	int RenameTextBoxSelectionStart() {
 		return _renameText.size();
 	}
 

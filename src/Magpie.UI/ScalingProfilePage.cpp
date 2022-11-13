@@ -44,7 +44,7 @@ ScalingProfilePage::ScalingProfilePage() {
 }
 
 void ScalingProfilePage::OnNavigatedTo(Navigation::NavigationEventArgs const& args) {
-	int32_t profileIdx = args.Parameter().as<int32_t>();
+	int profileIdx = args.Parameter().as<int>();
 	_viewModel = make<ScalingProfileViewModel>(profileIdx);
 
 	if (_viewModel.GraphicsAdapters().Size() <= 2) {

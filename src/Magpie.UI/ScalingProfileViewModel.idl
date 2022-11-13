@@ -27,7 +27,9 @@ namespace Magpie.UI
 		IVector<IInspectable> ScalingModes { get; };
 		Int32 ScalingMode;
 
+		IVector<IInspectable> CaptureMethods { get; };
 		Int32 CaptureMode;
+
 		Boolean Is3DGameMode;
 		Int32 MultiMonitorUsage;
 

@@ -10,7 +10,7 @@ namespace Magpie::Core {
 union EffectConstant32 {
 	float floatVal;
 	uint32_t uintVal;
-	int32_t intVal;
+	int intVal;
 };
 
 class EffectDrawer {

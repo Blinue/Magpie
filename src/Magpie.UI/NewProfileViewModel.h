@@ -21,11 +21,11 @@ struct NewProfileViewModel : NewProfileViewModelT<NewProfileViewModel> {
 		return _candidateWindows;
 	}
 
-	int32_t CandidateWindowIndex() const noexcept {
+	int CandidateWindowIndex() const noexcept {
 		return _candidateWindowIndex;
 	}
 
-	void CandidateWindowIndex(int32_t value);
+	void CandidateWindowIndex(int value);
 
 	hstring Name() const noexcept {
 		return _name;
@@ -37,11 +37,11 @@ struct NewProfileViewModel : NewProfileViewModelT<NewProfileViewModel> {
 		return _profiles;
 	}
 
-	int32_t ProfileIndex() const noexcept {
+	int ProfileIndex() const noexcept {
 		return _profileIndex;
 	}
 
-	void ProfileIndex(int32_t value) {
+	void ProfileIndex(int value) {
 		_profileIndex = value;
 		_propertyChangedEvent(*this, PropertyChangedEventArgs(L"ProfileIndex"));
 	}
@@ -75,10 +75,10 @@ private:
 	event<PropertyChangedEventHandler> _propertyChangedEvent;
 
 	IVector<IInspectable> _candidateWindows{ nullptr };
-	int32_t _candidateWindowIndex = -1;
+	int _candidateWindowIndex = -1;
 	hstring _name;
 	IVector<IInspectable> _profiles{ nullptr };
-	int32_t _profileIndex = 0;
+	int _profileIndex = 0;
 	bool _isConfirmButtonEnabled = false;
 };
 

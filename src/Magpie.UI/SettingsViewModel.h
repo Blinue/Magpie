@@ -7,8 +7,8 @@ namespace winrt::Magpie::UI::implementation {
 struct SettingsViewModel : SettingsViewModelT<SettingsViewModel> {
 	SettingsViewModel();
 
-	int32_t Theme() const noexcept;
-	void Theme(int32_t value) noexcept;
+	int Theme() const noexcept;
+	void Theme(int value) noexcept;
 
 	bool IsRunAtStartup() const noexcept {
 		return _isRunAtStartup;

@@ -45,8 +45,8 @@ void XamlUtils::UpdateThemeOfTooltips(const DependencyObject& root, ElementTheme
 		return;
 	}
 
-	int32_t count = VisualTreeHelper::GetChildrenCount(root);
-	for (int32_t i = 0; i < count; ++i) {
+	int count = VisualTreeHelper::GetChildrenCount(root);
+	for (int i = 0; i < count; ++i) {
 		DependencyObject current = VisualTreeHelper::GetChild(root, i);
 
 		IInspectable tooltipContent = ToolTipService::GetToolTip(current);

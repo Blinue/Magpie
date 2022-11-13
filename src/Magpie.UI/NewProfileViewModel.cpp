@@ -155,7 +155,7 @@ void NewProfileViewModel::PrepareForOpen(uint32_t dpi, bool isLightTheme, CoreDi
 	ProfileIndex(0);
 }
 
-void NewProfileViewModel::CandidateWindowIndex(int32_t value) {
+void NewProfileViewModel::CandidateWindowIndex(int value) {
 	_candidateWindowIndex = value;
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CandidateWindowIndex"));
 

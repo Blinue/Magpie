@@ -15,11 +15,11 @@ SettingsViewModel::SettingsViewModel() {
 	_UpdateStartupOptions();
 }
 
-int32_t SettingsViewModel::Theme() const noexcept {
-	return (int32_t)AppSettings::Get().Theme();
+int SettingsViewModel::Theme() const noexcept {
+	return (int)AppSettings::Get().Theme();
 }
 
-void SettingsViewModel::Theme(int32_t value) noexcept {
+void SettingsViewModel::Theme(int value) noexcept {
 	if (value < 0) {
 		return;
 	}
@@ -68,7 +68,7 @@ bool SettingsViewModel::IsMinimizeAtStartupEnabled() const noexcept {
 }
 
 bool SettingsViewModel::IsPortableMode() const noexcept {
-	return (int32_t)AppSettings::Get().IsPortableMode();
+	return AppSettings::Get().IsPortableMode();
 }
 
 void SettingsViewModel::IsPortableMode(bool value) noexcept {

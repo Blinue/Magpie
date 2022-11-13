@@ -10,7 +10,7 @@ class AppXReader;
 namespace winrt::Magpie::UI::implementation {
 
 struct ScalingProfileViewModel : ScalingProfileViewModelT<ScalingProfileViewModel> {
-	ScalingProfileViewModel(int32_t profileIdx);
+	ScalingProfileViewModel(int profileIdx);
 	~ScalingProfileViewModel();
 
 	event_token PropertyChanged(PropertyChangedEventHandler const& handler) {
@@ -63,24 +63,28 @@ struct ScalingProfileViewModel : ScalingProfileViewModelT<ScalingProfileViewMode
 		return _scalingModes;
 	}
 
-	int32_t ScalingMode() const noexcept;
-	void ScalingMode(int32_t value);
+	int ScalingMode() const noexcept;
+	void ScalingMode(int value);
 
-	int32_t CaptureMode() const noexcept;
-	void CaptureMode(int32_t value);
+	IVector<IInspectable> CaptureMethods() const noexcept {
+		return _captureMethods;
+	}
+
+	int CaptureMode() const noexcept;
+	void CaptureMode(int value);
 
 	bool Is3DGameMode() const noexcept;
 	void Is3DGameMode(bool value);
 
-	int32_t MultiMonitorUsage() const noexcept;
-	void MultiMonitorUsage(int32_t value);
+	int MultiMonitorUsage() const noexcept;
+	void MultiMonitorUsage(int value);
 
 	IVector<IInspectable> GraphicsAdapters() const noexcept {
 		return _graphicsAdapters;
 	}
 
-	int32_t GraphicsAdapter() const noexcept;
-	void GraphicsAdapter(int32_t value);
+	int GraphicsAdapter() const noexcept;
+	void GraphicsAdapter(int value);
 
 	bool IsShowFPS() const noexcept;
 	void IsShowFPS(bool value);
@@ -118,14 +122,14 @@ struct ScalingProfileViewModel : ScalingProfileViewModelT<ScalingProfileViewMode
 	bool IsDrawCursor() const noexcept;
 	void IsDrawCursor(bool value);
 
-	int32_t CursorScaling() const noexcept;
-	void CursorScaling(int32_t value);
+	int CursorScaling() const noexcept;
+	void CursorScaling(int value);
 
 	double CustomCursorScaling() const noexcept;
 	void CustomCursorScaling(double value);
 
-	int32_t CursorInterpolationMode() const noexcept;
-	void CursorInterpolationMode(int32_t value);
+	int CursorInterpolationMode() const noexcept;
+	void CursorInterpolationMode(int value);
 
 	bool IsDisableDirectFlip() const noexcept;
 	void IsDisableDirectFlip(bool value);
@@ -139,6 +143,7 @@ private:
 	std::wstring_view _trimedRenameText;
 
 	IVector<IInspectable> _scalingModes{ nullptr };
+	IVector<IInspectable> _captureMethods{ nullptr };
 	IVector<IInspectable> _graphicsAdapters{ nullptr };
 
 	event<PropertyChangedEventHandler> _propertyChangedEvent;

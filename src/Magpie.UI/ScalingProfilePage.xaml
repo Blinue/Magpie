@@ -223,13 +223,9 @@
 					</local:SettingsCard.Icon>
 					<local:SettingsCard.ActionContent>
 						<ComboBox DropDownOpened="ComboBox_DropDownOpened"
+								  ItemsSource="{x:Bind ViewModel.CaptureMethods, Mode=OneTime}"
 								  SelectedIndex="{x:Bind ViewModel.CaptureMode, Mode=TwoWay}"
-								  Style="{StaticResource ComboBoxSettingStyle}">
-							<x:String>Graphics Capture</x:String>
-							<x:String>Desktop Duplication</x:String>
-							<x:String>GDI</x:String>
-							<x:String>DwmSharedSurface</x:String>
-						</ComboBox>
+								  Style="{StaticResource ComboBoxSettingStyle}" />
 					</local:SettingsCard.ActionContent>
 				</local:SettingsCard>
 				<local:SettingsCard x:Name="Is3DGameModeSettingsCard"
