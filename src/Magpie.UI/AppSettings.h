@@ -271,7 +271,7 @@ private:
 		ScalingProfile& scalingProfile,
 		bool isDefault = false
 	);
-	void _SetDefaultHotkeys();
+	bool _SetDefaultHotkeys();
 	void _SetDefaultScalingModes();
 
 	void _UpdateConfigPath() noexcept;

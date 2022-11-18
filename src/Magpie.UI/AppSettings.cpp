@@ -124,11 +124,13 @@ bool AppSettings::Initialize() {
 		StrUtils::ConcatW(CommonSharedConstants::CONFIG_DIR, CommonSharedConstants::CONFIG_NAME).c_str());
 	_UpdateConfigPath();
 
+	logger.Info(StrUtils::Concat("便携模式：", _isPortableMode ? "是" : "否"));
+
 	if (!Win32Utils::FileExists(_configPath.c_str())) {
 		logger.Info("不存在配置文件");
-		// 只有不存在配置文件时才生成默认缩放模式
 		_SetDefaultScalingModes();
 		_SetDefaultHotkeys();
+		SaveAsync();
 		return true;
 	}
 
@@ -141,7 +143,9 @@ bool AppSettings::Initialize() {
 
 	if (configText.empty()) {
 		Logger::Get().Info("配置文件为空");
+		_SetDefaultScalingModes();
 		_SetDefaultHotkeys();
+		SaveAsync();
 		return true;
 	}
 
@@ -180,6 +184,7 @@ bool AppSettings::Initialize() {
 				IsPortableMode(true);
 				_SetDefaultScalingModes();
 				_SetDefaultHotkeys();
+				SaveAsync();
 				return true;
 			}
 		}
@@ -187,7 +192,9 @@ bool AppSettings::Initialize() {
 
 	_LoadSettings(root, settingsVersion);
 
-	_SetDefaultHotkeys();
+	if (_SetDefaultHotkeys()) {
+		SaveAsync();
+	}
 	return true;
 }
 
@@ -648,12 +655,16 @@ bool AppSettings::_LoadScalingProfile(
 	return true;
 }
 
-void AppSettings::_SetDefaultHotkeys() {
+bool AppSettings::_SetDefaultHotkeys() {
+	bool changed = false;
+
 	HotkeySettings& scaleHotkey = _hotkeys[(size_t)HotkeyAction::Scale];
 	if (scaleHotkey.IsEmpty()) {
 		scaleHotkey.win = true;
 		scaleHotkey.shift = true;
 		scaleHotkey.code = 'A';
+
+		changed = true;
 	}
 
 	HotkeySettings& overlayHotkey = _hotkeys[(size_t)HotkeyAction::Overlay];
@@ -661,7 +672,11 @@ void AppSettings::_SetDefaultHotkeys() {
 		overlayHotkey.win = true;
 		overlayHotkey.shift = true;
 		overlayHotkey.code = 'D';
+
+		changed = true;
 	}
+
+	return changed;
 }
 
 void AppSettings::_SetDefaultScalingModes() {

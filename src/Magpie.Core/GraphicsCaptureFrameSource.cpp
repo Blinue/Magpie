@@ -296,45 +296,30 @@ bool GraphicsCaptureFrameSource::StartCapture() {
 		);
 
 		_captureSession = _captureFramePool.CreateCaptureSession(_captureItem);
+
+		// 不捕获光标
+		if (winrt::ApiInformation::IsPropertyPresent(
+			winrt::name_of<winrt::GraphicsCaptureSession>(),
+			L"IsCursorCaptureEnabled"
+		)) {
+			// 从 v2004 开始提供
+			_captureSession.IsCursorCaptureEnabled(false);
+		}
+
+		// 不显示黄色边框
+		if (winrt::ApiInformation::IsPropertyPresent(
+			winrt::name_of<winrt::GraphicsCaptureSession>(),
+			L"IsBorderRequired"
+		)) {
+			// 从 Win10 v2104 开始提供
+			// Win32 应用中无需请求权限
+			_captureSession.IsBorderRequired(false);
+		}
+
+		_captureSession.StartCapture();
 	} catch (const winrt::hresult_error& e) {
 		Logger::Get().Info(StrUtils::Concat("Graphics Capture 失败：", StrUtils::UTF16ToUTF8(e.message())));
 		return false;
-	}
-
-	// 不捕获光标
-	if (winrt::ApiInformation::IsPropertyPresent(
-		winrt::name_of<winrt::GraphicsCaptureSession>(),
-		L"IsCursorCaptureEnabled"
-	)) {
-		// 从 v2004 开始提供
-		_captureSession.IsCursorCaptureEnabled(false);
-	}
-
-	// 不显示黄色边框
-	if (winrt::ApiInformation::IsPropertyPresent(
-		winrt::name_of<winrt::GraphicsCaptureSession>(),
-		L"IsBorderRequired"
-	)) {
-		// 从 Win10 v2104 开始提供
-		// 先请求权限
-		MagApp::Get().Dispatcher().TryEnqueue([this]() -> winrt::fire_and_forget {
-			GraphicsCaptureFrameSource& that = *this;
-
-			auto status = co_await winrt::GraphicsCaptureAccess::RequestAccessAsync(
-				winrt::GraphicsCaptureAccessKind::Borderless);
-			
-			if (!MagApp::Get().GetHwndHost()) {
-				co_return;
-			}
-
-			if (status == decltype(status)::Allowed) {
-				that._captureSession.IsBorderRequired(false);
-			}
-
-			that._captureSession.StartCapture();
-		});
-	} else {
-		_captureSession.StartCapture();
 	}
 
 	return true;
