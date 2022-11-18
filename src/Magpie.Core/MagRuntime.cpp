@@ -2,145 +2,107 @@
 #include <dispatcherqueue.h>
 #include "MagApp.h"
 #include "MagRuntime.h"
+#include "Logger.h"
 
 
 namespace Magpie::Core {
 
-class MagRuntime::Impl {
-public:
-	Impl() = default;
-	Impl(const Impl&) = delete;
-	Impl(Impl&&) = default;
-
-	~Impl() {
-		Stop();
-
-		if (_magWindThread.joinable()) {
-			_magWindThread.join();
-		}
-	}
-
-	void Run(HWND hwndSrc, const MagOptions& options) {
-		if (_running) {
-			return;
-		}
-
-		_hwndSrc = hwndSrc;
-		_running = true;
-		_isRunningChangedEvent(true);
-
-		if (_magWindThread.joinable()) {
-			_magWindThread.join();
-		}
-
-		_magWindThread = std::thread([=, this, options(options)]() mutable {
-			winrt::init_apartment(winrt::apartment_type::multi_threaded);
-
-			DispatcherQueueOptions dqOptions{};
-			dqOptions.dwSize = sizeof(DispatcherQueueOptions);
-			dqOptions.threadType = DQTYPE_THREAD_CURRENT;
-
-			HRESULT hr = CreateDispatcherQueueController(
-				dqOptions,
-				(ABI::Windows::System::IDispatcherQueueController**)winrt::put_abi(_dqc)
-			);
-			if (FAILED(hr)) {
-				_running = false;
-				_isRunningChangedEvent(false);
-				return;
-			}
-
-			MagApp& app = MagApp::Get();
-			app.Run((HWND)hwndSrc, std::move(options), _dqc.DispatcherQueue());
-
-			_running = false;
-			_dqc = nullptr;
-			_isRunningChangedEvent(false);
-		});
-	}
-
-	void ToggleOverlay() {
-		if (!_running || !_dqc) {
-			return;
-		}
-
-		_dqc.DispatcherQueue().TryEnqueue([]() {
-			MagApp::Get().ToggleOverlay();
-		});
-	}
-
-	void Stop() {
-		if (!_running || !_dqc) {
-			return;
-		}
-
-		_dqc.DispatcherQueue().TryEnqueue([]() {
-			MagApp::Get().Stop();
-		});
-
-		if (_magWindThread.joinable()) {
-			_magWindThread.join();
-		}
-	}
-
-	bool IsRunning() const {
-		return _running;
-	}
-
-	HWND HwndSrc() const {
-		return _running ? _hwndSrc : 0;
-	}
-
-	// 调用者应处理线程同步
-	winrt::event_token IsRunningChanged(winrt::delegate<bool> const& handler) {
-		return _isRunningChangedEvent.add(handler);
-	}
-
-	void IsRunningChanged(winrt::event_token const& token) noexcept {
-		_isRunningChangedEvent.remove(token);
-	}
-
-private:
-	std::thread _magWindThread;
-	std::atomic<bool> _running = false;
-	HWND _hwndSrc = 0;
-	winrt::DispatcherQueueController _dqc{ nullptr };
-
-	winrt::event<winrt::delegate<bool>> _isRunningChangedEvent;
-};
-
-MagRuntime::MagRuntime() : _impl(new Impl()) {}
-
-MagRuntime::~MagRuntime() {
-	delete _impl;
+MagRuntime::MagRuntime() : _magWindThread(std::bind(&MagRuntime::_MagWindThreadProc, this)) {
 }
 
-HWND MagRuntime::HwndSrc() const {
-	return _impl->HwndSrc();
+MagRuntime::~MagRuntime() {
+	Stop();
+
+	if (_magWindThread.joinable()) {
+		DWORD magWndThreadId = GetThreadId(_magWindThread.native_handle());
+		PostThreadMessage(magWndThreadId, WM_QUIT, 0, 0);
+		_magWindThread.join();
+	}
 }
 
 void MagRuntime::Run(HWND hwndSrc, const MagOptions& options) {
-	return _impl->Run(hwndSrc, options);
+	if (_running) {
+		return;
+	}
+
+	_hwndSrc = hwndSrc;
+	_running = true;
+	_isRunningChangedEvent(true);
+
+	_dqc.DispatcherQueue().TryEnqueue([this, hwndSrc, options(options)]() mutable {
+		MagApp::Get().Start(hwndSrc, std::move(options));
+	});
 }
 
 void MagRuntime::ToggleOverlay() {
-	return _impl->ToggleOverlay();
+	if (!_running) {
+		return;
+	}
+
+	_dqc.DispatcherQueue().TryEnqueue([]() {
+		MagApp::Get().ToggleOverlay();
+	});
 }
 
 void MagRuntime::Stop() {
-	return _impl->Stop();
+	if (!_running) {
+		return;
+	}
+
+	_dqc.DispatcherQueue().TryEnqueue([]() {
+		MagApp::Get().Stop();
+	});
 }
 
-bool MagRuntime::IsRunning() const {
-	return _impl->IsRunning();
-}
+void MagRuntime::_MagWindThreadProc() noexcept {
+	winrt::init_apartment(winrt::apartment_type::single_threaded);
 
-winrt::event_token MagRuntime::IsRunningChanged(winrt::delegate<bool> const& handler) {
-	return _impl->IsRunningChanged(handler);
-}
+	DispatcherQueueOptions dqOptions{};
+	dqOptions.dwSize = sizeof(DispatcherQueueOptions);
+	dqOptions.threadType = DQTYPE_THREAD_CURRENT;
 
-void MagRuntime::IsRunningChanged(winrt::event_token const& token) noexcept {
-	_impl->IsRunningChanged(token);
+	HRESULT hr = CreateDispatcherQueueController(
+		dqOptions,
+		(PDISPATCHERQUEUECONTROLLER*)winrt::put_abi(_dqc)
+	);
+	if (FAILED(hr)) {
+		Logger::Get().ComError("CreateDispatcherQueueController 失败", hr);
+		return;
+	}
+
+	MagApp& app = MagApp::Get();
+
+	while (true) {
+		if (app.GetHwndHost()) {
+			// 缩放时使用不同的消息循环
+			bool quiting = !app.RunMessageLoop();
+
+			_running = false;
+			_isRunningChangedEvent(false);
+
+			if (quiting) {
+				return;
+			}
+		} else {
+			if (_running) {
+				// 缩放失败
+				_running = false;
+				_isRunningChangedEvent(false);
+			}
+
+			WaitMessage();
+
+			MSG msg;
+			while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
+				if (msg.message == WM_QUIT) {
+					return;
+				}
+
+				TranslateMessage(&msg);
+				DispatchMessage(&msg);
+			}
+		}
+	}
 }
 
 }

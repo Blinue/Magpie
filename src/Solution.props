@@ -19,6 +19,7 @@
 			<PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
 			<PrecompiledHeaderOutputFile>$(IntDir)pch.pch</PrecompiledHeaderOutputFile>
 			<WarningLevel>Level4</WarningLevel>
+			<DisableSpecificWarnings>4251</DisableSpecificWarnings>
 			<SDLCheck>true</SDLCheck>
 			<ConformanceMode>true</ConformanceMode>
 			<LanguageStandard>stdcpp20</LanguageStandard>

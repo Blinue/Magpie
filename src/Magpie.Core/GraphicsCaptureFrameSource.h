@@ -47,8 +47,6 @@ private:
 
 	bool _CaptureFromMonitor(IGraphicsCaptureItemInterop* interop);
 
-	void _OnFrameArrived(winrt::Windows::Graphics::Capture::Direct3D11CaptureFramePool const&, winrt::IInspectable const&);
-
 	LONG_PTR _srcWndStyle = 0;
 	D3D11_BOX _frameBox{};
 
@@ -59,11 +57,6 @@ private:
 	winrt::Windows::Graphics::Capture::GraphicsCaptureSession _captureSession{ nullptr };
 	winrt::Windows::Graphics::DirectX::Direct3D11::IDirect3DDevice _wrappedD3DDevice{ nullptr };
 	winrt::Windows::Graphics::Capture::Direct3D11CaptureFramePool::FrameArrived_revoker _frameArrived;
-
-	// 用于线程同步
-	CONDITION_VARIABLE _cv{};
-	Win32Utils::CSMutex _cs;
-	bool _newFrameArrived = false;
 };
 
 }

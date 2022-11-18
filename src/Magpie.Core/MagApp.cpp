@@ -62,14 +62,19 @@ static LRESULT CALLBACK LowLevelKeyboardProc(
 	return CallNextHookEx(NULL, nCode, wParam, lParam);
 }
 
-MagApp::MagApp() {
-	_hInst = GetModuleHandle(nullptr);
+MagApp::MagApp() :
+	_hInst(GetModuleHandle(nullptr)),
+	_dispatcher(winrt::DispatcherQueue::GetForCurrentThread())
+{
 }
 
 MagApp::~MagApp() {}
 
-bool MagApp::Run(HWND hwndSrc, MagOptions&& options, winrt::DispatcherQueue const& dispatcher) {
-	_dispatcher = dispatcher;
+bool MagApp::Start(HWND hwndSrc, MagOptions&& options) {
+	if (_hwndHost) {
+		return false;
+	}
+
 	_hwndSrc = hwndSrc;
 	_options = options;
 
@@ -84,7 +89,7 @@ bool MagApp::Run(HWND hwndSrc, MagOptions&& options, winrt::DispatcherQueue cons
 
 	if (!_CreateHostWnd()) {
 		Logger::Get().Error("创建主窗口失败");
-		_OnQuit();
+		_hwndSrc = NULL;
 		return false;
 	}
 
@@ -92,30 +97,26 @@ bool MagApp::Run(HWND hwndSrc, MagOptions&& options, winrt::DispatcherQueue cons
 	if (!_deviceResources->Initialize()) {
 		Logger::Get().Error("初始化 DeviceResources 失败");
 		Stop();
-		_RunMessageLoop();
 		return false;
 	}
 
 	if (!_InitFrameSource()) {
-		Logger::Get().Critical("_InitFrameSource 失败");
+		Logger::Get().Error("_InitFrameSource 失败");
 		Stop();
-		_RunMessageLoop();
 		return false;
 	}
 
 	_renderer.reset(new Renderer());
 	if (!_renderer->Initialize()) {
-		Logger::Get().Critical("初始化 Renderer 失败");
+		Logger::Get().Error("初始化 Renderer 失败");
 		Stop();
-		_RunMessageLoop();
 		return false;
 	}
 
 	_cursorManager.reset(new CursorManager());
 	if (!_cursorManager->Initialize()) {
-		Logger::Get().Critical("初始化 CursorManager 失败");
+		Logger::Get().Error("初始化 CursorManager 失败");
 		Stop();
-		_RunMessageLoop();
 		return false;
 	}
 
@@ -130,21 +131,15 @@ bool MagApp::Run(HWND hwndSrc, MagOptions&& options, winrt::DispatcherQueue cons
 
 	ShowWindow(_hwndHost, SW_NORMAL);
 
-	_RunMessageLoop();
-
-	return false;
+	return true;
 }
 
 void MagApp::Stop() {
-	if (_hwndDDF) {
-		DestroyWindow(_hwndDDF);
-	}
 	if (_hwndHost) {
-		DestroyWindow(_hwndHost);
+		_dispatcher.TryEnqueue([hwndHost(_hwndHost)]() {
+			DestroyWindow(hwndHost);
+		});
 	}
-
-	_hwndDDF = NULL;
-	_hwndHost = NULL;
 }
 
 void MagApp::ToggleOverlay() {
@@ -173,17 +168,25 @@ bool MagApp::UnregisterWndProcHandler(uint32_t id) noexcept {
 	return false;
 }
 
-void MagApp::_RunMessageLoop() {
+bool MagApp::RunMessageLoop() {
+	if (!_hwndHost) {
+		return true;
+	}
+
 	while (true) {
 		MSG msg;
-		while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) {
+		while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
 			if (msg.message == WM_QUIT) {
-				_OnQuit();
-				return;
+				Stop();
+				return false;
 			}
 
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
+		}
+
+		if (!_hwndHost) {
+			return true;
 		}
 
 		_renderer->Render();
@@ -199,6 +202,8 @@ void MagApp::_RunMessageLoop() {
 			}
 		}
 	}
+
+	return true;
 }
 
 void MagApp::_RegisterWndClasses() const {
@@ -438,8 +443,17 @@ LRESULT MagApp::_HostWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 
 	switch (message) {
 	case WM_DESTROY:
-		PostQuitMessage(0);
+	{
+		_OnQuit();
+
+		if (_hwndDDF) {
+			DestroyWindow(_hwndDDF);
+			_hwndDDF = NULL;
+		}
+
+		_hwndHost = NULL;
 		return 0;
+	}
 	}
 
 	return DefWindowProc(hWnd, message, wParam, lParam);
@@ -452,15 +466,14 @@ void MagApp::_OnQuit() {
 	}
 
 	// 释放资源
-	_cursorManager = nullptr;
-	_renderer = nullptr;
-	_frameSource = nullptr;
-	_deviceResources = nullptr;
+	_cursorManager.reset();
+	_renderer.reset();
+	_frameSource.reset();
+	_deviceResources.reset();
 
 	_nextWndProcHandlerID = 1;
 	_wndProcHandlers.clear();
 
-	_dispatcher = nullptr;
 	_hwndSrc = NULL;
 }
 

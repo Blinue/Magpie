@@ -20,11 +20,7 @@ public:
 		return instance;
 	}
 
-	bool Run(
-		HWND hwndSrc,
-		MagOptions&& options,
-		winrt::DispatcherQueue const& dispatcher
-	);
+	bool Start(HWND hwndSrc, MagOptions&& options);
 
 	void Stop();
 
@@ -75,10 +71,10 @@ public:
 	uint32_t RegisterWndProcHandler(std::function<std::optional<LRESULT>(HWND, UINT, WPARAM, LPARAM)> handler) noexcept;
 	bool UnregisterWndProcHandler(uint32_t id) noexcept;
 
+	bool RunMessageLoop();
+
 private:
 	MagApp();
-
-	void _RunMessageLoop();
 
 	void _RegisterWndClasses() const;
 
@@ -95,7 +91,7 @@ private:
 
 	void _OnQuit();
 
-	winrt::DispatcherQueue _dispatcher{ nullptr };
+	const winrt::DispatcherQueue _dispatcher{ nullptr };
 
 	HINSTANCE _hInst = NULL;
 	HWND _hwndSrc = NULL;
