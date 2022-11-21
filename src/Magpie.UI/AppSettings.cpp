@@ -600,7 +600,7 @@ bool AppSettings::_LoadScalingProfile(
 	}
 	
 	JsonHelper::ReadUInt(scalingProfileObj, "graphicsAdapter", scalingProfile.graphicsAdapter);
-	JsonHelper::ReadBoolFlag(scalingProfileObj, "disableWindowResizing", MagFlags::DisableDirectFlip, scalingProfile.flags);
+	JsonHelper::ReadBoolFlag(scalingProfileObj, "disableWindowResizing", MagFlags::DisableWindowResizing, scalingProfile.flags);
 	JsonHelper::ReadBoolFlag(scalingProfileObj, "3DGameMode", MagFlags::Is3DGameMode, scalingProfile.flags);
 	JsonHelper::ReadBoolFlag(scalingProfileObj, "showFPS", MagFlags::ShowFPS, scalingProfile.flags);
 	JsonHelper::ReadBoolFlag(scalingProfileObj, "VSync", MagFlags::VSync, scalingProfile.flags);
