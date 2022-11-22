@@ -3,8 +3,6 @@
 #include "MagApp.h"
 #include "DeviceResources.h"
 
-using namespace std::chrono_literals;
-
 
 namespace Magpie::Core {
 

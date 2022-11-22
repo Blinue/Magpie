@@ -179,7 +179,7 @@ void Renderer::SetUIVisibility(bool value) {
 		}
 
 		// StartProfiling 必须在 OnBeginFrame 之前调用
-		_gpuTimer->StartProfiling(std::chrono::milliseconds(500), passCount);
+		_gpuTimer->StartProfiling(500ms, passCount);
 	}
 }
 

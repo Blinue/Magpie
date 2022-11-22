@@ -118,10 +118,12 @@ static std::optional<LRESULT> HostWndProc(HWND /*hWnd*/, UINT message, WPARAM /*
 			if (!Win32Utils::SetForegroundWindow(hwndSrc)) {
 				// 设置前台窗口失败，可能是因为前台窗口是开始菜单
 				if (Win32Utils::IsStartMenu(hwndForground)) {
+					using namespace std::chrono;
+
 					// 限制触发频率
-					static std::chrono::steady_clock::time_point prevTimePoint{};
-					auto now = std::chrono::steady_clock::now();
-					if (std::chrono::duration_cast<std::chrono::milliseconds>(now - prevTimePoint).count() >= 1000) {
+					static steady_clock::time_point prevTimePoint{};
+					auto now = steady_clock::now();
+					if (duration_cast<milliseconds>(now - prevTimePoint).count() >= 1000) {
 						prevTimePoint = now;
 
 						// 模拟按键关闭开始菜单

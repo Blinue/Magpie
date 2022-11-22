@@ -14,7 +14,7 @@ namespace winrt::Magpie::UI {
 void MagService::Initialize() {
 	_dispatcher = CoreWindow::GetForCurrentThread().Dispatcher();
 
-	_timer.Interval(TimeSpan(std::chrono::milliseconds(25)));
+	_timer.Interval(25ms);
 	_timerTickRevoker = _timer.Tick(
 		auto_revoke,
 		{ this, &MagService::_Timer_Tick }

@@ -34,7 +34,7 @@ void TextBlockHelper::_OnIsAutoTooltipChanged(DependencyObject const& sender, De
             [](DependencyObject const& sender, DependencyProperty const&) -> fire_and_forget {
                 TextBlock tb = sender.as<TextBlock>();
                 // 等待布局更新
-                co_await std::chrono::milliseconds(10);
+                co_await 10ms;
                 co_await tb.Dispatcher().TryRunAsync(
                     CoreDispatcherPriority::Low,
                     std::bind(&_SetTooltipBasedOnTrimmingState, tb, true)

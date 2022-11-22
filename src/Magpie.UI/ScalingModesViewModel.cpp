@@ -257,7 +257,7 @@ fire_and_forget ScalingModesViewModel::_AddScalingModes() {
 		auto weakThis = get_weak();
 
 		while (true) {
-			co_await std::chrono::milliseconds(10);
+			co_await 10ms;
 			co_await dispatcher;
 
 			if (!weakThis.get()) {
@@ -284,7 +284,7 @@ fire_and_forget ScalingModesViewModel::_AddScalingModes() {
 
 		// 在所有缩放模式初始化完毕后再展示添加/删除动画
 		if (dispatcher) {
-			co_await std::chrono::milliseconds(10);
+			co_await 10ms;
 			co_await dispatcher;
 		}
 		

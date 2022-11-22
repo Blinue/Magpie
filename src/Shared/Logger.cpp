@@ -11,7 +11,7 @@ bool Logger::Initialize(spdlog::level::level_enum logLevel, const char* logFileN
 		_logger->set_level(logLevel);
 		_logger->set_pattern("%Y-%m-%d %H:%M:%S.%e|%l|%s:%!|%v");
 		_logger->flush_on(spdlog::level::warn);
-		spdlog::flush_every(std::chrono::seconds(5));
+		spdlog::flush_every(5s);
 	} catch (const spdlog::spdlog_ex&) {
 		return false;
 	}

@@ -52,7 +52,7 @@ static LRESULT CALLBACK LowLevelKeyboardProc(
 
 			winrt::DispatcherQueue dispatcher = app.Dispatcher();
 
-			co_await std::chrono::milliseconds(400);
+			co_await 400ms;
 			co_await dispatcher;
 
 			app.GetCursorManager().Show();
