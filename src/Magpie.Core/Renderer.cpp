@@ -95,6 +95,18 @@ void Renderer::Render(bool onPrint) {
 		d3dDC->CSSetConstantBuffers(0, 1, &t);
 	}
 
+	{
+		SIZE outputSize = Win32Utils::GetSizeOfRect(_outputRect);
+		SIZE hostSize = Win32Utils::GetSizeOfRect(MagApp::Get().GetHostWndRect());
+		if (outputSize.cx < hostSize.cx || outputSize.cy < hostSize.cy) {
+			// 存在黑边时渲染每帧前清空后缓冲区
+			ID3D11UnorderedAccessView* backBufferUAV = nullptr;
+			dr.GetUnorderedAccessView(dr.GetBackBuffer(), &backBufferUAV);
+			static const UINT black[4] = { 0,0,0,255 };
+			d3dDC->ClearUnorderedAccessViewUint(backBufferUAV, black);
+		}
+	}
+
 	_gpuTimer->OnBeginEffects();
 
 	uint32_t idx = 0;

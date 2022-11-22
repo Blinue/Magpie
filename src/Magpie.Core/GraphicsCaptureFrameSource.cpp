@@ -290,10 +290,7 @@ bool GraphicsCaptureFrameSource::StartCapture() {
 
 		// 注册回调是为了确保每当有新的帧时会向当前线程发送消息
 		// 回调中什么也不做
-		_frameArrived = _captureFramePool.FrameArrived(
-			winrt::auto_revoke,
-			[](winrt::Direct3D11CaptureFramePool const&, winrt::IInspectable const&) {}
-		);
+		_captureFramePool.FrameArrived([](const auto&, const auto&) {});
 
 		_captureSession = _captureFramePool.CreateCaptureSession(_captureItem);
 
@@ -326,9 +323,6 @@ bool GraphicsCaptureFrameSource::StartCapture() {
 }
 
 void GraphicsCaptureFrameSource::StopCapture() {
-	if (_frameArrived) {
-		_frameArrived.revoke();
-	}
 	if (_captureSession) {
 		_captureSession.Close();
 		_captureSession = nullptr;

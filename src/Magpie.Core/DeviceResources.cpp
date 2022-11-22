@@ -284,10 +284,8 @@ bool DeviceResources::_CreateSwapChain() {
 	sd.Scaling = DXGI_SCALING_NONE;
 	sd.BufferUsage = DXGI_USAGE_UNORDERED_ACCESS | DXGI_USAGE_RENDER_TARGET_OUTPUT;
 	sd.BufferCount = (options.IsTripleBuffering() || !options.IsVSync()) ? 3 : 2;
-	// 使用 DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL 而不是 DXGI_SWAP_EFFECT_FLIP_DISCARD
-	// 不渲染四周（可能存在的）黑边，因此必须保证交换链缓冲区不被改变
-	// 否则将不得不在每帧渲染前清空后缓冲区，这个操作在一些显卡上比较耗时
-	sd.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;
+	// 渲染每帧之前都会清空后缓冲区，因此无需 DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL
+	sd.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
 	// 只要显卡支持始终启用 DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING
 	sd.Flags = (_supportTearing ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : 0)
 		| DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT;
