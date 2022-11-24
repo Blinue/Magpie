@@ -20,6 +20,7 @@ using namespace winrt;
 using namespace Windows::Graphics::Display;
 using namespace Windows::Graphics::Imaging;
 using namespace Windows::UI::ViewManagement;
+using namespace Windows::UI;
 using namespace Windows::UI::Xaml::Controls;
 using namespace Windows::UI::Xaml::Controls::Primitives;
 using namespace Windows::UI::Xaml::Input;
@@ -208,8 +209,13 @@ void MainPage::NewProfileNameTextBox_KeyDown(IInspectable const&, Input::KeyRout
 	}
 }
 
-static winrt::Windows::UI::Color Win32ColorToWinRTColor(COLORREF color) {
+static Color Win32ColorToWinRTColor(COLORREF color) {
 	return { 255, GetRValue(color), GetGValue(color), GetBValue(color) };
+}
+
+// 来自 https://learn.microsoft.com/en-us/windows/apps/desktop/modernize/apply-windows-themes#know-when-dark-mode-is-enabled
+static bool IsColorLight(const Color& clr) {
+	return (((5 * clr.G) + (2 * clr.R) + clr.B) > (8 * 128));
 }
 
 void MainPage::_UpdateTheme(bool updateIcons) {
@@ -217,7 +223,8 @@ void MainPage::_UpdateTheme(bool updateIcons) {
 
 	bool isDarkTheme = FALSE;
 	if (theme == 2) {
-		isDarkTheme = _uiSettings.GetColorValue(UIColorType::Background).R < 128;
+		// 前景色是亮色表示当前是深色主题
+		isDarkTheme = IsColorLight(_uiSettings.GetColorValue(UIColorType::Foreground));
 	} else {
 		isDarkTheme = theme == 1;
 	}

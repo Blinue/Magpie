@@ -298,7 +298,7 @@ void XamlApp::_RestartAsElevated(const wchar_t* arguments) noexcept {
 
 void XamlApp::_ShowTrayIcon() noexcept {
 	if (!_nid.hWnd) {
-		// 创建一个隐藏的、message-only 的窗口用于接收托盘图标消息
+		// 创建一个隐藏窗口用于接收托盘图标消息
 		_nid.hWnd = CreateWindow(
 			CommonSharedConstants::NOTIFY_ICON_WINDOW_CLASS_NAME,
 			nullptr,
