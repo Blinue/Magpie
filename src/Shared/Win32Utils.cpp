@@ -584,9 +584,14 @@ static winrt::com_ptr<IShellFolderViewDual> GetDesktopAutomationObject() {
 	return dispatch.try_as<IShellFolderViewDual>();
 }
 
+static std::wstring_view ExtractDirectory(std::wstring_view path) {
+	size_t delimPos = path.find_last_of(L'\\');
+	return delimPos == std::wstring_view::npos ? path : path.substr(0, delimPos + 1);
+}
+
 // 在提升的进程中启动未提升的进程
 // 原理见 https://devblogs.microsoft.com/oldnewthing/20131118-00/?p=2643
-static bool OpenNonElevated(const wchar_t* path) {
+static bool OpenNonElevated(std::wstring_view path) {
 	static winrt::com_ptr<IShellDispatch2> shellDispatch = ([]() -> winrt::com_ptr<IShellDispatch2> {
 		winrt::com_ptr<IShellFolderViewDual> folderView = GetDesktopAutomationObject();
 		if (!folderView) {
@@ -614,7 +619,7 @@ static bool OpenNonElevated(const wchar_t* path) {
 #pragma pop_macro("ShellExecute")
 		Win32Utils::BStr(path),
 		Win32Utils::Variant(L""),
-		Win32Utils::Variant(L""),
+		Win32Utils::Variant(ExtractDirectory(path)),
 		Win32Utils::Variant(L"open"),
 		Win32Utils::Variant(SW_SHOWNORMAL)
 	);
@@ -633,12 +638,16 @@ bool Win32Utils::ShellOpen(const wchar_t* path, bool nonElevated) {
 		}
 		// OpenNonElevated 失败则回落到 ShellExecuteEx
 	}
+
+	// 指定工作目录为程序所在目录，否则某些程序不能正常运行
+	std::wstring workingDir(ExtractDirectory(path));
 	
 	SHELLEXECUTEINFO execInfo{};
 	execInfo.cbSize = sizeof(execInfo);
 	execInfo.lpFile = path;
+	execInfo.lpDirectory = workingDir.c_str();
 	execInfo.lpVerb = L"open";
-	execInfo.fMask = SEE_MASK_DEFAULT;
+	execInfo.fMask = SEE_MASK_ASYNCOK;
 	execInfo.nShow = SW_SHOWNORMAL;
 
 	if (!ShellExecuteEx(&execInfo)) {

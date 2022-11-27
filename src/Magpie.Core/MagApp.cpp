@@ -55,7 +55,9 @@ static LRESULT CALLBACK LowLevelKeyboardProc(
 			co_await 400ms;
 			co_await dispatcher;
 
-			app.GetCursorManager().Show();
+			if (app.GetHwndHost()) {
+				app.GetCursorManager().Show();
+			}
 		})();
 	}
 
