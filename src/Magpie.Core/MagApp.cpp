@@ -72,12 +72,30 @@ MagApp::MagApp() :
 
 MagApp::~MagApp() {}
 
+static bool CheckSrcWindow(HWND hwndSrc) {
+	if (!WindowHelper::IsValidSrcWindow(hwndSrc)) {
+		return false;
+	}
+
+	// 不缩放最大化和最小化的窗口
+	if (Win32Utils::GetWindowShowCmd(hwndSrc) != SW_NORMAL) {
+		return false;
+	}
+
+#if _DEBUG
+	OutputDebugString(fmt::format(L"窗口类：{}\n可执行文件路径：{}\n",
+		Win32Utils::GetWndClassName(hwndSrc), Win32Utils::GetPathOfWnd(hwndSrc)).c_str());
+#endif // _DEBUG
+
+	return true;
+}
+
 bool MagApp::Start(HWND hwndSrc, MagOptions&& options) {
 	if (_hwndHost) {
 		return false;
 	}
 	
-	if (!WindowHelper::IsValidSrcWindow(hwndSrc)) {
+	if (!CheckSrcWindow(hwndSrc)) {
 		return false;
 	}
 
@@ -85,7 +103,7 @@ bool MagApp::Start(HWND hwndSrc, MagOptions&& options) {
 	_options = options;
 
 	// 模拟独占全屏
-	// 必须在主窗口创建前，否则 SHQueryUserNotificationState 可能返回 QUNS_BUSY 而不是 QUNS_RUNNING_D3D_FULL_SCREEN
+	// 必须在缩放窗口创建前，否则 SHQueryUserNotificationState 可能返回 QUNS_BUSY 而不是 QUNS_RUNNING_D3D_FULL_SCREEN
 	std::unique_ptr<ExclModeHack> exclMode;
 	if (MagApp::Get().GetOptions().IsSimulateExclusiveFullscreen()) {
 		exclMode = std::make_unique<ExclModeHack>();
@@ -94,7 +112,6 @@ bool MagApp::Start(HWND hwndSrc, MagOptions&& options) {
 	_RegisterWndClasses();
 
 	if (!_CreateHostWnd()) {
-		Logger::Get().Error("创建主窗口失败");
 		_hwndSrc = NULL;
 		return false;
 	}
@@ -135,6 +152,7 @@ bool MagApp::Start(HWND hwndSrc, MagOptions&& options) {
 
 	_hKeyboardHook = SetWindowsHookEx(WH_KEYBOARD_LL, LowLevelKeyboardProc, NULL, 0);
 
+	assert(_hwndHost);
 	ShowWindow(_hwndHost, SW_NORMAL);
 
 	return true;
@@ -226,9 +244,7 @@ void MagApp::_RegisterWndClasses() const {
 
 		if (!RegisterClassEx(&wcex)) {
 			// 忽略此错误，因为可能是重复注册产生的错误
-			Logger::Get().Win32Error("注册主窗口类失败");
-		} else {
-			Logger::Get().Info("已注册主窗口类");
+			Logger::Get().Win32Error("注册缩放窗口类失败");
 		}
 
 		wcex.lpfnWndProc = DDFWndProc;
@@ -237,8 +253,6 @@ void MagApp::_RegisterWndClasses() const {
 
 		if (!RegisterClassEx(&wcex)) {
 			Logger::Get().Win32Error("注册 DDF 窗口类失败");
-		} else {
-			Logger::Get().Info("已注册 DDF 窗口类");
 		}
 	}
 }
@@ -293,7 +307,7 @@ static bool CalcHostWndRect(HWND hWnd, MultiMonitorUsage multiMonitorUsage, RECT
 
 		result = params[1];
 		if (result.right - result.left <= 0 || result.bottom - result.top <= 0) {
-			Logger::Get().Error("计算主窗口坐标失败");
+			Logger::Get().Error("计算缩放窗口坐标失败");
 			return false;
 		}
 
@@ -317,16 +331,29 @@ static bool CalcHostWndRect(HWND hWnd, MultiMonitorUsage multiMonitorUsage, RECT
 	return true;
 }
 
-// 创建主窗口
+// 创建缩放窗口
 bool MagApp::_CreateHostWnd() {
 	if (FindWindow(HOST_WINDOW_CLASS_NAME, nullptr)) {
-		Logger::Get().Error("已存在主窗口");
+		Logger::Get().Error("已存在缩放窗口");
 		return false;
 	}
 
 	if (!CalcHostWndRect(_hwndSrc, _options.multiMonitorUsage, _hostWndRect)) {
 		Logger::Get().Error("CalcHostWndRect 失败");
 		return false;
+	}
+
+	{
+		// 源窗口和缩放窗口重合则不缩放，此时源窗口可能是无边框全屏窗口
+		RECT srcRect;
+		if (!Win32Utils::GetWindowFrameRect(_hwndSrc, srcRect)) {
+			Win32Utils::GetClientScreenRect(_hwndSrc, srcRect);
+		}
+
+		if (srcRect == _hostWndRect) {
+			Logger::Get().Info("源窗口已全屏");
+			return false;
+		}
 	}
 
 	_hwndHost = CreateWindowEx(
@@ -344,11 +371,11 @@ bool MagApp::_CreateHostWnd() {
 		NULL
 	);
 	if (!_hwndHost) {
-		Logger::Get().Win32Error("创建主窗口失败");
+		Logger::Get().Win32Error("创建缩放窗口失败");
 		return false;
 	}
 
-	Logger::Get().Info(fmt::format("主窗口尺寸：{}x{}",
+	Logger::Get().Info(fmt::format("缩放窗口尺寸：{}x{}",
 		_hostWndRect.right - _hostWndRect.left, _hostWndRect.bottom - _hostWndRect.top));
 
 	// 设置窗口不透明
@@ -430,7 +457,6 @@ bool MagApp::_DisableDirectFlip() {
 		}
 	}
 
-	Logger::Get().Info("已创建 DDF 主窗口");
 	return true;
 }
 
