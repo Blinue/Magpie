@@ -215,7 +215,7 @@ static Color Win32ColorToWinRTColor(COLORREF color) {
 
 // 来自 https://learn.microsoft.com/en-us/windows/apps/desktop/modernize/apply-windows-themes#know-when-dark-mode-is-enabled
 static bool IsColorLight(const Color& clr) {
-	return (((5 * clr.G) + (2 * clr.R) + clr.B) > (8 * 128));
+	return 5 * clr.G + 2 * clr.R + clr.B > 8 * 128;
 }
 
 void MainPage::_UpdateTheme(bool updateIcons) {
@@ -278,7 +278,7 @@ fire_and_forget MainPage::_LoadIcon(MUXC::NavigationViewItem const& item, const 
 			}
 		}
 	} else {
-		iconBitmap = IconHelper::GetIconOfExe(path.c_str(), 16, dpi);
+		iconBitmap = IconHelper::ExtractIconFromExe(path.c_str(), 16, dpi);
 	}
 
 	co_await dispatcher;

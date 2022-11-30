@@ -293,25 +293,6 @@ void Win32Utils::RunParallel(std::function<void(uint32_t)> func, uint32_t times)
 #endif // _DEBUG
 }
 
-
-bool Win32Utils::IsStartMenu(HWND hWnd) {
-	// 作为优化，首先检查窗口类
-	std::wstring className = GetWndClassName(hWnd);
-
-	if (className != L"Windows.UI.Core.CoreWindow") {
-		return false;
-	}
-
-	// 检查可执行文件名称
-	std::wstring exeName = GetPathOfWnd(hWnd);
-	exeName = exeName.substr(exeName.find_last_of(L'\\') + 1);
-	StrUtils::ToLowerCase(exeName);
-
-	// win10: searchapp.exe 和 startmenuexperiencehost.exe
-	// win11: searchhost.exe 和 startmenuexperiencehost.exe
-	return exeName == L"searchapp.exe" || exeName == L"searchhost.exe" || exeName == L"startmenuexperiencehost.exe";
-}
-
 bool Win32Utils::SetForegroundWindow(HWND hWnd) {
 	if (::SetForegroundWindow(hWnd)) {
 		return true;

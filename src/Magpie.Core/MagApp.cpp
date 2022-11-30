@@ -12,7 +12,7 @@
 #include "CursorManager.h"
 #include "Renderer.h"
 #include "GPUTimer.h"
-
+#include "WindowHelper.h"
 
 namespace Magpie::Core {
 
@@ -74,6 +74,10 @@ MagApp::~MagApp() {}
 
 bool MagApp::Start(HWND hwndSrc, MagOptions&& options) {
 	if (_hwndHost) {
+		return false;
+	}
+	
+	if (!WindowHelper::IsValidSrcWindow(hwndSrc)) {
 		return false;
 	}
 

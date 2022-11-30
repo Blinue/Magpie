@@ -142,7 +142,7 @@ fire_and_forget CandidateWindowItem::_ResolveWindow(bool resolveIcon, bool resol
 			iconBitmap = std::get<1>(uwpIcon);
 		}
 	} else {
-		iconBitmap = IconHelper::GetIconOfWnd(hWnd, 16, dpi);
+		iconBitmap = IconHelper::ExtractIconFormWnd(hWnd, 16, dpi);
 	}
 
 	// 切换到主线程

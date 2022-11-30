@@ -647,7 +647,7 @@ fire_and_forget ScalingProfileViewModel::_LoadIcon(FrameworkElement const& mainP
 				iconBitmap = std::get<1>(uwpIcon);
 			}
 		} else {
-			iconBitmap = IconHelper::GetIconOfExe(path.c_str(), ICON_SIZE, dpi);
+			iconBitmap = IconHelper::ExtractIconFromExe(path.c_str(), ICON_SIZE, dpi);
 		}
 
 		co_await dispatcher;

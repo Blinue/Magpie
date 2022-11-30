@@ -1,11 +1,12 @@
 #include "pch.h"
-#include "DXUtils.h"
+#include "DirectXHelper.h"
 #include <d3dcompiler.h>
 #include "Logger.h"
 #include "StrUtils.h"
 
+namespace Magpie::Core {
 
-bool Magpie::Core::DXUtils::CompileComputeShader(
+bool DirectXHelper::CompileComputeShader(
 	std::string_view hlsl,
 	const char* entryPoint,
 	ID3DBlob** blob,
@@ -48,4 +49,6 @@ bool Magpie::Core::DXUtils::CompileComputeShader(
 	}
 
 	return true;
+}
+
 }

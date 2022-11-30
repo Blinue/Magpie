@@ -11,7 +11,7 @@
 #include "OverlayDrawer.h"
 #include "Logger.h"
 #include "CursorManager.h"
-
+#include "WindowHelper.h"
 
 namespace Magpie::Core {
 
@@ -186,10 +186,7 @@ void Renderer::SetUIVisibility(bool value) {
 bool CheckForeground(HWND hwndForeground) {
 	std::wstring className = Win32Utils::GetWndClassName(hwndForeground);
 
-	// 排除桌面窗口和 Alt+Tab 窗口
-	if (className == L"WorkerW" || className == L"ForegroundStaging" ||
-		className == L"MultitaskingViewFrame" || className == L"XamlExplorerHostIslandWindow"
-		) {
+	if (!WindowHelper::IsValidSrcWindow(hwndForeground)) {
 		return true;
 	}
 
@@ -198,7 +195,7 @@ bool CheckForeground(HWND hwndForeground) {
 	// 如果捕获模式可以捕获到弹窗，则允许小的弹窗
 	if (MagApp::Get().GetFrameSource().IsScreenCapture()
 		&& GetWindowStyle(hwndForeground) & (WS_POPUP | WS_CHILD)
-		) {
+	) {
 		if (!Win32Utils::GetWindowFrameRect(hwndForeground, rectForground)) {
 			Logger::Get().Error("GetWindowFrameRect 失败");
 			return false;
@@ -225,12 +222,7 @@ bool CheckForeground(HWND hwndForeground) {
 	IntersectRect(&rectForground, &MagApp::Get().GetHostWndRect(), &rectForground);
 
 	// 允许稍微重叠，否则前台窗口最大化时会意外退出
-	if (rectForground.right - rectForground.left < 10 || rectForground.right - rectForground.top < 10) {
-		return true;
-	}
-
-	// 排除开始菜单
-	return Win32Utils::IsStartMenu(hwndForeground);
+	return rectForground.right - rectForground.left < 10 || rectForground.right - rectForground.top < 10;
 }
 
 const EffectDesc& Renderer::GetEffectDesc(uint32_t idx) const noexcept {

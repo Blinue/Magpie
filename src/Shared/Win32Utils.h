@@ -151,8 +151,6 @@ struct Win32Utils {
 	// 执行完毕后返回
 	static void RunParallel(std::function<void(uint32_t)> func, uint32_t times);
 
-	static bool IsStartMenu(HWND hWnd);
-
 	// 强制切换前台窗口
 	static bool SetForegroundWindow(HWND hWnd);
 

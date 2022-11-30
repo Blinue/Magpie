@@ -189,7 +189,7 @@ bool FrameSourceBase::_CenterWindowIfNecessary(HWND hWnd, const RECT& rcWork) {
 			0,
 			0,
 			SWP_NOSIZE | SWP_NOZORDER
-			)) {
+		)) {
 			Logger::Get().Win32Error("SetWindowPos 失败");
 		}
 	}

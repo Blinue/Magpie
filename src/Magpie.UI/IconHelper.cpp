@@ -176,15 +176,15 @@ static HICON GetHIconOfWnd(HWND hWnd, LONG preferredSize) {
 	return GetHIconOfWnd(hwndOwner, preferredSize);
 }
 
-SoftwareBitmap IconHelper::GetIconOfWnd(HWND hWnd, uint32_t preferredSize, uint32_t dpi) {
+SoftwareBitmap IconHelper::ExtractIconFormWnd(HWND hWnd, uint32_t preferredSize, uint32_t dpi) {
 	if (HICON hIcon = GetHIconOfWnd(hWnd, std::lroundf(preferredSize * dpi / 96.0f))) {
 		return HIcon2SoftwareBitmap(hIcon);
 	}
 
-	return GetIconOfExe(Win32Utils::GetPathOfWnd(hWnd).c_str(), preferredSize, dpi);
+	return ExtractIconFromExe(Win32Utils::GetPathOfWnd(hWnd).c_str(), preferredSize, dpi);
 }
 
-SoftwareBitmap IconHelper::GetIconOfExe(const wchar_t* fileName, uint32_t preferredSize, uint32_t dpi) {
+SoftwareBitmap IconHelper::ExtractIconFromExe(const wchar_t* fileName, uint32_t preferredSize, uint32_t dpi) {
 	preferredSize = (preferredSize + 15) / 16 * 16;
 	preferredSize = (uint32_t)std::lroundf(preferredSize * dpi / 96.0f);
 

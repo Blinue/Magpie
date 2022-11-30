@@ -7,6 +7,7 @@
 #include "Win32Utils.h"
 #include "DeviceResources.h"
 #include "GraphicsCaptureFrameSource.h"
+#include "WindowHelper.h"
 #include <magnification.h>
 
 #pragma comment(lib, "Magnification.lib")
@@ -117,7 +118,7 @@ static std::optional<LRESULT> HostWndProc(HWND /*hWnd*/, UINT message, WPARAM /*
 		if (hwndForground != hwndSrc) {
 			if (!Win32Utils::SetForegroundWindow(hwndSrc)) {
 				// 设置前台窗口失败，可能是因为前台窗口是开始菜单
-				if (Win32Utils::IsStartMenu(hwndForground)) {
+				if (WindowHelper::IsStartMenu(hwndForground)) {
 					using namespace std::chrono;
 
 					// 限制触发频率

@@ -17,6 +17,9 @@
     <Filter Include="Include">
       <UniqueIdentifier>{7ed1757c-3140-42a7-93b3-5bf0171cfa7b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Helpers">
+      <UniqueIdentifier>{34fd6af4-f461-43ae-81e0-c663a89c2d2a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -25,7 +28,6 @@
     </ClInclude>
     <ClInclude Include="MagOptions.h" />
     <ClInclude Include="MagRuntime.h" />
-    <ClInclude Include="LoggerHelper.h" />
     <ClInclude Include="CursorManager.h" />
     <ClInclude Include="DeviceResources.h" />
     <ClInclude Include="EffectCacheManager.h" />
@@ -69,13 +71,20 @@
     <ClInclude Include="DDSLoderHelpers.h">
       <Filter>TextureLoader</Filter>
     </ClInclude>
-    <ClInclude Include="DXUtils.h" />
+    <ClInclude Include="DirectXHelper.h">
+      <Filter>Helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="LoggerHelper.h">
+      <Filter>Helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="WindowHelper.h">
+      <Filter>Helpers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MagRuntime.cpp" />
     <ClCompile Include="pch.cpp" />
     <ClCompile Include="DllMain.cpp" />
-    <ClCompile Include="LoggerHelper.cpp" />
     <ClCompile Include="CursorManager.cpp" />
     <ClCompile Include="DeviceResources.cpp" />
     <ClCompile Include="EffectCacheManager.cpp" />
@@ -112,7 +121,15 @@
     <ClCompile Include="TextureLoader.cpp">
       <Filter>TextureLoader</Filter>
     </ClCompile>
-    <ClCompile Include="DXUtils.cpp" />
+    <ClCompile Include="LoggerHelper.cpp">
+      <Filter>Helpers</Filter>
+    </ClCompile>
+    <ClCompile Include="DirectXHelper.cpp">
+      <Filter>Helpers</Filter>
+    </ClCompile>
+    <ClCompile Include="WindowHelper.cpp">
+      <Filter>Helpers</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="NotoSansSC-Regular.otf">

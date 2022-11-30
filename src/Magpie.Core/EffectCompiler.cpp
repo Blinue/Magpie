@@ -8,7 +8,7 @@
 #include "Logger.h"
 #include "CommonSharedConstants.h"
 #include <bit>	// std::has_single_bit
-#include "DXUtils.h"
+#include "DirectXHelper.h"
 #include <parallel_hashmap/phmap.h>
 
 
@@ -30,7 +30,7 @@ public:
 		LPCVOID /*pParentData*/,
 		LPCVOID* ppData,
 		UINT* pBytes
-	) override {
+	) noexcept override {
 		std::wstring relativePath = StrUtils::ConcatW(_localDir, StrUtils::UTF8ToUTF16(pFileName));
 
 		std::string file;
@@ -47,7 +47,7 @@ public:
 		return S_OK;
 	}
 
-	HRESULT CALLBACK Close(LPCVOID pData) override {
+	HRESULT CALLBACK Close(LPCVOID pData) noexcept override {
 		delete[](char*)pData;
 		return S_OK;
 	}
@@ -1512,7 +1512,7 @@ cbuffer __CB2 : register(b1) {
 			}
 		}
 
-		if (!DXUtils::CompileComputeShader(source, "__M", desc.passes[id].cso.put(),
+		if (!DirectXHelper::CompileComputeShader(source, "__M", desc.passes[id].cso.put(),
 			fmt::format("{}_Pass{}.hlsl", desc.name, id + 1).c_str(), &passInclude, macros, flags & EffectCompilerFlags::WarningsAreErrors)
 		) {
 			Logger::Get().Error(fmt::format("编译 Pass{} 失败", id + 1));

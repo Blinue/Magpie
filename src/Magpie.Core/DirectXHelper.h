@@ -1,10 +1,9 @@
 #pragma once
 #include "pch.h"
 
-
 namespace Magpie::Core {
 
-struct DXUtils {
+struct DirectXHelper {
 	static bool CompileComputeShader(
 		std::string_view hlsl,
 		const char* entryPoint,
