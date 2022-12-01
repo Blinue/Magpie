@@ -27,6 +27,7 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)XamlUtils.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="$(MSBuildThisFileDirectory)MimallocNew.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)Logger.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)SmallVector.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)StrUtils.cpp" />
