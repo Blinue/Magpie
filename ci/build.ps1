@@ -28,5 +28,8 @@ Remove-Item @("*.pdb", "*.lib", "*.exp", "*.winmd", "*.xml", "*.xbf", "dummy.*",
 Remove-Item @("Microsoft.UI.Xaml", "Magpie.UI") -Recurse
 Remove-Item *.pri -Exclude resources.pri
 
+# 复制依赖 dll
+Copy-Item ..\.conan\x64\Release\bin\*
+
 # 复制 VC++ 运行时 dll
 Copy-Item @("C:\Windows\System32\msvcp140.dll", "C:\Windows\System32\vcruntime140.dll", "C:\Windows\System32\vcruntime140_1.dll")

@@ -89,16 +89,16 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup>
     <PostBuildEvent>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">copy /y ..\..\.conan\ARM64\Debug\bin\ ..\..\bin\ARM64\Debug\</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">xcopy ..\..\.conan\ARM64\Debug\bin ..\..\bin\ARM64\Debug /i /s /y</Command>
     </PostBuildEvent>
     <PostBuildEvent>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">copy /y ..\..\.conan\x64\Debug\bin\ ..\..\bin\x64\Debug\</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">xcopy ..\..\.conan\x64\Debug\bin ..\..\bin\x64\Debug /i /s /y</Command>
     </PostBuildEvent>
     <PostBuildEvent>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">copy /y ..\..\.conan\x64\Release\bin\ ..\..\bin\x64\Release\</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">xcopy ..\..\.conan\x64\Release\bin ..\..\bin\x64\Release /i /s /y</Command>
     </PostBuildEvent>
     <PostBuildEvent>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">copy /y ..\..\.conan\ARM64\Release\bin\ ..\..\bin\ARM64\Release\</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">xcopy ..\..\.conan\ARM64\Release\bin ..\..\bin\ARM64\Release /i /s /y</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>

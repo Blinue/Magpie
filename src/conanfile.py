@@ -1,6 +1,5 @@
 from conans import ConanFile
 
-
 class Magpie(ConanFile):
 	settings = {
 		"os": "Windows",
@@ -23,12 +22,10 @@ class Magpie(ConanFile):
 	default_options = {"mimalloc:shared": True}
 
 	def imports(self):
-		self.copy("imgui_impl_dx11.*",
-				  dst="../../../src/Magpie.Core", src="./res/bindings")
+		self.copy("imgui_impl_dx11.*", dst="../../../src/Magpie.Core", src="./res/bindings")
 
 		if self.settings.arch == "x86_64":
 			arch = "x64"
 		else:
 			arch = "ARM64"
-		self.copy(
-			"*.dll", dst=f"../../../.conan/{arch}/{self.settings.build_type}/bin", src="bin")
+		self.copy("*.dll", dst=f"../../../.conan/{arch}/{self.settings.build_type}/bin", src="bin")
