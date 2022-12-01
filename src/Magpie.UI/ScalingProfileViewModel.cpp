@@ -671,9 +671,7 @@ fire_and_forget ScalingProfileViewModel::_LoadIcon(FrameworkElement const& mainP
 
 		_icon = std::move(imageIcon);
 	} else {
-		FontIcon icon;
-		icon.Glyph(L"\uECAA");
-		_icon = std::move(icon);
+		_icon = nullptr;
 	}
 
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"Icon"));
