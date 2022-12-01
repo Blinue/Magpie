@@ -74,17 +74,28 @@ MagApp::~MagApp() {}
 
 static bool CheckSrcWindow(HWND hwndSrc) {
 	if (!WindowHelper::IsValidSrcWindow(hwndSrc)) {
+		Logger::Get().Info("禁止缩放系统窗口");
 		return false;
 	}
 
 	// 不缩放最大化和最小化的窗口
 	if (Win32Utils::GetWindowShowCmd(hwndSrc) != SW_NORMAL) {
+		Logger::Get().Info("源窗口已最大化或最小化");
+		return false;
+	}
+
+	// 不缩放过小的窗口
+	RECT clientRect{};
+	GetClientRect(hwndSrc, &clientRect);
+	SIZE clientSize = Win32Utils::GetSizeOfRect(clientRect);
+	if (clientSize.cx < 5 || clientSize.cy < 5) {
+		Logger::Get().Info("源窗口尺寸过小");
 		return false;
 	}
 
 #if _DEBUG
-	OutputDebugString(fmt::format(L"窗口类：{}\n可执行文件路径：{}\n",
-		Win32Utils::GetWndClassName(hwndSrc), Win32Utils::GetPathOfWnd(hwndSrc)).c_str());
+	OutputDebugString(fmt::format(L"可执行文件路径：{}\n窗口类：{}\n",
+		Win32Utils::GetPathOfWnd(hwndSrc), Win32Utils::GetWndClassName(hwndSrc)).c_str());
 #endif // _DEBUG
 
 	return true;

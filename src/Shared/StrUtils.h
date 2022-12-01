@@ -115,16 +115,16 @@ struct StrUtils {
 		return (char)std::toupper(static_cast<unsigned char>(c));
 	}
 
-	static char toupper(wchar_t c) {
-		return (char)std::towupper(c);
+	static wchar_t toupper(wchar_t c) {
+		return (wchar_t)std::towupper(c);
 	}
 
 	static char tolower(char c) {
 		return (char)std::tolower(static_cast<unsigned char>(c));
 	}
 
-	static char tolower(wchar_t c) {
-		return (char)std::towlower(c);
+	static wchar_t tolower(wchar_t c) {
+		return (wchar_t)std::towlower(c);
 	}
 
 	template<typename CHAR_T>
