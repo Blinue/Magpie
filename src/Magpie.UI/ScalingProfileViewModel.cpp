@@ -58,8 +58,8 @@ ScalingProfileViewModel::ScalingProfileViewModel(int profileIdx) : _isDefaultPro
 		_index = (uint32_t)profileIdx;
 		_data = &ScalingProfileService::Get().GetProfile(profileIdx);
 
-		MUXC::ImageIcon placeholderIcon;
-		_icon = std::move(placeholderIcon);
+		// 占位
+		_icon = FontIcon();
 
 		App app = Application::Current().as<App>();
 		MainPage mainPage = app.MainPage();
