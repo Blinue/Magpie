@@ -11,9 +11,12 @@
 #include "GPUTimer.h"
 
 #pragma push_macro("_UNICODE")
-#undef _UNICODE
 // Conan 的 muparser 不含 UNICODE 支持
+#undef _UNICODE
+#pragma warning(push)
+#pragma warning(disable: 4310)	// 类型强制转换截断常量值
 #include <muParser.h>
+#pragma warning(push)
 #pragma pop_macro("_UNICODE")
 
 

@@ -1182,9 +1182,9 @@ static UINT GeneratePassSource(
 	if (isInlineParams && inlineParams) {
 		phmap::flat_hash_set<std::wstring> paramNames;
 		for (const auto& d : desc.params) {
-			auto result = paramNames.emplace(StrUtils::UTF8ToUTF16(d.name));
-
-			auto it = inlineParams->find(*result.first);
+			const std::wstring& name = *paramNames.emplace(StrUtils::UTF8ToUTF16(d.name)).first;
+			
+			auto it = inlineParams->find(name);
 			if (it == inlineParams->end()) {
 				if (d.constant.index() == 0) {
 					macros.emplace_back(d.name, std::to_string(std::get<0>(d.constant).defaultValue));
