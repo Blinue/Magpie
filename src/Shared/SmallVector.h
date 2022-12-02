@@ -189,7 +189,7 @@ protected:
 	}
 
 	/// Check whether Elt will be invalidated by resizing the vector to NewSize.
-	void assertSafeToReferenceAfterResize(const void* Elt, size_t NewSize) {
+	void assertSafeToReferenceAfterResize([[maybe_unused]] const void* Elt, [[maybe_unused]] size_t NewSize) {
 		assert(isSafeToReferenceAfterResize(Elt, NewSize) &&
 			"Attempting to reference an element of the vector in an operation "
 			"that invalidates it");
@@ -1247,7 +1247,6 @@ public:
 	SmallVector& operator=(SmallVector&& RHS) {
 		if constexpr (N) {
 			SmallVectorImpl<T>::operator=(::std::move(RHS));
-			return *this;
 		} else {
 			// SmallVectorImpl<T>::operator= does not leverage N==0. Optimize the case.
 			if (this == &RHS)
@@ -1258,8 +1257,9 @@ public:
 			} else {
 				this->assignRemote(std::move(RHS));
 			}
-			return *this;
 		}
+
+		return *this;
 	}
 
 	SmallVector& operator=(SmallVectorImpl<T>&& RHS) {
