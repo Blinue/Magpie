@@ -36,14 +36,14 @@
 					<FontIcon Glyph="&#xE740;" />
 				</muxc:NavigationViewItem.Icon>
 			</muxc:NavigationViewItem>
-			<muxc:NavigationViewItemHeader Content="缩放配置" />
+			<muxc:NavigationViewItemHeader Content="配置文件" />
 			<muxc:NavigationViewItem Content="默认">
 				<muxc:NavigationViewItem.Icon>
 					<FontIcon Glyph="&#xE81E;" />
 				</muxc:NavigationViewItem.Icon>
 			</muxc:NavigationViewItem>
 			<muxc:NavigationViewItem x:Name="NewProfileNavigationViewItem"
-									 Content="添加新配置"
+									 Content="新建配置"
 									 Icon="Add"
 									 SelectsOnInvoked="False">
 				<FlyoutBase.AttachedFlyout>
@@ -63,7 +63,7 @@
 											  FontSize="40"
 											  Glyph="&#xE8FC;" />
 									<TextBlock HorizontalAlignment="Center"
-											   Text="打开新窗口以创建缩放配置" />
+											   Text="打开新窗口以创建配置" />
 								</StackPanel>
 								<TextBlock Grid.Row="1"
 										   HorizontalAlignment="Right"
@@ -83,7 +83,7 @@
 								<TextBlock Margin="0,5,0,20"
 										   FontSize="18"
 										   FontWeight="SemiBold"
-										   Text="添加新配置" />
+										   Text="新建配置" />
 								<StackPanel Width="280"
 											Orientation="Vertical"
 											Spacing="15">

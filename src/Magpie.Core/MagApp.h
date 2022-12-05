@@ -85,9 +85,11 @@ private:
 
 	bool _DisableDirectFlip();
 
-	static LRESULT CALLBACK _HostWndProcStatic(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+	static LRESULT CALLBACK _HostWndProcStatic(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
+		return Get()._HostWndProc(hWnd, msg, wParam, lParam);
+	}
 
-	LRESULT _HostWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+	LRESULT _HostWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 	void _OnQuit();
 

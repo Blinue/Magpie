@@ -116,6 +116,76 @@ static void WriteScalingProfile(rapidjson::PrettyWriter<rapidjson::StringBuffer>
 	writer.EndObject();
 }
 
+static void ReplaceIcon(HINSTANCE hInst, HWND hWnd, bool large) noexcept {
+	HICON hIconApp = NULL;
+	LoadIconMetric(hInst, MAKEINTRESOURCE(CommonSharedConstants::IDI_APP), large ? LIM_LARGE : LIM_SMALL, &hIconApp);
+	HICON hIconOld = (HICON)SendMessage(hWnd, WM_SETICON, large ? ICON_BIG : ICON_SMALL, (LPARAM)hIconApp);
+	if (hIconOld) {
+		DestroyIcon(hIconOld);
+	}
+}
+
+static HRESULT CALLBACK TaskDialogCallback(
+	HWND hWnd,
+	UINT msg,
+	WPARAM /*wParam*/,
+	LPARAM /*lParam*/,
+	LONG_PTR /*lpRefData*/
+) {
+	if (msg == TDN_CREATED) {
+		// 将任务栏图标替换为 Magpie 的图标
+		HINSTANCE hInst = GetModuleHandle(nullptr);
+		ReplaceIcon(hInst, hWnd, true);
+		ReplaceIcon(hInst, hWnd, false);
+
+		// 删除标题栏中的图标
+		INT_PTR style = GetWindowLongPtr(hWnd, GWL_STYLE);
+		SetWindowLongPtr(hWnd, GWL_STYLE, style & ~WS_SYSMENU);
+	}
+
+	return S_OK;
+}
+
+static void ShowErrorMessage(const wchar_t* mainInstruction, const wchar_t* content) {
+	TASKDIALOGCONFIG tdc{ sizeof(TASKDIALOGCONFIG) };
+	tdc.dwFlags = TDF_SIZE_TO_CONTENT;
+	tdc.pszWindowTitle = L"错误";
+	tdc.pszMainIcon = TD_ERROR_ICON;
+	tdc.pszMainInstruction = mainInstruction;
+	tdc.pszContent = content;
+	tdc.pfCallback = TaskDialogCallback;
+	tdc.cButtons = 1;
+	TASKDIALOG_BUTTON button{ IDCANCEL, L"退出" };
+	tdc.pButtons = &button;
+
+	TaskDialogIndirect(&tdc, nullptr, nullptr, nullptr);
+}
+
+static bool ShowOkCancelWarningMessage(
+	const wchar_t* mainInstruction,
+	const wchar_t* content,
+	const wchar_t* okText,
+	const wchar_t* cancelText
+) {
+	TASKDIALOGCONFIG tdc{ sizeof(TASKDIALOGCONFIG) };
+	tdc.dwFlags = TDF_SIZE_TO_CONTENT;
+	tdc.pszWindowTitle = L"警告";
+	tdc.pszMainIcon = TD_WARNING_ICON;
+	tdc.pszMainInstruction = mainInstruction;
+	tdc.pszContent = content;
+	tdc.pfCallback = TaskDialogCallback;
+	TASKDIALOG_BUTTON buttons[]{
+		{IDOK, okText},
+		{IDCANCEL, cancelText}
+	};
+	tdc.cButtons = (UINT)std::size(buttons);
+	tdc.pButtons = buttons;
+
+	int button = 0;
+	TaskDialogIndirect(&tdc, &button, nullptr, nullptr);
+	return button == IDOK;
+}
+
 bool AppSettings::Initialize() {
 	Logger& logger = Logger::Get();
 
@@ -136,8 +206,8 @@ bool AppSettings::Initialize() {
 
 	std::string configText;
 	if (!Win32Utils::ReadTextFile(_configPath.c_str(), configText)) {
-		MessageBox(NULL, L"无法读取配置文件", L"错误", MB_ICONERROR | MB_OK);
 		logger.Error("读取配置文件失败");
+		ShowErrorMessage(L"读取配置文件失败", (L"配置文件路径：\n" + _configPath).c_str());
 		return false;
 	}
 
@@ -153,13 +223,13 @@ bool AppSettings::Initialize() {
 	doc.ParseInsitu(configText.data());
 	if (doc.HasParseError()) {
 		Logger::Get().Error(fmt::format("解析配置失败\n\t错误码：{}", (int)doc.GetParseError()));
-		MessageBox(NULL, L"配置文件不是合法的 JSON", L"错误", MB_ICONERROR | MB_OK);
+		ShowErrorMessage(L"配置文件不是合法的 JSON", (L"配置文件路径：\n" + _configPath).c_str());
 		return false;
 	}
 
 	if (!doc.IsObject()) {
 		Logger::Get().Error("配置文件根元素不是 Object");
-		MessageBox(NULL, L"解析配置文件失败", L"错误", MB_ICONERROR | MB_OK);
+		ShowErrorMessage(L"解析配置文件失败", (L"配置文件路径：\n" + _configPath).c_str());
 		return false;
 	}
 
@@ -172,14 +242,14 @@ bool AppSettings::Initialize() {
 	if (settingsVersion > SETTINGS_VERSION) {
 		Logger::Get().Warn("未知的配置文件版本");
 		if (_isPortableMode) {
-			if (MessageBox(NULL, L"配置文件来自未来版本，可能无法正确解析。\n点击确定继续使用，点击取消退出。",
-				L"警告", MB_ICONWARNING | MB_OKCANCEL) != IDOK
+			if (!ShowOkCancelWarningMessage(nullptr, L"配置文件来自未知版本，可能无法正确解析。",
+				L"继续使用", L"退出")
 			) {
 				return false;
 			}
 		} else {
-			if (MessageBox(NULL, L"全局配置文件来自未来版本，可能无法正确解析。\n点击确定继续使用，点击取消启用便携模式。",
-				L"警告", MB_ICONWARNING | MB_OKCANCEL) != IDOK
+			if (!ShowOkCancelWarningMessage(nullptr, L"全局配置文件来自未知版本，可能无法正确解析。",
+				L"继续使用", L"启用便携模式")
 			) {
 				IsPortableMode(true);
 				_SetDefaultScalingModes();

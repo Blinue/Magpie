@@ -471,20 +471,16 @@ bool MagApp::_DisableDirectFlip() {
 	return true;
 }
 
-LRESULT MagApp::_HostWndProcStatic(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
-	return Get()._HostWndProc(hWnd, message, wParam, lParam);
-}
-
-LRESULT MagApp::_HostWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
+LRESULT MagApp::_HostWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 	// 以反向调用回调
 	for (auto it = _wndProcHandlers.rbegin(); it != _wndProcHandlers.rend(); ++it) {
-		const auto& result = it->first(hWnd, message, wParam, lParam);
+		const auto& result = it->first(hWnd, msg, wParam, lParam);
 		if (result.has_value()) {
 			return *result;
 		}
 	}
 
-	switch (message) {
+	switch (msg) {
 	case WM_DESTROY:
 	{
 		_OnQuit();
@@ -499,7 +495,7 @@ LRESULT MagApp::_HostWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 	}
 	}
 
-	return DefWindowProc(hWnd, message, wParam, lParam);
+	return DefWindowProc(hWnd, msg, wParam, lParam);
 }
 
 void MagApp::_OnQuit() {

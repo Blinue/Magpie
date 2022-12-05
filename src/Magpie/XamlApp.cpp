@@ -443,8 +443,8 @@ void XamlApp::_RepositionXamlPopups(bool closeFlyoutPresenter) {
 	}
 }
 
-LRESULT XamlApp::_WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
-	switch (message) {
+LRESULT XamlApp::_WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
+	switch (msg) {
 	case WM_SHOWWINDOW:
 	{
 		if (wParam == TRUE) {
@@ -582,7 +582,7 @@ LRESULT XamlApp::_WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	}
 	}
 
-	return DefWindowProc(hWnd, message, wParam, lParam);
+	return DefWindowProc(hWnd, msg, wParam, lParam);
 }
 
 LRESULT XamlApp::_TrayIconWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {

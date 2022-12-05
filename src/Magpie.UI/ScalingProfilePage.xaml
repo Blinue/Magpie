@@ -163,7 +163,7 @@
 											Placement="Bottom">
 										<StackPanel Orientation="Vertical"
 													Spacing="15">
-											<TextBlock Text="确定删除此缩放配置？" />
+											<TextBlock Text="确定删除此配置？" />
 											<Button HorizontalAlignment="Right"
 													Click="DeleteButton_Click">
 												<Button.Resources>

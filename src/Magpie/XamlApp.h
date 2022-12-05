@@ -50,7 +50,7 @@ private:
 	static LRESULT _WndProcStatic(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 		return Get()._WndProc(hWnd, msg, wParam, lParam);
 	}
-	LRESULT _WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+	LRESULT _WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 	static LRESULT _TrayIconWndProcStatic(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 		return Get()._TrayIconWndProc(hWnd, msg, wParam, lParam);
