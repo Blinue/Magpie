@@ -9,6 +9,7 @@
 #include "Renderer.h"
 #include "CursorManager.h"
 #include "GPUTimer.h"
+#include "EffectDescHelper.h"
 
 #pragma push_macro("_UNICODE")
 // Conan 的 muparser 不含 UNICODE 支持
@@ -137,7 +138,7 @@ bool EffectDrawer::Initialize(
 				// 检查纹理格式是否匹配
 				D3D11_TEXTURE2D_DESC srcDesc{};
 				_textures[i]->GetDesc(&srcDesc);
-				if (srcDesc.Format != EffectIntermediateTextureDesc::FORMAT_DESCS[(UINT)texDesc.format].dxgiFormat) {
+				if (srcDesc.Format != EffectDescHelper::FORMAT_DESCS[(UINT)texDesc.format].dxgiFormat) {
 					Logger::Get().Error("SOURCE 纹理格式不匹配");
 					return false;
 				}
@@ -161,7 +162,7 @@ bool EffectDrawer::Initialize(
 			}
 
 			_textures[i] = dr.CreateTexture2D(
-				EffectIntermediateTextureDesc::FORMAT_DESCS[(UINT)texDesc.format].dxgiFormat,
+				EffectDescHelper::FORMAT_DESCS[(UINT)texDesc.format].dxgiFormat,
 				texSize.cx,
 				texSize.cy,
 				D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_UNORDERED_ACCESS

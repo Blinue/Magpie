@@ -1,8 +1,7 @@
 #pragma once
-#include "pch.h"
+#include "ExportHelper.h"
 #include "MagOptions.h"
 #include "WinRTUtils.h"
-
 
 namespace Magpie::Core {
 

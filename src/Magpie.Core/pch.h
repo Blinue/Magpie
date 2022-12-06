@@ -1,8 +1,6 @@
 #pragma once
 #include "CommonPch.h"
 
-#ifdef MAGPIE_CORE_EXPORTS
-#define API_DECLSPEC __declspec(dllexport)
-#else
-#define API_DECLSPEC __declspec(dllimport)
-#endif
+// DirectX 头文件
+#include <d3d11_4.h>
+#include <dxgi1_6.h>

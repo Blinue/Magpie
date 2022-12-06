@@ -80,6 +80,12 @@
     <ClInclude Include="WindowHelper.h">
       <Filter>Helpers</Filter>
     </ClInclude>
+    <ClInclude Include="ExportHelper.h">
+      <Filter>Helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="EffectDescHelper.h">
+      <Filter>Helpers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MagRuntime.cpp" />

@@ -1,35 +1,7 @@
 #pragma once
 
-#include <SDKDDKVer.h>
-
-#define WIN32_LEAN_AND_MEAN
-#define WINRT_LEAN_AND_MEAN
-#define WINRT_NO_MODULE_LOCK
-
 // Windows 头文件
-
-// 从 windows.h 里排除不需要的 API
-#define NOGDICAPMASKS
-#define NOICONS
-#define OEMRESOURCE
-#define NOATOM
-#define NOCLIPBOARD
-#define NODRAWTEXT
-#define NOMEMMGR
-#define NOMETAFILE
-#define NOMINMAX	// 使用 std::min 和 std::max 而不是宏
-#define NOOPENFILE
-#define NOSCROLL
-#define NOSERVICE
-#define NOSOUND
-#define NOTEXTMETRIC
-#define NOCOMM
-#define NOKANJI
-#define NOHELP
-#define NOPROFILER
-#define NODEFERWINDOWPOS
-#define NOMCX
-
+#include <SDKDDKVer.h>
 #include <windows.h>
 #include <windowsx.h>
 #include <dwmapi.h>
@@ -40,10 +12,6 @@
 // 修复 C++/WinRT 头文件的警告
 #undef GetCurrentTime
 #undef GetNextSibling
-
-// DirectX 头文件
-#include <d3d11_4.h>
-#include <dxgi1_6.h>
 
 // C++ 运行时头文件
 #include <cstdlib>

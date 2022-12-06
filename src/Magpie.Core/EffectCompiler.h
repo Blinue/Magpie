@@ -1,8 +1,7 @@
 #pragma once
-#include "pch.h"
+#include "ExportHelper.h"
 #include "EffectDesc.h"
 #include <parallel_hashmap/phmap.h>
-
 
 namespace Magpie::Core {
 

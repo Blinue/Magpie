@@ -11,7 +11,7 @@
 #include <Magpie.Core.h>
 #include "Win32Utils.h"
 #include "AppSettings.h"
-
+#include <dxgi.h>
 
 using namespace winrt;
 using namespace Windows::Graphics::Display;
@@ -19,7 +19,6 @@ using namespace Windows::Graphics::Imaging;
 using namespace Windows::UI::Xaml::Controls;
 using namespace Windows::UI::Xaml::Media::Imaging;
 using namespace ::Magpie::Core;
-
 
 namespace winrt::Magpie::UI::implementation {
 
