@@ -1,10 +1,7 @@
 #pragma once
-#include "pch.h"
 #include "FrameSourceBase.h"
 #include <winrt/Windows.Graphics.Capture.h>
 #include <Windows.Graphics.Capture.Interop.h>
-#include "Win32Utils.h"
-
 
 namespace Magpie::Core {
 

@@ -10,7 +10,7 @@
 #include <bit>	// std::has_single_bit
 #include "DirectXHelper.h"
 #include <parallel_hashmap/phmap.h>
-#include "EffectDescHelper.h"
+#include "EffectHelper.h"
 
 namespace Magpie::Core {
 
@@ -586,10 +586,10 @@ static UINT ResolveTexture(std::string_view block, EffectDesc& desc) {
 				phmap::flat_hash_map<std::string, EffectIntermediateTextureFormat> result;
 
 				// UNKNOWN 不可用
-				constexpr size_t descCount = std::size(EffectDescHelper::FORMAT_DESCS) - 1;
+				constexpr size_t descCount = std::size(EffectHelper::FORMAT_DESCS) - 1;
 				result.reserve(descCount);
 				for (size_t i = 0; i < descCount; ++i) {
-					result.emplace(EffectDescHelper::FORMAT_DESCS[i].name, (EffectIntermediateTextureFormat)i);
+					result.emplace(EffectHelper::FORMAT_DESCS[i].name, (EffectIntermediateTextureFormat)i);
 				}
 				return result;
 			}();
@@ -1078,7 +1078,7 @@ static UINT GeneratePassSource(
 	// SRV
 	for (int i = 0; i < passDesc.inputs.size(); ++i) {
 		auto& texDesc = desc.textures[passDesc.inputs[i]];
-		result.append(fmt::format("Texture2D<{}> {} : register(t{});\n", EffectDescHelper::FORMAT_DESCS[(UINT)texDesc.format].srvTexelType, texDesc.name, i));
+		result.append(fmt::format("Texture2D<{}> {} : register(t{});\n", EffectHelper::FORMAT_DESCS[(UINT)texDesc.format].srvTexelType, texDesc.name, i));
 	}
 
 	if (isLastEffect && isLastPass) {
@@ -1099,7 +1099,7 @@ static UINT GeneratePassSource(
 
 		for (int i = 0; i < passDesc.outputs.size(); ++i) {
 			auto& texDesc = desc.textures[passDesc.outputs[i]];
-			result.append(fmt::format("RWTexture2D<{}> {} : register(u{});\n", EffectDescHelper::FORMAT_DESCS[(UINT)texDesc.format].uavTexelType, texDesc.name, i));
+			result.append(fmt::format("RWTexture2D<{}> {} : register(u{});\n", EffectHelper::FORMAT_DESCS[(UINT)texDesc.format].uavTexelType, texDesc.name, i));
 		}
 	}
 
@@ -1375,7 +1375,7 @@ void __M(uint3 tid : SV_GroupThreadID, uint3 gid : SV_GroupID) {{
 			for (int i = 0; i < passDesc.outputs.size(); ++i) {
 				auto& texDesc = desc.textures[passDesc.outputs[i]];
 				result.append(fmt::format("\t{} c{};\n",
-					EffectDescHelper::FORMAT_DESCS[(UINT)texDesc.format].srvTexelType, i));
+					EffectHelper::FORMAT_DESCS[(UINT)texDesc.format].srvTexelType, i));
 			}
 
 			std::string callPass = fmt::format("\tPass{}(pos, ", passIdx);

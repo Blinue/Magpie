@@ -1,8 +1,6 @@
 #pragma once
-#include "pch.h"
 #include "MagOptions.h"
 #include <SmallVector.h>
-
 
 namespace Magpie::Core {
 

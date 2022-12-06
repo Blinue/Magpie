@@ -1,9 +1,7 @@
 #pragma once
-#include "pch.h"
 #include "Win32Utils.h"
 #include "EffectDesc.h"
 #include <parallel_hashmap/phmap.h>
-
 
 namespace Magpie::Core {
 

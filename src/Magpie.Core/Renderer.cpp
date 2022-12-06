@@ -225,6 +225,10 @@ bool CheckForeground(HWND hwndForeground) {
 	return rectForground.right - rectForground.left < 10 || rectForground.right - rectForground.top < 10;
 }
 
+uint32_t Renderer::GetEffectCount() const noexcept {
+	return (uint32_t)_effects.size();
+}
+
 const EffectDesc& Renderer::GetEffectDesc(uint32_t idx) const noexcept {
 	assert(idx < _effects.size());
 	return _effects[idx].GetDesc();

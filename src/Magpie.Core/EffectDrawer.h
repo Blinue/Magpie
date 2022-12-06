@@ -1,17 +1,10 @@
 #pragma once
-#include "pch.h"
 #include "EffectDesc.h"
 #include "MagOptions.h"
 #include "SmallVector.h"
-
+#include "EffectHelper.h"
 
 namespace Magpie::Core {
-
-union EffectConstant32 {
-	float floatVal;
-	uint32_t uintVal;
-	int intVal;
-};
 
 class EffectDrawer {
 public:
@@ -52,7 +45,7 @@ private:
 	// 后半部分为空，用于解绑
 	std::vector<SmallVector<ID3D11UnorderedAccessView*>> _uavs;
 
-	SmallVector<EffectConstant32, 32> _constants;
+	SmallVector<EffectHelper::Constant32, 32> _constants;
 	winrt::com_ptr<ID3D11Buffer> _constantBuffer;
 
 	SmallVector<winrt::com_ptr<ID3D11ComputeShader>> _shaders;

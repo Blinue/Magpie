@@ -11,6 +11,7 @@
 #include "Win32Utils.h"
 #include "FrameSourceBase.h"
 #include "CommonSharedConstants.h"
+#include "EffectDesc.h"
 #include <bit>	// std::bit_ceil
 #include <Wbemidl.h>
 #include <random>

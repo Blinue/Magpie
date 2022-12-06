@@ -1,8 +1,6 @@
 #pragma once
-#include "CommonPch.h"
 #include <source_location>
 #include <spdlog/spdlog.h>
-
 
 class Logger {
 public:

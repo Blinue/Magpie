@@ -1,8 +1,6 @@
 #pragma once
-#include "pch.h"
 #include <deque>
 #include "SmallVector.h"
-
 
 struct ImFont;
 

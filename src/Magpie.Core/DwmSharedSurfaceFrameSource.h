@@ -1,7 +1,5 @@
 #pragma once
-#include "pch.h"
 #include "FrameSourceBase.h"
-
 
 namespace Magpie::Core {
 
@@ -39,7 +37,7 @@ private:
 		ULONG* pFmtWindow,
 		ULONG* pPresentFlags,
 		ULONGLONG* pWin32KUpdateId
-		);
+	);
 	_DwmGetDxSharedSurfaceFunc* _dwmGetDxSharedSurface = nullptr;
 
 	D3D11_BOX _frameInWnd{};

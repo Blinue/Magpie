@@ -1,7 +1,5 @@
 #pragma once
-#include "pch.h"
 #include "Win32Utils.h"
-
 
 namespace Magpie::Core {
 

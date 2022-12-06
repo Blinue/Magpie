@@ -1,7 +1,5 @@
 #pragma once
-#include "pch.h"
 #include "SmallVector.h"
-
 
 namespace Magpie::Core {
 

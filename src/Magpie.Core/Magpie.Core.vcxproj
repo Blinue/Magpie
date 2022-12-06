@@ -88,7 +88,7 @@
     <ClInclude Include="EffectCacheManager.h" />
     <ClInclude Include="EffectCompiler.h" />
     <ClInclude Include="EffectDesc.h" />
-    <ClInclude Include="EffectDescHelper.h" />
+    <ClInclude Include="EffectHelper.h" />
     <ClInclude Include="EffectDrawer.h" />
     <ClInclude Include="ExclModeHack.h" />
     <ClInclude Include="ExportHelper.h" />

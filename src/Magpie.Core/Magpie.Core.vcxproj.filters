@@ -83,7 +83,7 @@
     <ClInclude Include="ExportHelper.h">
       <Filter>Helpers</Filter>
     </ClInclude>
-    <ClInclude Include="EffectDescHelper.h">
+    <ClInclude Include="EffectHelper.h">
       <Filter>Helpers</Filter>
     </ClInclude>
   </ItemGroup>

@@ -2,7 +2,7 @@
 #include <dxgi.h>
 #include <cstdint>
 
-struct EffectDescHelper {
+struct EffectHelper {
 	struct EffectIntermediateTextureFormatDesc {
 		const char* name;
 		DXGI_FORMAT dxgiFormat;
@@ -33,5 +33,11 @@ struct EffectDescHelper {
 		{"R8_UNORM", DXGI_FORMAT_R8_UNORM, 1, "float", "unorm float"},
 		{"R8_SNORM", DXGI_FORMAT_R8_SNORM, 1, "float", "snorm float"},
 		{"UNKNOWN", DXGI_FORMAT_UNKNOWN, 4, "float4", "float4"}
+	};
+
+	union Constant32 {
+		float floatVal;
+		uint32_t uintVal;
+		int intVal;
 	};
 };

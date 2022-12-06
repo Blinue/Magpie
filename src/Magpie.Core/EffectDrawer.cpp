@@ -9,7 +9,7 @@
 #include "Renderer.h"
 #include "CursorManager.h"
 #include "GPUTimer.h"
-#include "EffectDescHelper.h"
+#include "EffectHelper.h"
 
 #pragma push_macro("_UNICODE")
 // Conan 的 muparser 不含 UNICODE 支持
@@ -138,7 +138,7 @@ bool EffectDrawer::Initialize(
 				// 检查纹理格式是否匹配
 				D3D11_TEXTURE2D_DESC srcDesc{};
 				_textures[i]->GetDesc(&srcDesc);
-				if (srcDesc.Format != EffectDescHelper::FORMAT_DESCS[(UINT)texDesc.format].dxgiFormat) {
+				if (srcDesc.Format != EffectHelper::FORMAT_DESCS[(UINT)texDesc.format].dxgiFormat) {
 					Logger::Get().Error("SOURCE 纹理格式不匹配");
 					return false;
 				}
@@ -162,7 +162,7 @@ bool EffectDrawer::Initialize(
 			}
 
 			_textures[i] = dr.CreateTexture2D(
-				EffectDescHelper::FORMAT_DESCS[(UINT)texDesc.format].dxgiFormat,
+				EffectHelper::FORMAT_DESCS[(UINT)texDesc.format].dxgiFormat,
 				texSize.cx,
 				texSize.cy,
 				D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_UNORDERED_ACCESS
@@ -328,7 +328,7 @@ bool EffectDrawer::Initialize(
 	}
 
 	// PS 样式的通道需要的参数
-	EffectConstant32* pCurParam = _constants.data() + builtinConstantCount;
+	EffectHelper::Constant32* pCurParam = _constants.data() + builtinConstantCount;
 	if (psStylePassParams > 0) {
 		for (UINT i = 0, end = (UINT)desc.passes.size() - 1; i < end; ++i) {
 			if (desc.passes[i].isPSStyle) {

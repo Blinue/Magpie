@@ -1,7 +1,6 @@
 #pragma once
 #include "FrameSourceBase.h"
 
-
 namespace Magpie::Core {
 
 // 使用 Desktop Duplication API 捕获窗口
