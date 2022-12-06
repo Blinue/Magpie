@@ -1,7 +1,6 @@
 #pragma once
-#include "CommonPCH.h"
+#include "CommonPch.h"
 #include "Utils.h"
-
 
 struct WinRTUtils {
 	class EventRevoker {

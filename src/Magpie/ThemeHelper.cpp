@@ -22,7 +22,7 @@ static fnAllowDarkModeForWindow AllowDarkModeForWindow = nullptr;
 static fnRefreshImmersiveColorPolicyState RefreshImmersiveColorPolicyState = nullptr;
 static fnFlushMenuThemes FlushMenuThemes = nullptr;
 
-static void ImportFuncs() noexcept {
+static void InitApis() noexcept {
 	if (SetPreferredAppMode) {
 		return;
 	}
@@ -37,14 +37,14 @@ static void ImportFuncs() noexcept {
 }
 
 void ThemeHelper::Initialize() noexcept {
-	ImportFuncs();
+	InitApis();
 
 	SetPreferredAppMode(PreferredAppMode::AllowDark);
 	RefreshImmersiveColorPolicyState();
 }
 
 void ThemeHelper::SetTheme(HWND hWnd, bool isDark) noexcept {
-	ImportFuncs();
+	InitApis();
 
 	SetPreferredAppMode(isDark ? PreferredAppMode::ForceDark : PreferredAppMode::Default);
 	AllowDarkModeForWindow(hWnd, isDark);

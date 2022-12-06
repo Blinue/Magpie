@@ -1,6 +1,5 @@
 #pragma once
-#include "CommonPCH.h"
-
+#include "CommonPch.h"
 
 struct CommonSharedConstants {
 	static constexpr const wchar_t* MAIN_WINDOW_CLASS_NAME = L"Magpie_Main";

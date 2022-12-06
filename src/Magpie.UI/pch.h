@@ -7,8 +7,7 @@
 // 请勿在此处添加要频繁更新的文件，这将使得性能优势无效。
 
 
-#include "CommonPCH.h"
-
+#include "CommonPch.h"
 
 // C++/WinRT 头文件
 #include <winrt/Windows.ApplicationModel.Activation.h>
@@ -37,7 +36,6 @@
 #include <winrt/Microsoft.UI.Xaml.Controls.Primitives.h>
 #include <winrt/Microsoft.UI.Xaml.Media.h>
 #include <winrt/Microsoft.UI.Xaml.XamlTypeInfo.h>
-
 
 namespace winrt {
 using namespace Windows::System;

@@ -1,6 +1,5 @@
 #pragma once
-#include "CommonPCH.h"
-
+#include "CommonPch.h"
 
 #ifdef MAGPIE_CORE_EXPORTS
 #define API_DECLSPEC __declspec(dllexport)

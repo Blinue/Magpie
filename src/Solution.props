@@ -26,6 +26,7 @@
 			<LanguageStandard_C>stdc17</LanguageStandard_C>
 			<FloatingPointModel>Fast</FloatingPointModel>
 			<MultiProcessorCompilation>true</MultiProcessorCompilation>
+			<PreprocessorDefinitions>_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
 			<AdditionalOptions>/bigobj /utf-8 /Zc:__cplusplus /volatile:iso %(AdditionalOptions)</AdditionalOptions>
 		</ClCompile>
 	</ItemDefinitionGroup>
