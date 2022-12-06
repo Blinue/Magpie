@@ -51,7 +51,7 @@ static void DecodeHotkey(uint32_t value, HotkeySettings& hotkey) noexcept {
 	hotkey.shift = value & 0x800;
 }
 
-static void WriteScalingProfile(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer, const ScalingProfile& scalingProfile) {
+static void WriteScalingProfile(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer, const ScalingProfile& scalingProfile) noexcept {
 	writer.StartObject();
 	if (!scalingProfile.name.empty()) {
 		writer.Key("name");
@@ -166,7 +166,7 @@ static bool ShowOkCancelWarningMessage(
 	const wchar_t* content,
 	const wchar_t* okText,
 	const wchar_t* cancelText
-) {
+) noexcept {
 	TASKDIALOGCONFIG tdc{ sizeof(TASKDIALOGCONFIG) };
 	tdc.dwFlags = TDF_SIZE_TO_CONTENT;
 	tdc.pszWindowTitle = L"警告";

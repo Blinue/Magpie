@@ -9,7 +9,7 @@
 #include "resource.h"
 #include <Magpie.Core.h>
 #include "Version.h"
-
+#include "ThemeHelper.h"
 
 namespace Magpie {
 
@@ -68,6 +68,8 @@ bool XamlApp::Initialize(HINSTANCE hInstance, const wchar_t* arguments) {
 		(int)std::lroundf(options.MainWndRect.Height)
 	};
 	_isMainWndMaximized = options.IsWndMaximized;
+
+	ThemeHelper::Initialize();
 
 	// 注册窗口类
 	{
@@ -348,23 +350,13 @@ void XamlApp::_OnResize() {
 void XamlApp::_UpdateTheme() {
 	const Win32Utils::OSVersion& osVersion = Win32Utils::GetOSVersion();
 
-	BOOL isDarkTheme = _mainPage.ActualTheme() == winrt::ElementTheme::Dark;
-	// 使标题栏适应黑暗模式
-	// build 18985 之前 DWMWA_USE_IMMERSIVE_DARK_MODE 的值不同
-	// https://github.com/MicrosoftDocs/sdk-api/pull/966/files
-	constexpr const DWORD DWMWA_USE_IMMERSIVE_DARK_MODE_BEFORE_20H1 = 19;
-	DwmSetWindowAttribute(
-		_hwndMain,
-		osVersion.Is20H1OrNewer() ? DWMWA_USE_IMMERSIVE_DARK_MODE : DWMWA_USE_IMMERSIVE_DARK_MODE_BEFORE_20H1,
-		&isDarkTheme,
-		sizeof(isDarkTheme)
-	);
-
 	if (osVersion.Is22H2OrNewer()) {
 		DWM_SYSTEMBACKDROP_TYPE value = DWMSBT_MAINWINDOW;
 		DwmSetWindowAttribute(_hwndMain, DWMWA_SYSTEMBACKDROP_TYPE, &value, sizeof(value));
 		return;
 	}
+
+	const bool isDarkTheme = _mainPage.ActualTheme() == winrt::ElementTheme::Dark;
 
 	// 更改背景色以配合主题
 	// 背景色在更改窗口大小时会短暂可见
@@ -378,14 +370,7 @@ void XamlApp::_UpdateTheme() {
 	}
 	InvalidateRect(_hwndMain, nullptr, TRUE);
 
-	// 强制重绘标题栏
-	LONG_PTR style = GetWindowLongPtr(_hwndMain, GWL_EXSTYLE);
-	if (!osVersion.IsWin11()) {
-		// 在 Win10 上需要更多 hack
-		SetWindowLongPtr(_hwndMain, GWL_EXSTYLE, style | WS_EX_LAYERED);
-		SetLayeredWindowAttributes(_hwndMain, 0, 254, LWA_ALPHA);
-	}
-	SetWindowLongPtr(_hwndMain, GWL_EXSTYLE, style);
+	ThemeHelper::SetTheme(_hwndMain, isDarkTheme);
 }
 
 // 使 ContentDialog 跟随窗口尺寸调整

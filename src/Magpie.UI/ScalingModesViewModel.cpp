@@ -284,8 +284,12 @@ fire_and_forget ScalingModesViewModel::_AddScalingModes() {
 
 		// 在所有缩放模式初始化完毕后再展示添加/删除动画
 		if (dispatcher) {
+			auto weakThis = get_weak();
 			co_await 10ms;
 			co_await dispatcher;
+			if (!weakThis.get()) {
+				co_return;
+			}
 		}
 		
 		_scalingModesListTransitions.Append(Animation::AddDeleteThemeTransition());

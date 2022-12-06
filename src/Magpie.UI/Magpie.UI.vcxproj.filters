@@ -118,9 +118,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Filter Include="Assets">
-      <UniqueIdentifier>{e48dc53e-40b1-40cb-970a-f89935452892}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Pages">
       <UniqueIdentifier>{30ac53e6-fb5b-4035-8150-913623452213}</UniqueIdentifier>
     </Filter>
@@ -147,6 +144,9 @@
     </Filter>
     <Filter Include="ViewModels">
       <UniqueIdentifier>{c63b1e37-fe89-4c56-a1fe-e19d6803adad}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resources">
+      <UniqueIdentifier>{ead91d92-1852-412f-8c58-57e10a737fc2}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -248,6 +248,8 @@
     </AppxManifest>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="Magpie.UI.rc" />
+    <ResourceCompile Include="Magpie.UI.rc">
+      <Filter>Resources</Filter>
+    </ResourceCompile>
   </ItemGroup>
 </Project>
