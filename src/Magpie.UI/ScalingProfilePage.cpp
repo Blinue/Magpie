@@ -6,11 +6,9 @@
 #include "ScalingProfileViewModel.h"
 #include "Win32Utils.h"
 #include "ComboBoxHelper.h"
-#include "AppSettings.h"
 #include "ScalingProfileService.h"
 #include "ScalingProfile.h"
 #include "PageHelper.h"
-
 
 using namespace winrt;
 using namespace Windows::Globalization::NumberFormatting;

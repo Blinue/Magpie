@@ -1,13 +1,12 @@
 #pragma once
-#include "pch.h"
 #include "Magpie.Core.h"
-#include <ScalingMode.h>
 #include "WinRTUtils.h"
 #include <rapidjson/prettywriter.h>
 #include <rapidjson/document.h>
 
-
 namespace winrt::Magpie::UI {
+
+struct ScalingMode;
 
 class ScalingModesService {
 public:

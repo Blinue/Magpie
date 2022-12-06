@@ -8,7 +8,6 @@
 #include "Win32Utils.h"
 #include "CommonSharedConstants.h"
 
-
 namespace winrt::Magpie::UI::implementation {
 
 SettingsViewModel::SettingsViewModel() {

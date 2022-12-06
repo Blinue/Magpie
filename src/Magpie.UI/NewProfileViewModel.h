@@ -1,7 +1,6 @@
 #pragma once
 #include "NewProfileViewModel.g.h"
 
-
 namespace winrt::Magpie::UI::implementation {
 
 struct NewProfileViewModel : NewProfileViewModelT<NewProfileViewModel> {

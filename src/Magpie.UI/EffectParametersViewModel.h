@@ -3,8 +3,10 @@
 #include "ScalingModeBoolParameter.g.h"
 #include "ScalingModeFloatParameter.g.h"
 #include <parallel_hashmap/phmap.h>
-#include "EffectsService.h"
 
+namespace winrt::Magpie::UI {
+struct EffectInfo;
+}
 
 namespace winrt::Magpie::UI::implementation {
 

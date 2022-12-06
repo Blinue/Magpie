@@ -5,7 +5,6 @@
 #include "AppXReader.h"
 #include <regex>
 
-
 namespace winrt::Magpie::UI {
 
 static std::wstring_view GetRealClassName(std::wstring_view className) {

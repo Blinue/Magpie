@@ -5,9 +5,9 @@
 #include "AppSettings.h"
 #include "ScalingProfileService.h"
 #include "ScalingModesService.h"
+#include "ScalingMode.h"
 
 using namespace Magpie::Core;
-
 
 namespace winrt::Magpie::UI {
 

@@ -8,6 +8,8 @@
 #include "EffectsService.h"
 #include "EffectHelper.h"
 #include "AppSettings.h"
+#include "Logger.h"
+#include "ScalingMode.h"
 
 namespace Core = ::Magpie::Core;
 using namespace Magpie::Core;

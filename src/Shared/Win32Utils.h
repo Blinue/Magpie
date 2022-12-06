@@ -1,7 +1,5 @@
 #pragma once
-#include "CommonPch.h"
 #include "Version.h"
-
 
 struct Win32Utils {
 	static SIZE GetSizeOfRect(const RECT& rect) noexcept {

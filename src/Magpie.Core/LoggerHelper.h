@@ -1,6 +1,7 @@
 #pragma once
 #include "ExportHelper.h"
-#include "Logger.h"
+
+class Logger;
 
 namespace Magpie::Core {
 

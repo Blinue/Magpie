@@ -9,8 +9,9 @@
 #include "CommonSharedConstants.h"
 #include <bit>	// std::has_single_bit
 #include "DirectXHelper.h"
-#include <parallel_hashmap/phmap.h>
 #include "EffectHelper.h"
+#include "Win32Utils.h"
+#include "EffectDesc.h"
 
 namespace Magpie::Core {
 

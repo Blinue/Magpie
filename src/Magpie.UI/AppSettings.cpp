@@ -11,6 +11,7 @@
 #include <Magpie.Core.h>
 #include "ScalingModesService.h"
 #include "JsonHelper.h"
+#include "ScalingMode.h"
 
 using namespace Magpie::Core;
 
@@ -18,6 +19,10 @@ using namespace Magpie::Core;
 namespace winrt::Magpie::UI {
 
 static constexpr uint32_t SETTINGS_VERSION = 0;
+
+_AppSettingsData::_AppSettingsData() {}
+
+_AppSettingsData::~_AppSettingsData() {}
 
 // 将热键存储为 uint32_t
 // 不能存储为字符串，因为某些键有相同的名称，如句号和小键盘的点
@@ -185,6 +190,8 @@ static bool ShowOkCancelWarningMessage(
 	TaskDialogIndirect(&tdc, &button, nullptr, nullptr);
 	return button == IDOK;
 }
+
+AppSettings::~AppSettings() {}
 
 bool AppSettings::Initialize() {
 	Logger& logger = Logger::Get();

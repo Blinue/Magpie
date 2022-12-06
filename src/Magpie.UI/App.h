@@ -1,8 +1,6 @@
 #pragma once
-
 #include "App.g.h"
 #include "App.base.h"
-
 
 namespace winrt::Magpie::UI::implementation {
 

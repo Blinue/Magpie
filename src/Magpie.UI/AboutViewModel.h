@@ -1,7 +1,6 @@
 #pragma once
 #include "AboutViewModel.g.h"
 
-
 namespace winrt::Magpie::UI::implementation {
 
 struct AboutViewModel : AboutViewModelT<AboutViewModel> {

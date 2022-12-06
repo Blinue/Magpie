@@ -10,6 +10,7 @@
 #include "Logger.h"
 #include "StrUtils.h"
 #include "Win32Utils.h"
+#include "ScalingMode.h"
 
 using namespace ::Magpie::Core;
 using namespace winrt;

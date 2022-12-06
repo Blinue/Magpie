@@ -1,7 +1,6 @@
 #pragma once
 #include "SettingsViewModel.g.h"
 
-
 namespace winrt::Magpie::UI::implementation {
 
 struct SettingsViewModel : SettingsViewModelT<SettingsViewModel> {

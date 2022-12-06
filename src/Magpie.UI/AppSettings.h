@@ -3,15 +3,18 @@
 #include "WinRTUtils.h"
 #include "HotkeySettings.h"
 #include "ScalingProfile.h"
-#include "ScalingMode.h"
 #include <parallel_hashmap/phmap.h>
 #include <rapidjson/document.h>
 #include "Win32Utils.h"
 
-
 namespace winrt::Magpie::UI {
 
+struct ScalingMode;
+
 struct _AppSettingsData {
+	_AppSettingsData();
+	virtual ~_AppSettingsData();
+
 	std::array<HotkeySettings, (size_t)HotkeyAction::COUNT_OR_NONE> _hotkeys;
 
 	::Magpie::Core::DownscalingEffect _downscalingEffect;
@@ -52,6 +55,8 @@ public:
 		static AppSettings instance;
 		return instance;
 	}
+
+	virtual ~AppSettings();
 
 	bool Initialize();
 

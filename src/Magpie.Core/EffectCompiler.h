@@ -1,9 +1,10 @@
 #pragma once
 #include "ExportHelper.h"
-#include "EffectDesc.h"
 #include <parallel_hashmap/phmap.h>
 
 namespace Magpie::Core {
+
+struct EffectDesc;
 
 struct EffectCompilerFlags {
 	static constexpr const uint32_t NoCache = 0x1;

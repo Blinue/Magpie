@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "LoggerHelper.h"
-
+#include "Logger.h"
 
 namespace Magpie::Core {
 

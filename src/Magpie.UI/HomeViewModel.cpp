@@ -8,7 +8,6 @@
 #include "Win32Utils.h"
 #include "StrUtils.h"
 
-
 namespace winrt::Magpie::UI::implementation {
 
 HomeViewModel::HomeViewModel() {

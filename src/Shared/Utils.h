@@ -1,5 +1,4 @@
 #pragma once
-#include "CommonPch.h"
 
 struct Utils {
 	// 单位为微秒

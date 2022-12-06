@@ -11,6 +11,8 @@
 #include <Magpie.Core.h>
 #include "Win32Utils.h"
 #include "AppSettings.h"
+#include "Logger.h"
+#include "ScalingMode.h"
 #include <dxgi.h>
 
 using namespace winrt;

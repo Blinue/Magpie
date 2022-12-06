@@ -1,7 +1,6 @@
 #pragma once
 #include "CandidateWindowItem.g.h"
 
-
 namespace winrt::Magpie::UI::implementation {
 
 struct CandidateWindowItem : CandidateWindowItemT<CandidateWindowItem> {

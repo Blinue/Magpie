@@ -1,7 +1,6 @@
 #pragma once
 #include "ScalingProfileViewModel.g.h"
 
-
 namespace winrt::Magpie::UI {
 struct ScalingProfile;
 class AppXReader;

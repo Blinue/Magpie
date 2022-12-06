@@ -2,7 +2,6 @@
 #include "HomeViewModel.g.h"
 #include "WinRTUtils.h"
 
-
 namespace winrt::Magpie::UI::implementation {
 
 struct HomeViewModel : HomeViewModelT<HomeViewModel> {

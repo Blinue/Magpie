@@ -5,7 +5,6 @@
 #include <wtypes.h>	// BSTR
 #include "SmallVector.h"
 
-
 struct StrUtils {
 	static std::wstring UTF8ToUTF16(std::string_view str);
 

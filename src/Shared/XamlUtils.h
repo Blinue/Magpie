@@ -1,7 +1,5 @@
 #pragma once
-#include "CommonPch.h"
 #include <winrt/Windows.UI.Xaml.h>
-
 
 struct XamlUtils {
 	static void CloseXamlPopups(const winrt::Windows::UI::Xaml::XamlRoot& root);

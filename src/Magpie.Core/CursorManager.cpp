@@ -8,6 +8,7 @@
 #include "DeviceResources.h"
 #include "GraphicsCaptureFrameSource.h"
 #include "WindowHelper.h"
+#include "Utils.h"
 #include <magnification.h>
 
 #pragma comment(lib, "Magnification.lib")

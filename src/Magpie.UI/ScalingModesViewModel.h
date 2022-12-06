@@ -2,7 +2,6 @@
 #include "ScalingModesViewModel.g.h"
 #include <WinRTUtils.h>
 
-
 namespace winrt::Magpie::UI::implementation {
 
 struct ScalingModesViewModel : ScalingModesViewModelT<ScalingModesViewModel> {

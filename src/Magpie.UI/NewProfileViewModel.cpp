@@ -9,7 +9,6 @@
 #include "ScalingProfileService.h"
 #include "AppXReader.h"
 
-
 namespace winrt::Magpie::UI::implementation {
 
 static bool IsCandidateWindow(HWND hWnd) {

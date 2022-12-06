@@ -5,8 +5,6 @@
 #endif
 #include "XamlUtils.h"
 #include "ComboBoxHelper.h"
-#include "AppSettings.h"
-
 
 using namespace winrt;
 using namespace Windows::UI::Xaml::Input;

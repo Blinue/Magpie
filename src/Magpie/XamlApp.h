@@ -1,9 +1,7 @@
 #pragma once
-#include "pch.h"
 #include <windows.ui.xaml.hosting.desktopwindowxamlsource.h>
 #include <winrt/Magpie.UI.h>
 #include "Win32Utils.h"
-
 
 namespace Magpie {
 

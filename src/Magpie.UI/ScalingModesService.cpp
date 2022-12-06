@@ -5,9 +5,9 @@
 #include "JsonHelper.h"
 #include "EffectsService.h"
 #include "EffectHelper.h"
+#include "ScalingMode.h"
 
 using namespace Magpie::Core;
-
 
 namespace winrt::Magpie::UI {
 

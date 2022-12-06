@@ -1,10 +1,11 @@
 #pragma once
 #include "EffectDesc.h"
-#include "MagOptions.h"
 #include "SmallVector.h"
 #include "EffectHelper.h"
 
 namespace Magpie::Core {
+
+struct EffectOption;
 
 class EffectDrawer {
 public:

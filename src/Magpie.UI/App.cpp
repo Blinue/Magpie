@@ -32,7 +32,6 @@
 using namespace winrt;
 using namespace Windows::UI::Xaml::Media;
 
-
 namespace winrt::Magpie::UI::implementation {
 
 App::App() {

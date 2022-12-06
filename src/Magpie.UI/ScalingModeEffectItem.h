@@ -1,7 +1,6 @@
 #pragma once
 #include "ScalingModeEffectItem.g.h"
 
-
 namespace Magpie::Core {
 struct EffectOption;
 }

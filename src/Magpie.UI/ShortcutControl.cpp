@@ -8,6 +8,7 @@
 #include "AppSettings.h"
 #include "XamlUtils.h"
 #include "ContentDialogHelper.h"
+#include "Logger.h"
 
 using namespace winrt;
 using namespace Windows::UI::Xaml::Controls;

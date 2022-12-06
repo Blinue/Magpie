@@ -13,10 +13,10 @@
 #include "StrUtils.h"
 #include "AppSettings.h"
 #include "ScalingModesService.h"
-
+#include "ScalingMode.h"
+#include "EffectsService.h"
 
 using namespace Magpie::Core;
-
 
 namespace winrt::Magpie::UI::implementation {
 

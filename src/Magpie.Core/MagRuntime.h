@@ -1,9 +1,13 @@
 #pragma once
 #include "ExportHelper.h"
-#include "MagOptions.h"
 #include "WinRTUtils.h"
+#include <Windows.h>
+#include <winrt/base.h>
+#include <winrt/Windows.System.h>
 
 namespace Magpie::Core {
+
+struct MagOptions;
 
 class API_DECLSPEC MagRuntime {
 public:
@@ -46,7 +50,7 @@ private:
 	std::thread _magWindThread;
 	std::atomic<bool> _running = false;
 	HWND _hwndSrc = 0;
-	winrt::DispatcherQueueController _dqc{ nullptr };
+	winrt::Windows::System::DispatcherQueueController _dqc{ nullptr };
 
 	winrt::event<winrt::delegate<bool>> _isRunningChangedEvent;
 };

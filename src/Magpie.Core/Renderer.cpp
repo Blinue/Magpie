@@ -12,6 +12,7 @@
 #include "Logger.h"
 #include "CursorManager.h"
 #include "WindowHelper.h"
+#include "Utils.h"
 
 namespace Magpie::Core {
 

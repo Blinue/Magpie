@@ -1,8 +1,6 @@
 #pragma once
-#include "pch.h"
 #include "MainPage.g.h"
 #include "WinRTUtils.h"
-
 
 namespace winrt::Magpie::UI {
 struct ScalingProfile;

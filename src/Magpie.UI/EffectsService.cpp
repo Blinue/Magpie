@@ -4,6 +4,7 @@
 #include "StrUtils.h"
 #include "Win32Utils.h"
 #include "CommonSharedConstants.h"
+#include "Logger.h"
 #include <d3dcompiler.h>	// ID3DBlob
 
 using namespace Magpie::Core;

@@ -48,14 +48,11 @@ static_assert(false, "Build CONAN_INSTALL first!")
 // fmt
 #include <fmt/format.h>
 #include <fmt/xchar.h>
-#include <fmt/printf.h>
-
 
 #pragma comment(lib, "dwmapi.lib")
 #pragma comment(lib, "shell32.lib")
 #pragma comment(lib, "Comctl32.lib")
 #pragma comment(lib, "Shlwapi.lib")
-#pragma comment(lib, "d3d11.lib")
 
 using namespace std::string_literals;
 using namespace std::string_view_literals;
