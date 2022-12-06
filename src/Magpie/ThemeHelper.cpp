@@ -46,7 +46,7 @@ void ThemeHelper::Initialize() noexcept {
 void ThemeHelper::SetTheme(HWND hWnd, bool isDark) noexcept {
 	InitApis();
 
-	SetPreferredAppMode(isDark ? PreferredAppMode::ForceDark : PreferredAppMode::Default);
+	SetPreferredAppMode(isDark ? PreferredAppMode::ForceDark : PreferredAppMode::ForceLight);
 	AllowDarkModeForWindow(hWnd, isDark);
 
 	// 使标题栏适应黑暗模式
@@ -64,8 +64,13 @@ void ThemeHelper::SetTheme(HWND hWnd, bool isDark) noexcept {
 	RefreshImmersiveColorPolicyState();
 	FlushMenuThemes();
 
+	const Win32Utils::OSVersion& osVersion = Win32Utils::GetOSVersion();
+	if (osVersion.Is22H2OrNewer()) {
+		return;
+	}
+
 	LONG_PTR style = GetWindowLongPtr(hWnd, GWL_EXSTYLE);
-	if (!Win32Utils::GetOSVersion().IsWin11()) {
+	if (!osVersion.IsWin11()) {
 		// 在 Win10 上需要更多 hack
 		SetWindowLongPtr(hWnd, GWL_EXSTYLE, style | WS_EX_LAYERED);
 		SetLayeredWindowAttributes(hWnd, 0, 254, LWA_ALPHA);

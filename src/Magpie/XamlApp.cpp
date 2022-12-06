@@ -348,27 +348,25 @@ void XamlApp::_OnResize() {
 }
 
 void XamlApp::_UpdateTheme() {
-	const Win32Utils::OSVersion& osVersion = Win32Utils::GetOSVersion();
-
-	if (osVersion.Is22H2OrNewer()) {
-		DWM_SYSTEMBACKDROP_TYPE value = DWMSBT_MAINWINDOW;
-		DwmSetWindowAttribute(_hwndMain, DWMWA_SYSTEMBACKDROP_TYPE, &value, sizeof(value));
-		return;
-	}
-
 	const bool isDarkTheme = _mainPage.ActualTheme() == winrt::ElementTheme::Dark;
 
-	// 更改背景色以配合主题
-	// 背景色在更改窗口大小时会短暂可见
-	HBRUSH hbrOld = (HBRUSH)SetClassLongPtr(
-		_hwndMain,
-		GCLP_HBRBACKGROUND,
-		(INT_PTR)CreateSolidBrush(isDarkTheme ?
-		CommonSharedConstants::DARK_TINT_COLOR : CommonSharedConstants::LIGHT_TINT_COLOR));
-	if (hbrOld) {
-		DeleteObject(hbrOld);
+	if (Win32Utils::GetOSVersion().Is22H2OrNewer()) {
+		// 设置 Mica 背景
+		DWM_SYSTEMBACKDROP_TYPE value = DWMSBT_MAINWINDOW;
+		DwmSetWindowAttribute(_hwndMain, DWMWA_SYSTEMBACKDROP_TYPE, &value, sizeof(value));
+	} else {
+		// 更改背景色以配合主题
+		// 背景色在更改窗口大小时会短暂可见
+		HBRUSH hbrOld = (HBRUSH)SetClassLongPtr(
+			_hwndMain,
+			GCLP_HBRBACKGROUND,
+			(INT_PTR)CreateSolidBrush(isDarkTheme ?
+			CommonSharedConstants::DARK_TINT_COLOR : CommonSharedConstants::LIGHT_TINT_COLOR));
+		if (hbrOld) {
+			DeleteObject(hbrOld);
+		}
+		InvalidateRect(_hwndMain, nullptr, TRUE);
 	}
-	InvalidateRect(_hwndMain, nullptr, TRUE);
 
 	ThemeHelper::SetTheme(_hwndMain, isDarkTheme);
 }
