@@ -4,6 +4,8 @@
 
 namespace Magpie {
 
+// 这些未记录的 API 来自 https://github.com/ysc3839/win32-darkmode
+
 enum class PreferredAppMode {
 	Default,
 	AllowDark,
@@ -43,7 +45,7 @@ void ThemeHelper::Initialize() noexcept {
 	RefreshImmersiveColorPolicyState();
 }
 
-void ThemeHelper::SetTheme(HWND hWnd, bool isDark) noexcept {
+void ThemeHelper::SetWindowTheme(HWND hWnd, bool isDark) noexcept {
 	InitApis();
 
 	SetPreferredAppMode(isDark ? PreferredAppMode::ForceDark : PreferredAppMode::ForceLight);

@@ -31,7 +31,7 @@ struct EffectInfo {
 
 class EffectsService {
 public:
-	static EffectsService& Get() {
+	static EffectsService& Get() noexcept {
 		static EffectsService instance;
 		return instance;
 	}

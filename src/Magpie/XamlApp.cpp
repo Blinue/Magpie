@@ -368,7 +368,7 @@ void XamlApp::_UpdateTheme() {
 		InvalidateRect(_hwndMain, nullptr, TRUE);
 	}
 
-	ThemeHelper::SetTheme(_hwndMain, isDarkTheme);
+	ThemeHelper::SetWindowTheme(_hwndMain, isDarkTheme);
 }
 
 // 使 ContentDialog 跟随窗口尺寸调整

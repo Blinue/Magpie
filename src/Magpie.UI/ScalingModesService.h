@@ -9,7 +9,7 @@ struct ScalingMode;
 
 class ScalingModesService {
 public:
-	static ScalingModesService& Get() {
+	static ScalingModesService& Get() noexcept {
 		static ScalingModesService instance;
 		return instance;
 	}

@@ -47,11 +47,13 @@ struct _AppSettingsData {
 	bool _isShowTrayIcon = true;
 	bool _isAutoRestore = false;
 	bool _isWindowMaximized = false;
+	bool _isAutoDownloadUpdates = false;
+	bool _isCheckForPreviewUpdates = false;
 };
 
 class AppSettings : private _AppSettingsData {
 public:
-	static AppSettings& Get() {
+	static AppSettings& Get() noexcept {
 		static AppSettings instance;
 		return instance;
 	}
@@ -260,6 +262,24 @@ public:
 
 	std::vector<ScalingMode>& ScalingModes() noexcept {
 		return _scalingModes;
+	}
+
+	bool IsAutoDownloadUpdates() const noexcept {
+		return _isAutoDownloadUpdates;
+	}
+
+	void IsAutoDownloadUpdates(bool value) noexcept {
+		_isAutoDownloadUpdates = value;
+		SaveAsync();
+	}
+
+	bool IsCheckForPreviewUpdates() const noexcept {
+		return _isCheckForPreviewUpdates;
+	}
+
+	void IsCheckForPreviewUpdates(bool value) noexcept {
+		_isCheckForPreviewUpdates = value;
+		SaveAsync();
 	}
 private:
 	AppSettings() = default;

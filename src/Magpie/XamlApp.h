@@ -12,7 +12,7 @@ public:
 	XamlApp(const XamlApp&) = delete;
 	XamlApp(XamlApp&&) = delete;
 
-	static XamlApp& Get() {
+	static XamlApp& Get() noexcept {
 		static XamlApp instance;
 		return instance;
 	}

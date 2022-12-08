@@ -4,7 +4,7 @@
 
 class Logger {
 public:
-	static Logger& Get() {
+	static Logger& Get() noexcept {
 		static Logger instance;
 		return instance;
 	}

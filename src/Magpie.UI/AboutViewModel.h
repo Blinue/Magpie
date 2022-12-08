@@ -18,6 +18,12 @@ struct AboutViewModel : AboutViewModelT<AboutViewModel> {
 
 	fire_and_forget CheckForUpdate();
 
+	bool IsCheckForPreviewUpdates() const noexcept;
+	void IsCheckForPreviewUpdates(bool value) noexcept;
+
+	bool IsAutoDownloadUpdates() const noexcept;
+	void IsAutoDownloadUpdates(bool value) noexcept;
+
 private:
 	event<PropertyChangedEventHandler> _propertyChangedEvent;
 };

@@ -6,7 +6,7 @@ namespace winrt::Magpie::UI {
 
 class HotkeyService {
 public:
-	static HotkeyService& Get() {
+	static HotkeyService& Get() noexcept {
 		static HotkeyService instance;
 		return instance;
 	}

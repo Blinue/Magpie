@@ -11,7 +11,7 @@ enum class UpdateResult {
 
 class UpdateService {
 public:
-	static UpdateService& Get() {
+	static UpdateService& Get() noexcept {
 		static UpdateService instance;
 		return instance;
 	}

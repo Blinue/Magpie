@@ -7,7 +7,7 @@ namespace Magpie::Core {
 
 class EffectCacheManager {
 public:
-	static EffectCacheManager& Get() {
+	static EffectCacheManager& Get() noexcept {
 		static EffectCacheManager instance;
 		return instance;
 	}

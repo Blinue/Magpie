@@ -7,7 +7,7 @@ struct ScalingProfile;
 
 class ScalingProfileService {
 public:
-	static ScalingProfileService& Get() {
+	static ScalingProfileService& Get() noexcept {
 		static ScalingProfileService instance;
 		return instance;
 	}

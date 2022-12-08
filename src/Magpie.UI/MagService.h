@@ -7,7 +7,7 @@ namespace winrt::Magpie::UI {
 
 class MagService {
 public:
-	static MagService& Get() {
+	static MagService& Get() noexcept {
 		static MagService instance;
 		return instance;
 	}
