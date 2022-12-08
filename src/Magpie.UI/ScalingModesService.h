@@ -1,5 +1,4 @@
 #pragma once
-#include "Magpie.Core.h"
 #include "WinRTUtils.h"
 #include <rapidjson/prettywriter.h>
 #include <rapidjson/document.h>

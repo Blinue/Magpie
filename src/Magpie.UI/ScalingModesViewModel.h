@@ -1,6 +1,6 @@
 #pragma once
 #include "ScalingModesViewModel.g.h"
-#include <WinRTUtils.h>
+#include "WinRTUtils.h"
 
 namespace winrt::Magpie::UI::implementation {
 

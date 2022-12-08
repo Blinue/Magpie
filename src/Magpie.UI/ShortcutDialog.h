@@ -1,8 +1,5 @@
 #pragma once
-
-#include "pch.h"
 #include "ShortcutDialog.g.h"
-
 
 namespace winrt::Magpie::UI::implementation {
 

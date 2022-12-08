@@ -1,8 +1,5 @@
 #pragma once
-
-#include "pch.h"
 #include "SettingsGroup.g.h"
-
 
 namespace winrt::Magpie::UI::implementation {
 

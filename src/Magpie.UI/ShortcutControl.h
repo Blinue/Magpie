@@ -1,10 +1,7 @@
 #pragma once
-
-#include "pch.h"
 #include "ShortcutControl.g.h"
 #include "WinRTUtils.h"
 #include "HotkeySettings.h"
-
 
 namespace winrt::Magpie::UI::implementation {
 

@@ -4,10 +4,8 @@
 #include "BoolNegationConverter.g.cpp"
 #endif
 
-
 using namespace winrt;
 using namespace Windows::UI::Xaml::Interop;
-
 
 namespace winrt::Magpie::UI::implementation {
 

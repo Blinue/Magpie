@@ -2,7 +2,6 @@
 #include "ScalingModesPage.g.h"
 #include "ScalingType.g.h"
 
-
 namespace winrt::Magpie::UI::implementation {
 
 struct ScalingType : ScalingTypeT<ScalingType> {

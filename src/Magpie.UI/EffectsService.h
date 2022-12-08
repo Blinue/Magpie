@@ -1,8 +1,9 @@
 #pragma once
-#include "pch.h"
-#include <Magpie.Core.h>
 #include <parallel_hashmap/phmap.h>
 
+namespace Magpie::Core {
+struct EffectParameterDesc;
+}
 
 namespace winrt::Magpie::UI {
 
@@ -12,6 +13,9 @@ struct EffectInfoFlags {
 };
 
 struct EffectInfo {
+	EffectInfo();
+	~EffectInfo();
+
 	std::wstring name;
 	std::vector<::Magpie::Core::EffectParameterDesc> params;
 	uint32_t flags = 0;	// EffectInfoFlags

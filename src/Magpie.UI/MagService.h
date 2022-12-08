@@ -1,9 +1,7 @@
 #pragma once
-#include "pch.h"
 #include <winrt/Magpie.UI.h>
 #include <Magpie.Core.h>
 #include "WinRTUtils.h"
-
 
 namespace winrt::Magpie::UI {
 

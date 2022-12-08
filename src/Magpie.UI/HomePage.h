@@ -1,7 +1,6 @@
 #pragma once
 #include "HomePage.g.h"
 
-
 namespace winrt::Magpie::UI::implementation {
 
 struct HomePage : HomePageT<HomePage> {

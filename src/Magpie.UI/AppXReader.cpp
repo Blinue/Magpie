@@ -8,6 +8,7 @@
 #include <regex>
 #include <wincodec.h>
 #include <parallel_hashmap/phmap.h>
+#include <AppxPackaging.h>
 
 using namespace winrt;
 using namespace Windows::Graphics::Imaging;

@@ -3,9 +3,7 @@
 #if __has_include("KeyVisual.g.cpp")
 #include "KeyVisual.g.cpp"
 #endif
-
 #include "StrUtils.h"
-#include "XamlUtils.h"
 
 using namespace winrt;
 using namespace Windows::UI::Xaml::Controls;

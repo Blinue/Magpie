@@ -1,8 +1,5 @@
 #pragma once
-#include "pch.h"
-#include <AppxPackaging.h>
 #include <variant>
-
 
 namespace winrt::Magpie::UI {
 

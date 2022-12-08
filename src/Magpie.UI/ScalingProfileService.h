@@ -1,8 +1,9 @@
 #pragma once
-#include "ScalingProfile.h"
 #include "WinRTUtils.h"
 
 namespace winrt::Magpie::UI {
+
+struct ScalingProfile;
 
 class ScalingProfileService {
 public:

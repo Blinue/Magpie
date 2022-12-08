@@ -1,8 +1,5 @@
 #pragma once
-
-#include "pch.h"
 #include "SettingsCard.g.h"
-
 
 namespace winrt::Magpie::UI::implementation {
 

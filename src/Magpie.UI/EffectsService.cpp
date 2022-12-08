@@ -6,10 +6,15 @@
 #include "CommonSharedConstants.h"
 #include "Logger.h"
 #include <d3dcompiler.h>	// ID3DBlob
+#include <Magpie.Core.h>
 
 using namespace Magpie::Core;
 
 namespace winrt::Magpie::UI {
+
+EffectInfo::EffectInfo() {}
+
+EffectInfo::~EffectInfo() {}
 
 static void ListEffects(std::vector<std::wstring>& result, std::wstring_view prefix = {}) {
 	result.reserve(80);

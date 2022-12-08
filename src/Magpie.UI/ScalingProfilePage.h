@@ -1,7 +1,6 @@
 #pragma once
 #include "ScalingProfilePage.g.h"
 
-
 namespace winrt::Magpie::UI::implementation {
 
 struct ScalingProfilePage : ScalingProfilePageT<ScalingProfilePage> {

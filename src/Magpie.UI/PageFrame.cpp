@@ -3,7 +3,6 @@
 #if __has_include("PageFrame.g.cpp")
 #include "PageFrame.g.cpp"
 #endif
-
 #include "XamlUtils.h"
 #include "Win32Utils.h"
 

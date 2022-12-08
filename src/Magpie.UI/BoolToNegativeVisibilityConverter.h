@@ -1,7 +1,6 @@
 ﻿#pragma once
 #include "BoolToNegativeVisibilityConverter.g.h"
 
-
 namespace winrt::Magpie::UI::implementation {
 
 struct BoolToNegativeVisibilityConverter : BoolToNegativeVisibilityConverterT<BoolToNegativeVisibilityConverter> {

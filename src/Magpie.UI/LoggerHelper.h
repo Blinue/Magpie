@@ -1,5 +1,4 @@
 #pragma once
-
 #include "LoggerHelper.g.h"
 
 namespace winrt::Magpie::UI::implementation {

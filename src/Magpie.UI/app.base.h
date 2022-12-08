@@ -1,6 +1,5 @@
 #pragma once
 
-
 namespace winrt::Magpie::UI::implementation {
 
 template <typename D, typename... I>

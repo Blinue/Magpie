@@ -1,7 +1,6 @@
 #pragma once
 #include "SettingsPage.g.h"
 
-
 namespace winrt::Magpie::UI::implementation {
 
 struct SettingsPage : SettingsPageT<SettingsPage> {

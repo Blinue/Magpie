@@ -1,7 +1,6 @@
 #pragma once
 #include "AboutPage.g.h"
 
-
 namespace winrt::Magpie::UI::implementation {
 
 struct AboutPage : AboutPageT<AboutPage> {

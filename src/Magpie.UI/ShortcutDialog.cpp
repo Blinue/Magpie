@@ -4,7 +4,6 @@
 #include "ShortcutDialog.g.cpp"
 #endif
 
-
 namespace winrt::Magpie::UI::implementation {
 
 const DependencyProperty ShortcutDialog::_IsErrorProperty = DependencyProperty::Register(

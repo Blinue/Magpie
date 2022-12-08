@@ -1,7 +1,5 @@
 ﻿#pragma once
-#include "pch.h"
 #include "BoolNegationConverter.g.h"
-
 
 namespace winrt::Magpie::UI::implementation {
 

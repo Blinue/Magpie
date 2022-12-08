@@ -1,7 +1,5 @@
 #pragma once
-
 #include "KeyVisual.g.h"
-
 
 namespace winrt::Magpie::UI::implementation {
 

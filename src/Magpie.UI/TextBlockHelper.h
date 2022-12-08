@@ -1,7 +1,6 @@
 #pragma once
 #include "TextBlockHelper.g.h"
 
-
 namespace winrt::Magpie::UI::implementation {
 
 // 当 TextBlock 被截断时自动设置 Tooltip

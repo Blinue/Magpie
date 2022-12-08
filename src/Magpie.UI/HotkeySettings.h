@@ -3,7 +3,6 @@
 #include <variant>
 #include "SmallVector.h"
 
-
 namespace winrt::Magpie::UI {
 
 struct HotkeySettings {
