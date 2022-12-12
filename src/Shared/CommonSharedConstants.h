@@ -15,6 +15,7 @@ struct CommonSharedConstants {
 	static constexpr const wchar_t* EFFECTS_DIR = L"effects\\";
 	static constexpr const wchar_t* ASSETS_DIR = L"assets\\";
 	static constexpr const wchar_t* CACHE_DIR = L"cache\\";
+	static constexpr const wchar_t* UPDATE_DIR = L"update\\";
 
 	static constexpr const wchar_t* OPTION_MINIMIZE_TO_TRAY_AT_STARTUP = L"-t";
 

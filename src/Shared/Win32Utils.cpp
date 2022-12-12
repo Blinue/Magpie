@@ -160,8 +160,10 @@ bool Win32Utils::WriteFile(const wchar_t* fileName, const void* buffer, size_t b
 		return false;
 	}
 
-	[[maybe_unused]] size_t writed = fwrite(buffer, 1, bufferSize, hFile);
-	assert(writed == bufferSize);
+	if (bufferSize > 0) {
+		[[maybe_unused]] size_t writed = fwrite(buffer, 1, bufferSize, hFile);
+		assert(writed == bufferSize);
+	}
 
 	fclose(hFile);
 	return true;

@@ -10,6 +10,7 @@
 #include <Magpie.Core.h>
 #include "Version.h"
 #include "ThemeHelper.h"
+#include <winrt/Windows.UI.WindowManagement.h>
 
 namespace Magpie {
 
