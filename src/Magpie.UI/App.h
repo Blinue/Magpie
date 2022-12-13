@@ -1,6 +1,7 @@
 #pragma once
 #include "App.g.h"
 #include "App.base.h"
+#include <winrt/Windows.UI.Xaml.Hosting.h>
 
 namespace winrt::Magpie::UI::implementation {
 
@@ -8,6 +9,8 @@ class App : public AppT2<App> {
 public:
 	App();
 	~App();
+
+	void Close();
 
 	void SaveSettings();
 
@@ -44,6 +47,8 @@ public:
 	void RestartAsElevated() const noexcept;
 
 private:
+	Hosting::WindowsXamlManager _windowsXamlManager{ nullptr };
+
 	HWND _hwndMain{};
 	event<EventHandler<uint64_t>> _hwndMainChangedEvent;
 
@@ -51,6 +56,7 @@ private:
 
 	event<EventHandler<bool>> _hostWndFocusChangedEvent;
 	bool _isHostWndFocused = false;
+	bool _isClosed = false;
 };
 
 }

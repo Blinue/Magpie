@@ -28,10 +28,6 @@ Remove-Item @("*.pdb", "*.lib", "*.exp", "*.winmd", "*.xml", "*.xbf", "dummy.*",
 Remove-Item @("Microsoft.UI.Xaml", "Magpie.UI") -Recurse
 Remove-Item *.pri -Exclude resources.pri
 
-# 下面这些 dll 目前没有用到，因此暂时删除以减小包的体积
-# 闪退时可以尝试恢复它们
-Remove-Item @("concrt140_app.dll", "msvcp140_1_app.dll", "msvcp140_2_app.dll", "vcamp140_app.dll", "vccorlib140_app.dll", "vcomp140_app.dll")
-
 # 复制依赖 dll
 Copy-Item ..\.conan\x64\Release\bin\*
 

@@ -26,7 +26,6 @@ using namespace Windows::UI::Xaml::Controls::Primitives;
 using namespace Windows::UI::Xaml::Input;
 using namespace Windows::UI::Xaml::Media::Imaging;
 
-
 namespace winrt::Magpie::UI::implementation {
 
 static constexpr const uint32_t FIRST_PROFILE_ITEM_IDX = 4;

@@ -47,7 +47,7 @@ namespace Magpie.UI {
 	};
 
 	[default_interface]
-	runtimeclass App : Microsoft.Toolkit.Win32.UI.XamlHost.XamlApplication {
+	runtimeclass App : Windows.UI.Xaml.Application, Windows.Foundation.IClosable {
 		App();
 
 		void SaveSettings();

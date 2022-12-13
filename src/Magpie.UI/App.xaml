@@ -1,9 +1,8 @@
-<Toolkit:XamlApplication x:Class="Magpie.UI.App"
-						 xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-						 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-						 xmlns:Toolkit="using:Microsoft.Toolkit.Win32.UI.XamlHost"
-						 xmlns:local="using:Magpie.UI"
-						 xmlns:muxc="using:Microsoft.UI.Xaml.Controls">
+<Application x:Class="Magpie.UI.App"
+			 xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+			 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+			 xmlns:local="using:Magpie.UI"
+			 xmlns:muxc="using:Microsoft.UI.Xaml.Controls">
 	<Application.Resources>
 		<ResourceDictionary>
 			<local:BoolNegationConverter x:Key="NegationConverter" />
@@ -154,4 +153,4 @@
 			</ResourceDictionary.MergedDictionaries>
 		</ResourceDictionary>
 	</Application.Resources>
-</Toolkit:XamlApplication>
+</Application>

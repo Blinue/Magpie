@@ -37,27 +37,21 @@ namespace winrt::Magpie::UI::implementation {
 App::App() {
 	EffectsService::Get().StartInitialize();
 
-	__super::Initialize();
-	
-	AddRef();
-	m_inner.as<::IUnknown>()->Release();
+	// 初始化 XAML 框架
+	_windowsXamlManager = Hosting::WindowsXamlManager::InitializeForCurrentThread();
 
 	const bool isWin11 = Win32Utils::GetOSVersion().IsWin11();
 	if (!isWin11) {
 		// Win10 中隐藏 DesktopWindowXamlSource 窗口
-		CoreWindow coreWindow = CoreWindow::GetForCurrentThread();
-		if (coreWindow) {
+		if (CoreWindow coreWindow = CoreWindow::GetForCurrentThread()) {
 			HWND hwndDWXS;
 			coreWindow.as<ICoreWindowInterop>()->get_WindowHandle(&hwndDWXS);
 			ShowWindow(hwndDWXS, SW_HIDE);
 		}
 	}
 
-	// 根据操作系统版本设置样式
-	ResourceDictionary resource = Resources();
-
 	// 根据操作系统选择图标字体
-	resource.Insert(
+	Resources().Insert(
 		box_value(L"SymbolThemeFontFamily"),
 		FontFamily(isWin11 ? L"Segoe Fluent Icons" : L"Segoe MDL2 Assets")
 	);
@@ -65,6 +59,18 @@ App::App() {
 
 App::~App() {
 	Close();
+}
+
+void App::Close() {
+	if (_isClosed) {
+		return;
+	}
+	_isClosed = true;
+
+	_windowsXamlManager.Close();
+	_windowsXamlManager = nullptr;
+
+	Exit();
 }
 
 void App::SaveSettings() {

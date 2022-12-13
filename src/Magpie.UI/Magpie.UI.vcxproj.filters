@@ -58,9 +58,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
-    <ClInclude Include="app.base.h">
-      <Filter>Miscellaneous</Filter>
-    </ClInclude>
     <ClInclude Include="HotkeyService.h">
       <Filter>Services</Filter>
     </ClInclude>
@@ -116,6 +113,7 @@
     <ClInclude Include="ContentDialogHelper.h">
       <Filter>Helpers</Filter>
     </ClInclude>
+    <ClInclude Include="app.base.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Pages">
