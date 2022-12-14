@@ -1,27 +1,29 @@
 #pragma once
-#include <windows.ui.xaml.hosting.desktopwindowxamlsource.h>
 #include <winrt/Magpie.UI.h>
 #include "Win32Utils.h"
+
+struct IDesktopWindowXamlSourceNative2;
 
 namespace Magpie {
 
 class XamlApp {
 public:
-	XamlApp() = default;
-
-	XamlApp(const XamlApp&) = delete;
-	XamlApp(XamlApp&&) = delete;
-
 	static XamlApp& Get() noexcept {
 		static XamlApp instance;
 		return instance;
 	}
+
+	XamlApp(const XamlApp&) = delete;
+	XamlApp(XamlApp&&) = delete;
 
 	bool Initialize(HINSTANCE hInstance, const wchar_t* arguments);
 
 	int Run();
 
 private:
+	XamlApp();
+	~XamlApp();
+
 	bool _CheckSingleInstance();
 
 	void _InitializeLogger();

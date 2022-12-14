@@ -11,6 +11,7 @@
 #include "Version.h"
 #include "ThemeHelper.h"
 #include <winrt/Windows.UI.WindowManagement.h>
+#include <windows.ui.xaml.hosting.desktopwindowxamlsource.h>
 
 namespace Magpie {
 
@@ -148,6 +149,10 @@ int XamlApp::Run() {
 
 	return (int)msg.wParam;
 }
+
+XamlApp::XamlApp() {}
+
+XamlApp::~XamlApp() {}
 
 bool XamlApp::_CheckSingleInstance() {
 	static constexpr const wchar_t* SINGLE_INSTANCE_MUTEX_NAME = L"{4C416227-4A30-4A2F-8F23-8701544DD7D6}";

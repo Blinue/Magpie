@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- 此文件的主要目的是为 app.manifest 添加运行时使用到的 WinRT 组件，另外还将 resources.pri 复制到输出文件夹 -->
+<!-- 关于 Reg-free WinRT: https://blogs.windows.com/windowsdeveloper/2019/04/30/enhancing-non-packaged-desktop-apps-using-windows-runtime-components/ -->
+<!-- 修改自 https://github.com/CommunityToolkit/Microsoft.Toolkit.Win32/blob/master/Microsoft.WinRT.Win32.targets -->
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup Condition="'$(DesignTimeBuild)' == 'true'">
+    <_DisableAppxCopy>true</_DisableAppxCopy>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <ManifestTool Condition="Exists('$(MSBuildThisFileDirectory)\..\tools\mt.exe')">$(MSBuildThisFileDirectory)\..\tools\mt.exe</ManifestTool>
+    <ManifestTool Condition="'$(ManifestTool)'==''">$(MSBuildProgramFiles32)\Windows Kits\10\bin\$(_TargetPlatformVersion)\x86\mt.exe</ManifestTool>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(IntDir)'==''">
+    <IntDir>$(BaseIntermediateOutputPath)\$(Platform)\$(Configuration)\$(TargetFramework)\</IntDir>
+  </PropertyGroup>
+
+  <Target Name="_GetUWPAppPayload">
+    <CreateItem Include="@(ProjectReference)" Condition="Exists('%(RelativeDir)\Package.appxmanifest')">
+      <Output ItemName="_AppxProject" TaskParameter="Include"/>
+    </CreateItem>
+    <MSBuild Projects="@(_AppxProject)"
+      Properties="Configuration=$(Configuration);Platform=$(Platform)"
+      Targets="Build;GetPackagingOutputs">
+      <Output TaskParameter="TargetOutputs" ItemName="_AppxBuildOutputPaths" />
+    </MSBuild>
+
+    <CreateItem Include="%(_AppxBuildOutputPaths.Identity)"
+        Condition="'%(_AppxBuildOutputPaths.TargetPath)'!=''"
+        AdditionalMetadata="FinalTargetPath=$(OutDir)%(_AppxBuildOutputPaths.TargetPath);TargetPath=%(_AppxBuildOutputPaths.TargetPath)">
+      <Output ItemName="_AppxInputs" TaskParameter="Include"/>
+    </CreateItem>
+
+    <CreateItem Include="%(_AppxBuildOutputPaths.RelativeDir)AppxManifest.xml" Condition="Exists('%(_AppxBuildOutputPaths.RelativeDir)AppxManifest.xml')">
+      <Output ItemName="AppxManifest" TaskParameter="Include"/>
+    </CreateItem>
+
+    <CreateProperty Value="$(IntDir)Manifests\app.manifest">
+      <Output
+          TaskParameter="Value"
+          PropertyName="GeneratedApplicationManifest" />
+    </CreateProperty>
+    <CreateProperty Value="$(IntDir)Manifests\mergeapp.manifest">
+      <Output
+          TaskParameter="Value"
+          PropertyName="MergedApplicationManifest" />
+    </CreateProperty>
+  </Target>
+
+  <Target Name="CopyAllProjectReferencesOutputs"
+      DependsOnTargets="_GetUWPAppPayload;ResolveReferences"
+      Inputs="@(_AppxInputs)"
+      Outputs="@(_AppxInputs->'%(FinalTargetPath)')"
+      Condition="'$(_DisableAppxCopy)'==''">
+
+    <CreateItem Include="@(_AppxBuildOutputPaths)"
+      Condition="'%(_AppxBuildOutputPaths.TargetPath)'!=''"
+      AdditionalMetadata="Link=%(_AppxBuildOutputPaths.TargetPath)">
+      <Output ItemName="_AppxBuildOutputs" TaskParameter="Include"/>
+    </CreateItem>
+
+    <CreateItem Include="@(_AppxBuildOutputs)" >
+      <Output ItemName="_AppxAllItems" TaskParameter="Include"/>
+    </CreateItem>
+    <CreateItem Include="@(_AppxAllItems)" AdditionalMetadata="CopyToOutputDirectory=PreserveNewest">
+      <Output ItemName="Content" TaskParameter="Include"/>
+    </CreateItem>
+
+    <WriteLinesToFile
+                File="$(IntDir)\AppUWP.payload"
+                Lines="@(_AppxBuildOutputPaths)"
+                Overwrite="true"
+                Encoding="Unicode"/>
+  </Target>
+
+  <UsingTask TaskName="GenerateWinRTManifestFromAppx" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
+    <ParameterGroup>
+      <AppxManifest ParameterType="System.String" Required="false" />
+      <DestinationFolder ParameterType="System.String" Required="true" />
+    </ParameterGroup>
+    <Task>
+      <Reference Include="System.Xml" />
+      <Reference Include="System.Xml.Linq" />
+      <Using Namespace="System.Collections.Generic" />
+      <Using Namespace="System.IO" />
+      <Using Namespace="System.Linq" />
+      <Using Namespace="System.Text" />
+      <Using Namespace="System.Xml" />
+      <Code Type="Fragment" Language="cs">
+        <![CDATA[
+            var headerF = @"<?xml version='1.0' encoding='utf-8' standalone='yes'?>
+<assembly
+  manifestVersion='1.0'
+  xmlns:asmv3='urn:schemas-microsoft-com:asm.v3'
+  xmlns='urn:schemas-microsoft-com:asm.v1'>
+";
+            var sb = new StringBuilder();
+            sb.Append(headerF);
+
+            if (!string.IsNullOrEmpty(AppxManifest))
+            {
+                XmlDocument doc = new XmlDocument();
+                doc.Load(AppxManifest);
+                var nsmgr = new XmlNamespaceManager(doc.NameTable);
+                nsmgr.AddNamespace("m", "http://schemas.microsoft.com/appx/manifest/foundation/windows10");
+                var xQuery = "./m:Package/m:Extensions/m:Extension/m:InProcessServer";
+
+                foreach (XmlNode winRTFactory in doc.SelectNodes(xQuery, nsmgr))
+                {
+                    var dllPathNode = winRTFactory.SelectSingleNode("./m:Path", nsmgr);
+                    var dllPath = dllPathNode.InnerText;
+                    var typesNames = winRTFactory.SelectNodes("./m:ActivatableClass", nsmgr).OfType<XmlNode>();
+                    var xmlHeader = String.Format(@"  <asmv3:file name='{0}'>", dllPath);
+                    sb.Append(xmlHeader);
+                    foreach (var typeNode in typesNames)
+                    {
+                        var attribs = typeNode.Attributes.OfType<XmlAttribute>().ToArray();
+                        var typeName = attribs
+                            .OfType<XmlAttribute>()
+                            .SingleOrDefault(x => x.Name == "ActivatableClassId")
+                            .InnerText;
+                        var xmlEntry = String.Format(@"
+    <activatableClass
+      name='{0}'
+      threadingModel='both'
+      xmlns='urn:schemas-microsoft-com:winrt.v1'/>", typeName);
+                    sb.Append(xmlEntry);
+                }
+                var xmlFooter = @"
+  </asmv3:file>
+";
+                    sb.Append(xmlFooter);
+                }
+            }
+            var xmlFooterF = @"</assembly>";
+            sb.Append(xmlFooterF);
+            var manifestContent = sb.ToString();
+            var outFileName = Path.Combine(DestinationFolder, "app.manifest");
+            File.WriteAllText(outFileName, manifestContent, Encoding.UTF8);
+]]>
+      </Code>
+    </Task>
+  </UsingTask>
+
+  <Target Name="CreateWinRTRegistration"
+      AfterTargets="ResolveReferences"
+      DependsOnTargets="CopyAllProjectReferencesOutputs"
+      Inputs="@(AppxManifest);$(ApplicationManifest)"
+      Outputs="$(MergedApplicationManifest)"
+      Condition="'$(_DisableAppxCopy)'==''">
+    <MakeDir Directories="$(IntDir)\Manifests\" />
+    <GenerateWinRTManifestFromAppx AppxManifest="@(AppxManifest)" DestinationFolder="$(IntDir)\Manifests\" />
+    <CreateItem Include="$(IntDir)Manifests\*.manifest">
+      <Output
+          TaskParameter="Include"
+          ItemName="Manifest"/>
+    </CreateItem>
+    <Exec
+      Condition="Exists('$(ApplicationManifest)')"
+      Command="&quot;$(ManifestTool)&quot; -nologo -manifest &quot;$(MSBuildProjectDirectory)\$(GeneratedApplicationManifest)&quot; &quot;$(MSBuildProjectDirectory)\$(ApplicationManifest)&quot; -out:&quot;$(MSBuildProjectDirectory)\$(MergedApplicationManifest)&quot;"
+      WorkingDirectory="$(MSBuildProjectDirectory)" >
+    </Exec>
+    <CreateProperty
+      Condition="!Exists('$(ApplicationManifest)')"
+      Value="$(GeneratedApplicationManifest)">
+      <Output
+          TaskParameter="Value"
+          PropertyName="MergedApplicationManifest" />
+    </CreateProperty>
+
+    <CreateProperty Value="$(MergedApplicationManifest)">
+      <Output
+          TaskParameter="Value"
+          PropertyName="ApplicationManifest" />
+    </CreateProperty>
+  </Target>
+</Project>
