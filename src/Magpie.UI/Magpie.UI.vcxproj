@@ -72,6 +72,9 @@
   <ImportGroup Label="PropertySheets">
     <Import Project="..\Solution.props" />
   </ImportGroup>
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$([Microsoft.Build.Utilities.ToolLocationHelper]::GetPlatformExtensionSDKLocation(`WindowsDesktop, Version=10.0.22621.0`, $(TargetPlatformIdentifier), $(TargetPlatformVersion),  $(SDKReferenceDirectoryRoot), $(SDKExtensionDirectoryRoot), $(SDKReferenceRegistryRoot)))\DesignTime\CommonConfiguration\Neutral\WindowsDesktop.props" Condition="exists('$([Microsoft.Build.Utilities.ToolLocationHelper]::GetPlatformExtensionSDKLocation(`WindowsDesktop, Version=10.0.22621.0`, $(TargetPlatformIdentifier), $(TargetPlatformVersion),  $(SDKReferenceDirectoryRoot), $(SDKExtensionDirectoryRoot), $(SDKReferenceRegistryRoot)))\DesignTime\CommonConfiguration\Neutral\WindowsDesktop.props')" />
+  </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <ItemDefinitionGroup>
     <ClCompile>
@@ -515,14 +518,7 @@
     <ResourceCompile Include="Magpie.UI.rc" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="$(WindowsSDK_MetadataPathVersioned)\Windows.UI.Xaml.Hosting.HostingContract\*\*.winmd">
-      <WinMDFile>true</WinMDFile>
-      <CopyLocal>false</CopyLocal>
-      <ReferenceGrouping>$(TargetPlatformMoniker)</ReferenceGrouping>
-      <ReferenceGroupingDisplayName>$(TargetPlatformDisplayName)</ReferenceGroupingDisplayName>
-      <ResolvedFrom>CppWinRTImplicitlyExpandTargetPlatform</ResolvedFrom>
-      <IsSystemReference>True</IsSystemReference>
-    </Reference>
+    <SDKReference Include="WindowsDesktop, Version=10.0.22621.0" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
