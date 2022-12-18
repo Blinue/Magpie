@@ -16,7 +16,8 @@ class Magpie(ConanFile):
 		"zstd/1.5.2",
 		"imgui/1.89.1",
 		"parallel-hashmap/1.37",
-		"mimalloc/2.0.7"
+		"mimalloc/2.0.7",
+		"kuba-zip/0.2.6"
 	]
 	generators = "visual_studio"
 	default_options = {"mimalloc:shared": True}

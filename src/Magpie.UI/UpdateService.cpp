@@ -8,10 +8,9 @@
 #include "AppSettings.h"
 #include "Win32Utils.h"
 #include "CommonSharedConstants.h"
-#include <winrt/Windows.Networking.BackgroundTransfer.h>
+#include <zip/zip.h>
 
 using namespace winrt;
-using namespace Windows::Networking::BackgroundTransfer;
 using namespace Windows::Storage;
 using namespace Windows::Storage::Streams;
 
@@ -96,37 +95,59 @@ IAsyncAction UpdateService::CheckForUpdateAsync() {
 	}
 
 	const std::wstring x64BinaryUrl = StrUtils::UTF8ToUTF16(x64Node->value.GetString());
-	auto progressOp = httpClient.GetInputStreamAsync(Uri(x64BinaryUrl));
-	progressOp.Progress([](const auto&, const HttpProgress& progress) {
-		std::optional<uint64_t> totalBytes = progress.TotalBytesToReceive;
-		if (!totalBytes.has_value()) {
-			return;
+	try {
+		auto progressOp1 = httpClient.TryGetInputStreamAsync(Uri(x64BinaryUrl));
+		uint64_t totalBytes = 0;
+		progressOp1.Progress([&totalBytes](const auto&, const HttpProgress& progress) {
+			if (std::optional<uint64_t> totalBytesToReceive = progress.TotalBytesToReceive) {
+				totalBytes = *totalBytesToReceive;
+			}
+		});
+		HttpGetInputStreamResult httpResult = co_await progressOp1;
+
+		wchar_t curDir[MAX_PATH];
+		GetCurrentDirectory(MAX_PATH, curDir);
+		StorageFolder curFolder = co_await StorageFolder::GetFolderFromPathAsync(curDir);
+		StorageFolder updateFolder = co_await curFolder.CreateFolderAsync(
+			CommonSharedConstants::UPDATE_DIR, CreationCollisionOption::OpenIfExists);
+
+		StorageFile updatePkg = co_await updateFolder.CreateFileAsync(
+			L"update.zip",
+			CreationCollisionOption::ReplaceExisting
+		);
+		IRandomAccessStream fileStream = co_await updatePkg.OpenAsync(FileAccessMode::ReadWrite);
+
+		auto progressOp2 = httpResult.ResponseMessage().Content().WriteToStreamAsync(fileStream);
+		if (totalBytes > 0) {
+			progressOp2.Progress([totalBytes](const auto&, uint64_t readed) {
+				OutputDebugString(fmt::format(L"{}\n", readed * 100.0 / totalBytes).c_str());
+			});
 		}
+		co_await progressOp2;
 
-		OutputDebugString(fmt::format(L"{}\n", progress.BytesReceived * 100.0 / totalBytes.value()).c_str());
-	});
-	IInputStream stream = co_await progressOp;
-
-	Buffer buffer(1024);
-	wchar_t curDir[MAX_PATH];
-	GetCurrentDirectory(MAX_PATH, curDir);
-	StorageFolder updateFoler = co_await StorageFolder::GetFolderFromPathAsync(
-		StrUtils::ConcatW(curDir, L"\\", CommonSharedConstants::UPDATE_DIR)
-	);
-	StorageFile updatePkg = co_await updateFoler.CreateFileAsync(
-		L"update.zip",
-		CreationCollisionOption::ReplaceExisting
-	);
-	IRandomAccessStream fileStream = co_await updatePkg.OpenAsync(FileAccessMode::ReadWrite);
-	
-	while (true) {
-		IBuffer resultBuffer = co_await stream.ReadAsync(buffer, buffer.Capacity(), InputStreamOptions::Partial);
-		if (resultBuffer.Length() == 0) {
-			break;
-		}
-
-		co_await fileStream.WriteAsync(resultBuffer);
+		fileStream.Close();
+	} catch (const hresult_error& e) {
+		_result = UpdateResult::NetworkError;
+		OutputDebugString(e.message().c_str());
+		co_return;
 	}
+
+	co_await resume_background();
+	
+	std::wstring updatePkg = CommonSharedConstants::UPDATE_DIR + L"\\update.zip"s;
+	int ec = zip_extract(
+		StrUtils::UTF16ToUTF8(updatePkg).c_str(),
+		StrUtils::UTF16ToUTF8(CommonSharedConstants::UPDATE_DIR).c_str(),
+		nullptr,
+		nullptr
+	);
+	if (ec < 0) {
+		_result = UpdateResult::UnknownError;
+		co_return;
+	}
+
+	DeleteFile(updatePkg.c_str());
+
 }
 
 }
