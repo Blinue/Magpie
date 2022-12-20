@@ -2,8 +2,7 @@
 #include "StrUtils.h"
 #include "Logger.h"
 
-
-std::wstring StrUtils::UTF8ToUTF16(std::string_view str) {
+std::wstring StrUtils::UTF8ToUTF16(std::string_view str) noexcept {
 	if (str.empty()) {
 		return {};
 	}
@@ -29,7 +28,7 @@ std::wstring StrUtils::UTF8ToUTF16(std::string_view str) {
 	return result;
 }
 
-static std::string UTF16ToOther(UINT codePage, std::wstring_view str) {
+static std::string UTF16ToOther(UINT codePage, std::wstring_view str) noexcept {
 	if (str.empty()) {
 		return {};
 	}
@@ -55,10 +54,10 @@ static std::string UTF16ToOther(UINT codePage, std::wstring_view str) {
 	return result;
 }
 
-std::string StrUtils::UTF16ToUTF8(std::wstring_view str) {
+std::string StrUtils::UTF16ToUTF8(std::wstring_view str) noexcept {
 	return UTF16ToOther(CP_UTF8, str);
 }
 
-std::string StrUtils::UTF16ToANSI(std::wstring_view str) {
+std::string StrUtils::UTF16ToANSI(std::wstring_view str) noexcept {
 	return UTF16ToOther(CP_ACP, str);
 }
