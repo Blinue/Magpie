@@ -10,7 +10,7 @@ class Magpie(ConanFile):
 	requires = [
 		"fmt/9.1.0",
 		"spdlog/1.11.0",
-		"muparser/2.3.2",
+		"muparser/2.3.4",
 		"yas/7.1.0",
 		"rapidjson/cci.20220822",
 		"zstd/1.5.2",
