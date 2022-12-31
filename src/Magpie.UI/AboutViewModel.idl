@@ -1,15 +1,21 @@
-namespace Magpie.UI
-{
-    [default_interface]
-    runtimeclass AboutViewModel : [default] Windows.UI.Xaml.Data.INotifyPropertyChanged
-    {
-        AboutViewModel();
+namespace Magpie.UI {
+	runtimeclass AboutViewModel : [default] Windows.UI.Xaml.Data.INotifyPropertyChanged {
+		AboutViewModel();
 
-        String Version { get; };
-        Windows.Foundation.Uri ReleaseNotesLink { get; };
-        void CheckForUpdates();
+		String Version { get; };
+		Windows.Foundation.Uri ReleaseNotesLink { get; };
 
-        Boolean IsAutoCheckForUpdates;
-        Boolean IsCheckForPreviewUpdates;
-    }
+		void CheckForUpdates();
+		Boolean IsCheckingForUpdates { get; };
+
+		Boolean IsAutoCheckForUpdates;
+		Boolean IsCheckForPreviewUpdates;
+
+		Boolean IsNetworkError { get; };
+		Boolean IsUnknownError { get; };
+		Boolean IsNoUpdate { get; };
+		Boolean IsAvailable { get; };
+
+		Windows.Foundation.Uri UpdateReleaseNotesLink { get; };
+	}
 }

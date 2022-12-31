@@ -25,6 +25,14 @@ public:
 		return _result;
 	}
 
+	const std::wstring& Tag() const noexcept {
+		return _tag;
+	}
+
+	const std::wstring& BinaryUrl() const noexcept {
+		return _binaryUrl;
+	}
+
 private:
 	UpdateService() = default;
 

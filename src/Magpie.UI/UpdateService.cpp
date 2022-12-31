@@ -22,7 +22,9 @@ IAsyncAction UpdateService::CheckForUpdatesAsync() {
 	HttpClient httpClient;
 	try {
 		IBuffer buffer = co_await httpClient.GetBufferAsync(
-			Uri(L"https://raw.githubusercontent.com/Blinue/Magpie/dev/version.json"));
+			Uri(AppSettings::Get().IsCheckForPreviewUpdates()
+			? L"https://raw.githubusercontent.com/Blinue/Magpie/dev/version.json"
+			: L"https://raw.githubusercontent.com/Blinue/Magpie/main/version.json"));
 
 		doc.Parse((const char*)buffer.data(), buffer.Length());
 	} catch (const hresult_error& e) {
@@ -30,7 +32,14 @@ IAsyncAction UpdateService::CheckForUpdatesAsync() {
 			StrUtils::Concat("检查更新失败：", StrUtils::UTF16ToUTF8(e.message())),
 			e.code()
 		);
-		_result = UpdateResult::NetworkError;
+
+		if (e.code() == HTTP_E_STATUS_NOT_FOUND) {
+			// 404 表示没有更新可用
+			_result = UpdateResult::NoUpdate;
+		} else {
+			_result = UpdateResult::NetworkError;
+		}
+		
 		co_return;
 	}
 
@@ -67,7 +76,25 @@ IAsyncAction UpdateService::CheckForUpdatesAsync() {
 
 	_result = UpdateResult::Available;
 
-	/*auto binaryNode = root.FindMember("binary");
+	auto tagNode = root.FindMember("tag");
+	if (tagNode == root.end()) {
+		Logger::Get().Error("找不到 tag 成员");
+		_result = UpdateResult::UnknownError;
+		co_return;
+	}
+	if (!tagNode->value.IsString()) {
+		Logger::Get().Error("tag 成员不是字符串");
+		_result = UpdateResult::UnknownError;
+		co_return;
+	}
+	_tag = StrUtils::UTF8ToUTF16(tagNode->value.GetString());
+	if (_tag.empty()) {
+		Logger::Get().Error("tag 成员为空");
+		_result = UpdateResult::UnknownError;
+		co_return;
+	}
+
+	auto binaryNode = root.FindMember("binary");
 	if (binaryNode == root.end()) {
 		Logger::Get().Error("找不到 binary 成员");
 		_result = UpdateResult::UnknownError;
@@ -91,7 +118,14 @@ IAsyncAction UpdateService::CheckForUpdatesAsync() {
 		co_return;
 	}
 
-	const std::wstring x64BinaryUrl = StrUtils::UTF8ToUTF16(x64Node->value.GetString());
+	_binaryUrl = StrUtils::UTF8ToUTF16(x64Node->value.GetString());
+	if (_binaryUrl.empty()) {
+		Logger::Get().Error("x64 成员为空");
+		_result = UpdateResult::UnknownError;
+		co_return;
+	}
+
+	/*const std::wstring x64BinaryUrl = StrUtils::UTF8ToUTF16(x64Node->value.GetString());
 	try {
 		auto progressOp1 = httpClient.TryGetInputStreamAsync(Uri(x64BinaryUrl));
 		uint64_t totalBytes = 0;

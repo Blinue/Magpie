@@ -1,5 +1,4 @@
-namespace Magpie.UI
-{
+namespace Magpie.UI {
 	enum VisualType {
 		Small,
 		SmallOutline,
@@ -12,8 +11,7 @@ namespace Magpie.UI
 	[Windows.UI.Xaml.TemplateVisualState("Default", "StateStates")]
 	[Windows.UI.Xaml.TemplateVisualState("Error", "StateStates")]
 	[Windows.UI.Xaml.Markup.ContentProperty("Content")]
-	runtimeclass KeyVisual : Windows.UI.Xaml.Controls.Control
-	{
+	runtimeclass KeyVisual : Windows.UI.Xaml.Controls.Control {
 		KeyVisual();
 
 		Object Content;

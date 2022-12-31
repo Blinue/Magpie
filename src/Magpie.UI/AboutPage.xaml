@@ -26,8 +26,21 @@
 												 NavigateUri="{x:Bind ViewModel.ReleaseNotesLink, Mode=OneTime}" />
 							</local:SettingsCard.Description>
 							<local:SettingsCard.ActionContent>
-								<Button Click="{x:Bind ViewModel.CheckForUpdates}"
-										Content="检查更新" />
+								<StackPanel>
+									<Button Click="{x:Bind ViewModel.CheckForUpdates}"
+											Content="检查更新"
+											Visibility="{x:Bind ViewModel.IsCheckingForUpdates, Mode=OneWay, Converter={StaticResource NegativeVisibilityConverter}}" />
+									<StackPanel Orientation="Horizontal"
+												Spacing="8"
+												Visibility="{x:Bind ViewModel.IsCheckingForUpdates, Mode=OneWay}">
+										<muxc:ProgressRing Width="20"
+														   Height="20"
+														   VerticalAlignment="Center"
+														   IsActive="True" />
+										<TextBlock VerticalAlignment="Center"
+												   Text="正在检查更新..." />
+									</StackPanel>
+								</StackPanel>
 							</local:SettingsCard.ActionContent>
 						</local:SettingsCard>
 					</muxc:Expander.Header>
@@ -46,21 +59,25 @@
 				</muxc:Expander>
 				<StackPanel>
 					<muxc:InfoBar Title="检查更新失败"
-								  IsOpen="False"
+								  IsOpen="{x:Bind ViewModel.IsNetworkError, Mode=OneWay}"
 								  Message="网络错误，请稍后重试"
 								  Severity="Error" />
 					<muxc:InfoBar Title="检查更新失败"
-								  IsOpen="False"
+								  IsOpen="{x:Bind ViewModel.IsUnknownError, Mode=OneWay}"
 								  Severity="Error" />
+					<muxc:InfoBar Title="Magpie 已是最新"
+								  IsOpen="{x:Bind ViewModel.IsNoUpdate, Mode=OneWay}"
+								  Severity="Success" />
 					<muxc:InfoBar Title="v0.10.0-preview1 可用"
-								  IsOpen="False"
+								  IsOpen="{x:Bind ViewModel.IsAvailable, Mode=OneWay}"
 								  Severity="Informational">
 						<StackPanel Margin="0,0,0,16"
 									Orientation="Horizontal"
 									Spacing="10">
 							<Button Content="下载并更新"
 									Style="{StaticResource AccentButtonStyle}" />
-							<HyperlinkButton Content="发行说明" />
+							<HyperlinkButton Content="发行说明"
+											 NavigateUri="{x:Bind ViewModel.UpdateReleaseNotesLink, Mode=OneWay}" />
 						</StackPanel>
 					</muxc:InfoBar>
 				</StackPanel>

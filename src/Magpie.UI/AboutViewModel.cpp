@@ -19,12 +19,22 @@ Uri AboutViewModel::ReleaseNotesLink() const noexcept {
 
 fire_and_forget AboutViewModel::CheckForUpdates() {
 	_isCheckingForUpdates = true;
+	_updateStatus = -1;
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsCheckingForUpdates"));
 
 	co_await UpdateService::Get().CheckForUpdatesAsync();
 
 	_isCheckingForUpdates = false;
+	_updateStatus = (int)UpdateService::Get().GetResult();
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsCheckingForUpdates"));
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsNetworkError"));
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsUnknownError"));
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsNoUpdate"));
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsAvailable"));
+
+	if (IsAvailable()) {
+		_propertyChangedEvent(*this, PropertyChangedEventArgs(L"UpdateReleaseNotesLink"));
+	}
 }
 
 bool AboutViewModel::IsCheckForPreviewUpdates() const noexcept {
@@ -41,6 +51,31 @@ bool AboutViewModel::IsAutoCheckForUpdates() const noexcept {
 
 void AboutViewModel::IsAutoCheckForUpdates(bool value) noexcept {
 	AppSettings::Get().IsAutoCheckForUpdates(value);
+}
+
+bool AboutViewModel::IsNetworkError() const noexcept {
+	return _updateStatus == (int)UpdateResult::NetworkError;
+}
+
+bool AboutViewModel::IsUnknownError() const noexcept {
+	return _updateStatus == (int)UpdateResult::UnknownError;
+}
+
+bool AboutViewModel::IsNoUpdate() const noexcept {
+	return _updateStatus == (int)UpdateResult::NoUpdate;
+}
+
+bool AboutViewModel::IsAvailable() const noexcept {
+	return _updateStatus == (int)UpdateResult::Available;
+}
+
+Uri AboutViewModel::UpdateReleaseNotesLink() const noexcept {
+	if (!IsAvailable()) {
+		return nullptr;
+	}
+
+	return Uri(StrUtils::ConcatW(L"https://github.com/Blinue/Magpie/releases/tag/",
+		UpdateService::Get().Tag()));
 }
 
 }

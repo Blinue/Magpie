@@ -30,10 +30,19 @@ struct AboutViewModel : AboutViewModelT<AboutViewModel> {
 		return _isCheckingForUpdates;
 	}
 
+	bool IsNetworkError() const noexcept;
+	bool IsUnknownError() const noexcept;
+	bool IsNoUpdate() const noexcept;
+	bool IsAvailable() const noexcept;
+
+	Uri UpdateReleaseNotesLink() const noexcept;
+
 private:
 	event<PropertyChangedEventHandler> _propertyChangedEvent;
 
 	bool _isCheckingForUpdates = false;
+	// -1 表示尚未检查更新，否则为 UpdateResult
+	int _updateStatus = -1;
 };
 
 }
