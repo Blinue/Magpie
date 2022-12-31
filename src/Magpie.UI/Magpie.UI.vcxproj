@@ -28,9 +28,6 @@
     <!-- 将 xbf 文件打包进 resources.pri -->
     <!-- https://github.com/microsoft/terminal/blob/9eb191d5453fed890bad63952e425e1240aa8df5/src/cascadia/TerminalApp/TerminalAppLib.vcxproj#L17-L18 -->
     <DisableEmbeddedXbf>false</DisableEmbeddedXbf>
-    <!-- Up-to-date check fails for Xaml Islands projects: -->
-    <!-- https://github.com/dotnet/project-system/issues/5543 -->
-    <DisableFastUpToDateCheck>true</DisableFastUpToDateCheck>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <ItemGroup Label="ProjectConfigurations">

@@ -47,7 +47,7 @@ struct _AppSettingsData {
 	bool _isShowTrayIcon = true;
 	bool _isAutoRestore = false;
 	bool _isWindowMaximized = false;
-	bool _isAutoDownloadUpdates = false;
+	bool _isAutoCheckForUpdates = false;
 	bool _isCheckForPreviewUpdates = false;
 };
 
@@ -264,12 +264,12 @@ public:
 		return _scalingModes;
 	}
 
-	bool IsAutoDownloadUpdates() const noexcept {
-		return _isAutoDownloadUpdates;
+	bool IsAutoCheckForUpdates() const noexcept {
+		return _isAutoCheckForUpdates;
 	}
 
-	void IsAutoDownloadUpdates(bool value) noexcept {
-		_isAutoDownloadUpdates = value;
+	void IsAutoCheckForUpdates(bool value) noexcept {
+		_isAutoCheckForUpdates = value;
 		SaveAsync();
 	}
 

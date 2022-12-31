@@ -5,7 +5,6 @@
 #endif
 #include "Win32Utils.h"
 
-
 namespace winrt::Magpie::UI::implementation {
 
 AboutPage::AboutPage() {

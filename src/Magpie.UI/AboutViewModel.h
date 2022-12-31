@@ -16,16 +16,24 @@ struct AboutViewModel : AboutViewModelT<AboutViewModel> {
 
 	hstring Version() const noexcept;
 
-	fire_and_forget CheckForUpdate();
+	Uri ReleaseNotesLink() const noexcept;
+
+	fire_and_forget CheckForUpdates();
 
 	bool IsCheckForPreviewUpdates() const noexcept;
 	void IsCheckForPreviewUpdates(bool value) noexcept;
 
-	bool IsAutoDownloadUpdates() const noexcept;
-	void IsAutoDownloadUpdates(bool value) noexcept;
+	bool IsAutoCheckForUpdates() const noexcept;
+	void IsAutoCheckForUpdates(bool value) noexcept;
+
+	bool IsCheckingForUpdates() const noexcept {
+		return _isCheckingForUpdates;
+	}
 
 private:
 	event<PropertyChangedEventHandler> _propertyChangedEvent;
+
+	bool _isCheckingForUpdates = false;
 };
 
 }

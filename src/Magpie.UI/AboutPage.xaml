@@ -11,7 +11,7 @@
 		<StackPanel HorizontalAlignment="Stretch"
 					Orientation="Vertical">
 			<local:SettingsGroup Title="版本"
-								 Margin="0,-25,0,0">
+								 Margin="0,-25,0,-2">
 				<muxc:Expander HorizontalAlignment="Stretch"
 							   HorizontalContentAlignment="Stretch"
 							   Style="{StaticResource SettingExpanderStyle}">
@@ -23,10 +23,10 @@
 							</local:SettingsCard.Icon>
 							<local:SettingsCard.Description>
 								<HyperlinkButton Content="发行说明"
-												 NavigateUri="https://github.com/Blinue/Magpie/releases" />
+												 NavigateUri="{x:Bind ViewModel.ReleaseNotesLink, Mode=OneTime}" />
 							</local:SettingsCard.Description>
 							<local:SettingsCard.ActionContent>
-								<Button Click="{x:Bind ViewModel.CheckForUpdate}"
+								<Button Click="{x:Bind ViewModel.CheckForUpdates}"
 										Content="检查更新" />
 							</local:SettingsCard.ActionContent>
 						</local:SettingsCard>
@@ -34,8 +34,8 @@
 					<muxc:Expander.Content>
 						<StackPanel Orientation="Vertical">
 							<local:SettingsCard Style="{StaticResource ExpanderContentSettingStyle}">
-								<CheckBox Content="自动下载更新"
-										  IsChecked="{x:Bind ViewModel.IsAutoDownloadUpdates, Mode=TwoWay}" />
+								<CheckBox Content="自动检查更新"
+										  IsChecked="{x:Bind ViewModel.IsAutoCheckForUpdates, Mode=TwoWay}" />
 							</local:SettingsCard>
 							<local:SettingsCard Style="{StaticResource ExpanderContentSettingStyle}">
 								<CheckBox Content="检查预览版更新"
@@ -44,6 +44,26 @@
 						</StackPanel>
 					</muxc:Expander.Content>
 				</muxc:Expander>
+				<StackPanel>
+					<muxc:InfoBar Title="检查更新失败"
+								  IsOpen="False"
+								  Message="网络错误，请稍后重试"
+								  Severity="Error" />
+					<muxc:InfoBar Title="检查更新失败"
+								  IsOpen="False"
+								  Severity="Error" />
+					<muxc:InfoBar Title="v0.10.0-preview1 可用"
+								  IsOpen="False"
+								  Severity="Informational">
+						<StackPanel Margin="0,0,0,16"
+									Orientation="Horizontal"
+									Spacing="10">
+							<Button Content="下载并更新"
+									Style="{StaticResource AccentButtonStyle}" />
+							<HyperlinkButton Content="发行说明" />
+						</StackPanel>
+					</muxc:InfoBar>
+				</StackPanel>
 			</local:SettingsGroup>
 			<local:SettingsGroup Title="反馈">
 				<Button Click="BugReportButton_Click"

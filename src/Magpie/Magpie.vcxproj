@@ -30,6 +30,9 @@
     <AppIncludeDirectories>$(SolutionDir)\obj\$(Platform)\$(Configuration)\$(AppProjectName)\;$(SolutionDir)\obj\$(Platform)\$(Configuration)\$(AppProjectName)\Generated Files\;</AppIncludeDirectories>
     <!-- OutDir 不能放入 Solution.props，否则有时会导致编译失败 -->
     <OutDir>$(SolutionDir)\bin\$(Platform)\$(Configuration)\</OutDir>
+    <!-- Up-to-date check fails for Xaml Islands projects: -->
+    <!-- https://github.com/dotnet/project-system/issues/5543 -->
+    <DisableFastUpToDateCheck>true</DisableFastUpToDateCheck>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Label="Configuration">

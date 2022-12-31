@@ -15,7 +15,6 @@
 
 using namespace Magpie::Core;
 
-
 namespace winrt::Magpie::UI {
 
 static constexpr uint32_t SETTINGS_VERSION = 0;
@@ -461,8 +460,8 @@ bool AppSettings::_Save(const _AppSettingsData& data) noexcept {
 	writer.Bool(data._isShowTrayIcon);
 	writer.Key("inlineParams");
 	writer.Bool(data._isInlineParams);
-	writer.Key("autoDownloadUpdates");
-	writer.Bool(data._isAutoDownloadUpdates);
+	writer.Key("autoCheckForUpdates");
+	writer.Bool(data._isAutoCheckForUpdates);
 	writer.Key("checkForPreviewUpdates");
 	writer.Bool(data._isCheckForPreviewUpdates);
 
@@ -560,7 +559,7 @@ void AppSettings::_LoadSettings(const rapidjson::GenericObject<true, rapidjson::
 	JsonHelper::ReadBool(root, "alwaysRunAsElevated", _isAlwaysRunAsElevated);
 	JsonHelper::ReadBool(root, "showTrayIcon", _isShowTrayIcon);
 	JsonHelper::ReadBool(root, "inlineParams", _isInlineParams);
-	JsonHelper::ReadBool(root, "autoDownloadUpdates", _isAutoDownloadUpdates);
+	JsonHelper::ReadBool(root, "autoCheckForUpdates", _isAutoCheckForUpdates);
 	JsonHelper::ReadBool(root, "checkForPreviewUpdates", _isCheckForPreviewUpdates);
 
 	auto downscalingEffectNode = root.FindMember("downscalingEffect");

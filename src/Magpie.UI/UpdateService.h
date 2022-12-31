@@ -19,7 +19,7 @@ public:
 	UpdateService(const UpdateService&) = delete;
 	UpdateService(UpdateService&&) = delete;
 
-	IAsyncAction CheckForUpdateAsync();
+	IAsyncAction CheckForUpdatesAsync();
 
 	UpdateResult GetResult() const noexcept {
 		return _result;

@@ -6,9 +6,10 @@ namespace Magpie.UI
         AboutViewModel();
 
         String Version { get; };
-        void CheckForUpdate();
+        Windows.Foundation.Uri ReleaseNotesLink { get; };
+        void CheckForUpdates();
 
-        Boolean IsAutoDownloadUpdates;
+        Boolean IsAutoCheckForUpdates;
         Boolean IsCheckForPreviewUpdates;
     }
 }

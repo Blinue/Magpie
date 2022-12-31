@@ -16,7 +16,7 @@ using namespace Windows::Storage::Streams;
 
 namespace winrt::Magpie::UI {
 
-IAsyncAction UpdateService::CheckForUpdateAsync() {
+IAsyncAction UpdateService::CheckForUpdatesAsync() {
 	rapidjson::Document doc;
 
 	HttpClient httpClient;
@@ -65,12 +65,9 @@ IAsyncAction UpdateService::CheckForUpdateAsync() {
 		co_return;
 	}
 
-	if (!AppSettings::Get().IsAutoDownloadUpdates()) {
-		_result = UpdateResult::Available;
-		co_return;
-	}
+	_result = UpdateResult::Available;
 
-	auto binaryNode = root.FindMember("binary");
+	/*auto binaryNode = root.FindMember("binary");
 	if (binaryNode == root.end()) {
 		Logger::Get().Error("找不到 binary 成员");
 		_result = UpdateResult::UnknownError;
@@ -147,7 +144,7 @@ IAsyncAction UpdateService::CheckForUpdateAsync() {
 	}
 
 	DeleteFile(updatePkg.c_str());
-
+	*/
 }
 
 }

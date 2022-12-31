@@ -13,8 +13,18 @@ hstring AboutViewModel::Version() const noexcept {
 	return MAGPIE_TAG_W;
 }
 
-fire_and_forget AboutViewModel::CheckForUpdate() {
-	co_await UpdateService::Get().CheckForUpdateAsync();
+Uri AboutViewModel::ReleaseNotesLink() const noexcept {
+	return Uri(StrUtils::ConcatW(L"https://github.com/Blinue/Magpie/releases/tag/", MAGPIE_TAG_W));
+}
+
+fire_and_forget AboutViewModel::CheckForUpdates() {
+	_isCheckingForUpdates = true;
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsCheckingForUpdates"));
+
+	co_await UpdateService::Get().CheckForUpdatesAsync();
+
+	_isCheckingForUpdates = false;
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsCheckingForUpdates"));
 }
 
 bool AboutViewModel::IsCheckForPreviewUpdates() const noexcept {
@@ -25,12 +35,12 @@ void AboutViewModel::IsCheckForPreviewUpdates(bool value) noexcept {
 	AppSettings::Get().IsCheckForPreviewUpdates(value);
 }
 
-bool AboutViewModel::IsAutoDownloadUpdates() const noexcept {
-	return AppSettings::Get().IsAutoDownloadUpdates();
+bool AboutViewModel::IsAutoCheckForUpdates() const noexcept {
+	return AppSettings::Get().IsAutoCheckForUpdates();
 }
 
-void AboutViewModel::IsAutoDownloadUpdates(bool value) noexcept {
-	AppSettings::Get().IsAutoDownloadUpdates(value);
+void AboutViewModel::IsAutoCheckForUpdates(bool value) noexcept {
+	AppSettings::Get().IsAutoCheckForUpdates(value);
 }
 
 }
