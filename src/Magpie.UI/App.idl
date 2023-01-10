@@ -25,7 +25,6 @@
 #include "ScalingProfilePage.idl"
 #include "SettingsPage.idl"
 
-
 namespace Magpie.UI {
 	enum HotkeyAction {
 		Scale,
@@ -46,8 +45,7 @@ namespace Magpie.UI {
 		Boolean IsNeedElevated;
 	};
 
-	[default_interface]
-	runtimeclass App : Windows.UI.Xaml.Application, Windows.Foundation.IClosable {
+	runtimeclass App : Windows.UI.Xaml.Application, [default] Windows.Foundation.IClosable {
 		App();
 
 		void SaveSettings();

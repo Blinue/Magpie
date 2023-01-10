@@ -1,37 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-	<PropertyGroup>
-		<DefaultLanguage>en-US</DefaultLanguage>
-		<CppWinRTOptimized>true</CppWinRTOptimized>
-		<CppWinRTRootNamespaceAutoMerge>true</CppWinRTRootNamespaceAutoMerge>
-		<CppWinRTVerbosity>low</CppWinRTVerbosity>
-		<IntDir>$(SolutionDir)\obj\$(Platform)\$(Configuration)\$(MSBuildProjectName)\</IntDir>
-		<GeneratedFilesDir>$(IntDir)Generated Files\</GeneratedFilesDir>
-	</PropertyGroup>
-
-	<ImportGroup Label="Shared">
-		<Import Project="Shared\Shared.vcxitems" Label="Shared" />
-	</ImportGroup>
-
-	<ItemDefinitionGroup>
-		<ClCompile>
-			<PrecompiledHeader>Use</PrecompiledHeader>
-			<PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-			<PrecompiledHeaderOutputFile>$(IntDir)pch.pch</PrecompiledHeaderOutputFile>
-			<WarningLevel>Level4</WarningLevel>
-			<DisableSpecificWarnings>4251</DisableSpecificWarnings>
-			<SDLCheck>true</SDLCheck>
-			<ConformanceMode>true</ConformanceMode>
-			<LanguageStandard>stdcpp20</LanguageStandard>
-			<LanguageStandard_C>stdc17</LanguageStandard_C>
-			<MultiProcessorCompilation>true</MultiProcessorCompilation>
-			<PreprocessorDefinitions>_WINDOWS;WIN32_LEAN_AND_MEAN;WINRT_LEAN_AND_MEAN;WINRT_NO_MODULE_LOCK;NOGDICAPMASKS;NOICONS;NOATOM;NOCLIPBOARD;NODRAWTEXT;NOMEMMGR;NOMETAFILE;NOMINMAX;NOOPENFILE;NOSCROLL;NOSERVICE;NOSOUND;NOTEXTMETRIC;NOCOMM;NOKANJI;NOHELP;NOPROFILER;NODEFERWINDOWPOS;NOMCX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-			<AdditionalOptions>/bigobj /utf-8 /Zc:__cplusplus /volatile:iso /fp:contract %(AdditionalOptions)</AdditionalOptions>
-		</ClCompile>
-	</ItemDefinitionGroup>
-	
-	<!-- Conan 依赖 -->
-	<ImportGroup Label="PropertySheets">
-		<Import Project="..\.conan\$(Platform)\$(Configuration)\conanbuildinfo.props" Condition="exists('..\.conan\$(Platform)\$(Configuration)\conanbuildinfo.props')" />
-	</ImportGroup>
+  <PropertyGroup>
+    <DefaultLanguage>en-US</DefaultLanguage>
+    <CppWinRTOptimized>true</CppWinRTOptimized>
+    <CppWinRTRootNamespaceAutoMerge>true</CppWinRTRootNamespaceAutoMerge>
+    <CppWinRTVerbosity>low</CppWinRTVerbosity>
+    <IntDir>$(SolutionDir)\obj\$(Platform)\$(Configuration)\$(MSBuildProjectName)\</IntDir>
+    <GeneratedFilesDir>$(IntDir)Generated Files\</GeneratedFilesDir>
+  </PropertyGroup>
+  
+  <ImportGroup Label="Shared">
+    <Import Project="Shared\Shared.vcxitems" Label="Shared" />
+  </ImportGroup>
+  
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)pch.pch</PrecompiledHeaderOutputFile>
+      <WarningLevel>Level4</WarningLevel>
+      <DisableSpecificWarnings>4251</DisableSpecificWarnings>
+      <SDLCheck>true</SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <LanguageStandard_C>stdc17</LanguageStandard_C>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <PreprocessorDefinitions>_WINDOWS;WIN32_LEAN_AND_MEAN;WINRT_LEAN_AND_MEAN;WINRT_NO_MODULE_LOCK;NOGDICAPMASKS;NOICONS;NOATOM;NOCLIPBOARD;NODRAWTEXT;NOMEMMGR;NOMETAFILE;NOMINMAX;NOOPENFILE;NOSCROLL;NOSERVICE;NOSOUND;NOTEXTMETRIC;NOCOMM;NOKANJI;NOHELP;NOPROFILER;NODEFERWINDOWPOS;NOMCX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalOptions>/bigobj /utf-8 /Zc:__cplusplus /volatile:iso /fp:contract %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  
+  <!-- Conan 依赖 -->
+  <ImportGroup Label="PropertySheets">
+    <Import Project="..\.conan\$(Platform)\$(Configuration)\conanbuildinfo.props" Condition="exists('..\.conan\$(Platform)\$(Configuration)\conanbuildinfo.props')" />
+  </ImportGroup>
 </Project>

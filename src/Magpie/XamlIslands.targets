@@ -8,12 +8,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <ManifestTool Condition="Exists('$(MSBuildThisFileDirectory)\..\tools\mt.exe')">$(MSBuildThisFileDirectory)\..\tools\mt.exe</ManifestTool>
-    <ManifestTool Condition="'$(ManifestTool)'==''">$(MSBuildProgramFiles32)\Windows Kits\10\bin\$(_TargetPlatformVersion)\x86\mt.exe</ManifestTool>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(IntDir)'==''">
-    <IntDir>$(BaseIntermediateOutputPath)\$(Platform)\$(Configuration)\$(TargetFramework)\</IntDir>
+    <ManifestTool>$(MSBuildProgramFiles32)\Windows Kits\10\bin\$(_TargetPlatformVersion)\x64\mt.exe</ManifestTool>
   </PropertyGroup>
 
   <Target Name="_GetUWPAppPayload">
@@ -21,60 +16,52 @@
       <Output ItemName="_AppxProject" TaskParameter="Include"/>
     </CreateItem>
     <MSBuild Projects="@(_AppxProject)"
-      Properties="Configuration=$(Configuration);Platform=$(Platform)"
-      Targets="Build;GetPackagingOutputs">
+             Properties="Configuration=$(Configuration);Platform=$(Platform)"
+             Targets="Build;GetPackagingOutputs">
       <Output TaskParameter="TargetOutputs" ItemName="_AppxBuildOutputPaths" />
     </MSBuild>
-
     <CreateItem Include="%(_AppxBuildOutputPaths.Identity)"
-        Condition="'%(_AppxBuildOutputPaths.TargetPath)'!=''"
-        AdditionalMetadata="FinalTargetPath=$(OutDir)%(_AppxBuildOutputPaths.TargetPath);TargetPath=%(_AppxBuildOutputPaths.TargetPath)">
+                Condition="'%(_AppxBuildOutputPaths.TargetPath)'!=''"
+                AdditionalMetadata="FinalTargetPath=$(OutDir)%(_AppxBuildOutputPaths.TargetPath);TargetPath=%(_AppxBuildOutputPaths.TargetPath)">
       <Output ItemName="_AppxInputs" TaskParameter="Include"/>
     </CreateItem>
-
-    <CreateItem Include="%(_AppxBuildOutputPaths.RelativeDir)AppxManifest.xml" Condition="Exists('%(_AppxBuildOutputPaths.RelativeDir)AppxManifest.xml')">
+    <CreateItem Include="%(_AppxBuildOutputPaths.RelativeDir)AppxManifest.xml"
+                Condition="Exists('%(_AppxBuildOutputPaths.RelativeDir)AppxManifest.xml')">
       <Output ItemName="AppxManifest" TaskParameter="Include"/>
     </CreateItem>
-
     <CreateProperty Value="$(IntDir)Manifests\app.manifest">
-      <Output
-          TaskParameter="Value"
-          PropertyName="GeneratedApplicationManifest" />
+      <Output TaskParameter="Value" PropertyName="GeneratedApplicationManifest" />
     </CreateProperty>
     <CreateProperty Value="$(IntDir)Manifests\mergeapp.manifest">
-      <Output
-          TaskParameter="Value"
-          PropertyName="MergedApplicationManifest" />
+      <Output TaskParameter="Value" PropertyName="MergedApplicationManifest" />
     </CreateProperty>
   </Target>
 
   <Target Name="CopyAllProjectReferencesOutputs"
-      DependsOnTargets="_GetUWPAppPayload;ResolveReferences"
-      Inputs="@(_AppxInputs)"
-      Outputs="@(_AppxInputs->'%(FinalTargetPath)')"
-      Condition="'$(_DisableAppxCopy)'==''">
-
+          DependsOnTargets="_GetUWPAppPayload;ResolveReferences"
+          Inputs="@(_AppxInputs)"
+          Outputs="@(_AppxInputs->'%(FinalTargetPath)')"
+          Condition="'$(_DisableAppxCopy)'==''">
     <CreateItem Include="@(_AppxBuildOutputPaths)"
-      Condition="'%(_AppxBuildOutputPaths.TargetPath)'!=''"
-      AdditionalMetadata="Link=%(_AppxBuildOutputPaths.TargetPath)">
+                Condition="'%(_AppxBuildOutputPaths.TargetPath)'!=''"
+                AdditionalMetadata="Link=%(_AppxBuildOutputPaths.TargetPath)">
       <Output ItemName="_AppxBuildOutputs" TaskParameter="Include"/>
     </CreateItem>
-
     <CreateItem Include="@(_AppxBuildOutputs)" >
       <Output ItemName="_AppxAllItems" TaskParameter="Include"/>
     </CreateItem>
     <CreateItem Include="@(_AppxAllItems)" AdditionalMetadata="CopyToOutputDirectory=PreserveNewest">
       <Output ItemName="Content" TaskParameter="Include"/>
     </CreateItem>
-
-    <WriteLinesToFile
-                File="$(IntDir)\AppUWP.payload"
-                Lines="@(_AppxBuildOutputPaths)"
-                Overwrite="true"
-                Encoding="Unicode"/>
+    <WriteLinesToFile File="$(IntDir)\AppUWP.payload"
+                      Lines="@(_AppxBuildOutputPaths)"
+                      Overwrite="true"
+                      Encoding="Unicode"/>
   </Target>
 
-  <UsingTask TaskName="GenerateWinRTManifestFromAppx" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
+  <UsingTask TaskName="GenerateWinRTManifestFromAppx"
+             TaskFactory="CodeTaskFactory"
+             AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
     <ParameterGroup>
       <AppxManifest ParameterType="System.String" Required="false" />
       <DestinationFolder ParameterType="System.String" Required="true" />
@@ -144,35 +131,24 @@
   </UsingTask>
 
   <Target Name="CreateWinRTRegistration"
-      AfterTargets="ResolveReferences"
-      DependsOnTargets="CopyAllProjectReferencesOutputs"
-      Inputs="@(AppxManifest);$(ApplicationManifest)"
-      Outputs="$(MergedApplicationManifest)"
-      Condition="'$(_DisableAppxCopy)'==''">
+          AfterTargets="ResolveReferences"
+          DependsOnTargets="CopyAllProjectReferencesOutputs"
+          Inputs="@(AppxManifest);$(ApplicationManifest)"
+          Outputs="$(MergedApplicationManifest)"
+          Condition="'$(_DisableAppxCopy)'==''">
     <MakeDir Directories="$(IntDir)\Manifests\" />
     <GenerateWinRTManifestFromAppx AppxManifest="@(AppxManifest)" DestinationFolder="$(IntDir)\Manifests\" />
     <CreateItem Include="$(IntDir)Manifests\*.manifest">
-      <Output
-          TaskParameter="Include"
-          ItemName="Manifest"/>
+      <Output TaskParameter="Include" ItemName="Manifest"/>
     </CreateItem>
-    <Exec
-      Condition="Exists('$(ApplicationManifest)')"
-      Command="&quot;$(ManifestTool)&quot; -nologo -manifest &quot;$(MSBuildProjectDirectory)\$(GeneratedApplicationManifest)&quot; &quot;$(MSBuildProjectDirectory)\$(ApplicationManifest)&quot; -out:&quot;$(MSBuildProjectDirectory)\$(MergedApplicationManifest)&quot;"
-      WorkingDirectory="$(MSBuildProjectDirectory)" >
-    </Exec>
-    <CreateProperty
-      Condition="!Exists('$(ApplicationManifest)')"
-      Value="$(GeneratedApplicationManifest)">
-      <Output
-          TaskParameter="Value"
-          PropertyName="MergedApplicationManifest" />
+    <Exec Condition="Exists('$(ApplicationManifest)')"
+          Command="&quot;$(ManifestTool)&quot; -nologo -manifest &quot;$(MSBuildProjectDirectory)\$(GeneratedApplicationManifest)&quot; &quot;$(MSBuildProjectDirectory)\$(ApplicationManifest)&quot; -out:&quot;$(MSBuildProjectDirectory)\$(MergedApplicationManifest)&quot;"
+          WorkingDirectory="$(MSBuildProjectDirectory)" />
+    <CreateProperty Condition="!Exists('$(ApplicationManifest)')" Value="$(GeneratedApplicationManifest)">
+      <Output TaskParameter="Value" PropertyName="MergedApplicationManifest" />
     </CreateProperty>
-
     <CreateProperty Value="$(MergedApplicationManifest)">
-      <Output
-          TaskParameter="Value"
-          PropertyName="ApplicationManifest" />
+      <Output TaskParameter="Value" PropertyName="ApplicationManifest" />
     </CreateProperty>
   </Target>
 </Project>
