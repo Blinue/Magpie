@@ -1,7 +1,5 @@
-namespace Magpie.UI
-{
-	runtimeclass SettingsViewModel : [default] Windows.UI.Xaml.Data.INotifyPropertyChanged
-	{
+namespace Magpie.UI {
+	runtimeclass SettingsViewModel : Windows.UI.Xaml.Data.INotifyPropertyChanged {
 		SettingsViewModel();
 
 		Int32 Theme;

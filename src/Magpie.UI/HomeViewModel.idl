@@ -1,7 +1,5 @@
-namespace Magpie.UI
-{
-	runtimeclass HomeViewModel : [default] Windows.UI.Xaml.Data.INotifyPropertyChanged
-	{
+namespace Magpie.UI {
+	runtimeclass HomeViewModel : Windows.UI.Xaml.Data.INotifyPropertyChanged {
 		HomeViewModel();
 		
 		Boolean IsCountingDown { get; };

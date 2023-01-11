@@ -1,8 +1,5 @@
-namespace Magpie.UI
-{
-	[default_interface]
-	runtimeclass MainPage : Windows.UI.Xaml.Controls.Page
-	{
+namespace Magpie.UI {
+	runtimeclass MainPage : Windows.UI.Xaml.Controls.Page {
 		MainPage();
 
 		Microsoft.UI.Xaml.Controls.NavigationView RootNavigationView { get; };

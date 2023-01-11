@@ -1,7 +1,5 @@
-namespace Magpie.UI
-{
-	runtimeclass ScalingProfileViewModel : [default] Windows.UI.Xaml.Data.INotifyPropertyChanged
-	{
+namespace Magpie.UI {
+	runtimeclass ScalingProfileViewModel : Windows.UI.Xaml.Data.INotifyPropertyChanged {
 		ScalingProfileViewModel(Int32 profileIdx);
 
 		Windows.UI.Xaml.Controls.IconElement Icon { get; };

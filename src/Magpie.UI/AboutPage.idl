@@ -1,8 +1,5 @@
-namespace Magpie.UI
-{
-	[default_interface]
-	runtimeclass AboutPage : Windows.UI.Xaml.Controls.Page
-	{
+namespace Magpie.UI {
+	runtimeclass AboutPage : Windows.UI.Xaml.Controls.Page {
 		AboutPage();
 
 		AboutViewModel ViewModel { get; };

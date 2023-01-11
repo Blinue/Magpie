@@ -1,8 +1,5 @@
-namespace Magpie.UI
-{
-	[default_interface]
-	runtimeclass ShortcutControl : Windows.UI.Xaml.Controls.UserControl
-	{
+namespace Magpie.UI {
+	runtimeclass ShortcutControl : Windows.UI.Xaml.Controls.UserControl {
 		ShortcutControl();
 
 		HotkeyAction Action;

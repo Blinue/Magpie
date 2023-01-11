@@ -1,12 +1,10 @@
-namespace Magpie.UI
-{
-    runtimeclass CandidateWindowItem : [default] Windows.UI.Xaml.Data.INotifyPropertyChanged
-    {
+namespace Magpie.UI {
+    runtimeclass CandidateWindowItem : Windows.UI.Xaml.Data.INotifyPropertyChanged {
         CandidateWindowItem(UInt64 hWnd, UInt32 dpi, Boolean isLightTheme, Windows.UI.Core.CoreDispatcher dispatcher);
 
-        String Title{ get; };
-        Windows.UI.Xaml.Controls.IconElement Icon{ get; };
-        String DefaultProfileName{ get; };
+        String Title { get; };
+        Windows.UI.Xaml.Controls.IconElement Icon { get; };
+        String DefaultProfileName { get; };
 
         String AUMID { get; };
         String Path { get; };

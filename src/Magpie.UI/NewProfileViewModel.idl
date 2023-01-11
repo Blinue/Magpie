@@ -1,7 +1,5 @@
-namespace Magpie.UI
-{
-	runtimeclass NewProfileViewModel : [default] Windows.UI.Xaml.Data.INotifyPropertyChanged
-	{
+namespace Magpie.UI {
+	runtimeclass NewProfileViewModel : Windows.UI.Xaml.Data.INotifyPropertyChanged {
 		NewProfileViewModel();
 
 		void PrepareForOpen(UInt32 dpi, Boolean isLightTheme, Windows.UI.Core.CoreDispatcher dispatcher);

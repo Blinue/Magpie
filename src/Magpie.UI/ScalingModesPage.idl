@@ -1,17 +1,12 @@
-namespace Magpie.UI
-{
-	[default_interface]
-	runtimeclass ScalingType
-	{
+namespace Magpie.UI {
+	runtimeclass ScalingType {
 		ScalingType(String name, String desc);
 		
 		String Name { get; };
 		String Desc { get; };
 	}
 
-	[default_interface]
-	runtimeclass ScalingModesPage : Windows.UI.Xaml.Controls.Page
-	{
+	runtimeclass ScalingModesPage : Windows.UI.Xaml.Controls.Page {
 		ScalingModesPage();
 
 		ScalingModesViewModel ViewModel { get; };
