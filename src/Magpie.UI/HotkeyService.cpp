@@ -44,7 +44,11 @@ void HotkeyService::Initialize() {
 	}
 }
 
-HotkeyService::~HotkeyService() {
+void HotkeyService::Destory() {
+	if (!_hwndHotkey) {
+		return;
+	}
+
 	if (_keyboardHook) {
 		UnhookWindowsHookEx(_keyboardHook);
 	}
@@ -56,6 +60,11 @@ HotkeyService::~HotkeyService() {
 	}
 
 	DestroyWindow(_hwndHotkey);
+	_hwndHotkey = NULL;
+}
+
+HotkeyService::~HotkeyService() {
+	Destory();
 }
 
 LRESULT HotkeyService::_WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {

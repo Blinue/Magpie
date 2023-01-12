@@ -22,7 +22,12 @@ fire_and_forget AboutViewModel::CheckForUpdates() {
 	_updateStatus = -1;
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsCheckingForUpdates"));
 
+	auto weakThis = get_weak();
 	co_await UpdateService::Get().CheckForUpdatesAsync();
+
+	if (!weakThis.get()) {
+		co_return;
+	}
 
 	_isCheckingForUpdates = false;
 	_updateStatus = (int)UpdateService::Get().GetResult();

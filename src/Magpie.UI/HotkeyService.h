@@ -16,6 +16,8 @@ public:
 
 	void Initialize();
 
+	void Destory();
+
 	bool IsError(HotkeyAction action) const noexcept {
 		return _hotkeyInfos[(size_t)action].isError;
 	}

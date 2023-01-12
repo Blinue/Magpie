@@ -277,6 +277,7 @@ void XamlApp::_Quit() noexcept {
 		_nid.hIcon = NULL;
 	}
 
+	_uwpApp.Close();
 	_uwpApp = nullptr;
 	PostQuitMessage(0);
 }
