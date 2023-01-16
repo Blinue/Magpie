@@ -14,7 +14,7 @@ class Magpie(ConanFile):
 		"yas/7.1.0",
 		"rapidjson/cci.20220822",
 		"zstd/1.5.2",
-		"imgui/1.89.1",
+		"imgui/1.89.2",
 		"parallel-hashmap/1.37",
 		"mimalloc/2.0.7",
 		"kuba-zip/0.2.6"
