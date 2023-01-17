@@ -16,7 +16,9 @@ using namespace Windows::Storage::Streams;
 
 namespace winrt::Magpie::UI {
 
-IAsyncAction UpdateService::CheckForUpdatesAsync() {
+fire_and_forget UpdateService::CheckForUpdatesAsync() {
+	_Status(UpdateStatus::Checking);
+
 	rapidjson::Document doc;
 
 	HttpClient httpClient;
@@ -35,9 +37,9 @@ IAsyncAction UpdateService::CheckForUpdatesAsync() {
 
 		if (e.code() == HTTP_E_STATUS_NOT_FOUND) {
 			// 404 表示没有更新可用
-			_result = UpdateResult::NoUpdate;
+			_Status(UpdateStatus::NoUpdate);
 		} else {
-			_result = UpdateResult::NetworkError;
+			_Status(UpdateStatus::ErrorWhileChecking, UpdateError::Network);
 		}
 		
 		co_return;
@@ -45,7 +47,7 @@ IAsyncAction UpdateService::CheckForUpdatesAsync() {
 
 	if (!doc.IsObject()) {
 		Logger::Get().Error("根元素不是对象");
-		_result = UpdateResult::UnknownError;
+		_Status(UpdateStatus::ErrorWhileChecking, UpdateError::Logical);
 		co_return;
 	}
 
@@ -53,77 +55,77 @@ IAsyncAction UpdateService::CheckForUpdatesAsync() {
 	auto versionNode = root.FindMember("version");
 	if (versionNode == root.end()) {
 		Logger::Get().Error("找不到 version 成员");
-		_result = UpdateResult::UnknownError;
+		_Status(UpdateStatus::ErrorWhileChecking, UpdateError::Logical);
 		co_return;
 	}
 	if (!versionNode->value.IsString()) {
 		Logger::Get().Error("version 成员不是字符串");
-		_result = UpdateResult::UnknownError;
+		_Status(UpdateStatus::ErrorWhileChecking, UpdateError::Logical);
 		co_return;
 	}
 
 	Version remoteVersion;
 	if(!remoteVersion.Parse(versionNode->value.GetString())) {
 		Logger::Get().Error("解析版本号失败");
-		_result = UpdateResult::UnknownError;
+		_Status(UpdateStatus::ErrorWhileChecking, UpdateError::Logical);
 		co_return;
 	}
 
 	if (remoteVersion <= MAGPIE_VERSION) {
-		_result = UpdateResult::NoUpdate;
+		_Status(UpdateStatus::NoUpdate);
 		co_return;
 	}
-
-	_result = UpdateResult::Available;
 
 	auto tagNode = root.FindMember("tag");
 	if (tagNode == root.end()) {
 		Logger::Get().Error("找不到 tag 成员");
-		_result = UpdateResult::UnknownError;
+		_Status(UpdateStatus::ErrorWhileChecking, UpdateError::Logical);
 		co_return;
 	}
 	if (!tagNode->value.IsString()) {
 		Logger::Get().Error("tag 成员不是字符串");
-		_result = UpdateResult::UnknownError;
+		_Status(UpdateStatus::ErrorWhileChecking, UpdateError::Logical);
 		co_return;
 	}
 	_tag = StrUtils::UTF8ToUTF16(tagNode->value.GetString());
 	if (_tag.empty()) {
 		Logger::Get().Error("tag 成员为空");
-		_result = UpdateResult::UnknownError;
+		_Status(UpdateStatus::ErrorWhileChecking, UpdateError::Logical);
 		co_return;
 	}
 
 	auto binaryNode = root.FindMember("binary");
 	if (binaryNode == root.end()) {
 		Logger::Get().Error("找不到 binary 成员");
-		_result = UpdateResult::UnknownError;
+		_Status(UpdateStatus::ErrorWhileChecking, UpdateError::Logical);
 		co_return;
 	}
 	if (!binaryNode->value.IsObject()) {
 		Logger::Get().Error("binary 成员不是对象");
-		_result = UpdateResult::UnknownError;
+		_Status(UpdateStatus::ErrorWhileChecking, UpdateError::Logical);
 		co_return;
 	}
 	auto binaryObj = binaryNode->value.GetObj();
 	auto x64Node = binaryObj.FindMember("x64");
 	if (x64Node == binaryObj.end()) {
 		Logger::Get().Error("找不到 x64 成员");
-		_result = UpdateResult::UnknownError;
+		_Status(UpdateStatus::ErrorWhileChecking, UpdateError::Logical);
 		co_return;
 	}
 	if (!x64Node->value.IsString()) {
 		Logger::Get().Error("x64 成员不是字符串");
-		_result = UpdateResult::UnknownError;
+		_Status(UpdateStatus::ErrorWhileChecking, UpdateError::Logical);
 		co_return;
 	}
 
 	_binaryUrl = StrUtils::UTF8ToUTF16(x64Node->value.GetString());
 	if (_binaryUrl.empty()) {
 		Logger::Get().Error("x64 成员为空");
-		_result = UpdateResult::UnknownError;
+		_Status(UpdateStatus::ErrorWhileChecking, UpdateError::Logical);
 		co_return;
 	}
+
+	_Status(UpdateStatus::Available);
 
 	/*const std::wstring x64BinaryUrl = StrUtils::UTF8ToUTF16(x64Node->value.GetString());
 	try {
@@ -179,6 +181,52 @@ IAsyncAction UpdateService::CheckForUpdatesAsync() {
 
 	DeleteFile(updatePkg.c_str());
 	*/
+}
+
+void UpdateService::LeavingAboutPage() {
+	if (_status == UpdateStatus::NoUpdate || _status == UpdateStatus::ErrorWhileChecking) {
+		_Status(UpdateStatus::Pending);
+	}
+}
+
+void UpdateService::ClosingMainWindow() {
+	LeavingAboutPage();
+
+	if (_status == UpdateStatus::Available) {
+		_Status(UpdateStatus::Pending);
+	}
+}
+
+void UpdateService::Cancel() {
+	switch (_status) {
+	case UpdateStatus::Pending:
+		break;
+	case UpdateStatus::Checking:
+	case UpdateStatus::Installing:
+		// 不支持取消
+		assert(false);
+		break;
+	case UpdateStatus::NoUpdate:
+	case UpdateStatus::ErrorWhileChecking:
+	case UpdateStatus::Available:
+	case UpdateStatus::ErrorWhileDownloading:
+		_Status(UpdateStatus::Pending);
+		break;
+	case UpdateStatus::Downloading:
+		break;
+	default:
+		break;
+	}
+}
+
+void UpdateService::_Status(UpdateStatus value, UpdateError error) {
+	if (_status == value) {
+		return;
+	}
+
+	_status = value;
+	_error = error;
+	_statusChangedEvent(value);
 }
 
 }

@@ -28,6 +28,7 @@
 #include <CoreWindow.h>
 #include <Magpie.Core.h>
 #include "EffectsService.h"
+#include "UpdateService.h"
 
 using namespace winrt;
 using namespace Windows::UI::Xaml::Media;
@@ -134,9 +135,13 @@ void App::MainPage(Magpie::UI::MainPage const& mainPage) noexcept {
 	// 显示主窗口前等待 EffectsService 完成初始化
 	EffectsService::Get().WaitForInitialize();
 
-	// 不存储对 MainPage 的强引用
-	// XAML Islands 内部保留着对 MainPage 的强引用，MainPage 的生命周期是无法预知的
-	_mainPage = weak_ref(mainPage);
+	if (mainPage) {
+		// 不存储对 MainPage 的强引用
+		// XAML Islands 内部保留着对 MainPage 的强引用，MainPage 的生命周期是无法预知的
+		_mainPage = weak_ref(mainPage);
+	} else {
+		UpdateService::Get().ClosingMainWindow();
+	}
 }
 
 void App::RestartAsElevated() const noexcept {

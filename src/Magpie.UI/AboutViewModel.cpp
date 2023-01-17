@@ -9,6 +9,15 @@
 
 namespace winrt::Magpie::UI::implementation {
 
+AboutViewModel::AboutViewModel() {
+	_updateStatusChangedRevoker = UpdateService::Get().StatusChanged(
+		auto_revoke, { this, &AboutViewModel::_UpdateService_StatusChanged });
+}
+
+AboutViewModel::~AboutViewModel() {
+	UpdateService::Get().LeavingAboutPage();
+}
+
 hstring AboutViewModel::Version() const noexcept {
 	return MAGPIE_TAG_W;
 }
@@ -18,28 +27,7 @@ Uri AboutViewModel::ReleaseNotesLink() const noexcept {
 }
 
 fire_and_forget AboutViewModel::CheckForUpdates() {
-	_isCheckingForUpdates = true;
-	_updateStatus = -1;
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsCheckingForUpdates"));
-
-	auto weakThis = get_weak();
-	co_await UpdateService::Get().CheckForUpdatesAsync();
-
-	if (!weakThis.get()) {
-		co_return;
-	}
-
-	_isCheckingForUpdates = false;
-	_updateStatus = (int)UpdateService::Get().GetResult();
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsCheckingForUpdates"));
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsNetworkError"));
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsUnknownError"));
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsNoUpdate"));
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsAvailable"));
-
-	if (IsAvailable()) {
-		_propertyChangedEvent(*this, PropertyChangedEventArgs(L"UpdateReleaseNotesLink"));
-	}
+	return UpdateService::Get().CheckForUpdatesAsync();
 }
 
 bool AboutViewModel::IsCheckForPreviewUpdates() const noexcept {
@@ -58,20 +46,50 @@ void AboutViewModel::IsAutoCheckForUpdates(bool value) noexcept {
 	AppSettings::Get().IsAutoCheckForUpdates(value);
 }
 
-bool AboutViewModel::IsNetworkError() const noexcept {
-	return _updateStatus == (int)UpdateResult::NetworkError;
+bool AboutViewModel::IsCheckingForUpdates() const noexcept {
+	return UpdateService::Get().Status() == UpdateStatus::Checking;
 }
 
-bool AboutViewModel::IsUnknownError() const noexcept {
-	return _updateStatus == (int)UpdateResult::UnknownError;
+bool AboutViewModel::IsNetworkErrorWhileChecking() const noexcept {
+	UpdateService& service = UpdateService::Get();
+	return service.Status() == UpdateStatus::ErrorWhileChecking && service.Error() == UpdateError::Network;
+}
+
+void AboutViewModel::IsNetworkErrorWhileChecking(bool value) noexcept {
+	if (!value) {
+		UpdateService::Get().Cancel();
+	}
+}
+
+bool AboutViewModel::IsOtherErrorWhileChecking() const noexcept {
+	UpdateService& service = UpdateService::Get();
+	return service.Status() == UpdateStatus::ErrorWhileChecking && service.Error() != UpdateError::Network;
+}
+
+void AboutViewModel::IsOtherErrorWhileChecking(bool value) noexcept {
+	if (!value) {
+		UpdateService::Get().Cancel();
+	}
 }
 
 bool AboutViewModel::IsNoUpdate() const noexcept {
-	return _updateStatus == (int)UpdateResult::NoUpdate;
+	return UpdateService::Get().Status() == UpdateStatus::NoUpdate;
+}
+
+void AboutViewModel::IsNoUpdate(bool value) noexcept {
+	if (!value) {
+		UpdateService::Get().Cancel();
+	}
 }
 
 bool AboutViewModel::IsAvailable() const noexcept {
-	return _updateStatus == (int)UpdateResult::Available;
+	return UpdateService::Get().Status() == UpdateStatus::Available;
+}
+
+void AboutViewModel::IsAvailable(bool value) noexcept {
+	if (!value) {
+		UpdateService::Get().Cancel();
+	}
 }
 
 Uri AboutViewModel::UpdateReleaseNotesLink() const noexcept {
@@ -81,6 +99,18 @@ Uri AboutViewModel::UpdateReleaseNotesLink() const noexcept {
 
 	return Uri(StrUtils::ConcatW(L"https://github.com/Blinue/Magpie/releases/tag/",
 		UpdateService::Get().Tag()));
+}
+
+void AboutViewModel::_UpdateService_StatusChanged(UpdateStatus) {
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsCheckingForUpdates"));
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsNetworkErrorWhileChecking"));
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsOtherErrorWhileChecking"));
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsNoUpdate"));
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsAvailable"));
+
+	if (IsAvailable()) {
+		_propertyChangedEvent(*this, PropertyChangedEventArgs(L"UpdateReleaseNotesLink"));
+	}
 }
 
 }

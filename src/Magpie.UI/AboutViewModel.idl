@@ -11,10 +11,10 @@ namespace Magpie.UI {
 		Boolean IsAutoCheckForUpdates;
 		Boolean IsCheckForPreviewUpdates;
 
-		Boolean IsNetworkError { get; };
-		Boolean IsUnknownError { get; };
-		Boolean IsNoUpdate { get; };
-		Boolean IsAvailable { get; };
+		Boolean IsNetworkErrorWhileChecking;
+		Boolean IsOtherErrorWhileChecking;
+		Boolean IsNoUpdate;
+		Boolean IsAvailable;
 
 		Windows.Foundation.Uri UpdateReleaseNotesLink { get; };
 	}

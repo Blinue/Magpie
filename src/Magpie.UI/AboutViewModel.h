@@ -1,10 +1,12 @@
 #pragma once
 #include "AboutViewModel.g.h"
+#include "UpdateService.h"
 
 namespace winrt::Magpie::UI::implementation {
 
 struct AboutViewModel : AboutViewModelT<AboutViewModel> {
-    AboutViewModel() = default;
+	AboutViewModel();
+	~AboutViewModel();
 
 	event_token PropertyChanged(PropertyChangedEventHandler const& handler) {
 		return _propertyChangedEvent.add(handler);
@@ -26,23 +28,27 @@ struct AboutViewModel : AboutViewModelT<AboutViewModel> {
 	bool IsAutoCheckForUpdates() const noexcept;
 	void IsAutoCheckForUpdates(bool value) noexcept;
 
-	bool IsCheckingForUpdates() const noexcept {
-		return _isCheckingForUpdates;
-	}
+	bool IsCheckingForUpdates() const noexcept;
 
-	bool IsNetworkError() const noexcept;
-	bool IsUnknownError() const noexcept;
+	bool IsNetworkErrorWhileChecking() const noexcept;
+	void IsNetworkErrorWhileChecking(bool value) noexcept;
+
+	bool IsOtherErrorWhileChecking() const noexcept;
+	void IsOtherErrorWhileChecking(bool value) noexcept;
+
 	bool IsNoUpdate() const noexcept;
+	void IsNoUpdate(bool value) noexcept;
+
 	bool IsAvailable() const noexcept;
+	void IsAvailable(bool value) noexcept;
 
 	Uri UpdateReleaseNotesLink() const noexcept;
 
 private:
-	event<PropertyChangedEventHandler> _propertyChangedEvent;
+	void _UpdateService_StatusChanged(UpdateStatus);
 
-	bool _isCheckingForUpdates = false;
-	// -1 表示尚未检查更新，否则为 UpdateResult
-	int _updateStatus = -1;
+	event<PropertyChangedEventHandler> _propertyChangedEvent;
+	WinRTUtils::EventRevoker _updateStatusChangedRevoker;
 };
 
 }
