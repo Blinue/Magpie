@@ -57,7 +57,10 @@ bool AboutViewModel::IsNetworkErrorWhileChecking() const noexcept {
 
 void AboutViewModel::IsNetworkErrorWhileChecking(bool value) noexcept {
 	if (!value) {
-		UpdateService::Get().Cancel();
+		UpdateService& service = UpdateService::Get();
+		if (service.Status() == UpdateStatus::ErrorWhileChecking) {
+			service.Cancel();
+		}
 	}
 }
 
@@ -67,9 +70,7 @@ bool AboutViewModel::IsOtherErrorWhileChecking() const noexcept {
 }
 
 void AboutViewModel::IsOtherErrorWhileChecking(bool value) noexcept {
-	if (!value) {
-		UpdateService::Get().Cancel();
-	}
+	IsNetworkErrorWhileChecking(value);
 }
 
 bool AboutViewModel::IsNoUpdate() const noexcept {
@@ -78,7 +79,10 @@ bool AboutViewModel::IsNoUpdate() const noexcept {
 
 void AboutViewModel::IsNoUpdate(bool value) noexcept {
 	if (!value) {
-		UpdateService::Get().Cancel();
+		UpdateService& service = UpdateService::Get();
+		if (service.Status() == UpdateStatus::NoUpdate) {
+			service.Cancel();
+		}
 	}
 }
 
@@ -88,7 +92,10 @@ bool AboutViewModel::IsAvailable() const noexcept {
 
 void AboutViewModel::IsAvailable(bool value) noexcept {
 	if (!value) {
-		UpdateService::Get().Cancel();
+		UpdateService& service = UpdateService::Get();
+		if (service.Status() == UpdateStatus::Available) {
+			service.Cancel();
+		}
 	}
 }
 
@@ -99,6 +106,10 @@ Uri AboutViewModel::UpdateReleaseNotesLink() const noexcept {
 
 	return Uri(StrUtils::ConcatW(L"https://github.com/Blinue/Magpie/releases/tag/",
 		UpdateService::Get().Tag()));
+}
+
+void AboutViewModel::DownloadAndInstall() {
+	UpdateService::Get().DownloadAndInstall();
 }
 
 void AboutViewModel::_UpdateService_StatusChanged(UpdateStatus) {

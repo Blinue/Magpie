@@ -44,6 +44,8 @@ struct AboutViewModel : AboutViewModelT<AboutViewModel> {
 
 	Uri UpdateReleaseNotesLink() const noexcept;
 
+	void DownloadAndInstall();
+
 private:
 	void _UpdateService_StatusChanged(UpdateStatus);
 

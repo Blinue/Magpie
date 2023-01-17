@@ -17,5 +17,7 @@ namespace Magpie.UI {
 		Boolean IsAvailable;
 
 		Windows.Foundation.Uri UpdateReleaseNotesLink { get; };
+
+		void DownloadAndInstall();
 	}
 }

@@ -55,6 +55,8 @@ public:
 
 	fire_and_forget CheckForUpdatesAsync();
 
+	void DownloadAndInstall();
+
 	void LeavingAboutPage();
 
 	void ClosingMainWindow();
@@ -67,6 +69,7 @@ public:
 	}
 
 	const std::wstring& BinaryUrl() const noexcept {
+		assert(_status >= UpdateStatus::Available);
 		return _binaryUrl;
 	}
 

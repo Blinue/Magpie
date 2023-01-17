@@ -9,6 +9,7 @@
 #include "Win32Utils.h"
 #include "CommonSharedConstants.h"
 #include <zip/zip.h>
+#include <filesystem>
 
 using namespace winrt;
 using namespace Windows::Storage;
@@ -21,8 +22,8 @@ fire_and_forget UpdateService::CheckForUpdatesAsync() {
 
 	rapidjson::Document doc;
 
-	HttpClient httpClient;
 	try {
+		HttpClient httpClient;
 		IBuffer buffer = co_await httpClient.GetBufferAsync(
 			Uri(AppSettings::Get().IsCheckForPreviewUpdates()
 			? L"https://raw.githubusercontent.com/Blinue/Magpie/dev/version.json"
@@ -126,10 +127,17 @@ fire_and_forget UpdateService::CheckForUpdatesAsync() {
 	}
 
 	_Status(UpdateStatus::Available);
+}
 
-	/*const std::wstring x64BinaryUrl = StrUtils::UTF8ToUTF16(x64Node->value.GetString());
-	try {
-		auto progressOp1 = httpClient.TryGetInputStreamAsync(Uri(x64BinaryUrl));
+void UpdateService::DownloadAndInstall() {
+	assert(_status == UpdateStatus::Available || _status == UpdateStatus::ErrorWhileDownloading);
+
+	// 删除 update 文件夹
+	std::filesystem::remove_all(CommonSharedConstants::UPDATE_DIR);
+
+	/*try {
+		HttpClient httpClient;
+		auto progressOp1 = httpClient.TryGetInputStreamAsync(Uri(_binaryUrl));
 		uint64_t totalBytes = 0;
 		progressOp1.Progress([&totalBytes](const auto&, const HttpProgress& progress) {
 			if (std::optional<uint64_t> totalBytesToReceive = progress.TotalBytesToReceive) {
@@ -166,7 +174,7 @@ fire_and_forget UpdateService::CheckForUpdatesAsync() {
 	}
 
 	co_await resume_background();
-	
+
 	std::wstring updatePkg = CommonSharedConstants::UPDATE_DIR + L"\\update.zip"s;
 	int ec = zip_extract(
 		StrUtils::UTF16ToUTF8(updatePkg).c_str(),
@@ -179,8 +187,7 @@ fire_and_forget UpdateService::CheckForUpdatesAsync() {
 		co_return;
 	}
 
-	DeleteFile(updatePkg.c_str());
-	*/
+	DeleteFile(updatePkg.c_str());*/
 }
 
 void UpdateService::LeavingAboutPage() {
@@ -200,7 +207,6 @@ void UpdateService::ClosingMainWindow() {
 void UpdateService::Cancel() {
 	switch (_status) {
 	case UpdateStatus::Pending:
-		break;
 	case UpdateStatus::Checking:
 	case UpdateStatus::Installing:
 		// 不支持取消
