@@ -129,50 +129,66 @@ fire_and_forget UpdateService::CheckForUpdatesAsync() {
 	_Status(UpdateStatus::Available);
 }
 
-void UpdateService::DownloadAndInstall() {
+fire_and_forget UpdateService::DownloadAndInstall() {
 	assert(_status == UpdateStatus::Available || _status == UpdateStatus::ErrorWhileDownloading);
+	_Status(UpdateStatus::Downloading);
 
 	// 删除 update 文件夹
 	std::filesystem::remove_all(CommonSharedConstants::UPDATE_DIR);
 
-	/*try {
-		HttpClient httpClient;
-		auto progressOp1 = httpClient.TryGetInputStreamAsync(Uri(_binaryUrl));
-		uint64_t totalBytes = 0;
-		progressOp1.Progress([&totalBytes](const auto&, const HttpProgress& progress) {
-			if (std::optional<uint64_t> totalBytesToReceive = progress.TotalBytesToReceive) {
-				totalBytes = *totalBytesToReceive;
-			}
-		});
-		HttpGetInputStreamResult httpResult = co_await progressOp1;
-
+	// 下载新版
+	try {
 		wchar_t curDir[MAX_PATH];
 		GetCurrentDirectory(MAX_PATH, curDir);
 		StorageFolder curFolder = co_await StorageFolder::GetFolderFromPathAsync(curDir);
+
+		std::wstring updateDir(CommonSharedConstants::UPDATE_DIR, StrUtils::StrLen(CommonSharedConstants::UPDATE_DIR) - 1);
 		StorageFolder updateFolder = co_await curFolder.CreateFolderAsync(
-			CommonSharedConstants::UPDATE_DIR, CreationCollisionOption::OpenIfExists);
+			updateDir.c_str(), CreationCollisionOption::OpenIfExists);
 
 		StorageFile updatePkg = co_await updateFolder.CreateFileAsync(
 			L"update.zip",
 			CreationCollisionOption::ReplaceExisting
 		);
+
+		HttpClient httpClient;
+		auto requestProgressOp = httpClient.GetInputStreamAsync(Uri(_binaryUrl));
+		float totalBytes = 0;
+		requestProgressOp.Progress([&totalBytes](const auto&, const HttpProgress& progress) {
+			if (std::optional<uint64_t> totalBytesToReceive = progress.TotalBytesToReceive) {
+				totalBytes = (float)*totalBytesToReceive;
+			}
+		});
+		IInputStream httpStream = co_await requestProgressOp;
+
 		IRandomAccessStream fileStream = co_await updatePkg.OpenAsync(FileAccessMode::ReadWrite);
 
-		auto progressOp2 = httpResult.ResponseMessage().Content().WriteToStreamAsync(fileStream);
-		if (totalBytes > 0) {
-			progressOp2.Progress([totalBytes](const auto&, uint64_t readed) {
-				OutputDebugString(fmt::format(L"{}\n", readed * 100.0 / totalBytes).c_str());
-			});
-		}
-		co_await progressOp2;
+		Buffer buffer(16 * 1024);
+		uint32_t bytesReceived = 0;
+		while (true) {
+			IBuffer resultBuffer = co_await httpStream.ReadAsync(buffer, buffer.Capacity(), InputStreamOptions::Partial);
+			uint32_t size = resultBuffer.Length();
+			if (size == 0) {
+				break;
+			}
 
+			bytesReceived += size;
+			_downloadProgress = bytesReceived / totalBytes;
+			_downloadProgressChangedEvent(_downloadProgress);
+
+			co_await fileStream.WriteAsync(resultBuffer);
+		}
+
+		co_await fileStream.FlushAsync();
 		fileStream.Close();
 	} catch (const hresult_error& e) {
-		_result = UpdateResult::NetworkError;
-		OutputDebugString(e.message().c_str());
+		Logger::Get().Error(StrUtils::Concat("下载失败：", StrUtils::UTF16ToUTF8(e.message())));
+		_Status(UpdateStatus::ErrorWhileDownloading, UpdateError::Network);
 		co_return;
 	}
 
+	// 后台解压 zip
+	CoreDispatcher dispatcher = CoreWindow::GetForCurrentThread().Dispatcher();
 	co_await resume_background();
 
 	std::wstring updatePkg = CommonSharedConstants::UPDATE_DIR + L"\\update.zip"s;
@@ -183,11 +199,16 @@ void UpdateService::DownloadAndInstall() {
 		nullptr
 	);
 	if (ec < 0) {
-		_result = UpdateResult::UnknownError;
+		_Status(UpdateStatus::ErrorWhileDownloading, UpdateError::Unknown);
 		co_return;
 	}
 
-	DeleteFile(updatePkg.c_str());*/
+	DeleteFile(updatePkg.c_str());
+
+	co_await dispatcher;
+
+	// 安装
+	_Status(UpdateStatus::Installing);
 }
 
 void UpdateService::LeavingAboutPage() {

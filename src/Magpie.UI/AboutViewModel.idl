@@ -15,6 +15,7 @@ namespace Magpie.UI {
 		Boolean IsOtherErrorWhileChecking;
 		Boolean IsNoUpdate;
 		Boolean IsAvailable;
+		Boolean IsDownloading { get; };
 
 		Windows.Foundation.Uri UpdateReleaseNotesLink { get; };
 

@@ -99,6 +99,10 @@ void AboutViewModel::IsAvailable(bool value) noexcept {
 	}
 }
 
+bool AboutViewModel::IsDownloading() const noexcept {
+	return UpdateService::Get().Status() == UpdateStatus::Downloading;
+}
+
 Uri AboutViewModel::UpdateReleaseNotesLink() const noexcept {
 	if (!IsAvailable()) {
 		return nullptr;
@@ -108,8 +112,8 @@ Uri AboutViewModel::UpdateReleaseNotesLink() const noexcept {
 		UpdateService::Get().Tag()));
 }
 
-void AboutViewModel::DownloadAndInstall() {
-	UpdateService::Get().DownloadAndInstall();
+fire_and_forget AboutViewModel::DownloadAndInstall() {
+	return UpdateService::Get().DownloadAndInstall();
 }
 
 void AboutViewModel::_UpdateService_StatusChanged(UpdateStatus) {

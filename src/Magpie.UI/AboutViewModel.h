@@ -42,9 +42,11 @@ struct AboutViewModel : AboutViewModelT<AboutViewModel> {
 	bool IsAvailable() const noexcept;
 	void IsAvailable(bool value) noexcept;
 
+	bool IsDownloading() const noexcept;
+
 	Uri UpdateReleaseNotesLink() const noexcept;
 
-	void DownloadAndInstall();
+	fire_and_forget DownloadAndInstall();
 
 private:
 	void _UpdateService_StatusChanged(UpdateStatus);

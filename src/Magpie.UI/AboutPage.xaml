@@ -77,7 +77,8 @@
 							<Button Click="{x:Bind ViewModel.DownloadAndInstall}"
 							        Content="下载并安装"
 							        Style="{StaticResource AccentButtonStyle}" />
-							<HyperlinkButton Content="发行说明"
+							<HyperlinkButton VerticalAlignment="Center"
+							                 Content="发行说明"
 							                 NavigateUri="{x:Bind ViewModel.UpdateReleaseNotesLink, Mode=OneWay}" />
 						</StackPanel>
 					</muxc:InfoBar>
