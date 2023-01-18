@@ -50,27 +50,18 @@ bool AboutViewModel::IsCheckingForUpdates() const noexcept {
 	return UpdateService::Get().Status() == UpdateStatus::Checking;
 }
 
-bool AboutViewModel::IsNetworkErrorWhileChecking() const noexcept {
+bool AboutViewModel::IsErrorWhileChecking() const noexcept {
 	UpdateService& service = UpdateService::Get();
-	return service.Status() == UpdateStatus::ErrorWhileChecking && service.Error() == UpdateError::Network;
+	return service.Status() == UpdateStatus::ErrorWhileChecking;
 }
 
-void AboutViewModel::IsNetworkErrorWhileChecking(bool value) noexcept {
+void AboutViewModel::IsErrorWhileChecking(bool value) noexcept {
 	if (!value) {
 		UpdateService& service = UpdateService::Get();
 		if (service.Status() == UpdateStatus::ErrorWhileChecking) {
 			service.Cancel();
 		}
 	}
-}
-
-bool AboutViewModel::IsOtherErrorWhileChecking() const noexcept {
-	UpdateService& service = UpdateService::Get();
-	return service.Status() == UpdateStatus::ErrorWhileChecking && service.Error() != UpdateError::Network;
-}
-
-void AboutViewModel::IsOtherErrorWhileChecking(bool value) noexcept {
-	IsNetworkErrorWhileChecking(value);
 }
 
 bool AboutViewModel::IsNoUpdate() const noexcept {
@@ -118,8 +109,7 @@ fire_and_forget AboutViewModel::DownloadAndInstall() {
 
 void AboutViewModel::_UpdateService_StatusChanged(UpdateStatus) {
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsCheckingForUpdates"));
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsNetworkErrorWhileChecking"));
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsOtherErrorWhileChecking"));
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsErrorWhileChecking"));
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsNoUpdate"));
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsAvailable"));
 

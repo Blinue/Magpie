@@ -58,12 +58,8 @@
 					</muxc:Expander.Content>
 				</muxc:Expander>
 				<StackPanel>
-					<muxc:InfoBar Title="检查更新失败"
-					              IsOpen="{x:Bind ViewModel.IsNetworkErrorWhileChecking, Mode=TwoWay}"
-					              Message="网络错误，请稍后重试"
-					              Severity="Error" />
-					<muxc:InfoBar Title="检查更新失败"
-					              IsOpen="{x:Bind ViewModel.IsOtherErrorWhileChecking, Mode=TwoWay}"
+					<muxc:InfoBar Title="检查更新失败，请稍后重试"
+					              IsOpen="{x:Bind ViewModel.IsErrorWhileChecking, Mode=TwoWay}"
 					              Severity="Error" />
 					<muxc:InfoBar Title="Magpie 已是最新"
 					              IsOpen="{x:Bind ViewModel.IsNoUpdate, Mode=TwoWay}"

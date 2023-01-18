@@ -11,8 +11,7 @@ namespace Magpie.UI {
 		Boolean IsAutoCheckForUpdates;
 		Boolean IsCheckForPreviewUpdates;
 
-		Boolean IsNetworkErrorWhileChecking;
-		Boolean IsOtherErrorWhileChecking;
+		Boolean IsErrorWhileChecking;
 		Boolean IsNoUpdate;
 		Boolean IsAvailable;
 		Boolean IsDownloading { get; };

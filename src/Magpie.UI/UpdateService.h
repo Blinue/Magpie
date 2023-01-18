@@ -14,12 +14,6 @@ enum class UpdateStatus {
 	Installing
 };
 
-enum class UpdateError {
-	Network,
-	Logical,
-	Unknown
-};
-
 class UpdateService {
 public:
 	static UpdateService& Get() noexcept {
@@ -32,10 +26,6 @@ public:
 
 	UpdateStatus Status() const noexcept {
 		return _status;
-	}
-
-	UpdateError Error() const noexcept {
-		return _error;
 	}
 
 	event_token StatusChanged(delegate<UpdateStatus> const& handler) {
@@ -96,15 +86,15 @@ public:
 private:
 	UpdateService() = default;
 
-	void _Status(UpdateStatus value, UpdateError error = UpdateError::Unknown);
+	void _Status(UpdateStatus value);
 
 	event<delegate<UpdateStatus>> _statusChangedEvent;
 	event<delegate<float>> _downloadProgressChangedEvent;
 
 	std::wstring _tag;
 	std::wstring _binaryUrl;
+	std::wstring _binaryHash;
 	UpdateStatus _status = UpdateStatus::Pending;
-	UpdateError _error = UpdateError::Unknown;
 	float _downloadProgress = 0;
 };
 

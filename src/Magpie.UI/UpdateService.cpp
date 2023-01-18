@@ -40,7 +40,7 @@ fire_and_forget UpdateService::CheckForUpdatesAsync() {
 			// 404 表示没有更新可用
 			_Status(UpdateStatus::NoUpdate);
 		} else {
-			_Status(UpdateStatus::ErrorWhileChecking, UpdateError::Network);
+			_Status(UpdateStatus::ErrorWhileChecking);
 		}
 		
 		co_return;
@@ -48,7 +48,7 @@ fire_and_forget UpdateService::CheckForUpdatesAsync() {
 
 	if (!doc.IsObject()) {
 		Logger::Get().Error("根元素不是对象");
-		_Status(UpdateStatus::ErrorWhileChecking, UpdateError::Logical);
+		_Status(UpdateStatus::ErrorWhileChecking);
 		co_return;
 	}
 
@@ -56,19 +56,19 @@ fire_and_forget UpdateService::CheckForUpdatesAsync() {
 	auto versionNode = root.FindMember("version");
 	if (versionNode == root.end()) {
 		Logger::Get().Error("找不到 version 成员");
-		_Status(UpdateStatus::ErrorWhileChecking, UpdateError::Logical);
+		_Status(UpdateStatus::ErrorWhileChecking);
 		co_return;
 	}
 	if (!versionNode->value.IsString()) {
 		Logger::Get().Error("version 成员不是字符串");
-		_Status(UpdateStatus::ErrorWhileChecking, UpdateError::Logical);
+		_Status(UpdateStatus::ErrorWhileChecking);
 		co_return;
 	}
 
 	Version remoteVersion;
 	if(!remoteVersion.Parse(versionNode->value.GetString())) {
 		Logger::Get().Error("解析版本号失败");
-		_Status(UpdateStatus::ErrorWhileChecking, UpdateError::Logical);
+		_Status(UpdateStatus::ErrorWhileChecking);
 		co_return;
 	}
 
@@ -80,49 +80,79 @@ fire_and_forget UpdateService::CheckForUpdatesAsync() {
 	auto tagNode = root.FindMember("tag");
 	if (tagNode == root.end()) {
 		Logger::Get().Error("找不到 tag 成员");
-		_Status(UpdateStatus::ErrorWhileChecking, UpdateError::Logical);
+		_Status(UpdateStatus::ErrorWhileChecking);
 		co_return;
 	}
 	if (!tagNode->value.IsString()) {
 		Logger::Get().Error("tag 成员不是字符串");
-		_Status(UpdateStatus::ErrorWhileChecking, UpdateError::Logical);
+		_Status(UpdateStatus::ErrorWhileChecking);
 		co_return;
 	}
 	_tag = StrUtils::UTF8ToUTF16(tagNode->value.GetString());
 	if (_tag.empty()) {
 		Logger::Get().Error("tag 成员为空");
-		_Status(UpdateStatus::ErrorWhileChecking, UpdateError::Logical);
+		_Status(UpdateStatus::ErrorWhileChecking);
 		co_return;
 	}
 
 	auto binaryNode = root.FindMember("binary");
 	if (binaryNode == root.end()) {
 		Logger::Get().Error("找不到 binary 成员");
-		_Status(UpdateStatus::ErrorWhileChecking, UpdateError::Logical);
+		_Status(UpdateStatus::ErrorWhileChecking);
 		co_return;
 	}
 	if (!binaryNode->value.IsObject()) {
 		Logger::Get().Error("binary 成员不是对象");
-		_Status(UpdateStatus::ErrorWhileChecking, UpdateError::Logical);
+		_Status(UpdateStatus::ErrorWhileChecking);
 		co_return;
 	}
 	auto binaryObj = binaryNode->value.GetObj();
 	auto x64Node = binaryObj.FindMember("x64");
 	if (x64Node == binaryObj.end()) {
 		Logger::Get().Error("找不到 x64 成员");
-		_Status(UpdateStatus::ErrorWhileChecking, UpdateError::Logical);
+		_Status(UpdateStatus::ErrorWhileChecking);
 		co_return;
 	}
-	if (!x64Node->value.IsString()) {
-		Logger::Get().Error("x64 成员不是字符串");
-		_Status(UpdateStatus::ErrorWhileChecking, UpdateError::Logical);
+	if (!x64Node->value.IsObject()) {
+		Logger::Get().Error("x64 成员不是对象");
+		_Status(UpdateStatus::ErrorWhileChecking);
+		co_return;
+	}
+	auto x64Obj = x64Node->value.GetObj();
+
+	auto urlNode = x64Obj.FindMember("url");
+	if (urlNode == x64Obj.end()) {
+		Logger::Get().Error("找不到 url 成员");
+		_Status(UpdateStatus::ErrorWhileChecking);
+		co_return;
+	}
+	if (!urlNode->value.IsString()) {
+		Logger::Get().Error("url 成员不是字符串");
+		_Status(UpdateStatus::ErrorWhileChecking);
+		co_return;
+	}
+	_binaryUrl = StrUtils::UTF8ToUTF16(urlNode->value.GetString());
+	if (_binaryUrl.empty()) {
+		Logger::Get().Error("url 成员为空");
+		_Status(UpdateStatus::ErrorWhileChecking);
 		co_return;
 	}
 
-	_binaryUrl = StrUtils::UTF8ToUTF16(x64Node->value.GetString());
-	if (_binaryUrl.empty()) {
-		Logger::Get().Error("x64 成员为空");
-		_Status(UpdateStatus::ErrorWhileChecking, UpdateError::Logical);
+	auto hashNode = x64Obj.FindMember("hash");
+	if (hashNode == x64Obj.end()) {
+		Logger::Get().Error("找不到 hash 成员");
+		_Status(UpdateStatus::ErrorWhileChecking);
+		co_return;
+	}
+	if (!hashNode->value.IsString()) {
+		Logger::Get().Error("hash 成员不是字符串");
+		_Status(UpdateStatus::ErrorWhileChecking);
+		co_return;
+	}
+	_binaryHash = StrUtils::UTF8ToUTF16(hashNode->value.GetString());
+	if (_binaryHash.empty()) {
+		Logger::Get().Error("hash 成员为空");
+		_Status(UpdateStatus::ErrorWhileChecking);
 		co_return;
 	}
 
@@ -183,7 +213,7 @@ fire_and_forget UpdateService::DownloadAndInstall() {
 		fileStream.Close();
 	} catch (const hresult_error& e) {
 		Logger::Get().Error(StrUtils::Concat("下载失败：", StrUtils::UTF16ToUTF8(e.message())));
-		_Status(UpdateStatus::ErrorWhileDownloading, UpdateError::Network);
+		_Status(UpdateStatus::ErrorWhileDownloading);
 		co_return;
 	}
 
@@ -199,7 +229,7 @@ fire_and_forget UpdateService::DownloadAndInstall() {
 		nullptr
 	);
 	if (ec < 0) {
-		_Status(UpdateStatus::ErrorWhileDownloading, UpdateError::Unknown);
+		_Status(UpdateStatus::ErrorWhileDownloading);
 		co_return;
 	}
 
@@ -246,13 +276,12 @@ void UpdateService::Cancel() {
 	}
 }
 
-void UpdateService::_Status(UpdateStatus value, UpdateError error) {
+void UpdateService::_Status(UpdateStatus value) {
 	if (_status == value) {
 		return;
 	}
 
 	_status = value;
-	_error = error;
 	_statusChangedEvent(value);
 }
 

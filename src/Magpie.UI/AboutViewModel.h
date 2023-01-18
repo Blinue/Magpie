@@ -30,11 +30,8 @@ struct AboutViewModel : AboutViewModelT<AboutViewModel> {
 
 	bool IsCheckingForUpdates() const noexcept;
 
-	bool IsNetworkErrorWhileChecking() const noexcept;
-	void IsNetworkErrorWhileChecking(bool value) noexcept;
-
-	bool IsOtherErrorWhileChecking() const noexcept;
-	void IsOtherErrorWhileChecking(bool value) noexcept;
+	bool IsErrorWhileChecking() const noexcept;
+	void IsErrorWhileChecking(bool value) noexcept;
 
 	bool IsNoUpdate() const noexcept;
 	void IsNoUpdate(bool value) noexcept;
