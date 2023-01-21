@@ -13,8 +13,12 @@ namespace Magpie.UI {
 
 		Boolean IsErrorWhileChecking;
 		Boolean IsNoUpdate;
-		Boolean IsAvailable;
-		Boolean IsDownloading { get; };
+		Boolean IsAvailable { get; };
+		Boolean IsDownloadingOrLater { get; };
+		Boolean IsAvailableOrLater;
+
+		Boolean IsNoDownloadProgress { get; };
+		Double DownloadProgress { get; };
 
 		Windows.Foundation.Uri UpdateReleaseNotesLink { get; };
 

@@ -65,17 +65,42 @@
 					              IsOpen="{x:Bind ViewModel.IsNoUpdate, Mode=TwoWay}"
 					              Severity="Success" />
 					<muxc:InfoBar Title="v0.10.0-preview1 可用"
-					              IsOpen="{x:Bind ViewModel.IsAvailable, Mode=TwoWay}"
+					              IsClosable="{x:Bind ViewModel.IsAvailable, Mode=OneWay}"
+					              IsOpen="{x:Bind ViewModel.IsAvailableOrLater, Mode=TwoWay}"
 					              Severity="Informational">
-						<StackPanel Margin="0,0,0,16"
-						            Orientation="Horizontal"
-						            Spacing="10">
-							<Button Click="{x:Bind ViewModel.DownloadAndInstall}"
-							        Content="下载并安装"
-							        Style="{StaticResource AccentButtonStyle}" />
-							<HyperlinkButton VerticalAlignment="Center"
-							                 Content="发行说明"
-							                 NavigateUri="{x:Bind ViewModel.UpdateReleaseNotesLink, Mode=OneWay}" />
+						<StackPanel>
+							<Grid Margin="0,0,25,16"
+							      ColumnSpacing="12"
+							      Visibility="{x:Bind ViewModel.IsDownloadingOrLater, Mode=OneWay}">
+								<Grid.ColumnDefinitions>
+									<ColumnDefinition Width="*" />
+									<ColumnDefinition Width="Auto" />
+								</Grid.ColumnDefinitions>
+								<muxc:ProgressBar Margin="0"
+								                  Padding="0"
+								                  VerticalAlignment="Center"
+								                  IsIndeterminate="{x:Bind ViewModel.IsNoDownloadProgress, Mode=OneWay}"
+								                  Maximum="1"
+								                  Minimum="0"
+								                  Value="{x:Bind ViewModel.DownloadProgress, Mode=OneWay}" />
+								<TextBlock Grid.Column="1"
+								           Margin="0,-2,0,0"
+								           VerticalAlignment="Center"
+								           Text="下载中" />
+							</Grid>
+							<StackPanel Margin="0,0,0,16"
+							            Orientation="Horizontal">
+								<Button Click="{x:Bind ViewModel.DownloadAndInstall}"
+								        Content="下载并安装"
+								        Style="{StaticResource AccentButtonStyle}"
+								        Visibility="{x:Bind ViewModel.IsAvailable, Mode=OneWay}" />
+								<Button Content="取消"
+								        Visibility="{x:Bind ViewModel.IsAvailable, Mode=OneWay, Converter={StaticResource NegativeVisibilityConverter}}" />
+								<HyperlinkButton Margin="10,0,0,0"
+								                 VerticalAlignment="Center"
+								                 Content="发行说明"
+								                 NavigateUri="{x:Bind ViewModel.UpdateReleaseNotesLink, Mode=OneWay}" />
+							</StackPanel>
 						</StackPanel>
 					</muxc:InfoBar>
 				</StackPanel>

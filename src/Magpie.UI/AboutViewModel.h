@@ -37,9 +37,14 @@ struct AboutViewModel : AboutViewModelT<AboutViewModel> {
 	void IsNoUpdate(bool value) noexcept;
 
 	bool IsAvailable() const noexcept;
-	void IsAvailable(bool value) noexcept;
 
-	bool IsDownloading() const noexcept;
+	bool IsDownloadingOrLater() const noexcept;
+
+	bool IsAvailableOrLater() const noexcept;
+	void IsAvailableOrLater(bool value) noexcept;
+
+	bool IsNoDownloadProgress() const noexcept;
+	double DownloadProgress() const noexcept;
 
 	Uri UpdateReleaseNotesLink() const noexcept;
 
@@ -47,9 +52,11 @@ struct AboutViewModel : AboutViewModelT<AboutViewModel> {
 
 private:
 	void _UpdateService_StatusChanged(UpdateStatus);
+	void _UpdateService_DownloadProgressChanged(double);
 
 	event<PropertyChangedEventHandler> _propertyChangedEvent;
 	WinRTUtils::EventRevoker _updateStatusChangedRevoker;
+	WinRTUtils::EventRevoker _downloadProgressChangedRevoker;
 };
 
 }

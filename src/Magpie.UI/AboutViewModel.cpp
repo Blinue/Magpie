@@ -81,7 +81,15 @@ bool AboutViewModel::IsAvailable() const noexcept {
 	return UpdateService::Get().Status() == UpdateStatus::Available;
 }
 
-void AboutViewModel::IsAvailable(bool value) noexcept {
+bool AboutViewModel::IsDownloadingOrLater() const noexcept {
+	return UpdateService::Get().Status() >= UpdateStatus::Downloading;
+}
+
+bool AboutViewModel::IsAvailableOrLater() const noexcept {
+	return UpdateService::Get().Status() >= UpdateStatus::Available;
+}
+
+void AboutViewModel::IsAvailableOrLater(bool value) noexcept {
 	if (!value) {
 		UpdateService& service = UpdateService::Get();
 		if (service.Status() == UpdateStatus::Available) {
@@ -90,12 +98,31 @@ void AboutViewModel::IsAvailable(bool value) noexcept {
 	}
 }
 
-bool AboutViewModel::IsDownloading() const noexcept {
-	return UpdateService::Get().Status() == UpdateStatus::Downloading;
+bool AboutViewModel::IsNoDownloadProgress() const noexcept {
+	UpdateService& service = UpdateService::Get();
+	switch (service.Status()) {
+	case UpdateStatus::Downloading:
+		return service.DownloadProgress() < 1e-6;
+	case UpdateStatus::Installing:
+		return false;
+	default:
+		return true;
+	}
+}
+
+double AboutViewModel::DownloadProgress() const noexcept {
+	switch (UpdateService::Get().Status()) {
+	case UpdateStatus::Downloading:
+		return UpdateService::Get().DownloadProgress();
+	case UpdateStatus::Installing:
+		return 1.0;
+	default:
+		return 0.0;
+	}
 }
 
 Uri AboutViewModel::UpdateReleaseNotesLink() const noexcept {
-	if (!IsAvailable()) {
+	if (!IsAvailableOrLater()) {
 		return nullptr;
 	}
 
@@ -112,10 +139,35 @@ void AboutViewModel::_UpdateService_StatusChanged(UpdateStatus) {
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsErrorWhileChecking"));
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsNoUpdate"));
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsAvailable"));
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsDownloadingOrLater"));
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsAvailableOrLater"));
 
-	if (IsAvailable()) {
+	if (IsAvailableOrLater()) {
 		_propertyChangedEvent(*this, PropertyChangedEventArgs(L"UpdateReleaseNotesLink"));
+
+		if (IsDownloadingOrLater()) {
+			UpdateService& service = UpdateService::Get();
+			switch (service.Status()) {
+			case UpdateStatus::Downloading:
+				_downloadProgressChangedRevoker = service.DownloadProgressChanged(
+					auto_revoke,
+					{ this, &AboutViewModel::_UpdateService_DownloadProgressChanged }
+				);
+				break;
+			case UpdateStatus::ErrorWhileDownloading:
+			case UpdateStatus::Installing:
+				_downloadProgressChangedRevoker.Revoke();
+				break;
+			default:
+				break;
+			}
+		}
 	}
+}
+
+void AboutViewModel::_UpdateService_DownloadProgressChanged(double) {
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsNoDownloadProgress"));
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"DownloadProgress"));
 }
 
 }

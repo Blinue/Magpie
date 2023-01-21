@@ -203,10 +203,10 @@ fire_and_forget UpdateService::DownloadAndInstall() {
 
 		HttpClient httpClient;
 		auto requestProgressOp = httpClient.GetInputStreamAsync(Uri(_binaryUrl));
-		float totalBytes = 0;
+		double totalBytes = 0;
 		requestProgressOp.Progress([&totalBytes](const auto&, const HttpProgress& progress) {
 			if (std::optional<uint64_t> totalBytesToReceive = progress.TotalBytesToReceive) {
-				totalBytes = (float)*totalBytesToReceive;
+				totalBytes = (double)*totalBytesToReceive;
 			}
 		});
 		IInputStream httpStream = co_await requestProgressOp;
@@ -214,6 +214,9 @@ fire_and_forget UpdateService::DownloadAndInstall() {
 		IRandomAccessStream fileStream = co_await updatePkg.OpenAsync(FileAccessMode::ReadWrite);
 		HashAlgorithmProvider hashAlgProvider = HashAlgorithmProvider::OpenAlgorithm(HashAlgorithmNames::Md5());
 		CryptographicHash hasher = hashAlgProvider.CreateHash();
+
+		_downloadProgress = 0;
+		_downloadProgressChangedEvent(_downloadProgress);
 
 		Buffer buffer(16 * 1024);
 		uint32_t bytesReceived = 0;
@@ -225,8 +228,10 @@ fire_and_forget UpdateService::DownloadAndInstall() {
 			}
 
 			bytesReceived += size;
-			_downloadProgress = bytesReceived / totalBytes;
-			_downloadProgressChangedEvent(_downloadProgress);
+			if (totalBytes >= 1e-6) {
+				_downloadProgress = bytesReceived / totalBytes;
+				_downloadProgressChangedEvent(_downloadProgress);
+			}
 
 			hasher.Append(buffer);
 

@@ -47,16 +47,16 @@ public:
 
 	fire_and_forget DownloadAndInstall();
 
-	float DownloadProgress() const noexcept {
+	double DownloadProgress() const noexcept {
 		assert(_status == UpdateStatus::Downloading);
 		return _downloadProgress;
 	}
 
-	event_token DownloadProgressChanged(delegate<float> const& handler) {
+	event_token DownloadProgressChanged(delegate<double> const& handler) {
 		return _downloadProgressChangedEvent.add(handler);
 	}
 
-	WinRTUtils::EventRevoker DownloadProgressChanged(auto_revoke_t, delegate<float> const& handler) {
+	WinRTUtils::EventRevoker DownloadProgressChanged(auto_revoke_t, delegate<double> const& handler) {
 		event_token token = DownloadProgressChanged(handler);
 		return WinRTUtils::EventRevoker([this, token]() {
 			DownloadProgressChanged(token);
@@ -89,13 +89,13 @@ private:
 	void _Status(UpdateStatus value);
 
 	event<delegate<UpdateStatus>> _statusChangedEvent;
-	event<delegate<float>> _downloadProgressChangedEvent;
+	event<delegate<double>> _downloadProgressChangedEvent;
 
 	std::wstring _tag;
 	std::wstring _binaryUrl;
 	std::wstring _binaryHash;
 	UpdateStatus _status = UpdateStatus::Pending;
-	float _downloadProgress = 0;
+	double _downloadProgress = 0;
 };
 
 }
