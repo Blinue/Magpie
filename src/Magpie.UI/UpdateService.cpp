@@ -10,8 +10,10 @@
 #include "CommonSharedConstants.h"
 #include <zip/zip.h>
 #include <filesystem>
+#include <winrt/Windows.Security.Cryptography.Core.h>
 
 using namespace winrt;
+using namespace Windows::Security::Cryptography::Core;
 using namespace Windows::Storage;
 using namespace Windows::Storage::Streams;
 
@@ -159,6 +161,24 @@ fire_and_forget UpdateService::CheckForUpdatesAsync() {
 	_Status(UpdateStatus::Available);
 }
 
+static std::wstring Md5ToHex(const uint8_t* data) {
+	static wchar_t oct2Hex[16] = {
+		L'0',L'1',L'2',L'3',L'4',L'5',L'6',L'7',
+		L'8',L'9',L'a',L'b',L'c',L'd',L'e',L'f'
+	};
+
+	std::wstring result(32, 0);
+	wchar_t* pResult = &result[0];
+
+	for (int i = 0; i < 16; ++i) {
+		uint8_t b = data[i];
+		*pResult++ = oct2Hex[(b >> 4) & 0xf];
+		*pResult++ = oct2Hex[b & 0xf];
+	}
+
+	return result;
+}
+
 fire_and_forget UpdateService::DownloadAndInstall() {
 	assert(_status == UpdateStatus::Available || _status == UpdateStatus::ErrorWhileDownloading);
 	_Status(UpdateStatus::Downloading);
@@ -192,6 +212,8 @@ fire_and_forget UpdateService::DownloadAndInstall() {
 		IInputStream httpStream = co_await requestProgressOp;
 
 		IRandomAccessStream fileStream = co_await updatePkg.OpenAsync(FileAccessMode::ReadWrite);
+		HashAlgorithmProvider hashAlgProvider = HashAlgorithmProvider::OpenAlgorithm(HashAlgorithmNames::Md5());
+		CryptographicHash hasher = hashAlgProvider.CreateHash();
 
 		Buffer buffer(16 * 1024);
 		uint32_t bytesReceived = 0;
@@ -206,11 +228,22 @@ fire_and_forget UpdateService::DownloadAndInstall() {
 			_downloadProgress = bytesReceived / totalBytes;
 			_downloadProgressChangedEvent(_downloadProgress);
 
+			hasher.Append(buffer);
+
 			co_await fileStream.WriteAsync(resultBuffer);
 		}
 
 		co_await fileStream.FlushAsync();
 		fileStream.Close();
+
+		// 检查哈希
+		IBuffer hash = hasher.GetValueAndReset();
+		assert(hash.Length() == 16);
+		if (Md5ToHex(hash.data()) != _binaryHash) {
+			Logger::Get().Error("下载失败：哈希不匹配");
+			_Status(UpdateStatus::ErrorWhileDownloading);
+			co_return;
+		}
 	} catch (const hresult_error& e) {
 		Logger::Get().Error(StrUtils::Concat("下载失败：", StrUtils::UTF16ToUTF8(e.message())));
 		_Status(UpdateStatus::ErrorWhileDownloading);
