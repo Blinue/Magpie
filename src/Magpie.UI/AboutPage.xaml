@@ -70,7 +70,7 @@
 					              Severity="Informational">
 						<StackPanel>
 							<TextBlock Margin="0,0,0,10"
-							           Text="提示：不要在本程序所在目录下放置用户文件，更新过程中这些文件将被删除。"
+							           Text="提示：不要在本程序目录下放置用户文件，更新过程中这些文件将被删除。"
 							           Visibility="{x:Bind ViewModel.IsAvailable, Mode=OneWay}" />
 							<Grid Margin="0,0,25,16"
 							      ColumnSpacing="12"
@@ -86,10 +86,14 @@
 								                  Maximum="1"
 								                  Minimum="0"
 								                  Value="{x:Bind ViewModel.DownloadProgress, Mode=OneWay}" />
-								<TextBlock Grid.Column="1"
-								           Margin="0,-2,0,0"
-								           VerticalAlignment="Center"
-								           Text="下载中" />
+								<StackPanel Grid.Column="1"
+								            Margin="0,-2,0,0"
+								            VerticalAlignment="Center">
+									<TextBlock Text="下载中"
+									           Visibility="{x:Bind ViewModel.IsDownloading, Mode=OneWay}" />
+									<TextBlock Text="安装中"
+									           Visibility="{x:Bind ViewModel.IsDownloading, Mode=OneWay, Converter={StaticResource NegativeVisibilityConverter}}" />
+								</StackPanel>
 							</Grid>
 							<StackPanel Margin="0,0,0,16"
 							            Orientation="Horizontal">
@@ -99,6 +103,7 @@
 								        Visibility="{x:Bind ViewModel.IsAvailable, Mode=OneWay}" />
 								<Button Click="{x:Bind ViewModel.Cancel}"
 								        Content="取消"
+								        IsEnabled="{x:Bind ViewModel.IsDownloading, Mode=OneWay}"
 								        Visibility="{x:Bind ViewModel.IsAvailable, Mode=OneWay, Converter={StaticResource NegativeVisibilityConverter}}" />
 								<HyperlinkButton Margin="8,0,0,0"
 								                 VerticalAlignment="Center"

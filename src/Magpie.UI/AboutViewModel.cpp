@@ -81,6 +81,10 @@ bool AboutViewModel::IsAvailable() const noexcept {
 	return UpdateService::Get().Status() == UpdateStatus::Available;
 }
 
+bool AboutViewModel::IsDownloading() const noexcept {
+	return UpdateService::Get().Status() == UpdateStatus::Downloading;
+}
+
 bool AboutViewModel::IsDownloadingOrLater() const noexcept {
 	return UpdateService::Get().Status() >= UpdateStatus::Downloading;
 }
@@ -142,6 +146,7 @@ void AboutViewModel::_UpdateService_StatusChanged(UpdateStatus status) {
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsErrorWhileChecking"));
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsNoUpdate"));
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsAvailable"));
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsDownloading"));
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsDownloadingOrLater"));
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsAvailableOrLater"));
 
@@ -155,6 +160,10 @@ void AboutViewModel::_UpdateService_StatusChanged(UpdateStatus status) {
 			);
 		} else {
 			_downloadProgressChangedRevoker.Revoke();
+
+			if (status == UpdateStatus::Installing) {
+				_UpdateService_DownloadProgressChanged(0.0);
+			}
 		}
 	}
 }

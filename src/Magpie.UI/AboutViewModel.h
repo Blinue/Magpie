@@ -38,6 +38,7 @@ struct AboutViewModel : AboutViewModelT<AboutViewModel> {
 
 	bool IsAvailable() const noexcept;
 
+	bool IsDownloading() const noexcept;
 	bool IsDownloadingOrLater() const noexcept;
 
 	bool IsAvailableOrLater() const noexcept;
