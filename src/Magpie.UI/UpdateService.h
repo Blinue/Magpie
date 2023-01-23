@@ -96,6 +96,7 @@ private:
 	std::wstring _binaryHash;
 	UpdateStatus _status = UpdateStatus::Pending;
 	double _downloadProgress = 0;
+	bool _downloadCancelled = false;
 };
 
 }

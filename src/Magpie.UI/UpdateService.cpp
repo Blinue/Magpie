@@ -183,6 +183,10 @@ fire_and_forget UpdateService::DownloadAndInstall() {
 	assert(_status == UpdateStatus::Available || _status == UpdateStatus::ErrorWhileDownloading);
 	_Status(UpdateStatus::Downloading);
 
+	_downloadProgress = 0;
+	_downloadCancelled = false;
+	_downloadProgressChangedEvent(_downloadProgress);
+
 	// 删除 update 文件夹
 	std::filesystem::remove_all(CommonSharedConstants::UPDATE_DIR);
 
@@ -211,17 +215,27 @@ fire_and_forget UpdateService::DownloadAndInstall() {
 		});
 		IInputStream httpStream = co_await requestProgressOp;
 
+		if (_downloadCancelled) {
+			_Status(UpdateStatus::Available);
+			co_return;
+		}
+
 		IRandomAccessStream fileStream = co_await updatePkg.OpenAsync(FileAccessMode::ReadWrite);
 		HashAlgorithmProvider hashAlgProvider = HashAlgorithmProvider::OpenAlgorithm(HashAlgorithmNames::Md5());
 		CryptographicHash hasher = hashAlgProvider.CreateHash();
-
-		_downloadProgress = 0;
-		_downloadProgressChangedEvent(_downloadProgress);
 
 		Buffer buffer(16 * 1024);
 		uint32_t bytesReceived = 0;
 		while (true) {
 			IBuffer resultBuffer = co_await httpStream.ReadAsync(buffer, buffer.Capacity(), InputStreamOptions::Partial);
+
+			if (_downloadCancelled) {
+				co_await fileStream.FlushAsync();
+				fileStream.Close();
+				_Status(UpdateStatus::Available);
+				co_return;
+			}
+
 			uint32_t size = resultBuffer.Length();
 			if (size == 0) {
 				break;
@@ -275,6 +289,11 @@ fire_and_forget UpdateService::DownloadAndInstall() {
 
 	co_await dispatcher;
 
+	if (_downloadCancelled) {
+		_Status(UpdateStatus::Available);
+		co_return;
+	}
+
 	// 安装
 	_Status(UpdateStatus::Installing);
 }
@@ -308,6 +327,7 @@ void UpdateService::Cancel() {
 		_Status(UpdateStatus::Pending);
 		break;
 	case UpdateStatus::Downloading:
+		_downloadCancelled = true;
 		break;
 	default:
 		break;

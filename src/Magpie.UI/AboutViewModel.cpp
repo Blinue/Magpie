@@ -103,8 +103,6 @@ bool AboutViewModel::IsNoDownloadProgress() const noexcept {
 	switch (service.Status()) {
 	case UpdateStatus::Downloading:
 		return service.DownloadProgress() < 1e-6;
-	case UpdateStatus::Installing:
-		return false;
 	default:
 		return true;
 	}
@@ -134,7 +132,12 @@ fire_and_forget AboutViewModel::DownloadAndInstall() {
 	return UpdateService::Get().DownloadAndInstall();
 }
 
-void AboutViewModel::_UpdateService_StatusChanged(UpdateStatus) {
+void AboutViewModel::Cancel() {
+	assert(UpdateService::Get().Status() == UpdateStatus::Downloading);
+	UpdateService::Get().Cancel();
+}
+
+void AboutViewModel::_UpdateService_StatusChanged(UpdateStatus status) {
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsCheckingForUpdates"));
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsErrorWhileChecking"));
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsNoUpdate"));
@@ -142,25 +145,16 @@ void AboutViewModel::_UpdateService_StatusChanged(UpdateStatus) {
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsDownloadingOrLater"));
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsAvailableOrLater"));
 
-	if (IsAvailableOrLater()) {
+	if (status >= UpdateStatus::Available) {
 		_propertyChangedEvent(*this, PropertyChangedEventArgs(L"UpdateReleaseNotesLink"));
 
-		if (IsDownloadingOrLater()) {
-			UpdateService& service = UpdateService::Get();
-			switch (service.Status()) {
-			case UpdateStatus::Downloading:
-				_downloadProgressChangedRevoker = service.DownloadProgressChanged(
-					auto_revoke,
-					{ this, &AboutViewModel::_UpdateService_DownloadProgressChanged }
-				);
-				break;
-			case UpdateStatus::ErrorWhileDownloading:
-			case UpdateStatus::Installing:
-				_downloadProgressChangedRevoker.Revoke();
-				break;
-			default:
-				break;
-			}
+		if (status == UpdateStatus::Downloading) {
+			_downloadProgressChangedRevoker = UpdateService::Get().DownloadProgressChanged(
+				auto_revoke,
+				{ this, &AboutViewModel::_UpdateService_DownloadProgressChanged }
+			);
+		} else {
+			_downloadProgressChangedRevoker.Revoke();
 		}
 	}
 }

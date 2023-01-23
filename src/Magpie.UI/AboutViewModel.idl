@@ -23,5 +23,6 @@ namespace Magpie.UI {
 		Windows.Foundation.Uri UpdateReleaseNotesLink { get; };
 
 		void DownloadAndInstall();
+		void Cancel();
 	}
 }

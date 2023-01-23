@@ -94,7 +94,8 @@
 								        Content="下载并安装"
 								        Style="{StaticResource AccentButtonStyle}"
 								        Visibility="{x:Bind ViewModel.IsAvailable, Mode=OneWay}" />
-								<Button Content="取消"
+								<Button Click="{x:Bind ViewModel.Cancel}"
+								        Content="取消"
 								        Visibility="{x:Bind ViewModel.IsAvailable, Mode=OneWay, Converter={StaticResource NegativeVisibilityConverter}}" />
 								<HyperlinkButton Margin="10,0,0,0"
 								                 VerticalAlignment="Center"

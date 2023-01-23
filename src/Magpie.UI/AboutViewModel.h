@@ -50,8 +50,10 @@ struct AboutViewModel : AboutViewModelT<AboutViewModel> {
 
 	fire_and_forget DownloadAndInstall();
 
+	void Cancel();
+
 private:
-	void _UpdateService_StatusChanged(UpdateStatus);
+	void _UpdateService_StatusChanged(UpdateStatus status);
 	void _UpdateService_DownloadProgressChanged(double);
 
 	event<PropertyChangedEventHandler> _propertyChangedEvent;
