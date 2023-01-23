@@ -69,6 +69,9 @@
 					              IsOpen="{x:Bind ViewModel.IsAvailableOrLater, Mode=TwoWay}"
 					              Severity="Informational">
 						<StackPanel>
+							<TextBlock Margin="0,0,0,10"
+							           Text="提示：不要在本程序所在目录下放置用户文件，更新过程中这些文件将被删除。"
+							           Visibility="{x:Bind ViewModel.IsAvailable, Mode=OneWay}" />
 							<Grid Margin="0,0,25,16"
 							      ColumnSpacing="12"
 							      Visibility="{x:Bind ViewModel.IsDownloadingOrLater, Mode=OneWay}">
@@ -97,7 +100,7 @@
 								<Button Click="{x:Bind ViewModel.Cancel}"
 								        Content="取消"
 								        Visibility="{x:Bind ViewModel.IsAvailable, Mode=OneWay, Converter={StaticResource NegativeVisibilityConverter}}" />
-								<HyperlinkButton Margin="10,0,0,0"
+								<HyperlinkButton Margin="8,0,0,0"
 								                 VerticalAlignment="Center"
 								                 Content="发行说明"
 								                 NavigateUri="{x:Bind ViewModel.UpdateReleaseNotesLink, Mode=OneWay}" />
