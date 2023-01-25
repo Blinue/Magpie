@@ -29,6 +29,7 @@
 								<StackPanel>
 									<Button Click="{x:Bind ViewModel.CheckForUpdates}"
 									        Content="检查更新"
+									        IsEnabled="{x:Bind ViewModel.IsDownloadingOrLater, Mode=OneWay, Converter={StaticResource NegationConverter}}"
 									        Visibility="{x:Bind ViewModel.IsCheckingForUpdates, Mode=OneWay, Converter={StaticResource NegativeVisibilityConverter}}" />
 									<StackPanel Orientation="Horizontal"
 									            Spacing="8"
@@ -65,8 +66,8 @@
 					              IsOpen="{x:Bind ViewModel.IsNoUpdate, Mode=TwoWay}"
 					              Severity="Success" />
 					<muxc:InfoBar Title="v0.10.0-preview1 可用"
-					              IsClosable="{x:Bind ViewModel.IsAvailable, Mode=OneWay}"
-					              IsOpen="{x:Bind ViewModel.IsAvailableOrLater, Mode=TwoWay}"
+					              IsClosable="{x:Bind ViewModel.IsUpdateInfoBarClosable, Mode=OneWay}"
+					              IsOpen="{x:Bind ViewModel.IsUpdateInfoBarOpen, Mode=TwoWay}"
 					              Severity="Informational">
 						<StackPanel>
 							<TextBlock Margin="0,0,0,10"
@@ -79,20 +80,25 @@
 									<ColumnDefinition Width="*" />
 									<ColumnDefinition Width="Auto" />
 								</Grid.ColumnDefinitions>
-								<muxc:ProgressBar Margin="0"
+								<muxc:ProgressBar Grid.Column="0"
+								                  Margin="0"
 								                  Padding="0"
 								                  VerticalAlignment="Center"
 								                  IsIndeterminate="{x:Bind ViewModel.IsNoDownloadProgress, Mode=OneWay}"
 								                  Maximum="1"
 								                  Minimum="0"
+								                  ShowError="{x:Bind ViewModel.IsErrorWhileDownloading, Mode=OneWay}"
 								                  Value="{x:Bind ViewModel.DownloadProgress, Mode=OneWay}" />
 								<StackPanel Grid.Column="1"
 								            Margin="0,-2,0,0"
 								            VerticalAlignment="Center">
 									<TextBlock Text="下载中"
 									           Visibility="{x:Bind ViewModel.IsDownloading, Mode=OneWay}" />
+									<TextBlock Margin="0,0,-48,0"
+									           Text="下载失败"
+									           Visibility="{x:Bind ViewModel.IsErrorWhileDownloading, Mode=OneWay}" />
 									<TextBlock Text="安装中"
-									           Visibility="{x:Bind ViewModel.IsDownloading, Mode=OneWay, Converter={StaticResource NegativeVisibilityConverter}}" />
+									           Visibility="{x:Bind ViewModel.IsInstalling, Mode=OneWay}" />
 								</StackPanel>
 							</Grid>
 							<StackPanel Margin="0,0,0,16"
@@ -101,10 +107,13 @@
 								        Content="下载并安装"
 								        Style="{StaticResource AccentButtonStyle}"
 								        Visibility="{x:Bind ViewModel.IsAvailable, Mode=OneWay}" />
+								<Button Click="{x:Bind ViewModel.Retry}"
+								        Content="重试"
+								        Visibility="{x:Bind ViewModel.IsErrorWhileDownloading, Mode=OneWay}" />
 								<Button Click="{x:Bind ViewModel.Cancel}"
 								        Content="取消"
 								        IsEnabled="{x:Bind ViewModel.IsDownloading, Mode=OneWay}"
-								        Visibility="{x:Bind ViewModel.IsAvailable, Mode=OneWay, Converter={StaticResource NegativeVisibilityConverter}}" />
+								        Visibility="{x:Bind ViewModel.IsCancelButtonVisible, Mode=OneWay}" />
 								<HyperlinkButton Margin="8,0,0,0"
 								                 VerticalAlignment="Center"
 								                 Content="发行说明"

@@ -15,8 +15,13 @@ namespace Magpie.UI {
 		Boolean IsNoUpdate;
 		Boolean IsAvailable { get; };
 		Boolean IsDownloading { get; };
+		Boolean IsErrorWhileDownloading { get; };
+		Boolean IsInstalling { get; };
 		Boolean IsDownloadingOrLater { get; };
-		Boolean IsAvailableOrLater;
+
+		Boolean IsUpdateInfoBarOpen;
+		Boolean IsUpdateInfoBarClosable { get; };
+		Boolean IsCancelButtonVisible { get; };
 
 		Boolean IsNoDownloadProgress { get; };
 		Double DownloadProgress { get; };
@@ -25,5 +30,6 @@ namespace Magpie.UI {
 
 		void DownloadAndInstall();
 		void Cancel();
+		void Retry();
 	}
 }

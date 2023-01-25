@@ -85,21 +85,40 @@ bool AboutViewModel::IsDownloading() const noexcept {
 	return UpdateService::Get().Status() == UpdateStatus::Downloading;
 }
 
+bool AboutViewModel::IsErrorWhileDownloading() const noexcept {
+	return UpdateService::Get().Status() == UpdateStatus::ErrorWhileDownloading;
+}
+
 bool AboutViewModel::IsDownloadingOrLater() const noexcept {
 	return UpdateService::Get().Status() >= UpdateStatus::Downloading;
 }
 
-bool AboutViewModel::IsAvailableOrLater() const noexcept {
+bool AboutViewModel::IsInstalling() const noexcept {
+	return UpdateService::Get().Status() == UpdateStatus::Installing;
+}
+
+bool AboutViewModel::IsUpdateInfoBarOpen() const noexcept {
 	return UpdateService::Get().Status() >= UpdateStatus::Available;
 }
 
-void AboutViewModel::IsAvailableOrLater(bool value) noexcept {
+void AboutViewModel::IsUpdateInfoBarOpen(bool value) noexcept {
 	if (!value) {
 		UpdateService& service = UpdateService::Get();
-		if (service.Status() == UpdateStatus::Available) {
+		UpdateStatus status = service.Status();
+		if (status == UpdateStatus::Available || status == UpdateStatus::ErrorWhileDownloading) {
 			service.Cancel();
 		}
 	}
+}
+
+bool AboutViewModel::IsUpdateInfoBarClosable() const noexcept {
+	UpdateStatus status = UpdateService::Get().Status();
+	return status == UpdateStatus::Available || status == UpdateStatus::ErrorWhileDownloading;
+}
+
+bool AboutViewModel::IsCancelButtonVisible() const noexcept {
+	UpdateStatus status = UpdateService::Get().Status();
+	return status == UpdateStatus::Downloading || status == UpdateStatus::Installing;
 }
 
 bool AboutViewModel::IsNoDownloadProgress() const noexcept {
@@ -124,7 +143,7 @@ double AboutViewModel::DownloadProgress() const noexcept {
 }
 
 Uri AboutViewModel::UpdateReleaseNotesLink() const noexcept {
-	if (!IsAvailableOrLater()) {
+	if (!IsUpdateInfoBarOpen()) {
 		return nullptr;
 	}
 
@@ -141,14 +160,23 @@ void AboutViewModel::Cancel() {
 	UpdateService::Get().Cancel();
 }
 
+void AboutViewModel::Retry() {
+	assert(UpdateService::Get().Status() == UpdateStatus::ErrorWhileDownloading);
+	UpdateService::Get().DownloadAndInstall();
+}
+
 void AboutViewModel::_UpdateService_StatusChanged(UpdateStatus status) {
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsCheckingForUpdates"));
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsErrorWhileChecking"));
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsNoUpdate"));
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsAvailable"));
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsDownloading"));
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsErrorWhileDownloading"));
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsInstalling"));
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsDownloadingOrLater"));
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsAvailableOrLater"));
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsUpdateInfoBarOpen"));
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsUpdateInfoBarClosable"));
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsCancelButtonVisible"));
 
 	if (status >= UpdateStatus::Available) {
 		_propertyChangedEvent(*this, PropertyChangedEventArgs(L"UpdateReleaseNotesLink"));
@@ -161,8 +189,8 @@ void AboutViewModel::_UpdateService_StatusChanged(UpdateStatus status) {
 		} else {
 			_downloadProgressChangedRevoker.Revoke();
 
-			if (status == UpdateStatus::Installing) {
-				_UpdateService_DownloadProgressChanged(0.0);
+			if (status >= UpdateStatus::ErrorWhileDownloading) {
+				_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsNoDownloadProgress"));
 			}
 		}
 	}

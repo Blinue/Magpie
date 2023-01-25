@@ -39,10 +39,15 @@ struct AboutViewModel : AboutViewModelT<AboutViewModel> {
 	bool IsAvailable() const noexcept;
 
 	bool IsDownloading() const noexcept;
+	bool IsErrorWhileDownloading() const noexcept;
 	bool IsDownloadingOrLater() const noexcept;
+	bool IsInstalling() const noexcept;
 
-	bool IsAvailableOrLater() const noexcept;
-	void IsAvailableOrLater(bool value) noexcept;
+	bool IsUpdateInfoBarOpen() const noexcept;
+	void IsUpdateInfoBarOpen(bool value) noexcept;
+
+	bool IsUpdateInfoBarClosable() const noexcept;
+	bool IsCancelButtonVisible() const noexcept;
 
 	bool IsNoDownloadProgress() const noexcept;
 	double DownloadProgress() const noexcept;
@@ -52,6 +57,7 @@ struct AboutViewModel : AboutViewModelT<AboutViewModel> {
 	fire_and_forget DownloadAndInstall();
 
 	void Cancel();
+	void Retry();
 
 private:
 	void _UpdateService_StatusChanged(UpdateStatus status);

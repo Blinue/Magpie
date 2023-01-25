@@ -224,12 +224,13 @@ fire_and_forget UpdateService::DownloadAndInstall() {
 		HashAlgorithmProvider hashAlgProvider = HashAlgorithmProvider::OpenAlgorithm(HashAlgorithmNames::Md5());
 		CryptographicHash hasher = hashAlgProvider.CreateHash();
 
-		Buffer buffer(16 * 1024);
+		Buffer buffer(64 * 1024);
 		uint32_t bytesReceived = 0;
 		while (true) {
 			IBuffer resultBuffer = co_await httpStream.ReadAsync(buffer, buffer.Capacity(), InputStreamOptions::Partial);
 
 			if (_downloadCancelled) {
+				httpStream.Close();
 				co_await fileStream.FlushAsync();
 				fileStream.Close();
 				_Status(UpdateStatus::Available);
