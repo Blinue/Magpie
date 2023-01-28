@@ -50,9 +50,9 @@ bool XamlApp::Initialize(HINSTANCE hInstance, const wchar_t* arguments) {
 		MAGPIE_TAG, Win32Utils::IsProcessElevated() ? "是" : "否"));
 
 	// 初始化 UWP 应用
-	_uwpApp = winrt::Magpie::UI::App();
+	_uwpApp = winrt::Magpie::App::App();
 
-	winrt::Magpie::UI::StartUpOptions options = _uwpApp.Initialize(0);
+	winrt::Magpie::App::StartUpOptions options = _uwpApp.Initialize(0);
 	if (options.IsError) {
 		Logger::Get().Error("初始化失败");
 		return false;
@@ -178,7 +178,7 @@ void XamlApp::_InitializeLogger() {
 
 	// 初始化 dll 中的 Logger
 	// Logger 的单例无法在 exe 和 dll 间共享
-	winrt::Magpie::UI::LoggerHelper::Initialize((uint64_t)&logger);
+	winrt::Magpie::App::LoggerHelper::Initialize((uint64_t)&logger);
 	Magpie::Core::LoggerHelper::Initialize(logger);
 }
 
@@ -203,7 +203,7 @@ void XamlApp::_CreateMainWindow() {
 
 	_uwpApp.HwndMain((uint64_t)_hwndMain);
 
-	_mainPage = winrt::Magpie::UI::MainPage();
+	_mainPage = winrt::Magpie::App::MainPage();
 	_mainPage.ActualThemeChanged([this](winrt::FrameworkElement const&, winrt::IInspectable const&) {
 		_UpdateTheme();
 	});

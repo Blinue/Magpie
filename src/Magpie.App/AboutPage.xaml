@@ -1,0 +1,188 @@
+<Page x:Class="Magpie.App.AboutPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:local="using:Magpie.App"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
+      mc:Ignorable="d">
+
+	<local:PageFrame Title="关于">
+		<StackPanel HorizontalAlignment="Stretch"
+		            Orientation="Vertical">
+			<local:SettingsGroup Title="版本"
+			                     Margin="0,-25,0,-2">
+				<muxc:Expander HorizontalAlignment="Stretch"
+				               HorizontalContentAlignment="Stretch"
+				               Style="{StaticResource SettingExpanderStyle}">
+					<muxc:Expander.Header>
+						<local:SettingsCard Title="{x:Bind ViewModel.Version, Mode=OneTime}"
+						                    Style="{StaticResource ExpanderHeaderSettingStyle}">
+							<local:SettingsCard.Icon>
+								<FontIcon Glyph="&#xE895;" />
+							</local:SettingsCard.Icon>
+							<local:SettingsCard.Description>
+								<HyperlinkButton Content="发行说明"
+								                 NavigateUri="{x:Bind ViewModel.ReleaseNotesLink, Mode=OneTime}" />
+							</local:SettingsCard.Description>
+							<local:SettingsCard.ActionContent>
+								<StackPanel>
+									<Button Click="{x:Bind ViewModel.CheckForUpdates}"
+									        Content="检查更新"
+									        IsEnabled="{x:Bind ViewModel.IsDownloadingOrLater, Mode=OneWay, Converter={StaticResource NegationConverter}}"
+									        Visibility="{x:Bind ViewModel.IsCheckingForUpdates, Mode=OneWay, Converter={StaticResource NegativeVisibilityConverter}}" />
+									<StackPanel Orientation="Horizontal"
+									            Spacing="8"
+									            Visibility="{x:Bind ViewModel.IsCheckingForUpdates, Mode=OneWay}">
+										<muxc:ProgressRing Width="20"
+										                   Height="20"
+										                   VerticalAlignment="Center"
+										                   IsActive="True" />
+										<TextBlock VerticalAlignment="Center"
+										           Text="正在检查更新..." />
+									</StackPanel>
+								</StackPanel>
+							</local:SettingsCard.ActionContent>
+						</local:SettingsCard>
+					</muxc:Expander.Header>
+					<muxc:Expander.Content>
+						<StackPanel Orientation="Vertical">
+							<local:SettingsCard Style="{StaticResource ExpanderContentSettingStyle}">
+								<CheckBox Content="自动检查更新"
+								          IsChecked="{x:Bind ViewModel.IsAutoCheckForUpdates, Mode=TwoWay}" />
+							</local:SettingsCard>
+							<local:SettingsCard Style="{StaticResource ExpanderContentSettingStyle}">
+								<CheckBox Content="检查预览版更新"
+								          IsChecked="{x:Bind ViewModel.IsCheckForPreviewUpdates, Mode=TwoWay}" />
+							</local:SettingsCard>
+						</StackPanel>
+					</muxc:Expander.Content>
+				</muxc:Expander>
+				<StackPanel>
+					<muxc:InfoBar Title="检查更新失败，请稍后重试"
+					              IsOpen="{x:Bind ViewModel.IsErrorWhileChecking, Mode=TwoWay}"
+					              Severity="Error" />
+					<muxc:InfoBar Title="Magpie 已是最新"
+					              IsOpen="{x:Bind ViewModel.IsNoUpdate, Mode=TwoWay}"
+					              Severity="Success" />
+					<muxc:InfoBar Title="v0.10.0-preview1 可用"
+					              IsClosable="{x:Bind ViewModel.IsUpdateInfoBarClosable, Mode=OneWay}"
+					              IsOpen="{x:Bind ViewModel.IsUpdateInfoBarOpen, Mode=TwoWay}"
+					              Severity="Informational">
+						<StackPanel>
+							<TextBlock Margin="0,0,0,10"
+							           Text="提示：不要在本程序目录下放置用户文件，更新过程中这些文件将被删除。"
+							           Visibility="{x:Bind ViewModel.IsAvailable, Mode=OneWay}" />
+							<Grid Margin="0,0,25,16"
+							      ColumnSpacing="12"
+							      Visibility="{x:Bind ViewModel.IsDownloadingOrLater, Mode=OneWay}">
+								<Grid.ColumnDefinitions>
+									<ColumnDefinition Width="*" />
+									<ColumnDefinition Width="Auto" />
+								</Grid.ColumnDefinitions>
+								<muxc:ProgressBar Grid.Column="0"
+								                  Margin="0"
+								                  Padding="0"
+								                  VerticalAlignment="Center"
+								                  IsIndeterminate="{x:Bind ViewModel.IsNoDownloadProgress, Mode=OneWay}"
+								                  Maximum="1"
+								                  Minimum="0"
+								                  ShowError="{x:Bind ViewModel.IsErrorWhileDownloading, Mode=OneWay}"
+								                  Value="{x:Bind ViewModel.DownloadProgress, Mode=OneWay}" />
+								<StackPanel Grid.Column="1"
+								            Margin="0,-2,0,0"
+								            VerticalAlignment="Center">
+									<TextBlock Text="下载中"
+									           Visibility="{x:Bind ViewModel.IsDownloading, Mode=OneWay}" />
+									<TextBlock Margin="0,0,-48,0"
+									           Text="下载失败"
+									           Visibility="{x:Bind ViewModel.IsErrorWhileDownloading, Mode=OneWay}" />
+									<TextBlock Text="安装中"
+									           Visibility="{x:Bind ViewModel.IsInstalling, Mode=OneWay}" />
+								</StackPanel>
+							</Grid>
+							<StackPanel Margin="0,0,0,16"
+							            Orientation="Horizontal">
+								<Button Click="{x:Bind ViewModel.DownloadAndInstall}"
+								        Content="下载并安装"
+								        Style="{StaticResource AccentButtonStyle}"
+								        Visibility="{x:Bind ViewModel.IsAvailable, Mode=OneWay}" />
+								<Button Click="{x:Bind ViewModel.Retry}"
+								        Content="重试"
+								        Visibility="{x:Bind ViewModel.IsErrorWhileDownloading, Mode=OneWay}" />
+								<Button Click="{x:Bind ViewModel.Cancel}"
+								        Content="取消"
+								        IsEnabled="{x:Bind ViewModel.IsDownloading, Mode=OneWay}"
+								        Visibility="{x:Bind ViewModel.IsCancelButtonVisible, Mode=OneWay}" />
+								<HyperlinkButton Margin="8,0,0,0"
+								                 VerticalAlignment="Center"
+								                 Content="发行说明"
+								                 NavigateUri="{x:Bind ViewModel.UpdateReleaseNotesLink, Mode=OneWay}" />
+							</StackPanel>
+						</StackPanel>
+					</muxc:InfoBar>
+				</StackPanel>
+			</local:SettingsGroup>
+			<local:SettingsGroup Title="反馈">
+				<Button Click="BugReportButton_Click"
+				        Style="{StaticResource SettingsCardButtonStyle}">
+					<local:SettingsCard Title="报告错误"
+					                    Style="{StaticResource ExpanderHeaderSettingStyle}">
+						<local:SettingsCard.Icon>
+							<FontIcon Glyph="&#xEBE8;" />
+						</local:SettingsCard.Icon>
+						<local:SettingsCard.ActionContent>
+							<FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+							          FontSize="18"
+							          Glyph="&#xE8A7;" />
+						</local:SettingsCard.ActionContent>
+					</local:SettingsCard>
+				</Button>
+				<Button Click="FeatureRequestButton_Click"
+				        Style="{StaticResource SettingsCardButtonStyle}">
+					<local:SettingsCard Title="建议功能"
+					                    Style="{StaticResource ExpanderHeaderSettingStyle}">
+						<local:SettingsCard.Icon>
+							<FontIcon Glyph="&#xEA80;" />
+						</local:SettingsCard.Icon>
+						<local:SettingsCard.ActionContent>
+							<FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+							          FontSize="18"
+							          Glyph="&#xE8A7;" />
+						</local:SettingsCard.ActionContent>
+					</local:SettingsCard>
+				</Button>
+				<Button Click="DiscussionsButton_Click"
+				        Style="{StaticResource SettingsCardButtonStyle}">
+					<local:SettingsCard Title="问询和讨论"
+					                    Style="{StaticResource ExpanderHeaderSettingStyle}">
+						<local:SettingsCard.Icon>
+							<FontIcon Glyph="&#xE8F2;" />
+						</local:SettingsCard.Icon>
+						<local:SettingsCard.ActionContent>
+							<FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}"
+							          FontSize="18"
+							          Glyph="&#xE8A7;" />
+						</local:SettingsCard.ActionContent>
+					</local:SettingsCard>
+				</Button>
+			</local:SettingsGroup>
+			<local:SettingsGroup Title="其他链接">
+				<StackPanel Orientation="Horizontal">
+					<HyperlinkButton NavigateUri="https://github.com/Blinue/Magpie">
+						<TextBlock Text="项目主页" />
+					</HyperlinkButton>
+					<HyperlinkButton NavigateUri="https://github.com/Blinue/Magpie/wiki/FAQ">
+						<TextBlock Text="FAQ" />
+					</HyperlinkButton>
+					<HyperlinkButton NavigateUri="https://github.com/Blinue/Magpie/blob/main/CONTRIBUTING.md">
+						<TextBlock Text="贡献指南" />
+					</HyperlinkButton>
+					<HyperlinkButton NavigateUri="https://github.com/Blinue/Magpie/blob/main/LICENSE">
+						<TextBlock Text="许可协议" />
+					</HyperlinkButton>
+				</StackPanel>
+			</local:SettingsGroup>
+		</StackPanel>
+	</local:PageFrame>
+</Page>

@@ -1,0 +1,19 @@
+namespace Magpie.App {
+	runtimeclass SettingsViewModel : Windows.UI.Xaml.Data.INotifyPropertyChanged {
+		SettingsViewModel();
+
+		Int32 Theme;
+		Boolean IsRunAtStartup;
+		Boolean IsMinimizeAtStartup;
+		Boolean IsMinimizeAtStartupEnabled { get; };
+		Boolean IsPortableMode;
+		void OpenConfigLocation();
+		Boolean IsShowTrayIcon;
+		Boolean IsSimulateExclusiveFullscreen;
+		Boolean IsInlineParams;
+		Boolean IsDebugMode;
+		Boolean IsDisableEffectCache;
+		Boolean IsSaveEffectSources;
+		Boolean IsWarningsAreErrors;
+	}
+}

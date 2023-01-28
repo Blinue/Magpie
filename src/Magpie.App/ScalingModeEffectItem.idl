@@ -1,0 +1,25 @@
+namespace Magpie.App {
+	runtimeclass ScalingModeEffectItem : Windows.UI.Xaml.Data.INotifyPropertyChanged {
+		ScalingModeEffectItem(UInt32 scalingModeIdx, UInt32 effectIdx);
+
+		UInt32 ScalingModeIdx;
+		UInt32 EffectIdx;
+		String Name { get; };
+
+		Boolean CanScale { get; };
+		Boolean HasParameters { get; };
+
+		Int32 ScalingType;
+		Boolean IsShowScalingFactors { get; };
+		Boolean IsShowScalingPixels { get; };
+		Double ScalingFactorX;
+		Double ScalingFactorY;
+		Double ScalingPixelsX;
+		Double ScalingPixelsY;
+
+		EffectParametersViewModel Parameters { get; };
+
+		void Remove();
+		event Windows.Foundation.EventHandler<UInt32> Removed;
+	}
+}

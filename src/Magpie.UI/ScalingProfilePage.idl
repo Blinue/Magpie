@@ -1,8 +1,0 @@
-namespace Magpie.UI {
-	runtimeclass ScalingProfilePage : Windows.UI.Xaml.Controls.Page {
-		ScalingProfilePage();
-
-		ScalingProfileViewModel ViewModel { get; };
-		static Windows.Globalization.NumberFormatting.INumberFormatter2 NumberFormatter { get; };
-	}
-}

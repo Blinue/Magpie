@@ -1,7 +1,0 @@
-namespace Magpie.UI {
-	runtimeclass AboutPage : Windows.UI.Xaml.Controls.Page {
-		AboutPage();
-
-		AboutViewModel ViewModel { get; };
-	}
-}

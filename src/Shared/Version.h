@@ -52,6 +52,6 @@ struct Version {
 	uint32_t patch = 0;
 };
 
-constexpr inline Version MAGPIE_VERSION(0, 9, 100);
+constexpr inline Version MAGPIE_VERSION(0, 9, 99);
 constexpr inline const char* MAGPIE_TAG = "v0.10.0-preview1";
 constexpr inline const wchar_t* MAGPIE_TAG_W = L"v0.10.0-preview1";

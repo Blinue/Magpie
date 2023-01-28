@@ -1,0 +1,81 @@
+<UserControl x:Class="Magpie.App.ShortcutDialog"
+			 xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+			 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+			 xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+			 xmlns:local="using:Magpie.App"
+			 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+			 xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
+			 x:Name="ShortcutContentControl"
+			 mc:Ignorable="d">
+	<Grid MinWidth="498"
+		  MinHeight="220">
+		<Grid.RowDefinitions>
+			<RowDefinition Height="Auto" />
+			<RowDefinition MinHeight="110" />
+			<RowDefinition Height="Auto" />
+		</Grid.RowDefinitions>
+
+		<TextBlock Grid.Row="0"
+				   Text="按组合键以更改此快捷键" />
+
+		<ItemsControl x:Name="KeysControl"
+					  Grid.Row="1"
+					  Height="56"
+					  Margin="0,64,0,0"
+					  HorizontalAlignment="Center"
+					  VerticalAlignment="Top"
+					  HorizontalContentAlignment="Center">
+			<ItemsControl.ItemsPanel>
+				<ItemsPanelTemplate>
+					<StackPanel Orientation="Horizontal"
+								Spacing="8" />
+				</ItemsPanelTemplate>
+			</ItemsControl.ItemsPanel>
+			<ItemsControl.ItemTemplate>
+				<DataTemplate>
+					<local:KeyVisual Height="56"
+									 Content="{Binding Mode=OneTime}"
+									 IsError="{Binding ElementName=ShortcutContentControl, Path=_IsError, Mode=OneTime}"
+									 IsTabStop="False"
+									 VisualType="Large" />
+				</DataTemplate>
+			</ItemsControl.ItemTemplate>
+		</ItemsControl>
+
+		<StackPanel Grid.Row="2"
+					Margin="0,24,0,0"
+					VerticalAlignment="Top"
+					Orientation="Vertical"
+					Spacing="8">
+			<Grid Height="36">
+				<Border x:Name="WarningBanner"
+						Margin="-2,0,0,0"
+						Padding="8"
+						Background="{ThemeResource InfoBarErrorSeverityBackgroundBrush}"
+						BorderBrush="{ThemeResource InfoBarBorderBrush}"
+						BorderThickness="{ThemeResource InfoBarBorderThickness}"
+						CornerRadius="{ThemeResource ControlCornerRadius}">
+					<Grid>
+						<Grid.ColumnDefinitions>
+							<ColumnDefinition Width="Auto" />
+							<ColumnDefinition Width="*" />
+						</Grid.ColumnDefinitions>
+
+						<muxc:InfoBadge Margin="2,0,12,0"
+										Style="{StaticResource CriticalIconInfoBadgeStyle}" />
+
+						<TextBlock x:Name="InvalidShortcutWarningLabel"
+								   Grid.Column="1"
+								   Margin="0,-1,0,0"
+								   VerticalAlignment="Center"
+								   FontWeight="{ThemeResource InfoBarTitleFontWeight}"
+								   Foreground="{ThemeResource InfoBarTitleForeground}" />
+					</Grid>
+				</Border>
+			</Grid>
+			<TextBlock FontSize="12"
+					   Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+					   Text="只有以 Windows 键、Ctrl、Alt 或 Shift 开头的快捷键才有效" />
+		</StackPanel>
+	</Grid>
+</UserControl>

@@ -2,14 +2,14 @@
 <assembly xmlns="urn:schemas-microsoft-com:asm.v1"
           xmlns:asmv3="urn:schemas-microsoft-com:asm.v3"
           manifestVersion="1.0">
-  <asmv3:file name="Magpie.UI.dll">
-    <activatableClass name="Magpie.UI.App"
+  <asmv3:file name="Magpie.App.dll">
+    <activatableClass name="Magpie.App.App"
                       threadingModel="both"
                       xmlns="urn:schemas-microsoft-com:winrt.v1" />
-    <activatableClass name="Magpie.UI.MainPage"
+    <activatableClass name="Magpie.App.MainPage"
                       threadingModel="both"
                       xmlns="urn:schemas-microsoft-com:winrt.v1" />
-    <activatableClass name="Magpie.UI.LoggerHelper"
+    <activatableClass name="Magpie.App.LoggerHelper"
                       threadingModel="both"
                       xmlns="urn:schemas-microsoft-com:winrt.v1" />
   </asmv3:file>
