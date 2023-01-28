@@ -25,7 +25,7 @@ if ($LastExitCode -ne 0) {
 # 清理不需要的文件
 Set-Location .\publish\
 Remove-Item @("*.pdb", "*.lib", "*.exp", "*.winmd", "*.xml", "*.xbf", "dummy.*", "Microsoft.Web.WebView2.Core.dll")
-Remove-Item @("Microsoft.UI.Xaml", "Magpie.UI") -Recurse
+Remove-Item @("Microsoft.UI.Xaml", "Magpie.App") -Recurse
 Remove-Item *.pri -Exclude resources.pri
 
 # 复制依赖 dll
