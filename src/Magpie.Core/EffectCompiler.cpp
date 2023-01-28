@@ -264,7 +264,7 @@ static UINT ResolveHeader(std::string_view block, EffectDesc& desc) {
 	// 必需的选项：VERSION
 	// 可选的选项：OUTPUT_WIDTH, OUTPUT_HEIGHT, USE_DYNAMIC, GENERIC_DOWNSCALER, BUILT_INT
 
-	std::bitset<6> processed;
+	std::bitset<5> processed;
 
 	std::string_view token;
 
@@ -336,17 +336,6 @@ static UINT ResolveHeader(std::string_view block, EffectDesc& desc) {
 			}
 
 			desc.flags |= EffectFlags::GenericDownscaler;
-		} else if (t == "BUILT_IN") {
-			if (processed[5]) {
-				return 1;
-			}
-			processed[5] = true;
-
-			if (GetNextToken<false>(block, token) != 2) {
-				return 1;
-			}
-
-			desc.flags |= EffectFlags::BuiltIn;
 		} else {
 			return 1;
 		}
