@@ -10,8 +10,16 @@
 namespace winrt::Magpie::App::implementation {
 
 AboutViewModel::AboutViewModel() {
-	_updateStatusChangedRevoker = UpdateService::Get().StatusChanged(
+	UpdateService& service = UpdateService::Get();
+	_updateStatusChangedRevoker = service.StatusChanged(
 		auto_revoke, { this, &AboutViewModel::_UpdateService_StatusChanged });
+	
+	if (service.Status() == UpdateStatus::Downloading) {
+		_downloadProgressChangedRevoker = UpdateService::Get().DownloadProgressChanged(
+			auto_revoke,
+			{ this, &AboutViewModel::_UpdateService_DownloadProgressChanged }
+		);
+	}
 }
 
 AboutViewModel::~AboutViewModel() {

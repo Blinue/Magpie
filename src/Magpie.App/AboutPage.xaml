@@ -70,9 +70,6 @@
 					              IsOpen="{x:Bind ViewModel.IsUpdateInfoBarOpen, Mode=TwoWay}"
 					              Severity="Informational">
 						<StackPanel>
-							<TextBlock Margin="0,0,0,10"
-							           Text="提示：不要在本程序目录下放置用户文件，更新过程中这些文件将被删除。"
-							           Visibility="{x:Bind ViewModel.IsAvailable, Mode=OneWay}" />
 							<Grid Margin="0,0,25,16"
 							      ColumnSpacing="12"
 							      Visibility="{x:Bind ViewModel.IsDownloadingOrLater, Mode=OneWay}">

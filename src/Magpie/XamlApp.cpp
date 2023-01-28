@@ -288,12 +288,9 @@ void XamlApp::_RestartAsElevated(const wchar_t* arguments) noexcept {
 	// 提前释放锁
 	_hSingleInstanceMutex.reset();
 
-	wchar_t exePath[MAX_PATH]{};
-	GetModuleFileName(NULL, exePath, MAX_PATH);
-
 	SHELLEXECUTEINFO execInfo{};
 	execInfo.cbSize = sizeof(execInfo);
-	execInfo.lpFile = exePath;
+	execInfo.lpFile = L"Magpie.exe";
 	execInfo.lpParameters = arguments;
 	execInfo.lpVerb = L"runas";
 	// 调用 ShellExecuteEx 后立即退出，因此应该指定 SEE_MASK_NOASYNC

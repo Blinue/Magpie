@@ -282,6 +282,7 @@ fire_and_forget UpdateService::DownloadAndInstall() {
 		nullptr
 	);
 	if (ec < 0) {
+		Logger::Get().Error(fmt::format("解压失败，错误代码：{}", ec));
 		_Status(UpdateStatus::ErrorWhileDownloading);
 		co_return;
 	}
@@ -295,8 +296,41 @@ fire_and_forget UpdateService::DownloadAndInstall() {
 		co_return;
 	}
 
-	// 安装
+	std::wstring magpieExePath = StrUtils::ConcatW(CommonSharedConstants::UPDATE_DIR, L"Magpie.exe");
+	std::wstring updaterExePath = StrUtils::ConcatW(CommonSharedConstants::UPDATE_DIR, L"Updater.exe");
+	if (!Win32Utils::FileExists(magpieExePath.c_str()) || !Win32Utils::FileExists(updaterExePath.c_str())) {
+		Logger::Get().Error("未找到 Magpie.exe 或 Updater.exe");
+		_Status(UpdateStatus::ErrorWhileDownloading);
+		co_return;
+	}
+
 	_Status(UpdateStatus::Installing);
+
+	// 安装更新流程
+	// ----------------------------------------------------
+	// Magpie.exe
+	// 1. 下载并解压新版本至 update 文件夹
+	// 2. 将 Updater.exe 复制到根目录
+	// 3. 运行 Updater.exe 然后退出
+	// 
+	// Updater.exe
+	// 1. 等待 Magpie.exe 退出
+	// 2. 删除旧版本文件，复制新版本文件，删除 update 文件夹
+	// 3. 启动 Magpie.exe 然后退出
+
+	MoveFileEx(updaterExePath.c_str(), L"Updater.exe", MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH);
+
+	SHELLEXECUTEINFO execInfo{};
+	execInfo.cbSize = sizeof(execInfo);
+	execInfo.lpFile = L"Updater.exe";
+	execInfo.lpParameters = L"";
+	execInfo.lpVerb = L"open";
+	// 调用 ShellExecuteEx 后立即退出，因此应该指定 SEE_MASK_NOASYNC
+	execInfo.fMask = SEE_MASK_NOASYNC;
+
+	if (!ShellExecuteEx(&execInfo)) {
+		Logger::Get().Win32Error("ShellExecuteEx 失败");
+	}
 }
 
 void UpdateService::LeavingAboutPage() {
