@@ -1,13 +1,12 @@
 #pragma once
-#include <compare>
-#include <tuple>
-#include "StrUtils.h"
+#include "pch.h"
 #include <charconv>
 
 struct Version {
 	constexpr Version() {}
 	constexpr Version(uint32_t major, uint32_t minor, uint32_t patch)
-		: major(major), minor(minor), patch(patch) {}
+		: major(major), minor(minor), patch(patch) {
+	}
 
 	std::strong_ordering operator<=>(const Version& other) const noexcept {
 		return std::make_tuple(major, minor, patch) <=> std::make_tuple(other.major, other.minor, other.patch);
@@ -18,7 +17,19 @@ struct Version {
 			return false;
 		}
 
-		SmallVector<std::string_view> numbers = StrUtils::Split(str, '.');
+		std::vector<std::string_view> numbers;
+		// 分割
+		do {
+			size_t pos = str.find(L'.', 0);
+			numbers.push_back(str.substr(0, pos));
+
+			if (pos == std::string_view::npos) {
+				break;
+			}
+
+			str.remove_prefix(pos + 1);
+		} while (!str.empty());
+
 		size_t size = numbers.size();
 		if (size != 2 && size != 3) {
 			return false;
@@ -44,15 +55,7 @@ struct Version {
 		return true;
 	}
 
-	std::wstring ToString() const noexcept {
-		return fmt::format(L"{}.{}.{}", major, minor, patch);
-	}
-
 	uint32_t major = 0;
 	uint32_t minor = 0;
 	uint32_t patch = 0;
 };
-
-constexpr inline Version MAGPIE_VERSION(0, 9, 100);
-constexpr inline const char* MAGPIE_TAG = "v0.10.0-preview1";
-constexpr inline const wchar_t* MAGPIE_TAG_W = L"v0.10.0-preview1";

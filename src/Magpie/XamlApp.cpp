@@ -230,6 +230,7 @@ void XamlApp::_CreateMainWindow() {
 	interop->get_WindowHandle(&_hwndXamlIsland);
 	_xamlSource.Content(_mainPage);
 
+	// 防止第一次收到 WM_SIZE 消息时 MainPage 尺寸为 0
 	_OnResize();
 
 	// 焦点始终位于 _hwndXamlIsland 中
@@ -553,6 +554,11 @@ LRESULT XamlApp::_WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 	case CommonSharedConstants::WM_RESTART_AS_ELEVATED:
 	{
 		_RestartAsElevated();
+		return 0;
+	}
+	case CommonSharedConstants::WM_QUIT_MAGPIE:
+	{
+		_Quit();
 		return 0;
 	}
 	}

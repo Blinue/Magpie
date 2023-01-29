@@ -29,7 +29,6 @@
 #define NOCTLMGR
 #define NODRAWTEXT
 #define NOGDI
-#define NOMB
 #define NOMEMMGR
 #define NOMETAFILE
 #define NOMINMAX
@@ -52,6 +51,10 @@
 
 // C++ 运行时头文件
 #include <cstdlib>
+#include <vector>
+#include <string>
+#include <string_view>
+#include <cassert>
 
 // 确保已编译 CONAN 依赖
 #if !__has_include(<fmt/format.h>)

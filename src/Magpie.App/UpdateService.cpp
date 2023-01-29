@@ -283,11 +283,21 @@ fire_and_forget UpdateService::DownloadAndInstall() {
 	);
 	if (ec < 0) {
 		Logger::Get().Error(fmt::format("解压失败，错误代码：{}", ec));
+		co_await dispatcher;
 		_Status(UpdateStatus::ErrorWhileDownloading);
 		co_return;
 	}
 
 	DeleteFile(updatePkg.c_str());
+
+	std::wstring magpieExePath = StrUtils::ConcatW(CommonSharedConstants::UPDATE_DIR, L"Magpie.exe");
+	std::wstring updaterExePath = StrUtils::ConcatW(CommonSharedConstants::UPDATE_DIR, L"Updater.exe");
+	if (!Win32Utils::FileExists(magpieExePath.c_str()) || !Win32Utils::FileExists(updaterExePath.c_str())) {
+		Logger::Get().Error("未找到 Magpie.exe 或 Updater.exe");
+		co_await dispatcher;
+		_Status(UpdateStatus::ErrorWhileDownloading);
+		co_return;
+	}
 
 	co_await dispatcher;
 
@@ -296,15 +306,10 @@ fire_and_forget UpdateService::DownloadAndInstall() {
 		co_return;
 	}
 
-	std::wstring magpieExePath = StrUtils::ConcatW(CommonSharedConstants::UPDATE_DIR, L"Magpie.exe");
-	std::wstring updaterExePath = StrUtils::ConcatW(CommonSharedConstants::UPDATE_DIR, L"Updater.exe");
-	if (!Win32Utils::FileExists(magpieExePath.c_str()) || !Win32Utils::FileExists(updaterExePath.c_str())) {
-		Logger::Get().Error("未找到 Magpie.exe 或 Updater.exe");
-		_Status(UpdateStatus::ErrorWhileDownloading);
-		co_return;
-	}
-
 	_Status(UpdateStatus::Installing);
+
+	// 再转入后台安装更新
+	co_await resume_background();
 
 	// 安装更新流程
 	// ----------------------------------------------------
@@ -323,7 +328,8 @@ fire_and_forget UpdateService::DownloadAndInstall() {
 	SHELLEXECUTEINFO execInfo{};
 	execInfo.cbSize = sizeof(execInfo);
 	execInfo.lpFile = L"Updater.exe";
-	execInfo.lpParameters = L"";
+	std::wstring curVersion = MAGPIE_VERSION.ToString();
+	execInfo.lpParameters = curVersion.c_str();
 	execInfo.lpVerb = L"open";
 	// 调用 ShellExecuteEx 后立即退出，因此应该指定 SEE_MASK_NOASYNC
 	execInfo.fMask = SEE_MASK_NOASYNC;
@@ -331,6 +337,8 @@ fire_and_forget UpdateService::DownloadAndInstall() {
 	if (!ShellExecuteEx(&execInfo)) {
 		Logger::Get().Win32Error("ShellExecuteEx 失败");
 	}
+
+	Application::Current().as<App>().Quit();
 }
 
 void UpdateService::LeavingAboutPage() {

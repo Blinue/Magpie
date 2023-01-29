@@ -45,6 +45,7 @@ public:
 	void MainPage(Magpie::App::MainPage const& mainPage) noexcept;
 
 	void RestartAsElevated() const noexcept;
+	void Quit() const noexcept;
 
 private:
 	Hosting::WindowsXamlManager _windowsXamlManager{ nullptr };

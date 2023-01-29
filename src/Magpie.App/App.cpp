@@ -148,4 +148,8 @@ void App::RestartAsElevated() const noexcept {
 	PostMessage(_hwndMain, CommonSharedConstants::WM_RESTART_AS_ELEVATED, 0, 0);
 }
 
+void App::Quit() const noexcept {
+	PostMessage(_hwndMain, CommonSharedConstants::WM_QUIT_MAGPIE, 0, 0);
+}
+
 }
