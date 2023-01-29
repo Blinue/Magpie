@@ -16,6 +16,8 @@
 #include "pch.h"
 #include "Version.h"
 #include "PackageFiles.h"
+#include <filesystem>
+#include <shellapi.h>
 
 static bool FileExists(const wchar_t* fileName) noexcept {
 	DWORD attrs = GetFileAttributes(fileName);
@@ -68,6 +70,32 @@ static bool WaitForMagpieToExit() noexcept {
 
 	// 超时
 	return false;
+}
+
+static void MoveFolder(const std::wstring& src, const std::wstring& dest) noexcept {
+	WIN32_FIND_DATA findData{};
+	HANDLE hFind = FindFirstFileEx((std::wstring(src) + L"\\*").c_str(),
+		FindExInfoBasic, &findData, FindExSearchNameMatch, nullptr, FIND_FIRST_EX_LARGE_FETCH);
+	if (!hFind || hFind == INVALID_HANDLE_VALUE) {
+		return;
+	}
+
+	do {
+		if (lstrcmpW(findData.cFileName, L".") == 0 || lstrcmpW(findData.cFileName, L"..") == 0) {
+			continue;
+		}
+
+		std::wstring curFileName = src + L"\\" + findData.cFileName;
+		std::wstring destFileName = dest + L"\\" + findData.cFileName;
+		if (FileExists(curFileName.c_str())) {
+			MoveFileEx(curFileName.c_str(), destFileName.c_str(), MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH);
+		} else {
+			CreateDirectory(destFileName.c_str(), nullptr);
+			MoveFolder(curFileName, destFileName);
+		}
+	} while (FindNextFile(hFind, &findData));
+
+	FindClose(hFind);
 }
 
 int APIENTRY wWinMain(
@@ -126,6 +154,20 @@ int APIENTRY wWinMain(
 		RemoveDirectory(folder);
 	}
 
-	MessageBox(NULL, lpCmdLine, L"test", MB_OK);
+	// 移动新版本
+	MoveFolder(L"update", L".");
+	
+	// 删除 update 文件夹
+	std::filesystem::remove_all(L"update");
+
+	// 启动 Magpie
+	SHELLEXECUTEINFO execInfo{};
+	execInfo.cbSize = sizeof(execInfo);
+	execInfo.lpFile = L"Magpie.exe";
+	execInfo.lpVerb = L"open";
+	// 调用 ShellExecuteEx 后立即退出，因此应该指定 SEE_MASK_NOASYNC
+	execInfo.fMask = SEE_MASK_NOASYNC;
+	ShellExecuteEx(&execInfo);
+
 	return 0;
 }
