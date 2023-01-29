@@ -21,7 +21,6 @@
 #define NOKEYSTATES
 #define NOSYSCOMMANDS
 #define NORASTEROPS
-#define NOSHOWWINDOW
 #define OEMRESOURCE
 #define NOATOM
 #define NOCLIPBOARD

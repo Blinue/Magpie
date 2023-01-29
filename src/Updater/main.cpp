@@ -55,7 +55,7 @@ static bool WaitForMagpieToExit() noexcept {
 	HANDLE hSingleInstanceMutex = CreateMutex(nullptr, FALSE, SINGLE_INSTANCE_MUTEX_NAME);
 	if (hSingleInstanceMutex) {
 		WaitForSingleObject(hSingleInstanceMutex, 10000);
-		ReleaseMutex(hSingleInstanceMutex);
+		CloseHandle(hSingleInstanceMutex);
 	}
 
 	// 即使 mutex 已被释放，Magpie.exe 仍有可能正在后台执行清理工作
@@ -165,8 +165,8 @@ int APIENTRY wWinMain(
 	execInfo.cbSize = sizeof(execInfo);
 	execInfo.lpFile = L"Magpie.exe";
 	execInfo.lpVerb = L"open";
-	// 调用 ShellExecuteEx 后立即退出，因此应该指定 SEE_MASK_NOASYNC
 	execInfo.fMask = SEE_MASK_NOASYNC;
+	execInfo.nShow = SW_SHOWNORMAL;
 	ShellExecuteEx(&execInfo);
 
 	return 0;
