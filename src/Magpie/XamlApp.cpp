@@ -12,6 +12,7 @@
 #include "ThemeHelper.h"
 #include <winrt/Windows.UI.WindowManagement.h>
 #include <windows.ui.xaml.hosting.desktopwindowxamlsource.h>
+#include <CoreWindow.h>
 
 namespace Magpie {
 
@@ -375,26 +376,6 @@ void XamlApp::_UpdateTheme() {
 	ThemeHelper::SetWindowTheme(_hwndMain, isDarkTheme);
 }
 
-// 使 ContentDialog 跟随窗口尺寸调整
-void XamlApp::_ResizeContentDialog() {
-	winrt::XamlRoot root = _mainPage.XamlRoot();
-	if (!root) {
-		return;
-	}
-
-	winrt::Size rootSize = root.Size();
-
-	for (const auto& popup : winrt::VisualTreeHelper::GetOpenPopupsForXamlRoot(root)) {
-		winrt::UIElement child = popup.Child();
-		winrt::hstring className = winrt::get_class_name(child);
-		if (className == winrt::name_of<winrt::Controls::ContentDialog>() || className == winrt::name_of<winrt::Shapes::Rectangle>()) {
-			winrt::FrameworkElement fe = child.as<winrt::FrameworkElement>();
-			fe.Width(rootSize.Width);
-			fe.Height(rootSize.Height);
-		}
-	}
-}
-
 void XamlApp::_RepositionXamlPopups(bool closeFlyoutPresenter) {
 	winrt::XamlRoot root = _mainPage.XamlRoot();
 	if (!root) {
@@ -406,7 +387,7 @@ void XamlApp::_RepositionXamlPopups(bool closeFlyoutPresenter) {
 			auto className = winrt::get_class_name(popup.Child());
 			if (className == winrt::name_of<winrt::Controls::FlyoutPresenter>() ||
 				className == winrt::name_of<winrt::Controls::MenuFlyoutPresenter>()
-				) {
+			) {
 				popup.IsOpen(false);
 				continue;
 			}
@@ -457,9 +438,16 @@ LRESULT XamlApp::_WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 		if (wParam != SIZE_MINIMIZED) {
 			_OnResize();
 			if (_mainPage) {
+				// 使 ContentDialog 跟随窗口尺寸调整
+				// 来自 https://github.com/microsoft/microsoft-ui-xaml/issues/3577#issuecomment-1399250405
+				if (winrt::CoreWindow coreWindow = winrt::CoreWindow::GetForCurrentThread()) {
+					HWND hwndDWXS;
+					coreWindow.as<ICoreWindowInterop>()->get_WindowHandle(&hwndDWXS);
+					PostMessage(hwndDWXS, WM_SIZE, wParam, lParam);
+				}
+
 				[](XamlApp* app) -> winrt::fire_and_forget {
 					co_await app->_mainPage.Dispatcher().TryRunAsync(winrt::CoreDispatcherPriority::Normal, [app]() {
-						app->_ResizeContentDialog();
 						app->_RepositionXamlPopups(true);
 					});
 				}(this);
