@@ -14,8 +14,8 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "pch.h"
-#include <shellapi.h>
 #include "Version.h"
+#include "PackageFiles.h"
 
 static bool FileExists(const wchar_t* fileName) noexcept {
 	DWORD attrs = GetFileAttributes(fileName);
@@ -47,7 +47,6 @@ static std::string UTF16ToUTF8(std::wstring_view str) noexcept {
 	return result;
 }
 
-// 等待 Magpie.exe 退出
 static bool WaitForMagpieToExit() noexcept {
 	static constexpr const wchar_t* SINGLE_INSTANCE_MUTEX_NAME = L"{4C416227-4A30-4A2F-8F23-8701544DD7D6}";
 
@@ -82,11 +81,6 @@ int APIENTRY wWinMain(
 		return 0;
 	}
 
-	Version oldVersion;
-	if (!oldVersion.Parse(UTF16ToUTF8(lpCmdLine))) {
-		return 1;
-	}
-
 	// 将当前目录设为程序所在目录
 	{
 		wchar_t curDir[MAX_PATH] = { 0 };
@@ -103,17 +97,34 @@ int APIENTRY wWinMain(
 		SetCurrentDirectory(curDir);
 	}
 
+	Version oldVersion;
+	if (!oldVersion.Parse(UTF16ToUTF8(lpCmdLine))) {
+		return 1;
+	}
+
+	std::optional<PackageFiles> oldFiles = PackageFiles::Get(oldVersion);
+	if (!oldFiles) {
+		// 未找到此版本
+		return 1;
+	}
+
 	// 检查 Updater.exe 所处环境
 	if (!FileExists(L"Magpie.exe") || !FileExists(L"update\\Magpie.exe")) {
 		return 1;
 	}
 	
+	// 等待 Magpie.exe 退出
 	if (!WaitForMagpieToExit()) {
 		return 1;
 	}
 
-	// 删除旧版本文件
-	
+	// 删除旧版本文件，静默地失败
+	for (const wchar_t* fileName : oldFiles->files) {
+		DeleteFile(fileName);
+	}
+	for (const wchar_t* folder : oldFiles->folders) {
+		RemoveDirectory(folder);
+	}
 
 	MessageBox(NULL, lpCmdLine, L"test", MB_OK);
 	return 0;

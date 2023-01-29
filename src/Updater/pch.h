@@ -55,6 +55,8 @@
 #include <string>
 #include <string_view>
 #include <cassert>
+#include <span>
+#include <optional>
 
 // 确保已编译 CONAN 依赖
 #if !__has_include(<fmt/format.h>)

@@ -12,6 +12,10 @@ struct Version {
 		return std::make_tuple(major, minor, patch) <=> std::make_tuple(other.major, other.minor, other.patch);
 	}
 
+	bool operator==(const Version& other) const noexcept {
+		return major == other.major && minor == other.minor && patch == other.patch;
+	}
+
 	bool Parse(std::string_view str) {
 		if (str.empty()) {
 			return false;

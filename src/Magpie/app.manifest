@@ -14,26 +14,6 @@
                       xmlns="urn:schemas-microsoft-com:winrt.v1" />
   </asmv3:file>
   
-  <trustInfo xmlns="urn:schemas-microsoft-com:asm.v2">
-    <security>
-      <requestedPrivileges xmlns="urn:schemas-microsoft-com:asm.v3">
-        <!-- UAC Manifest Options
-          If you want to change the Windows User Account Control level replace the
-          requestedExecutionLevel node with one of the following.
-          
-          <requestedExecutionLevel  level="asInvoker" uiAccess="false" />
-          <requestedExecutionLevel  level="requireAdministrator" uiAccess="false" />
-          <requestedExecutionLevel  level="highestAvailable" uiAccess="false" />
-          
-          Specifying requestedExecutionLevel element will disable file and registry virtualization.
-          Remove this element if your application requires this virtualization for backwards
-          compatibility.
-        -->
-        <requestedExecutionLevel level="asInvoker" uiAccess="false" />
-      </requestedPrivileges>
-    </security>
-  </trustInfo>
-  
   <compatibility xmlns="urn:schemas-microsoft-com:compatibility.v1">
     <application>
       <!-- A list of the Windows versions that this application has been tested on and is

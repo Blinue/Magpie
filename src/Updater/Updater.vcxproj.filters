@@ -24,6 +24,9 @@
     <ClInclude Include="Version.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="PackageFiles.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -42,5 +45,8 @@
     <Image Include="Updater.ico">
       <Filter>资源文件</Filter>
     </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <Manifest Include="app.manifest" />
   </ItemGroup>
 </Project>
