@@ -205,7 +205,7 @@
 		<StackPanel HorizontalAlignment="Stretch"
 					Orientation="Vertical">
 			<local:SettingsGroup Title="常规"
-								 Margin="0,-25,0,0">
+								 Margin="0,-24,0,0">
 				<local:SettingsCard Title="缩放模式">
 					<local:SettingsCard.Icon>
 						<FontIcon Glyph="&#xE740;" />

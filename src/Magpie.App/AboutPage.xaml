@@ -11,7 +11,7 @@
 		<StackPanel HorizontalAlignment="Stretch"
 		            Orientation="Vertical">
 			<local:SettingsGroup Title="版本"
-			                     Margin="0,-25,0,-2">
+			                     Margin="0,-24,0,-2">
 				<muxc:Expander HorizontalAlignment="Stretch"
 				               HorizontalContentAlignment="Stretch"
 				               Style="{StaticResource SettingExpanderStyle}">

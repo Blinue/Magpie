@@ -22,7 +22,7 @@
 					Grid.Row="0"
 					VerticalAlignment="Top">
 			<Grid MaxWidth="{StaticResource PageMaxWidth}"
-				  Margin="0,0,20,15">
+				  Margin="0,0,20,16">
 				<Grid.ColumnDefinitions>
 					<ColumnDefinition Width="Auto" />
 					<ColumnDefinition Width="*" />
@@ -30,7 +30,7 @@
 				</Grid.ColumnDefinitions>
 				<ContentControl x:Name="IconContainer"
 								Grid.Column="0"
-								Margin="0,8,15,0"
+								Margin="0,8,16,0"
 								Content="{x:Bind Icon, Mode=OneWay}"
 								IsTabStop="False" />
 				<TextBlock x:Name="TitleTextBlock"
