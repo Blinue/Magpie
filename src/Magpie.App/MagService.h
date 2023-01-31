@@ -110,7 +110,7 @@ private:
 
 	void _Settings_IsAutoRestoreChanged(bool);
 
-	fire_and_forget _MagRuntime_IsRunningChanged(bool);
+	fire_and_forget _MagRuntime_IsRunningChanged(bool isRunning);
 
 	void _UpdateIsAutoRestore();
 
@@ -132,7 +132,6 @@ private:
 	CoreDispatcher _dispatcher{ nullptr };
 
 	DispatcherTimer _timer;
-	DispatcherTimer::Tick_revoker _timerTickRevoker;
 	std::chrono::steady_clock::time_point _timerStartTimePoint;
 
 	uint32_t _tickingDownCount = 0;

@@ -69,6 +69,7 @@ private:
 	WinRTUtils::EventRevoker _countdownTickRevoker;
 	WinRTUtils::EventRevoker _isRunningChangedRevoker;
 	WinRTUtils::EventRevoker _wndToRestoreChangedRevoker;
+	WinRTUtils::EventRevoker _isShowOnHomePageChangedRevoker;
 
 	bool _showUpdateCard = false;
 };

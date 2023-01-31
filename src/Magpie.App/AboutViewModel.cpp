@@ -22,11 +22,11 @@ AboutViewModel::AboutViewModel() {
 	}
 
 	// 用户查看了关于页面，主页无需再显示更新提示
-	service.ShowOnHomePage(false);
-	_showOnHomePageChangedRevoker = service.ShowOnHomePageChanged(auto_revoke, [](bool value) {
+	service.IsShowOnHomePage(false);
+	_showOnHomePageChangedRevoker = service.IsShowOnHomePageChanged(auto_revoke, [](bool value) {
 		if (value) {
 			// 在关于页面触发自动更新时主页不需要显示更新提示
-			UpdateService::Get().ShowOnHomePage(false);
+			UpdateService::Get().IsShowOnHomePage(false);
 		}
 	});
 }

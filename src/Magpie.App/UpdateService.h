@@ -85,32 +85,32 @@ public:
 		return _binaryUrl;
 	}
 
-	bool ShowOnHomePage() const noexcept {
+	bool IsShowOnHomePage() const noexcept {
 		return _showOnHomePage;
 	}
 
-	void ShowOnHomePage(bool value) noexcept {
+	void IsShowOnHomePage(bool value) noexcept {
 		if (_showOnHomePage == value) {
 			return;
 		}
 
 		_showOnHomePage = value;
-		_showOnHomePageChangedEvent(value);
+		_isShowOnHomePageChangedEvent(value);
 	}
 
-	event_token ShowOnHomePageChanged(delegate<bool> const& handler) {
-		return _showOnHomePageChangedEvent.add(handler);
+	event_token IsShowOnHomePageChanged(delegate<bool> const& handler) {
+		return _isShowOnHomePageChangedEvent.add(handler);
 	}
 
-	WinRTUtils::EventRevoker ShowOnHomePageChanged(auto_revoke_t, delegate<bool> const& handler) {
-		event_token token = ShowOnHomePageChanged(handler);
+	WinRTUtils::EventRevoker IsShowOnHomePageChanged(auto_revoke_t, delegate<bool> const& handler) {
+		event_token token = IsShowOnHomePageChanged(handler);
 		return WinRTUtils::EventRevoker([this, token]() {
-			ShowOnHomePageChanged(token);
+			IsShowOnHomePageChanged(token);
 		});
 	}
 
-	void ShowOnHomePageChanged(event_token const& token) {
-		_showOnHomePageChangedEvent.remove(token);
+	void IsShowOnHomePageChanged(event_token const& token) {
+		_isShowOnHomePageChangedEvent.remove(token);
 	}
 
 private:
@@ -118,11 +118,13 @@ private:
 
 	void _Status(UpdateStatus value);
 
-	void _AppSettings_IsAutoCheckForUpdatesChanged(bool value);
+	fire_and_forget _Timer_Tick(IInspectable const&, IInspectable const&);
 
 	event<delegate<UpdateStatus>> _statusChangedEvent;
 	event<delegate<double>> _downloadProgressChangedEvent;
-	event<delegate<bool>> _showOnHomePageChangedEvent;
+	event<delegate<bool>> _isShowOnHomePageChangedEvent;
+
+	DispatcherTimer _timer;
 
 	std::wstring _tag;
 	std::wstring _binaryUrl;

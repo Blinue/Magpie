@@ -270,6 +270,7 @@ public:
 
 	void IsAutoCheckForUpdates(bool value) noexcept {
 		_isAutoCheckForUpdates = value;
+		_isAutoCheckForUpdatesChangedEvent(value);
 		SaveAsync();
 	}
 

@@ -20,15 +20,30 @@ using namespace Windows::Storage::Streams;
 namespace winrt::Magpie::App {
 
 void UpdateService::Initialize() noexcept {
+	// 每小时检查一次剩余时间
+	_timer.Interval(1h);
+	_timer.Tick({ this, &UpdateService::_Timer_Tick });
+
 	AppSettings& settings = AppSettings::Get();
 	if (settings.IsAutoCheckForUpdates()) {
-		
+		// 启动时检查一次
+		_Timer_Tick(nullptr, nullptr);
+		_timer.Start();
 	}
-	settings.IsAutoCheckForUpdatesChanged(
-		{ this, &UpdateService::_AppSettings_IsAutoCheckForUpdatesChanged });
+	settings.IsAutoCheckForUpdatesChanged([this](bool value) {
+		if (value) {
+			_timer.Start();
+		} else {
+			_timer.Stop();
+		}
+	});
 }
 
 fire_and_forget UpdateService::CheckForUpdatesAsync(bool isAutoUpdate) {
+	if (_status == UpdateStatus::Checking) {
+		co_return;
+	}
+
 	_Status(UpdateStatus::Checking);
 
 	rapidjson::Document doc;
@@ -169,7 +184,7 @@ fire_and_forget UpdateService::CheckForUpdatesAsync(bool isAutoUpdate) {
 
 	_Status(UpdateStatus::Available);
 	if (isAutoUpdate) {
-		ShowOnHomePage(true);
+		IsShowOnHomePage(true);
 	}
 }
 
@@ -398,8 +413,8 @@ void UpdateService::_Status(UpdateStatus value) {
 	_statusChangedEvent(value);
 }
 
-void UpdateService::_AppSettings_IsAutoCheckForUpdatesChanged(bool value) {
-
+fire_and_forget UpdateService::_Timer_Tick(IInspectable const&, IInspectable const&) {
+	return CheckForUpdatesAsync(true);
 }
 
 }

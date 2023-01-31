@@ -13,12 +13,9 @@ namespace winrt::Magpie::App {
 
 void MagService::Initialize() {
 	_dispatcher = CoreWindow::GetForCurrentThread().Dispatcher();
-
+	
 	_timer.Interval(25ms);
-	_timerTickRevoker = _timer.Tick(
-		auto_revoke,
-		{ this, &MagService::_Timer_Tick }
-	);
+	_timer.Tick({ this, &MagService::_Timer_Tick });
 
 	AppSettings::Get().IsAutoRestoreChanged({ this, &MagService::_Settings_IsAutoRestoreChanged });
 	_magRuntime.IsRunningChanged({ this, &MagService::_MagRuntime_IsRunningChanged });
@@ -115,20 +112,21 @@ void MagService::_Settings_IsAutoRestoreChanged(bool) {
 	_UpdateIsAutoRestore();
 }
 
-fire_and_forget MagService::_MagRuntime_IsRunningChanged(bool) {
-	co_await _dispatcher.TryRunAsync(CoreDispatcherPriority::Normal, [this]() {
-		bool isRunning = _magRuntime.IsRunning();
-		if (isRunning) {
-			StopCountdown();
+fire_and_forget MagService::_MagRuntime_IsRunningChanged(bool isRunning) {
+	co_await _dispatcher;
 
-			if (AppSettings::Get().IsAutoRestore()) {
-				_curSrcWnd = _magRuntime.HwndSrc();
-				_wndToRestore = 0;
-				_wndToRestoreChangedEvent(_wndToRestore);
-			}
-		} else {
-			HWND hwndMain = (HWND)Application::Current().as<Magpie::App::App>().HwndMain();
+	if (isRunning) {
+		StopCountdown();
 
+		if (AppSettings::Get().IsAutoRestore()) {
+			_wndToRestore = 0;
+			_wndToRestoreChangedEvent(_wndToRestore);
+		}
+
+		_curSrcWnd = _magRuntime.HwndSrc();
+	} else {
+		HWND hwndMain = (HWND)Application::Current().as<App>().HwndMain();
+		if (hwndMain == _curSrcWnd) {
 			// 必须在主线程还原主窗口样式
 			// 见 FrameSourceBase::~FrameSourceBase
 			LONG_PTR style = GetWindowLongPtr(hwndMain, GWL_STYLE);
@@ -137,20 +135,20 @@ fire_and_forget MagService::_MagRuntime_IsRunningChanged(bool) {
 				SetWindowPos(hwndMain, 0, 0, 0, 0, 0,
 					SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
 			}
+		}
 
-			if (AppSettings::Get().IsAutoRestore()) {
-				// 退出全屏之后前台窗口不变则不必记忆
-				if (IsWindow(_curSrcWnd) && GetForegroundWindow() != _curSrcWnd) {
-					_wndToRestore = _curSrcWnd;
-					_wndToRestoreChangedEvent(_wndToRestore);
-				}
-
-				_curSrcWnd = NULL;
+		if (AppSettings::Get().IsAutoRestore()) {
+			// 退出全屏之后前台窗口不变则不必记忆
+			if (IsWindow(_curSrcWnd) && GetForegroundWindow() != _curSrcWnd) {
+				_wndToRestore = _curSrcWnd;
+				_wndToRestoreChangedEvent(_wndToRestore);
 			}
 		}
 
-		_isRunningChangedEvent(isRunning);
-	});
+		_curSrcWnd = NULL;
+	}
+
+	_isRunningChangedEvent(isRunning);
 }
 
 void MagService::_UpdateIsAutoRestore() {

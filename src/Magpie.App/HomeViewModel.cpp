@@ -24,7 +24,15 @@ HomeViewModel::HomeViewModel() {
 		auto_revoke, { this, &HomeViewModel::_MagService_WndToRestoreChanged });
 
 	UpdateService& updateService = UpdateService::Get();
-	_showUpdateCard = updateService.ShowOnHomePage();
+	_showUpdateCard = updateService.IsShowOnHomePage();
+	_isShowOnHomePageChangedRevoker = updateService.IsShowOnHomePageChanged(
+		auto_revoke,
+		[this](bool value) {
+			if (value) {
+				ShowUpdateCard(true);
+			}
+		}
+	);
 }
 
 bool HomeViewModel::IsCountingDown() const noexcept {
@@ -140,7 +148,7 @@ void HomeViewModel::IsAlwaysRunAsElevated(bool value) noexcept {
 inline void HomeViewModel::ShowUpdateCard(bool value) noexcept {
 	_showUpdateCard = value;
 	if (!value) {
-		UpdateService::Get().ShowOnHomePage(false);
+		UpdateService::Get().IsShowOnHomePage(false);
 	}
 	
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"ShowUpdateCard"));
