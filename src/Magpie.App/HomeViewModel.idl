@@ -21,5 +21,7 @@ namespace Magpie.App {
 		Boolean IsProcessElevated { get; };
 		void RestartAsElevated();
 		Boolean IsAlwaysRunAsElevated;
+
+		Boolean ShowUpdateCard;
 	}
 }

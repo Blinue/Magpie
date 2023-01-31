@@ -24,6 +24,8 @@ public:
 	UpdateService(const UpdateService&) = delete;
 	UpdateService(UpdateService&&) = delete;
 
+	void Initialize() noexcept;
+
 	UpdateStatus Status() const noexcept {
 		return _status;
 	}
@@ -43,7 +45,7 @@ public:
 		_statusChangedEvent.remove(token);
 	}
 
-	fire_and_forget CheckForUpdatesAsync();
+	fire_and_forget CheckForUpdatesAsync(bool isAutoUpdate);
 
 	fire_and_forget DownloadAndInstall();
 
@@ -83,13 +85,44 @@ public:
 		return _binaryUrl;
 	}
 
+	bool ShowOnHomePage() const noexcept {
+		return _showOnHomePage;
+	}
+
+	void ShowOnHomePage(bool value) noexcept {
+		if (_showOnHomePage == value) {
+			return;
+		}
+
+		_showOnHomePage = value;
+		_showOnHomePageChangedEvent(value);
+	}
+
+	event_token ShowOnHomePageChanged(delegate<bool> const& handler) {
+		return _showOnHomePageChangedEvent.add(handler);
+	}
+
+	WinRTUtils::EventRevoker ShowOnHomePageChanged(auto_revoke_t, delegate<bool> const& handler) {
+		event_token token = ShowOnHomePageChanged(handler);
+		return WinRTUtils::EventRevoker([this, token]() {
+			ShowOnHomePageChanged(token);
+		});
+	}
+
+	void ShowOnHomePageChanged(event_token const& token) {
+		_showOnHomePageChangedEvent.remove(token);
+	}
+
 private:
 	UpdateService() = default;
 
 	void _Status(UpdateStatus value);
 
+	void _AppSettings_IsAutoCheckForUpdatesChanged(bool value);
+
 	event<delegate<UpdateStatus>> _statusChangedEvent;
 	event<delegate<double>> _downloadProgressChangedEvent;
+	event<delegate<bool>> _showOnHomePageChangedEvent;
 
 	std::wstring _tag;
 	std::wstring _binaryUrl;
@@ -97,6 +130,7 @@ private:
 	UpdateStatus _status = UpdateStatus::Pending;
 	double _downloadProgress = 0;
 	bool _downloadCancelled = false;
+	bool _showOnHomePage = false;
 };
 
 }

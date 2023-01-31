@@ -20,6 +20,15 @@ AboutViewModel::AboutViewModel() {
 			{ this, &AboutViewModel::_UpdateService_DownloadProgressChanged }
 		);
 	}
+
+	// 用户查看了关于页面，主页无需再显示更新提示
+	service.ShowOnHomePage(false);
+	_showOnHomePageChangedRevoker = service.ShowOnHomePageChanged(auto_revoke, [](bool value) {
+		if (value) {
+			// 在关于页面触发自动更新时主页不需要显示更新提示
+			UpdateService::Get().ShowOnHomePage(false);
+		}
+	});
 }
 
 AboutViewModel::~AboutViewModel() {
@@ -35,7 +44,7 @@ Uri AboutViewModel::ReleaseNotesLink() const noexcept {
 }
 
 fire_and_forget AboutViewModel::CheckForUpdates() {
-	return UpdateService::Get().CheckForUpdatesAsync();
+	return UpdateService::Get().CheckForUpdatesAsync(false);
 }
 
 bool AboutViewModel::IsCheckForPreviewUpdates() const noexcept {

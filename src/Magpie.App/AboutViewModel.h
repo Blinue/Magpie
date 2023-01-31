@@ -66,6 +66,7 @@ private:
 	event<PropertyChangedEventHandler> _propertyChangedEvent;
 	WinRTUtils::EventRevoker _updateStatusChangedRevoker;
 	WinRTUtils::EventRevoker _downloadProgressChangedRevoker;
+	WinRTUtils::EventRevoker _showOnHomePageChangedRevoker;
 };
 
 }

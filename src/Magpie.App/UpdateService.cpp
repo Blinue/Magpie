@@ -19,7 +19,16 @@ using namespace Windows::Storage::Streams;
 
 namespace winrt::Magpie::App {
 
-fire_and_forget UpdateService::CheckForUpdatesAsync() {
+void UpdateService::Initialize() noexcept {
+	AppSettings& settings = AppSettings::Get();
+	if (settings.IsAutoCheckForUpdates()) {
+		
+	}
+	settings.IsAutoCheckForUpdatesChanged(
+		{ this, &UpdateService::_AppSettings_IsAutoCheckForUpdatesChanged });
+}
+
+fire_and_forget UpdateService::CheckForUpdatesAsync(bool isAutoUpdate) {
 	_Status(UpdateStatus::Checking);
 
 	rapidjson::Document doc;
@@ -159,6 +168,9 @@ fire_and_forget UpdateService::CheckForUpdatesAsync() {
 	}
 
 	_Status(UpdateStatus::Available);
+	if (isAutoUpdate) {
+		ShowOnHomePage(true);
+	}
 }
 
 static std::wstring Md5ToHex(const uint8_t* data) {
@@ -384,6 +396,10 @@ void UpdateService::_Status(UpdateStatus value) {
 
 	_status = value;
 	_statusChangedEvent(value);
+}
+
+void UpdateService::_AppSettings_IsAutoCheckForUpdatesChanged(bool value) {
+
 }
 
 }

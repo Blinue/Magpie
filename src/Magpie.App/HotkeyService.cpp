@@ -36,7 +36,7 @@ void HotkeyService::Initialize() {
 	_RegisterHotkey(HotkeyAction::Scale);
 	_RegisterHotkey(HotkeyAction::Overlay);
 
-	AppSettings::Get().HotkeyChanged({ this, &HotkeyService::_Settings_OnHotkeyChanged });
+	AppSettings::Get().HotkeyChanged({ this, &HotkeyService::_AppSettings_OnHotkeyChanged });
 
 	_keyboardHook = SetWindowsHookEx(WH_KEYBOARD_LL, _LowLevelKeyboardProc, NULL, NULL);
 	if (!_keyboardHook) {
@@ -80,7 +80,7 @@ LRESULT HotkeyService::_WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
 	return DefWindowProc(hWnd, message, wParam, lParam);
 }
 
-void HotkeyService::_Settings_OnHotkeyChanged(HotkeyAction action) {
+void HotkeyService::_AppSettings_OnHotkeyChanged(HotkeyAction action) {
 	_RegisterHotkey(action);
 }
 

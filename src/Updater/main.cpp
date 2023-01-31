@@ -81,17 +81,18 @@ static void MoveFolder(const std::wstring& src, const std::wstring& dest) noexce
 	}
 
 	do {
-		if (lstrcmpW(findData.cFileName, L".") == 0 || lstrcmpW(findData.cFileName, L"..") == 0) {
+		std::wstring_view fileName(findData.cFileName);
+		if (fileName == L"." || fileName == L"..") {
 			continue;
 		}
-
-		std::wstring curFileName = src + L"\\" + findData.cFileName;
-		std::wstring destFileName = dest + L"\\" + findData.cFileName;
-		if (FileExists(curFileName.c_str())) {
-			MoveFileEx(curFileName.c_str(), destFileName.c_str(), MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH);
+		
+		std::wstring curPath = src + L"\\" + findData.cFileName;
+		std::wstring destPath = dest + L"\\" + findData.cFileName;
+		if (FileExists(curPath.c_str())) {
+			MoveFileEx(curPath.c_str(), destPath.c_str(), MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH);
 		} else {
-			CreateDirectory(destFileName.c_str(), nullptr);
-			MoveFolder(curFileName, destFileName);
+			CreateDirectory(destPath.c_str(), nullptr);
+			MoveFolder(curPath, destPath);
 		}
 	} while (FindNextFile(hFind, &findData));
 

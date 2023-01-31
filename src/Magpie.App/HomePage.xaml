@@ -11,9 +11,9 @@
 		            Orientation="Vertical">
 			<muxc:InfoBar Title="v0.10.0-preview1 可用"
 			              Margin="0,8,0,14"
-			              IsOpen="True"
+			              IsOpen="{x:Bind ViewModel.ShowUpdateCard, Mode=TwoWay}"
 			              Severity="Informational"
-			              Visibility="Collapsed">
+			              Visibility="{x:Bind ViewModel.ShowUpdateCard, Mode=OneWay}">
 				<StackPanel Margin="0,0,0,16"
 				            Spacing="8">
 					<CheckBox Content="自动检查更新" />

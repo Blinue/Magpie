@@ -54,7 +54,7 @@ private:
 	}
 	LRESULT _WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
-	void _Settings_OnHotkeyChanged(HotkeyAction action);
+	void _AppSettings_OnHotkeyChanged(HotkeyAction action);
 
 	void _RegisterHotkey(HotkeyAction action);
 

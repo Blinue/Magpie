@@ -46,8 +46,13 @@ struct HomeViewModel : HomeViewModelT<HomeViewModel> {
 	void RestartAsElevated() const noexcept;
 
 	bool IsAlwaysRunAsElevated() const noexcept;
-
 	void IsAlwaysRunAsElevated(bool value) noexcept;
+
+	bool ShowUpdateCard() const noexcept {
+		return _showUpdateCard;
+	}
+
+	void ShowUpdateCard(bool value) noexcept;
 
 private:
 	void _MagService_IsCountingDownChanged(bool value);
@@ -64,6 +69,8 @@ private:
 	WinRTUtils::EventRevoker _countdownTickRevoker;
 	WinRTUtils::EventRevoker _isRunningChangedRevoker;
 	WinRTUtils::EventRevoker _wndToRestoreChangedRevoker;
+
+	bool _showUpdateCard = false;
 };
 
 }

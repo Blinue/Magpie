@@ -58,7 +58,7 @@ ShortcutControl::ShortcutControl() {
 	InitializeComponent();
 
 	_hotkeyChangedRevoker = AppSettings::Get().HotkeyChanged(
-		auto_revoke, { this,&ShortcutControl::_Settings_OnHotkeyChanged });
+		auto_revoke, { this,&ShortcutControl::_AppSettings_OnHotkeyChanged });
 }
 
 ShortcutControl::~ShortcutControl() {
@@ -239,7 +239,7 @@ void ShortcutControl::_OnTitleChanged(DependencyObject const& sender, Dependency
 	}
 }
 
-void ShortcutControl::_Settings_OnHotkeyChanged(HotkeyAction action) {
+void ShortcutControl::_AppSettings_OnHotkeyChanged(HotkeyAction action) {
 	if (action == Action()) {
 		_UpdateHotkey();
 	}

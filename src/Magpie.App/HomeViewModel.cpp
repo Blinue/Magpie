@@ -7,6 +7,7 @@
 #include "MagService.h"
 #include "Win32Utils.h"
 #include "StrUtils.h"
+#include "UpdateService.h"
 
 namespace winrt::Magpie::App::implementation {
 
@@ -21,6 +22,9 @@ HomeViewModel::HomeViewModel() {
 		auto_revoke, { this, &HomeViewModel::_MagService_CountdownTick });
 	_wndToRestoreChangedRevoker = magService.WndToRestoreChanged(
 		auto_revoke, { this, &HomeViewModel::_MagService_WndToRestoreChanged });
+
+	UpdateService& updateService = UpdateService::Get();
+	_showUpdateCard = updateService.ShowOnHomePage();
 }
 
 bool HomeViewModel::IsCountingDown() const noexcept {
@@ -131,6 +135,15 @@ bool HomeViewModel::IsAlwaysRunAsElevated() const noexcept {
 
 void HomeViewModel::IsAlwaysRunAsElevated(bool value) noexcept {
 	AppSettings::Get().IsAlwaysRunAsElevated(value);
+}
+
+inline void HomeViewModel::ShowUpdateCard(bool value) noexcept {
+	_showUpdateCard = value;
+	if (!value) {
+		UpdateService::Get().ShowOnHomePage(false);
+	}
+	
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"ShowUpdateCard"));
 }
 
 void HomeViewModel::_MagService_IsCountingDownChanged(bool value) {

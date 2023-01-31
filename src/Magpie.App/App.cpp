@@ -104,6 +104,7 @@ StartUpOptions App::Initialize(int) {
 
 	HotkeyService::Get().Initialize();
 	MagService::Get().Initialize();
+	UpdateService::Get().Initialize();
 
 	return result;
 }

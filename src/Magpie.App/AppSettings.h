@@ -273,6 +273,21 @@ public:
 		SaveAsync();
 	}
 
+	event_token IsAutoCheckForUpdatesChanged(delegate<bool> const& handler) {
+		return _isAutoCheckForUpdatesChangedEvent.add(handler);
+	}
+
+	WinRTUtils::EventRevoker IsAutoCheckForUpdatesChanged(auto_revoke_t, delegate<bool> const& handler) {
+		event_token token = IsAutoCheckForUpdatesChanged(handler);
+		return WinRTUtils::EventRevoker([this, token]() {
+			IsAutoCheckForUpdatesChanged(token);
+		});
+	}
+
+	void IsAutoCheckForUpdatesChanged(event_token const& token) {
+		_isAutoCheckForUpdatesChangedEvent.remove(token);
+	}
+
 	bool IsCheckForPreviewUpdates() const noexcept {
 		return _isCheckForPreviewUpdates;
 	}
@@ -309,6 +324,7 @@ private:
 	event<delegate<bool>> _isAutoRestoreChangedEvent;
 	event<delegate<uint32_t>> _downCountChangedEvent;
 	event<delegate<bool>> _isShowTrayIconChangedEvent;
+	event<delegate<bool>> _isAutoCheckForUpdatesChangedEvent;
 };
 
 }

@@ -49,7 +49,7 @@ private:
 
 	static void _OnTitleChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const& args);
 
-	void _Settings_OnHotkeyChanged(HotkeyAction action);
+	void _AppSettings_OnHotkeyChanged(HotkeyAction action);
 
 	void _UpdateHotkey();
 
