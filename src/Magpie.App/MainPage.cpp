@@ -189,10 +189,6 @@ fire_and_forget MainPage::NavigationView_ItemInvoked(MUXC::NavigationView const&
 	}
 }
 
-MUXC::NavigationView MainPage::RootNavigationView() {
-	return __super::RootNavigationView();
-}
-
 void MainPage::ComboBox_DropDownOpened(IInspectable const&, IInspectable const&) {
 	XamlUtils::UpdateThemeOfXamlPopups(XamlRoot(), ActualTheme());
 }

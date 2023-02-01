@@ -103,7 +103,7 @@ ScalingProfileViewModel::ScalingProfileViewModel(int profileIdx) : _isDefaultPro
 	{
 		std::vector<IInspectable> captureMethods;
 		captureMethods.reserve(4);
-		captureMethods.push_back(box_value(L"Graphics Catpure"));
+		captureMethods.push_back(box_value(L"Graphics Capture"));
 		if (Win32Utils::GetOSVersion().Is20H1OrNewer()) {
 			// Desktop Duplication 要求 Win10 20H1+
 			captureMethods.push_back(box_value(L"Desktop Duplication"));

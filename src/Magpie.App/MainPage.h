@@ -25,8 +25,6 @@ struct MainPage : MainPageT<MainPage> {
 
 	fire_and_forget NavigationView_ItemInvoked(MUXC::NavigationView const&, MUXC::NavigationViewItemInvokedEventArgs const& args);
 
-	MUXC::NavigationView RootNavigationView();
-
 	Magpie::App::NewProfileViewModel NewProfileViewModel() const noexcept {
 		return _newProfileViewModel;
 	}

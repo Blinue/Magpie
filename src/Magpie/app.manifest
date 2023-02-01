@@ -35,6 +35,8 @@
   <!-- Indicates that the application is DPI-aware and will not be automatically scaled by Windows at higher DPIs. -->
   <application xmlns="urn:schemas-microsoft-com:asm.v3">
     <windowsSettings>
+      <!-- 使程序可以枚举到沉浸式窗口（immersive windows），如很多类名为 “Windows.UI.Core.CoreWindow” 的系统窗口 -->
+      <disableWindowFiltering xmlns="http://schemas.microsoft.com/SMI/2011/WindowsSettings">true</disableWindowFiltering>
       <dpiAwareness xmlns="http://schemas.microsoft.com/SMI/2016/WindowsSettings">PerMonitorV2</dpiAwareness>
     </windowsSettings>
   </application>
