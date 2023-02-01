@@ -37,6 +37,8 @@ struct MainPage : MainPageT<MainPage> {
 
 	void NewProfileNameTextBox_KeyDown(IInspectable const&, Input::KeyRoutedEventArgs const& args);
 
+	void NavigateToAboutPage();
+
 private:
 	void _UpdateTheme(bool updateIcons = true);
 

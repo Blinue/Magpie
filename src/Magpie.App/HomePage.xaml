@@ -16,13 +16,17 @@
 			              Visibility="{x:Bind ViewModel.ShowUpdateCard, Mode=OneWay}">
 				<StackPanel Margin="0,0,0,16"
 				            Spacing="8">
-					<CheckBox Content="自动检查更新" />
+					<CheckBox Content="自动检查更新"
+					          IsChecked="{x:Bind ViewModel.IsAutoCheckForUpdates, Mode=TwoWay}" />
 					<StackPanel Orientation="Horizontal"
 					            Spacing="8">
-						<Button Content="下载并安装"
+						<Button Click="{x:Bind ViewModel.DownloadAndInstall}"
+						        Content="下载并安装"
 						        Style="{StaticResource AccentButtonStyle}" />
-						<Button Content="发行说明" />
-						<Button Content="以后再提醒我" />
+						<Button Click="{x:Bind ViewModel.ReleaseNotes}"
+						        Content="发行说明" />
+						<Button Click="{x:Bind ViewModel.RemindMeLater}"
+						        Content="以后再提醒我" />
 					</StackPanel>
 				</StackPanel>
 			</muxc:InfoBar>

@@ -54,6 +54,14 @@ struct HomeViewModel : HomeViewModelT<HomeViewModel> {
 
 	void ShowUpdateCard(bool value) noexcept;
 
+	bool IsAutoCheckForUpdates() const noexcept;
+	void IsAutoCheckForUpdates(bool value) noexcept;
+
+	void DownloadAndInstall();
+
+	void ReleaseNotes();
+
+	void RemindMeLater();
 private:
 	void _MagService_IsCountingDownChanged(bool value);
 

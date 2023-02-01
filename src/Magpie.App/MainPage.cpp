@@ -208,6 +208,11 @@ void MainPage::NewProfileNameTextBox_KeyDown(IInspectable const&, Input::KeyRout
 	}
 }
 
+void MainPage::NavigateToAboutPage() {
+	MUXC::NavigationView nv = RootNavigationView();
+	nv.SelectedItem(nv.FooterMenuItems().GetAt(0));
+}
+
 static Color Win32ColorToWinRTColor(COLORREF color) {
 	return { 255, GetRValue(color), GetGValue(color), GetBValue(color) };
 }

@@ -154,6 +154,31 @@ inline void HomeViewModel::ShowUpdateCard(bool value) noexcept {
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"ShowUpdateCard"));
 }
 
+bool HomeViewModel::IsAutoCheckForUpdates() const noexcept {
+	return AppSettings::Get().IsAutoCheckForUpdates();
+}
+
+void HomeViewModel::IsAutoCheckForUpdates(bool value) noexcept {
+	AppSettings::Get().IsAutoCheckForUpdates(value);
+}
+
+void HomeViewModel::DownloadAndInstall() {
+	UpdateService::Get().DownloadAndInstall();
+	Application::Current().as<App>().MainPage().NavigateToAboutPage();
+}
+
+void HomeViewModel::ReleaseNotes() {
+	std::wstring url = StrUtils::ConcatW(
+		L"https://github.com/Blinue/Magpie/releases/tag/",
+		UpdateService::Get().Tag()
+	);
+	Win32Utils::ShellOpen(url.c_str());
+}
+
+void HomeViewModel::RemindMeLater() {
+	ShowUpdateCard(false);
+}
+
 void HomeViewModel::_MagService_IsCountingDownChanged(bool value) {
 	if (!value) {
 		_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CountdownProgressRingValue"));

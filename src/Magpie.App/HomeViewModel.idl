@@ -23,5 +23,9 @@ namespace Magpie.App {
 		Boolean IsAlwaysRunAsElevated;
 
 		Boolean ShowUpdateCard;
+		Boolean IsAutoCheckForUpdates;
+		void DownloadAndInstall();
+		void ReleaseNotes();
+		void RemindMeLater();
 	}
 }

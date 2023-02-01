@@ -4,5 +4,7 @@ namespace Magpie.App {
 
 		Microsoft.UI.Xaml.Controls.NavigationView RootNavigationView { get; };
 		NewProfileViewModel NewProfileViewModel { get; };
+
+		void NavigateToAboutPage();
 	}
 }
