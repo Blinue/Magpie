@@ -86,6 +86,25 @@ bool JsonHelper::ReadInt(
 	return true;
 }
 
+bool JsonHelper::ReadInt64(
+	const rapidjson::GenericObject<true, rapidjson::Value>& obj,
+	const char* name,
+	int64_t& result,
+	bool required
+) {
+	auto node = obj.FindMember(name);
+	if (node == obj.MemberEnd()) {
+		return !required;
+	}
+
+	if (!node->value.IsInt64()) {
+		return false;
+	}
+
+	result = node->value.GetInt64();
+	return true;
+}
+
 bool JsonHelper::ReadFloat(
 	const rapidjson::GenericObject<true, rapidjson::Value>& obj,
 	const char* name,

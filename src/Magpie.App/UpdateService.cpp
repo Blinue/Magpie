@@ -368,14 +368,14 @@ fire_and_forget UpdateService::DownloadAndInstall() {
 	Application::Current().as<App>().Quit();
 }
 
-void UpdateService::LeavingAboutPage() {
+void UpdateService::EnteringAboutPage() {
 	if (_status == UpdateStatus::NoUpdate || _status == UpdateStatus::ErrorWhileChecking) {
 		_Status(UpdateStatus::Pending);
 	}
 }
 
 void UpdateService::ClosingMainWindow() {
-	LeavingAboutPage();
+	EnteringAboutPage();
 
 	if (_status == UpdateStatus::Available) {
 		_Status(UpdateStatus::Pending);
@@ -413,8 +413,18 @@ void UpdateService::_Status(UpdateStatus value) {
 	_statusChangedEvent(value);
 }
 
-fire_and_forget UpdateService::_Timer_Tick(IInspectable const&, IInspectable const&) {
-	return CheckForUpdatesAsync(true);
+void UpdateService::_Timer_Tick(IInspectable const&, IInspectable const&) {
+	AppSettings& settings = AppSettings::Get();
+	
+	using namespace std::chrono;
+	system_clock::time_point now = system_clock::now();
+	// 自动检查更新的间隔为 1 天
+	if (duration_cast<days>(now - settings.UpdateCheckDate()).count() < 1) {
+		return;
+	}
+
+	settings.UpdateCheckDate(now);
+	CheckForUpdatesAsync(true);
 }
 
 }

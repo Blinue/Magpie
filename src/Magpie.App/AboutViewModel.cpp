@@ -11,6 +11,8 @@ namespace winrt::Magpie::App::implementation {
 
 AboutViewModel::AboutViewModel() {
 	UpdateService& service = UpdateService::Get();
+	service.EnteringAboutPage();
+
 	_updateStatusChangedRevoker = service.StatusChanged(
 		auto_revoke, { this, &AboutViewModel::_UpdateService_StatusChanged });
 	
@@ -29,10 +31,6 @@ AboutViewModel::AboutViewModel() {
 			UpdateService::Get().IsShowOnHomePage(false);
 		}
 	});
-}
-
-AboutViewModel::~AboutViewModel() {
-	UpdateService::Get().LeavingAboutPage();
 }
 
 hstring AboutViewModel::Version() const noexcept {

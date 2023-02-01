@@ -36,6 +36,9 @@ struct _AppSettingsData {
 	// 必须在 1~5 之间
 	uint32_t _downCount = 3;
 
+	// 上一次自动检查更新的日期
+	std::chrono::system_clock::time_point _updateCheckDate;
+	
 	bool _isPortableMode = false;
 	bool _isAlwaysRunAsElevated = false;
 	bool _isDebugMode = false;
@@ -297,6 +300,15 @@ public:
 		_isCheckForPreviewUpdates = value;
 		SaveAsync();
 	}
+
+	std::chrono::system_clock::time_point UpdateCheckDate() const noexcept {
+		return _updateCheckDate;
+	}
+
+	void UpdateCheckDate(std::chrono::system_clock::time_point value) noexcept {
+		_updateCheckDate = value;
+	}
+
 private:
 	AppSettings() = default;
 

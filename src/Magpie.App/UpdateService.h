@@ -69,7 +69,7 @@ public:
 		_downloadProgressChangedEvent.remove(token);
 	}
 
-	void LeavingAboutPage();
+	void EnteringAboutPage();
 
 	void ClosingMainWindow();
 
@@ -118,7 +118,7 @@ private:
 
 	void _Status(UpdateStatus value);
 
-	fire_and_forget _Timer_Tick(IInspectable const&, IInspectable const&);
+	void _Timer_Tick(IInspectable const&, IInspectable const&);
 
 	event<delegate<UpdateStatus>> _statusChangedEvent;
 	event<delegate<double>> _downloadProgressChangedEvent;

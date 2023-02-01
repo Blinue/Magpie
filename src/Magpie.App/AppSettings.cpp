@@ -17,7 +17,7 @@ using namespace Magpie::Core;
 
 namespace winrt::Magpie::App {
 
-static constexpr uint32_t SETTINGS_VERSION = 0;
+static constexpr uint32_t SETTINGS_VERSION = 1;
 
 _AppSettingsData::_AppSettingsData() {}
 
@@ -464,6 +464,8 @@ bool AppSettings::_Save(const _AppSettingsData& data) noexcept {
 	writer.Bool(data._isAutoCheckForUpdates);
 	writer.Key("checkForPreviewUpdates");
 	writer.Bool(data._isCheckForPreviewUpdates);
+	writer.Key("updateCheckDate");
+	writer.Int64(data._updateCheckDate.time_since_epoch().count());
 
 	if (!data._downscalingEffect.name.empty()) {
 		writer.Key("downscalingEffect");
@@ -561,6 +563,13 @@ void AppSettings::_LoadSettings(const rapidjson::GenericObject<true, rapidjson::
 	JsonHelper::ReadBool(root, "inlineParams", _isInlineParams);
 	JsonHelper::ReadBool(root, "autoCheckForUpdates", _isAutoCheckForUpdates);
 	JsonHelper::ReadBool(root, "checkForPreviewUpdates", _isCheckForPreviewUpdates);
+	{
+		int64_t d = 0;
+		JsonHelper::ReadInt64(root, "updateCheckDate", d);
+
+		using std::chrono::system_clock;
+		_updateCheckDate = system_clock::time_point(system_clock::duration(d));
+	}
 
 	auto downscalingEffectNode = root.FindMember("downscalingEffect");
 	if (downscalingEffectNode != root.MemberEnd() && downscalingEffectNode->value.IsObject()) {

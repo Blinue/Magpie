@@ -32,6 +32,13 @@ struct JsonHelper {
 		bool required = false
 	);
 
+	static bool ReadInt64(
+		const rapidjson::GenericObject<true, rapidjson::Value>& obj,
+		const char* name,
+		int64_t& result,
+		bool required = false
+	);
+
 	static bool ReadFloat(
 		const rapidjson::GenericObject<true, rapidjson::Value>& obj,
 		const char* name,

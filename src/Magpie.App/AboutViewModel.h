@@ -6,7 +6,6 @@ namespace winrt::Magpie::App::implementation {
 
 struct AboutViewModel : AboutViewModelT<AboutViewModel> {
 	AboutViewModel();
-	~AboutViewModel();
 
 	event_token PropertyChanged(PropertyChangedEventHandler const& handler) {
 		return _propertyChangedEvent.add(handler);
