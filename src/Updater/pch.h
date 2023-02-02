@@ -56,12 +56,3 @@
 #include <cassert>
 #include <span>
 #include <optional>
-
-// 确保已编译 CONAN 依赖
-#if !__has_include(<fmt/format.h>)
-static_assert(false, "Build CONAN_INSTALL first!")
-#endif
-
-// fmt
-#include <fmt/format.h>
-#include <fmt/xchar.h>

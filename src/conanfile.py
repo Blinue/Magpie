@@ -16,7 +16,6 @@ class Magpie(ConanFile):
 		"zstd/1.5.2",
 		"imgui/1.89.2",
 		"parallel-hashmap/1.37",
-		"mimalloc/2.0.7",
 		"kuba-zip/0.2.6"
 	]
 	generators = "visual_studio"
@@ -24,9 +23,3 @@ class Magpie(ConanFile):
 
 	def imports(self):
 		self.copy("imgui_impl_dx11.*", dst="../../../src/Magpie.Core", src="./res/bindings")
-
-		if self.settings.arch == "x86_64":
-			arch = "x64"
-		else:
-			arch = "ARM64"
-		self.copy("*.dll", dst=f"../../../.conan/{arch}/{self.settings.build_type}/bin", src="bin")

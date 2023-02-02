@@ -23,6 +23,7 @@
     <DesktopCompatible>true</DesktopCompatible>
     <_NoWinAPIFamilyApp>true</_NoWinAPIFamilyApp>
     <_VC_Target_Library_Platform>Desktop</_VC_Target_Library_Platform>
+	<UseCrtSDKReferenceStaticWarning>false</UseCrtSDKReferenceStaticWarning>
     <OutDir>$(SolutionDir)\bin\$(Platform)\$(Configuration)\</OutDir>
     <XamlComponentResourceLocation>nested</XamlComponentResourceLocation>
     <!-- 将 xbf 文件打包进 resources.pri -->

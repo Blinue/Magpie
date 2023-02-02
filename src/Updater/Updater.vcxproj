@@ -48,7 +48,6 @@
   <ImportGroup Label="Shared">
   </ImportGroup>
   <ImportGroup Label="PropertySheets">
-    <Import Project="..\..\.conan\$(Platform)\$(Configuration)\Updater\conanbuildinfo.props" Condition="exists('..\..\.conan\$(Platform)\$(Configuration)\Updater\conanbuildinfo.props')" />
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />

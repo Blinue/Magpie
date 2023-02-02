@@ -80,12 +80,7 @@ static constexpr const wchar_t* V0_9_100_FILES[] = {
 	L"Magpie.App.dll",
 	L"Magpie.Core.dll",
 	L"Microsoft.UI.Xaml.dll",
-	L"mimalloc.dll",
-	L"mimalloc-redirect.dll",
-	L"msvcp140.dll",
-	L"resources.pri",
-	L"vcruntime140.dll",
-	L"vcruntime140_1.dll"
+	L"resources.pri"
 };
 
 static constexpr const wchar_t* V0_9_100_FOLDERS[] = {
