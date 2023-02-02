@@ -3,7 +3,8 @@
 
 //!MAGPIE EFFECT
 //!VERSION 2
-
+//!OUTPUT_WIDTH INPUT_WIDTH
+//!OUTPUT_HEIGHT INPUT_HEIGHT
 
 //!PARAMETER
 //!DEFAULT 64
@@ -28,7 +29,7 @@ float range;
 // increase the debanding quality. Conversely, it slows the shader down.
 // (Each iteration will use a multiple of the configured range, and a
 // successively lower THRESHOLD - so setting it much higher has little effect)
-float iterations;
+int iterations;
 
 //!PARAMETER
 //!DEFAULT 48
@@ -42,7 +43,7 @@ float grain;
 Texture2D INPUT;
 
 //!SAMPLER
-//!FILTER POINT
+//!FILTER LINEAR
 SamplerState sam;
 
 
@@ -63,7 +64,7 @@ float4 average(float2 pos, float range, inout float h)
     float dist = rand(h) * range;     h = permute(h);
     float dir  = rand(h) * 6.2831853; h = permute(h);
 
-    float2 o = float2(cos(dir) * dist * pt.x, sin(dir) * dist * pt.y);
+    float2 o = float2(cos(dir), sin(dir)) * pt * dist;
 
     // Sample at quarter-turn intervals around the source pixel
     float4 ref[4];
