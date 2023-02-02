@@ -75,5 +75,6 @@
     <CopyFileToFolders Include="Anime4K_Upscale_Denoise_VL.hlsl" />
     <CopyFileToFolders Include="Anime4K_Upscale_Denoise_UL.hlsl" />
     <CopyFileToFolders Include="ImageAdjustment.hlsl" />
+    <CopyFileToFolders Include="Deband.hlsl" />
   </ItemGroup>
 </Project>
