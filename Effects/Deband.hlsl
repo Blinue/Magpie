@@ -46,6 +46,10 @@ Texture2D INPUT;
 //!FILTER LINEAR
 SamplerState sam;
 
+//!SAMPLER
+//!FILTER POINT
+SamplerState sam1;
+
 
 //!PASS 1
 //!STYLE PS
@@ -57,7 +61,7 @@ float permute(float x) { return mod289((34.0*x + 1.0) * x); }
 float rand(float x)    { return frac(x / 41.0); }
 
 // Helper: Calculate a stochastic approximation of the avg color around a pixel
-float4 average(float2 pos, float range, inout float h)
+float3 average(float2 pos, float range, inout float h)
 {
     const float2 pt = GetInputPt();
     // Compute a random rangle and distance
@@ -67,11 +71,11 @@ float4 average(float2 pos, float range, inout float h)
     float2 o = float2(cos(dir), sin(dir)) * pt * dist;
 
     // Sample at quarter-turn intervals around the source pixel
-    float4 ref[4];
-    ref[0] = INPUT.SampleLevel(sam, pos + float2( o.x,  o.y), 0);
-    ref[1] = INPUT.SampleLevel(sam, pos + float2(-o.y,  o.x), 0);
-    ref[2] = INPUT.SampleLevel(sam, pos + float2(-o.x, -o.y), 0);
-    ref[3] = INPUT.SampleLevel(sam, pos + float2( o.y, -o.x), 0);
+    float3 ref[4];
+    ref[0] = INPUT.SampleLevel(sam, pos + float2( o.x,  o.y), 0).rgb;
+    ref[1] = INPUT.SampleLevel(sam, pos + float2(-o.y,  o.x), 0).rgb;
+    ref[2] = INPUT.SampleLevel(sam, pos + float2(-o.x, -o.y), 0).rgb;
+    ref[3] = INPUT.SampleLevel(sam, pos + float2( o.y, -o.x), 0).rgb;
 
     // Return the (normalized) average
     return (ref[0] + ref[1] + ref[2] + ref[3])/4.0;
@@ -84,13 +88,13 @@ float4 Pass1(float2 pos)
     float h = permute(permute(permute(m.x)+m.y)+m.z);
 
     // Sample the source pixel
-    float4 col = INPUT.SampleLevel(sam, pos, 0);
+    float3 col = INPUT.SampleLevel(sam1, pos, 0).rgb;
 
     for (int i = 1; i <= iterations; i++) {
         // Use the average instead if the difference is below the threshold
-        float4 avg = average(pos, i*range, h);
-        float4 diff = abs(col - avg);
-        float4 thres = threshold/(i*16384.0);
+        float3 avg = average(pos, i*range, h);
+        float3 diff = abs(col - avg);
+        float3 thres = threshold/(i*16384.0);
         col = lerp(avg, col, step(thres, diff));
     }
 
@@ -99,7 +103,7 @@ float4 Pass1(float2 pos)
     noise.x = rand(h); h = permute(h);
     noise.y = rand(h); h = permute(h);
     noise.z = rand(h); h = permute(h);
-    col.rgb += (grain/8192.0) * (noise - 0.5);
+    col += (grain/8192.0) * (noise - 0.5);
 
-    return col;
+    return float4(col, 1.0);
 }
