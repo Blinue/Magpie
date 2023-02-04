@@ -314,6 +314,21 @@ void ScalingProfileViewModel::CaptureMethod(int value) {
 	AppSettings::Get().SaveAsync();
 }
 
+bool ScalingProfileViewModel::IsAutoScale() const noexcept {
+	return _data->isAutoScale;
+}
+
+void ScalingProfileViewModel::IsAutoScale(bool value) {
+	if (_data->isAutoScale == value) {
+		return;
+	}
+
+	_data->isAutoScale = value;
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsAutoScale"));
+
+	AppSettings::Get().SaveAsync();
+}
+
 bool ScalingProfileViewModel::Is3DGameMode() const noexcept {
 	return _data->Is3DGameMode();
 }

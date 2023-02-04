@@ -28,6 +28,7 @@ namespace Magpie.App {
 		IVector<IInspectable> CaptureMethods { get; };
 		Int32 CaptureMethod;
 
+		Boolean IsAutoScale;
 		Boolean Is3DGameMode;
 		Int32 MultiMonitorUsage;
 

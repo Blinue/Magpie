@@ -62,6 +62,7 @@ struct ScalingProfile {
 
 	bool isPackaged = false;
 	bool isCroppingEnabled = false;
+	bool isAutoScale = false;
 };
 
 }

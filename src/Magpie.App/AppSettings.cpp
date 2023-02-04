@@ -66,6 +66,8 @@ static void WriteScalingProfile(rapidjson::PrettyWriter<rapidjson::StringBuffer>
 		writer.String(StrUtils::UTF16ToUTF8(scalingProfile.pathRule).c_str());
 		writer.Key("classNameRule");
 		writer.String(StrUtils::UTF16ToUTF8(scalingProfile.classNameRule).c_str());
+		writer.Key("autoScale");
+		writer.Bool(scalingProfile.isAutoScale);
 	}
 
 	writer.Key("scalingMode");
@@ -656,6 +658,8 @@ bool AppSettings::_LoadScalingProfile(
 			|| scalingProfile.classNameRule.empty()) {
 			return false;
 		}
+
+		JsonHelper::ReadBool(scalingProfileObj, "autoScale", scalingProfile.isAutoScale);
 	}
 
 	JsonHelper::ReadInt(scalingProfileObj, "scalingMode", scalingProfile.scalingMode);

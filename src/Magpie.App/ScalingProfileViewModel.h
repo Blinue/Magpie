@@ -72,6 +72,9 @@ struct ScalingProfileViewModel : ScalingProfileViewModelT<ScalingProfileViewMode
 	int CaptureMethod() const noexcept;
 	void CaptureMethod(int value);
 
+	bool IsAutoScale() const noexcept;
+	void IsAutoScale(bool value);
+
 	bool Is3DGameMode() const noexcept;
 	void Is3DGameMode(bool value);
 
