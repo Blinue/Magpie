@@ -91,51 +91,51 @@
 						</local:SettingsCard>
 					</muxc:Expander.Content>
 				</muxc:Expander>
-				<local:SettingsCard Title="记忆缩放窗口"
-				                    Margin="0,0,0,-2"
-				                    Description="当该窗口回到前台时将自动缩放"
-				                    Visibility="{x:Bind ViewModel.IsWndToRestore, Mode=OneWay, Converter={StaticResource NegativeVisibilityConverter}}">
-					<local:SettingsCard.Icon>
-						<FontIcon Glyph="&#xE944;" />
-					</local:SettingsCard.Icon>
-					<local:SettingsCard.ActionContent>
-						<ToggleSwitch IsOn="{x:Bind ViewModel.IsAutoRestore, Mode=TwoWay}" />
-					</local:SettingsCard.ActionContent>
-				</local:SettingsCard>
-				<muxc:Expander Margin="0,-2,0,0"
-				               HorizontalAlignment="Stretch"
-				               HorizontalContentAlignment="Stretch"
-				               IsExpanded="{x:Bind ViewModel.IsWndToRestore, Mode=OneWay}"
-				               Style="{StaticResource SettingExpanderStyle}"
-				               Visibility="{x:Bind ViewModel.IsWndToRestore, Mode=OneWay}">
-					<muxc:Expander.Header>
-						<local:SettingsCard Title="记忆缩放窗口"
-						                    Description="当该窗口回到前台时将自动缩放"
-						                    Style="{StaticResource ExpanderHeaderSettingStyle}">
-							<local:SettingsCard.Icon>
-								<FontIcon Glyph="&#xE944;" />
-							</local:SettingsCard.Icon>
-							<local:SettingsCard.ActionContent>
-								<ToggleSwitch IsOn="{x:Bind ViewModel.IsAutoRestore, Mode=TwoWay}" />
-							</local:SettingsCard.ActionContent>
-						</local:SettingsCard>
-					</muxc:Expander.Header>
-					<muxc:Expander.Content>
-						<local:SettingsCard Title="{x:Bind ViewModel.RestoreWndDesc, Mode=OneWay}"
-						                    Style="{StaticResource ExpanderContentSettingStyle}">
-							<local:SettingsCard.ActionContent>
-								<StackPanel Orientation="Horizontal"
-								            Spacing="5">
-									<Button Click="{x:Bind ViewModel.ActivateRestore}"
-									        Content="激活"
-									        Style="{StaticResource AccentButtonStyle}" />
-									<Button Click="{x:Bind ViewModel.ClearRestore}"
-									        Content="忘记" />
-								</StackPanel>
-							</local:SettingsCard.ActionContent>
-						</local:SettingsCard>
-					</muxc:Expander.Content>
-				</muxc:Expander>
+				<StackPanel Orientation="Vertical">
+					<local:SettingsCard Title="记忆缩放窗口"
+					                    Description="当该窗口回到前台时将自动缩放"
+					                    Visibility="{x:Bind ViewModel.IsWndToRestore, Mode=OneWay, Converter={StaticResource NegativeVisibilityConverter}}">
+						<local:SettingsCard.Icon>
+							<FontIcon Glyph="&#xE944;" />
+						</local:SettingsCard.Icon>
+						<local:SettingsCard.ActionContent>
+							<ToggleSwitch IsOn="{x:Bind ViewModel.IsAutoRestore, Mode=TwoWay}" />
+						</local:SettingsCard.ActionContent>
+					</local:SettingsCard>
+					<muxc:Expander HorizontalAlignment="Stretch"
+					               HorizontalContentAlignment="Stretch"
+					               IsExpanded="{x:Bind ViewModel.IsWndToRestore, Mode=OneWay}"
+					               Style="{StaticResource SettingExpanderStyle}"
+					               Visibility="{x:Bind ViewModel.IsWndToRestore, Mode=OneWay}">
+						<muxc:Expander.Header>
+							<local:SettingsCard Title="记忆缩放窗口"
+							                    Description="当该窗口回到前台时将自动缩放"
+							                    Style="{StaticResource ExpanderHeaderSettingStyle}">
+								<local:SettingsCard.Icon>
+									<FontIcon Glyph="&#xE944;" />
+								</local:SettingsCard.Icon>
+								<local:SettingsCard.ActionContent>
+									<ToggleSwitch IsOn="{x:Bind ViewModel.IsAutoRestore, Mode=TwoWay}" />
+								</local:SettingsCard.ActionContent>
+							</local:SettingsCard>
+						</muxc:Expander.Header>
+						<muxc:Expander.Content>
+							<local:SettingsCard Title="{x:Bind ViewModel.RestoreWndDesc, Mode=OneWay}"
+							                    Style="{StaticResource ExpanderContentSettingStyle}">
+								<local:SettingsCard.ActionContent>
+									<StackPanel Orientation="Horizontal"
+									            Spacing="5">
+										<Button Click="{x:Bind ViewModel.ActivateRestore}"
+										        Content="激活"
+										        Style="{StaticResource AccentButtonStyle}" />
+										<Button Click="{x:Bind ViewModel.ClearRestore}"
+										        Content="忘记" />
+									</StackPanel>
+								</local:SettingsCard.ActionContent>
+							</local:SettingsCard>
+						</muxc:Expander.Content>
+					</muxc:Expander>
+				</StackPanel>
 			</local:SettingsGroup>
 			<local:SettingsGroup Title="游戏内覆盖">
 				<local:SettingsCard Title="快捷键"

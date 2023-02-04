@@ -262,27 +262,29 @@
 				</local:SettingsCard>
 			</local:SettingsGroup>
 			<local:SettingsGroup Title="性能">
-				<local:SettingsCard x:Name="GraphicsAdapterSettingsCard"
-				                    Title="显示卡">
-					<local:SettingsCard.Icon>
-						<FontIcon Glyph="&#xf211;" />
-					</local:SettingsCard.Icon>
-					<local:SettingsCard.ActionContent>
-						<ComboBox DropDownOpened="ComboBox_DropDownOpened"
-						          ItemsSource="{x:Bind ViewModel.GraphicsAdapters, Mode=OneTime}"
-						          SelectedIndex="{x:Bind ViewModel.GraphicsAdapter, Mode=TwoWay}"
-						          Style="{StaticResource ComboBoxSettingStyle}" />
-					</local:SettingsCard.ActionContent>
-				</local:SettingsCard>
-				<local:SettingsCard x:Name="ShowFPSSettingsCard"
-				                    Title="显示帧率">
-					<local:SettingsCard.Icon>
-						<FontIcon Glyph="&#xEC4A;" />
-					</local:SettingsCard.Icon>
-					<local:SettingsCard.ActionContent>
-						<ToggleSwitch IsOn="{x:Bind ViewModel.IsShowFPS, Mode=TwoWay}" />
-					</local:SettingsCard.ActionContent>
-				</local:SettingsCard>
+				<StackPanel>
+					<local:SettingsCard Title="显示卡"
+					                    Margin="0,0,0,2"
+					                    Visibility="{x:Bind ViewModel.IsShowGraphicsAdapterSettingsCard, Mode=OneTime}">
+						<local:SettingsCard.Icon>
+							<FontIcon Glyph="&#xf211;" />
+						</local:SettingsCard.Icon>
+						<local:SettingsCard.ActionContent>
+							<ComboBox DropDownOpened="ComboBox_DropDownOpened"
+							          ItemsSource="{x:Bind ViewModel.GraphicsAdapters, Mode=OneTime}"
+							          SelectedIndex="{x:Bind ViewModel.GraphicsAdapter, Mode=TwoWay}"
+							          Style="{StaticResource ComboBoxSettingStyle}" />
+						</local:SettingsCard.ActionContent>
+					</local:SettingsCard>
+					<local:SettingsCard Title="显示帧率">
+						<local:SettingsCard.Icon>
+							<FontIcon Glyph="&#xEC4A;" />
+						</local:SettingsCard.Icon>
+						<local:SettingsCard.ActionContent>
+							<ToggleSwitch IsOn="{x:Bind ViewModel.IsShowFPS, Mode=TwoWay}" />
+						</local:SettingsCard.ActionContent>
+					</local:SettingsCard>
+				</StackPanel>
 				<muxc:Expander HorizontalAlignment="Stretch"
 				               HorizontalContentAlignment="Stretch"
 				               Style="{StaticResource SettingExpanderStyle}">

@@ -1,22 +1,22 @@
 <!--  移植自 https://github.com/microsoft/PowerToys/blob/35bfb0f83e5fc08cc04398e7aa98d77774412d3f/src/settings-ui/Settings.UI/Controls/ShortcutControl/ShortcutControl.xaml  -->
 <UserControl x:Class="Magpie.App.ShortcutControl"
-			 xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-			 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-			 xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-			 xmlns:local="using:Magpie.App"
-			 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-			 xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
-			 x:Name="ShortcutControl"
-			 d:DesignHeight="300"
-			 d:DesignWidth="400"
-			 mc:Ignorable="d">
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="using:Magpie.App"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
+             x:Name="ShortcutControl"
+             d:DesignHeight="300"
+             d:DesignWidth="400"
+             mc:Ignorable="d">
 	<Grid Margin="0,-6,0,-6"
-		  HorizontalAlignment="Right">
+	      HorizontalAlignment="Right">
 		<Button x:Name="EditButton"
-				Padding="0"
-				Background="Transparent"
-				BorderBrush="Transparent"
-				Click="EditButton_Click">
+		        Padding="0"
+		        Background="Transparent"
+		        BorderBrush="Transparent"
+		        Click="EditButton_Click">
 			<Button.Resources>
 				<ResourceDictionary>
 					<ResourceDictionary.ThemeDictionaries>
@@ -24,46 +24,46 @@
 						<ResourceDictionary x:Key="HighContrast" />
 						<ResourceDictionary x:Key="Light">
 							<StaticResource x:Key="ButtonBackground"
-											ResourceKey="SubtleFillColorTransparentBrush" />
+							                ResourceKey="SubtleFillColorTransparentBrush" />
 							<StaticResource x:Key="ButtonBackgroundPointerOver"
-											ResourceKey="SubtleFillColorSecondaryBrush" />
+							                ResourceKey="SubtleFillColorSecondaryBrush" />
 							<StaticResource x:Key="ButtonBackgroundPressed"
-											ResourceKey="SubtleFillColorTertiaryBrush" />
+							                ResourceKey="SubtleFillColorTertiaryBrush" />
 							<StaticResource x:Key="ButtonBorderBrush"
-											ResourceKey="ControlFillColorTransparentBrush" />
+							                ResourceKey="ControlFillColorTransparentBrush" />
 							<StaticResource x:Key="ButtonBorderBrushPointerOver"
-											ResourceKey="ControlFillColorTransparentBrush" />
+							                ResourceKey="ControlFillColorTransparentBrush" />
 							<StaticResource x:Key="ButtonBorderBrushPressed"
-											ResourceKey="ControlFillColorTransparentBrush" />
+							                ResourceKey="ControlFillColorTransparentBrush" />
 						</ResourceDictionary>
 					</ResourceDictionary.ThemeDictionaries>
 				</ResourceDictionary>
 			</Button.Resources>
 			<StackPanel Margin="6,0,6,0"
-						Orientation="Horizontal"
-						Spacing="16">
+			            Orientation="Horizontal"
+			            Spacing="16">
 				<ItemsControl x:Name="KeysControl"
-							  VerticalAlignment="Center"
-							  IsEnabled="{Binding ElementName=EditButton, Path=IsEnabled}"
-							  IsTabStop="False">
+				              VerticalAlignment="Center"
+				              IsEnabled="{Binding ElementName=EditButton, Path=IsEnabled}"
+				              IsTabStop="False">
 					<ItemsControl.ItemsPanel>
 						<ItemsPanelTemplate>
 							<StackPanel Orientation="Horizontal"
-										Spacing="4" />
+							            Spacing="4" />
 						</ItemsPanelTemplate>
 					</ItemsControl.ItemsPanel>
 					<ItemsControl.ItemTemplate>
 						<DataTemplate>
 							<local:KeyVisual VerticalAlignment="Center"
-											 Content="{Binding Mode=OneTime}"
-											 IsError="{Binding ElementName=ShortcutControl, Path=_IsError, Mode=OneTime}"
-											 IsTabStop="False"
-											 VisualType="Small" />
+							                 Content="{Binding Mode=OneTime}"
+							                 IsError="{Binding ElementName=ShortcutControl, Path=_IsError, Mode=OneTime}"
+							                 IsTabStop="False"
+							                 VisualType="Small" />
 						</DataTemplate>
 					</ItemsControl.ItemTemplate>
 				</ItemsControl>
 				<FontIcon FontSize="14"
-						  Glyph="&#xE70F;" />
+				          Glyph="&#xE70F;" />
 			</StackPanel>
 		</Button>
 	</Grid>

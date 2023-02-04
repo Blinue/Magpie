@@ -3,7 +3,6 @@
 #if __has_include("ScalingProfilePage.g.cpp")
 #include "ScalingProfilePage.g.cpp"
 #endif
-#include "ScalingProfileViewModel.h"
 #include "Win32Utils.h"
 #include "ComboBoxHelper.h"
 #include "ScalingProfileService.h"
@@ -43,13 +42,7 @@ ScalingProfilePage::ScalingProfilePage() {
 
 void ScalingProfilePage::OnNavigatedTo(Navigation::NavigationEventArgs const& args) {
 	int profileIdx = args.Parameter().as<int>();
-	_viewModel = make<ScalingProfileViewModel>(profileIdx);
-
-	if (_viewModel.GraphicsAdapters().Size() <= 2) {
-		// 只有一个显卡时隐藏显示卡选项
-		GraphicsAdapterSettingsCard().Visibility(Visibility::Collapsed);
-		ShowFPSSettingsCard().Margin({ 0,-2,0,0 });
-	}
+	_viewModel = ScalingProfileViewModel(profileIdx);
 }
 
 void ScalingProfilePage::ComboBox_DropDownOpened(IInspectable const& sender, IInspectable const&) {

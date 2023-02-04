@@ -369,6 +369,10 @@ void ScalingProfileViewModel::GraphicsAdapter(int value) {
 	AppSettings::Get().SaveAsync();
 }
 
+bool ScalingProfileViewModel::IsShowGraphicsAdapterSettingsCard() const noexcept {
+	return _graphicsAdapters.Size() > 2;
+}
+
 bool ScalingProfileViewModel::IsShowFPS() const noexcept {
 	return _data->IsShowFPS();
 }

@@ -85,6 +85,8 @@ struct ScalingProfileViewModel : ScalingProfileViewModelT<ScalingProfileViewMode
 	int GraphicsAdapter() const noexcept;
 	void GraphicsAdapter(int value);
 
+	bool IsShowGraphicsAdapterSettingsCard() const noexcept;
+
 	bool IsShowFPS() const noexcept;
 	void IsShowFPS(bool value);
 
