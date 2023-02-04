@@ -1,59 +1,59 @@
 <Page x:Class="Magpie.App.ScalingProfilePage"
-	  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-	  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-	  xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-	  xmlns:local="using:Magpie.App"
-	  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-	  xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
-	  mc:Ignorable="d">
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:local="using:Magpie.App"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
+      mc:Ignorable="d">
 	<Page.Resources>
 		<x:Double x:Key="ActionButtonPadding">10</x:Double>
 	</Page.Resources>
 
 	<local:PageFrame Title="{x:Bind ViewModel.Name, Mode=OneWay}"
-					 Icon="{x:Bind ViewModel.Icon, Mode=OneWay}">
+	                 Icon="{x:Bind ViewModel.Icon, Mode=OneWay}">
 		<local:PageFrame.HeaderAction>
 			<StackPanel x:Name="HeaderActionStackPanel"
-						Orientation="Horizontal"
-						Visibility="{x:Bind ViewModel.IsNotDefaultScalingProfile, Mode=OneTime}">
+			            Orientation="Horizontal"
+			            Visibility="{x:Bind ViewModel.IsNotDefaultScalingProfile, Mode=OneTime}">
 				<StackPanel.Resources>
 					<ResourceDictionary>
 						<ResourceDictionary.ThemeDictionaries>
 							<ResourceDictionary x:Key="Default">
 								<StaticResource x:Key="ButtonBackground"
-												ResourceKey="SubtleFillColorTransparentBrush" />
+								                ResourceKey="SubtleFillColorTransparentBrush" />
 								<StaticResource x:Key="ButtonBackgroundPointerOver"
-												ResourceKey="SubtleFillColorSecondaryBrush" />
+								                ResourceKey="SubtleFillColorSecondaryBrush" />
 								<StaticResource x:Key="ButtonBackgroundPressed"
-												ResourceKey="SubtleFillColorTertiaryBrush" />
+								                ResourceKey="SubtleFillColorTertiaryBrush" />
 								<StaticResource x:Key="ButtonBackgroundDisabled"
-												ResourceKey="SubtleFillColorTransparentBrush" />
+								                ResourceKey="SubtleFillColorTransparentBrush" />
 								<StaticResource x:Key="ButtonBorderBrush"
-												ResourceKey="ControlFillColorTransparentBrush" />
+								                ResourceKey="ControlFillColorTransparentBrush" />
 								<StaticResource x:Key="ButtonBorderBrushPointerOver"
-												ResourceKey="ControlFillColorTransparentBrush" />
+								                ResourceKey="ControlFillColorTransparentBrush" />
 								<StaticResource x:Key="ButtonBorderBrushPressed"
-												ResourceKey="ControlFillColorTransparentBrush" />
+								                ResourceKey="ControlFillColorTransparentBrush" />
 								<StaticResource x:Key="ButtonBorderBrushDisabled"
-												ResourceKey="ControlFillColorTransparentBrush" />
+								                ResourceKey="ControlFillColorTransparentBrush" />
 							</ResourceDictionary>
 							<ResourceDictionary x:Key="Light">
 								<StaticResource x:Key="ButtonBackground"
-												ResourceKey="SubtleFillColorTransparentBrush" />
+								                ResourceKey="SubtleFillColorTransparentBrush" />
 								<StaticResource x:Key="ButtonBackgroundPointerOver"
-												ResourceKey="SubtleFillColorSecondaryBrush" />
+								                ResourceKey="SubtleFillColorSecondaryBrush" />
 								<StaticResource x:Key="ButtonBackgroundPressed"
-												ResourceKey="SubtleFillColorTertiaryBrush" />
+								                ResourceKey="SubtleFillColorTertiaryBrush" />
 								<StaticResource x:Key="ButtonBackgroundDisabled"
-												ResourceKey="SubtleFillColorTransparentBrush" />
+								                ResourceKey="SubtleFillColorTransparentBrush" />
 								<StaticResource x:Key="ButtonBorderBrush"
-												ResourceKey="ControlFillColorTransparentBrush" />
+								                ResourceKey="ControlFillColorTransparentBrush" />
 								<StaticResource x:Key="ButtonBorderBrushPointerOver"
-												ResourceKey="ControlFillColorTransparentBrush" />
+								                ResourceKey="ControlFillColorTransparentBrush" />
 								<StaticResource x:Key="ButtonBorderBrushPressed"
-												ResourceKey="ControlFillColorTransparentBrush" />
+								                ResourceKey="ControlFillColorTransparentBrush" />
 								<StaticResource x:Key="ButtonBorderBrushDisabled"
-												ResourceKey="ControlFillColorTransparentBrush" />
+								                ResourceKey="ControlFillColorTransparentBrush" />
 							</ResourceDictionary>
 						</ResourceDictionary.ThemeDictionaries>
 
@@ -63,90 +63,90 @@
 					</ResourceDictionary>
 				</StackPanel.Resources>
 				<Button Padding="0"
-						Click="{x:Bind ViewModel.Launch}"
-						IsEnabled="{x:Bind ViewModel.IsProgramExist, Mode=OneTime}"
-						ToolTipService.ToolTip="启动">
+				        Click="{x:Bind ViewModel.Launch}"
+				        IsEnabled="{x:Bind ViewModel.IsProgramExist, Mode=OneTime}"
+				        ToolTipService.ToolTip="启动">
 					<Button.Content>
 						<FontIcon Glyph="&#xE768;" />
 					</Button.Content>
 				</Button>
 				<Button x:Name="MoreOptionsButton"
-						Padding="0"
-						ToolTipService.ToolTip="更多选项">
+				        Padding="0"
+				        ToolTipService.ToolTip="更多选项">
 					<Button.Content>
 						<FontIcon Glyph="&#xE712;" />
 					</Button.Content>
 					<Button.Flyout>
 						<MenuFlyout Placement="Bottom"
-									ShouldConstrainToRootBounds="False">
+						            ShouldConstrainToRootBounds="False">
 							<MenuFlyoutItem Click="{x:Bind ViewModel.OpenProgramLocation}"
-											IsEnabled="{x:Bind ViewModel.IsProgramExist, Mode=OneTime}"
-											Text="打开程序位置">
+							                IsEnabled="{x:Bind ViewModel.IsProgramExist, Mode=OneTime}"
+							                Text="打开程序位置">
 								<MenuFlyoutItem.Icon>
 									<FontIcon Glyph="&#xE8DA;" />
 								</MenuFlyoutItem.Icon>
 							</MenuFlyoutItem>
 							<MenuFlyoutSeparator />
 							<MenuFlyoutItem Click="RenameMenuItem_Click"
-											Text="重命名">
+							                Text="重命名">
 								<MenuFlyoutItem.Icon>
 									<FontIcon Glyph="&#xE8AC;" />
 								</MenuFlyoutItem.Icon>
 								<FlyoutBase.AttachedFlyout>
 									<Flyout x:Name="RenameFlyout"
-											Opening="RenameFlyout_Opening"
-											Placement="Bottom">
+									        Opening="RenameFlyout_Opening"
+									        Placement="Bottom">
 										<StackPanel Orientation="Vertical">
 											<TextBlock Text="重命名" />
 											<TextBox x:Name="RenameTextBox"
-													 Width="280"
-													 Height="32"
-													 Margin="0,8,0,20"
-													 KeyDown="RenameTextBox_KeyDown"
-													 Text="{x:Bind ViewModel.RenameText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+											         Width="280"
+											         Height="32"
+											         Margin="0,8,0,20"
+											         KeyDown="RenameTextBox_KeyDown"
+											         Text="{x:Bind ViewModel.RenameText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
 											<Button MinWidth="80"
-													HorizontalAlignment="Right"
-													Click="RenameConfirmButton_Click"
-													Content="确定"
-													IsEnabled="{x:Bind ViewModel.IsRenameConfirmButtonEnabled, Mode=OneWay}"
-													Style="{StaticResource AccentButtonStyle}" />
+											        HorizontalAlignment="Right"
+											        Click="RenameConfirmButton_Click"
+											        Content="确定"
+											        IsEnabled="{x:Bind ViewModel.IsRenameConfirmButtonEnabled, Mode=OneWay}"
+											        Style="{StaticResource AccentButtonStyle}" />
 										</StackPanel>
 									</Flyout>
 								</FlyoutBase.AttachedFlyout>
 							</MenuFlyoutItem>
 							<MenuFlyoutItem Click="ReorderMenuItem_Click"
-											Text="重新排序">
+							                Text="重新排序">
 								<MenuFlyoutItem.Icon>
 									<FontIcon Glyph="&#xE8CB;" />
 								</MenuFlyoutItem.Icon>
 								<FlyoutBase.AttachedFlyout>
 									<Flyout x:Name="ReorderFlyout"
-											Placement="Bottom">
+									        Placement="Bottom">
 										<StackPanel Orientation="Vertical">
 											<TextBlock Text="重新排序" />
 											<Button Margin="0,15,0,5"
-													HorizontalAlignment="Center"
-													Click="{x:Bind ViewModel.MoveUp}"
-													IsEnabled="{x:Bind ViewModel.CanMoveUp, Mode=OneWay}">
+											        HorizontalAlignment="Center"
+											        Click="{x:Bind ViewModel.MoveUp}"
+											        IsEnabled="{x:Bind ViewModel.CanMoveUp, Mode=OneWay}">
 												<StackPanel Orientation="Horizontal"
-															Spacing="8">
+												            Spacing="8">
 													<FontIcon VerticalAlignment="Center"
-															  FontSize="15"
-															  Glyph="&#xE74A;" />
+													          FontSize="15"
+													          Glyph="&#xE74A;" />
 													<TextBlock VerticalAlignment="Center"
-															   Text="上移" />
+													           Text="上移" />
 												</StackPanel>
 											</Button>
 											<Button HorizontalAlignment="Center"
-													Click="{x:Bind ViewModel.MoveDown}"
-													IsEnabled="{x:Bind ViewModel.CanMoveDown, Mode=OneWay}">
+											        Click="{x:Bind ViewModel.MoveDown}"
+											        IsEnabled="{x:Bind ViewModel.CanMoveDown, Mode=OneWay}">
 												<StackPanel Orientation="Horizontal"
-															Spacing="8">
+												            Spacing="8">
 													<FontIcon VerticalAlignment="Center"
-															  FontSize="15"
-															  Glyph="&#xE74B;" />
+													          FontSize="15"
+													          Glyph="&#xE74B;" />
 													<TextBlock VerticalAlignment="Center"
-															   Text="下移" />
+													           Text="下移" />
 												</StackPanel>
 											</Button>
 										</StackPanel>
@@ -154,42 +154,42 @@
 								</FlyoutBase.AttachedFlyout>
 							</MenuFlyoutItem>
 							<MenuFlyoutItem Click="DeleteMenuItem_Click"
-											Text="删除">
+							                Text="删除">
 								<MenuFlyoutItem.Icon>
 									<FontIcon Glyph="&#xE74D;" />
 								</MenuFlyoutItem.Icon>
 								<FlyoutBase.AttachedFlyout>
 									<Flyout x:Name="DeleteFlyout"
-											Placement="Bottom">
+									        Placement="Bottom">
 										<StackPanel Orientation="Vertical"
-													Spacing="15">
+										            Spacing="15">
 											<TextBlock Text="确定删除此配置？" />
 											<Button HorizontalAlignment="Right"
-													Click="DeleteButton_Click">
+											        Click="DeleteButton_Click">
 												<Button.Resources>
 													<ResourceDictionary>
 														<StaticResource x:Key="ButtonBackground"
-																		ResourceKey="DeleteButtonBackgroundBrush" />
+														                ResourceKey="DeleteButtonBackgroundBrush" />
 														<StaticResource x:Key="ButtonBackgroundPointerOver"
-																		ResourceKey="DeleteButtonBackgroundPointerOverBrush" />
+														                ResourceKey="DeleteButtonBackgroundPointerOverBrush" />
 														<StaticResource x:Key="ButtonBackgroundPressed"
-																		ResourceKey="DeleteButtonBackgroundPressedBrush" />
+														                ResourceKey="DeleteButtonBackgroundPressedBrush" />
 														<StaticResource x:Key="ButtonForeground"
-																		ResourceKey="DeleteButtonForegroundBrush" />
+														                ResourceKey="DeleteButtonForegroundBrush" />
 														<StaticResource x:Key="ButtonForegroundPointerOver"
-																		ResourceKey="DeleteButtonForegroundBrush" />
+														                ResourceKey="DeleteButtonForegroundBrush" />
 														<StaticResource x:Key="ButtonForegroundPressed"
-																		ResourceKey="DeleteButtonForegroundPressedBrush" />
+														                ResourceKey="DeleteButtonForegroundPressedBrush" />
 													</ResourceDictionary>
 												</Button.Resources>
 												<Button.Content>
 													<StackPanel Orientation="Horizontal"
-																Spacing="8">
+													            Spacing="8">
 														<FontIcon VerticalAlignment="Center"
-																  FontSize="15"
-																  Glyph="&#xE74D;" />
+														          FontSize="15"
+														          Glyph="&#xE74D;" />
 														<TextBlock VerticalAlignment="Center"
-																   Text="删除" />
+														           Text="删除" />
 													</StackPanel>
 												</Button.Content>
 											</Button>
@@ -203,18 +203,18 @@
 			</StackPanel>
 		</local:PageFrame.HeaderAction>
 		<StackPanel HorizontalAlignment="Stretch"
-					Orientation="Vertical">
+		            Orientation="Vertical">
 			<local:SettingsGroup Title="常规"
-								 Margin="0,-24,0,0">
+			                     Margin="0,-24,0,0">
 				<local:SettingsCard Title="缩放模式">
 					<local:SettingsCard.Icon>
 						<FontIcon Glyph="&#xE740;" />
 					</local:SettingsCard.Icon>
 					<local:SettingsCard.ActionContent>
 						<ComboBox DropDownOpened="ComboBox_DropDownOpened"
-								  ItemsSource="{x:Bind ViewModel.ScalingModes, Mode=OneTime}"
-								  SelectedIndex="{x:Bind ViewModel.ScalingMode, Mode=TwoWay}"
-								  Style="{StaticResource ComboBoxSettingStyle}" />
+						          ItemsSource="{x:Bind ViewModel.ScalingModes, Mode=OneTime}"
+						          SelectedIndex="{x:Bind ViewModel.ScalingMode, Mode=TwoWay}"
+						          Style="{StaticResource ComboBoxSettingStyle}" />
 					</local:SettingsCard.ActionContent>
 				</local:SettingsCard>
 				<local:SettingsCard Title="捕获方式">
@@ -223,13 +223,21 @@
 					</local:SettingsCard.Icon>
 					<local:SettingsCard.ActionContent>
 						<ComboBox DropDownOpened="ComboBox_DropDownOpened"
-								  ItemsSource="{x:Bind ViewModel.CaptureMethods, Mode=OneTime}"
-								  SelectedIndex="{x:Bind ViewModel.CaptureMethod, Mode=TwoWay}"
-								  Style="{StaticResource ComboBoxSettingStyle}" />
+						          ItemsSource="{x:Bind ViewModel.CaptureMethods, Mode=OneTime}"
+						          SelectedIndex="{x:Bind ViewModel.CaptureMethod, Mode=TwoWay}"
+						          Style="{StaticResource ComboBoxSettingStyle}" />
+					</local:SettingsCard.ActionContent>
+				</local:SettingsCard>
+				<local:SettingsCard Title="位于前台时自动缩放">
+					<local:SettingsCard.Icon>
+						<FontIcon Glyph="&#xE945;" />
+					</local:SettingsCard.Icon>
+					<local:SettingsCard.ActionContent>
+						<ToggleSwitch />
 					</local:SettingsCard.ActionContent>
 				</local:SettingsCard>
 				<local:SettingsCard x:Name="Is3DGameModeSettingsCard"
-									Title="3D 游戏模式">
+				                    Title="3D 游戏模式">
 					<local:SettingsCard.Icon>
 						<FontIcon Glyph="&#xE7FC;" />
 					</local:SettingsCard.Icon>
@@ -238,14 +246,14 @@
 					</local:SettingsCard.ActionContent>
 				</local:SettingsCard>
 				<local:SettingsCard x:Name="MultiMonitorSettingsCard"
-									Title="多显示器">
+				                    Title="多显示器">
 					<local:SettingsCard.Icon>
 						<FontIcon Glyph="&#xf5a9;" />
 					</local:SettingsCard.Icon>
 					<local:SettingsCard.ActionContent>
 						<ComboBox DropDownOpened="ComboBox_DropDownOpened"
-								  SelectedIndex="{x:Bind ViewModel.MultiMonitorUsage, Mode=TwoWay}"
-								  Style="{StaticResource ComboBoxSettingStyle}">
+						          SelectedIndex="{x:Bind ViewModel.MultiMonitorUsage, Mode=TwoWay}"
+						          Style="{StaticResource ComboBoxSettingStyle}">
 							<x:String>使用距离源窗口最近的显示器</x:String>
 							<x:String>使用源窗口跨越的所有显示器</x:String>
 							<x:String>使用所有显示器</x:String>
@@ -255,19 +263,19 @@
 			</local:SettingsGroup>
 			<local:SettingsGroup Title="性能">
 				<local:SettingsCard x:Name="GraphicsAdapterSettingsCard"
-									Title="显示卡">
+				                    Title="显示卡">
 					<local:SettingsCard.Icon>
 						<FontIcon Glyph="&#xf211;" />
 					</local:SettingsCard.Icon>
 					<local:SettingsCard.ActionContent>
 						<ComboBox DropDownOpened="ComboBox_DropDownOpened"
-								  ItemsSource="{x:Bind ViewModel.GraphicsAdapters, Mode=OneTime}"
-								  SelectedIndex="{x:Bind ViewModel.GraphicsAdapter, Mode=TwoWay}"
-								  Style="{StaticResource ComboBoxSettingStyle}" />
+						          ItemsSource="{x:Bind ViewModel.GraphicsAdapters, Mode=OneTime}"
+						          SelectedIndex="{x:Bind ViewModel.GraphicsAdapter, Mode=TwoWay}"
+						          Style="{StaticResource ComboBoxSettingStyle}" />
 					</local:SettingsCard.ActionContent>
 				</local:SettingsCard>
 				<local:SettingsCard x:Name="ShowFPSSettingsCard"
-									Title="显示帧率">
+				                    Title="显示帧率">
 					<local:SettingsCard.Icon>
 						<FontIcon Glyph="&#xEC4A;" />
 					</local:SettingsCard.Icon>
@@ -276,11 +284,11 @@
 					</local:SettingsCard.ActionContent>
 				</local:SettingsCard>
 				<muxc:Expander HorizontalAlignment="Stretch"
-							   HorizontalContentAlignment="Stretch"
-							   Style="{StaticResource SettingExpanderStyle}">
+				               HorizontalContentAlignment="Stretch"
+				               Style="{StaticResource SettingExpanderStyle}">
 					<muxc:Expander.Header>
 						<local:SettingsCard Title="垂直同步"
-											Style="{StaticResource ExpanderHeaderSettingStyle}">
+						                    Style="{StaticResource ExpanderHeaderSettingStyle}">
 							<local:SettingsCard.Icon>
 								<FontIcon Glyph="&#xF71C;" />
 							</local:SettingsCard.Icon>
@@ -291,9 +299,9 @@
 					</muxc:Expander.Header>
 					<muxc:Expander.Content>
 						<local:SettingsCard IsEnabled="{x:Bind ViewModel.IsVSync, Mode=OneWay}"
-											Style="{StaticResource ExpanderContentSettingStyle}">
+						                    Style="{StaticResource ExpanderContentSettingStyle}">
 							<CheckBox Content="允许额外的延迟以提高性能"
-									  IsChecked="{x:Bind ViewModel.IsTripleBuffering, Mode=TwoWay}" />
+							          IsChecked="{x:Bind ViewModel.IsTripleBuffering, Mode=TwoWay}" />
 						</local:SettingsCard>
 					</muxc:Expander.Content>
 				</muxc:Expander>
@@ -308,7 +316,8 @@
 					</local:SettingsCard.ActionContent>
 				</local:SettingsCard>
 				<local:SettingsCard Title="保留标题栏"
-									Description="仅在 Graphics Capture 和 Desktop Duplication 捕获模式下有效">
+				                    Description="仅在 Graphics Capture 和 Desktop Duplication 捕获方式下可用"
+				                    IsEnabled="{x:Bind ViewModel.CanReserveTitleBar, Mode=OneWay}">
 					<local:SettingsCard.Icon>
 						<FontIcon Glyph="&#xE737;" />
 					</local:SettingsCard.Icon>
@@ -317,12 +326,12 @@
 					</local:SettingsCard.ActionContent>
 				</local:SettingsCard>
 				<muxc:Expander HorizontalAlignment="Stretch"
-							   HorizontalContentAlignment="Stretch"
-							   IsExpanded="{x:Bind ViewModel.IsCroppingEnabled, Mode=OneWay}"
-							   Style="{StaticResource SettingExpanderStyle}">
+				               HorizontalContentAlignment="Stretch"
+				               IsExpanded="{x:Bind ViewModel.IsCroppingEnabled, Mode=OneWay}"
+				               Style="{StaticResource SettingExpanderStyle}">
 					<muxc:Expander.Header>
 						<local:SettingsCard Title="自定义裁剪"
-											Style="{StaticResource ExpanderHeaderSettingStyle}">
+						                    Style="{StaticResource ExpanderHeaderSettingStyle}">
 							<local:SettingsCard.Icon>
 								<FontIcon Glyph="&#xE7A8;" />
 							</local:SettingsCard.Icon>
@@ -347,54 +356,54 @@
 							</StackPanel.Resources>
 
 							<local:SettingsCard Title="左"
-												IsEnabled="{x:Bind ViewModel.IsCroppingEnabled, Mode=OneWay}"
-												Style="{StaticResource ExpanderContentSettingStyle}">
+							                    IsEnabled="{x:Bind ViewModel.IsCroppingEnabled, Mode=OneWay}"
+							                    Style="{StaticResource ExpanderContentSettingStyle}">
 								<local:SettingsCard.ActionContent>
 									<StackPanel Orientation="Horizontal"
-												Spacing="10">
+									            Spacing="10">
 										<muxc:NumberBox NumberFormatter="{x:Bind local:ScalingProfilePage.NumberFormatter, Mode=OneTime}"
-														Value="{x:Bind ViewModel.CroppingLeft, Mode=TwoWay}" />
+										                Value="{x:Bind ViewModel.CroppingLeft, Mode=TwoWay}" />
 										<TextBlock VerticalAlignment="Center"
-												   Text="像素" />
+										           Text="像素" />
 									</StackPanel>
 								</local:SettingsCard.ActionContent>
 							</local:SettingsCard>
 							<local:SettingsCard Title="右"
-												IsEnabled="{x:Bind ViewModel.IsCroppingEnabled, Mode=OneWay}"
-												Style="{StaticResource ExpanderContentSettingStyle}">
+							                    IsEnabled="{x:Bind ViewModel.IsCroppingEnabled, Mode=OneWay}"
+							                    Style="{StaticResource ExpanderContentSettingStyle}">
 								<local:SettingsCard.ActionContent>
 									<StackPanel Orientation="Horizontal"
-												Spacing="10">
+									            Spacing="10">
 										<muxc:NumberBox NumberFormatter="{x:Bind local:ScalingProfilePage.NumberFormatter, Mode=OneTime}"
-														Value="{x:Bind ViewModel.CroppingRight, Mode=TwoWay}" />
+										                Value="{x:Bind ViewModel.CroppingRight, Mode=TwoWay}" />
 										<TextBlock VerticalAlignment="Center"
-												   Text="像素" />
+										           Text="像素" />
 									</StackPanel>
 								</local:SettingsCard.ActionContent>
 							</local:SettingsCard>
 							<local:SettingsCard Title="上"
-												IsEnabled="{x:Bind ViewModel.IsCroppingEnabled, Mode=OneWay}"
-												Style="{StaticResource ExpanderContentSettingStyle}">
+							                    IsEnabled="{x:Bind ViewModel.IsCroppingEnabled, Mode=OneWay}"
+							                    Style="{StaticResource ExpanderContentSettingStyle}">
 								<local:SettingsCard.ActionContent>
 									<StackPanel Orientation="Horizontal"
-												Spacing="10">
+									            Spacing="10">
 										<muxc:NumberBox NumberFormatter="{x:Bind local:ScalingProfilePage.NumberFormatter, Mode=OneTime}"
-														Value="{x:Bind ViewModel.CroppingTop, Mode=TwoWay}" />
+										                Value="{x:Bind ViewModel.CroppingTop, Mode=TwoWay}" />
 										<TextBlock VerticalAlignment="Center"
-												   Text="像素" />
+										           Text="像素" />
 									</StackPanel>
 								</local:SettingsCard.ActionContent>
 							</local:SettingsCard>
 							<local:SettingsCard Title="下"
-												IsEnabled="{x:Bind ViewModel.IsCroppingEnabled, Mode=OneWay}"
-												Style="{StaticResource ExpanderContentSettingStyle}">
+							                    IsEnabled="{x:Bind ViewModel.IsCroppingEnabled, Mode=OneWay}"
+							                    Style="{StaticResource ExpanderContentSettingStyle}">
 								<local:SettingsCard.ActionContent>
 									<StackPanel Orientation="Horizontal"
-												Spacing="10">
+									            Spacing="10">
 										<muxc:NumberBox NumberFormatter="{x:Bind local:ScalingProfilePage.NumberFormatter, Mode=OneTime}"
-														Value="{x:Bind ViewModel.CroppingBottom, Mode=TwoWay}" />
+										                Value="{x:Bind ViewModel.CroppingBottom, Mode=TwoWay}" />
 										<TextBlock VerticalAlignment="Center"
-												   Text="像素" />
+										           Text="像素" />
 									</StackPanel>
 								</local:SettingsCard.ActionContent>
 							</local:SettingsCard>
@@ -404,11 +413,11 @@
 			</local:SettingsGroup>
 			<local:SettingsGroup Title="光标">
 				<muxc:Expander HorizontalAlignment="Stretch"
-							   HorizontalContentAlignment="Stretch"
-							   Style="{StaticResource SettingExpanderStyle}">
+				               HorizontalContentAlignment="Stretch"
+				               Style="{StaticResource SettingExpanderStyle}">
 					<muxc:Expander.Header>
 						<local:SettingsCard Title="绘制光标"
-											Style="{StaticResource ExpanderHeaderSettingStyle}">
+						                    Style="{StaticResource ExpanderHeaderSettingStyle}">
 							<local:SettingsCard.Icon>
 								<FontIcon Glyph="&#xE7C9;" />
 							</local:SettingsCard.Icon>
@@ -420,8 +429,8 @@
 					<muxc:Expander.Content>
 						<StackPanel>
 							<local:SettingsCard Title="缩放系数"
-												IsEnabled="{x:Bind ViewModel.IsDrawCursor, Mode=OneWay}"
-												Style="{StaticResource ExpanderContentSettingStyle}">
+							                    IsEnabled="{x:Bind ViewModel.IsDrawCursor, Mode=OneWay}"
+							                    Style="{StaticResource ExpanderContentSettingStyle}">
 								<local:SettingsCard.ActionContent>
 									<Grid MinWidth="{StaticResource SettingBoxMinWidth}">
 										<Grid.ColumnDefinitions>
@@ -431,13 +440,13 @@
 										</Grid.ColumnDefinitions>
 
 										<ComboBox x:Name="CursorScalingComboBox"
-												  Grid.Column="0"
-												  HorizontalAlignment="Stretch"
-												  VerticalAlignment="Stretch"
-												  DropDownOpened="ComboBox_DropDownOpened"
-												  SelectedIndex="{x:Bind ViewModel.CursorScaling, Mode=TwoWay}"
-												  SelectionChanged="CursorScalingComboBox_SelectionChanged"
-												  Style="{StaticResource ComboBoxSettingStyle}">
+										          Grid.Column="0"
+										          HorizontalAlignment="Stretch"
+										          VerticalAlignment="Stretch"
+										          DropDownOpened="ComboBox_DropDownOpened"
+										          SelectedIndex="{x:Bind ViewModel.CursorScaling, Mode=TwoWay}"
+										          SelectionChanged="CursorScalingComboBox_SelectionChanged"
+										          Style="{StaticResource ComboBoxSettingStyle}">
 											<x:String>0.5x</x:String>
 											<x:String>0.75x</x:String>
 											<x:String>无缩放</x:String>
@@ -448,32 +457,32 @@
 											<x:String>自定义</x:String>
 										</ComboBox>
 										<muxc:NumberBox x:Name="CustomCursorScalingNumberBox"
-														Grid.Column="1"
-														MinWidth="30"
-														MaxWidth="120"
-														Margin="5,0,0,0"
-														HorizontalAlignment="Stretch"
-														VerticalAlignment="Stretch"
-														Maximum="10"
-														Minimum="0.1"
-														NumberFormatter="{x:Bind local:ScalingProfilePage.NumberFormatter, Mode=OneTime}"
-														SmallChange="0.1"
-														Value="{x:Bind ViewModel.CustomCursorScaling, Mode=TwoWay}" />
+										                Grid.Column="1"
+										                MinWidth="30"
+										                MaxWidth="120"
+										                Margin="5,0,0,0"
+										                HorizontalAlignment="Stretch"
+										                VerticalAlignment="Stretch"
+										                Maximum="10"
+										                Minimum="0.1"
+										                NumberFormatter="{x:Bind local:ScalingProfilePage.NumberFormatter, Mode=OneTime}"
+										                SmallChange="0.1"
+										                Value="{x:Bind ViewModel.CustomCursorScaling, Mode=TwoWay}" />
 										<TextBlock x:Name="CustomCursorScalingLabel"
-												   Grid.Column="2"
-												   Margin="5,0,0,0"
-												   VerticalAlignment="Bottom"
-												   Text="x" />
+										           Grid.Column="2"
+										           Margin="5,0,0,0"
+										           VerticalAlignment="Bottom"
+										           Text="x" />
 									</Grid>
 								</local:SettingsCard.ActionContent>
 							</local:SettingsCard>
 							<local:SettingsCard Title="插值算法"
-												IsEnabled="{x:Bind ViewModel.IsDrawCursor, Mode=OneWay}"
-												Style="{StaticResource ExpanderContentSettingStyle}">
+							                    IsEnabled="{x:Bind ViewModel.IsDrawCursor, Mode=OneWay}"
+							                    Style="{StaticResource ExpanderContentSettingStyle}">
 								<local:SettingsCard.ActionContent>
 									<ComboBox DropDownOpened="ComboBox_DropDownOpened"
-											  SelectedIndex="{x:Bind ViewModel.CursorInterpolationMode, Mode=TwoWay}"
-											  Style="{StaticResource ComboBoxSettingStyle}">
+									          SelectedIndex="{x:Bind ViewModel.CursorInterpolationMode, Mode=TwoWay}"
+									          Style="{StaticResource ComboBoxSettingStyle}">
 										<x:String>最近邻</x:String>
 										<x:String>双线性</x:String>
 									</ComboBox>
@@ -485,7 +494,7 @@
 				<local:SettingsCard Title="缩放时调整光标速度">
 					<local:SettingsCard.Icon>
 						<FontIcon x:Name="AdjustCursorSpeedFontIcon"
-								  Glyph="&#xE7C2;" />
+						          Glyph="&#xE7C2;" />
 					</local:SettingsCard.Icon>
 					<local:SettingsCard.ActionContent>
 						<ToggleSwitch IsOn="{x:Bind ViewModel.IsAdjustCursorSpeed, Mode=TwoWay}" />

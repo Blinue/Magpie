@@ -309,6 +309,7 @@ void ScalingProfileViewModel::CaptureMethod(int value) {
 
 	_data->captureMethod = captureMethod;
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CaptureMethod"));
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CanReserveTitleBar"));
 
 	AppSettings::Get().SaveAsync();
 }
@@ -441,6 +442,11 @@ void ScalingProfileViewModel::IsReserveTitleBar(bool value) {
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsReserveTitleBar"));
 
 	AppSettings::Get().SaveAsync();
+}
+
+bool ScalingProfileViewModel::CanReserveTitleBar() const noexcept {
+	return _data->captureMethod == CaptureMethod::GraphicsCapture
+		|| _data->captureMethod == CaptureMethod::DesktopDuplication;
 }
 
 bool ScalingProfileViewModel::IsCroppingEnabled() const noexcept {

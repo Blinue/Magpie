@@ -72,6 +72,7 @@ static constexpr const wchar_t* V0_9_100_FILES[] = {
 	L"effects\\ACNet.hlsl",
 	L"effects\\Bicubic.hlsl",
 	L"effects\\Bilinear.hlsl",
+	L"effects\\Deband.hlsl",
 	L"effects\\ImageAdjustment.hlsl",
 	L"effects\\Jinc.hlsl",
 	L"effects\\Lanczos.hlsl",

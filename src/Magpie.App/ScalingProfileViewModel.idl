@@ -39,6 +39,7 @@ namespace Magpie.App {
 		Boolean IsTripleBuffering;
 		Boolean IsDisableWindowResizing;
 		Boolean IsReserveTitleBar;
+		Boolean CanReserveTitleBar { get; };
 
 		Boolean IsCroppingEnabled;
 		Double CroppingLeft;

@@ -100,6 +100,8 @@ struct ScalingProfileViewModel : ScalingProfileViewModelT<ScalingProfileViewMode
 	bool IsReserveTitleBar() const noexcept;
 	void IsReserveTitleBar(bool value);
 
+	bool CanReserveTitleBar() const noexcept;
+
 	bool IsCroppingEnabled() const noexcept;
 	void IsCroppingEnabled(bool value);
 
