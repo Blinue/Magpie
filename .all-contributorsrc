@@ -103,6 +103,24 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "MikeWang000000",
+      "name": "Mike Wang",
+      "avatar_url": "https://avatars.githubusercontent.com/u/11748152?v=4",
+      "profile": "https://github.com/MikeWang000000",
+      "contributions": [
+        "userTesting"
+      ]
+    },
+    {
+      "login": "sammyhori",
+      "name": "Sammy Hori",
+      "avatar_url": "https://avatars.githubusercontent.com/u/116026761?v=4",
+      "profile": "http://sammyhori.com",
+      "contributions": [
+        "translation"
+      ]
     }
   ],
   "contributorsPerLine": 7,
@@ -110,5 +128,6 @@
   "projectOwner": "Blinue",
   "repoType": "github",
   "repoHost": "https://github.com",
-  "skipCi": true
+  "skipCi": true,
+  "commitConvention": "angular"
 }

@@ -204,6 +204,7 @@
     <CopyFileToFolders Include="Pixel Art\SharpBilinear.hlsl">
       <Filter>Pixel Art</Filter>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="Deband.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Anime4K">
