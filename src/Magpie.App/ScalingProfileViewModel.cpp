@@ -14,6 +14,7 @@
 #include "Logger.h"
 #include "ScalingMode.h"
 #include <dxgi.h>
+#include "MagService.h"
 
 using namespace winrt;
 using namespace Windows::Graphics::Display;
@@ -327,6 +328,11 @@ void ScalingProfileViewModel::IsAutoScale(bool value) {
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsAutoScale"));
 
 	AppSettings::Get().SaveAsync();
+
+	if (value) {
+		// 立即检查前台窗口是否应自动缩放
+		MagService::Get().CheckForeground();
+	}
 }
 
 bool ScalingProfileViewModel::Is3DGameMode() const noexcept {

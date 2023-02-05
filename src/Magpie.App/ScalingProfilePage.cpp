@@ -15,7 +15,6 @@ using namespace Windows::UI::Xaml::Controls;
 using namespace Windows::UI::Xaml::Controls::Primitives;
 using namespace Windows::UI::Xaml::Input;
 
-
 namespace winrt::Magpie::App::implementation {
 
 ScalingProfilePage::ScalingProfilePage() {

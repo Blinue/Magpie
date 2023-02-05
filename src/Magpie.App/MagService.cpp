@@ -74,6 +74,11 @@ void MagService::ClearWndToRestore() {
 	_WndToRestore(NULL);
 }
 
+void MagService::CheckForeground() {
+	_hwndChecked = NULL;
+	_CheckForegroundTimer_Tick(nullptr);
+}
+
 void MagService::_WndToRestore(HWND value) {
 	if (_hwndToRestore == value) {
 		return;
@@ -126,17 +131,17 @@ fire_and_forget MagService::_CheckForegroundTimer_Tick(ThreadPoolTimer const& ti
 		co_return;
 	}
 
+	HWND hwndFore = GetForegroundWindow();
+	if (hwndFore == _hwndChecked) {
+		co_return;
+	}
+	_hwndChecked = NULL;
+
 	if (timer) {
 		// ThreadPoolTimer 在后台线程触发
 		co_await _dispatcher;
 	}
-
-	HWND hwndFore = GetForegroundWindow();
-	if (hwndFore == _hwndtTempException) {
-		co_return;
-	}
-	_hwndtTempException = NULL;
-
+	
 	const bool isAutoRestore = AppSettings::Get().IsAutoRestore();
 
 	if (_CheckSrcWnd(hwndFore)) {
@@ -163,6 +168,9 @@ fire_and_forget MagService::_CheckForegroundTimer_Tick(ThreadPoolTimer const& ti
 	if (isAutoRestore && !_CheckSrcWnd(_hwndToRestore)) {
 		_WndToRestore(NULL);
 	}
+
+	// 避免重复检查
+	_hwndChecked = hwndFore;
 }
 
 void MagService::_Settings_IsAutoRestoreChanged(bool) {
@@ -177,8 +185,6 @@ void MagService::_Settings_IsAutoRestoreChanged(bool) {
 
 fire_and_forget MagService::_MagRuntime_IsRunningChanged(bool isRunning) {
 	co_await _dispatcher;
-
-	_hwndtTempException = NULL;
 
 	if (isRunning) {
 		StopCountdown();
@@ -206,7 +212,7 @@ fire_and_forget MagService::_MagRuntime_IsRunningChanged(bool isRunning) {
 
 		if (GetForegroundWindow() == curSrcWnd) {
 			// 退出全屏后如果前台窗口不变视为通过热键退出
-			_hwndtTempException = curSrcWnd;
+			_hwndChecked = curSrcWnd;
 		} else if (!_isAutoScaling && AppSettings::Get().IsAutoRestore()) {
 			if (_CheckSrcWnd(curSrcWnd)) {
 				_WndToRestore(curSrcWnd);

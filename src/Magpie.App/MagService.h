@@ -103,6 +103,9 @@ public:
 		return _magRuntime.IsRunning();
 	}
 
+	// 强制重新检查前台窗口
+	void CheckForeground();
+
 private:
 	MagService() = default;
 
@@ -137,8 +140,10 @@ private:
 
 	HWND _hwndCurSrc = NULL;
 	HWND _hwndToRestore = NULL;
-	// 用户使用热键退出全屏后暂时阻止该窗口自动放大
-	HWND _hwndtTempException = NULL;
+	// 1. 避免重复检查同一个窗口
+	// 2. 用户使用热键退出全屏后暂时阻止该窗口自动放大
+	// 可能在线程池中访问，因此增加原子性
+	std::atomic<HWND> _hwndChecked = NULL;
 
 	event<delegate<bool>> _isCountingDownChangedEvent;
 	event<delegate<float>> _countdownTickEvent;
