@@ -17,8 +17,6 @@ public:
 	MagService(const MagService&) = delete;
 	MagService(MagService&&) = delete;
 
-	~MagService();
-
 	void Initialize();
 
 	void StartCountdown();
@@ -66,7 +64,7 @@ public:
 	}
 
 	HWND WndToRestore() const noexcept {
-		return _wndToRestore;
+		return _hwndToRestore;
 	}
 
 	event_token WndToRestoreChanged(delegate<HWND> const& handler) {
@@ -112,51 +110,40 @@ private:
 
 	void _HotkeyService_HotkeyPressed(HotkeyAction action);
 
-	void _Timer_Tick(IInspectable const&, IInspectable const&);
+	void _CountDownTimer_Tick(IInspectable const&, IInspectable const&);
+
+	void _CheckForegroundTimer_Tick(IInspectable const&, IInspectable const&);
 
 	void _Settings_IsAutoRestoreChanged(bool);
 
 	fire_and_forget _MagRuntime_IsRunningChanged(bool isRunning);
 
-	void _UpdateIsAutoRestore();
-
-	void _CheckForeground();
-
-	void _StartScale(HWND hWnd, const ScalingProfile& profile, bool isAutoScale);
+	void _StartScale(HWND hWnd, const ScalingProfile& profile);
 
 	void _ScaleForegroundWindow();
 
 	bool _CheckSrcWnd(HWND hWnd) noexcept;
 
-	static void CALLBACK _WinEventProcCallback(
-		HWINEVENTHOOK /*hWinEventHook*/,
-		DWORD /*dwEvent*/,
-		HWND /*hwnd*/,
-		LONG /*idObject*/,
-		LONG /*idChild*/,
-		DWORD /*dwEventThread*/,
-		DWORD /*dwmsEventTime*/
-	);
-
 	::Magpie::Core::MagRuntime _magRuntime;
 	CoreDispatcher _dispatcher{ nullptr };
 
-	DispatcherTimer _timer;
+	DispatcherTimer _countDownTimer;
+	DispatcherTimer _checkForegroundtimer;
+
 	std::chrono::steady_clock::time_point _timerStartTimePoint;
 
 	uint32_t _tickingDownCount = 0;
+
+	HWND _hwndCurSrc = NULL;
+	HWND _hwndToRestore = NULL;
+	// 放大后用户使用热键退出全屏后暂时阻止该窗口自动放大
+	HWND _hwndtTempException = NULL;
+
 	event<delegate<bool>> _isCountingDownChangedEvent;
 	event<delegate<float>> _countdownTickEvent;
-
-	HWND _curSrcWnd = 0;
-	HWND _wndToRestore = 0;
 	event<delegate<HWND>> _wndToRestoreChangedEvent;
-
 	event<delegate<bool>> _isRunningChangedEvent;
-
-	HWINEVENTHOOK _hForegroundEventHook = NULL;
-	HWINEVENTHOOK _hDestoryEventHook = NULL;
-
+	
 	bool _isAutoScaling = false;
 };
 

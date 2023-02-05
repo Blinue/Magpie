@@ -43,7 +43,7 @@ std::wstring Win32Utils::GetPathOfWnd(HWND hWnd) {
 
 	ScopedHandle hProc(SafeHandle(OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, dwProcId)));
 	if (!hProc) {
-		Logger::Get().Win32Error("OpenProcess 失败");
+		// Logger::Get().Win32Error("OpenProcess 失败");
 		return {};
 	}
 
