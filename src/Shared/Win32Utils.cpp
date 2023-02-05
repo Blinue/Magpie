@@ -65,7 +65,6 @@ UINT Win32Utils::GetWindowShowCmd(HWND hWnd) {
 	wp.length = sizeof(wp);
 	if (!GetWindowPlacement(hWnd, &wp)) {
 		Logger::Get().Win32Error("GetWindowPlacement 出错");
-		assert(false);
 	}
 
 	return wp.showCmd;

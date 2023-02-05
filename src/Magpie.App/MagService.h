@@ -5,6 +5,8 @@
 
 namespace winrt::Magpie::App {
 
+struct ScalingProfile;
+
 class MagService {
 public:
 	static MagService& Get() noexcept {
@@ -14,6 +16,8 @@ public:
 
 	MagService(const MagService&) = delete;
 	MagService(MagService&&) = delete;
+
+	~MagService();
 
 	void Initialize();
 
@@ -104,6 +108,8 @@ public:
 private:
 	MagService() = default;
 
+	void _WndToRestore(HWND value);
+
 	void _HotkeyService_HotkeyPressed(HotkeyAction action);
 
 	void _Timer_Tick(IInspectable const&, IInspectable const&);
@@ -116,7 +122,11 @@ private:
 
 	void _CheckForeground();
 
-	void _StartScale(HWND hWnd = 0);
+	void _StartScale(HWND hWnd, const ScalingProfile& profile, bool isAutoScale);
+
+	void _ScaleForegroundWindow();
+
+	bool _CheckSrcWnd(HWND hWnd) noexcept;
 
 	static void CALLBACK _WinEventProcCallback(
 		HWINEVENTHOOK /*hWinEventHook*/,
@@ -146,6 +156,8 @@ private:
 
 	HWINEVENTHOOK _hForegroundEventHook = NULL;
 	HWINEVENTHOOK _hDestoryEventHook = NULL;
+
+	bool _isAutoScaling = false;
 };
 
 }

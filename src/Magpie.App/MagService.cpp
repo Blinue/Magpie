@@ -6,10 +6,20 @@
 #include "ScalingProfileService.h"
 #include "ScalingModesService.h"
 #include "ScalingMode.h"
+#include "Logger.h"
 
 using namespace Magpie::Core;
 
 namespace winrt::Magpie::App {
+
+MagService::~MagService() {
+	if (_hForegroundEventHook) {
+		UnhookWinEvent(_hForegroundEventHook);
+	}
+	if (_hDestoryEventHook) {
+		UnhookWinEvent(_hDestoryEventHook);
+	}
+}
 
 void MagService::Initialize() {
 	_dispatcher = CoreWindow::GetForCurrentThread().Dispatcher();
@@ -23,6 +33,32 @@ void MagService::Initialize() {
 	HotkeyService::Get().HotkeyPressed(
 		{ this, &MagService::_HotkeyService_HotkeyPressed }
 	);
+
+	// 监听前台窗口更改
+	_hForegroundEventHook = SetWinEventHook(
+		EVENT_SYSTEM_FOREGROUND,
+		EVENT_SYSTEM_FOREGROUND,
+		NULL,
+		_WinEventProcCallback,
+		0,
+		0,
+		WINEVENT_OUTOFCONTEXT
+	);
+	// 监听窗口销毁
+	_hDestoryEventHook = SetWinEventHook(
+		EVENT_OBJECT_DESTROY,
+		EVENT_OBJECT_DESTROY,
+		NULL,
+		_WinEventProcCallback,
+		0,
+		0,
+		WINEVENT_OUTOFCONTEXT
+	);
+
+	if (!_hForegroundEventHook || !_hDestoryEventHook) {
+		assert(false);
+		Logger::Get().Win32Error("监听前台窗口更改失败");
+	}
 
 	_UpdateIsAutoRestore();
 }
@@ -62,11 +98,15 @@ float MagService::CountdownLeft() const noexcept {
 }
 
 void MagService::ClearWndToRestore() {
-	if (_wndToRestore == 0) {
+	_WndToRestore(NULL);
+}
+
+void MagService::_WndToRestore(HWND value) {
+	if (_wndToRestore == value) {
 		return;
 	}
 
-	_wndToRestore = 0;
+	_wndToRestore = value;
 	_wndToRestoreChangedEvent(_wndToRestore);
 }
 
@@ -79,7 +119,7 @@ void MagService::_HotkeyService_HotkeyPressed(HotkeyAction action) {
 			return;
 		}
 
-		_StartScale();
+		_ScaleForegroundWindow();
 		break;
 	}
 	case HotkeyAction::Overlay:
@@ -101,7 +141,7 @@ void MagService::_Timer_Tick(IInspectable const&, IInspectable const&) {
 	// 剩余时间在 10 ms 以内计时结束
 	if (timeLeft < 0.01) {
 		StopCountdown();
-		_StartScale();
+		_ScaleForegroundWindow();
 		return;
 	}
 
@@ -119,8 +159,7 @@ fire_and_forget MagService::_MagRuntime_IsRunningChanged(bool isRunning) {
 		StopCountdown();
 
 		if (AppSettings::Get().IsAutoRestore()) {
-			_wndToRestore = 0;
-			_wndToRestoreChangedEvent(_wndToRestore);
+			_WndToRestore(NULL);
 		}
 
 		_curSrcWnd = _magRuntime.HwndSrc();
@@ -136,12 +175,27 @@ fire_and_forget MagService::_MagRuntime_IsRunningChanged(bool isRunning) {
 					SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
 			}
 		}
+		
+		HWND hwndFore = GetForegroundWindow();
+		if (hwndFore == _curSrcWnd) {
+			// 退出全屏后前台窗口不变
+			_curSrcWnd = NULL;
+			co_return;
+		}
 
-		if (AppSettings::Get().IsAutoRestore()) {
-			// 退出全屏之后前台窗口不变则不必记忆
-			if (IsWindow(_curSrcWnd) && GetForegroundWindow() != _curSrcWnd) {
-				_wndToRestore = _curSrcWnd;
-				_wndToRestoreChangedEvent(_wndToRestore);
+		// 检查自动缩放
+		if (_CheckSrcWnd(hwndFore)) {
+			ScalingProfile& profile = ScalingProfileService::Get().GetProfileForWindow(hwndFore);
+			if (profile.isAutoScale) {
+				_curSrcWnd = NULL;
+				_StartScale(hwndFore, profile, true);
+				co_return;
+			}
+		}
+
+		if (!_isAutoScaling && AppSettings::Get().IsAutoRestore()) {
+			if (_CheckSrcWnd(_curSrcWnd)) {
+				_WndToRestore(_curSrcWnd);
 			}
 		}
 
@@ -155,71 +209,57 @@ void MagService::_UpdateIsAutoRestore() {
 	if (AppSettings::Get().IsAutoRestore()) {
 		// 立即生效，即使正处于缩放状态
 		_curSrcWnd = _magRuntime.HwndSrc();
-
-		// 监听前台窗口更改
-		_hForegroundEventHook = SetWinEventHook(
-			EVENT_SYSTEM_FOREGROUND,
-			EVENT_SYSTEM_FOREGROUND,
-			NULL,
-			_WinEventProcCallback,
-			0,
-			0,
-			WINEVENT_OUTOFCONTEXT
-		);
-		// 监听窗口销毁
-		_hDestoryEventHook = SetWinEventHook(
-			EVENT_OBJECT_DESTROY,
-			EVENT_OBJECT_DESTROY,
-			NULL,
-			_WinEventProcCallback,
-			0,
-			0,
-			WINEVENT_OUTOFCONTEXT
-		);
 	} else {
 		_curSrcWnd = NULL;
-		_wndToRestore = 0;
-		_wndToRestoreChangedEvent(_wndToRestore);
-		if (_hForegroundEventHook) {
-			UnhookWinEvent(_hForegroundEventHook);
-			_hForegroundEventHook = NULL;
-		}
-		if (_hDestoryEventHook) {
-			UnhookWinEvent(_hDestoryEventHook);
-			_hDestoryEventHook = NULL;
-		}
+		_WndToRestore(NULL);
 	}
 }
 
 void MagService::_CheckForeground() {
-	if (_wndToRestore == 0 || _magRuntime.IsRunning()) {
+	if (_magRuntime.IsRunning()) {
+		return;
+	}
+
+	HWND hwndForeground = GetForegroundWindow();
+	const ScalingProfile* profile = nullptr;
+	if (_CheckSrcWnd(hwndForeground)) {
+		profile = &ScalingProfileService::Get().GetProfileForWindow(hwndForeground);
+		if (profile->isAutoScale) {
+			_StartScale(hwndForeground, *profile, true);
+			
+			// 触发自动缩放时清空记忆的窗口
+			if (AppSettings::Get().IsAutoRestore()) {
+				_WndToRestore(NULL);
+			}
+
+			return;
+		}
+	}
+
+	if (!AppSettings::Get().IsAutoRestore() || !_wndToRestore) {
 		return;
 	}
 
 	if (!IsWindow(_wndToRestore)) {
-		_wndToRestore = 0;
-		_wndToRestoreChangedEvent(_wndToRestore);
+		_WndToRestore(NULL);
 		return;
 	}
 
-	if (_wndToRestore != GetForegroundWindow()) {
+	if (_wndToRestore != hwndForeground) {
 		return;
 	}
 
-	_StartScale(_wndToRestore);
+	if (!profile) {
+		profile = &ScalingProfileService::Get().GetProfileForWindow(hwndForeground);
+	}
+	_StartScale(hwndForeground, *profile, false);
 }
 
-void MagService::_StartScale(HWND hWnd) {
-	if (!hWnd) {
-		hWnd = GetForegroundWindow();
-	}
-
-	if (hWnd && Win32Utils::GetWindowShowCmd(hWnd) != SW_NORMAL) {
+void MagService::_StartScale(HWND hWnd, const ScalingProfile& profile, bool isAutoScale) {
+	if (profile.scalingMode < 0) {
 		return;
 	}
 
-	const ScalingProfile& profile = ScalingProfileService::Get().GetProfileForWindow((HWND)hWnd);
-	
 	MagOptions options;
 	options.graphicsAdapter = profile.graphicsAdapter;
 	options.captureMethod = profile.captureMethod;
@@ -267,12 +307,10 @@ void MagService::_StartScale(HWND hWnd) {
 	options.downscalingEffect = settings.DownscalingEffect();
 
 	// 应用缩放模式
-	if (profile.scalingMode >= 0) {
-		options.effects = ScalingModesService::Get().GetScalingMode(profile.scalingMode).effects;
-		if (settings.IsInlineParams()) {
-			for (EffectOption& effect : options.effects) {
-				effect.flags |= EffectOptionFlags::InlineParams;
-			}
+	options.effects = ScalingModesService::Get().GetScalingMode(profile.scalingMode).effects;
+	if (settings.IsInlineParams()) {
+		for (EffectOption& effect : options.effects) {
+			effect.flags |= EffectOptionFlags::InlineParams;
 		}
 	}
 
@@ -283,7 +321,22 @@ void MagService::_StartScale(HWND hWnd) {
 	options.IsWarningsAreErrors(settings.IsWarningsAreErrors());
 	options.IsSimulateExclusiveFullscreen(settings.IsSimulateExclusiveFullscreen());
 
+	_isAutoScaling = isAutoScale;
 	_magRuntime.Run(hWnd, options);
+}
+
+void MagService::_ScaleForegroundWindow() {
+	HWND hWnd = GetForegroundWindow();
+	if (!_CheckSrcWnd(hWnd)) {
+		return;
+	}
+
+	const ScalingProfile& profile = ScalingProfileService::Get().GetProfileForWindow((HWND)hWnd);
+	_StartScale(hWnd, profile, false);
+}
+
+bool MagService::_CheckSrcWnd(HWND hWnd) noexcept {
+	return hWnd && Win32Utils::GetWindowShowCmd(hWnd) == SW_NORMAL;
 }
 
 void MagService::_WinEventProcCallback(HWINEVENTHOOK, DWORD, HWND, LONG, LONG, DWORD, DWORD) {
