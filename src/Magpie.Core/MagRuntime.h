@@ -47,6 +47,9 @@ public:
 private:
 	void _MagWindThreadProc() noexcept;
 
+	// 确保 _dqc 完成初始化
+	void _EnsureDispatcherQueue() const noexcept;
+
 	std::thread _magWindThread;
 	std::atomic<bool> _running = false;
 	HWND _hwndSrc = 0;

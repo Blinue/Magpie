@@ -112,13 +112,13 @@ private:
 
 	void _CountDownTimer_Tick(IInspectable const&, IInspectable const&);
 
-	void _CheckForegroundTimer_Tick(IInspectable const&, IInspectable const&);
+	fire_and_forget _CheckForegroundTimer_Tick(Threading::ThreadPoolTimer const& timer);
 
 	void _Settings_IsAutoRestoreChanged(bool);
 
 	fire_and_forget _MagRuntime_IsRunningChanged(bool isRunning);
 
-	void _StartScale(HWND hWnd, const ScalingProfile& profile);
+	bool _StartScale(HWND hWnd, const ScalingProfile& profile);
 
 	void _ScaleForegroundWindow();
 
@@ -128,7 +128,8 @@ private:
 	CoreDispatcher _dispatcher{ nullptr };
 
 	DispatcherTimer _countDownTimer;
-	DispatcherTimer _checkForegroundtimer;
+	// DispatcherTimer 在不显示主窗口时可能停滞，因此使用 ThreadPoolTimer
+	Threading::ThreadPoolTimer _checkForegroundTimer{ nullptr };
 
 	std::chrono::steady_clock::time_point _timerStartTimePoint;
 
@@ -136,7 +137,7 @@ private:
 
 	HWND _hwndCurSrc = NULL;
 	HWND _hwndToRestore = NULL;
-	// 放大后用户使用热键退出全屏后暂时阻止该窗口自动放大
+	// 用户使用热键退出全屏后暂时阻止该窗口自动放大
 	HWND _hwndtTempException = NULL;
 
 	event<delegate<bool>> _isCountingDownChangedEvent;

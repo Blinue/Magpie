@@ -16,25 +16,24 @@ using namespace winrt;
 using namespace Windows::Security::Cryptography::Core;
 using namespace Windows::Storage;
 using namespace Windows::Storage::Streams;
+using namespace Windows::System::Threading;
 
 namespace winrt::Magpie::App {
 
 void UpdateService::Initialize() noexcept {
-	// 每小时检查一次剩余时间
-	_timer.Interval(1h);
-	_timer.Tick({ this, &UpdateService::_Timer_Tick });
-
+	_dispatcher = CoreWindow::GetForCurrentThread().Dispatcher();
+	
 	AppSettings& settings = AppSettings::Get();
 	if (settings.IsAutoCheckForUpdates()) {
+		_StartTimer();
 		// 启动时检查一次
-		_Timer_Tick(nullptr, nullptr);
-		_timer.Start();
+		_Timer_Tick(nullptr);
 	}
 	settings.IsAutoCheckForUpdatesChanged([this](bool value) {
 		if (value) {
-			_timer.Start();
+			_StartTimer();
 		} else {
-			_timer.Stop();
+			_StopTimer();
 		}
 	});
 }
@@ -413,18 +412,35 @@ void UpdateService::_Status(UpdateStatus value) {
 	_statusChangedEvent(value);
 }
 
-void UpdateService::_Timer_Tick(IInspectable const&, IInspectable const&) {
+fire_and_forget UpdateService::_Timer_Tick(ThreadPoolTimer const& timer) {
+	if (timer) {
+		co_await _dispatcher;
+	}
+
 	AppSettings& settings = AppSettings::Get();
 	
 	using namespace std::chrono;
 	system_clock::time_point now = system_clock::now();
 	// 自动检查更新的间隔为 1 天
 	if (duration_cast<days>(now - settings.UpdateCheckDate()).count() < 1) {
-		return;
+		co_return;
 	}
 
 	settings.UpdateCheckDate(now);
 	CheckForUpdatesAsync(true);
+}
+
+void UpdateService::_StartTimer() {
+	// 每小时检查一次剩余时间
+	_timer = ThreadPoolTimer::CreatePeriodicTimer(
+		{ this, &UpdateService::_Timer_Tick },
+		1h
+	);
+}
+
+void UpdateService::_StopTimer() {
+	_timer.Cancel();
+	_timer = nullptr;
 }
 
 }

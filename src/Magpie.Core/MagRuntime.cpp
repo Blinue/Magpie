@@ -29,6 +29,7 @@ void MagRuntime::Run(HWND hwndSrc, const MagOptions& options) {
 	_running = true;
 	_isRunningChangedEvent(true);
 
+	_EnsureDispatcherQueue();
 	_dqc.DispatcherQueue().TryEnqueue([this, hwndSrc, options(options)]() mutable {
 		MagApp::Get().Start(hwndSrc, std::move(options));
 	});
@@ -39,6 +40,7 @@ void MagRuntime::ToggleOverlay() {
 		return;
 	}
 
+	_EnsureDispatcherQueue();
 	_dqc.DispatcherQueue().TryEnqueue([]() {
 		MagApp::Get().ToggleOverlay();
 	});
@@ -49,6 +51,7 @@ void MagRuntime::Stop() {
 		return;
 	}
 
+	_EnsureDispatcherQueue();
 	_dqc.DispatcherQueue().TryEnqueue([]() {
 		MagApp::Get().Stop();
 	});
@@ -102,6 +105,12 @@ void MagRuntime::_MagWindThreadProc() noexcept {
 				DispatchMessage(&msg);
 			}
 		}
+	}
+}
+
+void MagRuntime::_EnsureDispatcherQueue() const noexcept {
+	while (!_dqc) {
+		Sleep(1);
 	}
 }
 

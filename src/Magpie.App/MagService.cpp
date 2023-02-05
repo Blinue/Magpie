@@ -8,7 +8,9 @@
 #include "ScalingMode.h"
 #include "Logger.h"
 
-using namespace Magpie::Core;
+using namespace ::Magpie::Core;
+using namespace winrt;
+using namespace Windows::System::Threading;
 
 namespace winrt::Magpie::App {
 
@@ -18,16 +20,20 @@ void MagService::Initialize() {
 	_countDownTimer.Interval(25ms);
 	_countDownTimer.Tick({ this, &MagService::_CountDownTimer_Tick });
 
-	_checkForegroundtimer.Interval(50ms);
-	_checkForegroundtimer.Tick({ this, &MagService::_CheckForegroundTimer_Tick });
-	_checkForegroundtimer.Start();
-
+	_checkForegroundTimer = ThreadPoolTimer::CreatePeriodicTimer(
+		{ this, &MagService::_CheckForegroundTimer_Tick },
+		50ms
+	);
+	
 	AppSettings::Get().IsAutoRestoreChanged({ this, &MagService::_Settings_IsAutoRestoreChanged });
 	_magRuntime.IsRunningChanged({ this, &MagService::_MagRuntime_IsRunningChanged });
 
 	HotkeyService::Get().HotkeyPressed(
 		{ this, &MagService::_HotkeyService_HotkeyPressed }
 	);
+
+	// 立即检查前台窗口
+	_CheckForegroundTimer_Tick(nullptr);
 }
 
 void MagService::StartCountdown() {
@@ -115,14 +121,19 @@ void MagService::_CountDownTimer_Tick(IInspectable const&, IInspectable const&) 
 	_countdownTickEvent(timeLeft);
 }
 
-void MagService::_CheckForegroundTimer_Tick(IInspectable const&, IInspectable const&) {
+fire_and_forget MagService::_CheckForegroundTimer_Tick(ThreadPoolTimer const& timer) {
 	if (_magRuntime.IsRunning()) {
-		return;
+		co_return;
+	}
+
+	if (timer) {
+		// ThreadPoolTimer 在后台线程触发
+		co_await _dispatcher;
 	}
 
 	HWND hwndFore = GetForegroundWindow();
 	if (hwndFore == _hwndtTempException) {
-		return;
+		co_return;
 	}
 	_hwndtTempException = NULL;
 
@@ -132,20 +143,20 @@ void MagService::_CheckForegroundTimer_Tick(IInspectable const&, IInspectable co
 		const ScalingProfile& profile = ScalingProfileService::Get().GetProfileForWindow(hwndFore);
 		// 先检查自动恢复全屏
 		if (profile.isAutoScale) {
-			_StartScale(hwndFore, profile);
-
-			// 触发自动缩放时清空记忆的窗口
-			if (AppSettings::Get().IsAutoRestore()) {
-				_WndToRestore(NULL);
+			if (_StartScale(hwndFore, profile)) {
+				// 触发自动缩放时清空记忆的窗口
+				if (AppSettings::Get().IsAutoRestore()) {
+					_WndToRestore(NULL);
+				}
 			}
 
-			return;
+			co_return;
 		}
 
 		// 恢复记忆的窗口
 		if (isAutoRestore && _hwndToRestore == hwndFore) {
 			_StartScale(hwndFore, profile);
-			return;
+			co_return;
 		}
 	}
 
@@ -201,14 +212,17 @@ fire_and_forget MagService::_MagRuntime_IsRunningChanged(bool isRunning) {
 				_WndToRestore(curSrcWnd);
 			}
 		}
+
+		// 立即检查前台窗口
+		_CheckForegroundTimer_Tick(nullptr);
 	}
 
 	_isRunningChangedEvent(isRunning);
 }
 
-void MagService::_StartScale(HWND hWnd, const ScalingProfile& profile) {
+bool MagService::_StartScale(HWND hWnd, const ScalingProfile& profile) {
 	if (profile.scalingMode < 0) {
-		return;
+		return false;
 	}
 
 	MagOptions options;
@@ -274,6 +288,7 @@ void MagService::_StartScale(HWND hWnd, const ScalingProfile& profile) {
 
 	_isAutoScaling = profile.isAutoScale;
 	_magRuntime.Run(hWnd, options);
+	return true;
 }
 
 void MagService::_ScaleForegroundWindow() {

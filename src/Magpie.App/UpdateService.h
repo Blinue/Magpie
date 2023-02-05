@@ -118,13 +118,18 @@ private:
 
 	void _Status(UpdateStatus value);
 
-	void _Timer_Tick(IInspectable const&, IInspectable const&);
+	fire_and_forget _Timer_Tick(Threading::ThreadPoolTimer const& timer);
+
+	void _StartTimer();
+	void _StopTimer();
 
 	event<delegate<UpdateStatus>> _statusChangedEvent;
 	event<delegate<double>> _downloadProgressChangedEvent;
 	event<delegate<bool>> _isShowOnHomePageChangedEvent;
 
-	DispatcherTimer _timer;
+	// DispatcherTimer 在不显示主窗口时可能停滞，因此使用 ThreadPoolTimer
+	Threading::ThreadPoolTimer _timer{ nullptr };
+	CoreDispatcher _dispatcher{ nullptr };
 
 	std::wstring _tag;
 	std::wstring _binaryUrl;
