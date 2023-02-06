@@ -26,7 +26,7 @@ static void SetCurDir() noexcept {
 	wchar_t curDir[MAX_PATH] = { 0 };
 	GetModuleFileName(NULL, curDir, MAX_PATH);
 
-	for (int i = StrUtils::StrLen(curDir) - 1; i >= 0; --i) {
+	for (int i = (int)StrUtils::StrLen(curDir) - 1; i >= 0; --i) {
 		if (curDir[i] == L'\\' || curDir[i] == L'/') {
 			break;
 		} else {

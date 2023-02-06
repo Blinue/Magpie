@@ -31,6 +31,7 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)SmallVector.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)StrUtils.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)Utils.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)Version.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)Win32Utils.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)XamlUtils.cpp" />
   </ItemGroup>

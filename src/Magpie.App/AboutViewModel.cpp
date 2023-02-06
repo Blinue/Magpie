@@ -6,6 +6,7 @@
 #include "Version.h"
 #include "UpdateService.h"
 #include "AppSettings.h"
+#include "StrUtils.h"
 
 namespace winrt::Magpie::App::implementation {
 

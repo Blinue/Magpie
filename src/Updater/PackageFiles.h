@@ -102,8 +102,6 @@ static constexpr const wchar_t* V0_9_100_FOLDERS[] = {
 	L"effects"
 };
 
-static constexpr const wchar_t* a[5]{};
-
 struct PackageFiles {
 	const std::span<const wchar_t*> files;
 	const std::span<const wchar_t*> folders;

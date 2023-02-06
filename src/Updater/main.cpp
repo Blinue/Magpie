@@ -18,43 +18,14 @@
 #include "PackageFiles.h"
 #include <filesystem>
 #include <shellapi.h>
-
-static bool FileExists(const wchar_t* fileName) noexcept {
-	DWORD attrs = GetFileAttributes(fileName);
-	// 排除文件夹
-	return (attrs != INVALID_FILE_ATTRIBUTES) && !(attrs & FILE_ATTRIBUTE_DIRECTORY);
-}
-
-static std::string UTF16ToUTF8(std::wstring_view str) noexcept {
-	if (str.empty()) {
-		return {};
-	}
-
-	int convertResult = WideCharToMultiByte(CP_UTF8, 0, str.data(), (int)str.size(),
-		nullptr, 0, nullptr, nullptr);
-	if (convertResult <= 0) {
-		assert(false);
-		return {};
-	}
-
-	std::string result(convertResult + 10, L'\0');
-	convertResult = WideCharToMultiByte(CP_UTF8, 0, str.data(), (int)str.size(),
-		result.data(), (int)result.size(), nullptr, nullptr);
-	if (convertResult <= 0) {
-		assert(false);
-		return {};
-	}
-
-	result.resize(convertResult);
-	return result;
-}
+#include "Utils.h"
 
 // 将当前目录设为程序所在目录
 static void SetCurDir() noexcept {
 	wchar_t curDir[MAX_PATH] = { 0 };
 	GetModuleFileName(NULL, curDir, MAX_PATH);
 
-	for (int i = std::char_traits<wchar_t>::length(curDir) - 1; i >= 0; --i) {
+	for (int i = (int)Utils::StrLen(curDir) - 1; i >= 0; --i) {
 		if (curDir[i] == L'\\' || curDir[i] == L'/') {
 			break;
 		} else {
@@ -104,7 +75,7 @@ static void MoveFolder(const std::wstring& src, const std::wstring& dest) noexce
 		
 		std::wstring curPath = src + L"\\" + findData.cFileName;
 		std::wstring destPath = dest + L"\\" + findData.cFileName;
-		if (FileExists(curPath.c_str())) {
+		if (Utils::FileExists(curPath.c_str())) {
 			MoveFileEx(curPath.c_str(), destPath.c_str(), MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH);
 		} else {
 			CreateDirectory(destPath.c_str(), nullptr);
@@ -129,7 +100,7 @@ int APIENTRY wWinMain(
 	SetCurDir();
 
 	Version oldVersion;
-	if (!oldVersion.Parse(UTF16ToUTF8(lpCmdLine))) {
+	if (!oldVersion.Parse(Utils::UTF16ToUTF8(lpCmdLine))) {
 		return 1;
 	}
 
@@ -140,7 +111,7 @@ int APIENTRY wWinMain(
 	}
 
 	// 检查 Updater.exe 所处环境
-	if (!FileExists(L"Magpie.exe") || !FileExists(L"update\\Magpie.exe")) {
+	if (!Utils::FileExists(L"Magpie.exe") || !Utils::FileExists(L"update\\Magpie.exe")) {
 		return 1;
 	}
 	
