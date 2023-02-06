@@ -21,6 +21,27 @@ static const UINT WM_MAGPIE_SHOWME = RegisterWindowMessage(CommonSharedConstants
 // https://learn.microsoft.com/en-us/windows/win32/shell/taskbar#taskbar-creation-notification
 static const UINT WM_TASKBARCREATED = RegisterWindowMessage(L"TaskbarCreated");
 
+// 将当前目录设为程序所在目录
+static void SetCurDir() noexcept {
+	wchar_t curDir[MAX_PATH] = { 0 };
+	GetModuleFileName(NULL, curDir, MAX_PATH);
+
+	for (int i = lstrlenW(curDir) - 1; i >= 0; --i) {
+		if (curDir[i] == L'\\' || curDir[i] == L'/') {
+			break;
+		} else {
+			curDir[i] = L'\0';
+		}
+	}
+
+	SetCurrentDirectory(curDir);
+}
+
+// https://github.com/microsoft/microsoft-ui-xaml/issues/7260#issuecomment-1231314776
+// 提前加载 threadpoolwinrt.dll 以避免退出时崩溃。应在 Windows.UI.Xaml.dll 被加载前调用
+static void FixThreadPoolCrash() noexcept {
+	LoadLibraryEx(L"threadpoolwinrt.dll", nullptr, 0);
+}
 
 bool XamlApp::Initialize(HINSTANCE hInstance, const wchar_t* arguments) {
 	_hInst = hInstance;
@@ -29,22 +50,9 @@ bool XamlApp::Initialize(HINSTANCE hInstance, const wchar_t* arguments) {
 		return false;
 	}
 
-	// 当前目录始终是程序所在目录
-	{
-		wchar_t curDir[MAX_PATH] = { 0 };
-		GetModuleFileName(NULL, curDir, MAX_PATH);
+	SetCurDir();
 
-		for (int i = lstrlenW(curDir) - 1; i >= 0; --i) {
-			if (curDir[i] == L'\\' || curDir[i] == L'/') {
-				break;
-			} else {
-				curDir[i] = L'\0';
-			}
-		}
-
-		SetCurrentDirectory(curDir);
-	}
-
+	FixThreadPoolCrash();
 	_InitializeLogger();
 
 	Logger::Get().Info(fmt::format("程序启动\n\t版本：{}\n\t管理员：{}",
