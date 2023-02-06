@@ -49,6 +49,22 @@ static std::string UTF16ToUTF8(std::wstring_view str) noexcept {
 	return result;
 }
 
+// 将当前目录设为程序所在目录
+static void SetCurDir() noexcept {
+	wchar_t curDir[MAX_PATH] = { 0 };
+	GetModuleFileName(NULL, curDir, MAX_PATH);
+
+	for (int i = std::char_traits<wchar_t>::length(curDir) - 1; i >= 0; --i) {
+		if (curDir[i] == L'\\' || curDir[i] == L'/') {
+			break;
+		} else {
+			curDir[i] = L'\0';
+		}
+	}
+
+	SetCurrentDirectory(curDir);
+}
+
 static bool WaitForMagpieToExit() noexcept {
 	static constexpr const wchar_t* SINGLE_INSTANCE_MUTEX_NAME = L"{4C416227-4A30-4A2F-8F23-8701544DD7D6}";
 
@@ -110,21 +126,7 @@ int APIENTRY wWinMain(
 		return 0;
 	}
 
-	// 将当前目录设为程序所在目录
-	{
-		wchar_t curDir[MAX_PATH] = { 0 };
-		GetModuleFileName(NULL, curDir, MAX_PATH);
-
-		for (int i = lstrlenW(curDir) - 1; i >= 0; --i) {
-			if (curDir[i] == L'\\' || curDir[i] == L'/') {
-				break;
-			} else {
-				curDir[i] = L'\0';
-			}
-		}
-
-		SetCurrentDirectory(curDir);
-	}
+	SetCurDir();
 
 	Version oldVersion;
 	if (!oldVersion.Parse(UTF16ToUTF8(lpCmdLine))) {
