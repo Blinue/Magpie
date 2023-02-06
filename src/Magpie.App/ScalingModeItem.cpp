@@ -88,6 +88,11 @@ void ScalingModeItem::_Effects_VectorChanged(IObservableVector<IInspectable> con
 	if (!_isMovingEffects) {
 		_propertyChangedEvent(*this, PropertyChangedEventArgs(L"Description"));
 		_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CanReorderEffects"));
+
+		for (const IInspectable& effectItem : _effects) {
+			effectItem.as<ScalingModeEffectItem>().EffectsChanged();
+		}
+
 		return;
 	}
 	
@@ -243,6 +248,15 @@ void ScalingModeItem::MoveUp() noexcept {
 
 void ScalingModeItem::MoveDown() noexcept {
 	ScalingModesService::Get().MoveScalingMode(_index, false);
+}
+
+bool ScalingModeItem::CanReorderEffects() const noexcept {
+	// 管理员身份下不支持拖拽排序
+	return _effects.Size() > 1 && !Win32Utils::IsProcessElevated();
+}
+
+bool ScalingModeItem::ShowElevatedMsg() const noexcept {
+	return _effects.Size() > 1 && Win32Utils::IsProcessElevated();
 }
 
 void ScalingModeItem::Remove() {

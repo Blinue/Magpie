@@ -39,37 +39,28 @@ struct ScalingModeEffectItem : ScalingModeEffectItemT<ScalingModeEffectItem> {
 		return _effectIdx;
 	}
 
-	void EffectIdx(uint32_t value) noexcept {
-		_effectIdx = value;
-		_parametersViewModel.EffectIdx(value);
-	}
+	void EffectIdx(uint32_t value) noexcept;
 
 	bool CanScale() const noexcept;
 
 	bool HasParameters() const noexcept;
 
 	int ScalingType() const noexcept;
-
 	void ScalingType(int value);
 
 	bool IsShowScalingFactors() const noexcept;
-
 	bool IsShowScalingPixels() const noexcept;
 
 	double ScalingFactorX() const noexcept;
-
 	void ScalingFactorX(double value);
 
 	double ScalingFactorY() const noexcept;
-
 	void ScalingFactorY(double value);
 
 	double ScalingPixelsX() const noexcept;
-
 	void ScalingPixelsX(double value);
 
 	double ScalingPixelsY() const noexcept;
-
 	void ScalingPixelsY(double value);
 
 	Magpie::App::EffectParametersViewModel Parameters() const noexcept {
@@ -86,6 +77,23 @@ struct ScalingModeEffectItem : ScalingModeEffectItemT<ScalingModeEffectItem> {
 		_removedEvent.remove(token);
 	}
 
+	bool CanMove() const noexcept;
+	bool CanMoveUp() const noexcept;
+	bool CanMoveDown() const noexcept;
+	void MoveUp() noexcept;
+	void MoveDown() noexcept;
+
+	void EffectsChanged();
+
+	// 上移为 true，下移为 false
+	event_token Moved(EventHandler<bool> const& handler) {
+		return _movedEvent.add(handler);
+	}
+
+	void Moved(event_token const& token) noexcept {
+		_movedEvent.remove(token);
+	}
+
 private:
 	::Magpie::Core::EffectOption& _Data() noexcept;
 	const ::Magpie::Core::EffectOption& _Data() const noexcept;
@@ -97,6 +105,7 @@ private:
 	hstring _name;
 	const EffectInfo* _effectInfo = nullptr;
 	event<EventHandler<uint32_t>> _removedEvent;
+	event<EventHandler<bool>> _movedEvent;
 
 	Magpie::App::EffectParametersViewModel _parametersViewModel;
 };

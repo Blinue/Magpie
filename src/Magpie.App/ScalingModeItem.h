@@ -59,9 +59,9 @@ struct ScalingModeItem : ScalingModeItemT<ScalingModeItem> {
 
 	void MoveDown() noexcept;
 
-	bool CanReorderEffects() const noexcept {
-		return _effects.Size() > 1;
-	}
+	bool CanReorderEffects() const noexcept;
+
+	bool ShowElevatedMsg() const noexcept;
 
 	void Remove();
 

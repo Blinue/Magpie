@@ -25,5 +25,6 @@ namespace Magpie.App {
         Boolean IsInUse { get; };
 
         Boolean CanReorderEffects { get; };
+        Boolean ShowElevatedMsg { get; };
     }
 }

@@ -21,5 +21,14 @@ namespace Magpie.App {
 
 		void Remove();
 		event Windows.Foundation.EventHandler<UInt32> Removed;
+
+		Boolean CanMove { get; };
+		Boolean CanMoveUp { get; };
+		Boolean CanMoveDown { get; };
+		void MoveUp();
+		void MoveDown();
+		event Windows.Foundation.EventHandler<Boolean> Moved;
+
+		void EffectsChanged();
 	}
 }

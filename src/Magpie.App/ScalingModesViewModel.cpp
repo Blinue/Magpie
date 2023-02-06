@@ -13,8 +13,6 @@
 #include "ScalingMode.h"
 
 using namespace ::Magpie::Core;
-using namespace winrt;
-
 
 namespace winrt::Magpie::App::implementation {
 

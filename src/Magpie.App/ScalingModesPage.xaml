@@ -402,7 +402,7 @@
 																		<Setter Property="FontSize" Value="15" />
 																	</Style>
 																</StackPanel.Resources>
-																<Button Margin="0,0,5,0"
+																<Button Margin="0,0,4,0"
 																        ToolTipService.ToolTip="缩放"
 																        Visibility="{x:Bind CanScale}">
 																	<Button.Content>
@@ -494,7 +494,7 @@
 																		</Flyout>
 																	</Button.Flyout>
 																</Button>
-																<Button Margin="0,0,5,0"
+																<Button Margin="0,0,4,0"
 																        ToolTipService.ToolTip="参数"
 																        Visibility="{x:Bind HasParameters}">
 																	<Button.Content>
@@ -519,6 +519,26 @@
 																		<FontIcon Glyph="&#xE74D;" />
 																	</Button.Content>
 																</Button>
+																<StackPanel Orientation="Horizontal"
+																            Visibility="{x:Bind CanMove, Mode=OneWay}">
+																	<AppBarSeparator Margin="4,0,0,0" />
+																	<Button Margin="4,0,0,0"
+																	        Click="{x:Bind MoveUp}"
+																	        IsEnabled="{x:Bind CanMoveUp, Mode=OneWay}"
+																	        ToolTipService.ToolTip="上移">
+																		<Button.Content>
+																			<FontIcon Glyph="&#xE74A;" />
+																		</Button.Content>
+																	</Button>
+																	<Button Margin="4,0,0,0"
+																	        Click="{x:Bind MoveDown}"
+																	        IsEnabled="{x:Bind CanMoveDown, Mode=OneWay}"
+																	        ToolTipService.ToolTip="下移">
+																		<Button.Content>
+																			<FontIcon Glyph="&#xE74B;" />
+																		</Button.Content>
+																	</Button>
+																</StackPanel>
 															</StackPanel>
 														</local:SettingsCard.ActionContent>
 													</local:SettingsCard>
@@ -527,9 +547,12 @@
 										</ListView>
 										<local:SettingsCard Style="{StaticResource ExpanderContentSettingStyle}">
 											<local:SettingsCard.Description>
-												<TextBlock Margin="-40,0,0,-20"
-												           Text="拖拽可重新排序"
-												           Visibility="{x:Bind CanReorderEffects, Mode=OneWay}" />
+												<StackPanel Margin="-40,0,0,-20">
+													<TextBlock Text="拖拽以重新排序"
+													           Visibility="{x:Bind CanReorderEffects, Mode=OneWay}" />
+													<TextBlock Text="管理员身份下不支持拖拽排序"
+													           Visibility="{x:Bind ShowElevatedMsg, Mode=OneWay}" />
+												</StackPanel>
 											</local:SettingsCard.Description>
 											<local:SettingsCard.ActionContent>
 												<Button x:Name="AddEffectButton"

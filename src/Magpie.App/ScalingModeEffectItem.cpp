@@ -26,6 +26,11 @@ ScalingModeEffectItem::ScalingModeEffectItem(uint32_t scalingModeIdx, uint32_t e
 	_effectInfo = EffectsService::Get().GetEffect(data.name);
 }
 
+void ScalingModeEffectItem::EffectIdx(uint32_t value) noexcept {
+	_effectIdx = value;
+	_parametersViewModel.EffectIdx(value);
+}
+
 bool ScalingModeEffectItem::CanScale() const noexcept {
 	return _effectInfo && _effectInfo->CanScale();
 }
@@ -175,6 +180,38 @@ void ScalingModeEffectItem::ScalingPixelsY(double value) {
 
 void ScalingModeEffectItem::Remove() {
 	_removedEvent(*this, _effectIdx);
+}
+
+bool ScalingModeEffectItem::CanMove() const noexcept {
+	const ScalingMode& mode = ScalingModesService::Get().GetScalingMode(_scalingModeIdx);
+	return mode.effects.size() > 1 && Win32Utils::IsProcessElevated();
+}
+
+bool ScalingModeEffectItem::CanMoveUp() const noexcept {
+	return _effectIdx > 0;
+}
+
+bool ScalingModeEffectItem::CanMoveDown() const noexcept {
+	const ScalingMode& mode = ScalingModesService::Get().GetScalingMode(_scalingModeIdx);
+	return _effectIdx + 1 < (uint32_t)mode.effects.size();
+}
+
+void ScalingModeEffectItem::MoveUp() noexcept {
+	_movedEvent(*this, true);
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CanMoveUp"));
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CanMoveDown"));
+}
+
+void ScalingModeEffectItem::MoveDown() noexcept {
+	_movedEvent(*this, false);
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CanMoveUp"));
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CanMoveDown"));
+}
+
+void ScalingModeEffectItem::EffectsChanged() {
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CanMove"));
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CanMoveUp"));
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CanMoveDown"));
 }
 
 EffectOption& ScalingModeEffectItem::_Data() noexcept {
