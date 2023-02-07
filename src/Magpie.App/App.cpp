@@ -31,6 +31,7 @@
 #include "UpdateService.h"
 
 using namespace winrt;
+using namespace Windows::ApplicationModel::Resources::Core;
 using namespace Windows::UI::Xaml::Media;
 
 namespace winrt::Magpie::App::implementation {
@@ -56,6 +57,8 @@ App::App() {
 		box_value(L"SymbolThemeFontFamily"),
 		FontFamily(isWin11 ? L"Segoe Fluent Icons" : L"Segoe MDL2 Assets")
 	);
+
+	// ResourceContext::SetGlobalQualifierValue(L"Language", L"en-US");
 }
 
 App::~App() {

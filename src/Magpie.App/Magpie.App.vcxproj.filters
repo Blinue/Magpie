@@ -143,8 +143,14 @@
     <Filter Include="ViewModels">
       <UniqueIdentifier>{c63b1e37-fe89-4c56-a1fe-e19d6803adad}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Resources">
-      <UniqueIdentifier>{ead91d92-1852-412f-8c58-57e10a737fc2}</UniqueIdentifier>
+    <Filter Include="Strings">
+      <UniqueIdentifier>{66be9bb7-57ad-4efd-82b1-ac88ca76677f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Strings\en-US">
+      <UniqueIdentifier>{6a96162d-8cdf-47f6-8327-d1155d10325b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Strings\zh-CN">
+      <UniqueIdentifier>{81eea75d-3f29-4821-9a6c-0ab53b1c0cfe}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -246,8 +252,14 @@
     </AppxManifest>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="Magpie.UI.rc">
-      <Filter>Resources</Filter>
-    </ResourceCompile>
+    <ResourceCompile Include="Magpie.App.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <PRIResource Include="Strings\en-US\Resources.resw">
+      <Filter>Strings\en-US</Filter>
+    </PRIResource>
+    <PRIResource Include="Strings\zh-CN\Resources.resw">
+      <Filter>Strings\zh-CN</Filter>
+    </PRIResource>
   </ItemGroup>
 </Project>

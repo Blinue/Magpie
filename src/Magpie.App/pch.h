@@ -9,6 +9,7 @@
 #include "CommonPch.h"
 
 // C++/WinRT 头文件
+#include <winrt/Windows.ApplicationModel.Resources.Core.h>
 #include <winrt/Windows.Globalization.NumberFormatting.h>
 #include <winrt/Windows.Graphics.Imaging.h>
 #include <winrt/Windows.UI.Core.h>
