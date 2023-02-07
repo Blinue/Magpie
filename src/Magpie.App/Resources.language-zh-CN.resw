@@ -126,4 +126,7 @@
   <data name="HomePageFrame.Title" xml:space="preserve">
     <value>主页</value>
   </data>
+  <data name="Qualifier" xml:space="preserve">
+    <value>zh-CN</value>
+  </data>
 </root>

@@ -18,6 +18,8 @@
     <AppxGeneratePriEnabled>true</AppxGeneratePriEnabled>
     <ProjectPriIndexName>Magpie.App</ProjectPriIndexName>
     <AppxPackage>true</AppxPackage>
+	<AppxBundlePlatforms>x64</AppxBundlePlatforms>
+    <AppxDefaultResourceQualifiers>Language=en-US</AppxDefaultResourceQualifiers>
     <GenerateAppxPackageOnBuild>false</GenerateAppxPackageOnBuild>
     <DesktopCompatible>true</DesktopCompatible>
     <_NoWinAPIFamilyApp>true</_NoWinAPIFamilyApp>

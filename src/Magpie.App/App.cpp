@@ -32,6 +32,7 @@
 
 using namespace winrt;
 using namespace Windows::ApplicationModel::Resources::Core;
+using namespace Windows::ApplicationModel::Resources;
 using namespace Windows::UI::Xaml::Media;
 
 namespace winrt::Magpie::App::implementation {
@@ -58,7 +59,11 @@ App::App() {
 		FontFamily(isWin11 ? L"Segoe Fluent Icons" : L"Segoe MDL2 Assets")
 	);
 
-	// ResourceContext::SetGlobalQualifierValue(L"Language", L"en-US");
+	// 不支持的语言回落到英语
+	// 显式设置 Language 以压制 WinUI 控件的本地化
+	if (ResourceLoader::GetForCurrentView().GetString(L"Qualifier") == L"en-US") {
+		ResourceContext::SetGlobalQualifierValue(L"Language", L"en-US");
+	}
 }
 
 App::~App() {

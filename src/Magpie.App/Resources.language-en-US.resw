@@ -126,4 +126,7 @@
   <data name="HomePageFrame.Title" xml:space="preserve">
     <value>Home</value>
   </data>
+  <data name="Qualifier" xml:space="preserve">
+    <value>en-US</value>
+  </data>
 </root>
