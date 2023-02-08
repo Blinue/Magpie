@@ -8,8 +8,11 @@ struct SettingsViewModel : SettingsViewModelT<SettingsViewModel> {
 
 	IVector<IInspectable> Languages() const;
 
+	int Language() const noexcept;
+	void Language(int value);
+
 	int Theme() const noexcept;
-	void Theme(int value) noexcept;
+	void Theme(int value);
 
 	bool IsRunAtStartup() const noexcept {
 		return _isRunAtStartup;

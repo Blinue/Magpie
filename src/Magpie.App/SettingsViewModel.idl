@@ -3,6 +3,7 @@ namespace Magpie.App {
 		SettingsViewModel();
 
 		IVector<IInspectable> Languages { get; };
+		Int32 Language;
 		Int32 Theme;
 		Boolean IsRunAtStartup;
 		Boolean IsMinimizeAtStartup;

@@ -12,6 +12,7 @@
 #include "ScalingModesService.h"
 #include "JsonHelper.h"
 #include "ScalingMode.h"
+#include "LocalizationService.h"
 
 using namespace Magpie::Core;
 
@@ -310,6 +311,17 @@ void AppSettings::IsPortableMode(bool value) {
 	SaveAsync();
 }
 
+void AppSettings::Language(int value) {
+	if (_language == value) {
+		return;
+	}
+
+	_language = value;
+	_languageChangedEvent(_language);
+
+	SaveAsync();
+}
+
 void AppSettings::Theme(uint32_t value) {
 	assert(value <= 2);
 
@@ -417,6 +429,14 @@ bool AppSettings::_Save(const _AppSettingsData& data) noexcept {
 	writer.Key("version");
 	writer.Uint(SETTINGS_VERSION);
 
+	writer.Key("language");
+	if (_language < 0) {
+		writer.String("");
+	} else {
+		const std::wstring& language = LocalizationService::GetSupportedLanguages()[_language];
+		writer.String(StrUtils::UTF16ToUTF8(language).c_str());
+	}
+
 	writer.Key("theme");
 	writer.Uint(data._theme);
 
@@ -508,8 +528,25 @@ bool AppSettings::_Save(const _AppSettingsData& data) noexcept {
 	return true;
 }
 
-// 永远不会失败，遇到不合法的配置项则静默忽略
+// 永远不会失败，遇到不合法的配置项时静默忽略
 void AppSettings::_LoadSettings(const rapidjson::GenericObject<true, rapidjson::Value>& root, uint32_t /*version*/) {
+	{
+		std::wstring language;
+		JsonHelper::ReadString(root, "language", language);
+		if (language.empty()) {
+			_language = -1;
+		} else {
+			std::span<const wchar_t*> languages = LocalizationService::GetSupportedLanguages();
+			auto it = std::find(languages.begin(), languages.end(), language);
+			if (it == languages.end()) {
+				// 未知的语言设置，重置为使用系统设置
+				_language = -1;
+			} else {
+				_language = int(it - languages.begin());
+			}
+		}
+	}
+
 	JsonHelper::ReadUInt(root, "theme", _theme);
 
 	auto windowPosNode = root.FindMember("windowPos");

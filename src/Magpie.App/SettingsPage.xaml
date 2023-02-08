@@ -18,7 +18,8 @@
 					</local:SettingsCard.Icon>
 					<local:SettingsCard.ActionContent>
 						<ComboBox DropDownOpened="ComboBox_DropDownOpened"
-						          ItemsSource="{x:Bind ViewModel.Languages, Mode=OneWay}"
+						          ItemsSource="{x:Bind ViewModel.Languages, Mode=OneTime}"
+						          SelectedIndex="{x:Bind ViewModel.Language, Mode=TwoWay}"
 						          Style="{StaticResource ComboBoxSettingStyle}" />
 					</local:SettingsCard.ActionContent>
 				</local:SettingsCard>

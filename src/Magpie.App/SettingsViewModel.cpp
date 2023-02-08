@@ -9,9 +9,6 @@
 #include "CommonSharedConstants.h"
 #include "LocalizationService.h"
 
-using namespace winrt;
-using namespace Windows::Globalization;
-
 namespace winrt::Magpie::App::implementation {
 
 SettingsViewModel::SettingsViewModel() {
@@ -25,28 +22,35 @@ IVector<IInspectable> SettingsViewModel::Languages() const {
 	languages.reserve(tags.size() + 1);
 	languages.push_back(box_value(L"Windows 默认"));
 	for (const wchar_t* tag : tags) {
-		languages.push_back(box_value(Language(tag).NativeName()));
+		Windows::Globalization::Language language(tag);
+		languages.push_back(box_value(language.NativeName()));
 	}
 	return single_threaded_vector(std::move(languages));;
+}
+
+int SettingsViewModel::Language() const noexcept {
+	return AppSettings::Get().Language() + 1;
+}
+
+void SettingsViewModel::Language(int value) {
+	if (value < 0) {
+		return;
+	}
+
+	AppSettings::Get().Language(value - 1);
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"Language"));
 }
 
 int SettingsViewModel::Theme() const noexcept {
 	return (int)AppSettings::Get().Theme();
 }
 
-void SettingsViewModel::Theme(int value) noexcept {
+void SettingsViewModel::Theme(int value) {
 	if (value < 0) {
 		return;
 	}
 
-	AppSettings& settings = AppSettings::Get();
-
-	uint32_t theme = (uint32_t)value;
-	if (settings.Theme() == theme) {
-		return;
-	}
-
-	settings.Theme(theme);
+	AppSettings::Get().Theme((uint32_t)value);
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"Theme"));
 }
 

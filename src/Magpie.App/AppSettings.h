@@ -26,6 +26,10 @@ struct _AppSettingsData {
 	std::wstring _configDir;
 	std::wstring _configPath;
 
+	// LocalizationService::GetSupportedLanguages 索引
+	// -1 表示使用系统设置
+	int _language;
+
 	// X, Y, 长, 高
 	RECT _windowRect{ CW_USEDEFAULT,CW_USEDEFAULT,1280,820 };
 
@@ -78,6 +82,27 @@ public:
 	}
 
 	void IsPortableMode(bool value);
+
+	int Language() const noexcept {
+		return _language;
+	}
+
+	void Language(int);
+
+	event_token LanguageChanged(delegate<int> const& handler) {
+		return _languageChangedEvent.add(handler);
+	}
+
+	WinRTUtils::EventRevoker LanguageChanged(auto_revoke_t, delegate<int> const& handler) {
+		event_token token = LanguageChanged(handler);
+		return WinRTUtils::EventRevoker([this, token]() {
+			LanguageChanged(token);
+		});
+	}
+
+	void LanguageChanged(event_token const& token) {
+		_languageChangedEvent.remove(token);
+	}
 
 	uint32_t Theme() const noexcept {
 		return _theme;
@@ -332,6 +357,7 @@ private:
 	// 用于同步保存
 	Win32Utils::SRWMutex _saveMutex;
 
+	event<delegate<int>> _languageChangedEvent;
 	event<delegate<uint32_t>> _themeChangedEvent;
 	event<delegate<HotkeyAction>> _hotkeyChangedEvent;
 	event<delegate<bool>> _isAutoRestoreChangedEvent;

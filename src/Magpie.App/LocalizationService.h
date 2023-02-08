@@ -1,5 +1,7 @@
 #pragma once
 
+namespace winrt::Magpie::App {
+
 class LocalizationService {
 public:
 	static LocalizationService& Get() noexcept {
@@ -12,8 +14,10 @@ public:
 
 	void Initialize();
 
-	std::span<const wchar_t*> GetSupportedLanguages() const noexcept;
+	static std::span<const wchar_t*> GetSupportedLanguages() noexcept;
 
 private:
 	LocalizationService() = default;
 };
+
+}
