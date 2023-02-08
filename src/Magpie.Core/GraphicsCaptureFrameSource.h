@@ -21,12 +21,14 @@ public:
 	}
 
 	const char* GetName() const noexcept override {
-		return "Graphics Capture";
+		return NAME;
 	}
 
 	bool StartCapture();
 
 	void StopCapture();
+
+	static constexpr const char* NAME = "Graphics Capture";
 
 protected:
 	bool _HasRoundCornerInWin11() override {

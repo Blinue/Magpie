@@ -56,10 +56,10 @@
     <ClCompile>
       <FloatingPointModel>Fast</FloatingPointModel>
     </ClCompile>
-      <Link>
-        <SubSystem>Windows</SubSystem>
-        <GenerateDebugInformation>true</GenerateDebugInformation>
-      </Link>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)'=='Debug'">
     <ClCompile>
