@@ -6,6 +6,8 @@ namespace winrt::Magpie::App::implementation {
 struct SettingsViewModel : SettingsViewModelT<SettingsViewModel> {
 	SettingsViewModel();
 
+	IVector<IInspectable> Languages() const;
+
 	int Theme() const noexcept;
 	void Theme(int value) noexcept;
 

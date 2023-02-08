@@ -7,11 +7,27 @@
 #include "AutoStartHelper.h"
 #include "Win32Utils.h"
 #include "CommonSharedConstants.h"
+#include "LocalizationService.h"
+
+using namespace winrt;
+using namespace Windows::Globalization;
 
 namespace winrt::Magpie::App::implementation {
 
 SettingsViewModel::SettingsViewModel() {
 	_UpdateStartupOptions();
+}
+
+IVector<IInspectable> SettingsViewModel::Languages() const {
+	std::span<const wchar_t*> tags = LocalizationService::Get().GetSupportedLanguages();
+
+	std::vector<IInspectable> languages;
+	languages.reserve(tags.size() + 1);
+	languages.push_back(box_value(L"Windows 默认"));
+	for (const wchar_t* tag : tags) {
+		languages.push_back(box_value(Language(tag).NativeName()));
+	}
+	return single_threaded_vector(std::move(languages));;
 }
 
 int SettingsViewModel::Theme() const noexcept {

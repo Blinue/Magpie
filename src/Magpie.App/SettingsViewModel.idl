@@ -2,6 +2,7 @@ namespace Magpie.App {
 	runtimeclass SettingsViewModel : Windows.UI.Xaml.Data.INotifyPropertyChanged {
 		SettingsViewModel();
 
+		IVector<IInspectable> Languages { get; };
 		Int32 Theme;
 		Boolean IsRunAtStartup;
 		Boolean IsMinimizeAtStartup;

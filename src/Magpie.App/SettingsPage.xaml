@@ -18,11 +18,8 @@
 					</local:SettingsCard.Icon>
 					<local:SettingsCard.ActionContent>
 						<ComboBox DropDownOpened="ComboBox_DropDownOpened"
-						          Style="{StaticResource ComboBoxSettingStyle}">
-							<x:String>Windows 默认</x:String>
-							<x:String>English (United States)</x:String>
-							<x:String>中文（简体）</x:String>
-						</ComboBox>
+						          ItemsSource="{x:Bind ViewModel.Languages, Mode=OneWay}"
+						          Style="{StaticResource ComboBoxSettingStyle}" />
 					</local:SettingsCard.ActionContent>
 				</local:SettingsCard>
 				<local:SettingsCard Title="主题">
