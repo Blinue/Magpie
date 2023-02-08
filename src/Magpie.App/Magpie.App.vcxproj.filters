@@ -55,6 +55,9 @@
     <ClCompile Include="ContentDialogHelper.cpp">
       <Filter>Helpers</Filter>
     </ClCompile>
+    <ClCompile Include="LocalizationService.cpp">
+      <Filter>Services</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -114,6 +117,9 @@
       <Filter>Helpers</Filter>
     </ClInclude>
     <ClInclude Include="app.base.h" />
+    <ClInclude Include="LocalizationService.h">
+      <Filter>Services</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Pages">

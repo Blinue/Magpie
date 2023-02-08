@@ -12,6 +12,19 @@
 		            Orientation="Vertical">
 			<local:SettingsGroup Title="外观和行为"
 			                     Margin="0,-24,0,0">
+				<local:SettingsCard Title="语言">
+					<local:SettingsCard.Icon>
+						<FontIcon Glyph="&#xE8C1;" />
+					</local:SettingsCard.Icon>
+					<local:SettingsCard.ActionContent>
+						<ComboBox DropDownOpened="ComboBox_DropDownOpened"
+						          Style="{StaticResource ComboBoxSettingStyle}">
+							<x:String>Windows 默认</x:String>
+							<x:String>English (United States)</x:String>
+							<x:String>中文（简体）</x:String>
+						</ComboBox>
+					</local:SettingsCard.ActionContent>
+				</local:SettingsCard>
 				<local:SettingsCard Title="主题">
 					<local:SettingsCard.Icon>
 						<FontIcon Glyph="&#xEF1F;" />
@@ -22,7 +35,7 @@
 						          Style="{StaticResource ComboBoxSettingStyle}">
 							<x:String>浅色</x:String>
 							<x:String>深色</x:String>
-							<x:String>使用系统设置</x:String>
+							<x:String>Windows 默认</x:String>
 						</ComboBox>
 					</local:SettingsCard.ActionContent>
 				</local:SettingsCard>

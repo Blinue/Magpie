@@ -29,11 +29,7 @@
 #include <Magpie.Core.h>
 #include "EffectsService.h"
 #include "UpdateService.h"
-
-using namespace winrt;
-using namespace Windows::ApplicationModel::Resources::Core;
-using namespace Windows::ApplicationModel::Resources;
-using namespace Windows::UI::Xaml::Media;
+#include "LocalizationService.h"
 
 namespace winrt::Magpie::App::implementation {
 
@@ -58,12 +54,6 @@ App::App() {
 		box_value(L"SymbolThemeFontFamily"),
 		FontFamily(isWin11 ? L"Segoe Fluent Icons" : L"Segoe MDL2 Assets")
 	);
-
-	// 不支持的语言回落到英语
-	// 显式设置 Language 以压制 WinUI 控件的本地化
-	if (ResourceLoader::GetForCurrentView().GetString(L"Qualifier") == L"en-US") {
-		ResourceContext::SetGlobalQualifierValue(L"Language", L"en-US");
-	}
 }
 
 App::~App() {
@@ -81,7 +71,7 @@ void App::Close() {
 
 	// 不显示托盘图标的情况下关闭主窗口仍会在后台驻留数秒，推测和 XAML Islands 有关
 	// 这里提前取消热键注册，这样关闭 Magpie 后立即重新打开不会注册热键失败
-	HotkeyService::Get().Destory();
+	HotkeyService::Get().Uninitialize();
 
 	Exit();
 }
@@ -110,6 +100,7 @@ StartUpOptions App::Initialize(int) {
 	result.IsWndMaximized= settings.IsWindowMaximized();
 	result.IsNeedElevated = settings.IsAlwaysRunAsElevated();
 
+	LocalizationService::Get().Initialize();
 	HotkeyService::Get().Initialize();
 	MagService::Get().Initialize();
 	UpdateService::Get().Initialize();

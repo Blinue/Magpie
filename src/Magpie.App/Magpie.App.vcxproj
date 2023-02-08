@@ -18,7 +18,7 @@
     <AppxGeneratePriEnabled>true</AppxGeneratePriEnabled>
     <ProjectPriIndexName>Magpie.App</ProjectPriIndexName>
     <AppxPackage>true</AppxPackage>
-	<AppxBundlePlatforms>x64</AppxBundlePlatforms>
+    <AppxBundlePlatforms>x64</AppxBundlePlatforms>
     <AppxDefaultResourceQualifiers>Language=en-US</AppxDefaultResourceQualifiers>
     <GenerateAppxPackageOnBuild>false</GenerateAppxPackageOnBuild>
     <DesktopCompatible>true</DesktopCompatible>
@@ -144,6 +144,7 @@
     <ClInclude Include="HotkeySettings.h" />
     <ClInclude Include="IconHelper.h" />
     <ClInclude Include="JsonHelper.h" />
+    <ClInclude Include="LocalizationService.h" />
     <ClInclude Include="MagService.h" />
     <ClInclude Include="NewProfileViewModel.h">
       <DependentUpon>NewProfileViewModel.idl</DependentUpon>
@@ -281,6 +282,7 @@
     <ClCompile Include="HotkeySettings.cpp" />
     <ClCompile Include="IconHelper.cpp" />
     <ClCompile Include="JsonHelper.cpp" />
+    <ClCompile Include="LocalizationService.cpp" />
     <ClCompile Include="MagService.cpp" />
     <ClCompile Include="NewProfileViewModel.cpp">
       <DependentUpon>NewProfileViewModel.idl</DependentUpon>

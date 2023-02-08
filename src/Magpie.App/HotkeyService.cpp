@@ -44,7 +44,7 @@ void HotkeyService::Initialize() {
 	}
 }
 
-void HotkeyService::Destory() {
+void HotkeyService::Uninitialize() {
 	if (!_hwndHotkey) {
 		return;
 	}
@@ -64,7 +64,7 @@ void HotkeyService::Destory() {
 }
 
 HotkeyService::~HotkeyService() {
-	Destory();
+	Uninitialize();
 }
 
 LRESULT HotkeyService::_WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
