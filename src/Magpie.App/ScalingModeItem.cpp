@@ -42,9 +42,7 @@ ScalingModeItem::ScalingModeItem(uint32_t index) : _index(index) {
 		std::vector<IInspectable> effects;
 		effects.reserve(data.effects.size());
 		for (uint32_t i = 0; i < data.effects.size(); ++i) {
-			ScalingModeEffectItem item(_index, i);
-			item.Removed({ this, &ScalingModeItem::_ScalingModeEffectItem_Removed });
-			effects.push_back(item);
+			effects.push_back(_CreateScalingModeEffectItem(_index, i));
 		}
 		_effects = single_threaded_observable_vector(std::move(effects));
 	}
@@ -88,11 +86,7 @@ void ScalingModeItem::_Effects_VectorChanged(IObservableVector<IInspectable> con
 	if (!_isMovingEffects) {
 		_propertyChangedEvent(*this, PropertyChangedEventArgs(L"Description"));
 		_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CanReorderEffects"));
-
-		for (const IInspectable& effectItem : _effects) {
-			effectItem.as<ScalingModeEffectItem>().EffectsChanged();
-		}
-
+		_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsShowMoveButtons"));
 		return;
 	}
 	
@@ -139,7 +133,43 @@ void ScalingModeItem::_ScalingModeEffectItem_Removed(IInspectable const&, uint32
 		_effects.GetAt(i).as<ScalingModeEffectItem>().EffectIdx(i);
 	}
 
+	if (index > 0) {
+		_effects.GetAt(index - 1).as<ScalingModeEffectItem>().RefreshMoveState();
+	}
+	if (index < _effects.Size()) {
+		_effects.GetAt(index).as<ScalingModeEffectItem>().RefreshMoveState();
+	}
+
 	AppSettings::Get().SaveAsync();
+}
+
+void ScalingModeItem::_ScalingModeEffectItem_Moved(ScalingModeEffectItem const& sender, bool isUp) {
+	uint32_t idx = sender.EffectIdx();
+
+	if (isUp) {
+		assert(idx > 0);
+		IInspectable prev = _effects.GetAt(idx - 1);
+		// 状态更新由 _Effects_VectorChanged 处理
+		_effects.RemoveAt(idx - 1);
+		_effects.InsertAt(idx, prev);
+
+		prev.as<ScalingModeEffectItem>().RefreshMoveState();
+	} else {
+		assert(idx + 1 < _effects.Size());
+		IInspectable next = _effects.GetAt(idx + 1);
+		_effects.RemoveAt(idx + 1);
+		_effects.InsertAt(idx, next);
+
+		next.as<ScalingModeEffectItem>().RefreshMoveState();
+	}
+	sender.RefreshMoveState();
+}
+
+ScalingModeEffectItem ScalingModeItem::_CreateScalingModeEffectItem(uint32_t scalingModeIdx, uint32_t effectIdx) {
+	ScalingModeEffectItem item(scalingModeIdx, effectIdx);
+	item.Removed({ this, &ScalingModeItem::_ScalingModeEffectItem_Removed });
+	item.Moved({ this, &ScalingModeItem::_ScalingModeEffectItem_Moved });
+	return item;
 }
 
 void ScalingModeItem::AddEffect(const hstring& fullName) {
@@ -153,11 +183,16 @@ void ScalingModeItem::AddEffect(const hstring& fullName) {
 		effect.scalingType = ::Magpie::Core::ScalingType::Fit;
 	}
 
-	ScalingModeEffectItem item(_index, (uint32_t)_Data().effects.size() - 1);
-	item.Removed({ this, &ScalingModeItem::_ScalingModeEffectItem_Removed });
+	ScalingModeEffectItem item = _CreateScalingModeEffectItem(_index, (uint32_t)_Data().effects.size() - 1);
 	_isMovingEffects = false;
 	_effects.Append(item);
 	_isMovingEffects = true;
+
+	uint32_t size = _effects.Size();
+	_effects.GetAt(size - 1).as<ScalingModeEffectItem>().RefreshMoveState();
+	if (size > 1) {
+		_effects.GetAt(size - 2).as<ScalingModeEffectItem>().RefreshMoveState();
+	}
 
 	AppSettings::Get().SaveAsync();
 }
@@ -255,7 +290,7 @@ bool ScalingModeItem::CanReorderEffects() const noexcept {
 	return _effects.Size() > 1 && !Win32Utils::IsProcessElevated();
 }
 
-bool ScalingModeItem::ShowElevatedMsg() const noexcept {
+bool ScalingModeItem::IsShowMoveButtons() const noexcept {
 	return _effects.Size() > 1 && Win32Utils::IsProcessElevated();
 }
 

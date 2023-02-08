@@ -344,6 +344,10 @@ static void ShowSystemCursor(bool show) {
 
 	if (show) {
 		MagApp::Get().Dispatcher().TryEnqueue([]() {
+			if (!MagApp::Get().GetHwndHost()) {
+				return;
+			}
+
 			// 修复有时不会立即显示光标的问题
 			FrameSourceBase& frameSource = MagApp::Get().GetFrameSource();
 			if (frameSource.GetName() == GraphicsCaptureFrameSource::NAME) {

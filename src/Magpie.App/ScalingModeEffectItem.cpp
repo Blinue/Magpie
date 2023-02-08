@@ -198,17 +198,13 @@ bool ScalingModeEffectItem::CanMoveDown() const noexcept {
 
 void ScalingModeEffectItem::MoveUp() noexcept {
 	_movedEvent(*this, true);
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CanMoveUp"));
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CanMoveDown"));
 }
 
 void ScalingModeEffectItem::MoveDown() noexcept {
 	_movedEvent(*this, false);
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CanMoveUp"));
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CanMoveDown"));
 }
 
-void ScalingModeEffectItem::EffectsChanged() {
+void ScalingModeEffectItem::RefreshMoveState() {
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CanMove"));
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CanMoveUp"));
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CanMoveDown"));

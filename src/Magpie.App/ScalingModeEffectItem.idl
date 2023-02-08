@@ -27,8 +27,8 @@ namespace Magpie.App {
 		Boolean CanMoveDown { get; };
 		void MoveUp();
 		void MoveDown();
-		event Windows.Foundation.EventHandler<Boolean> Moved;
+		event Windows.Foundation.TypedEventHandler<ScalingModeEffectItem, Boolean> Moved;
 
-		void EffectsChanged();
+		void RefreshMoveState();
 	}
 }

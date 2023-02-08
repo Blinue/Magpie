@@ -83,10 +83,10 @@ struct ScalingModeEffectItem : ScalingModeEffectItemT<ScalingModeEffectItem> {
 	void MoveUp() noexcept;
 	void MoveDown() noexcept;
 
-	void EffectsChanged();
+	void RefreshMoveState();
 
 	// 上移为 true，下移为 false
-	event_token Moved(EventHandler<bool> const& handler) {
+	event_token Moved(TypedEventHandler<Magpie::App::ScalingModeEffectItem, bool> const& handler) {
 		return _movedEvent.add(handler);
 	}
 
@@ -105,7 +105,7 @@ private:
 	hstring _name;
 	const EffectInfo* _effectInfo = nullptr;
 	event<EventHandler<uint32_t>> _removedEvent;
-	event<EventHandler<bool>> _movedEvent;
+	event<TypedEventHandler<Magpie::App::ScalingModeEffectItem, bool>> _movedEvent;
 
 	Magpie::App::EffectParametersViewModel _parametersViewModel;
 };

@@ -61,7 +61,7 @@ struct ScalingModeItem : ScalingModeItemT<ScalingModeItem> {
 
 	bool CanReorderEffects() const noexcept;
 
-	bool ShowElevatedMsg() const noexcept;
+	bool IsShowMoveButtons() const noexcept;
 
 	void Remove();
 
@@ -85,6 +85,10 @@ private:
 	void _Effects_VectorChanged(IObservableVector<IInspectable> const&, IVectorChangedEventArgs const& args);
 
 	void _ScalingModeEffectItem_Removed(IInspectable const&, uint32_t index);
+
+	void _ScalingModeEffectItem_Moved(ScalingModeEffectItem const& sender, bool isUp);
+
+	ScalingModeEffectItem _CreateScalingModeEffectItem(uint32_t scalingModeIdx, uint32_t effectIdx);
 
 	ScalingMode& _Data() noexcept;
 	const ScalingMode& _Data() const noexcept;

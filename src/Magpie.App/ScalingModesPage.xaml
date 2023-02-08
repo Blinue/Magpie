@@ -552,7 +552,7 @@
 													<TextBlock Text="拖拽以重新排序"
 													           Visibility="{x:Bind CanReorderEffects, Mode=OneWay}" />
 													<TextBlock Text="管理员身份下不支持拖拽排序"
-													           Visibility="{x:Bind ShowElevatedMsg, Mode=OneWay}" />
+													           Visibility="{x:Bind IsShowMoveButtons, Mode=OneWay}" />
 												</StackPanel>
 											</local:SettingsCard.Description>
 											<local:SettingsCard.ActionContent>
