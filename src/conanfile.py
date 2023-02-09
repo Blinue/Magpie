@@ -19,7 +19,11 @@ class Magpie(ConanFile):
 		"kuba-zip/0.2.6"
 	]
 	generators = "visual_studio"
-	default_options = {"mimalloc:shared": True}
+	default_options = {
+		"fmt:header_only": True,
+		"spdlog:header_only": True,
+		"spdlog:no_exceptions": True
+	}
 
 	def imports(self):
 		self.copy("imgui_impl_dx11.*", dst="../../../src/Magpie.Core", src="./res/bindings")
