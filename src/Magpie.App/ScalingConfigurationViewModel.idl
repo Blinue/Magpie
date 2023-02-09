@@ -1,6 +1,6 @@
 namespace Magpie.App {
-    runtimeclass ScalingModesViewModel : Windows.UI.Xaml.Data.INotifyPropertyChanged {
-        ScalingModesViewModel();
+    runtimeclass ScalingConfigurationViewModel : Windows.UI.Xaml.Data.INotifyPropertyChanged {
+        ScalingConfigurationViewModel();
 
         void Export();
         void Import();

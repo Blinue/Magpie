@@ -23,7 +23,7 @@ private:
 struct ScalingConfigurationPage : ScalingConfigurationPageT<ScalingConfigurationPage> {
 	ScalingConfigurationPage();
 
-	Magpie::App::ScalingModesViewModel ViewModel() const noexcept {
+	Magpie::App::ScalingConfigurationViewModel ViewModel() const noexcept {
 		return _viewModel;
 	}
 
@@ -56,7 +56,7 @@ private:
 	IInspectable _moreOptionsButton{ nullptr };
 
 	Controls::MenuFlyout _addEffectMenuFlyout;
-	Magpie::App::ScalingModesViewModel _viewModel;
+	Magpie::App::ScalingConfigurationViewModel _viewModel;
 	Magpie::App::ScalingModeItem _curScalingMode{ nullptr };
 };
 

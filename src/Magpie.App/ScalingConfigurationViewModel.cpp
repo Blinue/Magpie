@@ -1,7 +1,7 @@
 #include "pch.h"
-#include "ScalingModesViewModel.h"
-#if __has_include("ScalingModesViewModel.g.cpp")
-#include "ScalingModesViewModel.g.cpp"
+#include "ScalingConfigurationViewModel.h"
+#if __has_include("ScalingConfigurationViewModel.g.cpp")
+#include "ScalingConfigurationViewModel.g.cpp"
 #endif
 #include "ScalingModesService.h"
 #include "EffectsService.h"
@@ -16,7 +16,7 @@ using namespace ::Magpie::Core;
 
 namespace winrt::Magpie::App::implementation {
 
-ScalingModesViewModel::ScalingModesViewModel() {
+ScalingConfigurationViewModel::ScalingConfigurationViewModel() {
 	_scalingModesListTransitions.Append(Animation::ContentThemeTransition());
 	_scalingModesListTransitions.Append(Animation::ReorderThemeTransition());
 	
@@ -62,11 +62,11 @@ ScalingModesViewModel::ScalingModesViewModel() {
 	_AddScalingModes();
 
 	_scalingModeAddedRevoker = ScalingModesService::Get().ScalingModeAdded(
-		auto_revoke, { this, &ScalingModesViewModel::_ScalingModesService_Added });
+		auto_revoke, { this, &ScalingConfigurationViewModel::_ScalingModesService_Added });
 	_scalingModeMovedRevoker = ScalingModesService::Get().ScalingModeMoved(
-		auto_revoke, { this, &ScalingModesViewModel::_ScalingModesService_Moved });
+		auto_revoke, { this, &ScalingConfigurationViewModel::_ScalingModesService_Moved });
 	_scalingModeRemovedRevoker = ScalingModesService::Get().ScalingModeRemoved(
-		auto_revoke, { this, &ScalingModesViewModel::_ScalingModesService_Removed });
+		auto_revoke, { this, &ScalingConfigurationViewModel::_ScalingModesService_Removed });
 }
 
 static std::optional<std::wstring> OpenFileDialog(IFileDialog* fileDialog) {
@@ -102,7 +102,7 @@ static std::optional<std::wstring> OpenFileDialog(IFileDialog* fileDialog) {
 	return std::move(result);
 }
 
-void ScalingModesViewModel::Export() const noexcept {
+void ScalingConfigurationViewModel::Export() const noexcept {
 	com_ptr<IFileSaveDialog> fileDialog = try_create_instance<IFileSaveDialog>(CLSID_FileSaveDialog);
 	if (!fileDialog) {
 		Logger::Get().Error("创建 FileSaveDialog 失败");
@@ -167,14 +167,14 @@ static bool ImportImpl(bool legacy) {
 	return ScalingModesService::Get().Import(((const rapidjson::Document&)doc).GetObj(), false);
 }
 
-void ScalingModesViewModel::_Import(bool legacy) {
+void ScalingConfigurationViewModel::_Import(bool legacy) {
 	ShowErrorMessage(false);
 	if (!ImportImpl(legacy)) {
 		ShowErrorMessage(true);
 	}
 }
 
-void ScalingModesViewModel::DownscalingEffectIndex(int value) {
+void ScalingConfigurationViewModel::DownscalingEffectIndex(int value) {
 	if (_downscalingEffectIndex == value) {
 		return;
 	}
@@ -195,7 +195,7 @@ void ScalingModesViewModel::DownscalingEffectIndex(int value) {
 	AppSettings::Get().SaveAsync();
 }
 
-bool ScalingModesViewModel::DownscalingEffectHasParameters() noexcept {
+bool ScalingConfigurationViewModel::DownscalingEffectHasParameters() noexcept {
 	if (_downscalingEffectIndex == 0) {
 		return false;
 	}
@@ -204,7 +204,7 @@ bool ScalingModesViewModel::DownscalingEffectHasParameters() noexcept {
 	return !EffectsService::Get().GetEffect(effectName)->params.empty();
 }
 
-void ScalingModesViewModel::PrepareForAdd() {
+void ScalingConfigurationViewModel::PrepareForAdd() {
 	std::vector<IInspectable> copyFromList;
 	copyFromList.push_back(box_value(L"无"));
 	for (const auto& scalingMode : AppSettings::Get().ScalingModes()) {
@@ -220,17 +220,17 @@ void ScalingModesViewModel::PrepareForAdd() {
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"NewScalingModeCopyFrom"));
 }
 
-void ScalingModesViewModel::NewScalingModeName(const hstring& value) noexcept {
+void ScalingConfigurationViewModel::NewScalingModeName(const hstring& value) noexcept {
 	_newScalingModeName = value;
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"NewScalingModeName"));
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsAddButtonEnabled"));
 }
 
-void ScalingModesViewModel::AddScalingMode() {
+void ScalingConfigurationViewModel::AddScalingMode() {
 	ScalingModesService::Get().AddScalingMode(_newScalingModeName, _newScalingModeCopyFrom - 1);
 }
 
-fire_and_forget ScalingModesViewModel::_AddScalingModes() {
+fire_and_forget ScalingConfigurationViewModel::_AddScalingModes() {
 	if (_addingScalingModes) {
 		co_return;
 	}
@@ -295,11 +295,11 @@ fire_and_forget ScalingModesViewModel::_AddScalingModes() {
 	}
 }
 
-void ScalingModesViewModel::_ScalingModesService_Added() {
+void ScalingConfigurationViewModel::_ScalingModesService_Added() {
 	_AddScalingModes();
 }
 
-void ScalingModesViewModel::_ScalingModesService_Moved(uint32_t index, bool isMoveUp) {
+void ScalingConfigurationViewModel::_ScalingModesService_Moved(uint32_t index, bool isMoveUp) {
 	uint32_t targetIndex = isMoveUp ? index - 1 : index + 1;
 
 	ScalingModeItem targetItem = _scalingModes.GetAt(targetIndex).as<ScalingModeItem>();
@@ -307,7 +307,7 @@ void ScalingModesViewModel::_ScalingModesService_Moved(uint32_t index, bool isMo
 	_scalingModes.InsertAt(index, targetItem);
 }
 
-void ScalingModesViewModel::_ScalingModesService_Removed(uint32_t index) {
+void ScalingConfigurationViewModel::_ScalingModesService_Removed(uint32_t index) {
 	_scalingModes.RemoveAt(index);
 }
 

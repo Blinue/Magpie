@@ -160,8 +160,8 @@
       <SubType>Code</SubType>
     </ClInclude>
     <ClInclude Include="ScalingModesService.h" />
-    <ClInclude Include="ScalingModesViewModel.h">
-      <DependentUpon>ScalingModesViewModel.idl</DependentUpon>
+    <ClInclude Include="ScalingConfigurationViewModel.h">
+      <DependentUpon>ScalingConfigurationViewModel.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
     <ClInclude Include="ScalingMode.h" />
@@ -188,8 +188,8 @@
       <SubType>Code</SubType>
     </ClInclude>
     <ClInclude Include="ScalingProfileService.h" />
-    <ClInclude Include="ScalingProfileViewModel.h">
-      <DependentUpon>ScalingProfileViewModel.idl</DependentUpon>
+    <ClInclude Include="ProfileViewModel.h">
+      <DependentUpon>ProfileViewModel.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
     <ClInclude Include="SettingsCard.h">
@@ -298,8 +298,8 @@
       <SubType>Code</SubType>
     </ClCompile>
     <ClCompile Include="ScalingModesService.cpp" />
-    <ClCompile Include="ScalingModesViewModel.cpp">
-      <DependentUpon>ScalingModesViewModel.idl</DependentUpon>
+    <ClCompile Include="ScalingConfigurationViewModel.cpp">
+      <DependentUpon>ScalingConfigurationViewModel.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
     <ClCompile Include="ProfilePage.cpp">
@@ -324,8 +324,8 @@
       <SubType>Code</SubType>
     </ClCompile>
     <ClCompile Include="ScalingProfileService.cpp" />
-    <ClCompile Include="ScalingProfileViewModel.cpp">
-      <DependentUpon>ScalingProfileViewModel.idl</DependentUpon>
+    <ClCompile Include="ProfileViewModel.cpp">
+      <DependentUpon>ProfileViewModel.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
     <ClCompile Include="SettingsCard.cpp">
@@ -383,13 +383,13 @@
     <None Include="ScalingModeItem.idl">
       <SubType>Designer</SubType>
     </None>
-    <None Include="ScalingModesViewModel.idl">
+    <None Include="ScalingConfigurationViewModel.idl">
       <SubType>Designer</SubType>
     </None>
     <None Include="TextBlockHelper.idl">
       <SubType>Designer</SubType>
     </None>
-    <None Include="ScalingProfileViewModel.idl">
+    <None Include="ProfileViewModel.idl">
       <SubType>Designer</SubType>
     </None>
     <None Include="SettingsViewModel.idl">

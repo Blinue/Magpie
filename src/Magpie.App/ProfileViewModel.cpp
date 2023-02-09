@@ -1,7 +1,7 @@
 #include "pch.h"
-#include "ScalingProfileViewModel.h"
-#if __has_include("ScalingProfileViewModel.g.cpp")
-#include "ScalingProfileViewModel.g.cpp"
+#include "ProfileViewModel.h"
+#if __has_include("ProfileViewModel.g.cpp")
+#include "ProfileViewModel.g.cpp"
 #endif
 #include "ScalingProfile.h"
 #include "AppXReader.h"
@@ -53,7 +53,7 @@ static SmallVector<std::wstring, 2> GetAllGraphicsAdapters() {
 	return result;
 }
 
-ScalingProfileViewModel::ScalingProfileViewModel(int profileIdx) : _isDefaultProfile(profileIdx < 0) {
+ProfileViewModel::ProfileViewModel(int profileIdx) : _isDefaultProfile(profileIdx < 0) {
 	if (_isDefaultProfile) {
 		_data = &ScalingProfileService::Get().DefaultScalingProfile();
 	} else {
@@ -129,13 +129,13 @@ ScalingProfileViewModel::ScalingProfileViewModel(int profileIdx) : _isDefaultPro
 	_graphicsAdapters = single_threaded_vector(std::move(graphicsAdapters));
 }
 
-ScalingProfileViewModel::~ScalingProfileViewModel() {}
+ProfileViewModel::~ProfileViewModel() {}
 
-bool ScalingProfileViewModel::IsNotDefaultScalingProfile() const noexcept {
+bool ProfileViewModel::IsNotDefaultScalingProfile() const noexcept {
 	return !_data->name.empty();
 }
 
-fire_and_forget ScalingProfileViewModel::OpenProgramLocation() const noexcept {
+fire_and_forget ProfileViewModel::OpenProgramLocation() const noexcept {
 	if (!_isProgramExist) {
 		co_return;
 	}
@@ -160,7 +160,7 @@ fire_and_forget ScalingProfileViewModel::OpenProgramLocation() const noexcept {
 	Win32Utils::OpenFolderAndSelectFile(programLocation.c_str());
 }
 
-hstring ScalingProfileViewModel::Name() const noexcept {
+hstring ProfileViewModel::Name() const noexcept {
 	return hstring(_data->name.empty() ? L"默认" : _data->name);
 }
 
@@ -190,7 +190,7 @@ static void LaunchPackagedApp(const wchar_t* aumid) {
 	}
 }
 
-void ScalingProfileViewModel::Launch() const noexcept {
+void ProfileViewModel::Launch() const noexcept {
 	if (!_isProgramExist) {
 		return;
 	}
@@ -202,7 +202,7 @@ void ScalingProfileViewModel::Launch() const noexcept {
 	}
 }
 
-void ScalingProfileViewModel::RenameText(const hstring& value) {
+void ProfileViewModel::RenameText(const hstring& value) {
 	_renameText = value;
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"RenameText"));
 
@@ -215,7 +215,7 @@ void ScalingProfileViewModel::RenameText(const hstring& value) {
 	}
 }
 
-void ScalingProfileViewModel::Rename() {
+void ProfileViewModel::Rename() {
 	if (_isDefaultProfile || !_isRenameConfirmButtonEnabled) {
 		return;
 	}
@@ -224,15 +224,15 @@ void ScalingProfileViewModel::Rename() {
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"Name"));
 }
 
-bool ScalingProfileViewModel::CanMoveUp() const noexcept {
+bool ProfileViewModel::CanMoveUp() const noexcept {
 	return !_isDefaultProfile && _index != 0;
 }
 
-bool ScalingProfileViewModel::CanMoveDown() const noexcept {
+bool ProfileViewModel::CanMoveDown() const noexcept {
 	return !_isDefaultProfile && _index + 1 < ScalingProfileService::Get().GetProfileCount();
 }
 
-void ScalingProfileViewModel::MoveUp() {
+void ProfileViewModel::MoveUp() {
 	if (_isDefaultProfile) {
 		return;
 	}
@@ -249,7 +249,7 @@ void ScalingProfileViewModel::MoveUp() {
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CanMoveDown"));
 }
 
-void ScalingProfileViewModel::MoveDown() {
+void ProfileViewModel::MoveDown() {
 	if (_isDefaultProfile) {
 		return;
 	}
@@ -266,7 +266,7 @@ void ScalingProfileViewModel::MoveDown() {
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CanMoveDown"));
 }
 
-void ScalingProfileViewModel::Delete() {
+void ProfileViewModel::Delete() {
 	if (_isDefaultProfile) {
 		return;
 	}
@@ -275,18 +275,18 @@ void ScalingProfileViewModel::Delete() {
 	_data = nullptr;
 }
 
-int ScalingProfileViewModel::ScalingMode() const noexcept {
+int ProfileViewModel::ScalingMode() const noexcept {
 	return _data->scalingMode + 1;
 }
 
-void ScalingProfileViewModel::ScalingMode(int value) {
+void ProfileViewModel::ScalingMode(int value) {
 	_data->scalingMode = value - 1;
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"ScalingMode"));
 
 	AppSettings::Get().SaveAsync();
 }
 
-int ScalingProfileViewModel::CaptureMethod() const noexcept {
+int ProfileViewModel::CaptureMethod() const noexcept {
 	if (Win32Utils::GetOSVersion().Is20H1OrNewer() || _data->captureMethod < CaptureMethod::DesktopDuplication) {
 		return (int)_data->captureMethod;
 	} else {
@@ -294,7 +294,7 @@ int ScalingProfileViewModel::CaptureMethod() const noexcept {
 	}
 }
 
-void ScalingProfileViewModel::CaptureMethod(int value) {
+void ProfileViewModel::CaptureMethod(int value) {
 	if (value < 0) {
 		return;
 	}
@@ -315,11 +315,11 @@ void ScalingProfileViewModel::CaptureMethod(int value) {
 	AppSettings::Get().SaveAsync();
 }
 
-bool ScalingProfileViewModel::IsAutoScale() const noexcept {
+bool ProfileViewModel::IsAutoScale() const noexcept {
 	return _data->isAutoScale;
 }
 
-void ScalingProfileViewModel::IsAutoScale(bool value) {
+void ProfileViewModel::IsAutoScale(bool value) {
 	if (_data->isAutoScale == value) {
 		return;
 	}
@@ -335,11 +335,11 @@ void ScalingProfileViewModel::IsAutoScale(bool value) {
 	}
 }
 
-bool ScalingProfileViewModel::Is3DGameMode() const noexcept {
+bool ProfileViewModel::Is3DGameMode() const noexcept {
 	return _data->Is3DGameMode();
 }
 
-void ScalingProfileViewModel::Is3DGameMode(bool value) {
+void ProfileViewModel::Is3DGameMode(bool value) {
 	if (_data->Is3DGameMode() == value) {
 		return;
 	}
@@ -350,11 +350,11 @@ void ScalingProfileViewModel::Is3DGameMode(bool value) {
 	AppSettings::Get().SaveAsync();
 }
 
-int ScalingProfileViewModel::MultiMonitorUsage() const noexcept {
+int ProfileViewModel::MultiMonitorUsage() const noexcept {
 	return (int)_data->multiMonitorUsage;
 }
 
-void ScalingProfileViewModel::MultiMonitorUsage(int value) {
+void ProfileViewModel::MultiMonitorUsage(int value) {
 	if (value < 0) {
 		return;
 	}
@@ -370,11 +370,11 @@ void ScalingProfileViewModel::MultiMonitorUsage(int value) {
 	AppSettings::Get().SaveAsync();
 }
 
-int ScalingProfileViewModel::GraphicsAdapter() const noexcept {
+int ProfileViewModel::GraphicsAdapter() const noexcept {
 	return (int)_data->graphicsAdapter;
 }
 
-void ScalingProfileViewModel::GraphicsAdapter(int value) {
+void ProfileViewModel::GraphicsAdapter(int value) {
 	if (value < 0) {
 		return;
 	}
@@ -390,15 +390,15 @@ void ScalingProfileViewModel::GraphicsAdapter(int value) {
 	AppSettings::Get().SaveAsync();
 }
 
-bool ScalingProfileViewModel::IsShowGraphicsAdapterSettingsCard() const noexcept {
+bool ProfileViewModel::IsShowGraphicsAdapterSettingsCard() const noexcept {
 	return _graphicsAdapters.Size() > 2;
 }
 
-bool ScalingProfileViewModel::IsShowFPS() const noexcept {
+bool ProfileViewModel::IsShowFPS() const noexcept {
 	return _data->IsShowFPS();
 }
 
-void ScalingProfileViewModel::IsShowFPS(bool value) {
+void ProfileViewModel::IsShowFPS(bool value) {
 	if (_data->IsShowFPS() == value) {
 		return;
 	}
@@ -409,11 +409,11 @@ void ScalingProfileViewModel::IsShowFPS(bool value) {
 	AppSettings::Get().SaveAsync();
 }
 
-bool ScalingProfileViewModel::IsVSync() const noexcept {
+bool ProfileViewModel::IsVSync() const noexcept {
 	return _data->IsVSync();
 }
 
-void ScalingProfileViewModel::IsVSync(bool value) {
+void ProfileViewModel::IsVSync(bool value) {
 	if (_data->IsVSync() == value) {
 		return;
 	}
@@ -424,11 +424,11 @@ void ScalingProfileViewModel::IsVSync(bool value) {
 	AppSettings::Get().SaveAsync();
 }
 
-bool ScalingProfileViewModel::IsTripleBuffering() const noexcept {
+bool ProfileViewModel::IsTripleBuffering() const noexcept {
 	return _data->IsTripleBuffering();
 }
 
-void ScalingProfileViewModel::IsTripleBuffering(bool value) {
+void ProfileViewModel::IsTripleBuffering(bool value) {
 	if (_data->IsTripleBuffering() == value) {
 		return;
 	}
@@ -439,11 +439,11 @@ void ScalingProfileViewModel::IsTripleBuffering(bool value) {
 	AppSettings::Get().SaveAsync();
 }
 
-bool ScalingProfileViewModel::IsDisableWindowResizing() const noexcept {
+bool ProfileViewModel::IsDisableWindowResizing() const noexcept {
 	return _data->IsDisableWindowResizing();
 }
 
-void ScalingProfileViewModel::IsDisableWindowResizing(bool value) {
+void ProfileViewModel::IsDisableWindowResizing(bool value) {
 	if (_data->IsDisableWindowResizing() == value) {
 		return;
 	}
@@ -454,11 +454,11 @@ void ScalingProfileViewModel::IsDisableWindowResizing(bool value) {
 	AppSettings::Get().SaveAsync();
 }
 
-bool ScalingProfileViewModel::IsReserveTitleBar() const noexcept {
+bool ProfileViewModel::IsReserveTitleBar() const noexcept {
 	return _data->IsReserveTitleBar();
 }
 
-void ScalingProfileViewModel::IsReserveTitleBar(bool value) {
+void ProfileViewModel::IsReserveTitleBar(bool value) {
 	if (_data->IsReserveTitleBar() == value) {
 		return;
 	}
@@ -469,16 +469,16 @@ void ScalingProfileViewModel::IsReserveTitleBar(bool value) {
 	AppSettings::Get().SaveAsync();
 }
 
-bool ScalingProfileViewModel::CanReserveTitleBar() const noexcept {
+bool ProfileViewModel::CanReserveTitleBar() const noexcept {
 	return _data->captureMethod == CaptureMethod::GraphicsCapture
 		|| _data->captureMethod == CaptureMethod::DesktopDuplication;
 }
 
-bool ScalingProfileViewModel::IsCroppingEnabled() const noexcept {
+bool ProfileViewModel::IsCroppingEnabled() const noexcept {
 	return _data->isCroppingEnabled;
 }
 
-void ScalingProfileViewModel::IsCroppingEnabled(bool value) {
+void ProfileViewModel::IsCroppingEnabled(bool value) {
 	if (_data->isCroppingEnabled == value) {
 		return;
 	}
@@ -489,11 +489,11 @@ void ScalingProfileViewModel::IsCroppingEnabled(bool value) {
 	AppSettings::Get().SaveAsync();
 }
 
-double ScalingProfileViewModel::CroppingLeft() const noexcept {
+double ProfileViewModel::CroppingLeft() const noexcept {
 	return _data->cropping.Left;
 }
 
-void ScalingProfileViewModel::CroppingLeft(double value) {
+void ProfileViewModel::CroppingLeft(double value) {
 	if (_data->cropping.Left == value) {
 		return;
 	}
@@ -504,11 +504,11 @@ void ScalingProfileViewModel::CroppingLeft(double value) {
 	AppSettings::Get().SaveAsync();
 }
 
-double ScalingProfileViewModel::CroppingTop() const noexcept {
+double ProfileViewModel::CroppingTop() const noexcept {
 	return _data->cropping.Top;
 }
 
-void ScalingProfileViewModel::CroppingTop(double value) {
+void ProfileViewModel::CroppingTop(double value) {
 	if (_data->cropping.Top == value) {
 		return;
 	}
@@ -520,11 +520,11 @@ void ScalingProfileViewModel::CroppingTop(double value) {
 	AppSettings::Get().SaveAsync();
 }
 
-double ScalingProfileViewModel::CroppingRight() const noexcept {
+double ProfileViewModel::CroppingRight() const noexcept {
 	return _data->cropping.Right;
 }
 
-void ScalingProfileViewModel::CroppingRight(double value) {
+void ProfileViewModel::CroppingRight(double value) {
 	if (_data->cropping.Right == value) {
 		return;
 	}
@@ -535,11 +535,11 @@ void ScalingProfileViewModel::CroppingRight(double value) {
 	AppSettings::Get().SaveAsync();
 }
 
-double ScalingProfileViewModel::CroppingBottom() const noexcept {
+double ProfileViewModel::CroppingBottom() const noexcept {
 	return _data->cropping.Bottom;
 }
 
-void ScalingProfileViewModel::CroppingBottom(double value) {
+void ProfileViewModel::CroppingBottom(double value) {
 	if (_data->cropping.Bottom == value) {
 		return;
 	}
@@ -550,11 +550,11 @@ void ScalingProfileViewModel::CroppingBottom(double value) {
 	AppSettings::Get().SaveAsync();
 }
 
-bool ScalingProfileViewModel::IsAdjustCursorSpeed() const noexcept {
+bool ProfileViewModel::IsAdjustCursorSpeed() const noexcept {
 	return _data->IsAdjustCursorSpeed();
 }
 
-void ScalingProfileViewModel::IsAdjustCursorSpeed(bool value) {
+void ProfileViewModel::IsAdjustCursorSpeed(bool value) {
 	if (_data->IsAdjustCursorSpeed() == value) {
 		return;
 	}
@@ -565,11 +565,11 @@ void ScalingProfileViewModel::IsAdjustCursorSpeed(bool value) {
 	AppSettings::Get().SaveAsync();
 }
 
-bool ScalingProfileViewModel::IsDrawCursor() const noexcept {
+bool ProfileViewModel::IsDrawCursor() const noexcept {
 	return _data->IsDrawCursor();
 }
 
-void ScalingProfileViewModel::IsDrawCursor(bool value) {
+void ProfileViewModel::IsDrawCursor(bool value) {
 	if (_data->IsDrawCursor() == value) {
 		return;
 	}
@@ -580,11 +580,11 @@ void ScalingProfileViewModel::IsDrawCursor(bool value) {
 	AppSettings::Get().SaveAsync();
 }
 
-int ScalingProfileViewModel::CursorScaling() const noexcept {
+int ProfileViewModel::CursorScaling() const noexcept {
 	return (int)_data->cursorScaling;
 }
 
-void ScalingProfileViewModel::CursorScaling(int value) {
+void ProfileViewModel::CursorScaling(int value) {
 	if (value < 0) {
 		return;
 	}
@@ -600,11 +600,11 @@ void ScalingProfileViewModel::CursorScaling(int value) {
 	AppSettings::Get().SaveAsync();
 }
 
-double ScalingProfileViewModel::CustomCursorScaling() const noexcept {
+double ProfileViewModel::CustomCursorScaling() const noexcept {
 	return _data->customCursorScaling;
 }
 
-void ScalingProfileViewModel::CustomCursorScaling(double value) {
+void ProfileViewModel::CustomCursorScaling(double value) {
 	if (_data->customCursorScaling == value) {
 		return;
 	}
@@ -615,11 +615,11 @@ void ScalingProfileViewModel::CustomCursorScaling(double value) {
 	AppSettings::Get().SaveAsync();
 }
 
-int ScalingProfileViewModel::CursorInterpolationMode() const noexcept {
+int ProfileViewModel::CursorInterpolationMode() const noexcept {
 	return (int)_data->cursorInterpolationMode;
 }
 
-void ScalingProfileViewModel::CursorInterpolationMode(int value) {
+void ProfileViewModel::CursorInterpolationMode(int value) {
 	if (value < 0) {
 		return;
 	}
@@ -635,11 +635,11 @@ void ScalingProfileViewModel::CursorInterpolationMode(int value) {
 	AppSettings::Get().SaveAsync();
 }
 
-bool ScalingProfileViewModel::IsDisableDirectFlip() const noexcept {
+bool ProfileViewModel::IsDisableDirectFlip() const noexcept {
 	return _data->IsDisableDirectFlip();
 }
 
-void ScalingProfileViewModel::IsDisableDirectFlip(bool value) {
+void ProfileViewModel::IsDisableDirectFlip(bool value) {
 	if (_data->IsDisableDirectFlip() == value) {
 		return;
 	}
@@ -650,7 +650,7 @@ void ScalingProfileViewModel::IsDisableDirectFlip(bool value) {
 	AppSettings::Get().SaveAsync();
 }
 
-fire_and_forget ScalingProfileViewModel::_LoadIcon(FrameworkElement const& mainPage) {
+fire_and_forget ProfileViewModel::_LoadIcon(FrameworkElement const& mainPage) {
 	std::wstring iconPath;
 	SoftwareBitmap iconBitmap{ nullptr };
 

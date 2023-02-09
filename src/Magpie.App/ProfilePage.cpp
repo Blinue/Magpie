@@ -41,7 +41,7 @@ ProfilePage::ProfilePage() {
 
 void ProfilePage::OnNavigatedTo(Navigation::NavigationEventArgs const& args) {
 	int profileIdx = args.Parameter().as<int>();
-	_viewModel = ScalingProfileViewModel(profileIdx);
+	_viewModel = ProfileViewModel(profileIdx);
 }
 
 void ProfilePage::ComboBox_DropDownOpened(IInspectable const& sender, IInspectable const&) {

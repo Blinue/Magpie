@@ -170,7 +170,7 @@
     <None Include="HomeViewModel.idl">
       <Filter>ViewModels</Filter>
     </None>
-    <None Include="ScalingProfileViewModel.idl">
+    <None Include="ProfileViewModel.idl">
       <Filter>ViewModels</Filter>
     </None>
     <None Include="TextBlockHelper.idl">
@@ -182,7 +182,7 @@
     <None Include="NewProfileViewModel.idl">
       <Filter>ViewModels</Filter>
     </None>
-    <None Include="ScalingModesViewModel.idl">
+    <None Include="ScalingConfigurationViewModel.idl">
       <Filter>ViewModels</Filter>
     </None>
     <None Include="ScalingModeItem.idl">

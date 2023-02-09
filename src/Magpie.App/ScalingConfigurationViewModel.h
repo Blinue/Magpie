@@ -1,11 +1,11 @@
 #pragma once
-#include "ScalingModesViewModel.g.h"
+#include "ScalingConfigurationViewModel.g.h"
 #include "WinRTUtils.h"
 
 namespace winrt::Magpie::App::implementation {
 
-struct ScalingModesViewModel : ScalingModesViewModelT<ScalingModesViewModel> {
-	ScalingModesViewModel();
+struct ScalingConfigurationViewModel : ScalingConfigurationViewModelT<ScalingConfigurationViewModel> {
+	ScalingConfigurationViewModel();
 
 	event_token PropertyChanged(PropertyChangedEventHandler const& handler) {
 		return _propertyChangedEvent.add(handler);
@@ -126,7 +126,7 @@ private:
 
 namespace winrt::Magpie::App::factory_implementation {
 
-struct ScalingModesViewModel : ScalingModesViewModelT<ScalingModesViewModel, implementation::ScalingModesViewModel> {
+struct ScalingConfigurationViewModel : ScalingConfigurationViewModelT<ScalingConfigurationViewModel, implementation::ScalingConfigurationViewModel> {
 };
 
 }

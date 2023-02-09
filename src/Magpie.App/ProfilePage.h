@@ -8,7 +8,7 @@ struct ProfilePage : ProfilePageT<ProfilePage> {
 
 	void OnNavigatedTo(Navigation::NavigationEventArgs const& args);
 
-	Magpie::App::ScalingProfileViewModel ViewModel() const noexcept {
+	Magpie::App::ProfileViewModel ViewModel() const noexcept {
 		return _viewModel;
 	}
 
@@ -33,7 +33,7 @@ struct ProfilePage : ProfilePageT<ProfilePage> {
 	void DeleteButton_Click(IInspectable const&, RoutedEventArgs const&);
 
 private:
-	Magpie::App::ScalingProfileViewModel _viewModel{ nullptr };
+	Magpie::App::ProfileViewModel _viewModel{ nullptr };
 	Windows::Globalization::NumberFormatting::DecimalFormatter _numberFormatter;
 
 	MUXC::NavigationView::DisplayModeChanged_revoker _displayModeChangedRevoker{};

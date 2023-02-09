@@ -2,7 +2,7 @@ namespace Magpie.App {
 	runtimeclass ProfilePage : Windows.UI.Xaml.Controls.Page {
 		ProfilePage();
 
-		ScalingProfileViewModel ViewModel { get; };
+		ProfileViewModel ViewModel { get; };
 		static Windows.Globalization.NumberFormatting.INumberFormatter2 NumberFormatter { get; };
 	}
 }
