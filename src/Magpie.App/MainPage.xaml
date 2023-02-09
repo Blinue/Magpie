@@ -54,44 +54,50 @@
 									<RowDefinition Height="*" />
 									<RowDefinition Height="Auto" />
 								</Grid.RowDefinitions>
-								<StackPanel Grid.RowSpan="2"
-								            Margin="50"
-								            Orientation="Vertical"
-								            Spacing="20">
-									<FontIcon HorizontalAlignment="Center"
-									          FontSize="40"
-									          Glyph="&#xE8FC;" />
-									<TextBlock x:Uid="Main_NewProfileFlyout_NoCandidateWindow"
-									           HorizontalAlignment="Center" />
-								</StackPanel>
-								<TextBlock Grid.Row="1"
+								<ContentControl Grid.RowSpan="2"
+								                MinWidth="240"
+								                MinHeight="170"
+								                Margin="10"
+								                HorizontalContentAlignment="Center"
+								                VerticalContentAlignment="Center">
+									<StackPanel Orientation="Vertical"
+									            Spacing="20">
+										<FontIcon HorizontalAlignment="Center"
+										          FontSize="40"
+										          Glyph="&#xE8FC;" />
+										<TextBlock x:Uid="Main_NewProfileFlyout_NoCandidateWindow"
+										           HorizontalAlignment="Center" />
+									</StackPanel>
+								</ContentControl>
+
+								<TextBlock x:Uid="Main_NewProfileFlyout_AdminTip"
+								           Grid.Row="1"
 								           HorizontalAlignment="Right"
 								           FontSize="12"
 								           Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-								           Text="检测不到某个窗口？"
 								           Visibility="{x:Bind NewProfileViewModel.IsNotRunningAsAdmin, Mode=OneTime}">
 									<ToolTipService.ToolTip>
 										<ToolTip x:Name="NewProfileAdminToolTip"
-										         Content="试试以管理员身份运行 Magpie" />
+										         x:Uid="Main_NewProfileFlyout_AdminToolTip" />
 									</ToolTipService.ToolTip>
 								</TextBlock>
 							</Grid>
 
 							<StackPanel Orientation="Vertical"
 							            Visibility="{x:Bind NewProfileViewModel.IsAnyCandidateWindow, Mode=OneWay}">
-								<TextBlock Margin="0,5,0,20"
+								<TextBlock x:Uid="Main_NewProfileFlyout_Title"
+								           Margin="0,5,0,20"
 								           FontSize="18"
-								           FontWeight="SemiBold"
-								           Text="新建配置" />
+								           FontWeight="SemiBold" />
 								<StackPanel Width="280"
 								            Orientation="Vertical"
 								            Spacing="15">
 									<ComboBox x:Name="CandidateWindowsComboBox"
+									          x:Uid="Main_NewProfileFlyout_ComboBox"
 									          Margin="0,0,0,10"
 									          HorizontalAlignment="Stretch"
 									          DropDownOpened="ComboBox_DropDownOpened"
 									          ItemsSource="{x:Bind NewProfileViewModel.CandidateWindows, Mode=OneWay}"
-									          PlaceholderText="选择一个窗口"
 									          SelectedIndex="{x:Bind NewProfileViewModel.CandidateWindowIndex, Mode=TwoWay}">
 										<ComboBox.ItemTemplate>
 											<DataTemplate x:DataType="local:CandidateWindowItem">
@@ -115,7 +121,7 @@
 									</ComboBox>
 									<StackPanel Orientation="Vertical"
 									            Spacing="8">
-										<TextBlock Text="名称" />
+										<TextBlock x:Uid="Main_NewProfileFlyout_Name" />
 										<TextBox Height="32"
 										         HorizontalAlignment="Stretch"
 										         KeyDown="NewProfileNameTextBox_KeyDown"
@@ -123,7 +129,7 @@
 									</StackPanel>
 									<StackPanel Orientation="Vertical"
 									            Spacing="8">
-										<TextBlock Text="复制自" />
+										<TextBlock x:Uid="Main_NewProfileFlyout_CopyFrom" />
 										<ComboBox x:Name="ProfilesComboBox"
 										          HorizontalAlignment="Stretch"
 										          DropDownOpened="ComboBox_DropDownOpened"
@@ -140,11 +146,11 @@
 											</ComboBox.ItemTemplate>
 										</ComboBox>
 									</StackPanel>
-									<Button MinWidth="100"
+									<Button x:Uid="Main_NewProfileFlyout_Create"
+									        MinWidth="100"
 									        Margin="0,15,0,0"
 									        HorizontalAlignment="Right"
 									        Click="NewProfileConfirmButton_Click"
-									        Content="确定"
 									        IsEnabled="{x:Bind NewProfileViewModel.IsConfirmButtonEnabled, Mode=OneWay}"
 									        Style="{StaticResource AccentButtonStyle}" />
 								</StackPanel>

@@ -9,6 +9,9 @@
 #include "ScalingProfileService.h"
 #include "AppXReader.h"
 
+using namespace winrt;
+using namespace Windows::ApplicationModel::Resources;
+
 namespace winrt::Magpie::App::implementation {
 
 static bool IsCandidateWindow(HWND hWnd) {
@@ -143,7 +146,8 @@ void NewProfileViewModel::PrepareForOpen(uint32_t dpi, bool isLightTheme, CoreDi
 	}
 
 	std::vector<IInspectable> profiles;
-	profiles.push_back(box_value(L"默认"));
+	hstring defaults = ResourceLoader::GetForCurrentView().GetString(L"Main_Defaults/Content");
+	profiles.push_back(box_value(defaults));
 	for (const ScalingProfile& profile : AppSettings::Get().ScalingProfiles()) {
 		profiles.push_back(box_value(profile.name));
 	}

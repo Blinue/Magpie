@@ -147,8 +147,29 @@
   <data name="Main_NewProfile.Content" xml:space="preserve">
     <value>New profile</value>
   </data>
+  <data name="Main_NewProfileFlyout_AdminTip.Text" xml:space="preserve">
+    <value>Can't detect a certain window?</value>
+  </data>
+  <data name="Main_NewProfileFlyout_AdminToolTip.Content" xml:space="preserve">
+    <value>Try running Magpie as administrator</value>
+  </data>
+  <data name="Main_NewProfileFlyout_ComboBox.PlaceholderText" xml:space="preserve">
+    <value>Select a window</value>
+  </data>
+  <data name="Main_NewProfileFlyout_CopyFrom.Text" xml:space="preserve">
+    <value>Copy from</value>
+  </data>
+  <data name="Main_NewProfileFlyout_Create.Content" xml:space="preserve">
+    <value>Create</value>
+  </data>
+  <data name="Main_NewProfileFlyout_Name.Text" xml:space="preserve">
+    <value>Name</value>
+  </data>
   <data name="Main_NewProfileFlyout_NoCandidateWindow.Text" xml:space="preserve">
     <value>Open a new window to create a profile</value>
+  </data>
+  <data name="Main_NewProfileFlyout_Title.Text" xml:space="preserve">
+    <value>New profile</value>
   </data>
   <data name="Main_Profiles.Content" xml:space="preserve">
     <value>Profiles</value>
