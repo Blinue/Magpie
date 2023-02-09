@@ -21,8 +21,8 @@
 #include "MainPage.idl"
 #include "AboutPage.idl"
 #include "HomePage.idl"
-#include "ScalingModesPage.idl"
-#include "ScalingProfilePage.idl"
+#include "ScalingConfigurationPage.idl"
+#include "ProfilePage.idl"
 #include "SettingsPage.idl"
 
 namespace Magpie.App {

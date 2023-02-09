@@ -1,4 +1,4 @@
-<Page x:Class="Magpie.App.ScalingModesPage"
+<Page x:Class="Magpie.App.ScalingConfigurationPage"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -87,7 +87,7 @@
 			</StackPanel>
 		</DataTemplate>
 	</Page.Resources>
-	<local:PageFrame Title="缩放模式">
+	<local:PageFrame x:Uid="ScalingConfiguration_PageFrame">
 		<local:PageFrame.HeaderAction>
 			<StackPanel x:Name="HeaderActionStackPanel"
 			            Orientation="Horizontal">
@@ -426,7 +426,7 @@
 																					<!--  https://github.com/microsoft/microsoft-ui-xaml/issues/3612  -->
 																					<ComboBox HorizontalAlignment="Stretch"
 																					          DropDownOpened="ComboBox_DropDownOpened"
-																					          ItemsSource="{x:Bind local:ScalingModesPage.ScalingTypes, Mode=OneTime}"
+																					          ItemsSource="{x:Bind local:ScalingConfigurationPage.ScalingTypes, Mode=OneTime}"
 																					          SelectedIndex="{x:Bind ScalingType, Mode=TwoWay}">
 																						<ComboBox.Resources>
 																							<Style x:Key="Description"
@@ -460,12 +460,12 @@
 																					</StackPanel.Resources>
 																					<StackPanel Spacing="8">
 																						<TextBlock Text="宽（缩放倍数）" />
-																						<muxc:NumberBox NumberFormatter="{x:Bind local:ScalingModesPage.NumberFormatter, Mode=OneTime}"
+																						<muxc:NumberBox NumberFormatter="{x:Bind local:ScalingConfigurationPage.NumberFormatter, Mode=OneTime}"
 																						                Value="{x:Bind ScalingFactorX, Mode=TwoWay}" />
 																					</StackPanel>
 																					<StackPanel Spacing="8">
 																						<TextBlock Text="高（缩放倍数）" />
-																						<muxc:NumberBox NumberFormatter="{x:Bind local:ScalingModesPage.NumberFormatter, Mode=OneTime}"
+																						<muxc:NumberBox NumberFormatter="{x:Bind local:ScalingConfigurationPage.NumberFormatter, Mode=OneTime}"
 																						                Value="{x:Bind ScalingFactorY, Mode=TwoWay}" />
 																					</StackPanel>
 																				</StackPanel>
@@ -482,12 +482,12 @@
 																					</StackPanel.Resources>
 																					<StackPanel Spacing="8">
 																						<TextBlock Text="宽（像素）" />
-																						<muxc:NumberBox NumberFormatter="{x:Bind local:ScalingModesPage.NumberFormatter, Mode=OneTime}"
+																						<muxc:NumberBox NumberFormatter="{x:Bind local:ScalingConfigurationPage.NumberFormatter, Mode=OneTime}"
 																						                Value="{x:Bind ScalingPixelsX, Mode=TwoWay}" />
 																					</StackPanel>
 																					<StackPanel Spacing="8">
 																						<TextBlock Text="高（像素）" />
-																						<muxc:NumberBox NumberFormatter="{x:Bind local:ScalingModesPage.NumberFormatter, Mode=OneTime}"
+																						<muxc:NumberBox NumberFormatter="{x:Bind local:ScalingConfigurationPage.NumberFormatter, Mode=OneTime}"
 																						                Value="{x:Bind ScalingPixelsY, Mode=TwoWay}" />
 																					</StackPanel>
 																				</StackPanel>

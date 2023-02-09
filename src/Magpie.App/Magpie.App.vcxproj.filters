@@ -233,10 +233,10 @@
     <Page Include="ShortcutControl.xaml">
       <Filter>Controls</Filter>
     </Page>
-    <Page Include="ScalingModesPage.xaml">
+    <Page Include="ScalingConfigurationPage.xaml">
       <Filter>Pages</Filter>
     </Page>
-    <Page Include="ScalingProfilePage.xaml">
+    <Page Include="ProfilePage.xaml">
       <Filter>Pages</Filter>
     </Page>
     <Page Include="ShortcutDialog.xaml">

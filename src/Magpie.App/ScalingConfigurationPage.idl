@@ -6,8 +6,8 @@ namespace Magpie.App {
 		String Desc { get; };
 	}
 
-	runtimeclass ScalingModesPage : Windows.UI.Xaml.Controls.Page {
-		ScalingModesPage();
+	runtimeclass ScalingConfigurationPage : Windows.UI.Xaml.Controls.Page {
+		ScalingConfigurationPage();
 
 		ScalingModesViewModel ViewModel { get; };
 

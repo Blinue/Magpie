@@ -6,7 +6,7 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
       mc:Ignorable="d">
-	<local:PageFrame x:Uid="HomePageFrame">
+	<local:PageFrame x:Uid="Home_PageFrame">
 		<StackPanel HorizontalAlignment="Stretch"
 		            Orientation="Vertical">
 			<muxc:InfoBar Title="v0.10.0-preview1 可用"

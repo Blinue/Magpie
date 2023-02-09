@@ -127,8 +127,8 @@ void MainPage::NavigationView_SelectionChanged(
 			Interop::TypeName typeName;
 			if (tagStr == L"Home") {
 				typeName = winrt::xaml_typename<HomePage>();
-			} else if (tagStr == L"ScalingModes") {
-				typeName = winrt::xaml_typename<ScalingModesPage>();
+			} else if (tagStr == L"ScalingConfiguration") {
+				typeName = winrt::xaml_typename<ScalingConfigurationPage>();
 			} else if (tagStr == L"About") {
 				typeName = winrt::xaml_typename<AboutPage>();
 			} else {
@@ -141,7 +141,7 @@ void MainPage::NavigationView_SelectionChanged(
 			MUXC::NavigationView nv = __super::RootNavigationView();
 			uint32_t index;
 			if (nv.MenuItems().IndexOf(nv.SelectedItem(), index)) {
-				contentFrame.Navigate(winrt::xaml_typename<ScalingProfilePage>(), box_value((int)index - 4));
+				contentFrame.Navigate(winrt::xaml_typename<ProfilePage>(), box_value((int)index - 4));
 			}
 		}
 	}

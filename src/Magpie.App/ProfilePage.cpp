@@ -1,7 +1,7 @@
 #include "pch.h"
-#include "ScalingProfilePage.h"
-#if __has_include("ScalingProfilePage.g.cpp")
-#include "ScalingProfilePage.g.cpp"
+#include "ProfilePage.h"
+#if __has_include("ProfilePage.g.cpp")
+#include "ProfilePage.g.cpp"
 #endif
 #include "Win32Utils.h"
 #include "ComboBoxHelper.h"
@@ -17,7 +17,7 @@ using namespace Windows::UI::Xaml::Input;
 
 namespace winrt::Magpie::App::implementation {
 
-ScalingProfilePage::ScalingProfilePage() {
+ProfilePage::ProfilePage() {
 	InitializeComponent();
 
 	MainPage mainPage = Application::Current().as<App>().MainPage();
@@ -39,16 +39,16 @@ ScalingProfilePage::ScalingProfilePage() {
 	}
 }
 
-void ScalingProfilePage::OnNavigatedTo(Navigation::NavigationEventArgs const& args) {
+void ProfilePage::OnNavigatedTo(Navigation::NavigationEventArgs const& args) {
 	int profileIdx = args.Parameter().as<int>();
 	_viewModel = ScalingProfileViewModel(profileIdx);
 }
 
-void ScalingProfilePage::ComboBox_DropDownOpened(IInspectable const& sender, IInspectable const&) {
+void ProfilePage::ComboBox_DropDownOpened(IInspectable const& sender, IInspectable const&) {
 	ComboBoxHelper::DropDownOpened(*this, sender);
 }
 
-void ScalingProfilePage::CursorScalingComboBox_SelectionChanged(IInspectable const&, SelectionChangedEventArgs const&) {
+void ProfilePage::CursorScalingComboBox_SelectionChanged(IInspectable const&, SelectionChangedEventArgs const&) {
 	if ((CursorScaling)_viewModel.CursorScaling() == CursorScaling::Custom) {
 		CursorScalingComboBox().MinWidth(0);
 		CustomCursorScalingNumberBox().Visibility(Visibility::Visible);
@@ -63,7 +63,7 @@ void ScalingProfilePage::CursorScalingComboBox_SelectionChanged(IInspectable con
 	}
 }
 
-INumberFormatter2 ScalingProfilePage::NumberFormatter() noexcept {
+INumberFormatter2 ProfilePage::NumberFormatter() noexcept {
 	static DecimalFormatter numberFormatter = []() {
 		DecimalFormatter result;
 		IncrementNumberRounder rounder;
@@ -77,37 +77,37 @@ INumberFormatter2 ScalingProfilePage::NumberFormatter() noexcept {
 	return numberFormatter;
 }
 
-void ScalingProfilePage::RenameMenuItem_Click(IInspectable const&, RoutedEventArgs const&) {
+void ProfilePage::RenameMenuItem_Click(IInspectable const&, RoutedEventArgs const&) {
 	RenameFlyout().ShowAt(MoreOptionsButton());
 }
 
-void ScalingProfilePage::RenameFlyout_Opening(IInspectable const&, IInspectable const&) {
+void ProfilePage::RenameFlyout_Opening(IInspectable const&, IInspectable const&) {
 	TextBox tb = RenameTextBox();
 	hstring name = _viewModel.Name();
 	tb.Text(name);
 	tb.SelectionStart(name.size());
 }
 
-void ScalingProfilePage::RenameConfirmButton_Click(IInspectable const&, RoutedEventArgs const&) {
+void ProfilePage::RenameConfirmButton_Click(IInspectable const&, RoutedEventArgs const&) {
 	RenameFlyout().Hide();
 	_viewModel.Rename();
 }
 
-void ScalingProfilePage::RenameTextBox_KeyDown(IInspectable const&, Input::KeyRoutedEventArgs const& args) {
+void ProfilePage::RenameTextBox_KeyDown(IInspectable const&, Input::KeyRoutedEventArgs const& args) {
 	if (args.Key() == VirtualKey::Enter && _viewModel.IsRenameConfirmButtonEnabled()) {
 		RenameConfirmButton_Click(nullptr, nullptr);
 	}
 }
 
-void ScalingProfilePage::ReorderMenuItem_Click(IInspectable const&, RoutedEventArgs const&) {
+void ProfilePage::ReorderMenuItem_Click(IInspectable const&, RoutedEventArgs const&) {
 	ReorderFlyout().ShowAt(MoreOptionsButton());
 }
 
-void ScalingProfilePage::DeleteMenuItem_Click(IInspectable const&, RoutedEventArgs const&) {
+void ProfilePage::DeleteMenuItem_Click(IInspectable const&, RoutedEventArgs const&) {
 	DeleteFlyout().ShowAt(MoreOptionsButton());
 }
 
-void ScalingProfilePage::DeleteButton_Click(IInspectable const&, RoutedEventArgs const&) {
+void ProfilePage::DeleteButton_Click(IInspectable const&, RoutedEventArgs const&) {
 	DeleteFlyout().Hide();
 	_viewModel.Delete();
 }

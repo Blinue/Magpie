@@ -36,7 +36,7 @@
 				<TextBlock x:Name="TitleTextBlock"
 				           Grid.Column="1"
 				           local:TextBlockHelper.IsAutoTooltip="True"
-				           Style="{StaticResource TitleTextBlockStyle}"
+				           FontWeight="SemiBold"
 				           Text="{x:Bind Title, Mode=OneWay}"
 				           TextTrimming="CharacterEllipsis" />
 				<ContentControl x:Name="HeaderActionPresenter"

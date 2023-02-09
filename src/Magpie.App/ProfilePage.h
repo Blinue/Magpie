@@ -1,10 +1,10 @@
 #pragma once
-#include "ScalingProfilePage.g.h"
+#include "ProfilePage.g.h"
 
 namespace winrt::Magpie::App::implementation {
 
-struct ScalingProfilePage : ScalingProfilePageT<ScalingProfilePage> {
-	ScalingProfilePage();
+struct ProfilePage : ProfilePageT<ProfilePage> {
+	ProfilePage();
 
 	void OnNavigatedTo(Navigation::NavigationEventArgs const& args);
 
@@ -43,7 +43,7 @@ private:
 
 namespace winrt::Magpie::App::factory_implementation {
 
-struct ScalingProfilePage : ScalingProfilePageT<ScalingProfilePage, implementation::ScalingProfilePage> {
+struct ProfilePage : ProfilePageT<ProfilePage, implementation::ProfilePage> {
 };
 
 }

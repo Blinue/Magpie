@@ -166,8 +166,8 @@
     </ClInclude>
     <ClInclude Include="ScalingMode.h" />
     <ClInclude Include="ScalingProfile.h" />
-    <ClInclude Include="ScalingProfilePage.h">
-      <DependentUpon>ScalingProfilePage.xaml</DependentUpon>
+    <ClInclude Include="ProfilePage.h">
+      <DependentUpon>ProfilePage.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
     <ClInclude Include="HotkeyHelper.h" />
@@ -183,8 +183,8 @@
       <DependentUpon>PageFrame.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
-    <ClInclude Include="ScalingModesPage.h">
-      <DependentUpon>ScalingModesPage.xaml</DependentUpon>
+    <ClInclude Include="ScalingConfigurationPage.h">
+      <DependentUpon>ScalingConfigurationPage.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
     <ClInclude Include="ScalingProfileService.h" />
@@ -302,8 +302,8 @@
       <DependentUpon>ScalingModesViewModel.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
-    <ClCompile Include="ScalingProfilePage.cpp">
-      <DependentUpon>ScalingProfilePage.xaml</DependentUpon>
+    <ClCompile Include="ProfilePage.cpp">
+      <DependentUpon>ProfilePage.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
     <ClCompile Include="HotkeyHelper.cpp" />
@@ -319,8 +319,8 @@
       <DependentUpon>PageFrame.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
-    <ClCompile Include="ScalingModesPage.cpp">
-      <DependentUpon>ScalingModesPage.xaml</DependentUpon>
+    <ClCompile Include="ScalingConfigurationPage.cpp">
+      <DependentUpon>ScalingConfigurationPage.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
     <ClCompile Include="ScalingProfileService.cpp" />
@@ -395,8 +395,8 @@
     <None Include="SettingsViewModel.idl">
       <SubType>Designer</SubType>
     </None>
-    <None Include="ScalingModesPage.idl">
-      <DependentUpon>ScalingModesPage.xaml</DependentUpon>
+    <None Include="ScalingConfigurationPage.idl">
+      <DependentUpon>ScalingConfigurationPage.xaml</DependentUpon>
       <SubType>Code</SubType>
     </None>
     <None Include="ShortcutDialog.idl">
@@ -416,8 +416,8 @@
     <None Include="BoolNegationConverter.idl">
       <SubType>Designer</SubType>
     </None>
-    <None Include="ScalingProfilePage.idl">
-      <DependentUpon>ScalingProfilePage.xaml</DependentUpon>
+    <None Include="ProfilePage.idl">
+      <DependentUpon>ProfilePage.xaml</DependentUpon>
       <SubType>Code</SubType>
     </None>
     <None Include="HomeViewModel.idl">
@@ -480,7 +480,7 @@
     <Page Include="Button.xaml">
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="ScalingProfilePage.xaml">
+    <Page Include="ProfilePage.xaml">
       <SubType>Designer</SubType>
     </Page>
     <Page Include="HomePage.xaml">
@@ -495,7 +495,7 @@
     <Page Include="PageFrame.xaml">
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="ScalingModesPage.xaml">
+    <Page Include="ScalingConfigurationPage.xaml">
       <SubType>Designer</SubType>
     </Page>
     <Page Include="SettingsCard.xaml">

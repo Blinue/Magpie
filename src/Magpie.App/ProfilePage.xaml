@@ -1,4 +1,4 @@
-<Page x:Class="Magpie.App.ScalingProfilePage"
+<Page x:Class="Magpie.App.ProfilePage"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -367,7 +367,7 @@
 								<local:SettingsCard.ActionContent>
 									<StackPanel Orientation="Horizontal"
 									            Spacing="10">
-										<muxc:NumberBox NumberFormatter="{x:Bind local:ScalingProfilePage.NumberFormatter, Mode=OneTime}"
+										<muxc:NumberBox NumberFormatter="{x:Bind local:ProfilePage.NumberFormatter, Mode=OneTime}"
 										                Value="{x:Bind ViewModel.CroppingLeft, Mode=TwoWay}" />
 										<TextBlock VerticalAlignment="Center"
 										           Text="像素" />
@@ -380,7 +380,7 @@
 								<local:SettingsCard.ActionContent>
 									<StackPanel Orientation="Horizontal"
 									            Spacing="10">
-										<muxc:NumberBox NumberFormatter="{x:Bind local:ScalingProfilePage.NumberFormatter, Mode=OneTime}"
+										<muxc:NumberBox NumberFormatter="{x:Bind local:ProfilePage.NumberFormatter, Mode=OneTime}"
 										                Value="{x:Bind ViewModel.CroppingRight, Mode=TwoWay}" />
 										<TextBlock VerticalAlignment="Center"
 										           Text="像素" />
@@ -393,7 +393,7 @@
 								<local:SettingsCard.ActionContent>
 									<StackPanel Orientation="Horizontal"
 									            Spacing="10">
-										<muxc:NumberBox NumberFormatter="{x:Bind local:ScalingProfilePage.NumberFormatter, Mode=OneTime}"
+										<muxc:NumberBox NumberFormatter="{x:Bind local:ProfilePage.NumberFormatter, Mode=OneTime}"
 										                Value="{x:Bind ViewModel.CroppingTop, Mode=TwoWay}" />
 										<TextBlock VerticalAlignment="Center"
 										           Text="像素" />
@@ -406,7 +406,7 @@
 								<local:SettingsCard.ActionContent>
 									<StackPanel Orientation="Horizontal"
 									            Spacing="10">
-										<muxc:NumberBox NumberFormatter="{x:Bind local:ScalingProfilePage.NumberFormatter, Mode=OneTime}"
+										<muxc:NumberBox NumberFormatter="{x:Bind local:ProfilePage.NumberFormatter, Mode=OneTime}"
 										                Value="{x:Bind ViewModel.CroppingBottom, Mode=TwoWay}" />
 										<TextBlock VerticalAlignment="Center"
 										           Text="像素" />
@@ -471,7 +471,7 @@
 										                VerticalAlignment="Stretch"
 										                Maximum="10"
 										                Minimum="0.1"
-										                NumberFormatter="{x:Bind local:ScalingProfilePage.NumberFormatter, Mode=OneTime}"
+										                NumberFormatter="{x:Bind local:ProfilePage.NumberFormatter, Mode=OneTime}"
 										                SmallChange="0.1"
 										                Value="{x:Bind ViewModel.CustomCursorScaling, Mode=TwoWay}" />
 										<TextBlock x:Name="CustomCursorScalingLabel"

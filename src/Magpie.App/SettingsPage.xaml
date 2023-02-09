@@ -6,8 +6,7 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
       mc:Ignorable="d">
-
-	<local:PageFrame Title="设置">
+	<local:PageFrame x:Uid="Settings_PageFrame">
 		<StackPanel HorizontalAlignment="Stretch"
 		            Orientation="Vertical">
 			<local:SettingsGroup Title="外观和行为"

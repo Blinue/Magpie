@@ -1,7 +1,7 @@
 #include "pch.h"
-#include "ScalingModesPage.h"
-#if __has_include("ScalingModesPage.g.cpp")
-#include "ScalingModesPage.g.cpp"
+#include "ScalingConfigurationPage.h"
+#if __has_include("ScalingConfigurationPage.g.cpp")
+#include "ScalingConfigurationPage.g.cpp"
 #endif
 #if __has_include("ScalingType.g.cpp")
 #include "ScalingType.g.cpp"
@@ -20,7 +20,7 @@ using namespace Windows::UI::Xaml::Input;
 
 namespace winrt::Magpie::App::implementation {
 
-ScalingModesPage::ScalingModesPage() {
+ScalingConfigurationPage::ScalingConfigurationPage() {
 	InitializeComponent();
 
 	MainPage mainPage = Application::Current().as<App>().MainPage();
@@ -33,7 +33,7 @@ ScalingModesPage::ScalingModesPage() {
 	_BuildEffectMenu();
 }
 
-IVector<IInspectable> ScalingModesPage::ScalingTypes() noexcept {
+IVector<IInspectable> ScalingConfigurationPage::ScalingTypes() noexcept {
 	static IVector<IInspectable> types = single_threaded_vector(std::vector<IInspectable>{
 		Magpie::App::ScalingType(L"倍数", L"指定相对于输入图像的缩放倍数"),
 		Magpie::App::ScalingType(L"适应", L"指定等比缩放到充满屏幕后的缩放倍数"),
@@ -44,7 +44,7 @@ IVector<IInspectable> ScalingModesPage::ScalingTypes() noexcept {
 	return types;
 }
 
-INumberFormatter2 ScalingModesPage::NumberFormatter() noexcept {
+INumberFormatter2 ScalingConfigurationPage::NumberFormatter() noexcept {
 	static DecimalFormatter numberFormatter = []() {
 		DecimalFormatter result;
 		IncrementNumberRounder rounder;
@@ -58,25 +58,25 @@ INumberFormatter2 ScalingModesPage::NumberFormatter() noexcept {
 	return numberFormatter;
 }
 
-void ScalingModesPage::ComboBox_DropDownOpened(IInspectable const& sender, IInspectable const&) {
+void ScalingConfigurationPage::ComboBox_DropDownOpened(IInspectable const& sender, IInspectable const&) {
 	ComboBoxHelper::DropDownOpened(*this, sender);
 }
 
-void ScalingModesPage::EffectSettingsCard_Loaded(IInspectable const& sender, RoutedEventArgs const&) {
+void ScalingConfigurationPage::EffectSettingsCard_Loaded(IInspectable const& sender, RoutedEventArgs const&) {
 	XamlUtils::UpdateThemeOfTooltips(sender.as<DependencyObject>(), ActualTheme());
 }
 
-void ScalingModesPage::AddEffectButton_Click(IInspectable const& sender, RoutedEventArgs const&) {
+void ScalingConfigurationPage::AddEffectButton_Click(IInspectable const& sender, RoutedEventArgs const&) {
 	Button btn = sender.as<Button>();
 	_curScalingMode = btn.Tag().as<ScalingModeItem>();
 	_addEffectMenuFlyout.ShowAt(btn);
 }
 
-void ScalingModesPage::NewScalingModeFlyout_Opening(IInspectable const&, IInspectable const&) {
+void ScalingConfigurationPage::NewScalingModeFlyout_Opening(IInspectable const&, IInspectable const&) {
 	_viewModel.PrepareForAdd();
 }
 
-void ScalingModesPage::NewScalingModeNameTextBox_KeyDown(IInspectable const&, KeyRoutedEventArgs const& args) {
+void ScalingConfigurationPage::NewScalingModeNameTextBox_KeyDown(IInspectable const&, KeyRoutedEventArgs const& args) {
 	if (args.Key() == VirtualKey::Enter) {
 		if (_viewModel.IsAddButtonEnabled()) {
 			NewScalingModeConfirmButton_Click(nullptr, nullptr);
@@ -84,16 +84,16 @@ void ScalingModesPage::NewScalingModeNameTextBox_KeyDown(IInspectable const&, Ke
 	}
 }
 
-void ScalingModesPage::NewScalingModeConfirmButton_Click(IInspectable const&, RoutedEventArgs const&) {
+void ScalingConfigurationPage::NewScalingModeConfirmButton_Click(IInspectable const&, RoutedEventArgs const&) {
 	NewScalingModeFlyout().Hide();
 	_viewModel.AddScalingMode();
 }
 
-void ScalingModesPage::ScalingModeMoreOptionsButton_Click(IInspectable const& sender, RoutedEventArgs const&) {
+void ScalingConfigurationPage::ScalingModeMoreOptionsButton_Click(IInspectable const& sender, RoutedEventArgs const&) {
 	_moreOptionsButton = sender;
 }
 
-void ScalingModesPage::RemoveScalingModeMenuItem_Click(IInspectable const& sender, RoutedEventArgs const&) {
+void ScalingConfigurationPage::RemoveScalingModeMenuItem_Click(IInspectable const& sender, RoutedEventArgs const&) {
 	MenuFlyoutItem menuItem = sender.as<MenuFlyoutItem>();
 	ScalingModeItem scalingModeItem = menuItem.Tag().as<ScalingModeItem>();
 	if (scalingModeItem.IsInUse()) {
@@ -105,7 +105,7 @@ void ScalingModesPage::RemoveScalingModeMenuItem_Click(IInspectable const& sende
 	}
 }
 
-void ScalingModesPage::_BuildEffectMenu() noexcept {
+void ScalingConfigurationPage::_BuildEffectMenu() noexcept {
 	std::vector<MenuFlyoutItemBase> rootItems;
 
 	phmap::flat_hash_map<std::wstring_view, MenuFlyoutSubItem> folders;
@@ -115,7 +115,7 @@ void ScalingModesPage::_BuildEffectMenu() noexcept {
 
 		MenuFlyoutItem item;
 		item.Tag(box_value(effect.name));
-		item.Click({ this, &ScalingModesPage::_AddEffectMenuFlyoutItem_Click });
+		item.Click({ this, &ScalingConfigurationPage::_AddEffectMenuFlyoutItem_Click });
 
 		size_t delimPos = name.find_last_of(L'\\');
 		if (delimPos == std::wstring::npos) {
@@ -160,7 +160,7 @@ void ScalingModesPage::_BuildEffectMenu() noexcept {
 	}
 }
 
-void ScalingModesPage::_AddEffectMenuFlyoutItem_Click(IInspectable const& sender, RoutedEventArgs const&) {
+void ScalingConfigurationPage::_AddEffectMenuFlyoutItem_Click(IInspectable const& sender, RoutedEventArgs const&) {
 	hstring effectName = unbox_value<hstring>(sender.as<MenuFlyoutItem>().Tag());
 	_curScalingMode.AddEffect(effectName);
 }

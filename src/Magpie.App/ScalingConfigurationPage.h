@@ -1,5 +1,5 @@
 #pragma once
-#include "ScalingModesPage.g.h"
+#include "ScalingConfigurationPage.g.h"
 #include "ScalingType.g.h"
 
 namespace winrt::Magpie::App::implementation {
@@ -20,8 +20,8 @@ private:
 	hstring _desc;
 };
 
-struct ScalingModesPage : ScalingModesPageT<ScalingModesPage> {
-	ScalingModesPage();
+struct ScalingConfigurationPage : ScalingConfigurationPageT<ScalingConfigurationPage> {
+	ScalingConfigurationPage();
 
 	Magpie::App::ScalingModesViewModel ViewModel() const noexcept {
 		return _viewModel;
@@ -67,7 +67,7 @@ namespace winrt::Magpie::App::factory_implementation {
 struct ScalingType : ScalingTypeT<ScalingType, implementation::ScalingType> {
 };
 
-struct ScalingModesPage : ScalingModesPageT<ScalingModesPage, implementation::ScalingModesPage> {
+struct ScalingConfigurationPage : ScalingConfigurationPageT<ScalingConfigurationPage, implementation::ScalingConfigurationPage> {
 };
 
 }
