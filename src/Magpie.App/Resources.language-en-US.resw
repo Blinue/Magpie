@@ -117,16 +117,49 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="ActivationHotkeySettingsCard.Title" xml:space="preserve">
-    <value>Hotkey</value>
-  </data>
-  <data name="ActivationSettingsGroup.Title" xml:space="preserve">
-    <value>Activation</value>
-  </data>
   <data name="HomePageFrame.Title" xml:space="preserve">
     <value>Home</value>
   </data>
-  <data name="Qualifier" xml:space="preserve">
+  <data name="Home_Activation.Title" xml:space="preserve">
+    <value>Activation</value>
+  </data>
+  <data name="Home_Activation_Hotkey.Title" xml:space="preserve">
+    <value>Hotkey</value>
+  </data>
+  <data name="Home_Stopwatch.Description" xml:space="preserve">
+    <value>Scale the foreground window when timer ends</value>
+  </data>
+  <data name="Home_Stopwatch.Title" xml:space="preserve">
+    <value>Stopwatch</value>
+  </data>
+  <data name="Main_About.Content" xml:space="preserve">
+    <value>About</value>
+  </data>
+  <data name="Main_Defaults.Content" xml:space="preserve">
+    <value>Defaults</value>
+  </data>
+  <data name="Main_Home.Content" xml:space="preserve">
+    <value>Home</value>
+  </data>
+  <data name="Main_NewProfile.Content" xml:space="preserve">
+    <value>New profile</value>
+  </data>
+  <data name="Main_NewProfileFlyout_NoCandidateWindow.Text" xml:space="preserve">
+    <value>Open a new window to create a profile</value>
+  </data>
+  <data name="Main_Profiles.Content" xml:space="preserve">
+    <value>Profiles</value>
+  </data>
+  <data name="Main_ScalingModes.Content" xml:space="preserve">
+    <value>Scaling modes</value>
+  </data>
+  <data name="ToggleSwitch.OffContent" xml:space="preserve">
+    <value>Off</value>
+  </data>
+  <data name="ToggleSwitch.OnContent" xml:space="preserve">
+    <value>On</value>
+  </data>
+  <data name="_Tag" xml:space="preserve">
     <value>en-US</value>
   </data>
 </root>

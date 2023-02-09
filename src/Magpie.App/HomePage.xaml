@@ -30,9 +30,9 @@
 					</StackPanel>
 				</StackPanel>
 			</muxc:InfoBar>
-			<local:SettingsGroup x:Uid="ActivationSettingsGroup"
+			<local:SettingsGroup x:Uid="Home_Activation"
 			                     Margin="0,-24,0,0">
-				<local:SettingsCard x:Uid="ActivationHotkeySettingsCard">
+				<local:SettingsCard x:Uid="Home_Activation_Hotkey">
 					<local:SettingsCard.Icon>
 						<FontIcon Glyph="&#xEDA7;" />
 					</local:SettingsCard.Icon>
@@ -48,8 +48,7 @@
 				               HorizontalContentAlignment="Stretch"
 				               Style="{StaticResource SettingExpanderStyle}">
 					<muxc:Expander.Header>
-						<local:SettingsCard Title="计时器"
-						                    Description="计时结束后缩放前台窗口"
+						<local:SettingsCard x:Uid="Home_Stopwatch"
 						                    Style="{StaticResource ExpanderHeaderSettingStyle}">
 							<local:SettingsCard.Icon>
 								<FontIcon Glyph="&#xE916;" />
@@ -99,7 +98,8 @@
 							<FontIcon Glyph="&#xE944;" />
 						</local:SettingsCard.Icon>
 						<local:SettingsCard.ActionContent>
-							<ToggleSwitch IsOn="{x:Bind ViewModel.IsAutoRestore, Mode=TwoWay}" />
+							<ToggleSwitch x:Uid="ToggleSwitch"
+							              IsOn="{x:Bind ViewModel.IsAutoRestore, Mode=TwoWay}" />
 						</local:SettingsCard.ActionContent>
 					</local:SettingsCard>
 					<muxc:Expander HorizontalAlignment="Stretch"
@@ -115,7 +115,8 @@
 									<FontIcon Glyph="&#xE944;" />
 								</local:SettingsCard.Icon>
 								<local:SettingsCard.ActionContent>
-									<ToggleSwitch IsOn="{x:Bind ViewModel.IsAutoRestore, Mode=TwoWay}" />
+									<ToggleSwitch x:Uid="ToggleSwitch"
+									              IsOn="{x:Bind ViewModel.IsAutoRestore, Mode=TwoWay}" />
 								</local:SettingsCard.ActionContent>
 							</local:SettingsCard>
 						</muxc:Expander.Header>

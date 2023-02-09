@@ -20,7 +20,7 @@ void LocalizationService::Initialize() {
 	if (language < 0) {
 		// 使用系统设置，不支持的语言回落到英语
 		// Magpie 已经配置为不存在的字符串回落到英语，这里显式设置 Language 是为了压制 WinUI 控件的本地化
-		if (ResourceLoader::GetForCurrentView().GetString(L"Qualifier") == L"en-US") {
+		if (ResourceLoader::GetForCurrentView().GetString(L"_Tag") == L"en-US") {
 			ResourceContext::SetGlobalQualifierValue(L"Language", L"en-US");
 		}
 	} else {

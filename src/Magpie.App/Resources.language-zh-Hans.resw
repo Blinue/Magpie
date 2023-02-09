@@ -117,16 +117,49 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="ActivationHotkeySettingsCard.Title" xml:space="preserve">
-    <value>快捷键</value>
-  </data>
-  <data name="ActivationSettingsGroup.Title" xml:space="preserve">
-    <value>激活</value>
-  </data>
   <data name="HomePageFrame.Title" xml:space="preserve">
     <value>主页</value>
   </data>
-  <data name="Qualifier" xml:space="preserve">
+  <data name="Home_Activation.Title" xml:space="preserve">
+    <value>激活</value>
+  </data>
+  <data name="Home_Activation_Hotkey.Title" xml:space="preserve">
+    <value>快捷键</value>
+  </data>
+  <data name="Home_Stopwatch.Description" xml:space="preserve">
+    <value>计时结束后缩放前台窗口</value>
+  </data>
+  <data name="Home_Stopwatch.Title" xml:space="preserve">
+    <value>计时器</value>
+  </data>
+  <data name="Main_About.Content" xml:space="preserve">
+    <value>关于</value>
+  </data>
+  <data name="Main_Defaults.Content" xml:space="preserve">
+    <value>默认</value>
+  </data>
+  <data name="Main_Home.Content" xml:space="preserve">
+    <value>主页</value>
+  </data>
+  <data name="Main_NewProfile.Content" xml:space="preserve">
+    <value>新建配置</value>
+  </data>
+  <data name="Main_NewProfileFlyout_NoCandidateWindow.Text" xml:space="preserve">
+    <value>打开新窗口以创建配置</value>
+  </data>
+  <data name="Main_Profiles.Content" xml:space="preserve">
+    <value>配置文件</value>
+  </data>
+  <data name="Main_ScalingModes.Content" xml:space="preserve">
+    <value>缩放模式</value>
+  </data>
+  <data name="ToggleSwitch.OffContent" xml:space="preserve">
+    <value>关</value>
+  </data>
+  <data name="ToggleSwitch.OnContent" xml:space="preserve">
+    <value>开</value>
+  </data>
+  <data name="_Tag" xml:space="preserve">
     <value>zh-CN</value>
   </data>
 </root>
