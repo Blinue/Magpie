@@ -287,7 +287,8 @@ void XamlApp::_Quit() noexcept {
 		_nid.hIcon = NULL;
 	}
 
-	_uwpApp.Close();
+	_uwpApp.Uninitialize();
+	// 不能调用 Close，否则切换页面时关闭主窗口会导致崩溃
 	_uwpApp = nullptr;
 	PostQuitMessage(0);
 }
