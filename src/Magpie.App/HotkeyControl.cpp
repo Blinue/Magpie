@@ -11,9 +11,9 @@
 #include "Logger.h"
 
 using namespace winrt;
+using namespace Windows::ApplicationModel::Resources;
 using namespace Windows::UI::Xaml::Controls;
 using namespace Windows::UI::Xaml::Input;
-
 
 namespace winrt::Magpie::App::implementation {
 
@@ -79,8 +79,9 @@ fire_and_forget HotkeyControl::EditButton_Click(IInspectable const&, RoutedEvent
 
 		_HotkeyDialog.Title(GetValue(TitleProperty));
 		_HotkeyDialog.Content(_HotkeyDialogContent);
-		_HotkeyDialog.PrimaryButtonText(L"保存");
-		_HotkeyDialog.CloseButtonText(L"取消");
+		ResourceLoader resourceLoader = ResourceLoader::GetForCurrentView();
+		_HotkeyDialog.PrimaryButtonText(resourceLoader.GetString(L"HotkeyDialog_Save"));
+		_HotkeyDialog.CloseButtonText(resourceLoader.GetString(L"HotkeyDialog_Cancel"));
 		_HotkeyDialog.DefaultButton(ContentDialogButton::Primary);
 		// 在 Closing 事件中设置热键而不是等待 ShowAsync 返回
 		// 这两个时间点有一定间隔，用户在这段时间内的按键不应处理

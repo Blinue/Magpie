@@ -4,6 +4,9 @@
 #include "HotkeyDialog.g.cpp"
 #endif
 
+using namespace winrt;
+using namespace Windows::ApplicationModel::Resources;
+
 namespace winrt::Magpie::App::implementation {
 
 const DependencyProperty HotkeyDialog::_IsErrorProperty = DependencyProperty::Register(
@@ -20,20 +23,29 @@ HotkeyDialog::HotkeyDialog() {
 void HotkeyDialog::Error(HotkeyError value) {
 	switch (value) {
 	case HotkeyError::NoError:
+	{
 		_IsError(false);
 		WarningBanner().Visibility(Visibility::Collapsed);
 		break;
+	}
 	case HotkeyError::Invalid:
+	{
 		_IsError(true);
 		WarningBanner().Visibility(Visibility::Visible);
-		InvalidHotkeyWarningLabel().Text(L"无效快捷键");
+		ResourceLoader resourceLoader = ResourceLoader::GetForCurrentView();
+		InvalidHotkeyWarningLabel().Text(resourceLoader.GetString(L"HotkeyDialog_InvalidHotkey"));
 		break;
+	}
 	case HotkeyError::Occupied:
+	{
 		_IsError(true);
 		WarningBanner().Visibility(Visibility::Visible);
-		InvalidHotkeyWarningLabel().Text(L"此快捷键已被占用");
+		ResourceLoader resourceLoader = ResourceLoader::GetForCurrentView();
+		InvalidHotkeyWarningLabel().Text(resourceLoader.GetString(L"HotkeyDialog_InUse"));
 		break;
+	}
 	default:
+		assert(false);
 		break;
 	}
 

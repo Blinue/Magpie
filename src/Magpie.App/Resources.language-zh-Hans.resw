@@ -126,6 +126,9 @@
   <data name="Home_Activation_Hotkey.Title" xml:space="preserve">
     <value>快捷键</value>
   </data>
+  <data name="Home_Activation_HotkeyControl.Title" xml:space="preserve">
+    <value>激活快捷键</value>
+  </data>
   <data name="Home_PageFrame.Title" xml:space="preserve">
     <value>主页</value>
   </data>
@@ -134,6 +137,24 @@
   </data>
   <data name="Home_Stopwatch.Title" xml:space="preserve">
     <value>计时器</value>
+  </data>
+  <data name="HotkeyDialog_Cancel" xml:space="preserve">
+    <value>取消</value>
+  </data>
+  <data name="HotkeyDialog_Description.Text" xml:space="preserve">
+    <value>按组合键以更改此快捷键</value>
+  </data>
+  <data name="HotkeyDialog_InUse" xml:space="preserve">
+    <value>此快捷键已被占用</value>
+  </data>
+  <data name="HotkeyDialog_InvalidHotkey" xml:space="preserve">
+    <value>无效快捷键</value>
+  </data>
+  <data name="HotkeyDialog_Save" xml:space="preserve">
+    <value>保存</value>
+  </data>
+  <data name="HotkeyDialog_Tip.Text" xml:space="preserve">
+    <value>只有以 Windows 键、Ctrl、Alt 或 Shift 开头的快捷键才有效。</value>
   </data>
   <data name="Main_About.Content" xml:space="preserve">
     <value>关于</value>

@@ -15,8 +15,8 @@
 			<RowDefinition Height="Auto" />
 		</Grid.RowDefinitions>
 
-		<TextBlock Grid.Row="0"
-		           Text="按组合键以更改此快捷键" />
+		<TextBlock x:Uid="HotkeyDialog_Description"
+		           Grid.Row="0" />
 
 		<ItemsControl x:Name="KeysControl"
 		              Grid.Row="1"
@@ -73,9 +73,9 @@
 					</Grid>
 				</Border>
 			</Grid>
-			<TextBlock FontSize="12"
-			           Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-			           Text="只有以 Windows 键、Ctrl、Alt 或 Shift 开头的快捷键才有效" />
+			<TextBlock x:Uid="HotkeyDialog_Tip"
+			           FontSize="12"
+			           Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
 		</StackPanel>
 	</Grid>
 </UserControl>

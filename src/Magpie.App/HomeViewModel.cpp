@@ -35,21 +35,21 @@ HomeViewModel::HomeViewModel() {
 	);
 }
 
-bool HomeViewModel::IsCountingDown() const noexcept {
+bool HomeViewModel::IsStopwatchOn() const noexcept {
 	return MagService::Get().IsCountingDown();
 }
 
-float HomeViewModel::CountdownProgressRingValue() const noexcept {
+float HomeViewModel::StopwatchProgressRingValue() const noexcept {
 	MagService& magService = MagService::Get();
 	return magService.IsCountingDown() ? magService.CountdownLeft() / magService.TickingDownCount() : 1.0f;
 }
 
-hstring HomeViewModel::CountdownLabelText() const noexcept {
+hstring HomeViewModel::StopwatchLabelText() const noexcept {
 	MagService& magService = MagService::Get();
 	return to_hstring((int)std::ceil(magService.CountdownLeft()));
 }
 
-hstring HomeViewModel::CountdownButtonText() const noexcept {
+hstring HomeViewModel::StopwatchButtonText() const noexcept {
 	MagService& magService = MagService::Get();
 	if (magService.IsCountingDown()) {
 		return L"取消";
@@ -62,7 +62,7 @@ bool HomeViewModel::IsNotRunning() const noexcept {
 	return !MagService::Get().IsRunning();
 }
 
-void HomeViewModel::ToggleCountdown() const noexcept {
+void HomeViewModel::ToggleStopwatch() const noexcept {
 	MagService& magService = MagService::Get();
 	if (magService.IsCountingDown()) {
 		magService.StopCountdown();
@@ -84,7 +84,7 @@ void HomeViewModel::DownCount(uint32_t value) {
 
 	settings.DownCount(value);
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"DownCount"));
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CountdownButtonText"));
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"StopwatchButtonText"));
 }
 
 bool HomeViewModel::IsAutoRestore() const noexcept {
@@ -181,18 +181,18 @@ void HomeViewModel::RemindMeLater() {
 
 void HomeViewModel::_MagService_IsCountingDownChanged(bool value) {
 	if (!value) {
-		_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CountdownProgressRingValue"));
+		_propertyChangedEvent(*this, PropertyChangedEventArgs(L"StopwatchProgressRingValue"));
 	}
 
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CountdownProgressRingValue"));
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CountdownLabelText"));
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CountdownButtonText"));
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsCountingDown"));
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"StopwatchProgressRingValue"));
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"StopwatchLabelText"));
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"StopwatchButtonText"));
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsStopwatchOn"));
 }
 
 void HomeViewModel::_MagService_CountdownTick(float) {
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CountdownProgressRingValue"));
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CountdownLabelText"));
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"StopwatchProgressRingValue"));
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"StopwatchLabelText"));
 }
 
 void HomeViewModel::_MagService_IsRunningChanged(bool) {

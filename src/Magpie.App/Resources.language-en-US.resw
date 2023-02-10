@@ -126,14 +126,35 @@
   <data name="Home_Activation_Hotkey.Title" xml:space="preserve">
     <value>Hotkey</value>
   </data>
+  <data name="Home_Activation_HotkeyControl.Title" xml:space="preserve">
+    <value>Activation hotkey</value>
+  </data>
   <data name="Home_PageFrame.Title" xml:space="preserve">
     <value>Home</value>
   </data>
   <data name="Home_Stopwatch.Description" xml:space="preserve">
-    <value>Scale the foreground window when timer ends</value>
+    <value>Scale the foreground window after a few seconds</value>
   </data>
   <data name="Home_Stopwatch.Title" xml:space="preserve">
-    <value>Stopwatch</value>
+    <value>Delayed scaling</value>
+  </data>
+  <data name="HotkeyDialog_Cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="HotkeyDialog_Description.Text" xml:space="preserve">
+    <value>Press a combination of keys to change this hotkey</value>
+  </data>
+  <data name="HotkeyDialog_InUse" xml:space="preserve">
+    <value>Already in use</value>
+  </data>
+  <data name="HotkeyDialog_InvalidHotkey" xml:space="preserve">
+    <value>Invalid hotkey</value>
+  </data>
+  <data name="HotkeyDialog_Save" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="HotkeyDialog_Tip.Text" xml:space="preserve">
+    <value>Only hotkeys that starts with Windows key, Ctrl, Alt or Shift are valid.</value>
   </data>
   <data name="Main_About.Content" xml:space="preserve">
     <value>About</value>

@@ -37,7 +37,7 @@
 						<FontIcon Glyph="&#xEDA7;" />
 					</local:SettingsCard.Icon>
 					<local:SettingsCard.ActionContent>
-						<local:HotkeyControl Title="激活快捷键">
+						<local:HotkeyControl x:Uid="Home_Activation_HotkeyControl">
 							<local:HotkeyControl.Action>
 								<local:HotkeyAction>Scale</local:HotkeyAction>
 							</local:HotkeyControl.Action>
@@ -56,22 +56,22 @@
 							<local:SettingsCard.ActionContent>
 								<StackPanel Orientation="Horizontal"
 								            Spacing="5">
-									<Grid Visibility="{x:Bind ViewModel.IsCountingDown, Mode=OneWay}">
+									<Grid Visibility="{x:Bind ViewModel.IsStopwatchOn, Mode=OneWay}">
 										<muxc:ProgressRing Width="30"
 										                   Height="30"
 										                   FlowDirection="RightToLeft"
-										                   IsActive="{x:Bind ViewModel.IsCountingDown, Mode=OneWay}"
+										                   IsActive="{x:Bind ViewModel.IsStopwatchOn, Mode=OneWay}"
 										                   IsIndeterminate="False"
 										                   Maximum="1"
 										                   Minimum="0"
-										                   Value="{x:Bind ViewModel.CountdownProgressRingValue, Mode=OneWay}" />
+										                   Value="{x:Bind ViewModel.StopwatchProgressRingValue, Mode=OneWay}" />
 										<TextBlock Margin="0,-1,0,0"
 										           HorizontalAlignment="Center"
 										           VerticalAlignment="Center"
-										           Text="{x:Bind ViewModel.CountdownLabelText, Mode=OneWay}" />
+										           Text="{x:Bind ViewModel.StopwatchLabelText, Mode=OneWay}" />
 									</Grid>
-									<Button Click="{x:Bind ViewModel.ToggleCountdown}"
-									        Content="{x:Bind ViewModel.CountdownButtonText, Mode=OneWay}"
+									<Button Click="{x:Bind ViewModel.ToggleStopwatch}"
+									        Content="{x:Bind ViewModel.StopwatchButtonText, Mode=OneWay}"
 									        IsEnabled="{x:Bind ViewModel.IsNotRunning, Mode=OneWay}" />
 								</StackPanel>
 							</local:SettingsCard.ActionContent>
