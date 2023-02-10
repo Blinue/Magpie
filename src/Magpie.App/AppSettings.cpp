@@ -358,13 +358,13 @@ void AppSettings::IsAutoRestore(bool value) noexcept {
 	SaveAsync();
 }
 
-void AppSettings::DownCount(uint32_t value) noexcept {
-	if (_downCount == value) {
+void AppSettings::CountdownSeconds(uint32_t value) noexcept {
+	if (_countdownSeconds == value) {
 		return;
 	}
 
-	_downCount = value;
-	_downCountChangedEvent(value);
+	_countdownSeconds = value;
+	_countdownSecondsChangedEvent(value);
 
 	SaveAsync();
 }
@@ -464,8 +464,8 @@ bool AppSettings::_Save(const _AppSettingsData& data) noexcept {
 
 	writer.Key("autoRestore");
 	writer.Bool(data._isAutoRestore);
-	writer.Key("downCount");
-	writer.Uint(data._downCount);
+	writer.Key("countdownSeconds");
+	writer.Uint(data._countdownSeconds);
 	writer.Key("debugMode");
 	writer.Bool(data._isDebugMode);
 	writer.Key("disableEffectCache");
@@ -508,10 +508,10 @@ bool AppSettings::_Save(const _AppSettingsData& data) noexcept {
 
 	ScalingModesService::Get().Export(writer);
 
-	writer.Key("scalingProfiles");
+	writer.Key("profiles");
 	writer.StartArray();
-	WriteScalingProfile(writer, data._defaultScalingProfile);
-	for (const ScalingProfile& rule : data._scalingProfiles) {
+	WriteScalingProfile(writer, data._defaultProfile);
+	for (const ScalingProfile& rule : data._profiles) {
 		WriteScalingProfile(writer, rule);
 	}
 	writer.EndArray();
@@ -588,9 +588,12 @@ void AppSettings::_LoadSettings(const rapidjson::GenericObject<true, rapidjson::
 	}
 
 	JsonHelper::ReadBool(root, "autoRestore", _isAutoRestore);
-	JsonHelper::ReadUInt(root, "downCount", _downCount);
-	if (_downCount == 0 || _downCount > 5) {
-		_downCount = 3;
+	if (!JsonHelper::ReadUInt(root, "countdownSeconds", _countdownSeconds, true)) {
+		// v0.10.0-preview1 使用 downCount
+		JsonHelper::ReadUInt(root, "downCount", _countdownSeconds);
+	}
+	if (_countdownSeconds == 0 || _countdownSeconds > 5) {
+		_countdownSeconds = 3;
 	}
 	JsonHelper::ReadBool(root, "debugMode", _isDebugMode);
 	JsonHelper::ReadBool(root, "disableEffectCache", _isDisableEffectCache);
@@ -635,7 +638,11 @@ void AppSettings::_LoadSettings(const rapidjson::GenericObject<true, rapidjson::
 	[[maybe_unused]] bool result = ScalingModesService::Get().Import(root, true);
 	assert(result);
 
-	auto scaleProfilesNode = root.FindMember("scalingProfiles");
+	auto scaleProfilesNode = root.FindMember("profiles");
+	if (scaleProfilesNode == root.MemberEnd()) {
+		// v0.10.0-preview1 使用 scalingProfiles
+		scaleProfilesNode = root.FindMember("scalingProfiles");
+	}
 	if (scaleProfilesNode != root.MemberEnd() && scaleProfilesNode->value.IsArray()) {
 		const auto& scaleProfilesArray = scaleProfilesNode->value.GetArray();
 
@@ -643,19 +650,19 @@ void AppSettings::_LoadSettings(const rapidjson::GenericObject<true, rapidjson::
 		if (size > 0) {
 			if (scaleProfilesArray[0].IsObject()) {
 				// 解析默认缩放配置不会失败
-				_LoadScalingProfile(scaleProfilesArray[0].GetObj(), _defaultScalingProfile, true);
+				_LoadScalingProfile(scaleProfilesArray[0].GetObj(), _defaultProfile, true);
 			}
 
 			if (size > 1) {
-				_scalingProfiles.reserve((size_t)size - 1);
+				_profiles.reserve((size_t)size - 1);
 				for (rapidjson::SizeType i = 1; i < size; ++i) {
 					if (!scaleProfilesArray[i].IsObject()) {
 						continue;
 					}
 
-					ScalingProfile& rule = _scalingProfiles.emplace_back();
+					ScalingProfile& rule = _profiles.emplace_back();
 					if (!_LoadScalingProfile(scaleProfilesArray[i].GetObj(), rule)) {
-						_scalingProfiles.pop_back();
+						_profiles.pop_back();
 						continue;
 					}
 				}

@@ -2,14 +2,14 @@ namespace Magpie.App {
 	runtimeclass HomeViewModel : Windows.UI.Xaml.Data.INotifyPropertyChanged {
 		HomeViewModel();
 		
-		Boolean IsStopwatchOn{ get; };
-		Single StopwatchProgressRingValue { get; };
-		String StopwatchLabelText { get; };
-		String StopwatchButtonText { get; };
+		Boolean IsTimerOn { get; };
+		Single TimerProgressRingValue { get; };
+		String TimerLabelText { get; };
+		String TimerButtonText { get; };
 		Boolean IsNotRunning { get; };
-		UInt32 DownCount;
+		UInt32 Delay;
 
-		void ToggleStopwatch();
+		void ToggleTimer();
 
 		Boolean IsAutoRestore;
 		Boolean IsWndToRestore { get; };

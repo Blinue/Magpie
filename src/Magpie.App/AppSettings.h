@@ -20,8 +20,8 @@ struct _AppSettingsData {
 	::Magpie::Core::DownscalingEffect _downscalingEffect;
 	std::vector<ScalingMode> _scalingModes;
 
-	ScalingProfile _defaultScalingProfile;
-	std::vector<ScalingProfile> _scalingProfiles;
+	ScalingProfile _defaultProfile;
+	std::vector<ScalingProfile> _profiles;
 
 	std::wstring _configDir;
 	std::wstring _configPath;
@@ -38,7 +38,7 @@ struct _AppSettingsData {
 	// 2: 系统
 	uint32_t _theme = 2;
 	// 必须在 1~5 之间
-	uint32_t _downCount = 3;
+	uint32_t _countdownSeconds = 3;
 
 	// 上一次自动检查更新的日期
 	std::chrono::system_clock::time_point _updateCheckDate;
@@ -174,25 +174,25 @@ public:
 		_isAutoRestoreChangedEvent.remove(token);
 	}
 
-	uint32_t DownCount() const noexcept {
-		return _downCount;
+	uint32_t CountdownSeconds() const noexcept {
+		return _countdownSeconds;
 	}
 
-	void DownCount(uint32_t value) noexcept;
+	void CountdownSeconds(uint32_t value) noexcept;
 
-	event_token DownCountChanged(delegate<uint32_t> const& handler) {
-		return _downCountChangedEvent.add(handler);
+	event_token CountdownSecondsChanged(delegate<uint32_t> const& handler) {
+		return _countdownSecondsChangedEvent.add(handler);
 	}
 
-	WinRTUtils::EventRevoker DownCountChanged(auto_revoke_t, delegate<uint32_t> const& handler) {
-		event_token token = DownCountChanged(handler);
+	WinRTUtils::EventRevoker CountdownSecondsChanged(auto_revoke_t, delegate<uint32_t> const& handler) {
+		event_token token = CountdownSecondsChanged(handler);
 		return WinRTUtils::EventRevoker([this, token]() {
-			DownCountChanged(token);
+			CountdownSecondsChanged(token);
 		});
 	}
 
-	void DownCountChanged(event_token const& token) {
-		_downCountChangedEvent.remove(token);
+	void CountdownSecondsChanged(event_token const& token) {
+		_countdownSecondsChangedEvent.remove(token);
 	}
 
 	bool IsDebugMode() const noexcept {
@@ -241,11 +241,11 @@ public:
 	}
 
 	ScalingProfile& DefaultScalingProfile() noexcept {
-		return _defaultScalingProfile;
+		return _defaultProfile;
 	}
 
 	std::vector<ScalingProfile>& ScalingProfiles() noexcept {
-		return _scalingProfiles;
+		return _profiles;
 	}
 
 	bool IsAlwaysRunAsElevated() const noexcept {
@@ -361,7 +361,7 @@ private:
 	event<delegate<uint32_t>> _themeChangedEvent;
 	event<delegate<HotkeyAction>> _hotkeyChangedEvent;
 	event<delegate<bool>> _isAutoRestoreChangedEvent;
-	event<delegate<uint32_t>> _downCountChangedEvent;
+	event<delegate<uint32_t>> _countdownSecondsChangedEvent;
 	event<delegate<bool>> _isShowTrayIconChangedEvent;
 	event<delegate<bool>> _isAutoCheckForUpdatesChangedEvent;
 };

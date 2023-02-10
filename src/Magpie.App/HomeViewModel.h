@@ -15,20 +15,20 @@ struct HomeViewModel : HomeViewModelT<HomeViewModel> {
 		_propertyChangedEvent.remove(token);
 	}
 
-	bool IsStopwatchOn() const noexcept;
+	bool IsTimerOn() const noexcept;
 
-	float StopwatchProgressRingValue() const noexcept;
+	float TimerProgressRingValue() const noexcept;
 
-	hstring StopwatchLabelText() const noexcept;
+	hstring TimerLabelText() const noexcept;
 
-	hstring StopwatchButtonText() const noexcept;
+	hstring TimerButtonText() const noexcept;
 
 	bool IsNotRunning() const noexcept;
 
-	void ToggleStopwatch() const noexcept;
+	void ToggleTimer() const noexcept;
 
-	uint32_t DownCount() const noexcept;
-	void DownCount(uint32_t value);
+	uint32_t Delay() const noexcept;
+	void Delay(uint32_t value);
 
 	bool IsAutoRestore() const noexcept;
 	void IsAutoRestore(bool value);

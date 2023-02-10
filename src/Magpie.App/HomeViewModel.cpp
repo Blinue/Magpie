@@ -35,26 +35,26 @@ HomeViewModel::HomeViewModel() {
 	);
 }
 
-bool HomeViewModel::IsStopwatchOn() const noexcept {
+bool HomeViewModel::IsTimerOn() const noexcept {
 	return MagService::Get().IsCountingDown();
 }
 
-float HomeViewModel::StopwatchProgressRingValue() const noexcept {
+float HomeViewModel::TimerProgressRingValue() const noexcept {
 	MagService& magService = MagService::Get();
 	return magService.IsCountingDown() ? magService.CountdownLeft() / magService.TickingDownCount() : 1.0f;
 }
 
-hstring HomeViewModel::StopwatchLabelText() const noexcept {
+hstring HomeViewModel::TimerLabelText() const noexcept {
 	MagService& magService = MagService::Get();
 	return to_hstring((int)std::ceil(magService.CountdownLeft()));
 }
 
-hstring HomeViewModel::StopwatchButtonText() const noexcept {
+hstring HomeViewModel::TimerButtonText() const noexcept {
 	MagService& magService = MagService::Get();
 	if (magService.IsCountingDown()) {
 		return L"取消";
 	} else {
-		return hstring(fmt::format(L"{} 秒后缩放", AppSettings::Get().DownCount()));
+		return hstring(fmt::format(L"{} 秒后缩放", AppSettings::Get().CountdownSeconds()));
 	}
 }
 
@@ -62,7 +62,7 @@ bool HomeViewModel::IsNotRunning() const noexcept {
 	return !MagService::Get().IsRunning();
 }
 
-void HomeViewModel::ToggleStopwatch() const noexcept {
+void HomeViewModel::ToggleTimer() const noexcept {
 	MagService& magService = MagService::Get();
 	if (magService.IsCountingDown()) {
 		magService.StopCountdown();
@@ -71,20 +71,20 @@ void HomeViewModel::ToggleStopwatch() const noexcept {
 	}
 }
 
-uint32_t HomeViewModel::DownCount() const noexcept {
-	return AppSettings::Get().DownCount();
+uint32_t HomeViewModel::Delay() const noexcept {
+	return AppSettings::Get().CountdownSeconds();
 }
 
-void HomeViewModel::DownCount(uint32_t value) {
+void HomeViewModel::Delay(uint32_t value) {
 	AppSettings& settings = AppSettings::Get();
 
-	if (settings.DownCount() == value) {
+	if (settings.CountdownSeconds() == value) {
 		return;
 	}
 
-	settings.DownCount(value);
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"DownCount"));
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"StopwatchButtonText"));
+	settings.CountdownSeconds(value);
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"Delay"));
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"TimerButtonText"));
 }
 
 bool HomeViewModel::IsAutoRestore() const noexcept {
@@ -181,18 +181,18 @@ void HomeViewModel::RemindMeLater() {
 
 void HomeViewModel::_MagService_IsCountingDownChanged(bool value) {
 	if (!value) {
-		_propertyChangedEvent(*this, PropertyChangedEventArgs(L"StopwatchProgressRingValue"));
+		_propertyChangedEvent(*this, PropertyChangedEventArgs(L"TimerProgressRingValue"));
 	}
 
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"StopwatchProgressRingValue"));
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"StopwatchLabelText"));
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"StopwatchButtonText"));
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsStopwatchOn"));
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"TimerProgressRingValue"));
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"TimerLabelText"));
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"TimerButtonText"));
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsTimerOn"));
 }
 
 void HomeViewModel::_MagService_CountdownTick(float) {
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"StopwatchProgressRingValue"));
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"StopwatchLabelText"));
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"TimerProgressRingValue"));
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"TimerLabelText"));
 }
 
 void HomeViewModel::_MagService_IsRunningChanged(bool) {

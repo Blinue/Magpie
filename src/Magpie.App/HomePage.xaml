@@ -48,7 +48,7 @@
 				               HorizontalContentAlignment="Stretch"
 				               Style="{StaticResource SettingExpanderStyle}">
 					<muxc:Expander.Header>
-						<local:SettingsCard x:Uid="Home_Stopwatch"
+						<local:SettingsCard x:Uid="Home_Timer"
 						                    Style="{StaticResource ExpanderHeaderSettingStyle}">
 							<local:SettingsCard.Icon>
 								<FontIcon Glyph="&#xE916;" />
@@ -56,36 +56,36 @@
 							<local:SettingsCard.ActionContent>
 								<StackPanel Orientation="Horizontal"
 								            Spacing="5">
-									<Grid Visibility="{x:Bind ViewModel.IsStopwatchOn, Mode=OneWay}">
+									<Grid Visibility="{x:Bind ViewModel.IsTimerOn, Mode=OneWay}">
 										<muxc:ProgressRing Width="30"
 										                   Height="30"
 										                   FlowDirection="RightToLeft"
-										                   IsActive="{x:Bind ViewModel.IsStopwatchOn, Mode=OneWay}"
+										                   IsActive="{x:Bind ViewModel.IsTimerOn, Mode=OneWay}"
 										                   IsIndeterminate="False"
 										                   Maximum="1"
 										                   Minimum="0"
-										                   Value="{x:Bind ViewModel.StopwatchProgressRingValue, Mode=OneWay}" />
+										                   Value="{x:Bind ViewModel.TimerProgressRingValue, Mode=OneWay}" />
 										<TextBlock Margin="0,-1,0,0"
 										           HorizontalAlignment="Center"
 										           VerticalAlignment="Center"
-										           Text="{x:Bind ViewModel.StopwatchLabelText, Mode=OneWay}" />
+										           Text="{x:Bind ViewModel.TimerLabelText, Mode=OneWay}" />
 									</Grid>
-									<Button Click="{x:Bind ViewModel.ToggleStopwatch}"
-									        Content="{x:Bind ViewModel.StopwatchButtonText, Mode=OneWay}"
+									<Button Click="{x:Bind ViewModel.ToggleTimer}"
+									        Content="{x:Bind ViewModel.TimerButtonText, Mode=OneWay}"
 									        IsEnabled="{x:Bind ViewModel.IsNotRunning, Mode=OneWay}" />
 								</StackPanel>
 							</local:SettingsCard.ActionContent>
 						</local:SettingsCard>
 					</muxc:Expander.Header>
 					<muxc:Expander.Content>
-						<local:SettingsCard Title="倒计时时长"
+						<local:SettingsCard x:Uid="Home_Timer_Delay"
 						                    Style="{StaticResource ExpanderContentSettingStyle}">
 							<local:SettingsCard.ActionContent>
 								<Slider Width="150"
 								        Maximum="5"
 								        Minimum="1"
 								        TickFrequency="1"
-								        Value="{x:Bind ViewModel.DownCount, Mode=TwoWay}" />
+								        Value="{x:Bind ViewModel.Delay, Mode=TwoWay}" />
 							</local:SettingsCard.ActionContent>
 						</local:SettingsCard>
 					</muxc:Expander.Content>

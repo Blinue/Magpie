@@ -41,7 +41,7 @@ void MagService::StartCountdown() {
 		return;
 	}
 
-	_tickingDownCount = AppSettings::Get().DownCount();
+	_tickingDownCount = AppSettings::Get().CountdownSeconds();
 	_timerStartTimePoint = std::chrono::steady_clock::now();
 	_countDownTimer.Start();
 	_isCountingDownChangedEvent(true);
