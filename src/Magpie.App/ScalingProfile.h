@@ -17,6 +17,7 @@ enum class CursorScaling {
 // 默认规则 Name、PathRule、ClassNameRule 均为空
 struct ScalingProfile {
 	void Copy(const ScalingProfile& other) noexcept {
+		// 不复制自动缩放选项
 		scalingMode = other.scalingMode;
 		cursorScaling = other.cursorScaling;
 		customCursorScaling = other.customCursorScaling;

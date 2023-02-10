@@ -37,11 +37,11 @@
 						<FontIcon Glyph="&#xEDA7;" />
 					</local:SettingsCard.Icon>
 					<local:SettingsCard.ActionContent>
-						<local:ShortcutControl Title="激活快捷键">
-							<local:ShortcutControl.Action>
+						<local:HotkeyControl Title="激活快捷键">
+							<local:HotkeyControl.Action>
 								<local:HotkeyAction>Scale</local:HotkeyAction>
-							</local:ShortcutControl.Action>
-						</local:ShortcutControl>
+							</local:HotkeyControl.Action>
+						</local:HotkeyControl>
 					</local:SettingsCard.ActionContent>
 				</local:SettingsCard>
 				<muxc:Expander HorizontalAlignment="Stretch"
@@ -145,11 +145,11 @@
 						<FontIcon Glyph="&#xEDA7;" />
 					</local:SettingsCard.Icon>
 					<local:SettingsCard.ActionContent>
-						<local:ShortcutControl Title="游戏内覆盖快捷键">
-							<local:ShortcutControl.Action>
+						<local:HotkeyControl Title="游戏内覆盖快捷键">
+							<local:HotkeyControl.Action>
 								<local:HotkeyAction>Overlay</local:HotkeyAction>
-							</local:ShortcutControl.Action>
-						</local:ShortcutControl>
+							</local:HotkeyControl.Action>
+						</local:HotkeyControl>
 					</local:SettingsCard.ActionContent>
 				</local:SettingsCard>
 			</local:SettingsGroup>

@@ -85,7 +85,7 @@ void HotkeyService::_AppSettings_OnHotkeyChanged(HotkeyAction action) {
 }
 
 void HotkeyService::_RegisterHotkey(HotkeyAction action) {
-	const HotkeySettings& hotkey = AppSettings::Get().GetHotkey(action);
+	const Hotkey& hotkey = AppSettings::Get().GetHotkey(action);
 	bool& isError = _hotkeyInfos[(size_t)action].isError;
 
 	UnregisterHotKey(_hwndHotkey, (int)action);
@@ -179,7 +179,7 @@ LRESULT CALLBACK HotkeyService::_LowLevelKeyboardProc(int nCode, WPARAM wParam, 
 
 	// 获取当前按键状态
 	// 在键盘钩子被调用时，GetAsyncKeyState 的状态尚未更新
-	HotkeySettings curKeys;
+	Hotkey curKeys;
 	curKeys.win = codeType == 0 || (GetAsyncKeyState(VK_LWIN) & 0x8000) || (GetAsyncKeyState(VK_RWIN) & 0x8000);
 	curKeys.ctrl = codeType == 1 || static_cast<bool>(GetAsyncKeyState(VK_CONTROL) & 0x8000);
 	curKeys.shift = codeType == 2 || static_cast<bool>(GetAsyncKeyState(VK_SHIFT) & 0x8000);

@@ -26,7 +26,7 @@ _AppSettingsData::~_AppSettingsData() {}
 
 // 将热键存储为 uint32_t
 // 不能存储为字符串，因为某些键有相同的名称，如句号和小键盘的点
-static uint32_t EncodeHotkey(const HotkeySettings& hotkey) noexcept {
+static uint32_t EncodeHotkey(const Hotkey& hotkey) noexcept {
 	uint32_t value = 0;
 	value |= hotkey.code;
 	if (hotkey.win) {
@@ -44,7 +44,7 @@ static uint32_t EncodeHotkey(const HotkeySettings& hotkey) noexcept {
 	return value;
 }
 
-static void DecodeHotkey(uint32_t value, HotkeySettings& hotkey) noexcept {
+static void DecodeHotkey(uint32_t value, Hotkey& hotkey) noexcept {
 	if (value > 0xfff) {
 		return;
 	}
@@ -335,7 +335,7 @@ void AppSettings::Theme(uint32_t value) {
 	SaveAsync();
 }
 
-void AppSettings::SetHotkey(HotkeyAction action, const Magpie::App::HotkeySettings& value) {
+void AppSettings::SetHotkey(HotkeyAction action, const Magpie::App::Hotkey& value) {
 	if (_hotkeys[(size_t)action] == value) {
 		return;
 	}
@@ -790,7 +790,7 @@ bool AppSettings::_LoadScalingProfile(
 bool AppSettings::_SetDefaultHotkeys() {
 	bool changed = false;
 
-	HotkeySettings& scaleHotkey = _hotkeys[(size_t)HotkeyAction::Scale];
+	Hotkey& scaleHotkey = _hotkeys[(size_t)HotkeyAction::Scale];
 	if (scaleHotkey.IsEmpty()) {
 		scaleHotkey.win = true;
 		scaleHotkey.shift = true;
@@ -799,7 +799,7 @@ bool AppSettings::_SetDefaultHotkeys() {
 		changed = true;
 	}
 
-	HotkeySettings& overlayHotkey = _hotkeys[(size_t)HotkeyAction::Overlay];
+	Hotkey& overlayHotkey = _hotkeys[(size_t)HotkeyAction::Overlay];
 	if (overlayHotkey.IsEmpty()) {
 		overlayHotkey.win = true;
 		overlayHotkey.shift = true;

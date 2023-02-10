@@ -1,7 +1,7 @@
 #pragma once
 #include <winrt/Magpie.App.h>
 #include "WinRTUtils.h"
-#include "HotkeySettings.h"
+#include "Hotkey.h"
 #include "ScalingProfile.h"
 #include <parallel_hashmap/phmap.h>
 #include <rapidjson/document.h>
@@ -15,7 +15,7 @@ struct _AppSettingsData {
 	_AppSettingsData();
 	virtual ~_AppSettingsData();
 
-	std::array<HotkeySettings, (size_t)HotkeyAction::COUNT_OR_NONE> _hotkeys;
+	std::array<Hotkey, (size_t)HotkeyAction::COUNT_OR_NONE> _hotkeys;
 
 	::Magpie::Core::DownscalingEffect _downscalingEffect;
 	std::vector<ScalingMode> _scalingModes;
@@ -132,11 +132,11 @@ public:
 		return _isWindowMaximized;
 	}
 
-	const HotkeySettings& GetHotkey(HotkeyAction action) const {
+	const Hotkey& GetHotkey(HotkeyAction action) const {
 		return _hotkeys[(size_t)action];
 	}
 
-	void SetHotkey(HotkeyAction action, const HotkeySettings& value);
+	void SetHotkey(HotkeyAction action, const Hotkey& value);
 
 	event_token HotkeyChanged(delegate<HotkeyAction> const& handler) {
 		return _hotkeyChangedEvent.add(handler);

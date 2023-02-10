@@ -22,7 +22,7 @@
       <Filter>Services</Filter>
     </ClCompile>
     <ClCompile Include="AppSettings.cpp" />
-    <ClCompile Include="HotkeySettings.cpp">
+    <ClCompile Include="Hotkey.cpp">
       <Filter>Models</Filter>
     </ClCompile>
     <ClCompile Include="ScalingProfileService.cpp">
@@ -74,7 +74,7 @@
       <Filter>Services</Filter>
     </ClInclude>
     <ClInclude Include="AppSettings.h" />
-    <ClInclude Include="HotkeySettings.h">
+    <ClInclude Include="Hotkey.h">
       <Filter>Models</Filter>
     </ClInclude>
     <ClInclude Include="ScalingProfile.h">
@@ -230,7 +230,7 @@
     <Page Include="KeyVisual.xaml">
       <Filter>Controls</Filter>
     </Page>
-    <Page Include="ShortcutControl.xaml">
+    <Page Include="HotkeyControl.xaml">
       <Filter>Controls</Filter>
     </Page>
     <Page Include="ScalingConfigurationPage.xaml">
@@ -239,7 +239,7 @@
     <Page Include="ProfilePage.xaml">
       <Filter>Pages</Filter>
     </Page>
-    <Page Include="ShortcutDialog.xaml">
+    <Page Include="HotkeyDialog.xaml">
       <Filter>Controls</Filter>
     </Page>
     <Page Include="Button.xaml">

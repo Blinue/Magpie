@@ -5,8 +5,8 @@
 
 namespace winrt::Magpie::App {
 
-struct HotkeySettings {
-	bool operator==(const HotkeySettings&) const noexcept = default;
+struct Hotkey {
+	bool operator==(const Hotkey&) const noexcept = default;
 
 	bool IsEmpty() const noexcept;
 

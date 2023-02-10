@@ -1,13 +1,13 @@
 #pragma once
-#include "ShortcutControl.g.h"
+#include "HotkeyControl.g.h"
 #include "WinRTUtils.h"
-#include "HotkeySettings.h"
+#include "Hotkey.h"
 
 namespace winrt::Magpie::App::implementation {
 
-struct ShortcutControl : ShortcutControlT<ShortcutControl> {
-	ShortcutControl();
-	~ShortcutControl();
+struct HotkeyControl : HotkeyControlT<HotkeyControl> {
+	HotkeyControl();
+	~HotkeyControl();
 
 	fire_and_forget EditButton_Click(IInspectable const&, RoutedEventArgs const&);
 
@@ -35,7 +35,7 @@ struct ShortcutControl : ShortcutControlT<ShortcutControl> {
 	static const DependencyProperty TitleProperty;
 
 private:
-	void _ShortcutDialog_Closing(Controls::ContentDialog const&, Controls::ContentDialogClosingEventArgs const& args);
+	void _HotkeyDialog_Closing(Controls::ContentDialog const&, Controls::ContentDialogClosingEventArgs const& args);
 
 	static LRESULT CALLBACK _LowLevelKeyboardProc(
 		int    nCode,
@@ -59,25 +59,25 @@ private:
 
 	WinRTUtils::EventRevoker _hotkeyChangedRevoker;
 
-	HotkeySettings _hotkey;
-	Controls::ContentDialog _shortcutDialog{ nullptr };
-	Magpie::App::ShortcutDialog _shortcutDialogContent{ nullptr };
+	Hotkey _hotkey;
+	Controls::ContentDialog _HotkeyDialog{ nullptr };
+	Magpie::App::HotkeyDialog _HotkeyDialogContent{ nullptr };
 
 	HHOOK _keyboardHook = NULL;
 	// 用于向键盘钩子传递 this 指针
 	// 使用静态成员是一个权宜之计，因为只能同时显示一个弹出窗口
 	// 有没有更好的方法？
-	static ShortcutControl* _that;
+	static HotkeyControl* _that;
 
-	HotkeySettings _previewHotkey;
-	HotkeySettings _pressedKeys;
+	Hotkey _previewHotkey;
+	Hotkey _pressedKeys;
 };
 
 }
 
 namespace winrt::Magpie::App::factory_implementation {
 
-struct ShortcutControl : ShortcutControlT<ShortcutControl, implementation::ShortcutControl> {
+struct HotkeyControl : HotkeyControlT<HotkeyControl, implementation::HotkeyControl> {
 };
 
 }

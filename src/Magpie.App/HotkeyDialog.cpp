@@ -1,23 +1,23 @@
 #include "pch.h"
-#include "ShortcutDialog.h"
-#if __has_include("ShortcutDialog.g.cpp")
-#include "ShortcutDialog.g.cpp"
+#include "HotkeyDialog.h"
+#if __has_include("HotkeyDialog.g.cpp")
+#include "HotkeyDialog.g.cpp"
 #endif
 
 namespace winrt::Magpie::App::implementation {
 
-const DependencyProperty ShortcutDialog::_IsErrorProperty = DependencyProperty::Register(
+const DependencyProperty HotkeyDialog::_IsErrorProperty = DependencyProperty::Register(
 	L"_IsError",
 	xaml_typename<bool>(),
-	xaml_typename<Magpie::App::ShortcutDialog>(),
+	xaml_typename<Magpie::App::HotkeyDialog>(),
 	PropertyMetadata(box_value(false), nullptr)
 );
 
-ShortcutDialog::ShortcutDialog() {
+HotkeyDialog::HotkeyDialog() {
 	InitializeComponent();
 }
 
-void ShortcutDialog::Error(HotkeyError value) {
+void HotkeyDialog::Error(HotkeyError value) {
 	switch (value) {
 	case HotkeyError::NoError:
 		_IsError(false);
@@ -26,12 +26,12 @@ void ShortcutDialog::Error(HotkeyError value) {
 	case HotkeyError::Invalid:
 		_IsError(true);
 		WarningBanner().Visibility(Visibility::Visible);
-		InvalidShortcutWarningLabel().Text(L"无效快捷键");
+		InvalidHotkeyWarningLabel().Text(L"无效快捷键");
 		break;
 	case HotkeyError::Occupied:
 		_IsError(true);
 		WarningBanner().Visibility(Visibility::Visible);
-		InvalidShortcutWarningLabel().Text(L"此快捷键已被占用");
+		InvalidHotkeyWarningLabel().Text(L"此快捷键已被占用");
 		break;
 	default:
 		break;
@@ -40,16 +40,16 @@ void ShortcutDialog::Error(HotkeyError value) {
 	_error = value;
 }
 
-void ShortcutDialog::Keys(const IVector<IInspectable>& value) {
+void HotkeyDialog::Keys(const IVector<IInspectable>& value) {
 	_keys = value;
 	KeysControl().ItemsSource(value);
 }
 
-IVector<IInspectable> ShortcutDialog::Keys() const {
+IVector<IInspectable> HotkeyDialog::Keys() const {
 	return _keys;
 }
 
-void ShortcutDialog::_IsError(bool value) {
+void HotkeyDialog::_IsError(bool value) {
 	SetValue(_IsErrorProperty, box_value(value));
 }
 
