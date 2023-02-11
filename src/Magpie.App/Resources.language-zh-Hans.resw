@@ -129,6 +129,9 @@
   <data name="Home_Activation_HotkeyControl.Title" xml:space="preserve">
     <value>激活快捷键</value>
   </data>
+  <data name="Home_Overlay.Title" xml:space="preserve">
+    <value>游戏内覆盖</value>
+  </data>
   <data name="Home_PageFrame.Title" xml:space="preserve">
     <value>主页</value>
   </data>
@@ -137,6 +140,12 @@
   </data>
   <data name="Home_Timer.Title" xml:space="preserve">
     <value>定时器</value>
+  </data>
+  <data name="Home_Timer_ButtonText" xml:space="preserve">
+    <value>{} 秒后缩放</value>
+  </data>
+  <data name="Home_Timer_Cancel" xml:space="preserve">
+    <value>取消</value>
   </data>
   <data name="Home_Timer_Delay.Title" xml:space="preserve">
     <value>倒计时时长</value>

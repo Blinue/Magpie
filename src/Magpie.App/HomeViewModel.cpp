@@ -9,6 +9,9 @@
 #include "StrUtils.h"
 #include "UpdateService.h"
 
+using namespace winrt;
+using namespace Windows::ApplicationModel::Resources;
+
 namespace winrt::Magpie::App::implementation {
 
 HomeViewModel::HomeViewModel() {
@@ -17,9 +20,9 @@ HomeViewModel::HomeViewModel() {
 	_isRunningChangedRevoker = magService.IsRunningChanged(
 		auto_revoke, { this, &HomeViewModel::_MagService_IsRunningChanged });
 	_isTimerOnRevoker = magService.IsTimerOnChanged(
-		auto_revoke, { this, &HomeViewModel::_MagService_IsCountingDownChanged });
+		auto_revoke, { this, &HomeViewModel::_MagService_IsTimerOnChanged });
 	_timerTickRevoker = magService.TimerTick(
-		auto_revoke, { this, &HomeViewModel::_MagService_CountdownTick });
+		auto_revoke, { this, &HomeViewModel::_MagService_TimerTick });
 	_wndToRestoreChangedRevoker = magService.WndToRestoreChanged(
 		auto_revoke, { this, &HomeViewModel::_MagService_WndToRestoreChanged });
 
@@ -51,10 +54,15 @@ hstring HomeViewModel::TimerLabelText() const noexcept {
 
 hstring HomeViewModel::TimerButtonText() const noexcept {
 	MagService& magService = MagService::Get();
+	ResourceLoader resourceLoader = ResourceLoader::GetForCurrentView();
 	if (magService.IsTimerOn()) {
-		return L"取消";
+		return resourceLoader.GetString(L"Home_Timer_Cancel");
 	} else {
-		return hstring(fmt::format(L"{} 秒后缩放", AppSettings::Get().CountdownSeconds()));
+		hstring fmtStr = resourceLoader.GetString(L"Home_Timer_ButtonText");
+		return hstring(fmt::format(
+			fmt::runtime(std::wstring_view(fmtStr)),
+			AppSettings::Get().CountdownSeconds()
+		));
 	}
 }
 
@@ -76,13 +84,7 @@ uint32_t HomeViewModel::Delay() const noexcept {
 }
 
 void HomeViewModel::Delay(uint32_t value) {
-	AppSettings& settings = AppSettings::Get();
-
-	if (settings.CountdownSeconds() == value) {
-		return;
-	}
-
-	settings.CountdownSeconds(value);
+	AppSettings::Get().CountdownSeconds(value);
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"Delay"));
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"TimerButtonText"));
 }
@@ -179,7 +181,7 @@ void HomeViewModel::RemindMeLater() {
 	ShowUpdateCard(false);
 }
 
-void HomeViewModel::_MagService_IsCountingDownChanged(bool value) {
+void HomeViewModel::_MagService_IsTimerOnChanged(bool value) {
 	if (!value) {
 		_propertyChangedEvent(*this, PropertyChangedEventArgs(L"TimerProgressRingValue"));
 	}
@@ -190,7 +192,7 @@ void HomeViewModel::_MagService_IsCountingDownChanged(bool value) {
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsTimerOn"));
 }
 
-void HomeViewModel::_MagService_CountdownTick(double) {
+void HomeViewModel::_MagService_TimerTick(double) {
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"TimerProgressRingValue"));
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"TimerLabelText"));
 }

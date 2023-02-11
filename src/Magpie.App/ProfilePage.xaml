@@ -236,7 +236,8 @@
 							<FontIcon Glyph="&#xE945;" />
 						</local:SettingsCard.Icon>
 						<local:SettingsCard.ActionContent>
-							<ToggleSwitch IsOn="{x:Bind ViewModel.IsAutoScale, Mode=TwoWay}" />
+							<ToggleSwitch x:Uid="ToggleSwitch"
+							              IsOn="{x:Bind ViewModel.IsAutoScale, Mode=TwoWay}" />
 						</local:SettingsCard.ActionContent>
 					</local:SettingsCard>
 					<local:SettingsCard x:Name="Is3DGameModeSettingsCard"
@@ -245,7 +246,8 @@
 							<FontIcon Glyph="&#xE7FC;" />
 						</local:SettingsCard.Icon>
 						<local:SettingsCard.ActionContent>
-							<ToggleSwitch IsOn="{x:Bind ViewModel.Is3DGameMode, Mode=TwoWay}" />
+							<ToggleSwitch x:Uid="ToggleSwitch"
+							              IsOn="{x:Bind ViewModel.Is3DGameMode, Mode=TwoWay}" />
 						</local:SettingsCard.ActionContent>
 					</local:SettingsCard>
 				</StackPanel>
@@ -285,7 +287,8 @@
 							<FontIcon Glyph="&#xEC4A;" />
 						</local:SettingsCard.Icon>
 						<local:SettingsCard.ActionContent>
-							<ToggleSwitch IsOn="{x:Bind ViewModel.IsShowFPS, Mode=TwoWay}" />
+							<ToggleSwitch x:Uid="ToggleSwitch"
+							              IsOn="{x:Bind ViewModel.IsShowFPS, Mode=TwoWay}" />
 						</local:SettingsCard.ActionContent>
 					</local:SettingsCard>
 				</StackPanel>
@@ -299,7 +302,8 @@
 								<FontIcon Glyph="&#xF71C;" />
 							</local:SettingsCard.Icon>
 							<local:SettingsCard.ActionContent>
-								<ToggleSwitch IsOn="{x:Bind ViewModel.IsVSync, Mode=TwoWay}" />
+								<ToggleSwitch x:Uid="ToggleSwitch"
+								              IsOn="{x:Bind ViewModel.IsVSync, Mode=TwoWay}" />
 							</local:SettingsCard.ActionContent>
 						</local:SettingsCard>
 					</muxc:Expander.Header>
@@ -318,7 +322,8 @@
 						<FontIcon Glyph="&#xEE3F;" />
 					</local:SettingsCard.Icon>
 					<local:SettingsCard.ActionContent>
-						<ToggleSwitch IsOn="{x:Bind ViewModel.IsDisableWindowResizing, Mode=TwoWay}" />
+						<ToggleSwitch x:Uid="ToggleSwitch"
+						              IsOn="{x:Bind ViewModel.IsDisableWindowResizing, Mode=TwoWay}" />
 					</local:SettingsCard.ActionContent>
 				</local:SettingsCard>
 				<local:SettingsCard Title="保留标题栏"
@@ -328,7 +333,8 @@
 						<FontIcon Glyph="&#xE737;" />
 					</local:SettingsCard.Icon>
 					<local:SettingsCard.ActionContent>
-						<ToggleSwitch IsOn="{x:Bind ViewModel.IsReserveTitleBar, Mode=TwoWay}" />
+						<ToggleSwitch x:Uid="ToggleSwitch"
+						              IsOn="{x:Bind ViewModel.IsReserveTitleBar, Mode=TwoWay}" />
 					</local:SettingsCard.ActionContent>
 				</local:SettingsCard>
 				<muxc:Expander HorizontalAlignment="Stretch"
@@ -342,7 +348,8 @@
 								<FontIcon Glyph="&#xE7A8;" />
 							</local:SettingsCard.Icon>
 							<local:SettingsCard.ActionContent>
-								<ToggleSwitch IsOn="{x:Bind ViewModel.IsCroppingEnabled, Mode=TwoWay}" />
+								<ToggleSwitch x:Uid="ToggleSwitch"
+								              IsOn="{x:Bind ViewModel.IsCroppingEnabled, Mode=TwoWay}" />
 							</local:SettingsCard.ActionContent>
 						</local:SettingsCard>
 					</muxc:Expander.Header>
@@ -428,7 +435,8 @@
 								<FontIcon Glyph="&#xE7C9;" />
 							</local:SettingsCard.Icon>
 							<local:SettingsCard.ActionContent>
-								<ToggleSwitch IsOn="{x:Bind ViewModel.IsDrawCursor, Mode=TwoWay}" />
+								<ToggleSwitch x:Uid="ToggleSwitch"
+								              IsOn="{x:Bind ViewModel.IsDrawCursor, Mode=TwoWay}" />
 							</local:SettingsCard.ActionContent>
 						</local:SettingsCard>
 					</muxc:Expander.Header>
@@ -503,14 +511,16 @@
 						          Glyph="&#xE7C2;" />
 					</local:SettingsCard.Icon>
 					<local:SettingsCard.ActionContent>
-						<ToggleSwitch IsOn="{x:Bind ViewModel.IsAdjustCursorSpeed, Mode=TwoWay}" />
+						<ToggleSwitch x:Uid="ToggleSwitch"
+						              IsOn="{x:Bind ViewModel.IsAdjustCursorSpeed, Mode=TwoWay}" />
 					</local:SettingsCard.ActionContent>
 				</local:SettingsCard>
 			</local:SettingsGroup>
 			<local:SettingsGroup Title="高级">
 				<local:SettingsCard Title="禁用 DirectFlip">
 					<local:SettingsCard.ActionContent>
-						<ToggleSwitch IsOn="{x:Bind ViewModel.IsDisableDirectFlip, Mode=TwoWay}" />
+						<ToggleSwitch x:Uid="ToggleSwitch"
+						              IsOn="{x:Bind ViewModel.IsDisableDirectFlip, Mode=TwoWay}" />
 					</local:SettingsCard.ActionContent>
 				</local:SettingsCard>
 			</local:SettingsGroup>

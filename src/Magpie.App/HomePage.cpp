@@ -4,7 +4,6 @@
 #include "HomePage.g.cpp"
 #endif
 
-
 namespace winrt::Magpie::App::implementation {
 
 HomePage::HomePage() {

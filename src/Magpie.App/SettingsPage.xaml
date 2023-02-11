@@ -46,7 +46,8 @@
 								<FontIcon Glyph="&#xE7B5;" />
 							</local:SettingsCard.Icon>
 							<local:SettingsCard.ActionContent>
-								<ToggleSwitch IsOn="{x:Bind ViewModel.IsRunAtStartup, Mode=TwoWay}" />
+								<ToggleSwitch x:Uid="ToggleSwitch"
+								              IsOn="{x:Bind ViewModel.IsRunAtStartup, Mode=TwoWay}" />
 							</local:SettingsCard.ActionContent>
 						</local:SettingsCard>
 					</muxc:Expander.Header>
@@ -70,7 +71,8 @@
 						<FontIcon Glyph="&#xE9F5;" />
 					</local:SettingsCard.Icon>
 					<local:SettingsCard.ActionContent>
-						<ToggleSwitch IsOn="{x:Bind ViewModel.IsShowTrayIcon, Mode=TwoWay}" />
+						<ToggleSwitch x:Uid="ToggleSwitch"
+						              IsOn="{x:Bind ViewModel.IsShowTrayIcon, Mode=TwoWay}" />
 					</local:SettingsCard.ActionContent>
 				</local:SettingsCard>
 				<local:SettingsCard Title="便携模式">
@@ -86,7 +88,8 @@
 						</StackPanel>
 					</local:SettingsCard.Description>
 					<local:SettingsCard.ActionContent>
-						<ToggleSwitch IsOn="{x:Bind ViewModel.IsPortableMode, Mode=TwoWay}" />
+						<ToggleSwitch x:Uid="ToggleSwitch"
+						              IsOn="{x:Bind ViewModel.IsPortableMode, Mode=TwoWay}" />
 					</local:SettingsCard.ActionContent>
 				</local:SettingsCard>
 			</local:SettingsGroup>
@@ -97,7 +100,8 @@
 						<FontIcon Glyph="&#xec46;" />
 					</local:SettingsCard.Icon>
 					<local:SettingsCard.ActionContent>
-						<ToggleSwitch IsOn="{x:Bind ViewModel.IsSimulateExclusiveFullscreen, Mode=TwoWay}" />
+						<ToggleSwitch x:Uid="ToggleSwitch"
+						              IsOn="{x:Bind ViewModel.IsSimulateExclusiveFullscreen, Mode=TwoWay}" />
 					</local:SettingsCard.ActionContent>
 				</local:SettingsCard>
 				<local:SettingsCard Title="内联效果参数"
@@ -106,7 +110,8 @@
 						<FontIcon Glyph="&#xE9E9;" />
 					</local:SettingsCard.Icon>
 					<local:SettingsCard.ActionContent>
-						<ToggleSwitch IsOn="{x:Bind ViewModel.IsInlineParams, Mode=TwoWay}" />
+						<ToggleSwitch x:Uid="ToggleSwitch"
+						              IsOn="{x:Bind ViewModel.IsInlineParams, Mode=TwoWay}" />
 					</local:SettingsCard.ActionContent>
 				</local:SettingsCard>
 				<muxc:Expander HorizontalAlignment="Stretch"

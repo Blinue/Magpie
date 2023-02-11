@@ -55,7 +55,7 @@
 							</local:SettingsCard.Icon>
 							<local:SettingsCard.ActionContent>
 								<StackPanel Orientation="Horizontal"
-								            Spacing="5">
+								            Spacing="8">
 									<Grid Visibility="{x:Bind ViewModel.IsTimerOn, Mode=OneWay}">
 										<muxc:ProgressRing Width="30"
 										                   Height="30"
@@ -138,7 +138,8 @@
 					</muxc:Expander>
 				</StackPanel>
 			</local:SettingsGroup>
-			<local:SettingsGroup Title="游戏内覆盖">
+			<local:SettingsGroup x:Uid="Home_Overlay"
+			                     Title="游戏内覆盖">
 				<local:SettingsCard Title="快捷键"
 				                    Description="自定义打开和关闭游戏内覆盖的快捷键">
 					<local:SettingsCard.Icon>

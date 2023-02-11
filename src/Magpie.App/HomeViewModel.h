@@ -63,9 +63,9 @@ struct HomeViewModel : HomeViewModelT<HomeViewModel> {
 
 	void RemindMeLater();
 private:
-	void _MagService_IsCountingDownChanged(bool value);
+	void _MagService_IsTimerOnChanged(bool value);
 
-	void _MagService_CountdownTick(double);
+	void _MagService_TimerTick(double);
 
 	void _MagService_IsRunningChanged(bool);
 

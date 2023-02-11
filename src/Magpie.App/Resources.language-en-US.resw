@@ -129,6 +129,9 @@
   <data name="Home_Activation_HotkeyControl.Title" xml:space="preserve">
     <value>Activation hotkey</value>
   </data>
+  <data name="Home_Overlay.Title" xml:space="preserve">
+    <value>In-game overlay</value>
+  </data>
   <data name="Home_PageFrame.Title" xml:space="preserve">
     <value>Home</value>
   </data>
@@ -137,6 +140,12 @@
   </data>
   <data name="Home_Timer.Title" xml:space="preserve">
     <value>Delayed scaling</value>
+  </data>
+  <data name="Home_Timer_ButtonText" xml:space="preserve">
+    <value>Scale after {}s</value>
+  </data>
+  <data name="Home_Timer_Cancel" xml:space="preserve">
+    <value>Cancel</value>
   </data>
   <data name="Home_Timer_Delay.Title" xml:space="preserve">
     <value>Delay in seconds</value>
