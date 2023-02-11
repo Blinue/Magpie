@@ -16,9 +16,9 @@ HomeViewModel::HomeViewModel() {
 
 	_isRunningChangedRevoker = magService.IsRunningChanged(
 		auto_revoke, { this, &HomeViewModel::_MagService_IsRunningChanged });
-	_isCountingDownRevoker = magService.IsCountingDownChanged(
+	_isTimerOnRevoker = magService.IsTimerOnChanged(
 		auto_revoke, { this, &HomeViewModel::_MagService_IsCountingDownChanged });
-	_countdownTickRevoker = magService.CountdownTick(
+	_timerTickRevoker = magService.TimerTick(
 		auto_revoke, { this, &HomeViewModel::_MagService_CountdownTick });
 	_wndToRestoreChangedRevoker = magService.WndToRestoreChanged(
 		auto_revoke, { this, &HomeViewModel::_MagService_WndToRestoreChanged });
@@ -36,22 +36,22 @@ HomeViewModel::HomeViewModel() {
 }
 
 bool HomeViewModel::IsTimerOn() const noexcept {
-	return MagService::Get().IsCountingDown();
+	return MagService::Get().IsTimerOn();
 }
 
-float HomeViewModel::TimerProgressRingValue() const noexcept {
+double HomeViewModel::TimerProgressRingValue() const noexcept {
 	MagService& magService = MagService::Get();
-	return magService.IsCountingDown() ? magService.CountdownLeft() / magService.TickingDownCount() : 1.0f;
+	return magService.IsTimerOn() ? magService.TimerProgress() : 1.0f;
 }
 
 hstring HomeViewModel::TimerLabelText() const noexcept {
 	MagService& magService = MagService::Get();
-	return to_hstring((int)std::ceil(magService.CountdownLeft()));
+	return to_hstring((int)std::ceil(magService.SecondsLeft()));
 }
 
 hstring HomeViewModel::TimerButtonText() const noexcept {
 	MagService& magService = MagService::Get();
-	if (magService.IsCountingDown()) {
+	if (magService.IsTimerOn()) {
 		return L"取消";
 	} else {
 		return hstring(fmt::format(L"{} 秒后缩放", AppSettings::Get().CountdownSeconds()));
@@ -64,10 +64,10 @@ bool HomeViewModel::IsNotRunning() const noexcept {
 
 void HomeViewModel::ToggleTimer() const noexcept {
 	MagService& magService = MagService::Get();
-	if (magService.IsCountingDown()) {
-		magService.StopCountdown();
+	if (magService.IsTimerOn()) {
+		magService.StopTimer();
 	} else {
-		magService.StartCountdown();
+		magService.StartTimer();
 	}
 }
 
@@ -190,7 +190,7 @@ void HomeViewModel::_MagService_IsCountingDownChanged(bool value) {
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsTimerOn"));
 }
 
-void HomeViewModel::_MagService_CountdownTick(float) {
+void HomeViewModel::_MagService_CountdownTick(double) {
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"TimerProgressRingValue"));
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"TimerLabelText"));
 }

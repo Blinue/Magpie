@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "ScalingProfileService.h"
+#include "ProfileService.h"
 #include "Win32Utils.h"
 #include "AppSettings.h"
 #include "AppXReader.h"
@@ -26,16 +26,16 @@ static bool RealTestNewProfile(
 	std::wstring_view pathOrAumid,
 	std::wstring_view realClassName
 ) {
-	const std::vector<ScalingProfile>& profiles = AppSettings::Get().ScalingProfiles();
+	const std::vector<Profile>& profiles = AppSettings::Get().Profiles();
 
 	if (isPackaged) {
-		for (const ScalingProfile& rule : profiles) {
+		for (const Profile& rule : profiles) {
 			if (rule.isPackaged && rule.pathRule == pathOrAumid && rule.classNameRule == realClassName) {
 				return false;
 			}
 		}
 	} else {
-		for (const ScalingProfile& rule : profiles) {
+		for (const Profile& rule : profiles) {
 			if (!rule.isPackaged && rule.pathRule == pathOrAumid && rule.classNameRule == realClassName) {
 				return false;
 			}
@@ -45,7 +45,7 @@ static bool RealTestNewProfile(
 	return true;
 }
 
-bool ScalingProfileService::TestNewProfile(bool isPackaged, std::wstring_view pathOrAumid, std::wstring_view className) {
+bool ProfileService::TestNewProfile(bool isPackaged, std::wstring_view pathOrAumid, std::wstring_view className) {
 	if (pathOrAumid.empty() || className.empty()) {
 		return false;
 	}
@@ -53,7 +53,7 @@ bool ScalingProfileService::TestNewProfile(bool isPackaged, std::wstring_view pa
 	return RealTestNewProfile(isPackaged, pathOrAumid, GetRealClassName(className));
 }
 
-bool ScalingProfileService::AddProfile(
+bool ProfileService::AddProfile(
 	bool isPackaged,
 	std::wstring_view pathOrAumid,
 	std::wstring_view className,
@@ -68,10 +68,10 @@ bool ScalingProfileService::AddProfile(
 		return false;
 	}
 
-	std::vector<ScalingProfile>& profiles = AppSettings::Get().ScalingProfiles();
-	ScalingProfile& profile = profiles.emplace_back();
+	std::vector<Profile>& profiles = AppSettings::Get().Profiles();
+	Profile& profile = profiles.emplace_back();
 
-	profile.Copy(copyFrom < 0 ? DefaultScalingProfile() : profiles[copyFrom]);
+	profile.Copy(copyFrom < 0 ? DefaultProfile() : profiles[copyFrom]);
 
 	profile.name = name;
 	profile.isPackaged = isPackaged;
@@ -84,22 +84,22 @@ bool ScalingProfileService::AddProfile(
 	return true;
 }
 
-void ScalingProfileService::RenameProfile(uint32_t profileIdx, std::wstring_view newName) {
+void ProfileService::RenameProfile(uint32_t profileIdx, std::wstring_view newName) {
 	assert(!newName.empty());
-	AppSettings::Get().ScalingProfiles()[profileIdx].name = newName;
+	AppSettings::Get().Profiles()[profileIdx].name = newName;
 	_profileRenamedEvent(profileIdx);
 	AppSettings::Get().SaveAsync();
 }
 
-void ScalingProfileService::RemoveProfile(uint32_t profileIdx) {
-	std::vector<ScalingProfile>& profiles = AppSettings::Get().ScalingProfiles();
+void ProfileService::RemoveProfile(uint32_t profileIdx) {
+	std::vector<Profile>& profiles = AppSettings::Get().Profiles();
 	profiles.erase(profiles.begin() + profileIdx);
 	_profileRemovedEvent(profileIdx);
 	AppSettings::Get().SaveAsync();
 }
 
-bool ScalingProfileService::MoveProfile(uint32_t profileIdx, bool isMoveUp) {
-	std::vector<ScalingProfile>& profiles = AppSettings::Get().ScalingProfiles();
+bool ProfileService::MoveProfile(uint32_t profileIdx, bool isMoveUp) {
+	std::vector<Profile>& profiles = AppSettings::Get().Profiles();
 	if (isMoveUp ? profileIdx == 0 : profileIdx + 1 >= (uint32_t)profiles.size()) {
 		return false;
 	}
@@ -111,7 +111,7 @@ bool ScalingProfileService::MoveProfile(uint32_t profileIdx, bool isMoveUp) {
 	return true;
 }
 
-ScalingProfile& ScalingProfileService::GetProfileForWindow(HWND hWnd) {
+Profile& ProfileService::GetProfileForWindow(HWND hWnd) {
 	std::wstring className = Win32Utils::GetWndClassName(hWnd);
 	std::wstring_view realClassName = GetRealClassName(className);
 
@@ -119,7 +119,7 @@ ScalingProfile& ScalingProfileService::GetProfileForWindow(HWND hWnd) {
 	if (appXReader.Initialize(hWnd)) {
 		// 打包的应用程序匹配 AUMID 和 类名
 		const std::wstring& aumid = appXReader.AUMID();
-		for (ScalingProfile& rule : AppSettings::Get().ScalingProfiles()) {
+		for (Profile& rule : AppSettings::Get().Profiles()) {
 			if (rule.isPackaged && rule.pathRule == aumid && rule.classNameRule == realClassName) {
 				return rule;
 			}
@@ -128,26 +128,26 @@ ScalingProfile& ScalingProfileService::GetProfileForWindow(HWND hWnd) {
 		// 桌面程序匹配类名和可执行文件名
 		std::wstring path = Win32Utils::GetPathOfWnd(hWnd);
 
-		for (ScalingProfile& rule : AppSettings::Get().ScalingProfiles()) {
+		for (Profile& rule : AppSettings::Get().Profiles()) {
 			if (!rule.isPackaged && rule.pathRule == path && rule.classNameRule == realClassName) {
 				return rule;
 			}
 		}
 	}
 
-	return DefaultScalingProfile();
+	return DefaultProfile();
 }
 
-ScalingProfile& ScalingProfileService::DefaultScalingProfile() {
-	return AppSettings::Get().DefaultScalingProfile();
+Profile& ProfileService::DefaultProfile() {
+	return AppSettings::Get().DefaultProfile();
 }
 
-ScalingProfile& ScalingProfileService::GetProfile(uint32_t idx) {
-	return AppSettings::Get().ScalingProfiles()[idx];
+Profile& ProfileService::GetProfile(uint32_t idx) {
+	return AppSettings::Get().Profiles()[idx];
 }
 
-uint32_t ScalingProfileService::GetProfileCount() {
-	return (uint32_t)AppSettings::Get().ScalingProfiles().size();
+uint32_t ProfileService::GetProfileCount() {
+	return (uint32_t)AppSettings::Get().Profiles().size();
 }
 
 }

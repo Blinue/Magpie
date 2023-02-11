@@ -5,8 +5,8 @@
 #endif
 #include "Win32Utils.h"
 #include "ComboBoxHelper.h"
-#include "ScalingProfileService.h"
-#include "ScalingProfile.h"
+#include "ProfileService.h"
+#include "Profile.h"
 #include "PageHelper.h"
 
 using namespace winrt;

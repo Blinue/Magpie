@@ -165,7 +165,7 @@
       <SubType>Code</SubType>
     </ClInclude>
     <ClInclude Include="ScalingMode.h" />
-    <ClInclude Include="ScalingProfile.h" />
+    <ClInclude Include="Profile.h" />
     <ClInclude Include="ProfilePage.h">
       <DependentUpon>ProfilePage.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -187,7 +187,7 @@
       <DependentUpon>ScalingConfigurationPage.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
-    <ClInclude Include="ScalingProfileService.h" />
+    <ClInclude Include="ProfileService.h" />
     <ClInclude Include="ProfileViewModel.h">
       <DependentUpon>ProfileViewModel.idl</DependentUpon>
       <SubType>Code</SubType>
@@ -323,7 +323,7 @@
       <DependentUpon>ScalingConfigurationPage.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
-    <ClCompile Include="ScalingProfileService.cpp" />
+    <ClCompile Include="ProfileService.cpp" />
     <ClCompile Include="ProfileViewModel.cpp">
       <DependentUpon>ProfileViewModel.idl</DependentUpon>
       <SubType>Code</SubType>

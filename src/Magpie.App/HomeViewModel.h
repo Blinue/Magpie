@@ -17,7 +17,7 @@ struct HomeViewModel : HomeViewModelT<HomeViewModel> {
 
 	bool IsTimerOn() const noexcept;
 
-	float TimerProgressRingValue() const noexcept;
+	double TimerProgressRingValue() const noexcept;
 
 	hstring TimerLabelText() const noexcept;
 
@@ -65,7 +65,7 @@ struct HomeViewModel : HomeViewModelT<HomeViewModel> {
 private:
 	void _MagService_IsCountingDownChanged(bool value);
 
-	void _MagService_CountdownTick(float);
+	void _MagService_CountdownTick(double);
 
 	void _MagService_IsRunningChanged(bool);
 
@@ -73,8 +73,8 @@ private:
 
 	event<PropertyChangedEventHandler> _propertyChangedEvent;
 
-	WinRTUtils::EventRevoker _isCountingDownRevoker;
-	WinRTUtils::EventRevoker _countdownTickRevoker;
+	WinRTUtils::EventRevoker _isTimerOnRevoker;
+	WinRTUtils::EventRevoker _timerTickRevoker;
 	WinRTUtils::EventRevoker _isRunningChangedRevoker;
 	WinRTUtils::EventRevoker _wndToRestoreChangedRevoker;
 	WinRTUtils::EventRevoker _isShowOnHomePageChangedRevoker;

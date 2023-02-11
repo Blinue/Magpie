@@ -2,7 +2,7 @@
 #include "ProfileViewModel.g.h"
 
 namespace winrt::Magpie::App {
-struct ScalingProfile;
+struct Profile;
 class AppXReader;
 }
 
@@ -24,7 +24,7 @@ struct ProfileViewModel : ProfileViewModelT<ProfileViewModel> {
 		return _icon;
 	}
 
-	bool IsNotDefaultScalingProfile() const noexcept;
+	bool IsNotDefaultProfile() const noexcept;
 
 	bool IsProgramExist() const noexcept {
 		return _isProgramExist;
@@ -156,7 +156,7 @@ private:
 
 	uint32_t _index = 0;
 	// 可以保存此指针的原因是：用户停留在此页面时不会有缩放配置被创建或删除
-	ScalingProfile* _data = nullptr;
+	Profile* _data = nullptr;
 
 	MainPage::ActualThemeChanged_revoker _themeChangedRevoker;
 	Windows::Graphics::Display::DisplayInformation _displayInformation{ nullptr };

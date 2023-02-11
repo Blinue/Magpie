@@ -3,7 +3,7 @@
 #include "HotkeyService.h"
 #include "Win32Utils.h"
 #include "AppSettings.h"
-#include "ScalingProfileService.h"
+#include "ProfileService.h"
 #include "ScalingModesService.h"
 #include "ScalingMode.h"
 #include "Logger.h"
@@ -36,38 +36,38 @@ void MagService::Initialize() {
 	_CheckForegroundTimer_Tick(nullptr);
 }
 
-void MagService::StartCountdown() {
-	if (_tickingDownCount != 0) {
+void MagService::StartTimer() {
+	if (_curCountdownSeconds != 0) {
 		return;
 	}
 
-	_tickingDownCount = AppSettings::Get().CountdownSeconds();
+	_curCountdownSeconds = AppSettings::Get().CountdownSeconds();
 	_timerStartTimePoint = std::chrono::steady_clock::now();
 	_countDownTimer.Start();
-	_isCountingDownChangedEvent(true);
+	_isTimerOnChangedEvent(true);
 }
 
-void MagService::StopCountdown() {
-	if (_tickingDownCount == 0) {
+void MagService::StopTimer() {
+	if (_curCountdownSeconds == 0) {
 		return;
 	}
 
-	_tickingDownCount = 0;
+	_curCountdownSeconds = 0;
 	_countDownTimer.Stop();
-	_isCountingDownChangedEvent(false);
+	_isTimerOnChangedEvent(false);
 }
 
-float MagService::CountdownLeft() const noexcept {
+double MagService::SecondsLeft() const noexcept {
 	using namespace std::chrono;
 
-	if (!IsCountingDown()) {
-		return 0.0f;
+	if (!IsTimerOn()) {
+		return 0.0;
 	}
 
 	// DispatcherTimer 误差很大，因此我们自己计算剩余时间
 	auto now = steady_clock::now();
-	int timeLeft = (int)duration_cast<milliseconds>(_timerStartTimePoint + seconds(_tickingDownCount) - now).count();
-	return timeLeft / 1000.0f;
+	int msLeft = (int)duration_cast<milliseconds>(_timerStartTimePoint + seconds(_curCountdownSeconds) - now).count();
+	return msLeft / 1000.0;
 }
 
 void MagService::ClearWndToRestore() {
@@ -114,16 +114,16 @@ void MagService::_HotkeyService_HotkeyPressed(HotkeyAction action) {
 }
 
 void MagService::_CountDownTimer_Tick(IInspectable const&, IInspectable const&) {
-	float timeLeft = CountdownLeft();
+	double timeLeft = SecondsLeft();
 
 	// 剩余时间在 10 ms 以内计时结束
 	if (timeLeft < 0.01) {
-		StopCountdown();
+		StopTimer();
 		_ScaleForegroundWindow();
 		return;
 	}
 
-	_countdownTickEvent(timeLeft);
+	_timerTickEvent(timeLeft);
 }
 
 fire_and_forget MagService::_CheckForegroundTimer_Tick(ThreadPoolTimer const& timer) {
@@ -145,7 +145,7 @@ fire_and_forget MagService::_CheckForegroundTimer_Tick(ThreadPoolTimer const& ti
 	const bool isAutoRestore = AppSettings::Get().IsAutoRestore();
 
 	if (_CheckSrcWnd(hwndFore)) {
-		const ScalingProfile& profile = ScalingProfileService::Get().GetProfileForWindow(hwndFore);
+		const Profile& profile = ProfileService::Get().GetProfileForWindow(hwndFore);
 		// 先检查自动恢复全屏
 		if (profile.isAutoScale) {
 			if (_StartScale(hwndFore, profile)) {
@@ -187,7 +187,7 @@ fire_and_forget MagService::_MagRuntime_IsRunningChanged(bool isRunning) {
 	co_await _dispatcher;
 
 	if (isRunning) {
-		StopCountdown();
+		StopTimer();
 
 		if (AppSettings::Get().IsAutoRestore()) {
 			_WndToRestore(NULL);
@@ -226,7 +226,7 @@ fire_and_forget MagService::_MagRuntime_IsRunningChanged(bool isRunning) {
 	_isRunningChangedEvent(isRunning);
 }
 
-bool MagService::_StartScale(HWND hWnd, const ScalingProfile& profile) {
+bool MagService::_StartScale(HWND hWnd, const Profile& profile) {
 	if (profile.scalingMode < 0) {
 		return false;
 	}
@@ -303,7 +303,7 @@ void MagService::_ScaleForegroundWindow() {
 		return;
 	}
 
-	const ScalingProfile& profile = ScalingProfileService::Get().GetProfileForWindow((HWND)hWnd);
+	const Profile& profile = ProfileService::Get().GetProfileForWindow((HWND)hWnd);
 	_StartScale(hWnd, profile);
 }
 

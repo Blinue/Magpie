@@ -3,7 +3,7 @@ namespace Magpie.App {
 		HomeViewModel();
 		
 		Boolean IsTimerOn { get; };
-		Single TimerProgressRingValue { get; };
+		Double TimerProgressRingValue { get; };
 		String TimerLabelText { get; };
 		String TimerButtonText { get; };
 		Boolean IsNotRunning { get; };

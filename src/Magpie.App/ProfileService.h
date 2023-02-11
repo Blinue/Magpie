@@ -3,28 +3,28 @@
 
 namespace winrt::Magpie::App {
 
-struct ScalingProfile;
+struct Profile;
 
-class ScalingProfileService {
+class ProfileService {
 public:
-	static ScalingProfileService& Get() noexcept {
-		static ScalingProfileService instance;
+	static ProfileService& Get() noexcept {
+		static ProfileService instance;
 		return instance;
 	}
 
-	ScalingProfileService(const ScalingProfileService&) = delete;
-	ScalingProfileService(ScalingProfileService&&) = delete;
+	ProfileService(const ProfileService&) = delete;
+	ProfileService(ProfileService&&) = delete;
 
 	bool TestNewProfile(bool isPackaged, std::wstring_view pathOrAumid, std::wstring_view className);
 
 	// copyFrom < 0 表示复制默认配置
 	bool AddProfile(bool isPackaged, std::wstring_view pathOrAumid, std::wstring_view className, std::wstring_view name, int copyFrom);
 
-	event_token ProfileAdded(delegate<ScalingProfile&> const& handler) {
+	event_token ProfileAdded(delegate<Profile&> const& handler) {
 		return _profileAddedEvent.add(handler);
 	}
 
-	WinRTUtils::EventRevoker ProfileAdded(auto_revoke_t, delegate<ScalingProfile&> const& handler) {
+	WinRTUtils::EventRevoker ProfileAdded(auto_revoke_t, delegate<Profile&> const& handler) {
 		event_token token = ProfileAdded(handler);
 		return WinRTUtils::EventRevoker([this, token]() {
 			ProfileAdded(token);
@@ -86,18 +86,18 @@ public:
 		_profileReorderedEvent.remove(token);
 	}
 
-	ScalingProfile& GetProfileForWindow(HWND hWnd);
+	Profile& GetProfileForWindow(HWND hWnd);
 
-	ScalingProfile& DefaultScalingProfile();
+	Profile& DefaultProfile();
 
-	ScalingProfile& GetProfile(uint32_t idx);
+	Profile& GetProfile(uint32_t idx);
 
 	uint32_t GetProfileCount();
 
 private:
-	ScalingProfileService() = default;
+	ProfileService() = default;
 
-	event<delegate<ScalingProfile&>> _profileAddedEvent;
+	event<delegate<Profile&>> _profileAddedEvent;
 	event<delegate<uint32_t>> _profileRenamedEvent;
 	event<delegate<uint32_t>> _profileRemovedEvent;
 	event<delegate<uint32_t, bool>> _profileReorderedEvent;

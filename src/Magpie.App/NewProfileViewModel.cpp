@@ -6,7 +6,7 @@
 #include "AppSettings.h"
 #include "Win32Utils.h"
 #include <Psapi.h>
-#include "ScalingProfileService.h"
+#include "ProfileService.h"
 #include "AppXReader.h"
 
 using namespace winrt;
@@ -63,7 +63,7 @@ static bool IsCandidateWindow(HWND hWnd) {
 	// 检查是否和已有配置重复
 	AppXReader appxReader;
 	if (appxReader.Initialize(hWnd)) {
-		return ScalingProfileService::Get().TestNewProfile(true, appxReader.AUMID(), className);
+		return ProfileService::Get().TestNewProfile(true, appxReader.AUMID(), className);
 	} else {
 		std::wstring fileName(MAX_PATH, 0);
 		DWORD size = GetModuleFileNameEx(hProc.get(), NULL, fileName.data(), (DWORD)fileName.size() + 1);
@@ -72,7 +72,7 @@ static bool IsCandidateWindow(HWND hWnd) {
 		}
 		fileName.resize(size);
 
-		return ScalingProfileService::Get().TestNewProfile(false, fileName, className);
+		return ProfileService::Get().TestNewProfile(false, fileName, className);
 	}
 }
 
@@ -148,7 +148,7 @@ void NewProfileViewModel::PrepareForOpen(uint32_t dpi, bool isLightTheme, CoreDi
 	std::vector<IInspectable> profiles;
 	hstring defaults = ResourceLoader::GetForCurrentView().GetString(L"Main_Defaults/Content");
 	profiles.push_back(box_value(defaults));
-	for (const ScalingProfile& profile : AppSettings::Get().ScalingProfiles()) {
+	for (const Profile& profile : AppSettings::Get().Profiles()) {
 		profiles.push_back(box_value(profile.name));
 	}
 
@@ -187,7 +187,7 @@ void NewProfileViewModel::Confirm() const noexcept {
 
 	CandidateWindowItem selectedItem = _candidateWindows.GetAt(_candidateWindowIndex).as<CandidateWindowItem>();
 	hstring aumid = selectedItem.AUMID();
-	ScalingProfileService::Get().AddProfile(!aumid.empty(), aumid.empty() ? selectedItem.Path() : aumid,
+	ProfileService::Get().AddProfile(!aumid.empty(), aumid.empty() ? selectedItem.Path() : aumid,
 		selectedItem.ClassName(), _name, _profileIndex - 1);
 }
 

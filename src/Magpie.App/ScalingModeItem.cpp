@@ -18,11 +18,11 @@ namespace winrt::Magpie::App::implementation {
 ScalingModeItem::ScalingModeItem(uint32_t index) : _index(index) {
 	{
 		std::vector<IInspectable> linkedProfiles;
-		const ScalingProfile& defaultProfile = AppSettings::Get().DefaultScalingProfile();
+		const Profile& defaultProfile = AppSettings::Get().DefaultProfile();
 		if (defaultProfile.scalingMode == (int)index) {
 			linkedProfiles.push_back(box_value(L"默认"));
 		}
-		for (const ScalingProfile& profile : AppSettings::Get().ScalingProfiles()) {
+		for (const Profile& profile : AppSettings::Get().Profiles()) {
 			if (profile.scalingMode == (int)index) {
 				linkedProfiles.push_back(box_value(profile.name));
 			}

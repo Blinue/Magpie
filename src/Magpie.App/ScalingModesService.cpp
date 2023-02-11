@@ -34,7 +34,7 @@ void ScalingModesService::AddScalingMode(std::wstring_view name, int copyFrom) {
 	AppSettings::Get().SaveAsync();
 }
 
-static void UpdateScalingProfileAfterRemove(ScalingProfile& profile, int removedIdx) {
+static void UpdateProfileAfterRemove(Profile& profile, int removedIdx) {
 	if (profile.scalingMode == removedIdx) {
 		profile.scalingMode = -1;
 	} else if (profile.scalingMode > removedIdx) {
@@ -46,9 +46,9 @@ void ScalingModesService::RemoveScalingMode(uint32_t index) {
 	std::vector<ScalingMode>& scalingModes = AppSettings::Get().ScalingModes();
 	scalingModes.erase(scalingModes.begin() + index);
 
-	UpdateScalingProfileAfterRemove(AppSettings::Get().DefaultScalingProfile(), (int)index);
-	for (ScalingProfile& profile : AppSettings::Get().ScalingProfiles()) {
-		UpdateScalingProfileAfterRemove(profile, (int)index);
+	UpdateProfileAfterRemove(AppSettings::Get().DefaultProfile(), (int)index);
+	for (Profile& profile : AppSettings::Get().Profiles()) {
+		UpdateProfileAfterRemove(profile, (int)index);
 	}
 
 	_scalingModeRemovedEvent(index);
@@ -56,7 +56,7 @@ void ScalingModesService::RemoveScalingMode(uint32_t index) {
 	AppSettings::Get().SaveAsync();
 }
 
-static void UpdateScalingProfileAfterMove(ScalingProfile& profile, int idx, int targetIdx) {
+static void UpdateProfileAfterMove(Profile& profile, int idx, int targetIdx) {
 	if (profile.scalingMode == idx) {
 		profile.scalingMode = targetIdx;
 	} else if (profile.scalingMode == targetIdx) {
@@ -73,13 +73,13 @@ bool ScalingModesService::MoveScalingMode(uint32_t scalingModeIdx, bool isMoveUp
 	int targetIdx = isMoveUp ? (int)scalingModeIdx - 1 : (int)scalingModeIdx + 1;
 	std::swap(profiles[scalingModeIdx], profiles[targetIdx]);
 
-	UpdateScalingProfileAfterMove(
-		AppSettings::Get().DefaultScalingProfile(),
+	UpdateProfileAfterMove(
+		AppSettings::Get().DefaultProfile(),
 		(int)scalingModeIdx,
 		targetIdx
 	);
-	for (ScalingProfile& profile : AppSettings::Get().ScalingProfiles()) {
-		UpdateScalingProfileAfterMove(profile, (int)scalingModeIdx, targetIdx);
+	for (Profile& profile : AppSettings::Get().Profiles()) {
+		UpdateProfileAfterMove(profile, (int)scalingModeIdx, targetIdx);
 	}
 
 	_scalingModeMovedEvent(scalingModeIdx, isMoveUp);

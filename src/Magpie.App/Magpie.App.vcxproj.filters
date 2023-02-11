@@ -25,7 +25,7 @@
     <ClCompile Include="Hotkey.cpp">
       <Filter>Models</Filter>
     </ClCompile>
-    <ClCompile Include="ScalingProfileService.cpp">
+    <ClCompile Include="ProfileService.cpp">
       <Filter>Services</Filter>
     </ClCompile>
     <ClCompile Include="IconHelper.cpp">
@@ -77,10 +77,10 @@
     <ClInclude Include="Hotkey.h">
       <Filter>Models</Filter>
     </ClInclude>
-    <ClInclude Include="ScalingProfile.h">
+    <ClInclude Include="Profile.h">
       <Filter>Models</Filter>
     </ClInclude>
-    <ClInclude Include="ScalingProfileService.h">
+    <ClInclude Include="ProfileService.h">
       <Filter>Services</Filter>
     </ClInclude>
     <ClInclude Include="IconHelper.h">

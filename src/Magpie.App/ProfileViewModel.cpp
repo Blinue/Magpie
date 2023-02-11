@@ -3,10 +3,10 @@
 #if __has_include("ProfileViewModel.g.cpp")
 #include "ProfileViewModel.g.cpp"
 #endif
-#include "ScalingProfile.h"
+#include "Profile.h"
 #include "AppXReader.h"
 #include "IconHelper.h"
-#include "ScalingProfileService.h"
+#include "ProfileService.h"
 #include "StrUtils.h"
 #include <Magpie.Core.h>
 #include "Win32Utils.h"
@@ -55,10 +55,10 @@ static SmallVector<std::wstring, 2> GetAllGraphicsAdapters() {
 
 ProfileViewModel::ProfileViewModel(int profileIdx) : _isDefaultProfile(profileIdx < 0) {
 	if (_isDefaultProfile) {
-		_data = &ScalingProfileService::Get().DefaultScalingProfile();
+		_data = &ProfileService::Get().DefaultProfile();
 	} else {
 		_index = (uint32_t)profileIdx;
-		_data = &ScalingProfileService::Get().GetProfile(profileIdx);
+		_data = &ProfileService::Get().GetProfile(profileIdx);
 
 		// 占位
 		_icon = FontIcon();
@@ -131,7 +131,7 @@ ProfileViewModel::ProfileViewModel(int profileIdx) : _isDefaultProfile(profileId
 
 ProfileViewModel::~ProfileViewModel() {}
 
-bool ProfileViewModel::IsNotDefaultScalingProfile() const noexcept {
+bool ProfileViewModel::IsNotDefaultProfile() const noexcept {
 	return !_data->name.empty();
 }
 
@@ -220,7 +220,7 @@ void ProfileViewModel::Rename() {
 		return;
 	}
 
-	ScalingProfileService::Get().RenameProfile(_index, _trimedRenameText);
+	ProfileService::Get().RenameProfile(_index, _trimedRenameText);
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"Name"));
 }
 
@@ -229,7 +229,7 @@ bool ProfileViewModel::CanMoveUp() const noexcept {
 }
 
 bool ProfileViewModel::CanMoveDown() const noexcept {
-	return !_isDefaultProfile && _index + 1 < ScalingProfileService::Get().GetProfileCount();
+	return !_isDefaultProfile && _index + 1 < ProfileService::Get().GetProfileCount();
 }
 
 void ProfileViewModel::MoveUp() {
@@ -237,13 +237,13 @@ void ProfileViewModel::MoveUp() {
 		return;
 	}
 
-	ScalingProfileService& scalingProfileService = ScalingProfileService::Get();
-	if (!scalingProfileService.MoveProfile(_index, true)) {
+	ProfileService& profileService = ProfileService::Get();
+	if (!profileService.MoveProfile(_index, true)) {
 		return;
 	}
 
 	--_index;
-	_data = &scalingProfileService.GetProfile(_index);
+	_data = &profileService.GetProfile(_index);
 
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CanMoveUp"));
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CanMoveDown"));
@@ -254,13 +254,13 @@ void ProfileViewModel::MoveDown() {
 		return;
 	}
 
-	ScalingProfileService& scalingProfileService = ScalingProfileService::Get();
-	if (!scalingProfileService.MoveProfile(_index, false)) {
+	ProfileService& profileService = ProfileService::Get();
+	if (!profileService.MoveProfile(_index, false)) {
 		return;
 	}
 
 	++_index;
-	_data = &scalingProfileService.GetProfile(_index);
+	_data = &profileService.GetProfile(_index);
 
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CanMoveUp"));
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CanMoveDown"));
@@ -271,7 +271,7 @@ void ProfileViewModel::Delete() {
 		return;
 	}
 
-	ScalingProfileService::Get().RemoveProfile(_index);
+	ProfileService::Get().RemoveProfile(_index);
 	_data = nullptr;
 }
 

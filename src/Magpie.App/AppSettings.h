@@ -2,7 +2,7 @@
 #include <winrt/Magpie.App.h>
 #include "WinRTUtils.h"
 #include "Hotkey.h"
-#include "ScalingProfile.h"
+#include "Profile.h"
 #include <parallel_hashmap/phmap.h>
 #include <rapidjson/document.h>
 #include "Win32Utils.h"
@@ -20,8 +20,8 @@ struct _AppSettingsData {
 	::Magpie::Core::DownscalingEffect _downscalingEffect;
 	std::vector<ScalingMode> _scalingModes;
 
-	ScalingProfile _defaultProfile;
-	std::vector<ScalingProfile> _profiles;
+	Profile _defaultProfile;
+	std::vector<Profile> _profiles;
 
 	std::wstring _configDir;
 	std::wstring _configPath;
@@ -240,11 +240,11 @@ public:
 		SaveAsync();
 	}
 
-	ScalingProfile& DefaultScalingProfile() noexcept {
+	Profile& DefaultProfile() noexcept {
 		return _defaultProfile;
 	}
 
-	std::vector<ScalingProfile>& ScalingProfiles() noexcept {
+	std::vector<Profile>& Profiles() noexcept {
 		return _profiles;
 	}
 
@@ -344,9 +344,9 @@ private:
 	bool _Save(const _AppSettingsData& data) noexcept;
 
 	void _LoadSettings(const rapidjson::GenericObject<true, rapidjson::Value>& root, uint32_t version);
-	bool _LoadScalingProfile(
-		const rapidjson::GenericObject<true, rapidjson::Value>& scalingProfileObj,
-		ScalingProfile& scalingProfile,
+	bool _LoadProfile(
+		const rapidjson::GenericObject<true, rapidjson::Value>& profileObj,
+		Profile& profile,
 		bool isDefault = false
 	);
 	bool _SetDefaultHotkeys();

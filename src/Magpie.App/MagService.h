@@ -5,7 +5,7 @@
 
 namespace winrt::Magpie::App {
 
-struct ScalingProfile;
+struct Profile;
 
 class MagService {
 public:
@@ -19,48 +19,48 @@ public:
 
 	void Initialize();
 
-	void StartCountdown();
+	void StartTimer();
 
-	void StopCountdown();
+	void StopTimer();
 
-	bool IsCountingDown() const noexcept {
-		return _tickingDownCount > 0;
+	bool IsTimerOn() const noexcept {
+		return _curCountdownSeconds > 0;
 	}
 
-	event_token IsCountingDownChanged(delegate<bool> const& handler) {
-		return _isCountingDownChangedEvent.add(handler);
+	event_token IsTimerOnChanged(delegate<bool> const& handler) {
+		return _isTimerOnChangedEvent.add(handler);
 	}
 
-	WinRTUtils::EventRevoker IsCountingDownChanged(auto_revoke_t, delegate<bool> const& handler) {
-		event_token token = IsCountingDownChanged(handler);
+	WinRTUtils::EventRevoker IsTimerOnChanged(auto_revoke_t, delegate<bool> const& handler) {
+		event_token token = IsTimerOnChanged(handler);
 		return WinRTUtils::EventRevoker([this, token]() {
-			IsCountingDownChanged(token);
+			IsTimerOnChanged(token);
 		});
 	}
 
-	void IsCountingDownChanged(event_token const& token) noexcept {
-		_isCountingDownChangedEvent.remove(token);
+	void IsTimerOnChanged(event_token const& token) noexcept {
+		_isTimerOnChangedEvent.remove(token);
 	}
 
-	uint32_t TickingDownCount() const noexcept {
-		return _tickingDownCount;
+	double TimerProgress() const noexcept {
+		return SecondsLeft() / _curCountdownSeconds;
 	}
 
-	float CountdownLeft() const noexcept;
+	double SecondsLeft() const noexcept;
 
-	event_token CountdownTick(delegate<float> const& handler) {
-		return _countdownTickEvent.add(handler);
+	event_token TimerTick(delegate<double> const& handler) {
+		return _timerTickEvent.add(handler);
 	}
 
-	WinRTUtils::EventRevoker CountdownTick(auto_revoke_t, delegate<float> const& handler) {
-		event_token token = CountdownTick(handler);
+	WinRTUtils::EventRevoker TimerTick(auto_revoke_t, delegate<double> const& handler) {
+		event_token token = TimerTick(handler);
 		return WinRTUtils::EventRevoker([this, token]() {
-			CountdownTick(token);
+			TimerTick(token);
 		});
 	}
 
-	void CountdownTick(event_token const& token) noexcept {
-		_countdownTickEvent.remove(token);
+	void TimerTick(event_token const& token) noexcept {
+		_timerTickEvent.remove(token);
 	}
 
 	HWND WndToRestore() const noexcept {
@@ -121,7 +121,7 @@ private:
 
 	fire_and_forget _MagRuntime_IsRunningChanged(bool isRunning);
 
-	bool _StartScale(HWND hWnd, const ScalingProfile& profile);
+	bool _StartScale(HWND hWnd, const Profile& profile);
 
 	void _ScaleForegroundWindow();
 
@@ -136,7 +136,7 @@ private:
 
 	std::chrono::steady_clock::time_point _timerStartTimePoint;
 
-	uint32_t _tickingDownCount = 0;
+	uint32_t _curCountdownSeconds = 0;
 
 	HWND _hwndCurSrc = NULL;
 	HWND _hwndToRestore = NULL;
@@ -145,8 +145,8 @@ private:
 	// 可能在线程池中访问，因此增加原子性
 	std::atomic<HWND> _hwndChecked = NULL;
 
-	event<delegate<bool>> _isCountingDownChangedEvent;
-	event<delegate<float>> _countdownTickEvent;
+	event<delegate<bool>> _isTimerOnChangedEvent;
+	event<delegate<double>> _timerTickEvent;
 	event<delegate<HWND>> _wndToRestoreChangedEvent;
 	event<delegate<bool>> _isRunningChangedEvent;
 	

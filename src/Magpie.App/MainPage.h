@@ -3,7 +3,7 @@
 #include "WinRTUtils.h"
 
 namespace winrt::Magpie::App {
-struct ScalingProfile;
+struct Profile;
 }
 
 namespace winrt::Magpie::App::implementation {
@@ -40,19 +40,19 @@ struct MainPage : MainPageT<MainPage> {
 private:
 	void _UpdateTheme(bool updateIcons = true);
 
-	fire_and_forget _LoadIcon(MUXC::NavigationViewItem const& item, const ScalingProfile& profile);
+	fire_and_forget _LoadIcon(MUXC::NavigationViewItem const& item, const Profile& profile);
 
 	fire_and_forget _UISettings_ColorValuesChanged(Windows::UI::ViewManagement::UISettings const&, IInspectable const&);
 
 	void _UpdateIcons(bool skipDesktop);
 
-	void _ScalingProfileService_ProfileAdded(ScalingProfile& profile);
+	void _ProfileService_ProfileAdded(Profile& profile);
 
-	void _ScalingProfileService_ProfileRenamed(uint32_t idx);
+	void _ProfileService_ProfileRenamed(uint32_t idx);
 
-	void _ScalingProfileService_ProfileRemoved(uint32_t idx);
+	void _ProfileService_ProfileRemoved(uint32_t idx);
 
-	void _ScalingProfileService_ProfileReordered(uint32_t profileIdx, bool isMoveUp);
+	void _ProfileService_ProfileReordered(uint32_t profileIdx, bool isMoveUp);
 
 	WinRTUtils::EventRevoker _themeChangedRevoker;
 

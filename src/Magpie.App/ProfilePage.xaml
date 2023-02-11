@@ -15,7 +15,7 @@
 		<local:PageFrame.HeaderAction>
 			<StackPanel x:Name="HeaderActionStackPanel"
 			            Orientation="Horizontal"
-			            Visibility="{x:Bind ViewModel.IsNotDefaultScalingProfile, Mode=OneTime}">
+			            Visibility="{x:Bind ViewModel.IsNotDefaultProfile, Mode=OneTime}">
 				<StackPanel.Resources>
 					<ResourceDictionary>
 						<ResourceDictionary.ThemeDictionaries>
@@ -231,7 +231,7 @@
 				<StackPanel Orientation="Vertical">
 					<local:SettingsCard Title="位于前台时自动缩放"
 					                    Margin="0,0,0,2"
-					                    Visibility="{x:Bind ViewModel.IsNotDefaultScalingProfile, Mode=OneTime}">
+					                    Visibility="{x:Bind ViewModel.IsNotDefaultProfile, Mode=OneTime}">
 						<local:SettingsCard.Icon>
 							<FontIcon Glyph="&#xE945;" />
 						</local:SettingsCard.Icon>

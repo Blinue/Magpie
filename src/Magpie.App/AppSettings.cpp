@@ -4,7 +4,7 @@
 #include "Win32Utils.h"
 #include "Logger.h"
 #include "HotkeyHelper.h"
-#include "ScalingProfile.h"
+#include "Profile.h"
 #include "CommonSharedConstants.h"
 #include <rapidjson/prettywriter.h>
 #include "AutoStartHelper.h"
@@ -56,68 +56,68 @@ static void DecodeHotkey(uint32_t value, Hotkey& hotkey) noexcept {
 	hotkey.shift = value & 0x800;
 }
 
-static void WriteScalingProfile(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer, const ScalingProfile& scalingProfile) noexcept {
+static void WriteProfile(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer, const Profile& profile) noexcept {
 	writer.StartObject();
-	if (!scalingProfile.name.empty()) {
+	if (!profile.name.empty()) {
 		writer.Key("name");
-		writer.String(StrUtils::UTF16ToUTF8(scalingProfile.name).c_str());
+		writer.String(StrUtils::UTF16ToUTF8(profile.name).c_str());
 		writer.Key("packaged");
-		writer.Bool(scalingProfile.isPackaged);
+		writer.Bool(profile.isPackaged);
 		writer.Key("pathRule");
-		writer.String(StrUtils::UTF16ToUTF8(scalingProfile.pathRule).c_str());
+		writer.String(StrUtils::UTF16ToUTF8(profile.pathRule).c_str());
 		writer.Key("classNameRule");
-		writer.String(StrUtils::UTF16ToUTF8(scalingProfile.classNameRule).c_str());
+		writer.String(StrUtils::UTF16ToUTF8(profile.classNameRule).c_str());
 		writer.Key("autoScale");
-		writer.Bool(scalingProfile.isAutoScale);
+		writer.Bool(profile.isAutoScale);
 	}
 
 	writer.Key("scalingMode");
-	writer.Int(scalingProfile.scalingMode);
+	writer.Int(profile.scalingMode);
 	writer.Key("captureMethod");
-	writer.Uint((uint32_t)scalingProfile.captureMethod);
+	writer.Uint((uint32_t)profile.captureMethod);
 	writer.Key("multiMonitorUsage");
-	writer.Uint((uint32_t)scalingProfile.multiMonitorUsage);
+	writer.Uint((uint32_t)profile.multiMonitorUsage);
 	writer.Key("graphicsAdapter");
-	writer.Uint(scalingProfile.graphicsAdapter);
+	writer.Uint(profile.graphicsAdapter);
 
 	writer.Key("disableWindowResizing");
-	writer.Bool(scalingProfile.IsDisableWindowResizing());
+	writer.Bool(profile.IsDisableWindowResizing());
 	writer.Key("3DGameMode");
-	writer.Bool(scalingProfile.Is3DGameMode());
+	writer.Bool(profile.Is3DGameMode());
 	writer.Key("showFPS");
-	writer.Bool(scalingProfile.IsShowFPS());
+	writer.Bool(profile.IsShowFPS());
 	writer.Key("VSync");
-	writer.Bool(scalingProfile.IsVSync());
+	writer.Bool(profile.IsVSync());
 	writer.Key("tripleBuffering");
-	writer.Bool(scalingProfile.IsTripleBuffering());
+	writer.Bool(profile.IsTripleBuffering());
 	writer.Key("reserveTitleBar");
-	writer.Bool(scalingProfile.IsReserveTitleBar());
+	writer.Bool(profile.IsReserveTitleBar());
 	writer.Key("adjustCursorSpeed");
-	writer.Bool(scalingProfile.IsAdjustCursorSpeed());
+	writer.Bool(profile.IsAdjustCursorSpeed());
 	writer.Key("drawCursor");
-	writer.Bool(scalingProfile.IsDrawCursor());
+	writer.Bool(profile.IsDrawCursor());
 	writer.Key("disableDirectFlip");
-	writer.Bool(scalingProfile.IsDisableDirectFlip());
+	writer.Bool(profile.IsDisableDirectFlip());
 
 	writer.Key("cursorScaling");
-	writer.Uint((uint32_t)scalingProfile.cursorScaling);
+	writer.Uint((uint32_t)profile.cursorScaling);
 	writer.Key("customCursorScaling");
-	writer.Double(scalingProfile.customCursorScaling);
+	writer.Double(profile.customCursorScaling);
 	writer.Key("cursorInterpolationMode");
-	writer.Uint((uint32_t)scalingProfile.cursorInterpolationMode);
+	writer.Uint((uint32_t)profile.cursorInterpolationMode);
 
 	writer.Key("croppingEnabled");
-	writer.Bool(scalingProfile.isCroppingEnabled);
+	writer.Bool(profile.isCroppingEnabled);
 	writer.Key("cropping");
 	writer.StartObject();
 	writer.Key("left");
-	writer.Double(scalingProfile.cropping.Left);
+	writer.Double(profile.cropping.Left);
 	writer.Key("top");
-	writer.Double(scalingProfile.cropping.Top);
+	writer.Double(profile.cropping.Top);
 	writer.Key("right");
-	writer.Double(scalingProfile.cropping.Right);
+	writer.Double(profile.cropping.Right);
 	writer.Key("bottom");
-	writer.Double(scalingProfile.cropping.Bottom);
+	writer.Double(profile.cropping.Bottom);
 	writer.EndObject();
 
 	writer.EndObject();
@@ -510,9 +510,9 @@ bool AppSettings::_Save(const _AppSettingsData& data) noexcept {
 
 	writer.Key("profiles");
 	writer.StartArray();
-	WriteScalingProfile(writer, data._defaultProfile);
-	for (const ScalingProfile& rule : data._profiles) {
-		WriteScalingProfile(writer, rule);
+	WriteProfile(writer, data._defaultProfile);
+	for (const Profile& rule : data._profiles) {
+		WriteProfile(writer, rule);
 	}
 	writer.EndArray();
 
@@ -650,7 +650,7 @@ void AppSettings::_LoadSettings(const rapidjson::GenericObject<true, rapidjson::
 		if (size > 0) {
 			if (scaleProfilesArray[0].IsObject()) {
 				// 解析默认缩放配置不会失败
-				_LoadScalingProfile(scaleProfilesArray[0].GetObj(), _defaultProfile, true);
+				_LoadProfile(scaleProfilesArray[0].GetObj(), _defaultProfile, true);
 			}
 
 			if (size > 1) {
@@ -660,8 +660,8 @@ void AppSettings::_LoadSettings(const rapidjson::GenericObject<true, rapidjson::
 						continue;
 					}
 
-					ScalingProfile& rule = _profiles.emplace_back();
-					if (!_LoadScalingProfile(scaleProfilesArray[i].GetObj(), rule)) {
+					Profile& rule = _profiles.emplace_back();
+					if (!_LoadProfile(scaleProfilesArray[i].GetObj(), rule)) {
 						_profiles.pop_back();
 						continue;
 					}
@@ -671,51 +671,51 @@ void AppSettings::_LoadSettings(const rapidjson::GenericObject<true, rapidjson::
 	}
 }
 
-bool AppSettings::_LoadScalingProfile(
-	const rapidjson::GenericObject<true, rapidjson::Value>& scalingProfileObj,
-	ScalingProfile& scalingProfile,
+bool AppSettings::_LoadProfile(
+	const rapidjson::GenericObject<true, rapidjson::Value>& profileObj,
+	Profile& profile,
 	bool isDefault
 ) {
 	if (!isDefault) {
-		if (!JsonHelper::ReadString(scalingProfileObj, "name", scalingProfile.name, true)) {
+		if (!JsonHelper::ReadString(profileObj, "name", profile.name, true)) {
 			return false;
 		}
 
 		{
-			std::wstring_view nameView(scalingProfile.name);
+			std::wstring_view nameView(profile.name);
 			StrUtils::Trim(nameView);
 			if (nameView.empty()) {
 				return false;
 			}
 		}
 
-		if (!JsonHelper::ReadBool(scalingProfileObj, "packaged", scalingProfile.isPackaged, true)) {
+		if (!JsonHelper::ReadBool(profileObj, "packaged", profile.isPackaged, true)) {
 			return false;
 		}
 
-		if (!JsonHelper::ReadString(scalingProfileObj, "pathRule", scalingProfile.pathRule, true)
-			|| scalingProfile.pathRule.empty()) {
+		if (!JsonHelper::ReadString(profileObj, "pathRule", profile.pathRule, true)
+			|| profile.pathRule.empty()) {
 			return false;
 		}
 
-		if (!JsonHelper::ReadString(scalingProfileObj, "classNameRule", scalingProfile.classNameRule, true)
-			|| scalingProfile.classNameRule.empty()) {
+		if (!JsonHelper::ReadString(profileObj, "classNameRule", profile.classNameRule, true)
+			|| profile.classNameRule.empty()) {
 			return false;
 		}
 
-		JsonHelper::ReadBool(scalingProfileObj, "autoScale", scalingProfile.isAutoScale);
+		JsonHelper::ReadBool(profileObj, "autoScale", profile.isAutoScale);
 	}
 
-	JsonHelper::ReadInt(scalingProfileObj, "scalingMode", scalingProfile.scalingMode);
-	if (scalingProfile.scalingMode < -1 || scalingProfile.scalingMode >= _scalingModes.size()) {
-		scalingProfile.scalingMode = -1;
+	JsonHelper::ReadInt(profileObj, "scalingMode", profile.scalingMode);
+	if (profile.scalingMode < -1 || profile.scalingMode >= _scalingModes.size()) {
+		profile.scalingMode = -1;
 	}
 
 	{
 		uint32_t captureMethod = (uint32_t)CaptureMethod::GraphicsCapture;
-		if (!JsonHelper::ReadUInt(scalingProfileObj, "captureMethod", captureMethod, true)) {
+		if (!JsonHelper::ReadUInt(profileObj, "captureMethod", captureMethod, true)) {
 			// v0.10.0-preview1 使用 captureMode
-			JsonHelper::ReadUInt(scalingProfileObj, "captureMode", captureMethod);
+			JsonHelper::ReadUInt(profileObj, "captureMode", captureMethod);
 		}
 		
 		if (captureMethod > 3) {
@@ -726,68 +726,68 @@ bool AppSettings::_LoadScalingProfile(
 				captureMethod = (uint32_t)CaptureMethod::GraphicsCapture;
 			}
 		}
-		scalingProfile.captureMethod = (CaptureMethod)captureMethod;
+		profile.captureMethod = (CaptureMethod)captureMethod;
 	}
 
 	{
 		uint32_t multiMonitorUsage = (uint32_t)MultiMonitorUsage::Nearest;
-		JsonHelper::ReadUInt(scalingProfileObj, "multiMonitorUsage", multiMonitorUsage);
+		JsonHelper::ReadUInt(profileObj, "multiMonitorUsage", multiMonitorUsage);
 		if (multiMonitorUsage > 2) {
 			multiMonitorUsage = (uint32_t)MultiMonitorUsage::Nearest;
 		}
-		scalingProfile.multiMonitorUsage = (MultiMonitorUsage)multiMonitorUsage;
+		profile.multiMonitorUsage = (MultiMonitorUsage)multiMonitorUsage;
 	}
 	
-	JsonHelper::ReadUInt(scalingProfileObj, "graphicsAdapter", scalingProfile.graphicsAdapter);
-	JsonHelper::ReadBoolFlag(scalingProfileObj, "disableWindowResizing", MagFlags::DisableWindowResizing, scalingProfile.flags);
-	JsonHelper::ReadBoolFlag(scalingProfileObj, "3DGameMode", MagFlags::Is3DGameMode, scalingProfile.flags);
-	JsonHelper::ReadBoolFlag(scalingProfileObj, "showFPS", MagFlags::ShowFPS, scalingProfile.flags);
-	JsonHelper::ReadBoolFlag(scalingProfileObj, "VSync", MagFlags::VSync, scalingProfile.flags);
-	JsonHelper::ReadBoolFlag(scalingProfileObj, "tripleBuffering", MagFlags::TripleBuffering, scalingProfile.flags);
-	JsonHelper::ReadBoolFlag(scalingProfileObj, "reserveTitleBar", MagFlags::ReserveTitleBar, scalingProfile.flags);
-	JsonHelper::ReadBoolFlag(scalingProfileObj, "adjustCursorSpeed", MagFlags::AdjustCursorSpeed, scalingProfile.flags);
-	JsonHelper::ReadBoolFlag(scalingProfileObj, "drawCursor", MagFlags::DrawCursor, scalingProfile.flags);
-	JsonHelper::ReadBoolFlag(scalingProfileObj, "disableDirectFlip", MagFlags::DisableDirectFlip, scalingProfile.flags);
+	JsonHelper::ReadUInt(profileObj, "graphicsAdapter", profile.graphicsAdapter);
+	JsonHelper::ReadBoolFlag(profileObj, "disableWindowResizing", MagFlags::DisableWindowResizing, profile.flags);
+	JsonHelper::ReadBoolFlag(profileObj, "3DGameMode", MagFlags::Is3DGameMode, profile.flags);
+	JsonHelper::ReadBoolFlag(profileObj, "showFPS", MagFlags::ShowFPS, profile.flags);
+	JsonHelper::ReadBoolFlag(profileObj, "VSync", MagFlags::VSync, profile.flags);
+	JsonHelper::ReadBoolFlag(profileObj, "tripleBuffering", MagFlags::TripleBuffering, profile.flags);
+	JsonHelper::ReadBoolFlag(profileObj, "reserveTitleBar", MagFlags::ReserveTitleBar, profile.flags);
+	JsonHelper::ReadBoolFlag(profileObj, "adjustCursorSpeed", MagFlags::AdjustCursorSpeed, profile.flags);
+	JsonHelper::ReadBoolFlag(profileObj, "drawCursor", MagFlags::DrawCursor, profile.flags);
+	JsonHelper::ReadBoolFlag(profileObj, "disableDirectFlip", MagFlags::DisableDirectFlip, profile.flags);
 
 	{
 		uint32_t cursorScaling = (uint32_t)CursorScaling::NoScaling;
-		JsonHelper::ReadUInt(scalingProfileObj, "cursorScaling", cursorScaling);
+		JsonHelper::ReadUInt(profileObj, "cursorScaling", cursorScaling);
 		if (cursorScaling > 7) {
 			cursorScaling = (uint32_t)CursorScaling::NoScaling;
 		}
-		scalingProfile.cursorScaling = (CursorScaling)cursorScaling;
+		profile.cursorScaling = (CursorScaling)cursorScaling;
 	}
 	
-	JsonHelper::ReadFloat(scalingProfileObj, "customCursorScaling", scalingProfile.customCursorScaling);
-	if (scalingProfile.customCursorScaling < 0) {
-		scalingProfile.customCursorScaling = 1.0f;
+	JsonHelper::ReadFloat(profileObj, "customCursorScaling", profile.customCursorScaling);
+	if (profile.customCursorScaling < 0) {
+		profile.customCursorScaling = 1.0f;
 	}
 
 	{
 		uint32_t cursorInterpolationMode = (uint32_t)CursorInterpolationMode::Nearest;
-		JsonHelper::ReadUInt(scalingProfileObj, "cursorInterpolationMode", (uint32_t&)scalingProfile.cursorInterpolationMode);
+		JsonHelper::ReadUInt(profileObj, "cursorInterpolationMode", (uint32_t&)profile.cursorInterpolationMode);
 		if (cursorInterpolationMode > 1) {
 			cursorInterpolationMode = (uint32_t)CursorInterpolationMode::Nearest;
 		}
-		scalingProfile.cursorInterpolationMode = (CursorInterpolationMode)cursorInterpolationMode;
+		profile.cursorInterpolationMode = (CursorInterpolationMode)cursorInterpolationMode;
 	}
 
-	JsonHelper::ReadBool(scalingProfileObj, "croppingEnabled", scalingProfile.isCroppingEnabled);
+	JsonHelper::ReadBool(profileObj, "croppingEnabled", profile.isCroppingEnabled);
 
-	auto croppingNode = scalingProfileObj.FindMember("cropping");
-	if (croppingNode != scalingProfileObj.MemberEnd() && croppingNode->value.IsObject()) {
+	auto croppingNode = profileObj.FindMember("cropping");
+	if (croppingNode != profileObj.MemberEnd() && croppingNode->value.IsObject()) {
 		const auto& croppingObj = croppingNode->value.GetObj();
 
-		if (!JsonHelper::ReadFloat(croppingObj, "left", scalingProfile.cropping.Left, true)
-			|| scalingProfile.cropping.Left < 0
-			|| !JsonHelper::ReadFloat(croppingObj, "top", scalingProfile.cropping.Top, true)
-			|| scalingProfile.cropping.Top < 0
-			|| !JsonHelper::ReadFloat(croppingObj, "right", scalingProfile.cropping.Right, true)
-			|| scalingProfile.cropping.Right < 0
-			|| !JsonHelper::ReadFloat(croppingObj, "bottom", scalingProfile.cropping.Bottom, true)
-			|| scalingProfile.cropping.Bottom < 0
+		if (!JsonHelper::ReadFloat(croppingObj, "left", profile.cropping.Left, true)
+			|| profile.cropping.Left < 0
+			|| !JsonHelper::ReadFloat(croppingObj, "top", profile.cropping.Top, true)
+			|| profile.cropping.Top < 0
+			|| !JsonHelper::ReadFloat(croppingObj, "right", profile.cropping.Right, true)
+			|| profile.cropping.Right < 0
+			|| !JsonHelper::ReadFloat(croppingObj, "bottom", profile.cropping.Bottom, true)
+			|| profile.cropping.Bottom < 0
 		) {
-			scalingProfile.cropping = {};
+			profile.cropping = {};
 		}
 	}
 

@@ -9,7 +9,7 @@
 #include "StrUtils.h"
 #include "Win32Utils.h"
 #include "AppSettings.h"
-#include "ScalingProfileService.h"
+#include "ProfileService.h"
 #include "AppXReader.h"
 #include "IconHelper.h"
 #include "ComboBoxHelper.h"
@@ -50,7 +50,7 @@ MainPage::MainPage() {
 		auto_revoke, [this](DisplayInformation const&, IInspectable const&) { _UpdateIcons(false); });
 
 	IVector<IInspectable> navMenuItems = __super::RootNavigationView().MenuItems();
-	for (const ScalingProfile& profile : AppSettings::Get().ScalingProfiles()) {
+	for (const Profile& profile : AppSettings::Get().Profiles()) {
 		MUXC::NavigationViewItem item;
 		item.Content(box_value(profile.name));
 		// 用于占位
@@ -65,15 +65,15 @@ MainPage::MainPage() {
 		ContentFrame().Navigate(winrt::xaml_typename<Controls::Page>());
 	}
 
-	ScalingProfileService& scalingProfileService = ScalingProfileService::Get();
-	_profileAddedRevoker = scalingProfileService.ProfileAdded(
-		auto_revoke, { this, &MainPage::_ScalingProfileService_ProfileAdded });
-	_profileRenamedRevoker = scalingProfileService.ProfileRenamed(
-		auto_revoke, { this, &MainPage::_ScalingProfileService_ProfileRenamed });
-	_profileRemovedRevoker = scalingProfileService.ProfileRemoved(
-		auto_revoke, { this, &MainPage::_ScalingProfileService_ProfileRemoved });
-	_profileMovedRevoker = scalingProfileService.ProfileMoved(
-		auto_revoke, { this, &MainPage::_ScalingProfileService_ProfileReordered });
+	ProfileService& profileService = ProfileService::Get();
+	_profileAddedRevoker = profileService.ProfileAdded(
+		auto_revoke, { this, &MainPage::_ProfileService_ProfileAdded });
+	_profileRenamedRevoker = profileService.ProfileRenamed(
+		auto_revoke, { this, &MainPage::_ProfileService_ProfileRenamed });
+	_profileRemovedRevoker = profileService.ProfileRemoved(
+		auto_revoke, { this, &MainPage::_ProfileService_ProfileRemoved });
+	_profileMovedRevoker = profileService.ProfileMoved(
+		auto_revoke, { this, &MainPage::_ProfileService_ProfileReordered });
 }
 
 MainPage::~MainPage() {
@@ -252,7 +252,7 @@ void MainPage::_UpdateTheme(bool updateIcons) {
 	}
 }
 
-fire_and_forget MainPage::_LoadIcon(MUXC::NavigationViewItem const& item, const ScalingProfile& profile) {
+fire_and_forget MainPage::_LoadIcon(MUXC::NavigationViewItem const& item, const Profile& profile) {
 	weak_ref<MUXC::NavigationViewItem> weakRef(item);
 
 	bool preferLightTheme = ActualTheme() == ElementTheme::Light;
@@ -325,7 +325,7 @@ fire_and_forget MainPage::_UISettings_ColorValuesChanged(Windows::UI::ViewManage
 
 void MainPage::_UpdateIcons(bool skipDesktop) {
 	IVector<IInspectable> navMenuItems = RootNavigationView().MenuItems();
-	const std::vector<ScalingProfile>& profiles = AppSettings::Get().ScalingProfiles();
+	const std::vector<Profile>& profiles = AppSettings::Get().Profiles();
 
 	for (uint32_t i = 0; i < profiles.size(); ++i) {
 		if (skipDesktop && !profiles[i].isPackaged) {
@@ -337,7 +337,7 @@ void MainPage::_UpdateIcons(bool skipDesktop) {
 	}
 }
 
-void MainPage::_ScalingProfileService_ProfileAdded(ScalingProfile& profile) {
+void MainPage::_ProfileService_ProfileAdded(Profile& profile) {
 	MUXC::NavigationViewItem item;
 	item.Content(box_value(profile.name));
 	// 用于占位
@@ -349,21 +349,21 @@ void MainPage::_ScalingProfileService_ProfileAdded(ScalingProfile& profile) {
 	RootNavigationView().SelectedItem(item);
 }
 
-void MainPage::_ScalingProfileService_ProfileRenamed(uint32_t idx) {
+void MainPage::_ProfileService_ProfileRenamed(uint32_t idx) {
 	RootNavigationView().MenuItems()
 		.GetAt(FIRST_PROFILE_ITEM_IDX + idx)
 		.as<MUXC::NavigationViewItem>()
-		.Content(box_value(AppSettings::Get().ScalingProfiles()[idx].name));
+		.Content(box_value(AppSettings::Get().Profiles()[idx].name));
 }
 
-void MainPage::_ScalingProfileService_ProfileRemoved(uint32_t idx) {
+void MainPage::_ProfileService_ProfileRemoved(uint32_t idx) {
 	MUXC::NavigationView nv = RootNavigationView();
 	IVector<IInspectable> menuItems = nv.MenuItems();
 	nv.SelectedItem(menuItems.GetAt(FIRST_PROFILE_ITEM_IDX - 1));
 	menuItems.RemoveAt(FIRST_PROFILE_ITEM_IDX + idx);
 }
 
-void MainPage::_ScalingProfileService_ProfileReordered(uint32_t profileIdx, bool isMoveUp) {
+void MainPage::_ProfileService_ProfileReordered(uint32_t profileIdx, bool isMoveUp) {
 	IVector<IInspectable> menuItems = RootNavigationView().MenuItems();
 
 	uint32_t curIdx = FIRST_PROFILE_ITEM_IDX + profileIdx;
