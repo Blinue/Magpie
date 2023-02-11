@@ -129,8 +129,32 @@
   <data name="Home_Activation_HotkeyControl.Title" xml:space="preserve">
     <value>激活快捷键</value>
   </data>
+  <data name="Home_AutoRestore.Description" xml:space="preserve">
+    <value>当该窗口回到前台时将自动缩放</value>
+  </data>
+  <data name="Home_AutoRestore.Title" xml:space="preserve">
+    <value>记忆缩放窗口</value>
+  </data>
+  <data name="Home_AutoRestore_Activate.Content" xml:space="preserve">
+    <value>激活</value>
+  </data>
+  <data name="Home_AutoRestore_Clear.Content" xml:space="preserve">
+    <value>清除</value>
+  </data>
+  <data name="Home_AutoRestore_CurWindow" xml:space="preserve">
+    <value>当前窗口：</value>
+  </data>
+  <data name="Home_AutoRestore_EmptyTitle" xml:space="preserve">
+    <value>标题为空</value>
+  </data>
   <data name="Home_Overlay.Title" xml:space="preserve">
     <value>游戏内覆盖</value>
+  </data>
+  <data name="Home_Overlay_Hotkey.Title" xml:space="preserve">
+    <value>快捷键</value>
+  </data>
+  <data name="Home_Overlay_HotkeyControl.Title" xml:space="preserve">
+    <value>游戏内覆盖快捷键</value>
   </data>
   <data name="Home_PageFrame.Title" xml:space="preserve">
     <value>主页</value>
@@ -212,6 +236,48 @@
   </data>
   <data name="ScalingConfiguration_PageFrame.Title" xml:space="preserve">
     <value>缩放配置</value>
+  </data>
+  <data name="Settings_Advanced.Title" xml:space="preserve">
+    <value>高级</value>
+  </data>
+  <data name="Settings_General.Title" xml:space="preserve">
+    <value>常规</value>
+  </data>
+  <data name="Settings_General_Language.Title" xml:space="preserve">
+    <value>语言</value>
+  </data>
+  <data name="Settings_General_Language_Default" xml:space="preserve">
+    <value>Windows 默认</value>
+  </data>
+  <data name="Settings_General_PortableMode.Title" xml:space="preserve">
+    <value>便携模式</value>
+  </data>
+  <data name="Settings_General_PortableMode_Description.Text" xml:space="preserve">
+    <value>更改配置文件的保存位置</value>
+  </data>
+  <data name="Settings_General_PortableMode_Locate.Content" xml:space="preserve">
+    <value>打开配置文件位置</value>
+  </data>
+  <data name="Settings_General_RunAtStartup.Title" xml:space="preserve">
+    <value>开机启动</value>
+  </data>
+  <data name="Settings_General_ShowTrayIcon.Description" xml:space="preserve">
+    <value>主窗口被关闭后 Magpie 将在后台继续运行</value>
+  </data>
+  <data name="Settings_General_ShowTrayIcon.Title" xml:space="preserve">
+    <value>在系统托盘上显示应用程序</value>
+  </data>
+  <data name="Settings_General_Theme.Title" xml:space="preserve">
+    <value>主题</value>
+  </data>
+  <data name="Settings_General_Theme_Dark.Content" xml:space="preserve">
+    <value>深色</value>
+  </data>
+  <data name="Settings_General_Theme_Default.Content" xml:space="preserve">
+    <value>Windows 默认</value>
+  </data>
+  <data name="Settings_General_Theme_Light.Content" xml:space="preserve">
+    <value>浅色</value>
   </data>
   <data name="Settings_PageFrame.Title" xml:space="preserve">
     <value>设置</value>

@@ -91,8 +91,7 @@
 					</muxc:Expander.Content>
 				</muxc:Expander>
 				<StackPanel Orientation="Vertical">
-					<local:SettingsCard Title="记忆缩放窗口"
-					                    Description="当该窗口回到前台时将自动缩放"
+					<local:SettingsCard x:Uid="Home_AutoRestore"
 					                    Visibility="{x:Bind ViewModel.IsWndToRestore, Mode=OneWay, Converter={StaticResource NegativeVisibilityConverter}}">
 						<local:SettingsCard.Icon>
 							<FontIcon Glyph="&#xE944;" />
@@ -108,8 +107,7 @@
 					               Style="{StaticResource SettingExpanderStyle}"
 					               Visibility="{x:Bind ViewModel.IsWndToRestore, Mode=OneWay}">
 						<muxc:Expander.Header>
-							<local:SettingsCard Title="记忆缩放窗口"
-							                    Description="当该窗口回到前台时将自动缩放"
+							<local:SettingsCard x:Uid="Home_AutoRestore"
 							                    Style="{StaticResource ExpanderHeaderSettingStyle}">
 								<local:SettingsCard.Icon>
 									<FontIcon Glyph="&#xE944;" />
@@ -125,12 +123,12 @@
 							                    Style="{StaticResource ExpanderContentSettingStyle}">
 								<local:SettingsCard.ActionContent>
 									<StackPanel Orientation="Horizontal"
-									            Spacing="5">
-										<Button Click="{x:Bind ViewModel.ActivateRestore}"
-										        Content="激活"
+									            Spacing="8">
+										<Button x:Uid="Home_AutoRestore_Activate"
+										        Click="{x:Bind ViewModel.ActivateRestore}"
 										        Style="{StaticResource AccentButtonStyle}" />
-										<Button Click="{x:Bind ViewModel.ClearRestore}"
-										        Content="忘记" />
+										<Button x:Uid="Home_AutoRestore_Clear"
+										        Click="{x:Bind ViewModel.ClearRestore}" />
 									</StackPanel>
 								</local:SettingsCard.ActionContent>
 							</local:SettingsCard>
@@ -138,15 +136,13 @@
 					</muxc:Expander>
 				</StackPanel>
 			</local:SettingsGroup>
-			<local:SettingsGroup x:Uid="Home_Overlay"
-			                     Title="游戏内覆盖">
-				<local:SettingsCard Title="快捷键"
-				                    Description="自定义打开和关闭游戏内覆盖的快捷键">
+			<local:SettingsGroup x:Uid="Home_Overlay">
+				<local:SettingsCard x:Uid="Home_Overlay_Hotkey">
 					<local:SettingsCard.Icon>
 						<FontIcon Glyph="&#xEDA7;" />
 					</local:SettingsCard.Icon>
 					<local:SettingsCard.ActionContent>
-						<local:HotkeyControl Title="游戏内覆盖快捷键">
+						<local:HotkeyControl x:Uid="Home_Overlay_HotkeyControl">
 							<local:HotkeyControl.Action>
 								<local:HotkeyAction>Overlay</local:HotkeyAction>
 							</local:HotkeyControl.Action>
@@ -159,7 +155,7 @@
 				               HorizontalContentAlignment="Stretch"
 				               Style="{StaticResource SettingExpanderStyle}">
 					<muxc:Expander.Header>
-						<local:SettingsCard Title="管理员模式"
+						<local:SettingsCard Title="以管理员身份运行"
 						                    Style="{StaticResource ExpanderHeaderSettingStyle}">
 							<local:SettingsCard.Icon>
 								<FontIcon Glyph="&#xE7EF;" />

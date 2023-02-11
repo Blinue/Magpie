@@ -9,6 +9,9 @@
 #include "CommonSharedConstants.h"
 #include "LocalizationService.h"
 
+using namespace winrt;
+using namespace Windows::ApplicationModel::Resources;
+
 namespace winrt::Magpie::App::implementation {
 
 SettingsViewModel::SettingsViewModel() {
@@ -20,7 +23,9 @@ IVector<IInspectable> SettingsViewModel::Languages() const {
 
 	std::vector<IInspectable> languages;
 	languages.reserve(tags.size() + 1);
-	languages.push_back(box_value(L"Windows 默认"));
+
+	ResourceLoader resourceLoader = ResourceLoader::GetForCurrentView();
+	languages.push_back(box_value(resourceLoader.GetString(L"Settings_General_Language_Default")));
 	for (const wchar_t* tag : tags) {
 		Windows::Globalization::Language language(tag);
 		languages.push_back(box_value(language.NativeName()));

@@ -9,9 +9,9 @@
 	<local:PageFrame x:Uid="Settings_PageFrame">
 		<StackPanel HorizontalAlignment="Stretch"
 		            Orientation="Vertical">
-			<local:SettingsGroup Title="外观和行为"
+			<local:SettingsGroup x:Uid="Settings_General"
 			                     Margin="0,-24,0,0">
-				<local:SettingsCard Title="语言">
+				<local:SettingsCard x:Uid="Settings_General_Language">
 					<local:SettingsCard.Icon>
 						<FontIcon Glyph="&#xE8C1;" />
 					</local:SettingsCard.Icon>
@@ -22,7 +22,7 @@
 						          Style="{StaticResource ComboBoxSettingStyle}" />
 					</local:SettingsCard.ActionContent>
 				</local:SettingsCard>
-				<local:SettingsCard Title="主题">
+				<local:SettingsCard x:Uid="Settings_General_Theme">
 					<local:SettingsCard.Icon>
 						<FontIcon Glyph="&#xEF1F;" />
 					</local:SettingsCard.Icon>
@@ -30,9 +30,9 @@
 						<ComboBox DropDownOpened="ComboBox_DropDownOpened"
 						          SelectedIndex="{x:Bind ViewModel.Theme, Mode=TwoWay}"
 						          Style="{StaticResource ComboBoxSettingStyle}">
-							<x:String>浅色</x:String>
-							<x:String>深色</x:String>
-							<x:String>Windows 默认</x:String>
+							<ComboBoxItem x:Uid="Settings_General_Theme_Light" />
+							<ComboBoxItem x:Uid="Settings_General_Theme_Dark" />
+							<ComboBoxItem x:Uid="Settings_General_Theme_Default" />
 						</ComboBox>
 					</local:SettingsCard.ActionContent>
 				</local:SettingsCard>
@@ -40,7 +40,7 @@
 				               HorizontalContentAlignment="Stretch"
 				               Style="{StaticResource SettingExpanderStyle}">
 					<muxc:Expander.Header>
-						<local:SettingsCard Title="开机启动"
+						<local:SettingsCard x:Uid="Settings_General_RunAtStartup"
 						                    Style="{StaticResource ExpanderHeaderSettingStyle}">
 							<local:SettingsCard.Icon>
 								<FontIcon Glyph="&#xE7B5;" />
@@ -65,8 +65,7 @@
 						</StackPanel>
 					</muxc:Expander.Content>
 				</muxc:Expander>
-				<local:SettingsCard Title="常驻后台"
-				                    Description="关闭主窗口时最小化到系统托盘">
+				<local:SettingsCard x:Uid="Settings_General_ShowTrayIcon">
 					<local:SettingsCard.Icon>
 						<FontIcon Glyph="&#xE9F5;" />
 					</local:SettingsCard.Icon>
@@ -75,15 +74,16 @@
 						              IsOn="{x:Bind ViewModel.IsShowTrayIcon, Mode=TwoWay}" />
 					</local:SettingsCard.ActionContent>
 				</local:SettingsCard>
-				<local:SettingsCard Title="便携模式">
+				<local:SettingsCard x:Uid="Settings_General_PortableMode">
 					<local:SettingsCard.Icon>
 						<FontIcon Glyph="&#xE88E;" />
 					</local:SettingsCard.Icon>
 					<local:SettingsCard.Description>
 						<StackPanel Orientation="Vertical"
 						            Spacing="2">
-							<TextBlock Text="更改配置文件的保存位置" />
-							<HyperlinkButton Click="{x:Bind ViewModel.OpenConfigLocation}"
+							<TextBlock x:Uid="Settings_General_PortableMode_Description" />
+							<HyperlinkButton x:Uid="Settings_General_PortableMode_Locate"
+							                 Click="{x:Bind ViewModel.OpenConfigLocation}"
 							                 Content="打开配置文件位置" />
 						</StackPanel>
 					</local:SettingsCard.Description>
@@ -93,7 +93,7 @@
 					</local:SettingsCard.ActionContent>
 				</local:SettingsCard>
 			</local:SettingsGroup>
-			<local:SettingsGroup Title="高级">
+			<local:SettingsGroup x:Uid="Settings_Advanced">
 				<local:SettingsCard Title="模拟独占全屏"
 				                    Description="使你在游戏时不受打扰">
 					<local:SettingsCard.Icon>

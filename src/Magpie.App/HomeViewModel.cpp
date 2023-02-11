@@ -128,7 +128,14 @@ hstring HomeViewModel::RestoreWndDesc() const noexcept {
 	std::wstring title(GetWindowTextLength(wndToRestore), L'\0');
 	GetWindowText(wndToRestore, title.data(), (int)title.size() + 1);
 
-	return hstring(StrUtils::ConcatW(L"当前窗口：", title.empty() ? L"<标题为空>" : title));
+	ResourceLoader resourceLoader = ResourceLoader::GetForCurrentView();
+	hstring curWindow = resourceLoader.GetString(L"Home_AutoRestore_CurWindow");
+	if (title.empty()) {
+		hstring emptyTitle = resourceLoader.GetString(L"Home_AutoRestore_EmptyTitle");
+		return hstring(StrUtils::ConcatW(curWindow, L"<", emptyTitle, L">"));
+	} else {
+		return curWindow + title;
+	}
 }
 
 bool HomeViewModel::IsProcessElevated() const noexcept {

@@ -129,8 +129,32 @@
   <data name="Home_Activation_HotkeyControl.Title" xml:space="preserve">
     <value>Activation hotkey</value>
   </data>
+  <data name="Home_AutoRestore.Description" xml:space="preserve">
+    <value>Scale automatically when the window returns to foreground</value>
+  </data>
+  <data name="Home_AutoRestore.Title" xml:space="preserve">
+    <value>Auto restore</value>
+  </data>
+  <data name="Home_AutoRestore_Activate.Content" xml:space="preserve">
+    <value>Activate</value>
+  </data>
+  <data name="Home_AutoRestore_Clear.Content" xml:space="preserve">
+    <value>Clear</value>
+  </data>
+  <data name="Home_AutoRestore_CurWindow" xml:space="preserve">
+    <value>Current window: </value>
+  </data>
+  <data name="Home_AutoRestore_EmptyTitle" xml:space="preserve">
+    <value>Title is empty</value>
+  </data>
   <data name="Home_Overlay.Title" xml:space="preserve">
     <value>In-game overlay</value>
+  </data>
+  <data name="Home_Overlay_Hotkey.Title" xml:space="preserve">
+    <value>Hotkey</value>
+  </data>
+  <data name="Home_Overlay_HotkeyControl.Title" xml:space="preserve">
+    <value>In-game overlay hotkey</value>
   </data>
   <data name="Home_PageFrame.Title" xml:space="preserve">
     <value>Home</value>
@@ -212,6 +236,48 @@
   </data>
   <data name="ScalingConfiguration_PageFrame.Title" xml:space="preserve">
     <value>Scaling configuration</value>
+  </data>
+  <data name="Settings_Advanced.Title" xml:space="preserve">
+    <value>Advanced</value>
+  </data>
+  <data name="Settings_General.Title" xml:space="preserve">
+    <value>General</value>
+  </data>
+  <data name="Settings_General_Language.Title" xml:space="preserve">
+    <value>Language</value>
+  </data>
+  <data name="Settings_General_Language_Default" xml:space="preserve">
+    <value>Windows default</value>
+  </data>
+  <data name="Settings_General_PortableMode.Title" xml:space="preserve">
+    <value>Portable mode</value>
+  </data>
+  <data name="Settings_General_PortableMode_Description.Text" xml:space="preserve">
+    <value>Change the location of the configuration file</value>
+  </data>
+  <data name="Settings_General_PortableMode_Locate.Content" xml:space="preserve">
+    <value>Locate the configuration file</value>
+  </data>
+  <data name="Settings_General_RunAtStartup.Title" xml:space="preserve">
+    <value>Run at startup</value>
+  </data>
+  <data name="Settings_General_ShowTrayIcon.Description" xml:space="preserve">
+    <value>Magpie will continue to run in the background after the main window is closed</value>
+  </data>
+  <data name="Settings_General_ShowTrayIcon.Title" xml:space="preserve">
+    <value>Display the app on the system tray</value>
+  </data>
+  <data name="Settings_General_Theme.Title" xml:space="preserve">
+    <value>Theme</value>
+  </data>
+  <data name="Settings_General_Theme_Dark.Content" xml:space="preserve">
+    <value>Dark</value>
+  </data>
+  <data name="Settings_General_Theme_Default.Content" xml:space="preserve">
+    <value>Windows default</value>
+  </data>
+  <data name="Settings_General_Theme_Light.Content" xml:space="preserve">
+    <value>Light</value>
   </data>
   <data name="Settings_PageFrame.Title" xml:space="preserve">
     <value>Settings</value>
