@@ -126,7 +126,7 @@
   <data name="Home_Activation_Hotkey.Title" xml:space="preserve">
     <value>Hotkey</value>
   </data>
-  <data name="Home_Activation_HotkeyControl.Title" xml:space="preserve">
+  <data name="Home_Activation_ShortcutControl.Title" xml:space="preserve">
     <value>Activation hotkey</value>
   </data>
   <data name="Home_AutoRestore.Description" xml:space="preserve">
@@ -153,7 +153,7 @@
   <data name="Home_Overlay_Hotkey.Title" xml:space="preserve">
     <value>Hotkey</value>
   </data>
-  <data name="Home_Overlay_HotkeyControl.Title" xml:space="preserve">
+  <data name="Home_Overlay_ShortcutControl.Title" xml:space="preserve">
     <value>In-game overlay hotkey</value>
   </data>
   <data name="Home_PageFrame.Title" xml:space="preserve">
@@ -174,22 +174,22 @@
   <data name="Home_Timer_Delay.Title" xml:space="preserve">
     <value>Delay in seconds</value>
   </data>
-  <data name="HotkeyDialog_Cancel" xml:space="preserve">
+  <data name="ShortcutDialog_Cancel" xml:space="preserve">
     <value>Cancel</value>
   </data>
-  <data name="HotkeyDialog_Description.Text" xml:space="preserve">
+  <data name="ShortcutDialog_Description.Text" xml:space="preserve">
     <value>Press a combination of keys to change this hotkey</value>
   </data>
-  <data name="HotkeyDialog_InUse" xml:space="preserve">
+  <data name="ShortcutDialog_InUse" xml:space="preserve">
     <value>Already in use</value>
   </data>
-  <data name="HotkeyDialog_InvalidHotkey" xml:space="preserve">
+  <data name="ShortcutDialog_InvalidHotkey" xml:space="preserve">
     <value>Invalid hotkey</value>
   </data>
-  <data name="HotkeyDialog_Save" xml:space="preserve">
+  <data name="ShortcutDialog_Save" xml:space="preserve">
     <value>Save</value>
   </data>
-  <data name="HotkeyDialog_Tip.Text" xml:space="preserve">
+  <data name="ShortcutDialog_Tip.Text" xml:space="preserve">
     <value>Only hotkeys that starts with Windows key, Ctrl, Alt or Shift are valid.</value>
   </data>
   <data name="Main_About.Content" xml:space="preserve">

@@ -21,7 +21,7 @@
 #endif
 #include "Win32Utils.h"
 #include "Logger.h"
-#include "HotkeyService.h"
+#include "ShortcutService.h"
 #include "AppSettings.h"
 #include "CommonSharedConstants.h"
 #include "MagService.h"
@@ -97,7 +97,7 @@ StartUpOptions App::Initialize(int) {
 	result.IsNeedElevated = settings.IsAlwaysRunAsElevated();
 
 	LocalizationService::Get().Initialize();
-	HotkeyService::Get().Initialize();
+	ShortcutService::Get().Initialize();
 	MagService::Get().Initialize();
 	UpdateService::Get().Initialize();
 
@@ -107,7 +107,7 @@ StartUpOptions App::Initialize(int) {
 void App::Uninitialize() {
 	// 不显示托盘图标的情况下关闭主窗口仍会在后台驻留数秒，推测和 XAML Islands 有关
 	// 这里提前取消热键注册，这样关闭 Magpie 后立即重新打开不会注册热键失败
-	HotkeyService::Get().Uninitialize();
+	ShortcutService::Get().Uninitialize();
 }
 
 bool App::IsShowTrayIcon() const noexcept {

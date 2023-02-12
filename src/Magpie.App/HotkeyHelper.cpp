@@ -6,15 +6,15 @@
 
 namespace winrt::Magpie::App {
 
-std::string HotkeyHelper::ToString(winrt::Magpie::App::HotkeyAction action) {
-	using winrt::Magpie::App::HotkeyAction;
+std::string HotkeyHelper::ToString(winrt::Magpie::App::ShortcutAction action) {
+	using winrt::Magpie::App::ShortcutAction;
 
 	switch (action) {
-	case HotkeyAction::Scale:
+	case ShortcutAction::Scale:
 		return "Scale";
-	case HotkeyAction::Overlay:
+	case ShortcutAction::Overlay:
 		return "Overlay";
-	case HotkeyAction::COUNT_OR_NONE:
+	case ShortcutAction::COUNT_OR_NONE:
 		return "None";
 	default:
 		break;
@@ -83,15 +83,15 @@ bool HotkeyHelper::IsValidKeyCode(uint8_t code) {
 
 namespace winrt {
 
-using Magpie::App::HotkeyAction;
+using Magpie::App::ShortcutAction;
 
-hstring to_hstring(HotkeyAction action) {
+hstring to_hstring(ShortcutAction action) {
 	switch (action) {
-	case HotkeyAction::Scale:
+	case ShortcutAction::Scale:
 		return L"Scale";
-	case HotkeyAction::Overlay:
+	case ShortcutAction::Overlay:
 		return L"Overlay";
-	case HotkeyAction::COUNT_OR_NONE:
+	case ShortcutAction::COUNT_OR_NONE:
 		return L"None";
 	default:
 		break;

@@ -12,7 +12,7 @@
     <ClCompile Include="$(GeneratedFilesDir)module.g.cpp">
       <Filter>Miscellaneous</Filter>
     </ClCompile>
-    <ClCompile Include="HotkeyService.cpp">
+    <ClCompile Include="ShortcutService.cpp">
       <Filter>Services</Filter>
     </ClCompile>
     <ClCompile Include="HotkeyHelper.cpp">
@@ -61,7 +61,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
-    <ClInclude Include="HotkeyService.h">
+    <ClInclude Include="ShortcutService.h">
       <Filter>Services</Filter>
     </ClInclude>
     <ClInclude Include="ComboBoxHelper.h">
@@ -230,7 +230,7 @@
     <Page Include="KeyVisual.xaml">
       <Filter>Controls</Filter>
     </Page>
-    <Page Include="HotkeyControl.xaml">
+    <Page Include="ShortcutControl.xaml">
       <Filter>Controls</Filter>
     </Page>
     <Page Include="ScalingConfigurationPage.xaml">
@@ -239,7 +239,7 @@
     <Page Include="ProfilePage.xaml">
       <Filter>Pages</Filter>
     </Page>
-    <Page Include="HotkeyDialog.xaml">
+    <Page Include="ShortcutDialog.xaml">
       <Filter>Controls</Filter>
     </Page>
     <Page Include="Button.xaml">

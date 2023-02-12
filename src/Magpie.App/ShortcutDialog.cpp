@@ -1,7 +1,7 @@
 #include "pch.h"
-#include "HotkeyDialog.h"
-#if __has_include("HotkeyDialog.g.cpp")
-#include "HotkeyDialog.g.cpp"
+#include "ShortcutDialog.h"
+#if __has_include("ShortcutDialog.g.cpp")
+#include "ShortcutDialog.g.cpp"
 #endif
 
 using namespace winrt;
@@ -9,18 +9,18 @@ using namespace Windows::ApplicationModel::Resources;
 
 namespace winrt::Magpie::App::implementation {
 
-const DependencyProperty HotkeyDialog::_IsErrorProperty = DependencyProperty::Register(
+const DependencyProperty ShortcutDialog::_IsErrorProperty = DependencyProperty::Register(
 	L"_IsError",
 	xaml_typename<bool>(),
-	xaml_typename<Magpie::App::HotkeyDialog>(),
+	xaml_typename<Magpie::App::ShortcutDialog>(),
 	PropertyMetadata(box_value(false), nullptr)
 );
 
-HotkeyDialog::HotkeyDialog() {
+ShortcutDialog::ShortcutDialog() {
 	InitializeComponent();
 }
 
-void HotkeyDialog::Error(HotkeyError value) {
+void ShortcutDialog::Error(HotkeyError value) {
 	switch (value) {
 	case HotkeyError::NoError:
 	{
@@ -33,7 +33,7 @@ void HotkeyDialog::Error(HotkeyError value) {
 		_IsError(true);
 		WarningBanner().Visibility(Visibility::Visible);
 		ResourceLoader resourceLoader = ResourceLoader::GetForCurrentView();
-		InvalidHotkeyWarningLabel().Text(resourceLoader.GetString(L"HotkeyDialog_InvalidHotkey"));
+		InvalidHotkeyWarningLabel().Text(resourceLoader.GetString(L"ShortcutDialog_InvalidHotkey"));
 		break;
 	}
 	case HotkeyError::Occupied:
@@ -41,7 +41,7 @@ void HotkeyDialog::Error(HotkeyError value) {
 		_IsError(true);
 		WarningBanner().Visibility(Visibility::Visible);
 		ResourceLoader resourceLoader = ResourceLoader::GetForCurrentView();
-		InvalidHotkeyWarningLabel().Text(resourceLoader.GetString(L"HotkeyDialog_InUse"));
+		InvalidHotkeyWarningLabel().Text(resourceLoader.GetString(L"ShortcutDialog_InUse"));
 		break;
 	}
 	default:
@@ -52,16 +52,16 @@ void HotkeyDialog::Error(HotkeyError value) {
 	_error = value;
 }
 
-void HotkeyDialog::Keys(const IVector<IInspectable>& value) {
+void ShortcutDialog::Keys(const IVector<IInspectable>& value) {
 	_keys = value;
 	KeysControl().ItemsSource(value);
 }
 
-IVector<IInspectable> HotkeyDialog::Keys() const {
+IVector<IInspectable> ShortcutDialog::Keys() const {
 	return _keys;
 }
 
-void HotkeyDialog::_IsError(bool value) {
+void ShortcutDialog::_IsError(bool value) {
 	SetValue(_IsErrorProperty, box_value(value));
 }
 

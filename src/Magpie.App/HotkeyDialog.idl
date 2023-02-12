@@ -1,8 +1,0 @@
-namespace Magpie.App {
-	runtimeclass HotkeyDialog : Windows.UI.Xaml.Controls.UserControl {
-		HotkeyDialog();
-
-		HotkeyError Error;
-		IVector<Object> Keys;
-	}
-}

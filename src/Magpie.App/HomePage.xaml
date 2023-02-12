@@ -37,11 +37,11 @@
 						<FontIcon Glyph="&#xEDA7;" />
 					</local:SettingsCard.Icon>
 					<local:SettingsCard.ActionContent>
-						<local:HotkeyControl x:Uid="Home_Activation_HotkeyControl">
-							<local:HotkeyControl.Action>
-								<local:HotkeyAction>Scale</local:HotkeyAction>
-							</local:HotkeyControl.Action>
-						</local:HotkeyControl>
+						<local:ShortcutControl x:Uid="Home_Activation_ShortcutControl">
+							<local:ShortcutControl.Action>
+								<local:ShortcutAction>Scale</local:ShortcutAction>
+							</local:ShortcutControl.Action>
+						</local:ShortcutControl>
 					</local:SettingsCard.ActionContent>
 				</local:SettingsCard>
 				<muxc:Expander HorizontalAlignment="Stretch"
@@ -142,11 +142,11 @@
 						<FontIcon Glyph="&#xEDA7;" />
 					</local:SettingsCard.Icon>
 					<local:SettingsCard.ActionContent>
-						<local:HotkeyControl x:Uid="Home_Overlay_HotkeyControl">
-							<local:HotkeyControl.Action>
-								<local:HotkeyAction>Overlay</local:HotkeyAction>
-							</local:HotkeyControl.Action>
-						</local:HotkeyControl>
+						<local:ShortcutControl x:Uid="Home_Overlay_ShortcutControl">
+							<local:ShortcutControl.Action>
+								<local:ShortcutAction>Overlay</local:ShortcutAction>
+							</local:ShortcutControl.Action>
+						</local:ShortcutControl>
 					</local:SettingsCard.ActionContent>
 				</local:SettingsCard>
 			</local:SettingsGroup>

@@ -6,8 +6,8 @@
 #include "SettingsCard.idl"
 #include "SettingsGroup.idl"
 #include "KeyVisual.idl"
-#include "HotkeyControl.idl"
-#include "HotkeyDialog.idl"
+#include "ShortcutControl.idl"
+#include "ShortcutDialog.idl"
 #include "HomeViewModel.idl"
 #include "EffectParametersViewModel.idl"
 #include "ScalingModeEffectItem.idl"
@@ -26,7 +26,7 @@
 #include "SettingsPage.idl"
 
 namespace Magpie.App {
-	enum HotkeyAction {
+	enum ShortcutAction {
 		Scale,
 		Overlay,
 		COUNT_OR_NONE

@@ -1,9 +1,0 @@
-namespace Magpie.App {
-	runtimeclass HotkeyControl : Windows.UI.Xaml.Controls.UserControl {
-		HotkeyControl();
-
-		HotkeyAction Action;
-		String Title;
-		Boolean IsError { get; };
-	}
-}

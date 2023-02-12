@@ -335,7 +335,7 @@ void AppSettings::Theme(uint32_t value) {
 	SaveAsync();
 }
 
-void AppSettings::SetHotkey(HotkeyAction action, const Magpie::App::Hotkey& value) {
+void AppSettings::SetHotkey(ShortcutAction action, const Magpie::App::Hotkey& value) {
 	if (_hotkeys[(size_t)action] == value) {
 		return;
 	}
@@ -457,9 +457,9 @@ bool AppSettings::_Save(const _AppSettingsData& data) noexcept {
 	writer.Key("hotkeys");
 	writer.StartObject();
 	writer.Key("scale");
-	writer.Uint(EncodeHotkey(data._hotkeys[(size_t)HotkeyAction::Scale]));
+	writer.Uint(EncodeHotkey(data._hotkeys[(size_t)ShortcutAction::Scale]));
 	writer.Key("overlay");
-	writer.Uint(EncodeHotkey(data._hotkeys[(size_t)HotkeyAction::Overlay]));
+	writer.Uint(EncodeHotkey(data._hotkeys[(size_t)ShortcutAction::Overlay]));
 	writer.EndObject();
 
 	writer.Key("autoRestore");
@@ -578,12 +578,12 @@ void AppSettings::_LoadSettings(const rapidjson::GenericObject<true, rapidjson::
 
 		auto scaleNode = hotkeysObj.FindMember("scale");
 		if (scaleNode != hotkeysObj.MemberEnd() && scaleNode->value.IsUint()) {
-			DecodeHotkey(scaleNode->value.GetUint(), _hotkeys[(size_t)HotkeyAction::Scale]);
+			DecodeHotkey(scaleNode->value.GetUint(), _hotkeys[(size_t)ShortcutAction::Scale]);
 		}
 
 		auto overlayNode = hotkeysObj.FindMember("overlay");
 		if (overlayNode != hotkeysObj.MemberEnd() && overlayNode->value.IsUint()) {
-			DecodeHotkey(overlayNode->value.GetUint(), _hotkeys[(size_t)HotkeyAction::Overlay]);
+			DecodeHotkey(overlayNode->value.GetUint(), _hotkeys[(size_t)ShortcutAction::Overlay]);
 		}
 	}
 
@@ -797,7 +797,7 @@ bool AppSettings::_LoadProfile(
 bool AppSettings::_SetDefaultHotkeys() {
 	bool changed = false;
 
-	Hotkey& scaleHotkey = _hotkeys[(size_t)HotkeyAction::Scale];
+	Hotkey& scaleHotkey = _hotkeys[(size_t)ShortcutAction::Scale];
 	if (scaleHotkey.IsEmpty()) {
 		scaleHotkey.win = true;
 		scaleHotkey.shift = true;
@@ -806,7 +806,7 @@ bool AppSettings::_SetDefaultHotkeys() {
 		changed = true;
 	}
 
-	Hotkey& overlayHotkey = _hotkeys[(size_t)HotkeyAction::Overlay];
+	Hotkey& overlayHotkey = _hotkeys[(size_t)ShortcutAction::Overlay];
 	if (overlayHotkey.IsEmpty()) {
 		overlayHotkey.win = true;
 		overlayHotkey.shift = true;

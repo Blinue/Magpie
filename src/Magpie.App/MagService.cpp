@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "MagService.h"
-#include "HotkeyService.h"
+#include "ShortcutService.h"
 #include "Win32Utils.h"
 #include "AppSettings.h"
 #include "ProfileService.h"
@@ -28,8 +28,8 @@ void MagService::Initialize() {
 	AppSettings::Get().IsAutoRestoreChanged({ this, &MagService::_Settings_IsAutoRestoreChanged });
 	_magRuntime.IsRunningChanged({ this, &MagService::_MagRuntime_IsRunningChanged });
 
-	HotkeyService::Get().HotkeyPressed(
-		{ this, &MagService::_HotkeyService_HotkeyPressed }
+	ShortcutService::Get().HotkeyPressed(
+		{ this, &MagService::_ShortcutService_HotkeyPressed }
 	);
 
 	// 立即检查前台窗口
@@ -88,9 +88,9 @@ void MagService::_WndToRestore(HWND value) {
 	_wndToRestoreChangedEvent(_hwndToRestore);
 }
 
-void MagService::_HotkeyService_HotkeyPressed(HotkeyAction action) {
+void MagService::_ShortcutService_HotkeyPressed(ShortcutAction action) {
 	switch (action) {
-	case HotkeyAction::Scale:
+	case ShortcutAction::Scale:
 	{
 		if (_magRuntime.IsRunning()) {
 			_magRuntime.Stop();
@@ -100,7 +100,7 @@ void MagService::_HotkeyService_HotkeyPressed(HotkeyAction action) {
 		_ScaleForegroundWindow();
 		break;
 	}
-	case HotkeyAction::Overlay:
+	case ShortcutAction::Overlay:
 	{
 		if (_magRuntime.IsRunning()) {
 			_magRuntime.ToggleOverlay();

@@ -140,7 +140,7 @@
       <DependentUpon>HomeViewModel.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
-    <ClInclude Include="HotkeyService.h" />
+    <ClInclude Include="ShortcutService.h" />
     <ClInclude Include="Hotkey.h" />
     <ClInclude Include="IconHelper.h" />
     <ClInclude Include="JsonHelper.h" />
@@ -220,12 +220,12 @@
       <DependentUpon>SettingsViewModel.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
-    <ClInclude Include="HotkeyControl.h">
-      <DependentUpon>HotkeyControl.xaml</DependentUpon>
+    <ClInclude Include="ShortcutControl.h">
+      <DependentUpon>ShortcutControl.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
-    <ClInclude Include="HotkeyDialog.h">
-      <DependentUpon>HotkeyDialog.xaml</DependentUpon>
+    <ClInclude Include="ShortcutDialog.h">
+      <DependentUpon>ShortcutDialog.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
     <ClInclude Include="TextBlockHelper.h">
@@ -278,7 +278,7 @@
       <DependentUpon>HomeViewModel.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
-    <ClCompile Include="HotkeyService.cpp" />
+    <ClCompile Include="ShortcutService.cpp" />
     <ClCompile Include="Hotkey.cpp" />
     <ClCompile Include="IconHelper.cpp" />
     <ClCompile Include="JsonHelper.cpp" />
@@ -359,12 +359,12 @@
       <DependentUpon>SettingsViewModel.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
-    <ClCompile Include="HotkeyControl.cpp">
-      <DependentUpon>HotkeyControl.xaml</DependentUpon>
+    <ClCompile Include="ShortcutControl.cpp">
+      <DependentUpon>ShortcutControl.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
-    <ClCompile Include="HotkeyDialog.cpp">
-      <DependentUpon>HotkeyDialog.xaml</DependentUpon>
+    <ClCompile Include="ShortcutDialog.cpp">
+      <DependentUpon>ShortcutDialog.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
     <ClCompile Include="TextBlockHelper.cpp">
@@ -399,12 +399,12 @@
       <DependentUpon>ScalingConfigurationPage.xaml</DependentUpon>
       <SubType>Code</SubType>
     </None>
-    <None Include="HotkeyDialog.idl">
-      <DependentUpon>HotkeyDialog.xaml</DependentUpon>
+    <None Include="ShortcutDialog.idl">
+      <DependentUpon>ShortcutDialog.xaml</DependentUpon>
       <SubType>Code</SubType>
     </None>
-    <None Include="HotkeyControl.idl">
-      <DependentUpon>HotkeyControl.xaml</DependentUpon>
+    <None Include="ShortcutControl.idl">
+      <DependentUpon>ShortcutControl.xaml</DependentUpon>
       <SubType>Code</SubType>
     </None>
     <None Include="KeyVisual.idl">
@@ -507,10 +507,10 @@
     <Page Include="SettingsPage.xaml">
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="HotkeyControl.xaml">
+    <Page Include="ShortcutControl.xaml">
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="HotkeyDialog.xaml">
+    <Page Include="ShortcutDialog.xaml">
       <SubType>Designer</SubType>
     </Page>
     <Page Include="ToggleSwitch.xaml">

@@ -1,10 +1,10 @@
 #pragma once
-#include "HotkeyDialog.g.h"
+#include "ShortcutDialog.g.h"
 
 namespace winrt::Magpie::App::implementation {
 
-struct HotkeyDialog : HotkeyDialogT<HotkeyDialog> {
-	HotkeyDialog();
+struct ShortcutDialog : ShortcutDialogT<ShortcutDialog> {
+	ShortcutDialog();
 
 	void Error(HotkeyError value);
 	HotkeyError Error() const {
@@ -27,7 +27,7 @@ private:
 
 namespace winrt::Magpie::App::factory_implementation {
 
-struct HotkeyDialog : HotkeyDialogT<HotkeyDialog, implementation::HotkeyDialog> {
+struct ShortcutDialog : ShortcutDialogT<ShortcutDialog, implementation::ShortcutDialog> {
 };
 
 }

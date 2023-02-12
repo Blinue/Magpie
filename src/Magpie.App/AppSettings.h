@@ -15,7 +15,7 @@ struct _AppSettingsData {
 	_AppSettingsData();
 	virtual ~_AppSettingsData();
 
-	std::array<Hotkey, (size_t)HotkeyAction::COUNT_OR_NONE> _hotkeys;
+	std::array<Hotkey, (size_t)ShortcutAction::COUNT_OR_NONE> _hotkeys;
 
 	::Magpie::Core::DownscalingEffect _downscalingEffect;
 	std::vector<ScalingMode> _scalingModes;
@@ -132,17 +132,17 @@ public:
 		return _isWindowMaximized;
 	}
 
-	const Hotkey& GetHotkey(HotkeyAction action) const {
+	const Hotkey& GetHotkey(ShortcutAction action) const {
 		return _hotkeys[(size_t)action];
 	}
 
-	void SetHotkey(HotkeyAction action, const Hotkey& value);
+	void SetHotkey(ShortcutAction action, const Hotkey& value);
 
-	event_token HotkeyChanged(delegate<HotkeyAction> const& handler) {
+	event_token HotkeyChanged(delegate<ShortcutAction> const& handler) {
 		return _hotkeyChangedEvent.add(handler);
 	}
 
-	WinRTUtils::EventRevoker HotkeyChanged(auto_revoke_t, delegate<HotkeyAction> const& handler) {
+	WinRTUtils::EventRevoker HotkeyChanged(auto_revoke_t, delegate<ShortcutAction> const& handler) {
 		event_token token = HotkeyChanged(handler);
 		return WinRTUtils::EventRevoker([this, token]() {
 			HotkeyChanged(token);
@@ -359,7 +359,7 @@ private:
 
 	event<delegate<int>> _languageChangedEvent;
 	event<delegate<uint32_t>> _themeChangedEvent;
-	event<delegate<HotkeyAction>> _hotkeyChangedEvent;
+	event<delegate<ShortcutAction>> _hotkeyChangedEvent;
 	event<delegate<bool>> _isAutoRestoreChangedEvent;
 	event<delegate<uint32_t>> _countdownSecondsChangedEvent;
 	event<delegate<bool>> _isShowTrayIconChangedEvent;

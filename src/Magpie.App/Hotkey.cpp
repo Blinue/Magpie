@@ -77,11 +77,11 @@ HotkeyError Hotkey::Check() const noexcept {
 	}
 
 	// 检测快捷键是否被占用
-	if (!RegisterHotKey(NULL, (int)HotkeyAction::COUNT_OR_NONE, modifiers, code)) {
+	if (!RegisterHotKey(NULL, (int)ShortcutAction::COUNT_OR_NONE, modifiers, code)) {
 		return HotkeyError::Occupied;
 	}
 
-	UnregisterHotKey(NULL, (int)HotkeyAction::COUNT_OR_NONE);
+	UnregisterHotKey(NULL, (int)ShortcutAction::COUNT_OR_NONE);
 	return HotkeyError::NoError;
 }
 

@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "HotkeyService.h"
+#include "ShortcutService.h"
 #include "Logger.h"
 #include "HotkeyHelper.h"
 #include "AppSettings.h"
@@ -21,7 +21,7 @@
 
 namespace winrt::Magpie::App {
 
-void HotkeyService::Initialize() {
+void ShortcutService::Initialize() {
 	HINSTANCE hInst = GetModuleHandle(nullptr);
 
 	WNDCLASSEXW wcex{};
@@ -33,10 +33,10 @@ void HotkeyService::Initialize() {
 
 	_hwndHotkey = CreateWindow(CommonSharedConstants::HOTKEY_WINDOW_CLASS_NAME, nullptr, 0, 0, 0, 0, 0, HWND_MESSAGE, NULL, hInst, 0);
 
-	_RegisterHotkey(HotkeyAction::Scale);
-	_RegisterHotkey(HotkeyAction::Overlay);
+	_RegisterShortcut(ShortcutAction::Scale);
+	_RegisterShortcut(ShortcutAction::Overlay);
 
-	AppSettings::Get().HotkeyChanged({ this, &HotkeyService::_AppSettings_OnHotkeyChanged });
+	AppSettings::Get().HotkeyChanged({ this, &ShortcutService::_AppSettings_OnHotkeyChanged });
 
 	_keyboardHook = SetWindowsHookEx(WH_KEYBOARD_LL, _LowLevelKeyboardProc, NULL, NULL);
 	if (!_keyboardHook) {
@@ -44,7 +44,7 @@ void HotkeyService::Initialize() {
 	}
 }
 
-void HotkeyService::Uninitialize() {
+void ShortcutService::Uninitialize() {
 	if (!_hwndHotkey) {
 		return;
 	}
@@ -53,8 +53,8 @@ void HotkeyService::Uninitialize() {
 		UnhookWindowsHookEx(_keyboardHook);
 	}
 
-	for (int i = 0; i < (int)HotkeyAction::COUNT_OR_NONE; ++i) {
-		if (!_hotkeyInfos[i].isError) {
+	for (int i = 0; i < (int)ShortcutAction::COUNT_OR_NONE; ++i) {
+		if (!_ShortcutInfos[i].isError) {
 			UnregisterHotKey(_hwndHotkey, i);
 		}
 	}
@@ -63,16 +63,16 @@ void HotkeyService::Uninitialize() {
 	_hwndHotkey = NULL;
 }
 
-HotkeyService::~HotkeyService() {
+ShortcutService::~ShortcutService() {
 	Uninitialize();
 }
 
-LRESULT HotkeyService::_WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
+LRESULT ShortcutService::_WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
 	if (message == WM_HOTKEY) {
-		if (wParam >= 0 && wParam < (UINT)HotkeyAction::COUNT_OR_NONE) {
-			HotkeyAction action = (HotkeyAction)wParam;
+		if (wParam >= 0 && wParam < (UINT)ShortcutAction::COUNT_OR_NONE) {
+			ShortcutAction action = (ShortcutAction)wParam;
 			Logger::Get().Info(fmt::format("热键 {} 激活（Hotkey）", HotkeyHelper::ToString(action)));
-			_FireHotkey(action);
+			_FireShortcut(action);
 			return 0;
 		}
 	}
@@ -80,13 +80,13 @@ LRESULT HotkeyService::_WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
 	return DefWindowProc(hWnd, message, wParam, lParam);
 }
 
-void HotkeyService::_AppSettings_OnHotkeyChanged(HotkeyAction action) {
-	_RegisterHotkey(action);
+void ShortcutService::_AppSettings_OnHotkeyChanged(ShortcutAction action) {
+	_RegisterShortcut(action);
 }
 
-void HotkeyService::_RegisterHotkey(HotkeyAction action) {
+void ShortcutService::_RegisterShortcut(ShortcutAction action) {
 	const Hotkey& hotkey = AppSettings::Get().GetHotkey(action);
-	bool& isError = _hotkeyInfos[(size_t)action].isError;
+	bool& isError = _ShortcutInfos[(size_t)action].isError;
 
 	UnregisterHotKey(_hwndHotkey, (int)action);
 
@@ -117,12 +117,12 @@ void HotkeyService::_RegisterHotkey(HotkeyAction action) {
 	}
 }
 
-void HotkeyService::_FireHotkey(HotkeyAction action) {
+void ShortcutService::_FireShortcut(ShortcutAction action) {
 	using namespace std::chrono;
 
 	// 限制触发频率
 	auto cur = steady_clock::now();
-	auto& lastFireTime = _hotkeyInfos[(size_t)action].lastFireTime;
+	auto& lastFireTime = _ShortcutInfos[(size_t)action].lastFireTime;
 	if (duration_cast<milliseconds>(cur - lastFireTime).count() < 100) {
 		return;
 	}
@@ -131,8 +131,8 @@ void HotkeyService::_FireHotkey(HotkeyAction action) {
 	_hotkeyPressedEvent(action);
 }
 
-LRESULT CALLBACK HotkeyService::_LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM lParam) {
-	HotkeyService& that = Get();
+LRESULT CALLBACK ShortcutService::_LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM lParam) {
+	ShortcutService& that = Get();
 	const KBDLLHOOKSTRUCT* info = ((KBDLLHOOKSTRUCT*)lParam);
 
 	if (nCode < 0 || ((wParam != WM_KEYDOWN) && (wParam != WM_SYSKEYDOWN)) || !that._isKeyboardHookActive) {
@@ -189,8 +189,8 @@ LRESULT CALLBACK HotkeyService::_LowLevelKeyboardProc(int nCode, WPARAM wParam, 
 	}
 
 	// 查找匹配热键
-	for (uint32_t i = 0; i < (uint32_t)HotkeyAction::COUNT_OR_NONE; ++i) {
-		HotkeyAction action = (HotkeyAction)i;
+	for (uint32_t i = 0; i < (uint32_t)ShortcutAction::COUNT_OR_NONE; ++i) {
+		ShortcutAction action = (ShortcutAction)i;
 		if (that.IsError(action)) {
 			continue;
 		}
@@ -201,12 +201,12 @@ LRESULT CALLBACK HotkeyService::_LowLevelKeyboardProc(int nCode, WPARAM wParam, 
 				that._keyboardHookHotkeyFired = true;
 
 				// 延迟执行回调以缩短钩子的处理时间
-				[](HotkeyAction action) -> fire_and_forget {
+				[](ShortcutAction action) -> fire_and_forget {
 					co_await CoreWindow::GetForCurrentThread().Dispatcher().TryRunAsync(
 						CoreDispatcherPriority::Normal,
 						[action]() {
 							Logger::Get().Info(fmt::format("热键 {} 激活（Keyboard Hook）", HotkeyHelper::ToString(action)));
-							Get()._FireHotkey(action);
+							Get()._FireShortcut(action);
 						}
 					);
 				}(action);
