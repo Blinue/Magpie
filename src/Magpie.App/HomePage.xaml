@@ -32,7 +32,7 @@
 			</muxc:InfoBar>
 			<local:SettingsGroup x:Uid="Home_Activation"
 			                     Margin="0,-24,0,0">
-				<local:SettingsCard x:Uid="Home_Activation_Hotkey">
+				<local:SettingsCard x:Uid="Home_Activation_Shortcut">
 					<local:SettingsCard.Icon>
 						<FontIcon Glyph="&#xEDA7;" />
 					</local:SettingsCard.Icon>
@@ -137,7 +137,7 @@
 				</StackPanel>
 			</local:SettingsGroup>
 			<local:SettingsGroup x:Uid="Home_Overlay">
-				<local:SettingsCard x:Uid="Home_Overlay_Hotkey">
+				<local:SettingsCard x:Uid="Home_Overlay_Shortcut">
 					<local:SettingsCard.Icon>
 						<FontIcon Glyph="&#xEDA7;" />
 					</local:SettingsCard.Icon>

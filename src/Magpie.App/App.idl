@@ -32,7 +32,7 @@ namespace Magpie.App {
 		COUNT_OR_NONE
 	};
 
-	enum HotkeyError {
+	enum ShortcutError {
 		NoError,
 		Invalid,
 		Occupied

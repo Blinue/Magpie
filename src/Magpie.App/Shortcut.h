@@ -5,14 +5,14 @@
 
 namespace winrt::Magpie::App {
 
-struct Hotkey {
-	bool operator==(const Hotkey&) const noexcept = default;
+struct Shortcut {
+	bool operator==(const Shortcut&) const noexcept = default;
 
 	bool IsEmpty() const noexcept;
 
 	SmallVector<std::variant<uint8_t, std::wstring>, 5> GetKeyList() const noexcept;
 
-	HotkeyError Check() const noexcept;
+	ShortcutError Check() const noexcept;
 
 	void Clear() noexcept;
 

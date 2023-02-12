@@ -20,28 +20,28 @@ ShortcutDialog::ShortcutDialog() {
 	InitializeComponent();
 }
 
-void ShortcutDialog::Error(HotkeyError value) {
+void ShortcutDialog::Error(ShortcutError value) {
 	switch (value) {
-	case HotkeyError::NoError:
+	case ShortcutError::NoError:
 	{
 		_IsError(false);
 		WarningBanner().Visibility(Visibility::Collapsed);
 		break;
 	}
-	case HotkeyError::Invalid:
+	case ShortcutError::Invalid:
 	{
 		_IsError(true);
 		WarningBanner().Visibility(Visibility::Visible);
 		ResourceLoader resourceLoader = ResourceLoader::GetForCurrentView();
-		InvalidHotkeyWarningLabel().Text(resourceLoader.GetString(L"ShortcutDialog_InvalidHotkey"));
+		InvalidShortcutWarningLabel().Text(resourceLoader.GetString(L"ShortcutDialog_InvalidShortcut"));
 		break;
 	}
-	case HotkeyError::Occupied:
+	case ShortcutError::Occupied:
 	{
 		_IsError(true);
 		WarningBanner().Visibility(Visibility::Visible);
 		ResourceLoader resourceLoader = ResourceLoader::GetForCurrentView();
-		InvalidHotkeyWarningLabel().Text(resourceLoader.GetString(L"ShortcutDialog_InUse"));
+		InvalidShortcutWarningLabel().Text(resourceLoader.GetString(L"ShortcutDialog_InUse"));
 		break;
 	}
 	default:

@@ -28,8 +28,8 @@ void MagService::Initialize() {
 	AppSettings::Get().IsAutoRestoreChanged({ this, &MagService::_Settings_IsAutoRestoreChanged });
 	_magRuntime.IsRunningChanged({ this, &MagService::_MagRuntime_IsRunningChanged });
 
-	ShortcutService::Get().HotkeyPressed(
-		{ this, &MagService::_ShortcutService_HotkeyPressed }
+	ShortcutService::Get().ShortcutActivated(
+		{ this, &MagService::_ShortcutService_ShortcutPressed }
 	);
 
 	// 立即检查前台窗口
@@ -88,7 +88,7 @@ void MagService::_WndToRestore(HWND value) {
 	_wndToRestoreChangedEvent(_hwndToRestore);
 }
 
-void MagService::_ShortcutService_HotkeyPressed(ShortcutAction action) {
+void MagService::_ShortcutService_ShortcutPressed(ShortcutAction action) {
 	switch (action) {
 	case ShortcutAction::Scale:
 	{

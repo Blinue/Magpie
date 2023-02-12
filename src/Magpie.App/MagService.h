@@ -111,7 +111,7 @@ private:
 
 	void _WndToRestore(HWND value);
 
-	void _ShortcutService_HotkeyPressed(ShortcutAction action);
+	void _ShortcutService_ShortcutPressed(ShortcutAction action);
 
 	void _CountDownTimer_Tick(IInspectable const&, IInspectable const&);
 

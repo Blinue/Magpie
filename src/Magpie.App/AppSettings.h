@@ -1,7 +1,7 @@
 #pragma once
 #include <winrt/Magpie.App.h>
 #include "WinRTUtils.h"
-#include "Hotkey.h"
+#include "Shortcut.h"
 #include "Profile.h"
 #include <parallel_hashmap/phmap.h>
 #include <rapidjson/document.h>
@@ -15,7 +15,7 @@ struct _AppSettingsData {
 	_AppSettingsData();
 	virtual ~_AppSettingsData();
 
-	std::array<Hotkey, (size_t)ShortcutAction::COUNT_OR_NONE> _hotkeys;
+	std::array<Shortcut, (size_t)ShortcutAction::COUNT_OR_NONE> _shortcuts;
 
 	::Magpie::Core::DownscalingEffect _downscalingEffect;
 	std::vector<ScalingMode> _scalingModes;
@@ -28,7 +28,7 @@ struct _AppSettingsData {
 
 	// LocalizationService::GetSupportedLanguages 索引
 	// -1 表示使用系统设置
-	int _language;
+	int _language = -1;
 
 	// X, Y, 长, 高
 	RECT _windowRect{ CW_USEDEFAULT,CW_USEDEFAULT,1280,820 };
@@ -132,25 +132,25 @@ public:
 		return _isWindowMaximized;
 	}
 
-	const Hotkey& GetHotkey(ShortcutAction action) const {
-		return _hotkeys[(size_t)action];
+	const Shortcut& GetShortcut(ShortcutAction action) const {
+		return _shortcuts[(size_t)action];
 	}
 
-	void SetHotkey(ShortcutAction action, const Hotkey& value);
+	void SetShortcut(ShortcutAction action, const Shortcut& value);
 
-	event_token HotkeyChanged(delegate<ShortcutAction> const& handler) {
-		return _hotkeyChangedEvent.add(handler);
+	event_token ShortcutChanged(delegate<ShortcutAction> const& handler) {
+		return _shortcutChangedEvent.add(handler);
 	}
 
-	WinRTUtils::EventRevoker HotkeyChanged(auto_revoke_t, delegate<ShortcutAction> const& handler) {
-		event_token token = HotkeyChanged(handler);
+	WinRTUtils::EventRevoker ShortcutChanged(auto_revoke_t, delegate<ShortcutAction> const& handler) {
+		event_token token = ShortcutChanged(handler);
 		return WinRTUtils::EventRevoker([this, token]() {
-			HotkeyChanged(token);
+			ShortcutChanged(token);
 		});
 	}
 
-	void HotkeyChanged(event_token const& token) {
-		_hotkeyChangedEvent.remove(token);
+	void ShortcutChanged(event_token const& token) {
+		_shortcutChangedEvent.remove(token);
 	}
 
 	bool IsAutoRestore() const noexcept {
@@ -349,7 +349,7 @@ private:
 		Profile& profile,
 		bool isDefault = false
 	);
-	bool _SetDefaultHotkeys();
+	bool _SetDefaultShortcuts();
 	void _SetDefaultScalingModes();
 
 	void _UpdateConfigPath() noexcept;
@@ -359,7 +359,7 @@ private:
 
 	event<delegate<int>> _languageChangedEvent;
 	event<delegate<uint32_t>> _themeChangedEvent;
-	event<delegate<ShortcutAction>> _hotkeyChangedEvent;
+	event<delegate<ShortcutAction>> _shortcutChangedEvent;
 	event<delegate<bool>> _isAutoRestoreChangedEvent;
 	event<delegate<uint32_t>> _countdownSecondsChangedEvent;
 	event<delegate<bool>> _isShowTrayIconChangedEvent;

@@ -2,7 +2,7 @@ namespace Magpie.App {
 	runtimeclass ShortcutDialog : Windows.UI.Xaml.Controls.UserControl {
 		ShortcutDialog();
 
-		HotkeyError Error;
+		ShortcutError Error;
 		IVector<Object> Keys;
 	}
 }

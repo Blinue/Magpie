@@ -3,7 +3,7 @@
 
 namespace winrt::Magpie::App {
 
-struct HotkeyHelper {
+struct ShortcutHelper {
 	static std::string ToString(winrt::Magpie::App::ShortcutAction action);
 
 	static bool IsValidKeyCode(uint8_t code);

@@ -1,12 +1,11 @@
 #include "pch.h"
-#include "HotkeyHelper.h"
+#include "ShortcutHelper.h"
 #include "Win32Utils.h"
 #include <parallel_hashmap/phmap.h>
 
-
 namespace winrt::Magpie::App {
 
-std::string HotkeyHelper::ToString(winrt::Magpie::App::ShortcutAction action) {
+std::string ShortcutHelper::ToString(winrt::Magpie::App::ShortcutAction action) {
 	using winrt::Magpie::App::ShortcutAction;
 
 	switch (action) {
@@ -23,7 +22,7 @@ std::string HotkeyHelper::ToString(winrt::Magpie::App::ShortcutAction action) {
 	return {};
 }
 
-bool HotkeyHelper::IsValidKeyCode(uint8_t code) {
+bool ShortcutHelper::IsValidKeyCode(uint8_t code) {
 	static phmap::flat_hash_set<uint8_t> validKeyCodes = []() {
 		phmap::flat_hash_set<uint8_t> keyCodes;
 		keyCodes.reserve(99);

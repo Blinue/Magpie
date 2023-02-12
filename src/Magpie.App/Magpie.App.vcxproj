@@ -141,7 +141,7 @@
       <SubType>Code</SubType>
     </ClInclude>
     <ClInclude Include="ShortcutService.h" />
-    <ClInclude Include="Hotkey.h" />
+    <ClInclude Include="Shortcut.h" />
     <ClInclude Include="IconHelper.h" />
     <ClInclude Include="JsonHelper.h" />
     <ClInclude Include="LocalizationService.h" />
@@ -170,7 +170,7 @@
       <DependentUpon>ProfilePage.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
-    <ClInclude Include="HotkeyHelper.h" />
+    <ClInclude Include="ShortcutHelper.h" />
     <ClInclude Include="KeyVisual.h">
       <DependentUpon>KeyVisual.idl</DependentUpon>
       <SubType>Code</SubType>
@@ -279,7 +279,7 @@
       <SubType>Code</SubType>
     </ClCompile>
     <ClCompile Include="ShortcutService.cpp" />
-    <ClCompile Include="Hotkey.cpp" />
+    <ClCompile Include="Shortcut.cpp" />
     <ClCompile Include="IconHelper.cpp" />
     <ClCompile Include="JsonHelper.cpp" />
     <ClCompile Include="LocalizationService.cpp" />
@@ -306,7 +306,7 @@
       <DependentUpon>ProfilePage.xaml</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
-    <ClCompile Include="HotkeyHelper.cpp" />
+    <ClCompile Include="ShortcutHelper.cpp" />
     <ClCompile Include="KeyVisual.cpp">
       <DependentUpon>KeyVisual.idl</DependentUpon>
       <SubType>Code</SubType>

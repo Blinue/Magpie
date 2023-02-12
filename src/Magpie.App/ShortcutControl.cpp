@@ -3,7 +3,7 @@
 #if __has_include("ShortcutControl.g.cpp")
 #include "ShortcutControl.g.cpp"
 #endif
-#include "HotkeyHelper.h"
+#include "ShortcutHelper.h"
 #include "ShortcutService.h"
 #include "AppSettings.h"
 #include "XamlUtils.h"
@@ -57,8 +57,8 @@ ShortcutControl* ShortcutControl::_that = nullptr;
 ShortcutControl::ShortcutControl() {
 	InitializeComponent();
 
-	_hotkeyChangedRevoker = AppSettings::Get().HotkeyChanged(
-		auto_revoke, { this,&ShortcutControl::_AppSettings_OnHotkeyChanged });
+	_shortcutChangedRevoker = AppSettings::Get().ShortcutChanged(
+		auto_revoke, { this,&ShortcutControl::_AppSettings_OnShortcutChanged });
 }
 
 ShortcutControl::~ShortcutControl() {
@@ -88,8 +88,8 @@ fire_and_forget ShortcutControl::EditButton_Click(IInspectable const&, RoutedEve
 		_ShortcutDialog.Closing({ this, &ShortcutControl::_ShortcutDialog_Closing });
 	}
 
-	_previewHotkey = _hotkey;
-	_ShortcutDialogContent.Keys(ToKeys(_previewHotkey.GetKeyList()));
+	_previewShortcut = _shortcut;
+	_ShortcutDialogContent.Keys(ToKeys(_previewShortcut.GetKeyList()));
 
 	_ShortcutDialog.XamlRoot(XamlRoot());
 	_ShortcutDialog.RequestedTheme(ActualTheme());
@@ -103,9 +103,9 @@ fire_and_forget ShortcutControl::EditButton_Click(IInspectable const&, RoutedEve
 		ShortcutService::Get().StartKeyboardHook();
 		co_return;
 	}
-	_previewHotkey = _hotkey;
-	_ShortcutDialogContent.Keys(ToKeys(_previewHotkey.GetKeyList()));
-	_ShortcutDialogContent.Error(IsError() ? _previewHotkey.Check() : HotkeyError::NoError);
+	_previewShortcut = _shortcut;
+	_ShortcutDialogContent.Keys(ToKeys(_previewShortcut.GetKeyList()));
+	_ShortcutDialogContent.Error(IsError() ? _previewShortcut.Check() : ShortcutError::NoError);
 	_ShortcutDialog.IsPrimaryButtonEnabled(!IsError());
 	
 	_pressedKeys.Clear();
@@ -119,7 +119,7 @@ void ShortcutControl::_ShortcutDialog_Closing(ContentDialog const&, ContentDialo
 	ShortcutService::Get().StartKeyboardHook();
 
 	if (args.Result() == ContentDialogResult::Primary) {
-		AppSettings::Get().SetHotkey(Action(), _previewHotkey);
+		AppSettings::Get().SetShortcut(Action(), _previewShortcut);
 	}
 }
 
@@ -170,7 +170,7 @@ LRESULT ShortcutControl::_LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM 
 			return CallNextHookEx(NULL, nCode, wParam, lParam);
 		}
 
-		if (HotkeyHelper::IsValidKeyCode((uint8_t)code)) {
+		if (ShortcutHelper::IsValidKeyCode((uint8_t)code)) {
 			if (isKeyDown) {
 				_that->_pressedKeys.code = (uint8_t)code;
 			} else {
@@ -186,28 +186,28 @@ LRESULT ShortcutControl::_LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM 
 	}
 
 	if (isKeyDown) {
-		Magpie::App::Hotkey& previewHotkey = _that->_previewHotkey;
+		Magpie::App::Shortcut& previewShortcut = _that->_previewShortcut;
 
-		previewHotkey = _that->_pressedKeys;
-		_that->_ShortcutDialogContent.Keys(ToKeys(previewHotkey.GetKeyList()));
+		previewShortcut = _that->_pressedKeys;
+		_that->_ShortcutDialogContent.Keys(ToKeys(previewShortcut.GetKeyList()));
 
-		HotkeyError error = HotkeyError::NoError;
+		ShortcutError error = ShortcutError::NoError;
 		bool isPrimaryButtonEnabled = false;
-		if (previewHotkey == _that->_hotkey && !_that->IsError()) {
+		if (previewShortcut == _that->_shortcut && !_that->IsError()) {
 			isPrimaryButtonEnabled = true;
 		} else {
 			UINT modCount = 0;
-			if (previewHotkey.code == 0) {
-				if (previewHotkey.win) {
+			if (previewShortcut.code == 0) {
+				if (previewShortcut.win) {
 					++modCount;
 				}
-				if (previewHotkey.alt) {
+				if (previewShortcut.alt) {
 					++modCount;
 				}
-				if (modCount <= 1 && previewHotkey.ctrl) {
+				if (modCount <= 1 && previewShortcut.ctrl) {
 					++modCount;
 				}
-				if (modCount <= 1 && previewHotkey.shift) {
+				if (modCount <= 1 && previewShortcut.shift) {
 					++modCount;
 				}
 			}
@@ -216,8 +216,8 @@ LRESULT ShortcutControl::_LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM 
 				// Modifiers 个数为 1 时不显示错误
 				isPrimaryButtonEnabled = false;
 			} else {
-				error = previewHotkey.Check();
-				isPrimaryButtonEnabled = error == HotkeyError::NoError;
+				error = previewShortcut.Check();
+				isPrimaryButtonEnabled = error == ShortcutError::NoError;
 			}
 		}
 
@@ -230,7 +230,7 @@ LRESULT ShortcutControl::_LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM 
 
 void ShortcutControl::_OnActionChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
 	ShortcutControl* that = get_self<ShortcutControl>(sender.as<default_interface<ShortcutControl>>());
-	that->_UpdateHotkey();
+	that->_UpdateShortcut();
 }
 
 void ShortcutControl::_OnTitleChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const& args) {
@@ -240,21 +240,21 @@ void ShortcutControl::_OnTitleChanged(DependencyObject const& sender, Dependency
 	}
 }
 
-void ShortcutControl::_AppSettings_OnHotkeyChanged(ShortcutAction action) {
+void ShortcutControl::_AppSettings_OnShortcutChanged(ShortcutAction action) {
 	if (action == Action()) {
-		_UpdateHotkey();
+		_UpdateShortcut();
 	}
 }
 
-void ShortcutControl::_UpdateHotkey() {
+void ShortcutControl::_UpdateShortcut() {
 	ShortcutAction action = Action();
-	const Hotkey& hotkey = AppSettings::Get().GetHotkey(action);
+	const Shortcut& shortcut = AppSettings::Get().GetShortcut(action);
 
-	_hotkey = hotkey;
-	// 此时 HotkeyManager 中的回调已执行
+	_shortcut = shortcut;
+	// 此时 ShortcutService 中的回调已执行
 	_IsError(ShortcutService::Get().IsError(action));
 
-	KeysControl().ItemsSource(ToKeys(_hotkey.GetKeyList()));
+	KeysControl().ItemsSource(ToKeys(_shortcut.GetKeyList()));
 }
 
 }

@@ -5,7 +5,7 @@
              xmlns:local="using:Magpie.App"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
-             x:Name="HotkeyContentControl"
+             x:Name="ShortcutContentControl"
              mc:Ignorable="d">
 	<Grid MinWidth="498"
 	      MinHeight="220">
@@ -35,7 +35,7 @@
 				<DataTemplate>
 					<local:KeyVisual Height="56"
 					                 Content="{Binding Mode=OneTime}"
-					                 IsError="{Binding ElementName=HotkeyContentControl, Path=_IsError, Mode=OneTime}"
+					                 IsError="{Binding ElementName=ShortcutContentControl, Path=_IsError, Mode=OneTime}"
 					                 IsTabStop="False"
 					                 VisualType="Large" />
 				</DataTemplate>
@@ -64,7 +64,7 @@
 						<muxc:InfoBadge Margin="2,0,12,0"
 						                Style="{StaticResource CriticalIconInfoBadgeStyle}" />
 
-						<TextBlock x:Name="InvalidHotkeyWarningLabel"
+						<TextBlock x:Name="InvalidShortcutWarningLabel"
 						           Grid.Column="1"
 						           Margin="0,-1,0,0"
 						           VerticalAlignment="Center"

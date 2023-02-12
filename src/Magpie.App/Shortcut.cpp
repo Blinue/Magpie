@@ -1,17 +1,17 @@
 #include "pch.h"
-#include "Hotkey.h"
+#include "Shortcut.h"
 #include "Win32Utils.h"
 #include "StrUtils.h"
-#include "HotkeyHelper.h"
+#include "ShortcutHelper.h"
 #include "SmallVector.h"
 
 namespace winrt::Magpie::App {
 
-bool Hotkey::IsEmpty() const noexcept {
+bool Shortcut::IsEmpty() const noexcept {
 	return !win && !ctrl && !alt && !shift && code == 0;
 }
 
-SmallVector<std::variant<uint8_t, std::wstring>, 5> Hotkey::GetKeyList() const noexcept {
+SmallVector<std::variant<uint8_t, std::wstring>, 5> Shortcut::GetKeyList() const noexcept {
 	SmallVector<std::variant<uint8_t, std::wstring>, 5> keyList;
 	if (win) {
 		keyList.emplace_back((uint8_t)VK_LWIN);
@@ -49,7 +49,7 @@ SmallVector<std::variant<uint8_t, std::wstring>, 5> Hotkey::GetKeyList() const n
 	return keyList;
 }
 
-HotkeyError Hotkey::Check() const noexcept {
+ShortcutError Shortcut::Check() const noexcept {
 	UINT modifiers = MOD_NOREPEAT;
 	UINT modCount = 0;
 
@@ -73,19 +73,19 @@ HotkeyError Hotkey::Check() const noexcept {
 	if (modCount == 0 || (modCount == 1 && code == 0)) {
 		// 必须存在 Modifier
 		// 如果只有一个 Modifier 则必须存在 Virtual Key
-		return HotkeyError::Invalid;
+		return ShortcutError::Invalid;
 	}
 
 	// 检测快捷键是否被占用
 	if (!RegisterHotKey(NULL, (int)ShortcutAction::COUNT_OR_NONE, modifiers, code)) {
-		return HotkeyError::Occupied;
+		return ShortcutError::Occupied;
 	}
 
 	UnregisterHotKey(NULL, (int)ShortcutAction::COUNT_OR_NONE);
-	return HotkeyError::NoError;
+	return ShortcutError::NoError;
 }
 
-void Hotkey::Clear() noexcept {
+void Shortcut::Clear() noexcept {
 	win = false;
 	ctrl = false;
 	alt = false;
@@ -93,7 +93,7 @@ void Hotkey::Clear() noexcept {
 	code = 0;
 }
 
-std::wstring Hotkey::ToString() const noexcept {
+std::wstring Shortcut::ToString() const noexcept {
 	std::wstring output;
 
 	if (win) {

@@ -123,7 +123,7 @@
   <data name="Home_Activation.Title" xml:space="preserve">
     <value>激活</value>
   </data>
-  <data name="Home_Activation_Hotkey.Title" xml:space="preserve">
+  <data name="Home_Activation_Shortcut.Title" xml:space="preserve">
     <value>快捷键</value>
   </data>
   <data name="Home_Activation_ShortcutControl.Title" xml:space="preserve">
@@ -150,7 +150,7 @@
   <data name="Home_Overlay.Title" xml:space="preserve">
     <value>游戏内覆盖</value>
   </data>
-  <data name="Home_Overlay_Hotkey.Title" xml:space="preserve">
+  <data name="Home_Overlay_Shortcut.Title" xml:space="preserve">
     <value>快捷键</value>
   </data>
   <data name="Home_Overlay_ShortcutControl.Title" xml:space="preserve">
@@ -183,7 +183,7 @@
   <data name="ShortcutDialog_InUse" xml:space="preserve">
     <value>此快捷键已被占用</value>
   </data>
-  <data name="ShortcutDialog_InvalidHotkey" xml:space="preserve">
+  <data name="ShortcutDialog_InvalidShortcut" xml:space="preserve">
     <value>无效快捷键</value>
   </data>
   <data name="ShortcutDialog_Save" xml:space="preserve">

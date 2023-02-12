@@ -6,8 +6,8 @@ namespace winrt::Magpie::App::implementation {
 struct ShortcutDialog : ShortcutDialogT<ShortcutDialog> {
 	ShortcutDialog();
 
-	void Error(HotkeyError value);
-	HotkeyError Error() const {
+	void Error(ShortcutError value);
+	ShortcutError Error() const {
 		return _error;
 	}
 
@@ -19,7 +19,7 @@ private:
 
 	void _IsError(bool value);
 
-	HotkeyError _error = HotkeyError::NoError;
+	ShortcutError _error = ShortcutError::NoError;
 	IVector<IInspectable> _keys{ nullptr };
 };
 

@@ -22,19 +22,19 @@ public:
 		return _ShortcutInfos[(size_t)action].isError;
 	}
 
-	event_token HotkeyPressed(delegate<ShortcutAction> const& handler) {
-		return _hotkeyPressedEvent.add(handler);
+	event_token ShortcutActivated(delegate<ShortcutAction> const& handler) {
+		return _shortcutActivatedEvent.add(handler);
 	}
 
-	WinRTUtils::EventRevoker HotkeyPressed(auto_revoke_t, delegate<ShortcutAction> const& handler) {
-		event_token token = HotkeyPressed(handler);
+	WinRTUtils::EventRevoker ShortcutActivated(auto_revoke_t, delegate<ShortcutAction> const& handler) {
+		event_token token = ShortcutActivated(handler);
 		return WinRTUtils::EventRevoker([this, token]() {
-			HotkeyPressed(token);
+			ShortcutActivated(token);
 		});
 	}
 
-	void HotkeyPressed(event_token const& token) {
-		_hotkeyPressedEvent.remove(token);
+	void ShortcutActivated(event_token const& token) {
+		_shortcutActivatedEvent.remove(token);
 	}
 
 	void StopKeyboardHook() noexcept {
@@ -54,7 +54,7 @@ private:
 	}
 	LRESULT _WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
-	void _AppSettings_OnHotkeyChanged(ShortcutAction action);
+	void _AppSettings_OnShortcutChanged(ShortcutAction action);
 
 	void _RegisterShortcut(ShortcutAction action);
 
@@ -67,13 +67,13 @@ private:
 		bool isError = true;
 	};
 	std::array<_ShortcutInfo, (size_t)ShortcutAction::COUNT_OR_NONE> _ShortcutInfos{};
-	event<delegate<ShortcutAction>> _hotkeyPressedEvent;
+	event<delegate<ShortcutAction>> _shortcutActivatedEvent;
 	HWND _hwndHotkey = NULL;
 	HHOOK _keyboardHook = NULL;
 
 	bool _isKeyboardHookActive = true;
 	// 用于防止长按时重复触发热键
-	bool _keyboardHookHotkeyFired = false;
+	bool _keyboardHookShortcutActivated = false;
 };
 
 }

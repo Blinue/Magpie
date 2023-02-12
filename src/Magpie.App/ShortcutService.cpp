@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "ShortcutService.h"
 #include "Logger.h"
-#include "HotkeyHelper.h"
+#include "ShortcutHelper.h"
 #include "AppSettings.h"
 #include "CommonSharedConstants.h"
 
@@ -36,7 +36,7 @@ void ShortcutService::Initialize() {
 	_RegisterShortcut(ShortcutAction::Scale);
 	_RegisterShortcut(ShortcutAction::Overlay);
 
-	AppSettings::Get().HotkeyChanged({ this, &ShortcutService::_AppSettings_OnHotkeyChanged });
+	AppSettings::Get().ShortcutChanged({ this, &ShortcutService::_AppSettings_OnShortcutChanged });
 
 	_keyboardHook = SetWindowsHookEx(WH_KEYBOARD_LL, _LowLevelKeyboardProc, NULL, NULL);
 	if (!_keyboardHook) {
@@ -71,7 +71,7 @@ LRESULT ShortcutService::_WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM
 	if (message == WM_HOTKEY) {
 		if (wParam >= 0 && wParam < (UINT)ShortcutAction::COUNT_OR_NONE) {
 			ShortcutAction action = (ShortcutAction)wParam;
-			Logger::Get().Info(fmt::format("热键 {} 激活（Hotkey）", HotkeyHelper::ToString(action)));
+			Logger::Get().Info(fmt::format("热键 {} 激活（Hotkey）", ShortcutHelper::ToString(action)));
 			_FireShortcut(action);
 			return 0;
 		}
@@ -80,40 +80,40 @@ LRESULT ShortcutService::_WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM
 	return DefWindowProc(hWnd, message, wParam, lParam);
 }
 
-void ShortcutService::_AppSettings_OnHotkeyChanged(ShortcutAction action) {
+void ShortcutService::_AppSettings_OnShortcutChanged(ShortcutAction action) {
 	_RegisterShortcut(action);
 }
 
 void ShortcutService::_RegisterShortcut(ShortcutAction action) {
-	const Hotkey& hotkey = AppSettings::Get().GetHotkey(action);
+	const Shortcut& shortcut = AppSettings::Get().GetShortcut(action);
 	bool& isError = _ShortcutInfos[(size_t)action].isError;
 
 	UnregisterHotKey(_hwndHotkey, (int)action);
 
-	if (hotkey.IsEmpty() || hotkey.Check() != HotkeyError::NoError) {
-		Logger::Get().Win32Error(fmt::format("注册热键 {} 失败", HotkeyHelper::ToString(action)));
+	if (shortcut.IsEmpty() || shortcut.Check() != ShortcutError::NoError) {
+		Logger::Get().Win32Error(fmt::format("注册热键 {} 失败", ShortcutHelper::ToString(action)));
 		isError = true;
 		return;
 	}
 
 	UINT modifiers = MOD_NOREPEAT;
 
-	if (hotkey.win) {
+	if (shortcut.win) {
 		modifiers |= MOD_WIN;
 	}
-	if (hotkey.ctrl) {
+	if (shortcut.ctrl) {
 		modifiers |= MOD_CONTROL;
 	}
-	if (hotkey.alt) {
+	if (shortcut.alt) {
 		modifiers |= MOD_ALT;
 	}
-	if (hotkey.shift) {
+	if (shortcut.shift) {
 		modifiers |= MOD_SHIFT;
 	}
 
-	isError = !RegisterHotKey(_hwndHotkey, (int)action, modifiers, hotkey.code);
+	isError = !RegisterHotKey(_hwndHotkey, (int)action, modifiers, shortcut.code);
 	if (isError) {
-		Logger::Get().Win32Error(fmt::format("注册热键 {} 失败", HotkeyHelper::ToString(action)));
+		Logger::Get().Win32Error(fmt::format("注册热键 {} 失败", ShortcutHelper::ToString(action)));
 	}
 }
 
@@ -128,7 +128,7 @@ void ShortcutService::_FireShortcut(ShortcutAction action) {
 	}
 
 	lastFireTime = cur;
-	_hotkeyPressedEvent(action);
+	_shortcutActivatedEvent(action);
 }
 
 LRESULT CALLBACK ShortcutService::_LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM lParam) {
@@ -136,14 +136,14 @@ LRESULT CALLBACK ShortcutService::_LowLevelKeyboardProc(int nCode, WPARAM wParam
 	const KBDLLHOOKSTRUCT* info = ((KBDLLHOOKSTRUCT*)lParam);
 
 	if (nCode < 0 || ((wParam != WM_KEYDOWN) && (wParam != WM_SYSKEYDOWN)) || !that._isKeyboardHookActive) {
-		// 遇到为了防止激活开始菜单而发送的假键时不重置 _keyboardHookHotkeyFired
-		that._keyboardHookHotkeyFired = info->vkCode == 0xFF && wParam == WM_KEYUP && info->dwExtraInfo == 1;
+		// 遇到为了防止激活开始菜单而发送的假键时不重置 _keyboardHookShortcutActivated
+		that._keyboardHookShortcutActivated = info->vkCode == 0xFF && wParam == WM_KEYUP && info->dwExtraInfo == 1;
 		return CallNextHookEx(NULL, nCode, wParam, lParam);
 	}
 
 	const DWORD code = info->vkCode;
 	if (code <= 0 && code >= 255) {
-		that._keyboardHookHotkeyFired = false;
+		that._keyboardHookShortcutActivated = false;
 		return CallNextHookEx(NULL, nCode, wParam, lParam);
 	}
 
@@ -169,8 +169,8 @@ LRESULT CALLBACK ShortcutService::_LowLevelKeyboardProc(int nCode, WPARAM wParam
 		codeType = 3;
 		break;
 	default:
-		if (!HotkeyHelper::IsValidKeyCode((uint8_t)code)) {
-			that._keyboardHookHotkeyFired = false;
+		if (!ShortcutHelper::IsValidKeyCode((uint8_t)code)) {
+			that._keyboardHookShortcutActivated = false;
 			return CallNextHookEx(NULL, nCode, wParam, lParam);
 		}
 		codeType = 4;
@@ -179,7 +179,7 @@ LRESULT CALLBACK ShortcutService::_LowLevelKeyboardProc(int nCode, WPARAM wParam
 
 	// 获取当前按键状态
 	// 在键盘钩子被调用时，GetAsyncKeyState 的状态尚未更新
-	Hotkey curKeys;
+	Shortcut curKeys;
 	curKeys.win = codeType == 0 || (GetAsyncKeyState(VK_LWIN) & 0x8000) || (GetAsyncKeyState(VK_RWIN) & 0x8000);
 	curKeys.ctrl = codeType == 1 || static_cast<bool>(GetAsyncKeyState(VK_CONTROL) & 0x8000);
 	curKeys.shift = codeType == 2 || static_cast<bool>(GetAsyncKeyState(VK_SHIFT) & 0x8000);
@@ -195,17 +195,17 @@ LRESULT CALLBACK ShortcutService::_LowLevelKeyboardProc(int nCode, WPARAM wParam
 			continue;
 		}
 
-		if (AppSettings::Get().GetHotkey(action) == curKeys) {
+		if (AppSettings::Get().GetShortcut(action) == curKeys) {
 			// 防止长按时重复触发热键
-			if (!that._keyboardHookHotkeyFired) {
-				that._keyboardHookHotkeyFired = true;
+			if (!that._keyboardHookShortcutActivated) {
+				that._keyboardHookShortcutActivated = true;
 
 				// 延迟执行回调以缩短钩子的处理时间
 				[](ShortcutAction action) -> fire_and_forget {
 					co_await CoreWindow::GetForCurrentThread().Dispatcher().TryRunAsync(
 						CoreDispatcherPriority::Normal,
 						[action]() {
-							Logger::Get().Info(fmt::format("热键 {} 激活（Keyboard Hook）", HotkeyHelper::ToString(action)));
+							Logger::Get().Info(fmt::format("热键 {} 激活（Keyboard Hook）", ShortcutHelper::ToString(action)));
 							Get()._FireShortcut(action);
 						}
 					);
@@ -227,7 +227,7 @@ LRESULT CALLBACK ShortcutService::_LowLevelKeyboardProc(int nCode, WPARAM wParam
 		}
 	}
 
-	that._keyboardHookHotkeyFired = false;
+	that._keyboardHookShortcutActivated = false;
 	return CallNextHookEx(NULL, nCode, wParam, lParam);
 }
 

@@ -15,14 +15,14 @@
     <ClCompile Include="ShortcutService.cpp">
       <Filter>Services</Filter>
     </ClCompile>
-    <ClCompile Include="HotkeyHelper.cpp">
+    <ClCompile Include="ShortcutHelper.cpp">
       <Filter>Helpers</Filter>
     </ClCompile>
     <ClCompile Include="MagService.cpp">
       <Filter>Services</Filter>
     </ClCompile>
     <ClCompile Include="AppSettings.cpp" />
-    <ClCompile Include="Hotkey.cpp">
+    <ClCompile Include="Shortcut.cpp">
       <Filter>Models</Filter>
     </ClCompile>
     <ClCompile Include="ProfileService.cpp">
@@ -67,14 +67,14 @@
     <ClInclude Include="ComboBoxHelper.h">
       <Filter>Helpers</Filter>
     </ClInclude>
-    <ClInclude Include="HotkeyHelper.h">
+    <ClInclude Include="ShortcutHelper.h">
       <Filter>Helpers</Filter>
     </ClInclude>
     <ClInclude Include="MagService.h">
       <Filter>Services</Filter>
     </ClInclude>
     <ClInclude Include="AppSettings.h" />
-    <ClInclude Include="Hotkey.h">
+    <ClInclude Include="Shortcut.h">
       <Filter>Models</Filter>
     </ClInclude>
     <ClInclude Include="Profile.h">

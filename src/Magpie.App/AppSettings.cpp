@@ -3,7 +3,7 @@
 #include "StrUtils.h"
 #include "Win32Utils.h"
 #include "Logger.h"
-#include "HotkeyHelper.h"
+#include "ShortcutHelper.h"
 #include "Profile.h"
 #include "CommonSharedConstants.h"
 #include <rapidjson/prettywriter.h>
@@ -26,34 +26,34 @@ _AppSettingsData::~_AppSettingsData() {}
 
 // 将热键存储为 uint32_t
 // 不能存储为字符串，因为某些键有相同的名称，如句号和小键盘的点
-static uint32_t EncodeHotkey(const Hotkey& hotkey) noexcept {
+static uint32_t EncodeShortcut(const Shortcut& shortcut) noexcept {
 	uint32_t value = 0;
-	value |= hotkey.code;
-	if (hotkey.win) {
+	value |= shortcut.code;
+	if (shortcut.win) {
 		value |= 0x100;
 	}
-	if (hotkey.ctrl) {
+	if (shortcut.ctrl) {
 		value |= 0x200;
 	}
-	if (hotkey.alt) {
+	if (shortcut.alt) {
 		value |= 0x400;
 	}
-	if (hotkey.shift) {
+	if (shortcut.shift) {
 		value |= 0x800;
 	}
 	return value;
 }
 
-static void DecodeHotkey(uint32_t value, Hotkey& hotkey) noexcept {
+static void DecodeShortcut(uint32_t value, Shortcut& shortcut) noexcept {
 	if (value > 0xfff) {
 		return;
 	}
 
-	hotkey.code = value & 0xff;
-	hotkey.win = value & 0x100;
-	hotkey.ctrl = value & 0x200;
-	hotkey.alt = value & 0x400;
-	hotkey.shift = value & 0x800;
+	shortcut.code = value & 0xff;
+	shortcut.win = value & 0x100;
+	shortcut.ctrl = value & 0x200;
+	shortcut.alt = value & 0x400;
+	shortcut.shift = value & 0x800;
 }
 
 static void WriteProfile(rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer, const Profile& profile) noexcept {
@@ -208,7 +208,7 @@ bool AppSettings::Initialize() {
 	if (!Win32Utils::FileExists(_configPath.c_str())) {
 		logger.Info("不存在配置文件");
 		_SetDefaultScalingModes();
-		_SetDefaultHotkeys();
+		_SetDefaultShortcuts();
 		SaveAsync();
 		return true;
 	}
@@ -223,7 +223,7 @@ bool AppSettings::Initialize() {
 	if (configText.empty()) {
 		Logger::Get().Info("配置文件为空");
 		_SetDefaultScalingModes();
-		_SetDefaultHotkeys();
+		_SetDefaultShortcuts();
 		SaveAsync();
 		return true;
 	}
@@ -262,7 +262,7 @@ bool AppSettings::Initialize() {
 			) {
 				IsPortableMode(true);
 				_SetDefaultScalingModes();
-				_SetDefaultHotkeys();
+				_SetDefaultShortcuts();
 				SaveAsync();
 				return true;
 			}
@@ -271,7 +271,7 @@ bool AppSettings::Initialize() {
 
 	_LoadSettings(root, settingsVersion);
 
-	if (_SetDefaultHotkeys()) {
+	if (_SetDefaultShortcuts()) {
 		SaveAsync();
 	}
 	return true;
@@ -335,14 +335,14 @@ void AppSettings::Theme(uint32_t value) {
 	SaveAsync();
 }
 
-void AppSettings::SetHotkey(ShortcutAction action, const Magpie::App::Hotkey& value) {
-	if (_hotkeys[(size_t)action] == value) {
+void AppSettings::SetShortcut(ShortcutAction action, const Magpie::App::Shortcut& value) {
+	if (_shortcuts[(size_t)action] == value) {
 		return;
 	}
 
-	_hotkeys[(size_t)action] = value;
-	Logger::Get().Info(fmt::format("热键 {} 已更改为 {}", HotkeyHelper::ToString(action), StrUtils::UTF16ToUTF8(value.ToString())));
-	_hotkeyChangedEvent(action);
+	_shortcuts[(size_t)action] = value;
+	Logger::Get().Info(fmt::format("热键 {} 已更改为 {}", ShortcutHelper::ToString(action), StrUtils::UTF16ToUTF8(value.ToString())));
+	_shortcutChangedEvent(action);
 
 	SaveAsync();
 }
@@ -454,12 +454,12 @@ bool AppSettings::_Save(const _AppSettingsData& data) noexcept {
 	writer.Bool(data._isWindowMaximized);
 	writer.EndObject();
 
-	writer.Key("hotkeys");
+	writer.Key("shortcuts");
 	writer.StartObject();
 	writer.Key("scale");
-	writer.Uint(EncodeHotkey(data._hotkeys[(size_t)ShortcutAction::Scale]));
+	writer.Uint(EncodeShortcut(data._shortcuts[(size_t)ShortcutAction::Scale]));
 	writer.Key("overlay");
-	writer.Uint(EncodeHotkey(data._hotkeys[(size_t)ShortcutAction::Overlay]));
+	writer.Uint(EncodeShortcut(data._shortcuts[(size_t)ShortcutAction::Overlay]));
 	writer.EndObject();
 
 	writer.Key("autoRestore");
@@ -572,18 +572,22 @@ void AppSettings::_LoadSettings(const rapidjson::GenericObject<true, rapidjson::
 		JsonHelper::ReadBool(windowRectObj, "maximized", _isWindowMaximized);
 	}
 
-	auto hotkeysNode = root.FindMember("hotkeys");
-	if (hotkeysNode != root.MemberEnd() && hotkeysNode->value.IsObject()) {
-		const auto& hotkeysObj = hotkeysNode->value.GetObj();
+	auto shortcutsNode = root.FindMember("shortcuts");
+	if (shortcutsNode == root.MemberEnd()) {
+		// v0.10.0-preview1 使用 hotkeys
+		shortcutsNode= root.FindMember("hotkeys");
+	}
+	if (shortcutsNode != root.MemberEnd() && shortcutsNode->value.IsObject()) {
+		const auto& shortcutsObj = shortcutsNode->value.GetObj();
 
-		auto scaleNode = hotkeysObj.FindMember("scale");
-		if (scaleNode != hotkeysObj.MemberEnd() && scaleNode->value.IsUint()) {
-			DecodeHotkey(scaleNode->value.GetUint(), _hotkeys[(size_t)ShortcutAction::Scale]);
+		auto scaleNode = shortcutsObj.FindMember("scale");
+		if (scaleNode != shortcutsObj.MemberEnd() && scaleNode->value.IsUint()) {
+			DecodeShortcut(scaleNode->value.GetUint(), _shortcuts[(size_t)ShortcutAction::Scale]);
 		}
 
-		auto overlayNode = hotkeysObj.FindMember("overlay");
-		if (overlayNode != hotkeysObj.MemberEnd() && overlayNode->value.IsUint()) {
-			DecodeHotkey(overlayNode->value.GetUint(), _hotkeys[(size_t)ShortcutAction::Overlay]);
+		auto overlayNode = shortcutsObj.FindMember("overlay");
+		if (overlayNode != shortcutsObj.MemberEnd() && overlayNode->value.IsUint()) {
+			DecodeShortcut(overlayNode->value.GetUint(), _shortcuts[(size_t)ShortcutAction::Overlay]);
 		}
 	}
 
@@ -794,23 +798,23 @@ bool AppSettings::_LoadProfile(
 	return true;
 }
 
-bool AppSettings::_SetDefaultHotkeys() {
+bool AppSettings::_SetDefaultShortcuts() {
 	bool changed = false;
 
-	Hotkey& scaleHotkey = _hotkeys[(size_t)ShortcutAction::Scale];
-	if (scaleHotkey.IsEmpty()) {
-		scaleHotkey.win = true;
-		scaleHotkey.shift = true;
-		scaleHotkey.code = 'A';
+	Shortcut& scaleShortcut = _shortcuts[(size_t)ShortcutAction::Scale];
+	if (scaleShortcut.IsEmpty()) {
+		scaleShortcut.win = true;
+		scaleShortcut.shift = true;
+		scaleShortcut.code = 'A';
 
 		changed = true;
 	}
 
-	Hotkey& overlayHotkey = _hotkeys[(size_t)ShortcutAction::Overlay];
-	if (overlayHotkey.IsEmpty()) {
-		overlayHotkey.win = true;
-		overlayHotkey.shift = true;
-		overlayHotkey.code = 'D';
+	Shortcut& overlayShortcut = _shortcuts[(size_t)ShortcutAction::Overlay];
+	if (overlayShortcut.IsEmpty()) {
+		overlayShortcut.win = true;
+		overlayShortcut.shift = true;
+		overlayShortcut.code = 'D';
 
 		changed = true;
 	}

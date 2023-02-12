@@ -1,7 +1,7 @@
 #pragma once
 #include "ShortcutControl.g.h"
 #include "WinRTUtils.h"
-#include "Hotkey.h"
+#include "Shortcut.h"
 
 namespace winrt::Magpie::App::implementation {
 
@@ -49,17 +49,17 @@ private:
 
 	static void _OnTitleChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const& args);
 
-	void _AppSettings_OnHotkeyChanged(ShortcutAction action);
+	void _AppSettings_OnShortcutChanged(ShortcutAction action);
 
-	void _UpdateHotkey();
+	void _UpdateShortcut();
 
 	void _IsError(bool value) {
 		SetValue(_IsErrorProperty, box_value(value));
 	}
 
-	WinRTUtils::EventRevoker _hotkeyChangedRevoker;
+	WinRTUtils::EventRevoker _shortcutChangedRevoker;
 
-	Hotkey _hotkey;
+	Shortcut _shortcut;
 	Controls::ContentDialog _ShortcutDialog{ nullptr };
 	Magpie::App::ShortcutDialog _ShortcutDialogContent{ nullptr };
 
@@ -69,8 +69,8 @@ private:
 	// 有没有更好的方法？
 	static ShortcutControl* _that;
 
-	Hotkey _previewHotkey;
-	Hotkey _pressedKeys;
+	Shortcut _previewShortcut;
+	Shortcut _pressedKeys;
 };
 
 }

@@ -123,11 +123,11 @@
   <data name="Home_Activation.Title" xml:space="preserve">
     <value>Activation</value>
   </data>
-  <data name="Home_Activation_Hotkey.Title" xml:space="preserve">
-    <value>Hotkey</value>
+  <data name="Home_Activation_Shortcut.Title" xml:space="preserve">
+    <value>Shortcut</value>
   </data>
   <data name="Home_Activation_ShortcutControl.Title" xml:space="preserve">
-    <value>Activation hotkey</value>
+    <value>Activation shortcut</value>
   </data>
   <data name="Home_AutoRestore.Description" xml:space="preserve">
     <value>Scale automatically when the window returns to foreground</value>
@@ -150,11 +150,11 @@
   <data name="Home_Overlay.Title" xml:space="preserve">
     <value>In-game overlay</value>
   </data>
-  <data name="Home_Overlay_Hotkey.Title" xml:space="preserve">
-    <value>Hotkey</value>
+  <data name="Home_Overlay_Shortcut.Title" xml:space="preserve">
+    <value>Shortcut</value>
   </data>
   <data name="Home_Overlay_ShortcutControl.Title" xml:space="preserve">
-    <value>In-game overlay hotkey</value>
+    <value>In-game overlay shortcut</value>
   </data>
   <data name="Home_PageFrame.Title" xml:space="preserve">
     <value>Home</value>
@@ -178,19 +178,19 @@
     <value>Cancel</value>
   </data>
   <data name="ShortcutDialog_Description.Text" xml:space="preserve">
-    <value>Press a combination of keys to change this hotkey</value>
+    <value>Press a combination of keys to change this shortcut</value>
   </data>
   <data name="ShortcutDialog_InUse" xml:space="preserve">
     <value>Already in use</value>
   </data>
-  <data name="ShortcutDialog_InvalidHotkey" xml:space="preserve">
-    <value>Invalid hotkey</value>
+  <data name="ShortcutDialog_InvalidShortcut" xml:space="preserve">
+    <value>Invalid shortcut</value>
   </data>
   <data name="ShortcutDialog_Save" xml:space="preserve">
     <value>Save</value>
   </data>
   <data name="ShortcutDialog_Tip.Text" xml:space="preserve">
-    <value>Only hotkeys that starts with Windows key, Ctrl, Alt or Shift are valid.</value>
+    <value>Only shortcuts that starts with Windows key, Ctrl, Alt or Shift are valid.</value>
   </data>
   <data name="Main_About.Content" xml:space="preserve">
     <value>About</value>
