@@ -11,6 +11,10 @@ namespace Magpie.App {
 		Boolean IsPortableMode;
 		void OpenConfigLocation();
 		Boolean IsShowTrayIcon;
+
+		Boolean IsProcessElevated { get; };
+		Boolean IsAlwaysRunAsElevated;
+
 		Boolean IsSimulateExclusiveFullscreen;
 		Boolean IsInlineParams;
 		Boolean IsDebugMode;

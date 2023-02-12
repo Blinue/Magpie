@@ -18,10 +18,6 @@ namespace Magpie.App {
 		void ActivateRestore();
 		void ClearRestore();
 
-		Boolean IsProcessElevated { get; };
-		void RestartAsElevated();
-		Boolean IsAlwaysRunAsElevated;
-
 		Boolean ShowUpdateCard;
 		Boolean IsAutoCheckForUpdates;
 		void DownloadAndInstall();

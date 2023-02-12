@@ -30,20 +30,34 @@
 					</StackPanel>
 				</StackPanel>
 			</muxc:InfoBar>
-			<local:SettingsGroup x:Uid="Home_Activation"
+			<local:SettingsGroup x:Uid="Home_Shortcuts"
 			                     Margin="0,-24,0,0">
-				<local:SettingsCard x:Uid="Home_Activation_Shortcut">
+				<local:SettingsCard x:Uid="Home_Shortcuts_Scale">
 					<local:SettingsCard.Icon>
-						<FontIcon Glyph="&#xEDA7;" />
+						<FontIcon Glyph="&#xE740;" />
 					</local:SettingsCard.Icon>
 					<local:SettingsCard.ActionContent>
-						<local:ShortcutControl x:Uid="Home_Activation_ShortcutControl">
+						<local:ShortcutControl x:Uid="Home_Shortcuts_Scale_ShortcutControl">
 							<local:ShortcutControl.Action>
 								<local:ShortcutAction>Scale</local:ShortcutAction>
 							</local:ShortcutControl.Action>
 						</local:ShortcutControl>
 					</local:SettingsCard.ActionContent>
 				</local:SettingsCard>
+				<local:SettingsCard x:Uid="Home_Shortcuts_Overlay">
+					<local:SettingsCard.Icon>
+						<FontIcon Glyph="&#xE9D9;" />
+					</local:SettingsCard.Icon>
+					<local:SettingsCard.ActionContent>
+						<local:ShortcutControl x:Uid="Home_Shortcuts_Overlay_ShortcutControl">
+							<local:ShortcutControl.Action>
+								<local:ShortcutAction>Overlay</local:ShortcutAction>
+							</local:ShortcutControl.Action>
+						</local:ShortcutControl>
+					</local:SettingsCard.ActionContent>
+				</local:SettingsCard>
+			</local:SettingsGroup>
+			<local:SettingsGroup x:Uid="Home_Activation">
 				<muxc:Expander HorizontalAlignment="Stretch"
 				               HorizontalContentAlignment="Stretch"
 				               Style="{StaticResource SettingExpanderStyle}">
@@ -135,52 +149,6 @@
 						</muxc:Expander.Content>
 					</muxc:Expander>
 				</StackPanel>
-			</local:SettingsGroup>
-			<local:SettingsGroup x:Uid="Home_Overlay">
-				<local:SettingsCard x:Uid="Home_Overlay_Shortcut">
-					<local:SettingsCard.Icon>
-						<FontIcon Glyph="&#xEDA7;" />
-					</local:SettingsCard.Icon>
-					<local:SettingsCard.ActionContent>
-						<local:ShortcutControl x:Uid="Home_Overlay_ShortcutControl">
-							<local:ShortcutControl.Action>
-								<local:ShortcutAction>Overlay</local:ShortcutAction>
-							</local:ShortcutControl.Action>
-						</local:ShortcutControl>
-					</local:SettingsCard.ActionContent>
-				</local:SettingsCard>
-			</local:SettingsGroup>
-			<local:SettingsGroup Title="管理员模式">
-				<muxc:Expander HorizontalAlignment="Stretch"
-				               HorizontalContentAlignment="Stretch"
-				               Style="{StaticResource SettingExpanderStyle}">
-					<muxc:Expander.Header>
-						<local:SettingsCard Title="以管理员身份运行"
-						                    Style="{StaticResource ExpanderHeaderSettingStyle}">
-							<local:SettingsCard.Icon>
-								<FontIcon Glyph="&#xE7EF;" />
-							</local:SettingsCard.Icon>
-							<local:SettingsCard.ActionContent>
-								<Button Click="{x:Bind ViewModel.RestartAsElevated}"
-								        Content="以管理员身份重启 Magpie"
-								        IsEnabled="{x:Bind ViewModel.IsProcessElevated, Mode=OneTime, Converter={StaticResource NegationConverter}}" />
-							</local:SettingsCard.ActionContent>
-						</local:SettingsCard>
-					</muxc:Expander.Header>
-					<muxc:Expander.Content>
-						<StackPanel Orientation="Vertical">
-							<local:SettingsCard IsEnabled="{x:Bind ViewModel.IsProcessElevated, Mode=OneTime}"
-							                    Style="{StaticResource ExpanderContentSettingStyle}">
-								<CheckBox Content="始终以管理员身份运行"
-								          IsChecked="{x:Bind ViewModel.IsAlwaysRunAsElevated, Mode=TwoWay}" />
-							</local:SettingsCard>
-							<muxc:InfoBar Title="以管理员身份重启 Magpie 以更改此设置"
-							              IsClosable="False"
-							              IsOpen="{x:Bind ViewModel.IsProcessElevated, Mode=OneTime, Converter={StaticResource NegationConverter}}"
-							              Severity="Warning" />
-						</StackPanel>
-					</muxc:Expander.Content>
-				</muxc:Expander>
 			</local:SettingsGroup>
 		</StackPanel>
 	</local:PageFrame>

@@ -128,6 +128,18 @@ void SettingsViewModel::IsShowTrayIcon(bool value) noexcept {
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsMinimizeAtStartupEnabled"));
 }
 
+bool SettingsViewModel::IsProcessElevated() const noexcept {
+	return Win32Utils::IsProcessElevated();
+}
+
+bool SettingsViewModel::IsAlwaysRunAsElevated() const noexcept {
+	return AppSettings::Get().IsAlwaysRunAsElevated();
+}
+
+void SettingsViewModel::IsAlwaysRunAsElevated(bool value) noexcept {
+	AppSettings::Get().IsAlwaysRunAsElevated(value);
+}
+
 bool SettingsViewModel::IsSimulateExclusiveFullscreen() const noexcept {
 	return AppSettings::Get().IsSimulateExclusiveFullscreen();
 }

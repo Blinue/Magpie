@@ -138,22 +138,6 @@ hstring HomeViewModel::RestoreWndDesc() const noexcept {
 	}
 }
 
-bool HomeViewModel::IsProcessElevated() const noexcept {
-	return Win32Utils::IsProcessElevated();
-}
-
-void HomeViewModel::RestartAsElevated() const noexcept {
-	Application::Current().as<App>().RestartAsElevated();
-}
-
-bool HomeViewModel::IsAlwaysRunAsElevated() const noexcept {
-	return AppSettings::Get().IsAlwaysRunAsElevated();
-}
-
-void HomeViewModel::IsAlwaysRunAsElevated(bool value) noexcept {
-	AppSettings::Get().IsAlwaysRunAsElevated(value);
-}
-
 inline void HomeViewModel::ShowUpdateCard(bool value) noexcept {
 	_showUpdateCard = value;
 	if (!value) {

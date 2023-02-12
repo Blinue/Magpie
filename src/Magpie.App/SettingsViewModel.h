@@ -36,6 +36,11 @@ struct SettingsViewModel : SettingsViewModelT<SettingsViewModel> {
 	bool IsShowTrayIcon() const noexcept;
 	void IsShowTrayIcon(bool value) noexcept;
 
+	bool IsProcessElevated() const noexcept;
+
+	bool IsAlwaysRunAsElevated() const noexcept;
+	void IsAlwaysRunAsElevated(bool value) noexcept;
+
 	bool IsSimulateExclusiveFullscreen() const noexcept;
 	void IsSimulateExclusiveFullscreen(bool value) noexcept;
 

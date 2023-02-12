@@ -123,12 +123,6 @@
   <data name="Home_Activation.Title" xml:space="preserve">
     <value>激活</value>
   </data>
-  <data name="Home_Activation_Shortcut.Title" xml:space="preserve">
-    <value>快捷键</value>
-  </data>
-  <data name="Home_Activation_ShortcutControl.Title" xml:space="preserve">
-    <value>激活快捷键</value>
-  </data>
   <data name="Home_AutoRestore.Description" xml:space="preserve">
     <value>当该窗口回到前台时将自动缩放</value>
   </data>
@@ -146,15 +140,6 @@
   </data>
   <data name="Home_AutoRestore_EmptyTitle" xml:space="preserve">
     <value>标题为空</value>
-  </data>
-  <data name="Home_Overlay.Title" xml:space="preserve">
-    <value>游戏内覆盖</value>
-  </data>
-  <data name="Home_Overlay_Shortcut.Title" xml:space="preserve">
-    <value>快捷键</value>
-  </data>
-  <data name="Home_Overlay_ShortcutControl.Title" xml:space="preserve">
-    <value>游戏内覆盖快捷键</value>
   </data>
   <data name="Home_PageFrame.Title" xml:space="preserve">
     <value>主页</value>
@@ -258,7 +243,7 @@
   <data name="Settings_General_PortableMode_Locate.Content" xml:space="preserve">
     <value>打开配置文件位置</value>
   </data>
-  <data name="Settings_General_RunAtStartup.Title" xml:space="preserve">
+  <data name="Settings_Launch_RunAtStartup.Title" xml:space="preserve">
     <value>开机启动</value>
   </data>
   <data name="Settings_General_ShowTrayIcon.Description" xml:space="preserve">
@@ -290,5 +275,23 @@
   </data>
   <data name="_Tag" xml:space="preserve">
     <value>zh-CN</value>
+  </data>
+  <data name="Home_Shortcuts.Title" xml:space="preserve">
+    <value>快捷键</value>
+  </data>
+  <data name="Home_Shortcuts_Overlay.Title" xml:space="preserve">
+    <value>游戏内覆盖</value>
+  </data>
+  <data name="Home_Shortcuts_Overlay_ShortcutControl.Title" xml:space="preserve">
+    <value>游戏内覆盖快捷键</value>
+  </data>
+  <data name="Home_Shortcuts_Scale.Title" xml:space="preserve">
+    <value>缩放</value>
+  </data>
+  <data name="Home_Shortcuts_Scale_ShortcutControl.Title" xml:space="preserve">
+    <value>缩放快捷键</value>
+  </data>
+  <data name="Settings_Launch.Title" xml:space="preserve">
+    <value>启动</value>
   </data>
 </root>

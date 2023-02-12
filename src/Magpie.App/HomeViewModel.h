@@ -41,13 +41,6 @@ struct HomeViewModel : HomeViewModelT<HomeViewModel> {
 
 	hstring RestoreWndDesc() const noexcept;
 
-	bool IsProcessElevated() const noexcept;
-
-	void RestartAsElevated() const noexcept;
-
-	bool IsAlwaysRunAsElevated() const noexcept;
-	void IsAlwaysRunAsElevated(bool value) noexcept;
-
 	bool ShowUpdateCard() const noexcept {
 		return _showUpdateCard;
 	}
