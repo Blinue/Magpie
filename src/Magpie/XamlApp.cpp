@@ -560,11 +560,6 @@ LRESULT XamlApp::_WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
 		return 0;
 	}
-	case CommonSharedConstants::WM_RESTART_AS_ELEVATED:
-	{
-		_RestartAsElevated();
-		return 0;
-	}
 	case CommonSharedConstants::WM_QUIT_MAGPIE:
 	{
 		_Quit();

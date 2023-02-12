@@ -61,7 +61,6 @@ namespace Magpie.App {
 
 		MainPage MainPage;
 
-		void RestartAsElevated();
 		void Quit();
 	}
 }
