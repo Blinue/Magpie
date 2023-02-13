@@ -145,6 +145,18 @@ inline void HomeViewModel::ShowUpdateCard(bool value) noexcept {
 	}
 	
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"ShowUpdateCard"));
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"UpdateCardTitle"));
+}
+
+hstring HomeViewModel::UpdateCardTitle() const noexcept {
+	UpdateService& updateService = UpdateService::Get();
+	if (updateService.Status() < UpdateStatus::Available) {
+		return {};
+	}
+
+	ResourceLoader resourceLoader = ResourceLoader::GetForCurrentView();
+	hstring titleFmt = resourceLoader.GetString(L"Home_UpdateCard_Title");
+	return hstring(fmt::format(fmt::runtime(std::wstring_view(titleFmt)), updateService.Tag()));
 }
 
 bool HomeViewModel::IsAutoCheckForUpdates() const noexcept {

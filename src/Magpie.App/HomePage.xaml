@@ -9,24 +9,24 @@
 	<local:PageFrame x:Uid="Home_PageFrame">
 		<StackPanel HorizontalAlignment="Stretch"
 		            Orientation="Vertical">
-			<muxc:InfoBar Title="v0.10.0-preview1 可用"
+			<muxc:InfoBar Title="{x:Bind ViewModel.UpdateCardTitle, Mode=OneWay}"
 			              Margin="0,8,0,14"
 			              IsOpen="{x:Bind ViewModel.ShowUpdateCard, Mode=TwoWay}"
 			              Severity="Informational"
 			              Visibility="{x:Bind ViewModel.ShowUpdateCard, Mode=OneWay}">
 				<StackPanel Margin="0,0,0,16"
 				            Spacing="8">
-					<CheckBox Content="自动检查更新"
+					<CheckBox x:Uid="Home_UpdateCard_AutoCheckForUpdates"
 					          IsChecked="{x:Bind ViewModel.IsAutoCheckForUpdates, Mode=TwoWay}" />
 					<StackPanel Orientation="Horizontal"
 					            Spacing="8">
-						<Button Click="{x:Bind ViewModel.DownloadAndInstall}"
-						        Content="下载并安装"
+						<Button x:Uid="Home_UpdateCard_DownloadAndInstall"
+						        Click="{x:Bind ViewModel.DownloadAndInstall}"
 						        Style="{StaticResource AccentButtonStyle}" />
-						<Button Click="{x:Bind ViewModel.ReleaseNotes}"
-						        Content="发行说明" />
-						<Button Click="{x:Bind ViewModel.RemindMeLater}"
-						        Content="以后再提醒我" />
+						<Button x:Uid="Home_UpdateCard_ReleaseNotes"
+						        Click="{x:Bind ViewModel.ReleaseNotes}" />
+						<Button x:Uid="Home_UpdateCard_RemindMeLater"
+						        Click="{x:Bind ViewModel.RemindMeLater}" />
 					</StackPanel>
 				</StackPanel>
 			</muxc:InfoBar>

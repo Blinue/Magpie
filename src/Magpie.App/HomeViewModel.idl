@@ -19,6 +19,7 @@ namespace Magpie.App {
 		void ClearRestore();
 
 		Boolean ShowUpdateCard;
+		String UpdateCardTitle { get; };
 		Boolean IsAutoCheckForUpdates;
 		void DownloadAndInstall();
 		void ReleaseNotes();

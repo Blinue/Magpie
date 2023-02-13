@@ -47,6 +47,8 @@ struct HomeViewModel : HomeViewModelT<HomeViewModel> {
 
 	void ShowUpdateCard(bool value) noexcept;
 
+	hstring UpdateCardTitle() const noexcept;
+
 	bool IsAutoCheckForUpdates() const noexcept;
 	void IsAutoCheckForUpdates(bool value) noexcept;
 
