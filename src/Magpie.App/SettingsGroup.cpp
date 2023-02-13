@@ -71,14 +71,6 @@ void SettingsGroup::Loading(FrameworkElement const&, IInspectable const&) {
 	_Update();
 }
 
-event_token SettingsGroup::PropertyChanged(Windows::UI::Xaml::Data::PropertyChangedEventHandler const& value) {
-	return _propertyChangedEvent.add(value);
-}
-
-void SettingsGroup::PropertyChanged(event_token const& token) {
-	_propertyChangedEvent.remove(token);
-}
-
 void SettingsGroup::_OnTitleChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
 	SettingsGroup* that = get_self<SettingsGroup>(sender.as<default_interface<SettingsGroup>>());
 	that->_Update();

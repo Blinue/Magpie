@@ -4,11 +4,11 @@
 #include "KeyVisual.g.cpp"
 #endif
 #include "StrUtils.h"
+#include "Win32Utils.h"
 
 using namespace winrt;
 using namespace Windows::UI::Xaml::Controls;
 using namespace Windows::UI::Xaml::Markup;
-
 
 namespace winrt::Magpie::App::implementation {
 
@@ -16,7 +16,7 @@ const DependencyProperty KeyVisual::ContentProperty = DependencyProperty::Regist
 	L"Content",
 	xaml_typename<IInspectable>(),
 	xaml_typename<Magpie::App::KeyVisual>(),
-	PropertyMetadata(box_value(L""), &KeyVisual::_OnPropertyChanged)
+	PropertyMetadata(nullptr, &KeyVisual::_OnPropertyChanged)
 );
 
 const DependencyProperty KeyVisual::VisualTypeProperty = DependencyProperty::Register(
@@ -98,32 +98,31 @@ void KeyVisual::_Update() {
 	if (!content) {
 		return;
 	}
-	
-	if (content.as<IPropertyValue>().Type() == PropertyType::String) {
-		Style(_GetStyleSize(L"TextKeyVisualStyle"));
-		_keyPresenter.Content(content);
-		return;
-	}
 
-	Style(_GetStyleSize(L"IconKeyVisualStyle"));
+	assert(content.as<IPropertyValue>().Type() == PropertyType::Int32);
 
 	int key = content.as<int>();
 	switch (key) {
 	case VK_UP:
+		Style(_GetStyleSize(L"IconKeyVisualStyle"));
 		_keyPresenter.Content(box_value(L"\uE96D"));
 		break;
 	case VK_DOWN:
+		Style(_GetStyleSize(L"IconKeyVisualStyle"));
 		_keyPresenter.Content(box_value(L"\uE96E"));
 		break;
 	case VK_LEFT:
+		Style(_GetStyleSize(L"IconKeyVisualStyle"));
 		_keyPresenter.Content(box_value(L"\uE96F"));
 		break;
 	case VK_RIGHT:
+		Style(_GetStyleSize(L"IconKeyVisualStyle"));
 		_keyPresenter.Content(box_value(L"\uE970"));
 		break;
 	case VK_LWIN:
-	case VK_RWIN:
 	{
+		Style(_GetStyleSize(L"IconKeyVisualStyle"));
+
 		PathIcon winIcon = XamlReader::Load(LR"(<PathIcon xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" Data="M9,17V9h8v8ZM0,17V9H8v8ZM9,8V0h8V8ZM0,8V0H8V8Z" />)").as<PathIcon>();
 		Viewbox winIconContainer;
 		winIconContainer.Child(winIcon);
@@ -136,8 +135,22 @@ void KeyVisual::_Update() {
 		_keyPresenter.Content(winIconContainer);
 		break;
 	}
-	
-	default: _keyPresenter.Content(box_value(L"")); break;
+	case VK_LCONTROL:
+		Style(_GetStyleSize(L"TextKeyVisualStyle"));
+		_keyPresenter.Content(box_value(L"Ctrl"));
+		break;
+	case VK_LMENU:
+		Style(_GetStyleSize(L"TextKeyVisualStyle"));
+		_keyPresenter.Content(box_value(L"Alt"));
+		break;
+	case VK_LSHIFT:
+		Style(_GetStyleSize(L"TextKeyVisualStyle"));
+		_keyPresenter.Content(box_value(L"Shift"));
+		break;
+	default:
+		Style(_GetStyleSize(L"TextKeyVisualStyle"));
+		_keyPresenter.Content(box_value(Win32Utils::GetKeyName(key)));
+		break;
 	}
 }
 

@@ -203,6 +203,9 @@
     <None Include="AboutViewModel.idl">
       <Filter>ViewModels</Filter>
     </None>
+    <None Include="WrapPanel.idl">
+      <Filter>Controls</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Page Include="MainPage.xaml" />

@@ -140,12 +140,4 @@ void SettingsCard::Loading(FrameworkElement const&, IInspectable const&) {
 	_Update();
 }
 
-event_token SettingsCard::PropertyChanged(PropertyChangedEventHandler const& value) {
-	return _propertyChangedEvent.add(value);
-}
-
-void SettingsCard::PropertyChanged(event_token const& token) {
-	_propertyChangedEvent.remove(token);
-}
-
 }

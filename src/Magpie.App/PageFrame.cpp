@@ -105,14 +105,6 @@ void PageFrame::ScrollViewer_ViewChanging(IInspectable const&, ScrollViewerViewC
 	XamlUtils::CloseXamlPopups(XamlRoot());
 }
 
-event_token PageFrame::PropertyChanged(PropertyChangedEventHandler const& value) {
-	return _propertyChangedEvent.add(value);
-}
-
-void PageFrame::PropertyChanged(event_token const& token) {
-	_propertyChangedEvent.remove(token);
-}
-
 void PageFrame::_Update() {
 	TitleTextBlock().Visibility(Title().empty() ? Visibility::Collapsed : Visibility::Visible);
 	HeaderActionPresenter().Visibility(HeaderAction() ? Visibility::Visible : Visibility::Collapsed);

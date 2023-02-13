@@ -29,8 +29,13 @@ struct SettingsCard : SettingsCardT<SettingsCard> {
 	void IsEnabledChanged(IInspectable const&, DependencyPropertyChangedEventArgs const&);
 	void Loading(FrameworkElement const&, IInspectable const&);
 
-	event_token PropertyChanged(Data::PropertyChangedEventHandler const& value);
-	void PropertyChanged(event_token const& token);
+	event_token PropertyChanged(Data::PropertyChangedEventHandler const& value) {
+		return _propertyChangedEvent.add(value);
+	}
+
+	void PropertyChanged(event_token const& token) {
+		_propertyChangedEvent.remove(token);
+	}
 
 	static DependencyProperty RawTitleProperty;
 	static DependencyProperty TitleProperty;

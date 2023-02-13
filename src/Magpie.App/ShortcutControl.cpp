@@ -17,15 +17,24 @@ using namespace Windows::UI::Xaml::Input;
 
 namespace winrt::Magpie::App::implementation {
 
-static IVector<IInspectable> ToKeys(const SmallVectorImpl<std::variant<uint8_t, std::wstring>>& keyList) {
+static IVector<IInspectable> ToKeys(const Shortcut& shortcut) {
 	std::vector<IInspectable> result;
 
-	for (const std::variant<uint8_t, std::wstring>& key : keyList) {
-		if (key.index() == 0) {
-			result.emplace_back(box_value(std::get<0>(key)));
-		} else {
-			result.emplace_back(box_value(std::get<1>(key)));
-		}
+	// 奇怪，如果这里传入 uint8_t，KeyVisual 也只能收到 int
+	if (shortcut.win) {
+		result.push_back(box_value(VK_LWIN));
+	}
+	if (shortcut.ctrl) {
+		result.push_back(box_value(VK_LCONTROL));
+	}
+	if (shortcut.alt) {
+		result.push_back(box_value(VK_LMENU));
+	}
+	if (shortcut.shift) {
+		result.push_back(box_value(VK_LSHIFT));
+	}
+	if (shortcut.code) {
+		result.push_back(box_value((int)shortcut.code));
 	}
 
 	return single_threaded_vector(std::move(result));
@@ -89,7 +98,7 @@ fire_and_forget ShortcutControl::EditButton_Click(IInspectable const&, RoutedEve
 	}
 
 	_previewShortcut = _shortcut;
-	_ShortcutDialogContent.Keys(ToKeys(_previewShortcut.GetKeyList()));
+	_ShortcutDialogContent.Keys(ToKeys(_previewShortcut));
 
 	_ShortcutDialog.XamlRoot(XamlRoot());
 	_ShortcutDialog.RequestedTheme(ActualTheme());
@@ -104,8 +113,8 @@ fire_and_forget ShortcutControl::EditButton_Click(IInspectable const&, RoutedEve
 		co_return;
 	}
 	_previewShortcut = _shortcut;
-	_ShortcutDialogContent.Keys(ToKeys(_previewShortcut.GetKeyList()));
-	_ShortcutDialogContent.Error(IsError() ? _previewShortcut.Check() : ShortcutError::NoError);
+	_ShortcutDialogContent.Keys(ToKeys(_previewShortcut));
+	_ShortcutDialogContent.Error(IsError() ? ShortcutHelper::CheckShortcut(_previewShortcut) : ShortcutError::NoError);
 	_ShortcutDialog.IsPrimaryButtonEnabled(!IsError());
 	
 	_pressedKeys.Clear();
@@ -189,7 +198,7 @@ LRESULT ShortcutControl::_LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM 
 		Magpie::App::Shortcut& previewShortcut = _that->_previewShortcut;
 
 		previewShortcut = _that->_pressedKeys;
-		_that->_ShortcutDialogContent.Keys(ToKeys(previewShortcut.GetKeyList()));
+		_that->_ShortcutDialogContent.Keys(ToKeys(previewShortcut));
 
 		ShortcutError error = ShortcutError::NoError;
 		bool isPrimaryButtonEnabled = false;
@@ -216,7 +225,7 @@ LRESULT ShortcutControl::_LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM 
 				// Modifiers 个数为 1 时不显示错误
 				isPrimaryButtonEnabled = false;
 			} else {
-				error = previewShortcut.Check();
+				error = ShortcutHelper::CheckShortcut(previewShortcut);
 				isPrimaryButtonEnabled = error == ShortcutError::NoError;
 			}
 		}
@@ -254,7 +263,7 @@ void ShortcutControl::_UpdateShortcut() {
 	// 此时 ShortcutService 中的回调已执行
 	_IsError(ShortcutService::Get().IsError(action));
 
-	KeysControl().ItemsSource(ToKeys(_shortcut.GetKeyList()));
+	KeysControl().ItemsSource(ToKeys(_shortcut));
 }
 
 }

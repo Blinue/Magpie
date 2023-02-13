@@ -29,8 +29,13 @@ struct PageFrame : PageFrameT<PageFrame> {
 	void ScrollViewer_PointerPressed(IInspectable const&, Input::PointerRoutedEventArgs const&);
 	void ScrollViewer_ViewChanging(IInspectable const&, Controls::ScrollViewerViewChangingEventArgs const&);
 
-	event_token PropertyChanged(Data::PropertyChangedEventHandler const& value);
-	void PropertyChanged(event_token const& token);
+	event_token PropertyChanged(Data::PropertyChangedEventHandler const& value) {
+		return _propertyChangedEvent.add(value);
+	}
+
+	void PropertyChanged(event_token const& token) {
+		_propertyChangedEvent.remove(token);
+	}
 
 	static const DependencyProperty TitleProperty;
 	static const DependencyProperty IconProperty;

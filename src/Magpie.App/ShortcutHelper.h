@@ -1,5 +1,6 @@
 #pragma once
 #include <winrt/Magpie.App.h>
+#include "Shortcut.h"
 
 namespace winrt::Magpie::App {
 
@@ -7,6 +8,8 @@ struct ShortcutHelper {
 	static std::string ToString(winrt::Magpie::App::ShortcutAction action);
 
 	static bool IsValidKeyCode(uint8_t code);
+
+	static ShortcutError CheckShortcut(Shortcut shortcut) noexcept;
 };
 
 }

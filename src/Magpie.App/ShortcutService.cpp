@@ -90,7 +90,7 @@ void ShortcutService::_RegisterShortcut(ShortcutAction action) {
 
 	UnregisterHotKey(_hwndHotkey, (int)action);
 
-	if (shortcut.IsEmpty() || shortcut.Check() != ShortcutError::NoError) {
+	if (shortcut.IsEmpty() || ShortcutHelper::CheckShortcut(shortcut) != ShortcutError::NoError) {
 		Logger::Get().Win32Error(fmt::format("注册热键 {} 失败", ShortcutHelper::ToString(action)));
 		isError = true;
 		return;

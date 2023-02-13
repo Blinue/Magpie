@@ -10,10 +10,6 @@ struct Shortcut {
 
 	bool IsEmpty() const noexcept;
 
-	SmallVector<std::variant<uint8_t, std::wstring>, 5> GetKeyList() const noexcept;
-
-	ShortcutError Check() const noexcept;
-
 	void Clear() noexcept;
 
 	std::wstring ToString() const noexcept;

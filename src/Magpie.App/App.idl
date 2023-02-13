@@ -2,6 +2,7 @@
 #include "BoolToNegativeVisibilityConverter.idl"
 #include "LoggerHelper.idl"
 #include "TextBlockHelper.idl"
+#include "WrapPanel.idl"
 #include "PageFrame.idl"
 #include "SettingsCard.idl"
 #include "SettingsGroup.idl"

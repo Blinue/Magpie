@@ -233,6 +233,10 @@
       <SubType>Code</SubType>
     </ClInclude>
     <ClInclude Include="UpdateService.h" />
+    <ClInclude Include="WrapPanel.h">
+      <DependentUpon>WrapPanel.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml">
@@ -372,8 +376,15 @@
       <SubType>Code</SubType>
     </ClCompile>
     <ClCompile Include="UpdateService.cpp" />
+    <ClCompile Include="WrapPanel.cpp">
+      <DependentUpon>WrapPanel.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <None Include="WrapPanel.idl">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="EffectParametersViewModel.idl">
       <SubType>Designer</SubType>
     </None>

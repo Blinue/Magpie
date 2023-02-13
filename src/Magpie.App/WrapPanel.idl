@@ -1,0 +1,13 @@
+namespace Magpie.App {
+    enum StretchChild {
+        None,
+        Last
+    };
+
+    [default_interface]
+    runtimeclass WrapPanel : Windows.UI.Xaml.Controls.Panel {
+        WrapPanel();
+
+        
+    }
+}

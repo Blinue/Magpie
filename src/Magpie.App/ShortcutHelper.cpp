@@ -78,6 +78,42 @@ bool ShortcutHelper::IsValidKeyCode(uint8_t code) {
 	return validKeyCodes.contains(code);
 }
 
+ShortcutError ShortcutHelper::CheckShortcut(Shortcut shortcut) noexcept {
+	UINT modifiers = MOD_NOREPEAT;
+	UINT modCount = 0;
+
+	if (shortcut.win) {
+		++modCount;
+		modifiers |= MOD_WIN;
+	}
+	if (shortcut.ctrl) {
+		++modCount;
+		modifiers |= MOD_CONTROL;
+	}
+	if (shortcut.alt) {
+		++modCount;
+		modifiers |= MOD_ALT;
+	}
+	if (shortcut.shift) {
+		++modCount;
+		modifiers |= MOD_SHIFT;
+	}
+
+	if (modCount == 0 || (modCount == 1 && shortcut.code == 0)) {
+		// 必须存在 Modifier
+		// 如果只有一个 Modifier 则必须存在 Virtual Key
+		return ShortcutError::Invalid;
+	}
+
+	// 检测快捷键是否被占用
+	if (!RegisterHotKey(NULL, (int)ShortcutAction::COUNT_OR_NONE, modifiers, shortcut.code)) {
+		return ShortcutError::Occupied;
+	}
+
+	UnregisterHotKey(NULL, (int)ShortcutAction::COUNT_OR_NONE);
+	return ShortcutError::NoError;
+}
+
 } // namespace winrt::Magpie::App
 
 namespace winrt {
