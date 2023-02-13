@@ -44,7 +44,7 @@ struct _AppSettingsData {
 	std::chrono::system_clock::time_point _updateCheckDate;
 	
 	bool _isPortableMode = false;
-	bool _isAlwaysRunAsElevated = false;
+	bool _isAlwaysRunAsAdmin = false;
 	bool _isDebugMode = false;
 	bool _isDisableEffectCache = false;
 	bool _isSaveEffectSources = false;
@@ -248,11 +248,11 @@ public:
 		return _profiles;
 	}
 
-	bool IsAlwaysRunAsElevated() const noexcept {
-		return _isAlwaysRunAsElevated;
+	bool IsAlwaysRunAsAdmin() const noexcept {
+		return _isAlwaysRunAsAdmin;
 	}
 
-	void IsAlwaysRunAsElevated(bool value) noexcept;
+	void IsAlwaysRunAsAdmin(bool value) noexcept;
 
 	bool IsShowTrayIcon() const noexcept {
 		return _isShowTrayIcon;

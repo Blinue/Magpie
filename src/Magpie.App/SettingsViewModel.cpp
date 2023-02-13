@@ -62,7 +62,7 @@ void SettingsViewModel::Theme(int value) {
 void SettingsViewModel::IsRunAtStartup(bool value) noexcept {
 	if (value) {
 		AutoStartHelper::EnableAutoStart(
-			AppSettings::Get().IsAlwaysRunAsElevated(),
+			AppSettings::Get().IsAlwaysRunAsAdmin(),
 			_isMinimizeAtStartup ? CommonSharedConstants::OPTION_MINIMIZE_TO_TRAY_AT_STARTUP : nullptr
 		);
 	} else {
@@ -80,7 +80,7 @@ void SettingsViewModel::IsMinimizeAtStartup(bool value) noexcept {
 	}
 
 	AutoStartHelper::EnableAutoStart(
-		AppSettings::Get().IsAlwaysRunAsElevated(),
+		AppSettings::Get().IsAlwaysRunAsAdmin(),
 		value ? CommonSharedConstants::OPTION_MINIMIZE_TO_TRAY_AT_STARTUP : nullptr
 	);
 
@@ -121,7 +121,7 @@ void SettingsViewModel::IsShowTrayIcon(bool value) noexcept {
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsShowTrayIcon"));
 
 	if (_isRunAtStartup) {
-		AutoStartHelper::EnableAutoStart(AppSettings::Get().IsAlwaysRunAsElevated(), nullptr);
+		AutoStartHelper::EnableAutoStart(AppSettings::Get().IsAlwaysRunAsAdmin(), nullptr);
 		_UpdateStartupOptions();
 	}
 
@@ -132,12 +132,12 @@ bool SettingsViewModel::IsProcessElevated() const noexcept {
 	return Win32Utils::IsProcessElevated();
 }
 
-bool SettingsViewModel::IsAlwaysRunAsElevated() const noexcept {
-	return AppSettings::Get().IsAlwaysRunAsElevated();
+bool SettingsViewModel::IsAlwaysRunAsAdmin() const noexcept {
+	return AppSettings::Get().IsAlwaysRunAsAdmin();
 }
 
-void SettingsViewModel::IsAlwaysRunAsElevated(bool value) noexcept {
-	AppSettings::Get().IsAlwaysRunAsElevated(value);
+void SettingsViewModel::IsAlwaysRunAsAdmin(bool value) noexcept {
+	AppSettings::Get().IsAlwaysRunAsAdmin(value);
 }
 
 bool SettingsViewModel::IsSimulateExclusiveFullscreen() const noexcept {

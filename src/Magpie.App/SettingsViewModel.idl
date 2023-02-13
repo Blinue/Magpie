@@ -13,7 +13,7 @@ namespace Magpie.App {
 		Boolean IsShowTrayIcon;
 
 		Boolean IsProcessElevated { get; };
-		Boolean IsAlwaysRunAsElevated;
+		Boolean IsAlwaysRunAsAdmin;
 
 		Boolean IsSimulateExclusiveFullscreen;
 		Boolean IsInlineParams;

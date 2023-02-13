@@ -129,28 +129,28 @@
 						</Style>
 					</ResourceDictionary>
 				</StackPanel.Resources>
-				<Button Padding="0"
-				        ToolTipService.ToolTip="更多选项">
+				<Button x:Uid="ScalingConfiguration_General_MoreOptions"
+				        Padding="0">
 					<Button.Content>
 						<FontIcon Glyph="&#xE712;" />
 					</Button.Content>
 					<Button.Flyout>
 						<MenuFlyout Placement="Bottom"
 						            ShouldConstrainToRootBounds="False">
-							<MenuFlyoutItem Click="{x:Bind ViewModel.Export}"
-							                Text="导出">
+							<MenuFlyoutItem x:Uid="ScalingConfiguration_General_Export"
+							                Click="{x:Bind ViewModel.Export}">
 								<MenuFlyoutItem.Icon>
 									<FontIcon Glyph="&#xEDE1;" />
 								</MenuFlyoutItem.Icon>
 							</MenuFlyoutItem>
-							<MenuFlyoutItem Click="{x:Bind ViewModel.Import}"
-							                Text="导入">
+							<MenuFlyoutItem x:Uid="ScalingConfiguration_General_Import"
+							                Click="{x:Bind ViewModel.Import}">
 								<MenuFlyoutItem.Icon>
 									<FontIcon Glyph="&#xE8B5;" />
 								</MenuFlyoutItem.Icon>
 							</MenuFlyoutItem>
-							<MenuFlyoutItem Click="{x:Bind ViewModel.ImportLegacy}"
-							                Text="导入旧版">
+							<MenuFlyoutItem x:Uid="ScalingConfiguration_General_ImportLegacy"
+							                Click="{x:Bind ViewModel.ImportLegacy}">
 								<MenuFlyoutItem.Icon>
 									<FontIcon Glyph="&#xE8B5;" />
 								</MenuFlyoutItem.Icon>
@@ -167,10 +167,9 @@
 			              IsOpen="{x:Bind ViewModel.ShowErrorMessage, Mode=TwoWay}"
 			              Severity="Error"
 			              Visibility="{x:Bind ViewModel.ShowErrorMessage, Mode=OneWay}" />
-			<local:SettingsGroup Title="通用"
+			<local:SettingsGroup x:Uid="ScalingConfiguration_General"
 			                     Margin="0,-24,0,0">
-				<local:SettingsCard Title="默认降采样效果"
-				                    Description="无法容纳输出图像时将自动应用此效果">
+				<local:SettingsCard x:Uid="ScalingConfiguration_General_DefaultDownscalingEffect">
 					<local:SettingsCard.ActionContent>
 						<Grid MinWidth="210">
 							<Grid.ColumnDefinitions>
@@ -208,7 +207,7 @@
 					</local:SettingsCard.ActionContent>
 				</local:SettingsCard>
 			</local:SettingsGroup>
-			<local:SettingsGroup Title="缩放模式">
+			<local:SettingsGroup x:Uid="ScalingConfiguration_ScalingModes">
 				<ListView ItemContainerTransitions="{x:Bind ViewModel.ScalingModesListTransitions, Mode=OneWay}"
 				          ItemsSource="{x:Bind ViewModel.ScalingModes, Mode=OneTime}"
 				          SelectionMode="None">

@@ -45,8 +45,7 @@
 						            Spacing="2">
 							<TextBlock x:Uid="Settings_General_PortableMode_Description" />
 							<HyperlinkButton x:Uid="Settings_General_PortableMode_Locate"
-							                 Click="{x:Bind ViewModel.OpenConfigLocation}"
-							                 Content="打开配置文件位置" />
+							                 Click="{x:Bind ViewModel.OpenConfigLocation}" />
 						</StackPanel>
 					</local:SettingsCard.Description>
 					<local:SettingsCard.ActionContent>
@@ -56,12 +55,7 @@
 				</local:SettingsCard>
 				<local:SettingsCard x:Uid="Settings_General_ShowTrayIcon">
 					<local:SettingsCard.Icon>
-						<FontIcon Glyph="&#xEE49;"
-						          RenderTransformOrigin="0.5,0.5">
-							<FontIcon.RenderTransform>
-								<CompositeTransform ScaleY="-1" />
-							</FontIcon.RenderTransform>
-						</FontIcon>
+						<FontIcon Glyph="&#xE9F5;" />
 					</local:SettingsCard.Icon>
 					<local:SettingsCard.ActionContent>
 						<ToggleSwitch x:Uid="ToggleSwitch"
@@ -99,14 +93,14 @@
 						</StackPanel>
 					</muxc:Expander.Content>
 				</muxc:Expander>
-				<local:SettingsCard Title="始终以管理员身份运行"
+				<local:SettingsCard x:Uid="Settings_Launch_AlwaysRunAsAdmin"
 				                    IsEnabled="{x:Bind ViewModel.IsProcessElevated, Mode=OneTime}">
 					<local:SettingsCard.Icon>
 						<FontIcon Glyph="&#xE7EF;" />
 					</local:SettingsCard.Icon>
 					<local:SettingsCard.ActionContent>
 						<ToggleSwitch x:Uid="ToggleSwitch"
-						              IsOn="{x:Bind ViewModel.IsAlwaysRunAsElevated, Mode=TwoWay}" />
+						              IsOn="{x:Bind ViewModel.IsAlwaysRunAsAdmin, Mode=TwoWay}" />
 					</local:SettingsCard.ActionContent>
 				</local:SettingsCard>
 			</local:SettingsGroup>

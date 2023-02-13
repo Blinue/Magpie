@@ -369,12 +369,12 @@ void AppSettings::CountdownSeconds(uint32_t value) noexcept {
 	SaveAsync();
 }
 
-void AppSettings::IsAlwaysRunAsElevated(bool value) noexcept {
-	if (_isAlwaysRunAsElevated == value) {
+void AppSettings::IsAlwaysRunAsAdmin(bool value) noexcept {
+	if (_isAlwaysRunAsAdmin == value) {
 		return;
 	}
 
-	_isAlwaysRunAsElevated = value;
+	_isAlwaysRunAsAdmin = value;
 	std::wstring arguments;
 	if (AutoStartHelper::IsAutoStartEnabled(arguments)) {
 		// 更新启动任务
@@ -476,8 +476,8 @@ bool AppSettings::_Save(const _AppSettingsData& data) noexcept {
 	writer.Bool(data._isWarningsAreErrors);
 	writer.Key("simulateExclusiveFullscreen");
 	writer.Bool(data._isSimulateExclusiveFullscreen);
-	writer.Key("alwaysRunAsElevated");
-	writer.Bool(data._isAlwaysRunAsElevated);
+	writer.Key("alwaysRunAsAdmin");
+	writer.Bool(data._isAlwaysRunAsAdmin);
 	writer.Key("showTrayIcon");
 	writer.Bool(data._isShowTrayIcon);
 	writer.Key("inlineParams");
@@ -604,7 +604,10 @@ void AppSettings::_LoadSettings(const rapidjson::GenericObject<true, rapidjson::
 	JsonHelper::ReadBool(root, "saveEffectSources", _isSaveEffectSources);
 	JsonHelper::ReadBool(root, "warningsAreErrors", _isWarningsAreErrors);
 	JsonHelper::ReadBool(root, "simulateExclusiveFullscreen", _isSimulateExclusiveFullscreen);
-	JsonHelper::ReadBool(root, "alwaysRunAsElevated", _isAlwaysRunAsElevated);
+	if (!JsonHelper::ReadBool(root, "alwaysRunAsAdmin", _isAlwaysRunAsAdmin, true)) {
+		// v0.10.0-preview1 使用 alwaysRunAsElevated
+		JsonHelper::ReadBool(root, "alwaysRunAsElevated", _isAlwaysRunAsAdmin);
+	}
 	JsonHelper::ReadBool(root, "showTrayIcon", _isShowTrayIcon);
 	JsonHelper::ReadBool(root, "inlineParams", _isInlineParams);
 	JsonHelper::ReadBool(root, "autoCheckForUpdates", _isAutoCheckForUpdates);

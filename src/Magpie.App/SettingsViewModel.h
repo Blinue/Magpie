@@ -38,8 +38,8 @@ struct SettingsViewModel : SettingsViewModelT<SettingsViewModel> {
 
 	bool IsProcessElevated() const noexcept;
 
-	bool IsAlwaysRunAsElevated() const noexcept;
-	void IsAlwaysRunAsElevated(bool value) noexcept;
+	bool IsAlwaysRunAsAdmin() const noexcept;
+	void IsAlwaysRunAsAdmin(bool value) noexcept;
 
 	bool IsSimulateExclusiveFullscreen() const noexcept;
 	void IsSimulateExclusiveFullscreen(bool value) noexcept;

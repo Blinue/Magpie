@@ -94,7 +94,7 @@ StartUpOptions App::Initialize(int) {
 		(float)windowRect.bottom
 	};
 	result.IsWndMaximized= settings.IsWindowMaximized();
-	result.IsNeedElevated = settings.IsAlwaysRunAsElevated();
+	result.IsNeedElevated = settings.IsAlwaysRunAsAdmin();
 
 	LocalizationService::Get().Initialize();
 	ShortcutService::Get().Initialize();
