@@ -6,9 +6,9 @@ namespace winrt::Magpie::App::implementation {
 struct KeyVisual : KeyVisual_base<KeyVisual> {
 	KeyVisual();
 
-	void Content(IInspectable const& value);
+	void Key(int value);
 
-	IInspectable Content() const;
+	int Key() const;
 
 	void VisualType(Magpie::App::VisualType value);
 
@@ -20,7 +20,7 @@ struct KeyVisual : KeyVisual_base<KeyVisual> {
 
 	void OnApplyTemplate();
 
-	static const DependencyProperty ContentProperty;
+	static const DependencyProperty KeyProperty;
 	static const DependencyProperty VisualTypeProperty;
 	static const DependencyProperty IsErrorProperty;
 

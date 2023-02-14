@@ -140,6 +140,10 @@
       <DependentUpon>HomeViewModel.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClInclude>
+    <ClInclude Include="KeyVisualState.h">
+      <DependentUpon>KeyVisualState.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClInclude>
     <ClInclude Include="ShortcutService.h" />
     <ClInclude Include="Shortcut.h" />
     <ClInclude Include="IconHelper.h" />
@@ -282,6 +286,10 @@
       <DependentUpon>HomeViewModel.idl</DependentUpon>
       <SubType>Code</SubType>
     </ClCompile>
+    <ClCompile Include="KeyVisualState.cpp">
+      <DependentUpon>KeyVisualState.idl</DependentUpon>
+      <SubType>Code</SubType>
+    </ClCompile>
     <ClCompile Include="ShortcutService.cpp" />
     <ClCompile Include="Shortcut.cpp" />
     <ClCompile Include="IconHelper.cpp" />
@@ -382,6 +390,9 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <None Include="KeyVisualState.idl">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="WrapPanel.idl">
       <SubType>Designer</SubType>
     </None>

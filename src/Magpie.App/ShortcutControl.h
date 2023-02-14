@@ -27,10 +27,6 @@ struct ShortcutControl : ShortcutControlT<ShortcutControl> {
 		SetValue(TitleProperty, box_value(value));
 	}
 
-	bool IsError() const {
-		return GetValue(_IsErrorProperty).as<bool>();
-	}
-
 	static const DependencyProperty ActionProperty;
 	static const DependencyProperty TitleProperty;
 
@@ -42,8 +38,6 @@ private:
 		WPARAM wParam,
 		LPARAM lParam
 	);
-
-	static const DependencyProperty _IsErrorProperty;
 	
 	static void _OnActionChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&);
 
@@ -52,10 +46,6 @@ private:
 	void _AppSettings_OnShortcutChanged(ShortcutAction action);
 
 	void _UpdateShortcut();
-
-	void _IsError(bool value) {
-		SetValue(_IsErrorProperty, box_value(value));
-	}
 
 	WinRTUtils::EventRevoker _shortcutChangedRevoker;
 
@@ -71,6 +61,8 @@ private:
 
 	Shortcut _previewShortcut;
 	Shortcut _pressedKeys;
+
+	bool _isError = false;
 };
 
 }

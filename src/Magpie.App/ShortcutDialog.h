@@ -15,10 +15,6 @@ struct ShortcutDialog : ShortcutDialogT<ShortcutDialog> {
 	IVector<IInspectable> Keys() const;
 
 private:
-	static const DependencyProperty _IsErrorProperty;
-
-	void _IsError(bool value);
-
 	ShortcutError _error = ShortcutError::NoError;
 	IVector<IInspectable> _keys{ nullptr };
 };

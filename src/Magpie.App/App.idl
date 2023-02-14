@@ -7,6 +7,7 @@
 #include "SettingsCard.idl"
 #include "SettingsGroup.idl"
 #include "KeyVisual.idl"
+#include "KeyVisualState.idl"
 #include "ShortcutControl.idl"
 #include "ShortcutDialog.idl"
 #include "HomeViewModel.idl"

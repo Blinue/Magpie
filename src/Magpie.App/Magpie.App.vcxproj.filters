@@ -206,6 +206,9 @@
     <None Include="WrapPanel.idl">
       <Filter>Controls</Filter>
     </None>
+    <None Include="KeyVisualState.idl">
+      <Filter>Controls</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Page Include="MainPage.xaml" />

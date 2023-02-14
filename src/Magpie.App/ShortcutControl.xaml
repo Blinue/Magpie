@@ -5,14 +5,12 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="using:Magpie.App"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             x:Name="ShortcutControl"
              d:DesignHeight="300"
              d:DesignWidth="400"
              mc:Ignorable="d">
 	<Grid Margin="0,-6,0,-6"
 	      HorizontalAlignment="Right">
-		<Button x:Name="EditButton"
-		        Padding="0"
+		<Button Padding="0"
 		        Background="Transparent"
 		        BorderBrush="Transparent"
 		        Click="EditButton_Click">
@@ -43,7 +41,6 @@
 			            Spacing="16">
 				<ItemsControl x:Name="KeysControl"
 				              VerticalAlignment="Center"
-				              IsEnabled="{Binding ElementName=EditButton, Path=IsEnabled}"
 				              IsTabStop="False">
 					<ItemsControl.ItemsPanel>
 						<ItemsPanelTemplate>
@@ -52,10 +49,10 @@
 						</ItemsPanelTemplate>
 					</ItemsControl.ItemsPanel>
 					<ItemsControl.ItemTemplate>
-						<DataTemplate>
-							<local:KeyVisual VerticalAlignment="Center"
-							                 Content="{Binding Mode=OneTime}"
-							                 IsError="{Binding ElementName=ShortcutControl, Path=_IsError, Mode=OneTime}"
+						<DataTemplate x:DataType="local:KeyVisualState">
+							<local:KeyVisual Key="{x:Bind Key, Mode=OneTime}"
+							                 VerticalAlignment="Center"
+							                 IsError="{x:Bind IsError, Mode=OneTime}"
 							                 IsTabStop="False"
 							                 VisualType="Small" />
 						</DataTemplate>

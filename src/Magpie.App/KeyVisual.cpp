@@ -12,11 +12,12 @@ using namespace Windows::UI::Xaml::Markup;
 
 namespace winrt::Magpie::App::implementation {
 
-const DependencyProperty KeyVisual::ContentProperty = DependencyProperty::Register(
-	L"Content",
-	xaml_typename<IInspectable>(),
+// uint8_t 不起作用
+const DependencyProperty KeyVisual::KeyProperty = DependencyProperty::Register(
+	L"Key",
+	xaml_typename<int>(),
 	xaml_typename<Magpie::App::KeyVisual>(),
-	PropertyMetadata(nullptr, &KeyVisual::_OnPropertyChanged)
+	PropertyMetadata(box_value<int>(0), &KeyVisual::_OnPropertyChanged)
 );
 
 const DependencyProperty KeyVisual::VisualTypeProperty = DependencyProperty::Register(
@@ -38,12 +39,12 @@ KeyVisual::KeyVisual() {
 	Style(_GetStyleSize(L"TextKeyVisualStyle"));
 }
 
-void KeyVisual::Content(IInspectable const& value) {
-	SetValue(ContentProperty, box_value(value));
+void KeyVisual::Key(int value) {
+	SetValue(KeyProperty, box_value(value));
 }
 
-IInspectable KeyVisual::Content() const {
-	return GetValue(ContentProperty);
+int KeyVisual::Key() const {
+	return GetValue(KeyProperty).as<int>();
 }
 
 void KeyVisual::VisualType(Magpie::App::VisualType value) {
@@ -74,7 +75,7 @@ void KeyVisual::OnApplyTemplate() {
 	_SetErrorState();
 
 	_isEnabledChangedToken = IsEnabledChanged({ this, &KeyVisual::_IsEnabledChanged });
-	__super::OnApplyTemplate();
+	KeyVisual_base<KeyVisual>::OnApplyTemplate();
 }
 
 void KeyVisual::_OnPropertyChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
@@ -94,14 +95,7 @@ void KeyVisual::_Update() {
 		return;
 	}
 
-	IInspectable content = Content();
-	if (!content) {
-		return;
-	}
-
-	assert(content.as<IPropertyValue>().Type() == PropertyType::Int32);
-
-	int key = content.as<int>();
+	uint8_t key = (uint8_t)Key();
 	switch (key) {
 	case VK_UP:
 		Style(_GetStyleSize(L"IconKeyVisualStyle"));

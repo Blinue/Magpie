@@ -17,24 +17,23 @@ using namespace Windows::UI::Xaml::Input;
 
 namespace winrt::Magpie::App::implementation {
 
-static IVector<IInspectable> ToKeys(const Shortcut& shortcut) {
+static IVector<IInspectable> ToKeys(const Shortcut& shortcut, bool isError) {
 	std::vector<IInspectable> result;
 
-	// 奇怪，如果这里传入 uint8_t，KeyVisual 也只能收到 int
 	if (shortcut.win) {
-		result.push_back(box_value(VK_LWIN));
+		result.push_back(KeyVisualState(VK_LWIN, isError));
 	}
 	if (shortcut.ctrl) {
-		result.push_back(box_value(VK_LCONTROL));
+		result.push_back(KeyVisualState(VK_LCONTROL, isError));
 	}
 	if (shortcut.alt) {
-		result.push_back(box_value(VK_LMENU));
+		result.push_back(KeyVisualState(VK_LMENU, isError));
 	}
 	if (shortcut.shift) {
-		result.push_back(box_value(VK_LSHIFT));
+		result.push_back(KeyVisualState(VK_LSHIFT, isError));
 	}
 	if (shortcut.code) {
-		result.push_back(box_value((int)shortcut.code));
+		result.push_back(KeyVisualState((int)shortcut.code, isError));
 	}
 
 	return single_threaded_vector(std::move(result));
@@ -52,13 +51,6 @@ const DependencyProperty ShortcutControl::TitleProperty = DependencyProperty::Re
 	xaml_typename<hstring>(),
 	xaml_typename<Magpie::App::ShortcutControl>(),
 	PropertyMetadata(box_value(L""), &ShortcutControl::_OnTitleChanged)
-);
-
-const DependencyProperty ShortcutControl::_IsErrorProperty = DependencyProperty::Register(
-	L"_IsError",
-	xaml_typename<bool>(),
-	xaml_typename<Magpie::App::ShortcutControl>(),
-	PropertyMetadata(box_value(false), nullptr)
 );
 
 ShortcutControl* ShortcutControl::_that = nullptr;
@@ -97,9 +89,6 @@ fire_and_forget ShortcutControl::EditButton_Click(IInspectable const&, RoutedEve
 		_ShortcutDialog.Closing({ this, &ShortcutControl::_ShortcutDialog_Closing });
 	}
 
-	_previewShortcut = _shortcut;
-	_ShortcutDialogContent.Keys(ToKeys(_previewShortcut));
-
 	_ShortcutDialog.XamlRoot(XamlRoot());
 	_ShortcutDialog.RequestedTheme(ActualTheme());
 
@@ -113,9 +102,11 @@ fire_and_forget ShortcutControl::EditButton_Click(IInspectable const&, RoutedEve
 		co_return;
 	}
 	_previewShortcut = _shortcut;
-	_ShortcutDialogContent.Keys(ToKeys(_previewShortcut));
-	_ShortcutDialogContent.Error(IsError() ? ShortcutHelper::CheckShortcut(_previewShortcut) : ShortcutError::NoError);
-	_ShortcutDialog.IsPrimaryButtonEnabled(!IsError());
+	
+	ShortcutError error = _isError ? ShortcutHelper::CheckShortcut(_previewShortcut) : ShortcutError::NoError;
+	_ShortcutDialogContent.Keys(ToKeys(_previewShortcut, error != ShortcutError::NoError));
+	_ShortcutDialogContent.Error(error);
+	_ShortcutDialog.IsPrimaryButtonEnabled(error == ShortcutError::NoError);
 	
 	_pressedKeys.Clear();
 
@@ -198,11 +189,10 @@ LRESULT ShortcutControl::_LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM 
 		Magpie::App::Shortcut& previewShortcut = _that->_previewShortcut;
 
 		previewShortcut = _that->_pressedKeys;
-		_that->_ShortcutDialogContent.Keys(ToKeys(previewShortcut));
 
 		ShortcutError error = ShortcutError::NoError;
 		bool isPrimaryButtonEnabled = false;
-		if (previewShortcut == _that->_shortcut && !_that->IsError()) {
+		if (previewShortcut == _that->_shortcut && !_that->_isError) {
 			isPrimaryButtonEnabled = true;
 		} else {
 			UINT modCount = 0;
@@ -230,6 +220,7 @@ LRESULT ShortcutControl::_LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM 
 			}
 		}
 
+		_that->_ShortcutDialogContent.Keys(ToKeys(previewShortcut, error != ShortcutError::NoError));
 		_that->_ShortcutDialogContent.Error(error);
 		_that->_ShortcutDialog.IsPrimaryButtonEnabled(isPrimaryButtonEnabled);
 	}
@@ -261,9 +252,8 @@ void ShortcutControl::_UpdateShortcut() {
 
 	_shortcut = shortcut;
 	// 此时 ShortcutService 中的回调已执行
-	_IsError(ShortcutService::Get().IsError(action));
-
-	KeysControl().ItemsSource(ToKeys(_shortcut));
+	_isError = ShortcutService::Get().IsError(action);
+	KeysControl().ItemsSource(ToKeys(_shortcut, _isError));
 }
 
 }

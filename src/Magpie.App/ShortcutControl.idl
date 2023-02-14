@@ -4,6 +4,5 @@ namespace Magpie.App {
 
 		ShortcutAction Action;
 		String Title;
-		Boolean IsError { get; };
 	}
 }

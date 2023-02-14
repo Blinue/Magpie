@@ -5,7 +5,6 @@
              xmlns:local="using:Magpie.App"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
-             x:Name="ShortcutContentControl"
              mc:Ignorable="d">
 	<Grid MinWidth="498"
 	      MinHeight="220">
@@ -32,10 +31,10 @@
 				</ItemsPanelTemplate>
 			</ItemsControl.ItemsPanel>
 			<ItemsControl.ItemTemplate>
-				<DataTemplate>
-					<local:KeyVisual Height="56"
-					                 Content="{Binding Mode=OneTime}"
-					                 IsError="{Binding ElementName=ShortcutContentControl, Path=_IsError, Mode=OneTime}"
+				<DataTemplate x:DataType="local:KeyVisualState">
+					<local:KeyVisual Key="{x:Bind Key, Mode=OneTime}"
+					                 Height="56"
+					                 IsError="{x:Bind IsError, Mode=OneTime}"
 					                 IsTabStop="False"
 					                 VisualType="Large" />
 				</DataTemplate>
