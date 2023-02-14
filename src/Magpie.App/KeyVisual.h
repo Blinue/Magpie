@@ -6,17 +6,29 @@ namespace winrt::Magpie::App::implementation {
 struct KeyVisual : KeyVisual_base<KeyVisual> {
 	KeyVisual();
 
-	void Key(int value);
+	void Key(int value) {
+		SetValue(KeyProperty, box_value(value));
+	}
 
-	int Key() const;
+	int Key() const {
+		return GetValue(KeyProperty).as<int>();
+	}
 
-	void VisualType(Magpie::App::VisualType value);
+	void VisualType(Magpie::App::VisualType value) {
+		SetValue(VisualTypeProperty, box_value(value));
+	}
 
-	Magpie::App::VisualType VisualType() const;
+	Magpie::App::VisualType VisualType() const {
+		return GetValue(VisualTypeProperty).as<Magpie::App::VisualType>();
+	}
 
-	void IsError(bool value);
+	void IsError(bool value) {
+		SetValue(IsErrorProperty, box_value(value));
+	}
 
-	bool IsError() const;
+	bool IsError() const {
+		return GetValue(IsErrorProperty).as<bool>();
+	}
 
 	void OnApplyTemplate();
 

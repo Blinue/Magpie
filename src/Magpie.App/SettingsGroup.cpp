@@ -8,7 +8,6 @@ using namespace winrt;
 using namespace Windows::UI::Xaml::Controls;
 using namespace Windows::UI::Xaml::Data;
 
-
 namespace winrt::Magpie::App::implementation {
 
 const DependencyProperty SettingsGroup::ChildrenProperty = DependencyProperty::Register(
@@ -36,30 +35,6 @@ SettingsGroup::SettingsGroup() {
 	InitializeComponent();
 
 	Children(ChildrenHost().Children());
-}
-
-void SettingsGroup::Title(const hstring& value) {
-	SetValue(TitleProperty, box_value(value));
-}
-
-hstring SettingsGroup::Title() const {
-	return GetValue(TitleProperty).as<hstring>();
-}
-
-void SettingsGroup::Description(IInspectable value) {
-	SetValue(DescriptionProperty, value);
-}
-
-IInspectable SettingsGroup::Description() const {
-	return GetValue(DescriptionProperty);
-}
-
-UIElementCollection SettingsGroup::Children() const {
-	return GetValue(ChildrenProperty).as<UIElementCollection>();
-}
-
-void SettingsGroup::Children(UIElementCollection const& value) {
-	SetValue(ChildrenProperty, value);
 }
 
 void SettingsGroup::IsEnabledChanged(IInspectable const&, DependencyPropertyChangedEventArgs const&) {

@@ -6,25 +6,45 @@ namespace winrt::Magpie::App::implementation {
 struct SettingsCard : SettingsCardT<SettingsCard> {
 	SettingsCard();
 
-	void RawTitle(IInspectable const& value);
+	void RawTitle(IInspectable const& value) {
+		SetValue(RawTitleProperty, value);
+	}
 
-	IInspectable RawTitle() const;
+	IInspectable RawTitle() const {
+		return GetValue(RawTitleProperty);
+	}
 
-	void Title(const hstring& value);
+	void Title(const hstring& value) {
+		SetValue(TitleProperty, box_value(value));
+	}
 
-	hstring Title() const;
+	hstring Title() const {
+		return GetValue(TitleProperty).as<hstring>();
+	}
 
-	void Description(IInspectable const& value);
+	void Description(IInspectable const& value) {
+		SetValue(DescriptionProperty, value);
+	}
 
-	IInspectable Description() const;
+	IInspectable Description() const {
+		return GetValue(DescriptionProperty);
+	}
 
-	void Icon(IInspectable const& value);
+	void Icon(IInspectable const& value) {
+		SetValue(IconProperty, value);
+	}
 
-	IInspectable Icon() const;
+	IInspectable Icon() const {
+		return GetValue(IconProperty);
+	}
 
-	void ActionContent(IInspectable const& value);
+	void ActionContent(IInspectable const& value) {
+		SetValue(ActionContentProperty, value);
+	}
 
-	IInspectable ActionContent() const;
+	IInspectable ActionContent() const {
+		return GetValue(ActionContentProperty);
+	}
 
 	void IsEnabledChanged(IInspectable const&, DependencyPropertyChangedEventArgs const&);
 	void Loading(FrameworkElement const&, IInspectable const&);

@@ -8,7 +8,6 @@ using namespace winrt;
 using namespace Windows::UI::Xaml::Controls;
 using namespace Windows::UI::Xaml::Data;
 
-
 namespace winrt::Magpie::App::implementation {
 
 DependencyProperty SettingsCard::RawTitleProperty = DependencyProperty::Register(
@@ -48,46 +47,6 @@ DependencyProperty SettingsCard::ActionContentProperty = DependencyProperty::Reg
 
 SettingsCard::SettingsCard() {
 	InitializeComponent();
-}
-
-void SettingsCard::RawTitle(IInspectable const& value) {
-	SetValue(RawTitleProperty, value);
-}
-
-IInspectable SettingsCard::RawTitle() const {
-	return GetValue(RawTitleProperty);
-}
-
-void SettingsCard::Title(const hstring& value) {
-	SetValue(TitleProperty, box_value(value));
-}
-
-hstring SettingsCard::Title() const {
-	return GetValue(TitleProperty).as<hstring>();
-}
-
-void SettingsCard::Description(IInspectable const& value) {
-	SetValue(DescriptionProperty, value);
-}
-
-IInspectable SettingsCard::Description() const {
-	return GetValue(DescriptionProperty);
-}
-
-void SettingsCard::Icon(IInspectable const& value) {
-	SetValue(IconProperty, value);
-}
-
-IInspectable SettingsCard::Icon() const {
-	return GetValue(IconProperty);
-}
-
-void SettingsCard::ActionContent(IInspectable const& value) {
-	SetValue(ActionContentProperty, value);
-}
-
-IInspectable SettingsCard::ActionContent() const {
-	return GetValue(ActionContentProperty);
 }
 
 void SettingsCard::_OnRawTitleChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {

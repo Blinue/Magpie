@@ -6,16 +6,29 @@ namespace winrt::Magpie::App::implementation {
 struct SettingsGroup : SettingsGroupT<SettingsGroup> {
 	SettingsGroup();
 
-	void Title(const hstring& value);
+	void Title(const hstring& value) {
+		SetValue(TitleProperty, box_value(value));
+	}
 
-	hstring Title() const;
+	hstring Title() const {
+		return GetValue(TitleProperty).as<hstring>();
+	}
 
-	void Description(IInspectable value);
+	void Description(IInspectable value) {
+		SetValue(DescriptionProperty, value);
+	}
 
-	IInspectable Description() const;
+	IInspectable Description() const {
+		return GetValue(DescriptionProperty);
+	}
 
-	Controls::UIElementCollection Children() const;
-	void Children(Controls::UIElementCollection const& value);
+	Controls::UIElementCollection Children() const {
+		return GetValue(ChildrenProperty).as<Controls::UIElementCollection>();
+	}
+
+	void Children(Controls::UIElementCollection const& value) {
+		SetValue(ChildrenProperty, value);
+	}
 
 	void IsEnabledChanged(IInspectable const&, DependencyPropertyChangedEventArgs const&);
 	void Loading(FrameworkElement const&, IInspectable const&);

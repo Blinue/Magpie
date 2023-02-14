@@ -12,7 +12,6 @@ using namespace Windows::UI::Xaml::Data;
 using namespace Windows::UI::Xaml::Input;
 using namespace Windows::UI::Text;
 
-
 namespace winrt::Magpie::App::implementation {
 
 const DependencyProperty PageFrame::TitleProperty = DependencyProperty::Register(
@@ -46,38 +45,6 @@ const DependencyProperty PageFrame::MainContentProperty = DependencyProperty::Re
 
 PageFrame::PageFrame() {
 	InitializeComponent();
-}
-
-void PageFrame::Title(const hstring& value) {
-	SetValue(TitleProperty, box_value(value));
-}
-
-hstring PageFrame::Title() const {
-	return GetValue(TitleProperty).as<hstring>();
-}
-
-void PageFrame::Icon(IconElement const& value) {
-	SetValue(IconProperty, value);
-}
-
-IconElement PageFrame::Icon() const {
-	return GetValue(IconProperty).as<IconElement>();
-}
-
-void PageFrame::HeaderAction(FrameworkElement const& value) {
-	SetValue(HeaderActionProperty, value);
-}
-
-FrameworkElement PageFrame::HeaderAction() const {
-	return GetValue(HeaderActionProperty).as<FrameworkElement>();
-}
-
-void PageFrame::MainContent(IInspectable const& value) {
-	SetValue(MainContentProperty, value);
-}
-
-IInspectable PageFrame::MainContent() const {
-	return GetValue(MainContentProperty).as<IInspectable>();
 }
 
 void PageFrame::Loading(FrameworkElement const&, IInspectable const&) {

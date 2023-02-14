@@ -4,10 +4,13 @@ namespace Magpie.App {
         Last
     };
 
-    [default_interface]
     runtimeclass WrapPanel : Windows.UI.Xaml.Controls.Panel {
         WrapPanel();
 
-        
+        Double HorizontalSpacing;
+        Double VerticalSpacing;
+        Windows.UI.Xaml.Controls.Orientation Orientation;
+        Windows.UI.Xaml.Thickness Padding;
+        StretchChild StretchChild;
     }
 }

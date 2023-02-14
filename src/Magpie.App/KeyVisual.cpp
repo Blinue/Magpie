@@ -39,30 +39,6 @@ KeyVisual::KeyVisual() {
 	Style(_GetStyleSize(L"TextKeyVisualStyle"));
 }
 
-void KeyVisual::Key(int value) {
-	SetValue(KeyProperty, box_value(value));
-}
-
-int KeyVisual::Key() const {
-	return GetValue(KeyProperty).as<int>();
-}
-
-void KeyVisual::VisualType(Magpie::App::VisualType value) {
-	SetValue(VisualTypeProperty, box_value(value));
-}
-
-Magpie::App::VisualType KeyVisual::VisualType() const {
-	return GetValue(VisualTypeProperty).as<Magpie::App::VisualType>();
-}
-
-void KeyVisual::IsError(bool value) {
-	SetValue(IsErrorProperty, box_value(value));
-}
-
-bool KeyVisual::IsError() const {
-	return GetValue(IsErrorProperty).as<bool>();
-}
-
 void KeyVisual::OnApplyTemplate() {
 	if (_isEnabledChangedToken) {
 		IsEnabledChanged(_isEnabledChangedToken);
