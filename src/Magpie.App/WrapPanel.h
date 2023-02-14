@@ -11,6 +11,9 @@ struct UvMeasure {
 
 	UvMeasure(float u_, float v_) : u(u_), v(v_) {}
 
+	UvMeasure(Controls::Orientation orientation, Size size) :
+		UvMeasure(orientation, size.Width, size.Height) {}
+
 	UvMeasure(Controls::Orientation orientation, float width, float height) {
 		if (orientation == Controls::Orientation::Horizontal) {
 			u = width;
@@ -19,6 +22,15 @@ struct UvMeasure {
 			u = height;
 			v = width;
 		}
+	}
+
+	void Add(const UvMeasure& measure) noexcept {
+		u += measure.u;
+		v += measure.v;
+	}
+
+	Size ToSize(Controls::Orientation orientation) noexcept {
+		return orientation == Controls::Orientation::Horizontal ? Size(u, v) : Size(v, u);
 	}
 
 	float u;
@@ -48,7 +60,7 @@ struct Row {
 	}
 
 	void Add(const UvMeasure& position, const UvMeasure& size_) {
-		childrenRects.emplace_back(position, size);
+		childrenRects.emplace_back(position, size_);
 
 		size.u = position.u + size_.u;
 		size.v = std::max(size.v, size_.v);
@@ -99,6 +111,10 @@ struct WrapPanel : WrapPanelT<WrapPanel> {
 		SetValue(StretchChildProperty, box_value(value));
 	}
 
+	Size MeasureOverride(const Size& availableSize);
+
+	Size ArrangeOverride(Size finalSize);
+	
 	static const DependencyProperty HorizontalSpacingProperty;
 	static const DependencyProperty VerticalSpacingProperty;
 	static const DependencyProperty OrientationProperty;
@@ -107,6 +123,8 @@ struct WrapPanel : WrapPanelT<WrapPanel> {
 
 private:
 	static void _OnLayoutPropertyChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&);
+
+	Size _UpdateRows(Size availableSize);
 
 	SmallVector<Row, 0> _rows;
 };

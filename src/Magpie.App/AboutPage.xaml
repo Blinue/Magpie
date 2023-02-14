@@ -163,21 +163,23 @@
 					</local:SettingsCard>
 				</Button>
 			</local:SettingsGroup>
-			<local:SettingsGroup Title="其他链接">
-				<StackPanel Orientation="Horizontal">
+			<local:SettingsGroup x:Uid="About_OtherLinks">
+				<local:WrapPanel Orientation="Horizontal"
+								 HorizontalSpacing="2"
+				                 VerticalSpacing="4">
 					<HyperlinkButton NavigateUri="https://github.com/Blinue/Magpie">
-						<TextBlock Text="项目主页" />
+						<TextBlock x:Uid="About_OtherLinks_Repository" />
 					</HyperlinkButton>
 					<HyperlinkButton NavigateUri="https://github.com/Blinue/Magpie/wiki/FAQ">
-						<TextBlock Text="FAQ" />
+						<TextBlock x:Uid="About_OtherLinks_FAQ" />
 					</HyperlinkButton>
 					<HyperlinkButton NavigateUri="https://github.com/Blinue/Magpie/blob/main/CONTRIBUTING.md">
-						<TextBlock Text="贡献指南" />
+						<TextBlock x:Uid="About_OtherLinks_ContributionGuidelines" />
 					</HyperlinkButton>
 					<HyperlinkButton NavigateUri="https://github.com/Blinue/Magpie/blob/main/LICENSE">
-						<TextBlock Text="许可协议" />
+						<TextBlock x:Uid="About_OtherLinks_License" />
 					</HyperlinkButton>
-				</StackPanel>
+				</local:WrapPanel>
 			</local:SettingsGroup>
 		</StackPanel>
 	</local:PageFrame>

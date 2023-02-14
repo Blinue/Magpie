@@ -18,8 +18,9 @@
 				            Spacing="8">
 					<CheckBox x:Uid="Home_UpdateCard_AutoCheckForUpdates"
 					          IsChecked="{x:Bind ViewModel.IsAutoCheckForUpdates, Mode=TwoWay}" />
-					<StackPanel Orientation="Horizontal"
-					            Spacing="8">
+					<local:WrapPanel HorizontalSpacing="8"
+					                 Orientation="Horizontal"
+					                 VerticalSpacing="6">
 						<Button x:Uid="Home_UpdateCard_DownloadAndInstall"
 						        Click="{x:Bind ViewModel.DownloadAndInstall}"
 						        Style="{StaticResource AccentButtonStyle}" />
@@ -27,7 +28,7 @@
 						        Click="{x:Bind ViewModel.ReleaseNotes}" />
 						<Button x:Uid="Home_UpdateCard_RemindMeLater"
 						        Click="{x:Bind ViewModel.RemindMeLater}" />
-					</StackPanel>
+					</local:WrapPanel>
 				</StackPanel>
 			</muxc:InfoBar>
 			<local:SettingsGroup x:Uid="Home_Shortcuts"

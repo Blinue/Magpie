@@ -339,4 +339,19 @@
   <data name="Home_UpdateCard_Title" xml:space="preserve">
     <value>{} 可用</value>
   </data>
+  <data name="About_OtherLinks.Title" xml:space="preserve">
+    <value>其他链接</value>
+  </data>
+  <data name="About_OtherLinks_ContributionGuidelines.Text" xml:space="preserve">
+    <value>贡献指南</value>
+  </data>
+  <data name="About_OtherLinks_FAQ.Text" xml:space="preserve">
+    <value>FAQ</value>
+  </data>
+  <data name="About_OtherLinks_License.Text" xml:space="preserve">
+    <value>许可协议</value>
+  </data>
+  <data name="About_OtherLinks_Repository.Text" xml:space="preserve">
+    <value>Github 仓库</value>
+  </data>
 </root>
