@@ -181,10 +181,10 @@
 							          DropDownOpened="ComboBox_DropDownOpened"
 							          ItemsSource="{x:Bind ViewModel.DownscalingEffects, Mode=OneTime}"
 							          SelectedIndex="{x:Bind ViewModel.DownscalingEffectIndex, Mode=TwoWay}" />
-							<Button Grid.Column="1"
+							<Button x:Uid="ScalingConfiguration_Parameters"
+							        Grid.Column="1"
 							        Margin="4,0,0,0"
 							        VerticalAlignment="Stretch"
-							        ToolTipService.ToolTip="参数"
 							        Visibility="{x:Bind ViewModel.DownscalingEffectHasParameters, Mode=OneWay}">
 								<Button.Content>
 									<FontIcon FontSize="15"
@@ -241,54 +241,55 @@
 														<Setter Property="FontSize" Value="15" />
 													</Style>
 												</StackPanel.Resources>
-												<Button ToolTipService.ToolTip="重命名">
+												<Button x:Uid="ScalingConfiguration_ScalingModes_Rename">
 													<Button.Content>
 														<FontIcon Glyph="&#xE8AC;" />
 													</Button.Content>
 													<Button.Flyout>
 														<Flyout Opening="{x:Bind RenameFlyout_Opening}">
 															<StackPanel Orientation="Vertical">
-																<TextBlock Text="重命名" />
+																<TextBlock x:Uid="ScalingConfiguration_ScalingModes_RenameFlyout_Title" />
 																<TextBox Width="280"
 																         Height="32"
 																         Margin="0,8,0,20"
 																         KeyDown="{x:Bind RenameTextBox_KeyDown}"
 																         SelectionStart="{x:Bind RenameTextBoxSelectionStart, Mode=OneWay}"
 																         Text="{x:Bind RenameText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-																<Button MinWidth="80"
+																<Button x:Uid="ScalingConfiguration_ScalingModes_RenameFlyout_OK"
+																        MinWidth="80"
 																        HorizontalAlignment="Right"
 																        Click="{x:Bind RenameButton_Click}"
-																        Content="确定"
 																        IsEnabled="{x:Bind IsRenameButtonEnabled, Mode=OneWay}"
 																        Style="{StaticResource AccentButtonStyle}" />
 															</StackPanel>
 														</Flyout>
 													</Button.Flyout>
 												</Button>
-												<Button Click="ScalingModeMoreOptionsButton_Click"
-												        ToolTipService.ToolTip="更多选项">
+												<Button x:Uid="ScalingConfiguration_ScalingModes_MoreOptions"
+												        Click="ScalingModeMoreOptionsButton_Click">
 													<Button.Content>
 														<FontIcon Glyph="&#xE712;" />
 													</Button.Content>
 													<Button.Flyout>
 														<MenuFlyout>
-															<MenuFlyoutItem Click="{x:Bind MoveUp}"
-															                IsEnabled="{x:Bind CanMoveUp, Mode=OneWay}"
-															                Text="上移">
+															<MenuFlyoutItem x:Uid="ScalingConfiguration_ScalingModes_MoreOptionsFlyout_MoveUp"
+															                Click="{x:Bind MoveUp}"
+															                IsEnabled="{x:Bind CanMoveUp, Mode=OneWay}">
 																<MenuFlyoutItem.Icon>
 																	<FontIcon Glyph="&#xE74A;" />
 																</MenuFlyoutItem.Icon>
 															</MenuFlyoutItem>
-															<MenuFlyoutItem Click="{x:Bind MoveDown}"
-															                IsEnabled="{x:Bind CanMoveDown, Mode=OneWay}"
-															                Text="下移">
+															<MenuFlyoutItem x:Uid="ScalingConfiguration_ScalingModes_MoreOptionsFlyout_MoveDown"
+															                Click="{x:Bind MoveDown}"
+															                IsEnabled="{x:Bind CanMoveDown, Mode=OneWay}">
 																<MenuFlyoutItem.Icon>
 																	<FontIcon Glyph="&#xE74B;" />
 																</MenuFlyoutItem.Icon>
 															</MenuFlyoutItem>
-															<MenuFlyoutItem Click="RemoveScalingModeMenuItem_Click"
-															                Tag="{x:Bind}"
-															                Text="删除">
+															<MenuFlyoutSeparator />
+															<MenuFlyoutItem x:Uid="ScalingConfiguration_ScalingModes_MoreOptionsFlyout_Delete"
+															                Click="RemoveScalingModeMenuItem_Click"
+															                Tag="{x:Bind}">
 																<MenuFlyoutItem.Icon>
 																	<FontIcon Glyph="&#xE74D;" />
 																</MenuFlyoutItem.Icon>
@@ -302,7 +303,7 @@
 																			<StackPanel Margin="0,0,0,10"
 																			            Orientation="Vertical"
 																			            Spacing="8">
-																				<TextBlock Text="以下缩放配置正在使用此模式：" />
+																				<TextBlock Text="以下配置文件正在使用此模式：" />
 																				<ListView ItemsSource="{x:Bind LinkedProfiles, Mode=OneTime}"
 																				          SelectionMode="None">
 																					<ListView.ItemsPanel>
@@ -494,8 +495,8 @@
 																		</Flyout>
 																	</Button.Flyout>
 																</Button>
-																<Button Margin="0,0,4,0"
-																        ToolTipService.ToolTip="参数"
+																<Button x:Uid="ScalingConfiguration_Parameters"
+																        Margin="0,0,4,0"
 																        Visibility="{x:Bind HasParameters}">
 																	<Button.Content>
 																		<FontIcon Glyph="&#xE9E9;" />

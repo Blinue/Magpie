@@ -13,6 +13,8 @@
 #include "ScalingMode.h"
 
 using namespace ::Magpie::Core;
+using namespace winrt;
+using namespace Windows::ApplicationModel::Resources;
 
 namespace winrt::Magpie::App::implementation {
 
@@ -22,7 +24,10 @@ ScalingConfigurationViewModel::ScalingConfigurationViewModel() {
 	
 	std::vector<IInspectable> downscalingEffects;
 	downscalingEffects.reserve(7);
-	downscalingEffects.push_back(box_value(L"无"));
+
+	ResourceLoader resourceLoader = ResourceLoader::GetForCurrentView();
+	downscalingEffects.push_back(box_value(resourceLoader.GetString(
+		L"ScalingConfiguration_General_DefaultDownscalingEffect_None")));
 
 	_downscalingEffectNames.reserve(6);
 	for (const EffectInfo& effectInfo : EffectsService::Get().Effects()) {
@@ -46,7 +51,7 @@ ScalingConfigurationViewModel::ScalingConfigurationViewModel() {
 			_downscalingEffectNames.begin(),
 			_downscalingEffectNames.end(),
 			downscalingEffect.name,
-			[](const std::pair<std::wstring, std::wstring>& l, const std::wstring& r) { return l.first < r; }
+			[](const auto& l, const std::wstring& r) { return l.first < r; }
 		);
 
 		if (it == _downscalingEffectNames.end() || it->first != downscalingEffect.name) {

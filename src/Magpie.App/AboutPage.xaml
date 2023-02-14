@@ -164,8 +164,8 @@
 				</Button>
 			</local:SettingsGroup>
 			<local:SettingsGroup x:Uid="About_OtherLinks">
-				<local:WrapPanel Orientation="Horizontal"
-								 HorizontalSpacing="2"
+				<local:WrapPanel HorizontalSpacing="2"
+				                 Orientation="Horizontal"
 				                 VerticalSpacing="4">
 					<HyperlinkButton NavigateUri="https://github.com/Blinue/Magpie">
 						<TextBlock x:Uid="About_OtherLinks_Repository" />
