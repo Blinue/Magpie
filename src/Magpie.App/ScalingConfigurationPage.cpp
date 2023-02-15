@@ -8,7 +8,6 @@
 #endif
 #include "ComboBoxHelper.h"
 #include "EffectsService.h"
-#include "PageHelper.h"
 #include <parallel_hashmap/phmap.h>
 
 using namespace winrt;
@@ -17,18 +16,10 @@ using namespace Windows::UI::Xaml::Controls;
 using namespace Windows::UI::Xaml::Controls::Primitives;
 using namespace Windows::UI::Xaml::Input;
 
-
 namespace winrt::Magpie::App::implementation {
 
 ScalingConfigurationPage::ScalingConfigurationPage() {
 	InitializeComponent();
-
-	MainPage mainPage = Application::Current().as<App>().MainPage();
-	_displayModeChangedRevoker = mainPage.RootNavigationView().DisplayModeChanged(
-		auto_revoke,
-		[&](auto const&, auto const&) { PageHelper::UpdateHeaderActionStyle(HeaderActionStackPanel()); }
-	);
-	PageHelper::UpdateHeaderActionStyle(HeaderActionStackPanel());
 
 	_BuildEffectMenu();
 }

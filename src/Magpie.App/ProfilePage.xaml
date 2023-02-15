@@ -16,54 +16,7 @@
 			<StackPanel x:Name="HeaderActionStackPanel"
 			            Orientation="Horizontal"
 			            Visibility="{x:Bind ViewModel.IsNotDefaultProfile, Mode=OneTime}">
-				<StackPanel.Resources>
-					<ResourceDictionary>
-						<ResourceDictionary.ThemeDictionaries>
-							<ResourceDictionary x:Key="Default">
-								<StaticResource x:Key="ButtonBackground"
-								                ResourceKey="SubtleFillColorTransparentBrush" />
-								<StaticResource x:Key="ButtonBackgroundPointerOver"
-								                ResourceKey="SubtleFillColorSecondaryBrush" />
-								<StaticResource x:Key="ButtonBackgroundPressed"
-								                ResourceKey="SubtleFillColorTertiaryBrush" />
-								<StaticResource x:Key="ButtonBackgroundDisabled"
-								                ResourceKey="SubtleFillColorTransparentBrush" />
-								<StaticResource x:Key="ButtonBorderBrush"
-								                ResourceKey="ControlFillColorTransparentBrush" />
-								<StaticResource x:Key="ButtonBorderBrushPointerOver"
-								                ResourceKey="ControlFillColorTransparentBrush" />
-								<StaticResource x:Key="ButtonBorderBrushPressed"
-								                ResourceKey="ControlFillColorTransparentBrush" />
-								<StaticResource x:Key="ButtonBorderBrushDisabled"
-								                ResourceKey="ControlFillColorTransparentBrush" />
-							</ResourceDictionary>
-							<ResourceDictionary x:Key="Light">
-								<StaticResource x:Key="ButtonBackground"
-								                ResourceKey="SubtleFillColorTransparentBrush" />
-								<StaticResource x:Key="ButtonBackgroundPointerOver"
-								                ResourceKey="SubtleFillColorSecondaryBrush" />
-								<StaticResource x:Key="ButtonBackgroundPressed"
-								                ResourceKey="SubtleFillColorTertiaryBrush" />
-								<StaticResource x:Key="ButtonBackgroundDisabled"
-								                ResourceKey="SubtleFillColorTransparentBrush" />
-								<StaticResource x:Key="ButtonBorderBrush"
-								                ResourceKey="ControlFillColorTransparentBrush" />
-								<StaticResource x:Key="ButtonBorderBrushPointerOver"
-								                ResourceKey="ControlFillColorTransparentBrush" />
-								<StaticResource x:Key="ButtonBorderBrushPressed"
-								                ResourceKey="ControlFillColorTransparentBrush" />
-								<StaticResource x:Key="ButtonBorderBrushDisabled"
-								                ResourceKey="ControlFillColorTransparentBrush" />
-							</ResourceDictionary>
-						</ResourceDictionary.ThemeDictionaries>
-
-						<Style TargetType="FontIcon">
-							<Setter Property="FontSize" Value="18" />
-						</Style>
-					</ResourceDictionary>
-				</StackPanel.Resources>
-				<Button Padding="0"
-				        Click="{x:Bind ViewModel.Launch}"
+				<Button Click="{x:Bind ViewModel.Launch}"
 				        IsEnabled="{x:Bind ViewModel.IsProgramExist, Mode=OneTime}"
 				        ToolTipService.ToolTip="启动">
 					<Button.Content>
@@ -71,7 +24,6 @@
 					</Button.Content>
 				</Button>
 				<Button x:Name="MoreOptionsButton"
-				        Padding="0"
 				        ToolTipService.ToolTip="更多选项">
 					<Button.Content>
 						<FontIcon Glyph="&#xE712;" />

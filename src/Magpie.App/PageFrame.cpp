@@ -93,13 +93,13 @@ void PageFrame::_UpdateHeaderStyle() {
 	if (_rootNavigationView.DisplayMode() == MUXC::NavigationViewDisplayMode::Minimal) {
 		HeaderGrid().Margin({ 28, 8, 0, 0 });
 		IconContainer().Visibility(Visibility::Collapsed);
-		
 		textBlock.FontSize(20);
+		HeaderActionPresenter().Margin({ 0,-4,0,-4 });
 	} else {
 		HeaderGrid().Margin({ 0, Win32Utils::GetOSVersion().Is22H2OrNewer() ? 22.0 : 41.5, 0, 0});
 		IconContainer().Visibility(icon ? Visibility::Visible : Visibility::Collapsed);
-		
 		textBlock.FontSize(30);
+		HeaderActionPresenter().Margin({ 0,0,0,-4 });
 	}
 }
 

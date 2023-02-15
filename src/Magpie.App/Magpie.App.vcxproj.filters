@@ -43,9 +43,6 @@
     <ClCompile Include="ScalingModesService.cpp">
       <Filter>Services</Filter>
     </ClCompile>
-    <ClCompile Include="PageHelper.cpp">
-      <Filter>Helpers</Filter>
-    </ClCompile>
     <ClCompile Include="JsonHelper.cpp">
       <Filter>Helpers</Filter>
     </ClCompile>
@@ -100,9 +97,6 @@
     </ClInclude>
     <ClInclude Include="ScalingModesService.h">
       <Filter>Services</Filter>
-    </ClInclude>
-    <ClInclude Include="PageHelper.h">
-      <Filter>Helpers</Filter>
     </ClInclude>
     <ClInclude Include="EffectHelper.h">
       <Filter>Helpers</Filter>

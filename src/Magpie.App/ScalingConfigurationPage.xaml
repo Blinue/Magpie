@@ -91,46 +91,7 @@
 		<local:PageFrame.HeaderAction>
 			<StackPanel x:Name="HeaderActionStackPanel"
 			            Orientation="Horizontal">
-				<StackPanel.Resources>
-					<ResourceDictionary>
-						<ResourceDictionary.ThemeDictionaries>
-							<ResourceDictionary x:Key="Default">
-								<StaticResource x:Key="ButtonBackground"
-								                ResourceKey="SubtleFillColorTransparentBrush" />
-								<StaticResource x:Key="ButtonBackgroundPointerOver"
-								                ResourceKey="SubtleFillColorSecondaryBrush" />
-								<StaticResource x:Key="ButtonBackgroundPressed"
-								                ResourceKey="SubtleFillColorTertiaryBrush" />
-								<StaticResource x:Key="ButtonBorderBrush"
-								                ResourceKey="ControlFillColorTransparentBrush" />
-								<StaticResource x:Key="ButtonBorderBrushPointerOver"
-								                ResourceKey="ControlFillColorTransparentBrush" />
-								<StaticResource x:Key="ButtonBorderBrushPressed"
-								                ResourceKey="ControlFillColorTransparentBrush" />
-							</ResourceDictionary>
-							<ResourceDictionary x:Key="Light">
-								<StaticResource x:Key="ButtonBackground"
-								                ResourceKey="SubtleFillColorTransparentBrush" />
-								<StaticResource x:Key="ButtonBackgroundPointerOver"
-								                ResourceKey="SubtleFillColorSecondaryBrush" />
-								<StaticResource x:Key="ButtonBackgroundPressed"
-								                ResourceKey="SubtleFillColorTertiaryBrush" />
-								<StaticResource x:Key="ButtonBorderBrush"
-								                ResourceKey="ControlFillColorTransparentBrush" />
-								<StaticResource x:Key="ButtonBorderBrushPointerOver"
-								                ResourceKey="ControlFillColorTransparentBrush" />
-								<StaticResource x:Key="ButtonBorderBrushPressed"
-								                ResourceKey="ControlFillColorTransparentBrush" />
-							</ResourceDictionary>
-						</ResourceDictionary.ThemeDictionaries>
-
-						<Style TargetType="FontIcon">
-							<Setter Property="FontSize" Value="18" />
-						</Style>
-					</ResourceDictionary>
-				</StackPanel.Resources>
-				<Button x:Uid="ScalingConfiguration_General_MoreOptions"
-				        Padding="0">
+				<Button x:Uid="ScalingConfiguration_General_MoreOptions">
 					<Button.Content>
 						<FontIcon Glyph="&#xE712;" />
 					</Button.Content>

@@ -43,7 +43,53 @@
 				                Grid.Column="2"
 				                VerticalContentAlignment="Center"
 				                Content="{x:Bind HeaderAction, Mode=OneWay}"
-				                IsTabStop="False" />
+				                IsTabStop="False">
+					<ContentControl.Resources>
+						<ResourceDictionary>
+							<ResourceDictionary.ThemeDictionaries>
+								<ResourceDictionary x:Key="Default">
+									<StaticResource x:Key="ButtonBackground"
+									                ResourceKey="SubtleFillColorTransparentBrush" />
+									<StaticResource x:Key="ButtonBackgroundPointerOver"
+									                ResourceKey="SubtleFillColorSecondaryBrush" />
+									<StaticResource x:Key="ButtonBackgroundPressed"
+									                ResourceKey="SubtleFillColorTertiaryBrush" />
+									<StaticResource x:Key="ButtonBorderBrush"
+									                ResourceKey="ControlFillColorTransparentBrush" />
+									<StaticResource x:Key="ButtonBorderBrushPointerOver"
+									                ResourceKey="ControlFillColorTransparentBrush" />
+									<StaticResource x:Key="ButtonBorderBrushPressed"
+									                ResourceKey="ControlFillColorTransparentBrush" />
+								</ResourceDictionary>
+								<ResourceDictionary x:Key="Light">
+									<StaticResource x:Key="ButtonBackground"
+									                ResourceKey="SubtleFillColorTransparentBrush" />
+									<StaticResource x:Key="ButtonBackgroundPointerOver"
+									                ResourceKey="SubtleFillColorSecondaryBrush" />
+									<StaticResource x:Key="ButtonBackgroundPressed"
+									                ResourceKey="SubtleFillColorTertiaryBrush" />
+									<StaticResource x:Key="ButtonBorderBrush"
+									                ResourceKey="ControlFillColorTransparentBrush" />
+									<StaticResource x:Key="ButtonBorderBrushPointerOver"
+									                ResourceKey="ControlFillColorTransparentBrush" />
+									<StaticResource x:Key="ButtonBorderBrushPressed"
+									                ResourceKey="ControlFillColorTransparentBrush" />
+								</ResourceDictionary>
+							</ResourceDictionary.ThemeDictionaries>
+
+							<Style BasedOn="{StaticResource DefaultButtonStyle}"
+							       TargetType="Button">
+								<Setter Property="Width" Value="42" />
+								<Setter Property="Height" Value="38" />
+								<Setter Property="Padding" Value="0" />
+							</Style>
+
+							<Style TargetType="FontIcon">
+								<Setter Property="FontSize" Value="18" />
+							</Style>
+						</ResourceDictionary>
+					</ContentControl.Resources>
+				</ContentControl>
 			</Grid>
 		</StackPanel>
 		<ScrollViewer Grid.Row="1"

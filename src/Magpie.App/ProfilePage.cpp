@@ -7,7 +7,6 @@
 #include "ComboBoxHelper.h"
 #include "ProfileService.h"
 #include "Profile.h"
-#include "PageHelper.h"
 
 using namespace winrt;
 using namespace Windows::Globalization::NumberFormatting;
@@ -19,13 +18,6 @@ namespace winrt::Magpie::App::implementation {
 
 ProfilePage::ProfilePage() {
 	InitializeComponent();
-
-	MainPage mainPage = Application::Current().as<App>().MainPage();
-	_displayModeChangedRevoker = mainPage.RootNavigationView().DisplayModeChanged(
-		auto_revoke,
-		[&](auto const&, auto const&) { PageHelper::UpdateHeaderActionStyle(HeaderActionStackPanel()); }
-	);
-	PageHelper::UpdateHeaderActionStyle(HeaderActionStackPanel());
 
 	if (!Win32Utils::GetOSVersion().IsWin11()) {
 		// Segoe MDL2 Assets 不存在 Move 图标

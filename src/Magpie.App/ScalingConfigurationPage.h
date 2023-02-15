@@ -51,8 +51,6 @@ private:
 
 	void _AddEffectMenuFlyoutItem_Click(IInspectable const& sender, RoutedEventArgs const&);
 
-	MUXC::NavigationView::DisplayModeChanged_revoker _displayModeChangedRevoker{};
-
 	IInspectable _moreOptionsButton{ nullptr };
 
 	Controls::MenuFlyout _addEffectMenuFlyout;
