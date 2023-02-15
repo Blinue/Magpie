@@ -83,7 +83,7 @@
 												<StackPanel Orientation="Horizontal"
 												            Spacing="8">
 													<FontIcon VerticalAlignment="Center"
-													          FontSize="15"
+													          FontSize="{StaticResource StandardIconSize}"
 													          Glyph="&#xE74A;" />
 													<TextBlock VerticalAlignment="Center"
 													           Text="上移" />
@@ -95,7 +95,7 @@
 												<StackPanel Orientation="Horizontal"
 												            Spacing="8">
 													<FontIcon VerticalAlignment="Center"
-													          FontSize="15"
+													          FontSize="{StaticResource StandardIconSize}"
 													          Glyph="&#xE74B;" />
 													<TextBlock VerticalAlignment="Center"
 													           Text="下移" />
@@ -138,7 +138,7 @@
 													<StackPanel Orientation="Horizontal"
 													            Spacing="8">
 														<FontIcon VerticalAlignment="Center"
-														          FontSize="15"
+														          FontSize="{StaticResource StandardIconSize}"
 														          Glyph="&#xE74D;" />
 														<TextBlock VerticalAlignment="Center"
 														           Text="删除" />

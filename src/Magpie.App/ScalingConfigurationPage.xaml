@@ -258,13 +258,14 @@
 																	<Flyout>
 																		<StackPanel MaxWidth="280"
 																		            Orientation="Vertical">
-																			<TextBlock Margin="0,0,0,15"
+																			<TextBlock x:Uid="ScalingConfiguration_ScalingModes_DeleteFlyout_Title"
+																			           Margin="0,0,0,15"
 																			           FontWeight="SemiBold"
-																			           Text="确定删除此缩放模式？" />
+																			           TextWrapping="WrapWholeWords" />
 																			<StackPanel Margin="0,0,0,10"
 																			            Orientation="Vertical"
 																			            Spacing="8">
-																				<TextBlock Text="以下配置文件正在使用此模式：" />
+																				<TextBlock x:Uid="ScalingConfiguration_ScalingModes_DeleteFlyout_Description" />
 																				<ListView ItemsSource="{x:Bind LinkedProfiles, Mode=OneTime}"
 																				          SelectionMode="None">
 																					<ListView.ItemsPanel>
@@ -314,10 +315,10 @@
 																					<StackPanel Orientation="Horizontal"
 																					            Spacing="8">
 																						<FontIcon VerticalAlignment="Center"
-																						          FontSize="15"
+																						          FontSize="{StaticResource StandardIconSize}"
 																						          Glyph="&#xE74D;" />
-																						<TextBlock VerticalAlignment="Center"
-																						           Text="删除" />
+																						<TextBlock x:Uid="ScalingConfiguration_ScalingModes_DeleteFlyout_Delete"
+																						           VerticalAlignment="Center" />
 																					</StackPanel>
 																				</Button.Content>
 																			</Button>
@@ -363,8 +364,8 @@
 																		<Setter Property="FontSize" Value="15" />
 																	</Style>
 																</StackPanel.Resources>
-																<Button Margin="0,0,4,0"
-																        ToolTipService.ToolTip="缩放"
+																<Button x:Uid="ScalingConfiguration_ScalingModes_Scale"
+																        Margin="0,0,4,0"
 																        Visibility="{x:Bind CanScale}">
 																	<Button.Content>
 																		<FontIcon Glyph="&#xE740;" />
@@ -475,8 +476,8 @@
 																		</Flyout>
 																	</Button.Flyout>
 																</Button>
-																<Button Click="{x:Bind Remove}"
-																        ToolTipService.ToolTip="删除">
+																<Button x:Uid="ScalingConfiguration_ScalingModes_Delete"
+																        Click="{x:Bind Remove}">
 																	<Button.Content>
 																		<FontIcon Glyph="&#xE74D;" />
 																	</Button.Content>
@@ -484,18 +485,18 @@
 																<StackPanel Orientation="Horizontal"
 																            Visibility="{x:Bind CanMove, Mode=OneWay}">
 																	<AppBarSeparator Margin="4,0,0,0" />
-																	<Button Margin="4,0,0,0"
+																	<Button x:Uid="ScalingConfiguration_ScalingModes_MoveUp"
+																	        Margin="4,0,0,0"
 																	        Click="{x:Bind MoveUp}"
-																	        IsEnabled="{x:Bind CanMoveUp, Mode=OneWay}"
-																	        ToolTipService.ToolTip="上移">
+																	        IsEnabled="{x:Bind CanMoveUp, Mode=OneWay}">
 																		<Button.Content>
 																			<FontIcon Glyph="&#xE74A;" />
 																		</Button.Content>
 																	</Button>
-																	<Button Margin="4,0,0,0"
+																	<Button x:Uid="ScalingConfiguration_ScalingModes_MoveDown"
+																	        Margin="4,0,0,0"
 																	        Click="{x:Bind MoveDown}"
-																	        IsEnabled="{x:Bind CanMoveDown, Mode=OneWay}"
-																	        ToolTipService.ToolTip="下移">
+																	        IsEnabled="{x:Bind CanMoveDown, Mode=OneWay}">
 																		<Button.Content>
 																			<FontIcon Glyph="&#xE74B;" />
 																		</Button.Content>
@@ -510,9 +511,9 @@
 										<local:SettingsCard Style="{StaticResource ExpanderContentSettingStyle}">
 											<local:SettingsCard.Description>
 												<StackPanel Margin="-40,0,0,-20">
-													<TextBlock Text="拖拽以重新排序"
+													<TextBlock x:Uid="ScalingConfiguration_ScalingModes_DragToReorder"
 													           Visibility="{x:Bind CanReorderEffects, Mode=OneWay}" />
-													<TextBlock Text="管理员身份下不支持拖拽排序"
+													<TextBlock x:Uid="ScalingConfiguration_ScalingModes_DragNotSupported"
 													           Visibility="{x:Bind IsShowMoveButtons, Mode=OneWay}" />
 												</StackPanel>
 											</local:SettingsCard.Description>
@@ -547,11 +548,11 @@
 													</Button.Resources>
 													<StackPanel VerticalAlignment="Center"
 													            Orientation="Horizontal"
-													            Spacing="5">
-														<FontIcon FontSize="15"
-														          Glyph="&#xe710;" />
-														<TextBlock Margin="0,-1,0,0"
-														           Text="添加效果" />
+													            Spacing="8">
+														<FontIcon FontSize="{StaticResource StandardIconSize}"
+														          Glyph="&#xE710;" />
+														<TextBlock x:Uid="ScalingConfiguration_ScalingModes_AddEffect"
+														           Margin="0,-1,0,0" />
 													</StackPanel>
 												</Button>
 											</local:SettingsCard.ActionContent>
@@ -570,10 +571,10 @@
 					<Flyout x:Name="NewScalingModeFlyout"
 					        Opening="NewScalingModeFlyout_Opening">
 						<StackPanel Orientation="Vertical">
-							<TextBlock Margin="0,5,0,20"
+							<TextBlock x:Uid="ScalingConfiguration_ScalingModes_NewScalingModeFlyout_Title"
+							           Margin="0,5,0,20"
 							           FontSize="18"
-							           FontWeight="SemiBold"
-							           Text="新建缩放模式" />
+							           FontWeight="SemiBold" />
 							<StackPanel Width="250"
 							            Orientation="Vertical"
 							            Spacing="15">
@@ -604,10 +605,10 @@
 				</Button.Flyout>
 				<Button.Content>
 					<StackPanel Orientation="Horizontal"
-					            Spacing="5">
-						<FontIcon FontSize="15"
-						          Glyph="&#xe710;" />
-						<TextBlock Text="新建缩放模式" />
+					            Spacing="8">
+						<FontIcon FontSize="{StaticResource StandardIconSize}"
+						          Glyph="&#xE710;" />
+						<TextBlock x:Uid="ScalingConfiguration_ScalingModes_NewScalingMode" />
 					</StackPanel>
 				</Button.Content>
 			</Button>

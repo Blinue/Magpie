@@ -40,6 +40,8 @@
 				<Setter Property="FontFamily" Value="{StaticResource SymbolThemeFontFamily}" />
 			</Style>
 
+			<x:Double x:Key="StandardIconSize">14</x:Double>
+
 			<!--  ComboBox  -->
 			<x:Double x:Key="SettingBoxMinWidth">200</x:Double>
 			<Style x:Key="ComboBoxSettingStyle"

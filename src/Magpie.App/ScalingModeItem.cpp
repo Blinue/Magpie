@@ -11,7 +11,8 @@
 #include "EffectsService.h"
 
 using namespace Magpie::Core;
-
+using namespace winrt;
+using namespace Windows::ApplicationModel::Resources;
 
 namespace winrt::Magpie::App::implementation {
 
@@ -20,7 +21,8 @@ ScalingModeItem::ScalingModeItem(uint32_t index) : _index(index) {
 		std::vector<IInspectable> linkedProfiles;
 		const Profile& defaultProfile = AppSettings::Get().DefaultProfile();
 		if (defaultProfile.scalingMode == (int)index) {
-			linkedProfiles.push_back(box_value(L"默认"));
+			hstring defaults = ResourceLoader::GetForCurrentView().GetString(L"Main_Defaults/Content");
+			linkedProfiles.push_back(box_value(defaults));
 		}
 		for (const Profile& profile : AppSettings::Get().Profiles()) {
 			if (profile.scalingMode == (int)index) {
