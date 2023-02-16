@@ -11,7 +11,6 @@ namespace Magpie.App {
 
 		ScalingConfigurationViewModel ViewModel { get; };
 
-		static IVector<IInspectable> ScalingTypes { get; };
 		static Windows.Globalization.NumberFormatting.INumberFormatter2 NumberFormatter { get; };
 	}
 }

@@ -9,6 +9,7 @@ namespace Magpie.App {
 		Boolean CanScale { get; };
 		Boolean HasParameters { get; };
 
+		IVector<IInspectable> ScalingTypes { get; };
 		Int32 ScalingType;
 		Boolean IsShowScalingFactors { get; };
 		Boolean IsShowScalingPixels { get; };

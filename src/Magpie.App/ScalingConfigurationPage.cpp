@@ -24,17 +24,6 @@ ScalingConfigurationPage::ScalingConfigurationPage() {
 	_BuildEffectMenu();
 }
 
-IVector<IInspectable> ScalingConfigurationPage::ScalingTypes() noexcept {
-	static IVector<IInspectable> types = single_threaded_vector(std::vector<IInspectable>{
-		Magpie::App::ScalingType(L"倍数", L"指定相对于输入图像的缩放倍数"),
-		Magpie::App::ScalingType(L"适应", L"指定等比缩放到充满屏幕后的缩放倍数"),
-		Magpie::App::ScalingType(L"绝对", L"指定缩放后的尺寸"),
-		Magpie::App::ScalingType(L"填充", L"充满屏幕，画面可能被拉伸")
-	});
-
-	return types;
-}
-
 INumberFormatter2 ScalingConfigurationPage::NumberFormatter() noexcept {
 	static DecimalFormatter numberFormatter = []() {
 		DecimalFormatter result;

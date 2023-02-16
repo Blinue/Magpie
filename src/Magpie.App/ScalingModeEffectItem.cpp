@@ -39,6 +39,15 @@ bool ScalingModeEffectItem::HasParameters() const noexcept {
 	return _effectInfo && !_effectInfo->params.empty();
 }
 
+IVector<IInspectable> ScalingModeEffectItem::ScalingTypes() noexcept {
+	return single_threaded_vector(std::vector<IInspectable>{
+		Magpie::App::ScalingType(L"倍数", L"指定相对于输入图像的缩放倍数"),
+			Magpie::App::ScalingType(L"适应", L"指定等比缩放到充满屏幕后的缩放倍数"),
+			Magpie::App::ScalingType(L"绝对", L"指定缩放后的尺寸"),
+			Magpie::App::ScalingType(L"填充", L"充满屏幕，画面可能被拉伸")
+	});
+}
+
 int ScalingModeEffectItem::ScalingType() const noexcept {
 	return (int)_Data().scalingType;
 }

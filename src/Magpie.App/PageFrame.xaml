@@ -54,12 +54,6 @@
 									                ResourceKey="SubtleFillColorSecondaryBrush" />
 									<StaticResource x:Key="ButtonBackgroundPressed"
 									                ResourceKey="SubtleFillColorTertiaryBrush" />
-									<StaticResource x:Key="ButtonBorderBrush"
-									                ResourceKey="ControlFillColorTransparentBrush" />
-									<StaticResource x:Key="ButtonBorderBrushPointerOver"
-									                ResourceKey="ControlFillColorTransparentBrush" />
-									<StaticResource x:Key="ButtonBorderBrushPressed"
-									                ResourceKey="ControlFillColorTransparentBrush" />
 								</ResourceDictionary>
 								<ResourceDictionary x:Key="Light">
 									<StaticResource x:Key="ButtonBackground"
@@ -68,20 +62,15 @@
 									                ResourceKey="SubtleFillColorSecondaryBrush" />
 									<StaticResource x:Key="ButtonBackgroundPressed"
 									                ResourceKey="SubtleFillColorTertiaryBrush" />
-									<StaticResource x:Key="ButtonBorderBrush"
-									                ResourceKey="ControlFillColorTransparentBrush" />
-									<StaticResource x:Key="ButtonBorderBrushPointerOver"
-									                ResourceKey="ControlFillColorTransparentBrush" />
-									<StaticResource x:Key="ButtonBorderBrushPressed"
-									                ResourceKey="ControlFillColorTransparentBrush" />
 								</ResourceDictionary>
 							</ResourceDictionary.ThemeDictionaries>
 
 							<Style BasedOn="{StaticResource DefaultButtonStyle}"
 							       TargetType="Button">
-								<Setter Property="Width" Value="42" />
-								<Setter Property="Height" Value="38" />
+								<Setter Property="Width" Value="{StaticResource PaneToggleButtonWidth}" />
+								<Setter Property="Height" Value="{StaticResource PaneToggleButtonHeight}" />
 								<Setter Property="Padding" Value="0" />
+								<Setter Property="BorderThickness" Value="0" />
 							</Style>
 
 							<Style TargetType="FontIcon">

@@ -211,7 +211,11 @@ bool ScalingConfigurationViewModel::DownscalingEffectHasParameters() noexcept {
 
 void ScalingConfigurationViewModel::PrepareForAdd() {
 	std::vector<IInspectable> copyFromList;
-	copyFromList.push_back(box_value(L"无"));
+
+	ResourceLoader resourceLoader = ResourceLoader::GetForCurrentView();
+	copyFromList.push_back(box_value(resourceLoader.GetString(
+		L"ScalingConfiguration_ScalingModes_NewScalingModeFlyout_CopyFrom_None")));
+	
 	for (const auto& scalingMode : AppSettings::Get().ScalingModes()) {
 		copyFromList.push_back(box_value(scalingMode.name));
 	}

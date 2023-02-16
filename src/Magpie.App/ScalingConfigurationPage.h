@@ -27,8 +27,6 @@ struct ScalingConfigurationPage : ScalingConfigurationPageT<ScalingConfiguration
 		return _viewModel;
 	}
 
-	static IVector<IInspectable> ScalingTypes() noexcept;
-
 	static Windows::Globalization::NumberFormatting::INumberFormatter2 NumberFormatter() noexcept;
 
 	void ComboBox_DropDownOpened(IInspectable const& sender, IInspectable const&);
