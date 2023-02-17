@@ -14,7 +14,7 @@ public:
 
 	void Initialize();
 
-	static std::span<const wchar_t*> GetSupportedLanguages() noexcept;
+	static std::span<const wchar_t*> SupportedLanguages() noexcept;
 
 private:
 	LocalizationService() = default;

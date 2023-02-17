@@ -28,7 +28,7 @@ void LocalizationService::Initialize() {
 	}
 }
 
-std::span<const wchar_t*> LocalizationService::GetSupportedLanguages() noexcept {
+std::span<const wchar_t*> LocalizationService::SupportedLanguages() noexcept {
 	return SUPPORTED_LANGUAGES;
 }
 

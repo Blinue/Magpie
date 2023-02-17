@@ -26,7 +26,7 @@ struct _AppSettingsData {
 	std::wstring _configDir;
 	std::wstring _configPath;
 
-	// LocalizationService::GetSupportedLanguages 索引
+	// LocalizationService::SupportedLanguages 索引
 	// -1 表示使用系统设置
 	int _language = -1;
 

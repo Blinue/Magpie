@@ -383,7 +383,7 @@
 																					</Style>
 																				</StackPanel.Resources>
 																				<StackPanel Spacing="8">
-																					<TextBlock Text="类型" />
+																					<TextBlock x:Uid="ScalingConfiguration_ScalingModes_ScaleFlyout_Type" />
 																					<!--  不使用 ItemsSource 会引起闪退！WinUI 的又一个 bug  -->
 																					<!--  https://github.com/microsoft/microsoft-ui-xaml/issues/3612  -->
 																					<ComboBox HorizontalAlignment="Stretch"

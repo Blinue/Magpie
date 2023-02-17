@@ -19,7 +19,7 @@ SettingsViewModel::SettingsViewModel() {
 }
 
 IVector<IInspectable> SettingsViewModel::Languages() const {
-	std::span<const wchar_t*> tags = LocalizationService::Get().GetSupportedLanguages();
+	std::span<const wchar_t*> tags = LocalizationService::Get().SupportedLanguages();
 
 	std::vector<IInspectable> languages;
 	languages.reserve(tags.size() + 1);

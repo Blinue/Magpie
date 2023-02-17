@@ -14,7 +14,6 @@
 namespace Core = ::Magpie::Core;
 using namespace Magpie::Core;
 
-
 namespace winrt::Magpie::App::implementation {
 
 ScalingModeEffectItem::ScalingModeEffectItem(uint32_t scalingModeIdx, uint32_t effectIdx) 
@@ -40,11 +39,26 @@ bool ScalingModeEffectItem::HasParameters() const noexcept {
 }
 
 IVector<IInspectable> ScalingModeEffectItem::ScalingTypes() noexcept {
+	using Windows::ApplicationModel::Resources::ResourceLoader;
+	ResourceLoader resourceLoader = ResourceLoader::GetForCurrentView();
+	
 	return single_threaded_vector(std::vector<IInspectable>{
-		Magpie::App::ScalingType(L"倍数", L"指定相对于输入图像的缩放倍数"),
-			Magpie::App::ScalingType(L"适应", L"指定等比缩放到充满屏幕后的缩放倍数"),
-			Magpie::App::ScalingType(L"绝对", L"指定缩放后的尺寸"),
-			Magpie::App::ScalingType(L"填充", L"充满屏幕，画面可能被拉伸")
+		Magpie::App::ScalingType(
+			resourceLoader.GetString(L"ScalingConfiguration_ScalingModes_ScaleFlyout_Type_Factor"),
+			resourceLoader.GetString(L"ScalingConfiguration_ScalingModes_ScaleFlyout_Type_Factor_Description")
+		),
+		Magpie::App::ScalingType(
+			resourceLoader.GetString(L"ScalingConfiguration_ScalingModes_ScaleFlyout_Type_Fit"),
+			resourceLoader.GetString(L"ScalingConfiguration_ScalingModes_ScaleFlyout_Type_Fit_Description")
+		),
+		Magpie::App::ScalingType(
+			resourceLoader.GetString(L"ScalingConfiguration_ScalingModes_ScaleFlyout_Type_Absolute"),
+			resourceLoader.GetString(L"ScalingConfiguration_ScalingModes_ScaleFlyout_Type_Absolute_Description")
+		),
+		Magpie::App::ScalingType(
+			resourceLoader.GetString(L"ScalingConfiguration_ScalingModes_ScaleFlyout_Type_Fill"),
+			resourceLoader.GetString(L"ScalingConfiguration_ScalingModes_ScaleFlyout_Type_Fill_Description")
+		),
 	});
 }
 

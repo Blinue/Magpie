@@ -441,4 +441,31 @@
   <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_WidthPixels.Text" xml:space="preserve">
     <value>Width (pixels)</value>
   </data>
+  <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_Type.Text" xml:space="preserve">
+    <value>Type</value>
+  </data>
+  <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_Type_Absolute" xml:space="preserve">
+    <value>Absolute</value>
+  </data>
+  <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_Type_Absolute_Description" xml:space="preserve">
+    <value>Set the size after scaling</value>
+  </data>
+  <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_Type_Factor" xml:space="preserve">
+    <value>Factor</value>
+  </data>
+  <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_Type_Factor_Description" xml:space="preserve">
+    <value>Set the scaling factor relative to the input image</value>
+  </data>
+  <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_Type_Fill" xml:space="preserve">
+    <value>Fill</value>
+  </data>
+  <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_Type_Fill_Description" xml:space="preserve">
+    <value>Fills screen, image may be stretched</value>
+  </data>
+  <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_Type_Fit" xml:space="preserve">
+    <value>Fit</value>
+  </data>
+  <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_Type_Fit_Description" xml:space="preserve">
+    <value>Set the scaling factor after filling the screen with proportional scaling</value>
+  </data>
 </root>
