@@ -16,31 +16,31 @@
 			<StackPanel x:Name="HeaderActionStackPanel"
 			            Orientation="Horizontal"
 			            Visibility="{x:Bind ViewModel.IsNotDefaultProfile, Mode=OneTime}">
-				<Button Click="{x:Bind ViewModel.Launch}"
-				        IsEnabled="{x:Bind ViewModel.IsProgramExist, Mode=OneTime}"
-				        ToolTipService.ToolTip="启动">
+				<Button x:Uid="Profile_Launch"
+				        Click="{x:Bind ViewModel.Launch}"
+				        IsEnabled="{x:Bind ViewModel.IsProgramExist, Mode=OneTime}">
 					<Button.Content>
 						<FontIcon Glyph="&#xE768;" />
 					</Button.Content>
 				</Button>
 				<Button x:Name="MoreOptionsButton"
-				        ToolTipService.ToolTip="更多选项">
+				        x:Uid="Profile_MoreOptions">
 					<Button.Content>
 						<FontIcon Glyph="&#xE712;" />
 					</Button.Content>
 					<Button.Flyout>
 						<MenuFlyout Placement="Bottom"
 						            ShouldConstrainToRootBounds="False">
-							<MenuFlyoutItem Click="{x:Bind ViewModel.OpenProgramLocation}"
-							                IsEnabled="{x:Bind ViewModel.IsProgramExist, Mode=OneTime}"
-							                Text="打开程序位置">
+							<MenuFlyoutItem x:Uid="Profile_MoreOptions_OpenProgramLocation"
+							                Click="{x:Bind ViewModel.OpenProgramLocation}"
+							                IsEnabled="{x:Bind ViewModel.IsProgramExist, Mode=OneTime}">
 								<MenuFlyoutItem.Icon>
 									<FontIcon Glyph="&#xE8DA;" />
 								</MenuFlyoutItem.Icon>
 							</MenuFlyoutItem>
 							<MenuFlyoutSeparator />
-							<MenuFlyoutItem Click="RenameMenuItem_Click"
-							                Text="重命名">
+							<MenuFlyoutItem x:Uid="Profile_MoreOptions_Rename"
+							                Click="RenameMenuItem_Click">
 								<MenuFlyoutItem.Icon>
 									<FontIcon Glyph="&#xE8AC;" />
 								</MenuFlyoutItem.Icon>
@@ -49,25 +49,25 @@
 									        Opening="RenameFlyout_Opening"
 									        Placement="Bottom">
 										<StackPanel Orientation="Vertical">
-											<TextBlock Text="重命名" />
+											<TextBlock x:Uid="Profile_MoreOptions_RenameFlyout_Title" />
 											<TextBox x:Name="RenameTextBox"
 											         Width="280"
 											         Height="32"
 											         Margin="0,8,0,20"
 											         KeyDown="RenameTextBox_KeyDown"
 											         Text="{x:Bind ViewModel.RenameText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-											<Button MinWidth="80"
+											<Button x:Uid="Profile_MoreOptions_RenameFlyout_OK"
+											        MinWidth="80"
 											        HorizontalAlignment="Right"
 											        Click="RenameConfirmButton_Click"
-											        Content="确定"
 											        IsEnabled="{x:Bind ViewModel.IsRenameConfirmButtonEnabled, Mode=OneWay}"
 											        Style="{StaticResource AccentButtonStyle}" />
 										</StackPanel>
 									</Flyout>
 								</FlyoutBase.AttachedFlyout>
 							</MenuFlyoutItem>
-							<MenuFlyoutItem Click="ReorderMenuItem_Click"
-							                Text="重新排序">
+							<MenuFlyoutItem x:Uid="Profile_MoreOptions_Reorder"
+							                Click="ReorderMenuItem_Click">
 								<MenuFlyoutItem.Icon>
 									<FontIcon Glyph="&#xE8CB;" />
 								</MenuFlyoutItem.Icon>
@@ -75,38 +75,40 @@
 									<Flyout x:Name="ReorderFlyout"
 									        Placement="Bottom">
 										<StackPanel Orientation="Vertical">
-											<TextBlock Text="重新排序" />
-											<Button Margin="0,15,0,5"
-											        HorizontalAlignment="Center"
-											        Click="{x:Bind ViewModel.MoveUp}"
-											        IsEnabled="{x:Bind ViewModel.CanMoveUp, Mode=OneWay}">
-												<StackPanel Orientation="Horizontal"
-												            Spacing="8">
-													<FontIcon VerticalAlignment="Center"
-													          FontSize="{StaticResource StandardIconSize}"
-													          Glyph="&#xE74A;" />
-													<TextBlock VerticalAlignment="Center"
-													           Text="上移" />
-												</StackPanel>
-											</Button>
-											<Button HorizontalAlignment="Center"
-											        Click="{x:Bind ViewModel.MoveDown}"
-											        IsEnabled="{x:Bind ViewModel.CanMoveDown, Mode=OneWay}">
-												<StackPanel Orientation="Horizontal"
-												            Spacing="8">
-													<FontIcon VerticalAlignment="Center"
-													          FontSize="{StaticResource StandardIconSize}"
-													          Glyph="&#xE74B;" />
-													<TextBlock VerticalAlignment="Center"
-													           Text="下移" />
-												</StackPanel>
-											</Button>
+											<TextBlock x:Uid="Profile_MoreOptions_ReorderFlyout_Title" />
+											<StackPanel Margin="0,12,0,0"
+											            HorizontalAlignment="Center"
+											            Orientation="Vertical"
+											            Spacing="4">
+												<Button HorizontalAlignment="Stretch"
+												        HorizontalContentAlignment="Left"
+												        Click="{x:Bind ViewModel.MoveUp}"
+												        IsEnabled="{x:Bind ViewModel.CanMoveUp, Mode=OneWay}">
+													<StackPanel Orientation="Horizontal"
+													            Spacing="8">
+														<FontIcon FontSize="{StaticResource StandardIconSize}"
+														          Glyph="&#xE74A;" />
+														<TextBlock x:Uid="Profile_MoreOptions_ReorderFlyout_MoveUp" />
+													</StackPanel>
+												</Button>
+												<Button HorizontalAlignment="Stretch"
+												        HorizontalContentAlignment="Left"
+												        Click="{x:Bind ViewModel.MoveDown}"
+												        IsEnabled="{x:Bind ViewModel.CanMoveDown, Mode=OneWay}">
+													<StackPanel Orientation="Horizontal"
+													            Spacing="8">
+														<FontIcon FontSize="{StaticResource StandardIconSize}"
+														          Glyph="&#xE74B;" />
+														<TextBlock x:Uid="Profile_MoreOptions_ReorderFlyout_MoveDown" />
+													</StackPanel>
+												</Button>
+											</StackPanel>
 										</StackPanel>
 									</Flyout>
 								</FlyoutBase.AttachedFlyout>
 							</MenuFlyoutItem>
-							<MenuFlyoutItem Click="DeleteMenuItem_Click"
-							                Text="删除">
+							<MenuFlyoutItem x:Uid="Profile_MoreOptions_Delete"
+							                Click="DeleteMenuItem_Click">
 								<MenuFlyoutItem.Icon>
 									<FontIcon Glyph="&#xE74D;" />
 								</MenuFlyoutItem.Icon>
@@ -115,7 +117,7 @@
 									        Placement="Bottom">
 										<StackPanel Orientation="Vertical"
 										            Spacing="15">
-											<TextBlock Text="确定删除此配置？" />
+											<TextBlock x:Uid="Profile_MoreOptions_DeleteFlyout_Title" />
 											<Button HorizontalAlignment="Right"
 											        Click="DeleteButton_Click">
 												<Button.Resources>
@@ -141,7 +143,7 @@
 														          FontSize="{StaticResource StandardIconSize}"
 														          Glyph="&#xE74D;" />
 														<TextBlock VerticalAlignment="Center"
-														           Text="删除" />
+																    x:Uid="Profile_MoreOptions_DeleteFlyout_Delete" />
 													</StackPanel>
 												</Button.Content>
 											</Button>

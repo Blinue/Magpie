@@ -17,6 +17,7 @@
 #include "MagService.h"
 
 using namespace winrt;
+using namespace Windows::ApplicationModel::Resources;
 using namespace Windows::Graphics::Display;
 using namespace Windows::Graphics::Imaging;
 using namespace Windows::UI::Xaml::Controls;
@@ -161,7 +162,11 @@ fire_and_forget ProfileViewModel::OpenProgramLocation() const noexcept {
 }
 
 hstring ProfileViewModel::Name() const noexcept {
-	return hstring(_data->name.empty() ? L"默认" : _data->name);
+	if (_data->name.empty()) {
+		return ResourceLoader::GetForCurrentView().GetString(L"Main_Defaults/Content");
+	} else {
+		return hstring(_data->name);
+	}
 }
 
 static void LaunchPackagedApp(const wchar_t* aumid) {

@@ -3,7 +3,6 @@
 
 namespace winrt::Magpie::App {
 struct Profile;
-class AppXReader;
 }
 
 namespace winrt::Magpie::App::implementation {
