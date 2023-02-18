@@ -737,10 +737,10 @@ bool AppSettings::_LoadProfile(
 	}
 
 	{
-		uint32_t multiMonitorUsage = (uint32_t)MultiMonitorUsage::Nearest;
+		uint32_t multiMonitorUsage = (uint32_t)MultiMonitorUsage::Closest;
 		JsonHelper::ReadUInt(profileObj, "multiMonitorUsage", multiMonitorUsage);
 		if (multiMonitorUsage > 2) {
-			multiMonitorUsage = (uint32_t)MultiMonitorUsage::Nearest;
+			multiMonitorUsage = (uint32_t)MultiMonitorUsage::Closest;
 		}
 		profile.multiMonitorUsage = (MultiMonitorUsage)multiMonitorUsage;
 	}
@@ -771,10 +771,10 @@ bool AppSettings::_LoadProfile(
 	}
 
 	{
-		uint32_t cursorInterpolationMode = (uint32_t)CursorInterpolationMode::Nearest;
+		uint32_t cursorInterpolationMode = (uint32_t)CursorInterpolationMode::Closest;
 		JsonHelper::ReadUInt(profileObj, "cursorInterpolationMode", (uint32_t&)profile.cursorInterpolationMode);
 		if (cursorInterpolationMode > 1) {
-			cursorInterpolationMode = (uint32_t)CursorInterpolationMode::Nearest;
+			cursorInterpolationMode = (uint32_t)CursorInterpolationMode::Closest;
 		}
 		profile.cursorInterpolationMode = (CursorInterpolationMode)cursorInterpolationMode;
 	}

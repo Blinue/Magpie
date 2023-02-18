@@ -468,6 +468,33 @@
   <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_Type_Fit_Description" xml:space="preserve">
     <value>Set the scaling factor after filling the screen with proportional scaling</value>
   </data>
+  <data name="Profile_General.Title" xml:space="preserve">
+    <value>General</value>
+  </data>
+  <data name="Profile_General_3DGameMode.Title" xml:space="preserve">
+    <value>3D game mode</value>
+  </data>
+  <data name="Profile_General_AutoScale.Title" xml:space="preserve">
+    <value>Auto scale when in foreground</value>
+  </data>
+  <data name="Profile_General_CaptureMethod.Title" xml:space="preserve">
+    <value>Capture method</value>
+  </data>
+  <data name="Profile_General_Multimonitor.Title" xml:space="preserve">
+    <value>Preferred monitor(s)</value>
+  </data>
+  <data name="Profile_General_Multimonitor_All" xml:space="preserve">
+    <value>All monitors</value>
+  </data>
+  <data name="Profile_General_Multimonitor_Closest" xml:space="preserve">
+    <value>Monitor closest to the source window</value>
+  </data>
+  <data name="Profile_General_Multimonitor_Intersected" xml:space="preserve">
+    <value>Monitors intersected by the source window</value>
+  </data>
+  <data name="Profile_General_ScalingMode.Title" xml:space="preserve">
+    <value>Scaling mode</value>
+  </data>
   <data name="Profile_Launch.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>Launch</value>
   </data>
@@ -509,5 +536,8 @@
   </data>
   <data name="ScalingConfiguration_ParsingFailed.Title" xml:space="preserve">
     <value>Parsing failed</value>
+  </data>
+  <data name="Profile_General_ScalingMode_None" xml:space="preserve">
+    <value>None</value>
   </data>
 </root>

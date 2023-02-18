@@ -468,6 +468,33 @@
   <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_Type_Fit_Description" xml:space="preserve">
     <value>指定等比缩放到充满屏幕后的缩放倍数</value>
   </data>
+  <data name="Profile_General.Title" xml:space="preserve">
+    <value>常规</value>
+  </data>
+  <data name="Profile_General_3DGameMode.Title" xml:space="preserve">
+    <value>3D 游戏模式</value>
+  </data>
+  <data name="Profile_General_AutoScale.Title" xml:space="preserve">
+    <value>位于前台时自动缩放</value>
+  </data>
+  <data name="Profile_General_CaptureMethod.Title" xml:space="preserve">
+    <value>捕获方式</value>
+  </data>
+  <data name="Profile_General_Multimonitor.Title" xml:space="preserve">
+    <value>首选的显示器</value>
+  </data>
+  <data name="Profile_General_Multimonitor_All" xml:space="preserve">
+    <value>所有显示器</value>
+  </data>
+  <data name="Profile_General_Multimonitor_Closest" xml:space="preserve">
+    <value>距离源窗口最近的显示器</value>
+  </data>
+  <data name="Profile_General_Multimonitor_Intersected" xml:space="preserve">
+    <value>源窗口跨越的所有显示器</value>
+  </data>
+  <data name="Profile_General_ScalingMode.Title" xml:space="preserve">
+    <value>缩放模式</value>
+  </data>
   <data name="Profile_Launch.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>启动</value>
   </data>
@@ -509,5 +536,8 @@
   </data>
   <data name="ScalingConfiguration_ParsingFailed.Title" xml:space="preserve">
     <value>解析失败</value>
+  </data>
+  <data name="Profile_General_ScalingMode_None" xml:space="preserve">
+    <value>无</value>
   </data>
 </root>

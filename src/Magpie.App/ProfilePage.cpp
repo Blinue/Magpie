@@ -23,12 +23,6 @@ ProfilePage::ProfilePage() {
 		// Segoe MDL2 Assets 不存在 Move 图标
 		AdjustCursorSpeedFontIcon().Glyph(L"\uE962");
 	}
-
-	if (GetSystemMetrics(SM_CMONITORS) <= 1) {
-		// 只有一个显示器时隐藏多显示器选项
-		MultiMonitorSettingsCard().Visibility(Visibility::Collapsed);
-		Is3DGameModeSettingsCard().Margin({ 0,0,0,-2 });
-	}
 }
 
 void ProfilePage::OnNavigatedTo(Navigation::NavigationEventArgs const& args) {

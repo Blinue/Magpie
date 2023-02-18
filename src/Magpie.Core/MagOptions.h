@@ -11,13 +11,13 @@ enum class CaptureMethod {
 };
 
 enum class MultiMonitorUsage {
-	Nearest,
+	Closest,
 	Intersected,
 	All,
 };
 
 enum class CursorInterpolationMode {
-	Nearest,
+	Closest,
 	Bilinear,
 };
 
@@ -96,8 +96,8 @@ struct MagOptions {
 	uint32_t graphicsAdapter = 0;
 	float cursorScaling = 1.0f;
 	CaptureMethod captureMethod = CaptureMethod::GraphicsCapture;
-	MultiMonitorUsage multiMonitorUsage = MultiMonitorUsage::Nearest;
-	CursorInterpolationMode cursorInterpolationMode = CursorInterpolationMode::Nearest;
+	MultiMonitorUsage multiMonitorUsage = MultiMonitorUsage::Closest;
+	CursorInterpolationMode cursorInterpolationMode = CursorInterpolationMode::Closest;
 
 	DownscalingEffect downscalingEffect;
 

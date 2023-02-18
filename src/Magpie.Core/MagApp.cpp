@@ -280,7 +280,7 @@ static BOOL CALLBACK MonitorEnumProc(HMONITOR, HDC, LPRECT monitorRect, LPARAM d
 
 static bool CalcHostWndRect(HWND hWnd, MultiMonitorUsage multiMonitorUsage, RECT& result) {
 	switch (multiMonitorUsage) {
-	case MultiMonitorUsage::Nearest:
+	case MultiMonitorUsage::Closest:
 	{
 		// 使用距离源窗口最近的显示器
 		HMONITOR hMonitor = MonitorFromWindow(hWnd, MONITOR_DEFAULTTONEAREST);

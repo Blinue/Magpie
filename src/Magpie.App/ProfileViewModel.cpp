@@ -93,9 +93,10 @@ ProfileViewModel::ProfileViewModel(int profileIdx) : _isDefaultProfile(profileId
 		_LoadIcon(mainPage);
 	}
 
+	ResourceLoader resourceLoader = ResourceLoader::GetForCurrentView();
 	{
 		std::vector<IInspectable> scalingModes;
-		scalingModes.push_back(box_value(L"无"));
+		scalingModes.push_back(box_value(resourceLoader.GetString(L"Profile_General_ScalingMode_None")));
 		for (const Magpie::App::ScalingMode& sm : AppSettings::Get().ScalingModes()) {
 			scalingModes.push_back(box_value(sm.name));
 		}
@@ -353,6 +354,19 @@ void ProfileViewModel::Is3DGameMode(bool value) {
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"Is3DGameMode"));
 
 	AppSettings::Get().SaveAsync();
+}
+
+bool ProfileViewModel::HasMultipleMonitors() const noexcept {
+	return GetSystemMetrics(SM_CMONITORS) > 1;
+}
+
+IVector<IInspectable> ProfileViewModel::MultiMonitorUsages() const noexcept {
+	ResourceLoader resourceLoader = ResourceLoader::GetForCurrentView();
+	return single_threaded_vector(std::vector{
+		box_value(resourceLoader.GetString(L"Profile_General_Multimonitor_Closest")),
+		box_value(resourceLoader.GetString(L"Profile_General_Multimonitor_Intersected")),
+		box_value(resourceLoader.GetString(L"Profile_General_Multimonitor_All"))
+	});
 }
 
 int ProfileViewModel::MultiMonitorUsage() const noexcept {

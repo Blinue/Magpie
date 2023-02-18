@@ -13,8 +13,7 @@
 	<local:PageFrame Title="{x:Bind ViewModel.Name, Mode=OneWay}"
 	                 Icon="{x:Bind ViewModel.Icon, Mode=OneWay}">
 		<local:PageFrame.HeaderAction>
-			<StackPanel x:Name="HeaderActionStackPanel"
-			            Orientation="Horizontal"
+			<StackPanel Orientation="Horizontal"
 			            Visibility="{x:Bind ViewModel.IsNotDefaultProfile, Mode=OneTime}">
 				<Button x:Uid="Profile_Launch"
 				        Click="{x:Bind ViewModel.Launch}"
@@ -142,8 +141,8 @@
 														<FontIcon VerticalAlignment="Center"
 														          FontSize="{StaticResource StandardIconSize}"
 														          Glyph="&#xE74D;" />
-														<TextBlock VerticalAlignment="Center"
-																    x:Uid="Profile_MoreOptions_DeleteFlyout_Delete" />
+														<TextBlock x:Uid="Profile_MoreOptions_DeleteFlyout_Delete"
+														           VerticalAlignment="Center" />
 													</StackPanel>
 												</Button.Content>
 											</Button>
@@ -158,9 +157,9 @@
 		</local:PageFrame.HeaderAction>
 		<StackPanel HorizontalAlignment="Stretch"
 		            Orientation="Vertical">
-			<local:SettingsGroup Title="常规"
+			<local:SettingsGroup x:Uid="Profile_General"
 			                     Margin="0,-24,0,0">
-				<local:SettingsCard Title="缩放模式">
+				<local:SettingsCard x:Uid="Profile_General_ScalingMode">
 					<local:SettingsCard.Icon>
 						<FontIcon Glyph="&#xE740;" />
 					</local:SettingsCard.Icon>
@@ -171,7 +170,7 @@
 						          Style="{StaticResource ComboBoxSettingStyle}" />
 					</local:SettingsCard.ActionContent>
 				</local:SettingsCard>
-				<local:SettingsCard Title="捕获方式">
+				<local:SettingsCard x:Uid="Profile_General_CaptureMethod">
 					<local:SettingsCard.Icon>
 						<FontIcon Glyph="&#xE9A6;" />
 					</local:SettingsCard.Icon>
@@ -183,7 +182,7 @@
 					</local:SettingsCard.ActionContent>
 				</local:SettingsCard>
 				<StackPanel Orientation="Vertical">
-					<local:SettingsCard Title="位于前台时自动缩放"
+					<local:SettingsCard x:Uid="Profile_General_AutoScale"
 					                    Margin="0,0,0,2"
 					                    Visibility="{x:Bind ViewModel.IsNotDefaultProfile, Mode=OneTime}">
 						<local:SettingsCard.Icon>
@@ -194,8 +193,7 @@
 							              IsOn="{x:Bind ViewModel.IsAutoScale, Mode=TwoWay}" />
 						</local:SettingsCard.ActionContent>
 					</local:SettingsCard>
-					<local:SettingsCard x:Name="Is3DGameModeSettingsCard"
-					                    Title="3D 游戏模式">
+					<local:SettingsCard x:Uid="Profile_General_3DGameMode">
 						<local:SettingsCard.Icon>
 							<FontIcon Glyph="&#xE7FC;" />
 						</local:SettingsCard.Icon>
@@ -204,22 +202,22 @@
 							              IsOn="{x:Bind ViewModel.Is3DGameMode, Mode=TwoWay}" />
 						</local:SettingsCard.ActionContent>
 					</local:SettingsCard>
+					<local:SettingsCard x:Uid="Profile_General_Multimonitor"
+					                    Margin="0,2,0,0"
+					                    Visibility="{x:Bind ViewModel.HasMultipleMonitors, Mode=OneTime}">
+						<local:SettingsCard.Icon>
+							<FontIcon Glyph="&#xf5a9;" />
+						</local:SettingsCard.Icon>
+						<local:SettingsCard.ActionContent>
+							<!--  硬编码会导致崩溃！  -->
+							<!--  https://github.com/microsoft/microsoft-ui-xaml/issues/3612  -->
+							<ComboBox DropDownOpened="ComboBox_DropDownOpened"
+							          ItemsSource="{x:Bind ViewModel.MultiMonitorUsages, Mode=OneTime}"
+							          SelectedIndex="{x:Bind ViewModel.MultiMonitorUsage, Mode=TwoWay}"
+							          Style="{StaticResource ComboBoxSettingStyle}" />
+						</local:SettingsCard.ActionContent>
+					</local:SettingsCard>
 				</StackPanel>
-				<local:SettingsCard x:Name="MultiMonitorSettingsCard"
-				                    Title="多显示器">
-					<local:SettingsCard.Icon>
-						<FontIcon Glyph="&#xf5a9;" />
-					</local:SettingsCard.Icon>
-					<local:SettingsCard.ActionContent>
-						<ComboBox DropDownOpened="ComboBox_DropDownOpened"
-						          SelectedIndex="{x:Bind ViewModel.MultiMonitorUsage, Mode=TwoWay}"
-						          Style="{StaticResource ComboBoxSettingStyle}">
-							<x:String>使用距离源窗口最近的显示器</x:String>
-							<x:String>使用源窗口跨越的所有显示器</x:String>
-							<x:String>使用所有显示器</x:String>
-						</ComboBox>
-					</local:SettingsCard.ActionContent>
-				</local:SettingsCard>
 			</local:SettingsGroup>
 			<local:SettingsGroup Title="性能">
 				<StackPanel>

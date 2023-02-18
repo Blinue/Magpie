@@ -54,8 +54,8 @@ struct Profile {
 	int scalingMode = -1;
 	::Magpie::Core::CaptureMethod captureMethod = ::Magpie::Core::CaptureMethod::GraphicsCapture;
 	uint32_t graphicsAdapter = 0;
-	::Magpie::Core::MultiMonitorUsage multiMonitorUsage = ::Magpie::Core::MultiMonitorUsage::Nearest;
-	::Magpie::Core::CursorInterpolationMode cursorInterpolationMode = ::Magpie::Core::CursorInterpolationMode::Nearest;
+	::Magpie::Core::MultiMonitorUsage multiMonitorUsage = ::Magpie::Core::MultiMonitorUsage::Closest;
+	::Magpie::Core::CursorInterpolationMode cursorInterpolationMode = ::Magpie::Core::CursorInterpolationMode::Closest;
 
 	uint32_t flags = ::Magpie::Core::MagFlags::VSync 
 		| ::Magpie::Core::MagFlags::AdjustCursorSpeed

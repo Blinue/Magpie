@@ -30,6 +30,9 @@ namespace Magpie.App {
 
 		Boolean IsAutoScale;
 		Boolean Is3DGameMode;
+
+		Boolean HasMultipleMonitors { get; };
+		IVector<IInspectable> MultiMonitorUsages { get; };
 		Int32 MultiMonitorUsage;
 
 		IVector<IInspectable> GraphicsAdapters { get; };

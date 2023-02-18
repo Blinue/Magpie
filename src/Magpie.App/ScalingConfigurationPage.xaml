@@ -89,8 +89,7 @@
 	</Page.Resources>
 	<local:PageFrame x:Uid="ScalingConfiguration_PageFrame">
 		<local:PageFrame.HeaderAction>
-			<StackPanel x:Name="HeaderActionStackPanel"
-			            Orientation="Horizontal">
+			<StackPanel Orientation="Horizontal">
 				<Button x:Uid="ScalingConfiguration_General_MoreOptions">
 					<Button.Content>
 						<FontIcon Glyph="&#xE712;" />
@@ -384,7 +383,7 @@
 																				</StackPanel.Resources>
 																				<StackPanel Spacing="8">
 																					<TextBlock x:Uid="ScalingConfiguration_ScalingModes_ScaleFlyout_Type" />
-																					<!--  不使用 ItemsSource 会引起闪退！WinUI 的又一个 bug  -->
+																					<!--  硬编码会导致崩溃！  -->
 																					<!--  https://github.com/microsoft/microsoft-ui-xaml/issues/3612  -->
 																					<ComboBox HorizontalAlignment="Stretch"
 																					          DropDownOpened="ComboBox_DropDownOpened"

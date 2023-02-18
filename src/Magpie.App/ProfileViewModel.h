@@ -77,6 +77,10 @@ struct ProfileViewModel : ProfileViewModelT<ProfileViewModel> {
 	bool Is3DGameMode() const noexcept;
 	void Is3DGameMode(bool value);
 
+	bool HasMultipleMonitors() const noexcept;
+
+	IVector<IInspectable> MultiMonitorUsages() const noexcept;
+
 	int MultiMonitorUsage() const noexcept;
 	void MultiMonitorUsage(int value);
 
