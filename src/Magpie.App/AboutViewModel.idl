@@ -19,9 +19,11 @@ namespace Magpie.App {
 		Boolean IsInstalling { get; };
 		Boolean IsDownloadingOrLater { get; };
 
-		Boolean IsUpdateInfoBarOpen;
-		Boolean IsUpdateInfoBarClosable { get; };
+		Boolean IsUpdateCardOpen;
+		Boolean IsUpdateCardClosable { get; };
 		Boolean IsCancelButtonVisible { get; };
+
+		String UpdateCardTitle { get; };
 
 		Boolean IsNoDownloadProgress { get; };
 		Double DownloadProgress { get; };

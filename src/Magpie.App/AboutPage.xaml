@@ -9,65 +9,71 @@
 	<local:PageFrame x:Uid="About_PageFrame">
 		<StackPanel HorizontalAlignment="Stretch"
 		            Orientation="Vertical">
-			<local:SettingsGroup Title="版本"
-			                     Margin="0,-24,0,-2">
-				<muxc:Expander HorizontalAlignment="Stretch"
-				               HorizontalContentAlignment="Stretch"
-				               Style="{StaticResource SettingExpanderStyle}">
-					<muxc:Expander.Header>
-						<local:SettingsCard Title="{x:Bind ViewModel.Version, Mode=OneTime}"
-						                    Style="{StaticResource ExpanderHeaderSettingStyle}">
-							<local:SettingsCard.Icon>
-								<FontIcon Glyph="&#xE895;" />
-							</local:SettingsCard.Icon>
-							<local:SettingsCard.Description>
-								<HyperlinkButton Content="发行说明"
-								                 NavigateUri="{x:Bind ViewModel.ReleaseNotesLink, Mode=OneTime}" />
-							</local:SettingsCard.Description>
-							<local:SettingsCard.ActionContent>
-								<StackPanel>
-									<Button Click="{x:Bind ViewModel.CheckForUpdates}"
-									        Content="检查更新"
-									        IsEnabled="{x:Bind ViewModel.IsDownloadingOrLater, Mode=OneWay, Converter={StaticResource NegationConverter}}"
-									        Visibility="{x:Bind ViewModel.IsCheckingForUpdates, Mode=OneWay, Converter={StaticResource NegativeVisibilityConverter}}" />
-									<StackPanel Orientation="Horizontal"
-									            Spacing="8"
-									            Visibility="{x:Bind ViewModel.IsCheckingForUpdates, Mode=OneWay}">
-										<muxc:ProgressRing Width="20"
-										                   Height="20"
-										                   VerticalAlignment="Center"
-										                   IsActive="True" />
-										<TextBlock VerticalAlignment="Center"
-										           Text="正在检查更新..." />
+			<local:SettingsGroup x:Uid="About_Version"
+			                     Margin="0,-24,0,0">
+				<StackPanel Orientation="Vertical">
+					<muxc:Expander HorizontalAlignment="Stretch"
+					               HorizontalContentAlignment="Stretch"
+					               Style="{StaticResource SettingExpanderStyle}">
+						<muxc:Expander.Header>
+							<local:SettingsCard Title="{x:Bind ViewModel.Version, Mode=OneTime}"
+							                    Style="{StaticResource ExpanderHeaderSettingStyle}">
+								<local:SettingsCard.Icon>
+									<FontIcon Glyph="&#xE895;" />
+								</local:SettingsCard.Icon>
+								<local:SettingsCard.Description>
+									<HyperlinkButton x:Uid="About_Version_ReleaseNotes"
+									                 NavigateUri="{x:Bind ViewModel.ReleaseNotesLink, Mode=OneTime}" />
+								</local:SettingsCard.Description>
+								<local:SettingsCard.ActionContent>
+									<StackPanel>
+										<Button x:Uid="About_Version_CheckForUpdates"
+										        Click="{x:Bind ViewModel.CheckForUpdates}"
+										        IsEnabled="{x:Bind ViewModel.IsDownloadingOrLater, Mode=OneWay, Converter={StaticResource NegationConverter}}"
+										        Visibility="{x:Bind ViewModel.IsCheckingForUpdates, Mode=OneWay, Converter={StaticResource NegativeVisibilityConverter}}" />
+										<StackPanel Orientation="Horizontal"
+										            Spacing="8"
+										            Visibility="{x:Bind ViewModel.IsCheckingForUpdates, Mode=OneWay}">
+											<muxc:ProgressRing Width="20"
+											                   Height="20"
+											                   VerticalAlignment="Center"
+											                   IsActive="True" />
+											<TextBlock x:Uid="About_Version_CheckingForUpdates"
+											           VerticalAlignment="Center" />
+										</StackPanel>
 									</StackPanel>
-								</StackPanel>
-							</local:SettingsCard.ActionContent>
-						</local:SettingsCard>
-					</muxc:Expander.Header>
-					<muxc:Expander.Content>
-						<StackPanel Orientation="Vertical">
-							<local:SettingsCard Style="{StaticResource ExpanderContentSettingStyle}">
-								<CheckBox Content="自动检查更新"
-								          IsChecked="{x:Bind ViewModel.IsAutoCheckForUpdates, Mode=TwoWay}" />
+								</local:SettingsCard.ActionContent>
 							</local:SettingsCard>
-							<local:SettingsCard Style="{StaticResource ExpanderContentSettingStyle}">
-								<CheckBox Content="检查预览版更新"
-								          IsChecked="{x:Bind ViewModel.IsCheckForPreviewUpdates, Mode=TwoWay}" />
-							</local:SettingsCard>
-						</StackPanel>
-					</muxc:Expander.Content>
-				</muxc:Expander>
-				<StackPanel>
-					<muxc:InfoBar Title="检查更新失败，请稍后重试"
+						</muxc:Expander.Header>
+						<muxc:Expander.Content>
+							<StackPanel Orientation="Vertical">
+								<local:SettingsCard Style="{StaticResource ExpanderContentSettingStyle}">
+									<CheckBox x:Uid="About_Version_AutoCheckForUpdates"
+									          IsChecked="{x:Bind ViewModel.IsAutoCheckForUpdates, Mode=TwoWay}" />
+								</local:SettingsCard>
+								<local:SettingsCard Style="{StaticResource ExpanderContentSettingStyle}">
+									<CheckBox x:Uid="About_Version_AutoCheckForPreviewUpdates"
+									          IsChecked="{x:Bind ViewModel.IsCheckForPreviewUpdates, Mode=TwoWay}" />
+								</local:SettingsCard>
+							</StackPanel>
+						</muxc:Expander.Content>
+					</muxc:Expander>
+					<muxc:InfoBar x:Uid="About_Version_CheckForUpdatesFailed"
+					              Margin="0,2,0,0"
 					              IsOpen="{x:Bind ViewModel.IsErrorWhileChecking, Mode=TwoWay}"
-					              Severity="Error" />
-					<muxc:InfoBar Title="Magpie 已是最新"
+					              Severity="Error"
+					              Visibility="{x:Bind ViewModel.IsErrorWhileChecking, Mode=OneWay}" />
+					<muxc:InfoBar x:Uid="About_Version_UpdateToDate"
+					              Margin="0,2,0,0"
 					              IsOpen="{x:Bind ViewModel.IsNoUpdate, Mode=TwoWay}"
-					              Severity="Success" />
-					<muxc:InfoBar Title="v0.10.0-preview1 可用"
-					              IsClosable="{x:Bind ViewModel.IsUpdateInfoBarClosable, Mode=OneWay}"
-					              IsOpen="{x:Bind ViewModel.IsUpdateInfoBarOpen, Mode=TwoWay}"
-					              Severity="Informational">
+					              Severity="Success"
+					              Visibility="{x:Bind ViewModel.IsNoUpdate, Mode=OneWay}" />
+					<muxc:InfoBar Title="{x:Bind ViewModel.UpdateCardTitle, Mode=OneWay}"
+					              Margin="0,2,0,0"
+					              IsClosable="{x:Bind ViewModel.IsUpdateCardClosable, Mode=OneWay}"
+					              IsOpen="{x:Bind ViewModel.IsUpdateCardOpen, Mode=TwoWay}"
+					              Severity="Informational"
+					              Visibility="{x:Bind ViewModel.IsUpdateCardOpen, Mode=OneWay}">
 						<StackPanel>
 							<Grid Margin="0,0,25,16"
 							      ColumnSpacing="12"
@@ -88,44 +94,44 @@
 								<StackPanel Grid.Column="1"
 								            Margin="0,-2,0,0"
 								            VerticalAlignment="Center">
-									<TextBlock Text="下载中"
+									<TextBlock x:Uid="About_Version_UpdateToDate_Downloading"
 									           Visibility="{x:Bind ViewModel.IsDownloading, Mode=OneWay}" />
-									<TextBlock Margin="0,0,-48,0"
-									           Text="下载失败"
+									<TextBlock x:Uid="About_Version_UpdateToDate_DownloadFailed"
+									           Margin="0,0,-48,0"
 									           Visibility="{x:Bind ViewModel.IsErrorWhileDownloading, Mode=OneWay}" />
-									<TextBlock Text="安装中"
+									<TextBlock x:Uid="About_Version_UpdateToDate_Installing"
 									           Visibility="{x:Bind ViewModel.IsInstalling, Mode=OneWay}" />
 								</StackPanel>
 							</Grid>
 							<StackPanel Margin="0,0,0,16"
 							            Orientation="Horizontal">
-								<Button Click="{x:Bind ViewModel.DownloadAndInstall}"
-								        Content="下载并安装"
+								<Button x:Uid="About_Version_UpdateCard_DownloadAndInstall"
+								        Click="{x:Bind ViewModel.DownloadAndInstall}"
 								        Style="{StaticResource AccentButtonStyle}"
 								        Visibility="{x:Bind ViewModel.IsAvailable, Mode=OneWay}" />
-								<Button Click="{x:Bind ViewModel.Retry}"
-								        Content="重试"
+								<Button x:Uid="About_Version_UpdateCard_Retry"
+								        Click="{x:Bind ViewModel.Retry}"
 								        Visibility="{x:Bind ViewModel.IsErrorWhileDownloading, Mode=OneWay}" />
-								<Button Click="{x:Bind ViewModel.Cancel}"
-								        Content="取消"
+								<Button x:Uid="About_Version_UpdateCard_Cancel"
+								        Click="{x:Bind ViewModel.Cancel}"
 								        IsEnabled="{x:Bind ViewModel.IsDownloading, Mode=OneWay}"
 								        Visibility="{x:Bind ViewModel.IsCancelButtonVisible, Mode=OneWay}" />
-								<HyperlinkButton Margin="8,0,0,0"
+								<HyperlinkButton x:Uid="About_Version_UpdateCard_ReleaseNotes"
+								                 Margin="8,0,0,0"
 								                 VerticalAlignment="Center"
-								                 Content="发行说明"
 								                 NavigateUri="{x:Bind ViewModel.UpdateReleaseNotesLink, Mode=OneWay}" />
 							</StackPanel>
 						</StackPanel>
 					</muxc:InfoBar>
 				</StackPanel>
 			</local:SettingsGroup>
-			<local:SettingsGroup Title="反馈">
+			<local:SettingsGroup x:Uid="About_Feedback">
 				<local:WrapPanel HorizontalSpacing="4"
 				                 VerticalSpacing="4">
 					<Button MinWidth="200"
 					        Click="BugReportButton_Click"
 					        Style="{StaticResource SettingsCardButtonStyle}">
-						<local:SettingsCard Title="报告错误"
+						<local:SettingsCard x:Uid="About_Feedback_ReportBug"
 						                    Style="{StaticResource ExpanderHeaderSettingStyle}">
 							<local:SettingsCard.Icon>
 								<FontIcon Glyph="&#xEBE8;" />
@@ -140,7 +146,7 @@
 					<Button MinWidth="200"
 					        Click="FeatureRequestButton_Click"
 					        Style="{StaticResource SettingsCardButtonStyle}">
-						<local:SettingsCard Title="建议功能"
+						<local:SettingsCard x:Uid="About_Feedback_RequestFeature"
 						                    Style="{StaticResource ExpanderHeaderSettingStyle}">
 							<local:SettingsCard.Icon>
 								<FontIcon Glyph="&#xEA80;" />
@@ -155,7 +161,7 @@
 					<Button MinWidth="200"
 					        Click="DiscussionsButton_Click"
 					        Style="{StaticResource SettingsCardButtonStyle}">
-						<local:SettingsCard Title="问询和讨论"
+						<local:SettingsCard x:Uid="About_Feedback_Discussion"
 						                    Style="{StaticResource ExpanderHeaderSettingStyle}">
 							<local:SettingsCard.Icon>
 								<FontIcon Glyph="&#xE8F2;" />

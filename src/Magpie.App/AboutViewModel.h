@@ -42,11 +42,13 @@ struct AboutViewModel : AboutViewModelT<AboutViewModel> {
 	bool IsDownloadingOrLater() const noexcept;
 	bool IsInstalling() const noexcept;
 
-	bool IsUpdateInfoBarOpen() const noexcept;
-	void IsUpdateInfoBarOpen(bool value) noexcept;
+	bool IsUpdateCardOpen() const noexcept;
+	void IsUpdateCardOpen(bool value) noexcept;
 
-	bool IsUpdateInfoBarClosable() const noexcept;
+	bool IsUpdateCardClosable() const noexcept;
 	bool IsCancelButtonVisible() const noexcept;
+
+	hstring UpdateCardTitle() const noexcept;
 
 	bool IsNoDownloadProgress() const noexcept;
 	double DownloadProgress() const noexcept;

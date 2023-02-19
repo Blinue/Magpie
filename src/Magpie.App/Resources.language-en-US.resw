@@ -555,6 +555,66 @@
   <data name="Profile_Performance_VSync.Title" xml:space="preserve">
     <value>VSync</value>
   </data>
+  <data name="About_Feedback.Title" xml:space="preserve">
+    <value>Feedback</value>
+  </data>
+  <data name="About_Feedback_Discussion.Title" xml:space="preserve">
+    <value>Discussions</value>
+  </data>
+  <data name="About_Feedback_ReportBug.Title" xml:space="preserve">
+    <value>Report a bug</value>
+  </data>
+  <data name="About_Feedback_RequestFeature.Title" xml:space="preserve">
+    <value>Request a feature</value>
+  </data>
+  <data name="About_Version.Title" xml:space="preserve">
+    <value>Version</value>
+  </data>
+  <data name="About_Version_AutoCheckForPreviewUpdates.Content" xml:space="preserve">
+    <value>Check for preview updates</value>
+  </data>
+  <data name="About_Version_AutoCheckForUpdates.Content" xml:space="preserve">
+    <value>Check for updates automatically</value>
+  </data>
+  <data name="About_Version_CheckForUpdates.Content" xml:space="preserve">
+    <value>Check for updates</value>
+  </data>
+  <data name="About_Version_CheckForUpdatesFailed.Title" xml:space="preserve">
+    <value>Failed to check for updates, please try again later</value>
+  </data>
+  <data name="About_Version_CheckingForUpdates.Text" xml:space="preserve">
+    <value>Checking for updates...</value>
+  </data>
+  <data name="About_Version_ReleaseNotes.Content" xml:space="preserve">
+    <value>Release notes</value>
+  </data>
+  <data name="About_Version_UpdateCard_Cancel.Content" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="About_Version_UpdateCard_DownloadAndInstall.Content" xml:space="preserve">
+    <value>Download and install</value>
+  </data>
+  <data name="About_Version_UpdateCard_ReleaseNotes.Content" xml:space="preserve">
+    <value>Release notes</value>
+  </data>
+  <data name="About_Version_UpdateCard_Retry.Content" xml:space="preserve">
+    <value>Try again</value>
+  </data>
+  <data name="About_Version_UpdateCard_Title" xml:space="preserve">
+    <value>{} is available</value>
+  </data>
+  <data name="About_Version_UpdateToDate.Title" xml:space="preserve">
+    <value>Magpie is up to date</value>
+  </data>
+  <data name="About_Version_UpdateToDate_DownloadFailed.Text" xml:space="preserve">
+    <value>Download failed</value>
+  </data>
+  <data name="About_Version_UpdateToDate_Downloading.Text" xml:space="preserve">
+    <value>Downloading</value>
+  </data>
+  <data name="About_Version_UpdateToDate_Installing.Text" xml:space="preserve">
+    <value>Installing</value>
+  </data>
   <data name="Profile_Advanced.Title" xml:space="preserve">
     <value>Advanced</value>
   </data>

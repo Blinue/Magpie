@@ -155,7 +155,7 @@ hstring HomeViewModel::UpdateCardTitle() const noexcept {
 	}
 
 	ResourceLoader resourceLoader = ResourceLoader::GetForCurrentView();
-	hstring titleFmt = resourceLoader.GetString(L"Home_UpdateCard_Title");
+	hstring titleFmt = resourceLoader.GetString(L"About_Version_UpdateCard_Title");
 	return hstring(fmt::format(fmt::runtime(std::wstring_view(titleFmt)), updateService.Tag()));
 }
 

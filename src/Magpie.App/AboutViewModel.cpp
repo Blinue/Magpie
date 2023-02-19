@@ -8,6 +8,9 @@
 #include "AppSettings.h"
 #include "StrUtils.h"
 
+using namespace winrt;
+using namespace Windows::ApplicationModel::Resources;
+
 namespace winrt::Magpie::App::implementation {
 
 AboutViewModel::AboutViewModel() {
@@ -52,6 +55,7 @@ bool AboutViewModel::IsCheckForPreviewUpdates() const noexcept {
 
 void AboutViewModel::IsCheckForPreviewUpdates(bool value) noexcept {
 	AppSettings::Get().IsCheckForPreviewUpdates(value);
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsCheckForPreviewUpdates"));
 }
 
 bool AboutViewModel::IsAutoCheckForUpdates() const noexcept {
@@ -60,6 +64,7 @@ bool AboutViewModel::IsAutoCheckForUpdates() const noexcept {
 
 void AboutViewModel::IsAutoCheckForUpdates(bool value) noexcept {
 	AppSettings::Get().IsAutoCheckForUpdates(value);
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsAutoCheckForUpdates"));
 }
 
 bool AboutViewModel::IsCheckingForUpdates() const noexcept {
@@ -78,6 +83,8 @@ void AboutViewModel::IsErrorWhileChecking(bool value) noexcept {
 			service.Cancel();
 		}
 	}
+
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsErrorWhileChecking"));
 }
 
 bool AboutViewModel::IsNoUpdate() const noexcept {
@@ -113,11 +120,11 @@ bool AboutViewModel::IsInstalling() const noexcept {
 	return UpdateService::Get().Status() == UpdateStatus::Installing;
 }
 
-bool AboutViewModel::IsUpdateInfoBarOpen() const noexcept {
+bool AboutViewModel::IsUpdateCardOpen() const noexcept {
 	return UpdateService::Get().Status() >= UpdateStatus::Available;
 }
 
-void AboutViewModel::IsUpdateInfoBarOpen(bool value) noexcept {
+void AboutViewModel::IsUpdateCardOpen(bool value) noexcept {
 	if (!value) {
 		UpdateService& service = UpdateService::Get();
 		UpdateStatus status = service.Status();
@@ -125,9 +132,11 @@ void AboutViewModel::IsUpdateInfoBarOpen(bool value) noexcept {
 			service.Cancel();
 		}
 	}
+
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsUpdateCardOpen"));
 }
 
-bool AboutViewModel::IsUpdateInfoBarClosable() const noexcept {
+bool AboutViewModel::IsUpdateCardClosable() const noexcept {
 	UpdateStatus status = UpdateService::Get().Status();
 	return status == UpdateStatus::Available || status == UpdateStatus::ErrorWhileDownloading;
 }
@@ -135,6 +144,17 @@ bool AboutViewModel::IsUpdateInfoBarClosable() const noexcept {
 bool AboutViewModel::IsCancelButtonVisible() const noexcept {
 	UpdateStatus status = UpdateService::Get().Status();
 	return status == UpdateStatus::Downloading || status == UpdateStatus::Installing;
+}
+
+hstring AboutViewModel::UpdateCardTitle() const noexcept {
+	UpdateService& updateService = UpdateService::Get();
+	if (updateService.Status() < UpdateStatus::Available) {
+		return {};
+	}
+
+	ResourceLoader resourceLoader = ResourceLoader::GetForCurrentView();
+	hstring titleFmt = resourceLoader.GetString(L"Home_UpdateCard_Title");
+	return hstring(fmt::format(fmt::runtime(std::wstring_view(titleFmt)), updateService.Tag()));
 }
 
 bool AboutViewModel::IsNoDownloadProgress() const noexcept {
@@ -159,7 +179,7 @@ double AboutViewModel::DownloadProgress() const noexcept {
 }
 
 Uri AboutViewModel::UpdateReleaseNotesLink() const noexcept {
-	if (!IsUpdateInfoBarOpen()) {
+	if (!IsUpdateCardOpen()) {
 		return nullptr;
 	}
 
@@ -190,11 +210,12 @@ void AboutViewModel::_UpdateService_StatusChanged(UpdateStatus status) {
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsErrorWhileDownloading"));
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsInstalling"));
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsDownloadingOrLater"));
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsUpdateInfoBarOpen"));
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsUpdateInfoBarClosable"));
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsUpdateCardOpen"));
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsUpdateCardClosable"));
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsCancelButtonVisible"));
 
 	if (status >= UpdateStatus::Available) {
+		_propertyChangedEvent(*this, PropertyChangedEventArgs(L"UpdateCardTitle"));
 		_propertyChangedEvent(*this, PropertyChangedEventArgs(L"UpdateReleaseNotesLink"));
 
 		if (status == UpdateStatus::Downloading) {
