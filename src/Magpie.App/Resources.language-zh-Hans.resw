@@ -549,13 +549,64 @@
   <data name="Profile_Performance_ShowFPS.Title" xml:space="preserve">
     <value>显示帧率</value>
   </data>
-  <data name="Profile_Performance_TripleBuffering.Content" xml:space="preserve">
+  <data name="Profile_Performance_VSync_TripleBuffering.Content" xml:space="preserve">
     <value>允许额外的延迟以提高性能</value>
   </data>
   <data name="Profile_Performance_VSync.Title" xml:space="preserve">
     <value>垂直同步</value>
   </data>
+  <data name="Profile_Advanced.Title" xml:space="preserve">
+    <value>高级</value>
+  </data>
+  <data name="Profile_Advanced_DisableDirectFlip.Title" xml:space="preserve">
+    <value>禁用 DirectFlip</value>
+  </data>
+  <data name="Profile_Cursor.Title" xml:space="preserve">
+    <value>光标</value>
+  </data>
+  <data name="Profile_Cursor_DrawCursor.Title" xml:space="preserve">
+    <value>绘制光标</value>
+  </data>
+  <data name="Profile_Cursor_DrawCursor_AdjustCursorSpeed.Title" xml:space="preserve">
+    <value>缩放时调整光标速度</value>
+  </data>
+  <data name="Profile_Cursor_DrawCursor_InterpolationAlgorithm.Title" xml:space="preserve">
+    <value>插值算法</value>
+  </data>
+  <data name="Profile_Cursor_DrawCursor_ScalingFactor.Title" xml:space="preserve">
+    <value>缩放系数</value>
+  </data>
   <data name="Profile_General_CaptureMethod_Default" xml:space="preserve">
     <value>默认</value>
+  </data>
+  <data name="Profile_SourceWindow.Title" xml:space="preserve">
+    <value>源窗口</value>
+  </data>
+  <data name="Profile_SourceWindow_CaptureTitleBar.Description" xml:space="preserve">
+    <value>仅在 Graphics Capture 和 Desktop Duplication 捕获方式下可用</value>
+  </data>
+  <data name="Profile_SourceWindow_CaptureTitleBar.Title" xml:space="preserve">
+    <value>捕获标题栏</value>
+  </data>
+  <data name="Profile_SourceWindow_CustomCropping.Title" xml:space="preserve">
+    <value>自定义裁剪</value>
+  </data>
+  <data name="Profile_SourceWindow_CustomCropping_Bottom.Title" xml:space="preserve">
+    <value>下</value>
+  </data>
+  <data name="Profile_SourceWindow_CustomCropping_Left.Title" xml:space="preserve">
+    <value>左</value>
+  </data>
+  <data name="Profile_SourceWindow_CustomCropping_Pixels.Text" xml:space="preserve">
+    <value>像素</value>
+  </data>
+  <data name="Profile_SourceWindow_CustomCropping_Right.Title" xml:space="preserve">
+    <value>右</value>
+  </data>
+  <data name="Profile_SourceWindow_CustomCropping_Top.Title" xml:space="preserve">
+    <value>上</value>
+  </data>
+  <data name="Profile_SourceWindow_DisableWindowResizing.Title" xml:space="preserve">
+    <value>缩放时禁用窗口大小调整</value>
   </data>
 </root>

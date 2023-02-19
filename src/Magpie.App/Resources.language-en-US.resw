@@ -549,13 +549,64 @@
   <data name="Profile_Performance_ShowFPS.Title" xml:space="preserve">
     <value>Display FPS counter</value>
   </data>
-  <data name="Profile_Performance_TripleBuffering.Content" xml:space="preserve">
+  <data name="Profile_Performance_VSync_TripleBuffering.Content" xml:space="preserve">
     <value>Allow extra latency to improve performance</value>
   </data>
   <data name="Profile_Performance_VSync.Title" xml:space="preserve">
     <value>VSync</value>
   </data>
+  <data name="Profile_Advanced.Title" xml:space="preserve">
+    <value>Advanced</value>
+  </data>
+  <data name="Profile_Advanced_DisableDirectFlip.Title" xml:space="preserve">
+    <value>Disable DirectFlip</value>
+  </data>
+  <data name="Profile_Cursor.Title" xml:space="preserve">
+    <value>Cursor</value>
+  </data>
+  <data name="Profile_Cursor_DrawCursor.Title" xml:space="preserve">
+    <value>Draw cursor</value>
+  </data>
+  <data name="Profile_Cursor_DrawCursor_AdjustCursorSpeed.Title" xml:space="preserve">
+    <value>Adjust cursor speed while scaled</value>
+  </data>
+  <data name="Profile_Cursor_DrawCursor_InterpolationAlgorithm.Title" xml:space="preserve">
+    <value>Interpolation algorithm</value>
+  </data>
+  <data name="Profile_Cursor_DrawCursor_ScalingFactor.Title" xml:space="preserve">
+    <value>Scaling factor</value>
+  </data>
   <data name="Profile_General_CaptureMethod_Default" xml:space="preserve">
     <value>Default</value>
+  </data>
+  <data name="Profile_SourceWindow.Title" xml:space="preserve">
+    <value>Source window</value>
+  </data>
+  <data name="Profile_SourceWindow_CaptureTitleBar.Description" xml:space="preserve">
+    <value>Limited to Graphics Capture and Desktop Duplication</value>
+  </data>
+  <data name="Profile_SourceWindow_CaptureTitleBar.Title" xml:space="preserve">
+    <value>Capture title bar</value>
+  </data>
+  <data name="Profile_SourceWindow_CustomCropping.Title" xml:space="preserve">
+    <value>Custom cropping</value>
+  </data>
+  <data name="Profile_SourceWindow_CustomCropping_Bottom.Title" xml:space="preserve">
+    <value>Bottom</value>
+  </data>
+  <data name="Profile_SourceWindow_CustomCropping_Left.Title" xml:space="preserve">
+    <value>Left</value>
+  </data>
+  <data name="Profile_SourceWindow_CustomCropping_Pixels.Text" xml:space="preserve">
+    <value>px</value>
+  </data>
+  <data name="Profile_SourceWindow_CustomCropping_Right.Title" xml:space="preserve">
+    <value>Right</value>
+  </data>
+  <data name="Profile_SourceWindow_CustomCropping_Top.Title" xml:space="preserve">
+    <value>Top</value>
+  </data>
+  <data name="Profile_SourceWindow_DisableWindowResizing.Title" xml:space="preserve">
+    <value>Disable window resizing while scaled</value>
   </data>
 </root>

@@ -39,7 +39,7 @@ struct MagFlags {
 	static constexpr const uint32_t ShowFPS = 0x80;
 	static constexpr const uint32_t VSync = 0x100;
 	static constexpr const uint32_t TripleBuffering = 0x200;
-	static constexpr const uint32_t ReserveTitleBar = 0x400;
+	static constexpr const uint32_t CaptureTitleBar = 0x400;
 	static constexpr const uint32_t AdjustCursorSpeed = 0x800;
 	static constexpr const uint32_t DrawCursor = 0x1000;
 	static constexpr const uint32_t DisableDirectFlip = 0x2000;
@@ -86,7 +86,7 @@ struct MagOptions {
 	DEFINE_FLAG_ACCESSOR(IsShowFPS, MagFlags::ShowFPS, flags)
 	DEFINE_FLAG_ACCESSOR(IsVSync, MagFlags::VSync, flags)
 	DEFINE_FLAG_ACCESSOR(IsTripleBuffering, MagFlags::TripleBuffering, flags)
-	DEFINE_FLAG_ACCESSOR(IsReserveTitleBar, MagFlags::ReserveTitleBar, flags)
+	DEFINE_FLAG_ACCESSOR(IsCaptureTitleBar, MagFlags::CaptureTitleBar, flags)
 	DEFINE_FLAG_ACCESSOR(IsAdjustCursorSpeed, MagFlags::AdjustCursorSpeed, flags)
 	DEFINE_FLAG_ACCESSOR(IsDrawCursor, MagFlags::DrawCursor, flags)
 	DEFINE_FLAG_ACCESSOR(IsDisableDirectFlip, MagFlags::DisableDirectFlip, flags)

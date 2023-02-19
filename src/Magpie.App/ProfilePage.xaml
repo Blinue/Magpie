@@ -258,14 +258,14 @@
 					<muxc:Expander.Content>
 						<local:SettingsCard IsEnabled="{x:Bind ViewModel.IsVSync, Mode=OneWay}"
 						                    Style="{StaticResource ExpanderContentSettingStyle}">
-							<CheckBox x:Uid="Profile_Performance_TripleBuffering"
+							<CheckBox x:Uid="Profile_Performance_VSync_TripleBuffering"
 							          IsChecked="{x:Bind ViewModel.IsTripleBuffering, Mode=TwoWay}" />
 						</local:SettingsCard>
 					</muxc:Expander.Content>
 				</muxc:Expander>
 			</local:SettingsGroup>
-			<local:SettingsGroup Title="源窗口">
-				<local:SettingsCard Title="缩放时禁用窗口大小调整">
+			<local:SettingsGroup x:Uid="Profile_SourceWindow">
+				<local:SettingsCard x:Uid="Profile_SourceWindow_DisableWindowResizing">
 					<local:SettingsCard.Icon>
 						<FontIcon Glyph="&#xEE3F;" />
 					</local:SettingsCard.Icon>
@@ -274,15 +274,14 @@
 						              IsOn="{x:Bind ViewModel.IsDisableWindowResizing, Mode=TwoWay}" />
 					</local:SettingsCard.ActionContent>
 				</local:SettingsCard>
-				<local:SettingsCard Title="保留标题栏"
-				                    Description="仅在 Graphics Capture 和 Desktop Duplication 捕获方式下可用"
-				                    IsEnabled="{x:Bind ViewModel.CanReserveTitleBar, Mode=OneWay}">
+				<local:SettingsCard x:Uid="Profile_SourceWindow_CaptureTitleBar"
+				                    IsEnabled="{x:Bind ViewModel.CanCaptureTitleBar, Mode=OneWay}">
 					<local:SettingsCard.Icon>
 						<FontIcon Glyph="&#xE737;" />
 					</local:SettingsCard.Icon>
 					<local:SettingsCard.ActionContent>
 						<ToggleSwitch x:Uid="ToggleSwitch"
-						              IsOn="{x:Bind ViewModel.IsReserveTitleBar, Mode=TwoWay}" />
+						              IsOn="{x:Bind ViewModel.IsCaptureTitleBar, Mode=TwoWay}" />
 					</local:SettingsCard.ActionContent>
 				</local:SettingsCard>
 				<muxc:Expander HorizontalAlignment="Stretch"
@@ -290,7 +289,7 @@
 				               IsExpanded="{x:Bind ViewModel.IsCroppingEnabled, Mode=OneWay}"
 				               Style="{StaticResource SettingExpanderStyle}">
 					<muxc:Expander.Header>
-						<local:SettingsCard Title="自定义裁剪"
+						<local:SettingsCard x:Uid="Profile_SourceWindow_CustomCropping"
 						                    Style="{StaticResource ExpanderHeaderSettingStyle}">
 							<local:SettingsCard.Icon>
 								<FontIcon Glyph="&#xE7A8;" />
@@ -316,55 +315,55 @@
 								</Style>
 							</StackPanel.Resources>
 
-							<local:SettingsCard Title="左"
+							<local:SettingsCard x:Uid="Profile_SourceWindow_CustomCropping_Left"
 							                    IsEnabled="{x:Bind ViewModel.IsCroppingEnabled, Mode=OneWay}"
 							                    Style="{StaticResource ExpanderContentSettingStyle}">
 								<local:SettingsCard.ActionContent>
 									<StackPanel Orientation="Horizontal"
-									            Spacing="10">
+									            Spacing="8">
 										<muxc:NumberBox NumberFormatter="{x:Bind local:ProfilePage.NumberFormatter, Mode=OneTime}"
 										                Value="{x:Bind ViewModel.CroppingLeft, Mode=TwoWay}" />
-										<TextBlock VerticalAlignment="Center"
-										           Text="像素" />
+										<TextBlock x:Uid="Profile_SourceWindow_CustomCropping_Pixels"
+										           VerticalAlignment="Center" />
 									</StackPanel>
 								</local:SettingsCard.ActionContent>
 							</local:SettingsCard>
-							<local:SettingsCard Title="右"
+							<local:SettingsCard x:Uid="Profile_SourceWindow_CustomCropping_Right"
 							                    IsEnabled="{x:Bind ViewModel.IsCroppingEnabled, Mode=OneWay}"
 							                    Style="{StaticResource ExpanderContentSettingStyle}">
 								<local:SettingsCard.ActionContent>
 									<StackPanel Orientation="Horizontal"
-									            Spacing="10">
+									            Spacing="8">
 										<muxc:NumberBox NumberFormatter="{x:Bind local:ProfilePage.NumberFormatter, Mode=OneTime}"
 										                Value="{x:Bind ViewModel.CroppingRight, Mode=TwoWay}" />
-										<TextBlock VerticalAlignment="Center"
-										           Text="像素" />
+										<TextBlock x:Uid="Profile_SourceWindow_CustomCropping_Pixels"
+										           VerticalAlignment="Center" />
 									</StackPanel>
 								</local:SettingsCard.ActionContent>
 							</local:SettingsCard>
-							<local:SettingsCard Title="上"
+							<local:SettingsCard x:Uid="Profile_SourceWindow_CustomCropping_Top"
 							                    IsEnabled="{x:Bind ViewModel.IsCroppingEnabled, Mode=OneWay}"
 							                    Style="{StaticResource ExpanderContentSettingStyle}">
 								<local:SettingsCard.ActionContent>
 									<StackPanel Orientation="Horizontal"
-									            Spacing="10">
+									            Spacing="8">
 										<muxc:NumberBox NumberFormatter="{x:Bind local:ProfilePage.NumberFormatter, Mode=OneTime}"
 										                Value="{x:Bind ViewModel.CroppingTop, Mode=TwoWay}" />
-										<TextBlock VerticalAlignment="Center"
-										           Text="像素" />
+										<TextBlock x:Uid="Profile_SourceWindow_CustomCropping_Pixels"
+										           VerticalAlignment="Center" />
 									</StackPanel>
 								</local:SettingsCard.ActionContent>
 							</local:SettingsCard>
-							<local:SettingsCard Title="下"
+							<local:SettingsCard x:Uid="Profile_SourceWindow_CustomCropping_Bottom"
 							                    IsEnabled="{x:Bind ViewModel.IsCroppingEnabled, Mode=OneWay}"
 							                    Style="{StaticResource ExpanderContentSettingStyle}">
 								<local:SettingsCard.ActionContent>
 									<StackPanel Orientation="Horizontal"
-									            Spacing="10">
+									            Spacing="8">
 										<muxc:NumberBox NumberFormatter="{x:Bind local:ProfilePage.NumberFormatter, Mode=OneTime}"
 										                Value="{x:Bind ViewModel.CroppingBottom, Mode=TwoWay}" />
-										<TextBlock VerticalAlignment="Center"
-										           Text="像素" />
+										<TextBlock x:Uid="Profile_SourceWindow_CustomCropping_Pixels"
+										           VerticalAlignment="Center" />
 									</StackPanel>
 								</local:SettingsCard.ActionContent>
 							</local:SettingsCard>
@@ -372,12 +371,12 @@
 					</muxc:Expander.Content>
 				</muxc:Expander>
 			</local:SettingsGroup>
-			<local:SettingsGroup Title="光标">
+			<local:SettingsGroup x:Uid="Profile_Cursor">
 				<muxc:Expander HorizontalAlignment="Stretch"
 				               HorizontalContentAlignment="Stretch"
 				               Style="{StaticResource SettingExpanderStyle}">
 					<muxc:Expander.Header>
-						<local:SettingsCard Title="绘制光标"
+						<local:SettingsCard x:Uid="Profile_Cursor_DrawCursor"
 						                    Style="{StaticResource ExpanderHeaderSettingStyle}">
 							<local:SettingsCard.Icon>
 								<FontIcon Glyph="&#xE7C9;" />
@@ -390,7 +389,7 @@
 					</muxc:Expander.Header>
 					<muxc:Expander.Content>
 						<StackPanel>
-							<local:SettingsCard Title="缩放系数"
+							<local:SettingsCard x:Uid="Profile_Cursor_DrawCursor_ScalingFactor"
 							                    IsEnabled="{x:Bind ViewModel.IsDrawCursor, Mode=OneWay}"
 							                    Style="{StaticResource ExpanderContentSettingStyle}">
 								<local:SettingsCard.ActionContent>
@@ -438,7 +437,7 @@
 									</Grid>
 								</local:SettingsCard.ActionContent>
 							</local:SettingsCard>
-							<local:SettingsCard Title="插值算法"
+							<local:SettingsCard x:Uid="Profile_Cursor_DrawCursor_InterpolationAlgorithm"
 							                    IsEnabled="{x:Bind ViewModel.IsDrawCursor, Mode=OneWay}"
 							                    Style="{StaticResource ExpanderContentSettingStyle}">
 								<local:SettingsCard.ActionContent>
@@ -453,7 +452,7 @@
 						</StackPanel>
 					</muxc:Expander.Content>
 				</muxc:Expander>
-				<local:SettingsCard Title="缩放时调整光标速度">
+				<local:SettingsCard x:Uid="Profile_Cursor_DrawCursor_AdjustCursorSpeed">
 					<local:SettingsCard.Icon>
 						<FontIcon x:Name="AdjustCursorSpeedFontIcon"
 						          Glyph="&#xE7C2;" />
@@ -464,8 +463,8 @@
 					</local:SettingsCard.ActionContent>
 				</local:SettingsCard>
 			</local:SettingsGroup>
-			<local:SettingsGroup Title="高级">
-				<local:SettingsCard Title="禁用 DirectFlip">
+			<local:SettingsGroup x:Uid="Profile_Advanced">
+				<local:SettingsCard x:Uid="Profile_Advanced_DisableDirectFlip">
 					<local:SettingsCard.ActionContent>
 						<ToggleSwitch x:Uid="ToggleSwitch"
 						              IsOn="{x:Bind ViewModel.IsDisableDirectFlip, Mode=TwoWay}" />

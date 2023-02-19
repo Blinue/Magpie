@@ -28,11 +28,12 @@ bool JsonHelper::ReadBoolFlag(
 	const rapidjson::GenericObject<true, rapidjson::Value>& obj,
 	const char* nodeName,
 	uint32_t flagBit,
-	uint32_t& flags
+	uint32_t& flags,
+	bool required
 ) {
 	auto node = obj.FindMember(nodeName);
 	if (node == obj.MemberEnd()) {
-		return true;
+		return !required;
 	}
 
 	if (!node->value.IsBool()) {

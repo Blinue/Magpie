@@ -480,22 +480,22 @@ void ProfileViewModel::IsDisableWindowResizing(bool value) {
 	AppSettings::Get().SaveAsync();
 }
 
-bool ProfileViewModel::IsReserveTitleBar() const noexcept {
-	return _data->IsReserveTitleBar();
+bool ProfileViewModel::IsCaptureTitleBar() const noexcept {
+	return _data->IsCaptureTitleBar();
 }
 
-void ProfileViewModel::IsReserveTitleBar(bool value) {
-	if (_data->IsReserveTitleBar() == value) {
+void ProfileViewModel::IsCaptureTitleBar(bool value) {
+	if (_data->IsCaptureTitleBar() == value) {
 		return;
 	}
 
-	_data->IsReserveTitleBar(value);
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsReserveTitleBar"));
+	_data->IsCaptureTitleBar(value);
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsCaptureTitleBar"));
 
 	AppSettings::Get().SaveAsync();
 }
 
-bool ProfileViewModel::CanReserveTitleBar() const noexcept {
+bool ProfileViewModel::CanCaptureTitleBar() const noexcept {
 	return _data->captureMethod == CaptureMethod::GraphicsCapture
 		|| _data->captureMethod == CaptureMethod::DesktopDuplication;
 }

@@ -90,8 +90,8 @@ static void WriteProfile(rapidjson::PrettyWriter<rapidjson::StringBuffer>& write
 	writer.Bool(profile.IsVSync());
 	writer.Key("tripleBuffering");
 	writer.Bool(profile.IsTripleBuffering());
-	writer.Key("reserveTitleBar");
-	writer.Bool(profile.IsReserveTitleBar());
+	writer.Key("captureTitleBar");
+	writer.Bool(profile.IsCaptureTitleBar());
 	writer.Key("adjustCursorSpeed");
 	writer.Bool(profile.IsAdjustCursorSpeed());
 	writer.Key("drawCursor");
@@ -757,7 +757,10 @@ bool AppSettings::_LoadProfile(
 	JsonHelper::ReadBoolFlag(profileObj, "showFPS", MagFlags::ShowFPS, profile.flags);
 	JsonHelper::ReadBoolFlag(profileObj, "VSync", MagFlags::VSync, profile.flags);
 	JsonHelper::ReadBoolFlag(profileObj, "tripleBuffering", MagFlags::TripleBuffering, profile.flags);
-	JsonHelper::ReadBoolFlag(profileObj, "reserveTitleBar", MagFlags::ReserveTitleBar, profile.flags);
+	if (!JsonHelper::ReadBoolFlag(profileObj, "captureTitleBar", MagFlags::CaptureTitleBar, profile.flags, true)) {
+		// v0.10.0-preview1 使用 reserveTitleBar
+		JsonHelper::ReadBoolFlag(profileObj, "reserveTitleBar", MagFlags::CaptureTitleBar, profile.flags);
+	}
 	JsonHelper::ReadBoolFlag(profileObj, "adjustCursorSpeed", MagFlags::AdjustCursorSpeed, profile.flags);
 	JsonHelper::ReadBoolFlag(profileObj, "drawCursor", MagFlags::DrawCursor, profile.flags);
 	JsonHelper::ReadBoolFlag(profileObj, "disableDirectFlip", MagFlags::DisableDirectFlip, profile.flags);

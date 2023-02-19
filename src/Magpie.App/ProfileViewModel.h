@@ -104,10 +104,10 @@ struct ProfileViewModel : ProfileViewModelT<ProfileViewModel> {
 	bool IsDisableWindowResizing() const noexcept;
 	void IsDisableWindowResizing(bool value);
 
-	bool IsReserveTitleBar() const noexcept;
-	void IsReserveTitleBar(bool value);
+	bool IsCaptureTitleBar() const noexcept;
+	void IsCaptureTitleBar(bool value);
 
-	bool CanReserveTitleBar() const noexcept;
+	bool CanCaptureTitleBar() const noexcept;
 
 	bool IsCroppingEnabled() const noexcept;
 	void IsCroppingEnabled(bool value);

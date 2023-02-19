@@ -35,7 +35,7 @@ struct Profile {
 	DEFINE_FLAG_ACCESSOR(IsShowFPS, ::Magpie::Core::MagFlags::ShowFPS, flags)
 	DEFINE_FLAG_ACCESSOR(IsVSync, ::Magpie::Core::MagFlags::VSync, flags)
 	DEFINE_FLAG_ACCESSOR(IsTripleBuffering, ::Magpie::Core::MagFlags::TripleBuffering, flags)
-	DEFINE_FLAG_ACCESSOR(IsReserveTitleBar, ::Magpie::Core::MagFlags::ReserveTitleBar, flags)
+	DEFINE_FLAG_ACCESSOR(IsCaptureTitleBar, ::Magpie::Core::MagFlags::CaptureTitleBar, flags)
 	DEFINE_FLAG_ACCESSOR(IsAdjustCursorSpeed, ::Magpie::Core::MagFlags::AdjustCursorSpeed, flags)
 	DEFINE_FLAG_ACCESSOR(IsDrawCursor, ::Magpie::Core::MagFlags::DrawCursor, flags)
 	DEFINE_FLAG_ACCESSOR(IsDisableDirectFlip, ::Magpie::Core::MagFlags::DisableDirectFlip, flags)

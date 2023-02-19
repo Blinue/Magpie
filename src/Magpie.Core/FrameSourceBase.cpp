@@ -255,7 +255,7 @@ bool FrameSourceBase::_UpdateSrcFrameRect() {
 
 	HWND hwndSrc = MagApp::Get().GetHwndSrc();
 
-	if (MagApp::Get().GetOptions().IsReserveTitleBar() && _CanCaptureTitleBar()) {
+	if (MagApp::Get().GetOptions().IsCaptureTitleBar() && _CanCaptureTitleBar()) {
 		if (!Win32Utils::GetWindowFrameRect(hwndSrc, _srcFrameRect)) {
 			Logger::Get().Win32Error("GetClientScreenRect 失败");
 			return false;
