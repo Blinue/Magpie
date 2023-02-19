@@ -205,12 +205,13 @@
 							<FontIcon Glyph="&#xf5a9;" />
 						</local:SettingsCard.Icon>
 						<local:SettingsCard.ActionContent>
-							<!--  硬编码会导致崩溃！  -->
-							<!--  https://github.com/microsoft/microsoft-ui-xaml/issues/3612  -->
 							<ComboBox DropDownOpened="ComboBox_DropDownOpened"
-							          ItemsSource="{x:Bind ViewModel.MultiMonitorUsages, Mode=OneTime}"
 							          SelectedIndex="{x:Bind ViewModel.MultiMonitorUsage, Mode=TwoWay}"
-							          Style="{StaticResource ComboBoxSettingStyle}" />
+							          Style="{StaticResource ComboBoxSettingStyle}">
+								<ComboBoxItem x:Uid="Profile_General_Multimonitor_Closest" />
+								<ComboBoxItem x:Uid="Profile_General_Multimonitor_Intersected" />
+								<ComboBoxItem x:Uid="Profile_General_Multimonitor_All" />
+							</ComboBox>
 						</local:SettingsCard.ActionContent>
 					</local:SettingsCard>
 				</StackPanel>
@@ -410,12 +411,12 @@
 										          Style="{StaticResource ComboBoxSettingStyle}">
 											<x:String>0.5x</x:String>
 											<x:String>0.75x</x:String>
-											<x:String>无缩放</x:String>
+											<ComboBoxItem x:Uid="Profile_Cursor_DrawCursor_ScalingFactor_NoScaling" />
 											<x:String>1.25x</x:String>
 											<x:String>1.5x</x:String>
 											<x:String>2x</x:String>
-											<x:String>和源窗口相同</x:String>
-											<x:String>自定义</x:String>
+											<ComboBoxItem x:Uid="Profile_Cursor_DrawCursor_ScalingFactor_SameAsSourceWindow" />
+											<ComboBoxItem x:Uid="Profile_Cursor_DrawCursor_ScalingFactor_Custom" />
 										</ComboBox>
 										<muxc:NumberBox x:Name="CustomCursorScalingNumberBox"
 										                Grid.Column="1"
@@ -437,15 +438,15 @@
 									</Grid>
 								</local:SettingsCard.ActionContent>
 							</local:SettingsCard>
-							<local:SettingsCard x:Uid="Profile_Cursor_DrawCursor_InterpolationAlgorithm"
+							<local:SettingsCard x:Uid="Profile_Cursor_DrawCursor_Interpolation"
 							                    IsEnabled="{x:Bind ViewModel.IsDrawCursor, Mode=OneWay}"
 							                    Style="{StaticResource ExpanderContentSettingStyle}">
 								<local:SettingsCard.ActionContent>
 									<ComboBox DropDownOpened="ComboBox_DropDownOpened"
 									          SelectedIndex="{x:Bind ViewModel.CursorInterpolationMode, Mode=TwoWay}"
 									          Style="{StaticResource ComboBoxSettingStyle}">
-										<x:String>最近邻</x:String>
-										<x:String>双线性</x:String>
+										<ComboBoxItem x:Uid="Profile_Cursor_DrawCursor_Interpolation_NearestNeighbor" />
+										<ComboBoxItem x:Uid="Profile_Cursor_DrawCursor_Interpolation_Bilinear" />
 									</ComboBox>
 								</local:SettingsCard.ActionContent>
 							</local:SettingsCard>

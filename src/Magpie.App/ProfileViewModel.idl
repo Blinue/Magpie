@@ -32,7 +32,6 @@ namespace Magpie.App {
 		Boolean Is3DGameMode;
 
 		Boolean HasMultipleMonitors { get; };
-		IVector<IInspectable> MultiMonitorUsages { get; };
 		Int32 MultiMonitorUsage;
 
 		IVector<IInspectable> GraphicsCards { get; };

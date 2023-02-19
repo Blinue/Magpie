@@ -80,8 +80,6 @@ struct ProfileViewModel : ProfileViewModelT<ProfileViewModel> {
 
 	bool HasMultipleMonitors() const noexcept;
 
-	IVector<IInspectable> MultiMonitorUsages() const noexcept;
-
 	int MultiMonitorUsage() const noexcept;
 	void MultiMonitorUsage(int value);
 

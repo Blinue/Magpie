@@ -780,10 +780,10 @@ bool AppSettings::_LoadProfile(
 	}
 
 	{
-		uint32_t cursorInterpolationMode = (uint32_t)CursorInterpolationMode::Closest;
+		uint32_t cursorInterpolationMode = (uint32_t)CursorInterpolationMode::NearestNeighbor;
 		JsonHelper::ReadUInt(profileObj, "cursorInterpolationMode", (uint32_t&)profile.cursorInterpolationMode);
 		if (cursorInterpolationMode > 1) {
-			cursorInterpolationMode = (uint32_t)CursorInterpolationMode::Closest;
+			cursorInterpolationMode = (uint32_t)CursorInterpolationMode::NearestNeighbor;
 		}
 		profile.cursorInterpolationMode = (CursorInterpolationMode)cursorInterpolationMode;
 	}

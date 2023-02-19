@@ -352,15 +352,6 @@ bool ProfileViewModel::HasMultipleMonitors() const noexcept {
 	return GetSystemMetrics(SM_CMONITORS) > 1;
 }
 
-IVector<IInspectable> ProfileViewModel::MultiMonitorUsages() const noexcept {
-	ResourceLoader resourceLoader = ResourceLoader::GetForCurrentView();
-	return single_threaded_vector(std::vector{
-		box_value(resourceLoader.GetString(L"Profile_General_Multimonitor_Closest")),
-		box_value(resourceLoader.GetString(L"Profile_General_Multimonitor_Intersected")),
-		box_value(resourceLoader.GetString(L"Profile_General_Multimonitor_All"))
-	});
-}
-
 int ProfileViewModel::MultiMonitorUsage() const noexcept {
 	return (int)_data->multiMonitorUsage;
 }

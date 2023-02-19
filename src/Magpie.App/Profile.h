@@ -56,7 +56,7 @@ struct Profile {
 	// -1 表示默认，大于等于 0 为图形适配器的索引
 	int graphicsCard = 0;
 	::Magpie::Core::MultiMonitorUsage multiMonitorUsage = ::Magpie::Core::MultiMonitorUsage::Closest;
-	::Magpie::Core::CursorInterpolationMode cursorInterpolationMode = ::Magpie::Core::CursorInterpolationMode::Closest;
+	::Magpie::Core::CursorInterpolationMode cursorInterpolationMode = ::Magpie::Core::CursorInterpolationMode::NearestNeighbor;
 
 	uint32_t flags = ::Magpie::Core::MagFlags::VSync 
 		| ::Magpie::Core::MagFlags::AdjustCursorSpeed

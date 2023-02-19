@@ -24,8 +24,10 @@ struct ComboBoxHelper {
 
 		if (std::optional<hstring> str = selectedItem.try_as<hstring>()) {
 			comboBox.PlaceholderText(*str);
-		} else if (TextBlock textBlock = selectedItem.try_as<TextBlock>()) {
-			comboBox.PlaceholderText(textBlock.Text());
+		} else if (ContentControl container = selectedItem.try_as<ContentControl>()) {
+			if (std::optional<hstring> strContent = container.Content().try_as<hstring>()) {
+				comboBox.PlaceholderText(*strContent);
+			}
 		}
 	}
 };

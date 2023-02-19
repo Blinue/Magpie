@@ -483,13 +483,13 @@
   <data name="Profile_General_Multimonitor.Title" xml:space="preserve">
     <value>Preferred monitor(s)</value>
   </data>
-  <data name="Profile_General_Multimonitor_All" xml:space="preserve">
+  <data name="Profile_General_Multimonitor_All.Content" xml:space="preserve">
     <value>All monitors</value>
   </data>
-  <data name="Profile_General_Multimonitor_Closest" xml:space="preserve">
+  <data name="Profile_General_Multimonitor_Closest.Content" xml:space="preserve">
     <value>Monitor closest to the source window</value>
   </data>
-  <data name="Profile_General_Multimonitor_Intersected" xml:space="preserve">
+  <data name="Profile_General_Multimonitor_Intersected.Content" xml:space="preserve">
     <value>Monitors intersected by the source window</value>
   </data>
   <data name="Profile_General_ScalingMode.Title" xml:space="preserve">
@@ -570,11 +570,26 @@
   <data name="Profile_Cursor_DrawCursor_AdjustCursorSpeed.Title" xml:space="preserve">
     <value>Adjust cursor speed while scaled</value>
   </data>
-  <data name="Profile_Cursor_DrawCursor_InterpolationAlgorithm.Title" xml:space="preserve">
+  <data name="Profile_Cursor_DrawCursor_Interpolation.Title" xml:space="preserve">
     <value>Interpolation algorithm</value>
+  </data>
+  <data name="Profile_Cursor_DrawCursor_Interpolation_Bilinear.Content" xml:space="preserve">
+    <value>Bilinear</value>
+  </data>
+  <data name="Profile_Cursor_DrawCursor_Interpolation_NearestNeighbor.Content" xml:space="preserve">
+    <value>Nearest-neighbor</value>
   </data>
   <data name="Profile_Cursor_DrawCursor_ScalingFactor.Title" xml:space="preserve">
     <value>Scaling factor</value>
+  </data>
+  <data name="Profile_Cursor_DrawCursor_ScalingFactor_Custom.Content" xml:space="preserve">
+    <value>Custom</value>
+  </data>
+  <data name="Profile_Cursor_DrawCursor_ScalingFactor_NoScaling.Content" xml:space="preserve">
+    <value>No scaling</value>
+  </data>
+  <data name="Profile_Cursor_DrawCursor_ScalingFactor_SameAsSourceWindow.Content" xml:space="preserve">
+    <value>Same as source window</value>
   </data>
   <data name="Profile_General_CaptureMethod_Default" xml:space="preserve">
     <value>Default</value>

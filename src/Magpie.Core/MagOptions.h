@@ -17,7 +17,7 @@ enum class MultiMonitorUsage {
 };
 
 enum class CursorInterpolationMode {
-	Closest,
+	NearestNeighbor,
 	Bilinear,
 };
 
@@ -97,7 +97,7 @@ struct MagOptions {
 	float cursorScaling = 1.0f;
 	CaptureMethod captureMethod = CaptureMethod::GraphicsCapture;
 	MultiMonitorUsage multiMonitorUsage = MultiMonitorUsage::Closest;
-	CursorInterpolationMode cursorInterpolationMode = CursorInterpolationMode::Closest;
+	CursorInterpolationMode cursorInterpolationMode = CursorInterpolationMode::NearestNeighbor;
 
 	DownscalingEffect downscalingEffect;
 
