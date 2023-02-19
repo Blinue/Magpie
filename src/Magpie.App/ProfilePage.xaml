@@ -6,10 +6,6 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
       mc:Ignorable="d">
-	<Page.Resources>
-		<x:Double x:Key="ActionButtonPadding">10</x:Double>
-	</Page.Resources>
-
 	<local:PageFrame Title="{x:Bind ViewModel.Name, Mode=OneWay}"
 	                 Icon="{x:Bind ViewModel.Icon, Mode=OneWay}">
 		<local:PageFrame.HeaderAction>
@@ -219,22 +215,22 @@
 					</local:SettingsCard>
 				</StackPanel>
 			</local:SettingsGroup>
-			<local:SettingsGroup Title="性能">
+			<local:SettingsGroup x:Uid="Profile_Performance">
 				<StackPanel>
-					<local:SettingsCard Title="显示卡"
+					<local:SettingsCard x:Uid="Profile_Performance_GraphicsCard"
 					                    Margin="0,0,0,2"
-					                    Visibility="{x:Bind ViewModel.IsShowGraphicsAdapterSettingsCard, Mode=OneTime}">
+					                    Visibility="{x:Bind ViewModel.IsShowGraphicsCardSettingsCard, Mode=OneTime}">
 						<local:SettingsCard.Icon>
 							<FontIcon Glyph="&#xf211;" />
 						</local:SettingsCard.Icon>
 						<local:SettingsCard.ActionContent>
 							<ComboBox DropDownOpened="ComboBox_DropDownOpened"
-							          ItemsSource="{x:Bind ViewModel.GraphicsAdapters, Mode=OneTime}"
-							          SelectedIndex="{x:Bind ViewModel.GraphicsAdapter, Mode=TwoWay}"
+							          ItemsSource="{x:Bind ViewModel.GraphicsCards, Mode=OneTime}"
+							          SelectedIndex="{x:Bind ViewModel.GraphicsCard, Mode=TwoWay}"
 							          Style="{StaticResource ComboBoxSettingStyle}" />
 						</local:SettingsCard.ActionContent>
 					</local:SettingsCard>
-					<local:SettingsCard Title="显示帧率">
+					<local:SettingsCard x:Uid="Profile_Performance_ShowFPS">
 						<local:SettingsCard.Icon>
 							<FontIcon Glyph="&#xEC4A;" />
 						</local:SettingsCard.Icon>
@@ -248,7 +244,7 @@
 				               HorizontalContentAlignment="Stretch"
 				               Style="{StaticResource SettingExpanderStyle}">
 					<muxc:Expander.Header>
-						<local:SettingsCard Title="垂直同步"
+						<local:SettingsCard x:Uid="Profile_Performance_VSync"
 						                    Style="{StaticResource ExpanderHeaderSettingStyle}">
 							<local:SettingsCard.Icon>
 								<FontIcon Glyph="&#xF71C;" />
@@ -262,7 +258,7 @@
 					<muxc:Expander.Content>
 						<local:SettingsCard IsEnabled="{x:Bind ViewModel.IsVSync, Mode=OneWay}"
 						                    Style="{StaticResource ExpanderContentSettingStyle}">
-							<CheckBox Content="允许额外的延迟以提高性能"
+							<CheckBox x:Uid="Profile_Performance_TripleBuffering"
 							          IsChecked="{x:Bind ViewModel.IsTripleBuffering, Mode=TwoWay}" />
 						</local:SettingsCard>
 					</muxc:Expander.Content>

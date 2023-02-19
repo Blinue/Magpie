@@ -35,9 +35,9 @@ namespace Magpie.App {
 		IVector<IInspectable> MultiMonitorUsages { get; };
 		Int32 MultiMonitorUsage;
 
-		IVector<IInspectable> GraphicsAdapters { get; };
-		Int32 GraphicsAdapter;
-		Boolean IsShowGraphicsAdapterSettingsCard { get; };
+		IVector<IInspectable> GraphicsCards { get; };
+		Int32 GraphicsCard;
+		Boolean IsShowGraphicsCardSettingsCard { get; };
 
 		Boolean IsShowFPS;
 		Boolean IsVSync;

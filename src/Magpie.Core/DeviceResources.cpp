@@ -33,11 +33,11 @@ static bool TestFeatureLevel11(IDXGIAdapter1* adapter) {
 	));
 }
 
-static winrt::com_ptr<IDXGIAdapter4> ObtainGraphicsAdapter(IDXGIFactory4* dxgiFactory, uint32_t adapterIdx) {
+static winrt::com_ptr<IDXGIAdapter4> ObtainGraphicsAdapter(IDXGIFactory4* dxgiFactory, int adapterIdx) {
 	winrt::com_ptr<IDXGIAdapter1> adapter;
 
-	if (adapterIdx > 0) {
-		HRESULT hr = dxgiFactory->EnumAdapters1(adapterIdx - 1, adapter.put());
+	if (adapterIdx >= 0) {
+		HRESULT hr = dxgiFactory->EnumAdapters1(adapterIdx, adapter.put());
 		if (SUCCEEDED(hr)) {
 			DXGI_ADAPTER_DESC1 desc;
 			hr = adapter->GetDesc1(&desc);
@@ -132,7 +132,7 @@ bool DeviceResources::Initialize() {
 	};
 	UINT nFeatureLevels = ARRAYSIZE(featureLevels);
 
-	_graphicsAdapter = ObtainGraphicsAdapter(_dxgiFactory.get(), MagApp::Get().GetOptions().graphicsAdapter);
+	_graphicsAdapter = ObtainGraphicsAdapter(_dxgiFactory.get(), MagApp::Get().GetOptions().graphicsCard);
 	if (!_graphicsAdapter) {
 		Logger::Get().Error("找不到可用的图形适配器");
 		return false;

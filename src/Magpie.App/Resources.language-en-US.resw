@@ -540,4 +540,22 @@
   <data name="Profile_General_ScalingMode_None" xml:space="preserve">
     <value>None</value>
   </data>
+  <data name="Profile_Performance.Title" xml:space="preserve">
+    <value>Performance</value>
+  </data>
+  <data name="Profile_Performance_GraphicsCard.Title" xml:space="preserve">
+    <value>Graphics card</value>
+  </data>
+  <data name="Profile_Performance_ShowFPS.Title" xml:space="preserve">
+    <value>Display FPS counter</value>
+  </data>
+  <data name="Profile_Performance_TripleBuffering.Content" xml:space="preserve">
+    <value>Allow extra latency to improve performance</value>
+  </data>
+  <data name="Profile_Performance_VSync.Title" xml:space="preserve">
+    <value>VSync</value>
+  </data>
+  <data name="Profile_General_CaptureMethod_Default" xml:space="preserve">
+    <value>Default</value>
+  </data>
 </root>

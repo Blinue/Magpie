@@ -1,5 +1,6 @@
 #pragma once
 #include "ProfileViewModel.g.h"
+#include "SmallVector.h"
 
 namespace winrt::Magpie::App {
 struct Profile;
@@ -84,14 +85,12 @@ struct ProfileViewModel : ProfileViewModelT<ProfileViewModel> {
 	int MultiMonitorUsage() const noexcept;
 	void MultiMonitorUsage(int value);
 
-	IVector<IInspectable> GraphicsAdapters() const noexcept {
-		return _graphicsAdapters;
-	}
+	IVector<IInspectable> GraphicsCards() const noexcept;
 
-	int GraphicsAdapter() const noexcept;
-	void GraphicsAdapter(int value);
+	int GraphicsCard() const noexcept;
+	void GraphicsCard(int value);
 
-	bool IsShowGraphicsAdapterSettingsCard() const noexcept;
+	bool IsShowGraphicsCardSettingsCard() const noexcept;
 
 	bool IsShowFPS() const noexcept;
 	void IsShowFPS(bool value);
@@ -153,7 +152,7 @@ private:
 
 	IVector<IInspectable> _scalingModes{ nullptr };
 	IVector<IInspectable> _captureMethods{ nullptr };
-	IVector<IInspectable> _graphicsAdapters{ nullptr };
+	SmallVector<std::wstring> _graphicsCards;
 
 	event<PropertyChangedEventHandler> _propertyChangedEvent;
 

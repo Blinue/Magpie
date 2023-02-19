@@ -26,14 +26,14 @@ using namespace ::Magpie::Core;
 
 namespace winrt::Magpie::App::implementation {
 
-static SmallVector<std::wstring, 2> GetAllGraphicsAdapters() {
+static SmallVector<std::wstring> GetAllGraphicsCards() {
 	com_ptr<IDXGIFactory1> dxgiFactory;
 	HRESULT hr = CreateDXGIFactory1(IID_PPV_ARGS(&dxgiFactory));
 	if (FAILED(hr)) {
 		return {};
 	}
 
-	SmallVector<std::wstring, 2> result;
+	SmallVector<std::wstring> result;
 
 	com_ptr<IDXGIAdapter1> adapter;
 	for (UINT adapterIndex = 0;
@@ -117,18 +117,10 @@ ProfileViewModel::ProfileViewModel(int profileIdx) : _isDefaultProfile(profileId
 		_captureMethods = single_threaded_vector(std::move(captureMethods));
 	}
 
-	std::vector<IInspectable> graphicsAdapters;
-	graphicsAdapters.push_back(box_value(L"默认"));
-
-	for (const std::wstring& adapter : GetAllGraphicsAdapters()) {
-		graphicsAdapters.push_back(box_value(adapter));
+	_graphicsCards = GetAllGraphicsCards();
+	if (_data->graphicsCard >= _graphicsCards.size()) {
+		_data->graphicsCard = -1;
 	}
-
-	if (graphicsAdapters.size() <= 2 || GraphicsAdapter() >= graphicsAdapters.size()) {
-		GraphicsAdapter(0);
-	}
-
-	_graphicsAdapters = single_threaded_vector(std::move(graphicsAdapters));
 }
 
 ProfileViewModel::~ProfileViewModel() {}
@@ -389,28 +381,43 @@ void ProfileViewModel::MultiMonitorUsage(int value) {
 	AppSettings::Get().SaveAsync();
 }
 
-int ProfileViewModel::GraphicsAdapter() const noexcept {
-	return (int)_data->graphicsAdapter;
+IVector<IInspectable> ProfileViewModel::GraphicsCards() const noexcept {
+	std::vector<IInspectable> graphicsCards;
+	graphicsCards.reserve(_graphicsCards.size() + 1);
+
+	ResourceLoader resourceLoader = ResourceLoader::GetForCurrentView();
+	hstring defaultStr = resourceLoader.GetString(L"Profile_General_CaptureMethod_Default");
+	graphicsCards.push_back(box_value(defaultStr));
+
+	for (const std::wstring& graphicsCard : _graphicsCards) {
+		graphicsCards.push_back(box_value(graphicsCard));
+	}
+
+	return single_threaded_vector(std::move(graphicsCards));
 }
 
-void ProfileViewModel::GraphicsAdapter(int value) {
+int ProfileViewModel::GraphicsCard() const noexcept {
+	return _data->graphicsCard + 1;
+}
+
+void ProfileViewModel::GraphicsCard(int value) {
 	if (value < 0) {
 		return;
 	}
 
-	uint32_t graphicsAdapter = (uint32_t)value;
-	if (_data->graphicsAdapter == graphicsAdapter) {
+	--value;
+	if (_data->graphicsCard == value) {
 		return;
 	}
 
-	_data->graphicsAdapter = graphicsAdapter;
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"GraphicsAdapter"));
+	_data->graphicsCard = value;
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"GraphicsCard"));
 
 	AppSettings::Get().SaveAsync();
 }
 
-bool ProfileViewModel::IsShowGraphicsAdapterSettingsCard() const noexcept {
-	return _graphicsAdapters.Size() > 2;
+bool ProfileViewModel::IsShowGraphicsCardSettingsCard() const noexcept {
+	return _graphicsCards.size() > 1;
 }
 
 bool ProfileViewModel::IsShowFPS() const noexcept {

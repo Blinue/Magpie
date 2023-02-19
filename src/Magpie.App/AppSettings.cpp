@@ -77,8 +77,8 @@ static void WriteProfile(rapidjson::PrettyWriter<rapidjson::StringBuffer>& write
 	writer.Uint((uint32_t)profile.captureMethod);
 	writer.Key("multiMonitorUsage");
 	writer.Uint((uint32_t)profile.multiMonitorUsage);
-	writer.Key("graphicsAdapter");
-	writer.Uint(profile.graphicsAdapter);
+	writer.Key("graphicsCard");
+	writer.Int(profile.graphicsCard);
 
 	writer.Key("disableWindowResizing");
 	writer.Bool(profile.IsDisableWindowResizing());
@@ -745,7 +745,13 @@ bool AppSettings::_LoadProfile(
 		profile.multiMonitorUsage = (MultiMonitorUsage)multiMonitorUsage;
 	}
 	
-	JsonHelper::ReadUInt(profileObj, "graphicsAdapter", profile.graphicsAdapter);
+	if (!JsonHelper::ReadInt(profileObj, "graphicsCard", profile.graphicsCard, true)) {
+		// v0.10.0-preview1 使用 graphicsAdapter
+		uint32_t graphicsAdater = 0;
+		JsonHelper::ReadUInt(profileObj, "graphicsAdapter", graphicsAdater);
+		profile.graphicsCard = (int)graphicsAdater - 1;
+	}
+
 	JsonHelper::ReadBoolFlag(profileObj, "disableWindowResizing", MagFlags::DisableWindowResizing, profile.flags);
 	JsonHelper::ReadBoolFlag(profileObj, "3DGameMode", MagFlags::Is3DGameMode, profile.flags);
 	JsonHelper::ReadBoolFlag(profileObj, "showFPS", MagFlags::ShowFPS, profile.flags);

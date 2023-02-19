@@ -93,7 +93,7 @@ struct MagOptions {
 
 	Cropping cropping{};
 	uint32_t flags = MagFlags::VSync | MagFlags::AdjustCursorSpeed | MagFlags::DrawCursor;	// MagFlags
-	uint32_t graphicsAdapter = 0;
+	int graphicsCard = -1;
 	float cursorScaling = 1.0f;
 	CaptureMethod captureMethod = CaptureMethod::GraphicsCapture;
 	MultiMonitorUsage multiMonitorUsage = MultiMonitorUsage::Closest;

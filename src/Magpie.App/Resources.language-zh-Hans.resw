@@ -540,4 +540,22 @@
   <data name="Profile_General_ScalingMode_None" xml:space="preserve">
     <value>无</value>
   </data>
+  <data name="Profile_Performance.Title" xml:space="preserve">
+    <value>性能</value>
+  </data>
+  <data name="Profile_Performance_GraphicsCard.Title" xml:space="preserve">
+    <value>显示卡</value>
+  </data>
+  <data name="Profile_Performance_ShowFPS.Title" xml:space="preserve">
+    <value>显示帧率</value>
+  </data>
+  <data name="Profile_Performance_TripleBuffering.Content" xml:space="preserve">
+    <value>允许额外的延迟以提高性能</value>
+  </data>
+  <data name="Profile_Performance_VSync.Title" xml:space="preserve">
+    <value>垂直同步</value>
+  </data>
+  <data name="Profile_General_CaptureMethod_Default" xml:space="preserve">
+    <value>默认</value>
+  </data>
 </root>

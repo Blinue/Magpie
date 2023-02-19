@@ -24,7 +24,7 @@ struct Profile {
 		isCroppingEnabled = other.isCroppingEnabled;
 		cropping = other.cropping;
 		captureMethod = other.captureMethod;
-		graphicsAdapter = other.graphicsAdapter;
+		graphicsCard = other.graphicsCard;
 		multiMonitorUsage = other.multiMonitorUsage;
 		cursorInterpolationMode = other.cursorInterpolationMode;
 		flags = other.flags;
@@ -53,7 +53,8 @@ struct Profile {
 	// -1 表示原样
 	int scalingMode = -1;
 	::Magpie::Core::CaptureMethod captureMethod = ::Magpie::Core::CaptureMethod::GraphicsCapture;
-	uint32_t graphicsAdapter = 0;
+	// -1 表示默认，大于等于 0 为图形适配器的索引
+	int graphicsCard = 0;
 	::Magpie::Core::MultiMonitorUsage multiMonitorUsage = ::Magpie::Core::MultiMonitorUsage::Closest;
 	::Magpie::Core::CursorInterpolationMode cursorInterpolationMode = ::Magpie::Core::CursorInterpolationMode::Closest;
 

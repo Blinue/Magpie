@@ -232,7 +232,7 @@ bool MagService::_StartScale(HWND hWnd, const Profile& profile) {
 	}
 
 	MagOptions options;
-	options.graphicsAdapter = profile.graphicsAdapter;
+	options.graphicsCard = profile.graphicsCard;
 	options.captureMethod = profile.captureMethod;
 	options.multiMonitorUsage = profile.multiMonitorUsage;
 	options.cursorInterpolationMode = profile.cursorInterpolationMode;
