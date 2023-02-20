@@ -45,10 +45,6 @@ DependencyProperty SettingsCard::ActionContentProperty = DependencyProperty::Reg
 	PropertyMetadata(nullptr, &SettingsCard::_OnActionContentChanged)
 );
 
-SettingsCard::SettingsCard() {
-	InitializeComponent();
-}
-
 void SettingsCard::_OnRawTitleChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const&) {
 	SettingsCard* that = get_self<SettingsCard>(sender.as<default_interface<SettingsCard>>());
 	that->_Update();

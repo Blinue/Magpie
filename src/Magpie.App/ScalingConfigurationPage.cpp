@@ -19,8 +19,6 @@ using namespace Windows::UI::Xaml::Input;
 namespace winrt::Magpie::App::implementation {
 
 ScalingConfigurationPage::ScalingConfigurationPage() {
-	InitializeComponent();
-
 	_BuildEffectMenu();
 }
 

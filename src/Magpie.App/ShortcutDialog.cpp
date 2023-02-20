@@ -9,10 +9,6 @@ using namespace Windows::ApplicationModel::Resources;
 
 namespace winrt::Magpie::App::implementation {
 
-ShortcutDialog::ShortcutDialog() {
-	InitializeComponent();
-}
-
 void ShortcutDialog::Error(ShortcutError value) {
 	switch (value) {
 	case ShortcutError::NoError:

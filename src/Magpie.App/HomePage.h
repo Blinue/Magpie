@@ -4,8 +4,6 @@
 namespace winrt::Magpie::App::implementation {
 
 struct HomePage : HomePageT<HomePage> {
-	HomePage();
-
 	Magpie::App::HomeViewModel ViewModel() const noexcept {
 		return _viewModel;
 	}

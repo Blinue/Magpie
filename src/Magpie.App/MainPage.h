@@ -10,8 +10,9 @@ namespace winrt::Magpie::App::implementation {
 
 struct MainPage : MainPageT<MainPage> {
 	MainPage();
-
 	~MainPage();
+
+	void InitializeComponent();
 
 	void Loaded(IInspectable const&, RoutedEventArgs const&);
 

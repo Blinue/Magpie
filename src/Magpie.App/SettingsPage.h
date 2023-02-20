@@ -4,8 +4,6 @@
 namespace winrt::Magpie::App::implementation {
 
 struct SettingsPage : SettingsPageT<SettingsPage> {
-	SettingsPage();
-	
 	Magpie::App::SettingsViewModel ViewModel() const noexcept {
 		return _viewModel;
 	}

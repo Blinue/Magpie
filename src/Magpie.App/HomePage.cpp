@@ -5,9 +5,4 @@
 #endif
 
 namespace winrt::Magpie::App::implementation {
-
-HomePage::HomePage() {
-	InitializeComponent();
-}
-
 }

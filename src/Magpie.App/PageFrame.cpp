@@ -42,11 +42,6 @@ const DependencyProperty PageFrame::MainContentProperty = DependencyProperty::Re
 	PropertyMetadata(nullptr, &PageFrame::_OnMainContentChanged)
 );
 
-
-PageFrame::PageFrame() {
-	InitializeComponent();
-}
-
 void PageFrame::Loading(FrameworkElement const&, IInspectable const&) {
 	_Update();
 

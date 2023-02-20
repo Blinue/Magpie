@@ -56,8 +56,6 @@ const DependencyProperty ShortcutControl::TitleProperty = DependencyProperty::Re
 ShortcutControl* ShortcutControl::_that = nullptr;
 
 ShortcutControl::ShortcutControl() {
-	InitializeComponent();
-
 	_shortcutChangedRevoker = AppSettings::Get().ShortcutChanged(
 		auto_revoke, { this,&ShortcutControl::_AppSettings_OnShortcutChanged });
 }

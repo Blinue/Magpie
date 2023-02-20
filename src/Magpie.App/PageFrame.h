@@ -4,8 +4,6 @@
 namespace winrt::Magpie::App::implementation {
 
 struct PageFrame : PageFrameT<PageFrame> {
-	PageFrame();
-
 	void Title(const hstring& value) {
 		SetValue(TitleProperty, box_value(value));
 	}

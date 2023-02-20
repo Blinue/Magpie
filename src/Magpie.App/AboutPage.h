@@ -4,8 +4,6 @@
 namespace winrt::Magpie::App::implementation {
 
 struct AboutPage : AboutPageT<AboutPage> {
-	AboutPage();
-
 	Magpie::App::AboutViewModel ViewModel() const noexcept {
 		return _viewModel;
 	}

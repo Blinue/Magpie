@@ -16,8 +16,8 @@ using namespace Windows::UI::Xaml::Input;
 
 namespace winrt::Magpie::App::implementation {
 
-ProfilePage::ProfilePage() {
-	InitializeComponent();
+void ProfilePage::InitializeComponent() {
+	ProfilePageT::InitializeComponent();
 
 	if (!Win32Utils::GetOSVersion().IsWin11()) {
 		// Segoe MDL2 Assets 不存在 Move 图标

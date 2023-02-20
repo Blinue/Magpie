@@ -31,8 +31,8 @@ const DependencyProperty SettingsGroup::DescriptionProperty = DependencyProperty
 	PropertyMetadata(nullptr, &SettingsGroup::_OnDescriptionChanged)
 );
 
-SettingsGroup::SettingsGroup() {
-	InitializeComponent();
+void SettingsGroup::InitializeComponent() {
+	SettingsGroupT::InitializeComponent();
 
 	Children(ChildrenHost().Children());
 }

@@ -31,39 +31,13 @@ namespace winrt::Magpie::App::implementation {
 static constexpr const uint32_t FIRST_PROFILE_ITEM_IDX = 4;
 
 MainPage::MainPage() {
-	InitializeComponent();
-
 	_themeChangedRevoker = AppSettings::Get().ThemeChanged(auto_revoke, [this](int) { _UpdateTheme(); });
-	_UpdateTheme(false);
-
 	_colorValuesChangedRevoker = _uiSettings.ColorValuesChanged(
-		auto_revoke, { get_weak(), &MainPage::_UISettings_ColorValuesChanged });
+		auto_revoke, { this, &MainPage::_UISettings_ColorValuesChanged });
 
-	const Win32Utils::OSVersion& osVersion = Win32Utils::GetOSVersion();
-	if (osVersion.Is22H2OrNewer()) {
-		// Win11 22H2+ 使用系统的 Mica 背景
-		MUXC::BackdropMaterial::SetApplyToRootOrPageBackground(*this, true);
-	}
-	
 	_displayInformation = DisplayInformation::GetForCurrentView();
 	_dpiChangedRevoker = _displayInformation.DpiChanged(
 		auto_revoke, [this](DisplayInformation const&, IInspectable const&) { _UpdateIcons(false); });
-
-	IVector<IInspectable> navMenuItems = __super::RootNavigationView().MenuItems();
-	for (const Profile& profile : AppSettings::Get().Profiles()) {
-		MUXC::NavigationViewItem item;
-		item.Content(box_value(profile.name));
-		// 用于占位
-		item.Icon(FontIcon());
-		_LoadIcon(item, profile);
-
-		navMenuItems.InsertAt(navMenuItems.Size() - 1, item);
-	}
-
-	// Win10 里启动时有一个 ToggleSwitch 的动画 bug，这里展示页面切换动画掩盖
-	if (!osVersion.IsWin11()) {
-		ContentFrame().Navigate(winrt::xaml_typename<Controls::Page>());
-	}
 
 	ProfileService& profileService = ProfileService::Get();
 	_profileAddedRevoker = profileService.ProfileAdded(
@@ -85,6 +59,34 @@ MainPage::~MainPage() {
 
 	// 每次主窗口关闭都清理 AppXReader 的缓存
 	AppXReader::ClearCache();
+}
+
+void MainPage::InitializeComponent() {
+	MainPageT::InitializeComponent();
+
+	_UpdateTheme(false);
+
+	const Win32Utils::OSVersion& osVersion = Win32Utils::GetOSVersion();
+	if (osVersion.Is22H2OrNewer()) {
+		// Win11 22H2+ 使用系统的 Mica 背景
+		MUXC::BackdropMaterial::SetApplyToRootOrPageBackground(*this, true);
+	}
+
+	IVector<IInspectable> navMenuItems = __super::RootNavigationView().MenuItems();
+	for (const Profile& profile : AppSettings::Get().Profiles()) {
+		MUXC::NavigationViewItem item;
+		item.Content(box_value(profile.name));
+		// 用于占位
+		item.Icon(FontIcon());
+		_LoadIcon(item, profile);
+
+		navMenuItems.InsertAt(navMenuItems.Size() - 1, item);
+	}
+
+	// Win10 里启动时有一个 ToggleSwitch 的动画 bug，这里展示页面切换动画掩盖
+	if (!osVersion.IsWin11()) {
+		ContentFrame().Navigate(winrt::xaml_typename<Controls::Page>());
+	}
 }
 
 void MainPage::Loaded(IInspectable const&, RoutedEventArgs const&) {
@@ -314,7 +316,12 @@ fire_and_forget MainPage::_LoadIcon(MUXC::NavigationViewItem const& item, const 
 }
 
 fire_and_forget MainPage::_UISettings_ColorValuesChanged(Windows::UI::ViewManagement::UISettings const&, IInspectable const&) {
+	auto weakThis = get_weak();
 	co_await Dispatcher();
+
+	if (!weakThis.get()) {
+		co_return;
+	}
 
 	if (AppSettings::Get().Theme() == 2) {
 		_UpdateTheme(false);

@@ -4,8 +4,6 @@
 namespace winrt::Magpie::App::implementation {
 
 struct ShortcutDialog : ShortcutDialogT<ShortcutDialog> {
-	ShortcutDialog();
-
 	void Error(ShortcutError value);
 	ShortcutError Error() const {
 		return _error;

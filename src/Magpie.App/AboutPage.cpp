@@ -7,10 +7,6 @@
 
 namespace winrt::Magpie::App::implementation {
 
-AboutPage::AboutPage() {
-	InitializeComponent();
-}
-
 void AboutPage::BugReportButton_Click(IInspectable const&, RoutedEventArgs const&) {
 	Win32Utils::ShellOpen(L"https://github.com/Blinue/Magpie/issues/new?assignees=&labels=bug&template=01_bug.yaml");
 }

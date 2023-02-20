@@ -4,7 +4,7 @@
 namespace winrt::Magpie::App::implementation {
 
 struct ProfilePage : ProfilePageT<ProfilePage> {
-	ProfilePage();
+	void InitializeComponent();
 
 	void OnNavigatedTo(Navigation::NavigationEventArgs const& args);
 

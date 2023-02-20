@@ -4,8 +4,6 @@
 namespace winrt::Magpie::App::implementation {
 
 struct SettingsCard : SettingsCardT<SettingsCard> {
-	SettingsCard();
-
 	void RawTitle(IInspectable const& value) {
 		SetValue(RawTitleProperty, value);
 	}

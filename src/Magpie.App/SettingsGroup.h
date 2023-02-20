@@ -4,7 +4,7 @@
 namespace winrt::Magpie::App::implementation {
 
 struct SettingsGroup : SettingsGroupT<SettingsGroup> {
-	SettingsGroup();
+	void InitializeComponent();
 
 	void Title(const hstring& value) {
 		SetValue(TitleProperty, box_value(value));
