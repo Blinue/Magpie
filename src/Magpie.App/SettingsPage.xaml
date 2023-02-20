@@ -41,12 +41,8 @@
 						<FontIcon Glyph="&#xE88E;" />
 					</local:SettingsCard.Icon>
 					<local:SettingsCard.Description>
-						<StackPanel Orientation="Vertical"
-						            Spacing="2">
-							<TextBlock x:Uid="Settings_General_PortableMode_Description" />
-							<HyperlinkButton x:Uid="Settings_General_PortableMode_Locate"
-							                 Click="{x:Bind ViewModel.OpenConfigLocation}" />
-						</StackPanel>
+						<HyperlinkButton x:Uid="Settings_General_PortableMode_Locate"
+						                 Click="{x:Bind ViewModel.OpenConfigLocation}" />
 					</local:SettingsCard.Description>
 					<local:SettingsCard.ActionContent>
 						<ToggleSwitch x:Uid="ToggleSwitch"
@@ -80,17 +76,14 @@
 						</local:SettingsCard>
 					</muxc:Expander.Header>
 					<muxc:Expander.Content>
-						<StackPanel>
-							<local:SettingsCard IsEnabled="{x:Bind ViewModel.IsMinimizeAtStartupEnabled, Mode=OneWay}"
-							                    Style="{StaticResource ExpanderContentSettingStyle}">
-								<CheckBox Content="开机启动时最小化到系统托盘"
-								          IsChecked="{x:Bind ViewModel.IsMinimizeAtStartup, Mode=TwoWay}" />
-							</local:SettingsCard>
-							<muxc:InfoBar Title="启用“开机启动”和“常驻后台”以更改此设置"
-							              IsClosable="False"
-							              IsOpen="{x:Bind ViewModel.IsMinimizeAtStartupEnabled, Mode=OneWay, Converter={StaticResource NegationConverter}}"
-							              Severity="Warning" />
-						</StackPanel>
+						<local:SettingsCard x:Uid="Settings_Launch_RunAtStartup_MinimizeAtStartup"
+						                    IsEnabled="{x:Bind ViewModel.IsMinimizeAtStartupEnabled, Mode=OneWay}"
+						                    Style="{StaticResource ExpanderContentSettingStyle}">
+							<local:SettingsCard.ActionContent>
+								<ToggleSwitch x:Uid="ToggleSwitch"
+								              IsOn="{x:Bind ViewModel.IsMinimizeAtStartup, Mode=TwoWay}" />
+							</local:SettingsCard.ActionContent>
+						</local:SettingsCard>
 					</muxc:Expander.Content>
 				</muxc:Expander>
 				<local:SettingsCard x:Uid="Settings_Launch_AlwaysRunAsAdmin"
@@ -105,8 +98,7 @@
 				</local:SettingsCard>
 			</local:SettingsGroup>
 			<local:SettingsGroup x:Uid="Settings_Advanced">
-				<local:SettingsCard Title="模拟独占全屏"
-				                    Description="使你在游戏时不受打扰">
+				<local:SettingsCard x:Uid="Settings_Advanced_SimulateExclusiveFullscreen">
 					<local:SettingsCard.Icon>
 						<FontIcon Glyph="&#xec46;" />
 					</local:SettingsCard.Icon>
@@ -115,8 +107,7 @@
 						              IsOn="{x:Bind ViewModel.IsSimulateExclusiveFullscreen, Mode=TwoWay}" />
 					</local:SettingsCard.ActionContent>
 				</local:SettingsCard>
-				<local:SettingsCard Title="内联效果参数"
-				                    Description="可以稍微提高性能，但每次修改参数都需重新编译该效果">
+				<local:SettingsCard x:Uid="Settings_Advanced_InlineParams">
 					<local:SettingsCard.Icon>
 						<FontIcon Glyph="&#xE9E9;" />
 					</local:SettingsCard.Icon>
@@ -129,7 +120,7 @@
 				               HorizontalContentAlignment="Stretch"
 				               Style="{StaticResource SettingExpanderStyle}">
 					<muxc:Expander.Header>
-						<local:SettingsCard Title="开发者选项"
+						<local:SettingsCard x:Uid="Settings_DeveloperOptions"
 						                    Style="{StaticResource ExpanderHeaderSettingStyle}">
 							<local:SettingsCard.Icon>
 								<FontIcon Glyph="&#xEC7A;" />
@@ -139,19 +130,19 @@
 					<muxc:Expander.Content>
 						<StackPanel>
 							<local:SettingsCard Style="{StaticResource ExpanderContentSettingStyle}">
-								<CheckBox Content="调试模式"
+								<CheckBox x:Uid="Settings_DeveloperOptions_DebugMode"
 								          IsChecked="{x:Bind ViewModel.IsDebugMode, Mode=TwoWay}" />
 							</local:SettingsCard>
 							<local:SettingsCard Style="{StaticResource ExpanderContentSettingStyle}">
-								<CheckBox Content="禁用效果缓存"
+								<CheckBox x:Uid="Settings_DeveloperOptions_DisableEffectCache"
 								          IsChecked="{x:Bind ViewModel.IsDisableEffectCache, Mode=TwoWay}" />
 							</local:SettingsCard>
 							<local:SettingsCard Style="{StaticResource ExpanderContentSettingStyle}">
-								<CheckBox Content="解析效果时保存源代码"
+								<CheckBox x:Uid="Settings_DeveloperOptions_SaveEffectSources"
 								          IsChecked="{x:Bind ViewModel.IsSaveEffectSources, Mode=TwoWay}" />
 							</local:SettingsCard>
 							<local:SettingsCard Style="{StaticResource ExpanderContentSettingStyle}">
-								<CheckBox Content="编译效果时将警告视为错误"
+								<CheckBox x:Uid="Settings_DeveloperOptions_WarningsAreErrors"
 								          IsChecked="{x:Bind ViewModel.IsWarningsAreErrors, Mode=TwoWay}" />
 							</local:SettingsCard>
 						</StackPanel>

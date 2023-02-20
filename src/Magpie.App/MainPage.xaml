@@ -101,7 +101,7 @@
 									          SelectedIndex="{x:Bind NewProfileViewModel.CandidateWindowIndex, Mode=TwoWay}">
 										<ComboBox.ItemTemplate>
 											<DataTemplate x:DataType="local:CandidateWindowItem">
-												<Grid MaxWidth="400"
+												<Grid MaxWidth="450"
 												      HorizontalAlignment="Stretch"
 												      ColumnSpacing="15">
 													<Grid.ColumnDefinitions>

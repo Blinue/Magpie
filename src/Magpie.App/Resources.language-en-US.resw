@@ -237,9 +237,6 @@
   <data name="Settings_General_PortableMode.Title" xml:space="preserve">
     <value>Portable mode</value>
   </data>
-  <data name="Settings_General_PortableMode_Description.Text" xml:space="preserve">
-    <value>Change the location of the configuration file</value>
-  </data>
   <data name="Settings_General_PortableMode_Locate.Content" xml:space="preserve">
     <value>Open configuration file location</value>
   </data>
@@ -683,5 +680,41 @@
   </data>
   <data name="Profile_SourceWindow_DisableWindowResizing.Title" xml:space="preserve">
     <value>Disable window resizing while scaled</value>
+  </data>
+  <data name="Settings_Advanced_InlineParams.Description" xml:space="preserve">
+    <value>Gives a small performance boost. However, effects must be recompiled each time their parameters are changed</value>
+  </data>
+  <data name="Settings_Advanced_InlineParams.Title" xml:space="preserve">
+    <value>Make effect parameters inline</value>
+  </data>
+  <data name="Settings_Advanced_SimulateExclusiveFullscreen.Description" xml:space="preserve">
+    <value>Notifications and pop-ups from certain applications will be blocked</value>
+  </data>
+  <data name="Settings_Advanced_SimulateExclusiveFullscreen.Title" xml:space="preserve">
+    <value>Simulate exclusive fullscreen when scaling</value>
+  </data>
+  <data name="Settings_Launch_RunAtStartup_MinimizeAtStartup.Description" xml:space="preserve">
+    <value>You need to turn on "Display the app on the system tray" to change this setting</value>
+  </data>
+  <data name="Settings_Launch_RunAtStartup_MinimizeAtStartup.Title" xml:space="preserve">
+    <value>Minimize to system tray at startup</value>
+  </data>
+  <data name="Settings_DeveloperOptions.Description" xml:space="preserve">
+    <value>Don't change these settings unless you know what you're doing</value>
+  </data>
+  <data name="Settings_DeveloperOptions.Title" xml:space="preserve">
+    <value>Developer options</value>
+  </data>
+  <data name="Settings_DeveloperOptions_DebugMode.Content" xml:space="preserve">
+    <value>Debug mode</value>
+  </data>
+  <data name="Settings_DeveloperOptions_DisableEffectCache.Content" xml:space="preserve">
+    <value>Disable effect cache</value>
+  </data>
+  <data name="Settings_DeveloperOptions_SaveEffectSources.Content" xml:space="preserve">
+    <value>Save source code when parsing effects</value>
+  </data>
+  <data name="Settings_DeveloperOptions_WarningsAreErrors.Content" xml:space="preserve">
+    <value>Treat warnings as errors when compiling effects</value>
   </data>
 </root>

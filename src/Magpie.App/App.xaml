@@ -22,6 +22,7 @@
 			       TargetType="TextBlock">
 				<Setter Property="FontSize" Value="{StaticResource SecondaryTextFontSize}" />
 				<Setter Property="Foreground" Value="{ThemeResource TextFillColorSecondaryBrush}" />
+				<Setter Property="TextWrapping" Value="WrapWholeWords" />
 			</Style>
 
 			<Style x:Key="SettingsCardButtonStyle"

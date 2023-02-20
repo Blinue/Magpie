@@ -237,9 +237,6 @@
   <data name="Settings_General_PortableMode.Title" xml:space="preserve">
     <value>便携模式</value>
   </data>
-  <data name="Settings_General_PortableMode_Description.Text" xml:space="preserve">
-    <value>更改配置文件的保存位置</value>
-  </data>
   <data name="Settings_General_PortableMode_Locate.Content" xml:space="preserve">
     <value>打开配置文件位置</value>
   </data>
@@ -683,5 +680,41 @@
   </data>
   <data name="Profile_SourceWindow_DisableWindowResizing.Title" xml:space="preserve">
     <value>缩放时禁用窗口大小调整</value>
+  </data>
+  <data name="Settings_Advanced_InlineParams.Description" xml:space="preserve">
+    <value>稍微提高性能，但每次修改效果的参数都需重新编译该效果</value>
+  </data>
+  <data name="Settings_Advanced_InlineParams.Title" xml:space="preserve">
+    <value>内联效果参数</value>
+  </data>
+  <data name="Settings_Advanced_SimulateExclusiveFullscreen.Description" xml:space="preserve">
+    <value>可以阻止某些应用的通知和弹窗</value>
+  </data>
+  <data name="Settings_Advanced_SimulateExclusiveFullscreen.Title" xml:space="preserve">
+    <value>缩放时模拟独占全屏</value>
+  </data>
+  <data name="Settings_Launch_RunAtStartup_MinimizeAtStartup.Description" xml:space="preserve">
+    <value>启用了“在系统托盘上显示应用程序”时才能更改此选项</value>
+  </data>
+  <data name="Settings_Launch_RunAtStartup_MinimizeAtStartup.Title" xml:space="preserve">
+    <value>启动时最小化到系统托盘</value>
+  </data>
+  <data name="Settings_DeveloperOptions.Description" xml:space="preserve">
+    <value>除非你知道自己在做什么，否则不要更改这些设置</value>
+  </data>
+  <data name="Settings_DeveloperOptions.Title" xml:space="preserve">
+    <value>开发者选项</value>
+  </data>
+  <data name="Settings_DeveloperOptions_DebugMode.Content" xml:space="preserve">
+    <value>调试模式</value>
+  </data>
+  <data name="Settings_DeveloperOptions_DisableEffectCache.Content" xml:space="preserve">
+    <value>禁用效果缓存</value>
+  </data>
+  <data name="Settings_DeveloperOptions_SaveEffectSources.Content" xml:space="preserve">
+    <value>解析效果时保存源代码</value>
+  </data>
+  <data name="Settings_DeveloperOptions_WarningsAreErrors.Content" xml:space="preserve">
+    <value>编译效果时将警告视为错误</value>
   </data>
 </root>
