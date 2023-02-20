@@ -14,7 +14,9 @@
 #include "ScalingMode.h"
 #include "LocalizationService.h"
 
-using namespace Magpie::Core;
+using namespace ::Magpie::Core;
+using namespace winrt;
+using namespace Windows::ApplicationModel::Resources;
 
 namespace winrt::Magpie::App {
 
@@ -156,7 +158,8 @@ static HRESULT CALLBACK TaskDialogCallback(
 static void ShowErrorMessage(const wchar_t* mainInstruction, const wchar_t* content) {
 	TASKDIALOGCONFIG tdc{ sizeof(TASKDIALOGCONFIG) };
 	tdc.dwFlags = TDF_SIZE_TO_CONTENT;
-	tdc.pszWindowTitle = L"错误";
+	hstring errorStr = ResourceLoader::GetForCurrentView().GetString(L"AppSettings_Dialog_Error");
+	tdc.pszWindowTitle = errorStr.c_str();
 	tdc.pszMainIcon = TD_ERROR_ICON;
 	tdc.pszMainInstruction = mainInstruction;
 	tdc.pszContent = content;
@@ -176,7 +179,8 @@ static bool ShowOkCancelWarningMessage(
 ) noexcept {
 	TASKDIALOGCONFIG tdc{ sizeof(TASKDIALOGCONFIG) };
 	tdc.dwFlags = TDF_SIZE_TO_CONTENT;
-	tdc.pszWindowTitle = L"警告";
+	hstring warningStr = ResourceLoader::GetForCurrentView().GetString(L"AppSettings_Dialog_Warning");
+	tdc.pszWindowTitle = warningStr.c_str();
 	tdc.pszMainIcon = TD_WARNING_ICON;
 	tdc.pszMainInstruction = mainInstruction;
 	tdc.pszContent = content;
@@ -228,6 +232,8 @@ bool AppSettings::Initialize() {
 		return true;
 	}
 
+	// 此时 ResourceLoader 使用“首选语言”
+
 	rapidjson::Document doc;
 	doc.ParseInsitu(configText.data());
 	if (doc.HasParseError()) {
@@ -250,15 +256,29 @@ bool AppSettings::Initialize() {
 
 	if (settingsVersion > SETTINGS_VERSION) {
 		Logger::Get().Warn("未知的配置文件版本");
+
+		ResourceLoader resourceLoader = ResourceLoader::GetForCurrentView();
 		if (_isPortableMode) {
-			if (!ShowOkCancelWarningMessage(nullptr, L"配置文件来自未知版本，可能无法正确解析。",
-				L"继续使用", L"退出")
+			hstring contentStr = resourceLoader.GetString(
+				L"AppSettings_PortableModeUnkownConfiguration_Content");
+			hstring continueStr = resourceLoader.GetString(
+				L"AppSettings_PortableModeUnkownConfiguration_Continue");
+			hstring exitStr = resourceLoader.GetString(
+				L"AppSettings_PortableModeUnkownConfiguration_Exit");
+			if (!ShowOkCancelWarningMessage(nullptr,
+				contentStr.c_str(), continueStr.c_str(), exitStr.c_str())
 			) {
 				return false;
 			}
 		} else {
-			if (!ShowOkCancelWarningMessage(nullptr, L"全局配置文件来自未知版本，可能无法正确解析。",
-				L"继续使用", L"启用便携模式")
+			hstring contentStr = resourceLoader.GetString(
+				L"AppSettings_UnkownConfiguration_Content");
+			hstring continueStr = resourceLoader.GetString(
+				L"AppSettings_UnkownConfiguration_Continue");
+			hstring enablePortableModeStr = resourceLoader.GetString(
+				L"AppSettings_UnkownConfiguration_EnablePortableMode");
+			if (!ShowOkCancelWarningMessage(nullptr,
+				contentStr.c_str(), continueStr.c_str(), enablePortableModeStr.c_str())
 			) {
 				IsPortableMode(true);
 				_SetDefaultScalingModes();

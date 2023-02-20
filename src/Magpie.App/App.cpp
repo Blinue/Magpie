@@ -49,6 +49,8 @@ App::App() {
 		}
 	}
 
+	LocalizationService::Get().EarlyInitialize();
+
 	// 根据操作系统选择图标字体
 	Resources().Insert(
 		box_value(L"SymbolThemeFontFamily"),

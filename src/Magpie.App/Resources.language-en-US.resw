@@ -295,7 +295,7 @@
     <value>General</value>
   </data>
   <data name="ScalingConfiguration_General_DefaultDownscalingEffect.Description" xml:space="preserve">
-    <value>Applied when the output image cannot fit</value>
+    <value>Automatically applied when output image is too large to fit on the screen</value>
   </data>
   <data name="ScalingConfiguration_General_DefaultDownscalingEffect.Title" xml:space="preserve">
     <value>Default downscaling effect</value>
@@ -699,8 +699,32 @@
   <data name="Settings_Launch_RunAtStartup_MinimizeAtStartup.Title" xml:space="preserve">
     <value>Minimize to system tray at startup</value>
   </data>
+  <data name="AppSettings_Dialog_Error" xml:space="preserve">
+    <value>Error</value>
+  </data>
+  <data name="AppSettings_Dialog_Warning" xml:space="preserve">
+    <value>Warning</value>
+  </data>
+  <data name="AppSettings_PortableModeUnkownConfiguration_Content" xml:space="preserve">
+    <value>The local configuration file comes from an unknown version and may not be parsed correctly.</value>
+  </data>
+  <data name="AppSettings_PortableModeUnkownConfiguration_Continue" xml:space="preserve">
+    <value>Continue</value>
+  </data>
+  <data name="AppSettings_PortableModeUnkownConfiguration_Exit" xml:space="preserve">
+    <value>Exit</value>
+  </data>
+  <data name="AppSettings_UnkownConfiguration_Content" xml:space="preserve">
+    <value>The global configuration file comes from an unknown version and may not be parsed correctly.</value>
+  </data>
+  <data name="AppSettings_UnkownConfiguration_Continue" xml:space="preserve">
+    <value>Continue</value>
+  </data>
+  <data name="AppSettings_UnkownConfiguration_EnablePortableMode" xml:space="preserve">
+    <value>Enable portable mode</value>
+  </data>
   <data name="Settings_DeveloperOptions.Description" xml:space="preserve">
-    <value>Don't change these settings unless you know what you're doing</value>
+    <value>Do not change these settings unless you know what you are doing</value>
   </data>
   <data name="Settings_DeveloperOptions.Title" xml:space="preserve">
     <value>Developer options</value>
