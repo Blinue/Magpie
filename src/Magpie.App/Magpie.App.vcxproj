@@ -544,8 +544,8 @@
     <SDKReference Include="WindowsDesktop, Version=10.0.22621.0" />
   </ItemGroup>
   <ItemGroup>
+    <PRIResource Include="Resources.language-en-US.resw" />
     <PRIResource Include="Resources.language-zh-Hans.resw" />
-    <PRIResource Include="Resources.resw" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
