@@ -9,7 +9,6 @@
 #include "CommonPch.h"
 
 // C++/WinRT 头文件
-#include <winrt/Windows.ApplicationModel.Resources.Core.h>
 #include <winrt/Windows.Globalization.NumberFormatting.h>
 #include <winrt/Windows.Graphics.Imaging.h>
 #include <winrt/Windows.UI.Core.h>
@@ -17,11 +16,9 @@
 #include <winrt/Windows.Storage.Streams.h>
 #include <winrt/Windows.System.Threading.h>
 #include <winrt/Windows.UI.ViewManagement.h>
-#include <winrt/Windows.UI.Xaml.h>
 #include <winrt/Windows.UI.Xaml.Controls.h>
 #include <winrt/Windows.UI.Xaml.Controls.Primitives.h>
 #include <winrt/Windows.UI.Xaml.Data.h>
-#include <winrt/Windows.UI.Xaml.Media.h>
 #include <winrt/Windows.UI.Xaml.Media.Animation.h>
 #include <winrt/Windows.UI.Xaml.Media.Imaging.h>
 #include <winrt/Windows.UI.Xaml.Interop.h>
@@ -38,11 +35,8 @@
 #include <winrt/Microsoft.UI.Xaml.XamlTypeInfo.h>
 
 namespace winrt {
-using namespace Windows::System;
 using namespace Windows::UI::Core;
-using namespace Windows::UI::Xaml;
 using namespace Windows::UI::Xaml::Data;
-using namespace Windows::UI::Xaml::Media;
 using namespace Windows::Web::Http;
 
 namespace MUXC = Microsoft::UI::Xaml::Controls;

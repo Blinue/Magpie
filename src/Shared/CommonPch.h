@@ -27,17 +27,22 @@
 #include <restrictederrorinfo.h>
 #include <hstring.h>
 #include <winrt/base.h>
+#include <winrt/Windows.ApplicationModel.Resources.h>
+#include <winrt/Windows.ApplicationModel.Resources.Core.h>
 #include <winrt/Windows.Foundation.h>
 #include <winrt/Windows.Foundation.Collections.h>
 #include <winrt/Windows.Foundation.Metadata.h>
 #include <winrt/Windows.System.h>
-
+#include <winrt/Windows.UI.Xaml.h>
+#include <winrt/Windows.UI.Xaml.Media.h>
 
 namespace winrt {
 using namespace Windows::Foundation;
 using namespace Windows::Foundation::Collections;
 using namespace Windows::Foundation::Metadata;
 using namespace Windows::System;
+using namespace Windows::UI::Xaml;
+using namespace Windows::UI::Xaml::Media;
 }
 
 // 确保已编译 CONAN 依赖

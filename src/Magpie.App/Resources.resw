@@ -316,7 +316,7 @@
     <value>Scaling modes</value>
   </data>
   <data name="Settings_Launch_AlwaysRunAsAdmin.Description" xml:space="preserve">
-    <value>You need to run as administrator to change this setting</value>
+    <value>You need to run as administrator to use this setting</value>
   </data>
   <data name="Settings_Launch_AlwaysRunAsAdmin.Title" xml:space="preserve">
     <value>Always run as administrator</value>
@@ -694,7 +694,7 @@
     <value>Simulate exclusive fullscreen when scaling</value>
   </data>
   <data name="Settings_Launch_RunAtStartup_MinimizeAtStartup.Description" xml:space="preserve">
-    <value>You need to turn on "Display the app on the system tray" to change this setting</value>
+    <value>You need to turn on "Display the app on the system tray" to use this setting</value>
   </data>
   <data name="Settings_Launch_RunAtStartup_MinimizeAtStartup.Title" xml:space="preserve">
     <value>Minimize to system tray at startup</value>
@@ -756,5 +756,11 @@
   </data>
   <data name="AppSettings_ErrorDialog_ReadFailed" xml:space="preserve">
     <value>Failed to read configuration file</value>
+  </data>
+  <data name="TrayIcon_Exit" xml:space="preserve">
+    <value>Exit</value>
+  </data>
+  <data name="TrayIcon_MainWindow" xml:space="preserve">
+    <value>Main window</value>
   </data>
 </root>

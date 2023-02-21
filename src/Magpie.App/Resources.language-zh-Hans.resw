@@ -757,4 +757,10 @@
   <data name="AppSettings_ErrorDialog_ReadFailed" xml:space="preserve">
     <value>读取配置文件失败</value>
   </data>
+  <data name="TrayIcon_Exit" xml:space="preserve">
+    <value>退出</value>
+  </data>
+  <data name="TrayIcon_MainWindow" xml:space="preserve">
+    <value>主窗口</value>
+  </data>
 </root>

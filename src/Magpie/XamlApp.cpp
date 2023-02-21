@@ -582,9 +582,13 @@ LRESULT XamlApp::_TrayIconWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM
 		}
 		case WM_RBUTTONUP:
 		{
+			winrt::ResourceLoader resourceLoader = winrt::ResourceLoader::GetForCurrentView();
+			winrt::hstring mainWindowText = resourceLoader.GetString(L"TrayIcon_MainWindow");
+			winrt::hstring exitText = resourceLoader.GetString(L"TrayIcon_Exit");
+
 			HMENU hMenu = CreatePopupMenu();
-			AppendMenu(hMenu, MF_STRING, 1, L"主窗口");
-			AppendMenu(hMenu, MF_STRING, 2, L"退出");
+			AppendMenu(hMenu, MF_STRING, 1, mainWindowText.c_str());
+			AppendMenu(hMenu, MF_STRING, 2, exitText.c_str());
 
 			// hWnd 必须为前台窗口才能正确展示弹出菜单
 			// 即使 hWnd 是隐藏的
