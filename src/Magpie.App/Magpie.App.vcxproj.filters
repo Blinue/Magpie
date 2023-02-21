@@ -255,10 +255,10 @@
     <ResourceCompile Include="Magpie.App.rc" />
   </ItemGroup>
   <ItemGroup>
-    <PRIResource Include="Resources.language-en-US.resw">
+    <PRIResource Include="Resources.language-zh-Hans.resw">
       <Filter>Strings</Filter>
     </PRIResource>
-    <PRIResource Include="Resources.language-zh-Hans.resw">
+    <PRIResource Include="Resources.resw">
       <Filter>Strings</Filter>
     </PRIResource>
   </ItemGroup>

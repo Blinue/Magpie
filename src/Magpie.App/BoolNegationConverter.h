@@ -4,8 +4,6 @@
 namespace winrt::Magpie::App::implementation {
 
 struct BoolNegationConverter : BoolNegationConverterT<BoolNegationConverter> {
-    BoolNegationConverter() = default;
-
     IInspectable Convert(IInspectable const& value, Interop::TypeName const&, IInspectable const&, hstring const&);
     IInspectable ConvertBack(IInspectable const& value, Interop::TypeName const&, IInspectable const&, hstring const&);
 };

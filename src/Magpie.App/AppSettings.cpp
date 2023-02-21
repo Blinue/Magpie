@@ -156,16 +156,18 @@ static HRESULT CALLBACK TaskDialogCallback(
 }
 
 static void ShowErrorMessage(const wchar_t* mainInstruction, const wchar_t* content) {
+	hstring errorStr = ResourceLoader::GetForCurrentView().GetString(L"AppSettings_Dialog_Error");
+	hstring exitStr = ResourceLoader::GetForCurrentView().GetString(L"AppSettings_Dialog_Exit");
+
 	TASKDIALOGCONFIG tdc{ sizeof(TASKDIALOGCONFIG) };
 	tdc.dwFlags = TDF_SIZE_TO_CONTENT;
-	hstring errorStr = ResourceLoader::GetForCurrentView().GetString(L"AppSettings_Dialog_Error");
 	tdc.pszWindowTitle = errorStr.c_str();
 	tdc.pszMainIcon = TD_ERROR_ICON;
 	tdc.pszMainInstruction = mainInstruction;
 	tdc.pszContent = content;
 	tdc.pfCallback = TaskDialogCallback;
 	tdc.cButtons = 1;
-	TASKDIALOG_BUTTON button{ IDCANCEL, L"退出" };
+	TASKDIALOG_BUTTON button{ IDCANCEL, exitStr.c_str()};
 	tdc.pButtons = &button;
 
 	TaskDialogIndirect(&tdc, nullptr, nullptr, nullptr);
@@ -216,11 +218,14 @@ bool AppSettings::Initialize() {
 		SaveAsync();
 		return true;
 	}
-
+	
 	std::string configText;
 	if (!Win32Utils::ReadTextFile(_configPath.c_str(), configText)) {
 		logger.Error("读取配置文件失败");
-		ShowErrorMessage(L"读取配置文件失败", (L"配置文件路径：\n" + _configPath).c_str());
+		ResourceLoader resourceLoader = ResourceLoader::GetForCurrentView();
+		hstring title = resourceLoader.GetString(L"AppSettings_ErrorDialog_ReadFailed");
+		hstring content = resourceLoader.GetString(L"AppSettings_ErrorDialog_ConfigLocation");
+		ShowErrorMessage(title.c_str(), fmt::format(fmt::runtime(std::wstring_view(content)), _configPath).c_str());
 		return false;
 	}
 
