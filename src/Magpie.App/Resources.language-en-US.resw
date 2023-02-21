@@ -478,7 +478,7 @@
     <value>Capture method</value>
   </data>
   <data name="Profile_General_Multimonitor.Title" xml:space="preserve">
-    <value>Preferred monitor(s)</value>
+    <value>Preferred monitors</value>
   </data>
   <data name="Profile_General_Multimonitor_All.Content" xml:space="preserve">
     <value>All monitors</value>
