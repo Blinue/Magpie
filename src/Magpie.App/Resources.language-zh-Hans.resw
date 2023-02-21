@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -59,7 +59,7 @@
             : using a System.ComponentModel.TypeConverter
             : and then encoded with base64 encoding.
     -->
-  <xsd:schema xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" id="root">
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
     <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
     <xsd:element name="root" msdata:IsDataSet="true">
       <xsd:complexType>
@@ -316,7 +316,7 @@
     <value>缩放模式</value>
   </data>
   <data name="Settings_Launch_AlwaysRunAsAdmin.Description" xml:space="preserve">
-    <value>You need to run as administrator to use this setting</value>
+    <value>以管理员身份运行时才能更改此选项</value>
   </data>
   <data name="Settings_Launch_AlwaysRunAsAdmin.Title" xml:space="preserve">
     <value>始终以管理员身份运行</value>
@@ -694,7 +694,7 @@
     <value>缩放时模拟独占全屏</value>
   </data>
   <data name="Settings_Launch_RunAtStartup_MinimizeAtStartup.Description" xml:space="preserve">
-    <value>You need to turn on "Display the app on the system tray" to use this setting</value>
+    <value>启用了“在系统托盘上显示应用程序”时才能更改此选项</value>
   </data>
   <data name="Settings_Launch_RunAtStartup_MinimizeAtStartup.Title" xml:space="preserve">
     <value>启动时最小化到系统托盘</value>
