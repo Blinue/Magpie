@@ -1,0 +1,766 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" id="root">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="About_PageFrame.Title" xml:space="preserve">
+    <value>关于</value>
+  </data>
+  <data name="Home_Activation.Title" xml:space="preserve">
+    <value>激活</value>
+  </data>
+  <data name="Home_AutoRestore.Description" xml:space="preserve">
+    <value>当该窗口回到前台时将自动缩放</value>
+  </data>
+  <data name="Home_AutoRestore.Title" xml:space="preserve">
+    <value>记忆缩放窗口</value>
+  </data>
+  <data name="Home_AutoRestore_Activate.Content" xml:space="preserve">
+    <value>激活</value>
+  </data>
+  <data name="Home_AutoRestore_Clear.Content" xml:space="preserve">
+    <value>清除</value>
+  </data>
+  <data name="Home_AutoRestore_CurWindow" xml:space="preserve">
+    <value>当前窗口：</value>
+  </data>
+  <data name="Home_AutoRestore_EmptyTitle" xml:space="preserve">
+    <value>标题为空</value>
+  </data>
+  <data name="Home_PageFrame.Title" xml:space="preserve">
+    <value>主页</value>
+  </data>
+  <data name="Home_Timer.Description" xml:space="preserve">
+    <value>计时结束后缩放前台窗口</value>
+  </data>
+  <data name="Home_Timer.Title" xml:space="preserve">
+    <value>定时器</value>
+  </data>
+  <data name="Home_Timer_ButtonText" xml:space="preserve">
+    <value>{} 秒后缩放</value>
+  </data>
+  <data name="Home_Timer_Cancel" xml:space="preserve">
+    <value>取消</value>
+  </data>
+  <data name="Home_Timer_Delay.Title" xml:space="preserve">
+    <value>倒计时时长</value>
+  </data>
+  <data name="ShortcutDialog_Cancel" xml:space="preserve">
+    <value>取消</value>
+  </data>
+  <data name="ShortcutDialog_Description.Text" xml:space="preserve">
+    <value>按组合键以更改此快捷键</value>
+  </data>
+  <data name="ShortcutDialog_InUse" xml:space="preserve">
+    <value>此快捷键已被占用</value>
+  </data>
+  <data name="ShortcutDialog_InvalidShortcut" xml:space="preserve">
+    <value>无效快捷键</value>
+  </data>
+  <data name="ShortcutDialog_Save" xml:space="preserve">
+    <value>保存</value>
+  </data>
+  <data name="ShortcutDialog_Tip.Text" xml:space="preserve">
+    <value>只有以 Windows 键、Ctrl、Alt 或 Shift 开头的快捷键才有效。</value>
+  </data>
+  <data name="Main_About.Content" xml:space="preserve">
+    <value>关于</value>
+  </data>
+  <data name="Main_Defaults.Content" xml:space="preserve">
+    <value>默认</value>
+  </data>
+  <data name="Main_Home.Content" xml:space="preserve">
+    <value>主页</value>
+  </data>
+  <data name="Main_NewProfile.Content" xml:space="preserve">
+    <value>新建配置</value>
+  </data>
+  <data name="Main_NewProfileFlyout_AdminTip.Text" xml:space="preserve">
+    <value>检测不到某个窗口？</value>
+  </data>
+  <data name="Main_NewProfileFlyout_AdminToolTip.Content" xml:space="preserve">
+    <value>试试以管理员身份运行 Magpie</value>
+  </data>
+  <data name="Main_NewProfileFlyout_ComboBox.PlaceholderText" xml:space="preserve">
+    <value>选择一个窗口</value>
+  </data>
+  <data name="Main_NewProfileFlyout_CopyFrom.Text" xml:space="preserve">
+    <value>复制自</value>
+  </data>
+  <data name="Main_NewProfileFlyout_Create.Content" xml:space="preserve">
+    <value>确定</value>
+  </data>
+  <data name="Main_NewProfileFlyout_Name.Text" xml:space="preserve">
+    <value>名称</value>
+  </data>
+  <data name="Main_NewProfileFlyout_NoCandidateWindow.Text" xml:space="preserve">
+    <value>打开新窗口以创建配置</value>
+  </data>
+  <data name="Main_NewProfileFlyout_Title.Text" xml:space="preserve">
+    <value>新建配置</value>
+  </data>
+  <data name="Main_Profiles.Content" xml:space="preserve">
+    <value>配置文件</value>
+  </data>
+  <data name="Main_ScalingConfiguration.Content" xml:space="preserve">
+    <value>缩放配置</value>
+  </data>
+  <data name="ScalingConfiguration_PageFrame.Title" xml:space="preserve">
+    <value>缩放配置</value>
+  </data>
+  <data name="Settings_Advanced.Title" xml:space="preserve">
+    <value>高级</value>
+  </data>
+  <data name="Settings_General.Title" xml:space="preserve">
+    <value>常规</value>
+  </data>
+  <data name="Settings_General_Language.Title" xml:space="preserve">
+    <value>语言</value>
+  </data>
+  <data name="Settings_General_Language_Default" xml:space="preserve">
+    <value>Windows 默认</value>
+  </data>
+  <data name="Settings_General_PortableMode.Title" xml:space="preserve">
+    <value>便携模式</value>
+  </data>
+  <data name="Settings_General_PortableMode_Locate.Content" xml:space="preserve">
+    <value>打开配置文件位置</value>
+  </data>
+  <data name="Settings_Launch_RunAtStartup.Title" xml:space="preserve">
+    <value>开机启动</value>
+  </data>
+  <data name="Settings_General_ShowTrayIcon.Description" xml:space="preserve">
+    <value>主窗口被关闭后 Magpie 将在后台继续运行</value>
+  </data>
+  <data name="Settings_General_ShowTrayIcon.Title" xml:space="preserve">
+    <value>在系统托盘上显示应用程序</value>
+  </data>
+  <data name="Settings_General_Theme.Title" xml:space="preserve">
+    <value>主题</value>
+  </data>
+  <data name="Settings_General_Theme_Dark.Content" xml:space="preserve">
+    <value>深色</value>
+  </data>
+  <data name="Settings_General_Theme_Default.Content" xml:space="preserve">
+    <value>Windows 默认</value>
+  </data>
+  <data name="Settings_General_Theme_Light.Content" xml:space="preserve">
+    <value>浅色</value>
+  </data>
+  <data name="Settings_PageFrame.Title" xml:space="preserve">
+    <value>设置</value>
+  </data>
+  <data name="ToggleSwitch.OffContent" xml:space="preserve">
+    <value>关</value>
+  </data>
+  <data name="ToggleSwitch.OnContent" xml:space="preserve">
+    <value>开</value>
+  </data>
+  <data name="_Tag" xml:space="preserve">
+    <value>zh-Hans</value>
+  </data>
+  <data name="Home_Shortcuts.Title" xml:space="preserve">
+    <value>快捷键</value>
+  </data>
+  <data name="Home_Shortcuts_Overlay.Title" xml:space="preserve">
+    <value>游戏内覆盖</value>
+  </data>
+  <data name="Home_Shortcuts_Overlay_ShortcutControl.Title" xml:space="preserve">
+    <value>游戏内覆盖快捷键</value>
+  </data>
+  <data name="Home_Shortcuts_Scale.Title" xml:space="preserve">
+    <value>缩放</value>
+  </data>
+  <data name="Home_Shortcuts_Scale_ShortcutControl.Title" xml:space="preserve">
+    <value>缩放快捷键</value>
+  </data>
+  <data name="Settings_Launch.Title" xml:space="preserve">
+    <value>启动</value>
+  </data>
+  <data name="ScalingConfiguration_General.Title" xml:space="preserve">
+    <value>通用</value>
+  </data>
+  <data name="ScalingConfiguration_General_DefaultDownscalingEffect.Description" xml:space="preserve">
+    <value>输出图像太大无法被屏幕容纳时将自动应用此效果</value>
+  </data>
+  <data name="ScalingConfiguration_General_DefaultDownscalingEffect.Title" xml:space="preserve">
+    <value>默认降采样效果</value>
+  </data>
+  <data name="ScalingConfiguration_General_Export.Text" xml:space="preserve">
+    <value>导出</value>
+  </data>
+  <data name="ScalingConfiguration_General_Import.Text" xml:space="preserve">
+    <value>导入</value>
+  </data>
+  <data name="ScalingConfiguration_General_ImportLegacy.Text" xml:space="preserve">
+    <value>导入 ScaleModels.json</value>
+  </data>
+  <data name="ScalingConfiguration_General_MoreOptions.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>更多选项</value>
+  </data>
+  <data name="ScalingConfiguration_ScalingModes.Title" xml:space="preserve">
+    <value>缩放模式</value>
+  </data>
+  <data name="Settings_Launch_AlwaysRunAsAdmin.Description" xml:space="preserve">
+    <value>以管理员身份运行时才能更改此选项</value>
+  </data>
+  <data name="Settings_Launch_AlwaysRunAsAdmin.Title" xml:space="preserve">
+    <value>始终以管理员身份运行</value>
+  </data>
+  <data name="Home_UpdateCard_AutoCheckForUpdates.Content" xml:space="preserve">
+    <value>自动检查更新</value>
+  </data>
+  <data name="Home_UpdateCard_DownloadAndInstall.Content" xml:space="preserve">
+    <value>下载并安装</value>
+  </data>
+  <data name="Home_UpdateCard_ReleaseNotes.Content" xml:space="preserve">
+    <value>发行说明</value>
+  </data>
+  <data name="Home_UpdateCard_RemindMeLater.Content" xml:space="preserve">
+    <value>以后再提醒我</value>
+  </data>
+  <data name="Home_UpdateCard_Title" xml:space="preserve">
+    <value>{} 可用</value>
+  </data>
+  <data name="About_OtherLinks.Title" xml:space="preserve">
+    <value>其他链接</value>
+  </data>
+  <data name="About_OtherLinks_ContributionGuidelines.Text" xml:space="preserve">
+    <value>贡献指南</value>
+  </data>
+  <data name="About_OtherLinks_FAQ.Text" xml:space="preserve">
+    <value>FAQ</value>
+  </data>
+  <data name="About_OtherLinks_License.Text" xml:space="preserve">
+    <value>许可协议</value>
+  </data>
+  <data name="About_OtherLinks_Repository.Text" xml:space="preserve">
+    <value>Github 仓库</value>
+  </data>
+  <data name="ScalingConfiguration_General_DefaultDownscalingEffect_None" xml:space="preserve">
+    <value>无</value>
+  </data>
+  <data name="ScalingConfiguration_Parameters.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>参数</value>
+  </data>
+  <data name="ScalingConfiguration_ScalingModes_MoreOptions.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>更多选项</value>
+  </data>
+  <data name="ScalingConfiguration_ScalingModes_MoreOptionsFlyout_Delete.Text" xml:space="preserve">
+    <value>删除</value>
+  </data>
+  <data name="ScalingConfiguration_ScalingModes_MoreOptionsFlyout_MoveDown.Text" xml:space="preserve">
+    <value>下移</value>
+  </data>
+  <data name="ScalingConfiguration_ScalingModes_MoreOptionsFlyout_MoveUp.Text" xml:space="preserve">
+    <value>上移</value>
+  </data>
+  <data name="ScalingConfiguration_ScalingModes_Rename.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>重命名</value>
+  </data>
+  <data name="ScalingConfiguration_ScalingModes_RenameFlyout_OK.Content" xml:space="preserve">
+    <value>确定</value>
+  </data>
+  <data name="ScalingConfiguration_ScalingModes_RenameFlyout_Title.Text" xml:space="preserve">
+    <value>重命名</value>
+  </data>
+  <data name="ScalingConfiguration_ScalingModes_AddEffect.Text" xml:space="preserve">
+    <value>添加效果</value>
+  </data>
+  <data name="ScalingConfiguration_ScalingModes_Delete.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>删除</value>
+  </data>
+  <data name="ScalingConfiguration_ScalingModes_DeleteFlyout_Delete.Text" xml:space="preserve">
+    <value>删除</value>
+  </data>
+  <data name="ScalingConfiguration_ScalingModes_DeleteFlyout_Description.Text" xml:space="preserve">
+    <value>以下配置文件正在使用此模式：</value>
+  </data>
+  <data name="ScalingConfiguration_ScalingModes_DeleteFlyout_Title.Text" xml:space="preserve">
+    <value>确定删除此缩放模式？</value>
+  </data>
+  <data name="ScalingConfiguration_ScalingModes_DragNotSupported.Text" xml:space="preserve">
+    <value>管理员身份下不支持拖拽排序</value>
+  </data>
+  <data name="ScalingConfiguration_ScalingModes_DragToReorder.Text" xml:space="preserve">
+    <value>拖拽以重新排序</value>
+  </data>
+  <data name="ScalingConfiguration_ScalingModes_MoveDown.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>下移</value>
+  </data>
+  <data name="ScalingConfiguration_ScalingModes_MoveUp.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>上移</value>
+  </data>
+  <data name="ScalingConfiguration_ScalingModes_NewScalingMode.Text" xml:space="preserve">
+    <value>新建缩放模式</value>
+  </data>
+  <data name="ScalingConfiguration_ScalingModes_NewScalingModeFlyout_Title.Text" xml:space="preserve">
+    <value>新建缩放模式</value>
+  </data>
+  <data name="ScalingConfiguration_ScalingModes_Scale.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>缩放</value>
+  </data>
+  <data name="ScalingConfiguration_ScalingModes_NewScalingModeFlyout_CopyFrom.Text" xml:space="preserve">
+    <value>复制自</value>
+  </data>
+  <data name="ScalingConfiguration_ScalingModes_NewScalingModeFlyout_CopyFrom_None" xml:space="preserve">
+    <value>无</value>
+  </data>
+  <data name="ScalingConfiguration_ScalingModes_NewScalingModeFlyout_Create.Content" xml:space="preserve">
+    <value>确定</value>
+  </data>
+  <data name="ScalingConfiguration_ScalingModes_NewScalingModeFlyout_Name.Text" xml:space="preserve">
+    <value>名称</value>
+  </data>
+  <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_HeightFactor.Text" xml:space="preserve">
+    <value>高（缩放倍数）</value>
+  </data>
+  <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_HeightPixels.Text" xml:space="preserve">
+    <value>高（像素）</value>
+  </data>
+  <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_WidthFactor.Text" xml:space="preserve">
+    <value>宽（缩放倍数）</value>
+  </data>
+  <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_WidthPixels.Text" xml:space="preserve">
+    <value>宽（像素）</value>
+  </data>
+  <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_Type.Text" xml:space="preserve">
+    <value>类型</value>
+  </data>
+  <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_Type_Absolute" xml:space="preserve">
+    <value>绝对</value>
+  </data>
+  <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_Type_Absolute_Description" xml:space="preserve">
+    <value>指定缩放后的尺寸</value>
+  </data>
+  <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_Type_Factor" xml:space="preserve">
+    <value>倍数</value>
+  </data>
+  <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_Type_Factor_Description" xml:space="preserve">
+    <value>指定相对于输入图像的缩放倍数</value>
+  </data>
+  <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_Type_Fill" xml:space="preserve">
+    <value>填充</value>
+  </data>
+  <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_Type_Fill_Description" xml:space="preserve">
+    <value>充满屏幕，画面可能被拉伸</value>
+  </data>
+  <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_Type_Fit" xml:space="preserve">
+    <value>适应</value>
+  </data>
+  <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_Type_Fit_Description" xml:space="preserve">
+    <value>指定等比缩放到充满屏幕后的缩放倍数</value>
+  </data>
+  <data name="Profile_General.Title" xml:space="preserve">
+    <value>常规</value>
+  </data>
+  <data name="Profile_General_3DGameMode.Title" xml:space="preserve">
+    <value>3D 游戏模式</value>
+  </data>
+  <data name="Profile_General_AutoScale.Title" xml:space="preserve">
+    <value>位于前台时自动缩放</value>
+  </data>
+  <data name="Profile_General_CaptureMethod.Title" xml:space="preserve">
+    <value>捕获方式</value>
+  </data>
+  <data name="Profile_General_Multimonitor.Title" xml:space="preserve">
+    <value>首选的显示器</value>
+  </data>
+  <data name="Profile_General_Multimonitor_All.Content" xml:space="preserve">
+    <value>所有显示器</value>
+  </data>
+  <data name="Profile_General_Multimonitor_Closest.Content" xml:space="preserve">
+    <value>距离源窗口最近的显示器</value>
+  </data>
+  <data name="Profile_General_Multimonitor_Intersected.Content" xml:space="preserve">
+    <value>源窗口跨越的所有显示器</value>
+  </data>
+  <data name="Profile_General_ScalingMode.Title" xml:space="preserve">
+    <value>缩放模式</value>
+  </data>
+  <data name="Profile_Launch.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>启动</value>
+  </data>
+  <data name="Profile_MoreOptions.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>更多选项</value>
+  </data>
+  <data name="Profile_MoreOptions_Delete.Text" xml:space="preserve">
+    <value>删除</value>
+  </data>
+  <data name="Profile_MoreOptions_DeleteFlyout_Delete.Text" xml:space="preserve">
+    <value>删除</value>
+  </data>
+  <data name="Profile_MoreOptions_DeleteFlyout_Title.Text" xml:space="preserve">
+    <value>确定删除此配置？</value>
+  </data>
+  <data name="Profile_MoreOptions_OpenProgramLocation.Text" xml:space="preserve">
+    <value>打开程序位置</value>
+  </data>
+  <data name="Profile_MoreOptions_Rename.Text" xml:space="preserve">
+    <value>重命名</value>
+  </data>
+  <data name="Profile_MoreOptions_RenameFlyout_OK.Content" xml:space="preserve">
+    <value>确定</value>
+  </data>
+  <data name="Profile_MoreOptions_RenameFlyout_Title.Text" xml:space="preserve">
+    <value>重命名</value>
+  </data>
+  <data name="Profile_MoreOptions_Reorder.Text" xml:space="preserve">
+    <value>重新排序</value>
+  </data>
+  <data name="Profile_MoreOptions_ReorderFlyout_MoveDown.Text" xml:space="preserve">
+    <value>下移</value>
+  </data>
+  <data name="Profile_MoreOptions_ReorderFlyout_MoveUp.Text" xml:space="preserve">
+    <value>上移</value>
+  </data>
+  <data name="Profile_MoreOptions_ReorderFlyout_Title.Text" xml:space="preserve">
+    <value>重新排序</value>
+  </data>
+  <data name="ScalingConfiguration_ParsingFailed.Title" xml:space="preserve">
+    <value>解析失败</value>
+  </data>
+  <data name="Profile_General_ScalingMode_None" xml:space="preserve">
+    <value>无</value>
+  </data>
+  <data name="Profile_Performance.Title" xml:space="preserve">
+    <value>性能</value>
+  </data>
+  <data name="Profile_Performance_GraphicsCard.Title" xml:space="preserve">
+    <value>显示卡</value>
+  </data>
+  <data name="Profile_Performance_ShowFPS.Title" xml:space="preserve">
+    <value>显示帧率</value>
+  </data>
+  <data name="Profile_Performance_VSync_TripleBuffering.Content" xml:space="preserve">
+    <value>允许额外的延迟以提高性能</value>
+  </data>
+  <data name="Profile_Performance_VSync.Title" xml:space="preserve">
+    <value>垂直同步</value>
+  </data>
+  <data name="About_Feedback.Title" xml:space="preserve">
+    <value>反馈</value>
+  </data>
+  <data name="About_Feedback_Discussion.Title" xml:space="preserve">
+    <value>论坛</value>
+  </data>
+  <data name="About_Feedback_ReportBug.Title" xml:space="preserve">
+    <value>报告错误</value>
+  </data>
+  <data name="About_Feedback_RequestFeature.Title" xml:space="preserve">
+    <value>建议功能</value>
+  </data>
+  <data name="About_Version.Title" xml:space="preserve">
+    <value>版本</value>
+  </data>
+  <data name="About_Version_AutoCheckForPreviewUpdates.Content" xml:space="preserve">
+    <value>检查预览版更新</value>
+  </data>
+  <data name="About_Version_AutoCheckForUpdates.Content" xml:space="preserve">
+    <value>自动检查更新</value>
+  </data>
+  <data name="About_Version_CheckForUpdates.Content" xml:space="preserve">
+    <value>检查更新</value>
+  </data>
+  <data name="About_Version_CheckForUpdatesFailed.Title" xml:space="preserve">
+    <value>检查更新失败，请稍后重试</value>
+  </data>
+  <data name="About_Version_CheckingForUpdates.Text" xml:space="preserve">
+    <value>正在检查更新…</value>
+  </data>
+  <data name="About_Version_ReleaseNotes.Content" xml:space="preserve">
+    <value>发行说明</value>
+  </data>
+  <data name="About_Version_UpdateCard_Cancel.Content" xml:space="preserve">
+    <value>取消</value>
+  </data>
+  <data name="About_Version_UpdateCard_DownloadAndInstall.Content" xml:space="preserve">
+    <value>下载并安装</value>
+  </data>
+  <data name="About_Version_UpdateCard_ReleaseNotes.Content" xml:space="preserve">
+    <value>发行说明</value>
+  </data>
+  <data name="About_Version_UpdateCard_Retry.Content" xml:space="preserve">
+    <value>重试</value>
+  </data>
+  <data name="About_Version_UpdateCard_Title" xml:space="preserve">
+    <value>{} 可用</value>
+  </data>
+  <data name="About_Version_UpdateToDate.Title" xml:space="preserve">
+    <value>Magpie 已是最新</value>
+  </data>
+  <data name="About_Version_UpdateToDate_DownloadFailed.Text" xml:space="preserve">
+    <value>下载失败</value>
+  </data>
+  <data name="About_Version_UpdateToDate_Downloading.Text" xml:space="preserve">
+    <value>下载中</value>
+  </data>
+  <data name="About_Version_UpdateToDate_Installing.Text" xml:space="preserve">
+    <value>安装中</value>
+  </data>
+  <data name="Profile_Advanced.Title" xml:space="preserve">
+    <value>高级</value>
+  </data>
+  <data name="Profile_Advanced_DisableDirectFlip.Title" xml:space="preserve">
+    <value>禁用 DirectFlip</value>
+  </data>
+  <data name="Profile_Cursor.Title" xml:space="preserve">
+    <value>光标</value>
+  </data>
+  <data name="Profile_Cursor_DrawCursor.Title" xml:space="preserve">
+    <value>绘制光标</value>
+  </data>
+  <data name="Profile_Cursor_DrawCursor_AdjustCursorSpeed.Title" xml:space="preserve">
+    <value>缩放时调整光标速度</value>
+  </data>
+  <data name="Profile_Cursor_DrawCursor_Interpolation.Title" xml:space="preserve">
+    <value>插值算法</value>
+  </data>
+  <data name="Profile_Cursor_DrawCursor_Interpolation_Bilinear.Content" xml:space="preserve">
+    <value>双线性</value>
+  </data>
+  <data name="Profile_Cursor_DrawCursor_Interpolation_NearestNeighbor.Content" xml:space="preserve">
+    <value>最近邻</value>
+  </data>
+  <data name="Profile_Cursor_DrawCursor_ScalingFactor.Title" xml:space="preserve">
+    <value>缩放系数</value>
+  </data>
+  <data name="Profile_Cursor_DrawCursor_ScalingFactor_Custom.Content" xml:space="preserve">
+    <value>自定义</value>
+  </data>
+  <data name="Profile_Cursor_DrawCursor_ScalingFactor_NoScaling.Content" xml:space="preserve">
+    <value>无缩放</value>
+  </data>
+  <data name="Profile_Cursor_DrawCursor_ScalingFactor_SameAsSourceWindow.Content" xml:space="preserve">
+    <value>和源窗口相同</value>
+  </data>
+  <data name="Profile_General_CaptureMethod_Default" xml:space="preserve">
+    <value>默认</value>
+  </data>
+  <data name="Profile_SourceWindow.Title" xml:space="preserve">
+    <value>源窗口</value>
+  </data>
+  <data name="Profile_SourceWindow_CaptureTitleBar.Description" xml:space="preserve">
+    <value>仅在 Graphics Capture 和 Desktop Duplication 捕获方式下可用</value>
+  </data>
+  <data name="Profile_SourceWindow_CaptureTitleBar.Title" xml:space="preserve">
+    <value>捕获标题栏</value>
+  </data>
+  <data name="Profile_SourceWindow_CustomCropping.Title" xml:space="preserve">
+    <value>自定义裁剪</value>
+  </data>
+  <data name="Profile_SourceWindow_CustomCropping_Bottom.Title" xml:space="preserve">
+    <value>下</value>
+  </data>
+  <data name="Profile_SourceWindow_CustomCropping_Left.Title" xml:space="preserve">
+    <value>左</value>
+  </data>
+  <data name="Profile_SourceWindow_CustomCropping_Pixels.Text" xml:space="preserve">
+    <value>像素</value>
+  </data>
+  <data name="Profile_SourceWindow_CustomCropping_Right.Title" xml:space="preserve">
+    <value>右</value>
+  </data>
+  <data name="Profile_SourceWindow_CustomCropping_Top.Title" xml:space="preserve">
+    <value>上</value>
+  </data>
+  <data name="Profile_SourceWindow_DisableWindowResizing.Title" xml:space="preserve">
+    <value>缩放时禁用窗口大小调整</value>
+  </data>
+  <data name="Settings_Advanced_InlineParams.Description" xml:space="preserve">
+    <value>稍微提高性能，但每次修改效果的参数都需重新编译该效果</value>
+  </data>
+  <data name="Settings_Advanced_InlineParams.Title" xml:space="preserve">
+    <value>内联效果参数</value>
+  </data>
+  <data name="Settings_Advanced_SimulateExclusiveFullscreen.Description" xml:space="preserve">
+    <value>可以阻止某些应用的通知和弹窗</value>
+  </data>
+  <data name="Settings_Advanced_SimulateExclusiveFullscreen.Title" xml:space="preserve">
+    <value>缩放时模拟独占全屏</value>
+  </data>
+  <data name="Settings_Launch_RunAtStartup_MinimizeAtStartup.Description" xml:space="preserve">
+    <value>启用了“在系统托盘上显示应用程序”时才能更改此选项</value>
+  </data>
+  <data name="Settings_Launch_RunAtStartup_MinimizeAtStartup.Title" xml:space="preserve">
+    <value>启动时最小化到系统托盘</value>
+  </data>
+  <data name="AppSettings_Dialog_Error" xml:space="preserve">
+    <value>错误</value>
+  </data>
+  <data name="AppSettings_Dialog_Warning" xml:space="preserve">
+    <value>警告</value>
+  </data>
+  <data name="AppSettings_PortableModeUnkownConfiguration_Content" xml:space="preserve">
+    <value>本地配置文件来自未知版本，可能无法正确解析。</value>
+  </data>
+  <data name="AppSettings_PortableModeUnkownConfiguration_Continue" xml:space="preserve">
+    <value>继续使用</value>
+  </data>
+  <data name="AppSettings_PortableModeUnkownConfiguration_Exit" xml:space="preserve">
+    <value>退出</value>
+  </data>
+  <data name="AppSettings_UnkownConfiguration_Content" xml:space="preserve">
+    <value>全局配置文件来自未知版本，可能无法正确解析。</value>
+  </data>
+  <data name="AppSettings_UnkownConfiguration_Continue" xml:space="preserve">
+    <value>继续使用</value>
+  </data>
+  <data name="AppSettings_UnkownConfiguration_EnablePortableMode" xml:space="preserve">
+    <value>启用便携模式</value>
+  </data>
+  <data name="Settings_DeveloperOptions.Description" xml:space="preserve">
+    <value>除非你知道自己在做什么，否则不要更改这些设置</value>
+  </data>
+  <data name="Settings_DeveloperOptions.Title" xml:space="preserve">
+    <value>开发者选项</value>
+  </data>
+  <data name="Settings_DeveloperOptions_DebugMode.Content" xml:space="preserve">
+    <value>调试模式</value>
+  </data>
+  <data name="Settings_DeveloperOptions_DisableEffectCache.Content" xml:space="preserve">
+    <value>禁用效果缓存</value>
+  </data>
+  <data name="Settings_DeveloperOptions_SaveEffectSources.Content" xml:space="preserve">
+    <value>解析效果时保存源代码</value>
+  </data>
+  <data name="Settings_DeveloperOptions_WarningsAreErrors.Content" xml:space="preserve">
+    <value>编译效果时将警告视为错误</value>
+  </data>
+  <data name="AppSettings_Dialog_Exit" xml:space="preserve">
+    <value>退出</value>
+  </data>
+  <data name="AppSettings_ErrorDialog_ConfigLocation" xml:space="preserve">
+    <value>配置文件位置：
+{}</value>
+  </data>
+  <data name="AppSettings_ErrorDialog_NotValidJson" xml:space="preserve">
+    <value>配置文件不是合法的 JSON</value>
+  </data>
+  <data name="AppSettings_ErrorDialog_ParseFailed" xml:space="preserve">
+    <value>解析配置文件失败</value>
+  </data>
+  <data name="AppSettings_ErrorDialog_ReadFailed" xml:space="preserve">
+    <value>读取配置文件失败</value>
+  </data>
+  <data name="TrayIcon_Exit" xml:space="preserve">
+    <value>退出</value>
+  </data>
+  <data name="TrayIcon_MainWindow" xml:space="preserve">
+    <value>主窗口</value>
+  </data>
+</root>
