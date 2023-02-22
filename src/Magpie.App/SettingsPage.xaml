@@ -8,6 +8,7 @@
       mc:Ignorable="d">
 	<local:PageFrame x:Uid="Settings_PageFrame">
 		<StackPanel HorizontalAlignment="Stretch"
+		            ChildrenTransitions="{StaticResource SettingsCardsAnimations}"
 		            Orientation="Vertical">
 			<local:SettingsGroup x:Uid="Settings_General"
 			                     Margin="0,-24,0,0">

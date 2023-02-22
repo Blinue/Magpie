@@ -121,7 +121,8 @@
 			</StackPanel>
 		</local:PageFrame.HeaderAction>
 
-		<StackPanel HorizontalAlignment="Stretch">
+		<StackPanel HorizontalAlignment="Stretch"
+		            ChildrenTransitions="{StaticResource SettingsCardsAnimations}">
 			<muxc:InfoBar x:Uid="ScalingConfiguration_ParsingFailed"
 			              Margin="0,8,0,14"
 			              IsOpen="{x:Bind ViewModel.ShowErrorMessage, Mode=TwoWay}"
@@ -168,7 +169,9 @@
 				</local:SettingsCard>
 			</local:SettingsGroup>
 			<local:SettingsGroup x:Uid="ScalingConfiguration_ScalingModes">
-				<ListView ItemContainerTransitions="{x:Bind ViewModel.ScalingModesListTransitions, Mode=OneWay}"
+				<!--  Padding 是为了缓解一个动画 bug  -->
+				<ListView Padding="0,0,0,50"
+				          ItemContainerTransitions="{x:Bind ViewModel.ScalingModesListTransitions, Mode=OneWay}"
 				          ItemsSource="{x:Bind ViewModel.ScalingModes, Mode=OneTime}"
 				          SelectionMode="None">
 					<ListView.Resources>
@@ -563,7 +566,7 @@
 					</ListView.ItemTemplate>
 				</ListView>
 			</local:SettingsGroup>
-			<Button Margin="0,10,0,0"
+			<Button Margin="0,-40,0,0"
 			        HorizontalAlignment="Right"
 			        Style="{StaticResource AccentButtonStyle}">
 				<Button.Flyout>

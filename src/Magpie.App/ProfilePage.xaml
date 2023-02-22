@@ -9,7 +9,8 @@
 	<local:PageFrame Title="{x:Bind ViewModel.Name, Mode=OneWay}"
 	                 Icon="{x:Bind ViewModel.Icon, Mode=OneWay}">
 		<local:PageFrame.HeaderAction>
-			<StackPanel Orientation="Horizontal"
+			<StackPanel ChildrenTransitions="{StaticResource SettingsCardsAnimations}"
+			            Orientation="Horizontal"
 			            Visibility="{x:Bind ViewModel.IsNotDefaultProfile, Mode=OneTime}">
 				<Button x:Uid="Profile_Launch"
 				        Click="{x:Bind ViewModel.Launch}"
@@ -152,6 +153,7 @@
 			</StackPanel>
 		</local:PageFrame.HeaderAction>
 		<StackPanel HorizontalAlignment="Stretch"
+		            ChildrenTransitions="{StaticResource SettingsCardsAnimations}"
 		            Orientation="Vertical">
 			<local:SettingsGroup x:Uid="Profile_General"
 			                     Margin="0,-24,0,0">
@@ -177,7 +179,8 @@
 						          Style="{StaticResource ComboBoxSettingStyle}" />
 					</local:SettingsCard.ActionContent>
 				</local:SettingsCard>
-				<StackPanel Orientation="Vertical">
+				<StackPanel ChildrenTransitions="{StaticResource SettingsCardsAnimations}"
+				            Orientation="Vertical">
 					<local:SettingsCard x:Uid="Profile_General_AutoScale"
 					                    Margin="0,0,0,2"
 					                    Visibility="{x:Bind ViewModel.IsNotDefaultProfile, Mode=OneTime}">
@@ -217,7 +220,7 @@
 				</StackPanel>
 			</local:SettingsGroup>
 			<local:SettingsGroup x:Uid="Profile_Performance">
-				<StackPanel>
+				<StackPanel ChildrenTransitions="{StaticResource SettingsCardsAnimations}">
 					<local:SettingsCard x:Uid="Profile_Performance_GraphicsCard"
 					                    Margin="0,0,0,2"
 					                    Visibility="{x:Bind ViewModel.IsShowGraphicsCardSettingsCard, Mode=OneTime}">

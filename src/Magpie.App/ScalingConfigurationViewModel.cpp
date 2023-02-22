@@ -20,7 +20,9 @@ namespace winrt::Magpie::App::implementation {
 
 ScalingConfigurationViewModel::ScalingConfigurationViewModel() {
 	_scalingModesListTransitions.Append(Animation::ContentThemeTransition());
-	_scalingModesListTransitions.Append(Animation::ReorderThemeTransition());
+	Animation::RepositionThemeTransition respositionAnime;
+	respositionAnime.IsStaggeringEnabled(false);
+	_scalingModesListTransitions.Append(std::move(respositionAnime));
 	
 	std::vector<IInspectable> downscalingEffects;
 	downscalingEffects.reserve(7);

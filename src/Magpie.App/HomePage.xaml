@@ -8,6 +8,7 @@
       mc:Ignorable="d">
 	<local:PageFrame x:Uid="Home_PageFrame">
 		<StackPanel HorizontalAlignment="Stretch"
+		            ChildrenTransitions="{StaticResource SettingsCardsAnimations}"
 		            Orientation="Vertical">
 			<muxc:InfoBar Title="{x:Bind ViewModel.UpdateCardTitle, Mode=OneWay}"
 			              Margin="0,8,0,14"
@@ -18,7 +19,8 @@
 				            Spacing="8">
 					<CheckBox x:Uid="Home_UpdateCard_AutoCheckForUpdates"
 					          IsChecked="{x:Bind ViewModel.IsAutoCheckForUpdates, Mode=TwoWay}" />
-					<local:WrapPanel HorizontalSpacing="8"
+					<local:WrapPanel ChildrenTransitions="{StaticResource SettingsCardsAnimations}"
+					                 HorizontalSpacing="8"
 					                 Orientation="Horizontal"
 					                 VerticalSpacing="6">
 						<Button x:Uid="Home_UpdateCard_DownloadAndInstall"

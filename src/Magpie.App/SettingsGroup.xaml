@@ -10,7 +10,8 @@
              Loading="Loading"
              mc:Ignorable="d">
 
-	<StackPanel Orientation="Vertical"
+	<StackPanel ChildrenTransitions="{StaticResource SettingsCardsAnimations}"
+	            Orientation="Vertical"
 	            Spacing="{StaticResource SettingsGroupSpacing}">
 		<TextBlock x:Name="TitleTextBlock"
 		           Grid.Row="0"
@@ -42,6 +43,7 @@
 
 		<StackPanel x:Name="ChildrenHost"
 		            Margin="0,6,0,0"
+		            ChildrenTransitions="{StaticResource SettingsCardsAnimations}"
 		            Orientation="Vertical"
 		            Spacing="2" />
 

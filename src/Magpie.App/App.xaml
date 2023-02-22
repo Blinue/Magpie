@@ -35,6 +35,10 @@
 				<Setter Property="HorizontalContentAlignment" Value="Stretch" />
 			</Style>
 
+			<TransitionCollection x:Key="SettingsCardsAnimations">
+				<RepositionThemeTransition IsStaggeringEnabled="False" />
+			</TransitionCollection>
+
 			<x:Double x:Key="SettingsGroupSpacing">2</x:Double>
 
 			<Style TargetType="FontIcon">
