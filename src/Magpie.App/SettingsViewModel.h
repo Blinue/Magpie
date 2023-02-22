@@ -11,6 +11,9 @@ struct SettingsViewModel : SettingsViewModelT<SettingsViewModel> {
 	int Language() const noexcept;
 	void Language(int value);
 
+	bool RequireRestart() const noexcept;
+	void Restart() const;
+
 	int Theme() const noexcept;
 	void Theme(int value);
 

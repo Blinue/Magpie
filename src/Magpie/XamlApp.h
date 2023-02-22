@@ -34,7 +34,7 @@ private:
 
 	void _Quit() noexcept;
 
-	void _RestartAsElevated(const wchar_t* arguments = nullptr) noexcept;
+	void _Restart(bool asElevated = false, const wchar_t* arguments = nullptr) noexcept;
 
 	void _ShowTrayIcon() noexcept;
 

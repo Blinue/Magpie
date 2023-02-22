@@ -68,7 +68,7 @@ bool XamlApp::Initialize(HINSTANCE hInstance, const wchar_t* arguments) {
 	}
 
 	if (options.IsNeedElevated && !Win32Utils::IsProcessElevated()) {
-		_RestartAsElevated(arguments);
+		_Restart(true, arguments);
 		return true;
 	}
 
@@ -152,9 +152,6 @@ int XamlApp::Run() {
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);
 	}
-
-	Logger::Get().Info("程序退出");
-	Logger::Get().Flush();
 
 	return (int)msg.wParam;
 }
@@ -291,9 +288,12 @@ void XamlApp::_Quit() noexcept {
 	// 不能调用 Close，否则切换页面时关闭主窗口会导致崩溃
 	_uwpApp = nullptr;
 	PostQuitMessage(0);
+
+	Logger::Get().Info("程序退出");
+	Logger::Get().Flush();
 }
 
-void XamlApp::_RestartAsElevated(const wchar_t* arguments) noexcept {
+void XamlApp::_Restart(bool asElevated, const wchar_t* arguments) noexcept {
 	_Quit();
 
 	// 提前释放锁
@@ -303,7 +303,7 @@ void XamlApp::_RestartAsElevated(const wchar_t* arguments) noexcept {
 	execInfo.cbSize = sizeof(execInfo);
 	execInfo.lpFile = L"Magpie.exe";
 	execInfo.lpParameters = arguments;
-	execInfo.lpVerb = L"runas";
+	execInfo.lpVerb = asElevated ? L"runas" : L"open";
 	// 调用 ShellExecuteEx 后立即退出，因此应该指定 SEE_MASK_NOASYNC
 	execInfo.fMask = SEE_MASK_NOASYNC;
 	execInfo.nShow = SW_SHOWNORMAL;
@@ -563,6 +563,11 @@ LRESULT XamlApp::_WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 	case CommonSharedConstants::WM_QUIT_MAGPIE:
 	{
 		_Quit();
+		return 0;
+	}
+	case CommonSharedConstants::WM_RESTART_MAGPIE:
+	{
+		_Restart(false);
 		return 0;
 	}
 	}

@@ -763,4 +763,10 @@
   <data name="TrayIcon_MainWindow" xml:space="preserve">
     <value>Main window</value>
   </data>
+  <data name="Settings_General_RequireRestart.Title" xml:space="preserve">
+    <value>A restart is required for the change to take effect</value>
+  </data>
+  <data name="Settings_General_RequireRestart_ActionButton.Content" xml:space="preserve">
+    <value>Restart Magpie</value>
+  </data>
 </root>

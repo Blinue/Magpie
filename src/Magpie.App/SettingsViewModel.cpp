@@ -44,6 +44,16 @@ void SettingsViewModel::Language(int value) {
 
 	AppSettings::Get().Language(value - 1);
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"Language"));
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"RequireRestart"));
+}
+
+bool SettingsViewModel::RequireRestart() const noexcept {
+	static int initLanguage = AppSettings::Get().Language();
+	return AppSettings::Get().Language() != initLanguage;
+}
+
+void SettingsViewModel::Restart() const {
+	Application::Current().as<App>().Restart();
 }
 
 int SettingsViewModel::Theme() const noexcept {

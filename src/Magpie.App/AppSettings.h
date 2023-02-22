@@ -89,21 +89,6 @@ public:
 
 	void Language(int);
 
-	event_token LanguageChanged(delegate<int> const& handler) {
-		return _languageChangedEvent.add(handler);
-	}
-
-	WinRTUtils::EventRevoker LanguageChanged(auto_revoke_t, delegate<int> const& handler) {
-		event_token token = LanguageChanged(handler);
-		return WinRTUtils::EventRevoker([this, token]() {
-			LanguageChanged(token);
-		});
-	}
-
-	void LanguageChanged(event_token const& token) {
-		_languageChangedEvent.remove(token);
-	}
-
 	uint32_t Theme() const noexcept {
 		return _theme;
 	}
@@ -357,7 +342,6 @@ private:
 	// 用于同步保存
 	Win32Utils::SRWMutex _saveMutex;
 
-	event<delegate<int>> _languageChangedEvent;
 	event<delegate<uint32_t>> _themeChangedEvent;
 	event<delegate<ShortcutAction>> _shortcutChangedEvent;
 	event<delegate<bool>> _isAutoRestoreChangedEvent;

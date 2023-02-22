@@ -348,8 +348,6 @@ void AppSettings::Language(int value) {
 	}
 
 	_language = value;
-	_languageChangedEvent(_language);
-
 	SaveAsync();
 }
 

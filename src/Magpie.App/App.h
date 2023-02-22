@@ -48,6 +48,8 @@ public:
 
 	void Quit() const noexcept;
 
+	void Restart() const noexcept;
+
 private:
 	Hosting::WindowsXamlManager _windowsXamlManager{ nullptr };
 

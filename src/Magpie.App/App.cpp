@@ -152,4 +152,8 @@ void App::Quit() const noexcept {
 	PostMessage(_hwndMain, CommonSharedConstants::WM_QUIT_MAGPIE, 0, 0);
 }
 
+void App::Restart() const noexcept {
+	PostMessage(_hwndMain, CommonSharedConstants::WM_RESTART_MAGPIE, 0, 0);
+}
+
 }

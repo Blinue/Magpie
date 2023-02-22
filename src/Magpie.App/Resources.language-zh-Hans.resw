@@ -763,4 +763,10 @@
   <data name="TrayIcon_MainWindow" xml:space="preserve">
     <value>主窗口</value>
   </data>
+  <data name="Settings_General_RequireRestart.Title" xml:space="preserve">
+    <value>需要重新启动才能使更改生效</value>
+  </data>
+  <data name="Settings_General_RequireRestart_ActionButton.Content" xml:space="preserve">
+    <value>重新启动 Magpie</value>
+  </data>
 </root>

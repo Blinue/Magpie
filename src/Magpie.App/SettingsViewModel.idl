@@ -4,6 +4,9 @@ namespace Magpie.App {
 
 		IVector<IInspectable> Languages { get; };
 		Int32 Language;
+		Boolean RequireRestart { get; };
+		void Restart();
+
 		Int32 Theme;
 		Boolean IsRunAtStartup;
 		Boolean IsMinimizeAtStartup;
