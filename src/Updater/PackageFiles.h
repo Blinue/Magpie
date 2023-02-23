@@ -2,7 +2,7 @@
 #include "pch.h"
 #include "Version.h"
 
-static constexpr const wchar_t* V0_9_100_FILES[] = {
+static constexpr const wchar_t* V0_9_101_FILES[] = {
 	L"assets\\NotoSansSC-Regular.otf",
 	L"effects\\Anime4K\\Anime4K_3D_AA_Upscale_US.hlsl",
 	L"effects\\Anime4K\\Anime4K_3D_Upscale_US.hlsl",
@@ -84,7 +84,7 @@ static constexpr const wchar_t* V0_9_100_FILES[] = {
 	L"resources.pri"
 };
 
-static constexpr const wchar_t* V0_9_100_FOLDERS[] = {
+static constexpr const wchar_t* V0_9_101_FOLDERS[] = {
 	L"assets",
 	L"effects\\Anime4K",
 	L"effects\\CAS",
@@ -107,8 +107,8 @@ struct PackageFiles {
 	const std::span<const wchar_t*> folders;
 
 	static std::optional<PackageFiles> Get(const Version& version) {
-		if (version == Version(0, 9, 100)) {
-			return PackageFiles{ _ToSpan(V0_9_100_FILES), _ToSpan(V0_9_100_FOLDERS)};
+		if (version <= Version(0, 9, 101)) {
+			return PackageFiles{ _ToSpan(V0_9_101_FILES), _ToSpan(V0_9_101_FOLDERS)};
 		}
 
 		return std::nullopt;
