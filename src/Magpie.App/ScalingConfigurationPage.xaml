@@ -170,7 +170,7 @@
 			</local:SettingsGroup>
 			<local:SettingsGroup x:Uid="ScalingConfiguration_ScalingModes">
 				<!--  Padding 是为了缓解一个动画 bug  -->
-				<ListView Padding="0,0,0,50"
+				<ListView Padding="0,0,0,45"
 				          ItemContainerTransitions="{x:Bind ViewModel.ScalingModesListTransitions, Mode=OneWay}"
 				          ItemsSource="{x:Bind ViewModel.ScalingModes, Mode=OneTime}"
 				          SelectionMode="None">

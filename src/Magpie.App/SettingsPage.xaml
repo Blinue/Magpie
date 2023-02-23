@@ -26,7 +26,7 @@
 					</local:SettingsCard>
 					<muxc:InfoBar x:Uid="Settings_General_RequireRestart"
 					              Margin="0,2,0,0"
-					              IsOpen="{x:Bind ViewModel.RequireRestart, Mode=OneWay}"
+					              IsOpen="True"
 					              Severity="Warning"
 					              Visibility="{x:Bind ViewModel.RequireRestart, Mode=OneWay}">
 						<muxc:InfoBar.ActionButton>
