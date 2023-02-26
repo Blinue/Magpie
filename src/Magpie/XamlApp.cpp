@@ -1,7 +1,6 @@
 #include "pch.h"
 #include "XamlApp.h"
 #include "Logger.h"
-#include "StrUtils.h"
 #include "Win32Utils.h"
 #include "XamlUtils.h"
 #include "CommonSharedConstants.h"
@@ -21,22 +20,6 @@ static const UINT WM_MAGPIE_SHOWME = RegisterWindowMessage(CommonSharedConstants
 // https://learn.microsoft.com/en-us/windows/win32/shell/taskbar#taskbar-creation-notification
 static const UINT WM_TASKBARCREATED = RegisterWindowMessage(L"TaskbarCreated");
 
-// 将当前目录设为程序所在目录
-static void SetCurDir() noexcept {
-	wchar_t curDir[MAX_PATH] = { 0 };
-	GetModuleFileName(NULL, curDir, MAX_PATH);
-
-	for (int i = (int)StrUtils::StrLen(curDir) - 1; i >= 0; --i) {
-		if (curDir[i] == L'\\' || curDir[i] == L'/') {
-			break;
-		} else {
-			curDir[i] = L'\0';
-		}
-	}
-
-	SetCurrentDirectory(curDir);
-}
-
 // https://github.com/microsoft/microsoft-ui-xaml/issues/7260#issuecomment-1231314776
 // 提前加载 threadpoolwinrt.dll 以避免退出时崩溃。应在 Windows.UI.Xaml.dll 被加载前调用
 static void FixThreadPoolCrash() noexcept {
@@ -49,8 +32,6 @@ bool XamlApp::Initialize(HINSTANCE hInstance, const wchar_t* arguments) {
 	if (!_CheckSingleInstance()) {
 		return false;
 	}
-
-	SetCurDir();
 
 	FixThreadPoolCrash();
 	_InitializeLogger();
