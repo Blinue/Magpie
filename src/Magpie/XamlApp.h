@@ -20,6 +20,10 @@ public:
 
 	int Run();
 
+	void Quit();
+
+	void ShowMainWindow() noexcept;
+
 private:
 	XamlApp();
 	~XamlApp();
@@ -30,15 +34,9 @@ private:
 
 	void _CreateMainWindow();
 
-	void _ShowMainWindow() noexcept;
-
-	void _Quit() noexcept;
+	void _QuitWithoutMainWindow();
 
 	void _Restart(bool asElevated = false, const wchar_t* arguments = nullptr) noexcept;
-
-	void _ShowTrayIcon() noexcept;
-
-	void _HideTrayIcon() noexcept;
 
 	void _OnResize();
 
@@ -51,19 +49,12 @@ private:
 	}
 	LRESULT _WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
-	static LRESULT _TrayIconWndProcStatic(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
-		return Get()._TrayIconWndProc(hWnd, msg, wParam, lParam);
-	}
-	LRESULT _TrayIconWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
-
 	Win32Utils::ScopedHandle _hSingleInstanceMutex;
 
 	HINSTANCE _hInst = NULL;
 	// right 存储宽，bottom 存储高
 	RECT _mainWndRect{};
 	bool _isMainWndMaximized = false;
-
-	NOTIFYICONDATA _nid{};
 
 	winrt::Magpie::App::App _uwpApp{ nullptr };
 	winrt::Magpie::App::MainPage _mainPage{ nullptr };
@@ -72,8 +63,6 @@ private:
 
 	winrt::DesktopWindowXamlSource _xamlSource{ nullptr };
 	winrt::com_ptr<IDesktopWindowXamlSourceNative2> _xamlSourceNative2;
-
-	bool _isTrayIconCreated = false;
 };
 
 }

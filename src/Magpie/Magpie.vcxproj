@@ -93,6 +93,7 @@
     <ClInclude Include="pch.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="ThemeHelper.h" />
+    <ClInclude Include="TrayIconService.h" />
     <ClInclude Include="XamlApp.h" />
   </ItemGroup>
   <ItemGroup>
@@ -108,6 +109,7 @@
     </ClCompile>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="ThemeHelper.cpp" />
+    <ClCompile Include="TrayIconService.cpp" />
     <ClCompile Include="XamlApp.cpp" />
   </ItemGroup>
   <ItemGroup>
