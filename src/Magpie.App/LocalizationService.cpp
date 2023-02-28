@@ -59,7 +59,9 @@ const std::vector<std::wstring>& LocalizationService::SupportedLanguages() noexc
 	// 从资源文件中查找所有支持的语言
 	ResourceMap resourceMap = ResourceManager::Current().MainResourceMap().GetSubtree(L"Resources");
 	for (ResourceCandidate candidate : resourceMap.Lookup(L"_Tag").Candidates()) {
-		languages.push_back(std::wstring(candidate.GetQualifierValue(L"Language")));
+		if (candidate) {
+			languages.push_back(std::wstring(candidate.GetQualifierValue(L"Language")));
+		}
 	}
 
 	// 以字典顺序排序

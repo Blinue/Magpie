@@ -272,6 +272,7 @@
   </data>
   <data name="_Tag" xml:space="preserve">
     <value>en-US</value>
+    <comment>Language tag</comment>
   </data>
   <data name="Home_Shortcuts.Title" xml:space="preserve">
     <value>Shortcuts</value>
