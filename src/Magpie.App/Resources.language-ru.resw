@@ -59,7 +59,7 @@
             : using a System.ComponentModel.TypeConverter
             : and then encoded with base64 encoding.
     -->
-  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+  <xsd:schema xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" id="root">
     <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
     <xsd:element name="root" msdata:IsDataSet="true">
       <xsd:complexType>
@@ -229,7 +229,7 @@
     <value>Сохранить</value>
   </data>
   <data name="ShortcutDialog_Tip.Text" xml:space="preserve">
-    <value>Действительны только те горячие клавиши, которые начинаются с клавиши Windows, Ctrl, Alt или Shift.</value>
+    <value>Действительны горячие клавиши начинающиеся с клавиши Windows, Ctrl, Alt или Shift.</value>
   </data>
   <data name="Main_About.Content" xml:space="preserve">
     <value>О программе</value>
@@ -244,7 +244,7 @@
     <value>Новый профиль</value>
   </data>
   <data name="Main_NewProfileFlyout_AdminTip.Text" xml:space="preserve">
-    <value>Не удается обнаружить определенное окно?</value>
+    <value>Не удается обнаружить определённое окно?</value>
   </data>
   <data name="Main_NewProfileFlyout_AdminToolTip.Content" xml:space="preserve">
     <value>Попробуйте запустить Magpie от администратора</value>
@@ -625,7 +625,7 @@
     <value>{} доступен</value>
   </data>
   <data name="About_Version_UpdateToDate.Title" xml:space="preserve">
-    <value>Magpie уже обновлено</value>
+    <value>Magpie уже самая свежая</value>
   </data>
   <data name="About_Version_UpdateToDate_DownloadFailed.Text" xml:space="preserve">
     <value>Скачивание не удалось</value>
@@ -691,7 +691,7 @@
     <value>Выключить изменение размера окна при увеличении</value>
   </data>
   <data name="Settings_Advanced_InlineParams.Description" xml:space="preserve">
-    <value>Дает небольшой прирост производительности. Однако эффекты должны перекомпилироваться при каждом изменении их параметров</value>
+    <value>Даёт небольшой прирост производительности. Однако эффекты должны перекомпилироваться при каждом изменении их параметров</value>
   </data>
   <data name="Settings_Advanced_InlineParams.Title" xml:space="preserve">
     <value>Сделать параметры эффекта встроенными</value>
