@@ -264,6 +264,12 @@
   <data name="Settings_PageFrame.Title" xml:space="preserve">
     <value>设置</value>
   </data>
+  <data name="ToggleSwitch.OffContent" xml:space="preserve">
+    <value>关</value>
+  </data>
+  <data name="ToggleSwitch.OnContent" xml:space="preserve">
+    <value>开</value>
+  </data>
   <data name="_Tag" xml:space="preserve">
     <value>zh-Hans</value>
   </data>

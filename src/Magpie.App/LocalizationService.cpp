@@ -2,7 +2,6 @@
 #include "LocalizationService.h"
 #include "AppSettings.h"
 #include <winrt/Windows.System.UserProfile.h>
-#include "Logger.h"
 
 using namespace winrt;
 using namespace Windows::ApplicationModel::Resources;
@@ -15,20 +14,15 @@ static std::array<const wchar_t*, 2> SUPPORTED_LANGUAGES{
 	L"zh-Hans"
 };
 
-// 非打包应用默认使用“Windows 显示语言”，这里查找“首选语言”
-static const std::wstring& GetUserProfileLanguage() {
-	static std::wstring result;
-	if (!result.empty()) {
-		return result;
-	}
-
+// 非打包应用默认使用“Windows 显示语言”，这里自行切换至“首选语言”
+static void SetAsUserProfileLanguage() {
 	ResourceContext resourceContext{ nullptr };
 	ResourceMap resourcesSubTree{ nullptr };
 	// 查找匹配的首选语言
 	for (const hstring& language : UserProfile::GlobalizationPreferences::Languages()) {
 		if (language == L"en-US") {
-			result = L"en-US";
-			return result;
+			ResourceContext::SetGlobalQualifierValue(L"Language", L"en-US");
+			return;
 		}
 
 		if (!resourceContext) {
@@ -39,27 +33,17 @@ static const std::wstring& GetUserProfileLanguage() {
 		resourceContext.QualifierValues().Insert(L"Language", language);
 		if (resourcesSubTree.GetValue(L"_Tag", resourceContext).ValueAsString() != L"en-US") {
 			// 支持此语言
-			result = language;
-			return result;
+			ResourceContext::SetGlobalQualifierValue(L"Language", language);
+			return;
 		}
 	}
 
 	// 没有支持的语言，回落到英语
-	result = L"en-US";
-	return result;
-}
-
-// 用于更改原生控件的语言，如 ToggleSwitch
-static void SetProcessPreferredUILanguages(std::wstring_view language) noexcept {
-	std::wstring doubleNull(language);
-	doubleNull.push_back(L'\0');
-	if (!::SetProcessPreferredUILanguages(MUI_LANGUAGE_NAME, doubleNull.c_str(), nullptr)) {
-		Logger::Get().Win32Error("SetProcessPreferredUILanguages 失败");
-	}
+	ResourceContext::SetGlobalQualifierValue(L"Language", L"en-US");
 }
 
 void LocalizationService::EarlyInitialize() {
-	ResourceContext::SetGlobalQualifierValue(L"Language", GetUserProfileLanguage());
+	SetAsUserProfileLanguage();
 }
 
 void LocalizationService::Initialize() {
@@ -67,11 +51,7 @@ void LocalizationService::Initialize() {
 
 	int language = settings.Language();
 	if (language >= 0) {
-		SetProcessPreferredUILanguages(SUPPORTED_LANGUAGES[language]);
 		ResourceContext::SetGlobalQualifierValue(L"Language", SUPPORTED_LANGUAGES[language]);
-	} else {
-		SetProcessPreferredUILanguages(GetUserProfileLanguage());
-		// EarlyInitialize 中已设置 ResourceContext::SetGlobalQualifierValue
 	}
 }
 
