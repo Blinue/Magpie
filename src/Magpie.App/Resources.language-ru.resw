@@ -59,10 +59,10 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="About_PageFrame.Title" xml:space="preserve">
-    <value>О сайте</value>
+    <value>О программе</value>
   </data>
   <data name="Home_Activation.Title" xml:space="preserve">
-    <value>Активация</value>
+    <value>Включение</value>
   </data>
   <data name="Home_AutoRestore_Clear.Content" xml:space="preserve">
     <value>Очистить</value>
@@ -74,16 +74,16 @@
     <value>Параметры</value>
   </data>
   <data name="ScalingConfiguration_ScalingModes_MoreOptions.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
-    <value>Дополнительные опции</value>
+    <value>Больше настроек</value>
   </data>
   <data name="ScalingConfiguration_ScalingModes_MoreOptionsFlyout_Delete.Text" xml:space="preserve">
     <value>Удалить</value>
   </data>
   <data name="ScalingConfiguration_ScalingModes_MoreOptionsFlyout_MoveDown.Text" xml:space="preserve">
-    <value>Двигайтесь вниз</value>
+    <value>Опустить</value>
   </data>
   <data name="ScalingConfiguration_ScalingModes_MoreOptionsFlyout_MoveUp.Text" xml:space="preserve">
-    <value>Поднимайтесь</value>
+    <value>Поднять</value>
   </data>
   <data name="ScalingConfiguration_ScalingModes_Rename.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>Переименовать</value>
@@ -95,19 +95,19 @@
     <value>Установка</value>
   </data>
   <data name="Profile_Advanced.Title" xml:space="preserve">
-    <value>Расширенный</value>
+    <value>Расширенные</value>
   </data>
   <data name="Profile_Cursor.Title" xml:space="preserve">
-    <value>Курсор</value>
+    <value>Указатель</value>
   </data>
   <data name="Profile_Cursor_DrawCursor_ScalingFactor.Title" xml:space="preserve">
-    <value>Масштабный коэффициент</value>
+    <value>Множитель увеличения</value>
   </data>
   <data name="Profile_Cursor_DrawCursor_ScalingFactor_Custom.Content" xml:space="preserve">
     <value>Пользовательский</value>
   </data>
   <data name="AppSettings_ErrorDialog_ReadFailed" xml:space="preserve">
-    <value>Не удалось прочитать файл конфигурации</value>
+    <value>Не удалось прочитать файл настроек</value>
   </data>
   <data name="TrayIcon_Exit" xml:space="preserve">
     <value>Выход</value>
@@ -116,19 +116,19 @@
     <value>Главное окно</value>
   </data>
   <data name="Settings_General_RequireRestart.Title" xml:space="preserve">
-    <value>Для вступления изменений в силу требуется перезагрузка</value>
+    <value>Для вступления изменений в силу требуется перезапуск</value>
   </data>
   <data name="Settings_General_RequireRestart_ActionButton.Content" xml:space="preserve">
-    <value>Перезапустите Magpie</value>
+    <value>Перезапустить Magpie</value>
   </data>
   <data name="Home_AutoRestore.Description" xml:space="preserve">
-    <value>Автоматическое масштабирование при возвращении окна на передний план</value>
+    <value>Автоувеличение если окно на переднем плане</value>
   </data>
   <data name="Home_AutoRestore.Title" xml:space="preserve">
-    <value>Автоматическое восстановление</value>
+    <value>Автовосстановление</value>
   </data>
   <data name="Home_AutoRestore_Activate.Content" xml:space="preserve">
-    <value>Активировать</value>
+    <value>Включить</value>
   </data>
   <data name="Home_AutoRestore_CurWindow" xml:space="preserve">
     <value>Текущее окно: </value>
@@ -140,13 +140,13 @@
     <value>Главная</value>
   </data>
   <data name="Home_Timer.Description" xml:space="preserve">
-    <value>Масштабирование окна переднего плана по окончании таймера</value>
+    <value>Увеличение переднего окна после задержки</value>
   </data>
   <data name="Home_Timer.Title" xml:space="preserve">
-    <value>Отложенное масштабирование</value>
+    <value>Отложенное увеличение</value>
   </data>
   <data name="Home_Timer_ButtonText" xml:space="preserve">
-    <value>Масштаб после {}s</value>
+    <value>Увеличить после {}s</value>
   </data>
   <data name="Home_Timer_Cancel" xml:space="preserve">
     <value>Отмена</value>
@@ -158,22 +158,22 @@
     <value>Отмена</value>
   </data>
   <data name="ShortcutDialog_Description.Text" xml:space="preserve">
-    <value>Нажмите комбинацию клавиш, чтобы изменить этот ярлык</value>
+    <value>Нажмите комбинацию клавиш для изменения горячей клавиши</value>
   </data>
   <data name="ShortcutDialog_InUse" xml:space="preserve">
     <value>Уже используется</value>
   </data>
   <data name="ShortcutDialog_InvalidShortcut" xml:space="preserve">
-    <value>Недопустимый ярлык</value>
+    <value>Недопустимая горячая клавиша</value>
   </data>
   <data name="ShortcutDialog_Save" xml:space="preserve">
     <value>Сохранить</value>
   </data>
   <data name="ShortcutDialog_Tip.Text" xml:space="preserve">
-    <value>Действительны только те ярлыки, которые начинаются с клавиши Windows, Ctrl, Alt или Shift.</value>
+    <value>Действительны только те горячие клавиши, которые начинаются с клавиши Windows, Ctrl, Alt или Shift.</value>
   </data>
   <data name="Main_About.Content" xml:space="preserve">
-    <value>О сайте</value>
+    <value>О программе</value>
   </data>
   <data name="Main_Defaults.Content" xml:space="preserve">
     <value>По умолчанию</value>
@@ -188,7 +188,7 @@
     <value>Не удается обнаружить определенное окно?</value>
   </data>
   <data name="Main_NewProfileFlyout_AdminToolTip.Content" xml:space="preserve">
-    <value>Попробуйте запустить Magpie от имени администратора</value>
+    <value>Попробуйте запустить Magpie от администратора</value>
   </data>
   <data name="Main_NewProfileFlyout_ComboBox.PlaceholderText" xml:space="preserve">
     <value>Выберите окно</value>
@@ -200,7 +200,7 @@
     <value>Создать</value>
   </data>
   <data name="Main_NewProfileFlyout_Name.Text" xml:space="preserve">
-    <value>Имя</value>
+    <value>Название</value>
   </data>
   <data name="Main_NewProfileFlyout_NoCandidateWindow.Text" xml:space="preserve">
     <value>Откройте новое окно для создания профиля</value>
@@ -212,49 +212,49 @@
     <value>Профили</value>
   </data>
   <data name="Main_ScalingConfiguration.Content" xml:space="preserve">
-    <value>Конфигурация масштабирования</value>
+    <value>Настройки увеличения</value>
   </data>
   <data name="ScalingConfiguration_PageFrame.Title" xml:space="preserve">
-    <value>Конфигурация масштабирования</value>
+    <value>Настройки увеличения</value>
   </data>
   <data name="Settings_Advanced.Title" xml:space="preserve">
-    <value>Расширенный</value>
+    <value>Расширенные</value>
   </data>
   <data name="Settings_General.Title" xml:space="preserve">
-    <value>Общий</value>
+    <value>Общие</value>
   </data>
   <data name="Settings_General_Language.Title" xml:space="preserve">
     <value>Язык</value>
   </data>
   <data name="Settings_General_Language_Default" xml:space="preserve">
-    <value>Windows по умолчанию</value>
+    <value>Умолчания Windows</value>
   </data>
   <data name="Settings_General_PortableMode.Title" xml:space="preserve">
-    <value>Портативный режим</value>
+    <value>Переносной режим</value>
   </data>
   <data name="Settings_General_PortableMode_Locate.Content" xml:space="preserve">
-    <value>Расположение открытого файла конфигурации</value>
+    <value>Открыть расположение файла настроек</value>
   </data>
   <data name="Settings_Launch_RunAtStartup.Title" xml:space="preserve">
-    <value>Запуск при запуске</value>
+    <value>Автозагрузка</value>
   </data>
   <data name="Settings_General_ShowTrayIcon.Description" xml:space="preserve">
-    <value>Magpie будет продолжать работать в фоновом режиме после закрытия главного окна</value>
+    <value>Magpie продолжит работать в фоновом режиме после закрытия главного окна</value>
   </data>
   <data name="Settings_General_ShowTrayIcon.Title" xml:space="preserve">
-    <value>Отображение приложения на панели задач</value>
+    <value>Отображение приложения в области уведомлений</value>
   </data>
   <data name="Settings_General_Theme.Title" xml:space="preserve">
     <value>Тема</value>
   </data>
   <data name="Settings_General_Theme_Dark.Content" xml:space="preserve">
-    <value>Темный</value>
+    <value>Тёмный</value>
   </data>
   <data name="Settings_General_Theme_Default.Content" xml:space="preserve">
-    <value>Windows по умолчанию</value>
+    <value>Умолчания Windows</value>
   </data>
   <data name="Settings_General_Theme_Light.Content" xml:space="preserve">
-    <value>Свет</value>
+    <value>Светлый</value>
   </data>
   <data name="Settings_PageFrame.Title" xml:space="preserve">
     <value>Настройки</value>
@@ -263,31 +263,31 @@
     <value>en-US</value>
   </data>
   <data name="Home_Shortcuts.Title" xml:space="preserve">
-    <value>Ярлыки</value>
+    <value>Горячие клавиши</value>
   </data>
   <data name="Home_Shortcuts_Overlay.Title" xml:space="preserve">
-    <value>Игровое наложение</value>
+    <value>Внутриигровое наложение</value>
   </data>
   <data name="Home_Shortcuts_Overlay_ShortcutControl.Title" xml:space="preserve">
-    <value>Ярлык внутриигрового наложения</value>
+    <value>Клавиша внутриигрового наложения</value>
   </data>
   <data name="Home_Shortcuts_Scale.Title" xml:space="preserve">
-    <value>Масштаб</value>
+    <value>Увеличить</value>
   </data>
   <data name="Home_Shortcuts_Scale_ShortcutControl.Title" xml:space="preserve">
-    <value>Ярлык шкалы</value>
+    <value>Клавиша увеличения</value>
   </data>
   <data name="Settings_Launch.Title" xml:space="preserve">
     <value>Запуск</value>
   </data>
   <data name="ScalingConfiguration_General.Title" xml:space="preserve">
-    <value>Общий</value>
+    <value>Общие</value>
   </data>
   <data name="ScalingConfiguration_General_DefaultDownscalingEffect.Description" xml:space="preserve">
-    <value>Автоматически применяется, когда выходное изображение слишком велико, чтобы поместиться на экране</value>
+    <value>Автоматически применяется, когда выходное изображение слишком велико, чтобы уместиться на экране</value>
   </data>
   <data name="ScalingConfiguration_General_DefaultDownscalingEffect.Title" xml:space="preserve">
-    <value>Эффект масштабирования по умолчанию</value>
+    <value>Эффект уменьшения по умолчанию</value>
   </data>
   <data name="ScalingConfiguration_General_Export.Text" xml:space="preserve">
     <value>Экспорт</value>
@@ -299,49 +299,49 @@
     <value>Импорт ScaleModels.json</value>
   </data>
   <data name="ScalingConfiguration_General_MoreOptions.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
-    <value>Дополнительные опции</value>
+    <value>Больше настроек</value>
   </data>
   <data name="ScalingConfiguration_ScalingModes.Title" xml:space="preserve">
-    <value>Режимы масштабирования</value>
+    <value>Режимы увеличения</value>
   </data>
   <data name="Settings_Launch_AlwaysRunAsAdmin.Description" xml:space="preserve">
-    <value>Для использования этого параметра необходимо запустить программу от имени администратора</value>
+    <value>Для использования этой настройки нужно запустить от администратора</value>
   </data>
   <data name="Settings_Launch_AlwaysRunAsAdmin.Title" xml:space="preserve">
-    <value>Всегда запускайте от имени администратора</value>
+    <value>Всегда запускаться от администратора</value>
   </data>
   <data name="Home_UpdateCard_AutoCheckForUpdates.Content" xml:space="preserve">
-    <value>Периодически проверяйте наличие обновлений</value>
+    <value>Периодически проверять наличие обновлений</value>
   </data>
   <data name="Home_UpdateCard_DownloadAndInstall.Content" xml:space="preserve">
-    <value>Загрузите и установите</value>
+    <value>Скачать и установить</value>
   </data>
   <data name="Home_UpdateCard_ReleaseNotes.Content" xml:space="preserve">
     <value>Примечания к выпуску</value>
   </data>
   <data name="Home_UpdateCard_RemindMeLater.Content" xml:space="preserve">
-    <value>Напомни мне позже</value>
+    <value>Напомнить мне позже</value>
   </data>
   <data name="Home_UpdateCard_Title" xml:space="preserve">
-    <value>{} доступен</value>
+    <value>{} доступно</value>
   </data>
   <data name="About_OtherLinks.Title" xml:space="preserve">
     <value>Другие ссылки</value>
   </data>
   <data name="About_OtherLinks_ContributionGuidelines.Text" xml:space="preserve">
-    <value>Руководство по внесению взносов</value>
+    <value>Руководство по сотрудничеству</value>
   </data>
   <data name="About_OtherLinks_FAQ.Text" xml:space="preserve">
-    <value>ЧАСТО ЗАДАВАЕМЫЕ ВОПРОСЫ</value>
+    <value>ЧаВо</value>
   </data>
   <data name="About_OtherLinks_License.Text" xml:space="preserve">
     <value>Лицензия</value>
   </data>
   <data name="About_OtherLinks_Repository.Text" xml:space="preserve">
-    <value>Репозиторий Github</value>
+    <value>Github хранилище</value>
   </data>
   <data name="ScalingConfiguration_ScalingModes_RenameFlyout_OK.Content" xml:space="preserve">
-    <value>OK</value>
+    <value>Отлично</value>
   </data>
   <data name="ScalingConfiguration_ScalingModes_RenameFlyout_Title.Text" xml:space="preserve">
     <value>Переименовать</value>
@@ -359,28 +359,28 @@
     <value>Его используют следующие профили:</value>
   </data>
   <data name="ScalingConfiguration_ScalingModes_DeleteFlyout_Title.Text" xml:space="preserve">
-    <value>Вы уверены, что хотите удалить этот режим масштабирования?</value>
+    <value>Вы уверены, что хотите удалить этот режим увеличения?</value>
   </data>
   <data name="ScalingConfiguration_ScalingModes_DragNotSupported.Text" xml:space="preserve">
-    <value>Перетаскивание не поддерживается при работе от имени администратора</value>
+    <value>Перетаскивание не поддерживается при работе от администратора</value>
   </data>
   <data name="ScalingConfiguration_ScalingModes_DragToReorder.Text" xml:space="preserve">
-    <value>Перетащите, чтобы изменить порядок</value>
+    <value>Перетащите чтобы переупорядочить</value>
   </data>
   <data name="ScalingConfiguration_ScalingModes_MoveDown.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
-    <value>Двигайтесь вниз</value>
+    <value>Опустить</value>
   </data>
   <data name="ScalingConfiguration_ScalingModes_MoveUp.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
-    <value>Поднимайтесь</value>
+    <value>Поднять</value>
   </data>
   <data name="ScalingConfiguration_ScalingModes_NewScalingMode.Text" xml:space="preserve">
-    <value>Новый режим масштабирования</value>
+    <value>Новый режим увеличения</value>
   </data>
   <data name="ScalingConfiguration_ScalingModes_NewScalingModeFlyout_Title.Text" xml:space="preserve">
-    <value>Новый режим масштабирования</value>
+    <value>Новый режим увеличения</value>
   </data>
   <data name="ScalingConfiguration_ScalingModes_Scale.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
-    <value>Масштаб</value>
+    <value>Увеличение</value>
   </data>
   <data name="ScalingConfiguration_ScalingModes_NewScalingModeFlyout_CopyFrom.Text" xml:space="preserve">
     <value>Копия из</value>
@@ -392,22 +392,22 @@
     <value>Создать</value>
   </data>
   <data name="ScalingConfiguration_ScalingModes_NewScalingModeFlyout_Name.Text" xml:space="preserve">
-    <value>Имя</value>
+    <value>Название</value>
   </data>
   <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_HeightFactor.Text" xml:space="preserve">
-    <value>Высота (масштабный коэффициент)</value>
+    <value>Высота (множитель увеличения)</value>
   </data>
   <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_HeightPixels.Text" xml:space="preserve">
     <value>Высота (пиксели)</value>
   </data>
   <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_WidthFactor.Text" xml:space="preserve">
-    <value>Ширина (коэффициент масштабирования)</value>
+    <value>Ширина (множитель увеличения)</value>
   </data>
   <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_Type_Fill_Description" xml:space="preserve">
     <value>Заполняет экран, изображение может растягиваться</value>
   </data>
   <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_Type_Fit" xml:space="preserve">
-    <value>Подходит</value>
+    <value>Подогнать</value>
   </data>
   <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_WidthPixels.Text" xml:space="preserve">
     <value>Ширина (пиксели)</value>
@@ -416,34 +416,34 @@
     <value>Тип</value>
   </data>
   <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_Type_Absolute" xml:space="preserve">
-    <value>Абсолют</value>
+    <value>Абсолютно</value>
   </data>
   <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_Type_Absolute_Description" xml:space="preserve">
-    <value>Установите размер после масштабирования</value>
+    <value>Установить размер после увеличения</value>
   </data>
   <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_Type_Factor" xml:space="preserve">
-    <value>Фактор</value>
+    <value>Множитель</value>
   </data>
   <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_Type_Factor_Description" xml:space="preserve">
-    <value>Установите коэффициент масштабирования относительно входного изображения</value>
+    <value>Выставить множитель увеличения относительно входного изображения</value>
   </data>
   <data name="Profile_General_Multimonitor_All.Content" xml:space="preserve">
     <value>Все мониторы</value>
   </data>
   <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_Type_Fit_Description" xml:space="preserve">
-    <value>Установите коэффициент масштабирования после заполнения экрана пропорциональным масштабированием</value>
+    <value>Выставить множитель увеличения после заполнения экрана пропорциональным увеличением</value>
   </data>
   <data name="Profile_General.Title" xml:space="preserve">
-    <value>Общий</value>
+    <value>Общие</value>
   </data>
   <data name="Profile_General_3DGameMode.Title" xml:space="preserve">
-    <value>3D режим игры</value>
+    <value>Режим 3D игры</value>
   </data>
   <data name="Profile_General_AutoScale.Title" xml:space="preserve">
-    <value>Автоматическое масштабирование при нахождении на переднем плане</value>
+    <value>Автоувеличение при переднем плане</value>
   </data>
   <data name="Profile_General_CaptureMethod.Title" xml:space="preserve">
-    <value>Метод захвата</value>
+    <value>Способ захвата</value>
   </data>
   <data name="Profile_General_Multimonitor.Title" xml:space="preserve">
     <value>Предпочтительные мониторы</value>
@@ -458,13 +458,13 @@
     <value>Мониторы, пересекаемые исходным окном</value>
   </data>
   <data name="Profile_General_ScalingMode.Title" xml:space="preserve">
-    <value>Режим масштабирования</value>
+    <value>Режим увеличения</value>
   </data>
   <data name="Profile_Launch.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>Запуск</value>
   </data>
   <data name="Profile_MoreOptions.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
-    <value>Дополнительные опции</value>
+    <value>Больше настроек</value>
   </data>
   <data name="Profile_MoreOptions_Delete.Text" xml:space="preserve">
     <value>Удалить</value>
@@ -476,31 +476,31 @@
     <value>Вы уверены, что хотите удалить этот профиль?</value>
   </data>
   <data name="Profile_MoreOptions_OpenProgramLocation.Text" xml:space="preserve">
-    <value>Расположение открытой программы</value>
+    <value>Открыть расположение программы</value>
   </data>
   <data name="Profile_MoreOptions_Rename.Text" xml:space="preserve">
     <value>Переименовать</value>
   </data>
   <data name="Profile_MoreOptions_RenameFlyout_OK.Content" xml:space="preserve">
-    <value>OK</value>
+    <value>Отлично</value>
   </data>
   <data name="Profile_MoreOptions_RenameFlyout_Title.Text" xml:space="preserve">
     <value>Переименовать</value>
   </data>
   <data name="Profile_MoreOptions_Reorder.Text" xml:space="preserve">
-    <value>Повторный заказ</value>
+    <value>Переупорядочить</value>
   </data>
   <data name="Profile_MoreOptions_ReorderFlyout_MoveDown.Text" xml:space="preserve">
-    <value>Двигайтесь вниз</value>
+    <value>Опустить</value>
   </data>
   <data name="Profile_MoreOptions_ReorderFlyout_MoveUp.Text" xml:space="preserve">
-    <value>Поднимайтесь</value>
+    <value>Поднять</value>
   </data>
   <data name="Profile_MoreOptions_ReorderFlyout_Title.Text" xml:space="preserve">
-    <value>Повторный заказ</value>
+    <value>Переупорядочить</value>
   </data>
   <data name="ScalingConfiguration_ParsingFailed.Title" xml:space="preserve">
-    <value>Не удалось выполнить парсинг</value>
+    <value>Сбой разбора</value>
   </data>
   <data name="Profile_General_ScalingMode_None" xml:space="preserve">
     <value>Нет</value>
@@ -512,10 +512,10 @@
     <value>Графическая карта</value>
   </data>
   <data name="Profile_Performance_ShowFPS.Title" xml:space="preserve">
-    <value>Отображение счетчика FPS</value>
+    <value>Показать счётчик кадров в секунду</value>
   </data>
   <data name="Profile_Performance_VSync.Title" xml:space="preserve">
-    <value>VSync</value>
+    <value>Вертикальная синхронизация</value>
   </data>
   <data name="About_Feedback.Title" xml:space="preserve">
     <value>Обратная связь</value>
@@ -533,13 +533,13 @@
     <value>Версия</value>
   </data>
   <data name="About_Version_AutoCheckForPreviewUpdates.Content" xml:space="preserve">
-    <value>Проверка обновлений предварительного просмотра</value>
+    <value>Проверить предварительные обновления</value>
   </data>
   <data name="About_Version_AutoCheckForUpdates.Content" xml:space="preserve">
-    <value>Автоматически проверяйте наличие обновлений</value>
+    <value>Автоматически проверять наличие обновлений</value>
   </data>
   <data name="About_Version_CheckForUpdates.Content" xml:space="preserve">
-    <value>Проверьте наличие обновлений</value>
+    <value>Проверить наличие обновлений</value>
   </data>
   <data name="About_Version_CheckForUpdatesFailed.Title" xml:space="preserve">
     <value>Не удалось проверить наличие обновлений, повторите попытку позже</value>
@@ -554,34 +554,34 @@
     <value>Отмена</value>
   </data>
   <data name="About_Version_UpdateCard_DownloadAndInstall.Content" xml:space="preserve">
-    <value>Загрузите и установите</value>
+    <value>Скачать и установить</value>
   </data>
   <data name="About_Version_UpdateCard_ReleaseNotes.Content" xml:space="preserve">
     <value>Примечания к выпуску</value>
   </data>
   <data name="About_Version_UpdateCard_Retry.Content" xml:space="preserve">
-    <value>Попробуйте еще раз</value>
+    <value>Попробуйте ещё раз</value>
   </data>
   <data name="About_Version_UpdateCard_Title" xml:space="preserve">
     <value>{} доступен</value>
   </data>
   <data name="About_Version_UpdateToDate.Title" xml:space="preserve">
-    <value>Magpie в курсе последних событий</value>
+    <value>Magpie уже обновлено</value>
   </data>
   <data name="About_Version_UpdateToDate_DownloadFailed.Text" xml:space="preserve">
-    <value>Загрузка не удалась</value>
+    <value>Скачивание не удалось</value>
   </data>
   <data name="About_Version_UpdateToDate_Downloading.Text" xml:space="preserve">
-    <value>Загрузка</value>
+    <value>Скачивание</value>
   </data>
   <data name="Profile_Advanced_DisableDirectFlip.Title" xml:space="preserve">
     <value>Отключить DirectFlip</value>
   </data>
   <data name="Profile_Cursor_DrawCursor.Title" xml:space="preserve">
-    <value>Нарисовать курсор</value>
+    <value>Рисовать указатель</value>
   </data>
   <data name="Profile_Cursor_DrawCursor_AdjustCursorSpeed.Title" xml:space="preserve">
-    <value>Регулировка скорости курсора при масштабировании</value>
+    <value>Подогнать скорость указателя при увеличении</value>
   </data>
   <data name="Profile_Cursor_DrawCursor_Interpolation.Title" xml:space="preserve">
     <value>Алгоритм интерполяции</value>
@@ -593,7 +593,7 @@
     <value>Ближайший сосед</value>
   </data>
   <data name="Profile_Cursor_DrawCursor_ScalingFactor_NoScaling.Content" xml:space="preserve">
-    <value>Отсутствие масштабирования</value>
+    <value>Не увеличивать</value>
   </data>
   <data name="Profile_Cursor_DrawCursor_ScalingFactor_SameAsSourceWindow.Content" xml:space="preserve">
     <value>То же, что и в исходном окне</value>
@@ -605,31 +605,31 @@
     <value>Исходное окно</value>
   </data>
   <data name="Profile_SourceWindow_CaptureTitleBar.Description" xml:space="preserve">
-    <value>Ограничивается захватом графики и дублированием рабочего стола</value>
+    <value>Ограничено Graphics Capture и Desktop Duplication</value>
   </data>
   <data name="Profile_SourceWindow_CaptureTitleBar.Title" xml:space="preserve">
-    <value>Захват строки заголовка</value>
+    <value>Захват заголовка</value>
   </data>
   <data name="Profile_SourceWindow_CustomCropping.Title" xml:space="preserve">
-    <value>Пользовательское кадрирование</value>
+    <value>Обрезать вручную</value>
   </data>
   <data name="Profile_SourceWindow_CustomCropping_Bottom.Title" xml:space="preserve">
-    <value>Дно</value>
+    <value>Низ</value>
   </data>
   <data name="Profile_SourceWindow_CustomCropping_Left.Title" xml:space="preserve">
-    <value>Слева</value>
+    <value>Лево</value>
   </data>
   <data name="Profile_SourceWindow_CustomCropping_Pixels.Text" xml:space="preserve">
-    <value>px</value>
+    <value>пкс</value>
   </data>
   <data name="Profile_SourceWindow_CustomCropping_Right.Title" xml:space="preserve">
-    <value>Справа</value>
+    <value>Право</value>
   </data>
   <data name="Profile_SourceWindow_CustomCropping_Top.Title" xml:space="preserve">
-    <value>Топ</value>
+    <value>Верх</value>
   </data>
   <data name="Profile_SourceWindow_DisableWindowResizing.Title" xml:space="preserve">
-    <value>Отключение изменения размера окна при масштабировании</value>
+    <value>Выключить изменение размера окна при увеличении</value>
   </data>
   <data name="Settings_Advanced_InlineParams.Description" xml:space="preserve">
     <value>Дает небольшой прирост производительности. Однако эффекты должны перекомпилироваться при каждом изменении их параметров</value>
@@ -641,13 +641,13 @@
     <value>Уведомления и всплывающие окна некоторых приложений будут блокироваться</value>
   </data>
   <data name="Settings_Advanced_SimulateExclusiveFullscreen.Title" xml:space="preserve">
-    <value>Имитация эксклюзивного полноэкранного режима при масштабировании</value>
+    <value>Симуляция эксклюзивного полного экрана при увеличении</value>
   </data>
   <data name="Settings_Launch_RunAtStartup_MinimizeAtStartup.Description" xml:space="preserve">
-    <value>Чтобы использовать эту настройку, необходимо включить "Отображать приложение на панели задач".</value>
+    <value>Для использования этой настройки, включите "Отображать приложение в области уведомления"</value>
   </data>
   <data name="Settings_Launch_RunAtStartup_MinimizeAtStartup.Title" xml:space="preserve">
-    <value>Минимизация в системный трей при запуске</value>
+    <value>Сворачивание в область уведомления при запуске</value>
   </data>
   <data name="AppSettings_Dialog_Error" xml:space="preserve">
     <value>Ошибка</value>
@@ -656,7 +656,7 @@
     <value>Предупреждение</value>
   </data>
   <data name="AppSettings_PortableModeUnkownConfiguration_Content" xml:space="preserve">
-    <value>Локальный файл конфигурации имеет неизвестную версию и может быть неправильно разобран.</value>
+    <value>Локальный файл настроек имеет неизвестную версию и может быть неправильно разобран.</value>
   </data>
   <data name="AppSettings_PortableModeUnkownConfiguration_Continue" xml:space="preserve">
     <value>Продолжить</value>
@@ -665,7 +665,7 @@
     <value>Выход</value>
   </data>
   <data name="AppSettings_UnkownConfiguration_Content" xml:space="preserve">
-    <value>Файл глобальной конфигурации имеет неизвестную версию и может быть разобран неправильно.</value>
+    <value>Глобальный файл настроек имеет неизвестную версию и может быть разобран неправильно.</value>
   </data>
   <data name="AppSettings_UnkownConfiguration_Continue" xml:space="preserve">
     <value>Продолжить</value>
@@ -677,7 +677,7 @@
     <value>Не изменяйте эти настройки, если не знаете, что делаете</value>
   </data>
   <data name="Settings_DeveloperOptions.Title" xml:space="preserve">
-    <value>Возможности разработчика</value>
+    <value>Настройки разработчика</value>
   </data>
   <data name="Settings_DeveloperOptions_DebugMode.Content" xml:space="preserve">
     <value>Режим отладки</value>
@@ -689,19 +689,25 @@
     <value>Сохранение исходного кода при разборе эффектов</value>
   </data>
   <data name="Settings_DeveloperOptions_WarningsAreErrors.Content" xml:space="preserve">
-    <value>Рассматривайте предупреждения как ошибки при компиляции эффектов</value>
+    <value>Рассматривать предупреждения как ошибки при компиляции эффектов</value>
   </data>
   <data name="AppSettings_Dialog_Exit" xml:space="preserve">
     <value>Выход</value>
   </data>
   <data name="AppSettings_ErrorDialog_ConfigLocation" xml:space="preserve">
-    <value>Расположение файла конфигурации:
+    <value>Расположение файла настроек:
 {}</value>
   </data>
   <data name="AppSettings_ErrorDialog_NotValidJson" xml:space="preserve">
-    <value>Файл конфигурации не является корректным JSON</value>
+    <value>Файл настроек не является правильным JSON</value>
   </data>
   <data name="AppSettings_ErrorDialog_ParseFailed" xml:space="preserve">
-    <value>Не удалось разобрать файл конфигурации</value>
+    <value>Не удалось разобрать файл настроек</value>
+  </data>
+  <data name="ToggleSwitch.OffContent" xml:space="preserve">
+    <value>Выкл</value>
+  </data>
+  <data name="ToggleSwitch.OnContent" xml:space="preserve">
+    <value>Вкл</value>
   </data>
 </root>
