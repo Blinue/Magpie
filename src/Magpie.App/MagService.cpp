@@ -308,7 +308,7 @@ void MagService::_ScaleForegroundWindow() {
 }
 
 bool MagService::_CheckSrcWnd(HWND hWnd) noexcept {
-	return hWnd && Win32Utils::GetWindowShowCmd(hWnd) == SW_NORMAL;
+	return hWnd && IsWindow(hWnd) && Win32Utils::GetWindowShowCmd(hWnd) == SW_NORMAL;
 }
 
 }

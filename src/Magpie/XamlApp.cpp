@@ -216,7 +216,8 @@ void XamlApp::ShowMainWindow() noexcept {
 void XamlApp::_QuitWithoutMainWindow() {
 	TrayIconService::Get().Uninitialize();
 
-	_uwpApp.Close();
+	_uwpApp.Uninitialize();
+	// 不能调用 Close，否则切换页面时关闭主窗口会导致崩溃
 	_uwpApp = nullptr;
 
 	PostQuitMessage(0);

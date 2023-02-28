@@ -68,10 +68,6 @@ void App::Close() {
 	}
 	_isClosed = true;
 
-	// 不显示托盘图标的情况下关闭主窗口仍会在后台驻留数秒，推测和 XAML Islands 有关
-	// 这里提前取消热键注册，这样关闭 Magpie 后立即重新打开不会注册热键失败
-	ShortcutService::Get().Uninitialize();
-
 	_windowsXamlManager.Close();
 	_windowsXamlManager = nullptr;
 
@@ -108,6 +104,12 @@ StartUpOptions App::Initialize(int) {
 	UpdateService::Get().Initialize();
 
 	return result;
+}
+
+void App::Uninitialize() {
+	// 不显示托盘图标的情况下关闭主窗口仍会在后台驻留数秒，推测和 XAML Islands 有关
+	// 这里提前取消热键注册，这样关闭 Magpie 后立即重新打开不会注册热键失败
+	ShortcutService::Get().Uninitialize();
 }
 
 bool App::IsShowTrayIcon() const noexcept {
