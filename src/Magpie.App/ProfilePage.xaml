@@ -264,6 +264,12 @@
 						                    Style="{StaticResource ExpanderContentSettingStyle}">
 							<CheckBox x:Uid="Profile_Performance_VSync_TripleBuffering"
 							          IsChecked="{x:Bind ViewModel.IsTripleBuffering, Mode=TwoWay}" />
+							<local:SettingsCard.ActionContent>
+								<!--  使用魔法修复动画错误  -->
+								<ComboBox Width="0"
+								          Height="0"
+								          IsTabStop="False" />
+							</local:SettingsCard.ActionContent>
 						</local:SettingsCard>
 					</muxc:Expander.Content>
 				</muxc:Expander>

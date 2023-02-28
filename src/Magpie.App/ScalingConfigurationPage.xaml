@@ -390,7 +390,7 @@
 																					<!--  https://github.com/microsoft/microsoft-ui-xaml/issues/3612  -->
 																					<ComboBox HorizontalAlignment="Stretch"
 																					          DropDownOpened="ComboBox_DropDownOpened"
-																					          ItemsSource="{x:Bind ScalingTypes, Mode=OneWay}"
+																					          ItemsSource="{x:Bind ScalingTypes, Mode=OneTime}"
 																					          SelectedIndex="{x:Bind ScalingType, Mode=TwoWay}">
 																						<ComboBox.Resources>
 																							<Style x:Key="Description"
