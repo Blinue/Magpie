@@ -114,8 +114,7 @@
 							<FontIcon Glyph="&#xE944;" />
 						</local:SettingsCard.Icon>
 						<local:SettingsCard.ActionContent>
-							<ToggleSwitch x:Uid="ToggleSwitch"
-							              IsOn="{x:Bind ViewModel.IsAutoRestore, Mode=TwoWay}" />
+							<ToggleSwitch IsOn="{x:Bind ViewModel.IsAutoRestore, Mode=TwoWay}" />
 						</local:SettingsCard.ActionContent>
 					</local:SettingsCard>
 					<muxc:Expander HorizontalAlignment="Stretch"
@@ -130,8 +129,7 @@
 									<FontIcon Glyph="&#xE944;" />
 								</local:SettingsCard.Icon>
 								<local:SettingsCard.ActionContent>
-									<ToggleSwitch x:Uid="ToggleSwitch"
-									              IsOn="{x:Bind ViewModel.IsAutoRestore, Mode=TwoWay}" />
+									<ToggleSwitch IsOn="{x:Bind ViewModel.IsAutoRestore, Mode=TwoWay}" />
 								</local:SettingsCard.ActionContent>
 							</local:SettingsCard>
 						</muxc:Expander.Header>

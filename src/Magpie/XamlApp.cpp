@@ -88,7 +88,7 @@ int XamlApp::Run() {
 
 		_mainWindow->HandleMessage(msg);
 
-		if (!_mainWindow->Handle()) {
+		if (!_mainWindow || !_mainWindow->Handle()) {
 			// 主窗口已销毁
 			_mainWindow.reset();
 			_uwpApp.HwndMain(0);
