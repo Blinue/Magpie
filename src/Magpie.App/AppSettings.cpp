@@ -565,7 +565,7 @@ void AppSettings::_LoadSettings(const rapidjson::GenericObject<true, rapidjson::
 		if (language.empty()) {
 			_language = -1;
 		} else {
-			std::span<const wchar_t*> languages = LocalizationService::SupportedLanguages();
+			const std::vector<std::wstring>& languages = LocalizationService::SupportedLanguages();
 			auto it = std::find(languages.begin(), languages.end(), language);
 			if (it == languages.end()) {
 				// 未知的语言设置，重置为使用系统设置

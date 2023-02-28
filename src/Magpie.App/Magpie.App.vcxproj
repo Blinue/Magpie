@@ -545,6 +545,7 @@
   </ItemGroup>
   <ItemGroup>
     <PRIResource Include="Resources.language-en-US.resw" />
+    <PRIResource Include="Resources.language-ru.resw" />
     <PRIResource Include="Resources.language-zh-Hans.resw" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

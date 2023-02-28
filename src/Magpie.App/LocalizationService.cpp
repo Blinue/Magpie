@@ -9,11 +9,6 @@ using namespace Windows::ApplicationModel::Resources::Core;
 
 namespace winrt::Magpie::App {
 
-static std::array<const wchar_t*, 2> SUPPORTED_LANGUAGES{
-	L"en-US",
-	L"zh-Hans"
-};
-
 // 非打包应用默认使用“Windows 显示语言”，这里自行切换至“首选语言”
 static void SetAsUserProfileLanguage() {
 	ResourceContext resourceContext{ nullptr };
@@ -51,12 +46,25 @@ void LocalizationService::Initialize() {
 
 	int language = settings.Language();
 	if (language >= 0) {
-		ResourceContext::SetGlobalQualifierValue(L"Language", SUPPORTED_LANGUAGES[language]);
+		ResourceContext::SetGlobalQualifierValue(L"Language", SupportedLanguages()[language]);
 	}
 }
 
-std::span<const wchar_t*> LocalizationService::SupportedLanguages() noexcept {
-	return SUPPORTED_LANGUAGES;
+const std::vector<std::wstring>& LocalizationService::SupportedLanguages() noexcept {
+	static std::vector<std::wstring> languages;
+	if (!languages.empty()) {
+		return languages;
+	}
+
+	// 从资源文件中查找所有支持的语言
+	ResourceMap resourceMap = ResourceManager::Current().MainResourceMap().GetSubtree(L"Resources");
+	for (ResourceCandidate candidate : resourceMap.Lookup(L"_Tag").Candidates()) {
+		languages.push_back(std::wstring(candidate.GetQualifierValue(L"Language")));
+	}
+
+	// 以字典顺序排序
+	std::sort(languages.begin(), languages.end());
+	return languages;
 }
 
 }

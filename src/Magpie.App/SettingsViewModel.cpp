@@ -19,14 +19,14 @@ SettingsViewModel::SettingsViewModel() {
 }
 
 IVector<IInspectable> SettingsViewModel::Languages() const {
-	std::span<const wchar_t*> tags = LocalizationService::Get().SupportedLanguages();
+	const std::vector<std::wstring>& tags = LocalizationService::Get().SupportedLanguages();
 
 	std::vector<IInspectable> languages;
 	languages.reserve(tags.size() + 1);
 
 	ResourceLoader resourceLoader = ResourceLoader::GetForCurrentView();
 	languages.push_back(box_value(resourceLoader.GetString(L"Settings_General_Language_Default")));
-	for (const wchar_t* tag : tags) {
+	for (const std::wstring& tag : tags) {
 		Windows::Globalization::Language language(tag);
 		languages.push_back(box_value(language.NativeName()));
 	}
