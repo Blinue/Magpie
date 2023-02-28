@@ -19,8 +19,10 @@ struct CommonSharedConstants {
 
 	static constexpr const wchar_t* OPTION_MINIMIZE_TO_TRAY_AT_STARTUP = L"-t";
 
+#ifndef IDI_APP
 	// 来自 Magpie\resource.h
 	static constexpr const UINT IDI_APP = 101;
+#endif // !IDI_APP
 
 	static constexpr const UINT WM_NOTIFY_ICON = WM_USER;
 	static constexpr const UINT WM_QUIT_MAGPIE = WM_USER + 1;

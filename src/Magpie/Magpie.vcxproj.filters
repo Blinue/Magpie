@@ -22,6 +22,8 @@
     <ClInclude Include="TrayIconService.h">
       <Filter>Services</Filter>
     </ClInclude>
+    <ClInclude Include="XamlWindow.h" />
+    <ClInclude Include="MainWindow.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -40,6 +42,7 @@
     <ClCompile Include="TrayIconService.cpp">
       <Filter>Services</Filter>
     </ClCompile>
+    <ClCompile Include="MainWindow.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Magpie.rc">
