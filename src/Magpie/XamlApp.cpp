@@ -64,7 +64,9 @@ bool XamlApp::Initialize(HINSTANCE hInstance, const wchar_t* arguments) {
 
 	// 不显示托盘图标时忽略 -t 参数
 	if (!trayIconService.IsShow() || !arguments || arguments != L"-t"sv) {
-		_CreateMainWindow();
+		if (!_CreateMainWindow()) {
+			return false;
+		}
 	}
 
 	return true;
@@ -191,11 +193,16 @@ void XamlApp::_InitializeLogger() {
 	Magpie::Core::LoggerHelper::Initialize(logger);
 }
 
-void XamlApp::_CreateMainWindow() {
+bool XamlApp::_CreateMainWindow() {
 	_mainWindow.emplace();
-	_mainWindow->Initialize(_hInst, _mainWndRect, _isMainWndMaximized);
+	if (!_mainWindow->Initialize(_hInst, _mainWndRect, _isMainWndMaximized)) {
+		return false;
+	}
+
 	_uwpApp.HwndMain((uint64_t)_mainWindow->Handle());
 	_uwpApp.MainPage(_mainWindow->Content());
+
+	return true;
 }
 
 void XamlApp::ShowMainWindow() noexcept {
@@ -209,8 +216,7 @@ void XamlApp::ShowMainWindow() noexcept {
 void XamlApp::_QuitWithoutMainWindow() {
 	TrayIconService::Get().Uninitialize();
 
-	_uwpApp.Uninitialize();
-	// 不能调用 Close，否则切换页面时关闭主窗口会导致崩溃
+	_uwpApp.Close();
 	_uwpApp = nullptr;
 
 	PostQuitMessage(0);

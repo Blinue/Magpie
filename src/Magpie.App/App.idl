@@ -53,7 +53,6 @@ namespace Magpie.App {
 		void SaveSettings();
 
 		StartUpOptions Initialize(Int32 notUsed);
-		void Uninitialize();
 
 		Boolean IsShowTrayIcon { get; };
 		event Windows.Foundation.EventHandler<Boolean> IsShowTrayIconChanged;
