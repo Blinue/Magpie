@@ -27,10 +27,9 @@ _AppSettingsData::_AppSettingsData() {}
 _AppSettingsData::~_AppSettingsData() {}
 
 // 将热键存储为 uint32_t
-// 不能存储为字符串，因为某些键有相同的名称，如句号和小键盘的点
+// 不能存储为字符串，因为某些键的字符相同，如句号和小键盘的点
 static uint32_t EncodeShortcut(const Shortcut& shortcut) noexcept {
-	uint32_t value = 0;
-	value |= shortcut.code;
+	uint32_t value = shortcut.code;
 	if (shortcut.win) {
 		value |= 0x100;
 	}
@@ -565,6 +564,7 @@ void AppSettings::_LoadSettings(const rapidjson::GenericObject<true, rapidjson::
 		if (language.empty()) {
 			_language = -1;
 		} else {
+			StrUtils::ToLowerCase(language);
 			const std::vector<std::wstring>& languages = LocalizationService::SupportedLanguages();
 			auto it = std::find(languages.begin(), languages.end(), language);
 			if (it == languages.end()) {

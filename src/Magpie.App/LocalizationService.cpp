@@ -2,6 +2,7 @@
 #include "LocalizationService.h"
 #include "AppSettings.h"
 #include <winrt/Windows.System.UserProfile.h>
+#include "StrUtils.h"
 
 using namespace winrt;
 using namespace Windows::ApplicationModel::Resources;
@@ -58,12 +59,16 @@ const std::vector<std::wstring>& LocalizationService::SupportedLanguages() noexc
 
 	// 从资源文件中查找所有支持的语言
 	ResourceMap resourceMap = ResourceManager::Current().MainResourceMap().GetSubtree(L"Resources");
-	for (ResourceCandidate candidate : resourceMap.Lookup(L"_Tag").Candidates()) {
-		if (candidate) {
-			languages.push_back(std::wstring(candidate.GetQualifierValue(L"Language")));
-		}
+	ResourceContext resourceContext;
+	// 不知为何，NamedResource.Candidates 有时会崩溃，因此用 ResolveAll 代替
+	auto candidates = resourceMap.Lookup(L"_Tag").ResolveAll(resourceContext);
+	for (ResourceCandidate candidate : candidates) {
+		std::wstring language(candidate.GetQualifierValue(L"Language"));
+		// 转换为小写
+		StrUtils::ToLowerCase(language);
+		languages.push_back(language);
 	}
-
+	
 	// 以字典顺序排序
 	std::sort(languages.begin(), languages.end());
 	return languages;
