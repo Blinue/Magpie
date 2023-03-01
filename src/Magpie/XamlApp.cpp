@@ -62,6 +62,8 @@ bool XamlApp::Initialize(HINSTANCE hInstance, const wchar_t* arguments) {
 		TrayIconService::Get().IsShow(value);
 	});
 
+	_mainWindow.Destroyed({ this, &XamlApp::_MainWindow_Destoryed });
+
 	// 不显示托盘图标时忽略 -t 参数
 	if (!trayIconService.IsShow() || !arguments || arguments != L"-t"sv) {
 		if (!_CreateMainWindow()) {
@@ -75,47 +77,22 @@ bool XamlApp::Initialize(HINSTANCE hInstance, const wchar_t* arguments) {
 int XamlApp::Run() {
 	MSG msg;
 	while (GetMessage(&msg, nullptr, 0, 0)) {
-		if (msg.message == WM_MAGPIE_SHOWME) {
+		if (msg.message == WM_MAGPIE_SHOWME && _uwpApp) {
 			ShowMainWindow();
 			continue;
 		}
 
-		if (!_mainWindow) {
-			TranslateMessage(&msg);
-			DispatchMessage(&msg);
-			continue;
-		}
-
-		_mainWindow->HandleMessage(msg);
-
-		if (!_mainWindow || !_mainWindow->Handle()) {
-			// 主窗口已销毁
-			_mainWindow.reset();
-			_uwpApp.HwndMain(0);
-			_uwpApp.MainPage(nullptr);
-
-			if (!TrayIconService::Get().IsShow()) {
-				_QuitWithoutMainWindow();
-
-				// 退出之前清空消息队列
-				while (GetMessage(&msg, nullptr, 0, 0)) {
-					TranslateMessage(&msg);
-					DispatchMessage(&msg);
-				}
-
-				return (int)msg.wParam;
-			}
-		}
+		_mainWindow.HandleMessage(msg);
 	}
 	return (int)msg.wParam;
 }
 
 void XamlApp::Quit() {
 	if (_mainWindow) {
-		TrayIconService::Get().IsShow(false);
-		_mainWindow.reset();
-	} else {
-		_uwpApp.SaveSettings();
+		_mainWindow.Destroy();
+	}
+
+	if (_uwpApp) {
 		_QuitWithoutMainWindow();
 	}
 }
@@ -145,7 +122,7 @@ void XamlApp::SaveSettings() {
 	if (_mainWindow && TrayIconService::Get().IsShow()) {
 		WINDOWPLACEMENT wp{};
 		wp.length = sizeof(wp);
-		if (GetWindowPlacement(_mainWindow->Handle(), &wp)) {
+		if (GetWindowPlacement(_mainWindow.Handle(), &wp)) {
 			_mainWndRect = {
 				wp.rcNormalPosition.left,
 				wp.rcNormalPosition.top,
@@ -194,20 +171,19 @@ void XamlApp::_InitializeLogger() {
 }
 
 bool XamlApp::_CreateMainWindow() {
-	_mainWindow.emplace();
-	if (!_mainWindow->Initialize(_hInst, _mainWndRect, _isMainWndMaximized)) {
+	if (!_mainWindow.Create(_hInst, _mainWndRect, _isMainWndMaximized)) {
 		return false;
 	}
 
-	_uwpApp.HwndMain((uint64_t)_mainWindow->Handle());
-	_uwpApp.MainPage(_mainWindow->Content());
+	_uwpApp.HwndMain((uint64_t)_mainWindow.Handle());
+	_uwpApp.MainPage(_mainWindow.Content());
 
 	return true;
 }
 
 void XamlApp::ShowMainWindow() noexcept {
 	if (_mainWindow) {
-		_mainWindow->Show();
+		_mainWindow.Show();
 	} else {
 		_CreateMainWindow();
 	}
@@ -224,6 +200,15 @@ void XamlApp::_QuitWithoutMainWindow() {
 
 	Logger::Get().Info("程序退出");
 	Logger::Get().Flush();
+}
+
+void XamlApp::_MainWindow_Destoryed() {
+	_uwpApp.HwndMain(0);
+	_uwpApp.MainPage(nullptr);
+
+	if (!TrayIconService::Get().IsShow()) {
+		_QuitWithoutMainWindow();
+	}
 }
 
 }

@@ -14,11 +14,17 @@ public:
 		}
 	}
 
+	operator bool() const noexcept {
+		return _hWnd;
+	}
+
 	void HandleMessage(const MSG& msg) {
-		BOOL processed = FALSE;
-		HRESULT hr = _xamlSourceNative2->PreTranslateMessage(&msg, &processed);
-		if (SUCCEEDED(hr) && processed) {
-			return;
+		if (_xamlSourceNative2) {
+			BOOL processed = FALSE;
+			HRESULT hr = _xamlSourceNative2->PreTranslateMessage(&msg, &processed);
+			if (SUCCEEDED(hr) && processed) {
+				return;
+			}
 		}
 
 		TranslateMessage(&msg);
@@ -31,6 +37,14 @@ public:
 
 	const C& Content() const noexcept {
 		return _content;
+	}
+
+	void Destroy() {
+		DestroyWindow(_hWnd);
+	}
+
+	winrt::event_token Destroyed(winrt::delegate<> const& handler) {
+		return _destroyedEvent.add(handler);
 	}
 
 protected:
@@ -181,8 +195,11 @@ protected:
 			_xamlSource.Content(nullptr);
 			_xamlSource.Close();
 			_xamlSource = nullptr;
+			_hwndXamlIsland = NULL;
 
 			_content = nullptr;
+
+			_destroyedEvent();
 
 			return 0;
 		}
@@ -200,6 +217,8 @@ private:
 		GetClientRect(_hWnd, &clientRect);
 		SetWindowPos(_hwndXamlIsland, NULL, 0, 0, clientRect.right - clientRect.left, clientRect.bottom - clientRect.top, SWP_SHOWWINDOW | SWP_NOACTIVATE);
 	}
+
+	winrt::event<winrt::delegate<>> _destroyedEvent;
 
 	HWND _hwndXamlIsland = NULL;
 	winrt::DesktopWindowXamlSource _xamlSource{ nullptr };

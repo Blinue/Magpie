@@ -7,7 +7,7 @@
 
 namespace Magpie {
 
-bool MainWindow::Initialize(HINSTANCE hInstance, const RECT& windowRect, bool isMaximized) noexcept {
+bool MainWindow::Create(HINSTANCE hInstance, const RECT& windowRect, bool isMaximized) noexcept {
 	WNDCLASSEXW wcex{};
 	wcex.cbSize = sizeof(wcex);
 	wcex.lpfnWndProc = _WndProc;
@@ -44,6 +44,7 @@ bool MainWindow::Initialize(HINSTANCE hInstance, const RECT& windowRect, bool is
 			// https://stackoverflow.com/questions/69715610/how-to-initialize-the-background-color-of-win32-app-to-something-other-than-whit
 			SetWindowPos(hWnd, NULL, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
 			ShowWindow(hWnd, isMaximized ? SW_SHOWMAXIMIZED : SW_SHOWNORMAL);
+			SetForegroundWindow(hWnd);
 		});
 	});
 

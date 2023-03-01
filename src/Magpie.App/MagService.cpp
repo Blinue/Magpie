@@ -26,7 +26,8 @@ void MagService::Initialize() {
 	);
 	
 	AppSettings::Get().IsAutoRestoreChanged({ this, &MagService::_Settings_IsAutoRestoreChanged });
-	_magRuntime.IsRunningChanged({ this, &MagService::_MagRuntime_IsRunningChanged });
+	_magRuntime.emplace();
+	_magRuntime->IsRunningChanged({ this, &MagService::_MagRuntime_IsRunningChanged });
 
 	ShortcutService::Get().ShortcutActivated(
 		{ this, &MagService::_ShortcutService_ShortcutPressed }
@@ -34,6 +35,12 @@ void MagService::Initialize() {
 
 	// 立即检查前台窗口
 	_CheckForegroundTimer_Tick(nullptr);
+}
+
+void MagService::Uninitialize() {
+	_checkForegroundTimer.Cancel();
+	_countDownTimer.Stop();
+	_magRuntime.reset();
 }
 
 void MagService::StartTimer() {
@@ -89,11 +96,15 @@ void MagService::_WndToRestore(HWND value) {
 }
 
 void MagService::_ShortcutService_ShortcutPressed(ShortcutAction action) {
+	if (!_magRuntime) {
+		return;
+	}
+
 	switch (action) {
 	case ShortcutAction::Scale:
 	{
-		if (_magRuntime.IsRunning()) {
-			_magRuntime.Stop();
+		if (_magRuntime->IsRunning()) {
+			_magRuntime->Stop();
 			return;
 		}
 
@@ -102,8 +113,8 @@ void MagService::_ShortcutService_ShortcutPressed(ShortcutAction action) {
 	}
 	case ShortcutAction::Overlay:
 	{
-		if (_magRuntime.IsRunning()) {
-			_magRuntime.ToggleOverlay();
+		if (_magRuntime->IsRunning()) {
+			_magRuntime->ToggleOverlay();
 			return;
 		}
 		break;
@@ -127,7 +138,7 @@ void MagService::_CountDownTimer_Tick(IInspectable const&, IInspectable const&) 
 }
 
 fire_and_forget MagService::_CheckForegroundTimer_Tick(ThreadPoolTimer const& timer) {
-	if (_magRuntime.IsRunning()) {
+	if (!_magRuntime || _magRuntime->IsRunning()) {
 		co_return;
 	}
 
@@ -176,7 +187,7 @@ fire_and_forget MagService::_CheckForegroundTimer_Tick(ThreadPoolTimer const& ti
 void MagService::_Settings_IsAutoRestoreChanged(bool) {
 	if (AppSettings::Get().IsAutoRestore()) {
 		// 立即生效，即使正处于缩放状态
-		_hwndCurSrc = _magRuntime.HwndSrc();
+		_hwndCurSrc = _magRuntime->HwndSrc();
 	} else {
 		_hwndCurSrc = NULL;
 		_WndToRestore(NULL);
@@ -193,7 +204,7 @@ fire_and_forget MagService::_MagRuntime_IsRunningChanged(bool isRunning) {
 			_WndToRestore(NULL);
 		}
 
-		_hwndCurSrc = _magRuntime.HwndSrc();
+		_hwndCurSrc = _magRuntime->HwndSrc();
 	} else {
 		HWND curSrcWnd = _hwndCurSrc;
 		_hwndCurSrc = NULL;
@@ -293,7 +304,7 @@ bool MagService::_StartScale(HWND hWnd, const Profile& profile) {
 	options.IsSimulateExclusiveFullscreen(settings.IsSimulateExclusiveFullscreen());
 
 	_isAutoScaling = profile.isAutoScale;
-	_magRuntime.Run(hWnd, options);
+	_magRuntime->Run(hWnd, options);
 	return true;
 }
 

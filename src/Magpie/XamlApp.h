@@ -39,12 +39,14 @@ private:
 
 	void _QuitWithoutMainWindow();
 
+	void _MainWindow_Destoryed();
+
 	HINSTANCE _hInst = NULL;
 	Win32Utils::ScopedHandle _hSingleInstanceMutex;
 
 	winrt::Magpie::App::App _uwpApp{ nullptr };
 
-	std::optional<MainWindow> _mainWindow;
+	MainWindow _mainWindow;
 	// right 存储宽，bottom 存储高
 	RECT _mainWndRect{};
 	bool _isMainWndMaximized = false;

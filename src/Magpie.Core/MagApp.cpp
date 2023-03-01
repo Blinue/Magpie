@@ -198,9 +198,9 @@ winrt::fire_and_forget MagApp::_WaitForSrcMovingOrSizing() {
 		}
 	}
 
-	// 出现错误，直接退出
-	co_await _dispatcher;
-	_isWaitingForSrcMovingOrSizing = false;
+	_dispatcher.TryEnqueue([this]() {
+		_isWaitingForSrcMovingOrSizing = false;
+	});	
 }
 
 void MagApp::Stop(bool isSrcMovingOrSizing) {

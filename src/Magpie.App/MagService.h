@@ -19,6 +19,8 @@ public:
 
 	void Initialize();
 
+	void Uninitialize();
+
 	void StartTimer();
 
 	void StopTimer();
@@ -100,7 +102,7 @@ public:
 	}
 
 	bool IsRunning() const noexcept {
-		return _magRuntime.IsRunning();
+		return _magRuntime->IsRunning();
 	}
 
 	// 强制重新检查前台窗口
@@ -127,7 +129,7 @@ private:
 
 	bool _CheckSrcWnd(HWND hWnd) noexcept;
 
-	::Magpie::Core::MagRuntime _magRuntime;
+	std::optional<::Magpie::Core::MagRuntime> _magRuntime;
 	CoreDispatcher _dispatcher{ nullptr };
 
 	DispatcherTimer _countDownTimer;
