@@ -169,10 +169,51 @@ bool MagApp::Start(HWND hwndSrc, MagOptions&& options) {
 	return true;
 }
 
-void MagApp::Stop() {
+winrt::fire_and_forget MagApp::_WaitForSrcMovingOrSizing() {
+	HWND hwndSrc = _hwndSrc;
+	while (true) {
+		if (!IsWindow(hwndSrc)
+			|| GetForegroundWindow() != hwndSrc
+			|| Win32Utils::GetWindowShowCmd(hwndSrc) != SW_NORMAL
+		) {
+			break;
+		}
+
+		// 检查源窗口是否正在调整大小或移动
+		GUITHREADINFO guiThreadInfo{};
+		guiThreadInfo.cbSize = sizeof(GUITHREADINFO);
+		if (!GetGUIThreadInfo(GetWindowThreadProcessId(hwndSrc, nullptr), &guiThreadInfo)) {
+			Logger::Get().Win32Error("GetGUIThreadInfo 失败");
+			break;
+		}
+
+		if (guiThreadInfo.flags & GUI_INMOVESIZE) {
+			co_await 10ms;
+		} else {
+			_dispatcher.TryEnqueue([this]() {
+				_isWaitingForSrcMovingOrSizing = false;
+				Start(_hwndSrc, std::move(_options));
+			});
+			co_return;
+		}
+	}
+
+	// 出现错误，直接退出
+	co_await _dispatcher;
+	_isWaitingForSrcMovingOrSizing = false;
+}
+
+void MagApp::Stop(bool isSrcMovingOrSizing) {
 	if (_hwndHost) {
-		_dispatcher.TryEnqueue([hwndHost(_hwndHost)]() {
-			DestroyWindow(hwndHost);
+		_dispatcher.TryEnqueue([this, isSrcMovingOrSizing]() {
+			_isWaitingForSrcMovingOrSizing = isSrcMovingOrSizing;
+
+			DestroyWindow(_hwndHost);
+
+			if(isSrcMovingOrSizing) {
+				// 源窗口的大小或位置不再改变时重新缩放
+				_WaitForSrcMovingOrSizing();
+			}
 		});
 	}
 }
@@ -221,7 +262,13 @@ bool MagApp::RunMessageLoop() {
 		}
 
 		if (!_hwndHost) {
-			return true;
+			if (_isWaitingForSrcMovingOrSizing) {
+				// 防止 CPU 占用过高
+				WaitMessage();
+				continue;
+			} else {
+				return true;
+			}
 		}
 
 		_renderer->Render();
@@ -512,8 +559,6 @@ void MagApp::_OnQuit() {
 
 	_nextWndProcHandlerID = 1;
 	_wndProcHandlers.clear();
-
-	_hwndSrc = NULL;
 }
 
 }

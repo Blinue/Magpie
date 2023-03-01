@@ -47,7 +47,7 @@ public:
 	const EffectDesc& GetEffectDesc(uint32_t idx) const noexcept;
 
 private:
-	bool _CheckSrcState();
+	int _CheckSrcState();
 
 	bool _BuildEffects();
 

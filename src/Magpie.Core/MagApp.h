@@ -20,7 +20,7 @@ public:
 
 	bool Start(HWND hwndSrc, MagOptions&& options);
 
-	void Stop();
+	void Stop(bool isSrcMovingOrSizing = false);
 
 	void ToggleOverlay();
 
@@ -91,6 +91,8 @@ private:
 
 	void _OnQuit();
 
+	winrt::fire_and_forget _WaitForSrcMovingOrSizing();
+
 	const winrt::DispatcherQueue _dispatcher{ nullptr };
 
 	HINSTANCE _hInst = NULL;
@@ -115,6 +117,8 @@ private:
 
 	bool _windowResizingDisabled = false;
 	bool _roundCornerDisabled = false;
+
+	bool _isWaitingForSrcMovingOrSizing = false;
 };
 
 }

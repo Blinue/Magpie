@@ -60,9 +60,10 @@ bool Renderer::Initialize() {
 
 
 void Renderer::Render(bool onPrint) {
-	if (!_CheckSrcState()) {
+	int srcState = _CheckSrcState();
+	if (srcState != 0) {
 		Logger::Get().Info("源窗口状态改变，退出全屏");
-		MagApp::Get().Stop();
+		MagApp::Get().Stop(srcState == 2);
 		return;
 	}
 
@@ -235,7 +236,10 @@ const EffectDesc& Renderer::GetEffectDesc(uint32_t idx) const noexcept {
 	return _effects[idx].GetDesc();
 }
 
-bool Renderer::_CheckSrcState() {
+// 0 -> 可继续缩放
+// 1 -> 前台窗口改变或源窗口最大化/最小化
+// 2 -> 源窗口大小或位置改变
+int Renderer::_CheckSrcState() {
 	HWND hwndSrc = MagApp::Get().GetHwndSrc();
 
 	if (!MagApp::Get().GetOptions().IsDebugMode()) {
@@ -244,28 +248,28 @@ bool Renderer::_CheckSrcState() {
 		if (!MagApp::Get().GetOptions().Is3DGameMode() || !IsUIVisiable() || hwndForeground != MagApp::Get().GetHwndHost()) {
 			if (hwndForeground && hwndForeground != hwndSrc && !CheckForeground(hwndForeground)) {
 				Logger::Get().Info("前台窗口已改变");
-				return false;
+				return 1;
 			}
 		}
 	}
 
 	if (Win32Utils::GetWindowShowCmd(hwndSrc) != SW_NORMAL) {
 		Logger::Get().Info("源窗口显示状态改变");
-		return false;
+		return 1;
 	}
 
 	RECT rect;
 	if (!GetWindowRect(hwndSrc, &rect)) {
 		Logger::Get().Error("GetWindowRect 失败");
-		return false;
+		return 1;
 	}
 
 	if (_srcWndRect != rect) {
 		Logger::Get().Info("源窗口位置或大小改变");
-		return false;
+		return 2;
 	}
 
-	return true;
+	return 0;
 }
 
 static bool CompileEffect(bool isLastEffect, const EffectOption& option, EffectDesc& result) {
