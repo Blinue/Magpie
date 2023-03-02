@@ -59,16 +59,18 @@ const std::vector<std::wstring>& LocalizationService::SupportedLanguages() noexc
 
 	// 从资源文件中查找所有支持的语言
 	ResourceMap resourceMap = ResourceManager::Current().MainResourceMap().GetSubtree(L"Resources");
-	ResourceContext resourceContext;
-	// 不知为何，NamedResource.Candidates 有时会崩溃，因此用 ResolveAll 代替
-	auto candidates = resourceMap.Lookup(L"_Tag").ResolveAll(resourceContext);
-	for (ResourceCandidate candidate : candidates) {
+	auto candidates = resourceMap.Lookup(L"_Tag").Candidates();
+	// 将 candidates 中的内容读取到 std::vector 中，直接枚举会导致崩溃，可能因为它是异步加载的
+	std::vector<ResourceCandidate> candidatesVec(candidates.Size(), nullptr);
+	candidatesVec.resize(candidates.GetMany(0, candidatesVec), nullptr);
+
+	for (const ResourceCandidate& candidate : candidatesVec) {
 		std::wstring language(candidate.GetQualifierValue(L"Language"));
 		// 转换为小写
 		StrUtils::ToLowerCase(language);
-		languages.push_back(language);
+		languages.push_back(std::move(language));
 	}
-	
+
 	// 以字典顺序排序
 	std::sort(languages.begin(), languages.end());
 	return languages;
