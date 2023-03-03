@@ -260,11 +260,11 @@ static UINT GetNextExpr(std::string_view& source, std::string& expr) {
 	return 0;
 }
 
-static UINT ResolveHeader(std::string_view block, EffectDesc& desc) {
+static UINT ResolveHeader(std::string_view block, EffectDesc& desc, bool noCompile) {
 	// 必需的选项：VERSION
 	// 可选的选项：OUTPUT_WIDTH, OUTPUT_HEIGHT, USE_DYNAMIC, GENERIC_DOWNSCALER, BUILT_INT
 
-	std::bitset<5> processed;
+	std::bitset<6> processed;
 
 	std::string_view token;
 
@@ -336,6 +336,20 @@ static UINT ResolveHeader(std::string_view block, EffectDesc& desc) {
 			}
 
 			desc.flags |= EffectFlags::GenericDownscaler;
+		} else if (t == "SORT_NAME") {
+			if (processed[5]) {
+				return 1;
+			}
+			processed[5] = true;
+
+			std::string_view sortName;
+			if (GetNextString(block, sortName)) {
+				return 1;
+			}
+
+			if (noCompile) {
+				desc.sortName = sortName;
+			}
 		} else {
 			return 1;
 		}
@@ -1660,7 +1674,7 @@ uint32_t EffectCompiler::Compile(
 		return 1;
 	}
 
-	if (ResolveHeader(headerBlock, desc)) {
+	if (ResolveHeader(headerBlock, desc, noCompile)) {
 		Logger::Get().Error("解析 Header 块失败");
 		return 1;
 	}

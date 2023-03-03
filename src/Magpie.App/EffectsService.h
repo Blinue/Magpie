@@ -17,6 +17,7 @@ struct EffectInfo {
 	~EffectInfo();
 
 	std::wstring name;
+	std::wstring sortName;
 	std::vector<::Magpie::Core::EffectParameterDesc> params;
 	uint32_t flags = 0;	// EffectInfoFlags
 

@@ -133,6 +133,29 @@ void ScalingConfigurationPage::_BuildEffectMenu() noexcept {
 		}
 	});
 
+	// 排序文件夹中的项目
+	for (MenuFlyoutItemBase& item : rootItems) {
+		MenuFlyoutSubItem folder = item.try_as<MenuFlyoutSubItem>();
+		if (!folder) {
+			break;
+		}
+
+		IVector<MenuFlyoutItemBase> items = folder.Items();
+		// 读取到 std::vector 中以提高排序性能
+		std::vector<MenuFlyoutItemBase> itemsVec(items.Size(), nullptr);
+		items.GetMany(0, itemsVec);
+		std::sort(itemsVec.begin(), itemsVec.end(), [](const MenuFlyoutItemBase& l, const MenuFlyoutItemBase& r) {
+			hstring lEffectName = unbox_value<hstring>(l.as<MenuFlyoutItem>().Tag());
+			hstring rEffectName = unbox_value<hstring>(r.as<MenuFlyoutItem>().Tag());
+
+			const EffectInfo* lEffectInfo = EffectsService::Get().GetEffect(lEffectName);
+			const EffectInfo* rEffectInfo = EffectsService::Get().GetEffect(rEffectName);
+
+			return lEffectInfo->sortName < rEffectInfo->sortName;
+		});
+		items.ReplaceAll(itemsVec);
+	}
+
 	for (MenuFlyoutItemBase& item : rootItems) {
 		_addEffectMenuFlyout.Items().Append(std::move(item));
 	}

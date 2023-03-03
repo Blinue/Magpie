@@ -243,6 +243,11 @@ bool MagService::_StartScale(HWND hWnd, const Profile& profile) {
 	}
 
 	MagOptions options;
+	options.effects = ScalingModesService::Get().GetScalingMode(profile.scalingMode).effects;
+	if (options.effects.empty()) {
+		return false;
+	}
+	
 	options.graphicsCard = profile.graphicsCard;
 	options.captureMethod = profile.captureMethod;
 	options.multiMonitorUsage = profile.multiMonitorUsage;
@@ -284,19 +289,16 @@ bool MagService::_StartScale(HWND hWnd, const Profile& profile) {
 		break;
 	}
 
+	// 应用全局配置
 	AppSettings& settings = AppSettings::Get();
 
-	options.downscalingEffect = settings.DownscalingEffect();
-
-	// 应用缩放模式
-	options.effects = ScalingModesService::Get().GetScalingMode(profile.scalingMode).effects;
 	if (settings.IsInlineParams()) {
 		for (EffectOption& effect : options.effects) {
 			effect.flags |= EffectOptionFlags::InlineParams;
 		}
 	}
 
-	// 应用全局配置
+	options.downscalingEffect = settings.DownscalingEffect();
 	options.IsDebugMode(settings.IsDebugMode());
 	options.IsDisableEffectCache(settings.IsDisableEffectCache());
 	options.IsSaveEffectSources(settings.IsSaveEffectSources());

@@ -73,6 +73,21 @@ fire_and_forget EffectsService::StartInitialize() {
 		// 这里修改 _effects 无需同步，因为用户界面尚未显示
 		EffectInfo& effect = _effects.emplace_back();
 		effect.name = std::move(effectNames[i]);
+
+		if (effectDesc.sortName.empty()) {
+			effect.sortName = effect.name;
+		} else {
+			int pos = effect.name.find_last_of(L'\\');
+			if (pos == std::wstring::npos) {
+				effect.sortName = StrUtils::UTF8ToUTF16(effectDesc.sortName);
+			} else {
+				effect.sortName = StrUtils::ConcatW(
+					std::wstring_view(effect.name.c_str(), pos + 1),
+					StrUtils::UTF8ToUTF16(effectDesc.sortName)
+				);
+			}
+		}
+		
 		effect.params = std::move(effectDesc.params);
 		if (effectDesc.outSizeExpr.first.empty()) {
 			effect.flags |= EffectInfoFlags::CanScale;
