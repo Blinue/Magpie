@@ -153,14 +153,15 @@ bool GraphicsCaptureFrameSource::_CaptureWindow(IGraphicsCaptureItemInterop* int
 	}
 
 	// 尝试设置源窗口样式，因为 WGC 只能捕获位于 Alt+Tab 列表中的窗口
-	LONG_PTR srcWndExStyle = GetWindowLongPtr(hwndSrc, GWL_EXSTYLE);
-	if ((srcWndExStyle & WS_EX_APPWINDOW) == 0) {
+	LONG_PTR srcExStyle = GetWindowLongPtr(hwndSrc, GWL_EXSTYLE);
+	if ((srcExStyle & WS_EX_APPWINDOW) == 0) {
 		// 添加 WS_EX_APPWINDOW 样式，确保源窗口可被 Alt+Tab 选中
-		if (SetWindowLongPtr(hwndSrc, GWL_EXSTYLE, srcWndExStyle | WS_EX_APPWINDOW)) {
+		if (SetWindowLongPtr(hwndSrc, GWL_EXSTYLE, srcExStyle | WS_EX_APPWINDOW)) {
 			Logger::Get().Info("已改变源窗口样式");
-			_originalSrcWndExStyle = srcWndExStyle;
+			_originalSrcExStyle = srcExStyle;
 
 			if (_TryCreateGraphicsCaptureItem(interop, hwndSrc)) {
+				_RemoveOwnerFromAltTabList(hwndSrc);
 				return true;
 			}
 		} else {
@@ -176,6 +177,7 @@ bool GraphicsCaptureFrameSource::_CaptureWindow(IGraphicsCaptureItemInterop* int
 			Logger::Get().Info("已添加任务栏图标");
 
 			if (_TryCreateGraphicsCaptureItem(interop, hwndSrc)) {
+				_RemoveOwnerFromAltTabList(hwndSrc);
 				return true;
 			}
 		} else {
@@ -192,9 +194,15 @@ bool GraphicsCaptureFrameSource::_CaptureWindow(IGraphicsCaptureItemInterop* int
 		_taskbarList->DeleteTab(hwndSrc);
 		_taskbarList = nullptr;
 	}
-	if (_originalSrcWndExStyle) {
-		SetWindowLongPtr(hwndSrc, GWL_EXSTYLE, _originalSrcWndExStyle);
-		_originalSrcWndExStyle = 0;
+	if (_originalSrcExStyle) {
+		// 首先还原所有者窗口的样式以压制任务栏的动画
+		if (_originalOwnerExStyle) {
+			SetWindowLongPtr(GetWindowOwner(hwndSrc), GWL_EXSTYLE, _originalOwnerExStyle);
+			_originalOwnerExStyle = 0;
+		}
+
+		SetWindowLongPtr(hwndSrc, GWL_EXSTYLE, _originalSrcExStyle);
+		_originalSrcExStyle = 0;
 	}
 
 	return false;
@@ -217,6 +225,43 @@ bool GraphicsCaptureFrameSource::_TryCreateGraphicsCaptureItem(IGraphicsCaptureI
 	}
 
 	return true;
+}
+
+// 部分使用 Kirikiri 引擎的游戏有着这样的架构：游戏窗口并非根窗口，它被一个尺寸为 0 的窗口
+// 所有。此时 Alt+Tab 列表中的窗口和任务栏图标实际上是所有者窗口，这会导致 WGC 捕获游戏窗
+// 口时失败。_CaptureWindow 在初次捕获失败后会将 WS_EX_APPWINDOW 样式添加到游戏窗口，这
+// 可以工作，但也导致所有者窗口和游戏窗口同时出现 Alt+Tab 列表中，引起用户的困惑。
+// 
+// 此函数检测这种情况并改变所有者窗口的样式使它不会出现在 Alt+Tab 列表中。
+void GraphicsCaptureFrameSource::_RemoveOwnerFromAltTabList(HWND hwndSrc) noexcept {
+	HWND hwndOwner = GetWindowOwner(hwndSrc);
+	if (!hwndOwner) {
+		return;
+	}
+
+	RECT ownerRect{};
+	if (!GetWindowRect(hwndOwner, &ownerRect)) {
+		Logger::Get().Win32Error("GetWindowRect 失败");
+		return;
+	}
+
+	// 检查所有者窗口尺寸
+	if (ownerRect.right != ownerRect.left || ownerRect.bottom != ownerRect.top) {
+		return;
+	}
+
+	LONG_PTR ownerExStyle = GetWindowLongPtr(hwndOwner, GWL_EXSTYLE);
+	if (ownerExStyle == 0) {
+		Logger::Get().Win32Error("GetWindowLongPtr 失败");
+		return;
+	}
+
+	if (!SetWindowLongPtr(hwndOwner, GWL_EXSTYLE, ownerExStyle | WS_EX_TOOLWINDOW)) {
+		Logger::Get().Win32Error("SetWindowLongPtr 失败");
+		return;
+	}
+
+	_originalOwnerExStyle = ownerExStyle;
 }
 
 bool GraphicsCaptureFrameSource::_CaptureMonitor(IGraphicsCaptureItemInterop* interop) {
@@ -354,8 +399,13 @@ GraphicsCaptureFrameSource::~GraphicsCaptureFrameSource() {
 	}
 
 	// 还原源窗口样式
-	if (_originalSrcWndExStyle) {
-		SetWindowLongPtr(hwndSrc, GWL_EXSTYLE, _originalSrcWndExStyle);
+	if (_originalSrcExStyle) {
+		// 首先还原所有者窗口的样式以压制任务栏的动画
+		if (_originalOwnerExStyle) {
+			SetWindowLongPtr(GetWindowOwner(hwndSrc), GWL_EXSTYLE, _originalOwnerExStyle);
+		}
+
+		SetWindowLongPtr(hwndSrc, GWL_EXSTYLE, _originalSrcExStyle);
 	}
 }
 

@@ -46,7 +46,10 @@ private:
 
 	bool _TryCreateGraphicsCaptureItem(IGraphicsCaptureItemInterop* interop, HWND hwndSrc) noexcept;
 
-	LONG_PTR _originalSrcWndExStyle = 0;
+	void _RemoveOwnerFromAltTabList(HWND hwndSrc) noexcept;
+
+	LONG_PTR _originalSrcExStyle = 0;
+	LONG_PTR _originalOwnerExStyle = 0;
 	winrt::com_ptr<ITaskbarList> _taskbarList;
 
 	D3D11_BOX _frameBox{};
