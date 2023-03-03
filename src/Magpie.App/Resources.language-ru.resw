@@ -733,7 +733,7 @@
     <value>Включить переносной режим</value>
   </data>
   <data name="Settings_DeveloperOptions.Description" xml:space="preserve">
-    <value>Не изменяйте эти настройки, если не знаете, что делаете</value>
+    <value>These settings are for development use only</value>
   </data>
   <data name="Settings_DeveloperOptions.Title" xml:space="preserve">
     <value>Настройки разработчика</value>
