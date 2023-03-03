@@ -308,7 +308,7 @@ void ProfileViewModel::CaptureMethod(int value) {
 
 	_data->captureMethod = captureMethod;
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CaptureMethod"));
-	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CanReserveTitleBar"));
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CanCaptureTitleBar"));
 
 	AppSettings::Get().SaveAsync();
 }
