@@ -40,13 +40,15 @@ protected:
 	}
 
 private:
-	bool _CaptureFromWindow(IGraphicsCaptureItemInterop* interop);
+	bool _CaptureWindow(IGraphicsCaptureItemInterop* interop);
 
-	bool _CaptureFromStyledWindow(IGraphicsCaptureItemInterop* interop);
+	bool _CaptureMonitor(IGraphicsCaptureItemInterop* interop);
 
-	bool _CaptureFromMonitor(IGraphicsCaptureItemInterop* interop);
+	bool _TryCreateGraphicsCaptureItem(IGraphicsCaptureItemInterop* interop, HWND hwndSrc) noexcept;
 
-	LONG_PTR _srcWndStyle = 0;
+	LONG_PTR _originalSrcWndExStyle = 0;
+	winrt::com_ptr<ITaskbarList> _taskbarList;
+
 	D3D11_BOX _frameBox{};
 
 	bool _isScreenCapture = false;

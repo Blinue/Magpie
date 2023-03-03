@@ -55,22 +55,14 @@ bool GraphicsCaptureFrameSource::Initialize() {
 		return false;
 	}
 
-	// 有两层回落：
-	// 1. 首先使用常规的窗口捕获
-	// 2. 如果失败，尝试设置源窗口样式，因为 WGC 只能捕获位于 Alt+Tab 列表中的窗口
-	// 3. 如果再次失败，改为使用屏幕捕获
-	if (!_CaptureFromWindow(interop.get())) {
-		Logger::Get().Info("窗口捕获失败，尝试设置源窗口样式");
+	if (!_CaptureWindow(interop.get())) {
+		Logger::Get().Info("窗口捕获失败，回落到屏幕捕获");
 
-		if (!_CaptureFromStyledWindow(interop.get())) {
-			Logger::Get().Info("窗口捕获失败，尝试使用屏幕捕获");
-
-			if (!_CaptureFromMonitor(interop.get())) {
-				Logger::Get().Error("屏幕捕获失败");
-				return false;
-			} else {
-				_isScreenCapture = true;
-			}
+		if (_CaptureMonitor(interop.get())) {
+			_isScreenCapture = true;
+		} else {
+			Logger::Get().Error("屏幕捕获失败");
+			return false;
 		}
 	}
 
@@ -129,7 +121,7 @@ FrameSourceBase::UpdateState GraphicsCaptureFrameSource::Update() {
 	return UpdateState::NewFrame;
 }
 
-bool GraphicsCaptureFrameSource::_CaptureFromWindow(IGraphicsCaptureItemInterop* interop) {
+bool GraphicsCaptureFrameSource::_CaptureWindow(IGraphicsCaptureItemInterop* interop) {
 	// DwmGetWindowAttribute 和 Graphics.Capture 无法应用于子窗口
 	HWND hwndSrc = MagApp::Get().GetHwndSrc();
 
@@ -156,6 +148,49 @@ bool GraphicsCaptureFrameSource::_CaptureFromWindow(IGraphicsCaptureItemInterop*
 		1
 	};
 
+	if (_TryCreateGraphicsCaptureItem(interop, hwndSrc)) {
+		return true;
+	}
+
+	// 尝试设置源窗口样式，因为 WGC 只能捕获位于 Alt+Tab 列表中的窗口
+	LONG_PTR srcWndExStyle = GetWindowLongPtr(hwndSrc, GWL_EXSTYLE);
+	if ((srcWndExStyle & WS_EX_APPWINDOW) == 0) {
+		// 添加 WS_EX_APPWINDOW 样式，确保源窗口可被 Alt+Tab 选中
+		if (SetWindowLongPtr(hwndSrc, GWL_EXSTYLE, srcWndExStyle | WS_EX_APPWINDOW)) {
+			Logger::Get().Info("已改变源窗口样式");
+			_originalSrcWndExStyle = srcWndExStyle;
+
+			if (_TryCreateGraphicsCaptureItem(interop, hwndSrc)) {
+				return true;
+			}
+		} else {
+			Logger::Get().Win32Error("SetWindowLongPtr 失败");
+		}
+	}
+
+	// 如果窗口使用 ITaskbarList 隐藏了任务栏图标也不会出现在 Alt+Tab 列表。这种情况很罕见
+	_taskbarList = winrt::try_create_instance<ITaskbarList>(CLSID_TaskbarList);
+	if (_taskbarList && SUCCEEDED(_taskbarList->HrInit())) {
+		HRESULT hr = _taskbarList->AddTab(hwndSrc);
+		if (SUCCEEDED(hr)) {
+			Logger::Get().Info("已添加任务栏图标");
+
+			if (_TryCreateGraphicsCaptureItem(interop, hwndSrc)) {
+				return true;
+			}
+		} else {
+			_taskbarList = nullptr;
+			Logger::Get().Error("ITaskbarList::AddTab 失败");
+		}
+	} else {
+		_taskbarList = nullptr;
+		Logger::Get().Error("创建 ITaskbarList 失败");
+	}
+
+	return false;
+}
+
+bool GraphicsCaptureFrameSource::_TryCreateGraphicsCaptureItem(IGraphicsCaptureItemInterop* interop, HWND hwndSrc) noexcept {
 	try {
 		HRESULT hr = interop->CreateForWindow(
 			hwndSrc,
@@ -174,41 +209,7 @@ bool GraphicsCaptureFrameSource::_CaptureFromWindow(IGraphicsCaptureItemInterop*
 	return true;
 }
 
-bool GraphicsCaptureFrameSource::_CaptureFromStyledWindow(IGraphicsCaptureItemInterop* interop) {
-	HWND hwndSrc = MagApp::Get().GetHwndSrc();
-
-	_srcWndStyle = GetWindowLongPtr(hwndSrc, GWL_EXSTYLE);
-	if (_srcWndStyle == 0) {
-		Logger::Get().Win32Error("GetWindowLongPtr 失败");
-		return false;
-	}
-
-	// 删除 WS_EX_TOOLWINDOW，添加 WS_EX_APPWINDOW 样式，确保源窗口可被 Alt+Tab 选中
-	LONG_PTR newStyle = (_srcWndStyle & !WS_EX_TOOLWINDOW) | WS_EX_APPWINDOW;
-
-	if (_srcWndStyle == newStyle) {
-		// 如果源窗口已经可被 Alt+Tab 选中，则回落到屏幕捕获
-		Logger::Get().Info("源窗口无需改变样式");
-		return false;
-	}
-
-	if (!SetWindowLongPtr(hwndSrc, GWL_EXSTYLE, newStyle)) {
-		Logger::Get().Win32Error("SetWindowLongPtr 失败");
-		return false;
-	}
-
-	if (!_CaptureFromWindow(interop)) {
-		Logger::Get().Error("改变样式后捕获窗口失败");
-		// 还原源窗口样式
-		SetWindowLongPtr(hwndSrc, GWL_EXSTYLE, _srcWndStyle);
-		_srcWndStyle = 0;
-		return false;
-	}
-
-	return true;
-}
-
-bool GraphicsCaptureFrameSource::_CaptureFromMonitor(IGraphicsCaptureItemInterop* interop) {
+bool GraphicsCaptureFrameSource::_CaptureMonitor(IGraphicsCaptureItemInterop* interop) {
 	// WDA_EXCLUDEFROMCAPTURE 只在 Win10 20H1 及更新版本中可用
 	if (!Win32Utils::GetOSVersion().Is20H1OrNewer()) {
 		Logger::Get().Error("当前操作系统无法使用全屏捕获");
@@ -336,9 +337,15 @@ void GraphicsCaptureFrameSource::StopCapture() {
 GraphicsCaptureFrameSource::~GraphicsCaptureFrameSource() {
 	StopCapture();
 
+	HWND hwndSrc = MagApp::Get().GetHwndSrc();
+
+	if (_taskbarList) {
+		_taskbarList->DeleteTab(hwndSrc);
+	}
+
 	// 还原源窗口样式
-	if (_srcWndStyle) {
-		SetWindowLongPtr(MagApp::Get().GetHwndSrc(), GWL_EXSTYLE, _srcWndStyle);
+	if (_originalSrcWndExStyle) {
+		SetWindowLongPtr(hwndSrc, GWL_EXSTYLE, _originalSrcWndExStyle);
 	}
 }
 

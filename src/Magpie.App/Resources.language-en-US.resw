@@ -725,7 +725,7 @@
     <value>Enable portable mode</value>
   </data>
   <data name="Settings_DeveloperOptions.Description" xml:space="preserve">
-    <value>Do not change these settings unless you know what you are doing</value>
+    <value>These settings are for development use only</value>
   </data>
   <data name="Settings_DeveloperOptions.Title" xml:space="preserve">
     <value>Developer options</value>
