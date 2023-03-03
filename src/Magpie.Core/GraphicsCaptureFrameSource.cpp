@@ -187,6 +187,16 @@ bool GraphicsCaptureFrameSource::_CaptureWindow(IGraphicsCaptureItemInterop* int
 		Logger::Get().Error("创建 ITaskbarList 失败");
 	}
 
+	// 上面的尝试失败了则还原更改
+	if (_taskbarList) {
+		_taskbarList->DeleteTab(hwndSrc);
+		_taskbarList = nullptr;
+	}
+	if (_originalSrcWndExStyle) {
+		SetWindowLongPtr(hwndSrc, GWL_EXSTYLE, _originalSrcWndExStyle);
+		_originalSrcWndExStyle = 0;
+	}
+
 	return false;
 }
 
