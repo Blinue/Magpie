@@ -17,17 +17,32 @@ using namespace Magpie::Core;
 namespace winrt::Magpie::App::implementation {
 
 ScalingModeEffectItem::ScalingModeEffectItem(uint32_t scalingModeIdx, uint32_t effectIdx) 
-	: _scalingModeIdx(scalingModeIdx), _effectIdx(effectIdx), _parametersViewModel(scalingModeIdx, effectIdx)
+	: _scalingModeIdx(scalingModeIdx), _effectIdx(effectIdx)
 {
 	EffectOption& data = _Data();
 
 	_name = EffectHelper::GetDisplayName(data.name);
 	_effectInfo = EffectsService::Get().GetEffect(data.name);
+
+	if (_effectInfo) {
+		_parametersViewModel = EffectParametersViewModel(scalingModeIdx, effectIdx);
+	}
+}
+
+void ScalingModeEffectItem::ScalingModeIdx(uint32_t value) noexcept {
+	_scalingModeIdx = value;
+
+	if (_parametersViewModel) {
+		_parametersViewModel.ScalingModeIdx(value);
+	}
 }
 
 void ScalingModeEffectItem::EffectIdx(uint32_t value) noexcept {
 	_effectIdx = value;
-	_parametersViewModel.EffectIdx(value);
+
+	if (_parametersViewModel) {
+		_parametersViewModel.EffectIdx(value);
+	}
 }
 
 bool ScalingModeEffectItem::CanScale() const noexcept {

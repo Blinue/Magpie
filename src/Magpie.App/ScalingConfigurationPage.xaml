@@ -194,7 +194,7 @@
 									                    Style="{StaticResource ExpanderHeaderSettingStyle}">
 										<local:SettingsCard.ActionContent>
 											<StackPanel Orientation="Horizontal"
-											            Spacing="5">
+											            Spacing="4">
 												<StackPanel.Resources>
 													<Style BasedOn="{StaticResource DefaultButtonStyle}"
 													       TargetType="Button">

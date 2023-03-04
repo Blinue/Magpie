@@ -230,9 +230,9 @@ bool GraphicsCaptureFrameSource::_TryCreateGraphicsCaptureItem(IGraphicsCaptureI
 // 部分使用 Kirikiri 引擎的游戏有着这样的架构：游戏窗口并非根窗口，它被一个尺寸为 0 的窗口
 // 所有。此时 Alt+Tab 列表中的窗口和任务栏图标实际上是所有者窗口，这会导致 WGC 捕获游戏窗
 // 口时失败。_CaptureWindow 在初次捕获失败后会将 WS_EX_APPWINDOW 样式添加到游戏窗口，这
-// 可以工作，但也导致所有者窗口和游戏窗口同时出现 Alt+Tab 列表中，引起用户的困惑。
+// 可以工作，但也导致所有者窗口和游戏窗口同时出现在 Alt+Tab 列表中，引起用户的困惑。
 // 
-// 此函数检测这种情况并改变所有者窗口的样式使它不会出现在 Alt+Tab 列表中。
+// 此函数检测这种情况并改变所有者窗口的样式将它从 Alt+Tab 列表中移除。
 void GraphicsCaptureFrameSource::_RemoveOwnerFromAltTabList(HWND hwndSrc) noexcept {
 	HWND hwndOwner = GetWindowOwner(hwndSrc);
 	if (!hwndOwner) {

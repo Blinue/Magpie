@@ -30,10 +30,7 @@ struct ScalingModeEffectItem : ScalingModeEffectItemT<ScalingModeEffectItem> {
 		return _scalingModeIdx;
 	}
 
-	void ScalingModeIdx(uint32_t value) noexcept {
-		_scalingModeIdx = value;
-		_parametersViewModel.ScalingModeIdx(value);
-	}
+	void ScalingModeIdx(uint32_t value) noexcept;
 
 	uint32_t EffectIdx() const noexcept {
 		return _effectIdx;

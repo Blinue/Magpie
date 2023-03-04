@@ -77,7 +77,7 @@ fire_and_forget EffectsService::StartInitialize() {
 		if (effectDesc.sortName.empty()) {
 			effect.sortName = effect.name;
 		} else {
-			int pos = effect.name.find_last_of(L'\\');
+			size_t pos = effect.name.find_last_of(L'\\');
 			if (pos == std::wstring::npos) {
 				effect.sortName = StrUtils::UTF8ToUTF16(effectDesc.sortName);
 			} else {
