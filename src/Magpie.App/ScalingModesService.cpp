@@ -29,7 +29,7 @@ void ScalingModesService::AddScalingMode(std::wstring_view name, int copyFrom) {
 		scalingModes.emplace_back(scalingModes[copyFrom]).name = name;
 	}
 
-	_scalingModeAddedEvent();
+	_scalingModeAddedEvent(EffectAddedWay::Add);
 
 	AppSettings::Get().SaveAsync();
 }
@@ -286,7 +286,7 @@ bool ScalingModesService::Import(const rapidjson::GenericObject<true, rapidjson:
 		std::make_move_iterator(scalingModes.end())
 	);
 
-	_scalingModeAddedEvent();
+	_scalingModeAddedEvent(EffectAddedWay::Import);
 
 	if (!loadingSettings) {
 		AppSettings::Get().SaveAsync();
@@ -439,7 +439,7 @@ bool ScalingModesService::ImportLegacy(const rapidjson::Document& doc) noexcept 
 		std::make_move_iterator(scalingModes.end())
 	);
 
-	_scalingModeAddedEvent();
+	_scalingModeAddedEvent(EffectAddedWay::Import);
 	
 	AppSettings::Get().SaveAsync();
 	return true;

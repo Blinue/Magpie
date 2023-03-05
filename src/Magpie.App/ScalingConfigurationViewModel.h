@@ -1,6 +1,7 @@
 #pragma once
 #include "ScalingConfigurationViewModel.g.h"
 #include "WinRTUtils.h"
+#include "ScalingModesService.h"
 
 namespace winrt::Magpie::App::implementation {
 
@@ -88,9 +89,9 @@ struct ScalingConfigurationViewModel : ScalingConfigurationViewModelT<ScalingCon
 	void AddScalingMode();
 
 private:
-	fire_and_forget _AddScalingModes();
+	fire_and_forget _AddScalingModes(bool isInitialExpanded = false);
 
-	void _ScalingModesService_Added();
+	void _ScalingModesService_Added(EffectAddedWay way);
 
 	void _ScalingModesService_Moved(uint32_t index, bool isMoveUp);
 

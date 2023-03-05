@@ -7,6 +7,11 @@ namespace winrt::Magpie::App {
 
 struct ScalingMode;
 
+enum class EffectAddedWay {
+	Add,
+	Import
+};
+
 class ScalingModesService {
 public:
 	static ScalingModesService& Get() noexcept {
@@ -24,11 +29,11 @@ public:
 	// copyFrom < 0 表示新建空缩放配置
 	void AddScalingMode(std::wstring_view name, int copyFrom);
 
-	event_token ScalingModeAdded(delegate<> const& handler) {
+	event_token ScalingModeAdded(delegate<EffectAddedWay> const& handler) {
 		return _scalingModeAddedEvent.add(handler);
 	}
 
-	WinRTUtils::EventRevoker ScalingModeAdded(auto_revoke_t, delegate<> const& handler) {
+	WinRTUtils::EventRevoker ScalingModeAdded(auto_revoke_t, delegate<EffectAddedWay> const& handler) {
 		event_token token = ScalingModeAdded(handler);
 		return WinRTUtils::EventRevoker([this, token]() {
 			ScalingModeAdded(token);
@@ -83,7 +88,7 @@ public:
 private:
 	ScalingModesService() = default;
 
-	event<delegate<>> _scalingModeAddedEvent;
+	event<delegate<EffectAddedWay>> _scalingModeAddedEvent;
 	event<delegate<uint32_t>> _scalingModeRemovedEvent;
 	event<delegate<uint32_t, bool>> _scalingModeMovedEvent;
 };

@@ -187,6 +187,7 @@
 						<DataTemplate x:DataType="local:ScalingModeItem">
 							<muxc:Expander HorizontalAlignment="Stretch"
 							               HorizontalContentAlignment="Stretch"
+							               IsExpanded="{x:Bind IsInitialExpanded, Mode=OneTime}"
 							               Style="{StaticResource SettingExpanderStyle}">
 								<muxc:Expander.Header>
 									<local:SettingsCard Title="{x:Bind Name, Mode=OneWay}"

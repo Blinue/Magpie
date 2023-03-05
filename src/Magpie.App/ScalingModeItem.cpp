@@ -4,7 +4,6 @@
 #include "ScalingModeItem.g.cpp"
 #endif
 #include "ScalingMode.h"
-#include "ScalingModesService.h"
 #include "StrUtils.h"
 #include "XamlUtils.h"
 #include "AppSettings.h"
@@ -16,7 +15,9 @@ using namespace Windows::ApplicationModel::Resources;
 
 namespace winrt::Magpie::App::implementation {
 
-ScalingModeItem::ScalingModeItem(uint32_t index) : _index(index) {
+ScalingModeItem::ScalingModeItem(uint32_t index, bool isInitialExpanded)
+	: _index(index), _isInitialExpanded(isInitialExpanded)
+{
 	{
 		std::vector<IInspectable> linkedProfiles;
 		const Profile& defaultProfile = AppSettings::Get().DefaultProfile();
@@ -60,7 +61,7 @@ void ScalingModeItem::_Index(uint32_t value) noexcept {
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CanMoveDown"));
 }
 
-void ScalingModeItem::_ScalingModesService_Added() {
+void ScalingModeItem::_ScalingModesService_Added(EffectAddedWay) {
 	if (_index + 2 == ScalingModesService::Get().GetScalingModeCount()) {
 		_propertyChangedEvent(*this, PropertyChangedEventArgs(L"CanMoveDown"));
 	}

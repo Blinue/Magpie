@@ -3,7 +3,6 @@
 #if __has_include("ScalingConfigurationViewModel.g.cpp")
 #include "ScalingConfigurationViewModel.g.cpp"
 #endif
-#include "ScalingModesService.h"
 #include "EffectsService.h"
 #include "AppSettings.h"
 #include "EffectHelper.h"
@@ -241,7 +240,7 @@ void ScalingConfigurationViewModel::AddScalingMode() {
 	ScalingModesService::Get().AddScalingMode(_newScalingModeName, _newScalingModeCopyFrom - 1);
 }
 
-fire_and_forget ScalingConfigurationViewModel::_AddScalingModes() {
+fire_and_forget ScalingConfigurationViewModel::_AddScalingModes(bool isInitialExpanded) {
 	if (_addingScalingModes) {
 		co_return;
 	}
@@ -255,12 +254,14 @@ fire_and_forget ScalingConfigurationViewModel::_AddScalingModes() {
 
 	if (total - curSize <= 5) {
 		for (; curSize < total; ++curSize) {
-			_scalingModes.Append(ScalingModeItem(curSize));
+			_scalingModes.Append(ScalingModeItem(curSize, isInitialExpanded));
 		}
 	} else {
+		assert(!isInitialExpanded);
+
 		// 延迟加载
 		for (int j = 0; j < 5; ++j) {
-			_scalingModes.Append(ScalingModeItem(curSize++));
+			_scalingModes.Append(ScalingModeItem(curSize++, false));
 		}
 
 		dispatcher = CoreWindow::GetForCurrentThread().Dispatcher();
@@ -278,7 +279,7 @@ fire_and_forget ScalingConfigurationViewModel::_AddScalingModes() {
 			curSize = _scalingModes.Size();
 
 			if (curSize < total) {
-				_scalingModes.Append(ScalingModeItem(curSize++));
+				_scalingModes.Append(ScalingModeItem(curSize++, false));
 			}
 			
 			if (curSize >= total) {
@@ -306,8 +307,8 @@ fire_and_forget ScalingConfigurationViewModel::_AddScalingModes() {
 	}
 }
 
-void ScalingConfigurationViewModel::_ScalingModesService_Added() {
-	_AddScalingModes();
+void ScalingConfigurationViewModel::_ScalingModesService_Added(EffectAddedWay way) {
+	_AddScalingModes(way == EffectAddedWay::Add);
 }
 
 void ScalingConfigurationViewModel::_ScalingModesService_Moved(uint32_t index, bool isMoveUp) {

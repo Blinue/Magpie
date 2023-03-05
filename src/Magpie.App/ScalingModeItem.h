@@ -1,6 +1,7 @@
 #pragma once
 #include "ScalingModeItem.g.h"
 #include "WinRTUtils.h"
+#include "ScalingModesService.h"
 
 namespace winrt::Magpie::App {
 struct ScalingMode;
@@ -9,7 +10,7 @@ struct ScalingMode;
 namespace winrt::Magpie::App::implementation {
 
 struct ScalingModeItem : ScalingModeItemT<ScalingModeItem> {
-	ScalingModeItem(uint32_t index);
+	ScalingModeItem(uint32_t index, bool isInitialExpanded);
 
 	event_token PropertyChanged(PropertyChangedEventHandler const& handler) {
 		return _propertyChangedEvent.add(handler);
@@ -20,6 +21,10 @@ struct ScalingModeItem : ScalingModeItemT<ScalingModeItem> {
 	}
 
 	void AddEffect(const hstring& fullName);
+
+	bool IsInitialExpanded() const noexcept {
+		return _isInitialExpanded;
+	}
 
 	hstring Name() const noexcept;
 
@@ -76,7 +81,7 @@ struct ScalingModeItem : ScalingModeItemT<ScalingModeItem> {
 private:
 	void _Index(uint32_t value) noexcept;
 
-	void _ScalingModesService_Added();
+	void _ScalingModesService_Added(EffectAddedWay);
 
 	void _ScalingModesService_Moved(uint32_t index, bool isMoveUp);
 
@@ -97,7 +102,7 @@ private:
 
 	uint32_t _index = 0;
 	IObservableVector<IInspectable> _effects{ nullptr };
-	bool _isMovingEffects = true;
+	
 	uint32_t _movingFromIdx = 0;
 
 	WinRTUtils::EventRevoker _scalingModeAddedRevoker;
@@ -106,8 +111,12 @@ private:
 
 	hstring _renameText;
 	std::wstring_view _trimedRenameText;
-	bool _isRenameButtonEnabled = false;
+	
 	IVector<IInspectable> _linkedProfiles{ nullptr };
+
+	bool _isMovingEffects = true;
+	bool _isRenameButtonEnabled = false;
+	bool _isInitialExpanded = false;
 };
 
 }
