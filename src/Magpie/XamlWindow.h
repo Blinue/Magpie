@@ -125,7 +125,7 @@ protected:
 				SWP_NOZORDER | SWP_NOACTIVATE
 			);
 
-			break;
+			return 0;
 		}
 		case WM_MOVING:
 		{
