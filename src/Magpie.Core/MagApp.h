@@ -8,6 +8,7 @@ class DeviceResources;
 class Renderer;
 class FrameSourceBase;
 class CursorManager;
+class ExclModeHack;
 
 class MagApp {
 public:
@@ -69,7 +70,7 @@ public:
 	uint32_t RegisterWndProcHandler(std::function<std::optional<LRESULT>(HWND, UINT, WPARAM, LPARAM)> handler) noexcept;
 	bool UnregisterWndProcHandler(uint32_t id) noexcept;
 
-	bool RunMessageLoop();
+	bool MessageLoop();
 
 private:
 	MagApp();
@@ -108,6 +109,7 @@ private:
 	std::unique_ptr<Renderer> _renderer;
 	std::unique_ptr<FrameSourceBase> _frameSource;
 	std::unique_ptr<CursorManager> _cursorManager;
+	std::unique_ptr<ExclModeHack> _exclModeHack;
 	MagOptions _options;
 
 	HHOOK _hKeyboardHook = NULL;

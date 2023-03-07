@@ -113,13 +113,6 @@ bool MagApp::Start(HWND hwndSrc, MagOptions&& options) {
 	_hwndSrc = hwndSrc;
 	_options = options;
 
-	// 模拟独占全屏
-	// 必须在缩放窗口创建前，否则 SHQueryUserNotificationState 可能返回 QUNS_BUSY 而不是 QUNS_RUNNING_D3D_FULL_SCREEN
-	std::unique_ptr<ExclModeHack> exclMode;
-	if (MagApp::Get().GetOptions().IsSimulateExclusiveFullscreen()) {
-		exclMode = std::make_unique<ExclModeHack>();
-	};
-
 	_RegisterWndClasses();
 
 	if (!_CreateHostWnd()) {
@@ -127,7 +120,7 @@ bool MagApp::Start(HWND hwndSrc, MagOptions&& options) {
 		return false;
 	}
 
-	_deviceResources.reset(new DeviceResources());
+	_deviceResources = std::make_unique<DeviceResources>();
 	if (!_deviceResources->Initialize()) {
 		Logger::Get().Error("初始化 DeviceResources 失败");
 		Stop();
@@ -140,14 +133,14 @@ bool MagApp::Start(HWND hwndSrc, MagOptions&& options) {
 		return false;
 	}
 
-	_renderer.reset(new Renderer());
+	_renderer = std::make_unique<Renderer>();
 	if (!_renderer->Initialize()) {
 		Logger::Get().Error("初始化 Renderer 失败");
 		Stop();
 		return false;
 	}
 
-	_cursorManager.reset(new CursorManager());
+	_cursorManager = std::make_unique<CursorManager>();
 	if (!_cursorManager->Initialize()) {
 		Logger::Get().Error("初始化 CursorManager 失败");
 		Stop();
@@ -165,6 +158,22 @@ bool MagApp::Start(HWND hwndSrc, MagOptions&& options) {
 
 	assert(_hwndHost);
 	ShowWindow(_hwndHost, SW_NORMAL);
+
+	// 模拟独占全屏
+	if (MagApp::Get().GetOptions().IsSimulateExclusiveFullscreen()) {
+		// 延迟 3s 以避免干扰游戏的初始化，见 #495
+		([](HWND hwndHost)->winrt::fire_and_forget {
+			co_await 3s;
+			MagApp::Get()._dispatcher.TryEnqueue([hwndHost]() {
+				MagApp& app = MagApp::Get();
+				// 缩放窗口句柄相同就认为中途没有退出缩放。
+				// 实践中很难创建出两个句柄相同的窗口，见 https://stackoverflow.com/a/65617844
+				if (app._hwndHost == hwndHost && app._options.IsSimulateExclusiveFullscreen() && !app._exclModeHack) {
+					app._exclModeHack = std::make_unique<ExclModeHack>();
+				}
+			});
+		})(_hwndHost);
+	};
 
 	return true;
 }
@@ -244,7 +253,7 @@ bool MagApp::UnregisterWndProcHandler(uint32_t id) noexcept {
 	return false;
 }
 
-bool MagApp::RunMessageLoop() {
+bool MagApp::MessageLoop() {
 	if (!_hwndHost) {
 		return true;
 	}
@@ -448,16 +457,16 @@ bool MagApp::_CreateHostWnd() {
 bool MagApp::_InitFrameSource() {
 	switch (_options.captureMethod) {
 	case CaptureMethod::GraphicsCapture:
-		_frameSource.reset(new GraphicsCaptureFrameSource());
+		_frameSource = std::make_unique<GraphicsCaptureFrameSource>();
 		break;
 	case CaptureMethod::DesktopDuplication:
-		_frameSource.reset(new DesktopDuplicationFrameSource());
+		_frameSource = std::make_unique<DesktopDuplicationFrameSource>();
 		break;
 	case CaptureMethod::GDI:
-		_frameSource.reset(new GDIFrameSource());
+		_frameSource = std::make_unique<GDIFrameSource>();
 		break;
 	case CaptureMethod::DwmSharedSurface:
-		_frameSource.reset(new DwmSharedSurfaceFrameSource());
+		_frameSource = std::make_unique<DwmSharedSurfaceFrameSource>();
 		break;
 	default:
 		Logger::Get().Critical("未知的捕获模式");
@@ -552,6 +561,7 @@ void MagApp::_OnQuit() {
 	}
 
 	// 释放资源
+	_exclModeHack.reset();
 	_cursorManager.reset();
 	_renderer.reset();
 	_frameSource.reset();

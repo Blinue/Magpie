@@ -17,7 +17,10 @@ ExclModeHack::ExclModeHack() {
 		Logger::Get().ComError("SHQueryUserNotificationState 失败", hr);
 		return;
 	}
-	if (state != QUNS_ACCEPTS_NOTIFICATIONS) {
+
+	// 操作系统将 Magpie 的缩放窗口视为全屏应用程序，可能已经启用了“请勿打扰”，即 QUNS_BUSY。
+	// 但我们想要的是 QUNS_RUNNING_D3D_FULL_SCREEN
+	if (state == QUNS_RUNNING_D3D_FULL_SCREEN) {
 		Logger::Get().Info("已处于免打扰状态");
 		return;
 	}

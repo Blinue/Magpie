@@ -78,7 +78,7 @@ void MagRuntime::_MagWindThreadProc() noexcept {
 	while (true) {
 		if (app.GetHwndHost()) {
 			// 缩放时使用不同的消息循环
-			bool quiting = !app.RunMessageLoop();
+			bool quiting = !app.MessageLoop();
 
 			_running = false;
 			_isRunningChangedEvent(false);
