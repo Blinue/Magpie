@@ -1,48 +1,6 @@
 This article guides you how to define your own scaling modes.
 
-Magpie with search for the `ScaleModels.json` configuration file in its folder when launching. It will generate the file with the default configurations if it is not found.
-
-Click [here](https://github.com/Blinue/Magpie/blob/main/Magpie/Resources/BuiltInScaleModels.json) for the complete content of the original configuration file. The following example shows the syntax:
-
-```json
-[
-  {
-    "name": "Lanczos",
-    "effects": [
-      {
-        "effect": "Lanczos",
-        "scale": [ -1, -1 ]
-      },
-      {
-        "effect": "AdaptiveSharpen",
-        "curveHeight": 0.3
-      }
-    ]
-  },
-  {
-    "name": "FSR",
-    "effects": [
-      {
-        "effect": "FSR_EASU",
-        "scale": [ -1, -1 ]
-      },
-      {
-        "effect": "FSR_RCAS",
-        "sharpness": 0.87
-      }
-    ]
-  },
-  {
-    "...": "..."
-  }
-]
-```
-
-The root element of the configuration file is an array. Each element in the array represents one "scaling mode." The scaling modes are collections of "effects." Magpie will apply the effects in sequence when scaling. *The configuration file supports json comments, including inline comment `//` and block comment `/**/`.*
-
-Magpie ships with a handful of effect that an be used in combinations. Most of the effects have parameters that can be customized. All effects are stored in the `effects` folder. You can easily add effects if you are familiar with HLSL. Check the [Customizing Effects](https://github.com/Blinue/Magpie/wiki/Customizing_Effects) page.
-
-Many effects supports the `scale` parameter, which has to be an array with 2 elements. When they are positive, they mean the scaling factors of the width and the height. Negative numbers indicate the maximum ratio that fits in the screen. 0 mean to stretch and fit the screen. The default value of all `scale` parameters is `[1, 1]`, meaning exactly the same as the input. Check [Examples](#Examples) for their applications.
+Magpie ships with a handful of effect that an be used in combinations. Most of the effects have parameters that can be customized. All effects are stored in the `effects` folder. You can easily add effects if you are familiar with HLSL. Check the [MagpieFX](https://github.com/Blinue/Magpie/wiki/MagpieFX_EN) page.
 
 ## Introduction to shipped effects
 
@@ -287,42 +245,3 @@ Many effects supports the `scale` parameter, which has to be an array with 2 ele
   * Output size: determined by the scale parameter.
   * Parameter
     * scale: Scaling factor.
-
-## Examples
-
-1. If the display size is twice or 4 time that of the original window, you can apply Anime4K twice. The code snippet below shows how to use it:
-
-    ```json
-    {
-        "name": "Animation 4x",
-        "effects": [
-          {
-            "effect": "Anime4K_Upscale_Denoise_L"
-          },
-          {
-            "effect": "Bicubic",
-            "scale": [ -0.5, -0.5 ]
-          },
-          {
-            "effect": "Anime4K_Upscale_L"
-          }
-        ]
-    }
-    ```
-
-    To improve performance, you can scale the output of the first Anime4K scaling to half of the screen so the second Anime4K scaling scales it to exactly the size of the display. To clear the noises in the image, the first Anime4K used is the denoise variant.
-
-2. Center the captured window (with dark edges).
-
-    ```json
-    {
-        "name": "Source",
-        "effects": [
-          {
-            "effect": "Nearest"
-          }
-        ]
-    }
-    ```
-
-👉 [More examples](https://gist.github.com/hooke007/818ecc88f18e229bca743b7ae48947ad)
