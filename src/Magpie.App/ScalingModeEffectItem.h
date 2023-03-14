@@ -23,7 +23,7 @@ struct ScalingModeEffectItem : ScalingModeEffectItemT<ScalingModeEffectItem> {
 	}
 
 	hstring Name() const noexcept {
-		return hstring(_name);
+		return _name;
 	}
 
 	uint32_t ScalingModeIdx() const noexcept {

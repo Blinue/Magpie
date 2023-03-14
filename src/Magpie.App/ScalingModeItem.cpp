@@ -8,6 +8,7 @@
 #include "XamlUtils.h"
 #include "AppSettings.h"
 #include "EffectsService.h"
+#include "EffectHelper.h"
 
 using namespace Magpie::Core;
 using namespace winrt;
@@ -225,11 +226,13 @@ hstring ScalingModeItem::Description() const noexcept {
 			result.append(L" > ");
 		}
 
-		size_t delimPos = effect.name.find_last_of(L'\\');
-		if (delimPos == std::wstring::npos) {
-			result += effect.name;
+		if (const EffectInfo* effectInfo = EffectsService::Get().GetEffect(effect.name)) {
+			result += EffectHelper::GetDisplayName(effect.name);
 		} else {
-			result += effect.name.substr(delimPos + 1);
+			ResourceLoader resourceLoader = ResourceLoader::GetForCurrentView();
+			result += L'(';
+			result += resourceLoader.GetString(L"ScalingConfiguration_ScalingModes_Description_UnknownEffect");
+			result += L')';
 		}
 	}
 	return hstring(result);

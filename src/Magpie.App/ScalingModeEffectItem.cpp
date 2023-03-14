@@ -10,9 +10,12 @@
 #include "AppSettings.h"
 #include "Logger.h"
 #include "ScalingMode.h"
+#include "StrUtils.h"
 
-namespace Core = ::Magpie::Core;
-using namespace Magpie::Core;
+using namespace ::Magpie::Core;
+namespace MagpieCore = ::Magpie::Core;
+using namespace winrt;
+using namespace Windows::ApplicationModel::Resources;
 
 namespace winrt::Magpie::App::implementation {
 
@@ -21,11 +24,19 @@ ScalingModeEffectItem::ScalingModeEffectItem(uint32_t scalingModeIdx, uint32_t e
 {
 	EffectOption& data = _Data();
 
-	_name = EffectHelper::GetDisplayName(data.name);
 	_effectInfo = EffectsService::Get().GetEffect(data.name);
 
 	if (_effectInfo) {
+		_name = EffectHelper::GetDisplayName(data.name);
 		_parametersViewModel = EffectParametersViewModel(scalingModeIdx, effectIdx);
+	} else {
+		ResourceLoader resourceLoader = ResourceLoader::GetForCurrentView();
+		_name = StrUtils::ConcatW(
+			resourceLoader.GetString(L"ScalingConfiguration_ScalingModes_Description_UnknownEffect"),
+			L" (",
+			data.name,
+			L")"
+		);
 	}
 }
 
@@ -109,16 +120,16 @@ void ScalingModeEffectItem::ScalingType(int value) {
 	}
 
 	EffectOption& data = _Data();
-	const Core::ScalingType scalingType = (Core::ScalingType)value;
+	const MagpieCore::ScalingType scalingType = (MagpieCore::ScalingType)value;
 	if (data.scalingType == scalingType) {
 		return;
 	}
 
-	if (data.scalingType == Core::ScalingType::Absolute) {
+	if (data.scalingType == MagpieCore::ScalingType::Absolute) {
 		data.scale = { 1.0f,1.0f };
 		_propertyChangedEvent(*this, PropertyChangedEventArgs(L"ScalingFactorX"));
 		_propertyChangedEvent(*this, PropertyChangedEventArgs(L"ScalingFactorY"));
-	} else if (scalingType == Core::ScalingType::Absolute) {
+	} else if (scalingType == MagpieCore::ScalingType::Absolute) {
 		SIZE monitorSize = GetMonitorSize();
 		data.scale = { (float)monitorSize.cx,(float)monitorSize.cy };
 
@@ -135,12 +146,12 @@ void ScalingModeEffectItem::ScalingType(int value) {
 }
 
 bool ScalingModeEffectItem::IsShowScalingFactors() const noexcept {
-	Core::ScalingType scalingType = _Data().scalingType;
-	return scalingType == Core::ScalingType::Normal || scalingType == Core::ScalingType::Fit;
+	MagpieCore::ScalingType scalingType = _Data().scalingType;
+	return scalingType == MagpieCore::ScalingType::Normal || scalingType == MagpieCore::ScalingType::Fit;
 }
 
 bool ScalingModeEffectItem::IsShowScalingPixels() const noexcept {
-	return _Data().scalingType == Core::ScalingType::Absolute;
+	return _Data().scalingType == MagpieCore::ScalingType::Absolute;
 }
 
 double ScalingModeEffectItem::ScalingFactorX() const noexcept {
@@ -149,7 +160,7 @@ double ScalingModeEffectItem::ScalingFactorX() const noexcept {
 
 void ScalingModeEffectItem::ScalingFactorX(double value) {
 	EffectOption& data = _Data();
-	if (data.scalingType != Core::ScalingType::Normal && data.scalingType != Core::ScalingType::Fit) {
+	if (data.scalingType != MagpieCore::ScalingType::Normal && data.scalingType != MagpieCore::ScalingType::Fit) {
 		return;
 	}
 
@@ -168,7 +179,7 @@ double ScalingModeEffectItem::ScalingFactorY() const noexcept {
 
 void ScalingModeEffectItem::ScalingFactorY(double value) {
 	EffectOption& data = _Data();
-	if (data.scalingType != Core::ScalingType::Normal && data.scalingType != Core::ScalingType::Fit) {
+	if (data.scalingType != MagpieCore::ScalingType::Normal && data.scalingType != MagpieCore::ScalingType::Fit) {
 		return;
 	}
 
@@ -186,7 +197,7 @@ double ScalingModeEffectItem::ScalingPixelsX() const noexcept {
 
 void ScalingModeEffectItem::ScalingPixelsX(double value) {
 	EffectOption& data = _Data();
-	if (data.scalingType != Core::ScalingType::Absolute) {
+	if (data.scalingType != MagpieCore::ScalingType::Absolute) {
 		return;
 	}
 
@@ -204,7 +215,7 @@ double ScalingModeEffectItem::ScalingPixelsY() const noexcept {
 
 void ScalingModeEffectItem::ScalingPixelsY(double value) {
 	EffectOption& data = _Data();
-	if (data.scalingType != Core::ScalingType::Absolute) {
+	if (data.scalingType != MagpieCore::ScalingType::Absolute) {
 		return;
 	}
 

@@ -770,4 +770,7 @@
   <data name="Settings_General_RequireRestart_ActionButton.Content" xml:space="preserve">
     <value>Restart Magpie</value>
   </data>
+  <data name="ScalingConfiguration_ScalingModes_Description_UnknownEffect" xml:space="preserve">
+    <value>Unknown effect</value>
+  </data>
 </root>
