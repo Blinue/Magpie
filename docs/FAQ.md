@@ -1,6 +1,6 @@
 ### 双重监控
 
-使用性能计数器屏显时，例如 RTSS (Rivatuner Statistics Server)，Magpie 缩放后可能产生两个 OSD 计数显示层。这是由于 Magpie 使用 D3D 呈现画面，它也会被 RTSS 捕捉。如果你不关心 Magpie 的性能，请将 Magpie 添加到黑名单。
+使用性能计数器屏显时，例如 RTSS (Rivatuner Statistics Server)，你可能会在缩放时看到两个叠加层。这是由于 Magpie 使用 Direct3D 呈现画面，它也会被 RTSS 捕捉。如果你不关心 Magpie 的性能，请将 Magpie 添加到黑名单。
 
 ### 快捷键不起作用，但可以使用 `x秒后缩放`
 
@@ -27,7 +27,7 @@ DirectFlip 是一种用于降低输入延迟的技术，但可能会在一些情
 2. 不正常的低帧率
 3. 串流时画面冻结
 
-### 什么是“模拟独占全屏”
+### 什么是“模拟独占全屏”？
 
 很多软件弹窗或推送前会先检查是否有独占全屏的游戏，开启此选项可以让你在全屏状态下不受打扰。一些用户报告开启此选项后游戏可能无法正常启动 [#495](https://github.com/Blinue/Magpie/issues/495)，如果你遇到了类似的问题，请关闭它。
 
