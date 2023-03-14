@@ -161,9 +161,9 @@ bool MagApp::Start(HWND hwndSrc, MagOptions&& options) {
 
 	// 模拟独占全屏
 	if (MagApp::Get().GetOptions().IsSimulateExclusiveFullscreen()) {
-		// 延迟 3s 以避免干扰游戏的初始化，见 #495
+		// 延迟 1s 以避免干扰游戏的初始化，见 #495
 		([](HWND hwndHost)->winrt::fire_and_forget {
-			co_await 3s;
+			co_await 1s;
 			MagApp::Get()._dispatcher.TryEnqueue([hwndHost]() {
 				MagApp& app = MagApp::Get();
 				// 缩放窗口句柄相同就认为中途没有退出缩放。
