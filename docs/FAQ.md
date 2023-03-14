@@ -1,5 +1,3 @@
-# FAQ
-
 ### 双重监控
 
 使用性能计数器屏显时，例如 RTSS (Rivatuner Statistics Server)，Magpie 缩放后可能产生两个 OSD 计数显示层。这是由于 Magpie 使用 D3D 呈现画面，它也会被 RTSS 捕捉。如果你不关心 Magpie 的性能，请将 Magpie 添加到黑名单。
@@ -16,10 +14,6 @@
 ### 卡顿/延迟
 
 请查看[性能优化建议](https://github.com/Blinue/Magpie/wiki/%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96%E5%BB%BA%E8%AE%AE)。
-
-### 我想对 Magpie 做一些喜闻乐见的事情，需要获得许可吗？
-
-只要你遵守[许可证](https://github.com/Blinue/Magpie/blob/main/LICENSE)（GPLv3）。
 
 ### 在多人游戏中使用 Magpie 会被认定为作弊吗？
 
