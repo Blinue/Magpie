@@ -32,6 +32,8 @@ struct ScalingModeItem : ScalingModeItemT<ScalingModeItem> {
 
 	hstring Description() const noexcept;
 
+	bool HasUnkownEffects() const noexcept;
+
 	IObservableVector<IInspectable> Effects() const noexcept {
 		return _effects;
 	}

@@ -338,6 +338,10 @@
 								</muxc:Expander.Header>
 								<muxc:Expander.Content>
 									<StackPanel Orientation="Vertical">
+										<muxc:InfoBar x:Uid="ScalingConfiguration_ScalingModes_HasUnkownEffects"
+										              IsClosable="False"
+										              IsOpen="{x:Bind HasUnkownEffects, Mode=OneWay}"
+										              Severity="Warning" />
 										<ListView AllowDrop="True"
 										          CanReorderItems="{x:Bind CanReorderEffects, Mode=OneWay}"
 										          ItemsSource="{x:Bind Effects, Mode=OneTime}"

@@ -144,6 +144,8 @@ void ScalingModeItem::_ScalingModeEffectItem_Removed(IInspectable const&, uint32
 		_effects.GetAt(index).as<ScalingModeEffectItem>().RefreshMoveState();
 	}
 
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"HasUnkownEffects"));
+
 	AppSettings::Get().SaveAsync();
 }
 
@@ -236,6 +238,15 @@ hstring ScalingModeItem::Description() const noexcept {
 		}
 	}
 	return hstring(result);
+}
+
+bool ScalingModeItem::HasUnkownEffects() const noexcept {
+	for (const EffectOption& effect : _Data().effects) {
+		if (!EffectsService::Get().GetEffect(effect.name)) {
+			return true;
+		}
+	}
+	return false;
 }
 
 void ScalingModeItem::RenameText(const hstring& value) noexcept {

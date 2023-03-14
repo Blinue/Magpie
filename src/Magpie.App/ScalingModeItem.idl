@@ -11,10 +11,12 @@ namespace Magpie.App {
 
         String Name;
         String Description { get; };
+
+        Boolean HasUnkownEffects { get; };
         IObservableVector<IInspectable> Effects { get; };
 
         String RenameText;
-        Int32 RenameTextBoxSelectionStart{ get; };
+        Int32 RenameTextBoxSelectionStart { get; };
         Boolean IsRenameButtonEnabled { get; };
 
         Boolean CanMoveUp { get; };

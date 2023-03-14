@@ -7,6 +7,7 @@
 #include "ScalingModesService.h"
 #include "ScalingMode.h"
 #include "Logger.h"
+#include "EffectsService.h"
 
 using namespace ::Magpie::Core;
 using namespace winrt;
@@ -246,6 +247,13 @@ bool MagService::_StartScale(HWND hWnd, const Profile& profile) {
 	options.effects = ScalingModesService::Get().GetScalingMode(profile.scalingMode).effects;
 	if (options.effects.empty()) {
 		return false;
+	} else {
+		for (EffectOption& effect : options.effects) {
+			if (!EffectsService::Get().GetEffect(effect.name)) {
+				// 存在无法解析的效果
+				return false;
+			}
+		}
 	}
 	
 	options.graphicsCard = profile.graphicsCard;
