@@ -265,13 +265,14 @@ void GraphicsCaptureFrameSource::_RemoveOwnerFromAltTabList(HWND hwndSrc) noexce
 }
 
 bool GraphicsCaptureFrameSource::_CaptureMonitor(IGraphicsCaptureItemInterop* interop) {
-	// WDA_EXCLUDEFROMCAPTURE 只在 Win10 20H1 及更新版本中可用
-	if (!Win32Utils::GetOSVersion().Is20H1OrNewer()) {
-		Logger::Get().Error("当前操作系统无法使用全屏捕获");
+	// Win10 无法隐藏黄色边框，因此只在 Win11 中回落到屏幕捕获
+	if (!Win32Utils::GetOSVersion().IsWin11()) {
+		Logger::Get().Error("无法使用屏幕捕获");
 		return false;
 	}
 
 	// 使全屏窗口无法被捕获到
+	// WDA_EXCLUDEFROMCAPTURE 只在 Win10 20H1 及更新版本中可用
 	if (!SetWindowDisplayAffinity(MagApp::Get().GetHwndHost(), WDA_EXCLUDEFROMCAPTURE)) {
 		Logger::Get().Win32Error("SetWindowDisplayAffinity 失败");
 		return false;
