@@ -2,7 +2,7 @@
 
 使用性能计数器屏显时，例如 RTSS (Rivatuner Statistics Server)，你可能会在缩放时看到两个叠加层。这是由于 Magpie 使用 Direct3D 呈现画面，它也会被 RTSS 捕捉。如果你不关心 Magpie 的性能，请将 Magpie 添加到黑名单。
 
-### 快捷键不起作用，但可以使用 `x秒后缩放`
+### 快捷键不起作用，但可以使用 "x秒后缩放"
 
 1. 尝试更换快捷键
 2. 尝试以管理员身份运行 Magpie
@@ -13,7 +13,7 @@
 
 ### 卡顿/延迟
 
-请查看[性能优化建议](https://github.com/Blinue/Magpie/wiki/%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96%E5%BB%BA%E8%AE%AE)。
+请查看[性能优化建议](https://github.com/Blinue/Magpie/wiki/性能优化建议)。
 
 ### 在多人游戏中使用 Magpie 会被认定为作弊吗？
 
@@ -41,7 +41,7 @@ Magpie 显示的是自己的帧率而不是游戏的，基于非侵入性原则�
 
 ### Magpie 和 Lossless Scaling 有何关系？
 
-[Lossless Scaling](https://store.steampowered.com/app/993090/Lossless_Scaling/) 是 Steam 上的一款收费软件，类似于 Magpie。Magpie 于 2021 年 2 月问世，当时市面上的窗口缩放软件（如 [Integer Scaler](https://tanalin.com/en/projects/integer-scaler/) 和 Lossless Scaling）仅支持简单的缩放算法，如最近邻缩放和整数倍缩放。这些软件的核心功能使用 [Magnification API](https://learn.microsoft.com/en-us/windows/win32/api/_magapi/) 实现，因此存在很大的局限性。
+[Lossless Scaling](https://store.steampowered.com/app/993090/Lossless_Scaling/) 是 Steam 上的一款和 Magpie 功能类似的收费软件。Magpie 于 2021 年 2 月问世，当时市面上的窗口缩放软件（如 [IntegerScaler](https://tanalin.com/en/projects/integer-scaler/) 和 Lossless Scaling）仅支持简单的缩放算法，如最近邻缩放和整数倍缩放。这些软件的核心功能使用 [Magnification API](https://learn.microsoft.com/en-us/windows/win32/api/_magapi/) 实现，因此存在很大的局限性。
 
 为了支持更高级的缩放算法，我开发并开源了 Magpie，它采用了完全不同的方式来实现缩放。最初，Magpie 仅支持 Anime4K、Lanczos、Adaptive Sharpen 等算法。在用户的反馈下，Magpie 在 [2021 年 7 月](https://github.com/Blinue/Magpie/commit/7f6c66f3b47ccd64da41d298faa7a8e185bd5299)加入了对 FSR 的支持。不久之后，Lossless Scaling 推出了 1.4.0 版本，采用与 Magpie 类似的方式支持 FSR。
 

@@ -1,24 +1,8 @@
-## How to customize scaling effects (e.g. to change the sharpness of FSR)?
-
-Please check the [Customize Scaling Configurations](https://github.com/Blinue/Magpie/wiki/Customizing_Scaling_Configurations) page.
-
-## There are 2 cursors on the screen
-
-This problem should no longer occur since v0.6.1. Please submit an issue if you triggered this bug on newer versions.
-
-## "Initialization failed" when launching
-
-Please first check the [System Requirements](https://github.com/Blinue/Magpie/blob/master/README_EN.md#System-Requirements), and then try fixing/updating the dotnet and MSVC runtime libraries. Please submit an issue if the fixes above don't work.
-
 ## Duplicate-monitoring
 
 When displaying performance monitor like RTSS (Rivatuner Statistics Server), there might be 2 OSD layers displayed with Magpie scaling. This is caused by d3d, the screen capture method since v0.7.0. It will be captured by RTSS as well. You can fix this issue by adding it to the blacklist.
 
-## Error occurs when using Graphics Capture
-
-This is a rare bug after v0.8, especially under Win10 v2004 or newer systems. Please notify the developers if you encounter this bug.
-
-## The hot keys don't work, but `Scale after 5s` works.
+## The hot keys don't work, but "Scale after x s" works.
 
 1. Try changing the hot keys.
 2. Try running Magpie as Administrator.
@@ -29,11 +13,7 @@ Supported from v0.8.
 
 ## Lagging/latency
 
-Please check the [Performance Improvements](https://github.com/Blinue/Magpie/wiki/Performance_Improvements) page.
-
-## I'd like to do something with Magpie. Do I need to get permission?
-
-There is no need for permission as long as you are follow its [License](https://github.com/Blinue/Magpie/blob/main/LICENSE) (GPLv3).
+Please check the [Performance optimization](https://github.com/Blinue/Magpie/wiki/Performance%20optimization) page.
 
 ## Will using Magpie in multi-player games be detected as cheating?
 
@@ -54,3 +34,15 @@ A lot of software checks whether there are games running under dedicated fullscr
 ## What is the frame rate displayed in Magpie?
 
 The frame rate displayed by Magpie is that of its own rather than that of the game. Due to the non-intrusive nature, Magpie has no way to detect the frame rates of games themselves. We recommend you to use tools like RTSS to display the games' frame rates. Their add-on layers can usually be captured by Magpie as well.
+
+## Does Magpie support touch input?
+
+No. Supporting touch input requires Magpie to have considerable high-level permissions, which is unacceptable for most users. Download the touch-enabled version from [#218 (comment)](https://github.com/Blinue/Magpie/issues/218#issuecomment-980506414).
+
+## What is the relationship between Magpie and Lossless Scaling?
+
+[Lossless Scaling](https://store.steampowered.com/app/993090/Lossless_Scaling/) is a paid software on Steam that is similar to Magpie. When Magpie was released in February 2021, existing window scaling software (such as [IntegerScaler](https://tanalin.com/en/projects/integer-scaler/) and Lossless Scaling) only supported simple scaling algorithms like nearest-neighbor scaling and integer scaling. These software programs relied on the [Magnification API](https://learn.microsoft.com/en-us/windows/win32/api/_magapi/) to function, which led to significant limitations.
+
+To support advanced scaling algorithms, I developed and open-sourced Magpie, which implements scaling in a completely different way. Initially, Magpie only supported algorithms like Anime4K, Lanczos, and Adaptive Sharpen. However, based on user feedback, Magpie added support for FSR in [July 2021](https://github.com/Blinue/Magpie/commit/7f6c66f3b47ccd64da41d298faa7a8e185bd5299). Soon after, Lossless Scaling released version 1.4.0, which supported FSR in a similar way to Magpie.
+
+Currently, Magpie and Lossless Scaling differ significantly. Magpie focuses on usability and supporting more scaling algorithms, while Lossless Scaling primarily aims to improve 3D game performance.
