@@ -38,3 +38,11 @@ Magpie 显示的是自己的帧率而不是游戏的，基于非侵入性原则�
 ### 是否支持触控？
 
 不支持。支持触控要求 Magpie 拥有相当高的权限，这对一般用户来说是不可接受的。在 [#218 (comment)](https://github.com/Blinue/Magpie/issues/218#issuecomment-980506414) 下载支持触控的版本。
+
+### Magpie 和 Lossless Scaling 有何关系？
+
+[Lossless Scaling](https://store.steampowered.com/app/993090/Lossless_Scaling/) 是 Steam 上的一款收费软件，类似于 Magpie。Magpie 于 2021 年 2 月问世，当时市面上的窗口缩放软件（如 [Integer Scaler](https://tanalin.com/en/projects/integer-scaler/) 和 Lossless Scaling）仅支持简单的缩放算法，如最近邻缩放和整数倍缩放。这些软件的核心功能使用 [Magnification API](https://learn.microsoft.com/en-us/windows/win32/api/_magapi/) 实现，因此存在很大的局限性。
+
+为了支持更高级的缩放算法，我开发并开源了 Magpie，它采用了完全不同的方式来实现缩放。最初，Magpie 仅支持 Anime4K、Lanczos、Adaptive Sharpen 等算法。在用户的反馈下，Magpie 在 [2021 年 7 月](https://github.com/Blinue/Magpie/commit/7f6c66f3b47ccd64da41d298faa7a8e185bd5299)加入了对 FSR 的支持。不久之后，Lossless Scaling 推出了 1.4.0 版本，采用与 Magpie 类似的方式支持 FSR。
+
+现在，Magpie 和 Lossless Scaling 有很大的不同。Magpie 的重点是可用性和支持更多的缩放算法，而 Lossless Scaling 则主要聚焦于提高 3D 游戏的性能。

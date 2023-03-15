@@ -24,6 +24,6 @@ In order to compile Magpie, you need to first install:
 
 2. Open the Magpie.sln in the root directory using Visual Studio 2022. This solution contains multiple projects, among which the "Magpie" project is the program's entry point. It should already be the startup project, but if it isn't, please set it manually.
 
-3. First, build the CONAN_INSTALL project, which will install the dependencies.
+3. First, build the "CONAN_INSTALL" project, which will install the dependencies.
 
-5. Compile and run Magpie.
+4. Compile and run Magpie.
