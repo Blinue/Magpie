@@ -277,10 +277,10 @@
     <value>快捷键</value>
   </data>
   <data name="Home_Shortcuts_Overlay.Title" xml:space="preserve">
-    <value>游戏内覆盖</value>
+    <value>游戏内叠加层</value>
   </data>
   <data name="Home_Shortcuts_Overlay_ShortcutControl.Title" xml:space="preserve">
-    <value>游戏内覆盖快捷键</value>
+    <value>游戏内叠加层快捷键</value>
   </data>
   <data name="Home_Shortcuts_Scale.Title" xml:space="preserve">
     <value>缩放</value>

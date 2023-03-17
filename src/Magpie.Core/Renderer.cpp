@@ -244,7 +244,7 @@ int Renderer::_CheckSrcState() {
 
 	if (!MagApp::Get().GetOptions().IsDebugMode()) {
 		HWND hwndForeground = GetForegroundWindow();
-		// 在 3D 游戏模式下打开游戏内覆盖则全屏窗口可以接收焦点
+		// 在 3D 游戏模式下打开游戏内叠加层则全屏窗口可以接收焦点
 		if (!MagApp::Get().GetOptions().Is3DGameMode() || !IsUIVisiable() || hwndForeground != MagApp::Get().GetHwndHost()) {
 			if (hwndForeground && hwndForeground != hwndSrc && !CheckForeground(hwndForeground)) {
 				Logger::Get().Info("前台窗口已改变");
