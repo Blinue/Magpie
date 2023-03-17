@@ -6,7 +6,7 @@ Welcome to the Magpie Wiki. Please read [Contributing](https://github.com/Blinue
 
 [Compilation guide](https://github.com/Blinue/Magpie/wiki/Compilation%20guide)
 
-[Introduction to built-in effects](https://github.com/Blinue/Magpie/wiki/Introduction%20to%20built-in%20effects)
+[Built-in effects](https://github.com/Blinue/Magpie/wiki/Built-in%20effects)
 
 [MagpieFX](https://github.com/Blinue/Magpie/wiki/MagpieFX%20(EN))
 
