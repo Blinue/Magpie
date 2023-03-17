@@ -10,7 +10,7 @@
 // B = 0.825 to get rid of dithering. Increase B to get a fine sharpness, though dithering returns.
 
 //!MAGPIE EFFECT
-//!VERSION 2
+//!VERSION 3
 //!GENERIC_DOWNSCALER
 
 

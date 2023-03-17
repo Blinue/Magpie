@@ -2,7 +2,7 @@
 // 移植自 https://casual-effects.com/research/McGuire2021PixelArt/index.html
 
 //!MAGPIE EFFECT
-//!VERSION 2
+//!VERSION 3
 //!OUTPUT_WIDTH INPUT_WIDTH * 2
 //!OUTPUT_HEIGHT INPUT_HEIGHT * 2
 

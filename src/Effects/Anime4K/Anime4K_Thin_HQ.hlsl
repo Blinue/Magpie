@@ -2,7 +2,7 @@
 // 移植自 https://github.com/bloc97/Anime4K/blob/master/glsl/Experimental-Effects/Anime4K_Thin_HQ.glsl
 
 //!MAGPIE EFFECT
-//!VERSION 2
+//!VERSION 3
 //!OUTPUT_WIDTH INPUT_WIDTH
 //!OUTPUT_HEIGHT INPUT_HEIGHT
 

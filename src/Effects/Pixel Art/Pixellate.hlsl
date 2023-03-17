@@ -1,7 +1,7 @@
 // 移植自 https://github.com/libretro/common-shaders/blob/master/interpolation/shaders/pixellate.cg
 
 //!MAGPIE EFFECT
-//!VERSION 2
+//!VERSION 3
 
 
 //!TEXTURE

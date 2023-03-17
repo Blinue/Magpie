@@ -1,7 +1,7 @@
 // 移植自 https://github.com/libretro/slang-shaders/blob/3f67e1870dbd5be74ae2f09eaed0eeadce6abd15/misc/image-adjustment.slang
 
 //!MAGPIE EFFECT
-//!VERSION 2
+//!VERSION 3
 //!OUTPUT_WIDTH INPUT_WIDTH
 //!OUTPUT_HEIGHT INPUT_HEIGHT
 

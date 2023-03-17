@@ -2,7 +2,7 @@
 // 移植自 https://github.com/bloc97/Anime4K/blob/master/glsl/Upscale/Anime4K_3DGraphics_AA_Upscale_x2_US.glsl
 
 //!MAGPIE EFFECT
-//!VERSION 2
+//!VERSION 3
 //!OUTPUT_WIDTH INPUT_WIDTH * 2
 //!OUTPUT_HEIGHT INPUT_HEIGHT * 2
 //!SORT_NAME Anime4K_3D_Upscale_1

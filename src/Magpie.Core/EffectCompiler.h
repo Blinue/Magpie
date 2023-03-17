@@ -23,7 +23,7 @@ struct API_DECLSPEC EffectCompiler {
 	);
 
 	// 当前 MagpieFX 版本
-	static constexpr UINT VERSION = 2;
+	static constexpr UINT VERSION = 3;
 };
 
 }

@@ -1,7 +1,7 @@
 // 移植自 https://github.com/libretro/common-shaders/blob/master/xbrz/shaders/6xbrz.cg
 
 //!MAGPIE EFFECT
-//!VERSION 2
+//!VERSION 3
 //!OUTPUT_WIDTH INPUT_WIDTH * 6
 //!OUTPUT_HEIGHT INPUT_HEIGHT * 6
 

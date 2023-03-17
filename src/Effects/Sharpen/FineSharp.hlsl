@@ -6,7 +6,7 @@
 // The sharpener makes no attempt to filter noise or source artefacts and will sharpen those too.So denoise / clean your source first if necessary.Probably won't work very well on a really old GPU, the weakest I have tried is a GTX 560 at 1080p 60fps with no problems.
 
 //!MAGPIE EFFECT
-//!VERSION 2
+//!VERSION 3
 //!OUTPUT_WIDTH INPUT_WIDTH
 //!OUTPUT_HEIGHT INPUT_HEIGHT
 

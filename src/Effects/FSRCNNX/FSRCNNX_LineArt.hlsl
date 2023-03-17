@@ -2,7 +2,7 @@
 // 移植自 https://github.com/igv/FSRCNN-TensorFlow
 
 //!MAGPIE EFFECT
-//!VERSION 2
+//!VERSION 3
 //!OUTPUT_WIDTH INPUT_WIDTH * 2
 //!OUTPUT_HEIGHT INPUT_HEIGHT * 2
 

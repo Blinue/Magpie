@@ -9,7 +9,7 @@
 
 
 //!MAGPIE EFFECT
-//!VERSION 2
+//!VERSION 3
 
 
 //!PARAMETER

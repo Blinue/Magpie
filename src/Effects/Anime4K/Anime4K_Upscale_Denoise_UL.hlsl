@@ -2,7 +2,7 @@
 // 移植自 https://github.com/bloc97/Anime4K/blob/78e4f78f65b772e94bae6e7db5c49af1e889f784/glsl/Upscale%2BDenoise/Anime4K_Upscale_Denoise_CNN_x2_UL.glsl
 
 //!MAGPIE EFFECT
-//!VERSION 2
+//!VERSION 3
 //!OUTPUT_WIDTH INPUT_WIDTH * 2
 //!OUTPUT_HEIGHT INPUT_HEIGHT * 2
 //!SORT_NAME Anime4K_Upscale_Denoise_3

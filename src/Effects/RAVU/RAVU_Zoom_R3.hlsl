@@ -1,7 +1,7 @@
 // 移植自 https://raw.githubusercontent.com/bjin/mpv-prescalers/master/compute/ravu-zoom-r3.hook
 
 //!MAGPIE EFFECT
-//!VERSION 2
+//!VERSION 3
 
 
 //!TEXTURE

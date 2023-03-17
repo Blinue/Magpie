@@ -1,7 +1,7 @@
 // This is a combination of linear interpolation and light version of cas
 
 //!MAGPIE EFFECT
-//!VERSION 2
+//!VERSION 3
 
 //!PARAMETER
 //!LABEL Sharpness

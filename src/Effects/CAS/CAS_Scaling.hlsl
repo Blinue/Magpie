@@ -1,7 +1,7 @@
 // 移植自 https://github.com/GPUOpen-Effects/FidelityFX-CAS/blob/master/ffx-cas/ffx_cas.h
 
 //!MAGPIE EFFECT
-//!VERSION 2
+//!VERSION 3
 
 //!PARAMETER
 //!LABEL Sharpness

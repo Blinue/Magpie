@@ -2,7 +2,7 @@
 // 移植自 https://github.com/bjin/mpv-prescalers/blob/cc02ed95c1fe05b72bc21d41257c4c085e6e409b/ravu-lite-r3.hook
 
 //!MAGPIE EFFECT
-//!VERSION 2
+//!VERSION 3
 //!OUTPUT_WIDTH INPUT_WIDTH * 2
 //!OUTPUT_HEIGHT INPUT_HEIGHT * 2
 

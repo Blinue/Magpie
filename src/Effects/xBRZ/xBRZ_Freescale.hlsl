@@ -1,7 +1,7 @@
 // 移植自 https://github.com/libretro/common-shaders/tree/master/xbrz/shaders/xbrz-freescale-multipass
 
 //!MAGPIE EFFECT
-//!VERSION 2
+//!VERSION 3
 
 
 //!TEXTURE
