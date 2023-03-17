@@ -19,7 +19,11 @@ Please check the [Performance optimization](https://github.com/Blinue/Magpie/wik
 
 Magpie is designed to be non-intrusive, so it is unlikely to be detected as a cheating tool. There have been no reports of bans for using Magpie. Nevertheless, you should be aware of the risks of using the software.
 
-## What is "Disable DirectFlip?"
+## What is "3D game mode"?
+
+Enabling this option can change the behavior of the cursor and in-game overlay to optimize for 3D games. It is recommended to turn on this option when scaling 3D games.
+
+## What is "Disable DirectFlip"?
 
 DirectFlip is a technology to reduce input lags, but it may cause trouble in some circumstances. Please turn on this option when you are in the following situationsL:
 

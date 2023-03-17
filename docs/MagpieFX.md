@@ -1,15 +1,19 @@
-MagpieFX 基于 DX11 计算着色器
+MagpieFX 基于 DirectX 11 计算着色器
 
 ``` hlsl
 //!MAGPIE EFFECT
-//!VERSION 2
+//!VERSION 3
 //!OUTPUT_WIDTH INPUT_WIDTH * 2
 //!OUTPUT_HEIGHT INPUT_HEIGHT * 2
-// 若要使用 GetFrameCount 或 GetCursorPos 需指定 USE_DYNAMIC
+// Specify USE_DYNAMIC to use GetFrameCount or GetCursorPos.
 //!USE_DYNAMIC
+// Specifying GENERIC_DOWNSCALER indicates that this effect can be used as the "default downscaling effect".
+//!GENERIC_DOWNSCALER
+// Use SORT_NAME to specify the name used for sorting, otherwise the files will be sorted by their file names.
+//!SORT_NAME test1
 
-// 不指定 OUTPUT_WIDTH 和 OUTPUT_HEIGHT 表示此效果支持输出任意尺寸
-// 计算纹理尺寸时可以使用一些预定义常量
+// Not specifying OUTPUT_WIDTH and OUTPUT_HEIGHT indicates that this effect supports outputting to any size.
+// You can use some pre-defined constants when calculating texture size.
 // INPUT_WIDTH
 // INPUT_HEIGHT
 // OUTPUT_WIDTH
@@ -18,9 +22,13 @@ MagpieFX 基于 DX11 计算着色器
 
 // 参数定义
 //!PARAMETER
-//!DEFAULT 0
-// LABEL 可选，暂时不使用
-//!LABEL 锐度
+// LABEL 为用户界面上显示的参数名
+//!LABEL Sharpness
+// DEFAULT、MIN、MAX 和 STEP 都必须存在
+//!DEFAULT 0.1
+//!MIN 0.01
+//!MAX 5
+//!STEP 0.01
 float sharpness;
 
 
