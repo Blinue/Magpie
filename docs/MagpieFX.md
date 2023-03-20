@@ -122,13 +122,13 @@ float4 Pass1(float2 pos) {
 //!NUM_THREADS 64, 1, 1
 
 void Pass2(uint2 blockStart, uint3 threadId) {
-    // 向 OUPUT 写入的同时处理光标渲染
+    // 渲染光标并写入 OUPUT
     // 只在最后一个通道中可用
     WriteToOutput(blockStart, float3(1,1,1));
 }
 ```
 
-### 内置函数
+### 预定义函数
 
 **void WriteToOutput(uint2 pos, float3 color)**：只在最后一个通道（Pass）中可用，用于将结果写入到输出纹理。
 
@@ -144,22 +144,22 @@ void Pass2(uint2 blockStart, uint3 threadId) {
 
 **float2 GetScale()**：获取输出纹理相对于输入纹理的缩放。
 
-**uint GetFrameCount()**：获取当前总计帧数。使用此函数时必须指定 USE_DYNAMIC。
+**uint GetFrameCount()**：获取当前总计帧数。使用此函数时必须指定 "USE_DYNAMIC"。
 
-**uint2 GetCursorPos()**：获取当前光标位置。使用此函数时必须指定 USE_DYNAMIC。
+**uint2 GetCursorPos()**：获取当前光标位置。使用此函数时必须指定 "USE_DYNAMIC"。
 
 **uint2 Rmp8x8(uint id)**：将 0~63 的值以 swizzle 顺序映射到 8x8 的正方形内的坐标，用以提高纹理缓存的命中率。
 
 
-### 内置宏：
+### 预定义宏
 
-**MP_BLOCK_WIDTH、MP_BLOCK_HEIGHT**：当前通道处理的块的大小（由 //!BLOCK_SIZE 指定）
+**MP_BLOCK_WIDTH、MP_BLOCK_HEIGHT**：当前通道处理的块的大小（由 "BLOCK_SIZE" 指定）
 
-**MP_NUM_THREADS_X、MP_NUM_THREADS_Y**：当前通道每个线程组的线程数（由 //!NUM_THREADS 指定）
+**MP_NUM_THREADS_X、MP_NUM_THREADS_Y**：当前通道每个线程组的线程数（由 "NUM_THREADS" 指定）
 
-**MP_PS_STYLE**：当前通道是否是像素着色器样式（由 //!STYLE 指定）
+**MP_PS_STYLE**：当前通道是否是像素着色器样式（由 "STYLE" 指定）
 
-**MP_INLINE_PARAMS**：当前通道的参数是否为静态常量（由用户通过 inlineParams 参数指定）
+**MP_INLINE_PARAMS**：当前通道的参数是否为静态常量（由用户指定）
 
 **MP_DEBUG**：当前是否为调试模式（调试模式下编译的着色器不进行优化且含有调试信息）
 
@@ -167,14 +167,14 @@ void Pass2(uint2 blockStart, uint3 threadId) {
 
 **MP_LAST_EFFECT**：当前效果是否是当前缩放模式的最后一个效果（最后一个效果要处理视口和光标渲染）
 
-**MP_FP16**：当前是否使用半精度浮点数（由用户通过 fp16 参数指定）
+**MP_FP16**：当前是否使用半精度浮点数（由用户指定）
 
 **MF、MF1、MF2、...、MF4x4**：遵守 fp16 参数的浮点数类型。当未指定 fp16，它们为 float... 的别名，否则为 min16float... 的别名
 
 
 ### 多渲染目标（MRT）
 
-PS 风格下 OUT 指令可指定多个输出（DirectX 限制最多 8 个）：
+PS 风格下 OUT 指令可指定多个输出（由于 DirectX 的限制最多 8 个）：
 ``` hlsl
 //!OUT tex1, tex2
 ```
@@ -186,14 +186,12 @@ void Pass1(float2 pos, out float4 target1, out float4 target2);
 
 ### 从文件加载纹理
 
-TEXTURE 指令可从文件加载纹理
-
 ``` hlsl
 //!TEXTURE
 //!SOURCE test.bmp
 Texture2D testTex;
 ```
 
-支持的格式有 bmp，png，jpg 等常见图像格式以及 DDS 文件。纹理尺寸与源图像尺寸相同。可选使用 FORMAT，指定后可以帮助解析器生成正确的定义，不指定始终假设是 float4 类型。
+TEXTURE 指令支持从文件加载纹理，支持的格式有 bmp，png，jpg 等常见图像格式以及 DDS 文件。纹理尺寸与源图像尺寸相同。可选使用 FORMAT，指定后可以帮助解析器生成正确的定义，不指定始终假设是 float4 类型。
 
 从文件加载的纹理不能作为通道的输出。
