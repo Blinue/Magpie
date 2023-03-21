@@ -13,11 +13,11 @@
 
 :point_right: [下载](https://github.com/Blinue/Magpie/releases)
 
-:point_right: [编译指南](https://github.com/Blinue/Magpie/wiki/编译指南)
-
 :point_right: [FAQ](https://github.com/Blinue/Magpie/wiki/FAQ)
 
 :point_right: [内置效果介绍](https://github.com/Blinue/Magpie/wiki/内置效果介绍)
+
+:point_right: [编译指南](https://github.com/Blinue/Magpie/wiki/编译指南)
 
 :point_right: [贡献指南](./CONTRIBUTING.md)
 
@@ -31,6 +31,8 @@
 
 ## 如何使用
 
+## 截图
+
 ## 系统需求
 
 1. Windows 10 v1903+ 或 Windows 11
@@ -38,19 +40,15 @@
 
 ## 使用提示
 
-1. 如果你设置了 DPI 缩放，而要放大的窗口没有高 DPI 支持，推荐首先进入该程序的兼容性设置，将“高 DPI 缩放替代”设置为“应用程序”。
+1. 如果你设置了 DPI 缩放，而要放大的窗口没有高 DPI 支持（这在老游戏中很常见），推荐首先进入该程序的兼容性设置，将“高 DPI 缩放替代”设置为“应用程序”。
 
    ![高DPI设置](img/高DPI设置.png)
 
 2. 一些游戏支持调整窗口的大小，但只使用简单的缩放算法，这时请先将其设为原始（最佳）分辨率。
 
-## 实现原理
-
-## 已知限制
-
 ## 贡献者 ✨
 
-感谢每一位贡献者，你们使 Magpie 变得更好（[emoji key](https://allcontributors.org/docs/en/emoji-key)）：
+感谢每一位参与贡献的人（[emoji key](https://allcontributors.org/docs/en/emoji-key)）：
 
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
 <!-- prettier-ignore-start -->
