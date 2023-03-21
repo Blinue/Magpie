@@ -31,7 +31,7 @@ namespace winrt::Magpie::App::implementation {
 static constexpr const uint32_t FIRST_PROFILE_ITEM_IDX = 4;
 
 MainPage::MainPage() {
-	_themeChangedRevoker = AppSettings::Get().ThemeChanged(auto_revoke, [this](int) { _UpdateTheme(); });
+	_themeChangedRevoker = AppSettings::Get().ThemeChanged(auto_revoke, [this](Theme) { _UpdateTheme(); });
 	_colorValuesChangedRevoker = _uiSettings.ColorValuesChanged(
 		auto_revoke, { this, &MainPage::_UISettings_ColorValuesChanged });
 
@@ -221,14 +221,14 @@ static bool IsColorLight(const Color& clr) {
 }
 
 void MainPage::_UpdateTheme(bool updateIcons) {
-	int theme = AppSettings::Get().Theme();
+	Theme theme = AppSettings::Get().Theme();
 
 	bool isDarkTheme = FALSE;
-	if (theme == 2) {
+	if (theme == Theme::System) {
 		// 前景色是亮色表示当前是深色主题
 		isDarkTheme = IsColorLight(_uiSettings.GetColorValue(UIColorType::Foreground));
 	} else {
-		isDarkTheme = theme == 1;
+		isDarkTheme = theme == Theme::Dark;
 	}
 
 	if (IsLoaded() && (ActualTheme() == ElementTheme::Dark) == isDarkTheme) {
@@ -323,7 +323,7 @@ fire_and_forget MainPage::_UISettings_ColorValuesChanged(Windows::UI::ViewManage
 		co_return;
 	}
 
-	if (AppSettings::Get().Theme() == 2) {
+	if (AppSettings::Get().Theme() == Theme::System) {
 		_UpdateTheme(false);
 	}
 

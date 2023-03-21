@@ -25,7 +25,7 @@ IVector<IInspectable> SettingsViewModel::Languages() const {
 	languages.reserve(tags.size() + 1);
 
 	ResourceLoader resourceLoader = ResourceLoader::GetForCurrentView();
-	languages.push_back(box_value(resourceLoader.GetString(L"Settings_General_Language_Default")));
+	languages.push_back(box_value(resourceLoader.GetString(L"Settings_General_Language_System")));
 	for (const std::wstring& tag : tags) {
 		Windows::Globalization::Language language(tag);
 		languages.push_back(box_value(language.NativeName()));
@@ -57,7 +57,16 @@ void SettingsViewModel::Restart() const {
 }
 
 int SettingsViewModel::Theme() const noexcept {
-	return (int)AppSettings::Get().Theme();
+	switch (AppSettings::Get().Theme()) {
+	case Theme::System:
+		return 0;
+	case Theme::Light:
+		return 1;
+	case Theme::Dark:
+		return 2;
+	default:
+		return 0;
+	}
 }
 
 void SettingsViewModel::Theme(int value) {
@@ -65,7 +74,20 @@ void SettingsViewModel::Theme(int value) {
 		return;
 	}
 
-	AppSettings::Get().Theme((uint32_t)value);
+	Magpie::App::Theme theme;
+	switch (value) {
+	case 1:
+		theme = Theme::Light;
+		break;
+	case 2:
+		theme = Theme::Dark;
+		break;
+	default:
+		theme = Theme::System;
+		break;
+	}
+
+	AppSettings::Get().Theme(theme);
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"Theme"));
 }
 

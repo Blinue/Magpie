@@ -350,9 +350,7 @@ void AppSettings::Language(int value) {
 	SaveAsync();
 }
 
-void AppSettings::Theme(uint32_t value) {
-	assert(value <= 2);
-
+void AppSettings::Theme(Magpie::App::Theme value) {
 	if (_theme == value) {
 		return;
 	}
@@ -466,7 +464,7 @@ bool AppSettings::_Save(const _AppSettingsData& data) noexcept {
 	}
 
 	writer.Key("theme");
-	writer.Uint(data._theme);
+	writer.Uint((uint32_t)data._theme);
 
 	writer.Key("windowPos");
 	writer.StartObject();
@@ -576,7 +574,15 @@ void AppSettings::_LoadSettings(const rapidjson::GenericObject<true, rapidjson::
 		}
 	}
 
-	JsonHelper::ReadUInt(root, "theme", _theme);
+	{
+		uint32_t theme = (uint32_t)Theme::System;
+		JsonHelper::ReadUInt(root, "theme", theme);
+		if (theme <= 2) {
+			_theme = (Magpie::App::Theme)theme;
+		} else {
+			_theme = Theme::System;
+		}
+	}
 
 	auto windowPosNode = root.FindMember("windowPos");
 	if (windowPosNode != root.MemberEnd() && windowPosNode->value.IsObject()) {
