@@ -45,9 +45,9 @@
 						<ComboBox DropDownOpened="ComboBox_DropDownOpened"
 						          SelectedIndex="{x:Bind ViewModel.Theme, Mode=TwoWay}"
 						          Style="{StaticResource ComboBoxSettingStyle}">
+							<ComboBoxItem x:Uid="Settings_General_Theme_System" />
 							<ComboBoxItem x:Uid="Settings_General_Theme_Light" />
 							<ComboBoxItem x:Uid="Settings_General_Theme_Dark" />
-							<ComboBoxItem x:Uid="Settings_General_Theme_Default" />
 						</ComboBox>
 					</local:SettingsCard.ActionContent>
 				</local:SettingsCard>

@@ -1,4 +1,4 @@
-# MAGPIE
+# Magpie
 
 [![许可](https://img.shields.io/github/license/Blinue/Magpie)](./LICENSE)
 [![build](https://github.com/Blinue/Magpie/actions/workflows/build.yml/badge.svg)](https://github.com/Blinue/Magpie/actions/workflows/build.yml)
@@ -7,69 +7,44 @@
 
 🌍 **简体中文** | [English](./README_EN.md)
 
-Magpie 可以将任意窗口放大至全屏，内置大量缩放算法/滤镜。主要用于游戏窗口的放大显示，适用于不支持全屏模式，或者内置的全屏模式会使画面模糊的情况。
+一个能够将任何窗口放大至全屏的轻量级工具，内置了众多高效的缩放算法和滤镜。通常用于将不支持全屏显示的游戏进行全屏化处理以及提高游戏画面质量等。
 
 使用中遇到问题请提交 issue。（开源新手？看[这里](https://opensourceway.community/open-source-guide/how-to-contribute/#%E5%A6%82%E4%BD%95%E6%8F%90%E4%BA%A4%E6%88%90%E6%9E%9C)！）
 
-:point_right: [编译指南](https://github.com/Blinue/Magpie/wiki/编译指南)
+:point_right: [下载](https://github.com/Blinue/Magpie/releases)
 
 :point_right: [FAQ](https://github.com/Blinue/Magpie/wiki/FAQ)
 
-:point_right: [自定义缩放配置](https://github.com/Blinue/Magpie/wiki/自定义缩放配置)（[示例](https://gist.github.com/hooke007/818ecc88f18e229bca743b7ae48947ad)）
+:point_right: [内置效果介绍](https://github.com/Blinue/Magpie/wiki/内置效果介绍)
+
+:point_right: [编译指南](https://github.com/Blinue/Magpie/wiki/编译指南)
 
 :point_right: [贡献指南](./CONTRIBUTING.md)
 
+## 功能
 
-## 使用方法
+* 将任何窗口放大至全屏
+* 众多内置算法，包括 Lanczos、[Anime4K](https://github.com/bloc97/Anime4K)、[FSR](https://github.com/GPUOpen-Effects/FidelityFX-FSR)、Adaptive Sharpen、多种 CRT 着色器等
+* 基于 WinUI 的用户界面，支持浅色和深色主题
+* 为特定窗口创建配置文件
+* 多屏幕支持
 
-![窗口截图](img/窗口截图.png)
+## 如何使用
 
-要放大的窗口位于前台时，按下热键即可全屏显示该窗口，再次按下热键或者切换前台窗口将退出全屏。
+1. 配置缩放模式：你应首先在“缩放配置”页面配置你想要的缩放模式。“缩放模式”为一系列“效果”的堆叠，缩放时会逐个应用这些效果，见[内置效果介绍](https://github.com/Blinue/Magpie/wiki/内置效果介绍)。Magpie 有一些预设的缩放模式，但它们通常不是最好的，推荐你根据使用场景自行配置。完成后进入“配置文件”-“默认”页面更改全局使用的缩放模式。
+2. 缩放窗口：最简单的方法是将你要放大的窗口置于前台，然后按下快捷键（默认为 Win+Shift+A）。注意要放大的窗口不能处于最大化或全屏状态，你必须将它窗口化。你也可以使用“主页”上的“x 秒后缩放”按钮，这会使 Magpie 在数秒后自动缩放前台窗口。 
+3. 为窗口创建配置文件：可以为特定窗口创建配置文件，而不是使用全局配置。这很有用，因为不同窗口适合的缩放模式和捕获方式是不同的。创建后便可以在配置页面直接启动程序/游戏，如果启用了“位于前台时自动缩放”，只要切换到该窗口，Magpie 便会自动执行缩放。
 
-以下为配置说明：
-
-#### 缩放模式
-
-程序预置了多种缩放模式，如果它们不符合你的需求，请[自定义缩放配置](https://github.com/Blinue/Magpie/wiki/自定义缩放配置)。
-
-1. Lanczos：常见的传统插值算法，善于保留锐利的边缘。
-2. FSR：[FidelityFX-FSR](https://github.com/GPUOpen-Effects/FidelityFX-FSR) 的移植，适合缩放 3D 游戏。
-3. FSRCNNX：[FSRCNNX](https://github.com/igv/FSRCNN-TensorFlow) 的移植。
-4. ACNet：[ACNetGLSL](https://github.com/TianZerL/ACNetGLSL)的移植。适合动画风格的图像和视频放大。
-5. Anime4K：[Anime4K](https://github.com/bloc97/Anime4K) 的移植。此预置使用 Anime4K_Upscale_Denoise_L 变体。
-6. CRT-Geom：最流行的 CRT 滤镜之一，推荐自行配置参数。见 [Emulation General Wiki](https://emulation.gametechwiki.com/index.php/CRT_Geom)。
-7. Integer Scale：将每个像素放大整数倍，可以完整保留原图像的视觉效果。预置了2x和3x两种放大倍率。
-
-#### 捕获模式
-
-指示程序如何捕获源窗口图像，它们的适用场景见[捕获模式对比](https://github.com/Blinue/Magpie/wiki/%E6%8D%95%E8%8E%B7%E6%A8%A1%E5%BC%8F%E5%AF%B9%E6%AF%94)。
-
-1. Graphics Capture：使用 [Screen Capture API](https://docs.microsoft.com/en-us/windows/uwp/audio-video-camera/screen-capture) 捕获窗口，最推荐的方法。此 API 从 Win10 v1903 开始提供。
-2. Desktop Duplication：使用 [Desktop Duplication API](https://docs.microsoft.com/en-us/windows/win32/direct3ddxgi/desktop-dup-api) 捕获窗口，相比 Graphics Capture 可以捕获到更多类型的窗口。此 API 从 Win10 v2004 开始提供。
-3. GDI：使用 GDI 捕获源窗口。和 Graphics Capture 相比 CPU 占用更少。
-4. DwmSharedSurface：使用未公开的 DwmSharedSurface API 捕获窗口。
-
-#### 热键修改
-
-程序使用 [globalmousekeyhook](https://github.com/gmamaladze/globalmousekeyhook) 检测热键。
-
-手动输入键值修改为你喜欢的键位（多个键位组合之间用 `+` 连接）
-
-1. 字母使用大写，如 `A` ；数字使用特殊格式，如 `D1` （小键盘数字则为 `NumPad1` ）
-2. 功能键的单词首字母大写，如 `Capital` （不能写 `Caps` ）， `F1` ， `PageUp`
-3. 个别键位不能作为单独的触发热键，必须与其它键位组合使用，如 `Control` ， `Shift` ， `Alt`
-4. 组合键按照前后顺序按下才能正确触发，如 `B+C` （先按住b不松手而后再按下c）
+## 截图
 
 ## 系统需求
 
-1. Windows 10 v1607+ 或 Windows 11
+1. Windows 10 v1903+ 或 Windows 11
 2. DirectX 功能级别 11
-3. [.NET 6.0.4 Desktop 运行时](https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/runtime-desktop-6.0.4-windows-x64-installer)
-4. [MSVC 2015-2022 运行时](https://docs.microsoft.com/cpp/windows/latest-supported-vc-redist)
 
 ## 使用提示
 
-1. 如果你设置了 DPI 缩放，而要放大的窗口没有高 DPI 支持，推荐首先进入该程序的兼容性设置，将“高 DPI 缩放替代”设置为“应用程序”。
+1. 如果你设置了 DPI 缩放，而要放大的窗口没有高 DPI 支持（这在老游戏中很常见），推荐首先进入该程序的兼容性设置，将“高 DPI 缩放替代”设置为“应用程序”。
 
    ![高DPI设置](img/高DPI设置.png)
 
@@ -77,7 +52,7 @@ Magpie 可以将任意窗口放大至全屏，内置大量缩放算法/滤镜。
 
 ## 贡献者 ✨
 
-感谢每一位贡献者，你们使 Magpie 变得更好（[emoji key](https://allcontributors.org/docs/en/emoji-key)）：
+感谢每一位参与贡献的人（[emoji key](https://allcontributors.org/docs/en/emoji-key)）：
 
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
 <!-- prettier-ignore-start -->

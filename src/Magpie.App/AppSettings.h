@@ -11,6 +11,12 @@ namespace winrt::Magpie::App {
 
 struct ScalingMode;
 
+enum class Theme {
+	Light,
+	Dark,
+	System
+};
+
 struct _AppSettingsData {
 	_AppSettingsData();
 	virtual ~_AppSettingsData();
@@ -33,10 +39,7 @@ struct _AppSettingsData {
 	// X, Y, 长, 高
 	RECT _windowRect{ CW_USEDEFAULT,CW_USEDEFAULT,1280,820 };
 
-	// 0: 浅色
-	// 1: 深色
-	// 2: 系统
-	uint32_t _theme = 2;
+	Theme _theme = Theme::System;
 	// 必须在 1~5 之间
 	uint32_t _countdownSeconds = 3;
 
@@ -89,16 +92,16 @@ public:
 
 	void Language(int);
 
-	uint32_t Theme() const noexcept {
+	Theme Theme() const noexcept {
 		return _theme;
 	}
-	void Theme(uint32_t value);
+	void Theme(Magpie::App::Theme value);
 
-	event_token ThemeChanged(delegate<uint32_t> const& handler) {
+	event_token ThemeChanged(delegate<Magpie::App::Theme> const& handler) {
 		return _themeChangedEvent.add(handler);
 	}
 
-	WinRTUtils::EventRevoker ThemeChanged(auto_revoke_t, delegate<uint32_t> const& handler) {
+	WinRTUtils::EventRevoker ThemeChanged(auto_revoke_t, delegate<Magpie::App::Theme> const& handler) {
 		event_token token = ThemeChanged(handler);
 		return WinRTUtils::EventRevoker([this, token]() {
 			ThemeChanged(token);
@@ -342,7 +345,7 @@ private:
 	// 用于同步保存
 	Win32Utils::SRWMutex _saveMutex;
 
-	event<delegate<uint32_t>> _themeChangedEvent;
+	event<delegate<Magpie::App::Theme>> _themeChangedEvent;
 	event<delegate<ShortcutAction>> _shortcutChangedEvent;
 	event<delegate<bool>> _isAutoRestoreChangedEvent;
 	event<delegate<uint32_t>> _countdownSecondsChangedEvent;

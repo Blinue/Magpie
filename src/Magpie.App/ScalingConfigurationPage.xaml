@@ -571,54 +571,55 @@
 					</ListView.ItemTemplate>
 				</ListView>
 			</local:SettingsGroup>
-			<Button Margin="0,-40,0,0"
-			        HorizontalAlignment="Right"
-			        Style="{StaticResource AccentButtonStyle}">
-				<Button.Flyout>
-					<Flyout x:Name="NewScalingModeFlyout"
-					        Opening="NewScalingModeFlyout_Opening">
-						<StackPanel Orientation="Vertical">
-							<TextBlock x:Uid="ScalingConfiguration_ScalingModes_NewScalingModeFlyout_Title"
-							           Margin="0,5,0,20"
-							           FontSize="18"
-							           FontWeight="SemiBold" />
-							<StackPanel Width="250"
-							            Orientation="Vertical"
-							            Spacing="15">
-								<StackPanel Orientation="Vertical"
-								            Spacing="8">
-									<TextBlock x:Uid="ScalingConfiguration_ScalingModes_NewScalingModeFlyout_Name" />
-									<TextBox HorizontalAlignment="Stretch"
-									         KeyDown="NewScalingModeNameTextBox_KeyDown"
-									         Text="{x:Bind ViewModel.NewScalingModeName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+			<StackPanel Margin="0,-40,0,0">
+				<Button HorizontalAlignment="Right"
+				        Style="{StaticResource AccentButtonStyle}">
+					<Button.Flyout>
+						<Flyout x:Name="NewScalingModeFlyout"
+						        Opening="NewScalingModeFlyout_Opening">
+							<StackPanel Orientation="Vertical">
+								<TextBlock x:Uid="ScalingConfiguration_ScalingModes_NewScalingModeFlyout_Title"
+								           Margin="0,5,0,20"
+								           FontSize="18"
+								           FontWeight="SemiBold" />
+								<StackPanel Width="250"
+								            Orientation="Vertical"
+								            Spacing="15">
+									<StackPanel Orientation="Vertical"
+									            Spacing="8">
+										<TextBlock x:Uid="ScalingConfiguration_ScalingModes_NewScalingModeFlyout_Name" />
+										<TextBox HorizontalAlignment="Stretch"
+										         KeyDown="NewScalingModeNameTextBox_KeyDown"
+										         Text="{x:Bind ViewModel.NewScalingModeName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+									</StackPanel>
+									<StackPanel Orientation="Vertical"
+									            Spacing="8">
+										<TextBlock x:Uid="ScalingConfiguration_ScalingModes_NewScalingModeFlyout_CopyFrom" />
+										<ComboBox HorizontalAlignment="Stretch"
+										          ItemsSource="{x:Bind ViewModel.NewScalingModeCopyFromList, Mode=OneWay}"
+										          SelectedIndex="{x:Bind ViewModel.NewScalingModeCopyFrom, Mode=TwoWay}" />
+									</StackPanel>
+									<Button x:Uid="ScalingConfiguration_ScalingModes_NewScalingModeFlyout_Create"
+									        MinWidth="100"
+									        Margin="0,15,0,0"
+									        HorizontalAlignment="Right"
+									        Click="NewScalingModeConfirmButton_Click"
+									        IsEnabled="{x:Bind ViewModel.IsAddButtonEnabled, Mode=OneWay}"
+									        Style="{StaticResource AccentButtonStyle}" />
 								</StackPanel>
-								<StackPanel Orientation="Vertical"
-								            Spacing="8">
-									<TextBlock x:Uid="ScalingConfiguration_ScalingModes_NewScalingModeFlyout_CopyFrom" />
-									<ComboBox HorizontalAlignment="Stretch"
-									          ItemsSource="{x:Bind ViewModel.NewScalingModeCopyFromList, Mode=OneWay}"
-									          SelectedIndex="{x:Bind ViewModel.NewScalingModeCopyFrom, Mode=TwoWay}" />
-								</StackPanel>
-								<Button x:Uid="ScalingConfiguration_ScalingModes_NewScalingModeFlyout_Create"
-								        MinWidth="100"
-								        Margin="0,15,0,0"
-								        HorizontalAlignment="Right"
-								        Click="NewScalingModeConfirmButton_Click"
-								        IsEnabled="{x:Bind ViewModel.IsAddButtonEnabled, Mode=OneWay}"
-								        Style="{StaticResource AccentButtonStyle}" />
 							</StackPanel>
+						</Flyout>
+					</Button.Flyout>
+					<Button.Content>
+						<StackPanel Orientation="Horizontal"
+						            Spacing="8">
+							<FontIcon FontSize="{StaticResource StandardIconSize}"
+							          Glyph="&#xE710;" />
+							<TextBlock x:Uid="ScalingConfiguration_ScalingModes_NewScalingMode" />
 						</StackPanel>
-					</Flyout>
-				</Button.Flyout>
-				<Button.Content>
-					<StackPanel Orientation="Horizontal"
-					            Spacing="8">
-						<FontIcon FontSize="{StaticResource StandardIconSize}"
-						          Glyph="&#xE710;" />
-						<TextBlock x:Uid="ScalingConfiguration_ScalingModes_NewScalingMode" />
-					</StackPanel>
-				</Button.Content>
-			</Button>
+					</Button.Content>
+				</Button>
+			</StackPanel>
 		</StackPanel>
 	</local:PageFrame>
 </Page>

@@ -45,7 +45,7 @@ No. Supporting touch input requires Magpie to have considerable high-level permi
 
 ## What is the relationship between Magpie and Lossless Scaling?
 
-[Lossless Scaling](https://store.steampowered.com/app/993090/Lossless_Scaling/) is a paid software on Steam that is similar to Magpie. When Magpie was released in February 2021, existing window scaling software (such as [IntegerScaler](https://tanalin.com/en/projects/integer-scaler/) and Lossless Scaling) only supported simple scaling algorithms like nearest-neighbor scaling and integer scaling. These software programs relied on the [Magnification API](https://learn.microsoft.com/en-us/windows/win32/api/_magapi/) to function, which led to significant limitations.
+[Lossless Scaling](https://store.steampowered.com/app/993090/Lossless_Scaling/) is a paid software on Steam that is similar to Magpie. When Magpie was released in February 2021, existing window scaling software (such as [IntegerScaler](https://tanalin.com/en/projects/integer-scaler/) and Lossless Scaling) only supported simple scaling algorithms like nearest-neighbor scaling and integer scaling. These programs relied on the [Magnification API](https://learn.microsoft.com/en-us/windows/win32/api/_magapi/) to function, which led to significant limitations.
 
 To support advanced scaling algorithms, I developed and open-sourced Magpie, which implements scaling in a completely different way. Initially, Magpie only supported algorithms like Anime4K, Lanczos, and Adaptive Sharpen. However, based on user feedback, Magpie added support for FSR in [July 2021](https://github.com/Blinue/Magpie/commit/7f6c66f3b47ccd64da41d298faa7a8e185bd5299). Soon after, Lossless Scaling released version 1.4.0, which supported FSR in a similar way to Magpie.
 
