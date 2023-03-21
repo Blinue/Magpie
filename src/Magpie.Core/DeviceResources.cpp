@@ -4,92 +4,7 @@
 #include "StrUtils.h"
 #include "Logger.h"
 
-
 namespace Magpie::Core {
-
-static inline void LogAdapter(const DXGI_ADAPTER_DESC1& adapterDesc) {
-	Logger::Get().Info(fmt::format("当前图形适配器：\n\tVendorId：{:#x}\n\tDeviceId：{:#x}\n\t描述：{}",
-		adapterDesc.VendorId, adapterDesc.DeviceId, StrUtils::UTF16ToUTF8(adapterDesc.Description)));
-}
-
-static bool TestFeatureLevel11(IDXGIAdapter1* adapter) {
-	D3D_FEATURE_LEVEL featureLevels[] = {
-		D3D_FEATURE_LEVEL_11_1,
-		D3D_FEATURE_LEVEL_11_0
-	};
-	UINT nFeatureLevels = ARRAYSIZE(featureLevels);
-
-	return SUCCEEDED(D3D11CreateDevice(
-		adapter,
-		D3D_DRIVER_TYPE_UNKNOWN,
-		nullptr,
-		0,
-		featureLevels,
-		nFeatureLevels,
-		D3D11_SDK_VERSION,
-		nullptr,
-		nullptr,
-		nullptr
-	));
-}
-
-static winrt::com_ptr<IDXGIAdapter4> ObtainGraphicsAdapter(IDXGIFactory4* dxgiFactory, int adapterIdx) {
-	winrt::com_ptr<IDXGIAdapter1> adapter;
-
-	if (adapterIdx >= 0) {
-		HRESULT hr = dxgiFactory->EnumAdapters1(adapterIdx, adapter.put());
-		if (SUCCEEDED(hr)) {
-			DXGI_ADAPTER_DESC1 desc;
-			hr = adapter->GetDesc1(&desc);
-			if (SUCCEEDED(hr)) {
-				if (desc.Flags & DXGI_ADAPTER_FLAG_SOFTWARE) {
-					Logger::Get().Warn("用户指定的显示卡为 WARP，已忽略");
-				} else if (TestFeatureLevel11(adapter.get())) {
-					LogAdapter(desc);
-					return adapter.try_as<IDXGIAdapter4>();
-				} else {
-					Logger::Get().Warn("用户指定的显示卡不支持 FL 11");
-				}
-			} else {
-				Logger::Get().Error("GetDesc1 失败");
-			}
-		} else {
-			Logger::Get().Warn("未找到用户指定的显示卡");
-		}
-	}
-
-	// 枚举查找第一个支持 D3D11 的图形适配器
-	for (UINT adapterIndex = 0;
-		SUCCEEDED(dxgiFactory->EnumAdapters1(adapterIndex, adapter.put()));
-		++adapterIndex
-		) {
-		DXGI_ADAPTER_DESC1 desc;
-		HRESULT hr = adapter->GetDesc1(&desc);
-		if (FAILED(hr)) {
-			continue;
-		}
-
-		// 忽略 WARP
-		if (desc.Flags & DXGI_ADAPTER_FLAG_SOFTWARE) {
-			continue;
-		}
-
-		if (TestFeatureLevel11(adapter.get())) {
-			LogAdapter(desc);
-			return adapter.try_as<IDXGIAdapter4>();
-		}
-	}
-
-	// 作为最后手段，回落到 Basic Render Driver Adapter（WARP）
-	// https://docs.microsoft.com/en-us/windows/win32/direct3darticles/directx-warp
-	HRESULT hr = dxgiFactory->EnumWarpAdapter(IID_PPV_ARGS(&adapter));
-	if (FAILED(hr)) {
-		Logger::Get().ComError("创建 WARP 设备失败", hr);
-		return nullptr;
-	}
-
-	return adapter.try_as<IDXGIAdapter4>();
-}
 
 bool DeviceResources::Initialize() {
 #ifdef _DEBUG
@@ -100,6 +15,7 @@ bool DeviceResources::Initialize() {
 
 	HRESULT hr = CreateDXGIFactory2(flag, IID_PPV_ARGS(_dxgiFactory.put()));
 	if (FAILED(hr)) {
+		Logger::Get().ComError("CreateDXGIFactory2 失败", hr);
 		return false;
 	}
 
@@ -120,28 +36,173 @@ bool DeviceResources::Initialize() {
 		return false;
 	}
 
-	UINT createDeviceFlags = D3D11_CREATE_DEVICE_BGRA_SUPPORT;
-	if (IsDebugLayersAvailable()) {
-		// 在 DEBUG 配置启用调试层
-		createDeviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
+	if(!_ObtainGraphicsAdapterAndD3DDevice()) {
+		Logger::Get().Error("找不到可用的图形适配器");
+		return false;
 	}
 
+	if (!_CreateSwapChain()) {
+		Logger::Get().Error("_CreateSwapChain 失败");
+		return false;
+	}
+
+	return true;
+}
+
+winrt::com_ptr<ID3D11Texture2D> DeviceResources::CreateTexture2D(
+	DXGI_FORMAT format,
+	UINT width,
+	UINT height,
+	UINT bindFlags,
+	D3D11_USAGE usage,
+	UINT miscFlags,
+	const D3D11_SUBRESOURCE_DATA* pInitialData
+) {
+	D3D11_TEXTURE2D_DESC desc{};
+	desc.Format = format;
+	desc.Width = width;
+	desc.Height = height;
+	desc.MipLevels = 1;
+	desc.ArraySize = 1;
+	desc.SampleDesc.Count = 1;
+	desc.SampleDesc.Quality = 0;
+	desc.BindFlags = bindFlags;
+	desc.Usage = usage;
+	desc.MiscFlags = miscFlags;
+
+	winrt::com_ptr<ID3D11Texture2D> result;
+	HRESULT hr = _d3dDevice->CreateTexture2D(&desc, pInitialData, result.put());
+	if (FAILED(hr)) {
+		Logger::Get().ComError("CreateTexture2D 失败", hr);
+		return nullptr;
+	}
+
+	return result;
+}
+
+void DeviceResources::BeginFrame() {
+	WaitForSingleObjectEx(_frameLatencyWaitableObject.get(), 1000, TRUE);
+	_d3dDC->ClearState();
+}
+
+void DeviceResources::EndFrame() {
+	if (MagApp::Get().GetOptions().IsVSync()) {
+		_swapChain->Present(1, 0);
+	} else {
+		_swapChain->Present(0, DXGI_PRESENT_ALLOW_TEARING);
+	}
+}
+
+static void LogAdapter(const DXGI_ADAPTER_DESC1& adapterDesc) {
+	Logger::Get().Info(fmt::format("当前图形适配器：\n\tVendorId：{:#x}\n\tDeviceId：{:#x}\n\t描述：{}",
+		adapterDesc.VendorId, adapterDesc.DeviceId, StrUtils::UTF16ToUTF8(adapterDesc.Description)));
+}
+
+bool DeviceResources::IsDebugLayersAvailable() noexcept {
+#ifdef _DEBUG
+	static std::optional<bool> result = std::nullopt;
+
+	if (!result.has_value()) {
+		HRESULT hr = D3D11CreateDevice(
+			nullptr,
+			D3D_DRIVER_TYPE_NULL,       // There is no need to create a real hardware device.
+			nullptr,
+			D3D11_CREATE_DEVICE_DEBUG,  // Check for the SDK layers.
+			nullptr,                    // Any feature level will do.
+			0,
+			D3D11_SDK_VERSION,
+			nullptr,                    // No need to keep the D3D device reference.
+			nullptr,                    // No need to know the feature level.
+			nullptr                     // No need to keep the D3D device context reference.
+		);
+
+		result = SUCCEEDED(hr);
+	}
+
+	return result.value_or(false);
+#else
+	// Relaese 配置不使用调试层
+	return false;
+#endif
+}
+
+bool DeviceResources::_ObtainGraphicsAdapterAndD3DDevice() noexcept {
+	winrt::com_ptr<IDXGIAdapter1> adapter;
+
+	int adapterIdx = MagApp::Get().GetOptions().graphicsCard;
+	if (adapterIdx >= 0) {
+		HRESULT hr = _dxgiFactory->EnumAdapters1(adapterIdx, adapter.put());
+		if (SUCCEEDED(hr)) {
+			DXGI_ADAPTER_DESC1 desc;
+			hr = adapter->GetDesc1(&desc);
+			if (SUCCEEDED(hr)) {
+				if (desc.Flags & DXGI_ADAPTER_FLAG_SOFTWARE) {
+					Logger::Get().Warn("用户指定的显示卡为 WARP，已忽略");
+				} else if (_TryCreateD3DDevice(adapter.get())) {
+					LogAdapter(desc);
+					return true;
+				} else {
+					Logger::Get().Warn("用户指定的显示卡不支持 FL 11");
+				}
+			} else {
+				Logger::Get().Error("GetDesc1 失败");
+			}
+		} else {
+			Logger::Get().Warn("未找到用户指定的显示卡");
+		}
+	}
+
+	// 枚举查找第一个支持 D3D11 的图形适配器
+	for (UINT adapterIndex = 0;
+		SUCCEEDED(_dxgiFactory->EnumAdapters1(adapterIndex, adapter.put()));
+		++adapterIndex
+	) {
+		DXGI_ADAPTER_DESC1 desc;
+		HRESULT hr = adapter->GetDesc1(&desc);
+		if (FAILED(hr)) {
+			continue;
+		}
+
+		// 忽略 WARP
+		if (desc.Flags & DXGI_ADAPTER_FLAG_SOFTWARE) {
+			continue;
+		}
+
+		if (_TryCreateD3DDevice(adapter.get())) {
+			LogAdapter(desc);
+			return true;
+		}
+	}
+
+	// 作为最后手段，回落到 Basic Render Driver Adapter（WARP）
+	// https://docs.microsoft.com/en-us/windows/win32/direct3darticles/directx-warp
+	HRESULT hr = _dxgiFactory->EnumWarpAdapter(IID_PPV_ARGS(&adapter));
+	if (FAILED(hr)) {
+		Logger::Get().ComError("创建 WARP 设备失败", hr);
+		return false;
+	}
+
+	Logger::Get().Info("已创建 WARP 设备");
+	return true;
+}
+
+bool DeviceResources::_TryCreateD3DDevice(IDXGIAdapter1* adapter) noexcept {
 	D3D_FEATURE_LEVEL featureLevels[] = {
 		D3D_FEATURE_LEVEL_11_1,
 		D3D_FEATURE_LEVEL_11_0
 	};
 	UINT nFeatureLevels = ARRAYSIZE(featureLevels);
 
-	_graphicsAdapter = ObtainGraphicsAdapter(_dxgiFactory.get(), MagApp::Get().GetOptions().graphicsCard);
-	if (!_graphicsAdapter) {
-		Logger::Get().Error("找不到可用的图形适配器");
-		return false;
+	UINT createDeviceFlags = D3D11_CREATE_DEVICE_BGRA_SUPPORT;
+	if (IsDebugLayersAvailable()) {
+		// 在 DEBUG 配置启用调试层
+		createDeviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
 	}
 
 	winrt::com_ptr<ID3D11Device> d3dDevice;
 	winrt::com_ptr<ID3D11DeviceContext> d3dDC;
-	hr = D3D11CreateDevice(
-		_graphicsAdapter.get(),
+	HRESULT hr = D3D11CreateDevice(
+		adapter,
 		D3D_DRIVER_TYPE_UNKNOWN,
 		nullptr,
 		createDeviceFlags,
@@ -190,84 +251,13 @@ bool DeviceResources::Initialize() {
 		return false;
 	}
 
-	if (!_CreateSwapChain()) {
-		Logger::Get().Error("_CreateSwapChain 失败");
+	hr = adapter->QueryInterface<IDXGIAdapter4>(_graphicsAdapter.put());
+	if (FAILED(hr)) {
+		Logger::Get().ComError("获取 IDXGIAdapter4 失败", hr);
 		return false;
 	}
 
 	return true;
-}
-
-bool DeviceResources::IsDebugLayersAvailable() {
-#ifdef _DEBUG
-	static std::optional<bool> result = std::nullopt;
-
-	if (!result.has_value()) {
-		HRESULT hr = D3D11CreateDevice(
-			nullptr,
-			D3D_DRIVER_TYPE_NULL,       // There is no need to create a real hardware device.
-			nullptr,
-			D3D11_CREATE_DEVICE_DEBUG,  // Check for the SDK layers.
-			nullptr,                    // Any feature level will do.
-			0,
-			D3D11_SDK_VERSION,
-			nullptr,                    // No need to keep the D3D device reference.
-			nullptr,                    // No need to know the feature level.
-			nullptr                     // No need to keep the D3D device context reference.
-		);
-
-		result = SUCCEEDED(hr);
-	}
-
-	return result.value_or(false);
-#else
-	// Relaese 配置不使用调试层
-	return false;
-#endif
-}
-
-winrt::com_ptr<ID3D11Texture2D> DeviceResources::CreateTexture2D(
-	DXGI_FORMAT format,
-	UINT width,
-	UINT height,
-	UINT bindFlags,
-	D3D11_USAGE usage,
-	UINT miscFlags,
-	const D3D11_SUBRESOURCE_DATA* pInitialData
-) {
-	D3D11_TEXTURE2D_DESC desc{};
-	desc.Format = format;
-	desc.Width = width;
-	desc.Height = height;
-	desc.MipLevels = 1;
-	desc.ArraySize = 1;
-	desc.SampleDesc.Count = 1;
-	desc.SampleDesc.Quality = 0;
-	desc.BindFlags = bindFlags;
-	desc.Usage = usage;
-	desc.MiscFlags = miscFlags;
-
-	winrt::com_ptr<ID3D11Texture2D> result;
-	HRESULT hr = _d3dDevice->CreateTexture2D(&desc, pInitialData, result.put());
-	if (FAILED(hr)) {
-		Logger::Get().ComError("CreateTexture2D 失败", hr);
-		return nullptr;
-	}
-
-	return result;
-}
-
-void DeviceResources::BeginFrame() {
-	WaitForSingleObjectEx(_frameLatencyWaitableObject.get(), 1000, TRUE);
-	_d3dDC->ClearState();
-}
-
-void DeviceResources::EndFrame() {
-	if (MagApp::Get().GetOptions().IsVSync()) {
-		_swapChain->Present(1, 0);
-	} else {
-		_swapChain->Present(0, DXGI_PRESENT_ALLOW_TEARING);
-	}
 }
 
 bool DeviceResources::_CreateSwapChain() {

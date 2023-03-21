@@ -12,7 +12,7 @@ public:
 
 	bool Initialize();
 
-	static bool IsDebugLayersAvailable();
+	static bool IsDebugLayersAvailable() noexcept;
 
 	winrt::com_ptr<ID3D11Texture2D> CreateTexture2D(
 		DXGI_FORMAT format,
@@ -46,6 +46,10 @@ public:
 	void EndFrame();
 
 private:
+	bool _ObtainGraphicsAdapterAndD3DDevice() noexcept;
+
+	bool _TryCreateD3DDevice(IDXGIAdapter1* adapter) noexcept;
+
 	bool _CreateSwapChain();
 
 	winrt::com_ptr<IDXGIFactory7> _dxgiFactory;
