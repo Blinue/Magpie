@@ -36,7 +36,7 @@ Magpie 是一个轻量级的缩放工具，能用多种高效算法和滤镜将�
 
 ## 截图
 
-<img src="img/主窗口.png" alt= "Main window" height="250">
+<img src="img/主窗口.png" alt= "Main window" height="300">
 
 ## 系统需求
 
