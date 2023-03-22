@@ -57,7 +57,7 @@ struct _AppSettingsData {
 	bool _isShowTrayIcon = true;
 	bool _isAutoRestore = false;
 	bool _isWindowMaximized = false;
-	bool _isAutoCheckForUpdates = false;
+	bool _isAutoCheckForUpdates = true;
 	bool _isCheckForPreviewUpdates = false;
 };
 
