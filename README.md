@@ -7,9 +7,7 @@
 
 🌍 **简体中文** | [English](./README_EN.md)
 
-一个能够将任何窗口放大至全屏的轻量级工具，内置了众多高效的缩放算法和滤镜。主要用于提高游戏画面质量以及将不支持全屏显示的游戏进行全屏化处理等。
-
-使用中遇到问题请提交 issue。（开源新手？看[这里](https://opensourceway.community/open-source-guide/how-to-contribute/#%E5%A6%82%E4%BD%95%E6%8F%90%E4%BA%A4%E6%88%90%E6%9E%9C)！）
+Magpie 是一个轻量级的缩放工具，能用多种高效算法和滤镜将任何窗口放大至全屏。它主要用于提升游戏画质和让不支持全屏的游戏也能全屏显示等。
 
 :point_right: [下载](https://github.com/Blinue/Magpie/releases)
 
