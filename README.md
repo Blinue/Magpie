@@ -36,7 +36,7 @@ Magpie 是一个轻量级的缩放工具，能用多种高效算法和滤镜将�
 
 ## 截图
 
-<img src="img/主窗口.png" alt= "Main window" width="400">
+<img src="img/主窗口.png" alt= "Main window" height="300">
 
 ## 系统需求
 
@@ -47,7 +47,7 @@ Magpie 是一个轻量级的缩放工具，能用多种高效算法和滤镜将�
 
 1. 如果你设置了 DPI 缩放，而要放大的窗口没有高 DPI 支持（这在老游戏中很常见），推荐首先进入该程序的兼容性设置，将“高 DPI 缩放替代”设置为“应用程序”。
 
-   ![高DPI设置](img/高DPI设置.png)
+   <img src="img/高DPI设置.png" alt= "Main window" width="500">
 
 2. 一些游戏支持调整窗口的大小，但只使用简单的缩放算法，这时请先将其设为原始（最佳）分辨率。
 
