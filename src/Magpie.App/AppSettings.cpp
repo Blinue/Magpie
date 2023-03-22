@@ -941,6 +941,9 @@ void AppSettings::_SetDefaultScalingModes() {
 	_downscalingEffect.name = L"Bicubic";
 	_downscalingEffect.parameters[L"paramB"] = 0.0f;
 	_downscalingEffect.parameters[L"paramC"] = 0.5f;
+
+	// 全局缩放模式默认为 Lanczos
+	_defaultProfile.scalingMode = 0;
 }
 
 void AppSettings::_UpdateConfigPath() noexcept {
