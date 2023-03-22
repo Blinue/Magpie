@@ -12,9 +12,11 @@ namespace Magpie {
 
 static const UINT WM_MAGPIE_SHOWME = RegisterWindowMessage(CommonSharedConstants::WM_MAGPIE_SHOWME);
 
-// https://github.com/microsoft/microsoft-ui-xaml/issues/7260#issuecomment-1231314776
-// 提前加载 threadpoolwinrt.dll 以避免退出时崩溃。应在 Windows.UI.Xaml.dll 被加载前调用
+// 提前加载 twinapi.appcore.dll 和 threadpoolwinrt.dll 以避免退出时崩溃。应在 Windows.UI.Xaml.dll 被加载前调用
+// 来自 https://github.com/CommunityToolkit/Microsoft.Toolkit.Win32/blob/6fb2c3e00803ea563af20f6bc9363091b685d81f/Microsoft.Toolkit.Win32.UI.XamlApplication/XamlApplication.cpp#L140
+// 参见：https://github.com/microsoft/microsoft-ui-xaml/issues/7260#issuecomment-1231314776
 static void FixThreadPoolCrash() noexcept {
+	LoadLibraryEx(L"twinapi.appcore.dll", nullptr, 0);
 	LoadLibraryEx(L"threadpoolwinrt.dll", nullptr, 0);
 }
 

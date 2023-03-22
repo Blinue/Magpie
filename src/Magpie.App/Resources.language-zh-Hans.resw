@@ -270,9 +270,6 @@
   <data name="ToggleSwitch.OnContent" xml:space="preserve">
     <value>开</value>
   </data>
-  <data name="_Tag" xml:space="preserve">
-    <value>zh-Hans</value>
-  </data>
   <data name="Home_Shortcuts.Title" xml:space="preserve">
     <value>快捷键</value>
   </data>
