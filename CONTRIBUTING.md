@@ -2,7 +2,7 @@
 
 **首先，感谢你将宝贵的时间花费在本项目上！** 
 
-Magpie 是一个个人项目，最早启发于 Integer Scaler 和 Lossless Scaling，但现在它比前辈们强大的多。开发者的能力和精力有限，因此欢迎任何形式的贡献！Magpie 遵循 [All Contributors](https://github.com/all-contributors/all-contributors) 规范，无论你以何种形式做出贡献，诸如编写代码、撰写文档、用户测试等，只要你的贡献足够，开发者都会把你加入贡献者清单。
+Magpie 是一个个人项目，最早启发于 IntegerScaler 和 Lossless Scaling，但现在它比前辈们强大的多。开发者的能力和精力有限，因此欢迎任何形式的贡献！Magpie 遵循 [All Contributors](https://github.com/all-contributors/all-contributors) 规范，无论你以何种形式做出贡献，诸如编写代码、撰写文档、用户测试等，只要你的贡献足够，开发者都会把你加入贡献者清单。
 
 如果你是新手，强烈推荐你读一下[这篇文章](https://opensourceway.community/open-source-guide/how-to-contribute/)。
 
@@ -81,7 +81,7 @@ Magpie 没有广泛的测试过，因此错误不可避免。希望你能向开�
 
 ### 我想贡献翻译 🌍
 
-贡献新的翻译和修正现有翻译都是非常欢迎的。向 Magpie 贡献翻译非常简单，所有用户界面文本均存储在 src/Magpie.App/Resources.xx-xx.resw 中，创建新的 resw 文件并翻译所有字符串即可。和[贡献代码](#我想贡献代码-)一样，你需要提交 pull request。强烈推荐你定期维护自己的翻译，因为 Magpie 的用户界面经常会进行较大的更改。
+贡献新的翻译和修正现有翻译都是非常欢迎的。向 Magpie 贡献翻译非常简单，所有用户界面文本均存储在 src/Magpie.App/Resources.xx.resw 中，创建新的 resw 文件并翻译所有字符串即可。和[贡献代码](#我想贡献代码-)一样，你需要提交 pull request。强烈推荐你定期维护自己的翻译，因为 Magpie 的用户界面经常会进行较大的更改。
 
 ### 我想贡献文档 📖
 
