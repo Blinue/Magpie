@@ -157,7 +157,9 @@ bool MagApp::Start(HWND hwndSrc, MagOptions&& options) {
 	_hKeyboardHook = SetWindowsHookEx(WH_KEYBOARD_LL, LowLevelKeyboardProc, NULL, 0);
 
 	assert(_hwndHost);
-	ShowWindow(_hwndHost, SW_NORMAL);
+	// SW_SHOWMAXIMIZED 使 Wallpaper Engine 可以在缩放时暂停动态壁纸
+	// GH#502
+	ShowWindow(_hwndHost, SW_SHOWMAXIMIZED);
 
 	// 模拟独占全屏
 	if (MagApp::Get().GetOptions().IsSimulateExclusiveFullscreen()) {

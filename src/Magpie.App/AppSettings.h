@@ -37,7 +37,7 @@ struct _AppSettingsData {
 	int _language = -1;
 
 	// X, Y, 长, 高
-	RECT _windowRect{ CW_USEDEFAULT,CW_USEDEFAULT,1280,820 };
+	RECT _windowRect{ CW_USEDEFAULT,CW_USEDEFAULT,CW_USEDEFAULT,CW_USEDEFAULT };
 
 	Theme _theme = Theme::System;
 	// 必须在 1~5 之间
