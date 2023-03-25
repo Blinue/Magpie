@@ -2,7 +2,7 @@
 
 **First of all, thank you for spending your valuable time on this project!**
 
-Magpie is a personal project, initially inspired by Integer Scaler and Lossless Scaling. However, the project has become much more powerful than its predecessors. Due to the limited capability and energy of the developers, we welcome any form of contribution to this project! Magpie follows the [All Contributors](https://github.com/all-contributors/all-contributors) protocol. No matter in what form you contributed to the project (e.g. code, document, test, etc.), the developer will add you to the contributors list as long as you contributed enough.
+Magpie is a personal project, initially inspired by IntegerScaler and Lossless Scaling. However, the project has become much more powerful than its predecessors. Due to the limited capability and energy of the developers, we welcome any form of contribution to this project! Magpie follows the [All Contributors](https://github.com/all-contributors/all-contributors) protocol. No matter in what form you contributed to the project (e.g. code, document, test, etc.), the developer will add you to the contributors list as long as you contributed enough.
 
 If you are new here, we strongly recommend you to read [this article](https://opensourceway.community/open-source-guide/how-to-contribute/) (it's in Chinese).
 
@@ -35,15 +35,13 @@ Please search in [Issue](https://github.com/Blinue/Magpie/issues) first for your
 
 Contributing code is the more direct way to help Magpie. You may fix bugs, add new features, or correct formatting issues. You are not limited by the magnitude of the contribution. Every line is important!
 
-Like all other open source projects, you need to initiate pull requests to contribute codes for Magpie. The developers may ask you to make some modifications. Your pull request may be closed if you fail to respond in a timely manner.
-
-Please merge to the `main` branch if the code are for bug fixes of existing features. Otherwise please merge to the `dev` branch. Merging to the `dev` branch is always the safe option if you are not sure.
+Like all other open source projects, you need to initiate pull requests to contribute codes for Magpie. The developers may ask you to make some modifications. Your pull request may be closed if you fail to respond in a timely manner. You should merge your commits into the dev branch.
 
 **Note: once you contribute code to Magpie, you are agreeing to transfer the copyright of that code to the current copyright owner of Magpie.** This allows developers to make important decisions (like changing the license) without getting consent from every single contributor. The developers promise that the only changes in license will be shifting to newer versions of GPL. If you'd like to keep your copyrights, you will have to quit contributing and to apply the changes only to your forks.
 
 You need to follow the following rules when contributing code:
 
-1. Keep in the same style as that of the current code, including no change-of-line for curly brackets, using tabs for indentation, the ways to name variables, classes, and source files, using UTF-8 without BOM encoding, using inline comments in most of the cases, and using git-style messages, etc. Here is an example for C++:
+1. Keep in the same style as that of the current code, including no change-of-line for curly brackets, using tabs for indentation, the ways to name variables, classes, and source files, using UTF-8 without BOM encoding, preferring single-line comments, and using git-style messages, etc. Here is an example:
     ``` c++
     // ClassName.h
     
@@ -80,13 +78,10 @@ You need to follow the following rules when contributing code:
     ```
 2. Check [Projects](https://github.com/Blinue/Magpie/projects) or submit pull requests to communicate with the developers before you make major changes to make sure they align with the road map of the project.
 3. Your branch must compile.
-4. Please take the suggestions raised by VS as much as possible.
 
 ### I'd like to contribute translations 🌍
 
-Adding new translations and fixing current translations are both welcomed. It's very easy to contribute translations to Magpie. All UI texts are stored in resx. Creating a new `Resources.xx-xx.resx` file and translating all strings is all you need to do. Just like for contributing code, you need to submit pull requests. We strongly recommend you to periodically check your translations, since there are frequent changes in the Magpie UI.
-
-**The [ResXManager](https://marketplace.visualstudio.com/items?itemName=TomEnglert.ResXManager) plugin is recommended. It provides a user-friendly interface that eliminates the need for you to write any code.**
+Adding new translations and fixing current translations are both welcomed. It's very easy to contribute translations to Magpie. All UI texts are stored in resw. Creating a new `src/Magpie.App/Resources.xx-xx.resw` file and translating all strings is all you need to do. Just like for contributing code, you need to submit pull requests. We strongly recommend you to periodically check your translations, since there are frequent changes in the Magpie UI.
 
 ### I'd like to contribute to the documentations 📖
 

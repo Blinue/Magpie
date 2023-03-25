@@ -1,27 +1,28 @@
 # MAGPIE
 
+[![License](https://img.shields.io/github/license/Blinue/Magpie)](./LICENSE)
 [![build](https://github.com/Blinue/Magpie/actions/workflows/build.yml/badge.svg)](https://github.com/Blinue/Magpie/actions/workflows/build.yml)
 [![All Contributors](https://img.shields.io/github/all-contributors/Blinue/Magpie)](#%E8%B4%A1%E7%8C%AE%E8%80%85-)
-[![License](https://img.shields.io/github/license/Blinue/Magpie)](./LICENSE)
+[![GitHub all releases](https://img.shields.io/github/downloads/Blinue/Magpie/total)](https://github.com/Blinue/Magpie/releases)
 
 :earth_africa: [简体中文](./README.md) | **English**
 
 Magpie is a lightweight window scaling tool that comes equipped with various efficient scaling algorithms and filters. Its primary purpose is to enhance game graphics and enable non-fullscreen games to display in fullscreen mode.
 
-👉 [Download](https://github.com/Blinue/Magpie/releases)
+:point_right: [Download](https://github.com/Blinue/Magpie/releases)
 
-👉 [FAQ](https://github.com/Blinue/Magpie/wiki/FAQ_EN)
+:point_right: [FAQ](https://github.com/Blinue/Magpie/wiki/FAQ_EN)
 
-👉 [Built-in effects](https://github.com/Blinue/Magpie/wiki/Built-in%20effects)
+:point_right: [Built-in effects](https://github.com/Blinue/Magpie/wiki/Built-in%20effects)
 
-👉 [Compilation guide](https://github.com/Blinue/Magpie/wiki/Compilation%20guide)
+:point_right: [Compilation guide](https://github.com/Blinue/Magpie/wiki/Compilation%20guide)
 
-👉 [Contributing](./CONTRIBUTING_EN.md)
+:point_right: [Contributing](./CONTRIBUTING_EN.md)
 
 ## Features
 
 * Scale any window to fullscreen
-* Numerous built-in algorithms, including Lanczos, [Anime4K](https://github.com/bloc97/Anime4K), [FSR](https://github.com/GPUOpen-Effects/FidelityFX-FSR), Adaptive Sharpen, and various CRT shaders
+* Numerous built-in algorithms, including Lanczos, [Anime4K](https://github.com/bloc97/Anime4K), [FSR](https://github.com/GPUOpen-Effects/FidelityFX-FSR), Adaptive Sharpen, various CRT shaders, and more
 * WinUI-based user interface with support for light and dark themes
 * Create configuration profiles for specific windows
 * Multi-monitor support
@@ -30,7 +31,7 @@ Magpie is a lightweight window scaling tool that comes equipped with various eff
 
 1. Configuring scaling mode: Magpie provides some simple scaling modes by default, but it is recommended to configure them according to your specific use case. Then, change the global scaling mode on the "Profiles"-"Defaults" page.
 2. Scaling a window: To scale a window, bring the desired window to the foreground and press the shortcut key (default is Win+Shift+A) to display it in fullscreen mode. Note that the window to be scaled must be in windowed mode, not maximized or fullscreen mode. You can also use the "Scale after xs" button on the "Home" page, and Magpie will automatically scale the foreground window after a few seconds.
-3. Creating profiles for windows: This allows you to save configurations specific to a particular window.
+3. Creating profiles for windows: This allows you to save configurations specific to a particular window. Magpie also supports automatically activate scaling when that window is brought to the foreground.
 4. Customizing effects: Magpie uses Direct3D compute shader to implement effects, but the syntax has been extended to define resources and organize multiple passes. For more information, please refer to [MagpieFX](https://github.com/Blinue/Magpie/wiki/MagpieFX). Those with experience in shader writing can easily create custom effects.
 
 ## Screenshots
@@ -39,7 +40,7 @@ Magpie is a lightweight window scaling tool that comes equipped with various eff
 
 ## System Requirements
 
-1. Windows 10/11
+1. Windows 10 v1903+ or Windows 11
 2. DirectX feature level 11
 
 ## Hints
