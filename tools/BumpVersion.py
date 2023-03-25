@@ -38,7 +38,7 @@ with open(srcDir + "Shared\\Version.h", mode="r+", encoding="utf8") as f:
     if len(sys.argv) == 3 and len(sys.argv[2]) > 0:
         versionStr = sys.argv[2]
     else:
-        versionStr = "%d.%d.%d" % tuple(versionNumbers[0:3])
+        versionStr = "v%d.%d.%d" % tuple(versionNumbers[0:3])
     src = re.sub(r'MAGPIE_TAG *?= *?".*?";', 'MAGPIE_TAG = "' + versionStr + '";', src)
     src = re.sub(r'MAGPIE_TAG_W *?= *?L".*?";', 'MAGPIE_TAG_W = L"' + versionStr + '";', src)
 
