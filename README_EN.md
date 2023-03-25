@@ -2,7 +2,7 @@
 
 [![build](https://github.com/Blinue/Magpie/actions/workflows/build.yml/badge.svg)](https://github.com/Blinue/Magpie/actions/workflows/build.yml)
 [![All Contributors](https://img.shields.io/github/all-contributors/Blinue/Magpie)](#%E8%B4%A1%E7%8C%AE%E8%80%85-)
-[![许可](https://img.shields.io/github/license/Blinue/Magpie)](./LICENSE)
+[![License](https://img.shields.io/github/license/Blinue/Magpie)](./LICENSE)
 
 :earth_africa: [简体中文](./README.md) | **English**
 
@@ -35,7 +35,7 @@ Magpie is a lightweight window scaling tool that comes equipped with various eff
 
 ## Screenshots
 
-
+<img src="img/Main window.png" alt= "Main window" height="300">
 
 ## System Requirements
 

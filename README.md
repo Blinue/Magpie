@@ -36,7 +36,7 @@ Magpie 是一个轻量级的窗口缩放工具，内置了多种高效的缩放�
 
 ## 截图
 
-<img src="img/主窗口.png" alt= "Main window" height="300">
+<img src="img/主窗口.png" alt= "主窗口" height="300">
 
 ## 系统需求
 
