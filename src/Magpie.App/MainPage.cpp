@@ -272,7 +272,7 @@ fire_and_forget MainPage::_LoadIcon(MUXC::NavigationViewItem const& item, const 
 		AppXReader reader;
 		if (reader.Initialize(path)) {
 			std::variant<std::wstring, SoftwareBitmap> uwpIcon =
-				reader.GetIcon((uint32_t)std::ceil(dpi * 16 / 96.0), preferLightTheme);
+				reader.GetIcon((uint32_t)std::ceil(dpi * 16.0 / USER_DEFAULT_SCREEN_DPI), preferLightTheme);
 			if (uwpIcon.index() == 0) {
 				iconPath = std::get<0>(uwpIcon);
 			} else {

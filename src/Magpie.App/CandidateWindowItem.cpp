@@ -137,7 +137,7 @@ fire_and_forget CandidateWindowItem::_ResolveWindow(bool resolveIcon, bool resol
 
 	if (isPackaged) {
 		std::variant<std::wstring, SoftwareBitmap> uwpIcon =
-			reader.GetIcon((uint32_t)std::ceil(dpi * 16 / 96.0), isLightTheme, true);
+			reader.GetIcon((uint32_t)std::ceil(dpi * 16.0 / USER_DEFAULT_SCREEN_DPI), isLightTheme, true);
 		if (uwpIcon.index() == 1) {
 			iconBitmap = std::get<1>(uwpIcon);
 		}

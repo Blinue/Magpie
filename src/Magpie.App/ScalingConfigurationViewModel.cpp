@@ -116,7 +116,8 @@ void ScalingConfigurationViewModel::Export() const noexcept {
 	}
 
 	fileDialog->SetFileName(L"ScalingModes");
-	fileDialog->SetTitle(L"导出缩放模式");
+	hstring title = ResourceLoader::GetForCurrentView().GetString(L"ExportDialog_Title");
+	fileDialog->SetTitle(title.c_str());
 
 	std::optional<std::wstring> fileName = OpenFileDialog(fileDialog.get());
 	if (!fileName.has_value() || fileName->empty()) {
@@ -139,7 +140,9 @@ static bool ImportImpl(bool legacy) {
 		return false;
 	}
 
-	fileDialog->SetTitle(legacy ? L"导入旧版缩放模式" : L"导入缩放模式");
+	ResourceLoader resourceLoader = ResourceLoader::GetForCurrentView();
+	hstring title = resourceLoader.GetString(legacy ? L"ImportLegacyDialog_Title" : L"ImportDialog_Title");
+	fileDialog->SetTitle(title.c_str());
 
 	std::optional<std::wstring> fileName = OpenFileDialog(fileDialog.get());
 	if (!fileName.has_value()) {

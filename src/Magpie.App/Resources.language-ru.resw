@@ -766,4 +766,13 @@
   <data name="ToggleSwitch.OnContent" xml:space="preserve">
     <value>Вкл</value>
   </data>
+  <data name="ExportDialog_Title" xml:space="preserve">
+    <value>Export scaling modes</value>
+  </data>
+  <data name="ImportDialog_Title" xml:space="preserve">
+    <value>Import scaling modes</value>
+  </data>
+  <data name="ImportLegacyDialog_Title" xml:space="preserve">
+    <value>Import ScaleModels.json</value>
+  </data>
 </root>

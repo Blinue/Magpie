@@ -689,7 +689,7 @@ fire_and_forget ProfileViewModel::_LoadIcon(FrameworkElement const& mainPage) {
 			assert(result);
 
 			std::variant<std::wstring, SoftwareBitmap> uwpIcon =
-				appxReader.GetIcon((uint32_t)std::ceil(dpi * ICON_SIZE / 96.0), preferLightTheme);
+				appxReader.GetIcon((uint32_t)std::ceil(dpi * ICON_SIZE / double(USER_DEFAULT_SCREEN_DPI)), preferLightTheme);
 			if (uwpIcon.index() == 0) {
 				iconPath = std::get<0>(uwpIcon);
 			} else {
