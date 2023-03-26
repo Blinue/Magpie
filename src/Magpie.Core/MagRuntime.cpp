@@ -15,7 +15,10 @@ MagRuntime::~MagRuntime() {
 
 	if (_magWindThread.joinable()) {
 		DWORD magWndThreadId = GetThreadId(_magWindThread.native_handle());
-		PostThreadMessage(magWndThreadId, WM_QUIT, 0, 0);
+		// 持续尝试直到 _magWindThread 创建了消息队列
+		while (!PostThreadMessage(magWndThreadId, WM_QUIT, 0, 0)) {
+			Sleep(1);
+		}
 		_magWindThread.join();
 	}
 }
