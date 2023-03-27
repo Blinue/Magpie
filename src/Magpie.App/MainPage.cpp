@@ -247,7 +247,6 @@ void MainPage::_UpdateTheme(bool updateIcons) {
 
 	XamlUtils::UpdateThemeOfXamlPopups(XamlRoot(), newTheme);
 	XamlUtils::UpdateThemeOfTooltips(*this, newTheme);
-	NewProfileAdminToolTip().RequestedTheme(newTheme);
 
 	if (updateIcons && IsLoaded()) {
 		_UpdateIcons(true);

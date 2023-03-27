@@ -49,40 +49,23 @@
 					<Flyout x:Name="NewProfileFlyout"
 					        Placement="Right">
 						<Grid>
-							<Grid Visibility="{x:Bind NewProfileViewModel.IsNoCandidateWindow, Mode=OneWay}">
-								<Grid.RowDefinitions>
-									<RowDefinition Height="*" />
-									<RowDefinition Height="Auto" />
-								</Grid.RowDefinitions>
-								<ContentControl Grid.RowSpan="2"
+							<ContentControl Grid.RowSpan="2"
+												Visibility="{x:Bind NewProfileViewModel.IsNoCandidateWindow, Mode=OneWay}"
 								                MinWidth="240"
 								                MinHeight="170"
 								                Margin="10"
 								                HorizontalContentAlignment="Center"
 								                VerticalContentAlignment="Center">
-									<StackPanel Orientation="Vertical"
+								<StackPanel Orientation="Vertical"
 									            Spacing="20">
-										<FontIcon HorizontalAlignment="Center"
+									<FontIcon HorizontalAlignment="Center"
 										          FontSize="40"
 										          Glyph="&#xE8FC;" />
-										<TextBlock x:Uid="Main_NewProfileFlyout_NoCandidateWindow"
+									<TextBlock x:Uid="Main_NewProfileFlyout_NoCandidateWindow"
 										           HorizontalAlignment="Center" />
-									</StackPanel>
-								</ContentControl>
-
-								<TextBlock x:Uid="Main_NewProfileFlyout_AdminTip"
-								           Grid.Row="1"
-								           HorizontalAlignment="Right"
-								           FontSize="12"
-								           Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-								           Visibility="{x:Bind NewProfileViewModel.IsNotRunningAsAdmin, Mode=OneTime}">
-									<ToolTipService.ToolTip>
-										<ToolTip x:Name="NewProfileAdminToolTip"
-										         x:Uid="Main_NewProfileFlyout_AdminToolTip" />
-									</ToolTipService.ToolTip>
-								</TextBlock>
-							</Grid>
-
+								</StackPanel>
+							</ContentControl>
+							
 							<StackPanel Orientation="Vertical"
 							            Visibility="{x:Bind NewProfileViewModel.IsAnyCandidateWindow, Mode=OneWay}">
 								<TextBlock x:Uid="Main_NewProfileFlyout_Title"

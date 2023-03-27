@@ -44,7 +44,7 @@ bool XamlApp::Initialize(HINSTANCE hInstance, const wchar_t* arguments) {
 
 	if (options.IsNeedElevated && !Win32Utils::IsProcessElevated()) {
 		Restart(true, arguments);
-		return true;
+		return false;
 	}
 
 	_mainWndRect = {

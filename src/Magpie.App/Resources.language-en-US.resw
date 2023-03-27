@@ -189,12 +189,6 @@
   <data name="Main_NewProfile.Content" xml:space="preserve">
     <value>New profile</value>
   </data>
-  <data name="Main_NewProfileFlyout_AdminTip.Text" xml:space="preserve">
-    <value>Can't detect a certain window?</value>
-  </data>
-  <data name="Main_NewProfileFlyout_AdminToolTip.Content" xml:space="preserve">
-    <value>Try running Magpie as administrator</value>
-  </data>
   <data name="Main_NewProfileFlyout_ComboBox.PlaceholderText" xml:space="preserve">
     <value>Select a window</value>
   </data>

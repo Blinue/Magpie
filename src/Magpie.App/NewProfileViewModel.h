@@ -57,8 +57,6 @@ struct NewProfileViewModel : NewProfileViewModelT<NewProfileViewModel> {
 		return _candidateWindows && _candidateWindows.Size() != 0;
 	}
 
-	bool IsNotRunningAsAdmin() const noexcept;
-
 	void Confirm() const noexcept;
 
 private:

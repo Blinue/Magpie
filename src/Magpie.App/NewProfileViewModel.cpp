@@ -49,28 +49,15 @@ static bool IsCandidateWindow(HWND hWnd) {
 		return false;
 	}
 
-	DWORD dwProcId = 0;
-	if (!GetWindowThreadProcessId(hWnd, &dwProcId)) {
-		return false;
-	}
-
-	Win32Utils::ScopedHandle hProc(Win32Utils::SafeHandle(OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, dwProcId)));
-	if (!hProc) {
-		// 权限不足
-		return false;
-	}
-
 	// 检查是否和已有配置重复
 	AppXReader appxReader;
 	if (appxReader.Initialize(hWnd)) {
 		return ProfileService::Get().TestNewProfile(true, appxReader.AUMID(), className);
 	} else {
-		std::wstring fileName(MAX_PATH, 0);
-		DWORD size = GetModuleFileNameEx(hProc.get(), NULL, fileName.data(), (DWORD)fileName.size() + 1);
-		if (size == 0) {
+		std::wstring fileName = Win32Utils::GetPathOfWnd(hWnd);
+		if (fileName.empty()) {
 			return false;
 		}
-		fileName.resize(size);
 
 		return ProfileService::Get().TestNewProfile(false, fileName, className);
 	}
@@ -171,10 +158,6 @@ void NewProfileViewModel::Name(const hstring& value) noexcept {
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"Name"));
 
 	_IsConfirmButtonEnabled(!value.empty() && _candidateWindowIndex >= 0);
-}
-
-bool NewProfileViewModel::IsNotRunningAsAdmin() const noexcept {
-	return !Win32Utils::IsProcessElevated();
 }
 
 void NewProfileViewModel::Confirm() const noexcept {

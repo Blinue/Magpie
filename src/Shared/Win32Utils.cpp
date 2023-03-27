@@ -41,16 +41,16 @@ std::wstring Win32Utils::GetPathOfWnd(HWND hWnd) {
 		return {};
 	}
 
-	ScopedHandle hProc(SafeHandle(OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, dwProcId)));
+	ScopedHandle hProc(SafeHandle(OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, dwProcId)));
 	if (!hProc) {
-		// Logger::Get().Win32Error("OpenProcess 失败");
+		Logger::Get().Win32Error("OpenProcess 失败");
 		return {};
 	}
 
 	std::wstring fileName(MAX_PATH, 0);
-	DWORD size = GetModuleFileNameEx(hProc.get(), NULL, fileName.data(), (DWORD)fileName.size() + 1);
-	if (size == 0) {
-		Logger::Get().Win32Error("GetModuleFileName 失败");
+	DWORD size = MAX_PATH;
+	if (!QueryFullProcessImageName(hProc.get(), 0, fileName.data(), &size)) {
+		Logger::Get().Win32Error("QueryFullProcessImageName 失败");
 		return {};
 	}
 

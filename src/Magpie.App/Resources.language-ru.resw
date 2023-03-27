@@ -243,12 +243,6 @@
   <data name="Main_NewProfile.Content" xml:space="preserve">
     <value>Новый профиль</value>
   </data>
-  <data name="Main_NewProfileFlyout_AdminTip.Text" xml:space="preserve">
-    <value>Не удается обнаружить определённое окно?</value>
-  </data>
-  <data name="Main_NewProfileFlyout_AdminToolTip.Content" xml:space="preserve">
-    <value>Попробуйте запустить Magpie от администратора</value>
-  </data>
   <data name="Main_NewProfileFlyout_ComboBox.PlaceholderText" xml:space="preserve">
     <value>Выберите окно</value>
   </data>
