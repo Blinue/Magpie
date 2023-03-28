@@ -11,7 +11,7 @@ Magpie 是一个轻量级的窗口缩放工具，内置了多种高效的缩放�
 
 我们使用 [Weblate](https://weblate.org) 进行本地化工作，请帮助我们把 Magpie 翻译成更多语言。
 
-[![翻译状态](https://hosted.weblate.org/widgets/magpie/zh_Hans/287x66-white.png)](https://hosted.weblate.org/engage/magpie/zh_Hans/)
+[![翻译状态](https://hosted.weblate.org/widgets/magpie/-/287x66-white.png)](https://hosted.weblate.org/engage/magpie/)
 
 :point_right: [下载](https://github.com/Blinue/Magpie/releases)
 
