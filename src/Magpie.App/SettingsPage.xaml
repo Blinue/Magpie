@@ -77,6 +77,7 @@
 			<local:SettingsGroup x:Uid="Settings_Launch">
 				<muxc:Expander HorizontalAlignment="Stretch"
 				               HorizontalContentAlignment="Stretch"
+				               IsExpanded="{x:Bind ViewModel.IsRunAtStartup, Mode=OneWay}"
 				               Style="{StaticResource SettingExpanderStyle}">
 					<muxc:Expander.Header>
 						<local:SettingsCard x:Uid="Settings_Launch_RunAtStartup"
