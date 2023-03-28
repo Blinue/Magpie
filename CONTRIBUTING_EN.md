@@ -81,7 +81,7 @@ You need to follow the following rules when contributing code:
 
 ### I'd like to contribute translations 🌍
 
-Adding new translations and fixing current translations are both welcomed. It's very easy to contribute translations to Magpie. All UI texts are stored in resw. Creating a new `src/Magpie.App/Resources.xx-xx.resw` file and translating all strings is all you need to do. Just like for contributing code, you need to submit pull requests. We strongly recommend you to periodically check your translations, since there are frequent changes in the Magpie UI.
+We are using Weblate for localization work. If you'd like to help translate Magpie into more languages, please visit https://hosted.weblate.org/projects/magpie.
 
 ### I'd like to contribute to the documentations 📖
 
