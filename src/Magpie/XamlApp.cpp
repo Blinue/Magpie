@@ -33,6 +33,13 @@ bool XamlApp::Initialize(HINSTANCE hInstance, const wchar_t* arguments) {
 	Logger::Get().Info(fmt::format("程序启动\n\t版本：{}\n\t管理员：{}",
 		MAGPIE_TAG, Win32Utils::IsProcessElevated() ? "是" : "否"));
 
+	if (Win32Utils::IsProcessElevated()) {
+		// 以管理员身份运行时允许接收 WM_MAGPIE_SHOWME 消息，否则无法被 _CheckSingleInstance 唤醒
+		if (!ChangeWindowMessageFilter(WM_MAGPIE_SHOWME, MSGFLT_ADD)) {
+			Logger::Get().Win32Error("ChangeWindowMessageFilter 失败");
+		}
+	}
+
 	// 初始化 UWP 应用
 	_uwpApp = winrt::Magpie::App::App();
 
