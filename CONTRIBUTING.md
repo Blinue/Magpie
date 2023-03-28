@@ -81,7 +81,7 @@ Magpie 没有广泛的测试过，因此错误不可避免。希望你能向开�
 
 ### 我想贡献翻译 🌍
 
-贡献新的翻译和修正现有翻译都是非常欢迎的。向 Magpie 贡献翻译非常简单，所有用户界面文本均存储在 src/Magpie.App/Resources.xx.resw 中，创建新的 resw 文件并翻译所有字符串即可。和[贡献代码](#我想贡献代码-)一样，你需要提交 pull request。强烈推荐你定期维护自己的翻译，因为 Magpie 的用户界面经常会进行较大的更改。
+我们使用 Weblate 进行本地化工作。如果你想帮助将 Magpie 翻译成更多语言，请前往 https://hosted.weblate.org/projects/magpie 。
 
 ### 我想贡献文档 📖
 
