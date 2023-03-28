@@ -9,9 +9,9 @@
 
 Magpie 是一个轻量级的窗口缩放工具，内置了多种高效的缩放算法和滤镜。它主要用于提升游戏画质和让不支持全屏化的游戏也能全屏显示等。
 
-请帮助 Magpie 本地化，我们使用 [Weblate](https://weblate.org)。
+我们使用 [Weblate](https://weblate.org) 进行本地化工作，请帮助我们把 Magpie 翻译成更多语言。
 
-[![翻译状态](https://hosted.weblate.org/widgets/magpie/-/287x66-grey.png)](https://hosted.weblate.org/engage/magpie/)
+[![翻译状态](https://hosted.weblate.org/widgets/magpie/zh_Hans/287x66-white.png)](https://hosted.weblate.org/engage/magpie/zh_Hans/)
 
 :point_right: [下载](https://github.com/Blinue/Magpie/releases)
 
