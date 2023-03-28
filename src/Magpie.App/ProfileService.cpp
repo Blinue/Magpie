@@ -11,14 +11,25 @@ static std::wstring_view GetRealClassName(std::wstring_view className) {
 	// WPF 窗口类每次启动都会改变，格式为：
 	// HwndWrapper[{名称};;{GUID}]
 	// GUID 格式为 xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
-	static std::wregex wpfClassNameRegex(LR"(^HwndWrapper\[(.*);;[0-9,a-f]{8}-[0-9,a-f]{4}-[0-9,a-f]{4}-[0-9,a-f]{4}-[0-9,a-f]{12}\]$)", std::wregex::optimize);
+	static const std::wregex wpfRegex(
+		LR"(^HwndWrapper\[(.*);;[0-9,a-f]{8}-[0-9,a-f]{4}-[0-9,a-f]{4}-[0-9,a-f]{4}-[0-9,a-f]{12}\]$)",
+		std::wregex::optimize
+	);
 
 	std::match_results<std::wstring_view::iterator> matchResults;
-	if (std::regex_match(className.begin(), className.end(), matchResults, wpfClassNameRegex) && matchResults.size() == 2) {
+	if (std::regex_match(className.begin(), className.end(), matchResults, wpfRegex) && matchResults.size() == 2) {
 		return { matchResults[1].first, matchResults[1].second };
-	} else {
-		return className;
 	}
+
+	// RPG Maker MZ 制作的游戏每次重新加载（快捷键 F5）窗口类名都会改变，格式为：
+	// Chrome_WidgetWin_{递增的数字}
+	// 这个类名似乎在基于 Chromium 的程序中很常见，大多数时候是 Chrome_WidgetWin_1
+	static const std::wregex rpgMakerMZRegex(LR"(^Chrome_WidgetWin_\d+$)", std::wregex::optimize);
+	if (std::regex_match(className.begin(), className.end(), rpgMakerMZRegex)) {
+		return L"Chrome_WidgetWin_1";
+	}
+
+	return className;
 }
 
 static bool RealTestNewProfile(
