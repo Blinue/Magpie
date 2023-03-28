@@ -9,6 +9,10 @@
 
 Magpie is a lightweight window scaling tool that comes equipped with various efficient scaling algorithms and filters. Its primary purpose is to enhance game graphics and enable non-fullscreen games to display in fullscreen mode.
 
+We are using [Weblate](https://weblate.org/) for localization work and would appreciate your help in translating Magpie into more languages.
+
+[![翻译状态](https://hosted.weblate.org/widgets/magpie/en_US/287x66-white.png)](https://hosted.weblate.org/engage/magpie/en_US/)
+
 :point_right: [Download](https://github.com/Blinue/Magpie/releases)
 
 :point_right: [FAQ](https://github.com/Blinue/Magpie/wiki/FAQ_EN)
