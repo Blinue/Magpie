@@ -11,7 +11,7 @@ Magpie is a lightweight window scaling tool that comes equipped with various eff
 
 We are using [Weblate](https://weblate.org/) for localization work and would appreciate your help in translating Magpie into more languages.
 
-[![翻译状态](https://hosted.weblate.org/widgets/magpie/en_US/287x66-white.png)](https://hosted.weblate.org/engage/magpie/en_US/)
+[![Translation status](https://hosted.weblate.org/widgets/magpie/-/287x66-white.png)](https://hosted.weblate.org/engage/magpie/)
 
 :point_right: [Download](https://github.com/Blinue/Magpie/releases)
 
