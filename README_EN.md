@@ -9,6 +9,10 @@
 
 Magpie is a lightweight window scaling tool that comes equipped with various efficient scaling algorithms and filters. Its primary purpose is to enhance game graphics and enable non-fullscreen games to display in fullscreen mode.
 
+We are using [Weblate](https://weblate.org/) for localization work and would appreciate your help in translating Magpie into more languages.
+
+[![Translation status](https://hosted.weblate.org/widgets/magpie/-/287x66-white.png)](https://hosted.weblate.org/engage/magpie/)
+
 :point_right: [Download](https://github.com/Blinue/Magpie/releases)
 
 :point_right: [FAQ](https://github.com/Blinue/Magpie/wiki/FAQ_EN)
@@ -32,7 +36,7 @@ Magpie is a lightweight window scaling tool that comes equipped with various eff
 1. Configuring scaling mode: Magpie provides some simple scaling modes by default, but it is recommended to configure them according to your specific use case. Then, change the global scaling mode on the "Profiles"-"Defaults" page.
 2. Scaling a window: To scale a window, bring the desired window to the foreground and press the shortcut key (default is Win+Shift+A) to display it in fullscreen mode. Note that the window to be scaled must be in windowed mode, not maximized or fullscreen mode. You can also use the "Scale after xs" button on the "Home" page, and Magpie will automatically scale the foreground window after a few seconds.
 3. Creating profiles for windows: This allows you to save configurations specific to a particular window. Magpie also supports automatically activate scaling when that window is brought to the foreground.
-4. Customizing effects: Magpie uses Direct3D compute shader to implement effects, but the syntax has been extended to define resources and organize multiple passes. For more information, please refer to [MagpieFX](https://github.com/Blinue/Magpie/wiki/MagpieFX). Those with experience in shader writing can easily create custom effects.
+4. Customizing effects: Magpie uses Direct3D compute shader to implement effects, but the syntax has been extended to define resources and organize multiple passes. For more information, please refer to [MagpieFX](https://github.com/Blinue/Magpie/wiki/MagpieFX%20(EN)). Those with experience in shader writing can easily create custom effects.
 
 ## Screenshots
 

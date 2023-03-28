@@ -1,6 +1,6 @@
 # Magpie
 
-[![License](https://img.shields.io/github/license/Blinue/Magpie)](./LICENSE)
+[![许可协议](https://img.shields.io/github/license/Blinue/Magpie)](./LICENSE)
 [![build](https://github.com/Blinue/Magpie/actions/workflows/build.yml/badge.svg)](https://github.com/Blinue/Magpie/actions/workflows/build.yml)
 [![All Contributors](https://img.shields.io/github/all-contributors/Blinue/Magpie)](#%E8%B4%A1%E7%8C%AE%E8%80%85-)
 [![GitHub all releases](https://img.shields.io/github/downloads/Blinue/Magpie/total)](https://github.com/Blinue/Magpie/releases)
@@ -8,6 +8,10 @@
 🌍 **简体中文** | [English](./README_EN.md)
 
 Magpie 是一个轻量级的窗口缩放工具，内置了多种高效的缩放算法和滤镜。它主要用于提升游戏画质和让不支持全屏化的游戏也能全屏显示等。
+
+我们使用 [Weblate](https://weblate.org) 进行本地化工作，请帮助我们把 Magpie 翻译成更多语言。
+
+[![翻译状态](https://hosted.weblate.org/widgets/magpie/-/287x66-white.png)](https://hosted.weblate.org/engage/magpie/)
 
 :point_right: [下载](https://github.com/Blinue/Magpie/releases)
 
