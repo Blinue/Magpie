@@ -84,3 +84,4 @@ Magpie 是一个轻量级的窗口缩放工具，内置了多种高效的缩放�
 本项目遵循 [all-contributors](https://allcontributors.org/) 规范。欢迎任何形式的贡献！
 
 ## 特别鸣谢
+感谢 Weblate 提供的托管服务。
