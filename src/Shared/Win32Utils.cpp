@@ -8,7 +8,6 @@
 #include <dwmapi.h>
 #include <parallel_hashmap/phmap.h>
 
-
 std::wstring Win32Utils::GetWndClassName(HWND hWnd) {
 	// 窗口类名最多 256 个字符
 	std::wstring className(256, 0);
@@ -35,16 +34,32 @@ std::wstring Win32Utils::GetWndTitle(HWND hWnd) {
 }
 
 std::wstring Win32Utils::GetPathOfWnd(HWND hWnd) {
+	ScopedHandle hProc;
+
 	DWORD dwProcId = 0;
-	if (!GetWindowThreadProcessId(hWnd, &dwProcId)) {
+	if (GetWindowThreadProcessId(hWnd, &dwProcId)) {
+		hProc.reset(SafeHandle(OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, dwProcId)));
+		if (!hProc) {
+			Logger::Get().Win32Error("OpenProcess 失败");
+		}
+	} else {
 		Logger::Get().Win32Error("GetWindowThreadProcessId 失败");
-		return {};
 	}
 
-	ScopedHandle hProc(SafeHandle(OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, dwProcId)));
 	if (!hProc) {
-		Logger::Get().Win32Error("OpenProcess 失败");
-		return {};
+		// 在某些窗口上 OpenProcess 会失败（如暗黑 2），尝试使用 GetProcessHandleFromHwnd
+		static const auto getProcessHandleFromHwnd = (HANDLE (WINAPI*)(HWND))GetProcAddress(
+			LoadLibraryEx(L"Oleacc.dll", NULL, 0), "GetProcessHandleFromHwnd");
+		if (getProcessHandleFromHwnd) {
+			hProc.reset(getProcessHandleFromHwnd(hWnd));
+			if (!hProc) {
+				Logger::Get().Win32Error("GetProcessHandleFromHwnd 失败");
+			}
+		}
+
+		if (!hProc) {
+			return {};
+		}
 	}
 
 	std::wstring fileName(MAX_PATH, 0);
