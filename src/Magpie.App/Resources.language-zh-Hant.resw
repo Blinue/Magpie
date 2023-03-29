@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <root>
-  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+  <xsd:schema xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" id="root">
     <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
     <xsd:element name="root" msdata:IsDataSet="true">
       <xsd:complexType>
@@ -58,4 +58,190 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="About_PageFrame.Title" xml:space="preserve">
+    <value>關於</value>
+  </data>
+  <data name="Home_Activation.Title" xml:space="preserve">
+    <value>激活</value>
+  </data>
+  <data name="Home_AutoRestore.Description" xml:space="preserve">
+    <value>当该窗口回到前台时将自动缩放</value>
+  </data>
+  <data name="Home_AutoRestore.Title" xml:space="preserve">
+    <value>記憶縮放窗口</value>
+  </data>
+  <data name="Home_AutoRestore_Activate.Content" xml:space="preserve">
+    <value>激活</value>
+  </data>
+  <data name="Home_AutoRestore_Clear.Content" xml:space="preserve">
+    <value>清除</value>
+  </data>
+  <data name="Home_AutoRestore_CurWindow" xml:space="preserve">
+    <value>當前窗口：</value>
+  </data>
+  <data name="Home_AutoRestore_EmptyTitle" xml:space="preserve">
+    <value>標題為空</value>
+  </data>
+  <data name="Home_PageFrame.Title" xml:space="preserve">
+    <value>首頁</value>
+  </data>
+  <data name="Home_Timer.Title" xml:space="preserve">
+    <value>定時器</value>
+  </data>
+  <data name="Home_Timer_ButtonText" xml:space="preserve">
+    <value>{} 秒後縮放</value>
+  </data>
+  <data name="Home_Timer.Description" xml:space="preserve">
+    <value>當計時結束後再縮放前台窗口</value>
+  </data>
+  <data name="Home_Timer_Cancel" xml:space="preserve">
+    <value>取消</value>
+  </data>
+  <data name="Home_Timer_Delay.Title" xml:space="preserve">
+    <value>倒數計時時長</value>
+  </data>
+  <data name="ShortcutDialog_Cancel" xml:space="preserve">
+    <value>取消</value>
+  </data>
+  <data name="ShortcutDialog_Description.Text" xml:space="preserve">
+    <value>按組合鍵以更改此快捷鍵</value>
+  </data>
+  <data name="ShortcutDialog_InUse" xml:space="preserve">
+    <value>此快捷鍵已被占用</value>
+  </data>
+  <data name="ShortcutDialog_Save" xml:space="preserve">
+    <value>保存</value>
+  </data>
+  <data name="Main_About.Content" xml:space="preserve">
+    <value>關於</value>
+  </data>
+  <data name="Main_Home.Content" xml:space="preserve">
+    <value>首頁</value>
+  </data>
+  <data name="Main_Defaults.Content" xml:space="preserve">
+    <value>默認</value>
+  </data>
+  <data name="Main_NewProfile.Content" xml:space="preserve">
+    <value>新建配置</value>
+  </data>
+  <data name="Main_NewProfileFlyout_ComboBox.PlaceholderText" xml:space="preserve">
+    <value>選擇一個窗口</value>
+  </data>
+  <data name="Main_NewProfileFlyout_CopyFrom.Text" xml:space="preserve">
+    <value>複製自</value>
+  </data>
+  <data name="Main_NewProfileFlyout_Name.Text" xml:space="preserve">
+    <value>名稱</value>
+  </data>
+  <data name="Main_NewProfileFlyout_Create.Content" xml:space="preserve">
+    <value>確定</value>
+  </data>
+  <data name="Main_Profiles.Content" xml:space="preserve">
+    <value>配置文件</value>
+  </data>
+  <data name="Main_NewProfileFlyout_Title.Text" xml:space="preserve">
+    <value>新建配置</value>
+  </data>
+  <data name="Main_ScalingConfiguration.Content" xml:space="preserve">
+    <value>縮放模式</value>
+  </data>
+  <data name="ScalingConfiguration_PageFrame.Title" xml:space="preserve">
+    <value>縮放模式</value>
+  </data>
+  <data name="Settings_Advanced.Title" xml:space="preserve">
+    <value>進階設定</value>
+  </data>
+  <data name="Settings_General_Language.Title" xml:space="preserve">
+    <value>語言</value>
+  </data>
+  <data name="Settings_General_Language_System" xml:space="preserve">
+    <value>Windows 默認</value>
+  </data>
+  <data name="Settings_General_PortableMode.Title" xml:space="preserve">
+    <value>便攜模式</value>
+  </data>
+  <data name="Settings_General_PortableMode_Locate.Content" xml:space="preserve">
+    <value>打開配置檔案位置</value>
+  </data>
+  <data name="Settings_Launch_RunAtStartup.Title" xml:space="preserve">
+    <value>開機啟動</value>
+  </data>
+  <data name="Settings_General_ShowTrayIcon.Description" xml:space="preserve">
+    <value>主窗口被關閉後 Magpie 將在後台繼續運行</value>
+  </data>
+  <data name="Settings_General.Title" xml:space="preserve">
+    <value>一般資訊</value>
+  </data>
+  <data name="Settings_General_Theme.Title" xml:space="preserve">
+    <value>主題</value>
+  </data>
+  <data name="Settings_General_Theme_System.Content" xml:space="preserve">
+    <value>Windows 默認</value>
+  </data>
+  <data name="Settings_General_Theme_Light.Content" xml:space="preserve">
+    <value>淺色</value>
+  </data>
+  <data name="Settings_General_Theme_Dark.Content" xml:space="preserve">
+    <value>深色</value>
+  </data>
+  <data name="Settings_PageFrame.Title" xml:space="preserve">
+    <value>設置</value>
+  </data>
+  <data name="ToggleSwitch.OffContent" xml:space="preserve">
+    <value>已停用</value>
+  </data>
+  <data name="Home_Shortcuts.Title" xml:space="preserve">
+    <value>鍵盤快捷鍵</value>
+  </data>
+  <data name="Home_Shortcuts_Overlay.Title" xml:space="preserve">
+    <value>遊戲內疊加層</value>
+  </data>
+  <data name="Home_Shortcuts_Overlay_ShortcutControl.Title" xml:space="preserve">
+    <value>遊戲內疊加層的鍵盤快捷鍵</value>
+  </data>
+  <data name="Home_Shortcuts_Scale.Title" xml:space="preserve">
+    <value>縮放</value>
+  </data>
+  <data name="Home_Shortcuts_Scale_ShortcutControl.Title" xml:space="preserve">
+    <value>縮放的鍵盤快捷鍵</value>
+  </data>
+  <data name="Settings_Launch.Title" xml:space="preserve">
+    <value>啟動</value>
+  </data>
+  <data name="ScalingConfiguration_General.Title" xml:space="preserve">
+    <value>一般資訊</value>
+  </data>
+  <data name="ScalingConfiguration_General_DefaultDownscalingEffect.Description" xml:space="preserve">
+    <value>輸出圖像太大無法被螢幕容納時將自動應用此效果</value>
+  </data>
+  <data name="ScalingConfiguration_General_DefaultDownscalingEffect.Title" xml:space="preserve">
+    <value>默認降採樣效果</value>
+  </data>
+  <data name="ScalingConfiguration_General_Export.Text" xml:space="preserve">
+    <value>匯出</value>
+  </data>
+  <data name="ScalingConfiguration_General_Import.Text" xml:space="preserve">
+    <value>匯入</value>
+  </data>
+  <data name="ScalingConfiguration_General_ImportLegacy.Text" xml:space="preserve">
+    <value>匯入舊版本的 ScaleModels.json</value>
+  </data>
+  <data name="TrayIcon_Exit" xml:space="preserve">
+    <value>退出</value>
+  </data>
+  <data name="ShortcutDialog_InvalidShortcut" xml:space="preserve">
+    <value>無效的快捷鍵</value>
+  </data>
+  <data name="ShortcutDialog_Tip.Text" xml:space="preserve">
+    <value>只有以 Windows 鍵、Ctrl、Alt 或 Shift 開頭的快捷鍵才有效。</value>
+  </data>
+  <data name="Main_NewProfileFlyout_NoCandidateWindow.Text" xml:space="preserve">
+    <value>打開新窗口以創建配置文件</value>
+  </data>
+  <data name="Settings_General_ShowTrayIcon.Title" xml:space="preserve">
+    <value>系統匣圖示</value>
+  </data>
+  <data name="ToggleSwitch.OnContent" xml:space="preserve">
+    <value>已啟用</value>
+  </data>
 </root>
