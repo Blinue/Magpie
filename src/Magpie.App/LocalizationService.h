@@ -19,7 +19,7 @@ public:
 	void Initialize();
 
 	// 支持的所有语言的标签，均为小写
-	static const std::vector<std::wstring>& SupportedLanguages() noexcept;
+	static std::span<const wchar_t* > SupportedLanguages() noexcept;
 
 private:
 	LocalizationService() = default;

@@ -264,5 +264,8 @@
     <PRIResource Include="Resources.language-ru.resw">
       <Filter>Strings</Filter>
     </PRIResource>
+    <PRIResource Include="Resources.language-zh-Hant.resw">
+      <Filter>Strings</Filter>
+    </PRIResource>
   </ItemGroup>
 </Project>
