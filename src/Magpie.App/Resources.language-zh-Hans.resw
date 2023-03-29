@@ -59,7 +59,7 @@
             : using a System.ComponentModel.TypeConverter
             : and then encoded with base64 encoding.
     -->
-  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+  <xsd:schema xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" id="root">
     <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
     <xsd:element name="root" msdata:IsDataSet="true">
       <xsd:complexType>
@@ -145,7 +145,7 @@
     <value>主页</value>
   </data>
   <data name="Home_Timer.Description" xml:space="preserve">
-    <value>计时结束后缩放前台窗口</value>
+    <value>计时结束后再缩放前台窗口</value>
   </data>
   <data name="Home_Timer.Title" xml:space="preserve">
     <value>定时器</value>
@@ -169,7 +169,7 @@
     <value>此快捷键已被占用</value>
   </data>
   <data name="ShortcutDialog_InvalidShortcut" xml:space="preserve">
-    <value>无效快捷键</value>
+    <value>无效的快捷键</value>
   </data>
   <data name="ShortcutDialog_Save" xml:space="preserve">
     <value>保存</value>
