@@ -11,6 +11,7 @@
 namespace Magpie {
 
 static const UINT WM_MAGPIE_SHOWME = RegisterWindowMessage(CommonSharedConstants::WM_MAGPIE_SHOWME);
+static const UINT WM_MAGPIE_QUIT = RegisterWindowMessage(CommonSharedConstants::WM_MAGPIE_QUIT);
 
 // 提前加载 twinapi.appcore.dll 和 threadpoolwinrt.dll 以避免退出时崩溃。应在 Windows.UI.Xaml.dll 被加载前调用
 // 来自 https://github.com/CommunityToolkit/Microsoft.Toolkit.Win32/blob/6fb2c3e00803ea563af20f6bc9363091b685d81f/Microsoft.Toolkit.Win32.UI.XamlApplication/XamlApplication.cpp#L140
@@ -23,21 +24,16 @@ static void FixThreadPoolCrash() noexcept {
 bool XamlApp::Initialize(HINSTANCE hInstance, const wchar_t* arguments) {
 	_hInst = hInstance;
 
-	if (!_CheckSingleInstance()) {
-		return false;
-	}
-
 	FixThreadPoolCrash();
 	_InitializeLogger();
 
 	Logger::Get().Info(fmt::format("程序启动\n\t版本：{}\n\t管理员：{}",
 		MAGPIE_TAG, Win32Utils::IsProcessElevated() ? "是" : "否"));
 
-	if (Win32Utils::IsProcessElevated()) {
-		// 以管理员身份运行时允许接收 WM_MAGPIE_SHOWME 消息，否则无法被 _CheckSingleInstance 唤醒
-		if (!ChangeWindowMessageFilter(WM_MAGPIE_SHOWME, MSGFLT_ADD)) {
-			Logger::Get().Win32Error("ChangeWindowMessageFilter 失败");
-		}
+	if (!_CheckSingleInstance()) {
+		Logger::Get().Info("已经有一个实例正在运行");
+		Logger::Get().Flush();
+		return false;
 	}
 
 	// 初始化 UWP 应用
@@ -76,6 +72,7 @@ bool XamlApp::Initialize(HINSTANCE hInstance, const wchar_t* arguments) {
 	// 不显示托盘图标时忽略 -t 参数
 	if (!trayIconService.IsShow() || !arguments || arguments != L"-t"sv) {
 		if (!_CreateMainWindow()) {
+			Quit();
 			return false;
 		}
 	}
@@ -89,10 +86,16 @@ int XamlApp::Run() {
 		if (msg.message == WM_MAGPIE_SHOWME && _uwpApp) {
 			ShowMainWindow();
 			continue;
+		} else if (msg.message == WM_MAGPIE_QUIT) {
+			Quit();
+			continue;
 		}
 
 		_mainWindow.HandleMessage(msg);
 	}
+
+	_ReleaseMutexes();
+
 	return (int)msg.wParam;
 }
 
@@ -110,7 +113,7 @@ void XamlApp::Restart(bool asElevated, const wchar_t* arguments) noexcept {
 	Quit();
 
 	// 提前释放锁
-	_hSingleInstanceMutex.reset();
+	_ReleaseMutexes();
 
 	SHELLEXECUTEINFO execInfo{};
 	execInfo.cbSize = sizeof(execInfo);
@@ -153,12 +156,42 @@ XamlApp::~XamlApp() {}
 
 bool XamlApp::_CheckSingleInstance() {
 	static constexpr const wchar_t* SINGLE_INSTANCE_MUTEX_NAME = L"{4C416227-4A30-4A2F-8F23-8701544DD7D6}";
+	static constexpr const wchar_t* ELEVATED_MUTEX_NAME = L"{E494C456-F587-4DAF-B68F-366278D31C45}";
+
+	if (Win32Utils::IsProcessElevated()) {
+		_hElevatedMutex.reset(CreateMutex(nullptr, TRUE, ELEVATED_MUTEX_NAME));
+		if (!_hElevatedMutex || GetLastError() == ERROR_ALREADY_EXISTS) {
+			// 通知已有实例显示主窗口
+			PostMessage(HWND_BROADCAST, WM_MAGPIE_SHOWME, 0, 0);
+			return false;
+		}
+
+		// 以管理员身份运行时允许接收 WM_MAGPIE_SHOWME 消息，否则无法被该消息唤醒
+		if (!ChangeWindowMessageFilter(WM_MAGPIE_SHOWME, MSGFLT_ADD)) {
+			Logger::Get().Win32Error("ChangeWindowMessageFilter 失败");
+		}
+	}
 
 	_hSingleInstanceMutex.reset(CreateMutex(nullptr, TRUE, SINGLE_INSTANCE_MUTEX_NAME));
 	if (!_hSingleInstanceMutex || GetLastError() == ERROR_ALREADY_EXISTS) {
-		// 通知已有实例显示主窗口
-		PostMessage(HWND_BROADCAST, WM_MAGPIE_SHOWME, 0, 0);
-		return false;
+		if (_hElevatedMutex) {
+			if (!_hSingleInstanceMutex) {
+				return false;
+			}
+
+			// 本实例是管理员身份，而已有实例不是。通知已有实例退出
+			PostMessage(HWND_BROADCAST, WM_MAGPIE_QUIT, 0, 0);
+
+			// 等待退出完成
+			if (WaitForSingleObject(_hSingleInstanceMutex.get(), 10000) != WAIT_OBJECT_0) {
+				Logger::Get().Error("等待超时");
+				return false;
+			}
+		} else {
+			// 通知已有实例显示主窗口
+			PostMessage(HWND_BROADCAST, WM_MAGPIE_SHOWME, 0, 0);
+			return false;
+		}
 	}
 
 	return true;
@@ -217,6 +250,17 @@ void XamlApp::_MainWindow_Destoryed() {
 
 	if (!TrayIconService::Get().IsShow()) {
 		_QuitWithoutMainWindow();
+	}
+}
+
+void XamlApp::_ReleaseMutexes() noexcept {
+	if (_hSingleInstanceMutex) {
+		ReleaseMutex(_hSingleInstanceMutex.get());
+		_hSingleInstanceMutex.reset();
+	}
+	if (_hElevatedMutex) {
+		ReleaseMutex(_hElevatedMutex.get());
+		_hElevatedMutex.reset();
 	}
 }
 

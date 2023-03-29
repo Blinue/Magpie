@@ -41,8 +41,12 @@ private:
 
 	void _MainWindow_Destoryed();
 
+	void _ReleaseMutexes() noexcept;
+
 	HINSTANCE _hInst = NULL;
 	Win32Utils::ScopedHandle _hSingleInstanceMutex;
+	// 以管理员身份运行时持有此 Mutex
+	Win32Utils::ScopedHandle _hElevatedMutex;
 
 	winrt::Magpie::App::App _uwpApp{ nullptr };
 

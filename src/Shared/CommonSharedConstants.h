@@ -29,4 +29,5 @@ struct CommonSharedConstants {
 	static constexpr const UINT WM_RESTART_MAGPIE = WM_USER + 2;
 
 	static constexpr const wchar_t* WM_MAGPIE_SHOWME = L"WM_MAGPIE_SHOWME";
+	static constexpr const wchar_t* WM_MAGPIE_QUIT = L"WM_MAGPIE_QUIT";
 };
