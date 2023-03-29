@@ -211,10 +211,10 @@
     <value>配置文件</value>
   </data>
   <data name="Main_ScalingConfiguration.Content" xml:space="preserve">
-    <value>缩放配置</value>
+    <value>缩放设定</value>
   </data>
   <data name="ScalingConfiguration_PageFrame.Title" xml:space="preserve">
-    <value>缩放配置</value>
+    <value>缩放设定</value>
   </data>
   <data name="Settings_Advanced.Title" xml:space="preserve">
     <value>高级</value>
@@ -298,13 +298,13 @@
     <value>导入</value>
   </data>
   <data name="ScalingConfiguration_General_ImportLegacy.Text" xml:space="preserve">
-    <value>导入 ScaleModels.json</value>
+    <value>导入旧版程序的 ScaleModels.json</value>
   </data>
   <data name="ScalingConfiguration_General_MoreOptions.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>更多选项</value>
   </data>
   <data name="ScalingConfiguration_ScalingModes.Title" xml:space="preserve">
-    <value>缩放模式</value>
+    <value>缩放方法</value>
   </data>
   <data name="Settings_Launch_AlwaysRunAsAdmin.Description" xml:space="preserve">
     <value>以管理员身份运行时才能使用此选项</value>
@@ -319,7 +319,7 @@
     <value>下载并安装</value>
   </data>
   <data name="Home_UpdateCard_ReleaseNotes.Content" xml:space="preserve">
-    <value>发行说明</value>
+    <value>新版特性</value>
   </data>
   <data name="Home_UpdateCard_RemindMeLater.Content" xml:space="preserve">
     <value>以后再提醒我</value>
@@ -379,10 +379,10 @@
     <value>删除</value>
   </data>
   <data name="ScalingConfiguration_ScalingModes_DeleteFlyout_Description.Text" xml:space="preserve">
-    <value>以下配置文件正在使用此模式：</value>
+    <value>以下配置文件正在使用这个缩放方法：</value>
   </data>
   <data name="ScalingConfiguration_ScalingModes_DeleteFlyout_Title.Text" xml:space="preserve">
-    <value>确定删除此缩放模式？</value>
+    <value>确定删除这个缩放方法？</value>
   </data>
   <data name="ScalingConfiguration_ScalingModes_DragNotSupported.Text" xml:space="preserve">
     <value>管理员身份下不支持拖拽排序</value>
@@ -397,10 +397,10 @@
     <value>上移</value>
   </data>
   <data name="ScalingConfiguration_ScalingModes_NewScalingMode.Text" xml:space="preserve">
-    <value>新建缩放模式</value>
+    <value>新建缩放方法</value>
   </data>
   <data name="ScalingConfiguration_ScalingModes_NewScalingModeFlyout_Title.Text" xml:space="preserve">
-    <value>新建缩放模式</value>
+    <value>新建缩放方法</value>
   </data>
   <data name="ScalingConfiguration_ScalingModes_Scale.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>缩放</value>
@@ -481,7 +481,7 @@
     <value>源窗口跨越的所有显示器</value>
   </data>
   <data name="Profile_General_ScalingMode.Title" xml:space="preserve">
-    <value>缩放模式</value>
+    <value>缩放方法</value>
   </data>
   <data name="Profile_Launch.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>启动</value>
@@ -547,7 +547,7 @@
     <value>反馈</value>
   </data>
   <data name="About_Feedback_Discussion.Title" xml:space="preserve">
-    <value>论坛</value>
+    <value>讨论区</value>
   </data>
   <data name="About_Feedback_ReportBug.Title" xml:space="preserve">
     <value>报告错误</value>
@@ -556,7 +556,7 @@
     <value>建议功能</value>
   </data>
   <data name="About_Version.Title" xml:space="preserve">
-    <value>版本</value>
+    <value>程序版本</value>
   </data>
   <data name="About_Version_AutoCheckForPreviewUpdates.Content" xml:space="preserve">
     <value>检查预览版更新</value>
@@ -574,7 +574,7 @@
     <value>正在检查更新…</value>
   </data>
   <data name="About_Version_ReleaseNotes.Content" xml:space="preserve">
-    <value>发行说明</value>
+    <value>新版特性</value>
   </data>
   <data name="About_Version_UpdateCard_Cancel.Content" xml:space="preserve">
     <value>取消</value>
@@ -583,7 +583,7 @@
     <value>下载并安装</value>
   </data>
   <data name="About_Version_UpdateCard_ReleaseNotes.Content" xml:space="preserve">
-    <value>发行说明</value>
+    <value>新版特性</value>
   </data>
   <data name="About_Version_UpdateCard_Retry.Content" xml:space="preserve">
     <value>重试</value>
@@ -767,10 +767,10 @@
     <value>部分效果未能正确解析</value>
   </data>
   <data name="ExportDialog_Title" xml:space="preserve">
-    <value>导出缩放模式</value>
+    <value>导出缩放方法</value>
   </data>
   <data name="ImportDialog_Title" xml:space="preserve">
-    <value>导入缩放模式</value>
+    <value>导入缩放方法</value>
   </data>
   <data name="ImportLegacyDialog_Title" xml:space="preserve">
     <value>导入 ScaleModels.json</value>
