@@ -21,6 +21,6 @@ updates:
       interval: "weekly"
       
   - package-ecosystem: "nuget"
-    directory: "/tools/MPVHookTextureParser
+    directory: "/tools/MPVHookTextureParser"
     schedule:
       interval: "weekly"
