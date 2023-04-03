@@ -63,7 +63,7 @@ void Pass1(uint2 blockStart, uint3 threadId) {
 	const float2 rcpScale = rcp(GetScale());
 
 	const int2 rectl = floor(blockStart * rcpScale - 0.5f) - 2;
-	const int2 rectr = floor((blockStart + uint2(MP_BLOCK_WIDTH, MP_BLOCK_HEIGHT) - 1) * rcpScale - 0.5f) + 3;
+	const int2 rectr = floor((blockStart + uint2(MP_BLOCK_WIDTH, MP_BLOCK_HEIGHT)) * rcpScale - 0.5f) + 3;
 	const uint2 rect = uint2(rectr - rectl + 1);
 
 	const int maxId = int(rect.x * rect.y);
