@@ -170,17 +170,13 @@ bool CursorManager::Initialize() {
 }
 
 // 检测光标位于哪个窗口上，是否检测缩放窗口由 clickThroughHost 指定
-static HWND WindowFromPoint(POINT pt, bool clickThroughHost, bool isHostTransparent) {
-	if (isHostTransparent == clickThroughHost) {
-		return ChildWindowFromPointEx(GetDesktopWindow(), pt, CWP_SKIPINVISIBLE | CWP_SKIPTRANSPARENT);
-	}
-
+static HWND WindowFromPoint(POINT pt, bool clickThroughHost) {
 	struct EnumData {
 		HWND result;
 		POINT pt;
 		bool clickThroughHost;
-	} data { NULL, pt, clickThroughHost };
-	
+	} data{ NULL, pt, clickThroughHost };
+
 	EnumWindows([](HWND hWnd, LPARAM lParam) {
 		EnumData& data = *(EnumData*)lParam;
 		if (hWnd == MagApp::Get().GetHwndHost()) {
@@ -221,7 +217,7 @@ static HWND WindowFromPoint(POINT pt, bool clickThroughHost, bool isHostTranspar
 				// 命中了透明像素
 				return TRUE;
 			}
-			
+
 			// 源窗口的权限比 Magpie 更高，回落到 GetWindowRect
 			RECT windowRect{};
 			if (!GetWindowRect(hWnd, &windowRect) || !PtInRect(&windowRect, data.pt)) {
@@ -729,7 +725,7 @@ void CursorManager::_UpdateCursorClip() {
 		// 
 		///////////////////////////////////////////////////////////
 
-		HWND hwndCur = WindowFromPoint(SrcToHost(cursorPos, true), false, style & WS_EX_TRANSPARENT);
+		HWND hwndCur = WindowFromPoint(SrcToHost(cursorPos, true), false);
 
 		if (hwndCur != hwndHost) {
 			// 主窗口被遮挡
@@ -744,7 +740,7 @@ void CursorManager::_UpdateCursorClip() {
 
 			if (!stopCapture) {
 				// 判断源窗口是否被遮挡
-				hwndCur = WindowFromPoint(cursorPos, true, style & WS_EX_TRANSPARENT);
+				hwndCur = WindowFromPoint(cursorPos, true);
 				stopCapture = hwndCur != hwndSrc && (!IsChild(hwndSrc, hwndCur) || !((GetWindowStyle(hwndCur) & WS_CHILD)));
 			}
 
@@ -774,7 +770,7 @@ void CursorManager::_UpdateCursorClip() {
 		// 
 		/////////////////////////////////////////////////////////
 
-		HWND hwndCur = WindowFromPoint(cursorPos, false, style & WS_EX_TRANSPARENT);
+		HWND hwndCur = WindowFromPoint(cursorPos, false);
 
 		if (hwndCur == hwndHost) {
 			// 主窗口未被遮挡
@@ -814,7 +810,7 @@ void CursorManager::_UpdateCursorClip() {
 						std::clamp(cursorPos.y, hostRect.top + outputRect.top, hostRect.top + outputRect.bottom - 1)
 					};
 
-					if (WindowFromPoint(clampedPos, false, style & WS_EX_TRANSPARENT) == hwndHost) {
+					if (WindowFromPoint(clampedPos, false) == hwndHost) {
 						if (!(style & WS_EX_TRANSPARENT)) {
 							SetWindowLongPtr(hwndHost, GWL_EXSTYLE, style | WS_EX_TRANSPARENT);
 						}
@@ -832,7 +828,7 @@ void CursorManager::_UpdateCursorClip() {
 
 				if (startCapture) {
 					// 判断源窗口是否被遮挡
-					hwndCur = WindowFromPoint(newCursorPos, true, style & WS_EX_TRANSPARENT);
+					hwndCur = WindowFromPoint(newCursorPos, true);
 					startCapture = hwndCur == hwndSrc || ((IsChild(hwndSrc, hwndCur) && (GetWindowStyle(hwndCur) & WS_CHILD)));
 				}
 
