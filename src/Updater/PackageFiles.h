@@ -106,7 +106,7 @@ struct PackageFiles {
 	const std::span<const wchar_t*> files;
 	const std::span<const wchar_t*> folders;
 
-	static std::optional<PackageFiles> Get(const Version& version) {
+	static std::optional<PackageFiles> Get(const Version& /*version*/) {
 		//if (version <= Version(0, 10, 0)) {
 		return PackageFiles{ _ToSpan(V0_9_101_FILES), _ToSpan(V0_9_101_FOLDERS)};
 		//}
