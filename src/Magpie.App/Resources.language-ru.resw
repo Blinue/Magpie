@@ -767,7 +767,7 @@
     <value>Импорт режимов увеличения</value>
   </data>
   <data name="ImportLegacyDialog_Title" xml:space="preserve">
-    <value>Import ScaleModels.json</value>
+    <value>Импорт ScaleModels.json</value>
   </data>
   <data name="ScalingConfiguration_ScalingModes_HasUnkownEffects.Title" xml:space="preserve">
     <value>Некоторые эффекты нельзя разобрать</value>
