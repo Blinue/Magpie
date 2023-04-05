@@ -59,7 +59,7 @@
             : using a System.ComponentModel.TypeConverter
             : and then encoded with base64 encoding.
     -->
-  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+  <xsd:schema xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" id="root">
     <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
     <xsd:element name="root" msdata:IsDataSet="true">
       <xsd:complexType>
@@ -121,22 +121,22 @@
     <value>關於</value>
   </data>
   <data name="Home_Activation.Title" xml:space="preserve">
-    <value>激活</value>
+    <value>啟用</value>
   </data>
   <data name="Home_AutoRestore.Description" xml:space="preserve">
-    <value>当该窗口回到前台时将自动缩放</value>
+    <value>當該視窗回到前景時將自動縮放</value>
   </data>
   <data name="Home_AutoRestore.Title" xml:space="preserve">
-    <value>記憶縮放窗口</value>
+    <value>記住縮放視窗</value>
   </data>
   <data name="Home_AutoRestore_Activate.Content" xml:space="preserve">
-    <value>激活</value>
+    <value>啟用</value>
   </data>
   <data name="Home_AutoRestore_Clear.Content" xml:space="preserve">
     <value>清除</value>
   </data>
   <data name="Home_AutoRestore_CurWindow" xml:space="preserve">
-    <value>當前窗口：</value>
+    <value>當前視窗：</value>
   </data>
   <data name="Home_AutoRestore_EmptyTitle" xml:space="preserve">
     <value>標題為空</value>
@@ -145,31 +145,31 @@
     <value>首頁</value>
   </data>
   <data name="Home_Timer.Title" xml:space="preserve">
-    <value>定時器</value>
+    <value>計時器</value>
   </data>
   <data name="Home_Timer_ButtonText" xml:space="preserve">
     <value>{} 秒後縮放</value>
   </data>
   <data name="Home_Timer.Description" xml:space="preserve">
-    <value>當計時結束後再縮放前台窗口</value>
+    <value>當計時結束後再縮放前景視窗</value>
   </data>
   <data name="Home_Timer_Cancel" xml:space="preserve">
     <value>取消</value>
   </data>
   <data name="Home_Timer_Delay.Title" xml:space="preserve">
-    <value>倒數計時時長</value>
+    <value>倒數計時延遲</value>
   </data>
   <data name="ShortcutDialog_Cancel" xml:space="preserve">
     <value>取消</value>
   </data>
   <data name="ShortcutDialog_Description.Text" xml:space="preserve">
-    <value>更改按鍵組合來改變這個鍵盤快速鍵</value>
+    <value>按下按鍵組合來變更這個鍵盤快速鍵</value>
   </data>
   <data name="ShortcutDialog_InUse" xml:space="preserve">
     <value>這個按鍵組合已被占用</value>
   </data>
   <data name="ShortcutDialog_Save" xml:space="preserve">
-    <value>保存</value>
+    <value>儲存</value>
   </data>
   <data name="Main_About.Content" xml:space="preserve">
     <value>關於</value>
@@ -178,13 +178,13 @@
     <value>首頁</value>
   </data>
   <data name="Main_Defaults.Content" xml:space="preserve">
-    <value>默認</value>
+    <value>預設</value>
   </data>
   <data name="Main_NewProfile.Content" xml:space="preserve">
-    <value>新建配置</value>
+    <value>新增設定檔</value>
   </data>
   <data name="Main_NewProfileFlyout_ComboBox.PlaceholderText" xml:space="preserve">
-    <value>選擇一個窗口</value>
+    <value>選擇一個視窗</value>
   </data>
   <data name="Main_NewProfileFlyout_CopyFrom.Text" xml:space="preserve">
     <value>複製自</value>
@@ -193,13 +193,13 @@
     <value>名稱</value>
   </data>
   <data name="Main_NewProfileFlyout_Create.Content" xml:space="preserve">
-    <value>確定</value>
+    <value>新增</value>
   </data>
   <data name="Main_Profiles.Content" xml:space="preserve">
-    <value>配置文件</value>
+    <value>設定檔</value>
   </data>
   <data name="Main_NewProfileFlyout_Title.Text" xml:space="preserve">
-    <value>新建配置</value>
+    <value>新增設定檔</value>
   </data>
   <data name="Main_ScalingConfiguration.Content" xml:space="preserve">
     <value>縮放設定</value>
@@ -214,19 +214,19 @@
     <value>語言</value>
   </data>
   <data name="Settings_General_Language_System" xml:space="preserve">
-    <value>Windows 默認</value>
+    <value>Windows 預設</value>
   </data>
   <data name="Settings_General_PortableMode.Title" xml:space="preserve">
-    <value>便攜模式</value>
+    <value>可攜模式</value>
   </data>
   <data name="Settings_General_PortableMode_Locate.Content" xml:space="preserve">
-    <value>打開配置檔案位置</value>
+    <value>打開組態檔案位置</value>
   </data>
   <data name="Settings_Launch_RunAtStartup.Title" xml:space="preserve">
     <value>開機啟動</value>
   </data>
   <data name="Settings_General_ShowTrayIcon.Description" xml:space="preserve">
-    <value>主窗口被關閉後 Magpie 將在後台繼續運行</value>
+    <value>主視窗被關閉後 Magpie 將在背景繼續執行</value>
   </data>
   <data name="Settings_General.Title" xml:space="preserve">
     <value>一般資訊</value>
@@ -235,7 +235,7 @@
     <value>主題</value>
   </data>
   <data name="Settings_General_Theme_System.Content" xml:space="preserve">
-    <value>Windows 默認</value>
+    <value>Windows 預設</value>
   </data>
   <data name="Settings_General_Theme_Light.Content" xml:space="preserve">
     <value>淺色</value>
@@ -253,10 +253,10 @@
     <value>鍵盤快速鍵</value>
   </data>
   <data name="Home_Shortcuts_Overlay.Title" xml:space="preserve">
-    <value>遊戲內疊加層</value>
+    <value>遊戲內遮罩</value>
   </data>
   <data name="Home_Shortcuts_Overlay_ShortcutControl.Title" xml:space="preserve">
-    <value>遊戲內疊加層的鍵盤快速鍵</value>
+    <value>遊戲內遮罩的鍵盤快速鍵</value>
   </data>
   <data name="Home_Shortcuts_Scale.Title" xml:space="preserve">
     <value>縮放</value>
@@ -271,10 +271,10 @@
     <value>一般資訊</value>
   </data>
   <data name="ScalingConfiguration_General_DefaultDownscalingEffect.Description" xml:space="preserve">
-    <value>輸出圖像太大無法被螢幕容納時將自動應用此效果</value>
+    <value>輸出影像大於螢幕本身解析度時將自動套用此效果</value>
   </data>
   <data name="ScalingConfiguration_General_DefaultDownscalingEffect.Title" xml:space="preserve">
-    <value>默認降採樣效果</value>
+    <value>預設縮小效果</value>
   </data>
   <data name="ScalingConfiguration_General_Export.Text" xml:space="preserve">
     <value>匯出</value>
@@ -289,16 +289,16 @@
     <value>退出</value>
   </data>
   <data name="ShortcutDialog_InvalidShortcut" xml:space="preserve">
-    <value>無效的按鍵組合</value>
+    <value>無效按鍵組合</value>
   </data>
   <data name="ShortcutDialog_Tip.Text" xml:space="preserve">
     <value>只有以 Windows 鍵、Ctrl、Alt 或 Shift 開頭的按鍵組合才有效。</value>
   </data>
   <data name="Main_NewProfileFlyout_NoCandidateWindow.Text" xml:space="preserve">
-    <value>打開新窗口以創建配置文件</value>
+    <value>開啟新視窗以新增設定檔</value>
   </data>
   <data name="Settings_General_ShowTrayIcon.Title" xml:space="preserve">
-    <value>系統匣圖示</value>
+    <value>工具列圖示</value>
   </data>
   <data name="ToggleSwitch.OnContent" xml:space="preserve">
     <value>已啟用</value>
@@ -307,13 +307,13 @@
     <value>更多設定</value>
   </data>
   <data name="ScalingConfiguration_ScalingModes.Title" xml:space="preserve">
-    <value>縮放方法</value>
+    <value>縮放模式</value>
   </data>
   <data name="Settings_Launch_AlwaysRunAsAdmin.Description" xml:space="preserve">
-    <value>以管理員身份運行時才能使用此選項</value>
+    <value>以管理員身份執行時才能使用此選項</value>
   </data>
   <data name="Settings_Launch_AlwaysRunAsAdmin.Title" xml:space="preserve">
-    <value>始終以管理員身份運行</value>
+    <value>始終以管理員身份執行</value>
   </data>
   <data name="Home_UpdateCard_AutoCheckForUpdates.Content" xml:space="preserve">
     <value>自動檢查更新</value>
@@ -322,7 +322,7 @@
     <value>下載並安裝</value>
   </data>
   <data name="Home_UpdateCard_ReleaseNotes.Content" xml:space="preserve">
-    <value>新版特性</value>
+    <value>發行備註</value>
   </data>
   <data name="Home_UpdateCard_RemindMeLater.Content" xml:space="preserve">
     <value>以後再提醒我</value>
@@ -355,13 +355,13 @@
     <value>上移</value>
   </data>
   <data name="ScalingConfiguration_ScalingModes_Rename.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
-    <value>重命名</value>
+    <value>重新命名</value>
   </data>
   <data name="ScalingConfiguration_ScalingModes_RenameFlyout_Title.Text" xml:space="preserve">
-    <value>重命名</value>
+    <value>重新命名</value>
   </data>
   <data name="ScalingConfiguration_ScalingModes_AddEffect.Text" xml:space="preserve">
-    <value>增加效果</value>
+    <value>新增效果</value>
   </data>
   <data name="ScalingConfiguration_ScalingModes_Delete.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>刪除</value>
@@ -370,10 +370,10 @@
     <value>刪除</value>
   </data>
   <data name="ScalingConfiguration_ScalingModes_DeleteFlyout_Title.Text" xml:space="preserve">
-    <value>確定刪除這個縮放方法？</value>
+    <value>確定刪除這個縮放模式？</value>
   </data>
   <data name="ScalingConfiguration_ScalingModes_DragToReorder.Text" xml:space="preserve">
-    <value>拖拽以重新排序</value>
+    <value>拖曳以重新排列</value>
   </data>
   <data name="ScalingConfiguration_ScalingModes_MoveDown.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>下移</value>
@@ -385,7 +385,7 @@
     <value>縮放</value>
   </data>
   <data name="ScalingConfiguration_ScalingModes_NewScalingMode.Text" xml:space="preserve">
-    <value>新建縮放方法</value>
+    <value>新增縮放模式</value>
   </data>
   <data name="ScalingConfiguration_ScalingModes_NewScalingModeFlyout_CopyFrom.Text" xml:space="preserve">
     <value>複製自</value>
@@ -394,7 +394,7 @@
     <value>無</value>
   </data>
   <data name="ScalingConfiguration_ScalingModes_NewScalingModeFlyout_Create.Content" xml:space="preserve">
-    <value>確定</value>
+    <value>新增</value>
   </data>
   <data name="ScalingConfiguration_ScalingModes_NewScalingModeFlyout_Name.Text" xml:space="preserve">
     <value>名稱</value>
@@ -424,10 +424,10 @@
     <value>倍數</value>
   </data>
   <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_Type_Factor_Description" xml:space="preserve">
-    <value>指定相對於圖像的縮放倍數</value>
+    <value>指定相對於影像的縮放倍數</value>
   </data>
   <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_Type_Fill" xml:space="preserve">
-    <value>填充</value>
+    <value>填滿</value>
   </data>
   <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_Type_Fill_Description" xml:space="preserve">
     <value>填滿螢幕，畫面可能被拉伸</value>
@@ -445,13 +445,13 @@
     <value>3D 遊戲模式</value>
   </data>
   <data name="Profile_General_AutoScale.Title" xml:space="preserve">
-    <value>位於前台時自動縮放</value>
+    <value>前景時自動縮放</value>
   </data>
   <data name="Profile_General_Multimonitor.Title" xml:space="preserve">
-    <value>首選的顯示器</value>
+    <value>偏好顯示器</value>
   </data>
   <data name="Profile_General_Multimonitor_Closest.Content" xml:space="preserve">
-    <value>距離源窗口最近的顯示器</value>
+    <value>距離來源視窗最近的顯示器</value>
   </data>
   <data name="Profile_MoreOptions_Delete.Text" xml:space="preserve">
     <value>刪除</value>
@@ -460,7 +460,7 @@
     <value>打開程式位置</value>
   </data>
   <data name="Profile_MoreOptions_Rename.Text" xml:space="preserve">
-    <value>重命名</value>
+    <value>重新命名</value>
   </data>
   <data name="Profile_MoreOptions_RenameFlyout_OK.Content" xml:space="preserve">
     <value>確定</value>
@@ -469,10 +469,10 @@
     <value>下移</value>
   </data>
   <data name="Profile_MoreOptions_ReorderFlyout_Title.Text" xml:space="preserve">
-    <value>重新排序</value>
+    <value>重新排列</value>
   </data>
   <data name="ScalingConfiguration_ParsingFailed.Title" xml:space="preserve">
-    <value>解析失敗</value>
+    <value>剖析失敗</value>
   </data>
   <data name="Profile_Performance.Title" xml:space="preserve">
     <value>效能</value>
@@ -481,7 +481,7 @@
     <value>顯示卡</value>
   </data>
   <data name="Profile_Performance_ShowFPS.Title" xml:space="preserve">
-    <value>顯示畫面速率</value>
+    <value>顯示畫面幀數</value>
   </data>
   <data name="Profile_Performance_VSync_TripleBuffering.Content" xml:space="preserve">
     <value>允許額外的延遲以提高效能</value>
@@ -499,7 +499,7 @@
     <value>程式版本</value>
   </data>
   <data name="About_Version_AutoCheckForPreviewUpdates.Content" xml:space="preserve">
-    <value>檢查預覽版程式</value>
+    <value>檢查預覽版更新</value>
   </data>
   <data name="About_Version_CheckForUpdates.Content" xml:space="preserve">
     <value>檢查更新</value>
@@ -511,7 +511,7 @@
     <value>正在檢查更新…</value>
   </data>
   <data name="About_Version_ReleaseNotes.Content" xml:space="preserve">
-    <value>新版特性</value>
+    <value>發行備註</value>
   </data>
   <data name="About_Version_UpdateCard_Cancel.Content" xml:space="preserve">
     <value>取消</value>
@@ -520,7 +520,7 @@
     <value>下載並安裝程式</value>
   </data>
   <data name="About_Version_UpdateCard_ReleaseNotes.Content" xml:space="preserve">
-    <value>新版特性</value>
+    <value>發行備註</value>
   </data>
   <data name="About_Version_UpdateCard_Retry.Content" xml:space="preserve">
     <value>重試</value>
@@ -529,7 +529,7 @@
     <value>{} 可用</value>
   </data>
   <data name="About_Version_UpdateToDate.Title" xml:space="preserve">
-    <value>Magpie 已是最新</value>
+    <value>Magpie 沒有更新</value>
   </data>
   <data name="About_Version_UpdateToDate_DownloadFailed.Text" xml:space="preserve">
     <value>下載失敗</value>
@@ -544,7 +544,7 @@
     <value>進階設定</value>
   </data>
   <data name="Profile_Advanced_DisableDirectFlip.Title" xml:space="preserve">
-    <value>禁用 DirectFlip</value>
+    <value>停用 DirectFlip</value>
   </data>
   <data name="Profile_Cursor.Title" xml:space="preserve">
     <value>游標</value>
@@ -559,7 +559,7 @@
     <value>插值算法</value>
   </data>
   <data name="Profile_Cursor_DrawCursor_Interpolation_NearestNeighbor.Content" xml:space="preserve">
-    <value>最近鄰</value>
+    <value>最近相鄰</value>
   </data>
   <data name="Profile_Cursor_DrawCursor_ScalingFactor.Title" xml:space="preserve">
     <value>縮放係數</value>
@@ -568,16 +568,16 @@
     <value>無縮放</value>
   </data>
   <data name="Profile_Cursor_DrawCursor_ScalingFactor_SameAsSourceWindow.Content" xml:space="preserve">
-    <value>和源窗口相同</value>
+    <value>與來源視窗相同</value>
   </data>
   <data name="Profile_General_CaptureMethod_Default" xml:space="preserve">
-    <value>默認</value>
+    <value>預設</value>
   </data>
   <data name="Profile_SourceWindow_CaptureTitleBar.Description" xml:space="preserve">
-    <value>僅在 Graphics Capture 和 Desktop Duplication 捕獲方式下可用</value>
+    <value>僅在 Graphics Capture 與 Desktop Duplication 擷取方式下可用</value>
   </data>
   <data name="Profile_SourceWindow_CustomCropping.Title" xml:space="preserve">
-    <value>自訂裁剪</value>
+    <value>自訂裁切</value>
   </data>
   <data name="Profile_SourceWindow_CustomCropping_Bottom.Title" xml:space="preserve">
     <value>下</value>
@@ -595,7 +595,7 @@
     <value>上</value>
   </data>
   <data name="Profile_SourceWindow_DisableWindowResizing.Title" xml:space="preserve">
-    <value>縮放時禁用窗口大小調整</value>
+    <value>縮放時停用視窗大小調整</value>
   </data>
   <data name="Settings_Advanced_InlineParams.Description" xml:space="preserve">
     <value>稍微提高效能，但每次修改效果的參數都需重新編譯該效果</value>
@@ -604,10 +604,10 @@
     <value>內聯效果參數</value>
   </data>
   <data name="Settings_Launch_RunAtStartup_MinimizeAtStartup.Description" xml:space="preserve">
-    <value>啟用了“系統匣圖示”時才能使用此選項</value>
+    <value>啟用了“工具列圖示”時才能使用此選項</value>
   </data>
   <data name="Settings_Launch_RunAtStartup_MinimizeAtStartup.Title" xml:space="preserve">
-    <value>啟動時最小化到系統匣圖示</value>
+    <value>啟動時最小化到工具列圖示</value>
   </data>
   <data name="Settings_Advanced_SimulateExclusiveFullscreen.Title" xml:space="preserve">
     <value>縮放時模擬獨占全螢幕</value>
@@ -616,7 +616,7 @@
     <value>錯誤</value>
   </data>
   <data name="AppSettings_PortableModeUnkownConfiguration_Content" xml:space="preserve">
-    <value>本地配置文件來自未知版本，可能無法正確解析。</value>
+    <value>本機設定檔來自未知版本，可能無法正確剖析。</value>
   </data>
   <data name="AppSettings_PortableModeUnkownConfiguration_Continue" xml:space="preserve">
     <value>繼續使用</value>
@@ -625,13 +625,13 @@
     <value>退出</value>
   </data>
   <data name="AppSettings_UnkownConfiguration_Content" xml:space="preserve">
-    <value>全局配置文件來自未知版本，可能無法正確解析。</value>
+    <value>全域設定檔來自未知版本，可能無法正確剖析。</value>
   </data>
   <data name="AppSettings_UnkownConfiguration_Continue" xml:space="preserve">
     <value>繼續使用</value>
   </data>
   <data name="AppSettings_UnkownConfiguration_EnablePortableMode" xml:space="preserve">
-    <value>啟用便攜模式</value>
+    <value>啟用可攜模式</value>
   </data>
   <data name="Settings_DeveloperOptions.Description" xml:space="preserve">
     <value>這些設置僅供開發使用</value>
@@ -643,10 +643,10 @@
     <value>除錯模式</value>
   </data>
   <data name="Settings_DeveloperOptions_DisableEffectCache.Content" xml:space="preserve">
-    <value>禁用效果快取</value>
+    <value>停用效果快取</value>
   </data>
   <data name="Settings_DeveloperOptions_SaveEffectSources.Content" xml:space="preserve">
-    <value>解析效果時保存原始碼</value>
+    <value>剖析效果時保存原始碼</value>
   </data>
   <data name="Settings_DeveloperOptions_WarningsAreErrors.Content" xml:space="preserve">
     <value>編譯效果時將警告視為錯誤</value>
@@ -655,23 +655,23 @@
     <value>退出</value>
   </data>
   <data name="AppSettings_ErrorDialog_ConfigLocation" xml:space="preserve">
-    <value>配置檔案位置：
+    <value>組態檔案位置：
 {}</value>
   </data>
   <data name="AppSettings_ErrorDialog_NotValidJson" xml:space="preserve">
-    <value>配置文件不是合法的 JSON</value>
+    <value>組態文件不是合法的 JSON</value>
   </data>
   <data name="AppSettings_ErrorDialog_ParseFailed" xml:space="preserve">
-    <value>解析配置文件失敗</value>
+    <value>剖析組態文件失敗</value>
   </data>
   <data name="AppSettings_ErrorDialog_ReadFailed" xml:space="preserve">
-    <value>讀取配置文件失敗</value>
+    <value>讀取組態文件失敗</value>
   </data>
   <data name="TrayIcon_MainWindow" xml:space="preserve">
-    <value>主窗口</value>
+    <value>主視窗</value>
   </data>
   <data name="Settings_General_RequireRestart.Title" xml:space="preserve">
-    <value>需要重新啟動程式才能使更改生效</value>
+    <value>需要重新啟動程式才能使變更生效</value>
   </data>
   <data name="Settings_General_RequireRestart_ActionButton.Content" xml:space="preserve">
     <value>重新啟動 Magpie</value>
@@ -680,7 +680,7 @@
     <value>未知的效果</value>
   </data>
   <data name="ScalingConfiguration_ScalingModes_HasUnkownEffects.Title" xml:space="preserve">
-    <value>部分效果未能正確解析</value>
+    <value>部分效果未能正確剖析</value>
   </data>
   <data name="ExportDialog_Title" xml:space="preserve">
     <value>匯出縮放方法</value>
@@ -704,34 +704,34 @@
     <value>確定</value>
   </data>
   <data name="ScalingConfiguration_ScalingModes_DeleteFlyout_Description.Text" xml:space="preserve">
-    <value>以下配置文件正在使用這個縮放方法：</value>
+    <value>以下設定檔正在使用這個縮放模式：</value>
   </data>
   <data name="ScalingConfiguration_ScalingModes_DragNotSupported.Text" xml:space="preserve">
-    <value>管理員身份下不支持拖拽排序</value>
+    <value>管理員身份下不支援拖曳排列</value>
   </data>
   <data name="ScalingConfiguration_ScalingModes_NewScalingModeFlyout_Title.Text" xml:space="preserve">
-    <value>新建縮放方法</value>
+    <value>新增縮放模式</value>
   </data>
   <data name="Profile_MoreOptions.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>更多設定</value>
   </data>
   <data name="Profile_MoreOptions_Reorder.Text" xml:space="preserve">
-    <value>重新排序</value>
+    <value>重新排列</value>
   </data>
   <data name="Profile_General_ScalingMode.Title" xml:space="preserve">
-    <value>縮放方法</value>
+    <value>縮放模式</value>
   </data>
   <data name="Profile_General_CaptureMethod.Title" xml:space="preserve">
-    <value>捕獲方式</value>
+    <value>截取方式</value>
   </data>
   <data name="Profile_General_Multimonitor_All.Content" xml:space="preserve">
     <value>所有顯示器</value>
   </data>
   <data name="Profile_General_Multimonitor_Intersected.Content" xml:space="preserve">
-    <value>源窗口跨越的所有顯示器</value>
+    <value>來源視窗跨越的所有顯示器</value>
   </data>
   <data name="Profile_MoreOptions_DeleteFlyout_Title.Text" xml:space="preserve">
-    <value>確定刪除此配置？</value>
+    <value>確定刪除此設定檔？</value>
   </data>
   <data name="Profile_MoreOptions_DeleteFlyout_Delete.Text" xml:space="preserve">
     <value>刪除</value>
@@ -740,7 +740,7 @@
     <value>啟動</value>
   </data>
   <data name="Profile_MoreOptions_RenameFlyout_Title.Text" xml:space="preserve">
-    <value>重命名</value>
+    <value>重新命名</value>
   </data>
   <data name="Profile_MoreOptions_ReorderFlyout_MoveUp.Text" xml:space="preserve">
     <value>上移</value>
@@ -758,7 +758,7 @@
     <value>自動檢查更新</value>
   </data>
   <data name="Profile_SourceWindow_CaptureTitleBar.Title" xml:space="preserve">
-    <value>捕獲標題欄</value>
+    <value>擷取標題欄</value>
   </data>
   <data name="AppSettings_Dialog_Warning" xml:space="preserve">
     <value>警告</value>
@@ -770,7 +770,7 @@
     <value>自訂</value>
   </data>
   <data name="Profile_SourceWindow.Title" xml:space="preserve">
-    <value>源窗口</value>
+    <value>來源視窗</value>
   </data>
   <data name="Settings_Advanced_SimulateExclusiveFullscreen.Description" xml:space="preserve">
     <value>可以阻止某些應用程式的通知和跳出視窗</value>
