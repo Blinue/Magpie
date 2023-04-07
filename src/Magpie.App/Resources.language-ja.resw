@@ -94,4 +94,85 @@
   <data name="Home_Timer_Cancel" xml:space="preserve">
     <value>キャンセル</value>
   </data>
+  <data name="Main_Defaults.Content" xml:space="preserve">
+    <value>デフォルト</value>
+  </data>
+  <data name="Main_Home.Content" xml:space="preserve">
+    <value>ホーム</value>
+  </data>
+  <data name="Main_NewProfile.Content" xml:space="preserve">
+    <value>新しいプロファイル</value>
+  </data>
+  <data name="Main_NewProfileFlyout_ComboBox.PlaceholderText" xml:space="preserve">
+    <value>ウィンドウを選択してください</value>
+  </data>
+  <data name="Main_NewProfileFlyout_NoCandidateWindow.Text" xml:space="preserve">
+    <value>新しいウィンドウを開いてプロファイルを作成します</value>
+  </data>
+  <data name="Main_NewProfileFlyout_Title.Text" xml:space="preserve">
+    <value>新しいプロファイル</value>
+  </data>
+  <data name="Main_Profiles.Content" xml:space="preserve">
+    <value>プロファイル</value>
+  </data>
+  <data name="Main_NewProfileFlyout_Name.Text" xml:space="preserve">
+    <value>名前</value>
+  </data>
+  <data name="Main_ScalingConfiguration.Content" xml:space="preserve">
+    <value>スケーリング設定</value>
+  </data>
+  <data name="Settings_Advanced.Title" xml:space="preserve">
+    <value>高度な設定</value>
+  </data>
+  <data name="Settings_General.Title" xml:space="preserve">
+    <value>一般設定</value>
+  </data>
+  <data name="Settings_General_Language.Title" xml:space="preserve">
+    <value>言語</value>
+  </data>
+  <data name="Settings_General_Language_System" xml:space="preserve">
+    <value>Windowsデフォルト</value>
+  </data>
+  <data name="Settings_General_PortableMode.Title" xml:space="preserve">
+    <value>ポータブルモード</value>
+  </data>
+  <data name="Settings_General_PortableMode_Locate.Content" xml:space="preserve">
+    <value>設定ファイルの場所を開きます</value>
+  </data>
+  <data name="Settings_Launch_RunAtStartup.Title" xml:space="preserve">
+    <value>起動時に実行</value>
+  </data>
+  <data name="Profile_Cursor.Title" xml:space="preserve">
+    <value>カーソル</value>
+  </data>
+  <data name="Profile_Cursor_DrawCursor_AdjustCursorSpeed.Title" xml:space="preserve">
+    <value>スケーリング時カーソル速度を調整する</value>
+  </data>
+  <data name="Profile_Cursor_DrawCursor_Interpolation.Title" xml:space="preserve">
+    <value>補間アルゴリズム</value>
+  </data>
+  <data name="Profile_Cursor_DrawCursor_Interpolation_Bilinear.Content" xml:space="preserve">
+    <value>バイリニア法</value>
+  </data>
+  <data name="Profile_Cursor_DrawCursor_Interpolation_NearestNeighbor.Content" xml:space="preserve">
+    <value>最近傍法</value>
+  </data>
+  <data name="ShortcutDialog_Save" xml:space="preserve">
+    <value>保存</value>
+  </data>
+  <data name="Main_About.Content" xml:space="preserve">
+    <value>Magpieについて</value>
+  </data>
+  <data name="Main_NewProfileFlyout_CopyFrom.Text" xml:space="preserve">
+    <value>からコピー</value>
+  </data>
+  <data name="ScalingConfiguration_PageFrame.Title" xml:space="preserve">
+    <value>スケーリング設定</value>
+  </data>
+  <data name="Profile_Advanced_DisableDirectFlip.Title" xml:space="preserve">
+    <value>DirectFlipを無効にする</value>
+  </data>
+  <data name="Profile_Cursor_DrawCursor.Title" xml:space="preserve">
+    <value>カーソルを描く</value>
+  </data>
 </root>
