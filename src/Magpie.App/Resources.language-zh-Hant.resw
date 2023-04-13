@@ -683,10 +683,10 @@
     <value>部分效果未能正確剖析</value>
   </data>
   <data name="ExportDialog_Title" xml:space="preserve">
-    <value>匯出縮放方法</value>
+    <value>匯出縮放模式</value>
   </data>
   <data name="ImportDialog_Title" xml:space="preserve">
-    <value>匯入縮放方法</value>
+    <value>匯入縮放模式</value>
   </data>
   <data name="ImportLegacyDialog_Title" xml:space="preserve">
     <value>匯入舊版程式的 ScaleModels.json</value>
