@@ -83,15 +83,13 @@ bool XamlApp::Initialize(HINSTANCE hInstance, const wchar_t* arguments) {
 int XamlApp::Run() {
 	MSG msg;
 	while (GetMessage(&msg, nullptr, 0, 0)) {
-		if (msg.message == WM_MAGPIE_SHOWME && _uwpApp) {
+		if (msg.message == WM_MAGPIE_SHOWME) [[unlikely]] {
 			ShowMainWindow();
-			continue;
-		} else if (msg.message == WM_MAGPIE_QUIT) {
+		} else if (msg.message == WM_MAGPIE_QUIT) [[unlikely]] {
 			Quit();
-			continue;
+		} else {
+			_mainWindow.HandleMessage(msg);
 		}
-
-		_mainWindow.HandleMessage(msg);
 	}
 
 	_ReleaseMutexes();

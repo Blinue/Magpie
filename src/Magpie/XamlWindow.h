@@ -19,6 +19,13 @@ public:
 	}
 
 	void HandleMessage(const MSG& msg) {
+		// XAML Islands 会吞掉 Alt+F4，需要特殊处理
+		// https://github.com/microsoft/microsoft-ui-xaml/issues/2408
+		if (msg.message == WM_SYSKEYDOWN && msg.wParam == VK_F4) [[unlikely]] {
+			SendMessage(GetAncestor(msg.hwnd, GA_ROOT), msg.message, msg.wParam, msg.lParam);
+			return;
+		}
+
 		if (_xamlSourceNative2) {
 			BOOL processed = FALSE;
 			HRESULT hr = _xamlSourceNative2->PreTranslateMessage(&msg, &processed);
@@ -95,7 +102,8 @@ protected:
 		case WM_SHOWWINDOW:
 		{
 			if (wParam == TRUE) {
-				SetFocus(_hWnd);
+				// 将焦点置于 XAML Islands 窗口可以修复按 Alt 键会导致 UI 无法交互的问题
+				SetFocus(_hwndXamlIsland);
 			}
 
 			break;
@@ -135,13 +143,13 @@ protected:
 
 			return 0;
 		}
+		case WM_MENUCHAR:
+		{
+			// 防止按 Alt+Key 时发出铃声
+			return MAKELRESULT(0, MNC_CLOSE);
+		}
 		case WM_SYSCOMMAND:
 		{
-			// Alt 键默认会打开菜单，导致界面不响应鼠标移动。这里禁用这个行为
-			if ((wParam & 0xfff0) == SC_KEYMENU) {
-				return 0;
-			}
-
 			// 最小化时关闭 ComboBox
 			// 不能在 WM_SIZE 中处理，该消息发送于最小化之后，会导致 ComboBox 无法交互
 			if (wParam == SC_MINIMIZE && _content) {
