@@ -41,7 +41,7 @@ Like all other open source projects, you need to initiate pull requests to contr
 
 You need to follow the following rules when contributing code:
 
-1. Keep in the same style as that of the current code, including no change-of-line for curly brackets, using tabs for indentation, the ways to name variables, classes, and source files, using UTF-8 without BOM encoding, preferring single-line comments, and using git-style messages, etc. Here is an example:
+1. Keep in the same style as that of the current code, including no change-of-line for curly brackets, using tabs for indentation, the ways to name variables, classes, and source files, using UTF-8 without BOM encoding, preferring single-line comments, and using git-style messages, etc. Please install [XamlStyler](https://github.com/Xavalon/XamlStyler) for formatting XAML files. Here is an example:
     ``` c++
     // ClassName.h
     
