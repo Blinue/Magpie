@@ -6,8 +6,8 @@ In order to compile Magpie, you need to first install:
 2. [CMake](https://cmake.org/)
 
    You can also use the built-in CMake of Visual Studio, which is located at `%ProgramFiles%\Microsoft Visual Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin`.
-2. [Python](https://www.python.org/) 3.6+
-3. [Conan](https://conan.io/) v1
+3. [Python](https://www.python.org/) 3.6+
+4. [Conan](https://conan.io/) v1
 
    ```bash
    pip install conan<2.0
