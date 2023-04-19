@@ -54,7 +54,7 @@ tmp_dir=$(mktemp -d -t ci-XXXXXXXXXX)
 
 for file in $(find docs -maxdepth 1 -type f -name '*.md' -execdir basename '{}' ';'); do
     debug "Copying $file"
-    cp "$1/$file" "$tmp_dir"
+    cp "docs/$file" "$tmp_dir"
 done
 
 debug "Committing and pushing changes"
