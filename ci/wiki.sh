@@ -52,17 +52,10 @@ tmp_dir=$(mktemp -d -t ci-XXXXXXXXXX)
     git pull "$GIT_REPOSITORY_URL"
 ) || exit 1
 
-for file in $(find docs -maxdepth 1 -type f -name '*.md' -execdir basename '{}' ';'); do
-    debug "Copying $file"
-    cp "docs/$file" "$tmp_dir"
-done
-
 for file in docs/*.md; do
     cp "$file" "$tmp_dir"
 done
 
-
-debug "Committing and pushing changes"
 (
     cd "$tmp_dir" || exit 1
     git add .
