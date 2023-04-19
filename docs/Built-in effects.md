@@ -1,6 +1,6 @@
 Magpie ships with a handful of effect that an be used in combinations. Most of the effects have parameters that can be customized. All effects are stored in the `effects` folder. You can easily add effects if you are familiar with HLSL. Check the [MagpieFX](https://github.com/Blinue/Magpie/wiki/MagpieFX%20(EN)) page.
 
-## Introduction to shipped effects1
+## Introduction to shipped effects
 
 * ACNet: Port of [ACNetGLSL](https://github.com/TianZerL/ACNetGLSL). Suitable for anime-style images. Strong denoise effects.
   * Output size: twice that of the input
