@@ -24,7 +24,7 @@ done
 (
     cd "$tmp_dir" || exit 1
     git add .
-    git commit -m "Automatically publish wiki"
+    git commit -m "Published by CI"
     git push --set-upstream "$GIT_REPOSITORY_URL" master
 ) || exit 1
 
