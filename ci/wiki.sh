@@ -57,6 +57,11 @@ for file in $(find docs -maxdepth 1 -type f -name '*.md' -execdir basename '{}' 
     cp "docs/$file" "$tmp_dir"
 done
 
+for file in docs/*.md; do
+    cp "$file" "$tmp_dir"
+done
+
+
 debug "Committing and pushing changes"
 (
     cd "$tmp_dir" || exit 1
