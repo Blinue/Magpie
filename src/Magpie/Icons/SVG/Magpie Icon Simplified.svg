@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg id="_Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 512 512">
+<svg id="_layer_1" data-name="layer 1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 512 512">
   <defs>
     <style>
       .cls-1 {
-        fill: url(#_gradient_4);
+        fill: url(#_gradient_30);
         filter: url(#drop-shadow-2);
       }
 
@@ -34,9 +34,9 @@
       <feComposite in2="blur" operator="in"/>
       <feComposite in="SourceGraphic"/>
     </filter>
-    <linearGradient id="_gradient_4" data-name="gradient 4" x1="150.14" y1="248.16" x2="225.49" y2="323.51" gradientUnits="userSpaceOnUse">
+    <linearGradient id="_gradient_30" data-name="gradient 30" x1="150.14" y1="248.16" x2="225.49" y2="323.51" gradientUnits="userSpaceOnUse">
       <stop offset="0" stop-color="#fff"/>
-      <stop offset="1" stop-color="#c8c9ca"/>
+      <stop offset="1" stop-color="#b9b9c8"/>
     </linearGradient>
     <filter id="drop-shadow-2" filterUnits="userSpaceOnUse">
       <feOffset dx="0" dy="9.63"/>
