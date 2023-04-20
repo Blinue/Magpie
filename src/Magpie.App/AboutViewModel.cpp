@@ -7,9 +7,11 @@
 #include "UpdateService.h"
 #include "AppSettings.h"
 #include "StrUtils.h"
+#include "IconHelper.h"
 
 using namespace winrt;
 using namespace Windows::ApplicationModel::Resources;
+using namespace Windows::UI::Xaml::Media::Imaging;
 
 namespace winrt::Magpie::App::implementation {
 
@@ -35,10 +37,27 @@ AboutViewModel::AboutViewModel() {
 			UpdateService::Get().IsShowOnHomePage(false);
 		}
 	});
+
+	// 异步加载 Logo
+	([](AboutViewModel* that)->fire_and_forget {
+		wchar_t exePath[MAX_PATH];
+		GetModuleFileName(NULL, exePath, MAX_PATH);
+
+		auto weakThis = that->get_weak();
+		SoftwareBitmapSource bitmap;
+		co_await bitmap.SetBitmapAsync(IconHelper::ExtractIconFromExe(exePath, 256, USER_DEFAULT_SCREEN_DPI));
+
+		if (!weakThis.get()) {
+			co_return;
+		}
+
+		that->_logo = std::move(bitmap);
+		that->_propertyChangedEvent(*that, PropertyChangedEventArgs(L"Logo"));
+	})(this);
 }
 
 hstring AboutViewModel::Version() const noexcept {
-	return MAGPIE_TAG_W;
+	return hstring(StrUtils::ConcatW(L"Magpie ", MAGPIE_TAG_W));
 }
 
 Uri AboutViewModel::ReleaseNotesLink() const noexcept {

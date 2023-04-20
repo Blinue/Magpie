@@ -2,6 +2,8 @@ namespace Magpie.App {
 	runtimeclass AboutViewModel : Windows.UI.Xaml.Data.INotifyPropertyChanged {
 		AboutViewModel();
 
+		Windows.UI.Xaml.Media.Imaging.SoftwareBitmapSource Logo { get; };
+
 		String Version { get; };
 		Windows.Foundation.Uri ReleaseNotesLink { get; };
 

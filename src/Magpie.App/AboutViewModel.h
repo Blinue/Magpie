@@ -15,6 +15,10 @@ struct AboutViewModel : AboutViewModelT<AboutViewModel> {
 		_propertyChangedEvent.remove(token);
 	}
 
+	Imaging::SoftwareBitmapSource Logo() const noexcept {
+		return _logo;
+	}
+
 	hstring Version() const noexcept;
 
 	Uri ReleaseNotesLink() const noexcept;
@@ -68,6 +72,8 @@ private:
 	WinRTUtils::EventRevoker _updateStatusChangedRevoker;
 	WinRTUtils::EventRevoker _downloadProgressChangedRevoker;
 	WinRTUtils::EventRevoker _showOnHomePageChangedRevoker;
+
+	Imaging::SoftwareBitmapSource _logo{ nullptr };
 };
 
 }
