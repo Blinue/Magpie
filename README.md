@@ -14,7 +14,7 @@
 <a href="#%E8%B4%A1%E7%8C%AE%E8%80%85-">
 <img alt="All Contributors" src="https://img.shields.io/github/all-contributors/Blinue/Magpie">
 </a>
-<a href="GitHub all releases">
+<a href="https://github.com/Blinue/Magpie/releases">
 <img alt="GitHub all releases" src="https://img.shields.io/github/downloads/Blinue/Magpie/total">
 </a>
 </p>
