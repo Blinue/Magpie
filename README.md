@@ -1,3 +1,5 @@
+<br>
+<br>
 <p align="center">
   <img src="https://raw.githubusercontent.com/Blinue/Magpie/18eabcbdd6de2420ee5d749b43e6e5aa7b3d042e/src/Magpie/Icons/PNG/Magpie%20Icon%20Full%20Disabled/256.png" width="128px" height="128px" alt="Logo of Magpie">
 </p>
