@@ -14,10 +14,11 @@ using namespace Windows::ApplicationModel::Resources::Core;
 namespace winrt::Magpie::App {
 
 // 标签必须为小写
-static std::array<const wchar_t*, 5> SUPPORTED_LANGUAGES{
+static std::array<const wchar_t*, 6> SUPPORTED_LANGUAGES{
 	L"en-us",
 	L"ja",
 	L"ru",
+	L"tr",
 	L"zh-hans",
 	L"zh-hant"
 };
