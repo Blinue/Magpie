@@ -27,9 +27,8 @@ bool XamlApp::Initialize(HINSTANCE hInstance, const wchar_t* arguments) {
 	FixThreadPoolCrash();
 	_InitializeLogger();
 
-	Logger::Get().Info(fmt::format("程序启动\n\t版本：v{}.{}.{}\n\t管理员：{}",
-		MAGPIE_VERSION.major, MAGPIE_VERSION.minor, MAGPIE_VERSION.patch,
-		Win32Utils::IsProcessElevated() ? "是" : "否"));
+	Logger::Get().Info(fmt::format("程序启动\n\t版本：{}\n\t管理员：{}",
+		MAGPIE_TAG, Win32Utils::IsProcessElevated() ? "是" : "否"));
 
 	if (!_CheckSingleInstance()) {
 		Logger::Get().Info("已经有一个实例正在运行");

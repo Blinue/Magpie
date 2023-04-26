@@ -582,10 +582,10 @@
   <data name="About_Version.Title" xml:space="preserve">
     <value>Версия</value>
   </data>
-  <data name="About_Version_AutoCheckForPreviewUpdates.Content" xml:space="preserve">
+  <data name="About_Version_UpdateSettings_CheckForPreviewUpdates.Title" xml:space="preserve">
     <value>Проверять предварительные обновления</value>
   </data>
-  <data name="About_Version_AutoCheckForUpdates.Content" xml:space="preserve">
+  <data name="About_Version_UpdateSettings_AutoCheckForUpdates.Title" xml:space="preserve">
     <value>Автоматически проверять наличие обновлений</value>
   </data>
   <data name="About_Version_CheckForUpdates.Text" xml:space="preserve">
@@ -596,9 +596,6 @@
   </data>
   <data name="About_Version_CheckingForUpdates.Text" xml:space="preserve">
     <value>Проверяем обновления</value>
-  </data>
-  <data name="About_Version_ReleaseNotes.Content" xml:space="preserve">
-    <value>Примечания к выпуску</value>
   </data>
   <data name="About_Version_UpdateCard_Cancel.Content" xml:space="preserve">
     <value>Отмена</value>

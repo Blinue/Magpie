@@ -57,8 +57,9 @@ AboutViewModel::AboutViewModel() {
 }
 
 hstring AboutViewModel::Version() const noexcept {
-	return hstring(fmt::format(L"版本 {}.{}.{} | x64",
-		MAGPIE_VERSION.major, MAGPIE_VERSION.minor, MAGPIE_VERSION.patch));
+	ResourceLoader resourceLoader = ResourceLoader::GetForCurrentView();
+	hstring versionStr = resourceLoader.GetString(L"About_Version_Version");
+	return versionStr + StrUtils::ConcatW(L" ", MAGPIE_TAG_W + 1, L" | x64");
 }
 
 fire_and_forget AboutViewModel::CheckForUpdates() {

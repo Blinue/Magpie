@@ -120,8 +120,8 @@
 					</muxc:InfoBar>
 				</StackPanel>
 			</StackPanel>
-			<local:SettingsGroup Title="更新设置">
-				<local:SettingsCard Title="自动检查更新">
+			<local:SettingsGroup x:Uid="About_Version_UpdateSettings">
+				<local:SettingsCard x:Uid="About_Version_UpdateSettings_AutoCheckForUpdates">
 					<local:SettingsCard.Icon>
 						<FontIcon Glyph="&#xECC5;" />
 					</local:SettingsCard.Icon>
@@ -130,7 +130,7 @@
 						              IsOn="{x:Bind ViewModel.IsAutoCheckForUpdates, Mode=TwoWay}" />
 					</local:SettingsCard.ActionContent>
 				</local:SettingsCard>
-				<local:SettingsCard Title="检查预览版更新">
+				<local:SettingsCard x:Uid="About_Version_UpdateSettings_CheckForPreviewUpdates">
 					<local:SettingsCard.Icon>
 						<FontIcon Glyph="&#xED56;" />
 					</local:SettingsCard.Icon>
