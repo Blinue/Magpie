@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="_layer_" data-name="layer" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 512 512">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: url(#_gradient_30);
+        filter: url(#drop-shadow-2);
+      }
+
+      .cls-2 {
+        clip-path: url(#clippath);
+      }
+
+      .cls-3 {
+        fill: none;
+      }
+
+      .cls-4 {
+        fill: url(#_gradient_2);
+        filter: url(#drop-shadow-1);
+      }
+    </style>
+    <clipPath id="clippath">
+      <path class="cls-3" d="M449.99,32h-63.14C214.41,32,56.93,161.41,56.93,344.23v58.53c-6.58,14.77-12.53,29.7-17.83,44.75-12.08,34.29,33.11,45.75,42.77,13.14,5.47-18.46,11.88-36.69,19.15-54.61h39.99c93.79,0,125.04-35.47,143.56-56.01,27.74-30.75,51.32-64.46,64.67-98.71,3.13-8.03,2.38-17.06-2.14-24.41l-9.77-15.87h19c9.73,0,18.7-5.18,23.62-13.58,21.52-36.73,49.73-77.11,89.17-124.58,13.5-16.25,1.99-40.88-19.14-40.88Z"/>
+    </clipPath>
+    <linearGradient id="_gradient_2" data-name="gradient 2" x1="56.93" y1="219.02" x2="474.94" y2="219.02" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#168dd5"/>
+      <stop offset="1" stop-color="#066abd"/>
+    </linearGradient>
+    <filter id="drop-shadow-1" filterUnits="userSpaceOnUse">
+      <feOffset dx="0" dy="9.65"/>
+      <feGaussianBlur result="blur" stdDeviation="19.29"/>
+      <feFlood flood-color="#040000" flood-opacity=".25"/>
+      <feComposite in2="blur" operator="in"/>
+      <feComposite in="SourceGraphic"/>
+    </filter>
+    <linearGradient id="_gradient_30" data-name="gradient 30" x1="150.2" y1="248.8" x2="224.65" y2="323.25" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#fff"/>
+      <stop offset="1" stop-color="#b9b9c8"/>
+    </linearGradient>
+    <filter id="drop-shadow-2" filterUnits="userSpaceOnUse">
+      <feOffset dx="0" dy="9.65"/>
+      <feGaussianBlur result="blur-2" stdDeviation="19.29"/>
+      <feFlood flood-color="#040000" flood-opacity=".25"/>
+      <feComposite in2="blur-2" operator="in"/>
+      <feComposite in="SourceGraphic"/>
+    </filter>
+  </defs>
+  <g class="cls-2">
+    <path class="cls-4" d="M469.12,72.88c-39.44,47.47-67.65,87.85-89.17,124.58-4.92,8.4-13.89,13.58-23.62,13.58h-19s9.77,15.87,9.77,15.87c4.52,7.34,5.27,16.37,2.14,24.41-13.35,34.25-36.93,67.96-64.67,98.71-18.53,20.54-49.77,56.01-143.56,56.01H56.93v-61.81C56.93,161.41,214.41,32,386.85,32h63.14c21.13,0,32.64,24.63,19.14,40.88Z"/>
+    <path class="cls-1" d="M39.1,447.51C88.09,308.45,192.91,178.73,327.87,104.14c10.89-5.64,20.21,9.48,9.86,16.58-122.74,77.16-214.99,202.07-255.86,339.92-9.67,32.61-54.86,21.15-42.77-13.14Z"/>
+  </g>
+</svg>

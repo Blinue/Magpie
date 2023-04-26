@@ -148,6 +148,24 @@
       "contributions": [
         "translation"
       ]
+    },
+    {
+      "login": "WluhWluh",
+      "name": "WluhWluh",
+      "avatar_url": "https://avatars.githubusercontent.com/u/52004526?v=4",
+      "profile": "https://github.com/WluhWluh",
+      "contributions": [
+        "design"
+      ]
+    },
+    {
+      "login": "SerdarSaglam",
+      "name": "Serdar Sağlam",
+      "avatar_url": "https://avatars.githubusercontent.com/u/42881121?v=4",
+      "profile": "https://github.com/SerdarSaglam",
+      "contributions": [
+        "translation"
+      ]
     }
   ],
   "contributorsPerLine": 7,

@@ -558,23 +558,20 @@
   <data name="About_Version.Title" xml:space="preserve">
     <value>程序版本</value>
   </data>
-  <data name="About_Version_AutoCheckForPreviewUpdates.Content" xml:space="preserve">
+  <data name="About_Version_UpdateSettings_CheckForPreviewUpdates.Title" xml:space="preserve">
     <value>检查预览版更新</value>
   </data>
-  <data name="About_Version_AutoCheckForUpdates.Content" xml:space="preserve">
+  <data name="About_Version_UpdateSettings_AutoCheckForUpdates.Title" xml:space="preserve">
     <value>自动检查更新</value>
   </data>
-  <data name="About_Version_CheckForUpdates.Content" xml:space="preserve">
+  <data name="About_Version_CheckForUpdates.Text" xml:space="preserve">
     <value>检查更新</value>
   </data>
   <data name="About_Version_CheckForUpdatesFailed.Title" xml:space="preserve">
     <value>检查更新失败，请稍后重试</value>
   </data>
   <data name="About_Version_CheckingForUpdates.Text" xml:space="preserve">
-    <value>正在检查更新…</value>
-  </data>
-  <data name="About_Version_ReleaseNotes.Content" xml:space="preserve">
-    <value>发行说明</value>
+    <value>正在检查更新</value>
   </data>
   <data name="About_Version_UpdateCard_Cancel.Content" xml:space="preserve">
     <value>取消</value>
@@ -774,5 +771,11 @@
   </data>
   <data name="ImportLegacyDialog_Title" xml:space="preserve">
     <value>导入旧版程序的 ScaleModels.json</value>
+  </data>
+  <data name="About_Version_UpdateSettings.Title" xml:space="preserve">
+    <value>更新设置</value>
+  </data>
+  <data name="About_Version_Version" xml:space="preserve">
+    <value>版本</value>
   </data>
 </root>
