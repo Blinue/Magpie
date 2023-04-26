@@ -17,7 +17,8 @@
 		<Setter Property="Template">
 			<Setter.Value>
 				<ControlTemplate TargetType="ToggleSwitch">
-					<Grid Background="{TemplateBinding Background}"
+					<Grid Margin="0,-4,0,-4"
+					      Background="{TemplateBinding Background}"
 					      BorderBrush="{TemplateBinding BorderBrush}"
 					      BorderThickness="{TemplateBinding BorderThickness}"
 					      CornerRadius="{TemplateBinding CornerRadius}">

@@ -7,9 +7,11 @@
 #include "UpdateService.h"
 #include "AppSettings.h"
 #include "StrUtils.h"
+#include "IconHelper.h"
 
 using namespace winrt;
 using namespace Windows::ApplicationModel::Resources;
+using namespace Windows::UI::Xaml::Media::Imaging;
 
 namespace winrt::Magpie::App::implementation {
 
@@ -35,14 +37,29 @@ AboutViewModel::AboutViewModel() {
 			UpdateService::Get().IsShowOnHomePage(false);
 		}
 	});
+
+	// 异步加载 Logo
+	([](AboutViewModel* that)->fire_and_forget {
+		wchar_t exePath[MAX_PATH];
+		GetModuleFileName(NULL, exePath, MAX_PATH);
+
+		auto weakThis = that->get_weak();
+		SoftwareBitmapSource bitmap;
+		co_await bitmap.SetBitmapAsync(IconHelper::ExtractIconFromExe(exePath, 256, USER_DEFAULT_SCREEN_DPI));
+
+		if (!weakThis.get()) {
+			co_return;
+		}
+
+		that->_logo = std::move(bitmap);
+		that->_propertyChangedEvent(*that, PropertyChangedEventArgs(L"Logo"));
+	})(this);
 }
 
 hstring AboutViewModel::Version() const noexcept {
-	return MAGPIE_TAG_W;
-}
-
-Uri AboutViewModel::ReleaseNotesLink() const noexcept {
-	return Uri(StrUtils::ConcatW(L"https://github.com/Blinue/Magpie/releases/tag/", MAGPIE_TAG_W));
+	ResourceLoader resourceLoader = ResourceLoader::GetForCurrentView();
+	hstring versionStr = resourceLoader.GetString(L"About_Version_Version");
+	return versionStr + StrUtils::ConcatW(L" ", MAGPIE_TAG_W + 1, L" | x64");
 }
 
 fire_and_forget AboutViewModel::CheckForUpdates() {
@@ -56,6 +73,10 @@ bool AboutViewModel::IsCheckForPreviewUpdates() const noexcept {
 void AboutViewModel::IsCheckForPreviewUpdates(bool value) noexcept {
 	AppSettings::Get().IsCheckForPreviewUpdates(value);
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsCheckForPreviewUpdates"));
+}
+
+bool AboutViewModel::IsCheckForUpdatesButtonEnabled() const noexcept {
+	return !IsCheckingForUpdates() && !IsDownloadingOrLater();
 }
 
 bool AboutViewModel::IsAutoCheckForUpdates() const noexcept {
@@ -203,6 +224,7 @@ void AboutViewModel::Retry() {
 
 void AboutViewModel::_UpdateService_StatusChanged(UpdateStatus status) {
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsCheckingForUpdates"));
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsCheckForUpdatesButtonEnabled"));
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsErrorWhileChecking"));
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsNoUpdate"));
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsAvailable"));

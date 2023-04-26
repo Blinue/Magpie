@@ -1,9 +1,23 @@
-# MAGPIE
-
-[![License](https://img.shields.io/github/license/Blinue/Magpie)](./LICENSE)
-[![build](https://github.com/Blinue/Magpie/actions/workflows/build.yml/badge.svg)](https://github.com/Blinue/Magpie/actions/workflows/build.yml)
-[![All Contributors](https://img.shields.io/github/all-contributors/Blinue/Magpie)](#%E8%B4%A1%E7%8C%AE%E8%80%85-)
-[![GitHub all releases](https://img.shields.io/github/downloads/Blinue/Magpie/total)](https://github.com/Blinue/Magpie/releases)
+<br>
+<br>
+<p align="center">
+  <img src="https://raw.githubusercontent.com/Blinue/Magpie/18eabcbdd6de2420ee5d749b43e6e5aa7b3d042e/src/Magpie/Icons/PNG/Magpie%20Icon%20Full%20Disabled/256.png" width="128px" height="128px" alt="Logo of Magpie">
+</p>
+<h1 align="center">Magpie</h1>
+<p align="center">
+<a href="./LICENSE">
+<img alt="License" src="https://img.shields.io/github/license/Blinue/Magpie">
+</a>
+<a href="https://github.com/Blinue/Magpie/actions/workflows/build.yml">
+<img alt="build" src="https://github.com/Blinue/Magpie/actions/workflows/build.yml/badge.svg">
+</a>
+<a href="#%E8%B4%A1%E7%8C%AE%E8%80%85-">
+<img alt="All Contributors" src="https://img.shields.io/github/all-contributors/Blinue/Magpie">
+</a>
+<a href="https://github.com/Blinue/Magpie/releases">
+<img alt="GitHub all releases" src="https://img.shields.io/github/downloads/Blinue/Magpie/total">
+</a>
+</p>
 
 :earth_africa: [简体中文](./README.md) | **English**
 
