@@ -20,15 +20,13 @@
 					<StackPanel Margin="0,-4,0,0"
 					            VerticalAlignment="Center"
 					            Orientation="Vertical"
-					            Spacing="2">
-						<TextBlock FontSize="16"
-						           FontWeight="SemiBold"
+					            Spacing="4">
+						<TextBlock FontSize="24"
+						           FontWeight="Medium"
+						           Text="Magpie" />
+						<TextBlock FontSize="{StaticResource SecondaryTextFontSize}"
+						           Foreground="{ThemeResource TextFillColorSecondaryBrush}"
 						           Text="{x:Bind ViewModel.Version, Mode=OneTime}" />
-						<HyperlinkButton x:Uid="About_Version_UpdateCard_ReleaseNotes"
-						                 Padding="0"
-						                 FontSize="13"
-						                 NavigateUri="{x:Bind ViewModel.ReleaseNotesLink, Mode=OneWay}"
-						                 Style="{StaticResource SettingsCardHyperlinkStyle}" />
 					</StackPanel>
 				</StackPanel>
 				<StackPanel Margin="0,15,0,0">

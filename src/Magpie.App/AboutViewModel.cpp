@@ -57,7 +57,8 @@ AboutViewModel::AboutViewModel() {
 }
 
 hstring AboutViewModel::Version() const noexcept {
-	return hstring(StrUtils::ConcatW(L"Magpie ", MAGPIE_TAG_W));
+	return hstring(fmt::format(L"版本 {}.{}.{} | x64",
+		MAGPIE_VERSION.major, MAGPIE_VERSION.minor, MAGPIE_VERSION.patch));
 }
 
 Uri AboutViewModel::ReleaseNotesLink() const noexcept {
