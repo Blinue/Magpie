@@ -5,10 +5,10 @@ namespace Magpie.App {
 		Windows.UI.Xaml.Media.Imaging.SoftwareBitmapSource Logo { get; };
 
 		String Version { get; };
-		Windows.Foundation.Uri ReleaseNotesLink { get; };
 
 		void CheckForUpdates();
 		Boolean IsCheckingForUpdates { get; };
+		Boolean IsCheckForUpdatesButtonEnabled { get; };
 
 		Boolean IsAutoCheckForUpdates;
 		Boolean IsCheckForPreviewUpdates;

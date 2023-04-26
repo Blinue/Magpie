@@ -21,12 +21,12 @@ struct AboutViewModel : AboutViewModelT<AboutViewModel> {
 
 	hstring Version() const noexcept;
 
-	Uri ReleaseNotesLink() const noexcept;
-
 	fire_and_forget CheckForUpdates();
 
 	bool IsCheckForPreviewUpdates() const noexcept;
 	void IsCheckForPreviewUpdates(bool value) noexcept;
+
+	bool IsCheckForUpdatesButtonEnabled() const noexcept;
 
 	bool IsAutoCheckForUpdates() const noexcept;
 	void IsAutoCheckForUpdates(bool value) noexcept;

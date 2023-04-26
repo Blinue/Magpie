@@ -22,29 +22,34 @@
 					            Orientation="Vertical"
 					            Spacing="4">
 						<TextBlock FontSize="24"
-						           FontWeight="Medium"
 						           Text="Magpie" />
 						<TextBlock FontSize="{StaticResource SecondaryTextFontSize}"
 						           Foreground="{ThemeResource TextFillColorSecondaryBrush}"
 						           Text="{x:Bind ViewModel.Version, Mode=OneTime}" />
 					</StackPanel>
 				</StackPanel>
-				<StackPanel Margin="0,15,0,0">
-					<Button x:Uid="About_Version_CheckForUpdates"
+				<StackPanel>
+					<Button Margin="0,15,0,0"
 					        Click="{x:Bind ViewModel.CheckForUpdates}"
-					        IsEnabled="{x:Bind ViewModel.IsDownloadingOrLater, Mode=OneWay, Converter={StaticResource NegationConverter}}"
-					        Style="{StaticResource AccentButtonStyle}"
-					        Visibility="{x:Bind ViewModel.IsCheckingForUpdates, Mode=OneWay, Converter={StaticResource NegativeVisibilityConverter}}" />
-					<StackPanel Orientation="Horizontal"
-					            Spacing="8"
-					            Visibility="{x:Bind ViewModel.IsCheckingForUpdates, Mode=OneWay}">
-						<muxc:ProgressRing Width="20"
-						                   Height="20"
-						                   VerticalAlignment="Center"
-						                   IsActive="True" />
-						<TextBlock x:Uid="About_Version_CheckingForUpdates"
-						           VerticalAlignment="Center" />
-					</StackPanel>
+					        IsEnabled="{x:Bind ViewModel.IsCheckForUpdatesButtonEnabled, Mode=OneWay}"
+					        Style="{StaticResource AccentButtonStyle}">
+						<Grid>
+							<TextBlock x:Uid="About_Version_CheckForUpdates"
+							           Visibility="{x:Bind ViewModel.IsCheckingForUpdates, Mode=OneWay, Converter={StaticResource NegativeVisibilityConverter}}" />
+							<StackPanel Orientation="Horizontal"
+							            Spacing="8">
+								<muxc:ProgressRing Width="16"
+								                   Height="16"
+								                   VerticalAlignment="Center"
+								                   Foreground="White"
+								                   IsActive="True"
+								                   Visibility="{x:Bind ViewModel.IsCheckingForUpdates, Mode=OneWay}" />
+								<TextBlock x:Uid="About_Version_CheckingForUpdates"
+								           VerticalAlignment="Center"
+								           Visibility="{x:Bind ViewModel.IsCheckingForUpdates, Mode=OneWay}" />
+							</StackPanel>
+						</Grid>
+					</Button>
 				</StackPanel>
 				<StackPanel ChildrenTransitions="{StaticResource SettingsCardsAnimations}"
 				            Orientation="Vertical">

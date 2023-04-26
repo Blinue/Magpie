@@ -61,10 +61,6 @@ hstring AboutViewModel::Version() const noexcept {
 		MAGPIE_VERSION.major, MAGPIE_VERSION.minor, MAGPIE_VERSION.patch));
 }
 
-Uri AboutViewModel::ReleaseNotesLink() const noexcept {
-	return Uri(StrUtils::ConcatW(L"https://github.com/Blinue/Magpie/releases/tag/", MAGPIE_TAG_W));
-}
-
 fire_and_forget AboutViewModel::CheckForUpdates() {
 	return UpdateService::Get().CheckForUpdatesAsync(false);
 }
@@ -76,6 +72,10 @@ bool AboutViewModel::IsCheckForPreviewUpdates() const noexcept {
 void AboutViewModel::IsCheckForPreviewUpdates(bool value) noexcept {
 	AppSettings::Get().IsCheckForPreviewUpdates(value);
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsCheckForPreviewUpdates"));
+}
+
+bool AboutViewModel::IsCheckForUpdatesButtonEnabled() const noexcept {
+	return !IsCheckingForUpdates() && !IsDownloadingOrLater();
 }
 
 bool AboutViewModel::IsAutoCheckForUpdates() const noexcept {
@@ -223,6 +223,7 @@ void AboutViewModel::Retry() {
 
 void AboutViewModel::_UpdateService_StatusChanged(UpdateStatus status) {
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsCheckingForUpdates"));
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsCheckForUpdatesButtonEnabled"));
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsErrorWhileChecking"));
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsNoUpdate"));
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsAvailable"));
