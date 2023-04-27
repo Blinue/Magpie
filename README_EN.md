@@ -42,7 +42,7 @@ We are using [Weblate](https://weblate.org/) for localization work and would app
 
 ## How to use
 
-1. Configuring scaling mode
+1. Configuring scaling modes
 
     Magpie provides some simple scaling modes by default, but it is recommended to configure them according to your specific use case. Then, change the global scaling mode on the "Profiles"-"Defaults" page.
 
