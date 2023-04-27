@@ -1,23 +1,18 @@
 <br>
 <br>
 <p align="center">
-  <img src="https://raw.githubusercontent.com/Blinue/Magpie/18eabcbdd6de2420ee5d749b43e6e5aa7b3d042e/src/Magpie/Icons/PNG/Magpie%20Icon%20Full%20Disabled/256.png" width="128px" height="128px" alt="Logo of Magpie">
+  <img src="./src/Magpie/Icons/PNG/Magpie Icon Full Disabled/256.png" width="128px" height="128px" alt="Logo">
 </p>
 <h1 align="center">Magpie</h1>
-<p align="center">
-<a href="./LICENSE">
-<img alt="许可协议" src="https://img.shields.io/github/license/Blinue/Magpie">
-</a>
-<a href="https://github.com/Blinue/Magpie/actions/workflows/build.yml">
-<img alt="build" src="https://github.com/Blinue/Magpie/actions/workflows/build.yml/badge.svg">
-</a>
-<a href="#%E8%B4%A1%E7%8C%AE%E8%80%85-">
-<img alt="All Contributors" src="https://img.shields.io/github/all-contributors/Blinue/Magpie">
-</a>
-<a href="https://github.com/Blinue/Magpie/releases">
-<img alt="GitHub all releases" src="https://img.shields.io/github/downloads/Blinue/Magpie/total">
-</a>
-</p>
+
+<div align="center">
+
+[![许可协议](https://img.shields.io/github/license/Blinue/Magpie)](./LICENSE)
+[![build](https://github.com/Blinue/Magpie/actions/workflows/build.yml/badge.svg)](https://github.com/Blinue/Magpie/actions/workflows/build.yml)
+[![All Contributors](https://img.shields.io/github/all-contributors/Blinue/Magpie)](#%E8%B4%A1%E7%8C%AE%E8%80%85-)
+[![GitHub all releases](https://img.shields.io/github/downloads/Blinue/Magpie/total)](https://github.com/Blinue/Magpie/releases)
+
+</div>
 
 🌍 **简体中文** | [English](./README_EN.md)
 
@@ -47,10 +42,18 @@ Magpie 是一个轻量级的窗口缩放工具，内置了多种高效的缩放�
 
 ## 如何使用
 
-1. 配置缩放模式：Magpie 预设了一些简单的缩放模式，但建议根据使用场景自行配置。然后在“配置文件”-“默认”页面更改全局缩放模式。
-2. 缩放窗口：把要缩放的窗口置于前台，按下快捷键（默认为 Win+Shift+A）即可全屏显示。请注意，要缩放的窗口必须处于窗口化状态，而不是最大化或全屏化。也可以使用“主页”上的“x 秒后缩放”按钮，Magpie 将在数秒后自动缩放前台窗口。
-3. 为窗口创建配置文件：这使你可以保存针对某个窗口的配置，也支持在该窗口位于前台时自动执行缩放。
-4. 自定义效果：Magpie 使用 Direct3D 计算着色器实现效果，但扩展了语法来定义资源、组织多个通道等，详见 [MagpieFX](https://github.com/Blinue/Magpie/wiki/MagpieFX) 。有着色器编写经验者可以轻松创建自定义效果。
+1. 配置缩放模式
+
+    Magpie 预设了一些简单的缩放模式，但建议根据使用场景自行配置。然后在“配置文件”-“默认”页面更改全局缩放模式。
+2. 缩放窗口
+
+    把要缩放的窗口置于前台，按下快捷键（默认为 Win+Shift+A）即可全屏显示。请注意，要缩放的窗口必须处于窗口化状态，而不是最大化或全屏化。也可以使用“主页”上的“x 秒后缩放”按钮，Magpie 将在数秒后自动缩放前台窗口。
+3. 为窗口创建配置文件
+
+    这使你可以保存针对某个窗口的配置，也支持在该窗口位于前台时自动执行缩放。
+4. 自定义效果
+
+    Magpie 使用 Direct3D 计算着色器实现效果，但扩展了语法来定义资源、组织多个通道等，详见 [MagpieFX](https://github.com/Blinue/Magpie/wiki/MagpieFX) 。有着色器编写经验者可以轻松创建自定义效果。
 
 ## 截图
 
