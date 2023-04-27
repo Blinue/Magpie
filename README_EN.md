@@ -1,23 +1,18 @@
 <br>
 <br>
 <p align="center">
-  <img src="https://raw.githubusercontent.com/Blinue/Magpie/18eabcbdd6de2420ee5d749b43e6e5aa7b3d042e/src/Magpie/Icons/PNG/Magpie%20Icon%20Full%20Disabled/256.png" width="128px" height="128px" alt="Logo of Magpie">
+  <img src="./src/Magpie/Icons/PNG/Magpie Icon Full Disabled/256.png" width="128px" height="128px" alt="Logo">
 </p>
 <h1 align="center">Magpie</h1>
-<p align="center">
-<a href="./LICENSE">
-<img alt="License" src="https://img.shields.io/github/license/Blinue/Magpie">
-</a>
-<a href="https://github.com/Blinue/Magpie/actions/workflows/build.yml">
-<img alt="build" src="https://github.com/Blinue/Magpie/actions/workflows/build.yml/badge.svg">
-</a>
-<a href="#%E8%B4%A1%E7%8C%AE%E8%80%85-">
-<img alt="All Contributors" src="https://img.shields.io/github/all-contributors/Blinue/Magpie">
-</a>
-<a href="https://github.com/Blinue/Magpie/releases">
-<img alt="GitHub all releases" src="https://img.shields.io/github/downloads/Blinue/Magpie/total">
-</a>
-</p>
+
+<div align="center">
+
+[![License](https://img.shields.io/github/license/Blinue/Magpie)](./LICENSE)
+[![build](https://github.com/Blinue/Magpie/actions/workflows/build.yml/badge.svg)](https://github.com/Blinue/Magpie/actions/workflows/build.yml)
+[![All Contributors](https://img.shields.io/github/all-contributors/Blinue/Magpie)](#acknowledgement-)
+[![GitHub all releases](https://img.shields.io/github/downloads/Blinue/Magpie/total)](https://github.com/Blinue/Magpie/releases)
+
+</div>
 
 :earth_africa: [简体中文](./README.md) | **English**
 
@@ -47,16 +42,27 @@ We are using [Weblate](https://weblate.org/) for localization work and would app
 
 ## How to use
 
-1. Configuring scaling mode: Magpie provides some simple scaling modes by default, but it is recommended to configure them according to your specific use case. Then, change the global scaling mode on the "Profiles"-"Defaults" page.
-2. Scaling a window: To scale a window, bring the desired window to the foreground and press the shortcut key (default is Win+Shift+A) to display it in fullscreen mode. Note that the window to be scaled must be in windowed mode, not maximized or fullscreen mode. You can also use the "Scale after xs" button on the "Home" page, and Magpie will automatically scale the foreground window after a few seconds.
-3. Creating profiles for windows: This allows you to save configurations specific to a particular window. Magpie also supports automatically activate scaling when that window is brought to the foreground.
-4. Customizing effects: Magpie uses Direct3D compute shader to implement effects, but the syntax has been extended to define resources and organize multiple passes. For more information, please refer to [MagpieFX](https://github.com/Blinue/Magpie/wiki/MagpieFX%20(EN)). Those with experience in shader writing can easily create custom effects.
+1. Configuring scaling mode
+
+    Magpie provides some simple scaling modes by default, but it is recommended to configure them according to your specific use case. Then, change the global scaling mode on the "Profiles"-"Defaults" page.
+
+2. Scaling a window
+
+    To scale a window, bring the desired window to the foreground and press the shortcut key (default is Win+Shift+A) to display it in fullscreen mode. Note that the window to be scaled must be in windowed mode, not maximized or fullscreen mode. You can also use the "Scale after xs" button on the "Home" page, and Magpie will automatically scale the foreground window after a few seconds.
+
+3. Creating profiles for windows
+    
+    This allows you to save configurations specific to a particular window. Magpie also supports automatically activate scaling when that window is brought to the foreground.
+
+4. Customizing effects
+
+    Magpie uses Direct3D compute shader to implement effects, but the syntax has been extended to define resources and organize multiple passes. For more information, please refer to [MagpieFX](https://github.com/Blinue/Magpie/wiki/MagpieFX%20(EN)). Those with experience in shader writing can easily create custom effects.
 
 ## Screenshots
 
 <img src="img/Main window.png" alt= "Main window" height="300">
 
-## System Requirements
+## System requirements
 
 1. Windows 10 v1903+ or Windows 11
 2. DirectX feature level 11
