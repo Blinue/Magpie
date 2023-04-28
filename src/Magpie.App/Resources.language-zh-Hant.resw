@@ -772,4 +772,10 @@
   <data name="Settings_Advanced_SimulateExclusiveFullscreen.Description" xml:space="preserve">
     <value>可以阻止某些應用程式的通知和跳出視窗</value>
   </data>
+  <data name="About_Version_Version" xml:space="preserve">
+    <value>程式版本</value>
+  </data>
+  <data name="About_Version_UpdateSettings.Title" xml:space="preserve">
+    <value>更新設定</value>
+  </data>
 </root>
