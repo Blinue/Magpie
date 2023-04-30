@@ -112,4 +112,4 @@ Thanks go to these wonderful people ([emoji key](https://allcontributors.org/doc
 
 <!-- ALL-CONTRIBUTORS-LIST:END -->
 
-This project follows the [all-contributors](https://allcontributors.org/) protocol. Contributions of any kind are welcome!
+This project follows the [all-contributors](https://allcontributors.org/) specification. Contributions of any kind are welcome!
