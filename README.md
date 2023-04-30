@@ -1,74 +1,80 @@
 <br>
-<br>
 <p align="center">
-  <img src="https://raw.githubusercontent.com/Blinue/Magpie/18eabcbdd6de2420ee5d749b43e6e5aa7b3d042e/src/Magpie/Icons/PNG/Magpie%20Icon%20Full%20Disabled/256.png" width="128px" height="128px" alt="Logo of Magpie">
+  <img src="./src/Magpie/Icons/SVG/Magpie Icon Full Disabled.svg" width="150px" height="150px" alt="Logo">
 </p>
 <h1 align="center">Magpie</h1>
-<p align="center">
-<a href="./LICENSE">
-<img alt="许可协议" src="https://img.shields.io/github/license/Blinue/Magpie">
-</a>
-<a href="https://github.com/Blinue/Magpie/actions/workflows/build.yml">
-<img alt="build" src="https://github.com/Blinue/Magpie/actions/workflows/build.yml/badge.svg">
-</a>
-<a href="#%E8%B4%A1%E7%8C%AE%E8%80%85-">
-<img alt="All Contributors" src="https://img.shields.io/github/all-contributors/Blinue/Magpie">
-</a>
-<a href="https://github.com/Blinue/Magpie/releases">
-<img alt="GitHub all releases" src="https://img.shields.io/github/downloads/Blinue/Magpie/total">
-</a>
-</p>
 
-🌍 **简体中文** | [English](./README_EN.md)
+<div align="center">
 
-Magpie 是一个轻量级的窗口缩放工具，内置了多种高效的缩放算法和滤镜。它主要用于提升游戏画质和让不支持全屏化的游戏也能全屏显示等。
+[![License](https://img.shields.io/github/license/Blinue/Magpie)](./LICENSE)
+[![build](https://github.com/Blinue/Magpie/actions/workflows/build.yml/badge.svg)](https://github.com/Blinue/Magpie/actions/workflows/build.yml)
+[![All Contributors](https://img.shields.io/github/all-contributors/Blinue/Magpie)](#acknowledgement-)
+[![GitHub all releases](https://img.shields.io/github/downloads/Blinue/Magpie/total)](https://github.com/Blinue/Magpie/releases)
 
-我们使用 [Weblate](https://weblate.org) 进行本地化工作，请帮助我们把 Magpie 翻译成更多语言。
+</div>
 
-[![翻译状态](https://hosted.weblate.org/widgets/magpie/-/287x66-white.png)](https://hosted.weblate.org/engage/magpie/)
+:earth_africa: **English** | [简体中文](./README_ZH.md)
 
-:point_right: [下载](https://github.com/Blinue/Magpie/releases)
+Magpie is a lightweight window scaling tool that comes equipped with various efficient scaling algorithms and filters. Its primary purpose is to enhance game graphics and enable non-fullscreen games to display in fullscreen mode.
 
-:point_right: [FAQ](https://github.com/Blinue/Magpie/wiki/FAQ)
+We are using [Weblate](https://weblate.org/) for localization work and would appreciate your help in translating Magpie into more languages.
 
-:point_right: [内置效果介绍](https://github.com/Blinue/Magpie/wiki/内置效果介绍)
+[![Translation status](https://hosted.weblate.org/widgets/magpie/-/287x66-white.png)](https://hosted.weblate.org/engage/magpie/)
 
-:point_right: [编译指南](https://github.com/Blinue/Magpie/wiki/编译指南)
+:point_right: [Download](https://github.com/Blinue/Magpie/releases)
 
-:point_right: [贡献指南](./CONTRIBUTING.md)
+:point_right: [FAQ](https://github.com/Blinue/Magpie/wiki/FAQ_EN)
 
-## 功能
+:point_right: [Built-in effects](https://github.com/Blinue/Magpie/wiki/Built-in%20effects)
 
-* 将任何窗口放大至全屏
-* 众多内置算法，包括 Lanczos、[Anime4K](https://github.com/bloc97/Anime4K)、[FSR](https://github.com/GPUOpen-Effects/FidelityFX-FSR)、Adaptive Sharpen、多种 CRT 着色器等
-* 基于 WinUI 的用户界面，支持浅色和深色主题
-* 为特定窗口创建配置文件
-* 多屏幕支持
+:point_right: [Compilation guide](https://github.com/Blinue/Magpie/wiki/Compilation%20guide)
 
-## 如何使用
+:point_right: [Contributing](./CONTRIBUTING_EN.md)
 
-1. 配置缩放模式：Magpie 预设了一些简单的缩放模式，但建议根据使用场景自行配置。然后在“配置文件”-“默认”页面更改全局缩放模式。
-2. 缩放窗口：把要缩放的窗口置于前台，按下快捷键（默认为 Win+Shift+A）即可全屏显示。请注意，要缩放的窗口必须处于窗口化状态，而不是最大化或全屏化。也可以使用“主页”上的“x 秒后缩放”按钮，Magpie 将在数秒后自动缩放前台窗口。
-3. 为窗口创建配置文件：这使你可以保存针对某个窗口的配置，也支持在该窗口位于前台时自动执行缩放。
-4. 自定义效果：Magpie 使用 Direct3D 计算着色器实现效果，但扩展了语法来定义资源、组织多个通道等，详见 [MagpieFX](https://github.com/Blinue/Magpie/wiki/MagpieFX) 。有着色器编写经验者可以轻松创建自定义效果。
+## Features
 
-## 截图
+* Scale any window to fullscreen
+* Numerous built-in algorithms, including Lanczos, [Anime4K](https://github.com/bloc97/Anime4K), [FSR](https://github.com/GPUOpen-Effects/FidelityFX-FSR), Adaptive Sharpen, various CRT shaders, and more
+* WinUI-based user interface with support for light and dark themes
+* Create configuration profiles for specific windows
+* Multi-monitor support
 
-<img src="img/主窗口.png" alt= "主窗口" height="300">
+## How to use
 
-## 系统需求
+1. Configuring scaling modes
 
-1. Windows 10 v1903+ 或 Windows 11
-2. DirectX 功能级别 11
+    Magpie provides some simple scaling modes by default, but it is recommended to configure them according to your specific use case. Then, change the global scaling mode on the "Profiles"-"Defaults" page.
 
-## 使用提示
+2. Scaling a window
 
-1. 如果你设置了 DPI 缩放，而要放大的窗口没有高 DPI 支持（这在老游戏中很常见），推荐首先进入该程序的兼容性设置，将“高 DPI 缩放替代”设置为“应用程序”。
-2. 一些游戏支持调整窗口的大小，但只使用简单的缩放算法，这时请先将其设为原始（最佳）分辨率。
+    To scale a window, bring the desired window to the foreground and press the shortcut key (default is Win+Shift+A) to display it in fullscreen mode. Note that the window to be scaled must be in windowed mode, not maximized or fullscreen mode. You can also use the "Scale after xs" button on the "Home" page, and Magpie will automatically scale the foreground window after a few seconds.
 
-## 贡献者 ✨
+3. Creating profiles for windows
+    
+    This allows you to save configurations specific to a particular window. Magpie also supports automatically activate scaling when that window is brought to the foreground.
 
-感谢每一位参与贡献的人（[emoji key](https://allcontributors.org/docs/en/emoji-key)）：
+4. Customizing effects
+
+    Magpie uses Direct3D compute shader to implement effects, but the syntax has been extended to define resources and organize multiple passes. For more information, please refer to [MagpieFX](https://github.com/Blinue/Magpie/wiki/MagpieFX%20(EN)). Those with experience in shader writing can easily create custom effects.
+
+## Screenshots
+
+<img src="img/Main window.png" alt= "Main window" height="300">
+
+## System requirements
+
+1. Windows 10 v1903+ or Windows 11
+2. DirectX feature level 11
+
+## Hints
+
+1. If you have set DPI scaling and the window you want to scale does not support high DPI (which is common in older games), it is recommended to first enter the program's compatibility settings and set "High DPI scaling override" to "Application".
+
+2. Some games support zooming the window, but with extremely naive algorithms. Please set the resolution to the built-in (best) option.
+
+## Acknowledgement ✨
+
+Thanks go to these wonderful people:
 
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
 <!-- prettier-ignore-start -->
@@ -106,4 +112,4 @@ Magpie 是一个轻量级的窗口缩放工具，内置了多种高效的缩放�
 
 <!-- ALL-CONTRIBUTORS-LIST:END -->
 
-本项目遵循 [all-contributors](https://allcontributors.org/) 规范。欢迎任何形式的贡献！
+This project follows the [all-contributors](https://allcontributors.org/) specification. Contributions of any kind are welcome!
