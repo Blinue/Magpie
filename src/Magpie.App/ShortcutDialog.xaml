@@ -73,8 +73,10 @@
 				</Border>
 			</Grid>
 			<TextBlock x:Uid="ShortcutDialog_Tip"
+			           HorizontalAlignment="Left"
 			           FontSize="12"
-			           Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+			           Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+			           TextWrapping="WrapWholeWords" />
 		</StackPanel>
 	</Grid>
 </UserControl>
