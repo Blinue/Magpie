@@ -73,7 +73,7 @@ Magpie 是一个轻量级的窗口缩放工具，内置了多种高效的缩放�
 
 ## 贡献者 ✨
 
-感谢每一位参与贡献的人（[emoji key](https://allcontributors.org/docs/en/emoji-key)）：
+感谢每一位参与贡献的人：
 
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
 <!-- prettier-ignore-start -->
