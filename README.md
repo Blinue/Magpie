@@ -13,7 +13,7 @@
 
 </div>
 
-:earth_africa: [简体中文](./README_ZH.md) | **English**
+:earth_africa: **English** | [简体中文](./README_ZH.md)
 
 Magpie is a lightweight window scaling tool that comes equipped with various efficient scaling algorithms and filters. Its primary purpose is to enhance game graphics and enable non-fullscreen games to display in fullscreen mode.
 
