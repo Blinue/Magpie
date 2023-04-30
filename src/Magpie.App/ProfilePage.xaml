@@ -324,7 +324,6 @@
 									<Setter Property="Foreground" Value="{ThemeResource TextFillColorPrimaryBrush}" />
 								</Style>
 							</StackPanel.Resources>
-
 							<local:SettingsCard x:Uid="Profile_SourceWindow_CustomCropping_Left"
 							                    IsEnabled="{x:Bind ViewModel.IsCroppingEnabled, Mode=OneWay}"
 							                    Style="{StaticResource ExpanderContentSettingStyle}">
@@ -474,12 +473,46 @@
 				</local:SettingsCard>
 			</local:SettingsGroup>
 			<local:SettingsGroup x:Uid="Profile_Advanced">
-				<local:SettingsCard x:Uid="Profile_Advanced_DisableDirectFlip">
-					<local:SettingsCard.ActionContent>
-						<ToggleSwitch x:Uid="ToggleSwitch"
-						              IsOn="{x:Bind ViewModel.IsDisableDirectFlip, Mode=TwoWay}" />
-					</local:SettingsCard.ActionContent>
-				</local:SettingsCard>
+				<StackPanel Orientation="Vertical">
+					<local:SettingsCard Title="启动参数"
+					                    Margin="0,0,0,2"
+					                    Visibility="{x:Bind ViewModel.IsNotDefaultProfile, Mode=OneTime}">
+						<local:SettingsCard.Icon>
+							<FontIcon Glyph="&#xF259;" />
+						</local:SettingsCard.Icon>
+						<local:SettingsCard.ActionContent>
+							<Grid Height="35">
+								<StackPanel Orientation="Horizontal"
+								            Spacing="12"
+								            Visibility="{x:Bind ViewModel.IsEditingLaunchParameters, Mode=OneWay, Converter={StaticResource NegativeVisibilityConverter}}">
+									<TextBlock MaxWidth="400"
+									           VerticalAlignment="Center"
+									           Text="{x:Bind ViewModel.LaunchParameters, Mode=OneWay}"
+									           TextWrapping="WrapWholeWords" />
+									<Button Padding="9"
+									        Click="EditLaunchParametersButton_Click"
+									        ToolTipService.ToolTip="编辑">
+										<FontIcon FontSize="15"
+										          Glyph="&#xE70F;" />
+									</Button>
+								</StackPanel>
+								<TextBox x:Name="LaunchParametersTextBox"
+								         Width="300"
+								         VerticalAlignment="Center"
+								         KeyDown="LaunchParametersTextBox_KeyDown"
+								         LostFocus="LaunchParametersTextBox_LostFocus"
+								         Text="{x:Bind ViewModel.LaunchParameters, Mode=TwoWay}"
+								         Visibility="{x:Bind ViewModel.IsEditingLaunchParameters, Mode=OneWay}" />
+							</Grid>
+						</local:SettingsCard.ActionContent>
+					</local:SettingsCard>
+					<local:SettingsCard x:Uid="Profile_Advanced_DisableDirectFlip">
+						<local:SettingsCard.ActionContent>
+							<ToggleSwitch x:Uid="ToggleSwitch"
+							              IsOn="{x:Bind ViewModel.IsDisableDirectFlip, Mode=TwoWay}" />
+						</local:SettingsCard.ActionContent>
+					</local:SettingsCard>
+				</StackPanel>
 			</local:SettingsGroup>
 		</StackPanel>
 	</local:PageFrame>

@@ -32,6 +32,12 @@ struct ProfilePage : ProfilePageT<ProfilePage> {
 
 	void DeleteButton_Click(IInspectable const&, RoutedEventArgs const&);
 
+	void EditLaunchParametersButton_Click(IInspectable const&, RoutedEventArgs const&);
+
+	void LaunchParametersTextBox_LostFocus(IInspectable const&, RoutedEventArgs const&);
+
+	void LaunchParametersTextBox_KeyDown(IInspectable const&, Input::KeyRoutedEventArgs const& args);
+
 private:
 	Magpie::App::ProfileViewModel _viewModel{ nullptr };
 	Windows::Globalization::NumberFormatting::DecimalFormatter _numberFormatter;

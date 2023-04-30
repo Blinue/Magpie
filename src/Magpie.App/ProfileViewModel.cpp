@@ -652,6 +652,26 @@ void ProfileViewModel::CursorInterpolationMode(int value) {
 	AppSettings::Get().SaveAsync();
 }
 
+hstring ProfileViewModel::LaunchParameters() const noexcept {
+	return hstring(_data->launchParameters);
+}
+
+void ProfileViewModel::LaunchParameters(const hstring& value) {
+	_data->launchParameters = value;
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"LaunchParameters"));
+
+	AppSettings::Get().SaveAsync();
+}
+
+void ProfileViewModel::IsEditingLaunchParameters(bool value) {
+	if (_isEditingLaunchParameters == value) {
+		return;
+	}
+
+	_isEditingLaunchParameters = value;
+	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"IsEditingLaunchParameters"));
+}
+
 bool ProfileViewModel::IsDisableDirectFlip() const noexcept {
 	return _data->IsDisableDirectFlip();
 }

@@ -137,6 +137,15 @@ struct ProfileViewModel : ProfileViewModelT<ProfileViewModel> {
 	int CursorInterpolationMode() const noexcept;
 	void CursorInterpolationMode(int value);
 
+	hstring LaunchParameters() const noexcept;
+	void LaunchParameters(const hstring& value);
+
+	bool IsEditingLaunchParameters() const noexcept {
+		return _isEditingLaunchParameters;
+	}
+
+	void IsEditingLaunchParameters(bool value);
+
 	bool IsDisableDirectFlip() const noexcept;
 	void IsDisableDirectFlip(bool value);
 
@@ -166,6 +175,7 @@ private:
 
 	const bool _isDefaultProfile = true;
 	bool _isRenameConfirmButtonEnabled = false;
+	bool _isEditingLaunchParameters = false;
 };
 
 }

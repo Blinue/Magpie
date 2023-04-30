@@ -27,6 +27,7 @@ struct Profile {
 		graphicsCard = other.graphicsCard;
 		multiMonitorUsage = other.multiMonitorUsage;
 		cursorInterpolationMode = other.cursorInterpolationMode;
+		launchParameters = other.launchParameters;
 		flags = other.flags;
 	}
 
@@ -57,6 +58,8 @@ struct Profile {
 	int graphicsCard = -1;
 	::Magpie::Core::MultiMonitorUsage multiMonitorUsage = ::Magpie::Core::MultiMonitorUsage::Closest;
 	::Magpie::Core::CursorInterpolationMode cursorInterpolationMode = ::Magpie::Core::CursorInterpolationMode::NearestNeighbor;
+
+	std::wstring launchParameters;
 
 	uint32_t flags = ::Magpie::Core::MagFlags::VSync 
 		| ::Magpie::Core::MagFlags::AdjustCursorSpeed
