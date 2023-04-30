@@ -1,7 +1,7 @@
 <br>
 <br>
 <p align="center">
-  <img src="./src/Magpie/Icons/SVG/Magpie Icon Full Disabled.svg" width="128px" height="128px" alt="Logo">
+  <img src="./src/Magpie/Icons/SVG/Magpie Icon Full Disabled.svg" width="150px" height="150px" alt="Logo">
 </p>
 <h1 align="center">Magpie</h1>
 
