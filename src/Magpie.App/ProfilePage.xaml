@@ -474,7 +474,7 @@
 			</local:SettingsGroup>
 			<local:SettingsGroup x:Uid="Profile_Advanced">
 				<StackPanel Orientation="Vertical">
-					<local:SettingsCard Title="启动参数"
+					<local:SettingsCard x:Uid="Profile_Advanced_LaunchParameters"
 					                    Margin="0,0,0,2"
 					                    Visibility="{x:Bind ViewModel.IsNotDefaultProfile, Mode=OneTime}">
 						<local:SettingsCard.Icon>
@@ -489,9 +489,9 @@
 									           VerticalAlignment="Center"
 									           Text="{x:Bind ViewModel.LaunchParameters, Mode=OneWay}"
 									           TextWrapping="WrapWholeWords" />
-									<Button Padding="9"
-									        Click="EditLaunchParametersButton_Click"
-									        ToolTipService.ToolTip="编辑">
+									<Button x:Uid="Profile_Advanced_LaunchParameters_Edit"
+									        Padding="9"
+									        Click="EditLaunchParametersButton_Click">
 										<FontIcon FontSize="15"
 										          Glyph="&#xE70F;" />
 									</Button>
