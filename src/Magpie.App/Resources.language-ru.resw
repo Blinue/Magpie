@@ -772,4 +772,10 @@
   <data name="ScalingConfiguration_ScalingModes_Description_UnknownEffect" xml:space="preserve">
     <value>Неизвестный эффект</value>
   </data>
+  <data name="About_Version_Version" xml:space="preserve">
+    <value>Версия</value>
+  </data>
+  <data name="About_Version_UpdateSettings.Title" xml:space="preserve">
+    <value>Обновить настройки</value>
+  </data>
 </root>

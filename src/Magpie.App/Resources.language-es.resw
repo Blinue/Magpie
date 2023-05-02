@@ -95,13 +95,13 @@
     <value>Escalado retrasado</value>
   </data>
   <data name="Home_Timer_ButtonText" xml:space="preserve">
-    <value>Escala después de {}s</value>
+    <value>Escalar después de {}s</value>
   </data>
   <data name="Home_Timer_Cancel" xml:space="preserve">
     <value>Cancelar</value>
   </data>
   <data name="Home_Timer_Delay.Title" xml:space="preserve">
-    <value>Retraso en segundos</value>
+    <value>Espera en segundos</value>
   </data>
   <data name="ShortcutDialog_Cancel" xml:space="preserve">
     <value>Cancelar</value>
@@ -437,7 +437,7 @@
     <value>Arriba</value>
   </data>
   <data name="Settings_Advanced_InlineParams.Title" xml:space="preserve">
-    <value>Hacer parámetros de efectos en línea</value>
+    <value>Hacer que los parámetros de efecto estén en línea</value>
   </data>
   <data name="Settings_Advanced_SimulateExclusiveFullscreen.Title" xml:space="preserve">
     <value>Simule pantalla completa exclusiva al escalar</value>
