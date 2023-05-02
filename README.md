@@ -23,7 +23,7 @@ We are using [Weblate](https://weblate.org/) for localization work and would app
 
 :point_right: [Download](https://github.com/Blinue/Magpie/releases)
 
-:point_right: [FAQ](https://github.com/Blinue/Magpie/wiki/FAQ_EN)
+:point_right: [FAQ](https://github.com/Blinue/Magpie/wiki/FAQ%20(EN))
 
 :point_right: [Built-in effects](https://github.com/Blinue/Magpie/wiki/Built-in%20effects)
 
