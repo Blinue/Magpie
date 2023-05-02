@@ -162,7 +162,7 @@ hstring ProfileViewModel::Name() const noexcept {
 	}
 }
 
-static void LaunchPackagedApp(const wchar_t* aumid) {
+static void LaunchPackagedApp(const Profile& profile) {
 	// 关于启动打包应用的讨论：
 	// https://github.com/microsoft/WindowsAppSDK/issues/2856#issuecomment-1224409948
 	// 使用 CLSCTX_LOCAL_SERVER 以在独立的进程中启动应用
@@ -181,7 +181,7 @@ static void LaunchPackagedApp(const wchar_t* aumid) {
 	}
 
 	DWORD procId;
-	hr = aam->ActivateApplication(aumid, nullptr, AO_NONE, &procId);
+	hr = aam->ActivateApplication(profile.pathRule.c_str(), profile.launchParameters.c_str(), AO_NONE, &procId);
 	if (FAILED(hr)) {
 		Logger::Get().ComError("IApplicationActivationManager::ActivateApplication 失败", hr);
 		return;
@@ -194,9 +194,9 @@ void ProfileViewModel::Launch() const noexcept {
 	}
 
 	if (_data->isPackaged) {
-		LaunchPackagedApp(_data->pathRule.c_str());
+		LaunchPackagedApp(*_data);
 	} else {
-		Win32Utils::ShellOpen(_data->pathRule.c_str());
+		Win32Utils::ShellOpen(_data->pathRule.c_str(), _data->launchParameters.c_str());
 	}
 }
 
@@ -657,7 +657,9 @@ hstring ProfileViewModel::LaunchParameters() const noexcept {
 }
 
 void ProfileViewModel::LaunchParameters(const hstring& value) {
-	_data->launchParameters = value;
+	std::wstring_view trimmed(value);
+	StrUtils::Trim(trimmed);
+	_data->launchParameters = trimmed;
 	_propertyChangedEvent(*this, PropertyChangedEventArgs(L"LaunchParameters"));
 
 	AppSettings::Get().SaveAsync();

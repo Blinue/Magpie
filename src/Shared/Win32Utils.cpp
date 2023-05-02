@@ -588,7 +588,7 @@ static std::wstring_view ExtractDirectory(std::wstring_view path) {
 
 // 在提升的进程中启动未提升的进程
 // 原理见 https://devblogs.microsoft.com/oldnewthing/20131118-00/?p=2643
-static bool OpenNonElevated(std::wstring_view path) {
+static bool OpenNonElevated(std::wstring_view path, const wchar_t* parameters) {
 	static winrt::com_ptr<IShellDispatch2> shellDispatch = ([]() -> winrt::com_ptr<IShellDispatch2> {
 		winrt::com_ptr<IShellFolderViewDual> folderView = GetDesktopAutomationObject();
 		if (!folderView) {
@@ -615,7 +615,7 @@ static bool OpenNonElevated(std::wstring_view path) {
 	HRESULT hr = shellDispatch->ShellExecute(
 #pragma pop_macro("ShellExecute")
 		Win32Utils::BStr(path),
-		Win32Utils::Variant(L""),
+		Win32Utils::Variant(parameters ? parameters : L""),
 		Win32Utils::Variant(ExtractDirectory(path)),
 		Win32Utils::Variant(L"open"),
 		Win32Utils::Variant(SW_SHOWNORMAL)
@@ -628,9 +628,9 @@ static bool OpenNonElevated(std::wstring_view path) {
 	return true;
 }
 
-bool Win32Utils::ShellOpen(const wchar_t* path, bool nonElevated) {
+bool Win32Utils::ShellOpen(const wchar_t* path, const wchar_t* parameters, bool nonElevated) {
 	if (nonElevated && IsProcessElevated()) {
-		if (OpenNonElevated(path)) {
+		if (OpenNonElevated(path, parameters)) {
 			return true;
 		}
 		// OpenNonElevated 失败则回落到 ShellExecuteEx
@@ -642,6 +642,7 @@ bool Win32Utils::ShellOpen(const wchar_t* path, bool nonElevated) {
 	SHELLEXECUTEINFO execInfo{};
 	execInfo.cbSize = sizeof(execInfo);
 	execInfo.lpFile = path;
+	execInfo.lpParameters = parameters;
 	execInfo.lpDirectory = workingDir.c_str();
 	execInfo.lpVerb = L"open";
 	execInfo.fMask = SEE_MASK_ASYNCOK;

@@ -481,7 +481,7 @@
 							<FontIcon Glyph="&#xF259;" />
 						</local:SettingsCard.Icon>
 						<local:SettingsCard.ActionContent>
-							<Grid Height="35">
+							<Grid MinHeight="36">
 								<StackPanel Orientation="Horizontal"
 								            Spacing="12"
 								            Visibility="{x:Bind ViewModel.IsEditingLaunchParameters, Mode=OneWay, Converter={StaticResource NegativeVisibilityConverter}}">
