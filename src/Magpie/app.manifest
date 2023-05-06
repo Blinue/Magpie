@@ -2,16 +2,13 @@
 <assembly xmlns="urn:schemas-microsoft-com:asm.v1"
           xmlns:asmv3="urn:schemas-microsoft-com:asm.v3"
           manifestVersion="1.0">
-  <asmv3:file name="Magpie.App.dll">
+  <asmv3:file name="Magpie.App.dll" xmlns="urn:schemas-microsoft-com:winrt.v1">
     <activatableClass name="Magpie.App.App"
-                      threadingModel="both"
-                      xmlns="urn:schemas-microsoft-com:winrt.v1" />
+                      threadingModel="both" />
     <activatableClass name="Magpie.App.MainPage"
-                      threadingModel="both"
-                      xmlns="urn:schemas-microsoft-com:winrt.v1" />
+                      threadingModel="both"  />
     <activatableClass name="Magpie.App.LoggerHelper"
-                      threadingModel="both"
-                      xmlns="urn:schemas-microsoft-com:winrt.v1" />
+                      threadingModel="both"  />
   </asmv3:file>
   
   <compatibility xmlns="urn:schemas-microsoft-com:compatibility.v1">
@@ -38,6 +35,7 @@
       <!-- 使程序可以枚举到沉浸式窗口（immersive windows），如很多类名为 “Windows.UI.Core.CoreWindow” 的系统窗口 -->
       <disableWindowFiltering xmlns="http://schemas.microsoft.com/SMI/2011/WindowsSettings">true</disableWindowFiltering>
       <dpiAwareness xmlns="http://schemas.microsoft.com/SMI/2016/WindowsSettings">PerMonitorV2</dpiAwareness>
+      <heapType xmlns="http://schemas.microsoft.com/SMI/2020/WindowsSettings">SegmentHeap</heapType>
     </windowsSettings>
   </application>
   
