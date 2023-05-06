@@ -13,18 +13,12 @@
   
   <compatibility xmlns="urn:schemas-microsoft-com:compatibility.v1">
     <application>
-      <!-- A list of the Windows versions that this application has been tested on and is
-      designed to work with. Uncomment the appropriate elements and Windows will
-      automatically selected the most compatible environment. -->
-      
-      <!-- Windows 8 -->
-      <!--<supportedOS Id="{4a2f28e3-53b9-4441-ba9c-d69d4a4a6e38}" />-->
-      
-      <!-- Windows 8.1 -->
-      <!--<supportedOS Id="{1f676c76-80e1-4239-95bb-83d0f6d0da78}" />-->
-      
-      <!-- Windows 10/11 -->
+      <!-- 多个 maxversiontested 是必要的，应跟随 Windows 的版本更新添加新条目，以利用最新功能 -->
+      <!-- XAML Islands 需要 -->
       <maxversiontested Id="10.0.18362.0"/>
+      <!-- 在 Win11 中启用 Segoe UI Variable -->
+      <maxversiontested Id="10.0.22000.0"/>
+      <maxversiontested Id="10.0.22621.0"/>
       <supportedOS Id="{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}" />
     </application>
   </compatibility>
