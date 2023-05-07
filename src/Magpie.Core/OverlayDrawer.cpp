@@ -170,14 +170,26 @@ static SmallVector<UINT> GenerateTimelineColors() {
 	return result;
 }
 
+static std::wstring GetSystemFontsFolder() noexcept {
+	wchar_t* fontsFolder = nullptr;
+	HRESULT hr = SHGetKnownFolderPath(FOLDERID_Fonts, 0, NULL, &fontsFolder);
+	if (FAILED(hr)) {
+		CoTaskMemFree(fontsFolder);
+		Logger::Get().ComError("SHGetKnownFolderPath 失败", hr);
+		return {};
+	}
+
+	std::wstring result = fontsFolder;
+	CoTaskMemFree(fontsFolder);
+	return result;
+}
+
 bool OverlayDrawer::Initialize() {
 	_imguiImpl.reset(new ImGuiImpl());
 	if (!_imguiImpl->Initialize()) {
 		Logger::Get().Error("初始化 ImGuiImpl 失败");
 		return false;
 	}
-
-	ImGuiIO& io = ImGui::GetIO();
 
 	_dpiScale = GetDpiForWindow(MagApp::Get().GetHwndHost()) / 96.0f;
 
@@ -189,36 +201,10 @@ bool OverlayDrawer::Initialize() {
 	style.WindowMinSize = ImVec2(10, 10);
 	style.ScaleAllSizes(_dpiScale);
 
-	static std::vector<BYTE> fontData;
-	if (fontData.empty()) {
-		if (!Win32Utils::ReadFile(
-			StrUtils::ConcatW(CommonSharedConstants::ASSETS_DIR, L"NotoSansSC-Regular.otf").c_str(),
-			fontData
-		)) {
-			Logger::Get().Error("读取字体文件失败");
-			return false;
-		}
+	if (!_BuildFonts()) {
+		Logger::Get().Error("_BuildFonts 失败");
+		return false;
 	}
-
-	ImFontConfig config;
-	config.FontDataOwnedByAtlas = false;
-
-	ImVector<ImWchar> uiRanges;
-	ImFontGlyphRangesBuilder builder;
-	builder.AddRanges(io.Fonts->GetGlyphRangesDefault());
-	builder.AddText("■");
-	builder.BuildRanges(&uiRanges);
-
-	_fontUI = io.Fonts->AddFontFromMemoryTTF(fontData.data(), (int)fontData.size(), std::floor(18 * _dpiScale), &config, uiRanges.Data);
-
-	ImVector<ImWchar> fpsRanges;
-	builder.Clear();
-	builder.AddText("0123456789 FPS");
-	builder.BuildRanges(&fpsRanges);
-	// FPS 的字体尺寸不跟随系统缩放
-	_fontFPS = io.Fonts->AddFontFromMemoryTTF(fontData.data(), (int)fontData.size(), 32, &config, fpsRanges.Data);
-
-	io.Fonts->Build();
 
 	_RetrieveHardwareInfo();
 	_timelineColors = GenerateTimelineColors();
@@ -292,6 +278,65 @@ void OverlayDrawer::SetUIVisibility(bool value) {
 
 		Logger::Get().Info("已关闭覆盖层");
 	}
+}
+
+bool OverlayDrawer::_BuildFonts() noexcept {
+	static std::vector<BYTE> fontData;
+	if (fontData.empty()) {
+		std::wstring fontsPath = GetSystemFontsFolder();
+		if (Win32Utils::GetOSVersion().IsWin11()) {
+			fontsPath += L"\\SegUIVar.ttf";
+		} else {
+			fontsPath += L"\\segoeui.ttf";
+		}
+
+		if (!Win32Utils::ReadFile(fontsPath.c_str(), fontData)) {
+			Logger::Get().Error("读取字体文件失败");
+			return false;
+		}
+	}
+
+	ImGuiIO& io = ImGui::GetIO();
+
+	ImFontConfig config;
+	config.FontDataOwnedByAtlas = false;
+
+	ImFontGlyphRangesBuilder builder;
+	
+	builder.AddText(R"(abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ ,./;'[]\<>?:\"{}|`~!@#$%^&*()_+-=■)");
+	ImVector<ImWchar> uiRanges;
+	builder.BuildRanges(&uiRanges);
+
+	const float fontSize = 18 * _dpiScale;
+	_fontUI = io.Fonts->AddFontFromMemoryTTF(fontData.data(), (int)fontData.size(), fontSize, &config, uiRanges.Data);
+
+	config.MergeMode = true;
+	config.GlyphMaxAdvanceX = config.GlyphMinAdvanceX = 7.5f * _dpiScale;
+
+	builder.Clear();
+	builder.AddText("0123456789");
+	ImVector<ImWchar> numberRanges;
+	builder.BuildRanges(&numberRanges);
+	io.Fonts->AddFontFromMemoryTTF(fontData.data(), (int)fontData.size(), fontSize, &config, numberRanges.Data);
+
+	// FPS 的字体尺寸不跟随系统缩放
+	constexpr float FPS_SIZE = 32;
+
+	config.MergeMode = false;
+	config.GlyphMaxAdvanceX = config.GlyphMinAdvanceX = 13;
+	_fontFPS = io.Fonts->AddFontFromMemoryTTF(fontData.data(), (int)fontData.size(), FPS_SIZE, &config, numberRanges.Data);
+
+	config.MergeMode = true;
+	config.GlyphMinAdvanceX = 0;
+	config.GlyphMaxAdvanceX = std::numeric_limits<float>::max();
+	builder.Clear();
+	builder.AddText(" FPS");
+	ImVector<ImWchar> fpsRanges;
+	builder.BuildRanges(&fpsRanges);
+
+	io.Fonts->AddFontFromMemoryTTF(fontData.data(), (int)fontData.size(), FPS_SIZE, &config, fpsRanges.Data);
+
+	return io.Fonts->Build();
 }
 
 void OverlayDrawer::_DrawFPS() {
@@ -740,7 +785,7 @@ void OverlayDrawer::_DrawUI() {
 			MyPlotLines([](void* data, int idx) {
 				float time = (*(std::deque<float>*)data)[idx];
 				return time < 1e-6 ? 0 : 1000 / time;
-			}, &_frameTimes, (int)_frameTimes.size(), 0, fmt::format("avg: {:.3f} FPS", _validFrames * 1000 / totalTime).c_str(), 0, maxFPS, ImVec2(250 * _dpiScale, 80 * _dpiScale));
+			}, &_frameTimes, (int)_frameTimes.size(), 0, fmt::format("avg: {:.1f} FPS", _validFrames * 1000 / totalTime).c_str(), 0, maxFPS, ImVec2(250 * _dpiScale, 80 * _dpiScale));
 		} else {
 			float totalTime = 0;
 			float maxTime = 0;

@@ -27,6 +27,8 @@ public:
 	void SetUIVisibility(bool value);
 
 private:
+	bool _BuildFonts() noexcept;
+
 	void _DrawFPS();
 
 	void _DrawUI();
