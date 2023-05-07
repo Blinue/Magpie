@@ -98,7 +98,7 @@
                     var dllPathNode = winRTFactory.SelectSingleNode("./m:Path", nsmgr);
                     var dllPath = dllPathNode.InnerText;
                     var typesNames = winRTFactory.SelectNodes("./m:ActivatableClass", nsmgr).OfType<XmlNode>();
-                    var xmlHeader = String.Format(@"  <asmv3:file name='{0}'>", dllPath);
+                    var xmlHeader = String.Format(@"  <asmv3:file name='{0}' xmlns='urn:schemas-microsoft-com:winrt.v1'>", dllPath);
                     sb.Append(xmlHeader);
                     foreach (var typeNode in typesNames)
                     {
@@ -110,8 +110,7 @@
                         var xmlEntry = String.Format(@"
     <activatableClass
       name='{0}'
-      threadingModel='both'
-      xmlns='urn:schemas-microsoft-com:winrt.v1'/>", typeName);
+      threadingModel='both' />", typeName);
                     sb.Append(xmlEntry);
                 }
                 var xmlFooter = @"

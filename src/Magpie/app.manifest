@@ -6,9 +6,9 @@
     <activatableClass name="Magpie.App.App"
                       threadingModel="both" />
     <activatableClass name="Magpie.App.MainPage"
-                      threadingModel="both"  />
+                      threadingModel="both" />
     <activatableClass name="Magpie.App.LoggerHelper"
-                      threadingModel="both"  />
+                      threadingModel="both" />
   </asmv3:file>
   
   <compatibility xmlns="urn:schemas-microsoft-com:compatibility.v1">
