@@ -1,7 +1,7 @@
 {
   "files": [
     "README.md",
-    "README_EN.md"
+    "README_ZH.md"
   ],
   "imageSize": 100,
   "commit": false,
@@ -163,6 +163,15 @@
       "name": "Serdar Sağlam",
       "avatar_url": "https://avatars.githubusercontent.com/u/42881121?v=4",
       "profile": "https://github.com/SerdarSaglam",
+      "contributions": [
+        "translation"
+      ]
+    },
+    {
+      "login": "AndrusGerman",
+      "name": "Andrus Diaz German",
+      "avatar_url": "https://avatars.githubusercontent.com/u/30560543?v=4",
+      "profile": "https://github.com/AndrusGerman",
       "contributions": [
         "translation"
       ]
