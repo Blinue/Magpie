@@ -138,11 +138,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <CopyFileToFolders Include="NotoSansSC-Regular.otf">
-      <Filter>资源文件</Filter>
-    </CopyFileToFolders>
-  </ItemGroup>
-  <ItemGroup>
     <ResourceCompile Include="Magpie.Core.rc">
       <Filter>资源文件</Filter>
     </ResourceCompile>
