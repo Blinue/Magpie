@@ -550,6 +550,7 @@
     <PRIResource Include="Resources.language-pt.resw" />
     <PRIResource Include="Resources.language-ru.resw" />
     <PRIResource Include="Resources.language-tr.resw" />
+    <PRIResource Include="Resources.language-uk.resw" />
     <PRIResource Include="Resources.language-zh-Hans.resw" />
     <PRIResource Include="Resources.language-zh-Hant.resw" />
   </ItemGroup>
