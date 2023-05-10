@@ -6,7 +6,7 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
       mc:Ignorable="d">
-	<local:PageFrame x:Uid="Settings_PageFrame">
+	<local:PageFrame x:Name="SettingsPageFrame">
 		<StackPanel HorizontalAlignment="Stretch"
 		            ChildrenTransitions="{StaticResource SettingsCardsAnimations}"
 		            Orientation="Vertical">

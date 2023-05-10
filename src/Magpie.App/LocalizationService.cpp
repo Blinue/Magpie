@@ -7,10 +7,6 @@
 
 #pragma comment(lib, "bcp47mrm.lib")
 
-using namespace winrt;
-using namespace Windows::ApplicationModel::Resources;
-using namespace Windows::ApplicationModel::Resources::Core;
-
 namespace winrt::Magpie::App {
 
 // 标签必须为小写

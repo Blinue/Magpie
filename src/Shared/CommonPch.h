@@ -37,6 +37,8 @@
 #include <winrt/Windows.UI.Xaml.Media.h>
 
 namespace winrt {
+using namespace Windows::ApplicationModel::Resources;
+using namespace Windows::ApplicationModel::Resources::Core;
 using namespace Windows::Foundation;
 using namespace Windows::Foundation::Collections;
 using namespace Windows::Foundation::Metadata;

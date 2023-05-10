@@ -11,7 +11,6 @@
 #include "Logger.h"
 
 using namespace winrt;
-using namespace Windows::ApplicationModel::Resources;
 using namespace Windows::UI::Xaml::Controls;
 using namespace Windows::UI::Xaml::Input;
 
