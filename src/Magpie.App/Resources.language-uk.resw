@@ -1,0 +1,728 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" id="root">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="About_PageFrame.Title" xml:space="preserve">
+    <value>Про застосунок</value>
+  </data>
+  <data name="Settings_General_Language.Title" xml:space="preserve">
+    <value>Мова</value>
+  </data>
+  <data name="Settings_Launch_RunAtStartup.Title" xml:space="preserve">
+    <value>Запуск під час запуску системи</value>
+  </data>
+  <data name="Home_Activation.Title" xml:space="preserve">
+    <value>Активація</value>
+  </data>
+  <data name="Home_AutoRestore.Title" xml:space="preserve">
+    <value>Автоматичне відновлення</value>
+  </data>
+  <data name="Home_AutoRestore_Activate.Content" xml:space="preserve">
+    <value>Активувати</value>
+  </data>
+  <data name="Home_AutoRestore_Clear.Content" xml:space="preserve">
+    <value>Очистити</value>
+  </data>
+  <data name="Home_AutoRestore_CurWindow" xml:space="preserve">
+    <value>Поточне вікно: </value>
+  </data>
+  <data name="Home_PageFrame.Title" xml:space="preserve">
+    <value>Головна</value>
+  </data>
+  <data name="Home_Timer.Description" xml:space="preserve">
+    <value>Масштабування вікна переднього плану після закінчення таймера</value>
+  </data>
+  <data name="Home_Timer.Title" xml:space="preserve">
+    <value>Відкладене масштабування</value>
+  </data>
+  <data name="Home_Timer_Delay.Title" xml:space="preserve">
+    <value>Затримка в секундах</value>
+  </data>
+  <data name="ShortcutDialog_Description.Text" xml:space="preserve">
+    <value>Натисніть комбінацію клавіш, щоб змінити цей ярлик</value>
+  </data>
+  <data name="ShortcutDialog_InvalidShortcut" xml:space="preserve">
+    <value>Неправильний ярлик</value>
+  </data>
+  <data name="ShortcutDialog_Save" xml:space="preserve">
+    <value>Зберегти</value>
+  </data>
+  <data name="ShortcutDialog_Tip.Text" xml:space="preserve">
+    <value>Дійсні лише ті ярлики, які починаються з клавіш Windows, Ctrl, Alt або Shift.</value>
+  </data>
+  <data name="Main_NewProfile.Content" xml:space="preserve">
+    <value>Новий профіль</value>
+  </data>
+  <data name="Main_NewProfileFlyout_ComboBox.PlaceholderText" xml:space="preserve">
+    <value>Виберіть вікно</value>
+  </data>
+  <data name="Main_NewProfileFlyout_CopyFrom.Text" xml:space="preserve">
+    <value>Копіювати з</value>
+  </data>
+  <data name="Main_NewProfileFlyout_Create.Content" xml:space="preserve">
+    <value>Створити</value>
+  </data>
+  <data name="Main_NewProfileFlyout_Name.Text" xml:space="preserve">
+    <value>Ім'я</value>
+  </data>
+  <data name="Main_NewProfileFlyout_NoCandidateWindow.Text" xml:space="preserve">
+    <value>Відкрийте нове вікно для створення профілю</value>
+  </data>
+  <data name="Main_NewProfileFlyout_Title.Text" xml:space="preserve">
+    <value>Новий профіль</value>
+  </data>
+  <data name="Main_Profiles.Content" xml:space="preserve">
+    <value>Профілі</value>
+  </data>
+  <data name="Main_ScalingConfiguration.Content" xml:space="preserve">
+    <value>Конфігурація масштабування</value>
+  </data>
+  <data name="ScalingConfiguration_PageFrame.Title" xml:space="preserve">
+    <value>Конфігурація масштабування</value>
+  </data>
+  <data name="Settings_Advanced.Title" xml:space="preserve">
+    <value>Розширені</value>
+  </data>
+  <data name="Settings_General.Title" xml:space="preserve">
+    <value>Загальні</value>
+  </data>
+  <data name="Settings_General_Theme_Dark.Content" xml:space="preserve">
+    <value>Темна</value>
+  </data>
+  <data name="Settings_General_Theme_System.Content" xml:space="preserve">
+    <value>За замовчуванням Windows</value>
+  </data>
+  <data name="Settings_General_Theme_Light.Content" xml:space="preserve">
+    <value>Світла</value>
+  </data>
+  <data name="Settings_PageFrame.Title" xml:space="preserve">
+    <value>Налаштування</value>
+  </data>
+  <data name="ToggleSwitch.OffContent" xml:space="preserve">
+    <value>Вимкнено</value>
+  </data>
+  <data name="ToggleSwitch.OnContent" xml:space="preserve">
+    <value>Ввімкнено</value>
+  </data>
+  <data name="Home_Shortcuts.Title" xml:space="preserve">
+    <value>Гарячі клавіші</value>
+  </data>
+  <data name="Home_Shortcuts_Overlay.Title" xml:space="preserve">
+    <value>Внутрішньоігрове накладання</value>
+  </data>
+  <data name="Home_Shortcuts_Overlay_ShortcutControl.Title" xml:space="preserve">
+    <value>Внутрішньоігрова клавіша накладання</value>
+  </data>
+  <data name="Home_Shortcuts_Scale.Title" xml:space="preserve">
+    <value>Масштаб</value>
+  </data>
+  <data name="Home_Shortcuts_Scale_ShortcutControl.Title" xml:space="preserve">
+    <value>Клавіша масштабування</value>
+  </data>
+  <data name="Settings_Launch.Title" xml:space="preserve">
+    <value>Запуск</value>
+  </data>
+  <data name="ScalingConfiguration_General.Title" xml:space="preserve">
+    <value>Загальні</value>
+  </data>
+  <data name="ScalingConfiguration_General_DefaultDownscalingEffect.Title" xml:space="preserve">
+    <value>Ефект зменшення масштабу за замовчуванням</value>
+  </data>
+  <data name="ScalingConfiguration_General_Export.Text" xml:space="preserve">
+    <value>Експорт</value>
+  </data>
+  <data name="ScalingConfiguration_General_ImportLegacy.Text" xml:space="preserve">
+    <value>Імпортувати ScaleModels.json</value>
+  </data>
+  <data name="ScalingConfiguration_General_MoreOptions.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Додаткові параметри</value>
+  </data>
+  <data name="ScalingConfiguration_ScalingModes.Title" xml:space="preserve">
+    <value>Режими масштабування</value>
+  </data>
+  <data name="Settings_Launch_AlwaysRunAsAdmin.Description" xml:space="preserve">
+    <value>Щоб скористатися цим параметром, вам потрібно запустити від імені адміністратора</value>
+  </data>
+  <data name="Settings_Launch_AlwaysRunAsAdmin.Title" xml:space="preserve">
+    <value>Завжди запускати від імені адміністратора</value>
+  </data>
+  <data name="Home_UpdateCard_DownloadAndInstall.Content" xml:space="preserve">
+    <value>Завантажити і встановити</value>
+  </data>
+  <data name="Home_UpdateCard_ReleaseNotes.Content" xml:space="preserve">
+    <value>Примітки до випуску</value>
+  </data>
+  <data name="Home_UpdateCard_RemindMeLater.Content" xml:space="preserve">
+    <value>Нагадати пізніше</value>
+  </data>
+  <data name="Home_UpdateCard_Title" xml:space="preserve">
+    <value>{} доступний</value>
+  </data>
+  <data name="About_OtherLinks.Title" xml:space="preserve">
+    <value>Інші посилання</value>
+  </data>
+  <data name="About_OtherLinks_ContributionGuidelines.Text" xml:space="preserve">
+    <value>Рекомендації щодо внеску</value>
+  </data>
+  <data name="ScalingConfiguration_General_DefaultDownscalingEffect_None" xml:space="preserve">
+    <value>Немає</value>
+  </data>
+  <data name="ScalingConfiguration_Parameters.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Параметри</value>
+  </data>
+  <data name="ScalingConfiguration_ScalingModes_MoreOptions.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Додаткові параметри</value>
+  </data>
+  <data name="ScalingConfiguration_ScalingModes_MoreOptionsFlyout_Delete.Text" xml:space="preserve">
+    <value>Видалити</value>
+  </data>
+  <data name="ScalingConfiguration_ScalingModes_MoreOptionsFlyout_MoveDown.Text" xml:space="preserve">
+    <value>Перемістити вниз</value>
+  </data>
+  <data name="ScalingConfiguration_ScalingModes_MoreOptionsFlyout_MoveUp.Text" xml:space="preserve">
+    <value>Перемістити вгору</value>
+  </data>
+  <data name="ScalingConfiguration_ScalingModes_Rename.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Перейменувати</value>
+  </data>
+  <data name="ScalingConfiguration_ScalingModes_RenameFlyout_OK.Content" xml:space="preserve">
+    <value>OK</value>
+  </data>
+  <data name="ScalingConfiguration_ScalingModes_RenameFlyout_Title.Text" xml:space="preserve">
+    <value>Перейменувати</value>
+  </data>
+  <data name="ScalingConfiguration_ScalingModes_AddEffect.Text" xml:space="preserve">
+    <value>Додати ефект</value>
+  </data>
+  <data name="ScalingConfiguration_ScalingModes_Delete.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Видалити</value>
+  </data>
+  <data name="ScalingConfiguration_ScalingModes_DeleteFlyout_Delete.Text" xml:space="preserve">
+    <value>Видалити</value>
+  </data>
+  <data name="ScalingConfiguration_ScalingModes_DeleteFlyout_Description.Text" xml:space="preserve">
+    <value>Його використовують наступні профілі:</value>
+  </data>
+  <data name="ScalingConfiguration_ScalingModes_DragNotSupported.Text" xml:space="preserve">
+    <value>Перетягування не підтримується під час роботи від імені адміністратора</value>
+  </data>
+  <data name="ScalingConfiguration_ScalingModes_DragToReorder.Text" xml:space="preserve">
+    <value>Перетягніть, щоб змінити порядок</value>
+  </data>
+  <data name="ScalingConfiguration_ScalingModes_MoveUp.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Перемістити вгору</value>
+  </data>
+  <data name="ScalingConfiguration_ScalingModes_NewScalingMode.Text" xml:space="preserve">
+    <value>Новий режим масштабування</value>
+  </data>
+  <data name="ScalingConfiguration_ScalingModes_Scale.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Масштаб</value>
+  </data>
+  <data name="ScalingConfiguration_ScalingModes_NewScalingModeFlyout_CopyFrom.Text" xml:space="preserve">
+    <value>Копіювати з</value>
+  </data>
+  <data name="ScalingConfiguration_ScalingModes_NewScalingModeFlyout_CopyFrom_None" xml:space="preserve">
+    <value>Немає</value>
+  </data>
+  <data name="ScalingConfiguration_ScalingModes_NewScalingModeFlyout_Create.Content" xml:space="preserve">
+    <value>Створити</value>
+  </data>
+  <data name="ScalingConfiguration_ScalingModes_NewScalingModeFlyout_Name.Text" xml:space="preserve">
+    <value>Ім'я</value>
+  </data>
+  <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_HeightFactor.Text" xml:space="preserve">
+    <value>Висота (коефіцієнт масштабування)</value>
+  </data>
+  <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_HeightPixels.Text" xml:space="preserve">
+    <value>Висота (пікселі)</value>
+  </data>
+  <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_WidthPixels.Text" xml:space="preserve">
+    <value>Ширина (пікселі)</value>
+  </data>
+  <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_Type.Text" xml:space="preserve">
+    <value>Тип</value>
+  </data>
+  <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_Type_Absolute" xml:space="preserve">
+    <value>Абсолютний</value>
+  </data>
+  <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_Type_Absolute_Description" xml:space="preserve">
+    <value>Встановити розмір після масштабування</value>
+  </data>
+  <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_Type_Factor" xml:space="preserve">
+    <value>Коефіцієнт</value>
+  </data>
+  <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_Type_Fill" xml:space="preserve">
+    <value>Заповнити</value>
+  </data>
+  <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_Type_Fill_Description" xml:space="preserve">
+    <value>Заповнює екран, зображення може розтягуватися</value>
+  </data>
+  <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_Type_Fit" xml:space="preserve">
+    <value>Підігнати</value>
+  </data>
+  <data name="Profile_General.Title" xml:space="preserve">
+    <value>Загальні</value>
+  </data>
+  <data name="Profile_General_3DGameMode.Title" xml:space="preserve">
+    <value>Режим 3D гри</value>
+  </data>
+  <data name="Profile_General_AutoScale.Title" xml:space="preserve">
+    <value>Автоматичне масштабування на передньому плані</value>
+  </data>
+  <data name="Profile_General_CaptureMethod.Title" xml:space="preserve">
+    <value>Метод захоплення</value>
+  </data>
+  <data name="Profile_General_Multimonitor.Title" xml:space="preserve">
+    <value>Бажані монітори</value>
+  </data>
+  <data name="Profile_General_Multimonitor_All.Content" xml:space="preserve">
+    <value>Всі монітори</value>
+  </data>
+  <data name="Profile_General_Multimonitor_Closest.Content" xml:space="preserve">
+    <value>Монітор, найближчий до вихідного вікна</value>
+  </data>
+  <data name="Profile_General_Multimonitor_Intersected.Content" xml:space="preserve">
+    <value>Монітори перетинаються вихідним вікном</value>
+  </data>
+  <data name="Profile_MoreOptions.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Додаткові параметри</value>
+  </data>
+  <data name="Profile_MoreOptions_Delete.Text" xml:space="preserve">
+    <value>Видалити</value>
+  </data>
+  <data name="Profile_MoreOptions_DeleteFlyout_Delete.Text" xml:space="preserve">
+    <value>Видалити</value>
+  </data>
+  <data name="Profile_MoreOptions_OpenProgramLocation.Text" xml:space="preserve">
+    <value>Відкрити розташування програми</value>
+  </data>
+  <data name="Profile_MoreOptions_Rename.Text" xml:space="preserve">
+    <value>Перейменувати</value>
+  </data>
+  <data name="Profile_MoreOptions_RenameFlyout_OK.Content" xml:space="preserve">
+    <value>OK</value>
+  </data>
+  <data name="Profile_MoreOptions_RenameFlyout_Title.Text" xml:space="preserve">
+    <value>Перейменувати</value>
+  </data>
+  <data name="Profile_MoreOptions_Reorder.Text" xml:space="preserve">
+    <value>Перевпорядкувати</value>
+  </data>
+  <data name="Profile_MoreOptions_ReorderFlyout_MoveDown.Text" xml:space="preserve">
+    <value>Перемістити вниз</value>
+  </data>
+  <data name="ScalingConfiguration_ParsingFailed.Title" xml:space="preserve">
+    <value>Помилка синтаксичного аналізу</value>
+  </data>
+  <data name="Profile_General_ScalingMode_None" xml:space="preserve">
+    <value>Немає</value>
+  </data>
+  <data name="Profile_Performance.Title" xml:space="preserve">
+    <value>Продуктивність</value>
+  </data>
+  <data name="Profile_Performance_ShowFPS.Title" xml:space="preserve">
+    <value>Відображення лічильника FPS</value>
+  </data>
+  <data name="Profile_Performance_VSync_TripleBuffering.Content" xml:space="preserve">
+    <value>Дозволити додаткову затримку для підвищення продуктивності</value>
+  </data>
+  <data name="Profile_Performance_VSync.Title" xml:space="preserve">
+    <value>Вертикальна синхронізація</value>
+  </data>
+  <data name="About_Feedback.Title" xml:space="preserve">
+    <value>Зворотній зв'язок</value>
+  </data>
+  <data name="About_Feedback_RequestFeature.Title" xml:space="preserve">
+    <value>Запросити функцію</value>
+  </data>
+  <data name="About_Version.Title" xml:space="preserve">
+    <value>Версія</value>
+  </data>
+  <data name="About_Version_UpdateSettings_CheckForPreviewUpdates.Title" xml:space="preserve">
+    <value>Перевірити наявність оновлень попереднього перегляду</value>
+  </data>
+  <data name="About_Version_UpdateSettings_AutoCheckForUpdates.Title" xml:space="preserve">
+    <value>Автоматична перевірка оновлень</value>
+  </data>
+  <data name="About_Version_CheckingForUpdates.Text" xml:space="preserve">
+    <value>Перевірка оновлень</value>
+  </data>
+  <data name="About_Version_UpdateCard_Cancel.Content" xml:space="preserve">
+    <value>Скасувати</value>
+  </data>
+  <data name="About_Version_UpdateCard_DownloadAndInstall.Content" xml:space="preserve">
+    <value>Завантажити і встановити</value>
+  </data>
+  <data name="About_Version_UpdateCard_Retry.Content" xml:space="preserve">
+    <value>Спробуйте ще раз</value>
+  </data>
+  <data name="About_Version_UpdateCard_Title" xml:space="preserve">
+    <value>{} доступно</value>
+  </data>
+  <data name="About_Version_UpdateToDate.Title" xml:space="preserve">
+    <value>Magpie в курсі подій</value>
+  </data>
+  <data name="About_Version_UpdateToDate_DownloadFailed.Text" xml:space="preserve">
+    <value>Помилка завантаження</value>
+  </data>
+  <data name="About_Version_UpdateToDate_Downloading.Text" xml:space="preserve">
+    <value>Завантаження</value>
+  </data>
+  <data name="About_Version_UpdateToDate_Installing.Text" xml:space="preserve">
+    <value>Встановлення</value>
+  </data>
+  <data name="Profile_Advanced.Title" xml:space="preserve">
+    <value>Розширені</value>
+  </data>
+  <data name="Profile_Advanced_DisableDirectFlip.Title" xml:space="preserve">
+    <value>Вимкнути DirectFlip</value>
+  </data>
+  <data name="Profile_Cursor.Title" xml:space="preserve">
+    <value>Курсор</value>
+  </data>
+  <data name="Profile_Cursor_DrawCursor.Title" xml:space="preserve">
+    <value>Намалювати курсор</value>
+  </data>
+  <data name="Profile_Cursor_DrawCursor_Interpolation.Title" xml:space="preserve">
+    <value>Алгоритм інтерполяції</value>
+  </data>
+  <data name="Profile_Cursor_DrawCursor_Interpolation_Bilinear.Content" xml:space="preserve">
+    <value>Білінійний</value>
+  </data>
+  <data name="Profile_Cursor_DrawCursor_Interpolation_NearestNeighbor.Content" xml:space="preserve">
+    <value>Найближчий сусід</value>
+  </data>
+  <data name="Profile_Cursor_DrawCursor_ScalingFactor.Title" xml:space="preserve">
+    <value>Коефіцієнт масштабування</value>
+  </data>
+  <data name="Profile_Cursor_DrawCursor_ScalingFactor_Custom.Content" xml:space="preserve">
+    <value>Власний</value>
+  </data>
+  <data name="Profile_Cursor_DrawCursor_ScalingFactor_SameAsSourceWindow.Content" xml:space="preserve">
+    <value>Те саме, що й у вихідному вікні</value>
+  </data>
+  <data name="Profile_General_CaptureMethod_Default" xml:space="preserve">
+    <value>За замовчуванням</value>
+  </data>
+  <data name="Profile_SourceWindow_CaptureTitleBar.Title" xml:space="preserve">
+    <value>Захопити рядок заголовка</value>
+  </data>
+  <data name="Profile_SourceWindow_CustomCropping.Title" xml:space="preserve">
+    <value>Обрізати вручну</value>
+  </data>
+  <data name="Profile_SourceWindow_CustomCropping_Bottom.Title" xml:space="preserve">
+    <value>Низ</value>
+  </data>
+  <data name="Profile_SourceWindow_CustomCropping_Left.Title" xml:space="preserve">
+    <value>Ліворуч</value>
+  </data>
+  <data name="Profile_SourceWindow_CustomCropping_Pixels.Text" xml:space="preserve">
+    <value>пікс</value>
+  </data>
+  <data name="Profile_SourceWindow_CustomCropping_Right.Title" xml:space="preserve">
+    <value>Праворуч</value>
+  </data>
+  <data name="Settings_Advanced_InlineParams.Description" xml:space="preserve">
+    <value>Дає невеликий приріст продуктивності. Однак ефекти потрібно перекомпілювати щоразу, коли змінюються їхні параметри</value>
+  </data>
+  <data name="Settings_Advanced_SimulateExclusiveFullscreen.Description" xml:space="preserve">
+    <value>Сповіщення та спливаючі вікна певних застосунків будуть заблоковані</value>
+  </data>
+  <data name="Settings_Launch_RunAtStartup_MinimizeAtStartup.Description" xml:space="preserve">
+    <value>Для використання цього параметра потрібно ввімкнути "Відображати застосунок в системному треї"</value>
+  </data>
+  <data name="Settings_Launch_RunAtStartup_MinimizeAtStartup.Title" xml:space="preserve">
+    <value>Згортання в системний трей під час запуску</value>
+  </data>
+  <data name="AppSettings_Dialog_Error" xml:space="preserve">
+    <value>Помилка</value>
+  </data>
+  <data name="AppSettings_PortableModeUnkownConfiguration_Continue" xml:space="preserve">
+    <value>Продовжити</value>
+  </data>
+  <data name="AppSettings_PortableModeUnkownConfiguration_Exit" xml:space="preserve">
+    <value>Вихід</value>
+  </data>
+  <data name="AppSettings_UnkownConfiguration_Content" xml:space="preserve">
+    <value>Файл глобальної конфігурації походить з невідомої версії і може бути проаналізований неправильно.</value>
+  </data>
+  <data name="AppSettings_UnkownConfiguration_Continue" xml:space="preserve">
+    <value>Продовжити</value>
+  </data>
+  <data name="AppSettings_UnkownConfiguration_EnablePortableMode" xml:space="preserve">
+    <value>Ввімкнути портативний режим</value>
+  </data>
+  <data name="Settings_DeveloperOptions.Description" xml:space="preserve">
+    <value>Ці налаштування призначені лише для використання під час розробки</value>
+  </data>
+  <data name="Settings_DeveloperOptions.Title" xml:space="preserve">
+    <value>Параметри розробника</value>
+  </data>
+  <data name="Settings_DeveloperOptions_DisableEffectCache.Content" xml:space="preserve">
+    <value>Вимкнути кеш ефектів</value>
+  </data>
+  <data name="Settings_DeveloperOptions_WarningsAreErrors.Content" xml:space="preserve">
+    <value>Розглядайте попередження як помилки під час компіляції ефектів</value>
+  </data>
+  <data name="AppSettings_Dialog_Exit" xml:space="preserve">
+    <value>Вихід</value>
+  </data>
+  <data name="AppSettings_ErrorDialog_ConfigLocation" xml:space="preserve">
+    <value>Розташування файлу конфігурації:
+{}</value>
+  </data>
+  <data name="AppSettings_ErrorDialog_NotValidJson" xml:space="preserve">
+    <value>Файл конфігурації не є дійсним JSON</value>
+  </data>
+  <data name="TrayIcon_Exit" xml:space="preserve">
+    <value>Вихід</value>
+  </data>
+  <data name="Home_AutoRestore.Description" xml:space="preserve">
+    <value>Автоматичне масштабування, коли вікно повертається на передній план</value>
+  </data>
+  <data name="Home_AutoRestore_EmptyTitle" xml:space="preserve">
+    <value>Назва порожня</value>
+  </data>
+  <data name="Home_Timer_ButtonText" xml:space="preserve">
+    <value>Масштабування після {}с</value>
+  </data>
+  <data name="Home_Timer_Cancel" xml:space="preserve">
+    <value>Скасувати</value>
+  </data>
+  <data name="ShortcutDialog_Cancel" xml:space="preserve">
+    <value>Скасувати</value>
+  </data>
+  <data name="ShortcutDialog_InUse" xml:space="preserve">
+    <value>Вже використовується</value>
+  </data>
+  <data name="ScalingConfiguration_ScalingModes_DeleteFlyout_Title.Text" xml:space="preserve">
+    <value>Ви впевнені, що хочете видалити цей режим масштабування?</value>
+  </data>
+  <data name="Main_About.Content" xml:space="preserve">
+    <value>Про застосунок</value>
+  </data>
+  <data name="Main_Home.Content" xml:space="preserve">
+    <value>Головна</value>
+  </data>
+  <data name="Main_Defaults.Content" xml:space="preserve">
+    <value>За замовчуванням</value>
+  </data>
+  <data name="Settings_General_Language_System" xml:space="preserve">
+    <value>За замовчуванням Windows</value>
+  </data>
+  <data name="Settings_General_PortableMode_Locate.Content" xml:space="preserve">
+    <value>Відкрити розташування файлу конфігурації</value>
+  </data>
+  <data name="Profile_MoreOptions_ReorderFlyout_MoveUp.Text" xml:space="preserve">
+    <value>Перемістити вгору</value>
+  </data>
+  <data name="Settings_General_PortableMode.Title" xml:space="preserve">
+    <value>Портативний режим</value>
+  </data>
+  <data name="Settings_General_ShowTrayIcon.Description" xml:space="preserve">
+    <value>Magpie продовжить працювати у фоновому режимі після закриття головного вікна</value>
+  </data>
+  <data name="Settings_General_ShowTrayIcon.Title" xml:space="preserve">
+    <value>Відображення застосунку в системному треї</value>
+  </data>
+  <data name="Settings_General_Theme.Title" xml:space="preserve">
+    <value>Тема</value>
+  </data>
+  <data name="About_Feedback_Discussion.Title" xml:space="preserve">
+    <value>Обговорення</value>
+  </data>
+  <data name="About_Feedback_ReportBug.Title" xml:space="preserve">
+    <value>Повідомити про помилку</value>
+  </data>
+  <data name="ScalingConfiguration_General_DefaultDownscalingEffect.Description" xml:space="preserve">
+    <value>Автоматично застосовується, коли вихідне зображення занадто велике, щоб поміститися на екрані</value>
+  </data>
+  <data name="ScalingConfiguration_General_Import.Text" xml:space="preserve">
+    <value>Імпорт</value>
+  </data>
+  <data name="Home_UpdateCard_AutoCheckForUpdates.Content" xml:space="preserve">
+    <value>Періодично перевіряти наявність оновлень</value>
+  </data>
+  <data name="About_OtherLinks_FAQ.Text" xml:space="preserve">
+    <value>Часті запитання</value>
+  </data>
+  <data name="About_OtherLinks_License.Text" xml:space="preserve">
+    <value>Ліцензія</value>
+  </data>
+  <data name="About_OtherLinks_Repository.Text" xml:space="preserve">
+    <value>Репозиторій Github</value>
+  </data>
+  <data name="ScalingConfiguration_ScalingModes_MoveDown.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Перемістити вниз</value>
+  </data>
+  <data name="ScalingConfiguration_ScalingModes_NewScalingModeFlyout_Title.Text" xml:space="preserve">
+    <value>Новий режим масштабування</value>
+  </data>
+  <data name="About_Version_CheckForUpdates.Text" xml:space="preserve">
+    <value>Перевірити наявність оновлень</value>
+  </data>
+  <data name="About_Version_CheckForUpdatesFailed.Title" xml:space="preserve">
+    <value>Не вдалося перевірити наявність оновлень, спробуйте пізніше</value>
+  </data>
+  <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_Type_Factor_Description" xml:space="preserve">
+    <value>Встановити коефіцієнт масштабування відносно вхідного зображення</value>
+  </data>
+  <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_WidthFactor.Text" xml:space="preserve">
+    <value>Ширина (коефіцієнт масштабування)</value>
+  </data>
+  <data name="Profile_MoreOptions_DeleteFlyout_Title.Text" xml:space="preserve">
+    <value>Ви впевнені, що хочете видалити цей профіль?</value>
+  </data>
+  <data name="ScalingConfiguration_ScalingModes_ScaleFlyout_Type_Fit_Description" xml:space="preserve">
+    <value>Встановити коефіцієнт масштабування після заповнення екрана за допомогою пропорційного масштабування</value>
+  </data>
+  <data name="Profile_Performance_GraphicsCard.Title" xml:space="preserve">
+    <value>Відеокарта</value>
+  </data>
+  <data name="Profile_General_ScalingMode.Title" xml:space="preserve">
+    <value>Режими масштабування</value>
+  </data>
+  <data name="Profile_Launch.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Запуск</value>
+  </data>
+  <data name="Profile_MoreOptions_ReorderFlyout_Title.Text" xml:space="preserve">
+    <value>Перевпорядкувати</value>
+  </data>
+  <data name="About_Version_UpdateCard_ReleaseNotes.Content" xml:space="preserve">
+    <value>Примітки до випуску</value>
+  </data>
+  <data name="Profile_Cursor_DrawCursor_ScalingFactor_NoScaling.Content" xml:space="preserve">
+    <value>Без масштабування</value>
+  </data>
+  <data name="Profile_Cursor_DrawCursor_AdjustCursorSpeed.Title" xml:space="preserve">
+    <value>Регулювання швидкості курсору під час масштабування</value>
+  </data>
+  <data name="Profile_SourceWindow.Title" xml:space="preserve">
+    <value>Вихідне вікно</value>
+  </data>
+  <data name="Profile_SourceWindow_CaptureTitleBar.Description" xml:space="preserve">
+    <value>Обмежено захопленням графіки та дублюванням робочого столу</value>
+  </data>
+  <data name="Settings_Advanced_InlineParams.Title" xml:space="preserve">
+    <value>Зробити параметри ефекту вбудованими</value>
+  </data>
+  <data name="Profile_SourceWindow_CustomCropping_Top.Title" xml:space="preserve">
+    <value>Верх</value>
+  </data>
+  <data name="Profile_SourceWindow_DisableWindowResizing.Title" xml:space="preserve">
+    <value>Вимкнути зміну розміру вікна під час масштабування</value>
+  </data>
+  <data name="Settings_Advanced_SimulateExclusiveFullscreen.Title" xml:space="preserve">
+    <value>Імітація ексклюзивного повноекранного режиму при масштабуванні</value>
+  </data>
+  <data name="ScalingConfiguration_ScalingModes_Description_UnknownEffect" xml:space="preserve">
+    <value>Невідомий ефект</value>
+  </data>
+  <data name="ScalingConfiguration_ScalingModes_HasUnkownEffects.Title" xml:space="preserve">
+    <value>Деякі ефекти не можуть бути проаналізовані</value>
+  </data>
+  <data name="ExportDialog_Title" xml:space="preserve">
+    <value>Експорт режимів масштабування</value>
+  </data>
+  <data name="AppSettings_Dialog_Warning" xml:space="preserve">
+    <value>Попередження</value>
+  </data>
+  <data name="AppSettings_PortableModeUnkownConfiguration_Content" xml:space="preserve">
+    <value>Локальний конфігураційний файл походить з невідомої версії і може бути проаналізований неправильно.</value>
+  </data>
+  <data name="Settings_DeveloperOptions_SaveEffectSources.Content" xml:space="preserve">
+    <value>Збереження вихідного коду під час синтаксичного аналізу ефектів</value>
+  </data>
+  <data name="Settings_DeveloperOptions_DebugMode.Content" xml:space="preserve">
+    <value>Режим налагодження</value>
+  </data>
+  <data name="TrayIcon_MainWindow" xml:space="preserve">
+    <value>Головне вікно</value>
+  </data>
+  <data name="AppSettings_ErrorDialog_ReadFailed" xml:space="preserve">
+    <value>Не вдалося прочитати файл конфігурації</value>
+  </data>
+  <data name="AppSettings_ErrorDialog_ParseFailed" xml:space="preserve">
+    <value>Не вдалося розібрати файл конфігурації</value>
+  </data>
+  <data name="Settings_General_RequireRestart.Title" xml:space="preserve">
+    <value>Щоб зміна набула чинності, потрібен перезапуск</value>
+  </data>
+  <data name="Settings_General_RequireRestart_ActionButton.Content" xml:space="preserve">
+    <value>Перезапустити Magpie</value>
+  </data>
+  <data name="ImportDialog_Title" xml:space="preserve">
+    <value>Імпорт режимів масштабування</value>
+  </data>
+  <data name="ImportLegacyDialog_Title" xml:space="preserve">
+    <value>Імпорт ScaleModels.json</value>
+  </data>
+  <data name="About_Version_UpdateSettings.Title" xml:space="preserve">
+    <value>Оновлення налаштувань</value>
+  </data>
+  <data name="About_Version_Version" xml:space="preserve">
+    <value>Версія</value>
+  </data>
+  <data name="Profile_Advanced_LaunchParameters_Edit.[using:Windows.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Редагувати</value>
+  </data>
+  <data name="Profile_Advanced_LaunchParameters.Title" xml:space="preserve">
+    <value>Параметри запуску</value>
+  </data>
+</root>
