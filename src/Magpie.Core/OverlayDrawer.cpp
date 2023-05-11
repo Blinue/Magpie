@@ -310,12 +310,30 @@ bool OverlayDrawer::_BuildFonts() noexcept {
 
 	ImVector<ImWchar> ranges1;
 	{
-		// Basic Latin
-		ranges1.push_back(0x20);
-		ranges1.push_back(0x7E);
-		ranges1.push_back(L'■');
-		ranges1.push_back(L'■');
-		ranges1.push_back(0);
+		winrt::ResourceContext resourceContext = winrt::ResourceContext::GetForViewIndependentUse();
+		winrt::hstring language = resourceContext.QualifierValues().Lookup(L"Language");
+
+		ImFontGlyphRangesBuilder builder;
+
+		if (language == L"ja") {
+			builder.AddRanges(io.Fonts->GetGlyphRangesDefault());
+			builder.AddChar(L'■');
+		} else if (language == L"ru") {
+			builder.AddRanges(io.Fonts->GetGlyphRangesDefault());
+			builder.AddChar(L'■');
+		} else if (language == L"zh-Hans") {
+			builder.AddRanges(io.Fonts->GetGlyphRangesDefault());
+			builder.AddChar(L'■');
+		} else if (language == L"zh-Hant") {
+			builder.AddRanges(io.Fonts->GetGlyphRangesDefault());
+			builder.AddChar(L'■');
+		} else {
+			builder.AddRanges(io.Fonts->GetGlyphRangesDefault());
+			builder.AddChar(L'■');
+		}
+
+		builder.BuildRanges(&ranges1);
+
 #ifdef _DEBUG
 		std::char_traits<char>::copy(config.Name, "_fontUI", std::size(config.Name));
 #endif // _DEBUG
@@ -776,7 +794,8 @@ void OverlayDrawer::_DrawUI() noexcept {
 	static float initPosX = Win32Utils::GetSizeOfRect(MagApp::Get().GetRenderer().GetOutputRect()).cx - maxWindowWidth;
 	ImGui::SetNextWindowPos(ImVec2(initPosX, 20), ImGuiCond_FirstUseEver);
 
-	if (!ImGui::Begin("Profiler", nullptr, ImGuiWindowFlags_NoNav | ImGuiWindowFlags_AlwaysAutoResize)) {
+	std::string profilerStr = StrUtils::UTF16ToUTF8(_resourceLoader.GetString(L"Overlay_Profiler"));
+	if (!ImGui::Begin(profilerStr.c_str(), nullptr, ImGuiWindowFlags_NoNav | ImGuiWindowFlags_AlwaysAutoResize)) {
 		ImGui::End();
 		return;
 	}

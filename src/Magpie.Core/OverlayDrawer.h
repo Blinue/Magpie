@@ -65,6 +65,8 @@ private:
 
 	std::unique_ptr<ImGuiImpl> _imguiImpl;
 
+	winrt::ResourceLoader _resourceLoader = winrt::ResourceLoader::GetForViewIndependentUse();
+
 	bool _isUIVisiable = false;
 	bool _isSrcMainWnd = false;
 };
