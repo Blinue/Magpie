@@ -15,6 +15,7 @@
 #include "ComboBoxHelper.h"
 #include "CommonSharedConstants.h"
 #include "ContentDialogHelper.h"
+#include "LocalizationService.h"
 
 using namespace winrt;
 using namespace Windows::Graphics::Display;
@@ -48,6 +49,9 @@ MainPage::MainPage() {
 		auto_revoke, { this, &MainPage::_ProfileService_ProfileRemoved });
 	_profileMovedRevoker = profileService.ProfileMoved(
 		auto_revoke, { this, &MainPage::_ProfileService_ProfileReordered });
+
+	// 设置 Language 属性帮助 XAML 选择合适的字体，比如繁体中文使用 Microsoft JhengHei UI，日语使用 Yu Gothic UI
+	Language(LocalizationService::Get().Language());
 }
 
 MainPage::~MainPage() {
