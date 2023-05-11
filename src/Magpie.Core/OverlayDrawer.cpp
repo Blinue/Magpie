@@ -532,7 +532,7 @@ void OverlayDrawer::_DrawTimelineItem(ImU32 color, float dpiScale, std::string_v
 	float textWidth = ImGui::CalcTextSize(text.c_str()).x;
 	float itemWidth = ImGui::GetItemRectSize().x;
 	float itemSpacing = ImGui::GetStyle().ItemSpacing.x;
-	if (itemWidth - (selected ? 0 : itemSpacing) > textWidth + 4) {
+	if (itemWidth - (selected ? 0 : itemSpacing) > textWidth + 4 * _dpiScale) {
 		ImGui::SameLine(0, 0);
 		ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (itemWidth - textWidth - itemSpacing) / 2);
 		ImGui::TextUnformatted(text.c_str());
@@ -860,7 +860,7 @@ void OverlayDrawer::_DrawUI() noexcept {
 			MyPlotLines([](void* data, int idx) {
 				return (*(std::deque<float>*)data)[idx];
 			}, &_frameTimes, (int)_frameTimes.size(), 0,
-				fmt::format("avg: {:.3f} ms", totalTime / _validFrames).c_str(),
+				fmt::format("avg: {:.1f} ms", totalTime / _validFrames).c_str(),
 				0, maxTime2 * 1.7f, ImVec2(250 * _dpiScale, 80 * _dpiScale));
 		}
 
