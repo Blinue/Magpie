@@ -140,12 +140,6 @@
     <ClCompile Include="WindowHelper.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <CopyFileToFolders Include="NotoSansSC-Regular.otf">
-      <FileType>Document</FileType>
-      <DestinationFolders>$(OutDir)assets</DestinationFolders>
-    </CopyFileToFolders>
-  </ItemGroup>
-  <ItemGroup>
     <ResourceCompile Include="Magpie.Core.rc" />
   </ItemGroup>
   <ItemGroup>
