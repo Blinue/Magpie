@@ -20,7 +20,7 @@
 
 namespace Magpie::Core {
 
-OverlayDrawer::OverlayDrawer() {
+OverlayDrawer::OverlayDrawer() noexcept {
 	HWND hwndSrc = MagApp::Get().GetHwndSrc();
 	_isSrcMainWnd = Win32Utils::GetWndClassName(hwndSrc) == CommonSharedConstants::MAIN_WINDOW_CLASS_NAME;
 }
@@ -183,7 +183,7 @@ static std::wstring GetSystemFontsFolder() noexcept {
 	return result;
 }
 
-bool OverlayDrawer::Initialize() {
+bool OverlayDrawer::Initialize() noexcept {
 	_imguiImpl.reset(new ImGuiImpl());
 	if (!_imguiImpl->Initialize()) {
 		Logger::Get().Error("初始化 ImGuiImpl 失败");
@@ -211,7 +211,7 @@ bool OverlayDrawer::Initialize() {
 	return true;
 }
 
-void OverlayDrawer::Draw() {
+void OverlayDrawer::Draw() noexcept {
 	bool isShowFPS = MagApp::Get().GetOptions().IsShowFPS();
 
 	if (!_isUIVisiable && !isShowFPS) {
@@ -234,7 +234,7 @@ void OverlayDrawer::Draw() {
 	_imguiImpl->EndFrame();
 }
 
-void OverlayDrawer::SetUIVisibility(bool value) {
+void OverlayDrawer::SetUIVisibility(bool value) noexcept {
 	if (_isUIVisiable == value) {
 		return;
 	}
@@ -541,7 +541,7 @@ void OverlayDrawer::_DrawTimelineItem(ImU32 color, float dpiScale, std::string_v
 	ImGui::PopFont();
 }
 
-void OverlayDrawer::_DrawFPS() {
+void OverlayDrawer::_DrawFPS() noexcept {
 	static float oldOpacity = 0.0f;
 	static float opacity = 0.0f;
 	static bool isLocked = false;
@@ -763,7 +763,7 @@ static void MyPlotLines(float(*values_getter)(void* data, int idx), void* data, 
 	ImGuiImpl::Tooltip(fmt::format("{:.1f}", v0).c_str());
 }
 
-void OverlayDrawer::_DrawUI() {
+void OverlayDrawer::_DrawUI() noexcept {
 	auto& settings = MagApp::Get().GetOptions();
 	auto& renderer = MagApp::Get().GetRenderer();
 	auto& gpuTimer = renderer.GetGPUTimer();
@@ -1112,7 +1112,7 @@ void OverlayDrawer::_DrawUI() {
 	ImGui::End();
 }
 
-void OverlayDrawer::_RetrieveHardwareInfo() {
+void OverlayDrawer::_RetrieveHardwareInfo() noexcept {
 	DXGI_ADAPTER_DESC desc{};
 	HRESULT hr = MagApp::Get().GetDeviceResources().GetGraphicsAdapter()->GetDesc(&desc);
 	_hardwareInfo.gpuName = SUCCEEDED(hr) ? StrUtils::UTF16ToUTF8(desc.Description) : "UNAVAILABLE";
@@ -1121,7 +1121,7 @@ void OverlayDrawer::_RetrieveHardwareInfo() {
 	_hardwareInfo.cpuName = !cpuName.empty() ? std::move(cpuName) : "UNAVAILABLE";
 }
 
-void OverlayDrawer::_EnableSrcWnd(bool enable) {
+void OverlayDrawer::_EnableSrcWnd(bool enable) noexcept {
 	HWND hwndSrc = MagApp::Get().GetHwndSrc();
 	if (!_isSrcMainWnd) {
 		// 如果源窗口是 Magpie 主窗口会卡死

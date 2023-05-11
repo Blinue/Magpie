@@ -10,21 +10,21 @@ class ImGuiImpl;
 
 class OverlayDrawer {
 public:
-	OverlayDrawer();
+	OverlayDrawer() noexcept;
 	OverlayDrawer(const OverlayDrawer&) = delete;
 	OverlayDrawer(OverlayDrawer&&) = delete;
 
 	~OverlayDrawer();
 
-	bool Initialize();
+	bool Initialize() noexcept;
 
-	void Draw();
+	void Draw() noexcept;
 
 	bool IsUIVisiable() const noexcept {
 		return _isUIVisiable;
 	}
 
-	void SetUIVisibility(bool value);
+	void SetUIVisibility(bool value) noexcept;
 
 private:
 	bool _BuildFonts() noexcept;
@@ -39,18 +39,18 @@ private:
 
 	void _DrawTimelineItem(ImU32 color, float dpiScale, std::string_view name, float time, float effectsTotalTime, bool selected = false);
 
-	void _DrawFPS();
+	void _DrawFPS() noexcept;
 
-	void _DrawUI();
+	void _DrawUI() noexcept;
 
-	void _RetrieveHardwareInfo();
+	void _RetrieveHardwareInfo() noexcept;
 
-	void _EnableSrcWnd(bool enable);
+	void _EnableSrcWnd(bool enable) noexcept;
 
 	float _dpiScale = 1.0f;
 
 	ImFont* _fontUI = nullptr;	// 普通 UI 文字
-	ImFont* _fontMonoNumbers = nullptr;	// 普通 UI 文字，但数字部分是等宽的
+	ImFont* _fontMonoNumbers = nullptr;	// 普通 UI 文字，但数字部分是等宽的，只支持 ASCII
 	ImFont* _fontFPS = nullptr;	// FPS
 
 	std::deque<float> _frameTimes;
