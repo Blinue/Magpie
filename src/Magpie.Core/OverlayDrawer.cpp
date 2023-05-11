@@ -311,26 +311,37 @@ bool OverlayDrawer::_BuildFonts() noexcept {
 	ImVector<ImWchar> ranges1;
 	{
 		winrt::ResourceContext resourceContext = winrt::ResourceContext::GetForViewIndependentUse();
-		winrt::hstring language = resourceContext.QualifierValues().Lookup(L"Language");
+		std::wstring language(resourceContext.QualifierValues().Lookup(L"Language"));
+		StrUtils::ToLowerCase(language);
 
 		ImFontGlyphRangesBuilder builder;
 
-		if (language == L"ja") {
+		if (language == L"en-us") {
+			// Basic Latin
+			const ImWchar ENGLISH_RANGES[] = { 0x0020, 0x007E, 0 };
+			builder.AddRanges(ENGLISH_RANGES);
+		} else if (language == L"es" || language == L"pt") {
+			// Basic Latin + Latin-1 Supplement
+			// 参见 https://en.wikipedia.org/wiki/Latin-1_Supplement
 			builder.AddRanges(io.Fonts->GetGlyphRangesDefault());
-			builder.AddChar(L'■');
-		} else if (language == L"ru") {
-			builder.AddRanges(io.Fonts->GetGlyphRangesDefault());
-			builder.AddChar(L'■');
-		} else if (language == L"zh-Hans") {
-			builder.AddRanges(io.Fonts->GetGlyphRangesDefault());
-			builder.AddChar(L'■');
-		} else if (language == L"zh-Hant") {
-			builder.AddRanges(io.Fonts->GetGlyphRangesDefault());
-			builder.AddChar(L'■');
+		} else if (language == L"ru" || language == L"uk") {
+			builder.AddRanges(io.Fonts->GetGlyphRangesCyrillic());
+		} else if (language == L"tr") {
+			// Basic Latin + Latin-1 Supplement + Latin Extended-A
+			// 参见 https://en.wikipedia.org/wiki/Latin_Extended-A
+			const ImWchar TURKISH_RANGES[] = { 0x0020, 0x017F, 0 };
+			builder.AddRanges(TURKISH_RANGES);
 		} else {
+			// 一些语言需要加载额外的字体：
+			// 简体中文 -> Microsoft YaHei UI
+			// 繁体中文 -> Microsoft JhengHei UI
+			// 日语 -> Yu Gothic UI
+			// 参见 https://learn.microsoft.com/en-us/windows/apps/design/style/typography#fonts-for-non-latin-languages
+			static std::vector<BYTE> extraFontData;
+
 			builder.AddRanges(io.Fonts->GetGlyphRangesDefault());
-			builder.AddChar(L'■');
 		}
+		builder.SetBit(L'■');
 
 		builder.BuildRanges(&ranges1);
 
