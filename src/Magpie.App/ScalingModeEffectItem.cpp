@@ -14,8 +14,6 @@
 
 using namespace ::Magpie::Core;
 namespace MagpieCore = ::Magpie::Core;
-using namespace winrt;
-using namespace Windows::ApplicationModel::Resources;
 
 namespace winrt::Magpie::App::implementation {
 

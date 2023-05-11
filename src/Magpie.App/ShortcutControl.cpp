@@ -11,7 +11,6 @@
 #include "Logger.h"
 
 using namespace winrt;
-using namespace Windows::ApplicationModel::Resources;
 using namespace Windows::UI::Xaml::Controls;
 using namespace Windows::UI::Xaml::Input;
 
@@ -71,24 +70,24 @@ fire_and_forget ShortcutControl::EditButton_Click(IInspectable const&, RoutedEve
 		co_return;
 	}
 
-	if (!_ShortcutDialog) {
+	if (!_shortcutDialog) {
 		// 惰性初始化
-		_ShortcutDialog = ContentDialog();
+		_shortcutDialog = ContentDialog();
 		_ShortcutDialogContent = ShortcutDialog();
 
-		_ShortcutDialog.Title(GetValue(TitleProperty));
-		_ShortcutDialog.Content(_ShortcutDialogContent);
+		_shortcutDialog.Title(GetValue(TitleProperty));
+		_shortcutDialog.Content(_ShortcutDialogContent);
 		ResourceLoader resourceLoader = ResourceLoader::GetForCurrentView();
-		_ShortcutDialog.PrimaryButtonText(resourceLoader.GetString(L"ShortcutDialog_Save"));
-		_ShortcutDialog.CloseButtonText(resourceLoader.GetString(L"ShortcutDialog_Cancel"));
-		_ShortcutDialog.DefaultButton(ContentDialogButton::Primary);
+		_shortcutDialog.PrimaryButtonText(resourceLoader.GetString(L"ShortcutDialog_Save"));
+		_shortcutDialog.CloseButtonText(resourceLoader.GetString(L"ShortcutDialog_Cancel"));
+		_shortcutDialog.DefaultButton(ContentDialogButton::Primary);
 		// 在 Closing 事件中设置热键而不是等待 ShowAsync 返回
 		// 这两个时间点有一定间隔，用户在这段时间内的按键不应处理
-		_ShortcutDialog.Closing({ this, &ShortcutControl::_ShortcutDialog_Closing });
+		_shortcutDialog.Closing({ this, &ShortcutControl::_ShortcutDialog_Closing });
 	}
 
-	_ShortcutDialog.XamlRoot(XamlRoot());
-	_ShortcutDialog.RequestedTheme(ActualTheme());
+	_shortcutDialog.XamlRoot(XamlRoot());
+	_shortcutDialog.RequestedTheme(ActualTheme());
 
 	_that = this;
 	// 防止钩子冲突
@@ -104,11 +103,11 @@ fire_and_forget ShortcutControl::EditButton_Click(IInspectable const&, RoutedEve
 	ShortcutError error = _isError ? ShortcutHelper::CheckShortcut(_previewShortcut) : ShortcutError::NoError;
 	_ShortcutDialogContent.Keys(ToKeys(_previewShortcut, error != ShortcutError::NoError));
 	_ShortcutDialogContent.Error(error);
-	_ShortcutDialog.IsPrimaryButtonEnabled(error == ShortcutError::NoError);
+	_shortcutDialog.IsPrimaryButtonEnabled(error == ShortcutError::NoError);
 	
 	_pressedKeys.Clear();
 
-	co_await ContentDialogHelper::ShowAsync(_ShortcutDialog);
+	co_await ContentDialogHelper::ShowAsync(_shortcutDialog);
 }
 
 void ShortcutControl::_ShortcutDialog_Closing(ContentDialog const&, ContentDialogClosingEventArgs const& args) {
@@ -220,7 +219,7 @@ LRESULT ShortcutControl::_LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM 
 
 		_that->_ShortcutDialogContent.Keys(ToKeys(previewShortcut, error != ShortcutError::NoError));
 		_that->_ShortcutDialogContent.Error(error);
-		_that->_ShortcutDialog.IsPrimaryButtonEnabled(isPrimaryButtonEnabled);
+		_that->_shortcutDialog.IsPrimaryButtonEnabled(isPrimaryButtonEnabled);
 	}
 
 	return -1;
@@ -233,8 +232,8 @@ void ShortcutControl::_OnActionChanged(DependencyObject const& sender, Dependenc
 
 void ShortcutControl::_OnTitleChanged(DependencyObject const& sender, DependencyPropertyChangedEventArgs const& args) {
 	ShortcutControl* that = get_self<ShortcutControl>(sender.as<default_interface<ShortcutControl>>());
-	if (that->_ShortcutDialog) {
-		that->_ShortcutDialog.Title(args.NewValue());
+	if (that->_shortcutDialog) {
+		that->_shortcutDialog.Title(args.NewValue());
 	}
 }
 

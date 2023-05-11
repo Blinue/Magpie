@@ -13,8 +13,8 @@ class Magpie(ConanFile):
 		"muparser/2.3.4",
 		"yas/7.1.0",
 		"rapidjson/cci.20220822",
-		"zstd/1.5.2",
-		"imgui/1.89.2",
+		"zstd/1.5.5",
+		"imgui/1.89.4",
 		"parallel-hashmap/1.37",
 		"kuba-zip/0.2.6"
 	]

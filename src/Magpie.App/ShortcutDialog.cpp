@@ -4,9 +4,6 @@
 #include "ShortcutDialog.g.cpp"
 #endif
 
-using namespace winrt;
-using namespace Windows::ApplicationModel::Resources;
-
 namespace winrt::Magpie::App::implementation {
 
 void ShortcutDialog::Error(ShortcutError value) {

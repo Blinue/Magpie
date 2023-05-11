@@ -10,7 +10,6 @@
 #include "IconHelper.h"
 
 using namespace winrt;
-using namespace Windows::ApplicationModel::Resources;
 using namespace Windows::UI::Xaml::Media::Imaging;
 
 namespace winrt::Magpie::App::implementation {

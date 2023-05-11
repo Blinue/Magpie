@@ -582,9 +582,6 @@
   <data name="ScalingConfiguration_PageFrame.Title" xml:space="preserve">
     <value>Configuración de escalado</value>
   </data>
-  <data name="Settings_PageFrame.Title" xml:space="preserve">
-    <value>Ajustes</value>
-  </data>
   <data name="Settings_General_Theme.Title" xml:space="preserve">
     <value>Tema</value>
   </data>

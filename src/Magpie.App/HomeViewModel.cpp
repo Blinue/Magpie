@@ -9,9 +9,6 @@
 #include "StrUtils.h"
 #include "UpdateService.h"
 
-using namespace winrt;
-using namespace Windows::ApplicationModel::Resources;
-
 namespace winrt::Magpie::App::implementation {
 
 HomeViewModel::HomeViewModel() {

@@ -9,9 +9,6 @@
 #include "ProfileService.h"
 #include "AppXReader.h"
 
-using namespace winrt;
-using namespace Windows::ApplicationModel::Resources;
-
 namespace winrt::Magpie::App::implementation {
 
 static bool IsCandidateWindow(HWND hWnd) {
