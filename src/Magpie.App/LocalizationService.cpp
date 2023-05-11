@@ -51,7 +51,7 @@ void LocalizationService::EarlyInitialize() {
 		}
 	}
 
-	ResourceContext::SetGlobalQualifierValue(L"Language", bestLanguage);
+	_Language(bestLanguage);
 }
 
 void LocalizationService::Initialize() {
@@ -59,12 +59,17 @@ void LocalizationService::Initialize() {
 
 	int language = settings.Language();
 	if (language >= 0) {
-		ResourceContext::SetGlobalQualifierValue(L"Language", SUPPORTED_LANGUAGES[language]);
+		_Language(SUPPORTED_LANGUAGES[language]);
 	}
 }
 
 std::span<const wchar_t*> LocalizationService::SupportedLanguages() noexcept {
 	return SUPPORTED_LANGUAGES;
+}
+
+void LocalizationService::_Language(const wchar_t* tag) {
+	_language = tag;
+	ResourceContext::SetGlobalQualifierValue(L"Language", tag);
 }
 
 }

@@ -58,7 +58,7 @@
 						</DataTemplate>
 					</ItemsControl.ItemTemplate>
 				</ItemsControl>
-				<FontIcon FontSize="14"
+				<FontIcon FontSize="16"
 				          Glyph="&#xE70F;" />
 			</StackPanel>
 		</Button>

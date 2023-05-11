@@ -50,7 +50,7 @@ private:
 	WinRTUtils::EventRevoker _shortcutChangedRevoker;
 
 	Shortcut _shortcut;
-	Controls::ContentDialog _ShortcutDialog{ nullptr };
+	Controls::ContentDialog _shortcutDialog{ nullptr };
 	Magpie::App::ShortcutDialog _ShortcutDialogContent{ nullptr };
 
 	HHOOK _keyboardHook = NULL;

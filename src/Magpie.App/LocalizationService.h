@@ -21,8 +21,16 @@ public:
 	// 支持的所有语言的标签，均为小写
 	static std::span<const wchar_t* > SupportedLanguages() noexcept;
 
+	const wchar_t* Language() const noexcept {
+		return _language;
+	}
+
 private:
 	LocalizationService() = default;
+
+	void _Language(const wchar_t* tag);
+
+	const wchar_t* _language = nullptr;
 };
 
 }
