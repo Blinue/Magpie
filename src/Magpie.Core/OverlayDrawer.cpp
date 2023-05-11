@@ -507,8 +507,6 @@ int OverlayDrawer::_DrawEffectTimings(
 }
 
 void OverlayDrawer::_DrawTimelineItem(ImU32 color, float dpiScale, std::string_view name, float time, float effectsTotalTime, bool selected) {
-	ImGui::PushFont(_fontMonoNumbers);
-
 	ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, color);
 	ImGui::PushStyleColor(ImGuiCol_HeaderActive, color);
 	ImGui::PushStyleColor(ImGuiCol_HeaderHovered, color);
@@ -518,7 +516,9 @@ void OverlayDrawer::_DrawTimelineItem(ImU32 color, float dpiScale, std::string_v
 
 	if (ImGui::IsItemHovered() || ImGui::IsItemClicked()) {
 		std::string content = fmt::format("{}\n{:.3f} ms\n{}%", name, time, std::lroundf(time / effectsTotalTime * 100));
+		ImGui::PushFont(_fontMonoNumbers);
 		ImGuiImpl::Tooltip(content.c_str(), 500 * dpiScale);
+		ImGui::PopFont();
 	}
 
 	// 空间足够时显示文字
@@ -537,8 +537,6 @@ void OverlayDrawer::_DrawTimelineItem(ImU32 color, float dpiScale, std::string_v
 		ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (itemWidth - textWidth - itemSpacing) / 2);
 		ImGui::TextUnformatted(text.c_str());
 	}
-
-	ImGui::PopFont();
 }
 
 void OverlayDrawer::_DrawFPS() noexcept {
