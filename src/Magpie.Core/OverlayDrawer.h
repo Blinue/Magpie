@@ -1,11 +1,11 @@
 #pragma once
 #include <deque>
 #include "SmallVector.h"
-
-struct ImFont;
+#include <imgui.h>
 
 namespace Magpie::Core {
 
+struct EffectDesc;
 class ImGuiImpl;
 
 class OverlayDrawer {
@@ -29,6 +29,16 @@ public:
 private:
 	bool _BuildFonts() noexcept;
 
+	struct _EffectTimings {
+		const EffectDesc* desc = nullptr;
+		std::span<const float> passTimings;
+		float totalTime = 0.0f;
+	};
+
+	int _DrawEffectTimings(const _EffectTimings& et, bool showPasses, float maxWindowWidth, std::span<const ImColor> colors, bool singleEffect) noexcept;
+
+	void _DrawTimelineItem(ImU32 color, float dpiScale, std::string_view name, float time, float effectsTotalTime, bool selected = false);
+
 	void _DrawFPS();
 
 	void _DrawUI();
@@ -39,8 +49,9 @@ private:
 
 	float _dpiScale = 1.0f;
 
-	ImFont* _fontUI = nullptr;
-	ImFont* _fontFPS = nullptr;
+	ImFont* _fontUI = nullptr;	// 普通 UI 文字
+	ImFont* _fontMonoNumbers = nullptr;	// 普通 UI 文字，但数字部分是等宽的
+	ImFont* _fontFPS = nullptr;	// FPS
 
 	std::deque<float> _frameTimes;
 	UINT _validFrames = 0;
