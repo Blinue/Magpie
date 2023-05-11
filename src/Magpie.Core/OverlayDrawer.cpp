@@ -308,8 +308,10 @@ bool OverlayDrawer::_BuildFonts() noexcept {
 	const float fontSize = 18 * _dpiScale;
 	const float fpsSize = 24 * _dpiScale;
 
-	ImVector<ImWchar> ranges1;
-	{
+	static ImVector<ImWchar> ranges1;
+	static ImVector<ImWchar> ranges2;
+	static ImVector<ImWchar> ranges3;
+	if (ranges1.empty()) {
 		winrt::ResourceContext resourceContext = winrt::ResourceContext::GetForViewIndependentUse();
 		std::wstring language(resourceContext.QualifierValues().Lookup(L"Language"));
 		StrUtils::ToLowerCase(language);
@@ -345,24 +347,10 @@ bool OverlayDrawer::_BuildFonts() noexcept {
 
 		builder.BuildRanges(&ranges1);
 
-#ifdef _DEBUG
-		std::char_traits<char>::copy(config.Name, "_fontUI", std::size(config.Name));
-#endif // _DEBUG
-		_fontUI = io.Fonts->AddFontFromMemoryTTF(fontData.data(), (int)fontData.size(), fontSize, &config, ranges1.Data);
-	}
-	
-	ImVector<ImWchar> ranges2;
-	ImVector<ImWchar> ranges3;
-	{
 		// 等宽的数字字符
 		ranges2.push_back(L'0');
 		ranges2.push_back(L'9');
 		ranges2.push_back(0);
-		config.GlyphMinAdvanceX = config.GlyphMaxAdvanceX = fontSize * 0.42f;
-#ifdef _DEBUG
-		std::char_traits<char>::copy(config.Name, "_fontMonoNumbers", std::size(config.Name));
-#endif // _DEBUG
-		_fontMonoNumbers = io.Fonts->AddFontFromMemoryTTF(fontData.data(), (int)fontData.size(), fontSize, &config, ranges2.Data);
 
 		// 其他不等宽的字符
 		ranges3.push_back(0x20);
@@ -370,37 +358,47 @@ bool OverlayDrawer::_BuildFonts() noexcept {
 		ranges3.push_back(0x3A);
 		ranges3.push_back(0x7E);
 		ranges3.push_back(0);
-		config.MergeMode = true;
-		config.GlyphMinAdvanceX = 0;
-		config.GlyphMaxAdvanceX = std::numeric_limits<float>::max();
-		_fontMonoNumbers = io.Fonts->AddFontFromMemoryTTF(fontData.data(), (int)fontData.size(), fontSize, &config, ranges3.Data);
 	}
-	
-	ImVector<ImWchar> ranges4;
-	ImVector<ImWchar> ranges5;
+
+#ifdef _DEBUG
+	std::char_traits<char>::copy(config.Name, "_fontUI", std::size(config.Name));
+#endif // _DEBUG
+	_fontUI = io.Fonts->AddFontFromMemoryTTF(fontData.data(), (int)fontData.size(), fontSize, &config, ranges1.Data);
+
+	// 等宽的数字字符
+	config.GlyphMinAdvanceX = config.GlyphMaxAdvanceX = fontSize * 0.42f;
+#ifdef _DEBUG
+	std::char_traits<char>::copy(config.Name, "_fontMonoNumbers", std::size(config.Name));
+#endif // _DEBUG
+	_fontMonoNumbers = io.Fonts->AddFontFromMemoryTTF(fontData.data(), (int)fontData.size(), fontSize, &config, ranges2.Data);
+
+	// 其他不等宽的字符
+	config.MergeMode = true;
+	config.GlyphMinAdvanceX = 0;
+	config.GlyphMaxAdvanceX = std::numeric_limits<float>::max();
+	io.Fonts->AddFontFromMemoryTTF(fontData.data(), (int)fontData.size(), fontSize, &config, ranges3.Data);
+
 	if (MagApp::Get().GetOptions().IsShowFPS()) {
 		// 等宽的数字字符
-		ranges4 = ranges2;
 		config.MergeMode = false;
 		config.GlyphMinAdvanceX = config.GlyphMaxAdvanceX = fpsSize * 0.42f;
 #ifdef _DEBUG
 		std::char_traits<char>::copy(config.Name, "_fontFPS", std::size(config.Name));
 #endif // _DEBUG
-		_fontFPS = io.Fonts->AddFontFromMemoryTTF(fontData.data(), (int)fontData.size(), fpsSize, &config, ranges4.Data);
+		_fontFPS = io.Fonts->AddFontFromMemoryTTF(fontData.data(), (int)fontData.size(), fpsSize, &config, ranges2.Data);
 
-		ranges5.push_back(L' ');
-		ranges5.push_back(L' ');
-		ranges5.push_back(L'F');
-		ranges5.push_back(L'F');
-		ranges5.push_back(L'P');
-		ranges5.push_back(L'P');
-		ranges5.push_back(L'S');
-		ranges5.push_back(L'S');
-		ranges5.push_back(0);
+		// 其他不等宽的字符
+		static ImVector<ImWchar> ranges4;
+		if (ranges4.empty()) {
+			constexpr std::wstring_view fpsStr = L"  FFPPSS";
+			ranges4.resize((int)fpsStr.size() + 1);
+			std::copy(fpsStr.begin(), fpsStr.end(), ranges4.begin());
+		}
+
 		config.MergeMode = true;
 		config.GlyphMinAdvanceX = 0;
 		config.GlyphMaxAdvanceX = std::numeric_limits<float>::max();
-		_fontFPS = io.Fonts->AddFontFromMemoryTTF(fontData.data(), (int)fontData.size(), fpsSize, &config, ranges5.Data);
+		io.Fonts->AddFontFromMemoryTTF(fontData.data(), (int)fontData.size(), fpsSize, &config, ranges4.Data);
 	}
 
 	return io.Fonts->Build();
