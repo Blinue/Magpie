@@ -319,7 +319,6 @@ bool OverlayDrawer::_BuildFonts() noexcept {
 	static ImVector<ImWchar> ranges1;
 	static ImVector<ImWchar> ranges2;
 	static ImVector<ImWchar> ranges3;
-
 	
 	static std::vector<BYTE> extraFontData;
 	static ImVector<ImWchar> extraRanges;
@@ -369,10 +368,13 @@ bool OverlayDrawer::_BuildFonts() noexcept {
 			} else {
 				std::wstring fontPath = GetSystemFontsFolder();
 				if (type == 0) {
+					// Microsoft JhengHei UI 是第二个字体
 					fontPath += L"\\msyh.ttc";
 				} else if (type == 1) {
+					// Microsoft JhengHei UI 是第二个字体
 					fontPath += L"\\msjh.ttc";
 				} else {
+					// Yu Gothic UI 是第二个字体
 					fontPath += L"\\YuGothM.ttc";
 				}
 				
@@ -421,8 +423,14 @@ bool OverlayDrawer::_BuildFonts() noexcept {
 	if (!extraRanges.empty()) {
 		assert(!extraFontData.empty());
 		config.MergeMode = true;
+		// 三个字体文件里我们需要的都是其中的第二个字体
+		// msyh.ttc: 0 是微软雅黑，1 是 Microsoft YaHei UI
+		// msjh.ttc: 0 是 Microsoft JhengHei，1 是 Microsoft JhengHei UI
+		// YuGothM.ttc: 0 是 Yu Gothic Medium，1 是 Yu Gothic UI
+		config.FontNo = 1;
 		// 在 MergeMode 下已有字符会跳过而不是覆盖
 		io.Fonts->AddFontFromMemoryTTF(extraFontData.data(), (int)extraFontData.size(), fontSize, &config, extraRanges.Data);
+		config.FontNo = 0;
 		config.MergeMode = false;
 	}
 
