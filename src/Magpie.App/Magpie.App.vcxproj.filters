@@ -283,4 +283,7 @@
       <Filter>Strings</Filter>
     </PRIResource>
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="conanfile.txt" />
+  </ItemGroup>
 </Project>

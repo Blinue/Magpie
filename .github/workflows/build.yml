@@ -23,7 +23,7 @@ jobs:
       uses: actions/cache@v3
       with:
         path: ./.conan/data
-        key: ${{ runner.os }}-conan-${{ hashFiles('src/conanfile.txt') }}
+        key: ${{ runner.os }}-conan-${{ hashFiles('src/**/conanfile.txt') }}
     
     - name: Restore NuGet packages
       run: nuget restore

@@ -554,6 +554,11 @@
     <PRIResource Include="Resources.language-zh-Hans.resw" />
     <PRIResource Include="Resources.language-zh-Hant.resw" />
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="conanfile.txt">
+      <DeploymentContent>false</DeploymentContent>
+    </Text>
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
     <Import Project="..\..\packages\Microsoft.UI.Xaml.2.8.2-prerelease.220830001\build\native\Microsoft.UI.Xaml.targets" Condition="Exists('..\..\packages\Microsoft.UI.Xaml.2.8.2-prerelease.220830001\build\native\Microsoft.UI.Xaml.targets')" />
