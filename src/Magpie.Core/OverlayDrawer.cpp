@@ -17,7 +17,6 @@
 
 #pragma comment(lib, "wbemuuid.lib")
 
-
 namespace Magpie::Core {
 
 OverlayDrawer::OverlayDrawer() noexcept {
@@ -313,16 +312,13 @@ bool OverlayDrawer::_BuildFonts() noexcept {
 	const float fontSize = 18 * _dpiScale;
 	const float fpsSize = 24 * _dpiScale;
 
-	// ranges1 (+ extraRanges) -> _fontUI
-	// ranges2 + ranges3 -> _fontMonoNumbers
-	// ranges2 + ranges4 -> _fontFPS
-	static ImVector<ImWchar> ranges1;
-	static ImVector<ImWchar> ranges2;
-	static ImVector<ImWchar> ranges3;
-	
+	static const ImWchar NUMBER_RANGES[] = { L'0', L'9', 0 };
+	static const ImWchar NOT_NUMBER_RANGES[] = { 0x20, L'0' - 1, L'9' + 1, 0x7E, 0 };
+
+	static ImVector<ImWchar> uiRanges;
 	static std::vector<BYTE> extraFontData;
 	static ImVector<ImWchar> extraRanges;
-	if (ranges1.empty()) {
+	if (uiRanges.empty()) {
 		winrt::ResourceContext resourceContext = winrt::ResourceContext::GetForViewIndependentUse();
 		std::wstring language(resourceContext.QualifierValues().Lookup(L"Language"));
 		StrUtils::ToLowerCase(language);
@@ -331,7 +327,7 @@ bool OverlayDrawer::_BuildFonts() noexcept {
 
 		if (language == L"en-us") {
 			// Basic Latin
-			const ImWchar ENGLISH_RANGES[] = { 0x0020, 0x007E, 0 };
+			static const ImWchar ENGLISH_RANGES[] = { 0x20, 0x7E, 0 };
 			builder.AddRanges(ENGLISH_RANGES);
 		} else if (language == L"es" || language == L"pt") {
 			// Basic Latin + Latin-1 Supplement
@@ -342,7 +338,7 @@ bool OverlayDrawer::_BuildFonts() noexcept {
 		} else if (language == L"tr") {
 			// Basic Latin + Latin-1 Supplement + Latin Extended-A
 			// 参见 https://en.wikipedia.org/wiki/Latin_Extended-A
-			const ImWchar TURKISH_RANGES[] = { 0x0020, 0x017F, 0 };
+			static const ImWchar TURKISH_RANGES[] = { 0x20, 0x17F, 0 };
 			builder.AddRanges(TURKISH_RANGES);
 		} else {
 			// 一些语言需要加载额外的字体：
@@ -386,7 +382,7 @@ bool OverlayDrawer::_BuildFonts() noexcept {
 				if (type == 0) {
 					builder.AddRanges(io.Fonts->GetGlyphRangesChineseSimplifiedCommon());
 				} else if (type == 1) {
-					// TODO: 有没有常用繁体中文字符？
+					// TODO: 有没有常用繁体中文字符集？
 					builder.AddRanges(io.Fonts->GetGlyphRangesChineseFull());
 				} else {
 					builder.AddRanges(io.Fonts->GetGlyphRangesJapanese());
@@ -400,25 +396,19 @@ bool OverlayDrawer::_BuildFonts() noexcept {
 		}
 		builder.SetBit(L'■');
 
-		builder.BuildRanges(&ranges1);
-
-		// 等宽的数字字符
-		ranges2.push_back(L'0');
-		ranges2.push_back(L'9');
-		ranges2.push_back(0);
-
-		// 其他不等宽的字符
-		ranges3.push_back(0x20);
-		ranges3.push_back(0x2F);
-		ranges3.push_back(0x3A);
-		ranges3.push_back(0x7E);
-		ranges3.push_back(0);
+		builder.BuildRanges(&uiRanges);
 	}
+
+	//////////////////////////////////////////////////////////
+	// 
+	// uiRanges (+ extraRanges) -> _fontUI
+	// 
+	//////////////////////////////////////////////////////////
 
 #ifdef _DEBUG
 	std::char_traits<char>::copy(config.Name, "_fontUI", std::size(config.Name));
 #endif // _DEBUG
-	_fontUI = io.Fonts->AddFontFromMemoryTTF(fontData.data(), (int)fontData.size(), fontSize, &config, ranges1.Data);
+	_fontUI = io.Fonts->AddFontFromMemoryTTF(fontData.data(), (int)fontData.size(), fontSize, &config, uiRanges.Data);
 
 	if (!extraRanges.empty()) {
 		assert(!extraFontData.empty());
@@ -434,40 +424,45 @@ bool OverlayDrawer::_BuildFonts() noexcept {
 		config.MergeMode = false;
 	}
 
+	//////////////////////////////////////////////////////////
+	//
+	// NUMBER_RANGES + NOT_NUMBER_RANGES -> _fontMonoNumbers
+	//
+	//////////////////////////////////////////////////////////
+
 	// 等宽的数字字符
 	config.GlyphMinAdvanceX = config.GlyphMaxAdvanceX = fontSize * 0.42f;
 #ifdef _DEBUG
 	std::char_traits<char>::copy(config.Name, "_fontMonoNumbers", std::size(config.Name));
 #endif // _DEBUG
-	_fontMonoNumbers = io.Fonts->AddFontFromMemoryTTF(fontData.data(), (int)fontData.size(), fontSize, &config, ranges2.Data);
+	_fontMonoNumbers = io.Fonts->AddFontFromMemoryTTF(fontData.data(), (int)fontData.size(), fontSize, &config, NUMBER_RANGES);
 
 	// 其他不等宽的字符
 	config.MergeMode = true;
 	config.GlyphMinAdvanceX = 0;
 	config.GlyphMaxAdvanceX = std::numeric_limits<float>::max();
-	io.Fonts->AddFontFromMemoryTTF(fontData.data(), (int)fontData.size(), fontSize, &config, ranges3.Data);
+	io.Fonts->AddFontFromMemoryTTF(fontData.data(), (int)fontData.size(), fontSize, &config, NOT_NUMBER_RANGES);
 
 	if (MagApp::Get().GetOptions().IsShowFPS()) {
+		//////////////////////////////////////////////////////////
+		//
+		// NUMBER_RANGES + " FPS" -> _fontFPS
+		// 
+		//////////////////////////////////////////////////////////
+		
 		// 等宽的数字字符
 		config.MergeMode = false;
 		config.GlyphMinAdvanceX = config.GlyphMaxAdvanceX = fpsSize * 0.42f;
 #ifdef _DEBUG
 		std::char_traits<char>::copy(config.Name, "_fontFPS", std::size(config.Name));
 #endif // _DEBUG
-		_fontFPS = io.Fonts->AddFontFromMemoryTTF(fontData.data(), (int)fontData.size(), fpsSize, &config, ranges2.Data);
+		_fontFPS = io.Fonts->AddFontFromMemoryTTF(fontData.data(), (int)fontData.size(), fpsSize, &config, NUMBER_RANGES);
 
 		// 其他不等宽的字符
-		static ImVector<ImWchar> ranges4;
-		if (ranges4.empty()) {
-			constexpr std::wstring_view fpsStr = L"  FFPPSS";
-			ranges4.resize((int)fpsStr.size() + 1);
-			std::copy(fpsStr.begin(), fpsStr.end(), ranges4.begin());
-		}
-
 		config.MergeMode = true;
 		config.GlyphMinAdvanceX = 0;
 		config.GlyphMaxAdvanceX = std::numeric_limits<float>::max();
-		io.Fonts->AddFontFromMemoryTTF(fontData.data(), (int)fontData.size(), fpsSize, &config, ranges4.Data);
+		io.Fonts->AddFontFromMemoryTTF(fontData.data(), (int)fontData.size(), fpsSize, &config, (const ImWchar*)L"  FFPPSS");
 	}
 
 	return io.Fonts->Build();
