@@ -26,8 +26,5 @@ struct Utils {
 		T _exitScope;
 	};
 
-	static bool ZstdCompress(std::span<const BYTE> src, std::vector<BYTE>& dest, int compressionLevel);
-	static bool ZstdDecompress(std::span<const BYTE> src, std::vector<BYTE>& dest);
-
 	static uint64_t HashData(std::span<const BYTE> data) noexcept;
 };

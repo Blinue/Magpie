@@ -5,6 +5,7 @@
 #include "Logger.h"
 #include "CommonSharedConstants.h"
 #include <d3dcompiler.h>
+#include <zstd.h>
 #include "Utils.h"
 
 // YAS 暂不支持 ARM64
@@ -121,6 +122,37 @@ void serialize(Archive& ar, EffectDesc& o) {
 	ar& o.name& o.outSizeExpr& o.params& o.textures& o.samplers& o.passes& o.flags;
 }
 
+static bool ZstdCompress(std::span<const BYTE> src, std::vector<BYTE>& dest, int compressionLevel) noexcept {
+	dest.resize(ZSTD_compressBound(src.size()));
+	size_t size = ZSTD_compress(dest.data(), dest.size(), src.data(), src.size(), compressionLevel);
+
+	if (ZSTD_isError(size)) {
+		Logger::Get().Error(StrUtils::Concat("压缩失败：", ZSTD_getErrorName(size)));
+		return false;
+	}
+
+	dest.resize(size);
+	return true;
+}
+
+static bool ZstdDecompress(std::span<const BYTE> src, std::vector<BYTE>& dest) noexcept {
+	auto size = ZSTD_getFrameContentSize(src.data(), src.size());
+	if (size == ZSTD_CONTENTSIZE_UNKNOWN || size == ZSTD_CONTENTSIZE_ERROR) {
+		Logger::Get().Error("ZSTD_getFrameContentSize 失败");
+		return false;
+	}
+
+	dest.resize(size);
+	size = ZSTD_decompress(dest.data(), dest.size(), src.data(), src.size());
+	if (ZSTD_isError(size)) {
+		Logger::Get().Error(StrUtils::Concat("解压失败：", ZSTD_getErrorName(size)));
+		return false;
+	}
+
+	dest.resize(size);
+
+	return true;
+}
 
 static constexpr const uint32_t MAX_CACHE_COUNT = 127;
 
@@ -209,7 +241,7 @@ bool EffectCacheManager::Load(std::wstring_view effectName, std::wstring_view ha
 			return false;
 		}
 
-		if (!Utils::ZstdDecompress(compressedBuf, buf)) {
+		if (!ZstdDecompress(compressedBuf, buf)) {
 			Logger::Get().Error("解压缓存失败");
 			return false;
 		}
@@ -251,7 +283,7 @@ void EffectCacheManager::Save(std::wstring_view effectName, std::wstring_view ha
 		}
 
 
-		if (!Utils::ZstdCompress(buf, compressedBuf, CACHE_COMPRESSION_LEVEL)) {
+		if (!ZstdCompress(buf, compressedBuf, CACHE_COMPRESSION_LEVEL)) {
 			Logger::Get().Error("压缩缓存失败");
 			return;
 		}

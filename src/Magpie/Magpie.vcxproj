@@ -121,6 +121,11 @@
   <ItemGroup>
     <Image Include="Magpie.ico" />
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="conanfile.txt">
+      <DeploymentContent>false</DeploymentContent>
+    </Text>
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <Import Project="XamlIslands.targets" />
   <ImportGroup Label="ExtensionTargets">
