@@ -784,4 +784,10 @@
   <data name="Overlay_Profiler" xml:space="preserve">
     <value>Profiler</value>
   </data>
+  <data name="Overlay_CaptureMethod" xml:space="preserve">
+    <value>Capture method</value>
+  </data>
+  <data name="Overlay_VSync" xml:space="preserve">
+    <value>VSync</value>
+  </data>
 </root>

@@ -169,17 +169,22 @@ static SmallVector<UINT> GenerateTimelineColors() {
 	return result;
 }
 
-static std::wstring GetSystemFontsFolder() noexcept {
-	wchar_t* fontsFolder = nullptr;
-	HRESULT hr = SHGetKnownFolderPath(FOLDERID_Fonts, 0, NULL, &fontsFolder);
-	if (FAILED(hr)) {
-		CoTaskMemFree(fontsFolder);
-		Logger::Get().ComError("SHGetKnownFolderPath 失败", hr);
-		return {};
-	}
+static const std::wstring& GetSystemFontsFolder() noexcept {
+	static std::wstring result;
 
-	std::wstring result = fontsFolder;
-	CoTaskMemFree(fontsFolder);
+	if (result.empty()) {
+		wchar_t* fontsFolder = nullptr;
+		HRESULT hr = SHGetKnownFolderPath(FOLDERID_Fonts, 0, NULL, &fontsFolder);
+		if (FAILED(hr)) {
+			CoTaskMemFree(fontsFolder);
+			Logger::Get().ComError("SHGetKnownFolderPath 失败", hr);
+			return result;
+		}
+
+		result = fontsFolder;
+		CoTaskMemFree(fontsFolder);
+	}
+	
 	return result;
 }
 
@@ -282,14 +287,14 @@ void OverlayDrawer::SetUIVisibility(bool value) noexcept {
 bool OverlayDrawer::_BuildFonts() noexcept {
 	static std::vector<BYTE> fontData;
 	if (fontData.empty()) {
-		std::wstring fontsPath = GetSystemFontsFolder();
+		std::wstring fontPath = GetSystemFontsFolder();
 		if (Win32Utils::GetOSVersion().IsWin11()) {
-			fontsPath += L"\\SegUIVar.ttf";
+			fontPath += L"\\SegUIVar.ttf";
 		} else {
-			fontsPath += L"\\segoeui.ttf";
+			fontPath += L"\\segoeui.ttf";
 		}
 
-		if (!Win32Utils::ReadFile(fontsPath.c_str(), fontData)) {
+		if (!Win32Utils::ReadFile(fontPath.c_str(), fontData)) {
 			Logger::Get().Error("读取字体文件失败");
 			return false;
 		}
@@ -308,9 +313,16 @@ bool OverlayDrawer::_BuildFonts() noexcept {
 	const float fontSize = 18 * _dpiScale;
 	const float fpsSize = 24 * _dpiScale;
 
+	// ranges1 (+ extraRanges) -> _fontUI
+	// ranges2 + ranges3 -> _fontMonoNumbers
+	// ranges2 + ranges4 -> _fontFPS
 	static ImVector<ImWchar> ranges1;
 	static ImVector<ImWchar> ranges2;
 	static ImVector<ImWchar> ranges3;
+
+	
+	static std::vector<BYTE> extraFontData;
+	static ImVector<ImWchar> extraRanges;
 	if (ranges1.empty()) {
 		winrt::ResourceContext resourceContext = winrt::ResourceContext::GetForViewIndependentUse();
 		std::wstring language(resourceContext.QualifierValues().Lookup(L"Language"));
@@ -339,9 +351,50 @@ bool OverlayDrawer::_BuildFonts() noexcept {
 			// 繁体中文 -> Microsoft JhengHei UI
 			// 日语 -> Yu Gothic UI
 			// 参见 https://learn.microsoft.com/en-us/windows/apps/design/style/typography#fonts-for-non-latin-languages
-			static std::vector<BYTE> extraFontData;
 
-			builder.AddRanges(io.Fonts->GetGlyphRangesDefault());
+			uint8_t type;
+			if (language == L"zh-hans") {
+				type = 0;
+			} else if (language == L"zh-hant") {
+				type = 1;
+			} else if (language == L"ja") {
+				type = 2;
+			} else {
+				type = 3;
+			}
+			
+			if (type == 3) {
+				// 未知语言
+				builder.AddRanges(io.Fonts->GetGlyphRangesDefault());
+			} else {
+				std::wstring fontPath = GetSystemFontsFolder();
+				if (type == 0) {
+					fontPath += L"\\msyh.ttc";
+				} else if (type == 1) {
+					fontPath += L"\\msjh.ttc";
+				} else {
+					fontPath += L"\\YuGothM.ttc";
+				}
+				
+				if (!Win32Utils::ReadFile(fontPath.c_str(), extraFontData)) {
+					Logger::Get().Error("读取字体文件失败");
+					return false;
+				}
+
+				if (type == 0) {
+					builder.AddRanges(io.Fonts->GetGlyphRangesChineseSimplifiedCommon());
+				} else if (type == 1) {
+					// TODO: 有没有常用繁体中文字符？
+					builder.AddRanges(io.Fonts->GetGlyphRangesChineseFull());
+				} else {
+					builder.AddRanges(io.Fonts->GetGlyphRangesJapanese());
+				}
+				
+				builder.BuildRanges(&extraRanges);
+
+				builder.Clear();
+				builder.AddRanges(io.Fonts->GetGlyphRangesDefault());
+			}
 		}
 		builder.SetBit(L'■');
 
@@ -364,6 +417,14 @@ bool OverlayDrawer::_BuildFonts() noexcept {
 	std::char_traits<char>::copy(config.Name, "_fontUI", std::size(config.Name));
 #endif // _DEBUG
 	_fontUI = io.Fonts->AddFontFromMemoryTTF(fontData.data(), (int)fontData.size(), fontSize, &config, ranges1.Data);
+
+	if (!extraRanges.empty()) {
+		assert(!extraFontData.empty());
+		config.MergeMode = true;
+		// 在 MergeMode 下已有字符会跳过而不是覆盖
+		io.Fonts->AddFontFromMemoryTTF(extraFontData.data(), (int)extraFontData.size(), fontSize, &config, extraRanges.Data);
+		config.MergeMode = false;
+	}
 
 	// 等宽的数字字符
 	config.GlyphMinAdvanceX = config.GlyphMaxAdvanceX = fontSize * 0.42f;
@@ -813,8 +874,12 @@ void OverlayDrawer::_DrawUI() noexcept {
 	ImGui::PushTextWrapPos(maxWindowWidth - ImGui::GetStyle().WindowPadding.x - ImGui::GetStyle().ScrollbarSize);
 	ImGui::TextUnformatted(StrUtils::Concat("GPU: ", _hardwareInfo.gpuName).c_str());
 	ImGui::TextUnformatted(StrUtils::Concat("CPU: ", _hardwareInfo.cpuName).c_str());
-	ImGui::TextUnformatted(StrUtils::Concat("VSync: ", settings.IsVSync() ? "ON" : "OFF").c_str());
-	ImGui::TextUnformatted(StrUtils::Concat("Capture Method: ", MagApp::Get().GetFrameSource().GetName()).c_str());
+	std::string vSyncStr = StrUtils::UTF16ToUTF8(_resourceLoader.GetString(L"Overlay_VSync"));
+	std::string stateStr = StrUtils::UTF16ToUTF8(_resourceLoader.GetString(
+		settings.IsVSync() ? L"ToggleSwitch/OnContent" : L"ToggleSwitch/OffContent"));
+	ImGui::TextUnformatted(StrUtils::Concat(vSyncStr, ": ", stateStr).c_str());
+	std::string captureMethodStr = StrUtils::UTF16ToUTF8(_resourceLoader.GetString(L"Overlay_CaptureMethod"));
+	ImGui::TextUnformatted(StrUtils::Concat(captureMethodStr.c_str(), ": ", MagApp::Get().GetFrameSource().GetName()).c_str());
 	ImGui::PopTextWrapPos();
 
 	ImGui::Spacing();

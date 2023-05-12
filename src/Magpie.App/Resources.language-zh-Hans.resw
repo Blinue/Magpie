@@ -784,4 +784,10 @@
   <data name="Overlay_Profiler" xml:space="preserve">
     <value>性能分析器</value>
   </data>
+  <data name="Overlay_CaptureMethod" xml:space="preserve">
+    <value>捕获方式</value>
+  </data>
+  <data name="Overlay_VSync" xml:space="preserve">
+    <value>垂直同步</value>
+  </data>
 </root>
