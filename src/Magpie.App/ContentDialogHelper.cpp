@@ -12,10 +12,6 @@ static weak_ref<ContentDialog> activeDialog;
 IAsyncOperation<ContentDialogResult> ContentDialogHelper::ShowAsync(ContentDialog dialog) {
 	assert(activeDialog == nullptr);
 
-	// 设置 Language 属性帮助 XAML 选择合适的字体
-	MainPage mainPage = Application::Current().as<App>().MainPage();
-	dialog.Content().as<FrameworkElement>().Language(mainPage.Language());
-
 	activeDialog = dialog;
 	ContentDialogResult result = co_await dialog.ShowAsync();
 	activeDialog = nullptr;

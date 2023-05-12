@@ -75,6 +75,8 @@ fire_and_forget ShortcutControl::EditButton_Click(IInspectable const&, RoutedEve
 		_shortcutDialog = ContentDialog();
 		_ShortcutDialogContent = ShortcutDialog();
 
+		// 设置 Language 属性帮助 XAML 选择合适的字体
+		_shortcutDialog.Language(Language());
 		_shortcutDialog.Title(GetValue(TitleProperty));
 		_shortcutDialog.Content(_ShortcutDialogContent);
 		ResourceLoader resourceLoader = ResourceLoader::GetForCurrentView();
