@@ -145,4 +145,7 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="conanfile.txt" />
+  </ItemGroup>
 </Project>

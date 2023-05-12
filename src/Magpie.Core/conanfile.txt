@@ -1,0 +1,16 @@
+[requires]
+fmt/9.1.0
+spdlog/1.11.0
+parallel-hashmap/1.37
+muparser/2.3.4
+yas/7.1.0
+zstd/1.5.5
+imgui/1.89.4
+
+[generators]
+visual_studio
+
+[options]
+fmt:header_only=True
+spdlog:header_only=True
+spdlog:no_exceptions=True

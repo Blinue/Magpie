@@ -34,6 +34,6 @@
   
   <!-- Conan 依赖 -->
   <ImportGroup Label="PropertySheets">
-    <Import Project="..\.conan\$(Platform)\$(Configuration)\conanbuildinfo.props" Condition="exists('..\.conan\$(Platform)\$(Configuration)\conanbuildinfo.props')" />
+    <Import Project="..\.conan\$(Platform)\$(Configuration)\$(MSBuildProjectName)\conanbuildinfo.props" Condition="exists('..\.conan\$(Platform)\$(Configuration)\$(MSBuildProjectName)\conanbuildinfo.props')" />
   </ImportGroup>
 </Project>
