@@ -316,7 +316,8 @@ bool OverlayDrawer::_BuildFonts() noexcept {
 	static const ImWchar NOT_NUMBER_RANGES[] = { 0x20, L'0' - 1, L'9' + 1, 0x7E, 0 };
 
 	static ImVector<ImWchar> uiRanges;
-	static std::vector<BYTE> extraFontData;
+	// 额外字体体积巨大（Microsoft YaHei UI 超过 20M），我们只保存路径
+	static std::string extraFontPath;
 	static ImVector<ImWchar> extraRanges;
 	if (uiRanges.empty()) {
 		winrt::ResourceContext resourceContext = winrt::ResourceContext::GetForViewIndependentUse();
@@ -362,21 +363,16 @@ bool OverlayDrawer::_BuildFonts() noexcept {
 				// 未知语言
 				builder.AddRanges(io.Fonts->GetGlyphRangesDefault());
 			} else {
-				std::wstring fontPath = GetSystemFontsFolder();
+				extraFontPath = StrUtils::UTF16ToUTF8(GetSystemFontsFolder());
 				if (type == 0) {
 					// Microsoft JhengHei UI 是第二个字体
-					fontPath += L"\\msyh.ttc";
+					extraFontPath += "\\msyh.ttc";
 				} else if (type == 1) {
 					// Microsoft JhengHei UI 是第二个字体
-					fontPath += L"\\msjh.ttc";
+					extraFontPath += "\\msjh.ttc";
 				} else {
 					// Yu Gothic UI 是第二个字体
-					fontPath += L"\\YuGothM.ttc";
-				}
-				
-				if (!Win32Utils::ReadFile(fontPath.c_str(), extraFontData)) {
-					Logger::Get().Error("读取字体文件失败");
-					return false;
+					extraFontPath += "\\YuGothM.ttc";
 				}
 
 				if (type == 0) {
@@ -412,14 +408,17 @@ bool OverlayDrawer::_BuildFonts() noexcept {
 
 	if (!extraRanges.empty()) {
 		assert(!extraFontData.empty());
+		// 在 MergeMode 下已有字符会跳过而不是覆盖
 		config.MergeMode = true;
 		// 三个字体文件里我们需要的都是其中的第二个字体
 		// msyh.ttc: 0 是微软雅黑，1 是 Microsoft YaHei UI
 		// msjh.ttc: 0 是 Microsoft JhengHei，1 是 Microsoft JhengHei UI
 		// YuGothM.ttc: 0 是 Yu Gothic Medium，1 是 Yu Gothic UI
 		config.FontNo = 1;
-		// 在 MergeMode 下已有字符会跳过而不是覆盖
-		io.Fonts->AddFontFromMemoryTTF(extraFontData.data(), (int)extraFontData.size(), fontSize, &config, extraRanges.Data);
+		// 额外字体数据由 ImGui 管理，退出缩放时释放
+		config.FontDataOwnedByAtlas = true;
+		io.Fonts->AddFontFromFileTTF(extraFontPath.c_str(), fontSize, &config, extraRanges.Data);
+		config.FontDataOwnedByAtlas = false;
 		config.FontNo = 0;
 		config.MergeMode = false;
 	}
