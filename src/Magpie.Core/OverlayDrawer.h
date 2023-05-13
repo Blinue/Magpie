@@ -44,7 +44,7 @@ private:
 
 	void _DrawTimelineItem(ImU32 color, float dpiScale, std::string_view name, float time, float effectsTotalTime, bool selected = false);
 
-	void _DrawFPS() noexcept;
+	bool _DrawFPS() noexcept;
 
 	void _DrawUI() noexcept;
 
