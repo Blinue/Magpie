@@ -12,10 +12,7 @@
 #include "CommonSharedConstants.h"
 #include "EffectDesc.h"
 #include <bit>	// std::bit_ceil
-#include <Wbemidl.h>
 #include <random>
-
-#pragma comment(lib, "wbemuuid.lib")
 
 namespace Magpie::Core {
 
@@ -305,7 +302,6 @@ bool OverlayDrawer::_BuildFonts() noexcept {
 		// 非 3D 游戏模式无需 ImGui 绘制光标
 		io.Fonts->Flags |= ImFontAtlasFlags_NoMouseCursors;
 	}
-	
 
 	const float fontSize = 18 * _dpiScale;
 	const float fpsSize = 24 * _dpiScale;
@@ -700,7 +696,7 @@ void OverlayDrawer::_DrawFPS() noexcept {
 
 	if (ImGui::BeginPopupContextWindow()) {
 		ImGui::PushFont(_fontMonoNumbers);
-		ImGui::PushItemWidth(200);
+		ImGui::PushItemWidth(150 * _dpiScale);
 		ImGui::SliderFloat("Opacity", &opacity, 0.0f, 1.0f);
 		ImGui::Separator();
 		if (ImGui::MenuItem(isLocked ? "Unlock" : "Lock", nullptr, nullptr)) {
@@ -713,116 +709,6 @@ void OverlayDrawer::_DrawFPS() noexcept {
 
 	ImGui::End();
 	ImGui::PopStyleVar();
-}
-
-#ifdef _M_X64
-// 只在 x86 可用
-static std::string GetCPUNameViaCPUID() {
-	std::string cpuName(48, '\0');
-
-	std::array<int, 4> cpuInfo{};
-
-	__cpuid(cpuInfo.data(), 0);
-
-	// Calling __cpuid with 0x80000000 as the function_id argument
-	// gets the number of the highest valid extended ID.
-	__cpuid(cpuInfo.data(), 0x80000000);
-
-	if (cpuInfo[0] < 0x80000004) {
-		return {};
-	}
-
-	__cpuidex(cpuInfo.data(), 0x80000002, 0);
-	memcpy(cpuName.data(), cpuInfo.data(), sizeof(cpuInfo));
-	__cpuidex(cpuInfo.data(), 0x80000003, 0);
-	memcpy(cpuName.data() + 16, cpuInfo.data(), sizeof(cpuInfo));
-	__cpuidex(cpuInfo.data(), 0x80000004, 0);
-	memcpy(cpuName.data() + 32, cpuInfo.data(), sizeof(cpuInfo));
-
-	cpuName.resize(StrUtils::StrLen(cpuName.c_str()));
-	StrUtils::Trim(cpuName);
-	return cpuName;
-}
-#endif
-
-// 非常慢，需要大约 18 ms
-static std::string GetCPUNameViaWMI() {
-	winrt::com_ptr<IWbemLocator> wbemLocator = winrt::try_create_instance<IWbemLocator>(CLSID_WbemLocator);
-	if (!wbemLocator) {
-		Logger::Get().Error("创建 WbemLocator 失败");
-		return "";
-	}
-
-	winrt::com_ptr<IWbemServices> wbemServices;
-	winrt::com_ptr<IEnumWbemClassObject> enumWbemClassObject;
-	winrt::com_ptr<IWbemClassObject> wbemClassObject;
-
-	HRESULT hr = wbemLocator->ConnectServer(
-		Win32Utils::BStr(L"ROOT\\CIMV2"),
-		nullptr,
-		nullptr,
-		nullptr,
-		0,
-		nullptr,
-		nullptr,
-		wbemServices.put()
-	);
-	if (hr != WBEM_S_NO_ERROR) {
-		return "";
-	}
-
-	hr = CoSetProxyBlanket(
-		wbemServices.get(),
-		RPC_C_AUTHN_WINNT,
-		RPC_C_AUTHZ_NONE,
-		nullptr,
-		RPC_C_AUTHN_LEVEL_CALL,
-		RPC_C_IMP_LEVEL_IMPERSONATE,
-		NULL,
-		EOAC_NONE
-	);
-	if (FAILED(hr)) {
-		return "";
-	}
-
-	hr = wbemServices->ExecQuery(
-		Win32Utils::BStr(L"WQL"),
-		Win32Utils::BStr(L"SELECT NAME FROM Win32_Processor"),
-		WBEM_FLAG_FORWARD_ONLY | WBEM_FLAG_RETURN_IMMEDIATELY,
-		nullptr,
-		enumWbemClassObject.put()
-	);
-	if (hr != WBEM_S_NO_ERROR) {
-		return "";
-	}
-
-	ULONG uReturn = 0;
-	hr = enumWbemClassObject->Next(WBEM_INFINITE, 1, wbemClassObject.put(), &uReturn);
-	if (hr != WBEM_S_NO_ERROR || uReturn <= 0) {
-		return "";
-	}
-
-	VARIANT value;
-	VariantInit(&value);
-	hr = wbemClassObject->Get(Win32Utils::BStr(L"Name"), 0, &value, 0, 0);
-	if (hr != WBEM_S_NO_ERROR || value.vt != VT_BSTR) {
-		return "";
-	}
-
-	std::string result = Win32Utils::BStr(value.bstrVal).ToUTF8();
-	StrUtils::Trim(result);
-	return result;
-}
-
-static std::string GetCPUName() {
-#ifdef _M_X64
-	std::string result = GetCPUNameViaCPUID();
-	if (!result.empty()) {
-		return result;
-	}
-#endif // _M_X64
-
-	return GetCPUNameViaWMI();
 }
 
 // 自定义提示
@@ -880,7 +766,6 @@ void OverlayDrawer::_DrawUI() noexcept {
 	// 始终为滚动条预留空间
 	ImGui::PushTextWrapPos(maxWindowWidth - ImGui::GetStyle().WindowPadding.x - ImGui::GetStyle().ScrollbarSize);
 	ImGui::TextUnformatted(StrUtils::Concat("GPU: ", _hardwareInfo.gpuName).c_str());
-	ImGui::TextUnformatted(StrUtils::Concat("CPU: ", _hardwareInfo.cpuName).c_str());
 	std::string vSyncStr = StrUtils::UTF16ToUTF8(_resourceLoader.GetString(L"Overlay_VSync"));
 	std::string stateStr = StrUtils::UTF16ToUTF8(_resourceLoader.GetString(
 		settings.IsVSync() ? L"ToggleSwitch/OnContent" : L"ToggleSwitch/OffContent"));
@@ -1214,9 +1099,6 @@ void OverlayDrawer::_RetrieveHardwareInfo() noexcept {
 	DXGI_ADAPTER_DESC desc{};
 	HRESULT hr = MagApp::Get().GetDeviceResources().GetGraphicsAdapter()->GetDesc(&desc);
 	_hardwareInfo.gpuName = SUCCEEDED(hr) ? StrUtils::UTF16ToUTF8(desc.Description) : "UNAVAILABLE";
-
-	std::string cpuName = GetCPUName();
-	_hardwareInfo.cpuName = !cpuName.empty() ? std::move(cpuName) : "UNAVAILABLE";
 }
 
 void OverlayDrawer::_EnableSrcWnd(bool enable) noexcept {

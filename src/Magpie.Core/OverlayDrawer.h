@@ -60,7 +60,6 @@ private:
 
 	struct {
 		std::string gpuName;
-		std::string cpuName;
 	} _hardwareInfo;
 
 	std::unique_ptr<ImGuiImpl> _imguiImpl;
