@@ -13,16 +13,9 @@
 #include "EffectDesc.h"
 #include <bit>	// std::bit_ceil
 #include <random>
+#include "ImGuiHelper.h"
 
 namespace Magpie::Core {
-
-static const ImWchar NUMBER_RANGES[] = { L'0', L'9', 0 };
-static const ImWchar NOT_NUMBER_RANGES[] = { 0x20, L'0' - 1, L'9' + 1, 0x7E, 0 };
-// Basic Latin
-static const ImWchar ENGLISH_RANGES[] = { 0x20, 0x7E, 0 };
-// Basic Latin + Latin-1 Supplement + Latin Extended-A
-// 参见 https://en.wikipedia.org/wiki/Latin_Extended-A
-static const ImWchar TURKISH_RANGES[] = { 0x20, 0x17F, 0 };
 
 static const std::wstring& GetSystemFontsFolder() noexcept {
 	static std::wstring result;
@@ -383,7 +376,7 @@ void OverlayDrawer::_BuildFontUI() noexcept {
 	static ImVector<ImWchar> uiRanges;
 	// 额外字体体积巨大（Microsoft YaHei UI 超过 20M），我们只缓存路径
 	static std::string extraFontPath;
-	static ImVector<ImWchar> extraRanges;
+	static const ImWchar* extraRanges = nullptr;
 	if (uiRanges.empty()) {
 		winrt::ResourceContext resourceContext = winrt::ResourceContext::GetForViewIndependentUse();
 		std::wstring language(resourceContext.QualifierValues().Lookup(L"Language"));
@@ -392,7 +385,7 @@ void OverlayDrawer::_BuildFontUI() noexcept {
 		ImFontGlyphRangesBuilder builder;
 
 		if (language == L"en-us") {
-			builder.AddRanges(ENGLISH_RANGES);
+			builder.AddRanges(ImGuiHelper::ENGLISH_RANGES);
 		} else if (language == L"es" || language == L"pt") {
 			// Basic Latin + Latin-1 Supplement
 			// 参见 https://en.wikipedia.org/wiki/Latin-1_Supplement
@@ -400,54 +393,29 @@ void OverlayDrawer::_BuildFontUI() noexcept {
 		} else if (language == L"ru" || language == L"uk") {
 			builder.AddRanges(fontAtlas.GetGlyphRangesCyrillic());
 		} else if (language == L"tr") {
-			builder.AddRanges(TURKISH_RANGES);
+			builder.AddRanges(ImGuiHelper::TURKISH_RANGES);
 		} else {
+			builder.AddRanges(fontAtlas.GetGlyphRangesDefault());
+
 			// 一些语言需要加载额外的字体：
 			// 简体中文 -> Microsoft YaHei UI
 			// 繁体中文 -> Microsoft JhengHei UI
 			// 日语 -> Yu Gothic UI
 			// 参见 https://learn.microsoft.com/en-us/windows/apps/design/style/typography#fonts-for-non-latin-languages
 
-			uint8_t type;
+			extraFontPath = StrUtils::UTF16ToUTF8(GetSystemFontsFolder());
 			if (language == L"zh-hans") {
-				type = 0;
+				// Microsoft JhengHei UI 是第二个字体
+				extraFontPath += "\\msyh.ttc";
+				extraRanges = ImGuiHelper::GetGlyphRangesChineseSimplifiedOfficial();
 			} else if (language == L"zh-hant") {
-				type = 1;
+				// Microsoft JhengHei UI 是第二个字体
+				extraFontPath += "\\msjh.ttc";
+				extraRanges = ImGuiHelper::GetGlyphRangesChineseTraditionalOfficial();
 			} else if (language == L"ja") {
-				type = 2;
-			} else {
-				type = 3;
-			}
-
-			if (type == 3) {
-				// 未知语言
-				builder.AddRanges(fontAtlas.GetGlyphRangesDefault());
-			} else {
-				extraFontPath = StrUtils::UTF16ToUTF8(GetSystemFontsFolder());
-				if (type == 0) {
-					// Microsoft JhengHei UI 是第二个字体
-					extraFontPath += "\\msyh.ttc";
-				} else if (type == 1) {
-					// Microsoft JhengHei UI 是第二个字体
-					extraFontPath += "\\msjh.ttc";
-				} else {
-					// Yu Gothic UI 是第二个字体
-					extraFontPath += "\\YuGothM.ttc";
-				}
-
-				if (type == 0) {
-					builder.AddRanges(fontAtlas.GetGlyphRangesChineseSimplifiedCommon());
-				} else if (type == 1) {
-					// TODO: 有没有常用繁体中文字符集？
-					builder.AddRanges(fontAtlas.GetGlyphRangesChineseFull());
-				} else {
-					builder.AddRanges(fontAtlas.GetGlyphRangesJapanese());
-				}
-
-				builder.BuildRanges(&extraRanges);
-
-				builder.Clear();
-				builder.AddRanges(fontAtlas.GetGlyphRangesDefault());
+				// Yu Gothic UI 是第二个字体
+				extraFontPath += "\\YuGothM.ttc";
+				extraRanges = fontAtlas.GetGlyphRangesJapanese();
 			}
 		}
 		builder.SetBit(L'■');
@@ -471,9 +439,10 @@ void OverlayDrawer::_BuildFontUI() noexcept {
 	std::char_traits<char>::copy(config.Name, "_fontUI", std::size(config.Name));
 #endif
 
-	_fontUI = fontAtlas.AddFontFromMemoryTTF(_fontData.data(), (int)_fontData.size(), fontSize, &config, uiRanges.Data);
+	_fontUI = fontAtlas.AddFontFromMemoryTTF(
+		_fontData.data(), (int)_fontData.size(), fontSize, &config, uiRanges.Data);
 
-	if (!extraRanges.empty()) {
+	if (extraRanges) {
 		assert(Win32Utils::FileExists(StrUtils::UTF8ToUTF16(extraFontPath).c_str()));
 
 		// 在 MergeMode 下已有字符会跳过而不是覆盖
@@ -485,7 +454,7 @@ void OverlayDrawer::_BuildFontUI() noexcept {
 		config.FontNo = 1;
 		// 额外字体数据由 ImGui 管理，退出缩放时释放
 		config.FontDataOwnedByAtlas = true;
-		fontAtlas.AddFontFromFileTTF(extraFontPath.c_str(), fontSize, &config, extraRanges.Data);
+		fontAtlas.AddFontFromFileTTF(extraFontPath.c_str(), fontSize, &config, extraRanges);
 		config.FontDataOwnedByAtlas = false;
 		config.FontNo = 0;
 		config.MergeMode = false;
@@ -503,13 +472,15 @@ void OverlayDrawer::_BuildFontUI() noexcept {
 
 	// 等宽的数字字符
 	config.GlyphMinAdvanceX = config.GlyphMaxAdvanceX = fontSize * 0.42f;
-	_fontMonoNumbers = fontAtlas.AddFontFromMemoryTTF(_fontData.data(), (int)_fontData.size(), fontSize, &config, NUMBER_RANGES);
+	_fontMonoNumbers = fontAtlas.AddFontFromMemoryTTF(
+		_fontData.data(), (int)_fontData.size(), fontSize, &config, ImGuiHelper::NUMBER_RANGES);
 
 	// 其他不等宽的字符
 	config.MergeMode = true;
 	config.GlyphMinAdvanceX = 0;
 	config.GlyphMaxAdvanceX = std::numeric_limits<float>::max();
-	fontAtlas.AddFontFromMemoryTTF(_fontData.data(), (int)_fontData.size(), fontSize, &config, NOT_NUMBER_RANGES);
+	fontAtlas.AddFontFromMemoryTTF(
+		_fontData.data(), (int)_fontData.size(), fontSize, &config, ImGuiHelper::NOT_NUMBER_RANGES);
 }
 
 void OverlayDrawer::_BuildFontFPS() noexcept {
@@ -533,13 +504,15 @@ void OverlayDrawer::_BuildFontFPS() noexcept {
 	// 等宽的数字字符
 	config.MergeMode = false;
 	config.GlyphMinAdvanceX = config.GlyphMaxAdvanceX = fpsSize * 0.42f;
-	_fontFPS = fontAtlas.AddFontFromMemoryTTF(_fontData.data(), (int)_fontData.size(), fpsSize, &config, NUMBER_RANGES);
+	_fontFPS = fontAtlas.AddFontFromMemoryTTF(
+		_fontData.data(), (int)_fontData.size(), fpsSize, &config, ImGuiHelper::NUMBER_RANGES);
 
 	// 其他不等宽的字符
 	config.MergeMode = true;
 	config.GlyphMinAdvanceX = 0;
 	config.GlyphMaxAdvanceX = std::numeric_limits<float>::max();
-	fontAtlas.AddFontFromMemoryTTF(_fontData.data(), (int)_fontData.size(), fpsSize, &config, (const ImWchar*)L"  FFPPSS");
+	fontAtlas.AddFontFromMemoryTTF(
+		_fontData.data(), (int)_fontData.size(), fpsSize, &config, (const ImWchar*)L"  FFPPSS");
 }
 
 static std::string_view GetEffectDisplayName(const EffectDesc* desc) noexcept {
