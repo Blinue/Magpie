@@ -335,4 +335,8 @@ void ImGuiImpl::ClearStates() {
 	}
 }
 
+void ImGuiImpl::InvalidateDeviceObjects() {
+	ImGui_ImplDX11_InvalidateDeviceObjects();
+}
+
 }

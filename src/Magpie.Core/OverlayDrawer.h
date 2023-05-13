@@ -16,7 +16,7 @@ public:
 
 	~OverlayDrawer();
 
-	bool Initialize() noexcept;
+	bool Initialize(bool noUI) noexcept;
 
 	void Draw() noexcept;
 
@@ -27,7 +27,12 @@ public:
 	void SetUIVisibility(bool value) noexcept;
 
 private:
-	bool _BuildFonts() noexcept;
+	bool _InitializeImGui() noexcept;
+	bool _InitializeUI() noexcept;
+
+	bool _BuildFonts(bool noUI) noexcept;
+	void _BuildFontUI() noexcept;
+	void _BuildFontFPS() noexcept;
 
 	struct _EffectTimings {
 		const EffectDesc* desc = nullptr;
@@ -48,6 +53,8 @@ private:
 	void _EnableSrcWnd(bool enable) noexcept;
 
 	float _dpiScale = 1.0f;
+
+	static std::vector<BYTE> _fontData;
 
 	ImFont* _fontUI = nullptr;	// 普通 UI 文字
 	ImFont* _fontMonoNumbers = nullptr;	// 普通 UI 文字，但数字部分是等宽的，只支持 ASCII

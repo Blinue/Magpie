@@ -16,6 +16,35 @@
 
 namespace Magpie::Core {
 
+static const ImWchar NUMBER_RANGES[] = { L'0', L'9', 0 };
+static const ImWchar NOT_NUMBER_RANGES[] = { 0x20, L'0' - 1, L'9' + 1, 0x7E, 0 };
+// Basic Latin
+static const ImWchar ENGLISH_RANGES[] = { 0x20, 0x7E, 0 };
+// Basic Latin + Latin-1 Supplement + Latin Extended-A
+// 参见 https://en.wikipedia.org/wiki/Latin_Extended-A
+static const ImWchar TURKISH_RANGES[] = { 0x20, 0x17F, 0 };
+
+static const std::wstring& GetSystemFontsFolder() noexcept {
+	static std::wstring result;
+
+	if (result.empty()) {
+		wchar_t* fontsFolder = nullptr;
+		HRESULT hr = SHGetKnownFolderPath(FOLDERID_Fonts, 0, NULL, &fontsFolder);
+		if (FAILED(hr)) {
+			CoTaskMemFree(fontsFolder);
+			Logger::Get().ComError("SHGetKnownFolderPath 失败", hr);
+			return result;
+		}
+
+		result = fontsFolder;
+		CoTaskMemFree(fontsFolder);
+	}
+
+	return result;
+}
+
+std::vector<BYTE> OverlayDrawer::_fontData;
+
 OverlayDrawer::OverlayDrawer() noexcept {
 	HWND hwndSrc = MagApp::Get().GetHwndSrc();
 	_isSrcMainWnd = Win32Utils::GetWndClassName(hwndSrc) == CommonSharedConstants::MAIN_WINDOW_CLASS_NAME;
@@ -165,49 +194,22 @@ static SmallVector<UINT> GenerateTimelineColors() {
 	return result;
 }
 
-static const std::wstring& GetSystemFontsFolder() noexcept {
-	static std::wstring result;
+bool OverlayDrawer::Initialize(bool noUI) noexcept {
+	if (!_InitializeImGui()) {
+		return false;
+	}
 
-	if (result.empty()) {
-		wchar_t* fontsFolder = nullptr;
-		HRESULT hr = SHGetKnownFolderPath(FOLDERID_Fonts, 0, NULL, &fontsFolder);
-		if (FAILED(hr)) {
-			CoTaskMemFree(fontsFolder);
-			Logger::Get().ComError("SHGetKnownFolderPath 失败", hr);
-			return result;
+	if (noUI) {
+		if (!_BuildFonts(true)) {
+			Logger::Get().Error("_BuildFonts 失败");
+			return false;
 		}
-
-		result = fontsFolder;
-		CoTaskMemFree(fontsFolder);
+	} else {
+		if (!_InitializeUI()) {
+			Logger::Get().Error("_InitializeUI 失败");
+			return false;
+		}
 	}
-	
-	return result;
-}
-
-bool OverlayDrawer::Initialize() noexcept {
-	_imguiImpl.reset(new ImGuiImpl());
-	if (!_imguiImpl->Initialize()) {
-		Logger::Get().Error("初始化 ImGuiImpl 失败");
-		return false;
-	}
-
-	_dpiScale = GetDpiForWindow(MagApp::Get().GetHwndHost()) / 96.0f;
-
-	ImGui::StyleColorsDark();
-	ImGuiStyle& style = ImGui::GetStyle();
-	style.WindowRounding = 6;
-	style.FrameBorderSize = 1;
-	style.FrameRounding = 2;
-	style.WindowMinSize = ImVec2(10, 10);
-	style.ScaleAllSizes(_dpiScale);
-
-	if (!_BuildFonts()) {
-		Logger::Get().Error("_BuildFonts 失败");
-		return false;
-	}
-
-	_RetrieveHardwareInfo();
-	_timelineColors = GenerateTimelineColors();
 
 	return true;
 }
@@ -242,6 +244,13 @@ void OverlayDrawer::SetUIVisibility(bool value) noexcept {
 	_isUIVisiable = value;
 
 	if (value) {
+		if (!_fontUI) {
+			if (!_InitializeUI()) {
+				_isUIVisiable = false;
+				return;
+			}
+		}
+
 		if (MagApp::Get().GetOptions().Is3DGameMode()) {
 			// 使全屏窗口不透明且可以接收焦点
 			HWND hwndHost = MagApp::Get().GetHwndHost();
@@ -280,9 +289,32 @@ void OverlayDrawer::SetUIVisibility(bool value) noexcept {
 	}
 }
 
-bool OverlayDrawer::_BuildFonts() noexcept {
-	static std::vector<BYTE> fontData;
-	if (fontData.empty()) {
+bool OverlayDrawer::_InitializeImGui() noexcept {
+	_imguiImpl.reset(new ImGuiImpl());
+	if (!_imguiImpl->Initialize()) {
+		Logger::Get().Error("初始化 ImGuiImpl 失败");
+		return false;
+	}
+
+	_dpiScale = GetDpiForWindow(MagApp::Get().GetHwndHost()) / 96.0f;
+
+	ImGui::StyleColorsDark();
+	ImGuiStyle& style = ImGui::GetStyle();
+	style.WindowRounding = 6;
+	style.FrameBorderSize = 1;
+	style.FrameRounding = 2;
+	style.WindowMinSize = ImVec2(10, 10);
+	style.ScaleAllSizes(_dpiScale);
+
+	ImGuiIO& io = ImGui::GetIO();
+	ImFontAtlasFlags& fontFlags = io.Fonts->Flags;
+	fontFlags |= ImFontAtlasFlags_NoPowerOfTwoHeight;
+	if (!MagApp::Get().GetOptions().Is3DGameMode()) {
+		// 非 3D 游戏模式无需 ImGui 绘制光标
+		fontFlags |= ImFontAtlasFlags_NoMouseCursors;
+	}
+
+	if (_fontData.empty()) {
 		std::wstring fontPath = GetSystemFontsFolder();
 		if (Win32Utils::GetOSVersion().IsWin11()) {
 			fontPath += L"\\SegUIVar.ttf";
@@ -290,24 +322,56 @@ bool OverlayDrawer::_BuildFonts() noexcept {
 			fontPath += L"\\segoeui.ttf";
 		}
 
-		if (!Win32Utils::ReadFile(fontPath.c_str(), fontData)) {
+		if (!Win32Utils::ReadFile(fontPath.c_str(), _fontData)) {
 			Logger::Get().Error("读取字体文件失败");
 			return false;
 		}
 	}
 
-	ImGuiIO& io = ImGui::GetIO();
-	io.Fonts->Flags |= ImFontAtlasFlags_NoPowerOfTwoHeight;
-	if (!MagApp::Get().GetOptions().Is3DGameMode()) {
-		// 非 3D 游戏模式无需 ImGui 绘制光标
-		io.Fonts->Flags |= ImFontAtlasFlags_NoMouseCursors;
+	return true;
+}
+
+bool OverlayDrawer::_InitializeUI() noexcept {
+	if (!_BuildFonts(false)) {
+		return false;
 	}
 
-	const float fontSize = 18 * _dpiScale;
-	const float fpsSize = 24 * _dpiScale;
+	_RetrieveHardwareInfo();
+	_timelineColors = GenerateTimelineColors();
 
-	static const ImWchar NUMBER_RANGES[] = { L'0', L'9', 0 };
-	static const ImWchar NOT_NUMBER_RANGES[] = { 0x20, L'0' - 1, L'9' + 1, 0x7E, 0 };
+	return true;
+}
+
+bool OverlayDrawer::_BuildFonts(bool noUI) noexcept {
+	// 按需构造字体，比如只显示 FPS 时只构造 _fontFPS。
+	// 以下情况下构造 _fontUI：
+	// 1. 打开游戏内叠加层
+	// 2. 打开 FPS 右键菜单
+	bool needsRebuild = _fontUI || _fontFPS;
+	bool needsBuild = false;
+	if (!_fontUI && !noUI) {
+		_BuildFontUI();
+		needsBuild = true;
+	}
+
+	if (!_fontFPS && MagApp::Get().GetOptions().IsShowFPS()) {
+		_BuildFontFPS();
+		needsBuild = true;
+	}
+	
+	if (!needsBuild) {
+		return true;
+	}
+
+	if (needsRebuild) {
+		// 重新构造字体应先重新创建渲染资源
+		_imguiImpl->InvalidateDeviceObjects();
+	}
+	return ImGui::GetIO().Fonts->Build();
+}
+
+void OverlayDrawer::_BuildFontUI() noexcept {
+	ImFontAtlas& fontAtlas = *ImGui::GetIO().Fonts;
 
 	static ImVector<ImWchar> uiRanges;
 	// 额外字体体积巨大（Microsoft YaHei UI 超过 20M），我们只缓存路径
@@ -321,19 +385,14 @@ bool OverlayDrawer::_BuildFonts() noexcept {
 		ImFontGlyphRangesBuilder builder;
 
 		if (language == L"en-us") {
-			// Basic Latin
-			static const ImWchar ENGLISH_RANGES[] = { 0x20, 0x7E, 0 };
 			builder.AddRanges(ENGLISH_RANGES);
 		} else if (language == L"es" || language == L"pt") {
 			// Basic Latin + Latin-1 Supplement
 			// 参见 https://en.wikipedia.org/wiki/Latin-1_Supplement
-			builder.AddRanges(io.Fonts->GetGlyphRangesDefault());
+			builder.AddRanges(fontAtlas.GetGlyphRangesDefault());
 		} else if (language == L"ru" || language == L"uk") {
-			builder.AddRanges(io.Fonts->GetGlyphRangesCyrillic());
+			builder.AddRanges(fontAtlas.GetGlyphRangesCyrillic());
 		} else if (language == L"tr") {
-			// Basic Latin + Latin-1 Supplement + Latin Extended-A
-			// 参见 https://en.wikipedia.org/wiki/Latin_Extended-A
-			static const ImWchar TURKISH_RANGES[] = { 0x20, 0x17F, 0 };
 			builder.AddRanges(TURKISH_RANGES);
 		} else {
 			// 一些语言需要加载额外的字体：
@@ -352,10 +411,10 @@ bool OverlayDrawer::_BuildFonts() noexcept {
 			} else {
 				type = 3;
 			}
-			
+
 			if (type == 3) {
 				// 未知语言
-				builder.AddRanges(io.Fonts->GetGlyphRangesDefault());
+				builder.AddRanges(fontAtlas.GetGlyphRangesDefault());
 			} else {
 				extraFontPath = StrUtils::UTF16ToUTF8(GetSystemFontsFolder());
 				if (type == 0) {
@@ -370,18 +429,18 @@ bool OverlayDrawer::_BuildFonts() noexcept {
 				}
 
 				if (type == 0) {
-					builder.AddRanges(io.Fonts->GetGlyphRangesChineseSimplifiedCommon());
+					builder.AddRanges(fontAtlas.GetGlyphRangesChineseSimplifiedCommon());
 				} else if (type == 1) {
 					// TODO: 有没有常用繁体中文字符集？
-					builder.AddRanges(io.Fonts->GetGlyphRangesChineseFull());
+					builder.AddRanges(fontAtlas.GetGlyphRangesChineseFull());
 				} else {
-					builder.AddRanges(io.Fonts->GetGlyphRangesJapanese());
+					builder.AddRanges(fontAtlas.GetGlyphRangesJapanese());
 				}
-				
+
 				builder.BuildRanges(&extraRanges);
 
 				builder.Clear();
-				builder.AddRanges(io.Fonts->GetGlyphRangesDefault());
+				builder.AddRanges(fontAtlas.GetGlyphRangesDefault());
 			}
 		}
 		builder.SetBit(L'■');
@@ -392,17 +451,20 @@ bool OverlayDrawer::_BuildFonts() noexcept {
 	ImFontConfig config;
 	config.FontDataOwnedByAtlas = false;
 
+	const float fontSize = 18 * _dpiScale;
+
 	//////////////////////////////////////////////////////////
 	// 
 	// uiRanges (+ extraRanges) -> _fontUI
 	// 
 	//////////////////////////////////////////////////////////
 
+
 #ifdef _DEBUG
 	std::char_traits<char>::copy(config.Name, "_fontUI", std::size(config.Name));
 #endif
 
-	_fontUI = io.Fonts->AddFontFromMemoryTTF(fontData.data(), (int)fontData.size(), fontSize, &config, uiRanges.Data);
+	_fontUI = fontAtlas.AddFontFromMemoryTTF(_fontData.data(), (int)_fontData.size(), fontSize, &config, uiRanges.Data);
 
 	if (!extraRanges.empty()) {
 		assert(Win32Utils::FileExists(StrUtils::UTF8ToUTF16(extraFontPath).c_str()));
@@ -416,7 +478,7 @@ bool OverlayDrawer::_BuildFonts() noexcept {
 		config.FontNo = 1;
 		// 额外字体数据由 ImGui 管理，退出缩放时释放
 		config.FontDataOwnedByAtlas = true;
-		io.Fonts->AddFontFromFileTTF(extraFontPath.c_str(), fontSize, &config, extraRanges.Data);
+		fontAtlas.AddFontFromFileTTF(extraFontPath.c_str(), fontSize, &config, extraRanges.Data);
 		config.FontDataOwnedByAtlas = false;
 		config.FontNo = 0;
 		config.MergeMode = false;
@@ -434,38 +496,43 @@ bool OverlayDrawer::_BuildFonts() noexcept {
 
 	// 等宽的数字字符
 	config.GlyphMinAdvanceX = config.GlyphMaxAdvanceX = fontSize * 0.42f;
-	_fontMonoNumbers = io.Fonts->AddFontFromMemoryTTF(fontData.data(), (int)fontData.size(), fontSize, &config, NUMBER_RANGES);
+	_fontMonoNumbers = fontAtlas.AddFontFromMemoryTTF(_fontData.data(), (int)_fontData.size(), fontSize, &config, NUMBER_RANGES);
 
 	// 其他不等宽的字符
 	config.MergeMode = true;
 	config.GlyphMinAdvanceX = 0;
 	config.GlyphMaxAdvanceX = std::numeric_limits<float>::max();
-	io.Fonts->AddFontFromMemoryTTF(fontData.data(), (int)fontData.size(), fontSize, &config, NOT_NUMBER_RANGES);
+	fontAtlas.AddFontFromMemoryTTF(_fontData.data(), (int)_fontData.size(), fontSize, &config, NOT_NUMBER_RANGES);
+}
 
-	if (MagApp::Get().GetOptions().IsShowFPS()) {
-		//////////////////////////////////////////////////////////
-		//
-		// NUMBER_RANGES + " FPS" -> _fontFPS
-		// 
-		//////////////////////////////////////////////////////////
-		
+void OverlayDrawer::_BuildFontFPS() noexcept {
+	ImFontAtlas& fontAtlas = *ImGui::GetIO().Fonts;
+
+	ImFontConfig config;
+	config.FontDataOwnedByAtlas = false;
+
+	const float fpsSize = 24 * _dpiScale;
+
+	//////////////////////////////////////////////////////////
+	//
+	// NUMBER_RANGES + " FPS" -> _fontFPS
+	// 
+	//////////////////////////////////////////////////////////
+
 #ifdef _DEBUG
-		std::char_traits<char>::copy(config.Name, "_fontFPS", std::size(config.Name));
+	std::char_traits<char>::copy(config.Name, "_fontFPS", std::size(config.Name));
 #endif
 
-		// 等宽的数字字符
-		config.MergeMode = false;
-		config.GlyphMinAdvanceX = config.GlyphMaxAdvanceX = fpsSize * 0.42f;
-		_fontFPS = io.Fonts->AddFontFromMemoryTTF(fontData.data(), (int)fontData.size(), fpsSize, &config, NUMBER_RANGES);
+	// 等宽的数字字符
+	config.MergeMode = false;
+	config.GlyphMinAdvanceX = config.GlyphMaxAdvanceX = fpsSize * 0.42f;
+	_fontFPS = fontAtlas.AddFontFromMemoryTTF(_fontData.data(), (int)_fontData.size(), fpsSize, &config, NUMBER_RANGES);
 
-		// 其他不等宽的字符
-		config.MergeMode = true;
-		config.GlyphMinAdvanceX = 0;
-		config.GlyphMaxAdvanceX = std::numeric_limits<float>::max();
-		io.Fonts->AddFontFromMemoryTTF(fontData.data(), (int)fontData.size(), fpsSize, &config, (const ImWchar*)L"  FFPPSS");
-	}
-
-	return io.Fonts->Build();
+	// 其他不等宽的字符
+	config.MergeMode = true;
+	config.GlyphMinAdvanceX = 0;
+	config.GlyphMaxAdvanceX = std::numeric_limits<float>::max();
+	fontAtlas.AddFontFromMemoryTTF(_fontData.data(), (int)_fontData.size(), fpsSize, &config, (const ImWchar*)L"  FFPPSS");
 }
 
 static std::string_view GetEffectDisplayName(const EffectDesc* desc) noexcept {
