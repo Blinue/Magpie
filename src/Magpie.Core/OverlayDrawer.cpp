@@ -300,14 +300,12 @@ bool OverlayDrawer::_BuildFonts() noexcept {
 	}
 
 	ImGuiIO& io = ImGui::GetIO();
-
+	io.Fonts->Flags |= ImFontAtlasFlags_NoPowerOfTwoHeight;
 	if (!MagApp::Get().GetOptions().Is3DGameMode()) {
 		// 非 3D 游戏模式无需 ImGui 绘制光标
-		io.Fonts->Flags = io.Fonts->Flags | ImFontAtlasFlags_NoMouseCursors;
+		io.Fonts->Flags |= ImFontAtlasFlags_NoMouseCursors;
 	}
-
-	ImFontConfig config;
-	config.FontDataOwnedByAtlas = false;
+	
 
 	const float fontSize = 18 * _dpiScale;
 	const float fpsSize = 24 * _dpiScale;
@@ -316,7 +314,7 @@ bool OverlayDrawer::_BuildFonts() noexcept {
 	static const ImWchar NOT_NUMBER_RANGES[] = { 0x20, L'0' - 1, L'9' + 1, 0x7E, 0 };
 
 	static ImVector<ImWchar> uiRanges;
-	// 额外字体体积巨大（Microsoft YaHei UI 超过 20M），我们只保存路径
+	// 额外字体体积巨大（Microsoft YaHei UI 超过 20M），我们只缓存路径
 	static std::string extraFontPath;
 	static ImVector<ImWchar> extraRanges;
 	if (uiRanges.empty()) {
@@ -395,6 +393,9 @@ bool OverlayDrawer::_BuildFonts() noexcept {
 		builder.BuildRanges(&uiRanges);
 	}
 
+	ImFontConfig config;
+	config.FontDataOwnedByAtlas = false;
+
 	//////////////////////////////////////////////////////////
 	// 
 	// uiRanges (+ extraRanges) -> _fontUI
@@ -403,11 +404,13 @@ bool OverlayDrawer::_BuildFonts() noexcept {
 
 #ifdef _DEBUG
 	std::char_traits<char>::copy(config.Name, "_fontUI", std::size(config.Name));
-#endif // _DEBUG
+#endif
+
 	_fontUI = io.Fonts->AddFontFromMemoryTTF(fontData.data(), (int)fontData.size(), fontSize, &config, uiRanges.Data);
 
 	if (!extraRanges.empty()) {
-		assert(!extraFontData.empty());
+		assert(Win32Utils::FileExists(StrUtils::UTF8ToUTF16(extraFontPath).c_str()));
+
 		// 在 MergeMode 下已有字符会跳过而不是覆盖
 		config.MergeMode = true;
 		// 三个字体文件里我们需要的都是其中的第二个字体
@@ -429,11 +432,12 @@ bool OverlayDrawer::_BuildFonts() noexcept {
 	//
 	//////////////////////////////////////////////////////////
 
-	// 等宽的数字字符
-	config.GlyphMinAdvanceX = config.GlyphMaxAdvanceX = fontSize * 0.42f;
 #ifdef _DEBUG
 	std::char_traits<char>::copy(config.Name, "_fontMonoNumbers", std::size(config.Name));
-#endif // _DEBUG
+#endif
+
+	// 等宽的数字字符
+	config.GlyphMinAdvanceX = config.GlyphMaxAdvanceX = fontSize * 0.42f;
 	_fontMonoNumbers = io.Fonts->AddFontFromMemoryTTF(fontData.data(), (int)fontData.size(), fontSize, &config, NUMBER_RANGES);
 
 	// 其他不等宽的字符
@@ -449,12 +453,13 @@ bool OverlayDrawer::_BuildFonts() noexcept {
 		// 
 		//////////////////////////////////////////////////////////
 		
+#ifdef _DEBUG
+		std::char_traits<char>::copy(config.Name, "_fontFPS", std::size(config.Name));
+#endif
+
 		// 等宽的数字字符
 		config.MergeMode = false;
 		config.GlyphMinAdvanceX = config.GlyphMaxAdvanceX = fpsSize * 0.42f;
-#ifdef _DEBUG
-		std::char_traits<char>::copy(config.Name, "_fontFPS", std::size(config.Name));
-#endif // _DEBUG
 		_fontFPS = io.Fonts->AddFontFromMemoryTTF(fontData.data(), (int)fontData.size(), fpsSize, &config, NUMBER_RANGES);
 
 		// 其他不等宽的字符
