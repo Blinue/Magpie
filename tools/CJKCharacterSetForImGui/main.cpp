@@ -64,9 +64,8 @@ static std::wstring UTF8ToUTF16(std::string_view str) noexcept {
 	return result;
 }
 
-// 输入：input.txt
-// 输出：output.txt
-// 将导出输入文件中所有汉字
+// 输入: input.txt
+// 将输出输入文件中所有汉字组成的字符表
 int main() {
 	std::vector<BYTE> input = ReadFile(L"input.txt");
 	input.push_back(0);
