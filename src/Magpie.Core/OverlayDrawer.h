@@ -52,6 +52,8 @@ private:
 
 	void _EnableSrcWnd(bool enable) noexcept;
 
+	const std::string& _GetResourceString(const std::wstring_view& key) noexcept;
+
 	float _dpiScale = 1.0f;
 
 	static std::vector<BYTE> _fontData;

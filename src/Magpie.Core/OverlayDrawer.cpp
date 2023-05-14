@@ -745,15 +745,17 @@ bool OverlayDrawer::_DrawFPS() noexcept {
 	bool needRebuildFonts = false;
 	if (ImGui::BeginPopupContextWindow()) {
 		if (_fontUI) {
-			ImGui::PushFont(_fontMonoNumbers);
+			//ImGui::PushFont(_fontMonoNumbers);
 			ImGui::PushItemWidth(150 * _dpiScale);
-			ImGui::SliderFloat("Opacity", &opacity, 0.0f, 1.0f);
+			const std::string& opacityStr = _GetResourceString(L"Overlay_FPS_Opacity");
+			ImGui::SliderFloat(opacityStr.c_str(), &opacity, 0.0f, 1.0f);
 			ImGui::Separator();
-			if (ImGui::MenuItem(isLocked ? "Unlock" : "Lock", nullptr, nullptr)) {
+			const std::string& lockStr = _GetResourceString(isLocked ? L"Overlay_FPS_Unlock" : L"Overlay_FPS_Lock");
+			if (ImGui::MenuItem(lockStr.c_str(), nullptr, nullptr)) {
 				isLocked = !isLocked;
 			}
 			ImGui::PopItemWidth();
-			ImGui::PopFont();
+			//ImGui::PopFont();
 		} else {
 			needRebuildFonts = true;
 		}
@@ -813,7 +815,7 @@ void OverlayDrawer::_DrawUI() noexcept {
 	static float initPosX = Win32Utils::GetSizeOfRect(MagApp::Get().GetRenderer().GetOutputRect()).cx - maxWindowWidth;
 	ImGui::SetNextWindowPos(ImVec2(initPosX, 20), ImGuiCond_FirstUseEver);
 
-	std::string profilerStr = StrUtils::UTF16ToUTF8(_resourceLoader.GetString(L"Overlay_Profiler"));
+	std::string profilerStr = _GetResourceString(L"Overlay_Profiler");
 	if (!ImGui::Begin(profilerStr.c_str(), nullptr, ImGuiWindowFlags_NoNav | ImGuiWindowFlags_AlwaysAutoResize)) {
 		ImGui::End();
 		return;
@@ -822,11 +824,10 @@ void OverlayDrawer::_DrawUI() noexcept {
 	// 始终为滚动条预留空间
 	ImGui::PushTextWrapPos(maxWindowWidth - ImGui::GetStyle().WindowPadding.x - ImGui::GetStyle().ScrollbarSize);
 	ImGui::TextUnformatted(StrUtils::Concat("GPU: ", _hardwareInfo.gpuName).c_str());
-	std::string vSyncStr = StrUtils::UTF16ToUTF8(_resourceLoader.GetString(L"Overlay_VSync"));
-	std::string stateStr = StrUtils::UTF16ToUTF8(_resourceLoader.GetString(
-		settings.IsVSync() ? L"ToggleSwitch/OnContent" : L"ToggleSwitch/OffContent"));
+	const std::string& vSyncStr = _GetResourceString(L"Overlay_Profiler_VSync");
+	const std::string& stateStr = _GetResourceString(settings.IsVSync() ? L"ToggleSwitch/OnContent" : L"ToggleSwitch/OffContent");
 	ImGui::TextUnformatted(StrUtils::Concat(vSyncStr, ": ", stateStr).c_str());
-	std::string captureMethodStr = StrUtils::UTF16ToUTF8(_resourceLoader.GetString(L"Overlay_CaptureMethod"));
+	const std::string& captureMethodStr = _GetResourceString(L"Overlay_Profiler_CaptureMethod");
 	ImGui::TextUnformatted(StrUtils::Concat(captureMethodStr.c_str(), ": ", MagApp::Get().GetFrameSource().GetName()).c_str());
 	ImGui::PopTextWrapPos();
 
@@ -843,7 +844,8 @@ void OverlayDrawer::_DrawUI() noexcept {
 	_validFrames = std::min(_validFrames + 1, nSamples);
 
 	// 帧率统计，支持在渲染时间和 FPS 间切换
-	if (ImGui::CollapsingHeader("Frame Statistics", ImGuiTreeNodeFlags_DefaultOpen)) {
+	const std::string& frameStatisticsStr = _GetResourceString(L"Overlay_Profiler_FrameStatistics");
+	if (ImGui::CollapsingHeader(frameStatisticsStr.c_str(), ImGuiTreeNodeFlags_DefaultOpen)) {
 		ImGui::PushFont(_fontMonoNumbers);
 
 		static bool showFPS = true;
@@ -907,13 +909,17 @@ void OverlayDrawer::_DrawUI() noexcept {
 
 		ImGui::Spacing();
 
-		if (ImGui::Button(showFPS ? "Switch to timings" : "Switch to FPS")) {
+		const std::string& buttonStr = _GetResourceString(showFPS
+			? L"Overlay_Profiler_FrameStatistics_SwitchToFrameTimings"
+			: L"Overlay_Profiler_FrameStatistics_SwitchToFrameRates");
+		if (ImGui::Button(buttonStr.c_str())) {
 			showFPS = !showFPS;
 		}
 	}
 
 	ImGui::Spacing();
-	if (ImGui::CollapsingHeader("Timings", ImGuiTreeNodeFlags_DefaultOpen)) {
+	const std::string& timingsStr = _GetResourceString(L"Overlay_Profiler_Timings");
+	if (ImGui::CollapsingHeader(timingsStr.c_str(), ImGuiTreeNodeFlags_DefaultOpen)) {
 		const auto& gpuTimings = gpuTimer.GetGPUTimings();
 		const UINT nEffect = renderer.GetEffectCount();
 		
@@ -947,7 +953,10 @@ void OverlayDrawer::_DrawUI() noexcept {
 			for (const auto& et : effectTimings) {
 				// 某个效果有多个通道，显示切换按钮
 				if (et.passTimings.size() > 1) {
-					if (ImGui::Button(showPasses ? "Switch to effects" : "Switch to passes")) {
+					const std::string& buttonStr = _GetResourceString(showPasses
+						? L"Overlay_Profiler_Timings_SwitchToEffects"
+						: L"Overlay_Profiler_Timings_SwitchToPasses");
+					if (ImGui::Button(buttonStr.c_str())) {
 						showPasses = !showPasses;
 					}
 					break;
@@ -1138,7 +1147,8 @@ void OverlayDrawer::_DrawUI() noexcept {
 
 				ImGui::TableNextRow();
 				ImGui::TableNextColumn();
-				ImGui::TextUnformatted("Total");
+				const std::string& totalStr = _GetResourceString(L"Overlay_Profiler_Timings_Total");
+				ImGui::TextUnformatted(totalStr.c_str());
 				ImGui::TableNextColumn();
 				DrawTextWithFont(fmt::format("{:.3f} ms", effectsTotalTime).c_str(), _fontMonoNumbers);
 
@@ -1166,6 +1176,16 @@ void OverlayDrawer::_EnableSrcWnd(bool enable) noexcept {
 	if (enable) {
 		SetForegroundWindow(hwndSrc);
 	}
+}
+
+const std::string& OverlayDrawer::_GetResourceString(const std::wstring_view& key) noexcept {
+	static phmap::flat_hash_map<std::wstring, std::string> cache;
+
+	if (auto it = cache.find(key); it != cache.end()) {
+		return it->second;
+	}
+
+	return cache[key] = StrUtils::UTF16ToUTF8(_resourceLoader.GetString(key));
 }
 
 }

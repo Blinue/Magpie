@@ -784,10 +784,40 @@
   <data name="Overlay_Profiler" xml:space="preserve">
     <value>Profiler</value>
   </data>
-  <data name="Overlay_CaptureMethod" xml:space="preserve">
+  <data name="Overlay_Profiler_CaptureMethod" xml:space="preserve">
     <value>Capture method</value>
   </data>
-  <data name="Overlay_VSync" xml:space="preserve">
+  <data name="Overlay_Profiler_VSync" xml:space="preserve">
     <value>VSync</value>
+  </data>
+  <data name="Overlay_FPS_Lock" xml:space="preserve">
+    <value>Lock</value>
+  </data>
+  <data name="Overlay_FPS_Opacity" xml:space="preserve">
+    <value>Opacity</value>
+  </data>
+  <data name="Overlay_FPS_Unlock" xml:space="preserve">
+    <value>Unlock</value>
+  </data>
+  <data name="Overlay_Profiler_FrameStatistics" xml:space="preserve">
+    <value>Frame statistics</value>
+  </data>
+  <data name="Overlay_Profiler_FrameStatistics_SwitchToFrameRates" xml:space="preserve">
+    <value>Switch to frame rates</value>
+  </data>
+  <data name="Overlay_Profiler_FrameStatistics_SwitchToFrameTimings" xml:space="preserve">
+    <value>Switch to frame timings</value>
+  </data>
+  <data name="Overlay_Profiler_Timings" xml:space="preserve">
+    <value>Timings</value>
+  </data>
+  <data name="Overlay_Profiler_Timings_SwitchToEffects" xml:space="preserve">
+    <value>Switch to effects</value>
+  </data>
+  <data name="Overlay_Profiler_Timings_SwitchToPasses" xml:space="preserve">
+    <value>Switch to passes</value>
+  </data>
+  <data name="Overlay_Profiler_Timings_Total" xml:space="preserve">
+    <value>Total</value>
   </data>
 </root>

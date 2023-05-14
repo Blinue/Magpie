@@ -781,10 +781,10 @@
   <data name="Profile_Advanced_LaunchParameters.Title" xml:space="preserve">
     <value>起動時のパラメータ</value>
   </data>
-  <data name="Overlay_CaptureMethod" xml:space="preserve">
+  <data name="Overlay_Profiler_CaptureMethod" xml:space="preserve">
     <value>キャプチャ方式</value>
   </data>
-  <data name="Overlay_VSync" xml:space="preserve">
+  <data name="Overlay_Profiler_VSync" xml:space="preserve">
     <value>垂直同期</value>
   </data>
 </root>
