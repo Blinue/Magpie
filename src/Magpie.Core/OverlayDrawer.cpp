@@ -745,17 +745,18 @@ bool OverlayDrawer::_DrawFPS() noexcept {
 	bool needRebuildFonts = false;
 	if (ImGui::BeginPopupContextWindow()) {
 		if (_fontUI) {
-			//ImGui::PushFont(_fontMonoNumbers);
 			ImGui::PushItemWidth(150 * _dpiScale);
-			const std::string& opacityStr = _GetResourceString(L"Overlay_FPS_Opacity");
-			ImGui::SliderFloat(opacityStr.c_str(), &opacity, 0.0f, 1.0f);
+			ImGui::PushFont(_fontMonoNumbers);
+			ImGui::SliderFloat("##FPS_Opacity", &opacity, 0.0f, 1.0f);
+			ImGui::PopFont();
+			ImGui::SameLine();
+			ImGui::TextUnformatted(_GetResourceString(L"Overlay_FPS_Opacity").c_str());
 			ImGui::Separator();
 			const std::string& lockStr = _GetResourceString(isLocked ? L"Overlay_FPS_Unlock" : L"Overlay_FPS_Lock");
 			if (ImGui::MenuItem(lockStr.c_str(), nullptr, nullptr)) {
 				isLocked = !isLocked;
 			}
 			ImGui::PopItemWidth();
-			//ImGui::PopFont();
 		} else {
 			needRebuildFonts = true;
 		}
