@@ -847,11 +847,20 @@ void OverlayDrawer::_DrawUI() noexcept {
 	// 帧率统计，支持在渲染时间和 FPS 间切换
 	const std::string& frameStatisticsStr = _GetResourceString(L"Overlay_Profiler_FrameStatistics");
 	if (ImGui::CollapsingHeader(frameStatisticsStr.c_str(), ImGuiTreeNodeFlags_DefaultOpen)) {
+		static bool showFrameRates = true;
+
+		ImGui::Spacing();
+		const std::string& buttonStr = _GetResourceString(showFrameRates
+			? L"Overlay_Profiler_FrameStatistics_SwitchToFrameTimings"
+			: L"Overlay_Profiler_FrameStatistics_SwitchToFrameRates");
+		if (ImGui::Button(buttonStr.c_str())) {
+			showFrameRates = !showFrameRates;
+		}
+		ImGui::Spacing();
+
 		ImGui::PushFont(_fontMonoNumbers);
 
-		static bool showFPS = true;
-
-		if (showFPS) {
+		if (showFrameRates) {
 			float totalTime = 0;
 			float minTime = FLT_MAX;
 			float minTime2 = FLT_MAX;
@@ -907,15 +916,6 @@ void OverlayDrawer::_DrawUI() noexcept {
 		}
 
 		ImGui::PopFont();
-
-		ImGui::Spacing();
-
-		const std::string& buttonStr = _GetResourceString(showFPS
-			? L"Overlay_Profiler_FrameStatistics_SwitchToFrameTimings"
-			: L"Overlay_Profiler_FrameStatistics_SwitchToFrameRates");
-		if (ImGui::Button(buttonStr.c_str())) {
-			showFPS = !showFPS;
-		}
 	}
 
 	ImGui::Spacing();
@@ -954,6 +954,7 @@ void OverlayDrawer::_DrawUI() noexcept {
 			for (const auto& et : effectTimings) {
 				// 某个效果有多个通道，显示切换按钮
 				if (et.passTimings.size() > 1) {
+					ImGui::Spacing();
 					const std::string& buttonStr = _GetResourceString(showPasses
 						? L"Overlay_Profiler_Timings_SwitchToEffects"
 						: L"Overlay_Profiler_Timings_SwitchToPasses");
