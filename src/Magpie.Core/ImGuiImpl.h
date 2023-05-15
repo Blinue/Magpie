@@ -18,6 +18,8 @@ public:
 
 	void ClearStates();
 
+	void InvalidateDeviceObjects();
+
 	// 将提示窗口限制在屏幕内
 	static void Tooltip(const char* content, float maxWidth = -1.0f);
 private:

@@ -86,6 +86,9 @@
     <ClInclude Include="EffectHelper.h">
       <Filter>Helpers</Filter>
     </ClInclude>
+    <ClInclude Include="ImGuiHelper.h">
+      <Filter>Helpers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MagRuntime.cpp" />
@@ -134,6 +137,9 @@
       <Filter>Helpers</Filter>
     </ClCompile>
     <ClCompile Include="WindowHelper.cpp">
+      <Filter>Helpers</Filter>
+    </ClCompile>
+    <ClCompile Include="ImGuiHelper.cpp">
       <Filter>Helpers</Filter>
     </ClCompile>
   </ItemGroup>
