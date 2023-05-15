@@ -1,3 +1,6 @@
+// Anime4K_Restore_CNN_Soft_VL
+// Ported from https://github.com/bloc97/Anime4K/blob/4ba94b179a144200cb6b3052e690fe2ca5c6914c/glsl/Restore/Anime4K_Restore_CNN_Soft_VL.glsl
+
 //!MAGPIE EFFECT
 //!VERSION 3
 //!OUTPUT_WIDTH INPUT_WIDTH
@@ -16,102 +19,42 @@ SamplerState sam;
 //!WIDTH INPUT_WIDTH
 //!HEIGHT INPUT_HEIGHT
 //!FORMAT R16G16B16A16_FLOAT
-Texture2D conv2d_tf;
+Texture2D tex1;
 
 //!TEXTURE
 //!WIDTH INPUT_WIDTH
 //!HEIGHT INPUT_HEIGHT
 //!FORMAT R16G16B16A16_FLOAT
-Texture2D conv2d_tf1;
+Texture2D tex2;
 
 //!TEXTURE
 //!WIDTH INPUT_WIDTH
 //!HEIGHT INPUT_HEIGHT
 //!FORMAT R16G16B16A16_FLOAT
-Texture2D conv2d_1_tf;
+Texture2D tex3;
 
 //!TEXTURE
 //!WIDTH INPUT_WIDTH
 //!HEIGHT INPUT_HEIGHT
 //!FORMAT R16G16B16A16_FLOAT
-Texture2D conv2d_1_tf1;
+Texture2D tex4;
 
 //!TEXTURE
 //!WIDTH INPUT_WIDTH
 //!HEIGHT INPUT_HEIGHT
 //!FORMAT R16G16B16A16_FLOAT
-Texture2D conv2d_2_tf;
+Texture2D tex5;
 
 //!TEXTURE
 //!WIDTH INPUT_WIDTH
 //!HEIGHT INPUT_HEIGHT
 //!FORMAT R16G16B16A16_FLOAT
-Texture2D conv2d_2_tf1;
-
-//!TEXTURE
-//!WIDTH INPUT_WIDTH
-//!HEIGHT INPUT_HEIGHT
-//!FORMAT R16G16B16A16_FLOAT
-Texture2D conv2d_3_tf;
-
-//!TEXTURE
-//!WIDTH INPUT_WIDTH
-//!HEIGHT INPUT_HEIGHT
-//!FORMAT R16G16B16A16_FLOAT
-Texture2D conv2d_3_tf1;
-
-//!TEXTURE
-//!WIDTH INPUT_WIDTH
-//!HEIGHT INPUT_HEIGHT
-//!FORMAT R16G16B16A16_FLOAT
-Texture2D conv2d_4_tf;
-
-//!TEXTURE
-//!WIDTH INPUT_WIDTH
-//!HEIGHT INPUT_HEIGHT
-//!FORMAT R16G16B16A16_FLOAT
-Texture2D conv2d_4_tf1;
-
-//!TEXTURE
-//!WIDTH INPUT_WIDTH
-//!HEIGHT INPUT_HEIGHT
-//!FORMAT R16G16B16A16_FLOAT
-Texture2D conv2d_5_tf;
-
-//!TEXTURE
-//!WIDTH INPUT_WIDTH
-//!HEIGHT INPUT_HEIGHT
-//!FORMAT R16G16B16A16_FLOAT
-Texture2D conv2d_5_tf1;
-
-//!TEXTURE
-//!WIDTH INPUT_WIDTH
-//!HEIGHT INPUT_HEIGHT
-//!FORMAT R16G16B16A16_FLOAT
-Texture2D conv2d_6_tf;
-
-//!TEXTURE
-//!WIDTH INPUT_WIDTH
-//!HEIGHT INPUT_HEIGHT
-//!FORMAT R16G16B16A16_FLOAT
-Texture2D conv2d_6_tf1;
-
-//!TEXTURE
-//!WIDTH INPUT_WIDTH
-//!HEIGHT INPUT_HEIGHT
-//!FORMAT R16G16B16A16_FLOAT
-Texture2D conv2d_7_tf;
-
-//!TEXTURE
-//!WIDTH INPUT_WIDTH
-//!HEIGHT INPUT_HEIGHT
-//!FORMAT R16G16B16A16_FLOAT
-Texture2D conv2d_7_tf1;
+Texture2D tex6;
 
 //!PASS 1
 //!DESC Conv-4x3x3x3
 //!IN INPUT
-//!OUT conv2d_tf, conv2d_tf1
+//!OUT tex1, tex2
 //!BLOCK_SIZE 16
 //!NUM_THREADS 64
 
@@ -179,16 +122,16 @@ void Pass1(uint2 blockStart, uint3 threadId) {
 			target2 += mul(src[i + 1][j + 1], float3x4(-0.19712369, 0.003842208, -0.10893768, 0.09047115, -0.10260409, 0.18662766, 0.009733428, 0.0039940844, -0.006444674, -0.15196493, 0.06641555, -0.06169452));
 			target2 += float4(-0.029148052, -0.03215124, -0.6175828, 0.057135154);
 
-			conv2d_tf[destPos] = target1;
-			conv2d_tf1[destPos] = target2;
+			tex1[destPos] = target1;
+			tex2[destPos] = target2;
 		}
 	}
 }
 
 //!PASS 2
 //!DESC Conv-4x3x3x16
-//!IN conv2d_tf, conv2d_tf1
-//!OUT conv2d_1_tf, conv2d_1_tf1
+//!IN tex1, tex2
+//!OUT tex3, tex4
 //!BLOCK_SIZE 8
 //!NUM_THREADS 64
 
@@ -205,15 +148,15 @@ void Pass2(uint2 blockStart, uint3 threadId) {
 	// [ a, d, g ]
 	// [ b, e, h ]
 	// [ c, f, i ]
-	float4 a1 = conv2d_tf.SampleLevel(sam, pos + float2(-inputPt.x, -inputPt.y), 0);
-	float4 b1 = conv2d_tf.SampleLevel(sam, pos + float2(-inputPt.x, 0), 0);
-	float4 c1 = conv2d_tf.SampleLevel(sam, pos + float2(-inputPt.x, inputPt.y), 0);
-	float4 d1 = conv2d_tf.SampleLevel(sam, pos + float2(0, -inputPt.y), 0);
-	float4 e1 = conv2d_tf.SampleLevel(sam, pos, 0);
-	float4 f1 = conv2d_tf.SampleLevel(sam, pos + float2(0, inputPt.y), 0);
-	float4 g1 = conv2d_tf.SampleLevel(sam, pos + float2(inputPt.x, -inputPt.y), 0);
-	float4 h1 = conv2d_tf.SampleLevel(sam, pos + float2(inputPt.x, 0), 0);
-	float4 i1 = conv2d_tf.SampleLevel(sam, pos + float2(inputPt.x, inputPt.y), 0);
+	float4 a1 = tex1.SampleLevel(sam, pos + float2(-inputPt.x, -inputPt.y), 0);
+	float4 b1 = tex1.SampleLevel(sam, pos + float2(-inputPt.x, 0), 0);
+	float4 c1 = tex1.SampleLevel(sam, pos + float2(-inputPt.x, inputPt.y), 0);
+	float4 d1 = tex1.SampleLevel(sam, pos + float2(0, -inputPt.y), 0);
+	float4 e1 = tex1.SampleLevel(sam, pos, 0);
+	float4 f1 = tex1.SampleLevel(sam, pos + float2(0, inputPt.y), 0);
+	float4 g1 = tex1.SampleLevel(sam, pos + float2(inputPt.x, -inputPt.y), 0);
+	float4 h1 = tex1.SampleLevel(sam, pos + float2(inputPt.x, 0), 0);
+	float4 i1 = tex1.SampleLevel(sam, pos + float2(inputPt.x, inputPt.y), 0);
 
 	float4 na1 = max(-a1, 0);
 	float4 nb1 = max(-b1, 0);
@@ -235,15 +178,15 @@ void Pass2(uint2 blockStart, uint3 threadId) {
 	h1 = max(h1, 0);
 	i1 = max(i1, 0);
 
-	float4 a2 = conv2d_tf1.SampleLevel(sam, pos + float2(-inputPt.x, -inputPt.y), 0);
-	float4 b2 = conv2d_tf1.SampleLevel(sam, pos + float2(-inputPt.x, 0), 0);
-	float4 c2 = conv2d_tf1.SampleLevel(sam, pos + float2(-inputPt.x, inputPt.y), 0);
-	float4 d2 = conv2d_tf1.SampleLevel(sam, pos + float2(0, -inputPt.y), 0);
-	float4 e2 = conv2d_tf1.SampleLevel(sam, pos, 0);
-	float4 f2 = conv2d_tf1.SampleLevel(sam, pos + float2(0, inputPt.y), 0);
-	float4 g2 = conv2d_tf1.SampleLevel(sam, pos + float2(inputPt.x, -inputPt.y), 0);
-	float4 h2 = conv2d_tf1.SampleLevel(sam, pos + float2(inputPt.x, 0), 0);
-	float4 i2 = conv2d_tf1.SampleLevel(sam, pos + float2(inputPt.x, inputPt.y), 0);
+	float4 a2 = tex2.SampleLevel(sam, pos + float2(-inputPt.x, -inputPt.y), 0);
+	float4 b2 = tex2.SampleLevel(sam, pos + float2(-inputPt.x, 0), 0);
+	float4 c2 = tex2.SampleLevel(sam, pos + float2(-inputPt.x, inputPt.y), 0);
+	float4 d2 = tex2.SampleLevel(sam, pos + float2(0, -inputPt.y), 0);
+	float4 e2 = tex2.SampleLevel(sam, pos, 0);
+	float4 f2 = tex2.SampleLevel(sam, pos + float2(0, inputPt.y), 0);
+	float4 g2 = tex2.SampleLevel(sam, pos + float2(inputPt.x, -inputPt.y), 0);
+	float4 h2 = tex2.SampleLevel(sam, pos + float2(inputPt.x, 0), 0);
+	float4 i2 = tex2.SampleLevel(sam, pos + float2(inputPt.x, inputPt.y), 0);
 
 	float4 na2 = max(-a2, 0);
 	float4 nb2 = max(-b2, 0);
@@ -341,14 +284,14 @@ void Pass2(uint2 blockStart, uint3 threadId) {
 	target2 += mul(ni2, float4x4(0.13665263, -0.24541081, 0.0012457973, -0.012630116, -0.09559698, 0.17756529, -0.039300505, -0.044217475, -0.22984356, -0.2294885, 0.104534455, -0.04131095, 0.084843494, 0.038027752, -0.106351435, 0.18853655));
 	target2 += float4(0.010324113, -0.01262194, 0.0762259, -0.014071781);
 
-	conv2d_1_tf[gxy] = target1;
-	conv2d_1_tf1[gxy] = target2;
+	tex3[gxy] = target1;
+	tex4[gxy] = target2;
 }
 
 //!PASS 3
 //!DESC Conv-4x3x3x16
-//!IN conv2d_1_tf, conv2d_1_tf1
-//!OUT conv2d_2_tf, conv2d_2_tf1
+//!IN tex3, tex4
+//!OUT tex1, tex2, tex5
 //!BLOCK_SIZE 8
 //!NUM_THREADS 64
 
@@ -365,15 +308,15 @@ void Pass3(uint2 blockStart, uint3 threadId) {
 	// [ a, d, g ]
 	// [ b, e, h ]
 	// [ c, f, i ]
-	float4 a1 = conv2d_1_tf.SampleLevel(sam, pos + float2(-inputPt.x, -inputPt.y), 0);
-	float4 b1 = conv2d_1_tf.SampleLevel(sam, pos + float2(-inputPt.x, 0), 0);
-	float4 c1 = conv2d_1_tf.SampleLevel(sam, pos + float2(-inputPt.x, inputPt.y), 0);
-	float4 d1 = conv2d_1_tf.SampleLevel(sam, pos + float2(0, -inputPt.y), 0);
-	float4 e1 = conv2d_1_tf.SampleLevel(sam, pos, 0);
-	float4 f1 = conv2d_1_tf.SampleLevel(sam, pos + float2(0, inputPt.y), 0);
-	float4 g1 = conv2d_1_tf.SampleLevel(sam, pos + float2(inputPt.x, -inputPt.y), 0);
-	float4 h1 = conv2d_1_tf.SampleLevel(sam, pos + float2(inputPt.x, 0), 0);
-	float4 i1 = conv2d_1_tf.SampleLevel(sam, pos + float2(inputPt.x, inputPt.y), 0);
+	float4 a1 = tex3.SampleLevel(sam, pos + float2(-inputPt.x, -inputPt.y), 0);
+	float4 b1 = tex3.SampleLevel(sam, pos + float2(-inputPt.x, 0), 0);
+	float4 c1 = tex3.SampleLevel(sam, pos + float2(-inputPt.x, inputPt.y), 0);
+	float4 d1 = tex3.SampleLevel(sam, pos + float2(0, -inputPt.y), 0);
+	float4 e1 = tex3.SampleLevel(sam, pos, 0);
+	float4 f1 = tex3.SampleLevel(sam, pos + float2(0, inputPt.y), 0);
+	float4 g1 = tex3.SampleLevel(sam, pos + float2(inputPt.x, -inputPt.y), 0);
+	float4 h1 = tex3.SampleLevel(sam, pos + float2(inputPt.x, 0), 0);
+	float4 i1 = tex3.SampleLevel(sam, pos + float2(inputPt.x, inputPt.y), 0);
 
 	float4 na1 = max(-a1, 0);
 	float4 nb1 = max(-b1, 0);
@@ -395,15 +338,15 @@ void Pass3(uint2 blockStart, uint3 threadId) {
 	h1 = max(h1, 0);
 	i1 = max(i1, 0);
 
-	float4 a2 = conv2d_1_tf1.SampleLevel(sam, pos + float2(-inputPt.x, -inputPt.y), 0);
-	float4 b2 = conv2d_1_tf1.SampleLevel(sam, pos + float2(-inputPt.x, 0), 0);
-	float4 c2 = conv2d_1_tf1.SampleLevel(sam, pos + float2(-inputPt.x, inputPt.y), 0);
-	float4 d2 = conv2d_1_tf1.SampleLevel(sam, pos + float2(0, -inputPt.y), 0);
-	float4 e2 = conv2d_1_tf1.SampleLevel(sam, pos, 0);
-	float4 f2 = conv2d_1_tf1.SampleLevel(sam, pos + float2(0, inputPt.y), 0);
-	float4 g2 = conv2d_1_tf1.SampleLevel(sam, pos + float2(inputPt.x, -inputPt.y), 0);
-	float4 h2 = conv2d_1_tf1.SampleLevel(sam, pos + float2(inputPt.x, 0), 0);
-	float4 i2 = conv2d_1_tf1.SampleLevel(sam, pos + float2(inputPt.x, inputPt.y), 0);
+	float4 a2 = tex4.SampleLevel(sam, pos + float2(-inputPt.x, -inputPt.y), 0);
+	float4 b2 = tex4.SampleLevel(sam, pos + float2(-inputPt.x, 0), 0);
+	float4 c2 = tex4.SampleLevel(sam, pos + float2(-inputPt.x, inputPt.y), 0);
+	float4 d2 = tex4.SampleLevel(sam, pos + float2(0, -inputPt.y), 0);
+	float4 e2 = tex4.SampleLevel(sam, pos, 0);
+	float4 f2 = tex4.SampleLevel(sam, pos + float2(0, inputPt.y), 0);
+	float4 g2 = tex4.SampleLevel(sam, pos + float2(inputPt.x, -inputPt.y), 0);
+	float4 h2 = tex4.SampleLevel(sam, pos + float2(inputPt.x, 0), 0);
+	float4 i2 = tex4.SampleLevel(sam, pos + float2(inputPt.x, inputPt.y), 0);
 
 	float4 na2 = max(-a2, 0);
 	float4 nb2 = max(-b2, 0);
@@ -501,14 +444,20 @@ void Pass3(uint2 blockStart, uint3 threadId) {
 	target2 += mul(ni2, float4x4(-0.19434428, -0.079038315, -0.017264817, -0.04004242, 0.0063378955, 0.027904915, 0.02571677, 0.09895997, -0.036605608, -0.19889063, 0.015920812, -0.014095519, 0.4363826, -0.14143194, 0.015463533, -0.1656284));
 	target2 += float4(0.08523788, 0.052322272, 0.08955637, -0.06945023);
 
-	conv2d_2_tf[gxy] = target1;
-	conv2d_2_tf1[gxy] = target2;
+	float4 target3 = mul(e1, float4x4(0.121882804, 0.055417646, 0.037575886, 0.0, 0.040015355, 0.10440659, 0.120197006, 0.0, 0.008896276, 0.07269119, 0.09253319, 0.0, 0.009000448, -0.033739295, -0.059260685, 0.0));
+	target3 += mul(e2, float4x4(-0.048027042, 0.09210703, 0.123745404, 0.0, -0.007914943, 0.05483587, 0.054822505, 0.0, -0.005998682, 0.005822986, 0.009868176, 0.0, -0.05866792, -0.04236153, -0.022935968, 0.0));
+	target3 += mul(ne1, float4x4(-0.091270015, -0.033997003, -0.012321896, 0.0, -0.037983265, -0.078790314, -0.085029654, 0.0, 0.10656225, 0.0008334142, -0.0041227583, 0.0, 0.077364065, 0.033960085, 0.029391684, 0.0));
+	target3 += mul(ne2, float4x4(0.15057671, -0.037442014, -0.037083894, 0.0, 0.015493511, -0.016119987, -0.027061606, 0.0, -0.012329675, 0.0060544596, -0.019787522, 0.0, 0.12182345, 0.11346318, 0.08640806, 0.0));
+
+	tex1[gxy] = target1;
+	tex2[gxy] = target2;
+	tex5[gxy] = target3;
 }
 
 //!PASS 4
 //!DESC Conv-4x3x3x16
-//!IN conv2d_2_tf, conv2d_2_tf1
-//!OUT conv2d_3_tf, conv2d_3_tf1
+//!IN tex1, tex2, tex5
+//!OUT tex3, tex4, tex6
 //!BLOCK_SIZE 8
 //!NUM_THREADS 64
 
@@ -525,15 +474,15 @@ void Pass4(uint2 blockStart, uint3 threadId) {
 	// [ a, d, g ]
 	// [ b, e, h ]
 	// [ c, f, i ]
-	float4 a1 = conv2d_2_tf.SampleLevel(sam, pos + float2(-inputPt.x, -inputPt.y), 0);
-	float4 b1 = conv2d_2_tf.SampleLevel(sam, pos + float2(-inputPt.x, 0), 0);
-	float4 c1 = conv2d_2_tf.SampleLevel(sam, pos + float2(-inputPt.x, inputPt.y), 0);
-	float4 d1 = conv2d_2_tf.SampleLevel(sam, pos + float2(0, -inputPt.y), 0);
-	float4 e1 = conv2d_2_tf.SampleLevel(sam, pos, 0);
-	float4 f1 = conv2d_2_tf.SampleLevel(sam, pos + float2(0, inputPt.y), 0);
-	float4 g1 = conv2d_2_tf.SampleLevel(sam, pos + float2(inputPt.x, -inputPt.y), 0);
-	float4 h1 = conv2d_2_tf.SampleLevel(sam, pos + float2(inputPt.x, 0), 0);
-	float4 i1 = conv2d_2_tf.SampleLevel(sam, pos + float2(inputPt.x, inputPt.y), 0);
+	float4 a1 = tex1.SampleLevel(sam, pos + float2(-inputPt.x, -inputPt.y), 0);
+	float4 b1 = tex1.SampleLevel(sam, pos + float2(-inputPt.x, 0), 0);
+	float4 c1 = tex1.SampleLevel(sam, pos + float2(-inputPt.x, inputPt.y), 0);
+	float4 d1 = tex1.SampleLevel(sam, pos + float2(0, -inputPt.y), 0);
+	float4 e1 = tex1.SampleLevel(sam, pos, 0);
+	float4 f1 = tex1.SampleLevel(sam, pos + float2(0, inputPt.y), 0);
+	float4 g1 = tex1.SampleLevel(sam, pos + float2(inputPt.x, -inputPt.y), 0);
+	float4 h1 = tex1.SampleLevel(sam, pos + float2(inputPt.x, 0), 0);
+	float4 i1 = tex1.SampleLevel(sam, pos + float2(inputPt.x, inputPt.y), 0);
 
 	float4 na1 = max(-a1, 0);
 	float4 nb1 = max(-b1, 0);
@@ -555,15 +504,15 @@ void Pass4(uint2 blockStart, uint3 threadId) {
 	h1 = max(h1, 0);
 	i1 = max(i1, 0);
 
-	float4 a2 = conv2d_2_tf1.SampleLevel(sam, pos + float2(-inputPt.x, -inputPt.y), 0);
-	float4 b2 = conv2d_2_tf1.SampleLevel(sam, pos + float2(-inputPt.x, 0), 0);
-	float4 c2 = conv2d_2_tf1.SampleLevel(sam, pos + float2(-inputPt.x, inputPt.y), 0);
-	float4 d2 = conv2d_2_tf1.SampleLevel(sam, pos + float2(0, -inputPt.y), 0);
-	float4 e2 = conv2d_2_tf1.SampleLevel(sam, pos, 0);
-	float4 f2 = conv2d_2_tf1.SampleLevel(sam, pos + float2(0, inputPt.y), 0);
-	float4 g2 = conv2d_2_tf1.SampleLevel(sam, pos + float2(inputPt.x, -inputPt.y), 0);
-	float4 h2 = conv2d_2_tf1.SampleLevel(sam, pos + float2(inputPt.x, 0), 0);
-	float4 i2 = conv2d_2_tf1.SampleLevel(sam, pos + float2(inputPt.x, inputPt.y), 0);
+	float4 a2 = tex2.SampleLevel(sam, pos + float2(-inputPt.x, -inputPt.y), 0);
+	float4 b2 = tex2.SampleLevel(sam, pos + float2(-inputPt.x, 0), 0);
+	float4 c2 = tex2.SampleLevel(sam, pos + float2(-inputPt.x, inputPt.y), 0);
+	float4 d2 = tex2.SampleLevel(sam, pos + float2(0, -inputPt.y), 0);
+	float4 e2 = tex2.SampleLevel(sam, pos, 0);
+	float4 f2 = tex2.SampleLevel(sam, pos + float2(0, inputPt.y), 0);
+	float4 g2 = tex2.SampleLevel(sam, pos + float2(inputPt.x, -inputPt.y), 0);
+	float4 h2 = tex2.SampleLevel(sam, pos + float2(inputPt.x, 0), 0);
+	float4 i2 = tex2.SampleLevel(sam, pos + float2(inputPt.x, inputPt.y), 0);
 
 	float4 na2 = max(-a2, 0);
 	float4 nb2 = max(-b2, 0);
@@ -661,14 +610,21 @@ void Pass4(uint2 blockStart, uint3 threadId) {
 	target2 += mul(ni2, float4x4(0.021231879, -0.015423476, 0.058986407, 0.032002006, -0.029305007, 0.008933183, 0.10777483, -0.112574644, -0.023935415, -0.06604598, 0.053859934, -0.08354717, 0.13703763, -0.078382134, 0.12914242, -0.022056468));
 	target2 += float4(-0.002022359, -0.007333954, -0.038140967, -0.03819673);
 
-	conv2d_3_tf[gxy] = target1;
-	conv2d_3_tf1[gxy] = target2;
+	float4 target3 = tex5.SampleLevel(sam, pos, 0);
+	target3 += mul(e1, float4x4(0.19254518, 0.009179287, 0.023821035, 0.0, 0.020269603, 0.025629226, 0.040180814, 0.0, -0.025135614, -0.07785793, -0.099851295, 0.0, -0.122886, 0.03322616, 0.0509256, 0.0));
+	target3 += mul(e2, float4x4(0.060054794, 0.053996198, 0.047226787, 0.0, 0.038959846, -0.025839888, -0.030583512, 0.0, -0.034999896, 0.011966571, -0.011057454, 0.0, 0.05765179, -0.041760337, -0.0694113, 0.0));
+	target3 += mul(ne1, float4x4(-0.20393562, -0.0055942894, -0.02089636, 0.0, 0.14781304, -0.01954523, -0.0746086, 0.0, 0.071556985, 0.07512172, 0.067927115, 0.0, 0.084076844, -0.0561336, -0.06856403, 0.0));
+	target3 += mul(ne2, float4x4(-0.039552618, -0.04448951, -0.04170605, 0.0, -0.00886809, 0.06708884, 0.07120977, 0.0, 0.04834384, -0.10599933, -0.11024835, 0.0, -0.015948117, 0.084044695, 0.10778199, 0.0));
+
+	tex3[gxy] = target1;
+	tex4[gxy] = target2;
+	tex6[gxy] = target3;
 }
 
 //!PASS 5
 //!DESC Conv-4x3x3x16
-//!IN conv2d_3_tf, conv2d_3_tf1
-//!OUT conv2d_4_tf, conv2d_4_tf1
+//!IN tex3, tex4, tex6
+//!OUT tex1, tex2, tex5
 //!BLOCK_SIZE 8
 //!NUM_THREADS 64
 
@@ -685,15 +641,15 @@ void Pass5(uint2 blockStart, uint3 threadId) {
 	// [ a, d, g ]
 	// [ b, e, h ]
 	// [ c, f, i ]
-	float4 a1 = conv2d_3_tf.SampleLevel(sam, pos + float2(-inputPt.x, -inputPt.y), 0);
-	float4 b1 = conv2d_3_tf.SampleLevel(sam, pos + float2(-inputPt.x, 0), 0);
-	float4 c1 = conv2d_3_tf.SampleLevel(sam, pos + float2(-inputPt.x, inputPt.y), 0);
-	float4 d1 = conv2d_3_tf.SampleLevel(sam, pos + float2(0, -inputPt.y), 0);
-	float4 e1 = conv2d_3_tf.SampleLevel(sam, pos, 0);
-	float4 f1 = conv2d_3_tf.SampleLevel(sam, pos + float2(0, inputPt.y), 0);
-	float4 g1 = conv2d_3_tf.SampleLevel(sam, pos + float2(inputPt.x, -inputPt.y), 0);
-	float4 h1 = conv2d_3_tf.SampleLevel(sam, pos + float2(inputPt.x, 0), 0);
-	float4 i1 = conv2d_3_tf.SampleLevel(sam, pos + float2(inputPt.x, inputPt.y), 0);
+	float4 a1 = tex3.SampleLevel(sam, pos + float2(-inputPt.x, -inputPt.y), 0);
+	float4 b1 = tex3.SampleLevel(sam, pos + float2(-inputPt.x, 0), 0);
+	float4 c1 = tex3.SampleLevel(sam, pos + float2(-inputPt.x, inputPt.y), 0);
+	float4 d1 = tex3.SampleLevel(sam, pos + float2(0, -inputPt.y), 0);
+	float4 e1 = tex3.SampleLevel(sam, pos, 0);
+	float4 f1 = tex3.SampleLevel(sam, pos + float2(0, inputPt.y), 0);
+	float4 g1 = tex3.SampleLevel(sam, pos + float2(inputPt.x, -inputPt.y), 0);
+	float4 h1 = tex3.SampleLevel(sam, pos + float2(inputPt.x, 0), 0);
+	float4 i1 = tex3.SampleLevel(sam, pos + float2(inputPt.x, inputPt.y), 0);
 
 	float4 na1 = max(-a1, 0);
 	float4 nb1 = max(-b1, 0);
@@ -715,15 +671,15 @@ void Pass5(uint2 blockStart, uint3 threadId) {
 	h1 = max(h1, 0);
 	i1 = max(i1, 0);
 
-	float4 a2 = conv2d_3_tf1.SampleLevel(sam, pos + float2(-inputPt.x, -inputPt.y), 0);
-	float4 b2 = conv2d_3_tf1.SampleLevel(sam, pos + float2(-inputPt.x, 0), 0);
-	float4 c2 = conv2d_3_tf1.SampleLevel(sam, pos + float2(-inputPt.x, inputPt.y), 0);
-	float4 d2 = conv2d_3_tf1.SampleLevel(sam, pos + float2(0, -inputPt.y), 0);
-	float4 e2 = conv2d_3_tf1.SampleLevel(sam, pos, 0);
-	float4 f2 = conv2d_3_tf1.SampleLevel(sam, pos + float2(0, inputPt.y), 0);
-	float4 g2 = conv2d_3_tf1.SampleLevel(sam, pos + float2(inputPt.x, -inputPt.y), 0);
-	float4 h2 = conv2d_3_tf1.SampleLevel(sam, pos + float2(inputPt.x, 0), 0);
-	float4 i2 = conv2d_3_tf1.SampleLevel(sam, pos + float2(inputPt.x, inputPt.y), 0);
+	float4 a2 = tex4.SampleLevel(sam, pos + float2(-inputPt.x, -inputPt.y), 0);
+	float4 b2 = tex4.SampleLevel(sam, pos + float2(-inputPt.x, 0), 0);
+	float4 c2 = tex4.SampleLevel(sam, pos + float2(-inputPt.x, inputPt.y), 0);
+	float4 d2 = tex4.SampleLevel(sam, pos + float2(0, -inputPt.y), 0);
+	float4 e2 = tex4.SampleLevel(sam, pos, 0);
+	float4 f2 = tex4.SampleLevel(sam, pos + float2(0, inputPt.y), 0);
+	float4 g2 = tex4.SampleLevel(sam, pos + float2(inputPt.x, -inputPt.y), 0);
+	float4 h2 = tex4.SampleLevel(sam, pos + float2(inputPt.x, 0), 0);
+	float4 i2 = tex4.SampleLevel(sam, pos + float2(inputPt.x, inputPt.y), 0);
 
 	float4 na2 = max(-a2, 0);
 	float4 nb2 = max(-b2, 0);
@@ -821,14 +777,21 @@ void Pass5(uint2 blockStart, uint3 threadId) {
 	target2 += mul(ni2, float4x4(0.07599435, -0.06851123, 0.06258365, 0.10296892, 0.15556085, -0.041609086, -0.11303363, 0.07082365, 0.013949174, -0.087201476, -0.0855705, -0.12979257, 0.04048528, 0.4211556, 0.04118289, -0.22093314));
 	target2 += float4(0.07789114, 0.0024746545, 0.1891165, -0.0023716448);
 
-	conv2d_4_tf[gxy] = target1;
-	conv2d_4_tf1[gxy] = target2;
+	float4 target3 = tex6.SampleLevel(sam, pos, 0);
+	target3 += mul(e1, float4x4(0.050153337, 0.012563414, 0.014994658, 0.0, 0.10498867, 0.07151875, 0.06761489, 0.0, 0.061650798, -0.035183728, -0.050987806, 0.0, 0.0017240314, 0.041055307, 0.020366805, 0.0));
+	target3 += mul(e2, float4x4(0.110105395, -0.044468552, -0.072567016, 0.0, -0.049364448, -0.015713394, -0.021540897, 0.0, -0.01636263, -0.084110685, -0.08281401, 0.0, -0.08940374, 0.047863875, 0.051104594, 0.0));
+	target3 += mul(ne1, float4x4(-0.081597924, 0.002422661, 0.01143175, 0.0, -0.07504751, -0.09938017, -0.1063178, 0.0, -0.10390281, 0.0262197, 0.060155805, 0.0, -0.24289346, -0.0054961476, 0.045964316, 0.0));
+	target3 += mul(ne2, float4x4(-0.1829316, 0.047622137, 0.07963877, 0.0, 0.048703995, -0.0026299425, -0.003712008, 0.0, 0.029338706, 0.096882835, 0.102083966, 0.0, 0.078538164, -0.07247937, -0.06820231, 0.0));
+
+	tex1[gxy] = target1;
+	tex2[gxy] = target2;
+	tex5[gxy] = target3;
 }
 
 //!PASS 6
 //!DESC Conv-4x3x3x16
-//!IN conv2d_4_tf, conv2d_4_tf1
-//!OUT conv2d_5_tf, conv2d_5_tf1
+//!IN tex1, tex2, tex5
+//!OUT tex3, tex4, tex6
 //!BLOCK_SIZE 8
 //!NUM_THREADS 64
 
@@ -845,15 +808,15 @@ void Pass6(uint2 blockStart, uint3 threadId) {
 	// [ a, d, g ]
 	// [ b, e, h ]
 	// [ c, f, i ]
-	float4 a1 = conv2d_4_tf.SampleLevel(sam, pos + float2(-inputPt.x, -inputPt.y), 0);
-	float4 b1 = conv2d_4_tf.SampleLevel(sam, pos + float2(-inputPt.x, 0), 0);
-	float4 c1 = conv2d_4_tf.SampleLevel(sam, pos + float2(-inputPt.x, inputPt.y), 0);
-	float4 d1 = conv2d_4_tf.SampleLevel(sam, pos + float2(0, -inputPt.y), 0);
-	float4 e1 = conv2d_4_tf.SampleLevel(sam, pos, 0);
-	float4 f1 = conv2d_4_tf.SampleLevel(sam, pos + float2(0, inputPt.y), 0);
-	float4 g1 = conv2d_4_tf.SampleLevel(sam, pos + float2(inputPt.x, -inputPt.y), 0);
-	float4 h1 = conv2d_4_tf.SampleLevel(sam, pos + float2(inputPt.x, 0), 0);
-	float4 i1 = conv2d_4_tf.SampleLevel(sam, pos + float2(inputPt.x, inputPt.y), 0);
+	float4 a1 = tex1.SampleLevel(sam, pos + float2(-inputPt.x, -inputPt.y), 0);
+	float4 b1 = tex1.SampleLevel(sam, pos + float2(-inputPt.x, 0), 0);
+	float4 c1 = tex1.SampleLevel(sam, pos + float2(-inputPt.x, inputPt.y), 0);
+	float4 d1 = tex1.SampleLevel(sam, pos + float2(0, -inputPt.y), 0);
+	float4 e1 = tex1.SampleLevel(sam, pos, 0);
+	float4 f1 = tex1.SampleLevel(sam, pos + float2(0, inputPt.y), 0);
+	float4 g1 = tex1.SampleLevel(sam, pos + float2(inputPt.x, -inputPt.y), 0);
+	float4 h1 = tex1.SampleLevel(sam, pos + float2(inputPt.x, 0), 0);
+	float4 i1 = tex1.SampleLevel(sam, pos + float2(inputPt.x, inputPt.y), 0);
 
 	float4 na1 = max(-a1, 0);
 	float4 nb1 = max(-b1, 0);
@@ -875,15 +838,15 @@ void Pass6(uint2 blockStart, uint3 threadId) {
 	h1 = max(h1, 0);
 	i1 = max(i1, 0);
 
-	float4 a2 = conv2d_4_tf1.SampleLevel(sam, pos + float2(-inputPt.x, -inputPt.y), 0);
-	float4 b2 = conv2d_4_tf1.SampleLevel(sam, pos + float2(-inputPt.x, 0), 0);
-	float4 c2 = conv2d_4_tf1.SampleLevel(sam, pos + float2(-inputPt.x, inputPt.y), 0);
-	float4 d2 = conv2d_4_tf1.SampleLevel(sam, pos + float2(0, -inputPt.y), 0);
-	float4 e2 = conv2d_4_tf1.SampleLevel(sam, pos, 0);
-	float4 f2 = conv2d_4_tf1.SampleLevel(sam, pos + float2(0, inputPt.y), 0);
-	float4 g2 = conv2d_4_tf1.SampleLevel(sam, pos + float2(inputPt.x, -inputPt.y), 0);
-	float4 h2 = conv2d_4_tf1.SampleLevel(sam, pos + float2(inputPt.x, 0), 0);
-	float4 i2 = conv2d_4_tf1.SampleLevel(sam, pos + float2(inputPt.x, inputPt.y), 0);
+	float4 a2 = tex2.SampleLevel(sam, pos + float2(-inputPt.x, -inputPt.y), 0);
+	float4 b2 = tex2.SampleLevel(sam, pos + float2(-inputPt.x, 0), 0);
+	float4 c2 = tex2.SampleLevel(sam, pos + float2(-inputPt.x, inputPt.y), 0);
+	float4 d2 = tex2.SampleLevel(sam, pos + float2(0, -inputPt.y), 0);
+	float4 e2 = tex2.SampleLevel(sam, pos, 0);
+	float4 f2 = tex2.SampleLevel(sam, pos + float2(0, inputPt.y), 0);
+	float4 g2 = tex2.SampleLevel(sam, pos + float2(inputPt.x, -inputPt.y), 0);
+	float4 h2 = tex2.SampleLevel(sam, pos + float2(inputPt.x, 0), 0);
+	float4 i2 = tex2.SampleLevel(sam, pos + float2(inputPt.x, inputPt.y), 0);
 
 	float4 na2 = max(-a2, 0);
 	float4 nb2 = max(-b2, 0);
@@ -981,14 +944,21 @@ void Pass6(uint2 blockStart, uint3 threadId) {
 	target2 += mul(ni2, float4x4(0.22510684, -0.010087092, 0.005660375, 0.05069907, 0.10297958, 0.1411009, 0.09538159, 0.00922383, -0.31313825, -0.06449414, 0.109746836, 0.30148697, 0.35861742, -0.045380104, 0.09908991, -0.1933117));
 	target2 += float4(0.012253057, 0.13434875, -0.10318777, -0.074252345);
 
-	conv2d_5_tf[gxy] = target1;
-	conv2d_5_tf1[gxy] = target2;
+	float4 target3 = tex5.SampleLevel(sam, pos, 0);
+	target3 += mul(e1, float4x4(-0.02302231, -0.035528302, -0.030674051, 0.0, 0.029780716, 0.031591274, 0.045867007, 0.0, 0.01335752, 0.037001595, 0.04351411, 0.0, -0.11126892, 0.038589563, 0.06444906, 0.0));
+	target3 += mul(e2, float4x4(0.0047764573, -0.063372664, -0.065609895, 0.0, 0.0478139, 0.025694113, 0.025097322, 0.0, -0.1019169, 0.029989049, 0.050038517, 0.0, 0.07504127, -0.017047737, -0.026222635, 0.0));
+	target3 += mul(ne1, float4x4(0.0024485083, 0.00640911, 0.008171829, 0.0, -0.014622121, -0.06078096, -0.0800138, 0.0, -0.0062360805, -0.014344496, -0.021332184, 0.0, 0.117842786, -0.103745885, -0.13756834, 0.0));
+	target3 += mul(ne2, float4x4(-0.01942775, 0.08720701, 0.104858086, 0.0, -0.05545872, -0.041375194, -0.035368554, 0.0, 0.080331706, -0.021207837, -0.043905254, 0.0, -0.12515299, 3.445463e-05, 0.018742712, 0.0));
+
+	tex3[gxy] = target1;
+	tex4[gxy] = target2;
+	tex6[gxy] = target3;
 }
 
 //!PASS 7
 //!DESC Conv-4x3x3x16
-//!IN conv2d_5_tf, conv2d_5_tf1
-//!OUT conv2d_6_tf, conv2d_6_tf1
+//!IN tex3, tex4, tex6
+//!OUT tex1, tex2, tex5
 //!BLOCK_SIZE 8
 //!NUM_THREADS 64
 
@@ -1005,15 +975,15 @@ void Pass7(uint2 blockStart, uint3 threadId) {
 	// [ a, d, g ]
 	// [ b, e, h ]
 	// [ c, f, i ]
-	float4 a1 = conv2d_5_tf.SampleLevel(sam, pos + float2(-inputPt.x, -inputPt.y), 0);
-	float4 b1 = conv2d_5_tf.SampleLevel(sam, pos + float2(-inputPt.x, 0), 0);
-	float4 c1 = conv2d_5_tf.SampleLevel(sam, pos + float2(-inputPt.x, inputPt.y), 0);
-	float4 d1 = conv2d_5_tf.SampleLevel(sam, pos + float2(0, -inputPt.y), 0);
-	float4 e1 = conv2d_5_tf.SampleLevel(sam, pos, 0);
-	float4 f1 = conv2d_5_tf.SampleLevel(sam, pos + float2(0, inputPt.y), 0);
-	float4 g1 = conv2d_5_tf.SampleLevel(sam, pos + float2(inputPt.x, -inputPt.y), 0);
-	float4 h1 = conv2d_5_tf.SampleLevel(sam, pos + float2(inputPt.x, 0), 0);
-	float4 i1 = conv2d_5_tf.SampleLevel(sam, pos + float2(inputPt.x, inputPt.y), 0);
+	float4 a1 = tex3.SampleLevel(sam, pos + float2(-inputPt.x, -inputPt.y), 0);
+	float4 b1 = tex3.SampleLevel(sam, pos + float2(-inputPt.x, 0), 0);
+	float4 c1 = tex3.SampleLevel(sam, pos + float2(-inputPt.x, inputPt.y), 0);
+	float4 d1 = tex3.SampleLevel(sam, pos + float2(0, -inputPt.y), 0);
+	float4 e1 = tex3.SampleLevel(sam, pos, 0);
+	float4 f1 = tex3.SampleLevel(sam, pos + float2(0, inputPt.y), 0);
+	float4 g1 = tex3.SampleLevel(sam, pos + float2(inputPt.x, -inputPt.y), 0);
+	float4 h1 = tex3.SampleLevel(sam, pos + float2(inputPt.x, 0), 0);
+	float4 i1 = tex3.SampleLevel(sam, pos + float2(inputPt.x, inputPt.y), 0);
 
 	float4 na1 = max(-a1, 0);
 	float4 nb1 = max(-b1, 0);
@@ -1035,15 +1005,15 @@ void Pass7(uint2 blockStart, uint3 threadId) {
 	h1 = max(h1, 0);
 	i1 = max(i1, 0);
 
-	float4 a2 = conv2d_5_tf1.SampleLevel(sam, pos + float2(-inputPt.x, -inputPt.y), 0);
-	float4 b2 = conv2d_5_tf1.SampleLevel(sam, pos + float2(-inputPt.x, 0), 0);
-	float4 c2 = conv2d_5_tf1.SampleLevel(sam, pos + float2(-inputPt.x, inputPt.y), 0);
-	float4 d2 = conv2d_5_tf1.SampleLevel(sam, pos + float2(0, -inputPt.y), 0);
-	float4 e2 = conv2d_5_tf1.SampleLevel(sam, pos, 0);
-	float4 f2 = conv2d_5_tf1.SampleLevel(sam, pos + float2(0, inputPt.y), 0);
-	float4 g2 = conv2d_5_tf1.SampleLevel(sam, pos + float2(inputPt.x, -inputPt.y), 0);
-	float4 h2 = conv2d_5_tf1.SampleLevel(sam, pos + float2(inputPt.x, 0), 0);
-	float4 i2 = conv2d_5_tf1.SampleLevel(sam, pos + float2(inputPt.x, inputPt.y), 0);
+	float4 a2 = tex4.SampleLevel(sam, pos + float2(-inputPt.x, -inputPt.y), 0);
+	float4 b2 = tex4.SampleLevel(sam, pos + float2(-inputPt.x, 0), 0);
+	float4 c2 = tex4.SampleLevel(sam, pos + float2(-inputPt.x, inputPt.y), 0);
+	float4 d2 = tex4.SampleLevel(sam, pos + float2(0, -inputPt.y), 0);
+	float4 e2 = tex4.SampleLevel(sam, pos, 0);
+	float4 f2 = tex4.SampleLevel(sam, pos + float2(0, inputPt.y), 0);
+	float4 g2 = tex4.SampleLevel(sam, pos + float2(inputPt.x, -inputPt.y), 0);
+	float4 h2 = tex4.SampleLevel(sam, pos + float2(inputPt.x, 0), 0);
+	float4 i2 = tex4.SampleLevel(sam, pos + float2(inputPt.x, inputPt.y), 0);
 
 	float4 na2 = max(-a2, 0);
 	float4 nb2 = max(-b2, 0);
@@ -1141,14 +1111,20 @@ void Pass7(uint2 blockStart, uint3 threadId) {
 	target2 += mul(ni2, float4x4(0.073690206, -0.016468357, 0.122353435, -0.023995928, 0.095143944, 0.23051415, 0.17702249, 0.030164838, -0.09111423, -0.14219609, -0.19734482, -0.24854833, -0.0067356345, -0.1760497, 0.22637916, 0.119141534));
 	target2 += float4(0.22705397, -0.029518934, -0.026397338, -0.08183741);
 
-	conv2d_6_tf[gxy] = target1;
-	conv2d_6_tf1[gxy] = target2;
+	float4 target3 = tex6.SampleLevel(sam, pos, 0);
+	target3 += mul(e1, float4x4(0.013106969, 0.010379314, 0.012753471, 0.0, 0.07086715, -0.020893, -0.03968904, 0.0, -0.06114372, 0.029510446, 0.035070244, 0.0, 0.11180839, -0.087067656, -0.124039896, 0.0));
+	target3 += mul(e2, float4x4(-0.056521703, -0.001166792, -2.3704073e-05, 0.0, 0.011961608, 0.01848977, 0.019861937, 0.0, 0.012167056, 0.018613879, 0.020505793, 0.0, 0.009734187, -0.0308419, -0.035206888, 0.0));
+	target3 += mul(ne1, float4x4(0.0048758825, 0.018046578, 0.014597015, 0.0, -0.061724614, 0.040989272, 0.05644141, 0.0, 0.070315465, 0.008318584, 0.0028647361, 0.0, -0.11316492, 0.043919202, 0.07653594, 0.0));
+	target3 += mul(ne2, float4x4(0.031487904, -0.010548384, -0.009984509, 0.0, -0.0022647562, 0.0043304027, 0.0029451603, 0.0, -0.0063251094, -0.013420807, -0.011919729, 0.0, -0.022760967, 0.019141173, 0.01782793, 0.0));
+
+	tex1[gxy] = target1;
+	tex2[gxy] = target2;
+	tex5[gxy] = target3;
 }
 
 //!PASS 8
-//!DESC Conv-4x3x3x16
-//!IN conv2d_6_tf, conv2d_6_tf1
-//!OUT conv2d_7_tf, conv2d_7_tf1
+//!DESC Conv-4x3x3x16, Conv-3x1x1x112
+//!IN INPUT, tex1, tex2, tex5
 //!BLOCK_SIZE 8
 //!NUM_THREADS 64
 
@@ -1165,15 +1141,15 @@ void Pass8(uint2 blockStart, uint3 threadId) {
 	// [ a, d, g ]
 	// [ b, e, h ]
 	// [ c, f, i ]
-	float4 a1 = conv2d_6_tf.SampleLevel(sam, pos + float2(-inputPt.x, -inputPt.y), 0);
-	float4 b1 = conv2d_6_tf.SampleLevel(sam, pos + float2(-inputPt.x, 0), 0);
-	float4 c1 = conv2d_6_tf.SampleLevel(sam, pos + float2(-inputPt.x, inputPt.y), 0);
-	float4 d1 = conv2d_6_tf.SampleLevel(sam, pos + float2(0, -inputPt.y), 0);
-	float4 e1 = conv2d_6_tf.SampleLevel(sam, pos, 0);
-	float4 f1 = conv2d_6_tf.SampleLevel(sam, pos + float2(0, inputPt.y), 0);
-	float4 g1 = conv2d_6_tf.SampleLevel(sam, pos + float2(inputPt.x, -inputPt.y), 0);
-	float4 h1 = conv2d_6_tf.SampleLevel(sam, pos + float2(inputPt.x, 0), 0);
-	float4 i1 = conv2d_6_tf.SampleLevel(sam, pos + float2(inputPt.x, inputPt.y), 0);
+	float4 a1 = tex1.SampleLevel(sam, pos + float2(-inputPt.x, -inputPt.y), 0);
+	float4 b1 = tex1.SampleLevel(sam, pos + float2(-inputPt.x, 0), 0);
+	float4 c1 = tex1.SampleLevel(sam, pos + float2(-inputPt.x, inputPt.y), 0);
+	float4 d1 = tex1.SampleLevel(sam, pos + float2(0, -inputPt.y), 0);
+	float4 e1 = tex1.SampleLevel(sam, pos, 0);
+	float4 f1 = tex1.SampleLevel(sam, pos + float2(0, inputPt.y), 0);
+	float4 g1 = tex1.SampleLevel(sam, pos + float2(inputPt.x, -inputPt.y), 0);
+	float4 h1 = tex1.SampleLevel(sam, pos + float2(inputPt.x, 0), 0);
+	float4 i1 = tex1.SampleLevel(sam, pos + float2(inputPt.x, inputPt.y), 0);
 
 	float4 na1 = max(-a1, 0);
 	float4 nb1 = max(-b1, 0);
@@ -1195,15 +1171,15 @@ void Pass8(uint2 blockStart, uint3 threadId) {
 	h1 = max(h1, 0);
 	i1 = max(i1, 0);
 
-	float4 a2 = conv2d_6_tf1.SampleLevel(sam, pos + float2(-inputPt.x, -inputPt.y), 0);
-	float4 b2 = conv2d_6_tf1.SampleLevel(sam, pos + float2(-inputPt.x, 0), 0);
-	float4 c2 = conv2d_6_tf1.SampleLevel(sam, pos + float2(-inputPt.x, inputPt.y), 0);
-	float4 d2 = conv2d_6_tf1.SampleLevel(sam, pos + float2(0, -inputPt.y), 0);
-	float4 e2 = conv2d_6_tf1.SampleLevel(sam, pos, 0);
-	float4 f2 = conv2d_6_tf1.SampleLevel(sam, pos + float2(0, inputPt.y), 0);
-	float4 g2 = conv2d_6_tf1.SampleLevel(sam, pos + float2(inputPt.x, -inputPt.y), 0);
-	float4 h2 = conv2d_6_tf1.SampleLevel(sam, pos + float2(inputPt.x, 0), 0);
-	float4 i2 = conv2d_6_tf1.SampleLevel(sam, pos + float2(inputPt.x, inputPt.y), 0);
+	float4 a2 = tex2.SampleLevel(sam, pos + float2(-inputPt.x, -inputPt.y), 0);
+	float4 b2 = tex2.SampleLevel(sam, pos + float2(-inputPt.x, 0), 0);
+	float4 c2 = tex2.SampleLevel(sam, pos + float2(-inputPt.x, inputPt.y), 0);
+	float4 d2 = tex2.SampleLevel(sam, pos + float2(0, -inputPt.y), 0);
+	float4 e2 = tex2.SampleLevel(sam, pos, 0);
+	float4 f2 = tex2.SampleLevel(sam, pos + float2(0, inputPt.y), 0);
+	float4 g2 = tex2.SampleLevel(sam, pos + float2(inputPt.x, -inputPt.y), 0);
+	float4 h2 = tex2.SampleLevel(sam, pos + float2(inputPt.x, 0), 0);
+	float4 i2 = tex2.SampleLevel(sam, pos + float2(inputPt.x, inputPt.y), 0);
 
 	float4 na2 = max(-a2, 0);
 	float4 nb2 = max(-b2, 0);
@@ -1301,102 +1277,17 @@ void Pass8(uint2 blockStart, uint3 threadId) {
 	target2 += mul(ni2, float4x4(0.14561136, -0.18995416, 0.18104567, 0.063063085, -0.09728072, 0.018328888, -0.17258182, 0.069259025, 0.15187183, 0.16760696, -0.14086077, 0.013297849, -0.07579904, -0.09294852, -0.24227127, -0.048749007));
 	target2 += float4(0.31939298, 0.03303962, -0.010749771, 0.084496394);
 
-	conv2d_7_tf[gxy] = target1;
-	conv2d_7_tf1[gxy] = target2;
+	float3 result = tex5.SampleLevel(sam, pos, 0).rgb;
+	result += mul(e1, float4x3(0.023055293, 0.028219413, 0.024810018, 0.031653803, 0.050207954, 0.04504577, 0.03877294, 0.0280465, 0.025589157, 0.0019387804, 0.023891818, 0.016049948));
+	result += mul(e2, float4x3(0.006562233, 0.03880659, 0.037682824, -0.021441424, -0.011277022, -0.012471097, -0.030526241, -0.013880651, -0.014213582, 0.0075785257, -0.0017350517, -0.0024610942));
+	result += mul(ne1, float4x3(0.015097556, 0.020325955, 0.015611413, -0.014755199, -0.034323387, -0.032325987, -0.008603291, 0.010346807, 0.011044969, -0.004739154, -0.026397636, -0.01995132));
+	result += mul(ne2, float4x3(0.0097906375, -0.015094543, -0.016887931, -0.0007786067, -0.0069163437, -0.008449091, 0.025534432, 0.018064791, 0.017047096, 0.00055667467, 0.001493328, 0.003636564));
+	result += mul(max(target1, 0), float4x3(-0.042251963, -0.042396102, -0.040224236, -0.004492444, -0.0069470624, -0.0065821502, 0.062203273, 0.06213223, 0.053592753, 0.06424337, 0.07964681, 0.07316769));
+	result += mul(max(target2, 0), float4x3(0.026366957, 0.02789826, 0.027239393, -0.006712127, -0.0035723334, -0.0032348586, -0.04960562, -0.062758155, -0.058574595, -0.02896146, -0.020999067, -0.021301663));
+	result += mul(max(-target1, 0), float4x3(-0.013106142, -0.017057793, -0.014653614, -0.04254173, -0.043040022, -0.041918345, -0.011146975, -0.0043820064, -0.003768677, -0.0027743059, -0.0114479, -0.0082087545));
+	result += mul(max(-target2, 0), float4x3(-0.10087762, -0.10447133, -0.1005168, -0.04165659, -0.04558967, -0.040086865, 0.0016493691, 0.0055392827, 0.0070476984, -0.018665023, -0.035552308, -0.03375731));
+	result += float3(0.018580848, -0.022256816, -0.0266178);
+	result += INPUT.SampleLevel(sam, pos, 0).rgb;
+
+	WriteToOutput(gxy, result);
 }
-
-//!PASS 9
-//!DESC Conv-3x1x1x112, Depth-to-Space
-//!IN INPUT, conv2d_1_tf, conv2d_1_tf1, conv2d_2_tf, conv2d_2_tf1, conv2d_3_tf, conv2d_3_tf1, conv2d_4_tf, conv2d_4_tf1, conv2d_5_tf, conv2d_5_tf1, conv2d_6_tf, conv2d_6_tf1, conv2d_7_tf, conv2d_7_tf1
-//!BLOCK_SIZE 8
-//!NUM_THREADS 64
-
-void Pass9(uint2 blockStart, uint3 threadId) {
-	uint2 gxy = Rmp8x8(threadId.x) + blockStart;
-	if (!CheckViewport(gxy)) {
-		return;
-	}
-
-	float2 inputPt = GetInputPt();
-	float2 pos = (gxy + 0.5f) * inputPt;
-
-    float4 g0 = conv2d_1_tf.SampleLevel(sam, pos, 0);
-    float4 g1 = conv2d_1_tf1.SampleLevel(sam, pos, 0);
-    float4 g2 = conv2d_2_tf.SampleLevel(sam, pos, 0);
-    float4 g3 = conv2d_2_tf1.SampleLevel(sam, pos, 0);
-    float4 g4 = conv2d_3_tf.SampleLevel(sam, pos, 0);
-    float4 g5 = conv2d_3_tf1.SampleLevel(sam, pos, 0);
-    float4 g6 = conv2d_4_tf.SampleLevel(sam, pos, 0);
-    float4 g7 = conv2d_4_tf1.SampleLevel(sam, pos, 0);
-    float4 g8 = conv2d_5_tf.SampleLevel(sam, pos, 0);
-    float4 g9 = conv2d_5_tf1.SampleLevel(sam, pos, 0);
-    float4 g10 = conv2d_6_tf.SampleLevel(sam, pos, 0);
-    float4 g11 = conv2d_6_tf1.SampleLevel(sam, pos, 0);
-    float4 g12 = conv2d_7_tf.SampleLevel(sam, pos, 0);
-    float4 g13 = conv2d_7_tf1.SampleLevel(sam, pos, 0);
-
-	float4 ng0 = max(-g0, 0);
-	float4 ng1 = max(-g1, 0);
-	float4 ng2 = max(-g2, 0);
-	float4 ng3 = max(-g3, 0);
-	float4 ng4 = max(-g4, 0);
-	float4 ng5 = max(-g5, 0);
-	float4 ng6 = max(-g6, 0);
-	float4 ng7 = max(-g7, 0);
-	float4 ng8 = max(-g8, 0);
-	float4 ng9 = max(-g9, 0);
-	float4 ng10 = max(-g10, 0);
-	float4 ng11 = max(-g11, 0);
-	float4 ng12 = max(-g12, 0);
-	float4 ng13 = max(-g13, 0);
-
-	g0 = max(g0, 0);
-	g1 = max(g1, 0);
-	g2 = max(g2, 0);
-	g3 = max(g3, 0);
-	g4 = max(g4, 0);
-	g5 = max(g5, 0);
-	g6 = max(g6, 0);
-	g7 = max(g7, 0);
-	g8 = max(g8, 0);
-	g9 = max(g9, 0);
-	g10 = max(g10, 0);
-	g11 = max(g11, 0);
-	g12 = max(g12, 0);
-	g13 = max(g13, 0);
-
-	float4 target = mul(g0, float4x4(0.121882804, 0.055417646, 0.037575886, 0.0, 0.040015355, 0.10440659, 0.120197006, 0.0, 0.008896276, 0.07269119, 0.09253319, 0.0, 0.009000448, -0.033739295, -0.059260685, 0.0));
-	target += mul(g1, float4x4(-0.048027042, 0.09210703, 0.123745404, 0.0, -0.007914943, 0.05483587, 0.054822505, 0.0, -0.005998682, 0.005822986, 0.009868176, 0.0, -0.05866792, -0.04236153, -0.022935968, 0.0));
-	target += mul(ng0, float4x4(-0.091270015, -0.033997003, -0.012321896, 0.0, -0.037983265, -0.078790314, -0.085029654, 0.0, 0.10656225, 0.0008334142, -0.0041227583, 0.0, 0.077364065, 0.033960085, 0.029391684, 0.0));
-	target += mul(ng1, float4x4(0.15057671, -0.037442014, -0.037083894, 0.0, 0.015493511, -0.016119987, -0.027061606, 0.0, -0.012329675, 0.0060544596, -0.019787522, 0.0, 0.12182345, 0.11346318, 0.08640806, 0.0));
-	target += mul(g2, float4x4(0.19254518, 0.009179287, 0.023821035, 0.0, 0.020269603, 0.025629226, 0.040180814, 0.0, -0.025135614, -0.07785793, -0.099851295, 0.0, -0.122886, 0.03322616, 0.0509256, 0.0));
-	target += mul(g3, float4x4(0.060054794, 0.053996198, 0.047226787, 0.0, 0.038959846, -0.025839888, -0.030583512, 0.0, -0.034999896, 0.011966571, -0.011057454, 0.0, 0.05765179, -0.041760337, -0.0694113, 0.0));
-	target += mul(ng2, float4x4(-0.20393562, -0.0055942894, -0.02089636, 0.0, 0.14781304, -0.01954523, -0.0746086, 0.0, 0.071556985, 0.07512172, 0.067927115, 0.0, 0.084076844, -0.0561336, -0.06856403, 0.0));
-	target += mul(ng3, float4x4(-0.039552618, -0.04448951, -0.04170605, 0.0, -0.00886809, 0.06708884, 0.07120977, 0.0, 0.04834384, -0.10599933, -0.11024835, 0.0, -0.015948117, 0.084044695, 0.10778199, 0.0));
-	target += mul(g4, float4x4(0.050153337, 0.012563414, 0.014994658, 0.0, 0.10498867, 0.07151875, 0.06761489, 0.0, 0.061650798, -0.035183728, -0.050987806, 0.0, 0.0017240314, 0.041055307, 0.020366805, 0.0));
-	target += mul(g5, float4x4(0.110105395, -0.044468552, -0.072567016, 0.0, -0.049364448, -0.015713394, -0.021540897, 0.0, -0.01636263, -0.084110685, -0.08281401, 0.0, -0.08940374, 0.047863875, 0.051104594, 0.0));
-	target += mul(ng4, float4x4(-0.081597924, 0.002422661, 0.01143175, 0.0, -0.07504751, -0.09938017, -0.1063178, 0.0, -0.10390281, 0.0262197, 0.060155805, 0.0, -0.24289346, -0.0054961476, 0.045964316, 0.0));
-	target += mul(ng5, float4x4(-0.1829316, 0.047622137, 0.07963877, 0.0, 0.048703995, -0.0026299425, -0.003712008, 0.0, 0.029338706, 0.096882835, 0.102083966, 0.0, 0.078538164, -0.07247937, -0.06820231, 0.0));
-	target += mul(g6, float4x4(-0.02302231, -0.035528302, -0.030674051, 0.0, 0.029780716, 0.031591274, 0.045867007, 0.0, 0.01335752, 0.037001595, 0.04351411, 0.0, -0.11126892, 0.038589563, 0.06444906, 0.0));
-	target += mul(g7, float4x4(0.0047764573, -0.063372664, -0.065609895, 0.0, 0.0478139, 0.025694113, 0.025097322, 0.0, -0.1019169, 0.029989049, 0.050038517, 0.0, 0.07504127, -0.017047737, -0.026222635, 0.0));
-	target += mul(ng6, float4x4(0.0024485083, 0.00640911, 0.008171829, 0.0, -0.014622121, -0.06078096, -0.0800138, 0.0, -0.0062360805, -0.014344496, -0.021332184, 0.0, 0.117842786, -0.103745885, -0.13756834, 0.0));
-	target += mul(ng7, float4x4(-0.01942775, 0.08720701, 0.104858086, 0.0, -0.05545872, -0.041375194, -0.035368554, 0.0, 0.080331706, -0.021207837, -0.043905254, 0.0, -0.12515299, 3.445463e-05, 0.018742712, 0.0));
-	target += mul(g8, float4x4(0.013106969, 0.010379314, 0.012753471, 0.0, 0.07086715, -0.020893, -0.03968904, 0.0, -0.06114372, 0.029510446, 0.035070244, 0.0, 0.11180839, -0.087067656, -0.124039896, 0.0));
-	target += mul(g9, float4x4(-0.056521703, -0.001166792, -2.3704073e-05, 0.0, 0.011961608, 0.01848977, 0.019861937, 0.0, 0.012167056, 0.018613879, 0.020505793, 0.0, 0.009734187, -0.0308419, -0.035206888, 0.0));
-	target += mul(ng8, float4x4(0.0048758825, 0.018046578, 0.014597015, 0.0, -0.061724614, 0.040989272, 0.05644141, 0.0, 0.070315465, 0.008318584, 0.0028647361, 0.0, -0.11316492, 0.043919202, 0.07653594, 0.0));
-	target += mul(ng9, float4x4(0.031487904, -0.010548384, -0.009984509, 0.0, -0.0022647562, 0.0043304027, 0.0029451603, 0.0, -0.0063251094, -0.013420807, -0.011919729, 0.0, -0.022760967, 0.019141173, 0.01782793, 0.0));
-	target += mul(g10, float4x4(0.023055293, 0.028219413, 0.024810018, 0.0, 0.031653803, 0.050207954, 0.04504577, 0.0, 0.03877294, 0.0280465, 0.025589157, 0.0, 0.0019387804, 0.023891818, 0.016049948, 0.0));
-	target += mul(g11, float4x4(0.006562233, 0.03880659, 0.037682824, 0.0, -0.021441424, -0.011277022, -0.012471097, 0.0, -0.030526241, -0.013880651, -0.014213582, 0.0, 0.0075785257, -0.0017350517, -0.0024610942, 0.0));
-	target += mul(ng10, float4x4(0.015097556, 0.020325955, 0.015611413, 0.0, -0.014755199, -0.034323387, -0.032325987, 0.0, -0.008603291, 0.010346807, 0.011044969, 0.0, -0.004739154, -0.026397636, -0.01995132, 0.0));
-	target += mul(ng11, float4x4(0.0097906375, -0.015094543, -0.016887931, 0.0, -0.0007786067, -0.0069163437, -0.008449091, 0.0, 0.025534432, 0.018064791, 0.017047096, 0.0, 0.00055667467, 0.001493328, 0.003636564, 0.0));
-	target += mul(g12, float4x4(-0.042251963, -0.042396102, -0.040224236, 0.0, -0.004492444, -0.0069470624, -0.0065821502, 0.0, 0.062203273, 0.06213223, 0.053592753, 0.0, 0.06424337, 0.07964681, 0.07316769, 0.0));
-	target += mul(g13, float4x4(0.026366957, 0.02789826, 0.027239393, 0.0, -0.006712127, -0.0035723334, -0.0032348586, 0.0, -0.04960562, -0.062758155, -0.058574595, 0.0, -0.02896146, -0.020999067, -0.021301663, 0.0));
-	target += mul(ng12, float4x4(-0.013106142, -0.017057793, -0.014653614, 0.0, -0.04254173, -0.043040022, -0.041918345, 0.0, -0.011146975, -0.0043820064, -0.003768677, 0.0, -0.0027743059, -0.0114479, -0.0082087545, 0.0));
-	target += mul(ng13, float4x4(-0.10087762, -0.10447133, -0.1005168, 0.0, -0.04165659, -0.04558967, -0.040086865, 0.0, 0.0016493691, 0.0055392827, 0.0070476984, 0.0, -0.018665023, -0.035552308, -0.03375731, 0.0));
-	target += float4(0.018580848, -0.022256816, -0.0266178, 0.0);
-
-	target += INPUT.SampleLevel(sam, pos, 0);
-
-	WriteToOutput(gxy, target.rgb);
-}
-
