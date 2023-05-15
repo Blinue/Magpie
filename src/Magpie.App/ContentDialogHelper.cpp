@@ -1,6 +1,5 @@
 #include "pch.h"
 #include "ContentDialogHelper.h"
-#include "App.h"
 
 using namespace winrt;
 using namespace Windows::UI::Xaml::Controls;
