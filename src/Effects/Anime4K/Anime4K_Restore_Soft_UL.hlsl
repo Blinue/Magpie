@@ -1,3 +1,6 @@
+// Anime4K_Restore_CNN_Soft_UL
+// Ported from https://github.com/bloc97/Anime4K/blob/4ba94b179a144200cb6b3052e690fe2ca5c6914c/glsl/Restore/Anime4K_Restore_CNN_Soft_UL.glsl
+
 //!MAGPIE EFFECT
 //!VERSION 3
 //!OUTPUT_WIDTH INPUT_WIDTH
@@ -2318,4 +2321,3 @@ void Pass9(uint2 blockStart, uint3 threadId) {
 
 	WriteToOutput(gxy, target.rgb);
 }
-
