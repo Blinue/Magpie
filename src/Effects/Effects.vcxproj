@@ -123,6 +123,12 @@
     <CopyFileToFolders Include="Anime4K\Anime4K_Restore_M.hlsl">
       <FileType>Document</FileType>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="Anime4K\Anime4K_Restore_Soft_UL.hlsl">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Anime4K\Anime4K_Restore_Soft_VL.hlsl">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
     <CopyFileToFolders Include="Anime4K\Anime4K_Restore_Soft_L.hlsl">
       <FileType>Document</FileType>
     </CopyFileToFolders>
@@ -130,6 +136,9 @@
       <FileType>Document</FileType>
     </CopyFileToFolders>
     <CopyFileToFolders Include="Anime4K\Anime4K_Restore_VL.hlsl">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="Anime4K\Anime4K_Restore_UL.hlsl">
       <FileType>Document</FileType>
     </CopyFileToFolders>
     <CopyFileToFolders Include="Anime4K\Anime4K_Thin_HQ.hlsl">
