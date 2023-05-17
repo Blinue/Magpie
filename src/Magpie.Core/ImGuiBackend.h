@@ -11,17 +11,27 @@
 // Read online: https://github.com/ocornut/imgui/tree/master/docs
 
 #pragma once
-#include <imgui.h>
+
+struct ImDrawData;
 
 namespace Magpie::Core {
 
-bool ImGui_ImplDX11_Init(ID3D11Device* device, ID3D11DeviceContext* device_context);
-void ImGui_ImplDX11_Shutdown();
-void ImGui_ImplDX11_NewFrame();
-void ImGui_ImplDX11_RenderDrawData(ImDrawData* draw_data);
+class ImGuiBackend {
+public:
+	ImGuiBackend() = default;
+	ImGuiBackend(const ImGuiBackend&) = delete;
+	ImGuiBackend(ImGuiBackend&&) = delete;
 
-// Use if you want to reset your rendering device without losing Dear ImGui state.
-void ImGui_ImplDX11_InvalidateDeviceObjects();
-bool ImGui_ImplDX11_CreateDeviceObjects();
+	~ImGuiBackend();
+
+	bool Initialize(ID3D11Device* device, ID3D11DeviceContext* device_context);
+
+	void NewFrame();
+	void RenderDrawData(ImDrawData* draw_data);
+
+	// Use if you want to reset your rendering device without losing Dear ImGui state.
+	void InvalidateDeviceObjects();
+	bool CreateDeviceObjects();
+};
 
 }

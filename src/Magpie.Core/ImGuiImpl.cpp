@@ -10,8 +10,9 @@
 #include "Logger.h"
 #include "Win32Utils.h"
 
-
 namespace Magpie::Core {
+
+ImGuiImpl::ImGuiImpl() {}
 
 ImGuiImpl::~ImGuiImpl() {
 	ImGuiIO& io = ImGui::GetIO();
@@ -25,7 +26,7 @@ ImGuiImpl::~ImGuiImpl() {
 		WaitForSingleObject(_hHookThread, 1000);
 	}
 
-	ImGui_ImplDX11_Shutdown();
+	_backend.reset();
 	ImGui::DestroyContext();
 }
 
@@ -160,7 +161,8 @@ bool ImGuiImpl::Initialize() {
 	io.ConfigFlags |= ImGuiConfigFlags_NavNoCaptureKeyboard | ImGuiConfigFlags_NoMouseCursorChange;
 
 	auto& dr = MagApp::Get().GetDeviceResources();
-	ImGui_ImplDX11_Init(dr.GetD3DDevice(), dr.GetD3DDC());
+	_backend = std::make_unique<ImGuiBackend>();
+	_backend->Initialize(dr.GetD3DDevice(), dr.GetD3DDC());
 
 	if (!dr.GetRenderTargetView(dr.GetBackBuffer(), &_rtv)) {
 		Logger::Get().Error("GetRenderTargetView 失败");
@@ -230,7 +232,7 @@ void ImGuiImpl::NewFrame() {
 
 	bool originWantCaptureMouse = io.WantCaptureMouse;
 
-	ImGui_ImplDX11_NewFrame();
+	_backend->NewFrame();
 	ImGui::NewFrame();
 
 	// 将所有 ImGUI 窗口限制在视口内
@@ -277,7 +279,7 @@ void ImGuiImpl::EndFrame() {
 
 	auto d3dDC = MagApp::Get().GetDeviceResources().GetD3DDC();
 	d3dDC->OMSetRenderTargets(1, &_rtv, NULL);
-	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+	_backend->RenderDrawData(ImGui::GetDrawData());
 }
 
 void ImGuiImpl::Tooltip(const char* content, float maxWidth) {
@@ -336,7 +338,7 @@ void ImGuiImpl::ClearStates() {
 }
 
 void ImGuiImpl::InvalidateDeviceObjects() {
-	ImGui_ImplDX11_InvalidateDeviceObjects();
+	_backend->InvalidateDeviceObjects();
 }
 
 }
