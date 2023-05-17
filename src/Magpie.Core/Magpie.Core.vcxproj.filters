@@ -56,7 +56,7 @@
     <ClInclude Include="OverlayDrawer.h">
       <Filter>Overlay</Filter>
     </ClInclude>
-    <ClInclude Include="imgui_impl_dx11.h">
+    <ClInclude Include="ImGuiBackend.h">
       <Filter>Overlay</Filter>
     </ClInclude>
     <ClInclude Include="ImGuiImpl.h">
@@ -121,7 +121,7 @@
     <ClCompile Include="OverlayDrawer.cpp">
       <Filter>Overlay</Filter>
     </ClCompile>
-    <ClCompile Include="imgui_impl_dx11.cpp">
+    <ClCompile Include="ImGuiBackend.cpp">
       <Filter>Overlay</Filter>
     </ClCompile>
     <ClCompile Include="ImGuiImpl.cpp">

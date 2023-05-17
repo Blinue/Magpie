@@ -15,5 +15,3 @@ fmt:header_only=True
 spdlog:header_only=True
 spdlog:no_exceptions=True
 
-[imports]
-./res/bindings, imgui_impl_dx11.* -> ../../../../src/Magpie.Core
