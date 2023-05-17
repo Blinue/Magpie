@@ -547,7 +547,6 @@
     <PRIResource Include="Resources.language-en-US.resw" />
     <PRIResource Include="Resources.language-es.resw" />
     <PRIResource Include="Resources.language-ja.resw" />
-    <PRIResource Include="Resources.language-pt.resw" />
     <PRIResource Include="Resources.language-ru.resw" />
     <PRIResource Include="Resources.language-tr.resw" />
     <PRIResource Include="Resources.language-uk.resw" />
